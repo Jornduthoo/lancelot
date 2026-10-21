@@ -92,6 +92,9 @@ function parseAiText(raw) {
   } catch {
     throw new Error('De geplakte tekst is geen geldige JSON. Vraag de AI om "alleen de JSON" en probeer opnieuw.');
   }
+  if (data && data.title === 'korte titel van de quiz') {
+    throw new Error('Dit is de prompt zelf. Plak hier het antwoord dat de AI teruggeeft.');
+  }
   return validate(data);
 }
 

@@ -1,0 +1,10 @@
+{
+  "title": "Voorbeeldquiz: België",
+  "questions": [
+    { "question": "Wat is de hoofdstad van België?", "answers": ["Antwerpen", "Brussel", "Gent", "Luik"], "correct": 1, "time": 20 },
+    { "question": "Hoeveel provincies heeft België?", "answers": ["9", "10", "11", "12"], "correct": 1, "time": 20 },
+    { "question": "In welk jaar werd België onafhankelijk?", "answers": ["1815", "1830", "1848", "1914"], "correct": 1, "time": 20 },
+    { "question": "Welke rivier stroomt door Antwerpen?", "answers": ["De Maas", "De Leie", "De Schelde", "De IJzer"], "correct": 2, "time": 20 },
+    { "question": "België heeft drie officiële talen.", "answers": ["Waar", "Niet waar"], "correct": 0, "time": 15 }
+  ]
+}

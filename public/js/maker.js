@@ -3,23 +3,28 @@
 
 let editingFile = null;
 
+// Toegevoegde lesstof: { name, mimeType, data (base64), size }
+let sources = [];
+const MAX_SOURCE_BYTES = 15 * 1024 * 1024;
+
 function buildPrompt() {
-  const topic = $('m-topic').value.trim() || '[ONDERWERP]';
+  const hasSources = sources.length > 0;
+  const topic = $('m-topic').value.trim() || (hasSources ? 'de bijgevoegde lesstof' : '[ONDERWERP]');
   const level = $('m-level').value;
   const count = Math.min(40, Math.max(3, Number($('m-count').value) || 10));
   const time = Math.min(120, Math.max(5, Number($('m-time').value) || 20));
   const extra = $('m-extra').value.trim();
-  return `Je bent een ervaren docent. Maak een quiz voor leerlingen van ${level} over: ${topic}.
-${extra ? `\nExtra wensen van de docent:\n${extra}\n` : ''}
+  return `Je bent een ervaren leerkracht in Vlaanderen. Maak een quiz voor leerlingen uit: ${level} (Belgisch onderwijs). Onderwerp: ${topic}.
+${hasSources ? `\nBaseer alle vragen op de bijgevoegde lesstof (${sources.length === 1 ? 'het bijgevoegde bestand' : `de ${sources.length} bijgevoegde bestanden`}). Vraag alleen naar dingen die daarin staan.\n` : ''}${extra ? `\nExtra wensen van de docent:\n${extra}\n` : ''}
 Regels:
-- Maak precies ${count} meerkeuzevragen in het Nederlands.
+- Maak precies ${count} meerkeuzevragen in het Nederlands zoals in Vlaanderen.
 - Elke vraag heeft 4 antwoorden (bij een waar/niet waar-vraag 2), met precies één goed antwoord.
 - Zet het goede antwoord niet steeds op dezelfde plek.
 - De foute antwoorden zijn geloofwaardig, maar duidelijk fout voor wie de stof kent.
 - Houd vragen kort (hooguit 120 tekens) en antwoorden heel kort (hooguit 60 tekens).
 - Pas de moeilijkheid en het taalgebruik aan het niveau ${level} aan.
 
-Geef ALLEEN de JSON terug, zonder uitleg ervoor of erna, precies in dit formaat:
+Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uitleg ervoor of erna, precies in dit formaat:
 {
   "title": "korte titel van de quiz",
   "questions": [
@@ -32,14 +37,65 @@ Geef ALLEEN de JSON terug, zonder uitleg ervoor of erna, precies in dit formaat:
 function updatePrompt() {
   $('m-prompt').value = buildPrompt();
   $('m-copied').textContent = '';
+  $('m-attach-note').classList.toggle('hidden', sources.length === 0);
 }
+
+function renderSources() {
+  const list = $('m-file-list');
+  list.innerHTML = '';
+  sources.forEach((src, i) => {
+    const li = document.createElement('li');
+    li.innerHTML = `<span></span><button class="secondary" title="Verwijderen">✕</button>`;
+    li.querySelector('span').textContent = `${src.name} (${Math.ceil(src.size / 1024)} kB)`;
+    li.querySelector('button').addEventListener('click', () => {
+      sources.splice(i, 1);
+      renderSources();
+    });
+    list.appendChild(li);
+  });
+  updatePrompt();
+}
+
+function addSource(file) {
+  if (!/^image\/|^application\/pdf$/.test(file.type)) {
+    $('m-error').textContent = `${file.name}: alleen afbeeldingen en pdf's kunnen als lesstof.`;
+    return;
+  }
+  const total = sources.reduce((sum, s) => sum + s.size, 0) + file.size;
+  if (total > MAX_SOURCE_BYTES) {
+    $('m-error').textContent = 'De lesstof is samen groter dan 15 MB. Kies minder of kleinere bestanden.';
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = () => {
+    sources.push({ name: file.name, mimeType: file.type, size: file.size, data: reader.result.split(',')[1] });
+    renderSources();
+  };
+  reader.readAsDataURL(file);
+}
+
+$('m-files').addEventListener('change', e => {
+  $('m-error').textContent = '';
+  [...e.target.files].forEach(addSource);
+  e.target.value = '';
+});
+
+// Screenshot plakken met Ctrl+V terwijl de quizmaker open staat.
+document.addEventListener('paste', e => {
+  if (view !== 'maker' || e.target.id === 'm-answer') return;
+  const files = [...(e.clipboardData?.files || [])];
+  if (files.length === 0) return;
+  e.preventDefault();
+  files.forEach((f, i) => addSource(new File([f], f.name === 'image.png' ? `screenshot-${sources.length + i + 1}.png` : f.name, { type: f.type })));
+});
 
 for (const id of ['m-topic', 'm-level', 'm-count', 'm-time', 'm-extra']) {
   $(id).addEventListener('input', updatePrompt);
 }
 
 $('new-ai').addEventListener('click', () => {
-  updatePrompt();
+  sources = [];
+  renderSources();
   $('m-error').textContent = '';
   show('maker');
 });
@@ -52,26 +108,69 @@ for (const b of document.querySelectorAll('[data-back]')) {
   b.addEventListener('click', () => show('idle'));
 }
 
-$('m-copy').addEventListener('click', async () => {
+async function copyPrompt() {
   try {
     await navigator.clipboard.writeText($('m-prompt').value);
   } catch {
     $('m-prompt').select();
     document.execCommand('copy');
   }
-  $('m-copied').textContent = 'Gekopieerd! Plak hem nu in de chatbot.';
-});
+  promptCopied = true;
+  lastClipboard = $('m-prompt').value;
+  $('m-copied').textContent = 'Gekopieerd! Plak hem in de chatbot, kopieer het antwoord (de kopieerknop van het codeblok) en kom hier terug.';
+}
 
-$('m-parse').addEventListener('click', () => {
-  socket.emit('parse', $('m-answer').value, res => {
+$('m-copy').addEventListener('click', copyPrompt);
+
+for (const b of document.querySelectorAll('.chatbot')) {
+  b.addEventListener('click', () => {
+    // Het tabblad meteen openen, anders blokkeert de browser het als pop-up.
+    window.open(b.dataset.url, '_blank', 'noopener');
+    copyPrompt();
+  });
+}
+
+function parseAnswer(text, quiet) {
+  socket.emit('parse', text, res => {
     if (res.error) {
-      $('m-error').textContent = res.error;
+      if (!quiet) $('m-error').textContent = res.error;
       return;
     }
     $('m-error').textContent = '';
     $('m-answer').value = '';
     openEditor(res.quiz, null);
   });
+}
+
+$('m-parse').addEventListener('click', () => parseAnswer($('m-answer').value, false));
+
+// Plakken in het antwoordvak: meteen controleren, zonder op de knop te drukken.
+$('m-answer').addEventListener('paste', () => {
+  setTimeout(() => parseAnswer($('m-answer').value, false), 0);
+});
+
+// Terug uit de chatbot? Dan kijken we of het gekopieerde antwoord al op het klembord staat.
+// De browser vraagt hier de eerste keer toestemming voor; zonder toestemming blijft plakken werken.
+let promptCopied = false;
+let lastClipboard = '';
+
+async function checkClipboard() {
+  if (view !== 'maker' || !promptCopied || !navigator.clipboard?.readText) return;
+  let text;
+  try {
+    text = await navigator.clipboard.readText();
+  } catch {
+    return;
+  }
+  if (!text || text === lastClipboard || text === $('m-prompt').value || !text.includes('"questions"')) return;
+  lastClipboard = text;
+  $('m-copied').textContent = 'Antwoord van de AI gevonden op het klembord!';
+  parseAnswer(text, false);
+}
+
+window.addEventListener('focus', checkClipboard);
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') checkClipboard();
 });
 
 function editQuiz(file) {
@@ -178,3 +277,52 @@ function saveEditor(play) {
 
 $('e-save').addEventListener('click', () => saveEditor(false));
 $('e-play').addEventListener('click', () => saveEditor(true));
+
+// --- Instellingen en Gemini ---
+
+socket.on('settings', s => {
+  $('s-status').textContent = s.hasKey ? `Er is een sleutel opgeslagen (${s.keyHint}).` : 'Er is nog geen sleutel opgeslagen.';
+  $('s-model').value = s.geminiModel;
+  $('s-remove').classList.toggle('hidden', !s.hasKey);
+  $('m-gemini-panel').classList.toggle('hidden', !s.hasKey);
+});
+
+$('open-settings').addEventListener('click', () => {
+  $('s-key').value = '';
+  $('s-error').textContent = '';
+  show('settings');
+});
+
+function saveSettings(changes) {
+  socket.emit('save-settings', changes, res => {
+    $('s-error').textContent = res.error || '';
+    if (!res.error) $('s-key').value = '';
+  });
+}
+
+$('s-save').addEventListener('click', () => {
+  const changes = { geminiModel: $('s-model').value };
+  if ($('s-key').value.trim()) changes.geminiKey = $('s-key').value;
+  saveSettings(changes);
+});
+
+$('s-remove').addEventListener('click', () => {
+  if (confirm('De Gemini-sleutel verwijderen van deze pc?')) saveSettings({ geminiKey: '' });
+});
+
+$('m-gemini').addEventListener('click', () => {
+  const button = $('m-gemini');
+  button.disabled = true;
+  $('m-gemini-error').textContent = '';
+  $('m-gemini-busy').textContent = 'Gemini is bezig, dit duurt meestal 10 tot 60 seconden…';
+  const files = sources.map(({ mimeType, data }) => ({ mimeType, data }));
+  socket.emit('generate', { prompt: buildPrompt(), files }, res => {
+    button.disabled = false;
+    $('m-gemini-busy').textContent = '';
+    if (res.error) {
+      $('m-gemini-error').textContent = res.error;
+      return;
+    }
+    openEditor(res.quiz, null);
+  });
+});

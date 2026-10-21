@@ -4,13 +4,17 @@ const path = require('path');
 const express = require('express');
 const { Server } = require('socket.io');
 const { Game } = require('./src/game');
+const QRCode = require('qrcode');
 const quizzes = require('./src/quizzes');
+const settings = require('./src/settings');
+const { generateQuiz } = require('./src/gemini');
 
 const PORT = Number(process.env.PORT) || 3000;
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server);
+// Ruim genoeg voor lesstof (screenshots en pdf's) die naar Gemini gaat.
+const io = new Server(server, { maxHttpBufferSize: 30e6 });
 const game = new Game(io);
 
 // Het docentenscherm werkt alleen op de pc waar de server draait.
@@ -41,7 +45,10 @@ io.on('connection', socket => {
   if (host) {
     socket.join('host');
     socket.emit('quizzes', quizzes.list());
-    socket.emit('addresses', lanAddresses().map(a => `http://${a}:${PORT}`));
+    const urls = lanAddresses().map(a => `http://${a}:${PORT}`);
+    Promise.all(urls.map(url => QRCode.toString(url, { type: 'svg', margin: 1 })))
+      .then(qrs => socket.emit('addresses', urls.map((url, i) => ({ url, qr: qrs[i] }))));
+    socket.emit('settings', settings.publicView());
     socket.emit('state', game.hostState());
 
     socket.on('load', (file, cb) => {
@@ -73,6 +80,21 @@ io.on('connection', socket => {
       refreshList();
       return {};
     }));
+
+    // Eigen Gemini-sleutel (optioneel). De sleutel gaat nooit terug naar de browser.
+    socket.on('save-settings', handle(({ geminiKey, geminiModel } = {}) => {
+      const changes = {};
+      if (typeof geminiKey === 'string') changes.geminiKey = geminiKey.trim().slice(0, 200);
+      if (typeof geminiModel === 'string' && /^[\w.-]{1,80}$/.test(geminiModel.trim())) changes.geminiModel = geminiModel.trim();
+      settings.write(changes);
+      io.to('host').emit('settings', settings.publicView());
+      return {};
+    }));
+    socket.on('generate', ({ prompt, files } = {}, cb) => {
+      generateQuiz(prompt, files)
+        .then(quiz => cb && cb({ ok: true, quiz }))
+        .catch(err => cb && cb({ error: err.message }));
+    });
 
     socket.on('start', () => game.start());
     socket.on('next', () => game.next());

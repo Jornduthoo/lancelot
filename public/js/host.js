@@ -12,7 +12,7 @@ let view = 'idle';
 
 function show(name) {
   view = name;
-  for (const s of ['idle', 'maker', 'editor', 'lobby', 'question', 'podium']) $(s).classList.toggle('hidden', s !== name);
+  for (const s of ['idle', 'settings', 'maker', 'editor', 'lobby', 'question', 'podium']) $(s).classList.toggle('hidden', s !== name);
 }
 
 function loadQuiz(file) {
@@ -41,10 +41,26 @@ socket.on('quizzes', list => {
   }
 });
 
-socket.on('addresses', urls => {
-  $('join-url').textContent = urls[0] || 'Geen netwerk gevonden';
-  $('other-urls').textContent = urls.length > 1 ? `of: ${urls.slice(1).join(', ')}` : '';
-});
+// Het eerste adres is meestal het goede. Klik op een ander adres om de QR-code daarvoor te tonen.
+function showAddress(list, i) {
+  const main = list[i];
+  $('join-url').textContent = main ? main.url : 'Geen netwerk gevonden';
+  $('qr').innerHTML = main ? main.qr : '';
+  const others = $('other-urls');
+  others.innerHTML = '';
+  list.forEach((a, j) => {
+    if (j === i) return;
+    if (!others.textContent) others.append('Werkt dit niet? Probeer ');
+    else others.append(' of ');
+    const link = document.createElement('a');
+    link.href = '#';
+    link.textContent = a.url;
+    link.addEventListener('click', e => { e.preventDefault(); showAddress(list, j); });
+    others.append(link);
+  });
+}
+
+socket.on('addresses', list => showAddress(list, 0));
 
 function renderLobby() {
   const n = state.ranking.length;
@@ -94,7 +110,7 @@ socket.on('state', s => {
   state = s;
   $('status').textContent = s.title || '';
   // In de quizmaker blijven we staan; anders terug naar de quizlijst.
-  if (s.phase === 'idle' && view !== 'maker' && view !== 'editor') show('idle');
+  if (s.phase === 'idle' && !['settings', 'maker', 'editor'].includes(view)) show('idle');
   if (s.phase === 'lobby') { renderLobby(); show('lobby'); }
   if (s.phase === 'question' || s.phase === 'reveal') { renderQuestion(); show('question'); }
   if (s.phase === 'podium') { renderPodium(); show('podium'); }

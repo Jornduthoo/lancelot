@@ -67,7 +67,8 @@ input {
   text-align: center;
 }
 
-.error { color: #ff8a80; min-height: 1.4em; }
+.error { color: #ff8a80; margin: 0; }
+.error:empty { display: none; }
 
 /* Antwoordknoppen en -vakken */
 .answers { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
@@ -102,6 +103,11 @@ input {
 .result-bad { background: var(--a0); }
 
 /* Docentenscherm */
+.join { display: flex; align-items: center; gap: 28px; flex-wrap: wrap; justify-content: center; }
+.join-text { flex: 1; min-width: 260px; text-align: center; }
+.qr { width: 220px; height: 220px; background: #fff; border-radius: 12px; padding: 8px; flex: none; }
+.qr:empty { display: none; }
+.qr svg { width: 100%; height: 100%; display: block; }
 .join-url { font-size: 2.6rem; font-weight: 800; color: var(--accent); word-break: break-all; }
 .names { display: flex; flex-wrap: wrap; gap: 10px; }
 .names .name { background: var(--panel); padding: 8px 14px; border-radius: 999px; cursor: pointer; }
@@ -123,6 +129,12 @@ input {
 .actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 
 /* Quizmaker en editor */
+.sources { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+.form label.file-button { display: inline-block; background: var(--accent); color: #1d1b3a; padding: 10px 18px; border-radius: 12px; cursor: pointer; font-weight: 700; }
+.file-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 6px; width: 100%; }
+.file-list li { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,.08); padding: 6px 6px 6px 12px; border-radius: 10px; }
+.file-list button { padding: 4px 12px; }
+.notice { background: rgba(255,204,51,.15); border-left: 4px solid var(--accent); padding: 10px 12px; border-radius: 8px; margin: 0; }
 h3 { margin: 0; }
 a { color: var(--accent); }
 .small { font-size: .9rem; margin: 0; }
