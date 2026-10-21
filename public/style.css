@@ -143,6 +143,7 @@ a { color: var(--accent); }
 .form { display: flex; flex-direction: column; gap: 12px; }
 .form label { display: flex; flex-direction: column; gap: 6px; font-weight: 600; }
 .form label.inline { flex-direction: row; align-items: center; font-weight: 400; }
+.form label.check input { width: 20px; height: 20px; flex: none; }
 .form .row { display: flex; gap: 12px; flex-wrap: wrap; }
 .form .row label { flex: 1; min-width: 160px; }
 .form input, .form select, .form textarea {

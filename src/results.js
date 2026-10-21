@@ -30,10 +30,13 @@ function save(game) {
     .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40) || 'quiz';
 
   const players = [...game.players.values()].sort((a, b) => b.score - a.score);
+  // Bij een gestopte quiz zijn de latere vragen niet gespeeld.
+  const played = game.phase === 'podium' ? quiz.questions.length : game.index + 1;
   const lines = [
     row(['Quiz', quiz.title]),
     row(['Datum', `${pad(now.getDate())}/${pad(now.getMonth() + 1)}/${now.getFullYear()} ${pad(now.getHours())}:${pad(now.getMinutes())}`]),
     row(['Leerlingen', players.length]),
+    ...(played < quiz.questions.length ? [row(['Status', `gestopt na vraag ${played} van ${quiz.questions.length}`])] : []),
     '',
     row(['Rang', 'Naam', 'Score', 'Aantal goed', ...quiz.questions.map((_, i) => `Vraag ${i + 1}`)]),
     ...players.map((p, i) => row([
@@ -42,6 +45,7 @@ function save(game) {
       p.score,
       p.results.filter(r => r && r.correct).length,
       ...quiz.questions.map((_, q) => {
+        if (q >= played) return 'niet gespeeld';
         const r = p.results[q];
         if (!r || r.answer === null) return 'geen antwoord';
         return `${r.correct ? 'goed' : 'fout'} (${LETTERS[r.answer]})`;
@@ -55,7 +59,7 @@ function save(game) {
         i + 1,
         q.question,
         `${LETTERS[q.correct]}: ${q.answers[q.correct]}`,
-        players.length ? `${Math.round((good / players.length) * 100)}%` : '-',
+        i >= played ? 'niet gespeeld' : players.length ? `${Math.round((good / players.length) * 100)}%` : '-',
       ]);
     }),
   ];

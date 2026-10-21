@@ -122,7 +122,8 @@ io.on('connection', socket => {
     socket.on('reveal', () => game.reveal());
     socket.on('kick', id => game.kick(id));
     socket.on('restart', () => game.quiz && game.load(game.quiz));
-    socket.on('close', () => { game.reset(); io.to('players').emit('reset', { open: false }); game.broadcast(); });
+    socket.on('close', () => game.stop());
+    socket.on('stop', (_, cb) => cb && cb({ file: game.stop() }));
     return;
   }
 

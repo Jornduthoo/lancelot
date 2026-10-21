@@ -133,9 +133,30 @@ function renderPodium() {
     .map((p, i) => `<li><span>${i + 4}. ${esc(p.name)}</span><span>${p.score}</span></li>`).join('');
 }
 
+// Stoppen kan altijd tijdens een quiz; de leerkracht komt dan terug op het startscherm.
+$('stop').addEventListener('click', () => {
+  if (!confirm('Quiz stoppen en terug naar het startscherm?')) return;
+  socket.emit('stop', null, res => {
+    const note = $('stopped');
+    note.innerHTML = '';
+    note.append('Quiz gestopt.');
+    if (res && res.file) {
+      note.append(' De resultaten tot nu toe zijn bewaard. ');
+      const link = document.createElement('a');
+      link.href = `/resultaten/${encodeURIComponent(res.file)}`;
+      link.download = res.file;
+      link.textContent = 'Download voor Excel';
+      note.append(link);
+    }
+    note.classList.remove('hidden');
+  });
+});
+
 socket.on('state', s => {
   state = s;
   $('status').textContent = s.title || '';
+  $('stop').classList.toggle('hidden', !['lobby', 'question', 'reveal'].includes(s.phase));
+  if (s.phase !== 'idle') $('stopped').classList.add('hidden');
   // In de quizmaker blijven we staan; anders terug naar de quizlijst.
   if (s.phase === 'idle' && !['results', 'settings', 'maker', 'editor'].includes(view)) show('idle');
   if (s.phase === 'lobby') { renderLobby(); show('lobby'); }

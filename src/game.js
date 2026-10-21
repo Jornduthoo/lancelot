@@ -123,6 +123,24 @@ class Game {
     this.broadcast();
   }
 
+  // Quiz voortijdig stoppen. Wat al gespeeld is, wordt bewaard. Geeft de bestandsnaam terug (of null).
+  stop() {
+    let file = null;
+    if (this.index >= 0 && this.players.size > 0 && this.phase !== 'podium') {
+      // Een open vraag eerst afsluiten, zodat de antwoorden meetellen.
+      if (this.phase === 'question') this.reveal();
+      try {
+        file = this.onFinish ? this.onFinish(this) : null;
+      } catch (err) {
+        console.error('Resultaten opslaan mislukt:', err.message);
+      }
+    }
+    this.reset();
+    this.io.to('players').emit('reset', { open: false });
+    this.broadcast();
+    return file;
+  }
+
   ranking() {
     return [...this.players.entries()]
       .map(([id, p]) => ({ id, name: p.name, score: p.score }))

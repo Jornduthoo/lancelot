@@ -8,14 +8,16 @@ let sources = [];
 const MAX_SOURCE_BYTES = 15 * 1024 * 1024;
 
 function buildPrompt() {
-  const hasSources = sources.length > 0;
+  // Met sleutel gaat de lesstof mee naar Gemini; zonder sleutel voegt de leerkracht hem zelf toe in de chatbot.
+  const attachInChatbot = !hasKey && $('m-attach').checked;
+  const hasSources = sources.length > 0 || attachInChatbot;
   const topic = $('m-topic').value.trim() || (hasSources ? 'de bijgevoegde lesstof' : '[ONDERWERP]');
   const level = $('m-level').value;
   const count = Math.min(40, Math.max(3, Number($('m-count').value) || 10));
   const time = Math.min(120, Math.max(5, Number($('m-time').value) || 20));
   const extra = $('m-extra').value.trim();
   return `Je bent een ervaren leerkracht in Vlaanderen. Maak een quiz voor leerlingen uit: ${level} (Belgisch onderwijs). Onderwerp: ${topic}.
-${hasSources ? `\nBaseer alle vragen op de bijgevoegde lesstof (${sources.length === 1 ? 'het bijgevoegde bestand' : `de ${sources.length} bijgevoegde bestanden`}). Vraag alleen naar dingen die daarin staan.\n` : ''}${extra ? `\nExtra wensen van de docent:\n${extra}\n` : ''}
+${hasSources ? '\nBaseer alle vragen op de bijgevoegde lesstof. Vraag alleen naar dingen die daarin staan.\n' : ''}${extra ? `\nExtra wensen van de docent:\n${extra}\n` : ''}
 Regels:
 - Maak precies ${count} meerkeuzevragen in het Nederlands zoals in Vlaanderen.
 - Elke vraag heeft 4 antwoorden (bij een waar/niet waar-vraag 2), met precies één goed antwoord.
@@ -37,7 +39,8 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
 function updatePrompt() {
   $('m-prompt').value = buildPrompt();
   $('m-copied').textContent = '';
-  $('m-attach-note').classList.toggle('hidden', sources.length === 0);
+  const attach = hasKey ? sources.length > 0 : $('m-attach').checked;
+  $('m-attach-note').classList.toggle('hidden', !attach);
 }
 
 function renderSources() {
@@ -82,19 +85,22 @@ $('m-files').addEventListener('change', e => {
 
 // Screenshot plakken met Ctrl+V terwijl de quizmaker open staat.
 document.addEventListener('paste', e => {
-  if (view !== 'maker' || e.target.id === 'm-answer') return;
+  if (view !== 'maker' || !hasKey || e.target.id === 'm-answer') return;
   const files = [...(e.clipboardData?.files || [])];
   if (files.length === 0) return;
   e.preventDefault();
   files.forEach((f, i) => addSource(new File([f], f.name === 'image.png' ? `screenshot-${sources.length + i + 1}.png` : f.name, { type: f.type })));
 });
 
-for (const id of ['m-topic', 'm-level', 'm-count', 'm-time', 'm-extra']) {
+let hasKey = false;
+
+for (const id of ['m-topic', 'm-level', 'm-count', 'm-time', 'm-extra', 'm-attach']) {
   $(id).addEventListener('input', updatePrompt);
 }
 
 $('new-ai').addEventListener('click', () => {
   sources = [];
+  $('m-attach').checked = false;
   renderSources();
   $('m-error').textContent = '';
   show('maker');
@@ -285,6 +291,10 @@ socket.on('settings', s => {
   $('s-model').value = s.geminiModel;
   $('s-remove').classList.toggle('hidden', !s.hasKey);
   $('m-gemini-panel').classList.toggle('hidden', !s.hasKey);
+  hasKey = s.hasKey;
+  $('m-sources-attach').classList.toggle('hidden', hasKey);
+  $('m-sources-upload').classList.toggle('hidden', !hasKey);
+  updatePrompt();
 });
 
 $('open-settings').addEventListener('click', () => {

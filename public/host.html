@@ -10,7 +10,10 @@
 <main>
   <div class="bar">
     <div class="logo">LAN<span>celot</span></div>
-    <div class="muted" id="status"></div>
+    <div class="actions">
+      <span class="muted" id="status"></span>
+      <button class="secondary hidden" id="stop">Stop quiz</button>
+    </div>
   </div>
 
   <section id="idle">
@@ -23,6 +26,7 @@
         <button id="new-ai">Nieuwe quiz met AI</button>
       </div>
     </div>
+    <p class="notice hidden" id="stopped"></p>
     <div class="quiz-list" id="quiz-list"></div>
     <p class="error" id="load-error"></p>
   </section>
@@ -92,9 +96,14 @@
         <label>Aantal vragen<input id="m-count" type="number" min="3" max="40" value="10"></label>
         <label>Seconden per vraag<input id="m-time" type="number" min="5" max="120" value="20"></label>
       </div>
-      <div class="sources">
+      <div class="sources" id="m-sources-attach">
         <strong>Lesstof (mag leeg)</strong>
-        <p class="muted small">Voeg een screenshot van het bordboek, een foto of een pdf toe. Je kunt een screenshot ook plakken met Ctrl+V.</p>
+        <label class="inline check"><input type="checkbox" id="m-attach"> Ik voeg een screenshot van het bordboek of een pdf toe in de chatbot</label>
+        <p class="muted small">Tip: met een eigen Gemini-sleutel (Instellingen) upload je de lesstof hier en maakt LANcelot de quiz in één klik.</p>
+      </div>
+      <div class="sources hidden" id="m-sources-upload">
+        <strong>Lesstof (mag leeg)</strong>
+        <p class="muted small">Voeg een screenshot van het bordboek, een foto of een pdf toe. Je kunt een screenshot ook plakken met Ctrl+V. Gemini maakt de vragen dan op basis van die lesstof.</p>
         <label class="file-button"><input id="m-files" type="file" accept="image/*,application/pdf" multiple hidden>Bestand kiezen</label>
         <ul class="file-list" id="m-file-list"></ul>
       </div>
@@ -103,7 +112,7 @@
     <div class="panel form">
       <h3>2. Kopieer de prompt naar een AI</h3>
       <p class="muted">Klik op een chatbot: de prompt wordt gekopieerd en de chatbot opent in een nieuw tabblad. Plak de prompt daar met Ctrl+V.</p>
-      <p class="notice hidden" id="m-attach-note">Let op: voeg je lesstof ook toe in de chatbot, met het paperclip- of plusje-icoon naast het tekstvak.</p>
+      <p class="notice hidden" id="m-attach-note">Sleep je screenshot of pdf in de chatbot, of voeg hem toe met het paperclip- of plusje-icoon naast het tekstvak.</p>
       <textarea id="m-prompt" rows="8" readonly></textarea>
       <div class="actions">
         <button class="chatbot" data-url="https://gemini.google.com/app">Gemini</button>
