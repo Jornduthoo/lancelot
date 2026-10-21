@@ -289,6 +289,7 @@ $('e-play').addEventListener('click', () => saveEditor(true));
 socket.on('settings', s => {
   $('s-status').textContent = s.hasKey ? `Er is een sleutel opgeslagen (${s.keyHint}).` : 'Er is nog geen sleutel opgeslagen.';
   $('s-model').value = s.geminiModel;
+  $('s-auto-model').textContent = s.geminiAutoModel ? `Nu in gebruik: ${s.geminiAutoModel}.` : '';
   $('s-remove').classList.toggle('hidden', !s.hasKey);
   $('m-gemini-panel').classList.toggle('hidden', !s.hasKey);
   hasKey = s.hasKey;

@@ -105,8 +105,14 @@ io.on('connection', socket => {
     // Eigen Gemini-sleutel (optioneel). De sleutel gaat nooit terug naar de browser.
     socket.on('save-settings', handle(({ geminiKey, geminiModel } = {}) => {
       const changes = {};
-      if (typeof geminiKey === 'string') changes.geminiKey = geminiKey.trim().slice(0, 200);
-      if (typeof geminiModel === 'string' && /^[\w.-]{1,80}$/.test(geminiModel.trim())) changes.geminiModel = geminiModel.trim();
+      if (typeof geminiKey === 'string') {
+        changes.geminiKey = geminiKey.trim().slice(0, 200);
+        changes.geminiAutoModel = '';
+      }
+      if (typeof geminiModel === 'string') {
+        const model = geminiModel.trim() || 'auto';
+        if (/^[\w.-]{1,80}$/.test(model)) changes.geminiModel = model;
+      }
       settings.write(changes);
       io.to('host').emit('settings', settings.publicView());
       return {};
@@ -114,6 +120,7 @@ io.on('connection', socket => {
     socket.on('generate', ({ prompt, files } = {}, cb) => {
       generateQuiz(prompt, files)
         .then(quiz => cb && cb({ ok: true, quiz }))
+        .finally(() => io.to('host').emit('settings', settings.publicView()))
         .catch(err => cb && cb({ error: err.message }));
     });
 

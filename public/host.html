@@ -53,7 +53,8 @@
       <p class="muted small">Met een eigen sleutel maakt Google Gemini de quiz direct, zonder kopiëren en plakken. Een sleutel maak je gratis aan op <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a>. Zolang je daar geen betaalgegevens koppelt, kost het niets; er geldt dan een gratis daglimiet. De sleutel wordt alleen op deze pc bewaard.</p>
       <p id="s-status"></p>
       <label>API-sleutel<input id="s-key" type="password" autocomplete="off" placeholder="Plak hier je sleutel"></label>
-      <label>Model<input id="s-model" placeholder="gemini-2.5-flash"></label>
+      <label>Model<input id="s-model" placeholder="auto"></label>
+      <p class="muted small">Laat op <strong>auto</strong> staan: LANcelot kiest dan zelf een werkend Gemini-model, ook als Google oude modellen stopzet. <span id="s-auto-model"></span></p>
       <p class="error" id="s-error"></p>
       <div class="actions">
         <button id="s-save">Opslaan</button>

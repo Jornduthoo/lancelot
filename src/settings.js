@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 
 const FILE = path.join(__dirname, '..', 'settings.json');
-const DEFAULTS = { geminiKey: '', geminiModel: 'gemini-2.5-flash' };
+const DEFAULTS = { geminiKey: '', geminiModel: 'auto', geminiAutoModel: '' };
 
 function read() {
   try {
@@ -26,6 +26,7 @@ function publicView() {
     hasKey: Boolean(s.geminiKey),
     keyHint: s.geminiKey ? `…${s.geminiKey.slice(-4)}` : '',
     geminiModel: s.geminiModel,
+    geminiAutoModel: s.geminiAutoModel,
   };
 }
 
