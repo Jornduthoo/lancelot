@@ -128,4 +128,24 @@ function filePath(file) {
   return path.join(DIR, file);
 }
 
-module.exports = { save, saveRondeTafel, list, filePath, DIR };
+// De prinses in de toren: per leerling hoe hoog hij kwam en hoeveel vragen goed waren.
+function saveToren(t) {
+  const now = new Date();
+  const ranking = t.ranking();
+  const time = ms => `${Math.floor(ms / 60000)}:${pad(Math.floor(ms / 1000) % 60)}`;
+  const lines = [
+    row(['De prinses in de toren', t.quiz.title]),
+    row(['Datum', stamp(now)]),
+    row(['Speeltijd', `${t.minutes} minuten`]),
+    row(['Leerlingen', ranking.length]),
+    '',
+    row(['Rang', 'Naam', 'Verdieping', 'Prinses gered', 'Vragen goed', 'Vragen fout', '% goed']),
+    ...ranking.map((r, i) => row([
+      i + 1, r.name, `${r.floor} / ${t.world.FLOORS}`, r.rescuedAt ? `ja, na ${time(r.rescuedAt)}` : 'nee',
+      r.right, r.wrong, r.right + r.wrong ? `${Math.round((r.right / (r.right + r.wrong)) * 100)}%` : '-',
+    ])),
+  ];
+  return write(now, `toren-${slugOf(t.quiz.title)}`, lines);
+}
+
+module.exports = { save, saveRondeTafel, saveToren, list, filePath, DIR };

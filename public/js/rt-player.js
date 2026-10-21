@@ -16,8 +16,7 @@ socket.on('rt-state', s => {
   const was = rt;
   rt = s;
   // De Ronde Tafel neemt het scherm over zolang ze loopt; daarna is het Toernooi-scherm terug.
-  $('rondetafel').classList.toggle('hidden', !s.active);
-  $('toernooi').classList.toggle('hidden', s.active);
+  document.body.dataset.rt = s.active ? '1' : '';
   if (!s.active) {
     rtShown = null;
     return;

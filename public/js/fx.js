@@ -78,6 +78,9 @@ const sfx = (() => {
     good() { [784, 1046, 1318].forEach((f, i) => tone(f, i * .09, .3, { type: 'triangle', vol: .14 })); },
     bad() { tone(196, 0, .35, { type: 'sawtooth', vol: .1, slide: .7 }); },
     swoosh() { noise(0, .35, .08); },
+    jump() { tone(300, 0, .16, { type: 'square', vol: .05, slide: 2.2 }); },
+    empty() { tone(140, 0, .25, { type: 'square', vol: .06 }); tone(110, .12, .3, { type: 'square', vol: .06 }); },
+    hit() { noise(0, .25, .14); tone(220, 0, .5, { type: 'sawtooth', vol: .08, slide: .3 }); },
     drumroll(seconds = 2) {
       for (let t = 0; t < seconds; t += .06) noise(t, .05, .05 + t / seconds * .1);
     },

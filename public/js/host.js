@@ -34,6 +34,7 @@ $('brand').addEventListener('click', () => {
 });
 document.querySelector('[data-module="toernooi"]').addEventListener('click', () => show('idle'));
 document.querySelector('[data-module="rondetafel"]').addEventListener('click', () => { location.href = '/rondetafel'; });
+document.querySelector('[data-module="toren"]').addEventListener('click', () => { location.href = '/toren'; });
 
 function loadQuiz(file) {
   socket.emit('load', file, res => {

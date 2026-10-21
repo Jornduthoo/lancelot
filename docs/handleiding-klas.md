@@ -25,6 +25,16 @@ Laat het zwarte venster openstaan zolang je speelt. Dat is de server.
 4. Een ongepast woord of antwoord? Klik erop en het verdwijnt van het bord.
 5. Na de laatste vraag klik je op **Afronden**. De antwoorden worden bewaard in de map `resultaten`.
 
+## De prinses in de toren
+
+1. Kies op het startscherm **De prinses in de toren**, kies de speeltijd en klik op de quiz waaruit de vragen komen.
+2. Leerlingen scannen de QR-code en vullen hun naam in.
+3. Klik op **Bestorm de toren!** Na drie seconden aftellen begint de klim.
+4. Leerlingen springen met **Spring** en lopen met ◀ en ▶. Is hun energie op, dan beantwoorden ze een vraag.
+5. Als de tijd om is (of met **Tijd stoppen**) verschijnt het podium. De resultaten worden bewaard in de map `resultaten`.
+
+Tip: laat leerlingen de gsm rechtop houden. Op een laptop werken de pijltjes en de spatiebalk.
+
 ## Lukt verbinden niet?
 
 - **Zelfde netwerk:** je pc en de apparaten van leerlingen moeten op hetzelfde wifi-netwerk zitten. Een pc via een netwerkkabel werkt meestal ook, als die op hetzelfde schoolnetwerk zit.

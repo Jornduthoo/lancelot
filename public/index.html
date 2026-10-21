@@ -74,7 +74,7 @@
   <div class="me" id="me"><span id="me-name"></span><span id="me-score"></span></div>
  </div>
 
- <div id="rondetafel" class="hidden">
+ <div id="rondetafel">
   <div class="mini">
     <img src="/img/logo.webp" alt="">
     <div class="wordmark">LAN<span>celot</span></div>
@@ -101,10 +101,65 @@
     <p class="muted">Je antwoorden waren anoniem.</p>
   </section>
  </div>
+
+ <div id="toren">
+  <form id="tw-join" class="screen welcome hidden">
+    <img src="/img/logo.webp" alt="LANcelot">
+    <p class="title">De prinses in de toren</p>
+    <input id="tw-name" maxlength="20" autocomplete="off" placeholder="Je naam">
+    <p class="error" id="tw-join-error"></p>
+    <button type="submit" class="big">Betreed de toren</button>
+  </form>
+
+  <section id="tw-lobby" class="screen panel hidden">
+    <p class="status">Aan de voet van de toren</p>
+    <p class="title" id="tw-lobby-name"></p>
+    <p class="muted">Spring van platform naar platform en red de prinses bovenaan. Elke sprong kost ⚡ energie. Is je energie op? Beantwoord een vraag en je krijgt nieuwe energie.</p>
+    <p class="muted small">Wacht tot de leerkracht het spel start.</p>
+    <div class="spinner"></div>
+  </section>
+
+  <section id="tw-game" class="hidden">
+    <div class="tw-hud">
+      <div class="tw-energy"><span class="bolt">⚡</span><div class="tw-pips" id="tw-pips"></div><span id="tw-energy-n"></span></div>
+      <div class="tw-stats"><span id="tw-floor"></span><span id="tw-rank"></span><span id="tw-clock"></span></div>
+    </div>
+    <div class="tw-stage" id="tw-stage">
+      <canvas id="tw-canvas"></canvas>
+      <div class="tw-toast" id="tw-toast"></div>
+      <div class="tw-countdown hidden" id="tw-countdown"></div>
+    </div>
+    <div class="tw-controls">
+      <button class="tw-btn" id="tw-left" aria-label="Links">◀</button>
+      <button class="tw-btn" id="tw-right" aria-label="Rechts">▶</button>
+      <button class="tw-btn tw-ask" id="tw-ask">⚡ Vraag</button>
+      <button class="tw-btn tw-jump" id="tw-jump-btn">Spring</button>
+    </div>
+    <div class="tw-question hidden" id="tw-question">
+      <div class="panel">
+        <p class="status" id="tw-q-status">Beantwoord juist voor ⚡ energie</p>
+        <p class="tw-q-text" id="tw-q-text"></p>
+        <div class="answers" id="tw-q-answers"></div>
+        <p class="tw-q-result" id="tw-q-result"></p>
+        <button class="secondary hidden" id="tw-q-close">Verder klimmen</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="tw-end" class="screen panel hidden">
+    <div class="mark" id="tw-end-medal" style="font-size:4.5rem"></div>
+    <p class="title" id="tw-end-title"></p>
+    <p class="big" id="tw-end-floor" style="font-size:2rem"></p>
+    <p class="muted" id="tw-end-extra"></p>
+  </section>
+ </div>
 </main>
 <script src="/socket.io/socket.io.js"></script>
 <script src="/js/fx.js"></script>
 <script src="/js/player.js"></script>
 <script src="/js/rt-player.js"></script>
+<script src="/js/toren-world.js"></script>
+<script src="/js/toren-draw.js"></script>
+<script src="/js/toren-player.js"></script>
 </body>
 </html>

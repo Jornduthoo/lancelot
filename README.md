@@ -7,7 +7,7 @@ Het thema: middeleeuws met een scifi-kantje. Op het startscherm kies je een spel
 - **Toernooi**: snelle quiz, wie antwoordt het snelst en het best? (klaar)
 - **De Ronde Tafel**: polls, stellingen, woordwolken, open vragen en schalen, live op het bord (klaar)
 - **Schattenjacht** (binnenkort)
-- **De prinses in de toren** (binnenkort)
+- **De prinses in de toren**: klim met je ridder naar de top; goede antwoorden geven energie (klaar)
 
 ## Starten (Windows)
 
@@ -45,9 +45,18 @@ Stel de klas vragen en zie de antwoorden live op het bord, zoals bij Mentimeter.
 
 Klik op een woord of een kaartje om het te verbergen (handig bij flauwe antwoorden). Met **Sluit antwoorden** stop je het stemmen voor die vraag, en met **Verberg resultaten** laat je eerst iedereen antwoorden voor je de uitslag toont. Een sessie maak je zelf, of met AI op dezelfde manier als een quiz. Sessies staan als JSON-bestanden in de map `rondetafel/`.
 
+## De prinses in de toren
+
+Een platformspel in Mario-stijl. Elke leerling klimt op de gsm met een ridder in dezelfde scifi-riddertoren, van platform naar platform, langs laserpoorten, drones en stekels. Wie geraakt wordt, valt een stuk naar beneden. Iedereen ziet de andere ridders live meeklimmen.
+
+- **Elke sprong kost ⚡ energie.** Is de energie op, dan verschijnt een vraag uit de gekozen quiz: juist geeft +5 ⚡, fout +1 ⚡. Met de knop **⚡ Vraag** kan een leerling ook zelf energie tanken.
+- **Winnen:** wie als eerste de prinses bovenaan (verdieping 80) redt, wint. Redt niemand haar, dan wint wie het hoogst staat als de tijd om is (3 tot 15 minuten).
+- **Op het bord** zie je de toren met de leider in beeld, een overzicht van de hele toren met alle ridders, de tussenstand en wat er gebeurt.
+- **Besturing:** knoppen op het scherm, of op een laptop de pijltjes en de spatiebalk.
+
 ## Resultaten
 
-Na elke quiz en elke Ronde Tafel worden de resultaten automatisch bewaard in de map `resultaten`, als bestand dat opent in Excel. Je ziet per leerling de rang, de score en per vraag of het antwoord goed of fout was, en per vraag hoeveel procent van de klas het goed had. Op het docentenscherm vind je ze onder **Resultaten** (met **Download** en **Open map**), en na elke quiz staat er een downloadlink onder het podium. De resultaten blijven op je eigen pc.
+Na elke quiz, Ronde Tafel en torenspel worden de resultaten automatisch bewaard in de map `resultaten`, als bestand dat opent in Excel. Je ziet per leerling de rang, de score en per vraag of het antwoord goed of fout was, en per vraag hoeveel procent van de klas het goed had. Op het docentenscherm vind je ze onder **Resultaten** (met **Download** en **Open map**), en na elke quiz staat er een downloadlink onder het podium. De resultaten blijven op je eigen pc.
 
 ## Quizbestanden
 

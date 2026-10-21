@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LANcelot · De prinses in de toren</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body class="tw-host">
+<main>
+  <div class="topbar">
+    <div class="brand" id="brand" title="Naar het startscherm">
+      <img src="/img/logo.webp" alt="">
+      <div>
+        <div class="wordmark">LAN<span>celot</span></div>
+        <div class="subtitle" id="status">De prinses in de toren</div>
+      </div>
+    </div>
+    <div class="actions">
+      <span class="join-mini hidden" id="join-mini"></span>
+      <button class="secondary icon" id="mute" title="Geluid aan/uit">🔊</button>
+      <button class="secondary hidden" id="stop">Stop het spel</button>
+    </div>
+  </div>
+
+    <section id="setup">
+    <div class="bar">
+      <h2>De prinses in de toren</h2>
+      <div class="actions">
+        <button class="secondary" id="to-home">Terug</button>
+      </div>
+    </div>
+    <div class="panel tw-intro">
+      <img src="/img/logo.webp" alt="">
+      <div>
+        <p>Elke leerling klimt met een ridder in dezelfde scifi-riddertoren, van platform naar platform, langs lasers, drones en stekels. <strong>Elke sprong kost ⚡ energie.</strong> Is de energie op? Dan beantwoordt de leerling een vraag uit je quiz: juist geeft +5 ⚡, fout +1 ⚡.</p>
+        <p class="muted">Wie als eerste de prinses bovenaan redt, wint. Redt niemand haar, dan wint wie het hoogst staat als de tijd om is.</p>
+      </div>
+    </div>
+    <div class="panel form">
+      <label>Speeltijd
+        <select id="tw-minutes">
+          <option value="3">3 minuten</option>
+          <option value="5">5 minuten</option>
+          <option value="6" selected>6 minuten</option>
+          <option value="8">8 minuten</option>
+          <option value="10">10 minuten</option>
+          <option value="15">15 minuten</option>
+        </select>
+      </label>
+      <p class="muted small">Kies hieronder de quiz waaruit de vragen komen. Quizzen maak je bij Toernooi.</p>
+    </div>
+    <p class="notice hidden" id="stopped"></p>
+    <div class="quiz-list" id="quiz-list"></div>
+    <p class="error" id="load-error"></p>
+  </section>
+
+  <section id="lobby" class="hidden">
+    <div class="panel join">
+      <div class="qr" id="qr"></div>
+      <div class="join-text">
+        <p class="muted">Scan de QR-code of surf naar</p>
+        <div class="join-url" id="join-url"></div>
+        <p class="muted small" id="other-urls"></p>
+      </div>
+    </div>
+    <div class="bar">
+      <h2><span class="count" id="player-count">0</span> <span id="player-word">ridders</span> aan de voet van de toren</h2>
+      <button class="gold big" id="start" disabled>Bestorm de toren!</button>
+    </div>
+    <p class="muted small">Klik op een naam om die speler te verwijderen.</p>
+    <div class="names" id="names"></div>
+  </section>
+
+  <section id="play" class="hidden">
+    <div class="hud">
+      <span class="round" id="p-title"></span>
+      <span class="tw-clock" id="p-clock"></span>
+      <button class="secondary" id="p-finish">Tijd stoppen</button>
+    </div>
+    <div class="tw-board">
+      <div class="tw-main panel"><canvas id="p-main"></canvas><div class="tw-follow" id="p-follow"></div><div class="tw-countdown hidden" id="p-countdown"></div></div>
+      <div class="tw-mini panel"><canvas id="p-mini"></canvas></div>
+      <div class="tw-side">
+        <ol class="tw-rank" id="p-rank"></ol>
+        <ul class="tw-feed" id="p-feed"></ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="podium" class="hidden">
+    <h2 class="center">De helden van de toren</h2>
+    <div class="podium" id="podium-blocks"></div>
+    <ol class="ranking" id="final"></ol>
+    <p class="center muted" id="results-saved"></p>
+    <div class="bar">
+      <button class="secondary" id="restart">Nog een keer</button>
+      <button id="close">Andere quiz kiezen</button>
+    </div>
+  </section>
+</main>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/fx.js"></script>
+<script src="/js/toren-world.js"></script>
+<script src="/js/toren-draw.js"></script>
+<script src="/js/toren-host.js"></script>
+</body>
+</html>
