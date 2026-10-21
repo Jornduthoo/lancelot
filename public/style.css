@@ -170,3 +170,4 @@ a { color: var(--accent); }
   .question-text { font-size: 1.5rem; }
   .join-url { font-size: 1.5rem; }
 }
+#m-copied:empty { display: none; }

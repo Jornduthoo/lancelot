@@ -7,10 +7,9 @@ let editingFile = null;
 let sources = [];
 const MAX_SOURCE_BYTES = 15 * 1024 * 1024;
 
-function buildPrompt() {
-  // Met sleutel gaat de lesstof mee naar Gemini; zonder sleutel voegt de leerkracht hem zelf toe in de chatbot.
-  const attachInChatbot = !hasKey && $('m-attach').checked;
-  const hasSources = sources.length > 0 || attachInChatbot;
+// forGemini: de lesstof gaat via LANcelot mee naar Gemini. Anders voegt de leerkracht hem zelf toe in de chatbot.
+function buildPrompt(forGemini = false) {
+  const hasSources = forGemini ? sources.length > 0 : $('m-attach').checked;
   const topic = $('m-topic').value.trim() || (hasSources ? 'de bijgevoegde lesstof' : '[ONDERWERP]');
   const level = $('m-level').value;
   const count = Math.min(40, Math.max(3, Number($('m-count').value) || 10));
@@ -39,8 +38,7 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
 function updatePrompt() {
   $('m-prompt').value = buildPrompt();
   $('m-copied').textContent = '';
-  const attach = hasKey ? sources.length > 0 : $('m-attach').checked;
-  $('m-attach-note').classList.toggle('hidden', !attach);
+  $('m-attach-note').classList.toggle('hidden', !$('m-attach').checked);
 }
 
 function renderSources() {
@@ -293,8 +291,6 @@ socket.on('settings', s => {
   $('s-remove').classList.toggle('hidden', !s.hasKey);
   $('m-gemini-panel').classList.toggle('hidden', !s.hasKey);
   hasKey = s.hasKey;
-  $('m-sources-attach').classList.toggle('hidden', hasKey);
-  $('m-sources-upload').classList.toggle('hidden', !hasKey);
   updatePrompt();
 });
 
@@ -327,7 +323,7 @@ $('m-gemini').addEventListener('click', () => {
   $('m-gemini-error').textContent = '';
   $('m-gemini-busy').textContent = 'Gemini is bezig, dit duurt meestal 10 tot 60 seconden…';
   const files = sources.map(({ mimeType, data }) => ({ mimeType, data }));
-  socket.emit('generate', { prompt: buildPrompt(), files }, res => {
+  socket.emit('generate', { prompt: buildPrompt(true), files }, res => {
     button.disabled = false;
     $('m-gemini-busy').textContent = '';
     if (res.error) {

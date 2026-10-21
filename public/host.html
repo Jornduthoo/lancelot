@@ -97,22 +97,12 @@
         <label>Aantal vragen<input id="m-count" type="number" min="3" max="40" value="10"></label>
         <label>Seconden per vraag<input id="m-time" type="number" min="5" max="120" value="20"></label>
       </div>
-      <div class="sources" id="m-sources-attach">
-        <strong>Lesstof (mag leeg)</strong>
-        <label class="inline check"><input type="checkbox" id="m-attach"> Ik voeg een screenshot van het bordboek of een pdf toe in de chatbot</label>
-        <p class="muted small">Tip: met een eigen Gemini-sleutel (Instellingen) upload je de lesstof hier en maakt LANcelot de quiz in één klik.</p>
-      </div>
-      <div class="sources hidden" id="m-sources-upload">
-        <strong>Lesstof (mag leeg)</strong>
-        <p class="muted small">Voeg een screenshot van het bordboek, een foto of een pdf toe. Je kunt een screenshot ook plakken met Ctrl+V. Gemini maakt de vragen dan op basis van die lesstof.</p>
-        <label class="file-button"><input id="m-files" type="file" accept="image/*,application/pdf" multiple hidden>Bestand kiezen</label>
-        <ul class="file-list" id="m-file-list"></ul>
-      </div>
       <label>Extra wensen (mag leeg)<textarea id="m-extra" rows="2" placeholder="bijv. vooral vragen over jaartallen, of: maak het extra moeilijk"></textarea></label>
     </div>
     <div class="panel form">
       <h3>2. Kopieer de prompt naar een AI</h3>
       <p class="muted">Klik op een chatbot: de prompt wordt gekopieerd en de chatbot opent in een nieuw tabblad. Plak de prompt daar met Ctrl+V.</p>
+      <label class="inline check"><input type="checkbox" id="m-attach"> Ik voeg zelf een screenshot van het bordboek of een pdf toe in de chatbot</label>
       <p class="notice hidden" id="m-attach-note">Sleep je screenshot of pdf in de chatbot, of voeg hem toe met het paperclip- of plusje-icoon naast het tekstvak.</p>
       <textarea id="m-prompt" rows="8" readonly></textarea>
       <div class="actions">
@@ -126,6 +116,12 @@
     <div class="panel form hidden" id="m-gemini-panel">
       <h3>Of: laat Gemini de quiz direct maken</h3>
       <p class="muted small">Gebruikt je eigen sleutel uit Instellingen.</p>
+      <div class="sources">
+        <strong>Lesstof (mag leeg)</strong>
+        <p class="muted small">Voeg een screenshot van het bordboek, een foto of een pdf toe, of plak een screenshot met Ctrl+V. Gemini maakt de vragen dan op basis van die lesstof.</p>
+        <label class="file-button"><input id="m-files" type="file" accept="image/*,application/pdf" multiple hidden>Bestand kiezen</label>
+        <ul class="file-list" id="m-file-list"></ul>
+      </div>
       <p class="error" id="m-gemini-error"></p>
       <div><button id="m-gemini">Maak direct met Gemini</button> <span class="muted" id="m-gemini-busy"></span></div>
     </div>
