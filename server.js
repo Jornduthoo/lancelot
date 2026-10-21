@@ -24,10 +24,14 @@ app.get('/host', (req, res) => {
 });
 app.use(express.static(path.join(__dirname, 'public'), { index: 'index.html' }));
 
+// Virtuele netwerkkaarten (WSL, VirtualBox, VPN) komen achteraan, want leerlingen kunnen die niet bereiken.
+const VIRTUAL = /vethernet|virtualbox|vmware|wsl|docker|hyper-v|tailscale|zerotier|vpn/i;
+
 function lanAddresses() {
-  return Object.values(os.networkInterfaces())
-    .flat()
-    .filter(i => i && i.family === 'IPv4' && !i.internal)
+  return Object.entries(os.networkInterfaces())
+    .flatMap(([name, list]) => (list || []).map(i => ({ name, ...i })))
+    .filter(i => i.family === 'IPv4' && !i.internal && !i.address.startsWith('169.254.'))
+    .sort((a, b) => VIRTUAL.test(a.name) - VIRTUAL.test(b.name))
     .map(i => i.address);
 }
 

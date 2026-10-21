@@ -5,12 +5,12 @@ Een gratis klasquiz die op je eigen pc draait. Leerlingen spelen mee via de brow
 ## Starten (Windows)
 
 1. Installeer eenmalig [Node.js](https://nodejs.org) (de LTS-versie).
-2. Open een opdrachtprompt in deze map en voer eenmalig `npm install` uit.
-3. Start de server met `npm start`.
-4. Open op je eigen pc **http://localhost:3000/host**. Dat is het docentenscherm.
-5. Leerlingen gaan naar het adres dat op het bord staat, bijvoorbeeld `http://192.168.1.20:3000`.
+2. Dubbelklik op **start.bat**. Het docentenscherm opent vanzelf.
+3. Leerlingen gaan naar het adres dat op het bord staat, bijvoorbeeld `http://192.168.1.20:3000`.
 
-Vraagt Windows of Node.js toegang tot het netwerk mag krijgen? Kies dan **Ja** voor privénetwerken (en eventueel openbare netwerken als het schoolnetwerk zo is ingesteld). Anders kunnen leerlingen niet verbinden.
+Meer uitleg en hulp bij verbindingsproblemen staat in de [handleiding voor in de klas](docs/handleiding-klas.md).
+
+Liever via de opdrachtprompt? Gebruik dan `npm install` en `npm start`, en open daarna http://localhost:3000/host.
 
 ## Een quiz maken met AI (gratis)
 
