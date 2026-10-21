@@ -48,6 +48,28 @@ io.on('connection', socket => {
         cb && cb({ error: err.message });
       }
     });
+    // Quizzen maken en bewerken. Elke handler antwoordt met { ok, ... } of { error }.
+    const handle = fn => (arg, cb) => {
+      try {
+        cb && cb({ ok: true, ...fn(arg) });
+      } catch (err) {
+        cb && cb({ error: err.message });
+      }
+    };
+    const refreshList = () => io.to('host').emit('quizzes', quizzes.list());
+    socket.on('parse', handle(text => ({ quiz: quizzes.parseAiText(text) })));
+    socket.on('open-quiz', handle(file => ({ quiz: quizzes.load(file) })));
+    socket.on('save', handle(({ quiz, file } = {}) => {
+      const saved = quizzes.save(quiz, file);
+      refreshList();
+      return { file: saved };
+    }));
+    socket.on('delete', handle(file => {
+      quizzes.remove(file);
+      refreshList();
+      return {};
+    }));
+
     socket.on('start', () => game.start());
     socket.on('next', () => game.next());
     socket.on('reveal', () => game.reveal());

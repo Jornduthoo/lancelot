@@ -13,11 +13,76 @@
     <div class="muted" id="status"></div>
   </div>
 
-  <section id="idle" class="panel">
-    <h2>Kies een quiz</h2>
-    <p class="muted">Quizzen staan in de map <code>quizzes</code>.</p>
+  <section id="idle">
+    <div class="bar">
+      <h2>Kies een quiz</h2>
+      <div class="actions">
+        <button class="secondary" id="new-empty">Lege quiz</button>
+        <button id="new-ai">Nieuwe quiz met AI</button>
+      </div>
+    </div>
     <div class="quiz-list" id="quiz-list"></div>
     <p class="error" id="load-error"></p>
+  </section>
+
+  <section id="maker" class="hidden">
+    <div class="bar">
+      <h2>Nieuwe quiz met AI</h2>
+      <button class="secondary" data-back>Terug</button>
+    </div>
+    <div class="panel form">
+      <h3>1. Waar gaat de quiz over?</h3>
+      <label>Onderwerp<input id="m-topic" placeholder="bijv. de Tweede Wereldoorlog in Nederland"></label>
+      <div class="row">
+        <label>Niveau
+          <select id="m-level">
+            <option>groep 5-6</option>
+            <option selected>groep 7-8</option>
+            <option>vmbo onderbouw</option>
+            <option>havo/vwo onderbouw</option>
+            <option>vmbo bovenbouw</option>
+            <option>havo bovenbouw</option>
+            <option>vwo bovenbouw</option>
+            <option>mbo</option>
+          </select>
+        </label>
+        <label>Aantal vragen<input id="m-count" type="number" min="3" max="40" value="10"></label>
+        <label>Seconden per vraag<input id="m-time" type="number" min="5" max="120" value="20"></label>
+      </div>
+      <label>Extra wensen (mag leeg)<textarea id="m-extra" rows="2" placeholder="bijv. gebruik de lesstof hieronder, of: vooral vragen over jaartallen"></textarea></label>
+    </div>
+    <div class="panel form">
+      <h3>2. Kopieer de prompt naar een AI</h3>
+      <p class="muted">Plak hem in een gratis chatbot, zoals <a href="https://gemini.google.com" target="_blank" rel="noopener">Gemini</a>, <a href="https://chatgpt.com" target="_blank" rel="noopener">ChatGPT</a> of <a href="https://claude.ai" target="_blank" rel="noopener">Claude</a>.</p>
+      <textarea id="m-prompt" rows="8" readonly></textarea>
+      <div><button id="m-copy">Kopieer prompt</button> <span class="muted" id="m-copied"></span></div>
+    </div>
+    <div class="panel form">
+      <h3>3. Plak het antwoord van de AI</h3>
+      <textarea id="m-answer" rows="8" placeholder="Plak hier het hele antwoord…"></textarea>
+      <p class="error" id="m-error"></p>
+      <div><button id="m-parse">Controleren</button></div>
+    </div>
+  </section>
+
+  <section id="editor" class="hidden">
+    <div class="bar">
+      <h2 id="e-heading">Quiz bewerken</h2>
+      <button class="secondary" data-back>Annuleren</button>
+    </div>
+    <div class="panel form">
+      <label>Titel<input id="e-title" maxlength="100"></label>
+    </div>
+    <div id="e-questions" class="form"></div>
+    <div><button class="secondary" id="e-add">+ Vraag toevoegen</button></div>
+    <p class="error" id="e-error"></p>
+    <div class="bar">
+      <span></span>
+      <div class="actions">
+        <button class="secondary" id="e-save">Opslaan</button>
+        <button id="e-play">Opslaan en spelen</button>
+      </div>
+    </div>
   </section>
 
   <section id="lobby" class="hidden">
@@ -62,5 +127,6 @@
 </main>
 <script src="/socket.io/socket.io.js"></script>
 <script src="/js/host.js"></script>
+<script src="/js/maker.js"></script>
 </body>
 </html>

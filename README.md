@@ -12,7 +12,17 @@ Een gratis klasquiz die op je eigen pc draait. Leerlingen spelen mee via de brow
 
 Vraagt Windows of Node.js toegang tot het netwerk mag krijgen? Kies dan **Ja** voor privénetwerken (en eventueel openbare netwerken als het schoolnetwerk zo is ingesteld). Anders kunnen leerlingen niet verbinden.
 
-## Een quiz maken
+## Een quiz maken met AI (gratis)
+
+1. Klik op het docentenscherm op **Nieuwe quiz met AI**.
+2. Vul het onderwerp, het niveau en het aantal vragen in.
+3. Klik op **Kopieer prompt** en plak de prompt in een gratis chatbot, zoals Gemini, ChatGPT of Claude.
+4. Kopieer het hele antwoord van de chatbot, plak het terug in LANcelot en klik op **Controleren**.
+5. Lees de vragen na, pas ze aan waar nodig en klik op **Opslaan en spelen**.
+
+Er is geen API-key nodig en het kost niets. Met **Lege quiz** maak je zelf een quiz, en met **Bewerken** pas je een bestaande quiz aan.
+
+## Quizbestanden
 
 Quizzen zijn JSON-bestanden in de map `quizzes/`. Kijk naar `quizzes/voorbeeld.json`:
 

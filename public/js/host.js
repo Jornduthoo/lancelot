@@ -5,27 +5,39 @@ let state = null;
 let deadline = 0;
 
 function esc(text) {
-  const d = document.createElement('div');
-  d.textContent = text;
-  return d.innerHTML;
+  return String(text).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 }
 
+let view = 'idle';
+
 function show(name) {
-  for (const s of ['idle', 'lobby', 'question', 'podium']) $(s).classList.toggle('hidden', s !== name);
+  view = name;
+  for (const s of ['idle', 'maker', 'editor', 'lobby', 'question', 'podium']) $(s).classList.toggle('hidden', s !== name);
+}
+
+function loadQuiz(file) {
+  socket.emit('load', file, res => {
+    $('load-error').textContent = res.error || '';
+  });
 }
 
 socket.on('quizzes', list => {
-  $('quiz-list').innerHTML = '';
-  if (list.length === 0) $('quiz-list').textContent = 'Nog geen quizzen gevonden.';
+  const box = $('quiz-list');
+  box.innerHTML = '';
+  if (list.length === 0) box.innerHTML = '<p class="muted">Nog geen quizzen. Maak er een met de knoppen hierboven.</p>';
   for (const q of list) {
-    const b = document.createElement('button');
-    b.innerHTML = `${esc(q.title)} <span class="muted">· ${q.count} vragen</span>`;
-    b.addEventListener('click', () => {
-      socket.emit('load', q.file, res => {
-        $('load-error').textContent = res.error || '';
-      });
+    const row = document.createElement('div');
+    row.className = 'quiz-row';
+    row.innerHTML = `<button class="play">${esc(q.title)} <span class="muted">· ${q.count} vragen</span></button>
+      <button class="secondary edit">Bewerken</button>
+      <button class="secondary delete" title="Verwijderen">✕</button>`;
+    row.querySelector('.play').addEventListener('click', () => loadQuiz(q.file));
+    row.querySelector('.edit').addEventListener('click', () => editQuiz(q.file));
+    row.querySelector('.delete').addEventListener('click', () => {
+      if (!confirm(`"${q.title}" verwijderen?`)) return;
+      socket.emit('delete', q.file, res => { $('load-error').textContent = res.error || ''; });
     });
-    $('quiz-list').appendChild(b);
+    box.appendChild(row);
   }
 });
 
@@ -81,7 +93,8 @@ function renderPodium() {
 socket.on('state', s => {
   state = s;
   $('status').textContent = s.title || '';
-  if (s.phase === 'idle') show('idle');
+  // In de quizmaker blijven we staan; anders terug naar de quizlijst.
+  if (s.phase === 'idle' && view !== 'maker' && view !== 'editor') show('idle');
   if (s.phase === 'lobby') { renderLobby(); show('lobby'); }
   if (s.phase === 'question' || s.phase === 'reveal') { renderQuestion(); show('question'); }
   if (s.phase === 'podium') { renderPodium(); show('podium'); }
