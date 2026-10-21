@@ -25,7 +25,7 @@ app.get('/host', (req, res) => {
 app.use(express.static(path.join(__dirname, 'public'), { index: 'index.html' }));
 
 // Virtuele netwerkkaarten (WSL, VirtualBox, VPN) komen achteraan, want leerlingen kunnen die niet bereiken.
-const VIRTUAL = /vethernet|virtualbox|vmware|wsl|docker|hyper-v|tailscale|zerotier|vpn/i;
+const VIRTUAL = /vethernet|virtualbox|vmware|wsl|docker|hyper-v|tailscale|zerotier|vpn|nordlynx|wireguard|openvpn|tap-/i;
 
 function lanAddresses() {
   return Object.entries(os.networkInterfaces())
