@@ -21,7 +21,7 @@ Laat het zwarte venster openstaan zolang je speelt. Dat is de server.
 
 - **Zelfde netwerk:** je pc en de apparaten van leerlingen moeten op hetzelfde wifi-netwerk zitten. Een pc via een netwerkkabel werkt meestal ook, als die op hetzelfde schoolnetwerk zit.
 - **Gastnetwerk of "client isolation":** veel scholen blokkeren verkeer tussen apparaten op het gast-wifi. Vraag de ICT-afdeling of apparaten elkaar mogen bereiken op poort 3000, of gebruik een ander netwerk.
-- **Noodoplossing:** zet een mobiele hotspot aan op je telefoon of laptop en laat de pc en de leerlingen daarmee verbinden. Dat werkt zonder dat ICT iets hoeft te doen; je hotspot hoeft niet eens internet te hebben. Let op: een telefoon-hotspot laat vaak maar zo'n 10 apparaten toe. De hotspot van Windows zelf (Instellingen → Netwerk → Mobiele hotspot) is dan een betere keuze.
+- **Noodoplossing:** zet een mobiele hotspot aan op je telefoon of laptop en laat de pc en de leerlingen daarmee verbinden. Dat werkt zonder dat ICT iets hoeft te doen; om te spelen hoeft je hotspot geen internet te hebben (een quiz maken met AI doe je vooraf, als je wel internet hebt). Let op: een telefoon-hotspot laat vaak maar zo'n 10 apparaten toe. De hotspot van Windows zelf (Instellingen → Netwerk → Mobiele hotspot) is dan een betere keuze.
 - **Firewall:** heb je de vraag van Windows per ongeluk weggeklikt? Zoek in Start naar "Een app toestaan via Windows Firewall" en zet een vinkje bij Node.js (privé en openbaar).
 - **Meerdere adressen op het bord:** probeer eerst het grote adres. Werkt dat niet, klik dan op een van de andere adressen eronder; de QR-code past zich aan.
 - **Ander poortnummer:** is poort 3000 al bezet, zet dan `set PORT=3001` boven in Start LANcelot.bat.
