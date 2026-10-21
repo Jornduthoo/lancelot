@@ -17,6 +17,7 @@
     <div class="bar">
       <h2>Kies een quiz</h2>
       <div class="actions">
+        <button class="secondary" id="open-results">Resultaten</button>
         <button class="secondary" id="open-settings">Instellingen</button>
         <button class="secondary" id="new-empty">Lege quiz</button>
         <button id="new-ai">Nieuwe quiz met AI</button>
@@ -24,6 +25,18 @@
     </div>
     <div class="quiz-list" id="quiz-list"></div>
     <p class="error" id="load-error"></p>
+  </section>
+
+  <section id="results" class="hidden">
+    <div class="bar">
+      <h2>Resultaten</h2>
+      <div class="actions">
+        <button class="secondary open-folder">Open map</button>
+        <button class="secondary" data-back>Terug</button>
+      </div>
+    </div>
+    <p class="muted">Na elke quiz worden de scores bewaard in de map <code>resultaten</code>, met per leerling de score en per vraag goed of fout. De bestanden openen in Excel.</p>
+    <div class="quiz-list" id="results-list"></div>
   </section>
 
   <section id="settings" class="hidden">
@@ -172,6 +185,7 @@
     <h2 class="center">Eindstand</h2>
     <div class="podium" id="podium-blocks"></div>
     <ol class="ranking" id="final"></ol>
+    <p class="center muted" id="results-saved"></p>
     <div class="bar">
       <button class="secondary" id="restart">Nog een keer</button>
       <button id="close">Andere quiz kiezen</button>

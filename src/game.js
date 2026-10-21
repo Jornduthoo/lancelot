@@ -4,8 +4,10 @@
 const MAX_POINTS = 1000;
 
 class Game {
-  constructor(io) {
+  // onFinish(game) wordt aangeroepen als de quiz klaar is en geeft de bestandsnaam van de resultaten terug.
+  constructor(io, onFinish) {
     this.io = io;
+    this.onFinish = onFinish;
     this.reset();
   }
 
@@ -13,7 +15,8 @@ class Game {
     this.quiz = null;
     this.phase = 'idle';
     this.index = -1;
-    this.players = new Map(); // playerId -> { name, score, streak, answer, answeredAt, socketId }
+    this.players = new Map(); // playerId -> { name, score, streak, answer, answeredAt, socketId, results }
+    this.resultsFile = null;
     this.questionStartedAt = 0;
     clearTimeout(this.timer);
     this.timer = null;
@@ -42,7 +45,7 @@ class Game {
     if (!clean) return { error: 'Vul een naam in.' };
     const taken = [...this.players.values()].some(p => p.name.toLowerCase() === clean.toLowerCase());
     if (taken) return { error: 'Die naam is al bezet.' };
-    this.players.set(playerId, { name: clean, score: 0, streak: 0, answer: null, answeredAt: 0, socketId });
+    this.players.set(playerId, { name: clean, score: 0, streak: 0, answer: null, answeredAt: 0, socketId, results: [] });
     this.broadcast();
     return { ok: true, name: clean };
   }
@@ -64,6 +67,11 @@ class Game {
     if (!this.quiz) return;
     if (this.index + 1 >= this.quiz.questions.length) {
       this.phase = 'podium';
+      try {
+        this.resultsFile = this.onFinish ? this.onFinish(this) : null;
+      } catch (err) {
+        console.error('Resultaten opslaan mislukt:', err.message);
+      }
       this.broadcast();
       return;
     }
@@ -109,6 +117,7 @@ class Game {
         p.streak = 0;
       }
       p.score += p.lastPoints;
+      p.results[this.index] = { answer: p.answer, correct: p.answer === q.correct, points: p.lastPoints };
     }
     this.phase = 'reveal';
     this.broadcast();
@@ -135,6 +144,7 @@ class Game {
       answered: players.filter(p => p.answer !== null).length,
       counts: q ? q.answers.map((_, i) => players.filter(p => p.answer === i).length) : [],
       ranking: this.ranking(),
+      resultsFile: this.resultsFile,
     };
   }
 

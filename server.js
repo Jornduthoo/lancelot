@@ -1,3 +1,4 @@
+const fs = require('fs');
 const http = require('http');
 const os = require('os');
 const path = require('path');
@@ -7,6 +8,8 @@ const { Game } = require('./src/game');
 const QRCode = require('qrcode');
 const quizzes = require('./src/quizzes');
 const settings = require('./src/settings');
+const results = require('./src/results');
+const { execFile } = require('child_process');
 const { generateQuiz } = require('./src/gemini');
 
 const PORT = Number(process.env.PORT) || 3000;
@@ -15,7 +18,11 @@ const app = express();
 const server = http.createServer(app);
 // Ruim genoeg voor lesstof (screenshots en pdf's) die naar Gemini gaat.
 const io = new Server(server, { maxHttpBufferSize: 30e6 });
-const game = new Game(io);
+const game = new Game(io, g => {
+  const file = results.save(g);
+  io.to('host').emit('results', results.list());
+  return file;
+});
 
 // Het docentenscherm werkt alleen op de pc waar de server draait.
 function isLocal(address) {
@@ -25,6 +32,15 @@ function isLocal(address) {
 app.get('/host', (req, res) => {
   if (!isLocal(req.socket.remoteAddress)) return res.status(403).send('Het docentenscherm is alleen bereikbaar op de pc van de leerkracht.');
   res.sendFile(path.join(__dirname, 'public', 'host.html'));
+});
+// Resultaten downloaden kan alleen op de pc van de leerkracht.
+app.get('/resultaten/:file', (req, res) => {
+  if (!isLocal(req.socket.remoteAddress)) return res.status(403).end();
+  try {
+    res.download(results.filePath(req.params.file));
+  } catch {
+    res.status(404).end();
+  }
 });
 app.use(express.static(path.join(__dirname, 'public'), { index: 'index.html' }));
 
@@ -49,6 +65,11 @@ io.on('connection', socket => {
     Promise.all(urls.map(url => QRCode.toString(url, { type: 'svg', margin: 1 })))
       .then(qrs => socket.emit('addresses', urls.map((url, i) => ({ url, qr: qrs[i] }))));
     socket.emit('settings', settings.publicView());
+    socket.emit('results', results.list());
+    socket.on('open-results-folder', () => {
+      fs.mkdirSync(results.DIR, { recursive: true });
+      if (process.platform === 'win32') execFile('explorer', [results.DIR]);
+    });
     socket.emit('state', game.hostState());
 
     socket.on('load', (file, cb) => {

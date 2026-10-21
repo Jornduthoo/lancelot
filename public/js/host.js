@@ -12,7 +12,7 @@ let view = 'idle';
 
 function show(name) {
   view = name;
-  for (const s of ['idle', 'settings', 'maker', 'editor', 'lobby', 'question', 'podium']) $(s).classList.toggle('hidden', s !== name);
+  for (const s of ['idle', 'results', 'settings', 'maker', 'editor', 'lobby', 'question', 'podium']) $(s).classList.toggle('hidden', s !== name);
 }
 
 function loadQuiz(file) {
@@ -98,7 +98,34 @@ function renderQuestion() {
   if (!revealed) deadline = Date.now() + state.remaining;
 }
 
+socket.on('results', files => {
+  const box = $('results-list');
+  box.innerHTML = files.length ? '' : '<p class="muted">Nog geen resultaten. Speel eerst een quiz tot het einde.</p>';
+  for (const file of files) {
+    const row = document.createElement('div');
+    row.className = 'quiz-row';
+    row.innerHTML = `<span class="play"></span><a class="button" download href="/resultaten/${encodeURIComponent(file)}">Download</a>`;
+    row.querySelector('.play').textContent = file.replace(/\.csv$/, '').replace(/_/g, ' ');
+    box.appendChild(row);
+  }
+});
+
+$('open-results').addEventListener('click', () => show('results'));
+for (const b of document.querySelectorAll('.open-folder')) {
+  b.addEventListener('click', () => socket.emit('open-results-folder'));
+}
+
 function renderPodium() {
+  const saved = $('results-saved');
+  saved.innerHTML = '';
+  if (state.resultsFile) {
+    saved.append('Resultaten opgeslagen. ');
+    const link = document.createElement('a');
+    link.href = `/resultaten/${encodeURIComponent(state.resultsFile)}`;
+    link.download = state.resultsFile;
+    link.textContent = 'Download voor Excel';
+    saved.append(link);
+  }
   const [p1, p2, p3] = state.ranking;
   const block = (p, cls) => p ? `<div class="${cls}">${esc(p.name)}<br>${p.score}</div>` : '';
   $('podium-blocks').innerHTML = block(p2, 'p2') + block(p1, 'p1') + block(p3, 'p3');
@@ -110,7 +137,7 @@ socket.on('state', s => {
   state = s;
   $('status').textContent = s.title || '';
   // In de quizmaker blijven we staan; anders terug naar de quizlijst.
-  if (s.phase === 'idle' && !['settings', 'maker', 'editor'].includes(view)) show('idle');
+  if (s.phase === 'idle' && !['results', 'settings', 'maker', 'editor'].includes(view)) show('idle');
   if (s.phase === 'lobby') { renderLobby(); show('lobby'); }
   if (s.phase === 'question' || s.phase === 'reveal') { renderQuestion(); show('question'); }
   if (s.phase === 'podium') { renderPodium(); show('podium'); }
