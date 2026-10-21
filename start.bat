@@ -13,8 +13,10 @@ if errorlevel 1 (
   exit /b 1
 )
 
-if not exist node_modules (
-  echo  Eerste keer opstarten: benodigde onderdelen installeren...
+rem Installeren bij de eerste keer, of als een update nieuwe onderdelen nodig heeft.
+call npm ls --omit=dev >nul 2>nul
+if errorlevel 1 (
+  echo  Benodigde onderdelen installeren...
   call npm install --omit=dev
   if errorlevel 1 (
     echo  Installeren is mislukt. Controleer je internetverbinding en probeer opnieuw.
