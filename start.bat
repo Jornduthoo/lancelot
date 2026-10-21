@@ -18,7 +18,7 @@ call npm ls --omit=dev >nul 2>nul
 if errorlevel 1 (
   echo  Benodigde onderdelen installeren...
   call npm install --omit=dev
-  if errorlevel 1 (
+  if errorlevel 1 if not exist node_modules (
     echo  Installeren is mislukt. Controleer je internetverbinding en probeer opnieuw.
     pause
     exit /b 1
