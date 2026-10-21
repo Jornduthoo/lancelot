@@ -6,6 +6,7 @@ let prev = null;
 let deadline = 0;
 let introEnds = 0;
 let shownIndex = -1;
+let builtKey = null; // welke vraag nu als tegels op het bord staat
 let lastRanks = new Map();
 
 function esc(text) {
@@ -129,6 +130,7 @@ function renderQuestion() {
     if (fresh) {
       shownIndex = state.index;
       $('q-answers').innerHTML = '';
+      builtKey = null;
       sfx.whoosh();
       const fill = $('intro-fill');
       fill.style.transition = 'none';
@@ -143,7 +145,10 @@ function renderQuestion() {
   }
 
   // Antwoordtegels opbouwen zodra de vraag opengaat (of na herladen van de pagina).
-  if (!$('q-answers').children.length || (prev && prev.phase === 'intro')) {
+  // De sleutel hoort bij de vraag zelf, zodat er nooit tegels van een vorige quiz blijven staan.
+  const key = JSON.stringify([state.title, state.index, q.question, q.answers]);
+  if (builtKey !== key) {
+    builtKey = key;
     $('q-answers').innerHTML = q.answers.map((a, i) => `
       <div class="answer a${i} enter" style="animation-delay:${i * 90}ms">
         ${ICONS[i]}<span>${esc(a)}</span><span class="count"></span><div class="fillbar"></div>
@@ -296,11 +301,13 @@ socket.on('state', s => {
 
   if (s.phase === 'idle') {
     shownIndex = -1;
+    builtKey = null;
+    $('q-answers').innerHTML = '';
     lastRanks = new Map();
     if (!OWN_VIEWS.includes(view)) show('idle');
   }
   if (s.phase === 'lobby') {
-    if (!prev || prev.phase !== 'lobby') { $('names').innerHTML = ''; lastRanks = new Map(); shownIndex = -1; }
+    if (!prev || prev.phase !== 'lobby') { $('names').innerHTML = ''; lastRanks = new Map(); shownIndex = -1; builtKey = null; $('q-answers').innerHTML = ''; }
     renderLobby();
     show('lobby');
   }

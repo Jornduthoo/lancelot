@@ -114,8 +114,9 @@ function render(state) {
       break;
     case 'question':
       if (state.answered) return show('answered');
-      if (shownIndex !== state.index) {
-        shownIndex = state.index;
+      const key = JSON.stringify([state.index, state.answers]);
+      if (shownIndex !== key) {
+        shownIndex = key;
         buildButtons(state);
       }
       $('q-progress').textContent = `Ronde ${state.index + 1} van ${state.total}`;
