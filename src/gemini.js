@@ -50,19 +50,24 @@ function score(name) {
   return s;
 }
 
-async function pickModel(key) {
+// Alle bruikbare modellen, beste eerst.
+async function listModels(key) {
   const { res, data, detail } = await call('models?pageSize=1000', key, { timeout: 20000 });
   if (!res.ok) {
     throw keyError(res.status, detail) || new Error(`Kon de lijst met Gemini-modellen niet ophalen${detail ? ` (${detail})` : ''}.`);
   }
   const usable = (data.models || [])
     .filter(m => (m.supportedGenerationMethods || []).includes('generateContent'))
-    .map(m => m.name)
+    .map(m => m.name.replace(/^models\//, ''))
     .filter(name => score(name) >= 0)
     .sort((a, b) => score(b) - score(a));
   if (usable.length === 0) throw new Error('Met deze sleutel is geen geschikt Gemini-model beschikbaar.');
-  return usable[0].replace(/^models\//, '');
+  return usable;
 }
+
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+// Tijdelijke problemen bij Google: druk (503), interne fout (500) of limiet per model (429).
+const BUSY = new Set([429, 500, 503, 504]);
 
 // files: [{ mimeType, data }] met base64-data, bijvoorbeeld een screenshot van het bordboek of een pdf.
 async function generateQuiz(prompt, files = []) {
@@ -87,15 +92,30 @@ async function generateQuiz(prompt, files = []) {
   });
 
   const auto = !geminiModel || geminiModel === AUTO;
-  let model = auto ? geminiAutoModel || (await pickModel(geminiKey)) : geminiModel;
-  let attempt = await call(`models/${encodeURIComponent(model)}:generateContent`, geminiKey, { method: 'POST', body });
+  const generate = model => call(`models/${encodeURIComponent(model)}:generateContent`, geminiKey, { method: 'POST', body });
 
-  // Model verdwenen? Zoek een nieuw model en probeer het één keer opnieuw.
-  if (attempt.res.status === 404) {
-    const fresh = await pickModel(geminiKey);
-    if (fresh !== model) {
-      model = fresh;
-      attempt = await call(`models/${encodeURIComponent(model)}:generateContent`, geminiKey, { method: 'POST', body });
+  // Eerst het onthouden of gekozen model, met twee herkansingen als Gemini het druk heeft.
+  let model = auto ? geminiAutoModel : geminiModel;
+  let attempt = null;
+  if (model) {
+    attempt = await generate(model);
+    for (let wait = 2000; BUSY.has(attempt.res.status) && wait <= 4000; wait *= 2) {
+      await sleep(wait);
+      attempt = await generate(model);
+    }
+  }
+
+  // Lukt het niet (model weg of overbelast)? Probeer dan andere beschikbare modellen.
+  if (!attempt || attempt.res.status === 404 || BUSY.has(attempt.res.status)) {
+    const tried = model;
+    const candidates = (await listModels(geminiKey)).filter(m => m !== tried).slice(0, 4);
+    for (const next of candidates) {
+      const result = await generate(next);
+      // Een 404 van een reservemodel verdringt geen nuttigere foutmelding.
+      if (result.res.status === 404 && attempt && attempt.res.status !== 404) continue;
+      model = next;
+      attempt = result;
+      if (result.res.status !== 404 && !BUSY.has(result.res.status)) break;
     }
   }
 
@@ -103,7 +123,8 @@ async function generateQuiz(prompt, files = []) {
   if (!res.ok) {
     throw keyError(res.status, detail)
       || (res.status === 404 && new Error(`Het model "${model}" bestaat niet (meer). Zet het model bij Instellingen op "auto".`))
-      || (res.status === 429 && new Error('De gratis limiet van Gemini is even bereikt. Wacht een minuut of gebruik kopiëren en plakken.'))
+      || (res.status === 429 && new Error('De gratis limiet van Gemini is even bereikt. Wacht een minuut of gebruik de knoppen Gemini, ChatGPT of Claude hierboven.'))
+      || (BUSY.has(res.status) && new Error('Gemini heeft het nu te druk, ook na een paar nieuwe pogingen. Probeer het over enkele minuten opnieuw, of gebruik de knoppen Gemini, ChatGPT of Claude hierboven (kopiëren en plakken).'))
       || new Error(`Gemini gaf een fout${detail ? ` (${detail})` : ''}.`);
   }
 
