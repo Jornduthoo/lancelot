@@ -1,0 +1,133 @@
+:root {
+  --bg: #1d1b3a;
+  --panel: #2a2752;
+  --text: #ffffff;
+  --muted: #b9b5e0;
+  --accent: #ffcc33;
+  --a0: #e2453c;
+  --a1: #2f7de1;
+  --a2: #e0a100;
+  --a3: #2aa148;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Segoe UI", system-ui, sans-serif;
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  flex: 1;
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+h1, h2 { margin: 0; }
+main > section { display: flex; flex-direction: column; gap: 16px; }
+.center { text-align: center; }
+.muted { color: var(--muted); }
+.hidden { display: none !important; }
+
+.logo { font-size: 2rem; font-weight: 800; letter-spacing: 1px; }
+.logo span { color: var(--accent); }
+
+.panel { background: var(--panel); border-radius: 16px; padding: 20px; }
+
+button {
+  font: inherit;
+  font-weight: 700;
+  border: 0;
+  border-radius: 12px;
+  padding: 14px 22px;
+  cursor: pointer;
+  background: var(--accent);
+  color: #1d1b3a;
+}
+button:disabled { opacity: .5; cursor: default; }
+button.secondary { background: transparent; color: var(--text); border: 2px solid var(--muted); }
+
+input {
+  font: inherit;
+  font-size: 1.3rem;
+  padding: 14px;
+  border-radius: 12px;
+  border: 0;
+  width: 100%;
+  text-align: center;
+}
+
+.error { color: #ff8a80; min-height: 1.4em; }
+
+/* Antwoordknoppen en -vakken */
+.answers { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.answer {
+  border-radius: 12px;
+  padding: 18px;
+  color: #fff;
+  font-size: 1.3rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 90px;
+  text-align: left;
+}
+.answer .shape { font-size: 1.6rem; }
+.answer.a0 { background: var(--a0); }
+.answer.a1 { background: var(--a1); }
+.answer.a2 { background: var(--a2); }
+.answer.a3 { background: var(--a3); }
+.answer.dim { opacity: .3; }
+.answer .count { margin-left: auto; font-size: 1.5rem; }
+
+/* Leerlingscherm */
+.player main { max-width: 520px; justify-content: center; }
+.player .answers { flex: 1; }
+.player .answer { flex-direction: column; justify-content: center; text-align: center; min-height: 30vh; }
+.player .answer .shape { font-size: 3rem; }
+.player .answer .label { font-size: 1.1rem; word-break: break-word; }
+.big { font-size: 2.2rem; font-weight: 800; }
+.result-good { background: var(--a3); }
+.result-bad { background: var(--a0); }
+
+/* Docentenscherm */
+.join-url { font-size: 2.6rem; font-weight: 800; color: var(--accent); word-break: break-all; }
+.names { display: flex; flex-wrap: wrap; gap: 10px; }
+.names .name { background: var(--panel); padding: 8px 14px; border-radius: 999px; cursor: pointer; }
+.names .name:hover { text-decoration: line-through; }
+.question-text { font-size: 2.2rem; font-weight: 800; text-align: center; }
+.bar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.timer {
+  width: 90px; height: 90px; border-radius: 50%;
+  background: var(--accent); color: #1d1b3a;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2.2rem; font-weight: 800;
+}
+.ranking { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
+.ranking li { display: flex; justify-content: space-between; background: var(--panel); padding: 12px 18px; border-radius: 10px; font-size: 1.3rem; }
+.quiz-list { display: flex; flex-direction: column; gap: 10px; }
+.quiz-list button { text-align: left; background: var(--panel); color: var(--text); }
+.quiz-list button:hover { outline: 2px solid var(--accent); }
+.podium { display: flex; justify-content: center; align-items: flex-end; gap: 16px; }
+.podium div { background: var(--panel); border-radius: 12px 12px 0 0; padding: 16px; width: 200px; text-align: center; font-size: 1.3rem; font-weight: 700; }
+.podium .p1 { height: 220px; background: var(--accent); color: #1d1b3a; }
+.podium .p2 { height: 170px; }
+.podium .p3 { height: 130px; }
+
+@media (max-width: 600px) {
+  .answers { grid-template-columns: 1fr; }
+  .player .answers { grid-template-columns: 1fr 1fr; }
+  .question-text { font-size: 1.5rem; }
+  .join-url { font-size: 1.5rem; }
+}

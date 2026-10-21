@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LANcelot · Docent</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<main>
+  <div class="bar">
+    <div class="logo">LAN<span>celot</span></div>
+    <div class="muted" id="status"></div>
+  </div>
+
+  <section id="idle" class="panel">
+    <h2>Kies een quiz</h2>
+    <p class="muted">Quizzen staan in de map <code>quizzes</code>.</p>
+    <div class="quiz-list" id="quiz-list"></div>
+    <p class="error" id="load-error"></p>
+  </section>
+
+  <section id="lobby" class="hidden">
+    <div class="panel center">
+      <p class="muted">Ga in je browser naar</p>
+      <div class="join-url" id="join-url"></div>
+      <p class="muted" id="other-urls"></p>
+    </div>
+    <div class="bar">
+      <h2 id="player-count">0 spelers</h2>
+      <button id="start" disabled>Start quiz</button>
+    </div>
+    <p class="muted">Klik op een naam om die speler te verwijderen.</p>
+    <div class="names" id="names"></div>
+  </section>
+
+  <section id="question" class="hidden">
+    <div class="bar">
+      <span class="muted" id="q-progress"></span>
+      <div class="timer" id="timer"></div>
+      <span class="muted" id="q-answered"></span>
+    </div>
+    <div class="question-text panel" id="q-text"></div>
+    <div class="answers" id="q-answers"></div>
+    <div class="bar">
+      <span></span>
+      <button id="reveal" class="secondary">Toon antwoord</button>
+      <button id="next" class="hidden">Volgende</button>
+    </div>
+    <ol class="ranking hidden" id="top"></ol>
+  </section>
+
+  <section id="podium" class="hidden">
+    <h2 class="center">Eindstand</h2>
+    <div class="podium" id="podium-blocks"></div>
+    <ol class="ranking" id="final"></ol>
+    <div class="bar">
+      <button class="secondary" id="restart">Nog een keer</button>
+      <button id="close">Andere quiz kiezen</button>
+    </div>
+  </section>
+</main>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/host.js"></script>
+</body>
+</html>

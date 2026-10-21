@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LANcelot</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body class="player">
+<main>
+  <div class="center logo">LAN<span>celot</span></div>
+
+  <section id="idle" class="panel center">
+    <p class="big">Even wachten…</p>
+    <p class="muted">De leerkracht heeft nog geen quiz gestart.</p>
+  </section>
+
+  <form id="join" class="panel center hidden">
+    <p>Hoe heet je?</p>
+    <input id="name" maxlength="20" autocomplete="off" placeholder="Je naam">
+    <p class="error" id="join-error"></p>
+    <button type="submit">Doe mee!</button>
+  </form>
+
+  <section id="lobby" class="panel center hidden">
+    <p class="big">Je doet mee!</p>
+    <p class="muted">Kijk naar het bord. We beginnen zo.</p>
+  </section>
+
+  <section id="question" class="hidden">
+    <p class="center muted" id="q-progress"></p>
+    <div class="answers" id="answer-buttons"></div>
+  </section>
+
+  <section id="answered" class="panel center hidden">
+    <p class="big">Antwoord verstuurd</p>
+    <p class="muted">Wachten op de rest…</p>
+  </section>
+
+  <section id="reveal" class="panel center hidden">
+    <p class="big" id="r-title"></p>
+    <p id="r-points"></p>
+    <p class="muted" id="r-rank"></p>
+  </section>
+
+  <section id="podium" class="panel center hidden">
+    <p class="big">Klaar!</p>
+    <p id="p-rank"></p>
+    <p class="muted" id="p-score"></p>
+  </section>
+
+  <p class="center muted" id="me"></p>
+</main>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/player.js"></script>
+</body>
+</html>

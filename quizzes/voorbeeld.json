@@ -1,0 +1,9 @@
+{
+  "title": "Voorbeeldquiz: Nederland",
+  "questions": [
+    { "question": "Wat is de hoofdstad van Nederland?", "answers": ["Rotterdam", "Amsterdam", "Den Haag", "Utrecht"], "correct": 1, "time": 20 },
+    { "question": "Hoeveel provincies heeft Nederland?", "answers": ["10", "11", "12", "13"], "correct": 2, "time": 20 },
+    { "question": "Welke rivier stroomt door Nijmegen?", "answers": ["De Maas", "De IJssel", "De Waal", "De Rijn"], "correct": 2, "time": 20 },
+    { "question": "Het Wilhelmus is het oudste volkslied ter wereld.", "answers": ["Waar", "Niet waar"], "correct": 0, "time": 15 }
+  ]
+}
