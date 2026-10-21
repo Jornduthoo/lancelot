@@ -33,6 +33,7 @@ $('brand').addEventListener('click', () => {
   if (OWN_VIEWS.includes(view)) show('home');
 });
 document.querySelector('[data-module="toernooi"]').addEventListener('click', () => show('idle'));
+document.querySelector('[data-module="rondetafel"]').addEventListener('click', () => { location.href = '/rondetafel'; });
 
 function loadQuiz(file) {
   socket.emit('load', file, res => {

@@ -11,6 +11,7 @@
 </head>
 <body class="player">
 <main>
+ <div id="toernooi">
   <div class="mini" id="mini">
     <img src="/img/logo.webp" alt="">
     <div class="wordmark">LAN<span>celot</span></div>
@@ -71,9 +72,39 @@
   </section>
 
   <div class="me" id="me"><span id="me-name"></span><span id="me-score"></span></div>
+ </div>
+
+ <div id="rondetafel" class="hidden">
+  <div class="mini">
+    <img src="/img/logo.webp" alt="">
+    <div class="wordmark">LAN<span>celot</span></div>
+  </div>
+
+  <section id="rt-wait" class="screen panel">
+    <p class="status">De Ronde Tafel</p>
+    <p class="title" id="rt-title"></p>
+    <p class="muted">Je zit aan tafel. Kijk naar het bord, de eerste vraag komt zo.</p>
+    <div class="spinner"></div>
+  </section>
+
+  <section id="rt-item" class="screen hidden">
+    <p class="status" id="rt-progress"></p>
+    <p class="rt-question" id="rt-question"></p>
+    <div id="rt-input"></div>
+    <p class="error" id="rt-error"></p>
+    <p class="rt-feedback" id="rt-feedback"></p>
+  </section>
+
+  <section id="rt-end" class="screen panel hidden">
+    <p class="status">De Ronde Tafel is gesloten</p>
+    <p class="title">Bedankt voor je inbreng!</p>
+    <p class="muted">Je antwoorden waren anoniem.</p>
+  </section>
+ </div>
 </main>
 <script src="/socket.io/socket.io.js"></script>
 <script src="/js/fx.js"></script>
 <script src="/js/player.js"></script>
+<script src="/js/rt-player.js"></script>
 </body>
 </html>

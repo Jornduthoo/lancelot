@@ -7,6 +7,7 @@ const { Server } = require('socket.io');
 const { Game } = require('./src/game');
 const QRCode = require('qrcode');
 const quizzes = require('./src/quizzes');
+const rondetafel = require('./src/rondetafel');
 const settings = require('./src/settings');
 const results = require('./src/results');
 const { execFile } = require('child_process');
@@ -23,16 +24,23 @@ const game = new Game(io, g => {
   io.to('host').emit('results', results.list());
   return file;
 });
+const rt = new rondetafel.RondeTafel(io, r => {
+  const file = results.saveRondeTafel(r);
+  io.to('host').emit('results', results.list());
+  return file;
+});
 
 // Het docentenscherm werkt alleen op de pc waar de server draait.
 function isLocal(address) {
   return ['127.0.0.1', '::1', '::ffff:127.0.0.1'].includes(address);
 }
 
-app.get('/host', (req, res) => {
-  if (!isLocal(req.socket.remoteAddress)) return res.status(403).send('Het docentenscherm is alleen bereikbaar op de pc van de leerkracht.');
-  res.sendFile(path.join(__dirname, 'public', 'host.html'));
-});
+for (const [route, page] of [['/host', 'host.html'], ['/rondetafel', 'rondetafel.html']]) {
+  app.get(route, (req, res) => {
+    if (!isLocal(req.socket.remoteAddress)) return res.status(403).send('Het docentenscherm is alleen bereikbaar op de pc van de leerkracht.');
+    res.sendFile(path.join(__dirname, 'public', page));
+  });
+}
 // Resultaten downloaden kan alleen op de pc van de leerkracht.
 app.get('/resultaten/:file', (req, res) => {
   if (!isLocal(req.socket.remoteAddress)) return res.status(403).end();
@@ -71,9 +79,12 @@ io.on('connection', socket => {
       if (process.platform === 'win32') execFile('explorer', [results.DIR]);
     });
     socket.emit('state', game.hostState());
+    socket.emit('rt-sessions', rondetafel.list());
+    socket.emit('rt-state', rt.hostState());
 
     socket.on('load', (file, cb) => {
       try {
+        if (rt.active) throw new Error('De Ronde Tafel loopt nog. Stop die eerst.');
         game.load(quizzes.load(file));
         cb && cb({ ok: true });
       } catch (err) {
@@ -124,6 +135,38 @@ io.on('connection', socket => {
         .catch(err => cb && cb({ error: err.message }));
     });
 
+    socket.on('rt-generate', ({ prompt } = {}, cb) => {
+      generateQuiz(prompt, [], rondetafel.parseAiText)
+        .then(session => cb && cb({ ok: true, session }))
+        .finally(() => io.to('host').emit('settings', settings.publicView()))
+        .catch(err => cb && cb({ error: err.message }));
+    });
+
+    // De Ronde Tafel
+    const refreshSessions = () => io.to('host').emit('rt-sessions', rondetafel.list());
+    socket.on('rt-parse', handle(text => ({ session: rondetafel.parseAiText(text) })));
+    socket.on('rt-open', handle(file => ({ session: rondetafel.load(file) })));
+    socket.on('rt-save', handle(({ session, file } = {}) => {
+      const saved = rondetafel.save(session, file);
+      refreshSessions();
+      return { file: saved };
+    }));
+    socket.on('rt-delete', handle(file => {
+      rondetafel.remove(file);
+      refreshSessions();
+      return {};
+    }));
+    socket.on('rt-load', handle(file => {
+      if (game.phase !== 'idle') throw new Error('Er loopt nog een toernooi. Stop dat eerst.');
+      rt.load(rondetafel.load(file));
+      return {};
+    }));
+    socket.on('rt-go', index => Number.isInteger(index) && rt.go(index));
+    socket.on('rt-lock', () => rt.toggleLock());
+    socket.on('rt-results', () => rt.toggleResults());
+    socket.on('rt-hide', key => rt.hide(key));
+    socket.on('rt-stop', (_, cb) => cb && cb({ file: rt.stop() }));
+
     socket.on('start', () => game.start());
     socket.on('next', () => game.next());
     socket.on('reveal', () => game.reveal());
@@ -147,6 +190,19 @@ io.on('connection', socket => {
 
   socket.on('answer', choice => {
     if (socket.data.playerId) game.answer(socket.data.playerId, choice);
+  });
+
+  // De Ronde Tafel: anoniem, alleen een vaste id per browser.
+  socket.emit('rt-state', rt.playerState());
+  const validId = id => typeof id === 'string' && id.length > 0 && id.length <= 64;
+  socket.on('rt-join', (playerId, cb) => {
+    if (!validId(playerId)) return cb && cb({ error: 'Ongeldige speler.' });
+    socket.data.rtId = playerId;
+    cb && cb({ ok: true, mine: rt.join(playerId) });
+  });
+  socket.on('rt-answer', (value, cb) => {
+    if (!socket.data.rtId) return cb && cb({ error: 'Herlaad de pagina en probeer opnieuw.' });
+    cb && cb(rt.answer(socket.data.rtId, value));
   });
 });
 

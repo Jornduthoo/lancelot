@@ -70,7 +70,8 @@ const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 const BUSY = new Set([429, 500, 503, 504]);
 
 // files: [{ mimeType, data }] met base64-data, bijvoorbeeld een screenshot van het bordboek of een pdf.
-async function generateQuiz(prompt, files = []) {
+// parse zet de tekst van Gemini om in een quiz of een andere vorm (standaard een Toernooi-quiz).
+async function generateQuiz(prompt, files = [], parse = quizzes.parseAiText) {
   const { geminiKey, geminiModel, geminiAutoModel } = settings.read();
   if (!geminiKey) throw new Error('Er is nog geen Gemini-sleutel ingesteld. Kies Instellingen op het startscherm.');
   if (typeof prompt !== 'string' || !prompt.trim()) throw new Error('De prompt is leeg.');
@@ -134,7 +135,7 @@ async function generateQuiz(prompt, files = []) {
 
   const text = (data.candidates?.[0]?.content?.parts || []).map(p => p.text || '').join('');
   if (!text) throw new Error('Gemini gaf een leeg antwoord. Probeer het opnieuw of pas het onderwerp aan.');
-  return quizzes.parseAiText(text);
+  return parse(text);
 }
 
 module.exports = { generateQuiz, AUTO };

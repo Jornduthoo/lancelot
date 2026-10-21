@@ -5,7 +5,7 @@ Een gratis klasquiz die op je eigen pc draait. Leerlingen scannen de QR-code op 
 Het thema: middeleeuws met een scifi-kantje. Op het startscherm kies je een spel:
 
 - **Toernooi**: snelle quiz, wie antwoordt het snelst en het best? (klaar)
-- **De Ronde Tafel**: polls en stellingen (binnenkort)
+- **De Ronde Tafel**: polls, stellingen, woordwolken, open vragen en schalen, live op het bord (klaar)
 - **Schattenjacht** (binnenkort)
 - **De prinses in de toren** (binnenkort)
 
@@ -34,9 +34,20 @@ Met **Lege quiz** maak je zelf een quiz, en met **Bewerken** pas je een bestaand
 
 Maak gratis een sleutel aan op [aistudio.google.com/apikey](https://aistudio.google.com/apikey) en vul hem in bij **Instellingen**. In de quizmaker verschijnt dan het blok **Of: laat Gemini de quiz direct maken**. Daar upload je je lesstof (screenshot, foto of pdf, ook met Ctrl+V) rechtstreeks in LANcelot en maak je de quiz met één klik op **Maak direct met Gemini**. Zolang je in AI Studio geen betaalgegevens koppelt, kost het niets (er geldt een gratis daglimiet). De sleutel staat alleen op je eigen pc, in `settings.json`, en gaat nooit naar GitHub.
 
+## De Ronde Tafel
+
+Stel de klas vragen en zie de antwoorden live op het bord, zoals bij Mentimeter. Leerlingen antwoorden anoniem via dezelfde QR-code.
+
+- **Meerkeuze** (ook voor stellingen): 2 tot 6 keuzes, met balken die live meegroeien. Leerlingen mogen van mening veranderen.
+- **Woordwolk**: elke leerling geeft tot 3 woorden; woorden die vaker voorkomen worden groter.
+- **Open vraag**: korte antwoorden verschijnen als kaartjes op het bord.
+- **Schaal**: 1 tot 5, met het gemiddelde erbij.
+
+Klik op een woord of een kaartje om het te verbergen (handig bij flauwe antwoorden). Met **Sluit antwoorden** stop je het stemmen voor die vraag, en met **Verberg resultaten** laat je eerst iedereen antwoorden voor je de uitslag toont. Een sessie maak je zelf, of met AI op dezelfde manier als een quiz. Sessies staan als JSON-bestanden in de map `rondetafel/`.
+
 ## Resultaten
 
-Na elke quiz worden de scores automatisch bewaard in de map `resultaten`, als bestand dat opent in Excel. Je ziet per leerling de rang, de score en per vraag of het antwoord goed of fout was, en per vraag hoeveel procent van de klas het goed had. Op het docentenscherm vind je ze onder **Resultaten** (met **Download** en **Open map**), en na elke quiz staat er een downloadlink onder het podium. De resultaten blijven op je eigen pc.
+Na elke quiz en elke Ronde Tafel worden de resultaten automatisch bewaard in de map `resultaten`, als bestand dat opent in Excel. Je ziet per leerling de rang, de score en per vraag of het antwoord goed of fout was, en per vraag hoeveel procent van de klas het goed had. Op het docentenscherm vind je ze onder **Resultaten** (met **Download** en **Open map**), en na elke quiz staat er een downloadlink onder het podium. De resultaten blijven op je eigen pc.
 
 ## Quizbestanden
 

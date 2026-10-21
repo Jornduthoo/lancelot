@@ -1,0 +1,9 @@
+{
+  "title": "Voorbeeld: start van de week",
+  "items": [
+    { "type": "schaal", "question": "Hoe goed heb je geslapen?", "min": "Heel slecht", "max": "Super" },
+    { "type": "woorden", "question": "Welk woord past bij jouw weekend?" },
+    { "type": "keuze", "question": "Waar wil je deze week het meest aan werken?", "options": ["Rekenen", "Taal", "Frans", "WO", "Iets anders"] },
+    { "type": "open", "question": "Wat wil je de klas of de juf/meester nog vertellen?" }
+  ]
+}

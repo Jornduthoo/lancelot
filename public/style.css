@@ -26,6 +26,8 @@
   --a1: #3d8bff;
   --a2: #ffb703;
   --a3: #22c993;
+  --a4: #a66bff;
+  --a5: #ff8c42;
   --head: Cinzel, Georgia, serif;
   --tech: Orbitron, 'Segoe UI', sans-serif;
   --body: 'Exo 2', 'Segoe UI', system-ui, sans-serif;
@@ -342,3 +344,101 @@ span.play { padding: 13px 22px; display: flex; align-items: center; }
 
 .quiz-row .play { display: flex; align-items: center; gap: 6px; }
 .quiz-row .play .go { margin-left: auto; font-family: var(--tech); font-size: .8rem; letter-spacing: .12em; text-transform: uppercase; color: var(--cyan); }
+
+/* ---------- De Ronde Tafel ---------- */
+#toernooi, #rondetafel { display: contents; }
+.c0 { --c: var(--a0); } .c1 { --c: var(--a1); } .c2 { --c: var(--a2); }
+.c3 { --c: var(--a3); } .c4 { --c: var(--a4); } .c5 { --c: var(--a5); }
+.letter {
+  font-family: var(--tech); font-weight: 800; width: 2.2em; height: 2.2em; flex: none;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--c, var(--cyan)); color: #fff; text-shadow: 0 1px 2px rgba(0, 0, 0, .4);
+  clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+}
+.type-badge {
+  font-family: var(--tech); font-size: .8rem; letter-spacing: .2em; text-transform: uppercase;
+  color: var(--gold); border: 1px solid rgba(255, 201, 74, .45); padding: 6px 12px;
+}
+.join-mini { font-family: var(--tech); font-weight: 800; color: var(--cyan); text-shadow: 0 0 12px var(--cyan-glow); }
+.rt-title { font-family: var(--head); }
+.rt-results { min-height: 300px; display: flex; flex-direction: column; gap: 12px; }
+.rt-locked { align-self: center; margin: 0; font-family: var(--tech); font-size: .8rem; letter-spacing: .2em; text-transform: uppercase; color: var(--gold); }
+.rt-hidden { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; min-height: 280px; text-align: center; }
+.rt-hidden .count { font-size: 5rem; color: var(--cyan); text-shadow: 0 0 30px var(--cyan-glow); }
+.waiting { text-align: center; width: 100%; margin: auto; animation: breathe 2.4s ease-in-out infinite; }
+@keyframes breathe { 50% { opacity: .45; } }
+
+/* Meerkeuze */
+.poll { display: flex; flex-direction: column; gap: 12px; }
+.poll-row { display: flex; align-items: center; gap: 14px; animation: tile-in .45s cubic-bezier(.2, 1.3, .4, 1) both; }
+.poll-row .letter { font-size: 1.2rem; }
+.poll-bar { position: relative; flex: 1; height: 64px; background: rgba(255, 255, 255, .04); box-shadow: inset 0 0 0 1px var(--line); overflow: hidden; clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 0 100%); }
+.poll-fill { position: absolute; inset: 0; background: linear-gradient(90deg, var(--c), color-mix(in srgb, var(--c) 70%, #fff)); transform-origin: left; transform: scaleX(0); transition: transform .8s cubic-bezier(.2, 1, .3, 1); opacity: .9; }
+.poll-label { position: relative; z-index: 1; display: flex; align-items: center; height: 100%; padding: 0 18px; font-weight: 800; font-size: 1.4rem; text-shadow: 0 1px 3px rgba(0, 0, 0, .6); }
+.poll-num { font-family: var(--tech); font-weight: 800; font-size: 1.3rem; min-width: 7.5em; text-align: right; }
+.poll-row.lead .poll-bar { box-shadow: inset 0 0 0 2px var(--gold), 0 0 24px rgba(255, 201, 74, .3); }
+
+/* Schaal */
+.scale { display: grid; grid-template-columns: auto 1fr; grid-template-rows: 1fr auto; gap: 10px 30px; align-items: end; }
+.scale-avg { grid-row: 1 / 3; align-self: center; display: flex; flex-direction: column; align-items: center; padding: 20px 30px; border: 1px solid rgba(255, 201, 74, .4); background: rgba(255, 201, 74, .06); }
+.avg-num { font-family: var(--tech); font-weight: 800; font-size: 5rem; color: var(--gold); text-shadow: 0 0 30px rgba(255, 201, 74, .5); }
+.scale-chart { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; height: 260px; }
+.scale-col { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.scale-n { font-family: var(--tech); font-weight: 800; }
+.scale-track { flex: 1; width: 100%; display: flex; align-items: flex-end; background: rgba(255, 255, 255, .03); box-shadow: inset 0 0 0 1px var(--line); }
+.scale-fill { width: 100%; height: 100%; transform-origin: bottom; transform: scaleY(0); transition: transform .8s cubic-bezier(.2, 1, .3, 1); background: linear-gradient(0deg, rgba(76, 201, 255, .35), var(--cyan)); box-shadow: 0 0 18px var(--cyan-glow); }
+.scale-label { font-family: var(--tech); font-weight: 800; font-size: 1.3rem; color: var(--cyan); }
+.scale-ends { grid-column: 2; display: flex; justify-content: space-between; color: var(--muted); }
+
+/* Woordwolk */
+.cloud { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 6px 22px; min-height: 280px; padding: 20px; }
+.word { font-family: var(--body); font-weight: 800; line-height: 1.1; cursor: pointer; transition: font-size .6s cubic-bezier(.2, 1.3, .4, 1); }
+.word:hover { text-decoration: line-through; opacity: .7; }
+.word.new { animation: pop .5s cubic-bezier(.2, 1.6, .4, 1); }
+.word.w0 { color: var(--cyan); text-shadow: 0 0 18px var(--cyan-glow); }
+.word.w1 { color: var(--gold); text-shadow: 0 0 18px rgba(255, 201, 74, .45); }
+.word.w2 { color: #fff; }
+.word.w3 { color: #ff8fa3; }
+.word.w4 { color: #6ff0c4; }
+.word.w5 { color: #c3a2ff; }
+
+/* Open antwoorden */
+.wall { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; align-items: start; }
+.wall .waiting { grid-column: 1 / -1; padding: 60px 0; }
+.card {
+  background: var(--panel-solid); border-top: 4px solid var(--c); padding: 14px 16px; font-size: 1.15rem; font-weight: 600;
+  cursor: pointer; word-break: break-word; animation: tile-in .45s cubic-bezier(.2, 1.3, .4, 1) both;
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%);
+}
+.card:hover { opacity: .6; text-decoration: line-through; }
+
+.end-panel { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 40px 20px; }
+.end-icon { width: 90px; height: 90px; color: var(--gold); filter: drop-shadow(0 0 20px rgba(255, 201, 74, .5)); animation: float 6s ease-in-out infinite; }
+
+/* Editor */
+.answer-edit[class*=" c"] { background: color-mix(in srgb, var(--c) 35%, transparent); gap: 10px; }
+
+/* Leerlingscherm */
+.player .rt-question { font-weight: 800; font-size: 1.5rem; margin: 0; }
+.rt-choices { display: flex; flex-direction: column; gap: 10px; }
+.rt-choice { justify-content: flex-start; text-align: left; gap: 14px; padding: 14px; font-size: 1.15rem; color: #fff; background: color-mix(in srgb, var(--c) 30%, var(--panel-solid)); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c) 60%, transparent); }
+.rt-choice.chosen { background: var(--c); box-shadow: inset 0 0 0 3px #fff, 0 0 24px color-mix(in srgb, var(--c) 60%, transparent); }
+.rt-scale { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+.rt-step { font-family: var(--tech); font-size: 1.8rem; padding: 22px 0; background: rgba(76, 201, 255, .1); color: var(--text); box-shadow: inset 0 0 0 1px var(--line); }
+.rt-step.chosen { background: linear-gradient(180deg, #7fdcff, var(--cyan)); color: #04121f; box-shadow: 0 0 24px var(--cyan-glow); }
+.rt-scale-ends { display: flex; justify-content: space-between; color: var(--muted); font-size: .9rem; }
+.rt-text { display: flex; flex-direction: column; gap: 10px; }
+.rt-text input, .rt-text textarea { font-size: 1.2rem; padding: 14px; border: 1px solid var(--cyan); background: rgba(10, 20, 38, .9); color: var(--text); box-shadow: 0 0 18px var(--cyan-glow); }
+.rt-text input { text-align: center; }
+.rt-mine { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.chip { background: rgba(76, 201, 255, .15); box-shadow: inset 0 0 0 1px var(--line); padding: 6px 12px; font-weight: 700; animation: pop .35s ease-out; }
+.rt-feedback { color: var(--good); font-weight: 700; margin: 0; }
+.rt-feedback.pop { animation: pop .35s ease-out; }
+
+@media (max-width: 700px) {
+  .scale { grid-template-columns: 1fr; }
+  .scale-avg { grid-row: auto; }
+  .scale-ends { grid-column: 1; }
+  .poll-label { font-size: 1.05rem; }
+  .poll-num { min-width: 5em; font-size: 1rem; }
+}

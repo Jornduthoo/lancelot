@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LANcelot · De Ronde Tafel</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body class="rt">
+<main>
+  <div class="topbar">
+    <div class="brand" id="brand" title="Naar het startscherm">
+      <img src="/img/logo.webp" alt="">
+      <div>
+        <div class="wordmark">LAN<span>celot</span></div>
+        <div class="subtitle" id="status">De Ronde Tafel</div>
+      </div>
+    </div>
+    <div class="actions">
+      <span class="join-mini hidden" id="join-mini"></span>
+      <button class="secondary icon" id="mute" title="Geluid aan/uit">🔊</button>
+      <button class="secondary hidden" id="stop">Stop Ronde Tafel</button>
+    </div>
+  </div>
+
+  <section id="list">
+    <div class="bar">
+      <h2>De Ronde Tafel · kies een sessie</h2>
+      <div class="actions">
+        <button class="secondary" id="to-home">Terug</button>
+        <button class="secondary" id="new-empty">Lege sessie</button>
+        <button id="new-ai">Nieuwe sessie met AI</button>
+      </div>
+    </div>
+    <p class="muted">Stel de klas vragen en zie de antwoorden live op het bord: meerkeuze, een woordwolk, open vragen of een schaal van 1 tot 5. Leerlingen antwoorden anoniem.</p>
+    <p class="notice hidden" id="stopped"></p>
+    <div class="quiz-list" id="session-list"></div>
+    <p class="error" id="list-error"></p>
+  </section>
+
+  <section id="maker" class="hidden">
+    <div class="bar">
+      <h2>Nieuwe sessie met AI</h2>
+      <button class="secondary" data-back="list">Terug</button>
+    </div>
+    <div class="panel form">
+      <h3>1. Waarover wil je de klas bevragen?</h3>
+      <label>Onderwerp<input id="r-topic" placeholder="bijv. onze uitstap naar het museum, of: pesten"></label>
+      <div class="row">
+        <label>Niveau
+          <select id="r-level">
+            <option>1e kleuterklas</option>
+            <option>2e kleuterklas</option>
+            <option>3e kleuterklas</option>
+            <option>1e leerjaar</option>
+            <option>2e leerjaar</option>
+            <option>3e leerjaar</option>
+            <option>4e leerjaar</option>
+            <option selected>5e leerjaar</option>
+            <option>6e leerjaar</option>
+            <option>1e middelbaar</option>
+            <option>2e middelbaar</option>
+            <option>3e middelbaar</option>
+            <option>4e middelbaar</option>
+            <option>5e middelbaar</option>
+            <option>6e middelbaar</option>
+            <option>7e specialisatiejaar</option>
+            <option>hoger onderwijs</option>
+            <option>volwassenenonderwijs</option>
+          </select>
+        </label>
+        <label>Doel
+          <select id="r-goal">
+            <option>voorkennis peilen voor de les begint</option>
+            <option>meningen en stellingen bespreken</option>
+            <option>terugblikken op de les</option>
+            <option>feedback over de les of de week</option>
+            <option>een klasgesprek op gang brengen</option>
+          </select>
+        </label>
+        <label>Aantal vragen<input id="r-count" type="number" min="2" max="15" value="5"></label>
+      </div>
+      <label>Extra wensen (mag leeg)<textarea id="r-extra" rows="2" placeholder="bijv. begin met een woordwolk, of: alleen stellingen"></textarea></label>
+    </div>
+    <div class="panel form">
+      <h3>2. Kopieer de prompt naar een AI</h3>
+      <p class="muted">Klik op een chatbot: de prompt wordt gekopieerd en de chatbot opent in een nieuw tabblad. Plak de prompt daar met Ctrl+V.</p>
+      <textarea id="r-prompt" rows="8" readonly></textarea>
+      <div class="actions">
+        <button class="chatbot" data-url="https://gemini.google.com/app">Gemini</button>
+        <button class="chatbot" data-url="https://chatgpt.com/">ChatGPT</button>
+        <button class="chatbot" data-url="https://claude.ai/new">Claude</button>
+        <button class="secondary" id="r-copy">Alleen kopiëren</button>
+      </div>
+      <p class="muted" id="r-copied"></p>
+    </div>
+    <div class="panel form hidden" id="r-gemini-panel">
+      <h3>Of: laat Gemini de sessie direct maken</h3>
+      <p class="muted small">Gebruikt je eigen sleutel uit Instellingen.</p>
+      <p class="error" id="r-gemini-error"></p>
+      <div><button id="r-gemini">Maak direct met Gemini</button> <span class="muted" id="r-gemini-busy"></span></div>
+    </div>
+    <div class="panel form">
+      <h3>3. Plak het antwoord van de AI</h3>
+      <p class="muted small">Kopieer het antwoord van de AI en kom terug naar dit venster: LANcelot leest het dan zelf in. Lukt dat niet, plak het dan hieronder.</p>
+      <textarea id="r-answer" rows="6" placeholder="Plak hier het hele antwoord…"></textarea>
+      <p class="error" id="r-error"></p>
+      <div><button id="r-parse">Controleren</button></div>
+    </div>
+  </section>
+
+  <section id="editor" class="hidden">
+    <div class="bar">
+      <h2 id="e-heading">Sessie bewerken</h2>
+      <button class="secondary" data-back="list">Annuleren</button>
+    </div>
+    <div class="panel form">
+      <label>Titel<input id="e-title" maxlength="100"></label>
+    </div>
+    <div id="e-items" class="form"></div>
+    <div class="actions">
+      <button class="secondary" data-add="keuze">+ Meerkeuze</button>
+      <button class="secondary" data-add="woorden">+ Woordwolk</button>
+      <button class="secondary" data-add="open">+ Open vraag</button>
+      <button class="secondary" data-add="schaal">+ Schaal</button>
+    </div>
+    <p class="error" id="e-error"></p>
+    <div class="bar">
+      <span></span>
+      <div class="actions">
+        <button class="secondary" id="e-save">Opslaan</button>
+        <button id="e-play">Opslaan en starten</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="welcome" class="hidden">
+    <h2 class="center rt-title" id="w-title"></h2>
+    <div class="panel join">
+      <div class="qr" id="qr"></div>
+      <div class="join-text">
+        <p class="muted">Scan de QR-code of surf naar</p>
+        <div class="join-url" id="join-url"></div>
+        <p class="muted small" id="other-urls"></p>
+      </div>
+    </div>
+    <div class="bar">
+      <h2><span class="count" id="w-count">0</span> <span id="w-word">ridders</span> aan tafel</h2>
+      <button class="gold big" id="w-start">Open de Ronde Tafel</button>
+    </div>
+    <p class="muted small">Leerlingen antwoorden anoniem. Je hoeft niet te wachten tot iedereen er is: wie later binnenkomt, doet gewoon mee.</p>
+  </section>
+
+  <section id="live" class="hidden">
+    <div class="hud">
+      <span class="round" id="l-progress"></span>
+      <span class="type-badge" id="l-type"></span>
+      <span class="answered" id="l-count"></span>
+    </div>
+    <div class="question-text panel" id="l-question"></div>
+    <div id="l-results" class="rt-results"></div>
+    <div class="bar">
+      <button class="secondary" id="l-prev">◀ Vorige</button>
+      <div class="actions">
+        <button class="secondary" id="l-toggle">Verberg resultaten</button>
+        <button class="secondary" id="l-lock">Sluit antwoorden</button>
+        <button id="l-next">Volgende ▶</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="end" class="hidden">
+    <div class="panel center end-panel">
+      <svg class="end-icon" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="5"/><circle cx="12" cy="2.8" r="2"/><circle cx="12" cy="21.2" r="2"/><circle cx="2.8" cy="12" r="2"/><circle cx="21.2" cy="12" r="2"/><circle cx="5.5" cy="5.5" r="2"/><circle cx="18.5" cy="18.5" r="2"/><circle cx="18.5" cy="5.5" r="2"/><circle cx="5.5" cy="18.5" r="2"/></svg>
+      <h2>De Ronde Tafel is gesloten</h2>
+      <p class="muted" id="end-summary"></p>
+      <p class="muted" id="end-saved"></p>
+    </div>
+    <div class="bar">
+      <button class="secondary" id="end-back">◀ Terug naar de laatste vraag</button>
+      <button id="end-close">Naar de sessies</button>
+    </div>
+  </section>
+</main>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/fx.js"></script>
+<script src="/js/rt-host.js"></script>
+</body>
+</html>

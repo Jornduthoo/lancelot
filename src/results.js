@@ -1,6 +1,7 @@
 // Resultaten van elke gespeelde quiz, als CSV-bestand in de map resultaten/ (opent in Excel).
 const fs = require('fs');
 const path = require('path');
+const { TYPE_NAMES } = require('./rondetafel');
 
 const DIR = path.join(__dirname, '..', 'resultaten');
 const LETTERS = ['A', 'B', 'C', 'D'];
@@ -21,20 +22,37 @@ function pad(n) {
   return String(n).padStart(2, '0');
 }
 
+function slugOf(title) {
+  return title.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40) || 'quiz';
+}
+
+function stamp(now) {
+  return `${pad(now.getDate())}/${pad(now.getMonth() + 1)}/${now.getFullYear()} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+}
+
+// Schrijft de regels weg als CSV-bestand met een unieke naam en geeft die naam terug.
+function write(now, slug, lines) {
+  const date = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+  const time = `${pad(now.getHours())}${pad(now.getMinutes())}`;
+  fs.mkdirSync(DIR, { recursive: true });
+  let file = `${date}_${time}_${slug}.csv`;
+  for (let i = 2; fs.existsSync(path.join(DIR, file)); i++) file = `${date}_${time}_${slug}-${i}.csv`;
+  // BOM zodat Excel de é's en ë's goed toont.
+  fs.writeFileSync(path.join(DIR, file), '\ufeff' + lines.join('\r\n') + '\r\n');
+  return file;
+}
+
 function save(game) {
   const quiz = game.quiz;
   const now = new Date();
-  const date = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
-  const time = `${pad(now.getHours())}${pad(now.getMinutes())}`;
-  const slug = quiz.title.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
-    .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40) || 'quiz';
 
   const players = [...game.players.values()].sort((a, b) => b.score - a.score);
   // Bij een gestopte quiz zijn de latere vragen niet gespeeld.
   const played = game.phase === 'podium' ? quiz.questions.length : game.index + 1;
   const lines = [
     row(['Quiz', quiz.title]),
-    row(['Datum', `${pad(now.getDate())}/${pad(now.getMonth() + 1)}/${now.getFullYear()} ${pad(now.getHours())}:${pad(now.getMinutes())}`]),
+    row(['Datum', stamp(now)]),
     row(['Leerlingen', players.length]),
     ...(played < quiz.questions.length ? [row(['Status', `gestopt na vraag ${played} van ${quiz.questions.length}`])] : []),
     '',
@@ -64,12 +82,38 @@ function save(game) {
     }),
   ];
 
-  fs.mkdirSync(DIR, { recursive: true });
-  let file = `${date}_${time}_${slug}.csv`;
-  for (let i = 2; fs.existsSync(path.join(DIR, file)); i++) file = `${date}_${time}_${slug}-${i}.csv`;
-  // BOM zodat Excel de é's en ë's goed toont.
-  fs.writeFileSync(path.join(DIR, file), '﻿' + lines.join('\r\n') + '\r\n');
-  return file;
+  return write(now, slugOf(quiz.title), lines);
+}
+
+// Ronde Tafel: per vraag de verdeling van de stemmen, de woorden of de open antwoorden. Anoniem.
+function saveRondeTafel(rt) {
+  const { session } = rt;
+  const now = new Date();
+  const pct = (n, total) => (total ? `${Math.round((n / total) * 100)}%` : '-');
+  const lines = [
+    row(['Ronde Tafel', session.title]),
+    row(['Datum', stamp(now)]),
+    row(['Deelnemers', rt.participants.size]),
+  ];
+  session.items.forEach((item, i) => {
+    const sum = rt.summary(i);
+    lines.push('', row([`Vraag ${i + 1}`, item.question]), row(['Soort', TYPE_NAMES[item.type]]), row(['Antwoorden van', `${sum.respondents} leerlingen`]));
+    if (item.type === 'keuze') {
+      lines.push(row(['Keuze', 'Stemmen', '%']));
+      item.options.forEach((o, j) => lines.push(row([o, sum.counts[j], pct(sum.counts[j], sum.respondents)])));
+    } else if (item.type === 'schaal') {
+      lines.push(row(['Score', 'Stemmen', '%']));
+      sum.counts.forEach((n, j) => lines.push(row([`${j + 1}${j === 0 ? ` (${item.min})` : j === 4 ? ` (${item.max})` : ''}`, n, pct(n, sum.respondents)])));
+      lines.push(row(['Gemiddelde', sum.avg === null ? '-' : sum.avg.toFixed(1).replace('.', ',')]));
+    } else if (item.type === 'woorden') {
+      lines.push(row(['Woord', 'Aantal']));
+      sum.words.forEach(w => lines.push(row([w.text, w.n])));
+    } else {
+      lines.push(row(['Antwoord']));
+      sum.open.forEach(a => lines.push(row([a.text])));
+    }
+  });
+  return write(now, `ronde-tafel-${slugOf(session.title)}`, lines);
 }
 
 function list() {
@@ -84,4 +128,4 @@ function filePath(file) {
   return path.join(DIR, file);
 }
 
-module.exports = { save, list, filePath, DIR };
+module.exports = { save, saveRondeTafel, list, filePath, DIR };

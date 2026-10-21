@@ -17,6 +17,14 @@
 
 Laat het zwarte venster openstaan zolang je speelt. Dat is de server.
 
+## De Ronde Tafel
+
+1. Kies op het startscherm **De Ronde Tafel** en klik bij een sessie op **Start**.
+2. Leerlingen scannen dezelfde QR-code. Ze hoeven geen naam in te vullen: alles is anoniem.
+3. Klik op **Open de Ronde Tafel** en ga met **Volgende** door de vragen. De antwoorden verschijnen live op het bord.
+4. Een ongepast woord of antwoord? Klik erop en het verdwijnt van het bord.
+5. Na de laatste vraag klik je op **Afronden**. De antwoorden worden bewaard in de map `resultaten`.
+
 ## Lukt verbinden niet?
 
 - **Zelfde netwerk:** je pc en de apparaten van leerlingen moeten op hetzelfde wifi-netwerk zitten. Een pc via een netwerkkabel werkt meestal ook, als die op hetzelfde schoolnetwerk zit.
