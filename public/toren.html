@@ -29,6 +29,8 @@
       <h2>De prinses in de toren</h2>
       <div class="actions">
         <button class="secondary" id="to-home">Terug</button>
+        <button class="secondary" data-make="leeg">Lege quiz</button>
+        <button data-make="ai">Nieuwe quiz met AI</button>
       </div>
     </div>
     <div class="panel tw-intro">
@@ -49,7 +51,7 @@
           <option value="15">15 minuten</option>
         </select>
       </label>
-      <p class="muted small">Kies hieronder de quiz waaruit de vragen komen. Quizzen maak je bij Toernooi.</p>
+      <p class="muted small">Kies hieronder de quiz waaruit de vragen komen, of maak er eerst een met de knoppen hierboven.</p>
     </div>
     <p class="notice hidden" id="stopped"></p>
     <div class="quiz-list" id="quiz-list"></div>
@@ -102,6 +104,7 @@
 </main>
 <script src="/socket.io/socket.io.js"></script>
 <script src="/js/fx.js"></script>
+<script src="/js/quiz-links.js"></script>
 <script src="/js/toren-world.js"></script>
 <script src="/js/toren-draw.js"></script>
 <script src="/js/toren-host.js"></script>

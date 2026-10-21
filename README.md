@@ -6,7 +6,7 @@ Het thema: middeleeuws met een scifi-kantje. Op het startscherm kies je een spel
 
 - **Toernooi**: snelle quiz, wie antwoordt het snelst en het best? (klaar)
 - **De Ronde Tafel**: polls, stellingen, woordwolken, open vragen en schalen, live op het bord (klaar)
-- **Schattenjacht** (binnenkort)
+- **Schattenjacht**: verdien goud met goede antwoorden en koop slimme upgrades (klaar)
 - **De prinses in de toren**: klim met je ridder naar de top; goede antwoorden geven energie (klaar)
 
 ## Starten (Windows)
@@ -28,7 +28,7 @@ Liever via de opdrachtprompt? Gebruik dan `npm install` en `npm start`, en open 
 5. Kopieer het antwoord van de chatbot (de kopieerknop bij het codeblok) en kom terug naar LANcelot. Het antwoord wordt dan vanzelf ingelezen. Lukt dat niet, plak het dan in het vak en klik op **Controleren**.
 6. Lees de vragen na, pas ze aan waar nodig en klik op **Opslaan en spelen**.
 
-Met **Lege quiz** maak je zelf een quiz, en met **Bewerken** pas je een bestaande quiz aan.
+Met **Lege quiz** maak je zelf een quiz, en met **Bewerken** pas je een bestaande quiz aan. Dat kan ook rechtstreeks vanuit Schattenjacht en De prinses in de toren; na het opslaan kom je daar terug.
 
 ### Nog sneller: met je eigen Gemini-sleutel
 
@@ -45,6 +45,17 @@ Stel de klas vragen en zie de antwoorden live op het bord, zoals bij Mentimeter.
 
 Klik op een woord of een kaartje om het te verbergen (handig bij flauwe antwoorden). Met **Sluit antwoorden** stop je het stemmen voor die vraag, en met **Verberg resultaten** laat je eerst iedereen antwoorden voor je de uitslag toont. Een sessie maak je zelf, of met AI op dezelfde manier als een quiz. Sessies staan als JSON-bestanden in de map `rondetafel/`.
 
+## Schattenjacht
+
+Elke leerling beantwoordt op eigen tempo vragen uit een quiz, zoals bij Gimkit. Een goed antwoord levert goud op, een fout kost een beetje goud. In de **schatkamer** koop je upgrades:
+
+- **Scherper zwaard**: meer goud per goed antwoord (10 → 25 → 60 → 150 → 400).
+- **Kroon van de reeks**: extra goud voor elk antwoord op rij goed.
+- **Drakenschild**: minder goud kwijt bij een fout.
+- **Gouden dubbelaar**: dubbel goud voor je volgende 6 goede antwoorden.
+
+Wie na de speeltijd (3 tot 15 minuten) het meeste goud heeft, wint. Op het bord zie je een live goudrace, wat er gekocht wordt en het goud van de hele klas.
+
 ## De prinses in de toren
 
 Een platformspel in Mario-stijl. Elke leerling klimt op de gsm met een ridder in dezelfde scifi-riddertoren, van platform naar platform, langs laserpoorten, drones en stekels. Wie geraakt wordt, valt een stuk naar beneden. Iedereen ziet de andere ridders live meeklimmen.
@@ -56,7 +67,7 @@ Een platformspel in Mario-stijl. Elke leerling klimt op de gsm met een ridder in
 
 ## Resultaten
 
-Na elke quiz, Ronde Tafel en torenspel worden de resultaten automatisch bewaard in de map `resultaten`, als bestand dat opent in Excel. Je ziet per leerling de rang, de score en per vraag of het antwoord goed of fout was, en per vraag hoeveel procent van de klas het goed had. Op het docentenscherm vind je ze onder **Resultaten** (met **Download** en **Open map**), en na elke quiz staat er een downloadlink onder het podium. De resultaten blijven op je eigen pc.
+Na elk spel worden de resultaten automatisch bewaard in de map `resultaten`, als bestand dat opent in Excel. Je ziet per leerling de rang, de score en per vraag of het antwoord goed of fout was, en per vraag hoeveel procent van de klas het goed had. Op het docentenscherm vind je ze onder **Resultaten** (met **Download** en **Open map**), en na elke quiz staat er een downloadlink onder het podium. De resultaten blijven op je eigen pc.
 
 ## Quizbestanden
 

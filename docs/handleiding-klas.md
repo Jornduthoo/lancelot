@@ -25,6 +25,13 @@ Laat het zwarte venster openstaan zolang je speelt. Dat is de server.
 4. Een ongepast woord of antwoord? Klik erop en het verdwijnt van het bord.
 5. Na de laatste vraag klik je op **Afronden**. De antwoorden worden bewaard in de map `resultaten`.
 
+## Schattenjacht
+
+1. Kies op het startscherm **Schattenjacht**, kies de speeltijd en klik bij een quiz op **Kies**. Nog geen geschikte quiz? Maak er een met **Nieuwe quiz met AI** of **Lege quiz**; na het opslaan kom je vanzelf terug.
+2. Leerlingen scannen de QR-code en vullen hun naam in.
+3. Klik op **Start de schattenjacht!** Leerlingen beantwoorden vragen op hun eigen tempo en kopen upgrades in de **Schatkamer**.
+4. Als de tijd om is (of met **Tijd stoppen**) verschijnt het podium. De resultaten worden bewaard in de map `resultaten`.
+
 ## De prinses in de toren
 
 1. Kies op het startscherm **De prinses in de toren**, kies de speeltijd en klik op de quiz waaruit de vragen komen.

@@ -9,6 +9,7 @@ const QRCode = require('qrcode');
 const quizzes = require('./src/quizzes');
 const rondetafel = require('./src/rondetafel');
 const { Toren } = require('./src/toren');
+const { Schat } = require('./src/schat');
 const settings = require('./src/settings');
 const results = require('./src/results');
 const { execFile } = require('child_process');
@@ -36,11 +37,18 @@ const toren = new Toren(io, t => {
   return file;
 });
 
+const schat = new Schat(io, s => {
+  const file = results.saveSchat(s);
+  io.to('host').emit('results', results.list());
+  return file;
+});
+
 // Er loopt altijd hooguit één spel tegelijk.
 function busyWith(except) {
   if (except !== 'toernooi' && game.phase !== 'idle') return 'Er loopt nog een toernooi. Stop dat eerst.';
   if (except !== 'rondetafel' && rt.active) return 'De Ronde Tafel loopt nog. Stop die eerst.';
   if (except !== 'toren' && toren.active) return 'De prinses in de toren loopt nog. Stop dat spel eerst.';
+  if (except !== 'schat' && schat.active) return 'Schattenjacht loopt nog. Stop dat spel eerst.';
   return null;
 }
 
@@ -49,7 +57,7 @@ function isLocal(address) {
   return ['127.0.0.1', '::1', '::ffff:127.0.0.1'].includes(address);
 }
 
-for (const [route, page] of [['/host', 'host.html'], ['/rondetafel', 'rondetafel.html'], ['/toren', 'toren.html']]) {
+for (const [route, page] of [['/host', 'host.html'], ['/rondetafel', 'rondetafel.html'], ['/toren', 'toren.html'], ['/schattenjacht', 'schattenjacht.html']]) {
   app.get(route, (req, res) => {
     if (!isLocal(req.socket.remoteAddress)) return res.status(403).send('Het docentenscherm is alleen bereikbaar op de pc van de leerkracht.');
     res.sendFile(path.join(__dirname, 'public', page));
@@ -96,6 +104,7 @@ io.on('connection', socket => {
     socket.emit('rt-sessions', rondetafel.list());
     socket.emit('rt-state', rt.hostState());
     socket.emit('tw-state', toren.hostState());
+    socket.emit('sj-state', schat.hostState());
 
     socket.on('load', (file, cb) => {
       try {
@@ -197,6 +206,19 @@ io.on('connection', socket => {
     socket.on('tw-restart', () => toren.quiz && toren.load(toren.quiz, toren.minutes));
     socket.on('tw-stop', (_, cb) => cb && cb({ file: toren.stop() }));
 
+    // Schattenjacht
+    socket.on('sj-load', handle(({ file, minutes } = {}) => {
+      const busy = busyWith('schat');
+      if (busy) throw new Error(busy);
+      schat.load(quizzes.load(file), Number(minutes));
+      return {};
+    }));
+    socket.on('sj-start', () => schat.start());
+    socket.on('sj-kick', id => schat.kick(id));
+    socket.on('sj-finish', () => schat.finish());
+    socket.on('sj-restart', () => schat.quiz && schat.load(schat.quiz, schat.minutes));
+    socket.on('sj-stop', (_, cb) => cb && cb({ file: schat.stop() }));
+
     socket.on('start', () => game.start());
     socket.on('next', () => game.next());
     socket.on('reveal', () => game.reveal());
@@ -241,6 +263,23 @@ io.on('connection', socket => {
   socket.on('tw-hit', tw((id, what) => toren.hit(id, what)));
   socket.on('tw-question', tw(id => toren.question(id)));
   socket.on('tw-answer', tw((id, choice) => toren.answer(id, choice)));
+
+  // Schattenjacht
+  socket.emit('sj-state', schat.base());
+  socket.on('sj-join', ({ playerId, name } = {}, cb) => {
+    if (!validId(playerId)) return cb && cb({ error: 'Ongeldige speler.' });
+    const result = schat.join(playerId, name, socket.id);
+    socket.data.sjId = result.ok ? playerId : null;
+    cb && cb(result);
+    if (result.ok) socket.emit('sj-state', schat.playerState(playerId));
+  });
+  const sj = fn => (arg, cb) => {
+    const out = socket.data.sjId ? fn(socket.data.sjId, arg) : { error: 'Meld je eerst aan.' };
+    if (typeof cb === 'function') cb(out || {});
+  };
+  socket.on('sj-question', sj(id => schat.question(id)));
+  socket.on('sj-answer', sj((id, choice) => schat.answer(id, choice)));
+  socket.on('sj-buy', sj((id, item) => schat.buy(id, item)));
 
   // De Ronde Tafel: anoniem, alleen een vaste id per browser.
   socket.emit('rt-state', rt.playerState());

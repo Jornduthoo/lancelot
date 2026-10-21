@@ -108,8 +108,15 @@ $('new-empty').addEventListener('click', () => {
   openEditor({ title: '', questions: [emptyQuestion()] }, null);
 });
 
+// Vanuit een ander spel (de toren of Schattenjacht) een quiz maken: daarna gaan we daar weer naartoe.
+const params = new URLSearchParams(location.search);
+const returnTo = ['/toren', '/schattenjacht'].includes(params.get('terug')) ? params.get('terug') : null;
+
 for (const b of document.querySelectorAll('[data-back]')) {
-  b.addEventListener('click', () => show(b.dataset.back || 'idle'));
+  b.addEventListener('click', () => {
+    if (returnTo && ['maker', 'editor'].includes(view)) location.href = returnTo;
+    else show(b.dataset.back || 'idle');
+  });
 }
 
 async function copyPrompt() {
@@ -274,6 +281,10 @@ function saveEditor(play) {
       return;
     }
     editingFile = res.file;
+    if (returnTo) {
+      location.href = returnTo;
+      return;
+    }
     show('idle');
     if (play) loadQuiz(res.file);
   });
@@ -333,3 +344,12 @@ $('m-gemini').addEventListener('click', () => {
     openEditor(res.quiz, null);
   });
 });
+
+if (returnTo) {
+  $('e-play').classList.add('hidden');
+  $('e-save').textContent = 'Opslaan en terug';
+  $('e-save').classList.remove('secondary');
+  if (params.get('maak') === 'ai') $('new-ai').click();
+  else if (params.get('maak') === 'leeg') $('new-empty').click();
+  else if (params.get('bewerk')) editQuiz(params.get('bewerk'));
+}

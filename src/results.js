@@ -148,4 +148,23 @@ function saveToren(t) {
   return write(now, `toren-${slugOf(t.quiz.title)}`, lines);
 }
 
-module.exports = { save, saveRondeTafel, saveToren, list, filePath, DIR };
+// Schattenjacht: goud, goede en foute antwoorden en de langste reeks per leerling.
+function saveSchat(sj) {
+  const now = new Date();
+  const ranking = sj.ranking();
+  const lines = [
+    row(['Schattenjacht', sj.quiz.title]),
+    row(['Datum', stamp(now)]),
+    row(['Speeltijd', `${sj.minutes} minuten`]),
+    row(['Leerlingen', ranking.length]),
+    '',
+    row(['Rang', 'Naam', 'Goud', 'Totaal verdiend', 'Vragen goed', 'Vragen fout', '% goed', 'Langste reeks']),
+    ...ranking.map((r, i) => row([
+      i + 1, r.name, r.gold, r.earned, r.right, r.wrong,
+      r.right + r.wrong ? `${Math.round((r.right / (r.right + r.wrong)) * 100)}%` : '-', r.bestStreak,
+    ])),
+  ];
+  return write(now, `schattenjacht-${slugOf(sj.quiz.title)}`, lines);
+}
+
+module.exports = { save, saveRondeTafel, saveToren, saveSchat, list, filePath, DIR };

@@ -43,7 +43,9 @@ socket.on('quizzes', list => {
   for (const q of list) {
     const row = document.createElement('div');
     row.className = 'quiz-row';
-    row.innerHTML = `<button class="play">${esc(q.title)} <span class="muted">· ${q.count} vragen</span><span class="go">Kies ▶</span></button>`;
+    row.innerHTML = `<button class="play">${esc(q.title)} <span class="muted">· ${q.count} vragen</span><span class="go">Kies ▶</span></button>
+      <button class="secondary edit">Bewerken</button>`;
+    row.querySelector('.edit').addEventListener('click', () => { location.href = quizMakerUrl('bewerk', q.file); });
     row.querySelector('.play').addEventListener('click', () => {
       $('stopped').classList.add('hidden');
       socket.emit('tw-load', { file: q.file, minutes: Number($('tw-minutes').value) }, res => { $('load-error').textContent = res.error || ''; });

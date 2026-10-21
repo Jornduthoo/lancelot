@@ -153,6 +153,53 @@
     <p class="muted" id="tw-end-extra"></p>
   </section>
  </div>
+
+ <div id="schat">
+  <form id="sj-join" class="screen welcome hidden">
+    <img src="/img/logo.webp" alt="LANcelot">
+    <p class="title">Schattenjacht</p>
+    <input id="sj-name" maxlength="20" autocomplete="off" placeholder="Je naam">
+    <p class="error" id="sj-join-error"></p>
+    <button type="submit" class="big">Op schattenjacht!</button>
+  </form>
+
+  <section id="sj-lobby" class="screen panel hidden">
+    <p class="status">Schattenjacht</p>
+    <p class="title" id="sj-lobby-name"></p>
+    <p class="muted">Beantwoord zoveel mogelijk vragen goed en verdien goud. In de schatkamer koop je upgrades zodat je sneller rijk wordt. Wie op het einde het meeste goud heeft, wint.</p>
+    <p class="muted small">Wacht tot de leerkracht het spel start.</p>
+    <div class="spinner"></div>
+  </section>
+
+  <section id="sj-game" class="hidden">
+    <div class="sj-top">
+      <div class="sj-gold"><span class="coin"></span><span id="sj-gold">0</span></div>
+      <div class="sj-meta"><span id="sj-rank"></span><span id="sj-clock"></span></div>
+    </div>
+    <div class="sj-badges"><span id="sj-streak"></span><span id="sj-dubbel"></span></div>
+    <div class="sj-card panel">
+      <p class="status" id="sj-number"></p>
+      <p class="sj-q" id="sj-q"></p>
+    </div>
+    <div class="answers sj-answers" id="sj-answers"></div>
+    <button class="gold sj-shop-btn" id="sj-shop-open">🏰 Schatkamer</button>
+    <div class="sj-flash hidden" id="sj-flash"><div class="sj-flash-mark" id="sj-flash-mark"></div><div class="sj-flash-gold" id="sj-flash-gold"></div><div class="sj-flash-text" id="sj-flash-text"></div></div>
+    <div class="sj-countdown hidden" id="sj-countdown"></div>
+    <div class="sj-shop hidden" id="sj-shop">
+      <div class="sj-shop-head"><h2>Schatkamer</h2><div class="sj-gold small"><span class="coin"></span><span id="sj-shop-gold">0</span></div></div>
+      <div class="sj-items" id="sj-items"></div>
+      <p class="error" id="sj-shop-error"></p>
+      <button id="sj-shop-close">Verder jagen</button>
+    </div>
+  </section>
+
+  <section id="sj-end" class="screen panel hidden">
+    <div class="mark" id="sj-end-medal" style="font-size:4.5rem"></div>
+    <p class="title" id="sj-end-title"></p>
+    <p class="big" id="sj-end-gold" style="font-size:2rem"></p>
+    <p class="muted" id="sj-end-extra"></p>
+  </section>
+ </div>
 </main>
 <script src="/socket.io/socket.io.js"></script>
 <script src="/js/fx.js"></script>
@@ -161,5 +208,6 @@
 <script src="/js/toren-world.js"></script>
 <script src="/js/toren-draw.js"></script>
 <script src="/js/toren-player.js"></script>
+<script src="/js/schat-player.js"></script>
 </body>
 </html>
