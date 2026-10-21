@@ -1,7 +1,9 @@
-// Spelstatus van één live quiz. Er draait altijd hooguit één spel tegelijk.
-// Fases: idle -> lobby -> question -> reveal -> (question ...) -> podium
+// Toernooi: de live quiz. Er draait altijd hooguit één spel tegelijk.
+// Fases: idle -> lobby -> intro -> question -> reveal -> (intro ...) -> podium
+// In de intro staat de vraag al op het bord, maar kunnen leerlingen nog niet antwoorden.
 
 const MAX_POINTS = 1000;
+const INTRO_MS = 4000;
 
 class Game {
   // onFinish(game) wordt aangeroepen als de quiz klaar is en geeft de bestandsnaam van de resultaten terug.
@@ -80,6 +82,16 @@ class Game {
       p.answer = null;
       p.answeredAt = 0;
     }
+    this.phase = 'intro';
+    this.introEndsAt = Date.now() + INTRO_MS;
+    clearTimeout(this.timer);
+    this.timer = setTimeout(() => this.open(), INTRO_MS);
+    this.broadcast();
+  }
+
+  // Na de intro mogen de leerlingen antwoorden.
+  open() {
+    if (this.phase !== 'intro') return;
     this.phase = 'question';
     this.questionStartedAt = Date.now();
     clearTimeout(this.timer);
@@ -126,9 +138,10 @@ class Game {
   // Quiz voortijdig stoppen. Wat al gespeeld is, wordt bewaard. Geeft de bestandsnaam terug (of null).
   stop() {
     let file = null;
-    if (this.index >= 0 && this.players.size > 0 && this.phase !== 'podium') {
-      // Een open vraag eerst afsluiten, zodat de antwoorden meetellen.
+    if (this.players.size > 0 && this.phase !== 'podium' && this.index >= (this.phase === 'intro' ? 1 : 0)) {
+      // Een open vraag eerst afsluiten, zodat de antwoorden meetellen. Een vraag in de intro telt niet.
       if (this.phase === 'question') this.reveal();
+      if (this.phase === 'intro') this.index--;
       try {
         file = this.onFinish ? this.onFinish(this) : null;
       } catch (err) {
@@ -157,11 +170,13 @@ class Game {
       index: this.index,
       total: this.quiz ? this.quiz.questions.length : 0,
       question: q ? { question: q.question, answers: q.answers, time: q.time } : null,
+      introRemaining: this.phase === 'intro' ? Math.max(0, this.introEndsAt - Date.now()) : 0,
       correct: this.phase === 'reveal' ? q.correct : null,
       remaining: this.phase === 'question' ? Math.max(0, q.time * 1000 - (Date.now() - this.questionStartedAt)) : 0,
       answered: players.filter(p => p.answer !== null).length,
       counts: q ? q.answers.map((_, i) => players.filter(p => p.answer === i).length) : [],
       ranking: this.ranking(),
+      lastPoints: this.phase === 'reveal' ? Object.fromEntries([...this.players.entries()].map(([id, p]) => [id, p.lastPoints])) : {},
       resultsFile: this.resultsFile,
     };
   }
@@ -177,6 +192,7 @@ class Game {
       total: this.quiz ? this.quiz.questions.length : 0,
       answerCount: q ? q.answers.length : 0,
       answers: q ? q.answers : [],
+      introRemaining: this.phase === 'intro' ? Math.max(0, this.introEndsAt - Date.now()) : 0,
       remaining: this.phase === 'question' ? Math.max(0, q.time * 1000 - (Date.now() - this.questionStartedAt)) : 0,
     };
     if (p) {

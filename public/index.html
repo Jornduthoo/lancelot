@@ -2,56 +2,78 @@
 <html lang="nl">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#060a13">
   <title>LANcelot</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="apple-touch-icon" href="/img/icon-192.png">
   <link rel="stylesheet" href="/style.css">
 </head>
 <body class="player">
 <main>
-  <div class="center logo">LAN<span>celot</span></div>
+  <div class="mini" id="mini">
+    <img src="/img/logo.webp" alt="">
+    <div class="wordmark">LAN<span>celot</span></div>
+  </div>
 
-  <section id="idle" class="panel center">
-    <p class="big">Even wachten…</p>
-    <p class="muted">De leerkracht heeft nog geen quiz gestart.</p>
+  <section id="idle" class="screen welcome">
+    <img src="/img/logo.webp" alt="LANcelot">
+    <p class="title">Even geduld…</p>
+    <p class="muted">De leerkracht heeft nog geen spel gestart.</p>
   </section>
 
-  <form id="join" class="panel center hidden">
-    <p>Hoe heet je?</p>
+  <form id="join" class="screen welcome hidden">
+    <img src="/img/logo.webp" alt="LANcelot">
+    <p class="title">Betreed het toernooi</p>
     <input id="name" maxlength="20" autocomplete="off" placeholder="Je naam">
     <p class="error" id="join-error"></p>
-    <button type="submit">Doe mee!</button>
+    <button type="submit" class="big">Ten strijde!</button>
   </form>
 
-  <section id="lobby" class="panel center hidden">
-    <p class="big">Je doet mee!</p>
-    <p class="muted">Kijk naar het bord. We beginnen zo.</p>
+  <section id="lobby" class="screen panel hidden">
+    <p class="status">Ingeschreven</p>
+    <p class="title" id="lobby-name"></p>
+    <p class="muted">Kijk naar het bord. Het toernooi begint zo.</p>
+    <div class="spinner"></div>
   </section>
 
-  <section id="question" class="hidden">
-    <p class="center muted" id="q-progress"></p>
+  <section id="intro" class="screen hidden">
+    <p class="status" id="intro-round"></p>
+    <div class="countdown" id="countdown">3</div>
+    <p class="muted">Lees de vraag op het bord…</p>
+  </section>
+
+  <section id="question" class="screen hidden">
+    <p class="status" id="q-progress"></p>
     <div class="answers" id="answer-buttons"></div>
   </section>
 
-  <section id="answered" class="panel center hidden">
-    <p class="big">Antwoord verstuurd</p>
-    <p class="muted">Wachten op de rest…</p>
+  <section id="answered" class="screen panel hidden">
+    <p class="status">Antwoord verstuurd</p>
+    <p class="title">Je lans is geworpen!</p>
+    <div class="spinner"></div>
+    <p class="muted">Wachten op de andere ridders…</p>
   </section>
 
-  <section id="reveal" class="panel center hidden">
-    <p class="big" id="r-title"></p>
-    <p id="r-points"></p>
+  <section id="reveal" class="screen panel result hidden">
+    <div class="mark" id="r-mark"></div>
+    <p class="title" id="r-title"></p>
+    <p class="big" id="r-points"></p>
+    <p id="r-streak"></p>
     <p class="muted" id="r-rank"></p>
   </section>
 
-  <section id="podium" class="panel center hidden">
-    <p class="big">Klaar!</p>
-    <p id="p-rank"></p>
-    <p class="muted" id="p-score"></p>
+  <section id="podium" class="screen panel hidden">
+    <div class="mark" id="p-medal" style="font-size:5rem"></div>
+    <p class="title" id="p-rank"></p>
+    <p class="big" id="p-score" style="font-size:2.2rem"></p>
+    <p class="muted">Bedankt om mee te spelen!</p>
   </section>
 
-  <p class="center muted" id="me"></p>
+  <div class="me" id="me"><span id="me-name"></span><span id="me-score"></span></div>
 </main>
 <script src="/socket.io/socket.io.js"></script>
+<script src="/js/fx.js"></script>
 <script src="/js/player.js"></script>
 </body>
 </html>

@@ -4,24 +4,70 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>LANcelot · Docent</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
 <main>
-  <div class="bar">
-    <div class="logo">LAN<span>celot</span></div>
+  <div class="topbar">
+    <div class="brand" id="brand" title="Naar het startscherm">
+      <img src="/img/logo.webp" alt="">
+      <div>
+        <div class="wordmark">LAN<span>celot</span></div>
+        <div class="subtitle" id="status">Docentenscherm</div>
+      </div>
+    </div>
     <div class="actions">
-      <span class="muted" id="status"></span>
-      <button class="secondary hidden" id="stop">Stop quiz</button>
+      <button class="secondary icon" id="mute" title="Geluid aan/uit">🔊</button>
+      <button class="secondary hidden" id="stop">Stop toernooi</button>
     </div>
   </div>
 
-  <section id="idle">
+  <section id="home">
+    <div class="hero">
+      <img src="/img/logo.webp" alt="LANcelot-logo">
+      <div>
+        <h1>LAN<span>celot</span></h1>
+        <p>Spelen in de klas · zonder internet</p>
+      </div>
+    </div>
+    <div class="modules">
+      <button class="module" data-module="toernooi">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 1l2.2 3.2V14H17v2.2h-3.6v3.1a2 2 0 1 1-2.8 0v-3.1H7V14h2.8V4.2z"/></svg>
+        <strong>Toernooi</strong>
+        <span>Snelle quiz: wie antwoordt het snelst en het best?</span>
+        <em class="tag">Speel nu</em>
+      </button>
+      <button class="module soon" disabled>
+        <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="5"/><circle cx="12" cy="2.8" r="2"/><circle cx="12" cy="21.2" r="2"/><circle cx="2.8" cy="12" r="2"/><circle cx="21.2" cy="12" r="2"/><circle cx="5.5" cy="5.5" r="2"/><circle cx="18.5" cy="18.5" r="2"/><circle cx="18.5" cy="5.5" r="2"/><circle cx="5.5" cy="18.5" r="2"/></svg>
+        <strong>De Ronde Tafel</strong>
+        <span>Polls, stellingen en woordwolken met de hele klas.</span>
+        <em class="tag">Binnenkort</em>
+      </button>
+      <button class="module soon" disabled>
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 9h18v11H3zM3 9l2-5h14l2 5M10 12h4v3h-4z"/></svg>
+        <strong>Schattenjacht</strong>
+        <span>Verzamel goud met goede antwoorden en koop slimme upgrades.</span>
+        <em class="tag">Binnenkort</em>
+      </button>
+      <button class="module soon" disabled>
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 2.5h3v2.2h2.5V2.5h3v2.2H16V2.5h3v6.3l-2 2V21H7V10.8l-2-2zM10.3 21v-4a1.7 1.7 0 0 1 3.4 0v4z"/></svg>
+        <strong>De prinses in de toren</strong>
+        <span>Werk samen als klas om de toren te bestormen.</span>
+        <em class="tag">Binnenkort</em>
+      </button>
+    </div>
+    <div class="actions" style="justify-content:center">
+      <button class="secondary" id="open-results">Resultaten</button>
+      <button class="secondary" id="open-settings">Instellingen</button>
+    </div>
+  </section>
+
+  <section id="idle" class="hidden">
     <div class="bar">
-      <h2>Kies een quiz</h2>
+      <h2>Toernooi · kies een quiz</h2>
       <div class="actions">
-        <button class="secondary" id="open-results">Resultaten</button>
-        <button class="secondary" id="open-settings">Instellingen</button>
+        <button class="secondary" data-back="home">Terug</button>
         <button class="secondary" id="new-empty">Lege quiz</button>
         <button id="new-ai">Nieuwe quiz met AI</button>
       </div>
@@ -36,7 +82,7 @@
       <h2>Resultaten</h2>
       <div class="actions">
         <button class="secondary open-folder">Open map</button>
-        <button class="secondary" data-back>Terug</button>
+        <button class="secondary" data-back="home">Terug</button>
       </div>
     </div>
     <p class="muted">Na elke quiz worden de scores bewaard in de map <code>resultaten</code>, met per leerling de score en per vraag goed of fout. De bestanden openen in Excel.</p>
@@ -46,7 +92,7 @@
   <section id="settings" class="hidden">
     <div class="bar">
       <h2>Instellingen</h2>
-      <button class="secondary" data-back>Terug</button>
+      <button class="secondary" data-back="home">Terug</button>
     </div>
     <div class="panel form">
       <h3>Eigen Gemini-sleutel (optioneel)</h3>
@@ -158,37 +204,55 @@
     <div class="panel join">
       <div class="qr" id="qr"></div>
       <div class="join-text">
-        <p class="muted">Scan de QR-code of ga in je browser naar</p>
+        <p class="muted">Scan de QR-code of surf naar</p>
         <div class="join-url" id="join-url"></div>
         <p class="muted small" id="other-urls"></p>
       </div>
     </div>
     <div class="bar">
-      <h2 id="player-count">0 spelers</h2>
-      <button id="start" disabled>Start quiz</button>
+      <h2><span class="count" id="player-count">0</span> <span id="player-word">ridders</span> ingeschreven</h2>
+      <button class="gold big" id="start" disabled>Laat het toernooi beginnen!</button>
     </div>
-    <p class="muted">Klik op een naam om die speler te verwijderen.</p>
+    <p class="muted small">Klik op een naam om die speler te verwijderen.</p>
     <div class="names" id="names"></div>
   </section>
 
   <section id="question" class="hidden">
-    <div class="bar">
-      <span class="muted" id="q-progress"></span>
-      <div class="timer" id="timer"></div>
-      <span class="muted" id="q-answered"></span>
+    <div class="hud">
+      <span class="round" id="q-progress"></span>
+      <div class="ring" id="ring">
+        <svg viewBox="0 0 100 100"><circle class="track" cx="50" cy="50" r="42"/><circle class="fill" id="ring-fill" cx="50" cy="50" r="42"/></svg>
+        <span id="timer"></span>
+      </div>
+      <span class="answered" id="q-answered"></span>
     </div>
     <div class="question-text panel" id="q-text"></div>
+    <div id="intro">
+      <div class="intro-bar"><div id="intro-fill"></div></div>
+      <p class="intro-label">Maak je klaar…</p>
+    </div>
     <div class="answers" id="q-answers"></div>
     <div class="bar">
       <span></span>
-      <button id="reveal" class="secondary">Toon antwoord</button>
-      <button id="next" class="hidden">Volgende</button>
+      <div class="actions">
+        <button id="reveal" class="secondary">Toon antwoord</button>
+        <button id="to-board" class="hidden">Scorebord</button>
+        <button id="next" class="hidden">Volgende ronde</button>
+      </div>
     </div>
-    <ol class="ranking hidden" id="top"></ol>
+  </section>
+
+  <section id="board" class="hidden">
+    <h2 class="center">Scorebord</h2>
+    <ol class="ranking" id="top"></ol>
+    <div class="bar">
+      <span class="muted" id="board-progress"></span>
+      <button id="board-next">Volgende ronde</button>
+    </div>
   </section>
 
   <section id="podium" class="hidden">
-    <h2 class="center">Eindstand</h2>
+    <h2 class="center">De winnaars van het toernooi</h2>
     <div class="podium" id="podium-blocks"></div>
     <ol class="ranking" id="final"></ol>
     <p class="center muted" id="results-saved"></p>
@@ -199,6 +263,7 @@
   </section>
 </main>
 <script src="/socket.io/socket.io.js"></script>
+<script src="/js/fx.js"></script>
 <script src="/js/host.js"></script>
 <script src="/js/maker.js"></script>
 </body>

@@ -4,15 +4,15 @@
 
 1. Installeer [Node.js](https://nodejs.org) (de LTS-versie) op je pc.
 2. Download LANcelot van GitHub (groene knop **Code** → **Download ZIP**) en pak de map uit, bijvoorbeeld op je bureaublad.
-3. Dubbelklik op **start.bat**. De eerste keer worden een paar onderdelen gedownload; daarvoor is één keer internet nodig.
+3. Dubbelklik op **Start LANcelot.bat**. De eerste keer worden een paar onderdelen gedownload; daarvoor is één keer internet nodig.
 4. Vraagt Windows of Node.js het netwerk mag gebruiken? Klik op **Toegang toestaan**. Anders kunnen leerlingen niet verbinden.
 
 ## Elke les
 
-1. Dubbelklik op **start.bat**. Het docentenscherm opent vanzelf in je browser.
-2. Zet het docentenscherm op het digibord en kies een quiz.
+1. Dubbelklik op **Start LANcelot.bat**. Het docentenscherm opent vanzelf in je browser.
+2. Zet het docentenscherm op het digibord, kies **Toernooi** en klik op de quiz die je wilt spelen.
 3. Leerlingen scannen de QR-code op het bord, of typen het adres (bijvoorbeeld `http://192.168.1.20:3000`) in hun browser, en vullen hun naam in.
-4. Klik op **Start quiz** als iedereen erin staat.
+4. Klik op **Laat het toernooi beginnen!** als iedereen erin staat. Met **Stop toernooi** (rechtsboven) stop je op elk moment; de scores tot dan worden bewaard.
 5. Klaar? Sluit het zwarte venster om LANcelot te stoppen.
 
 Laat het zwarte venster openstaan zolang je speelt. Dat is de server.
@@ -24,7 +24,7 @@ Laat het zwarte venster openstaan zolang je speelt. Dat is de server.
 - **Noodoplossing:** zet een mobiele hotspot aan op je telefoon of laptop en laat de pc en de leerlingen daarmee verbinden. Dat werkt zonder dat ICT iets hoeft te doen; je hotspot hoeft niet eens internet te hebben. Let op: een telefoon-hotspot laat vaak maar zo'n 10 apparaten toe. De hotspot van Windows zelf (Instellingen → Netwerk → Mobiele hotspot) is dan een betere keuze.
 - **Firewall:** heb je de vraag van Windows per ongeluk weggeklikt? Zoek in Start naar "Een app toestaan via Windows Firewall" en zet een vinkje bij Node.js (privé en openbaar).
 - **Meerdere adressen op het bord:** probeer eerst het grote adres. Werkt dat niet, klik dan op een van de andere adressen eronder; de QR-code past zich aan.
-- **Ander poortnummer:** is poort 3000 al bezet, zet dan `set PORT=3001` boven in start.bat.
+- **Ander poortnummer:** is poort 3000 al bezet, zet dan `set PORT=3001` boven in Start LANcelot.bat.
 
 ## Tips
 

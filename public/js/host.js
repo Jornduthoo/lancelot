@@ -1,19 +1,37 @@
-const SHAPES = ['▲', '◆', '●', '■'];
+// Docentenscherm. Gebruikt ICONS, sfx en confetti uit fx.js.
 const socket = io({ query: { role: 'host' } });
 const $ = id => document.getElementById(id);
 let state = null;
+let prev = null;
 let deadline = 0;
+let introEnds = 0;
+let shownIndex = -1;
+let lastRanks = new Map();
 
 function esc(text) {
   return String(text).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 }
 
-let view = 'idle';
+let view = 'home';
+const VIEWS = ['home', 'idle', 'results', 'settings', 'maker', 'editor', 'lobby', 'question', 'board', 'podium'];
+// Schermen die de leerkracht zelf opent en die een statusupdate niet mag wegklikken.
+const OWN_VIEWS = ['home', 'idle', 'results', 'settings', 'maker', 'editor'];
 
 function show(name) {
   view = name;
-  for (const s of ['idle', 'results', 'settings', 'maker', 'editor', 'lobby', 'question', 'podium']) $(s).classList.toggle('hidden', s !== name);
+  for (const s of VIEWS) $(s).classList.toggle('hidden', s !== name);
+  window.scrollTo(0, 0);
 }
+
+// Browsers spelen pas geluid af na een klik; elke klik ontgrendelt het geluid.
+document.addEventListener('click', () => sfx.unlock(), { once: true });
+$('mute').textContent = sfx.muted ? '🔇' : '🔊';
+$('mute').addEventListener('click', () => { $('mute').textContent = sfx.toggle() ? '🔇' : '🔊'; });
+
+$('brand').addEventListener('click', () => {
+  if (OWN_VIEWS.includes(view)) show('home');
+});
+document.querySelector('[data-module="toernooi"]').addEventListener('click', () => show('idle'));
 
 function loadQuiz(file) {
   socket.emit('load', file, res => {
@@ -28,7 +46,7 @@ socket.on('quizzes', list => {
   for (const q of list) {
     const row = document.createElement('div');
     row.className = 'quiz-row';
-    row.innerHTML = `<button class="play">${esc(q.title)} <span class="muted">· ${q.count} vragen</span></button>
+    row.innerHTML = `<button class="play">${esc(q.title)} <span class="muted">· ${q.count} vragen</span><span class="go">Speel ▶</span></button>
       <button class="secondary edit">Bewerken</button>
       <button class="secondary delete" title="Verwijderen">✕</button>`;
     row.querySelector('.play').addEventListener('click', () => loadQuiz(q.file));
@@ -44,7 +62,7 @@ socket.on('quizzes', list => {
 // Het eerste adres is meestal het goede. Klik op een ander adres om de QR-code daarvoor te tonen.
 function showAddress(list, i) {
   const main = list[i];
-  $('join-url').textContent = main ? main.url : 'Geen netwerk gevonden';
+  $('join-url').textContent = main ? main.url.replace('http://', '') : 'Geen netwerk gevonden';
   $('qr').innerHTML = main ? main.qr : '';
   const others = $('other-urls');
   others.innerHTML = '';
@@ -62,41 +80,140 @@ function showAddress(list, i) {
 
 socket.on('addresses', list => showAddress(list, 0));
 
+// ---------- Lobby ----------
+
 function renderLobby() {
   const n = state.ranking.length;
-  $('player-count').textContent = `${n} ${n === 1 ? 'speler' : 'spelers'}`;
+  $('player-count').textContent = n;
+  $('player-word').textContent = n === 1 ? 'ridder' : 'ridders';
   $('start').disabled = n === 0;
-  $('names').innerHTML = '';
+  const known = new Set([...$('names').children].map(el => el.dataset.id));
+  const current = new Set(state.ranking.map(p => p.id));
+  for (const el of [...$('names').children]) if (!current.has(el.dataset.id)) el.remove();
   for (const p of state.ranking) {
+    if (known.has(p.id)) continue;
     const el = document.createElement('span');
     el.className = 'name';
+    el.dataset.id = p.id;
     el.textContent = p.name;
     el.title = 'Verwijderen';
     el.addEventListener('click', () => socket.emit('kick', p.id));
     $('names').appendChild(el);
+    if (prev && prev.phase === 'lobby') sfx.join();
   }
 }
 
+// ---------- Vraag ----------
+
+const RING = 2 * Math.PI * 42;
+$('ring-fill').style.strokeDasharray = RING;
+
 function renderQuestion() {
   const q = state.question;
-  const revealed = state.phase === 'reveal';
-  $('q-progress').textContent = `Vraag ${state.index + 1} van ${state.total}`;
+  const phase = state.phase;
+  const revealed = phase === 'reveal';
+  const fresh = shownIndex !== state.index;
+  $('q-progress').textContent = `RONDE ${state.index + 1} / ${state.total}`;
   $('q-text').textContent = q.question;
   $('q-answered').textContent = `${state.answered} / ${state.ranking.length} geantwoord`;
-  $('q-answers').innerHTML = q.answers.map((a, i) => {
-    const dim = revealed && i !== state.correct ? ' dim' : '';
-    const count = revealed ? `<span class="count">${state.counts[i]}</span>` : '';
-    return `<div class="answer a${i}${dim}"><span class="shape">${SHAPES[i]}</span>${esc(a)}${count}</div>`;
-  }).join('');
-  $('reveal').classList.toggle('hidden', revealed);
+
+  $('intro').classList.toggle('hidden', phase !== 'intro');
+  $('ring').style.visibility = phase === 'question' ? 'visible' : 'hidden';
+  $('q-answers').classList.toggle('hidden', phase === 'intro');
+  $('reveal').classList.toggle('hidden', phase !== 'question');
+  $('to-board').classList.toggle('hidden', !revealed);
   $('next').classList.toggle('hidden', !revealed);
-  $('next').textContent = state.index + 1 >= state.total ? 'Naar de eindstand' : 'Volgende vraag';
-  $('timer').classList.toggle('hidden', revealed);
-  $('top').classList.toggle('hidden', !revealed);
-  $('top').innerHTML = state.ranking.slice(0, 5)
-    .map(p => `<li><span>${esc(p.name)}</span><span>${p.score}</span></li>`).join('');
-  if (!revealed) deadline = Date.now() + state.remaining;
+  $('next').textContent = state.index + 1 >= state.total ? 'Naar de eindstand' : 'Volgende ronde';
+
+  if (phase === 'intro') {
+    if (fresh) {
+      shownIndex = state.index;
+      $('q-answers').innerHTML = '';
+      sfx.whoosh();
+      const fill = $('intro-fill');
+      fill.style.transition = 'none';
+      fill.style.transform = 'scaleX(1)';
+      introEnds = Date.now() + state.introRemaining;
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        fill.style.transition = `transform ${state.introRemaining}ms linear`;
+        fill.style.transform = 'scaleX(0)';
+      }));
+    }
+    return;
+  }
+
+  // Antwoordtegels opbouwen zodra de vraag opengaat (of na herladen van de pagina).
+  if (!$('q-answers').children.length || (prev && prev.phase === 'intro')) {
+    $('q-answers').innerHTML = q.answers.map((a, i) => `
+      <div class="answer a${i} enter" style="animation-delay:${i * 90}ms">
+        ${ICONS[i]}<span>${esc(a)}</span><span class="count"></span><div class="fillbar"></div>
+      </div>`).join('');
+    if (phase === 'question') sfx.go();
+  }
+
+  if (phase === 'question') {
+    deadline = Date.now() + state.remaining;
+    return;
+  }
+
+  // Onthulling: goede tegel laten oplichten, staafjes laten groeien.
+  const tiles = [...$('q-answers').children];
+  const total = Math.max(1, state.counts.reduce((a, b) => a + b, 0));
+  tiles.forEach((tile, i) => {
+    tile.classList.remove('enter');
+    tile.classList.toggle('dim', i !== state.correct);
+    tile.classList.toggle('right', i === state.correct);
+    tile.querySelector('.count').textContent = state.counts[i];
+    requestAnimationFrame(() => { tile.querySelector('.fillbar').style.transform = `scaleX(${state.counts[i] / total})`; });
+  });
+  if (prev && prev.phase === 'question') sfx.gong();
 }
+
+// Klok rond de vraag, met tikjes in de laatste vijf seconden.
+let lastSecond = null;
+setInterval(() => {
+  if (!state || state.phase !== 'question' || view !== 'question') return;
+  const left = Math.max(0, deadline - Date.now());
+  const secs = Math.ceil(left / 1000);
+  const total = state.question.time * 1000;
+  $('timer').textContent = secs;
+  $('ring-fill').style.strokeDashoffset = RING * (1 - left / total);
+  $('ring').classList.toggle('low', secs <= 5);
+  if (secs !== lastSecond && secs <= 5 && secs > 0) sfx.tick(secs <= 3);
+  lastSecond = secs;
+}, 100);
+
+// ---------- Scorebord ----------
+
+function renderBoard() {
+  const top = state.ranking.slice(0, 6);
+  const list = $('top');
+  // FLIP: oude posities onthouden, nieuwe tekenen en dan laten verschuiven.
+  const before = new Map([...list.children].map(li => [li.dataset.id, li.getBoundingClientRect().top]));
+  list.innerHTML = top.map((p, i) => {
+    const gain = state.lastPoints[p.id] || 0;
+    return `<li data-id="${esc(p.id)}"><span class="pos">${i + 1}</span><span>${esc(p.name)}</span>
+      <span class="gain">${gain ? `+${gain}` : ''}</span><span class="pts">${p.score}</span></li>`;
+  }).join('');
+  const rows = [...list.children];
+  rows.forEach((li, i) => {
+    const oldRank = lastRanks.get(li.dataset.id);
+    const fromTop = before.get(li.dataset.id);
+    const shift = fromTop !== undefined
+      ? fromTop - li.getBoundingClientRect().top
+      : oldRank !== undefined ? (oldRank - i) * (li.offsetHeight + 10) : 40;
+    li.animate([{ transform: `translateY(${shift}px)`, opacity: oldRank === undefined && fromTop === undefined ? 0 : 1 }, { transform: 'none', opacity: 1 }],
+      { duration: 900, delay: 150 + i * 60, easing: 'cubic-bezier(.2,1,.3,1)', fill: 'backwards' });
+  });
+  lastRanks = new Map(state.ranking.map((p, i) => [p.id, i]));
+  $('board-progress').textContent = `Na ronde ${state.index + 1} van ${state.total}`;
+  $('board-next').textContent = state.index + 1 >= state.total ? 'Naar de eindstand' : 'Volgende ronde';
+  sfx.swoosh();
+}
+
+$('to-board').addEventListener('click', () => { renderBoard(); show('board'); });
+
+// ---------- Podium ----------
 
 socket.on('results', files => {
   const box = $('results-list');
@@ -127,19 +244,34 @@ function renderPodium() {
     saved.append(link);
   }
   const [p1, p2, p3] = state.ranking;
-  const block = (p, cls) => p ? `<div class="${cls}">${esc(p.name)}<br>${p.score}</div>` : '';
-  $('podium-blocks').innerHTML = block(p2, 'p2') + block(p1, 'p1') + block(p3, 'p3');
+  const pillar = (p, n) => p ? `<div class="pillar p${n}">
+      ${n === 1 ? `<div class="crown">${CROWN}</div>` : ''}
+      <div class="who">${esc(p.name)}</div><div class="pts">${p.score} punten</div>
+      <div class="block">${n}</div></div>` : '';
+  $('podium-blocks').innerHTML = pillar(p2, 2) + pillar(p1, 1) + pillar(p3, 3);
   $('final').innerHTML = state.ranking.slice(3)
-    .map((p, i) => `<li><span>${i + 4}. ${esc(p.name)}</span><span>${p.score}</span></li>`).join('');
+    .map((p, i) => `<li><span class="pos">${i + 4}</span><span>${esc(p.name)}</span><span></span><span class="pts">${p.score}</span></li>`).join('');
+
+  // Eerst plek 3, dan 2, en na tromgeroffel de winnaar.
+  const rise = (n, delay) => setTimeout(() => {
+    const el = document.querySelector(`.pillar.p${n}`);
+    if (el) el.classList.add('up');
+  }, delay);
+  sfx.drumroll(2.6);
+  rise(3, 300);
+  rise(2, 1300);
+  rise(1, 2700);
+  setTimeout(() => { sfx.fanfare(); confetti(5000); }, 2900);
 }
 
-// Stoppen kan altijd tijdens een quiz; de leerkracht komt dan terug op het startscherm.
+// ---------- Stoppen ----------
+
 $('stop').addEventListener('click', () => {
-  if (!confirm('Quiz stoppen en terug naar het startscherm?')) return;
+  if (!confirm('Toernooi stoppen en terug naar de quizlijst?')) return;
   socket.emit('stop', null, res => {
     const note = $('stopped');
     note.innerHTML = '';
-    note.append('Quiz gestopt.');
+    note.append('Toernooi gestopt.');
     if (res && res.file) {
       note.append(' De resultaten tot nu toe zijn bewaard. ');
       const link = document.createElement('a');
@@ -149,29 +281,43 @@ $('stop').addEventListener('click', () => {
       note.append(link);
     }
     note.classList.remove('hidden');
+    show('idle');
   });
 });
 
-socket.on('state', s => {
-  state = s;
-  $('status').textContent = s.title || '';
-  $('stop').classList.toggle('hidden', !['lobby', 'question', 'reveal'].includes(s.phase));
-  if (s.phase !== 'idle') $('stopped').classList.add('hidden');
-  // In de quizmaker blijven we staan; anders terug naar de quizlijst.
-  if (s.phase === 'idle' && !['results', 'settings', 'maker', 'editor'].includes(view)) show('idle');
-  if (s.phase === 'lobby') { renderLobby(); show('lobby'); }
-  if (s.phase === 'question' || s.phase === 'reveal') { renderQuestion(); show('question'); }
-  if (s.phase === 'podium') { renderPodium(); show('podium'); }
-});
+// ---------- Status van de server ----------
 
-setInterval(() => {
-  if (state && state.phase === 'question') {
-    $('timer').textContent = Math.max(0, Math.ceil((deadline - Date.now()) / 1000));
+socket.on('state', s => {
+  prev = state;
+  state = s;
+  $('status').textContent = s.title ? `Toernooi · ${s.title}` : 'Docentenscherm';
+  $('stop').classList.toggle('hidden', !['lobby', 'intro', 'question', 'reveal'].includes(s.phase));
+  if (s.phase !== 'idle') $('stopped').classList.add('hidden');
+
+  if (s.phase === 'idle') {
+    shownIndex = -1;
+    lastRanks = new Map();
+    if (!OWN_VIEWS.includes(view)) show('idle');
   }
-}, 200);
+  if (s.phase === 'lobby') {
+    if (!prev || prev.phase !== 'lobby') { $('names').innerHTML = ''; lastRanks = new Map(); shownIndex = -1; }
+    renderLobby();
+    show('lobby');
+  }
+  if (['intro', 'question', 'reveal'].includes(s.phase)) {
+    renderQuestion();
+    // Op het scorebord blijven staan tot de leerkracht verder klikt.
+    if (!(view === 'board' && s.phase === 'reveal')) show('question');
+  }
+  if (s.phase === 'podium' && (!prev || prev.phase !== 'podium' || view !== 'podium')) {
+    show('podium');
+    renderPodium();
+  }
+});
 
 $('start').addEventListener('click', () => socket.emit('start'));
 $('reveal').addEventListener('click', () => socket.emit('reveal'));
 $('next').addEventListener('click', () => socket.emit('next'));
+$('board-next').addEventListener('click', () => socket.emit('next'));
 $('restart').addEventListener('click', () => socket.emit('restart'));
 $('close').addEventListener('click', () => socket.emit('close'));

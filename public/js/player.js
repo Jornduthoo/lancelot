@@ -1,4 +1,4 @@
-const SHAPES = ['▲', '◆', '●', '■'];
+// Leerlingscherm. Gebruikt ICONS uit fx.js.
 
 function store(key, value) {
   try {
@@ -20,13 +20,23 @@ let myName = store('lancelot-name') || '';
 
 const socket = io();
 const $ = id => document.getElementById(id);
-const sections = ['idle', 'join', 'lobby', 'question', 'answered', 'reveal', 'podium'];
+const sections = ['idle', 'join', 'lobby', 'intro', 'question', 'answered', 'reveal', 'podium'];
 let joined = false;
 let shownIndex = -1;
 let autoJoined = false;
+let shownReveal = -1;
+let countdownTimer = null;
 
 function show(name) {
   for (const s of sections) $(s).classList.toggle('hidden', s !== name);
+  // Op de welkomstschermen staat het grote logo al; het kleine logo en de score alleen tijdens het spel.
+  const big = ['idle', 'join'].includes(name);
+  $('mini').classList.toggle('hidden', big);
+  $('me').classList.toggle('hidden', big);
+}
+
+function buzz(pattern) {
+  try { navigator.vibrate && navigator.vibrate(pattern); } catch {}
 }
 
 function join(name) {
@@ -41,7 +51,6 @@ function join(name) {
     myName = res.name;
     store('lancelot-name', myName);
     $('join-error').textContent = '';
-    $('me').textContent = myName;
   });
 }
 
@@ -56,15 +65,29 @@ function buildButtons(state) {
   box.innerHTML = '';
   for (let i = 0; i < state.answerCount; i++) {
     const b = document.createElement('button');
-    b.className = `answer a${i}`;
-    b.innerHTML = `<span class="shape">${SHAPES[i]}</span><span class="label"></span>`;
+    b.className = `answer a${i} enter`;
+    b.style.animationDelay = `${i * 70}ms`;
+    b.innerHTML = `${ICONS[i]}<span class="label"></span>`;
     b.querySelector('.label').textContent = state.answers[i];
     b.addEventListener('click', () => {
       socket.emit('answer', i);
+      buzz(30);
       show('answered');
     });
     box.appendChild(b);
   }
+}
+
+function startCountdown(ms) {
+  clearInterval(countdownTimer);
+  const end = Date.now() + ms;
+  const tick = () => {
+    const left = Math.max(1, Math.ceil((end - Date.now()) / 1000));
+    $('countdown').textContent = left;
+    if (Date.now() >= end) clearInterval(countdownTimer);
+  };
+  tick();
+  countdownTimer = setInterval(tick, 200);
 }
 
 function render(state) {
@@ -77,10 +100,17 @@ function render(state) {
     }
     return;
   }
-  $('me').textContent = `${state.name} · ${state.score} punten`;
+  $('me-name').textContent = state.name;
+  $('me-score').textContent = `${state.score} punten`;
   switch (state.phase) {
     case 'lobby':
+      $('lobby-name').textContent = state.name;
       show('lobby');
+      break;
+    case 'intro':
+      $('intro-round').textContent = `Ronde ${state.index + 1} van ${state.total}`;
+      startCountdown(state.introRemaining);
+      show('intro');
       break;
     case 'question':
       if (state.answered) return show('answered');
@@ -88,23 +118,34 @@ function render(state) {
         shownIndex = state.index;
         buildButtons(state);
       }
-      $('q-progress').textContent = `Vraag ${state.index + 1} van ${state.total}`;
+      $('q-progress').textContent = `Ronde ${state.index + 1} van ${state.total}`;
       show('question');
       break;
-    case 'reveal':
-      $('reveal').className = `panel center ${state.correct ? 'result-good' : 'result-bad'}`;
-      $('r-title').textContent = state.correct ? 'Goed!' : state.answered ? 'Helaas, fout' : 'Te laat!';
-      $('r-points').textContent = state.correct
-        ? `+${state.points} punten${state.streak > 1 ? ` · ${state.streak} op een rij 🔥` : ''}`
-        : 'Volgende keer beter!';
+    case 'reveal': {
+      const good = state.correct;
+      $('reveal').className = `screen panel result ${good ? 'good' : 'bad'}`;
+      $('r-mark').textContent = good ? '✔' : state.answered ? '✖' : '⌛';
+      $('r-title').textContent = good ? 'Raak!' : state.answered ? 'Mis!' : 'Te laat!';
+      $('r-points').textContent = good ? `+${state.points}` : '+0';
+      $('r-streak').textContent = good && state.streak > 1 ? `🔥 ${state.streak} op een rij` : '';
       $('r-rank').textContent = `Je staat op plek ${state.rank}`;
+      if (shownReveal !== state.index) {
+        shownReveal = state.index;
+        buzz(good ? [40, 60, 40] : 250);
+      }
       show('reveal');
       break;
-    case 'podium':
-      $('p-rank').textContent = `Je bent geëindigd op plek ${state.rank}`;
+    }
+    case 'podium': {
+      const medals = ['🥇', '🥈', '🥉'];
+      $('p-medal').textContent = medals[state.rank - 1] || '🛡️';
+      $('p-rank').textContent = state.rank === 1 ? 'Jij wint het toernooi!' : `Plek ${state.rank}`;
       $('p-score').textContent = `${state.score} punten`;
+      if (!$('podium').dataset.done && state.rank <= 3) confetti(4000);
+      $('podium').dataset.done = '1';
       show('podium');
       break;
+    }
   }
 }
 
@@ -114,6 +155,8 @@ socket.on('state', render);
 socket.on('reset', ({ open }) => {
   joined = false;
   shownIndex = -1;
+  shownReveal = -1;
+  delete $('podium').dataset.done;
   if (!open) return show('idle');
   if (myName) join(myName);
   else show('join');
@@ -124,7 +167,6 @@ socket.on('kicked', () => {
   myName = '';
   store('lancelot-name', null);
   $('name').value = '';
-  $('me').textContent = '';
   $('join-error').textContent = 'Je bent verwijderd door de leerkracht.';
   show('join');
 });
@@ -133,3 +175,5 @@ socket.on('kicked', () => {
 socket.on('connect', () => {
   if (joined && myName) join(myName);
 });
+
+show('idle');

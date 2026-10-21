@@ -109,7 +109,7 @@ $('new-empty').addEventListener('click', () => {
 });
 
 for (const b of document.querySelectorAll('[data-back]')) {
-  b.addEventListener('click', () => show('idle'));
+  b.addEventListener('click', () => show(b.dataset.back || 'idle'));
 }
 
 async function copyPrompt() {

@@ -2,10 +2,17 @@
 
 Een gratis klasquiz die op je eigen pc draait. Leerlingen scannen de QR-code op het bord en spelen mee via de browser op hun telefoon, tablet of laptop, over het wifi-netwerk van de school. Geen accounts en geen internet nodig.
 
+Het thema: middeleeuws met een scifi-kantje. Op het startscherm kies je een spel:
+
+- **Toernooi**: snelle quiz, wie antwoordt het snelst en het best? (klaar)
+- **De Ronde Tafel**: polls en stellingen (binnenkort)
+- **Schattenjacht** (binnenkort)
+- **De prinses in de toren** (binnenkort)
+
 ## Starten (Windows)
 
 1. Installeer eenmalig [Node.js](https://nodejs.org) (de LTS-versie).
-2. Dubbelklik op **start.bat**. Het docentenscherm opent vanzelf.
+2. Dubbelklik op **Start LANcelot.bat**. Het docentenscherm opent vanzelf.
 3. Leerlingen gaan naar het adres dat op het bord staat, bijvoorbeeld `http://192.168.1.20:3000`.
 
 Meer uitleg en hulp bij verbindingsproblemen staat in de [handleiding voor in de klas](docs/handleiding-klas.md).
@@ -14,7 +21,7 @@ Liever via de opdrachtprompt? Gebruik dan `npm install` en `npm start`, en open 
 
 ## Een quiz maken met AI (gratis)
 
-1. Klik op het docentenscherm op **Nieuwe quiz met AI**.
+1. Kies op het docentenscherm **Toernooi** en klik op **Nieuwe quiz met AI**.
 2. Vul het onderwerp, het niveau (bv. 5e leerjaar of 2e middelbaar) en het aantal vragen in.
 3. Wil je de quiz baseren op je lesstof (een screenshot van het bordboek of een pdf)? Vink bij stap 2 aan dat je die zelf in de chatbot toevoegt; de prompt vraagt de AI dan om de vragen daarop te baseren.
 4. Klik op **Gemini**, **ChatGPT** of **Claude**. De prompt wordt gekopieerd en de chatbot opent in een nieuw tabblad. Plak de prompt daar met Ctrl+V en sleep je screenshot of pdf erbij.
