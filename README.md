@@ -9,6 +9,7 @@ Het thema: middeleeuws met een scifi-kantje. Het startscherm heeft drie delen:
    - **Schattenjacht**: verdien goud met goede antwoorden en koop slimme upgrades
    - **De prinses in de toren**: klim met je ridder naar de top; goede antwoorden geven energie
    - **Laserslag** en **Laserslag 3D**: lasergevecht rood tegen blauw of ieder voor zich; munitie verdien je met goede antwoorden
+   - **Ridderrace**: een racegame in 3D op hoverrossen; goede antwoorden vullen je tank en geven turbo
 2. **De Ronde Tafel**, peilen met de hele klas: polls, stellingen, woordwolken, open vragen en schalen, live op het bord. Met **Voorkennis activeren** maak je met AI meteen een peiling voor het begin van een les.
 3. **Generator**: **live oefenbladen** die leerlingen invullen en die zichzelf verbeteren, en **werkbladen** om te printen, met een verbeterblad.
 
@@ -80,6 +81,15 @@ Een lasergevecht in een scifi-arena, van bovenaf. De ridders schieten elkaar met
 - **Besturing:** op een gsm een joystick (links slepen) en een vuurknop die automatisch richt; op een Chromebook WASD of de pijltjes en de muis.
 - **Op het bord** zie je de hele arena live, de teamstand, de rangschikking en wie wie uitschakelt.
 - **Laserslag 3D:** kies bij *Zicht* voor *First person* (of de kaart Laserslag 3D op het startscherm). Dezelfde arena en regels, maar de leerling kijkt door de ogen van zijn ridder. Gsm: links slepen om te lopen, rechts slepen om rond te kijken. Chromebook: klik om de muis te vangen, WASD om te lopen, de muis om te kijken. Een kleine richthulp helpt wie bijna mikt. Het bord toont de arena van bovenaf.
+
+## Ridderrace
+
+Een echte racegame in 3D: ridders racen op hoverrossen over een neoncircuit rond een burcht. Elke leerling rijdt op zijn eigen gsm of Chromebook; het bord toont het circuit van bovenaf met alle racers, de stand en de snelste ronde.
+
+- **Rijden kost ⛽ brandstof. Tanken doe je in de pitstop met quizvragen.** Elk goed antwoord vult de tank (meer bij een reeks), twee juist op rij geeft een 🚀 turbo. Zonder brandstof kruip je vooruit. Wie lang in de pitstop staat, wordt wel ingehaald: snel en juist antwoorden loont.
+- **Op de baan:** kristallen geven een beetje brandstof, gouden pijlen een korte boost. Naast de weg rijden is traag, en tegen een ros vlak voor je bots je.
+- **Besturing:** gsm met ◀ ▶, 🚀 Turbo en ⛽ Tanken; Chromebook met de pijltjes (of A en D), ↓ remt, spatie is turbo, E is tanken, 1-4 antwoorden.
+- **Winnen:** wie na de racetijd (3 tot 10 minuten) het verst staat. De resultaten (ronden, snelste ronde, vragen juist en fout) gaan naar `resultaten/`.
 
 ## Oefenbladen
 

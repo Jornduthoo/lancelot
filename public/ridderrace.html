@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LANcelot · Ridderrace</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body class="ls-host rr-host">
+<main>
+  <div class="topbar">
+    <div class="brand" id="brand" title="Naar het startscherm">
+      <img src="/img/logo.webp" alt="">
+      <div>
+        <div class="wordmark">LAN<span>celot</span></div>
+        <div class="subtitle" id="status">Ridderrace</div>
+      </div>
+    </div>
+    <div class="actions">
+      <span class="join-mini hidden" id="join-mini"></span>
+      <button class="secondary icon" id="mute" title="Geluid aan/uit">🔊</button>
+      <button class="secondary hidden" id="stop">Stop het spel</button>
+    </div>
+  </div>
+
+  <section id="setup">
+    <div class="bar">
+      <h2>Ridderrace</h2>
+      <div class="actions">
+        <button class="secondary" id="to-home">Terug</button>
+        <button class="secondary" data-make="leeg">Lege quiz</button>
+        <button data-make="ai">Nieuwe quiz met AI</button>
+      </div>
+    </div>
+    <div class="panel tw-intro">
+      <svg class="ls-logo" viewBox="0 0 64 64"><path d="M10 50 L26 14 H38 L54 50 Z" fill="#1b1f33" stroke="#4cc9ff" stroke-width="3"/><path d="M32 18 V24 M32 30 V36 M32 42 V48" stroke="#ffd166" stroke-width="3"/><rect x="18" y="6" width="28" height="6" fill="#f4f7ff"/><rect x="18" y="6" width="7" height="3" fill="#11131d"/><rect x="32" y="6" width="7" height="3" fill="#11131d"/><rect x="25" y="9" width="7" height="3" fill="#11131d"/><rect x="39" y="9" width="7" height="3" fill="#11131d"/></svg>
+      <div>
+        <p>Een echte racegame: ridders racen op <strong>hoverrossen</strong> over een neoncircuit rond de burcht, in 3D. Iedereen rijdt op zijn eigen gsm of Chromebook, het bord toont het circuit met alle racers live.</p>
+        <p><strong>Rijden kost brandstof. Tanken doe je in de pitstop, met goede antwoorden.</strong> Elk juist antwoord vult de tank, twee juist op rij geeft een turbo. Zonder brandstof kruip je vooruit. Wie na de speeltijd het verst staat, wint.</p>
+        <p class="muted">Op de gsm stuur je met ◀ ▶, op een Chromebook met de pijltjes. Kristallen op de weg geven een beetje brandstof, gouden pijlen een boost.</p>
+      </div>
+    </div>
+    <div class="panel form">
+      <label>Racetijd
+        <select id="rr-minutes">
+          <option value="3">3 minuten</option>
+          <option value="4">4 minuten</option>
+          <option value="5" selected>5 minuten</option>
+          <option value="6">6 minuten</option>
+          <option value="8">8 minuten</option>
+          <option value="10">10 minuten</option>
+        </select>
+      </label>
+      <p class="muted small">Kies hieronder de quiz waaruit de vragen komen.</p>
+    </div>
+    <p class="notice hidden" id="stopped"></p>
+    <div class="quiz-list" id="quiz-list"></div>
+    <p class="error" id="load-error"></p>
+  </section>
+
+  <section id="lobby" class="hidden">
+    <div class="panel join">
+      <div class="qr" id="qr"></div>
+      <div class="join-text">
+        <p class="muted">Scan de QR-code of surf naar</p>
+        <div class="join-url" id="join-url"></div>
+        <p class="muted small" id="other-urls"></p>
+      </div>
+    </div>
+    <div class="bar">
+      <h2><span class="count" id="player-count">0</span> <span id="player-word">ridders</span> aan de start</h2>
+      <button class="gold big" id="start" disabled>Start de race!</button>
+    </div>
+    <p class="muted small">Klik op ✕ om een speler te verwijderen.</p>
+    <div class="ls-teams"><div class="ls-team ieder"><div class="names" id="names"></div></div></div>
+  </section>
+
+  <section id="play" class="hidden">
+    <div class="hud">
+      <span class="round" id="p-title"></span>
+      <span class="rr-record" id="p-record"></span>
+      <span class="tw-clock" id="p-clock"></span>
+      <button class="secondary" id="p-finish">Race stoppen</button>
+    </div>
+    <div class="ls-board">
+      <div class="panel ls-arena"><canvas id="p-map"></canvas><div class="ls-banner" id="p-banner"></div><div class="tw-countdown hidden" id="p-countdown"></div></div>
+      <div class="tw-side">
+        <ol class="tw-rank" id="p-rank"></ol>
+        <ul class="tw-feed" id="p-feed"></ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="podium" class="hidden">
+    <h2 class="center">De snelste ridders</h2>
+    <div class="podium" id="podium-blocks"></div>
+    <ol class="ranking" id="final"></ol>
+    <p class="center muted" id="results-saved"></p>
+    <div class="bar">
+      <button class="secondary" id="restart">Nog een race</button>
+      <button id="close">Andere quiz kiezen</button>
+    </div>
+  </section>
+</main>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/fx.js"></script>
+<script src="/js/quiz-links.js"></script>
+<script src="/js/quiz-list.js"></script>
+<script src="/js/race-track.js"></script>
+<script src="/js/race-draw.js"></script>
+<script src="/js/rr-host.js"></script>
+<script src="/js/address.js"></script>
+</body>
+</html>

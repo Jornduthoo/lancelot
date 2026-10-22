@@ -213,4 +213,23 @@ function saveLaserslag(ls) {
   return write(now, `laserslag-${slugOf(ls.quiz.title)}`, lines);
 }
 
-module.exports = { save, saveRondeTafel, saveToren, saveSchat, saveLaserslag, saveOefenblad, list, filePath, DIR };
+function saveRace(r) {
+  const now = new Date();
+  const ranking = r.ranking();
+  const pct = (a, b) => (b ? `${Math.round((a / b) * 100)}%` : '-');
+  const secs = ms => (ms ? (ms / 1000).toFixed(1).replace('.', ',') : '-');
+  const lines = [
+    row(['Ridderrace', r.quiz.title]),
+    row(['Datum', stamp(now)]),
+    row(['Speeltijd', `${r.minutes} minuten`]),
+    row(['Leerlingen', ranking.length]),
+    '',
+    row(['Rang', 'Naam', 'Ronden', 'Afstand (ronden)', 'Snelste ronde (s)', 'Langste reeks', 'Vragen goed', 'Vragen fout', '% goed']),
+    ...ranking.map((p, i) => row([
+      i + 1, p.name, p.laps, p.progress.toFixed(2).replace('.', ','), secs(p.bestLap), p.bestStreak, p.right, p.wrong, pct(p.right, p.right + p.wrong),
+    ])),
+  ];
+  return write(now, `ridderrace-${slugOf(r.quiz.title)}`, lines);
+}
+
+module.exports = { save, saveRace, saveRondeTafel, saveToren, saveSchat, saveLaserslag, saveOefenblad, list, filePath, DIR };

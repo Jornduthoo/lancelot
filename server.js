@@ -11,6 +11,7 @@ const rondetafel = require('./src/rondetafel');
 const { Toren } = require('./src/toren');
 const { Schat } = require('./src/schat');
 const { Laserslag } = require('./src/laserslag');
+const { Ridderrace } = require('./src/ridderrace');
 const oefenbladen = require('./src/oefenbladen');
 const { OefenbladLive } = require('./src/oefenblad-live');
 const settings = require('./src/settings');
@@ -52,6 +53,12 @@ const laserslag = new Laserslag(io, l => {
   return file;
 });
 
+const race = new Ridderrace(io, r => {
+  const file = results.saveRace(r);
+  io.to('host').emit('results', results.list());
+  return file;
+});
+
 const oefenblad = new OefenbladLive(io, o => {
   const file = results.saveOefenblad(o);
   io.to('host').emit('results', results.list());
@@ -65,6 +72,7 @@ function busyWith(except) {
   if (except !== 'toren' && toren.active) return 'De prinses in de toren loopt nog. Stop dat spel eerst.';
   if (except !== 'schat' && schat.active) return 'Schattenjacht loopt nog. Stop dat spel eerst.';
   if (except !== 'laserslag' && laserslag.active) return 'Laserslag loopt nog. Stop dat spel eerst.';
+  if (except !== 'race' && race.active) return 'De Ridderrace loopt nog. Stop die eerst.';
   if (except !== 'oefenblad' && oefenblad.active) return 'Er staat nog een oefenblad open. Sluit dat eerst.';
   return null;
 }
@@ -74,7 +82,7 @@ function isLocal(address) {
   return ['127.0.0.1', '::1', '::ffff:127.0.0.1'].includes(address);
 }
 
-for (const [route, page] of [['/host', 'host.html'], ['/rondetafel', 'rondetafel.html'], ['/toren', 'toren.html'], ['/schattenjacht', 'schattenjacht.html'], ['/laserslag', 'laserslag.html'], ['/oefenblad', 'oefenblad.html'], ['/oefenblad-print', 'oefenblad-print.html']]) {
+for (const [route, page] of [['/host', 'host.html'], ['/rondetafel', 'rondetafel.html'], ['/toren', 'toren.html'], ['/schattenjacht', 'schattenjacht.html'], ['/laserslag', 'laserslag.html'], ['/ridderrace', 'ridderrace.html'], ['/oefenblad', 'oefenblad.html'], ['/oefenblad-print', 'oefenblad-print.html']]) {
   app.get(route, (req, res) => {
     if (!isLocal(req.socket.remoteAddress)) return res.status(403).send('Het docentenscherm is alleen bereikbaar op de pc van de leerkracht.');
     res.sendFile(path.join(__dirname, 'public', page));
@@ -152,6 +160,7 @@ io.on('connection', socket => {
     socket.emit('tw-state', toren.hostState());
     socket.emit('sj-state', schat.hostState());
     socket.emit('ls-state', laserslag.hostState());
+    socket.emit('rr-state', race.hostState());
     socket.emit('ob-state', oefenblad.hostState());
     socket.emit('ob-sheets', oefenbladen.list());
 
@@ -290,6 +299,19 @@ io.on('connection', socket => {
     socket.on('ls-restart', () => laserslag.quiz && laserslag.load(laserslag.quiz, laserslag.minutes, laserslag.mode, laserslag.view));
     socket.on('ls-stop', (_, cb) => cb && cb({ file: laserslag.stop() }));
 
+    // Ridderrace
+    socket.on('rr-load', handle(({ file, minutes } = {}) => {
+      const busy = busyWith('race');
+      if (busy) throw new Error(busy);
+      race.load(quizzes.load(file), Number(minutes));
+      return {};
+    }));
+    socket.on('rr-start', () => race.start());
+    socket.on('rr-kick', id => race.kick(id));
+    socket.on('rr-finish', () => race.finish());
+    socket.on('rr-restart', () => race.quiz && race.load(race.quiz, race.minutes));
+    socket.on('rr-stop', (_, cb) => cb && cb({ file: race.stop() }));
+
     // Oefenbladen maken, bewaren en live openzetten
     const refreshSheets = () => io.to('host').emit('ob-sheets', oefenbladen.list());
     socket.on('ob-parse', handle(text => ({ sheet: oefenbladen.parseAiText(text) })));
@@ -413,6 +435,29 @@ io.on('connection', socket => {
   socket.on('ls-asking', ls((id, on) => laserslag.asking(id, on)));
   socket.on('ls-question', ls(id => laserslag.question(id)));
   socket.on('ls-answer', ls((id, choice) => laserslag.answer(id, choice)));
+  // Ridderrace
+  socket.emit('rr-state', race.base());
+  socket.on('rr-join', ({ playerId, name } = {}, cb) => {
+    if (!validId(playerId)) return cb && cb({ error: 'Ongeldige speler.' });
+    const result = race.join(playerId, name, socket.id);
+    socket.data.rrId = result.ok ? playerId : null;
+    cb && cb(result);
+    if (result.ok) {
+      socket.emit('rr-state', race.playerState(playerId));
+      if (race.phase === 'play') race.sendMe(race.players.get(playerId));
+    }
+  });
+  const rr = fn => (arg, cb) => {
+    const out = socket.data.rrId ? fn(socket.data.rrId, arg) : { error: 'Meld je eerst aan.' };
+    if (typeof cb === 'function') cb(out || {});
+  };
+  socket.on('rr-move', rr((id, pos) => race.move(id, pos)));
+  socket.on('rr-crystal', rr((id, seg) => race.crystal(id, seg)));
+  socket.on('rr-turbo', rr(id => race.turbo(id)));
+  socket.on('rr-asking', rr((id, on) => race.asking(id, on)));
+  socket.on('rr-question', rr(id => race.question(id)));
+  socket.on('rr-answer', rr((id, choice) => race.answer(id, choice)));
+
   // Oefenblad
   socket.emit('ob-state', oefenblad.base());
   socket.on('ob-join', ({ playerId, name } = {}, cb) => {
@@ -430,7 +475,10 @@ io.on('connection', socket => {
   socket.on('ob-submit', ob(id => oefenblad.submit(id)));
 
   // Wie wegvalt tijdens een vraag, blijft niet onkwetsbaar staan.
-  socket.on('disconnect', () => { if (socket.data.lsId) laserslag.asking(socket.data.lsId, false); });
+  socket.on('disconnect', () => {
+    if (socket.data.lsId) laserslag.asking(socket.data.lsId, false);
+    if (socket.data.rrId) race.asking(socket.data.rrId, false);
+  });
 
   // De Ronde Tafel: anoniem, alleen een vaste id per browser.
   socket.emit('rt-state', rt.playerState());

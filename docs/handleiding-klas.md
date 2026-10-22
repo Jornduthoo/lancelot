@@ -53,6 +53,15 @@ Tip: leg vooraf uit dat je tijdens een vraag beschermd bent, maar niet kan schie
 
 **Laserslag 3D** (first person): kies bij *Zicht* voor *First person*. Op een Chromebook klikken leerlingen eerst in het spel om de muis te vangen (Esc laat los). Op een gsm werkt het best liggend: links slepen is lopen, rechts slepen is rondkijken.
 
+## Ridderrace
+
+1. Kies op het startscherm **Ridderrace**, kies de racetijd en klik op de quiz.
+2. Leerlingen scannen de QR-code en wachten aan de startlijn. Klik op **Start de race!** Na drie rode lichten gaat het licht op groen.
+3. Op de gsm sturen leerlingen met ◀ ▶; op een Chromebook met de pijltjes. Gas geven gaat vanzelf.
+4. Tank leeg? Druk op **⛽ Tanken** (of E) en beantwoord vragen. Twee juist op rij geeft een turbo (🚀 of spatie).
+
+Tip: leg vooraf uit dat je in de pitstop stilstaat. Wie de vragen kent, tankt snel en wint.
+
 ## Voorkennis activeren
 
 1. Klik op het startscherm op **Voorkennis activeren**.

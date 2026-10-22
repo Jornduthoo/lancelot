@@ -13,6 +13,7 @@ const CROWN = ICONS[2];
 // --- Geluid: kleine synthesizer, zodat er geen geluidsbestanden nodig zijn ---
 const sfx = (() => {
   let ctx = null;
+  let engine = null;
   let muted = false;
   try { muted = localStorage.getItem('lancelot-muted') === '1'; } catch {}
 
@@ -85,6 +86,33 @@ const sfx = (() => {
     marker() { tone(1800, 0, .05, { type: 'triangle', vol: .09 }); },
     boom() { noise(0, .45, .2); tone(120, 0, .4, { type: 'sawtooth', vol: .1, slide: .4 }); },
     power() { [523, 784, 1046, 1568].forEach((f, i) => tone(f, i * .06, .2, { type: 'square', vol: .06 })); },
+    // Een zoemende motor die meegaat met de snelheid (0 = stil, 1 = vol gas).
+    engine(level) {
+      if (muted || !level) {
+        if (engine) engine.gain.gain.setTargetAtTime(0, ctx.currentTime, .1);
+        return;
+      }
+      const a = audio();
+      if (!a) return;
+      if (!engine) {
+        const filter = a.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.value = 700;
+        engine = { low: a.createOscillator(), high: a.createOscillator(), gain: a.createGain() };
+        engine.low.type = 'sawtooth';
+        engine.high.type = 'square';
+        engine.gain.gain.value = 0;
+        engine.low.connect(filter);
+        engine.high.connect(filter);
+        filter.connect(engine.gain).connect(a.destination);
+        engine.low.start();
+        engine.high.start();
+      }
+      const t = a.currentTime;
+      engine.low.frequency.setTargetAtTime(45 + level * 120, t, .06);
+      engine.high.frequency.setTargetAtTime(90 + level * 260, t, .06);
+      engine.gain.gain.setTargetAtTime(.02 + Math.min(1.4, level) * .025, t, .08);
+    },
     drumroll(seconds = 2) {
       for (let t = 0; t < seconds; t += .06) noise(t, .05, .05 + t / seconds * .1);
     },

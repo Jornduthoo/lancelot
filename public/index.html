@@ -267,6 +267,72 @@
     <p class="muted">Kijk naar het bord voor de eindstand.</p>
   </section>
  </div>
+ <div id="ridderrace">
+  <form id="rr-join" class="screen welcome hidden">
+    <img src="/img/logo.webp" alt="LANcelot">
+    <p class="title">Ridderrace</p>
+    <input id="rr-name" maxlength="20" autocomplete="off" placeholder="Je naam">
+    <p class="error" id="rr-join-error"></p>
+    <button type="submit" class="big">Naar de startlijn</button>
+  </form>
+
+  <section id="rr-lobby" class="screen panel hidden">
+    <p class="status">Ridderrace</p>
+    <p class="title" id="rr-lobby-name"></p>
+    <p class="muted">Race met je hoverros rond de burcht. Rijden kost ⛽ brandstof. <strong>Tanken doe je in de pitstop met goede antwoorden.</strong> Twee juist op rij geeft een 🚀 turbo.</p>
+    <p class="muted small ls-hint-touch">Sturen met ◀ en ▶ onderaan. Rechts: 🚀 turbo en ⛽ tanken.</p>
+    <p class="muted small ls-hint-keys">Sturen met de pijltjes of A en D, remmen met ↓. Spatie is turbo, E is tanken.</p>
+    <p class="muted small">Wacht tot de leerkracht de race start.</p>
+    <div class="spinner"></div>
+  </section>
+
+  <section id="rr-game" class="hidden">
+    <div class="ls-hud rr-hud">
+      <div class="rr-pos" id="rr-pos"></div>
+      <div class="rr-lap" id="rr-lap"></div>
+      <div class="rr-fuel" id="rr-fuel-box"><span>⛽</span><span class="rr-tank"><i id="rr-fuel"></i></span></div>
+      <div class="rr-turbos" id="rr-turbos"></div>
+      <div class="rr-speed" id="rr-speed"></div>
+      <div class="ls-clock" id="rr-clock"></div>
+    </div>
+    <div class="ls-stage" id="rr-stage">
+      <canvas id="rr-canvas"></canvas>
+      <canvas id="rr-map" class="rr-map"></canvas>
+      <div class="ls-feed" id="rr-feed"></div>
+      <div class="ls-banner" id="rr-banner"></div>
+      <div class="tw-toast" id="rr-toast"></div>
+      <div class="rr-lights hidden" id="rr-lights"><i></i><i></i><i></i></div>
+      <button class="rr-empty hidden" id="rr-empty">Tank leeg! <b>⛽ Tanken</b></button>
+      <div class="rr-steer">
+        <button class="ls-btn" id="rr-left" aria-label="Links">◀</button>
+        <button class="ls-btn" id="rr-right" aria-label="Rechts">▶</button>
+      </div>
+      <div class="ls-touch">
+        <button class="ls-btn ls-load" id="rr-pit">⛽<small>Tanken</small></button>
+        <button class="ls-btn rr-turbo" id="rr-turbo">🚀<small>Turbo</small></button>
+      </div>
+      <p class="ls-keys">← → sturen · ↓ remmen · spatie turbo · E tanken · 1-4 antwoorden</p>
+    </div>
+    <div class="tw-question hidden" id="rr-question">
+      <div class="panel">
+        <p class="status">Pitstop · elk goed antwoord vult je tank · 2 op rij = 🚀 turbo</p>
+        <span class="rr-tank big"><i id="rr-q-fuel"></i></span>
+        <p class="tw-q-text" id="rr-q-text"></p>
+        <div class="answers" id="rr-q-answers"></div>
+        <p class="tw-q-result" id="rr-q-result"></p>
+        <div class="ls-q-actions"><button class="gold" id="rr-q-close">Terug de baan op</button></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="rr-end" class="screen panel hidden">
+    <div class="mark" id="rr-end-medal" style="font-size:4.5rem"></div>
+    <p class="title" id="rr-end-title"></p>
+    <p class="big" id="rr-end-score" style="font-size:2rem"></p>
+    <p id="rr-end-stats"></p>
+    <p class="muted">Kijk naar het bord voor de eindstand.</p>
+  </section>
+ </div>
  <div id="oefenblad">
   <form id="ob-join" class="screen welcome hidden">
     <img src="/img/logo.webp" alt="LANcelot">
@@ -302,6 +368,9 @@
 <script src="/js/laserslag-draw.js"></script>
 <script src="/js/laserslag-3d.js"></script>
 <script src="/js/laserslag-player.js"></script>
+<script src="/js/race-track.js"></script>
+<script src="/js/race-draw.js"></script>
+<script src="/js/rr-player.js"></script>
 <script src="/js/ob-sheet.js"></script>
 <script src="/js/ob-player.js"></script>
 </body>

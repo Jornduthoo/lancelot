@@ -38,6 +38,7 @@ document.querySelector('[data-module="toren"]').addEventListener('click', () => 
 document.querySelector('[data-module="schattenjacht"]').addEventListener('click', () => { location.href = '/schattenjacht'; });
 document.querySelector('[data-module="laserslag"]').addEventListener('click', () => { location.href = '/laserslag'; });
 document.querySelector('[data-module="laserslag3d"]').addEventListener('click', () => { location.href = '/laserslag?zicht=3d'; });
+document.querySelector('[data-module="ridderrace"]').addEventListener('click', () => { location.href = '/ridderrace'; });
 document.querySelector('[data-module="voorkennis"]').addEventListener('click', () => { location.href = '/rondetafel?doel=voorkennis'; });
 document.querySelector('[data-module="oefenblad"]').addEventListener('click', () => { location.href = '/oefenblad'; });
 document.querySelector('[data-module="werkblad"]').addEventListener('click', () => { location.href = '/oefenblad?maak=ai'; });
