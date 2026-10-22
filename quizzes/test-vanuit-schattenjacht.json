@@ -1,0 +1,14 @@
+{
+  "title": "Test vanuit schattenjacht",
+  "questions": [
+    {
+      "question": "Hoeveel is 2+2?",
+      "answers": [
+        "3",
+        "4"
+      ],
+      "correct": 1,
+      "time": 20
+    }
+  ]
+}

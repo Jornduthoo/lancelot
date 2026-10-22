@@ -167,4 +167,27 @@ function saveSchat(sj) {
   return write(now, `schattenjacht-${slugOf(sj.quiz.title)}`, lines);
 }
 
-module.exports = { save, saveRondeTafel, saveToren, saveSchat, list, filePath, DIR };
+// Laserslag: punten, treffers en vragen per leerling, en bij teams de eindstand.
+function saveLaserslag(ls) {
+  const now = new Date();
+  const ranking = ls.ranking();
+  const pct = (a, b) => (b ? `${Math.round((a / b) * 100)}%` : '-');
+  const teams = ls.mode === 'teams';
+  const lines = [
+    row(['Laserslag', ls.quiz.title]),
+    row(['Datum', stamp(now)]),
+    row(['Speeltijd', `${ls.minutes} minuten`]),
+    row(['Spelvorm', teams ? 'Rood tegen blauw' : 'Ieder voor zich']),
+    ...(teams ? [row(['Eindstand', `Rood ${ls.score.rood} - ${ls.score.blauw} Blauw`])] : []),
+    row(['Leerlingen', ranking.length]),
+    '',
+    row(['Rang', 'Naam', ...(teams ? ['Team'] : []), 'Punten', 'Slagen', 'Uitgeschakeld', 'Langste reeks', 'Vragen goed', 'Vragen fout', '% goed', 'Raak geschoten']),
+    ...ranking.map((r, i) => row([
+      i + 1, r.name, ...(teams ? [r.team] : []), r.score, r.kills, r.deaths, r.bestStreak,
+      r.right, r.wrong, pct(r.right, r.right + r.wrong), pct(r.hits, r.shots),
+    ])),
+  ];
+  return write(now, `laserslag-${slugOf(ls.quiz.title)}`, lines);
+}
+
+module.exports = { save, saveRondeTafel, saveToren, saveSchat, saveLaserslag, list, filePath, DIR };

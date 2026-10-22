@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LANcelot · Laserslag</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body class="ls-host">
+<main>
+  <div class="topbar">
+    <div class="brand" id="brand" title="Naar het startscherm">
+      <img src="/img/logo.webp" alt="">
+      <div>
+        <div class="wordmark">LAN<span>celot</span></div>
+        <div class="subtitle" id="status">Laserslag</div>
+      </div>
+    </div>
+    <div class="actions">
+      <span class="join-mini hidden" id="join-mini"></span>
+      <button class="secondary icon" id="mute" title="Geluid aan/uit">🔊</button>
+      <button class="secondary hidden" id="stop">Stop het spel</button>
+    </div>
+  </div>
+
+  <section id="setup">
+    <div class="bar">
+      <h2>Laserslag</h2>
+      <div class="actions">
+        <button class="secondary" id="to-home">Terug</button>
+        <button class="secondary" data-make="leeg">Lege quiz</button>
+        <button data-make="ai">Nieuwe quiz met AI</button>
+      </div>
+    </div>
+    <div class="panel tw-intro">
+      <svg class="ls-logo" viewBox="0 0 64 64"><circle cx="32" cy="32" r="27" fill="none" stroke="#4cc9ff" stroke-width="3"/><path d="M8 54 L40 22" stroke="#ff4d6d" stroke-width="6" stroke-linecap="round"/><path d="M56 54 L24 22" stroke="#3d8bff" stroke-width="6" stroke-linecap="round"/><circle cx="40" cy="22" r="5" fill="#ffd1da"/><circle cx="24" cy="22" r="5" fill="#cfe0ff"/></svg>
+      <div>
+        <p>Een lasergevecht in de arena: ridders schieten elkaar met laserlansen uit, <strong>rood tegen blauw</strong> of ieder voor zich. Wie geraakt wordt, teleporteert terug naar zijn kamp. Geen bloed, wel spanning.</p>
+        <p><strong>Elk schot kost munitie, en munitie krijg je alleen met goede antwoorden.</strong> Tijdens een vraag staat de leerling in een schild. Drie juist op rij geeft een kracht: drievoudig schot, snelvuur, energieschild of volle levens. Het kristal in het midden geeft ook een kracht.</p>
+        <p class="muted">Werkt op gsm (joystick en vuurknop) en Chromebook (WASD en muis).</p>
+      </div>
+    </div>
+    <div class="panel form">
+      <label>Spelvorm
+        <select id="ls-mode">
+          <option value="teams" selected>Rood tegen blauw</option>
+          <option value="ieder">Ieder voor zich</option>
+        </select>
+      </label>
+      <label>Speeltijd
+        <select id="ls-minutes">
+          <option value="3">3 minuten</option>
+          <option value="5">5 minuten</option>
+          <option value="6" selected>6 minuten</option>
+          <option value="8">8 minuten</option>
+          <option value="10">10 minuten</option>
+          <option value="15">15 minuten</option>
+        </select>
+      </label>
+      <p class="muted small">Kies hieronder de quiz waaruit de vragen komen.</p>
+    </div>
+    <p class="notice hidden" id="stopped"></p>
+    <div class="quiz-list" id="quiz-list"></div>
+    <p class="error" id="load-error"></p>
+  </section>
+
+  <section id="lobby" class="hidden">
+    <div class="panel join">
+      <div class="qr" id="qr"></div>
+      <div class="join-text">
+        <p class="muted">Scan de QR-code of surf naar</p>
+        <div class="join-url" id="join-url"></div>
+        <p class="muted small" id="other-urls"></p>
+      </div>
+    </div>
+    <div class="bar">
+      <h2><span class="count" id="player-count">0</span> <span id="player-word">ridders</span> in de arena</h2>
+      <button class="gold big" id="start" disabled>Start de slag!</button>
+    </div>
+    <p class="muted small" id="lobby-tip">Klik op een naam om die speler naar het andere team te sturen, ✕ om te verwijderen.</p>
+    <div class="ls-teams" id="teams"></div>
+  </section>
+
+  <section id="play" class="hidden">
+    <div class="hud">
+      <span class="round" id="p-title"></span>
+      <div class="ls-bigscore" id="p-score"></div>
+      <span class="tw-clock" id="p-clock"></span>
+      <button class="secondary" id="p-finish">Tijd stoppen</button>
+    </div>
+    <div class="ls-board">
+      <div class="panel ls-arena"><canvas id="p-arena"></canvas><div class="ls-banner" id="p-banner"></div><div class="tw-countdown hidden" id="p-countdown"></div></div>
+      <div class="tw-side">
+        <ol class="tw-rank" id="p-rank"></ol>
+        <ul class="tw-feed" id="p-feed"></ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="podium" class="hidden">
+    <h2 class="center" id="podium-title">De beste ridders</h2>
+    <div class="podium" id="podium-blocks"></div>
+    <ol class="ranking" id="final"></ol>
+    <p class="center muted" id="results-saved"></p>
+    <div class="bar">
+      <button class="secondary" id="restart">Nog een keer</button>
+      <button id="close">Andere quiz kiezen</button>
+    </div>
+  </section>
+</main>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/fx.js"></script>
+<script src="/js/quiz-links.js"></script>
+<script src="/js/laserslag-world.js"></script>
+<script src="/js/laserslag-draw.js"></script>
+<script src="/js/laserslag-host.js"></script>
+<script src="/js/address.js"></script>
+</body>
+</html>

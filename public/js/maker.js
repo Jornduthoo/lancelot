@@ -110,7 +110,7 @@ $('new-empty').addEventListener('click', () => {
 
 // Vanuit een ander spel (de toren of Schattenjacht) een quiz maken: daarna gaan we daar weer naartoe.
 const params = new URLSearchParams(location.search);
-const returnTo = ['/toren', '/schattenjacht'].includes(params.get('terug')) ? params.get('terug') : null;
+const returnTo = ['/toren', '/schattenjacht', '/laserslag'].includes(params.get('terug')) ? params.get('terug') : null;
 
 for (const b of document.querySelectorAll('[data-back]')) {
   b.addEventListener('click', () => {

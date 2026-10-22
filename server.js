@@ -10,6 +10,7 @@ const quizzes = require('./src/quizzes');
 const rondetafel = require('./src/rondetafel');
 const { Toren } = require('./src/toren');
 const { Schat } = require('./src/schat');
+const { Laserslag } = require('./src/laserslag');
 const settings = require('./src/settings');
 const results = require('./src/results');
 const { execFile } = require('child_process');
@@ -43,12 +44,19 @@ const schat = new Schat(io, s => {
   return file;
 });
 
+const laserslag = new Laserslag(io, l => {
+  const file = results.saveLaserslag(l);
+  io.to('host').emit('results', results.list());
+  return file;
+});
+
 // Er loopt altijd hooguit één spel tegelijk.
 function busyWith(except) {
   if (except !== 'toernooi' && game.phase !== 'idle') return 'Er loopt nog een toernooi. Stop dat eerst.';
   if (except !== 'rondetafel' && rt.active) return 'De Ronde Tafel loopt nog. Stop die eerst.';
   if (except !== 'toren' && toren.active) return 'De prinses in de toren loopt nog. Stop dat spel eerst.';
   if (except !== 'schat' && schat.active) return 'Schattenjacht loopt nog. Stop dat spel eerst.';
+  if (except !== 'laserslag' && laserslag.active) return 'Laserslag loopt nog. Stop dat spel eerst.';
   return null;
 }
 
@@ -57,7 +65,7 @@ function isLocal(address) {
   return ['127.0.0.1', '::1', '::ffff:127.0.0.1'].includes(address);
 }
 
-for (const [route, page] of [['/host', 'host.html'], ['/rondetafel', 'rondetafel.html'], ['/toren', 'toren.html'], ['/schattenjacht', 'schattenjacht.html']]) {
+for (const [route, page] of [['/host', 'host.html'], ['/rondetafel', 'rondetafel.html'], ['/toren', 'toren.html'], ['/schattenjacht', 'schattenjacht.html'], ['/laserslag', 'laserslag.html']]) {
   app.get(route, (req, res) => {
     if (!isLocal(req.socket.remoteAddress)) return res.status(403).send('Het docentenscherm is alleen bereikbaar op de pc van de leerkracht.');
     res.sendFile(path.join(__dirname, 'public', page));
@@ -133,6 +141,7 @@ io.on('connection', socket => {
     socket.emit('rt-state', rt.hostState());
     socket.emit('tw-state', toren.hostState());
     socket.emit('sj-state', schat.hostState());
+    socket.emit('ls-state', laserslag.hostState());
 
     socket.on('load', (file, cb) => {
       try {
@@ -247,6 +256,20 @@ io.on('connection', socket => {
     socket.on('sj-restart', () => schat.quiz && schat.load(schat.quiz, schat.minutes));
     socket.on('sj-stop', (_, cb) => cb && cb({ file: schat.stop() }));
 
+    // Laserslag
+    socket.on('ls-load', handle(({ file, minutes, mode } = {}) => {
+      const busy = busyWith('laserslag');
+      if (busy) throw new Error(busy);
+      laserslag.load(quizzes.load(file), Number(minutes), mode);
+      return {};
+    }));
+    socket.on('ls-start', () => laserslag.start());
+    socket.on('ls-kick', id => laserslag.kick(id));
+    socket.on('ls-team', id => laserslag.switchTeam(id));
+    socket.on('ls-finish', () => laserslag.finish());
+    socket.on('ls-restart', () => laserslag.quiz && laserslag.load(laserslag.quiz, laserslag.minutes, laserslag.mode));
+    socket.on('ls-stop', (_, cb) => cb && cb({ file: laserslag.stop() }));
+
     socket.on('start', () => game.start());
     socket.on('next', () => game.next());
     socket.on('reveal', () => game.reveal());
@@ -308,6 +331,31 @@ io.on('connection', socket => {
   socket.on('sj-question', sj(id => schat.question(id)));
   socket.on('sj-answer', sj((id, choice) => schat.answer(id, choice)));
   socket.on('sj-buy', sj((id, item) => schat.buy(id, item)));
+
+  // Laserslag
+  socket.emit('ls-state', laserslag.base());
+  socket.on('ls-join', ({ playerId, name } = {}, cb) => {
+    if (!validId(playerId)) return cb && cb({ error: 'Ongeldige speler.' });
+    const result = laserslag.join(playerId, name, socket.id);
+    socket.data.lsId = result.ok ? playerId : null;
+    cb && cb(result);
+    if (result.ok) {
+      socket.emit('ls-state', laserslag.playerState(playerId));
+      const p = laserslag.players.get(playerId);
+      if (laserslag.phase === 'play') laserslag.sendMe(p);
+    }
+  });
+  const ls = fn => (arg, cb) => {
+    const out = socket.data.lsId ? fn(socket.data.lsId, arg) : { error: 'Meld je eerst aan.' };
+    if (typeof cb === 'function') cb(out || {});
+  };
+  socket.on('ls-move', ls((id, pos) => laserslag.move(id, pos)));
+  socket.on('ls-shoot', ls((id, angle) => laserslag.shoot(id, angle)));
+  socket.on('ls-asking', ls((id, on) => laserslag.asking(id, on)));
+  socket.on('ls-question', ls(id => laserslag.question(id)));
+  socket.on('ls-answer', ls((id, choice) => laserslag.answer(id, choice)));
+  // Wie wegvalt tijdens een vraag, blijft niet onkwetsbaar staan.
+  socket.on('disconnect', () => { if (socket.data.lsId) laserslag.asking(socket.data.lsId, false); });
 
   // De Ronde Tafel: anoniem, alleen een vaste id per browser.
   socket.emit('rt-state', rt.playerState());

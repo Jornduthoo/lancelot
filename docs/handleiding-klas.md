@@ -42,6 +42,15 @@ Laat het zwarte venster openstaan zolang je speelt. Dat is de server.
 
 Tip: laat leerlingen de gsm rechtop houden. Op een laptop werken de pijltjes en de spatiebalk.
 
+## Laserslag
+
+1. Kies op het startscherm **Laserslag**, kies de spelvorm (rood tegen blauw of ieder voor zich) en de speeltijd, en klik op de quiz.
+2. Leerlingen scannen de QR-code. Bij teams verdeelt LANcelot ze zelf; klik op een naam om iemand van team te wisselen.
+3. Klik op **Start de slag!** Op de gsm sleep je links om te lopen en druk je op **Vuur**; op een Chromebook loop je met WASD en schiet je met de muis.
+4. Munitie op? Druk op **⚡ Laden** (of E) en beantwoord vragen. Ook wie uitgeschakeld is, kan intussen laden.
+
+Tip: leg vooraf uit dat je tijdens een vraag beschermd bent, maar niet kan schieten.
+
 ## Lukt verbinden niet?
 
 - **Zelfde netwerk:** je pc en de apparaten van leerlingen moeten op hetzelfde wifi-netwerk zitten. Een pc via een netwerkkabel werkt meestal ook, als die op hetzelfde schoolnetwerk zit.

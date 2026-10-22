@@ -201,6 +201,71 @@
     <p class="muted" id="sj-end-extra"></p>
   </section>
  </div>
+ <div id="laserslag">
+  <form id="ls-join" class="screen welcome hidden">
+    <img src="/img/logo.webp" alt="LANcelot">
+    <p class="title">Laserslag</p>
+    <input id="ls-name" maxlength="20" autocomplete="off" placeholder="Je naam">
+    <p class="error" id="ls-join-error"></p>
+    <button type="submit" class="big">Naar de arena</button>
+  </form>
+
+  <section id="ls-lobby" class="screen panel hidden">
+    <p class="status">Laserslag</p>
+    <p class="title" id="ls-lobby-name"></p>
+    <p class="ls-team-badge" id="ls-lobby-team"></p>
+    <p class="muted">Schakel andere ridders uit met je laserlans. Elk schot kost munitie. <strong>Munitie krijg je alleen met goede antwoorden.</strong> Drie juist op rij geeft een extra kracht.</p>
+    <p class="muted small ls-hint-touch">Links op het scherm sleep je om te lopen. Rechts: vuur en munitie laden.</p>
+    <p class="muted small ls-hint-keys">Lopen met WASD of de pijltjes, richten en schieten met de muis (of spatie), E voor munitie.</p>
+    <p class="muted small">Wacht tot de leerkracht het spel start.</p>
+    <div class="spinner"></div>
+  </section>
+
+  <section id="ls-game" class="hidden">
+    <div class="ls-hud">
+      <div class="ls-hearts" id="ls-hearts"></div>
+      <div class="ls-ammo" id="ls-ammo-box"><span class="bolt">⚡</span><b id="ls-ammo">0</b></div>
+      <div class="ls-powers" id="ls-powers"></div>
+      <div class="ls-score" id="ls-score"></div>
+      <div class="ls-clock" id="ls-clock"></div>
+    </div>
+    <div class="ls-stage" id="ls-stage">
+      <canvas id="ls-canvas"></canvas>
+      <div class="ls-feed" id="ls-feed"></div>
+      <div class="ls-banner" id="ls-banner"></div>
+      <div class="tw-toast" id="ls-toast"></div>
+      <div class="tw-countdown hidden" id="ls-countdown"></div>
+      <div class="ls-touch">
+        <button class="ls-btn ls-load" id="ls-load">⚡<small>Laden</small></button>
+        <button class="ls-btn ls-fire" id="ls-fire">🔥<small>Vuur</small></button>
+      </div>
+      <p class="ls-keys">WASD lopen · muis richten en klikken · spatie vuur · E munitie · 1-4 antwoorden</p>
+      <div class="ls-out hidden" id="ls-out">
+        <p class="ls-out-title">Uitgeschakeld!</p>
+        <p class="ls-out-by" id="ls-out-by"></p>
+        <p class="ls-out-timer" id="ls-out-timer"></p>
+        <button class="gold" id="ls-out-load">⚡ Laad munitie</button>
+      </div>
+    </div>
+    <div class="tw-question hidden" id="ls-question">
+      <div class="panel">
+        <p class="status" id="ls-q-status">Beantwoord juist voor ⚡ munitie · je bent beschermd</p>
+        <p class="tw-q-text" id="ls-q-text"></p>
+        <div class="answers" id="ls-q-answers"></div>
+        <p class="tw-q-result" id="ls-q-result"></p>
+        <div class="ls-q-actions"><button class="secondary" id="ls-q-close">Terug naar de arena</button></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="ls-end" class="screen panel hidden">
+    <div class="mark" id="ls-end-medal" style="font-size:4.5rem"></div>
+    <p class="title" id="ls-end-title"></p>
+    <p class="big" id="ls-end-score" style="font-size:2rem"></p>
+    <p id="ls-end-stats"></p>
+    <p class="muted">Kijk naar het bord voor de eindstand.</p>
+  </section>
+ </div>
 </main>
 <script src="/socket.io/socket.io.js"></script>
 <script src="/js/fx.js"></script>
@@ -210,5 +275,8 @@
 <script src="/js/toren-draw.js"></script>
 <script src="/js/toren-player.js"></script>
 <script src="/js/schat-player.js"></script>
+<script src="/js/laserslag-world.js"></script>
+<script src="/js/laserslag-draw.js"></script>
+<script src="/js/laserslag-player.js"></script>
 </body>
 </html>

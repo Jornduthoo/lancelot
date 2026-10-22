@@ -8,6 +8,7 @@ Het thema: middeleeuws met een scifi-kantje. Op het startscherm kies je een spel
 - **De Ronde Tafel**: polls, stellingen, woordwolken, open vragen en schalen, live op het bord (klaar)
 - **Schattenjacht**: verdien goud met goede antwoorden en koop slimme upgrades (klaar)
 - **De prinses in de toren**: klim met je ridder naar de top; goede antwoorden geven energie (klaar)
+- **Laserslag**: lasergevecht rood tegen blauw of ieder voor zich; munitie verdien je met goede antwoorden (klaar)
 
 ## Starten (Windows)
 
@@ -64,6 +65,16 @@ Een platformspel in Mario-stijl. Elke leerling klimt op de gsm met een ridder in
 - **Winnen:** wie als eerste de prinses bovenaan (verdieping 80) redt, wint. Redt niemand haar, dan wint wie het hoogst staat als de tijd om is (3 tot 15 minuten).
 - **Op het bord** zie je de toren met de leider in beeld, een overzicht van de hele toren met alle ridders, de tussenstand en wat er gebeurt.
 - **Besturing:** knoppen op het scherm, of op een laptop de pijltjes en de spatiebalk.
+
+## Laserslag
+
+Een lasergevecht in een scifi-arena, van bovenaf. De ridders schieten elkaar met laserlansen uit, rood tegen blauw of ieder voor zich. Wie drie keer geraakt is, teleporteert terug naar zijn kamp. Geen bloed, wel spanning.
+
+- **Elk schot kost ⚡ munitie, en munitie krijg je alleen met goede antwoorden** (meer naarmate je reeks langer is). Tijdens een vraag staat de leerling in een schild en kan niemand hem raken.
+- **Krachten:** drie juist op rij of het kristal in het midden geeft drievoudig schot, snelvuur, een energieschild of volle levens.
+- **Punten:** 100 per slag, 150 extra voor een gezochte ridder (🎯, met een reeks van 3 of meer), 25 per goed antwoord, 50 voor het kristal.
+- **Besturing:** op een gsm een joystick (links slepen) en een vuurknop die automatisch richt; op een Chromebook WASD of de pijltjes en de muis.
+- **Op het bord** zie je de hele arena live, de teamstand, de rangschikking en wie wie uitschakelt.
 
 ## Resultaten
 

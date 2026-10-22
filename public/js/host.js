@@ -36,6 +36,7 @@ document.querySelector('[data-module="toernooi"]').addEventListener('click', () 
 document.querySelector('[data-module="rondetafel"]').addEventListener('click', () => { location.href = '/rondetafel'; });
 document.querySelector('[data-module="toren"]').addEventListener('click', () => { location.href = '/toren'; });
 document.querySelector('[data-module="schattenjacht"]').addEventListener('click', () => { location.href = '/schattenjacht'; });
+document.querySelector('[data-module="laserslag"]').addEventListener('click', () => { location.href = '/laserslag'; });
 
 function loadQuiz(file) {
   socket.emit('load', file, res => {
