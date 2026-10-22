@@ -75,6 +75,7 @@ Een lasergevecht in een scifi-arena, van bovenaf. De ridders schieten elkaar met
 - **Punten:** 100 per slag, 150 extra voor een gezochte ridder (🎯, met een reeks van 3 of meer), 25 per goed antwoord, 50 voor het kristal.
 - **Besturing:** op een gsm een joystick (links slepen) en een vuurknop die automatisch richt; op een Chromebook WASD of de pijltjes en de muis.
 - **Op het bord** zie je de hele arena live, de teamstand, de rangschikking en wie wie uitschakelt.
+- **Laserslag 3D:** kies bij *Zicht* voor *First person* (of de kaart Laserslag 3D op het startscherm). Dezelfde arena en regels, maar de leerling kijkt door de ogen van zijn ridder. Gsm: links slepen om te lopen, rechts slepen om rond te kijken. Chromebook: klik om de muis te vangen, WASD om te lopen, de muis om te kijken. Een kleine richthulp helpt wie bijna mikt. Het bord toont de arena van bovenaf.
 
 ## Resultaten
 

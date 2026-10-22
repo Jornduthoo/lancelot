@@ -257,17 +257,17 @@ io.on('connection', socket => {
     socket.on('sj-stop', (_, cb) => cb && cb({ file: schat.stop() }));
 
     // Laserslag
-    socket.on('ls-load', handle(({ file, minutes, mode } = {}) => {
+    socket.on('ls-load', handle(({ file, minutes, mode, view } = {}) => {
       const busy = busyWith('laserslag');
       if (busy) throw new Error(busy);
-      laserslag.load(quizzes.load(file), Number(minutes), mode);
+      laserslag.load(quizzes.load(file), Number(minutes), mode, view);
       return {};
     }));
     socket.on('ls-start', () => laserslag.start());
     socket.on('ls-kick', id => laserslag.kick(id));
     socket.on('ls-team', id => laserslag.switchTeam(id));
     socket.on('ls-finish', () => laserslag.finish());
-    socket.on('ls-restart', () => laserslag.quiz && laserslag.load(laserslag.quiz, laserslag.minutes, laserslag.mode));
+    socket.on('ls-restart', () => laserslag.quiz && laserslag.load(laserslag.quiz, laserslag.minutes, laserslag.mode, laserslag.view));
     socket.on('ls-stop', (_, cb) => cb && cb({ file: laserslag.stop() }));
 
     socket.on('start', () => game.start());

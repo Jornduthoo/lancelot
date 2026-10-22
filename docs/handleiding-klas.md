@@ -51,6 +51,8 @@ Tip: laat leerlingen de gsm rechtop houden. Op een laptop werken de pijltjes en 
 
 Tip: leg vooraf uit dat je tijdens een vraag beschermd bent, maar niet kan schieten.
 
+**Laserslag 3D** (first person): kies bij *Zicht* voor *First person*. Op een Chromebook klikken leerlingen eerst in het spel om de muis te vangen (Esc laat los). Op een gsm werkt het best liggend: links slepen is lopen, rechts slepen is rondkijken.
+
 ## Lukt verbinden niet?
 
 - **Zelfde netwerk:** je pc en de apparaten van leerlingen moeten op hetzelfde wifi-netwerk zitten. Een pc via een netwerkkabel werkt meestal ook, als die op hetzelfde schoolnetwerk zit.

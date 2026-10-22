@@ -33,6 +33,9 @@ function downloadLink(file) {
   return link;
 }
 
+// Vanaf de kaart Laserslag 3D op het startscherm staat first person al klaar.
+if (new URLSearchParams(location.search).get('zicht') === '3d') $('ls-view').value = '3d';
+
 socket.on('quizzes', list => {
   const box = $('quiz-list');
   box.innerHTML = list.length ? '' : '<p class="muted">Nog geen quizzen. Maak er een met de knoppen hierboven.</p>';
@@ -43,7 +46,7 @@ socket.on('quizzes', list => {
       <button class="secondary edit">Bewerken</button>`;
     row.querySelector('.play').addEventListener('click', () => {
       $('stopped').classList.add('hidden');
-      socket.emit('ls-load', { file: q.file, minutes: Number($('ls-minutes').value), mode: $('ls-mode').value }, res => { $('load-error').textContent = res.error || ''; });
+      socket.emit('ls-load', { file: q.file, minutes: Number($('ls-minutes').value), mode: $('ls-mode').value, view: $('ls-view').value }, res => { $('load-error').textContent = res.error || ''; });
     });
     row.querySelector('.edit').addEventListener('click', () => { location.href = quizMakerUrl('bewerk', q.file); });
     box.appendChild(row);
@@ -57,7 +60,7 @@ socket.on('ls-state', s => {
   const live = s.phase !== 'idle';
   $('stop').classList.toggle('hidden', !live);
   $('join-mini').classList.toggle('hidden', s.phase !== 'play');
-  $('status').textContent = live ? `Laserslag · ${s.title}` : 'Laserslag';
+  $('status').textContent = live ? `Laserslag${s.view === '3d' ? ' 3D' : ''} · ${s.title}` : 'Laserslag';
   if (!live) return show('setup');
   if (s.phase === 'lobby') {
     renderLobby();

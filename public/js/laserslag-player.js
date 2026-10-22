@@ -22,6 +22,9 @@ const ls = {
   hurt: 0,
   marker: 0,
   cam: { x: 0, y: 0, scale: 1 },
+  booms: [],
+  look: null,
+  recoil: 0,
 };
 
 const lsNow = () => Date.now() + ls.offset;
@@ -90,8 +93,15 @@ socket.on('ls-state', s => {
     const badge = $('ls-lobby-team');
     badge.textContent = s.team ? TEAM_NAME[s.team] : 'Ieder voor zich';
     badge.dataset.team = s.team || '';
+    $('ls-lobby-view').textContent = s.view === '3d'
+      ? 'First person: je kijkt door de ogen van je ridder. Gsm: links slepen om te lopen, rechts slepen om rond te kijken. Chromebook: WASD en de muis.'
+      : '';
     lsShow('ls-lobby');
   } else if (s.phase === 'play') {
+    $('ls-game').dataset.view = s.view;
+    document.querySelector('.ls-keys').textContent = s.view === '3d'
+      ? 'Klik om de muis te vangen · WASD lopen · muis kijken · klik of spatie vuur · E munitie · Esc muis los'
+      : 'WASD lopen · muis richten en klikken · spatie vuur · E munitie · 1-4 antwoorden';
     lsShow('ls-game');
     lsResize();
   } else if (s.phase === 'einde') {
@@ -193,6 +203,7 @@ socket.on('ls-hit', h => {
 socket.on('ls-ko', k => {
   const o = k.victim === playerId ? null : ls.others.get(k.victim);
   const color = o ? SlagDraw.colorOf(o.team, o.color) : '#ffffff';
+  ls.booms.push({ x: k.x, y: k.y, color, age: 0, life: .6 });
   SlagDraw.burst(k.x, k.y, color, 28, 380);
   SlagDraw.ring(k.x, k.y, color);
   if (ls.me && Math.hypot(k.x - ls.me.x, k.y - ls.me.y) < 700) sfx.boom();
@@ -253,9 +264,16 @@ function lsFeed(text, kind) {
 // ---------- Besturing ----------
 
 const LS_KEYS = { ArrowUp: 'up', w: 'up', z: 'up', ArrowDown: 'down', s: 'down', ArrowLeft: 'left', a: 'left', q: 'left', ArrowRight: 'right', d: 'right' };
+const ls3d = () => !!(ls.state && ls.state.view === '3d');
+// In 3D draaien de pijltjes links en rechts je ridder; A en D stappen opzij.
+function lsKey(e) {
+  const key = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+  if (ls3d() && (key === 'ArrowLeft' || key === 'ArrowRight')) return key === 'ArrowLeft' ? 'tl' : 'tr';
+  return LS_KEYS[key];
+}
 document.addEventListener('keydown', e => {
   if (document.body.dataset.ls !== '1' || e.target.tagName === 'INPUT') return;
-  const k = LS_KEYS[e.key.length === 1 ? e.key.toLowerCase() : e.key];
+  const k = lsKey(e);
   if (ls.question) {
     if (ls.question.answers && !ls.question.done && /^[1-4]$/.test(e.key)) lsAnswer(Number(e.key) - 1);
     if (e.key === 'Escape' || (e.key === 'Enter' && ls.question.done)) lsCloseQuestion();
@@ -266,7 +284,7 @@ document.addEventListener('keydown', e => {
   if (e.key === 'e' || e.key === 'E' || e.key === 'Enter') lsOpenQuestion();
 });
 document.addEventListener('keyup', e => {
-  const k = LS_KEYS[e.key.length === 1 ? e.key.toLowerCase() : e.key];
+  const k = lsKey(e);
   if (k) ls.keys[k] = false;
   if (e.key === ' ' && ls.firing === 'auto') ls.firing = false;
 });
@@ -280,7 +298,18 @@ lsCanvas.addEventListener('pointerdown', e => {
   sfx.unlock();
   if (e.pointerType === 'mouse') {
     ls.mouse = { x: e.offsetX, y: e.offsetY };
+    // In 3D vangt het canvas de muis, zodat je met de muis rondkijkt.
+    if (ls3d() && document.pointerLockElement !== lsCanvas && lsCanvas.requestPointerLock) {
+      try { const r = lsCanvas.requestPointerLock(); if (r && r.catch) r.catch(() => {}); } catch {}
+    }
     ls.firing = 'mouse';
+    return;
+  }
+  // Aanraken in 3D: rechts slepen is rondkijken.
+  if (ls3d() && e.offsetX >= lsCanvas.clientWidth * .45 && !ls.look) {
+    e.preventDefault();
+    lsCanvas.setPointerCapture(e.pointerId);
+    ls.look = { id: e.pointerId, x: e.offsetX };
     return;
   }
   // Aanraken: links van het midden is de joystick.
@@ -291,6 +320,13 @@ lsCanvas.addEventListener('pointerdown', e => {
   }
 });
 lsCanvas.addEventListener('pointermove', e => {
+  if (ls3d() && ls.me && !ls.question) {
+    if (document.pointerLockElement === lsCanvas) ls.me.a += e.movementX * .0028;
+    if (ls.look && e.pointerId === ls.look.id) {
+      ls.me.a += (e.offsetX - ls.look.x) * .009;
+      ls.look.x = e.offsetX;
+    }
+  }
   if (e.pointerType === 'mouse') ls.mouse = { x: e.offsetX, y: e.offsetY };
   if (ls.stick && e.pointerId === ls.stick.id) {
     ls.stick.dx = e.offsetX - ls.stick.sx;
@@ -299,6 +335,7 @@ lsCanvas.addEventListener('pointermove', e => {
 });
 const lsStickEnd = e => {
   if (ls.stick && e.pointerId === ls.stick.id) ls.stick = null;
+  if (ls.look && e.pointerId === ls.look.id) ls.look = null;
   if (e.pointerType === 'mouse' && ls.firing === 'mouse') ls.firing = false;
 };
 lsCanvas.addEventListener('pointerup', lsStickEnd);
@@ -327,8 +364,13 @@ function lsTarget() {
   return best;
 }
 
+function lsEnemies() {
+  return [...ls.others.values()].filter(o => !(o.flags & 1) && !(ls.state.mode === 'teams' && o.team === ls.state.team));
+}
+
 function lsAim() {
   const me = ls.me;
+  if (ls3d()) return Slag3D.assist(me, me.a, lsEnemies());
   if (ls.mouse && ls.firing !== 'auto') {
     const { scale } = ls.cam;
     const wx = ls.cam.x + (ls.mouse.x * lsView.dpr) / scale;
@@ -359,7 +401,8 @@ function lsFire(now) {
     return;
   }
   const a = lsAim();
-  ls.me.a = a;
+  if (!ls3d()) ls.me.a = a;
+  ls.recoil = 1;
   info.ammo--;
   sfx.laser();
   socket.emit('ls-shoot', +a.toFixed(3), res => {
@@ -375,7 +418,9 @@ function lsOpenQuestion() {
   if (ls.question || !ls.state || ls.state.phase !== 'play') return;
   if (lsNow() < ls.state.startedAt) return;
   ls.question = { loading: true };
+  if (document.pointerLockElement && document.exitPointerLock) document.exitPointerLock();
   ls.keys = {};
+  ls.look = null;
   ls.stick = null;
   ls.firing = false;
   $('ls-question').classList.remove('hidden');
@@ -469,13 +514,33 @@ function lsMove(dt) {
     const max = 50;
     if (len > 6) { dx = ls.stick.dx / Math.max(len, max); dy = ls.stick.dy / Math.max(len, max); }
   }
+  if (ls3d()) {
+    // Vooruit en opzij ten opzichte van waar je kijkt.
+    me.a += ((ls.keys.tr ? 1 : 0) - (ls.keys.tl ? 1 : 0)) * 2.6 * dt;
+    const fwd = -dy;
+    const side = dx;
+    dx = Math.cos(me.a) * fwd - Math.sin(me.a) * side;
+    dy = Math.sin(me.a) * fwd + Math.cos(me.a) * side;
+  }
   const len = Math.hypot(dx, dy);
   if (len > 1) { dx /= len; dy /= len; }
+  ls.moving = len > .05;
   if (len > .05) {
     [me.x, me.y] = Arena.slide(me.x, me.y, dx * Arena.SPEED * dt, dy * Arena.SPEED * dt);
-    if (!ls.mouse && !ls.firing) me.a = Math.atan2(dy, dx);
+    if (!ls3d() && !ls.mouse && !ls.firing) me.a = Math.atan2(dy, dx);
   }
-  if (ls.mouse && !ls.firing) me.a = lsAim();
+  if (!ls3d() && ls.mouse && !ls.firing) me.a = lsAim();
+}
+
+function lsGlide(dt) {
+  for (const o of ls.others.values()) {
+    o.x += (o.tx - o.x) * Math.min(1, dt * 14);
+    o.y += (o.ty - o.y) * Math.min(1, dt * 14);
+    let da = o.ta - o.a;
+    while (da > Math.PI) da -= Math.PI * 2;
+    while (da < -Math.PI) da += Math.PI * 2;
+    o.a += da * Math.min(1, dt * 14);
+  }
 }
 
 function lsRender(t, dt) {
@@ -510,13 +575,8 @@ function lsRender(t, dt) {
   // De anderen, vloeiend tussen de berichten door.
   const teams = ls.state.mode === 'teams';
   const top = ls.ranking && ls.ranking[0] && ls.ranking[0][10] >= 3 ? ls.ranking[0][0] : null;
+  lsGlide(dt);
   for (const [id, o] of ls.others) {
-    o.x += (o.tx - o.x) * Math.min(1, dt * 14);
-    o.y += (o.ty - o.y) * Math.min(1, dt * 14);
-    let da = o.ta - o.a;
-    while (da > Math.PI) da -= Math.PI * 2;
-    while (da < -Math.PI) da += Math.PI * 2;
-    o.a += da * Math.min(1, dt * 14);
     if (o.flags & 1) continue;
     const color = SlagDraw.colorOf(o.team, o.color);
     const friend = teams && o.team === ls.state.team;
@@ -554,12 +614,66 @@ function lsRender(t, dt) {
     }
   }
   SlagDraw.effects(ctx, cam, dt);
+  lsOverlays(ctx, dt);
+}
 
+// First person: de wereld door de ogen van je ridder.
+function ls3dRender(t, dt) {
+  const ctx = lsCtx;
+  const { w, h, dpr } = lsView;
+  const me = ls.me;
+  lsGlide(dt);
+  SlagDraw.moveBullets(ls.bullets, dt);
+  const top = ls.ranking && ls.ranking[0] && ls.ranking[0][10] >= 3 ? ls.ranking[0][0] : null;
+  const others = [];
+  for (const [id, o] of ls.others) {
+    if (o.flags & 1) continue;
+    others.push({ x: o.x, y: o.y, color: SlagDraw.colorOf(o.team, o.color), bubble: o.flags & 6, asking: o.flags & 4, name: o.name, hp: o.hp, wanted: id === top });
+  }
+  for (const b of ls.booms) b.age += dt;
+  ls.booms = ls.booms.filter(b => b.age < b.life);
+  if (ls.moving) ls.walk = (ls.walk || 0) + dt * 9;
+  const tags = Slag3D.render(ctx, w, h, { me, a: me.a, others, bullets: [...ls.bullets.values()], crystal: ls.crystal, t, booms: ls.booms });
+  // Naam en levens boven elke zichtbare ridder.
+  for (const tg of tags) {
+    const fs = Math.max(10 * dpr, Math.min(16 * dpr, tg.size * .2));
+    ctx.save();
+    ctx.font = `700 ${fs}px 'Exo 2', sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = 'rgba(0, 0, 0, .8)';
+    const text = `${tg.o.wanted ? '🎯 ' : tg.o.asking ? '⚡ ' : ''}${tg.o.name}`;
+    ctx.strokeText(text, tg.x, tg.y - fs * .9);
+    ctx.fillStyle = '#eaf4ff';
+    ctx.fillText(text, tg.x, tg.y - fs * .9);
+    for (let i = 0; i < 3; i++) {
+      ctx.fillStyle = i < tg.o.hp ? tg.o.color : 'rgba(255, 255, 255, .2)';
+      ctx.fillRect(tg.x - fs * 1.2 + i * fs * .85, tg.y - fs * .55, fs * .7, fs * .3);
+    }
+    ctx.restore();
+  }
+  if (ls.info && ls.info.alive) {
+    ls.recoil = Math.max(0, (ls.recoil || 0) - dt * 6);
+    Slag3D.weapon(ctx, w, h, SlagDraw.colorOf(ls.state.team, ls.state.color), ls.recoil, ls.walk || 0);
+    Slag3D.crosshair(ctx, w, h, Slag3D.assist(me, me.a, lsEnemies()) !== me.a, dpr);
+    if ((ls.myFlags & 6) || ls.question) {
+      ctx.fillStyle = 'rgba(76, 201, 255, .1)';
+      ctx.fillRect(0, 0, w, h);
+    }
+  }
+  lsOverlays(ctx, dt);
+}
+
+// Treffers, rode rand, joystick en kaartje: in beide zichten hetzelfde.
+function lsOverlays(ctx, dt) {
+  const { w, h, scale } = lsView;
+  const teams = ls.state.mode === 'teams';
   // Treffer-kruisje bij de muis of in het midden.
   if (ls.marker > 0) {
     ls.marker -= dt;
-    const mx = ls.mouse ? ls.mouse.x * lsView.dpr : w / 2;
-    const my = ls.mouse ? ls.mouse.y * lsView.dpr : h / 2 - 40 * scale;
+    const aimed = ls.mouse && !ls3d();
+    const mx = aimed ? ls.mouse.x * lsView.dpr : w / 2;
+    const my = aimed ? ls.mouse.y * lsView.dpr : ls3d() ? h / 2 : h / 2 - 40 * scale;
     ctx.save();
     ctx.strokeStyle = '#fff';
     ctx.lineWidth = 3 * lsView.dpr;
@@ -625,6 +739,9 @@ function lsMinimap(ctx, w, h, teams) {
   if (ls.me) {
     ctx.fillStyle = '#fff';
     ctx.beginPath(); ctx.arc(x0 + ls.me.x * k, y0 + ls.me.y * k, 3.5 * d, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 1.5 * d;
+    ctx.beginPath(); ctx.moveTo(x0 + ls.me.x * k, y0 + ls.me.y * k); ctx.lineTo(x0 + ls.me.x * k + Math.cos(ls.me.a) * 10 * d, y0 + ls.me.y * k + Math.sin(ls.me.a) * 10 * d); ctx.stroke();
   }
   ctx.restore();
 }
@@ -658,7 +775,7 @@ function lsFrame(now) {
   const t = (lsNow() - ls.state.startedAt) / 1000;
   lsMove(dt);
   if (ls.firing) lsFire(now);
-  lsRender(t, dt);
+  if (ls3d()) ls3dRender(t, dt); else lsRender(t, dt);
   if (now - lsHudAt > 200) {
     lsHudAt = now;
     lsHud();
