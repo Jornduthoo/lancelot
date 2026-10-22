@@ -34,11 +34,11 @@ Liever via de opdrachtprompt? Gebruik dan `npm install` en `npm start`, en open 
 5. Kopieer het antwoord van de chatbot (de kopieerknop bij het codeblok) en kom terug naar LANcelot. Het antwoord wordt dan vanzelf ingelezen. Lukt dat niet, plak het dan in het vak en klik op **Controleren**.
 6. Lees de vragen na, pas ze aan waar nodig en klik op **Opslaan en spelen**.
 
-Met **+ Nieuwe map** orden je je quizzen in mappen (per vak of klas). Sleep een quiz naar een map, of kies de map met het 📁-knopje in de rij. Een map klap je open en dicht door erop te klikken. Oefenbladen en Ronde Tafel-sessies orden je op dezelfde manier. De indeling staat in `_mappen.json` in elke map; de quizbestanden zelf blijven waar ze zijn.
+Met **+ Nieuwe map** orden je je quizzen in mappen (per vak of klas). Sleep een quiz naar een map, of kies de map met het 📁-knopje in de rij. Een map klap je open en dicht door erop te klikken. Mappen kunnen ook in mappen: maak een submap met **+📁** in de kop van een map, en sleep een map aan het ⋮⋮-handvat naar een andere map (of naar *Zonder map* om ze weer bovenaan te zetten). Wie een map verwijdert, verliest niets: de items komen in de map erboven. Oefenbladen en Ronde Tafel-sessies orden je op dezelfde manier. De indeling staat in `_mappen.json` in elke map; de quizbestanden zelf blijven waar ze zijn.
 
 ### Exporteren en importeren
 
-Thuis voorbereiden op je laptop en in de klas op de bord-pc gebruiken? Met **⬇** naast een quiz, oefenblad of sessie bewaar je die als bestand. Met **⬇** naast een map exporteer je de hele map, en **⬇ Alles exporteren** neemt alles mee, met de mappen erbij. Op de andere pc klik je op **⬆ Importeren** (of sleep je het bestand op de lijst, of op een map). Wat er al precies zo staat, wordt overgeslagen, dus je kan gerust opnieuw importeren. Je kan ook een gewoon quizbestand (`.json`) van een collega importeren.
+Thuis voorbereiden op je laptop en in de klas op de bord-pc gebruiken? Met **⬇** naast een quiz, oefenblad of sessie bewaar je die als bestand. Met **⬇** naast een map exporteer je de hele map met de mappen erin, en **⬇ Alles exporteren** neemt alles mee, met de mappen erbij. Op de andere pc klik je op **⬆ Importeren** (of sleep je het bestand op de lijst, of op een map). Wat er al precies zo staat, wordt overgeslagen, dus je kan gerust opnieuw importeren. Je kan ook een gewoon quizbestand (`.json`) van een collega importeren.
 
 Met **Lege quiz** maak je zelf een quiz, en met **Bewerken** pas je een bestaande quiz aan. Dat kan ook rechtstreeks vanuit Schattenjacht en De prinses in de toren; na het opslaan kom je daar terug.
 

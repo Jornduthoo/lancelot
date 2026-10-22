@@ -231,7 +231,8 @@ io.on('connection', socket => {
       sendLibrary(kind);
       return res || {};
     });
-    socket.on('lib-folder-add', lib((l, { name }) => l.addFolder(name)));
+    socket.on('lib-folder-add', lib((l, { name, parent }) => l.addFolder(name, parent || '')));
+    socket.on('lib-folder-move', lib((l, { from, into }) => l.moveFolder(from, into || '')));
     socket.on('lib-folder-rename', lib((l, { from, to }) => l.renameFolder(from, to)));
     socket.on('lib-folder-remove', lib((l, { name }) => l.removeFolder(name)));
     socket.on('lib-move', lib((l, { file, folder }) => l.move(file, folder || '')));
