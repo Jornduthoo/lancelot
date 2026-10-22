@@ -2,13 +2,15 @@
 
 Een gratis klasquiz die op je eigen pc draait. Leerlingen scannen de QR-code op het bord en spelen mee via de browser op hun telefoon, tablet of laptop, over het wifi-netwerk van de school. Het spelen loopt over het lokale netwerk: snel, zonder accounts en zonder dat er gegevens naar de cloud gaan. Alleen een quiz maken met AI heeft internet nodig.
 
-Het thema: middeleeuws met een scifi-kantje. Op het startscherm kies je een spel:
+Het thema: middeleeuws met een scifi-kantje. Het startscherm heeft drie delen:
 
-- **Toernooi**: snelle quiz, wie antwoordt het snelst en het best? (klaar)
-- **De Ronde Tafel**: polls, stellingen, woordwolken, open vragen en schalen, live op het bord (klaar)
-- **Schattenjacht**: verdien goud met goede antwoorden en koop slimme upgrades (klaar)
-- **De prinses in de toren**: klim met je ridder naar de top; goede antwoorden geven energie (klaar)
-- **Laserslag**: lasergevecht rood tegen blauw of ieder voor zich; munitie verdien je met goede antwoorden (klaar)
+1. **Oefenvormen**, spelend oefenen met je eigen quizzen:
+   - **Toernooi**: snelle quiz, wie antwoordt het snelst en het best?
+   - **Schattenjacht**: verdien goud met goede antwoorden en koop slimme upgrades
+   - **De prinses in de toren**: klim met je ridder naar de top; goede antwoorden geven energie
+   - **Laserslag** en **Laserslag 3D**: lasergevecht rood tegen blauw of ieder voor zich; munitie verdien je met goede antwoorden
+2. **De Ronde Tafel**, peilen met de hele klas: polls, stellingen, woordwolken, open vragen en schalen, live op het bord. Met **Voorkennis activeren** maak je met AI meteen een peiling voor het begin van een les.
+3. **Generator**: **live oefenbladen** die leerlingen invullen en die zichzelf verbeteren, en **werkbladen** om te printen, met een verbeterblad.
 
 ## Starten (Windows)
 
@@ -78,6 +80,26 @@ Een lasergevecht in een scifi-arena, van bovenaf. De ridders schieten elkaar met
 - **Besturing:** op een gsm een joystick (links slepen) en een vuurknop die automatisch richt; op een Chromebook WASD of de pijltjes en de muis.
 - **Op het bord** zie je de hele arena live, de teamstand, de rangschikking en wie wie uitschakelt.
 - **Laserslag 3D:** kies bij *Zicht* voor *First person* (of de kaart Laserslag 3D op het startscherm). Dezelfde arena en regels, maar de leerling kijkt door de ogen van zijn ridder. Gsm: links slepen om te lopen, rechts slepen om rond te kijken. Chromebook: klik om de muis te vangen, WASD om te lopen, de muis om te kijken. Een kleine richthulp helpt wie bijna mikt. Het bord toont de arena van bovenaf.
+
+## Oefenbladen
+
+Echte oefenbladen, maar virtueel. Leerlingen vullen ze in op hun Chromebook of gsm, en LANcelot verbetert meteen. Een blad bestaat uit blokken:
+
+| Blok | Wat de leerling doet | Zo typ je het in de maker |
+|---|---|---|
+| Lees | een tekst of uitleg lezen | gewone tekst |
+| Invullen | woorden in de gaten typen | `De hoofdstad is [Brussel].` (meerdere goede antwoorden: `[fiets\|velo]`) |
+| Meerkeuze | het juiste antwoord kiezen | `vraag \| keuze \| *goede keuze \| keuze` |
+| Juist of fout | J of F kiezen | `zin \| J` of `zin \| F` |
+| Verbinden | links met rechts verbinden | `Antwerpen = Schelde` |
+| Woordjes | vertalen of het woord geven | `de stad = la ville` |
+| Overschrijven | een zin foutloos overschrijven | één zin per regel |
+| Open vragen | vrij antwoorden (niet verbeterd) | één vraag per regel |
+
+- **Maken:** zelf in de maker (met een live voorbeeld ernaast), of met AI: kies onderwerp, niveau en soorten oefeningen, kopieer de vraag naar een chatbot en plak het antwoord terug (of laat je Gemini-sleutel het meteen doen).
+- **Live:** klik op **Live**. Kies vooraf of leerlingen **meteen** groen of rood zien, of pas **na het inleveren**. Op het bord zie je per leerling hoe ver hij staat en hoeveel goed en fout, en per oefening hoeveel procent van de klas het goed heeft. Klik op een leerling om zijn blad te bekijken. Met **Toon oplossingen** zien leerlingen die ingeleverd hebben de verbetering. **Afsluiten** levert alles in en bewaart de resultaten in `resultaten/`.
+- **Printen:** **🖨 Print** opent het blad als A4 met lijnen, vakjes en Naam/Klas/Datum; **Verbeterblad** toont hetzelfde blad met de oplossingen in het rood. Opslaan als pdf kan ook.
+- Bladen staan als JSON-bestanden in de map `oefenbladen/` (zie `oefenbladen/voorbeeld-belgie.json`).
 
 ## Resultaten
 

@@ -1,0 +1,117 @@
+{
+  "title": "Voorbeeld: België",
+  "level": "5e leerjaar",
+  "blocks": [
+    {
+      "type": "tekst",
+      "title": "Ons land",
+      "text": "België is een klein land in het westen van Europa. De hoofdstad is Brussel. In België spreken we drie officiële talen: Nederlands, Frans en Duits.\n\nBelgië is een koninkrijk. Koning Filip is het staatshoofd. Ons land heeft tien provincies."
+    },
+    {
+      "type": "invullen",
+      "instruction": "Vul de ontbrekende woorden in.",
+      "text": "De hoofdstad van België is [Brussel]. Ons land heeft [drie|3] officiële talen. Het staatshoofd is koning [Filip]. België heeft [tien|10] provincies."
+    },
+    {
+      "type": "meerkeuze",
+      "instruction": "Kies het juiste antwoord.",
+      "items": [
+        {
+          "question": "In welk werelddeel ligt België?",
+          "options": [
+            "Azië",
+            "Europa",
+            "Afrika"
+          ],
+          "correct": 1
+        },
+        {
+          "question": "Welke taal is géén officiële taal in België?",
+          "options": [
+            "Duits",
+            "Frans",
+            "Engels",
+            "Nederlands"
+          ],
+          "correct": 2
+        }
+      ]
+    },
+    {
+      "type": "juistfout",
+      "instruction": "Is de zin juist of fout?",
+      "items": [
+        {
+          "statement": "België is een republiek.",
+          "correct": false
+        },
+        {
+          "statement": "Brussel is de hoofdstad van België.",
+          "correct": true
+        },
+        {
+          "statement": "In België spreken we drie officiële talen.",
+          "correct": true
+        }
+      ]
+    },
+    {
+      "type": "verbinden",
+      "instruction": "Verbind de stad met de rivier.",
+      "pairs": [
+        {
+          "left": "Antwerpen",
+          "right": "Schelde"
+        },
+        {
+          "left": "Luik",
+          "right": "Maas"
+        },
+        {
+          "left": "Gent",
+          "right": "Leie"
+        },
+        {
+          "left": "Leuven",
+          "right": "Dijle"
+        }
+      ]
+    },
+    {
+      "type": "woorden",
+      "instruction": "Schrijf het woord in het Frans.",
+      "items": [
+        {
+          "prompt": "de stad",
+          "answer": "la ville"
+        },
+        {
+          "prompt": "het land",
+          "answer": "le pays"
+        },
+        {
+          "prompt": "de koning",
+          "answer": "le roi"
+        }
+      ]
+    },
+    {
+      "type": "overschrijven",
+      "instruction": "Schrijf de zinnen foutloos over.",
+      "lines": [
+        "België heeft tien provincies.",
+        "De Schelde stroomt door Antwerpen."
+      ]
+    },
+    {
+      "type": "open",
+      "instruction": "Beantwoord de vraag.",
+      "items": [
+        {
+          "question": "Welke stad in België wil jij graag eens bezoeken? Waarom?",
+          "lines": 3
+        }
+      ]
+    }
+  ]
+}

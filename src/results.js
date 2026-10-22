@@ -167,6 +167,29 @@ function saveSchat(sj) {
   return write(now, `schattenjacht-${slugOf(sj.quiz.title)}`, lines);
 }
 
+// Oefenblad: per leerling de score en per veld goed, fout of het antwoord op een open vraag.
+function saveOefenblad(ob) {
+  const now = new Date();
+  const ranking = ob.ranking();
+  const label = f => `Oef ${f.block + 1}.${Number(f.id.split('.')[1]) + 1}`;
+  const lines = [
+    row(['Oefenblad', ob.sheet.title]),
+    row(['Datum', stamp(now)]),
+    row(['Feedback', ob.feedback === 'direct' ? 'meteen' : 'na inleveren']),
+    row(['Leerlingen', ranking.length]),
+    '',
+    row(['Naam', 'Goed', 'Van', '% goed', 'Ingevuld', ...ob.fields.map(label)]),
+    ...ranking.map(r => {
+      const p = ob.players.get(r.id);
+      return row([
+        r.name, r.right, r.total, r.total ? `${Math.round((r.right / r.total) * 100)}%` : '-', `${r.done}/${ob.fields.length}`,
+        ...ob.fields.map(f => (f.kind === 'open' ? p.answers[f.id] || '' : p.results[f.id] === true ? 'goed' : p.results[f.id] === false ? (f.kind === 'tekst' || f.kind === 'exact' ? `fout: ${p.answers[f.id]}` : 'fout') : '-')),
+      ]);
+    }),
+  ];
+  return write(now, `oefenblad-${slugOf(ob.sheet.title)}`, lines);
+}
+
 // Laserslag: punten, treffers en vragen per leerling, en bij teams de eindstand.
 function saveLaserslag(ls) {
   const now = new Date();
@@ -190,4 +213,4 @@ function saveLaserslag(ls) {
   return write(now, `laserslag-${slugOf(ls.quiz.title)}`, lines);
 }
 
-module.exports = { save, saveRondeTafel, saveToren, saveSchat, saveLaserslag, list, filePath, DIR };
+module.exports = { save, saveRondeTafel, saveToren, saveSchat, saveLaserslag, saveOefenblad, list, filePath, DIR };

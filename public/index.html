@@ -267,6 +267,28 @@
     <p class="muted">Kijk naar het bord voor de eindstand.</p>
   </section>
  </div>
+ <div id="oefenblad">
+  <form id="ob-join" class="screen welcome hidden">
+    <img src="/img/logo.webp" alt="LANcelot">
+    <p class="title">Oefenblad</p>
+    <input id="ob-name" maxlength="20" autocomplete="off" placeholder="Je naam">
+    <p class="error" id="ob-join-error"></p>
+    <button type="submit" class="big">Begin</button>
+  </form>
+
+  <section id="ob-work" class="hidden">
+    <div class="ob-bar">
+      <span class="ob-who" id="ob-who"></span>
+      <span class="ob-progress"><i id="ob-progress-bar"></i></span>
+      <span class="ob-count" id="ob-count"></span>
+    </div>
+    <article class="ob-paper" id="ob-paper"></article>
+    <div class="ob-submit-bar">
+      <p class="ob-score hidden" id="ob-score"></p>
+      <button class="gold big" id="ob-submit">Inleveren</button>
+    </div>
+  </section>
+ </div>
 </main>
 <script src="/socket.io/socket.io.js"></script>
 <script src="/js/fx.js"></script>
@@ -280,5 +302,7 @@
 <script src="/js/laserslag-draw.js"></script>
 <script src="/js/laserslag-3d.js"></script>
 <script src="/js/laserslag-player.js"></script>
+<script src="/js/ob-sheet.js"></script>
+<script src="/js/ob-player.js"></script>
 </body>
 </html>

@@ -297,6 +297,13 @@ function buildPrompt() {
   const goal = $('r-goal').value;
   const count = Math.min(15, Math.max(2, Number($('r-count').value) || 5));
   const extra = $('r-extra').value.trim();
+  const activate = goal.startsWith('voorkennis') ? `
+Dit is een sessie om voorkennis te activeren bij de start van een les. Bouw ze zo op:
+- begin met een woordwolk ("woorden"): wat weet je al over ${topic}, of waar denk je aan bij ${topic}?
+- dan een of twee stellingen of keuzevragen ("keuze") over wat leerlingen vaak denken of verkeerd begrijpen over dit onderwerp; zet er altijd "Ik weet het niet" bij als keuze;
+- een schaal ("schaal") hoe goed de leerlingen het onderwerp al kennen;
+- sluit af met een open vraag ("open"): wat wil je nog te weten komen?
+` : '';
   return `Je bent een ervaren leerkracht in Vlaanderen. Maak een reeks vragen voor een live klasgesprek met een stemsysteem (zoals Mentimeter). De leerlingen zitten in: ${level} (Belgisch onderwijs). Onderwerp: ${topic}. Doel: ${goal}.
 ${extra ? `\nExtra wensen van de docent:\n${extra}\n` : ''}
 Regels:
@@ -308,7 +315,7 @@ Regels:
   - "schaal": een schaal van 1 tot 5, met een korte omschrijving voor 1 ("min") en voor 5 ("max").
 - Houd vragen kort (hooguit 120 tekens) en keuzes heel kort (hooguit 40 tekens).
 - Pas het taalgebruik aan het niveau ${level} aan. Stel vragen die het gesprek in de klas op gang brengen.
-
+${activate}
 Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uitleg ervoor of erna, precies in dit formaat:
 {
   "title": "korte titel van de sessie",
@@ -331,8 +338,18 @@ updatePrompt();
 $('new-ai').addEventListener('click', () => {
   $('r-error').textContent = '';
   $('r-gemini-error').textContent = '';
+  $('maker-heading').textContent = 'Nieuwe sessie met AI';
   show('maker');
 });
+
+// Vanaf de kaart "Voorkennis activeren" op het startscherm: meteen de maker, met dat doel.
+if (new URLSearchParams(location.search).get('doel') === 'voorkennis') {
+  $('r-goal').selectedIndex = 0;
+  $('r-count').value = 5;
+  updatePrompt();
+  $('maker-heading').textContent = 'Voorkennis activeren met AI';
+  show('maker');
+}
 
 let promptCopied = false;
 let lastClipboard = '';

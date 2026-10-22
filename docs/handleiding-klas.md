@@ -53,6 +53,22 @@ Tip: leg vooraf uit dat je tijdens een vraag beschermd bent, maar niet kan schie
 
 **Laserslag 3D** (first person): kies bij *Zicht* voor *First person*. Op een Chromebook klikken leerlingen eerst in het spel om de muis te vangen (Esc laat los). Op een gsm werkt het best liggend: links slepen is lopen, rechts slepen is rondkijken.
 
+## Voorkennis activeren
+
+1. Klik op het startscherm op **Voorkennis activeren**.
+2. Vul het onderwerp van je les en het niveau in, kopieer de vraag naar een chatbot en plak het antwoord terug (of laat je Gemini-sleutel het doen).
+3. Je krijgt een korte Ronde Tafel: een woordwolk, stellingen met "Ik weet het niet" en een schaal. Start ze voor de les begint en zie meteen wat de klas al weet.
+
+## Oefenbladen
+
+1. Klik op **Live oefenbladen**. Maak een nieuw blad (zelf of met AI) of kies er een uit de lijst.
+2. Kies bovenaan de feedback: **meteen** groen of rood, of pas **na het inleveren**.
+3. Klik op **Live**. Leerlingen scannen dezelfde QR-code en vullen het blad in. Enter springt naar het volgende vakje.
+4. Volg op het bord wie waar staat en welke oefening moeilijk is. Klik op een naam om dat blad te bekijken.
+5. Klaar? Klik op **Toon oplossingen** en daarna op **Afsluiten**. De resultaten staan in `resultaten`.
+
+Liever op papier? Klik bij een blad op **🖨 Print** voor het werkblad en op **Verbeterblad** voor de oplossingen. Via **Werkblad maken** op het startscherm laat je AI meteen een nieuw blad maken.
+
 ## Lukt verbinden niet?
 
 - **Zelfde netwerk:** je pc en de apparaten van leerlingen moeten op hetzelfde wifi-netwerk zitten. Een pc via een netwerkkabel werkt meestal ook, als die op hetzelfde schoolnetwerk zit.

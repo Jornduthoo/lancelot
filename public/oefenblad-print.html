@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LANcelot · Oefenblad afdrukken</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body class="ob-print">
+  <div class="ob-print-bar">
+    <span id="p-what">Oefenblad</span>
+    <button id="p-print">🖨 Afdrukken of opslaan als pdf</button>
+    <button class="secondary" id="p-close">Sluiten</button>
+  </div>
+  <article class="ob-paper ob-sheet-print" id="p-paper"><p>Even laden…</p></article>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/ob-sheet.js"></script>
+<script>
+// Afdrukbaar oefenblad, of het verbeterblad met de oplossingen in het rood.
+const socket = io({ query: { role: 'host' } });
+const params = new URLSearchParams(location.search);
+const key = params.get('sleutel') === '1';
+document.getElementById('p-what').textContent = key ? 'Verbeterblad (met oplossingen)' : 'Oefenblad voor de leerlingen';
+socket.emit('ob-print', params.get('file'), res => {
+  const paper = document.getElementById('p-paper');
+  if (res.error) return (paper.textContent = res.error);
+  ObSheet.render(paper, res.view, { mode: 'print', key, solutions: res.solutions });
+  if (key) paper.querySelector('h1').insertAdjacentHTML('beforeend', ' <span class="ob-key-tag">verbeterblad</span>');
+  document.title = `${res.view.title}${key ? ' (verbeterblad)' : ''}`;
+});
+document.getElementById('p-print').addEventListener('click', () => window.print());
+document.getElementById('p-close').addEventListener('click', () => window.close());
+</script>
+</body>
+</html>

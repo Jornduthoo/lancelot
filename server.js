@@ -11,6 +11,8 @@ const rondetafel = require('./src/rondetafel');
 const { Toren } = require('./src/toren');
 const { Schat } = require('./src/schat');
 const { Laserslag } = require('./src/laserslag');
+const oefenbladen = require('./src/oefenbladen');
+const { OefenbladLive } = require('./src/oefenblad-live');
 const settings = require('./src/settings');
 const results = require('./src/results');
 const { execFile } = require('child_process');
@@ -50,6 +52,12 @@ const laserslag = new Laserslag(io, l => {
   return file;
 });
 
+const oefenblad = new OefenbladLive(io, o => {
+  const file = results.saveOefenblad(o);
+  io.to('host').emit('results', results.list());
+  return file;
+});
+
 // Er loopt altijd hooguit één spel tegelijk.
 function busyWith(except) {
   if (except !== 'toernooi' && game.phase !== 'idle') return 'Er loopt nog een toernooi. Stop dat eerst.';
@@ -57,6 +65,7 @@ function busyWith(except) {
   if (except !== 'toren' && toren.active) return 'De prinses in de toren loopt nog. Stop dat spel eerst.';
   if (except !== 'schat' && schat.active) return 'Schattenjacht loopt nog. Stop dat spel eerst.';
   if (except !== 'laserslag' && laserslag.active) return 'Laserslag loopt nog. Stop dat spel eerst.';
+  if (except !== 'oefenblad' && oefenblad.active) return 'Er staat nog een oefenblad open. Sluit dat eerst.';
   return null;
 }
 
@@ -65,7 +74,7 @@ function isLocal(address) {
   return ['127.0.0.1', '::1', '::ffff:127.0.0.1'].includes(address);
 }
 
-for (const [route, page] of [['/host', 'host.html'], ['/rondetafel', 'rondetafel.html'], ['/toren', 'toren.html'], ['/schattenjacht', 'schattenjacht.html'], ['/laserslag', 'laserslag.html']]) {
+for (const [route, page] of [['/host', 'host.html'], ['/rondetafel', 'rondetafel.html'], ['/toren', 'toren.html'], ['/schattenjacht', 'schattenjacht.html'], ['/laserslag', 'laserslag.html'], ['/oefenblad', 'oefenblad.html'], ['/oefenblad-print', 'oefenblad-print.html']]) {
   app.get(route, (req, res) => {
     if (!isLocal(req.socket.remoteAddress)) return res.status(403).send('Het docentenscherm is alleen bereikbaar op de pc van de leerkracht.');
     res.sendFile(path.join(__dirname, 'public', page));
@@ -143,6 +152,8 @@ io.on('connection', socket => {
     socket.emit('tw-state', toren.hostState());
     socket.emit('sj-state', schat.hostState());
     socket.emit('ls-state', laserslag.hostState());
+    socket.emit('ob-state', oefenblad.hostState());
+    socket.emit('ob-sheets', oefenbladen.list());
 
     socket.on('load', (file, cb) => {
       try {
@@ -279,6 +290,45 @@ io.on('connection', socket => {
     socket.on('ls-restart', () => laserslag.quiz && laserslag.load(laserslag.quiz, laserslag.minutes, laserslag.mode, laserslag.view));
     socket.on('ls-stop', (_, cb) => cb && cb({ file: laserslag.stop() }));
 
+    // Oefenbladen maken, bewaren en live openzetten
+    const refreshSheets = () => io.to('host').emit('ob-sheets', oefenbladen.list());
+    socket.on('ob-parse', handle(text => ({ sheet: oefenbladen.parseAiText(text) })));
+    socket.on('ob-check', handle(sheet => ({ sheet: oefenbladen.validate(sheet) })));
+    socket.on('ob-open', handle(file => ({ sheet: oefenbladen.load(file) })));
+    socket.on('ob-save', handle(({ sheet, file } = {}) => {
+      const saved = oefenbladen.save(sheet, file);
+      refreshSheets();
+      return { file: saved };
+    }));
+    socket.on('ob-delete', handle(file => {
+      oefenbladen.remove(file);
+      refreshSheets();
+      return {};
+    }));
+    // Printblad en verbeterblad: vaste volgorde bij verbinden, zodat ze overeenkomen.
+    socket.on('ob-print', handle(file => {
+      const sheet = oefenbladen.load(file);
+      const shuffles = oefenbladen.shufflesFor(sheet, sheet.title);
+      return { view: oefenbladen.studentView(sheet, shuffles), solutions: oefenbladen.solutions(sheet, shuffles) };
+    }));
+    socket.on('ob-generate', ({ prompt, files } = {}, cb) => {
+      generateQuiz(prompt, files, oefenbladen.parseAiText)
+        .then(sheet => cb && cb({ ok: true, sheet }))
+        .finally(() => io.to('host').emit('settings', settings.publicView()))
+        .catch(err => cb && cb({ error: err.message }));
+    });
+    socket.on('ob-load', handle(({ file, feedback } = {}) => {
+      const busy = busyWith('oefenblad');
+      if (busy) throw new Error(busy);
+      oefenblad.load(oefenbladen.load(file), file, feedback);
+      return {};
+    }));
+    socket.on('ob-reveal', () => oefenblad.reveal());
+    socket.on('ob-kick', id => oefenblad.kick(id));
+    socket.on('ob-finish', () => oefenblad.finish());
+    socket.on('ob-detail', (id, cb) => cb && cb(oefenblad.detail(id)));
+    socket.on('ob-stop', (_, cb) => cb && cb({ file: oefenblad.stop() }));
+
     socket.on('start', () => game.start());
     socket.on('next', () => game.next());
     socket.on('reveal', () => game.reveal());
@@ -363,6 +413,22 @@ io.on('connection', socket => {
   socket.on('ls-asking', ls((id, on) => laserslag.asking(id, on)));
   socket.on('ls-question', ls(id => laserslag.question(id)));
   socket.on('ls-answer', ls((id, choice) => laserslag.answer(id, choice)));
+  // Oefenblad
+  socket.emit('ob-state', oefenblad.base());
+  socket.on('ob-join', ({ playerId, name } = {}, cb) => {
+    if (!validId(playerId)) return cb && cb({ error: 'Ongeldige speler.' });
+    const result = oefenblad.join(playerId, name, socket.id);
+    socket.data.obId = result.ok ? playerId : null;
+    cb && cb(result);
+    if (result.ok) socket.emit('ob-state', oefenblad.playerState(playerId));
+  });
+  const ob = fn => (arg, cb) => {
+    const out = socket.data.obId ? fn(socket.data.obId, arg) : { error: 'Meld je eerst aan.' };
+    if (typeof cb === 'function') cb(out || {});
+  };
+  socket.on('ob-answer', ob((id, a) => oefenblad.answer(id, a)));
+  socket.on('ob-submit', ob(id => oefenblad.submit(id)));
+
   // Wie wegvalt tijdens een vraag, blijft niet onkwetsbaar staan.
   socket.on('disconnect', () => { if (socket.data.lsId) laserslag.asking(socket.data.lsId, false); });
 

@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LANcelot · Oefenbladen</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body class="ob-host">
+<main>
+  <div class="topbar">
+    <div class="brand" id="brand" title="Naar het startscherm">
+      <img src="/img/logo.webp" alt="">
+      <div>
+        <div class="wordmark">LAN<span>celot</span></div>
+        <div class="subtitle" id="status">Oefenbladen</div>
+      </div>
+    </div>
+    <div class="actions">
+      <span class="join-mini hidden" id="join-mini"></span>
+      <button class="secondary icon" id="mute" title="Geluid aan/uit">🔊</button>
+      <button class="secondary hidden" id="stop">Sluit oefenblad</button>
+    </div>
+  </div>
+
+  <section id="list">
+    <div class="bar">
+      <h2>Oefenbladen</h2>
+      <div class="actions">
+        <button class="secondary" id="to-home">Terug</button>
+        <button class="secondary" id="new-empty">Leeg oefenblad</button>
+        <button id="new-ai">Nieuw oefenblad met AI</button>
+      </div>
+    </div>
+    <div class="panel tw-intro">
+      <svg class="ls-logo" viewBox="0 0 64 64"><path d="M14 6h28l10 10v42H14z" fill="#f4ecd8" stroke="#ffc94a" stroke-width="2.5"/><path d="M42 6v10h10" fill="none" stroke="#ffc94a" stroke-width="2.5"/><path d="M21 26h22M21 34h14M21 42h20" stroke="#2a3350" stroke-width="3" stroke-linecap="round"/><path d="M38 33l4 4 8-9" fill="none" stroke="#1a9e6e" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <div>
+        <p><strong>Live oefenbladen:</strong> de leerlingen vullen het blad in op hun Chromebook of gsm. Invullen, meerkeuze, juist of fout, verbinden, woordjes, overschrijven en open vragen. Het blad verbetert zichzelf en jij ziet op het bord live hoe ver iedereen staat en waar het misloopt.</p>
+        <p class="muted">Elk blad kan je ook printen, met een apart verbeterblad. Maak een blad zelf of laat een AI het maken, ook op basis van een screenshot van het bordboek.</p>
+      </div>
+    </div>
+    <div class="panel form">
+      <label>Verbeteren
+        <select id="ob-feedback">
+          <option value="direct" selected>Meteen: elk vakje kleurt groen of rood</option>
+          <option value="inleveren">Na het inleveren: zoals een toets</option>
+        </select>
+      </label>
+    </div>
+    <p class="notice hidden" id="stopped"></p>
+    <div class="quiz-list" id="sheet-list"></div>
+    <p class="error" id="list-error"></p>
+  </section>
+
+  <section id="maker" class="hidden">
+    <div class="bar">
+      <h2>Nieuw oefenblad met AI</h2>
+      <button class="secondary" data-back="list">Terug</button>
+    </div>
+    <div class="panel form">
+      <h3>1. Waarover gaat het oefenblad?</h3>
+      <label>Onderwerp<input id="a-topic" placeholder="bijv. de werkwoordspelling van de tegenwoordige tijd, of: de breuken"></label>
+      <div class="row">
+        <label>Niveau
+          <select id="a-level">
+            <option>1e kleuterklas</option>
+            <option>2e kleuterklas</option>
+            <option>3e kleuterklas</option>
+            <option>1e leerjaar</option>
+            <option>2e leerjaar</option>
+            <option>3e leerjaar</option>
+            <option>4e leerjaar</option>
+            <option selected>5e leerjaar</option>
+            <option>6e leerjaar</option>
+            <option>1e middelbaar</option>
+            <option>2e middelbaar</option>
+            <option>3e middelbaar</option>
+            <option>4e middelbaar</option>
+            <option>5e middelbaar</option>
+            <option>6e middelbaar</option>
+            <option>7e specialisatiejaar</option>
+            <option>hoger onderwijs</option>
+            <option>volwassenenonderwijs</option>
+          </select>
+        </label>
+        <label>Aantal oefeningen<input id="a-count" type="number" min="1" max="12" value="5"></label>
+        <label>Vragen per oefening<input id="a-per" type="number" min="2" max="20" value="6"></label>
+      </div>
+      <div class="ob-types" id="a-types">
+        <strong>Soorten oefeningen</strong>
+        <label class="inline check"><input type="checkbox" value="invullen" checked> Invullen (gatentekst)</label>
+        <label class="inline check"><input type="checkbox" value="meerkeuze" checked> Meerkeuze</label>
+        <label class="inline check"><input type="checkbox" value="juistfout" checked> Juist of fout</label>
+        <label class="inline check"><input type="checkbox" value="verbinden" checked> Verbinden</label>
+        <label class="inline check"><input type="checkbox" value="woorden"> Woordjes</label>
+        <label class="inline check"><input type="checkbox" value="overschrijven"> Overschrijven</label>
+        <label class="inline check"><input type="checkbox" value="open"> Open vragen</label>
+        <label class="inline check"><input type="checkbox" value="tekst"> Leestekst vooraan</label>
+      </div>
+      <label>Extra wensen (mag leeg)<textarea id="a-extra" rows="2" placeholder="bijv. woordjes Frans van les 3, of: alleen de d/t-regel"></textarea></label>
+    </div>
+    <div class="panel form">
+      <h3>2. Kopieer de prompt naar een AI</h3>
+      <p class="muted">Klik op een chatbot: de prompt wordt gekopieerd en de chatbot opent in een nieuw tabblad. Plak de prompt daar met Ctrl+V. Je kan er ook een screenshot van het bordboek bij zetten.</p>
+      <textarea id="a-prompt" rows="8" readonly></textarea>
+      <div class="actions">
+        <button class="chatbot" data-url="https://gemini.google.com/app">Gemini</button>
+        <button class="chatbot" data-url="https://chatgpt.com/">ChatGPT</button>
+        <button class="chatbot" data-url="https://claude.ai/new">Claude</button>
+        <button class="secondary" id="a-copy">Alleen kopiëren</button>
+      </div>
+      <p class="muted" id="a-copied"></p>
+    </div>
+    <div class="panel form hidden" id="a-gemini-panel">
+      <h3>Of: laat Gemini het blad direct maken</h3>
+      <div class="sources">
+        <strong>Lesstof (mag leeg)</strong>
+        <p class="muted small">Voeg een screenshot van het bordboek, een foto of een pdf toe, of plak een screenshot met Ctrl+V.</p>
+        <label class="file-button"><input id="a-files" type="file" accept="image/*,application/pdf" multiple hidden>Bestand kiezen</label>
+        <ul class="file-list" id="a-file-list"></ul>
+      </div>
+      <p class="error" id="a-gemini-error"></p>
+      <div><button id="a-gemini">Maak direct met Gemini</button> <span class="muted" id="a-gemini-busy"></span></div>
+    </div>
+    <div class="panel form">
+      <h3>3. Plak het antwoord van de AI</h3>
+      <textarea id="a-answer" rows="6" placeholder="Plak hier het hele antwoord…"></textarea>
+      <p class="error" id="a-error"></p>
+      <div><button id="a-parse">Controleren</button></div>
+    </div>
+  </section>
+
+  <section id="editor" class="hidden">
+    <div class="bar">
+      <h2 id="e-heading">Oefenblad bewerken</h2>
+      <button class="secondary" data-back="list">Annuleren</button>
+    </div>
+    <div class="ob-editor">
+      <div class="ob-edit-col">
+        <div class="panel form">
+          <label>Titel<input id="e-title" maxlength="100" placeholder="bijv. Werkwoorden in de tegenwoordige tijd"></label>
+        </div>
+        <div id="e-blocks" class="form"></div>
+        <div class="panel ob-add">
+          <strong>Oefening toevoegen:</strong>
+          <div class="actions" id="e-add"></div>
+        </div>
+        <p class="error" id="e-error"></p>
+        <div class="bar">
+          <span></span>
+          <div class="actions">
+            <button class="secondary" id="e-save">Opslaan</button>
+            <button id="e-live">Opslaan en live zetten</button>
+          </div>
+        </div>
+      </div>
+      <div class="ob-preview-col">
+        <p class="muted small">Voorbeeld zoals de leerling het ziet</p>
+        <article class="ob-paper" id="e-preview"></article>
+      </div>
+    </div>
+  </section>
+
+  <section id="lobby" class="hidden">
+    <div class="panel join">
+      <div class="qr" id="qr"></div>
+      <div class="join-text">
+        <p class="muted">Scan de QR-code of surf naar</p>
+        <div class="join-url" id="join-url"></div>
+        <p class="muted small" id="other-urls"></p>
+      </div>
+    </div>
+    <div class="hud">
+      <span class="round" id="l-title"></span>
+      <span class="ob-summary" id="l-summary"></span>
+      <div class="actions">
+        <button class="secondary" id="l-reveal">Toon oplossingen</button>
+        <button class="gold" id="l-finish">Afsluiten en bewaren</button>
+      </div>
+    </div>
+    <p class="muted small" id="l-feedback"></p>
+    <div class="ob-board">
+      <div class="ob-students" id="l-students"></div>
+      <div class="ob-stats panel"><h3>Per oefening</h3><div id="l-stats"></div></div>
+    </div>
+    <p class="center muted" id="results-saved"></p>
+  </section>
+
+  <div class="ob-modal hidden" id="detail">
+    <div class="ob-modal-box">
+      <div class="bar"><h2 id="d-name"></h2><button class="secondary" id="d-close">Sluiten</button></div>
+      <article class="ob-paper" id="d-paper"></article>
+    </div>
+  </div>
+</main>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/fx.js"></script>
+<script src="/js/ob-sheet.js"></script>
+<script src="/js/ob-host.js"></script>
+<script src="/js/address.js"></script>
+</body>
+</html>
