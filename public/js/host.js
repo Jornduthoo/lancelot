@@ -37,7 +37,6 @@ document.querySelector('[data-module="rondetafel"]').addEventListener('click', (
 document.querySelector('[data-module="toren"]').addEventListener('click', () => { location.href = '/toren'; });
 document.querySelector('[data-module="schattenjacht"]').addEventListener('click', () => { location.href = '/schattenjacht'; });
 document.querySelector('[data-module="laserslag"]').addEventListener('click', () => { location.href = '/laserslag'; });
-document.querySelector('[data-module="laserslag3d"]').addEventListener('click', () => { location.href = '/laserslag?zicht=3d'; });
 document.querySelector('[data-module="ridderrace"]').addEventListener('click', () => { location.href = '/ridderrace'; });
 document.querySelector('[data-module="kristalroof"]').addEventListener('click', () => { location.href = '/kristalroof'; });
 document.querySelector('[data-module="verrader"]').addEventListener('click', () => { location.href = '/verrader'; });

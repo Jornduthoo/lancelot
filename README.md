@@ -8,7 +8,7 @@ Het thema: middeleeuws met een scifi-kantje. Het startscherm heeft drie delen:
    - **Toernooi**: snelle quiz, wie antwoordt het snelst en het best?
    - **Schattenjacht**: verdien goud met goede antwoorden en koop slimme upgrades
    - **De prinses in de toren**: klim met je ridder naar de top; goede antwoorden geven energie
-   - **Laserslag** en **Laserslag 3D**: lasergevecht rood tegen blauw of ieder voor zich; munitie verdien je met goede antwoorden
+   - **Laserslag**: lasergevecht rood tegen blauw of ieder voor zich; munitie verdien je met goede antwoorden. Elke leerling kiest zelf het zicht: van bovenaf, achter de ridder of first person
    - **Ridderrace**: een racegame in 3D op hoverrossen; goede antwoorden vullen je tank en geven turbo
    - **Kristalroof**: mijn kristallen met goede antwoorden, open kisten en kraak de kluis van een ander met diens geheime woord
    - **De Verrader**: zoals Among Us. Ridders herstellen de kristalkern met goede antwoorden, de geheime verraders betoveren ze. Aan de Ronde Tafel praat de klas en stemt wie verbannen wordt
@@ -86,7 +86,7 @@ Een lasergevecht in een scifi-arena, van bovenaf. De ridders schieten elkaar met
 - **Punten:** 100 per slag, 150 extra voor een gezochte ridder (🎯, met een reeks van 3 of meer), 25 per goed antwoord, 50 voor het kristal.
 - **Besturing:** op een gsm een joystick (links slepen) en een vuurknop die automatisch richt; op een Chromebook WASD of de pijltjes en de muis.
 - **Op het bord** zie je de hele arena live, de teamstand, de rangschikking en wie wie uitschakelt.
-- **Laserslag 3D:** kies bij *Zicht* voor *First person* (of de kaart Laserslag 3D op het startscherm). Dezelfde arena en regels, maar de leerling kijkt door de ogen van zijn ridder. Gsm: links slepen om te lopen, rechts slepen om rond te kijken. Chromebook: klik om de muis te vangen, WASD om te lopen, de muis om te kijken. Een kleine richthulp helpt wie bijna mikt. Het bord toont de arena van bovenaf.
+- **Zicht, per leerling:** in de wachtkamer kiest elke leerling *Van bovenaf*, *Achter de ridder* (third person, de camera hangt net achter en boven je ridder) of *First person* (door de ogen van je ridder). Wisselen kan altijd: met V op een Chromebook of de 👁-knop rechtsboven. Dezelfde arena en regels in elk zicht. Gsm: links slepen om te lopen, rechts slepen om rond te kijken. Chromebook: klik om de muis te vangen, WASD om te lopen, de muis om te kijken. In 3D helpt een kleine richthulp wie bijna mikt. Het bord toont de arena altijd van bovenaf.
 
 ## Kristalroof
 

@@ -25,7 +25,40 @@ const ls = {
   booms: [],
   look: null,
   recoil: 0,
+  view: 'boven',      // zicht, per leerling: boven, achter (third person) of ik (first person)
 };
+
+// Elke leerling kiest zelf het zicht, en wisselt met V of de 👁-knop.
+const LS_VIEWS = {
+  boven: { icon: '🗺️', name: 'Van bovenaf', keys: 'WASD lopen · muis richten en klikken · spatie vuur · E munitie · V zicht · 1-4 antwoorden' },
+  achter: { icon: '🎥', name: 'Achter de ridder', keys: 'Klik om de muis te vangen · WASD lopen · muis draaien · klik of spatie vuur · E munitie · V zicht · Esc muis los' },
+  ik: { icon: '👁️', name: 'First person', keys: 'Klik om de muis te vangen · WASD lopen · muis kijken · klik of spatie vuur · E munitie · V zicht · Esc muis los' },
+};
+ls.view = LS_VIEWS[store('lancelot-ls-view')] ? store('lancelot-ls-view') : 'boven';
+
+function lsSetView(view) {
+  if (!LS_VIEWS[view]) return;
+  ls.view = view;
+  store('lancelot-ls-view', view);
+  $('ls-game').dataset.view = view;
+  document.querySelector('.ls-keys').textContent = LS_VIEWS[view].keys;
+  $('ls-view-btn').textContent = LS_VIEWS[view].icon;
+  $('ls-view-btn').title = `Zicht: ${LS_VIEWS[view].name} (V)`;
+  for (const b of $('ls-views').children) b.classList.toggle('on', b.dataset.view === view);
+  if (view === 'boven' && document.pointerLockElement && document.exitPointerLock) document.exitPointerLock();
+  ls.look = null;
+  ls.stick = null;
+}
+
+function lsNextView() {
+  const order = Object.keys(LS_VIEWS);
+  lsSetView(order[(order.indexOf(ls.view) + 1) % order.length]);
+  lsToast(`${LS_VIEWS[ls.view].icon} ${LS_VIEWS[ls.view].name}`);
+}
+
+$('ls-views').innerHTML = Object.entries(LS_VIEWS).map(([key, v]) => `<button type="button" class="secondary" data-view="${key}">${v.icon} ${v.name}</button>`).join('');
+for (const b of $('ls-views').children) b.addEventListener('click', () => lsSetView(b.dataset.view));
+$('ls-view-btn').addEventListener('click', e => { e.currentTarget.blur(); lsNextView(); });
 
 const lsNow = () => Date.now() + ls.offset;
 const LS_FIRE_MS = 280;
@@ -93,15 +126,10 @@ socket.on('ls-state', s => {
     const badge = $('ls-lobby-team');
     badge.textContent = s.team ? TEAM_NAME[s.team] : 'Ieder voor zich';
     badge.dataset.team = s.team || '';
-    $('ls-lobby-view').textContent = s.view === '3d'
-      ? 'First person: je kijkt door de ogen van je ridder. Gsm: links slepen om te lopen, rechts slepen om rond te kijken. Chromebook: WASD en de muis.'
-      : '';
+    lsSetView(ls.view);
     lsShow('ls-lobby');
   } else if (s.phase === 'play') {
-    $('ls-game').dataset.view = s.view;
-    document.querySelector('.ls-keys').textContent = s.view === '3d'
-      ? 'Klik om de muis te vangen · WASD lopen · muis kijken · klik of spatie vuur · E munitie · Esc muis los'
-      : 'WASD lopen · muis richten en klikken · spatie vuur · E munitie · 1-4 antwoorden';
+    lsSetView(ls.view);
     lsShow('ls-game');
     lsResize();
   } else if (s.phase === 'einde') {
@@ -264,7 +292,7 @@ function lsFeed(text, kind) {
 // ---------- Besturing ----------
 
 const LS_KEYS = { ArrowUp: 'up', w: 'up', z: 'up', ArrowDown: 'down', s: 'down', ArrowLeft: 'left', a: 'left', q: 'left', ArrowRight: 'right', d: 'right' };
-const ls3d = () => !!(ls.state && ls.state.view === '3d');
+const ls3d = () => ls.view !== 'boven';
 // In 3D draaien de pijltjes links en rechts je ridder; A en D stappen opzij.
 function lsKey(e) {
   const key = e.key.length === 1 ? e.key.toLowerCase() : e.key;
@@ -282,6 +310,7 @@ document.addEventListener('keydown', e => {
   if (k) { ls.keys[k] = true; e.preventDefault(); }
   if (e.key === ' ') { ls.firing = 'auto'; e.preventDefault(); }
   if (e.key === 'e' || e.key === 'E' || e.key === 'Enter') lsOpenQuestion();
+  if ((e.key === 'v' || e.key === 'V') && !e.repeat) lsNextView();
 });
 document.addEventListener('keyup', e => {
   const k = lsKey(e);
@@ -617,7 +646,7 @@ function lsRender(t, dt) {
   lsOverlays(ctx, dt);
 }
 
-// First person: de wereld door de ogen van je ridder.
+// In 3D: de wereld door de ogen van je ridder, of van net achter hem.
 function ls3dRender(t, dt) {
   const ctx = lsCtx;
   const { w, h, dpr } = lsView;
@@ -633,7 +662,10 @@ function ls3dRender(t, dt) {
   for (const b of ls.booms) b.age += dt;
   ls.booms = ls.booms.filter(b => b.age < b.life);
   if (ls.moving) ls.walk = (ls.walk || 0) + dt * 9;
-  const tags = Slag3D.render(ctx, w, h, { me, a: me.a, others, bullets: [...ls.bullets.values()], crystal: ls.crystal, t, booms: ls.booms });
+  const alive = ls.info && ls.info.alive;
+  const tp = ls.view === 'achter';
+  const self = tp && alive ? { color: SlagDraw.colorOf(ls.state.team, ls.state.color), bubble: ls.myFlags & 6, asking: ls.myFlags & 4 } : null;
+  const tags = Slag3D.render(ctx, w, h, { me, a: me.a, others, bullets: [...ls.bullets.values()], crystal: ls.crystal, t, booms: ls.booms, self });
   // Naam en levens boven elke zichtbare ridder.
   for (const tg of tags) {
     const fs = Math.max(10 * dpr, Math.min(16 * dpr, tg.size * .2));
@@ -654,8 +686,8 @@ function ls3dRender(t, dt) {
   }
   if (ls.info && ls.info.alive) {
     ls.recoil = Math.max(0, (ls.recoil || 0) - dt * 6);
-    Slag3D.weapon(ctx, w, h, SlagDraw.colorOf(ls.state.team, ls.state.color), ls.recoil, ls.walk || 0);
-    Slag3D.crosshair(ctx, w, h, Slag3D.assist(me, me.a, lsEnemies()) !== me.a, dpr);
+    if (!tp) Slag3D.weapon(ctx, w, h, SlagDraw.colorOf(ls.state.team, ls.state.color), ls.recoil, ls.walk || 0);
+    Slag3D.crosshair(ctx, w, h, Slag3D.assist(me, me.a, lsEnemies()) !== me.a, dpr, tp);
     if ((ls.myFlags & 6) || ls.question) {
       ctx.fillStyle = 'rgba(76, 201, 255, .1)';
       ctx.fillRect(0, 0, w, h);
@@ -673,7 +705,7 @@ function lsOverlays(ctx, dt) {
     ls.marker -= dt;
     const aimed = ls.mouse && !ls3d();
     const mx = aimed ? ls.mouse.x * lsView.dpr : w / 2;
-    const my = aimed ? ls.mouse.y * lsView.dpr : ls3d() ? h / 2 : h / 2 - 40 * scale;
+    const my = aimed ? ls.mouse.y * lsView.dpr : ls3d() ? Slag3D.aimY(h, ls.view === 'achter') : h / 2 - 40 * scale;
     ctx.save();
     ctx.strokeStyle = '#fff';
     ctx.lineWidth = 3 * lsView.dpr;

@@ -1,12 +1,18 @@
-// Laserslag 3D: dezelfde arena, maar door de ogen van je ridder (first person, zoals de oude Wolfenstein).
+// Laserslag in 3D: dezelfde arena, door de ogen van je ridder (first person, zoals de oude Wolfenstein)
+// of met de camera net achter en boven je ridder (third person, over de schouder).
 // Een eenvoudige raycaster op een klein canvas dat uitvergroot wordt: snel genoeg voor een Chromebook.
 // Gebruikt Arena uit laserslag-world.js en SlagDraw (kleuren).
 const Slag3D = (() => {
   const FOV = 1.15;          // ongeveer 66 graden
   const WALL_H = 74;
-  const EYE = 28;
+  const FP_EYE = 28;
   const KNIGHT_H = 48;
   const FAR = 1900;
+  // Third person: hoe ver en hoe hoog de camera achter je ridder hangt, en een tikje naar rechts.
+  const TP_BACK = 200;
+  const TP_SIDE = 26;
+  const TP_EYE = 44;
+  const TP_HORIZON = .42;
 
   // De rand van de arena als vier extra muren.
   const RECTS = [
@@ -66,21 +72,43 @@ const Slag3D = (() => {
     '..BB....BB..',
     '.BBB....BBB.',
   ];
+  // Van achteren: geen vizier, wel een cape in de kleur van het team.
+  const BACK = [
+    '.....CC.....',
+    '....CCCC....',
+    '...SSSSSS...',
+    '..SSSSSSSS..',
+    '..SSSSSSSS..',
+    '..sSSSSSSs..',
+    '...SSSSSS...',
+    '.CCCCCCCCCC.',
+    'CCCCCCCCCCCC',
+    'CsCCCCCCCCsC',
+    'C.CCCCCCCC.C',
+    '..CCCCCCCC..',
+    '..SCCCCCCS..',
+    '..SS....SS..',
+    '..SS....SS..',
+    '..BB....BB..',
+    '.BBB....BBB.',
+  ];
   const PAL = { S: '#c9d6e6', s: '#7d8ba3', V: '#4cc9ff', G: '#ffc94a', B: '#2b3550' };
   const sprites = new Map();
-  function sprite(color) {
-    if (sprites.has(color)) return sprites.get(color);
+  function sprite(color, back) {
+    const key = back ? `${color}/achter` : color;
+    if (sprites.has(key)) return sprites.get(key);
+    const rows = back ? BACK : FRONT;
     const k = 4;
     const c = document.createElement('canvas');
     c.width = 12 * k;
-    c.height = FRONT.length * k;
+    c.height = rows.length * k;
     const g = c.getContext('2d');
-    FRONT.forEach((row, y) => [...row].forEach((ch, x) => {
+    rows.forEach((row, y) => [...row].forEach((ch, x) => {
       if (ch === '.') return;
       g.fillStyle = ch === 'C' ? color : PAL[ch];
       g.fillRect(x * k, y * k, k, k);
     }));
-    sprites.set(color, c);
+    sprites.set(key, c);
     return c;
   }
 
@@ -138,6 +166,22 @@ const Slag3D = (() => {
 
   // Teken de wereld. Geeft terug waar elke ridder op het scherm staat (voor de naamkaartjes).
   // scene: { me, a, others: [{x, y, color, flags, ...}], bullets, crystal, t, booms }
+  // Met scene.self ({ color, bubble, asking }) hangt de camera achter je ridder (third person) en zie je hem zelf.
+  // Waar de camera staat in third person: achter je ridder, niet door een muur heen.
+  function chase(me, a) {
+    const bx = -Math.cos(a);
+    const by = -Math.sin(a);
+    const back = Math.max(0, Math.min(TP_BACK, cast(me.x, me.y, bx, by).d - 12));
+    let x = me.x + bx * back;
+    let y = me.y + by * back;
+    const rx = -Math.sin(a);
+    const ry = Math.cos(a);
+    const side = Math.max(0, Math.min(TP_SIDE * (back / TP_BACK), cast(x, y, rx, ry).d - 10));
+    x += rx * side;
+    y += ry * side;
+    return { x, y };
+  }
+
   function render(ctx, w, h, scene) {
     const resW = Math.max(240, Math.min(520, Math.round(w / 2.4)));
     const resH = Math.round(resW * h / w);
@@ -149,9 +193,12 @@ const Slag3D = (() => {
     const g = lctx;
     g.imageSmoothingEnabled = false;
     const { me, a } = scene;
+    const tp = !!scene.self;
+    const cam = tp ? chase(me, a) : me;
+    const EYE = tp ? TP_EYE : FP_EYE;
     const half = Math.tan(FOV / 2);
     const proj = resW / 2 / half;
-    const horizon = resH / 2 + (scene.bob || 0) * resH;
+    const horizon = (tp ? TP_HORIZON : .5) * resH + (scene.bob || 0) * resH;
 
     // Hemel en vloer.
     const sky = g.createLinearGradient(0, 0, 0, horizon);
@@ -179,7 +226,7 @@ const Slag3D = (() => {
     g.lineWidth = 1;
     const fx = Math.cos(a);
     const fy = Math.sin(a);
-    const along = me.x * fx + me.y * fy;
+    const along = cam.x * fx + cam.y * fy;
     for (let k = 1; k < 30; k++) {
       const dist = k * 50 - (along % 50);
       if (dist < 12) continue;
@@ -196,7 +243,7 @@ const Slag3D = (() => {
       const ra = a + Math.atan(cam * half);
       const dx = Math.cos(ra);
       const dy = Math.sin(ra);
-      const hit = cast(me.x, me.y, dx, dy);
+      const hit = cast(cam.x, cam.y, dx, dy);
       const perp = hit.d * Math.cos(ra - a);
       zbuf[x] = perp;
       if (hit.d >= FAR) continue;
@@ -215,11 +262,14 @@ const Slag3D = (() => {
     for (const b of scene.bullets) things.push({ kind: 'bullet', o: b, x: b.x, y: b.y });
     if (scene.crystal) things.push({ kind: 'crystal', x: scene.crystal.x, y: scene.crystal.y });
     for (const b of scene.booms) things.push({ kind: 'boom', o: b, x: b.x, y: b.y });
-    for (const th of things) th.d = Math.hypot(th.x - me.x, th.y - me.y);
+    if (tp) things.push({ kind: 'knight', self: true, o: { ...scene.self, x: me.x, y: me.y }, x: me.x, y: me.y });
+    for (const th of things) th.d = Math.hypot(th.x - cam.x, th.y - cam.y);
     things.sort((p, q) => q.d - p.d);
     const tags = [];
+    // In third person: wie tussen de camera en je ridder staat, wordt doorzichtig.
+    const selfD = tp ? Math.hypot(me.x - cam.x, me.y - cam.y) : 0;
     for (const th of things) {
-      let rel = Math.atan2(th.y - me.y, th.x - me.x) - a;
+      let rel = Math.atan2(th.y - cam.y, th.x - cam.x) - a;
       while (rel > Math.PI) rel -= Math.PI * 2;
       while (rel < -Math.PI) rel += Math.PI * 2;
       if (Math.abs(rel) > FOV * .75 || th.d < 6) continue;
@@ -227,17 +277,20 @@ const Slag3D = (() => {
       const sx = resW / 2 + Math.tan(rel) * proj;
       const k = proj / perp;
       if (th.kind === 'knight') {
-        const img = sprite(th.o.color);
-        const hgt = KNIGHT_H * k;
+        const img = sprite(th.o.color, th.self);
+        // Je eigen ridder nooit groter dan 40% van het scherm, ook als de camera tegen een muur zit.
+        const hgt = th.self ? Math.min(KNIGHT_H * k, resH * .4) : KNIGHT_H * k;
         const wid = hgt * (img.width / img.height);
-        const y0 = horizon + EYE * k - hgt;
+        const y0 = horizon + EYE * (hgt / KNIGHT_H) - hgt;
         const x0 = Math.round(sx - wid / 2);
         let shown = false;
+        g.globalAlpha = tp && !th.self && th.d < selfD + 10 ? .3 : 1;
         for (let c = Math.max(0, x0); c < Math.min(resW, x0 + wid); c++) {
           if (zbuf[c] < perp) continue;
           shown = true;
           g.drawImage(img, ((c - x0) / wid) * img.width, 0, Math.max(1, img.width / wid), img.height, c, y0, 1, hgt);
         }
+        g.globalAlpha = 1;
         if (shown) {
           if (th.o.bubble) {
             g.strokeStyle = th.o.asking ? 'rgba(255, 201, 74, .8)' : 'rgba(76, 201, 255, .8)';
@@ -246,7 +299,7 @@ const Slag3D = (() => {
           }
           const fog = Math.min(.7, perp / 1800);
           if (fog > .05) { g.fillStyle = `rgba(3, 6, 14, ${fog})`; g.fillRect(x0, y0, wid, hgt); }
-          tags.push({ o: th.o, x: sx / resW, y: y0 / resH, size: hgt / resH });
+          if (!th.self) tags.push({ o: th.o, x: sx / resW, y: y0 / resH, size: hgt / resH });
         }
       } else if (th.kind === 'bullet') {
         const c = Math.round(sx);
@@ -290,6 +343,9 @@ const Slag3D = (() => {
     return tags.map(tg => ({ ...tg, x: tg.x * w, y: tg.y * h, size: tg.size * h }));
   }
 
+  // Waar het vizier staat: in het midden, of in third person op de horizon.
+  const aimY = (h, tp) => h * (tp ? TP_HORIZON : .5);
+
   // Je eigen laserlans rechtsonder, met terugslag en een flits bij elk schot.
   function weapon(ctx, w, h, color, recoil, walk) {
     const s = Math.min(w, h * 1.4) / 1500;
@@ -319,9 +375,9 @@ const Slag3D = (() => {
     ctx.restore();
   }
 
-  function crosshair(ctx, w, h, onTarget, dpr) {
+  function crosshair(ctx, w, h, onTarget, dpr, tp) {
     const x = w / 2;
-    const y = h / 2;
+    const y = aimY(h, tp);
     const r = 9 * dpr;
     ctx.save();
     ctx.strokeStyle = onTarget ? '#ff4d6d' : 'rgba(255, 255, 255, .85)';
@@ -336,5 +392,5 @@ const Slag3D = (() => {
     ctx.restore();
   }
 
-  return { render, weapon, crosshair, assist, visible };
+  return { render, weapon, crosshair, assist, visible, aimY };
 })();

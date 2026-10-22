@@ -34,12 +34,11 @@ function downloadLink(file) {
 }
 
 // Vanaf de kaart Laserslag 3D op het startscherm staat first person al klaar.
-if (new URLSearchParams(location.search).get('zicht') === '3d') $('ls-view').value = '3d';
 
 QuizList.mount($('quiz-list'), {
   play: q => {
     $('stopped').classList.add('hidden');
-    socket.emit('ls-load', { file: q.file, minutes: Number($('ls-minutes').value), mode: $('ls-mode').value, view: $('ls-view').value }, res => { $('load-error').textContent = res.error || ''; });
+    socket.emit('ls-load', { file: q.file, minutes: Number($('ls-minutes').value), mode: $('ls-mode').value }, res => { $('load-error').textContent = res.error || ''; });
   },
   edit: q => { location.href = quizMakerUrl('bewerk', q.file); },
 });
@@ -51,7 +50,7 @@ socket.on('ls-state', s => {
   const live = s.phase !== 'idle';
   $('stop').classList.toggle('hidden', !live);
   $('join-mini').classList.toggle('hidden', s.phase !== 'play');
-  $('status').textContent = live ? `Laserslag${s.view === '3d' ? ' 3D' : ''} · ${s.title}` : 'Laserslag';
+  $('status').textContent = live ? `Laserslag · ${s.title}` : 'Laserslag';
   if (!live) return show('setup');
   if (s.phase === 'lobby') {
     renderLobby();

@@ -35,7 +35,6 @@ class Laserslag {
     this.quiz = null;
     this.phase = 'idle'; // idle -> lobby -> play -> einde
     this.mode = 'teams'; // teams of ieder
-    this.view = '2d';    // 2d (van bovenaf) of 3d (first person)
     this.players = new Map();
     this.minutes = 6;
     this.startedAt = 0;
@@ -55,13 +54,12 @@ class Laserslag {
     return this.phase !== 'idle';
   }
 
-  load(quiz, minutes, mode, view) {
+  load(quiz, minutes, mode) {
     this.reset();
     this.run++;
     this.quiz = quiz;
     this.minutes = [3, 5, 6, 8, 10, 15].includes(minutes) ? minutes : 6;
     this.mode = mode === 'ieder' ? 'ieder' : 'teams';
-    this.view = view === '3d' ? '3d' : '2d';
     this.phase = 'lobby';
     this.broadcast();
   }
@@ -390,7 +388,7 @@ class Laserslag {
 
   base() {
     return {
-      active: this.active, run: this.run, phase: this.phase, mode: this.mode, view: this.view, title: this.quiz && this.quiz.title,
+      active: this.active, run: this.run, phase: this.phase, mode: this.mode, title: this.quiz && this.quiz.title,
       minutes: this.minutes, now: Date.now(), startedAt: this.startedAt, endsAt: this.endsAt,
     };
   }

@@ -598,6 +598,11 @@ body:not([data-ls="1"]) #laserslag { display: none !important; }
 @media (hover: hover) and (pointer: fine) { .ls-hint-keys { display: block; } .ls-hint-touch { display: none; } }
 #ls-game { position: fixed; inset: 0; z-index: 20; display: flex; flex-direction: column; background: #050911; user-select: none; -webkit-user-select: none; }
 #ls-game.hidden { display: none; }
+.ls-views-label { margin: 0; }
+.ls-views { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.ls-views button { padding: 12px 6px; font-size: .95rem; }
+.ls-views button.on { background: linear-gradient(180deg, #7fdcff, var(--cyan)); color: #04121f; box-shadow: none; }
+.ls-view-btn { padding: 6px 10px; font-size: 1.1rem; background: rgba(76, 201, 255, .1); box-shadow: inset 0 0 0 1px var(--line); }
 .ls-hud { display: flex; align-items: center; gap: 14px; padding: 8px 12px; background: rgba(6, 10, 19, .92); border-bottom: 1px solid var(--line); font-family: var(--tech); font-weight: 800; }
 #ls-game[data-team="rood"] .ls-hud { border-bottom-color: var(--bad); box-shadow: 0 2px 16px rgba(255, 77, 109, .25); }
 #ls-game[data-team="blauw"] .ls-hud { border-bottom-color: #3d8bff; box-shadow: 0 2px 16px rgba(61, 139, 255, .25); }

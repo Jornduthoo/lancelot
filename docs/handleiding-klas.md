@@ -51,7 +51,7 @@ Tip: laat leerlingen de gsm rechtop houden. Op een laptop werken de pijltjes en 
 
 Tip: leg vooraf uit dat je tijdens een vraag beschermd bent, maar niet kan schieten.
 
-**Laserslag 3D** (first person): kies bij *Zicht* voor *First person*. Op een Chromebook klikken leerlingen eerst in het spel om de muis te vangen (Esc laat los). Op een gsm werkt het best liggend: links slepen is lopen, rechts slepen is rondkijken.
+**Zicht:** elke leerling kiest zelf in de wachtkamer: van bovenaf, achter de ridder of first person. Wisselen kan tijdens het spel met V of de 👁-knop. In 3D: op een Chromebook klikken leerlingen eerst in het spel om de muis te vangen (Esc laat los). Op een gsm werkt het best liggend: links slepen is lopen, rechts slepen is rondkijken.
 
 ## Kristalroof
 
