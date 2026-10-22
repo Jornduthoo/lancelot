@@ -578,3 +578,4 @@ body:not([data-sj="1"]) #schat { display: none !important; }
 .sj-chest { width: 120px; margin: 0 auto; filter: drop-shadow(0 0 24px rgba(255, 201, 74, .45)); animation: float 5s ease-in-out infinite; }
 .sj-total { text-align: center; font-family: var(--tech); font-weight: 800; font-size: 1.8rem; color: var(--gold); }
 @media (max-width: 1000px) { .sj-board { grid-template-columns: 1fr; } }
+.address-choice { padding: 6px 12px; margin: 4px 0 0 6px; font-size: .85rem; }

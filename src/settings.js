@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 
 const FILE = path.join(__dirname, '..', 'settings.json');
-const DEFAULTS = { geminiKey: '', geminiModel: 'auto', geminiAutoModel: '' };
+const DEFAULTS = { geminiKey: '', geminiModel: 'auto', geminiAutoModel: '', preferredAddress: '' };
 
 function read() {
   try {

@@ -50,25 +50,6 @@ socket.on('quizzes', list => {
   }
 });
 
-function showAddress(list, i) {
-  const main = list[i];
-  $('join-url').textContent = main ? main.url.replace('http://', '') : 'Geen netwerk gevonden';
-  $('join-mini').textContent = main ? main.url.replace('http://', '') : '';
-  $('qr').innerHTML = main ? main.qr : '';
-  const others = $('other-urls');
-  others.innerHTML = '';
-  list.forEach((a, j) => {
-    if (j === i) return;
-    others.append(others.textContent ? ' of ' : 'Werkt dit niet? Probeer ');
-    const link = document.createElement('a');
-    link.href = '#';
-    link.textContent = a.url;
-    link.addEventListener('click', e => { e.preventDefault(); showAddress(list, j); });
-    others.append(link);
-  });
-}
-socket.on('addresses', list => showAddress(list, 0));
-
 socket.on('sj-state', s => {
   prev = state;
   state = s;

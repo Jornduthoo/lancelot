@@ -63,27 +63,6 @@ socket.on('quizzes', list => {
   }
 });
 
-// Het eerste adres is meestal het goede. Klik op een ander adres om de QR-code daarvoor te tonen.
-function showAddress(list, i) {
-  const main = list[i];
-  $('join-url').textContent = main ? main.url.replace('http://', '') : 'Geen netwerk gevonden';
-  $('qr').innerHTML = main ? main.qr : '';
-  const others = $('other-urls');
-  others.innerHTML = '';
-  list.forEach((a, j) => {
-    if (j === i) return;
-    if (!others.textContent) others.append('Werkt dit niet? Probeer ');
-    else others.append(' of ');
-    const link = document.createElement('a');
-    link.href = '#';
-    link.textContent = a.url;
-    link.addEventListener('click', e => { e.preventDefault(); showAddress(list, j); });
-    others.append(link);
-  });
-}
-
-socket.on('addresses', list => showAddress(list, 0));
-
 // ---------- Lobby ----------
 
 function renderLobby() {

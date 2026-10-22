@@ -74,15 +74,39 @@ app.get('/resultaten/:file', (req, res) => {
 });
 app.use(express.static(path.join(__dirname, 'public'), { index: 'index.html' }));
 
-// Virtuele netwerkkaarten (WSL, VirtualBox, VPN) komen achteraan, want leerlingen kunnen die niet bereiken.
-const VIRTUAL = /vethernet|virtualbox|vmware|wsl|docker|hyper-v|tailscale|zerotier|vpn|nordlynx|wireguard|openvpn|tap-/i;
+// Virtuele netwerkkaarten (WSL, VirtualBox, VPN, hotspot, gsm via usb) komen achteraan, want leerlingen kunnen die meestal niet bereiken.
+const VIRTUAL = /vethernet|virtualbox|vmware|wsl|docker|hyper-v|tailscale|zerotier|vpn|nordlynx|wireguard|openvpn|tap-|bluetooth|loopback|lokale verbinding\*|local area connection\*|rndis|remote ndis|tether|hotspot/i;
+const REAL = /wi-?fi|wlan|wireless|draadloos|ethernet|^eth|^en/i;
 
-function lanAddresses() {
+// Hoe kleiner het getal, hoe eerder het adres op het bord komt.
+function rank(i, preferred) {
+  if (i.address === preferred) return -10;
+  let score = 0;
+  if (VIRTUAL.test(i.name)) score += 10;
+  else if (REAL.test(i.name)) score -= 2;
+  // Windows-hotspot (192.168.137.x) en gsm-tethering (192.168.42.x, 192.168.225.x, 172.20.10.x) zijn zelden het schoolnetwerk.
+  if (/^192\.168\.(137|42|225)\.|^172\.20\.10\./.test(i.address)) score += 5;
+  return score;
+}
+
+function lanInterfaces() {
+  const preferred = settings.read().preferredAddress;
   return Object.entries(os.networkInterfaces())
     .flatMap(([name, list]) => (list || []).map(i => ({ name, ...i })))
     .filter(i => i.family === 'IPv4' && !i.internal && !i.address.startsWith('169.254.'))
-    .sort((a, b) => VIRTUAL.test(a.name) - VIRTUAL.test(b.name))
-    .map(i => i.address);
+    .sort((a, b) => rank(a, preferred) - rank(b, preferred));
+}
+
+function lanAddresses() {
+  return lanInterfaces().map(i => i.address);
+}
+
+// Adressen met QR-code voor het docentenscherm. Het eerste is het grote adres op het bord.
+function sendAddresses(target) {
+  const list = lanInterfaces();
+  const urls = list.map(i => `http://${i.address}:${PORT}`);
+  return Promise.all(urls.map(url => QRCode.toString(url, { type: 'svg', margin: 1 })))
+    .then(qrs => target.emit('addresses', urls.map((url, k) => ({ url, qr: qrs[k], name: list[k].name }))));
 }
 
 io.on('connection', socket => {
@@ -91,9 +115,13 @@ io.on('connection', socket => {
   if (host) {
     socket.join('host');
     socket.emit('quizzes', quizzes.list());
-    const urls = lanAddresses().map(a => `http://${a}:${PORT}`);
-    Promise.all(urls.map(url => QRCode.toString(url, { type: 'svg', margin: 1 })))
-      .then(qrs => socket.emit('addresses', urls.map((url, i) => ({ url, qr: qrs[i] }))));
+    sendAddresses(socket);
+    // De leerkracht kiest het adres dat werkt; dat onthouden we voor de volgende keer.
+    socket.on('choose-address', address => {
+      if (!lanAddresses().includes(address)) return;
+      settings.write({ preferredAddress: address });
+      sendAddresses(io.to('host'));
+    });
     socket.emit('settings', settings.publicView());
     socket.emit('results', results.list());
     socket.on('open-results-folder', () => {
