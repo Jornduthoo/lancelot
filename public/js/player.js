@@ -178,3 +178,11 @@ socket.on('connect', () => {
 });
 
 show('idle');
+
+// Chromebook: met de toetsen 1-4 antwoorden in de quiz, de Ronde Tafel en Schattenjacht.
+document.addEventListener('keydown', e => {
+  if (!/^[1-4]$/.test(e.key) || e.target.matches('input, textarea')) return;
+  const buttons = [...document.querySelectorAll('#answer-buttons .answer, #sj-answers .answer, .rt-choice')]
+    .filter(b => b.offsetParent && !b.disabled);
+  if (buttons[e.key - 1]) buttons[e.key - 1].click();
+});

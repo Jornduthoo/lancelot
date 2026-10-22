@@ -374,7 +374,10 @@ function twResize() {
   // Ingezoomd zoals een echt platformspel: op een smalle gsm schuift het beeld mee naar links en rechts.
   const margin = 14;
   const fitAll = canvas.width / (Toren.W + margin * 2);
-  const scale = Math.max(fitAll, Math.min(canvas.width / 290, canvas.height / 430));
+  // Ver genoeg uitgezoomd om de lasers en drones boven je op tijd te zien.
+  // Liggend scherm (Chromebook): de hele toren in beeld, even hoog als op een gsm.
+  const desired = canvas.height / 660;
+  const scale = desired * Toren.W <= canvas.width ? desired : Math.max(fitAll * .92, Math.min(canvas.width / 340, desired));
   view = { w: canvas.width, h: canvas.height, scale, ox: (canvas.width - Toren.W * scale) / 2, scroll: scale > fitAll };
 }
 window.addEventListener('resize', twResize);
@@ -400,7 +403,8 @@ function render(t, dt) {
     ox = -tw.camX * scale;
   }
   const viewH = h / scale;
-  const target = Math.max(-20, me.y - viewH * .32);
+  // De ridder staat laag in beeld, zodat je vooral ziet wat er boven je komt.
+  const target = Math.max(-20, me.y - viewH * .18);
   tw.cam += (target - tw.cam) * Math.min(1, dt * 6);
   const cam = { y: tw.cam, scale, H: h, ox };
   TorenDraw.scene(ctx, tw.world, cam, Math.max(0, t));
@@ -425,6 +429,24 @@ function render(t, dt) {
     label(`${arrow} ${o.name}`, x, y + (arrow === '▲' ? i : -i) * 13 * scale, TorenDraw.COLORS[o.color % 8], scale * .9);
   });
   edge(above, 16 * scale, '▲');
+
+  // Gevaren net boven het beeld: een rood pijltje aan de bovenrand, knipperend als de laser aan staat.
+  for (const l of tw.world.lasers) {
+    if (l.y <= topY || l.y > topY + 260) continue;
+    const st = Toren.laserState(l, t);
+    ctx.fillStyle = st.on ? '#ff4d6d' : st.warn ? 'rgba(255, 77, 109, .8)' : 'rgba(255, 77, 109, .35)';
+    ctx.fillRect(ox + l.x * scale, 0, l.w * scale, 4 * scale);
+  }
+  for (const d of tw.world.drones) {
+    if (d.y <= topY || d.y > topY + 260) continue;
+    const x = ox + Toren.droneX(d, t, Toren.W) * scale;
+    ctx.fillStyle = '#ff4d6d';
+    ctx.beginPath();
+    ctx.moveTo(x, 2 * scale);
+    ctx.lineTo(x - 6 * scale, 10 * scale);
+    ctx.lineTo(x + 6 * scale, 10 * scale);
+    ctx.fill();
+  }
   edge(below, h - 8 * scale, '▼');
 
   // Jezelf, met een gloed zodat je jezelf meteen terugvindt.
