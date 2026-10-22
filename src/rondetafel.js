@@ -2,6 +2,7 @@
 // Sessies staan als JSON-bestanden in de map rondetafel/.
 const fs = require('fs');
 const path = require('path');
+const { library } = require('./library');
 
 const DIR = path.join(__dirname, '..', 'rondetafel');
 const TYPES = ['keuze', 'woorden', 'open', 'schaal'];
@@ -41,20 +42,22 @@ function validate(session) {
 }
 
 function checkFile(file) {
-  if (typeof file !== 'string' || path.basename(file) !== file || !file.endsWith('.json')) throw new Error('Ongeldige bestandsnaam.');
+  if (typeof file !== 'string' || path.basename(file) !== file || !file.endsWith('.json') || file.startsWith('_')) throw new Error('Ongeldige bestandsnaam.');
   return path.join(DIR, file);
 }
 
 function list() {
   if (!fs.existsSync(DIR)) return [];
+  const where = lib.places();
   return fs.readdirSync(DIR)
-    .filter(f => f.endsWith('.json'))
+    .filter(f => f.endsWith('.json') && !f.startsWith('_'))
     .map(file => {
+      const folder = where(file);
       try {
         const s = JSON.parse(fs.readFileSync(path.join(DIR, file), 'utf8'));
-        return { file, title: s.title || file, count: (s.items || []).length };
+        return { file, folder, title: s.title || file, count: (s.items || []).length };
       } catch {
-        return { file, title: `${file} (ongeldig bestand)`, count: 0 };
+        return { file, folder, title: `${file} (ongeldig bestand)`, count: 0 };
       }
     })
     .sort((a, b) => a.title.localeCompare(b.title, 'nl'));
@@ -83,6 +86,7 @@ function save(session, file) {
 
 function remove(file) {
   fs.unlinkSync(checkFile(file));
+  lib.forget(file);
 }
 
 // Haalt de sessie uit het antwoord van een chatbot, ook met tekst of ```json eromheen.
@@ -319,4 +323,6 @@ class RondeTafel {
   }
 }
 
-module.exports = { RondeTafel, validate, list, load, save, remove, parseAiText, TYPE_NAMES, DIR };
+const lib = library({ kind: 'sessie', dir: DIR, checkFile, load, save, validate, list });
+
+module.exports = { RondeTafel, validate, list, load, save, remove, parseAiText, lib, TYPE_NAMES, DIR };

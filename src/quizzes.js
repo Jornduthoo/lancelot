@@ -3,6 +3,7 @@
 // zodat een quiz verplaatsen niets kapotmaakt.
 const fs = require('fs');
 const path = require('path');
+const { library } = require('./library');
 
 const DIR = path.join(__dirname, '..', 'quizzes');
 
@@ -37,75 +38,13 @@ function validate(quiz) {
   return { title, questions };
 }
 
-const META = path.join(DIR, '_mappen.json');
-
-function readMeta() {
-  try {
-    const meta = JSON.parse(fs.readFileSync(META, 'utf8'));
-    return { folders: Array.isArray(meta.folders) ? meta.folders.filter(f => typeof f === 'string') : [], place: meta.place && typeof meta.place === 'object' ? meta.place : {} };
-  } catch {
-    return { folders: [], place: {} };
-  }
-}
-
-function writeMeta(meta) {
-  fs.mkdirSync(DIR, { recursive: true });
-  fs.writeFileSync(META, JSON.stringify(meta, null, 2) + '\n');
-}
-
-function folderName(name) {
-  const clean = String(name || '').trim().replace(/\s+/g, ' ').slice(0, 40);
-  if (!clean) throw new Error('Geef de map een naam.');
-  return clean;
-}
-
-function folders() {
-  return readMeta().folders;
-}
-
-function addFolder(name) {
-  const meta = readMeta();
-  const clean = folderName(name);
-  if (meta.folders.some(f => f.toLowerCase() === clean.toLowerCase())) throw new Error('Die map bestaat al.');
-  meta.folders.push(clean);
-  meta.folders.sort((a, b) => a.localeCompare(b, 'nl'));
-  writeMeta(meta);
-}
-
-function renameFolder(from, to) {
-  const meta = readMeta();
-  const clean = folderName(to);
-  if (!meta.folders.includes(from)) throw new Error('Die map bestaat niet meer.');
-  if (clean !== from && meta.folders.some(f => f.toLowerCase() === clean.toLowerCase())) throw new Error('Die map bestaat al.');
-  meta.folders = meta.folders.map(f => (f === from ? clean : f)).sort((a, b) => a.localeCompare(b, 'nl'));
-  for (const [file, f] of Object.entries(meta.place)) if (f === from) meta.place[file] = clean;
-  writeMeta(meta);
-}
-
-// Een map verwijderen: de quizzen erin blijven bestaan, zonder map.
-function removeFolder(name) {
-  const meta = readMeta();
-  meta.folders = meta.folders.filter(f => f !== name);
-  for (const [file, f] of Object.entries(meta.place)) if (f === name) delete meta.place[file];
-  writeMeta(meta);
-}
-
-function moveQuiz(file, folder) {
-  checkFile(file);
-  const meta = readMeta();
-  if (folder && !meta.folders.includes(folder)) throw new Error('Die map bestaat niet meer.');
-  if (folder) meta.place[file] = folder;
-  else delete meta.place[file];
-  writeMeta(meta);
-}
-
 function list() {
   if (!fs.existsSync(DIR)) return [];
-  const meta = readMeta();
+  const where = lib.places();
   return fs.readdirSync(DIR)
     .filter(f => f.endsWith('.json') && !f.startsWith('_'))
     .map(file => {
-      const folder = meta.folders.includes(meta.place[file]) ? meta.place[file] : '';
+      const folder = where(file);
       try {
         const quiz = JSON.parse(fs.readFileSync(path.join(DIR, file), 'utf8'));
         return { file, folder, title: quiz.title || file, count: (quiz.questions || []).length };
@@ -166,11 +105,9 @@ function parseAiText(raw) {
 
 function remove(file) {
   fs.unlinkSync(checkFile(file));
-  const meta = readMeta();
-  if (meta.place[file]) {
-    delete meta.place[file];
-    writeMeta(meta);
-  }
+  lib.forget(file);
 }
 
-module.exports = { list, folders, addFolder, renameFolder, removeFolder, moveQuiz, load, save, remove, validate, parseAiText, DIR };
+const lib = library({ kind: 'quiz', dir: DIR, checkFile, load, save, validate, list });
+
+module.exports = { list, load, save, remove, validate, parseAiText, lib, DIR };

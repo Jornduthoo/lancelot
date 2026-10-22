@@ -388,6 +388,72 @@
     <p class="muted">Kijk naar het bord voor de eindstand.</p>
   </section>
  </div>
+ <div id="verrader">
+  <form id="vr-join" class="screen welcome hidden">
+    <img src="/img/logo.webp" alt="LANcelot">
+    <p class="title">De Verrader</p>
+    <input id="vr-name" maxlength="20" autocomplete="off" placeholder="Je naam">
+    <p class="error" id="vr-join-error"></p>
+    <button type="submit" class="big">Naar de burcht</button>
+  </form>
+
+  <section id="vr-lobby" class="screen panel hidden">
+    <p class="status">De Verrader</p>
+    <p class="title" id="vr-lobby-name"></p>
+    <p class="muted">Herstel samen de kristalkern door vragen juist te beantwoorden. Maar pas op: <strong>er zit een verrader tussen jullie</strong>. Na elke betovering komt de Ronde Tafel samen en stemmen jullie wie verbannen wordt.</p>
+    <p class="muted small">Hou je scherm voor jezelf. Je rol is geheim!</p>
+    <div class="spinner"></div>
+  </section>
+
+  <section id="vr-reveal" class="screen panel hidden">
+    <p class="status">Jouw geheime rol</p>
+    <div class="vr-role-card" id="vr-role-card"></div>
+    <p class="muted small">Vertel het aan niemand. Het spel begint zo.</p>
+  </section>
+
+  <section id="vr-game" class="hidden">
+    <div class="vr-top">
+      <button class="vr-chip" id="vr-chip">👁 Rol</button>
+      <div class="vr-kern"><span>Kristalkern</span><div class="vr-bar"><i id="vr-kern"></i></div></div>
+      <span class="vr-clock" id="vr-clock"></span>
+    </div>
+    <p class="vr-ghost hidden" id="vr-ghost"></p>
+    <div class="vr-tools">
+      <div class="vr-spellbox hidden" id="vr-spellbox"><span class="vr-pips" id="vr-pips"></span><button class="vr-spell" id="vr-spell">🌀 Betover</button></div>
+      <div class="vr-hints" id="vr-hints"></div>
+      <button class="secondary vr-horn" id="vr-horn">📯 Ronde Tafel</button>
+    </div>
+    <div class="sj-card panel">
+      <p class="status" id="vr-number"></p>
+      <p class="sj-q" id="vr-q"></p>
+    </div>
+    <div class="answers sj-answers" id="vr-answers"></div>
+    <div class="sj-flash hidden" id="vr-flash"><div class="sj-flash-mark" id="vr-flash-mark"></div><div class="sj-flash-text" id="vr-flash-text"></div></div>
+    <div class="kr-overlay hidden" id="vr-targets-box">
+      <h2>🌀 Wie betover je?</h2>
+      <p class="muted">Die ridder wordt een geest. Daarna komt de Ronde Tafel samen.</p>
+      <div class="kr-targets" id="vr-targets"></div>
+      <p class="kr-result bad" id="vr-spell-error"></p>
+      <button class="secondary" id="vr-spell-cancel">Nog niet</button>
+    </div>
+    <div class="kr-alert hidden" id="vr-alert"></div>
+  </section>
+
+  <section id="vr-meeting" class="vr-meeting hidden">
+    <h2 id="vr-m-title"></h2>
+    <p class="vr-m-sub" id="vr-m-sub"></p>
+    <div class="vr-m-clock" id="vr-m-clock"></div>
+    <div class="vr-roster" id="vr-roster"></div>
+    <p class="vr-m-note" id="vr-m-note"></p>
+  </section>
+
+  <section id="vr-end" class="screen panel hidden">
+    <div class="mark" id="vr-end-mark" style="font-size:4.5rem"></div>
+    <p class="title" id="vr-end-title"></p>
+    <p id="vr-end-why"></p>
+    <p class="muted" id="vr-end-traitors"></p>
+  </section>
+ </div>
  <div id="oefenblad">
   <form id="ob-join" class="screen welcome hidden">
     <img src="/img/logo.webp" alt="LANcelot">
@@ -427,6 +493,7 @@
 <script src="/js/race-draw.js"></script>
 <script src="/js/rr-player.js"></script>
 <script src="/js/kr-player.js"></script>
+<script src="/js/vr-player.js"></script>
 <script src="/js/ob-sheet.js"></script>
 <script src="/js/ob-player.js"></script>
 </body>

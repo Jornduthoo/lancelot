@@ -10,6 +10,7 @@
 //   open           open vragen (niet automatisch verbeterd)
 const fs = require('fs');
 const path = require('path');
+const { library } = require('./library');
 
 const DIR = path.join(__dirname, '..', 'oefenbladen');
 const TYPES = ['tekst', 'invullen', 'meerkeuze', 'juistfout', 'verbinden', 'woorden', 'overschrijven', 'open'];
@@ -224,14 +225,16 @@ function shufflesFor(sheet, seed) {
 
 function listSheets() {
   if (!fs.existsSync(DIR)) return [];
+  const where = lib.places();
   return fs.readdirSync(DIR)
     .filter(f => f.endsWith('.json') && !f.startsWith('_'))
     .map(file => {
+      const folder = where(file);
       try {
         const s = JSON.parse(fs.readFileSync(path.join(DIR, file), 'utf8'));
-        return { file, title: s.title || file, count: (s.blocks || []).length, types: [...new Set((s.blocks || []).map(b => b.type))] };
+        return { file, folder, title: s.title || file, count: (s.blocks || []).length, types: [...new Set((s.blocks || []).map(b => b.type))] };
       } catch {
-        return { file, title: `${file} (ongeldig bestand)`, count: 0, types: [] };
+        return { file, folder, title: `${file} (ongeldig bestand)`, count: 0, types: [] };
       }
     })
     .sort((a, b) => a.title.localeCompare(b.title, 'nl'));
@@ -267,6 +270,7 @@ function save(sheet, file) {
 
 function remove(file) {
   fs.unlinkSync(checkFile(file));
+  lib.forget(file);
 }
 
 // Het antwoord van een chatbot omzetten in een oefenblad.
@@ -285,7 +289,9 @@ function parseAiText(raw) {
   return validate(data);
 }
 
+const lib = library({ kind: 'oefenblad', dir: DIR, checkFile, load, save, validate, list: listSheets });
+
 module.exports = {
   TYPES, TYPE_NAMES, validate, fields, grade, studentView, solutions, shufflesFor,
-  list: listSheets, load, save, remove, parseAiText, DIR,
+  list: listSheets, load, save, remove, parseAiText, lib, DIR,
 };

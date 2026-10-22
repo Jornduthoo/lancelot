@@ -102,7 +102,9 @@
     </div>
     <div class="panel form">
       <h3>2. Kopieer de prompt naar een AI</h3>
-      <p class="muted">Klik op een chatbot: de prompt wordt gekopieerd en de chatbot opent in een nieuw tabblad. Plak de prompt daar met Ctrl+V. Je kan er ook een screenshot van het bordboek bij zetten.</p>
+      <p class="muted">Klik op een chatbot: de prompt wordt gekopieerd en de chatbot opent in een nieuw tabblad. Plak de prompt daar met Ctrl+V.</p>
+      <label class="inline check"><input type="checkbox" id="a-attach"> Ik voeg zelf een pdf, foto of screenshot van het bordboek toe in de chatbot</label>
+      <p class="notice hidden" id="a-attach-note">Sleep je pdf of screenshot in de chatbot, of voeg hem toe met het paperclip- of plusje-icoon naast het tekstvak. De AI maakt de oefeningen dan op basis van jouw lesstof.</p>
       <textarea id="a-prompt" rows="8" readonly></textarea>
       <div class="actions">
         <button class="chatbot" data-url="https://gemini.google.com/app">Gemini</button>
@@ -116,7 +118,7 @@
       <h3>Of: laat Gemini het blad direct maken</h3>
       <div class="sources">
         <strong>Lesstof (mag leeg)</strong>
-        <p class="muted small">Voeg een screenshot van het bordboek, een foto of een pdf toe, of plak een screenshot met Ctrl+V.</p>
+        <p class="muted small">Voeg een screenshot van het bordboek, een foto of een pdf toe, of plak een screenshot met Ctrl+V. Gemini maakt de oefeningen dan op basis van die lesstof.</p>
         <label class="file-button"><input id="a-files" type="file" accept="image/*,application/pdf" multiple hidden>Bestand kiezen</label>
         <ul class="file-list" id="a-file-list"></ul>
       </div>
@@ -197,6 +199,7 @@
 <script src="/socket.io/socket.io.js"></script>
 <script src="/js/fx.js"></script>
 <script src="/js/ob-sheet.js"></script>
+<script src="/js/quiz-list.js"></script>
 <script src="/js/ob-host.js"></script>
 <script src="/js/address.js"></script>
 </body>

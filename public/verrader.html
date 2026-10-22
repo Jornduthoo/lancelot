@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LANcelot · De Verrader</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body class="sj-host">
+<main>
+  <div class="topbar">
+    <div class="brand" id="brand" title="Naar het startscherm">
+      <img src="/img/logo.webp" alt="">
+      <div>
+        <div class="wordmark">LAN<span>celot</span></div>
+        <div class="subtitle" id="status">De Verrader</div>
+      </div>
+    </div>
+    <div class="actions">
+      <span class="join-mini hidden" id="join-mini"></span>
+      <button class="secondary icon" id="mute" title="Geluid aan/uit">🔊</button>
+      <button class="secondary hidden" id="stop">Stop het spel</button>
+    </div>
+  </div>
+
+      <section id="setup">
+    <div class="bar">
+      <h2>De Verrader</h2>
+      <div class="actions">
+        <button class="secondary" id="to-home">Terug</button>
+        <button class="secondary" data-make="leeg">Lege quiz</button>
+        <button data-make="ai">Nieuwe quiz met AI</button>
+      </div>
+    </div>
+    <div class="panel tw-intro">
+      <svg class="sj-chest vr-logo" viewBox="0 0 64 64"><path d="M8 20 Q32 4 56 20 Q56 46 32 58 Q8 46 8 20Z" fill="#1b1f33" stroke="#ff4d6d" stroke-width="3"/><path d="M16 26 Q22 20 28 26 Q22 30 16 26Z M36 26 Q42 20 48 26 Q42 30 36 26Z" fill="#ff4d6d"/><path d="M22 42 Q32 48 42 42" stroke="#ff4d6d" stroke-width="3" fill="none"/></svg>
+      <div>
+        <p>Een spel zoals Among Us. De ridders herstellen samen de <strong>kristalkern</strong> van de burcht: elke goede antwoord van een ridder vult de kern. Maar een of meer leerlingen zijn in het geheim <strong>verrader</strong>.</p>
+        <p>Verraders beantwoorden ook vragen om niet op te vallen. Met hun goede antwoorden laden ze een betovering op en veranderen ze een ridder in een geest. Daarna komt de <strong>Ronde Tafel</strong> samen: de klas praat en stemt wie verbannen wordt. Ridders krijgen af en toe een tip over wie te vertrouwen is.</p>
+        <p class="muted">De ridders winnen als de kern hersteld is of alle verraders verbannen zijn. De verraders winnen als ze even talrijk zijn als de ridders, of als de tijd op is. Minstens 3 spelers.</p>
+      </div>
+    </div>
+    <div class="panel form">
+      <label>Verraders
+        <select id="vr-traitors">
+          <option value="auto" selected>Automatisch (1 tot 3)</option>
+          <option value="1">1 verrader</option>
+          <option value="2">2 verraders</option>
+          <option value="3">3 verraders</option>
+        </select>
+      </label>
+      <label>Kristalkern
+        <select id="vr-length">
+          <option value="kort">Snel hersteld (12 vragen per ridder)</option>
+          <option value="normaal" selected>Normaal (20 vragen per ridder)</option>
+          <option value="lang">Lang (30 vragen per ridder)</option>
+        </select>
+      </label>
+      <label>Praten aan de Ronde Tafel
+        <select id="vr-talk">
+          <option value="kort">45 seconden</option>
+          <option value="normaal" selected>75 seconden</option>
+          <option value="lang">2 minuten</option>
+        </select>
+      </label>
+      <label>Maximale speeltijd
+        <select id="vr-minutes">
+          <option value="8">8 minuten</option>
+          <option value="10">10 minuten</option>
+          <option value="12">12 minuten</option>
+          <option value="15" selected>15 minuten</option>
+          <option value="20">20 minuten</option>
+        </select>
+      </label>
+      <p class="muted small">Kies hieronder de quiz waaruit de taken komen.</p>
+    </div>
+    <p class="notice hidden" id="stopped"></p>
+    <div class="quiz-list" id="quiz-list"></div>
+    <p class="error" id="load-error"></p>
+  </section>
+
+  <section id="lobby" class="hidden">
+    <div class="panel join">
+      <div class="qr" id="qr"></div>
+      <div class="join-text">
+        <p class="muted">Scan de QR-code of surf naar</p>
+        <div class="join-url" id="join-url"></div>
+        <p class="muted small" id="other-urls"></p>
+      </div>
+    </div>
+    <div class="bar">
+      <h2><span class="count" id="player-count">0</span> <span id="player-word">ridders</span> in de burcht</h2>
+      <button class="gold big" id="start" disabled>Verdeel de rollen!</button>
+    </div>
+    <p class="error" id="start-error"></p>
+    <p class="muted small">Klik op een naam om die speler te verwijderen. Wie later komt, speelt het volgende spel mee.</p>
+    <div class="names" id="names"></div>
+  </section>
+
+  <section id="play" class="hidden">
+    <div class="hud">
+      <span class="round" id="p-title"></span>
+      <span class="tw-clock" id="p-clock"></span>
+      <div class="actions">
+        <button class="secondary" id="p-horn">📯 Ronde Tafel nu</button>
+        <button class="secondary" id="p-finish">Spel stoppen</button>
+      </div>
+    </div>
+    <div class="sj-board">
+      <div class="vr-board">
+        <div class="panel vr-core">
+          <p class="muted small">Kristalkern</p>
+          <div class="vr-core-bar"><i id="p-kern"></i></div>
+          <div class="vr-core-num" id="p-kern-num"></div>
+        </div>
+        <div class="vr-people" id="p-people"></div>
+      </div>
+      <div class="tw-side">
+        <div class="panel center vr-traitor-count" id="p-traitors"></div>
+        <ul class="tw-feed" id="p-feed"></ul>
+      </div>
+    </div>
+    <div class="vr-stage hidden" id="p-stage">
+      <h2 id="m-title"></h2>
+      <p class="vr-m-sub" id="m-sub"></p>
+      <div class="vr-m-clock big" id="m-clock"></div>
+      <div class="vr-votes" id="m-votes"></div>
+      <div class="actions center">
+        <button class="gold" id="m-skip">Naar het stemmen</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="podium" class="hidden">
+    <div class="vr-winner" id="w-mark"></div>
+    <h2 class="center" id="w-title"></h2>
+    <p class="center muted" id="w-why"></p>
+    <ol class="ranking vr-final" id="final"></ol>
+    <p class="center muted" id="results-saved"></p>
+    <div class="bar">
+      <button class="secondary" id="restart">Nog een spel</button>
+      <button id="close">Andere quiz kiezen</button>
+    </div>
+  </section>
+</main>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/fx.js"></script>
+<script src="/js/quiz-links.js"></script>
+<script src="/js/quiz-list.js"></script>
+<script src="/js/vr-host.js"></script>
+<script src="/js/address.js"></script>
+</body>
+</html>

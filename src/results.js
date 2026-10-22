@@ -250,4 +250,24 @@ function saveRoof(k) {
   return write(now, `kristalroof-${slugOf(k.quiz.title)}`, lines);
 }
 
-module.exports = { save, saveRace, saveRoof, saveRondeTafel, saveToren, saveSchat, saveLaserslag, saveOefenblad, list, filePath, DIR };
+function saveVerrader(v) {
+  const now = new Date();
+  const roster = v.roster();
+  const pct = (a, b) => (b ? `${Math.round((a / b) * 100)}%` : '-');
+  const lines = [
+    row(['De Verrader', v.quiz.title]),
+    row(['Datum', stamp(now)]),
+    row(['Winnaar', v.winner === 'ridder' ? 'De ridders' : 'De verraders']),
+    row(['Waarom', v.why]),
+    row(['Kristalkern', `${v.kern} van ${v.target}`]),
+    row(['Leerlingen', roster.length]),
+    '',
+    row(['Naam', 'Rol', 'Uitkomst', 'Betoveringen', 'Vragen goed', 'Vragen fout', '% goed']),
+    ...roster.map(p => row([
+      p.name, p.role, p.fate || 'overleefd', p.role === 'verrader' ? p.spells : '', p.right, p.wrong, pct(p.right, p.right + p.wrong),
+    ])),
+  ];
+  return write(now, `verrader-${slugOf(v.quiz.title)}`, lines);
+}
+
+module.exports = { save, saveRace, saveRoof, saveVerrader, saveRondeTafel, saveToren, saveSchat, saveLaserslag, saveOefenblad, list, filePath, DIR };

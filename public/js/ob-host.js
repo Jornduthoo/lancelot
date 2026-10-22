@@ -1,5 +1,5 @@
 // Oefenbladen voor de leerkracht: maken (zelf of met AI), live openzetten, volgen en printen.
-// Gebruikt sfx en confetti uit fx.js en ObSheet uit ob-sheet.js.
+// Gebruikt sfx en confetti uit fx.js, ObSheet uit ob-sheet.js en ItemList uit quiz-list.js.
 const socket = io({ query: { role: 'host' } });
 const $ = id => document.getElementById(id);
 let state = null;
@@ -41,32 +41,26 @@ function downloadLink(file) {
 
 const TYPE_ICONS = { tekst: '📖', invullen: '✏️', meerkeuze: '🔘', juistfout: '✔✖', verbinden: '🔗', woorden: '🔤', overschrijven: '✍️', open: '💬' };
 
-socket.on('ob-sheets', list => {
-  const box = $('sheet-list');
-  box.innerHTML = list.length ? '' : '<p class="muted">Nog geen oefenbladen. Maak er een met de knoppen hierboven.</p>';
-  for (const s of list) {
-    const row = document.createElement('div');
-    row.className = 'quiz-row';
-    row.innerHTML = `<button class="play">${esc(s.title)} <span class="muted">· ${s.count} ${s.count === 1 ? 'oefening' : 'oefeningen'} · ${s.types.map(t => TYPE_ICONS[t] || '').join(' ')}</span><span class="go">Live ▶</span></button>
-      <button class="secondary print" title="Afdrukken">🖨 Print</button>
-      <button class="secondary key" title="Verbeterblad afdrukken">Verbeterblad</button>
-      <button class="secondary edit">Bewerken</button>
-      <button class="secondary delete" title="Verwijderen">✕</button>`;
-    row.querySelector('.play').addEventListener('click', () => goLive(s.file));
-    row.querySelector('.print').addEventListener('click', () => window.open(`/oefenblad-print?file=${encodeURIComponent(s.file)}`, '_blank'));
-    row.querySelector('.key').addEventListener('click', () => window.open(`/oefenblad-print?file=${encodeURIComponent(s.file)}&sleutel=1`, '_blank'));
-    row.querySelector('.edit').addEventListener('click', () => {
-      socket.emit('ob-open', s.file, res => {
-        if (res.error) return ($('list-error').textContent = res.error);
-        openEditor(res.sheet, s.file);
-      });
+ItemList.mount($('sheet-list'), {
+  kind: 'oefenblad',
+  errorId: 'list-error',
+  go: 'Live ▶',
+  detail: s => `${s.count} ${s.count === 1 ? 'oefening' : 'oefeningen'} · ${s.types.map(t => TYPE_ICONS[t] || '').join(' ')}`,
+  play: s => goLive(s.file),
+  buttons: [
+    { label: '🖨 Print', cls: 'print', title: 'Afdrukken', click: s => window.open(`/oefenblad-print?file=${encodeURIComponent(s.file)}`, '_blank') },
+    { label: 'Verbeterblad', cls: 'key', title: 'Verbeterblad afdrukken', click: s => window.open(`/oefenblad-print?file=${encodeURIComponent(s.file)}&sleutel=1`, '_blank') },
+  ],
+  edit: s => {
+    socket.emit('ob-open', s.file, res => {
+      if (res.error) return ($('list-error').textContent = res.error);
+      openEditor(res.sheet, s.file);
     });
-    row.querySelector('.delete').addEventListener('click', () => {
-      if (!confirm(`"${s.title}" verwijderen?`)) return;
-      socket.emit('ob-delete', s.file, res => { $('list-error').textContent = res.error || ''; });
-    });
-    box.appendChild(row);
-  }
+  },
+  remove: s => {
+    if (!confirm(`"${s.title}" verwijderen?`)) return;
+    socket.emit('ob-delete', s.file, res => { $('list-error').textContent = res.error || ''; });
+  },
 });
 
 function goLive(file) {
@@ -98,7 +92,7 @@ function chosenTypes() {
 }
 
 function buildPrompt(forGemini = false) {
-  const hasSources = forGemini && sources.length > 0;
+  const hasSources = forGemini ? sources.length > 0 : $('a-attach').checked;
   const topic = $('a-topic').value.trim() || (hasSources ? 'de bijgevoegde lesstof' : '[ONDERWERP]');
   const level = $('a-level').value;
   const count = Math.min(12, Math.max(1, Number($('a-count').value) || 5));
@@ -133,7 +127,8 @@ function updatePrompt() {
   $('a-prompt').value = buildPrompt();
   $('a-copied').textContent = '';
 }
-for (const id of ['a-topic', 'a-level', 'a-count', 'a-per', 'a-extra']) $(id).addEventListener('input', updatePrompt);
+for (const id of ['a-topic', 'a-level', 'a-count', 'a-per', 'a-extra', 'a-attach']) $(id).addEventListener('input', updatePrompt);
+$('a-attach').addEventListener('change', () => $('a-attach-note').classList.toggle('hidden', !$('a-attach').checked));
 $('a-types').addEventListener('change', updatePrompt);
 updatePrompt();
 

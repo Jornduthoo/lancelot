@@ -1,4 +1,4 @@
-// De Ronde Tafel op het docentenscherm: sessies kiezen, maken en live tonen. Gebruikt sfx en confetti uit fx.js.
+// De Ronde Tafel op het docentenscherm: sessies kiezen, maken en live tonen. Gebruikt sfx en confetti uit fx.js, ItemList uit quiz-list.js.
 const socket = io({ query: { role: 'host' } });
 const $ = id => document.getElementById(id);
 let state = null;
@@ -41,25 +41,18 @@ function downloadLink(file) {
 
 // ---------- Sessies ----------
 
-socket.on('rt-sessions', list => {
-  const box = $('session-list');
-  box.innerHTML = list.length ? '' : '<p class="muted">Nog geen sessies. Maak er een met de knoppen hierboven.</p>';
-  for (const s of list) {
-    const row = document.createElement('div');
-    row.className = 'quiz-row';
-    row.innerHTML = `<button class="play">${esc(s.title)} <span class="muted">· ${s.count} vragen</span><span class="go">Start ▶</span></button>
-      <button class="secondary edit">Bewerken</button>
-      <button class="secondary delete" title="Verwijderen">✕</button>`;
-    row.querySelector('.play').addEventListener('click', () => startSession(s.file));
-    row.querySelector('.edit').addEventListener('click', () => {
-      socket.emit('rt-open', s.file, res => res.error ? ($('list-error').textContent = res.error) : openEditor(res.session, s.file));
-    });
-    row.querySelector('.delete').addEventListener('click', () => {
-      if (!confirm(`"${s.title}" verwijderen?`)) return;
-      socket.emit('rt-delete', s.file, res => { $('list-error').textContent = res.error || ''; });
-    });
-    box.appendChild(row);
-  }
+ItemList.mount($('session-list'), {
+  kind: 'sessie',
+  errorId: 'list-error',
+  go: 'Start ▶',
+  play: s => startSession(s.file),
+  edit: s => {
+    socket.emit('rt-open', s.file, res => res.error ? ($('list-error').textContent = res.error) : openEditor(res.session, s.file));
+  },
+  remove: s => {
+    if (!confirm(`"${s.title}" verwijderen?`)) return;
+    socket.emit('rt-delete', s.file, res => { $('list-error').textContent = res.error || ''; });
+  },
 });
 
 function startSession(file) {

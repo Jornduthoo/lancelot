@@ -11,6 +11,7 @@ Het thema: middeleeuws met een scifi-kantje. Het startscherm heeft drie delen:
    - **Laserslag** en **Laserslag 3D**: lasergevecht rood tegen blauw of ieder voor zich; munitie verdien je met goede antwoorden
    - **Ridderrace**: een racegame in 3D op hoverrossen; goede antwoorden vullen je tank en geven turbo
    - **Kristalroof**: mijn kristallen met goede antwoorden, open kisten en kraak de kluis van een ander met diens geheime woord
+   - **De Verrader**: zoals Among Us. Ridders herstellen de kristalkern met goede antwoorden, de geheime verraders betoveren ze. Aan de Ronde Tafel praat de klas en stemt wie verbannen wordt
 2. **De Ronde Tafel**, peilen met de hele klas: polls, stellingen, woordwolken, open vragen en schalen, live op het bord. Met **Voorkennis activeren** maak je met AI meteen een peiling voor het begin van een les.
 3. **Generator**: **live oefenbladen** die leerlingen invullen en die zichzelf verbeteren, en **werkbladen** om te printen, met een verbeterblad.
 
@@ -33,7 +34,11 @@ Liever via de opdrachtprompt? Gebruik dan `npm install` en `npm start`, en open 
 5. Kopieer het antwoord van de chatbot (de kopieerknop bij het codeblok) en kom terug naar LANcelot. Het antwoord wordt dan vanzelf ingelezen. Lukt dat niet, plak het dan in het vak en klik op **Controleren**.
 6. Lees de vragen na, pas ze aan waar nodig en klik op **Opslaan en spelen**.
 
-Met **+ Nieuwe map** orden je je quizzen in mappen (per vak of klas). Sleep een quiz naar een map, of kies de map met het 📁-knopje in de rij. Een map klap je open en dicht door erop te klikken. De indeling staat in `quizzes/_mappen.json`; de quizbestanden zelf blijven waar ze zijn.
+Met **+ Nieuwe map** orden je je quizzen in mappen (per vak of klas). Sleep een quiz naar een map, of kies de map met het 📁-knopje in de rij. Een map klap je open en dicht door erop te klikken. Oefenbladen en Ronde Tafel-sessies orden je op dezelfde manier. De indeling staat in `_mappen.json` in elke map; de quizbestanden zelf blijven waar ze zijn.
+
+### Exporteren en importeren
+
+Thuis voorbereiden op je laptop en in de klas op de bord-pc gebruiken? Met **⬇** naast een quiz, oefenblad of sessie bewaar je die als bestand. Met **⬇** naast een map exporteer je de hele map, en **⬇ Alles exporteren** neemt alles mee, met de mappen erbij. Op de andere pc klik je op **⬆ Importeren** (of sleep je het bestand op de lijst, of op een map). Wat er al precies zo staat, wordt overgeslagen, dus je kan gerust opnieuw importeren. Je kan ook een gewoon quizbestand (`.json`) van een collega importeren.
 
 Met **Lege quiz** maak je zelf een quiz, en met **Bewerken** pas je een bestaande quiz aan. Dat kan ook rechtstreeks vanuit Schattenjacht en De prinses in de toren; na het opslaan kom je daar terug.
 
@@ -91,6 +96,16 @@ Een spel vol list, zoals Crypto Hack. Elke leerling kiest bij het begin een **ge
 - **Roof:** kies een andere ridder en raad diens geheime woord uit drie woorden. Juist? Dan neem je 15 tot 40% van diens kristallen mee. Wie net beroofd is, staat 20 seconden achter een schild. Het slachtoffer ziet wie de kluis kraakte (of probeerde te kraken).
 - **Fout antwoord:** geen kist.
 - Op het bord zie je de kristalrace, wie wie berooft en de kristallen van de hele klas. Wie op het einde de meeste kristallen heeft, wint. Resultaten in `resultaten/`.
+
+## De Verrader
+
+Een spel zoals Among Us, met de hele klas. Bij de start krijgt iedereen in het geheim een rol: **ridder** of **verrader** (1 verrader tot 7 spelers, 2 vanaf 8, 3 vanaf 16; of kies zelf). Minstens 3 spelers.
+
+- **Ridders** beantwoorden vragen. Elk goed antwoord herstelt de **kristalkern**. Is de kern vol, dan winnen de ridders. Elke 4 goede antwoorden krijgt een ridder een tip: de naam van iemand die zeker te vertrouwen is.
+- **Verraders** beantwoorden ook vragen, zodat niemand iets merkt, maar hun antwoorden helpen de kern niet. Na 3 goede antwoorden kunnen ze een ridder **betoveren**. Die wordt een geest: geesten stemmen niet meer, maar hun antwoorden helpen de kern nog.
+- Na een betovering (of als iemand de 📯 hoorn blaast, één keer per speler) komt **de Ronde Tafel** samen: eerst praten (kort, normaal of lang), dan stemmen op wie verbannen wordt, of overslaan. De meeste stemmen wint; bij gelijke stand gebeurt er niets.
+- De ridders winnen als de kern hersteld is of alle verraders verbannen zijn. De verraders winnen als ze even talrijk zijn als de ridders, of als de tijd op is.
+- Op het bord zie je de kern, wie nog meedoet en de Ronde Tafel groot. De rollen worden pas op het einde getoond. Resultaten in `resultaten/`.
 
 ## Ridderrace
 

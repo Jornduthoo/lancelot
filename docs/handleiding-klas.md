@@ -60,6 +60,16 @@ Tip: leg vooraf uit dat je tijdens een vraag beschermd bent, maar niet kan schie
 3. Klik op **Start de kristalroof!** Na elk goed antwoord kiezen leerlingen een kist (of met de toetsen 1-3 op een Chromebook).
 4. Bij een roof kiezen ze een andere ridder en raden ze het geheime woord.
 
+## De Verrader
+
+1. Kies op het startscherm **De Verrader**. Kies het aantal verraders (automatisch is goed), de lengte, de praattijd en de speeltijd, en klik op de quiz.
+2. Leerlingen scannen de QR-code. Klik op **Verdeel de rollen!**: iedereen ziet in het geheim zijn rol. Zeg dat ze hun scherm afschermen!
+3. Leerlingen beantwoorden vragen. Een verrader drukt op **🌀 Betover** en kiest een ridder.
+4. Dan verschijnt de **Ronde Tafel** op het bord: laat de klas echt praten. Met **Naar het stemmen** kort je het praten in. Daarna stemt iedereen op de gsm of Chromebook (ook met de toetsen 1-4).
+5. Met **📯 Ronde Tafel nu** roep je zelf de Ronde Tafel samen.
+
+Tip: de rollen staan nooit op het bord, tot iemand verbannen wordt of het spel voorbij is. Met **👁 Rol** kan een leerling zijn rol even terugzien.
+
 ## Ridderrace
 
 1. Kies op het startscherm **Ridderrace**, kies de racetijd en klik op de quiz.
@@ -99,3 +109,11 @@ Liever op papier? Klik bij een blad op **🖨 Print** voor het werkblad en op **
 - Een leerling die per ongeluk de pagina sluit, opent gewoon het adres opnieuw en speelt verder met dezelfde naam en score.
 - Klik in de lobby op een naam om een speler te verwijderen (handig bij flauwe namen).
 - Werkt iets niet zoals verwacht, noteer dan wat er gebeurde. Dan kunnen we het verbeteren.
+
+## Thuis voorbereiden
+
+1. Maak je quizzen, oefenbladen of sessies thuis in LANcelot op je eigen laptop.
+2. Klik op **⬇** naast een item of een map, of op **⬇ Alles exporteren**. Er wordt een bestand gedownload. Zet het op een usb-stick, in je mail of in de cloud.
+3. Open op de bord-pc dezelfde pagina (Toernooi, Oefenbladen of De Ronde Tafel) en klik op **⬆ Importeren**, of sleep het bestand op de lijst.
+
+Alles waar je mee speelt, staat op de pc waar LANcelot draait, in de map LANcelot: `quizzes`, `oefenbladen`, `rondetafel` en `resultaten`.

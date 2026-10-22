@@ -13,6 +13,7 @@ const { Schat } = require('./src/schat');
 const { Laserslag } = require('./src/laserslag');
 const { Ridderrace } = require('./src/ridderrace');
 const { Kristalroof } = require('./src/kristalroof');
+const { Verrader } = require('./src/verrader');
 const oefenbladen = require('./src/oefenbladen');
 const { OefenbladLive } = require('./src/oefenblad-live');
 const settings = require('./src/settings');
@@ -66,6 +67,12 @@ const roof = new Kristalroof(io, k => {
   return file;
 });
 
+const verrader = new Verrader(io, v => {
+  const file = results.saveVerrader(v);
+  io.to('host').emit('results', results.list());
+  return file;
+});
+
 const oefenblad = new OefenbladLive(io, o => {
   const file = results.saveOefenblad(o);
   io.to('host').emit('results', results.list());
@@ -81,8 +88,22 @@ function busyWith(except) {
   if (except !== 'laserslag' && laserslag.active) return 'Laserslag loopt nog. Stop dat spel eerst.';
   if (except !== 'race' && race.active) return 'De Ridderrace loopt nog. Stop die eerst.';
   if (except !== 'roof' && roof.active) return 'Kristalroof loopt nog. Stop dat spel eerst.';
+  if (except !== 'verrader' && verrader.active) return 'De Verrader loopt nog. Stop dat spel eerst.';
   if (except !== 'oefenblad' && oefenblad.active) return 'Er staat nog een oefenblad open. Sluit dat eerst.';
   return null;
+}
+
+// Quizzen, oefenbladen en Ronde Tafel-sessies: lijst en mappen werken overal hetzelfde.
+const LIBS = {
+  quiz: { mod: quizzes, list: 'quizzes', folders: 'quiz-folders' },
+  oefenblad: { mod: oefenbladen, list: 'ob-sheets', folders: 'ob-folders' },
+  sessie: { mod: rondetafel, list: 'rt-sessions', folders: 'rt-folders' },
+};
+
+function sendLibrary(kind, target = io.to('host')) {
+  const l = LIBS[kind];
+  target.emit(l.folders, l.mod.lib.folders());
+  target.emit(l.list, l.mod.list());
 }
 
 // Het docentenscherm werkt alleen op de pc waar de server draait.
@@ -90,7 +111,7 @@ function isLocal(address) {
   return ['127.0.0.1', '::1', '::ffff:127.0.0.1'].includes(address);
 }
 
-for (const [route, page] of [['/host', 'host.html'], ['/rondetafel', 'rondetafel.html'], ['/toren', 'toren.html'], ['/schattenjacht', 'schattenjacht.html'], ['/laserslag', 'laserslag.html'], ['/ridderrace', 'ridderrace.html'], ['/kristalroof', 'kristalroof.html'], ['/oefenblad', 'oefenblad.html'], ['/oefenblad-print', 'oefenblad-print.html']]) {
+for (const [route, page] of [['/host', 'host.html'], ['/rondetafel', 'rondetafel.html'], ['/toren', 'toren.html'], ['/schattenjacht', 'schattenjacht.html'], ['/laserslag', 'laserslag.html'], ['/ridderrace', 'ridderrace.html'], ['/kristalroof', 'kristalroof.html'], ['/verrader', 'verrader.html'], ['/oefenblad', 'oefenblad.html'], ['/oefenblad-print', 'oefenblad-print.html']]) {
   app.get(route, (req, res) => {
     if (!isLocal(req.socket.remoteAddress)) return res.status(403).send('Het docentenscherm is alleen bereikbaar op de pc van de leerkracht.');
     res.sendFile(path.join(__dirname, 'public', page));
@@ -103,6 +124,19 @@ app.get('/resultaten/:file', (req, res) => {
     res.download(results.filePath(req.params.file));
   } catch {
     res.status(404).end();
+  }
+});
+// Exporteren: één item (?file=), een map (?folder=) of alles, als bestand om op een andere pc te importeren.
+app.get('/export/:kind', (req, res) => {
+  if (!isLocal(req.socket.remoteAddress)) return res.status(403).end();
+  const l = LIBS[req.params.kind];
+  if (!l) return res.status(404).end();
+  try {
+    const { name, bundle } = l.mod.lib.exportBundle({ file: req.query.file, folder: req.query.folder });
+    res.attachment(name);
+    res.type('application/json').send(JSON.stringify(bundle, null, 2));
+  } catch (err) {
+    res.status(400).type('text/plain; charset=utf-8').send(err.message);
   }
 });
 app.use(express.static(path.join(__dirname, 'public'), { index: 'index.html' }));
@@ -147,8 +181,7 @@ io.on('connection', socket => {
 
   if (host) {
     socket.join('host');
-    socket.emit('quiz-folders', quizzes.folders());
-    socket.emit('quizzes', quizzes.list());
+    for (const kind of Object.keys(LIBS)) sendLibrary(kind, socket);
     sendAddresses(socket);
     // De leerkracht kiest het adres dat werkt; dat onthouden we voor de volgende keer.
     socket.on('choose-address', address => {
@@ -163,15 +196,14 @@ io.on('connection', socket => {
       if (process.platform === 'win32') execFile('explorer', [results.DIR]);
     });
     socket.emit('state', game.hostState());
-    socket.emit('rt-sessions', rondetafel.list());
     socket.emit('rt-state', rt.hostState());
     socket.emit('tw-state', toren.hostState());
     socket.emit('sj-state', schat.hostState());
     socket.emit('ls-state', laserslag.hostState());
     socket.emit('rr-state', race.hostState());
     socket.emit('kr-state', roof.hostState());
+    socket.emit('vr-state', verrader.hostState());
     socket.emit('ob-state', oefenblad.hostState());
-    socket.emit('ob-sheets', oefenbladen.list());
 
     socket.on('load', (file, cb) => {
       try {
@@ -191,15 +223,19 @@ io.on('connection', socket => {
         cb && cb({ error: err.message });
       }
     };
-    const refreshList = () => {
-      io.to('host').emit('quiz-folders', quizzes.folders());
-      io.to('host').emit('quizzes', quizzes.list());
-    };
-    // Quizzen ordenen in mappen.
-    socket.on('folder-add', handle(name => { quizzes.addFolder(name); refreshList(); return {}; }));
-    socket.on('folder-rename', handle(({ from, to } = {}) => { quizzes.renameFolder(from, to); refreshList(); return {}; }));
-    socket.on('folder-remove', handle(name => { quizzes.removeFolder(name); refreshList(); return {}; }));
-    socket.on('quiz-move', handle(({ file, folder } = {}) => { quizzes.moveQuiz(file, folder || ''); refreshList(); return {}; }));
+    const refreshList = () => sendLibrary('quiz');
+    // Quizzen, oefenbladen en sessies ordenen in mappen, en importeren van een andere pc.
+    const lib = fn => handle(({ kind, ...arg } = {}) => {
+      if (!LIBS[kind]) throw new Error('Onbekende soort.');
+      const res = fn(LIBS[kind].mod.lib, arg);
+      sendLibrary(kind);
+      return res || {};
+    });
+    socket.on('lib-folder-add', lib((l, { name }) => l.addFolder(name)));
+    socket.on('lib-folder-rename', lib((l, { from, to }) => l.renameFolder(from, to)));
+    socket.on('lib-folder-remove', lib((l, { name }) => l.removeFolder(name)));
+    socket.on('lib-move', lib((l, { file, folder }) => l.move(file, folder || '')));
+    socket.on('lib-import', lib((l, { text, folder }) => l.importBundle(text, folder || '')));
     socket.on('parse', handle(text => ({ quiz: quizzes.parseAiText(text) })));
     socket.on('open-quiz', handle(file => ({ quiz: quizzes.load(file) })));
     socket.on('save', handle(({ quiz, file } = {}) => {
@@ -243,7 +279,7 @@ io.on('connection', socket => {
     });
 
     // De Ronde Tafel
-    const refreshSessions = () => io.to('host').emit('rt-sessions', rondetafel.list());
+    const refreshSessions = () => sendLibrary('sessie');
     socket.on('rt-parse', handle(text => ({ session: rondetafel.parseAiText(text) })));
     socket.on('rt-open', handle(file => ({ session: rondetafel.load(file) })));
     socket.on('rt-save', handle(({ session, file } = {}) => {
@@ -334,8 +370,23 @@ io.on('connection', socket => {
     socket.on('kr-restart', () => roof.quiz && roof.load(roof.quiz, roof.minutes));
     socket.on('kr-stop', (_, cb) => cb && cb({ file: roof.stop() }));
 
+    // De Verrader
+    socket.on('vr-load', handle(({ file, ...opts } = {}) => {
+      const busy = busyWith('verrader');
+      if (busy) throw new Error(busy);
+      verrader.load(quizzes.load(file), { ...opts, minutes: Number(opts.minutes) });
+      return {};
+    }));
+    socket.on('vr-start', (_, cb) => { const res = verrader.start(); if (typeof cb === 'function') cb(res || {}); });
+    socket.on('vr-kick', id => verrader.kick(id));
+    socket.on('vr-horn', () => verrader.horn(null));
+    socket.on('vr-skip', () => verrader.skipTalk());
+    socket.on('vr-finish', () => verrader.finish('verrader', 'De leerkracht stopte het spel.'));
+    socket.on('vr-restart', () => verrader.quiz && verrader.load(verrader.quiz, { minutes: verrader.minutes, traitors: verrader.traitorSetting, length: verrader.length, talk: verrader.talk }));
+    socket.on('vr-stop', (_, cb) => cb && cb({ file: verrader.stop() }));
+
     // Oefenbladen maken, bewaren en live openzetten
-    const refreshSheets = () => io.to('host').emit('ob-sheets', oefenbladen.list());
+    const refreshSheets = () => sendLibrary('oefenblad');
     socket.on('ob-parse', handle(text => ({ sheet: oefenbladen.parseAiText(text) })));
     socket.on('ob-check', handle(sheet => ({ sheet: oefenbladen.validate(sheet) })));
     socket.on('ob-open', handle(file => ({ sheet: oefenbladen.load(file) })));
@@ -500,6 +551,25 @@ io.on('connection', socket => {
   socket.on('kr-target', kr((id, t) => roof.target(id, t)));
   socket.on('kr-guess', kr((id, w) => roof.guess(id, w)));
   socket.on('kr-skip', kr(id => roof.skip(id)));
+
+  // De Verrader
+  socket.emit('vr-state', verrader.base());
+  socket.on('vr-join', ({ playerId, name } = {}, cb) => {
+    if (!validId(playerId)) return cb && cb({ error: 'Ongeldige speler.' });
+    const result = verrader.join(playerId, name, socket.id);
+    socket.data.vrId = result.ok ? playerId : null;
+    cb && cb(result);
+    if (result.ok) socket.emit('vr-state', verrader.playerState(playerId));
+  });
+  const vr = fn => (arg, cb) => {
+    const out = socket.data.vrId ? fn(socket.data.vrId, arg) : { error: 'Meld je eerst aan.' };
+    if (typeof cb === 'function') cb(out || {});
+  };
+  socket.on('vr-question', vr(id => verrader.question(id)));
+  socket.on('vr-answer', vr((id, choice) => verrader.answer(id, choice)));
+  socket.on('vr-spell', vr((id, t) => verrader.spell(id, t)));
+  socket.on('vr-horn', vr(id => verrader.horn(id)));
+  socket.on('vr-vote', vr((id, t) => verrader.vote(id, t === null ? null : String(t))));
 
   // Oefenblad
   socket.emit('ob-state', oefenblad.base());
