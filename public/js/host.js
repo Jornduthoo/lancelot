@@ -45,24 +45,14 @@ function loadQuiz(file) {
   });
 }
 
-socket.on('quizzes', list => {
-  const box = $('quiz-list');
-  box.innerHTML = '';
-  if (list.length === 0) box.innerHTML = '<p class="muted">Nog geen quizzen. Maak er een met de knoppen hierboven.</p>';
-  for (const q of list) {
-    const row = document.createElement('div');
-    row.className = 'quiz-row';
-    row.innerHTML = `<button class="play">${esc(q.title)} <span class="muted">· ${q.count} vragen</span><span class="go">Speel ▶</span></button>
-      <button class="secondary edit">Bewerken</button>
-      <button class="secondary delete" title="Verwijderen">✕</button>`;
-    row.querySelector('.play').addEventListener('click', () => loadQuiz(q.file));
-    row.querySelector('.edit').addEventListener('click', () => editQuiz(q.file));
-    row.querySelector('.delete').addEventListener('click', () => {
-      if (!confirm(`"${q.title}" verwijderen?`)) return;
-      socket.emit('delete', q.file, res => { $('load-error').textContent = res.error || ''; });
-    });
-    box.appendChild(row);
-  }
+QuizList.mount($('quiz-list'), {
+  go: 'Speel ▶',
+  play: q => loadQuiz(q.file),
+  edit: q => editQuiz(q.file),
+  remove: q => {
+    if (!confirm(`"${q.title}" verwijderen?`)) return;
+    socket.emit('delete', q.file, res => { $('load-error').textContent = res.error || ''; });
+  },
 });
 
 // ---------- Lobby ----------

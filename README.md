@@ -29,6 +29,8 @@ Liever via de opdrachtprompt? Gebruik dan `npm install` en `npm start`, en open 
 5. Kopieer het antwoord van de chatbot (de kopieerknop bij het codeblok) en kom terug naar LANcelot. Het antwoord wordt dan vanzelf ingelezen. Lukt dat niet, plak het dan in het vak en klik op **Controleren**.
 6. Lees de vragen na, pas ze aan waar nodig en klik op **Opslaan en spelen**.
 
+Met **+ Nieuwe map** orden je je quizzen in mappen (per vak of klas). Sleep een quiz naar een map, of kies de map met het 📁-knopje in de rij. Een map klap je open en dicht door erop te klikken. De indeling staat in `quizzes/_mappen.json`; de quizbestanden zelf blijven waar ze zijn.
+
 Met **Lege quiz** maak je zelf een quiz, en met **Bewerken** pas je een bestaande quiz aan. Dat kan ook rechtstreeks vanuit Schattenjacht en De prinses in de toren; na het opslaan kom je daar terug.
 
 ### Nog sneller: met je eigen Gemini-sleutel

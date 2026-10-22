@@ -122,6 +122,7 @@ io.on('connection', socket => {
 
   if (host) {
     socket.join('host');
+    socket.emit('quiz-folders', quizzes.folders());
     socket.emit('quizzes', quizzes.list());
     sendAddresses(socket);
     // De leerkracht kiest het adres dat werkt; dat onthouden we voor de volgende keer.
@@ -161,7 +162,15 @@ io.on('connection', socket => {
         cb && cb({ error: err.message });
       }
     };
-    const refreshList = () => io.to('host').emit('quizzes', quizzes.list());
+    const refreshList = () => {
+      io.to('host').emit('quiz-folders', quizzes.folders());
+      io.to('host').emit('quizzes', quizzes.list());
+    };
+    // Quizzen ordenen in mappen.
+    socket.on('folder-add', handle(name => { quizzes.addFolder(name); refreshList(); return {}; }));
+    socket.on('folder-rename', handle(({ from, to } = {}) => { quizzes.renameFolder(from, to); refreshList(); return {}; }));
+    socket.on('folder-remove', handle(name => { quizzes.removeFolder(name); refreshList(); return {}; }));
+    socket.on('quiz-move', handle(({ file, folder } = {}) => { quizzes.moveQuiz(file, folder || ''); refreshList(); return {}; }));
     socket.on('parse', handle(text => ({ quiz: quizzes.parseAiText(text) })));
     socket.on('open-quiz', handle(file => ({ quiz: quizzes.load(file) })));
     socket.on('save', handle(({ quiz, file } = {}) => {

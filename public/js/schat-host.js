@@ -33,21 +33,12 @@ function downloadLink(file) {
   return link;
 }
 
-socket.on('quizzes', list => {
-  const box = $('quiz-list');
-  box.innerHTML = list.length ? '' : '<p class="muted">Nog geen quizzen. Maak er een met de knoppen hierboven.</p>';
-  for (const q of list) {
-    const row = document.createElement('div');
-    row.className = 'quiz-row';
-    row.innerHTML = `<button class="play">${esc(q.title)} <span class="muted">· ${q.count} vragen</span><span class="go">Kies ▶</span></button>
-      <button class="secondary edit">Bewerken</button>`;
-    row.querySelector('.play').addEventListener('click', () => {
-      $('stopped').classList.add('hidden');
-      socket.emit('sj-load', { file: q.file, minutes: Number($('sj-minutes').value) }, res => { $('load-error').textContent = res.error || ''; });
-    });
-    row.querySelector('.edit').addEventListener('click', () => { location.href = quizMakerUrl('bewerk', q.file); });
-    box.appendChild(row);
-  }
+QuizList.mount($('quiz-list'), {
+  play: q => {
+    $('stopped').classList.add('hidden');
+    socket.emit('sj-load', { file: q.file, minutes: Number($('sj-minutes').value) }, res => { $('load-error').textContent = res.error || ''; });
+  },
+  edit: q => { location.href = quizMakerUrl('bewerk', q.file); },
 });
 
 socket.on('sj-state', s => {

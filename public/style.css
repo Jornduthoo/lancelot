@@ -659,3 +659,25 @@ body:not([data-ls="1"]) #laserslag { display: none !important; }
 .ls-arena { position: relative; padding: 0; overflow: hidden; }
 .ls-arena canvas { position: absolute; inset: 0; display: block; }
 @media (max-width: 1000px) { .ls-board { grid-template-columns: 1fr; height: auto; } .ls-arena { height: 62vh; } }
+
+/* ---------- Quizmappen ---------- */
+.quiz-tools { display: flex; justify-content: flex-end; }
+.quiz-tools .small-btn { padding: 8px 14px; font-size: .9rem; }
+.quiz-row .grip { display: flex; align-items: center; padding: 0 2px; color: var(--muted); cursor: grab; user-select: none; letter-spacing: -2px; }
+.quiz-row.dragging { opacity: .4; }
+.quiz-row .move { position: relative; display: flex; align-items: center; justify-content: center; width: 46px; background: var(--panel); box-shadow: inset 0 0 0 1px var(--line); cursor: pointer; }
+.quiz-row .move select { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; }
+.quiz-folder { background: rgba(16, 28, 50, .45); box-shadow: inset 0 0 0 1px var(--line); padding: 8px; display: flex; flex-direction: column; gap: 8px; transition: box-shadow .15s, background .15s; }
+.folder-head { display: flex; gap: 8px; }
+.folder-toggle { flex: 1; justify-content: flex-start; text-align: left; background: none; box-shadow: none; color: var(--text); font-weight: 700; padding: 8px 10px; clip-path: none; }
+.folder-toggle strong { color: var(--gold); }
+.folder-head .rename, .folder-head .delete { padding: 6px 12px; }
+.chev { display: inline-block; transition: transform .15s; color: var(--cyan); }
+.quiz-folder.closed .chev { transform: rotate(-90deg); }
+.quiz-folder.closed .folder-body { display: none; }
+.folder-body { display: flex; flex-direction: column; gap: 8px; padding-left: 18px; }
+.folder-empty { margin: 0; padding: 6px 0; }
+.quiz-loose { display: flex; flex-direction: column; gap: 10px; min-height: 8px; padding: 4px 0; }
+.loose-head { margin: 4px 0 0; }
+.quiz-list.dragging .quiz-folder, .quiz-list.dragging .quiz-loose { box-shadow: inset 0 0 0 1px rgba(255, 201, 74, .5); }
+.quiz-folder.over, .quiz-loose.over { background: rgba(255, 201, 74, .12); box-shadow: inset 0 0 0 2px var(--gold) !important; }
