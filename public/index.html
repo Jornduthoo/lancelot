@@ -333,6 +333,61 @@
     <p class="muted">Kijk naar het bord voor de eindstand.</p>
   </section>
  </div>
+ <div id="kristalroof">
+  <form id="kr-join" class="screen welcome hidden">
+    <img src="/img/logo.webp" alt="LANcelot">
+    <p class="title">Kristalroof</p>
+    <input id="kr-name" maxlength="20" autocomplete="off" placeholder="Je naam">
+    <p class="error" id="kr-join-error"></p>
+    <button type="submit" class="big">Naar de kluizen</button>
+  </form>
+
+  <section id="kr-lobby" class="screen panel hidden">
+    <p class="status">Kristalroof</p>
+    <p class="title" id="kr-lobby-name"></p>
+    <p class="kr-ask">Kies je <strong>geheime woord</strong>. Wie het raadt, kan kristallen uit je kluis roven. Vertel het aan niemand!</p>
+    <div class="kr-words" id="kr-words"></div>
+    <p class="muted small">Goed antwoorden = een kist kiezen: kristallen, een verdubbelaar, een schild... of een roof bij een andere ridder.</p>
+    <p class="muted small">Wacht tot de leerkracht het spel start.</p>
+    <div class="spinner"></div>
+  </section>
+
+  <section id="kr-game" class="hidden">
+    <div class="sj-top">
+      <div class="sj-gold kr-crystals"><span class="kr-gem">💎</span><span id="kr-crystals">0</span></div>
+      <div class="sj-meta"><span id="kr-rank"></span><span id="kr-clock"></span></div>
+    </div>
+    <div class="sj-badges"><span id="kr-streak"></span><span id="kr-badge"></span></div>
+    <div class="sj-card panel">
+      <p class="status" id="kr-number"></p>
+      <p class="sj-q" id="kr-q"></p>
+    </div>
+    <div class="answers sj-answers" id="kr-answers"></div>
+    <div class="sj-flash hidden" id="kr-flash"><div class="sj-flash-mark" id="kr-flash-mark"></div><div class="sj-flash-text" id="kr-flash-text"></div></div>
+    <div class="kr-overlay hidden" id="kr-chests">
+      <h2>Kies een kist</h2>
+      <div class="kr-chest-row" id="kr-chest-row"></div>
+      <p class="kr-result" id="kr-chest-result"></p>
+    </div>
+    <div class="kr-overlay hidden" id="kr-hack">
+      <h2 id="kr-hack-title">🗝️ Wiens kluis kraak jij?</h2>
+      <p class="muted" id="kr-hack-sub">Kies een ridder. Daarna raad je diens geheime woord.</p>
+      <div class="kr-targets" id="kr-targets"></div>
+      <p class="kr-result" id="kr-hack-result"></p>
+      <button class="secondary" id="kr-hack-skip">Laat maar</button>
+    </div>
+    <div class="kr-alert hidden" id="kr-alert"></div>
+    <div class="sj-countdown hidden" id="kr-countdown"></div>
+  </section>
+
+  <section id="kr-end" class="screen panel hidden">
+    <div class="mark" id="kr-end-medal" style="font-size:4.5rem"></div>
+    <p class="title" id="kr-end-title"></p>
+    <p class="big" id="kr-end-crystals" style="font-size:2rem"></p>
+    <p id="kr-end-stats"></p>
+    <p class="muted">Kijk naar het bord voor de eindstand.</p>
+  </section>
+ </div>
  <div id="oefenblad">
   <form id="ob-join" class="screen welcome hidden">
     <img src="/img/logo.webp" alt="LANcelot">
@@ -371,6 +426,7 @@
 <script src="/js/race-track.js"></script>
 <script src="/js/race-draw.js"></script>
 <script src="/js/rr-player.js"></script>
+<script src="/js/kr-player.js"></script>
 <script src="/js/ob-sheet.js"></script>
 <script src="/js/ob-player.js"></script>
 </body>

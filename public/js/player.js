@@ -18,7 +18,10 @@ if (!playerId) {
 }
 let myName = store('lancelot-name') || '';
 
-const socket = io();
+// Pas verbinden als alle spelscripts geladen zijn: anders kan de eerste stand van een spel binnenkomen
+// voordat dat spel luistert, en blijft de leerling op een leeg scherm staan.
+const socket = io({ autoConnect: false });
+document.addEventListener('DOMContentLoaded', () => socket.connect());
 const $ = id => document.getElementById(id);
 const sections = ['idle', 'join', 'lobby', 'intro', 'question', 'answered', 'reveal', 'podium'];
 let joined = false;
@@ -179,10 +182,10 @@ socket.on('connect', () => {
 
 show('idle');
 
-// Chromebook: met de toetsen 1-4 antwoorden in de quiz, de Ronde Tafel en Schattenjacht.
+// Chromebook: met de toetsen 1-4 antwoorden in de quiz, de Ronde Tafel, Schattenjacht en Kristalroof.
 document.addEventListener('keydown', e => {
   if (!/^[1-4]$/.test(e.key) || e.target.matches('input, textarea')) return;
-  const buttons = [...document.querySelectorAll('#answer-buttons .answer, #sj-answers .answer, .rt-choice')]
-    .filter(b => b.offsetParent && !b.disabled);
+  const buttons = [...document.querySelectorAll('#answer-buttons .answer, #sj-answers .answer, .rt-choice, #kr-answers .answer, #kr-chest-row .kr-chest, #kr-targets button')]
+    .filter(b => b.getClientRects().length && !b.disabled);
   if (buttons[e.key - 1]) buttons[e.key - 1].click();
 });

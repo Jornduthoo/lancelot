@@ -10,6 +10,7 @@ Het thema: middeleeuws met een scifi-kantje. Het startscherm heeft drie delen:
    - **De prinses in de toren**: klim met je ridder naar de top; goede antwoorden geven energie
    - **Laserslag** en **Laserslag 3D**: lasergevecht rood tegen blauw of ieder voor zich; munitie verdien je met goede antwoorden
    - **Ridderrace**: een racegame in 3D op hoverrossen; goede antwoorden vullen je tank en geven turbo
+   - **Kristalroof**: mijn kristallen met goede antwoorden, open kisten en kraak de kluis van een ander met diens geheime woord
 2. **De Ronde Tafel**, peilen met de hele klas: polls, stellingen, woordwolken, open vragen en schalen, live op het bord. Met **Voorkennis activeren** maak je met AI meteen een peiling voor het begin van een les.
 3. **Generator**: **live oefenbladen** die leerlingen invullen en die zichzelf verbeteren, en **werkbladen** om te printen, met een verbeterblad.
 
@@ -81,6 +82,15 @@ Een lasergevecht in een scifi-arena, van bovenaf. De ridders schieten elkaar met
 - **Besturing:** op een gsm een joystick (links slepen) en een vuurknop die automatisch richt; op een Chromebook WASD of de pijltjes en de muis.
 - **Op het bord** zie je de hele arena live, de teamstand, de rangschikking en wie wie uitschakelt.
 - **Laserslag 3D:** kies bij *Zicht* voor *First person* (of de kaart Laserslag 3D op het startscherm). Dezelfde arena en regels, maar de leerling kijkt door de ogen van zijn ridder. Gsm: links slepen om te lopen, rechts slepen om rond te kijken. Chromebook: klik om de muis te vangen, WASD om te lopen, de muis om te kijken. Een kleine richthulp helpt wie bijna mikt. Het bord toont de arena van bovenaf.
+
+## Kristalroof
+
+Een spel vol list, zoals Crypto Hack. Elke leerling kiest bij het begin een **geheim woord** uit vier woorden en houdt het geheim. Daarna beantwoordt iedereen op eigen tempo vragen.
+
+- **Goed antwoord:** kies een van drie kisten. Er zitten kristallen in (meer naarmate je meer goed hebt), een verdubbelaar, een schild (45 seconden onberoofbaar), soms pech (15% kwijt)... of een **roof**.
+- **Roof:** kies een andere ridder en raad diens geheime woord uit drie woorden. Juist? Dan neem je 15 tot 40% van diens kristallen mee. Wie net beroofd is, staat 20 seconden achter een schild. Het slachtoffer ziet wie de kluis kraakte (of probeerde te kraken).
+- **Fout antwoord:** geen kist.
+- Op het bord zie je de kristalrace, wie wie berooft en de kristallen van de hele klas. Wie op het einde de meeste kristallen heeft, wint. Resultaten in `resultaten/`.
 
 ## Ridderrace
 

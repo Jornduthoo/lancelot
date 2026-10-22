@@ -12,6 +12,7 @@ const { Toren } = require('./src/toren');
 const { Schat } = require('./src/schat');
 const { Laserslag } = require('./src/laserslag');
 const { Ridderrace } = require('./src/ridderrace');
+const { Kristalroof } = require('./src/kristalroof');
 const oefenbladen = require('./src/oefenbladen');
 const { OefenbladLive } = require('./src/oefenblad-live');
 const settings = require('./src/settings');
@@ -59,6 +60,12 @@ const race = new Ridderrace(io, r => {
   return file;
 });
 
+const roof = new Kristalroof(io, k => {
+  const file = results.saveRoof(k);
+  io.to('host').emit('results', results.list());
+  return file;
+});
+
 const oefenblad = new OefenbladLive(io, o => {
   const file = results.saveOefenblad(o);
   io.to('host').emit('results', results.list());
@@ -73,6 +80,7 @@ function busyWith(except) {
   if (except !== 'schat' && schat.active) return 'Schattenjacht loopt nog. Stop dat spel eerst.';
   if (except !== 'laserslag' && laserslag.active) return 'Laserslag loopt nog. Stop dat spel eerst.';
   if (except !== 'race' && race.active) return 'De Ridderrace loopt nog. Stop die eerst.';
+  if (except !== 'roof' && roof.active) return 'Kristalroof loopt nog. Stop dat spel eerst.';
   if (except !== 'oefenblad' && oefenblad.active) return 'Er staat nog een oefenblad open. Sluit dat eerst.';
   return null;
 }
@@ -82,7 +90,7 @@ function isLocal(address) {
   return ['127.0.0.1', '::1', '::ffff:127.0.0.1'].includes(address);
 }
 
-for (const [route, page] of [['/host', 'host.html'], ['/rondetafel', 'rondetafel.html'], ['/toren', 'toren.html'], ['/schattenjacht', 'schattenjacht.html'], ['/laserslag', 'laserslag.html'], ['/ridderrace', 'ridderrace.html'], ['/oefenblad', 'oefenblad.html'], ['/oefenblad-print', 'oefenblad-print.html']]) {
+for (const [route, page] of [['/host', 'host.html'], ['/rondetafel', 'rondetafel.html'], ['/toren', 'toren.html'], ['/schattenjacht', 'schattenjacht.html'], ['/laserslag', 'laserslag.html'], ['/ridderrace', 'ridderrace.html'], ['/kristalroof', 'kristalroof.html'], ['/oefenblad', 'oefenblad.html'], ['/oefenblad-print', 'oefenblad-print.html']]) {
   app.get(route, (req, res) => {
     if (!isLocal(req.socket.remoteAddress)) return res.status(403).send('Het docentenscherm is alleen bereikbaar op de pc van de leerkracht.');
     res.sendFile(path.join(__dirname, 'public', page));
@@ -161,6 +169,7 @@ io.on('connection', socket => {
     socket.emit('sj-state', schat.hostState());
     socket.emit('ls-state', laserslag.hostState());
     socket.emit('rr-state', race.hostState());
+    socket.emit('kr-state', roof.hostState());
     socket.emit('ob-state', oefenblad.hostState());
     socket.emit('ob-sheets', oefenbladen.list());
 
@@ -312,6 +321,19 @@ io.on('connection', socket => {
     socket.on('rr-restart', () => race.quiz && race.load(race.quiz, race.minutes));
     socket.on('rr-stop', (_, cb) => cb && cb({ file: race.stop() }));
 
+    // Kristalroof
+    socket.on('kr-load', handle(({ file, minutes } = {}) => {
+      const busy = busyWith('roof');
+      if (busy) throw new Error(busy);
+      roof.load(quizzes.load(file), Number(minutes));
+      return {};
+    }));
+    socket.on('kr-start', () => roof.start());
+    socket.on('kr-kick', id => roof.kick(id));
+    socket.on('kr-finish', () => roof.finish());
+    socket.on('kr-restart', () => roof.quiz && roof.load(roof.quiz, roof.minutes));
+    socket.on('kr-stop', (_, cb) => cb && cb({ file: roof.stop() }));
+
     // Oefenbladen maken, bewaren en live openzetten
     const refreshSheets = () => io.to('host').emit('ob-sheets', oefenbladen.list());
     socket.on('ob-parse', handle(text => ({ sheet: oefenbladen.parseAiText(text) })));
@@ -457,6 +479,27 @@ io.on('connection', socket => {
   socket.on('rr-asking', rr((id, on) => race.asking(id, on)));
   socket.on('rr-question', rr(id => race.question(id)));
   socket.on('rr-answer', rr((id, choice) => race.answer(id, choice)));
+
+  // Kristalroof
+  socket.emit('kr-state', roof.base());
+  socket.on('kr-join', ({ playerId, name } = {}, cb) => {
+    if (!validId(playerId)) return cb && cb({ error: 'Ongeldige speler.' });
+    const result = roof.join(playerId, name, socket.id);
+    socket.data.krId = result.ok ? playerId : null;
+    cb && cb(result);
+    if (result.ok) socket.emit('kr-state', roof.playerState(playerId));
+  });
+  const kr = fn => (arg, cb) => {
+    const out = socket.data.krId ? fn(socket.data.krId, arg) : { error: 'Meld je eerst aan.' };
+    if (typeof cb === 'function') cb(out || {});
+  };
+  socket.on('kr-secret', kr((id, word) => roof.secret(id, word)));
+  socket.on('kr-question', kr(id => roof.question(id)));
+  socket.on('kr-answer', kr((id, choice) => roof.answer(id, choice)));
+  socket.on('kr-open', kr((id, i) => roof.open(id, i)));
+  socket.on('kr-target', kr((id, t) => roof.target(id, t)));
+  socket.on('kr-guess', kr((id, w) => roof.guess(id, w)));
+  socket.on('kr-skip', kr(id => roof.skip(id)));
 
   // Oefenblad
   socket.emit('ob-state', oefenblad.base());

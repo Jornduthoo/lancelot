@@ -232,4 +232,22 @@ function saveRace(r) {
   return write(now, `ridderrace-${slugOf(r.quiz.title)}`, lines);
 }
 
-module.exports = { save, saveRace, saveRondeTafel, saveToren, saveSchat, saveLaserslag, saveOefenblad, list, filePath, DIR };
+function saveRoof(k) {
+  const now = new Date();
+  const ranking = k.ranking();
+  const pct = (a, b) => (b ? `${Math.round((a / b) * 100)}%` : '-');
+  const lines = [
+    row(['Kristalroof', k.quiz.title]),
+    row(['Datum', stamp(now)]),
+    row(['Speeltijd', `${k.minutes} minuten`]),
+    row(['Leerlingen', ranking.length]),
+    '',
+    row(['Rang', 'Naam', 'Kristallen', 'Geslaagde roven', 'Geroofd', 'Zelf beroofd', 'Langste reeks', 'Vragen goed', 'Vragen fout', '% goed']),
+    ...ranking.map((p, i) => row([
+      i + 1, p.name, p.crystals, p.robs, p.stolen, p.robbed, p.bestStreak, p.right, p.wrong, pct(p.right, p.right + p.wrong),
+    ])),
+  ];
+  return write(now, `kristalroof-${slugOf(k.quiz.title)}`, lines);
+}
+
+module.exports = { save, saveRace, saveRoof, saveRondeTafel, saveToren, saveSchat, saveLaserslag, saveOefenblad, list, filePath, DIR };

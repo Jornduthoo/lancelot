@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LANcelot · Kristalroof</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body class="sj-host">
+<main>
+  <div class="topbar">
+    <div class="brand" id="brand" title="Naar het startscherm">
+      <img src="/img/logo.webp" alt="">
+      <div>
+        <div class="wordmark">LAN<span>celot</span></div>
+        <div class="subtitle" id="status">Kristalroof</div>
+      </div>
+    </div>
+    <div class="actions">
+      <span class="join-mini hidden" id="join-mini"></span>
+      <button class="secondary icon" id="mute" title="Geluid aan/uit">🔊</button>
+      <button class="secondary hidden" id="stop">Stop het spel</button>
+    </div>
+  </div>
+
+      <section id="setup">
+    <div class="bar">
+      <h2>Kristalroof</h2>
+      <div class="actions">
+        <button class="secondary" id="to-home">Terug</button>
+        <button class="secondary" data-make="leeg">Lege quiz</button>
+        <button data-make="ai">Nieuwe quiz met AI</button>
+      </div>
+    </div>
+    <div class="panel tw-intro">
+      <svg class="sj-chest kr-logo" viewBox="0 0 64 64"><path d="M32 4 L52 22 L32 60 L12 22 Z" fill="#4cc9ff" stroke="#e8f9ff" stroke-width="2"/><path d="M12 22 H52 L32 60 Z" fill="#1b8fd1"/><path d="M22 22 L32 4 L42 22 Z" fill="#9fe6ff"/><circle cx="48" cy="48" r="10" fill="#0b0a24" stroke="#ffd166" stroke-width="3"/><rect x="45" y="44" width="6" height="8" rx="1" fill="#ffd166"/></svg>
+      <div>
+        <p>Een spel vol list: elke leerling beantwoordt op eigen tempo vragen en <strong>mijnt kristallen</strong>. Na elk goed antwoord kies je een van drie kisten: kristallen, een verdubbelaar, een schild, soms pech... of een <strong>roof</strong>.</p>
+        <p>Bij een roof kies je een andere ridder en raad je diens <strong>geheime woord</strong> (uit drie woorden). Juist geraden? Dan neem je 15 tot 40% van diens kristallen mee. Iedereen kiest dat woord bij het begin en houdt het geheim.</p>
+        <p class="muted">Wie op het einde de meeste kristallen heeft, wint.</p>
+      </div>
+    </div>
+    <div class="panel form">
+      <label>Speeltijd
+        <select id="kr-minutes">
+          <option value="3">3 minuten</option>
+          <option value="5">5 minuten</option>
+          <option value="8" selected>8 minuten</option>
+          <option value="10">10 minuten</option>
+          <option value="12">12 minuten</option>
+          <option value="15">15 minuten</option>
+        </select>
+      </label>
+      <p class="muted small">Kies hieronder de quiz waaruit de vragen komen.</p>
+    </div>
+    <p class="notice hidden" id="stopped"></p>
+    <div class="quiz-list" id="quiz-list"></div>
+    <p class="error" id="load-error"></p>
+  </section>
+
+  <section id="lobby" class="hidden">
+    <div class="panel join">
+      <div class="qr" id="qr"></div>
+      <div class="join-text">
+        <p class="muted">Scan de QR-code of surf naar</p>
+        <div class="join-url" id="join-url"></div>
+        <p class="muted small" id="other-urls"></p>
+      </div>
+    </div>
+    <div class="bar">
+      <h2><span class="count" id="player-count">0</span> <span id="player-word">rovers</span> klaar</h2>
+      <button class="gold big" id="start" disabled>Start de kristalroof!</button>
+    </div>
+    <p class="muted small">Klik op een naam om die speler te verwijderen. 🔒 = geheim woord gekozen.</p>
+    <div class="names" id="names"></div>
+  </section>
+
+  <section id="play" class="hidden">
+    <div class="hud">
+      <span class="round" id="p-title"></span>
+      <span class="tw-clock" id="p-clock"></span>
+      <button class="secondary" id="p-finish">Tijd stoppen</button>
+    </div>
+    <div class="sj-board">
+      <ol class="sj-race" id="p-race"></ol>
+      <div class="tw-side">
+        <div class="panel center"><svg class="sj-chest kr-logo" viewBox="0 0 64 64"><path d="M32 4 L52 22 L32 60 L12 22 Z" fill="#4cc9ff" stroke="#e8f9ff" stroke-width="2"/><path d="M12 22 H52 L32 60 Z" fill="#1b8fd1"/><path d="M22 22 L32 4 L42 22 Z" fill="#9fe6ff"/><circle cx="48" cy="48" r="10" fill="#0b0a24" stroke="#ffd166" stroke-width="3"/><rect x="45" y="44" width="6" height="8" rx="1" fill="#ffd166"/></svg><p class="muted small">Kristallen van de hele klas</p><div class="sj-total" id="p-total">0</div></div>
+        <ul class="tw-feed" id="p-feed"></ul>
+      </div>
+    </div>
+    <div class="sj-countdown hidden" id="p-countdown"></div>
+  </section>
+
+  <section id="podium" class="hidden">
+    <h2 class="center">De rijkste rovers</h2>
+    <div class="podium" id="podium-blocks"></div>
+    <ol class="ranking" id="final"></ol>
+    <p class="center muted" id="results-saved"></p>
+    <div class="bar">
+      <button class="secondary" id="restart">Nog een keer</button>
+      <button id="close">Andere quiz kiezen</button>
+    </div>
+  </section>
+</main>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/fx.js"></script>
+<script src="/js/quiz-links.js"></script>
+<script src="/js/quiz-list.js"></script>
+<script src="/js/kr-host.js"></script>
+<script src="/js/address.js"></script>
+</body>
+</html>

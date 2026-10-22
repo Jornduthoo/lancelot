@@ -53,6 +53,13 @@ Tip: leg vooraf uit dat je tijdens een vraag beschermd bent, maar niet kan schie
 
 **Laserslag 3D** (first person): kies bij *Zicht* voor *First person*. Op een Chromebook klikken leerlingen eerst in het spel om de muis te vangen (Esc laat los). Op een gsm werkt het best liggend: links slepen is lopen, rechts slepen is rondkijken.
 
+## Kristalroof
+
+1. Kies op het startscherm **Kristalroof**, kies de speeltijd en klik op de quiz.
+2. Leerlingen scannen de QR-code en kiezen hun **geheime woord** (🔒 bij hun naam op het bord). Zeg dat ze het aan niemand vertellen!
+3. Klik op **Start de kristalroof!** Na elk goed antwoord kiezen leerlingen een kist (of met de toetsen 1-3 op een Chromebook).
+4. Bij een roof kiezen ze een andere ridder en raden ze het geheime woord.
+
 ## Ridderrace
 
 1. Kies op het startscherm **Ridderrace**, kies de racetijd en klik op de quiz.

@@ -861,3 +861,50 @@ body:not([data-rr="1"]) #ridderrace { display: none !important; }
   .rr-turbo { width: 84px; height: 84px; }
 }
 .rr-record { color: var(--gold); font-family: var(--tech); font-weight: 700; font-size: .95rem; }
+
+/* ---------- Kristalroof ---------- */
+body[data-kr="1"] #toernooi, body[data-kr="1"] #rondetafel, body[data-kr="1"] #toren, body[data-kr="1"] #schat, body[data-kr="1"] #laserslag, body[data-kr="1"] #ridderrace, body[data-kr="1"] #oefenblad { display: none !important; }
+body:not([data-kr="1"]) #kristalroof { display: none !important; }
+#kristalroof { display: contents; }
+#kr-game { display: flex; flex-direction: column; gap: 12px; position: relative; }
+#kr-game.hidden { display: none; }
+.player #kr-answers .answer { min-height: 22vh; }
+.kr-crystals { color: var(--cyan); text-shadow: 0 0 18px var(--cyan-glow); }
+.kr-gem { filter: drop-shadow(0 0 8px rgba(76, 201, 255, .8)); }
+.kr-ask { font-size: 1.05rem; }
+.kr-words { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.kr-word { padding: 16px 10px; font-size: 1.15rem; text-transform: uppercase; letter-spacing: .06em; background: rgba(76, 201, 255, .12); box-shadow: inset 0 0 0 1px var(--line); color: var(--text); }
+.kr-word.on { background: linear-gradient(180deg, #ffe08a, var(--gold)); color: #2a1a00; box-shadow: 0 0 18px rgba(255, 201, 74, .45); }
+.kr-overlay { position: fixed; inset: 0; z-index: 18; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 18px; text-align: center; background: radial-gradient(circle at 50% 40%, rgba(27, 60, 110, .92), rgba(5, 9, 17, .97)); animation: pop .25s ease-out; }
+.kr-overlay.hidden { display: none; }
+.kr-overlay h2 { margin: 0; color: var(--gold); }
+.kr-chest-row { display: flex; gap: 14px; justify-content: center; width: 100%; max-width: 620px; }
+.kr-chest { position: relative; flex: 1; max-width: 180px; aspect-ratio: 1 / .9; padding: 0; display: flex; align-items: flex-end; justify-content: center; background: linear-gradient(180deg, #8d5717, #5a340b); box-shadow: inset 0 0 0 3px var(--gold), 0 8px 24px rgba(0, 0, 0, .5); clip-path: none; border-radius: 10px; animation: pop .35s ease-out both; transition: transform .15s; }
+.kr-chest:not(:disabled):hover { transform: translateY(-4px) scale(1.03); }
+.kr-lid { position: absolute; left: 0; right: 0; top: 0; height: 42%; border-radius: 10px 10px 40% 40% / 10px 10px 30% 30%; background: linear-gradient(180deg, #a86a1f, #7a4a12); box-shadow: inset 0 0 0 3px var(--gold); transition: transform .35s; transform-origin: top; }
+.kr-lid::after { content: ''; position: absolute; left: 50%; bottom: -10px; width: 18px; height: 22px; margin-left: -9px; background: var(--gold); border-radius: 3px; }
+.kr-label { position: relative; margin-bottom: 14%; font-family: var(--tech); font-weight: 900; font-size: 1.6rem; color: #ffe08a; text-shadow: 0 2px 0 rgba(0, 0, 0, .5); }
+.kr-chest.open .kr-lid { transform: rotateX(70deg) translateY(-30%); opacity: .5; }
+.kr-chest.open { opacity: .55; }
+.kr-chest.open .kr-label { font-size: 1.05rem; margin-bottom: 30%; color: #fff; }
+.kr-chest.open.mine { opacity: 1; transform: scale(1.08); box-shadow: inset 0 0 0 3px #fff, 0 0 30px rgba(255, 255, 255, .45); }
+.kr-chest.k-roof .kr-label { color: #ff8fa3; }
+.kr-chest.k-schild .kr-label, .kr-chest.k-dubbel .kr-label { color: #9fe6ff; }
+.kr-chest.k-pech .kr-label { color: #ff8fa3; }
+.kr-result { min-height: 1.4em; margin: 0; font-weight: 800; font-size: 1.25rem; }
+.kr-result.good { color: var(--good); }
+.kr-result.bad { color: #ff8fa3; }
+.kr-targets { display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 460px; max-height: 55vh; overflow-y: auto; }
+.kr-targets button { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 14px 16px; font-size: 1.1rem; background: var(--panel); box-shadow: inset 0 0 0 1px var(--line); color: var(--text); }
+.kr-targets button:disabled { opacity: .45; }
+.kr-t-gems { font-family: var(--tech); color: var(--cyan); }
+.kr-targets.guess { display: grid; grid-template-columns: 1fr; }
+.kr-targets.guess button { justify-content: center; text-transform: uppercase; letter-spacing: .08em; font-size: 1.3rem; padding: 18px; }
+.kr-targets button.right { background: rgba(46, 230, 166, .35); box-shadow: inset 0 0 0 2px var(--good); opacity: 1; }
+.kr-targets button.wrong { background: rgba(255, 77, 109, .35); box-shadow: inset 0 0 0 2px var(--bad); opacity: 1; }
+.kr-alert { position: fixed; left: 50%; top: 14px; z-index: 25; transform: translateX(-50%); width: min(92vw, 520px); padding: 14px 18px; text-align: center; font-weight: 800; font-size: 1.1rem; animation: pop .3s ease-out; }
+.kr-alert.bad { background: rgba(255, 77, 109, .95); color: #fff; box-shadow: 0 0 30px rgba(255, 77, 109, .6); }
+.kr-alert.good { background: rgba(46, 230, 166, .92); color: #04121f; }
+.kr-alert.hidden { display: none; }
+.sj-race .kr-gems { color: var(--cyan); }
+.kr-logo { filter: drop-shadow(0 0 24px rgba(76, 201, 255, .5)); }
