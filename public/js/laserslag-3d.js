@@ -192,6 +192,7 @@ const Slag3D = (() => {
     }
     const g = lctx;
     g.imageSmoothingEnabled = false;
+    const sharp = [];
     const { me, a } = scene;
     const tp = !!scene.self;
     const cam = tp ? chase(me, a) : me;
@@ -278,7 +279,8 @@ const Slag3D = (() => {
       const k = proj / perp;
       if (th.kind === 'knight') {
         // Met een eigen ridder: zijn helm en schild, in de kleur van zijn team.
-        const img = th.o.av && typeof Avatar !== 'undefined' ? Avatar.sprite(th.o.av, { back: th.self, armor: th.o.color }) : sprite(th.o.color, th.self);
+        const own = th.o.av && typeof Avatar !== 'undefined';
+        const img = own ? Avatar.sprite(th.o.av, { back: th.self, armor: th.o.color, k: 8 }) : sprite(th.o.color, th.self);
         // Je eigen ridder nooit groter dan 40% van het scherm, ook als de camera tegen een muur zit.
         const hgt = th.self ? Math.min(KNIGHT_H * k, resH * .4) : KNIGHT_H * k;
         const wid = hgt * (img.width / img.height);
@@ -289,7 +291,13 @@ const Slag3D = (() => {
         for (let c = Math.max(0, x0); c < Math.min(resW, x0 + wid); c++) {
           if (zbuf[c] < perp) continue;
           shown = true;
-          g.drawImage(img, ((c - x0) / wid) * img.width, 0, Math.max(1, img.width / wid), img.height, c, y0, 1, hgt);
+          // Een eigen ridder tekenen we straks scherp op het grote scherm, de rest hier in lage resolutie.
+          // Aaneengesloten zichtbare kolommen worden één strook.
+          if (own) {
+            const last = sharp[sharp.length - 1];
+            if (last && last.img === img && last.x0 === x0 && last.c + last.n === c) last.n++;
+            else sharp.push({ img, x0, wid, c, n: 1, y0, hgt, alpha: g.globalAlpha });
+          } else g.drawImage(img, ((c - x0) / wid) * img.width, 0, Math.max(1, img.width / wid), img.height, c, y0, 1, hgt);
         }
         g.globalAlpha = 1;
         if (shown) {
@@ -341,6 +349,13 @@ const Slag3D = (() => {
     ctx.imageSmoothingEnabled = false;
     ctx.drawImage(low, 0, 0, w, h);
     ctx.imageSmoothingEnabled = true;
+    const sxF = w / resW, syF = h / resH;
+    for (const p of sharp) {
+      ctx.globalAlpha = p.alpha;
+      const sx = ((p.c - p.x0) / p.wid) * p.img.width;
+      ctx.drawImage(p.img, sx, 0, (p.n / p.wid) * p.img.width, p.img.height, p.c * sxF, p.y0 * syF, p.n * sxF, p.hgt * syF);
+    }
+    ctx.globalAlpha = 1;
     return tags.map(tg => ({ ...tg, x: tg.x * w, y: tg.y * h, size: tg.size * h }));
   }
 

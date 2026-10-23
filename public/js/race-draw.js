@@ -379,7 +379,7 @@ const RaceDraw = (() => {
     poly(ctx, [-.17 * w, -.78 * h, .17 * w, -.78 * h, .1 * w, -.6 * h, -.1 * w, -.6 * h], 'rgba(0,0,0,.25)');
     if (o.av && typeof Avatar !== 'undefined') {
       // Het hoofd van de eigen ridder (versiering en helm), van achteren gezien.
-      const img = Avatar.sprite(o.av, { back: true, k: 4 });
+      const img = Avatar.sprite(o.av, { back: true, k: 8 });
       const hw = .34 * w;
       const hh = hw * (8 / 12);
       ctx.drawImage(img, 0, 0, img.width, img.height * (8 / 17), -hw / 2, -.8 * h - hh, hw, hh);

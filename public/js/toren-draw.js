@@ -61,25 +61,29 @@ const TorenDraw = (() => {
   }
 
   // x, y: linksonder van de ridder op het scherm. act: 0 staan, 1 lopen, 2 in de lucht, 3 geraakt.
-  // Met een eigen ridder (av): zijn versiering, helm en kleuren. Hij kijkt naar rechts, dus één plaats naar links.
-  function avatarMap(av) {
-    const a = Avatar.clean(av);
-    const shift = r => r.slice(1) + '.';
-    const map = KNIGHT.slice();
-    Avatar.ACCENTS[a.accent].rows.forEach((r, i) => { map[i] = shift(r); });
-    Avatar.HELMS[a.helm].rows.forEach((r, i) => { map[2 + i] = shift(r); });
-    return { map, palette: { C: Avatar.COLORS[a.kleur], V: Avatar.VISORS[a.vizier], W: '#f2efe6', F: Avatar.SKINS[a.huid], E: '#1a1a2e', G: '#ffc94a', O: '#ff8c42' } };
-  }
-
+  // Met een eigen ridder (av) tekenen we die, in de stijl van de riddermaker.
   function knight(ctx, x, y, w, h, color, face, act, t, alpha = 1, av = null) {
     const px = w / 12;
-    const own = av && typeof Avatar !== 'undefined' ? avatarMap(av) : null;
-    const map = own ? own.map : KNIGHT.slice();
+    if (av && typeof Avatar !== 'undefined') {
+      // De eigen ridder in de nieuwe tekenstijl: wiebelt bij het lopen en kantelt in de lucht.
+      const img = Avatar.sprite(av, { k: 8 });
+      const hgt = w * 17 / 12;
+      const bob = act === 1 ? Math.abs(Math.sin(t * 14)) * px * .8 : 0;
+      ctx.save();
+      ctx.globalAlpha = alpha * (act === 3 && Math.floor(t * 16) % 2 ? .35 : 1);
+      ctx.translate(x + w / 2, y - bob);
+      if (face < 0) ctx.scale(-1, 1);
+      if (act === 2) ctx.rotate(.12);
+      ctx.drawImage(img, -w / 2, -hgt, w, hgt);
+      ctx.restore();
+      return;
+    }
+    const map = KNIGHT.slice();
     if (act === 1 && Math.floor(t * 10) % 2) map.splice(12, 4, ...LEGS_RUN);
     if (act === 2) map.splice(12, 4, ...LEGS_AIR);
     ctx.save();
     ctx.globalAlpha = alpha * (act === 3 && Math.floor(t * 16) % 2 ? .35 : 1);
-    pixels(ctx, map, x, y - px * 16, px, own ? own.palette : { C: color }, face < 0);
+    pixels(ctx, map, x, y - px * 16, px, { C: color }, face < 0);
     ctx.restore();
   }
 
