@@ -17,6 +17,9 @@ let view = 'home';
 const VIEWS = ['home', 'idle', 'results', 'settings', 'maker', 'editor', 'lobby', 'question', 'board', 'podium'];
 // Schermen die de leerkracht zelf opent en die een statusupdate niet mag wegklikken.
 const OWN_VIEWS = ['home', 'idle', 'results', 'settings', 'maker', 'editor'];
+// Tijdens het maken of bewerken van een quiz springen we nooit naar een lopend toernooi.
+const EDITING = ['results', 'settings', 'maker', 'editor'];
+const follow = name => { if (!EDITING.includes(view)) show(name); };
 
 function show(name) {
   view = name;
@@ -42,13 +45,15 @@ document.querySelector('[data-module="kristalroof"]').addEventListener('click', 
 document.querySelector('[data-module="verrader"]').addEventListener('click', () => { location.href = '/verrader'; });
 document.querySelector('[data-module="burchtbouwers"]').addEventListener('click', () => { location.href = '/burchtbouwers'; });
 document.querySelector('[data-module="duel"]').addEventListener('click', () => { location.href = '/duel'; });
+document.querySelector('[data-module="rijk"]').addEventListener('click', () => { location.href = '/rijk'; });
 document.querySelector('[data-module="voorkennis"]').addEventListener('click', () => { location.href = '/rondetafel?doel=voorkennis'; });
 document.querySelector('[data-module="oefenblad"]').addEventListener('click', () => { location.href = '/oefenblad'; });
 document.querySelector('[data-module="werkblad"]').addEventListener('click', () => { location.href = '/oefenblad?maak=ai'; });
 
 function loadQuiz(file) {
-  socket.emit('load', file, res => {
+  loadGame('load', file, res => {
     $('load-error').textContent = res.error || '';
+    if (!res.error) show('lobby');
   });
 }
 
@@ -290,15 +295,15 @@ socket.on('state', s => {
   if (s.phase === 'lobby') {
     if (!prev || prev.phase !== 'lobby') { $('names').innerHTML = ''; lastRanks = new Map(); shownIndex = -1; builtKey = null; $('q-answers').innerHTML = ''; }
     renderLobby();
-    show('lobby');
+    follow('lobby');
   }
   if (['intro', 'question', 'reveal'].includes(s.phase)) {
     renderQuestion();
     // Op het scorebord blijven staan tot de leerkracht verder klikt.
-    if (!(view === 'board' && s.phase === 'reveal')) show('question');
+    if (!(view === 'board' && s.phase === 'reveal')) follow('question');
   }
   if (s.phase === 'podium' && (!prev || prev.phase !== 'podium' || view !== 'podium')) {
-    show('podium');
+    follow('podium');
     renderPodium();
   }
 });

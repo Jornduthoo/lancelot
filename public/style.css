@@ -1088,3 +1088,73 @@ body:not([data-du="1"]) #duel { display: none !important; }
 .du-champ h2 { margin: 4px 0 0; font-size: 3rem; color: var(--gold); }
 @media (max-width: 1000px) { .du-board { grid-template-columns: 1fr; } }
 #bb-pick { background: radial-gradient(circle at 50% 40%, #1b3c6e, #050911 75%); }
+
+/* ---------- Het Rijk ---------- */
+body[data-rk="1"] #toernooi, body[data-rk="1"] #rondetafel, body[data-rk="1"] #toren, body[data-rk="1"] #schat, body[data-rk="1"] #laserslag, body[data-rk="1"] #ridderrace, body[data-rk="1"] #kristalroof, body[data-rk="1"] #verrader, body[data-rk="1"] #oefenblad, body[data-rk="1"] #burcht, body[data-rk="1"] #duel { display: none !important; }
+body:not([data-rk="1"]) #rijk { display: none !important; }
+#rijk { display: contents; }
+#rk-game { display: flex; flex-direction: column; gap: 12px; position: relative; }
+#rk-game.hidden { display: none; }
+.rk-logo { filter: drop-shadow(0 0 24px rgba(76, 201, 255, .45)); }
+.rk-dot { display: inline-block; width: 12px; height: 12px; margin-right: 8px; border-radius: 50%; background: var(--team, var(--rk-team, #fff)); box-shadow: 0 0 10px var(--team, var(--rk-team, #fff)); vertical-align: middle; flex: none; }
+.rk-me { display: flex; align-items: center; padding: 8px 14px; border-radius: 10px; font-weight: 800; background: color-mix(in srgb, var(--rk-team, #4cc9ff) 22%, transparent); box-shadow: inset 0 0 0 2px var(--rk-team, #4cc9ff); }
+.rk-banner { display: flex; flex-direction: column; gap: 2px; margin: 8px 0 12px; padding: 14px; border-radius: 12px; background: color-mix(in srgb, var(--rk-team, #4cc9ff) 25%, transparent); box-shadow: inset 0 0 0 2px var(--rk-team, #4cc9ff), 0 0 24px color-mix(in srgb, var(--rk-team, #4cc9ff) 40%, transparent); }
+.rk-banner strong { font-size: 1.6rem; color: #fff; }
+.rk-old { margin: 0 0 6px; padding: 4px 10px; border-radius: 8px; display: inline-block; background: rgba(255, 201, 74, .15); color: var(--gold); font-weight: 800; font-size: .9rem; }
+.rk-old.hidden { display: none; }
+.rk-pick { position: fixed; inset: 0; z-index: 18; display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 14px; text-align: center; background: radial-gradient(circle at 50% 30%, #13284a, #050911 80%); animation: pop .25s ease-out; }
+.rk-pick.hidden { display: none; }
+.rk-pick h2 { margin: 4px 0 0; color: var(--gold); }
+.rk-pick-help { margin: 0; color: var(--muted); }
+.rk-k { font-weight: 800; }
+.rk-k.vrij { color: #4cc9ff; }
+.rk-k.vijand { color: #ff8fa3; }
+.rk-k.eigen { color: #fff; }
+.rk-pick-map { flex: 1; width: 100%; max-width: 1000px; min-height: 0; }
+.rk-pick-map canvas, .rk-map canvas, .rk-preview-map canvas { display: block; width: 100%; height: 100%; cursor: pointer; border-radius: 12px; }
+.rk-pick-note { min-height: 1.4em; margin: 0; font-weight: 800; font-size: 1.15rem; }
+.rk-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; margin-bottom: 16px; }
+.rk-card { display: flex; flex-direction: column; gap: 10px; }
+.rk-card-top { display: flex; flex-direction: column; gap: 2px; }
+.rk-card-top strong { font-size: 1.15rem; }
+.rk-card .actions { display: flex; gap: 8px; justify-content: space-between; }
+.rk-bars { display: flex; height: 22px; border-radius: 6px; overflow: hidden; }
+.rk-bars span { display: flex; align-items: center; justify-content: center; font-family: var(--tech); font-weight: 800; font-size: .75rem; color: #04121f; }
+.rk-new { max-width: 520px; }
+.rk-new h3 { margin: 0; }
+.rk-preview { display: grid; grid-template-columns: 1fr 300px; gap: 12px; margin-bottom: 12px; }
+.rk-preview-map { height: 340px; padding: 6px; }
+.rk-history ol, .rk-legend ol, .rk-best { margin: 6px 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px; }
+.rk-history li { display: flex; justify-content: space-between; gap: 8px; counter-increment: les; }
+.rk-history li::before { content: counter(les); font-family: var(--tech); font-weight: 800; color: var(--gold); margin-right: 8px; }
+.rk-history li.muted::before { content: none; }
+.rk-history ol { counter-reset: les; }
+.rk-history li span:first-child { flex: 1; }
+.rk-legend li b { display: inline-block; min-width: 1.6em; font-family: var(--tech); color: var(--gold); }
+.rk-teams { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.rk-team { box-shadow: inset 0 0 0 2px var(--team); }
+.rk-team h3 { margin: 0 0 8px; color: var(--team); }
+.rk-team .names { display: flex; flex-wrap: wrap; gap: 6px; }
+.rk-team .name { display: inline-flex; align-items: center; gap: 6px; }
+.rk-new-tag { font-style: normal; font-size: .7rem; padding: 0 5px; border-radius: 5px; background: rgba(255, 201, 74, .2); color: var(--gold); }
+.rk-x { opacity: .5; font-size: .8rem; padding: 0 2px; }
+.rk-x:hover { opacity: 1; color: var(--bad); }
+.rk-board, .rk-end { display: grid; grid-template-columns: 1fr 300px; gap: 14px; }
+.rk-board { height: calc(100vh - 210px); min-height: 460px; }
+.rk-map { min-height: 0; border-radius: 14px; overflow: hidden; box-shadow: inset 0 0 0 1px var(--line); }
+.rk-final { height: 56vh; min-height: 320px; }
+.rk-scores { display: flex; flex-direction: column; gap: 8px; }
+.rk-score { display: flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 10px; background: color-mix(in srgb, var(--team) 14%, transparent); }
+.rk-score.lead { box-shadow: inset 0 0 0 2px var(--team); }
+.rk-tname { flex: 1; font-weight: 800; }
+.rk-score b { font-family: var(--tech); font-size: 1.5rem; color: #fff; }
+.rk-delta { min-width: 2.4em; text-align: right; font-family: var(--tech); font-weight: 800; color: var(--muted); }
+.rk-delta.up { color: var(--good); }
+.rk-delta.down { color: var(--bad); }
+.rk-best li { display: flex; align-items: center; gap: 6px; }
+.rk-best li span.muted { margin-left: auto; }
+.rk-best li b { min-width: 2em; text-align: right; font-family: var(--tech); color: var(--gold); }
+@media (max-width: 1000px) { .rk-board, .rk-end, .rk-preview { grid-template-columns: 1fr; height: auto; } .rk-board .rk-map { height: 62vh; } }
+.rk-pick-map, .rk-preview-map, .rk-map { position: relative; }
+.rk-pick-map canvas, .rk-preview-map canvas, .rk-map canvas { position: absolute; inset: 0; }
+.rk-preview-map canvas { inset: 6px; width: calc(100% - 12px); height: calc(100% - 12px); }

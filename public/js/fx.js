@@ -158,3 +158,21 @@ function confetti(duration = 4000) {
     else canvas.remove();
   })(performance.now());
 }
+
+// Een spel starten. Loopt er nog een ander spel, dan vragen we of dat mag stoppen in plaats van een foutmelding te tonen.
+const GAME_OF_EVENT = {
+  load: 'toernooi', 'rt-load': 'rondetafel', 'tw-load': 'toren', 'sj-load': 'schat', 'ls-load': 'laserslag', 'rr-load': 'race',
+  'bb-load': 'burcht', 'du-load': 'duel', 'rk-load': 'rijk', 'kr-load': 'roof', 'vr-load': 'verrader', 'ob-load': 'oefenblad',
+};
+function loadGame(event, payload, cb) {
+  socket.emit(event, payload, res => {
+    if (res && res.busy) {
+      const what = res.error.replace(/\s*(Stop|Sluit) \S+ (spel )?eerst\.$/, '');
+      if (confirm(`${what}\n\nWil je dat nu stoppen en hier beginnen? De resultaten worden bewaard.`)) {
+        socket.emit('stop-others', GAME_OF_EVENT[event], () => socket.emit(event, payload, cb));
+        return;
+      }
+    }
+    cb(res);
+  });
+}

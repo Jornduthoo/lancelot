@@ -88,6 +88,16 @@ Tip: zeg vooraf dat het samenwerken is. Wie op het bord ziet dat de poort te laa
 
 Tip: met 3 harten duurt een ronde ongeveer 2 minuten. Met 25 leerlingen zijn er 5 rondes.
 
+## Het Rijk
+
+1. Kies op het startscherm **Het Rijk**. De eerste keer maak je een nieuw rijk (bijvoorbeeld "Rijk van het 5e leerjaar") met 2 tot 4 teams. Daarna kies je gewoon je rijk.
+2. Kies de speeltijd en de quiz met de leerstof van vandaag.
+3. Leerlingen scannen de QR-code en zien in welk team ze zitten. Zeg dat ze **elke les dezelfde naam** gebruiken. Klik op een naam om iemand van team te wisselen.
+4. Klik op **Start de les!** Na elk goed antwoord tikken leerlingen op een gebied met een gekleurde rand.
+5. Op het einde wordt het rijk bewaard. Volgende les kies je hetzelfde rijk en een nieuwe quiz: de vragen van vorige lessen komen vanzelf terug.
+
+Tip: speel het een paar weken na elkaar, bijvoorbeeld als afsluiter van elke les. Zo wordt herhalen vanzelf een gewoonte.
+
 ## Ridderrace
 
 1. Kies op het startscherm **Ridderrace**, kies de racetijd en klik op de quiz.

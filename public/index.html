@@ -557,6 +557,54 @@
     <p class="muted">Kijk naar het bord.</p>
   </section>
  </div>
+ <div id="rijk">
+  <form id="rk-join" class="screen welcome hidden">
+    <img src="/img/logo.webp" alt="LANcelot">
+    <p class="title">Het Rijk</p>
+    <input id="rk-name" maxlength="20" autocomplete="off" placeholder="Je naam">
+    <p class="muted small">Gebruik elke les dezelfde naam, dan kom je terug in je team.</p>
+    <p class="error" id="rk-join-error"></p>
+    <button type="submit" class="big">Naar het rijk</button>
+  </form>
+
+  <section id="rk-lobby" class="screen panel hidden">
+    <p class="status" id="rk-lobby-rijk">Het Rijk</p>
+    <p class="title" id="rk-lobby-name"></p>
+    <div class="rk-banner" id="rk-banner"></div>
+    <p>Elk goed antwoord geeft je team <strong>een zet</strong>: verover een gebied naast jullie land, of versterk een eigen gebied.</p>
+    <p class="muted small" id="rk-lobby-old">Vragen over oudere leerstof (🛡️) geven dubbel. Fout? Dan wordt een gebied van je team zwakker.</p>
+    <p class="muted small">Wacht tot de leerkracht de les start.</p>
+    <div class="spinner"></div>
+  </section>
+
+  <section id="rk-game" class="hidden">
+    <div class="sj-top">
+      <div class="rk-me" id="rk-me"></div>
+      <div class="sj-meta"><span id="rk-land"></span><span id="rk-clock"></span></div>
+    </div>
+    <div class="sj-card panel">
+      <p class="status" id="rk-number"></p>
+      <p class="rk-old hidden" id="rk-old"></p>
+      <p class="sj-q" id="rk-q"></p>
+    </div>
+    <div class="answers sj-answers" id="rk-answers"></div>
+    <div class="sj-flash hidden" id="rk-flash"><div class="sj-flash-mark" id="rk-flash-mark"></div><div class="sj-flash-text" id="rk-flash-text"></div></div>
+    <div class="rk-pick hidden" id="rk-pick">
+      <h2 id="rk-pick-title">Kies een gebied</h2>
+      <p class="small rk-pick-help"><span class="rk-k vrij">blauw</span> vrij land · <span class="rk-k vijand">rood</span> van een ander team · <span class="rk-k eigen">stippels</span> eigen gebied versterken</p>
+      <div class="rk-pick-map"><canvas id="rk-canvas"></canvas></div>
+      <p class="rk-pick-note" id="rk-pick-note"></p>
+    </div>
+    <div class="sj-countdown hidden" id="rk-countdown"></div>
+  </section>
+
+  <section id="rk-end" class="screen panel hidden">
+    <div class="mark" id="rk-end-mark" style="font-size:4rem">🏰</div>
+    <p class="title" id="rk-end-title"></p>
+    <p id="rk-end-stats"></p>
+    <p class="muted">Kijk naar het bord. Volgende les spelen we verder!</p>
+  </section>
+ </div>
  <div id="oefenblad">
   <form id="ob-join" class="screen welcome hidden">
     <img src="/img/logo.webp" alt="LANcelot">
@@ -599,6 +647,8 @@
 <script src="/js/vr-player.js"></script>
 <script src="/js/bb-player.js"></script>
 <script src="/js/du-player.js"></script>
+<script src="/js/rijk-map.js"></script>
+<script src="/js/rk-player.js"></script>
 <script src="/js/ob-sheet.js"></script>
 <script src="/js/ob-player.js"></script>
 </body>

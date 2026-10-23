@@ -57,7 +57,7 @@ ItemList.mount($('session-list'), {
 
 function startSession(file) {
   $('stopped').classList.add('hidden');
-  socket.emit('rt-load', file, res => { $('list-error').textContent = res.error || ''; });
+  loadGame('rt-load', file, res => { $('list-error').textContent = res.error || ''; });
 }
 
 // ---------- Adres en QR-code ----------

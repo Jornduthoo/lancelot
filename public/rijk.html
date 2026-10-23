@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LANcelot · Het Rijk</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body class="sj-host">
+<main>
+  <div class="topbar">
+    <div class="brand" id="brand" title="Naar het startscherm">
+      <img src="/img/logo.webp" alt="">
+      <div>
+        <div class="wordmark">LAN<span>celot</span></div>
+        <div class="subtitle" id="status">Het Rijk</div>
+      </div>
+    </div>
+    <div class="actions">
+      <span class="join-mini hidden" id="join-mini"></span>
+      <button class="secondary icon" id="mute" title="Geluid aan/uit">🔊</button>
+      <button class="secondary hidden" id="stop">Stop het spel</button>
+    </div>
+  </div>
+
+  <section id="setup">
+    <div class="bar">
+      <h2>Het Rijk</h2>
+      <div class="actions">
+        <button class="secondary" id="to-home">Terug</button>
+      </div>
+    </div>
+    <div class="panel tw-intro">
+      <svg class="sj-chest rk-logo" viewBox="0 0 64 64"><path d="M32 4l24 14v28L32 60 8 46V18z" fill="#13213d" stroke="#4cc9ff" stroke-width="2"/><path d="M32 4v28L8 18z" fill="#ff4d6d" opacity=".8"/><path d="M32 32l24-14v28z" fill="#3d8bff" opacity=".8"/><path d="M32 32v28L8 46V18z" fill="#ffb703" opacity=".55"/><path d="M28 22v-8l10 3-10 3" fill="#fff"/></svg>
+      <div>
+        <p>Een spel dat <strong>weken doorloopt</strong>. De klas speelt in vaste teams. Elke les verovert elk team gebieden op de kaart met goede antwoorden: een vrij gebied neem je in twee stappen, een gebied van een ander team kost zoveel aanvallen als het sterk is. Je kan ook je eigen gebieden versterken.</p>
+        <p>Elk gebied onthoudt <strong>met welke leerstof het veroverd werd</strong> (het nummer op de kaart). In latere lessen komen vragen over die oudere leerstof terug: <strong>juist geeft dubbel</strong>, fout maakt een gebied met die leerstof zwakker. Zo wordt herhalen vanzelf deel van het spel.</p>
+        <p class="muted">Het rijk wordt na elke les bewaard in de map rijken. Wie al eens meespeelde, komt vanzelf terug in zijn team.</p>
+      </div>
+    </div>
+
+    <div id="pick-rijk">
+      <div class="bar"><h2>Kies je rijk</h2></div>
+      <div class="rk-list" id="rk-list"></div>
+      <form class="panel form rk-new" id="rk-new">
+        <h3>Nieuw rijk</h3>
+        <label>Naam (bijvoorbeeld je klas)
+          <input id="rk-name" maxlength="40" placeholder="Rijk van het 5e leerjaar" autocomplete="off">
+        </label>
+        <label>Aantal teams
+          <select id="rk-teams">
+            <option value="2">2 teams</option>
+            <option value="3">3 teams</option>
+            <option value="4" selected>4 teams</option>
+          </select>
+        </label>
+        <button type="submit">Maak het rijk</button>
+        <p class="error" id="rk-new-error"></p>
+      </form>
+    </div>
+
+    <div id="pick-quiz" class="hidden">
+      <div class="bar">
+        <h2 id="rk-chosen"></h2>
+        <button class="secondary" id="rk-other">Ander rijk</button>
+      </div>
+      <div class="rk-preview">
+        <div class="panel rk-preview-map"><canvas id="rk-preview"></canvas></div>
+        <div class="panel rk-history">
+          <p class="muted small">Leerstof tot nu toe</p>
+          <ol id="rk-history"></ol>
+        </div>
+      </div>
+      <div class="panel form">
+        <label>Speeltijd
+          <select id="rk-minutes">
+            <option value="4">4 minuten</option>
+            <option value="6">6 minuten</option>
+            <option value="8" selected>8 minuten</option>
+            <option value="10">10 minuten</option>
+            <option value="12">12 minuten</option>
+            <option value="15">15 minuten</option>
+          </select>
+        </label>
+        <p class="muted small">Kies hieronder de quiz met de leerstof van vandaag. Vragen over vorige lessen komen vanzelf terug.</p>
+      </div>
+      <div class="bar">
+        <h2>Leerstof van vandaag</h2>
+        <div class="actions">
+          <button class="secondary" data-make="leeg">Lege quiz</button>
+          <button data-make="ai">Nieuwe quiz met AI</button>
+        </div>
+      </div>
+      <div class="quiz-list" id="quiz-list"></div>
+    </div>
+    <p class="notice hidden" id="stopped"></p>
+    <p class="error" id="load-error"></p>
+  </section>
+
+  <section id="lobby" class="hidden">
+    <div class="panel join">
+      <div class="qr" id="qr"></div>
+      <div class="join-text">
+        <p class="muted">Scan de QR-code of surf naar</p>
+        <div class="join-url" id="join-url"></div>
+        <p class="muted small" id="other-urls"></p>
+      </div>
+    </div>
+    <div class="bar">
+      <h2><span class="count" id="player-count">0</span> <span id="player-word">ridders</span> klaar</h2>
+      <button class="gold big" id="start" disabled>Start de les!</button>
+    </div>
+    <p class="muted small">Klik op een naam om die leerling naar een ander team te zetten (dat blijft zo). Met ✕ verwijder je iemand.</p>
+    <div class="rk-teams" id="teams"></div>
+  </section>
+
+  <section id="play" class="hidden">
+    <div class="hud">
+      <span class="round" id="p-title"></span>
+      <span class="tw-clock" id="p-clock"></span>
+      <button class="secondary" id="p-finish">Les nu beëindigen</button>
+    </div>
+    <div class="rk-board">
+      <div class="rk-map"><canvas id="p-canvas"></canvas></div>
+      <div class="tw-side">
+        <div class="panel rk-scores" id="p-scores"></div>
+        <div class="panel rk-legend"><p class="muted small">Nummer op een gebied = leerstof</p><ol id="p-legend"></ol></div>
+        <ul class="tw-feed" id="p-feed"></ul>
+      </div>
+    </div>
+    <div class="sj-countdown hidden" id="p-countdown"></div>
+  </section>
+
+  <section id="podium" class="hidden">
+    <div class="center"><h2 id="w-title"></h2><p class="muted" id="w-why"></p></div>
+    <div class="rk-end">
+      <div class="rk-map rk-final"><canvas id="w-canvas"></canvas></div>
+      <div class="tw-side">
+        <div class="panel rk-scores" id="w-scores"></div>
+        <div class="panel"><p class="muted small">Beste veroveraars</p><ol class="rk-best" id="w-best"></ol></div>
+      </div>
+    </div>
+    <p class="center muted" id="results-saved"></p>
+    <div class="bar">
+      <button id="close">Terug naar het rijk</button>
+    </div>
+  </section>
+</main>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/fx.js"></script>
+<script src="/js/quiz-links.js"></script>
+<script src="/js/quiz-list.js"></script>
+<script src="/js/rijk-map.js"></script>
+<script src="/js/rk-host.js"></script>
+<script src="/js/address.js"></script>
+</body>
+</html>

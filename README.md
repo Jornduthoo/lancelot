@@ -14,6 +14,7 @@ Het thema: middeleeuws met een scifi-kantje. Het startscherm heeft drie delen:
    - **De Verrader**: zoals Among Us. Ridders herstellen de kristalkern met goede antwoorden, de geheime verraders betoveren ze. Aan de Ronde Tafel praat de klas en stemt wie verbannen wordt
    - **Burchtbouwers**: de hele klas bouwt samen één burcht. Elk goed antwoord is een steen die je zelf op een deel van de burcht legt. Als de tijd om is, valt de draak aan
    - **Duel in de arena**: één tegen één op dezelfde vraag, wie eerst juist antwoordt slaat toe. Een toernooischema op het bord tot er één kampioen is
+   - **Het Rijk**: een spel dat weken doorloopt. Teams veroveren les na les gebieden op een kaart; vragen over oudere leerstof komen terug om je land te verdedigen
 2. **De Ronde Tafel**, peilen met de hele klas: polls, stellingen, woordwolken, open vragen en schalen, live op het bord. Met **Voorkennis activeren** maak je met AI meteen een peiling voor het begin van een les.
 3. **Generator**: **live oefenbladen** die leerlingen invullen en die zichzelf verbeteren, en **werkbladen** om te printen, met een verbeterblad.
 
@@ -127,6 +128,16 @@ Een toernooi met duels van één tegen één.
 - Alle duels van een ronde lopen tegelijk. Het bord toont het **toernooischema** live, en tussen de rondes groot wie tegen wie speelt. Bij een oneven aantal krijgt iemand een **vrije doorgang**.
 - Na 12 vragen zonder winnaar beslissen de harten. Met **Lopende duels beslissen** maak je zelf een einde aan een duel, bijvoorbeeld als een leerling weg moet.
 - Wie uitgeschakeld is, kijkt mee op het bord. Resultaten (plaats, ronde, gewonnen duels, juist en fout, gemiddelde reactietijd) in `resultaten/`.
+
+## Het Rijk
+
+Een spel over meerdere lessen. Maak per klas een **rijk**: een kaart met zeshoeken, 2 tot 4 teams en elk team een burcht. Het rijk wordt bewaard in de map `rijken/` (blijft bewaard bij updates).
+
+- Elke les kies je het rijk en de quiz met de leerstof van vandaag. Leerlingen blijven in hun team zolang ze dezelfde naam gebruiken; nieuwe leerlingen gaan naar het kleinste team. In de lobby klik je op een naam om iemand van team te wisselen.
+- Elk goed antwoord is **een zet** op de kaart: een vrij gebied naast je land aanvallen (twee zetten om het te nemen), een gebied van een ander team aanvallen (zoveel zetten als het sterk is) of een eigen gebied versterken (tot 5). Burchten kan je niet innemen.
+- Elk gebied onthoudt **met welke leerstof het veroverd werd**: het nummer op de kaart. In latere lessen gaat ongeveer een derde van de vragen over oudere leerstof (🛡️). Juist geeft **twee zetten**, fout maakt een gebied met die leerstof zwakker. Leerstof die meer gebieden draagt, komt vaker terug.
+- Op de gsm zoomt de kaart in op de gebieden die je kan kiezen. Op het bord zie je de hele kaart, de stand per team en wat er deze les bijkwam.
+- Resultaten per les (zetten, veroverd, juist en fout, oude leerstof juist en fout) in `resultaten/`.
 
 ## Ridderrace
 

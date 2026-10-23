@@ -108,9 +108,11 @@ $('new-empty').addEventListener('click', () => {
   openEditor({ title: '', questions: [emptyQuestion()] }, null);
 });
 
-// Vanuit een ander spel (de toren of Schattenjacht) een quiz maken: daarna gaan we daar weer naartoe.
+// Vanuit een ander spel een quiz maken: daarna gaan we daar weer naartoe.
 const params = new URLSearchParams(location.search);
-const returnTo = ['/toren', '/schattenjacht', '/laserslag'].includes(params.get('terug')) ? params.get('terug') : null;
+// Elk spel met een knop 'Nieuwe quiz' moet hier staan, anders opent de quizmaker niet.
+const GAMES = ['/toren', '/schattenjacht', '/laserslag', '/ridderrace', '/kristalroof', '/verrader', '/burchtbouwers', '/duel', '/rijk'];
+const returnTo = GAMES.includes(params.get('terug')) ? params.get('terug') : null;
 
 for (const b of document.querySelectorAll('[data-back]')) {
   b.addEventListener('click', () => {

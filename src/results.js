@@ -307,4 +307,25 @@ function saveDuel(d) {
   return write(now, `duel-${slugOf(d.quiz.title)}`, lines);
 }
 
-module.exports = { save, saveRace, saveRoof, saveVerrader, saveBurcht, saveDuel, saveRondeTafel, saveToren, saveSchat, saveLaserslag, saveOefenblad, list, filePath, DIR };
+function saveRijk(r) {
+  const now = new Date();
+  const ranking = r.ranking();
+  const d = r.data;
+  const lesson = d.lessons[d.lessons.length - 1];
+  const pct = (a, n) => (n ? `${Math.round((a / n) * 100)}%` : '-');
+  const lines = [
+    row(['Het Rijk', d.name]),
+    row(['Les', d.lessons.length, r.quiz.title]),
+    row(['Datum', stamp(now)]),
+    row(['Speeltijd', `${r.minutes} minuten`]),
+    '',
+    row(['Team', 'Gebieden', 'Deze les']),
+    ...d.teams.map((t, i) => row([t.name, lesson.counts[i], (lesson.gained[i] > 0 ? '+' : '') + lesson.gained[i]])),
+    '',
+    row(['Naam', 'Team', 'Acties', 'Veroverd', 'Vragen goed', 'Vragen fout', '% goed', 'Oude leerstof goed', 'Oude leerstof fout']),
+    ...ranking.map(p => row([p.name, d.teams[p.team].name, p.actions, p.conquered, p.right, p.wrong, pct(p.right, p.right + p.wrong), p.oldRight, p.oldWrong])),
+  ];
+  return write(now, `rijk-${slugOf(d.name)}`, lines);
+}
+
+module.exports = { save, saveRijk, saveRace, saveRoof, saveVerrader, saveBurcht, saveDuel, saveRondeTafel, saveToren, saveSchat, saveLaserslag, saveOefenblad, list, filePath, DIR };
