@@ -1,6 +1,7 @@
 const fs = require('fs');
 const http = require('http');
 const os = require('os');
+const dgram = require('dgram');
 const path = require('path');
 const express = require('express');
 const { Server } = require('socket.io');
@@ -183,10 +184,32 @@ app.use(express.static(path.join(__dirname, 'public'), { index: 'index.html', se
 const VIRTUAL = /vethernet|virtualbox|vmware|wsl|docker|hyper-v|tailscale|zerotier|vpn|nordlynx|wireguard|openvpn|tap-|bluetooth|loopback|lokale verbinding\*|local area connection\*|rndis|remote ndis|tether|hotspot/i;
 const REAL = /wi-?fi|wlan|wireless|draadloos|ethernet|^eth|^en/i;
 
+// Het adres waarlangs Windows naar buiten gaat (de standaardroute). Een UDP-'verbinding' verstuurt niets,
+// maar vertelt wel welke netwerkkaart het systeem kiest. Dat is bijna altijd het echte wifi- of kabelnetwerk.
+let routeAddress = '';
+function probeRoute() {
+  const sock = dgram.createSocket('udp4');
+  sock.on('error', () => sock.close());
+  try {
+    sock.connect(53, '8.8.8.8', err => {
+      if (!err) {
+        try { routeAddress = sock.address().address; } catch {}
+      }
+      sock.close();
+    });
+  } catch {
+    sock.close();
+  }
+}
+probeRoute();
+setInterval(probeRoute, 60000).unref();
+
 // Hoe kleiner het getal, hoe eerder het adres op het bord komt.
+// Eerst het adres waarlangs leerlingen echt binnenkwamen (of dat de leerkracht koos), dan de standaardroute.
 function rank(i, preferred) {
   if (i.address === preferred) return -10;
   let score = 0;
+  if (i.address === routeAddress) score -= 4;
   if (VIRTUAL.test(i.name)) score += 10;
   else if (REAL.test(i.name)) score -= 2;
   // Windows-hotspot (192.168.137.x) en gsm-tethering (192.168.42.x, 192.168.225.x, 172.20.10.x) zijn zelden het schoolnetwerk.
@@ -209,13 +232,23 @@ function lanAddresses() {
 // Adressen met QR-code voor het docentenscherm. Het eerste is het grote adres op het bord.
 function sendAddresses(target) {
   const list = lanInterfaces();
+  const preferred = settings.read().preferredAddress;
   const urls = list.map(i => `http://${i.address}:${PORT}`);
   return Promise.all(urls.map(url => QRCode.toString(url, { type: 'svg', margin: 1 })))
-    .then(qrs => target.emit('addresses', urls.map((url, k) => ({ url, qr: qrs[k], name: list[k].name }))));
+    .then(qrs => target.emit('addresses', urls.map((url, k) => ({ url, qr: qrs[k], name: list[k].name, sure: list[k].address === preferred }))));
 }
 
 io.on('connection', socket => {
   const host = socket.handshake.query.role === 'host' && isLocal(socket.handshake.address);
+
+  // Een leerling kwam binnen: via welk adres van deze pc? Dat adres werkt dus, en komt voortaan vooraan.
+  if (!isLocal(socket.handshake.address)) {
+    const local = String(socket.request.socket.localAddress || '').replace(/^::ffff:/, '');
+    if (local && local !== settings.read().preferredAddress && lanAddresses().includes(local)) {
+      settings.write({ preferredAddress: local });
+      sendAddresses(io.to('host'));
+    }
+  }
 
   // Eigen ridders: iedereen mag ze zien, een leerling stelt de zijne in.
   socket.on('avatars-get', (_, cb) => typeof cb === 'function' && cb(avatars.all()));

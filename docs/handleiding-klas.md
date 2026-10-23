@@ -134,7 +134,7 @@ Liever op papier? Klik bij een blad op **🖨 Print** voor het werkblad en op **
 - **Gastnetwerk of "client isolation":** veel scholen blokkeren verkeer tussen apparaten op het gast-wifi. Vraag de ICT-afdeling of apparaten elkaar mogen bereiken op poort 3000, of gebruik een ander netwerk.
 - **Noodoplossing:** zet een mobiele hotspot aan op je telefoon of laptop en laat de pc en de leerlingen daarmee verbinden. Dat werkt zonder dat ICT iets hoeft te doen; om te spelen hoeft je hotspot geen internet te hebben (een quiz maken met AI doe je vooraf, als je wel internet hebt). Let op: een telefoon-hotspot laat vaak maar zo'n 10 apparaten toe. De hotspot van Windows zelf (Instellingen → Netwerk → Mobiele hotspot) is dan een betere keuze.
 - **Firewall:** heb je de vraag van Windows per ongeluk weggeklikt? Zoek in Start naar "Een app toestaan via Windows Firewall" en zet een vinkje bij Node.js (privé en openbaar).
-- **Meerdere adressen op het bord:** probeer eerst het grote adres. Werkt dat niet, klik dan op een van de andere adressen eronder (meestal het adres met Wi-Fi of Ethernet erbij). Dat wordt het grote adres met de QR-code, en LANcelot onthoudt die keuze voor de volgende keer.
+- **Meerdere adressen op het bord:** probeer eerst het grote adres. Werkt dat niet, klik dan op een van de andere adressen eronder (meestal het adres met Wi-Fi of Ethernet erbij). Dat wordt het grote adres met de QR-code, en LANcelot onthoudt die keuze voor de volgende keer. Zodra één leerling binnen is, weet LANcelot zelf welk adres werkt en zet het dat voortaan vooraan.
 - **Ander poortnummer:** is poort 3000 al bezet, zet dan `set PORT=3001` boven in Start LANcelot.bat.
 
 ## Tips

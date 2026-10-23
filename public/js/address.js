@@ -33,6 +33,12 @@ const ipOf = a => a.url.replace(/^http:\/\//, '').replace(/:\d+$/, '');
 socket.on('addresses', list => {
   let saved = '';
   try { saved = localStorage.getItem('lancelot-address') || ''; } catch {}
+  // Leerlingen kwamen al binnen via het eerste adres (of de leerkracht koos het): dat onthouden.
+  if (list[0] && list[0].sure) {
+    try { localStorage.setItem('lancelot-address', ipOf(list[0])); } catch {}
+    showAddress(list, 0);
+    return;
+  }
   const j = list.findIndex(a => ipOf(a) === saved);
   if (j > 0) {
     showAddress(list, j);
