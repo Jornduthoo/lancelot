@@ -17,7 +17,7 @@
 
 Laat het zwarte venster openstaan zolang je speelt. Dat is de server.
 
-De eerste keer kiest elke leerling na het aanmelden een **eigen ridder** (helm, kleuren, schild). Die blijft op zijn naam bewaard en komt terug in elk spel. Aanpassen kan altijd met **🛡️ Pas je ridder aan**.
+De eerste keer kiest elke leerling na het aanmelden een **eigen ridder** (ridder of ridderes, haar, helm, harnas, rug, wapen, schild). Die blijft op zijn naam bewaard en komt terug in elk spel. Aanpassen kan altijd met **🛡️ Pas je ridder aan**.
 
 Bij de Ridderrace, Laserslag en de toren kies je ook het **tempo van de vragen**: *rustig*, *normaal* of *intens* (vaker nieuwe vragen).
 

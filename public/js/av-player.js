@@ -91,22 +91,30 @@ document.body.appendChild(maker);
 
 // Per tabblad: tegels met een voorbeeld (list) en/of kleurbolletjes (colors).
 const AV_TABS = [
+  { id: 'ridder', label: '🧑 Ridder', rows: [
+    { key: 'type', list: Avatar.TYPES },
+    { key: 'huid', label: 'Huidskleur', colors: Avatar.SKINS },
+    { key: 'haar', label: 'Haar', list: Avatar.HAIRS, head: true, hair: true },
+    { key: 'haarkleur', label: 'Haarkleur', colors: Avatar.HAIR_COLORS },
+  ] },
   { id: 'helm', label: '⛑️ Helm', rows: [
     { key: 'helm', list: Avatar.HELMS, head: true },
     { key: 'vizier', label: 'Kleur van het licht', colors: Avatar.VISORS },
   ] },
   { id: 'accent', label: '✨ Versiering', rows: [{ key: 'accent', list: Avatar.ACCENTS, head: true }] },
   { id: 'harnas', label: '🎨 Harnas', rows: [
-    { key: 'kleur', label: 'Cape en harnas', colors: Avatar.COLORS },
-    { key: 'huid', label: 'Huidskleur', colors: Avatar.SKINS },
+    { key: 'harnas', list: Avatar.ARMORS },
+    { key: 'kleur', label: 'Kleur', colors: Avatar.COLORS },
+    { key: 'arm', label: 'Arm', list: Avatar.ARMS, arm: true },
   ] },
+  { id: 'rug', label: '🚀 Rug', rows: [{ key: 'rug', list: Avatar.BACKS, back: true }] },
   { id: 'wapen', label: '⚔️ Wapen', rows: [{ key: 'wapen', list: Avatar.WEAPONS, weapon: true }] },
   { id: 'schild', label: '🛡️ Schild', rows: [
     { key: 'patroon', list: Avatar.PATTERNS, shield: true },
     { key: 'schild', label: 'Kleur van je schild', colors: Avatar.SHIELDS },
   ] },
 ];
-avState.tab = 'helm';
+avState.tab = 'ridder';
 avState.back = false;
 
 $('av-tabs').innerHTML = AV_TABS.map(t => `<button type="button" class="av-tab" data-tab="${t.id}">${t.label}</button>`).join('');
@@ -117,9 +125,11 @@ for (const b of $('av-tabs').querySelectorAll('.av-tab')) {
 // Een tegel: de ridder met die keuze, of enkel zijn hoofd of schild.
 function avTile(row, i) {
   const av = { ...avState.draft, [row.key]: i };
-  const src = Avatar.sprite(av, { k: 6 });
+  // Haar zie je niet onder een gesloten helm: toon het dan onder het holovizier.
+  if (row.hair && !Avatar.OPEN.includes(av.helm)) av.helm = 8;
+  const src = Avatar.sprite(av, { k: 6, back: !!row.back });
   const c = document.createElement('canvas');
-  const crop = row.head ? [0, 0, 12, 8] : row.shield ? [7, 8.6, 5, 6.4] : row.weapon ? [0, 3.5, 7, 10] : [0, 0, 12, 17];
+  const crop = row.head ? [0, 0, 12, 8] : row.shield ? [7, 8.6, 5, 6.4] : row.weapon ? [0, 3.5, 7, 10] : row.arm ? [0, 7, 6, 7] : [0, 0, 12, 17];
   c.width = crop[2] * 6;
   c.height = crop[3] * 6;
   c.getContext('2d').drawImage(src, crop[0] * 6, crop[1] * 6, c.width, c.height, 0, 0, c.width, c.height);
@@ -148,7 +158,7 @@ function avOptions() {
         b.style.background = item;
         b.setAttribute('aria-label', `${r.label} ${i + 1}`);
       } else {
-        b.className = 'av-tile' + (d[r.key] === i ? ' on' : '') + (r.head ? ' head' : r.shield ? ' shield' : r.weapon ? ' weapon' : '');
+        b.className = 'av-tile' + (d[r.key] === i ? ' on' : '') + (r.head ? ' head' : r.shield ? ' shield' : r.weapon || r.arm ? ' weapon' : '');
         b.appendChild(avTile(r, i));
         const name = document.createElement('span');
         name.textContent = item.name;

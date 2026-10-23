@@ -4,7 +4,10 @@ const fs = require('fs');
 const path = require('path');
 
 const FILE = path.join(__dirname, '..', 'avatars.json');
-const KEYS = { helm: 8, accent: 8, kleur: 10, vizier: 5, patroon: 6, schild: 8, wapen: 5, huid: 5 };
+const KEYS = {
+  helm: 10, accent: 10, kleur: 10, vizier: 5, patroon: 6, schild: 8, wapen: 7, huid: 5,
+  type: 2, haar: 6, haarkleur: 7, harnas: 5, rug: 5, arm: 2,
+};
 const MAX = 2000;
 
 let all = null;
@@ -24,7 +27,7 @@ function clean(av) {
   if (!av || typeof av !== 'object') return null;
   const out = {};
   for (const [k, n] of Object.entries(KEYS)) {
-    // Ridders van een oudere versie hebben nog geen wapen of huidskleur: dan de eerste.
+    // Ridders van een oudere versie missen nieuwere keuzes: dan de eerste.
     const v = av[k] === undefined ? 0 : Number(av[k]);
     if (!Number.isInteger(v) || v < 0 || v >= n) return null;
     out[k] = v;

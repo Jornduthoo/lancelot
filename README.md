@@ -20,9 +20,9 @@ Het thema: middeleeuws met een scifi-kantje. Het startscherm heeft drie delen:
 
 ## Eigen ridders
 
-Leerlingen stellen hun eigen ridder samen: helm, versiering (pluim, hoorns, kroon, antenne, vleugels), kleur van harnas en cape, vizier en een schild met patroon en kleur. De eerste keer opent de riddermaker vanzelf na het aanmelden; daarna kan het altijd met **🛡️ Pas je ridder aan** op het aanmeldscherm en in de lobby.
+Leerlingen stellen hun eigen ridder samen: ridder of ridderes, huidskleur, haar, tien helmen (van ridderhelm tot holovizier en cyberhelm), versieringen, vijf soorten harnas (klassiek, cyber, goud, mecha, kristal), een robotarm, iets op de rug (cape, jetpack, lichtvleugels of een drone), zeven wapens (ook een plasmablaster en energiespeer) en een schild met patroon en kleur. De eerste keer opent de riddermaker vanzelf na het aanmelden; daarna kan het altijd met **🛡️ Pas je ridder aan** op het aanmeldscherm en in de lobby.
 
-LANcelot bewaart de ridder op de naam van de leerling in `avatars.json` (blijft bewaard bij updates). De ridder staat in elke lobby, op het podium en in de eindstanden, en speelt mee: in de toren, in Laserslag (3D-zichten, in de kleur van je team), op het hoverros in de Ridderrace, in het toernooischema van het duel en bij de bouwers van de burcht.
+LANcelot bewaart de ridder op de naam van de leerling in `avatars.json` (blijft bewaard bij updates). De ridder staat in elke lobby, op het podium en in de eindstanden, en speelt mee: in de toren, in Laserslag (3D-zichten in de kleur van je team, en het hoofd naast de naam van bovenaf), op het hoverros in de Ridderrace, in het toernooischema van het duel en bij de bouwers van de burcht.
 
 ## Tempo van de vragen
 
