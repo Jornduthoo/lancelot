@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LANcelot · Duel in de arena</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body class="sj-host">
+<main>
+  <div class="topbar">
+    <div class="brand" id="brand" title="Naar het startscherm">
+      <img src="/img/logo.webp" alt="">
+      <div>
+        <div class="wordmark">LAN<span>celot</span></div>
+        <div class="subtitle" id="status">Duel in de arena</div>
+      </div>
+    </div>
+    <div class="actions">
+      <span class="join-mini hidden" id="join-mini"></span>
+      <button class="secondary icon" id="mute" title="Geluid aan/uit">🔊</button>
+      <button class="secondary hidden" id="stop">Stop het spel</button>
+    </div>
+  </div>
+
+      <section id="setup">
+    <div class="bar">
+      <h2>Duel in de arena</h2>
+      <div class="actions">
+        <button class="secondary" id="to-home">Terug</button>
+        <button class="secondary" data-make="leeg">Lege quiz</button>
+        <button data-make="ai">Nieuwe quiz met AI</button>
+      </div>
+    </div>
+    <div class="panel tw-intro">
+      <svg class="sj-chest du-logo" viewBox="0 0 64 64"><path d="M8 56L40 24l4 4L12 60z" fill="#c9d6e6"/><path d="M56 56L24 24l-4 4 32 32z" fill="#c9d6e6"/><path d="M36 20l12-12 4 4 4-4 4 4-4 4 4 4-12 12zM28 20L16 8l-4 4-4-4-4 4 4 4-4 4 12 12z" fill="#ffc94a"/><circle cx="32" cy="34" r="6" fill="#ff4d6d"/></svg>
+      <div>
+        <p>Een toernooi met <strong>duels van één tegen één</strong>. Beide ridders krijgen tegelijk dezelfde vraag. <strong>Wie eerst juist antwoordt, slaat toe</strong> en de ander verliest een hart. Fout geantwoord? Dan mag je bij die vraag niet meer.</p>
+        <p>Alle duels van een ronde lopen tegelijk. De winnaars gaan door in het <strong>toernooischema</strong> op het bord, tot er in de finale één kampioen overblijft. Bij een oneven aantal krijgt iemand een vrije doorgang.</p>
+        <p class="muted">Wie uitgeschakeld is, kijkt mee op het bord. Na 12 vragen zonder winnaar beslissen de harten.</p>
+      </div>
+    </div>
+    <div class="panel form">
+      <label>Harten per duel
+        <select id="du-hearts">
+          <option value="2">2 harten (snel)</option>
+          <option value="3" selected>3 harten</option>
+          <option value="4">4 harten</option>
+          <option value="5">5 harten (lang)</option>
+        </select>
+      </label>
+      <p class="muted small">Kies hieronder de quiz waaruit de vragen komen.</p>
+    </div>
+    <p class="notice hidden" id="stopped"></p>
+    <div class="quiz-list" id="quiz-list"></div>
+    <p class="error" id="load-error"></p>
+  </section>
+
+  <section id="lobby" class="hidden">
+    <div class="panel join">
+      <div class="qr" id="qr"></div>
+      <div class="join-text">
+        <p class="muted">Scan de QR-code of surf naar</p>
+        <div class="join-url" id="join-url"></div>
+        <p class="muted small" id="other-urls"></p>
+      </div>
+    </div>
+    <div class="bar">
+      <h2><span class="count" id="player-count">0</span> <span id="player-word">ridders</span> klaar</h2>
+      <button class="gold big" id="start" disabled>Start het toernooi!</button>
+    </div>
+    <p class="error" id="start-error"></p>
+    <p class="muted small">Klik op een naam om die speler te verwijderen.</p>
+    <div class="names" id="names"></div>
+  </section>
+
+  <section id="play" class="hidden">
+    <div class="hud">
+      <span class="round" id="p-round"></span>
+      <span class="muted" id="p-info"></span>
+      <div class="actions">
+        <button class="secondary" id="p-decide" title="Bijvoorbeeld als een leerling weg moet">Lopende duels beslissen</button>
+        <button class="secondary" id="p-finish">Toernooi stoppen</button>
+      </div>
+    </div>
+    <div class="du-board">
+      <div class="du-bracket" id="p-bracket"></div>
+      <ul class="tw-feed du-feed" id="p-feed"></ul>
+    </div>
+    <div class="du-stage hidden" id="p-stage">
+      <p class="du-stage-round" id="s-round"></p>
+      <div class="du-stage-vs" id="s-vs"></div>
+      <div class="du-stage-count" id="s-count"></div>
+    </div>
+  </section>
+
+  <section id="podium" class="hidden">
+    <div class="center du-champ"><div class="crown" id="w-crown"></div><p class="muted">Kampioen van de arena</p><h2 id="w-name"></h2></div>
+    <ol class="ranking" id="final"></ol>
+    <p class="center muted" id="results-saved"></p>
+    <div class="bar">
+      <button class="secondary" id="restart">Nog een toernooi</button>
+      <button id="close">Andere quiz kiezen</button>
+    </div>
+  </section>
+</main>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/fx.js"></script>
+<script src="/js/quiz-links.js"></script>
+<script src="/js/quiz-list.js"></script>
+<script src="/js/du-host.js"></script>
+<script src="/js/address.js"></script>
+</body>
+</html>

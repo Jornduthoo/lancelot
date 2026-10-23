@@ -70,6 +70,24 @@ Tip: leg vooraf uit dat je tijdens een vraag beschermd bent, maar niet kan schie
 
 Tip: de rollen staan nooit op het bord, tot iemand verbannen wordt of het spel voorbij is. Met **👁 Rol** kan een leerling zijn rol even terugzien.
 
+## Burchtbouwers
+
+1. Kies op het startscherm **Burchtbouwers**, kies de bouwtijd en de moeilijkheid en klik op de quiz.
+2. Leerlingen scannen de QR-code. Klik op **Begin met bouwen!**
+3. Na elk goed antwoord kiezen leerlingen waar hun steen komt (op een Chromebook met 1-6).
+4. Als de tijd om is, valt de draak aan. Met **De draak nu laten komen** kan het ook vroeger.
+
+Tip: zeg vooraf dat het samenwerken is. Wie op het bord ziet dat de poort te laag is, bouwt best daar.
+
+## Duel in de arena
+
+1. Kies op het startscherm **Duel in de arena**, kies het aantal harten (3 is goed) en klik op de quiz.
+2. Leerlingen scannen de QR-code. Klik op **Start het toernooi!** (minstens 2 spelers).
+3. Het bord toont wie tegen wie speelt. Leerlingen antwoorden zo snel mogelijk (op een Chromebook met 1-4).
+4. Moet een leerling weg tijdens een duel? Klik op **Lopende duels beslissen**: wie de meeste harten heeft, wint.
+
+Tip: met 3 harten duurt een ronde ongeveer 2 minuten. Met 25 leerlingen zijn er 5 rondes.
+
 ## Ridderrace
 
 1. Kies op het startscherm **Ridderrace**, kies de racetijd en klik op de quiz.

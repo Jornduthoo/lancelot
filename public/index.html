@@ -456,6 +456,107 @@
     <p class="muted" id="vr-end-traitors"></p>
   </section>
  </div>
+ <div id="burcht">
+  <form id="bb-join" class="screen welcome hidden">
+    <img src="/img/logo.webp" alt="LANcelot">
+    <p class="title">Burchtbouwers</p>
+    <input id="bb-name" maxlength="20" autocomplete="off" placeholder="Je naam">
+    <p class="error" id="bb-join-error"></p>
+    <button type="submit" class="big">Naar de bouwplaats</button>
+  </form>
+
+  <section id="bb-lobby" class="screen panel hidden">
+    <p class="status">Burchtbouwers</p>
+    <p class="title" id="bb-lobby-name"></p>
+    <p>Samen bouwen we één burcht. <strong>Elk goed antwoord geeft een steen</strong> (drie op rij: twee stenen). Jij kiest waar hij komt.</p>
+    <p class="muted small">Als de tijd om is, valt de draak aan. Elk deel van de burcht moet dan hoog genoeg zijn. Bouw dus waar het nodig is!</p>
+    <p class="muted small">Wacht tot de leerkracht het spel start.</p>
+    <div class="spinner"></div>
+  </section>
+
+  <section id="bb-game" class="hidden">
+    <div class="sj-top">
+      <div class="sj-gold bb-mine"><span>🧱</span><span id="bb-placed">0</span></div>
+      <div class="sj-meta"><span id="bb-streak"></span><span id="bb-clock"></span></div>
+    </div>
+    <div class="bb-mini" id="bb-mini"></div>
+    <div class="sj-card panel">
+      <p class="status" id="bb-number"></p>
+      <p class="sj-q" id="bb-q"></p>
+    </div>
+    <div class="answers sj-answers" id="bb-answers"></div>
+    <div class="sj-flash hidden" id="bb-flash"><div class="sj-flash-mark" id="bb-flash-mark"></div><div class="sj-flash-text" id="bb-flash-text"></div></div>
+    <div class="kr-overlay hidden" id="bb-pick">
+      <h2 id="bb-pick-title">Waar leg je je steen?</h2>
+      <p class="muted small">De streep is de hoogte die de draak vraagt. ⚠ = hier is het nodig.</p>
+      <div class="bb-parts" id="bb-parts"></div>
+    </div>
+    <div class="sj-countdown hidden" id="bb-countdown"></div>
+  </section>
+
+  <section id="bb-dragon" class="screen panel hidden">
+    <div class="mark bb-dragon-mark">🐉</div>
+    <p class="title">De draak valt aan!</p>
+    <p>Kijk naar het bord...</p>
+  </section>
+
+  <section id="bb-end" class="screen panel hidden">
+    <div class="mark" id="bb-end-mark" style="font-size:4.5rem"></div>
+    <p class="title" id="bb-end-title"></p>
+    <p id="bb-end-stats"></p>
+    <p class="muted">Kijk naar het bord.</p>
+  </section>
+ </div>
+ <div id="duel">
+  <form id="du-join" class="screen welcome hidden">
+    <img src="/img/logo.webp" alt="LANcelot">
+    <p class="title">Duel in de arena</p>
+    <input id="du-name" maxlength="20" autocomplete="off" placeholder="Je naam">
+    <p class="error" id="du-join-error"></p>
+    <button type="submit" class="big">De arena in</button>
+  </form>
+
+  <section id="du-lobby" class="screen panel hidden">
+    <p class="status">Duel in de arena</p>
+    <p class="title" id="du-lobby-name"></p>
+    <p>Je speelt <strong>één tegen één</strong>. Jullie krijgen dezelfde vraag. <strong>Wie eerst juist antwoordt, slaat toe</strong>: de ander verliest een hart.</p>
+    <p class="muted small">Fout? Dan mag je bij die vraag niet meer. Wie wint, gaat door naar de volgende ronde, tot er één kampioen is.</p>
+    <p class="muted small">Wacht tot de leerkracht het toernooi start.</p>
+    <div class="spinner"></div>
+  </section>
+
+  <section id="du-game" class="hidden">
+    <p class="status du-round" id="du-round"></p>
+    <div class="du-versus">
+      <div class="du-side me"><span class="du-who">Jij</span><span class="du-hearts" id="du-my-hearts"></span></div>
+      <span class="du-vs">⚔️</span>
+      <div class="du-side them"><span class="du-who" id="du-op-name"></span><span class="du-hearts" id="du-op-hearts"></span></div>
+    </div>
+    <div class="du-timer"><i id="du-timer"></i></div>
+    <div class="sj-card panel">
+      <p class="status" id="du-number"></p>
+      <p class="sj-q" id="du-q"></p>
+    </div>
+    <div class="answers sj-answers" id="du-answers"></div>
+    <p class="du-note" id="du-note"></p>
+    <div class="sj-flash hidden" id="du-flash"><div class="sj-flash-mark" id="du-flash-mark"></div><div class="sj-flash-text" id="du-flash-text"></div></div>
+  </section>
+
+  <section id="du-wait" class="screen panel hidden">
+    <p class="status" id="du-wait-round"></p>
+    <div class="mark" id="du-wait-mark" style="font-size:4rem">⚔️</div>
+    <p class="title" id="du-wait-title"></p>
+    <p id="du-wait-text"></p>
+    <div class="du-count" id="du-wait-count"></div>
+  </section>
+
+  <section id="du-end" class="screen panel hidden">
+    <div class="mark" id="du-end-mark" style="font-size:4.5rem"></div>
+    <p class="title" id="du-end-title"></p>
+    <p id="du-end-stats"></p>
+    <p class="muted">Kijk naar het bord.</p>
+  </section>
+ </div>
  <div id="oefenblad">
   <form id="ob-join" class="screen welcome hidden">
     <img src="/img/logo.webp" alt="LANcelot">
@@ -496,6 +597,8 @@
 <script src="/js/rr-player.js"></script>
 <script src="/js/kr-player.js"></script>
 <script src="/js/vr-player.js"></script>
+<script src="/js/bb-player.js"></script>
+<script src="/js/du-player.js"></script>
 <script src="/js/ob-sheet.js"></script>
 <script src="/js/ob-player.js"></script>
 </body>

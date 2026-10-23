@@ -40,6 +40,8 @@ document.querySelector('[data-module="laserslag"]').addEventListener('click', ()
 document.querySelector('[data-module="ridderrace"]').addEventListener('click', () => { location.href = '/ridderrace'; });
 document.querySelector('[data-module="kristalroof"]').addEventListener('click', () => { location.href = '/kristalroof'; });
 document.querySelector('[data-module="verrader"]').addEventListener('click', () => { location.href = '/verrader'; });
+document.querySelector('[data-module="burchtbouwers"]').addEventListener('click', () => { location.href = '/burchtbouwers'; });
+document.querySelector('[data-module="duel"]').addEventListener('click', () => { location.href = '/duel'; });
 document.querySelector('[data-module="voorkennis"]').addEventListener('click', () => { location.href = '/rondetafel?doel=voorkennis'; });
 document.querySelector('[data-module="oefenblad"]').addEventListener('click', () => { location.href = '/oefenblad'; });
 document.querySelector('[data-module="werkblad"]').addEventListener('click', () => { location.href = '/oefenblad?maak=ai'; });

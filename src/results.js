@@ -270,4 +270,41 @@ function saveVerrader(v) {
   return write(now, `verrader-${slugOf(v.quiz.title)}`, lines);
 }
 
-module.exports = { save, saveRace, saveRoof, saveVerrader, saveRondeTafel, saveToren, saveSchat, saveLaserslag, saveOefenblad, list, filePath, DIR };
+function saveBurcht(b) {
+  const now = new Date();
+  const ranking = b.ranking();
+  const pct = (a, n) => (n ? `${Math.round((a / n) * 100)}%` : '-');
+  const lines = [
+    row(['Burchtbouwers', b.quiz.title]),
+    row(['Datum', stamp(now)]),
+    row(['Speeltijd', `${b.minutes} minuten`]),
+    row(['Uitkomst', b.held ? 'De burcht houdt stand' : 'De burcht is gevallen']),
+    row(['Nodige hoogte per deel', b.need]),
+    ...b.parts.map(p => row([p.name, `${p.stones.length} stenen`, p.stones.length >= b.need ? 'houdt stand' : 'gevallen'])),
+    row(['Leerlingen', ranking.length]),
+    '',
+    row(['Naam', 'Stenen gelegd', 'Meest gebouwd aan', 'Langste reeks', 'Vragen goed', 'Vragen fout', '% goed']),
+    ...ranking.map(p => row([p.name, p.placed, p.favorite, p.bestStreak, p.right, p.wrong, pct(p.right, p.right + p.wrong)])),
+  ];
+  return write(now, `burchtbouwers-${slugOf(b.quiz.title)}`, lines);
+}
+
+function saveDuel(d) {
+  const now = new Date();
+  const ranking = d.ranking();
+  const pct = (a, n) => (n ? `${Math.round((a / n) * 100)}%` : '-');
+  const secs = ms => (ms === null ? '-' : (ms / 1000).toFixed(1).replace('.', ','));
+  const lines = [
+    row(['Duel in de arena', d.quiz.title]),
+    row(['Datum', stamp(now)]),
+    row(['Harten per duel', d.hearts]),
+    row(['Kampioen', d.champion && d.players.get(d.champion) ? d.players.get(d.champion).name : '-']),
+    row(['Leerlingen', ranking.length]),
+    '',
+    row(['Plaats', 'Naam', 'Tot in', 'Duels gewonnen', 'Vragen goed', 'Vragen fout', '% goed', 'Gem. tijd juist antwoord (s)']),
+    ...ranking.map(p => row([p.place, p.name, p.stage, p.wins, p.right, p.wrong, pct(p.right, p.right + p.wrong), secs(p.avg)])),
+  ];
+  return write(now, `duel-${slugOf(d.quiz.title)}`, lines);
+}
+
+module.exports = { save, saveRace, saveRoof, saveVerrader, saveBurcht, saveDuel, saveRondeTafel, saveToren, saveSchat, saveLaserslag, saveOefenblad, list, filePath, DIR };

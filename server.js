@@ -13,6 +13,8 @@ const { Schat } = require('./src/schat');
 const { Laserslag } = require('./src/laserslag');
 const { Ridderrace } = require('./src/ridderrace');
 const { Kristalroof } = require('./src/kristalroof');
+const { Burcht } = require('./src/burcht');
+const { Duel } = require('./src/duel');
 const { Verrader } = require('./src/verrader');
 const oefenbladen = require('./src/oefenbladen');
 const { OefenbladLive } = require('./src/oefenblad-live');
@@ -73,6 +75,18 @@ const verrader = new Verrader(io, v => {
   return file;
 });
 
+const burcht = new Burcht(io, b => {
+  const file = results.saveBurcht(b);
+  io.to('host').emit('results', results.list());
+  return file;
+});
+
+const duel = new Duel(io, d => {
+  const file = results.saveDuel(d);
+  io.to('host').emit('results', results.list());
+  return file;
+});
+
 const oefenblad = new OefenbladLive(io, o => {
   const file = results.saveOefenblad(o);
   io.to('host').emit('results', results.list());
@@ -89,6 +103,8 @@ function busyWith(except) {
   if (except !== 'race' && race.active) return 'De Ridderrace loopt nog. Stop die eerst.';
   if (except !== 'roof' && roof.active) return 'Kristalroof loopt nog. Stop dat spel eerst.';
   if (except !== 'verrader' && verrader.active) return 'De Verrader loopt nog. Stop dat spel eerst.';
+  if (except !== 'burcht' && burcht.active) return 'Burchtbouwers loopt nog. Stop dat spel eerst.';
+  if (except !== 'duel' && duel.active) return 'Duel in de arena loopt nog. Stop dat eerst.';
   if (except !== 'oefenblad' && oefenblad.active) return 'Er staat nog een oefenblad open. Sluit dat eerst.';
   return null;
 }
@@ -111,7 +127,7 @@ function isLocal(address) {
   return ['127.0.0.1', '::1', '::ffff:127.0.0.1'].includes(address);
 }
 
-for (const [route, page] of [['/host', 'host.html'], ['/rondetafel', 'rondetafel.html'], ['/toren', 'toren.html'], ['/schattenjacht', 'schattenjacht.html'], ['/laserslag', 'laserslag.html'], ['/ridderrace', 'ridderrace.html'], ['/kristalroof', 'kristalroof.html'], ['/verrader', 'verrader.html'], ['/oefenblad', 'oefenblad.html'], ['/oefenblad-print', 'oefenblad-print.html']]) {
+for (const [route, page] of [['/host', 'host.html'], ['/rondetafel', 'rondetafel.html'], ['/toren', 'toren.html'], ['/schattenjacht', 'schattenjacht.html'], ['/laserslag', 'laserslag.html'], ['/ridderrace', 'ridderrace.html'], ['/kristalroof', 'kristalroof.html'], ['/verrader', 'verrader.html'], ['/burchtbouwers', 'burchtbouwers.html'], ['/duel', 'duel.html'], ['/oefenblad', 'oefenblad.html'], ['/oefenblad-print', 'oefenblad-print.html']]) {
   app.get(route, (req, res) => {
     if (!isLocal(req.socket.remoteAddress)) return res.status(403).send('Het docentenscherm is alleen bereikbaar op de pc van de leerkracht.');
     res.sendFile(path.join(__dirname, 'public', page));
@@ -202,6 +218,8 @@ io.on('connection', socket => {
     socket.emit('ls-state', laserslag.hostState());
     socket.emit('rr-state', race.hostState());
     socket.emit('kr-state', roof.hostState());
+    socket.emit('bb-state', burcht.hostState());
+    socket.emit('du-state', duel.hostState());
     socket.emit('vr-state', verrader.hostState());
     socket.emit('ob-state', oefenblad.hostState());
 
@@ -357,6 +375,33 @@ io.on('connection', socket => {
     socket.on('rr-finish', () => race.finish());
     socket.on('rr-restart', () => race.quiz && race.load(race.quiz, race.minutes));
     socket.on('rr-stop', (_, cb) => cb && cb({ file: race.stop() }));
+
+    // Burchtbouwers
+    socket.on('bb-load', handle(({ file, minutes, level } = {}) => {
+      const busy = busyWith('burcht');
+      if (busy) throw new Error(busy);
+      burcht.load(quizzes.load(file), Number(minutes), level);
+      return {};
+    }));
+    socket.on('bb-start', () => burcht.start());
+    socket.on('bb-kick', id => burcht.kick(id));
+    socket.on('bb-dragon', () => burcht.dragon());
+    socket.on('bb-restart', () => burcht.quiz && burcht.load(burcht.quiz, burcht.minutes, burcht.level));
+    socket.on('bb-stop', (_, cb) => cb && cb({ file: burcht.stop() }));
+
+    // Duel in de arena
+    socket.on('du-load', handle(({ file, hearts } = {}) => {
+      const busy = busyWith('duel');
+      if (busy) throw new Error(busy);
+      duel.load(quizzes.load(file), Number(hearts));
+      return {};
+    }));
+    socket.on('du-start', (_, cb) => { const res = duel.start(); if (typeof cb === 'function') cb(res || {}); });
+    socket.on('du-kick', id => duel.kick(id));
+    socket.on('du-decide', () => duel.decide());
+    socket.on('du-finish', () => duel.finish());
+    socket.on('du-restart', () => duel.quiz && duel.load(duel.quiz, duel.hearts));
+    socket.on('du-stop', (_, cb) => cb && cb({ file: duel.stop() }));
 
     // Kristalroof
     socket.on('kr-load', handle(({ file, minutes } = {}) => {
@@ -531,6 +576,37 @@ io.on('connection', socket => {
   socket.on('rr-asking', rr((id, on) => race.asking(id, on)));
   socket.on('rr-question', rr(id => race.question(id)));
   socket.on('rr-answer', rr((id, choice) => race.answer(id, choice)));
+
+  // Burchtbouwers
+  socket.emit('bb-state', burcht.base());
+  socket.on('bb-join', ({ playerId, name } = {}, cb) => {
+    if (!validId(playerId)) return cb && cb({ error: 'Ongeldige speler.' });
+    const result = burcht.join(playerId, name, socket.id);
+    socket.data.bbId = result.ok ? playerId : null;
+    cb && cb(result);
+    if (result.ok) socket.emit('bb-state', burcht.playerState(playerId));
+  });
+  const bb = fn => (arg, cb) => {
+    const out = socket.data.bbId ? fn(socket.data.bbId, arg) : { error: 'Meld je eerst aan.' };
+    if (typeof cb === 'function') cb(out || {});
+  };
+  socket.on('bb-question', bb(id => burcht.question(id)));
+  socket.on('bb-answer', bb((id, choice) => burcht.answer(id, choice)));
+  socket.on('bb-place', bb((id, i) => burcht.place(id, Number(i))));
+
+  // Duel in de arena
+  socket.emit('du-state', duel.base());
+  socket.on('du-join', ({ playerId, name } = {}, cb) => {
+    if (!validId(playerId)) return cb && cb({ error: 'Ongeldige speler.' });
+    const result = duel.join(playerId, name, socket.id);
+    socket.data.duId = result.ok ? playerId : null;
+    cb && cb(result);
+    if (result.ok) socket.emit('du-state', duel.playerState(playerId));
+  });
+  socket.on('du-answer', (choice, cb) => {
+    const out = socket.data.duId ? duel.answer(socket.data.duId, choice) : { error: 'Meld je eerst aan.' };
+    if (typeof cb === 'function') cb(out || {});
+  });
 
   // Kristalroof
   socket.emit('kr-state', roof.base());

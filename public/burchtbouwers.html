@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LANcelot · Burchtbouwers</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body class="sj-host">
+<main>
+  <div class="topbar">
+    <div class="brand" id="brand" title="Naar het startscherm">
+      <img src="/img/logo.webp" alt="">
+      <div>
+        <div class="wordmark">LAN<span>celot</span></div>
+        <div class="subtitle" id="status">Burchtbouwers</div>
+      </div>
+    </div>
+    <div class="actions">
+      <span class="join-mini hidden" id="join-mini"></span>
+      <button class="secondary icon" id="mute" title="Geluid aan/uit">🔊</button>
+      <button class="secondary hidden" id="stop">Stop het spel</button>
+    </div>
+  </div>
+
+      <section id="setup">
+    <div class="bar">
+      <h2>Burchtbouwers</h2>
+      <div class="actions">
+        <button class="secondary" id="to-home">Terug</button>
+        <button class="secondary" data-make="leeg">Lege quiz</button>
+        <button data-make="ai">Nieuwe quiz met AI</button>
+      </div>
+    </div>
+    <div class="panel tw-intro">
+      <svg class="sj-chest bb-logo" viewBox="0 0 64 64"><path d="M6 58V26h8v6h6v-6h8v6h8v-6h8v6h6v-6h8v32z" fill="#3a4a6b" stroke="#9fb4d9" stroke-width="2"/><path d="M26 58V44a6 6 0 0 1 12 0v14z" fill="#0b0f1c"/><path d="M14 26V12h10v14M40 26V12h10v14" fill="#4b5d82" stroke="#9fb4d9" stroke-width="2"/><path d="M45 12V3l8 3-8 3" fill="#ffc94a"/></svg>
+      <div>
+        <p>Een <strong>samenwerkingsspel</strong>: de hele klas bouwt samen één grote burcht op het bord. Elk goed antwoord levert een steen op (drie op rij: twee stenen), en elke leerling kiest zelf <strong>waar</strong> die komt: een toren, een muur, de poort of de donjon.</p>
+        <p>Als de tijd om is, valt <strong>de draak</strong> aan. Elk deel van de burcht moet dan minstens zo hoog zijn als de streep op het bord. De burcht houdt stand als hooguit één deel valt. Overleggen mag dus: waar is het nog nodig?</p>
+        <p class="muted">Niemand wint alleen: ook wie trager is, telt mee. De hoogte die de draak vraagt, hangt af van het aantal leerlingen en de speeltijd.</p>
+      </div>
+    </div>
+    <div class="panel form">
+      <label>Speeltijd
+        <select id="bb-minutes">
+          <option value="3">3 minuten</option>
+          <option value="4">4 minuten</option>
+          <option value="5">5 minuten</option>
+          <option value="6" selected>6 minuten</option>
+          <option value="8">8 minuten</option>
+          <option value="10">10 minuten</option>
+          <option value="12">12 minuten</option>
+        </select>
+      </label>
+      <label>De draak is
+        <select id="bb-level">
+          <option value="makkelijk">Een jonge draak (makkelijk)</option>
+          <option value="normaal" selected>Een volwassen draak (normaal)</option>
+          <option value="moeilijk">Een oeroude draak (moeilijk)</option>
+        </select>
+      </label>
+      <p class="muted small">Kies hieronder de quiz waaruit de vragen komen.</p>
+    </div>
+    <p class="notice hidden" id="stopped"></p>
+    <div class="quiz-list" id="quiz-list"></div>
+    <p class="error" id="load-error"></p>
+  </section>
+
+  <section id="lobby" class="hidden">
+    <div class="panel join">
+      <div class="qr" id="qr"></div>
+      <div class="join-text">
+        <p class="muted">Scan de QR-code of surf naar</p>
+        <div class="join-url" id="join-url"></div>
+        <p class="muted small" id="other-urls"></p>
+      </div>
+    </div>
+    <div class="bar">
+      <h2><span class="count" id="player-count">0</span> <span id="player-word">bouwers</span> klaar</h2>
+      <button class="gold big" id="start" disabled>Begin met bouwen!</button>
+    </div>
+    <p class="muted small">Klik op een naam om die speler te verwijderen.</p>
+    <div class="names" id="names"></div>
+  </section>
+
+  <section id="play" class="hidden">
+    <div class="hud">
+      <span class="round" id="p-title"></span>
+      <span class="tw-clock" id="p-clock"></span>
+      <button class="secondary" id="p-dragon">🐉 De draak nu laten komen</button>
+    </div>
+    <div class="bb-board">
+      <div class="bb-stage"><canvas id="p-canvas"></canvas><div class="bb-banner hidden" id="p-banner"></div></div>
+      <div class="tw-side">
+        <div class="panel center bb-need"><p class="muted small">De draak vraagt per deel</p><div class="sj-total" id="p-need">0</div><p class="muted small">stenen. Hooguit één deel mag vallen.</p></div>
+        <div class="panel bb-builders"><p class="muted small">Beste bouwers</p><ol id="p-builders"></ol></div>
+        <ul class="tw-feed" id="p-feed"></ul>
+      </div>
+    </div>
+    <div class="sj-countdown hidden" id="p-countdown"></div>
+  </section>
+
+  <section id="podium" class="hidden">
+    <div class="center"><h2 id="w-title"></h2><p class="muted" id="w-why"></p></div>
+    <div class="bb-stage bb-final"><canvas id="w-canvas"></canvas></div>
+    <ol class="ranking" id="final"></ol>
+    <p class="center muted" id="results-saved"></p>
+    <div class="bar">
+      <button class="secondary" id="restart">Nog een keer</button>
+      <button id="close">Andere quiz kiezen</button>
+    </div>
+  </section>
+</main>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/fx.js"></script>
+<script src="/js/quiz-links.js"></script>
+<script src="/js/quiz-list.js"></script>
+<script src="/js/bb-host.js"></script>
+<script src="/js/address.js"></script>
+</body>
+</html>

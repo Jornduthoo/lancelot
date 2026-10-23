@@ -12,6 +12,8 @@ Het thema: middeleeuws met een scifi-kantje. Het startscherm heeft drie delen:
    - **Ridderrace**: een racegame in 3D op hoverrossen; goede antwoorden vullen je tank en geven turbo
    - **Kristalroof**: mijn kristallen met goede antwoorden, open kisten en kraak de kluis van een ander met diens geheime woord
    - **De Verrader**: zoals Among Us. Ridders herstellen de kristalkern met goede antwoorden, de geheime verraders betoveren ze. Aan de Ronde Tafel praat de klas en stemt wie verbannen wordt
+   - **Burchtbouwers**: de hele klas bouwt samen één burcht. Elk goed antwoord is een steen die je zelf op een deel van de burcht legt. Als de tijd om is, valt de draak aan
+   - **Duel in de arena**: één tegen één op dezelfde vraag, wie eerst juist antwoordt slaat toe. Een toernooischema op het bord tot er één kampioen is
 2. **De Ronde Tafel**, peilen met de hele klas: polls, stellingen, woordwolken, open vragen en schalen, live op het bord. Met **Voorkennis activeren** maak je met AI meteen een peiling voor het begin van een les.
 3. **Generator**: **live oefenbladen** die leerlingen invullen en die zichzelf verbeteren, en **werkbladen** om te printen, met een verbeterblad.
 
@@ -106,6 +108,25 @@ Een spel zoals Among Us, met de hele klas. Bij de start krijgt iedereen in het g
 - Na een betovering (of als iemand de 📯 hoorn blaast, één keer per speler) komt **de Ronde Tafel** samen: eerst praten (kort, normaal of lang), dan stemmen op wie verbannen wordt, of overslaan. De meeste stemmen wint; bij gelijke stand gebeurt er niets.
 - De ridders winnen als de kern hersteld is of alle verraders verbannen zijn. De verraders winnen als ze even talrijk zijn als de ridders, of als de tijd op is.
 - Op het bord zie je de kern, wie nog meedoet en de Ronde Tafel groot. De rollen worden pas op het einde getoond. Resultaten in `resultaten/`.
+
+## Burchtbouwers
+
+Een samenwerkingsspel: de hele klas bouwt één burcht met zes delen (twee torens, twee muren, de poort en de donjon).
+
+- Elk goed antwoord geeft **een steen** (drie of meer op rij: twee stenen). De leerling kiest zelf op welk deel hij komt, op de gsm met een tik of op een Chromebook met de toetsen 1-6. Het laagste deel krijgt een ⚠.
+- Op het bord groeit de burcht steen per steen, met een kleurstreepje per bouwer. Een stippellijn toont hoe hoog elk deel moet zijn.
+- Is de tijd om (of klik je op **De draak nu laten komen**), dan valt de draak deel per deel aan. Te lage delen vallen. **Valt hooguit één deel, dan houdt de burcht stand.**
+- De hoogte die de draak vraagt, hangt af van het aantal leerlingen, de speeltijd en de moeilijkheid (makkelijk, normaal, moeilijk). Wie later binnenkomt, maakt het niet moeilijker.
+- Resultaten (stenen, juist en fout, beste reeks, favoriete deel) in `resultaten/`.
+
+## Duel in de arena
+
+Een toernooi met duels van één tegen één.
+
+- Beide ridders krijgen tegelijk dezelfde vraag (20 seconden). **Wie eerst juist antwoordt, slaat toe**: de ander verliest een hart. Wie fout antwoordt, mag bij die vraag niet meer. Kies 2 tot 5 harten per duel.
+- Alle duels van een ronde lopen tegelijk. Het bord toont het **toernooischema** live, en tussen de rondes groot wie tegen wie speelt. Bij een oneven aantal krijgt iemand een **vrije doorgang**.
+- Na 12 vragen zonder winnaar beslissen de harten. Met **Lopende duels beslissen** maak je zelf een einde aan een duel, bijvoorbeeld als een leerling weg moet.
+- Wie uitgeschakeld is, kijkt mee op het bord. Resultaten (plaats, ronde, gewonnen duels, juist en fout, gemiddelde reactietijd) in `resultaten/`.
 
 ## Ridderrace
 

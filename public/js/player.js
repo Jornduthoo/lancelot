@@ -182,10 +182,10 @@ socket.on('connect', () => {
 
 show('idle');
 
-// Chromebook: met de toetsen 1-4 antwoorden in de quiz, de Ronde Tafel, Schattenjacht en Kristalroof.
+// Chromebook: met de toetsen 1-4 antwoorden in de quiz, de Ronde Tafel en de spellen.
 document.addEventListener('keydown', e => {
   if (!/^[1-4]$/.test(e.key) || e.target.matches('input, textarea')) return;
-  const buttons = [...document.querySelectorAll('#answer-buttons .answer, #sj-answers .answer, .rt-choice, #kr-answers .answer, #kr-chest-row .kr-chest, #kr-targets button, #vr-answers .answer, #vr-roster button')]
+  const buttons = [...document.querySelectorAll('#answer-buttons .answer, #sj-answers .answer, .rt-choice, #kr-answers .answer, #kr-chest-row .kr-chest, #kr-targets button, #vr-answers .answer, #vr-roster button, #bb-answers .answer, #du-answers .answer')]
     .filter(b => b.getClientRects().length && !b.disabled);
   if (buttons[e.key - 1]) buttons[e.key - 1].click();
 });
