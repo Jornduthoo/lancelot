@@ -18,10 +18,26 @@ function showAddress(list, i) {
     link.textContent = a.name ? `${short(a)} · ${a.name}` : short(a);
     link.addEventListener('click', () => {
       showAddress(list, j);
-      socket.emit('choose-address', a.url.replace(/^http:\/\//, '').replace(/:\d+$/, ''));
+      const ip = ipOf(a);
+      try { localStorage.setItem('lancelot-address', ip); } catch {}
+      socket.emit('choose-address', ip);
     });
     others.append(link);
   });
 }
 
-socket.on('addresses', list => showAddress(list, 0));
+const ipOf = a => a.url.replace(/^http:\/\//, '').replace(/:\d+$/, '');
+
+// De browser van het bord onthoudt de keuze ook. Zo blijft ze bewaard als LANcelot in een nieuwe map
+// wordt uitgepakt (dan is de keuze op de server weg).
+socket.on('addresses', list => {
+  let saved = '';
+  try { saved = localStorage.getItem('lancelot-address') || ''; } catch {}
+  const j = list.findIndex(a => ipOf(a) === saved);
+  if (j > 0) {
+    showAddress(list, j);
+    socket.emit('choose-address', saved);
+    return;
+  }
+  showAddress(list, 0);
+});
