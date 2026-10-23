@@ -54,7 +54,7 @@ for (const section of document.querySelectorAll('#idle, #lobby, section.screen[i
 
 function avPaint() {
   for (const c of document.querySelectorAll('.av-mine canvas')) {
-    const src = Avatar.sprite(avState.mine, { k: 4 });
+    const src = Avatar.sprite(avState.mine, { k: 8 });
     c.width = src.width;
     c.height = src.height;
     const g = c.getContext('2d');
@@ -72,8 +72,16 @@ maker.className = 'av-maker hidden';
 maker.innerHTML = `
   <div class="av-maker-box panel">
     <p class="title">Jouw ridder</p>
-    <div class="av-stage"><canvas id="av-preview"></canvas><canvas id="av-back"></canvas></div>
-    <div class="av-options" id="av-options"></div>
+    <div class="av-stage">
+      <div class="av-platform"></div>
+      <canvas id="av-preview"></canvas>
+      <button type="button" class="secondary av-turn" id="av-turn" title="Draai je ridder om">↻ Draai</button>
+      <p class="av-name" id="av-name"></p>
+    </div>
+    <div class="av-side">
+      <div class="av-tabs" id="av-tabs"></div>
+      <div class="av-options" id="av-options"></div>
+    </div>
     <div class="av-buttons">
       <button type="button" class="secondary" id="av-random">🎲 Verras me</button>
       <button type="button" class="gold" id="av-done">✔ Klaar</button>
@@ -81,36 +89,80 @@ maker.innerHTML = `
   </div>`;
 document.body.appendChild(maker);
 
-const AV_ROWS = [
-  { key: 'helm', label: 'Helm', list: Avatar.HELMS },
-  { key: 'accent', label: 'Versiering', list: Avatar.ACCENTS },
-  { key: 'kleur', label: 'Harnas en cape', colors: Avatar.COLORS },
-  { key: 'vizier', label: 'Vizier', colors: Avatar.VISORS },
-  { key: 'patroon', label: 'Schild', list: Avatar.PATTERNS },
-  { key: 'schild', label: 'Kleur van je schild', colors: Avatar.SHIELDS },
+// Per tabblad: tegels met een voorbeeld (list) en/of kleurbolletjes (colors).
+const AV_TABS = [
+  { id: 'helm', label: '⛑️ Helm', rows: [
+    { key: 'helm', list: Avatar.HELMS, head: true },
+    { key: 'vizier', label: 'Kleur van het licht', colors: Avatar.VISORS },
+  ] },
+  { id: 'accent', label: '✨ Versiering', rows: [{ key: 'accent', list: Avatar.ACCENTS, head: true }] },
+  { id: 'harnas', label: '🎨 Harnas', rows: [
+    { key: 'kleur', label: 'Cape en harnas', colors: Avatar.COLORS },
+    { key: 'huid', label: 'Huidskleur', colors: Avatar.SKINS },
+  ] },
+  { id: 'wapen', label: '⚔️ Wapen', rows: [{ key: 'wapen', list: Avatar.WEAPONS, weapon: true }] },
+  { id: 'schild', label: '🛡️ Schild', rows: [
+    { key: 'patroon', list: Avatar.PATTERNS, shield: true },
+    { key: 'schild', label: 'Kleur van je schild', colors: Avatar.SHIELDS },
+  ] },
 ];
+avState.tab = 'helm';
+avState.back = false;
+
+$('av-tabs').innerHTML = AV_TABS.map(t => `<button type="button" class="av-tab" data-tab="${t.id}">${t.label}</button>`).join('');
+for (const b of $('av-tabs').querySelectorAll('.av-tab')) {
+  b.addEventListener('click', () => { avState.tab = b.dataset.tab; avOptions(); });
+}
+
+// Een tegel: de ridder met die keuze, of enkel zijn hoofd of schild.
+function avTile(row, i) {
+  const av = { ...avState.draft, [row.key]: i };
+  const src = Avatar.sprite(av, { k: 6 });
+  const c = document.createElement('canvas');
+  const crop = row.head ? [0, 0, 12, 8] : row.shield ? [7, 8.6, 5, 6.4] : row.weapon ? [0, 3.5, 7, 10] : [0, 0, 12, 17];
+  c.width = crop[2] * 6;
+  c.height = crop[3] * 6;
+  c.getContext('2d').drawImage(src, crop[0] * 6, crop[1] * 6, c.width, c.height, 0, 0, c.width, c.height);
+  return c;
+}
 
 function avOptions() {
   const d = avState.draft;
-  $('av-options').innerHTML = AV_ROWS.map(r => {
-    if (r.colors) {
-      return `<div class="av-row"><span class="av-label">${r.label}</span><div class="av-swatches">${r.colors.map((c, i) =>
-        `<button type="button" class="av-swatch${d[r.key] === i ? ' on' : ''}" data-key="${r.key}" data-i="${i}" style="background:${c}" aria-label="${r.label} ${i + 1}"></button>`).join('')}</div></div>`;
-    }
-    return `<div class="av-row"><span class="av-label">${r.label}</span><div class="av-cycle">
-      <button type="button" class="secondary av-step" data-key="${r.key}" data-d="-1" aria-label="Vorige">◀</button>
-      <span class="av-value">${r.list[d[r.key]].name}</span>
-      <button type="button" class="secondary av-step" data-key="${r.key}" data-d="1" aria-label="Volgende">▶</button></div></div>`;
-  }).join('');
-  for (const b of $('av-options').querySelectorAll('.av-swatch')) {
-    b.addEventListener('click', () => { avState.draft[b.dataset.key] = Number(b.dataset.i); avRefresh(); });
-  }
-  for (const b of $('av-options').querySelectorAll('.av-step')) {
-    b.addEventListener('click', () => {
-      const n = Avatar.KEYS[b.dataset.key];
-      avState.draft[b.dataset.key] = (avState.draft[b.dataset.key] + Number(b.dataset.d) + n) % n;
-      avRefresh();
+  const tab = AV_TABS.find(t => t.id === avState.tab);
+  for (const b of $('av-tabs').querySelectorAll('.av-tab')) b.classList.toggle('on', b.dataset.tab === tab.id);
+  const box = $('av-options');
+  box.innerHTML = '';
+  for (const r of tab.rows) {
+    const row = document.createElement('div');
+    row.className = 'av-row';
+    if (r.label) row.innerHTML = `<span class="av-label">${r.label}</span>`;
+    const wrap = document.createElement('div');
+    wrap.className = r.colors ? 'av-swatches' : 'av-tiles';
+    (r.colors || r.list).forEach((item, i) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.dataset.key = r.key;
+      b.dataset.i = i;
+      if (r.colors) {
+        b.className = 'av-swatch' + (d[r.key] === i ? ' on' : '');
+        b.style.background = item;
+        b.setAttribute('aria-label', `${r.label} ${i + 1}`);
+      } else {
+        b.className = 'av-tile' + (d[r.key] === i ? ' on' : '') + (r.head ? ' head' : r.shield ? ' shield' : r.weapon ? ' weapon' : '');
+        b.appendChild(avTile(r, i));
+        const name = document.createElement('span');
+        name.textContent = item.name;
+        b.appendChild(name);
+      }
+      b.addEventListener('click', () => {
+        avState.draft[r.key] = i;
+        avRefresh(true);
+        sfx.tick();
+      });
+      wrap.appendChild(b);
     });
+    row.appendChild(wrap);
+    box.appendChild(row);
   }
 }
 
@@ -120,21 +172,38 @@ function avDraw(canvas, src) {
   canvas.getContext('2d').drawImage(src, 0, 0);
 }
 
-function avRefresh() {
+function avRefresh(bump = false) {
   avOptions();
-  avDraw($('av-preview'), Avatar.sprite(avState.draft, { k: 12 }));
-  avDraw($('av-back'), Avatar.sprite(avState.draft, { k: 6, back: true }));
+  avDraw($('av-preview'), Avatar.sprite(avState.draft, { k: 20, back: avState.back }));
+  if (bump) {
+    const c = $('av-preview');
+    c.classList.remove('bump');
+    void c.offsetWidth;
+    c.classList.add('bump');
+  }
 }
 
 function avOpen() {
   avState.draft = { ...avState.mine };
+  avState.back = false;
+  $('av-name').textContent = avName() || '';
   maker.classList.remove('hidden');
   avRefresh();
 }
 
+$('av-turn').addEventListener('click', () => {
+  const c = $('av-preview');
+  c.classList.remove('bump');
+  c.classList.add('turning');
+  setTimeout(() => {
+    avState.back = !avState.back;
+    avRefresh();
+    c.classList.remove('turning');
+  }, 160);
+});
 $('av-random').addEventListener('click', () => {
   avState.draft = Avatar.random();
-  avRefresh();
+  avRefresh(true);
   sfx.swoosh();
 });
 $('av-done').addEventListener('click', () => {

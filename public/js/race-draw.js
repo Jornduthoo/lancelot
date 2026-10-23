@@ -381,9 +381,8 @@ const RaceDraw = (() => {
       // Het hoofd van de eigen ridder (versiering en helm), van achteren gezien.
       const img = Avatar.sprite(o.av, { back: true, k: 4 });
       const hw = .34 * w;
-      const hh = hw * (7 / 12);
-      ctx.imageSmoothingEnabled = false;
-      ctx.drawImage(img, 0, 0, img.width, 7 * 4, -hw / 2, -.8 * h - hh, hw, hh);
+      const hh = hw * (8 / 12);
+      ctx.drawImage(img, 0, 0, img.width, img.height * (8 / 17), -hw / 2, -.8 * h - hh, hw, hh);
     } else {
       // Helm met pluim.
       ctx.fillStyle = '#c9d2e6';

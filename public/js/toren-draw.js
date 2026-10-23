@@ -68,7 +68,7 @@ const TorenDraw = (() => {
     const map = KNIGHT.slice();
     Avatar.ACCENTS[a.accent].rows.forEach((r, i) => { map[i] = shift(r); });
     Avatar.HELMS[a.helm].rows.forEach((r, i) => { map[2 + i] = shift(r); });
-    return { map, palette: { C: Avatar.COLORS[a.kleur], V: Avatar.VISORS[a.vizier], W: '#f2efe6', F: '#ffd8b8', E: '#1a1a2e' } };
+    return { map, palette: { C: Avatar.COLORS[a.kleur], V: Avatar.VISORS[a.vizier], W: '#f2efe6', F: Avatar.SKINS[a.huid], E: '#1a1a2e', G: '#ffc94a', O: '#ff8c42' } };
   }
 
   function knight(ctx, x, y, w, h, color, face, act, t, alpha = 1, av = null) {

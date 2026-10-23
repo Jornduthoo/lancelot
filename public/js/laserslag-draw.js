@@ -169,6 +169,14 @@ const SlagDraw = (() => {
     ctx.strokeText(text, sx, sy - R - 16 * s);
     ctx.fillStyle = '#eaf4ff';
     ctx.fillText(text, sx, sy - R - 16 * s);
+    // Het hoofd van de eigen ridder naast de naam.
+    const av = typeof Avatar !== 'undefined' ? Avatar.byName(name) : null;
+    if (av) {
+      const img = Avatar.head(av, 4);
+      const hh = Math.max(14, 20 * s);
+      const hw = hh * img.width / img.height;
+      ctx.drawImage(img, sx - ctx.measureText(text).width / 2 - hw - 2 * s, sy - R - 16 * s - hh * .8, hw, hh);
+    }
     if (hp !== null) {
       for (let i = 0; i < 3; i++) {
         ctx.fillStyle = i < hp ? color : 'rgba(255, 255, 255, .18)';

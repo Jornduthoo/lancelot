@@ -1,12 +1,14 @@
-// Eigen ridders: elke leerling stelt een ridder samen (helm, harnas, vizier, schild en een accent).
-// LANcelot onthoudt hem op de naam van de leerling, en de spellen tekenen hem in pixelkunst.
+// Eigen ridders: elke leerling stelt een ridder samen (helm, versiering, harnas, huid, wapen en schild).
+// LANcelot onthoudt hem op de naam van de leerling, en de spellen tekenen hem.
 // Avatar.byName(naam) geeft de ridder van een leerling (of null), Avatar.sprite(...) een tekening.
 const Avatar = (() => {
   const COLORS = ['#ff4d6d', '#3d8bff', '#ffb703', '#22c993', '#a66bff', '#ff8c42', '#ff5fd2', '#4cc9ff', '#9be15d', '#e8edf5'];
   const VISORS = ['#4cc9ff', '#ff4d6d', '#ffc94a', '#2ee6a6', '#c77dff'];
   const SHIELDS = ['#3d8bff', '#ff4d6d', '#22c993', '#a66bff', '#1b2740', '#ffb703', '#ff8c42', '#e8edf5'];
+  const SKINS = ['#ffdcc0', '#f1c19a', '#d79b6c', '#a96b43', '#6e4429'];
 
-  // Helmen: vijf rijen (onder het accent). S = staal, s = schaduw, V = vizier, C = kleur van het harnas, F = gezicht.
+  // De rijen zijn de pixelversie (De prinses in de toren tekent die). De rest tekent LANcelot met lijnen en verlopen.
+  // S = staal, s = schaduw, V = vizier, C = kleur van het harnas, F = gezicht, E = ogen, G = goud, O = vuur.
   const HELMS = [
     { name: 'Ridderhelm', rows: ['...SSSSSS...', '..SSSSSSSS..', '..SVVVVVVS..', '..SSSSSSSS..', '...SSSSSS...'] },
     { name: 'Emmerhelm', rows: ['..SSSSSSSS..', '..SSSSSSSS..', '..SVVsSVVS..', '..SSSSSSSS..', '..SsSSSSsS..'] },
@@ -14,8 +16,9 @@ const Avatar = (() => {
     { name: 'Neonhelm', rows: ['...SSSSSS...', '..VSSSSSSV..', '..VVVVVVVV..', '..SSSSSSSS..', '...sSSSSs...'] },
     { name: 'Kap', rows: ['...CCCCCC...', '..CCCCCCCC..', '..CCFFFFCC..', '..CFEFFEFC..', '...CFFFFC...'] },
     { name: 'Open helm', rows: ['...SSSSSS...', '..SSSSSSSS..', '..SFEFFEFS..', '..SFFFFFFS..', '...SFFFFS...'] },
+    { name: 'Drakenhelm', rows: ['..CSSSSSSC..', '..SSSSSSSS..', '..SVsSSsVS..', '..SSSSSSSS..', '...sSSSSs...'] },
+    { name: 'Ruimtehelm', rows: ['...VVVVVV...', '..VFFFFFFV..', '..VFEFFEFV..', '..VFFFFFFV..', '...SSSSSS...'] },
   ];
-  // Accent bovenop de helm: twee rijen.
   const ACCENTS = [
     { name: 'Geen', rows: ['............', '............'] },
     { name: 'Pluim', rows: ['.....CC.....', '....CCCC....'] },
@@ -23,43 +26,17 @@ const Avatar = (() => {
     { name: 'Kroon', rows: ['...G.GG.G...', '...GGGGGG...'] },
     { name: 'Antenne', rows: ['.......V....', '.......s....'] },
     { name: 'Vleugels', rows: ['.WW......WW.', '..WW....WW..'] },
+    { name: 'Halo', rows: ['...VVVVVV...', '............'] },
+    { name: 'Vlammen', rows: ['.....OG.....', '....OOOO....'] },
   ];
-  // Schild op de arm: vier rijen van vier. D = veld, E = teken.
   const PATTERNS = [
-    { name: 'Effen', rows: ['DDDD', 'DDDD', 'DDDD', '.DD.'] },
-    { name: 'Gedeeld', rows: ['DDEE', 'DDEE', 'DDEE', '.DE.'] },
-    { name: 'Kruis', rows: ['DEED', 'EEEE', 'DEED', '.ED.'] },
-    { name: 'Band', rows: ['DDDD', 'EEEE', 'DDDD', '.DD.'] },
-    { name: 'Dambord', rows: ['DEDE', 'EDED', 'DEDE', '.ED.'] },
-    { name: 'Punt', rows: ['EDDE', 'DEED', 'DDDD', '.DD.'] },
+    { name: 'Effen' }, { name: 'Gedeeld' }, { name: 'Kruis' }, { name: 'Schuine band' }, { name: 'Dambord' }, { name: 'Punt' },
   ];
-  // Het lichaam van voren (rijen 7 tot 16). Het schild komt op de rijen 8 tot 11, rechts.
-  const BODY = [
-    '.CCSSGGSSCC.',
-    'CCSSSSSSSSCC',
-    'CsSSSCCSSSsC',
-    'C.sSSCCSSs.C',
-    '..SSSSSSSS..',
-    '..SSGGGGSS..',
-    '..SS....SS..',
-    '..SS....SS..',
-    '..BB....BB..',
-    '.BBB....BBB.',
-  ];
-  const BODY_BACK = [
-    '.CCCCCCCCCC.',
-    'CCCCCCCCCCCC',
-    'CsCCCCCCCCsC',
-    'C.CCCCCCCC.C',
-    '..CCCCCCCC..',
-    '..SCCCCCCS..',
-    '..SS....SS..',
-    '..SS....SS..',
-    '..BB....BB..',
-    '.BBB....BBB.',
-  ];
-  const BASE = { S: '#c9d6e6', s: '#7d8ba3', G: '#ffc94a', B: '#2b3550', W: '#f2efe6', F: '#ffd8b8', E: '#1a1a2e' };
-  const KEYS = { helm: HELMS.length, accent: ACCENTS.length, kleur: COLORS.length, vizier: VISORS.length, patroon: PATTERNS.length, schild: SHIELDS.length };
+  const WEAPONS = [{ name: 'Zwaard' }, { name: 'Lichtzwaard' }, { name: 'Bijl' }, { name: 'Strijdhamer' }, { name: 'Toverstaf' }];
+  const KEYS = {
+    helm: HELMS.length, accent: ACCENTS.length, kleur: COLORS.length, vizier: VISORS.length,
+    patroon: PATTERNS.length, schild: SHIELDS.length, wapen: WEAPONS.length, huid: SKINS.length,
+  };
 
   const pick = n => Math.floor(Math.random() * n);
   function random() {
@@ -79,56 +56,577 @@ const Avatar = (() => {
     return out;
   }
 
-  // De pixelkaart van een ridder: 17 rijen van 12, plus het palet.
-  // opts.back: van achteren; opts.armor: harnaskleur opleggen (bijvoorbeeld de kleur van het team).
-  function map(av, opts = {}) {
-    const a = clean(av) || random();
-    const armor = opts.armor || COLORS[a.kleur];
-    const helm = HELMS[a.helm].rows.map(r => (opts.back ? r.replace(/V/g, 'S').replace(/[FE]/g, 'C') : r));
-    const rows = [...ACCENTS[a.accent].rows, ...helm, ...(opts.back ? BODY_BACK : BODY)];
-    if (!opts.back) {
-      PATTERNS[a.patroon].rows.forEach((pr, i) => {
-        const r = rows[8 + i].split('');
-        [...pr].forEach((ch, j) => { if (ch !== '.') r[8 + j] = ch; });
-        rows[8 + i] = r.join('');
+  // ---------- Tekenhulp ----------
+
+  // Een kleur lichter (f > 0) of donkerder (f < 0) maken.
+  function shade(hex, f) {
+    const n = parseInt(hex.slice(1), 16);
+    let r = n >> 16, gg = (n >> 8) & 255, b = n & 255;
+    if (f < 0) { r *= 1 + f; gg *= 1 + f; b *= 1 + f; } else { r += (255 - r) * f; gg += (255 - gg) * f; b += (255 - b) * f; }
+    return `rgb(${r | 0},${gg | 0},${b | 0})`;
+  }
+  const alpha = (hex, a) => {
+    const n = parseInt(hex.slice(1), 16);
+    return `rgba(${n >> 16},${(n >> 8) & 255},${n & 255},${a})`;
+  };
+
+  const LINE = '#0a1020';
+  const GOLD = '#ffc94a';
+  const BOOT = '#2b3550';
+
+  // Elke tekening gebeurt in een raster van 12 breed en 17 hoog; k is het aantal pixels per eenheid.
+  function make(g, k) {
+    const d = {
+      g, k,
+      path(pts, closed = true) {
+        g.beginPath();
+        g.moveTo(pts[0], pts[1]);
+        for (let i = 2; i < pts.length; i += 2) g.lineTo(pts[i], pts[i + 1]);
+        if (closed) g.closePath();
+      },
+      fill(style, line = true, lw = .2) {
+        g.fillStyle = style;
+        g.fill();
+        if (line) { g.lineWidth = lw; g.strokeStyle = LINE; g.lineJoin = 'round'; g.stroke(); }
+      },
+      lin(x0, y0, x1, y1, stops) {
+        const gr = g.createLinearGradient(x0, y0, x1, y1);
+        stops.forEach((c, i) => gr.addColorStop(i / (stops.length - 1), c));
+        return gr;
+      },
+      // Gepolijst staal: licht links, donker rechts.
+      steel(x0, x1, dark = false) {
+        return dark
+          ? d.lin(x0, 0, x1, 0, ['#c3ccda', '#8893a8', '#4a5468', '#2c3446'])
+          : d.lin(x0, 0, x1, 0, ['#ffffff', '#d3dde9', '#97a6bc', '#5d6a82']);
+      },
+      glow(color, size, fn) {
+        g.save();
+        g.shadowColor = color;
+        g.shadowBlur = size * k;
+        fn();
+        g.restore();
+      },
+      ellipse(x, y, rx, ry, rot = 0) {
+        g.beginPath();
+        g.ellipse(x, y, rx, ry, rot, 0, Math.PI * 2);
+      },
+      rrect(x, y, w, h, r) {
+        g.beginPath();
+        if (g.roundRect) g.roundRect(x, y, w, h, r); else g.rect(x, y, w, h);
+      },
+      line(x0, y0, x1, y1, style, lw) {
+        g.beginPath(); g.moveTo(x0, y0); g.lineTo(x1, y1);
+        g.strokeStyle = style; g.lineWidth = lw; g.lineCap = 'round'; g.stroke();
+      },
+    };
+    return d;
+  }
+
+  // ---------- Onderdelen ----------
+
+  function drawLegs(d) {
+    for (const x of [3.5, 6.5]) {
+      d.rrect(x, 12, 2, 3.7, .5);
+      d.fill(d.steel(x, x + 2));
+      d.ellipse(x + 1, 13.3, .75, .5);
+      d.fill(d.steel(x + .2, x + 1.8, true), true, .15);
+      d.rrect(x - .3, 15.2, 2.5, 1.55, [.7, .7, .3, .3]);
+      d.fill(d.lin(0, 15.2, 0, 16.8, [shade(BOOT, .35), BOOT, shade(BOOT, -.4)]));
+    }
+  }
+
+  function drawCapeBehind(d, C) {
+    d.path([2.4, 7.7, 9.6, 7.7, 11.1, 15.9, 9.6, 15.6, 8, 16, 6, 15.7, 4, 16, 2.4, 15.6, .9, 15.9]);
+    d.fill(d.lin(0, 8, 0, 16, [shade(C, -.35), shade(C, -.55)]));
+  }
+
+  function drawTorso(d, pal) {
+    const { g } = d;
+    // Wapenrok onder het harnas, tot over de knieën.
+    d.path([4, 11.6, 8, 11.6, 7.9, 13.5, 6, 14.4, 4.1, 13.5]);
+    d.fill(d.lin(0, 11.6, 0, 14.4, [pal.C, shade(pal.C, -.35)]));
+    d.line(6, 12.2, 6, 14, shade(pal.C, .35), .18);
+    // Borstplaat.
+    g.beginPath();
+    g.moveTo(3.2, 7.9);
+    g.quadraticCurveTo(6, 7.1, 8.8, 7.9);
+    g.lineTo(8.6, 10.2);
+    g.quadraticCurveTo(8.4, 11.6, 8, 12);
+    g.lineTo(4, 12);
+    g.quadraticCurveTo(3.6, 11.6, 3.4, 10.2);
+    g.closePath();
+    d.fill(d.steel(3.2, 8.8));
+    // Glansrand en middenrib.
+    d.line(4.1, 8.4, 4.4, 11.2, 'rgba(255,255,255,.7)', .22);
+    d.line(6, 7.6, 6, 11.8, 'rgba(40,50,70,.35)', .14);
+    // Kraag in de kleur van het harnas.
+    d.path([4.3, 7.4, 7.7, 7.4, 7.3, 8.2, 4.7, 8.2]);
+    d.fill(pal.C, true, .15);
+    // Energiekern op de borst.
+    d.ellipse(6, 9.5, .85, .85);
+    d.fill(d.lin(5.2, 8.7, 6.8, 10.3, ['#56607a', '#232a3c']), true, .18);
+    d.glow(pal.V, 1.2, () => {
+      d.ellipse(6, 9.5, .5, .5);
+      d.fill(d.lin(5.6, 9.1, 6.4, 9.9, ['#ffffff', pal.V]), false);
+    });
+    // Riem met gesp.
+    d.rrect(3.85, 11.35, 4.3, .75, .2);
+    d.fill(d.lin(0, 11.35, 0, 12.1, ['#5b4330', '#2e2118']), true, .15);
+    d.rrect(5.5, 11.25, 1, .95, .2);
+    d.fill(d.lin(5.5, 0, 6.5, 0, ['#fff1b8', GOLD, '#b8860b']), true, .15);
+  }
+
+  function drawPauldron(d, x, C) {
+    const { g } = d;
+    g.beginPath();
+    g.moveTo(x - 1.55, 9.2);
+    g.quadraticCurveTo(x - 1.6, 7.5, x, 7.4);
+    g.quadraticCurveTo(x + 1.6, 7.5, x + 1.55, 9.2);
+    g.quadraticCurveTo(x, 8.7, x - 1.55, 9.2);
+    d.fill(d.steel(x - 1.6, x + 1.6));
+    d.line(x - 1.2, 8.75, x + 1.2, 8.75, C, .32);
+  }
+
+  function drawArm(d, x) {
+    d.rrect(x, 8.4, 1.4, 3.2, .55);
+    d.fill(d.steel(x, x + 1.4));
+  }
+
+  function drawGauntlet(d, x, y) {
+    d.rrect(x - .8, y - .65, 1.6, 1.25, .45);
+    d.fill(d.steel(x - .8, x + .8, true), true, .18);
+  }
+
+  // Het wapen in de linkerhand (hand op 2.6, 11.8).
+  function drawWeapon(d, pal, w) {
+    const { g } = d;
+    g.save();
+    g.translate(2.6, 11.8);
+    g.rotate(-.27);
+    if (w === 0 || w === 1) {
+      // Kling naar boven.
+      if (w === 0) {
+        d.path([-.32, -.6, .32, -.6, .3, -6.2, 0, -6.9, -.3, -6.2]);
+        d.fill(d.lin(-.32, 0, .32, 0, ['#ffffff', '#cbd6e4', '#7d8aa2']));
+        d.line(0, -.9, 0, -6, 'rgba(90,105,130,.6)', .1);
+      } else {
+        d.glow(pal.V, 1.6, () => {
+          d.path([-.34, -.7, .34, -.7, .34, -6.4, 0, -7, -.34, -6.4]);
+          d.fill(pal.V, false);
+        });
+        d.path([-.14, -.8, .14, -.8, .14, -6.3, 0, -6.6, -.14, -6.3]);
+        d.fill('#ffffff', false);
+      }
+      // Pareerstang en knop.
+      d.rrect(-1.05, -.85, 2.1, .45, .2);
+      d.fill(d.lin(0, -.85, 0, -.4, ['#fff1b8', GOLD, '#a87410']), true, .15);
+      d.rrect(-.2, -.45, .4, 1.4, .1);
+      d.fill('#3a2a1c', true, .12);
+      d.ellipse(0, 1.15, .32, .32);
+      d.fill(GOLD, true, .12);
+    } else if (w === 2 || w === 3) {
+      // Steel.
+      d.rrect(-.2, -5.4, .4, 7.2, .15);
+      d.fill(d.lin(-.2, 0, .2, 0, ['#9a6a40', '#5b3a20']), true, .14);
+      if (w === 2) {
+        // Bijl: halve maan naar links.
+        g.beginPath();
+        g.moveTo(-.1, -5.2);
+        g.quadraticCurveTo(-1, -5.5, -1.75, -6.1);
+        g.quadraticCurveTo(-1.2, -4.6, -1.75, -3.1);
+        g.quadraticCurveTo(-1, -3.7, -.1, -3.9);
+        g.closePath();
+        d.fill(d.lin(-1.75, 0, 0, 0, ['#ffffff', '#c3cedd', '#6c7890']));
+        d.line(-1.55, -5.6, -1.55, -3.6, 'rgba(255,255,255,.9)', .12);
+      } else {
+        // Strijdhamer met een gloeiende rune.
+        d.rrect(-1.25, -6.1, 2.5, 1.6, .25);
+        d.fill(d.steel(-1.25, 1.25, true));
+        d.glow(pal.V, 1, () => {
+          d.path([-.3, -5.85, .3, -5.85, 0, -4.75]);
+          d.fill(pal.V, false);
+        });
+      }
+    } else {
+      // Toverstaf met een zwevende bol.
+      d.rrect(-.17, -6, .34, 9.6, .15);
+      d.fill(d.lin(-.2, 0, .2, 0, ['#c8a2ff', '#4a2c7a']), true, .12);
+      d.ellipse(0, -6.3, .75, .32);
+      d.fill(GOLD, true, .12);
+      d.glow(pal.V, 1.8, () => {
+        d.ellipse(0, -7.25, .7, .7);
+        d.fill(d.lin(-.7, -7.9, .7, -6.6, ['#ffffff', pal.V]), false);
       });
     }
-    // Het teken op het schild: goud, of donker op een licht veld.
-    const field = SHIELDS[a.schild];
-    const mark = field === '#ffb703' || field === '#e8edf5' ? '#1b2740' : '#ffc94a';
-    return { rows, palette: { ...BASE, C: armor, V: VISORS[a.vizier], D: field, E: mark } };
+    g.restore();
+  }
+
+  function shieldPath(d, x0, y0, s) {
+    const { g } = d;
+    const w = 4 * s, cx = x0 + w / 2;
+    g.beginPath();
+    g.moveTo(x0, y0);
+    g.quadraticCurveTo(cx, y0 - .45 * s, x0 + w, y0);
+    g.lineTo(x0 + w, y0 + 2.8 * s);
+    g.quadraticCurveTo(x0 + w - .2 * s, y0 + 4.6 * s, cx, y0 + 5.6 * s);
+    g.quadraticCurveTo(x0 + .2 * s, y0 + 4.6 * s, x0, y0 + 2.8 * s);
+    g.closePath();
+  }
+
+  function drawShield(d, pal, pat, x0, y0, s = 1) {
+    const { g } = d;
+    const w = 4 * s, h = 5.6 * s, cx = x0 + w / 2;
+    shieldPath(d, x0, y0, s);
+    g.save();
+    g.clip();
+    g.fillStyle = d.lin(x0, y0, x0 + w, y0 + h, [shade(pal.D, .25), pal.D, shade(pal.D, -.3)]);
+    g.fillRect(x0 - 1, y0 - 1, w + 2, h + 2);
+    g.fillStyle = pal.E;
+    if (pat === 1) g.fillRect(cx, y0 - 1, w, h + 2);
+    if (pat === 2) { g.fillRect(cx - .4 * s, y0 - 1, .8 * s, h + 2); g.fillRect(x0 - 1, y0 + 1.75 * s, w + 2, .8 * s); }
+    if (pat === 3) d.path([x0 - 1, y0 + .2 * s, x0 + .3 * s, y0 - 1, x0 + w + 1, y0 + 3.8 * s, x0 + w - .3 * s, y0 + 5 * s]), g.fill();
+    if (pat === 4) {
+      const q = w / 4;
+      for (let i = 0; i < 4; i++) for (let j = 0; j < 6; j++) if ((i + j) % 2) g.fillRect(x0 + i * q, y0 - .2 + j * q, q, q);
+    }
+    if (pat === 5) d.path([x0 - 1, y0 + 3.6 * s, cx, y0 + 1.2 * s, x0 + w + 1, y0 + 3.6 * s, x0 + w + 1, y0 + 4.6 * s, cx, y0 + 2.2 * s, x0 - 1, y0 + 4.6 * s]), g.fill();
+    // Glans bovenaan.
+    g.fillStyle = 'rgba(255,255,255,.18)';
+    d.ellipse(x0 + w * .35, y0 + h * .2, w * .45, h * .22, -.3);
+    g.fill();
+    g.restore();
+    // Stalen rand.
+    shieldPath(d, x0, y0, s);
+    g.lineWidth = .32 * s; g.strokeStyle = '#d9e2ee'; g.stroke();
+    g.lineWidth = .14; g.strokeStyle = LINE; g.stroke();
+    if (pat === 0) {
+      // Effen schild: een gouden knop in het midden.
+      d.ellipse(cx, y0 + 2.3 * s, .65 * s, .65 * s);
+      d.fill(d.lin(cx - .6, 0, cx + .6, 0, ['#fff1b8', GOLD, '#a87410']), true, .14);
+    }
+  }
+
+  // Het gezicht onder een open helm, kap of glazen helm.
+  function drawFace(d, pal, y = 5.65) {
+    d.ellipse(6, y, 1.55, 1.6);
+    d.fill(d.lin(4.5, 0, 7.5, 0, [shade(pal.F, .15), pal.F, shade(pal.F, -.25)]), true, .15);
+    for (const x of [5.35, 6.65]) {
+      d.ellipse(x, y - .1, .2, .28);
+      d.fill('#141826', false);
+      d.ellipse(x + .07, y - .2, .07, .07);
+      d.fill('#ffffff', false);
+    }
+    d.g.fillStyle = alpha('#ff7a8a', .35);
+    d.ellipse(4.95, y + .45, .3, .18); d.g.fill();
+    d.ellipse(7.05, y + .45, .3, .18); d.g.fill();
+    d.g.beginPath();
+    d.g.moveTo(5.6, y + .7);
+    d.g.quadraticCurveTo(6, y + 1, 6.4, y + .7);
+    d.g.strokeStyle = shade(pal.F, -.55); d.g.lineWidth = .14; d.g.stroke();
+  }
+
+  function domePath(d, top, bottom = 7.5) {
+    const { g } = d;
+    g.beginPath();
+    g.moveTo(3.4, bottom);
+    g.lineTo(3.3, 5);
+    g.bezierCurveTo(3.3, top + .4, 8.7, top + .4, 8.7, 5);
+    g.lineTo(8.6, bottom);
+    g.closePath();
+  }
+
+  function slit(d, pal, x, y, w, h) {
+    d.glow(pal.V, 1, () => {
+      d.rrect(x, y, w, h, h / 2);
+      d.fill(d.lin(0, y, 0, y + h, ['#ffffff', pal.V]), false);
+    });
+  }
+
+  function drawHelm(d, pal, helm, back) {
+    const { g } = d;
+    if (helm === 0) {
+      domePath(d, 2);
+      d.fill(d.steel(3.3, 8.7));
+      if (!back) {
+        d.rrect(3.7, 4.45, 4.6, .75, .2);
+        d.fill('#1a2030', true, .12);
+        slit(d, pal, 3.95, 4.6, 4.1, .45);
+        for (const y of [6.1, 6.6]) for (const x of [6.7, 7.2, 7.7]) { d.ellipse(x, y, .12, .12); d.fill('#3a4459', false); }
+      }
+      d.line(6, 2.5, 6, back ? 7.2 : 4.3, 'rgba(255,255,255,.55)', .2);
+    } else if (helm === 1) {
+      d.rrect(3.3, 2.5, 5.4, 5, [.6, .6, .2, .2]);
+      d.fill(d.steel(3.3, 8.7));
+      d.rrect(3.3, 2.5, 5.4, .8, [.6, .6, 0, 0]);
+      d.fill(d.lin(0, 2.5, 0, 3.3, ['#fff1b8', GOLD, '#a87410']), true, .14);
+      if (!back) {
+        d.rrect(3.75, 4.25, 4.5, .7, .15); d.fill('#1a2030', true, .12);
+        d.rrect(5.65, 4.25, .7, 2.6, .15); d.fill('#1a2030', true, .12);
+        slit(d, pal, 3.95, 4.4, 1.55, .4);
+        slit(d, pal, 6.5, 4.4, 1.55, .4);
+      }
+      for (const x of [3.8, 8.2]) { d.ellipse(x, 6.9, .14, .14); d.fill('#3a4459', false); }
+    } else if (helm === 2) {
+      g.beginPath();
+      g.moveTo(3.5, 7.5);
+      g.lineTo(3.35, 4.6);
+      g.quadraticCurveTo(3.6, 2.4, 6, 1.4);
+      g.quadraticCurveTo(8.4, 2.4, 8.65, 4.6);
+      g.lineTo(8.5, 7.5);
+      g.closePath();
+      d.fill(d.steel(3.3, 8.7));
+      if (!back) {
+        d.path([3.7, 4.2, 8.3, 4.2, 7.8, 6.3, 6, 7.4, 4.2, 6.3]);
+        d.fill(d.steel(3.7, 8.3, true), true, .16);
+        slit(d, pal, 4.2, 4.75, 1.4, .38);
+        slit(d, pal, 6.4, 4.75, 1.4, .38);
+        for (const y of [5.9, 6.4]) d.line(5.3, y, 6.7, y, '#1a2030', .12);
+      }
+      d.line(6, 1.8, 6, 4, 'rgba(255,255,255,.6)', .18);
+    } else if (helm === 3) {
+      d.ellipse(6, 4.85, 2.8, 2.75);
+      d.fill(d.lin(3.2, 2.5, 8.8, 7.5, ['#ffffff', '#dfe7f2', '#9aa9c0', '#5b6780']));
+      d.rrect(4.4, 6.6, 3.2, 1, .3);
+      d.fill(d.steel(4.4, 7.6, true), true, .14);
+      if (!back) {
+        g.beginPath();
+        g.moveTo(3.5, 4.1);
+        g.quadraticCurveTo(6, 3.5, 8.5, 4.1);
+        g.lineTo(8.1, 5.9);
+        g.quadraticCurveTo(6, 6.8, 3.9, 5.9);
+        g.closePath();
+        d.glow(pal.V, 1.2, () => d.fill(d.lin(0, 3.6, 0, 6.6, [shade(pal.V, .5), pal.V, shade(pal.V, -.45)]), true, .16));
+        d.line(4.3, 4.35, 5.6, 4.2, 'rgba(255,255,255,.85)', .2);
+      } else {
+        d.line(6, 2.4, 6, 6.6, pal.V, .22);
+      }
+      for (const x of [3.25, 8.75]) d.glow(pal.V, .8, () => { d.ellipse(x, 5, .32, .55); d.fill(pal.V, true, .12); });
+    } else if (helm === 4) {
+      g.beginPath();
+      g.moveTo(3, 7.7);
+      g.quadraticCurveTo(2.9, 3.4, 6, 1.7);
+      g.quadraticCurveTo(9.1, 3.4, 9, 7.7);
+      g.closePath();
+      d.fill(d.lin(3, 0, 9, 0, [shade(pal.C, .25), pal.C, shade(pal.C, -.4)]));
+      if (!back) {
+        d.ellipse(6, 5.35, 2, 2);
+        d.fill(shade(pal.C, -.65), false);
+        drawFace(d, pal, 5.75);
+        // Schaduw van de kap op het voorhoofd.
+        d.ellipse(6, 4.2, 1.9, .8);
+        g.fillStyle = alpha('#000000', .35); g.fill();
+      } else {
+        d.line(6, 2.2, 6, 7.4, shade(pal.C, -.3), .2);
+      }
+    } else if (helm === 5) {
+      if (!back) drawFace(d, pal, 5.7);
+      g.beginPath();
+      g.moveTo(3.35, 7.4);
+      g.lineTo(3.3, 4.8);
+      g.bezierCurveTo(3.3, 1.9, 8.7, 1.9, 8.7, 4.8);
+      g.lineTo(8.65, 7.4);
+      if (!back) {
+        g.lineTo(7.7, 7.4);
+        g.lineTo(7.6, 5.2);
+        g.quadraticCurveTo(6, 4.2, 4.4, 5.2);
+        g.lineTo(4.3, 7.4);
+      }
+      g.closePath();
+      d.fill(d.steel(3.3, 8.7));
+      if (!back) {
+        d.rrect(5.78, 4.3, .44, 1.75, .15);
+        d.fill(d.steel(5.78, 6.22), true, .12);
+      }
+      d.line(3.6, 4.65, 8.4, 4.65, pal.C, .35);
+    } else if (helm === 6) {
+      // Drakenhelm: donker staal met een kam van vinnen.
+      for (let i = 0; i < 4; i++) {
+        const y = 2.1 + i * .9;
+        d.path([5.6, y + .3, 6, y - .9 + i * .05, 6.4, y + .3]);
+        d.fill(d.lin(0, y - 1, 0, y + .3, [shade(pal.C, .3), shade(pal.C, -.3)]), true, .14);
+      }
+      domePath(d, 2.2);
+      d.fill(d.steel(3.3, 8.7, true));
+      d.path([3.3, 5.9, 2.5, 7.3, 3.5, 7.1]);
+      d.fill(shade(pal.C, -.2), true, .14);
+      d.path([8.7, 5.9, 9.5, 7.3, 8.5, 7.1]);
+      d.fill(shade(pal.C, -.2), true, .14);
+      if (!back) {
+        d.path([3.8, 4.2, 5.6, 4.8, 5.4, 5.3, 3.9, 4.8]); d.fill('#11151f', true, .1);
+        d.path([8.2, 4.2, 6.4, 4.8, 6.6, 5.3, 8.1, 4.8]); d.fill('#11151f', true, .1);
+        d.glow(pal.V, 1, () => {
+          d.path([4, 4.45, 5.45, 4.95, 5.3, 5.1, 4.05, 4.7]); d.fill(pal.V, false);
+          d.path([8, 4.45, 6.55, 4.95, 6.7, 5.1, 7.95, 4.7]); d.fill(pal.V, false);
+        });
+        for (const x of [5.2, 6, 6.8]) d.line(x, 6.1, x, 7, '#11151f', .16);
+      }
+    } else {
+      // Ruimtehelm: een glazen bol met een stalen kraag.
+      if (!back) drawFace(d, pal, 5.1);
+      else { d.ellipse(6, 4.9, 1.7, 1.8); d.fill('#3a2a20', false); }
+      d.ellipse(6, 4.75, 2.85, 2.85);
+      d.glow(pal.V, .9, () => d.fill(alpha(pal.V, .22), true, .18));
+      d.ellipse(6, 4.75, 2.85, 2.85);
+      g.lineWidth = .26; g.strokeStyle = alpha(pal.V, .9); g.stroke();
+      d.line(4.4, 3.2, 5.1, 2.65, 'rgba(255,255,255,.9)', .28);
+      d.line(7.9, 6.3, 8.1, 5.9, 'rgba(255,255,255,.6)', .2);
+      d.rrect(3.7, 6.9, 4.6, .9, .35);
+      d.fill(d.steel(3.7, 8.3), true, .15);
+      for (const x of [4.5, 6, 7.5]) d.glow(pal.V, .6, () => { d.ellipse(x, 7.35, .16, .16); d.fill(pal.V, false); });
+    }
+  }
+
+  // Versieringen die achter de helm horen (pluim, hoorns, vleugels, vlammen) en ervoor (kroon, antenne, halo).
+  function drawAccentBehind(d, pal, acc) {
+    const { g } = d;
+    if (acc === 1) {
+      g.beginPath();
+      g.moveTo(5.5, 3.2);
+      g.bezierCurveTo(4.6, 1, 6.6, -.1, 9.4, .8);
+      g.bezierCurveTo(8.6, 1.3, 9.2, 2.2, 10.2, 2.6);
+      g.bezierCurveTo(8.6, 2.9, 7.4, 2.2, 6.6, 3.2);
+      g.closePath();
+      d.fill(d.lin(5, 0, 10, 3, [shade(pal.C, .35), pal.C, shade(pal.C, -.35)]));
+      for (const t of [.3, .55, .8]) d.line(6.2 + t * 2, 1.2 + t * .5, 6.4 + t * 2.6, 2 + t * .4, shade(pal.C, -.4), .1);
+    } else if (acc === 2) {
+      for (const side of [-1, 1]) {
+        g.beginPath();
+        g.moveTo(6 + side * 2.4, 4.6);
+        g.bezierCurveTo(6 + side * 4, 4.2, 6 + side * 4.6, 2.4, 6 + side * 4.4, .6);
+        g.bezierCurveTo(6 + side * 3.9, 2, 6 + side * 3.2, 3, 6 + side * 2.2, 3.4);
+        g.closePath();
+        d.fill(d.lin(6 + side * 2, 4, 6 + side * 4.4, .6, ['#fffaf0', '#e9dcc0', '#a8916a']));
+        for (const t of [.35, .6]) d.line(6 + side * (2.6 + t * 1.4), 4 - t * 1.6, 6 + side * (3 + t * 1.3), 3.4 - t * 1.6, '#8b7652', .1);
+      }
+    } else if (acc === 5) {
+      for (const side of [-1, 1]) {
+        const X = v => 6 + side * v;
+        g.beginPath();
+        g.moveTo(X(2.4), 5.1);
+        g.bezierCurveTo(X(3.4), 3.8, X(4.4), 2.2, X(5.4), .4);
+        g.quadraticCurveTo(X(5.5), 1.8, X(4.7), 2.3);
+        g.quadraticCurveTo(X(5.1), 3, X(4.3), 3.4);
+        g.quadraticCurveTo(X(4.6), 4.2, X(3.6), 4.4);
+        g.quadraticCurveTo(X(3.6), 5.1, X(2.4), 5.1);
+        g.closePath();
+        d.fill(d.lin(X(2.4), 5, X(5.4), .4, ['#a9bbd6', '#e6eef8', '#ffffff']), true, .16);
+        d.line(X(2.9), 4.6, X(4.6), 2.3, '#9fb2cf', .1);
+        d.line(X(2.9), 4.7, X(4.2), 3.4, '#9fb2cf', .1);
+      }
+    } else if (acc === 7) {
+      const flame = (w, h, c1, c2) => {
+        g.beginPath();
+        g.moveTo(6 - w, 3.3);
+        g.bezierCurveTo(6 - w * 1.2, 2.2, 6 - w * .2, 1.6, 6 - w * .4, 3.3 - h);
+        g.bezierCurveTo(6 + w * .1, 3.3 - h * .65, 6 + w * .4, 3.3 - h * .9, 6 + w * .6, 3.3 - h * .75);
+        g.bezierCurveTo(6 + w * .5, 2.2, 6 + w * 1.3, 2.4, 6 + w, 3.3);
+        g.closePath();
+        d.fill(d.lin(0, 3.3 - h, 0, 3.3, [c1, c2]), false);
+      };
+      d.glow('#ff8c42', 1.4, () => flame(1.9, 3.4, '#ff4d2e', '#ffb703'));
+      flame(1.2, 2.3, '#ffb703', '#fff3b0');
+    }
+  }
+
+  function drawAccentFront(d, pal, acc) {
+    const { g } = d;
+    if (acc === 3) {
+      d.path([4.1, 3.1, 4, 1.2, 4.9, 2.1, 5.45, .8, 6, 1.9, 6.55, .8, 7.1, 2.1, 8, 1.2, 7.9, 3.1]);
+      d.fill(d.lin(4, 0, 8, 0, ['#fff1b8', GOLD, '#b8860b']), true, .16);
+      d.ellipse(6, 2.45, .32, .32); d.fill('#ff4d6d', true, .1);
+      d.ellipse(4.8, 2.6, .2, .2); d.fill(pal.V, false);
+      d.ellipse(7.2, 2.6, .2, .2); d.fill(pal.V, false);
+    } else if (acc === 4) {
+      d.line(7.3, 3, 8.2, .9, '#4a5468', .2);
+      d.glow(pal.V, 1.4, () => { d.ellipse(8.3, .7, .45, .45); d.fill(d.lin(7.9, .3, 8.7, 1.1, ['#ffffff', pal.V]), true, .12); });
+    } else if (acc === 6) {
+      d.glow(pal.V, 1.2, () => {
+        d.ellipse(6, 1.15, 2.3, .55);
+        g.lineWidth = .32; g.strokeStyle = pal.V; g.stroke();
+      });
+      d.ellipse(6, 1.15, 2.3, .55);
+      g.lineWidth = .12; g.strokeStyle = '#ffffff'; g.stroke();
+    }
+  }
+
+  function palette(a, opts) {
+    const D = SHIELDS[a.schild];
+    return {
+      C: opts.armor || COLORS[a.kleur],
+      V: VISORS[a.vizier],
+      F: SKINS[a.huid],
+      D,
+      E: D === '#ffb703' || D === '#e8edf5' ? '#1b2740' : GOLD,
+    };
+  }
+
+  function drawKnight(g, k, av, opts) {
+    const a = clean(av) || random();
+    const pal = palette(a, opts);
+    const d = make(g, k);
+    g.save();
+    g.scale(k, k);
+    if (opts.back) {
+      // Van achteren: het wapen over de schouder, de cape met het schild erop.
+      g.save();
+      g.translate(12, 0);
+      g.scale(-1, 1);
+      drawWeapon(d, pal, a.wapen);
+      g.restore();
+      drawLegs(d);
+      for (const x of [2.1, 8.5]) drawArm(d, x);
+      d.path([2.5, 7.6, 9.5, 7.6, 10.3, 15.1, 9, 14.8, 7.5, 15.4, 6, 15, 4.5, 15.4, 3, 14.8, 1.7, 15.1]);
+      d.fill(d.lin(2, 0, 10, 0, [shade(pal.C, -.1), pal.C, shade(pal.C, -.45)]));
+      for (const x of [4.1, 7.9]) d.line(x, 8.6, x + (x < 6 ? -.5 : .5), 14.6, shade(pal.C, -.35), .16);
+      drawShield(d, pal, a.patroon, 4.6, 9.3, .7);
+      drawPauldron(d, 2.9, pal.C);
+      drawPauldron(d, 9.1, pal.C);
+      drawAccentBehind(d, pal, a.accent);
+      drawHelm(d, pal, a.helm, true);
+      drawAccentFront(d, pal, a.accent);
+    } else {
+      drawCapeBehind(d, pal.C);
+      drawLegs(d);
+      drawArm(d, 1.9);
+      drawArm(d, 8.7);
+      drawTorso(d, pal);
+      drawWeapon(d, pal, a.wapen);
+      drawGauntlet(d, 2.6, 11.8);
+      drawPauldron(d, 2.9, pal.C);
+      drawShield(d, pal, a.patroon, 7.35, 9.1);
+      drawPauldron(d, 9.1, pal.C);
+      drawAccentBehind(d, pal, a.accent);
+      drawHelm(d, pal, a.helm, false);
+      drawAccentFront(d, pal, a.accent);
+    }
+    g.restore();
   }
 
   const cache = new Map();
-  // Een canvas met de ridder, k pixels per blokje.
+  // Een canvas met de ridder, k pixels per eenheid (12 breed, 17 hoog).
+  // opts.back: van achteren; opts.armor: harnaskleur opleggen (bijvoorbeeld de kleur van het team).
   function sprite(av, opts = {}) {
     const k = opts.k || 4;
     const key = JSON.stringify([clean(av), opts.back || false, opts.armor || '', k]);
     if (cache.has(key)) return cache.get(key);
-    const { rows, palette } = map(av, opts);
     const c = document.createElement('canvas');
     c.width = 12 * k;
-    c.height = rows.length * k;
-    const g = c.getContext('2d');
-    rows.forEach((row, y) => [...row].forEach((ch, x) => {
-      if (ch === '.') return;
-      // Ogen in het gezicht zijn altijd donker, ook als E op het schild een andere kleur heeft.
-      g.fillStyle = ch === 'E' && y < 8 ? BASE.E : palette[ch];
-      g.fillRect(x * k, y * k, k, k);
-    }));
+    c.height = 17 * k;
+    drawKnight(c.getContext('2d'), k, av, opts);
     if (cache.size > 400) cache.clear();
     cache.set(key, c);
     return c;
   }
 
-  // Enkel het hoofd (accent en helm), voor kleine plaatsen zoals de racer.
+  // Enkel het hoofd (versiering en helm), bijvoorbeeld voor kleine plaatsen.
   function head(av, k = 4) {
     const key = JSON.stringify(['hoofd', clean(av), k]);
     if (cache.has(key)) return cache.get(key);
     const full = sprite(av, { k });
     const c = document.createElement('canvas');
     c.width = full.width;
-    c.height = 7 * k;
+    c.height = Math.round(8 * k);
     c.getContext('2d').drawImage(full, 0, 0);
     cache.set(key, c);
     return c;
@@ -148,7 +646,7 @@ const Avatar = (() => {
 
   // Een klein canvas als element, voor lijsten en lobby's.
   function chip(av, cls = 'av-chip') {
-    const src = sprite(av, { k: 3 });
+    const src = sprite(av, { k: 6 });
     const c = document.createElement('canvas');
     c.width = src.width;
     c.height = src.height;
@@ -158,7 +656,7 @@ const Avatar = (() => {
   }
 
   return {
-    COLORS, VISORS, SHIELDS, HELMS, ACCENTS, PATTERNS, KEYS,
+    COLORS, VISORS, SHIELDS, SKINS, HELMS, ACCENTS, PATTERNS, WEAPONS, KEYS,
     random, clean, sprite, head, chip, byName, setAll, setMine, mine: () => mine, all: () => all, onChange: fn => listeners.push(fn),
   };
 })();
