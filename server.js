@@ -526,6 +526,7 @@ io.on('connection', socket => {
     socket.on('ob-reveal', () => oefenblad.reveal());
     socket.on('ob-kick', id => oefenblad.kick(id));
     socket.on('ob-finish', () => oefenblad.finish());
+    socket.on('ob-reopen', (id, cb) => { const res = oefenblad.reopen(id); if (typeof cb === 'function') cb(res); });
     socket.on('ob-detail', (id, cb) => cb && cb(oefenblad.detail(id)));
     socket.on('ob-stop', (_, cb) => cb && cb({ file: oefenblad.stop() }));
 

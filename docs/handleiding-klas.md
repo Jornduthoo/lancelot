@@ -124,6 +124,7 @@ Tip: leg vooraf uit dat je in de pitstop stilstaat. Wie de vragen kent, tankt sn
 3. Klik op **Live**. Leerlingen scannen dezelfde QR-code en vullen het blad in. Enter springt naar het volgende vakje.
 4. Volg op het bord wie waar staat en welke oefening moeilijk is. Klik op een naam om dat blad te bekijken.
 5. Klaar? Klik op **Toon oplossingen** en daarna op **Afsluiten**. De resultaten staan in `resultaten`.
+6. Te vroeg ingeleverd? Klik op de naam en dan op **🔓 Heropen voor deze leerling**. Met **🔓 Heropen voor iedereen** zet je het blad voor de hele klas weer open, ook na het afsluiten. De antwoorden blijven staan.
 
 Liever op papier? Klik bij een blad op **🖨 Print** voor het werkblad en op **Verbeterblad** voor de oplossingen. Via **Werkblad maken** op het startscherm laat je AI meteen een nieuw blad maken.
 

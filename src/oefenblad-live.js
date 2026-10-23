@@ -99,6 +99,22 @@ class OefenbladLive {
     return this.report(p);
   }
 
+  // Een ingeleverd blad weer openzetten: de leerling werkt verder met de antwoorden die er al staan.
+  // Zonder playerId voor iedereen. Was het blad al afgesloten, dan gaat het weer open.
+  reopen(playerId) {
+    if (!this.active) return { error: 'Er loopt geen oefenblad.' };
+    const list = playerId ? [this.players.get(playerId)].filter(Boolean) : [...this.players.values()];
+    if (!list.length) return { error: 'Die leerling is er niet meer.' };
+    if (this.phase === 'einde') this.phase = 'open';
+    for (const p of list) {
+      p.submitted = false;
+      p.submittedAt = 0;
+      this.io.to(p.socketId).emit('ob-reopened');
+    }
+    this.broadcast();
+    return { ok: true, count: list.length };
+  }
+
   // Wat de leerling na het inleveren ziet: per veld goed of fout, en de oplossingen als de leerkracht die toont.
   report(p) {
     const score = this.score(p);

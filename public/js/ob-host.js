@@ -430,8 +430,9 @@ function renderLive(prev) {
   $('l-summary').textContent = `${r.length} ${r.length === 1 ? 'leerling' : 'leerlingen'} · ${done} ingeleverd`;
   $('l-reveal').textContent = s.revealed ? 'Verberg oplossingen' : 'Toon oplossingen';
   $('l-finish').classList.toggle('hidden', s.phase !== 'open');
+  $('l-reopen').classList.toggle('hidden', !done);
   $('l-feedback').textContent = s.phase === 'einde'
-    ? 'Het blad is afgesloten. Klik op een naam om het blad van die leerling te bekijken.'
+    ? 'Het blad is afgesloten. Klik op een naam om het blad van die leerling te bekijken of het voor die leerling weer open te zetten.'
     : s.feedback === 'direct' ? 'De leerlingen zien meteen of een vakje goed of fout is. Klik op een naam om mee te kijken.' : 'De leerlingen zien pas na het inleveren wat goed of fout is. Klik op een naam om mee te kijken.';
   const box = $('l-students');
   if (!r.length) box.innerHTML = '<p class="muted">Nog niemand. Laat de leerlingen de QR-code scannen.</p>';
@@ -481,6 +482,7 @@ function openDetail(id, refresh) {
     if (res.error) return;
     detailId = id;
     $('d-name').textContent = `${res.name}${res.submitted ? ' · ingeleverd' : ''}`;
+    $('d-reopen').classList.toggle('hidden', !res.submitted);
     const scroll = $('detail').querySelector('.ob-modal-box').scrollTop;
     ObSheet.render($('d-paper'), hostView(), { mode: 'view', answers: res.answers, results: res.results, solutions: state.solutions });
     $('detail').classList.remove('hidden');
@@ -498,6 +500,16 @@ function hostView() {
 }
 
 $('l-reveal').addEventListener('click', () => socket.emit('ob-reveal'));
+// Een ingeleverd blad weer openzetten; de antwoorden blijven staan.
+$('d-reopen').addEventListener('click', () => {
+  if (detailId) socket.emit('ob-reopen', detailId, () => openDetail(detailId, true));
+});
+$('l-reopen').addEventListener('click', () => {
+  const msg = state.phase === 'einde'
+    ? 'Het blad weer openzetten voor iedereen? De leerlingen werken verder met hun antwoorden. Sluit daarna opnieuw af om de nieuwe resultaten te bewaren.'
+    : 'Het blad weer openzetten voor iedereen die al inleverde? Hun antwoorden blijven staan.';
+  if (confirm(msg)) socket.emit('ob-reopen', null);
+});
 $('l-finish').addEventListener('click', () => {
   if (confirm('Het oefenblad afsluiten? Wie nog bezig is, levert automatisch in. De resultaten worden bewaard.')) socket.emit('ob-finish');
 });

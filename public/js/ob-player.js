@@ -52,6 +52,11 @@ socket.on('ob-state', s => {
   ob.joined = true;
   ob.answers = s.answers || {};
   ob.results = s.results || {};
+  // De leerkracht zette het blad weer open: terug aan het werk, met de antwoorden die er al stonden.
+  if (ob.report && !s.submitted) {
+    ob.report = null;
+    ob.rendered = null;
+  }
   if (s.report) ob.report = s.report;
   $('ob-who').textContent = s.name;
   if (ob.rendered !== s.run) {
@@ -110,7 +115,7 @@ function obStatus() {
 $('ob-submit').addEventListener('click', () => {
   const all = [...$('ob-paper').querySelectorAll('[data-field]')];
   const empty = all.filter(el => !ob.answers[el.dataset.field]).length;
-  if (!confirm(empty ? `Nog ${empty} vakjes leeg. Toch inleveren?` : 'Je blad inleveren? Daarna kan je niets meer veranderen.')) return;
+  if (!confirm(empty ? `Nog ${empty} vakjes leeg. Toch inleveren?` : 'Je blad inleveren? Daarna kan alleen je leerkracht het weer openzetten.')) return;
   // Wat nog in een vakje staat maar nog niet verstuurd is, eerst doorsturen.
   for (const el of $('ob-paper').querySelectorAll('input.ob-field, textarea.ob-field')) {
     if ((ob.answers[el.dataset.field] || '') !== el.value) obSend(el.dataset.field, el.value);
@@ -130,6 +135,15 @@ socket.on('ob-report', res => {
   ob.report = res;
   obRender();
   obStatus();
+});
+
+socket.on('ob-reopened', () => {
+  const note = $('ob-reopen-note');
+  note.classList.remove('hidden');
+  clearTimeout(note.timer);
+  note.timer = setTimeout(() => note.classList.add('hidden'), 6000);
+  sfx.swoosh();
+  buzz(60);
 });
 
 socket.on('ob-kicked', () => {
