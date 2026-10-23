@@ -98,34 +98,49 @@ async function generateQuiz(prompt, files = [], parse = quizzes.parseAiText) {
   // Eerst het onthouden of gekozen model, met twee herkansingen als Gemini het druk heeft.
   let model = auto ? geminiAutoModel : geminiModel;
   let attempt = null;
+  const tried = [];
+  const note = (m, r) => tried.push(`${m}: ${r.res.status}${r.detail ? ` ${r.detail.split(/[.\n]/)[0].slice(0, 80)}` : ''}`);
   if (model) {
     attempt = await generate(model);
     for (let wait = 2000; BUSY.has(attempt.res.status) && wait <= 4000; wait *= 2) {
       await sleep(wait);
       attempt = await generate(model);
     }
+    if (!attempt.res.ok) note(model, attempt);
   }
 
-  // Lukt het niet (model weg of overbelast)? Probeer dan andere beschikbare modellen.
+  // Lukt het niet (model weg, overbelast of niet in het gratis plan)? Probeer dan andere modellen.
+  // Wie het druk had, krijgt na een korte pauze nog een kans.
   if (!attempt || attempt.res.status === 404 || BUSY.has(attempt.res.status)) {
-    const tried = model;
-    const candidates = (await listModels(geminiKey)).filter(m => m !== tried).slice(0, 4);
-    for (const next of candidates) {
-      const result = await generate(next);
-      // Een 404 van een reservemodel verdringt geen nuttigere foutmelding.
-      if (result.res.status === 404 && attempt && attempt.res.status !== 404) continue;
-      model = next;
-      attempt = result;
-      if (result.res.status !== 404 && !BUSY.has(result.res.status)) break;
+    const first = model;
+    const candidates = (await listModels(geminiKey)).filter(m => m !== first).slice(0, 8);
+    const busy = [];
+    for (const round of [candidates, busy]) {
+      if (round === busy && busy.length) await sleep(3000);
+      for (const next of round.slice()) {
+        const result = await generate(next);
+        if (!result.res.ok) note(next, result);
+        if (result.res.status === 503 || result.res.status === 500 || result.res.status === 504) {
+          if (round !== busy) busy.push(next);
+        }
+        // Een 404 van een reservemodel verdringt geen nuttigere foutmelding.
+        if (result.res.status === 404 && attempt && attempt.res.status !== 404) continue;
+        model = next;
+        attempt = result;
+        if (result.res.ok || (result.res.status !== 404 && !BUSY.has(result.res.status))) break;
+      }
+      if (attempt && (attempt.res.ok || (attempt.res.status !== 404 && !BUSY.has(attempt.res.status)))) break;
     }
   }
 
   const { res, data, detail } = attempt;
   if (!res.ok) {
+    // Wat Google per model antwoordde, zodat de leerkracht (of wie helpt) ziet wat er misliep.
+    const why = tried.length ? ` Details: ${tried.slice(-4).join(' · ')}` : '';
     throw keyError(res.status, detail)
       || (res.status === 404 && new Error(`Het model "${model}" bestaat niet (meer). Zet het model bij Instellingen op "auto".`))
-      || (res.status === 429 && new Error('De gratis limiet van Gemini is even bereikt. Wacht een minuut of gebruik de knoppen Gemini, ChatGPT of Claude hierboven.'))
-      || (BUSY.has(res.status) && new Error('Gemini heeft het nu te druk, ook na een paar nieuwe pogingen. Probeer het over enkele minuten opnieuw, of gebruik de knoppen Gemini, ChatGPT of Claude hierboven (kopiëren en plakken).'))
+      || (res.status === 429 && new Error(`De gratis limiet van Gemini is even bereikt. Wacht een minuut of gebruik de knoppen Gemini, ChatGPT of Claude hierboven.${why}`))
+      || (BUSY.has(res.status) && new Error(`Gemini heeft het nu te druk, ook na een paar nieuwe pogingen. Probeer het over enkele minuten opnieuw, of gebruik de knoppen Gemini, ChatGPT of Claude hierboven (kopiëren en plakken).${why}`))
       || new Error(`Gemini gaf een fout${detail ? ` (${detail})` : ''}.`);
   }
 
