@@ -239,8 +239,8 @@ const Slag3D = (() => {
 
     // Muren, kolom per kolom.
     for (let x = 0; x < resW; x++) {
-      const cam = (x / resW) * 2 - 1;
-      const ra = a + Math.atan(cam * half);
+      const col = (x / resW) * 2 - 1;
+      const ra = a + Math.atan(col * half);
       const dx = Math.cos(ra);
       const dy = Math.sin(ra);
       const hit = cast(cam.x, cam.y, dx, dy);
