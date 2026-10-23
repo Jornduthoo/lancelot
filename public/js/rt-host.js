@@ -309,6 +309,7 @@ Regels:
 - Houd vragen kort (hooguit 120 tekens) en keuzes heel kort (hooguit 40 tekens).
 - Pas het taalgebruik aan het niveau ${level} aan. Stel vragen die het gesprek in de klas op gang brengen.
 ${activate}
+Belangrijk: maak GEEN interactieve quiz, app, webpagina of canvas en schrijf geen code. Ik heb enkel de gegevens nodig als tekst.
 Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uitleg ervoor of erna, precies in dit formaat:
 {
   "title": "korte titel van de sessie",

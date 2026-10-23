@@ -18,6 +18,16 @@ Het thema: middeleeuws met een scifi-kantje. Het startscherm heeft drie delen:
 2. **De Ronde Tafel**, peilen met de hele klas: polls, stellingen, woordwolken, open vragen en schalen, live op het bord. Met **Voorkennis activeren** maak je met AI meteen een peiling voor het begin van een les.
 3. **Generator**: **live oefenbladen** die leerlingen invullen en die zichzelf verbeteren, en **werkbladen** om te printen, met een verbeterblad.
 
+## Eigen ridders
+
+Leerlingen stellen hun eigen ridder samen: helm, versiering (pluim, hoorns, kroon, antenne, vleugels), kleur van harnas en cape, vizier en een schild met patroon en kleur. De eerste keer opent de riddermaker vanzelf na het aanmelden; daarna kan het altijd met **🛡️ Pas je ridder aan** op het aanmeldscherm en in de lobby.
+
+LANcelot bewaart de ridder op de naam van de leerling in `avatars.json` (blijft bewaard bij updates). De ridder staat in elke lobby, op het podium en in de eindstanden, en speelt mee: in de toren, in Laserslag (3D-zichten, in de kleur van je team), op het hoverros in de Ridderrace, in het toernooischema van het duel en bij de bouwers van de burcht.
+
+## Tempo van de vragen
+
+In de Ridderrace, Laserslag en De prinses in de toren kies je het **tempo van de vragen**: *rustig* (een goed antwoord geeft veel brandstof, munitie of energie), *normaal* of *intens* (alles raakt sneller op, dus vaker nieuwe vragen). LANcelot onthoudt je keuze.
+
 ## Starten (Windows)
 
 1. Installeer eenmalig [Node.js](https://nodejs.org) (de LTS-versie).
@@ -36,6 +46,8 @@ Liever via de opdrachtprompt? Gebruik dan `npm install` en `npm start`, en open 
 4. Klik op **Gemini**, **ChatGPT** of **Claude**. De prompt wordt gekopieerd en de chatbot opent in een nieuw tabblad. Plak de prompt daar met Ctrl+V en sleep je screenshot of pdf erbij.
 5. Kopieer het antwoord van de chatbot (de kopieerknop bij het codeblok) en kom terug naar LANcelot. Het antwoord wordt dan vanzelf ingelezen. Lukt dat niet, plak het dan in het vak en klik op **Controleren**.
 6. Lees de vragen na, pas ze aan waar nodig en klik op **Opslaan en spelen**.
+
+Maakt Gemini een *interactieve quiz* (een app met knoppen) in plaats van een codeblok? Zet Canvas uit en vraag: "Geef me enkel de JSON als tekst, geen interactieve quiz." LANcelot herkent zo'n app en zegt het je ook. Tekst rond de JSON, krulletjes-aanhalingstekens of een komma te veel zijn geen probleem.
 
 Met **+ Nieuwe map** orden je je quizzen in mappen (per vak of klas). Sleep een quiz naar een map, of kies de map met het 📁-knopje in de rij. Een map klap je open en dicht door erop te klikken. Mappen kunnen ook in mappen: maak een submap met **+📁** in de kop van een map, en sleep een map aan het ⋮⋮-handvat naar een andere map (of naar *Zonder map* om ze weer bovenaan te zetten). Wie een map verwijdert, verliest niets: de items komen in de map erboven. Oefenbladen en Ronde Tafel-sessies orden je op dezelfde manier. De indeling staat in `_mappen.json` in elke map; de quizbestanden zelf blijven waar ze zijn.
 

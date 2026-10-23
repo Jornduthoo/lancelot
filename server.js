@@ -16,6 +16,7 @@ const { Kristalroof } = require('./src/kristalroof');
 const { Burcht } = require('./src/burcht');
 const { Duel } = require('./src/duel');
 const rijken = require('./src/rijk');
+const avatars = require('./src/avatars');
 const { Verrader } = require('./src/verrader');
 const oefenbladen = require('./src/oefenbladen');
 const { OefenbladLive } = require('./src/oefenblad-live');
@@ -214,6 +215,12 @@ function sendAddresses(target) {
 io.on('connection', socket => {
   const host = socket.handshake.query.role === 'host' && isLocal(socket.handshake.address);
 
+  // Eigen ridders: iedereen mag ze zien, een leerling stelt de zijne in.
+  socket.on('avatars-get', (_, cb) => typeof cb === 'function' && cb(avatars.all()));
+  socket.on('avatar-set', ({ name, avatar } = {}) => {
+    if (avatars.set(name, avatar)) io.emit('avatars', avatars.all());
+  });
+
   if (host) {
     socket.join('host');
     for (const kind of Object.keys(LIBS)) sendLibrary(kind, socket);
@@ -348,16 +355,16 @@ io.on('connection', socket => {
     socket.on('rt-stop', (_, cb) => cb && cb({ file: rt.stop() }));
 
     // De prinses in de toren
-    socket.on('tw-load', handle(({ file, minutes } = {}) => {
+    socket.on('tw-load', handle(({ file, minutes, tempo } = {}) => {
       const busy = busyWith('toren');
       if (busy) throw busyError(busy);
-      toren.load(quizzes.load(file), Number(minutes));
+      toren.load(quizzes.load(file), Number(minutes), tempo);
       return {};
     }));
     socket.on('tw-start', () => toren.start());
     socket.on('tw-kick', id => toren.kick(id));
     socket.on('tw-finish', () => toren.finish());
-    socket.on('tw-restart', () => toren.quiz && toren.load(toren.quiz, toren.minutes));
+    socket.on('tw-restart', () => toren.quiz && toren.load(toren.quiz, toren.minutes, toren.tempo));
     socket.on('tw-stop', (_, cb) => cb && cb({ file: toren.stop() }));
 
     // Schattenjacht
@@ -374,30 +381,30 @@ io.on('connection', socket => {
     socket.on('sj-stop', (_, cb) => cb && cb({ file: schat.stop() }));
 
     // Laserslag
-    socket.on('ls-load', handle(({ file, minutes, mode } = {}) => {
+    socket.on('ls-load', handle(({ file, minutes, mode, tempo } = {}) => {
       const busy = busyWith('laserslag');
       if (busy) throw busyError(busy);
-      laserslag.load(quizzes.load(file), Number(minutes), mode);
+      laserslag.load(quizzes.load(file), Number(minutes), mode, tempo);
       return {};
     }));
     socket.on('ls-start', () => laserslag.start());
     socket.on('ls-kick', id => laserslag.kick(id));
     socket.on('ls-team', id => laserslag.switchTeam(id));
     socket.on('ls-finish', () => laserslag.finish());
-    socket.on('ls-restart', () => laserslag.quiz && laserslag.load(laserslag.quiz, laserslag.minutes, laserslag.mode));
+    socket.on('ls-restart', () => laserslag.quiz && laserslag.load(laserslag.quiz, laserslag.minutes, laserslag.mode, laserslag.tempo));
     socket.on('ls-stop', (_, cb) => cb && cb({ file: laserslag.stop() }));
 
     // Ridderrace
-    socket.on('rr-load', handle(({ file, minutes } = {}) => {
+    socket.on('rr-load', handle(({ file, minutes, tempo } = {}) => {
       const busy = busyWith('race');
       if (busy) throw busyError(busy);
-      race.load(quizzes.load(file), Number(minutes));
+      race.load(quizzes.load(file), Number(minutes), tempo);
       return {};
     }));
     socket.on('rr-start', () => race.start());
     socket.on('rr-kick', id => race.kick(id));
     socket.on('rr-finish', () => race.finish());
-    socket.on('rr-restart', () => race.quiz && race.load(race.quiz, race.minutes));
+    socket.on('rr-restart', () => race.quiz && race.load(race.quiz, race.minutes, race.tempo));
     socket.on('rr-stop', (_, cb) => cb && cb({ file: race.stop() }));
 
     // Burchtbouwers

@@ -61,14 +61,25 @@ const TorenDraw = (() => {
   }
 
   // x, y: linksonder van de ridder op het scherm. act: 0 staan, 1 lopen, 2 in de lucht, 3 geraakt.
-  function knight(ctx, x, y, w, h, color, face, act, t, alpha = 1) {
-    const px = w / 12;
+  // Met een eigen ridder (av): zijn versiering, helm en kleuren. Hij kijkt naar rechts, dus één plaats naar links.
+  function avatarMap(av) {
+    const a = Avatar.clean(av);
+    const shift = r => r.slice(1) + '.';
     const map = KNIGHT.slice();
+    Avatar.ACCENTS[a.accent].rows.forEach((r, i) => { map[i] = shift(r); });
+    Avatar.HELMS[a.helm].rows.forEach((r, i) => { map[2 + i] = shift(r); });
+    return { map, palette: { C: Avatar.COLORS[a.kleur], V: Avatar.VISORS[a.vizier], W: '#f2efe6', F: '#ffd8b8', E: '#1a1a2e' } };
+  }
+
+  function knight(ctx, x, y, w, h, color, face, act, t, alpha = 1, av = null) {
+    const px = w / 12;
+    const own = av && typeof Avatar !== 'undefined' ? avatarMap(av) : null;
+    const map = own ? own.map : KNIGHT.slice();
     if (act === 1 && Math.floor(t * 10) % 2) map.splice(12, 4, ...LEGS_RUN);
     if (act === 2) map.splice(12, 4, ...LEGS_AIR);
     ctx.save();
     ctx.globalAlpha = alpha * (act === 3 && Math.floor(t * 16) % 2 ? .35 : 1);
-    pixels(ctx, map, x, y - px * 16, px, { C: color }, face < 0);
+    pixels(ctx, map, x, y - px * 16, px, own ? own.palette : { C: color }, face < 0);
     ctx.restore();
   }
 

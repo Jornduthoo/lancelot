@@ -176,3 +176,12 @@ function loadGame(event, payload, cb) {
     cb(res);
   });
 }
+
+// Het gekozen tempo van de vragen onthouden voor de volgende keer (op deze pc).
+for (const sel of document.querySelectorAll('select.tempo-select')) {
+  try {
+    const saved = localStorage.getItem('lancelot-tempo');
+    if (saved && [...sel.options].some(o => o.value === saved)) sel.value = saved;
+  } catch {}
+  sel.addEventListener('change', () => { try { localStorage.setItem('lancelot-tempo', sel.value); } catch {} });
+}

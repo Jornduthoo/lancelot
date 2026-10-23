@@ -40,7 +40,7 @@ function downloadLink(file) {
 QuizList.mount($('quiz-list'), {
   play: q => {
     $('stopped').classList.add('hidden');
-    loadGame('tw-load', { file: q.file, minutes: Number($('tw-minutes').value) }, res => { $('load-error').textContent = res.error || ''; });
+    loadGame('tw-load', { file: q.file, minutes: Number($('tw-minutes').value), tempo: $('tw-tempo').value }, res => { $('load-error').textContent = res.error || ''; });
   },
   edit: q => { location.href = quizMakerUrl('bewerk', q.file); },
 });
@@ -212,7 +212,7 @@ function drawMain(t, dt) {
     k.x += (k.tx - k.x) * Math.min(1, dt * 10);
     k.y += (k.ty - k.y) * Math.min(1, dt * 10);
     if (k.y > camY + H / scale + 40 || k.y + ph < camY - 40) continue;
-    TorenDraw.knight(mctx, ox + k.x * scale, sy(k.y), pw * scale, ph * scale, TorenDraw.COLORS[k.color % 8], k.face, k.act, t, 1);
+    TorenDraw.knight(mctx, ox + k.x * scale, sy(k.y), pw * scale, ph * scale, TorenDraw.COLORS[k.color % 8], k.face, k.act, t, 1, Avatar.byName(k.name));
     label(mctx, k.name, ox + (k.x + pw / 2) * scale, sy(k.y + ph + 6), '#eaf4ff', 12 * scale);
   }
   $('p-follow').textContent = target ? `🎥 ${target.name} · verdieping ${Toren.floorAt(world, target.y)}` : '';

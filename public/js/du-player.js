@@ -118,7 +118,11 @@ function duRender(s) {
   du.countdown = false;
   duShow('du-game');
   $('du-round').textContent = round;
-  $('du-op-name').textContent = m.opponent;
+  $('du-me-name').dataset.av = s.name;
+  if ($('du-op-name').dataset.av !== m.opponent) {
+    $('du-op-name').textContent = m.opponent;
+    $('du-op-name').dataset.av = m.opponent;
+  }
   $('du-my-hearts').innerHTML = duHearts(m.hp, s.hearts);
   $('du-op-hearts').innerHTML = duHearts(m.opHp, s.hearts);
   const key = `${s.run}-${s.round}-${m.number}`;

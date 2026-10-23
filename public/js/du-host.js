@@ -96,7 +96,7 @@ function side(m, s) {
   if (!id) return `<div class="du-side empty">${m.note === 'vrij' ? 'vrije doorgang' : '?'}</div>`;
   const cls = m.winner ? (m.winner === id ? 'won' : 'lost') : '';
   const struck = m.live && m.hit && m.hit.by && m.hit.by !== s ? ' struck' : '';
-  return `<div class="du-side ${cls}${struck}"><span class="du-who">${esc(name || '?')}</span><span class="du-hp">${m.note === 'vrij' ? '' : hearts(m.hp[s], state.hearts)}</span></div>`;
+  return `<div class="du-side ${cls}${struck}"><span class="du-who" data-av="${esc(name || '')}">${esc(name || '?')}</span><span class="du-hp">${m.note === 'vrij' ? '' : hearts(m.hp[s], state.hearts)}</span></div>`;
 }
 
 let lastHits = {};
@@ -141,7 +141,7 @@ function renderStage() {
   const final = s.round === s.rounds - 1;
   stage.classList.toggle('final', final);
   $('s-round').textContent = final ? '🏆 De finale!' : s.roundName;
-  $('s-vs').innerHTML = pairs.map(m => `<div class="du-pair"><span>${esc(m.an)}</span><b>⚔️</b><span>${esc(m.bn)}</span></div>`).join('')
+  $('s-vs').innerHTML = pairs.map(m => `<div class="du-pair"><span data-av="${esc(m.an)}">${esc(m.an)}</span><b>⚔️</b><span data-av="${esc(m.bn)}">${esc(m.bn)}</span></div>`).join('')
     + round.matches.filter(m => m && m.note === 'vrij').map(m => `<div class="du-pair bye">🎟️ ${esc(m.an || m.bn)} gaat vrij door</div>`).join('');
   stage.classList.remove('hidden');
 }
@@ -184,6 +184,7 @@ $('stop').addEventListener('click', () => {
 function renderEnd() {
   const s = state;
   $('w-name').textContent = s.champion || 'Geen kampioen';
+  $('w-name').dataset.av = s.champion || '';
   const saved = $('results-saved');
   saved.innerHTML = '';
   if (s.resultsFile) {

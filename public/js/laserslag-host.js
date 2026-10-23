@@ -38,7 +38,7 @@ function downloadLink(file) {
 QuizList.mount($('quiz-list'), {
   play: q => {
     $('stopped').classList.add('hidden');
-    loadGame('ls-load', { file: q.file, minutes: Number($('ls-minutes').value), mode: $('ls-mode').value }, res => { $('load-error').textContent = res.error || ''; });
+    loadGame('ls-load', { file: q.file, minutes: Number($('ls-minutes').value), mode: $('ls-mode').value, tempo: $('ls-tempo').value }, res => { $('load-error').textContent = res.error || ''; });
   },
   edit: q => { location.href = quizMakerUrl('bewerk', q.file); },
 });

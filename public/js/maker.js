@@ -25,6 +25,7 @@ Regels:
 - Houd vragen kort (hooguit 120 tekens) en antwoorden heel kort (hooguit 60 tekens).
 - Pas de moeilijkheid en het taalgebruik aan het niveau ${level} aan.
 
+Belangrijk: maak GEEN interactieve quiz, app, webpagina of canvas en schrijf geen code. Ik heb enkel de gegevens nodig als tekst.
 Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uitleg ervoor of erna, precies in dit formaat:
 {
   "title": "korte titel van de quiz",

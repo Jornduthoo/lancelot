@@ -657,14 +657,14 @@ function ls3dRender(t, dt) {
   const others = [];
   for (const [id, o] of ls.others) {
     if (o.flags & 1) continue;
-    others.push({ x: o.x, y: o.y, color: SlagDraw.colorOf(o.team, o.color), bubble: o.flags & 6, asking: o.flags & 4, name: o.name, hp: o.hp, wanted: id === top });
+    others.push({ x: o.x, y: o.y, color: SlagDraw.colorOf(o.team, o.color), bubble: o.flags & 6, asking: o.flags & 4, name: o.name, hp: o.hp, wanted: id === top, av: Avatar.byName(o.name) });
   }
   for (const b of ls.booms) b.age += dt;
   ls.booms = ls.booms.filter(b => b.age < b.life);
   if (ls.moving) ls.walk = (ls.walk || 0) + dt * 9;
   const alive = ls.info && ls.info.alive;
   const tp = ls.view === 'achter';
-  const self = tp && alive ? { color: SlagDraw.colorOf(ls.state.team, ls.state.color), bubble: ls.myFlags & 6, asking: ls.myFlags & 4 } : null;
+  const self = tp && alive ? { color: SlagDraw.colorOf(ls.state.team, ls.state.color), bubble: ls.myFlags & 6, asking: ls.myFlags & 4, av: Avatar.mine() } : null;
   const tags = Slag3D.render(ctx, w, h, { me, a: me.a, others, bullets: [...ls.bullets.values()], crystal: ls.crystal, t, booms: ls.booms, self });
   // Naam en levens boven elke zichtbare ridder.
   for (const tg of tags) {

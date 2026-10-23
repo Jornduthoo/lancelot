@@ -4,6 +4,7 @@
 const fs = require('fs');
 const path = require('path');
 const { library } = require('./library');
+const { extract } = require('./ai-json');
 
 const DIR = path.join(__dirname, '..', 'quizzes');
 
@@ -87,19 +88,8 @@ function save(quiz, file) {
 
 // Haalt de quiz uit het antwoord van een chatbot, ook als er tekst of ```json omheen staat.
 function parseAiText(raw) {
-  const str = String(raw || '');
-  const start = str.indexOf('{');
-  const end = str.lastIndexOf('}');
-  if (start === -1 || end <= start) throw new Error('Geen quiz gevonden in de geplakte tekst. Plak het hele antwoord van de AI.');
-  let data;
-  try {
-    data = JSON.parse(str.slice(start, end + 1));
-  } catch {
-    throw new Error('De geplakte tekst is geen geldige JSON. Vraag de AI om "alleen de JSON" en probeer opnieuw.');
-  }
-  if (data && data.title === 'korte titel van de quiz') {
-    throw new Error('Dit is de prompt zelf. Plak hier het antwoord dat de AI teruggeeft.');
-  }
+  const data = extract(raw, 'quiz', d => d.title !== undefined || d.questions !== undefined);
+  if (data && data.title === 'korte titel van de quiz') throw new Error('Dit is de prompt zelf. Plak hier het antwoord dat de AI teruggeeft.');
   return validate(data);
 }
 

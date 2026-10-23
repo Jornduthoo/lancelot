@@ -3,6 +3,7 @@
 // je teleporteert terug naar je kamp en kan daar meteen nieuwe munitie verdienen.
 // De gsm stuurt zijn positie; de server beslist over schoten, treffers en punten.
 const Arena = require('../public/js/laserslag-world');
+const { tempoOf, factor } = require('./tempo');
 
 const HP = 3;
 const START_AMMO = 15;
@@ -54,12 +55,13 @@ class Laserslag {
     return this.phase !== 'idle';
   }
 
-  load(quiz, minutes, mode) {
+  load(quiz, minutes, mode, tempo) {
     this.reset();
     this.run++;
     this.quiz = quiz;
     this.minutes = [3, 5, 6, 8, 10, 15].includes(minutes) ? minutes : 6;
     this.mode = mode === 'ieder' ? 'ieder' : 'teams';
+    this.tempo = tempoOf(tempo);
     this.phase = 'lobby';
     this.broadcast();
   }
@@ -328,7 +330,7 @@ class Laserslag {
     if (correct) {
       p.right++;
       p.qstreak++;
-      gained = 8 + 2 * Math.min(p.qstreak - 1, 6);
+      gained = Math.round((8 + 2 * Math.min(p.qstreak - 1, 6)) * factor(this.tempo));
       p.ammo = Math.min(MAX_AMMO, p.ammo + gained);
       p.score += POINTS.vraag;
       if (p.qstreak % 3 === 0) {

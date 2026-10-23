@@ -2,6 +2,7 @@
 // een goed antwoord op een quizvraag geeft nieuwe energie. De bewegingen gebeuren op de gsm;
 // de server houdt de energie, de vragen en de hoogtes bij en stuurt iedereen elkaars positie.
 const world = require('../public/js/toren-world');
+const { tempoOf, factor } = require('./tempo');
 
 const START_ENERGY = 8;
 const MAX_ENERGY = 20;
@@ -37,10 +38,16 @@ class Toren {
     return this.phase !== 'idle';
   }
 
-  load(quiz, minutes) {
+  // Energie voor een goed antwoord, volgens het tempo dat de leerkracht koos.
+  good() {
+    return Math.max(2, Math.round(GOOD_ENERGY * factor(this.tempo)));
+  }
+
+  load(quiz, minutes, tempo) {
     this.reset();
     this.run++;
     this.quiz = quiz;
+    this.tempo = tempoOf(tempo);
     this.minutes = [3, 5, 6, 8, 10, 15].includes(minutes) ? minutes : 6;
     this.seed = Math.floor(Math.random() * 2 ** 31);
     this.world = world.build(this.seed);
@@ -153,14 +160,14 @@ class Toren {
     p.question = null;
     if (correct) {
       p.right++;
-      p.energy = Math.min(MAX_ENERGY, p.energy + GOOD_ENERGY);
+      p.energy = Math.min(MAX_ENERGY, p.energy + this.good());
       if (p.right % 5 === 0) this.addFeed(`⚡ ${p.name} heeft al ${p.right} vragen goed`);
     } else {
       p.wrong++;
       p.energy = Math.min(MAX_ENERGY, p.energy + BAD_ENERGY);
     }
     this.dirty = true;
-    return { correct, right: q.correct, gained: correct ? GOOD_ENERGY : BAD_ENERGY, energy: p.energy };
+    return { correct, right: q.correct, gained: correct ? this.good() : BAD_ENERGY, energy: p.energy };
   }
 
   finish() {

@@ -51,6 +51,13 @@
           <option value="15">15 minuten</option>
         </select>
       </label>
+      <label>Tempo van de vragen
+        <select id="tw-tempo" class="tempo-select">
+          <option value="rustig">Rustig: een goed antwoord brengt veel op</option>
+          <option value="normaal" selected>Normaal</option>
+          <option value="intens">Intens: snel weer nieuwe vragen</option>
+        </select>
+      </label>
       <p class="muted small">Kies hieronder de quiz waaruit de vragen komen, of maak er eerst een met de knoppen hierboven.</p>
     </div>
     <p class="notice hidden" id="stopped"></p>
@@ -104,6 +111,7 @@
 </main>
 <script src="/socket.io/socket.io.js"></script>
 <script src="/js/fx.js"></script>
+<script src="/js/avatar.js"></script>
 <script src="/js/quiz-links.js"></script>
 <script src="/js/quiz-list.js"></script>
 <script src="/js/toren-world.js"></script>

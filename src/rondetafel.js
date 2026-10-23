@@ -3,6 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 const { library } = require('./library');
+const { extract } = require('./ai-json');
 
 const DIR = path.join(__dirname, '..', 'rondetafel');
 const TYPES = ['keuze', 'woorden', 'open', 'schaal'];
@@ -91,16 +92,7 @@ function remove(file) {
 
 // Haalt de sessie uit het antwoord van een chatbot, ook met tekst of ```json eromheen.
 function parseAiText(raw) {
-  const str = String(raw || '');
-  const start = str.indexOf('{');
-  const end = str.lastIndexOf('}');
-  if (start === -1 || end <= start) throw new Error('Geen sessie gevonden in de geplakte tekst. Plak het hele antwoord van de AI.');
-  let data;
-  try {
-    data = JSON.parse(str.slice(start, end + 1));
-  } catch {
-    throw new Error('De geplakte tekst is geen geldige JSON. Vraag de AI om "alleen de JSON" en probeer opnieuw.');
-  }
+  const data = extract(raw, 'sessie', d => d.title !== undefined || d.items !== undefined);
   if (data && data.title === 'korte titel van de sessie') throw new Error('Dit is de prompt zelf. Plak hier het antwoord dat de AI teruggeeft.');
   return validate(data);
 }

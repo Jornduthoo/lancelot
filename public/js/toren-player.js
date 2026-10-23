@@ -421,7 +421,7 @@ function render(t, dt) {
     const color = TorenDraw.COLORS[o.color % 8];
     if (o.y > topY) { above.push(o); continue; }
     if (o.y + ph < cam.y) { below.push(o); continue; }
-    TorenDraw.knight(ctx, ox + o.x * scale, sy(o.y), pw * scale, ph * scale, color, o.face, o.act, t, .5);
+    TorenDraw.knight(ctx, ox + o.x * scale, sy(o.y), pw * scale, ph * scale, color, o.face, o.act, t, .5, Avatar.byName(o.name));
     label(o.name, ox + (o.x + pw / 2) * scale, sy(o.y + ph + 6), 'rgba(234, 244, 255, .8)', scale);
   }
   const edge = (list, y, arrow) => list.slice(0, 6).forEach((o, i) => {
@@ -457,7 +457,7 @@ function render(t, dt) {
   glow.addColorStop(1, 'rgba(76, 201, 255, 0)');
   ctx.fillStyle = glow;
   ctx.fillRect(mx - 30 * scale, my - ph * scale - 30 * scale, pw * scale + 60 * scale, ph * scale + 60 * scale);
-  TorenDraw.knight(ctx, mx, my, pw * scale, ph * scale, TorenDraw.COLORS[tw.state.color % 8], me.face, act(), t, me.safe > 0 && me.tumble <= 0 ? .6 + .4 * Math.sin(t * 30) : 1);
+  TorenDraw.knight(ctx, mx, my, pw * scale, ph * scale, TorenDraw.COLORS[tw.state.color % 8], me.face, act(), t, me.safe > 0 && me.tumble <= 0 ? .6 + .4 * Math.sin(t * 30) : 1, Avatar.mine());
   label('jij', mx + pw * scale / 2, sy(me.y + ph + 6), '#4cc9ff', scale);
 }
 

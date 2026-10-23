@@ -93,7 +93,7 @@ let lastFeed = '';
 let lastTotal = 0;
 function renderSide() {
   $('p-need').textContent = state.need;
-  $('p-builders').innerHTML = state.ranking.slice(0, 6).map(r => `<li><i class="bb-dot" style="background:${COLORS[r.color]}"></i>${esc(r.name)}<b>${r.placed} 🧱</b></li>`).join('');
+  $('p-builders').innerHTML = state.ranking.slice(0, 6).map(r => `<li><i class="bb-dot" style="background:${COLORS[r.color]}"></i><span data-av="${esc(r.name)}">${esc(r.name)}</span><b>${r.placed} 🧱</b></li>`).join('');
   const total = state.parts.reduce((a, p) => a + p.height, 0);
   if (total > lastTotal && prev && prev.phase === 'bouwen') sfx.marker();
   lastTotal = total;

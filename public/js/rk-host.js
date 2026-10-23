@@ -254,7 +254,7 @@ function renderEnd() {
   $('w-why').textContent = winners.length === 1 ? `De ${winners[0].name} wonnen deze les het meeste land (+${top}). Het rijk is bewaard voor de volgende les.`
     : 'Het rijk is bewaard voor de volgende les.';
   renderSide($('w-scores'), false);
-  $('w-best').innerHTML = s.ranking.slice(0, 8).map(p => `<li><span class="rk-dot" style="--team:${s.teams[p.team].color}"></span>${esc(p.name)}<span class="muted small">${p.conquered ? `🚩 ${p.conquered}` : ''}${p.oldRight ? ` 🛡️ ${p.oldRight}` : ''}</span><b>${p.actions}</b></li>`).join('');
+  $('w-best').innerHTML = s.ranking.slice(0, 8).map(p => `<li><span class="rk-dot" style="--team:${s.teams[p.team].color}"></span><span data-av="${esc(p.name)}">${esc(p.name)}</span><span class="muted small">${p.conquered ? `🚩 ${p.conquered}` : ''}${p.oldRight ? ` 🛡️ ${p.oldRight}` : ''}</span><b>${p.actions}</b></li>`).join('');
   requestAnimationFrame(() => RijkMap.draw($('w-canvas'), s, { lessonOf: lessonOf(), names: true }));
   sfx.fanfare();
   if (top > 0) confetti(4000);

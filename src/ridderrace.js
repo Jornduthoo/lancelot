@@ -3,6 +3,7 @@
 // twee juist op rij geeft een turbo. Wie na de speeltijd het verst staat, wint.
 // De gsm rijdt zelf en stuurt zijn afstand; de server bewaakt brandstof, ronden en de stand.
 const Track = require('../public/js/race-track');
+const { tempoOf, factor } = require('./tempo');
 
 const START_FUEL = 100;
 const MAX_TURBOS = 5;
@@ -40,11 +41,12 @@ class Ridderrace {
     return this.phase !== 'idle';
   }
 
-  load(quiz, minutes) {
+  load(quiz, minutes, tempo) {
     this.reset();
     this.run++;
     this.quiz = quiz;
     this.minutes = [3, 4, 5, 6, 8, 10].includes(minutes) ? minutes : 5;
+    this.tempo = tempoOf(tempo);
     this.phase = 'lobby';
     this.broadcast();
   }
@@ -212,7 +214,7 @@ class Ridderrace {
       p.right++;
       p.qstreak++;
       p.bestStreak = Math.max(p.bestStreak, p.qstreak);
-      gained = Math.min(100 - p.fuel, 25 + 5 * Math.min(p.qstreak - 1, 5));
+      gained = Math.min(100 - p.fuel, Math.round((25 + 5 * Math.min(p.qstreak - 1, 5)) * factor(this.tempo)));
       p.fuel += gained;
       if (p.qstreak % 2 === 0 && p.turbos < MAX_TURBOS) {
         p.turbos++;

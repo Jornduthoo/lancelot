@@ -277,7 +277,8 @@ const Slag3D = (() => {
       const sx = resW / 2 + Math.tan(rel) * proj;
       const k = proj / perp;
       if (th.kind === 'knight') {
-        const img = sprite(th.o.color, th.self);
+        // Met een eigen ridder: zijn helm en schild, in de kleur van zijn team.
+        const img = th.o.av && typeof Avatar !== 'undefined' ? Avatar.sprite(th.o.av, { back: th.self, armor: th.o.color }) : sprite(th.o.color, th.self);
         // Je eigen ridder nooit groter dan 40% van het scherm, ook als de camera tegen een muur zit.
         const hgt = th.self ? Math.min(KNIGHT_H * k, resH * .4) : KNIGHT_H * k;
         const wid = hgt * (img.width / img.height);

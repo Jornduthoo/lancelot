@@ -377,12 +377,21 @@ const RaceDraw = (() => {
     const wave = Math.sin(t * 9 + (o.seed || 0)) * .04 * w;
     poly(ctx, [-.17 * w, -.78 * h, .17 * w, -.78 * h, .22 * w + wave, -.34 * h, 0, -.3 * h, -.22 * w + wave, -.34 * h], color);
     poly(ctx, [-.17 * w, -.78 * h, .17 * w, -.78 * h, .1 * w, -.6 * h, -.1 * w, -.6 * h], 'rgba(0,0,0,.25)');
-    // Helm met pluim.
-    ctx.fillStyle = '#c9d2e6';
-    ctx.beginPath(); ctx.arc(0, -.88 * h, .12 * w, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = '#8a95b2';
-    ctx.fillRect(-.12 * w, -.9 * h, .24 * w, .05 * h);
-    poly(ctx, [-.03 * w, -.98 * h, .03 * w, -.98 * h, .1 * w - wave, -1.14 * h, -.02 * w - wave, -1.1 * h], color);
+    if (o.av && typeof Avatar !== 'undefined') {
+      // Het hoofd van de eigen ridder (versiering en helm), van achteren gezien.
+      const img = Avatar.sprite(o.av, { back: true, k: 4 });
+      const hw = .34 * w;
+      const hh = hw * (7 / 12);
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(img, 0, 0, img.width, 7 * 4, -hw / 2, -.8 * h - hh, hw, hh);
+    } else {
+      // Helm met pluim.
+      ctx.fillStyle = '#c9d2e6';
+      ctx.beginPath(); ctx.arc(0, -.88 * h, .12 * w, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#8a95b2';
+      ctx.fillRect(-.12 * w, -.9 * h, .24 * w, .05 * h);
+      poly(ctx, [-.03 * w, -.98 * h, .03 * w, -.98 * h, .1 * w - wave, -1.14 * h, -.02 * w - wave, -1.1 * h], color);
+    }
     if (o.pit) {
       ctx.fillStyle = '#ffd166';
       ctx.font = `${Math.max(10, 160 * k)}px system-ui, sans-serif`;
@@ -483,7 +492,7 @@ const RaceDraw = (() => {
           const sc = P.s1 + (P.s2 - P.s1) * o.pct;
           const ox = P.x1 + (P.x2 - P.x1) * o.pct + sc * o.x * T.ROAD * W / 2;
           const oy = P.y1 + (P.y2 - P.y1) * o.pct;
-          steed(ctx, ox, oy, sc * W / 2, colorOf(o.color), { t: v.t, seed: o.seed, turbo: o.flags & 2, pit: o.flags & 1, name: n < 60 ? o.name : '' });
+          steed(ctx, ox, oy, sc * W / 2, colorOf(o.color), { t: v.t, seed: o.seed, turbo: o.flags & 2, pit: o.flags & 1, name: n < 60 ? o.name : '', av: typeof Avatar !== 'undefined' ? Avatar.byName(o.name) : null });
         }
       }
       ctx.globalAlpha = 1;
@@ -509,7 +518,7 @@ const RaceDraw = (() => {
     const portrait = H > W;
     const k = ((W / 2) / CAM_H) * (portrait ? .8 : .62);
     const y = portrait ? H * .86 : H * .985;
-    steed(ctx, W / 2, y + (v.bump || 0) * .05, k, colorOf(v.me.color), { t: v.t, tilt: v.me.tilt, turbo: v.me.turbo, pit: false, seed: 0 });
+    steed(ctx, W / 2, y + (v.bump || 0) * .05, k, colorOf(v.me.color), { t: v.t, tilt: v.me.tilt, turbo: v.me.turbo, pit: false, seed: 0, av: typeof Avatar !== 'undefined' ? Avatar.mine() : null });
   }
 
   // ---------- Het kaartje ----------
