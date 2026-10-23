@@ -397,15 +397,30 @@ $('e-title').addEventListener('input', preview);
 
 $('new-empty').addEventListener('click', () => openEditor({ title: '', blocks: [{ type: 'invullen' }] }, null));
 
-function save(then) {
+function save(then, fail) {
   socket.emit('ob-save', { sheet: readEditor(), file: editingFile }, res => {
-    if (res.error) return ($('e-error').textContent = res.error);
+    if (res.error) {
+      $('e-error').textContent = res.error;
+      if (fail) fail();
+      return;
+    }
     editingFile = res.file;
     then(res.file);
   });
 }
 $('e-save').addEventListener('click', () => save(() => show('list')));
 $('e-live').addEventListener('click', () => save(file => goLive(file)));
+// Printen: het werkblad en het verbeterblad openen elk in een eigen tabblad.
+$('e-print').addEventListener('click', () => {
+  const sheetTab = window.open('', '_blank');
+  const keyTab = window.open('', '_blank');
+  save(file => {
+    const url = `/oefenblad-print?file=${encodeURIComponent(file)}`;
+    if (sheetTab) sheetTab.location = url;
+    if (keyTab) keyTab.location = `${url}&sleutel=1`;
+    show('list');
+  }, () => { if (sheetTab) sheetTab.close(); if (keyTab) keyTab.close(); });
+});
 
 // ---------- Live ----------
 

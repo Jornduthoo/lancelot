@@ -23,7 +23,7 @@ Bij de Ridderrace, Laserslag en de toren kies je ook het **tempo van de vragen**
 
 ## De Ronde Tafel
 
-1. Kies op het startscherm **De Ronde Tafel** en klik bij een sessie op **Start**.
+1. Klik op het startscherm op de tegel **De Ronde Tafel** en klik bij een sessie op **Start**.
 2. Leerlingen scannen dezelfde QR-code. Ze hoeven geen naam in te vullen: alles is anoniem.
 3. Klik op **Open de Ronde Tafel** en ga met **Volgende** door de vragen. De antwoorden verschijnen live op het bord.
 4. Een ongepast woord of antwoord? Klik erop en het verdwijnt van het bord.
@@ -31,14 +31,14 @@ Bij de Ridderrace, Laserslag en de toren kies je ook het **tempo van de vragen**
 
 ## Schattenjacht
 
-1. Kies op het startscherm **Schattenjacht**, kies de speeltijd en klik bij een quiz op **Kies**. Nog geen geschikte quiz? Maak er een met **Nieuwe quiz met AI** of **Lege quiz**; na het opslaan kom je vanzelf terug.
+1. Kies op het startscherm **De Arena** en dan **Schattenjacht**, kies de speeltijd en klik bij een quiz op **Kies**. Nog geen geschikte quiz? Maak er een met **Nieuwe quiz met AI** of **Lege quiz**; na het opslaan kom je vanzelf terug.
 2. Leerlingen scannen de QR-code en vullen hun naam in.
 3. Klik op **Start de schattenjacht!** Leerlingen beantwoorden vragen op hun eigen tempo en kopen upgrades in de **Schatkamer**.
 4. Als de tijd om is (of met **Tijd stoppen**) verschijnt het podium. De resultaten worden bewaard in de map `resultaten`.
 
 ## De prinses in de toren
 
-1. Kies op het startscherm **De prinses in de toren**, kies de speeltijd en klik op de quiz waaruit de vragen komen.
+1. Kies op het startscherm **De Arena** en dan **De prinses in de toren**, kies de speeltijd en klik op de quiz waaruit de vragen komen.
 2. Leerlingen scannen de QR-code en vullen hun naam in.
 3. Klik op **Bestorm de toren!** Na drie seconden aftellen begint de klim.
 4. Leerlingen springen met **Spring** en lopen met ◀ en ▶. Is hun energie op, dan beantwoorden ze een vraag.
@@ -48,7 +48,7 @@ Tip: laat leerlingen de gsm rechtop houden. Op een laptop werken de pijltjes en 
 
 ## Laserslag
 
-1. Kies op het startscherm **Laserslag**, kies de spelvorm (rood tegen blauw of ieder voor zich) en de speeltijd, en klik op de quiz.
+1. Kies op het startscherm **De Arena** en dan **Laserslag**, kies de spelvorm (rood tegen blauw of ieder voor zich) en de speeltijd, en klik op de quiz.
 2. Leerlingen scannen de QR-code. Bij teams verdeelt LANcelot ze zelf; klik op een naam om iemand van team te wisselen.
 3. Klik op **Start de slag!** Op de gsm sleep je links om te lopen en druk je op **Vuur**; op een Chromebook loop je met WASD en schiet je met de muis.
 4. Munitie op? Druk op **⚡ Laden** (of E) en beantwoord vragen. Ook wie uitgeschakeld is, kan intussen laden.
@@ -59,14 +59,14 @@ Tip: leg vooraf uit dat je tijdens een vraag beschermd bent, maar niet kan schie
 
 ## Kristalroof
 
-1. Kies op het startscherm **Kristalroof**, kies de speeltijd en klik op de quiz.
+1. Kies op het startscherm **De Arena** en dan **Kristalroof**, kies de speeltijd en klik op de quiz.
 2. Leerlingen scannen de QR-code en kiezen hun **geheime woord** (🔒 bij hun naam op het bord). Zeg dat ze het aan niemand vertellen!
 3. Klik op **Start de kristalroof!** Na elk goed antwoord kiezen leerlingen een kist (of met de toetsen 1-3 op een Chromebook).
 4. Bij een roof kiezen ze een andere ridder en raden ze het geheime woord.
 
 ## De Verrader
 
-1. Kies op het startscherm **De Verrader**. Kies het aantal verraders (automatisch is goed), de lengte, de praattijd en de speeltijd, en klik op de quiz.
+1. Kies op het startscherm **De Arena** en dan **De Verrader**. Kies het aantal verraders (automatisch is goed), de lengte, de praattijd en de speeltijd, en klik op de quiz.
 2. Leerlingen scannen de QR-code. Klik op **Verdeel de rollen!**: iedereen ziet in het geheim zijn rol. Zeg dat ze hun scherm afschermen!
 3. Leerlingen beantwoorden vragen. Een verrader drukt op **🌀 Betover** en kiest een ridder.
 4. Dan verschijnt de **Ronde Tafel** op het bord: laat de klas echt praten. Met **Naar het stemmen** kort je het praten in. Daarna stemt iedereen op de gsm of Chromebook (ook met de toetsen 1-4).
@@ -76,7 +76,7 @@ Tip: de rollen staan nooit op het bord, tot iemand verbannen wordt of het spel v
 
 ## Burchtbouwers
 
-1. Kies op het startscherm **Burchtbouwers**, kies de bouwtijd en de moeilijkheid en klik op de quiz.
+1. Kies op het startscherm **De Arena** en dan **Burchtbouwers**, kies de bouwtijd en de moeilijkheid en klik op de quiz.
 2. Leerlingen scannen de QR-code. Klik op **Begin met bouwen!**
 3. Na elk goed antwoord kiezen leerlingen waar hun steen komt (op een Chromebook met 1-6).
 4. Als de tijd om is, valt de draak aan. Met **De draak nu laten komen** kan het ook vroeger.
@@ -85,7 +85,7 @@ Tip: zeg vooraf dat het samenwerken is. Wie op het bord ziet dat de poort te laa
 
 ## Duel in de arena
 
-1. Kies op het startscherm **Duel in de arena**, kies het aantal harten (3 is goed) en klik op de quiz.
+1. Kies op het startscherm **De Arena** en dan **Duel in de arena**, kies het aantal harten (3 is goed) en klik op de quiz.
 2. Leerlingen scannen de QR-code. Klik op **Start het toernooi!** (minstens 2 spelers).
 3. Het bord toont wie tegen wie speelt. Leerlingen antwoorden zo snel mogelijk (op een Chromebook met 1-4).
 4. Moet een leerling weg tijdens een duel? Klik op **Lopende duels beslissen**: wie de meeste harten heeft, wint.
@@ -94,7 +94,7 @@ Tip: met 3 harten duurt een ronde ongeveer 2 minuten. Met 25 leerlingen zijn er 
 
 ## Het Rijk
 
-1. Kies op het startscherm **Het Rijk**. De eerste keer maak je een nieuw rijk (bijvoorbeeld "Rijk van het 5e leerjaar") met 2 tot 4 teams. Daarna kies je gewoon je rijk.
+1. Kies op het startscherm **De Arena** en dan **Het Rijk**. De eerste keer maak je een nieuw rijk (bijvoorbeeld "Rijk van het 5e leerjaar") met 2 tot 4 teams. Daarna kies je gewoon je rijk.
 2. Kies de speeltijd en de quiz met de leerstof van vandaag.
 3. Leerlingen scannen de QR-code en zien in welk team ze zitten. Zeg dat ze **elke les dezelfde naam** gebruiken. Klik op een naam om iemand van team te wisselen.
 4. Klik op **Start de les!** Na elk goed antwoord tikken leerlingen op een gebied met een gekleurde rand.
@@ -104,7 +104,7 @@ Tip: speel het een paar weken na elkaar, bijvoorbeeld als afsluiter van elke les
 
 ## Ridderrace
 
-1. Kies op het startscherm **Ridderrace**, kies de racetijd en klik op de quiz.
+1. Kies op het startscherm **De Arena** en dan **Ridderrace**, kies de racetijd en klik op de quiz.
 2. Leerlingen scannen de QR-code en wachten aan de startlijn. Klik op **Start de race!** Na drie rode lichten gaat het licht op groen.
 3. Op de gsm sturen leerlingen met ◀ ▶; op een Chromebook met de pijltjes. Gas geven gaat vanzelf.
 4. Tank leeg? Druk op **⛽ Tanken** (of E) en beantwoord vragen. Twee juist op rij geeft een turbo (🚀 of spatie).
@@ -119,7 +119,7 @@ Tip: leg vooraf uit dat je in de pitstop stilstaat. Wie de vragen kent, tankt sn
 
 ## Oefenbladen
 
-1. Klik op **Live oefenbladen**. Maak een nieuw blad (zelf of met AI) of kies er een uit de lijst.
+1. Klik op het startscherm op **De Smidse**. Maak een nieuw blad met AI of kies er een uit **Mijn oefenbladen**. Wil je het op papier? Klik in het blad op **🖨 Opslaan en printen**: je krijgt het werkblad en het verbeterblad.
 2. Kies bovenaan de feedback: **meteen** groen of rood, of pas **na het inleveren**.
 3. Klik op **Live**. Leerlingen scannen dezelfde QR-code en vullen het blad in. Enter springt naar het volgende vakje.
 4. Volg op het bord wie waar staat en welke oefening moeilijk is. Klik op een naam om dat blad te bekijken.

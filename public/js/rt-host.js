@@ -336,14 +336,16 @@ $('new-ai').addEventListener('click', () => {
   show('maker');
 });
 
-// Vanaf de kaart "Voorkennis activeren" op het startscherm: meteen de maker, met dat doel.
-if (new URLSearchParams(location.search).get('doel') === 'voorkennis') {
+// Voorkennis activeren: meteen de maker, met dat doel (knop bovenaan of de kaart op het startscherm).
+function startVoorkennis() {
   $('r-goal').selectedIndex = 0;
   $('r-count').value = 5;
   updatePrompt();
   $('maker-heading').textContent = 'Voorkennis activeren met AI';
   show('maker');
 }
+$('new-voorkennis').addEventListener('click', startVoorkennis);
+if (new URLSearchParams(location.search).get('doel') === 'voorkennis') startVoorkennis();
 
 let promptCopied = false;
 let lastClipboard = '';

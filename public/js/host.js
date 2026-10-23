@@ -35,6 +35,18 @@ $('mute').addEventListener('click', () => { $('mute').textContent = sfx.toggle()
 $('brand').addEventListener('click', () => {
   if (OWN_VIEWS.includes(view)) show('home');
 });
+// Startscherm: drie rijken. De gekozen tegel toont zijn onderdelen eronder en wordt onthouden.
+function openRealm(id, scroll) {
+  for (const t of document.querySelectorAll('.realm')) t.classList.toggle('on', t.dataset.realm === id);
+  for (const p of document.querySelectorAll('.realm-panel')) p.classList.toggle('hidden', p.id !== `realm-${id}`);
+  try { localStorage.setItem('lancelot-realm', id); } catch {}
+  if (scroll) $(`realm-${id}`).scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+for (const t of document.querySelectorAll('.realm')) t.addEventListener('click', () => { openRealm(t.dataset.realm, true); sfx.tick(); });
+let savedRealm = 'arena';
+try { savedRealm = localStorage.getItem('lancelot-realm') || 'arena'; } catch {}
+openRealm(document.getElementById(`realm-${savedRealm}`) ? savedRealm : 'arena');
+
 document.querySelector('[data-module="toernooi"]').addEventListener('click', () => show('idle'));
 document.querySelector('[data-module="rondetafel"]').addEventListener('click', () => { location.href = '/rondetafel'; });
 document.querySelector('[data-module="toren"]').addEventListener('click', () => { location.href = '/toren'; });

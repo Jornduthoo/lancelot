@@ -1223,3 +1223,25 @@ body:not([data-rk="1"]) #rijk { display: none !important; }
   .av-swatch { width: 32px; height: 32px; }
   .av-buttons { position: sticky; bottom: 0; padding-top: 6px; background: linear-gradient(transparent, var(--panel-solid) 30%); }
 }
+
+/* ---------- Startscherm: drie rijken ---------- */
+.realms { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; width: 100%; margin: 6px 0 16px; }
+.realm { position: relative; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px; padding: 22px 18px 18px; color: var(--text);
+  background: radial-gradient(circle at 50% 0%, rgba(76, 201, 255, .16), transparent 65%), var(--panel); border: 1px solid rgba(76, 201, 255, .25);
+  clip-path: polygon(16px 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%, 0 16px); transition: transform .15s, box-shadow .15s; }
+.realm svg { width: 58px; height: 58px; color: var(--cyan); filter: drop-shadow(0 0 12px var(--cyan-glow)); }
+.realm strong { font-family: var(--head); font-size: 1.7rem; letter-spacing: .04em; }
+.realm span { color: var(--muted); font-size: .95rem; }
+.realm .tag { font-family: var(--tech); font-size: .7rem; letter-spacing: .2em; text-transform: uppercase; color: var(--cyan); font-style: normal; }
+.realm:hover { transform: translateY(-3px); box-shadow: inset 0 0 0 1px var(--cyan), 0 0 30px rgba(76, 201, 255, .25); }
+.realm.on { background: radial-gradient(circle at 50% 0%, rgba(255, 201, 74, .22), transparent 65%), var(--panel); border-color: var(--gold); box-shadow: inset 0 0 0 1px var(--gold), 0 0 34px rgba(255, 201, 74, .25); }
+.realm.on svg { color: var(--gold); filter: drop-shadow(0 0 12px rgba(255, 201, 74, .6)); }
+.realm.on::after { content: ''; position: absolute; left: 50%; bottom: 6px; width: 46px; height: 4px; transform: translateX(-50%); border-radius: 2px; background: var(--gold); box-shadow: 0 0 10px var(--gold); }
+.realm-panel { width: 100%; margin-bottom: 22px; animation: tile-in .25s ease-out; }
+@media (max-width: 760px) {
+  .realms { grid-template-columns: 1fr; gap: 10px; }
+  .realm { flex-direction: row; text-align: left; padding: 14px; }
+  .realm svg { width: 42px; height: 42px; flex: none; }
+  .realm strong { font-size: 1.3rem; }
+  .realm span { display: none; }
+}

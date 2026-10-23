@@ -2,9 +2,9 @@
 
 Een gratis klasquiz die op je eigen pc draait. Leerlingen scannen de QR-code op het bord en spelen mee via de browser op hun telefoon, tablet of laptop, over het wifi-netwerk van de school. Het spelen loopt over het lokale netwerk: snel, zonder accounts en zonder dat er gegevens naar de cloud gaan. Alleen een quiz maken met AI heeft internet nodig.
 
-Het thema: middeleeuws met een scifi-kantje. Het startscherm heeft drie delen:
+Het thema: middeleeuws met een scifi-kantje. Het startscherm heeft drie grote tegels; klik op een tegel en de onderdelen verschijnen eronder:
 
-1. **Oefenvormen**, spelend oefenen met je eigen quizzen:
+1. **De Arena**, spelend oefenen met je eigen quizzen:
    - **Toernooi**: snelle quiz, wie antwoordt het snelst en het best?
    - **Schattenjacht**: verdien goud met goede antwoorden en koop slimme upgrades
    - **De prinses in de toren**: klim met je ridder naar de top; goede antwoorden geven energie
@@ -15,8 +15,8 @@ Het thema: middeleeuws met een scifi-kantje. Het startscherm heeft drie delen:
    - **Burchtbouwers**: de hele klas bouwt samen één burcht. Elk goed antwoord is een steen die je zelf op een deel van de burcht legt. Als de tijd om is, valt de draak aan
    - **Duel in de arena**: één tegen één op dezelfde vraag, wie eerst juist antwoordt slaat toe. Een toernooischema op het bord tot er één kampioen is
    - **Het Rijk**: een spel dat weken doorloopt. Teams veroveren les na les gebieden op een kaart; vragen over oudere leerstof komen terug om je land te verdedigen
-2. **De Ronde Tafel**, peilen met de hele klas: polls, stellingen, woordwolken, open vragen en schalen, live op het bord. Met **Voorkennis activeren** maak je met AI meteen een peiling voor het begin van een les.
-3. **Generator**: **live oefenbladen** die leerlingen invullen en die zichzelf verbeteren, en **werkbladen** om te printen, met een verbeterblad.
+2. **De Ronde Tafel**, peilen met de hele klas: polls, stellingen, woordwolken, open vragen en schalen, live op het bord. Met de knop **💡 Voorkennis activeren** in De Ronde Tafel maak je met AI meteen een peiling voor het begin van een les.
+3. **De Smidse**: oefenbladen maken. Een oefenblad speel je **live** (leerlingen vullen in, het verbetert zichzelf) of je kiest **🖨 Opslaan en printen** voor een werkblad op papier met verbeterblad.
 
 ## Eigen ridders
 
