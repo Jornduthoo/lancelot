@@ -58,6 +58,8 @@ document.querySelector('[data-module="verrader"]').addEventListener('click', () 
 document.querySelector('[data-module="burchtbouwers"]').addEventListener('click', () => { location.href = '/burchtbouwers'; });
 document.querySelector('[data-module="duel"]').addEventListener('click', () => { location.href = '/duel'; });
 document.querySelector('[data-module="packnight"]').addEventListener('click', () => { location.href = '/packnight'; });
+document.querySelector('[data-module="neonduel"]').addEventListener('click', () => { location.href = '/neonduel'; });
+document.querySelector('[data-module="leraarbaas"]').addEventListener('click', () => { location.href = '/leraarbaas'; });
 document.querySelector('[data-module="strijdrossen"]').addEventListener('click', () => { location.href = '/strijdrossen'; });
 document.querySelector('[data-module="cybergalaga"]').addEventListener('click', () => { location.href = '/cybergalaga'; });
 document.querySelector('[data-module="bomberknight"]').addEventListener('click', () => { location.href = '/bomberknight'; });

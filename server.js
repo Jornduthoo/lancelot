@@ -20,6 +20,8 @@ const { PacKnight } = require('./src/packnight');
 const { Strijdrossen } = require('./src/strijdrossen');
 const { Galaga } = require('./src/galaga');
 const { Bomber } = require('./src/bomber');
+const { NeonDuel } = require('./src/neonduel');
+const { LeraarBaas } = require('./src/leraarbaas');
 const { Gauntlet } = require('./src/gauntlet');
 const { Royale } = require('./src/royale');
 const rijken = require('./src/rijk');
@@ -117,6 +119,12 @@ const galaga = new Galaga(io, g => {
   return file;
 });
 
+const neon = new NeonDuel(io, d => {
+  const file = results.saveNeon(d);
+  io.to('host').emit('results', results.list());
+  return file;
+});
+
 const gauntlet = new Gauntlet(io, g => {
   const file = g.save();
   io.to('host').emit('results', results.list());
@@ -125,6 +133,12 @@ const gauntlet = new Gauntlet(io, g => {
 
 const bomber = new Bomber(io, b => {
   const file = results.saveBomber(b);
+  io.to('host').emit('results', results.list());
+  return file;
+});
+
+const baas = new LeraarBaas(io, b => {
+  const file = results.saveBaas(b);
   io.to('host').emit('results', results.list());
   return file;
 });
@@ -152,7 +166,7 @@ const busyError = message => Object.assign(new Error(message), { busy: true });
 
 // Alles stoppen wat nog loopt (behalve het spel dat je wil starten). De resultaten worden bewaard zoals bij Stop.
 function stopOthers(except) {
-  const all = { toernooi: game, rondetafel: rt, toren, schat, laserslag, race, roof, verrader, burcht, duel, knight, rossen, gauntlet, royale, rijk, oefenblad, galaga, bomber };
+  const all = { toernooi: game, rondetafel: rt, toren, schat, laserslag, race, roof, verrader, burcht, duel, knight, rossen, gauntlet, royale, neon, baas, rijk, oefenblad, galaga, bomber };
   for (const [key, mod] of Object.entries(all)) {
     if (key === except) continue;
     if (key === 'toernooi' ? game.phase !== 'idle' : mod.active) mod.stop();
@@ -174,6 +188,8 @@ function busyWith(except) {
   if (except !== 'rossen' && rossen.active) return 'Strijdrossen loopt nog. Stop dat spel eerst.';
   if (except !== 'galaga' && galaga.active) return 'Cyber-Galaga loopt nog. Stop dat spel eerst.';
   if (except !== 'bomber' && bomber.active) return 'Bomber-Knight loopt nog. Stop dat spel eerst.';
+  if (except !== 'neon' && neon.active) return 'Neon Duel loopt nog. Stop dat spel eerst.';
+  if (except !== 'baas' && baas.active) return 'Leraar-baas loopt nog. Stop dat spel eerst.';
   if (except !== 'gauntlet' && gauntlet.active) return 'Gauntlet loopt nog. Stop dat spel eerst.';
   if (except !== 'royale' && royale.active) return 'Ridder-Royale loopt nog. Stop dat spel eerst.';
   if (except !== 'rijk' && rijk.active) return 'Het Rijk loopt nog. Stop dat spel eerst.';
@@ -199,7 +215,7 @@ function isLocal(address) {
   return ['127.0.0.1', '::1', '::ffff:127.0.0.1'].includes(address);
 }
 
-for (const [route, page] of [['/host', 'host.html'], ['/rondetafel', 'rondetafel.html'], ['/toren', 'toren.html'], ['/schattenjacht', 'schattenjacht.html'], ['/laserslag', 'laserslag.html'], ['/ridderrace', 'ridderrace.html'], ['/kristalroof', 'kristalroof.html'], ['/verrader', 'verrader.html'], ['/burchtbouwers', 'burchtbouwers.html'], ['/duel', 'duel.html'], ['/packnight', 'packnight.html'], ['/strijdrossen', 'strijdrossen.html'], ['/gauntlet', 'gauntlet.html'], ['/ridder-royale', 'royale.html'], ['/cybergalaga', 'cybergalaga.html'], ['/bomberknight', 'bomberknight.html'], ['/rijk', 'rijk.html'], ['/oefenblad', 'oefenblad.html'], ['/oefenblad-print', 'oefenblad-print.html'], ['/klas', 'klas.html']]) {
+for (const [route, page] of [['/host', 'host.html'], ['/rondetafel', 'rondetafel.html'], ['/toren', 'toren.html'], ['/schattenjacht', 'schattenjacht.html'], ['/laserslag', 'laserslag.html'], ['/ridderrace', 'ridderrace.html'], ['/kristalroof', 'kristalroof.html'], ['/verrader', 'verrader.html'], ['/burchtbouwers', 'burchtbouwers.html'], ['/duel', 'duel.html'], ['/packnight', 'packnight.html'], ['/strijdrossen', 'strijdrossen.html'], ['/gauntlet', 'gauntlet.html'], ['/ridder-royale', 'royale.html'], ['/neonduel', 'neonduel.html'], ['/leraarbaas', 'leraarbaas.html'], ['/cybergalaga', 'cybergalaga.html'], ['/bomberknight', 'bomberknight.html'], ['/rijk', 'rijk.html'], ['/oefenblad', 'oefenblad.html'], ['/oefenblad-print', 'oefenblad-print.html'], ['/klas', 'klas.html']]) {
   app.get(route, (req, res) => {
     if (!isLocal(req.socket.remoteAddress)) return res.status(403).send('Het docentenscherm is alleen bereikbaar op de pc van de leerkracht.');
     res.setHeader('Cache-Control', 'no-cache');
@@ -342,6 +358,8 @@ io.on('connection', socket => {
     socket.emit('sr-state', rossen.hostState());
     socket.emit('cg-state', galaga.hostState());
     socket.emit('bk-state', bomber.hostState());
+    socket.emit('nd-state', neon.hostState());
+    socket.emit('lb-state', baas.hostState());
     socket.emit('rk-state', rijk.hostState());
     socket.emit('vr-state', verrader.hostState());
     socket.emit('ob-state', oefenblad.hostState());
@@ -581,6 +599,47 @@ io.on('connection', socket => {
     socket.on('bk-finish', () => bomber.finish());
     socket.on('bk-restart', () => bomber.quiz && bomber.load(bomber.quiz, bomber.minutes, bomber.tempo));
     socket.on('bk-stop', (_, cb) => cb && cb({ file: bomber.stop() }));
+
+    // Neon Duel
+    socket.on('nd-load', handle(({ file, rounds, seconds, tempo } = {}) => {
+      const busy = busyWith('neon');
+      if (busy) throw busyError(busy);
+      neon.load(quizzes.load(file), Number(rounds), Number(seconds), tempo);
+      return {};
+    }));
+    socket.on('nd-start', (_, cb) => { const res = neon.start(); if (typeof cb === 'function') cb(res || {}); });
+    socket.on('nd-kick', id => neon.kick(id));
+    socket.on('nd-swap', id => neon.swap(id));
+    socket.on('nd-shuffle', () => neon.shuffle());
+    socket.on('nd-finish', () => neon.finish());
+    socket.on('nd-restart', () => neon.quiz && neon.load(neon.quiz, neon.bestOf, neon.roundSec, neon.tempo));
+    socket.on('nd-stop', (_, cb) => cb && cb({ file: neon.stop() }));
+
+    // Leraar-baas, met de eindbaas die de leerkracht zelf samenstelt (bewaard in settings.json).
+    socket.on('lb-load', handle(({ file, minutes, tempo, auto } = {}) => {
+      const busy = busyWith('baas');
+      if (busy) throw busyError(busy);
+      baas.load(quizzes.load(file), Number(minutes), tempo, auto !== false);
+      return {};
+    }));
+    socket.on('lb-start', () => baas.start());
+    socket.on('lb-kick', id => baas.kick(id));
+    socket.on('lb-move', (move, cb) => { const res = baas.teacherMove(String(move || '')); if (typeof cb === 'function') cb(res || {}); });
+    socket.on('lb-auto', on => baas.setAuto(Boolean(on)));
+    socket.on('lb-finish', () => baas.finish());
+    socket.on('lb-restart', () => baas.quiz && baas.load(baas.quiz, baas.minutes, baas.tempo, baas.auto));
+    socket.on('lb-stop', (_, cb) => cb && cb({ file: baas.stop() }));
+    socket.on('lb-boss-get', (_, cb) => typeof cb === 'function' && cb(settings.read().teacherBoss || null));
+    socket.on('lb-boss-set', (boss, cb) => {
+      const clean = LeraarBaas.cleanBoss(boss);
+      if (clean) {
+        settings.write({ teacherBoss: clean });
+        baas.boss = clean;
+        baas.broadcast();
+      }
+      if (typeof cb === 'function') cb(clean ? { ok: true, boss: clean } : { error: 'Ongeldige eindbaas.' });
+    });
+
     // Gauntlet en Ridder-Royale
     gauntlet.attachHost(socket, handle, busyWith, busyError, quizzes);
     royale.attachHost(socket, handle, busyWith, busyError, quizzes);
@@ -909,6 +968,38 @@ io.on('connection', socket => {
   socket.on('sr-asking', sr((id, on) => rossen.asking(id, on)));
   socket.on('sr-question', sr(id => rossen.question(id)));
   socket.on('sr-answer', sr((id, choice) => rossen.answer(id, choice)));
+
+  // Neon Duel
+  socket.emit('nd-state', neon.base());
+  socket.on('nd-join', ({ playerId, name } = {}, cb) => {
+    if (!validId(playerId)) return cb && cb({ error: 'Ongeldige speler.' });
+    const result = neon.join(playerId, name, socket.id);
+    socket.data.ndId = result.ok ? playerId : null;
+    cb && cb(result);
+    if (result.ok) socket.emit('nd-state', neon.playerState(playerId));
+  });
+  const nd = fn => (arg, cb) => {
+    const out = socket.data.ndId ? fn(socket.data.ndId, arg) : { error: 'Meld je eerst aan.' };
+    if (typeof cb === 'function') cb(out || {});
+  };
+  socket.on('nd-question', nd(id => neon.question(id)));
+  socket.on('nd-answer', nd((id, choice) => neon.answer(id, choice)));
+
+  // Leraar-baas
+  socket.emit('lb-state', baas.base());
+  socket.on('lb-join', ({ playerId, name } = {}, cb) => {
+    if (!validId(playerId)) return cb && cb({ error: 'Ongeldige speler.' });
+    const result = baas.join(playerId, name, socket.id);
+    socket.data.lbId = result.ok ? playerId : null;
+    cb && cb(result);
+    if (result.ok) socket.emit('lb-state', baas.playerState(playerId));
+  });
+  const lb = fn => (arg, cb) => {
+    const out = socket.data.lbId ? fn(socket.data.lbId, arg) : { error: 'Meld je eerst aan.' };
+    if (typeof cb === 'function') cb(out || {});
+  };
+  socket.on('lb-question', lb(id => baas.question(id)));
+  socket.on('lb-answer', lb((id, choice) => baas.answer(id, choice)));
 
   // Het Rijk
   socket.emit('rk-state', rijk.base());
