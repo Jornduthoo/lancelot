@@ -158,6 +158,13 @@ $('new-ai').addEventListener('click', () => {
   renderSources();
   $('a-error').textContent = '';
   $('a-gemini-error').textContent = '';
+  // Het niveau staat meteen op het leerjaar van de klas; de leerkracht kan het nog veranderen.
+  DoelKies.leerjaar(lj => {
+    if (!makerDoel.codes().length) {
+      $('a-level').value = `${lj}e leerjaar`;
+      updatePrompt();
+    }
+  });
   show('maker');
 });
 
