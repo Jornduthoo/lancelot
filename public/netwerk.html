@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LANcelot · Netwerk werkt niet?</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body class="klas-host netwerk-hulp">
+<main>
+  <div class="topbar">
+    <div class="brand" id="brand" title="Naar het startscherm">
+      <img src="/img/mark.webp" alt="">
+      <div>
+        <div class="wordmark">LAN<span>celot</span></div>
+        <div class="subtitle">Netwerk werkt niet?</div>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="secondary" id="to-home">Naar het startscherm</button>
+    </div>
+  </div>
+
+  <section>
+    <div class="panel form">
+      <h3>Zo werkt het</h3>
+      <p>LANcelot draait op deze pc. De toestellen van de leerlingen surfen naar het adres op het bord. Daarvoor moeten ze <strong>op hetzelfde netwerk</strong> zitten als deze pc, en dat netwerk moet toestellen <strong>met elkaar laten praten</strong>. Internet is niet nodig om te spelen; alleen een quiz of oefenblad maken met AI heeft internet nodig.</p>
+    </div>
+
+    <div class="panel form">
+      <h3>De adressen van deze pc</h3>
+      <p class="muted">Dit zijn de netwerken waarop deze pc nu zit. Het bovenste adres staat groot op het bord.</p>
+      <ul class="nw-adressen" id="nw-adressen"><li class="muted">Laden…</li></ul>
+    </div>
+
+    <div class="panel form">
+      <h3>Stap voor stap</h3>
+      <ol class="nw-stappen">
+        <li><strong>Test op deze pc zelf.</strong> Typ het adres van het bord (bijvoorbeeld <code>http://192.168.1.234:3000</code>) in de browser van deze pc. Zie je LANcelot? Dan draait alles goed en zit het probleem in het netwerk of de firewall.</li>
+        <li><strong>Zelfde wifi?</strong> Kijk op een leerlingtoestel met welk wifi-netwerk het verbonden is. Een gastnetwerk en het netwerk van de leerkrachten zijn vaak gescheiden.</li>
+        <li><strong>Probeer een ander adres.</strong> Staan er in de lobby meerdere adressen onder de QR-code? Klik op een ander adres, meestal dat met Wi-Fi of Ethernet erbij. LANcelot onthoudt het adres dat werkt.</li>
+        <li><strong>VPN uit.</strong> Een VPN (bijvoorbeeld NordVPN) kan toestellen in de klas blokkeren. Zet hem uit zolang je speelt.</li>
+        <li><strong>Firewall.</strong> Heb je de vraag van Windows de eerste keer weggeklikt? Zoek in Start naar <em>Een app toestaan via Windows Firewall</em>, klik op <em>Instellingen wijzigen</em> en zet een vinkje bij Node.js, bij <em>Privé</em> en <em>Openbaar</em>.</li>
+        <li><strong>Laat de school het netwerk openzetten.</strong> Veel schoolnetwerken zetten "client isolation" aan: toestellen mogen dan wel op internet, maar niet bij elkaar. Vraag ICT of toestellen in de klas deze pc mogen bereiken op poort 3000. Dat is de beste oplossing, want dan werkt het elke les.</li>
+      </ol>
+    </div>
+
+    <div class="panel form">
+      <h3>Noodoplossing: de mobiele hotspot van Windows</h3>
+      <p>Deze pc kan zelf een klein wifi-netwerk maken. De leerlingen verbinden daarmee, en LANcelot werkt dan zonder schoolnetwerk.</p>
+      <ol class="nw-stappen">
+        <li>Open <strong>Instellingen → Netwerk en internet → Mobiele hotspot</strong>.</li>
+        <li>Kies bij <em>Mijn internetverbinding delen vanaf</em> de wifi of kabel waarmee de pc nu verbonden is. Windows wil een verbinding om te delen: zit de pc op geen enkel netwerk, dan gaat de hotspot soms niet aan.</li>
+        <li>Klik bij <em>Eigenschappen</em> op <strong>Bewerken</strong> om een eenvoudige naam en wachtwoord te kiezen, en zet de hotspot <strong>aan</strong>.</li>
+        <li>Laat de leerlingen met die wifi verbinden. Start daarna een spel en klik in de lobby op het adres dat begint met <code>192.168.137.</code> (dat is de hotspot).</li>
+      </ol>
+      <p class="notice"><strong>Let op:</strong> de hotspot van Windows laat <strong>hooguit 8 toestellen</strong> tegelijk toe. Dat is genoeg voor een groepje of voor duo's, niet voor een hele klas met elk een eigen toestel. De pc heeft een wifikaart nodig.</p>
+      <p class="notice"><strong>Mag het op school?</strong> Veel scholen verbieden eigen hotspots, omdat ze storen op het schoolnetwerk of het filter omzeilen. Beheerde Chromebooks mogen vaak alleen op het schoolnetwerk. Vraag het eerst aan ICT of de directie.</p>
+    </div>
+
+    <div class="panel form">
+      <h3>Andere opties</h3>
+      <ul class="nw-stappen">
+        <li><strong>Hotspot van je gsm:</strong> zet de pc én de leerlingen op de hotspot van je gsm. LANcelot zelf verbruikt bijna geen mobiele data, want het spel blijft tussen de toestellen. De toestellen kunnen op de achtergrond wel data gebruiken, bijvoorbeeld voor updates. Een gsm laat meestal maar 5 tot 10 toestellen toe. Dezelfde vraag aan ICT geldt hier.</li>
+        <li><strong>Een eigen klein wifi-routertje:</strong> een reisrouter van een paar tientjes, met de pc via kabel of wifi erop, kan 20 tot 30 toestellen aan. Ook dit eerst met ICT afspreken.</li>
+        <li><strong>Poort 3000 bezet?</strong> Zet <code>set PORT=3001</code> boven in <em>Start LANcelot.bat</em>. Het adres op het bord eindigt dan op :3001.</li>
+      </ul>
+    </div>
+  </section>
+</main>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  const socket = io({ query: { role: 'host' } });
+  const $ = id => document.getElementById(id);
+  $('brand').addEventListener('click', () => { location.href = '/host'; });
+  $('to-home').addEventListener('click', () => { location.href = '/host'; });
+
+  // Wat voor netwerk is dit adres? Een korte uitleg helpt het juiste adres kiezen.
+  function soort(a) {
+    const ip = a.url.replace(/^http:\/\//, '').replace(/:\d+$/, '');
+    const name = a.name || '';
+    if (/^192\.168\.137\./.test(ip)) return 'de mobiele hotspot van deze pc';
+    if (/^192\.168\.(42|225)\.|^172\.20\.10\./.test(ip)) return 'waarschijnlijk een gsm die via usb internet deelt';
+    if (/vpn|nord|tap|tun|wireguard/i.test(name) || /^10\.5\.0\./.test(ip)) return 'waarschijnlijk een VPN: werkt niet voor leerlingen';
+    if (/virtual|vmware|vbox|hyper-v|vethernet|docker|wsl/i.test(name)) return 'een virtuele netwerkkaart: werkt niet voor leerlingen';
+    if (/wi-?fi|wlan|wireless/i.test(name)) return 'wifi';
+    if (/ethernet|lan/i.test(name)) return 'netwerkkabel';
+    return '';
+  }
+
+  socket.on('addresses', list => {
+    const box = $('nw-adressen');
+    box.innerHTML = '';
+    if (!list.length) {
+      box.innerHTML = '<li>Deze pc zit op geen enkel netwerk. Verbind met de wifi of steek de netwerkkabel in.</li>';
+      return;
+    }
+    list.forEach((a, i) => {
+      const li = document.createElement('li');
+      const code = document.createElement('code');
+      code.textContent = a.url.replace('http://', '');
+      li.append(code);
+      const extra = [a.name, soort(a)].filter(Boolean).join(' · ');
+      if (extra) li.append(` ${extra}`);
+      if (i === 0) li.append(' (staat groot op het bord)');
+      box.appendChild(li);
+    });
+  });
+</script>
+</body>
+</html>

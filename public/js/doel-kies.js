@@ -15,7 +15,7 @@ const DoelKies = (() => {
   }
 
   function describe(d) {
-    return `${d.domein} · ${d.tekst}${d.soort === 'plus' ? ' (plusdoel)' : ''}`;
+    return `${d.vak} · ${d.domein} · ${d.tekst}${d.soort === 'plus' ? ' (plusdoel)' : ''}`;
   }
 
   function load() {
@@ -54,7 +54,7 @@ const DoelKies = (() => {
     const words = query.toLowerCase().split(/\s+/).filter(Boolean);
     if (!words.length) return [];
     return doelen.filter(d => {
-      const hay = `${d.code} ${d.tekst} ${d.cluster} ${d.domein}`.toLowerCase();
+      const hay = `${d.code} ${d.tekst} ${d.cluster} ${d.domein} ${d.vak}`.toLowerCase();
       return words.every(w => hay.includes(w));
     });
   }
@@ -64,7 +64,7 @@ const DoelKies = (() => {
     load();
     const el = document.createElement('div');
     el.className = 'doel-veld';
-    el.innerHTML = `<span class="doel-titel"></span><div class="doel-invoer"><input class="doel" maxlength="200" autocomplete="off" placeholder="Typ een code of een woord, bv. breuk of deler"><div class="doel-keuzes hidden"></div></div><span class="doel-tekst"></span>`;
+    el.innerHTML = `<span class="doel-titel"></span><div class="doel-invoer"><input class="doel" maxlength="200" autocomplete="off" placeholder="Typ een code of een woord, bv. breuk, spelling of verkeer"><div class="doel-keuzes hidden"></div></div><span class="doel-tekst"></span>`;
     el.querySelector('.doel-titel').textContent = label;
     const input = el.querySelector('input');
     const box = el.querySelector('.doel-keuzes');
@@ -187,7 +187,7 @@ const DoelKies = (() => {
         chips.appendChild(chip);
       }
       const input = el.querySelector('.doel-veld input');
-      if (input) input.placeholder = codes.length ? 'Nog een doel? Typ een code of een woord' : 'Typ een code of een woord, bv. breuk of deler';
+      if (input) input.placeholder = codes.length ? 'Nog een doel? Typ een code of een woord' : 'Typ een code of een woord, bv. breuk, spelling of verkeer';
     };
     const search = field('', {
       label,
@@ -213,7 +213,7 @@ const DoelKies = (() => {
   function prompt(codes, wat) {
     const list = codes.map(find).filter(Boolean);
     if (!list.length) return '';
-    const bron = `het Vlaamse leerplan Op.stap (${list[0].vak}, ${list[0].leerjaar}e leerjaar)`;
+    const bron = `het Vlaamse leerplan Op.stap (${[...new Set(list.map(d => d.vak))].join(', ')}, ${list[0].leerjaar}e leerjaar)`;
     if (list.length === 1) return `\nDe ${wat} oefenen dit leerplandoel uit ${bron}: "${list[0].tekst}" Maak alleen ${wat} die precies dit doel oefenen.\n`;
     return `\nDe ${wat} oefenen deze leerplandoelen uit ${bron}:\n${list.map(d => `- ${d.code}: ${d.tekst}`).join('\n')}\nVerdeel de ${wat} evenwichtig over deze doelen. Zet bij elk${wat === 'vragen' ? 'e vraag' : 'e oefening'} in "doel" de code van het doel dat ze oefent, bijvoorbeeld "doel": "${list[0].code}".\n`;
   }

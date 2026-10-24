@@ -1,0 +1,260 @@
+{
+ "bron": "Op.stap, leerroutes voor iedereen (Katholiek Onderwijs Vlaanderen), leerplanversie V1.3 van 24/10/2026",
+ "vak": "Geschiedenis",
+ "leerjaar": 6,
+ "doelen": [
+  {
+   "code": "5.1.GL6.1",
+   "vak": "Geschiedenis",
+   "leerjaar": 6,
+   "soort": "G",
+   "domein": "Kennis van het verleden",
+   "cluster": "Hoe organiseren mensen hun samen leven?",
+   "tekst": "De leerlingen weten hoe mensen tijdens de moderne tijd met de natuur omgingen, overleefden, samenleefden en dachten: emancipatie, Emilie Claeys.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.1.GL6.2",
+   "vak": "Geschiedenis",
+   "leerjaar": 6,
+   "soort": "G",
+   "domein": "Kennis van het verleden",
+   "cluster": "Hoe organiseren mensen hun samen leven?",
+   "tekst": "De leerlingen weten hoe mensen tijdens de moderne tijd met de natuur omgingen, overleefden, samenleefden en dachten: grondwetten, de Belgische Grondwet.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.1.GL6.3",
+   "vak": "Geschiedenis",
+   "leerjaar": 6,
+   "soort": "G",
+   "domein": "Kennis van het verleden",
+   "cluster": "Hoe leven mensen elke dag?",
+   "tekst": "De leerlingen weten hoe mensen tijdens de hedendaagse tijd samenleefden: vrouwenemancipatie, de pil.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.1.GL6.4",
+   "vak": "Geschiedenis",
+   "leerjaar": 6,
+   "soort": "G",
+   "domein": "Kennis van het verleden",
+   "cluster": "Hoe gaan verschillende samenlevingen met elkaar om?",
+   "tekst": "De leerlingen weten hoe mensen tijdens de hedendaagse tijd samenleefden: internationale rivaliteit en samenwerking, verzetsstrijders en collaborateurs, het Fort van Breendonk.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.1.GL6.5",
+   "vak": "Geschiedenis",
+   "leerjaar": 6,
+   "soort": "G",
+   "domein": "Kennis van het verleden",
+   "cluster": "Hoe gaan verschillende samenlevingen met elkaar om?",
+   "tekst": "De leerlingen weten hoe mensen tijdens de hedendaagse tijd samenleefden: internationale rivaliteit en samenwerking, verzetsstrijders en collaborateurs, de Kazerne Dossin.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.1.GL6.6",
+   "vak": "Geschiedenis",
+   "leerjaar": 6,
+   "soort": "G",
+   "domein": "Kennis van het verleden",
+   "cluster": "Hoe gaan verschillende samenlevingen met elkaar om?",
+   "tekst": "De leerlingen weten hoe mensen tijdens de hedendaagse tijd samenleefden: internationale rivaliteit en samenwerking, Verenigde Naties, Europese Unie.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.1.GL6.7",
+   "vak": "Geschiedenis",
+   "leerjaar": 6,
+   "soort": "G",
+   "domein": "Kennis van het verleden",
+   "cluster": "Hoe gaan verschillende samenlevingen met elkaar om?",
+   "tekst": "De leerlingen weten hoe mensen tijdens de hedendaagse tijd samenleefden: internationale rivaliteit en samenwerking, de Muur van Berlijn.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.1.GL6.8",
+   "vak": "Geschiedenis",
+   "leerjaar": 6,
+   "soort": "G",
+   "domein": "Kennis van het verleden",
+   "cluster": "Hoe organiseren mensen hun samen leven?",
+   "tekst": "De leerlingen weten hoe mensen tijdens de hedendaagse tijd samenleefden: vrouwenemancipatie, stemrecht voor vrouwen.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.1.GL6.9",
+   "vak": "Geschiedenis",
+   "leerjaar": 6,
+   "soort": "G",
+   "domein": "Kennis van het verleden",
+   "cluster": "Hoe organiseren mensen hun samen leven?",
+   "tekst": "De leerlingen weten hoe mensen tijdens de hedendaagse tijd samenleefden: burgerrechten, het homohuwelijk.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.1.GL6.10",
+   "vak": "Geschiedenis",
+   "leerjaar": 6,
+   "soort": "G",
+   "domein": "Kennis van het verleden",
+   "cluster": "Hoe organiseren mensen hun samen leven?",
+   "tekst": "De leerlingen weten hoe mensen tijdens de hedendaagse tijd samenleefden: burgerrechten, Rosa Parks.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.1.GL6.11",
+   "vak": "Geschiedenis",
+   "leerjaar": 6,
+   "soort": "G",
+   "domein": "Kennis van het verleden",
+   "cluster": "Hoe organiseren mensen hun samen leven?",
+   "tekst": "De leerlingen weten hoe mensen tijdens de hedendaagse tijd samenleefden: burgerrechten, gastarbeiders.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.1.GL6.13",
+   "vak": "Geschiedenis",
+   "leerjaar": 6,
+   "soort": "G",
+   "domein": "Kennis van het verleden",
+   "cluster": "Hoe begrijpen mensen hun wereld?",
+   "tekst": "De leerlingen weten hoe mensen tijdens de hedendaagse tijd samenleefden: ruimte-exploratie, Neil Armstrong.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.1.GL6.14",
+   "vak": "Geschiedenis",
+   "leerjaar": 6,
+   "soort": "G",
+   "domein": "Kennis van het verleden",
+   "cluster": "Hoe begrijpen mensen hun wereld?",
+   "tekst": "De leerlingen weten hoe mensen tijdens de hedendaagse tijd samenleefden: informatie-, communicatie- en technologierevoluties, het internet.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.2.GL6.1",
+   "vak": "Geschiedenis",
+   "leerjaar": 6,
+   "soort": "G",
+   "domein": "Kennis van geschiedenis",
+   "cluster": "Hoe komen we geschiedenis op het spoor?",
+   "tekst": "De leerlingen kunnen aangereikt bewijs uit bronnen gebruiken bij het antwoorden op historische vragen.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.2.GL6.2",
+   "vak": "Geschiedenis",
+   "leerjaar": 6,
+   "soort": "G",
+   "domein": "Kennis van geschiedenis",
+   "cluster": "Hoe komen we geschiedenis op het spoor?",
+   "tekst": "De leerlingen kunnen diverse, veelgebruikte bronnen relevant voor de vroegmoderne, moderne en hedendaagse tijd noemen.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.2.GL6.3",
+   "vak": "Geschiedenis",
+   "leerjaar": 6,
+   "soort": "G",
+   "domein": "Kennis van geschiedenis",
+   "cluster": "Hoe denken we na over geschiedenis?",
+   "tekst": "De leerlingen kunnen typische historische vragen stellen met betrekking tot continuïteit-verandering.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.2.GL6.4",
+   "vak": "Geschiedenis",
+   "leerjaar": 6,
+   "soort": "G",
+   "domein": "Kennis van geschiedenis",
+   "cluster": "Hoe denken we na over geschiedenis?",
+   "tekst": "De leerlingen kunnen hun gedachten ordenen om typische historische vragen te beantwoorden met betrekking tot continuïteit, verandering, oorzaak-gevolg.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.2.GL6.5",
+   "vak": "Geschiedenis",
+   "leerjaar": 6,
+   "soort": "G",
+   "domein": "Kennis van geschiedenis",
+   "cluster": "Hoe ordenen we geschiedenis?",
+   "tekst": "De leerlingen kennen de zes periodes van het gehanteerde historische referentiekader: prehistorie, oudheid, middeleeuwen, vroegmoderne tijd, moderne tijd, hedendaagse tijd.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.2.GL6.6",
+   "vak": "Geschiedenis",
+   "leerjaar": 6,
+   "soort": "G",
+   "domein": "Kennis van geschiedenis",
+   "cluster": "Hoe kijken we vandaag naar geschiedenis?",
+   "tekst": "De leerlingen kunnen hun historische kennis gebruiken om vragen te stellen over de perspectieven van mensen en groepen in het verleden.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.2.GL6.7",
+   "vak": "Geschiedenis",
+   "leerjaar": 6,
+   "soort": "G",
+   "domein": "Kennis van geschiedenis",
+   "cluster": "Hoe kijken we vandaag naar geschiedenis?",
+   "tekst": "De leerlingen kunnen redeneringen over personen, groepen, gebeurtenissen en ontwikkelingen in het verleden verwoorden vanuit verschillende perspectieven.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.3.GL6.1",
+   "vak": "Geschiedenis",
+   "leerjaar": 6,
+   "soort": "G",
+   "domein": "Reflectie en dialoog over verleden en geschiedenis",
+   "cluster": "Hoe kijken we vandaag naar geschiedenis?",
+   "tekst": "De leerlingen kunnen uitleggen wat historische gebeurtenissen, ontwikkelingen, plaatsen en/of personen voor de samenleving kunnen betekenen: erfgoed: standbeelden, straatnamen, verhalen, feestdagen.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.3.GL6.2",
+   "vak": "Geschiedenis",
+   "leerjaar": 6,
+   "soort": "G",
+   "domein": "Reflectie en dialoog over verleden en geschiedenis",
+   "cluster": "Hoe kijken we vandaag naar geschiedenis?",
+   "tekst": "De leerlingen kunnen de relatie tussen heden, verleden en toekomst verwoorden met betrekking tot de bestudeerde samenlevingen: materieel en immaterieel erfgoed; racisme en discriminatie; organisatie van samenleving en dialoog: democratische instellingen, dictatorschap.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.3.GL6.3",
+   "vak": "Geschiedenis",
+   "leerjaar": 6,
+   "soort": "G",
+   "domein": "Reflectie en dialoog over verleden en geschiedenis",
+   "cluster": "Hoe organiseren mensen hun samen leven?",
+   "tekst": "De leerlingen kennen de begrippen met betrekking tot de principes van de democratische rechtsstaat: democratie, regering, parlement, rechtbank, bescherming, wetten, grondwet, vrijheid.",
+   "kennis": "",
+   "herhaling": ""
+  }
+ ]
+}

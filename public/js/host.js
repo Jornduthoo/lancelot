@@ -14,9 +14,9 @@ function esc(text) {
 }
 
 let view = 'home';
-const VIEWS = ['home', 'idle', 'results', 'settings', 'maker', 'editor', 'lobby', 'question', 'board', 'podium'];
+const VIEWS = ['home', 'idle', 'opwarmer', 'results', 'settings', 'maker', 'editor', 'lobby', 'question', 'board', 'podium'];
 // Schermen die de leerkracht zelf opent en die een statusupdate niet mag wegklikken.
-const OWN_VIEWS = ['home', 'idle', 'results', 'settings', 'maker', 'editor'];
+const OWN_VIEWS = ['home', 'idle', 'opwarmer', 'results', 'settings', 'maker', 'editor'];
 // Tijdens het maken of bewerken van een quiz springen we nooit naar een lopend toernooi.
 const EDITING = ['results', 'settings', 'maker', 'editor'];
 const follow = name => { if (!EDITING.includes(view)) show(name); };
@@ -240,6 +240,7 @@ socket.on('results', files => {
 
 $('open-results').addEventListener('click', () => show('results'));
 $('open-klas').addEventListener('click', () => { location.href = '/klas'; });
+$('open-netwerk').addEventListener('click', () => { location.href = '/netwerk'; });
 for (const b of document.querySelectorAll('.open-folder')) {
   b.addEventListener('click', () => socket.emit('open-results-folder'));
 }

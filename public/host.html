@@ -56,6 +56,12 @@
         <span>Snelle quiz: wie antwoordt het snelst en het best?</span>
         <em class="tag">Speel nu</em>
       </button>
+      <button class="module" data-module="opwarmer">
+        <img class="tile-icon" src="/img/icons/portaal.webp" alt="">
+        <strong>Opwarmer</strong>
+        <span>Start je les met een paar herhaalvragen uit vorige lessen. LANcelot kiest wat lang geleden is of vaak fout ging.</span>
+        <em class="tag">5 minuten</em>
+      </button>
       <button class="module" data-module="schattenjacht">
         <img class="tile-icon" src="/img/icons/schattenjacht.webp" alt="">
         <strong>Schattenjacht</strong>
@@ -190,6 +196,7 @@
     <div class="actions" style="justify-content:center">
       <button class="secondary" id="open-klas">Mijn klas en doelen</button>
       <button class="secondary" id="open-results">Resultaten</button>
+      <button class="secondary" id="open-netwerk">Netwerk werkt niet?</button>
       <button class="secondary" id="open-settings"><img class="btn-icon" src="/img/icons/instellingen.webp" alt="">Instellingen</button>
     </div>
   </section>
@@ -206,6 +213,33 @@
     <p class="notice hidden" id="stopped"></p>
     <div class="quiz-list" id="quiz-list"></div>
     <p class="error" id="load-error"></p>
+  </section>
+
+  <section id="opwarmer" class="hidden">
+    <div class="bar">
+      <h2>Opwarmer · herhalen bij de start van de les</h2>
+      <div class="actions">
+        <button class="secondary" data-back="home">Terug</button>
+      </div>
+    </div>
+    <p class="muted">LANcelot zoekt in al je quizzen een paar vragen om op te warmen. Voorrang krijgen: vragen en leerplandoelen die vaak fout gingen, en leerstof die al een tijd niet meer aan bod kwam. Wat de klas vandaag al zag, komt achteraan. De vragen worden gemengd over verschillende lessen, zo onthouden leerlingen het best. Je speelt de Opwarmer als een gewoon Toernooi en de antwoorden gaan mee in het logboek.</p>
+    <div class="panel form">
+      <div class="row">
+        <label>Aantal vragen
+          <select id="ow-aantal"><option>4</option><option>5</option><option selected>6</option><option>8</option><option>10</option></select>
+        </label>
+        <label>Vak
+          <select id="ow-vak"><option value="">Alle vakken</option></select>
+        </label>
+      </div>
+    </div>
+    <p class="error" id="ow-error"></p>
+    <div class="quiz-list" id="ow-lijst"></div>
+    <p class="muted small" id="ow-info"></p>
+    <div class="bar">
+      <button class="secondary" id="ow-nieuw">Andere vragen</button>
+      <button class="gold big" id="ow-start" disabled>Start de Opwarmer</button>
+    </div>
   </section>
 
   <section id="results" class="hidden">
@@ -402,6 +436,7 @@
 <script src="/js/address.js"></script>
 <script src="/js/doel-kies.js"></script>
 <script src="/js/maker.js"></script>
+<script src="/js/opwarmer.js"></script>
 <script src="/js/overzicht.js"></script>
 </body>
 </html>

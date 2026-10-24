@@ -9,7 +9,16 @@ function showAddress(list, i) {
   $('qr').innerHTML = main ? main.qr : '';
   const others = $('other-urls');
   others.innerHTML = '';
-  if (list.length < 2) return;
+  // Altijd een weg naar de hulppagina, ook met maar één adres.
+  const help = document.createElement('a');
+  help.href = '/netwerk';
+  help.target = '_blank';
+  help.className = 'netwerk-hulp-link';
+  help.textContent = 'Netwerk werkt niet?';
+  if (list.length < 2) {
+    others.append(help);
+    return;
+  }
   others.append('Lukt verbinden niet? Klik op het adres dat wel werkt: ');
   list.forEach((a, j) => {
     if (j === i) return;
@@ -24,6 +33,7 @@ function showAddress(list, i) {
     });
     others.append(link);
   });
+  others.append(' ', help);
 }
 
 const ipOf = a => a.url.replace(/^http:\/\//, '').replace(/:\d+$/, '');
