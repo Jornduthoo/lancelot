@@ -41,6 +41,7 @@ socket.on('bb-state', s => {
   bb.state = s;
   bb.offset = s.now - Date.now();
   document.body.dataset.bb = s.active ? '1' : '';
+  if (s.active) bbBg();
   if (!s.active) {
     bb.joined = false;
     return;
@@ -241,3 +242,18 @@ document.addEventListener('keydown', e => {
   e.stopImmediatePropagation();
   bbPlace(Number(e.key) - 1);
 }, true);
+
+// De bouwplaats bij nacht als achtergrond: één keer getekend per schermgrootte, wat donkerder zodat de vragen leesbaar blijven.
+function bbBg() {
+  const c = $('bb-bg');
+  const dpr = Math.min(1.5, window.devicePixelRatio || 1);
+  const w = Math.round(innerWidth * dpr);
+  const h = Math.round(innerHeight * dpr);
+  if (c.width === w && c.height === h) return;
+  c.width = w;
+  c.height = h;
+  const g = c.getContext('2d');
+  g.drawImage(BbArt.scene(w, h, h * .86, true), 0, 0);
+  Glow.vignette(g, w, h, .7);
+}
+window.addEventListener('resize', () => { if (document.body.dataset.bb === '1') bbBg(); });
