@@ -1271,3 +1271,8 @@ body:not([data-rk="1"]) #rijk { display: none !important; }
 .doel-rij .tag.plus { color: var(--gold); border-color: var(--gold); }
 .doel-rij .tag.log { color: var(--good); border-color: var(--good); }
 @media (max-width: 640px) { .doel-rij { grid-template-columns: 1fr; } .doel-rij .tags { justify-content: flex-start; } }
+.doel-multi { display: grid; gap: 6px; }
+.doel-chips { display: flex; flex-direction: column; gap: 4px; }
+.doel-chip { display: grid; grid-template-columns: 7.5em 1fr auto; gap: 10px; align-items: center; padding: 4px 4px 4px 10px; border: 1px solid var(--cyan); background: rgba(76, 201, 255, .08); font-weight: 400; }
+.doel-chip code { color: var(--cyan); }
+.doel-chip button { padding: 4px 10px; }

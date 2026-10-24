@@ -91,18 +91,18 @@ function chosenTypes() {
   return [...$('a-types').querySelectorAll('input:checked')].map(i => i.value);
 }
 
-// Het leerplandoel waarover de AI oefeningen maakt (mag leeg). Elke oefening krijgt dan dat doel.
+// De leerplandoelen waarover de AI oefeningen maakt (mag leeg). Elke oefening krijgt een van die doelen.
 let makerDoel = null;
 
 function withDoel(sheet) {
-  const doel = makerDoel && DoelKies.read(makerDoel);
-  if (doel) for (const b of sheet.blocks) if (b.type !== 'tekst') b.doel = b.doel || doel;
+  if (makerDoel) DoelKies.apply(sheet.blocks.filter(b => b.type !== 'tekst'), makerDoel.codes());
   return sheet;
 }
 
 function buildPrompt(forGemini = false) {
   const hasSources = forGemini ? sources.length > 0 : $('a-attach').checked;
-  const doel = makerDoel && DoelKies.find(DoelKies.read(makerDoel));
+  const codes = makerDoel ? makerDoel.codes() : [];
+  const doel = DoelKies.find(codes[0]);
   const topic = $('a-topic').value.trim() || (doel ? doel.cluster : '') || (hasSources ? 'de bijgevoegde lesstof' : '[ONDERWERP]');
   const level = $('a-level').value;
   const count = Math.min(12, Math.max(1, Number($('a-count').value) || 5));
@@ -113,7 +113,7 @@ function buildPrompt(forGemini = false) {
   const withText = types.includes('tekst');
   const kinds = types.filter(t => t !== 'tekst');
   return `Je bent een ervaren leerkracht in Vlaanderen. Maak een oefenblad (werkblad) voor leerlingen uit: ${level} (Belgisch onderwijs). Onderwerp: ${topic}.
-${doel ? `\nDe oefeningen oefenen dit leerplandoel uit het Vlaamse leerplan Op.stap (${doel.vak}, ${doel.leerjaar}e leerjaar): "${doel.tekst}" Maak alleen oefeningen die precies dit doel oefenen.\n` : ''}${hasSources ? '\nBaseer alle oefeningen op de bijgevoegde lesstof. Vraag alleen naar dingen die daarin staan.\n' : ''}${extra ? `\nExtra wensen van de docent:\n${extra}\n` : ''}
+${DoelKies.prompt(codes, 'oefeningen')}${hasSources ? '\nBaseer alle oefeningen op de bijgevoegde lesstof. Vraag alleen naar dingen die daarin staan.\n' : ''}${extra ? `\nExtra wensen van de docent:\n${extra}\n` : ''}
 Regels:
 - Maak ${count} oefeningen in het Nederlands zoals in Vlaanderen, met ongeveer ${per} vragen of gaten per oefening.
 - Gebruik deze soorten oefeningen, afwisselend: ${kinds.join(', ')}.${withText ? '\n- Begin met een korte leestekst ("tekst") waarop de oefeningen voortbouwen.' : ''}
@@ -134,11 +134,10 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
 }`;
 }
 
-makerDoel = DoelKies.field('', {
-  label: 'Leerplandoel (mag leeg)',
-  // Het niveau volgt het leerjaar van het doel.
-  onChange: code => {
-    const doel = DoelKies.find(code);
+makerDoel = DoelKies.multi({
+  // Het niveau volgt het leerjaar van de doelen.
+  onChange: codes => {
+    const doel = DoelKies.find(codes[0]);
     if (doel) $('a-level').value = `${doel.leerjaar}e leerjaar`;
     updatePrompt();
   },

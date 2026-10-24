@@ -8,12 +8,11 @@ let sources = [];
 const MAX_SOURCE_BYTES = 15 * 1024 * 1024;
 
 // forGemini: de lesstof gaat via LANcelot mee naar Gemini. Anders voegt de leerkracht hem zelf toe in de chatbot.
-// Het leerplandoel waarover de AI vragen maakt (mag leeg). Elke vraag krijgt dan dat doel.
-const makerDoel = DoelKies.field('', {
-  label: 'Leerplandoel (mag leeg)',
-  // Het niveau volgt het leerjaar van het doel.
-  onChange: code => {
-    const doel = DoelKies.find(code);
+// De leerplandoelen waarover de AI vragen maakt (mag leeg). Elke vraag krijgt een van die doelen.
+const makerDoel = DoelKies.multi({
+  // Het niveau volgt het leerjaar van de doelen.
+  onChange: codes => {
+    const doel = DoelKies.find(codes[0]);
     if (doel) $('m-level').value = `${doel.leerjaar}e leerjaar`;
     updatePrompt();
   },
@@ -21,21 +20,21 @@ const makerDoel = DoelKies.field('', {
 $('m-doel').appendChild(makerDoel);
 
 function withDoel(quiz) {
-  const doel = DoelKies.read(makerDoel);
-  if (doel) for (const q of quiz.questions) q.doel = q.doel || doel;
+  DoelKies.apply(quiz.questions, makerDoel.codes());
   return quiz;
 }
 
 function buildPrompt(forGemini = false) {
   const hasSources = forGemini ? sources.length > 0 : $('m-attach').checked;
-  const doel = DoelKies.find(DoelKies.read(makerDoel));
+  const codes = makerDoel.codes();
+  const doel = DoelKies.find(codes[0]);
   const topic = $('m-topic').value.trim() || (doel ? doel.cluster : '') || (hasSources ? 'de bijgevoegde lesstof' : '[ONDERWERP]');
   const level = $('m-level').value;
   const count = Math.min(40, Math.max(3, Number($('m-count').value) || 10));
   const time = Math.min(120, Math.max(5, Number($('m-time').value) || 20));
   const extra = $('m-extra').value.trim();
   return `Je bent een ervaren leerkracht in Vlaanderen. Maak een quiz voor leerlingen uit: ${level} (Belgisch onderwijs). Onderwerp: ${topic}.
-${doel ? `\nDe vragen oefenen dit leerplandoel uit het Vlaamse leerplan Op.stap (${doel.vak}, ${doel.leerjaar}e leerjaar): "${doel.tekst}" Stel alleen vragen die precies dit doel oefenen.\n` : ''}${hasSources ? '\nBaseer alle vragen op de bijgevoegde lesstof. Vraag alleen naar dingen die daarin staan.\n' : ''}${extra ? `\nExtra wensen van de docent:\n${extra}\n` : ''}
+${DoelKies.prompt(codes, 'vragen')}${hasSources ? '\nBaseer alle vragen op de bijgevoegde lesstof. Vraag alleen naar dingen die daarin staan.\n' : ''}${extra ? `\nExtra wensen van de docent:\n${extra}\n` : ''}
 Regels:
 - Maak precies ${count} meerkeuzevragen in het Nederlands zoals in Vlaanderen.
 - Elke vraag heeft 4 antwoorden (bij een waar/niet waar-vraag 2), met precies één goed antwoord.
@@ -49,7 +48,7 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
 {
   "title": "korte titel van de quiz",
   "questions": [
-    { "question": "de vraag", "answers": ["antwoord A", "antwoord B", "antwoord C", "antwoord D"], "correct": 0, "time": ${time} }
+    { "question": "de vraag", "answers": ["antwoord A", "antwoord B", "antwoord C", "antwoord D"], "correct": 0, "time": ${time}${codes.length > 1 ? ', "doel": "code van het doel"' : ''} }
   ]
 }
 "correct" is het nummer van het goede antwoord, geteld vanaf 0 (0 = eerste antwoord, 3 = vierde antwoord).`;
