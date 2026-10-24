@@ -16,6 +16,8 @@ const tw = {
   lastSent: '',
   cam: 0,
   rescued: false,
+  zone: 0,
+  crumble: new Map(),
 };
 
 function twNow() {
@@ -65,6 +67,8 @@ socket.on('tw-state', s => {
     tw.me = null;
     tw.others.clear();
     tw.rescued = false;
+    tw.zone = 0;
+    tw.crumble.clear();
     tw.joined = false;
   }
   if (!s.name) {
@@ -273,11 +277,43 @@ function overlap(ax, ay, aw, ah, bx, by, bw, bh) {
   return ax < bx + bw && ax + aw > bx && ay < by + bh && ay + ah > by;
 }
 
+// Brokkelplatforms: elke gsm houdt zelf bij welke platforms onder jou zijn ingestort.
+const CRUMBLE_AFTER = .55;   // zo lang kan je erop staan
+const CRUMBLE_BACK = 3.5;    // daarna is het zo lang weg
+function crumbleState(p) {
+  const c = tw.crumble.get(p.floor);
+  const now = performance.now() / 1000;
+  if (!c) return { shake: 0, gone: -1 };
+  if (c.goneAt && now - c.goneAt > CRUMBLE_BACK) { tw.crumble.delete(p.floor); return { shake: 0, gone: -1 }; }
+  if (c.goneAt) return { shake: 0, gone: now - c.goneAt };
+  return { shake: Math.min(1, c.stood / CRUMBLE_AFTER), gone: -1 };
+}
+
 function physics(dt, t) {
   const me = tw.me;
   const { W, PLAYER: P, PHYS } = tw.world;
   const frozen = tw.question || t < 0;
   me.safe = Math.max(0, me.safe - dt);
+
+  // Op een zwevend platform beweeg je mee, ook terwijl je een vraag beantwoordt.
+  if (me.grounded && me.on && me.on.move) {
+    const dx = Toren.platformX(me.on, t) - Toren.platformX(me.on, t - dt);
+    me.x = Math.max(0, Math.min(W - P.w, me.x + dx));
+  }
+  // Een brokkelplatform stort in als je er te lang op staat (niet tijdens een vraag).
+  if (me.grounded && me.on && me.on.kind === 'crumble' && !frozen) {
+    const c = tw.crumble.get(me.on.floor) || { stood: 0, goneAt: 0 };
+    if (!c.goneAt) {
+      c.stood += dt;
+      if (c.stood >= CRUMBLE_AFTER) {
+        c.goneAt = performance.now() / 1000;
+        sfx.empty();
+        buzz(40);
+      }
+      tw.crumble.set(me.on.floor, c);
+    }
+  }
+  const onIce = me.grounded && me.on && me.on.kind === 'ice';
 
   if (me.tumble > 0) {
     me.tumble -= dt;
@@ -285,8 +321,13 @@ function physics(dt, t) {
   } else if (frozen) {
     me.vx = 0;
   } else {
-    me.vx = ((tw.keys.right ? 1 : 0) - (tw.keys.left ? 1 : 0)) * PHYS.speed;
-    if (me.vx) me.face = Math.sign(me.vx);
+    const want = ((tw.keys.right ? 1 : 0) - (tw.keys.left ? 1 : 0)) * PHYS.speed;
+    if (onIce) {
+      // Op ijs glijd je: vlot vertrekken, maar remmen of omkeren gaat traag.
+      const accel = want && Math.sign(want) === Math.sign(me.vx || want) ? 900 : 380;
+      me.vx += Math.sign(want - me.vx) * Math.min(Math.abs(want - me.vx), accel * dt);
+    } else me.vx = want;
+    if (want) me.face = Math.sign(want);
     const wantJump = tw.jumpAt > 0 && performance.now() - tw.jumpAt < 130;
     if (wantJump && (me.grounded || me.coyote > 0)) {
       tw.jumpAt = -1;
@@ -307,19 +348,24 @@ function physics(dt, t) {
   if (frozen && me.grounded) return;
 
   me.vy = Math.max(-1400, me.vy - PHYS.gravity * dt);
-  const nx = Math.max(0, Math.min(W - P.w, me.x + me.vx * dt));
+  // De wind duwt je opzij zolang je in de lucht hangt.
+  const wind = me.grounded ? 0 : Toren.windAt(tw.world, me.y, t);
+  const nx = Math.max(0, Math.min(W - P.w, me.x + (me.vx + wind) * dt));
   let ny = me.y + me.vy * dt;
   let landed = null;
   if (me.vy <= 0 && me.tumble <= 0) {
     for (const p of tw.world.platforms) {
-      if (me.y >= p.y - .01 && ny <= p.y && nx + P.w > p.x + 3 && nx < p.x + p.w - 3) {
-        ny = p.y;
-        landed = p;
-        break;
-      }
+      if (me.y < p.y - .01 || ny > p.y) continue;
+      const px = Toren.platformX(p, t);
+      if (nx + P.w <= px + 3 || nx >= px + p.w - 3) continue;
+      if (p.kind === 'crumble' && crumbleState(p).gone >= 0) continue;
+      ny = p.y;
+      landed = p;
+      break;
     }
   }
   if (ny < 0) { ny = 0; landed = tw.world.platforms[0]; }
+  const wasGrounded = me.grounded;
   me.x = nx;
   me.y = ny;
   if (landed) {
@@ -327,10 +373,39 @@ function physics(dt, t) {
     me.grounded = true;
     me.coyote = .08;
     me.on = landed;
+    // Supersprong: landen op het roze kristal lanceert je gratis omhoog.
+    const sp = landed.spring;
+    if (sp && !wasGrounded && nx + P.w > sp.x + 2 && nx < sp.x + sp.w - 2) {
+      me.vy = PHYS.jump * Toren.SPRING;
+      me.grounded = false;
+      me.on = null;
+      sfx.jump();
+      buzz([20, 30, 20]);
+      twToast('Supersprong!', 'gold');
+    }
   } else {
+    // Van een brokkelplatform dat net verdween: gewoon vallen.
     if (me.grounded) me.coyote = .08;
     me.grounded = false;
     me.coyote = Math.max(0, me.coyote - dt);
+  }
+  // Ingestort onder je voeten?
+  if (me.grounded && me.on && me.on.kind === 'crumble' && crumbleState(me.on).gone >= 0) {
+    me.grounded = false;
+    me.on = null;
+  }
+  // Ook van een zwevend platform af als het onder je wegschuift.
+  if (me.grounded && me.on && me.on.move) {
+    const px = Toren.platformX(me.on, t);
+    if (me.x + P.w <= px + 3 || me.x >= px + me.on.w - 3) { me.grounded = false; me.on = null; }
+  }
+  // Zone-melding als je voor het eerst in een nieuwe zone komt.
+  const zone = Toren.zoneAt(tw.world, me.y);
+  if (zone > (tw.zone || 0)) {
+    tw.zone = zone;
+    const z = tw.world.zones[zone];
+    twToast(`${z.icon} ${z.name}`, 'gold');
+    sfx.good();
   }
 
   // Gevaren, behalve vlak na een treffer of tijdens een vraag.
@@ -414,10 +489,10 @@ function render(t, dt) {
   }
   const viewH = h / scale;
   // De ridder staat laag in beeld, zodat je vooral ziet wat er boven je komt.
-  const target = Math.max(-20, me.y - viewH * .18);
+  const target = Math.max(-70, me.y - viewH * .18);
   tw.cam += (target - tw.cam) * Math.min(1, dt * 6);
   const cam = { y: tw.cam, scale, H: h, ox };
-  TorenDraw.scene(ctx, tw.world, cam, Math.max(0, t));
+  TorenDraw.scene(ctx, tw.world, cam, Math.max(0, t), { crumble: crumbleState });
   const sy = wy => h - (wy - cam.y) * scale;
   const { w: pw, h: ph } = tw.world.PLAYER;
   const topY = cam.y + viewH;
