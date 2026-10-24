@@ -88,6 +88,7 @@ function renderLobby() {
 // De goudrace: balken die meegroeien, rijen die van plaats wisselen.
 let lastFeed = '';
 let lastTotal = 0;
+const goldOf = new Map();
 function renderRace() {
   const list = $('p-race');
   const top = state.ranking.slice(0, 12);
@@ -116,16 +117,140 @@ function renderRace() {
     const shift = old - li.getBoundingClientRect().top;
     if (shift) li.animate([{ transform: `translateY(${shift}px)` }, { transform: 'none' }], { duration: 600, easing: 'cubic-bezier(.2,1,.3,1)' });
   }
+  // Wie goud bijkreeg, stuurt munten van zijn rij naar de schatkist.
+  for (const r of top) {
+    const before = goldOf.get(r.id);
+    if (before !== undefined && r.gold > before && view === 'play') {
+      const li = [...list.children].find(el => el.dataset.id === r.id);
+      if (li) Scene.burst(li.querySelector('.gold'), r.gold - before);
+    }
+  }
+  goldOf.clear();
+  for (const r of state.ranking) goldOf.set(r.id, r.gold);
   const total = state.ranking.reduce((a, r) => a + r.gold, 0);
   if (total > lastTotal && view === 'play' && prev && prev.phase === 'play') sfx.tick(false);
   lastTotal = total;
   $('p-total').textContent = fmt(total);
+  Scene.total(total);
   const feedKey = JSON.stringify(state.feed);
   if (feedKey !== lastFeed) {
     lastFeed = feedKey;
     $('p-feed').innerHTML = state.feed.map(f => `<li>${esc(f.text)}</li>`).join('');
   }
 }
+
+// ---------- De schatkamer: achtergrond, vliegende munten en de kist ----------
+
+const Scene = (() => {
+  const back = $('p-back');
+  const front = $('p-front');
+  const chestCv = $('p-chest');
+  const bctx = back.getContext('2d');
+  const fctx = front.getContext('2d');
+  const cctx = chestCv.getContext('2d');
+  const dpr = Math.min(1.5, window.devicePixelRatio || 1);
+  let art = null;
+  let coins = [];
+  let pops = [];
+  let open = 0;
+  let openUntil = 0;
+  let bounce = 0;
+  let fill = 0;
+  let sum = 0;
+  let last = performance.now();
+
+  function size() {
+    const w = Math.round(innerWidth * dpr);
+    const h = Math.round(innerHeight * dpr);
+    for (const c of [back, front]) {
+      if (c.width !== w || c.height !== h) { c.width = w; c.height = h; }
+    }
+    if (!art || art.c.width !== w || art.c.height !== h) art = SjArt.vault(w, h);
+    const cw = Math.round(chestCv.clientWidth * dpr);
+    const ch = Math.round(chestCv.clientHeight * dpr);
+    if (cw && (chestCv.width !== cw || chestCv.height !== ch)) { chestCv.width = cw; chestCv.height = ch; }
+  }
+
+  function chestPoint() {
+    const r = chestCv.getBoundingClientRect();
+    return [(r.left + r.width / 2) * dpr, (r.top + r.height * .55) * dpr];
+  }
+
+  // Munten van een element naar de kist; meer goud = meer munten.
+  function burst(el, amount) {
+    if (!el || coins.length > 160) return;
+    const r = el.getBoundingClientRect();
+    const x0 = (r.left + 14) * dpr;
+    const y0 = (r.top + r.height / 2) * dpr;
+    const n = Math.min(14, 3 + Math.round(Math.log10(amount + 1) * 3));
+    for (let i = 0; i < n; i++) {
+      coins.push({ x0: x0 + (Math.random() - .5) * 30 * dpr, y0: y0 + (Math.random() - .5) * 16 * dpr, t: -i * .05, dur: .9 + Math.random() * .35, lift: (80 + Math.random() * 140) * dpr, spin: Math.random() * 6, r: (7 + Math.random() * 4) * dpr });
+    }
+    pops.push({ x: x0, y: y0 - 10 * dpr, t: 0, text: `+${fmt(amount)}` });
+  }
+
+  function total(n) {
+    sum = n;
+    fill = Math.min(1, Math.log10(n + 1) / 4);
+  }
+
+  function frame(now) {
+    requestAnimationFrame(frame);
+    const dt = Math.min(.05, (now - last) / 1000);
+    last = now;
+    if (view !== 'play') return;
+    size();
+    const t = now / 1000;
+    // Achtergrond: de gebakken kamer, fakkels en glinsters.
+    bctx.drawImage(art.c, 0, 0);
+    art.torches.forEach(([x, y, pw], i) => SjArt.torch(bctx, x, y, pw * .9, t, i * 2.3));
+    art.sparkles.forEach(([x, y], i) => SjArt.sparkle(bctx, x, y, 7 * dpr, Math.sin(t * 1.7 + i * 2.1) * 1.2 - .2));
+    Glow.vignette(bctx, back.width, back.height, .6);
+    // Vliegende munten.
+    fctx.clearRect(0, 0, front.width, front.height);
+    const [tx, ty] = chestPoint();
+    coins = coins.filter(c => {
+      c.t += dt;
+      if (c.t < 0) return true;
+      const k = Math.min(1, c.t / c.dur);
+      const e = k * k * (3 - 2 * k);
+      const x = c.x0 + (tx - c.x0) * e;
+      const y = c.y0 + (ty - c.y0) * e - Math.sin(k * Math.PI) * c.lift;
+      Glow.glow(fctx, x, y, c.r * 2.5, '#ffd166', .5);
+      SjArt.coin(fctx, x, y, c.r * (1 - k * .3), c.spin + c.t * 14);
+      if (k >= 1) {
+        openUntil = now + 900;
+        bounce = 1;
+        return false;
+      }
+      return true;
+    });
+    pops = pops.filter(p => {
+      p.t += dt;
+      const a = 1 - p.t / 1.2;
+      if (a <= 0) return false;
+      fctx.globalAlpha = a;
+      fctx.font = `800 ${Math.round(20 * dpr)}px Orbitron, system-ui, sans-serif`;
+      fctx.textAlign = 'left';
+      fctx.fillStyle = '#ffd166';
+      fctx.fillText(p.text, p.x - 60 * dpr, p.y - p.t * 40 * dpr);
+      fctx.globalAlpha = 1;
+      return true;
+    });
+    // De kist: gaat open als er munten in vallen en blijft een tijdje open.
+    open += ((now < openUntil ? 1 : 0) - open) * Math.min(1, dt * 8);
+    bounce = Math.max(0, bounce - dt * 3);
+    const cw = chestCv.width;
+    const ch = chestCv.height;
+    if (cw) {
+      cctx.clearRect(0, 0, cw, ch);
+      const s = Math.min(cw * .62, ch * 1.1);
+      SjArt.chest(cctx, cw / 2, ch * .5 - Math.sin(bounce * Math.PI) * 8 * dpr + Math.sin(t * 1.5) * 3 * dpr, s, Math.max(open, sum > 0 ? .15 : 0), fill, t);
+    }
+  }
+  requestAnimationFrame(frame);
+  return { burst, total };
+})();
 
 setInterval(() => {
   if (view !== 'play' || !state) return;
