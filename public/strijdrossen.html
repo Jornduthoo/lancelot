@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LANcelot · Strijdrossen</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body class="ls-host sr-host">
+<main>
+  <div class="topbar">
+    <div class="brand" id="brand" title="Naar het startscherm">
+      <img src="/img/mark.webp" alt="">
+      <div>
+        <div class="wordmark">LAN<span>celot</span></div>
+        <div class="subtitle" id="status">Strijdrossen</div>
+      </div>
+    </div>
+    <div class="actions">
+      <span class="join-mini hidden" id="join-mini"></span>
+      <button class="secondary icon" id="mute" title="Geluid aan/uit">🔊</button>
+      <button class="secondary hidden" id="stop">Stop het spel</button>
+    </div>
+  </div>
+
+  <section id="setup">
+    <div class="bar">
+      <h2>Strijdrossen</h2>
+      <div class="actions">
+        <button class="secondary" id="to-home">Terug</button>
+        <button class="secondary" data-make="leeg">Lege quiz</button>
+        <button data-make="ai">Nieuwe quiz met AI</button>
+      </div>
+    </div>
+    <div class="panel tw-intro">
+      <svg class="ls-logo sr-logo" viewBox="0 0 64 64"><ellipse cx="32" cy="50" rx="26" ry="6" fill="#c77dff" opacity=".35"/><path d="M6 40 L50 40 L60 32 L50 26 L14 24 Z" fill="#2a3150" stroke="#c77dff" stroke-width="2.5"/><path d="M28 24 L30 12 L38 12 L38 24 Z" fill="#c9d6e6"/><circle cx="34" cy="9" r="5" fill="#e8eff8"/><path d="M38 18 L62 8" stroke="#ffd166" stroke-width="3" stroke-linecap="round"/><circle cx="8" cy="34" r="5" fill="#ff9f1c"/></svg>
+      <div>
+        <p>Een gevecht op <strong>hoverrossen</strong> in een neon arena, zoals Smash Karts: ieder voor zich of rood tegen blauw. Wie uitgeschakeld wordt, rijdt na 3 seconden weer mee. Geen bloed, wel spanning.</p>
+        <p><strong>Wapens krijg je alleen met goede antwoorden.</strong> Elk goed antwoord geeft ⚡ lasers, 2 op rij een 🚀 raket die zelf een vijand zoekt, 3 op rij een 💣 mijn. Tijdens een vraag zweeft het ros stil in een schild.</p>
+        <p class="muted">Tegen gokken: na een fout antwoord moet je even wachten (het juiste antwoord blijft staan), en die vraag komt later terug. Elk antwoord komt in het logboek. Op de Chromebook rijden leerlingen met de pijltjes, op de gsm met knoppen. Ze kiezen zelf: in 3D achter hun ros of van bovenaf.</p>
+      </div>
+    </div>
+    <div class="panel form">
+      <label>Spelvorm
+        <select id="sr-mode">
+          <option value="ieder" selected>Ieder voor zich</option>
+          <option value="teams">Rood tegen blauw</option>
+        </select>
+      </label>
+      <label>Tempo van de vragen
+        <select id="sr-tempo" class="tempo-select">
+          <option value="rustig">Rustig: een goed antwoord geeft veel lasers</option>
+          <option value="normaal" selected>Normaal</option>
+          <option value="intens">Intens: snel weer nieuwe vragen</option>
+        </select>
+      </label>
+      <label>Speeltijd
+        <select id="sr-minutes">
+          <option value="3">3 minuten</option>
+          <option value="4">4 minuten</option>
+          <option value="5" selected>5 minuten</option>
+          <option value="6">6 minuten</option>
+          <option value="8">8 minuten</option>
+          <option value="10">10 minuten</option>
+        </select>
+      </label>
+      <p class="muted small">Kies hieronder de quiz waaruit de vragen komen.</p>
+    </div>
+    <p class="notice hidden" id="stopped"></p>
+    <div class="quiz-list" id="quiz-list"></div>
+    <p class="error" id="load-error"></p>
+  </section>
+
+  <section id="lobby" class="hidden">
+    <div class="panel join">
+      <div class="qr" id="qr"></div>
+      <div class="join-text">
+        <p class="muted">Scan de QR-code of surf naar</p>
+        <div class="join-url" id="join-url"></div>
+        <p class="muted small" id="other-urls"></p>
+      </div>
+    </div>
+    <div class="bar">
+      <h2><span class="count" id="player-count">0</span> <span id="player-word">ridders</span> in de arena</h2>
+      <button class="gold big" id="start" disabled>Start de strijd!</button>
+    </div>
+    <p class="muted small" id="lobby-tip">Klik op een naam om die speler naar het andere team te sturen, ✕ om te verwijderen.</p>
+    <div class="ls-teams" id="teams"></div>
+  </section>
+
+  <section id="play" class="hidden">
+    <div class="hud">
+      <span class="round" id="p-title"></span>
+      <div class="ls-bigscore" id="p-score"></div>
+      <span class="tw-clock" id="p-clock"></span>
+      <button class="secondary" id="p-cam" title="Wissel tussen de hele arena en de leider in 3D">🎥 Volg de leider</button>
+      <button class="secondary" id="p-finish">Tijd stoppen</button>
+    </div>
+    <div class="ls-board">
+      <div class="panel ls-arena"><canvas id="p-arena"></canvas><div class="ls-banner" id="p-banner"></div><div class="tw-countdown hidden" id="p-countdown"></div></div>
+      <div class="tw-side">
+        <ol class="tw-rank" id="p-rank"></ol>
+        <ul class="tw-feed" id="p-feed"></ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="podium" class="hidden">
+    <h2 class="center" id="podium-title">De beste ridders</h2>
+    <div class="podium" id="podium-blocks"></div>
+    <ol class="ranking" id="final"></ol>
+    <p class="center muted" id="results-saved"></p>
+    <div class="bar">
+      <button class="secondary" id="restart">Nog een keer</button>
+      <button id="close">Andere quiz kiezen</button>
+    </div>
+  </section>
+</main>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/fx.js"></script>
+<script src="/js/avatar.js"></script>
+<script src="/js/quiz-links.js"></script>
+<script src="/js/quiz-list.js"></script>
+<script src="/js/race-track.js"></script>
+<script src="/js/race-draw.js"></script>
+<script src="/js/sr-world.js"></script>
+<script src="/js/sr-draw.js"></script>
+<script src="/js/sr-3d.js"></script>
+<script src="/js/sr-host.js"></script>
+<script src="/js/address.js"></script>
+</body>
+</html>

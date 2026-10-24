@@ -306,6 +306,28 @@ function saveKnight(k) {
   return write(now, `pac-knight-${slugOf(k.quiz.title)}`, lines);
 }
 
+function saveRossen(r) {
+  const now = new Date();
+  const ranking = r.ranking();
+  const pct = (a, n) => (n ? `${Math.round((a / n) * 100)}%` : '-');
+  const teams = r.mode === 'teams';
+  const lines = [
+    row(['Strijdrossen', r.quiz.title]),
+    row(['Datum', stamp(now)]),
+    row(['Speeltijd', `${r.minutes} minuten`]),
+    row(['Spelvorm', teams ? 'Rood tegen blauw' : 'Ieder voor zich']),
+    row(['Tempo', r.tempo]),
+    ...(teams ? [row(['Eindstand', `Rood ${r.score.rood} - ${r.score.blauw} Blauw`])] : []),
+    row(['Leerlingen', ranking.length]),
+    '',
+    row(['Rang', 'Naam', ...(teams ? ['Team'] : []), 'Punten', 'Uitgeschakeld (gewonnen)', 'Zelf uitgeschakeld', 'Langste reeks', 'Vragen goed', 'Vragen fout', '% goed']),
+    ...ranking.map((p, i) => row([
+      i + 1, p.name, ...(teams ? [p.team] : []), p.score, p.kills, p.deaths, p.bestStreak, p.right, p.wrong, pct(p.right, p.right + p.wrong),
+    ])),
+  ];
+  return write(now, `strijdrossen-${slugOf(r.quiz.title)}`, lines);
+}
+
 function saveDuel(d) {
   const now = new Date();
   const ranking = d.ranking();
@@ -345,4 +367,4 @@ function saveRijk(r) {
   return write(now, `rijk-${slugOf(d.name)}`, lines);
 }
 
-module.exports = { save, saveKnight, saveRijk, saveRace, saveRoof, saveVerrader, saveBurcht, saveDuel, saveRondeTafel, saveToren, saveSchat, saveLaserslag, saveOefenblad, list, filePath, DIR };
+module.exports = { save, saveKnight, saveRossen, saveRijk, saveRace, saveRoof, saveVerrader, saveBurcht, saveDuel, saveRondeTafel, saveToren, saveSchat, saveLaserslag, saveOefenblad, list, filePath, DIR };

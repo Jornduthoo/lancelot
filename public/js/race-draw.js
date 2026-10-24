@@ -583,5 +583,5 @@ const RaceDraw = (() => {
     }
   }
 
-  return { render, map, colorOf, COLORS, PLAYER_Z };
+  return { render, map, steed, colorOf, COLORS, PLAYER_Z };
 })();

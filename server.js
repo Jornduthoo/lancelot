@@ -17,6 +17,7 @@ const { Kristalroof } = require('./src/kristalroof');
 const { Burcht } = require('./src/burcht');
 const { Duel } = require('./src/duel');
 const { PacKnight } = require('./src/packnight');
+const { Strijdrossen } = require('./src/strijdrossen');
 const rijken = require('./src/rijk');
 const avatars = require('./src/avatars');
 const { Verrader } = require('./src/verrader');
@@ -100,6 +101,12 @@ const knight = new PacKnight(io, k => {
   return file;
 });
 
+const rossen = new Strijdrossen(io, r => {
+  const file = results.saveRossen(r);
+  io.to('host').emit('results', results.list());
+  return file;
+});
+
 const rijk = new rijken.Rijk(io, r => {
   const file = results.saveRijk(r);
   io.to('host').emit('results', results.list());
@@ -117,7 +124,7 @@ const busyError = message => Object.assign(new Error(message), { busy: true });
 
 // Alles stoppen wat nog loopt (behalve het spel dat je wil starten). De resultaten worden bewaard zoals bij Stop.
 function stopOthers(except) {
-  const all = { toernooi: game, rondetafel: rt, toren, schat, laserslag, race, roof, verrader, burcht, duel, knight, rijk, oefenblad };
+  const all = { toernooi: game, rondetafel: rt, toren, schat, laserslag, race, roof, verrader, burcht, duel, knight, rossen, rijk, oefenblad };
   for (const [key, mod] of Object.entries(all)) {
     if (key === except) continue;
     if (key === 'toernooi' ? game.phase !== 'idle' : mod.active) mod.stop();
@@ -136,6 +143,7 @@ function busyWith(except) {
   if (except !== 'burcht' && burcht.active) return 'Burchtbouwers loopt nog. Stop dat spel eerst.';
   if (except !== 'duel' && duel.active) return 'Duel in de arena loopt nog. Stop dat eerst.';
   if (except !== 'knight' && knight.active) return 'Pac-Knight loopt nog. Stop dat spel eerst.';
+  if (except !== 'rossen' && rossen.active) return 'Strijdrossen loopt nog. Stop dat spel eerst.';
   if (except !== 'rijk' && rijk.active) return 'Het Rijk loopt nog. Stop dat spel eerst.';
   if (except !== 'oefenblad' && oefenblad.active) return 'Er staat nog een oefenblad open. Sluit dat eerst.';
   return null;
@@ -159,7 +167,7 @@ function isLocal(address) {
   return ['127.0.0.1', '::1', '::ffff:127.0.0.1'].includes(address);
 }
 
-for (const [route, page] of [['/host', 'host.html'], ['/rondetafel', 'rondetafel.html'], ['/toren', 'toren.html'], ['/schattenjacht', 'schattenjacht.html'], ['/laserslag', 'laserslag.html'], ['/ridderrace', 'ridderrace.html'], ['/kristalroof', 'kristalroof.html'], ['/verrader', 'verrader.html'], ['/burchtbouwers', 'burchtbouwers.html'], ['/duel', 'duel.html'], ['/packnight', 'packnight.html'], ['/rijk', 'rijk.html'], ['/oefenblad', 'oefenblad.html'], ['/oefenblad-print', 'oefenblad-print.html'], ['/klas', 'klas.html']]) {
+for (const [route, page] of [['/host', 'host.html'], ['/rondetafel', 'rondetafel.html'], ['/toren', 'toren.html'], ['/schattenjacht', 'schattenjacht.html'], ['/laserslag', 'laserslag.html'], ['/ridderrace', 'ridderrace.html'], ['/kristalroof', 'kristalroof.html'], ['/verrader', 'verrader.html'], ['/burchtbouwers', 'burchtbouwers.html'], ['/duel', 'duel.html'], ['/packnight', 'packnight.html'], ['/strijdrossen', 'strijdrossen.html'], ['/rijk', 'rijk.html'], ['/oefenblad', 'oefenblad.html'], ['/oefenblad-print', 'oefenblad-print.html'], ['/klas', 'klas.html']]) {
   app.get(route, (req, res) => {
     if (!isLocal(req.socket.remoteAddress)) return res.status(403).send('Het docentenscherm is alleen bereikbaar op de pc van de leerkracht.');
     res.setHeader('Cache-Control', 'no-cache');
@@ -299,6 +307,7 @@ io.on('connection', socket => {
     socket.emit('bb-state', burcht.hostState());
     socket.emit('du-state', duel.hostState());
     socket.emit('pk-state', knight.hostState());
+    socket.emit('sr-state', rossen.hostState());
     socket.emit('rk-state', rijk.hostState());
     socket.emit('vr-state', verrader.hostState());
     socket.emit('ob-state', oefenblad.hostState());
@@ -512,6 +521,20 @@ io.on('connection', socket => {
     socket.on('pk-finish', () => knight.finish());
     socket.on('pk-restart', () => knight.quiz && knight.load(knight.quiz, knight.minutes, knight.tempo));
     socket.on('pk-stop', (_, cb) => cb && cb({ file: knight.stop() }));
+
+    // Strijdrossen
+    socket.on('sr-load', handle(({ file, minutes, mode, tempo } = {}) => {
+      const busy = busyWith('rossen');
+      if (busy) throw busyError(busy);
+      rossen.load(quizzes.load(file), Number(minutes), mode, tempo);
+      return {};
+    }));
+    socket.on('sr-start', () => rossen.start());
+    socket.on('sr-kick', id => rossen.kick(id));
+    socket.on('sr-team', id => rossen.switchTeam(id));
+    socket.on('sr-finish', () => rossen.finish());
+    socket.on('sr-restart', () => rossen.quiz && rossen.load(rossen.quiz, rossen.minutes, rossen.mode, rossen.tempo));
+    socket.on('sr-stop', (_, cb) => cb && cb({ file: rossen.stop() }));
 
     // Het Rijk
     socket.on('rk-list', (_, cb) => cb && cb(rijken.list()));
@@ -764,6 +787,25 @@ io.on('connection', socket => {
   socket.on('pk-question', pk(id => knight.question(id)));
   socket.on('pk-answer', pk((id, choice) => knight.answer(id, choice)));
 
+  // Strijdrossen
+  socket.emit('sr-state', rossen.base());
+  socket.on('sr-join', ({ playerId, name } = {}, cb) => {
+    if (!validId(playerId)) return cb && cb({ error: 'Ongeldige speler.' });
+    const result = rossen.join(playerId, name, socket.id);
+    socket.data.srId = result.ok ? playerId : null;
+    cb && cb(result);
+    if (result.ok) socket.emit('sr-state', rossen.playerState(playerId));
+  });
+  const sr = fn => (arg, cb) => {
+    const out = socket.data.srId ? fn(socket.data.srId, arg) : { error: 'Meld je eerst aan.' };
+    if (typeof cb === 'function') cb(out || {});
+  };
+  socket.on('sr-move', sr((id, pos) => rossen.move(id, pos)));
+  socket.on('sr-fire', sr((id, shot) => rossen.fire(id, shot)));
+  socket.on('sr-asking', sr((id, on) => rossen.asking(id, on)));
+  socket.on('sr-question', sr(id => rossen.question(id)));
+  socket.on('sr-answer', sr((id, choice) => rossen.answer(id, choice)));
+
   // Het Rijk
   socket.emit('rk-state', rijk.base());
   socket.on('rk-join', ({ playerId, name } = {}, cb) => {
@@ -842,6 +884,7 @@ io.on('connection', socket => {
     if (socket.data.lsId) laserslag.asking(socket.data.lsId, false);
     if (socket.data.rrId) race.asking(socket.data.rrId, false);
     if (socket.data.pkId) knight.asking(socket.data.pkId, false);
+    if (socket.data.srId) rossen.asking(socket.data.srId, false);
   });
 
   // De Ronde Tafel: anoniem, alleen een vaste id per browser.

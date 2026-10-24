@@ -628,6 +628,83 @@
     <p class="muted">Kijk naar het bord voor de eindstand.</p>
   </section>
  </div>
+ <div id="rossen">
+  <form id="sr-join" class="screen welcome hidden">
+    <img src="/img/logo.webp" alt="LANcelot">
+    <p class="title">Strijdrossen</p>
+    <input id="sr-name" maxlength="20" autocomplete="off" placeholder="Je naam">
+    <p class="error" id="sr-join-error"></p>
+    <button type="submit" class="big">Spring op je ros</button>
+  </form>
+
+  <section id="sr-lobby" class="screen panel hidden">
+    <p class="status">Strijdrossen</p>
+    <p class="title" id="sr-lobby-name"></p>
+    <p class="ls-team-badge hidden" id="sr-lobby-team"></p>
+    <p>Rij met je hoverros door de arena en schakel de anderen uit. <strong>Wapens krijg je alleen met goede antwoorden:</strong> ⚡ lasers bij elk goed antwoord, een 🚀 raket bij 2 op rij en een 💣 mijn bij 3 op rij.</p>
+    <p class="muted small">Uitgeschakeld? Na 3 seconden rij je weer mee. Een fout antwoord? Even wachten, en die vraag komt later terug.</p>
+    <p class="muted small ls-hint-touch">Gsm: links sturen, rechts vuren. Je ros geeft vanzelf gas; ▼ is remmen.</p>
+    <p class="muted small ls-hint-keys">Rijden met de pijltjes of ZQSD/WASD. Spatie laser, F raket, X mijn, E vraag, V zicht, 1-4 antwoorden.</p>
+    <p class="muted small">Wacht tot de leerkracht het spel start.</p>
+    <div class="spinner"></div>
+  </section>
+
+  <section id="sr-game" class="hidden">
+    <div class="ls-hud sr-hud">
+      <div class="ls-hearts" id="sr-hearts"></div>
+      <div class="sr-ammo" id="sr-ammo"></div>
+      <div class="sr-points" id="sr-points"></div>
+      <div class="ls-score" id="sr-score"></div>
+      <button class="ls-view-btn" id="sr-view-btn" title="Zicht wisselen (V)">🎥</button>
+      <div class="ls-clock" id="sr-clock"></div>
+    </div>
+    <div class="ls-stage" id="sr-stage">
+      <canvas id="sr-canvas"></canvas>
+      <div class="sr-hurt" id="sr-hurt"></div>
+      <div class="ls-feed" id="sr-feed"></div>
+      <div class="ls-banner" id="sr-banner"></div>
+      <div class="tw-toast" id="sr-toast"></div>
+      <div class="tw-countdown hidden" id="sr-countdown"></div>
+      <div class="sr-steer">
+        <button class="ls-btn" data-steer="-1" aria-label="Links">◀</button>
+        <button class="ls-btn" data-steer="1" aria-label="Rechts">▶</button>
+      </div>
+      <div class="sr-touch">
+        <button class="ls-btn sr-brake" id="sr-brake" aria-label="Remmen">▼<small>Rem</small></button>
+        <button class="ls-btn ls-load" id="sr-ask">⚡<small>Vraag</small></button>
+        <div class="sr-weapons">
+          <button class="ls-btn sr-w" id="sr-mijn" data-kind="mijn">💣<small>Mijn</small></button>
+          <button class="ls-btn sr-w" id="sr-raket" data-kind="raket">🚀<small>Raket</small></button>
+          <button class="ls-btn sr-w sr-laser" id="sr-laser" data-kind="laser">🔫<small>Laser</small></button>
+        </div>
+      </div>
+      <p class="ls-keys" id="sr-keys">pijltjes of ZQSD rijden · spatie laser · F raket · X mijn · E vraag · V zicht</p>
+      <div class="ls-out hidden" id="sr-out">
+        <p class="ls-out-title">Uitgeschakeld!</p>
+        <p class="ls-out-by" id="sr-out-by"></p>
+        <p class="ls-out-timer" id="sr-out-timer"></p>
+        <button class="gold" id="sr-out-ask">⚡ Verdien intussen wapens</button>
+      </div>
+    </div>
+    <div class="tw-question hidden" id="sr-question">
+      <div class="panel">
+        <p class="status" id="sr-q-status">Juist = wapens · je bent beschermd</p>
+        <p class="tw-q-text" id="sr-q-text"></p>
+        <div class="answers" id="sr-q-answers"></div>
+        <p class="tw-q-result" id="sr-q-result"></p>
+        <div class="ls-q-actions"><button class="gold" id="sr-q-close">Terug de arena in</button></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="sr-end" class="screen panel hidden">
+    <div class="mark" id="sr-end-medal" style="font-size:4.5rem"></div>
+    <p class="title" id="sr-end-title"></p>
+    <p class="big" id="sr-end-score" style="font-size:2rem"></p>
+    <p id="sr-end-stats"></p>
+    <p class="muted">Kijk naar het bord voor de eindstand.</p>
+  </section>
+ </div>
  <div id="rijk">
   <form id="rk-join" class="screen welcome hidden">
     <img src="/img/logo.webp" alt="LANcelot">
@@ -724,6 +801,10 @@
 <script src="/js/du-player.js"></script>
 <script src="/js/pk-draw.js"></script>
 <script src="/js/pk-player.js"></script>
+<script src="/js/sr-world.js"></script>
+<script src="/js/sr-draw.js"></script>
+<script src="/js/sr-3d.js"></script>
+<script src="/js/sr-player.js"></script>
 <script src="/js/rijk-map.js"></script>
 <script src="/js/rk-player.js"></script>
 <script src="/js/ob-sheet.js"></script>
