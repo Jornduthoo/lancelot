@@ -25,6 +25,39 @@ const SrDraw = (() => {
       for (let x = (y / 40) % 2 ? 0 : 30; x < Wd.W; x += 60) g.fillRect(x + 2, y + 2, 54, 36);
     }
     const oval = (pad = 0) => { g.beginPath(); g.ellipse(Wd.CX, Wd.CY, Wd.RX + pad, Wd.RY + pad, 0, 0, Math.PI * 2); };
+    // Tribunes rond het toernooiveld, vol toeschouwers met vlaggetjes in alle kleuren.
+    let seed = 7;
+    const rnd = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
+    for (let ring = 0; ring < 5; ring++) {
+      const pad = 60 + ring * 46;
+      g.strokeStyle = ring % 2 ? '#1f1b38' : '#262144';
+      g.lineWidth = 44;
+      oval(pad);
+      g.stroke();
+      const n = Math.round((Wd.RX + pad) * .16);
+      for (let i = 0; i < n; i++) {
+        const a = (i / n) * Math.PI * 2 + ring * .07;
+        const x = Wd.CX + Math.cos(a) * (Wd.RX + pad), y = Wd.CY + Math.sin(a) * (Wd.RY + pad);
+        if (x < -20 || y < -20 || x > Wd.W + 20 || y > Wd.H + 20) continue;
+        const col = COLORS[Math.floor(rnd() * COLORS.length)];
+        g.fillStyle = col;
+        g.globalAlpha = .55;
+        g.beginPath(); g.arc(x, y + 6, 11, 0, Math.PI * 2); g.fill();
+        g.globalAlpha = 1;
+        g.fillStyle = ['#f1c27d', '#c68642', '#8d5524', '#e0ac69'][Math.floor(rnd() * 4)];
+        g.beginPath(); g.arc(x, y - 4, 7, 0, Math.PI * 2); g.fill();
+        if (rnd() < .12) { g.fillStyle = col; g.fillRect(x + 4, y - 26, 3, 22); g.fillRect(x + 7, y - 26, 14, 9); }
+      }
+    }
+    // Vuurschalen en vaandels op de hoeken
+    for (const [x, y] of [[90, 90], [Wd.W - 90, 90], [90, Wd.H - 90], [Wd.W - 90, Wd.H - 90], [Wd.CX, 40], [Wd.CX, Wd.H - 40]]) {
+      Glow.glow(g, x, y, 220, '#ff8a2a', .35);
+      g.fillStyle = '#2b2f3a';
+      g.beginPath(); g.arc(x, y, 26, 0, Math.PI * 2); g.fill();
+      g.strokeStyle = '#ffd166';
+      g.lineWidth = 5;
+      g.stroke();
+    }
     // De vloer: zeshoekige tegels in staalblauw, met gloeiende naden.
     g.save();
     oval();
@@ -51,6 +84,14 @@ const SrDraw = (() => {
         g.stroke();
       }
     }
+    // Hier en daar een oplichtende tegel
+    for (let i = 0; i < 70; i++) {
+      const row = Math.floor(rnd() * (Wd.H / hh)), col = Math.floor(rnd() * (Wd.W / (s * 1.5)));
+      const x = col * s * 1.5 + (row % 2 ? s * .75 : 0), y = row * hh;
+      Glow.glow(g, x, y, s * .9, rnd() < .5 ? '#4cc9ff' : '#c77dff', .35);
+    }
+    // Het wapen van het toernooi in het midden
+    Glow.glow(g, Wd.CX, Wd.CY, 520, '#ffd166', .16);
     if (teams) {
       g.fillStyle = 'rgba(255, 77, 109, .13)';
       g.fillRect(0, 0, Wd.CX, Wd.H);
@@ -79,15 +120,21 @@ const SrDraw = (() => {
     }
     g.restore();
     // De rand: een gloeiende band.
+    g.strokeStyle = 'rgba(76, 201, 255, .25)';
+    g.lineWidth = 50;
+    oval(6);
+    g.stroke();
     g.strokeStyle = '#4cc9ff';
-    g.shadowColor = '#4cc9ff';
-    g.shadowBlur = 30;
     g.lineWidth = 16;
     oval(6);
     g.stroke();
-    g.shadowBlur = 0;
+    g.strokeStyle = '#d6f5ff';
+    g.lineWidth = 4;
+    oval(6);
+    g.stroke();
     // Turbostroken met pijlen.
     for (const p of Wd.PADS) {
+      Glow.glow(g, p.x + p.w / 2, p.y + p.h / 2, Math.max(p.w, p.h) * 1.1, '#ff9f1c', .5);
       g.fillStyle = 'rgba(255, 159, 28, .35)';
       g.fillRect(p.x, p.y, p.w, p.h);
       g.strokeStyle = '#ffd166';
@@ -122,24 +169,54 @@ const SrDraw = (() => {
         g.restore();
       }
       for (const b of Wd.BOXES) {
-        g.fillStyle = '#5a3d22';
+        // Voorraadkist: metaal met gouden hoeken en een lichtend paars paneel
+        const bg = g.createLinearGradient(b.x, b.y, b.x + b.w, b.y + b.d);
+        bg.addColorStop(0, '#5d5f86');
+        bg.addColorStop(1, '#262844');
+        g.fillStyle = bg;
         g.fillRect(b.x, b.y, b.w, b.d);
-        g.strokeStyle = '#c77dff';
-        g.lineWidth = 5;
-        g.strokeRect(b.x + 2.5, b.y + 2.5, b.w - 5, b.d - 5);
-        g.strokeStyle = 'rgba(0, 0, 0, .35)';
-        g.lineWidth = 3;
-        g.beginPath(); g.moveTo(b.x + 6, b.y + 6); g.lineTo(b.x + b.w - 6, b.y + b.d - 6); g.stroke();
+        g.strokeStyle = 'rgba(0, 0, 0, .6)';
+        g.lineWidth = 4;
+        g.strokeRect(b.x, b.y, b.w, b.d);
+        g.fillStyle = '#ffd166';
+        const cs = Math.min(b.w, b.d) * .22;
+        for (const [cx, cy] of [[b.x, b.y], [b.x + b.w - cs, b.y], [b.x, b.y + b.d - cs], [b.x + b.w - cs, b.y + b.d - cs]]) g.fillRect(cx, cy, cs, cs);
+        Glow.glow(g, b.x + b.w / 2, b.y + b.d / 2, Math.max(b.w, b.d) * .7, '#c77dff', .55);
+        g.fillStyle = '#e3c2ff';
+        g.fillRect(b.x + b.w * .3, b.y + b.d * .4, b.w * .4, b.d * .2);
       }
       for (const cy of Wd.CYLS) {
+        const burcht = cy.kind === 'burcht';
         const grad = g.createRadialGradient(cy.x - cy.r * .3, cy.y - cy.r * .3, 4, cy.x, cy.y, cy.r);
-        grad.addColorStop(0, cy.kind === 'burcht' ? '#8a90b8' : '#6d7397');
-        grad.addColorStop(1, '#2b2f4c');
+        grad.addColorStop(0, burcht ? '#9aa0c8' : '#7d83a7');
+        grad.addColorStop(1, '#22263f');
         g.fillStyle = grad;
         g.beginPath(); g.arc(cy.x, cy.y, cy.r, 0, Math.PI * 2); g.fill();
-        g.strokeStyle = cy.kind === 'burcht' ? '#ffd166' : '#c77dff';
-        g.lineWidth = 6;
+        g.strokeStyle = 'rgba(0, 0, 0, .55)';
+        g.lineWidth = 5;
         g.stroke();
+        // Kantelen rond de bovenkant
+        const n = burcht ? 16 : 8;
+        g.fillStyle = burcht ? '#b4bad8' : '#959bbd';
+        for (let i = 0; i < n; i++) {
+          const a0 = (i / n) * Math.PI * 2, a1 = a0 + Math.PI / n;
+          g.beginPath();
+          g.arc(cy.x, cy.y, cy.r, a0, a1);
+          g.arc(cy.x, cy.y, cy.r * .8, a1, a0, true);
+          g.fill();
+        }
+        const col = burcht ? '#ffd166' : '#c77dff';
+        Glow.glow(g, cy.x, cy.y, cy.r * 1.1, col, .5);
+        g.strokeStyle = col;
+        g.lineWidth = burcht ? 6 : 4;
+        g.beginPath(); g.arc(cy.x, cy.y, cy.r * .55, 0, Math.PI * 2); g.stroke();
+        if (burcht) {
+          // Een vlag op de burcht
+          g.fillStyle = '#3a2a12';
+          g.fillRect(cy.x - 3, cy.y - cy.r * .9, 6, cy.r * .9);
+          g.fillStyle = '#ff4d6d';
+          g.beginPath(); g.moveTo(cy.x + 3, cy.y - cy.r * .9); g.lineTo(cy.x + 60, cy.y - cy.r * .75); g.lineTo(cy.x + 3, cy.y - cy.r * .6); g.closePath(); g.fill();
+        }
       }
     }
     cache[key] = c;
@@ -150,6 +227,27 @@ const SrDraw = (() => {
     ctx.fillStyle = '#0b0a18';
     ctx.fillRect(0, 0, w, h);
     ctx.drawImage(arenaImage(teams), -cam.x * cam.scale, -cam.y * cam.scale, Wd.W * cam.scale, Wd.H * cam.scale);
+    const t = performance.now() / 1000, sc = cam.scale;
+    const inView = (x, y, m) => x > -m && y > -m && x < w + m && y < h + m;
+    // Lichtjes die rond de rand lopen
+    for (let i = 0; i < 48; i++) {
+      const a = (i / 48) * Math.PI * 2 + t * .25;
+      const x = (Wd.CX + Math.cos(a) * (Wd.RX + 6) - cam.x) * sc, y = (Wd.CY + Math.sin(a) * (Wd.RY + 6) - cam.y) * sc;
+      if (inView(x, y, 40)) Glow.glow(ctx, x, y, 30 * sc + 6, i % 2 ? '#bff0ff' : '#ffd166', .8);
+    }
+    // Turbostroken die pulseren
+    for (const p of Wd.PADS) {
+      const x = (p.x + p.w / 2 - cam.x) * sc, y = (p.y + p.h / 2 - cam.y) * sc;
+      if (inView(x, y, 120 * sc)) Glow.glow(ctx, x, y, Math.max(p.w, p.h) * sc * .9, '#ffb347', .3 + Math.sin(t * 6 + p.x) * .2);
+    }
+    // Vlammen in de vuurschalen
+    for (const [fx, fy] of [[90, 90], [Wd.W - 90, 90], [90, Wd.H - 90], [Wd.W - 90, Wd.H - 90], [Wd.CX, 40], [Wd.CX, Wd.H - 40]]) {
+      const x = (fx - cam.x) * sc, y = (fy - cam.y) * sc;
+      if (!inView(x, y, 100)) continue;
+      const f = 1 + Math.sin(t * 13 + fx) * .12;
+      Glow.glow(ctx, x, y, 90 * sc * f + 8, '#ff7a1a', .7);
+      Glow.glow(ctx, x, y - 6 * sc, 36 * sc * f + 4, '#fff1b8', .9);
+    }
   }
   // Een hoverros van bovenaf: een slee met vinnen, de ridder erop en een gloed in zijn kleur.
   function steed(ctx, sx, sy, a, color, s, opts = {}) {
@@ -164,7 +262,14 @@ const SrDraw = (() => {
       ctx.lineWidth = 2.5 * s;
       ctx.beginPath(); ctx.arc(0, 0, R * 1.45, 0, Math.PI * 2); ctx.stroke();
     }
+    Glow.glow(ctx, 0, 0, R * 2.4, color, .35);
     ctx.rotate(a);
+    // Een lichtstreep achter het ros, langer met turbo.
+    ctx.save();
+    ctx.translate(-R * 2.4 * (opts.boost ? 1.5 : 1), 0);
+    ctx.scale(opts.boost ? 2.4 : 1.6, 1);
+    Glow.glow(ctx, 0, 0, R * 1.2, opts.boost ? '#ffd166' : color, .45, .5);
+    ctx.restore();
     // Uitlaatvlammen achteraan, groot met turbo.
     const flame = opts.boost ? 1.9 : 1;
     for (const side of [-1, 1]) {
@@ -184,6 +289,14 @@ const SrDraw = (() => {
     ctx.lineTo(-R * .8, 0);
     ctx.lineTo(-R * 1.05, R * .95);
     ctx.lineTo(R * .3, R * .75);
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(0, 0, 0, .6)';
+    ctx.lineWidth = 2 * s;
+    ctx.stroke();
+    ctx.fillStyle = 'rgba(255, 255, 255, .35)';
+    ctx.beginPath();
+    ctx.moveTo(R * 1.3, 0); ctx.lineTo(R * .3, -R * .75); ctx.lineTo(-R * 1.05, -R * .95); ctx.lineTo(-R * .2, -R * .3);
     ctx.closePath();
     ctx.fill();
     ctx.fillStyle = '#1a2038';
@@ -207,6 +320,8 @@ const SrDraw = (() => {
     ctx.beginPath(); ctx.arc(R * .02, 0, R * .3, 0, Math.PI * 2); ctx.fill();
     ctx.fillStyle = color;
     ctx.fillRect(-R * .3, -R * .07, R * .34, R * .14);
+    Glow.glow(ctx, R * .22, 0, R * .5, '#9fe6ff', .8);
+    Glow.glow(ctx, R * 1.62, R * .38, R * .5, '#9fe6ff', .8);
     ctx.restore();
     if (opts.bubble) {
       ctx.save();
@@ -252,10 +367,11 @@ const SrDraw = (() => {
     ctx.translate(sx, sy);
     ctx.rotate(a);
     // Een gloed zonder shadowBlur: dat is op een Chromebook veel te traag.
-    ctx.globalAlpha = .35;
+    ctx.save();
+    ctx.scale(2.2, 1);
+    Glow.glow(ctx, -3 * s, 0, 16 * s, color, .9, .55);
+    ctx.restore();
     ctx.fillStyle = color;
-    ctx.fillRect(-26 * s, -8 * s, 38 * s, 16 * s);
-    ctx.globalAlpha = 1;
     ctx.fillRect(-22 * s, -4 * s, 30 * s, 8 * s);
     ctx.fillStyle = '#fff';
     ctx.fillRect(-12 * s, -2 * s, 20 * s, 4 * s);
@@ -272,6 +388,7 @@ const SrDraw = (() => {
     g.addColorStop(1, 'rgba(255, 80, 0, 0)');
     ctx.fillStyle = g;
     ctx.beginPath(); ctx.arc(-20 * s, 0, (18 + Math.sin(t * 40) * 4) * s, 0, Math.PI * 2); ctx.fill();
+    Glow.glow(ctx, -24 * s, 0, 40 * s, '#ff7a1a', .6);
     ctx.fillStyle = '#e8eff8';
     ctx.beginPath();
     ctx.moveTo(18 * s, 0); ctx.lineTo(4 * s, -7 * s); ctx.lineTo(-14 * s, -7 * s); ctx.lineTo(-14 * s, 7 * s); ctx.lineTo(4 * s, 7 * s);
@@ -323,6 +440,7 @@ const SrDraw = (() => {
     sparks.push({ x, y, ring: true, r, life: .5, max: .5, color });
   }
   function boom(x, y, r) {
+    sparks.push({ x, y, ring: true, r: r * 1.6, life: .5, max: .5, color: '#ffd166' });
     sparks.push({ x, y, fire: true, r, life: .55, max: .55 });
     burst(x, y, '#ffd166', 22, 420);
     burst(x, y, '#ff6b35', 14, 300);
@@ -356,6 +474,7 @@ const SrDraw = (() => {
         p.vy *= .9;
         ctx.fillStyle = p.color;
         ctx.fillRect(sx - 3 * cam.scale, sy - 3 * cam.scale, 6 * cam.scale, 6 * cam.scale);
+        Glow.glow(ctx, sx, sy, 12 * cam.scale + 2, p.color, k * .7);
       }
     }
     ctx.globalAlpha = 1;
