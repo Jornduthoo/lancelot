@@ -122,7 +122,7 @@ function renderPlay() {
     if (!m) continue;
     const key = `${m.a}-${m.b}`;
     hits[key] = m.hp.a + m.hp.b;
-    if (lastHits[key] !== undefined && hits[key] < lastHits[key]) sfx.hit();
+    if (lastHits[key] !== undefined && hits[key] < lastHits[key]) { sfx.hit(); DuScene.cheer(); }
   }
   lastHits = hits;
   $('p-feed').innerHTML = s.feed.map(f => `<li>${esc(f.text)}</li>`).join('');
@@ -145,6 +145,55 @@ function renderStage() {
     + round.matches.filter(m => m && m.note === 'vrij').map(m => `<div class="du-pair bye">🎟️ ${esc(m.an || m.bn)} gaat vrij door</div>`).join('');
   stage.classList.remove('hidden');
 }
+
+// Het colosseum achter het schema: fakkels, schijnwerpers en flitsende fototoestellen in het publiek.
+const DuScene = (() => {
+  const back = $('p-back');
+  const g = back.getContext('2d');
+  const dpr = Math.min(1.5, window.devicePixelRatio || 1);
+  let art = null;
+  let cheer = 0;
+  let flashes = [];
+  let last = performance.now();
+  function frame(now) {
+    requestAnimationFrame(frame);
+    const dt = Math.min(.05, (now - last) / 1000);
+    last = now;
+    if (view !== 'play') return;
+    const w = Math.round(innerWidth * dpr), h = Math.round(innerHeight * dpr);
+    if (back.width !== w || back.height !== h) { back.width = w; back.height = h; }
+    if (!art || art.c.width !== w || art.c.height !== h) art = DuArt.colosseum(w, h);
+    const t = now / 1000;
+    g.drawImage(art.c, 0, 0);
+    art.torches.forEach(([x, y, u], i) => DuArt.torch(g, x, y, u, t, i * 2.3));
+    // Twee schijnwerpers die over de arena zwaaien.
+    for (const [sx, dir] of [[0, 1], [w, -1]]) {
+      const a = Math.PI / 2 - dir * (.5 + Math.sin(t * .6 + sx) * .25);
+      const tx = sx + Math.cos(a) * h * 1.2, ty = Math.sin(a) * h * 1.2;
+      const beam = g.createLinearGradient(sx, 0, tx, ty);
+      beam.addColorStop(0, 'rgba(255, 240, 200, .16)');
+      beam.addColorStop(1, 'rgba(255, 240, 200, 0)');
+      g.fillStyle = beam;
+      const nx = -(ty) / h * w * .05, ny = (tx - sx) / h * w * .05;
+      g.beginPath(); g.moveTo(sx, 0); g.lineTo(tx + nx, ty + ny); g.lineTo(tx - nx, ty - ny); g.closePath(); g.fill();
+    }
+    // Fototoestellen in het publiek; meer bij een slag.
+    const rate = .6 + cheer * 14;
+    if (art.crowd.length && Math.random() < rate * dt * 4) flashes.push({ p: art.crowd[Math.floor(Math.random() * art.crowd.length)], life: .18 });
+    flashes = flashes.filter(f => {
+      f.life -= dt;
+      if (f.life <= 0) return false;
+      Glow.glow(g, f.p[0], f.p[1], 14 * dpr * (f.life / .18 + .3), '#ffffff', .9);
+      return true;
+    });
+    cheer = Math.max(0, cheer - dt * .8);
+    g.fillStyle = 'rgba(4, 3, 10, .5)';
+    g.fillRect(0, 0, w, h);
+    Glow.vignette(g, w, h, .6);
+  }
+  requestAnimationFrame(frame);
+  return { cheer: () => { cheer = 1; } };
+})();
 
 setInterval(() => {
   if (view !== 'play' || !state) return;

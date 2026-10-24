@@ -920,7 +920,7 @@ const cgCtx = cgCanvas.getContext('2d');
 function cgResize() {
   const stage = $('cg-stage');
   // Op een Chromebook niet meer pixels dan nodig: dat houdt het vlot.
-  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
   const w = stage.clientWidth, h = stage.clientHeight;
   if (!w || !h) return;
   cgCanvas.width = Math.round(w * dpr);
@@ -954,13 +954,16 @@ window.addEventListener('resize', cgResize);
 
 function drawSky(ctx, t) {
   const { cw, ch } = G;
-  ctx.drawImage(CgArt.nebula(cw, ch), 0, 0);
+  // Sterren alleen boven het speelveld: de randen zitten al in de gebakken achtergrond. Scheelt veel pixels per beeld.
+  const pw = Math.ceil(G.W * G.s);
+  const px = G.ox > 4 ? G.ox : 0, sw = G.ox > 4 ? pw : cw;
+  ctx.drawImage(CgArt.frame(cw, ch, G.ox > 4 ? G.ox : 0, pw), 0, 0);
   const layers = [[60, 1, 11, 18], [40, 1.6, 23, 40], [16, 2.4, 37, 90]];
   layers.forEach(([count, size, seed, speed], i) => {
-    const img = CgArt.stars(cw, ch, Math.round(count * cw * ch / 500000) + 20, size * G.s, seed);
+    const img = CgArt.stars(sw, ch, Math.round(count * sw * ch / 500000) + 20, size * G.s, seed);
     const off = (t * speed * G.s) % ch;
-    ctx.drawImage(img, 0, off - ch);
-    ctx.drawImage(img, 0, off);
+    ctx.drawImage(img, px, off - ch);
+    ctx.drawImage(img, px, off);
     if (i === 0) {
       // Zwevende burchten in de verte.
       const castle = CgArt.castle(G.s * .9);
@@ -973,15 +976,6 @@ function drawSky(ctx, t) {
       ctx.globalAlpha = 1;
     }
   });
-  if (G.ox > 4) {
-    // De randen van het speelveld: neonrails.
-    ctx.fillStyle = 'rgba(3, 2, 10, .55)';
-    ctx.fillRect(0, 0, G.ox, ch);
-    ctx.fillRect(G.ox + G.W * G.s, 0, cw - G.ox - G.W * G.s, ch);
-    ctx.fillStyle = 'rgba(76, 201, 255, .55)';
-    ctx.fillRect(G.ox - 2, 0, 2, ch);
-    ctx.fillRect(G.ox + G.W * G.s, 0, 2, ch);
-  }
 }
 
 function draw(t) {

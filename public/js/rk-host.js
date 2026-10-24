@@ -207,6 +207,33 @@ function frame() {
 }
 requestAnimationFrame(frame);
 
+// De kaartenkamer achter het bord: eiken tafel, perkament en flakkerende kaarsen.
+(() => {
+  const back = $('p-back');
+  const g = back.getContext('2d');
+  const dpr = Math.min(1.5, window.devicePixelRatio || 1);
+  let art = null;
+  let last = 0;
+  function tick(now) {
+    requestAnimationFrame(tick);
+    // De kaarsen flakkeren rustig: tien keer per seconde is genoeg en spaart de Chromebook.
+    if (view === 'setup' || now - last < 100) return;
+    last = now;
+    const w = Math.round(innerWidth * dpr), h = Math.round(innerHeight * dpr);
+    if (back.width !== w || back.height !== h) { back.width = w; back.height = h; }
+    if (!art || art.c.width !== w || art.c.height !== h) {
+      art = RijkMap.room(w, h);
+      const ag = art.c.getContext('2d');
+      ag.fillStyle = 'rgba(6, 4, 10, .35)';
+      ag.fillRect(0, 0, w, h);
+      Glow.vignette(ag, w, h, .6);
+    }
+    g.drawImage(art.c, 0, 0);
+    art.candles.forEach(([x, y], i) => RijkMap.candle(g, x, y, art.u, now / 1000, i * 1.7));
+  }
+  requestAnimationFrame(tick);
+})();
+
 setInterval(() => {
   if (view !== 'play' || !state) return;
   const now = Date.now() + offset;
