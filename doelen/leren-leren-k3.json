@@ -1,0 +1,92 @@
+{
+ "bron": "Op.stap, leerroutes voor iedereen (Katholiek Onderwijs Vlaanderen), leerplanversie V1.3 van 24/10/2026",
+ "vak": "Leren leren",
+ "leerjaar": "K3",
+ "score": false,
+ "doelen": [
+  {
+   "code": "9-2.2.GK3.1",
+   "vak": "Leren leren",
+   "leerjaar": "K3",
+   "soort": "G",
+   "domein": "Leerstrategieën",
+   "cluster": "Cognitie",
+   "tekst": "De leerlingen kunnen cognitieve leerstrategieën inzetten om informatie te verwerken.",
+   "kennis": "",
+   "herhaling": "",
+   "score": false
+  },
+  {
+   "code": "9-2.2.GK3.2",
+   "vak": "Leren leren",
+   "leerjaar": "K3",
+   "soort": "G",
+   "domein": "Leerstrategieën",
+   "cluster": "Cognitie",
+   "tekst": "De leerlingen kunnen aangereikte cognitieve leerstrategieën inzetten om kennis in te oefenen.",
+   "kennis": "",
+   "herhaling": "",
+   "score": false
+  },
+  {
+   "code": "9-2.2.GK3.3",
+   "vak": "Leren leren",
+   "leerjaar": "K3",
+   "soort": "G",
+   "domein": "Leerstrategieën",
+   "cluster": "Metacognitie",
+   "tekst": "De leerlingen kunnen metacognitieve strategieën inzetten: doelen stellen en een plan opmaken; een leeractiviteit stapsgewijs uitvoeren en monitoren; het resultaat van een leeractiviteit evalueren en erover reflecteren.",
+   "kennis": "",
+   "herhaling": "",
+   "score": false
+  },
+  {
+   "code": "9-2.3.GK3.1",
+   "vak": "Leren leren",
+   "leerjaar": "K3",
+   "soort": "G",
+   "domein": "Leerproces",
+   "cluster": "Werking brein",
+   "tekst": "De leerlingen kunnen zich in eenvoudige taal uitdrukken over leren.",
+   "kennis": "",
+   "herhaling": "",
+   "score": false
+  },
+  {
+   "code": "9-2.3.GK3.2",
+   "vak": "Leren leren",
+   "leerjaar": "K3",
+   "soort": "G",
+   "domein": "Leerproces",
+   "cluster": "Cyclisch leerproces",
+   "tekst": "De leerlingen kunnen de verschillende fasen van een aangeleerde zelfinstructiemethode herkennen.",
+   "kennis": "",
+   "herhaling": "",
+   "score": false
+  },
+  {
+   "code": "9-2.4.GK3.1",
+   "vak": "Leren leren",
+   "leerjaar": "K3",
+   "soort": "G",
+   "domein": "Keuzeproces",
+   "cluster": "Kiezen",
+   "tekst": "De leerlingen kunnen zelfstandig een keuze maken uit een uitgebreid aanbod.",
+   "kennis": "",
+   "herhaling": "",
+   "score": false
+  },
+  {
+   "code": "9-2.4.GK3.2",
+   "vak": "Leren leren",
+   "leerjaar": "K3",
+   "soort": "G",
+   "domein": "Keuzeproces",
+   "cluster": "Kiezen",
+   "tekst": "De leerlingen kunnen toelichten waarom ze zich al dan niet aan een gemaakte keuze houden.",
+   "kennis": "",
+   "herhaling": "",
+   "score": false
+  }
+ ]
+}

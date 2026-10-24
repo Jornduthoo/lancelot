@@ -1,0 +1,260 @@
+{
+ "bron": "Op.stap, leerroutes voor iedereen (Katholiek Onderwijs Vlaanderen), leerplanversie V1.3 van 24/10/2026",
+ "vak": "Veilige en gezonde levensstijl",
+ "leerjaar": 4,
+ "doelen": [
+  {
+   "code": "9-1.1.GL4.1",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 4,
+   "soort": "G",
+   "domein": "Verkeer",
+   "cluster": "De openbare weg",
+   "tekst": "De leerlingen kennen de betekenis van volgende verkeersregels en signalen: fietsen op het fietspad rechts in de rijrichting of op het voetpad.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.1.GL4.2",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 4,
+   "soort": "G",
+   "domein": "Verkeer",
+   "cluster": "De openbare weg",
+   "tekst": "De leerlingen kennen de verplichte minimale fietsuitrusting.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.1.GL4.3",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 4,
+   "soort": "G",
+   "domein": "Verkeer",
+   "cluster": "Verkeersborden",
+   "tekst": "De leerlingen kennen de betekenis van volgende verkeersregels en signalen: gevaarsborden waaronder A31 en A33.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.1.GL4.4",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 4,
+   "soort": "G",
+   "domein": "Verkeer",
+   "cluster": "Verkeersborden",
+   "tekst": "De leerlingen kennen de betekenis van volgende verkeersregels en signalen: voorrangsborden waaronder B5.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.1.GL4.5",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 4,
+   "soort": "G",
+   "domein": "Verkeer",
+   "cluster": "Verkeersborden",
+   "tekst": "De leerlingen kennen de betekenis van volgende verkeersregels en signalen: aanwijsborden waaronder F49, F50.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.1.GL4.6",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 4,
+   "soort": "G",
+   "domein": "Verkeer",
+   "cluster": "Voetganger",
+   "tekst": "De leerlingen kunnen zich als voetganger op de openbare weg onder begeleiding verplaatsen en de verkeersregels en signalisaties naleven.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.1.GL4.7",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 4,
+   "soort": "G",
+   "domein": "Verkeer",
+   "cluster": "Voetganger",
+   "tekst": "De leerlingen kunnen als voetganger veilig verkeersgedrag toepassen onder begeleiding.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.1.GL4.8",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 4,
+   "soort": "G",
+   "domein": "Verkeer",
+   "cluster": "Voetganger",
+   "tekst": "De leerlingen kunnen als voetganger anticiperen op risicovolle situaties in het verkeer: de dode hoek.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.1.GL4.9",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 4,
+   "soort": "G",
+   "domein": "Verkeer",
+   "cluster": "Voetganger",
+   "tekst": "De leerlingen kunnen als voetganger anticiperen op risicovolle situaties in het verkeer: voorrangsregels voor de tram en de bus.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.1.GL4.10",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 4,
+   "soort": "G",
+   "domein": "Verkeer",
+   "cluster": "Voetganger",
+   "tekst": "De leerlingen kunnen als voetganger anticiperen op risicovolle situaties in het verkeer: voorrangsregels voor de hulpdiensten.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.1.GL4.11",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 4,
+   "soort": "G",
+   "domein": "Verkeer",
+   "cluster": "Voetganger",
+   "tekst": "De leerlingen kennen het belang van een veilige voetgangersuitrusting: geen koptelefoon dragen.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.1.GL4.12",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 4,
+   "soort": "G",
+   "domein": "Verkeer",
+   "cluster": "Fietser",
+   "tekst": "De leerlingen kunnen zich als fietser op de openbare weg onder begeleiding verplaatsen en de verkeersregels en signalisaties naleven.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.1.GL4.13",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 4,
+   "soort": "G",
+   "domein": "Verkeer",
+   "cluster": "Fietser",
+   "tekst": "De leerlingen kunnen als fietser veilig verkeersgedrag toepassen onder begeleiding.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.1.GL4.14",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 4,
+   "soort": "G",
+   "domein": "Verkeer",
+   "cluster": "Fietser",
+   "tekst": "De leerlingen kunnen als fietser anticiperen op risicovolle situaties in het verkeer: de dode hoek.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.1.GL4.15",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 4,
+   "soort": "G",
+   "domein": "Verkeer",
+   "cluster": "Fietser",
+   "tekst": "De leerlingen kunnen als fietser anticiperen op risicovolle situaties in het verkeer: voorrangsregels voor de tram en de bus.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.1.GL4.16",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 4,
+   "soort": "G",
+   "domein": "Verkeer",
+   "cluster": "Fietser",
+   "tekst": "De leerlingen kunnen als fietser anticiperen op risicovolle situaties in het verkeer: voorrangsregels voor de hulpdiensten.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.1.GL4.17",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 4,
+   "soort": "G",
+   "domein": "Verkeer",
+   "cluster": "Fietser",
+   "tekst": "De leerlingen kennen het belang van een veilige fietsuitrusting: geen koptelefoon dragen.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GL4.1",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 4,
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Gezonde voeding: begrippen",
+   "tekst": "De leerlingen kennen het belang van gezonde voeding.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GL4.2",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 4,
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Veiligheid en eerste hulp medicatie",
+   "tekst": "De leerlingen kennen het noodnummer 112.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GL4.3",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 4,
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Veiligheid en eerste hulp medicatie",
+   "tekst": "De leerlingen kunnen stap voor stap beschrijven wat ze moeten doen bij het bellen van het noodnummer 112.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GL4.4",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 4,
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Veiligheid en eerste hulp medicatie",
+   "tekst": "De leerlingen kunnen een noodoproep uitvoeren in een gesimuleerde situatie.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GL4.5",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 4,
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Beweging en lichaamshouding",
+   "tekst": "De leerlingen kennen het belang van voldoende bewegen.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GL4.6",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 4,
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Beweging en lichaamshouding",
+   "tekst": "De leerlingen kennen het belang van een correcte lichaamshouding.",
+   "kennis": "",
+   "herhaling": ""
+  }
+ ]
+}

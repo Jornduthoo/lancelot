@@ -1,0 +1,44 @@
+{
+ "bron": "Op.stap, leerroutes voor iedereen (Katholiek Onderwijs Vlaanderen), leerplanversie V1.3 van 24/10/2026",
+ "vak": "Leren leren",
+ "leerjaar": "JK",
+ "score": false,
+ "doelen": [
+  {
+   "code": "9-2.2.GJK.2",
+   "vak": "Leren leren",
+   "leerjaar": "JK",
+   "soort": "G",
+   "domein": "Leerstrategieën",
+   "cluster": "Cognitie",
+   "tekst": "De leerlingen kunnen gerichte informatie uit een leeractiviteit waarnemen.",
+   "kennis": "",
+   "herhaling": "",
+   "score": false
+  },
+  {
+   "code": "9-2.2.GJK.1",
+   "vak": "Leren leren",
+   "leerjaar": "JK",
+   "soort": "G",
+   "domein": "Leerstrategieën",
+   "cluster": "Metacognitie",
+   "tekst": "De leerlingen kunnen een leeractiviteit die uit meerdere stappen bestaat onder begeleiding uitvoeren.",
+   "kennis": "",
+   "herhaling": "",
+   "score": false
+  },
+  {
+   "code": "9-2.4.GJK.1",
+   "vak": "Leren leren",
+   "leerjaar": "JK",
+   "soort": "G",
+   "domein": "Keuzeproces",
+   "cluster": "Kiezen",
+   "tekst": "De leerlingen kunnen keuzemogelijkheden verkennen.",
+   "kennis": "",
+   "herhaling": "",
+   "score": false
+  }
+ ]
+}

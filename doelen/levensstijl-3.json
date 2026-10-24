@@ -1,0 +1,150 @@
+{
+ "bron": "Op.stap, leerroutes voor iedereen (Katholiek Onderwijs Vlaanderen), leerplanversie V1.3 van 24/10/2026",
+ "vak": "Veilige en gezonde levensstijl",
+ "leerjaar": 3,
+ "doelen": [
+  {
+   "code": "9-1.1.GL3.1",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 3,
+   "soort": "G",
+   "domein": "Verkeer",
+   "cluster": "Wegmarkeringen",
+   "tekst": "De leerlingen kunnen het fietspad, de fietssuggestiestrook, de parkeerstrook en de bushalte herkennen.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.1.GL3.2",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 3,
+   "soort": "G",
+   "domein": "Verkeer",
+   "cluster": "Signalen en verkeerslichten",
+   "tekst": "De leerlingen kennen de betekenis van volgende verkeersregels en signalen: fluitsignaal en armgebaren van een politieagent.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.1.GL3.3",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 3,
+   "soort": "G",
+   "domein": "Verkeer",
+   "cluster": "Signalen en verkeerslichten",
+   "tekst": "De leerlingen kennen de betekenis van volgende verkeersregels en signalen: waarschuwingssignalen op een spoorwegovergang: knipperende rode lichten en een belgeluid.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.1.GL3.4",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 3,
+   "soort": "G",
+   "domein": "Verkeer",
+   "cluster": "Verkeersborden",
+   "tekst": "De leerlingen kunnen gevaarsborden, waaronder A31 en A33, herkennen.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.1.GL3.5",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 3,
+   "soort": "G",
+   "domein": "Verkeer",
+   "cluster": "Verkeersborden",
+   "tekst": "De leerlingen kunnen voorrangsborden, waaronder B5, herkennen.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.1.GL3.6",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 3,
+   "soort": "G",
+   "domein": "Verkeer",
+   "cluster": "Verkeersborden",
+   "tekst": "De leerlingen kunnen aanwijsborden, waaronder F49 en F50, herkennen.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.1.GL3.7",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 3,
+   "soort": "G",
+   "domein": "Verkeer",
+   "cluster": "Voetganger",
+   "tekst": "De leerlingen kunnen zich als voetganger op de openbare weg onder begeleiding verplaatsen en de verkeersregels en signalisaties naleven.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.1.GL3.8",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 3,
+   "soort": "G",
+   "domein": "Verkeer",
+   "cluster": "Voetganger",
+   "tekst": "De leerlingen kunnen als voetganger veilig verkeersgedrag toepassen onder begeleiding.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.1.GL3.9",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 3,
+   "soort": "G",
+   "domein": "Verkeer",
+   "cluster": "Fietser",
+   "tekst": "De leerlingen kunnen als fietser in een beschermde omgeving veilig verkeersgedrag toepassen.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GL3.1",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 3,
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Aan- en uitkleden",
+   "tekst": "De leerlingen kunnen zelfstandig sportkledij wisselen in groep.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GL3.2",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 3,
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Veiligheid en eerste hulp medicatie",
+   "tekst": "De leerlingen kunnen in een gesimuleerde situatie een noodoproep uitvoeren en de juiste meldingen doen.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GL3.3",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 3,
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Beweging en lichaamshouding",
+   "tekst": "De leerlingen weten dat bewegen invloed heeft op gezondheid en fitheid.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GL3.4",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 3,
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Beweging en lichaamshouding",
+   "tekst": "De leerlingen kunnen de eigen lichaamshouding zelfstandig corrigeren.",
+   "kennis": "",
+   "herhaling": ""
+  }
+ ]
+}

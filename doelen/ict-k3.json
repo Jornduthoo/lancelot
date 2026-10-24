@@ -1,0 +1,62 @@
+{
+ "bron": "Op.stap, leerroutes voor iedereen (Katholiek Onderwijs Vlaanderen), leerplanversie V1.3 van 24/10/2026",
+ "vak": "ICT",
+ "leerjaar": "K3",
+ "doelen": [
+  {
+   "code": "8.1.GK3.1",
+   "vak": "ICT",
+   "leerjaar": "K3",
+   "soort": "G",
+   "domein": "Computationeel denken",
+   "cluster": "Principes van computationeel denken",
+   "tekst": "De leerlingen kunnen onder begeleiding een eenvoudig stappenplan opstellen om tot een werkende oplossing te komen, toepassen en controleren.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "8.1.GK3.2",
+   "vak": "ICT",
+   "leerjaar": "K3",
+   "soort": "G",
+   "domein": "Computationeel denken",
+   "cluster": "Principes van computationeel denken",
+   "tekst": "De leerlingen kunnen onder begeleiding een eenvoudig stappenplan opstellen om tot een werkende oplossing te komen, toepassen en controleren: patroonherkenning.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "8.2.GK3.1",
+   "vak": "ICT",
+   "leerjaar": "K3",
+   "soort": "G",
+   "domein": "Digitale geletterdheid",
+   "cluster": "Digitale informatieveiligheid",
+   "tekst": "De leerlingen kunnen aangereikte digitale toestellen functioneel gebruiken met inbegrip van enkele knoppen en toetsen.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "8.2.GK3.2",
+   "vak": "ICT",
+   "leerjaar": "K3",
+   "soort": "G",
+   "domein": "Digitale geletterdheid",
+   "cluster": "Digitale informatieveiligheid",
+   "tekst": "De leerlingen kunnen aangereikte digitale toestellen op efficiënte wijze bedienen met inbegrip van swipen, selecteren, openen en sluiten van applicaties, venster minimaliseren, maximaliseren en sluiten.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "8.2.GK3.3",
+   "vak": "ICT",
+   "leerjaar": "K3",
+   "soort": "G",
+   "domein": "Digitale geletterdheid",
+   "cluster": "Informatiegeletterdheid",
+   "tekst": "De leerlingen kunnen navigeren en zoeken binnen een afgebakende digitale toepassing.",
+   "kennis": "",
+   "herhaling": ""
+  }
+ ]
+}

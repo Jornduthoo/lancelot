@@ -1,0 +1,216 @@
+{
+ "bron": "Op.stap, leerroutes voor iedereen (Katholiek Onderwijs Vlaanderen), leerplanversie V1.3 van 24/10/2026",
+ "vak": "Veilige en gezonde levensstijl",
+ "leerjaar": 1,
+ "doelen": [
+  {
+   "code": "9-1.1.GL1.1",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 1,
+   "soort": "G",
+   "domein": "Verkeer",
+   "cluster": "Wegmarkeringen",
+   "tekst": "De leerlingen kunnen de stopstreep herkennen.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.1.GL1.2",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 1,
+   "soort": "G",
+   "domein": "Verkeer",
+   "cluster": "Signalen en verkeerslichten",
+   "tekst": "De leerlingen kennen de betekenis van volgende verkeersregels en signalen: auditieve signalen: fietsbel, claxon.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.1.GL1.3",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 1,
+   "soort": "G",
+   "domein": "Verkeer",
+   "cluster": "Signalen en verkeerslichten",
+   "tekst": "De leerlingen kennen de betekenis van volgende verkeersregels en signalen: bel- en lichtsignalen van hulpdiensten (brandweer, ambulance, politie).",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.1.GL1.4",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 1,
+   "soort": "G",
+   "domein": "Verkeer",
+   "cluster": "Verkeersborden",
+   "tekst": "De leerlingen kunnen gebodsborden, waaronder D1, D7, D10, D11, herkennen.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.1.GL1.5",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 1,
+   "soort": "G",
+   "domein": "Verkeer",
+   "cluster": "Verkeersborden",
+   "tekst": "De leerlingen kunnen verbodsborden, waaronder C3, C11, C19, herkennen.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.1.GL1.6",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 1,
+   "soort": "G",
+   "domein": "Verkeer",
+   "cluster": "Verkeersborden",
+   "tekst": "De leerlingen kunnen het bord B5 benoemen: stopbord.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.1.GL1.7",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 1,
+   "soort": "G",
+   "domein": "Verkeer",
+   "cluster": "Voetganger",
+   "tekst": "De leerlingen kunnen zich als voetganger op de openbare weg onder begeleiding verplaatsen en de verkeersregels en signalisaties naleven.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.1.GL1.8",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 1,
+   "soort": "G",
+   "domein": "Verkeer",
+   "cluster": "Voetganger",
+   "tekst": "De leerlingen kunnen als voetganger veilig verkeersgedrag toepassen onder begeleiding.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.1.GL1.9",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 1,
+   "soort": "G",
+   "domein": "Verkeer",
+   "cluster": "Voetganger",
+   "tekst": "De leerlingen weten dat ze als voetganger niet altijd zichtbaar zijn voor bestuurders van voertuigen.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.1.GL1.10",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 1,
+   "soort": "G",
+   "domein": "Verkeer",
+   "cluster": "Passagier",
+   "tekst": "De leerlingen kunnen als passagier veilig verkeersgedrag toepassen onder begeleiding.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GL1.1",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 1,
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Gezonde voeding: begrippen",
+   "tekst": "De leerlingen kennen het begrip: de peulvruchten.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GL1.2",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 1,
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Gezonde voeding: begrippen",
+   "tekst": "De leerlingen kennen de begrippen: de oliën en de vetten.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GL1.10",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 1,
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Gezonde voeding: begrippen",
+   "tekst": "De leerlingen kennen het begrip: de zaden.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GL1.3",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 1,
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Gezonde voeding: begrippen",
+   "tekst": "De leerlingen kunnen met behulp van de voedingsdriehoek voedingsmiddelen identificeren die gezond zijn.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GL1.4",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 1,
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Gezonde voeding: begrippen",
+   "tekst": "De leerlingen kunnen met behulp van de voedingsdriehoek voedingsmiddelen identificeren die ongezond zijn.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GL1.6",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 1,
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Aan- en uitkleden",
+   "tekst": "De leerlingen kunnen zelfstandig sportkledij wisselen in groep.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GL1.7",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 1,
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Veiligheid en eerste hulp medicatie",
+   "tekst": "De leerlingen herkennen de cijfercombinatie 112 op een kaart of blad met noodnummers.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GL1.8",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 1,
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Beweging en lichaamshouding",
+   "tekst": "De leerlingen kunnen zich uitdrukken over hun ervaringen met bewegen.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GL1.9",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 1,
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Beweging en lichaamshouding",
+   "tekst": "De leerlingen kunnen een goede zithouding aannemen.",
+   "kennis": "",
+   "herhaling": ""
+  }
+ ]
+}

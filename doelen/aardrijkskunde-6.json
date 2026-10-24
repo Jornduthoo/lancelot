@@ -65,7 +65,7 @@
    "soort": "G",
    "domein": "Topografie",
    "cluster": "Wereld",
-   "tekst": "De leerlingen kennen de naam en de ligging van: een aantal grote rivieren: de Amazone;.",
+   "tekst": "De leerlingen kennen de naam en de ligging van: een aantal grote rivieren: de Amazone.",
    "kennis": "",
    "herhaling": ""
   },
@@ -76,7 +76,7 @@
    "soort": "G",
    "domein": "Topografie",
    "cluster": "Wereld",
-   "tekst": "De leerlingen kennen de naam en de ligging van: een aantal bergketens: Himalaya;.",
+   "tekst": "De leerlingen kennen de naam en de ligging van: een aantal bergketens: Himalaya.",
    "kennis": "",
    "herhaling": ""
   },
@@ -109,18 +109,7 @@
    "soort": "G",
    "domein": "Topografie",
    "cluster": "Europa",
-   "tekst": "De leerlingen kennen de naam en de ligging van: landen van de Europese Unie en hun hoofdsteden, evenals het Verenigd Koninkrijk, Noorwegen, Zwitserland, Rusland en hun hoofdsteden;.",
-   "kennis": "",
-   "herhaling": ""
-  },
-  {
-   "code": "4.1.GL6.11",
-   "vak": "Aardrijkskunde",
-   "leerjaar": 6,
-   "soort": "G",
-   "domein": "Topografie",
-   "cluster": "Absolute plaatsbepaling",
-   "tekst": "De leerlingen kennen parallellen/breedtecirkels die het klimaat afbakenen: Steenbokskeerkring, Kreeftskeerkring; Noordpoolcirkel en Zuidpoolcirkel.",
+   "tekst": "De leerlingen kennen de naam en de ligging van: landen van de Europese Unie en hun hoofdsteden, evenals het Verenigd Koninkrijk, Noorwegen, Zwitserland, Rusland en hun hoofdsteden.",
    "kennis": "",
    "herhaling": ""
   },
@@ -132,6 +121,17 @@
    "domein": "Topografie",
    "cluster": "Relatieve ligging",
    "tekst": "De leerlingen kunnen illustreren dat er een verschil is tussen 'onder, boven, links, rechts' en 'het zuiden, het noorden, het westen, het oosten'.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "4.1.GL6.11",
+   "vak": "Aardrijkskunde",
+   "leerjaar": 6,
+   "soort": "G",
+   "domein": "Topografie",
+   "cluster": "Absolute plaatsbepaling",
+   "tekst": "De leerlingen kennen parallellen/breedtecirkels die het klimaat afbakenen: Steenbokskeerkring, Kreeftskeerkring; Noordpoolcirkel en Zuidpoolcirkel.",
    "kennis": "",
    "herhaling": ""
   },
@@ -176,6 +176,17 @@
    "domein": "Aardrijkskundige kennis",
    "cluster": "Lagen en platen",
    "tekst": "De leerlingen kunnen fossielen herkennen als instrumenten om de ouderdom van lagen te bepalen.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "4.2.+L6.1",
+   "vak": "Aardrijkskunde",
+   "leerjaar": 6,
+   "soort": "plus",
+   "domein": "Aardrijkskundige kennis",
+   "cluster": "Lagen en platen",
+   "tekst": "De leerlingen verkennen de indeling van de geschiedenis van de Aarde in geologische tijdperken.",
    "kennis": "",
    "herhaling": ""
   },
@@ -230,7 +241,7 @@
    "soort": "G",
    "domein": "Aardrijkskundige kennis",
    "cluster": "Menselijke aspecten en hun interactie met landschappen - het wonen",
-   "tekst": "De leerlingen kennen de volgende begrippen met betrekking tot infrastructuur en hun interactie met landschappen: het wonen: de verstedelijking, de open ruimte, de ruimtelijke ordening;.",
+   "tekst": "De leerlingen kennen de volgende begrippen met betrekking tot infrastructuur en hun interactie met landschappen: het wonen: de verstedelijking, de open ruimte, de ruimtelijke ordening.",
    "kennis": "",
    "herhaling": ""
   },
@@ -241,7 +252,7 @@
    "soort": "G",
    "domein": "Aardrijkskundige kennis",
    "cluster": "Menselijke aspecten en hun interactie met landschappen - het gebruik van natuurlijke hulpbronnen en het kustbeheer",
-   "tekst": "De leerlingen kennen de volgende begrippen met betrekking tot infrastructuur en hun interactie met landschappen: het kustbeheer: de golfbrekers;.",
+   "tekst": "De leerlingen kennen de volgende begrippen met betrekking tot infrastructuur en hun interactie met landschappen: het kustbeheer: de golfbrekers.",
    "kennis": "",
    "herhaling": ""
   },
@@ -252,7 +263,7 @@
    "soort": "G",
    "domein": "Aardrijkskundige kennis",
    "cluster": "Bevolking",
-   "tekst": "De leerlingen kunnen vergelijkingen maken binnen en tussen landen door middel van aardrijkskundige indicatoren: bevolkingsaantal; bevolkingsdichtheid;.",
+   "tekst": "De leerlingen kunnen vergelijkingen maken binnen en tussen landen door middel van aardrijkskundige indicatoren: bevolkingsaantal; bevolkingsdichtheid.",
    "kennis": "",
    "herhaling": ""
   },
@@ -262,7 +273,7 @@
    "leerjaar": 6,
    "soort": "G",
    "domein": "Aardrijkskundige kennis",
-   "cluster": "Individuele (materiële) welvaart, collectieve welvaart, sociale welvaart, ecologische welvaart",
+   "cluster": "Welvaart",
    "tekst": "De leerlingen kunnen vergelijkingen maken binnen en tussen landen door middel van aardrijkskundige indicatoren: welvaartsniveau.",
    "kennis": "",
    "herhaling": ""
@@ -274,7 +285,7 @@
    "soort": "G",
    "domein": "Aardrijkskundige kennis",
    "cluster": "Oppervlakte",
-   "tekst": "De leerlingen kunnen vergelijkingen maken binnen en tussen landen door middel van aardrijkskundige indicatoren: oppervlakte;.",
+   "tekst": "De leerlingen kunnen vergelijkingen maken binnen en tussen landen door middel van aardrijkskundige indicatoren: oppervlakte.",
    "kennis": "",
    "herhaling": ""
   },
@@ -389,17 +400,6 @@
    "herhaling": ""
   },
   {
-   "code": "4.2.+L6.1",
-   "vak": "Aardrijkskunde",
-   "leerjaar": 6,
-   "soort": "plus",
-   "domein": "Aardrijkskundige kennis",
-   "cluster": "Lagen en platen",
-   "tekst": "De leerlingen verkennen de indeling van de geschiedenis van de Aarde in geologische tijdperken.",
-   "kennis": "",
-   "herhaling": ""
-  },
-  {
    "code": "4.3.GL6.1",
    "vak": "Aardrijkskunde",
    "leerjaar": 6,
@@ -439,7 +439,40 @@
    "soort": "G",
    "domein": "Aardrijkskundige vaardigheden, onderzoek en denken",
    "cluster": "Kaart",
-   "tekst": "De leerlingen kunnen met betrekking tot aardrijkskundige vaardigheden: een klein gebied in kaart brengen met behulp van cartografische technieken: generaliseren, symboliseren, oriënteren, schaal aanbrengen;.",
+   "tekst": "De leerlingen kunnen met betrekking tot aardrijkskundige vaardigheden: een klein gebied in kaart brengen met behulp van cartografische technieken: generaliseren, symboliseren, oriënteren, schaal aanbrengen.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "4.3.+L6.1",
+   "vak": "Aardrijkskunde",
+   "leerjaar": 6,
+   "soort": "plus",
+   "domein": "Aardrijkskundige vaardigheden, onderzoek en denken",
+   "cluster": "Kwantitatieve gegevens",
+   "tekst": "De leerlingen kunnen kwantitatieve gegevens die in de omgeving van de school zijn verzameld registreren.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "4.3.+L6.2",
+   "vak": "Aardrijkskunde",
+   "leerjaar": 6,
+   "soort": "plus",
+   "domein": "Aardrijkskundige vaardigheden, onderzoek en denken",
+   "cluster": "Kwantitatieve gegevens",
+   "tekst": "De leerlingen kunnen kwantitatieve gegevens die in de omgeving van de school zijn verzameld onderzoeken.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "4.3.+L6.3",
+   "vak": "Aardrijkskunde",
+   "leerjaar": 6,
+   "soort": "plus",
+   "domein": "Aardrijkskundige vaardigheden, onderzoek en denken",
+   "cluster": "Kwantitatieve gegevens",
+   "tekst": "De leerlingen kunnen kwantitatieve gegevens die in de omgeving van de school zijn verzameld presenteren.",
    "kennis": "",
    "herhaling": ""
   },
@@ -450,7 +483,7 @@
    "soort": "G",
    "domein": "Aardrijkskundige vaardigheden, onderzoek en denken",
    "cluster": "Ruimtelijke posities, relaties en contrasten",
-   "tekst": "De leerlingen kunnen aardrijkskundige kennis en vaardigheden op niveau 6de jaar gebruiken om zelf aardrijkskundige vragen te beantwoorden over: ruimtelijke posities, relaties en contrasten;.",
+   "tekst": "De leerlingen kunnen aardrijkskundige kennis en vaardigheden op niveau 6de jaar gebruiken om zelf aardrijkskundige vragen te beantwoorden over: ruimtelijke posities, relaties en contrasten.",
    "kennis": "",
    "herhaling": ""
   },
@@ -494,7 +527,7 @@
    "soort": "G",
    "domein": "Aardrijkskundige vaardigheden, onderzoek en denken",
    "cluster": "Interactie op verschillende schalen",
-   "tekst": "De leerlingen kunnen aardrijkskundige kennis en vaardigheden op niveau 6de jaar gebruiken om zelf aardrijkskundige vragen te beantwoorden over: interactie op verschillende schalen;.",
+   "tekst": "De leerlingen kunnen aardrijkskundige kennis en vaardigheden op niveau 6de jaar gebruiken om zelf aardrijkskundige vragen te beantwoorden over: interactie op verschillende schalen.",
    "kennis": "",
    "herhaling": ""
   },
@@ -506,39 +539,6 @@
    "domein": "Aardrijkskundige vaardigheden, onderzoek en denken",
    "cluster": "Veranderingen in de tijd, inclusief de toekomst",
    "tekst": "De leerlingen kunnen aardrijkskundige kennis en vaardigheden op niveau 6de jaar gebruiken om zelf aardrijkskundige vragen te beantwoorden over: verandering in de tijd, inclusief de toekomst.",
-   "kennis": "",
-   "herhaling": ""
-  },
-  {
-   "code": "4.3.+L6.1",
-   "vak": "Aardrijkskunde",
-   "leerjaar": 6,
-   "soort": "plus",
-   "domein": "Aardrijkskundige vaardigheden, onderzoek en denken",
-   "cluster": "Kwantitatieve gegevens",
-   "tekst": "De leerlingen kunnen kwantitatieve gegevens die in de omgeving van de school zijn verzameld registreren.",
-   "kennis": "",
-   "herhaling": ""
-  },
-  {
-   "code": "4.3.+L6.2",
-   "vak": "Aardrijkskunde",
-   "leerjaar": 6,
-   "soort": "plus",
-   "domein": "Aardrijkskundige vaardigheden, onderzoek en denken",
-   "cluster": "Kwantitatieve gegevens",
-   "tekst": "De leerlingen kunnen kwantitatieve gegevens die in de omgeving van de school zijn verzameld onderzoeken.",
-   "kennis": "",
-   "herhaling": ""
-  },
-  {
-   "code": "4.3.+L6.3",
-   "vak": "Aardrijkskunde",
-   "leerjaar": 6,
-   "soort": "plus",
-   "domein": "Aardrijkskundige vaardigheden, onderzoek en denken",
-   "cluster": "Kwantitatieve gegevens",
-   "tekst": "De leerlingen kunnen kwantitatieve gegevens die in de omgeving van de school zijn verzameld presenteren.",
    "kennis": "",
    "herhaling": ""
   }

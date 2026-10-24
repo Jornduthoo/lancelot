@@ -1,0 +1,95 @@
+{
+ "bron": "Op.stap, leerroutes voor iedereen (Katholiek Onderwijs Vlaanderen), leerplanversie V1.3 van 24/10/2026",
+ "vak": "ICT",
+ "leerjaar": 2,
+ "doelen": [
+  {
+   "code": "8.1.GL2.1",
+   "vak": "ICT",
+   "leerjaar": 2,
+   "soort": "G",
+   "domein": "Computationeel denken",
+   "cluster": "Inzicht in digitale systemen",
+   "tekst": "De leerlingen kunnen de volgende begrippen gebruiken: de hardware, de software.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "8.1.GL2.2",
+   "vak": "ICT",
+   "leerjaar": 2,
+   "soort": "G",
+   "domein": "Computationeel denken",
+   "cluster": "Principes van computationeel denken",
+   "tekst": "De leerlingen kunnen onder begeleiding de principes van computationeel denken toepassen om een lineair algoritme te ontwerpen, testen en debuggen om tot een werkende oplossing te komen: abstractie.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "8.1.GL2.3",
+   "vak": "ICT",
+   "leerjaar": 2,
+   "soort": "G",
+   "domein": "Computationeel denken",
+   "cluster": "Principes van computationeel denken",
+   "tekst": "De leerlingen kunnen onder begeleiding de principes van computationeel denken toepassen om een lineair algoritme te ontwerpen, testen en debuggen om tot een werkende oplossing te komen: decompositie.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "8.1.GL2.4",
+   "vak": "ICT",
+   "leerjaar": 2,
+   "soort": "G",
+   "domein": "Computationeel denken",
+   "cluster": "Principes van computationeel denken",
+   "tekst": "De leerlingen kunnen onder begeleiding de principes van computationeel denken toepassen om een lineair algoritme te ontwerpen, testen en debuggen om tot een werkende oplossing te komen: patroonherkenning.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "8.1.GL2.5",
+   "vak": "ICT",
+   "leerjaar": 2,
+   "soort": "G",
+   "domein": "Computationeel denken",
+   "cluster": "Principes van computationeel denken",
+   "tekst": "De leerlingen kunnen onder begeleiding de principes van computationeel denken toepassen om een lineair algoritme te ontwerpen, testen en debuggen om tot een werkende oplossing te komen: algoritme, sequentie.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "8.2.GL2.1",
+   "vak": "ICT",
+   "leerjaar": 2,
+   "soort": "G",
+   "domein": "Digitale geletterdheid",
+   "cluster": "Digitale informatieveiligheid",
+   "tekst": "De leerlingen kunnen aangereikte invoer- en uitvoerapparaten functioneel gebruiken met inbegrip van basisgebruik van een toetsenbord.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "8.2.GL2.2",
+   "vak": "ICT",
+   "leerjaar": 2,
+   "soort": "G",
+   "domein": "Digitale geletterdheid",
+   "cluster": "Informatiegeletterdheid",
+   "tekst": "De leerlingen kunnen navigeren en zoeken binnen een afgebakende digitale toepassing.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "8.3.GL2.1",
+   "vak": "ICT",
+   "leerjaar": 2,
+   "soort": "G",
+   "domein": "Mediawijsheid",
+   "cluster": "Digitale veiligheid",
+   "tekst": "De leerlingen kennen het begrip account en weten hoe ze veilig met hun account en wachtwoord moeten omgaan.",
+   "kennis": "",
+   "herhaling": ""
+  }
+ ]
+}

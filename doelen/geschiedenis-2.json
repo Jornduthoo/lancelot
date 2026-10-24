@@ -1,0 +1,238 @@
+{
+ "bron": "Op.stap, leerroutes voor iedereen (Katholiek Onderwijs Vlaanderen), leerplanversie V1.3 van 24/10/2026",
+ "vak": "Geschiedenis",
+ "leerjaar": 2,
+ "doelen": [
+  {
+   "code": "5.1.GL2.1",
+   "vak": "Geschiedenis",
+   "leerjaar": 2,
+   "soort": "G",
+   "domein": "Kennis van het verleden",
+   "cluster": "Hoe begrijpen mensen hun wereld?",
+   "tekst": "De leerlingen weten hoe mensen tijdens de oudheid in de Griekse wereld overleefden, samenleefden en hoe ze dachten: mythologie, religie, de berg Olympos.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.1.GL2.6",
+   "vak": "Geschiedenis",
+   "leerjaar": 2,
+   "soort": "G",
+   "domein": "Kennis van het verleden",
+   "cluster": "Hoe begrijpen mensen hun wereld?",
+   "tekst": "De leerlingen weten hoe mensen tijdens de oudheid in de Griekse wereld overleefden, samenleefden en hoe ze dachten: filosofie, Sokrates.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.1.GL2.7",
+   "vak": "Geschiedenis",
+   "leerjaar": 2,
+   "soort": "G",
+   "domein": "Kennis van het verleden",
+   "cluster": "Hoe begrijpen mensen hun wereld?",
+   "tekst": "De leerlingen weten hoe mensen tijdens de oudheid in de Griekse wereld overleefden, samenleefden en hoe ze dachten: filosofie, Archimedes.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.1.GL2.8",
+   "vak": "Geschiedenis",
+   "leerjaar": 2,
+   "soort": "G",
+   "domein": "Kennis van het verleden",
+   "cluster": "Hoe begrijpen mensen hun wereld?",
+   "tekst": "De leerlingen weten hoe mensen tijdens de oudheid in de Griekse wereld overleefden, samenleefden en hoe ze dachten: filosofie, Hippocrates.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.1.GL2.2",
+   "vak": "Geschiedenis",
+   "leerjaar": 2,
+   "soort": "G",
+   "domein": "Kennis van het verleden",
+   "cluster": "Hoe organiseren mensen hun samen leven?",
+   "tekst": "De leerlingen weten hoe mensen tijdens de oudheid in de Griekse wereld overleefden, samenleefden en hoe ze dachten: Athene, Akropolis.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.1.GL2.3",
+   "vak": "Geschiedenis",
+   "leerjaar": 2,
+   "soort": "G",
+   "domein": "Kennis van het verleden",
+   "cluster": "Hoe organiseren mensen hun samen leven?",
+   "tekst": "De leerlingen weten hoe mensen tijdens de oudheid in de Griekse wereld overleefden, samenleefden en hoe ze dachten: Athene, de aristocratie.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.1.GL2.4",
+   "vak": "Geschiedenis",
+   "leerjaar": 2,
+   "soort": "G",
+   "domein": "Kennis van het verleden",
+   "cluster": "Hoe organiseren mensen hun samen leven?",
+   "tekst": "De leerlingen weten hoe mensen tijdens de oudheid in de Griekse wereld overleefden, samenleefden en hoe ze dachten: Athene, de wetten van Solon, burgerrechten.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.1.GL2.5",
+   "vak": "Geschiedenis",
+   "leerjaar": 2,
+   "soort": "G",
+   "domein": "Kennis van het verleden",
+   "cluster": "Hoe organiseren mensen hun samen leven?",
+   "tekst": "De leerlingen weten hoe mensen tijdens de oudheid in de Griekse wereld overleefden, samenleefden en hoe ze dachten: burgerrechten, vrouwen in de Griekse oudheid.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.1.GL2.9",
+   "vak": "Geschiedenis",
+   "leerjaar": 2,
+   "soort": "G",
+   "domein": "Kennis van het verleden",
+   "cluster": "Hoe gaan verschillende samenlevingen met elkaar om?",
+   "tekst": "De leerlingen weten hoe mensen tijdens de oudheid in de invloedssfeer van de Romeinen overleefden, samenleefden en hoe ze dachten: imperialisme, Rome, Carthago, Hannibal.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.1.GL2.10",
+   "vak": "Geschiedenis",
+   "leerjaar": 2,
+   "soort": "G",
+   "domein": "Kennis van het verleden",
+   "cluster": "Hoe leven mensen elke dag?",
+   "tekst": "De leerlingen weten hoe mensen tijdens de oudheid in de invloedssfeer van de Romeinen overleefden, samenleefden en hoe ze dachten: dagelijks leven, Pompeï, keukens, slaafgemaakten.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.2.GL2.1",
+   "vak": "Geschiedenis",
+   "leerjaar": 2,
+   "soort": "G",
+   "domein": "Kennis van geschiedenis",
+   "cluster": "Hoe komen we geschiedenis op het spoor?",
+   "tekst": "De leerlingen kunnen het verschil tussen bron en bewijs herkennen.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.2.GL2.2",
+   "vak": "Geschiedenis",
+   "leerjaar": 2,
+   "soort": "G",
+   "domein": "Kennis van geschiedenis",
+   "cluster": "Hoe komen we geschiedenis op het spoor?",
+   "tekst": "De leerlingen kunnen typische vragen herkennen om te stellen over aangereikte bronnen: hoe en waarom een bron is gemaakt, wanneer en waar een bron is gemaakt.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.2.GL2.3",
+   "vak": "Geschiedenis",
+   "leerjaar": 2,
+   "soort": "G",
+   "domein": "Kennis van geschiedenis",
+   "cluster": "Hoe komen we geschiedenis op het spoor?",
+   "tekst": "De leerlingen weten wat paleontologen, archeologen en historici doen.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.2.GL2.4",
+   "vak": "Geschiedenis",
+   "leerjaar": 2,
+   "soort": "G",
+   "domein": "Kennis van geschiedenis",
+   "cluster": "Hoe komen we geschiedenis op het spoor?",
+   "tekst": "De leerlingen kunnen diverse, veelgebruikte bronnen relevant voor de oudheid en de middeleeuwen herkennen.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.2.GL2.5",
+   "vak": "Geschiedenis",
+   "leerjaar": 2,
+   "soort": "G",
+   "domein": "Kennis van geschiedenis",
+   "cluster": "Hoe denken we na over geschiedenis?",
+   "tekst": "De leerlingen kunnen gelijkenissen en verschillen binnen en tussen bestudeerde samenlevingen beschrijven.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.2.GL2.6",
+   "vak": "Geschiedenis",
+   "leerjaar": 2,
+   "soort": "G",
+   "domein": "Kennis van geschiedenis",
+   "cluster": "Hoe denken we na over geschiedenis?",
+   "tekst": "De leerlingen kunnen aspecten van verandering en continuïteit beschrijven.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.2.GL2.7",
+   "vak": "Geschiedenis",
+   "leerjaar": 2,
+   "soort": "G",
+   "domein": "Kennis van geschiedenis",
+   "cluster": "Hoe denken we na over geschiedenis?",
+   "tekst": "De leerlingen kunnen oorzaken en gevolgen van een gebeurtenis of een ontwikkeling beschrijven.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.2.GL2.8",
+   "vak": "Geschiedenis",
+   "leerjaar": 2,
+   "soort": "G",
+   "domein": "Kennis van geschiedenis",
+   "cluster": "Hoe ordenen we geschiedenis?",
+   "tekst": "De leerlingen kunnen aangereikte bronnen over de bestudeerde historische periodes chronologisch ordenen: oudheid, middeleeuwen, hedendaagse tijd.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.2.GL2.9",
+   "vak": "Geschiedenis",
+   "leerjaar": 2,
+   "soort": "G",
+   "domein": "Kennis van geschiedenis",
+   "cluster": "Hoe kijken we vandaag naar geschiedenis?",
+   "tekst": "De leerlingen kunnen een perspectief van mensen in het verleden en een hedendaags perspectief op het verleden op elementair niveau vergelijken.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.3.GL2.1",
+   "vak": "Geschiedenis",
+   "leerjaar": 2,
+   "soort": "G",
+   "domein": "Reflectie en dialoog over verleden en geschiedenis",
+   "cluster": "Hoe kijken we vandaag naar geschiedenis?",
+   "tekst": "De leerlingen kunnen beschrijven hoe persoonlijke identiteit mee gevormd wordt door het verleden: familiebanden, aandenken.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.3.GL2.4",
+   "vak": "Geschiedenis",
+   "leerjaar": 2,
+   "soort": "G",
+   "domein": "Reflectie en dialoog over verleden en geschiedenis",
+   "cluster": "Hoe organiseren mensen hun samen leven?",
+   "tekst": "De leerlingen kunnen de volgende begrippen met betrekking tot de principes van de democratische rechtsstaat benoemen: verkiezingen, vertegenwoordiging, macht, rechten, plichten, regels, afspraken, gelijkheid.",
+   "kennis": "",
+   "herhaling": ""
+  }
+ ]
+}

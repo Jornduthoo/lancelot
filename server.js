@@ -435,7 +435,7 @@ io.on('connection', socket => {
       io.emit('klas-namen', klas.names());
       return { klas: saved };
     }));
-    socket.on('doelen-get', handle(() => ({ doelen: doelen.all(), leerjaar: klas.read().leerjaar })));
+    socket.on('doelen-get', handle(() => ({ doelen: doelen.all(), leerjaar: klas.read().leerjaar, leerjaren: doelen.LEERJAREN })));
     socket.on('logboek-get', handle(() => ({ logboek: logboek.summary() })));
     // De Opwarmer: herhaalvragen uit vorige lessen, gespeeld als Toernooi.
     socket.on('opwarmer-maak', handle(opts => opwarmer.make(opts || {})));

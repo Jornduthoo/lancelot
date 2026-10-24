@@ -42,7 +42,7 @@
    "leerjaar": 6,
    "soort": "G",
    "domein": "Lezen",
-   "cluster": "Expliciete informatie vinden",
+   "cluster": "Tekstbegrip",
    "tekst": "De leerling kan expliciet vermelde informatie in teksten weergeven.",
    "kennis": "",
    "herhaling": ""
@@ -53,7 +53,7 @@
    "leerjaar": 6,
    "soort": "G",
    "domein": "Lezen",
-   "cluster": "Expliciete informatie vinden",
+   "cluster": "Tekstbegrip",
    "tekst": "De leerling kan tekststructuurelementen gebruiken om informatie doelgericht te vinden.",
    "kennis": "",
    "herhaling": ""
@@ -141,7 +141,7 @@
    "leerjaar": 6,
    "soort": "G",
    "domein": "Lezen",
-   "cluster": "Tekstsoorten",
+   "cluster": "Tekstsoorten en tekstconventies",
    "tekst": "De leerling kan doelen van teksten analyseren aan de hand van tekstkenmerken.",
    "kennis": "",
    "herhaling": ""
@@ -163,7 +163,7 @@
    "leerjaar": 6,
    "soort": "G",
    "domein": "Schrijven",
-   "cluster": "Vlotte schrijftechniek",
+   "cluster": "Kantlijn en witruimtes",
    "tekst": "De leerling kan vlot en regelmatig schrijven op een enkele grondlijn zonder hulplijnen.",
    "kennis": "",
    "herhaling": ""
@@ -174,7 +174,7 @@
    "leerjaar": 6,
    "soort": "G",
    "domein": "Schrijven",
-   "cluster": "Vlotte schrijftechniek",
+   "cluster": "Kantlijn en witruimtes",
    "tekst": "De leerling kan het schrijftempo en de vormgevingskwaliteit op elkaar afstemmen.",
    "kennis": "",
    "herhaling": ""
@@ -251,7 +251,7 @@
    "leerjaar": 6,
    "soort": "G",
    "domein": "Schrijven",
-   "cluster": "Woorden met vrije klinkers ee, o, u, ie, i, oe, ai in een open of gesloten lettergreep spellen",
+   "cluster": "Woorden spellen die anders uitgesproken worden dan geschreven",
    "tekst": "De leerling kan woorden met vrije klinker ee, o, u, ie, i, oe, ai, in een open of gesloten lettergreep spellen.",
    "kennis": "",
    "herhaling": ""
@@ -328,7 +328,7 @@
    "leerjaar": 6,
    "soort": "G",
    "domein": "Schrijven",
-   "cluster": "Leenwoorden spellen",
+   "cluster": "Woorden met koppelteken, apostrof, trema en accent spellen",
    "tekst": "De leerling kan frequente Franse leenwoorden spellen.",
    "kennis": "",
    "herhaling": ""
@@ -339,7 +339,7 @@
    "leerjaar": 6,
    "soort": "G",
    "domein": "Schrijven",
-   "cluster": "Leenwoorden spellen",
+   "cluster": "Woorden met koppelteken, apostrof, trema en accent spellen",
    "tekst": "De leerling kan frequente Engelse leenwoorden spellen.",
    "kennis": "",
    "herhaling": ""
@@ -350,7 +350,7 @@
    "leerjaar": 6,
    "soort": "G",
    "domein": "Schrijven",
-   "cluster": "Leenwoorden spellen",
+   "cluster": "Woorden met koppelteken, apostrof, trema en accent spellen",
    "tekst": "De leerling kan vakspecifieke woorden uit het Latijn of Grieks spellen.",
    "kennis": "",
    "herhaling": ""
@@ -505,7 +505,7 @@
    "soort": "G",
    "domein": "Schrijven",
    "cluster": "Tot schrijven komen",
-   "tekst": "De leerling kan een herkenbare en eenvoudige structuur aanbrengen in teksten met inbegrip van titels, tussentitels, alinea's en structuuraanduiders (verwijs, verbindings- en signaalwoorden).",
+   "tekst": "De leerling kan een herkenbare en eenvoudige structuur aanbrengen in teksten met inbegrip van titels, tussentitels, alinea's en structuuraanduiders (verwijs, verbindings\u0002en signaalwoorden).",
    "kennis": "",
    "herhaling": ""
   },
@@ -582,7 +582,7 @@
    "soort": "G",
    "domein": "Mondeling taalgebruik",
    "cluster": "Verbanden leggen en afleiden",
-   "tekst": "De leerling kan verbanden leggen tussen teksten en zijn/haar vakspecifieke kennis en voorkennis.",
+   "tekst": "De leerling kan verbanden leggen tussen teksten en zijn/ haar vakspecifieke kennis en voorkennis.",
    "kennis": "",
    "herhaling": ""
   },
@@ -757,7 +757,7 @@
    "leerjaar": 6,
    "soort": "G",
    "domein": "Taalsysteem en taalgebruik",
-   "cluster": "Woordenschat",
+   "cluster": "Mondelinge interactievaardigheden",
    "tekst": "De leerling kan formeel en informeel taalgebruik conform de context inzetten.",
    "kennis": "",
    "herhaling": ""
@@ -768,7 +768,7 @@
    "leerjaar": 6,
    "soort": "G",
    "domein": "Taalsysteem en taalgebruik",
-   "cluster": "Woordenschat",
+   "cluster": "Mondelinge interactievaardigheden",
    "tekst": "De leerling kan woorden genuanceerd en gepast inzetten met steeds hogere abstractiegraad en figuurlijk taalgebruik.",
    "kennis": "",
    "herhaling": ""
@@ -779,7 +779,7 @@
    "leerjaar": 6,
    "soort": "G",
    "domein": "Taalsysteem en taalgebruik",
-   "cluster": "Woordenschat",
+   "cluster": "Mondelinge interactievaardigheden",
    "tekst": "De leerling kan actief op zoek gaan naar nieuwe woordbetekenissen en -relaties door gebruik te maken van woordleerstrategieën: vreemdetalenkennis inzetten, hulpbron inzetten.",
    "kennis": "",
    "herhaling": ""
@@ -790,7 +790,7 @@
    "leerjaar": 6,
    "soort": "G",
    "domein": "Taalsysteem en taalgebruik",
-   "cluster": "Woordenschat",
+   "cluster": "Mondelinge interactievaardigheden",
    "tekst": "De leerling kan aangeboden school-, instructie- en vaktaal hanteren in de vakdisciplines.",
    "kennis": "",
    "herhaling": ""
@@ -803,6 +803,39 @@
    "domein": "Taalsysteem en taalgebruik",
    "cluster": "Spelling",
    "tekst": "De leerling kent spelling: woordtekens: het trema, het koppelteken en soorten afkortingen.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "1.5.GL6.21",
+   "vak": "Nederlands",
+   "leerjaar": 6,
+   "soort": "G",
+   "domein": "Taalsysteem en taalgebruik",
+   "cluster": "Woordvorming",
+   "tekst": "De leerling kan onregelmatige verkleinwoorden vormen.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "1.5.GL6.22",
+   "vak": "Nederlands",
+   "leerjaar": 6,
+   "soort": "G",
+   "domein": "Taalsysteem en taalgebruik",
+   "cluster": "Woordvorming",
+   "tekst": "De leerling kan meervouden van grondwoorden op -ie en -ee vormen.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "1.5.GL6.23",
+   "vak": "Nederlands",
+   "leerjaar": 6,
+   "soort": "G",
+   "domein": "Taalsysteem en taalgebruik",
+   "cluster": "Woordvorming",
+   "tekst": "De leerling kan afwijkende meervouden vormen.",
    "kennis": "",
    "herhaling": ""
   },
@@ -922,7 +955,7 @@
    "leerjaar": 6,
    "soort": "G",
    "domein": "Taalsysteem en taalgebruik",
-   "cluster": "Inzichten taalsysteem",
+   "cluster": "Zinnen en zinsdelen",
    "tekst": "De leerling kan inzichten in het taalsysteem toepassen en erover reflecteren.",
    "kennis": "",
    "herhaling": ""
@@ -957,39 +990,6 @@
    "domein": "Taalsysteem en taalgebruik",
    "cluster": "Taalgebruik en taalwetenschap",
    "tekst": "De leerling weet dat er vreemde talen zijn waarin dezelfde of andere schrifttekens worden gebruikt dan in het Nederlands.",
-   "kennis": "",
-   "herhaling": ""
-  },
-  {
-   "code": "1.5.GL6.21",
-   "vak": "Nederlands",
-   "leerjaar": 6,
-   "soort": "G",
-   "domein": "Taalsysteem en taalgebruik",
-   "cluster": "Woordvorming",
-   "tekst": "De leerling kan onregelmatige verkleinwoorden vormen.",
-   "kennis": "",
-   "herhaling": ""
-  },
-  {
-   "code": "1.5.GL6.22",
-   "vak": "Nederlands",
-   "leerjaar": 6,
-   "soort": "G",
-   "domein": "Taalsysteem en taalgebruik",
-   "cluster": "Woordvorming",
-   "tekst": "De leerling kan meervouden van grondwoorden op -ie en -ee vormen.",
-   "kennis": "",
-   "herhaling": ""
-  },
-  {
-   "code": "1.5.GL6.23",
-   "vak": "Nederlands",
-   "leerjaar": 6,
-   "soort": "G",
-   "domein": "Taalsysteem en taalgebruik",
-   "cluster": "Woordvorming",
-   "tekst": "De leerling kan afwijkende meervouden vormen.",
    "kennis": "",
    "herhaling": ""
   },

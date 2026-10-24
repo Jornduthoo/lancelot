@@ -1,0 +1,62 @@
+{
+ "bron": "Op.stap, leerroutes voor iedereen (Katholiek Onderwijs Vlaanderen), leerplanversie V1.3 van 24/10/2026",
+ "vak": "Geschiedenis",
+ "leerjaar": "JK",
+ "doelen": [
+  {
+   "code": "5.1.GJK.1",
+   "vak": "Geschiedenis",
+   "leerjaar": "JK",
+   "soort": "G",
+   "domein": "Kennis van het verleden",
+   "cluster": "Hoe leven mensen elke dag?",
+   "tekst": "De leerlingen weten hoe mensen tijdens de hedendaagse tijd samenleefden: eigen stad, dorp of straat, veranderingen in het straatbeeld, technologie.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.1.GJK.2",
+   "vak": "Geschiedenis",
+   "leerjaar": "JK",
+   "soort": "G",
+   "domein": "Kennis van het verleden",
+   "cluster": "Hoe leven mensen elke dag?",
+   "tekst": "De leerlingen weten hoe mensen tijdens de hedendaagse tijd samenleefden: eigen woning, familieherinneringen uit de kindertijd, technologie, het interieur van een woning.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.2.GJK.1",
+   "vak": "Geschiedenis",
+   "leerjaar": "JK",
+   "soort": "G",
+   "domein": "Kennis van geschiedenis",
+   "cluster": "Hoe komen we geschiedenis op het spoor?",
+   "tekst": "De leerlingen kunnen soorten bronnen vanuit de bestudeerde samenlevingen herkennen: hedendaagse tijd in de omgeving.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.2.GJK.2",
+   "vak": "Geschiedenis",
+   "leerjaar": "JK",
+   "soort": "G",
+   "domein": "Kennis van geschiedenis",
+   "cluster": "Hoe komen we geschiedenis op het spoor?",
+   "tekst": "De leerlingen kunnen soorten bronnen vanuit de bestudeerde samenlevingen herkennen: hedendaagse tijd in eigen leefomgeving.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.3.GJK.1",
+   "vak": "Geschiedenis",
+   "leerjaar": "JK",
+   "soort": "G",
+   "domein": "Reflectie en dialoog over verleden en geschiedenis",
+   "cluster": "Hoe organiseren mensen hun samen leven?",
+   "tekst": "De leerlingen herkennen de volgende begrippen: mening, overleg, stemmen.",
+   "kennis": "",
+   "herhaling": ""
+  }
+ ]
+}

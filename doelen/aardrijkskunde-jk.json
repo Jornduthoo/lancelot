@@ -1,0 +1,106 @@
+{
+ "bron": "Op.stap, leerroutes voor iedereen (Katholiek Onderwijs Vlaanderen), leerplanversie V1.3 van 24/10/2026",
+ "vak": "Aardrijkskunde",
+ "leerjaar": "JK",
+ "doelen": [
+  {
+   "code": "4.1.GJK.1",
+   "vak": "Aardrijkskunde",
+   "leerjaar": "JK",
+   "soort": "G",
+   "domein": "Topografie",
+   "cluster": "Relatieve ligging",
+   "tekst": "De leerlingen kennen de volgende begrippen met betrekking tot relatieve ligging: binnen, buiten, in, uit.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "4.2.GJK.1",
+   "vak": "Aardrijkskunde",
+   "leerjaar": "JK",
+   "soort": "G",
+   "domein": "Aardrijkskundige kennis",
+   "cluster": "Soorten landschappen",
+   "tekst": "De leerlingen kunnen natuurlijke aspecten in (afgebeelde) landschappen observeren.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "4.2.GJK.2",
+   "vak": "Aardrijkskunde",
+   "leerjaar": "JK",
+   "soort": "G",
+   "domein": "Aardrijkskundige kennis",
+   "cluster": "Soorten landschappen",
+   "tekst": "De leerlingen kunnen menselijke aspecten in (afgebeelde) landschappen observeren.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "4.2.GJK.3",
+   "vak": "Aardrijkskunde",
+   "leerjaar": "JK",
+   "soort": "G",
+   "domein": "Aardrijkskundige kennis",
+   "cluster": "Bewegingen van de aarde - dag en nacht",
+   "tekst": "De leerlingen kennen de volgende begrippen: de dag en de nacht.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "4.2.GJK.4",
+   "vak": "Aardrijkskunde",
+   "leerjaar": "JK",
+   "soort": "G",
+   "domein": "Aardrijkskundige kennis",
+   "cluster": "Bewegingen van de aarde - dag en nacht",
+   "tekst": "De leerlingen kunnen het ritme van dag en nacht herkennen.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "4.3.GJK.1",
+   "vak": "Aardrijkskunde",
+   "leerjaar": "JK",
+   "soort": "G",
+   "domein": "Aardrijkskundige vaardigheden, onderzoek en denken",
+   "cluster": "Afbeelding",
+   "tekst": "De leerlingen kunnen een foto en een tekening herkennen als een verkleinde weergave van een werkelijke ruimte.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "4.3.GJK.2",
+   "vak": "Aardrijkskunde",
+   "leerjaar": "JK",
+   "soort": "G",
+   "domein": "Aardrijkskundige vaardigheden, onderzoek en denken",
+   "cluster": "Afbeelding",
+   "tekst": "De leerlingen kunnen elementen op een foto of tekening van een ruimte herkennen.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "4.3.GJK.3",
+   "vak": "Aardrijkskunde",
+   "leerjaar": "JK",
+   "soort": "G",
+   "domein": "Aardrijkskundige vaardigheden, onderzoek en denken",
+   "cluster": "Weerkunde",
+   "tekst": "De leerlingen kunnen weersverschijnselen observeren.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "4.3.GJK.4",
+   "vak": "Aardrijkskunde",
+   "leerjaar": "JK",
+   "soort": "G",
+   "domein": "Aardrijkskundige vaardigheden, onderzoek en denken",
+   "cluster": "Ruimtelijke posities, relaties en contrasten",
+   "tekst": "De leerlingen kunnen een actueel ruimtelijk vraagstuk bespreken in termen van gevolgen en relatieve meting.",
+   "kennis": "",
+   "herhaling": ""
+  }
+ ]
+}

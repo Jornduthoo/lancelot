@@ -1,0 +1,205 @@
+{
+ "bron": "Op.stap, leerroutes voor iedereen (Katholiek Onderwijs Vlaanderen), leerplanversie V1.3 van 24/10/2026",
+ "vak": "Veilige en gezonde levensstijl",
+ "leerjaar": "JK",
+ "doelen": [
+  {
+   "code": "9-1.1.GJK.1",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": "JK",
+   "soort": "G",
+   "domein": "Verkeer",
+   "cluster": "De openbare weg",
+   "tekst": "De leerlingen kunnen het voetpad herkennen.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.1.GJK.2",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": "JK",
+   "soort": "G",
+   "domein": "Verkeer",
+   "cluster": "De openbare weg",
+   "tekst": "De leerlingen kennen de betekenis van volgende verkeersregels, afspraken en signalen: niet spelen op of bij de straat.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.1.GJK.3",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": "JK",
+   "soort": "G",
+   "domein": "Verkeer",
+   "cluster": "De openbare weg",
+   "tekst": "De leerlingen weten dat het verplicht is om een gordel te dragen in de auto en in de bus.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.1.GJK.4",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": "JK",
+   "soort": "G",
+   "domein": "Verkeer",
+   "cluster": "Wegmarkeringen",
+   "tekst": "De leerlingen kunnen het zebrapad herkennen.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GJK.1",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": "JK",
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Gezonde voeding: begrippen",
+   "tekst": "De leerlingen kennen het begrip: het fruit.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GJK.2",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": "JK",
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Gezonde voeding: begrippen",
+   "tekst": "De leerlingen kennen het begrip: het brood.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GJK.3",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": "JK",
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Gezonde voeding: begrippen",
+   "tekst": "De leerlingen kennen het begrip: de dranken.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GJK.4",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": "JK",
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Gezonde voeding: begrippen",
+   "tekst": "De leerlingen kunnen verschillende soorten fruit benoemen.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GJK.5",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": "JK",
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Gezonde voeding: begrippen",
+   "tekst": "De leerlingen kunnen verschillende soorten fruit proeven en beschrijven.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GJK.6",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": "JK",
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Gezonde voeding: begrippen",
+   "tekst": "De leerlingen kunnen verschillende soorten dranken benoemen.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GJK.7",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": "JK",
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Hygiëne en zindelijkheid",
+   "tekst": "De leerlingen kunnen aandrang om te plassen herkennen en uiten.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GJK.8",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": "JK",
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Hygiëne en zindelijkheid",
+   "tekst": "De leerlingen kunnen verzorgingshandelingen uitvoeren in dagelijkse routines.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GJK.9",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": "JK",
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Hygiëne en zindelijkheid",
+   "tekst": "De leerlingen kunnen met begeleiding toiletbezoek uitvoeren in dagelijkse routines.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GJK.10",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": "JK",
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Hygiëne en zindelijkheid",
+   "tekst": "De leerlingen kennen de basis hygiëneregels zoals doorspoelen na toiletbezoek.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GJK.11",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": "JK",
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Hygiëne en zindelijkheid",
+   "tekst": "De leerlingen kennen de basis hygiëneregels zoals handen wassen na toiletbezoek.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GJK.12",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": "JK",
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Aan- en uitkleden",
+   "tekst": "De leerlingen kunnen eenvoudige handelingen uitvoeren in functie van aan- en uitkleden.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GJK.13",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": "JK",
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Opruimen",
+   "tekst": "De leerlingen kunnen opruimopdrachten uitvoeren.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GJK.14",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": "JK",
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Veiligheid en eerste hulp medicatie",
+   "tekst": "De leerlingen kunnen de hulp inroepen van een volwassene bij een probleem.",
+   "kennis": "",
+   "herhaling": ""
+  }
+ ]
+}

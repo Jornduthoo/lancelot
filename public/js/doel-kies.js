@@ -1,21 +1,47 @@
 // Een leerplandoel (Op.stap) kiezen bij een quizvraag of een oefening.
 // Typ een code (2.2.GL6.12) of woorden uit het doel (breuk, deler): eronder verschijnen de passende doelen.
+// Standaard de doelen van het leerjaar van de klas; boven de zoekbalk kies je een ander leerjaar (of alle).
 // Gebruikt socket uit host.js of ob-host.js.
 const DoelKies = (() => {
-  let doelen = [];
+  let alle = []; // alle doelen van alle leerjaren
+  let doelen = []; // de doelen waarin gezocht wordt: die van het gekozen leerjaar
+  let leerjaren = [];
+  let gekozen = ''; // het gekozen leerjaar, of 'alle'
   let status = 'laden'; // laden -> klaar | leeg | fout
   let asked = false;
   let klasLeerjaar = 0;
   let wachten = [];
   const fields = new Set();
+  const keuzes = new Set();
   const MAX_SHOWN = 12;
 
   function find(code) {
-    return doelen.find(d => d.code === code) || null;
+    return alle.find(d => d.code === code) || null;
+  }
+
+  const same = (a, b) => String(a) === String(b);
+
+  // "6e leerjaar", "2e kleuterklas" ...
+  function naam(lj) {
+    const l = leerjaren.find(x => same(x.id, lj));
+    return l ? l.naam : `${lj}e leerjaar`;
   }
 
   function describe(d) {
-    return `${d.vak} · ${d.domein} · ${d.tekst}${d.soort === 'plus' ? ' (plusdoel)' : ''}`;
+    const lj = same(d.leerjaar, klasLeerjaar) ? '' : ` · ${naam(d.leerjaar)}`;
+    return `${d.vak}${lj} · ${d.domein} · ${d.tekst}${d.soort === 'plus' ? ' (plusdoel)' : ''}${d.score === false ? ' (voor de Ronde Tafel, geen score)' : ''}`;
+  }
+
+  function filter() {
+    doelen = gekozen === 'alle' ? alle : alle.filter(d => same(d.leerjaar, gekozen));
+  }
+
+  // Een ander leerjaar kiezen: alle zoekvelden en keuzelijsten volgen.
+  function kies(lj) {
+    gekozen = lj;
+    filter();
+    for (const sel of keuzes) sel.value = String(gekozen);
+    for (const el of fields) el.refresh();
   }
 
   function load() {
@@ -32,11 +58,14 @@ const DoelKies = (() => {
       if (!res || res.error) {
         status = 'fout';
       } else {
-        // Alleen de doelen van het leerjaar van de klas; zijn er daarvoor geen, dan alles.
-        const mine = res.doelen.filter(d => d.leerjaar === res.leerjaar);
-        doelen = mine.length ? mine : res.doelen;
-        status = doelen.length ? 'klaar' : 'leeg';
+        alle = res.doelen;
+        leerjaren = (res.leerjaren || []).filter(l => alle.some(d => same(d.leerjaar, l.id)));
         klasLeerjaar = res.leerjaar;
+        // Standaard de doelen van het leerjaar van de klas; zijn er daarvoor geen, dan alles.
+        gekozen = leerjaren.some(l => same(l.id, klasLeerjaar)) ? klasLeerjaar : 'alle';
+        filter();
+        status = alle.length ? 'klaar' : 'leeg';
+        for (const sel of keuzes) fillKeuze(sel);
         for (const fn of wachten) fn(klasLeerjaar);
         wachten = [];
       }
@@ -160,7 +189,31 @@ const DoelKies = (() => {
   // De gekozen doelcode, of leeg als het veld leeg is of het doel niet bestaat.
   function read(el) {
     const code = codeOf(el.querySelector('input').value);
-    return find(code) || (!doelen.length && /^\d/.test(code)) ? code : '';
+    return find(code) || (!alle.length && /^\d/.test(code)) ? code : '';
+  }
+
+  function fillKeuze(sel) {
+    sel.innerHTML = '';
+    for (const l of leerjaren) sel.add(new Option(same(l.id, klasLeerjaar) ? `${l.naam} (mijn klas)` : l.naam, String(l.id)));
+    sel.add(new Option('Alle leerjaren', 'alle'));
+    sel.value = String(gekozen);
+  }
+
+  // De keuzelijst "Doelen van": het leerjaar van de klas, of een ander (bijvoorbeeld om doelen van vorig jaar te herhalen).
+  function leerjaarKeuze() {
+    load();
+    const label = document.createElement('label');
+    label.className = 'doel-leerjaar';
+    label.textContent = 'Doelen van ';
+    const sel = document.createElement('select');
+    sel.addEventListener('change', () => {
+      const l = leerjaren.find(x => String(x.id) === sel.value);
+      kies(l ? l.id : 'alle');
+    });
+    label.appendChild(sel);
+    keuzes.add(sel);
+    if (status === 'klaar') fillKeuze(sel);
+    return label;
   }
 
   // Meerdere doelen kiezen, bijvoorbeeld voor een les met een paar doelen. el.codes() geeft de gekozen codes.
@@ -197,7 +250,7 @@ const DoelKies = (() => {
         if (onChange) onChange(codes);
       },
     });
-    el.append(search, chips);
+    el.append(leerjaarKeuze(), search, chips);
     el.codes = () => codes.slice();
     return el;
   }
@@ -213,7 +266,7 @@ const DoelKies = (() => {
   function prompt(codes, wat) {
     const list = codes.map(find).filter(Boolean);
     if (!list.length) return '';
-    const bron = `het Vlaamse leerplan Op.stap (${[...new Set(list.map(d => d.vak))].join(', ')}, ${list[0].leerjaar}e leerjaar)`;
+    const bron = `het Vlaamse leerplan Op.stap (${[...new Set(list.map(d => d.vak))].join(', ')}, ${[...new Set(list.map(d => naam(d.leerjaar)))].join(', ')})`;
     if (list.length === 1) return `\nDe ${wat} oefenen dit leerplandoel uit ${bron}: "${list[0].tekst}" Maak alleen ${wat} die precies dit doel oefenen.\n`;
     return `\nDe ${wat} oefenen deze leerplandoelen uit ${bron}:\n${list.map(d => `- ${d.code}: ${d.tekst}`).join('\n')}\nVerdeel de ${wat} evenwichtig over deze doelen. Zet bij elk${wat === 'vragen' ? 'e vraag' : 'e oefening'} in "doel" de code van het doel dat ze oefent, bijvoorbeeld "doel": "${list[0].code}".\n`;
   }
@@ -226,5 +279,5 @@ const DoelKies = (() => {
     }
   }
 
-  return { field, multi, prompt, apply, read, find, describe, load, leerjaar };
+  return { field, multi, prompt, apply, read, find, describe, load, leerjaar, naam, leerjaarKeuze };
 })();

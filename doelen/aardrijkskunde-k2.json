@@ -1,0 +1,249 @@
+{
+ "bron": "Op.stap, leerroutes voor iedereen (Katholiek Onderwijs Vlaanderen), leerplanversie V1.3 van 24/10/2026",
+ "vak": "Aardrijkskunde",
+ "leerjaar": "K2",
+ "doelen": [
+  {
+   "code": "4.1.GK2.1",
+   "vak": "Aardrijkskunde",
+   "leerjaar": "K2",
+   "soort": "G",
+   "domein": "Topografie",
+   "cluster": "Wereld",
+   "tekst": "De leerlingen kunnen water, land en de polen op de wereldbol observeren.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "4.1.GK2.2",
+   "vak": "Aardrijkskunde",
+   "leerjaar": "K2",
+   "soort": "G",
+   "domein": "Topografie",
+   "cluster": "Relatieve ligging",
+   "tekst": "De leerlingen kennen de volgende begrippen met betrekking tot relatieve ligging: voor, achter, boven, onder, hoog, laag.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "4.1.GK2.3",
+   "vak": "Aardrijkskunde",
+   "leerjaar": "K2",
+   "soort": "G",
+   "domein": "Topografie",
+   "cluster": "Relatieve ligging",
+   "tekst": "De leerlingen verkennen de volgende begrippen met betrekking tot relatieve ligging: dichtbij, veraf, opzij, tussen, naast, midden.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "4.2.GK2.1",
+   "vak": "Aardrijkskunde",
+   "leerjaar": "K2",
+   "soort": "G",
+   "domein": "Aardrijkskundige kennis",
+   "cluster": "Kenmerken",
+   "tekst": "De leerlingen kunnen elementen met betrekking tot de aarde en haar atmosfeer observeren.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "4.2.GK2.2",
+   "vak": "Aardrijkskunde",
+   "leerjaar": "K2",
+   "soort": "G",
+   "domein": "Aardrijkskundige kennis",
+   "cluster": "Natuurlijke aspecten - het reliëf",
+   "tekst": "De leerlingen kennen de volgende begrippen met betrekking tot natuurlijke aspecten van landschappen: de reliëfvorm: de berg.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "4.2.GK2.3",
+   "vak": "Aardrijkskunde",
+   "leerjaar": "K2",
+   "soort": "G",
+   "domein": "Aardrijkskundige kennis",
+   "cluster": "Natuurlijke aspecten - het reliëf",
+   "tekst": "De leerlingen kennen de volgende begrippen met betrekking tot natuurlijke aspecten van landschappen: de helling: omhoog, omlaag.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "4.2.GK2.4",
+   "vak": "Aardrijkskunde",
+   "leerjaar": "K2",
+   "soort": "G",
+   "domein": "Aardrijkskundige kennis",
+   "cluster": "Natuurlijke aspecten - het water",
+   "tekst": "De leerlingen kennen de volgende begrippen met betrekking tot natuurlijke aspecten van landschappen: het water: de zee, het strand, de plas.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "4.2.GK2.5",
+   "vak": "Aardrijkskunde",
+   "leerjaar": "K2",
+   "soort": "G",
+   "domein": "Aardrijkskundige kennis",
+   "cluster": "Natuurlijke aspecten - de vegetatie",
+   "tekst": "De leerlingen kennen de volgende begrippen met betrekken tot natuurlijke aspecten van landschappen: de vegetatie: de boom, het bos, het gras, de weide.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "4.2.GK2.6",
+   "vak": "Aardrijkskunde",
+   "leerjaar": "K2",
+   "soort": "G",
+   "domein": "Aardrijkskundige kennis",
+   "cluster": "Menselijke aspecten en hun interactie met landschappen - het wonen",
+   "tekst": "De leerlingen kennen de volgende begrippen met betrekking tot infrastructuur en hun interactie met landschappen: het wonen: het huis, de tuin.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "4.2.GK2.7",
+   "vak": "Aardrijkskunde",
+   "leerjaar": "K2",
+   "soort": "G",
+   "domein": "Aardrijkskundige kennis",
+   "cluster": "Menselijke aspecten en hun interactie met landschappen - de transportinfrastructuur",
+   "tekst": "De leerlingen kennen de volgende begrippen met betrekking tot infrastructuur en hun interactie met landschappen: de transportinfrastructuur: de straat.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "4.2.GK2.8",
+   "vak": "Aardrijkskunde",
+   "leerjaar": "K2",
+   "soort": "G",
+   "domein": "Aardrijkskundige kennis",
+   "cluster": "Menselijke aspecten en hun interactie met landschappen - de landbouw",
+   "tekst": "De leerlingen kennen de volgende begrippen met betrekking tot infrastructuur en hun interactie met landschappen: de landbouw: de boerderij, de stal, de koe, het schaap, het varken.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "4.2.GK2.9",
+   "vak": "Aardrijkskunde",
+   "leerjaar": "K2",
+   "soort": "G",
+   "domein": "Aardrijkskundige kennis",
+   "cluster": "Menselijke aspecten en hun interactie met landschappen - de industrie",
+   "tekst": "De leerlingen kennen de volgende begrippen met betrekking tot infrastructuur en hun interactie met landschappen: de industrie: de fabriek.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "4.2.GK2.10",
+   "vak": "Aardrijkskunde",
+   "leerjaar": "K2",
+   "soort": "G",
+   "domein": "Aardrijkskundige kennis",
+   "cluster": "Menselijke aspecten en hun interactie met landschappen - de handel en diensten",
+   "tekst": "De leerlingen kennen de volgende begrippen met betrekking tot infrastructuur en hun interactie met landschappen: de handel en diensten: de winkel.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "4.2.GK2.11",
+   "vak": "Aardrijkskunde",
+   "leerjaar": "K2",
+   "soort": "G",
+   "domein": "Aardrijkskundige kennis",
+   "cluster": "Menselijke aspecten en hun interactie met landschappen - de recreatie en het toerisme",
+   "tekst": "De leerlingen kennen de volgende begrippen met betrekking tot infrastructuur en hun interactie met landschappen: de recreatie en het toerisme: de zee, het park.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "4.2.GK2.12",
+   "vak": "Aardrijkskunde",
+   "leerjaar": "K2",
+   "soort": "G",
+   "domein": "Aardrijkskundige kennis",
+   "cluster": "Heelal",
+   "tekst": "De leerlingen kennen de volgende begrippen: de aarde, de maan, de zon, de sterren.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "4.3.GK2.1",
+   "vak": "Aardrijkskunde",
+   "leerjaar": "K2",
+   "soort": "G",
+   "domein": "Aardrijkskundige vaardigheden, onderzoek en denken",
+   "cluster": "Wereldbol",
+   "tekst": "De leerlingen kunnen een wereldbol herkennen als een verkleinde weergave van de aarde.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "4.3.GK2.2",
+   "vak": "Aardrijkskunde",
+   "leerjaar": "K2",
+   "soort": "G",
+   "domein": "Aardrijkskundige vaardigheden, onderzoek en denken",
+   "cluster": "Wereldbol",
+   "tekst": "De leerlingen kunnen voorgestelde elementen op een wereldbol identificeren.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "4.3.GK2.3",
+   "vak": "Aardrijkskunde",
+   "leerjaar": "K2",
+   "soort": "G",
+   "domein": "Aardrijkskundige vaardigheden, onderzoek en denken",
+   "cluster": "Maquette",
+   "tekst": "De leerlingen kunnen een maquette herkennen als een verkleinde weergave van een werkelijke ruimte.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "4.3.GK2.4",
+   "vak": "Aardrijkskunde",
+   "leerjaar": "K2",
+   "soort": "G",
+   "domein": "Aardrijkskundige vaardigheden, onderzoek en denken",
+   "cluster": "Weerkunde",
+   "tekst": "De leerlingen kunnen geobserveerde weersverschijnselen voorstellen door middel van pictogrammen.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "4.3.GK2.5",
+   "vak": "Aardrijkskunde",
+   "leerjaar": "K2",
+   "soort": "G",
+   "domein": "Aardrijkskundige vaardigheden, onderzoek en denken",
+   "cluster": "Weerkunde",
+   "tekst": "De leerlingen kunnen een neerslagvorm observeren: regen.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "4.3.GK2.6",
+   "vak": "Aardrijkskunde",
+   "leerjaar": "K2",
+   "soort": "G",
+   "domein": "Aardrijkskundige vaardigheden, onderzoek en denken",
+   "cluster": "Weerkunde",
+   "tekst": "De leerlingen kunnen een neerslagvorm observeren: sneeuw.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "4.3.GK2.7",
+   "vak": "Aardrijkskunde",
+   "leerjaar": "K2",
+   "soort": "G",
+   "domein": "Aardrijkskundige vaardigheden, onderzoek en denken",
+   "cluster": "Ruimtelijke posities, relaties en contrasten",
+   "tekst": "De leerlingen kunnen een actueel ruimtelijk vraagstuk bespreken in termen van gevolgen en relatieve meting.",
+   "kennis": "",
+   "herhaling": ""
+  }
+ ]
+}

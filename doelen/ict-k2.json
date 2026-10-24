@@ -1,0 +1,18 @@
+{
+ "bron": "Op.stap, leerroutes voor iedereen (Katholiek Onderwijs Vlaanderen), leerplanversie V1.3 van 24/10/2026",
+ "vak": "ICT",
+ "leerjaar": "K2",
+ "doelen": [
+  {
+   "code": "8.1.GK2.1",
+   "vak": "ICT",
+   "leerjaar": "K2",
+   "soort": "G",
+   "domein": "Computationeel denken",
+   "cluster": "Principes van computationeel denken",
+   "tekst": "De leerlingen kunnen onder begeleiding een eenvoudig stappenplan toepassen om een specifieke taak op te lossen of een doel te bereiken.",
+   "kennis": "",
+   "herhaling": ""
+  }
+ ]
+}

@@ -1,0 +1,293 @@
+{
+ "bron": "Op.stap, leerroutes voor iedereen (Katholiek Onderwijs Vlaanderen), leerplanversie V1.3 van 24/10/2026",
+ "vak": "Wetenschap en techniek",
+ "leerjaar": "JK",
+ "doelen": [
+  {
+   "code": "3.1.GJK.1",
+   "vak": "Wetenschap en techniek",
+   "leerjaar": "JK",
+   "soort": "G",
+   "domein": "Organismen",
+   "cluster": "Classificatie van organismen: begrippen",
+   "tekst": "De leerlingen kennen het volgende begrip met betrekking tot organismen: de planten.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "3.1.GJK.2",
+   "vak": "Wetenschap en techniek",
+   "leerjaar": "JK",
+   "soort": "G",
+   "domein": "Organismen",
+   "cluster": "Classificatie van organismen: begrippen",
+   "tekst": "De leerlingen kennen het volgende begrip met betrekking tot organismen: de dieren.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "3.1.GJK.3",
+   "vak": "Wetenschap en techniek",
+   "leerjaar": "JK",
+   "soort": "G",
+   "domein": "Organismen",
+   "cluster": "Classificatie van organismen: begrippen",
+   "tekst": "De leerlingen kunnen groei en ontwikkeling van organismen waarnemen.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "3.2.GJK.1",
+   "vak": "Wetenschap en techniek",
+   "leerjaar": "JK",
+   "soort": "G",
+   "domein": "Organismen en hun omgeving (biotoop)",
+   "cluster": "Relatie tussen organismen onderling en hun omgeving: begrippen",
+   "tekst": "De leerlingen kunnen veelvoorkomende organismen in hun omgeving herkennen.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "3.2.GJK.2",
+   "vak": "Wetenschap en techniek",
+   "leerjaar": "JK",
+   "soort": "G",
+   "domein": "Organismen en hun omgeving (biotoop)",
+   "cluster": "Relatie tussen organismen onderling",
+   "tekst": "De leerlingen kunnen benoemen wat ze eten.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "3.2.GJK.3",
+   "vak": "Wetenschap en techniek",
+   "leerjaar": "JK",
+   "soort": "G",
+   "domein": "Organismen en hun omgeving (biotoop)",
+   "cluster": "Afval",
+   "tekst": "De leerlingen kunnen met ondersteuning afval sorteren in functionele situaties.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "3.2.GJK.4",
+   "vak": "Wetenschap en techniek",
+   "leerjaar": "JK",
+   "soort": "G",
+   "domein": "Organismen en hun omgeving (biotoop)",
+   "cluster": "Energiebronnen en voedingsstoffen: begrippen",
+   "tekst": "De leerlingen kennen verschillende voedingsmiddelen.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "3.2.GJK.5",
+   "vak": "Wetenschap en techniek",
+   "leerjaar": "JK",
+   "soort": "G",
+   "domein": "Organismen en hun omgeving (biotoop)",
+   "cluster": "Energiebronnen en voedingsstoffen: begrippen",
+   "tekst": "De leerlingen kunnen aangeven dat je moet eten wanneer je honger hebt en drinken wanneer je dorst hebt.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "3.3.GJK.1",
+   "vak": "Wetenschap en techniek",
+   "leerjaar": "JK",
+   "soort": "G",
+   "domein": "Menselijk lichaam",
+   "cluster": "Fysieke functies van de mens: begrippen",
+   "tekst": "De leerlingen kennen de volgende begrippen: de armen, de benen, de handen, de vingers, de voeten, de tenen, de buik, de rug, de schouders.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "3.3.GJK.2",
+   "vak": "Wetenschap en techniek",
+   "leerjaar": "JK",
+   "soort": "G",
+   "domein": "Menselijk lichaam",
+   "cluster": "Fysieke functies van de mens: begrippen",
+   "tekst": "De leerlingen kennen de volgende begrippen: het hoofd, de ogen, de oren, de neus, de mond, het haar.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "3.3.GJK.3",
+   "vak": "Wetenschap en techniek",
+   "leerjaar": "JK",
+   "soort": "G",
+   "domein": "Menselijk lichaam",
+   "cluster": "Fysieke functies van de mens: begrippen",
+   "tekst": "De leerlingen kunnen deze lichaamsdelen op het eigen lichaam aanduiden en benoemen: de armen, de benen, de handen, de vingers, de voeten, de tenen, de buik, de rug, de schouders, het hoofd, de ogen, de oren, de neus, de mond, het haar.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "3.4.GJK.1",
+   "vak": "Wetenschap en techniek",
+   "leerjaar": "JK",
+   "soort": "G",
+   "domein": "Materie",
+   "cluster": "Eigenschappen van materie: begrippen",
+   "tekst": "De leerlingen kunnen veelvoorkomende vormen van materie in hun omgeving herkennen.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "3.4.GJK.2",
+   "vak": "Wetenschap en techniek",
+   "leerjaar": "JK",
+   "soort": "G",
+   "domein": "Materie",
+   "cluster": "Eigenschappen van materie: begrippen",
+   "tekst": "De leerlingen kunnen eigenschappen van materie benoemen op basis van zintuiglijke waarneming.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "3.5.GJK.1",
+   "vak": "Wetenschap en techniek",
+   "leerjaar": "JK",
+   "soort": "G",
+   "domein": "Natuurkundige verschijnselen",
+   "cluster": "Licht: begrippen",
+   "tekst": "De leerlingen kennen de volgende begrippen met betrekking tot natuurkundige verschijnselen: de zon, licht, donker.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "3.5.GJK.2",
+   "vak": "Wetenschap en techniek",
+   "leerjaar": "JK",
+   "soort": "G",
+   "domein": "Natuurkundige verschijnselen",
+   "cluster": "Licht: begrippen",
+   "tekst": "De leerlingen kunnen licht en donker onderscheiden en benoemen.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "3.5.GJK.3",
+   "vak": "Wetenschap en techniek",
+   "leerjaar": "JK",
+   "soort": "G",
+   "domein": "Natuurkundige verschijnselen",
+   "cluster": "Licht: begrippen",
+   "tekst": "De leerlingen kunnen lichtbronnen aanduiden.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "3.5.GJK.4",
+   "vak": "Wetenschap en techniek",
+   "leerjaar": "JK",
+   "soort": "G",
+   "domein": "Natuurkundige verschijnselen",
+   "cluster": "Elektriciteit: begrippen",
+   "tekst": "De leerlingen weten dat sommige toestellen elektriciteit nodig hebben om te werken.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "3.7.GJK.1",
+   "vak": "Wetenschap en techniek",
+   "leerjaar": "JK",
+   "soort": "G",
+   "domein": "Wetenschappelijke en technologische problemen onderzoeken",
+   "cluster": "Onderzoekende houding: begrippen",
+   "tekst": "De leerlingen kunnen met minstens één zintuig een organisme, een voorwerp, materie, een technisch systeem of natuurkundig verschijnsel verkennen.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "3.7.GJK.2",
+   "vak": "Wetenschap en techniek",
+   "leerjaar": "JK",
+   "soort": "G",
+   "domein": "Wetenschappelijke en technologische problemen onderzoeken",
+   "cluster": "Onderzoekende houding: begrippen",
+   "tekst": "De leerlingen kunnen benoemen wat ze zien, ruiken, horen of voelen tijdens een activiteit.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "3.7.GJK.3",
+   "vak": "Wetenschap en techniek",
+   "leerjaar": "JK",
+   "soort": "G",
+   "domein": "Wetenschappelijke en technologische problemen onderzoeken",
+   "cluster": "Onderzoekende houding: begrippen",
+   "tekst": "De leerlingen kunnen eenvoudige vragen stellen over wat ze zien of beleven.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "3.7.GJK.4",
+   "vak": "Wetenschap en techniek",
+   "leerjaar": "JK",
+   "soort": "G",
+   "domein": "Wetenschappelijke en technologische problemen onderzoeken",
+   "cluster": "Ontwerpend leren: begrippen",
+   "tekst": "De leerlingen kunnen ontdekken dat er soms iets ontbreekt of niet goed werkt in hun spel of hun omgeving.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "3.6.GJK.1",
+   "vak": "Wetenschap en techniek",
+   "leerjaar": "JK",
+   "soort": "G",
+   "domein": "Technologie",
+   "cluster": "Technische systemen hanteren: begrippen",
+   "tekst": "De leerlingen kunnen eenvoudige technische systemen verkennen door te kijken, te voelen en uit te proberen hoe ze werken.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "3.6.GJK.2",
+   "vak": "Wetenschap en techniek",
+   "leerjaar": "JK",
+   "soort": "G",
+   "domein": "Technologie",
+   "cluster": "Technische systemen hanteren: begrippen",
+   "tekst": "De leerlingen kunnen eenvoudige technische handelingen uitvoeren: duwen, trekken, draaien, schuiven, knijpen, tillen en losmaken.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "3.6.GJK.3",
+   "vak": "Wetenschap en techniek",
+   "leerjaar": "JK",
+   "soort": "G",
+   "domein": "Technologie",
+   "cluster": "Technische systemen hanteren: begrippen",
+   "tekst": "De leerlingen kunnen met ondersteuning leeftijdsadequate technische systemen correct en veilig gebruiken.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "3.6.GJK.4",
+   "vak": "Wetenschap en techniek",
+   "leerjaar": "JK",
+   "soort": "G",
+   "domein": "Technologie",
+   "cluster": "Constructies",
+   "tekst": "De leerlingen kunnen materialen stapelen tot een eenvoudige constructie.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "3.6.GJK.5",
+   "vak": "Wetenschap en techniek",
+   "leerjaar": "JK",
+   "soort": "G",
+   "domein": "Technologie",
+   "cluster": "Constructies",
+   "tekst": "De leerlingen kunnen ervaren dat sommige stapelingen blijven staan en andere omvallen.",
+   "kennis": "",
+   "herhaling": ""
+  }
+ ]
+}
