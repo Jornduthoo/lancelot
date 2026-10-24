@@ -294,7 +294,7 @@ const Glow = (() => {
   }
   // Teken een lichtvlek met straal r. sy < 1 maakt hem plat (een lichtplas op de grond).
   function glow(ctx, x, y, r, color, alpha = 1, sy = 1) {
-    if (r <= 0 || alpha <= 0) return;
+    if (r <= 0 || alpha <= 0 || !color) return;
     const op = ctx.globalCompositeOperation, ga = ctx.globalAlpha;
     ctx.globalCompositeOperation = 'lighter';
     ctx.globalAlpha = ga * Math.min(1, alpha);

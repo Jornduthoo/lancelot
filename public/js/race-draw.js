@@ -3,7 +3,7 @@
 const RaceDraw = (() => {
   const T = Track;
   const COLORS = ['#ff4d6d', '#4cc9ff', '#ffd166', '#7bf1a8', '#c77dff', '#ff9f1c', '#f15bb5', '#e8f1ff'];
-  const colorOf = c => COLORS[((c % COLORS.length) + COLORS.length) % COLORS.length];
+  const colorOf = c => COLORS[((c % COLORS.length) + COLORS.length) % COLORS.length] || COLORS[0];
   const CAM_H = 1000;
   const DEPTH = 1 / Math.tan((100 / 2) * Math.PI / 180);
   const PLAYER_Z = CAM_H * DEPTH;
