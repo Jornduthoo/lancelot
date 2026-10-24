@@ -1278,3 +1278,40 @@ body:not([data-rk="1"]) #rijk { display: none !important; }
 .doel-chip button { padding: 4px 10px; }
 .klas-switch { margin-top: 10px; font-size: .85rem; padding: 6px 12px; }
 #ob-work .klas-switch { margin: 0 0 0 8px; }
+
+/* ---------- Pac-Knight ---------- */
+body[data-pk="1"] #toernooi, body[data-pk="1"] #rondetafel, body[data-pk="1"] #toren, body[data-pk="1"] #schat, body[data-pk="1"] #laserslag, body[data-pk="1"] #ridderrace, body[data-pk="1"] #kristalroof, body[data-pk="1"] #verrader, body[data-pk="1"] #oefenblad, body[data-pk="1"] #burcht, body[data-pk="1"] #duel, body[data-pk="1"] #rijk { display: none !important; }
+body:not([data-pk="1"]) #packnight { display: none !important; }
+#packnight { display: contents; }
+#pk-game { position: fixed; inset: 0; z-index: 20; display: flex; flex-direction: column; background: #03060d; user-select: none; -webkit-user-select: none; }
+#pk-game.hidden { display: none; }
+.pk-hud { gap: 12px; }
+.pk-crystals { display: flex; align-items: center; gap: 6px; color: var(--cyan); font-size: 1.3rem; text-shadow: 0 0 10px var(--cyan-glow); }
+.pk-pellets { display: flex; gap: 2px; font-style: normal; }
+.pk-pellets i { font-style: normal; font-size: 1.15rem; opacity: .2; filter: grayscale(1); transition: opacity .2s, transform .2s; }
+.pk-pellets i.on { opacity: 1; filter: none; transform: scale(1.1); }
+.pk-power { width: 90px; height: 10px; border-radius: 5px; background: rgba(255, 201, 74, .15); box-shadow: inset 0 0 0 1px var(--gold); overflow: hidden; }
+.pk-power i { display: block; height: 100%; background: linear-gradient(90deg, #ffb703, #fff3b0); box-shadow: 0 0 12px var(--gold); }
+.pk-power.hidden { display: none; }
+.pk-rank { margin-left: auto; color: var(--gold); font-size: 1rem; }
+.pk-pad { position: absolute; left: 12px; bottom: 12px; display: grid; grid-template-columns: repeat(3, 62px); grid-template-rows: repeat(3, 62px); gap: 4px; }
+.pk-pad .ls-btn { width: 62px; height: 62px; font-size: 1.5rem; border-radius: 14px; background: rgba(76, 201, 255, .16); box-shadow: inset 0 0 0 2px rgba(76, 201, 255, .7); color: var(--cyan); }
+.pk-pad .ls-btn.down { background: rgba(76, 201, 255, .45); transform: scale(.94); }
+.pk-pad [data-dir="0"] { grid-column: 2; grid-row: 1; }
+.pk-pad [data-dir="3"] { grid-column: 1; grid-row: 2; }
+.pk-pad [data-dir="1"] { grid-column: 3; grid-row: 2; }
+.pk-pad [data-dir="2"] { grid-column: 2; grid-row: 3; }
+.pk-use { width: 96px; height: 96px; background: rgba(255, 201, 74, .12); box-shadow: inset 0 0 0 2px rgba(255, 201, 74, .4); opacity: .55; }
+.pk-use.ready { opacity: 1; background: radial-gradient(circle at 40% 35%, #fff3b0, #ffb703); box-shadow: 0 0 26px rgba(255, 201, 74, .7); color: #2a1a00; animation: breathe 1.2s ease-in-out infinite; }
+#pk-question .tw-q-result small { display: block; margin-top: 4px; font-size: .95rem; color: var(--muted); }
+@media (hover: hover) and (pointer: fine) { .pk-pad { display: none; } }
+@media (max-width: 520px) {
+  .pk-hud { gap: 8px; padding: 6px 8px; }
+  .pk-power { width: 54px; }
+  .pk-pad { grid-template-columns: repeat(3, 54px); grid-template-rows: repeat(3, 54px); }
+  .pk-pad .ls-btn { width: 54px; height: 54px; }
+  .pk-use { width: 84px; height: 84px; }
+}
+.pk-logo { filter: drop-shadow(0 0 24px rgba(255, 201, 74, .5)); }
+.pk-board { height: calc(100vh - 190px); }
+.pk-stage { background: #03060d; }

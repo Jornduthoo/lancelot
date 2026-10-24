@@ -16,6 +16,7 @@ const { Ridderrace } = require('./src/ridderrace');
 const { Kristalroof } = require('./src/kristalroof');
 const { Burcht } = require('./src/burcht');
 const { Duel } = require('./src/duel');
+const { PacKnight } = require('./src/packnight');
 const rijken = require('./src/rijk');
 const avatars = require('./src/avatars');
 const { Verrader } = require('./src/verrader');
@@ -93,6 +94,12 @@ const duel = new Duel(io, d => {
   return file;
 });
 
+const knight = new PacKnight(io, k => {
+  const file = results.saveKnight(k);
+  io.to('host').emit('results', results.list());
+  return file;
+});
+
 const rijk = new rijken.Rijk(io, r => {
   const file = results.saveRijk(r);
   io.to('host').emit('results', results.list());
@@ -110,7 +117,7 @@ const busyError = message => Object.assign(new Error(message), { busy: true });
 
 // Alles stoppen wat nog loopt (behalve het spel dat je wil starten). De resultaten worden bewaard zoals bij Stop.
 function stopOthers(except) {
-  const all = { toernooi: game, rondetafel: rt, toren, schat, laserslag, race, roof, verrader, burcht, duel, rijk, oefenblad };
+  const all = { toernooi: game, rondetafel: rt, toren, schat, laserslag, race, roof, verrader, burcht, duel, knight, rijk, oefenblad };
   for (const [key, mod] of Object.entries(all)) {
     if (key === except) continue;
     if (key === 'toernooi' ? game.phase !== 'idle' : mod.active) mod.stop();
@@ -128,6 +135,7 @@ function busyWith(except) {
   if (except !== 'verrader' && verrader.active) return 'De Verrader loopt nog. Stop dat spel eerst.';
   if (except !== 'burcht' && burcht.active) return 'Burchtbouwers loopt nog. Stop dat spel eerst.';
   if (except !== 'duel' && duel.active) return 'Duel in de arena loopt nog. Stop dat eerst.';
+  if (except !== 'knight' && knight.active) return 'Pac-Knight loopt nog. Stop dat spel eerst.';
   if (except !== 'rijk' && rijk.active) return 'Het Rijk loopt nog. Stop dat spel eerst.';
   if (except !== 'oefenblad' && oefenblad.active) return 'Er staat nog een oefenblad open. Sluit dat eerst.';
   return null;
@@ -151,7 +159,7 @@ function isLocal(address) {
   return ['127.0.0.1', '::1', '::ffff:127.0.0.1'].includes(address);
 }
 
-for (const [route, page] of [['/host', 'host.html'], ['/rondetafel', 'rondetafel.html'], ['/toren', 'toren.html'], ['/schattenjacht', 'schattenjacht.html'], ['/laserslag', 'laserslag.html'], ['/ridderrace', 'ridderrace.html'], ['/kristalroof', 'kristalroof.html'], ['/verrader', 'verrader.html'], ['/burchtbouwers', 'burchtbouwers.html'], ['/duel', 'duel.html'], ['/rijk', 'rijk.html'], ['/oefenblad', 'oefenblad.html'], ['/oefenblad-print', 'oefenblad-print.html'], ['/klas', 'klas.html']]) {
+for (const [route, page] of [['/host', 'host.html'], ['/rondetafel', 'rondetafel.html'], ['/toren', 'toren.html'], ['/schattenjacht', 'schattenjacht.html'], ['/laserslag', 'laserslag.html'], ['/ridderrace', 'ridderrace.html'], ['/kristalroof', 'kristalroof.html'], ['/verrader', 'verrader.html'], ['/burchtbouwers', 'burchtbouwers.html'], ['/duel', 'duel.html'], ['/packnight', 'packnight.html'], ['/rijk', 'rijk.html'], ['/oefenblad', 'oefenblad.html'], ['/oefenblad-print', 'oefenblad-print.html'], ['/klas', 'klas.html']]) {
   app.get(route, (req, res) => {
     if (!isLocal(req.socket.remoteAddress)) return res.status(403).send('Het docentenscherm is alleen bereikbaar op de pc van de leerkracht.');
     res.setHeader('Cache-Control', 'no-cache');
@@ -290,6 +298,7 @@ io.on('connection', socket => {
     socket.emit('kr-state', roof.hostState());
     socket.emit('bb-state', burcht.hostState());
     socket.emit('du-state', duel.hostState());
+    socket.emit('pk-state', knight.hostState());
     socket.emit('rk-state', rijk.hostState());
     socket.emit('vr-state', verrader.hostState());
     socket.emit('ob-state', oefenblad.hostState());
@@ -490,6 +499,19 @@ io.on('connection', socket => {
     socket.on('du-finish', () => duel.finish());
     socket.on('du-restart', () => duel.quiz && duel.load(duel.quiz, duel.hearts));
     socket.on('du-stop', (_, cb) => cb && cb({ file: duel.stop() }));
+
+    // Pac-Knight
+    socket.on('pk-load', handle(({ file, minutes, tempo } = {}) => {
+      const busy = busyWith('knight');
+      if (busy) throw busyError(busy);
+      knight.load(quizzes.load(file), Number(minutes), tempo);
+      return {};
+    }));
+    socket.on('pk-start', () => knight.start());
+    socket.on('pk-kick', id => knight.kick(id));
+    socket.on('pk-finish', () => knight.finish());
+    socket.on('pk-restart', () => knight.quiz && knight.load(knight.quiz, knight.minutes, knight.tempo));
+    socket.on('pk-stop', (_, cb) => cb && cb({ file: knight.stop() }));
 
     // Het Rijk
     socket.on('rk-list', (_, cb) => cb && cb(rijken.list()));
@@ -723,6 +745,25 @@ io.on('connection', socket => {
     if (typeof cb === 'function') cb(out || {});
   });
 
+  // Pac-Knight
+  socket.emit('pk-state', knight.base());
+  socket.on('pk-join', ({ playerId, name } = {}, cb) => {
+    if (!validId(playerId)) return cb && cb({ error: 'Ongeldige speler.' });
+    const result = knight.join(playerId, name, socket.id);
+    socket.data.pkId = result.ok ? playerId : null;
+    cb && cb(result);
+    if (result.ok) socket.emit('pk-state', knight.playerState(playerId));
+  });
+  const pk = fn => (arg, cb) => {
+    const out = socket.data.pkId ? fn(socket.data.pkId, arg) : { error: 'Meld je eerst aan.' };
+    if (typeof cb === 'function') cb(out || {});
+  };
+  socket.on('pk-dir', pk((id, dir) => knight.steer(id, Number(dir))));
+  socket.on('pk-power', pk(id => knight.power(id)));
+  socket.on('pk-asking', pk((id, on) => knight.asking(id, on)));
+  socket.on('pk-question', pk(id => knight.question(id)));
+  socket.on('pk-answer', pk((id, choice) => knight.answer(id, choice)));
+
   // Het Rijk
   socket.emit('rk-state', rijk.base());
   socket.on('rk-join', ({ playerId, name } = {}, cb) => {
@@ -800,6 +841,7 @@ io.on('connection', socket => {
   socket.on('disconnect', () => {
     if (socket.data.lsId) laserslag.asking(socket.data.lsId, false);
     if (socket.data.rrId) race.asking(socket.data.rrId, false);
+    if (socket.data.pkId) knight.asking(socket.data.pkId, false);
   });
 
   // De Ronde Tafel: anoniem, alleen een vaste id per browser.

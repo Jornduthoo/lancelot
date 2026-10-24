@@ -19,7 +19,7 @@ Laat het zwarte venster openstaan zolang je speelt. Dat is de server.
 
 De eerste keer kiest elke leerling na het aanmelden een **eigen ridder** (ridder of ridderes, haar, helm, harnas, rug, wapen, schild). Die blijft op zijn naam bewaard en komt terug in elk spel. Aanpassen kan altijd met **🛡️ Pas je ridder aan**.
 
-Bij de Ridderrace, Laserslag en de toren kies je ook het **tempo van de vragen**: *rustig*, *normaal* of *intens* (vaker nieuwe vragen).
+Bij de Ridderrace, Laserslag, de toren en Pac-Knight kies je ook het **tempo van de vragen**: *rustig*, *normaal* of *intens* (vaker nieuwe vragen).
 
 ## De Ronde Tafel
 
@@ -82,6 +82,15 @@ Tip: de rollen staan nooit op het bord, tot iemand verbannen wordt of het spel v
 4. Als de tijd om is, valt de draak aan. Met **De draak nu laten komen** kan het ook vroeger.
 
 Tip: zeg vooraf dat het samenwerken is. Wie op het bord ziet dat de poort te laag is, bouwt best daar.
+
+## Pac-Knight
+
+1. Kies op het startscherm **De Arena** en dan **Pac-Knight**, kies de speeltijd en het tempo en klik op de quiz.
+2. Leerlingen scannen de QR-code. Klik op **Het doolhof in!** Wie later binnenkomt, kan nog meedoen.
+3. Leerlingen lopen met vegen of de pijlen (Chromebook: pijltjes of WASD). Met **⚡ Vraag** (of E) verdienen ze een 💥 kracht, met **💥** (of spatie) gebruiken ze die.
+4. Met **Nu stoppen** toon je meteen de eindstand.
+
+Tip: zeg vooraf dat gokken niet loont. Na een fout antwoord moet je even wachten en komt de vraag terug.
 
 ## Duel in de arena
 

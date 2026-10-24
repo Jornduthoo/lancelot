@@ -130,7 +130,7 @@ $('new-empty').addEventListener('click', () => {
 // Vanuit een ander spel een quiz maken: daarna gaan we daar weer naartoe.
 const params = new URLSearchParams(location.search);
 // Elk spel met een knop 'Nieuwe quiz' moet hier staan, anders opent de quizmaker niet.
-const GAMES = ['/toren', '/schattenjacht', '/laserslag', '/ridderrace', '/kristalroof', '/verrader', '/burchtbouwers', '/duel', '/rijk'];
+const GAMES = ['/toren', '/schattenjacht', '/laserslag', '/ridderrace', '/kristalroof', '/verrader', '/burchtbouwers', '/duel', '/packnight', '/rijk'];
 const returnTo = GAMES.includes(params.get('terug')) ? params.get('terug') : null;
 
 for (const b of document.querySelectorAll('[data-back]')) {
