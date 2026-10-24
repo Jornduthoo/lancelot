@@ -37,6 +37,7 @@ const opwarmer = require('./src/opwarmer');
 const results = require('./src/results');
 const { execFile } = require('child_process');
 const { generateQuiz } = require('./src/gemini');
+const antigok = require('./src/antigok');
 
 const PORT = Number(process.env.PORT) || 3000;
 
@@ -161,6 +162,27 @@ const oefenblad = new OefenbladLive(io, o => {
   io.to('host').emit('results', results.list());
   return file;
 });
+
+// Tegen gokken: elk spel krijgt dezelfde regels (wachten na fout, vraag komt terug, seintje bij snel gokken).
+const gok = antigok.create(io);
+const guarded = {
+  toren: gok.guard(toren, 'toren', 'De prinses in de toren'),
+  schat: gok.guard(schat, 'schat', 'Schattenjacht'),
+  laserslag: gok.guard(laserslag, 'laserslag', 'Laserslag'),
+  race: gok.guard(race, 'race', 'Ridderrace'),
+  roof: gok.guard(roof, 'roof', 'Kristalroof'),
+  verrader: gok.guard(verrader, 'verrader', 'De Verrader'),
+  burcht: gok.guard(burcht, 'burcht', 'Burchtbouwers'),
+  rijk: gok.guard(rijk, 'rijk', 'Het Rijk'),
+  knight: gok.guard(knight, 'knight', 'Pac-Knight', { own: true }),
+  rossen: gok.guard(rossen, 'rossen', 'Strijdrossen', { own: true }),
+  galaga: gok.guard(galaga, 'galaga', 'Cyber-Galaga', { own: true }),
+  neon: gok.guard(neon, 'neon', 'Neon Duel', { own: true }),
+  gauntlet: gok.guard(gauntlet, 'gauntlet', 'Gauntlet', { own: true }),
+  bomber: gok.guard(bomber, 'bomber', 'Bomber-Knight', { own: true }),
+  baas: gok.guard(baas, 'baas', 'Leraar-baas', { own: true }),
+  royale: gok.guard(royale, 'royale', 'Ridder-Royale', { own: true }),
+};
 
 // Er loopt altijd hooguit één spel tegelijk.
 const busyError = message => Object.assign(new Error(message), { busy: true });
@@ -784,7 +806,16 @@ io.on('connection', socket => {
   });
 
   socket.on('answer', choice => {
-    if (socket.data.playerId) game.answer(socket.data.playerId, choice);
+    const id = socket.data.playerId;
+    if (!id) return;
+    const p = game.players.get(id);
+    const q = game.quiz && game.quiz.questions[game.index];
+    const open = p && q && game.phase === 'question' && p.answer === null;
+    game.answer(id, choice);
+    // Te snel en fout, drie keer na elkaar: een seintje voor de leerkracht.
+    if (open && p.answer === choice) {
+      gok.judge('toernooi', id, { correct: choice === q.correct, ms: p.answeredAt, limit: antigok.fastMs(q.question, q.answers), name: p.name, socketId: socket.id, spel: 'Toernooi' });
+    }
   });
 
   // De prinses in de toren
@@ -803,8 +834,8 @@ io.on('connection', socket => {
   socket.on('tw-jump', tw(id => toren.jump(id)));
   socket.on('tw-move', tw((id, pos) => toren.move(id, pos)));
   socket.on('tw-hit', tw((id, what) => toren.hit(id, what)));
-  socket.on('tw-question', tw(id => toren.question(id)));
-  socket.on('tw-answer', tw((id, choice) => toren.answer(id, choice)));
+  socket.on('tw-question', tw(id => guarded.toren.question(id)));
+  socket.on('tw-answer', tw((id, choice) => guarded.toren.answer(id, choice)));
 
   // Schattenjacht
   socket.emit('sj-state', schat.base());
@@ -819,8 +850,8 @@ io.on('connection', socket => {
     const out = socket.data.sjId ? fn(socket.data.sjId, arg) : { error: 'Meld je eerst aan.' };
     if (typeof cb === 'function') cb(out || {});
   };
-  socket.on('sj-question', sj(id => schat.question(id)));
-  socket.on('sj-answer', sj((id, choice) => schat.answer(id, choice)));
+  socket.on('sj-question', sj(id => guarded.schat.question(id)));
+  socket.on('sj-answer', sj((id, choice) => guarded.schat.answer(id, choice)));
   socket.on('sj-buy', sj((id, item) => schat.buy(id, item)));
 
   // Laserslag
@@ -843,8 +874,8 @@ io.on('connection', socket => {
   socket.on('ls-move', ls((id, pos) => laserslag.move(id, pos)));
   socket.on('ls-shoot', ls((id, angle) => laserslag.shoot(id, angle)));
   socket.on('ls-asking', ls((id, on) => laserslag.asking(id, on)));
-  socket.on('ls-question', ls(id => laserslag.question(id)));
-  socket.on('ls-answer', ls((id, choice) => laserslag.answer(id, choice)));
+  socket.on('ls-question', ls(id => guarded.laserslag.question(id)));
+  socket.on('ls-answer', ls((id, choice) => guarded.laserslag.answer(id, choice)));
   // Ridderrace
   socket.emit('rr-state', race.base());
   socket.on('rr-join', ({ playerId, name } = {}, cb) => {
@@ -865,8 +896,8 @@ io.on('connection', socket => {
   socket.on('rr-crystal', rr((id, seg) => race.crystal(id, seg)));
   socket.on('rr-turbo', rr(id => race.turbo(id)));
   socket.on('rr-asking', rr((id, on) => race.asking(id, on)));
-  socket.on('rr-question', rr(id => race.question(id)));
-  socket.on('rr-answer', rr((id, choice) => race.answer(id, choice)));
+  socket.on('rr-question', rr(id => guarded.race.question(id)));
+  socket.on('rr-answer', rr((id, choice) => guarded.race.answer(id, choice)));
 
   // Burchtbouwers
   socket.emit('bb-state', burcht.base());
@@ -881,8 +912,8 @@ io.on('connection', socket => {
     const out = socket.data.bbId ? fn(socket.data.bbId, arg) : { error: 'Meld je eerst aan.' };
     if (typeof cb === 'function') cb(out || {});
   };
-  socket.on('bb-question', bb(id => burcht.question(id)));
-  socket.on('bb-answer', bb((id, choice) => burcht.answer(id, choice)));
+  socket.on('bb-question', bb(id => guarded.burcht.question(id)));
+  socket.on('bb-answer', bb((id, choice) => guarded.burcht.answer(id, choice)));
   socket.on('bb-place', bb((id, i) => burcht.place(id, Number(i))));
 
   // Duel in de arena
@@ -895,7 +926,14 @@ io.on('connection', socket => {
     if (result.ok) socket.emit('du-state', duel.playerState(playerId));
   });
   socket.on('du-answer', (choice, cb) => {
-    const out = socket.data.duId ? duel.answer(socket.data.duId, choice) : { error: 'Meld je eerst aan.' };
+    const id = socket.data.duId;
+    const m = id && duel.matchOf(id);
+    const q = m && m.q !== null && duel.quiz.questions[m.q];
+    const ms = m ? Date.now() - m.qAt : 0;
+    const out = id ? duel.answer(id, choice) : { error: 'Meld je eerst aan.' };
+    if (q && out && typeof out.correct === 'boolean') {
+      gok.judge('duel', id, { correct: out.correct, ms, limit: antigok.fastMs(q.question, q.answers), name: duel.players.get(id).name, socketId: socket.id, spel: 'Duel in de arena' });
+    }
     if (typeof cb === 'function') cb(out || {});
   });
 
@@ -915,8 +953,8 @@ io.on('connection', socket => {
   socket.on('pk-dir', pk((id, dir) => knight.steer(id, Number(dir))));
   socket.on('pk-power', pk(id => knight.power(id)));
   socket.on('pk-asking', pk((id, on) => knight.asking(id, on)));
-  socket.on('pk-question', pk(id => knight.question(id)));
-  socket.on('pk-answer', pk((id, choice) => knight.answer(id, choice)));
+  socket.on('pk-question', pk(id => guarded.knight.question(id)));
+  socket.on('pk-answer', pk((id, choice) => guarded.knight.answer(id, choice)));
 
   // Cyber-Galaga
   socket.emit('cg-state', galaga.base());
@@ -931,8 +969,8 @@ io.on('connection', socket => {
     const out = socket.data.cgId ? fn(socket.data.cgId, arg) : { error: 'Meld je eerst aan.' };
     if (typeof cb === 'function') cb(out || {});
   };
-  socket.on('cg-question', cg(id => galaga.question(id)));
-  socket.on('cg-answer', cg((id, choice) => galaga.answer(id, choice)));
+  socket.on('cg-question', cg(id => guarded.galaga.question(id)));
+  socket.on('cg-answer', cg((id, choice) => guarded.galaga.answer(id, choice)));
   socket.on('cg-reward', cg((id, kind) => galaga.reward(id, String(kind))));
   socket.on('cg-bomb', cg(id => galaga.bomb(id)));
   socket.on('cg-report', cg((id, r) => galaga.report(id, r)));
@@ -953,11 +991,11 @@ io.on('connection', socket => {
   socket.on('bk-dir', bk((id, dir) => bomber.steer(id, Number(dir))));
   socket.on('bk-mine', bk(id => bomber.mine(id)));
   socket.on('bk-asking', bk((id, on) => bomber.asking(id, on)));
-  socket.on('bk-question', bk(id => bomber.question(id)));
-  socket.on('bk-answer', bk((id, choice) => bomber.answer(id, choice)));
+  socket.on('bk-question', bk(id => guarded.bomber.question(id)));
+  socket.on('bk-answer', bk((id, choice) => guarded.bomber.answer(id, choice)));
   // Gauntlet en Ridder-Royale
-  gauntlet.attachPlayer(socket, validId);
-  royale.attachPlayer(socket, validId);
+  gauntlet.attachPlayer(socket, validId, guarded.gauntlet);
+  royale.attachPlayer(socket, validId, guarded.royale);
 
   // Strijdrossen
   socket.emit('sr-state', rossen.base());
@@ -975,8 +1013,8 @@ io.on('connection', socket => {
   socket.on('sr-move', sr((id, pos) => rossen.move(id, pos)));
   socket.on('sr-fire', sr((id, shot) => rossen.fire(id, shot)));
   socket.on('sr-asking', sr((id, on) => rossen.asking(id, on)));
-  socket.on('sr-question', sr(id => rossen.question(id)));
-  socket.on('sr-answer', sr((id, choice) => rossen.answer(id, choice)));
+  socket.on('sr-question', sr(id => guarded.rossen.question(id)));
+  socket.on('sr-answer', sr((id, choice) => guarded.rossen.answer(id, choice)));
 
   // Neon Duel
   socket.emit('nd-state', neon.base());
@@ -991,8 +1029,8 @@ io.on('connection', socket => {
     const out = socket.data.ndId ? fn(socket.data.ndId, arg) : { error: 'Meld je eerst aan.' };
     if (typeof cb === 'function') cb(out || {});
   };
-  socket.on('nd-question', nd(id => neon.question(id)));
-  socket.on('nd-answer', nd((id, choice) => neon.answer(id, choice)));
+  socket.on('nd-question', nd(id => guarded.neon.question(id)));
+  socket.on('nd-answer', nd((id, choice) => guarded.neon.answer(id, choice)));
 
   // Leraar-baas
   socket.emit('lb-state', baas.base());
@@ -1007,8 +1045,8 @@ io.on('connection', socket => {
     const out = socket.data.lbId ? fn(socket.data.lbId, arg) : { error: 'Meld je eerst aan.' };
     if (typeof cb === 'function') cb(out || {});
   };
-  socket.on('lb-question', lb(id => baas.question(id)));
-  socket.on('lb-answer', lb((id, choice) => baas.answer(id, choice)));
+  socket.on('lb-question', lb(id => guarded.baas.question(id)));
+  socket.on('lb-answer', lb((id, choice) => guarded.baas.answer(id, choice)));
 
   // Het Rijk
   socket.emit('rk-state', rijk.base());
@@ -1023,8 +1061,8 @@ io.on('connection', socket => {
     const out = socket.data.rkId ? fn(socket.data.rkId, arg) : { error: 'Meld je eerst aan.' };
     if (typeof cb === 'function') cb(out || {});
   };
-  socket.on('rk-question', rk(id => rijk.question(id)));
-  socket.on('rk-answer', rk((id, choice) => rijk.answer(id, choice)));
+  socket.on('rk-question', rk(id => guarded.rijk.question(id)));
+  socket.on('rk-answer', rk((id, choice) => guarded.rijk.answer(id, choice)));
   socket.on('rk-act', rk((id, i) => rijk.act(id, Number(i))));
 
   // Kristalroof
@@ -1041,8 +1079,8 @@ io.on('connection', socket => {
     if (typeof cb === 'function') cb(out || {});
   };
   socket.on('kr-secret', kr((id, word) => roof.secret(id, word)));
-  socket.on('kr-question', kr(id => roof.question(id)));
-  socket.on('kr-answer', kr((id, choice) => roof.answer(id, choice)));
+  socket.on('kr-question', kr(id => guarded.roof.question(id)));
+  socket.on('kr-answer', kr((id, choice) => guarded.roof.answer(id, choice)));
   socket.on('kr-open', kr((id, i) => roof.open(id, i)));
   socket.on('kr-target', kr((id, t) => roof.target(id, t)));
   socket.on('kr-guess', kr((id, w) => roof.guess(id, w)));
@@ -1061,8 +1099,8 @@ io.on('connection', socket => {
     const out = socket.data.vrId ? fn(socket.data.vrId, arg) : { error: 'Meld je eerst aan.' };
     if (typeof cb === 'function') cb(out || {});
   };
-  socket.on('vr-question', vr(id => verrader.question(id)));
-  socket.on('vr-answer', vr((id, choice) => verrader.answer(id, choice)));
+  socket.on('vr-question', vr(id => guarded.verrader.question(id)));
+  socket.on('vr-answer', vr((id, choice) => guarded.verrader.answer(id, choice)));
   socket.on('vr-spell', vr((id, t) => verrader.spell(id, t)));
   socket.on('vr-horn', vr(id => verrader.horn(id)));
   socket.on('vr-vote', vr((id, t) => verrader.vote(id, t === null ? null : String(t))));

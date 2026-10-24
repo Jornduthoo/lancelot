@@ -1377,3 +1377,16 @@ body:not([data-sr="1"]) #rossen { display: none !important; }
 .nw-stappen { display: flex; flex-direction: column; gap: 10px; padding-left: 22px; margin: 0; }
 .nw-adressen { display: flex; flex-direction: column; gap: 6px; padding-left: 18px; margin: 0; }
 .netwerk-hulp-link { white-space: nowrap; }
+
+/* ---------- Tegen gokken (fx.js) ---------- */
+.gok-wait { display: block; margin-top: 6px; color: var(--muted); font-size: .9em; }
+.gok-pauze { position: fixed; inset: 0; z-index: 9000; display: grid; place-items: center; background: rgba(6, 10, 19, .82); backdrop-filter: blur(3px); }
+.gok-pauze.hidden { display: none; }
+.gok-pauze > div { display: grid; gap: 10px; max-width: 420px; margin: 16px; padding: 24px; text-align: center; background: var(--panel-solid); border: 2px solid var(--bad); border-radius: 14px; box-shadow: 0 0 30px rgba(255, 77, 109, .45); }
+.gok-pauze b { font-family: var(--head); font-size: 1.6rem; color: var(--bad); }
+.gok-pauze small { font-family: var(--tech); font-size: 2.4rem; color: var(--gold); }
+.gok-list { position: fixed; right: 12px; bottom: 12px; z-index: 9000; max-width: 300px; padding: 10px 14px; background: var(--panel-solid); border: 1px solid var(--gold); border-radius: 10px; color: var(--text); font-size: .9rem; cursor: pointer; box-shadow: 0 6px 20px rgba(0, 0, 0, .5); }
+.gok-list ul { margin: 6px 0 0; padding-left: 18px; }
+.gok-list ul li:nth-child(n + 6) { display: none; }
+.gok-list.flash { animation: gok-flash .6s 2; }
+@keyframes gok-flash { 50% { box-shadow: 0 0 24px var(--gold); } }

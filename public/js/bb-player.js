@@ -142,6 +142,7 @@ function bbNext() {
   bb.busy = true;
   socket.emit('bb-question', null, res => {
     bb.busy = false;
+    if (res && res.wait) return gokWait($('bb-q'), res.wait, bbNext);
     if (!res || res.error) return;
     if (res.place) return bbPick(res.place);
     bb.question = res;
@@ -181,11 +182,13 @@ function bbAnswer(i) {
     if (res.correct) sfx.good(); else sfx.bad();
     buzz(res.correct ? [30, 40, 30] : 200);
     bbTop();
-    setTimeout(() => {
+    const next = () => {
       flash.classList.add('hidden');
       bb.question = null;
       if (res.correct) bbPick(res.hand); else bbNext();
-    }, res.correct ? 650 : 1800);
+    };
+    if (res.correct) setTimeout(next, 650);
+    else gokHold(flash, $('bb-q'), res, next);
   });
 }
 

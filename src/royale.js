@@ -524,7 +524,8 @@ class Royale {
     socket.on('ry-stop', (_, cb) => cb && cb({ file: this.stop() }));
   }
 
-  attachPlayer(socket, validId) {
+  // guard: dezelfde vragen, maar met de gokcontrole van antigok.js ervoor.
+  attachPlayer(socket, validId, guard = this) {
     socket.emit('ry-state', this.base());
     socket.on('ry-join', ({ playerId, name } = {}, cb) => {
       if (!validId(playerId)) return cb && cb({ error: 'Ongeldige speler.' });
@@ -540,8 +541,8 @@ class Royale {
     on('ry-move', (id, m) => this.move(id, m || {}));
     on('ry-fire', (id, m) => this.fire(id, m || {}));
     on('ry-asking', (id, v) => this.asking(id, v));
-    on('ry-question', id => this.question(id));
-    on('ry-answer', (id, choice) => this.answer(id, choice));
+    on('ry-question', id => guard.question(id));
+    on('ry-answer', (id, choice) => guard.answer(id, choice));
   }
 }
 

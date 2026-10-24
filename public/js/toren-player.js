@@ -198,6 +198,14 @@ function twOpenQuestion() {
   $('tw-q-result').className = 'tw-q-result';
   $('tw-q-close').classList.add('hidden');
   socket.emit('tw-question', null, res => {
+    if (res && res.wait) {
+      $('tw-q-text').textContent = 'Even nadenken…';
+      return gokWait($('tw-q-result'), res.wait, () => {
+        if (!tw.question || !tw.question.loading) return;
+        tw.question = null;
+        twOpenQuestion();
+      });
+    }
     if (!res || res.error) {
       twCloseQuestion();
       return;
@@ -232,7 +240,9 @@ function twAnswer(i) {
     result.className = `tw-q-result ${res.correct ? 'good' : 'bad'}`;
     if (res.correct) sfx.good(); else sfx.bad();
     buzz(res.correct ? [30, 40, 30] : 200);
-    setTimeout(twCloseQuestion, res.correct ? 1100 : 2200);
+    // Tegen gokken: na een fout blijft het juiste antwoord staan tot het wachten voorbij is.
+    if (res.correct) setTimeout(twCloseQuestion, 1100);
+    else gokWait(result, Math.max(res.wait || 0, 2200), twCloseQuestion);
   });
 }
 
