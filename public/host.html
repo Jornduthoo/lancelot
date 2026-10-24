@@ -275,6 +275,7 @@
         <label>Aantal vragen<input id="m-count" type="number" min="3" max="40" value="10"></label>
         <label>Seconden per vraag<input id="m-time" type="number" min="5" max="120" value="20"></label>
       </div>
+      <label class="inline check"><input type="checkbox" id="m-niveaus" checked> Op drie niveaus: 🪶 Page (met hulp), 🛡️ Schildknaap (het doel) en ⚔️ Ridder (uitdaging). Het aantal vragen geldt per niveau.</label>
       <label>Extra wensen (mag leeg)<textarea id="m-extra" rows="2" placeholder="bijv. vooral vragen over jaartallen, of: maak het extra moeilijk"></textarea></label>
     </div>
     <div class="panel form">
@@ -397,6 +398,7 @@
 <script src="/socket.io/socket.io.js"></script>
 <script src="/js/fx.js"></script>
 <script src="/js/avatar.js"></script>
+<script src="/js/niveau.js"></script>
 <script src="/js/quiz-list.js"></script>
 <script src="/js/host.js"></script>
 <script src="/js/address.js"></script>

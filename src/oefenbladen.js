@@ -8,11 +8,14 @@
 //   woorden        woordjes: een opgave en het woord dat de leerling typt
 //   overschrijven  zinnen die de leerling foutloos overschrijft
 //   open           open vragen (niet automatisch verbeterd)
+// Een blad kan drie niveaus hebben: blocks is Schildknaap (het doel zelf), page (met hulp) en ridder (uitdaging)
+// zijn optioneel. Een leerling op een niveau zonder eigen blokken krijgt het Schildknaap-blad.
 const fs = require('fs');
 const path = require('path');
 const { library } = require('./library');
 const { extract } = require('./ai-json');
 const doelen = require('./doelen');
+const { NIVEAUS, NAMES } = require('./niveaus');
 
 const DIR = path.join(__dirname, '..', 'oefenbladen');
 const TYPES = ['tekst', 'invullen', 'meerkeuze', 'juistfout', 'verbinden', 'woorden', 'overschrijven', 'open'];
@@ -117,18 +120,50 @@ function cleanBlock(b, n) {
   return { type, instruction, items };
 }
 
-function validate(sheet) {
-  if (!sheet || typeof sheet !== 'object') throw new Error('Dit is geen oefenblad.');
-  const title = text(sheet.title, 100);
-  if (!title) throw new Error('Het oefenblad heeft geen titel.');
-  const blocks = list(sheet.blocks, 30).map((b, i) => {
-    const block = cleanBlock(b, i + 1);
+function cleanBlocks(raw, prefix) {
+  return list(raw, 30).map((b, i) => {
+    let block;
+    try {
+      block = cleanBlock(b, i + 1);
+    } catch (err) {
+      throw new Error(prefix + err.message);
+    }
     // Het leerplandoel dat deze oefening oefent (mag ontbreken).
     const doel = b.type !== 'tekst' && doelen.clean(b.doel);
     return doel ? { ...block, doel } : block;
   });
-  if (!blocks.length) throw new Error('Het oefenblad heeft geen oefeningen.');
-  return { title, level: text(sheet.level, 40), blocks };
+}
+
+function validate(sheet) {
+  if (!sheet || typeof sheet !== 'object') throw new Error('Dit is geen oefenblad.');
+  const title = text(sheet.title, 100);
+  if (!title) throw new Error('Het oefenblad heeft geen titel.');
+  // Een AI geeft de niveaus soms samen terug: { "niveaus": { "page": [...], "schildknaap": [...], "ridder": [...] } }.
+  const n = sheet.niveaus && typeof sheet.niveaus === 'object' ? sheet.niveaus : {};
+  const pick = (key, alt) => {
+    const v = n[key] !== undefined ? n[key] : sheet[alt || key];
+    return v && !Array.isArray(v) && Array.isArray(v.blocks) ? v.blocks : v;
+  };
+  const multi = ['page', 'ridder'].some(k => list(pick(k)).length);
+  const blocks = cleanBlocks(pick('schildknaap', 'blocks'), multi ? 'Schildknaap: ' : '');
+  if (!blocks.length) throw new Error(multi ? 'Het Schildknaap-niveau heeft geen oefeningen.' : 'Het oefenblad heeft geen oefeningen.');
+  const out = { title, level: text(sheet.level, 40), blocks };
+  for (const k of ['page', 'ridder']) {
+    const extra = cleanBlocks(pick(k), `${NAMES[k]}: `);
+    if (extra.length) out[k] = extra;
+  }
+  return out;
+}
+
+// Welke niveaus heeft dit blad? Altijd minstens Schildknaap.
+function niveausOf(sheet) {
+  return NIVEAUS.filter(n => n === 'schildknaap' || (Array.isArray(sheet[n]) && sheet[n].length));
+}
+
+// Het blad zoals een leerling op dit niveau het krijgt.
+function forNiveau(sheet, niveau) {
+  const blocks = niveau !== 'schildknaap' && Array.isArray(sheet[niveau]) && sheet[niveau].length ? sheet[niveau] : sheet.blocks;
+  return { title: sheet.title, level: sheet.level, blocks };
 }
 
 // Alle velden die een leerling invult, met de goede antwoorden. Elk veld heeft een vaste id.
@@ -239,9 +274,9 @@ function listSheets() {
       const folder = where(file);
       try {
         const s = JSON.parse(fs.readFileSync(path.join(DIR, file), 'utf8'));
-        return { file, folder, title: s.title || file, count: (s.blocks || []).length, types: [...new Set((s.blocks || []).map(b => b.type))] };
+        return { file, folder, title: s.title || file, count: (s.blocks || []).length, types: [...new Set((s.blocks || []).map(b => b.type))], niveaus: niveausOf(s) };
       } catch {
-        return { file, folder, title: `${file} (ongeldig bestand)`, count: 0, types: [] };
+        return { file, folder, title: `${file} (ongeldig bestand)`, count: 0, types: [], niveaus: ['schildknaap'] };
       }
     })
     .sort((a, b) => a.title.localeCompare(b.title, 'nl'));
@@ -282,7 +317,7 @@ function remove(file) {
 
 // Het antwoord van een chatbot omzetten in een oefenblad.
 function parseAiText(raw) {
-  const data = extract(raw, 'oefenblad', d => d.title !== undefined || d.blocks !== undefined);
+  const data = extract(raw, 'oefenblad', d => d.title !== undefined || d.blocks !== undefined || d.niveaus !== undefined);
   if (data && data.title === 'korte titel van het oefenblad') throw new Error('Dit is de prompt zelf. Plak hier het antwoord dat de AI teruggeeft.');
   return validate(data);
 }
@@ -290,6 +325,6 @@ function parseAiText(raw) {
 const lib = library({ kind: 'oefenblad', dir: DIR, checkFile, load, save, validate, list: listSheets });
 
 module.exports = {
-  TYPES, TYPE_NAMES, validate, fields, grade, studentView, solutions, shufflesFor,
+  TYPES, TYPE_NAMES, validate, niveausOf, forNiveau, fields, grade, studentView, solutions, shufflesFor,
   list: listSheets, load, save, remove, parseAiText, lib, DIR,
 };

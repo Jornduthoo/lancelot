@@ -41,6 +41,13 @@
     </div>
 
     <div class="panel form">
+      <h3>Niveaus</h3>
+      <p class="muted">Op welk niveau oefent elke leerling? 🪶 Page (met hulp), 🛡️ Schildknaap (het doel) of ⚔️ Ridder (uitdaging). Bij een oefenblad met niveaus krijgt elke leerling dan zijn eigen versie, als je kiest voor "Per leerling, zoals ingesteld bij Mijn klas".</p>
+      <div class="klas-niveaus" id="k-niveaus"></div>
+      <p class="error" id="k-niveau-error"></p>
+    </div>
+
+    <div class="panel form">
       <h3>Logboek</h3>
       <p id="l-summary" class="muted">Laden…</p>
       <div class="actions"><button class="secondary" id="l-folder">Open map</button></div>
@@ -55,6 +62,7 @@
   </section>
 </main>
 <script src="/socket.io/socket.io.js"></script>
+<script src="/js/niveau.js"></script>
 <script src="/js/klas-host.js"></script>
 </body>
 </html>

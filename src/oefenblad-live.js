@@ -1,8 +1,15 @@
 // Een oefenblad live in de klas: elke leerling vult het blad in op eigen tempo,
 // de leerkracht ziet op het bord hoe ver iedereen staat en wat goed of fout is.
 // Feedback: 'direct' (meteen groen of rood) of 'inleveren' (pas na het inleveren).
+// Heeft het blad niveaus, dan werkt elke leerling op Page, Schildknaap of Ridder, elk met een eigen blad.
+// Wie welk niveau krijgt: de hele klas hetzelfde, per leerling zoals in Mijn klas ('klas'), of de leerling kiest ('kies').
+// De leerkracht kan het niveau van een leerling tijdens het werken nog veranderen.
 const sheets = require('./oefenbladen');
 const logboek = require('./logboek');
+const klas = require('./klas');
+const { NIVEAUS, NAMES } = require('./niveaus');
+
+const MODES = [...NIVEAUS, 'klas', 'kies'];
 
 class OefenbladLive {
   constructor(io, onFinish) {
@@ -19,10 +26,9 @@ class OefenbladLive {
     this.file = null;
     this.phase = 'idle'; // idle -> open -> einde
     this.feedback = 'direct';
+    this.mode = 'schildknaap';
     this.players = new Map();
-    this.fields = [];
-    this.shuffles = [];
-    this.view = null;
+    this.levels = {};
     this.revealed = false;
     this.startedAt = 0;
     this.resultsFile = null;
@@ -33,22 +39,79 @@ class OefenbladLive {
     return this.phase !== 'idle';
   }
 
-  load(sheet, file, feedback) {
+  load(sheet, file, feedback, niveau) {
     this.reset();
     this.run++;
     this.sheet = sheet;
     this.file = file;
     this.feedback = feedback === 'inleveren' ? 'inleveren' : 'direct';
-    this.fields = sheets.fields(sheet);
-    this.shuffles = sheets.shufflesFor(sheet);
-    this.view = sheets.studentView(sheet, this.shuffles);
+    this.mode = MODES.includes(niveau) ? niveau : 'schildknaap';
+    for (const n of sheets.niveausOf(sheet)) {
+      const s = sheets.forNiveau(sheet, n);
+      const shuffles = sheets.shufflesFor(s);
+      this.levels[n] = { sheet: s, fields: sheets.fields(s), shuffles, view: sheets.studentView(s, shuffles) };
+    }
     this.phase = 'open';
     this.startedAt = Date.now();
     this.broadcast();
   }
 
-  get graded() {
-    return this.fields.filter(f => f.kind !== 'open');
+  get multi() {
+    return Object.keys(this.levels).length > 1;
+  }
+
+  // Het blad, de velden en de volgorde bij verbinden van het niveau van deze leerling.
+  lv(p) {
+    return this.levels[p.niveau] || this.levels.schildknaap;
+  }
+
+  graded(p) {
+    return this.lv(p).fields.filter(f => f.kind !== 'open');
+  }
+
+  // Met welk niveau een nieuwe leerling begint.
+  startNiveau(name) {
+    if (this.levels[this.mode]) return this.mode;
+    if (this.mode === 'klas') {
+      const l = klas.match(name);
+      if (l && this.levels[l.niveau]) return l.niveau;
+    }
+    return 'schildknaap';
+  }
+
+  // Een ander niveau: de leerling begint op een ander blad, dus de antwoorden van het oude blad vervallen.
+  switchNiveau(p, niveau) {
+    if (p.niveau === niveau) return;
+    p.niveau = niveau;
+    p.answers = {};
+    p.results = {};
+    p.submitted = false;
+    p.submittedAt = 0;
+  }
+
+  // De leerling kiest zelf zijn niveau (alleen als de leerkracht dat toelaat, en alleen bij het begin).
+  choose(playerId, niveau) {
+    const p = this.players.get(playerId);
+    if (!p || this.phase !== 'open') return { error: 'Het oefenblad is gesloten.' };
+    if (!p.choosing) return { error: 'Je niveau ligt al vast.' };
+    if (!this.levels[niveau]) return { error: 'Dat niveau bestaat niet voor dit blad.' };
+    this.switchNiveau(p, niveau);
+    p.choosing = false;
+    this.io.to(p.socketId).emit('ob-state', this.playerState(playerId));
+    this.changed();
+    return { ok: true };
+  }
+
+  // De leerkracht zet een leerling op een ander niveau.
+  setNiveau(playerId, niveau) {
+    const p = this.players.get(playerId);
+    if (!p) return { error: 'Die leerling is er niet meer.' };
+    if (!this.levels[niveau]) return { error: 'Dat niveau bestaat niet voor dit blad.' };
+    this.switchNiveau(p, niveau);
+    p.choosing = false;
+    this.io.to(p.socketId).emit('ob-state', this.playerState(playerId));
+    this.changed();
+    return { ok: true };
   }
 
   join(playerId, name, socketId) {
@@ -62,7 +125,10 @@ class OefenbladLive {
     const clean = String(name || '').trim().replace(/\s+/g, ' ').slice(0, 20);
     if (!clean) return { error: 'Vul een naam in.' };
     if ([...this.players.values()].some(p => p.name.toLowerCase() === clean.toLowerCase())) return { error: 'Die naam is al bezet.' };
-    this.players.set(playerId, { name: clean, socketId, answers: {}, results: {}, submitted: false, submittedAt: 0, joinedAt: Date.now(), lastAt: Date.now() });
+    this.players.set(playerId, {
+      name: clean, socketId, niveau: this.startNiveau(clean), choosing: this.mode === 'kies' && this.multi,
+      answers: {}, results: {}, submitted: false, submittedAt: 0, joinedAt: Date.now(), lastAt: Date.now(),
+    });
     this.changed();
     return { ok: true, name: clean };
   }
@@ -79,12 +145,14 @@ class OefenbladLive {
     const p = this.players.get(playerId);
     if (!p || this.phase !== 'open') return { error: 'Het oefenblad is gesloten.' };
     if (p.submitted) return { error: 'Je hebt dit blad al ingeleverd.' };
-    const field = this.fields.find(f => f.id === id);
+    if (p.choosing) return { error: 'Kies eerst je niveau.' };
+    const { fields, shuffles } = this.lv(p);
+    const field = fields.find(f => f.id === id);
     if (!field) return { error: 'Onbekend veld.' };
     const clean = typeof value === 'string' || typeof value === 'number' ? String(value).slice(0, 1000) : '';
     if (clean === '') delete p.answers[id];
     else p.answers[id] = clean;
-    p.results[id] = sheets.grade(field, clean, this.shuffles);
+    p.results[id] = sheets.grade(field, clean, shuffles);
     p.lastAt = Date.now();
     this.changed();
     return this.feedback === 'direct' ? { ok: true, id, correct: p.results[id] } : { ok: true, id };
@@ -120,12 +188,14 @@ class OefenbladLive {
   // Wat de leerling na het inleveren ziet: per veld goed of fout, en de oplossingen als de leerkracht die toont.
   report(p) {
     const score = this.score(p);
-    return { ok: true, results: p.results, score, solutions: this.revealed ? sheets.solutions(this.sheet, this.shuffles) : null };
+    const { sheet, shuffles } = this.lv(p);
+    return { ok: true, results: p.results, score, solutions: this.revealed ? sheets.solutions(sheet, shuffles) : null };
   }
 
   score(p) {
-    const total = this.graded.length;
-    const right = this.graded.filter(f => p.results[f.id] === true).length;
+    const graded = this.graded(p);
+    const total = graded.length;
+    const right = graded.filter(f => p.results[f.id] === true).length;
     return { right, total };
   }
 
@@ -162,10 +232,14 @@ class OefenbladLive {
     this.logged = true;
     const entries = [];
     for (const p of this.players.values()) {
-      for (const f of this.graded) {
-        const block = this.sheet.blocks[f.block];
+      // Wie nog zijn niveau aan het kiezen was, is nog niet begonnen.
+      if (p.choosing) continue;
+      const { sheet } = this.lv(p);
+      const tag = this.multi ? `${NAMES[p.niveau]}, ` : '';
+      for (const f of this.graded(p)) {
+        const block = sheet.blocks[f.block];
         entries.push({
-          naam: p.name, spel: 'Oefenblad', bron: this.sheet.title, vraag: `Oefening ${f.block + 1}.${Number(f.id.split('.')[1]) + 1}: ${block.instruction || ''}`,
+          naam: p.name, spel: 'Oefenblad', bron: this.sheet.title, vraag: `${tag}Oefening ${f.block + 1}.${Number(f.id.split('.')[1]) + 1}: ${block.instruction || ''}`,
           doel: block.doel, juist: p.results[f.id] === true, leeg: p.answers[f.id] === undefined,
         });
       }
@@ -185,23 +259,29 @@ class OefenbladLive {
   detail(playerId) {
     const p = this.players.get(playerId);
     if (!p) return { error: 'Die leerling is er niet meer.' };
-    return { ok: true, name: p.name, answers: p.answers, results: p.results, submitted: p.submitted };
+    return { ok: true, name: p.name, niveau: p.niveau, answers: p.answers, results: p.results, submitted: p.submitted };
   }
 
   ranking() {
-    const total = this.fields.length;
     return [...this.players.entries()].map(([id, p]) => {
-      const done = this.fields.filter(f => p.answers[f.id] !== undefined).length;
-      return { id, name: p.name, done, total, ...this.score(p), wrong: this.graded.filter(f => p.results[f.id] === false).length, submitted: p.submitted, submittedAt: p.submittedAt, joinedAt: p.joinedAt };
+      const { fields } = this.lv(p);
+      const done = fields.filter(f => p.answers[f.id] !== undefined).length;
+      return {
+        id, name: p.name, niveau: p.niveau, choosing: p.choosing, done, ...this.score(p), fields: fields.length,
+        wrong: this.graded(p).filter(f => p.results[f.id] === false).length, submitted: p.submitted, submittedAt: p.submittedAt, joinedAt: p.joinedAt,
+      };
     }).sort((a, b) => a.name.localeCompare(b.name, 'nl'));
   }
 
-  // Per veld: hoeveel leerlingen het al invulden en hoeveel er goed waren.
-  fieldStats() {
-    return this.fields.map(f => {
+  // Per veld: hoeveel leerlingen het al invulden en hoeveel er goed waren (per niveau, want elk niveau heeft eigen velden).
+  fieldStats(niveau = 'schildknaap') {
+    const level = this.levels[niveau];
+    if (!level) return [];
+    const players = [...this.players.values()].filter(p => (this.levels[p.niveau] ? p.niveau : 'schildknaap') === niveau);
+    return level.fields.map(f => {
       let filled = 0;
       let right = 0;
-      for (const p of this.players.values()) {
+      for (const p of players) {
         if (p.answers[f.id] === undefined) continue;
         filled++;
         if (p.results[f.id] === true) right++;
@@ -214,10 +294,17 @@ class OefenbladLive {
     return { active: this.active, run: this.run, phase: this.phase, title: this.sheet && this.sheet.title, feedback: this.feedback, revealed: this.revealed };
   }
 
+  // sheet, shuffles, solutions en stats zijn die van Schildknaap; levels heeft ze per niveau.
   hostState() {
+    const levels = {};
+    for (const [n, l] of Object.entries(this.levels)) {
+      levels[n] = { sheet: l.sheet, shuffles: l.shuffles, solutions: sheets.solutions(l.sheet, l.shuffles), stats: this.fieldStats(n) };
+    }
+    const main = levels.schildknaap;
     return {
-      ...this.base(), file: this.file, sheet: this.sheet, shuffles: this.shuffles, solutions: this.sheet ? sheets.solutions(this.sheet, this.shuffles) : null,
-      ranking: this.ranking(), stats: this.fieldStats(), resultsFile: this.resultsFile,
+      ...this.base(), file: this.file, mode: this.mode, multi: this.multi, levels,
+      sheet: main ? main.sheet : null, shuffles: main ? main.shuffles : [], solutions: main ? main.solutions : null, stats: main ? main.stats : [],
+      ranking: this.ranking(), resultsFile: this.resultsFile,
     };
   }
 
@@ -226,7 +313,8 @@ class OefenbladLive {
     const state = this.base();
     if (p) {
       Object.assign(state, {
-        name: p.name, sheet: this.view, answers: p.answers, submitted: p.submitted,
+        name: p.name, sheet: this.lv(p).view, niveau: this.multi ? p.niveau : null, choosing: p.choosing,
+        niveaus: p.choosing ? Object.keys(this.levels) : null, answers: p.answers, submitted: p.submitted,
         results: this.feedback === 'direct' || p.submitted ? p.results : {},
       });
       if (p.submitted) state.report = this.report(p);

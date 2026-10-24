@@ -6,6 +6,8 @@ const path = require('path');
 const { library } = require('./library');
 const doelen = require('./doelen');
 const { extract } = require('./ai-json');
+const niveaus = require('./niveaus');
+const settings = require('./settings');
 
 const DIR = path.join(__dirname, '..', 'quizzes');
 
@@ -39,6 +41,9 @@ function validate(quiz) {
     // Het leerplandoel dat deze vraag oefent (mag ontbreken).
     const doel = doelen.clean(q.doel);
     if (doel) out.doel = doel;
+    // Page (met hulp), Schildknaap (het doel) of Ridder (uitdaging). Zonder niveau telt de vraag als Schildknaap.
+    const niveau = niveaus.clean(q.niveau);
+    if (niveau && niveau !== 'schildknaap') out.niveau = niveau;
     return out;
   });
   return { title, questions };
@@ -53,12 +58,36 @@ function list() {
       const folder = where(file);
       try {
         const quiz = JSON.parse(fs.readFileSync(path.join(DIR, file), 'utf8'));
-        return { file, folder, title: quiz.title || file, count: (quiz.questions || []).length };
+        return { file, folder, title: quiz.title || file, count: (quiz.questions || []).length, niveaus: niveausOf(quiz) };
       } catch {
         return { file, folder, title: `${file} (ongeldig bestand)`, count: 0 };
       }
     })
     .sort((a, b) => a.title.localeCompare(b.title, 'nl'));
+}
+
+// Welke niveaus komen in deze quiz voor? Een quiz zonder niveaus heeft alleen Schildknaap.
+function niveausOf(quiz) {
+  const used = new Set((quiz.questions || []).map(q => niveaus.clean(q && q.niveau) || 'schildknaap'));
+  return niveaus.NIVEAUS.filter(n => used.has(n));
+}
+
+// Het niveau waarop de klas de spellen speelt (gekozen boven de quizlijst). 'alle' = alle vragen door elkaar.
+function classNiveau() {
+  const n = settings.read().quizNiveau;
+  return n === 'alle' ? 'alle' : niveaus.clean(n) || 'schildknaap';
+}
+
+// Alleen de vragen van dit niveau. Heeft de quiz geen vragen op dat niveau, dan alle vragen.
+function forNiveau(quiz, niveau) {
+  if (!niveaus.clean(niveau) || niveausOf(quiz).length < 2) return quiz;
+  const questions = quiz.questions.filter(q => (q.niveau || 'schildknaap') === niveau);
+  return questions.length ? { ...quiz, questions } : quiz;
+}
+
+// Een quiz laden om te spelen: op het niveau van de klas.
+function play(file) {
+  return forNiveau(load(file), classNiveau());
 }
 
 function checkFile(file) {
@@ -105,4 +134,4 @@ function remove(file) {
 
 const lib = library({ kind: 'quiz', dir: DIR, checkFile, load, save, validate, list });
 
-module.exports = { list, load, save, remove, validate, parseAiText, lib, DIR };
+module.exports = { list, load, play, forNiveau, niveausOf, classNiveau, save, remove, validate, parseAiText, lib, DIR };

@@ -47,6 +47,16 @@
           <option value="inleveren">Na het inleveren: zoals een toets</option>
         </select>
       </label>
+      <label>Niveau (bij een blad met 🪶 Page, 🛡️ Schildknaap en ⚔️ Ridder)
+        <select id="ob-niveau">
+          <option value="klas" selected>Per leerling, zoals ingesteld bij Mijn klas</option>
+          <option value="kies">De leerling kiest zelf</option>
+          <option value="schildknaap">Iedereen 🛡️ Schildknaap (het doel)</option>
+          <option value="page">Iedereen 🪶 Page (met hulp)</option>
+          <option value="ridder">Iedereen ⚔️ Ridder (uitdaging)</option>
+        </select>
+      </label>
+      <p class="muted small">Tijdens het werken kan je een leerling nog op een ander niveau zetten: klik op de naam.</p>
     </div>
     <p class="notice hidden" id="stopped"></p>
     <div class="quiz-list" id="sheet-list"></div>
@@ -99,6 +109,7 @@
         <label class="inline check"><input type="checkbox" value="open"> Open vragen</label>
         <label class="inline check"><input type="checkbox" value="tekst"> Leestekst vooraan</label>
       </div>
+      <label class="inline check"><input type="checkbox" id="a-niveaus" checked> Op drie niveaus: 🪶 Page (met hulp), 🛡️ Schildknaap (het doel) en ⚔️ Ridder (uitdaging)</label>
       <label>Extra wensen (mag leeg)<textarea id="a-extra" rows="2" placeholder="bijv. woordjes Frans van les 3, of: alleen de d/t-regel"></textarea></label>
     </div>
     <div class="panel form">
@@ -144,7 +155,15 @@
         <div class="panel form">
           <label>Titel<input id="e-title" maxlength="100" placeholder="bijv. Werkwoorden in de tegenwoordige tijd"></label>
         </div>
+        <div class="ob-niveau-tabs" id="e-niveaus">
+          <button type="button" class="secondary" data-niveau="page"></button>
+          <button type="button" class="secondary on" data-niveau="schildknaap"></button>
+          <button type="button" class="secondary" data-niveau="ridder"></button>
+        </div>
+        <p class="muted small" id="e-niveau-help"></p>
+        <div id="e-blocks-page" class="form hidden"></div>
         <div id="e-blocks" class="form"></div>
+        <div id="e-blocks-ridder" class="form hidden"></div>
         <div class="panel ob-add">
           <strong>Oefening toevoegen:</strong>
           <div class="actions" id="e-add"></div>
@@ -194,7 +213,7 @@
 
   <div class="ob-modal hidden" id="detail">
     <div class="ob-modal-box">
-      <div class="bar"><h2 id="d-name"></h2><div class="actions"><button class="secondary hidden" id="d-reopen">🔓 Heropen voor deze leerling</button><button class="secondary" id="d-close">Sluiten</button></div></div>
+      <div class="bar"><h2 id="d-name"></h2><div class="actions"><span class="ob-niveau-tabs hidden" id="d-niveaus"></span><button class="secondary hidden" id="d-reopen">🔓 Heropen voor deze leerling</button><button class="secondary" id="d-close">Sluiten</button></div></div>
       <article class="ob-paper" id="d-paper"></article>
     </div>
   </div>
@@ -205,6 +224,7 @@
 <script src="/js/ob-sheet.js"></script>
 <script src="/js/quiz-list.js"></script>
 <script src="/js/doel-kies.js"></script>
+<script src="/js/niveau.js"></script>
 <script src="/js/ob-host.js"></script>
 <script src="/js/address.js"></script>
 </body>

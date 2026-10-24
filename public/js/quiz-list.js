@@ -18,9 +18,15 @@ const ItemList = (() => {
   const parentOf = p => (p.includes('/') ? p.slice(0, p.lastIndexOf('/')) : '');
   const baseOf = p => p.slice(p.lastIndexOf('/') + 1);
   const within = (p, root) => p === root || p.startsWith(`${root}/`);
+  // Quizzen met vragen op drie niveaus: de klas speelt op één niveau (onthouden op de server).
+  const NIVEAUS = [['page', '🪶 Page', 'met hulp'], ['schildknaap', '🛡️ Schildknaap', 'het doel'], ['ridder', '⚔️ Ridder', 'uitdaging'], ['alle', 'Alles door elkaar', 'alle vragen']];
+  const ICONS = { page: '🪶', schildknaap: '🛡️', ridder: '⚔️' };
+  let quizNiveau = 'schildknaap';
+  const niveauBars = new Set();
 
   function mount(box, opts) {
     const kind = opts.kind || 'quiz';
+    if (kind === 'quiz') listenNiveau();
     const k = KINDS[kind];
     const detail = opts.detail || k.detail;
     const storeKey = kind === 'quiz' ? 'lancelot-closed-folders' : `lancelot-closed-folders-${kind}`;
@@ -84,7 +90,7 @@ const ItemList = (() => {
       el.dataset.file = q.file;
       const options = ['<option value="">Zonder map</option>', ...folders.map(f => `<option value="${esc(f)}"${f === q.folder ? ' selected' : ''}>${esc(f.split('/').join(' › '))}</option>`)].join('');
       el.innerHTML = `<span class="grip" title="Sleep naar een map">⋮⋮</span>
-        <button class="play">${esc(q.title)} <span class="muted">· ${esc(detail(q))}</span><span class="go">${opts.go || 'Kies ▶'}</span></button>
+        <button class="play">${esc(q.title)} <span class="muted">· ${esc(detail(q))}${kind === 'quiz' && (q.niveaus || []).length > 1 ? ` · ${q.niveaus.map(n => ICONS[n]).join('')}` : ''}</span><span class="go">${opts.go || 'Kies ▶'}</span></button>
         ${folders.length ? `<label class="move" title="Naar een andere map">📁<select>${options}</select></label>` : ''}
         ${(opts.buttons || []).map((b, i) => `<button class="secondary extra ${b.cls || ''}" data-extra="${i}" title="${esc(b.title || '')}">${b.label}</button>`).join('')}
         <button class="secondary edit">Bewerken</button>
@@ -210,6 +216,13 @@ const ItemList = (() => {
       const all = bar.querySelector('.export-all');
       if (all) all.addEventListener('click', () => download({}));
       box.appendChild(bar);
+      if (kind === 'quiz' && items.some(q => (q.niveaus || []).length > 1)) {
+        const lv = document.createElement('div');
+        lv.className = 'quiz-niveau-bar';
+        box.appendChild(lv);
+        niveauBars.add(lv);
+        renderNiveauBar(lv);
+      }
       if (items.length === 0 && folders.length === 0) {
         box.insertAdjacentHTML('beforeend', `<p class="muted">Nog geen ${k.many}. Maak er een met de knoppen hierboven, of importeer een bestand.</p>`);
         return;
@@ -233,6 +246,25 @@ const ItemList = (() => {
     });
     socket.on(k.folders, list => { folders = list; render(); });
     socket.on(k.list, list => { items = list; render(); });
+  }
+
+  // Geldt voor elke quiz met niveaus. Een quiz zonder niveaus speelt altijd alle vragen.
+  function renderNiveauBar(lv) {
+    lv.innerHTML = `<strong>Niveau van de klas:</strong> <span class="niveau-pick">${NIVEAUS.map(([n, label, help]) => `<button type="button" class="secondary${n === quizNiveau ? ' on' : ''}" data-niveau="${n}" title="${help}">${label}</button>`).join('')}</span>
+      <span class="muted small">voor quizzen met ${Object.values(ICONS).join('')}</span>`;
+    for (const b of lv.querySelectorAll('button')) b.addEventListener('click', () => socket.emit('quiz-niveau', b.dataset.niveau));
+  }
+  let listening = false;
+  function listenNiveau() {
+    if (listening) return;
+    listening = true;
+    socket.on('quiz-niveau', n => {
+      quizNiveau = n;
+      for (const lv of niveauBars) {
+        if (lv.isConnected) renderNiveauBar(lv);
+        else niveauBars.delete(lv);
+      }
+    });
   }
 
   return { mount };

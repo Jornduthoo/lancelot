@@ -3,7 +3,7 @@
 const ob = { state: null, joined: false, run: -1, answers: {}, results: {}, rendered: null, report: null };
 
 function obShow(name) {
-  for (const s of ['ob-join', 'ob-work']) $(s).classList.toggle('hidden', s !== name);
+  for (const s of ['ob-join', 'ob-choose', 'ob-work']) $(s).classList.toggle('hidden', s !== name);
 }
 
 function obJoin(name) {
@@ -58,14 +58,34 @@ socket.on('ob-state', s => {
     ob.rendered = null;
   }
   if (s.report) ob.report = s.report;
-  $('ob-who').textContent = s.name;
-  if (ob.rendered !== s.run) {
-    ob.rendered = s.run;
+  // Zelf je niveau kiezen (als de leerkracht dat toelaat).
+  if (s.choosing) {
+    obChoose(s.niveaus);
+    obShow('ob-choose');
+    return;
+  }
+  $('ob-who').innerHTML = '';
+  $('ob-who').append(s.name);
+  if (s.niveau) $('ob-who').insertAdjacentHTML('beforeend', ` <span class="ob-niveau-tag ${s.niveau}">${Niveau.label(s.niveau)}</span>`);
+  // Een ander niveau is een ander blad: opnieuw tekenen.
+  const key = `${s.run}:${s.niveau || ''}`;
+  if (ob.rendered !== key) {
+    ob.rendered = key;
     obRender();
   }
   obShow('ob-work');
   obStatus();
 });
+
+function obChoose(niveaus) {
+  const list = $('ob-choose-list');
+  list.innerHTML = (niveaus || Niveau.LIST).map(n => `<button type="button" class="big${n === 'schildknaap' ? ' gold' : ' secondary'}" data-niveau="${n}">${Niveau.label(n)}<small>${Niveau.STUDENT[n]}</small></button>`).join('');
+  for (const b of list.querySelectorAll('button')) {
+    b.addEventListener('click', () => {
+      socket.emit('ob-niveau', b.dataset.niveau, res => { $('ob-choose-error').textContent = (res && res.error) || ''; });
+    });
+  }
+}
 
 function obRender() {
   const s = ob.state;

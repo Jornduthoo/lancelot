@@ -2,6 +2,7 @@
 // Leerlingen tikken bij het aanmelden hun naam aan, zodat hun antwoorden in elk spel bij dezelfde leerling horen.
 const fs = require('fs');
 const path = require('path');
+const niveaus = require('./niveaus');
 
 const DIR = path.join(__dirname, '..', 'klas');
 const FILE = path.join(DIR, 'klas.json');
@@ -30,10 +31,24 @@ function write({ naam, leerjaar, namen } = {}) {
     if (!name || seen.has(name.toLowerCase())) continue;
     seen.add(name.toLowerCase());
     const old = before.find(l => l.naam.toLowerCase() === name.toLowerCase());
-    leerlingen.push({ id: old ? old.id : Math.random().toString(36).slice(2, 10), naam: name });
+    // Ook het niveau (Page, Schildknaap of Ridder) blijft bewaard.
+    leerlingen.push({ id: old ? old.id : Math.random().toString(36).slice(2, 10), naam: name, ...(old && old.niveau ? { niveau: old.niveau } : {}) });
   }
   if (leerlingen.length > MAX) throw new Error(`Een klas mag hooguit ${MAX} leerlingen hebben.`);
   const data = { naam: String(naam || '').trim().slice(0, 40), leerjaar: [5, 6].includes(Number(leerjaar)) ? Number(leerjaar) : 6, leerlingen };
+  fs.mkdirSync(DIR, { recursive: true });
+  fs.writeFileSync(FILE, JSON.stringify(data, null, 2) + '\n');
+  return data;
+}
+
+// Het niveau waarop een leerling oefenbladen maakt. Schildknaap is het gewone niveau en wordt niet bewaard.
+function setNiveau(id, niveau) {
+  const data = read();
+  const leerling = data.leerlingen.find(l => l.id === id);
+  if (!leerling) throw new Error('Die leerling staat niet meer op de lijst.');
+  const n = niveaus.clean(niveau);
+  if (n && n !== 'schildknaap') leerling.niveau = n;
+  else delete leerling.niveau;
   fs.mkdirSync(DIR, { recursive: true });
   fs.writeFileSync(FILE, JSON.stringify(data, null, 2) + '\n');
   return data;
@@ -49,4 +64,4 @@ function match(name) {
   return read().leerlingen.find(l => l.naam.toLowerCase() === key) || null;
 }
 
-module.exports = { read, write, names, match };
+module.exports = { read, write, setNiveau, names, match };

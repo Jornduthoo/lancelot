@@ -15,7 +15,38 @@ function loadKlas() {
     $('k-naam').value = res.klas.naam;
     $('k-leerjaar').value = String(res.klas.leerjaar);
     $('k-namen').value = res.klas.leerlingen.map(l => l.naam).join('\n');
+    renderNiveaus(res.klas.leerlingen);
   });
+}
+
+// Per leerling drie knoppen: Page, Schildknaap of Ridder. Een klik bewaart meteen.
+function renderNiveaus(leerlingen) {
+  const box = $('k-niveaus');
+  box.innerHTML = '';
+  if (!leerlingen.length) {
+    box.innerHTML = '<p class="muted">Zet eerst je leerlingen op de klaslijst hierboven.</p>';
+    return;
+  }
+  for (const l of leerlingen) {
+    const row = document.createElement('div');
+    row.className = 'row-niveau';
+    const name = document.createElement('span');
+    name.textContent = l.naam;
+    const pick = document.createElement('span');
+    pick.className = 'niveau-pick';
+    const current = l.niveau || 'schildknaap';
+    pick.innerHTML = Niveau.LIST.map(n => `<button type="button" class="secondary${n === current ? ' on' : ''}" data-niveau="${n}" title="${Niveau.NAMES[n]}: ${Niveau.HELP[n]}">${Niveau.label(n)}</button>`).join('');
+    for (const b of pick.querySelectorAll('button')) {
+      b.addEventListener('click', () => {
+        socket.emit('klas-niveau', { id: l.id, niveau: b.dataset.niveau }, res => {
+          $('k-niveau-error').textContent = res.error || '';
+          if (!res.error) renderNiveaus(res.klas.leerlingen);
+        });
+      });
+    }
+    row.append(name, pick);
+    box.appendChild(row);
+  }
 }
 
 $('k-save').addEventListener('click', () => {
@@ -26,6 +57,7 @@ $('k-save').addEventListener('click', () => {
     if (res.error) return ($('k-error').textContent = res.error);
     $('k-namen').value = res.klas.leerlingen.map(l => l.naam).join('\n');
     $('k-saved').textContent = `Bewaard: ${res.klas.leerlingen.length} leerlingen.`;
+    renderNiveaus(res.klas.leerlingen);
     loadDoelen();
   });
 });

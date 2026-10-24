@@ -29,6 +29,7 @@ const avatars = require('./src/avatars');
 const { Verrader } = require('./src/verrader');
 const oefenbladen = require('./src/oefenbladen');
 const { OefenbladLive } = require('./src/oefenblad-live');
+const niveaus = require('./src/niveaus');
 const settings = require('./src/settings');
 const klas = require('./src/klas');
 const doelen = require('./src/doelen');
@@ -394,7 +395,7 @@ io.on('connection', socket => {
       try {
         const busy = busyWith('toernooi');
         if (busy) throw busyError(busy);
-        game.load(quizzes.load(file));
+        game.load(quizzes.play(file));
         cb && cb({ ok: true });
       } catch (err) {
         cb && cb({ error: err.message, busy: !!err.busy });
@@ -411,6 +412,13 @@ io.on('connection', socket => {
     const refreshList = () => sendLibrary('quiz');
     // Mijn klas: de klaslijst, de leerplandoelen en wat het logboek al weet.
     socket.on('klas-get', handle(() => ({ klas: klas.read() })));
+    socket.on('klas-niveau', handle(({ id, niveau } = {}) => ({ klas: klas.setNiveau(id, niveau) })));
+    // Op welk niveau de klas de quizspellen speelt (Page, Schildknaap, Ridder of alles door elkaar).
+    socket.emit('quiz-niveau', quizzes.classNiveau());
+    socket.on('quiz-niveau', niveau => {
+      settings.write({ quizNiveau: niveau === 'alle' ? 'alle' : niveaus.clean(niveau) || 'schildknaap' });
+      io.to('host').emit('quiz-niveau', quizzes.classNiveau());
+    });
     socket.on('klas-save', handle(data => {
       const saved = klas.write(data);
       io.emit('klas-namen', klas.names());
@@ -507,7 +515,7 @@ io.on('connection', socket => {
     socket.on('tw-load', handle(({ file, minutes, tempo } = {}) => {
       const busy = busyWith('toren');
       if (busy) throw busyError(busy);
-      toren.load(quizzes.load(file), Number(minutes), tempo);
+      toren.load(quizzes.play(file), Number(minutes), tempo);
       return {};
     }));
     socket.on('tw-start', () => toren.start());
@@ -520,7 +528,7 @@ io.on('connection', socket => {
     socket.on('sj-load', handle(({ file, minutes } = {}) => {
       const busy = busyWith('schat');
       if (busy) throw busyError(busy);
-      schat.load(quizzes.load(file), Number(minutes));
+      schat.load(quizzes.play(file), Number(minutes));
       return {};
     }));
     socket.on('sj-start', () => schat.start());
@@ -533,7 +541,7 @@ io.on('connection', socket => {
     socket.on('ls-load', handle(({ file, minutes, mode, tempo } = {}) => {
       const busy = busyWith('laserslag');
       if (busy) throw busyError(busy);
-      laserslag.load(quizzes.load(file), Number(minutes), mode, tempo);
+      laserslag.load(quizzes.play(file), Number(minutes), mode, tempo);
       return {};
     }));
     socket.on('ls-start', () => laserslag.start());
@@ -547,7 +555,7 @@ io.on('connection', socket => {
     socket.on('rr-load', handle(({ file, minutes, tempo } = {}) => {
       const busy = busyWith('race');
       if (busy) throw busyError(busy);
-      race.load(quizzes.load(file), Number(minutes), tempo);
+      race.load(quizzes.play(file), Number(minutes), tempo);
       return {};
     }));
     socket.on('rr-start', () => race.start());
@@ -560,7 +568,7 @@ io.on('connection', socket => {
     socket.on('bb-load', handle(({ file, minutes, level } = {}) => {
       const busy = busyWith('burcht');
       if (busy) throw busyError(busy);
-      burcht.load(quizzes.load(file), Number(minutes), level);
+      burcht.load(quizzes.play(file), Number(minutes), level);
       return {};
     }));
     socket.on('bb-start', () => burcht.start());
@@ -573,7 +581,7 @@ io.on('connection', socket => {
     socket.on('du-load', handle(({ file, hearts } = {}) => {
       const busy = busyWith('duel');
       if (busy) throw busyError(busy);
-      duel.load(quizzes.load(file), Number(hearts));
+      duel.load(quizzes.play(file), Number(hearts));
       return {};
     }));
     socket.on('du-start', (_, cb) => { const res = duel.start(); if (typeof cb === 'function') cb(res || {}); });
@@ -587,7 +595,7 @@ io.on('connection', socket => {
     socket.on('pk-load', handle(({ file, minutes, tempo } = {}) => {
       const busy = busyWith('knight');
       if (busy) throw busyError(busy);
-      knight.load(quizzes.load(file), Number(minutes), tempo);
+      knight.load(quizzes.play(file), Number(minutes), tempo);
       return {};
     }));
     socket.on('pk-start', () => knight.start());
@@ -600,7 +608,7 @@ io.on('connection', socket => {
     socket.on('cg-load', handle(({ file, minutes, tempo } = {}) => {
       const busy = busyWith('galaga');
       if (busy) throw busyError(busy);
-      galaga.load(quizzes.load(file), Number(minutes), tempo);
+      galaga.load(quizzes.play(file), Number(minutes), tempo);
       return {};
     }));
     socket.on('cg-start', () => galaga.start());
@@ -613,7 +621,7 @@ io.on('connection', socket => {
     socket.on('bk-load', handle(({ file, minutes, tempo } = {}) => {
       const busy = busyWith('bomber');
       if (busy) throw busyError(busy);
-      bomber.load(quizzes.load(file), Number(minutes), tempo);
+      bomber.load(quizzes.play(file), Number(minutes), tempo);
       return {};
     }));
     socket.on('bk-start', () => bomber.start());
@@ -626,7 +634,7 @@ io.on('connection', socket => {
     socket.on('nd-load', handle(({ file, rounds, seconds, tempo } = {}) => {
       const busy = busyWith('neon');
       if (busy) throw busyError(busy);
-      neon.load(quizzes.load(file), Number(rounds), Number(seconds), tempo);
+      neon.load(quizzes.play(file), Number(rounds), Number(seconds), tempo);
       return {};
     }));
     socket.on('nd-start', (_, cb) => { const res = neon.start(); if (typeof cb === 'function') cb(res || {}); });
@@ -641,7 +649,7 @@ io.on('connection', socket => {
     socket.on('lb-load', handle(({ file, minutes, tempo, auto } = {}) => {
       const busy = busyWith('baas');
       if (busy) throw busyError(busy);
-      baas.load(quizzes.load(file), Number(minutes), tempo, auto !== false);
+      baas.load(quizzes.play(file), Number(minutes), tempo, auto !== false);
       return {};
     }));
     socket.on('lb-start', () => baas.start());
@@ -670,7 +678,7 @@ io.on('connection', socket => {
     socket.on('sr-load', handle(({ file, minutes, mode, tempo } = {}) => {
       const busy = busyWith('rossen');
       if (busy) throw busyError(busy);
-      rossen.load(quizzes.load(file), Number(minutes), mode, tempo);
+      rossen.load(quizzes.play(file), Number(minutes), mode, tempo);
       return {};
     }));
     socket.on('sr-start', () => rossen.start());
@@ -697,7 +705,7 @@ io.on('connection', socket => {
     socket.on('rk-load', handle(({ rijk: file, quiz, minutes } = {}) => {
       const busy = busyWith('rijk');
       if (busy) throw busyError(busy);
-      rijk.load(file, quizzes.load(quiz), quiz, Number(minutes));
+      rijk.load(file, quizzes.play(quiz), quiz, Number(minutes));
       return {};
     }));
     socket.on('rk-start', () => rijk.start());
@@ -710,7 +718,7 @@ io.on('connection', socket => {
     socket.on('kr-load', handle(({ file, minutes } = {}) => {
       const busy = busyWith('roof');
       if (busy) throw busyError(busy);
-      roof.load(quizzes.load(file), Number(minutes));
+      roof.load(quizzes.play(file), Number(minutes));
       return {};
     }));
     socket.on('kr-start', () => roof.start());
@@ -723,7 +731,7 @@ io.on('connection', socket => {
     socket.on('vr-load', handle(({ file, ...opts } = {}) => {
       const busy = busyWith('verrader');
       if (busy) throw busyError(busy);
-      verrader.load(quizzes.load(file), { ...opts, minutes: Number(opts.minutes) });
+      verrader.load(quizzes.play(file), { ...opts, minutes: Number(opts.minutes) });
       return {};
     }));
     socket.on('vr-start', (_, cb) => { const res = verrader.start(); if (typeof cb === 'function') cb(res || {}); });
@@ -750,10 +758,17 @@ io.on('connection', socket => {
       return {};
     }));
     // Printblad en verbeterblad: vaste volgorde bij verbinden, zodat ze overeenkomen.
-    socket.on('ob-print', handle(file => {
-      const sheet = oefenbladen.load(file);
-      const shuffles = oefenbladen.shufflesFor(sheet, sheet.title);
-      return { view: oefenbladen.studentView(sheet, shuffles), solutions: oefenbladen.solutions(sheet, shuffles) };
+    // Per niveau een eigen blad (Page, Schildknaap, Ridder).
+    socket.on('ob-print', handle(arg => {
+      const { file, niveau } = typeof arg === 'string' ? { file: arg } : arg || {};
+      const full = oefenbladen.load(file);
+      const avail = oefenbladen.niveausOf(full);
+      const pages = (niveau === 'alle' ? avail : [avail.includes(niveau) ? niveau : 'schildknaap']).map(n => {
+        const sheet = oefenbladen.forNiveau(full, n);
+        const shuffles = oefenbladen.shufflesFor(sheet, `${sheet.title}${n === 'schildknaap' ? '' : `:${n}`}`);
+        return { niveau: n, view: oefenbladen.studentView(sheet, shuffles), solutions: oefenbladen.solutions(sheet, shuffles) };
+      });
+      return { ...pages[0], pages, niveaus: avail };
     }));
     socket.on('ob-generate', ({ prompt, files } = {}, cb) => {
       generateQuiz(prompt, files, oefenbladen.parseAiText)
@@ -761,10 +776,10 @@ io.on('connection', socket => {
         .finally(() => io.to('host').emit('settings', settings.publicView()))
         .catch(err => cb && cb({ error: err.message }));
     });
-    socket.on('ob-load', handle(({ file, feedback } = {}) => {
+    socket.on('ob-load', handle(({ file, feedback, niveau } = {}) => {
       const busy = busyWith('oefenblad');
       if (busy) throw busyError(busy);
-      oefenblad.load(oefenbladen.load(file), file, feedback);
+      oefenblad.load(oefenbladen.load(file), file, feedback, niveau);
       return {};
     }));
     socket.on('ob-reveal', () => oefenblad.reveal());
@@ -772,6 +787,7 @@ io.on('connection', socket => {
     socket.on('ob-finish', () => oefenblad.finish());
     socket.on('ob-reopen', (id, cb) => { const res = oefenblad.reopen(id); if (typeof cb === 'function') cb(res); });
     socket.on('ob-detail', (id, cb) => cb && cb(oefenblad.detail(id)));
+    socket.on('ob-set-niveau', ({ id, niveau } = {}, cb) => { const res = oefenblad.setNiveau(id, niveau); if (typeof cb === 'function') cb(res); });
     socket.on('ob-stop', (_, cb) => cb && cb({ file: oefenblad.stop() }));
 
     socket.on('start', () => game.start());
@@ -1111,6 +1127,7 @@ io.on('connection', socket => {
   };
   socket.on('ob-answer', ob((id, a) => oefenblad.answer(id, a)));
   socket.on('ob-submit', ob(id => oefenblad.submit(id)));
+  socket.on('ob-niveau', ob((id, niveau) => oefenblad.choose(id, niveau)));
 
   // Wie wegvalt tijdens een vraag, blijft niet onkwetsbaar staan.
   socket.on('disconnect', () => {
