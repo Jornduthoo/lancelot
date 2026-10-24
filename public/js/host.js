@@ -57,6 +57,7 @@ document.querySelector('[data-module="kristalroof"]').addEventListener('click', 
 document.querySelector('[data-module="verrader"]').addEventListener('click', () => { location.href = '/verrader'; });
 document.querySelector('[data-module="burchtbouwers"]').addEventListener('click', () => { location.href = '/burchtbouwers'; });
 document.querySelector('[data-module="duel"]').addEventListener('click', () => { location.href = '/duel'; });
+document.querySelector('[data-module="packnight"]').addEventListener('click', () => { location.href = '/packnight'; });
 document.querySelector('[data-module="rijk"]').addEventListener('click', () => { location.href = '/rijk'; });
 document.querySelector('[data-module="voorkennis"]').addEventListener('click', () => { location.href = '/rondetafel?doel=voorkennis'; });
 document.querySelector('[data-module="oefenblad"]').addEventListener('click', () => { location.href = '/oefenblad'; });

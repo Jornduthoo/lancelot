@@ -557,6 +557,77 @@
     <p class="muted">Kijk naar het bord.</p>
   </section>
  </div>
+ <div id="packnight">
+  <form id="pk-join" class="screen welcome hidden">
+    <img src="/img/logo.webp" alt="LANcelot">
+    <p class="title">Pac-Knight</p>
+    <input id="pk-name" maxlength="20" autocomplete="off" placeholder="Je naam">
+    <p class="error" id="pk-join-error"></p>
+    <button type="submit" class="big">Het doolhof in</button>
+  </form>
+
+  <section id="pk-lobby" class="screen panel hidden">
+    <p class="status">Pac-Knight</p>
+    <p class="title" id="pk-lobby-name"></p>
+    <p>Raap 💎 kristallen in het neon doolhof en ontwijk de drones. <strong>Een goed antwoord geeft een 💥 kracht:</strong> dan vluchten de drones, tellen kristallen dubbel en schakel jij drones uit.</p>
+    <p class="muted small">Gevangen? Dan verlies je kristallen. Een fout antwoord? Even wachten, en die vraag komt later terug.</p>
+    <p class="muted small ls-hint-touch">Veeg over het scherm of tik op de pijlen om te lopen. Rechts: 💥 kracht en ⚡ vraag.</p>
+    <p class="muted small ls-hint-keys">Lopen met de pijltjes of WASD. Spatie is je kracht, E een vraag, 1-4 antwoorden.</p>
+    <p class="muted small">Wacht tot de leerkracht het spel start.</p>
+    <div class="spinner"></div>
+  </section>
+
+  <section id="pk-game" class="hidden">
+    <div class="ls-hud pk-hud">
+      <div class="pk-crystals" id="pk-crystals-box"><span>💎</span><b id="pk-crystals">0</b></div>
+      <div class="pk-pellets" id="pk-pellets" title="Krachten"></div>
+      <div class="pk-power hidden" id="pk-power"><i id="pk-power-fill"></i></div>
+      <div class="pk-rank" id="pk-rank"></div>
+      <div class="ls-clock" id="pk-clock"></div>
+    </div>
+    <div class="ls-stage" id="pk-stage">
+      <canvas id="pk-canvas"></canvas>
+      <div class="ls-feed" id="pk-feed"></div>
+      <div class="ls-banner" id="pk-banner"></div>
+      <div class="tw-toast" id="pk-toast"></div>
+      <div class="tw-countdown hidden" id="pk-countdown"></div>
+      <div class="pk-pad">
+        <button class="ls-btn" data-dir="0" aria-label="Omhoog">▲</button>
+        <button class="ls-btn" data-dir="3" aria-label="Links">◀</button>
+        <button class="ls-btn" data-dir="1" aria-label="Rechts">▶</button>
+        <button class="ls-btn" data-dir="2" aria-label="Omlaag">▼</button>
+      </div>
+      <div class="ls-touch">
+        <button class="ls-btn ls-load" id="pk-ask">⚡<small>Vraag</small></button>
+        <button class="ls-btn pk-use" id="pk-use">💥<small>Kracht</small></button>
+      </div>
+      <p class="ls-keys">pijltjes of WASD lopen · spatie kracht · E vraag · 1-4 antwoorden</p>
+      <div class="ls-out hidden" id="pk-out">
+        <p class="ls-out-title">Gevangen!</p>
+        <p class="ls-out-by" id="pk-out-lost"></p>
+        <p class="ls-out-timer" id="pk-out-timer"></p>
+        <button class="gold" id="pk-out-ask">⚡ Verdien intussen een kracht</button>
+      </div>
+    </div>
+    <div class="tw-question hidden" id="pk-question">
+      <div class="panel">
+        <p class="status" id="pk-q-status">Juist = 💥 kracht · je bent beschermd</p>
+        <p class="tw-q-text" id="pk-q-text"></p>
+        <div class="answers" id="pk-q-answers"></div>
+        <p class="tw-q-result" id="pk-q-result"></p>
+        <div class="ls-q-actions"><button class="gold" id="pk-q-close">Terug het doolhof in</button></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="pk-end" class="screen panel hidden">
+    <div class="mark" id="pk-end-medal" style="font-size:4.5rem"></div>
+    <p class="title" id="pk-end-title"></p>
+    <p class="big" id="pk-end-score" style="font-size:2rem"></p>
+    <p id="pk-end-stats"></p>
+    <p class="muted">Kijk naar het bord voor de eindstand.</p>
+  </section>
+ </div>
  <div id="rijk">
   <form id="rk-join" class="screen welcome hidden">
     <img src="/img/logo.webp" alt="LANcelot">
@@ -651,6 +722,8 @@
 <script src="/js/vr-player.js"></script>
 <script src="/js/bb-player.js"></script>
 <script src="/js/du-player.js"></script>
+<script src="/js/pk-draw.js"></script>
+<script src="/js/pk-player.js"></script>
 <script src="/js/rijk-map.js"></script>
 <script src="/js/rk-player.js"></script>
 <script src="/js/ob-sheet.js"></script>

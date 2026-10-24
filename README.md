@@ -14,6 +14,7 @@ Het thema: middeleeuws met een scifi-kantje. Het startscherm heeft drie grote te
    - **De Verrader**: zoals Among Us. Ridders herstellen de kristalkern met goede antwoorden, de geheime verraders betoveren ze. Aan de Ronde Tafel praat de klas en stemt wie verbannen wordt
    - **Burchtbouwers**: de hele klas bouwt samen één burcht. Elk goed antwoord is een steen die je zelf op een deel van de burcht legt. Als de tijd om is, valt de draak aan
    - **Duel in de arena**: één tegen één op dezelfde vraag, wie eerst juist antwoordt slaat toe. Een toernooischema op het bord tot er één kampioen is
+   - **Pac-Knight**: alle ridders samen in één neon doolhof. Raap kristallen en ontwijk de drones; een goed antwoord geeft een kracht waarmee jij op de drones jaagt
    - **Het Rijk**: een spel dat weken doorloopt. Teams veroveren les na les gebieden op een kaart; vragen over oudere leerstof komen terug om je land te verdedigen
 2. **De Ronde Tafel**, peilen met de hele klas: polls, stellingen, woordwolken, open vragen en schalen, live op het bord. Met de knop **💡 Voorkennis activeren** in De Ronde Tafel maak je met AI meteen een peiling voor het begin van een les.
 3. **De Smidse**: oefenbladen maken. Een oefenblad speel je **live** (leerlingen vullen in, het verbetert zichzelf) of je kiest **🖨 Opslaan en printen** voor een werkblad op papier met verbeterblad.
@@ -22,11 +23,11 @@ Het thema: middeleeuws met een scifi-kantje. Het startscherm heeft drie grote te
 
 Leerlingen stellen hun eigen ridder samen: ridder of ridderes, huidskleur, haar, tien helmen (van ridderhelm tot holovizier en cyberhelm), versieringen, vijf soorten harnas (klassiek, cyber, goud, mecha, kristal), een robotarm, iets op de rug (cape, jetpack, lichtvleugels of een drone), zeven wapens (ook een plasmablaster en energiespeer) en een schild met patroon en kleur. De eerste keer opent de riddermaker vanzelf na het aanmelden; daarna kan het altijd met **🛡️ Pas je ridder aan** op het aanmeldscherm en in de lobby.
 
-LANcelot bewaart de ridder op de naam van de leerling in `avatars.json` (blijft bewaard bij updates). De ridder staat in elke lobby, op het podium en in de eindstanden, en speelt mee: in de toren, in Laserslag (3D-zichten in de kleur van je team, en het hoofd naast de naam van bovenaf), op het hoverros in de Ridderrace, in het toernooischema van het duel en bij de bouwers van de burcht.
+LANcelot bewaart de ridder op de naam van de leerling in `avatars.json` (blijft bewaard bij updates). De ridder staat in elke lobby, op het podium en in de eindstanden, en speelt mee: in de toren, in Laserslag (3D-zichten in de kleur van je team, en het hoofd naast de naam van bovenaf), op het hoverros in de Ridderrace, in het toernooischema van het duel, bij de bouwers van de burcht en in het doolhof van Pac-Knight.
 
 ## Tempo van de vragen
 
-In de Ridderrace, Laserslag en De prinses in de toren kies je het **tempo van de vragen**: *rustig* (een goed antwoord geeft veel brandstof, munitie of energie), *normaal* of *intens* (alles raakt sneller op, dus vaker nieuwe vragen). LANcelot onthoudt je keuze.
+In de Ridderrace, Laserslag, De prinses in de toren en Pac-Knight kies je het **tempo van de vragen**: *rustig* (een goed antwoord geeft veel brandstof, munitie, energie of een langere kracht), *normaal* of *intens* (alles raakt sneller op, dus vaker nieuwe vragen). LANcelot onthoudt je keuze.
 
 ## Starten (Windows)
 
@@ -131,6 +132,17 @@ Een samenwerkingsspel: de hele klas bouwt één burcht met zes delen (twee toren
 - Is de tijd om (of klik je op **De draak nu laten komen**), dan valt de draak deel per deel aan. Te lage delen vallen. **Valt hooguit één deel, dan houdt de burcht stand.**
 - De hoogte die de draak vraagt, hangt af van het aantal leerlingen, de speeltijd en de moeilijkheid (makkelijk, normaal, moeilijk). Wie later binnenkomt, maakt het niet moeilijker.
 - Resultaten (stenen, juist en fout, beste reeks, favoriete deel) in `resultaten/`.
+
+## Pac-Knight
+
+Zoals Pac-Man, maar met de hele klas in één doolhof. Elke leerling speelt op zijn eigen gsm of Chromebook, het bord toont het hele doolhof.
+
+- Elk vakje heeft een 💎 kristal. Gouden kristallen zijn 5 waard. Zijn de meeste op, dan groeien er nieuwe.
+- **Drones** jagen op de ridders. Wie gevangen wordt, verliest 5 kristallen en komt na 3 seconden terug op een plek ver van de drones.
+- **Een goed antwoord geeft een 💥 kracht** (je kan er 3 bijhouden; drie juist op rij geeft er twee). Met spatie of de knop 💥 gebruik je een kracht: 8 seconden (rustig 10, intens 6) vluchten de drones, tellen kristallen dubbel en schakel je een drone uit door hem te raken (+10).
+- **Tegen gokken**: na een fout antwoord blijft het juiste antwoord 3 seconden staan voor er een nieuwe vraag komt, en die vraag komt een paar vragen later terug. Wie een vraag beantwoordt, staat stil in een beschermende bel.
+- Lopen: op de gsm vegen of de pijlen, op een Chromebook de pijltjes of WASD. E is een vraag, 1-4 antwoorden.
+- Het doolhof wordt bij elke start opnieuw gemaakt, groter naarmate er meer leerlingen zijn. Elk antwoord komt in het logboek, met het leerplandoel. Resultaten (kristallen, drones, gevangen, juist en fout) in `resultaten/`.
 
 ## Duel in de arena
 
