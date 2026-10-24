@@ -33,6 +33,7 @@ const settings = require('./src/settings');
 const klas = require('./src/klas');
 const doelen = require('./src/doelen');
 const logboek = require('./src/logboek');
+const overzicht = require('./src/overzicht');
 const results = require('./src/results');
 const { execFile } = require('child_process');
 const { generateQuiz } = require('./src/gemini');
@@ -43,122 +44,111 @@ const app = express();
 const server = http.createServer(app);
 // Ruim genoeg voor lesstof (screenshots en pdf's) die naar Gemini gaat.
 const io = new Server(server, { maxHttpBufferSize: 30e6 });
+// Na elk spel: de lijst met resultaten bijwerken, de sessie in het logboek afsluiten en het overzicht ervan naar het docentenscherm sturen.
+function finished(file) {
+  io.to('host').emit('results', results.list());
+  const id = logboek.endSession();
+  const o = id && overzicht.session(id);
+  if (o) io.to('host').emit('sessie-klaar', o);
+  return file;
+}
+
 const game = new Game(io, g => {
   const file = results.save(g);
-  io.to('host').emit('results', results.list());
-  return file;
+  return finished(file);
 });
 const rt = new rondetafel.RondeTafel(io, r => {
   const file = results.saveRondeTafel(r);
-  io.to('host').emit('results', results.list());
-  return file;
+  return finished(file);
 });
 const toren = new Toren(io, t => {
   const file = results.saveToren(t);
-  io.to('host').emit('results', results.list());
-  return file;
+  return finished(file);
 });
 
 const schat = new Schat(io, s => {
   const file = results.saveSchat(s);
-  io.to('host').emit('results', results.list());
-  return file;
+  return finished(file);
 });
 
 const laserslag = new Laserslag(io, l => {
   const file = results.saveLaserslag(l);
-  io.to('host').emit('results', results.list());
-  return file;
+  return finished(file);
 });
 
 const race = new Ridderrace(io, r => {
   const file = results.saveRace(r);
-  io.to('host').emit('results', results.list());
-  return file;
+  return finished(file);
 });
 
 const roof = new Kristalroof(io, k => {
   const file = results.saveRoof(k);
-  io.to('host').emit('results', results.list());
-  return file;
+  return finished(file);
 });
 
 const verrader = new Verrader(io, v => {
   const file = results.saveVerrader(v);
-  io.to('host').emit('results', results.list());
-  return file;
+  return finished(file);
 });
 
 const burcht = new Burcht(io, b => {
   const file = results.saveBurcht(b);
-  io.to('host').emit('results', results.list());
-  return file;
+  return finished(file);
 });
 
 const duel = new Duel(io, d => {
   const file = results.saveDuel(d);
-  io.to('host').emit('results', results.list());
-  return file;
+  return finished(file);
 });
 
 const knight = new PacKnight(io, k => {
   const file = results.saveKnight(k);
-  io.to('host').emit('results', results.list());
-  return file;
+  return finished(file);
 });
 
 const rossen = new Strijdrossen(io, r => {
   const file = results.saveRossen(r);
-  io.to('host').emit('results', results.list());
-  return file;
+  return finished(file);
 });
 
 const galaga = new Galaga(io, g => {
   const file = results.saveGalaga(g);
-  io.to('host').emit('results', results.list());
-  return file;
+  return finished(file);
 });
 
 const neon = new NeonDuel(io, d => {
   const file = results.saveNeon(d);
-  io.to('host').emit('results', results.list());
-  return file;
+  return finished(file);
 });
 
 const gauntlet = new Gauntlet(io, g => {
   const file = g.save();
-  io.to('host').emit('results', results.list());
-  return file;
+  return finished(file);
 });
 
 const bomber = new Bomber(io, b => {
   const file = results.saveBomber(b);
-  io.to('host').emit('results', results.list());
-  return file;
+  return finished(file);
 });
 
 const baas = new LeraarBaas(io, b => {
   const file = results.saveBaas(b);
-  io.to('host').emit('results', results.list());
-  return file;
+  return finished(file);
 });
 
 const royale = new Royale(io, r => {
   const file = r.save();
-  io.to('host').emit('results', results.list());
-  return file;
+  return finished(file);
 });
 
 const rijk = new rijken.Rijk(io, r => {
   const file = results.saveRijk(r);
-  io.to('host').emit('results', results.list());
-  return file;
+  return finished(file);
 });
 
 const oefenblad = new OefenbladLive(io, o => {
   const file = results.saveOefenblad(o);
-  io.to('host').emit('results', results.list());
-  return file;
+  return finished(file);
 });
 
 // Er loopt altijd hooguit één spel tegelijk.
@@ -230,6 +220,17 @@ app.get('/resultaten/:file', (req, res) => {
   } catch {
     res.status(404).end();
   }
+});
+// Het logboek voor Excel: het overzicht van één sessie, één leerplandoel of de hele doelenkaart.
+app.get('/logboek/:what', (req, res) => {
+  if (!isLocal(req.socket.remoteAddress)) return res.status(403).end();
+  const what = req.params.what;
+  const out = what === 'sessie' ? overzicht.sessionCsv(String(req.query.id || ''))
+    : what === 'doel' ? overzicht.doelCsv(String(req.query.code || ''))
+      : what === 'doelenkaart' ? overzicht.kaartCsv() : null;
+  if (!out) return res.status(404).type('text/plain; charset=utf-8').send('Niets gevonden in het logboek.');
+  res.attachment(out.name);
+  res.type('text/csv; charset=utf-8').send(out.text);
 });
 // Exporteren: één item (?file=), een map (?folder=) of alles, als bestand om op een andere pc te importeren.
 app.get('/export/:kind', (req, res) => {
@@ -396,6 +397,13 @@ io.on('connection', socket => {
     }));
     socket.on('doelen-get', handle(() => ({ doelen: doelen.all(), leerjaar: klas.read().leerjaar })));
     socket.on('logboek-get', handle(() => ({ logboek: logboek.summary() })));
+    socket.on('sessies-get', handle(() => ({ sessies: overzicht.sessions() })));
+    socket.on('sessie-get', handle(id => {
+      const sessie = overzicht.session(String(id || ''));
+      if (!sessie) throw new Error('Die sessie staat niet (meer) in het logboek.');
+      return { sessie };
+    }));
+    socket.on('doelenkaart-get', handle(() => ({ kaart: overzicht.kaart() })));
     socket.on('open-logboek-folder', () => {
       fs.mkdirSync(logboek.DIR, { recursive: true });
       if (process.platform === 'win32') execFile('explorer', [logboek.DIR]);

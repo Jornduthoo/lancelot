@@ -3,6 +3,7 @@
 // de server houdt de energie, de vragen en de hoogtes bij en stuurt iedereen elkaars positie.
 const world = require('../public/js/toren-world');
 const { tempoOf, factor } = require('./tempo');
+const logboek = require('./logboek');
 
 const START_ENERGY = 8;
 const MAX_ENERGY = 20;
@@ -156,6 +157,7 @@ class Toren {
     if (!p || this.phase !== 'play' || p.question === null) return { error: 'Er staat geen vraag open.' };
     const q = this.quiz.questions[p.question];
     const correct = choice === q.correct;
+    logboek.answer('De prinses in de toren', this.quiz.title, p.name, q, correct);
     p.last = p.question;
     p.question = null;
     if (correct) {

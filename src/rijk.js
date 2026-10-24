@@ -4,6 +4,7 @@
 // Zo wordt herhalen vanzelf deel van het spel. Elk rijk is een bestand in rijken/.
 const fs = require('fs');
 const path = require('path');
+const logboek = require('./logboek');
 
 const DIR = path.join(__dirname, '..', 'rijken');
 const COLS = 11;
@@ -256,7 +257,7 @@ class Rijk {
     this.startedAt = Date.now() + 3000;
     this.endsAt = this.startedAt + this.minutes * 60000;
     this.before = counts(this.data);
-    this.data.quizzes[this.quizId] = { title: this.quiz.title, questions: this.quiz.questions.map(q => ({ question: q.question, answers: q.answers, correct: q.correct })) };
+    this.data.quizzes[this.quizId] = { title: this.quiz.title, questions: this.quiz.questions.map(q => ({ question: q.question, answers: q.answers, correct: q.correct, ...(q.doel ? { doel: q.doel } : {}) })) };
     this.endTimer = setTimeout(() => this.finish(), this.endsAt - Date.now());
     this.saveTimer = setInterval(() => this.save(), 20000);
     const n = this.data.lessons.length + 1;
@@ -309,6 +310,7 @@ class Rijk {
     const q = this.data.quizzes[id].questions[index];
     const old = id !== this.quizId;
     const correct = choice === q.correct;
+    logboek.answer('Het Rijk', this.quiz.title, p.name, q, correct);
     let gained = 0;
     let weakened = null;
     if (correct) {

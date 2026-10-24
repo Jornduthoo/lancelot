@@ -1,11 +1,14 @@
 // Het logboek: elk antwoord van elke leerling, met het leerplandoel van de vraag.
 // Eén bestand per schooljaar in de map logboek/ (staat in .gitignore), één regel JSON per antwoord.
-// Hieruit komen later de doelenkaart en de Opwarmer.
+// Elk antwoord hoort bij een sessie: één keer een spel spelen. Daaruit komen het overzicht na elk spel en de doelenkaart.
 const fs = require('fs');
 const path = require('path');
 const klas = require('./klas');
 
 const DIR = path.join(__dirname, '..', 'logboek');
+// Een half uur geen antwoorden meer in hetzelfde spel: dan begint er een nieuwe sessie.
+const SESSION_GAP_MS = 30 * 60000;
+const FLUSH_MS = 3000;
 
 // Het schooljaar begint op 1 september.
 function schooljaar(now = new Date()) {
@@ -17,18 +20,31 @@ function file(now) {
   return path.join(DIR, `${schooljaar(now)}.jsonl`);
 }
 
+// Er loopt hooguit één spel tegelijk, dus één open sessie volstaat.
+let current = null;
+
+function sessionFor(spel, bron, now) {
+  if (!current || current.spel !== spel || current.bron !== bron || now - current.last > SESSION_GAP_MS) {
+    current = { id: `${now.toString(36)}${Math.random().toString(36).slice(2, 6)}`, spel, bron, last: now };
+  }
+  current.last = now;
+  return current.id;
+}
+
 // entries: [{ naam, spel, bron, vraag, doel, juist, leeg }]
 function add(entries) {
   if (!entries.length) return;
   const now = new Date();
   const lines = entries.map(e => {
     const leerling = klas.match(e.naam);
+    const bron = String(e.bron || '').slice(0, 100);
     return JSON.stringify({
       t: now.toISOString(),
+      sessie: sessionFor(e.spel, bron, now.getTime()),
       leerling: leerling ? leerling.id : null,
       naam: e.naam,
       spel: e.spel,
-      bron: String(e.bron || '').slice(0, 100),
+      bron,
       vraag: String(e.vraag || '').slice(0, 160),
       doel: e.doel || '',
       juist: Boolean(e.juist),
@@ -43,14 +59,60 @@ function add(entries) {
   }
 }
 
+// Eén antwoord uit een spel. We schrijven ze per paar seconden samen weg, zodat het spel niet hapert.
+let pending = [];
+let timer = null;
+
+function answer(spel, bron, naam, q, juist) {
+  if (!q) return;
+  pending.push({ naam, spel, bron, vraag: q.question, doel: q.doel, juist });
+  if (!timer) timer = setTimeout(flush, FLUSH_MS);
+}
+
+function flush() {
+  clearTimeout(timer);
+  timer = null;
+  const list = pending;
+  pending = [];
+  add(list);
+}
+
+// Het spel is klaar: wat nog wacht wegschrijven en de sessie afsluiten. Geeft de id van die sessie terug.
+function endSession() {
+  flush();
+  const id = current && current.id;
+  current = null;
+  return id || null;
+}
+
+// Het bestand van dit schooljaar, in het geheugen gehouden. Alleen wat er sinds de vorige keer bij kwam, lezen we opnieuw.
+let cache = { path: '', size: 0, rest: '', list: [] };
+
 function read(now) {
-  try {
-    return fs.readFileSync(file(now), 'utf8').split('\n').filter(Boolean).map(l => {
-      try { return JSON.parse(l); } catch { return null; }
-    }).filter(Boolean);
-  } catch {
-    return [];
+  const p = file(now);
+  let size = 0;
+  try { size = fs.statSync(p).size; } catch { return []; }
+  if (cache.path !== p || size < cache.size) cache = { path: p, size: 0, rest: '', list: [] };
+  if (size > cache.size) {
+    let text = '';
+    try {
+      const fd = fs.openSync(p, 'r');
+      const buf = Buffer.alloc(size - cache.size);
+      fs.readSync(fd, buf, 0, buf.length, cache.size);
+      fs.closeSync(fd);
+      text = buf.toString('utf8');
+    } catch {
+      return cache.list;
+    }
+    cache.size = size;
+    const lines = (cache.rest + text).split('\n');
+    cache.rest = lines.pop();
+    for (const l of lines) {
+      if (!l) continue;
+      try { cache.list.push(JSON.parse(l)); } catch {}
+    }
   }
+  return cache.list;
 }
 
 // Per doel: hoeveel antwoorden en hoeveel daarvan juist, dit schooljaar.
@@ -73,4 +135,6 @@ function summary() {
   };
 }
 
-module.exports = { add, read, summary, schooljaar, DIR };
+process.on('exit', flush);
+
+module.exports = { add, answer, flush, endSession, read, summary, schooljaar, DIR };

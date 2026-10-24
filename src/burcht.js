@@ -2,6 +2,7 @@
 // kiest zelf op welk deel van de burcht ze komen. Als de tijd om is, valt de draak aan: elk deel moet
 // hoog genoeg zijn om zijn vuur te doorstaan. De burcht houdt stand als hooguit één deel valt.
 // Een samenwerkingsspel: niemand wint alleen, en elke steen telt.
+const logboek = require('./logboek');
 const PARTS = [
   { key: 'toren-w', name: 'Westertoren', kind: 'toren' },
   { key: 'muur-w', name: 'Westmuur', kind: 'muur' },
@@ -125,6 +126,7 @@ class Burcht {
     p.last = p.question;
     p.question = null;
     const correct = choice === q.correct;
+    logboek.answer('Burchtbouwers', this.quiz.title, p.name, q, correct);
     let gained = 0;
     if (correct) {
       p.right++;
