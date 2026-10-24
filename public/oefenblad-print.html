@@ -10,25 +10,54 @@
 <body class="ob-print">
   <div class="ob-print-bar">
     <span id="p-what">Oefenblad</span>
+    <span class="ob-niveau-tabs hidden" id="p-niveaus"></span>
     <button id="p-print">🖨 Afdrukken of opslaan als pdf</button>
     <button class="secondary" id="p-close">Sluiten</button>
   </div>
-  <article class="ob-paper ob-sheet-print" id="p-paper"><p>Even laden…</p></article>
+  <div id="p-papers"><article class="ob-paper ob-sheet-print"><p>Even laden…</p></article></div>
 <script src="/socket.io/socket.io.js"></script>
 <script src="/js/ob-sheet.js"></script>
+<script src="/js/niveau.js"></script>
 <script>
 // Afdrukbaar oefenblad, of het verbeterblad met de oplossingen in het rood.
+// Heeft het blad niveaus, dan kies je bovenaan Page, Schildknaap, Ridder of alle drie na elkaar.
 const socket = io({ query: { role: 'host' } });
 const params = new URLSearchParams(location.search);
 const key = params.get('sleutel') === '1';
+const file = params.get('file');
 document.getElementById('p-what').textContent = key ? 'Verbeterblad (met oplossingen)' : 'Oefenblad voor de leerlingen';
-socket.emit('ob-print', params.get('file'), res => {
-  const paper = document.getElementById('p-paper');
-  if (res.error) return (paper.textContent = res.error);
-  ObSheet.render(paper, res.view, { mode: 'print', key, solutions: res.solutions });
-  if (key) paper.querySelector('h1').insertAdjacentHTML('beforeend', ' <span class="ob-key-tag">verbeterblad</span>');
-  document.title = `${res.view.title}${key ? ' (verbeterblad)' : ''}`;
-});
+
+function load(niveau) {
+  socket.emit('ob-print', { file, niveau }, res => {
+    const box = document.getElementById('p-papers');
+    if (res.error) return (box.textContent = res.error);
+    const multi = res.niveaus.length > 1;
+    const bar = document.getElementById('p-niveaus');
+    bar.classList.toggle('hidden', !multi);
+    if (multi) {
+      const chosen = niveau === 'alle' ? 'alle' : res.niveau;
+      bar.innerHTML = [...res.niveaus.map(n => [n, Niveau.label(n)]), ['alle', 'Alle drie']]
+        .map(([n, label]) => `<button type="button" class="secondary${n === chosen ? ' on' : ''}" data-niveau="${n}">${label}</button>`).join('');
+      for (const b of bar.querySelectorAll('button')) b.addEventListener('click', () => load(b.dataset.niveau));
+    }
+    box.innerHTML = '';
+    for (const page of res.pages) {
+      const paper = document.createElement('article');
+      paper.className = 'ob-paper ob-sheet-print';
+      box.appendChild(paper);
+      ObSheet.render(paper, page.view, { mode: 'print', key, solutions: page.solutions });
+      const h1 = paper.querySelector('h1');
+      if (multi) h1.insertAdjacentHTML('beforeend', ` <span class="ob-niveau-tag ${page.niveau}">${Niveau.label(page.niveau)}</span>`);
+      if (key) h1.insertAdjacentHTML('beforeend', ' <span class="ob-key-tag">verbeterblad</span>');
+    }
+    const title = res.pages[0].view.title;
+    document.title = `${title}${multi && niveau !== 'alle' ? ` (${Niveau.NAMES[res.niveau]})` : ''}${key ? ' (verbeterblad)' : ''}`;
+    const url = new URL(location.href);
+    url.searchParams.set('niveau', niveau === 'alle' ? 'alle' : res.niveau);
+    history.replaceState(null, '', url);
+  });
+}
+load(params.get('niveau') || 'schildknaap');
 document.getElementById('p-print').addEventListener('click', () => window.print());
 document.getElementById('p-close').addEventListener('click', () => window.close());
 </script>

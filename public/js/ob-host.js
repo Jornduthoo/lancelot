@@ -45,7 +45,7 @@ ItemList.mount($('sheet-list'), {
   kind: 'oefenblad',
   errorId: 'list-error',
   go: 'Live ▶',
-  detail: s => `${s.count} ${s.count === 1 ? 'oefening' : 'oefeningen'} · ${s.types.map(t => TYPE_ICONS[t] || '').join(' ')}`,
+  detail: s => `${s.count} ${s.count === 1 ? 'oefening' : 'oefeningen'} · ${s.types.map(t => TYPE_ICONS[t] || '').join(' ')}${(s.niveaus || []).length > 1 ? ` · ${s.niveaus.map(n => Niveau.ICONS[n]).join('')} ${s.niveaus.length} niveaus` : ''}`,
   play: s => goLive(s.file),
   buttons: [
     { label: '🖨 Print', cls: 'print', title: 'Afdrukken', click: s => window.open(`/oefenblad-print?file=${encodeURIComponent(s.file)}`, '_blank') },
@@ -65,11 +65,15 @@ ItemList.mount($('sheet-list'), {
 
 function goLive(file) {
   $('stopped').classList.add('hidden');
-  loadGame('ob-load', { file, feedback: $('ob-feedback').value }, res => {
+  loadGame('ob-load', { file, feedback: $('ob-feedback').value, niveau: $('ob-niveau').value }, res => {
     $('list-error').textContent = res.error || '';
     $('e-error').textContent = res.error || '';
   });
 }
+
+// Hoe de niveaus verdeeld worden, onthouden we op deze pc.
+try { if (localStorage.getItem('lancelot-ob-niveau')) $('ob-niveau').value = localStorage.getItem('lancelot-ob-niveau'); } catch {}
+$('ob-niveau').addEventListener('change', () => { try { localStorage.setItem('lancelot-ob-niveau', $('ob-niveau').value); } catch {} });
 
 // ---------- Maken met AI ----------
 
@@ -95,7 +99,10 @@ function chosenTypes() {
 let makerDoel = null;
 
 function withDoel(sheet) {
-  if (makerDoel) DoelKies.apply(sheet.blocks.filter(b => b.type !== 'tekst'), makerDoel.codes());
+  if (!makerDoel) return sheet;
+  for (const blocks of [sheet.blocks, sheet.page, sheet.ridder]) {
+    if (blocks) DoelKies.apply(blocks.filter(b => b.type !== 'tekst'), makerDoel.codes());
+  }
   return sheet;
 }
 
@@ -112,10 +119,14 @@ function buildPrompt(forGemini = false) {
   if (!types.filter(t => t !== 'tekst').length) types = [...types, 'invullen', 'meerkeuze'];
   const withText = types.includes('tekst');
   const kinds = types.filter(t => t !== 'tekst');
+  const three = $('a-niveaus').checked;
+  const blocks = `[
+    ${types.map(t => FORMATS[t]).join(',\n    ')}
+  ]`;
   return `Je bent een ervaren leerkracht in Vlaanderen. Maak een oefenblad (werkblad) voor leerlingen uit: ${level} (Belgisch onderwijs). Onderwerp: ${topic}.
 ${DoelKies.prompt(codes, 'oefeningen')}${hasSources ? '\nBaseer alle oefeningen op de bijgevoegde lesstof. Vraag alleen naar dingen die daarin staan.\n' : ''}${extra ? `\nExtra wensen van de docent:\n${extra}\n` : ''}
 Regels:
-- Maak ${count} oefeningen in het Nederlands zoals in Vlaanderen, met ongeveer ${per} vragen of gaten per oefening.
+- Maak ${count} oefeningen${three ? ' per niveau' : ''} in het Nederlands zoals in Vlaanderen, met ongeveer ${per} vragen of gaten per oefening.
 - Gebruik deze soorten oefeningen, afwisselend: ${kinds.join(', ')}.${withText ? '\n- Begin met een korte leestekst ("tekst") waarop de oefeningen voortbouwen.' : ''}
 - Elke oefening krijgt een korte, duidelijke opdrachtzin ("instruction") voor de leerling.
 - Bij invullen staat elk in te vullen woord tussen [vierkante haken]. Kies woorden die eenduidig zijn, zodat de computer kan verbeteren.
@@ -123,15 +134,20 @@ Regels:
 - Bij verbinden: 4 tot 8 paren, elk woord maar één keer.
 - Bij meerkeuze is "correct" het nummer van het goede antwoord, geteld vanaf 0. Zet het goede antwoord niet steeds op dezelfde plek.
 - Pas moeilijkheid en taalgebruik aan het niveau ${level} aan.
-
+${three ? `\n${Niveau.prompt(level, 'oefeningen')}\n` : ''}
 Belangrijk: maak GEEN interactieve quiz, app, webpagina of canvas en schrijf geen code. Ik heb enkel de gegevens nodig als tekst.
 Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uitleg ervoor of erna, precies in dit formaat:
-{
+${three ? `{
   "title": "korte titel van het oefenblad",
-  "blocks": [
-    ${types.map(t => FORMATS[t]).join(',\n    ')}
-  ]
-}`;
+  "niveaus": {
+    "page": [ ...de oefeningen met hulp, in dezelfde vorm als bij schildknaap... ],
+    "schildknaap": ${blocks.replace(/\n/g, '\n    ')},
+    "ridder": [ ...de uitdagende oefeningen, in dezelfde vorm als bij schildknaap... ]
+  }
+}` : `{
+  "title": "korte titel van het oefenblad",
+  "blocks": ${blocks}
+}`}`;
 }
 
 makerDoel = DoelKies.multi({
@@ -148,7 +164,7 @@ function updatePrompt() {
   $('a-prompt').value = buildPrompt();
   $('a-copied').textContent = '';
 }
-for (const id of ['a-topic', 'a-level', 'a-count', 'a-per', 'a-extra', 'a-attach']) $(id).addEventListener('input', updatePrompt);
+for (const id of ['a-topic', 'a-level', 'a-count', 'a-per', 'a-extra', 'a-attach', 'a-niveaus']) $(id).addEventListener('input', updatePrompt);
 $('a-attach').addEventListener('change', () => $('a-attach-note').classList.toggle('hidden', !$('a-attach').checked));
 $('a-types').addEventListener('change', updatePrompt);
 updatePrompt();
@@ -208,7 +224,7 @@ window.addEventListener('focus', async () => {
   if (view !== 'maker' || !promptCopied || !navigator.clipboard?.readText) return;
   let text;
   try { text = await navigator.clipboard.readText(); } catch { return; }
-  if (!text || text === lastClipboard || !text.includes('"blocks"')) return;
+  if (!text || text === lastClipboard || !(text.includes('"blocks"') || text.includes('"niveaus"'))) return;
   lastClipboard = text;
   parseAnswer(text, true);
 });
@@ -354,10 +370,12 @@ function blockCard(b) {
   return card;
 }
 
-function readEditor() {
-  return {
-    title: $('e-title').value,
-    blocks: [...$('e-blocks').children].map(card => {
+// Elk niveau heeft een eigen lijst oefeningen. Schildknaap is het gewone blad; Page en Ridder mogen leeg blijven.
+let editNiveau = 'schildknaap';
+const blockBox = n => $(n === 'schildknaap' ? 'e-blocks' : `e-blocks-${n}`);
+
+function readBlocks(box) {
+  return [...box.children].map(card => {
       const block = textToBlock(
         card.dataset.type,
         card.querySelector('.e-instr') ? card.querySelector('.e-instr').value : '',
@@ -366,9 +384,54 @@ function readEditor() {
       );
       const doel = card.querySelector('.doel-veld');
       return doel && DoelKies.read(doel) ? { ...block, doel: DoelKies.read(doel) } : block;
-    }),
-  };
+  });
 }
+
+function readEditor() {
+  const sheet = { title: $('e-title').value, blocks: readBlocks($('e-blocks')) };
+  for (const n of ['page', 'ridder']) {
+    const blocks = readBlocks(blockBox(n));
+    if (blocks.length) sheet[n] = blocks;
+  }
+  return sheet;
+}
+
+function showNiveau(n) {
+  editNiveau = n;
+  for (const l of Niveau.LIST) blockBox(l).classList.toggle('hidden', l !== n);
+  renderNiveauTabs();
+  preview();
+}
+
+function renderNiveauTabs() {
+  for (const b of $('e-niveaus').querySelectorAll('button')) {
+    const n = b.dataset.niveau;
+    const count = blockBox(n).children.length;
+    b.classList.toggle('on', n === editNiveau);
+    b.textContent = `${Niveau.label(n)} · ${Niveau.HELP[n]}${n === 'schildknaap' || count ? ` (${count})` : ''}`;
+  }
+  const help = $('e-niveau-help');
+  help.innerHTML = '';
+  if (editNiveau === 'schildknaap') {
+    help.textContent = 'Het gewone blad: het doel zelf. Page (met hulp) en Ridder (uitdaging) zijn extra versies; laat ze leeg als je ze niet nodig hebt.';
+  } else if (!blockBox(editNiveau).children.length) {
+    help.append(`Nog leeg: wie op ${Niveau.NAMES[editNiveau]} staat, krijgt het Schildknaap-blad. `);
+    const copy = document.createElement('button');
+    copy.className = 'secondary small-btn';
+    copy.textContent = 'Begin met een kopie van Schildknaap';
+    copy.addEventListener('click', () => {
+      for (const b of readBlocks($('e-blocks'))) blockBox(editNiveau).appendChild(blockCard(b));
+      renderNiveauTabs();
+      preview();
+    });
+    help.appendChild(copy);
+  } else {
+    help.textContent = editNiveau === 'page'
+      ? 'Page: dezelfde leerstof met hulp, bijvoorbeeld een voorbeeld in de opdracht, minder keuzes of een woordenbank.'
+      : 'Ridder: dezelfde leerstof als uitdaging, bijvoorbeeld moeilijker, toepassen of een stap verder.';
+  }
+}
+for (const b of $('e-niveaus').querySelectorAll('button')) b.addEventListener('click', () => showNiveau(b.dataset.niveau));
 
 // Het voorbeeld rechts: zoals de leerling het blad ziet. Fouten verschijnen onderaan.
 let previewTimer = null;
@@ -377,7 +440,8 @@ function preview() {
   previewTimer = setTimeout(() => {
     socket.emit('ob-check', readEditor(), res => {
       $('e-error').textContent = res.error || '';
-      if (res.sheet) ObSheet.render($('e-preview'), previewView(res.sheet), { mode: 'view' });
+      renderNiveauTabs();
+      if (res.sheet) ObSheet.render($('e-preview'), previewView({ title: res.sheet.title, blocks: res.sheet[editNiveau] || res.sheet.blocks }), { mode: 'view' });
     });
   }, 300);
 }
@@ -409,18 +473,20 @@ function openEditor(sheet, file) {
   editingFile = file;
   $('e-heading').textContent = file ? 'Oefenblad bewerken' : 'Nieuw oefenblad';
   $('e-title').value = sheet.title || '';
-  $('e-blocks').innerHTML = '';
-  for (const b of sheet.blocks) $('e-blocks').appendChild(blockCard(b));
+  for (const n of Niveau.LIST) {
+    blockBox(n).innerHTML = '';
+    for (const b of (n === 'schildknaap' ? sheet.blocks : sheet[n]) || []) blockBox(n).appendChild(blockCard(b));
+  }
   $('e-error').textContent = '';
   show('editor');
-  preview();
+  showNiveau('schildknaap');
 }
 
 $('e-add').innerHTML = Object.keys(EDIT_HELP).map(t => `<button class="secondary" data-type="${t}">+ ${ObSheet.NAMES[t]}</button>`).join('');
 for (const b of $('e-add').querySelectorAll('button')) {
   b.addEventListener('click', () => {
     const card = blockCard({ type: b.dataset.type });
-    $('e-blocks').appendChild(card);
+    blockBox(editNiveau).appendChild(card);
     card.querySelector('.e-body').focus();
     preview();
   });
@@ -486,8 +552,9 @@ function renderLive(prev) {
   else {
     box.innerHTML = r.map(p => {
       const pct = p.total ? Math.round((p.right / p.total) * 100) : 0;
+      const lvl = s.multi ? ` <span class="ob-niveau-tag ${p.niveau}" title="${Niveau.NAMES[p.niveau]} (${Niveau.HELP[p.niveau]})">${p.choosing ? '… kiest niveau' : Niveau.label(p.niveau)}</span>` : '';
       return `<button class="ob-student${p.submitted ? ' in' : ''}" data-id="${esc(p.id)}">
-        <span class="n">${esc(p.name)}${p.submitted ? ' <em>✔ ingeleverd</em>' : ''}</span>
+        <span class="n">${esc(p.name)}${lvl}${p.submitted ? ' <em>✔ ingeleverd</em>' : ''}</span>
         <span class="bar"><i style="width:${(p.done / p.total) * 100}%"></i></span>
         <span class="s"><b class="g">${p.right}</b> goed · <b class="f">${p.wrong}</b> fout · ${p.done}/${p.total} ingevuld${p.submitted ? ` · ${pct}%` : ''}</span>
       </button>`;
@@ -495,13 +562,27 @@ function renderLive(prev) {
     for (const b of box.querySelectorAll('.ob-student')) b.addEventListener('click', () => openDetail(b.dataset.id));
     if (prev && prev.ranking && r.length > prev.ranking.length) sfx.join();
   }
-  // Per oefening: hoeveel van wat ingevuld is, is goed?
-  const blocks = s.sheet.blocks;
+  // Per oefening: hoeveel van wat ingevuld is, is goed? Bij niveaus per niveau dat in gebruik is.
+  const used = s.multi ? Niveau.LIST.filter(n => s.levels[n] && r.some(p => p.niveau === n)) : ['schildknaap'];
+  $('l-stats').innerHTML = (used.length ? used : ['schildknaap']).map(niv => {
+    const level = s.levels[niv] || { sheet: s.sheet, stats: s.stats };
+    return (s.multi ? `<h4 class="ob-stat-niveau">${Niveau.label(niv)}</h4>` : '') + statsHtml(level.sheet.blocks, level.stats);
+  }).join('');
+  const saved = $('results-saved');
+  saved.innerHTML = '';
+  if (s.resultsFile) {
+    saved.append('Resultaten opgeslagen. ');
+    saved.append(downloadLink(s.resultsFile));
+  }
+  if (detailId) openDetail(detailId, true);
+}
+
+function statsHtml(blocks, stats) {
   let n = 0;
-  $('l-stats').innerHTML = blocks.map((b, bi) => {
+  return blocks.map((b, bi) => {
     if (b.type === 'tekst') return '';
     n++;
-    const fs = s.stats.filter(f => f.block === bi);
+    const fs = stats.filter(f => f.block === bi);
     if (b.type === 'open') {
       const filled = fs.reduce((a, f) => a + f.filled, 0);
       return `<div class="ob-stat"><span>${n}. ${ObSheet.NAMES[b.type]}</span><span class="muted">${filled} antwoorden</span></div>`;
@@ -513,13 +594,6 @@ function renderLive(prev) {
     return `<div class="ob-stat"><span>${n}. ${ObSheet.NAMES[b.type]}</span><span class="pct ${pct >= 75 ? 'hi' : pct >= 50 ? 'mid' : 'lo'}">${filled ? `${pct}%` : '–'}</span>
       <span class="sbar"><i style="width:${pct}%"></i></span>${hardest && filled > 2 && hardest.right / hardest.filled < .6 ? `<span class="muted small">Moeilijkst: vraag ${Number(hardest.id.split('.')[1]) + 1}</span>` : ''}</div>`;
   }).join('');
-  const saved = $('results-saved');
-  saved.innerHTML = '';
-  if (s.resultsFile) {
-    saved.append('Resultaten opgeslagen. ');
-    saved.append(downloadLink(s.resultsFile));
-  }
-  if (detailId) openDetail(detailId, true);
 }
 
 // Meekijken op het blad van één leerling.
@@ -530,8 +604,10 @@ function openDetail(id, refresh) {
     detailId = id;
     $('d-name').textContent = `${res.name}${res.submitted ? ' · ingeleverd' : ''}`;
     $('d-reopen').classList.toggle('hidden', !res.submitted);
+    renderDetailNiveaus(id, res.niveau);
     const scroll = $('detail').querySelector('.ob-modal-box').scrollTop;
-    ObSheet.render($('d-paper'), hostView(), { mode: 'view', answers: res.answers, results: res.results, solutions: state.solutions });
+    const level = (state.levels && state.levels[res.niveau]) || state;
+    ObSheet.render($('d-paper'), hostView(level), { mode: 'view', answers: res.answers, results: res.results, solutions: level.solutions });
     $('detail').classList.remove('hidden');
     if (refresh) $('detail').querySelector('.ob-modal-box').scrollTop = scroll;
   });
@@ -539,10 +615,27 @@ function openDetail(id, refresh) {
 $('d-close').addEventListener('click', () => { detailId = null; $('detail').classList.add('hidden'); });
 $('detail').addEventListener('click', e => { if (e.target.id === 'detail') $('d-close').click(); });
 
-// Het blad zoals de leerlingen het zien, met dezelfde volgorde bij verbinden.
-function hostView() {
-  const v = previewView(state.sheet);
-  v.blocks = v.blocks.map((b, bi) => (b.type === 'verbinden' ? { ...b, right: state.shuffles[bi].map(i => state.sheet.blocks[bi].pairs[i].right) } : b));
+// Een leerling op een ander niveau zetten. Hij begint dan op het andere blad.
+function renderDetailNiveaus(id, current) {
+  const box = $('d-niveaus');
+  box.classList.toggle('hidden', !state.multi);
+  if (!state.multi) return;
+  box.innerHTML = Niveau.LIST.filter(n => state.levels[n]).map(n => `<button type="button" class="secondary${n === current ? ' on' : ''}" data-niveau="${n}" title="${Niveau.HELP[n]}">${Niveau.label(n)}</button>`).join('');
+  for (const b of box.querySelectorAll('button')) {
+    b.addEventListener('click', () => {
+      const n = b.dataset.niveau;
+      if (n === current) return;
+      const r = state.ranking.find(p => p.id === id);
+      if (r && r.done && !confirm(`${r.name} op ${Niveau.NAMES[n]} zetten? Het blad begint dan opnieuw; wat al ingevuld is, vervalt.`)) return;
+      socket.emit('ob-set-niveau', { id, niveau: n }, () => openDetail(id, true));
+    });
+  }
+}
+
+// Het blad zoals de leerlingen het zien, met dezelfde volgorde bij verbinden. level: { sheet, shuffles } van een niveau.
+function hostView(level = state) {
+  const v = previewView(level.sheet);
+  v.blocks = v.blocks.map((b, bi) => (b.type === 'verbinden' ? { ...b, right: level.shuffles[bi].map(i => level.sheet.blocks[bi].pairs[i].right) } : b));
   return v;
 }
 

@@ -181,6 +181,17 @@ Tip: leg vooraf uit dat je in de pitstop stilstaat. Wie de vragen kent, tankt sn
 
 Liever op papier? Klik bij een blad op **🖨 Print** voor het werkblad en op **Verbeterblad** voor de oplossingen. Via **Werkblad maken** op het startscherm laat je AI meteen een nieuw blad maken.
 
+## Niveaus: Page, Schildknaap en Ridder
+
+Elk oefenblad en elke quiz kan drie niveaus hebben: **🪶 Page** (met hulp), **🛡️ Schildknaap** (het doel zelf) en **⚔️ Ridder** (uitdaging).
+
+1. In de oefenbladmaker en de quizmaker staat **Op drie niveaus** aangevinkt. De AI maakt dan elke oefening of vraag in drie versies.
+2. In de oefenbladmaker wissel je met de knoppen boven de oefeningen tussen de niveaus. Laat Page of Ridder leeg als je ze niet nodig hebt; die leerlingen krijgen dan het Schildknaap-blad. In de quizmaker kies je het niveau per vraag.
+3. Op de pagina **Mijn klas en doelen** zet je elke leerling op zijn niveau.
+4. Een oefenblad live zetten: kies bij **Niveau** of iedereen hetzelfde niveau krijgt, of elke leerling zijn niveau uit Mijn klas, of dat de leerling zelf kiest. Klik tijdens het werken op een naam om een leerling op een ander niveau te zetten.
+5. Printen: bovenaan het printblad kies je Page, Schildknaap, Ridder of **Alle drie** (elk niveau op een eigen blad). Het verbeterblad werkt hetzelfde.
+6. Quizspellen: boven de quizlijst kies je het **niveau van de klas**. Het spel gebruikt dan alleen de vragen van dat niveau, of alles door elkaar.
+
 ## Mijn klas en de leerplandoelen
 
 1. Klik op het startscherm op **Mijn klas en doelen**. Zet je leerlingen erin, één naam per regel, kies het leerjaar en klik op **Klaslijst bewaren**. De lijst blijft op deze pc.

@@ -514,7 +514,7 @@ class Royale {
     socket.on('ry-load', handle(({ file, minutes, tempo } = {}) => {
       const busy = busyWith('royale');
       if (busy) throw busyError(busy);
-      this.load(quizzes.load(file), Number(minutes), tempo);
+      this.load(quizzes.play(file), Number(minutes), tempo);
       return {};
     }));
     socket.on('ry-start', () => this.start());

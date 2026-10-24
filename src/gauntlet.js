@@ -825,7 +825,7 @@ class Gauntlet {
     socket.on('gt-load', handle(({ file, minutes, tempo } = {}) => {
       const busy = busyWith('gauntlet');
       if (busy) throw busyError(busy);
-      this.load(quizzes.load(file), Number(minutes), tempo);
+      this.load(quizzes.play(file), Number(minutes), tempo);
       return {};
     }));
     socket.on('gt-start', () => this.start());

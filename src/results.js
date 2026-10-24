@@ -172,21 +172,26 @@ function saveOefenblad(ob) {
   const now = new Date();
   const ranking = ob.ranking();
   const label = f => `Oef ${f.block + 1}.${Number(f.id.split('.')[1]) + 1}`;
+  const cell = (p, f) => (f.kind === 'open' ? p.answers[f.id] || '' : p.results[f.id] === true ? 'goed' : p.results[f.id] === false ? (f.kind === 'tekst' || f.kind === 'exact' ? `fout: ${p.answers[f.id]}` : 'fout') : '-');
+  // Elk niveau heeft eigen oefeningen, dus per niveau een eigen tabel.
+  const groups = Object.keys(ob.levels).map(n => ({ n, rows: ranking.filter(r => (ob.levels[r.niveau] ? r.niveau : 'schildknaap') === n) })).filter(g => g.rows.length || !ob.multi);
+  const names = { page: 'Page (met hulp)', schildknaap: 'Schildknaap (het doel)', ridder: 'Ridder (uitdaging)' };
   const lines = [
     row(['Oefenblad', ob.sheet.title]),
     row(['Datum', stamp(now)]),
     row(['Feedback', ob.feedback === 'direct' ? 'meteen' : 'na inleveren']),
     row(['Leerlingen', ranking.length]),
-    '',
-    row(['Naam', 'Goed', 'Van', '% goed', 'Ingevuld', ...ob.fields.map(label)]),
-    ...ranking.map(r => {
-      const p = ob.players.get(r.id);
-      return row([
-        r.name, r.right, r.total, r.total ? `${Math.round((r.right / r.total) * 100)}%` : '-', `${r.done}/${ob.fields.length}`,
-        ...ob.fields.map(f => (f.kind === 'open' ? p.answers[f.id] || '' : p.results[f.id] === true ? 'goed' : p.results[f.id] === false ? (f.kind === 'tekst' || f.kind === 'exact' ? `fout: ${p.answers[f.id]}` : 'fout') : '-')),
-      ]);
-    }),
   ];
+  for (const g of groups) {
+    const fields = ob.levels[g.n].fields;
+    lines.push('');
+    if (ob.multi) lines.push(row(['Niveau', names[g.n]]));
+    lines.push(row(['Naam', 'Goed', 'Van', '% goed', 'Ingevuld', ...fields.map(label)]));
+    for (const r of g.rows) {
+      const p = ob.players.get(r.id);
+      lines.push(row([r.name, r.right, r.total, r.total ? `${Math.round((r.right / r.total) * 100)}%` : '-', `${r.done}/${fields.length}`, ...fields.map(f => cell(p, f))]));
+    }
+  }
   return write(now, `oefenblad-${slugOf(ob.sheet.title)}`, lines);
 }
 

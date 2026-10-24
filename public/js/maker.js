@@ -30,25 +30,27 @@ function buildPrompt(forGemini = false) {
   const doel = DoelKies.find(codes[0]);
   const topic = $('m-topic').value.trim() || (doel ? doel.cluster : '') || (hasSources ? 'de bijgevoegde lesstof' : '[ONDERWERP]');
   const level = $('m-level').value;
-  const count = Math.min(40, Math.max(3, Number($('m-count').value) || 10));
+  const three = $('m-niveaus').checked;
+  // Een quiz heeft hooguit 100 vragen, ook met drie niveaus samen.
+  const count = Math.min(three ? 33 : 40, Math.max(3, Number($('m-count').value) || 10));
   const time = Math.min(120, Math.max(5, Number($('m-time').value) || 20));
   const extra = $('m-extra').value.trim();
   return `Je bent een ervaren leerkracht in Vlaanderen. Maak een quiz voor leerlingen uit: ${level} (Belgisch onderwijs). Onderwerp: ${topic}.
 ${DoelKies.prompt(codes, 'vragen')}${hasSources ? '\nBaseer alle vragen op de bijgevoegde lesstof. Vraag alleen naar dingen die daarin staan.\n' : ''}${extra ? `\nExtra wensen van de docent:\n${extra}\n` : ''}
 Regels:
-- Maak precies ${count} meerkeuzevragen in het Nederlands zoals in Vlaanderen.
+- Maak precies ${count} meerkeuzevragen${three ? ` per niveau (samen ${count * 3})` : ''} in het Nederlands zoals in Vlaanderen.
 - Elke vraag heeft 4 antwoorden (bij een waar/niet waar-vraag 2), met precies één goed antwoord.
 - Zet het goede antwoord niet steeds op dezelfde plek.
 - De foute antwoorden zijn geloofwaardig, maar duidelijk fout voor wie de stof kent.
 - Houd vragen kort (hooguit 120 tekens) en antwoorden heel kort (hooguit 60 tekens).
 - Pas de moeilijkheid en het taalgebruik aan het niveau ${level} aan.
-
+${three ? `\n${Niveau.prompt(level, 'vragen')}\nGeef elke vraag het veld "niveau": "page", "schildknaap" of "ridder".\n` : ''}
 Belangrijk: maak GEEN interactieve quiz, app, webpagina of canvas en schrijf geen code. Ik heb enkel de gegevens nodig als tekst.
 Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uitleg ervoor of erna, precies in dit formaat:
 {
   "title": "korte titel van de quiz",
   "questions": [
-    { "question": "de vraag", "answers": ["antwoord A", "antwoord B", "antwoord C", "antwoord D"], "correct": 0, "time": ${time}${codes.length > 1 ? ', "doel": "code van het doel"' : ''} }
+    { "question": "de vraag", "answers": ["antwoord A", "antwoord B", "antwoord C", "antwoord D"], "correct": 0, "time": ${time}${three ? ', "niveau": "schildknaap"' : ''}${codes.length > 1 ? ', "doel": "code van het doel"' : ''} }
   ]
 }
 "correct" is het nummer van het goede antwoord, geteld vanaf 0 (0 = eerste antwoord, 3 = vierde antwoord).`;
@@ -111,7 +113,7 @@ document.addEventListener('paste', e => {
 
 let hasKey = false;
 
-for (const id of ['m-topic', 'm-level', 'm-count', 'm-time', 'm-extra', 'm-attach']) {
+for (const id of ['m-topic', 'm-level', 'm-count', 'm-time', 'm-extra', 'm-attach', 'm-niveaus']) {
   $(id).addEventListener('input', updatePrompt);
 }
 
@@ -257,6 +259,7 @@ function addQuestion(q) {
     <div class="bar">
       <strong class="q-number"></strong>
       <div class="actions">
+        <label class="inline">Niveau <select class="q-niveau">${Niveau.LIST.map(n => `<option value="${n}"${(q.niveau || 'schildknaap') === n ? ' selected' : ''}>${Niveau.label(n)}</option>`).join('')}</select></label>
         <label class="inline">Seconden <input class="q-time" type="number" min="5" max="120" value="${q.time}"></label>
         <button class="secondary q-delete" title="Vraag verwijderen">✕</button>
       </div>
@@ -276,7 +279,7 @@ function addQuestion(q) {
 $('e-add').addEventListener('click', () => {
   // Een nieuwe vraag oefent meestal hetzelfde doel als de vorige.
   const last = $('e-questions').lastElementChild;
-  addQuestion({ ...emptyQuestion(), doel: last ? DoelKies.read(last.querySelector('.doel-veld')) : '' });
+  addQuestion({ ...emptyQuestion(), doel: last ? DoelKies.read(last.querySelector('.doel-veld')) : '', niveau: last ? last.querySelector('.q-niveau').value : '' });
   $('e-questions').lastElementChild.querySelector('.q-text').focus();
 });
 
@@ -293,7 +296,7 @@ function readEditor() {
       if (j === checked) correct = answers.length;
       answers.push(t);
     });
-    return { question: el.querySelector('.q-text').value, answers, correct, time: Number(el.querySelector('.q-time').value), doel: DoelKies.read(el.querySelector('.doel-veld')) };
+    return { question: el.querySelector('.q-text').value, answers, correct, time: Number(el.querySelector('.q-time').value), niveau: el.querySelector('.q-niveau').value, doel: DoelKies.read(el.querySelector('.doel-veld')) };
   });
   return { title: $('e-title').value, questions };
 }
