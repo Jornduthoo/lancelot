@@ -1246,6 +1246,17 @@ body:not([data-rk="1"]) #rijk { display: none !important; }
   .realm span { display: none; }
 }
 
+/* Iconen op de tegels (public/img/icons, uit Jorns iconpack). */
+.tile-icon { display: block; width: 84px; height: 84px; border-radius: 14px; filter: drop-shadow(0 0 10px rgba(76, 201, 255, .35)); transition: transform .2s, filter .2s; }
+.realm .tile-icon { width: 112px; height: 112px; border-radius: 18px; }
+.module:hover .tile-icon, .realm:hover .tile-icon { transform: scale(1.06) rotate(-2deg); filter: drop-shadow(0 0 16px rgba(76, 201, 255, .7)); }
+.realm.on .tile-icon { filter: drop-shadow(0 0 16px rgba(255, 201, 74, .65)); }
+.btn-icon { width: 22px; height: 22px; border-radius: 5px; vertical-align: -5px; margin-right: 6px; }
+@media (max-width: 760px) {
+  .realm .tile-icon { width: 56px; height: 56px; border-radius: 10px; flex: none; }
+  .tile-icon { width: 64px; height: 64px; }
+}
+
 /* Klaslijst op het aanmeldscherm: leerlingen tikken hun naam aan. */
 .klas-namen { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; max-height: 46vh; overflow-y: auto; margin: 4px 0 6px; }
 .klas-namen button { flex: 0 1 auto; min-width: 7.5em; padding: 10px 14px; font-size: 1.05rem; background: var(--panel-solid); color: var(--text); border: 1px solid var(--line); }
