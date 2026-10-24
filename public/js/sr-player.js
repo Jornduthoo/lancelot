@@ -6,7 +6,7 @@ const sr = {
   run: -1,
   offset: 0,
   me: null,           // eigen stand van de server: levens, wapens, punten
-  car: { x: 0, y: 0, a: 0, v: 0, boost: 0 },
+  car: { x: 0, y: 0, z: 0, vz: 0, a: 0, v: 0, boost: 0 },
   spawn: -1,
   others: new Map(),  // n -> ros van een andere leerling
   lasers: new Map(),
@@ -14,7 +14,7 @@ const sr = {
   mines: [],
   score: { rood: 0, blauw: 0 },
   keys: {},
-  steer: { left: false, right: false, brake: false },
+  stick: null,        // duimjoystick op de gsm: { id, x, y, dx, dy }
   touch: false,       // op een gsm geeft het ros vanzelf gas
   firing: false,
   lastFire: 0,
@@ -141,7 +141,7 @@ socket.on('sr-me', me => {
   sr.offset = me.now - Date.now();
   if (me.spawn !== sr.spawn) {
     sr.spawn = me.spawn;
-    Object.assign(sr.car, { x: me.x, y: me.y, a: me.a, v: 0, boost: 0 });
+    Object.assign(sr.car, { x: me.x, y: me.y, z: 0, vz: 0, a: me.a, v: 0, boost: 0 });
     sr.camA = me.a;
   }
   if (old && me.alive && me.hp < old.hp) {
@@ -180,15 +180,15 @@ function srScore(score) {
 socket.on('sr-world', data => {
   if (!sr.state || sr.state.phase !== 'play') return;
   const seen = new Set();
-  for (const [n, name, x, y, a, v, team, color, hp, flags, kills, streak] of data.players) {
+  for (const [n, name, x, y, a, v, team, color, hp, flags, kills, streak, z] of data.players) {
     if (sr.me && n === sr.me.n) continue;
     seen.add(n);
     const o = sr.others.get(n);
     if (o) {
       if (Math.hypot(o.tx - x, o.ty - y) > 260 || (o.flags & 1 && !(flags & 1))) { o.x = x; o.y = y; o.a = a; }
-      Object.assign(o, { tx: x, ty: y, ta: a, v, name, team, color, hp, flags, kills, streak, at: performance.now() });
+      Object.assign(o, { tx: x, ty: y, ta: a, tz: z || 0, v, name, team, color, hp, flags, kills, streak, at: performance.now() });
     } else {
-      sr.others.set(n, { n, x, y, a, tx: x, ty: y, ta: a, v, name, team, color, hp, flags, kills, streak, at: performance.now() });
+      sr.others.set(n, { n, x, y, a, z: z || 0, tx: x, ty: y, ta: a, tz: z || 0, v, name, team, color, hp, flags, kills, streak, at: performance.now() });
     }
   }
   for (const n of sr.others.keys()) if (!seen.has(n)) sr.others.delete(n);
@@ -365,11 +365,56 @@ function srHold(btn, on, off) {
   }
   btn.addEventListener('contextmenu', e => e.preventDefault());
 }
-for (const b of document.querySelectorAll('.sr-steer .ls-btn')) {
-  const side = b.dataset.steer === '-1' ? 'left' : 'right';
-  srHold(b, () => { sr.steer[side] = true; }, () => { sr.steer[side] = false; });
+// De duimjoystick: zet je duim ergens op de linkerhelft en schuif. Links en rechts sturen, naar beneden remmen.
+const SR_STICK = 60;
+const srStage = $('sr-stage');
+srStage.addEventListener('pointerdown', e => {
+  if (e.pointerType === 'mouse' || e.target.closest('button') || sr.stick) return;
+  const r = srStage.getBoundingClientRect();
+  if (e.clientX - r.left > r.width * .55) return;
+  e.preventDefault();
+  sfx.unlock();
+  sr.touch = true;
+  sr.stick = { id: e.pointerId, x: e.clientX, y: e.clientY, dx: 0, dy: 0 };
+  try { srStage.setPointerCapture(e.pointerId); } catch {}
+  srStickPaint();
+});
+srStage.addEventListener('pointermove', e => {
+  const st = sr.stick;
+  if (!st || st.id !== e.pointerId) return;
+  let dx = e.clientX - st.x, dy = e.clientY - st.y;
+  const d = Math.hypot(dx, dy);
+  // Ver doorschuiven? Dan schuift de joystick mee, zo blijft hij onder je duim.
+  if (d > SR_STICK * 1.4) {
+    st.x += (dx / d) * (d - SR_STICK * 1.4);
+    st.y += (dy / d) * (d - SR_STICK * 1.4);
+    dx = e.clientX - st.x;
+    dy = e.clientY - st.y;
+  }
+  st.dx = dx;
+  st.dy = dy;
+  srStickPaint();
+});
+for (const ev of ['pointerup', 'pointercancel']) {
+  srStage.addEventListener(ev, e => {
+    if (!sr.stick || sr.stick.id !== e.pointerId) return;
+    sr.stick = null;
+    srStickPaint();
+  });
 }
-srHold($('sr-brake'), () => { sr.steer.brake = true; }, () => { sr.steer.brake = false; });
+function srStickPaint() {
+  const el = $('sr-stick');
+  const st = sr.stick;
+  el.classList.toggle('on', Boolean(st));
+  $('sr-stick-hint').classList.toggle('hidden', Boolean(st));
+  if (!st) return;
+  const r = srStage.getBoundingClientRect();
+  el.style.left = `${st.x - r.left}px`;
+  el.style.top = `${st.y - r.top}px`;
+  const d = Math.hypot(st.dx, st.dy);
+  const k = d > SR_STICK ? SR_STICK / d : 1;
+  el.firstElementChild.style.transform = `translate(${st.dx * k}px, ${st.dy * k}px)`;
+}
 srHold($('sr-laser'), () => { sr.firing = true; srFire('laser'); }, () => { sr.firing = false; });
 for (const kind of ['raket', 'mijn']) srHold($(`sr-${kind}`), () => srFire(kind), () => {});
 $('sr-ask').addEventListener('click', e => { e.currentTarget.blur(); srOpenQuestion(); });
@@ -510,9 +555,18 @@ function srResize() {
 window.addEventListener('resize', srResize);
 
 function srInput() {
-  const turn = (sr.keys.right || sr.steer.right ? 1 : 0) - (sr.keys.left || sr.steer.left ? 1 : 0);
+  let turn = (sr.keys.right ? 1 : 0) - (sr.keys.left ? 1 : 0);
   let gas = (sr.keys.up ? 1 : 0) - (sr.keys.down ? 1 : 0);
-  if (sr.touch) gas = sr.steer.brake ? -1 : 1;
+  if (sr.touch) {
+    // Op de gsm geeft het ros vanzelf gas. De joystick stuurt zacht in het midden en scherp aan de rand.
+    gas = 1;
+    const st = sr.stick;
+    if (st) {
+      const x = Math.max(-1, Math.min(1, st.dx / SR_STICK));
+      turn = Math.abs(x) < .12 ? 0 : Math.sign(x) * ((Math.abs(x) - .12) / .88) ** 1.3;
+      if (st.dy > SR_STICK * .75 && Math.abs(st.dy) > Math.abs(st.dx)) gas = -1;
+    }
+  }
   return { gas, turn };
 }
 
@@ -531,15 +585,18 @@ function srFrame(t) {
   if (sr.outEnd) $('sr-out-timer').textContent = `Terug over ${Math.max(0, Math.ceil((sr.outEnd - t) / 1000))}…`;
   const input = srInput();
   if (srPlaying()) {
-    if (SrWorld.drive(sr.car, input, dt) && t - sr.bump > 400) {
+    const what = SrWorld.drive(sr.car, input, dt);
+    if (what.bump && t - sr.bump > 400) {
       sr.bump = t;
       buzz(40);
     }
+    if (what.jump) sfx.jump();
+    if (what.land) buzz(30);
     if (sr.firing) srFire('laser');
     if (t - sr.lastSend > 50) {
       sr.lastSend = t;
       const c = sr.car;
-      socket.emit('sr-move', { x: Math.round(c.x), y: Math.round(c.y), a: +c.a.toFixed(3), v: Math.round(c.v), s: sr.spawn });
+      socket.emit('sr-move', { x: Math.round(c.x), y: Math.round(c.y), z: Math.round(c.z), a: +c.a.toFixed(3), v: Math.round(c.v), s: sr.spawn });
     }
   }
   for (const o of sr.others.values()) {
@@ -553,6 +610,7 @@ function srFrame(t) {
     while (da > Math.PI) da -= Math.PI * 2;
     while (da < -Math.PI) da += Math.PI * 2;
     o.a += da * Math.min(1, dt * 12);
+    o.z = (o.z || 0) + ((o.tz || 0) - (o.z || 0)) * Math.min(1, dt * 14);
   }
   if ($('sr-game').classList.contains('hidden')) return;
   if (!srView.w) srResize();
