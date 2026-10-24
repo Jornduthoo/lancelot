@@ -174,6 +174,7 @@ Tip: leg vooraf uit dat je in de pitstop stilstaat. Wie de vragen kent, tankt sn
 
 1. Klik op het startscherm op **De Smidse**. Maak een nieuw blad met AI of kies er een uit **Mijn oefenbladen**. Wil je het op papier? Klik in het blad op **🖨 Opslaan en printen**: je krijgt het werkblad en het verbeterblad.
 2. Kies bovenaan de feedback: **meteen** groen of rood, of pas **na het inleveren**.
+   Bij **meteen** loont gokken niet: wie bij een keuzevraag fout klikt, wacht even voor hij dat vakje opnieuw kiest, je krijgt het seintje **Gokt er iemand?** als iemand snel na elkaar fout klikt, en in het logboek telt de eerste poging.
 3. Klik op **Live**. Leerlingen scannen dezelfde QR-code en vullen het blad in. Enter springt naar het volgende vakje.
 4. Volg op het bord wie waar staat en welke oefening moeilijk is. Klik op een naam om dat blad te bekijken.
 5. Klaar? Klik op **Toon oplossingen** en daarna op **Afsluiten**. De resultaten staan in `resultaten`.

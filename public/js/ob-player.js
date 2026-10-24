@@ -103,6 +103,7 @@ function obSend(id, value) {
   ob.answers[id] = value;
   obStatus();
   socket.emit('ob-answer', { id, value }, res => {
+    if (res && res.wait) obWait(id, res.wait, res.error ? res.value : null);
     if (!res || res.error) return;
     if (res.correct === undefined) return;
     ob.results[id] = res.correct;
@@ -111,6 +112,26 @@ function obSend(id, value) {
     if (res.correct === false) buzz(80);
     obStatus();
   });
+}
+
+// Tegen gokken: na een fout keuzeantwoord even wachten voor je dat vakje opnieuw kiest.
+// back: de keuze die de server nog kent (als de leerling toch te vroeg klikte).
+function obWait(id, ms, back) {
+  const box = $('ob-paper').querySelector(`[data-field="${CSS.escape(id)}"]`);
+  if (!box) return;
+  if (back !== null) {
+    ob.answers[id] = back;
+    if (box.tagName === 'SELECT') box.value = back;
+    for (const o of box.querySelectorAll('.ob-choice')) o.classList.toggle('on', o.dataset.value === String(back));
+  }
+  const parts = box.tagName === 'SELECT' ? [box] : [...box.querySelectorAll('.ob-choice')];
+  box.classList.add('ob-wacht');
+  for (const el of parts) el.disabled = true;
+  clearTimeout(box.waitTimer);
+  box.waitTimer = setTimeout(() => {
+    box.classList.remove('ob-wacht');
+    if (ob.state.phase === 'open' && !ob.report) for (const el of parts) el.disabled = false;
+  }, ms);
 }
 
 // Hoeveel vakjes ingevuld, en na het inleveren de score.

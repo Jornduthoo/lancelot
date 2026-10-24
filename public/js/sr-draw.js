@@ -4,7 +4,7 @@ const SrDraw = (() => {
   const Wd = SrWorld;
   const TEAM = { rood: '#ff4d6d', blauw: '#3d8bff' };
   const COLORS = ['#ff4d6d', '#4cc9ff', '#ffd166', '#7bf1a8', '#c77dff', '#ff9f1c', '#f15bb5', '#e8f1ff'];
-  const colorOf = (team, color) => TEAM[team] || COLORS[((color % 8) + 8) % 8];
+  const colorOf = (team, color) => TEAM[team] || COLORS[((color % 8) + 8) % 8] || COLORS[0];
 
   // De arena één keer tekenen op een eigen canvas; daarna alleen nog kopiëren.
   // Met objects: false zonder kratten, pilaren en schansen (die tekent het 3D-zicht zelf), wel met hun schaduw.

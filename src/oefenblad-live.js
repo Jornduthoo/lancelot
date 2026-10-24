@@ -10,6 +10,11 @@ const klas = require('./klas');
 const { NIVEAUS, NAMES } = require('./niveaus');
 
 const MODES = [...NIVEAUS, 'klas', 'kies'];
+// Tegen gokken bij meteen verbeteren: na een fout keuzeantwoord even wachten voor je dat vakje opnieuw kiest,
+// en wie snel na elkaar fout klikt, geeft de leerkracht een seintje. In het logboek telt de eerste poging.
+const WRONG_MS = 3000;
+const FAST_MS = 1500;
+const closed = field => field.kind === 'keuze' || field.kind === 'paar';
 
 class OefenbladLive {
   constructor(io, onFinish) {
@@ -127,7 +132,7 @@ class OefenbladLive {
     if ([...this.players.values()].some(p => p.name.toLowerCase() === clean.toLowerCase())) return { error: 'Die naam is al bezet.' };
     this.players.set(playerId, {
       name: clean, socketId, niveau: this.startNiveau(clean), choosing: this.mode === 'kies' && this.multi,
-      answers: {}, results: {}, submitted: false, submittedAt: 0, joinedAt: Date.now(), lastAt: Date.now(),
+      answers: {}, results: {}, first: {}, lockUntil: {}, submitted: false, submittedAt: 0, joinedAt: Date.now(), lastAt: Date.now(),
     });
     this.changed();
     return { ok: true, name: clean };
@@ -149,13 +154,26 @@ class OefenbladLive {
     const { fields, shuffles } = this.lv(p);
     const field = fields.find(f => f.id === id);
     if (!field) return { error: 'Onbekend veld.' };
+    const now = Date.now();
+    const guard = this.feedback === 'direct' && closed(field);
+    if (guard && p.lockUntil[id] > now) return { error: 'Even wachten.', wait: p.lockUntil[id] - now, id, value: p.answers[id] ?? '' };
     const clean = typeof value === 'string' || typeof value === 'number' ? String(value).slice(0, 1000) : '';
     if (clean === '') delete p.answers[id];
     else p.answers[id] = clean;
     p.results[id] = sheets.grade(field, clean, shuffles);
-    p.lastAt = Date.now();
+    if (closed(field) && p.first[id] === undefined && p.results[id] !== null) p.first[id] = p.results[id];
+    const since = now - p.lastAt;
+    p.lastAt = now;
     this.changed();
-    return this.feedback === 'direct' ? { ok: true, id, correct: p.results[id] } : { ok: true, id };
+    if (this.feedback !== 'direct') return { ok: true, id };
+    if (guard && p.results[id] !== null && this.gok) {
+      this.gok.judge('oefenblad', playerId, { correct: p.results[id], ms: since, limit: FAST_MS, name: p.name, socketId: p.socketId, spel: 'Oefenblad' });
+    }
+    if (guard && p.results[id] === false) {
+      p.lockUntil[id] = now + WRONG_MS;
+      return { ok: true, id, correct: false, wait: WRONG_MS };
+    }
+    return { ok: true, id, correct: p.results[id] };
   }
 
   submit(playerId) {
@@ -240,7 +258,8 @@ class OefenbladLive {
         const block = sheet.blocks[f.block];
         entries.push({
           naam: p.name, spel: 'Oefenblad', bron: this.sheet.title, vraag: `${tag}Oefening ${f.block + 1}.${Number(f.id.split('.')[1]) + 1}: ${block.instruction || ''}`,
-          doel: block.doel, juist: p.results[f.id] === true, leeg: p.answers[f.id] === undefined,
+          // Meteen verbeterd: een keuzevraag telt pas als juist als de eerste poging goed was.
+          doel: block.doel, juist: p.results[f.id] === true && (this.feedback !== 'direct' || p.first[f.id] !== false), leeg: p.answers[f.id] === undefined,
         });
       }
     }

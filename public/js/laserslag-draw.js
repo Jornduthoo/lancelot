@@ -3,7 +3,8 @@
 const SlagDraw = (() => {
   const TEAM = { rood: '#ff4d6d', blauw: '#3d8bff' };
   const COLORS = ['#ff4d6d', '#3d8bff', '#ffb703', '#22c993', '#a66bff', '#ff8c42', '#ff5fd2', '#4cc9ff'];
-  const colorOf = (team, color) => TEAM[team] || COLORS[color % 8];
+  // Net na het herverbinden kent de gsm zijn eigen kleur soms nog niet: dan even de eerste kleur.
+  const colorOf = (team, color) => TEAM[team] || COLORS[((color % 8) + 8) % 8] || COLORS[0];
 
   // De burchtmuur rond de arena. Bovenaan is ze dieper: daar zie je de voorkant, met posters en fakkels.
   const EDGE = { n: 230, s: 64, w: 64, e: 64 };
