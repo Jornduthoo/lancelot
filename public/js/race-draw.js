@@ -225,11 +225,8 @@ const RaceDraw = (() => {
     ctx.fillStyle = '#3a4266';
     poly(ctx, [x - 150 * k, y - h, x + 150 * k, y - h, x + 90 * k, y - h + 110 * k, x - 90 * k, y - h + 110 * k], '#3a4266');
     const f = 1 + .15 * Math.sin(t * 18 + seed);
-    const glow = ctx.createRadialGradient(x, y - h - 120 * k, 10 * k, x, y - h - 120 * k, 520 * k);
-    glow.addColorStop(0, 'rgba(255, 170, 60, .55)');
-    glow.addColorStop(1, 'rgba(255, 120, 40, 0)');
-    ctx.fillStyle = glow;
-    ctx.fillRect(x - 520 * k, y - h - 640 * k, 1040 * k, 1040 * k);
+    Glow.glow(ctx, x, y - h - 120 * k, 620 * k * f, '#ff9a3c', .7);
+    Glow.glow(ctx, x, y, 900 * k, '#ff9a3c', .22, .3);
     poly(ctx, [x - 110 * k, y - h, x + 110 * k, y - h, x + 40 * k, y - h - 260 * k * f, x, y - h - 380 * k * f, x - 50 * k, y - h - 240 * k * f], '#ff7a1a');
     poly(ctx, [x - 60 * k, y - h, x + 60 * k, y - h, x, y - h - 220 * k * f], '#ffe08a');
   }
@@ -315,11 +312,8 @@ const RaceDraw = (() => {
     const h = 380 * k;
     if (h < 2) return;
     const cy = y - 380 * k - Math.sin(t * 4 + x) * 60 * k;
-    const glow = ctx.createRadialGradient(x, cy, 10 * k, x, cy, 420 * k);
-    glow.addColorStop(0, 'rgba(76, 201, 255, .6)');
-    glow.addColorStop(1, 'rgba(76, 201, 255, 0)');
-    ctx.fillStyle = glow;
-    ctx.fillRect(x - 420 * k, cy - 420 * k, 840 * k, 840 * k);
+    Glow.glow(ctx, x, cy, 520 * k, '#4cc9ff', .8);
+    Glow.glow(ctx, x, y, 420 * k, '#4cc9ff', .4, .25);
     const w = 160 * k * (.6 + .4 * Math.abs(Math.cos(t * 3)));
     poly(ctx, [x, cy - h / 2 - 60 * k, x + w, cy, x, cy + h / 2 + 60 * k, x - w, cy], '#9fe6ff');
     poly(ctx, [x, cy - h / 2 - 60 * k, x + w, cy, x, cy], '#e8f9ff');
@@ -333,50 +327,119 @@ const RaceDraw = (() => {
     const h = 460 * k;
     if (w < 3) return;
     const t = o.t || 0;
-    const hover = Math.sin(t * 7 + (o.seed || 0)) * .03 * h;
+    const seed = o.seed || 0;
+    const lw = Math.max(1, 10 * k);
+    const hover = Math.sin(t * 7 + seed) * .03 * h;
+    // Lichtplas van de zweefmotor op de weg.
+    Glow.glow(ctx, x, y, w * .85, color, o.turbo ? .8 : .5, .22);
     ctx.save();
     ctx.translate(x, y - .1 * h + hover);
     ctx.rotate((o.tilt || 0) * .1);
-    // Gloed van de zweefmotor.
-    const glow = ctx.createRadialGradient(0, .08 * h, 2, 0, .08 * h, w * .7);
-    glow.addColorStop(0, `${color}cc`);
-    glow.addColorStop(1, `${color}00`);
-    ctx.fillStyle = glow;
-    ctx.beginPath(); ctx.ellipse(0, .1 * h, w * .7, h * .16, 0, 0, Math.PI * 2); ctx.fill();
-    // Uitlaten: groot en fel met turbo.
-    const flame = o.turbo ? 1.8 + .4 * Math.sin(t * 40) : 1;
+    // Twee straalmotoren: ring, gloed en een witte kern. Met turbo een vlammende ster.
+    const flame = o.turbo ? 1.9 + .4 * Math.sin(t * 40) : 1 + .08 * Math.sin(t * 30 + seed);
     for (const side of [-1, 1]) {
-      const ex = side * .26 * w;
-      const ey = -.16 * h;
-      const g = ctx.createRadialGradient(ex, ey, 1, ex, ey, .16 * w * flame);
-      g.addColorStop(0, '#ffffff');
-      g.addColorStop(.35, o.turbo ? '#ffd166' : color);
-      g.addColorStop(1, 'rgba(0,0,0,0)');
-      ctx.fillStyle = g;
-      ctx.beginPath(); ctx.arc(ex, ey, .16 * w * flame, 0, Math.PI * 2); ctx.fill();
+      const ex = side * .27 * w;
+      const ey = -.13 * h;
+      Glow.glow(ctx, ex, ey, .34 * w * flame, o.turbo ? '#ffd166' : color, .95);
+      if (o.turbo && w > 30) {
+        ctx.fillStyle = 'rgba(255, 230, 160, .8)';
+        for (let i = 0; i < 6; i++) {
+          const ang = t * 6 * side + (i / 6) * Math.PI * 2;
+          const r = .3 * w * flame * (.7 + .3 * Math.sin(t * 50 + i));
+          poly(ctx, [ex + Math.cos(ang - .18) * .05 * w, ey + Math.sin(ang - .18) * .05 * w, ex + Math.cos(ang) * r, ey + Math.sin(ang) * r, ex + Math.cos(ang + .18) * .05 * w, ey + Math.sin(ang + .18) * .05 * w], 'rgba(255, 230, 160, .8)');
+        }
+      }
+      ctx.fillStyle = '#0e1226';
+      ctx.beginPath(); ctx.arc(ex, ey, .12 * w, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = color;
+      ctx.lineWidth = Math.max(1, .025 * w);
+      ctx.stroke();
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath(); ctx.arc(ex, ey, .055 * w * Math.min(1.5, flame), 0, Math.PI * 2); ctx.fill();
     }
-    // De slee.
-    const metal = ctx.createLinearGradient(0, -.42 * h, 0, -.02 * h);
-    metal.addColorStop(0, '#46507a');
-    metal.addColorStop(1, '#151a2e');
-    poly(ctx, [-.5 * w, -.05 * h, .5 * w, -.05 * h, .4 * w, -.36 * h, -.4 * w, -.36 * h], metal);
-    poly(ctx, [-.5 * w, -.12 * h, -.66 * w, -.02 * h, -.46 * w, -.26 * h], color);
-    poly(ctx, [.5 * w, -.12 * h, .66 * w, -.02 * h, .46 * w, -.26 * h], color);
+    // Vinnen opzij.
+    for (const side of [-1, 1]) {
+      const fin = ctx.createLinearGradient(side * .48 * w, 0, side * .74 * w, 0);
+      fin.addColorStop(0, color);
+      fin.addColorStop(1, '#141a30');
+      poly(ctx, [side * .48 * w, -.08 * h, side * .74 * w, .02 * h, side * .64 * w, -.18 * h, side * .46 * w, -.32 * h], fin);
+      ctx.strokeStyle = 'rgba(255, 255, 255, .45)';
+      ctx.lineWidth = lw * .6;
+      ctx.beginPath(); ctx.moveTo(side * .46 * w, -.32 * h); ctx.lineTo(side * .74 * w, .02 * h); ctx.stroke();
+    }
+    // De slee: metalen romp met een dek, een lichtstreep in de eigen kleur en achterlichten.
+    const metal = ctx.createLinearGradient(0, -.42 * h, 0, -.04 * h);
+    metal.addColorStop(0, '#6a76a6');
+    metal.addColorStop(.45, '#2c3458');
+    metal.addColorStop(1, '#10142a');
+    const hull = [-.52 * w, -.05 * h, .52 * w, -.05 * h, .45 * w, -.3 * h, .3 * w, -.41 * h, -.3 * w, -.41 * h, -.45 * w, -.3 * h];
+    poly(ctx, hull, metal);
+    poly(ctx, [-.3 * w, -.41 * h, .3 * w, -.41 * h, .27 * w, -.37 * h, -.27 * w, -.37 * h], 'rgba(255, 255, 255, .22)');
+    poly(ctx, [-.47 * w, -.2 * h, .47 * w, -.2 * h, .45 * w, -.255 * h, -.45 * w, -.255 * h], color);
+    if (w > 24) {
+      Glow.glow(ctx, 0, -.23 * h, .5 * w, color, .45, .2);
+      ctx.strokeStyle = 'rgba(0, 0, 0, .35)';
+      ctx.lineWidth = lw * .6;
+      for (const px of [-.17, .17]) { ctx.beginPath(); ctx.moveTo(px * w, -.06 * h); ctx.lineTo(px * w, -.39 * h); ctx.stroke(); }
+    }
+    for (const side of [-1, 1]) {
+      ctx.fillStyle = o.brake ? '#ff4d6d' : '#7a1828';
+      ctx.fillRect(side * .4 * w - .06 * w, -.135 * h, .12 * w, .045 * h);
+      if (o.brake) Glow.glow(ctx, side * .4 * w, -.11 * h, .3 * w, '#ff2d4d', .9);
+    }
     ctx.strokeStyle = color;
-    ctx.lineWidth = Math.max(1, 14 * k);
+    ctx.lineWidth = lw;
     ctx.beginPath();
-    ctx.moveTo(-.5 * w, -.05 * h); ctx.lineTo(.5 * w, -.05 * h); ctx.lineTo(.4 * w, -.36 * h); ctx.lineTo(-.4 * w, -.36 * h); ctx.closePath();
+    ctx.moveTo(hull[0], hull[1]);
+    for (let i = 2; i < hull.length; i += 2) ctx.lineTo(hull[i], hull[i + 1]);
+    ctx.closePath();
     ctx.stroke();
-    // De lans, schuin naar voren.
-    ctx.strokeStyle = '#d7deef';
-    ctx.lineWidth = Math.max(1, 24 * k);
-    ctx.beginPath(); ctx.moveTo(.16 * w, -.5 * h); ctx.lineTo(.36 * w, -1.3 * h); ctx.stroke();
-    ctx.fillStyle = '#9fe6ff';
-    ctx.beginPath(); ctx.arc(.36 * w, -1.3 * h, 22 * k, 0, Math.PI * 2); ctx.fill();
-    // Cape die wappert.
-    const wave = Math.sin(t * 9 + (o.seed || 0)) * .04 * w;
-    poly(ctx, [-.17 * w, -.78 * h, .17 * w, -.78 * h, .22 * w + wave, -.34 * h, 0, -.3 * h, -.22 * w + wave, -.34 * h], color);
-    poly(ctx, [-.17 * w, -.78 * h, .17 * w, -.78 * h, .1 * w, -.6 * h, -.1 * w, -.6 * h], 'rgba(0,0,0,.25)');
+    // De lans, schuin naar voren: taps toelopend, een gouden stootplaat en een lichtende punt.
+    const lx0 = .17 * w, ly0 = -.5 * h, lx1 = .38 * w, ly1 = -1.32 * h;
+    const len = Math.hypot(lx1 - lx0, ly1 - ly0);
+    const nx = -(ly1 - ly0) / len, ny = (lx1 - lx0) / len;
+    poly(ctx, [lx0 + nx * 16 * k, ly0 + ny * 16 * k, lx1 + nx * 4 * k, ly1 + ny * 4 * k, lx1 - nx * 4 * k, ly1 - ny * 4 * k, lx0 - nx * 16 * k, ly0 - ny * 16 * k], '#dfe6f6');
+    const gx = lx0 + (lx1 - lx0) * .14, gy = ly0 + (ly1 - ly0) * .14;
+    poly(ctx, [gx + nx * 46 * k, gy + ny * 46 * k, gx + (lx1 - lx0) * .1, gy + (ly1 - ly0) * .1, gx - nx * 46 * k, gy - ny * 46 * k], '#ffd166');
+    Glow.glow(ctx, lx1, ly1, 110 * k, '#9fe6ff', .9);
+    // Romp van de ridder met een cape die wappert.
+    const body = ctx.createLinearGradient(-.2 * w, 0, .2 * w, 0);
+    body.addColorStop(0, '#59648c');
+    body.addColorStop(.5, '#aeb9d6');
+    body.addColorStop(1, '#3d4668');
+    poly(ctx, [-.21 * w, -.37 * h, .21 * w, -.37 * h, .18 * w, -.76 * h, -.18 * w, -.76 * h], body);
+    const wave = Math.sin(t * 9 + seed) * .04 * w;
+    const cape = [-.17 * w, -.78 * h, .17 * w, -.78 * h, .23 * w + wave, -.34 * h, .1 * w + wave * .5, -.3 * h, 0, -.35 * h, -.1 * w + wave * .5, -.3 * h, -.23 * w + wave, -.34 * h];
+    poly(ctx, cape, color);
+    const fold = ctx.createLinearGradient(0, -.78 * h, 0, -.3 * h);
+    fold.addColorStop(0, 'rgba(0, 0, 0, .35)');
+    fold.addColorStop(.4, 'rgba(0, 0, 0, .05)');
+    fold.addColorStop(1, 'rgba(0, 0, 0, .3)');
+    poly(ctx, cape, fold);
+    if (w > 24) {
+      ctx.strokeStyle = '#ffd166';
+      ctx.lineWidth = lw * .8;
+      ctx.beginPath();
+      for (let i = 4; i < cape.length; i += 2) ctx[i === 4 ? 'moveTo' : 'lineTo'](cape[i], cape[i + 1]);
+      ctx.lineTo(cape[0], cape[1]);
+      ctx.moveTo(cape[2], cape[3]);
+      ctx.lineTo(cape[4], cape[5]);
+      ctx.stroke();
+      // Embleem: een gouden ruit met een lichtpunt.
+      poly(ctx, [0, -.66 * h, .06 * w, -.58 * h, 0, -.5 * h, -.06 * w, -.58 * h], '#ffd166');
+      Glow.glow(ctx, 0, -.58 * h, .1 * w, '#ffe08a', .7);
+    }
+    // Schouderstukken.
+    for (const side of [-1, 1]) {
+      const pg = ctx.createRadialGradient(side * .18 * w, -.79 * h, 1, side * .2 * w, -.76 * h, .12 * w);
+      pg.addColorStop(0, '#eef3ff');
+      pg.addColorStop(1, '#55607f');
+      ctx.fillStyle = pg;
+      ctx.beginPath(); ctx.ellipse(side * .2 * w, -.76 * h, .11 * w, .065 * h, side * .2, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = color;
+      ctx.lineWidth = lw * .8;
+      ctx.stroke();
+    }
     if (o.av && typeof Avatar !== 'undefined') {
       // Het hoofd van de eigen ridder (versiering en helm), van achteren gezien.
       const img = Avatar.sprite(o.av, { back: true, k: 8 });
@@ -384,14 +447,27 @@ const RaceDraw = (() => {
       const hh = hw * (8 / 12);
       ctx.drawImage(img, 0, 0, img.width, img.height * (8 / 17), -hw / 2, -.8 * h - hh, hw, hh);
     } else {
-      // Helm met pluim.
-      ctx.fillStyle = '#c9d2e6';
+      // Helm met kam en een wapperende pluim.
+      const hg = ctx.createRadialGradient(-.04 * w, -.92 * h, 1, 0, -.88 * h, .13 * w);
+      hg.addColorStop(0, '#f4f7ff');
+      hg.addColorStop(.6, '#a7b2cf');
+      hg.addColorStop(1, '#4b5576');
+      ctx.fillStyle = hg;
       ctx.beginPath(); ctx.arc(0, -.88 * h, .12 * w, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = '#8a95b2';
-      ctx.fillRect(-.12 * w, -.9 * h, .24 * w, .05 * h);
-      poly(ctx, [-.03 * w, -.98 * h, .03 * w, -.98 * h, .1 * w - wave, -1.14 * h, -.02 * w - wave, -1.1 * h], color);
+      ctx.fillStyle = '#6d7898';
+      ctx.fillRect(-.12 * w, -.86 * h, .24 * w, .04 * h);
+      ctx.fillStyle = color;
+      ctx.fillRect(-.015 * w, -1 * h, .03 * w, .2 * h);
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.moveTo(-.02 * w, -.99 * h);
+      ctx.quadraticCurveTo(.06 * w - wave, -1.16 * h, .2 * w - wave * 2, -1.08 * h);
+      ctx.quadraticCurveTo(.08 * w - wave, -1.06 * h, .03 * w, -.96 * h);
+      ctx.closePath();
+      ctx.fill();
     }
     if (o.pit) {
+      Glow.glow(ctx, 0, -1.3 * h, .35 * w, '#ffd166', .7);
       ctx.fillStyle = '#ffd166';
       ctx.font = `${Math.max(10, 160 * k)}px system-ui, sans-serif`;
       ctx.textAlign = 'center';
@@ -404,11 +480,42 @@ const RaceDraw = (() => {
       ctx.textAlign = 'center';
       const tw = ctx.measureText(o.name).width + size;
       const ty = y - 1.42 * h;
-      ctx.fillStyle = 'rgba(5, 8, 20, .75)';
+      ctx.fillStyle = 'rgba(5, 8, 20, .8)';
       ctx.fillRect(x - tw / 2, ty - size, tw, size * 1.4);
       ctx.fillStyle = color;
+      ctx.fillRect(x - tw / 2, ty + size * .4 - 2, tw, 2);
       ctx.fillText(o.name, x, ty);
     }
+  }
+
+  // Waarschuwingsbord voor een scherpe bocht: knipperende gouden pijlen.
+  function arrowSign(ctx, x, y, k, dir, t) {
+    const w = 900 * k;
+    if (w < 4) return;
+    const bh = 460 * k;
+    const top = y - 700 * k - bh;
+    ctx.fillStyle = '#2a3150';
+    ctx.fillRect(x - 30 * k, top + bh, 60 * k, 700 * k);
+    ctx.fillStyle = '#0b0a24';
+    ctx.fillRect(x - w / 2, top, w, bh);
+    ctx.strokeStyle = '#ffd166';
+    ctx.lineWidth = Math.max(1, 26 * k);
+    ctx.strokeRect(x - w / 2, top, w, bh);
+    ctx.lineWidth = Math.max(1.5, 70 * k);
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    for (let j = -1; j <= 1; j++) {
+      const cx = x + j * w * .27;
+      const on = (Math.floor(t * 8) + j * dir + 3) % 3 === 0;
+      ctx.strokeStyle = on ? '#fff3c4' : '#ffb21c';
+      ctx.beginPath();
+      ctx.moveTo(cx - dir * 70 * k, top + 90 * k);
+      ctx.lineTo(cx + dir * 70 * k, top + bh / 2);
+      ctx.lineTo(cx - dir * 70 * k, top + bh - 90 * k);
+      ctx.stroke();
+      if (on) Glow.glow(ctx, cx, top + bh / 2, 260 * k, '#ffd166', .6);
+    }
+    ctx.lineCap = 'butt';
   }
 
   // ---------- Alles samen ----------
@@ -482,6 +589,7 @@ const RaceDraw = (() => {
         else if (sp.type === 'tower') tower(ctx, sx, P.y1, k);
         else if (sp.type === 'pine') pine(ctx, sx, P.y1, k);
         else if (sp.type === 'gate') gate(ctx, P.x1, P.y1, k, P.w1, v.t);
+        else if (sp.type === 'arrow') arrowSign(ctx, sx, P.y1, k, sp.dir, v.t);
       }
       if (s.crystal && !(v.taken && v.taken.has(s.i))) crystal(ctx, P.x1 + P.w1 * s.crystal.x, P.y1, k, v.t);
       const list = bySeg.get(s.i);
@@ -512,12 +620,30 @@ const RaceDraw = (() => {
       }
     }
 
+    // Naast de weg: vonken onder het eigen ros.
+    if (v.me.off && v.speed > 200) {
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      ctx.lineWidth = Math.max(1, W / 600);
+      for (let i = 0; i < 18; i++) {
+        const sx = W / 2 + (Math.random() - .5) * W * .3;
+        const sy = H * (H > W ? .86 : .97) - Math.random() * H * .04;
+        const len = W * (.02 + Math.random() * .05);
+        ctx.strokeStyle = Math.random() < .5 ? '#ffd166' : '#ff9f1c';
+        ctx.beginPath();
+        ctx.moveTo(sx, sy);
+        ctx.lineTo(sx + (sx - W / 2) * .4, sy + len * .6);
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
+
     // Het eigen ros, onderaan in het midden.
     // Op een gsm rechtop staat het ros wat hoger, boven de knoppen.
     const portrait = H > W;
     const k = ((W / 2) / CAM_H) * (portrait ? .8 : .62);
     const y = portrait ? H * .86 : H * .985;
-    steed(ctx, W / 2, y + (v.bump || 0) * .05, k, colorOf(v.me.color), { t: v.t, tilt: v.me.tilt, turbo: v.me.turbo, pit: false, seed: 0, av: typeof Avatar !== 'undefined' ? Avatar.mine() : null });
+    steed(ctx, W / 2, y + (v.bump || 0) * .05, k, colorOf(v.me.color), { t: v.t, tilt: v.me.tilt, turbo: v.me.turbo, brake: v.me.brake, pit: false, seed: 0, av: typeof Avatar !== 'undefined' ? Avatar.mine() : null });
   }
 
   // ---------- Het kaartje ----------
@@ -583,5 +709,304 @@ const RaceDraw = (() => {
     }
   }
 
-  return { render, map, steed, colorOf, COLORS, PLAYER_Z };
+  // ---------- Het bord: het circuit van bovenaf als echte racebaan ----------
+
+  // Alles wat stilstaat (ruimte, baan, curbs, tribunes, torens) wordt één keer getekend per schermgrootte.
+  let boardCache = null;
+  function bakeBoard(W, H) {
+    const c = document.createElement('canvas');
+    c.width = W;
+    c.height = H;
+    const g = c.getContext('2d');
+    const m = mapPoints();
+    const size = Math.min(W, H) * .88;
+    const x0 = (W - size) / 2 + (1 - m.w) * size / 2;
+    const y0 = (H - size) / 2 + (1 - m.h) * size / 2;
+    const N = m.pts.length;
+    const P = m.pts.map(p => [x0 + p[0] * size, y0 + p[1] * size]);
+    // Richting en normaal per punt (gladgestreken over een paar punten).
+    const dir = P.map((p, i) => {
+      const a = P[(i - 3 + N) % N];
+      const b = P[(i + 3) % N];
+      const l = Math.hypot(b[0] - a[0], b[1] - a[1]) || 1;
+      return [(b[0] - a[0]) / l, (b[1] - a[1]) / l];
+    });
+    const hw = size / 46;
+    const at = (i, off) => [P[i][0] - dir[i][1] * off * hw, P[i][1] + dir[i][0] * off * hw];
+    const path = (off = 0) => {
+      g.beginPath();
+      for (let i = 0; i < N; i++) {
+        const q = at(i, off);
+        g[i ? 'lineTo' : 'moveTo'](q[0], q[1]);
+      }
+      g.closePath();
+    };
+    Glow.space(g, W, H, 0, 0);
+    // Een zwak zeshoekig raster als ondergrond.
+    g.strokeStyle = 'rgba(76, 201, 255, .05)';
+    g.lineWidth = 1;
+    const r = Math.max(18, W / 60);
+    for (let row = 0, yy = 0; yy < H + r; row++, yy += r * 1.5) {
+      for (let xx = (row % 2) * r * .866; xx < W + r; xx += r * 1.732) {
+        g.beginPath();
+        for (let k = 0; k < 6; k++) {
+          const a = (k / 6) * Math.PI * 2 + Math.PI / 6;
+          g[k ? 'lineTo' : 'moveTo'](xx + Math.cos(a) * r, yy + Math.sin(a) * r);
+        }
+        g.closePath();
+        g.stroke();
+      }
+    }
+    g.lineJoin = 'round';
+    g.lineCap = 'round';
+    // Neongloed rond de baan en een donkere berm.
+    for (const [lwk, col] of [[6, 'rgba(76, 201, 255, .05)'], [4.2, 'rgba(76, 201, 255, .08)'], [3.1, '#0a1322']]) {
+      g.strokeStyle = col;
+      g.lineWidth = hw * lwk;
+      path();
+      g.stroke();
+    }
+    // Tribunes met publiek langs het lange rechte stuk na de start.
+    let seed = 7;
+    const rnd = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
+    const crowd = ['#ff4d6d', '#4cc9ff', '#ffd166', '#7bf1a8', '#c77dff', '#f4f7ff'];
+    for (const side of [-1, 1]) {
+      for (let i = 12; i < 100; i += 2) {
+        const a = at(i, side * 1.9);
+        const b = at(i, side * 3.4);
+        const a2 = at(i + 2, side * 1.9);
+        const b2 = at(i + 2, side * 3.4);
+        g.fillStyle = (i / 2) % 2 ? '#1a2140' : '#151b36';
+        g.beginPath(); g.moveTo(a[0], a[1]); g.lineTo(a2[0], a2[1]); g.lineTo(b2[0], b2[1]); g.lineTo(b[0], b[1]); g.closePath(); g.fill();
+        for (let n = 0; n < 4; n++) {
+          const q = at(i + Math.floor(rnd() * 2), side * (2.1 + rnd() * 1.1));
+          g.fillStyle = crowd[Math.floor(rnd() * crowd.length)];
+          g.fillRect(q[0] - hw * .09, q[1] - hw * .09, hw * .18, hw * .18);
+        }
+      }
+      const e0 = at(12, side * 3.45);
+      const e1 = at(100, side * 3.45);
+      g.strokeStyle = side < 0 ? '#4cc9ff' : '#ff3fa4';
+      g.lineWidth = Math.max(1.5, hw * .12);
+      g.beginPath();
+      for (let i = 12; i <= 100; i++) { const q = at(i, side * 3.45); g[i === 12 ? 'moveTo' : 'lineTo'](q[0], q[1]); }
+      g.stroke();
+      Glow.glow(g, (e0[0] + e1[0]) / 2, (e0[1] + e1[1]) / 2, hw * 6, side < 0 ? '#4cc9ff' : '#ff3fa4', .25);
+    }
+    // Curbs: om de drie stukjes een andere kleur, net als in 3D.
+    for (let i = 0; i < N; i++) {
+      const j = (i + 1) % N;
+      const alt = Math.floor(i / 3) % 2;
+      for (const side of [-1, 1]) {
+        const a = at(i, side * 1);
+        const b = at(i, side * 1.24);
+        const a2 = at(j, side * 1);
+        const b2 = at(j, side * 1.24);
+        g.fillStyle = alt ? (side < 0 ? '#4cc9ff' : '#ff3fa4') : '#e8f1ff';
+        g.beginPath(); g.moveTo(a[0], a[1]); g.lineTo(a2[0], a2[1]); g.lineTo(b2[0], b2[1]); g.lineTo(b[0], b[1]); g.closePath(); g.fill();
+      }
+    }
+    // Asfalt met een glans in het midden en witte randlijnen.
+    g.strokeStyle = '#1b2034';
+    g.lineWidth = hw * 2.02;
+    path();
+    g.stroke();
+    g.strokeStyle = 'rgba(120, 140, 200, .07)';
+    g.lineWidth = hw * 1.1;
+    path();
+    g.stroke();
+    g.strokeStyle = 'rgba(232, 241, 255, .55)';
+    g.lineWidth = Math.max(1, hw * .06);
+    for (const off of [-.92, .92]) { path(off); g.stroke(); }
+    g.setLineDash([hw * .6, hw * .7]);
+    g.strokeStyle = 'rgba(232, 241, 255, .35)';
+    for (const off of [-1 / 3, 1 / 3]) { path(off); g.stroke(); }
+    g.setLineDash([]);
+    // Boostpads: gouden pijlen in de rijrichting.
+    const pads = [];
+    const crystals = [];
+    const torches = [];
+    const arrow = (q, d, s, fill) => {
+      g.fillStyle = fill;
+      g.beginPath();
+      g.moveTo(q[0] + d[0] * s, q[1] + d[1] * s);
+      g.lineTo(q[0] - d[0] * s * .6 - d[1] * s * .8, q[1] - d[1] * s * .6 + d[0] * s * .8);
+      g.lineTo(q[0] - d[0] * s * .2, q[1] - d[1] * s * .2);
+      g.lineTo(q[0] - d[0] * s * .6 + d[1] * s * .8, q[1] - d[1] * s * .6 - d[0] * s * .8);
+      g.closePath();
+      g.fill();
+    };
+    for (const s of T.segments) {
+      const i = s.i;
+      if (s.boost) {
+        const q = at(i, s.boost.x);
+        arrow(q, dir[i], hw * .32, '#ffd166');
+        if (i % 5 === 2) pads.push(q);
+      }
+      if (s.crystal) crystals.push(at(i, s.crystal.x));
+      for (const sp of s.sprites) {
+        if (sp.type === 'torch') {
+          const q = at(i, sp.x * 1.25);
+          g.fillStyle = '#2a3150';
+          g.beginPath(); g.arc(q[0], q[1], hw * .16, 0, Math.PI * 2); g.fill();
+          torches.push(q);
+        } else if (sp.type === 'tower') {
+          const q = at(i, sp.x * .95);
+          const tw = hw * 1.1;
+          // Niet op een ander stuk baan zetten.
+          if (P.some(p => Math.hypot(p[0] - q[0], p[1] - q[1]) < hw * 2.6)) continue;
+          g.fillStyle = '#232a4c';
+          g.fillRect(q[0] - tw, q[1] - tw, tw * 2, tw * 2);
+          g.fillStyle = '#3a4570';
+          for (let n = 0; n < 4; n++) {
+            g.fillRect(q[0] - tw + (n * tw * 2) / 3.5, q[1] - tw - hw * .2, tw / 3, hw * .3);
+            g.fillRect(q[0] - tw + (n * tw * 2) / 3.5, q[1] + tw - hw * .1, tw / 3, hw * .3);
+          }
+          g.strokeStyle = 'rgba(76, 201, 255, .7)';
+          g.lineWidth = Math.max(1, hw * .08);
+          g.strokeRect(q[0] - tw, q[1] - tw, tw * 2, tw * 2);
+          g.fillStyle = '#ffd166';
+          g.beginPath(); g.arc(q[0], q[1], tw * .35, 0, Math.PI * 2); g.fill();
+          Glow.glow(g, q[0], q[1], tw * 2.6, '#4cc9ff', .35);
+        } else if (sp.type === 'pine') {
+          const q = at(i, sp.x * 1.1);
+          for (const [rr, col] of [[.7, '#0c2f33'], [.48, '#0f3b3a'], [.25, '#14524a']]) {
+            g.fillStyle = col;
+            g.beginPath(); g.arc(q[0], q[1], hw * rr, 0, Math.PI * 2); g.fill();
+          }
+        } else if (sp.type === 'banner') {
+          const q = at(i, sp.x * 1.05);
+          g.fillStyle = sp.x > 0 ? '#ffd166' : '#4cc9ff';
+          g.fillRect(q[0] - hw * .3, q[1] - hw * .2, hw * .6, hw * .4);
+        } else if (sp.type === 'arrow') {
+          const q = at(i, sp.x * 1.15);
+          const d = dir[i];
+          const side = [-d[1] * sp.dir, d[0] * sp.dir];
+          arrow(q, [d[0] * .4 + side[0] * .9, d[1] * .4 + side[1] * .9], hw * .28, '#ffb21c');
+        }
+      }
+    }
+    // Start en finish: een geblokte lijn met twee lichtzuilen.
+    const cells = 8;
+    for (let n = 0; n < cells; n++) {
+      for (let rw = 0; rw < 2; rw++) {
+        const a = at(rw, -1 + (2 * n) / cells);
+        const b = at(rw, -1 + (2 * (n + 1)) / cells);
+        const a2 = at(rw + 1, -1 + (2 * n) / cells);
+        const b2 = at(rw + 1, -1 + (2 * (n + 1)) / cells);
+        g.fillStyle = (n + rw) % 2 ? '#f4f7ff' : '#11131d';
+        g.beginPath(); g.moveTo(a[0], a[1]); g.lineTo(b[0], b[1]); g.lineTo(b2[0], b2[1]); g.lineTo(a2[0], a2[1]); g.closePath(); g.fill();
+      }
+    }
+    const gates = [at(1, -1.45), at(1, 1.45)];
+    gates.forEach((q, n) => {
+      g.fillStyle = '#2a3150';
+      g.beginPath(); g.arc(q[0], q[1], hw * .3, 0, Math.PI * 2); g.fill();
+      g.fillStyle = n ? '#ff3fa4' : '#4cc9ff';
+      g.beginPath(); g.arc(q[0], q[1], hw * .16, 0, Math.PI * 2); g.fill();
+    });
+    g.strokeStyle = 'rgba(255, 209, 102, .8)';
+    g.lineWidth = Math.max(1, hw * .1);
+    g.beginPath(); g.moveTo(gates[0][0], gates[0][1]); g.lineTo(gates[1][0], gates[1][1]); g.stroke();
+    boardCache = { W, H, c, P, dir, hw, N, at, pads, crystals, torches, gates };
+    return boardCache;
+  }
+
+  // racers: [{ dist, x, speed, color, name, flags, lead }]
+  function board(ctx, W, H, racers, t) {
+    const B = boardCache && boardCache.W === W && boardCache.H === H ? boardCache : bakeBoard(W, H);
+    ctx.drawImage(B.c, 0, 0);
+    const { hw, N } = B;
+    // Fakkels flakkeren, boostpads en kristallen pulseren, de startzuilen gloeien.
+    B.torches.forEach((q, i) => Glow.glow(ctx, q[0], q[1], hw * (1.1 + .15 * Math.sin(t * 9 + i * 1.7)), '#ff9a3c', .55));
+    B.pads.forEach((q, i) => Glow.glow(ctx, q[0], q[1], hw * 1.4, '#ffd166', .35 + .25 * Math.sin(t * 6 + i)));
+    B.crystals.forEach((q, i) => {
+      const b = Math.sin(t * 4 + i);
+      Glow.glow(ctx, q[0], q[1], hw * (1 + .2 * b), '#4cc9ff', .6);
+      const s = hw * .3;
+      poly(ctx, [q[0], q[1] - s * 1.4, q[0] + s, q[1], q[0], q[1] + s * 1.4, q[0] - s, q[1]], '#bff0ff');
+    });
+    B.gates.forEach((q, n) => Glow.glow(ctx, q[0], q[1], hw * 1.6, n ? '#ff3fa4' : '#4cc9ff', .6 + .3 * Math.sin(t * 3 + n)));
+    // Een positie op de baan: zacht tussen twee punten in, met de zijwaartse plek op de weg.
+    const pos = (dist, x) => {
+      const z = T.wrap(dist) / T.SEG;
+      const i = Math.floor(z) % N;
+      const j = (i + 1) % N;
+      const f = z - Math.floor(z);
+      const a = B.at(i, x);
+      const b = B.at(j, x);
+      const d = B.dir[i];
+      return [a[0] + (b[0] - a[0]) * f, a[1] + (b[1] - a[1]) * f, Math.atan2(d[1], d[0])];
+    };
+    const sorted = [...racers].sort((a, b) => (a.lead ? 1 : 0) - (b.lead ? 1 : 0));
+    // Lichtsporen eerst, zodat ze onder alle rossen liggen.
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.lineCap = 'round';
+    for (const r of sorted) {
+      const col = colorOf(r.color);
+      const turbo = r.flags & 2;
+      const lenSegs = Math.min(40, 6 + (r.speed || 0) / 300) * (turbo ? 1.5 : 1);
+      const x = Math.max(-1.3, Math.min(1.3, r.x || 0));
+      let prevQ = pos(r.dist, x);
+      const steps = 8;
+      for (let n = 1; n <= steps; n++) {
+        const q = pos(r.dist - (n / steps) * lenSegs * T.SEG, x);
+        ctx.strokeStyle = turbo ? '#ffd166' : col;
+        ctx.globalAlpha = .55 * (1 - n / steps);
+        ctx.lineWidth = hw * .5 * (1 - n / (steps + 2));
+        ctx.beginPath(); ctx.moveTo(prevQ[0], prevQ[1]); ctx.lineTo(q[0], q[1]); ctx.stroke();
+        prevQ = q;
+      }
+    }
+    ctx.restore();
+    for (const r of sorted) {
+      const col = colorOf(r.color);
+      const [rx, ry, ang] = pos(r.dist, Math.max(-1.3, Math.min(1.3, r.x || 0)));
+      const s = hw * .55;
+      Glow.glow(ctx, rx, ry, s * 2.6, col, .6);
+      if (r.lead) Glow.glow(ctx, rx, ry, s * 4 * (1 + .1 * Math.sin(t * 5)), '#ffd166', .45);
+      ctx.save();
+      ctx.translate(rx, ry);
+      ctx.rotate(ang);
+      // Uitlaatvlam achteraan.
+      const fl = (r.flags & 2 ? 2 : 1) * (1 + .2 * Math.sin(t * 30 + rx));
+      poly(ctx, [-s * .9, -s * .3, -s * (.9 + .8 * fl), 0, -s * .9, s * .3], r.flags & 2 ? '#ffd166' : col);
+      // Slee van bovenaf: puntige romp, vinnen, ridder met helm en lans.
+      poly(ctx, [s * 1.1, 0, s * .3, -s * .55, -s * .9, -s * .5, -s * .9, s * .5, s * .3, s * .55], '#2c3458');
+      poly(ctx, [s * .1, -s * .55, -s * .6, -s * .85, -s * .9, -s * .5], col);
+      poly(ctx, [s * .1, s * .55, -s * .6, s * .85, -s * .9, s * .5], col);
+      ctx.strokeStyle = col;
+      ctx.lineWidth = Math.max(1, s * .12);
+      ctx.beginPath();
+      ctx.moveTo(s * 1.1, 0); ctx.lineTo(s * .3, -s * .55); ctx.lineTo(-s * .9, -s * .5); ctx.lineTo(-s * .9, s * .5); ctx.lineTo(s * .3, s * .55); ctx.closePath();
+      ctx.stroke();
+      ctx.strokeStyle = '#dfe6f6';
+      ctx.lineWidth = Math.max(1, s * .1);
+      ctx.beginPath(); ctx.moveTo(-s * .1, s * .3); ctx.lineTo(s * 1.6, s * .25); ctx.stroke();
+      poly(ctx, [-s * .55, -s * .38, -s * .05, -s * .32, -s * .05, s * .32, -s * .55, s * .38], col);
+      ctx.fillStyle = '#c9d2e6';
+      ctx.beginPath(); ctx.arc(-s * .1, 0, s * .3, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = col;
+      ctx.fillRect(-s * .4, -s * .05, s * .5, s * .1);
+      ctx.restore();
+      Glow.glow(ctx, rx + Math.cos(ang) * s * 1.6 - Math.sin(ang) * s * .25, ry + Math.sin(ang) * s * 1.6 + Math.cos(ang) * s * .25, s * .45, '#9fe6ff', .9);
+      // Naambordje.
+      const size = Math.max(12, hw * .62);
+      ctx.font = `700 ${size}px system-ui, sans-serif`;
+      ctx.textAlign = 'left';
+      const label = `${r.lead ? '👑 ' : ''}${r.flags & 1 ? '⚡ ' : ''}${r.name}`;
+      const tw = ctx.measureText(label).width;
+      const lx = rx + s * 1.5;
+      const ly = ry - s * 1.4;
+      ctx.fillStyle = 'rgba(5, 8, 20, .82)';
+      ctx.fillRect(lx, ly - size * .95, tw + 10, size * 1.35);
+      ctx.fillStyle = col;
+      ctx.fillRect(lx, ly - size * .95, 3, size * 1.35);
+      ctx.fillText(label, lx + 6, ly + size * .1);
+    }
+    Glow.vignette(ctx, W, H, .5);
+  }
+
+  return { render, map, board, steed, colorOf, COLORS, PLAYER_Z };
 })();

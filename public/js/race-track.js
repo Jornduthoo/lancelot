@@ -62,6 +62,11 @@
     if (s.i % 160 === 100) s.sprites.push({ type: 'tower', x: (s.i / 160) % 2 < 1 ? -3 : 3 });
     if (s.i % 45 === 20 && s.i > 60) s.sprites.push({ type: 'pine', x: s.i % 2 ? -2.2 : 2.2 });
   }
+  // Waarschuwingsborden met pijlen aan de buitenkant van de scherpste bochten: hier even remmen.
+  for (let i = 4; i < COUNT; i += 5) {
+    const ahead = segments[(i + 8) % COUNT].curve;
+    if (Math.abs(ahead) >= 3.5 && !segments[i].sprites.length) segments[i].sprites.push({ type: 'arrow', x: ahead > 0 ? -1.35 : 1.35, dir: ahead > 0 ? 1 : -1 });
+  }
   const LANES = [-.55, 0, .55];
   for (let i = 60, k = 0; i < COUNT - 20; i += 160, k++) {
     // Drie kristallen na elkaar, telkens op een andere rijstrook.

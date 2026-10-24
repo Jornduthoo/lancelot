@@ -14,7 +14,7 @@ const rr = {
   others: new Map(),
   taken: new Map(),    // ronde -> kristallen die al gepakt zijn
   keys: {},
-  touch: { left: false, right: false },
+  touch: { left: false, right: false, down: false },
   question: null,
   tilt: 0,
   bump: 0,
@@ -204,8 +204,8 @@ document.addEventListener('keyup', e => {
   if (RR_KEYS[key]) rr.keys[RR_KEYS[key]] = false;
 });
 
-for (const side of ['left', 'right']) {
-  const btn = $(`rr-${side}`);
+for (const side of ['left', 'right', 'down']) {
+  const btn = $(side === 'down' ? 'rr-brake' : `rr-${side}`);
   const on = e => { e.preventDefault(); sfx.unlock(); rr.touch[side] = true; btn.classList.add('down'); };
   const off = () => { rr.touch[side] = false; btn.classList.remove('down'); };
   btn.addEventListener('pointerdown', on);
@@ -244,7 +244,7 @@ function rrOpenQuestion() {
   if (rrNow() < rr.state.startedAt) return;
   rr.question = { loading: true };
   rr.keys = {};
-  rr.touch = { left: false, right: false };
+  rr.touch = { left: false, right: false, down: false };
   $('rr-question').classList.remove('hidden');
   $('rr-q-text').textContent = '…';
   $('rr-q-answers').innerHTML = '';
@@ -360,8 +360,8 @@ function rrDrive(dt) {
   else if (boost) top = rr.fuel > 0 ? T.TURBO_SPEED : T.TURBO_SPEED * T.CRAWL * 1.2;
   if (!started || rr.question) {
     me.speed = Math.max(0, me.speed - T.MAX_SPEED * 1.6 * dt);
-  } else if (rr.keys.down) {
-    me.speed = Math.max(0, me.speed - T.MAX_SPEED * 1.3 * dt);
+  } else if (rr.keys.down || rr.touch.down) {
+    me.speed = Math.max(0, me.speed - T.MAX_SPEED * 1.6 * dt);
   } else if (me.speed < top) {
     me.speed = Math.min(top, me.speed + T.MAX_SPEED * (turbo || boost ? 1.2 : .32) * dt);
   } else {
@@ -370,8 +370,11 @@ function rrDrive(dt) {
   const seg = T.segmentAt(me.dist);
   const pct = me.speed / T.MAX_SPEED;
   const dir = (rr.keys.left || rr.touch.left ? -1 : 0) + (rr.keys.right || rr.touch.right ? 1 : 0);
-  if (started && !rr.question) me.x += dir * dt * 2.1 * Math.min(1, pct + .25);
-  me.x -= dt * 2 * pct * pct * seg.curve * .3;
+  // Sturen wint van de bocht zolang je niet te snel gaat: op topsnelheid haal je elke bocht,
+  // met turbo of over een boostpad moet je in de scherpste bochten even remmen.
+  if (started && !rr.question) me.x += dir * dt * 2.6 * Math.min(1, pct + .25);
+  const fast = Math.min(pct, 1.2);
+  me.x -= dt * fast * fast * seg.curve * .33;
   me.x = Math.max(-2.4, Math.min(2.4, me.x));
   rr.tilt += (dir - rr.tilt) * Math.min(1, dt * 8);
   // Naast de weg: trager en hobbelig.
@@ -467,7 +470,7 @@ function rrFrame(now) {
   RaceDraw.render(rrCtx, rrView.w, rrView.h, {
     dist: rr.me.dist, x: rr.me.x, speed: rr.me.speed, t, dt, bump: rr.bump,
     others: [...rr.others.values()], taken: rr.taken.get(lap),
-    me: { color: rr.state.color, tilt: rr.tilt, turbo: Date.now() < rr.turboUntil || Date.now() < rr.boostUntil },
+    me: { color: rr.state.color, tilt: rr.tilt, turbo: Date.now() < rr.turboUntil || Date.now() < rr.boostUntil, brake: !!(rr.keys.down || rr.touch.down), off: Math.abs(rr.me.x) > 1.05 },
   });
   sfx.engine(rr.question ? 0 : Math.max(.08, rr.me.speed / Track.MAX_SPEED));
   rrLights();
