@@ -186,3 +186,80 @@ for (const sel of document.querySelectorAll('select.tempo-select')) {
   } catch {}
   sel.addEventListener('change', () => { try { localStorage.setItem('lancelot-tempo', sel.value); } catch {} });
 }
+
+// ---------- Tegen gokken ----------
+// Na een fout antwoord even wachten. el krijgt een aftelling ("Even wachten… 3"), daarna volgt then().
+function gokWait(el, ms, then) {
+  const end = performance.now() + ms;
+  let small = el && el.querySelector('small.gok-wait');
+  if (el && !small) {
+    small = document.createElement('small');
+    small.className = 'gok-wait';
+    el.append(small);
+  }
+  const step = () => {
+    const left = end - performance.now();
+    if (left <= 0) {
+      clearInterval(timer);
+      if (small) small.remove();
+      then();
+      return;
+    }
+    if (small) small.textContent = `Even wachten… ${Math.ceil(left / 1000)}`;
+  };
+  const timer = setInterval(step, 200);
+  step();
+  return () => { clearInterval(timer); if (small) small.remove(); };
+}
+
+// Na een fout antwoord: de flits kort tonen, dan het juiste antwoord in beeld laten en aftellen tot de volgende vraag.
+function gokHold(flash, el, res, then) {
+  setTimeout(() => flash && flash.classList.add('hidden'), 1100);
+  gokWait(el, Math.max(res.wait || 0, 1800), then);
+}
+
+// Leerling: na drie keer snel en fout een duidelijke pauze. Leerkracht: wie lijkt te gokken.
+addEventListener('DOMContentLoaded', () => {
+  if (typeof socket === 'undefined') return;
+  socket.on('gok-pauze', ({ ms } = {}) => {
+    let box = document.getElementById('gok-pauze');
+    if (!box) {
+      box = document.createElement('div');
+      box.id = 'gok-pauze';
+      box.className = 'gok-pauze';
+      box.innerHTML = '<div><b>🛑 Te snel gegokt!</b><span>Lees de vraag en alle antwoorden rustig. Je kan zo verder.</span><small></small></div>';
+      document.body.append(box);
+    }
+    box.classList.remove('hidden');
+    clearInterval(box.timer);
+    const end = performance.now() + (ms || 4000);
+    const step = () => {
+      const left = end - performance.now();
+      if (left <= 0) { clearInterval(box.timer); box.classList.add('hidden'); return; }
+      box.querySelector('small').textContent = Math.ceil(left / 1000);
+    };
+    box.timer = setInterval(step, 200);
+    step();
+    if (typeof buzz === 'function') buzz([200, 100, 200]);
+  });
+  socket.on('gok', ({ name, spel, flags } = {}) => {
+    let list = document.getElementById('gok-list');
+    if (!list) {
+      list = document.createElement('div');
+      list.id = 'gok-list';
+      list.className = 'gok-list';
+      list.title = 'Klik om te sluiten';
+      list.innerHTML = '<b>⚠️ Gokt er iemand?</b><ul></ul>';
+      list.addEventListener('click', () => { list.remove(); });
+      document.body.append(list);
+    }
+    const ul = list.querySelector('ul');
+    const item = [...ul.children].find(li => li.dataset.name === name) || document.createElement('li');
+    item.dataset.name = name;
+    item.textContent = `${name} klikt te snel fout${spel ? ` (${spel})` : ''}${flags > 1 ? ` · ${flags}e keer` : ''}`;
+    ul.prepend(item);
+    list.classList.remove('flash');
+    void list.offsetWidth;
+    list.classList.add('flash');
+  });
+});

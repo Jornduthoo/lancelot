@@ -458,6 +458,14 @@ function lsOpenQuestion() {
   $('ls-q-result').textContent = '';
   $('ls-q-result').className = 'tw-q-result';
   socket.emit('ls-question', null, res => {
+    if (res && res.wait) {
+      $('ls-q-text').textContent = 'Even nadenken…';
+      return gokWait($('ls-q-result'), res.wait, () => {
+        if (!ls.question || !ls.question.loading) return;
+        ls.question = null;
+        lsOpenQuestion();
+      });
+    }
     if (!res || res.error) return lsCloseQuestion();
     ls.question = { answers: res.answers };
     $('ls-q-text').textContent = res.question;
@@ -491,11 +499,14 @@ function lsAnswer(i) {
     buzz(res.correct ? [30, 40, 30] : 200);
     $('ls-ammo-box').classList.remove('empty');
     // Meteen de volgende vraag: wie wil, blijft laden. Sluiten kan altijd.
-    setTimeout(() => {
+    const next = () => {
       if (!ls.question || !ls.question.done) return;
       ls.question = null;
       lsOpenQuestion();
-    }, res.correct ? 900 : 2000);
+    };
+    // Tegen gokken: na een fout blijft het juiste antwoord staan tot het wachten voorbij is.
+    if (res.correct) setTimeout(next, 900);
+    else gokWait($('ls-q-result'), Math.max(res.wait || 0, 2000), next);
   });
 }
 
