@@ -1253,6 +1253,13 @@ body:not([data-rk="1"]) #rijk { display: none !important; }
 
 /* Mijn klas: leerplandoelen en het doel bij een vraag of oefening. */
 .doel-veld { display: grid; gap: 4px; }
+.doel-veld .doel-titel { font-weight: 600; }
+.doel-invoer { position: relative; }
+.doel-keuzes { margin-top: 4px; max-height: 340px; overflow-y: auto; background: var(--panel-solid); border: 1px solid var(--cyan); box-shadow: 0 8px 24px rgba(0, 0, 0, .5); }
+.doel-keuzes button { display: grid; grid-template-columns: 7.5em 1fr; gap: 10px; width: 100%; text-align: left; padding: 8px 10px; background: none; color: var(--text); border: 0; border-bottom: 1px solid var(--line); clip-path: none; font-weight: 400; text-transform: none; letter-spacing: 0; }
+.doel-keuzes button:hover, .doel-keuzes button.active { background: rgba(76, 201, 255, .16); }
+.doel-keuzes code { color: var(--cyan); }
+.doel-keuzes p { margin: 6px 10px; }
 .doel-veld .doel-tekst { font-size: .85rem; color: var(--muted); min-height: 1em; }
 .doel-lijst { display: grid; gap: 6px; }
 .doel-lijst h3 { margin: 18px 0 4px; }
