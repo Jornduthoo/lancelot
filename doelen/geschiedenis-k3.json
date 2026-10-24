@@ -1,0 +1,194 @@
+{
+ "bron": "Op.stap, leerroutes voor iedereen (Katholiek Onderwijs Vlaanderen), leerplanversie V1.3 van 24/10/2026",
+ "vak": "Geschiedenis",
+ "leerjaar": "K3",
+ "doelen": [
+  {
+   "code": "5.1.GK3.1",
+   "vak": "Geschiedenis",
+   "leerjaar": "K3",
+   "soort": "G",
+   "domein": "Kennis van het verleden",
+   "cluster": "Hoe voorzien mensen in hun levensonderhoud?",
+   "tekst": "De leerlingen weten hoe mensen tijdens de oudheid in de Egyptische samenleving overleefden en samenleefden: irrigatielandbouw, de Nijl, boer, farao.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.1.GK3.2",
+   "vak": "Geschiedenis",
+   "leerjaar": "K3",
+   "soort": "G",
+   "domein": "Kennis van het verleden",
+   "cluster": "Hoe begrijpen mensen hun wereld?",
+   "tekst": "De leerlingen weten hoe mensen tijdens de oudheid in de Egyptische samenleving overleefden en samenleefden: bouwen en begraven worden, de piramides van Gizeh.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.1.GK3.3",
+   "vak": "Geschiedenis",
+   "leerjaar": "K3",
+   "soort": "G",
+   "domein": "Kennis van het verleden",
+   "cluster": "Hoe begrijpen mensen hun wereld?",
+   "tekst": "De leerlingen weten hoe mensen tijdens de oudheid in de Egyptische samenleving overleefden en samenleefden: schrift, hiërogliefen, papyrus.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.1.GK3.4",
+   "vak": "Geschiedenis",
+   "leerjaar": "K3",
+   "soort": "G",
+   "domein": "Kennis van het verleden",
+   "cluster": "Hoe begrijpen mensen hun wereld?",
+   "tekst": "De leerlingen weten hoe mensen tijdens de oudheid in de Egyptische samenleving overleefden en samenleefden: schrift, de Steen van Rosetta.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.1.GK3.5",
+   "vak": "Geschiedenis",
+   "leerjaar": "K3",
+   "soort": "G",
+   "domein": "Kennis van het verleden",
+   "cluster": "Hoe leven mensen elke dag?",
+   "tekst": "De leerlingen weten hoe mensen tijdens de hedendaagse tijd samenleefden: eigen stad, dorp of straat, veranderingen in het straatbeeld, technologie.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.1.GK3.6",
+   "vak": "Geschiedenis",
+   "leerjaar": "K3",
+   "soort": "G",
+   "domein": "Kennis van het verleden",
+   "cluster": "Hoe leven mensen elke dag?",
+   "tekst": "De leerlingen weten hoe mensen tijdens de hedendaagse tijd samenleefden: eigen woning, familieherinneringen uit de kindertijd, technologie, het interieur van een woning.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.2.GK3.1",
+   "vak": "Geschiedenis",
+   "leerjaar": "K3",
+   "soort": "G",
+   "domein": "Kennis van geschiedenis",
+   "cluster": "Hoe komen we geschiedenis op het spoor?",
+   "tekst": "De leerlingen kunnen soorten bronnen vanuit de bestudeerde samenlevingen benoemen.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.2.GK3.2",
+   "vak": "Geschiedenis",
+   "leerjaar": "K3",
+   "soort": "G",
+   "domein": "Kennis van geschiedenis",
+   "cluster": "Hoe komen we geschiedenis op het spoor?",
+   "tekst": "De leerlingen kunnen soorten bronnen vanuit de bestudeerde samenlevingen benoemen.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.2.GK3.3",
+   "vak": "Geschiedenis",
+   "leerjaar": "K3",
+   "soort": "G",
+   "domein": "Kennis van geschiedenis",
+   "cluster": "Hoe komen we geschiedenis op het spoor?",
+   "tekst": "De leerlingen kunnen soorten bronnen vanuit de bestudeerde samenlevingen benoemen.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.2.GK3.4",
+   "vak": "Geschiedenis",
+   "leerjaar": "K3",
+   "soort": "G",
+   "domein": "Kennis van geschiedenis",
+   "cluster": "Hoe denken we na over geschiedenis?",
+   "tekst": "De leerlingen kunnen enkele veranderingen tussen verleden en heden opnoemen.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.2.GK3.5",
+   "vak": "Geschiedenis",
+   "leerjaar": "K3",
+   "soort": "G",
+   "domein": "Kennis van geschiedenis",
+   "cluster": "Hoe ordenen we geschiedenis?",
+   "tekst": "De leerlingen kunnen eigen ervaringen chronologisch ordenen.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.2.GK3.6",
+   "vak": "Geschiedenis",
+   "leerjaar": "K3",
+   "soort": "G",
+   "domein": "Kennis van geschiedenis",
+   "cluster": "Hoe ordenen we geschiedenis?",
+   "tekst": "De leerlingen kunnen gebeurtenissen chronologisch ordenen.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.2.GK3.7",
+   "vak": "Geschiedenis",
+   "leerjaar": "K3",
+   "soort": "G",
+   "domein": "Kennis van geschiedenis",
+   "cluster": "Hoe ordenen we geschiedenis?",
+   "tekst": "De leerlingen kunnen drie gegeven bronnen uit het verleden chronologisch ordenen met behulp van de begrippen: heel lang geleden, lang geleden, nu.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.2.GK3.8",
+   "vak": "Geschiedenis",
+   "leerjaar": "K3",
+   "soort": "G",
+   "domein": "Kennis van geschiedenis",
+   "cluster": "Hoe ordenen we geschiedenis?",
+   "tekst": "De leerlingen kennen de volgende begrippen: heel lang geleden, lang geleden, nu, later, oud, nieuw.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.3.GK3.1",
+   "vak": "Geschiedenis",
+   "leerjaar": "K3",
+   "soort": "G",
+   "domein": "Reflectie en dialoog over verleden en geschiedenis",
+   "cluster": "Hoe kijken we vandaag naar geschiedenis?",
+   "tekst": "De leerlingen kunnen herkennen dat sporen uit het verleden aanwezig zijn in wat ze om zich heen zien.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.3.GK3.2",
+   "vak": "Geschiedenis",
+   "leerjaar": "K3",
+   "soort": "G",
+   "domein": "Reflectie en dialoog over verleden en geschiedenis",
+   "cluster": "Hoe kijken we vandaag naar geschiedenis?",
+   "tekst": "De leerlingen weten waarom iets uit het verleden bewaard wordt.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.3.GK3.3",
+   "vak": "Geschiedenis",
+   "leerjaar": "K3",
+   "soort": "G",
+   "domein": "Reflectie en dialoog over verleden en geschiedenis",
+   "cluster": "Hoe organiseren mensen hun samen leven?",
+   "tekst": "De leerlingen kennen de volgende begrippen: mening, overleg, stemmen.",
+   "kennis": "",
+   "herhaling": ""
+  }
+ ]
+}

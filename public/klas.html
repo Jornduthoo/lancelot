@@ -30,6 +30,13 @@
         <label>Naam van de klas<input id="k-naam" maxlength="40" placeholder="bijv. 6A"></label>
         <label>Leerjaar
           <select id="k-leerjaar">
+            <option value="JK">1e kleuterklas</option>
+            <option value="K2">2e kleuterklas</option>
+            <option value="K3">3e kleuterklas</option>
+            <option value="1">1e leerjaar</option>
+            <option value="2">2e leerjaar</option>
+            <option value="3">3e leerjaar</option>
+            <option value="4">4e leerjaar</option>
             <option value="5">5e leerjaar</option>
             <option value="6" selected>6e leerjaar</option>
           </select>
@@ -80,8 +87,9 @@
 
     <div class="panel form">
       <h3>Leerplandoelen</h3>
-      <p class="muted">De doelen uit Op.stap voor jouw leerjaar. Koppel ze aan een quizvraag of een oefening in de quizmaker of de oefenbladmaker. Groen gemarkeerd: zoveel antwoorden staan er al in het logboek.</p>
+      <p class="muted">De doelen uit Op.stap, standaard die van jouw leerjaar. Kies gerust een ander leerjaar, bijvoorbeeld om doelen van vorig jaar te herhalen. Koppel ze aan een quizvraag of een oefening in de quizmaker of de oefenbladmaker. Groen gemarkeerd: zoveel antwoorden staan er al in het logboek.</p>
       <div class="row">
+        <label>Leerjaar<select id="d-leerjaar"></select></label>
         <label>Vak<select id="d-vak"><option value="">Alle vakken</option></select></label>
         <label>Zoeken<input id="d-zoek" placeholder="bijv. breuk, spelling, verkeer of 2.2.GL6"></label>
       </div>

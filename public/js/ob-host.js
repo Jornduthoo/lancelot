@@ -154,7 +154,7 @@ makerDoel = DoelKies.multi({
   // Het niveau volgt het leerjaar van de doelen.
   onChange: codes => {
     const doel = DoelKies.find(codes[0]);
-    if (doel) $('a-level').value = `${doel.leerjaar}e leerjaar`;
+    if (doel) $('a-level').value = DoelKies.naam(doel.leerjaar);
     updatePrompt();
   },
 });
@@ -177,7 +177,7 @@ $('new-ai').addEventListener('click', () => {
   // Het niveau staat meteen op het leerjaar van de klas; de leerkracht kan het nog veranderen.
   DoelKies.leerjaar(lj => {
     if (!makerDoel.codes().length) {
-      $('a-level').value = `${lj}e leerjaar`;
+      $('a-level').value = DoelKies.naam(lj);
       updatePrompt();
     }
   });

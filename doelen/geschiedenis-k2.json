@@ -1,0 +1,172 @@
+{
+ "bron": "Op.stap, leerroutes voor iedereen (Katholiek Onderwijs Vlaanderen), leerplanversie V1.3 van 24/10/2026",
+ "vak": "Geschiedenis",
+ "leerjaar": "K2",
+ "doelen": [
+  {
+   "code": "5.1.GK2.1",
+   "vak": "Geschiedenis",
+   "leerjaar": "K2",
+   "soort": "G",
+   "domein": "Kennis van het verleden",
+   "cluster": "Hoe leven mensen elke dag?",
+   "tekst": "De leerlingen weten hoe mensen tijdens de prehistorie overleefden en samenleefden: kleine groep (stam), vuur.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.1.GK2.2",
+   "vak": "Geschiedenis",
+   "leerjaar": "K2",
+   "soort": "G",
+   "domein": "Kennis van het verleden",
+   "cluster": "Hoe voorzien mensen in hun levensonderhoud?",
+   "tekst": "De leerlingen weten hoe mensen tijdens de prehistorie overleefden en samenleefden: jagen, voedsel verzamelen.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.1.GK2.3",
+   "vak": "Geschiedenis",
+   "leerjaar": "K2",
+   "soort": "G",
+   "domein": "Kennis van het verleden",
+   "cluster": "Hoe voorzien mensen in hun levensonderhoud?",
+   "tekst": "De leerlingen weten hoe mensen tijdens de prehistorie overleefden en samenleefden: het gebruik van vuur.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.1.GK2.4",
+   "vak": "Geschiedenis",
+   "leerjaar": "K2",
+   "soort": "G",
+   "domein": "Kennis van het verleden",
+   "cluster": "Hoe voorzien mensen in hun levensonderhoud?",
+   "tekst": "De leerlingen weten hoe mensen tijdens de prehistorie overleefden en samenleefden: werktuigen van steen en been gebruiken.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.1.GK2.5",
+   "vak": "Geschiedenis",
+   "leerjaar": "K2",
+   "soort": "G",
+   "domein": "Kennis van het verleden",
+   "cluster": "Hoe begrijpen mensen hun wereld?",
+   "tekst": "De leerlingen weten hoe mensen tijdens de prehistorie overleefden en samenleefden: werktuigen van steen en been leren maken.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.1.GK2.6",
+   "vak": "Geschiedenis",
+   "leerjaar": "K2",
+   "soort": "G",
+   "domein": "Kennis van het verleden",
+   "cluster": "Hoe begrijpen mensen hun wereld?",
+   "tekst": "De leerlingen weten hoe mensen tijdens de prehistorie overleefden en samenleefden: grotschilderingen.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.1.GK2.7",
+   "vak": "Geschiedenis",
+   "leerjaar": "K2",
+   "soort": "G",
+   "domein": "Kennis van het verleden",
+   "cluster": "Hoe leven mensen elke dag?",
+   "tekst": "De leerlingen weten hoe mensen tijdens de hedendaagse tijd samenleefden: eigen stad, dorp of straat, veranderingen in het straatbeeld, technologie.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.1.GK2.8",
+   "vak": "Geschiedenis",
+   "leerjaar": "K2",
+   "soort": "G",
+   "domein": "Kennis van het verleden",
+   "cluster": "Hoe leven mensen elke dag?",
+   "tekst": "De leerlingen weten hoe mensen tijdens de hedendaagse tijd samenleefden: eigen woning, familieherinneringen uit de kindertijd, technologie, het interieur van een woning.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.2.GK2.1",
+   "vak": "Geschiedenis",
+   "leerjaar": "K2",
+   "soort": "G",
+   "domein": "Kennis van geschiedenis",
+   "cluster": "Hoe komen we geschiedenis op het spoor?",
+   "tekst": "De leerlingen kunnen soorten bronnen vanuit de bestudeerde samenlevingen herkennen: prehistorie.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.2.GK2.2",
+   "vak": "Geschiedenis",
+   "leerjaar": "K2",
+   "soort": "G",
+   "domein": "Kennis van geschiedenis",
+   "cluster": "Hoe komen we geschiedenis op het spoor?",
+   "tekst": "De leerlingen kunnen soorten bronnen vanuit de bestudeerde samenlevingen herkennen: hedendaagse tijd in de omgeving.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.2.GK2.3",
+   "vak": "Geschiedenis",
+   "leerjaar": "K2",
+   "soort": "G",
+   "domein": "Kennis van geschiedenis",
+   "cluster": "Hoe komen we geschiedenis op het spoor?",
+   "tekst": "De leerlingen kunnen soorten bronnen vanuit de bestudeerde samenlevingen herkennen: hedendaagse tijd in eigen leefomgeving.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.2.GK2.4",
+   "vak": "Geschiedenis",
+   "leerjaar": "K2",
+   "soort": "G",
+   "domein": "Kennis van geschiedenis",
+   "cluster": "Hoe denken we na over geschiedenis?",
+   "tekst": "De leerlingen kunnen enkele veranderingen tussen verleden en heden herkennen.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.3.GK2.1",
+   "vak": "Geschiedenis",
+   "leerjaar": "K2",
+   "soort": "G",
+   "domein": "Reflectie en dialoog over verleden en geschiedenis",
+   "cluster": "Hoe kijken we vandaag naar geschiedenis?",
+   "tekst": "De leerlingen kunnen herkennen dat sporen uit het verleden aanwezig zijn in wat ze om zich heen zien.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.3.GK2.2",
+   "vak": "Geschiedenis",
+   "leerjaar": "K2",
+   "soort": "G",
+   "domein": "Reflectie en dialoog over verleden en geschiedenis",
+   "cluster": "Hoe kijken we vandaag naar geschiedenis?",
+   "tekst": "De leerlingen weten waarom iets uit het verleden bewaard wordt.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.3.GK2.3",
+   "vak": "Geschiedenis",
+   "leerjaar": "K2",
+   "soort": "G",
+   "domein": "Reflectie en dialoog over verleden en geschiedenis",
+   "cluster": "Hoe organiseren mensen hun samen leven?",
+   "tekst": "De leerlingen benoemen de volgende begrippen: mening, overleg, stemmen.",
+   "kennis": "",
+   "herhaling": ""
+  }
+ ]
+}

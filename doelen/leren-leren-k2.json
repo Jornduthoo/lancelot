@@ -1,0 +1,68 @@
+{
+ "bron": "Op.stap, leerroutes voor iedereen (Katholiek Onderwijs Vlaanderen), leerplanversie V1.3 van 24/10/2026",
+ "vak": "Leren leren",
+ "leerjaar": "K2",
+ "score": false,
+ "doelen": [
+  {
+   "code": "9-2.2.GK2.1",
+   "vak": "Leren leren",
+   "leerjaar": "K2",
+   "soort": "G",
+   "domein": "Leerstrategieën",
+   "cluster": "Cognitie",
+   "tekst": "De leerlingen kunnen gedurende een korte tijd hun aandacht richten op een leeractiviteit.",
+   "kennis": "",
+   "herhaling": "",
+   "score": false
+  },
+  {
+   "code": "9-2.2.GK2.2",
+   "vak": "Leren leren",
+   "leerjaar": "K2",
+   "soort": "G",
+   "domein": "Leerstrategieën",
+   "cluster": "Cognitie",
+   "tekst": "De leerlingen kunnen hun (voor)kennis bij een onderwerp ophalen.",
+   "kennis": "",
+   "herhaling": "",
+   "score": false
+  },
+  {
+   "code": "9-2.2.GK2.3",
+   "vak": "Leren leren",
+   "leerjaar": "K2",
+   "soort": "G",
+   "domein": "Leerstrategieën",
+   "cluster": "Metacognitie",
+   "tekst": "De leerlingen kunnen de volgorde van de stappen voor de uitvoering van leeractiviteit bepalen.",
+   "kennis": "",
+   "herhaling": "",
+   "score": false
+  },
+  {
+   "code": "9-2.2.GK2.4",
+   "vak": "Leren leren",
+   "leerjaar": "K2",
+   "soort": "G",
+   "domein": "Leerstrategieën",
+   "cluster": "Metacognitie",
+   "tekst": "De leerlingen kunnen een gemodelleerde zelfinstructiemethode kopiëren.",
+   "kennis": "",
+   "herhaling": "",
+   "score": false
+  },
+  {
+   "code": "9-2.4.GK2.1",
+   "vak": "Leren leren",
+   "leerjaar": "K2",
+   "soort": "G",
+   "domein": "Keuzeproces",
+   "cluster": "Kiezen",
+   "tekst": "De leerlingen kunnen zelfstandig een keuze maken uit een beperkt aanbod.",
+   "kennis": "",
+   "herhaling": "",
+   "score": false
+  }
+ ]
+}

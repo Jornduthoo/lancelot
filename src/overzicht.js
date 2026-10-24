@@ -86,7 +86,7 @@ function session(id) {
       .sort((a, b) => a.pct - b.pct || b.antwoorden - a.antwoorden),
     spelers: [...spelers.values()].map(s => ({ ...s, foutDoelen: [...s.foutDoelen], pct: pct(s.juist, s.antwoorden) }))
       .sort((a, b) => a.pct - b.pct || a.naam.localeCompare(b.naam)),
-    doelen: [...perDoel.values()].map(d => ({ ...d, tekst: (doelen.find(d.doel) || {}).tekst || '', pct: pct(d.juist, d.antwoorden) }))
+    doelen: [...perDoel.values()].filter(d => doelen.scoort(d.doel)).map(d => ({ ...d, tekst: (doelen.find(d.doel) || {}).tekst || '', pct: pct(d.juist, d.antwoorden) }))
       .sort((a, b) => a.pct - b.pct),
   };
 }
@@ -100,7 +100,8 @@ function status(n, recentJuist, recentN) {
 // De doelenkaart: per leerplandoel en per leerling hoe ver ze staan. Zonder klaslijst tellen alle namen uit het logboek.
 function kaart() {
   const list = klas.read().leerlingen;
-  const entries = logboek.read().filter(e => e.doel);
+  // Doelen voor de Ronde Tafel (SEL, leren leren, godsdienst) krijgen geen score.
+  const entries = logboek.read().filter(e => e.doel && doelen.scoort(e.doel));
   const leerlingen = list.map(l => ({ key: l.id, naam: l.naam }));
   const extra = new Map();
   const cells = new Map();

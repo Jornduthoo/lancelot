@@ -1,0 +1,92 @@
+{
+ "bron": "Op.stap, leerroutes voor iedereen (Katholiek Onderwijs Vlaanderen), leerplanversie V1.3 van 24/10/2026",
+ "vak": "Leren leren",
+ "leerjaar": 2,
+ "score": false,
+ "doelen": [
+  {
+   "code": "9-2.2.GL2.1",
+   "vak": "Leren leren",
+   "leerjaar": 2,
+   "soort": "G",
+   "domein": "Leerstrategieën",
+   "cluster": "Cognitie",
+   "tekst": "De leerlingen kennen cognitieve leerstrategieën om kennis actief en gespreid in de tijd in te oefenen.",
+   "kennis": "",
+   "herhaling": "",
+   "score": false
+  },
+  {
+   "code": "9-2.2.GL2.2",
+   "vak": "Leren leren",
+   "leerjaar": 2,
+   "soort": "G",
+   "domein": "Leerstrategieën",
+   "cluster": "Cognitie",
+   "tekst": "De leerlingen kunnen aangereikte en aangeleerde cognitieve leerstrategieën functioneel inzetten.",
+   "kennis": "",
+   "herhaling": "",
+   "score": false
+  },
+  {
+   "code": "9-2.2.GL2.3",
+   "vak": "Leren leren",
+   "leerjaar": 2,
+   "soort": "G",
+   "domein": "Leerstrategieën",
+   "cluster": "Metacognitie",
+   "tekst": "De leerlingen kunnen metacognitieve strategieën inzetten: doelen stellen en een plan opmaken; een leeractiviteit stapsgewijs uitvoeren en monitoren; het resultaat van een leeractiviteit evalueren en erover reflecteren.",
+   "kennis": "",
+   "herhaling": "",
+   "score": false
+  },
+  {
+   "code": "9-2.2.GL2.4",
+   "vak": "Leren leren",
+   "leerjaar": 2,
+   "soort": "G",
+   "domein": "Leerstrategieën",
+   "cluster": "Organisatie",
+   "tekst": "De leerlingen kunnen de voordelen van een ordelijke leeromgeving verkennen.",
+   "kennis": "",
+   "herhaling": "",
+   "score": false
+  },
+  {
+   "code": "9-2.3.GL2.1",
+   "vak": "Leren leren",
+   "leerjaar": 2,
+   "soort": "G",
+   "domein": "Leerproces",
+   "cluster": "Werking brein",
+   "tekst": "De leerlingen weten dat kennis herhaaldelijk oefenen noodzakelijk is om kennis op te slaan in het brein.",
+   "kennis": "",
+   "herhaling": "",
+   "score": false
+  },
+  {
+   "code": "9-2.3.GL2.2",
+   "vak": "Leren leren",
+   "leerjaar": 2,
+   "soort": "G",
+   "domein": "Leerproces",
+   "cluster": "Cyclisch leerproces",
+   "tekst": "De leerlingen kunnen het verloop van een leerproces bij een concrete leeractiviteit verkennen.",
+   "kennis": "",
+   "herhaling": "",
+   "score": false
+  },
+  {
+   "code": "9-2.4.GL2.1",
+   "vak": "Leren leren",
+   "leerjaar": 2,
+   "soort": "G",
+   "domein": "Keuzeproces",
+   "cluster": "Kiezen",
+   "tekst": "De leerlingen kunnen reflecteren over de voor- en nadelen van bepaalde keuzes voor zichzelf en anderen.",
+   "kennis": "",
+   "herhaling": "",
+   "score": false
+  }
+ ]
+}

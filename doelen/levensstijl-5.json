@@ -1,0 +1,205 @@
+{
+ "bron": "Op.stap, leerroutes voor iedereen (Katholiek Onderwijs Vlaanderen), leerplanversie V1.3 van 24/10/2026",
+ "vak": "Veilige en gezonde levensstijl",
+ "leerjaar": 5,
+ "doelen": [
+  {
+   "code": "9-1.1.GL5.1",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 5,
+   "soort": "G",
+   "domein": "Verkeer",
+   "cluster": "De openbare weg",
+   "tekst": "De leerlingen kennen de betekenis van volgende verkeersregels en signalen: de algemene voorrangsregel ‘voorrang van rechts'.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.1.GL5.2",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 5,
+   "soort": "G",
+   "domein": "Verkeer",
+   "cluster": "Wegmarkeringen",
+   "tekst": "De leerlingen kennen de betekenis van volgende verkeersregels en signalen: de wegmarkeringen: stopstreep.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.1.GL5.3",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 5,
+   "soort": "G",
+   "domein": "Verkeer",
+   "cluster": "Verkeersborden",
+   "tekst": "De leerlingen gevaarsborden, waaronder A21, A41, A47, herkennen.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.1.GL5.4",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 5,
+   "soort": "G",
+   "domein": "Verkeer",
+   "cluster": "Verkeersborden",
+   "tekst": "De leerlingen kunnen voorrangsborden, waaronder B1, B9, B11, B15a, B17, B19, B21, herkennen.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.1.GL5.5",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 5,
+   "soort": "G",
+   "domein": "Verkeer",
+   "cluster": "Verkeersborden",
+   "tekst": "De leerlingen kunnen gebodsborden, waaronder D1a, D1b, D5, herkennen.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.1.GL5.6",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 5,
+   "soort": "G",
+   "domein": "Verkeer",
+   "cluster": "Verkeersborden",
+   "tekst": "De leerlingen kunnen verbodsborden, waaronder C1 en C31b, herkennen.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.1.GL5.7",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 5,
+   "soort": "G",
+   "domein": "Verkeer",
+   "cluster": "Verkeersborden",
+   "tekst": "De leerlingen kunnen aanwijsborden, waaronder F14, F45, F111, F113, herkennen.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.1.GL5.8",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 5,
+   "soort": "G",
+   "domein": "Verkeer",
+   "cluster": "Verkeersborden",
+   "tekst": "De leerlingen kunnen onderborden betreffende fietsen en bromfietsen, waaronder M2 en M5bis, herkennen.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.1.GL5.9",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 5,
+   "soort": "G",
+   "domein": "Verkeer",
+   "cluster": "Voetganger",
+   "tekst": "De leerlingen kunnen zich als voetganger op de openbare weg verplaatsen en de verkeersregels en signalisaties naleven.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.1.GL5.10",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 5,
+   "soort": "G",
+   "domein": "Verkeer",
+   "cluster": "Fietser",
+   "tekst": "De leerlingen kunnen zich als fietser op de openbare weg onder begeleiding verplaatsen en de verkeersregels en signalisaties naleven.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.1.GL5.11",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 5,
+   "soort": "G",
+   "domein": "Verkeer",
+   "cluster": "Fietser",
+   "tekst": "De leerlingen kunnen als fietser veilig verkeersgedrag toepassen onder begeleiding.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GL5.1",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 5,
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Veiligheid en eerste hulp medicatie",
+   "tekst": "De leerlingen kunnen voorbeelden van genotsmiddelen geven.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GL5.2",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 5,
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Veiligheid en eerste hulp medicatie",
+   "tekst": "De leerlingen kunnen de invloed van genotsmiddelen op gedragingen beschrijven.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GL5.3",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 5,
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Veiligheid en eerste hulp medicatie",
+   "tekst": "De leerlingen kennen enkele gevarenpictogrammen van materialen en substanties.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GL5.4",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 5,
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Veiligheid en eerste hulp medicatie",
+   "tekst": "De leerlingen kunnen gevarenpictogrammen van materialen en substanties naleven.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GL5.5",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 5,
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Veiligheid en eerste hulp medicatie",
+   "tekst": "De leerlingen kunnen veiligheidsvoorschriften herkennen en beschrijven.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GL5.6",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 5,
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Beweging en lichaamshouding",
+   "tekst": "De leerlingen kunnen verwoorden wat het effect is van bewegen op mentaal welbevinden.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GL5.7",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 5,
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Beweging en lichaamshouding",
+   "tekst": "De leerlingen kunnen verwoorden wat het effect is van bewegen op gezondheid.",
+   "kennis": "",
+   "herhaling": ""
+  }
+ ]
+}

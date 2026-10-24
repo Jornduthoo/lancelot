@@ -3,6 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 const niveaus = require('./niveaus');
+const doelen = require('./doelen');
 
 const DIR = path.join(__dirname, '..', 'klas');
 const FILE = path.join(DIR, 'klas.json');
@@ -11,7 +12,7 @@ const MAX = 40;
 function read() {
   try {
     const data = JSON.parse(fs.readFileSync(FILE, 'utf8'));
-    return { naam: data.naam || '', leerjaar: data.leerjaar || 6, leerlingen: Array.isArray(data.leerlingen) ? data.leerlingen : [] };
+    return { naam: data.naam || '', leerjaar: doelen.leerjaar(data.leerjaar || 6), leerlingen: Array.isArray(data.leerlingen) ? data.leerlingen : [] };
   } catch {
     return { naam: '', leerjaar: 6, leerlingen: [] };
   }
@@ -35,7 +36,7 @@ function write({ naam, leerjaar, namen } = {}) {
     leerlingen.push({ id: old ? old.id : Math.random().toString(36).slice(2, 10), naam: name, ...(old && old.niveau ? { niveau: old.niveau } : {}) });
   }
   if (leerlingen.length > MAX) throw new Error(`Een klas mag hooguit ${MAX} leerlingen hebben.`);
-  const data = { naam: String(naam || '').trim().slice(0, 40), leerjaar: [5, 6].includes(Number(leerjaar)) ? Number(leerjaar) : 6, leerlingen };
+  const data = { naam: String(naam || '').trim().slice(0, 40), leerjaar: doelen.leerjaar(leerjaar), leerlingen };
   fs.mkdirSync(DIR, { recursive: true });
   fs.writeFileSync(FILE, JSON.stringify(data, null, 2) + '\n');
   return data;

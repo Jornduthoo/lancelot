@@ -1,0 +1,140 @@
+{
+ "bron": "Op.stap, leerroutes voor iedereen (Katholiek Onderwijs Vlaanderen), leerplanversie V1.3 van 24/10/2026",
+ "vak": "Leren leren",
+ "leerjaar": 3,
+ "score": false,
+ "doelen": [
+  {
+   "code": "9-2.2.GL3.1",
+   "vak": "Leren leren",
+   "leerjaar": 3,
+   "soort": "G",
+   "domein": "Leerstrategieën",
+   "cluster": "Cognitie",
+   "tekst": "De leerlingen kennen cognitieve leerstrategieën om kennis actief en gespreid in de tijd in te oefenen.",
+   "kennis": "",
+   "herhaling": "",
+   "score": false
+  },
+  {
+   "code": "9-2.2.GL3.2",
+   "vak": "Leren leren",
+   "leerjaar": 3,
+   "soort": "G",
+   "domein": "Leerstrategieën",
+   "cluster": "Cognitie",
+   "tekst": "De leerlingen kennen cognitieve leerstrategieën om kennis op te halen.",
+   "kennis": "",
+   "herhaling": "",
+   "score": false
+  },
+  {
+   "code": "9-2.2.GL3.3",
+   "vak": "Leren leren",
+   "leerjaar": 3,
+   "soort": "G",
+   "domein": "Leerstrategieën",
+   "cluster": "Cognitie",
+   "tekst": "De leerlingen kennen cognitieve leerstrategieën om informatie actief te verwerken.",
+   "kennis": "",
+   "herhaling": "",
+   "score": false
+  },
+  {
+   "code": "9-2.2.GL3.4",
+   "vak": "Leren leren",
+   "leerjaar": 3,
+   "soort": "G",
+   "domein": "Leerstrategieën",
+   "cluster": "Cognitie",
+   "tekst": "De leerlingen kunnen aangereikte en aangeleerde cognitieve leerstrategieën functioneel inzetten.",
+   "kennis": "",
+   "herhaling": "",
+   "score": false
+  },
+  {
+   "code": "9-2.2.GL3.5",
+   "vak": "Leren leren",
+   "leerjaar": 3,
+   "soort": "G",
+   "domein": "Leerstrategieën",
+   "cluster": "Metacognitie",
+   "tekst": "De leerlingen kunnen metacognitieve strategieën inzetten: doelen stellen en een plan opmaken; een leeractiviteit stapsgewijs uitvoeren en monitoren; het resultaat van een leeractiviteit evalueren en erover reflecteren.",
+   "kennis": "",
+   "herhaling": "",
+   "score": false
+  },
+  {
+   "code": "9-2.2.GL3.6",
+   "vak": "Leren leren",
+   "leerjaar": 3,
+   "soort": "G",
+   "domein": "Leerstrategieën",
+   "cluster": "Motivatie",
+   "tekst": "De leerlingen kunnen zich uitdrukken over aspecten met betrekking tot hun motivatie bij een specifieke leeractiviteit.",
+   "kennis": "",
+   "herhaling": "",
+   "score": false
+  },
+  {
+   "code": "9-2.2.GL3.7",
+   "vak": "Leren leren",
+   "leerjaar": 3,
+   "soort": "G",
+   "domein": "Leerstrategieën",
+   "cluster": "Organisatie",
+   "tekst": "De leerlingen kunnen een leeromgeving optimaal organiseren in functie van de leeractiviteit en het leerdoel.",
+   "kennis": "",
+   "herhaling": "",
+   "score": false
+  },
+  {
+   "code": "9-2.3.GL3.1",
+   "vak": "Leren leren",
+   "leerjaar": 3,
+   "soort": "G",
+   "domein": "Leerproces",
+   "cluster": "Werking brein",
+   "tekst": "De leerlingen weten dat nieuwe kennis verbonden wordt met voorkennis in het brein.",
+   "kennis": "",
+   "herhaling": "",
+   "score": false
+  },
+  {
+   "code": "9-2.3.GL3.2",
+   "vak": "Leren leren",
+   "leerjaar": 3,
+   "soort": "G",
+   "domein": "Leerproces",
+   "cluster": "Cyclisch leerproces",
+   "tekst": "De leerlingen kennen het verloop van een leerproces bij een concrete leeractiviteit: voorbereiden, uitvoeren en reflecteren.",
+   "kennis": "",
+   "herhaling": "",
+   "score": false
+  },
+  {
+   "code": "9-2.4.GL3.1",
+   "vak": "Leren leren",
+   "leerjaar": 3,
+   "soort": "G",
+   "domein": "Keuzeproces",
+   "cluster": "Kiezen",
+   "tekst": "De leerlingen kunnen reflecteren over aspecten van een door hen doorlopen keuzeproces.",
+   "kennis": "",
+   "herhaling": "",
+   "score": false
+  },
+  {
+   "code": "9-2.4.GL3.2",
+   "vak": "Leren leren",
+   "leerjaar": 3,
+   "soort": "G",
+   "domein": "Keuzeproces",
+   "cluster": "Studiekeuze",
+   "tekst": "De leerlingen kunnen reflecteren over het maken van toekomstgerichte keuzes.",
+   "kennis": "",
+   "herhaling": "",
+   "score": false
+  }
+ ]
+}

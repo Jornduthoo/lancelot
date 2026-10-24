@@ -1,0 +1,271 @@
+{
+ "bron": "Op.stap, leerroutes voor iedereen (Katholiek Onderwijs Vlaanderen), leerplanversie V1.3 van 24/10/2026",
+ "vak": "Veilige en gezonde levensstijl",
+ "leerjaar": "K3",
+ "doelen": [
+  {
+   "code": "9-1.1.GK3.1",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": "K3",
+   "soort": "G",
+   "domein": "Verkeer",
+   "cluster": "De openbare weg",
+   "tekst": "De leerlingen kennen de betekenis van volgende verkeersregels, afspraken en signalen: op het voetpad en de verhoogde berm fietsen tot 10 jaar.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.1.GK3.2",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": "K3",
+   "soort": "G",
+   "domein": "Verkeer",
+   "cluster": "De openbare weg",
+   "tekst": "De leerlingen kennen de betekenis van volgende verkeersregels, afspraken en signalen: goed kijken bij het oversteken.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.1.GK3.3",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": "K3",
+   "soort": "G",
+   "domein": "Verkeer",
+   "cluster": "Wegmarkeringen",
+   "tekst": "De leerlingen kennen de betekenis van volgende verkeersregels, afspraken en signalen: zebrapad.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.1.GK3.4",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": "K3",
+   "soort": "G",
+   "domein": "Verkeer",
+   "cluster": "Signalen en verkeerslichten",
+   "tekst": "De leerlingen kennen de betekenis van volgende verkeersregels, afspraken en signalen: verkeerslichten voor voetgangers en fietsers.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.1.GK3.5",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": "K3",
+   "soort": "G",
+   "domein": "Verkeer",
+   "cluster": "Verkeersborden",
+   "tekst": "De leerlingen kennen de betekenis van volgende verkeersregels, afspraken en signalen: stoppen bij een stopbord.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.1.GK3.6",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": "K3",
+   "soort": "G",
+   "domein": "Verkeer",
+   "cluster": "Voetganger",
+   "tekst": "De leerlingen kennen het belang van een veilige voetgangersuitrusting: fluorescerende kledij.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.1.GK3.7",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": "K3",
+   "soort": "G",
+   "domein": "Verkeer",
+   "cluster": "Voetganger",
+   "tekst": "De leerlingen kunnen onder begeleiding veilig oversteken op een zebrapad.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.1.GK3.8",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": "K3",
+   "soort": "G",
+   "domein": "Verkeer",
+   "cluster": "Passagier",
+   "tekst": "De leerlingen kunnen als passagier veilig verkeersgedrag toepassen onder begeleiding.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.1.GK3.9",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": "K3",
+   "soort": "G",
+   "domein": "Verkeer",
+   "cluster": "Fietser",
+   "tekst": "De leerlingen kennen het belang van een veilige fietsuitrusting: fluorescerende kledij en fietshelm.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GK3.1",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": "K3",
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Gezonde voeding: begrippen",
+   "tekst": "De leerlingen kennen het begrip: de melkproducten.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GK3.2",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": "K3",
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Gezonde voeding: begrippen",
+   "tekst": "De leerlingen kennen het begrip: de graanproducten.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GK3.3",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": "K3",
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Gezonde voeding: begrippen",
+   "tekst": "De leerlingen kennen het begrip: de noten.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GK3.4",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": "K3",
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Gezonde voeding: begrippen",
+   "tekst": "De leerlingen kunnen verschillende soorten melkproducten benoemen.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GK3.5",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": "K3",
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Gezonde voeding: begrippen",
+   "tekst": "De leerlingen kunnen een onderscheid maken tussen gezonde en ongezonde voedingsmiddelen.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GK3.6",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": "K3",
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Hygiëne en zindelijkheid",
+   "tekst": "De leerlingen kunnen zelfstandig toiletpapier correct gebruiken, doorspoelen en handen wassen bij toiletbezoek.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GK3.7",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": "K3",
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Hygiëne en zindelijkheid",
+   "tekst": "De leerlingen kunnen privacy en beurt respecteren.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GK3.8",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": "K3",
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Hygiëne en zindelijkheid",
+   "tekst": "De leerlingen kunnen het toilet netjes achterlaten.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GK3.9",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": "K3",
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Hygiëne en zindelijkheid",
+   "tekst": "De leerlingen kunnen basishygiëneregels zoals hand voor de mond houden bij hoesten en niezen, toepassen in klascontext.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GK3.10",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": "K3",
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Hygiëne en zindelijkheid",
+   "tekst": "De kleuters kunnen basis hygiëneregels uitvoeren.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GK3.11",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": "K3",
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Aan- en uitkleden",
+   "tekst": "De leerlingen kunnen zich zelfstandig aan- en uitkleden in functionele situaties.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GK3.12",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": "K3",
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Opruimen",
+   "tekst": "De leerlingen kunnen de basisafspraken van opruimen in de klas uitvoeren.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GK3.13",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": "K3",
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Veiligheid en eerste hulp medicatie",
+   "tekst": "De leerlingen weten dat ze in een noodsituatie meteen een volwassene moeten verwittigen.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GK3.14",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": "K3",
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Beweging en lichaamshouding",
+   "tekst": "De leerlingen ervaren dat bewegen hen blij maakt.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GK3.15",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": "K3",
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Beweging en lichaamshouding",
+   "tekst": "De leerlingen herkennen correcte lichaamshoudingen tijdens het zitten, staan, bewegen, heffen en dragen.",
+   "kennis": "",
+   "herhaling": ""
+  }
+ ]
+}

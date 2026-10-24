@@ -141,7 +141,7 @@
    "leerjaar": 6,
    "soort": "G",
    "domein": "Organismen",
-   "cluster": "Ontwikkeling en voortplanting van organismen: begrippen",
+   "cluster": "Classificatie van organismen: begrippen",
    "tekst": "De leerlingen kennen het volgende begrip: de ongeslachtelijke voortplanting.",
    "kennis": "",
    "herhaling": ""
@@ -152,7 +152,7 @@
    "leerjaar": 6,
    "soort": "G",
    "domein": "Organismen",
-   "cluster": "Ontwikkeling en voortplanting van organismen: begrippen",
+   "cluster": "Classificatie van organismen: begrippen",
    "tekst": "De leerlingen kennen het proces van ongeslachtelijke voortplanting bij zaadplanten.",
    "kennis": "",
    "herhaling": ""
@@ -163,7 +163,7 @@
    "leerjaar": 6,
    "soort": "G",
    "domein": "Organismen",
-   "cluster": "Ontwikkeling en voortplanting van organismen: begrippen",
+   "cluster": "Classificatie van organismen: begrippen",
    "tekst": "De leerlingen kennen het proces van geslachtelijke voortplanting bij sporenplanten.",
    "kennis": "",
    "herhaling": ""
@@ -174,7 +174,7 @@
    "leerjaar": 6,
    "soort": "G",
    "domein": "Organismen",
-   "cluster": "Ontwikkeling en voortplanting van organismen: begrippen",
+   "cluster": "Classificatie van organismen: begrippen",
    "tekst": "De leerlingen kunnen onderscheid maken tussen geslachtelijke en ongeslachtelijke voortplanting bij zaadplanten.",
    "kennis": "",
    "herhaling": ""
@@ -185,7 +185,7 @@
    "leerjaar": 6,
    "soort": "G",
    "domein": "Organismen",
-   "cluster": "Ontwikkeling en voortplanting van organismen: begrippen",
+   "cluster": "Classificatie van organismen: begrippen",
    "tekst": "De leerlingen kennen redenen waarom organismen zichzelf voortplanten.",
    "kennis": "",
    "herhaling": ""
@@ -218,7 +218,7 @@
    "leerjaar": 6,
    "soort": "G",
    "domein": "Organismen en hun omgeving (biotoop)",
-   "cluster": "Relatie tussen organismen en hun omgeving",
+   "cluster": "Relatie tussen organismen onderling en hun omgeving: begrippen",
    "tekst": "De leerlingen kunnen aan de hand van hun biotische en abiotische factoren de volgende biotopen identificeren: grasland, bos, heide, zee en kust, stadslandschap, agrarisch landschap, zoet water.",
    "kennis": "",
    "herhaling": ""
@@ -229,7 +229,7 @@
    "leerjaar": 6,
    "soort": "G",
    "domein": "Organismen en hun omgeving (biotoop)",
-   "cluster": "Relatie tussen organismen en hun omgeving",
+   "cluster": "Relatie tussen organismen onderling en hun omgeving: begrippen",
    "tekst": "De leerlingen kennen diensten die het ecosysteem levert aan de mens.",
    "kennis": "",
    "herhaling": ""
@@ -240,7 +240,7 @@
    "leerjaar": 6,
    "soort": "G",
    "domein": "Organismen en hun omgeving (biotoop)",
-   "cluster": "Relatie tussen organismen en hun omgeving",
+   "cluster": "Relatie tussen organismen onderling en hun omgeving: begrippen",
    "tekst": "De leerlingen weten dat mensen een positieve en negatieve impact kunnen hebben op het ecosysteem.",
    "kennis": "",
    "herhaling": ""
@@ -251,7 +251,7 @@
    "leerjaar": 6,
    "soort": "G",
    "domein": "Organismen en hun omgeving (biotoop)",
-   "cluster": "Relatie tussen organismen en hun omgeving",
+   "cluster": "Relatie tussen organismen onderling en hun omgeving: begrippen",
    "tekst": "De leerlingen kunnen verwoorden dat omgevingen kunnen veranderen door natuurlijke of menselijke oorzaken.",
    "kennis": "",
    "herhaling": ""
@@ -262,7 +262,7 @@
    "leerjaar": 6,
    "soort": "G",
    "domein": "Organismen en hun omgeving (biotoop)",
-   "cluster": "Relatie tussen organismen en hun omgeving",
+   "cluster": "Relatie tussen organismen onderling en hun omgeving: begrippen",
    "tekst": "De leerlingen kunnen verwoorden aan de hand van voorbeelden waarom biodiversiteit essentieel is voor het leven op aarde.",
    "kennis": "",
    "herhaling": ""
@@ -378,6 +378,17 @@
    "herhaling": ""
   },
   {
+   "code": "3.2.GL6.21",
+   "vak": "Wetenschap en techniek",
+   "leerjaar": 6,
+   "soort": "G",
+   "domein": "Organismen en hun omgeving (biotoop)",
+   "cluster": "Energiebronnen en voedingsstoffen: begrippen",
+   "tekst": "De leerlingen kennen de volgende begrippen: de fotosynthese, de koolstofdioxide, het zuurstofgas.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
    "code": "3.2.GL6.18",
    "vak": "Wetenschap en techniek",
    "leerjaar": 6,
@@ -407,17 +418,6 @@
    "domein": "Organismen en hun omgeving (biotoop)",
    "cluster": "Energiebronnen en voedingsstoffen: begrippen",
    "tekst": "De leerlingen weten dat bijna elke voedselketen start onder invloed van de energie van de zon.",
-   "kennis": "",
-   "herhaling": ""
-  },
-  {
-   "code": "3.2.GL6.21",
-   "vak": "Wetenschap en techniek",
-   "leerjaar": 6,
-   "soort": "G",
-   "domein": "Organismen en hun omgeving (biotoop)",
-   "cluster": "Energiebronnen en voedingsstoffen: begrippen",
-   "tekst": "De leerlingen kennen de volgende begrippen: de fotosynthese, de koolstofdioxide, het zuurstofgas.",
    "kennis": "",
    "herhaling": ""
   },
@@ -510,6 +510,17 @@
    "herhaling": ""
   },
   {
+   "code": "3.4.GL6.3",
+   "vak": "Wetenschap en techniek",
+   "leerjaar": 6,
+   "soort": "G",
+   "domein": "Materie",
+   "cluster": "Eigenschappen van materie: begrippen",
+   "tekst": "De leerlingen kennen het volgende begrip: de massadichtheid.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
    "code": "3.4.GL6.1",
    "vak": "Wetenschap en techniek",
    "leerjaar": 6,
@@ -528,17 +539,6 @@
    "domein": "Materie",
    "cluster": "Eigenschappen van materie: begrippen",
    "tekst": "De leerlingen kunnen materie onderzoeken en vergelijken op basis van hun eigenschappen.",
-   "kennis": "",
-   "herhaling": ""
-  },
-  {
-   "code": "3.4.GL6.3",
-   "vak": "Wetenschap en techniek",
-   "leerjaar": 6,
-   "soort": "G",
-   "domein": "Materie",
-   "cluster": "Eigenschappen van materie: begrippen",
-   "tekst": "De leerlingen kennen het volgende begrip: de massadichtheid.",
    "kennis": "",
    "herhaling": ""
   },
@@ -620,13 +620,35 @@
    "herhaling": ""
   },
   {
-   "code": "3.5.GL6.5",
+   "code": "3.5.GL6.15",
+   "vak": "Wetenschap en techniek",
+   "leerjaar": 6,
+   "soort": "G",
+   "domein": "Natuurkundige verschijnselen",
+   "cluster": "Energie en warmte: begrippen",
+   "tekst": "De leerlingen kunnen natuurkundige verschijnselen onderzoeken met behulp van de onderzoekscyclus.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "3.5.GL6.12",
    "vak": "Wetenschap en techniek",
    "leerjaar": 6,
    "soort": "G",
    "domein": "Natuurkundige verschijnselen",
    "cluster": "Elektriciteit: begrippen",
-   "tekst": "De leerlingen kennen elektrische verschijnselen: geleiders, isolatoren.",
+   "tekst": "De leerlingen kennen de volgende begrippen: de geleider, de isolator.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "3.5.GL6.13",
+   "vak": "Wetenschap en techniek",
+   "leerjaar": 6,
+   "soort": "G",
+   "domein": "Natuurkundige verschijnselen",
+   "cluster": "Elektriciteit: begrippen",
+   "tekst": "De leerlingen kennen de volgende begrippen: de spanning, de stroomsterkte.",
    "kennis": "",
    "herhaling": ""
   },
@@ -638,6 +660,17 @@
    "domein": "Natuurkundige verschijnselen",
    "cluster": "Elektriciteit: begrippen",
    "tekst": "De leerlingen kennen elektrische verschijnselen: elektrische schakeling, stroomkring.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "3.5.GL6.5",
+   "vak": "Wetenschap en techniek",
+   "leerjaar": 6,
+   "soort": "G",
+   "domein": "Natuurkundige verschijnselen",
+   "cluster": "Elektriciteit: begrippen",
+   "tekst": "De leerlingen kennen elektrische verschijnselen: geleiders, isolatoren.",
    "kennis": "",
    "herhaling": ""
   },
@@ -686,50 +719,6 @@
    "herhaling": ""
   },
   {
-   "code": "3.5.GL6.12",
-   "vak": "Wetenschap en techniek",
-   "leerjaar": 6,
-   "soort": "G",
-   "domein": "Natuurkundige verschijnselen",
-   "cluster": "Elektriciteit: begrippen",
-   "tekst": "De leerlingen kennen de volgende begrippen: de geleider, de isolator.",
-   "kennis": "",
-   "herhaling": ""
-  },
-  {
-   "code": "3.5.GL6.13",
-   "vak": "Wetenschap en techniek",
-   "leerjaar": 6,
-   "soort": "G",
-   "domein": "Natuurkundige verschijnselen",
-   "cluster": "Elektriciteit: begrippen",
-   "tekst": "De leerlingen kennen de volgende begrippen: de spanning, de stroomsterkte.",
-   "kennis": "",
-   "herhaling": ""
-  },
-  {
-   "code": "3.5.GL6.14",
-   "vak": "Wetenschap en techniek",
-   "leerjaar": 6,
-   "soort": "G",
-   "domein": "Natuurkundige verschijnselen",
-   "cluster": "Magnetisme",
-   "tekst": "De leerlingen kunnen natuurkundige verschijnselen onderzoeken met behulp van de onderzoekscyclus.",
-   "kennis": "",
-   "herhaling": ""
-  },
-  {
-   "code": "3.5.GL6.15",
-   "vak": "Wetenschap en techniek",
-   "leerjaar": 6,
-   "soort": "G",
-   "domein": "Natuurkundige verschijnselen",
-   "cluster": "Energie en warmte: begrippen",
-   "tekst": "De leerlingen kunnen natuurkundige verschijnselen onderzoeken met behulp van de onderzoekscyclus.",
-   "kennis": "",
-   "herhaling": ""
-  },
-  {
    "code": "3.5.GL6.16",
    "vak": "Wetenschap en techniek",
    "leerjaar": 6,
@@ -770,6 +759,105 @@
    "domein": "Natuurkundige verschijnselen",
    "cluster": "Elektriciteit: begrippen",
    "tekst": "De leerling kan onderzoeken welke materialen gemakkelijk elektrisch geladen worden door wrijving.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "3.5.GL6.14",
+   "vak": "Wetenschap en techniek",
+   "leerjaar": 6,
+   "soort": "G",
+   "domein": "Natuurkundige verschijnselen",
+   "cluster": "Magnetisme: begrippen",
+   "tekst": "De leerlingen kunnen natuurkundige verschijnselen onderzoeken met behulp van de onderzoekscyclus.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "3.7.GL6.1",
+   "vak": "Wetenschap en techniek",
+   "leerjaar": 6,
+   "soort": "G",
+   "domein": "Wetenschappelijke en technologische problemen onderzoeken",
+   "cluster": "Onderzoekende houding: begrippen",
+   "tekst": "De leerlingen kunnen een onderzoek opzetten met behulp van de onderzoekscyclus.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "3.7.GL6.2",
+   "vak": "Wetenschap en techniek",
+   "leerjaar": 6,
+   "soort": "G",
+   "domein": "Wetenschappelijke en technologische problemen onderzoeken",
+   "cluster": "Onderzoekende houding: begrippen",
+   "tekst": "De leerlingen kunnen de volgende basisprincipes van eerlijk onderzoek toepassen: gecontroleerde omstandigheden, reproduceerbaarheid.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "3.7.GL6.6",
+   "vak": "Wetenschap en techniek",
+   "leerjaar": 6,
+   "soort": "G",
+   "domein": "Wetenschappelijke en technologische problemen onderzoeken",
+   "cluster": "Ontwerpend leren: begrippen",
+   "tekst": "De leerlingen kennen de volgende begrippen: ontwerpen, optimaliseren, de ontwerpcyclus, optimaliseren en presenteren.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "3.7.GL6.3",
+   "vak": "Wetenschap en techniek",
+   "leerjaar": 6,
+   "soort": "G",
+   "domein": "Wetenschappelijke en technologische problemen onderzoeken",
+   "cluster": "Sterk, waterdicht, hoog",
+   "tekst": "De leerlingen kennen de ontwerpcyclus als een gestructureerde aanpak met de volgende fasen: verkennen, ideeën verzinnen en selecteren, ontwerp plannen, ontwerp realiseren, testen en optimaliseren, presenteren.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "3.7.GL6.4",
+   "vak": "Wetenschap en techniek",
+   "leerjaar": 6,
+   "soort": "G",
+   "domein": "Wetenschappelijke en technologische problemen onderzoeken",
+   "cluster": "Sterk, waterdicht, hoog",
+   "tekst": "De leerlingen kennen het belang van het formuleren van criteria om aan een behoefte te voldoen.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "3.7.GL6.5",
+   "vak": "Wetenschap en techniek",
+   "leerjaar": 6,
+   "soort": "G",
+   "domein": "Wetenschappelijke en technologische problemen onderzoeken",
+   "cluster": "Sterk, waterdicht, hoog",
+   "tekst": "De leerlingen kunnen ontwerpen met behulp van de ontwerpcyclus.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "3.6.GL6.5",
+   "vak": "Wetenschap en techniek",
+   "leerjaar": 6,
+   "soort": "G",
+   "domein": "Technologie",
+   "cluster": "Hoe mens, wetenschap en technologie elkaar beïnvloeden: begrippen",
+   "tekst": "De leerlingen kennen de volgende begrippen: de wisselwerking, de technologische ontwikkeling, de wetenschappelijke ontdekking, de innovatie.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "3.6.GL6.6",
+   "vak": "Wetenschap en techniek",
+   "leerjaar": 6,
+   "soort": "G",
+   "domein": "Technologie",
+   "cluster": "Hoe mens, wetenschap en technologie elkaar beïnvloeden: begrippen",
+   "tekst": "De leerlingen kennen de volgende begrippen: de duurzaamheid, de ecologische voetafdruk, de ethiek.",
    "kennis": "",
    "herhaling": ""
   },
@@ -818,28 +906,6 @@
    "herhaling": ""
   },
   {
-   "code": "3.6.GL6.5",
-   "vak": "Wetenschap en techniek",
-   "leerjaar": 6,
-   "soort": "G",
-   "domein": "Technologie",
-   "cluster": "Hoe mens, wetenschap en technologie elkaar beïnvloeden: begrippen",
-   "tekst": "De leerlingen kennen de volgende begrippen: de wisselwerking, de technologische ontwikkeling, de wetenschappelijke ontdekking, de innovatie.",
-   "kennis": "",
-   "herhaling": ""
-  },
-  {
-   "code": "3.6.GL6.6",
-   "vak": "Wetenschap en techniek",
-   "leerjaar": 6,
-   "soort": "G",
-   "domein": "Technologie",
-   "cluster": "Hoe mens, wetenschap en technologie elkaar beïnvloeden: begrippen",
-   "tekst": "De leerlingen kennen de volgende begrippen: de duurzaamheid, de ecologische voetafdruk, de ethiek.",
-   "kennis": "",
-   "herhaling": ""
-  },
-  {
    "code": "3.6.GL6.7",
    "vak": "Wetenschap en techniek",
    "leerjaar": 6,
@@ -847,6 +913,17 @@
    "domein": "Technologie",
    "cluster": "Technische systemen hanteren: begrippen",
    "tekst": "De leerlingen kennen minstens dit basisgereedschap voor basisonderhoud en herstellingen: de draadstripper, de striptang, de universele tang, de soldeerbout.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "3.6.GL6.15",
+   "vak": "Wetenschap en techniek",
+   "leerjaar": 6,
+   "soort": "G",
+   "domein": "Technologie",
+   "cluster": "Technische systemen hanteren: begrippen",
+   "tekst": "De leerlingen kennen basisgereedschap voor basisonderhoud en herstellingen.",
    "kennis": "",
    "herhaling": ""
   },
@@ -884,6 +961,17 @@
    "herhaling": ""
   },
   {
+   "code": "3.6.GL6.14",
+   "vak": "Wetenschap en techniek",
+   "leerjaar": 6,
+   "soort": "G",
+   "domein": "Technologie",
+   "cluster": "Technische systemen beschrijven: begrippen",
+   "tekst": "De leerlingen kennen de volgende begrippen: het tandwiel, de riem, de ketting, het technische systeem, de vormgeving, het design.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
    "code": "3.6.GL6.11",
    "vak": "Wetenschap en techniek",
    "leerjaar": 6,
@@ -917,28 +1005,6 @@
    "herhaling": ""
   },
   {
-   "code": "3.6.GL6.14",
-   "vak": "Wetenschap en techniek",
-   "leerjaar": 6,
-   "soort": "G",
-   "domein": "Technologie",
-   "cluster": "Technische systemen beschrijven: begrippen",
-   "tekst": "De leerlingen kennen de volgende begrippen: het tandwiel, de riem, de ketting, het technische systeem, de vormgeving, het design.",
-   "kennis": "",
-   "herhaling": ""
-  },
-  {
-   "code": "3.6.GL6.15",
-   "vak": "Wetenschap en techniek",
-   "leerjaar": 6,
-   "soort": "G",
-   "domein": "Technologie",
-   "cluster": "Technische systemen hanteren: begrippen",
-   "tekst": "De leerlingen kennen basisgereedschap voor basisonderhoud en herstellingen.",
-   "kennis": "",
-   "herhaling": ""
-  },
-  {
    "code": "3.6.+L6.1",
    "vak": "Wetenschap en techniek",
    "leerjaar": 6,
@@ -946,72 +1012,6 @@
    "domein": "Technologie",
    "cluster": "Constructies",
    "tekst": "De leerling kan constructies analyseren op bouw, verbindingen en materiaalkeuze.",
-   "kennis": "",
-   "herhaling": ""
-  },
-  {
-   "code": "3.7.GL6.1",
-   "vak": "Wetenschap en techniek",
-   "leerjaar": 6,
-   "soort": "G",
-   "domein": "Wetenschappelijke en technologische problemen onderzoeken",
-   "cluster": "Onderzoekende houding: begrippen",
-   "tekst": "De leerlingen kunnen een onderzoek opzetten met behulp van de onderzoekscyclus.",
-   "kennis": "",
-   "herhaling": ""
-  },
-  {
-   "code": "3.7.GL6.2",
-   "vak": "Wetenschap en techniek",
-   "leerjaar": 6,
-   "soort": "G",
-   "domein": "Wetenschappelijke en technologische problemen onderzoeken",
-   "cluster": "Onderzoekende houding: begrippen",
-   "tekst": "De leerlingen kunnen de volgende basisprincipes van eerlijk onderzoek toepassen: gecontroleerde omstandigheden, reproduceerbaarheid.",
-   "kennis": "",
-   "herhaling": ""
-  },
-  {
-   "code": "3.7.GL6.3",
-   "vak": "Wetenschap en techniek",
-   "leerjaar": 6,
-   "soort": "G",
-   "domein": "Wetenschappelijke en technologische problemen onderzoeken",
-   "cluster": "Ontwerpend leren: begrippen",
-   "tekst": "De leerlingen kennen de ontwerpcyclus als een gestructureerde aanpak met de volgende fasen: verkennen, ideeën verzinnen en selecteren, ontwerp plannen, ontwerp realiseren, testen en optimaliseren, presenteren.",
-   "kennis": "",
-   "herhaling": ""
-  },
-  {
-   "code": "3.7.GL6.4",
-   "vak": "Wetenschap en techniek",
-   "leerjaar": 6,
-   "soort": "G",
-   "domein": "Wetenschappelijke en technologische problemen onderzoeken",
-   "cluster": "Ontwerpend leren: begrippen",
-   "tekst": "De leerlingen kennen het belang van het formuleren van criteria om aan een behoefte te voldoen.",
-   "kennis": "",
-   "herhaling": ""
-  },
-  {
-   "code": "3.7.GL6.5",
-   "vak": "Wetenschap en techniek",
-   "leerjaar": 6,
-   "soort": "G",
-   "domein": "Wetenschappelijke en technologische problemen onderzoeken",
-   "cluster": "Ontwerpend leren: begrippen",
-   "tekst": "De leerlingen kunnen ontwerpen met behulp van de ontwerpcyclus.",
-   "kennis": "",
-   "herhaling": ""
-  },
-  {
-   "code": "3.7.GL6.6",
-   "vak": "Wetenschap en techniek",
-   "leerjaar": 6,
-   "soort": "G",
-   "domein": "Wetenschappelijke en technologische problemen onderzoeken",
-   "cluster": "Ontwerpend leren: begrippen",
-   "tekst": "De leerlingen kennen de volgende begrippen: ontwerpen, optimaliseren, de ontwerpcyclus, optimaliseren en presenteren.",
    "kennis": "",
    "herhaling": ""
   }

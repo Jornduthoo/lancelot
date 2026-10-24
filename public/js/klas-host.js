@@ -3,7 +3,10 @@ const socket = io({ query: { role: 'host' } });
 const $ = id => document.getElementById(id);
 
 let doelen = [];
-let leerjaar = 6;
+let leerjaar = 6; // het leerjaar van de klas
+let leerjaren = [];
+const same = (a, b) => String(a) === String(b);
+const ljNaam = lj => (leerjaren.find(l => same(l.id, lj)) || { naam: `${lj}e leerjaar` }).naam;
 let perDoel = {};
 
 $('brand').addEventListener('click', () => { location.href = '/host'; });
@@ -52,7 +55,7 @@ function renderNiveaus(leerlingen) {
 $('k-save').addEventListener('click', () => {
   $('k-error').textContent = '';
   $('k-saved').textContent = '';
-  const data = { naam: $('k-naam').value, leerjaar: Number($('k-leerjaar').value), namen: $('k-namen').value.split('\n') };
+  const data = { naam: $('k-naam').value, leerjaar: $('k-leerjaar').value, namen: $('k-namen').value.split('\n') };
   socket.emit('klas-save', data, res => {
     if (res.error) return ($('k-error').textContent = res.error);
     $('k-namen').value = res.klas.leerlingen.map(l => l.naam).join('\n');
@@ -80,17 +83,34 @@ $('l-folder').addEventListener('click', () => socket.emit('open-logboek-folder')
 function loadDoelen() {
   socket.emit('doelen-get', null, res => {
     if (res.error) return;
+    const before = leerjaar;
     leerjaar = res.leerjaar;
     doelen = res.doelen;
-    // De vakken in de keuzelijst, alfabetisch.
-    const sel = $('d-vak');
-    const keep = sel.value;
-    const vakken = [...new Set(doelen.filter(d => d.leerjaar === leerjaar).map(d => d.vak))].sort((a, b) => a.localeCompare(b, 'nl'));
-    sel.innerHTML = '<option value="">Alle vakken</option>';
-    for (const v of vakken) sel.add(new Option(v, v));
-    sel.value = vakken.includes(keep) ? keep : '';
-    renderDoelen();
+    leerjaren = (res.leerjaren || []).filter(l => doelen.some(d => same(d.leerjaar, l.id)));
+    // Het leerjaar in de keuzelijst: dat van de klas, tenzij de leerkracht al een ander koos.
+    const sel = $('d-leerjaar');
+    const keep = sel.value && !same(sel.value, before) ? sel.value : String(leerjaar);
+    sel.innerHTML = '';
+    for (const l of leerjaren) sel.add(new Option(same(l.id, leerjaar) ? `${l.naam} (mijn klas)` : l.naam, String(l.id)));
+    sel.value = leerjaren.some(l => same(l.id, keep)) ? keep : String(leerjaar);
+    fillVakken();
   });
+}
+
+function gekozenLeerjaar() {
+  return $('d-leerjaar').value || String(leerjaar);
+}
+
+// De vakken van het gekozen leerjaar in de keuzelijst, alfabetisch.
+function fillVakken() {
+  const sel = $('d-vak');
+  const keep = sel.value;
+  const lj = gekozenLeerjaar();
+  const vakken = [...new Set(doelen.filter(d => same(d.leerjaar, lj)).map(d => d.vak))].sort((a, b) => a.localeCompare(b, 'nl'));
+  sel.innerHTML = '<option value="">Alle vakken</option>';
+  for (const v of vakken) sel.add(new Option(v, v));
+  sel.value = vakken.includes(keep) ? keep : '';
+  renderDoelen();
 }
 
 function tag(text, cls = '') {
@@ -104,9 +124,10 @@ function renderDoelen() {
   const box = $('d-lijst');
   box.innerHTML = '';
   const q = $('d-zoek').value.trim().toLowerCase();
-  const mine = doelen.filter(d => d.leerjaar === leerjaar);
+  const lj = gekozenLeerjaar();
+  const mine = doelen.filter(d => same(d.leerjaar, lj));
   if (!mine.length) {
-    box.textContent = `Er zijn nog geen leerplandoelen voor het ${leerjaar}e leerjaar ingeladen.`;
+    box.textContent = `Er zijn nog geen leerplandoelen voor het ${ljNaam(lj)} ingeladen.`;
     return;
   }
   const vakKeuze = $('d-vak').value;
@@ -138,6 +159,7 @@ function renderDoelen() {
     const tags = document.createElement('span');
     tags.className = 'tags';
     if (d.soort === 'plus') tags.appendChild(tag('plusdoel', 'plus'));
+    if (d.score === false) tags.appendChild(tag('Ronde Tafel, geen score'));
     if (d.kennis) tags.appendChild(tag({ F: 'feitenkennis', I: 'inzicht', 'I/F': 'inzicht en feiten' }[d.kennis] || d.kennis));
     if (d.herhaling) tags.appendChild(tag(`herhaling ${d.herhaling}`));
     const log = perDoel[d.code];
@@ -151,6 +173,7 @@ function renderDoelen() {
 
 $('d-zoek').addEventListener('input', renderDoelen);
 $('d-vak').addEventListener('change', renderDoelen);
+$('d-leerjaar').addEventListener('change', fillVakken);
 
 socket.on('connect', () => {
   loadKlas();

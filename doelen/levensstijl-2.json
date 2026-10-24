@@ -1,0 +1,216 @@
+{
+ "bron": "Op.stap, leerroutes voor iedereen (Katholiek Onderwijs Vlaanderen), leerplanversie V1.3 van 24/10/2026",
+ "vak": "Veilige en gezonde levensstijl",
+ "leerjaar": 2,
+ "doelen": [
+  {
+   "code": "9-1.1.GL2.1",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 2,
+   "soort": "G",
+   "domein": "Verkeer",
+   "cluster": "De openbare weg",
+   "tekst": "De leerlingen kennen de betekenis van volgende verkeersregels en signalen: hoe veilig oversteken als er geen voorzieningen zijn.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.1.GL2.2",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 2,
+   "soort": "G",
+   "domein": "Verkeer",
+   "cluster": "Signalen en verkeerslichten",
+   "tekst": "De leerlingen kennen de betekenis van volgende verkeersregels en signalen: auditieve signalen: bel, tram.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.1.GL2.3",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 2,
+   "soort": "G",
+   "domein": "Verkeer",
+   "cluster": "Signalen en verkeerslichten",
+   "tekst": "De leerlingen kennen de betekenis van volgende verkeersregels en signalen: handgebaren van een gemachtigd opzichter.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.1.GL2.4",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 2,
+   "soort": "G",
+   "domein": "Verkeer",
+   "cluster": "Verkeersborden",
+   "tekst": "De leerlingen kennen de betekenis van volgende verkeersregels en signalen: gebodsborden waaronder D1, D7, D10, D11.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.1.GL2.5",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 2,
+   "soort": "G",
+   "domein": "Verkeer",
+   "cluster": "Verkeersborden",
+   "tekst": "De leerlingen kennen de betekenis van volgende verkeersregels en signalen: verbodsborden waaronder C3, C11, C19.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.1.GL2.6",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 2,
+   "soort": "G",
+   "domein": "Verkeer",
+   "cluster": "Voetganger",
+   "tekst": "De leerlingen kunnen zich als voetganger op de openbare weg onder begeleiding verplaatsen en de verkeersregels en signalisaties naleven.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.1.GL2.7",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 2,
+   "soort": "G",
+   "domein": "Verkeer",
+   "cluster": "Voetganger",
+   "tekst": "De leerlingen kunnen als voetganger veilig verkeersgedrag toepassen onder begeleiding.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GL2.1",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 2,
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Gezonde voeding: begrippen",
+   "tekst": "De leerlingen kennen de begrippen: plantaardig, dierlijk.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GL2.2",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 2,
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Gezonde voeding: begrippen",
+   "tekst": "De leerlingen kennen de begrippen: melk en alternatieven.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GL2.3",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 2,
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Gezonde voeding: begrippen",
+   "tekst": "De leerlingen kennen de begrippen: zoet, zuur, zout, bitter, umami.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GL2.4",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 2,
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Gezonde voeding: begrippen",
+   "tekst": "De leerlingen kunnen de vijf basissmaken herkennen en benoemen door te proeven.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GL2.5",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 2,
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Gezonde voeding: begrippen",
+   "tekst": "De leerlingen kunnen verwoorden waarom gezonde voeding nodig is om te groeien en om actief te zijn.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GL2.6",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 2,
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Gezonde voeding: begrippen",
+   "tekst": "De leerlingen kunnen verwoorden waarom voldoende water drinken doorheen de dag belangrijk is.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GL2.7",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 2,
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Gezonde voeding: begrippen",
+   "tekst": "De leerlingen kennen de structuur van de voedingsdriehoek.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GL2.8",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 2,
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Aan- en uitkleden",
+   "tekst": "De leerlingen kunnen zelfstandig sportkledij wisselen in groep.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GL2.9",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 2,
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Veiligheid en eerste hulp medicatie",
+   "tekst": "De leerlingen kunnen aangeven in welke noodsituaties het noodnummer gebruikt kan worden.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GL2.10",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 2,
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Veiligheid en eerste hulp medicatie",
+   "tekst": "De leerlingen kunnen in een gesimuleerde situatie het noodnummer indrukken, hun naam zeggen en de locatie meedelen.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GL2.11",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 2,
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Beweging en lichaamshouding",
+   "tekst": "De leerlingen weten dat dagelijkse beweging helpt om gezond te blijven.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GL2.12",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": 2,
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Beweging en lichaamshouding",
+   "tekst": "De leerlingen kunnen verwoorden waarom een correcte lichaamshouding van belang is.",
+   "kennis": "",
+   "herhaling": ""
+  }
+ ]
+}

@@ -1,0 +1,238 @@
+{
+ "bron": "Op.stap, leerroutes voor iedereen (Katholiek Onderwijs Vlaanderen), leerplanversie V1.3 van 24/10/2026",
+ "vak": "Veilige en gezonde levensstijl",
+ "leerjaar": "K2",
+ "doelen": [
+  {
+   "code": "9-1.1.GK2.1",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": "K2",
+   "soort": "G",
+   "domein": "Verkeer",
+   "cluster": "De openbare weg",
+   "tekst": "De leerlingen kennen de betekenis van volgende verkeersregels, afspraken en signalen: als voetganger op het voetpad of de berm blijven en langs de huizenkant stappen.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.1.GK2.2",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": "K2",
+   "soort": "G",
+   "domein": "Verkeer",
+   "cluster": "Signalen en verkeerslichten",
+   "tekst": "De leerlingen kunnen verkeerslichten herkennen.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.1.GK2.3",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": "K2",
+   "soort": "G",
+   "domein": "Verkeer",
+   "cluster": "Verkeersborden",
+   "tekst": "De leerlingen kunnen verkeersborden herkennen aan vorm en kleur.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.1.GK2.4",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": "K2",
+   "soort": "G",
+   "domein": "Verkeer",
+   "cluster": "Verkeersborden",
+   "tekst": "De leerlingen weten dat de vorm en kleur van een verkeersbord een bepaald gedrag vraagt.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GK2.1",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": "K2",
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Gezonde voeding: begrippen",
+   "tekst": "De leerlingen kennen het begrip: de groenten.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GK2.2",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": "K2",
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Gezonde voeding: begrippen",
+   "tekst": "De leerlingen kennen het begrip: de aardappelen.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GK2.3",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": "K2",
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Gezonde voeding: begrippen",
+   "tekst": "De leerlingen kennen het begrip: het ei.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GK2.4",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": "K2",
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Gezonde voeding: begrippen",
+   "tekst": "De leerlingen kennen het begrip: de kaas.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GK2.5",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": "K2",
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Gezonde voeding: begrippen",
+   "tekst": "De leerlingen kennen het begrip: de vis.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GK2.6",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": "K2",
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Gezonde voeding: begrippen",
+   "tekst": "De leerlingen kennen het begrip: het vlees.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GK2.7",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": "K2",
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Gezonde voeding: begrippen",
+   "tekst": "De leerlingen kunnen verschillende soorten groenten benoemen.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GK2.8",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": "K2",
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Gezonde voeding: begrippen",
+   "tekst": "De leerlingen kunnen verschillende soorten groenten proeven en beschrijven.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GK2.9",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": "K2",
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Hygiëne en zindelijkheid",
+   "tekst": "De leerlingen kunnen verzorgingshandelingen en toiletbezoek uitvoeren in dagelijkse routines.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GK2.10",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": "K2",
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Hygiëne en zindelijkheid",
+   "tekst": "De leerlingen kunnen hun handen wassen en neus snuiten.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GK2.11",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": "K2",
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Hygiëne en zindelijkheid",
+   "tekst": "De leerlingen kunnen basis hygiëneregels als toiletpapier gebruiken en doorspoelen na toiletbezoek uitvoeren.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GK2.12",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": "K2",
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Hygiëne en zindelijkheid",
+   "tekst": "De leerlingen kunnen zelfstandig broek/kledij aan- en uitdoen bij het toiletbezoek.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GK2.13",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": "K2",
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Aan- en uitkleden",
+   "tekst": "De leerlingen kunnen eenvoudige handelingen uitvoeren in functie van aan- en uitkleden.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GK2.14",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": "K2",
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Opruimen",
+   "tekst": "De leerlingen kunnen zelfstandig materiaal terugbrengen naar een vaste plaats en eenvoudige opruimroutines volgen.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GK2.15",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": "K2",
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Veiligheid en eerste hulp medicatie",
+   "tekst": "De leerlingen kunnen een probleem beschrijven aan een volwassene.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GK2.16",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": "K2",
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Veiligheid en eerste hulp medicatie",
+   "tekst": "De leerlingen kennen het verschil tussen een niet-ernstige gebeurtenis en een noodsituatie.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "9-1.2.GK2.17",
+   "vak": "Veilige en gezonde levensstijl",
+   "leerjaar": "K2",
+   "soort": "G",
+   "domein": "Gezondheid en redzaamheid",
+   "cluster": "Veiligheid en eerste hulp medicatie",
+   "tekst": "De leerlingen kunnen noodsituaties herkennen.",
+   "kennis": "",
+   "herhaling": ""
+  }
+ ]
+}

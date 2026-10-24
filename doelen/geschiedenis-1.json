@@ -1,0 +1,260 @@
+{
+ "bron": "Op.stap, leerroutes voor iedereen (Katholiek Onderwijs Vlaanderen), leerplanversie V1.3 van 24/10/2026",
+ "vak": "Geschiedenis",
+ "leerjaar": 1,
+ "doelen": [
+  {
+   "code": "5.1.GL1.1",
+   "vak": "Geschiedenis",
+   "leerjaar": 1,
+   "soort": "G",
+   "domein": "Kennis van het verleden",
+   "cluster": "Hoe leven mensen elke dag?",
+   "tekst": "De leerlingen weten hoe mensen tijdens de prehistorie overleefden en samenleefden: Afrika (rift-vallei), rechtop lopen, relaties tussen mens-dier-plant, taal.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.1.GL1.2",
+   "vak": "Geschiedenis",
+   "leerjaar": 1,
+   "soort": "G",
+   "domein": "Kennis van het verleden",
+   "cluster": "Hoe leven mensen elke dag?",
+   "tekst": "De leerlingen weten hoe mensen tijdens de prehistorie met de natuur omgingen en samenleefden: de eerste migraties, Flores.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.1.GL1.3",
+   "vak": "Geschiedenis",
+   "leerjaar": 1,
+   "soort": "G",
+   "domein": "Kennis van het verleden",
+   "cluster": "Hoe leven mensen elke dag?",
+   "tekst": "De leerlingen weten hoe mensen tijdens de prehistorie met de natuur omgingen en samenleefden: de eerste migraties, Sapiens.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.1.GL1.4",
+   "vak": "Geschiedenis",
+   "leerjaar": 1,
+   "soort": "G",
+   "domein": "Kennis van het verleden",
+   "cluster": "Hoe leven mensen elke dag?",
+   "tekst": "De leerlingen weten hoe mensen tijdens de prehistorie met de natuur omgingen en samenleefden: Maasvallei (Neanderthalers), relaties tussen mens-dier-plant.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.1.GL1.5",
+   "vak": "Geschiedenis",
+   "leerjaar": 1,
+   "soort": "G",
+   "domein": "Kennis van het verleden",
+   "cluster": "Hoe leven mensen elke dag?",
+   "tekst": "De leerlingen weten hoe mensen tijdens de prehistorie overleefden en samenleefden: Çatalhöyük, relaties tussen mens-dier-plant, leven op het ritme van dag/nacht/seizoenen.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.1.GL1.6",
+   "vak": "Geschiedenis",
+   "leerjaar": 1,
+   "soort": "G",
+   "domein": "Kennis van het verleden",
+   "cluster": "Hoe leven mensen elke dag?",
+   "tekst": "De leerlingen weten hoe mensen tijdens de prehistorie overleefden en samenleefden: Çatalhöyük, complexere sociale groepen, omgang met anderen.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.1.GL1.7",
+   "vak": "Geschiedenis",
+   "leerjaar": 1,
+   "soort": "G",
+   "domein": "Kennis van het verleden",
+   "cluster": "Hoe voorzien mensen in hun levensonderhoud?",
+   "tekst": "De leerlingen weten hoe mensen tijdens de oudheid in Mesopotamië overleefden, samenleefden en hoe ze dachten: irrigatielandbouw, stroomgebied van Tigris en Eufraat.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.1.GL1.8",
+   "vak": "Geschiedenis",
+   "leerjaar": 1,
+   "soort": "G",
+   "domein": "Kennis van het verleden",
+   "cluster": "Hoe voorzien mensen in hun levensonderhoud?",
+   "tekst": "De leerlingen weten hoe mensen tijdens de oudheid in Mesopotamië overleefden, samenleefden en hoe ze dachten: beroepsspecialisatie, handel.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.1.GL1.11",
+   "vak": "Geschiedenis",
+   "leerjaar": 1,
+   "soort": "G",
+   "domein": "Kennis van het verleden",
+   "cluster": "Hoe begrijpen mensen hun wereld?",
+   "tekst": "De leerlingen weten hoe mensen tijdens de oudheid in Mesopotamië overleefden, samenleefden en hoe ze dachten: ziggurat, schriftgeleerde, spijkerschrift.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.1.GL1.12",
+   "vak": "Geschiedenis",
+   "leerjaar": 1,
+   "soort": "G",
+   "domein": "Kennis van het verleden",
+   "cluster": "Hoe begrijpen mensen hun wereld?",
+   "tekst": "De leerlingen weten hoe mensen tijdens de oudheid in Mesopotamië overleefden, samenleefden en hoe ze dachten: epische verhalen, Gilgamesj-epos.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.1.GL1.9",
+   "vak": "Geschiedenis",
+   "leerjaar": 1,
+   "soort": "G",
+   "domein": "Kennis van het verleden",
+   "cluster": "Hoe organiseren mensen hun samen leven?",
+   "tekst": "De leerlingen weten hoe mensen tijdens de oudheid in Mesopotamië overleefden, samenleefden en hoe ze dachten: stadsstaten.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.1.GL1.10",
+   "vak": "Geschiedenis",
+   "leerjaar": 1,
+   "soort": "G",
+   "domein": "Kennis van het verleden",
+   "cluster": "Hoe organiseren mensen hun samen leven?",
+   "tekst": "De leerlingen weten hoe mensen tijdens de oudheid in Mesopotamië overleefden, samenleefden en hoe ze dachten: standenmaatschappij, slavernij, slaafgemaakten, koning, Codex Hammurabi.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.2.GL1.1",
+   "vak": "Geschiedenis",
+   "leerjaar": 1,
+   "soort": "G",
+   "domein": "Kennis van geschiedenis",
+   "cluster": "Hoe komen we geschiedenis op het spoor?",
+   "tekst": "De leerlingen kunnen het verschil tussen bron en bewijs herkennen.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.2.GL1.2",
+   "vak": "Geschiedenis",
+   "leerjaar": 1,
+   "soort": "G",
+   "domein": "Kennis van geschiedenis",
+   "cluster": "Hoe komen we geschiedenis op het spoor?",
+   "tekst": "De leerlingen kunnen typische vragen om te stellen over aangereikte bronnen herkennen: hoe en waarom een bron is gemaakt, wanneer en waar een bron is gemaakt.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.2.GL1.3",
+   "vak": "Geschiedenis",
+   "leerjaar": 1,
+   "soort": "G",
+   "domein": "Kennis van geschiedenis",
+   "cluster": "Hoe komen we geschiedenis op het spoor?",
+   "tekst": "De leerlingen weten wat paleontologen, archeologen en historici doen.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.2.GL1.4",
+   "vak": "Geschiedenis",
+   "leerjaar": 1,
+   "soort": "G",
+   "domein": "Kennis van geschiedenis",
+   "cluster": "Hoe komen we geschiedenis op het spoor?",
+   "tekst": "De leerlingen kunnen diverse, veelgebruikte bronnen relevant voor de prehistorie en de oudheid herkennen.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.2.GL1.5",
+   "vak": "Geschiedenis",
+   "leerjaar": 1,
+   "soort": "G",
+   "domein": "Kennis van geschiedenis",
+   "cluster": "Hoe denken we na over geschiedenis?",
+   "tekst": "De leerlingen kunnen gelijkenissen en verschillen binnen en tussen bestudeerde samenlevingen aanduiden.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.2.GL1.6",
+   "vak": "Geschiedenis",
+   "leerjaar": 1,
+   "soort": "G",
+   "domein": "Kennis van geschiedenis",
+   "cluster": "Hoe denken we na over geschiedenis?",
+   "tekst": "De leerlingen kunnen aspecten van verandering en continuïteit aanduiden.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.2.GL1.7",
+   "vak": "Geschiedenis",
+   "leerjaar": 1,
+   "soort": "G",
+   "domein": "Kennis van geschiedenis",
+   "cluster": "Hoe denken we na over geschiedenis?",
+   "tekst": "De leerlingen kunnen oorzaken en gevolgen van een gebeurtenis of een ontwikkeling aanduiden.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.2.GL1.8",
+   "vak": "Geschiedenis",
+   "leerjaar": 1,
+   "soort": "G",
+   "domein": "Kennis van geschiedenis",
+   "cluster": "Hoe ordenen we geschiedenis?",
+   "tekst": "De leerlingen kunnen aangereikte bronnen over de bestudeerde historische periodes chronologisch ordenen: prehistorie, oudheid, hedendaagse tijd.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.2.GL1.9",
+   "vak": "Geschiedenis",
+   "leerjaar": 1,
+   "soort": "G",
+   "domein": "Kennis van geschiedenis",
+   "cluster": "Hoe kijken we vandaag naar geschiedenis?",
+   "tekst": "De leerlingen kunnen een onderscheid tussen een perspectief van mensen in het verleden en een hedendaags perspectief op het verleden herkennen.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.3.GL1.1",
+   "vak": "Geschiedenis",
+   "leerjaar": 1,
+   "soort": "G",
+   "domein": "Reflectie en dialoog over verleden en geschiedenis",
+   "cluster": "Hoe kijken we vandaag naar geschiedenis?",
+   "tekst": "De leerlingen kunnen vertellen hoe persoonlijke identiteit mee gevormd wordt door het verleden: familiebanden, aandenken.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "5.3.GL1.4",
+   "vak": "Geschiedenis",
+   "leerjaar": 1,
+   "soort": "G",
+   "domein": "Reflectie en dialoog over verleden en geschiedenis",
+   "cluster": "Hoe organiseren mensen hun samen leven?",
+   "tekst": "De leerlingen kunnen de volgende begrippen met betrekking tot de principes van de democratische rechtsstaat herkennen: verkiezingen, vertegenwoordiging, macht, rechten, plichten, regels, afspraken, gelijkheid.",
+   "kennis": "",
+   "herhaling": ""
+  }
+ ]
+}
