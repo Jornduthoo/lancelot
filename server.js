@@ -20,6 +20,8 @@ const { PacKnight } = require('./src/packnight');
 const { Strijdrossen } = require('./src/strijdrossen');
 const { Galaga } = require('./src/galaga');
 const { Bomber } = require('./src/bomber');
+const { Gauntlet } = require('./src/gauntlet');
+const { Royale } = require('./src/royale');
 const rijken = require('./src/rijk');
 const avatars = require('./src/avatars');
 const { Verrader } = require('./src/verrader');
@@ -115,8 +117,20 @@ const galaga = new Galaga(io, g => {
   return file;
 });
 
+const gauntlet = new Gauntlet(io, g => {
+  const file = g.save();
+  io.to('host').emit('results', results.list());
+  return file;
+});
+
 const bomber = new Bomber(io, b => {
   const file = results.saveBomber(b);
+  io.to('host').emit('results', results.list());
+  return file;
+});
+
+const royale = new Royale(io, r => {
+  const file = r.save();
   io.to('host').emit('results', results.list());
   return file;
 });
@@ -138,7 +152,7 @@ const busyError = message => Object.assign(new Error(message), { busy: true });
 
 // Alles stoppen wat nog loopt (behalve het spel dat je wil starten). De resultaten worden bewaard zoals bij Stop.
 function stopOthers(except) {
-  const all = { toernooi: game, rondetafel: rt, toren, schat, laserslag, race, roof, verrader, burcht, duel, knight, rossen, rijk, oefenblad, galaga, bomber };
+  const all = { toernooi: game, rondetafel: rt, toren, schat, laserslag, race, roof, verrader, burcht, duel, knight, rossen, gauntlet, royale, rijk, oefenblad, galaga, bomber };
   for (const [key, mod] of Object.entries(all)) {
     if (key === except) continue;
     if (key === 'toernooi' ? game.phase !== 'idle' : mod.active) mod.stop();
@@ -160,6 +174,8 @@ function busyWith(except) {
   if (except !== 'rossen' && rossen.active) return 'Strijdrossen loopt nog. Stop dat spel eerst.';
   if (except !== 'galaga' && galaga.active) return 'Cyber-Galaga loopt nog. Stop dat spel eerst.';
   if (except !== 'bomber' && bomber.active) return 'Bomber-Knight loopt nog. Stop dat spel eerst.';
+  if (except !== 'gauntlet' && gauntlet.active) return 'Gauntlet loopt nog. Stop dat spel eerst.';
+  if (except !== 'royale' && royale.active) return 'Ridder-Royale loopt nog. Stop dat spel eerst.';
   if (except !== 'rijk' && rijk.active) return 'Het Rijk loopt nog. Stop dat spel eerst.';
   if (except !== 'oefenblad' && oefenblad.active) return 'Er staat nog een oefenblad open. Sluit dat eerst.';
   return null;
@@ -183,7 +199,7 @@ function isLocal(address) {
   return ['127.0.0.1', '::1', '::ffff:127.0.0.1'].includes(address);
 }
 
-for (const [route, page] of [['/host', 'host.html'], ['/rondetafel', 'rondetafel.html'], ['/toren', 'toren.html'], ['/schattenjacht', 'schattenjacht.html'], ['/laserslag', 'laserslag.html'], ['/ridderrace', 'ridderrace.html'], ['/kristalroof', 'kristalroof.html'], ['/verrader', 'verrader.html'], ['/burchtbouwers', 'burchtbouwers.html'], ['/duel', 'duel.html'], ['/packnight', 'packnight.html'], ['/strijdrossen', 'strijdrossen.html'], ['/cybergalaga', 'cybergalaga.html'], ['/bomberknight', 'bomberknight.html'], ['/rijk', 'rijk.html'], ['/oefenblad', 'oefenblad.html'], ['/oefenblad-print', 'oefenblad-print.html'], ['/klas', 'klas.html']]) {
+for (const [route, page] of [['/host', 'host.html'], ['/rondetafel', 'rondetafel.html'], ['/toren', 'toren.html'], ['/schattenjacht', 'schattenjacht.html'], ['/laserslag', 'laserslag.html'], ['/ridderrace', 'ridderrace.html'], ['/kristalroof', 'kristalroof.html'], ['/verrader', 'verrader.html'], ['/burchtbouwers', 'burchtbouwers.html'], ['/duel', 'duel.html'], ['/packnight', 'packnight.html'], ['/strijdrossen', 'strijdrossen.html'], ['/gauntlet', 'gauntlet.html'], ['/ridder-royale', 'royale.html'], ['/cybergalaga', 'cybergalaga.html'], ['/bomberknight', 'bomberknight.html'], ['/rijk', 'rijk.html'], ['/oefenblad', 'oefenblad.html'], ['/oefenblad-print', 'oefenblad-print.html'], ['/klas', 'klas.html']]) {
   app.get(route, (req, res) => {
     if (!isLocal(req.socket.remoteAddress)) return res.status(403).send('Het docentenscherm is alleen bereikbaar op de pc van de leerkracht.');
     res.setHeader('Cache-Control', 'no-cache');
@@ -565,6 +581,9 @@ io.on('connection', socket => {
     socket.on('bk-finish', () => bomber.finish());
     socket.on('bk-restart', () => bomber.quiz && bomber.load(bomber.quiz, bomber.minutes, bomber.tempo));
     socket.on('bk-stop', (_, cb) => cb && cb({ file: bomber.stop() }));
+    // Gauntlet en Ridder-Royale
+    gauntlet.attachHost(socket, handle, busyWith, busyError, quizzes);
+    royale.attachHost(socket, handle, busyWith, busyError, quizzes);
 
     // Strijdrossen
     socket.on('sr-load', handle(({ file, minutes, mode, tempo } = {}) => {
@@ -868,6 +887,9 @@ io.on('connection', socket => {
   socket.on('bk-asking', bk((id, on) => bomber.asking(id, on)));
   socket.on('bk-question', bk(id => bomber.question(id)));
   socket.on('bk-answer', bk((id, choice) => bomber.answer(id, choice)));
+  // Gauntlet en Ridder-Royale
+  gauntlet.attachPlayer(socket, validId);
+  royale.attachPlayer(socket, validId);
 
   // Strijdrossen
   socket.emit('sr-state', rossen.base());
