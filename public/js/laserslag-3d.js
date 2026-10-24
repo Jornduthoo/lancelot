@@ -445,7 +445,10 @@ const Slag3D = (() => {
         for (const d of r.deco) {
           if (d.face !== face || hit.u < d.u0 || hit.u >= d.u1) continue;
           const y1 = yAt(d.v1, perp);
-          g.drawImage(d.img, Math.floor(((hit.u - d.u0) / (d.u1 - d.u0)) * d.img.width), 0, 1, d.img.height, x, y1, 1, yAt(d.v0, perp) - y1);
+          // Op de noord- en oostkant loopt u van rechts naar links (voor wie ernaar kijkt): spiegel terug.
+          let k = (hit.u - d.u0) / (d.u1 - d.u0);
+          if (face === 'N' || face === 'E') k = 1 - k;
+          g.drawImage(d.img, Math.min(d.img.width - 1, Math.floor(k * d.img.width)), 0, 1, d.img.height, x, y1, 1, yAt(d.v0, perp) - y1);
         }
       }
       const fog = Math.min(.85, perp / 1700 + (hit.side ? .16 : 0));

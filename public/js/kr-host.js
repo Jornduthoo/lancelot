@@ -91,6 +91,7 @@ function renderLobby() {
 // De kristalrace: balken die meegroeien, rijen die van plaats wisselen.
 let lastFeed = '';
 let lastTotal = 0;
+const gemsOf = new Map();
 function renderRace() {
   const list = $('p-race');
   const top = state.ranking.slice(0, 12);
@@ -108,6 +109,9 @@ function renderRace() {
     li.querySelector('.pos').textContent = i + 1;
     li.querySelector('.name').innerHTML = `${esc(r.name)}<small>${r.streak > 1 ? `🔥 ${r.streak} op rij · ` : ''}🗝️ ${r.robs}${r.shield ? ' · 🛡️' : ''}</small>`;
     li.querySelector('b').textContent = fmt(r.crystals);
+    const before = gemsOf.get(r.id);
+    if (before !== undefined && r.crystals > before && view === 'play') KrScene.burst(li.querySelector('.kr-gems'), r.crystals - before);
+    gemsOf.set(r.id, r.crystals);
     li.querySelector('.bar').style.transform = `scaleX(${r.crystals / max})`;
     list.appendChild(li);
   });
@@ -123,14 +127,120 @@ function renderRace() {
   if (total > lastTotal && view === 'play' && prev && prev.phase === 'play') sfx.tick(false);
   lastTotal = total;
   $('p-total').textContent = fmt(total);
+  KrScene.total(total);
   const feedKey = JSON.stringify(state.feed);
   if (feedKey !== lastFeed) {
     const fresh = state.feed[0] && lastFeed && !lastFeed.includes(JSON.stringify(state.feed[0].text));
     lastFeed = feedKey;
     $('p-feed').innerHTML = state.feed.map(f => `<li>${esc(f.text)}</li>`).join('');
-    if (fresh && view === 'play' && /^🗝️/.test(state.feed[0].text)) sfx.boom();
+    if (fresh && view === 'play' && /^🗝️/.test(state.feed[0].text)) { sfx.boom(); KrScene.rob(); }
   }
 }
+
+// De kristalgrot achter het bord, vliegende kristallen en het grote kristal van de klas.
+const KrScene = (() => {
+  const back = $('p-back');
+  const front = $('p-front');
+  const cv = $('p-crystal');
+  const bctx = back.getContext('2d');
+  const fctx = front.getContext('2d');
+  const cctx = cv.getContext('2d');
+  const dpr = Math.min(1.5, window.devicePixelRatio || 1);
+  let art = null;
+  let gems = [];
+  let pops = [];
+  let fill = 0;
+  let flash = 0;
+  let rob = 0;
+  let last = performance.now();
+
+  function size() {
+    const w = Math.round(innerWidth * dpr);
+    const h = Math.round(innerHeight * dpr);
+    for (const c of [back, front]) if (c.width !== w || c.height !== h) { c.width = w; c.height = h; }
+    if (!art || art.c.width !== w || art.c.height !== h) art = KrArt.cave(w, h);
+    const cw = Math.round(cv.clientWidth * dpr), ch = Math.round(cv.clientHeight * dpr);
+    if (cw && (cv.width !== cw || cv.height !== ch)) { cv.width = cw; cv.height = ch; }
+  }
+  const target = () => {
+    const r = cv.getBoundingClientRect();
+    return [(r.left + r.width / 2) * dpr, (r.top + r.height / 2) * dpr];
+  };
+
+  // Kristallen van een rij naar het grote kristal; meer kristallen = meer stukjes.
+  function burst(el, amount) {
+    if (!el || gems.length > 160) return;
+    const r = el.getBoundingClientRect();
+    const x0 = (r.left + 12) * dpr, y0 = (r.top + r.height / 2) * dpr;
+    const n = Math.min(14, 3 + Math.round(Math.log10(amount + 1) * 3));
+    for (let i = 0; i < n; i++) {
+      gems.push({ x0: x0 + (Math.random() - .5) * 30 * dpr, y0: y0 + (Math.random() - .5) * 16 * dpr, t: -i * .05, dur: .9 + Math.random() * .35, lift: (60 + Math.random() * 120) * dpr, spin: Math.random() * 6, s: (6 + Math.random() * 4) * dpr, color: KrArt.COLORS[i % 4] });
+    }
+    pops.push({ x: x0, y: y0 - 10 * dpr, t: 0, text: `+${fmt(amount)}` });
+  }
+  function total(n) { fill = Math.min(1, Math.log10(n + 1) / 4); }
+
+  function frame(now) {
+    requestAnimationFrame(frame);
+    const dt = Math.min(.05, (now - last) / 1000);
+    last = now;
+    if (view !== 'play') return;
+    size();
+    const t = now / 1000;
+    bctx.drawImage(art.c, 0, 0);
+    art.lamps.forEach(([x, y], i) => Glow.glow(bctx, x, y, (60 + Math.sin(t * 3 + i) * 8) * dpr, '#7fdcff', .6));
+    art.glints.forEach(([x, y, c], i) => {
+      const a = Math.sin(t * 1.3 + i * 1.7);
+      if (a > .3) Glow.glow(bctx, x, y, 24 * dpr * a, c, .7 * a);
+      KrArt.sparkle(bctx, x, y, 8 * dpr, a * 1.4 - .4);
+    });
+    // Zwevend kristalstof.
+    for (let i = 0; i < 26; i++) {
+      const x = ((i * .618 + .1) % 1) * back.width + Math.sin(t * .3 + i) * 30 * dpr;
+      const y = (((i * .382 + .3) % 1) * back.height - t * (8 + (i % 4) * 5) * dpr + back.height * 9) % back.height;
+      Glow.glow(bctx, x, y, 6 * dpr, KrArt.COLORS[i % 4], .35 + Math.sin(t * 2 + i) * .2);
+    }
+    // Een roof: een rode flits door de grot.
+    if (rob > 0) {
+      bctx.fillStyle = `rgba(255, 40, 90, ${rob * .25})`;
+      bctx.fillRect(0, 0, back.width, back.height);
+      rob = Math.max(0, rob - dt * 1.5);
+    }
+    Glow.vignette(bctx, back.width, back.height, .6);
+    fctx.clearRect(0, 0, front.width, front.height);
+    const [tx, ty] = target();
+    gems = gems.filter(g => {
+      g.t += dt;
+      if (g.t < 0) return true;
+      const k = Math.min(1, g.t / g.dur);
+      const e = k * k * (3 - 2 * k);
+      const x = g.x0 + (tx - g.x0) * e;
+      const y = g.y0 + (ty - g.y0) * e - Math.sin(k * Math.PI) * g.lift;
+      KrArt.gem(fctx, x, y, g.s * (1 - k * .3), g.color, g.spin + g.t * 9);
+      if (k >= 1) { flash = 1; return false; }
+      return true;
+    });
+    pops = pops.filter(p => {
+      p.t += dt;
+      const a = 1 - p.t / 1.2;
+      if (a <= 0) return false;
+      fctx.globalAlpha = a;
+      fctx.font = `800 ${Math.round(20 * dpr)}px Orbitron, system-ui, sans-serif`;
+      fctx.textAlign = 'left';
+      fctx.fillStyle = '#9fe6ff';
+      fctx.fillText(p.text, p.x - 60 * dpr, p.y - p.t * 40 * dpr);
+      fctx.globalAlpha = 1;
+      return true;
+    });
+    flash = Math.max(0, flash - dt * 3);
+    if (cv.width) {
+      cctx.clearRect(0, 0, cv.width, cv.height);
+      KrArt.crystal(cctx, cv.width / 2, cv.height * .48 + Math.sin(t * 1.4) * 3 * dpr, Math.min(cv.width * .3, cv.height * .4), t, fill, flash);
+    }
+  }
+  requestAnimationFrame(frame);
+  return { burst, total, rob: () => { rob = 1; } };
+})();
 
 setInterval(() => {
   if (view !== 'play' || !state) return;
