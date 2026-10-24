@@ -251,9 +251,11 @@ const SrDraw = (() => {
     ctx.save();
     ctx.translate(sx, sy);
     ctx.rotate(a);
-    ctx.shadowColor = color;
-    ctx.shadowBlur = 12 * s;
+    // Een gloed zonder shadowBlur: dat is op een Chromebook veel te traag.
+    ctx.globalAlpha = .35;
     ctx.fillStyle = color;
+    ctx.fillRect(-26 * s, -8 * s, 38 * s, 16 * s);
+    ctx.globalAlpha = 1;
     ctx.fillRect(-22 * s, -4 * s, 30 * s, 8 * s);
     ctx.fillStyle = '#fff';
     ctx.fillRect(-12 * s, -2 * s, 20 * s, 4 * s);
@@ -296,9 +298,11 @@ const SrDraw = (() => {
       ctx.fillStyle = '#7d8ba3';
       ctx.fillRect(Math.cos(a) * 16 * s - 3 * s, Math.sin(a) * 16 * s - 3 * s, 6 * s, 6 * s);
     }
+    if (armed) {
+      ctx.fillStyle = `rgba(255, 77, 109, ${.25 * pulse})`;
+      ctx.beginPath(); ctx.arc(0, 0, 14 * s, 0, Math.PI * 2); ctx.fill();
+    }
     ctx.fillStyle = armed ? `rgba(255, 77, 109, ${.5 + pulse * .5})` : '#ffd166';
-    ctx.shadowColor = '#ff4d6d';
-    ctx.shadowBlur = armed ? 14 * s * pulse : 0;
     ctx.beginPath(); ctx.arc(0, 0, 6 * s, 0, Math.PI * 2); ctx.fill();
     ctx.restore();
   }
@@ -373,6 +377,81 @@ const SrDraw = (() => {
     }
   }
 
+  // ---------- Vloeiend volgen ----------
+  // De server stuurt 20 keer per seconde waar iedereen is. De andere rossen tonen we een tikje (110 ms) in het verleden,
+  // netjes tussen twee berichten in: dat oogt vloeiend, ook als de wifi even hapert.
+  const DELAY = 110;
+  let clockOff = null;
+  // De klok van de server, gemeten met het snelste bericht (traag aangekomen berichten tellen minder mee).
+  function stamp(serverNow) {
+    const sample = serverNow - performance.now();
+    clockOff = clockOff === null || sample > clockOff ? sample : clockOff + (sample - clockOff) * .02;
+  }
+  // Nieuwe posities uit sr-world bewaren. skip: het eigen ros (dat rijdt de leerling zelf).
+  function sync(map, data, skip = -1) {
+    stamp(data.now);
+    const seen = new Set();
+    for (const [n, name, x, y, a, v, team, color, hp, flags, kills, streak, z] of data.players) {
+      if (n === skip) continue;
+      seen.add(n);
+      let o = map.get(n);
+      if (!o) {
+        o = { n, x, y, a, z: z || 0, hist: [] };
+        map.set(n, o);
+      }
+      const prev = o.hist[o.hist.length - 1];
+      // Teruggekomen of ver verspringen (een nieuwe start): niet over de vloer laten glijden.
+      if (prev && (Math.hypot(prev.x - x, prev.y - y) > 260 || (o.flags & 1 && !(flags & 1)))) o.hist.length = 0;
+      if (!prev || data.now > prev.t || !o.hist.length) o.hist.push({ t: data.now, x, y, a, v, z: z || 0 });
+      if (o.hist.length > 10) o.hist.shift();
+      Object.assign(o, { name: name || o.name || '', v, team, color, hp, flags, kills, streak });
+    }
+    for (const n of map.keys()) if (!seen.has(n)) map.delete(n);
+  }
+  const turnTo = (a, b, k) => {
+    let d = b - a;
+    while (d > Math.PI) d -= Math.PI * 2;
+    while (d < -Math.PI) d += Math.PI * 2;
+    return a + d * k;
+  };
+  // Waar staat elk ros nu op het scherm? Tussen twee berichten in, of heel even vooruit gerekend als er een te laat is.
+  function glide(map) {
+    if (clockOff === null) return;
+    const t = performance.now() + clockOff - DELAY;
+    for (const o of map.values()) {
+      const h = o.hist;
+      if (!h || !h.length) continue;
+      let i = h.length - 1;
+      if (t >= h[i].t) {
+        const q = h[i];
+        const ahead = Math.min(.15, (t - q.t) / 1000);
+        o.x = q.x + Math.cos(q.a) * q.v * ahead;
+        o.y = q.y + Math.sin(q.a) * q.v * ahead;
+        o.a = q.a;
+        o.z = q.z;
+        continue;
+      }
+      while (i > 0 && h[i - 1].t > t) i--;
+      if (i === 0) {
+        Object.assign(o, { x: h[0].x, y: h[0].y, a: h[0].a, z: h[0].z });
+        continue;
+      }
+      const p = h[i - 1], q = h[i];
+      const k = (t - p.t) / Math.max(1, q.t - p.t);
+      o.x = p.x + (q.x - p.x) * k;
+      o.y = p.y + (q.y - p.y) * k;
+      o.a = turnTo(p.a, q.a, k);
+      o.z = p.z + (q.z - p.z) * k;
+    }
+  }
+  // Raketten vliegen tussen twee berichten door verder, anders schokken ze.
+  function flyRockets(rockets, dt) {
+    for (const r of rockets) {
+      r.x += Math.cos(r.a) * Wd.RAKET.speed * dt;
+      r.y += Math.sin(r.a) * Wd.RAKET.speed * dt;
+    }
+  }
+
   // Alles samen, met de camera { x, y, scale } (linksboven in arena-eenheden).
   // w: { players: Map, lasers: Map, rockets: [], mines: [], teams, me (n), t, top (n met de langste reeks) }
   function scene(ctx, cam, W, H, w, dt) {
@@ -420,5 +499,5 @@ const SrDraw = (() => {
     return mh;
   }
 
-  return { TEAM, COLORS, colorOf, arena, arenaImage, steed, tag, laser, rocket, mine, burst, ring, boom, effects, addLaser, moveLasers, scene, minimap };
+  return { TEAM, COLORS, colorOf, arena, arenaImage, steed, tag, laser, rocket, mine, burst, ring, boom, effects, addLaser, moveLasers, scene, minimap, sync, glide, flyRockets };
 })();

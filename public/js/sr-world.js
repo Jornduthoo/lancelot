@@ -14,8 +14,8 @@
   const R = 30;              // straal van een hoverros
   const G = 1100;            // zwaartekracht bij een sprong
 
-  // Rijden: optrekken, remmen, uitbollen en sturen. Sturen gaat beter naarmate je sneller rijdt.
-  const CAR = { accel: 640, brake: 1300, coast: 320, max: 480, boostMax: 760, reverse: 200, turn: 2.6, boostTime: 1.4 };
+  // Rijden: optrekken, remmen, uitbollen en sturen. Sturen kan ook als je stilstaat, zo raak je nooit vast.
+  const CAR = { accel: 760, brake: 1300, coast: 320, max: 460, boostMax: 720, reverse: 220, turn: 3.1, boostTime: 1.2 };
 
   // Wapens. Lasers vliegen rechtdoor, raketten zoeken een vijand, mijnen blijven liggen tot er iemand overrijdt.
   const LASER = { speed: 1500, range: 1400, r: 7, dmg: 1, every: 210 };
@@ -33,21 +33,20 @@
     }
     return out;
   };
-  // Kratten en lage muurtjes (h = hoogte): dekking tegen lasers, je kan er net niet over kijken als je er vlak achter staat.
+  // Kratten (h = hoogte): dekking tegen lasers. Weinig en ver uit elkaar, zodat er overal brede banen zijn.
   const BOXES = mirror([
-    { x: 560, y: 420, w: 170, d: 56, h: 54 },
-    { x: 960, y: 250, w: 60, d: 170, h: 54 },
-    { x: 760, y: 700, w: 84, d: 84, h: 70 },
-    { x: 350, y: 760, w: 70, d: 70, h: 54 },
-    { x: 1240, y: 560, w: 120, d: 50, h: 54 },
+    { x: 600, y: 380, w: 140, d: 60, h: 54 },
+    { x: 880, y: 660, w: 90, d: 90, h: 70 },
+    { x: 330, y: 690, w: 70, d: 70, h: 54 },
   ], (b, fx, fy) => ({ ...b, x: fx ? W - b.x - b.w : b.x, y: fy ? H - b.y - b.d : b.y }));
   // Pilaren en in het midden de burchttoren.
   const CYLS = [
     { x: CX, y: CY, r: 110, h: 300, kind: 'burcht' },
-    ...mirror([{ x: 1160, y: 640, r: 42, h: 180, kind: 'pilaar' }, { x: 560, y: 1000, r: 46, h: 180, kind: 'pilaar' }],
+    ...mirror([{ x: 1130, y: 560, r: 40, h: 180, kind: 'pilaar' }],
       (c, fx, fy) => ({ ...c, x: fx ? W - c.x : c.x, y: fy ? H - c.y : c.y })),
   ];
   // Schansen: rij er in de richting van de pijl over en je vliegt. (x, y) is het midden, a de richting omhoog.
+  // Van opzij of van de hoge kant rijd je er gewoon op: een schans houdt nooit iemand tegen.
   const RAMPS = [
     { x: CX, y: 330, a: 0, w: 190, d: 130, h: 50 },
     { x: CX, y: H - 330, a: Math.PI, w: 190, d: 130, h: 50 },
@@ -133,15 +132,94 @@
   const inRect = (x, y, r) => x > r.x && x < r.x + r.w && y > r.y && y < r.y + r.h;
   const onPad = (x, y) => PADS.some(p => inRect(x, y, p));
 
-  // Eén stap rijden. s = { x, y, z, vz, a, v, boost }, input = { gas: -1..1, turn: -1..1 }.
-  // Geeft terug wat er gebeurde: bump (tegen iets aan), jump (van een schans) of land (weer op de grond).
+  // Duw een cirkel uit de rand, de kratten en de pilaren. Geeft de nieuwe plek en de richting van de duw (de normaal).
+  function pushOut(x, y, r = R, z = 0) {
+    let nx = 0, ny = 0, hit = false;
+    for (let pass = 0; pass < 3; pass++) {
+      let moved = false;
+      const ex = (x - CX) / (RX - r), ey = (y - CY) / (RY - r);
+      const e = ex * ex + ey * ey;
+      if (e > 1) {
+        const k = 1 / Math.sqrt(e);
+        x = CX + (x - CX) * k;
+        y = CY + (y - CY) * k;
+        const gx = -(x - CX) / ((RX - r) ** 2), gy = -(y - CY) / ((RY - r) ** 2);
+        const gl = Math.hypot(gx, gy) || 1;
+        nx += gx / gl; ny += gy / gl; moved = true;
+      }
+      for (const b of BOXES) {
+        if (z > b.h - 6) continue;
+        const cx = Math.max(b.x, Math.min(x, b.x + b.w));
+        const cy = Math.max(b.y, Math.min(y, b.y + b.d));
+        const dx = x - cx, dy = y - cy;
+        const d2 = dx * dx + dy * dy;
+        if (d2 >= r * r) continue;
+        let ux, uy;
+        if (d2 > .0001) {
+          const d = Math.sqrt(d2);
+          ux = dx / d; uy = dy / d;
+          x = cx + ux * r; y = cy + uy * r;
+        } else {
+          // Het midden zit in de krat: langs de kortste kant eruit.
+          const opts = [[x - b.x, -1, 0], [b.x + b.w - x, 1, 0], [y - b.y, 0, -1], [b.y + b.d - y, 0, 1]].sort((p, q) => p[0] - q[0]);
+          [, ux, uy] = opts[0];
+          x += ux * (opts[0][0] + r); y += uy * (opts[0][0] + r);
+        }
+        nx += ux; ny += uy; moved = true;
+      }
+      for (const c of CYLS) {
+        if (z > c.h - 6) continue;
+        const dx = x - c.x, dy = y - c.y;
+        const d = Math.hypot(dx, dy);
+        if (d >= c.r + r) continue;
+        const ux = d > .01 ? dx / d : 1, uy = d > .01 ? dy / d : 0;
+        x = c.x + ux * (c.r + r); y = c.y + uy * (c.r + r);
+        nx += ux; ny += uy; moved = true;
+      }
+      if (!moved) break;
+      hit = true;
+    }
+    const nl = Math.hypot(nx, ny) || 1;
+    return { x, y, hit, nx: nx / nl, ny: ny / nl };
+  }
+
+  const wrap = a => (a > Math.PI ? a - Math.PI * 2 : a < -Math.PI ? a + Math.PI * 2 : a);
+
+  // Kijkt vooruit: staat er iets vlak voor je neus? Dan een duwtje opzij (-1 links, 1 rechts, 0 niets).
+  // Alleen als hulp bij het sturen op de gsm; de server rekent hier niet mee.
+  function avoid(s) {
+    if (s.v < 90) return 0;
+    const look = 70 + s.v * .32;
+    const free = da => {
+      const a = s.a + da;
+      for (const k of [.5, 1]) if (blocked(s.x + Math.cos(a) * look * k, s.y + Math.sin(a) * look * k, R * .85, s.z)) return false;
+      return true;
+    };
+    if (free(0)) return (s.dodge = 0);
+    for (const da of [.25, .5, 1, 1.5]) {
+      const l = free(-da), r = free(da);
+      if (l !== r) return (s.dodge = r ? 1 : -1);
+      // Beide kanten vrij: de kant die je al koos, of die waar je heen stuurde.
+      if (l && r) return (s.dodge = s.dodge || (s.lastTurn < 0 ? -1 : 1));
+    }
+    return 0;
+  }
+
+  // Eén stap rijden. s = { x, y, z, vz, a, v, boost }, input = { gas: -1..1, turn: -1..1, assist }.
+  // Geeft terug wat er gebeurde: bump (hard tegen iets aan), jump (van een schans) of land (weer op de grond).
+  // Tegen een muur of krat schuif je erlangs, en je neus draait mee: je blijft nooit hangen.
   function drive(s, input, dt) {
     const out = { bump: false, jump: false, land: false };
     s.z = s.z || 0;
     s.vz = s.vz || 0;
     const gas = Math.max(-1, Math.min(1, input.gas || 0));
-    const turn = Math.max(-1, Math.min(1, input.turn || 0));
+    let turn = Math.max(-1, Math.min(1, input.turn || 0));
     const air = s.z > groundAt(s.x, s.y) + 1;
+    if (input.assist && !air) {
+      s.lastTurn = turn || s.lastTurn || 0;
+      const push = avoid(s);
+      if (push) turn = Math.max(-1, Math.min(1, turn + push * .9));
+    }
     const max = s.boost > 0 ? CAR.boostMax : CAR.max;
     if (s.boost > 0) {
       s.boost -= dt;
@@ -150,7 +228,8 @@
     if (!air) {
       if (gas > 0) {
         if (s.v < 0) s.v = Math.min(0, s.v + CAR.brake * dt);
-        else if (s.v < max) s.v = Math.min(max, s.v + CAR.accel * gas * dt);
+        else if (s.v < max * gas) s.v = Math.min(max * gas, s.v + CAR.accel * dt);
+        else s.v = Math.max(max * gas, s.v - CAR.coast * dt);
       } else if (gas < 0) {
         s.v = s.v > 0 ? Math.max(0, s.v - CAR.brake * dt) : Math.max(-CAR.reverse, s.v - CAR.accel * .7 * dt);
       } else {
@@ -158,27 +237,28 @@
       }
       if (s.v > max) s.v = Math.max(max, s.v - 500 * dt);
     }
-    const grip = Math.min(1, Math.abs(s.v) / 170);
-    s.a += turn * CAR.turn * dt * (air ? .4 : 1) * (s.v < 0 ? -grip : Math.max(grip, gas > 0 ? .35 : 0));
-    if (s.a > Math.PI) s.a -= Math.PI * 2;
-    if (s.a < -Math.PI) s.a += Math.PI * 2;
-    const dx = Math.cos(s.a) * s.v * dt;
-    const dy = Math.sin(s.a) * s.v * dt;
-    // Een schans van de hoge kant of de zijkant oprijden gaat niet: dat is een muurtje.
-    const can = (x, y) => !blocked(x, y, R, s.z) && groundAt(x, y) <= s.z + 14;
+    const grip = Math.max(.6, Math.min(1, Math.abs(s.v) / 150));
+    s.a = wrap(s.a + turn * CAR.turn * dt * (air ? .5 : 1) * (s.v < -20 ? -grip : grip));
     const before = groundAt(s.x, s.y);
-    if (can(s.x + dx, s.y + dy)) {
-      s.x += dx;
-      s.y += dy;
-    } else if (can(s.x + dx, s.y)) {
-      s.x += dx;
-      s.v *= .9;
-    } else if (can(s.x, s.y + dy)) {
-      s.y += dy;
-      s.v *= .9;
-    } else {
-      out.bump = Math.abs(s.v) > 200;
-      s.v = -s.v * .25;
+    const res = pushOut(s.x + Math.cos(s.a) * s.v * dt, s.y + Math.sin(s.a) * s.v * dt, R, s.z);
+    s.x = res.x;
+    s.y = res.y;
+    if (res.hit) {
+      // Hoe recht reed je erop? Recht = veel snelheid kwijt, schuin = je glijdt er bijna zonder verlies langs.
+      const dir = s.v >= 0 ? 1 : -1;
+      const fx = Math.cos(s.a) * dir, fy = Math.sin(s.a) * dir;
+      const into = fx * res.nx + fy * res.ny;
+      if (into < 0) {
+        out.bump = Math.abs(s.v) > 220 && into < -.6;
+        s.v *= 1 - .6 * -into;
+        if (dir > 0) {
+          // De neus draait mee met de muur, naar de kant waar je al heen stuurde.
+          let tx = fx - res.nx * into, ty = fy - res.ny * into;
+          if (Math.hypot(tx, ty) < .2) [tx, ty] = turn >= 0 ? [-res.ny, res.nx] : [res.ny, -res.nx];
+          const want = Math.atan2(ty, tx);
+          s.a = wrap(s.a + wrap(want - s.a) * Math.min(1, dt * 9));
+        }
+      }
     }
     const g = groundAt(s.x, s.y);
     if (air) {
@@ -189,9 +269,9 @@
         s.z = g;
         s.vz = 0;
       }
-    } else if (before > 2 && g < before - 2 && s.v > 120) {
-      // Van de bovenkant van een schans: de lucht in.
-      s.vz = Math.min(520, s.v * .72);
+    } else if (before > 8 && g < 1 && s.v > 120) {
+      // Van een schans af: de lucht in, het hoogst van de bovenkant.
+      s.vz = Math.min(520, s.v * .72) * Math.min(1, before / 40);
       s.z = before;
       out.jump = true;
     } else {
@@ -225,6 +305,6 @@
 
   return {
     W, H, CX, CY, RX, RY, R, G, CAR, LASER, RAKET, MIJN, BOXES, CYLS, RAMPS, PADS, BASES, SPAWNS,
-    inside, blocked, wallAt, clearLine, groundAt, rampLocal, onPad, drive, spawnPoint,
+    inside, blocked, pushOut, avoid, wallAt, clearLine, groundAt, rampLocal, onPad, drive, spawnPoint,
   };
 });

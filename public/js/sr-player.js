@@ -29,7 +29,7 @@ const sr = {
 const srNow = () => Date.now() + sr.offset;
 const SR_VIEWS = {
   achter: { icon: '🎥', name: 'Achter je ros', keys: 'pijltjes of ZQSD rijden · spatie laser · F raket · X mijn · E vraag · V zicht' },
-  boven: { icon: '🗺️', name: 'Van bovenaf', keys: 'pijltjes of ZQSD rijden · spatie laser · F raket · X mijn · E vraag · V zicht' },
+  boven: { icon: '🗺️', name: 'Van bovenaf', keys: 'pijltjes of ZQSD: rij die kant op · spatie laser · F raket · X mijn · E vraag · V zicht' },
 };
 
 function srShow(name) {
@@ -43,6 +43,8 @@ function srSetView(view) {
   $('sr-view-btn').textContent = SR_VIEWS[view].icon;
   $('sr-view-btn').title = `Zicht: ${SR_VIEWS[view].name} (V)`;
   $('sr-keys').textContent = SR_VIEWS[view].keys;
+  $('sr-stick-hint').textContent = view === 'boven' ? 'Duim hier: duw waar je heen wil ✥' : 'Duim hier: schuif om te sturen ↔';
+  if (sr.canvasReady) srResize();
 }
 srSetView(sr.view);
 
@@ -179,19 +181,7 @@ function srScore(score) {
 
 socket.on('sr-world', data => {
   if (!sr.state || sr.state.phase !== 'play') return;
-  const seen = new Set();
-  for (const [n, name, x, y, a, v, team, color, hp, flags, kills, streak, z] of data.players) {
-    if (sr.me && n === sr.me.n) continue;
-    seen.add(n);
-    const o = sr.others.get(n);
-    if (o) {
-      if (Math.hypot(o.tx - x, o.ty - y) > 260 || (o.flags & 1 && !(flags & 1))) { o.x = x; o.y = y; o.a = a; }
-      Object.assign(o, { tx: x, ty: y, ta: a, tz: z || 0, v, name, team, color, hp, flags, kills, streak, at: performance.now() });
-    } else {
-      sr.others.set(n, { n, x, y, a, z: z || 0, tx: x, ty: y, ta: a, tz: z || 0, v, name, team, color, hp, flags, kills, streak, at: performance.now() });
-    }
-  }
-  for (const n of sr.others.keys()) if (!seen.has(n)) sr.others.delete(n);
+  SrDraw.sync(sr.others, data, sr.me ? sr.me.n : -1);
   sr.rockets = data.rockets.map(([id, x, y, a, n]) => ({ id, x, y, a, n }));
   sr.mines = data.mines.map(([id, x, y, n, armed]) => ({ id, x, y, n, armed }));
   if (data.score) srScore(data.score);
@@ -365,8 +355,9 @@ function srHold(btn, on, off) {
   }
   btn.addEventListener('contextmenu', e => e.preventDefault());
 }
-// De duimjoystick: zet je duim ergens op de linkerhelft en schuif. Links en rechts sturen, naar beneden remmen.
-const SR_STICK = 60;
+// De duimjoystick: zet je duim ergens op de linkerhelft en schuif. Achter je ros: links en rechts sturen, naar beneden remmen.
+// Van bovenaf: duw de joystick waar je heen wil, het ros draait daar vanzelf naartoe.
+const SR_STICK = 46;
 const srStage = $('sr-stage');
 srStage.addEventListener('pointerdown', e => {
   if (e.pointerType === 'mouse' || e.target.closest('button') || sr.stick) return;
@@ -539,10 +530,32 @@ function srCloseQuestion() {
 const srCanvas = $('sr-canvas');
 const srCtx = srCanvas.getContext('2d');
 let srView = { w: 0, h: 0, dpr: 1 };
+sr.canvasReady = true;
+
+// Minder pixels = vloeiender. Het 3D-zicht tekent op hooguit 1,25 keer de schermgrootte, en zakt vanzelf lager
+// als een Chromebook of gsm het niet bijhoudt (sr.quality van 1 tot .5). Het beeld wordt dan iets zachter, maar nooit schokkerig.
+sr.quality = 1;
+function srQuality(t) {
+  const q = sr.q || (sr.q = { from: t, frames: 0, good: 0 });
+  q.frames++;
+  if (t - q.from < 1500) return;
+  const fps = (q.frames * 1000) / (t - q.from);
+  q.from = t;
+  q.frames = 0;
+  if (document.hidden) return;
+  let next = sr.quality;
+  if (fps < 40 && sr.quality > .5) next = Math.max(.5, sr.quality - .15);
+  q.good = fps > 55 ? q.good + 1 : 0;
+  if (q.good >= 3 && sr.quality < 1) { next = Math.min(1, sr.quality + .1); q.good = 0; }
+  if (next !== sr.quality) {
+    sr.quality = next;
+    srResize();
+  }
+}
 
 function srResize() {
   const stage = $('sr-stage');
-  const dpr = Math.min(2, window.devicePixelRatio || 1);
+  const dpr = Math.min(sr.view === 'achter' ? 1.25 : 1.5, window.devicePixelRatio || 1) * sr.quality;
   const w = stage.clientWidth;
   const h = stage.clientHeight;
   if (!w || !h) return;
@@ -554,20 +567,37 @@ function srResize() {
 }
 window.addEventListener('resize', srResize);
 
+// Naar een richting rijden (van bovenaf): draai de neus erheen, en rem wat af in een scherpe bocht.
+function srToward(want) {
+  let d = want - sr.car.a;
+  while (d > Math.PI) d -= Math.PI * 2;
+  while (d < -Math.PI) d += Math.PI * 2;
+  return { turn: Math.max(-1, Math.min(1, d * 3)), gas: Math.abs(d) > 2 ? .5 : 1 };
+}
+
+// Stuurhulp staat altijd aan: staat er vlak voor je neus een krat, pilaar of de rand, dan stuurt het ros zelf een beetje bij.
 function srInput() {
-  let turn = (sr.keys.right ? 1 : 0) - (sr.keys.left ? 1 : 0);
-  let gas = (sr.keys.up ? 1 : 0) - (sr.keys.down ? 1 : 0);
+  const kx = (sr.keys.right ? 1 : 0) - (sr.keys.left ? 1 : 0);
+  const ky = (sr.keys.down ? 1 : 0) - (sr.keys.up ? 1 : 0);
+  const st = sr.stick;
+  if (sr.view === 'boven') {
+    // Van bovenaf: pijltjes en joystick wijzen de richting aan, net zoals op de kaart.
+    if (st && Math.hypot(st.dx, st.dy) > 10) return { ...srToward(Math.atan2(st.dy, st.dx)), assist: true };
+    if (kx || ky) return { ...srToward(Math.atan2(ky, kx)), assist: true };
+    return { gas: sr.touch ? 1 : 0, turn: 0, assist: true };
+  }
+  let turn = kx;
+  let gas = -ky;
   if (sr.touch) {
-    // Op de gsm geeft het ros vanzelf gas. De joystick stuurt zacht in het midden en scherp aan de rand.
+    // Op de gsm geeft het ros vanzelf gas. Hoe verder je de joystick opzij duwt, hoe scherper de bocht.
     gas = 1;
-    const st = sr.stick;
     if (st) {
       const x = Math.max(-1, Math.min(1, st.dx / SR_STICK));
-      turn = Math.abs(x) < .12 ? 0 : Math.sign(x) * ((Math.abs(x) - .12) / .88) ** 1.3;
-      if (st.dy > SR_STICK * .75 && Math.abs(st.dy) > Math.abs(st.dx)) gas = -1;
+      turn = Math.abs(x) < .1 ? 0 : Math.sign(x) * (Math.abs(x) - .1) / .9;
+      if (st.dy > SR_STICK * .8 && st.dy > Math.abs(st.dx) * 1.3) gas = -1;
     }
   }
-  return { gas, turn };
+  return { gas, turn, assist: true };
 }
 
 let srLast = performance.now();
@@ -596,23 +626,13 @@ function srFrame(t) {
     if (t - sr.lastSend > 50) {
       sr.lastSend = t;
       const c = sr.car;
-      socket.emit('sr-move', { x: Math.round(c.x), y: Math.round(c.y), z: Math.round(c.z), a: +c.a.toFixed(3), v: Math.round(c.v), s: sr.spawn });
+      socket.volatile.emit('sr-move', { x: Math.round(c.x), y: Math.round(c.y), z: Math.round(c.z), a: +c.a.toFixed(3), v: Math.round(c.v), s: sr.spawn });
     }
   }
-  for (const o of sr.others.values()) {
-    // Een beetje vooruit rekenen met de snelheid, dan bijsturen: zo rijden de anderen vloeiend.
-    const ahead = Math.min(.12, (t - o.at) / 1000);
-    const tx = o.tx + Math.cos(o.ta) * o.v * ahead;
-    const ty = o.ty + Math.sin(o.ta) * o.v * ahead;
-    o.x += (tx - o.x) * Math.min(1, dt * 12);
-    o.y += (ty - o.y) * Math.min(1, dt * 12);
-    let da = o.ta - o.a;
-    while (da > Math.PI) da -= Math.PI * 2;
-    while (da < -Math.PI) da += Math.PI * 2;
-    o.a += da * Math.min(1, dt * 12);
-    o.z = (o.z || 0) + ((o.tz || 0) - (o.z || 0)) * Math.min(1, dt * 14);
-  }
+  SrDraw.glide(sr.others);
+  SrDraw.flyRockets(sr.rockets, dt);
   if ($('sr-game').classList.contains('hidden')) return;
+  srQuality(t);
   if (!srView.w) srResize();
   if (!srView.w) return;
   const { w, h, dpr } = srView;
@@ -623,7 +643,7 @@ function srFrame(t) {
     let da = sr.car.a - sr.camA;
     while (da > Math.PI) da -= Math.PI * 2;
     while (da < -Math.PI) da += Math.PI * 2;
-    sr.camA += da * Math.min(1, dt * 7);
+    sr.camA += da * Math.min(1, dt * 10);
     const others = [...sr.others.values()].filter(o => !(o.flags & 1)).map(o => ({
       ...o, color: SrDraw.colorOf(o.team, o.color), av: typeof Avatar !== 'undefined' ? Avatar.byName(o.name) : null,
     }));

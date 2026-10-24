@@ -238,9 +238,10 @@ const Sr3D = (() => {
     const cam = { x: me.x - ca * back, y: me.y - sa * back, z: CAM_Z + (me.z || 0) * .5 };
     const hz = Math.round(HORIZON * h);
 
-    // Hemel en vloer op een klein canvas, pixel per pixel.
-    const resW = Math.max(200, Math.min(420, Math.round(w / 2.6)));
-    const resH = Math.max(110, Math.round(resW * h / w));
+    // Hemel en vloer op een klein canvas, pixel per pixel. Alleen kopiëren in de lus: de mist komt er daarna
+    // in één keer overheen als verloop, dat scheelt op een Chromebook de helft van de tijd.
+    const resW = Math.max(160, Math.min(340, Math.round(w / 3.2)));
+    const resH = Math.max(90, Math.round(resW * h / w));
     if (low.width !== resW || low.height !== resH) {
       low.width = resW;
       low.height = resH;
@@ -260,29 +261,33 @@ const Sr3D = (() => {
     }
     for (let y = 0; y < lhz; y++) px.fill(skyRows[y], y * resW, (y + 1) * resW);
     const fl = floorData(scene.teams);
+    const tex = fl.px, tw = fl.w, th = fl.h, tk = fl.k;
     const plx = -sa * half, ply = ca * half;
     const lx = ca - plx, ly = sa - ply;
     const rx = ca + plx, ry = sa + ply;
     for (let y = lhz; y < resH; y++) {
       const rowD = (cam.z * lf) / Math.max(.5, y - lhz + .5);
-      let wx = cam.x + rowD * lx;
-      let wy = cam.y + rowD * ly;
-      const sx = (rowD * (rx - lx)) / resW;
-      const sy = (rowD * (ry - ly)) / resW;
-      const fog = Math.min(.95, (rowD / FAR) ** 1.3 * 1.6);
-      const keep = 1 - fog;
-      const fr = FOG[0] * fog, fg = FOG[1] * fog, fb = FOG[2] * fog;
+      let wx = (cam.x + rowD * lx) * tk;
+      let wy = (cam.y + rowD * ly) * tk;
+      const sx = ((rowD * (rx - lx)) / resW) * tk;
+      const sy = ((rowD * (ry - ly)) / resW) * tk;
       let i = y * resW;
       for (let x = 0; x < resW; x++, i++, wx += sx, wy += sy) {
-        const tx = (wx * fl.k) | 0, ty = (wy * fl.k) | 0;
-        const c = tx < 0 || ty < 0 || tx >= fl.w || ty >= fl.h ? 0xff1a0f12 : fl.px[ty * fl.w + tx];
-        const r = (c & 255) * keep + fr, g = ((c >> 8) & 255) * keep + fg, b = ((c >> 16) & 255) * keep + fb;
-        px[i] = (255 << 24) | (b << 16) | (g << 8) | r;
+        const tx = wx | 0, ty = wy | 0;
+        px[i] = tx < 0 || ty < 0 || tx >= tw || ty >= th ? 0xff1a0f12 : tex[ty * tw + tx];
       }
     }
     lctx.putImageData(img, 0, 0);
     ctx.imageSmoothingEnabled = true;
     ctx.drawImage(low, 0, 0, w, h);
+    {
+      // De mist: dicht aan de horizon, weg vlak voor je neus.
+      const fogAt = y => Math.min(.95, (((cam.z * f) / Math.max(.5, y - hz + .5)) / FAR) ** 1.3 * 1.6);
+      const grad = ctx.createLinearGradient(0, hz, 0, h);
+      for (const k of [0, .02, .05, .1, .2, .35, .6, 1]) grad.addColorStop(k, `rgba(${FOG[0]}, ${FOG[1]}, ${FOG[2]}, ${fogAt(hz + k * (h - hz)).toFixed(3)})`);
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, hz, w, h - hz);
+    }
 
     // Sterren en het panorama, meedraaiend met de kijkrichting.
     ctx.fillStyle = '#d9ecff';
@@ -535,6 +540,9 @@ const Sr3D = (() => {
       const o = th.o;
       // Wat tussen de camera en je eigen ros staat, wordt doorzichtig.
       const between = scene.self && th.d < back - 40 && th.kind !== 'steed';
+      // Bomen, torens en de rand vlak bij de camera (als je langs de rand rijdt) zouden het hele beeld vullen: weglaten.
+      if (scene.self && th.kind === 'rim' && th.d < back) continue;
+      if (scene.self && th.d < back * 1.4 && (th.kind === 'pine' || (th.kind === 'cyl' && o.kind === 'toren'))) continue;
       if (between) ctx.globalAlpha = .35;
       if (th.kind === 'box') drawBox(o, th.d);
       else if (th.kind === 'cyl') drawCyl(o, th.d);
@@ -566,6 +574,8 @@ const Sr3D = (() => {
         // Je eigen ros nooit breder dan 28% van het scherm.
         const scale = th.self ? Math.min((STEED_W * p.k) / 520, (w * .28) / 520) : (STEED_W * p.k) / 520;
         if (!th.self && o.flags & 4) ctx.globalAlpha = .75;
+        // Een ander ros tussen de camera en jezelf: doorzichtig, anders zie je niets meer.
+        if (!th.self && scene.self && th.d < back - 40) ctx.globalAlpha = .4;
         const boosting = o.boost || o.v > Wd.CAR.max + 20;
         const opts = { t: scene.t, seed: o.n || 0, turbo: boosting, boost: boosting, av: o.av, tilt: th.self ? o.tilt : 0 };
         if (view === 'back') RaceDraw.steed(ctx, p.x, p.y, scale, o.color, opts);
@@ -590,26 +600,29 @@ const Sr3D = (() => {
         ctx.strokeStyle = o.color;
         ctx.lineWidth = Math.max(1, r * .2);
         ctx.stroke();
+        if (o.armed) {
+          ctx.fillStyle = `rgba(255, 77, 109, ${.3 * pulse})`;
+          ctx.beginPath(); ctx.arc(p.x, p.y - r * .3, r, 0, Math.PI * 2); ctx.fill();
+        }
         ctx.fillStyle = o.armed ? `rgba(255, 77, 109, ${.5 + pulse * .5})` : '#ffd166';
-        ctx.shadowColor = '#ff4d6d';
-        ctx.shadowBlur = o.armed ? 16 * pulse : 0;
         ctx.beginPath(); ctx.arc(p.x, p.y - r * .3, r * .4, 0, Math.PI * 2); ctx.fill();
-        ctx.shadowBlur = 0;
       } else if (th.kind === 'laser') {
         const z = o.z || 30;
         const p = place(o.x, o.y, z);
         const q = place(o.x - Math.cos(o.a) * 80, o.y - Math.sin(o.a) * 80, z);
         if (!p || !q) continue;
+        // Een gloed met een brede, doorzichtige streep (shadowBlur is op een Chromebook veel te traag).
         ctx.strokeStyle = o.color;
-        ctx.shadowColor = o.color;
-        ctx.shadowBlur = 12;
         ctx.lineCap = 'round';
-        ctx.lineWidth = Math.max(2, 9 * p.k);
+        ctx.globalAlpha = .35;
+        ctx.lineWidth = Math.max(4, 20 * p.k);
         ctx.beginPath(); ctx.moveTo(q.x, q.y); ctx.lineTo(p.x, p.y); ctx.stroke();
+        ctx.globalAlpha = 1;
+        ctx.lineWidth = Math.max(2, 9 * p.k);
+        ctx.stroke();
         ctx.strokeStyle = '#fff';
         ctx.lineWidth = Math.max(1, 4 * p.k);
-        ctx.beginPath(); ctx.moveTo(q.x, q.y); ctx.lineTo(p.x, p.y); ctx.stroke();
-        ctx.shadowBlur = 0;
+        ctx.stroke();
       } else if (th.kind === 'rocket') {
         const p = place(o.x, o.y, 40);
         if (!p) continue;
