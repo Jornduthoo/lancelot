@@ -320,32 +320,6 @@ const RyDraw = (() => {
     return { canvas: c, q, S };
   }
 
-  // De ruimte buiten de arena: een nevel met sterren, één keer getekend en zacht meeschuivend.
-  let space = null;
-  function spaceBg() {
-    if (space) return space;
-    const c = document.createElement('canvas');
-    c.width = c.height = 1024;
-    const ctx = c.getContext('2d');
-    ctx.fillStyle = '#04030c';
-    ctx.fillRect(0, 0, 1024, 1024);
-    const rnd = RyWorld.rng(99);
-    // Nevelwolken (ook over de randen heen, zodat het naadloos herhaalt)
-    for (let i = 0; i < 26; i++) {
-      const x = rnd() * 1024, y = rnd() * 1024, r = 120 + rnd() * 260;
-      const col = ['#5b2a9e', '#1d4fa8', '#a02a7a', '#14627a'][i % 4];
-      for (const dx of [-1024, 0, 1024]) for (const dy of [-1024, 0, 1024]) AK.glow(ctx, x + dx, y + dy, r, col, .18);
-    }
-    for (let i = 0; i < 420; i++) {
-      const x = rnd() * 1024, y = rnd() * 1024, b = rnd();
-      ctx.fillStyle = `rgba(${200 + b * 55},${210 + b * 45},255,${.35 + b * .6})`;
-      ctx.fillRect(x, y, b > .9 ? 2.2 : 1.3, b > .9 ? 2.2 : 1.3);
-      if (b > .96) AK.glow(ctx, x + 1, y + 1, 9, '#bfe4ff', .6);
-    }
-    space = c;
-    return c;
-  }
-
   // De storm: een paarse wolk die je één keer tekent en dan laat draaien.
   let cloud = null;
   function stormCloud() {
@@ -662,9 +636,7 @@ const RyDraw = (() => {
     const ar = s.ar;
     const z = cam.zoom;
     // Ruimte op de achtergrond, die trager meeschuift dan de arena (diepte).
-    const sp = spaceBg();
-    const px = ((-cam.x * z * .25) % 1024 + 1024) % 1024, py = ((-cam.y * z * .25) % 1024 + 1024) % 1024;
-    for (let x = px - 1024; x < w; x += 1024) for (let y = py - 1024; y < h; y += 1024) ctx.drawImage(sp, x, y);
+    Glow.space(ctx, w, h, -cam.x * z * .25, -cam.y * z * .25);
     const sx = s.shake ? (Math.random() - .5) * s.shake : 0, sy = s.shake ? (Math.random() - .5) * s.shake : 0;
     const ox = w / 2 - cam.x * z + sx, oy = h / 2 - cam.y * z + sy;
     ctx.setTransform(z, 0, 0, z, ox, oy);

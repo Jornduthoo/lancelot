@@ -344,5 +344,34 @@ const Glow = (() => {
     }
     ctx.restore();
   }
-  return { rgba, glowSprite, glow, vignette, lightning };
+  // De ruimte als achtergrond: een nevel met sterren, één keer getekend (1024 px, naadloos) en daarna herhaald.
+  // ox/oy laten hem meeschuiven met de camera (trager dan de wereld geeft diepte).
+  let spaceTile = null;
+  function space(ctx, w, h, ox = 0, oy = 0) {
+    if (!spaceTile) {
+      const c = document.createElement('canvas');
+      c.width = c.height = 1024;
+      const g = c.getContext('2d');
+      g.fillStyle = '#04030c';
+      g.fillRect(0, 0, 1024, 1024);
+      let seed = 99;
+      const rnd = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
+      for (let i = 0; i < 26; i++) {
+        const x = rnd() * 1024, y = rnd() * 1024, r = 120 + rnd() * 260;
+        const col = ['#5b2a9e', '#1d4fa8', '#a02a7a', '#14627a'][i % 4];
+        for (const dx of [-1024, 0, 1024]) for (const dy of [-1024, 0, 1024]) glow(g, x + dx, y + dy, r, col, .18);
+      }
+      for (let i = 0; i < 420; i++) {
+        const x = rnd() * 1024, y = rnd() * 1024, b = rnd();
+        g.fillStyle = `rgba(${200 + b * 55},${210 + b * 45},255,${.35 + b * .6})`;
+        g.fillRect(x, y, b > .9 ? 2.2 : 1.3, b > .9 ? 2.2 : 1.3);
+        if (b > .96) glow(g, x + 1, y + 1, 9, '#bfe4ff', .6);
+      }
+      spaceTile = c;
+    }
+    const px = ((ox % 1024) + 1024) % 1024, py = ((oy % 1024) + 1024) % 1024;
+    for (let x = px - 1024; x < w; x += 1024) for (let y = py - 1024; y < h; y += 1024) ctx.drawImage(spaceTile, x, y);
+  }
+
+  return { rgba, glowSprite, glow, vignette, lightning, space };
 })();
