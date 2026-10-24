@@ -14,44 +14,128 @@ const Slag3D = (() => {
   const TP_EYE = 44;
   const TP_HORIZON = .42;
 
-  // De rand van de arena als vier extra muren.
-  const RECTS = [
-    ...Arena.WALLS,
-    { x: -60, y: -60, w: Arena.W + 120, h: 60 },
-    { x: -60, y: Arena.H, w: Arena.W + 120, h: 60 },
-    { x: -60, y: 0, w: 60, h: Arena.H },
-    { x: Arena.W, y: 0, w: 60, h: Arena.H },
-  ];
+  const OUT_H = 150;         // de burchtmuur errond is hoger dan de muren binnenin
+  const RED = '#ff4d6d', BLUE = '#3d8bff';
+  const neonOf = r => (r.x + r.w / 2 < Arena.W * .4 ? '#ff6b86' : r.x + r.w / 2 > Arena.W * .6 ? '#5ea3ff' : '#4cc9ff');
 
-  // Steentextuur met neonrandjes, één keer getekend.
-  const tex = document.createElement('canvas');
-  tex.width = 64;
-  tex.height = 64;
-  (() => {
+  // Muren binnenin: steen met een neonrand en gloeiende spleten, in de kleur van de kant waar ze staan.
+  const texCache = {};
+  function wallTex(neon) {
+    if (texCache[neon]) return texCache[neon];
+    const tex = document.createElement('canvas');
+    tex.width = 64;
+    tex.height = 64;
     const g = tex.getContext('2d');
-    g.fillStyle = '#22304d';
+    g.fillStyle = '#1c2742';
     g.fillRect(0, 0, 64, 64);
     for (let row = 0; row < 8; row++) {
       for (let col = -1; col < 4; col++) {
         const x = col * 20 + (row % 2 ? 10 : 0);
-        const shade = 30 + ((row * 7 + col * 13) % 5) * 4;
-        g.fillStyle = `rgb(${shade}, ${shade + 12}, ${shade + 32})`;
+        const shade = 34 + ((row * 7 + col * 13) % 5) * 5;
+        g.fillStyle = `rgb(${shade}, ${shade + 10}, ${shade + 30})`;
         g.fillRect(x + 1, row * 8 + 1, 18, 6);
+        g.fillStyle = 'rgba(255,255,255,.08)';
+        g.fillRect(x + 1, row * 8 + 1, 18, 1);
       }
     }
-    g.fillStyle = '#4cc9ff';
-    g.fillRect(0, 0, 64, 2);
-    g.fillRect(0, 62, 64, 2);
-    g.fillStyle = 'rgba(76, 201, 255, .35)';
-    g.fillRect(0, 2, 64, 1);
-    g.fillRect(0, 61, 64, 1);
-    // Een verticale neonstreep per blok, zodat je ziet dat je beweegt.
-    g.fillStyle = 'rgba(76, 201, 255, .5)';
+    // Een donkere band met gloeiende spleten halverwege.
+    g.fillStyle = '#0a0f1e';
+    g.fillRect(0, 26, 64, 10);
+    g.fillStyle = neon;
+    g.fillRect(6, 29, 20, 4);
+    g.fillRect(38, 29, 20, 4);
+    g.fillStyle = 'rgba(255,255,255,.7)';
+    g.fillRect(10, 30, 12, 2);
+    g.fillRect(42, 30, 12, 2);
+    g.fillStyle = neon;
+    g.fillRect(0, 0, 64, 3);
+    g.fillRect(0, 61, 64, 3);
+    g.globalAlpha = .4;
+    g.fillRect(0, 3, 64, 2);
+    g.fillRect(0, 59, 64, 2);
     g.fillRect(0, 0, 1, 64);
-    g.fillStyle = 'rgba(255, 201, 74, .7)';
-    g.fillRect(31, 30, 2, 4);
+    g.globalAlpha = 1;
+    texCache[neon] = tex;
+    return tex;
+  }
+
+  // De burchtmuur: grote stenen, kantelen bovenaan (met gaten waar je de hemel door ziet) en een neonband onderaan.
+  const rampTex = document.createElement('canvas');
+  rampTex.width = 64;
+  rampTex.height = 150;
+  (() => {
+    const g = rampTex.getContext('2d');
+    g.fillStyle = '#2b2640';
+    g.fillRect(0, 18, 64, 132);
+    g.fillRect(0, 0, 32, 18);
+    for (let row = 0; row < 7; row++) {
+      for (let col = -1; col < 3; col++) {
+        const x = col * 32 + (row % 2 ? 16 : 0);
+        const shade = 46 + ((row * 5 + col * 11) % 4) * 6;
+        g.fillStyle = `rgb(${shade}, ${shade - 6}, ${shade + 22})`;
+        g.fillRect(x + 1.5, 20 + row * 17 + 1.5, 29, 14);
+        g.fillStyle = 'rgba(255,255,255,.1)';
+        g.fillRect(x + 1.5, 20 + row * 17 + 1.5, 29, 1.5);
+      }
+    }
+    g.fillStyle = '#5a527c';
+    g.fillRect(1, 1, 30, 16);
+    g.fillStyle = 'rgba(255,255,255,.2)';
+    g.fillRect(1, 1, 30, 2);
+    g.fillStyle = '#16122a';
+    g.fillRect(0, 17, 64, 3);
+    g.fillStyle = '#0c0a18';
+    g.fillRect(0, 138, 64, 12);
+    g.fillStyle = '#4cc9ff';
+    g.fillRect(0, 139, 64, 3);
+    g.fillStyle = 'rgba(76, 201, 255, .35)';
+    g.fillRect(0, 136, 64, 3);
   })();
 
+  // Hoe de muren erbij staan voor deze maat van de arena, met de posters en banieren die eraan hangen.
+  let lay = null;
+  function layout() {
+    const key = `${Arena.tier}/${typeof Posters !== 'undefined' ? Posters.version : 0}`;
+    if (lay && lay.key === key) return lay;
+    const W = Arena.W, H = Arena.H;
+    const photos = typeof Posters !== 'undefined' ? Posters.list : [];
+    const banner = side => (typeof Posters !== 'undefined' ? Posters.banner(side) : null);
+    let n = 0;
+    // face: de kant van de muur waar het hangt (N, S, W of O), u0..u1 langs die kant, v0..v1 de hoogte.
+    const hang = (r, face, center, v0, v1, img) => {
+      if (!img) return;
+      const pw = (v1 - v0) * img.width / img.height;
+      r.deco.push({ face, u0: center - pw / 2, u1: center + pw / 2, v0, v1, img });
+    };
+    const outer = [
+      { x: -60, y: -60, w: W + 120, h: 60, face: 'S', len: W, off: 60 },
+      { x: -60, y: H, w: W + 120, h: 60, face: 'N', len: W, off: 60 },
+      { x: -60, y: 0, w: 60, h: H, face: 'E', len: H, off: 0 },
+      { x: W, y: 0, w: 60, h: H, face: 'W', len: H, off: 0 },
+    ];
+    for (const r of outer) {
+      r.tex = rampTex;
+      r.wh = OUT_H;
+      r.deco = [];
+      const cnt = Math.max(2, Math.round(r.len / 320));
+      for (let i = 0; i < cnt; i++) {
+        const c = ((i + .5) * r.len) / cnt;
+        const side = r.face === 'E' ? RED : r.face === 'W' ? BLUE : c < W / 2 ? RED : BLUE;
+        if (photos.length && i % 3 !== 2) hang(r, r.face, r.off + c, 26, 128, photos[n++ % photos.length]);
+        else hang(r, r.face, r.off + c, 34, 134, banner(side));
+      }
+    }
+    const inner = Arena.WALLS.map(w => ({ ...w, tex: wallTex(neonOf(w)), wh: WALL_H, deco: [] }));
+    // Lange muren binnenin krijgen aan elke lange kant een poster.
+    if (photos.length) {
+      for (const r of inner) {
+        if (r.w >= 190) for (const f of ['N', 'S']) hang(r, f, r.w / 2, 10, 64, photos[n++ % photos.length]);
+        else if (r.h >= 190) for (const f of ['W', 'E']) hang(r, f, r.h / 2, 10, 64, photos[n++ % photos.length]);
+      }
+    }
+    lay = { key, outer, inner, all: [...inner, ...outer] };
+    return lay;
+  }
   // Ridder van voren, in pixelkunst. C = kleur van het team.
   const FRONT = [
     '.....CC.....',
@@ -116,15 +200,16 @@ const Slag3D = (() => {
   const STARS = Array.from({ length: 90 }, (_, i) => ({ az: (i * 2.399) % (Math.PI * 2), h: ((i * 37) % 100) / 100, s: i % 7 === 0 ? 2 : 1 }));
 
   // Afstand tot de eerste muur langs een straal, met de plek op de muur (voor de textuur).
-  function cast(ox, oy, dx, dy) {
+  function castIn(list, ox, oy, dx, dy) {
     let best = FAR;
     let u = 0;
     let side = 0;
-    for (const r of RECTS) {
-      let t1 = (r.x - ox) / dx;
-      let t2 = (r.x + r.w - ox) / dx;
-      let t3 = (r.y - oy) / dy;
-      let t4 = (r.y + r.h - oy) / dy;
+    let hit = null;
+    for (const r of list) {
+      const t1 = (r.x - ox) / dx;
+      const t2 = (r.x + r.w - ox) / dx;
+      const t3 = (r.y - oy) / dy;
+      const t4 = (r.y + r.h - oy) / dy;
       const txMin = Math.min(t1, t2);
       const txMax = Math.max(t1, t2);
       const tyMin = Math.min(t3, t4);
@@ -133,11 +218,82 @@ const Slag3D = (() => {
       const tFar = Math.min(txMax, tyMax);
       if (!(tNear <= tFar) || tFar < 0 || tNear < 0 || tNear >= best) continue;
       best = tNear;
+      hit = r;
       if (txMin > tyMin) { side = 0; u = oy + dy * tNear - r.y; } else { side = 1; u = ox + dx * tNear - r.x; }
     }
-    return { d: best, u, side };
+    return { d: best, u, side, r: hit };
+  }
+  const cast = (ox, oy, dx, dy) => castIn(layout().all, ox, oy, dx, dy);
+
+  // De vloer van bovenaf als pixels, om in 3D uit te lezen (grof genoeg voor het lage beeld).
+  let floor = null;
+  function floorData() {
+    const img = SlagDraw.arenaImage({ walls: false, k: .5 });
+    if (floor && floor.key === img.key) return floor;
+    const g = img.c.getContext('2d');
+    floor = { key: img.key, k: img.k, w: img.c.width, h: img.c.height, px: new Uint32Array(g.getImageData(0, 0, img.c.width, img.c.height).data.buffer) };
+    return floor;
   }
 
+  // Het verre landschap: bergen, burchten met verlichte ramen en een planeet met ringen. Eén keer getekend, rondom.
+  const pano = document.createElement('canvas');
+  pano.width = 1536;
+  pano.height = 160;
+  (() => {
+    const g = pano.getContext('2d');
+    const W = pano.width, H = pano.height;
+    let seed = 9;
+    const rnd = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
+    // Planeet met een ring.
+    const px = W * .3, py = H * .28;
+    const pg = g.createRadialGradient(px - 14, py - 14, 4, px, py, 40);
+    pg.addColorStop(0, '#ffd2f2');
+    pg.addColorStop(.5, '#a35bd6');
+    pg.addColorStop(1, '#2a1250');
+    g.fillStyle = pg;
+    g.beginPath(); g.arc(px, py, 36, 0, Math.PI * 2); g.fill();
+    g.strokeStyle = 'rgba(255, 210, 160, .7)';
+    g.lineWidth = 3;
+    g.beginPath(); g.ellipse(px, py, 62, 12, -.25, 0, Math.PI * 2); g.stroke();
+    // Een tweede, kleine maan.
+    g.fillStyle = '#bfe8ff';
+    g.beginPath(); g.arc(W * .78, H * .2, 10, 0, Math.PI * 2); g.fill();
+    // Bergen in twee lagen.
+    for (const [base, amp, col] of [[.55, .3, '#1c1638'], [.7, .22, '#120f26']]) {
+      g.fillStyle = col;
+      g.beginPath();
+      g.moveTo(0, H);
+      for (let x = 0; x <= W; x += 16) {
+        const y = H * (base - amp * (.5 + .5 * Math.sin(x * .011) * Math.sin(x * .0047 + 1.3)) - rnd() * .03);
+        g.lineTo(x, y);
+      }
+      g.lineTo(W, H);
+      g.closePath();
+      g.fill();
+    }
+    // Burchten aan de horizon.
+    for (let i = 0; i < 9; i++) {
+      const cx = (i + .3 + rnd() * .4) * W / 9;
+      const bw = 50 + rnd() * 50, bh = 30 + rnd() * 30;
+      const by = H * .82;
+      g.fillStyle = '#0b0918';
+      g.fillRect(cx - bw / 2, by - bh, bw, bh + H);
+      for (let k = 0; k < 3; k++) {
+        const tx = cx - bw / 2 + (k * bw) / 2 - 7, th = bh + 18 + rnd() * 26;
+        g.fillRect(tx, by - th, 14, th);
+        g.beginPath(); g.moveTo(tx - 3, by - th); g.lineTo(tx + 7, by - th - 16); g.lineTo(tx + 17, by - th); g.closePath(); g.fill();
+        g.fillStyle = rnd() < .5 ? '#ffb85c' : '#7fe0ff';
+        g.fillRect(tx + 5, by - th + 8, 3, 4);
+        g.fillStyle = '#0b0918';
+      }
+      for (let k = 0; k < 4; k++) {
+        g.fillStyle = rnd() < .6 ? '#ffb85c' : '#7fe0ff';
+        g.fillRect(cx - bw / 2 + 6 + rnd() * (bw - 12), by - bh + 6 + rnd() * (bh - 10), 3, 4);
+      }
+    }
+    g.fillStyle = '#0b0918';
+    g.fillRect(0, H * .82, W, H);
+  })();
   // Zit er een muur tussen twee punten?
   function visible(ax, ay, bx, by) {
     const d = Math.hypot(bx - ax, by - ay);
@@ -163,6 +319,9 @@ const Slag3D = (() => {
   const low = document.createElement('canvas');
   const lctx = low.getContext('2d');
   let zbuf = new Float32Array(0);
+  let img = null;
+  let px = null;
+  let skyRows = null;
 
   // Teken de wereld. Geeft terug waar elke ridder op het scherm staat (voor de naamkaartjes).
   // scene: { me, a, others: [{x, y, color, flags, ...}], bullets, crystal, t, booms }
@@ -201,62 +360,111 @@ const Slag3D = (() => {
     const proj = resW / 2 / half;
     const horizon = (tp ? TP_HORIZON : .5) * resH + (scene.bob || 0) * resH;
 
-    // Hemel en vloer.
-    const sky = g.createLinearGradient(0, 0, 0, horizon);
-    sky.addColorStop(0, '#02040a');
-    sky.addColorStop(1, '#0d1830');
-    g.fillStyle = sky;
-    g.fillRect(0, 0, resW, horizon);
-    g.fillStyle = '#c9e6ff';
+    // Hemel en vloer, pixel per pixel op het kleine canvas.
+    if (!img || img.width !== resW || img.height !== resH) {
+      img = g.createImageData(resW, resH);
+      px = new Uint32Array(img.data.buffer);
+      skyRows = null;
+    }
+    const hz = Math.max(1, Math.min(resH - 1, Math.round(horizon)));
+    if (!skyRows || skyRows.length !== resH) {
+      skyRows = new Uint32Array(resH);
+      for (let y = 0; y < resH; y++) {
+        const k = Math.min(1, y / Math.max(1, resH * .5));
+        const r = Math.round(4 + k * 46), gg = Math.round(4 + k * 18), b = Math.round(14 + k * 62);
+        skyRows[y] = (255 << 24) | (b << 16) | (gg << 8) | r;
+      }
+    }
+    for (let y = 0; y < hz; y++) px.fill(skyRows[Math.min(resH - 1, Math.round(y * (resH * .5) / hz))], y * resW, (y + 1) * resW);
+    {
+      const fl = floorData();
+      const tex = fl.px, tw = fl.w, th = fl.h, tk = fl.k;
+      const ca = Math.cos(a), sa = Math.sin(a);
+      const plx = -sa * half, ply = ca * half;
+      const lx = ca - plx, ly = sa - ply;
+      const rx = ca + plx, ry = sa + ply;
+      for (let y = hz; y < resH; y++) {
+        const rowD = (EYE * proj) / Math.max(.5, y - horizon + .5);
+        let wx = (cam.x + rowD * lx) * tk;
+        let wy = (cam.y + rowD * ly) * tk;
+        const sx = ((rowD * (rx - lx)) / resW) * tk;
+        const sy = ((rowD * (ry - ly)) / resW) * tk;
+        let i = y * resW;
+        for (let x = 0; x < resW; x++, i++, wx += sx, wy += sy) {
+          const tx = wx | 0, ty = wy | 0;
+          px[i] = tx < 0 || ty < 0 || tx >= tw || ty >= th ? 0xff180f10 : tex[ty * tw + tx];
+        }
+      }
+    }
+    g.putImageData(img, 0, 0);
+    // Mist over de vloer: dicht aan de horizon, weg vlak voor je neus.
+    {
+      const fogAt = y => Math.min(.92, (((EYE * proj) / Math.max(.5, y - horizon + .5)) / 1500) ** 1.2);
+      const grad = g.createLinearGradient(0, hz, 0, resH);
+      for (const k of [0, .03, .08, .16, .3, .55, 1]) grad.addColorStop(k, `rgba(6, 8, 22, ${fogAt(hz + k * (resH - hz)).toFixed(3)})`);
+      g.fillStyle = grad;
+      g.fillRect(0, hz, resW, resH - hz);
+    }
+    // Sterren en het verre landschap, meedraaiend met de kijkrichting.
+    g.fillStyle = '#d9ecff';
     for (const s of STARS) {
       let rel = s.az - a;
       while (rel > Math.PI) rel -= Math.PI * 2;
       while (rel < -Math.PI) rel += Math.PI * 2;
       if (Math.abs(rel) > FOV) continue;
       g.globalAlpha = .4 + (s.h * .6);
-      g.fillRect(resW / 2 + Math.tan(rel) * proj, s.h * horizon * .9, s.s, s.s);
+      g.fillRect(resW / 2 + Math.tan(rel) * proj, s.h * horizon * .8, s.s, s.s);
     }
     g.globalAlpha = 1;
-    const floor = g.createLinearGradient(0, horizon, 0, resH);
-    floor.addColorStop(0, '#060b16');
-    floor.addColorStop(1, '#12243f');
-    g.fillStyle = floor;
-    g.fillRect(0, horizon, resW, resH - horizon);
-    // Vloerlijnen die meebewegen met je positie.
-    g.strokeStyle = 'rgba(76, 201, 255, .12)';
-    g.lineWidth = 1;
-    const fx = Math.cos(a);
-    const fy = Math.sin(a);
-    const along = cam.x * fx + cam.y * fy;
-    for (let k = 1; k < 30; k++) {
-      const dist = k * 50 - (along % 50);
-      if (dist < 12) continue;
-      const y = horizon + (EYE * proj) / dist;
-      if (y > resH) continue;
-      g.globalAlpha = Math.max(0, 1 - dist / 900);
-      g.beginPath(); g.moveTo(0, y); g.lineTo(resW, y); g.stroke();
+    {
+      const span = pano.width;
+      const perRad = span / (Math.PI * 2);
+      const ph = horizon * .7;
+      const width = FOV * perRad;
+      for (let start = ((((a - FOV / 2) * perRad) % span) + span) % span, x = 0, rest = width; rest > 0;) {
+        const take = Math.min(rest, span - start);
+        g.drawImage(pano, start, 0, take, pano.height, x, horizon - ph, (take / width) * resW, ph);
+        x += (take / width) * resW;
+        rest -= take;
+        start = 0;
+      }
     }
-    g.globalAlpha = 1;
 
-    // Muren, kolom per kolom.
+    // Muren, kolom per kolom: eerst de burchtmuur errond, dan een muur binnenin als die dichterbij staat.
+    const L = layout();
+    const yAt = (z, perp) => horizon + ((EYE - z) * proj) / perp;
+    const column = (x, hit, ra, dx, dy) => {
+      const perp = hit.d * Math.cos(ra - a);
+      const r = hit.r;
+      const top = yAt(r.wh, perp);
+      const bottom = yAt(0, perp);
+      const tu = Math.floor(((hit.u % 64) + 64) % 64);
+      g.drawImage(r.tex, tu, 0, 1, r.tex.height, x, top, 1, bottom - top);
+      if (r.deco.length) {
+        const face = hit.side ? (dy > 0 ? 'N' : 'S') : (dx > 0 ? 'W' : 'E');
+        for (const d of r.deco) {
+          if (d.face !== face || hit.u < d.u0 || hit.u >= d.u1) continue;
+          const y1 = yAt(d.v1, perp);
+          g.drawImage(d.img, Math.floor(((hit.u - d.u0) / (d.u1 - d.u0)) * d.img.width), 0, 1, d.img.height, x, y1, 1, yAt(d.v0, perp) - y1);
+        }
+      }
+      const fog = Math.min(.85, perp / 1700 + (hit.side ? .16 : 0));
+      g.fillStyle = `rgba(6, 8, 22, ${fog})`;
+      g.fillRect(x, top, 1, bottom - top);
+      return perp;
+    };
     for (let x = 0; x < resW; x++) {
       const col = (x / resW) * 2 - 1;
       const ra = a + Math.atan(col * half);
       const dx = Math.cos(ra);
       const dy = Math.sin(ra);
-      const hit = cast(cam.x, cam.y, dx, dy);
-      const perp = hit.d * Math.cos(ra - a);
+      const ho = castIn(L.outer, cam.x, cam.y, dx, dy);
+      const hi = castIn(L.inner, cam.x, cam.y, dx, dy);
+      let perp = FAR;
+      if (ho.r) perp = column(x, ho, ra, dx, dy);
+      if (hi.r && hi.d < ho.d) perp = column(x, hi, ra, dx, dy);
       zbuf[x] = perp;
-      if (hit.d >= FAR) continue;
-      const top = horizon - ((WALL_H - EYE) * proj) / perp;
-      const bottom = horizon + (EYE * proj) / perp;
-      const tu = Math.floor(((hit.u % 64) + 64) % 64);
-      g.drawImage(tex, tu, 0, 1, 64, x, top, 1, bottom - top);
-      const fog = Math.min(.88, perp / 1500 + (hit.side ? .18 : 0));
-      g.fillStyle = `rgba(3, 6, 14, ${fog})`;
-      g.fillRect(x, top, 1, bottom - top);
     }
-
     // Ridders, kogels en het kristal: van ver naar dichtbij, achter muren verborgen.
     const things = [];
     for (const o of scene.others) things.push({ kind: 'knight', o, x: o.x, y: o.y });

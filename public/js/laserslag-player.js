@@ -92,6 +92,8 @@ const TEAM_NAME = { rood: 'Team Rood', blauw: 'Team Blauw' };
 socket.on('ls-state', s => {
   ls.state = s;
   ls.offset = s.now - Date.now();
+  // De arena groeit mee met de klas: dezelfde maat als op de server.
+  if (s.tier !== undefined && s.tier !== Arena.tier) Arena.setTier(s.tier);
   document.body.dataset.ls = s.active ? '1' : '';
   if (!s.active) {
     ls.joined = false;
@@ -590,8 +592,9 @@ function lsRender(t, dt) {
   const viewW = w / scale;
   const viewH = h / scale;
   const clamp = (v, lo, hi) => (hi < lo ? (lo + hi) / 2 : Math.max(lo, Math.min(hi, v)));
-  const cx = clamp(me.x - viewW / 2, -40, Arena.W + 40 - viewW);
-  const cy = clamp(me.y - viewH / 2, -40, Arena.H + 40 - viewH);
+  const E = SlagDraw.EDGE;
+  const cx = clamp(me.x - viewW / 2, -E.w * .8, Arena.W + E.e * .8 - viewW);
+  const cy = clamp(me.y - viewH / 2, -E.n * .9, Arena.H + E.s * .8 - viewH);
   ls.cam.x += (cx - ls.cam.x) * Math.min(1, dt * 10);
   ls.cam.y += (cy - ls.cam.y) * Math.min(1, dt * 10);
   if (!ls.camReady) { ls.cam.x = cx; ls.cam.y = cy; ls.camReady = true; }

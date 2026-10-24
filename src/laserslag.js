@@ -116,6 +116,8 @@ class Laserslag {
   start() {
     if (this.phase !== 'lobby' || this.players.size === 0) return;
     this.phase = 'play';
+    // De arena groeit mee met het aantal ridders.
+    this.tier = Arena.setTier(Arena.tierFor(this.players.size)).tier;
     this.startedAt = Date.now() + 3000;
     this.endsAt = this.startedAt + this.minutes * 60000;
     this.crystalAt = this.startedAt + 8000;
@@ -393,6 +395,7 @@ class Laserslag {
   base() {
     return {
       active: this.active, run: this.run, phase: this.phase, mode: this.mode, title: this.quiz && this.quiz.title,
+      tier: this.phase === 'lobby' ? Arena.tierFor(this.players.size) : this.tier,
       minutes: this.minutes, now: Date.now(), startedAt: this.startedAt, endsAt: this.endsAt,
     };
   }
