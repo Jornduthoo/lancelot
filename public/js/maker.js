@@ -19,7 +19,16 @@ const makerDoel = DoelKies.multi({
 });
 $('m-doel').appendChild(makerDoel);
 
+// Een quiz heeft één niveau (standaard Schildknaap). Page en Ridder kies je bewust.
+const QUIZ_NIVEAU = {
+  page: 'Niveau Page (met hulp): eenvoudiger en kortere vragen, met een tip of voorbeeld in de vraag waar dat helpt, en foute antwoorden die duidelijk fout zijn.',
+  ridder: 'Niveau Ridder (uitdaging): moeilijkere vragen waarbij de leerling de leerstof toepast in een nieuwe situatie of meerdere denkstappen zet.',
+};
+
 function withDoel(quiz) {
+  // Elke vraag krijgt het gekozen niveau.
+  const niveau = $('m-niveau').value;
+  for (const q of quiz.questions) q.niveau = q.niveau || niveau;
   DoelKies.apply(quiz.questions, makerDoel.codes());
   return quiz;
 }
@@ -30,27 +39,26 @@ function buildPrompt(forGemini = false) {
   const doel = DoelKies.find(codes[0]);
   const topic = $('m-topic').value.trim() || (doel ? doel.cluster : '') || (hasSources ? 'de bijgevoegde lesstof' : '[ONDERWERP]');
   const level = $('m-level').value;
-  const three = $('m-niveaus').checked;
-  // Een quiz heeft hooguit 100 vragen, ook met drie niveaus samen.
-  const count = Math.min(three ? 33 : 40, Math.max(3, Number($('m-count').value) || 10));
+  const niveau = $('m-niveau').value;
+  const count = Math.min(40, Math.max(3, Number($('m-count').value) || 10));
   const time = Math.min(120, Math.max(5, Number($('m-time').value) || 20));
   const extra = $('m-extra').value.trim();
   return `Je bent een ervaren leerkracht in Vlaanderen. Maak een quiz voor leerlingen uit: ${level} (Belgisch onderwijs). Onderwerp: ${topic}.
 ${DoelKies.prompt(codes, 'vragen')}${hasSources ? '\nBaseer alle vragen op de bijgevoegde lesstof. Vraag alleen naar dingen die daarin staan.\n' : ''}${extra ? `\nExtra wensen van de docent:\n${extra}\n` : ''}
 Regels:
-- Maak precies ${count} meerkeuzevragen${three ? ` per niveau (samen ${count * 3})` : ''} in het Nederlands zoals in Vlaanderen.
+- Maak precies ${count} meerkeuzevragen in het Nederlands zoals in Vlaanderen.
 - Elke vraag heeft 4 antwoorden (bij een waar/niet waar-vraag 2), met precies één goed antwoord.
 - Zet het goede antwoord niet steeds op dezelfde plek.
 - De foute antwoorden zijn geloofwaardig, maar duidelijk fout voor wie de stof kent.
 - Houd vragen kort (hooguit 120 tekens) en antwoorden heel kort (hooguit 60 tekens).
 - Pas de moeilijkheid en het taalgebruik aan het niveau ${level} aan.
-${three ? `\n${Niveau.prompt(level, 'vragen')}\nGeef elke vraag het veld "niveau": "page", "schildknaap" of "ridder".\n` : ''}
+${QUIZ_NIVEAU[niveau] ? `- ${QUIZ_NIVEAU[niveau]}\n` : ''}
 Belangrijk: maak GEEN interactieve quiz, app, webpagina of canvas en schrijf geen code. Ik heb enkel de gegevens nodig als tekst.
 Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uitleg ervoor of erna, precies in dit formaat:
 {
   "title": "korte titel van de quiz",
   "questions": [
-    { "question": "de vraag", "answers": ["antwoord A", "antwoord B", "antwoord C", "antwoord D"], "correct": 0, "time": ${time}${three ? ', "niveau": "schildknaap"' : ''}${codes.length > 1 ? ', "doel": "code van het doel"' : ''} }
+    { "question": "de vraag", "answers": ["antwoord A", "antwoord B", "antwoord C", "antwoord D"], "correct": 0, "time": ${time}${codes.length > 1 ? ', "doel": "code van het doel"' : ''} }
   ]
 }
 "correct" is het nummer van het goede antwoord, geteld vanaf 0 (0 = eerste antwoord, 3 = vierde antwoord).`;
@@ -113,7 +121,7 @@ document.addEventListener('paste', e => {
 
 let hasKey = false;
 
-for (const id of ['m-topic', 'm-level', 'm-count', 'm-time', 'm-extra', 'm-attach', 'm-niveaus']) {
+for (const id of ['m-topic', 'm-level', 'm-count', 'm-time', 'm-extra', 'm-attach', 'm-niveau']) {
   $(id).addEventListener('input', updatePrompt);
 }
 
