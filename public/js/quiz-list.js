@@ -238,4 +238,17 @@ const ItemList = (() => {
   return { mount };
 })();
 
-const QuizList = { mount: (el, opts) => ItemList.mount(el, { ...opts, kind: 'quiz' }) };
+// Elke quizlijst kan een quiz verwijderen, in elk spel (een pagina mag een eigen remove meegeven).
+const QuizList = {
+  mount: (el, opts) => ItemList.mount(el, {
+    remove: q => {
+      if (!confirm(`"${q.title}" verwijderen?`)) return;
+      socket.emit('delete', q.file, res => {
+        const err = document.getElementById(opts.errorId || 'load-error');
+        if (err) err.textContent = (res && res.error) || '';
+      });
+    },
+    ...opts,
+    kind: 'quiz',
+  }),
+};
