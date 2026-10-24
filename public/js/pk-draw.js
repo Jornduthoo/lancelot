@@ -16,7 +16,14 @@ const PacDraw = (() => {
     // Vloer met een zacht raster.
     g.fillStyle = '#050911';
     g.fillRect(0, 0, c.width, c.height);
-    g.fillStyle = 'rgba(76, 201, 255, .07)';
+    // Een paarse en blauwe nevel onder de vloer, en een fijn raster in de gangen
+    let seed = W * 31 + H;
+    const rnd = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
+    for (let i = 0; i < 14; i++) Glow.glow(g, rnd() * c.width, rnd() * c.height, tile * (3 + rnd() * 5), ['#3c1a78', '#123a7a', '#5a1050'][i % 3], .5);
+    g.strokeStyle = 'rgba(76, 201, 255, .06)';
+    g.lineWidth = 1;
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (!wall(x, y)) g.strokeRect(x * tile + .5, y * tile + .5, tile - 1, tile - 1);
+    g.fillStyle = 'rgba(127, 220, 255, .14)';
     for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (!wall(x, y)) g.fillRect((x + .5) * tile - 1, (y + .5) * tile - 1, 2, 2);
     // Hangar van de drones.
     let hx0 = W, hx1 = -1, hy0 = H, hy1 = -1;
@@ -31,8 +38,25 @@ const PacDraw = (() => {
       g.setLineDash([]);
     }
     // Muurblokken met een neonrand waar ze aan een gang grenzen.
-    g.fillStyle = '#0c1834';
+    const wg = g.createLinearGradient(0, 0, c.width, c.height);
+    wg.addColorStop(0, '#122452');
+    wg.addColorStop(.5, '#0c1834');
+    wg.addColorStop(1, '#1a1040');
+    g.fillStyle = wg;
     for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (wall(x, y)) g.fillRect(x * tile, y * tile, tile + .5, tile + .5);
+    // Printplaatlijntjes op de muren
+    g.strokeStyle = 'rgba(120, 160, 255, .16)';
+    g.lineWidth = Math.max(1, tile * .04);
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+      if (!wall(x, y) || rnd() < .55) continue;
+      const cx = (x + .5) * tile, cy = (y + .5) * tile;
+      g.beginPath();
+      if (wall(x + 1, y)) { g.moveTo(cx, cy); g.lineTo(cx + tile, cy); }
+      if (wall(x, y + 1)) { g.moveTo(cx, cy); g.lineTo(cx, cy + tile); }
+      g.stroke();
+      g.fillStyle = 'rgba(160, 200, 255, .3)';
+      g.fillRect(cx - 1.5, cy - 1.5, 3, 3);
+    }
     const edges = new Path2D();
     for (let y = 0; y < H; y++) {
       for (let x = 0; x < W; x++) {
@@ -45,15 +69,21 @@ const PacDraw = (() => {
       }
     }
     g.lineCap = 'round';
+    g.strokeStyle = 'rgba(76, 201, 255, .12)';
+    g.lineWidth = Math.max(6, tile * .5);
+    g.stroke(edges);
     g.strokeStyle = 'rgba(76, 201, 255, .35)';
     g.lineWidth = Math.max(3, tile * .22);
-    g.shadowColor = '#4cc9ff';
-    g.shadowBlur = tile * .5;
     g.stroke(edges);
-    g.shadowBlur = 0;
     g.strokeStyle = '#7fdcff';
     g.lineWidth = Math.max(1.5, tile * .07);
     g.stroke(edges);
+    // Lichtende knooppunten op de hoeken
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+      if (!wall(x, y)) continue;
+      const open = !wall(x + 1, y) + !wall(x - 1, y) + !wall(x, y + 1) + !wall(x, y - 1);
+      if (open >= 3 || (open === 2 && rnd() < .15)) Glow.glow(g, (x + .5) * tile, (y + .5) * tile, tile * .55, open >= 3 ? '#ff5fd2' : '#4cc9ff', .8);
+    }
     if (cache.size > 6) cache.clear();
     cache.set(key, c);
     return c;
@@ -67,8 +97,7 @@ const PacDraw = (() => {
     c.width = c.height = Math.ceil(size * 2 + pad * 2);
     const g = c.getContext('2d');
     const m = c.width / 2;
-    g.shadowColor = glow;
-    g.shadowBlur = size * .9;
+    Glow.glow(g, m, m, size * 1.8, glow, .8);
     const grad = g.createLinearGradient(m - size, m - size, m + size, m + size);
     grad.addColorStop(0, colors[0]);
     grad.addColorStop(1, colors[1]);
@@ -80,7 +109,6 @@ const PacDraw = (() => {
     g.lineTo(m - size * .75, m);
     g.closePath();
     g.fill();
-    g.shadowBlur = 0;
     g.fillStyle = 'rgba(255, 255, 255, .75)';
     g.beginPath();
     g.moveTo(m, m - size * .7);
@@ -136,6 +164,13 @@ const PacDraw = (() => {
       ctx.fillStyle = glow;
       ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.fill();
     }
+    if (powered && !(ending && Math.floor(t / 100) % 2)) {
+      for (let i = 0; i < 6; i++) {
+        const a = t / 300 + i * Math.PI / 3, rr = tile * (.55 + Math.sin(t / 120 + i) * .08);
+        Glow.glow(ctx, cx + Math.cos(a) * rr, cy + Math.sin(a) * rr, tile * .18, '#ffe08a', .9);
+      }
+    }
+    Glow.glow(ctx, cx, cy + tile * .32, tile * .6, color, .45, .4);
     // Ring in de eigen kleur.
     ctx.strokeStyle = color;
     ctx.lineWidth = Math.max(2, tile * .08);
@@ -215,13 +250,12 @@ const PacDraw = (() => {
       ctx.beginPath(); ctx.moveTo(rx, ry); ctx.lineTo(cx + side * r * .5, y - r * .4); ctx.stroke();
     }
     // Lijf.
-    ctx.shadowColor = color;
-    ctx.shadowBlur = tile * .45;
+    Glow.glow(ctx, cx, y, r * 2.6, color, .55);
+    Glow.glow(ctx, cx, cy + tile * .38, r * 1.6, color, .35, .35);
     ctx.fillStyle = '#16091a';
     ctx.strokeStyle = color;
     ctx.lineWidth = Math.max(2, tile * .08);
     ctx.beginPath(); ctx.arc(cx, y, r, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-    ctx.shadowBlur = 0;
     if (scared) {
       // Bang: knipperende ogen en een bibberende mond.
       ctx.fillStyle = Math.floor(t / 200) % 2 ? '#fff' : '#b9d4ff';
@@ -250,9 +284,23 @@ const PacDraw = (() => {
     const t = performance.now();
     const now = t;
     const view = { x0: 0, y0: 0, x1: ctx.canvas.width, y1: ctx.canvas.height };
-    ctx.fillStyle = '#03060d';
-    ctx.fillRect(0, 0, view.x1, view.y1);
-    ctx.drawImage(mazeCanvas(s.maze, s.W, s.H, cam.tile, s.mazeKey), cam.ox, cam.oy);
+    Glow.space(ctx, view.x1, view.y1);
+    const img = mazeCanvas(s.maze, s.W, s.H, cam.tile, s.mazeKey);
+    ctx.drawImage(img, cam.ox, cam.oy);
+    // Een lichtgolf die af en toe over het doolhof scant
+    const sweep = ((t / 4500) % 1.6) - .3;
+    if (sweep > -.2 && sweep < 1.2) {
+      const sx = cam.ox + sweep * img.width;
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      const g = ctx.createLinearGradient(sx - cam.tile * 3, 0, sx + cam.tile * 3, 0);
+      g.addColorStop(0, 'rgba(76,201,255,0)');
+      g.addColorStop(.5, 'rgba(76,201,255,.08)');
+      g.addColorStop(1, 'rgba(76,201,255,0)');
+      ctx.fillStyle = g;
+      ctx.fillRect(Math.max(cam.ox, sx - cam.tile * 3), cam.oy, cam.tile * 6, img.height);
+      ctx.restore();
+    }
     crystals(ctx, s, cam, view, t);
     const at = p => ({ x: cam.ox + (p.x + .5) * cam.tile, y: cam.oy + (p.y + .5) * cam.tile });
     for (const d of s.drones) {
@@ -272,6 +320,7 @@ const PacDraw = (() => {
       const p = at(pos(k, s.W, now));
       knight(ctx, p.x, p.y, cam.tile, k, s.roster.get(k.n), t, { names: opts.names, me: true });
     }
+    Glow.vignette(ctx, view.x1, view.y1, .45);
   }
 
   // Een klein overzicht van het hele doolhof (voor de leerlingen).

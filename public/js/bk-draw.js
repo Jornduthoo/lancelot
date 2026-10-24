@@ -26,14 +26,32 @@ const BomberDraw = (() => {
   // ---------- Vakjes ----------
 
   function floorTile(g, x, y, t, odd) {
-    g.fillStyle = odd ? '#141a2c' : '#111727';
+    const grad = g.createLinearGradient(x, y, x + t, y + t);
+    grad.addColorStop(0, odd ? '#1a2238' : '#161d31');
+    grad.addColorStop(1, odd ? '#111727' : '#0e1422');
+    g.fillStyle = grad;
     g.fillRect(x, y, t, t);
-    g.fillStyle = 'rgba(255, 255, 255, .025)';
-    g.fillRect(x + 2, y + 2, t / 2 - 3, t / 2 - 3);
-    g.fillRect(x + t / 2 + 1, y + t / 2 + 1, t / 2 - 3, t / 2 - 3);
-    g.strokeStyle = 'rgba(76, 201, 255, .08)';
+    g.fillStyle = 'rgba(255, 255, 255, .04)';
+    g.fillRect(x + 2, y + 2, t - 4, t * .06);
+    g.fillStyle = 'rgba(0, 0, 0, .3)';
+    g.fillRect(x + 2, y + t * .92, t - 4, t * .06);
+    g.strokeStyle = 'rgba(76, 201, 255, .1)';
     g.lineWidth = 1;
     g.strokeRect(x + .5, y + .5, t - 1, t - 1);
+    // Hier en daar een lichtende rune of een energieader in de vloer
+    const h = Math.abs(Math.sin(x * 12.9898 + y * 78.233) * 43758.5453) % 1;
+    if (h < .07) {
+      Glow.glow(g, x + t / 2, y + t / 2, t * .55, '#4cc9ff', .45);
+      g.strokeStyle = 'rgba(127, 220, 255, .6)';
+      g.lineWidth = Math.max(1, t * .04);
+      g.beginPath(); g.arc(x + t / 2, y + t / 2, t * .22, 0, Math.PI * 2);
+      g.moveTo(x + t / 2, y + t * .2); g.lineTo(x + t / 2, y + t * .8); g.stroke();
+    } else if (h < .12) {
+      Glow.glow(g, x + t / 2, y + t / 2, t * .6, '#ff5fd2', .3);
+      g.strokeStyle = 'rgba(255, 140, 220, .55)';
+      g.lineWidth = Math.max(1, t * .035);
+      g.beginPath(); g.moveTo(x + t * .1, y + t * .7); g.lineTo(x + t * .4, y + t * .5); g.lineTo(x + t * .6, y + t * .6); g.lineTo(x + t * .9, y + t * .3); g.stroke();
+    }
   }
 
   // Een stenen toren met een gloeiend kristal: de pilaren.
@@ -50,14 +68,17 @@ const BomberDraw = (() => {
       g.lineWidth = Math.max(1, t * .03);
       for (const yy of [.4, .65]) { g.beginPath(); g.moveTo(t * .06, t * yy); g.lineTo(t * .94, t * yy); g.stroke(); }
       g.beginPath(); g.moveTo(t * .5, t * .4); g.lineTo(t * .5, t * .65); g.moveTo(t * .3, t * .65); g.lineTo(t * .3, t * .96); g.moveTo(t * .7, t * .65); g.lineTo(t * .7, t * .96); g.stroke();
-      g.shadowColor = '#4cc9ff';
-      g.shadowBlur = t * .3;
-      g.fillStyle = '#7fdcff';
+      Glow.glow(g, t * .5, t * .3, t * .45, '#4cc9ff', .9);
+      g.fillStyle = '#bff0ff';
       g.beginPath();
-      g.moveTo(t * .5, t * .18); g.lineTo(t * .62, t * .3); g.lineTo(t * .5, t * .42); g.lineTo(t * .38, t * .3);
+      g.moveTo(t * .5, t * .14); g.lineTo(t * .64, t * .3); g.lineTo(t * .5, t * .46); g.lineTo(t * .36, t * .3);
       g.closePath();
       g.fill();
-      g.shadowBlur = 0;
+      g.fillStyle = '#4cc9ff';
+      g.beginPath();
+      g.moveTo(t * .5, t * .14); g.lineTo(t * .64, t * .3); g.lineTo(t * .5, t * .46);
+      g.closePath();
+      g.fill();
     });
   }
 
@@ -74,8 +95,10 @@ const BomberDraw = (() => {
       g.lineWidth = Math.max(1, t * .03);
       g.strokeRect(t * .05, t * .3, t * .9, t * .3);
       g.strokeRect(t * .05, t * .6, t * .9, t * .35);
-      g.fillStyle = 'rgba(255, 77, 210, .35)';
-      g.fillRect(0, t * .97, t, t * .03);
+      g.fillStyle = 'rgba(255, 77, 210, .25)';
+      g.fillRect(0, t * .9, t, t * .1);
+      g.fillStyle = '#ff7ae0';
+      g.fillRect(0, t * .96, t, t * .04);
     });
   }
 
@@ -103,13 +126,11 @@ const BomberDraw = (() => {
         g.arc(t * x, t * y, Math.max(1, t * .035), 0, Math.PI * 2);
         g.fill();
       }
-      g.shadowColor = '#4cc9ff';
-      g.shadowBlur = t * .25;
-      g.fillStyle = '#4cc9ff';
+      Glow.glow(g, t / 2, t / 2, t * .3, '#4cc9ff', .9);
+      g.fillStyle = '#bff0ff';
       g.beginPath();
-      g.arc(t / 2, t / 2, t * .09, 0, Math.PI * 2);
+      g.arc(t / 2, t / 2, t * .08, 0, Math.PI * 2);
       g.fill();
-      g.shadowBlur = 0;
     });
   }
 
@@ -262,6 +283,7 @@ const BomberDraw = (() => {
     const asking = k.flags & 1, safe = k.flags & 4, shield = k.flags & 8;
     ctx.save();
     if (safe && !asking && Math.floor(time * 8) % 2) ctx.globalAlpha = .45;
+    Glow.glow(ctx, cx, cy + t * .3, t * .6, color, .45, .45);
     // Schaduw en een gekleurde ring.
     ctx.fillStyle = 'rgba(0, 0, 0, .35)';
     ctx.beginPath();
@@ -341,9 +363,19 @@ const BomberDraw = (() => {
     const now = performance.now();
     const time = now / 1000;
     const t = cam.tile;
-    ctx.fillStyle = '#05070f';
-    ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-    ctx.drawImage(layer(sc, t), cam.ox, cam.oy);
+    Glow.space(ctx, ctx.canvas.width, ctx.canvas.height);
+    const lay = layer(sc, t);
+    Glow.glow(ctx, cam.ox + lay.width / 2, cam.oy + lay.height / 2, Math.max(lay.width, lay.height) * .75, '#4cc9ff', .12);
+    ctx.drawImage(lay, cam.ox, cam.oy);
+    // Fakkels op de buitenmuur
+    for (let i = 2; i < sc.W - 2; i += 4) {
+      for (const yy of [0, sc.H - 1]) {
+        const x = cam.ox + (i + .5) * t, y = cam.oy + (yy + .45) * t;
+        const f = 1 + Math.sin(time * 12 + i * 3 + yy) * .12;
+        Glow.glow(ctx, x, y, t * 1.3 * f, '#ff8a2a', .45);
+        Glow.glow(ctx, x, y - t * .05, t * .32 * f, '#fff1b8', .9);
+      }
+    }
     const at = (x, y) => ({ x: cam.ox + (x + .5) * t, y: cam.oy + (y + .5) * t });
     // Upgrades die op de grond liggen.
     for (let i = 0; i < sc.pickups.length; i++) {
@@ -381,6 +413,12 @@ const BomberDraw = (() => {
       const c = at(f.x, f.y);
       const r = t * (1.1 * k + .3);
       ctx.drawImage(glow('#ffffff', r), c.x - r, c.y - r, r * 2, r * 2);
+      // Schokgolf
+      ctx.strokeStyle = `rgba(255, 210, 120, ${k})`;
+      ctx.lineWidth = t * .12 * k + 1;
+      ctx.beginPath();
+      ctx.arc(c.x, c.y, t * (2.4 - k * 2), 0, Math.PI * 2);
+      ctx.stroke();
     }
     // Splinters en vonken.
     for (const p of sc.parts) {
@@ -418,6 +456,7 @@ const BomberDraw = (() => {
       ctx.fillText('👻', s.x, s.y - ((time * 20) % 10) * t * .03);
       ctx.globalAlpha = 1;
     }
+    Glow.vignette(ctx, ctx.canvas.width, ctx.canvas.height, .45);
   }
 
   // Klein overzicht van de hele arena voor op de gsm.

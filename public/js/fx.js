@@ -263,3 +263,115 @@ addEventListener('DOMContentLoaded', () => {
     list.classList.add('flash');
   });
 });
+// --- Gloed voor canvasspellen ---
+// Een zachte lichtvlek, één keer vooraf getekend per kleur. Veel lichter dan shadowBlur, zodat ook een
+// Chromebook vlot blijft als er tientallen lichtjes tegelijk zijn. Ook een donkere rand (vignet) en bliksem.
+const Glow = (() => {
+  const glowCache = new Map();
+  function rgba(color, a) {
+    if (color[0] === '#') {
+      const n = parseInt(color.length === 4 ? color.slice(1).replace(/./g, c => c + c) : color.slice(1, 7), 16);
+      return `rgba(${n >> 16},${(n >> 8) & 255},${n & 255},${a})`;
+    }
+    const m = color.match(/[\d.]+/g) || [255, 255, 255];
+    return `rgba(${m[0]},${m[1]},${m[2]},${a})`;
+  }
+  function glowSprite(color) {
+    let c = glowCache.get(color);
+    if (c) return c;
+    c = document.createElement('canvas');
+    c.width = c.height = 64;
+    const g = c.getContext('2d');
+    const grad = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+    grad.addColorStop(0, rgba(color, 1));
+    grad.addColorStop(.25, rgba(color, .55));
+    grad.addColorStop(.6, rgba(color, .15));
+    grad.addColorStop(1, rgba(color, 0));
+    g.fillStyle = grad;
+    g.fillRect(0, 0, 64, 64);
+    glowCache.set(color, c);
+    return c;
+  }
+  // Teken een lichtvlek met straal r. sy < 1 maakt hem plat (een lichtplas op de grond).
+  function glow(ctx, x, y, r, color, alpha = 1, sy = 1) {
+    if (r <= 0 || alpha <= 0) return;
+    const op = ctx.globalCompositeOperation, ga = ctx.globalAlpha;
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.globalAlpha = ga * Math.min(1, alpha);
+    ctx.drawImage(glowSprite(color), x - r, y - r * sy, r * 2, r * 2 * sy);
+    ctx.globalCompositeOperation = op;
+    ctx.globalAlpha = ga;
+  }
+
+  // Een donkere rand rond het beeld, één keer per schermgrootte getekend.
+  let vigCache = null;
+  function vignette(ctx, w, h, strength = .55) {
+    if (!vigCache || vigCache.width !== w || vigCache.height !== h || vigCache.k !== strength) {
+      const c = document.createElement('canvas');
+      c.width = w; c.height = h; c.k = strength;
+      const g = c.getContext('2d');
+      const grad = g.createRadialGradient(w / 2, h / 2, Math.min(w, h) * .35, w / 2, h / 2, Math.hypot(w, h) * .55);
+      grad.addColorStop(0, 'rgba(2,3,10,0)');
+      grad.addColorStop(1, `rgba(2,3,10,${strength})`);
+      g.fillStyle = grad;
+      g.fillRect(0, 0, w, h);
+      vigCache = c;
+    }
+    ctx.drawImage(vigCache, 0, 0);
+  }
+
+  // Een bliksemschicht van a naar b: een gekarteld lijntje met een lichtende kern.
+  function lightning(ctx, x0, y0, x1, y1, color = '#d9a8ff', width = 3, jag = .18) {
+    const len = Math.hypot(x1 - x0, y1 - y0);
+    const n = Math.max(4, Math.round(len / 28));
+    const nx = -(y1 - y0) / (len || 1), ny = (x1 - x0) / (len || 1);
+    const pts = [[x0, y0]];
+    for (let i = 1; i < n; i++) {
+      const k = i / n, off = (Math.random() - .5) * len * jag * Math.sin(k * Math.PI);
+      pts.push([x0 + (x1 - x0) * k + nx * off, y0 + (y1 - y0) * k + ny * off]);
+    }
+    pts.push([x1, y1]);
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.lineCap = ctx.lineJoin = 'round';
+    for (const [lw, col, a] of [[width * 4, color, .25], [width * 1.6, color, .7], [width * .6, '#ffffff', 1]]) {
+      ctx.globalAlpha = a;
+      ctx.strokeStyle = col;
+      ctx.lineWidth = lw;
+      ctx.beginPath();
+      pts.forEach((p, i) => ctx[i ? 'lineTo' : 'moveTo'](p[0], p[1]));
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+  // De ruimte als achtergrond: een nevel met sterren, één keer getekend (1024 px, naadloos) en daarna herhaald.
+  // ox/oy laten hem meeschuiven met de camera (trager dan de wereld geeft diepte).
+  let spaceTile = null;
+  function space(ctx, w, h, ox = 0, oy = 0) {
+    if (!spaceTile) {
+      const c = document.createElement('canvas');
+      c.width = c.height = 1024;
+      const g = c.getContext('2d');
+      g.fillStyle = '#04030c';
+      g.fillRect(0, 0, 1024, 1024);
+      let seed = 99;
+      const rnd = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
+      for (let i = 0; i < 26; i++) {
+        const x = rnd() * 1024, y = rnd() * 1024, r = 120 + rnd() * 260;
+        const col = ['#5b2a9e', '#1d4fa8', '#a02a7a', '#14627a'][i % 4];
+        for (const dx of [-1024, 0, 1024]) for (const dy of [-1024, 0, 1024]) glow(g, x + dx, y + dy, r, col, .18);
+      }
+      for (let i = 0; i < 420; i++) {
+        const x = rnd() * 1024, y = rnd() * 1024, b = rnd();
+        g.fillStyle = `rgba(${200 + b * 55},${210 + b * 45},255,${.35 + b * .6})`;
+        g.fillRect(x, y, b > .9 ? 2.2 : 1.3, b > .9 ? 2.2 : 1.3);
+        if (b > .96) glow(g, x + 1, y + 1, 9, '#bfe4ff', .6);
+      }
+      spaceTile = c;
+    }
+    const px = ((ox % 1024) + 1024) % 1024, py = ((oy % 1024) + 1024) % 1024;
+    for (let x = px - 1024; x < w; x += 1024) for (let y = py - 1024; y < h; y += 1024) ctx.drawImage(spaceTile, x, y);
+  }
+
+  return { rgba, glowSprite, glow, vignette, lightning, space };
+})();

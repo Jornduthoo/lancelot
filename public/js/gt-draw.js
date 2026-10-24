@@ -50,6 +50,98 @@ const GtDraw = (() => {
         }
       }
     }
+    // Elke zaal krijgt een eigen sfeer: lavaspleten, techplaten met lichtende voegen of een crypte met mos en botten.
+    const isFloor = (x, y) => x >= 0 && y >= 0 && x < d.W && y < d.H && g[y][x] === 0;
+    (d.rooms || []).forEach(([rx, ry, rw, rh], ri) => {
+      const theme = ri === 0 ? 'tech' : ['lava', 'tech', 'crypte'][Math.floor(rnd() * 3)];
+      const X0 = rx * T, Y0 = ry * T, W0 = rw * T, H0 = rh * T;
+      const cx = X0 + W0 / 2, cy = Y0 + H0 / 2;
+      if (theme === 'lava') {
+        AK.glow(ctx, cx, cy, Math.max(W0, H0) * .7, '#ff5a1f', .18);
+        for (let n = 0; n < 3 + rw * rh / 12; n++) {
+          let x = X0 + rnd() * W0, y = Y0 + rnd() * H0, a = rnd() * Math.PI * 2;
+          const pts = [[x, y]];
+          for (let i = 0; i < 5 + rnd() * 6; i++) {
+            a += (rnd() - .5) * 1.4;
+            x += Math.cos(a) * (10 + rnd() * 14);
+            y += Math.sin(a) * (10 + rnd() * 14);
+            if (!isFloor(Math.floor(x / T), Math.floor(y / T))) break;
+            pts.push([x, y]);
+          }
+          if (pts.length < 2) continue;
+          for (const [lw, col] of [[9, 'rgba(255,90,20,.18)'], [4, 'rgba(255,120,30,.7)'], [1.5, 'rgba(255,230,140,.95)']]) {
+            ctx.strokeStyle = col;
+            ctx.lineWidth = lw;
+            ctx.lineCap = ctx.lineJoin = 'round';
+            ctx.beginPath();
+            pts.forEach((p, i) => ctx[i ? 'lineTo' : 'moveTo'](p[0], p[1]));
+            ctx.stroke();
+          }
+        }
+      } else if (theme === 'tech') {
+        AK.glow(ctx, cx, cy, Math.max(W0, H0) * .6, '#1e7fd6', .14);
+        ctx.strokeStyle = 'rgba(76,201,255,.22)';
+        ctx.lineWidth = 1.5;
+        for (let x = rx; x <= rx + rw; x++) { ctx.beginPath(); ctx.moveTo(x * T, Y0); ctx.lineTo(x * T, Y0 + H0); ctx.stroke(); }
+        for (let y = ry; y <= ry + rh; y++) { ctx.beginPath(); ctx.moveTo(X0, y * T); ctx.lineTo(X0 + W0, y * T); ctx.stroke(); }
+        // Roosters met licht eronder
+        for (let n = 0; n < Math.max(1, rw * rh / 25); n++) {
+          const gx = rx + 1 + Math.floor(rnd() * Math.max(1, rw - 2)), gy = ry + 1 + Math.floor(rnd() * Math.max(1, rh - 2));
+          const X = gx * T, Y = gy * T;
+          AK.glow(ctx, X + T / 2, Y + T / 2, T * .9, '#4cc9ff', .45);
+          ctx.fillStyle = 'rgba(5,10,20,.8)';
+          for (let i = 0; i < 5; i++) ctx.fillRect(X + 6, Y + 7 + i * 8, T - 12, 3);
+          ctx.strokeStyle = 'rgba(140,200,255,.45)';
+          ctx.strokeRect(X + 4, Y + 4, T - 8, T - 8);
+        }
+      } else {
+        AK.glow(ctx, cx, cy, Math.max(W0, H0) * .6, '#3fae6a', .1);
+        for (let n = 0; n < rw * rh / 2; n++) {
+          ctx.fillStyle = rnd() < .6 ? 'rgba(60,140,80,.16)' : 'rgba(30,80,50,.22)';
+          ctx.beginPath();
+          ctx.ellipse(X0 + rnd() * W0, Y0 + rnd() * H0, 6 + rnd() * 18, 4 + rnd() * 10, rnd() * 3, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        // Botten en schedels
+        for (let n = 0; n < 2 + rw * rh / 18; n++) {
+          const x = X0 + 10 + rnd() * (W0 - 20), y = Y0 + 10 + rnd() * (H0 - 20), a = rnd() * Math.PI;
+          ctx.save();
+          ctx.translate(x, y);
+          ctx.rotate(a);
+          ctx.fillStyle = 'rgba(220,212,190,.55)';
+          ctx.fillRect(-7, -1.5, 14, 3);
+          for (const sx of [-7, 7]) { ctx.beginPath(); ctx.arc(sx, -2, 2.2, 0, Math.PI * 2); ctx.arc(sx, 2, 2.2, 0, Math.PI * 2); ctx.fill(); }
+          if (rnd() < .35) {
+            ctx.beginPath(); ctx.arc(0, -10, 5, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = 'rgba(10,10,10,.7)';
+            ctx.fillRect(-3, -11, 2, 2); ctx.fillRect(1, -11, 2, 2);
+          }
+          ctx.restore();
+        }
+      }
+      // Een runencirkel in het midden van de grotere zalen
+      if (rw * rh >= 30 && rnd() < .7) {
+        const col = theme === 'lava' ? '#ff8c3a' : theme === 'tech' ? '#4cc9ff' : '#7dffb0';
+        const rr = Math.min(W0, H0) * .32;
+        AK.glow(ctx, cx, cy, rr * 1.6, col, .25);
+        ctx.strokeStyle = AK.rgba(col, .5);
+        ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.arc(cx, cy, rr, 0, Math.PI * 2); ctx.stroke();
+        ctx.beginPath(); ctx.arc(cx, cy, rr * .78, 0, Math.PI * 2); ctx.stroke();
+        // Een ruit met tekens op de windrichtingen
+        ctx.beginPath();
+        for (let i = 0; i <= 4; i++) { const a = i * Math.PI / 2; ctx[i ? 'lineTo' : 'moveTo'](cx + Math.cos(a) * rr * .78, cy + Math.sin(a) * rr * .78); }
+        ctx.stroke();
+        ctx.beginPath(); ctx.arc(cx, cy, rr * .3, 0, Math.PI * 2); ctx.stroke();
+        for (let i = 0; i < 8; i++) {
+          const a = i * Math.PI / 4 + Math.PI / 8;
+          ctx.beginPath();
+          ctx.moveTo(cx + Math.cos(a) * rr * .84, cy + Math.sin(a) * rr * .84);
+          ctx.lineTo(cx + Math.cos(a) * rr * .94, cy + Math.sin(a) * rr * .94);
+          ctx.stroke();
+        }
+      }
+    });
     // Zachte schaduw van de muren op de vloer.
     for (let y = 1; y < d.H; y++) {
       for (let x = 0; x < d.W; x++) {
@@ -100,8 +192,37 @@ const GtDraw = (() => {
           fg.addColorStop(1, `rgb(${v - 30},${v - 26},${v - 10})`);
           ctx.fillStyle = fg;
           ctx.fillRect(X, Y + T * .55, T, T * .45);
-          ctx.fillStyle = 'rgba(76,201,255,.55)';
+          ctx.fillStyle = 'rgba(76,201,255,.25)';
+          ctx.fillRect(X, Y + T - 5, T, 5);
+          ctx.fillStyle = 'rgba(120,220,255,.9)';
           ctx.fillRect(X, Y + T - 2, T, 2);
+          // Hier en daar een vaandel of een lichtend kristal in de muur
+          const deco = rnd();
+          if (deco < .09 && !d.torches.some(([tx, ty]) => tx === x && ty === y)) {
+            const col = ['#b3122e', '#1d4fa8', '#6a1b9a'][Math.floor(rnd() * 3)];
+            ctx.fillStyle = '#ffc94a';
+            ctx.fillRect(X + 8, Y + T * .5, T - 16, 3);
+            ctx.fillStyle = col;
+            ctx.beginPath();
+            ctx.moveTo(X + 11, Y + T * .5 + 3); ctx.lineTo(X + T - 11, Y + T * .5 + 3); ctx.lineTo(X + T - 11, Y + T + 14); ctx.lineTo(X + T / 2, Y + T + 8); ctx.lineTo(X + 11, Y + T + 14);
+            ctx.closePath();
+            ctx.fill();
+            ctx.strokeStyle = '#ffc94a';
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+            ctx.fillStyle = '#ffc94a';
+            ctx.beginPath();
+            ctx.moveTo(X + T / 2, Y + T * .62); ctx.lineTo(X + T / 2 + 6, Y + T * .78); ctx.lineTo(X + T / 2, Y + T * .95); ctx.lineTo(X + T / 2 - 6, Y + T * .78);
+            ctx.closePath();
+            ctx.fill();
+          } else if (deco < .14) {
+            AK.glow(ctx, X + T / 2, Y + T * .72, 26, '#c77dff', .8);
+            ctx.fillStyle = '#e3c2ff';
+            ctx.beginPath();
+            ctx.moveTo(X + T / 2, Y + T * .58); ctx.lineTo(X + T / 2 + 5, Y + T * .74); ctx.lineTo(X + T / 2, Y + T * .88); ctx.lineTo(X + T / 2 - 5, Y + T * .74);
+            ctx.closePath();
+            ctx.fill();
+          }
         }
         ctx.fillStyle = 'rgba(76,201,255,.18)';
         if (floorAt(x + 1, y)) ctx.fillRect(X + T - 2, Y, 2, T);
@@ -229,21 +350,26 @@ const GtDraw = (() => {
           const s = this.shots.get(e[1]);
           this.shots.delete(e[1]);
           const color = SHOT_COLORS[s ? s.kind : 'vijand'];
-          fx.burst(e[2], e[3], { n: e[4] ? 10 : 5, color, speed: 160, life: .35, size: 2.5 });
+          fx.sparks(e[2], e[3], { n: e[4] ? 9 : 4, color, speed: 300, life: .25 });
+          if (e[4]) fx.ring(e[2], e[3], 22, color, .25);
           break;
         }
         case 'slag': this.swings.set(e[1], { t, a: e[2] }); break;
         case 'boem': {
           const color = e[3] === 'kolos' ? '#ff6bd6' : e[3] === 'vonk' ? '#ffb703' : '#ff4d6d';
           fx.burst(e[1], e[2], { n: e[3] === 'kolos' ? 40 : 20, color, speed: 260, life: .7, size: 4 });
-          fx.burst(e[1], e[2], { n: 8, color: '#ffffff', speed: 120, life: .3, size: 3 });
-          fx.ring(e[1], e[2], e[3] === 'kolos' ? 70 : 40, color);
+          fx.sparks(e[1], e[2], { n: 12, color: '#ffffff', speed: 380, life: .3 });
+          fx.smoke(e[1], e[2], { n: e[3] === 'kolos' ? 10 : 4, size: e[3] === 'kolos' ? 26 : 14 });
+          fx.shock(e[1], e[2], e[3] === 'kolos' ? 80 : 44, color, .45);
           if (e[3] === 'kolos') this.shake = Math.max(this.shake, 10);
           break;
         }
         case 'poort':
           fx.burst(e[2], e[3], { n: 60, color: '#ff4d6d', speed: 340, life: 1, size: 5 });
-          fx.ring(e[2], e[3], 110, '#ffc94a', .7);
+          fx.smoke(e[2], e[3], { n: 12, size: 28, life: 1.3, speed: 100 });
+          fx.shock(e[2], e[3], 120, '#ffc94a', .7);
+          fx.sparks(e[2], e[3], { n: 26, color: '#ffe08a', speed: 620, life: .5, width: 2.5 });
+          fx.pop(e[2], e[3] - 40, 'POORT KAPOT!', '#ffc94a', 26, 1.4);
           this.shake = Math.max(this.shake, 14);
           break;
         case 'nova': fx.ring(e[1], e[2], 250, '#d59cff', .6); fx.ring(e[1], e[2], 180, '#ffffff', .4); fx.burst(e[1], e[2], { n: 70, color: '#c77dff', speed: 520, life: .7, size: 4 }); this.shake = Math.max(this.shake, 12); break;
@@ -256,7 +382,7 @@ const GtDraw = (() => {
           }
           break;
         }
-        case 'au': this.hurtAt.set(e[1], t); { const k = this.knights.get(e[1], t); if (k) fx.burst(k[0], k[1], { n: 6, color: '#ff4d6d', speed: 120, life: .3 }); } if (e[1] === this.meN) { this.flash = 1; this.shake = Math.max(this.shake, 5); } break;
+        case 'au': this.hurtAt.set(e[1], t); { const k = this.knights.get(e[1], t); if (k) fx.sparks(k[0], k[1], { n: 7, color: '#ff8fa3', speed: 280 }); } if (e[1] === this.meN) { this.flash = 1; this.shake = Math.max(this.shake, 5); } break;
         case 'val': { const k = this.knights.get(e[1], t); if (k) { fx.burst(k[0], k[1], { n: 30, color: '#9fb3c8', speed: 200, life: .8 }); fx.ring(k[0], k[1], 50, '#ff4d6d'); } break; }
         case 'terug': { const k = this.knights.get(e[1], t); if (k) { fx.ring(k[0], k[1], 60, '#ffc94a', .7); fx.burst(k[0], k[1], { n: 30, color: '#ffc94a', speed: 160, life: .9, up: 60 }); } break; }
         case 'toren': fx.ring(e[1], e[2], 50, '#4cc9ff'); break;
@@ -318,9 +444,9 @@ const GtDraw = (() => {
       ctx.moveTo(0, -r * .8); ctx.lineTo(r * .9, -r * .9 + sw);
       ctx.moveTo(0, r * .8); ctx.lineTo(r * .9, r * .9 - sw);
       ctx.stroke();
-      ctx.shadowColor = '#ff2040';
-      ctx.shadowBlur = 10;
-      ctx.fillStyle = '#ff2b4a';
+      AK.glow(ctx, r * .6, -r * .21, r * .6, '#ff2040', .9);
+      AK.glow(ctx, r * .6, r * .21, r * .6, '#ff2040', .9);
+      ctx.fillStyle = '#ff6b80';
       ctx.fillRect(r * .5, -r * .3, r * .22, r * .18);
       ctx.fillRect(r * .5, r * .12, r * .22, r * .18);
     } else if (kind === 'vonk') {
@@ -333,8 +459,7 @@ const GtDraw = (() => {
       ctx.stroke();
       ctx.fillStyle = '#3a2a10';
       for (let i = 0; i < 3; i++) { ctx.rotate(Math.PI * 2 / 3); ctx.fillRect(0, -2, r * 1.1, 4); }
-      ctx.shadowColor = '#ffb703';
-      ctx.shadowBlur = 14;
+      AK.glow(ctx, 0, 0, r * 1.8, '#ffb703', .8);
       ctx.fillStyle = '#ffd166';
       ctx.beginPath();
       ctx.arc(0, 0, r * .5, 0, Math.PI * 2);
@@ -349,8 +474,7 @@ const GtDraw = (() => {
       ctx.stroke();
       ctx.fillStyle = '#596079';
       ctx.fillRect(r * .2, -r * .25, r * 1.3, r * .5);
-      ctx.shadowColor = '#ff2040';
-      ctx.shadowBlur = 12;
+      AK.glow(ctx, -r * .1, 0, r * 1.1, '#ff2040', .8);
       ctx.fillStyle = '#ff4d6d';
       ctx.beginPath();
       ctx.arc(-r * .1, 0, r * .35, 0, Math.PI * 2);
@@ -372,8 +496,7 @@ const GtDraw = (() => {
       ctx.fillStyle = '#5a456b';
       ctx.beginPath(); ctx.arc(r * .2, -r * 1, r * .45, 0, Math.PI * 2); ctx.fill();
       ctx.beginPath(); ctx.arc(r * .2, r * 1, r * .45, 0, Math.PI * 2); ctx.fill();
-      ctx.shadowColor = '#ff6bd6';
-      ctx.shadowBlur = 20 * pulse;
+      AK.glow(ctx, 0, 0, r * 2.2 * pulse, '#ff6bd6', .6);
       ctx.fillStyle = `rgba(255,140,230,${pulse})`;
       ctx.beginPath();
       ctx.arc(0, 0, r * .38, 0, Math.PI * 2);
@@ -397,6 +520,7 @@ const GtDraw = (() => {
       ctx.stroke();
       return;
     }
+    AK.glow(ctx, x, y, POORT.r * 3, '#ff2d55', .55 + Math.sin(t * 4) * .15);
     ctx.save();
     ctx.translate(x, y);
     const r = POORT.r;
@@ -436,6 +560,13 @@ const GtDraw = (() => {
   }
 
   function exitPortal(ctx, x, y, t, k) {
+    AK.glow(ctx, x, y, T * 3.2, '#ffc94a', .35);
+    // Lichtdeeltjes die naar het midden worden gezogen
+    for (let i = 0; i < 14; i++) {
+      const age = (t * .6 + i / 14) % 1;
+      const a = i * 2.4 + t * .8, d = T * 2.2 * (1 - age);
+      AK.glow(ctx, x + Math.cos(a) * d, y + Math.sin(a) * d, 6 + age * 4, i % 2 ? '#ffe9a8' : '#8fe3ff', age);
+    }
     ctx.save();
     ctx.translate(x, y);
     const r = T * 1.15;
@@ -473,8 +604,7 @@ const GtDraw = (() => {
     ctx.ellipse(0, 12 - bob, 11, 4, 0, 0, Math.PI * 2);
     ctx.fill();
     if (it.kind === 'cel') {
-      ctx.shadowColor = '#4ade80';
-      ctx.shadowBlur = 14;
+      AK.glow(ctx, 0, 0, 30, '#4ade80', .7);
       ctx.fillStyle = '#123a22';
       AK.roundRect(ctx, -8, -12, 16, 22, 4);
       ctx.fill();
@@ -489,13 +619,11 @@ const GtDraw = (() => {
       ctx.fillStyle = '#ffc94a';
       ctx.fillRect(-13, -2, 26, 3);
       ctx.fillRect(-2, -9, 4, 18);
-      ctx.shadowColor = '#ffc94a';
-      ctx.shadowBlur = 10;
+      AK.glow(ctx, 0, -2, 22, '#ffc94a', .7);
       ctx.fillStyle = '#fff3b0';
       ctx.fillRect(-2, -3, 4, 5);
     } else {
-      ctx.shadowColor = '#ffc94a';
-      ctx.shadowBlur = 10;
+      AK.glow(ctx, 0, 0, 24, '#ffc94a', .7);
       ctx.fillStyle = '#ffc94a';
       for (const [dx, dy] of [[-5, 2], [5, 2], [0, -4]]) {
         ctx.beginPath();
@@ -504,6 +632,9 @@ const GtDraw = (() => {
       }
       ctx.fillStyle = '#fff3b0';
       ctx.fillRect(-1, -6, 2, 2);
+      // Twinkeling
+      const tw = Math.max(0, Math.sin(t * 4 + it.y));
+      if (tw > .8) { ctx.fillStyle = `rgba(255,255,255,${(tw - .8) * 5})`; ctx.fillRect(-1, -12, 2, 10); ctx.fillRect(-5, -8, 10, 2); }
     }
     ctx.restore();
   }
@@ -521,8 +652,7 @@ const GtDraw = (() => {
     ctx.rotate(t * 4);
     ctx.fillStyle = '#9fb3c8';
     ctx.fillRect(0, -4, 22, 8);
-    ctx.shadowColor = '#4cc9ff';
-    ctx.shadowBlur = 12;
+    AK.glow(ctx, 0, 0, 22, '#4cc9ff', .8);
     ctx.fillStyle = '#4cc9ff';
     ctx.beginPath();
     ctx.arc(0, 0, 6, 0, Math.PI * 2);
@@ -623,14 +753,22 @@ const GtDraw = (() => {
       const fx = (x + .5) * T, fy = y * T + T * .5;
       if (!vis(fx, fy)) continue;
       const fl = Math.sin(t * 13 + x * 3) * 2;
-      ctx.fillStyle = 'rgba(255,140,40,.9)';
+      ctx.fillStyle = 'rgba(255,90,20,.7)';
+      ctx.beginPath();
+      ctx.ellipse(fx, fy - 4, 7, 13 + fl, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = 'rgba(255,170,60,.9)';
       ctx.beginPath();
       ctx.ellipse(fx, fy - 2, 5, 9 + fl, 0, 0, Math.PI * 2);
       ctx.fill();
-      ctx.fillStyle = 'rgba(255,240,180,.9)';
+      ctx.fillStyle = 'rgba(255,245,200,.95)';
       ctx.beginPath();
       ctx.ellipse(fx, fy, 2.5, 5, 0, 0, Math.PI * 2);
       ctx.fill();
+      for (let k = 0; k < 3; k++) {
+        const age = (t * .9 + k / 3 + x * .17) % 1;
+        AK.glow(ctx, fx + Math.sin(age * 8 + k + x) * 6, fy - 8 - age * 34, 4 * (1 - age) + 1, '#ffb347', 1 - age);
+      }
     }
     ctx.restore();
     // Het donker van de kerker, met licht rond ridders, fakkels, schoten, poorten en de uitgang.
@@ -669,7 +807,13 @@ const GtDraw = (() => {
       for (const sh of s.local.values()) light(sh.x, sh.y, 70, .6);
       ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.drawImage(darkCanvas, 0, 0, w, h);
+      // Warm licht van de fakkels, rood van de poorten en goud van de uitgang, bovenop het donker.
+      ctx.setTransform(z, 0, 0, z, ox, oy);
+      for (const [x, y] of d.torches) { const fx = (x + .5) * T, fy = y * T + T * .6; if (vis(fx, fy, 140)) AK.glow(ctx, fx, fy, 130 + Math.sin(t * 9 + x) * 8, '#ff8a2a', .16); }
+      if (vis(d.exit.x, d.exit.y, 200)) AK.glow(ctx, d.exit.x, d.exit.y, 200, '#ffc94a', .14);
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
     }
+    AK.vignette(ctx, w, h, opts.names === false ? .35 : .5);
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     if (s.flash > 0) {
       const g = ctx.createRadialGradient(w / 2, h / 2, Math.min(w, h) * .3, w / 2, h / 2, Math.max(w, h) * .7);

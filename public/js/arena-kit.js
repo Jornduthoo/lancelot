@@ -137,6 +137,9 @@ const AK = (() => {
     clear() { this.snaps.clear(); }
   }
 
+  // ---------- Gloed (uit fx.js) ----------
+  const { rgba, glowSprite, glow, vignette, lightning } = Glow;
+
   // ---------- Vonken ----------
   class Particles {
     constructor() { this.list = []; }
@@ -147,18 +150,44 @@ const AK = (() => {
         this.list.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - up, life: life * (.6 + Math.random() * .6), max: life, size: size * (.6 + Math.random() * .8), color, drag, glow });
       }
     }
+    // Snelle lichtstreepjes die van een inslag wegspatten.
+    sparks(x, y, { n = 10, color = '#ffe08a', speed = 420, life = .35, width = 2 } = {}) {
+      for (let i = 0; i < n && this.list.length < 900; i++) {
+        const a = Math.random() * Math.PI * 2;
+        const v = speed * (.4 + Math.random() * .6);
+        this.list.push({ spark: true, x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, life: life * (.5 + Math.random() * .7), max: life, width, color, drag: 4 });
+      }
+    }
+    // Rookwolkjes die opzwellen en vervagen.
+    smoke(x, y, { n = 6, color = 'rgba(40,36,60,.55)', size = 16, life = .9, speed = 60 } = {}) {
+      for (let i = 0; i < n && this.list.length < 900; i++) {
+        const a = Math.random() * Math.PI * 2;
+        const v = speed * Math.random();
+        this.list.push({ smoke: true, x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 20, life: life * (.6 + Math.random() * .6), max: life, size: size * (.6 + Math.random() * .8), color, drag: 2 });
+      }
+    }
     ring(x, y, r, color, life = .45) {
       this.list.push({ ring: true, x, y, r, color, life, max: life });
     }
-    text(x, y, text, color = '#fff') {
-      this.list.push({ text, x, y, vy: -60, vx: 0, life: .9, max: .9, color, drag: 1 });
+    // Een schokgolf: een lichtende ring met een flits in het midden.
+    shock(x, y, r, color, life = .5) {
+      this.list.push({ flash: true, x, y, r: r * .7, color, life: life * .5, max: life * .5 });
+      this.list.push({ ring: true, x, y, r, color, life, max: life });
+      this.list.push({ ring: true, x, y, r: r * .6, color: '#ffffff', life: life * .6, max: life * .6 });
+    }
+    text(x, y, text, color = '#fff', size = 18) {
+      this.list.push({ text, x, y, vy: -60, vx: 0, life: .9, max: .9, color, drag: 1, size });
+    }
+    // Grote tekst die even opveert en blijft hangen (KO!, SUPER!).
+    pop(x, y, text, color = '#ffc94a', size = 34, life = 1.2) {
+      this.list.push({ text, pop: true, x, y, vy: -18, vx: 0, life, max: life, color, drag: 1, size });
     }
     update(dt) {
       const keep = [];
       for (const p of this.list) {
         p.life -= dt;
         if (p.life <= 0) continue;
-        if (!p.ring) {
+        if (!p.ring && !p.flash) {
           const f = Math.max(0, 1 - p.drag * dt);
           p.vx *= f;
           p.vy *= f;
@@ -174,25 +203,58 @@ const AK = (() => {
       ctx.save();
       for (const p of this.list) {
         const k = p.life / p.max;
+        if (p.smoke) {
+          ctx.globalCompositeOperation = 'source-over';
+          ctx.globalAlpha = Math.min(1, k * 1.4) * .8;
+          ctx.fillStyle = p.color;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size * (1.8 - k), 0, Math.PI * 2);
+          ctx.fill();
+          continue;
+        }
         if (p.text) {
           ctx.globalCompositeOperation = 'source-over';
           ctx.globalAlpha = Math.min(1, k * 2);
-          ctx.font = '900 18px Orbitron, sans-serif';
+          let size = p.size || 18;
+          if (p.pop) { const age = (p.max - p.life) / p.max; size *= age < .15 ? .4 + age / .15 * .9 : age < .25 ? 1.3 - (age - .15) * 3 : 1; }
+          ctx.font = `900 ${Math.round(size)}px Orbitron, sans-serif`;
           ctx.textAlign = 'center';
-          ctx.lineWidth = 4;
-          ctx.strokeStyle = 'rgba(0,0,0,.7)';
+          ctx.textBaseline = 'alphabetic';
+          ctx.lineJoin = 'round';
+          ctx.lineWidth = Math.max(4, size * .22);
+          ctx.strokeStyle = 'rgba(0,0,0,.75)';
           ctx.strokeText(p.text, p.x, p.y);
           ctx.fillStyle = p.color;
           ctx.fillText(p.text, p.x, p.y);
+          if (p.pop) {
+            ctx.globalAlpha *= .5;
+            ctx.fillStyle = '#ffffff';
+            ctx.fillText(p.text, p.x, p.y - size * .06);
+          }
           continue;
         }
-        ctx.globalCompositeOperation = p.glow ? 'lighter' : 'source-over';
+        ctx.globalCompositeOperation = p.glow === false ? 'source-over' : 'lighter';
         ctx.globalAlpha = Math.min(1, k * 1.5);
+        if (p.flash) {
+          glow(ctx, p.x, p.y, p.r * (1.4 - k * .4), p.color, k);
+          glow(ctx, p.x, p.y, p.r * .5, '#ffffff', k);
+          continue;
+        }
         if (p.ring) {
           ctx.strokeStyle = p.color;
-          ctx.lineWidth = 6 * k + 1;
+          ctx.lineWidth = 7 * k + 1;
           ctx.beginPath();
           ctx.arc(p.x, p.y, p.r * (1.15 - k * .9), 0, Math.PI * 2);
+          ctx.stroke();
+          continue;
+        }
+        if (p.spark) {
+          ctx.strokeStyle = p.color;
+          ctx.lineWidth = p.width;
+          ctx.lineCap = 'round';
+          ctx.beginPath();
+          ctx.moveTo(p.x, p.y);
+          ctx.lineTo(p.x - p.vx * .045, p.y - p.vy * .045);
           ctx.stroke();
           continue;
         }
@@ -200,13 +262,50 @@ const AK = (() => {
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.size * (.4 + k * .6), 0, Math.PI * 2);
         ctx.fill();
+        if (p.size > 2.5 && p.glow !== false) glow(ctx, p.x, p.y, p.size * 2.6, p.color, k * .5);
       }
       ctx.restore();
     }
   }
 
+  // ---------- Sporen ----------
+  // Een lichtspoor achter wie beweegt. Per id de laatste posities; draw() tekent een vervagend lint.
+  class Trails {
+    constructor(len = 10) { this.len = len; this.map = new Map(); }
+    add(id, x, y, t = performance.now()) {
+      let l = this.map.get(id);
+      if (!l) { l = []; this.map.set(id, l); }
+      const last = l[l.length - 1];
+      if (last && Math.hypot(x - last[0], y - last[1]) > 120) l.length = 0; // geteleporteerd
+      if (!last || Math.hypot(x - last[0], y - last[1]) > 4) { l.push([x, y, t]); if (l.length > this.len) l.shift(); }
+      l.seen = t;
+    }
+    draw(ctx, id, color, width = 10, t = performance.now()) {
+      const l = this.map.get(id);
+      if (!l || l.length < 2) return;
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      ctx.lineCap = 'round';
+      ctx.strokeStyle = color;
+      for (let i = 1; i < l.length; i++) {
+        const age = (t - l[i][2]) / 350;
+        if (age > 1) continue;
+        const k = (i / l.length) * (1 - age);
+        ctx.globalAlpha = k * .35;
+        ctx.lineWidth = width * k;
+        ctx.beginPath();
+        ctx.moveTo(l[i - 1][0], l[i - 1][1]);
+        ctx.lineTo(l[i][0], l[i][1]);
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
+    prune(t = performance.now()) { for (const [id, l] of this.map) if (t - l.seen > 1000) this.map.delete(id); }
+  }
+
   // ---------- Ridders tekenen ----------
-  // Van bovenaf: schaduw, cape, pantser, helm met lichtend vizier en het wapen van de klasse.
+  // Van bovenaf: lichtring op de grond, schaduw, wapperende cape, schouderstukken, borstpantser met een
+  // lichtende kern, helm met kam en lichtend vizier, en het wapen van de klasse.
   function shade(hex, f) {
     const n = parseInt(hex.slice(1), 16);
     const c = v => Math.max(0, Math.min(255, Math.round(v)));
@@ -223,89 +322,147 @@ const AK = (() => {
     ctx.save();
     ctx.translate(x, y);
     if (o.alpha !== undefined) ctx.globalAlpha = o.alpha;
+    // Lichtring op de grond in de kleur van de ridder
+    if (o.ring !== false) {
+      glow(ctx, 0, r * .25, r * 2.1, color, .32, .62);
+      ctx.strokeStyle = rgba(color, .55);
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.ellipse(0, r * .25, r * 1.35, r * .85, 0, t * 2, t * 2 + 4.6);
+      ctx.stroke();
+    }
     // Schaduw
     ctx.fillStyle = 'rgba(0,0,0,.45)';
     ctx.beginPath();
     ctx.ellipse(3, r * .55, r * 1.05, r * .55, 0, 0, Math.PI * 2);
     ctx.fill();
     // Aura of schild
-    if (o.glow) {
-      const g = ctx.createRadialGradient(0, 0, r * .5, 0, 0, r * 2.2);
-      g.addColorStop(0, o.glow);
-      g.addColorStop(1, 'rgba(0,0,0,0)');
-      ctx.fillStyle = g;
-      ctx.beginPath();
-      ctx.arc(0, 0, r * 2.2, 0, Math.PI * 2);
-      ctx.fill();
-    }
+    if (o.glow) glow(ctx, 0, 0, r * 2.4, o.glow, 1);
     ctx.rotate(a);
-    // Cape die achter je aan wappert
+    // Cape die achter je aan wappert, met een lichtende zoom
     const wave = Math.sin(t * 9) * (o.moving ? 3 : 1);
-    ctx.fillStyle = shade(color, -.35);
+    const wave2 = Math.sin(t * 9 + 1.7) * (o.moving ? 3 : 1);
+    const cg = ctx.createLinearGradient(0, 0, -r * 2, 0);
+    cg.addColorStop(0, shade(color, -.15));
+    cg.addColorStop(1, shade(color, -.6));
+    ctx.fillStyle = cg;
     ctx.beginPath();
-    ctx.moveTo(-r * .2, -r * .8);
-    ctx.quadraticCurveTo(-r * 1.6, -r * .9 + wave, -r * 1.9, wave * .6);
-    ctx.quadraticCurveTo(-r * 1.6, r * .9 + wave, -r * .2, r * .8);
+    ctx.moveTo(-r * .1, -r * .85);
+    ctx.quadraticCurveTo(-r * 1.3, -r * 1.05 + wave, -r * 2.05, -r * .35 + wave2);
+    ctx.lineTo(-r * 1.8, wave * .5);
+    ctx.lineTo(-r * 2.05, r * .35 + wave2);
+    ctx.quadraticCurveTo(-r * 1.3, r * 1.05 + wave, -r * .1, r * .85);
     ctx.closePath();
     ctx.fill();
-    ctx.strokeStyle = color;
-    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = 'rgba(0,0,0,.55)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.strokeStyle = shade(color, .45);
+    ctx.lineWidth = 1.6;
+    ctx.beginPath();
+    ctx.moveTo(-r * 2.05, -r * .35 + wave2);
+    ctx.lineTo(-r * 1.8, wave * .5);
+    ctx.lineTo(-r * 2.05, r * .35 + wave2);
     ctx.stroke();
     // Wapen
     weapon(ctx, kind, r, color, o);
     // Schouders en pantser
     const body = ctx.createLinearGradient(-r, -r, r, r);
     if (kind === 'mech') {
-      body.addColorStop(0, '#9fb3c8'); body.addColorStop(.5, '#4b5d73'); body.addColorStop(1, '#1d2633');
+      body.addColorStop(0, '#b9cbe0'); body.addColorStop(.5, '#4b5d73'); body.addColorStop(1, '#1d2633');
       ctx.fillStyle = body;
       roundRect(ctx, -r * .95, -r * 1.05, r * 1.7, r * 2.1, r * .35);
       ctx.fill();
+      ctx.strokeStyle = 'rgba(0,0,0,.6)';
+      ctx.lineWidth = 2;
+      ctx.stroke();
       ctx.fillStyle = color;
       ctx.fillRect(-r * .55, -r * 1.12, r * .9, r * .22);
       ctx.fillRect(-r * .55, r * .9, r * .9, r * .22);
+      glow(ctx, -r * .1, -r * 1.01, r * .6, color, .5);
+      glow(ctx, -r * .1, r * 1.01, r * .6, color, .5);
     } else {
-      body.addColorStop(0, '#e9f1ff'); body.addColorStop(.45, '#8a9bb5'); body.addColorStop(1, '#2a3446');
+      body.addColorStop(0, '#f4f8ff'); body.addColorStop(.45, '#8a9bb5'); body.addColorStop(1, '#232c3c');
       ctx.fillStyle = body;
       ctx.beginPath();
-      ctx.ellipse(0, 0, r * .78, r * 1.02, 0, 0, Math.PI * 2);
+      ctx.ellipse(0, 0, r * .8, r * 1.02, 0, 0, Math.PI * 2);
       ctx.fill();
-      ctx.strokeStyle = shade(color, .1);
-      ctx.lineWidth = 2;
+      ctx.strokeStyle = 'rgba(0,0,0,.6)';
+      ctx.lineWidth = 2.5;
       ctx.stroke();
+      // Schouderstukken
+      for (const sgn of [-1, 1]) {
+        const pg = ctx.createRadialGradient(-r * .1, sgn * r * .72 - r * .1, 1, 0, sgn * r * .72, r * .45);
+        pg.addColorStop(0, '#ffffff');
+        pg.addColorStop(.5, '#9fb0c8');
+        pg.addColorStop(1, '#2f3a4e');
+        ctx.fillStyle = pg;
+        ctx.beginPath();
+        ctx.ellipse(-r * .05, sgn * r * .74, r * .42, r * .34, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 1.6;
+        ctx.stroke();
+      }
+    }
+    // Lichtende kern op de borst
+    if (kind !== 'mech') {
+      const pulse = .75 + Math.sin(t * 5) * .25;
+      glow(ctx, -r * .42, 0, r * .55, color, .9 * pulse);
+      ctx.fillStyle = shade(color, .6);
+      ctx.beginPath();
+      ctx.moveTo(-r * .25, 0); ctx.lineTo(-r * .42, -r * .14); ctx.lineTo(-r * .59, 0); ctx.lineTo(-r * .42, r * .14);
+      ctx.closePath();
+      ctx.fill();
     }
     // Helm met vizier
     const hg = ctx.createRadialGradient(-r * .15, -r * .2, 1, 0, 0, r * .7);
     hg.addColorStop(0, '#ffffff');
-    hg.addColorStop(.35, kind === 'mage' ? shade(color, .2) : '#b8c6da');
-    hg.addColorStop(1, kind === 'mage' ? shade(color, -.5) : '#3a4659');
+    hg.addColorStop(.35, kind === 'mage' ? shade(color, .2) : '#c4d1e3');
+    hg.addColorStop(1, kind === 'mage' ? shade(color, -.5) : '#323d50');
     ctx.fillStyle = hg;
     ctx.beginPath();
     ctx.arc(0, 0, r * .62, 0, Math.PI * 2);
     ctx.fill();
+    ctx.strokeStyle = 'rgba(0,0,0,.65)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
     if (kind === 'mage') {
       // Kap met punt naar achter
+      ctx.fillStyle = hg;
       ctx.beginPath();
       ctx.moveTo(-r * .4, -r * .45);
       ctx.lineTo(-r * 1.1, 0);
       ctx.lineTo(-r * .4, r * .45);
       ctx.fill();
-    }
-    if (kind === 'paladijn' || kind === 'ridder') {
-      // Pluim
-      ctx.strokeStyle = color;
-      ctx.lineWidth = 3;
+    } else {
+      // Gouden kam over de helm
+      ctx.strokeStyle = '#ffc94a';
+      ctx.lineWidth = 2.2;
       ctx.beginPath();
-      ctx.moveTo(r * .2, 0);
-      ctx.quadraticCurveTo(-r * .6, wave * .4, -r * 1.05, wave * .5);
+      ctx.moveTo(r * .45, 0);
+      ctx.lineTo(-r * .55, 0);
       ctx.stroke();
     }
+    if (kind === 'paladijn' || kind === 'ridder' || kind === 'royale') {
+      // Pluim
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 3.2;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(-r * .2, 0);
+      ctx.quadraticCurveTo(-r * .8, wave * .4, -r * 1.25, wave * .7);
+      ctx.stroke();
+      ctx.lineCap = 'butt';
+    }
     // Lichtend vizier
-    ctx.shadowColor = o.visor || color;
-    ctx.shadowBlur = 10;
-    ctx.fillStyle = o.visor || shade(color, .55);
+    const vc = o.visor || shade(color, .55);
+    glow(ctx, r * .4, 0, r * .7, o.visor || color, .9);
+    ctx.fillStyle = vc;
     roundRect(ctx, r * .28, -r * .36, r * .2, r * .72, r * .1);
     ctx.fill();
-    ctx.shadowBlur = 0;
+    ctx.fillStyle = 'rgba(255,255,255,.85)';
+    ctx.fillRect(r * .34, -r * .26, r * .07, r * .52);
     ctx.restore();
     if (o.hp !== undefined && o.hp < 100) bar(ctx, x, y - r - 12, r * 2.2, o.hp / 100, o.hpColor);
     if (o.name) label(ctx, o.name, x, y - r - (o.hp !== undefined && o.hp < 100 ? 20 : 12), o.me ? '#ffc94a' : '#e8f1ff');
@@ -316,18 +473,9 @@ const AK = (() => {
     ctx.save();
     if (kind === 'paladijn' || kind === 'ridder') {
       // Schild links, energiezwaard rechts
-      ctx.fillStyle = '#c9d6e8';
-      ctx.strokeStyle = color;
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.ellipse(r * .25, -r * .95, r * .5, r * .32, 0, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.stroke();
+      shieldPlate(ctx, r * .25, -r * .95, r * .5, r * .32, color);
       ctx.rotate(swing ? (swing - .5) * 2.4 : .35);
-      ctx.shadowColor = o.blade || '#7fdcff';
-      ctx.shadowBlur = 12;
-      ctx.fillStyle = o.blade || '#bff0ff';
-      ctx.fillRect(r * .2, r * .62, r * 1.5, r * .18);
+      energyBlade(ctx, r * .2, r * .71, r * 1.5, r * .18, o.blade || '#7fdcff');
       ctx.fillStyle = '#ffc94a';
       ctx.fillRect(r * .05, r * .5, r * .2, r * .42);
     } else if (kind === 'mage') {
@@ -338,11 +486,14 @@ const AK = (() => {
       ctx.lineTo(r * 1.35, r * .8);
       ctx.stroke();
       const pulse = .8 + Math.sin((o.t || 0) * 6) * .2;
-      ctx.shadowColor = color;
-      ctx.shadowBlur = 16;
-      ctx.fillStyle = shade(color, .4);
+      glow(ctx, r * 1.45, r * .8, r * 1.1 * pulse, color, .9);
+      ctx.fillStyle = shade(color, .5);
       ctx.beginPath();
       ctx.arc(r * 1.45, r * .8, r * .26 * pulse + 1, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#fff';
+      ctx.beginPath();
+      ctx.arc(r * 1.45, r * .8, r * .1 * pulse + .5, 0, Math.PI * 2);
       ctx.fill();
     } else if (kind === 'ranger') {
       ctx.strokeStyle = '#d9b26a';
@@ -350,8 +501,6 @@ const AK = (() => {
       ctx.beginPath();
       ctx.arc(r * .55, 0, r * 1.05, -1.1, 1.1);
       ctx.stroke();
-      ctx.shadowColor = color;
-      ctx.shadowBlur = 8;
       ctx.strokeStyle = shade(color, .4);
       ctx.lineWidth = 1.2;
       ctx.beginPath();
@@ -359,32 +508,62 @@ const AK = (() => {
       ctx.lineTo(r * (o.swing ? .1 : .4), 0);
       ctx.lineTo(r * 1.0, r * .93);
       ctx.stroke();
+      glow(ctx, r * 1.05, 0, r * .7, color, .45);
     } else if (kind === 'mech') {
       ctx.fillStyle = '#2b3746';
       ctx.fillRect(r * .3, r * .35, r * 1.4, r * .42);
       ctx.fillRect(r * .3, -r * .77, r * 1.4, r * .42);
-      ctx.shadowColor = color;
-      ctx.shadowBlur = 10;
       ctx.fillStyle = color;
       ctx.fillRect(r * 1.6, r * .42, r * .16, r * .28);
       ctx.fillRect(r * 1.6, -r * .7, r * .16, r * .28);
+      glow(ctx, r * 1.7, r * .56, r * .55, color, .8);
+      glow(ctx, r * 1.7, -r * .56, r * .55, color, .8);
     } else if (kind === 'royale') {
       // Laserlans
-      ctx.shadowColor = color;
-      ctx.shadowBlur = 10;
       ctx.fillStyle = '#d6e2f2';
       ctx.fillRect(r * .2, r * .45, r * 1.5, r * .22);
+      ctx.fillStyle = 'rgba(0,0,0,.35)';
+      ctx.fillRect(r * .2, r * .6, r * 1.5, r * .07);
       ctx.fillStyle = shade(color, .4);
       ctx.fillRect(r * 1.55, r * .4, r * .35, r * .32);
-      ctx.fillStyle = '#c9d6e8';
-      ctx.strokeStyle = color;
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.ellipse(r * .25, -r * .95, r * .45, r * .3, 0, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.stroke();
+      glow(ctx, r * 1.85, r * .56, r * .7, color, .8);
+      shieldPlate(ctx, r * .25, -r * .95, r * .45, r * .3, color);
     }
     ctx.restore();
+  }
+
+  // Een schild van boven: metaal met een rand in de kleur van de ridder en een embleem.
+  function shieldPlate(ctx, x, y, rx, ry, color) {
+    const g = ctx.createLinearGradient(x - rx, y - ry, x + rx, y + ry);
+    g.addColorStop(0, '#f2f6ff');
+    g.addColorStop(1, '#6f7f98');
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(0,0,0,.6)';
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 1.8;
+    ctx.beginPath();
+    ctx.ellipse(x, y, rx * .8, ry * .72, 0, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(x, y, ry * .3, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // Een zwaard van licht: witte kern, gekleurde gloed.
+  function energyBlade(ctx, x, y, len, w, color) {
+    glow(ctx, x + len * .55, y, len * .75, color, .55, .35);
+    ctx.fillStyle = color;
+    roundRect(ctx, x, y - w * .75, len, w * 1.5, w * .7);
+    ctx.fill();
+    ctx.fillStyle = '#ffffff';
+    roundRect(ctx, x, y - w * .3, len * .96, w * .6, w * .3);
+    ctx.fill();
   }
 
   function roundRect(ctx, x, y, w, h, r) {
@@ -399,18 +578,23 @@ const AK = (() => {
 
   function bar(ctx, cx, y, w, k, color) {
     k = Math.max(0, Math.min(1, k));
-    ctx.fillStyle = 'rgba(0,0,0,.65)';
-    ctx.fillRect(cx - w / 2 - 1, y - 1, w + 2, 6);
-    ctx.fillStyle = color || (k > .5 ? '#4ade80' : k > .25 ? '#ffc94a' : '#ff4d6d');
+    ctx.fillStyle = 'rgba(0,0,0,.7)';
+    roundRect(ctx, cx - w / 2 - 1.5, y - 1.5, w + 3, 7, 3);
+    ctx.fill();
+    const c = color || (k > .5 ? '#4ade80' : k > .25 ? '#ffc94a' : '#ff4d6d');
+    ctx.fillStyle = c;
     ctx.fillRect(cx - w / 2, y, w * k, 4);
+    ctx.fillStyle = 'rgba(255,255,255,.45)';
+    ctx.fillRect(cx - w / 2, y, w * k, 1.5);
   }
 
   function label(ctx, text, x, y, color = '#e8f1ff', size = 12) {
     ctx.font = `800 ${size}px "Exo 2", sans-serif`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'alphabetic';
-    ctx.lineWidth = 3;
-    ctx.strokeStyle = 'rgba(3,6,13,.85)';
+    ctx.lineJoin = 'round';
+    ctx.lineWidth = 3.5;
+    ctx.strokeStyle = 'rgba(3,6,13,.9)';
     ctx.strokeText(text, x, y);
     ctx.fillStyle = color;
     ctx.fillText(text, x, y);
@@ -420,24 +604,28 @@ const AK = (() => {
   function bolt(ctx, x, y, vx, vy, color, r = 6, len = .05) {
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
-    ctx.strokeStyle = color;
     ctx.lineCap = 'round';
-    ctx.lineWidth = r * 1.4;
-    ctx.globalAlpha = .45;
+    const tx = x - vx * len * 1.6, ty = y - vy * len * 1.6;
+    const g = ctx.createLinearGradient(tx, ty, x, y);
+    g.addColorStop(0, rgba(color, 0));
+    g.addColorStop(1, rgba(color, .75));
+    ctx.strokeStyle = g;
+    ctx.lineWidth = r * 1.5;
     ctx.beginPath();
-    ctx.moveTo(x - vx * len, y - vy * len);
+    ctx.moveTo(tx, ty);
+    ctx.lineTo(x, y);
+    ctx.stroke();
+    ctx.strokeStyle = 'rgba(255,255,255,.8)';
+    ctx.lineWidth = r * .5;
+    ctx.beginPath();
+    ctx.moveTo(x - vx * len * .7, y - vy * len * .7);
     ctx.lineTo(x, y);
     ctx.stroke();
     // Gloed zonder shadowBlur: dat is te zwaar voor een Chromebook als er veel schoten vliegen.
-    ctx.globalAlpha = .35;
-    ctx.fillStyle = color;
-    ctx.beginPath();
-    ctx.arc(x, y, r * 1.6, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.globalAlpha = 1;
+    glow(ctx, x, y, r * 3.4, color, .9);
     ctx.fillStyle = '#fff';
     ctx.beginPath();
-    ctx.arc(x, y, r * .6, 0, Math.PI * 2);
+    ctx.arc(x, y, r * .65, 0, Math.PI * 2);
     ctx.fill();
     ctx.restore();
   }
@@ -578,5 +766,5 @@ const AK = (() => {
     return { w, h, dpr };
   }
 
-  return { keyVector, isMoveKey, stick, holdButton, Interp, Particles, knight, shade, roundRect, bar, label, bolt, quiz, esc, clock, fit };
+  return { keyVector, isMoveKey, stick, holdButton, Interp, Particles, Trails, knight, shade, rgba, glow, glowSprite, vignette, lightning, shieldPlate, energyBlade, roundRect, bar, label, bolt, quiz, esc, clock, fit };
 })();

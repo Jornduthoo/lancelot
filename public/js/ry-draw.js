@@ -4,6 +4,20 @@ const RyDraw = (() => {
   const { R } = RyWorld;
 
   // ---------- De arena vooraf tekenen ----------
+  // Vuurschalen: bij de hoeken van het burchtplein en aan de uiteinden van de ruïnes. Alleen voor het beeld.
+  function lights(ar) {
+    const rnd = RyWorld.rng(ar.seed + 11);
+    const out = [[-185, -185], [185, -185], [-185, 185], [185, 185]].map(([x, y]) => ({ x, y }));
+    for (const w of ar.walls.slice(6)) {
+      if (rnd() < .45 && out.length < 16) {
+        const horiz = w.w > w.h;
+        const end = rnd() < .5;
+        out.push(horiz ? { x: end ? w.x - 22 : w.x + w.w + 22, y: w.y + w.h / 2 } : { x: w.x + w.w / 2, y: end ? w.y - 22 : w.y + w.h + 22 });
+      }
+    }
+    return out.filter(l => Math.hypot(l.x, l.y) < ar.size - 40);
+  }
+
   function bake(ar) {
     const S = ar.size + 80;
     const q = Math.min(1, 3000 / (S * 2));
@@ -20,87 +34,187 @@ const RyDraw = (() => {
     ctx.arc(0, 0, ar.size, 0, Math.PI * 2);
     ctx.clip();
     const bg = ctx.createRadialGradient(0, 0, 50, 0, 0, ar.size);
-    bg.addColorStop(0, '#1b2b2a');
-    bg.addColorStop(1, '#0d1719');
+    bg.addColorStop(0, '#1e3530');
+    bg.addColorStop(.7, '#12221f');
+    bg.addColorStop(1, '#0a1314');
     ctx.fillStyle = bg;
     ctx.fillRect(-S, -S, S * 2, S * 2);
     for (let i = 0; i < ar.size * 1.2; i++) {
       const a = rnd() * Math.PI * 2, d = Math.sqrt(rnd()) * ar.size;
-      ctx.fillStyle = rnd() < .5 ? 'rgba(60,110,80,.12)' : 'rgba(0,0,0,.14)';
+      const v = rnd();
+      ctx.fillStyle = v < .4 ? 'rgba(70,130,90,.13)' : v < .55 ? 'rgba(40,90,110,.12)' : 'rgba(0,0,0,.16)';
       ctx.beginPath();
-      ctx.ellipse(Math.cos(a) * d, Math.sin(a) * d, 10 + rnd() * 40, 6 + rnd() * 20, rnd() * 3, 0, Math.PI * 2);
+      ctx.ellipse(Math.cos(a) * d, Math.sin(a) * d, 10 + rnd() * 44, 6 + rnd() * 22, rnd() * 3, 0, Math.PI * 2);
       ctx.fill();
     }
-    // Grassprieten
-    ctx.strokeStyle = 'rgba(110,180,130,.16)';
+    // Grassprieten en hier en daar lichtende bloemetjes
     ctx.lineWidth = 1.5;
-    for (let i = 0; i < ar.size * 3; i++) {
+    for (let i = 0; i < ar.size * 3.5; i++) {
       const a = rnd() * Math.PI * 2, d = Math.sqrt(rnd()) * ar.size;
       const x = Math.cos(a) * d, y = Math.sin(a) * d;
+      ctx.strokeStyle = rnd() < .5 ? 'rgba(120,200,140,.18)' : 'rgba(60,120,90,.25)';
       ctx.beginPath();
       ctx.moveTo(x, y);
-      ctx.lineTo(x + (rnd() - .5) * 6, y - 5 - rnd() * 6);
+      ctx.lineTo(x + (rnd() - .5) * 6, y - 5 - rnd() * 7);
       ctx.stroke();
+    }
+    for (let i = 0; i < ar.size * .12; i++) {
+      const a = rnd() * Math.PI * 2, d = Math.sqrt(rnd()) * ar.size;
+      AK.glow(ctx, Math.cos(a) * d, Math.sin(a) * d, 7, rnd() < .5 ? '#7fffd4' : '#c77dff', .5);
+    }
+    // Oude techplaten in de grond: zeshoeken met cyaan voegen rond het plein
+    ctx.lineWidth = 2;
+    const hex = (x, y, r) => { ctx.beginPath(); for (let i = 0; i < 6; i++) { const a = i * Math.PI / 3; ctx[i ? 'lineTo' : 'moveTo'](x + Math.cos(a) * r, y + Math.sin(a) * r); } ctx.closePath(); };
+    for (let gx = -8; gx <= 8; gx++) {
+      for (let gy = -8; gy <= 8; gy++) {
+        const x = gx * 63, y = gy * 72 + (gx & 1) * 36;
+        const d = Math.hypot(x, y);
+        if (d < 210 || d > 420 || rnd() < .35) continue;
+        const fade = 1 - (d - 210) / 210;
+        hex(x, y, 34);
+        ctx.fillStyle = `rgba(30,45,60,${.55 * fade})`;
+        ctx.fill();
+        ctx.strokeStyle = `rgba(76,201,255,${.28 * fade})`;
+        ctx.stroke();
+      }
     }
     // Paden: vier stenen wegen naar de burcht
     for (let k = 0; k < 4; k++) {
       const a0 = (k / 4) * Math.PI * 2 + .4;
       for (let d = 190; d < ar.size - 40; d += 34) {
         const a = a0 + Math.sin(d / 180) * .12;
-        const x = Math.cos(a) * d, y = Math.sin(a) * d;
-        const v = 52 + Math.floor(rnd() * 16);
-        ctx.fillStyle = `rgb(${v},${v + 4},${v + 10})`;
+        const x = Math.cos(a) * d + (rnd() - .5) * 10, y = Math.sin(a) * d + (rnd() - .5) * 10;
+        const v = 58 + Math.floor(rnd() * 18);
+        const rx = 16 + rnd() * 6, ry = 11 + rnd() * 4;
+        ctx.fillStyle = 'rgba(0,0,0,.4)';
         ctx.beginPath();
-        ctx.ellipse(x + (rnd() - .5) * 10, y + (rnd() - .5) * 10, 16 + rnd() * 6, 11 + rnd() * 4, a, 0, Math.PI * 2);
+        ctx.ellipse(x + 2, y + 3, rx, ry, a, 0, Math.PI * 2);
         ctx.fill();
-        ctx.strokeStyle = 'rgba(0,0,0,.35)';
-        ctx.lineWidth = 2;
-        ctx.stroke();
+        ctx.fillStyle = `rgb(${v},${v + 4},${v + 12})`;
+        ctx.beginPath();
+        ctx.ellipse(x, y, rx, ry, a, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = 'rgba(255,255,255,.08)';
+        ctx.beginPath();
+        ctx.ellipse(x - 3, y - 3, rx * .6, ry * .5, a, 0, Math.PI * 2);
+        ctx.fill();
       }
     }
-    // Runencirkels
-    ctx.strokeStyle = 'rgba(76,201,255,.18)';
-    ctx.lineWidth = 3;
-    for (const r of [ar.size * .35, ar.size * .7]) {
+    // Runencirkels met tekens
+    for (const [r, col] of [[ar.size * .35, '76,201,255'], [ar.size * .7, '199,125,255']]) {
+      ctx.strokeStyle = `rgba(${col},.16)`;
+      ctx.lineWidth = 10;
+      ctx.beginPath();
+      ctx.arc(0, 0, r, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.strokeStyle = `rgba(${col},.35)`;
+      ctx.lineWidth = 2;
       ctx.setLineDash([24, 18]);
       ctx.beginPath();
       ctx.arc(0, 0, r, 0, Math.PI * 2);
       ctx.stroke();
+      ctx.setLineDash([]);
+      const n = Math.round(r / 40);
+      ctx.strokeStyle = `rgba(${col},.45)`;
+      ctx.lineWidth = 2;
+      for (let i = 0; i < n; i++) {
+        const a = (i / n) * Math.PI * 2;
+        ctx.save();
+        ctx.translate(Math.cos(a) * (r + 16), Math.sin(a) * (r + 16));
+        ctx.rotate(a + Math.PI / 2);
+        ctx.beginPath();
+        const g = Math.floor(rnd() * 4);
+        if (g === 0) { ctx.moveTo(-5, -5); ctx.lineTo(0, 5); ctx.lineTo(5, -5); }
+        else if (g === 1) { ctx.moveTo(0, -6); ctx.lineTo(0, 6); ctx.moveTo(-5, -2); ctx.lineTo(5, 2); }
+        else if (g === 2) { ctx.arc(0, 0, 4, 0, Math.PI * 1.5); }
+        else { ctx.moveTo(-5, 5); ctx.lineTo(-5, -5); ctx.lineTo(5, 0); ctx.lineTo(-5, 5); }
+        ctx.stroke();
+        ctx.restore();
+      }
     }
-    ctx.setLineDash([]);
-    // Burchtplein
-    ctx.fillStyle = 'rgba(70,74,90,.55)';
-    ctx.fillRect(-150, -150, 300, 300);
-    ctx.strokeStyle = 'rgba(255,201,74,.25)';
+    // Burchtplein: stenen tegels met een gouden embleem
+    for (let x = -150; x < 150; x += 50) {
+      for (let y = -150; y < 150; y += 50) {
+        const v = 66 + Math.floor(rnd() * 14);
+        ctx.fillStyle = `rgb(${v - 8},${v - 4},${v + 10})`;
+        ctx.fillRect(x + 1.5, y + 1.5, 47, 47);
+        ctx.fillStyle = 'rgba(255,255,255,.07)';
+        ctx.fillRect(x + 1.5, y + 1.5, 47, 4);
+        ctx.fillStyle = 'rgba(0,0,0,.25)';
+        ctx.fillRect(x + 1.5, y + 44.5, 47, 4);
+      }
+    }
+    ctx.strokeStyle = 'rgba(255,201,74,.35)';
     ctx.lineWidth = 2;
-    for (let i = -150; i <= 150; i += 50) {
-      ctx.beginPath(); ctx.moveTo(i, -150); ctx.lineTo(i, 150); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(-150, i); ctx.lineTo(150, i); ctx.stroke();
+    ctx.strokeRect(-150, -150, 300, 300);
+    AK.glow(ctx, 0, 0, 170, '#ffc94a', .22);
+    ctx.strokeStyle = 'rgba(255,201,74,.55)';
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.arc(0, 0, 95, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(0, 0, 80, 0, Math.PI * 2);
+    ctx.stroke();
+    for (let i = 0; i < 8; i++) {
+      const a = i * Math.PI / 4;
+      ctx.beginPath();
+      ctx.moveTo(Math.cos(a) * 80, Math.sin(a) * 80);
+      ctx.lineTo(Math.cos(a + Math.PI / 8) * 58, Math.sin(a + Math.PI / 8) * 58);
+      ctx.lineTo(Math.cos(a + Math.PI / 4) * 80, Math.sin(a + Math.PI / 4) * 80);
+      ctx.stroke();
     }
+    // Lichtplassen van de vuurschalen
+    for (const l of lights(ar)) AK.glow(ctx, l.x, l.y + 6, 150, '#ff9a3c', .3, .8);
     ctx.restore();
-    // Rand van de arena: een stenen muur met een neonband.
-    ctx.lineWidth = 26;
-    ctx.strokeStyle = '#2a3142';
+    // Rand van de arena: een stenen muur met kantelen en een neonband.
+    ctx.lineWidth = 30;
+    ctx.strokeStyle = '#1d2230';
+    ctx.beginPath();
+    ctx.arc(0, 0, ar.size + 15, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.lineWidth = 22;
+    ctx.strokeStyle = '#363e52';
     ctx.beginPath();
     ctx.arc(0, 0, ar.size + 13, 0, Math.PI * 2);
     ctx.stroke();
-    ctx.lineWidth = 4;
-    ctx.strokeStyle = '#4cc9ff';
-    ctx.shadowColor = '#4cc9ff';
-    ctx.shadowBlur = 18;
+    const nb = Math.round(ar.size / 14);
+    ctx.fillStyle = '#4a5368';
+    for (let i = 0; i < nb; i += 2) {
+      const a0 = (i / nb) * Math.PI * 2, a1 = ((i + 1) / nb) * Math.PI * 2;
+      ctx.beginPath();
+      ctx.arc(0, 0, ar.size + 26, a0, a1);
+      ctx.arc(0, 0, ar.size + 16, a1, a0, true);
+      ctx.fill();
+    }
+    ctx.lineWidth = 12;
+    ctx.strokeStyle = 'rgba(76,201,255,.25)';
     ctx.beginPath();
     ctx.arc(0, 0, ar.size + 2, 0, Math.PI * 2);
     ctx.stroke();
-    ctx.shadowBlur = 0;
+    ctx.lineWidth = 4;
+    ctx.strokeStyle = '#7fe0ff';
+    ctx.beginPath();
+    ctx.arc(0, 0, ar.size + 2, 0, Math.PI * 2);
+    ctx.stroke();
     // Schaduwen van muren en rotsen
-    ctx.fillStyle = 'rgba(0,0,0,.4)';
-    for (const w of ar.walls) ctx.fillRect(w.x + 8, w.y + 10, w.w, w.h);
-    for (const o of ar.rocks) { ctx.beginPath(); ctx.ellipse(o.x + 8, o.y + 10, o.r, o.r * .8, 0, 0, Math.PI * 2); ctx.fill(); }
-    // Muren: blokken steen met een gouden of cyaan neonrand
+    ctx.fillStyle = 'rgba(0,0,0,.45)';
+    for (const w of ar.walls) ctx.fillRect(w.x + 10, w.y + 14, w.w, w.h);
+    for (const o of ar.rocks) { ctx.beginPath(); ctx.ellipse(o.x + 9, o.y + 12, o.r, o.r * .82, 0, 0, Math.PI * 2); ctx.fill(); }
+    // Muren: blokken steen met een voorkant (hoogte), kantelen en een gouden of cyaan neonrand
+    const H = 12;
     for (const w of ar.walls) {
-      const g = ctx.createLinearGradient(w.x, w.y, w.x, w.y + w.h);
-      g.addColorStop(0, '#5f6a80');
-      g.addColorStop(1, '#343b4c');
+      // Voorkant
+      ctx.fillStyle = '#262c3a';
+      ctx.fillRect(w.x, w.y + w.h, w.w, H);
+      ctx.strokeStyle = 'rgba(0,0,0,.4)';
+      ctx.lineWidth = 1.5;
+      for (let s = 13; s < w.w; s += 26) { ctx.beginPath(); ctx.moveTo(w.x + s, w.y + w.h); ctx.lineTo(w.x + s, w.y + w.h + H); ctx.stroke(); }
+      // Bovenkant
+      const g = ctx.createLinearGradient(w.x, w.y, w.x + w.w * .3, w.y + w.h);
+      g.addColorStop(0, '#727e96');
+      g.addColorStop(1, '#3d4558');
       ctx.fillStyle = g;
       ctx.fillRect(w.x, w.y, w.w, w.h);
       ctx.strokeStyle = 'rgba(0,0,0,.45)';
@@ -112,52 +226,121 @@ const RyDraw = (() => {
         if (horiz) { ctx.moveTo(w.x + s, w.y); ctx.lineTo(w.x + s, w.y + w.h); } else { ctx.moveTo(w.x, w.y + s); ctx.lineTo(w.x + w.w, w.y + s); }
         ctx.stroke();
       }
-      ctx.strokeStyle = rnd() < .5 ? 'rgba(255,201,74,.7)' : 'rgba(76,201,255,.7)';
-      ctx.lineWidth = 2;
-      ctx.strokeRect(w.x + 1, w.y + 1, w.w - 2, w.h - 2);
       // Kantelen
-      ctx.fillStyle = '#727e96';
+      ctx.fillStyle = '#8d99b0';
       for (let s = 4; s < len - 8; s += 20) {
         if (horiz) ctx.fillRect(w.x + s, w.y + 3, 10, 7); else ctx.fillRect(w.x + 3, w.y + s, 7, 10);
       }
+      const neon = rnd() < .5 ? '#ffc94a' : '#4cc9ff';
+      ctx.strokeStyle = AK.rgba(neon, .3);
+      ctx.lineWidth = 6;
+      ctx.strokeRect(w.x, w.y, w.w, w.h);
+      ctx.strokeStyle = neon;
+      ctx.lineWidth = 2;
+      ctx.strokeRect(w.x + 1, w.y + 1, w.w - 2, w.h - 2);
     }
     for (const o of ar.rocks) {
       if (o.kind === 'zuil') {
+        // Kristalzuil: stenen voet met een lichtend paars kristal
         const g = ctx.createRadialGradient(o.x - o.r * .3, o.y - o.r * .3, 2, o.x, o.y, o.r);
-        g.addColorStop(0, '#9aa6bd');
-        g.addColorStop(1, '#2c3344');
+        g.addColorStop(0, '#a7b3c9');
+        g.addColorStop(1, '#262d3d');
         ctx.fillStyle = g;
         ctx.beginPath();
-        ctx.arc(o.x, o.y, o.r, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.strokeStyle = '#c77dff';
-        ctx.shadowColor = '#c77dff';
-        ctx.shadowBlur = 12;
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.arc(o.x, o.y, o.r * .55, 0, Math.PI * 2);
-        ctx.stroke();
-        ctx.shadowBlur = 0;
-      } else {
-        ctx.fillStyle = '#3e4553';
-        ctx.beginPath();
-        for (let i = 0; i < 9; i++) {
-          const a = (i / 9) * Math.PI * 2, rr = o.r * (.82 + rnd() * .22);
-          ctx[i ? 'lineTo' : 'moveTo'](o.x + Math.cos(a) * rr, o.y + Math.sin(a) * rr);
-        }
+        for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4 + Math.PI / 8; ctx[i ? 'lineTo' : 'moveTo'](o.x + Math.cos(a) * o.r, o.y + Math.sin(a) * o.r); }
         ctx.closePath();
         ctx.fill();
-        ctx.fillStyle = 'rgba(255,255,255,.12)';
+        ctx.strokeStyle = 'rgba(0,0,0,.5)';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        AK.glow(ctx, o.x, o.y, o.r * 2.6, '#c77dff', .7);
+        // Een trosje kristallen dat naar het licht wijst
+        for (const [dx, dy, hh, ww] of [[-o.r * .3, o.r * .15, .55, .2], [o.r * .32, o.r * .1, .6, .22], [0, 0, 1, .3]]) {
+          const cx = o.x + dx, cy = o.y + dy, H = o.r * hh * 1.1, W = o.r * ww * 1.2;
+          const cg = ctx.createLinearGradient(cx - W, cy, cx + W, cy);
+          cg.addColorStop(0, '#f3e1ff');
+          cg.addColorStop(.5, '#c77dff');
+          cg.addColorStop(1, '#5a189a');
+          ctx.fillStyle = cg;
+          ctx.beginPath();
+          ctx.moveTo(cx, cy - H); ctx.lineTo(cx + W, cy - H * .55); ctx.lineTo(cx + W * .8, cy + H * .35); ctx.lineTo(cx, cy + H * .5); ctx.lineTo(cx - W * .8, cy + H * .35); ctx.lineTo(cx - W, cy - H * .55);
+          ctx.closePath();
+          ctx.fill();
+          ctx.strokeStyle = 'rgba(40,0,70,.7)';
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+          ctx.strokeStyle = 'rgba(255,255,255,.7)';
+          ctx.beginPath();
+          ctx.moveTo(cx, cy - H); ctx.lineTo(cx, cy + H * .5);
+          ctx.stroke();
+        }
+        AK.glow(ctx, o.x, o.y - o.r * .3, o.r * .8, '#ffffff', .5);
+      } else {
+        const pts = [];
+        for (let i = 0; i < 9; i++) { const a = (i / 9) * Math.PI * 2, rr = o.r * (.82 + rnd() * .22); pts.push([o.x + Math.cos(a) * rr, o.y + Math.sin(a) * rr]); }
+        const g = ctx.createLinearGradient(o.x - o.r, o.y - o.r, o.x + o.r, o.y + o.r);
+        g.addColorStop(0, '#6a7385');
+        g.addColorStop(1, '#2a303c');
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        pts.forEach((p, i) => ctx[i ? 'lineTo' : 'moveTo'](p[0], p[1]));
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(0,0,0,.55)';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        // Facetten
+        ctx.strokeStyle = 'rgba(255,255,255,.12)';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        for (let i = 0; i < pts.length; i += 3) { ctx.moveTo(o.x - o.r * .1, o.y - o.r * .1); ctx.lineTo(pts[i][0], pts[i][1]); }
+        ctx.stroke();
+        ctx.fillStyle = 'rgba(255,255,255,.14)';
         ctx.beginPath();
         ctx.ellipse(o.x - o.r * .25, o.y - o.r * .3, o.r * .45, o.r * .28, -.4, 0, Math.PI * 2);
         ctx.fill();
-        ctx.fillStyle = 'rgba(80,140,90,.35)';
+        ctx.fillStyle = 'rgba(80,150,95,.45)';
         ctx.beginPath();
-        ctx.ellipse(o.x + o.r * .2, o.y + o.r * .35, o.r * .35, o.r * .18, .3, 0, Math.PI * 2);
+        ctx.ellipse(o.x + o.r * .2, o.y + o.r * .35, o.r * .38, o.r * .2, .3, 0, Math.PI * 2);
         ctx.fill();
       }
     }
+    // Vuurschalen
+    for (const l of lights(ar)) {
+      ctx.fillStyle = 'rgba(0,0,0,.45)';
+      ctx.beginPath(); ctx.ellipse(l.x + 4, l.y + 6, 13, 8, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#2b2f3a';
+      ctx.beginPath(); ctx.arc(l.x, l.y, 12, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = '#ffc94a';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.fillStyle = '#5a1e08';
+      ctx.beginPath(); ctx.arc(l.x, l.y, 8, 0, Math.PI * 2); ctx.fill();
+    }
     return { canvas: c, q, S };
+  }
+
+  // De storm: een paarse wolk die je één keer tekent en dan laat draaien.
+  let cloud = null;
+  function stormCloud() {
+    if (cloud) return cloud;
+    const c = document.createElement('canvas');
+    c.width = c.height = 512;
+    const ctx = c.getContext('2d');
+    ctx.fillStyle = '#1a0630';
+    ctx.fillRect(0, 0, 512, 512);
+    const rnd = RyWorld.rng(42);
+    for (let i = 0; i < 70; i++) {
+      const x = rnd() * 512, y = rnd() * 512, r = 30 + rnd() * 110;
+      const col = ['#7b2cbf', '#c026d3', '#3c096c', '#5a189a', '#e879f9'][Math.floor(rnd() * 5)];
+      for (const dx of [-512, 0, 512]) for (const dy of [-512, 0, 512]) AK.glow(ctx, x + dx, y + dy, r, col, .22 + rnd() * .15);
+    }
+    for (let i = 0; i < 90; i++) {
+      const x = rnd() * 512, y = rnd() * 512;
+      for (const dx of [-512, 0, 512]) for (const dy of [-512, 0, 512]) AK.glow(ctx, x + dx, y + dy, 6 + rnd() * 6, '#f5d0fe', .35);
+    }
+    cloud = c;
+    return c;
   }
 
   // Struiken komen bovenop de ridders: daarom apart, met lichtende blaadjes.
@@ -202,6 +385,9 @@ const RyDraw = (() => {
       this.taken = new Set();
       this.loot = new Map(); // buit van uitgeschakelde ridders: id -> {x, y}
       this.fx = new AK.Particles();
+      this.trails = new AK.Trails(9);
+      this.lights = [];
+      this.strikes = [];
       this.roundStart = 0;
       this.state = 'pauze';
       this.breakEnd = 0;
@@ -218,6 +404,7 @@ const RyDraw = (() => {
       this.ar = RyWorld.makeArena(msg.seed, msg.players);
       this.baked = bake(this.ar);
       this.bushes = bakeBushes(this.ar);
+      this.lights = lights(this.ar);
       this.taken = new Set(msg.taken || []);
       this.loot = new Map((msg.loot || []).map(l => [l[0], { x: l[1], y: l[2] }]));
       this.shots.clear();
@@ -259,28 +446,36 @@ const RyDraw = (() => {
             break;
           }
           this.shots.set(id, { x, y, vx, vy, life, big, owner });
+          fx.burst(x, y, { n: big ? 8 : 3, color: big ? '#ffd166' : '#ff8fa3', speed: 120, life: .18, size: 2 });
           break;
         }
         case 'weg': {
           const s = this.shots.get(e[1]);
           this.shots.delete(e[1]);
-          fx.burst(e[2], e[3], { n: e[4] ? 12 : 5, color: s && s.big ? '#ffd166' : '#ff6b86', speed: 180, life: .35, size: 2.5 });
+          const col = s && s.big ? '#ffd166' : '#ff6b86';
+          fx.sparks(e[2], e[3], { n: e[4] ? 10 : 5, color: col, speed: 320, life: .25 });
+          if (e[4]) fx.ring(e[2], e[3], 26, col, .25);
           break;
         }
         case 'au': {
           this.hurtAt.set(e[1], t);
           const k = this.knights.get(e[1], t);
           if (k) {
-            fx.burst(k[0], k[1], { n: e[3] ? 3 : 8, color: e[3] ? '#c77dff' : '#ff4d6d', speed: 140, life: .35 });
-            if (!e[3]) fx.text(k[0], k[1] - 28, `-${e[2]}`, '#ff8fa3');
+            if (e[3]) { fx.ring(k[0], k[1], R + 12, '#8fe3ff', .3); fx.sparks(k[0], k[1], { n: 6, color: '#8fe3ff', speed: 260 }); } else {
+              fx.sparks(k[0], k[1], { n: 10, color: '#ff8fa3', speed: 340 });
+              fx.burst(k[0], k[1], { n: 6, color: '#ff4d6d', speed: 140, life: .35 });
+            }
+            if (!e[3]) fx.text(k[0] + (Math.random() - .5) * 16, k[1] - 28, `-${e[2]}`, e[2] >= 40 ? '#ffd166' : '#ff8fa3', e[2] >= 40 ? 26 : 18);
           }
           if (e[1] === this.meN) { this.flash = e[3] ? .5 : 1; if (!e[3]) this.shake = Math.max(this.shake, 6); }
           break;
         }
         case 'uit':
-          fx.burst(e[3], e[4], { n: 46, color: '#ffc94a', speed: 300, life: .9, size: 4 });
-          fx.burst(e[3], e[4], { n: 20, color: '#ffffff', speed: 160, life: .4, size: 3 });
-          fx.ring(e[3], e[4], 80, '#ff4d6d', .6);
+          fx.smoke(e[3], e[4], { n: 10, size: 22, life: 1.2, speed: 90 });
+          fx.shock(e[3], e[4], 110, '#ff4d6d', .6);
+          fx.burst(e[3], e[4], { n: 40, color: '#ffc94a', speed: 320, life: .9, size: 4 });
+          fx.sparks(e[3], e[4], { n: 24, color: '#ffe08a', speed: 600, life: .45, width: 2.5 });
+          fx.pop(e[3], e[4] - 40, 'KO!', '#ffc94a', 34);
           if (e[1] === this.meN || e[2] === this.meN) this.shake = Math.max(this.shake, 12);
           break;
         case 'buit': this.loot.set(e[1], { x: e[2], y: e[3] }); break;
@@ -290,11 +485,12 @@ const RyDraw = (() => {
           this.loot.delete(e[1]);
           if (l) {
             fx.burst(l.x, l.y, { n: 16, color: e[3] === 'cel' ? '#4ade80' : '#ffd166', speed: 150, life: .6, up: 50 });
+            fx.shock(l.x, l.y, 46, e[3] === 'cel' ? '#4ade80' : '#4cc9ff', .4);
             fx.text(l.x, l.y - 12, e[3] === 'cel' ? '+30 ❤' : e[3] === 'buit' ? '+munitie' : '+4 ⚡', e[3] === 'cel' ? '#4ade80' : '#ffd166');
           }
           break;
         }
-        case 'traag': { const k = this.knights.get(e[1], t); if (k) fx.ring(k[0], k[1], 34, '#4cc9ff', .6); break; }
+        case 'traag': { const k = this.knights.get(e[1], t); if (k) { fx.ring(k[0], k[1], 34, '#4cc9ff', .6); fx.burst(k[0], k[1], { n: 12, color: '#bfefff', speed: 90, life: .7, size: 2.5 }); } break; }
         default: break;
       }
       if (this.onEvent) this.onEvent(e);
@@ -327,43 +523,106 @@ const RyDraw = (() => {
     }
   }
 
+  // Een voorraadkist: metaal met gouden hoeken, een lichtende kern en een lichtbundel zodat je hem van ver ziet.
   function crate(ctx, x, y, t) {
+    const bob = Math.sin(t * 2 + x) * 1.5;
+    const pulse = .6 + Math.sin(t * 3 + y) * .4;
+    // Lichtbundel naar boven
     ctx.save();
-    ctx.translate(x, y + Math.sin(t * 2 + x) * 1.5);
-    ctx.fillStyle = 'rgba(0,0,0,.4)';
-    ctx.fillRect(-14, 6, 30, 10);
-    ctx.fillStyle = '#5b3a1e';
-    ctx.fillRect(-16, -14, 32, 28);
-    ctx.strokeStyle = '#ffc94a';
+    ctx.globalCompositeOperation = 'lighter';
+    const g = ctx.createLinearGradient(0, y - 90, 0, y);
+    g.addColorStop(0, 'rgba(76,201,255,0)');
+    g.addColorStop(1, `rgba(76,201,255,${.22 + pulse * .12})`);
+    ctx.fillStyle = g;
+    ctx.fillRect(x - 9, y - 90, 18, 90);
+    ctx.restore();
+    AK.glow(ctx, x, y + 8, 38, '#4cc9ff', .35 + pulse * .2, .6);
+    ctx.save();
+    ctx.translate(x, y + bob);
+    ctx.fillStyle = 'rgba(0,0,0,.45)';
+    ctx.fillRect(-14, 10, 32, 10);
+    // Voorkant (hoogte)
+    ctx.fillStyle = '#20283a';
+    ctx.fillRect(-16, 10, 32, 7);
+    // Deksel
+    const lg = ctx.createLinearGradient(-16, -16, 16, 12);
+    lg.addColorStop(0, '#5d6b85');
+    lg.addColorStop(1, '#2c3548');
+    ctx.fillStyle = lg;
+    ctx.fillRect(-16, -16, 32, 27);
+    ctx.strokeStyle = 'rgba(0,0,0,.6)';
     ctx.lineWidth = 2;
-    ctx.strokeRect(-16, -14, 32, 28);
-    ctx.beginPath();
-    ctx.moveTo(-16, -14); ctx.lineTo(16, 14);
-    ctx.moveTo(16, -14); ctx.lineTo(-16, 14);
-    ctx.stroke();
-    ctx.shadowColor = '#4cc9ff';
-    ctx.shadowBlur = 12;
-    ctx.fillStyle = '#4cc9ff';
-    ctx.fillRect(-4, -4, 8, 8);
+    ctx.strokeRect(-16, -16, 32, 33);
+    ctx.fillStyle = '#ffc94a';
+    for (const [cx, cy] of [[-16, -16], [10, -16], [-16, 5], [10, 5]]) ctx.fillRect(cx, cy, 6, 6);
+    ctx.fillStyle = '#0b1220';
+    ctx.fillRect(-8, -9, 16, 13);
+    AK.glow(ctx, 0, -2.5, 16, '#4cc9ff', .7 + pulse * .3);
+    ctx.fillStyle = '#bff0ff';
+    ctx.fillRect(-5, -6, 10, 7);
     ctx.restore();
   }
 
   function lootBag(ctx, x, y, t) {
-    ctx.save();
-    ctx.translate(x, y);
     const pulse = .7 + Math.sin(t * 6) * .3;
-    ctx.shadowColor = '#ffd166';
-    ctx.shadowBlur = 16 * pulse;
+    AK.glow(ctx, x, y, 34 * pulse + 10, '#ffd166', .7);
+    ctx.save();
+    ctx.translate(x, y + Math.sin(t * 3) * 2);
+    ctx.scale(Math.cos(t * 3), 1);
     ctx.fillStyle = '#ffd166';
     ctx.beginPath();
-    ctx.moveTo(0, -12); ctx.lineTo(10, 0); ctx.lineTo(0, 12); ctx.lineTo(-10, 0);
+    ctx.moveTo(0, -13); ctx.lineTo(10, 0); ctx.lineTo(0, 13); ctx.lineTo(-10, 0);
     ctx.closePath();
     ctx.fill();
-    ctx.fillStyle = '#fff';
+    ctx.fillStyle = '#fff6d6';
     ctx.beginPath();
-    ctx.arc(0, 0, 3, 0, Math.PI * 2);
+    ctx.moveTo(0, -13); ctx.lineTo(10, 0); ctx.lineTo(0, 0);
+    ctx.closePath();
     ctx.fill();
+    ctx.strokeStyle = 'rgba(80,50,0,.6)';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(0, -13); ctx.lineTo(10, 0); ctx.lineTo(0, 13); ctx.lineTo(-10, 0);
+    ctx.closePath();
+    ctx.stroke();
     ctx.restore();
+  }
+
+  // Een vuurschaal met flakkerende vlammen.
+  function brazier(ctx, l, t, i) {
+    const f = 1.05 + Math.sin(t * 13 + i * 3) * .12 + Math.sin(t * 7.3 + i) * .12;
+    AK.glow(ctx, l.x, l.y, 80 * f, '#ff8c2a', .6);
+    // Opstijgende vonkjes
+    for (let k = 0; k < 4; k++) {
+      const age = (t * .8 + k * .25 + i * .13) % 1;
+      AK.glow(ctx, l.x + Math.sin(age * 9 + k * 2 + i) * 8, l.y - 10 - age * 50, 5 * (1 - age) + 1, '#ffb347', 1 - age);
+    }
+    AK.glow(ctx, l.x, l.y - 4, 22 * f, '#ffd27a', .9);
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    for (let k = 0; k < 3; k++) {
+      const h = (14 + k * 4) * f + Math.sin(t * 17 + k * 2 + i) * 3;
+      const dx = (k - 1) * 4 + Math.sin(t * 9 + k + i) * 1.5;
+      ctx.fillStyle = k === 1 ? 'rgba(255,230,150,.9)' : 'rgba(255,120,40,.75)';
+      ctx.beginPath();
+      ctx.moveTo(l.x + dx - 4, l.y);
+      ctx.quadraticCurveTo(l.x + dx - 3, l.y - h * .6, l.x + dx, l.y - h);
+      ctx.quadraticCurveTo(l.x + dx + 3, l.y - h * .6, l.x + dx + 4, l.y);
+      ctx.closePath();
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  // Vuurvliegjes en zwevende vonkjes: geen toestand nodig, alles volgt uit de tijd.
+  function motes(ctx, ar, t, vis, n) {
+    for (let i = 0; i < n; i++) {
+      const a = i * 2.399, d = Math.sqrt((i + .5) / n) * ar.size * .95;
+      const x = Math.cos(a) * d + Math.sin(t * .4 + i) * 40, y = Math.sin(a) * d + Math.cos(t * .33 + i * 1.7) * 30;
+      if (!vis(x, y, 20)) continue;
+      const blink = .5 + Math.sin(t * 2.2 + i * 1.3) * .5;
+      AK.glow(ctx, x, y, 9 + blink * 5, i % 3 ? '#b8ff9a' : '#8fe3ff', .35 + blink * .5);
+    }
   }
 
   // ---------- Een beeld tekenen ----------
@@ -373,28 +632,35 @@ const RyDraw = (() => {
     const t = performance.now() / 1000;
     const now = performance.now();
     ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.fillStyle = '#05040c';
-    ctx.fillRect(0, 0, w, h);
-    if (!s.ar) return;
+    if (!s.ar) { ctx.fillStyle = '#05040c'; ctx.fillRect(0, 0, w, h); return; }
     const ar = s.ar;
     const z = cam.zoom;
+    // Ruimte op de achtergrond, die trager meeschuift dan de arena (diepte).
+    Glow.space(ctx, w, h, -cam.x * z * .25, -cam.y * z * .25);
     const sx = s.shake ? (Math.random() - .5) * s.shake : 0, sy = s.shake ? (Math.random() - .5) * s.shake : 0;
     const ox = w / 2 - cam.x * z + sx, oy = h / 2 - cam.y * z + sy;
     ctx.setTransform(z, 0, 0, z, ox, oy);
     const vx0 = -ox / z, vy0 = -oy / z, vx1 = vx0 + w / z, vy1 = vy0 + h / z;
     const vis = (x, y, m = 80) => x > vx0 - m && x < vx1 + m && y > vy0 - m && y < vy1 + m;
-    // Sterren buiten de arena
-    ctx.fillStyle = 'rgba(200,220,255,.5)';
-    const rs = RyWorld.rng(7);
-    for (let i = 0; i < 160; i++) {
-      const x = (rs() - .5) * ar.size * 3, y = (rs() - .5) * ar.size * 3;
-      if (vis(x, y, 0) && Math.hypot(x, y) > ar.size + 40) ctx.fillRect(x, y, 2, 2);
-    }
     const b = s.baked;
     const ax = Math.max(-b.S, vx0), ay = Math.max(-b.S, vy0), bx = Math.min(b.S, vx1), by = Math.min(b.S, vy1);
     if (bx > ax && by > ay) ctx.drawImage(b.canvas, (ax + b.S) * b.q, (ay + b.S) * b.q, (bx - ax) * b.q, (by - ay) * b.q, ax, ay, bx - ax, by - ay);
+    // Draaiende runen op het plein
+    if (vis(0, 0, 120)) {
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      ctx.strokeStyle = 'rgba(255,201,74,.35)';
+      ctx.lineWidth = 3;
+      ctx.setLineDash([18, 14]);
+      ctx.lineDashOffset = -t * 30;
+      ctx.beginPath();
+      ctx.arc(0, 0, 112, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.restore();
+    }
     // Kratten en buit
-    ar.crates.forEach((c, i) => { if (!s.taken.has(i) && vis(c.x, c.y)) crate(ctx, c.x, c.y, t); });
+    ar.crates.forEach((c, i) => { if (!s.taken.has(i) && vis(c.x, c.y, 100)) crate(ctx, c.x, c.y, t); });
     for (const l of s.loot.values()) if (vis(l.x, l.y)) lootBag(ctx, l.x, l.y, t);
     // Ridders
     const roster = opts.roster || new Map();
@@ -404,12 +670,19 @@ const RyDraw = (() => {
       let k = s.knights.get(id, now);
       if (!k) continue;
       if (me && me.n === id && !(k[4] & 1)) k = [me.x, me.y, me.a, k[3], k[4]];
+      if (!(k[4] & 1)) s.trails.add(id, k[0], k[1], now);
       if (!vis(k[0], k[1])) continue;
       const shown = opts.board || s.visible(id, k, me, now);
       if (!shown) continue;
       list.push([id, k]);
     }
-    const big = opts.board ? Math.max(1, .75 / z) : 1;
+    s.trails.prune(now);
+    const big = opts.board ? Math.max(1, .9 / z) : 1;
+    for (const [id, k] of list) {
+      if (k[4] & 1) continue;
+      const info = roster.get(id) || {};
+      if (!RyWorld.inBush(ar, k[0], k[1])) s.trails.draw(ctx, id, info.color || '#4cc9ff', R * 1.1 * big, now);
+    }
     for (const [id, k] of list) {
       if (k[4] & 1) continue;
       const info = roster.get(id) || {};
@@ -420,28 +693,34 @@ const RyDraw = (() => {
       ctx.translate(k[0], k[1]);
       ctx.scale(big, big);
       AK.knight(ctx, 0, 0, k[2], {
-        r: R, color: info.color || '#4cc9ff', kind: 'royale', t, moving: true,
+        r: R, color: info.color || '#4cc9ff', kind: 'royale', t: t + id * .7, moving: true,
         glow: hurt ? 'rgba(255,77,109,.7)' : (k[4] & 2) ? 'rgba(76,201,255,.45)' : (k[4] & 4) ? 'rgba(120,200,255,.35)' : null,
         alpha: inBush ? .55 : 1,
       });
       ctx.restore();
       if (k[4] & 8) {
-        // Schild
+        // Schild: een zeshoekig energieveld dat ronddraait
+        const rr = (R + 9) * big;
         ctx.save();
-        ctx.strokeStyle = 'rgba(120,220,255,.75)';
-        ctx.lineWidth = 2;
         ctx.globalCompositeOperation = 'lighter';
+        ctx.strokeStyle = 'rgba(120,220,255,.85)';
+        ctx.fillStyle = 'rgba(120,220,255,.08)';
+        ctx.lineWidth = 2;
         ctx.beginPath();
-        ctx.arc(k[0], k[1], R + 7, t * 2, t * 2 + 4.5);
+        for (let i = 0; i < 6; i++) { const a = t * 1.5 + i * Math.PI / 3; ctx[i ? 'lineTo' : 'moveTo'](k[0] + Math.cos(a) * rr, k[1] + Math.sin(a) * rr); }
+        ctx.closePath();
+        ctx.fill();
         ctx.stroke();
         ctx.restore();
       }
       if (k[4] & 4) {
         // Traag: ijskristallen rond de ridder
-        ctx.fillStyle = 'rgba(180,230,255,.85)';
         for (let i = 0; i < 4; i++) {
           const a = t * 1.5 + (i * Math.PI) / 2;
-          ctx.fillRect(k[0] + Math.cos(a) * (R + 10) - 2, k[1] + Math.sin(a) * (R + 10) - 2, 4, 4);
+          const cx = k[0] + Math.cos(a) * (R + 10), cy = k[1] + Math.sin(a) * (R + 10);
+          AK.glow(ctx, cx, cy, 8, '#9fe8ff', .7);
+          ctx.fillStyle = 'rgba(220,245,255,.95)';
+          ctx.fillRect(cx - 2, cy - 2, 4, 4);
         }
       }
     }
@@ -449,6 +728,9 @@ const RyDraw = (() => {
     for (const sh of [...s.shots.values(), ...s.local.values()]) {
       if (vis(sh.x, sh.y)) AK.bolt(ctx, sh.x, sh.y, sh.vx, sh.vy, sh.big ? '#ffd166' : '#ff4d6d', sh.big ? 12 : 6, sh.big ? .08 : .04);
     }
+    // Vuurschalen en vuurvliegjes
+    s.lights.forEach((l, i) => { if (vis(l.x, l.y, 60)) brazier(ctx, l, t, i); });
+    motes(ctx, ar, t, vis, opts.board ? 40 : 60);
     s.fx.draw(ctx);
     // Struiken bovenop
     ar.bushes.forEach((bu, i) => {
@@ -471,31 +753,59 @@ const RyDraw = (() => {
         AK.label(ctx, (k[4] & 2) ? `${info.name || ''} ⚡` : info.name || '', k[0], k[1] - R * big - 18 * big, me && id === me.n ? '#ffc94a' : '#e8f1ff', Math.round(12 * big));
       }
     }
-    // De neonstorm: alles buiten de cirkel paars en onrustig, met een lichtende rand.
+    // De neonstorm: buiten de cirkel kolkende paarse wolken, met een knetterende rand en bliksem.
     const zn = s.zone(now);
     if (zn) {
       ctx.save();
       ctx.beginPath();
       ctx.rect(vx0 - 10, vy0 - 10, vx1 - vx0 + 20, vy1 - vy0 + 20);
       ctx.arc(zn.x, zn.y, Math.max(1, zn.r), 0, Math.PI * 2, true);
-      ctx.fillStyle = 'rgba(90,20,140,.42)';
-      ctx.fill('evenodd');
       ctx.clip('evenodd');
-      ctx.strokeStyle = 'rgba(220,150,255,.18)';
-      ctx.lineWidth = 3;
-      const off = (t * 60) % 80;
-      for (let x = Math.floor(vx0 / 80) * 80 - 400; x < vx1 + 400; x += 80) {
-        ctx.beginPath();
-        ctx.moveTo(x + off, vy0 - 20);
-        ctx.lineTo(x + off - 300, vy1 + 20);
-        ctx.stroke();
+      const cl = stormCloud();
+      const pat = ctx.createPattern(cl, 'repeat');
+      ctx.globalAlpha = opts.board ? .5 : .42;
+      for (const [sc, spd, rot] of [[1.6, 22, t * .03], [1.1, -35, -t * .05]]) {
+        pat.setTransform(new DOMMatrix().translateSelf(t * spd, t * spd * .4).rotateSelf(rot * 57.3).scaleSelf(sc, sc));
+        ctx.fillStyle = pat;
+        ctx.fillRect(vx0 - 10, vy0 - 10, vx1 - vx0 + 20, vy1 - vy0 + 20);
+        ctx.globalAlpha = .22;
+        ctx.globalCompositeOperation = 'lighter';
       }
       ctx.restore();
+      // Bliksem in de storm, af en toe
+      if (Math.random() < (opts.board ? .04 : .03) && s.strikes.length < 3) {
+        const a = Math.random() * Math.PI * 2, d = zn.r + 40 + Math.random() * 260;
+        const x = zn.x + Math.cos(a) * d, y = zn.y + Math.sin(a) * d;
+        if (vis(x, y, 100)) s.strikes.push({ x0: x + (Math.random() - .5) * 200, y0: y - 220, x1: x, y1: y, life: .22 });
+      }
+      s.strikes = s.strikes.filter(st => (st.life -= 1 / 60) > 0);
+      for (const st of s.strikes) {
+        AK.glow(ctx, st.x1, st.y1, 160, '#d08bff', st.life * 3);
+        AK.lightning(ctx, st.x0, st.y0, st.x1, st.y1, '#e2b6ff', 3 / Math.max(.5, z));
+      }
+      // Knetterende rand
       ctx.save();
-      ctx.strokeStyle = '#e07bff';
-      ctx.shadowColor = '#c77dff';
-      ctx.shadowBlur = 20;
-      ctx.lineWidth = 6 / Math.max(.4, z);
+      ctx.globalCompositeOperation = 'lighter';
+      const lw = 1 / Math.max(.4, z);
+      ctx.strokeStyle = 'rgba(199,125,255,.35)';
+      ctx.lineWidth = 16 * lw;
+      ctx.beginPath();
+      ctx.arc(zn.x, zn.y, Math.max(1, zn.r), 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.strokeStyle = '#f0b8ff';
+      ctx.lineWidth = 4 * lw;
+      ctx.beginPath();
+      const segs = Math.min(220, Math.max(60, Math.round(zn.r / 12)));
+      const seed = Math.floor(t * 14);
+      for (let i = 0; i <= segs; i++) {
+        const a = (i / segs) * Math.PI * 2;
+        const j = Math.sin(i * 12.9898 + seed * 78.233) * 43758.5453;
+        const rr = zn.r + ((j - Math.floor(j)) - .5) * 9 * lw;
+        ctx[i ? 'lineTo' : 'moveTo'](zn.x + Math.cos(a) * rr, zn.y + Math.sin(a) * rr);
+      }
+      ctx.stroke();
+      ctx.strokeStyle = 'rgba(255,255,255,.8)';
+      ctx.lineWidth = 1.5 * lw;
       ctx.beginPath();
       ctx.arc(zn.x, zn.y, Math.max(1, zn.r), 0, Math.PI * 2);
       ctx.stroke();
@@ -504,8 +814,9 @@ const RyDraw = (() => {
       const next = ar.zones[Math.min(ar.zones.length - 1, zn.phase + 1)];
       if (next && !zn.shrinking && zn.phase < ar.zones.length - 1) {
         ctx.save();
-        ctx.strokeStyle = 'rgba(255,255,255,.55)';
+        ctx.strokeStyle = 'rgba(255,255,255,.6)';
         ctx.setLineDash([16, 12]);
+        ctx.lineDashOffset = -t * 20;
         ctx.lineWidth = 3 / Math.max(.4, z);
         ctx.beginPath();
         ctx.arc(next.x, next.y, Math.max(1, next.r), 0, Math.PI * 2);
@@ -514,6 +825,7 @@ const RyDraw = (() => {
       }
     }
     ctx.setTransform(1, 0, 0, 1, 0, 0);
+    AK.vignette(ctx, w, h, opts.board ? .45 : .6);
     // Rode rand bij schade
     if (s.flash > 0) {
       const g = ctx.createRadialGradient(w / 2, h / 2, Math.min(w, h) * .3, w / 2, h / 2, Math.max(w, h) * .7);
