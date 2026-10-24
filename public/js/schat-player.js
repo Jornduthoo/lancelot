@@ -121,6 +121,7 @@ function sjNext() {
   sj.busy = true;
   socket.emit('sj-question', null, res => {
     sj.busy = false;
+    if (res && res.wait) return gokWait($('sj-q'), res.wait, sjNext);
     if (!res || res.error) return;
     sj.question = res;
     $('sj-number').textContent = `Vraag ${res.number}`;
@@ -166,11 +167,14 @@ function sjAnswer(i) {
     }
     buzz(res.correct ? [30, 40, 30] : 200);
     sjWallet();
-    setTimeout(() => {
+    const next = () => {
       flash.classList.add('hidden');
       sj.question = null;
       sjNext();
-    }, res.correct ? 900 : 1800);
+    };
+    // Tegen gokken: bij een fout blijft het juiste antwoord staan tot het wachten voorbij is.
+    if (res.correct) setTimeout(next, 900);
+    else gokHold(flash, $('sj-q'), res, next);
   });
 }
 

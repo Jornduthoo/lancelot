@@ -156,6 +156,7 @@ function krNext() {
   kr.busy = true;
   socket.emit('kr-question', null, res => {
     kr.busy = false;
+    if (res && res.wait) return gokWait($('kr-q'), res.wait, krNext);
     if (!res || res.error) return;
     if (res.chests) return krChests();
     kr.question = res;
@@ -194,11 +195,13 @@ function krAnswer(i) {
     if (res.correct) sfx.good(); else sfx.bad();
     buzz(res.correct ? [30, 40, 30] : 200);
     krWallet();
-    setTimeout(() => {
+    const next = () => {
       flash.classList.add('hidden');
       kr.question = null;
       if (res.correct) krChests(); else krNext();
-    }, res.correct ? 700 : 1800);
+    };
+    if (res.correct) setTimeout(next, 700);
+    else gokHold(flash, $('kr-q'), res, next);
   });
 }
 
