@@ -47,6 +47,8 @@ socket.on('ls-state', s => {
   prev = state;
   state = s;
   offset = s.now - Date.now();
+  // De arena groeit mee met de klas: dezelfde maat als op de server.
+  if (s.tier !== undefined && s.tier !== Arena.tier) { Arena.setTier(s.tier); resize(); }
   const live = s.phase !== 'idle';
   $('stop').classList.toggle('hidden', !live);
   $('join-mini').classList.toggle('hidden', s.phase !== 'play');
@@ -172,8 +174,11 @@ function resize() {
   canvas.height = Math.round(h * dpr);
   canvas.style.width = `${w}px`;
   canvas.style.height = `${h}px`;
-  const scale = Math.min(canvas.width / Arena.W, canvas.height / Arena.H);
-  cam = { scale, x: -(canvas.width / scale - Arena.W) / 2, y: -(canvas.height / scale - Arena.H) / 2 };
+  // De hele burcht in beeld: de arena plus de muur errond (bovenaan met de posters).
+  const E = SlagDraw.EDGE;
+  const bw = Arena.W + E.w + E.e, bh = Arena.H + E.n + E.s;
+  const scale = Math.min(canvas.width / bw, canvas.height / bh);
+  cam = { scale, x: -E.w - (canvas.width / scale - bw) / 2, y: -E.n - (canvas.height / scale - bh) / 2 };
 }
 window.addEventListener('resize', resize);
 

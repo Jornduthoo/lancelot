@@ -269,6 +269,15 @@ app.get('/export/:kind', (req, res) => {
     res.status(400).type('text/plain; charset=utf-8').send(err.message);
   }
 });
+// Posters voor aan de muren van de arena's (Laserslag). Eigen foto's in de map posters/ naast LANcelot;
+// die map gaat nooit mee naar GitHub. Leeg of niet aanwezig: dan hangen er alleen banieren.
+const POSTERS = path.join(__dirname, 'posters');
+app.get('/posters/lijst', (req, res) => {
+  let files = [];
+  try { files = fs.readdirSync(POSTERS).filter(f => /\.(png|jpe?g|webp|gif)$/i.test(f)).sort(); } catch {}
+  res.json(files.slice(0, 40));
+});
+app.use('/posters', express.static(POSTERS, { setHeaders: res => res.setHeader('Cache-Control', 'no-cache') }));
 // Altijd even navragen of een bestand veranderd is, zodat gsm's en Chromebooks na een update meteen de nieuwe versie hebben.
 app.use(express.static(path.join(__dirname, 'public'), { index: 'index.html', setHeaders: res => res.setHeader('Cache-Control', 'no-cache') }));
 
