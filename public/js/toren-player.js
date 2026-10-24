@@ -17,7 +17,6 @@ const tw = {
   cam: 0,
   rescued: false,
   zone: 0,
-  crumble: new Map(),
 };
 
 function twNow() {
@@ -68,7 +67,6 @@ socket.on('tw-state', s => {
     tw.others.clear();
     tw.rescued = false;
     tw.zone = 0;
-    tw.crumble.clear();
     tw.joined = false;
   }
   if (!s.name) {
@@ -277,18 +275,6 @@ function overlap(ax, ay, aw, ah, bx, by, bw, bh) {
   return ax < bx + bw && ax + aw > bx && ay < by + bh && ay + ah > by;
 }
 
-// Brokkelplatforms: elke gsm houdt zelf bij welke platforms onder jou zijn ingestort.
-const CRUMBLE_AFTER = .55;   // zo lang kan je erop staan
-const CRUMBLE_BACK = 3.5;    // daarna is het zo lang weg
-function crumbleState(p) {
-  const c = tw.crumble.get(p.floor);
-  const now = performance.now() / 1000;
-  if (!c) return { shake: 0, gone: -1 };
-  if (c.goneAt && now - c.goneAt > CRUMBLE_BACK) { tw.crumble.delete(p.floor); return { shake: 0, gone: -1 }; }
-  if (c.goneAt) return { shake: 0, gone: now - c.goneAt };
-  return { shake: Math.min(1, c.stood / CRUMBLE_AFTER), gone: -1 };
-}
-
 function physics(dt, t) {
   const me = tw.me;
   const { W, PLAYER: P, PHYS } = tw.world;
@@ -300,19 +286,8 @@ function physics(dt, t) {
     const dx = Toren.platformX(me.on, t) - Toren.platformX(me.on, t - dt);
     me.x = Math.max(0, Math.min(W - P.w, me.x + dx));
   }
-  // Een brokkelplatform stort in als je er te lang op staat (niet tijdens een vraag).
-  if (me.grounded && me.on && me.on.kind === 'crumble' && !frozen) {
-    const c = tw.crumble.get(me.on.floor) || { stood: 0, goneAt: 0 };
-    if (!c.goneAt) {
-      c.stood += dt;
-      if (c.stood >= CRUMBLE_AFTER) {
-        c.goneAt = performance.now() / 1000;
-        sfx.empty();
-        buzz(40);
-      }
-      tw.crumble.set(me.on.floor, c);
-    }
-  }
+  // Op een liftje ga je mee op en neer.
+  if (me.grounded && me.on && me.on.lift) me.y = Toren.platformY(me.on, t);
   const onIce = me.grounded && me.on && me.on.kind === 'ice';
 
   if (me.tumble > 0) {
@@ -355,11 +330,12 @@ function physics(dt, t) {
   let landed = null;
   if (me.vy <= 0 && me.tumble <= 0) {
     for (const p of tw.world.platforms) {
-      if (me.y < p.y - .01 || ny > p.y) continue;
+      const py = Toren.platformY(p, t);
+      // Een liftje kan je tegemoet komen: daarom een beetje speling.
+      if (me.y < py - (p.lift ? 8 : .01) || ny > py) continue;
       const px = Toren.platformX(p, t);
       if (nx + P.w <= px + 3 || nx >= px + p.w - 3) continue;
-      if (p.kind === 'crumble' && crumbleState(p).gone >= 0) continue;
-      ny = p.y;
+      ny = py;
       landed = p;
       break;
     }
@@ -384,15 +360,9 @@ function physics(dt, t) {
       twToast('Supersprong!', 'gold');
     }
   } else {
-    // Van een brokkelplatform dat net verdween: gewoon vallen.
     if (me.grounded) me.coyote = .08;
     me.grounded = false;
     me.coyote = Math.max(0, me.coyote - dt);
-  }
-  // Ingestort onder je voeten?
-  if (me.grounded && me.on && me.on.kind === 'crumble' && crumbleState(me.on).gone >= 0) {
-    me.grounded = false;
-    me.on = null;
   }
   // Ook van een zwevend platform af als het onder je wegschuift.
   if (me.grounded && me.on && me.on.move) {
@@ -413,7 +383,7 @@ function physics(dt, t) {
   if (me.grounded && me.on && me.on.spikes && nx + P.w > me.on.spikes.x + 4 && nx < me.on.spikes.x + me.on.spikes.w - 4) return twHit('spikes');
   for (const l of tw.world.lasers) {
     if (Math.abs(l.y - me.y) > 60) continue;
-    if (Toren.laserState(l, t).on && overlap(me.x, me.y, P.w, P.h, l.x, l.y - 3, l.w, 6)) return twHit('laser');
+    if (Toren.laserState(l, t).on && overlap(me.x + 3, me.y + 2, P.w - 6, P.h - 4, l.x, l.y - 2, l.w, 4)) return twHit('laser');
   }
   for (const d of tw.world.drones) {
     if (Math.abs(d.y - me.y) > 60) continue;
@@ -492,7 +462,7 @@ function render(t, dt) {
   const target = Math.max(-70, me.y - viewH * .18);
   tw.cam += (target - tw.cam) * Math.min(1, dt * 6);
   const cam = { y: tw.cam, scale, H: h, ox };
-  TorenDraw.scene(ctx, tw.world, cam, Math.max(0, t), { crumble: crumbleState });
+  TorenDraw.scene(ctx, tw.world, cam, Math.max(0, t));
   const sy = wy => h - (wy - cam.y) * scale;
   const { w: pw, h: ph } = tw.world.PLAYER;
   const topY = cam.y + viewH;
