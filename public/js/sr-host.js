@@ -130,18 +130,7 @@ let mines = [];
 
 socket.on('sr-world', data => {
   offset = data.now - Date.now();
-  const seen = new Set();
-  for (const [n, name, x, y, a, v, team, color, hp, flags, kills, streak, z] of data.players) {
-    seen.add(n);
-    const o = players.get(n);
-    if (o) {
-      if (Math.hypot(o.tx - x, o.ty - y) > 260 || (o.flags & 1 && !(flags & 1))) { o.x = x; o.y = y; o.a = a; }
-      Object.assign(o, { tx: x, ty: y, ta: a, tz: z || 0, v, name, team, color, hp, flags, kills, streak });
-    } else {
-      players.set(n, { n, x, y, a, z: z || 0, tx: x, ty: y, ta: a, tz: z || 0, v, name, team, color, hp, flags, kills, streak });
-    }
-  }
-  for (const n of players.keys()) if (!seen.has(n)) players.delete(n);
+  SrDraw.sync(players, data);
   rockets = data.rockets.map(([id, x, y, a, n]) => ({ id, x, y, a, n }));
   mines = data.mines.map(([id, x, y, n, armed]) => ({ id, x, y, n, armed }));
   if (data.score) renderScore(data.score);
@@ -207,15 +196,8 @@ function frame(now) {
   last = now;
   if (view !== 'play' || !state) return;
   if (!canvas.width) resize();
-  for (const o of players.values()) {
-    o.x += (o.tx - o.x) * Math.min(1, dt * 12);
-    o.y += (o.ty - o.y) * Math.min(1, dt * 12);
-    let da = o.ta - o.a;
-    while (da > Math.PI) da -= Math.PI * 2;
-    while (da < -Math.PI) da += Math.PI * 2;
-    o.a += da * Math.min(1, dt * 12);
-    o.z = (o.z || 0) + ((o.tz || 0) - (o.z || 0)) * Math.min(1, dt * 14);
-  }
+  SrDraw.glide(players);
+  SrDraw.flyRockets(rockets, dt);
   const teams = state.mode === 'teams';
   const top = [...players.values()].reduce((m, o) => (o.streak >= 3 && (!m || o.streak > m.streak) ? o : m), null);
   // De leider: de meeste punten, en die nog in de arena rijdt.
