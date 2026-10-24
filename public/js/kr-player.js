@@ -42,6 +42,7 @@ socket.on('kr-state', s => {
   kr.state = s;
   kr.offset = s.now - Date.now();
   document.body.dataset.kr = s.active ? '1' : '';
+  if (s.active) krBg();
   if (!s.active) {
     kr.joined = false;
     return;
@@ -354,3 +355,22 @@ setInterval(() => {
   $('kr-clock').textContent = `${Math.floor(left / 60000)}:${String(Math.floor(left / 1000) % 60).padStart(2, '0')}`;
   krWallet();
 }, 500);
+
+// De kristalgrot als achtergrond: één keer getekend per schermgrootte, wat donkerder zodat de vragen leesbaar blijven.
+function krBg() {
+  const c = $('kr-bg');
+  const dpr = Math.min(1.5, window.devicePixelRatio || 1);
+  const w = Math.round(innerWidth * dpr);
+  const h = Math.round(innerHeight * dpr);
+  if (c.width === w && c.height === h) return;
+  c.width = w;
+  c.height = h;
+  const g = c.getContext('2d');
+  const art = KrArt.cave(w, h, 13);
+  g.drawImage(art.c, 0, 0);
+  art.lamps.forEach(([x, y]) => Glow.glow(g, x, y, 60 * dpr, '#7fdcff', .6));
+  g.fillStyle = 'rgba(4, 3, 14, .4)';
+  g.fillRect(0, 0, w, h);
+  Glow.vignette(g, w, h, .7);
+}
+window.addEventListener('resize', () => { if (document.body.dataset.kr === '1') krBg(); });

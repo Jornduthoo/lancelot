@@ -7,7 +7,7 @@
   <link rel="icon" type="image/png" href="/favicon.png">
   <link rel="stylesheet" href="/style.css">
 </head>
-<body class="sj-host">
+<body class="sj-host kr-host">
 <main>
   <div class="topbar">
     <div class="brand" id="brand" title="Naar het startscherm">
@@ -77,6 +77,8 @@
   </section>
 
   <section id="play" class="hidden">
+    <canvas class="sj-back" id="p-back"></canvas>
+    <canvas class="sj-front" id="p-front"></canvas>
     <div class="hud">
       <span class="round" id="p-title"></span>
       <span class="tw-clock" id="p-clock"></span>
@@ -85,7 +87,7 @@
     <div class="sj-board">
       <ol class="sj-race" id="p-race"></ol>
       <div class="tw-side">
-        <div class="panel center"><svg class="sj-chest kr-logo" viewBox="0 0 64 64"><path d="M32 4 L52 22 L32 60 L12 22 Z" fill="#4cc9ff" stroke="#e8f9ff" stroke-width="2"/><path d="M12 22 H52 L32 60 Z" fill="#1b8fd1"/><path d="M22 22 L32 4 L42 22 Z" fill="#9fe6ff"/><circle cx="48" cy="48" r="10" fill="#0b0a24" stroke="#ffd166" stroke-width="3"/><rect x="45" y="44" width="6" height="8" rx="1" fill="#ffd166"/></svg><p class="muted small">Kristallen van de hele klas</p><div class="sj-total" id="p-total">0</div></div>
+        <div class="panel center kr-vault"><canvas class="kr-crystal" id="p-crystal"></canvas><p class="muted small">Kristallen van de hele klas</p><div class="sj-total" id="p-total">0</div></div></div>
         <ul class="tw-feed" id="p-feed"></ul>
       </div>
     </div>
@@ -108,6 +110,7 @@
 <script src="/js/avatar.js"></script>
 <script src="/js/quiz-links.js"></script>
 <script src="/js/quiz-list.js"></script>
+<script src="/js/kr-art.js"></script>
 <script src="/js/kr-host.js"></script>
 <script src="/js/address.js"></script>
 <script src="/js/overzicht.js"></script>
