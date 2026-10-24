@@ -48,6 +48,7 @@ socket.on('vr-state', s => {
   vr.state = s;
   vr.offset = s.now - Date.now();
   document.body.dataset.vr = s.active ? '1' : '';
+  if (s.active) vrBg();
   if (!s.active) {
     vr.joined = false;
     return;
@@ -344,3 +345,22 @@ setInterval(() => {
   const left = Math.max(0, s.meeting.until - vrNow());
   $('vr-m-clock').textContent = ['praten', 'stemmen'].includes(s.meeting.step) ? Math.ceil(left / 1000) : '';
 }, 250);
+
+// De burchtzaal als achtergrond: één keer getekend per schermgrootte, wat donkerder zodat de vragen leesbaar blijven.
+function vrBg() {
+  const c = $('vr-bg');
+  const dpr = Math.min(1.5, window.devicePixelRatio || 1);
+  const w = Math.round(innerWidth * dpr);
+  const h = Math.round(innerHeight * dpr);
+  if (c.width === w && c.height === h) return;
+  c.width = w;
+  c.height = h;
+  const g = c.getContext('2d');
+  const art = VrArt.hall(w, h, 17);
+  g.drawImage(art.c, 0, 0);
+  art.torches.forEach(([x, y, u], i) => VrArt.torch(g, x, y, u, i, i));
+  g.fillStyle = 'rgba(5, 4, 12, .4)';
+  g.fillRect(0, 0, w, h);
+  Glow.vignette(g, w, h, .7);
+}
+window.addEventListener('resize', () => { if (document.body.dataset.vr === '1') vrBg(); });

@@ -1144,6 +1144,43 @@ body:not([data-vr="1"]) #verrader { display: none !important; }
 .vr-winner { text-align: center; font-size: 6rem; }
 .vr-final li.verrader { box-shadow: inset 0 0 0 2px var(--bad); }
 .vr-logo { filter: drop-shadow(0 0 24px rgba(255, 77, 109, .5)); }
+/* De Verrader: de burchtzaal bij nacht, de kern op een sokkel, de Ronde Tafel. */
+.vr-core-cv { display: block; width: 100%; height: 250px; }
+.vr-host .vr-core, .vr-host .vr-traitor-count { background: linear-gradient(180deg, rgba(22, 16, 40, .82), rgba(8, 6, 18, .9)); box-shadow: inset 0 0 0 1px rgba(76, 201, 255, .4), 0 0 30px rgba(76, 201, 255, .15); }
+.vr-host .vr-traitor-count { box-shadow: inset 0 0 0 1px rgba(255, 77, 109, .5), 0 0 30px rgba(255, 77, 109, .18); }
+.vr-host .vr-traitor-count .vr-mask { animation: kr-bob 3s ease-in-out infinite; filter: drop-shadow(0 0 16px rgba(255, 77, 109, .8)); }
+.vr-host .vr-core-bar { height: 22px; clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%); }
+.vr-host .vr-core-bar i { background: linear-gradient(90deg, #7a3dff, #4cc9ff 60%, #e8fbff); position: relative; }
+.vr-host .vr-core-bar i::after { content: ''; position: absolute; inset: 0; background: linear-gradient(100deg, transparent 30%, rgba(255, 255, 255, .5) 50%, transparent 70%); background-size: 250% 100%; animation: sj-shine 2.6s linear infinite; }
+.vr-host .vr-core-num { text-shadow: 0 0 22px var(--cyan-glow); }
+.vr-host .vr-person-card { position: relative; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 4px 10px; padding: 10px 12px; background: linear-gradient(180deg, rgba(32, 26, 54, .9), rgba(12, 9, 22, .92)); box-shadow: inset 0 0 0 1px rgba(201, 162, 74, .35), 0 4px 14px rgba(0, 0, 0, .4); clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px); }
+.vr-host .vr-person-card small { flex-basis: 100%; }
+.vr-host .vr-person-card .av-chip { height: 40px; width: auto; image-rendering: pixelated; }
+.vr-host .vr-person-card.ghost { background: linear-gradient(180deg, rgba(90, 60, 150, .5), rgba(30, 16, 60, .7)); box-shadow: inset 0 0 0 1px #c77dff, 0 0 18px rgba(199, 125, 255, .35); animation: vr-float 3s ease-in-out infinite; }
+.vr-host .vr-person-card.ghost .av-chip { opacity: .5; filter: hue-rotate(220deg) brightness(1.4); }
+@keyframes vr-float { 50% { transform: translateY(-4px); } }
+.vr-host .vr-person-card.traitor { box-shadow: inset 0 0 0 2px var(--bad), 0 0 20px rgba(255, 77, 109, .4); }
+.vr-host .tw-feed li { background: rgba(14, 10, 28, .85); }
+.vr-host .vr-stage { isolation: isolate; justify-content: flex-start; padding-top: 6vh; background: radial-gradient(ellipse at 50% 70%, rgba(80, 40, 10, .55), rgba(5, 4, 12, .92) 75%); }
+.vr-host .vr-stage[data-step="rollen"] { justify-content: center; }
+.vr-stage-cv { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
+.vr-host .vr-stage h2 { font-family: var(--head); text-shadow: 0 0 30px rgba(255, 178, 28, .55), 0 4px 0 rgba(0, 0, 0, .6); }
+.vr-host .vr-stage .vr-m-clock { position: absolute; left: 50%; top: 64%; transform: translate(-50%, -50%); text-shadow: 0 0 30px var(--cyan-glow), 0 4px 0 rgba(0, 0, 0, .7); }
+.vr-host .vr-stage .vr-votes { display: none; }
+.vr-host .vr-stage .actions { position: absolute; bottom: 5vh; left: 0; right: 0; justify-content: center; }
+.vr-bg { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: -1; pointer-events: none; }
+body:not([data-vr="1"]) .vr-bg { display: none; }
+body[data-vr="1"] { background: transparent; }
+body[data-vr="1"] .vr-top { padding: 8px 12px; background: linear-gradient(180deg, rgba(30, 22, 52, .9), rgba(10, 8, 20, .9)); box-shadow: inset 0 0 0 1px rgba(201, 162, 74, .45); clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px); }
+body[data-vr="1"] .vr-bar i { background: linear-gradient(90deg, #7a3dff, #4cc9ff 60%, #e8fbff); }
+body[data-vr="1"] .sj-card { background: linear-gradient(180deg, rgba(28, 20, 48, .9), rgba(10, 8, 20, .92)); box-shadow: inset 0 0 0 1px rgba(201, 162, 74, .35); }
+body[data-vr="1"] .vr-meeting { background: radial-gradient(ellipse at 50% 60%, rgb(80, 40, 12), rgb(5, 4, 12) 75%); }
+body[data-vr="1"] .vr-meeting h2 { font-family: var(--head); text-shadow: 0 0 22px rgba(255, 178, 28, .55); }
+body[data-vr="1"] .vr-roster button { background: linear-gradient(180deg, rgba(40, 30, 64, .95), rgba(16, 12, 28, .95)); box-shadow: inset 0 0 0 1px rgba(201, 162, 74, .45); }
+body[data-vr="1"] .vr-role-card { box-shadow: 0 0 40px rgba(0, 0, 0, .6); }
+body[data-vr="1"] .vr-role-card.ridder { box-shadow: inset 0 0 0 2px var(--cyan), 0 0 40px rgba(76, 201, 255, .4); }
+body[data-vr="1"] .vr-role-card.verrader { box-shadow: inset 0 0 0 2px var(--bad), 0 0 40px rgba(255, 77, 109, .5); }
+body[data-vr="1"] .vr-role-icon { animation: kr-bob 2.4s ease-in-out infinite; }
 .quiz-list.dragging .quiz-loose { min-height: 48px; }
 
 /* ---------- Burchtbouwers ---------- */
