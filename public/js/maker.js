@@ -8,15 +8,34 @@ let sources = [];
 const MAX_SOURCE_BYTES = 15 * 1024 * 1024;
 
 // forGemini: de lesstof gaat via LANcelot mee naar Gemini. Anders voegt de leerkracht hem zelf toe in de chatbot.
+// Het leerplandoel waarover de AI vragen maakt (mag leeg). Elke vraag krijgt dan dat doel.
+const makerDoel = DoelKies.field('', {
+  label: 'Leerplandoel (mag leeg)',
+  // Het niveau volgt het leerjaar van het doel.
+  onChange: code => {
+    const doel = DoelKies.find(code);
+    if (doel) $('m-level').value = `${doel.leerjaar}e leerjaar`;
+    updatePrompt();
+  },
+});
+$('m-doel').appendChild(makerDoel);
+
+function withDoel(quiz) {
+  const doel = DoelKies.read(makerDoel);
+  if (doel) for (const q of quiz.questions) q.doel = q.doel || doel;
+  return quiz;
+}
+
 function buildPrompt(forGemini = false) {
   const hasSources = forGemini ? sources.length > 0 : $('m-attach').checked;
-  const topic = $('m-topic').value.trim() || (hasSources ? 'de bijgevoegde lesstof' : '[ONDERWERP]');
+  const doel = DoelKies.find(DoelKies.read(makerDoel));
+  const topic = $('m-topic').value.trim() || (doel ? doel.cluster : '') || (hasSources ? 'de bijgevoegde lesstof' : '[ONDERWERP]');
   const level = $('m-level').value;
   const count = Math.min(40, Math.max(3, Number($('m-count').value) || 10));
   const time = Math.min(120, Math.max(5, Number($('m-time').value) || 20));
   const extra = $('m-extra').value.trim();
   return `Je bent een ervaren leerkracht in Vlaanderen. Maak een quiz voor leerlingen uit: ${level} (Belgisch onderwijs). Onderwerp: ${topic}.
-${hasSources ? '\nBaseer alle vragen op de bijgevoegde lesstof. Vraag alleen naar dingen die daarin staan.\n' : ''}${extra ? `\nExtra wensen van de docent:\n${extra}\n` : ''}
+${doel ? `\nDe vragen oefenen dit leerplandoel uit het Vlaamse leerplan Op.stap (${doel.vak}, ${doel.leerjaar}e leerjaar): "${doel.tekst}" Stel alleen vragen die precies dit doel oefenen.\n` : ''}${hasSources ? '\nBaseer alle vragen op de bijgevoegde lesstof. Vraag alleen naar dingen die daarin staan.\n' : ''}${extra ? `\nExtra wensen van de docent:\n${extra}\n` : ''}
 Regels:
 - Maak precies ${count} meerkeuzevragen in het Nederlands zoals in Vlaanderen.
 - Elke vraag heeft 4 antwoorden (bij een waar/niet waar-vraag 2), met precies één goed antwoord.
@@ -152,7 +171,7 @@ function parseAnswer(text, quiet) {
     }
     $('m-error').textContent = '';
     $('m-answer').value = '';
-    openEditor(res.quiz, null);
+    openEditor(withDoel(res.quiz), null);
   });
 }
 
@@ -239,6 +258,7 @@ function addQuestion(q) {
     <textarea class="q-text" rows="2" maxlength="250" placeholder="De vraag">${esc(q.question)}</textarea>
     <p class="muted small">Klik het rondje aan bij het goede antwoord.</p>
     <div class="answers">${answers}</div>`;
+  el.appendChild(DoelKies.field(q.doel));
   el.querySelector('.q-delete').addEventListener('click', () => {
     el.remove();
     renumber();
@@ -248,7 +268,9 @@ function addQuestion(q) {
 }
 
 $('e-add').addEventListener('click', () => {
-  addQuestion(emptyQuestion());
+  // Een nieuwe vraag oefent meestal hetzelfde doel als de vorige.
+  const last = $('e-questions').lastElementChild;
+  addQuestion({ ...emptyQuestion(), doel: last ? DoelKies.read(last.querySelector('.doel-veld')) : '' });
   $('e-questions').lastElementChild.querySelector('.q-text').focus();
 });
 
@@ -265,7 +287,7 @@ function readEditor() {
       if (j === checked) correct = answers.length;
       answers.push(t);
     });
-    return { question: el.querySelector('.q-text').value, answers, correct, time: Number(el.querySelector('.q-time').value) };
+    return { question: el.querySelector('.q-text').value, answers, correct, time: Number(el.querySelector('.q-time').value), doel: DoelKies.read(el.querySelector('.doel-veld')) };
   });
   return { title: $('e-title').value, questions };
 }
@@ -344,7 +366,7 @@ $('m-gemini').addEventListener('click', () => {
       $('m-gemini-error').textContent = res.error;
       return;
     }
-    openEditor(res.quiz, null);
+    openEditor(withDoel(res.quiz), null);
   });
 });
 

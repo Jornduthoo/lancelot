@@ -1245,3 +1245,22 @@ body:not([data-rk="1"]) #rijk { display: none !important; }
   .realm strong { font-size: 1.3rem; }
   .realm span { display: none; }
 }
+
+/* Klaslijst op het aanmeldscherm: leerlingen tikken hun naam aan. */
+.klas-namen { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; max-height: 46vh; overflow-y: auto; margin: 4px 0 6px; }
+.klas-namen button { flex: 0 1 auto; min-width: 7.5em; padding: 10px 14px; font-size: 1.05rem; background: var(--panel-solid); color: var(--text); border: 1px solid var(--line); }
+.klas-namen button:hover, .klas-namen button:focus-visible { border-color: var(--cyan); box-shadow: 0 0 12px var(--cyan-glow); }
+
+/* Mijn klas: leerplandoelen en het doel bij een vraag of oefening. */
+.doel-veld { display: grid; gap: 4px; }
+.doel-veld .doel-tekst { font-size: .85rem; color: var(--muted); min-height: 1em; }
+.doel-lijst { display: grid; gap: 6px; }
+.doel-lijst h3 { margin: 18px 0 4px; }
+.doel-lijst h4 { margin: 10px 0 2px; color: var(--muted); font-weight: 600; }
+.doel-rij { display: grid; grid-template-columns: 7.5em 1fr auto; gap: 10px; align-items: baseline; padding: 6px 10px; border: 1px solid var(--line); background: var(--panel); }
+.doel-rij code { color: var(--cyan); }
+.doel-rij .tags { display: flex; gap: 4px; flex-wrap: wrap; justify-content: flex-end; }
+.doel-rij .tag { font-style: normal; font-size: .75rem; padding: 1px 6px; border: 1px solid var(--line); color: var(--muted); white-space: nowrap; }
+.doel-rij .tag.plus { color: var(--gold); border-color: var(--gold); }
+.doel-rij .tag.log { color: var(--good); border-color: var(--good); }
+@media (max-width: 640px) { .doel-rij { grid-template-columns: 1fr; } .doel-rij .tags { justify-content: flex-start; } }

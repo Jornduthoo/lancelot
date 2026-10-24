@@ -2,6 +2,7 @@
 // de leerkracht ziet op het bord hoe ver iedereen staat en wat goed of fout is.
 // Feedback: 'direct' (meteen groen of rood) of 'inleveren' (pas na het inleveren).
 const sheets = require('./oefenbladen');
+const logboek = require('./logboek');
 
 class OefenbladLive {
   constructor(io, onFinish) {
@@ -25,6 +26,7 @@ class OefenbladLive {
     this.revealed = false;
     this.startedAt = 0;
     this.resultsFile = null;
+    this.logged = false;
   }
 
   get active() {
@@ -143,6 +145,7 @@ class OefenbladLive {
     for (const p of this.players.values()) {
       if (!p.submitted) { p.submitted = true; p.submittedAt = Date.now(); }
     }
+    this.log();
     try {
       this.resultsFile = this.onFinish ? this.onFinish(this) : null;
     } catch (err) {
@@ -150,6 +153,24 @@ class OefenbladLive {
     }
     this.broadcast();
     for (const p of this.players.values()) this.io.to(p.socketId).emit('ob-report', this.report(p));
+  }
+
+  // Elk verbeterd veld in het logboek, met het leerplandoel van de oefening. Een leeg veld telt als fout.
+  // Na heropenen en opnieuw afsluiten niet nog eens, anders telt hetzelfde blad dubbel.
+  log() {
+    if (this.logged) return;
+    this.logged = true;
+    const entries = [];
+    for (const p of this.players.values()) {
+      for (const f of this.graded) {
+        const block = this.sheet.blocks[f.block];
+        entries.push({
+          naam: p.name, spel: 'Oefenblad', bron: this.sheet.title, vraag: `Oefening ${f.block + 1}.${Number(f.id.split('.')[1]) + 1}: ${block.instruction || ''}`,
+          doel: block.doel, juist: p.results[f.id] === true, leeg: p.answers[f.id] === undefined,
+        });
+      }
+    }
+    logboek.add(entries);
   }
 
   stop() {

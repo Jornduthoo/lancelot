@@ -4,6 +4,7 @@
 const fs = require('fs');
 const path = require('path');
 const { library } = require('./library');
+const doelen = require('./doelen');
 const { extract } = require('./ai-json');
 
 const DIR = path.join(__dirname, '..', 'quizzes');
@@ -34,7 +35,11 @@ function validate(quiz) {
       throw new Error(`Vraag ${n} heeft geen geldig goed antwoord.`);
     }
     const time = Number(q.time);
-    return { question, answers, correct, time: Number.isInteger(time) && time >= 5 && time <= 120 ? time : 20 };
+    const out = { question, answers, correct, time: Number.isInteger(time) && time >= 5 && time <= 120 ? time : 20 };
+    // Het leerplandoel dat deze vraag oefent (mag ontbreken).
+    const doel = doelen.clean(q.doel);
+    if (doel) out.doel = doel;
+    return out;
   });
   return { title, questions };
 }

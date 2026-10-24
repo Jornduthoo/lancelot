@@ -231,6 +231,7 @@ socket.on('results', files => {
 });
 
 $('open-results').addEventListener('click', () => show('results'));
+$('open-klas').addEventListener('click', () => { location.href = '/klas'; });
 for (const b of document.querySelectorAll('.open-folder')) {
   b.addEventListener('click', () => socket.emit('open-results-folder'));
 }

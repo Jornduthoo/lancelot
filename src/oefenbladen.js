@@ -12,6 +12,7 @@ const fs = require('fs');
 const path = require('path');
 const { library } = require('./library');
 const { extract } = require('./ai-json');
+const doelen = require('./doelen');
 
 const DIR = path.join(__dirname, '..', 'oefenbladen');
 const TYPES = ['tekst', 'invullen', 'meerkeuze', 'juistfout', 'verbinden', 'woorden', 'overschrijven', 'open'];
@@ -120,7 +121,12 @@ function validate(sheet) {
   if (!sheet || typeof sheet !== 'object') throw new Error('Dit is geen oefenblad.');
   const title = text(sheet.title, 100);
   if (!title) throw new Error('Het oefenblad heeft geen titel.');
-  const blocks = list(sheet.blocks, 30).map((b, i) => cleanBlock(b, i + 1));
+  const blocks = list(sheet.blocks, 30).map((b, i) => {
+    const block = cleanBlock(b, i + 1);
+    // Het leerplandoel dat deze oefening oefent (mag ontbreken).
+    const doel = b.type !== 'tekst' && doelen.clean(b.doel);
+    return doel ? { ...block, doel } : block;
+  });
   if (!blocks.length) throw new Error('Het oefenblad heeft geen oefeningen.');
   return { title, level: text(sheet.level, 40), blocks };
 }
