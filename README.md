@@ -16,6 +16,8 @@ Het thema: middeleeuws met een scifi-kantje. Het startscherm heeft drie grote te
    - **Duel in de arena**: één tegen één op dezelfde vraag, wie eerst juist antwoordt slaat toe. Een toernooischema op het bord tot er één kampioen is
    - **Pac-Knight**: alle ridders samen in één neon doolhof. Raap kristallen en ontwijk de drones; een goed antwoord geeft een kracht waarmee jij op de drones jaagt
    - **Strijdrossen**: zoals Smash Karts. Hoverrossen in een 3D-gevechtsarena; lasers, raketten en mijnen krijg je alleen met goede antwoorden
+   - **Neon Duel**: zoals Street Fighter. De klas speelt in twee teams, op het bord vechten twee grote ridders. Elk goed antwoord is een slag, snel juist een combo, drie op rij een supermove
+   - **Leraar-baas**: de leerkracht is de eindbaas, een reuzenridder op het bord. De klas valt samen aan met goede antwoorden, de leerkracht slaat terug
    - **Het Rijk**: een spel dat weken doorloopt. Teams veroveren les na les gebieden op een kaart; vragen over oudere leerstof komen terug om je land te verdedigen
 2. **De Ronde Tafel**, peilen met de hele klas: polls, stellingen, woordwolken, open vragen en schalen, live op het bord. Met de knop **💡 Voorkennis activeren** in De Ronde Tafel maak je met AI meteen een peiling voor het begin van een les.
 3. **De Smidse**: oefenbladen maken. Een oefenblad speel je **live** (leerlingen vullen in, het verbetert zichzelf) of je kiest **🖨 Opslaan en printen** voor een werkblad op papier met verbeterblad.
@@ -28,7 +30,7 @@ LANcelot bewaart de ridder op de naam van de leerling in `avatars.json` (blijft 
 
 ## Tempo van de vragen
 
-In de Ridderrace, Laserslag, De prinses in de toren, Pac-Knight en Strijdrossen kies je het **tempo van de vragen**: *rustig* (een goed antwoord geeft veel brandstof, munitie, energie of een langere kracht), *normaal* of *intens* (alles raakt sneller op, dus vaker nieuwe vragen). LANcelot onthoudt je keuze.
+In de Ridderrace, Laserslag, De prinses in de toren, Pac-Knight, Strijdrossen, Neon Duel en Leraar-baas kies je het **tempo van de vragen**: *rustig* (een goed antwoord geeft veel brandstof, munitie, energie of een langere kracht), *normaal* of *intens* (alles raakt sneller op, dus vaker nieuwe vragen). LANcelot onthoudt je keuze.
 
 ## Starten (Windows)
 
@@ -154,6 +156,26 @@ Zoals Smash Karts: elke leerling rijdt op een hoverros door een open, ovale aren
 - **Tegen gokken**: na een fout antwoord blijft het juiste antwoord 3 seconden staan, en die vraag komt een paar vragen later terug. Tijdens een vraag zweeft je ros stil in een schild.
 - Chromebook: pijltjes of ZQSD/WASD rijden, spatie laser, F raket, X mijn, E vraag, 1-4 antwoorden. Gsm: duim links op het scherm en schuiven om te sturen (naar beneden is remmen), rechts vuren; het ros geeft vanzelf gas.
 - Elk antwoord komt in het logboek, met het leerplandoel. Resultaten (punten, uitgeschakeld, juist en fout) in `resultaten/`.
+
+## Neon Duel
+
+Een vechtspel zoals Street Fighter met de hele klas. LANcelot verdeelt de klas in **⚡ Team Bliksem** en **🔥 Team Vuur** (op een naam klikken zet die leerling in het andere team). Op het bord vechten twee grote ridders in een neon arena; elke ronde vecht een andere leerling uit elk team als kampioen, met zijn eigen ridder.
+
+- Elke leerling beantwoordt vragen op zijn gsm of Chromebook. **Elk goed antwoord is een slag** van de ridder van zijn team. **Snel juist** (binnen 6 seconden) is een **combo** (anderhalve keer zoveel schade), **drie juist op rij** een **supermove** (driedubbel). Slagen van het team vlak na elkaar tellen op als combo-teller.
+- Alle goede antwoorden van een team vullen samen de **energiebalk**. Is die vol, dan volgt de **NEON OVERDRIVE**: bliksems op de tegenstander.
+- Een ronde duurt tot een ridder **K.O.** gaat of de tijd op is (kies 1 tot 3 minuten). Kies 1 ronde, best of 3 of best of 5. Een groter team slaat vaker, dus elke slag doet dan iets minder schade.
+- **Tegen gokken**: na een fout antwoord blijft het juiste antwoord 3 seconden staan, en die vraag komt een paar vragen later terug.
+- Chromebook: 1-4 antwoorden. Elk antwoord komt in het logboek, met het leerplandoel. Resultaten (team, schade, supermoves, combo's, juist en fout) in `resultaten/`.
+
+## Leraar-baas
+
+Jij bent de eindbaas. Stel eerst je baas samen: dezelfde ridderonderdelen als de leerlingen, plus eindbaas-extra's (**reuzenharnas, duistere kroon, drakenmantel, gloeiende ogen, mech-troon**), de kleur van de ogen, een aura, je naam en een titel. LANcelot bewaart je baas in `settings.json` op deze pc.
+
+- Op het bord sta je als reuzenridder in je troonzaal, de ridders van de klas staan ervoor. **Elk goed antwoord is een slag** op de baas, **drie op rij een ridderslag** (driedubbel).
+- Je slaat terug met drie knoppen (of de toetsen A, V en S): **⚔️ Tegenaanval** (iedereen 3 seconden verdoofd, behalve wie een reeks van twee heeft: die pareert), **💀 Moeilijke vraag** (de vraag die tot nu toe het vaakst fout was, voor iedereen tegelijk: juist is driedubbele schade, fout kost moed) en **🛡️ Schildronde** (15 seconden een schild: breekt de klas het, dan ben je even kwetsbaar voor dubbele schade, anders genees je). Met **De baas slaat vanzelf** slaat de baas ook zelf af en toe toe.
+- De klas heeft een **moed**-balk: foute antwoorden en klappen van de baas kosten moed, goede antwoorden geven een beetje terug. Is je levensbalk op, dan wint de klas. Is de moed op of de tijd om, dan win jij.
+- **Tegen gokken**: na een fout antwoord blijft het juiste antwoord 3 seconden staan, en die vraag komt een paar vragen later terug.
+- Elk antwoord komt in het logboek, met het leerplandoel. Resultaten (schade, ridderslagen, baasvragen juist, juist en fout) in `resultaten/`.
 
 ## Duel in de arena
 

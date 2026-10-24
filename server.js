@@ -18,6 +18,8 @@ const { Burcht } = require('./src/burcht');
 const { Duel } = require('./src/duel');
 const { PacKnight } = require('./src/packnight');
 const { Strijdrossen } = require('./src/strijdrossen');
+const { NeonDuel } = require('./src/neonduel');
+const { LeraarBaas } = require('./src/leraarbaas');
 const rijken = require('./src/rijk');
 const avatars = require('./src/avatars');
 const { Verrader } = require('./src/verrader');
@@ -107,6 +109,18 @@ const rossen = new Strijdrossen(io, r => {
   return file;
 });
 
+const neon = new NeonDuel(io, d => {
+  const file = results.saveNeon(d);
+  io.to('host').emit('results', results.list());
+  return file;
+});
+
+const baas = new LeraarBaas(io, b => {
+  const file = results.saveBaas(b);
+  io.to('host').emit('results', results.list());
+  return file;
+});
+
 const rijk = new rijken.Rijk(io, r => {
   const file = results.saveRijk(r);
   io.to('host').emit('results', results.list());
@@ -124,7 +138,7 @@ const busyError = message => Object.assign(new Error(message), { busy: true });
 
 // Alles stoppen wat nog loopt (behalve het spel dat je wil starten). De resultaten worden bewaard zoals bij Stop.
 function stopOthers(except) {
-  const all = { toernooi: game, rondetafel: rt, toren, schat, laserslag, race, roof, verrader, burcht, duel, knight, rossen, rijk, oefenblad };
+  const all = { toernooi: game, rondetafel: rt, toren, schat, laserslag, race, roof, verrader, burcht, duel, knight, rossen, neon, baas, rijk, oefenblad };
   for (const [key, mod] of Object.entries(all)) {
     if (key === except) continue;
     if (key === 'toernooi' ? game.phase !== 'idle' : mod.active) mod.stop();
@@ -144,6 +158,8 @@ function busyWith(except) {
   if (except !== 'duel' && duel.active) return 'Duel in de arena loopt nog. Stop dat eerst.';
   if (except !== 'knight' && knight.active) return 'Pac-Knight loopt nog. Stop dat spel eerst.';
   if (except !== 'rossen' && rossen.active) return 'Strijdrossen loopt nog. Stop dat spel eerst.';
+  if (except !== 'neon' && neon.active) return 'Neon Duel loopt nog. Stop dat spel eerst.';
+  if (except !== 'baas' && baas.active) return 'Leraar-baas loopt nog. Stop dat spel eerst.';
   if (except !== 'rijk' && rijk.active) return 'Het Rijk loopt nog. Stop dat spel eerst.';
   if (except !== 'oefenblad' && oefenblad.active) return 'Er staat nog een oefenblad open. Sluit dat eerst.';
   return null;
@@ -167,7 +183,7 @@ function isLocal(address) {
   return ['127.0.0.1', '::1', '::ffff:127.0.0.1'].includes(address);
 }
 
-for (const [route, page] of [['/host', 'host.html'], ['/rondetafel', 'rondetafel.html'], ['/toren', 'toren.html'], ['/schattenjacht', 'schattenjacht.html'], ['/laserslag', 'laserslag.html'], ['/ridderrace', 'ridderrace.html'], ['/kristalroof', 'kristalroof.html'], ['/verrader', 'verrader.html'], ['/burchtbouwers', 'burchtbouwers.html'], ['/duel', 'duel.html'], ['/packnight', 'packnight.html'], ['/strijdrossen', 'strijdrossen.html'], ['/rijk', 'rijk.html'], ['/oefenblad', 'oefenblad.html'], ['/oefenblad-print', 'oefenblad-print.html'], ['/klas', 'klas.html']]) {
+for (const [route, page] of [['/host', 'host.html'], ['/rondetafel', 'rondetafel.html'], ['/toren', 'toren.html'], ['/schattenjacht', 'schattenjacht.html'], ['/laserslag', 'laserslag.html'], ['/ridderrace', 'ridderrace.html'], ['/kristalroof', 'kristalroof.html'], ['/verrader', 'verrader.html'], ['/burchtbouwers', 'burchtbouwers.html'], ['/duel', 'duel.html'], ['/packnight', 'packnight.html'], ['/strijdrossen', 'strijdrossen.html'], ['/neonduel', 'neonduel.html'], ['/leraarbaas', 'leraarbaas.html'], ['/rijk', 'rijk.html'], ['/oefenblad', 'oefenblad.html'], ['/oefenblad-print', 'oefenblad-print.html'], ['/klas', 'klas.html']]) {
   app.get(route, (req, res) => {
     if (!isLocal(req.socket.remoteAddress)) return res.status(403).send('Het docentenscherm is alleen bereikbaar op de pc van de leerkracht.');
     res.setHeader('Cache-Control', 'no-cache');
@@ -308,6 +324,8 @@ io.on('connection', socket => {
     socket.emit('du-state', duel.hostState());
     socket.emit('pk-state', knight.hostState());
     socket.emit('sr-state', rossen.hostState());
+    socket.emit('nd-state', neon.hostState());
+    socket.emit('lb-state', baas.hostState());
     socket.emit('rk-state', rijk.hostState());
     socket.emit('vr-state', verrader.hostState());
     socket.emit('ob-state', oefenblad.hostState());
@@ -521,6 +539,46 @@ io.on('connection', socket => {
     socket.on('pk-finish', () => knight.finish());
     socket.on('pk-restart', () => knight.quiz && knight.load(knight.quiz, knight.minutes, knight.tempo));
     socket.on('pk-stop', (_, cb) => cb && cb({ file: knight.stop() }));
+
+    // Neon Duel
+    socket.on('nd-load', handle(({ file, rounds, seconds, tempo } = {}) => {
+      const busy = busyWith('neon');
+      if (busy) throw busyError(busy);
+      neon.load(quizzes.load(file), Number(rounds), Number(seconds), tempo);
+      return {};
+    }));
+    socket.on('nd-start', (_, cb) => { const res = neon.start(); if (typeof cb === 'function') cb(res || {}); });
+    socket.on('nd-kick', id => neon.kick(id));
+    socket.on('nd-swap', id => neon.swap(id));
+    socket.on('nd-shuffle', () => neon.shuffle());
+    socket.on('nd-finish', () => neon.finish());
+    socket.on('nd-restart', () => neon.quiz && neon.load(neon.quiz, neon.bestOf, neon.roundSec, neon.tempo));
+    socket.on('nd-stop', (_, cb) => cb && cb({ file: neon.stop() }));
+
+    // Leraar-baas, met de eindbaas die de leerkracht zelf samenstelt (bewaard in settings.json).
+    socket.on('lb-load', handle(({ file, minutes, tempo, auto } = {}) => {
+      const busy = busyWith('baas');
+      if (busy) throw busyError(busy);
+      baas.load(quizzes.load(file), Number(minutes), tempo, auto !== false);
+      return {};
+    }));
+    socket.on('lb-start', () => baas.start());
+    socket.on('lb-kick', id => baas.kick(id));
+    socket.on('lb-move', (move, cb) => { const res = baas.teacherMove(String(move || '')); if (typeof cb === 'function') cb(res || {}); });
+    socket.on('lb-auto', on => baas.setAuto(Boolean(on)));
+    socket.on('lb-finish', () => baas.finish());
+    socket.on('lb-restart', () => baas.quiz && baas.load(baas.quiz, baas.minutes, baas.tempo, baas.auto));
+    socket.on('lb-stop', (_, cb) => cb && cb({ file: baas.stop() }));
+    socket.on('lb-boss-get', (_, cb) => typeof cb === 'function' && cb(settings.read().teacherBoss || null));
+    socket.on('lb-boss-set', (boss, cb) => {
+      const clean = LeraarBaas.cleanBoss(boss);
+      if (clean) {
+        settings.write({ teacherBoss: clean });
+        baas.boss = clean;
+        baas.broadcast();
+      }
+      if (typeof cb === 'function') cb(clean ? { ok: true, boss: clean } : { error: 'Ongeldige eindbaas.' });
+    });
 
     // Strijdrossen
     socket.on('sr-load', handle(({ file, minutes, mode, tempo } = {}) => {
@@ -805,6 +863,38 @@ io.on('connection', socket => {
   socket.on('sr-asking', sr((id, on) => rossen.asking(id, on)));
   socket.on('sr-question', sr(id => rossen.question(id)));
   socket.on('sr-answer', sr((id, choice) => rossen.answer(id, choice)));
+
+  // Neon Duel
+  socket.emit('nd-state', neon.base());
+  socket.on('nd-join', ({ playerId, name } = {}, cb) => {
+    if (!validId(playerId)) return cb && cb({ error: 'Ongeldige speler.' });
+    const result = neon.join(playerId, name, socket.id);
+    socket.data.ndId = result.ok ? playerId : null;
+    cb && cb(result);
+    if (result.ok) socket.emit('nd-state', neon.playerState(playerId));
+  });
+  const nd = fn => (arg, cb) => {
+    const out = socket.data.ndId ? fn(socket.data.ndId, arg) : { error: 'Meld je eerst aan.' };
+    if (typeof cb === 'function') cb(out || {});
+  };
+  socket.on('nd-question', nd(id => neon.question(id)));
+  socket.on('nd-answer', nd((id, choice) => neon.answer(id, choice)));
+
+  // Leraar-baas
+  socket.emit('lb-state', baas.base());
+  socket.on('lb-join', ({ playerId, name } = {}, cb) => {
+    if (!validId(playerId)) return cb && cb({ error: 'Ongeldige speler.' });
+    const result = baas.join(playerId, name, socket.id);
+    socket.data.lbId = result.ok ? playerId : null;
+    cb && cb(result);
+    if (result.ok) socket.emit('lb-state', baas.playerState(playerId));
+  });
+  const lb = fn => (arg, cb) => {
+    const out = socket.data.lbId ? fn(socket.data.lbId, arg) : { error: 'Meld je eerst aan.' };
+    if (typeof cb === 'function') cb(out || {});
+  };
+  socket.on('lb-question', lb(id => baas.question(id)));
+  socket.on('lb-answer', lb((id, choice) => baas.answer(id, choice)));
 
   // Het Rijk
   socket.emit('rk-state', rijk.base());
