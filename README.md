@@ -16,6 +16,8 @@ Het thema: middeleeuws met een scifi-kantje. Het startscherm heeft drie grote te
    - **Duel in de arena**: één tegen één op dezelfde vraag, wie eerst juist antwoordt slaat toe. Een toernooischema op het bord tot er één kampioen is
    - **Pac-Knight**: alle ridders samen in één neon doolhof. Raap kristallen en ontwijk de drones; een goed antwoord geeft een kracht waarmee jij op de drones jaagt
    - **Strijdrossen**: zoals Smash Karts. Hoverrossen in een 3D-gevechtsarena; lasers, raketten en mijnen krijg je alleen met goede antwoorden
+   - **Cyber-Galaga**: elke leerling vliegt op zijn eigen toestel met een jetpack tegen golven cyberdraken. Een goed antwoord geeft een beloning naar keuze (dubbele laser, schild of bom); op het einde verslaat de hele klas samen de klasbaas met één gedeelde levensbalk
+   - **Bomber-Knight**: zoals Bomberman, tot dertig ridders in één burchtarena. Een mijn kost energie en energie verdien je met goede antwoorden; uit kratten komen kristallen, grotere ontploffingen en schilden
    - **Het Rijk**: een spel dat weken doorloopt. Teams veroveren les na les gebieden op een kaart; vragen over oudere leerstof komen terug om je land te verdedigen
 2. **De Ronde Tafel**, peilen met de hele klas: polls, stellingen, woordwolken, open vragen en schalen, live op het bord. Met de knop **💡 Voorkennis activeren** in De Ronde Tafel maak je met AI meteen een peiling voor het begin van een les.
 3. **De Smidse**: oefenbladen maken. Een oefenblad speel je **live** (leerlingen vullen in, het verbetert zichzelf) of je kiest **🖨 Opslaan en printen** voor een werkblad op papier met verbeterblad.

@@ -59,6 +59,8 @@ document.querySelector('[data-module="burchtbouwers"]').addEventListener('click'
 document.querySelector('[data-module="duel"]').addEventListener('click', () => { location.href = '/duel'; });
 document.querySelector('[data-module="packnight"]').addEventListener('click', () => { location.href = '/packnight'; });
 document.querySelector('[data-module="strijdrossen"]').addEventListener('click', () => { location.href = '/strijdrossen'; });
+document.querySelector('[data-module="cybergalaga"]').addEventListener('click', () => { location.href = '/cybergalaga'; });
+document.querySelector('[data-module="bomberknight"]').addEventListener('click', () => { location.href = '/bomberknight'; });
 document.querySelector('[data-module="rijk"]').addEventListener('click', () => { location.href = '/rijk'; });
 document.querySelector('[data-module="voorkennis"]').addEventListener('click', () => { location.href = '/rondetafel?doel=voorkennis'; });
 document.querySelector('[data-module="oefenblad"]').addEventListener('click', () => { location.href = '/oefenblad'; });

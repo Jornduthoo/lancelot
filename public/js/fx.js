@@ -163,6 +163,7 @@ function confetti(duration = 4000) {
 const GAME_OF_EVENT = {
   load: 'toernooi', 'rt-load': 'rondetafel', 'tw-load': 'toren', 'sj-load': 'schat', 'ls-load': 'laserslag', 'rr-load': 'race',
   'bb-load': 'burcht', 'du-load': 'duel', 'pk-load': 'knight', 'sr-load': 'rossen', 'rk-load': 'rijk', 'kr-load': 'roof', 'vr-load': 'verrader', 'ob-load': 'oefenblad',
+  'cg-load': 'galaga', 'bk-load': 'bomber',
 };
 function loadGame(event, payload, cb) {
   socket.emit(event, payload, res => {

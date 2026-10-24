@@ -19,7 +19,7 @@ Laat het zwarte venster openstaan zolang je speelt. Dat is de server.
 
 De eerste keer kiest elke leerling na het aanmelden een **eigen ridder** (ridder of ridderes, haar, helm, harnas, rug, wapen, schild). Die blijft op zijn naam bewaard en komt terug in elk spel. Aanpassen kan altijd met **🛡️ Pas je ridder aan**.
 
-Bij de Ridderrace, Laserslag, de toren, Pac-Knight en Strijdrossen kies je ook het **tempo van de vragen**: *rustig*, *normaal* of *intens* (vaker nieuwe vragen).
+Bij de Ridderrace, Laserslag, de toren, Pac-Knight, Strijdrossen, Cyber-Galaga en Bomber-Knight kies je ook het **tempo van de vragen**: *rustig*, *normaal* of *intens* (vaker nieuwe vragen).
 
 ## De Ronde Tafel
 
@@ -100,6 +100,24 @@ Tip: zeg vooraf dat gokken niet loont. Na een fout antwoord moet je even wachten
 4. Met **🎥 Volg de leider** toon je de leider in 3D op het bord. Met **Tijd stoppen** toon je meteen het podium.
 
 Tip: zeg vooraf dat gokken niet loont. Na een fout antwoord moet je even wachten en komt de vraag terug.
+
+## Cyber-Galaga
+
+1. Kies op het startscherm **De Arena** en dan **Cyber-Galaga**, kies de speeltijd en het tempo en klik op de quiz.
+2. Leerlingen scannen de QR-code. Klik op **Opstijgen!** Wie later binnenkomt, kan nog meedoen.
+3. Elke leerling vliegt op zijn eigen toestel; de laser vuurt vanzelf. Gsm: schuif met je vinger ergens op het scherm. Chromebook: pijltjes of WASD, of de ridder volgt de muis. Met **⚡ Vraag** (of E) kiezen ze na een goed antwoord een dubbele laser, een schild of een bom; **💣** (of spatie) gooit de bom. Tijdens een vraag staat hun spel stil.
+4. Op het einde (de laatste 1 of 2 minuten) komt de **klasbaas**: de hele klas vecht samen tegen één levensbalk. Het bord toont de baas en wie hem raakt.
+5. Met **Nu stoppen** toon je meteen de eindstand.
+
+Tip: na een fout antwoord raakt de jetpack oververhit (even wachten, het juiste antwoord blijft staan) en komt de vraag later terug.
+
+## Bomber-Knight
+
+1. Kies op het startscherm **De Arena** en dan **Bomber-Knight**, kies de speeltijd en het tempo en klik op de quiz. Tot dertig leerlingen kunnen samen in één arena; de arena wordt groter met meer spelers.
+2. Leerlingen scannen de QR-code. Klik op **De arena in!** Wie later binnenkomt, kan nog meedoen.
+3. Lopen: gsm duim op het scherm en schuiven (loslaten is stilstaan), Chromebook pijltjes of WASD ingedrukt houden. **💣** (of spatie) legt een mijn en kost ⚡ energie; **⚡ Vraag** (of E) geeft energie. Wie een vraag beantwoordt, staat beschermd in een bel.
+4. Geraakt? Dan verlies je 3 kristallen en sta je na 3 seconden ergens anders weer op.
+5. Met **Nu stoppen** toon je meteen de eindstand.
 
 ## Duel in de arena
 

@@ -306,6 +306,42 @@ function saveKnight(k) {
   return write(now, `pac-knight-${slugOf(k.quiz.title)}`, lines);
 }
 
+function saveGalaga(g) {
+  const now = new Date();
+  const ranking = g.ranking();
+  const pct = (a, n) => (n ? `${Math.round((a / n) * 100)}%` : '-');
+  const b = g.boss;
+  const lines = [
+    row(['Cyber-Galaga', g.quiz.title]),
+    row(['Datum', stamp(now)]),
+    row(['Speeltijd', `${g.minutes} minuten`]),
+    row(['Tempo', g.tempo]),
+    row(['Klasbaas', b.down ? 'verslagen' : b.on ? `ontsnapt (${Math.max(0, Math.round(b.hp))} van ${b.max} leven over)` : 'niet bereikt']),
+    row(['Leerlingen', ranking.length]),
+    '',
+    row(['Rang', 'Naam', 'Punten', 'Draken', 'Hoogste golf', 'Schade aan de baas', 'Neergestort', 'Langste reeks', 'Vragen goed', 'Vragen fout', '% goed']),
+    ...ranking.map((p, i) => row([i + 1, p.name, p.score, p.dragons, p.wave, p.bossDmg, p.crashes, p.bestStreak, p.right, p.wrong, pct(p.right, p.right + p.wrong)])),
+  ];
+  return write(now, `cyber-galaga-${slugOf(g.quiz.title)}`, lines);
+}
+
+function saveBomber(k) {
+  const now = new Date();
+  const ranking = k.ranking();
+  const pct = (a, n) => (n ? `${Math.round((a / n) * 100)}%` : '-');
+  const lines = [
+    row(['Bomber-Knight', k.quiz.title]),
+    row(['Datum', stamp(now)]),
+    row(['Speeltijd', `${k.minutes} minuten`]),
+    row(['Tempo', k.tempo]),
+    row(['Leerlingen', ranking.length]),
+    '',
+    row(['Rang', 'Naam', 'Kristallen', 'Raak', 'Geraakt', 'Kratten', 'Langste reeks', 'Vragen goed', 'Vragen fout', '% goed']),
+    ...ranking.map((p, i) => row([i + 1, p.name, p.crystals, p.kos, p.deaths, p.crates, p.bestStreak, p.right, p.wrong, pct(p.right, p.right + p.wrong)])),
+  ];
+  return write(now, `bomber-knight-${slugOf(k.quiz.title)}`, lines);
+}
+
 function saveRossen(r) {
   const now = new Date();
   const ranking = r.ranking();
@@ -367,4 +403,4 @@ function saveRijk(r) {
   return write(now, `rijk-${slugOf(d.name)}`, lines);
 }
 
-module.exports = { save, saveKnight, saveRossen, saveRijk, saveRace, saveRoof, saveVerrader, saveBurcht, saveDuel, saveRondeTafel, saveToren, saveSchat, saveLaserslag, saveOefenblad, list, filePath, DIR };
+module.exports = { save, saveGalaga, saveBomber, saveKnight, saveRossen, saveRijk, saveRace, saveRoof, saveVerrader, saveBurcht, saveDuel, saveRondeTafel, saveToren, saveSchat, saveLaserslag, saveOefenblad, list, filePath, DIR };
