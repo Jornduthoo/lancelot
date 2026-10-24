@@ -306,6 +306,42 @@ function saveKnight(k) {
   return write(now, `pac-knight-${slugOf(k.quiz.title)}`, lines);
 }
 
+function saveGalaga(g) {
+  const now = new Date();
+  const ranking = g.ranking();
+  const pct = (a, n) => (n ? `${Math.round((a / n) * 100)}%` : '-');
+  const b = g.boss;
+  const lines = [
+    row(['Cyber-Galaga', g.quiz.title]),
+    row(['Datum', stamp(now)]),
+    row(['Speeltijd', `${g.minutes} minuten`]),
+    row(['Tempo', g.tempo]),
+    row(['Klasbaas', b.down ? 'verslagen' : b.on ? `ontsnapt (${Math.max(0, Math.round(b.hp))} van ${b.max} leven over)` : 'niet bereikt']),
+    row(['Leerlingen', ranking.length]),
+    '',
+    row(['Rang', 'Naam', 'Punten', 'Draken', 'Hoogste golf', 'Schade aan de baas', 'Neergestort', 'Langste reeks', 'Vragen goed', 'Vragen fout', '% goed']),
+    ...ranking.map((p, i) => row([i + 1, p.name, p.score, p.dragons, p.wave, p.bossDmg, p.crashes, p.bestStreak, p.right, p.wrong, pct(p.right, p.right + p.wrong)])),
+  ];
+  return write(now, `cyber-galaga-${slugOf(g.quiz.title)}`, lines);
+}
+
+function saveBomber(k) {
+  const now = new Date();
+  const ranking = k.ranking();
+  const pct = (a, n) => (n ? `${Math.round((a / n) * 100)}%` : '-');
+  const lines = [
+    row(['Bomber-Knight', k.quiz.title]),
+    row(['Datum', stamp(now)]),
+    row(['Speeltijd', `${k.minutes} minuten`]),
+    row(['Tempo', k.tempo]),
+    row(['Leerlingen', ranking.length]),
+    '',
+    row(['Rang', 'Naam', 'Kristallen', 'Raak', 'Geraakt', 'Kratten', 'Langste reeks', 'Vragen goed', 'Vragen fout', '% goed']),
+    ...ranking.map((p, i) => row([i + 1, p.name, p.crystals, p.kos, p.deaths, p.crates, p.bestStreak, p.right, p.wrong, pct(p.right, p.right + p.wrong)])),
+  ];
+  return write(now, `bomber-knight-${slugOf(k.quiz.title)}`, lines);
+}
+
 function saveRossen(r) {
   const now = new Date();
   const ranking = r.ranking();
@@ -367,4 +403,42 @@ function saveRijk(r) {
   return write(now, `rijk-${slugOf(d.name)}`, lines);
 }
 
-module.exports = { save, saveKnight, saveRossen, saveRijk, saveRace, saveRoof, saveVerrader, saveBurcht, saveDuel, saveRondeTafel, saveToren, saveSchat, saveLaserslag, saveOefenblad, list, filePath, DIR };
+function saveNeon(d) {
+  const now = new Date();
+  const ranking = d.ranking();
+  const pct = (a, n) => (n ? `${Math.round((a / n) * 100)}%` : '-');
+  const teams = d.teams || ['Team Bliksem', 'Team Vuur'];
+  const lines = [
+    row(['Neon Duel', d.quiz.title]),
+    row(['Datum', stamp(now)]),
+    row(['Rondes', `best of ${d.bestOf}`, `${d.roundSec} seconden per ronde`]),
+    row(['Tempo', d.tempo]),
+    row(['Eindstand', `${teams[0]} ${d.wins[0]} - ${d.wins[1]} ${teams[1]}`, d.winner >= 0 ? `${teams[d.winner]} wint` : 'gelijkspel']),
+    ...d.history.map(h => row([`Ronde ${h.round}`, h.winner >= 0 ? teams[h.winner] : 'gelijk', h.why === 'ko' ? 'K.O.' : 'tijd op'])),
+    row(['Leerlingen', ranking.length]),
+    '',
+    row(['Naam', 'Team', 'Schade', 'Supermoves', 'Combo\'s', 'Langste reeks', 'Vragen goed', 'Vragen fout', '% goed']),
+    ...ranking.map(p => row([p.name, teams[p.team], Math.round(p.dmg), p.supers, p.combos, p.bestStreak, p.right, p.wrong, pct(p.right, p.right + p.wrong)])),
+  ];
+  return write(now, `neon-duel-${slugOf(d.quiz.title)}`, lines);
+}
+
+function saveBaas(b) {
+  const now = new Date();
+  const ranking = b.ranking();
+  const pct = (a, n) => (n ? `${Math.round((a / n) * 100)}%` : '-');
+  const lines = [
+    row(['Leraar-baas', b.quiz.title]),
+    row(['Datum', stamp(now)]),
+    row(['Speeltijd', `${b.minutes} minuten`]),
+    row(['Tempo', b.tempo]),
+    row(['Uitkomst', b.outcome === 'klas' ? 'De klas verslaat de baas' : b.why === 'moed' ? 'De baas wint: de moed was op' : b.why === 'tijd' ? 'De baas wint: de tijd was om' : 'Gestopt', `baas nog ${Math.round(b.hp)}%`, `moed van de klas ${Math.round(b.moed)}%`]),
+    row(['Leerlingen', ranking.length]),
+    '',
+    row(['Naam', 'Schade', 'Ridderslagen', 'Baasvragen juist', 'Langste reeks', 'Vragen goed', 'Vragen fout', '% goed']),
+    ...ranking.map(p => row([p.name, Math.round(p.dmg), p.supers, p.bossRight, p.bestStreak, p.right, p.wrong, pct(p.right, p.right + p.wrong)])),
+  ];
+  return write(now, `leraar-baas-${slugOf(b.quiz.title)}`, lines);
+}
+
+module.exports = { save, saveKnight, saveRossen, saveRijk, saveRace, saveRoof, saveVerrader, saveBurcht, saveDuel, saveRondeTafel, saveToren, saveSchat, saveLaserslag, saveOefenblad, saveNeon, saveBaas, saveGalaga, saveBomber, list, filePath, DIR };

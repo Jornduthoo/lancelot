@@ -252,6 +252,14 @@ function rrOpenQuestion() {
   $('rr-q-result').className = 'tw-q-result';
   $('rr-q-fuel').style.width = `${rr.fuel}%`;
   socket.emit('rr-question', null, res => {
+    if (res && res.wait) {
+      $('rr-q-text').textContent = 'Even nadenken…';
+      return gokWait($('rr-q-result'), res.wait, () => {
+        if (!rr.question || !rr.question.loading) return;
+        rr.question = null;
+        rrOpenQuestion();
+      });
+    }
     if (!res || res.error) return rrCloseQuestion();
     rr.question = { answers: res.answers };
     $('rr-q-text').textContent = res.question;
@@ -290,11 +298,14 @@ function rrAnswer(i) {
     buzz(res.correct ? [30, 40, 30] : 200);
     rrHud();
     // Meteen de volgende vraag: wie wil, blijft tanken. Terug de baan op kan altijd.
-    setTimeout(() => {
+    const next = () => {
       if (!rr.question || !rr.question.done) return;
       rr.question = null;
       rrOpenQuestion();
-    }, res.correct ? 900 : 2000);
+    };
+    // Tegen gokken: na een fout blijft het juiste antwoord staan tot het wachten voorbij is.
+    if (res.correct) setTimeout(next, 900);
+    else gokWait($('rr-q-result'), Math.max(res.wait || 0, 2000), next);
   });
 }
 

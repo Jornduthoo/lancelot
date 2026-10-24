@@ -204,6 +204,7 @@ function vrNext() {
   vr.busy = true;
   socket.emit('vr-question', null, res => {
     vr.busy = false;
+    if (res && res.wait) return gokWait($('vr-q'), res.wait, vrNext);
     if (!res || res.error) return;
     vr.question = res;
     $('vr-number').textContent = `Taak ${res.number}`;
@@ -249,11 +250,13 @@ function vrAnswer(i) {
       setTimeout(() => { vrAlert(`🔍 Tip: ${res.hint} is te vertrouwen.`, 'good'); sfx.marker(); }, 600);
     }
     vrTools();
-    setTimeout(() => {
+    const next = () => {
       flash.classList.add('hidden');
       vr.question = null;
       vrNext();
-    }, res.correct ? 800 : 1800);
+    };
+    if (res.correct) setTimeout(next, 800);
+    else gokHold(flash, $('vr-q'), res, next);
   });
 }
 

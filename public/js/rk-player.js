@@ -142,6 +142,7 @@ function rkNext() {
   rk.busy = true;
   socket.emit('rk-question', null, res => {
     rk.busy = false;
+    if (res && res.wait) return gokWait($('rk-q'), res.wait, rkNext);
     if (!res || res.error) return;
     if (res.act) return rkPick(res.act);
     rk.question = res;
@@ -181,11 +182,13 @@ function rkAnswer(i) {
       : res.weakened ? `Mis... ${res.weakened} wordt zwakker.` : 'Mis! Geen zet deze keer.';
     if (res.correct) sfx.good(); else sfx.bad();
     buzz(res.correct ? [30, 40, 30] : 200);
-    setTimeout(() => {
+    const next = () => {
       flash.classList.add('hidden');
       rk.question = null;
       if (res.correct) rkPick(res.points); else rkNext();
-    }, res.correct ? 700 : 1800);
+    };
+    if (res.correct) setTimeout(next, 700);
+    else gokHold(flash, $('rk-q'), res, next);
   });
 }
 

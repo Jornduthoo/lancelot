@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LANcelot · Leraar-baas</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/neon.css">
+</head>
+<body class="sj-host lb-host">
+<main>
+  <div class="topbar">
+    <div class="brand" id="brand" title="Naar het startscherm">
+      <img src="/img/mark.webp" alt="">
+      <div>
+        <div class="wordmark">LAN<span>celot</span></div>
+        <div class="subtitle" id="status">Leraar-baas</div>
+      </div>
+    </div>
+    <div class="actions">
+      <span class="join-mini hidden" id="join-mini"></span>
+      <button class="secondary icon" id="mute" title="Geluid aan/uit">🔊</button>
+      <button class="secondary hidden" id="stop">Stop het spel</button>
+    </div>
+  </div>
+
+  <section id="setup">
+    <div class="bar">
+      <h2>Leraar-baas</h2>
+      <div class="actions">
+        <button class="secondary" id="to-home">Terug</button>
+        <button class="secondary" data-make="leeg">Lege quiz</button>
+        <button data-make="ai">Nieuwe quiz met AI</button>
+      </div>
+    </div>
+    <div class="panel tw-intro">
+      <div class="nd-logo"><span>👑</span></div>
+      <div>
+        <p><strong>Jij bent de eindbaas.</strong> Op het bord sta je als reuzenridder in je troonzaal. De klas valt samen aan: <strong>elk goed antwoord is een slag</strong>, drie op rij een <strong>ridderslag</strong> (driedubbel).</p>
+        <p>Jij slaat terug met de knoppen: een <strong>tegenaanval</strong> (iedereen even verdoofd, behalve wie een reeks heeft), een <strong>moeilijke vraag</strong> voor iedereen tegelijk, of een <strong>schildronde</strong>. Is je levensbalk op, dan wint de klas. Is de moed van de klas op of de tijd om, dan win jij.</p>
+        <p class="muted">Tegen gokken: na een fout antwoord even wachten (het juiste antwoord blijft staan), een fout kost wat moed, en die vraag komt later terug. Elk antwoord komt in het logboek.</p>
+      </div>
+    </div>
+
+    <div class="lb-builder panel">
+      <div class="lb-preview"><canvas id="b-canvas"></canvas></div>
+      <div class="lb-controls">
+        <h3>Bouw je eindbaas</h3>
+        <div class="lb-names">
+          <label>Naam<input id="b-naam" maxlength="24" placeholder="Meester Jorn"></label>
+          <label>Titel<input id="b-titel" maxlength="32" placeholder="de Onverslaanbare"></label>
+        </div>
+        <p class="lb-label">Eindbaas-extra's</p>
+        <div class="lb-extras" id="b-extras"></div>
+        <div class="lb-swatches">
+          <div><p class="lb-label">Kleur van de ogen</p><div class="lb-row" id="b-ogen"></div></div>
+          <div><p class="lb-label">Aura</p><div class="lb-row" id="b-aura"></div></div>
+        </div>
+        <p class="lb-label">De ridder</p>
+        <div class="lb-parts" id="b-parts"></div>
+        <div class="lb-actions">
+          <button class="secondary" id="b-random">🎲 Verras me</button>
+          <span class="muted small" id="b-saved"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel form">
+      <label>Speeltijd
+        <select id="lb-minutes">
+          <option value="5">5 minuten</option>
+          <option value="6">6 minuten</option>
+          <option value="8" selected>8 minuten</option>
+          <option value="10">10 minuten</option>
+          <option value="12">12 minuten</option>
+          <option value="15">15 minuten</option>
+        </select>
+      </label>
+      <label>Tempo van de vragen
+        <select id="lb-tempo" class="tempo-select">
+          <option value="rustig">Rustig: elke slag doet meer schade</option>
+          <option value="normaal" selected>Normaal</option>
+          <option value="intens">Intens: meer vragen om de baas te verslaan</option>
+        </select>
+      </label>
+      <label class="check"><input type="checkbox" id="lb-auto" checked> De baas slaat ook vanzelf af en toe toe</label>
+      <p class="muted small">Kies hieronder de quiz waaruit de vragen komen.</p>
+    </div>
+    <p class="notice hidden" id="stopped"></p>
+    <div class="quiz-list" id="quiz-list"></div>
+    <p class="error" id="load-error"></p>
+  </section>
+
+  <section id="lobby" class="hidden">
+    <div class="panel join">
+      <div class="qr" id="qr"></div>
+      <div class="join-text">
+        <p class="muted">Scan de QR-code of surf naar</p>
+        <div class="join-url" id="join-url"></div>
+        <p class="muted small" id="other-urls"></p>
+      </div>
+    </div>
+    <div class="bar">
+      <h2><span class="count" id="player-count">0</span> <span id="player-word">ridders</span> durven het aan</h2>
+      <button class="gold big" id="start" disabled>Daag de klas uit!</button>
+    </div>
+    <p class="muted small">Klik op een naam om die speler te verwijderen. Wie later binnenkomt, kan nog meedoen.</p>
+    <div class="names" id="names"></div>
+  </section>
+
+  <section id="play" class="hidden">
+    <div class="hud">
+      <span class="round" id="p-title"></span>
+      <label class="check lb-auto-play"><input type="checkbox" id="p-auto"> Baas slaat vanzelf</label>
+      <button class="secondary" id="p-full" title="Volledig scherm">⛶</button>
+      <button class="secondary" id="p-finish">Nu stoppen</button>
+    </div>
+    <div class="lb-board">
+      <div class="lb-stage" id="p-stage"><canvas id="p-canvas"></canvas></div>
+      <div class="lb-side">
+        <p class="lb-label">Sla terug</p>
+        <button class="lb-move" data-move="slag"><b>⚔️ Tegenaanval</b><span>Iedereen 3 s verdoofd, behalve wie een reeks heeft. Kost de klas moed.</span><i></i></button>
+        <button class="lb-move" data-move="vraag"><b>💀 Moeilijke vraag</b><span>De lastigste vraag, voor iedereen tegelijk. Juist = driedubbel, fout = minder moed.</span><i></i></button>
+        <button class="lb-move" data-move="schild"><b>🛡️ Schildronde</b><span>15 s een schild. Breekt de klas het, dan ben je kwetsbaar. Anders genees je.</span><i></i></button>
+        <p class="muted small">Toetsen: A, V en S.</p>
+        <div class="panel bb-builders"><p class="muted small">Meeste schade</p><ol id="p-top"></ol></div>
+        <ul class="tw-feed" id="p-feed"></ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="podium" class="hidden">
+    <div class="center"><h2 id="w-title"></h2><p class="muted" id="w-why"></p></div>
+    <ol class="ranking" id="final"></ol>
+    <p class="center muted" id="results-saved"></p>
+    <div class="bar">
+      <button class="secondary" id="restart">Revanche!</button>
+      <button id="close">Andere quiz kiezen</button>
+    </div>
+  </section>
+</main>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/fx.js"></script>
+<script src="/js/avatar.js"></script>
+<script src="/js/quiz-links.js"></script>
+<script src="/js/quiz-list.js"></script>
+<script src="/js/lb-draw.js"></script>
+<script src="/js/lb-host.js"></script>
+<script src="/js/address.js"></script>
+</body>
+</html>

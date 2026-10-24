@@ -835,7 +835,8 @@ class Gauntlet {
     socket.on('gt-stop', (_, cb) => cb && cb({ file: this.stop() }));
   }
 
-  attachPlayer(socket, validId) {
+  // guard: dezelfde vragen, maar met de gokcontrole van antigok.js ervoor.
+  attachPlayer(socket, validId, guard = this) {
     socket.emit('gt-state', this.base());
     socket.on('gt-join', ({ playerId, name } = {}, cb) => {
       if (!validId(playerId)) return cb && cb({ error: 'Ongeldige speler.' });
@@ -853,8 +854,8 @@ class Gauntlet {
     on('gt-attack', (id, m) => this.attack(id, m || {}));
     on('gt-special', id => this.special(id));
     on('gt-asking', (id, v) => this.asking(id, v));
-    on('gt-question', id => this.question(id));
-    on('gt-answer', (id, choice) => this.answer(id, choice));
+    on('gt-question', id => guard.question(id));
+    on('gt-answer', (id, choice) => guard.answer(id, choice));
   }
 }
 
