@@ -168,6 +168,7 @@ const oefenblad = new OefenbladLive(io, o => {
 
 // Tegen gokken: elk spel krijgt dezelfde regels (wachten na fout, vraag komt terug, seintje bij snel gokken).
 const gok = antigok.create(io);
+oefenblad.gok = gok;
 const guarded = {
   toren: gok.guard(toren, 'toren', 'De prinses in de toren'),
   schat: gok.guard(schat, 'schat', 'Schattenjacht'),

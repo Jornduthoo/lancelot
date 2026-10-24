@@ -863,6 +863,8 @@ body:not([data-ob="1"]) #oefenblad { display: none !important; }
 .ob-choice b { color: #8a7a55; margin-right: 4px; }
 .ob-choice:hover:not(:disabled) { box-shadow: inset 0 0 0 2px #3d8bff; }
 .ob-choice.on { background: #2a3350; color: #fff; box-shadow: none; }
+.ob-choices.ob-wacht { opacity: .55; }
+select.ob-wacht { opacity: .55; }
 .ob-choice.on b { color: #ffd98a; }
 .ob-choice:disabled { cursor: default; }
 .ob-choices.ok .ob-choice.on { background: #1a9e6e; }
