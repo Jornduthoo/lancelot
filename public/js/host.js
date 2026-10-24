@@ -65,6 +65,8 @@ document.querySelector('[data-module="cybergalaga"]').addEventListener('click', 
 document.querySelector('[data-module="bomberknight"]').addEventListener('click', () => { location.href = '/bomberknight'; });
 document.querySelector('[data-module="gauntlet"]').addEventListener('click', () => { location.href = '/gauntlet'; });
 document.querySelector('[data-module="royale"]').addEventListener('click', () => { location.href = '/ridder-royale'; });
+document.querySelector('[data-module="sterrenvreter"]').addEventListener('click', () => { location.href = '/sterrenvreter'; });
+document.querySelector('[data-module="ridderslang"]').addEventListener('click', () => { location.href = '/ridderslang'; });
 document.querySelector('[data-module="rijk"]').addEventListener('click', () => { location.href = '/rijk'; });
 document.querySelector('[data-module="voorkennis"]').addEventListener('click', () => { location.href = '/rondetafel?doel=voorkennis'; });
 document.querySelector('[data-module="oefenblad"]').addEventListener('click', () => { location.href = '/oefenblad'; });
