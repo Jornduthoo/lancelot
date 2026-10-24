@@ -100,14 +100,14 @@ function renderPlay() {
     : `<div class="vr-mask">🎭</div><p>Er ${s.traitors === 1 ? 'is' : 'zijn'} <strong>${s.traitors}</strong> ${s.traitors === 1 ? 'verrader' : 'verraders'} in de burcht.</p><p class="muted small">${alive} van ${s.roster.length} spelers doen nog mee.</p>`;
   $('p-people').innerHTML = s.roster.map(p => {
     const status = p.fate === 'betoverd' ? '<small>👻 betoverd</small>' : p.fate === 'verbannen' ? `<small>${p.role === 'verrader' ? '🎭 verrader' : '⚖️ geen verrader'}</small>` : '';
-    return `<div class="vr-person-card${p.alive ? '' : ' out'}${p.role === 'verrader' ? ' traitor' : ''}">${esc(p.name)}${status}</div>`;
+    return `<div class="vr-person-card${p.alive ? '' : ' out'}${p.role === 'verrader' ? ' traitor' : ''}${p.fate === 'betoverd' ? ' ghost' : ''}" data-av="${esc(p.name)}">${esc(p.name)}${status}</div>`;
   }).join('');
   const feedKey = JSON.stringify(s.feed);
   if (feedKey !== lastFeed) {
     const fresh = s.feed[0] && lastFeed && !lastFeed.includes(JSON.stringify(s.feed[0].text));
     lastFeed = feedKey;
     $('p-feed').innerHTML = s.feed.map(f => `<li>${esc(f.text)}</li>`).join('');
-    if (fresh && /^🌀/.test(s.feed[0].text)) sfx.boom();
+    if (fresh && /^🌀/.test(s.feed[0].text)) { sfx.boom(); VrScene.spell(); }
   }
   $('p-horn').classList.toggle('hidden', s.phase !== 'taken');
   renderStage();
@@ -154,6 +154,7 @@ function renderStage() {
     $('m-sub').textContent = r.banished
       ? (r.wasTraitor ? 'Het was een verrader! 🎭' : 'Het was geen verrader... 😱')
       : (r.tie ? 'De stemmen staken gelijk.' : 'De meesten sloegen over.');
+    if (r.skip) $('m-sub').textContent += ` · ${r.skip}× overgeslagen`;
     const rows = Object.entries(r.votes).sort((a, b) => b[1] - a[1]);
     const max = Math.max(1, r.skip, ...rows.map(x => x[1]));
     $('m-votes').innerHTML = [...rows, ...(r.skip ? [['Overslaan', r.skip]] : [])]
@@ -163,6 +164,83 @@ function renderStage() {
     }
   }
 }
+
+// De burchtzaal achter het bord, de kristalkern die heelt en de Ronde Tafel tijdens een vergadering.
+const VrScene = (() => {
+  const back = $('p-back');
+  const coreCv = $('p-core');
+  const tableCv = $('m-table');
+  const bctx = back.getContext('2d');
+  const cctx = coreCv.getContext('2d');
+  const tctx = tableCv.getContext('2d');
+  const dpr = Math.min(1.5, window.devicePixelRatio || 1);
+  let art = null;
+  let shown = 0;
+  let hit = 0;
+  let spell = 0;
+  let bolts = [];
+  let last = performance.now();
+  const fit = c => {
+    const w = Math.round(c.clientWidth * dpr), h = Math.round(c.clientHeight * dpr);
+    if (w && (c.width !== w || c.height !== h)) { c.width = w; c.height = h; }
+    return w > 0;
+  };
+  // Wie zit waar aan tafel, en wat staat er op zijn schild.
+  function seats() {
+    const m = state.meeting;
+    const r = m && m.step === 'uitslag' ? m.result : null;
+    return state.roster.map(p => {
+      const votes = r && r.votes ? r.votes[p.name] || 0 : 0;
+      const hot = (r && r.banished === p.name) || (m && m.step === 'gevonden' && m.victim === p.name);
+      const mark = r ? (votes ? String(votes) : '') : p.fate === 'betoverd' ? '👻' : p.fate === 'verbannen' ? '⚖️' : '';
+      return { name: p.name, out: !p.alive && !hot, hot, mark, color: p.role === 'verrader' ? '#ff4d6d' : '#4cc9ff' };
+    });
+  }
+  function frame(now) {
+    requestAnimationFrame(frame);
+    const dt = Math.min(.05, (now - last) / 1000);
+    last = now;
+    if (view !== 'play' || !state) return;
+    const t = now / 1000;
+    const w = Math.round(innerWidth * dpr), h = Math.round(innerHeight * dpr);
+    if (back.width !== w || back.height !== h) { back.width = w; back.height = h; }
+    if (!art || art.c.width !== w || art.c.height !== h) art = VrArt.hall(w, h);
+    bctx.drawImage(art.c, 0, 0);
+    art.torches.forEach(([x, y, u], i) => VrArt.torch(bctx, x, y, u, t, i * 2.7));
+    // Een betovering: paarse bliksem en een donkere flits.
+    if (spell > 0) {
+      bctx.fillStyle = `rgba(90, 20, 140, ${spell * .3})`;
+      bctx.fillRect(0, 0, w, h);
+      if (Math.random() < .3) bolts.push({ x: Math.random() * w, life: .25 });
+      spell = Math.max(0, spell - dt * .8);
+    }
+    bolts = bolts.filter(b => {
+      b.life -= dt;
+      if (b.life <= 0) return false;
+      Glow.lightning(bctx, b.x, 0, b.x + (Math.random() - .5) * w * .2, h * .7, '#d9a8ff', 3 * dpr);
+      return true;
+    });
+    Glow.vignette(bctx, w, h, .55);
+    // De kern.
+    const pct = state.target ? Math.min(1, state.kern / state.target) : 0;
+    if (pct > shown + .001) hit = 1;
+    shown += (pct - shown) * Math.min(1, dt * 3);
+    hit = Math.max(0, hit - dt * 2);
+    if (fit(coreCv)) {
+      cctx.clearRect(0, 0, coreCv.width, coreCv.height);
+      VrArt.core(cctx, coreCv.width / 2, coreCv.height * .42, Math.min(coreCv.width * .22, coreCv.height * .36), shown, t, hit);
+    }
+    // De Ronde Tafel.
+    if (!$('p-stage').classList.contains('hidden') && state.phase === 'tafel' && fit(tableCv)) {
+      const W = tableCv.width, H = tableCv.height;
+      tctx.clearRect(0, 0, W, H);
+      const rx = Math.min(W * .3, H * .42), ry = rx * .38;
+      VrArt.table(tctx, W / 2, H * .66, rx, ry, seats(), t);
+    } else if (tableCv.width) tctx.clearRect(0, 0, tableCv.width, tableCv.height);
+  }
+  requestAnimationFrame(frame);
+  return { spell: () => { spell = 1; } };
+})();
 
 setInterval(() => {
   if (view !== 'play' || !state) return;

@@ -7,7 +7,7 @@
   <link rel="icon" type="image/png" href="/favicon.png">
   <link rel="stylesheet" href="/style.css">
 </head>
-<body class="sj-host">
+<body class="sj-host vr-host">
 <main>
   <div class="topbar">
     <div class="brand" id="brand" title="Naar het startscherm">
@@ -99,6 +99,7 @@
   </section>
 
   <section id="play" class="hidden">
+    <canvas class="sj-back" id="p-back"></canvas>
     <div class="hud">
       <span class="round" id="p-title"></span>
       <span class="tw-clock" id="p-clock"></span>
@@ -110,6 +111,7 @@
     <div class="sj-board">
       <div class="vr-board">
         <div class="panel vr-core">
+          <canvas class="vr-core-cv" id="p-core"></canvas>
           <p class="muted small">Kristalkern</p>
           <div class="vr-core-bar"><i id="p-kern"></i></div>
           <div class="vr-core-num" id="p-kern-num"></div>
@@ -122,6 +124,7 @@
       </div>
     </div>
     <div class="vr-stage hidden" id="p-stage">
+      <canvas class="vr-stage-cv" id="m-table"></canvas>
       <h2 id="m-title"></h2>
       <p class="vr-m-sub" id="m-sub"></p>
       <div class="vr-m-clock big" id="m-clock"></div>
@@ -149,6 +152,8 @@
 <script src="/js/avatar.js"></script>
 <script src="/js/quiz-links.js"></script>
 <script src="/js/quiz-list.js"></script>
+<script src="/js/kr-art.js"></script>
+<script src="/js/vr-art.js"></script>
 <script src="/js/vr-host.js"></script>
 <script src="/js/address.js"></script>
 <script src="/js/overzicht.js"></script>
