@@ -5,6 +5,7 @@
 // De ridders winnen als de kern hersteld is of alle verraders verbannen zijn. De verraders winnen als ze even talrijk
 // worden als de ridders, of als de tijd op is.
 const logboek = require('./logboek');
+const quizzes = require('./quizzes');
 const TALK_MS = { kort: 45000, normaal: 75000, lang: 120000 };
 const VOTE_MS = 30000;
 const RESULT_MS = 7000;
@@ -131,7 +132,7 @@ class Verrader {
     if (!p || this.phase !== 'taken') return { error: 'Er zijn nu geen taken.' };
     if (p.question === null) {
       if (p.order.length === 0) {
-        p.order = this.quiz.questions.map((_, i) => i).sort(() => Math.random() - .5);
+        p.order = quizzes.order(this.quiz, p.name);
         if (p.order.length > 1 && p.order[0] === p.last) p.order.push(p.order.shift());
       }
       p.question = p.order.shift();

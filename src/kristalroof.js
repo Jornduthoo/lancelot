@@ -2,6 +2,7 @@
 // kristallen, een verdubbelaar, een schild, soms pech, of een roof. Bij een roof kies je een andere ridder
 // en raad je diens geheime woord. Juist geraden? Dan neem je een deel van zijn kristallen mee.
 const logboek = require('./logboek');
+const quizzes = require('./quizzes');
 const WORDS = [
   'draak', 'zwaard', 'kasteel', 'toren', 'ridder', 'kroon', 'schild', 'lans', 'burcht', 'kerker',
   'paard', 'banier', 'helm', 'harnas', 'boog', 'pijl', 'tovenaar', 'heks', 'reus', 'griffioen',
@@ -135,7 +136,7 @@ class Kristalroof {
     if (p.chests) return { chests: true };
     if (p.question === null) {
       if (p.order.length === 0) {
-        p.order = this.quiz.questions.map((_, i) => i).sort(() => Math.random() - .5);
+        p.order = quizzes.order(this.quiz, p.name);
         if (p.order.length > 1 && p.order[0] === p.last) p.order.push(p.order.shift());
       }
       p.question = p.order.shift();

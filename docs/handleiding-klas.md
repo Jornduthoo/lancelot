@@ -191,7 +191,7 @@ Elk oefenblad en elke quiz kan drie niveaus hebben: **🪶 Page** (met hulp), **
 4. Op de pagina **Mijn klas en doelen** zet je elke leerling op zijn niveau.
 5. Een oefenblad live zetten: kies bij **Niveau** of iedereen hetzelfde niveau krijgt, of elke leerling zijn niveau uit Mijn klas, of dat de leerling zelf kiest. Klik tijdens het werken op een naam om een leerling op een ander niveau te zetten.
 6. Printen: bovenaan het printblad kies je Page, Schildknaap, Ridder of **Alle drie** (elk niveau op een eigen blad). Het verbeterblad werkt hetzelfde.
-7. Quizspellen: heeft een quiz vragen op meerdere niveaus, dan kies je boven de quizlijst het **niveau van de klas**. Het spel gebruikt dan alleen de vragen van dat niveau, of alles door elkaar.
+7. Quizspellen: heeft een quiz vragen op meerdere niveaus, dan kies je boven de quizlijst het **niveau van de klas**. Het spel gebruikt dan alleen de vragen van dat niveau, of alles door elkaar. Met **👤 Per leerling** krijgt elke leerling de vragen van zijn eigen niveau uit Mijn klas. Dat werkt in alle spellen waar iedereen eigen vragen krijgt; in het Toernooi, Duel in de arena en Het Rijk spelen ze dan op Schildknaap.
 
 ## Mijn klas en de leerplandoelen
 

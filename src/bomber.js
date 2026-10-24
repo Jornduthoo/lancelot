@@ -6,6 +6,7 @@
 // De server beslist alles: leerlingen sturen alleen een richting en "mijn leggen".
 const logboek = require('./logboek');
 const { tempoOf, factor } = require('./tempo');
+const quizzes = require('./quizzes');
 
 const TICK_MS = 50;
 const STEP_MS = 175;        // tijd per vakje
@@ -297,7 +298,7 @@ class Bomber {
     this.asking(playerId, true);
     if (p.question === null) {
       if (p.order.length === 0) {
-        p.order = this.quiz.questions.map((_, i) => i).sort(() => Math.random() - .5);
+        p.order = quizzes.order(this.quiz, p.name);
         if (p.order.length > 1 && p.order[0] === p.last) p.order.push(p.order.shift());
       }
       p.question = p.order.shift();

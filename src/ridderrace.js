@@ -5,6 +5,7 @@
 const Track = require('../public/js/race-track');
 const { tempoOf, factor } = require('./tempo');
 const logboek = require('./logboek');
+const quizzes = require('./quizzes');
 
 const START_FUEL = 100;
 const MAX_TURBOS = 5;
@@ -192,7 +193,7 @@ class Ridderrace {
     p.asking = true;
     if (p.question === null) {
       if (p.order.length === 0) {
-        p.order = this.quiz.questions.map((_, i) => i).sort(() => Math.random() - .5);
+        p.order = quizzes.order(this.quiz, p.name);
         if (p.order.length > 1 && p.order[0] === p.last) p.order.push(p.order.shift());
       }
       p.question = p.order.shift();

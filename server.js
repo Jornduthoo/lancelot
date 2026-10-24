@@ -406,7 +406,7 @@ io.on('connection', socket => {
       try {
         const busy = busyWith('toernooi');
         if (busy) throw busyError(busy);
-        game.load(quizzes.play(file));
+        game.load(quizzes.play(file, { shared: true }));
         cb && cb({ ok: true });
       } catch (err) {
         cb && cb({ error: err.message, busy: !!err.busy });
@@ -427,7 +427,7 @@ io.on('connection', socket => {
     // Op welk niveau de klas de quizspellen speelt (Page, Schildknaap, Ridder of alles door elkaar).
     socket.emit('quiz-niveau', quizzes.classNiveau());
     socket.on('quiz-niveau', niveau => {
-      settings.write({ quizNiveau: niveau === 'alle' ? 'alle' : niveaus.clean(niveau) || 'schildknaap' });
+      settings.write({ quizNiveau: ['alle', 'leerling'].includes(niveau) ? niveau : niveaus.clean(niveau) || 'schildknaap' });
       io.to('host').emit('quiz-niveau', quizzes.classNiveau());
     });
     socket.on('klas-save', handle(data => {
@@ -607,7 +607,7 @@ io.on('connection', socket => {
     socket.on('du-load', handle(({ file, hearts } = {}) => {
       const busy = busyWith('duel');
       if (busy) throw busyError(busy);
-      duel.load(quizzes.play(file), Number(hearts));
+      duel.load(quizzes.play(file, { shared: true }), Number(hearts));
       return {};
     }));
     socket.on('du-start', (_, cb) => { const res = duel.start(); if (typeof cb === 'function') cb(res || {}); });
@@ -731,7 +731,7 @@ io.on('connection', socket => {
     socket.on('rk-load', handle(({ rijk: file, quiz, minutes } = {}) => {
       const busy = busyWith('rijk');
       if (busy) throw busyError(busy);
-      rijk.load(file, quizzes.play(quiz), quiz, Number(minutes));
+      rijk.load(file, quizzes.play(quiz, { shared: true }), quiz, Number(minutes));
       return {};
     }));
     socket.on('rk-start', () => rijk.start());
