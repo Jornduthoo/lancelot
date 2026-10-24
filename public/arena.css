@@ -1,9 +1,9 @@
 /* Gauntlet en Ridder-Royale: gedeelde stijl voor de leerling en het bord. */
 
 /* Op het leerlingscherm: als een van deze spellen loopt, verdwijnt de rest. */
-body[data-gt="1"] main > :not(#gauntlet), body[data-ry="1"] main > :not(#royale) { display: none !important; }
-body:not([data-gt="1"]) #gauntlet, body:not([data-ry="1"]) #royale { display: none !important; }
-#gauntlet, #royale { display: contents; }
+body[data-gt="1"] main > :not(#gauntlet), body[data-ry="1"] main > :not(#royale), body[data-sv="1"] main > :not(#sterren), body[data-rs="1"] main > :not(#slang) { display: none !important; }
+body:not([data-gt="1"]) #gauntlet, body:not([data-ry="1"]) #royale, body:not([data-sv="1"]) #sterren, body:not([data-rs="1"]) #slang { display: none !important; }
+#gauntlet, #royale, #sterren, #slang { display: contents; }
 
 .ak-game { position: fixed; inset: 0; z-index: 20; display: flex; flex-direction: column; background: #03050b; user-select: none; -webkit-user-select: none; }
 .ak-game.hidden { display: none; }
@@ -101,3 +101,11 @@ body:not([data-gt="1"]) #gauntlet, body:not([data-ry="1"]) #royale { display: no
 .ry-slow.hidden { display: none; }
 .ry-big { display: flex; gap: 18px; align-items: baseline; }
 .ry-big b { font-family: var(--tech); font-size: 2rem; color: var(--gold); text-shadow: 0 0 16px rgba(255, 201, 74, .6); }
+
+/* Sterrenvreter en Ridderslang */
+.sv-mass { font-family: var(--tech, Orbitron, sans-serif); font-size: 1.05rem; font-weight: 800; color: #fff; text-shadow: 0 0 10px var(--team, #4cc9ff); white-space: nowrap; }
+.rs-boost i { background: linear-gradient(90deg, #ff6bd6, #ffe17a); box-shadow: 0 0 14px rgba(255, 107, 214, .7); }
+.rs-boost { background: rgba(255, 107, 214, .12); }
+#rs-boost.ready, #sv-dash { opacity: 1; }
+#sv-game .ak-attack, #rs-game .ak-attack { background: radial-gradient(circle at 40% 35%, #fff6c9, #ffb703); box-shadow: 0 0 20px rgba(255, 201, 74, .7); }
+#rs-boost:not(.ready) { opacity: .5; }
