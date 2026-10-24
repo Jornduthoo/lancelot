@@ -61,6 +61,8 @@ document.querySelector('[data-module="packnight"]').addEventListener('click', ()
 document.querySelector('[data-module="neonduel"]').addEventListener('click', () => { location.href = '/neonduel'; });
 document.querySelector('[data-module="leraarbaas"]').addEventListener('click', () => { location.href = '/leraarbaas'; });
 document.querySelector('[data-module="strijdrossen"]').addEventListener('click', () => { location.href = '/strijdrossen'; });
+document.querySelector('[data-module="gauntlet"]').addEventListener('click', () => { location.href = '/gauntlet'; });
+document.querySelector('[data-module="royale"]').addEventListener('click', () => { location.href = '/ridder-royale'; });
 document.querySelector('[data-module="rijk"]').addEventListener('click', () => { location.href = '/rijk'; });
 document.querySelector('[data-module="voorkennis"]').addEventListener('click', () => { location.href = '/rondetafel?doel=voorkennis'; });
 document.querySelector('[data-module="oefenblad"]').addEventListener('click', () => { location.href = '/oefenblad'; });

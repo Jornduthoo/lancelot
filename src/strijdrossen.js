@@ -153,7 +153,8 @@ class Strijdrossen {
     if (!this.playing(p) || !p.alive || p.asking || s !== p.spawn) return;
     if (!Number.isFinite(x) || !Number.isFinite(y)) return;
     const h = Number.isFinite(z) ? Math.max(0, Math.min(400, z)) : 0;
-    if (Math.hypot(x - p.x, y - p.y) > 260 || World.blocked(x, y, World.R - 6, h)) {
+    // Ruim gerekend: op trage wifi komen berichten soms met een paar tegelijk. Wie ten onrechte teruggezet wordt, voelt dat als lag.
+    if (Math.hypot(x - p.x, y - p.y) > 420 || World.blocked(x, y, World.R - 10, h)) {
       // Onmogelijke sprong: de gsm terugzetten op de plek die de server kent.
       p.spawn++;
       return this.sendMe(p);
@@ -511,25 +512,26 @@ class Strijdrossen {
   }
 
   // Compacte posities: [n, naam, x, y, hoek, snelheid, team, kleur, levens, vlaggen, slagen, reeks, hoogte].
-  // Vlaggen: 1 uitgeschakeld, 2 beschermd, 4 aan het antwoorden.
+  // Vlaggen: 1 uitgeschakeld, 2 beschermd, 4 aan het antwoorden. De naam gaat maar één keer per seconde mee (anders 0).
+  // Volatile: een gsm die even achterloopt, krijgt geen stapel oude posities maar meteen de nieuwste.
   sendWorld() {
     const now = Date.now();
+    const full = this.changed || now - (this.hostSentAt || 0) > 1000;
     const list = [...this.players.values()].map(p => {
       const flags = (p.alive ? 0 : 1) | (p.safeUntil > now ? 2 : 0) | (p.asking ? 4 : 0);
-      return [p.n, p.name, Math.round(p.x), Math.round(p.y), +p.a.toFixed(2), Math.round(p.v), p.team, p.color, p.hp, flags, p.kills, p.streak, Math.round(p.z)];
+      return [p.n, full ? p.name : 0, Math.round(p.x), Math.round(p.y), +p.a.toFixed(2), Math.round(p.v), p.team, p.color, p.hp, flags, p.kills, p.streak, Math.round(p.z)];
     });
     const rockets = this.rockets.map(r => [r.id, Math.round(r.x), Math.round(r.y), +r.a.toFixed(2), r.owner.n]);
     const mines = this.mines.map(m => [m.id, Math.round(m.x), Math.round(m.y), m.owner.n, now >= m.armAt ? 1 : 0]);
     const payload = { now, players: list, rockets, mines, score: this.score };
-    if (this.changed || now - (this.hostSentAt || 0) > 1000) {
+    if (full) {
       this.changed = false;
       this.hostSentAt = now;
-      payload.ranking = this.ranking();
       payload.feed = this.feed;
     }
-    this.io.to('host').emit('sr-world', payload);
-    const forPlayers = { ...payload, ranking: undefined };
-    this.io.to('players').emit('sr-world', forPlayers);
+    this.io.to('players').volatile.emit('sr-world', payload);
+    if (full) payload.ranking = this.ranking();
+    this.io.to('host').volatile.emit('sr-world', payload);
   }
 
   broadcast() {

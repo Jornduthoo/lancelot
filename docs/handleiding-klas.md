@@ -96,7 +96,7 @@ Tip: zeg vooraf dat gokken niet loont. Na een fout antwoord moet je even wachten
 
 1. Kies op het startscherm **De Arena** en dan **Strijdrossen**, kies de spelvorm (ieder voor zich of rood tegen blauw), het tempo en de speeltijd en klik op de quiz.
 2. Leerlingen scannen de QR-code. Klik op **Start de strijd!** Wie later binnenkomt, kan nog meedoen.
-3. Leerlingen verdienen wapens met **⚡ Vraag** (of E). Chromebook: pijltjes rijden, spatie laser, F raket, X mijn. Gsm: duim links op het scherm en schuiven om te sturen, rechts de vuurknoppen.
+3. Leerlingen verdienen wapens met **⚡ Vraag** (of E). Chromebook: pijltjes rijden, spatie laser, F raket, X mijn. Gsm: duim links op het scherm en schuiven om te sturen, rechts de vuurknoppen. Lukt sturen in 3D niet? Laat ze met **V** of 🎥 naar *van bovenaf* wisselen: daar rijdt het ros gewoon de kant op die je duwt.
 4. Met **🎥 Volg de leider** toon je de leider in 3D op het bord. Met **Tijd stoppen** toon je meteen het podium.
 
 Tip: zeg vooraf dat gokken niet loont. Na een fout antwoord moet je even wachten en komt de vraag terug.

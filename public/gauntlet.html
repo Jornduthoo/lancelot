@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LANcelot · Gauntlet</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/arena.css">
+</head>
+<body class="sj-host">
+<main>
+  <div class="topbar">
+    <div class="brand" id="brand" title="Naar het startscherm">
+      <img src="/img/mark.webp" alt="">
+      <div>
+        <div class="wordmark">LAN<span>celot</span></div>
+        <div class="subtitle" id="status">Gauntlet</div>
+      </div>
+    </div>
+    <div class="actions">
+      <span class="join-mini hidden" id="join-mini"></span>
+      <button class="secondary icon" id="mute" title="Geluid aan/uit">🔊</button>
+      <button class="secondary hidden" id="stop">Stop het spel</button>
+    </div>
+  </div>
+
+  <section id="setup">
+    <div class="bar">
+      <h2>Gauntlet</h2>
+      <div class="actions">
+        <button class="secondary" id="to-home">Terug</button>
+        <button class="secondary" data-make="leeg">Lege quiz</button>
+        <button data-make="ai">Nieuwe quiz met AI</button>
+      </div>
+    </div>
+    <div class="panel tw-intro">
+      <canvas class="ak-intro" id="intro" width="220" height="140"></canvas>
+      <div>
+        <p>Ploegen van vier ridders vechten zich <strong>samen</strong> door een cyberkerker vol skeletbots, drones en kolossen. Elke leerling kiest een klasse: <strong>paladijn</strong>, <strong>mage</strong>, <strong>ranger</strong> of <strong>mech</strong>.</p>
+        <p>Je levenspunten lopen langzaam weg. <strong>Een goed antwoord geneest je hele ploeg</strong> en laadt je speciale kracht. Geveld? Dan kom je terug met een goed antwoord. Pas als iedereen die rechtop staat samen op het portaal staat, gaat de ploeg naar het volgende niveau.</p>
+        <p class="muted">Alle ploegen krijgen dezelfde kerkers. Wie raakt het diepst? Tegen gokken: na een fout antwoord even wachten (het juiste antwoord blijft staan), en die vraag komt later terug. Elk antwoord komt in het logboek.</p>
+      </div>
+    </div>
+    <div class="panel form">
+      <label>Speeltijd
+        <select id="gt-minutes">
+          <option value="5">5 minuten</option>
+          <option value="6">6 minuten</option>
+          <option value="8" selected>8 minuten</option>
+          <option value="10">10 minuten</option>
+          <option value="12">12 minuten</option>
+          <option value="15">15 minuten</option>
+        </select>
+      </label>
+      <label>Tempo van de vragen
+        <select id="gt-tempo" class="tempo-select">
+          <option value="rustig">Rustig: levens lopen trager weg</option>
+          <option value="normaal" selected>Normaal</option>
+          <option value="intens">Intens: vaker antwoorden om te overleven</option>
+        </select>
+      </label>
+      <p class="muted small">Kies hieronder de quiz waaruit de vragen komen.</p>
+    </div>
+    <p class="notice hidden" id="stopped"></p>
+    <div class="quiz-list" id="quiz-list"></div>
+    <p class="error" id="load-error"></p>
+  </section>
+
+  <section id="lobby" class="hidden">
+    <div class="panel join">
+      <div class="qr" id="qr"></div>
+      <div class="join-text">
+        <p class="muted">Scan de QR-code of surf naar</p>
+        <div class="join-url" id="join-url"></div>
+        <p class="muted small" id="other-urls"></p>
+      </div>
+    </div>
+    <div class="bar">
+      <h2><span class="count" id="player-count">0</span> <span id="player-word">ridders</span> klaar</h2>
+      <button class="gold big" id="start" disabled>De kerker in!</button>
+    </div>
+    <p class="muted small">Iedereen kiest op zijn scherm een klasse. Bij de start maakt LANcelot ploegen van vier. Klik op een naam om die speler te verwijderen.</p>
+    <div class="names" id="names"></div>
+  </section>
+
+  <section id="play" class="hidden">
+    <div class="hud">
+      <span class="round" id="p-title"></span>
+      <span class="tw-clock" id="p-clock"></span>
+      <button class="secondary" id="p-finish">Nu stoppen</button>
+    </div>
+    <div class="ak-board">
+      <div class="gt-grid" id="p-grid"></div>
+      <div class="tw-side">
+        <div class="panel bb-builders"><p class="muted small">Diepste ploeg</p><ol id="p-top"></ol></div>
+        <ul class="tw-feed" id="p-feed"></ul>
+      </div>
+    </div>
+    <div class="sj-countdown hidden" id="p-countdown"></div>
+  </section>
+
+  <section id="podium" class="hidden">
+    <div class="center"><h2 id="w-title"></h2><p class="muted" id="w-why"></p></div>
+    <ol class="ranking" id="final"></ol>
+    <p class="center muted" id="results-saved"></p>
+    <div class="bar">
+      <button class="secondary" id="restart">Nog een keer</button>
+      <button id="close">Andere quiz kiezen</button>
+    </div>
+  </section>
+</main>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/fx.js"></script>
+<script src="/js/avatar.js"></script>
+<script src="/js/quiz-links.js"></script>
+<script src="/js/quiz-list.js"></script>
+<script src="/js/arena-kit.js"></script>
+<script src="/js/gt-world.js"></script>
+<script src="/js/gt-draw.js"></script>
+<script src="/js/gt-host.js"></script>
+<script src="/js/address.js"></script>
+</body>
+</html>
