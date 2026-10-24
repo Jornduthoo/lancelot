@@ -273,14 +273,16 @@ const NeonDraw = (() => {
           ctx.save();
           ctx.translate(x + r, cy - r * 2 - bob);
           ctx.rotate(a);
-          ctx.strokeStyle = TEAM[p.stick].c;
-          ctx.shadowColor = TEAM[p.stick].c;
-          ctx.shadowBlur = H * .015;
-          ctx.lineWidth = H * .006;
+          // Gloed met een brede doorschijnende streep in plaats van shadowBlur: zelfde effect, veel lichter voor een Chromebook.
           ctx.lineCap = 'round';
           ctx.beginPath();
           ctx.moveTo(0, 0);
           ctx.lineTo(0, -H * .035);
+          ctx.strokeStyle = `${TEAM[p.stick].glow}.28)`;
+          ctx.lineWidth = H * .022;
+          ctx.stroke();
+          ctx.strokeStyle = TEAM[p.stick].c;
+          ctx.lineWidth = H * .006;
           ctx.stroke();
           ctx.restore();
         }

@@ -88,10 +88,53 @@ socket.on('rt-state', s => {
   }
 });
 
+// De ridderzaal achter het bord, met de Ronde Tafel in het welkomstscherm: elke ridder die aanschuift, krijgt een gouden schild.
+const RtScene = (() => {
+  const back = $('p-back');
+  const g = back.getContext('2d');
+  const table = $('w-table');
+  const tg = table.getContext('2d');
+  const dpr = Math.min(1.5, window.devicePixelRatio || 1);
+  let art = null;
+  let last = 0;
+  let joinedAt = 0;
+  function tick(now) {
+    requestAnimationFrame(tick);
+    // Fakkels flakkeren ook rustig mooi aan 20 beelden per seconde; dat spaart de Chromebook.
+    if (OWN_VIEWS.includes(view) || now - last < 50) return;
+    last = now;
+    const t = now / 1000;
+    const w = Math.round(innerWidth * dpr), h = Math.round(innerHeight * dpr);
+    if (back.width !== w || back.height !== h) { back.width = w; back.height = h; }
+    if (!art || art.c.width !== w || art.c.height !== h) {
+      art = VrArt.hall(w, h, 11);
+      const ag = art.c.getContext('2d');
+      ag.fillStyle = 'rgba(4, 3, 12, .5)';
+      ag.fillRect(0, 0, w, h);
+      Glow.vignette(ag, w, h, .6);
+    }
+    g.drawImage(art.c, 0, 0);
+    art.torches.forEach(([x, y, u], i) => VrArt.torch(g, x, y, u, t, i * 1.9));
+    if (view === 'welcome' && state) {
+      const tw = Math.round(table.clientWidth * dpr), th = Math.round(table.clientHeight * dpr);
+      if (table.width !== tw || table.height !== th) { table.width = tw; table.height = th; }
+      tg.clearRect(0, 0, tw, th);
+      const n = state.participants;
+      const total = Math.max(12, Math.min(40, Math.ceil((n + 1) / 4) * 4));
+      const hot = t - joinedAt < 1.2 ? n - 1 : -1;
+      const seats = Array.from({ length: total }, (_, i) => ({ name: '', out: i >= n, hot: i === hot, color: i < n ? '#ffc94a' : '#5a6a8a', mark: i < n ? '⚔' : '' }));
+      const ry = th * .3, rx = Math.min(tw * .36, ry * 2.6);
+      VrArt.table(tg, tw / 2, th * .46, rx, ry, seats, t);
+    }
+  }
+  requestAnimationFrame(tick);
+  return { joined: () => { joinedAt = performance.now() / 1000; } };
+})();
+
 function renderWelcome(sameRun) {
   $('w-title').textContent = state.title;
   const n = state.participants;
-  if (sameRun && n > prev.participants) sfx.join();
+  if (sameRun && n > prev.participants) { sfx.join(); RtScene.joined(); }
   $('w-count').textContent = n;
   $('w-word').textContent = n === 1 ? 'ridder' : 'ridders';
 }

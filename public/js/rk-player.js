@@ -42,6 +42,7 @@ socket.on('rk-state', s => {
   rk.state = s;
   rk.offset = s.now - Date.now();
   document.body.dataset.rk = s.active ? '1' : '';
+  if (s.active) rkBg();
   if (!s.active) {
     rk.joined = false;
     return;
@@ -212,7 +213,10 @@ function rkPick(points) {
 function rkFocus(s) {
   const canvas = $('rk-canvas');
   if (canvas.clientWidth > 700) return null;
-  return Object.keys(s.targets || {}).map(Number);
+  // Eerst inzoomen op wat je kan aanvallen; je eigen gebieden versterken kan ook als ze net buiten beeld vallen.
+  const all = Object.entries(s.targets || {});
+  const attack = all.filter(([, kind]) => kind !== 'versterk');
+  return (attack.length ? attack : all).map(([i]) => Number(i));
 }
 
 function rkDraw() {
@@ -256,3 +260,22 @@ $('rk-canvas').addEventListener('click', e => {
 });
 
 window.addEventListener('resize', () => { if (rk.picking) rkDraw(); });
+
+// De kaartenkamer achter de gsm of Chromebook: één keer per schermmaat getekend.
+function rkBg() {
+  const c = $('rk-bg');
+  const dpr = Math.min(1.5, window.devicePixelRatio || 1);
+  const w = Math.round(innerWidth * dpr);
+  const h = Math.round(innerHeight * dpr);
+  if (c.width === w && c.height === h) return;
+  c.width = w;
+  c.height = h;
+  const g = c.getContext('2d');
+  const art = RijkMap.room(w, h);
+  g.drawImage(art.c, 0, 0);
+  art.candles.forEach(([x, y], i) => RijkMap.candle(g, x, y, art.u, i, i));
+  g.fillStyle = 'rgba(6, 4, 10, .55)';
+  g.fillRect(0, 0, w, h);
+  Glow.vignette(g, w, h, .7);
+}
+window.addEventListener('resize', () => { if (document.body.dataset.rk === '1') rkBg(); });
