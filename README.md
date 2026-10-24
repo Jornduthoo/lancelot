@@ -15,6 +15,7 @@ Het thema: middeleeuws met een scifi-kantje. Het startscherm heeft drie grote te
    - **Burchtbouwers**: de hele klas bouwt samen één burcht. Elk goed antwoord is een steen die je zelf op een deel van de burcht legt. Als de tijd om is, valt de draak aan
    - **Duel in de arena**: één tegen één op dezelfde vraag, wie eerst juist antwoordt slaat toe. Een toernooischema op het bord tot er één kampioen is
    - **Pac-Knight**: alle ridders samen in één neon doolhof. Raap kristallen en ontwijk de drones; een goed antwoord geeft een kracht waarmee jij op de drones jaagt
+   - **Strijdrossen**: zoals Smash Karts. Hoverrossen in een 3D-gevechtsarena; lasers, raketten en mijnen krijg je alleen met goede antwoorden
    - **Het Rijk**: een spel dat weken doorloopt. Teams veroveren les na les gebieden op een kaart; vragen over oudere leerstof komen terug om je land te verdedigen
 2. **De Ronde Tafel**, peilen met de hele klas: polls, stellingen, woordwolken, open vragen en schalen, live op het bord. Met de knop **💡 Voorkennis activeren** in De Ronde Tafel maak je met AI meteen een peiling voor het begin van een les.
 3. **De Smidse**: oefenbladen maken. Een oefenblad speel je **live** (leerlingen vullen in, het verbetert zichzelf) of je kiest **🖨 Opslaan en printen** voor een werkblad op papier met verbeterblad.
@@ -27,7 +28,7 @@ LANcelot bewaart de ridder op de naam van de leerling in `avatars.json` (blijft 
 
 ## Tempo van de vragen
 
-In de Ridderrace, Laserslag, De prinses in de toren en Pac-Knight kies je het **tempo van de vragen**: *rustig* (een goed antwoord geeft veel brandstof, munitie, energie of een langere kracht), *normaal* of *intens* (alles raakt sneller op, dus vaker nieuwe vragen). LANcelot onthoudt je keuze.
+In de Ridderrace, Laserslag, De prinses in de toren, Pac-Knight en Strijdrossen kies je het **tempo van de vragen**: *rustig* (een goed antwoord geeft veel brandstof, munitie, energie of een langere kracht), *normaal* of *intens* (alles raakt sneller op, dus vaker nieuwe vragen). LANcelot onthoudt je keuze.
 
 ## Starten (Windows)
 
@@ -143,6 +144,16 @@ Zoals Pac-Man, maar met de hele klas in één doolhof. Elke leerling speelt op z
 - **Tegen gokken**: na een fout antwoord blijft het juiste antwoord 3 seconden staan voor er een nieuwe vraag komt, en die vraag komt een paar vragen later terug. Wie een vraag beantwoordt, staat stil in een beschermende bel.
 - Lopen: op de gsm vegen of de pijlen, op een Chromebook de pijltjes of WASD. E is een vraag, 1-4 antwoorden.
 - Het doolhof wordt bij elke start opnieuw gemaakt, groter naarmate er meer leerlingen zijn. Elk antwoord komt in het logboek, met het leerplandoel. Resultaten (kristallen, drones, gevangen, juist en fout) in `resultaten/`.
+
+## Strijdrossen
+
+Zoals Smash Karts: elke leerling rijdt op een hoverros door een neon gevechtsarena, ieder voor zich of rood tegen blauw. Op de gsm of Chromebook zie je je ros in 3D van achteren (of van bovenaf, wisselen met V of 🎥); het bord toont de hele arena, of met **🎥 Volg de leider** de leider in 3D.
+
+- **Wapens komen alleen uit goede antwoorden**: elk goed antwoord geeft ⚡ lasers (rustig meer, intens minder), 2 op rij een 🚀 raket die zelf een vijand zoekt, 3 op rij een 💣 mijn die je achter je ros legt.
+- Een laser kost 1 leven, een raket 2, een mijn 3. Uitgeschakeld? Na 3 seconden rijd je weer mee, even beschermd. Turbostroken op de vloer geven snelheid.
+- **Tegen gokken**: na een fout antwoord blijft het juiste antwoord 3 seconden staan, en die vraag komt een paar vragen later terug. Tijdens een vraag zweeft je ros stil in een schild.
+- Chromebook: pijltjes of ZQSD/WASD rijden, spatie laser, F raket, X mijn, E vraag, 1-4 antwoorden. Gsm: links sturen, rechts vuren; het ros geeft vanzelf gas en ▼ remt.
+- Elk antwoord komt in het logboek, met het leerplandoel. Resultaten (punten, uitgeschakeld, juist en fout) in `resultaten/`.
 
 ## Duel in de arena
 

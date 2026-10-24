@@ -19,7 +19,7 @@ Laat het zwarte venster openstaan zolang je speelt. Dat is de server.
 
 De eerste keer kiest elke leerling na het aanmelden een **eigen ridder** (ridder of ridderes, haar, helm, harnas, rug, wapen, schild). Die blijft op zijn naam bewaard en komt terug in elk spel. Aanpassen kan altijd met **🛡️ Pas je ridder aan**.
 
-Bij de Ridderrace, Laserslag, de toren en Pac-Knight kies je ook het **tempo van de vragen**: *rustig*, *normaal* of *intens* (vaker nieuwe vragen).
+Bij de Ridderrace, Laserslag, de toren, Pac-Knight en Strijdrossen kies je ook het **tempo van de vragen**: *rustig*, *normaal* of *intens* (vaker nieuwe vragen).
 
 ## De Ronde Tafel
 
@@ -89,6 +89,15 @@ Tip: zeg vooraf dat het samenwerken is. Wie op het bord ziet dat de poort te laa
 2. Leerlingen scannen de QR-code. Klik op **Het doolhof in!** Wie later binnenkomt, kan nog meedoen.
 3. Leerlingen lopen met vegen of de pijlen (Chromebook: pijltjes of WASD). Met **⚡ Vraag** (of E) verdienen ze een 💥 kracht, met **💥** (of spatie) gebruiken ze die.
 4. Met **Nu stoppen** toon je meteen de eindstand.
+
+Tip: zeg vooraf dat gokken niet loont. Na een fout antwoord moet je even wachten en komt de vraag terug.
+
+## Strijdrossen
+
+1. Kies op het startscherm **De Arena** en dan **Strijdrossen**, kies de spelvorm (ieder voor zich of rood tegen blauw), het tempo en de speeltijd en klik op de quiz.
+2. Leerlingen scannen de QR-code. Klik op **Start de strijd!** Wie later binnenkomt, kan nog meedoen.
+3. Leerlingen verdienen wapens met **⚡ Vraag** (of E). Chromebook: pijltjes rijden, spatie laser, F raket, X mijn. Gsm: knoppen.
+4. Met **🎥 Volg de leider** toon je de leider in 3D op het bord. Met **Tijd stoppen** toon je meteen het podium.
 
 Tip: zeg vooraf dat gokken niet loont. Na een fout antwoord moet je even wachten en komt de vraag terug.
 
