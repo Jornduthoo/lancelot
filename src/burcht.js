@@ -3,6 +3,7 @@
 // hoog genoeg zijn om zijn vuur te doorstaan. De burcht houdt stand als hooguit één deel valt.
 // Een samenwerkingsspel: niemand wint alleen, en elke steen telt.
 const logboek = require('./logboek');
+const quizzes = require('./quizzes');
 const PARTS = [
   { key: 'toren-w', name: 'Westertoren', kind: 'toren' },
   { key: 'muur-w', name: 'Westmuur', kind: 'muur' },
@@ -110,7 +111,7 @@ class Burcht {
     if (p.hand > 0) return { place: p.hand };
     if (p.question === null) {
       if (p.order.length === 0) {
-        p.order = this.quiz.questions.map((_, i) => i).sort(() => Math.random() - .5);
+        p.order = quizzes.order(this.quiz, p.name);
         if (p.order.length > 1 && p.order[0] === p.last) p.order.push(p.order.shift());
       }
       p.question = p.order.shift();

@@ -8,6 +8,7 @@ const doelen = require('./doelen');
 const { extract } = require('./ai-json');
 const niveaus = require('./niveaus');
 const settings = require('./settings');
+const klas = require('./klas');
 
 const DIR = path.join(__dirname, '..', 'quizzes');
 
@@ -72,10 +73,11 @@ function niveausOf(quiz) {
   return niveaus.NIVEAUS.filter(n => used.has(n));
 }
 
-// Het niveau waarop de klas de spellen speelt (gekozen boven de quizlijst). 'alle' = alle vragen door elkaar.
+// Het niveau waarop de klas de spellen speelt (gekozen boven de quizlijst). 'alle' = alle vragen door elkaar,
+// 'leerling' = elke leerling krijgt de vragen van zijn eigen niveau uit Mijn klas.
 function classNiveau() {
   const n = settings.read().quizNiveau;
-  return n === 'alle' ? 'alle' : niveaus.clean(n) || 'schildknaap';
+  return n === 'alle' || n === 'leerling' ? n : niveaus.clean(n) || 'schildknaap';
 }
 
 // Alleen de vragen van dit niveau. Heeft de quiz geen vragen op dat niveau, dan alle vragen.
@@ -85,9 +87,27 @@ function forNiveau(quiz, niveau) {
   return questions.length ? { ...quiz, questions } : quiz;
 }
 
-// Een quiz laden om te spelen: op het niveau van de klas.
-function play(file) {
-  return forNiveau(load(file), classNiveau());
+// Een quiz laden om te spelen: op het niveau van de klas, of met alle vragen als elke leerling zijn eigen niveau krijgt.
+// shared: iedereen krijgt dezelfde vragen (Toernooi, Duel, Het Rijk); per leerling wordt daar Schildknaap.
+function play(file, { shared = false } = {}) {
+  const quiz = load(file);
+  const n = classNiveau();
+  if (n === 'leerling' && shared) return forNiveau(quiz, 'schildknaap');
+  if (n === 'leerling') return niveausOf(quiz).length > 1 ? { ...quiz, perLeerling: true } : quiz;
+  return forNiveau(quiz, n);
+}
+
+// De vragen voor één leerling, door elkaar (als nummers in quiz.questions).
+// Speelt elke leerling op zijn eigen niveau, dan alleen de vragen van zijn niveau (Schildknaap als hij niet op de klaslijst staat).
+function order(quiz, name) {
+  let all = quiz.questions.map((_, i) => i);
+  if (quiz.perLeerling) {
+    const leerling = klas.match(name);
+    const niveau = (leerling && leerling.niveau) || 'schildknaap';
+    const mine = all.filter(i => (quiz.questions[i].niveau || 'schildknaap') === niveau);
+    if (mine.length) all = mine;
+  }
+  return all.sort(() => Math.random() - .5);
 }
 
 function checkFile(file) {
@@ -134,4 +154,4 @@ function remove(file) {
 
 const lib = library({ kind: 'quiz', dir: DIR, checkFile, load, save, validate, list });
 
-module.exports = { list, load, play, forNiveau, niveausOf, classNiveau, save, remove, validate, parseAiText, lib, DIR };
+module.exports = { list, load, play, order, forNiveau, niveausOf, classNiveau, save, remove, validate, parseAiText, lib, DIR };

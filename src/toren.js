@@ -4,6 +4,7 @@
 const world = require('../public/js/toren-world');
 const { tempoOf, factor } = require('./tempo');
 const logboek = require('./logboek');
+const quizzes = require('./quizzes');
 
 const START_ENERGY = 8;
 const MAX_ENERGY = 20;
@@ -152,7 +153,7 @@ class Toren {
     if (!p || this.phase !== 'play') return { error: 'Het spel loopt niet.' };
     if (p.question === null) {
       if (p.order.length === 0) {
-        p.order = this.quiz.questions.map((_, i) => i).sort(() => Math.random() - .5);
+        p.order = quizzes.order(this.quiz, p.name);
         // Niet twee keer na elkaar dezelfde vraag.
         if (p.order.length > 1 && p.order[0] === p.last) p.order.push(p.order.shift());
       }

@@ -7,6 +7,7 @@
 // en die vraag komt later terug.
 const logboek = require('./logboek');
 const { tempoOf, factor } = require('./tempo');
+const quizzes = require('./quizzes');
 
 const TICK_MS = 500;
 const WRONG_WAIT_MS = 3000;
@@ -130,7 +131,7 @@ class Galaga {
     if (now < p.waitUntil) return { error: 'Je jetpack koelt nog af.', wait: p.waitUntil - now };
     if (p.question === null) {
       if (p.order.length === 0) {
-        p.order = this.quiz.questions.map((_, i) => i).sort(() => Math.random() - .5);
+        p.order = quizzes.order(this.quiz, p.name);
         if (p.order.length > 1 && p.order[0] === p.last) p.order.push(p.order.shift());
       }
       p.question = p.order.shift();

@@ -5,6 +5,7 @@
 // De server beslist alles: leerlingen sturen alleen een richting. Het doolhof wordt bij elke start opnieuw gemaakt.
 const logboek = require('./logboek');
 const { tempoOf, factor } = require('./tempo');
+const quizzes = require('./quizzes');
 
 const TICK_MS = 40;
 const KNIGHT_MS = 165;      // tijd per vakje
@@ -299,7 +300,7 @@ class PacKnight {
     this.asking(playerId, true);
     if (p.question === null) {
       if (p.order.length === 0) {
-        p.order = this.quiz.questions.map((_, i) => i).sort(() => Math.random() - .5);
+        p.order = quizzes.order(this.quiz, p.name);
         if (p.order.length > 1 && p.order[0] === p.last) p.order.push(p.order.shift());
       }
       p.question = p.order.shift();

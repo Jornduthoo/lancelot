@@ -6,6 +6,7 @@
 // Een ronde duurt tot een ridder K.O. gaat of de tijd op is. Wie eerst de meeste rondes wint, wint het duel.
 const logboek = require('./logboek');
 const { tempoOf, factor } = require('./tempo');
+const quizzes = require('./quizzes');
 
 const TICK_MS = 250;
 const WRONG_WAIT_MS = 3000;
@@ -198,7 +199,7 @@ class NeonDuel {
     if (now < p.waitUntil) return { error: 'Even wachten.', wait: p.waitUntil - now };
     if (p.question === null) {
       if (p.order.length === 0) {
-        p.order = this.quiz.questions.map((_, i) => i).sort(() => Math.random() - .5);
+        p.order = quizzes.order(this.quiz, p.name);
         if (p.order.length > 1 && p.order[0] === p.last) p.order.push(p.order.shift());
       }
       p.question = p.order.shift();

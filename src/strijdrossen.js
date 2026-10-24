@@ -5,6 +5,7 @@
 const World = require('../public/js/sr-world');
 const logboek = require('./logboek');
 const { tempoOf, factor } = require('./tempo');
+const quizzes = require('./quizzes');
 
 const HP = 3;
 const START = { laser: 6, raket: 0, mijn: 0 };
@@ -376,7 +377,7 @@ class Strijdrossen {
     if (now < p.waitUntil) return { wait: p.waitUntil - now };
     if (p.question === null) {
       if (p.order.length === 0) {
-        p.order = this.quiz.questions.map((_, i) => i).sort(() => Math.random() - .5);
+        p.order = quizzes.order(this.quiz, p.name);
         if (p.order.length > 1 && p.order[0] === p.last) p.order.push(p.order.shift());
       }
       p.question = p.order.shift();

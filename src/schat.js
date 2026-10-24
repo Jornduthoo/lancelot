@@ -1,6 +1,7 @@
 // Schattenjacht: elke leerling beantwoordt op eigen tempo vragen en verdient goud.
 // Met dat goud koop je upgrades in de schatkamer. Wie na de speeltijd het meeste goud heeft, wint.
 const logboek = require('./logboek');
+const quizzes = require('./quizzes');
 
 // Upgrades: per niveau de waarde en de prijs om dat niveau te kopen (niveau 0 is gratis).
 const UPGRADES = {
@@ -90,7 +91,7 @@ class Schat {
     if (!this.playing(p)) return { error: 'Het spel loopt niet.' };
     if (p.question === null) {
       if (p.order.length === 0) {
-        p.order = this.quiz.questions.map((_, i) => i).sort(() => Math.random() - .5);
+        p.order = quizzes.order(this.quiz, p.name);
         if (p.order.length > 1 && p.order[0] === p.last) p.order.push(p.order.shift());
       }
       p.question = p.order.shift();
