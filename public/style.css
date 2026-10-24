@@ -1276,3 +1276,5 @@ body:not([data-rk="1"]) #rijk { display: none !important; }
 .doel-chip { display: grid; grid-template-columns: 7.5em 1fr auto; gap: 10px; align-items: center; padding: 4px 4px 4px 10px; border: 1px solid var(--cyan); background: rgba(76, 201, 255, .08); font-weight: 400; }
 .doel-chip code { color: var(--cyan); }
 .doel-chip button { padding: 4px 10px; }
+.klas-switch { margin-top: 10px; font-size: .85rem; padding: 6px 12px; }
+#ob-work .klas-switch { margin: 0 0 0 8px; }

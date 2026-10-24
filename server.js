@@ -242,6 +242,10 @@ function sendAddresses(target) {
 }
 
 io.on('connection', socket => {
+  // De namen op de klaslijst, om bij het aanmelden aan te tikken. Meteen meesturen, nog voor de stand van
+  // een spel: zo weet de leerling al of een onthouden naam op de lijst staat voordat hij automatisch meedoet.
+  socket.emit('klas-namen', klas.names());
+  socket.on('klas-namen', (_, cb) => typeof cb === 'function' && cb(klas.names()));
   const host = socket.handshake.query.role === 'host' && isLocal(socket.handshake.address);
 
   // Een leerling kwam binnen: via welk adres van deze pc? Dat adres werkt dus, en komt voortaan vooraan.
@@ -259,8 +263,7 @@ io.on('connection', socket => {
     if (avatars.set(name, avatar)) io.emit('avatars', avatars.all());
   });
 
-  // De namen op de klaslijst, om bij het aanmelden aan te tikken.
-  socket.on('klas-namen', (_, cb) => typeof cb === 'function' && cb(klas.names()));
+
 
   if (host) {
     socket.join('host');
