@@ -63,22 +63,36 @@ $('join').addEventListener('submit', e => {
 });
 $('name').value = myName;
 
+// Tegen spieken: elke leerling krijgt de antwoorden in een eigen volgorde, en alle blokken hebben dezelfde kleur.
+// De volgorde hangt af van de leerling en de vraag, zodat ze na herladen gelijk blijft.
+function myOrder(n, index, question) {
+  let h = 2166136261;
+  for (const ch of `${playerId}|${index}|${question}`) h = Math.imul(h ^ ch.charCodeAt(0), 16777619);
+  const order = [...Array(n).keys()];
+  for (let i = n - 1; i > 0; i--) {
+    h = Math.imul(h ^ (h >>> 15), 2246822507) >>> 0;
+    const j = h % (i + 1);
+    [order[i], order[j]] = [order[j], order[i]];
+  }
+  return order;
+}
+
 function buildButtons(state) {
   const box = $('answer-buttons');
   box.innerHTML = '';
-  for (let i = 0; i < state.answerCount; i++) {
+  myOrder(state.answerCount, state.index, state.question).forEach((orig, i) => {
     const b = document.createElement('button');
-    b.className = `answer a${i} enter`;
+    b.className = 'answer neutral enter';
     b.style.animationDelay = `${i * 70}ms`;
-    b.innerHTML = `${ICONS[i]}<span class="label"></span>`;
-    b.querySelector('.label').textContent = state.answers[i];
+    b.innerHTML = `<b class="rune">${i + 1}</b><span class="label"></span>`;
+    b.querySelector('.label').textContent = state.answers[orig];
     b.addEventListener('click', () => {
-      socket.emit('answer', i);
+      socket.emit('answer', orig);
       buzz(30);
       show('answered');
     });
     box.appendChild(b);
-  }
+  });
 }
 
 function startCountdown(ms) {
@@ -123,6 +137,7 @@ function render(state) {
         buildButtons(state);
       }
       $('q-progress').textContent = `Ronde ${state.index + 1} van ${state.total}`;
+      $('q-small').textContent = state.question || '';
       show('question');
       break;
     case 'reveal': {
