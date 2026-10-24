@@ -124,10 +124,9 @@ const SHAPE = {
   poort: { w: 1.25, perRow: 4 },
   donjon: { w: 1.45, perRow: 5 },
 };
-const STARS = Array.from({ length: 70 }, (_, i) => ({ x: (i * 97) % 1000 / 1000, y: (i * 37) % 100 / 100 * .55, s: i % 5 ? 1 : 2 }));
 
 function fit(canvas) {
-  const dpr = window.devicePixelRatio || 1;
+  const dpr = Math.min(1.5, window.devicePixelRatio || 1);
   const r = canvas.getBoundingClientRect();
   const w = Math.max(300, Math.round(r.width * dpr));
   const h = Math.max(200, Math.round(r.height * dpr));
@@ -138,137 +137,7 @@ function fit(canvas) {
 // fallen: per deel hoe ver het al ingestort is (0 tot 1); fire: welk deel nu brandt.
 function drawCastle(canvas, s, fx = {}) {
   const { w, h, dpr } = fit(canvas);
-  const g = canvas.getContext('2d');
-  const sky = g.createLinearGradient(0, 0, 0, h);
-  sky.addColorStop(0, '#040814');
-  sky.addColorStop(1, fx.fire !== undefined ? '#3a1408' : '#12233f');
-  g.fillStyle = sky;
-  g.fillRect(0, 0, w, h);
-  g.fillStyle = '#c9e6ff';
-  for (const st of STARS) g.fillRect(st.x * w, st.y * h, st.s * dpr, st.s * dpr);
-  g.fillStyle = '#f4f1d0';
-  g.beginPath(); g.arc(w * .9, h * .14, h * .05, 0, Math.PI * 2); g.fill();
-  const ground = h * .84;
-  g.fillStyle = '#0b1424';
-  g.fillRect(0, ground, w, h - ground);
-  g.fillStyle = 'rgba(76, 201, 255, .35)';
-  g.fillRect(0, ground, w, 2 * dpr);
-
-  const parts = s.parts;
-  const need = Math.max(1, s.need);
-  const totalW = parts.reduce((a, p) => a + SHAPE[p.kind].w, 0);
-  const margin = w * .05;
-  const unit = (w - margin * 2) / totalW;
-  const rowsOf = (n, kind) => n / SHAPE[kind].perRow;
-  const maxRows = Math.max(...parts.map(p => Math.max(rowsOf(p.height, p.kind), rowsOf(need, p.kind) * 1.35)), 4);
-  const bh = Math.min(30 * dpr, (ground - h * .12) / maxRows);
-  const stones = s.stones || [];
-  let x = margin;
-  parts.forEach((p, i) => {
-    const shape = SHAPE[p.kind];
-    const pw = unit * shape.w;
-    const inset = p.kind === 'toren' || p.kind === 'donjon' ? pw * .08 : pw * .02;
-    const left = x + inset;
-    const width = pw - inset * 2;
-    const bw = width / shape.perRow;
-    const fall = fx.fallen ? fx.fallen[i] || 0 : 0;
-    const shown = Math.round(p.height * (1 - fall * .75));
-    const colors = stones[i] || [];
-    for (let k = 0; k < shown; k++) {
-      const row = Math.floor(k / shape.perRow);
-      const col = k % shape.perRow;
-      const shift = row % 2 ? bw / 2 : 0;
-      let bx = left + col * bw + shift;
-      if (bx + bw > left + width + 1) bx -= width;
-      const by = ground - (row + 1) * bh;
-      g.fillStyle = '#56637c';
-      g.fillRect(bx, by, bw, bh);
-      g.fillStyle = '#7d8ba3';
-      g.fillRect(bx + dpr, by + dpr, bw - 2 * dpr, bh - 2 * dpr);
-      const c = COLORS[colors[k] % COLORS.length] || '#9fb4d9';
-      g.fillStyle = c;
-      g.globalAlpha = .55;
-      g.fillRect(bx + dpr, by + bh - 4 * dpr, bw - 2 * dpr, 3 * dpr);
-      g.globalAlpha = 1;
-    }
-    const rows = Math.ceil(shown / shape.perRow);
-    const top = ground - rows * bh;
-    // Kantelen, poort en vlag.
-    if (rows > 0 && (p.kind === 'toren' || p.kind === 'donjon' || p.kind === 'muur')) {
-      const n = p.kind === 'muur' ? 5 : 3;
-      for (let k = 0; k < n; k++) {
-        g.fillStyle = '#6b7891';
-        const mw = width / (n * 2 - 1);
-        g.fillRect(left + k * mw * 2, top - bh * .6, mw, bh * .6);
-      }
-    }
-    if (p.kind === 'poort' && rows >= 2) {
-      const gw = width * .45;
-      const gh = Math.min(rows, 4) * bh * .85;
-      g.fillStyle = '#0b0f1c';
-      g.beginPath();
-      g.moveTo(left + (width - gw) / 2, ground);
-      g.lineTo(left + (width - gw) / 2, ground - gh + gw / 2);
-      g.arc(left + width / 2, ground - gh + gw / 2, gw / 2, Math.PI, 0);
-      g.lineTo(left + (width + gw) / 2, ground);
-      g.fill();
-      g.strokeStyle = 'rgba(255, 201, 74, .5)';
-      g.lineWidth = 2 * dpr;
-      for (let k = 1; k < 4; k++) { g.beginPath(); g.moveTo(left + (width - gw) / 2 + (gw * k) / 4, ground); g.lineTo(left + (width - gw) / 2 + (gw * k) / 4, ground - gh + gw / 3); g.stroke(); }
-    }
-    if (p.kind === 'donjon' && rows > 0) {
-      g.strokeStyle = '#c9d6e6';
-      g.lineWidth = 2 * dpr;
-      g.beginPath(); g.moveTo(left + width / 2, top - bh * .6); g.lineTo(left + width / 2, top - bh * 2.6); g.stroke();
-      g.fillStyle = '#ffc94a';
-      g.beginPath(); g.moveTo(left + width / 2, top - bh * 2.6); g.lineTo(left + width / 2 + bh * 1.4, top - bh * 2.2); g.lineTo(left + width / 2, top - bh * 1.8); g.fill();
-    }
-    // De streep van de draak.
-    const needY = ground - rowsOf(need, p.kind) * bh;
-    const ok = p.height >= need;
-    g.setLineDash([8 * dpr, 6 * dpr]);
-    g.strokeStyle = ok ? 'rgba(46, 230, 166, .9)' : 'rgba(255, 120, 60, .95)';
-    g.lineWidth = 3 * dpr;
-    g.beginPath(); g.moveTo(x + 2 * dpr, needY); g.lineTo(x + pw - 2 * dpr, needY); g.stroke();
-    g.setLineDash([]);
-    // Naam en hoogte onder het deel.
-    g.textAlign = 'center';
-    g.fillStyle = '#eaf4ff';
-    g.font = `700 ${Math.round(Math.min(18 * dpr, unit * .16))}px 'Exo 2', sans-serif`;
-    g.fillText(p.name, x + pw / 2, ground + (h - ground) * .38);
-    g.fillStyle = ok ? '#2ee6a6' : '#ff9a5c';
-    g.font = `800 ${Math.round(Math.min(20 * dpr, unit * .18))}px 'Exo 2', sans-serif`;
-    g.fillText(`${p.height} / ${need}${ok ? ' ✔' : ''}`, x + pw / 2, ground + (h - ground) * .75);
-    // Vuur op het deel dat nu aangevallen wordt, en een schild of rook erna.
-    if (fx.fire === i) {
-      for (let k = 0; k < 40; k++) {
-        const t = (performance.now() / 600 + k / 40) % 1;
-        g.fillStyle = `rgba(255, ${120 + Math.round(k * 3) % 120}, 40, ${1 - t})`;
-        g.beginPath();
-        g.arc(x + pw / 2 + Math.sin(k * 7 + t * 6) * pw * .35, needY - h * .25 * (1 - t), (6 + t * 18) * dpr, 0, Math.PI * 2);
-        g.fill();
-      }
-    }
-    if (fx.result && fx.result[i] === 'held') {
-      g.strokeStyle = 'rgba(76, 201, 255, .8)';
-      g.lineWidth = 4 * dpr;
-      g.beginPath(); g.ellipse(x + pw / 2, ground - (top < needY ? ground - top : ground - needY) / 2, pw * .55, Math.max(bh, (ground - Math.min(top, needY)) * .6), 0, Math.PI, 0); g.stroke();
-    } else if (fx.result && fx.result[i] === 'fallen') {
-      g.fillStyle = 'rgba(40, 40, 50, .55)';
-      for (let k = 0; k < 6; k++) { g.beginPath(); g.arc(x + pw * (.2 + k * .13), top - bh * (1 + (k % 3)), bh * 1.4, 0, Math.PI * 2); g.fill(); }
-    }
-    x += pw;
-  });
-  // De draak.
-  if (fx.dragon) {
-    g.save();
-    g.font = `${Math.round(h * .22)}px serif`;
-    g.textAlign = 'center';
-    g.translate(fx.dragon.x * w, fx.dragon.y * h);
-    g.scale(-1, 1);
-    g.fillText('🐉', 0, 0);
-    g.restore();
-  }
+  BbArt.castle(canvas.getContext('2d'), w, h, dpr, s, fx, SHAPE, COLORS);
 }
 
 // Positie van de draak en wat er gebeurd is, op tijdstip now.
