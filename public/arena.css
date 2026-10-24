@@ -1,0 +1,103 @@
+/* Gauntlet en Ridder-Royale: gedeelde stijl voor de leerling en het bord. */
+
+/* Op het leerlingscherm: als een van deze spellen loopt, verdwijnt de rest. */
+body[data-gt="1"] main > :not(#gauntlet), body[data-ry="1"] main > :not(#royale) { display: none !important; }
+body:not([data-gt="1"]) #gauntlet, body:not([data-ry="1"]) #royale { display: none !important; }
+#gauntlet, #royale { display: contents; }
+
+.ak-game { position: fixed; inset: 0; z-index: 20; display: flex; flex-direction: column; background: #03050b; user-select: none; -webkit-user-select: none; }
+.ak-game.hidden { display: none; }
+.ak-game .ls-stage canvas { width: 100%; height: 100%; }
+.ak-game .ls-hud { border-bottom-color: var(--team, var(--line)); box-shadow: 0 2px 16px color-mix(in srgb, var(--team, #4cc9ff) 30%, transparent); }
+.ak-hud { gap: 12px; }
+.ak-hp { position: relative; flex: 0 1 220px; min-width: 110px; height: 22px; border-radius: 11px; background: rgba(255, 77, 109, .14); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .2); overflow: hidden; }
+.ak-hp i { position: absolute; inset: 0 auto 0 0; background: linear-gradient(90deg, #1fbf75, #6dffb3); box-shadow: 0 0 14px rgba(74, 222, 128, .7); transition: width .2s; }
+.ak-hp i.mid { background: linear-gradient(90deg, #e09b00, #ffd166); box-shadow: 0 0 14px rgba(255, 201, 74, .7); }
+.ak-hp i.low { background: linear-gradient(90deg, #c9183a, #ff6b86); box-shadow: 0 0 14px rgba(255, 77, 109, .8); animation: breathe .7s ease-in-out infinite; }
+.ak-hp span { position: relative; display: block; text-align: center; line-height: 22px; font-size: .78rem; color: #fff; text-shadow: 0 1px 2px #000; }
+.ak-charges { display: flex; gap: 2px; }
+.ak-charges i { font-style: normal; font-size: 1.1rem; opacity: .2; filter: grayscale(1); transition: opacity .2s, transform .2s; }
+.ak-charges i.on { opacity: 1; filter: none; transform: scale(1.1); }
+.ak-chip { font-size: .85rem; color: var(--cyan); white-space: nowrap; }
+.ak-chip.gold { color: var(--gold); }
+.ak-hud .ls-clock { margin-left: auto; }
+.ak-game.low .ak-hp { box-shadow: 0 0 0 2px var(--bad), 0 0 18px rgba(255, 77, 109, .6); }
+
+/* Duimjoystick */
+.ak-stick { position: absolute; width: 130px; height: 130px; margin: -65px 0 0 -65px; border-radius: 50%; border: 3px solid rgba(255, 201, 74, .6); background: rgba(255, 201, 74, .1); box-shadow: 0 0 24px rgba(255, 201, 74, .3); pointer-events: none; z-index: 3; }
+.ak-stick.hidden { display: none; }
+.ak-stick i { position: absolute; left: 50%; top: 50%; width: 58px; height: 58px; border-radius: 50%; background: radial-gradient(circle at 40% 35%, #fff3b0, #ffb703); box-shadow: 0 0 18px rgba(255, 201, 74, .8); transform: translate(-50%, -50%); }
+
+/* Knoppen rechts op de gsm */
+.ak-touch { position: absolute; right: 12px; bottom: 14px; display: grid; grid-template-columns: auto auto; grid-template-rows: auto auto; gap: 10px; align-items: end; justify-items: center; z-index: 3; }
+.ak-touch .ls-btn.down { transform: scale(.93); filter: brightness(1.3); }
+.ak-attack { grid-column: 2; grid-row: 1 / span 2; width: 116px !important; height: 116px !important; font-size: 2.6rem !important; background: radial-gradient(circle at 40% 35%, #ff8aa0, #ff2d4d); box-shadow: 0 0 24px rgba(255, 45, 77, .55); }
+.ak-special { width: 76px; height: 76px; font-size: 1.7rem; background: rgba(199, 125, 255, .12); box-shadow: inset 0 0 0 2px rgba(199, 125, 255, .4); opacity: .55; }
+.ak-special.ready { opacity: 1; background: radial-gradient(circle at 40% 35%, #f1dcff, #a855f7); box-shadow: 0 0 22px rgba(199, 125, 255, .8); animation: breathe 1.4s ease-in-out infinite; }
+.ak-ask { width: 76px; height: 76px; font-size: 1.7rem; color: var(--gold); background: rgba(255, 201, 74, .14); box-shadow: inset 0 0 0 2px rgba(255, 201, 74, .6); }
+.ak-game.low .ak-ask { background: rgba(255, 201, 74, .35); animation: breathe .8s ease-in-out infinite; }
+@media (hover: hover) and (pointer: fine) { .ak-touch { display: none; } }
+@media (max-width: 520px), (max-height: 420px) {
+  .ak-hud { gap: 8px; padding: 6px 8px; }
+  .ak-hp { min-width: 90px; }
+  .ak-chip { font-size: .72rem; }
+  .ak-attack { width: 98px !important; height: 98px !important; }
+  .ak-special, .ak-ask { width: 64px; height: 64px; font-size: 1.4rem; }
+}
+
+/* De ploeggenoten linksonder */
+.ak-team { position: absolute; left: 10px; bottom: 10px; display: flex; flex-direction: column; gap: 4px; pointer-events: none; z-index: 2; }
+.ak-team div { position: relative; width: 150px; padding: 2px 8px; background: rgba(6, 10, 19, .78); font-size: .78rem; font-weight: 800; border-left: 3px solid var(--team, var(--cyan)); overflow: hidden; }
+.ak-team div span { position: relative; z-index: 1; }
+.ak-team div i { position: absolute; left: 0; bottom: 0; height: 3px; background: #4ade80; }
+.ak-team div.down { opacity: .55; border-left-color: var(--bad); }
+@media (hover: none), (pointer: coarse) { .ak-team { left: auto; right: 10px; bottom: auto; top: 140px; } }
+.ak-question .tw-q-result small { display: block; margin-top: 4px; font-size: .95rem; color: var(--muted); }
+
+/* Lobby: een klasse kiezen */
+.gt-classes { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; text-align: left; }
+.gt-class { position: relative; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px; background: rgba(6, 10, 19, .6); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--cls) 35%, transparent); color: var(--text); text-transform: none; letter-spacing: 0; font-family: var(--body); }
+.gt-class canvas { width: 84px; height: 84px; }
+.gt-class strong { font-family: var(--tech); font-size: .95rem; color: var(--cls); }
+.gt-class span { font-size: .78rem; font-weight: 600; color: var(--muted); text-align: center; }
+.gt-class em { font-size: .72rem; font-style: normal; color: var(--text); text-align: center; opacity: .85; }
+.gt-class .gt-count { position: absolute; right: 8px; top: 6px; font-size: .7rem; color: var(--muted); }
+.gt-class.on { background: color-mix(in srgb, var(--cls) 18%, rgba(6, 10, 19, .7)); box-shadow: inset 0 0 0 3px var(--cls), 0 0 22px color-mix(in srgb, var(--cls) 50%, transparent); }
+@media (min-width: 900px) { .gt-classes { grid-template-columns: repeat(4, 1fr); } }
+
+/* Bord */
+.ak-intro { width: 220px; height: 140px; flex: none; }
+.ak-board { display: grid; grid-template-columns: 1fr 300px; gap: 14px; height: calc(100vh - 190px); min-height: 460px; }
+.gt-grid { display: grid; gap: 10px; min-height: 0; grid-template-columns: 1fr; grid-auto-rows: 1fr; }
+.gt-grid[data-n="2"] { grid-template-columns: 1fr 1fr; }
+.gt-grid[data-n="3"], .gt-grid[data-n="4"] { grid-template-columns: 1fr 1fr; }
+.gt-grid[data-n="5"], .gt-grid[data-n="6"] { grid-template-columns: repeat(3, 1fr); }
+.gt-grid[data-n="7"], .gt-grid[data-n="8"], .gt-grid[data-n="9"] { grid-template-columns: repeat(3, 1fr); }
+.gt-tile { position: relative; min-height: 0; border-radius: 12px; overflow: hidden; background: #03050b; box-shadow: inset 0 0 0 2px var(--team), 0 0 18px color-mix(in srgb, var(--team) 25%, transparent); }
+.gt-tile canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.gt-tile-head { position: absolute; left: 0; right: 0; top: 0; display: flex; gap: 10px; align-items: center; padding: 6px 10px; background: linear-gradient(180deg, rgba(3, 5, 11, .9), rgba(3, 5, 11, 0)); font-family: var(--tech); font-weight: 800; font-size: .85rem; }
+.gt-tile-head strong { color: var(--team); }
+.gt-tile-head .lv { color: var(--cyan); }
+.gt-tile-head .gold { margin-left: auto; color: var(--gold); }
+.gt-tile-hp { position: absolute; left: 8px; bottom: 8px; display: flex; gap: 4px; }
+.gt-tile-hp span { position: relative; width: 34px; padding: 1px 0 4px; text-align: center; background: rgba(3, 5, 11, .8); font-size: .9rem; }
+.gt-tile-hp span i { position: absolute; left: 0; bottom: 0; height: 3px; background: #4ade80; }
+.gt-tile-hp span.down { opacity: .45; }
+.gt-tile-banner { position: absolute; left: 50%; top: 40%; transform: translate(-50%, -50%); font-family: var(--tech); font-weight: 900; font-size: 1.6rem; color: var(--gold); text-shadow: 0 0 18px rgba(255, 201, 74, .8), 0 3px 0 #000; white-space: nowrap; animation: pop .3s ease-out; pointer-events: none; }
+.gt-tile-banner.hidden { display: none; }
+.ak-stage { position: relative; min-height: 0; border-radius: 14px; overflow: hidden; background: #03050b; box-shadow: inset 0 0 0 1px var(--line); }
+.ak-stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.ak-stage .bb-banner { z-index: 2; }
+@media (max-width: 1000px) { .ak-board { grid-template-columns: 1fr; height: auto; } .gt-grid, .ak-stage { height: 62vh; } }
+
+/* Ridder-Royale */
+.ry-alive { font-size: .85rem; color: var(--gold); white-space: nowrap; }
+.ry-zone { font-size: .8rem; color: #c77dff; white-space: nowrap; }
+.ry-zone.warn { color: var(--bad); animation: breathe .8s ease-in-out infinite; }
+.ry-ammo { font-size: 1rem; color: #ffd166; white-space: nowrap; }
+.ry-ammo.empty { color: var(--muted); opacity: .6; }
+.ak-game.slow .ls-hud { box-shadow: 0 2px 22px rgba(76, 201, 255, .6); }
+.ry-slow { position: absolute; left: 50%; top: 64px; transform: translateX(-50%); padding: 4px 14px; background: rgba(6, 10, 19, .85); border: 1px solid var(--cyan); color: var(--cyan); font-family: var(--tech); font-weight: 800; font-size: .85rem; pointer-events: none; z-index: 2; }
+.ry-slow.hidden { display: none; }
+.ry-big { display: flex; gap: 18px; align-items: baseline; }
+.ry-big b { font-family: var(--tech); font-size: 2rem; color: var(--gold); text-shadow: 0 0 16px rgba(255, 201, 74, .6); }
