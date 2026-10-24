@@ -200,6 +200,24 @@ span.play { padding: 13px 22px; display: flex; align-items: center; }
   font-family: var(--body); font-weight: 800; font-size: clamp(1.6rem, 3.6vw, 2.8rem);
   text-align: center; padding: 34px 28px; line-height: 1.2;
 }
+/* Op het bord: de vraag op een banier met gouden hoeken en een zachte gloed. */
+#question .question-text {
+  position: relative; padding: 40px 48px;
+  background:
+    linear-gradient(90deg, transparent, rgba(255, 201, 74, .10), transparent) top / 100% 2px no-repeat,
+    radial-gradient(ellipse at 50% 0, rgba(76, 201, 255, .18), transparent 70%),
+    linear-gradient(180deg, #13203c, #0a1124);
+  box-shadow: inset 0 0 0 2px rgba(255, 201, 74, .45), 0 0 40px rgba(76, 201, 255, .15);
+  text-shadow: 0 0 24px rgba(127, 220, 255, .35), 0 3px 4px rgba(0, 0, 0, .6);
+}
+#question .question-text::before, #question .question-text::after {
+  content: ''; position: absolute; top: 8px; width: 34px; height: 34px; pointer-events: none;
+  border: 3px solid #ffc94a; filter: drop-shadow(0 0 6px rgba(255, 201, 74, .7));
+}
+#question .question-text::before { left: 8px; border-right: 0; border-bottom: 0; }
+#question .question-text::after { right: 8px; border-left: 0; border-bottom: 0; }
+#question .answers .answer { min-height: 130px; font-size: 1.7rem; }
+#question .answers .answer svg { width: 48px; height: 48px; }
 .intro-bar { height: 6px; background: rgba(76, 201, 255, .15); overflow: hidden; }
 .intro-bar div { height: 100%; background: var(--cyan); box-shadow: 0 0 14px var(--cyan); transform-origin: left; }
 .intro-label { font-family: var(--tech); letter-spacing: .3em; text-transform: uppercase; color: var(--muted); text-align: center; }
@@ -215,25 +233,67 @@ span.play { padding: 13px 22px; display: flex; align-items: center; }
 /* ---------- Antwoordtegels ---------- */
 .answers { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 .answer {
+  --c: var(--cyan);
   position: relative; overflow: hidden;
   padding: 20px 22px; min-height: 96px;
   color: #fff; font-size: 1.4rem; font-weight: 800;
   display: flex; align-items: center; gap: 14px; text-align: left;
+  text-shadow: 0 2px 3px rgba(0, 0, 0, .55);
   clip-path: polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px);
-  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, .18), inset 0 -40px 60px rgba(0, 0, 0, .18);
+  /* Een metalen plaat met gouden klinknagels, getint in de kleur van het antwoord, met een lichtende rand links. */
+  background:
+    radial-gradient(circle at 22px 9px, #ffe08a 0 2px, transparent 3px),
+    radial-gradient(circle at calc(100% - 9px) 9px, #ffe08a 0 2px, transparent 3px),
+    radial-gradient(circle at 9px calc(100% - 9px), #ffe08a 0 2px, transparent 3px),
+    radial-gradient(circle at calc(100% - 22px) calc(100% - 9px), #ffe08a 0 2px, transparent 3px),
+    linear-gradient(180deg, rgba(255, 255, 255, .16), transparent 42%),
+    linear-gradient(135deg, color-mix(in srgb, var(--c) 62%, #0b1224) 0%, color-mix(in srgb, var(--c) 30%, #060a15) 100%);
+  box-shadow:
+    inset 6px 0 0 var(--c),
+    inset 10px 0 18px color-mix(in srgb, var(--c) 60%, transparent),
+    inset 0 0 0 2px color-mix(in srgb, var(--c) 75%, #fff 10%),
+    inset 0 -30px 50px rgba(0, 0, 0, .35);
   transition: opacity .4s, transform .4s, filter .4s;
 }
-.answer svg { width: 38px; height: 38px; flex: none; filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .35)); }
-.answer.a0 { background: var(--a0); }
-.answer.a1 { background: var(--a1); }
-.answer.a2 { background: var(--a2); color: #2a1a00; }
-.answer.a3 { background: var(--a3); }
+/* Een lichtstreep die af en toe over het blok schuift */
+.answer::before {
+  content: ''; position: absolute; inset: -20% auto -20% -40%; width: 30%; z-index: 0; pointer-events: none;
+  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, .22), transparent);
+  transform: skewX(-18deg); animation: tile-shine 5s ease-in-out infinite;
+}
+.answer:nth-child(2)::before { animation-delay: .6s; }
+.answer:nth-child(3)::before { animation-delay: 1.2s; }
+.answer:nth-child(4)::before { animation-delay: 1.8s; }
+@keyframes tile-shine { 0%, 70% { left: -40%; } 100% { left: 130%; } }
+.answer svg {
+  width: 38px; height: 38px; flex: none; padding: 7px; border-radius: 50%; box-sizing: content-box;
+  background: radial-gradient(circle at 40% 35%, rgba(255, 255, 255, .25), rgba(0, 0, 0, .45));
+  box-shadow: 0 0 0 2px #ffd166, 0 0 16px var(--c);
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .35));
+}
+.answer.a0 { --c: var(--a0); }
+.answer.a1 { --c: var(--a1); }
+.answer.a2 { --c: var(--a2); }
+.answer.a3 { --c: var(--a3); }
+/* Op het leerlingscherm: alle blokken in dezelfde kleur, met een nummer (toets 1-4) in plaats van een kleur. */
+.answer.neutral { --c: #4c8dff; }
+.answer .rune {
+  flex: none; display: grid; place-items: center; width: 46px; height: 46px;
+  font-family: var(--tech); font-size: 1.4rem; color: #1a1200; text-shadow: none;
+  background: linear-gradient(160deg, #fff3b0, #ffb703);
+  clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+  filter: drop-shadow(0 0 8px rgba(255, 201, 74, .8));
+}
+.answer:not(:disabled):hover, .answer:not(:disabled):focus-visible { filter: brightness(1.15); }
+.answer:not(:disabled):active { transform: scale(.97); }
 .answer.enter { animation: tile-in .45s cubic-bezier(.2, 1.3, .4, 1) both; }
 .answer.dim { opacity: .28; filter: grayscale(.6); transform: scale(.97); }
 .answer.right { animation: right-pulse 1.2s ease-in-out infinite; }
 .answer .count { margin-left: auto; font-family: var(--tech); font-size: 1.6rem; position: relative; z-index: 1; }
-.answer .fillbar { position: absolute; inset: auto 0 0 0; height: 6px; background: rgba(255, 255, 255, .65); transform-origin: left; transform: scaleX(0); transition: transform .9s ease-out; }
+.answer .fillbar { position: absolute; inset: auto 0 0 0; height: 6px; background: var(--c); box-shadow: 0 0 12px var(--c); transform-origin: left; transform: scaleX(0); transition: transform .9s ease-out; }
 .answer > *:not(.fillbar) { position: relative; z-index: 1; }
+.q-small { margin: 0 0 12px; padding: 10px 14px; font-weight: 700; font-size: 1.05rem; line-height: 1.35; text-align: center; color: var(--text); background: rgba(6, 10, 19, .6); box-shadow: inset 0 0 0 1px rgba(255, 201, 74, .35); }
+.q-small:empty { display: none; }
 @keyframes tile-in { from { transform: translateY(24px) scale(.92); opacity: 0; } }
 @keyframes right-pulse { 50% { filter: brightness(1.18); box-shadow: inset 0 0 0 3px #fff, 0 0 30px rgba(255, 255, 255, .5); } }
 

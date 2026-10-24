@@ -187,7 +187,7 @@ class Game {
     };
   }
 
-  // Status voor één leerling: geen vraagtekst nodig (die staat op het bord), wel eigen resultaat.
+  // Status voor één leerling: de vraag in het klein (groot staat ze op het bord) en het eigen resultaat.
   playerState(playerId) {
     const p = this.players.get(playerId);
     const q = this.question;
@@ -198,6 +198,7 @@ class Game {
       total: this.quiz ? this.quiz.questions.length : 0,
       answerCount: q ? q.answers.length : 0,
       answers: q ? q.answers : [],
+      question: q ? q.question : '',
       introRemaining: this.phase === 'intro' ? Math.max(0, this.introEndsAt - Date.now()) : 0,
       remaining: this.phase === 'question' ? Math.max(0, q.time * 1000 - (Date.now() - this.questionStartedAt)) : 0,
     };
