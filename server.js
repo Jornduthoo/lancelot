@@ -355,7 +355,28 @@ function sendAddresses(target) {
     .then(qrs => target.emit('addresses', urls.map((url, k) => ({ url, qr: qrs[k], name: list[k].name, sure: list[k].address === preferred }))));
 }
 
+// Eén fout in een spel mag nooit de hele server (en dus de les) laten vallen.
+// Elke handler vangt zijn eigen fouten op; de leerling krijgt een foutmelding in plaats van een vastgelopen knop.
+function safeHandlers(socket) {
+  const on = socket.on.bind(socket);
+  socket.on = (event, fn) => on(event, (...args) => {
+    try {
+      return fn(...args);
+    } catch (err) {
+      console.error(`Fout bij '${event}':`, (err && err.stack) || err);
+      const cb = args[args.length - 1];
+      if (typeof cb === 'function') {
+        try { cb({ error: 'Er ging iets mis. Probeer het opnieuw.' }); } catch {}
+      }
+    }
+  });
+}
+// Ook een fout in een speltimer laat de server gewoon verder draaien.
+process.on('uncaughtException', err => console.error('Onverwachte fout:', (err && err.stack) || err));
+process.on('unhandledRejection', err => console.error('Onverwachte fout:', (err && err.stack) || err));
+
 io.on('connection', socket => {
+  safeHandlers(socket);
   // De namen op de klaslijst, om bij het aanmelden aan te tikken. Meteen meesturen, nog voor de stand van
   // een spel: zo weet de leerling al of een onthouden naam op de lijst staat voordat hij automatisch meedoet.
   socket.emit('klas-namen', klas.names());
