@@ -475,6 +475,32 @@ span.play { padding: 13px 22px; display: flex; align-items: center; }
 }
 .card:hover { opacity: .6; text-decoration: line-through; }
 
+/* De Ronde Tafel: ridderzaal, tafel met schilden, banieren als balken, torens als schaal, perkamentjes als antwoorden. */
+.rt-bg { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: -1; pointer-events: none; }
+body:not([data-rt="1"]) .rt-bg { display: none; }
+body[data-rt="1"] { background: transparent; }
+body.rt-host:has(#welcome:not(.hidden)), body.rt-host:has(#live:not(.hidden)), body.rt-host:has(#end:not(.hidden)) { background: transparent; }
+.rt-table { display: block; width: 100%; height: 340px; margin-top: 8px; }
+.rt-host .rt-title { font-size: 2.4rem; color: var(--gold); text-shadow: 0 0 24px rgba(255, 201, 74, .5), 0 3px 0 #3a2410; }
+.rt-host #l-question { position: relative; text-align: center; font-family: var(--head); font-size: 2rem; color: #f6ecd2; background: linear-gradient(180deg, rgba(60, 22, 36, .92), rgba(24, 10, 20, .94)); box-shadow: inset 0 0 0 2px rgba(201, 162, 74, .65), 0 10px 30px rgba(0, 0, 0, .5); clip-path: polygon(0 0, 100% 0, 100% 100%, 50% calc(100% - 10px), 0 100%); padding-bottom: 26px; }
+.rt-host .poll-row .letter { width: 48px; height: 56px; display: grid; place-items: center; font-family: var(--head); font-size: 1.5rem; color: #fff; background: linear-gradient(180deg, color-mix(in srgb, var(--c) 85%, #fff), color-mix(in srgb, var(--c) 70%, #000)); clip-path: path('M0 0 H48 V28 Q48 48 24 56 Q0 48 0 28 Z'); text-shadow: 0 2px 2px rgba(0, 0, 0, .5); }
+.rt-host .poll-bar { background: linear-gradient(180deg, rgba(30, 22, 40, .92), rgba(12, 9, 20, .94)); box-shadow: inset 0 0 0 1px rgba(201, 162, 74, .35); }
+.rt-host .poll-fill::after { content: ''; position: absolute; inset: 0; background: linear-gradient(100deg, transparent 30%, rgba(255, 255, 255, .28) 50%, transparent 70%); background-size: 250% 100%; animation: sj-shine 3.2s linear infinite; }
+.rt-host .poll-row.lead .poll-label::after { content: ' 👑'; }
+.rt-host .poll-num { color: #f6ecd2; }
+.rt-host .scale-avg { border: 0; border-radius: 50%; width: 190px; height: 190px; justify-content: center; padding: 0; background: radial-gradient(circle at 40% 35%, #7a1e2c, #3a0a14 70%); box-shadow: inset 0 0 0 4px rgba(255, 201, 74, .7), inset 0 0 0 10px rgba(58, 10, 20, .9), inset 0 0 0 12px rgba(255, 201, 74, .4), 0 0 30px rgba(255, 77, 109, .35); }
+.rt-host .avg-num { font-size: 4rem; }
+.rt-host .scale-track { background: linear-gradient(180deg, rgba(30, 22, 40, .6), rgba(12, 9, 20, .8)); box-shadow: inset 0 0 0 1px rgba(201, 162, 74, .25); }
+.rt-host .scale-fill { position: relative; background: repeating-linear-gradient(0deg, transparent 0 18px, rgba(0, 0, 0, .25) 18px 20px), linear-gradient(90deg, #8f86a8, #cfc6e0 40%, #5c5474); box-shadow: 0 0 18px rgba(76, 201, 255, .35); clip-path: polygon(0 12px, 16% 12px, 16% 0, 34% 0, 34% 12px, 50% 12px, 50% 0, 66% 0, 66% 12px, 84% 12px, 84% 0, 100% 0, 100% 100%, 0 100%); }
+.rt-host .scale-label { color: var(--gold); }
+.rt-host .cloud { border-radius: 50%; min-height: 360px; padding: 50px 70px; background: radial-gradient(ellipse at 50% 45%, rgba(154, 98, 48, .55), rgba(74, 42, 18, .6) 62%, rgba(58, 36, 18, .0) 72%); box-shadow: inset 0 0 0 0 transparent; }
+.rt-host .word { text-shadow: 0 0 18px currentColor, 0 2px 2px rgba(0, 0, 0, .8); }
+.rt-host .card { position: relative; color: #2a1a0c; background: linear-gradient(180deg, #f1e3bf, #d9c08c); border-top: 0; box-shadow: inset 0 0 18px rgba(120, 80, 30, .35), 0 6px 14px rgba(0, 0, 0, .45); clip-path: polygon(0 3px, 8% 0, 30% 2px, 55% 0, 80% 3px, 100% 0, 99% 50%, 100% 100%, 70% 98%, 40% 100%, 12% 97%, 0 100%, 1% 50%); padding: 18px 18px 18px 22px; }
+.rt-host .card::before { content: ''; position: absolute; left: 8px; top: 10px; width: 8px; height: 8px; border-radius: 50%; background: var(--c); box-shadow: 0 0 0 2px rgba(0, 0, 0, .2); }
+.rt-host .card:nth-child(3n) { transform: rotate(-1deg); }
+.rt-host .card:nth-child(3n+1) { transform: rotate(.8deg); }
+.rt-host .end-panel, .rt-host #welcome .join { background: linear-gradient(180deg, rgba(36, 26, 40, .9), rgba(14, 10, 20, .92)); box-shadow: inset 0 0 0 1px rgba(201, 162, 74, .4); }
+body[data-rt="1"] .player .rt-question { color: #f6ecd2; font-family: var(--head); text-shadow: 0 2px 0 #000; }
 .end-panel { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 40px 20px; }
 .end-icon { width: 90px; height: 90px; color: var(--gold); filter: drop-shadow(0 0 20px rgba(255, 201, 74, .5)); animation: float 6s ease-in-out infinite; }
 

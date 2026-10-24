@@ -17,6 +17,7 @@ socket.on('rt-state', s => {
   rt = s;
   // De Ronde Tafel neemt het scherm over zolang ze loopt; daarna is het Toernooi-scherm terug.
   document.body.dataset.rt = s.active ? '1' : '';
+  if (s.active) rtBg();
   if (!s.active) {
     rtShown = null;
     return;
@@ -129,3 +130,22 @@ function rtUpdate(item, justSent) {
     $('rt-feedback').classList.add('pop');
   }
 }
+
+// De ridderzaal achter de vragen: één keer per schermmaat getekend.
+function rtBg() {
+  const c = $('rt-bg');
+  const dpr = Math.min(1.5, window.devicePixelRatio || 1);
+  const w = Math.round(innerWidth * dpr);
+  const h = Math.round(innerHeight * dpr);
+  if (c.width === w && c.height === h) return;
+  c.width = w;
+  c.height = h;
+  const g = c.getContext('2d');
+  const art = VrArt.hall(w, h, 11);
+  g.drawImage(art.c, 0, 0);
+  art.torches.forEach(([x, y, u], i) => VrArt.torch(g, x, y, u, i, i));
+  g.fillStyle = 'rgba(4, 3, 12, .55)';
+  g.fillRect(0, 0, w, h);
+  Glow.vignette(g, w, h, .7);
+}
+window.addEventListener('resize', () => { if (document.body.dataset.rt === '1') rtBg(); });
