@@ -56,4 +56,4 @@ function set(name, avatar) {
   return true;
 }
 
-module.exports = { all: load, set };
+module.exports = { all: load, set, clean };

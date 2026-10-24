@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LANcelot · Neon Duel</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/neon.css">
+</head>
+<body class="sj-host nd-host">
+<main>
+  <div class="topbar">
+    <div class="brand" id="brand" title="Naar het startscherm">
+      <img src="/img/mark.webp" alt="">
+      <div>
+        <div class="wordmark">LAN<span>celot</span></div>
+        <div class="subtitle" id="status">Neon Duel</div>
+      </div>
+    </div>
+    <div class="actions">
+      <span class="join-mini hidden" id="join-mini"></span>
+      <button class="secondary icon" id="mute" title="Geluid aan/uit">🔊</button>
+      <button class="secondary hidden" id="stop">Stop het spel</button>
+    </div>
+  </div>
+
+  <section id="setup">
+    <div class="bar">
+      <h2>Neon Duel</h2>
+      <div class="actions">
+        <button class="secondary" id="to-home">Terug</button>
+        <button class="secondary" data-make="leeg">Lege quiz</button>
+        <button data-make="ai">Nieuwe quiz met AI</button>
+      </div>
+    </div>
+    <div class="panel tw-intro">
+      <div class="nd-logo"><span>⚡</span><b>VS</b><span>🔥</span></div>
+      <div>
+        <p>De klas speelt in <strong>twee teams</strong>. Op het bord vechten twee grote ridders zoals in Street Fighter. Elke ronde vecht een andere leerling uit elk team als kampioen, met zijn eigen ridder.</p>
+        <p><strong>Elk goed antwoord is een slag.</strong> Snel juist geeft een <strong>combo</strong>, drie juist op rij een <strong>supermove</strong>. Alle goede antwoorden vullen samen de <strong>energiebalk</strong> van het team: vol is de NEON OVERDRIVE.</p>
+        <p class="muted">Een groter team slaat vaker, dus elke slag telt dan iets minder: zo blijft het eerlijk. Tegen gokken: na een fout antwoord even wachten (het juiste antwoord blijft staan), en die vraag komt later terug. Elk antwoord komt in het logboek.</p>
+      </div>
+    </div>
+    <div class="panel form">
+      <label>Rondes
+        <select id="nd-rounds">
+          <option value="1">1 ronde</option>
+          <option value="3" selected>Best of 3</option>
+          <option value="5">Best of 5</option>
+        </select>
+      </label>
+      <label>Tijd per ronde
+        <select id="nd-seconds">
+          <option value="60">1 minuut</option>
+          <option value="90">1,5 minuut</option>
+          <option value="120" selected>2 minuten</option>
+          <option value="180">3 minuten</option>
+        </select>
+      </label>
+      <label>Tempo van de vragen
+        <select id="nd-tempo" class="tempo-select">
+          <option value="rustig">Rustig: elke slag doet meer schade</option>
+          <option value="normaal" selected>Normaal</option>
+          <option value="intens">Intens: meer vragen per K.O.</option>
+        </select>
+      </label>
+      <p class="muted small">Kies hieronder de quiz waaruit de vragen komen.</p>
+    </div>
+    <p class="notice hidden" id="stopped"></p>
+    <div class="quiz-list" id="quiz-list"></div>
+    <p class="error" id="load-error"></p>
+  </section>
+
+  <section id="lobby" class="hidden">
+    <div class="panel join">
+      <div class="qr" id="qr"></div>
+      <div class="join-text">
+        <p class="muted">Scan de QR-code of surf naar</p>
+        <div class="join-url" id="join-url"></div>
+        <p class="muted small" id="other-urls"></p>
+      </div>
+    </div>
+    <div class="bar">
+      <h2><span class="count" id="player-count">0</span> <span id="player-word">ridders</span> klaar</h2>
+      <div class="actions">
+        <button class="secondary" id="shuffle">Verdeel opnieuw</button>
+        <button class="gold big" id="start" disabled>FIGHT!</button>
+      </div>
+    </div>
+    <p class="muted small">Klik op een naam om die leerling naar het andere team te zetten, of op ✕ om te verwijderen. Wie later binnenkomt, gaat bij het kleinste team.</p>
+    <p class="error" id="start-error"></p>
+    <div class="nd-teams">
+      <div class="nd-team t0"><h3>⚡ Team Bliksem <span id="size-0"></span></h3><div class="names" id="names-0"></div></div>
+      <div class="nd-team t1"><h3>🔥 Team Vuur <span id="size-1"></span></h3><div class="names" id="names-1"></div></div>
+    </div>
+  </section>
+
+  <section id="play" class="hidden">
+    <div class="hud">
+      <span class="round" id="p-title"></span>
+      <button class="secondary" id="p-full" title="Volledig scherm">⛶</button>
+      <button class="secondary" id="p-finish">Nu stoppen</button>
+    </div>
+    <div class="nd-stage"><canvas id="p-canvas"></canvas></div>
+    <div class="nd-strip">
+      <div class="nd-best t0"><b>⚡ Beste slagen</b><ol id="best-0"></ol></div>
+      <ul class="tw-feed nd-feed" id="p-feed"></ul>
+      <div class="nd-best t1"><b>🔥 Beste slagen</b><ol id="best-1"></ol></div>
+    </div>
+  </section>
+
+  <section id="podium" class="hidden">
+    <div class="center nd-win" id="w-box"><h2 id="w-title"></h2><p class="muted" id="w-why"></p></div>
+    <div class="nd-teams">
+      <div class="nd-team t0"><h3>⚡ Team Bliksem</h3><ol class="ranking" id="final-0"></ol></div>
+      <div class="nd-team t1"><h3>🔥 Team Vuur</h3><ol class="ranking" id="final-1"></ol></div>
+    </div>
+    <p class="center muted" id="results-saved"></p>
+    <div class="bar">
+      <button class="secondary" id="restart">Nog een duel</button>
+      <button id="close">Andere quiz kiezen</button>
+    </div>
+  </section>
+</main>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/fx.js"></script>
+<script src="/js/avatar.js"></script>
+<script src="/js/quiz-links.js"></script>
+<script src="/js/quiz-list.js"></script>
+<script src="/js/nd-draw.js"></script>
+<script src="/js/nd-host.js"></script>
+<script src="/js/address.js"></script>
+</body>
+</html>
