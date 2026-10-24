@@ -5,6 +5,8 @@ const DoelKies = (() => {
   let doelen = [];
   let status = 'laden'; // laden -> klaar | leeg | fout
   let asked = false;
+  let klasLeerjaar = 0;
+  let wachten = [];
   const fields = new Set();
   const MAX_SHOWN = 12;
 
@@ -34,6 +36,9 @@ const DoelKies = (() => {
         const mine = res.doelen.filter(d => d.leerjaar === res.leerjaar);
         doelen = mine.length ? mine : res.doelen;
         status = doelen.length ? 'klaar' : 'leeg';
+        klasLeerjaar = res.leerjaar;
+        for (const fn of wachten) fn(klasLeerjaar);
+        wachten = [];
       }
       for (const el of fields) el.refresh();
     });
@@ -197,6 +202,13 @@ const DoelKies = (() => {
     return el;
   }
 
+  // Het leerjaar van de klas (Mijn klas), zodra de server het doorgaf.
+  function leerjaar(fn) {
+    load();
+    if (klasLeerjaar) fn(klasLeerjaar);
+    else wachten.push(fn);
+  }
+
   // Het stuk van de AI-prompt over de gekozen doelen. wat = 'vragen' of 'oefeningen'.
   function prompt(codes, wat) {
     const list = codes.map(find).filter(Boolean);
@@ -214,5 +226,5 @@ const DoelKies = (() => {
     }
   }
 
-  return { field, multi, prompt, apply, read, find, describe, load };
+  return { field, multi, prompt, apply, read, find, describe, load, leerjaar };
 })();

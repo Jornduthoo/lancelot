@@ -120,6 +120,13 @@ $('new-ai').addEventListener('click', () => {
   $('m-attach').checked = false;
   renderSources();
   $('m-error').textContent = '';
+  // Het niveau staat meteen op het leerjaar van de klas; de leerkracht kan het nog veranderen.
+  DoelKies.leerjaar(lj => {
+    if (!makerDoel.codes().length) {
+      $('m-level').value = `${lj}e leerjaar`;
+      updatePrompt();
+    }
+  });
   show('maker');
 });
 
