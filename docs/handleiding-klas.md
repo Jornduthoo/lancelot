@@ -128,6 +128,15 @@ Tip: leg vooraf uit dat je in de pitstop stilstaat. Wie de vragen kent, tankt sn
 
 Liever op papier? Klik bij een blad op **🖨 Print** voor het werkblad en op **Verbeterblad** voor de oplossingen. Via **Werkblad maken** op het startscherm laat je AI meteen een nieuw blad maken.
 
+## Mijn klas en de leerplandoelen
+
+1. Klik op het startscherm op **Mijn klas en doelen**. Zet je leerlingen erin, één naam per regel, kies het leerjaar en klik op **Klaslijst bewaren**. De lijst blijft op deze pc.
+2. Leerlingen tikken voortaan hun naam aan bij het aanmelden, in elk spel. Typen kan nog altijd, bijvoorbeeld voor een gast.
+3. In de quizmaker en de oefenbladmaker kies je een **leerplandoel** uit Op.stap: typ een code (2.1.GL6.4) of een woord (deler). De AI maakt dan vragen over precies dat doel, en elke vraag krijgt dat doel mee. Je kan het doel per vraag of per oefening nog aanpassen.
+4. Elk antwoord in een Toernooi en een live oefenblad komt in het **logboek** (map `logboek`, één bestand per schooljaar). Op de pagina Mijn klas zie je per doel hoeveel antwoorden er al zijn en hoeveel procent juist. Hieruit komen later de doelenkaart per leerling en de Opwarmer.
+
+Voorlopig staan de doelen wiskunde van het 6e leerjaar erin (G-doelen en plusdoelen, Op.stap versie 1.3).
+
 ## Lukt verbinden niet?
 
 - **Zelfde netwerk:** je pc en de apparaten van leerlingen moeten op hetzelfde wifi-netwerk zitten. Een pc via een netwerkkabel werkt meestal ook, als die op hetzelfde schoolnetwerk zit.

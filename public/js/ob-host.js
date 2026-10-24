@@ -91,9 +91,19 @@ function chosenTypes() {
   return [...$('a-types').querySelectorAll('input:checked')].map(i => i.value);
 }
 
+// Het leerplandoel waarover de AI oefeningen maakt (mag leeg). Elke oefening krijgt dan dat doel.
+let makerDoel = null;
+
+function withDoel(sheet) {
+  const doel = makerDoel && DoelKies.read(makerDoel);
+  if (doel) for (const b of sheet.blocks) if (b.type !== 'tekst') b.doel = b.doel || doel;
+  return sheet;
+}
+
 function buildPrompt(forGemini = false) {
   const hasSources = forGemini ? sources.length > 0 : $('a-attach').checked;
-  const topic = $('a-topic').value.trim() || (hasSources ? 'de bijgevoegde lesstof' : '[ONDERWERP]');
+  const doel = makerDoel && DoelKies.find(DoelKies.read(makerDoel));
+  const topic = $('a-topic').value.trim() || (doel ? doel.cluster : '') || (hasSources ? 'de bijgevoegde lesstof' : '[ONDERWERP]');
   const level = $('a-level').value;
   const count = Math.min(12, Math.max(1, Number($('a-count').value) || 5));
   const per = Math.min(20, Math.max(2, Number($('a-per').value) || 6));
@@ -103,7 +113,7 @@ function buildPrompt(forGemini = false) {
   const withText = types.includes('tekst');
   const kinds = types.filter(t => t !== 'tekst');
   return `Je bent een ervaren leerkracht in Vlaanderen. Maak een oefenblad (werkblad) voor leerlingen uit: ${level} (Belgisch onderwijs). Onderwerp: ${topic}.
-${hasSources ? '\nBaseer alle oefeningen op de bijgevoegde lesstof. Vraag alleen naar dingen die daarin staan.\n' : ''}${extra ? `\nExtra wensen van de docent:\n${extra}\n` : ''}
+${doel ? `\nDe oefeningen oefenen dit leerplandoel uit het Vlaamse leerplan Op.stap (${doel.vak}, ${doel.leerjaar}e leerjaar): "${doel.tekst}" Maak alleen oefeningen die precies dit doel oefenen.\n` : ''}${hasSources ? '\nBaseer alle oefeningen op de bijgevoegde lesstof. Vraag alleen naar dingen die daarin staan.\n' : ''}${extra ? `\nExtra wensen van de docent:\n${extra}\n` : ''}
 Regels:
 - Maak ${count} oefeningen in het Nederlands zoals in Vlaanderen, met ongeveer ${per} vragen of gaten per oefening.
 - Gebruik deze soorten oefeningen, afwisselend: ${kinds.join(', ')}.${withText ? '\n- Begin met een korte leestekst ("tekst") waarop de oefeningen voortbouwen.' : ''}
@@ -123,6 +133,17 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
   ]
 }`;
 }
+
+makerDoel = DoelKies.field('', {
+  label: 'Leerplandoel (mag leeg)',
+  // Het niveau volgt het leerjaar van het doel.
+  onChange: code => {
+    const doel = DoelKies.find(code);
+    if (doel) $('a-level').value = `${doel.leerjaar}e leerjaar`;
+    updatePrompt();
+  },
+});
+$('a-doel').appendChild(makerDoel);
 
 function updatePrompt() {
   $('a-prompt').value = buildPrompt();
@@ -170,7 +191,7 @@ function parseAnswer(text, quiet) {
     }
     $('a-error').textContent = '';
     $('a-answer').value = '';
-    openEditor(res.sheet, null);
+    openEditor(withDoel(res.sheet), null);
   });
 }
 $('a-parse').addEventListener('click', () => parseAnswer($('a-answer').value, false));
@@ -235,7 +256,7 @@ $('a-gemini').addEventListener('click', () => {
     $('a-gemini').disabled = false;
     $('a-gemini-busy').textContent = '';
     if (res.error) return ($('a-gemini-error').textContent = res.error);
-    openEditor(res.sheet, null);
+    openEditor(withDoel(res.sheet), null);
   });
 });
 
@@ -313,6 +334,7 @@ function blockCard(b) {
     ${b.type === 'tekst' ? '<label>Titel (mag leeg)<input class="e-btitle" maxlength="100"></label>' : '<label>Opdracht<input class="e-instr" maxlength="200"></label>'}
     <label>Inhoud<textarea class="e-body" rows="5" spellcheck="true"></textarea></label>
     <p class="muted small">${EDIT_HELP[b.type]}</p>`;
+  if (b.type !== 'tekst') card.appendChild(DoelKies.field(b.doel, { onChange: () => preview() }));
   if (b.type === 'tekst') card.querySelector('.e-btitle').value = b.title || '';
   else card.querySelector('.e-instr').value = b.instruction || DEFAULT_INSTRUCTION[b.type];
   const body = card.querySelector('.e-body');
@@ -329,12 +351,16 @@ function blockCard(b) {
 function readEditor() {
   return {
     title: $('e-title').value,
-    blocks: [...$('e-blocks').children].map(card => textToBlock(
-      card.dataset.type,
-      card.querySelector('.e-instr') ? card.querySelector('.e-instr').value : '',
-      card.querySelector('.e-btitle') ? card.querySelector('.e-btitle').value : '',
-      card.querySelector('.e-body').value,
-    )),
+    blocks: [...$('e-blocks').children].map(card => {
+      const block = textToBlock(
+        card.dataset.type,
+        card.querySelector('.e-instr') ? card.querySelector('.e-instr').value : '',
+        card.querySelector('.e-btitle') ? card.querySelector('.e-btitle').value : '',
+        card.querySelector('.e-body').value,
+      );
+      const doel = card.querySelector('.doel-veld');
+      return doel && DoelKies.read(doel) ? { ...block, doel: DoelKies.read(doel) } : block;
+    }),
   };
 }
 

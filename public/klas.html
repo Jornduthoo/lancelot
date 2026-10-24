@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LANcelot · Mijn klas</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body class="klas-host">
+<main>
+  <div class="topbar">
+    <div class="brand" id="brand" title="Naar het startscherm">
+      <img src="/img/mark.webp" alt="">
+      <div>
+        <div class="wordmark">LAN<span>celot</span></div>
+        <div class="subtitle">Mijn klas en doelen</div>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="secondary" id="to-home">Terug</button>
+    </div>
+  </div>
+
+  <section>
+    <div class="panel form">
+      <h3>Mijn klas</h3>
+      <p class="muted">Zet hier je leerlingen, één naam per regel (voornaam en eventueel een initiaal). Bij het aanmelden tikken ze dan hun naam aan, en elk antwoord wordt bij de juiste leerling bewaard. De lijst blijft op deze pc.</p>
+      <div class="row">
+        <label>Naam van de klas<input id="k-naam" maxlength="40" placeholder="bijv. 6A"></label>
+        <label>Leerjaar
+          <select id="k-leerjaar">
+            <option value="5">5e leerjaar</option>
+            <option value="6" selected>6e leerjaar</option>
+          </select>
+        </label>
+      </div>
+      <label>Leerlingen<textarea id="k-namen" rows="10" placeholder="Lotte V&#10;Mohamed&#10;Noor"></textarea></label>
+      <p class="error" id="k-error"></p>
+      <div class="actions"><button id="k-save">Klaslijst bewaren</button> <span class="muted" id="k-saved"></span></div>
+    </div>
+
+    <div class="panel form">
+      <h3>Logboek</h3>
+      <p id="l-summary" class="muted">Laden…</p>
+      <div class="actions"><button class="secondary" id="l-folder">Open map</button></div>
+    </div>
+
+    <div class="panel form">
+      <h3>Leerplandoelen</h3>
+      <p class="muted">De doelen uit Op.stap voor jouw leerjaar. Koppel ze aan een quizvraag of een oefening in de quizmaker of de oefenbladmaker. Groen gemarkeerd: zoveel antwoorden staan er al in het logboek.</p>
+      <label>Zoeken<input id="d-zoek" placeholder="bijv. breuk, deler of 2.2.GL6"></label>
+      <div class="doel-lijst" id="d-lijst"></div>
+    </div>
+  </section>
+</main>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/klas-host.js"></script>
+</body>
+</html>

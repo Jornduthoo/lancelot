@@ -22,6 +22,9 @@ const { Verrader } = require('./src/verrader');
 const oefenbladen = require('./src/oefenbladen');
 const { OefenbladLive } = require('./src/oefenblad-live');
 const settings = require('./src/settings');
+const klas = require('./src/klas');
+const doelen = require('./src/doelen');
+const logboek = require('./src/logboek');
 const results = require('./src/results');
 const { execFile } = require('child_process');
 const { generateQuiz } = require('./src/gemini');
@@ -148,7 +151,7 @@ function isLocal(address) {
   return ['127.0.0.1', '::1', '::ffff:127.0.0.1'].includes(address);
 }
 
-for (const [route, page] of [['/host', 'host.html'], ['/rondetafel', 'rondetafel.html'], ['/toren', 'toren.html'], ['/schattenjacht', 'schattenjacht.html'], ['/laserslag', 'laserslag.html'], ['/ridderrace', 'ridderrace.html'], ['/kristalroof', 'kristalroof.html'], ['/verrader', 'verrader.html'], ['/burchtbouwers', 'burchtbouwers.html'], ['/duel', 'duel.html'], ['/rijk', 'rijk.html'], ['/oefenblad', 'oefenblad.html'], ['/oefenblad-print', 'oefenblad-print.html']]) {
+for (const [route, page] of [['/host', 'host.html'], ['/rondetafel', 'rondetafel.html'], ['/toren', 'toren.html'], ['/schattenjacht', 'schattenjacht.html'], ['/laserslag', 'laserslag.html'], ['/ridderrace', 'ridderrace.html'], ['/kristalroof', 'kristalroof.html'], ['/verrader', 'verrader.html'], ['/burchtbouwers', 'burchtbouwers.html'], ['/duel', 'duel.html'], ['/rijk', 'rijk.html'], ['/oefenblad', 'oefenblad.html'], ['/oefenblad-print', 'oefenblad-print.html'], ['/klas', 'klas.html']]) {
   app.get(route, (req, res) => {
     if (!isLocal(req.socket.remoteAddress)) return res.status(403).send('Het docentenscherm is alleen bereikbaar op de pc van de leerkracht.');
     res.setHeader('Cache-Control', 'no-cache');
@@ -256,6 +259,9 @@ io.on('connection', socket => {
     if (avatars.set(name, avatar)) io.emit('avatars', avatars.all());
   });
 
+  // De namen op de klaslijst, om bij het aanmelden aan te tikken.
+  socket.on('klas-namen', (_, cb) => typeof cb === 'function' && cb(klas.names()));
+
   if (host) {
     socket.join('host');
     for (const kind of Object.keys(LIBS)) sendLibrary(kind, socket);
@@ -308,6 +314,19 @@ io.on('connection', socket => {
       }
     };
     const refreshList = () => sendLibrary('quiz');
+    // Mijn klas: de klaslijst, de leerplandoelen en wat het logboek al weet.
+    socket.on('klas-get', handle(() => ({ klas: klas.read() })));
+    socket.on('klas-save', handle(data => {
+      const saved = klas.write(data);
+      io.emit('klas-namen', klas.names());
+      return { klas: saved };
+    }));
+    socket.on('doelen-get', handle(() => ({ doelen: doelen.all(), leerjaar: klas.read().leerjaar })));
+    socket.on('logboek-get', handle(() => ({ logboek: logboek.summary() })));
+    socket.on('open-logboek-folder', () => {
+      fs.mkdirSync(logboek.DIR, { recursive: true });
+      if (process.platform === 'win32') execFile('explorer', [logboek.DIR]);
+    });
     // Quizzen, oefenbladen en sessies ordenen in mappen, en importeren van een andere pc.
     const lib = fn => handle(({ kind, ...arg } = {}) => {
       if (!LIBS[kind]) throw new Error('Onbekende soort.');

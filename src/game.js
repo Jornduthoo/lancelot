@@ -2,6 +2,8 @@
 // Fases: idle -> lobby -> intro -> question -> reveal -> (intro ...) -> podium
 // In de intro staat de vraag al op het bord, maar kunnen leerlingen nog niet antwoorden.
 
+const logboek = require('./logboek');
+
 const MAX_POINTS = 1000;
 const INTRO_MS = 4000;
 
@@ -131,6 +133,10 @@ class Game {
       p.score += p.lastPoints;
       p.results[this.index] = { answer: p.answer, correct: p.answer === q.correct, points: p.lastPoints };
     }
+    logboek.add([...this.players.values()].map(p => ({
+      naam: p.name, spel: 'Toernooi', bron: this.quiz.title, vraag: q.question, doel: q.doel,
+      juist: p.answer === q.correct, leeg: p.answer === null,
+    })));
     this.phase = 'reveal';
     this.broadcast();
   }
