@@ -46,6 +46,31 @@
       <div class="actions"><button class="secondary" id="l-folder">Open map</button></div>
     </div>
 
+    <div class="panel form" id="overzicht">
+      <h3>Overzicht na elk spel</h3>
+      <p class="muted">Elke keer dat je een spel speelt, maakt LANcelot een overzicht: de moeilijkste vragen, wie extra uitleg kan gebruiken en hoe het per leerplandoel ging. Klik een spel aan.</p>
+      <div class="ov-sessies" id="o-lijst"></div>
+      <div id="o-detail"></div>
+    </div>
+
+    <div class="panel form" id="doelenkaart">
+      <h3>Doelenkaart</h3>
+      <p class="muted">Welke leerplandoelen beheerst elke leerling? We kijken naar de laatste <span id="dk-recent">10</span> antwoorden per doel: minstens 80% juist is beheerst, minstens 50% is bijna. Alleen vragen met een leerplandoel tellen mee.</p>
+      <div class="dk-tabs">
+        <button class="secondary actief" id="dk-klas">Hele klas</button>
+        <label>Per leerling <select id="dk-leerling"><option value="">Kies een leerling</option></select></label>
+        <a class="button secondary" href="/logboek/doelenkaart">Download voor Excel</a>
+      </div>
+      <div class="dk-legend">
+        <span><i class="dk-dot ok"></i> beheerst</span>
+        <span><i class="dk-dot bijna"></i> bijna</span>
+        <span><i class="dk-dot niet"></i> nog niet</span>
+        <span><i class="dk-dot weinig"></i> te weinig antwoorden</span>
+        <span><i class="dk-dot"></i> nog niet geoefend</span>
+      </div>
+      <div id="dk-box"></div>
+    </div>
+
     <div class="panel form">
       <h3>Leerplandoelen</h3>
       <p class="muted">De doelen uit Op.stap voor jouw leerjaar. Koppel ze aan een quizvraag of een oefening in de quizmaker of de oefenbladmaker. Groen gemarkeerd: zoveel antwoorden staan er al in het logboek.</p>
@@ -59,6 +84,7 @@
   </section>
 </main>
 <script src="/socket.io/socket.io.js"></script>
+<script src="/js/overzicht.js"></script>
 <script src="/js/klas-host.js"></script>
 </body>
 </html>

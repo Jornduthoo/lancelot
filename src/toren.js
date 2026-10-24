@@ -3,6 +3,7 @@
 // de server houdt de energie, de vragen en de hoogtes bij en stuurt iedereen elkaars positie.
 const world = require('../public/js/toren-world');
 const { tempoOf, factor } = require('./tempo');
+const logboek = require('./logboek');
 
 const START_ENERGY = 8;
 const MAX_ENERGY = 20;
@@ -51,6 +52,7 @@ class Toren {
     this.minutes = [3, 5, 6, 8, 10, 15].includes(minutes) ? minutes : 6;
     this.seed = Math.floor(Math.random() * 2 ** 31);
     this.world = world.build(this.seed);
+    this.zoneReached = 0;
     this.phase = 'lobby';
     this.broadcast();
   }
@@ -114,7 +116,16 @@ class Toren {
     p.y = Math.max(0, Math.min(this.world.top + 10, y));
     p.face = face === -1 ? -1 : 1;
     p.act = Number.isInteger(act) ? act : 0;
-    if (p.y > p.best) p.best = p.y;
+    if (p.y > p.best) {
+      p.best = p.y;
+      // Wie als eerste een nieuwe zone bereikt, komt in het nieuws.
+      const zone = world.zoneAt(this.world, p.best);
+      if (zone > this.zoneReached) {
+        this.zoneReached = zone;
+        const z = this.world.zones[zone];
+        this.addFeed(`${z.icon} ${p.name} bereikt als eerste ${z.name}!`);
+      }
+    }
     if (!p.rescuedAt && p.y >= this.world.top - 1) {
       p.rescuedAt = Date.now();
       const first = [...this.players.values()].filter(o => o.rescuedAt).length === 1;
@@ -156,6 +167,7 @@ class Toren {
     if (!p || this.phase !== 'play' || p.question === null) return { error: 'Er staat geen vraag open.' };
     const q = this.quiz.questions[p.question];
     const correct = choice === q.correct;
+    logboek.answer('De prinses in de toren', this.quiz.title, p.name, q, correct);
     p.last = p.question;
     p.question = null;
     if (correct) {

@@ -4,6 +4,7 @@
 // De gsm stuurt zijn positie; de server beslist over schoten, treffers en punten.
 const Arena = require('../public/js/laserslag-world');
 const { tempoOf, factor } = require('./tempo');
+const logboek = require('./logboek');
 
 const HP = 3;
 const START_AMMO = 15;
@@ -323,6 +324,7 @@ class Laserslag {
     if (!p || this.phase !== 'play' || p.question === null) return { error: 'Er staat geen vraag open.' };
     const q = this.quiz.questions[p.question];
     const correct = choice === q.correct;
+    logboek.answer('Laserslag', this.quiz.title, p.name, q, correct);
     p.last = p.question;
     p.question = null;
     let gained = 0;

@@ -1,6 +1,7 @@
 // Kristalroof: elke leerling beantwoordt vragen en mijnt kristallen. Na een goed antwoord kies je een kist:
 // kristallen, een verdubbelaar, een schild, soms pech, of een roof. Bij een roof kies je een andere ridder
 // en raad je diens geheime woord. Juist geraden? Dan neem je een deel van zijn kristallen mee.
+const logboek = require('./logboek');
 const WORDS = [
   'draak', 'zwaard', 'kasteel', 'toren', 'ridder', 'kroon', 'schild', 'lans', 'burcht', 'kerker',
   'paard', 'banier', 'helm', 'harnas', 'boog', 'pijl', 'tovenaar', 'heks', 'reus', 'griffioen',
@@ -156,6 +157,7 @@ class Kristalroof {
     p.last = p.question;
     p.question = null;
     const correct = choice === q.correct;
+    logboek.answer('Kristalroof', this.quiz.title, p.name, q, correct);
     if (correct) {
       p.right++;
       p.streak++;

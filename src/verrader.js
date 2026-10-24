@@ -4,6 +4,7 @@
 // Na elke betovering (of als iemand de hoorn blaast) komt de Ronde Tafel samen: praten, dan stemmen wie verbannen wordt.
 // De ridders winnen als de kern hersteld is of alle verraders verbannen zijn. De verraders winnen als ze even talrijk
 // worden als de ridders, of als de tijd op is.
+const logboek = require('./logboek');
 const TALK_MS = { kort: 45000, normaal: 75000, lang: 120000 };
 const VOTE_MS = 30000;
 const RESULT_MS = 7000;
@@ -146,6 +147,7 @@ class Verrader {
     p.last = p.question;
     p.question = null;
     const correct = choice === q.correct;
+    logboek.answer('De Verrader', this.quiz.title, p.name, q, correct);
     let hint = null;
     if (correct) {
       p.right++;
