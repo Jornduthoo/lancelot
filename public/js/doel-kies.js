@@ -55,7 +55,7 @@ const DoelKies = (() => {
   }
 
   // Een veld om een doel te kiezen. onChange(code) wordt opgeroepen als het doel verandert.
-  function field(value = '', { label = 'Leerplandoel (mag leeg)', onChange } = {}) {
+  function field(value = '', { label = 'Leerplandoel (mag leeg)', onChange, onChoose } = {}) {
     load();
     const el = document.createElement('div');
     el.className = 'doel-veld';
@@ -67,6 +67,14 @@ const DoelKies = (() => {
     let active = -1;
 
     function choose(d) {
+      // Bij meerdere doelen gaat het gekozen doel naar de lijst erboven en wordt het zoekveld weer leeg.
+      if (onChoose) {
+        input.value = '';
+        box.classList.add('hidden');
+        el.refresh();
+        onChoose(d);
+        return;
+      }
       input.value = d.code;
       box.classList.add('hidden');
       el.refresh();
@@ -77,7 +85,7 @@ const DoelKies = (() => {
       const q = input.value.trim();
       box.innerHTML = '';
       active = -1;
-      if (!q || find(codeOf(q)) || status !== 'klaar') {
+      if (!q || (!onChoose && find(codeOf(q))) || status !== 'klaar') {
         box.classList.add('hidden');
         return;
       }
@@ -150,5 +158,61 @@ const DoelKies = (() => {
     return find(code) || (!doelen.length && /^\d/.test(code)) ? code : '';
   }
 
-  return { field, read, find, describe, load };
+  // Meerdere doelen kiezen, bijvoorbeeld voor een les met een paar doelen. el.codes() geeft de gekozen codes.
+  function multi({ label = 'Leerplandoelen (mag leeg, een les mag meerdere doelen hebben)', onChange } = {}) {
+    const el = document.createElement('div');
+    el.className = 'doel-multi';
+    const chips = document.createElement('div');
+    chips.className = 'doel-chips';
+    let codes = [];
+    const paint = () => {
+      chips.innerHTML = '';
+      for (const code of codes) {
+        const d = find(code);
+        const chip = document.createElement('span');
+        chip.className = 'doel-chip';
+        chip.innerHTML = '<code></code><span></span><button type="button" title="Doel weghalen">✕</button>';
+        chip.querySelector('code').textContent = code;
+        chip.querySelector('span').textContent = d ? d.tekst : '';
+        chip.querySelector('button').addEventListener('click', () => {
+          codes = codes.filter(c => c !== code);
+          paint();
+          if (onChange) onChange(codes);
+        });
+        chips.appendChild(chip);
+      }
+      const input = el.querySelector('.doel-veld input');
+      if (input) input.placeholder = codes.length ? 'Nog een doel? Typ een code of een woord' : 'Typ een code of een woord, bv. breuk of deler';
+    };
+    const search = field('', {
+      label,
+      onChoose: d => {
+        if (!codes.includes(d.code)) codes.push(d.code);
+        paint();
+        if (onChange) onChange(codes);
+      },
+    });
+    el.append(search, chips);
+    el.codes = () => codes.slice();
+    return el;
+  }
+
+  // Het stuk van de AI-prompt over de gekozen doelen. wat = 'vragen' of 'oefeningen'.
+  function prompt(codes, wat) {
+    const list = codes.map(find).filter(Boolean);
+    if (!list.length) return '';
+    const bron = `het Vlaamse leerplan Op.stap (${list[0].vak}, ${list[0].leerjaar}e leerjaar)`;
+    if (list.length === 1) return `\nDe ${wat} oefenen dit leerplandoel uit ${bron}: "${list[0].tekst}" Maak alleen ${wat} die precies dit doel oefenen.\n`;
+    return `\nDe ${wat} oefenen deze leerplandoelen uit ${bron}:\n${list.map(d => `- ${d.code}: ${d.tekst}`).join('\n')}\nVerdeel de ${wat} evenwichtig over deze doelen. Zet bij elk${wat === 'vragen' ? 'e vraag' : 'e oefening'} in "doel" de code van het doel dat ze oefent, bijvoorbeeld "doel": "${list[0].code}".\n`;
+  }
+
+  // Na de AI: elk item krijgt een doel. Eén doel: dat doel. Meerdere: het doel dat de AI koos, als het bij de gekozen doelen hoort.
+  function apply(items, codes) {
+    for (const item of items) {
+      if (codes.length === 1) item.doel = item.doel || codes[0];
+      else if (codes.length > 1 && !codes.includes(item.doel)) item.doel = '';
+    }
+  }
+
+  return { field, multi, prompt, apply, read, find, describe, load };
 })();
