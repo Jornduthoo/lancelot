@@ -407,6 +407,79 @@ const CgArt = (() => {
     });
   }
 
+  // De hemel met, op een breed scherm, de randen naast het speelveld: donkere burchttorens met neonramen,
+  // banieren en lichtrails. Eén keer gebakken, zodat de randen niets kosten tijdens het spelen.
+  function frame(w, h, ox, pw) {
+    return cached(`f${w}x${h}|${ox}|${pw}`, () => {
+      const c = canvas(w, h);
+      const g = c.getContext('2d');
+      g.drawImage(nebula(w, h), 0, 0);
+      if (ox <= 4) return c;
+      let r = 7;
+      const rnd = () => ((r = (r * 16807) % 2147483647) / 2147483647);
+      for (const [x0, x1, side] of [[0, ox, 0], [ox + pw, w, 1]]) {
+        const gw = x1 - x0;
+        g.save();
+        g.beginPath();
+        g.rect(x0, 0, gw, h);
+        g.clip();
+        g.fillStyle = 'rgba(3, 2, 10, .6)';
+        g.fillRect(x0, 0, gw, h);
+        // Torens van ver naar dichtbij, aan de buitenkant het hoogst.
+        for (let k = 0; k < 3; k++) {
+          const tw = gw * (.28 + rnd() * .14);
+          const edge = side ? x1 - tw * (k * 1.1 + .2) - tw : x0 + tw * (k * 1.1 + .2);
+          const th = h * (.55 - k * .12 + rnd() * .08);
+          const top = h - th;
+          g.fillStyle = ['#0b0820', '#120c2c', '#1a1238'][k];
+          g.fillRect(edge, top, tw, th);
+          for (let m = 0; m < 5; m += 2) g.fillRect(edge + m * tw / 5, top - tw * .14, tw / 5, tw * .14);
+          g.beginPath(); g.moveTo(edge - tw * .1, top - tw * .14); g.lineTo(edge + tw / 2, top - tw * .9); g.lineTo(edge + tw * 1.1, top - tw * .14); g.closePath(); g.fill();
+          for (let y = top + tw * .3; y < h - tw * .3; y += tw * .55) {
+            if (rnd() < .45) continue;
+            const col = rnd() < .5 ? '#4cc9ff' : '#ff5fd2';
+            g.fillStyle = col;
+            g.globalAlpha = .55 + rnd() * .4;
+            g.fillRect(edge + tw * .4, y, tw * .2, tw * .28);
+            g.globalAlpha = 1;
+            glowDot(g, edge + tw * .5, y + tw * .14, tw * .5, col);
+          }
+        }
+        // Banier aan de rail.
+        const bx = side ? x0 + gw * .12 : x1 - gw * .12 - gw * .16;
+        const bw = Math.min(gw * .16, 40), bh = h * .22;
+        const bg = g.createLinearGradient(0, h * .06, 0, h * .06 + bh);
+        bg.addColorStop(0, side ? 'rgba(255, 95, 210, .55)' : 'rgba(76, 201, 255, .55)');
+        bg.addColorStop(1, 'rgba(20, 10, 40, .2)');
+        g.fillStyle = bg;
+        g.beginPath(); g.moveTo(bx, h * .06); g.lineTo(bx + bw, h * .06); g.lineTo(bx + bw, h * .06 + bh); g.lineTo(bx + bw / 2, h * .06 + bh * .85); g.lineTo(bx, h * .06 + bh); g.closePath(); g.fill();
+        g.strokeStyle = side ? '#ff5fd2' : '#4cc9ff';
+        g.lineWidth = 1.5;
+        g.stroke();
+        // De neonrail langs het speelveld.
+        const rx = side ? x0 : x1 - 3;
+        const rail = g.createLinearGradient(0, 0, 0, h);
+        rail.addColorStop(0, 'rgba(76, 201, 255, .9)');
+        rail.addColorStop(.5, 'rgba(199, 125, 255, .9)');
+        rail.addColorStop(1, 'rgba(255, 95, 210, .9)');
+        g.fillStyle = 'rgba(76, 201, 255, .12)';
+        g.fillRect(side ? x0 : x1 - 14, 0, 14, h);
+        g.fillStyle = rail;
+        g.fillRect(rx, 0, 3, h);
+        g.restore();
+      }
+      return c;
+    });
+  }
+
+  function glowDot(g, x, y, r, col) {
+    const grad = g.createRadialGradient(x, y, 0, x, y, r);
+    grad.addColorStop(0, col.length === 7 ? col + '55' : col);
+    grad.addColorStop(1, 'rgba(0,0,0,0)');
+    g.fillStyle = grad;
+    g.fillRect(x - r, y - r, r * 2, r * 2);
+  }
+
   // Een laag sterren die je naar beneden laat schuiven. Herhaalt zich naadloos.
   function stars(w, h, count, size, seed) {
     return cached(`s${w}x${h}|${count}|${size}|${seed}`, () => {
@@ -527,5 +600,5 @@ const CgArt = (() => {
     ctx.restore();
   }
 
-  return { COLORS, DRAGONS, dragon, boss, glow, bolt, fireball, nebula, stars, castle, ship, flame };
+  return { COLORS, DRAGONS, dragon, boss, glow, bolt, fireball, nebula, frame, stars, castle, ship, flame };
 })();

@@ -41,6 +41,28 @@ const BossDraw = (() => {
 
   // ---------- De baas ----------
   // x: midden, gy: de vloer, h: hoogte van de ridder zelf. fx: { t, flash, raise (0-1), shield, weak, angry, dead (0-1) }.
+  // De ridder met zijn gloed, één keer gebakken: een schaduwgloed op een grote afbeelding elk beeld opnieuw tekenen
+  // is het duurste wat een Chromebook kan doen.
+  const glowCache = new Map();
+  function glowSprite(img, color, s) {
+    const key = `${img.width}x${img.height}:${color}:${Math.round(s * 4)}`;
+    let c = glowCache.get(key);
+    if (c && c.src === img) return c;
+    if (glowCache.size > 12) glowCache.clear();
+    const pad = Math.ceil(s * 3);
+    c = document.createElement('canvas');
+    c.width = Math.ceil(12 * s) + pad * 2;
+    c.height = Math.ceil(17 * s) + pad * 2;
+    c.pad = pad;
+    c.src = img;
+    const g = c.getContext('2d');
+    g.shadowColor = color;
+    g.shadowBlur = s * 1.4;
+    g.drawImage(img, pad, pad, 12 * s, 17 * s);
+    glowCache.set(key, c);
+    return c;
+  }
+
   function boss(g, b, x, gy, h, fx = {}) {
     b = b || DEFAULT;
     const ex = b.extra || DEFAULT.extra;
@@ -76,9 +98,8 @@ const BossDraw = (() => {
     const raise = fx.raise || 0;
     g.rotate(-raise * .06);
     if (fx.flash && 'filter' in g) g.filter = 'brightness(2.6) saturate(.3)';
-    g.shadowColor = aura.c;
-    g.shadowBlur = s * 1.4;
-    g.drawImage(img, -6 * s, -17 * s, 12 * s, 17 * s);
+    const lit = glowSprite(img, aura.c, s);
+    g.drawImage(lit, -6 * s - lit.pad, -17 * s - lit.pad);
     g.restore();
     if (ex.harnas) drawGiantArmour(g, U, s, aura, t);
     if (ex.kroon) drawCrown(g, U, s, aura, t);
@@ -486,7 +507,7 @@ const BossDraw = (() => {
     };
 
     function resize() {
-      const dpr = Math.min(2, window.devicePixelRatio || 1);
+      const dpr = Math.min(1.5, window.devicePixelRatio || 1);
       const r = canvas.getBoundingClientRect();
       const w = Math.max(320, Math.round(r.width * dpr));
       const h = Math.max(200, Math.round(r.height * dpr));
@@ -833,11 +854,42 @@ const BossDraw = (() => {
       const dead = S.deadAt ? Math.min(1, (t - S.deadAt) / 2600) : 0;
       if (dead && dead < 1 && Math.random() < .5) sparks(bp.x + rand(-H * .15, H * .15), bp.gy - rand(0, bp.h), Math.random() < .5 ? '#ffc94a' : aura.c, 6, 2);
       const move = s.move || null;
-      const info = boss(ctx, b, bp.x, bp.gy, bp.h, {
+      const bfx = {
         t, flash: t - (S.bossFx.flashAt || 0) < 90, raise, angry: s.angry || 0, dead,
         shield: move && move.kind === 'schild' ? { frac: move.max ? move.hp / move.max : 1 } : null,
         weak: s.weak > 0,
-      });
+      };
+      // De baas met al zijn gloed is duur om te tekenen. We tekenen hem in een eigen canvas, zo vaak als de computer
+      // aankan: hooguit een zesde van de tijd gaat naar de baas (een snel bord ververst hem 20 keer per seconde,
+      // een trage Chromebook enkele keren). Alleen tijdens een slag, een flits of de val tekenen we hem elk beeld.
+      let info;
+      if (bfx.flash || raise > 0 || dead > 0) {
+        info = boss(ctx, b, bp.x, bp.gy, bp.h, bfx);
+      } else {
+        const cw = Math.ceil(bp.h * 2.6), ch = Math.ceil(bp.h * 2.45);
+        const ox = Math.round(bp.x - cw / 2), oy = Math.round(bp.gy - bp.h * 2.1);
+        if (!S.bossC) S.bossC = document.createElement('canvas');
+        const bc = S.bossC;
+        const key = [cw, ch, ox, oy, JSON.stringify(b), bfx.angry, bfx.weak, bfx.shield && bfx.shield.frac].join('|');
+        if (bc.width !== cw || bc.height !== ch || S.bossKey !== key || t - S.bossAt > Math.min(300, Math.max(50, (S.bossCost || 0) * 6))) {
+          if (bc.width !== cw || bc.height !== ch) { bc.width = cw; bc.height = ch; }
+          const bg = bc.getContext('2d');
+          bg.clearRect(0, 0, cw, ch);
+          bg.save();
+          bg.translate(-ox, -oy);
+          S.bossInfo = boss(bg, b, bp.x, bp.gy, bp.h, bfx);
+          bg.restore();
+          S.bossKey = key;
+          S.bossAt = t;
+          // Het echte tekenwerk gebeurt pas bij het overzetten; dat meten we.
+          const t0 = performance.now();
+          ctx.drawImage(bc, ox, oy);
+          S.bossCost = (S.bossCost || 0) * .7 + (performance.now() - t0) * .3;
+        } else {
+          ctx.drawImage(bc, ox, oy);
+        }
+        info = S.bossInfo;
+      }
       S.bossHit = { x: info.chest[0], y: info.chest[1] };
       // Weerspiegeling van de baas op de vloer.
       drawKnights(t);
