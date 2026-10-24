@@ -403,7 +403,7 @@
     const ck = alive ? 1 : Math.min(1, dt * 3);
     g.cam.x += (fx - g.cam.x) * ck;
     g.cam.y += (fy - g.cam.y) * ck;
-    const { w, h, dpr } = AK.fit(canvas, 1.75);
+    const { w, h, dpr } = AK.fit(canvas, 1.25);
     const zoom = Math.max(.6 * dpr, Math.min(1.4 * dpr, Math.min(w, h) / 520));
     RyDraw.render(ctx, s, { x: g.cam.x, y: g.cam.y, zoom, w, h }, {
       roster: g.roster, local: alive ? { n: g.me.n, x: g.x, y: g.y, a: g.a } : { n: -1, x: g.cam.x, y: g.cam.y, a: 0 },

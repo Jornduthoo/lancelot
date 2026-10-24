@@ -428,10 +428,14 @@ const AK = (() => {
     ctx.moveTo(x - vx * len, y - vy * len);
     ctx.lineTo(x, y);
     ctx.stroke();
+    // Gloed zonder shadowBlur: dat is te zwaar voor een Chromebook als er veel schoten vliegen.
+    ctx.globalAlpha = .35;
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(x, y, r * 1.6, 0, Math.PI * 2);
+    ctx.fill();
     ctx.globalAlpha = 1;
     ctx.fillStyle = '#fff';
-    ctx.shadowColor = color;
-    ctx.shadowBlur = 14;
     ctx.beginPath();
     ctx.arc(x, y, r * .6, 0, Math.PI * 2);
     ctx.fill();

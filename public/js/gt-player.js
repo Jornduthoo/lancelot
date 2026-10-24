@@ -418,7 +418,7 @@
     }
     s.update(dt);
     // Tekenen
-    const { w, h, dpr } = AK.fit(canvas, 1.75);
+    const { w, h, dpr } = AK.fit(canvas, 1.25);
     const zoom = Math.max(.7 * dpr, Math.min(1.5 * dpr, Math.min(w, h) / (T * 8.5)));
     GtDraw.render(ctx, s, { x: g.x, y: g.y, zoom, w, h }, {
       roster: g.roster, local: { n: g.me.n, x: g.x, y: g.y, a: g.a }, light: .8,
