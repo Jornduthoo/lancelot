@@ -1,6 +1,7 @@
 // Duel in de arena: één tegen één, met dezelfde vraag op hetzelfde moment. Wie eerst juist antwoordt,
 // slaat toe en de ander verliest een hart. Fout geantwoord? Dan mag je bij die vraag niet meer.
 // Alle duels van een ronde lopen tegelijk; de winnaars gaan door in een toernooischema tot er één kampioen is.
+const logboek = require('./logboek');
 const QUESTION_MS = 20000;
 const RESULT_MS = 2600;       // na elke vraag even tonen wie toesloeg
 const ROUND_BREAK_MS = 7000;  // tussen twee rondes
@@ -173,6 +174,7 @@ class Duel {
     const q = this.quiz.questions[m.q];
     const p = this.players.get(playerId);
     m.locked[s] = true;
+    logboek.answer('Duel in de arena', this.quiz.title, p.name, q, choice === q.correct);
     if (choice === q.correct) {
       p.right++;
       p.times.push(Date.now() - m.qAt);

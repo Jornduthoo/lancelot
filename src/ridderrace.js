@@ -4,6 +4,7 @@
 // De gsm rijdt zelf en stuurt zijn afstand; de server bewaakt brandstof, ronden en de stand.
 const Track = require('../public/js/race-track');
 const { tempoOf, factor } = require('./tempo');
+const logboek = require('./logboek');
 
 const START_FUEL = 100;
 const MAX_TURBOS = 5;
@@ -206,6 +207,7 @@ class Ridderrace {
     if (!p || this.phase !== 'play' || p.question === null) return { error: 'Er staat geen vraag open.' };
     const q = this.quiz.questions[p.question];
     const correct = choice === q.correct;
+    logboek.answer('Ridderrace', this.quiz.title, p.name, q, correct);
     p.last = p.question;
     p.question = null;
     let gained = 0;
