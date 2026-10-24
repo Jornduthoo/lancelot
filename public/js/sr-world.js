@@ -5,12 +5,13 @@
   if (typeof module === 'object' && module.exports) module.exports = factory();
   else root.SrWorld = factory();
 })(typeof self !== 'undefined' ? self : this, () => {
-  const W = 3000;
-  const H = 2000;
+  // Groot genoeg om echt te scheuren: vier keer de oppervlakte van de eerste arena (dubbel zo breed en lang).
+  const W = 6000;
+  const H = 4000;
   const CX = W / 2;
   const CY = H / 2;
-  const RX = 1440;           // de ovale rand
-  const RY = 940;
+  const RX = 2880;           // de ovale rand
+  const RY = 1880;
   const R = 30;              // straal van een hoverros
   const G = 1100;            // zwaartekracht bij een sprong
 
@@ -33,47 +34,61 @@
     }
     return out;
   };
-  // Kratten (h = hoogte): dekking tegen lasers. Weinig en ver uit elkaar, zodat er overal brede banen zijn.
+  // Kratten (h = hoogte): dekking tegen lasers. Ver uit elkaar, zodat er overal brede banen zijn.
   const BOXES = mirror([
-    { x: 600, y: 380, w: 140, d: 60, h: 54 },
-    { x: 880, y: 660, w: 90, d: 90, h: 70 },
-    { x: 330, y: 690, w: 70, d: 70, h: 54 },
+    { x: 1200, y: 760, w: 140, d: 60, h: 54 },
+    { x: 1760, y: 1320, w: 90, d: 90, h: 70 },
+    { x: 660, y: 1380, w: 70, d: 70, h: 54 },
+    { x: 2300, y: 500, w: 160, d: 70, h: 54 },
+    { x: 1000, y: 1700, w: 80, d: 120, h: 60 },
+    { x: 2500, y: 1500, w: 90, d: 90, h: 70 },
   ], (b, fx, fy) => ({ ...b, x: fx ? W - b.x - b.w : b.x, y: fy ? H - b.y - b.d : b.y }));
   // Pilaren en in het midden de burchttoren.
   const CYLS = [
-    { x: CX, y: CY, r: 110, h: 300, kind: 'burcht' },
-    ...mirror([{ x: 1130, y: 560, r: 40, h: 180, kind: 'pilaar' }],
-      (c, fx, fy) => ({ ...c, x: fx ? W - c.x : c.x, y: fy ? H - c.y : c.y })),
+    { x: CX, y: CY, r: 140, h: 340, kind: 'burcht' },
+    ...mirror([
+      { x: 2260, y: 1120, r: 40, h: 180, kind: 'pilaar' },
+      { x: 1450, y: 1150, r: 46, h: 200, kind: 'pilaar' },
+      { x: 2200, y: 2000, r: 40, h: 180, kind: 'pilaar' },
+    ], (c, fx, fy) => ({ ...c, x: fx ? W - c.x : c.x, y: fy ? H - c.y : c.y })),
   ];
   // Schansen: rij er in de richting van de pijl over en je vliegt. (x, y) is het midden, a de richting omhoog.
   // Van opzij of van de hoge kant rijd je er gewoon op: een schans houdt nooit iemand tegen.
   const RAMPS = [
-    { x: CX, y: 330, a: 0, w: 190, d: 130, h: 50 },
-    { x: CX, y: H - 330, a: Math.PI, w: 190, d: 130, h: 50 },
-    { x: 380, y: CY, a: -Math.PI / 2, w: 190, d: 130, h: 50 },
-    { x: W - 380, y: CY, a: Math.PI / 2, w: 190, d: 130, h: 50 },
-    { x: 1000, y: 1000, a: -Math.PI / 2, w: 170, d: 120, h: 46 },
-    { x: W - 1000, y: 1000, a: Math.PI / 2, w: 170, d: 120, h: 46 },
+    { x: CX, y: 660, a: 0, w: 190, d: 130, h: 50 },
+    { x: CX, y: H - 660, a: Math.PI, w: 190, d: 130, h: 50 },
+    { x: 760, y: CY, a: -Math.PI / 2, w: 190, d: 130, h: 50 },
+    { x: W - 760, y: CY, a: Math.PI / 2, w: 190, d: 130, h: 50 },
+    { x: 2000, y: CY, a: -Math.PI / 2, w: 170, d: 120, h: 46 },
+    { x: W - 2000, y: CY, a: Math.PI / 2, w: 170, d: 120, h: 46 },
+    { x: 1700, y: 950, a: Math.PI / 4, w: 180, d: 120, h: 56 },
+    { x: W - 1700, y: 950, a: Math.PI * .75, w: 180, d: 120, h: 56 },
+    { x: 1700, y: H - 950, a: -Math.PI / 4, w: 180, d: 120, h: 56 },
+    { x: W - 1700, y: H - 950, a: -Math.PI * .75, w: 180, d: 120, h: 56 },
   ];
   // Turbostroken op de vloer: wie erover rijdt, schiet vooruit.
   const PADS = [
-    { x: 1150, y: 300, w: 110, h: 70 },
-    { x: W - 1260, y: H - 370, w: 110, h: 70 },
-    { x: 700, y: 960, w: 80, h: 80 },
-    { x: W - 780, y: 960, w: 80, h: 80 },
-    { x: CX - 45, y: 620, w: 90, h: 80 },
-    { x: CX - 45, y: H - 700, w: 90, h: 80 },
+    { x: 2300, y: 600, w: 110, h: 70 },
+    { x: W - 2410, y: H - 670, w: 110, h: 70 },
+    { x: 1400, y: 1960, w: 80, h: 80 },
+    { x: W - 1480, y: 1960, w: 80, h: 80 },
+    { x: CX - 45, y: 1240, w: 90, h: 80 },
+    { x: CX - 45, y: H - 1320, w: 90, h: 80 },
+    { x: 1150, y: 1150, w: 90, h: 90 },
+    { x: W - 1240, y: 1150, w: 90, h: 90 },
+    { x: 1150, y: H - 1240, w: 90, h: 90 },
+    { x: W - 1240, y: H - 1240, w: 90, h: 90 },
   ];
 
   // De kampen van de teams en de startplaatsen voor ieder voor zich (met de neus naar het midden).
   const BASES = {
-    rood: { x: 110, y: 700, w: 200, h: 600 },
-    blauw: { x: W - 310, y: 700, w: 200, h: 600 },
+    rood: { x: 220, y: 1550, w: 260, h: 900 },
+    blauw: { x: W - 480, y: 1550, w: 260, h: 900 },
   };
   const SPAWNS = [];
-  for (let i = 0; i < 16; i++) {
-    const t = (i / 16) * Math.PI * 2 + .1;
-    SPAWNS.push([CX + Math.cos(t) * (RX - 150), CY + Math.sin(t) * (RY - 130)]);
+  for (let i = 0; i < 24; i++) {
+    const t = (i / 24) * Math.PI * 2 + .1;
+    SPAWNS.push([CX + Math.cos(t) * (RX - 160), CY + Math.sin(t) * (RY - 140)]);
   }
 
   // Voor de schansen: de plek in het eigen assenstelsel (u langs de helling, v dwars).

@@ -219,9 +219,10 @@ const Sr3D = (() => {
   function floorData(teams) {
     const key = teams ? 'teams' : 'ieder';
     if (floor && floor.key === key) return floor;
-    const c = SrDraw.arenaImage(teams, false, .5);
+    // Grove vloer is genoeg voor het lage 3D-beeld en spaart geheugen op een Chromebook.
+    const c = SrDraw.arenaImage(teams, false, .25);
     const g = c.getContext('2d');
-    floor = { key, k: .5, w: c.width, h: c.height, px: new Uint32Array(g.getImageData(0, 0, c.width, c.height).data.buffer) };
+    floor = { key, k: .25, w: c.width, h: c.height, px: new Uint32Array(g.getImageData(0, 0, c.width, c.height).data.buffer) };
     return floor;
   }
 

@@ -42,6 +42,7 @@ socket.on('sj-state', s => {
   sj.state = s;
   sj.offset = s.now - Date.now();
   document.body.dataset.sj = s.active ? '1' : '';
+  if (s.active) sjBg();
   if (!s.active) {
     sj.joined = false;
     return;
@@ -178,17 +179,37 @@ function sjAnswer(i) {
   });
 }
 
-// Een handvol muntjes die naar de teller vliegen.
+// De schatkamer als achtergrond: één keer getekend per schermgrootte, wat donkerder zodat de vragen leesbaar blijven.
+function sjBg() {
+  const c = $('sj-bg');
+  const dpr = Math.min(1.5, window.devicePixelRatio || 1);
+  const w = Math.round(innerWidth * dpr);
+  const h = Math.round(innerHeight * dpr);
+  if (c.width === w && c.height === h) return;
+  c.width = w;
+  c.height = h;
+  const g = c.getContext('2d');
+  const art = SjArt.vault(w, h, 11);
+  g.drawImage(art.c, 0, 0);
+  art.torches.forEach(([x, y, pw], i) => SjArt.torch(g, x, y, pw * .9, i, i));
+  g.fillStyle = 'rgba(5, 3, 12, .45)';
+  g.fillRect(0, 0, w, h);
+  Glow.vignette(g, w, h, .7);
+}
+window.addEventListener('resize', () => { if (document.body.dataset.sj === '1') sjBg(); });
+
+// Een regen van draaiende muntjes die naar de teller vliegen.
 function sjCoins() {
   const target = document.querySelector('.sj-top .coin').getBoundingClientRect();
-  for (let i = 0; i < 8; i++) {
+  for (let i = 0; i < 16; i++) {
     const c = document.createElement('span');
-    c.className = 'coin fly';
-    c.style.left = `${innerWidth / 2 + (Math.random() - .5) * 120}px`;
-    c.style.top = `${innerHeight / 2 + (Math.random() - .5) * 80}px`;
+    c.className = 'coin fly spin';
+    c.style.left = `${innerWidth / 2 + (Math.random() - .5) * 260}px`;
+    c.style.top = `${innerHeight / 2 + (Math.random() - .5) * 160}px`;
+    c.style.animationDelay = `${-Math.random()}s`;
     document.body.appendChild(c);
     requestAnimationFrame(() => {
-      c.style.transition = `transform ${.55 + i * .05}s cubic-bezier(.5, 0, .6, 1), opacity .2s ${.5 + i * .05}s`;
+      c.style.transition = `transform ${.55 + i * .035}s cubic-bezier(.5, 0, .6, 1), opacity .2s ${.5 + i * .035}s`;
       c.style.transform = `translate(${target.left - parseFloat(c.style.left)}px, ${target.top - parseFloat(c.style.top)}px) scale(.6)`;
       c.style.opacity = '0';
     });
