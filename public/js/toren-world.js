@@ -14,10 +14,10 @@
   ];
   // Kans per zone op elk soort platform (de rest is gewone steen).
   const KINDS = {
-    kerker: { crumble: .16, spring: .08 },
-    storm: { crumble: .2, hover: .14, ice: .1, spring: .06 },
-    neon: { hover: .3, ice: .1, crumble: .1, spring: .08 },
-    hemel: { ice: .24, hover: .2, crumble: .14, spring: .08 },
+    kerker: { lift: .16, spring: .08 },
+    storm: { lift: .14, hover: .16, ice: .1, spring: .06 },
+    neon: { hover: .26, lift: .14, ice: .1, spring: .08 },
+    hemel: { ice: .22, hover: .18, lift: .14, spring: .08 },
   };
   const SPRING = 1.42;      // een supersprong is zoveel keer sterker dan een gewone sprong
 
@@ -61,8 +61,13 @@
       const roll = r();
       if (roll < danger * .7) {
         // Laserpoort die aan- en uitflitst. Even wachten tot hij uit staat!
-        const lw = between(140, 260);
-        lasers.push({ x: between(0, W - lw), y: mid, w: lw, period: between(2.6, 3.6), on: .45, offset: r() * 4 });
+        // Hij dekt hoogstens de helft van het platform erboven: er is altijd een weg errond.
+        const lw = between(120, 200);
+        const cover = p.w * between(.25, .5);
+        const fromLeft = r() < .5;
+        const lx = fromLeft ? Math.max(0, p.x + cover - lw) : p.x + p.w - cover;
+        const lr = fromLeft ? p.x + cover : Math.min(W, lx + lw);
+        lasers.push({ x: lx, y: mid, w: lr - lx, period: between(3.2, 4.2), on: .3, offset: r() * 4 });
       } else if (roll < danger * 1.3) {
         drones.push({ y: mid + between(-8, 8), period: between(3.2, 5.5), offset: r() * 6, r: 12 });
       }
@@ -85,6 +90,12 @@
         if (amp < 18) kind = 'stone';
         else p.move = { amp, period: 3 + r2() * 2.5, offset: r2() * 6 };
       }
+      // Geen liftje onder een laser of drone: dan zou je er vanzelf in rijden.
+      if (kind === 'lift' && [...lasers, ...drones].some(h => h.y > p.y && h.y < p.y + 150)) kind = 'stone';
+      if (kind === 'lift') {
+        // Liftje dat rustig op en neer gaat. Klein genoeg om altijd bereikbaar te blijven.
+        p.lift = { amp: 26, period: 3.2 + r2() * 1.6, offset: r2() * 6 };
+      }
       if (kind === 'spring') {
         if (p.w < 90) kind = 'stone';
         else {
@@ -92,7 +103,7 @@
           p.spring = { x: free[0] + r2() * (free[1] - free[0]) - 12, w: 24 };
         }
       }
-      if (kind === 'hover' || kind === 'crumble') delete p.spikes;
+      if (kind === 'hover' || kind === 'lift') delete p.spikes;
       p.kind = kind;
     }
     // Windstoten in de Stormmuren: duwen je opzij terwijl je in de lucht bent.
@@ -128,6 +139,11 @@
     return p.move ? p.x + Math.sin(((t + p.move.offset) / p.move.period) * Math.PI * 2) * p.move.amp : p.x;
   }
 
+  // Hoogte van een (eventueel op en neer gaand) platform op tijdstip t.
+  function platformY(p, t) {
+    return p.lift ? p.y + Math.sin(((t + p.lift.offset) / p.lift.period) * Math.PI * 2) * p.lift.amp : p.y;
+  }
+
   // Duw van de wind op hoogte y (eenheden per seconde), 0 als het daar niet waait.
   function windAt(world, y, t) {
     for (const w of world.winds) {
@@ -141,7 +157,7 @@
   // Staat de laser aan op tijdstip t (seconden sinds de start)? Ook 'bijna' voor de waarschuwing.
   function laserState(l, t) {
     const phase = ((t + l.offset) % l.period) / l.period;
-    return { on: phase < l.on, warn: phase > .85 };
+    return { on: phase < l.on, warn: phase > .8 };
   }
 
   function droneX(d, t, W) {
@@ -155,7 +171,7 @@
     return floor;
   }
 
-  const api = { build, laserState, droneX, floorAt, zoneAt, zoneOfFloor, platformX, windAt, W, FLOORS, ZONES, SPRING };
+  const api = { build, laserState, droneX, floorAt, zoneAt, zoneOfFloor, platformX, platformY, windAt, W, FLOORS, ZONES, SPRING };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.Toren = api;
 })(this);

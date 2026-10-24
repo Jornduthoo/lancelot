@@ -540,38 +540,20 @@ const TorenDraw = (() => {
   }
 
   // ---------- Platforms ----------
-  function platform(ctx, p, x, y, w, s, L, world, t, st) {
+  function platform(ctx, p, x, y, w, s, L, world, t, rail) {
     const kind = p.kind || 'stone';
     const top = p.floor === world.FLOORS;
-    if (kind === 'crumble') {
-      const pieces = Math.max(3, Math.round(p.w / 34));
-      const pw = w / pieces;
-      const fall = st && st.gone >= 0 ? st.gone : -1;
-      if (fall > .7) return;
-      for (let i = 0; i < pieces; i++) {
-        const shake = st && st.shake ? (hash(i + Math.floor(t * 30)) - .5) * 3 * s * st.shake : 0;
-        const dy = fall >= 0 ? fall * fall * 900 * s * (.7 + hash(i) * .6) : 0;
-        ctx.globalAlpha = fall >= 0 ? Math.max(0, 1 - fall / .7) : 1;
-        const bx = x + i * pw + shake;
-        ctx.fillStyle = '#5a3a24';
-        ctx.fillRect(bx + 1, y + dy, pw - 2, 15 * s);
-        ctx.fillStyle = '#b5885a';
-        ctx.fillRect(bx + 1, y + dy, pw - 2, 5 * s);
-        ctx.fillStyle = '#e0b880';
-        ctx.fillRect(bx + 1, y + dy, pw - 2, 1.5 * s);
-        ctx.strokeStyle = '#2a1608';
-        ctx.lineWidth = Math.max(1, s);
-        ctx.beginPath();
-        ctx.moveTo(bx + pw * .4, y + dy);
-        ctx.lineTo(bx + pw * .55, y + dy + 7 * s);
-        ctx.lineTo(bx + pw * .45, y + dy + 15 * s);
-        ctx.stroke();
+    if (kind === 'hover' || kind === 'lift') {
+      const h = 13 * s;
+      // Rail die toont waar het platform heen gaat.
+      ctx.fillStyle = L.accent;
+      ctx.globalAlpha = .28;
+      if (p.move) ctx.fillRect(x - rail.dx - p.move.amp * s, y + h / 2 - 1 * s, w + p.move.amp * 2 * s, 2 * s);
+      if (p.lift) {
+        ctx.fillRect(x + 6 * s, rail.y0, 2 * s, rail.y1 - rail.y0);
+        ctx.fillRect(x + w - 8 * s, rail.y0, 2 * s, rail.y1 - rail.y0);
       }
       ctx.globalAlpha = 1;
-      return;
-    }
-    if (kind === 'hover') {
-      const h = 13 * s;
       glow(ctx, x + w / 2, y + 22 * s, w * .55, L.glow, .45);
       ctx.save();
       ctx.globalCompositeOperation = 'lighter';
@@ -604,6 +586,22 @@ const TorenDraw = (() => {
       ctx.fillRect(x + 6 * s, y, w - 12 * s, 3 * s);
       ctx.fillStyle = L.glow;
       ctx.fillRect(x + 12 * s, y + h / 2 - 1 * s, w - 24 * s, 2 * s);
+      // Pijltjes: op en neer of heen en weer.
+      ctx.fillStyle = '#ffffff';
+      ctx.globalAlpha = .85;
+      const cx = x + w / 2;
+      const cy = y + h / 2;
+      const a = 4 * s;
+      ctx.beginPath();
+      if (p.lift) {
+        ctx.moveTo(cx - a, cy - 1 * s); ctx.lineTo(cx, cy - a - 2 * s); ctx.lineTo(cx + a, cy - 1 * s);
+        ctx.moveTo(cx - a, cy + 1 * s); ctx.lineTo(cx, cy + a + 2 * s); ctx.lineTo(cx + a, cy + 1 * s);
+      } else {
+        ctx.moveTo(cx - 6 * s, cy - a); ctx.lineTo(cx - 6 * s - a - 2 * s, cy); ctx.lineTo(cx - 6 * s, cy + a);
+        ctx.moveTo(cx + 6 * s, cy - a); ctx.lineTo(cx + 6 * s + a + 2 * s, cy); ctx.lineTo(cx + 6 * s, cy + a);
+      }
+      ctx.fill();
+      ctx.globalAlpha = 1;
       return;
     }
     if (kind === 'ice') {
@@ -846,8 +844,8 @@ const TorenDraw = (() => {
   }
 
   // Tekent de toren tussen wereldhoogte cam.y (onderkant scherm) en cam.y + H / scale.
-  // ox: linkerrand van de toren op het scherm. local (alleen op de gsm): hoe het met de brokkelplatforms staat.
-  function scene(ctx, world, cam, t, local) {
+  // ox: linkerrand van de toren op het scherm.
+  function scene(ctx, world, cam, t) {
     const { scale: s, H, ox } = cam;
     const W = world.W;
     const CW = ctx.canvas.width;
@@ -951,7 +949,8 @@ const TorenDraw = (() => {
       ctx.fillStyle = '#6a7290';
       ctx.fillRect(x1 - 10 * s, y - 9 * s, 10 * s, 2 * s);
       ctx.fillRect(x2, y - 9 * s, 10 * s, 2 * s);
-      ctx.fillStyle = st.on || st.warn ? '#ff3d5a' : '#2a2f44';
+      // Lampje: groen = je mag erdoor, geel knipperend = hij gaat zo aan, rood = aan.
+      ctx.fillStyle = st.on ? '#ff3d5a' : st.warn ? (Math.floor(t * 8) % 2 ? '#ffd166' : '#5a4a20') : '#3ddc84';
       ctx.fillRect(x1 - 4 * s, y - 2.5 * s, 4 * s, 5 * s);
       ctx.fillRect(x2, y - 2.5 * s, 4 * s, 5 * s);
       if (st.on) {
@@ -965,7 +964,7 @@ const TorenDraw = (() => {
         glow(ctx, x2, y, 22 * s, '#ff3d5a', .9);
       } else {
         ctx.setLineDash([6 * s, 8 * s]);
-        ctx.strokeStyle = st.warn && Math.floor(t * 10) % 2 ? 'rgba(255, 61, 90, .9)' : 'rgba(255, 61, 90, .22)';
+        ctx.strokeStyle = st.warn ? (Math.floor(t * 8) % 2 ? 'rgba(255, 209, 102, .9)' : 'rgba(255, 209, 102, .3)') : 'rgba(61, 220, 132, .25)';
         ctx.lineWidth = 1.5 * s;
         ctx.beginPath();
         ctx.moveTo(x1, y);
@@ -1022,13 +1021,13 @@ const TorenDraw = (() => {
       const L = lookOf(world, Toren.zoneAt(world, p.y));
       const px = Toren.platformX(p, t);
       const x = X(px);
-      const y = sy(p.y);
+      const y = sy(Toren.platformY(p, t));
       const w = p.w * s;
-      const st = local && p.kind === 'crumble' ? local.crumble(p) : null;
-      platform(ctx, p, x, y, w, s, L, world, t, st);
+      const rail = { dx: x - X(p.x), y0: p.lift ? sy(p.y + p.lift.amp) : 0, y1: p.lift ? sy(p.y - p.lift.amp) + 13 * s : 0 };
+      platform(ctx, p, x, y, w, s, L, world, t, rail);
       if (p.spikes) spikes(ctx, X(p.spikes.x), y, p.spikes.w * s, s);
       if (p.spring) springPad(ctx, X(p.spring.x + p.spring.w / 2), y, s, t);
-      if (p.floor > 0 && p.floor % 10 === 0 && p.floor < world.FLOORS && p.kind !== 'crumble') {
+      if (p.floor > 0 && p.floor % 10 === 0 && p.floor < world.FLOORS && !p.lift) {
         ctx.fillStyle = '#ffd166';
         ctx.font = `800 ${11 * s}px Orbitron, sans-serif`;
         ctx.textAlign = 'center';
