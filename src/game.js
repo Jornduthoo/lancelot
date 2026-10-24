@@ -134,7 +134,7 @@ class Game {
       p.results[this.index] = { answer: p.answer, correct: p.answer === q.correct, points: p.lastPoints };
     }
     logboek.add([...this.players.values()].map(p => ({
-      naam: p.name, spel: 'Toernooi', bron: this.quiz.title, vraag: q.question, doel: q.doel,
+      naam: p.name, spel: this.quiz.spel || 'Toernooi', bron: this.quiz.title, vraag: q.question, doel: q.doel,
       juist: p.answer === q.correct, leeg: p.answer === null,
     })));
     this.phase = 'reveal';

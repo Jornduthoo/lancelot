@@ -1366,3 +1366,14 @@ body:not([data-sr="1"]) #rossen { display: none !important; }
   .sr-w, .sr-touch .ls-load { width: 62px; height: 62px; font-size: 1.35rem; }
 }
 .sr-logo { filter: drop-shadow(0 0 20px rgba(199, 125, 255, .6)); }
+
+/* Opwarmer: voorgestelde herhaalvragen */
+.ow-vraag .play { cursor: default; align-items: flex-start; padding: 12px 14px; }
+.ow-vraag .ow-nr { color: var(--gold); min-width: 2ch; }
+.ow-tekst { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.ow-tekst small { font-size: .8rem; }
+
+/* Netwerk werkt niet? */
+.nw-stappen { display: flex; flex-direction: column; gap: 10px; padding-left: 22px; margin: 0; }
+.nw-adressen { display: flex; flex-direction: column; gap: 6px; padding-left: 18px; margin: 0; }
+.netwerk-hulp-link { white-space: nowrap; }

@@ -49,7 +49,11 @@
     <div class="panel form">
       <h3>Leerplandoelen</h3>
       <p class="muted">De doelen uit Op.stap voor jouw leerjaar. Koppel ze aan een quizvraag of een oefening in de quizmaker of de oefenbladmaker. Groen gemarkeerd: zoveel antwoorden staan er al in het logboek.</p>
-      <label>Zoeken<input id="d-zoek" placeholder="bijv. breuk, deler of 2.2.GL6"></label>
+      <div class="row">
+        <label>Vak<select id="d-vak"><option value="">Alle vakken</option></select></label>
+        <label>Zoeken<input id="d-zoek" placeholder="bijv. breuk, spelling, verkeer of 2.2.GL6"></label>
+      </div>
+      <p class="muted small" id="d-bron"></p>
       <div class="doel-lijst" id="d-lijst"></div>
     </div>
   </section>

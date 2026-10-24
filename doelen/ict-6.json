@@ -1,0 +1,238 @@
+{
+ "bron": "Op.stap, leerroutes voor iedereen (Katholiek Onderwijs Vlaanderen), leerplanversie V1.3 van 24/10/2026",
+ "vak": "ICT",
+ "leerjaar": 6,
+ "doelen": [
+  {
+   "code": "8.1.GL6.1",
+   "vak": "ICT",
+   "leerjaar": 6,
+   "soort": "G",
+   "domein": "Computationeel denken",
+   "cluster": "Inzicht in digitale systemen",
+   "tekst": "De leerlingen kennen het proces van digitale informatieverwerking en begrijpen hoe digitale systemen met elkaar verbonden kunnen worden om te communiceren: gegevensuitwisseling tussen digitale systemen.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "8.1.GL6.2",
+   "vak": "ICT",
+   "leerjaar": 6,
+   "soort": "G",
+   "domein": "Computationeel denken",
+   "cluster": "Inzicht in digitale systemen",
+   "tekst": "De leerlingen kennen het proces van digitale informatieverwerking en begrijpen hoe digitale systemen met elkaar verbonden kunnen worden om te communiceren: verwerking en opslag van gegevens op een andere locatie dan het eigen digitale apparaat.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "8.1.GL6.3",
+   "vak": "ICT",
+   "leerjaar": 6,
+   "soort": "G",
+   "domein": "Computationeel denken",
+   "cluster": "Inzicht in digitale systemen",
+   "tekst": "De leerlingen kennen de volgende begrippen: de informatieverwerking, het netwerk.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "8.1.GL6.4",
+   "vak": "ICT",
+   "leerjaar": 6,
+   "soort": "G",
+   "domein": "Computationeel denken",
+   "cluster": "Principes van computationeel denken",
+   "tekst": "De leerlingen kunnen onder begeleiding de principes van computationeel denken toepassen om een algoritme te ontwerpen, testen en debuggen om tot een werkende oplossing te komen: combinatie van sequentie, herhaling, keuze.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "8.2.GL6.1",
+   "vak": "ICT",
+   "leerjaar": 6,
+   "soort": "G",
+   "domein": "Digitale geletterdheid",
+   "cluster": "Digitale informatieveiligheid",
+   "tekst": "De leerlingen kunnen doelgericht invoer- en uitvoerapparaten gebruiken en instellen met inbegrip van vlot gebruik van een toetsenbord.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "8.2.GL6.2",
+   "vak": "ICT",
+   "leerjaar": 6,
+   "soort": "G",
+   "domein": "Digitale geletterdheid",
+   "cluster": "Digitale informatieveiligheid",
+   "tekst": "De leerlingen kunnen bestanden downloaden en uploaden.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "8.2.GL6.3",
+   "vak": "ICT",
+   "leerjaar": 6,
+   "soort": "G",
+   "domein": "Digitale geletterdheid",
+   "cluster": "Digitale informatieveiligheid",
+   "tekst": "De leerlingen kunnen bestanden beheren via een aangereikte structuur: aanmaken van mappen, herbenoemen van mappen en bestanden, terughalen van verwijderde bestanden.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "8.2.GL6.4",
+   "vak": "ICT",
+   "leerjaar": 6,
+   "soort": "G",
+   "domein": "Digitale geletterdheid",
+   "cluster": "Digitale informatieveiligheid",
+   "tekst": "De leerlingen kunnen eenvoudige systeeminstellingen aanpassen.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "8.2.GL6.5",
+   "vak": "ICT",
+   "leerjaar": 6,
+   "soort": "G",
+   "domein": "Digitale geletterdheid",
+   "cluster": "Informatiegeletterdheid",
+   "tekst": "De leerlingen kunnen een zoekstrategie uitwerken, toepassen en indien nodig bijsturen vanuit de principes van computationeel denken.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "8.2.GL6.6",
+   "vak": "ICT",
+   "leerjaar": 6,
+   "soort": "G",
+   "domein": "Digitale geletterdheid",
+   "cluster": "Informatiegeletterdheid",
+   "tekst": "De leerlingen kunnen aan de hand van aangereikte criteria digitale bronnen beoordelen op bruikbaarheid, betrouwbaarheid en correctheid.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "8.2.GL6.7",
+   "vak": "ICT",
+   "leerjaar": 6,
+   "soort": "G",
+   "domein": "Digitale geletterdheid",
+   "cluster": "Informatiegeletterdheid",
+   "tekst": "De leerlingen kennen het volgende begrip: de artificiële intelligentie.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "8.2.GL6.8",
+   "vak": "ICT",
+   "leerjaar": 6,
+   "soort": "G",
+   "domein": "Digitale geletterdheid",
+   "cluster": "Informatiegeletterdheid",
+   "tekst": "De leerlingen kunnen voorbeelden geven van toepassingen waarin AI gebruikt wordt.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "8.3.GL6.1",
+   "vak": "ICT",
+   "leerjaar": 6,
+   "soort": "G",
+   "domein": "Mediawijsheid",
+   "cluster": "Auteurs- en portretrecht",
+   "tekst": "De leerlingen kennen de volgende begrippen: het auteursrecht, het portretrecht.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "8.3.GL6.2",
+   "vak": "ICT",
+   "leerjaar": 6,
+   "soort": "G",
+   "domein": "Mediawijsheid",
+   "cluster": "Digitale veiligheid",
+   "tekst": "De leerlingen kennen de volgende begrippen: de online veiligheid, het nepnieuws.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "8.3.GL6.3",
+   "vak": "ICT",
+   "leerjaar": 6,
+   "soort": "G",
+   "domein": "Mediawijsheid",
+   "cluster": "Digitale veiligheid",
+   "tekst": "De leerlingen kennen mogelijkheden om zichzelf en anderen online te beschermen.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "8.3.GL6.4",
+   "vak": "ICT",
+   "leerjaar": 6,
+   "soort": "G",
+   "domein": "Mediawijsheid",
+   "cluster": "Digitale veiligheid",
+   "tekst": "De leerlingen kunnen de impact van digitale media op hun eigen leefwereld en die van anderen illustreren waaronder: ethische aspecten.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "8.3.GL6.5",
+   "vak": "ICT",
+   "leerjaar": 6,
+   "soort": "G",
+   "domein": "Mediawijsheid",
+   "cluster": "Digitale veiligheid",
+   "tekst": "De leerlingen kunnen de impact van digitale media op hun eigen leefwereld en die van anderen illustreren waaronder: sociale aspecten.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "8.3.GL6.6",
+   "vak": "ICT",
+   "leerjaar": 6,
+   "soort": "G",
+   "domein": "Mediawijsheid",
+   "cluster": "Digitale veiligheid",
+   "tekst": "De leerlingen kunnen de impact van digitale media op hun eigen leefwereld en die van anderen illustreren waaronder: regelgevende aspecten.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "8.3.GL6.7",
+   "vak": "ICT",
+   "leerjaar": 6,
+   "soort": "G",
+   "domein": "Mediawijsheid",
+   "cluster": "Digitale veiligheid",
+   "tekst": "De leerlingen kunnen de impact van digitale media op hun eigen leefwereld en die van anderen illustreren waaronder: gezondheidsaspecten.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "8.3.GL6.8",
+   "vak": "ICT",
+   "leerjaar": 6,
+   "soort": "G",
+   "domein": "Mediawijsheid",
+   "cluster": "Digitale veiligheid",
+   "tekst": "De leerlingen kunnen de impact van digitale media op hun eigen leefwereld en die van anderen illustreren waaronder: veiligheidsaspecten.",
+   "kennis": "",
+   "herhaling": ""
+  },
+  {
+   "code": "8.4.GL6.1",
+   "vak": "ICT",
+   "leerjaar": 6,
+   "soort": "G",
+   "domein": "Digitale creatie",
+   "cluster": "Communiceren",
+   "tekst": "De leerlingen kennen mogelijkheden van digitale tools om te communiceren.",
+   "kennis": "",
+   "herhaling": ""
+  }
+ ]
+}

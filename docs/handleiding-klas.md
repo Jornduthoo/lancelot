@@ -186,15 +186,26 @@ Liever op papier? Klik bij een blad op **🖨 Print** voor het werkblad en op **
 1. Klik op het startscherm op **Mijn klas en doelen**. Zet je leerlingen erin, één naam per regel, kies het leerjaar en klik op **Klaslijst bewaren**. De lijst blijft op deze pc.
 2. Leerlingen tikken voortaan hun naam aan bij het aanmelden, in elk spel. Typen kan nog altijd, bijvoorbeeld voor een gast.
 3. In de quizmaker en de oefenbladmaker kies je de **leerplandoelen** van je les uit Op.stap: typ een code (2.1.GL6.4) of een woord (deler) en klik het doel aan. Een les mag meerdere doelen hebben. De AI verdeelt de vragen over die doelen en zet bij elke vraag het doel dat ze oefent. Je kan het doel per vraag of per oefening nog aanpassen.
-4. Elk antwoord in een Toernooi en een live oefenblad komt in het **logboek** (map `logboek`, één bestand per schooljaar). Op de pagina Mijn klas zie je per doel hoeveel antwoorden er al zijn en hoeveel procent juist. Hieruit komen later de doelenkaart per leerling en de Opwarmer.
+4. Elk antwoord in een Toernooi en een live oefenblad komt in het **logboek** (map `logboek`, één bestand per schooljaar). Op de pagina Mijn klas zie je per doel hoeveel antwoorden er al zijn en hoeveel procent juist. De Opwarmer gebruikt dit al; later volgt ook een doelenkaart per leerling.
 
-Voorlopig staan de doelen wiskunde van het 6e leerjaar erin (G-doelen en plusdoelen, Op.stap versie 1.3).
+Voor het 6e leerjaar staan deze vakken erin (G-doelen en plusdoelen, Op.stap versie 1.3): wiskunde, Nederlands, Frans, wetenschap en techniek, aardrijkskunde, geschiedenis, ICT en veilige en gezonde levensstijl (verkeer en gezondheid). Op de pagina Mijn klas kies je bovenaan het vak. De doelen zijn automatisch overgenomen uit de Op.stap-pdf's; de officiële versie staat in de Op.stap-leerplantool. Godsdienst, leren leren en sociaal-emotioneel leren staan er bewust niet in: daar horen geen scores bij.
+
+## Opwarmer
+
+Start je les met een paar herhaalvragen uit vorige lessen. Kort ophalen wat je vroeger leerde, is een van de beste manieren om het te onthouden.
+
+1. Klik in **De Arena** op **Opwarmer**. LANcelot stelt zelf vragen voor uit al je quizzen.
+2. Voorrang krijgen: vragen en leerplandoelen die in het logboek vaak fout gingen, en leerstof die al een tijd niet aan bod kwam. Wat de klas vandaag al zag, komt achteraan. De vragen zijn gemengd over verschillende lessen en doelen.
+3. Kies het aantal vragen en eventueel een vak. Onder elke vraag staat waarom ze gekozen is. Klik op ✕ om een vraag over te slaan, of op **Andere vragen** voor een nieuw voorstel.
+4. Klik op **Start de Opwarmer**. Je speelt hem als een gewoon Toernooi, en de antwoorden gaan mee in het logboek. Zo wordt de volgende Opwarmer slimmer.
 
 ## Lukt verbinden niet?
 
+Op het startscherm en in elke lobby staat de knop **Netwerk werkt niet?**. Die pagina toont de netwerken van je pc en loopt alle stappen hieronder met je door.
+
 - **Zelfde netwerk:** je pc en de apparaten van leerlingen moeten op hetzelfde wifi-netwerk zitten. Een pc via een netwerkkabel werkt meestal ook, als die op hetzelfde schoolnetwerk zit.
 - **Gastnetwerk of "client isolation":** veel scholen blokkeren verkeer tussen apparaten op het gast-wifi. Vraag de ICT-afdeling of apparaten elkaar mogen bereiken op poort 3000, of gebruik een ander netwerk.
-- **Noodoplossing:** zet een mobiele hotspot aan op je telefoon of laptop en laat de pc en de leerlingen daarmee verbinden. Dat werkt zonder dat ICT iets hoeft te doen; om te spelen hoeft je hotspot geen internet te hebben (een quiz maken met AI doe je vooraf, als je wel internet hebt). Let op: een telefoon-hotspot laat vaak maar zo'n 10 apparaten toe. De hotspot van Windows zelf (Instellingen → Netwerk → Mobiele hotspot) is dan een betere keuze.
+- **Noodoplossing:** zet een mobiele hotspot aan op je telefoon of laptop en laat de pc en de leerlingen daarmee verbinden. Dat werkt zonder dat ICT iets hoeft te doen; om te spelen hoeft je hotspot geen internet te hebben (een quiz maken met AI doe je vooraf, als je wel internet hebt). Let op: een telefoon-hotspot laat vaak maar 5 tot 10 apparaten toe, en de hotspot van Windows zelf (Instellingen → Netwerk en internet → Mobiele hotspot) hooguit 8. Veel scholen verbieden eigen hotspots en beheerde Chromebooks mogen vaak alleen op het schoolnetwerk: vraag het eerst aan ICT.
 - **Firewall:** heb je de vraag van Windows per ongeluk weggeklikt? Zoek in Start naar "Een app toestaan via Windows Firewall" en zet een vinkje bij Node.js (privé en openbaar).
 - **Meerdere adressen op het bord:** probeer eerst het grote adres. Werkt dat niet, klik dan op een van de andere adressen eronder (meestal het adres met Wi-Fi of Ethernet erbij). Dat wordt het grote adres met de QR-code, en LANcelot onthoudt die keuze voor de volgende keer. Zodra één leerling binnen is, weet LANcelot zelf welk adres werkt en zet het dat voortaan vooraan.
 - **Ander poortnummer:** is poort 3000 al bezet, zet dan `set PORT=3001` boven in Start LANcelot.bat.

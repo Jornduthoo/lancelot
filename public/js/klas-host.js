@@ -50,6 +50,13 @@ function loadDoelen() {
     if (res.error) return;
     leerjaar = res.leerjaar;
     doelen = res.doelen;
+    // De vakken in de keuzelijst, alfabetisch.
+    const sel = $('d-vak');
+    const keep = sel.value;
+    const vakken = [...new Set(doelen.filter(d => d.leerjaar === leerjaar).map(d => d.vak))].sort((a, b) => a.localeCompare(b, 'nl'));
+    sel.innerHTML = '<option value="">Alle vakken</option>';
+    for (const v of vakken) sel.add(new Option(v, v));
+    sel.value = vakken.includes(keep) ? keep : '';
     renderDoelen();
   });
 }
@@ -70,7 +77,8 @@ function renderDoelen() {
     box.textContent = `Er zijn nog geen leerplandoelen voor het ${leerjaar}e leerjaar ingeladen.`;
     return;
   }
-  const shown = mine.filter(d => !q || d.code.toLowerCase().includes(q) || d.tekst.toLowerCase().includes(q) || d.cluster.toLowerCase().includes(q));
+  const vakKeuze = $('d-vak').value;
+  const shown = mine.filter(d => !vakKeuze || d.vak === vakKeuze).filter(d => !q || d.code.toLowerCase().includes(q) || d.tekst.toLowerCase().includes(q) || d.cluster.toLowerCase().includes(q));
   let vak = '';
   let domein = '';
   let cluster = '';
@@ -106,9 +114,11 @@ function renderDoelen() {
     box.appendChild(row);
   }
   if (!shown.length) box.textContent = 'Geen doelen gevonden.';
+  $('d-bron').textContent = `${shown.length} doelen. Bron: Op.stap (Katholiek Onderwijs Vlaanderen), leerplanversie V1.3. De officiële versie staat in de Op.stap-leerplantool.`;
 }
 
 $('d-zoek').addEventListener('input', renderDoelen);
+$('d-vak').addEventListener('change', renderDoelen);
 
 socket.on('connect', () => {
   loadKlas();
