@@ -8,6 +8,7 @@
   <link rel="icon" type="image/png" href="/favicon.png">
   <link rel="apple-touch-icon" href="/img/icon-192.png">
   <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/arcade.css">
   <link rel="stylesheet" href="/arena.css">
 </head>
 <body class="player">
@@ -703,6 +704,149 @@
     <p class="muted">Kijk naar het bord voor de eindstand.</p>
   </section>
  </div>
+ <div id="galaga">
+  <form id="cg-join" class="screen welcome hidden">
+    <img src="/img/logo.webp" alt="LANcelot">
+    <p class="title">Cyber-Galaga</p>
+    <input id="cg-name" maxlength="20" autocomplete="off" placeholder="Je naam">
+    <p class="error" id="cg-join-error"></p>
+    <button type="submit" class="big">Opstijgen</button>
+  </form>
+
+  <section id="cg-lobby" class="screen panel hidden">
+    <p class="status">Cyber-Galaga</p>
+    <p class="title" id="cg-lobby-name"></p>
+    <p>Vlieg met je jetpack tegen golven <strong>cyberdraken</strong>. Je laser vuurt vanzelf. <strong>Een goed antwoord geeft een beloning naar keuze:</strong> ✨ dubbele laser, 🛡️ schild of 💣 bom.</p>
+    <p>Op het einde komt de <strong>klasbaas</strong>: een reuzendraak die jullie met de hele klas samen moeten verslaan.</p>
+    <p class="muted small">Een fout antwoord? Dan raakt je jetpack oververhit en komt die vraag later terug. Tijdens een vraag staat jouw spel stil.</p>
+    <p class="muted small ls-hint-touch">Schuif met je vinger ergens op het scherm om te vliegen. Rechts: ⚡ vraag en 💣 bom.</p>
+    <p class="muted small ls-hint-keys">Vliegen met de pijltjes of WASD (of volg de muis). Spatie is een bom, E een vraag, 1-4 antwoorden.</p>
+    <p class="muted small">Wacht tot de leerkracht het spel start.</p>
+    <div class="spinner"></div>
+  </section>
+
+  <section id="cg-game" class="hidden">
+    <div class="ls-hud cg-hud">
+      <div class="ls-hearts" id="cg-lives"></div>
+      <div class="cg-score"><b id="cg-score">0</b></div>
+      <div class="cg-wave" id="cg-wave"></div>
+      <div class="cg-bombs" id="cg-bombs"></div>
+      <div class="cg-fx" id="cg-fx"></div>
+      <div class="pk-rank" id="cg-rank"></div>
+      <div class="ls-clock" id="cg-clock"></div>
+    </div>
+    <div class="ls-stage" id="cg-stage">
+      <canvas id="cg-canvas"></canvas>
+      <div class="ls-feed" id="cg-feed"></div>
+      <div class="cg-boss-in" id="cg-boss-in"></div>
+      <div class="ls-banner" id="cg-banner"></div>
+      <div class="tw-toast" id="cg-toast"></div>
+      <div class="tw-countdown hidden" id="cg-countdown"></div>
+      <div class="ls-touch ar-touch">
+        <button class="ls-btn ls-load" id="cg-ask">⚡<small>Vraag</small><b class="ar-badge hidden" id="cg-badge"></b></button>
+        <button class="ls-btn ar-big" id="cg-bomb">💣<small>Bom</small></button>
+      </div>
+      <p class="ls-keys">pijltjes of WASD vliegen (of volg de muis) · spatie bom · E vraag · 1-4 antwoorden</p>
+      <div class="ls-out hidden" id="cg-out">
+        <p class="ls-out-title">Neergestort!</p>
+        <p class="ls-out-by">Een goed antwoord laat je meteen weer opstijgen.</p>
+        <p class="ls-out-timer" id="cg-out-timer"></p>
+        <button class="gold" id="cg-out-ask">⚡ Beantwoord een vraag</button>
+      </div>
+    </div>
+    <div class="tw-question hidden" id="cg-question">
+      <div class="panel">
+        <p class="status" id="cg-q-status"></p>
+        <p class="tw-q-text" id="cg-q-text"></p>
+        <div class="answers" id="cg-q-answers"></div>
+        <div class="ar-pick hidden" id="cg-pick">
+          <button type="button" data-kind="laser"><i class="ar-twin"><b></b><b></b></i><strong>Dubbele laser</strong><small id="cg-pick-laser"></small></button>
+          <button type="button" data-kind="schild"><i>🛡️</i><strong>Schild</strong><small id="cg-pick-schild"></small></button>
+          <button type="button" data-kind="bom"><i>💣</i><strong>Bom</strong><small id="cg-pick-bom"></small></button>
+        </div>
+        <p class="tw-q-result" id="cg-q-result"></p>
+        <div class="ls-q-actions"><button class="gold" id="cg-q-close">Terug de lucht in</button></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="cg-end" class="screen panel hidden">
+    <div class="mark" id="cg-end-medal" style="font-size:4.5rem"></div>
+    <p class="title" id="cg-end-title"></p>
+    <p class="status" id="cg-end-boss"></p>
+    <p class="big" id="cg-end-score" style="font-size:2rem"></p>
+    <p id="cg-end-stats"></p>
+    <p class="muted">Kijk naar het bord voor de eindstand.</p>
+  </section>
+ </div>
+ <div id="bomber">
+  <form id="bk-join" class="screen welcome hidden">
+    <img src="/img/logo.webp" alt="LANcelot">
+    <p class="title">Bomber-Knight</p>
+    <input id="bk-name" maxlength="20" autocomplete="off" placeholder="Je naam">
+    <p class="error" id="bk-join-error"></p>
+    <button type="submit" class="big">De arena in</button>
+  </form>
+
+  <section id="bk-lobby" class="screen panel hidden">
+    <p class="status">Bomber-Knight</p>
+    <p class="title" id="bk-lobby-name"></p>
+    <p>Leg mijnen in de burchtarena en blaas kratten en andere ridders op. <strong>Een mijn kost ⚡ energie, en energie verdien je met goede antwoorden.</strong></p>
+    <p>Uit kratten komen 💎 kristallen, 🔥 grotere ontploffingen, 🛡️ schilden en ⚡ energie.</p>
+    <p class="muted small">Geraakt? Dan verlies je kristallen en sta je even later ergens anders op. Een fout antwoord? Even wachten, en die vraag komt later terug.</p>
+    <p class="muted small ls-hint-touch">Zet je duim op het scherm en schuif om te lopen, loslaten is stilstaan. Rechts: 💣 mijn en ⚡ vraag.</p>
+    <p class="muted small ls-hint-keys">Lopen met de pijltjes of WASD (ingedrukt houden). Spatie legt een mijn, E een vraag, 1-4 antwoorden.</p>
+    <p class="muted small">Wacht tot de leerkracht het spel start.</p>
+    <div class="spinner"></div>
+  </section>
+
+  <section id="bk-game" class="hidden">
+    <div class="ls-hud bk-hud">
+      <div class="pk-crystals"><span>💎</span><b id="bk-crystals">0</b></div>
+      <div class="bk-energy" id="bk-energy" title="Energie voor mijnen"></div>
+      <div class="bk-range" id="bk-range"></div>
+      <div class="bk-shield hidden" id="bk-shield">🛡️</div>
+      <div class="pk-rank" id="bk-rank"></div>
+      <div class="ls-clock" id="bk-clock"></div>
+    </div>
+    <div class="ls-stage" id="bk-stage">
+      <canvas id="bk-canvas"></canvas>
+      <div class="ls-feed" id="bk-feed"></div>
+      <div class="ls-banner" id="bk-banner"></div>
+      <div class="tw-toast" id="bk-toast"></div>
+      <div class="tw-countdown hidden" id="bk-countdown"></div>
+      <div class="ls-touch ar-touch">
+        <button class="ls-btn ls-load" id="bk-ask">⚡<small>Vraag</small></button>
+        <button class="ls-btn ar-big" id="bk-mine">💣<small>Mijn</small></button>
+      </div>
+      <p class="ls-keys">pijltjes of WASD lopen · spatie mijn · E vraag · 1-4 antwoorden</p>
+      <div class="ls-out hidden" id="bk-out">
+        <p class="ls-out-title">Opgeblazen!</p>
+        <p class="ls-out-by" id="bk-out-by"></p>
+        <p class="ls-out-by" id="bk-out-lost"></p>
+        <p class="ls-out-timer" id="bk-out-timer"></p>
+        <button class="gold" id="bk-out-ask">⚡ Verdien intussen energie</button>
+      </div>
+    </div>
+    <div class="tw-question hidden" id="bk-question">
+      <div class="panel">
+        <p class="status" id="bk-q-status">Juist = ⚡ energie · je bent beschermd</p>
+        <p class="tw-q-text" id="bk-q-text"></p>
+        <div class="answers" id="bk-q-answers"></div>
+        <p class="tw-q-result" id="bk-q-result"></p>
+        <div class="ls-q-actions"><button class="gold" id="bk-q-close">Terug de arena in</button></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="bk-end" class="screen panel hidden">
+    <div class="mark" id="bk-end-medal" style="font-size:4.5rem"></div>
+    <p class="title" id="bk-end-title"></p>
+    <p class="big" id="bk-end-score" style="font-size:2rem"></p>
+    <p id="bk-end-stats"></p>
+    <p class="muted">Kijk naar het bord voor de eindstand.</p>
+  </section>
+ </div>
  <div id="rijk">
   <form id="rk-join" class="screen welcome hidden">
     <img src="/img/logo.webp" alt="LANcelot">
@@ -803,6 +947,10 @@
 <script src="/js/sr-draw.js"></script>
 <script src="/js/sr-3d.js"></script>
 <script src="/js/sr-player.js"></script>
+<script src="/js/cg-art.js"></script>
+<script src="/js/cg-player.js"></script>
+<script src="/js/bk-draw.js"></script>
+<script src="/js/bk-player.js"></script>
 <script src="/js/nd-player.js"></script>
 <script src="/js/lb-draw.js"></script>
 <script src="/js/lb-player.js"></script>
