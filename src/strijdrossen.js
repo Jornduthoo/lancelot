@@ -89,7 +89,7 @@ class Strijdrossen {
     if ([...this.players.values()].some(p => p.name.toLowerCase() === clean.toLowerCase())) return { error: 'Die naam is al bezet.' };
     const p = {
       n: this.nextN++, name: clean, socketId, team: this.pickTeam(), color: this.players.size % 8,
-      x: 0, y: 0, a: 0, v: 0, hp: HP, ammo: { ...START }, alive: true, respawnAt: 0, spawn: 0, safeUntil: 0,
+      x: 0, y: 0, z: 0, a: 0, v: 0, hp: HP, ammo: { ...START }, alive: true, respawnAt: 0, spawn: 0, safeUntil: 0,
       asking: false, kills: 0, deaths: 0, streak: 0, bestStreak: 0, score: 0, hits: 0, shots: 0,
       right: 0, wrong: 0, qstreak: 0, question: null, order: [], last: null, waitUntil: 0, lastFire: {},
     };
@@ -135,6 +135,7 @@ class Strijdrossen {
     const others = taken || [...this.players.values()].filter(o => o !== p && o.alive).map(o => [o.x, o.y]);
     [p.x, p.y, p.a] = World.spawnPoint(p.team, others);
     p.v = 0;
+    p.z = 0;
     p.hp = HP;
     p.alive = true;
     p.spawn++;
@@ -147,17 +148,19 @@ class Strijdrossen {
   }
 
   // Positie van de gsm. Wie na een treffer nog een oude positie stuurt (oude spawn), wordt genegeerd.
-  move(playerId, { x, y, a, v, s } = {}) {
+  move(playerId, { x, y, z, a, v, s } = {}) {
     const p = this.players.get(playerId);
     if (!this.playing(p) || !p.alive || p.asking || s !== p.spawn) return;
     if (!Number.isFinite(x) || !Number.isFinite(y)) return;
-    if (Math.hypot(x - p.x, y - p.y) > 260 || World.blocked(x, y, World.R - 6)) {
+    const h = Number.isFinite(z) ? Math.max(0, Math.min(400, z)) : 0;
+    if (Math.hypot(x - p.x, y - p.y) > 260 || World.blocked(x, y, World.R - 6, h)) {
       // Onmogelijke sprong: de gsm terugzetten op de plek die de server kent.
       p.spawn++;
       return this.sendMe(p);
     }
     p.x = x;
     p.y = y;
+    p.z = h;
     if (Number.isFinite(a)) p.a = a;
     if (Number.isFinite(v)) p.v = Math.max(-World.CAR.reverse, Math.min(World.CAR.boostMax, v));
   }
@@ -202,15 +205,15 @@ class Strijdrossen {
     p.shots++;
     const x = p.x + Math.cos(angle) * (World.R + 8);
     const y = p.y + Math.sin(angle) * (World.R + 8);
-    if (World.wallAt(x, y)) {
+    if (World.wallAt(x, y, p.z + 30)) {
       this.sendMe(p);
       return { ammo: p.ammo };
     }
     if (kind === 'laser') {
       const speed = World.LASER.speed + Math.max(0, p.v);
-      const b = { id: this.nextShot++, owner: p, x, y, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed, left: World.LASER.range };
+      const b = { id: this.nextShot++, owner: p, x, y, z: p.z + 30, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed, left: World.LASER.range };
       this.lasers.push(b);
-      this.io.to('players').to('host').emit('sr-shot', { id: b.id, x: Math.round(x), y: Math.round(y), a: +angle.toFixed(3), speed: Math.round(speed), n: p.n, team: p.team, color: p.color });
+      this.io.to('players').to('host').emit('sr-shot', { id: b.id, x: Math.round(x), y: Math.round(y), z: Math.round(b.z), a: +angle.toFixed(3), speed: Math.round(speed), n: p.n, team: p.team, color: p.color });
     } else {
       this.rockets.push({ id: this.nextShot++, owner: p, x, y, a: angle, left: World.RAKET.range });
       this.addFeed(`🚀 ${p.name} vuurt een raket af`, false);
@@ -232,10 +235,10 @@ class Strijdrossen {
         b.x += (b.vx * dt) / steps;
         b.y += (b.vy * dt) / steps;
         b.left -= (Math.hypot(b.vx, b.vy) * dt) / steps;
-        if (b.left <= 0 || World.wallAt(b.x, b.y)) { b.dead = true; break; }
+        if (b.left <= 0 || World.wallAt(b.x, b.y, b.z)) { b.dead = true; break; }
         for (const v of this.players.values()) {
           if (!v.alive || !this.enemies(b.owner, v)) continue;
-          if ((v.x - b.x) ** 2 + (v.y - b.y) ** 2 > (World.R + World.LASER.r) ** 2) continue;
+          if ((v.x - b.x) ** 2 + (v.y - b.y) ** 2 > (World.R + World.LASER.r) ** 2 || Math.abs(v.z + 30 - b.z) > 70) continue;
           b.dead = true;
           this.damage(b.owner, v, World.LASER.dmg, b.x, b.y, now, 'laser');
           break;
@@ -265,7 +268,7 @@ class Strijdrossen {
         r.x += (Math.cos(r.a) * World.RAKET.speed * dt) / steps;
         r.y += (Math.sin(r.a) * World.RAKET.speed * dt) / steps;
         r.left -= (World.RAKET.speed * dt) / steps;
-        if (r.left <= 0 || World.wallAt(r.x, r.y)) { r.dead = true; break; }
+        if (r.left <= 0 || World.wallAt(r.x, r.y, 40)) { r.dead = true; break; }
         for (const v of this.players.values()) {
           if (!v.alive || !this.enemies(r.owner, v)) continue;
           if ((v.x - r.x) ** 2 + (v.y - r.y) ** 2 < (World.R + World.RAKET.r) ** 2) { r.dead = true; break; }
@@ -507,13 +510,13 @@ class Strijdrossen {
     });
   }
 
-  // Compacte posities: [n, naam, x, y, hoek, snelheid, team, kleur, levens, vlaggen, slagen, reeks].
+  // Compacte posities: [n, naam, x, y, hoek, snelheid, team, kleur, levens, vlaggen, slagen, reeks, hoogte].
   // Vlaggen: 1 uitgeschakeld, 2 beschermd, 4 aan het antwoorden.
   sendWorld() {
     const now = Date.now();
     const list = [...this.players.values()].map(p => {
       const flags = (p.alive ? 0 : 1) | (p.safeUntil > now ? 2 : 0) | (p.asking ? 4 : 0);
-      return [p.n, p.name, Math.round(p.x), Math.round(p.y), +p.a.toFixed(2), Math.round(p.v), p.team, p.color, p.hp, flags, p.kills, p.streak];
+      return [p.n, p.name, Math.round(p.x), Math.round(p.y), +p.a.toFixed(2), Math.round(p.v), p.team, p.color, p.hp, flags, p.kills, p.streak, Math.round(p.z)];
     });
     const rockets = this.rockets.map(r => [r.id, Math.round(r.x), Math.round(r.y), +r.a.toFixed(2), r.owner.n]);
     const mines = this.mines.map(m => [m.id, Math.round(m.x), Math.round(m.y), m.owner.n, now >= m.armAt ? 1 : 0]);

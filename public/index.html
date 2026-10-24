@@ -643,7 +643,7 @@
     <p class="ls-team-badge hidden" id="sr-lobby-team"></p>
     <p>Rij met je hoverros door de arena en schakel de anderen uit. <strong>Wapens krijg je alleen met goede antwoorden:</strong> ⚡ lasers bij elk goed antwoord, een 🚀 raket bij 2 op rij en een 💣 mijn bij 3 op rij.</p>
     <p class="muted small">Uitgeschakeld? Na 3 seconden rij je weer mee. Een fout antwoord? Even wachten, en die vraag komt later terug.</p>
-    <p class="muted small ls-hint-touch">Gsm: links sturen, rechts vuren. Je ros geeft vanzelf gas; ▼ is remmen.</p>
+    <p class="muted small ls-hint-touch">Gsm: zet je duim links op het scherm en schuif om te sturen (naar beneden is remmen). Je ros geeft vanzelf gas. Rechts vuur je.</p>
     <p class="muted small ls-hint-keys">Rijden met de pijltjes of ZQSD/WASD. Spatie laser, F raket, X mijn, E vraag, V zicht, 1-4 antwoorden.</p>
     <p class="muted small">Wacht tot de leerkracht het spel start.</p>
     <div class="spinner"></div>
@@ -665,12 +665,9 @@
       <div class="ls-banner" id="sr-banner"></div>
       <div class="tw-toast" id="sr-toast"></div>
       <div class="tw-countdown hidden" id="sr-countdown"></div>
-      <div class="sr-steer">
-        <button class="ls-btn" data-steer="-1" aria-label="Links">◀</button>
-        <button class="ls-btn" data-steer="1" aria-label="Rechts">▶</button>
-      </div>
+      <div class="sr-stick" id="sr-stick"><i></i></div>
+      <p class="sr-stick-hint" id="sr-stick-hint">Duim hier: schuif om te sturen ↔</p>
       <div class="sr-touch">
-        <button class="ls-btn sr-brake" id="sr-brake" aria-label="Remmen">▼<small>Rem</small></button>
         <button class="ls-btn ls-load" id="sr-ask">⚡<small>Vraag</small></button>
         <div class="sr-weapons">
           <button class="ls-btn sr-w" id="sr-mijn" data-kind="mijn">💣<small>Mijn</small></button>

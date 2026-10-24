@@ -147,12 +147,12 @@ Zoals Pac-Man, maar met de hele klas in één doolhof. Elke leerling speelt op z
 
 ## Strijdrossen
 
-Zoals Smash Karts: elke leerling rijdt op een hoverros door een neon gevechtsarena, ieder voor zich of rood tegen blauw. Op de gsm of Chromebook zie je je ros in 3D van achteren (of van bovenaf, wisselen met V of 🎥); het bord toont de hele arena, of met **🎥 Volg de leider** de leider in 3D.
+Zoals Smash Karts: elke leerling rijdt op een hoverros door een open, ovale arena met schansen, kratten en een burchttoren in het midden, ieder voor zich of rood tegen blauw. Op de gsm of Chromebook zie je je ros in 3D van achteren (of van bovenaf, wisselen met V of 🎥); het bord toont de hele arena, of met **🎥 Volg de leider** de leider in 3D.
 
 - **Wapens komen alleen uit goede antwoorden**: elk goed antwoord geeft ⚡ lasers (rustig meer, intens minder), 2 op rij een 🚀 raket die zelf een vijand zoekt, 3 op rij een 💣 mijn die je achter je ros legt.
-- Een laser kost 1 leven, een raket 2, een mijn 3. Uitgeschakeld? Na 3 seconden rijd je weer mee, even beschermd. Turbostroken op de vloer geven snelheid.
+- Een laser kost 1 leven, een raket 2, een mijn 3. Uitgeschakeld? Na 3 seconden rijd je weer mee, even beschermd. Turbostroken op de vloer geven snelheid, over een schans vlieg je (en ontwijk je lasers).
 - **Tegen gokken**: na een fout antwoord blijft het juiste antwoord 3 seconden staan, en die vraag komt een paar vragen later terug. Tijdens een vraag zweeft je ros stil in een schild.
-- Chromebook: pijltjes of ZQSD/WASD rijden, spatie laser, F raket, X mijn, E vraag, 1-4 antwoorden. Gsm: links sturen, rechts vuren; het ros geeft vanzelf gas en ▼ remt.
+- Chromebook: pijltjes of ZQSD/WASD rijden, spatie laser, F raket, X mijn, E vraag, 1-4 antwoorden. Gsm: duim links op het scherm en schuiven om te sturen (naar beneden is remmen), rechts vuren; het ros geeft vanzelf gas.
 - Elk antwoord komt in het logboek, met het leerplandoel. Resultaten (punten, uitgeschakeld, juist en fout) in `resultaten/`.
 
 ## Duel in de arena

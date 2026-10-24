@@ -131,14 +131,14 @@ let mines = [];
 socket.on('sr-world', data => {
   offset = data.now - Date.now();
   const seen = new Set();
-  for (const [n, name, x, y, a, v, team, color, hp, flags, kills, streak] of data.players) {
+  for (const [n, name, x, y, a, v, team, color, hp, flags, kills, streak, z] of data.players) {
     seen.add(n);
     const o = players.get(n);
     if (o) {
       if (Math.hypot(o.tx - x, o.ty - y) > 260 || (o.flags & 1 && !(flags & 1))) { o.x = x; o.y = y; o.a = a; }
-      Object.assign(o, { tx: x, ty: y, ta: a, v, name, team, color, hp, flags, kills, streak });
+      Object.assign(o, { tx: x, ty: y, ta: a, tz: z || 0, v, name, team, color, hp, flags, kills, streak });
     } else {
-      players.set(n, { n, x, y, a, tx: x, ty: y, ta: a, v, name, team, color, hp, flags, kills, streak });
+      players.set(n, { n, x, y, a, z: z || 0, tx: x, ty: y, ta: a, tz: z || 0, v, name, team, color, hp, flags, kills, streak });
     }
   }
   for (const n of players.keys()) if (!seen.has(n)) players.delete(n);
@@ -214,6 +214,7 @@ function frame(now) {
     while (da > Math.PI) da -= Math.PI * 2;
     while (da < -Math.PI) da += Math.PI * 2;
     o.a += da * Math.min(1, dt * 12);
+    o.z = (o.z || 0) + ((o.tz || 0) - (o.z || 0)) * Math.min(1, dt * 14);
   }
   const teams = state.mode === 'teams';
   const top = [...players.values()].reduce((m, o) => (o.streak >= 3 && (!m || o.streak > m.streak) ? o : m), null);
