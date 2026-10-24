@@ -37,7 +37,7 @@ class Duel {
   reset() {
     clearTimeout(this.roundTimer);
     clearTimeout(this.pending);
-    if (this.rounds) for (const r of this.rounds) for (const m of r) clearTimeout(m.timer);
+    if (this.rounds) for (const r of this.rounds) for (const m of r) if (m) clearTimeout(m.timer);
     this.pending = null;
     this.quiz = null;
     this.phase = 'idle'; // idle -> lobby -> duel -> einde
