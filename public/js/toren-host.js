@@ -203,7 +203,7 @@ function drawMain(t, dt) {
   const scale = Math.min(main.width / (world.W + 40), H / 600);
   const ox = (main.width - world.W * scale) / 2;
   const target = knights.get(follow);
-  const goal = target ? Math.max(-20, target.y - (H / scale) * .4) : -20;
+  const goal = target ? Math.max(-70, target.y - (H / scale) * .4) : -70;
   camY += (goal - camY) * Math.min(1, dt * 3);
   TorenDraw.scene(mctx, world, { y: camY, scale, H, ox }, Math.max(0, t));
   const { w: pw, h: ph } = world.PLAYER;
@@ -215,7 +215,7 @@ function drawMain(t, dt) {
     TorenDraw.knight(mctx, ox + k.x * scale, sy(k.y), pw * scale, ph * scale, TorenDraw.COLORS[k.color % 8], k.face, k.act, t, 1, Avatar.byName(k.name));
     label(mctx, k.name, ox + (k.x + pw / 2) * scale, sy(k.y + ph + 6), '#eaf4ff', 12 * scale);
   }
-  $('p-follow').textContent = target ? `🎥 ${target.name} · verdieping ${Toren.floorAt(world, target.y)}` : '';
+  $('p-follow').textContent = target ? `🎥 ${target.name} · verdieping ${Toren.floorAt(world, target.y)} · ${world.zones[Toren.zoneAt(world, target.y)].name}` : '';
 }
 
 // Overzicht van de hele toren met een stip per ridder.
@@ -229,8 +229,30 @@ function drawMini(t) {
   const sy = y => H - pad - (y / world.top) * (H - pad * 2);
   nctx.clearRect(0, 0, W, H);
   // Toren met kantelen.
+  // Elke zone in haar eigen kleur, met de naam ernaast.
+  world.zones.forEach(z => {
+    const look = TorenDraw.LOOK[z.key];
+    const y1 = sy(Math.min(z.y1, world.top));
+    const y0 = sy(Math.max(0, z.y0));
+    const g = nctx.createLinearGradient(0, y1, 0, y0);
+    g.addColorStop(0, look.sky[2]);
+    g.addColorStop(1, look.sky[0]);
+    nctx.fillStyle = g;
+    nctx.fillRect(x0, y1, tw, y0 - y1);
+    nctx.fillStyle = look.accent;
+    nctx.globalAlpha = .8;
+    nctx.fillRect(x0, y1, tw, 1.5 * dpr);
+    nctx.globalAlpha = 1;
+    nctx.save();
+    nctx.translate(x0 + tw + 12 * dpr, (y0 + y1) / 2);
+    nctx.rotate(-Math.PI / 2);
+    nctx.font = `700 ${9 * dpr}px Orbitron, sans-serif`;
+    nctx.textAlign = 'center';
+    nctx.fillStyle = look.accent;
+    nctx.fillText(z.name.replace(/^De /, '').toUpperCase(), 0, 0);
+    nctx.restore();
+  });
   nctx.fillStyle = '#101a2e';
-  nctx.fillRect(x0, sy(world.top), tw, sy(0) - sy(world.top));
   nctx.strokeStyle = 'rgba(76, 201, 255, .5)';
   nctx.lineWidth = 1.5 * dpr;
   nctx.strokeRect(x0, sy(world.top), tw, sy(0) - sy(world.top));
