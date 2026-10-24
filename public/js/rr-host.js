@@ -120,9 +120,9 @@ socket.on('rr-world', data => {
     const o = racers.get(id);
     if (o) {
       if (Math.abs(o.tdist - dist) > 4000) o.dist = dist;
-      Object.assign(o, { tdist: dist, speed, name, color, flags });
+      Object.assign(o, { tdist: dist, tx: x, speed, name, color, flags });
     } else {
-      racers.set(id, { dist, tdist: dist, speed, name, color, flags });
+      racers.set(id, { dist, tdist: dist, x, tx: x, speed, name, color, flags });
     }
   }
   for (const id of racers.keys()) if (!seen.has(id)) racers.delete(id);
@@ -156,23 +156,13 @@ function frame(now) {
   if (!canvas.width) resize();
   const W = canvas.width;
   const H = canvas.height;
-  const bgGrad = ctx.createRadialGradient(W / 2, H / 2, 10, W / 2, H / 2, Math.max(W, H) * .7);
-  bgGrad.addColorStop(0, '#0d1a33');
-  bgGrad.addColorStop(1, '#050911');
-  ctx.fillStyle = bgGrad;
-  ctx.fillRect(0, 0, W, H);
-  ctx.strokeStyle = 'rgba(76, 201, 255, .06)';
-  ctx.lineWidth = 1;
-  const grid = Math.max(30, W / 30);
-  for (let gx = 0; gx < W; gx += grid) { ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, H); ctx.stroke(); }
-  for (let gy = 0; gy < H; gy += grid) { ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(W, gy); ctx.stroke(); }
   for (const o of racers.values()) {
     o.tdist += o.speed * dt;
     o.dist += o.speed * dt + (o.tdist - o.dist) * Math.min(1, dt * 4);
+    o.x += (o.tx - o.x) * Math.min(1, dt * 6);
   }
-  const size = Math.min(W, H) * .9;
-  const list = [...racers.entries()].map(([id, o]) => ({ dist: o.dist, color: o.color, name: o.name, flags: o.flags, lead: id === leaderId }));
-  RaceDraw.map(ctx, (W - size) / 2, (H - size) / 2, size, list, { line: size / 70, dot: size / 80, labels: true });
+  const list = [...racers.entries()].map(([id, o]) => ({ dist: o.dist, x: o.x, speed: o.speed, color: o.color, name: o.name, flags: o.flags, lead: id === leaderId }));
+  RaceDraw.board(ctx, W, H, list, now / 1000);
 }
 requestAnimationFrame(frame);
 
