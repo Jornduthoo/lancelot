@@ -185,12 +185,13 @@ Liever op papier? Klik bij een blad op **🖨 Print** voor het werkblad en op **
 
 Elk oefenblad en elke quiz kan drie niveaus hebben: **🪶 Page** (met hulp), **🛡️ Schildknaap** (het doel zelf) en **⚔️ Ridder** (uitdaging).
 
-1. In de oefenbladmaker en de quizmaker staat **Op drie niveaus** aangevinkt. De AI maakt dan elke oefening of vraag in drie versies.
-2. In de oefenbladmaker wissel je met de knoppen boven de oefeningen tussen de niveaus. Laat Page of Ridder leeg als je ze niet nodig hebt; die leerlingen krijgen dan het Schildknaap-blad. In de quizmaker kies je het niveau per vraag.
-3. Op de pagina **Mijn klas en doelen** zet je elke leerling op zijn niveau.
-4. Een oefenblad live zetten: kies bij **Niveau** of iedereen hetzelfde niveau krijgt, of elke leerling zijn niveau uit Mijn klas, of dat de leerling zelf kiest. Klik tijdens het werken op een naam om een leerling op een ander niveau te zetten.
-5. Printen: bovenaan het printblad kies je Page, Schildknaap, Ridder of **Alle drie** (elk niveau op een eigen blad). Het verbeterblad werkt hetzelfde.
-6. Quizspellen: boven de quizlijst kies je het **niveau van de klas**. Het spel gebruikt dan alleen de vragen van dat niveau, of alles door elkaar.
+1. In de oefenbladmaker staat **Op drie niveaus** aangevinkt. De AI maakt dan elke oefening in drie versies.
+2. In de oefenbladmaker wissel je met de knoppen boven de oefeningen tussen de niveaus. Laat Page of Ridder leeg als je ze niet nodig hebt; die leerlingen krijgen dan het Schildknaap-blad.
+3. Een quiz maak je op één niveau: kies bij **Moeilijkheid van deze quiz** Schildknaap (standaard), Page of Ridder. In de quizeditor kan je het niveau per vraag nog aanpassen.
+4. Op de pagina **Mijn klas en doelen** zet je elke leerling op zijn niveau.
+5. Een oefenblad live zetten: kies bij **Niveau** of iedereen hetzelfde niveau krijgt, of elke leerling zijn niveau uit Mijn klas, of dat de leerling zelf kiest. Klik tijdens het werken op een naam om een leerling op een ander niveau te zetten.
+6. Printen: bovenaan het printblad kies je Page, Schildknaap, Ridder of **Alle drie** (elk niveau op een eigen blad). Het verbeterblad werkt hetzelfde.
+7. Quizspellen: heeft een quiz vragen op meerdere niveaus, dan kies je boven de quizlijst het **niveau van de klas**. Het spel gebruikt dan alleen de vragen van dat niveau, of alles door elkaar.
 
 ## Mijn klas en de leerplandoelen
 
