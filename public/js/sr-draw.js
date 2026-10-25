@@ -25,38 +25,108 @@ const SrDraw = (() => {
       for (let x = (y / 40) % 2 ? 0 : 30; x < Wd.W; x += 60) g.fillRect(x + 2, y + 2, 54, 36);
     }
     const oval = (pad = 0) => { g.beginPath(); g.ellipse(Wd.CX, Wd.CY, Wd.RX + pad, Wd.RY + pad, 0, 0, Math.PI * 2); };
-    // Tribunes rond het toernooiveld, vol toeschouwers met vlaggetjes in alle kleuren.
+    // Tribunes rond het toernooiveld: stenen treden in vakken met trappen ertussen, vol toeschouwers,
+    // en bovenaan luifels in gestreepte kleuren. Daarbuiten de burchtmuur met hoektorens.
     let seed = 7;
     const rnd = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
+    const SECT = 28;
     for (let ring = 0; ring < 5; ring++) {
       const pad = 60 + ring * 46;
-      g.strokeStyle = ring % 2 ? '#1f1b38' : '#262144';
+      g.strokeStyle = ring % 2 ? '#2a2540' : '#332d4e';
       g.lineWidth = 44;
       oval(pad);
       g.stroke();
+      g.strokeStyle = 'rgba(0, 0, 0, .45)';
+      g.lineWidth = 4;
+      oval(pad + 21);
+      g.stroke();
+      g.strokeStyle = 'rgba(255, 255, 255, .06)';
+      g.lineWidth = 3;
+      oval(pad - 20);
+      g.stroke();
       const n = Math.round((Wd.RX + pad) * .16);
       for (let i = 0; i < n; i++) {
-        const a = (i / n) * Math.PI * 2 + ring * .07;
+        const f = i / n, a = f * Math.PI * 2 + ring * .07;
+        if (Math.abs((f * SECT) % 1 - .5) > .44) continue; // trappen tussen de vakken
         const x = Wd.CX + Math.cos(a) * (Wd.RX + pad), y = Wd.CY + Math.sin(a) * (Wd.RY + pad);
         if (x < -20 || y < -20 || x > Wd.W + 20 || y > Wd.H + 20) continue;
         const col = COLORS[Math.floor(rnd() * COLORS.length)];
+        g.fillStyle = 'rgba(0, 0, 0, .35)';
+        g.beginPath(); g.ellipse(x + 4, y + 10, 12, 7, 0, 0, Math.PI * 2); g.fill();
         g.fillStyle = col;
-        g.globalAlpha = .55;
-        g.beginPath(); g.arc(x, y + 6, 11, 0, Math.PI * 2); g.fill();
+        g.globalAlpha = .8;
+        g.beginPath(); g.arc(x, y + 5, 11, 0, Math.PI * 2); g.fill();
         g.globalAlpha = 1;
         g.fillStyle = ['#f1c27d', '#c68642', '#8d5524', '#e0ac69'][Math.floor(rnd() * 4)];
         g.beginPath(); g.arc(x, y - 4, 7, 0, Math.PI * 2); g.fill();
-        if (rnd() < .12) { g.fillStyle = col; g.fillRect(x + 4, y - 26, 3, 22); g.fillRect(x + 7, y - 26, 14, 9); }
+        g.fillStyle = 'rgba(40, 24, 12, .7)';
+        g.beginPath(); g.arc(x - 1, y - 6, 5, Math.PI, 0); g.fill();
+        if (rnd() < .12) { g.fillStyle = '#8a7a50'; g.fillRect(x + 4, y - 26, 3, 22); g.fillStyle = col; g.fillRect(x + 7, y - 26, 14, 9); }
       }
     }
-    // Vuurschalen en vaandels op de hoeken
-    for (const [x, y] of [[90, 90], [Wd.W - 90, 90], [90, Wd.H - 90], [Wd.W - 90, Wd.H - 90], [Wd.CX, 40], [Wd.CX, Wd.H - 40]]) {
-      Glow.glow(g, x, y, 220, '#ff8a2a', .35);
-      g.fillStyle = '#2b2f3a';
-      g.beginPath(); g.arc(x, y, 26, 0, Math.PI * 2); g.fill();
-      g.strokeStyle = '#ffd166';
-      g.lineWidth = 5;
+    // Trappen tussen de vakken
+    for (let k = 0; k < SECT; k++) {
+      const a = (k / SECT) * Math.PI * 2;
+      g.strokeStyle = '#4a4560';
+      g.lineWidth = 14;
+      g.beginPath();
+      g.moveTo(Wd.CX + Math.cos(a) * (Wd.RX + 40), Wd.CY + Math.sin(a) * (Wd.RY + 40));
+      g.lineTo(Wd.CX + Math.cos(a) * (Wd.RX + 300), Wd.CY + Math.sin(a) * (Wd.RY + 300));
       g.stroke();
+      g.strokeStyle = 'rgba(0, 0, 0, .4)';
+      g.lineWidth = 2;
+      g.setLineDash([3, 9]);
+      g.stroke();
+      g.setLineDash([]);
+    }
+    // Gestreepte luifels bovenaan de tribunes
+    for (let k = 0; k < SECT; k++) {
+      const a0 = (k / SECT) * Math.PI * 2 + .012, a1 = ((k + 1) / SECT) * Math.PI * 2 - .012;
+      const cols = [['#7a1630', '#e8dccc'], ['#1f3f8f', '#e8dccc'], ['#7a5a10', '#f5e6b0'], ['#2a6a47', '#e8dccc']][k % 4];
+      for (let j = 0; j < 6; j++) {
+        const b0 = a0 + (a1 - a0) * j / 6, b1 = a0 + (a1 - a0) * (j + 1) / 6;
+        g.fillStyle = cols[j % 2];
+        g.beginPath();
+        g.ellipse(Wd.CX, Wd.CY, Wd.RX + 300, Wd.RY + 300, 0, b0, b1);
+        g.ellipse(Wd.CX, Wd.CY, Wd.RX + 262, Wd.RY + 262, 0, b1, b0, true);
+        g.closePath();
+        g.fill();
+      }
+    }
+    g.strokeStyle = 'rgba(0, 0, 0, .5)';
+    g.lineWidth = 5;
+    oval(262);
+    g.stroke();
+    // Burchtmuur langs de rand van het terrein, met kantelen en vier hoektorens
+    const WALL = 70;
+    g.fillStyle = '#2b2740';
+    for (const [x, y, w2, h2] of [[0, 0, Wd.W, WALL], [0, Wd.H - WALL, Wd.W, WALL], [0, 0, WALL, Wd.H], [Wd.W - WALL, 0, WALL, Wd.H]]) g.fillRect(x, y, w2, h2);
+    g.fillStyle = '#4a4560';
+    for (let x = 0; x < Wd.W; x += 60) { g.fillRect(x, WALL - 20, 34, 20); g.fillRect(x, Wd.H - WALL, 34, 20); }
+    for (let y = 0; y < Wd.H; y += 60) { g.fillRect(WALL - 20, y, 20, 34); g.fillRect(Wd.W - WALL, y, 20, 34); }
+    g.fillStyle = 'rgba(76, 201, 255, .5)';
+    g.fillRect(WALL, WALL, Wd.W - WALL * 2, 3); g.fillRect(WALL, Wd.H - WALL - 3, Wd.W - WALL * 2, 3);
+    g.fillRect(WALL, WALL, 3, Wd.H - WALL * 2); g.fillRect(Wd.W - WALL - 3, WALL, 3, Wd.H - WALL * 2);
+    for (const [x, y] of [[WALL, WALL], [Wd.W - WALL, WALL], [WALL, Wd.H - WALL], [Wd.W - WALL, Wd.H - WALL]]) {
+      g.fillStyle = 'rgba(0, 0, 0, .45)';
+      g.beginPath(); g.arc(x + 20, y + 26, 150, 0, Math.PI * 2); g.fill();
+      g.fillStyle = '#3e3a58';
+      g.beginPath(); g.arc(x, y, 145, 0, Math.PI * 2); g.fill();
+      for (let i = 0; i < 20; i++) {
+        const a0 = (i / 20) * Math.PI * 2;
+        g.fillStyle = i % 2 ? '#2f2548' : '#3a2d58';
+        g.beginPath(); g.moveTo(x, y); g.arc(x, y, 125, a0, a0 + Math.PI / 10); g.closePath(); g.fill();
+      }
+      const lg = g.createRadialGradient(x - 50, y - 50, 10, x, y, 125);
+      lg.addColorStop(0, 'rgba(255,255,255,.25)'); lg.addColorStop(.6, 'rgba(255,255,255,0)'); lg.addColorStop(1, 'rgba(0,0,0,.35)');
+      g.fillStyle = lg;
+      g.beginPath(); g.arc(x, y, 125, 0, Math.PI * 2); g.fill();
+      g.fillStyle = '#ffd166';
+      g.beginPath(); g.arc(x, y, 12, 0, Math.PI * 2); g.fill();
+      g.fillStyle = '#c9cfe0';
+      g.fillRect(x - 3, y - 80, 6, 80);
+      g.fillStyle = '#ff4d6d';
+      g.beginPath(); g.moveTo(x + 3, y - 80); g.lineTo(x + 70, y - 64); g.lineTo(x + 3, y - 48); g.closePath(); g.fill();
     }
     // De vloer: zeshoekige tegels in staalblauw, met gloeiende naden.
     g.save();
