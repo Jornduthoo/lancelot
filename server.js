@@ -1132,7 +1132,7 @@ io.on('connection', socket => {
     const id = socket.data.playerId;
     if (!id) return;
     const p = game.players.get(id);
-    const q = game.quiz && game.quiz.questions[game.index];
+    const q = p && game.question && game.qFor(p);
     const open = p && q && game.phase === 'question' && p.answer === null;
     game.answer(id, choice);
     // Te snel en fout, drie keer na elkaar: een seintje voor de leerkracht.

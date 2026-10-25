@@ -19,7 +19,7 @@ const ItemList = (() => {
   const baseOf = p => p.slice(p.lastIndexOf('/') + 1);
   const within = (p, root) => p === root || p.startsWith(`${root}/`);
   // Quizzen met vragen op drie niveaus: de klas speelt op één niveau (onthouden op de server).
-  const NIVEAUS = [['page', '🪶 Page', 'met hulp'], ['schildknaap', '🛡️ Schildknaap', 'het doel'], ['ridder', '⚔️ Ridder', 'uitdaging'], ['leerling', '👤 Per leerling', 'elke leerling zijn niveau uit Mijn klas (in spellen waar iedereen eigen vragen krijgt)'], ['alle', 'Alles door elkaar', 'alle vragen']];
+  const NIVEAUS = [['page', '🪶 Page', 'met hulp'], ['schildknaap', '🛡️ Schildknaap', 'het doel'], ['ridder', '⚔️ Ridder', 'uitdaging'], ['leerling', '👤 Per leerling', 'elke leerling zijn niveau uit Mijn klas, per vak'], ['alle', 'Alles door elkaar', 'alle vragen']];
   const ICONS = { page: '🪶', schildknaap: '🛡️', ridder: '⚔️' };
   let quizNiveau = 'schildknaap';
   const niveauBars = new Set();

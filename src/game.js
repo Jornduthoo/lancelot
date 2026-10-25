@@ -4,6 +4,7 @@
 
 const logboek = require('./logboek');
 const settings = require('./settings');
+const quizzes = require('./quizzes');
 
 const MAX_POINTS = 1000;
 const INTRO_MS = 4000;
@@ -40,6 +41,12 @@ class Game {
 
   get question() {
     return this.quiz && this.quiz.questions[this.index];
+  }
+
+  // De vraag zoals deze leerling ze krijgt: bij een quiz op drie niveaus en "Per leerling" de versie van zijn niveau.
+  // Iedereen speelt op hetzelfde moment en met dezelfde tijd; alleen de vraag en de antwoorden verschillen.
+  qFor(p) {
+    return quizzes.vraagVoor(this.question, p.name);
   }
 
   join(playerId, name, socketId) {
@@ -108,7 +115,7 @@ class Game {
 
   answer(playerId, choice) {
     const p = this.players.get(playerId);
-    const q = this.question;
+    const q = p && this.qFor(p);
     if (!p || this.phase !== 'question' || p.answer !== null) return;
     if (!Number.isInteger(choice) || choice < 0 || choice >= q.answers.length) return;
     p.answer = choice;
@@ -145,7 +152,8 @@ class Game {
     const q = this.question;
     const limit = q.time * 1000;
     for (const p of this.players.values()) {
-      if (p.answer === q.correct) {
+      p.q = this.qFor(p);
+      if (p.answer === p.q.correct) {
         // Snel antwoorden levert meer op: tussen 500 en 1000 punten.
         const speed = Math.min(p.answeredAt / limit, 1);
         p.lastPoints = Math.round(MAX_POINTS * (1 - speed / 2));
@@ -155,15 +163,15 @@ class Game {
         p.streak = 0;
       }
       p.score += p.lastPoints;
-      p.results[this.index] = { answer: p.answer, correct: p.answer === q.correct, points: p.lastPoints };
+      p.results[this.index] = { answer: p.answer, correct: p.answer === p.q.correct, points: p.lastPoints };
     }
     logboek.add([...this.players.values()].map(p => ({
-      naam: p.name, spel: this.quiz.spel || 'Toernooi', bron: this.quiz.title, vraag: q.question, doel: q.doel,
-      juist: p.answer === q.correct, leeg: p.answer === null, zeker: p.zeker,
+      naam: p.name, spel: this.quiz.spel || 'Toernooi', bron: this.quiz.title, vraag: p.q.question, doel: p.q.doel,
+      juist: p.answer === p.q.correct, leeg: p.answer === null, zeker: p.zeker,
     })));
     for (const p of this.players.values()) {
       if (!p.zeker || p.answer === null) continue;
-      const k = `${p.zeker}-${p.answer === q.correct ? 'juist' : 'fout'}`;
+      const k = `${p.zeker}-${p.answer === p.q.correct ? 'juist' : 'fout'}`;
       p.zekerTel = p.zekerTel || {};
       p.zekerTel[k] = (p.zekerTel[k] || 0) + 1;
     }
@@ -210,7 +218,9 @@ class Game {
       correct: this.phase === 'reveal' ? q.correct : null,
       remaining: this.phase === 'question' ? Math.max(0, q.time * 1000 - (Date.now() - this.questionStartedAt)) : 0,
       answered: players.filter(p => p.answer !== null).length,
-      counts: q ? q.answers.map((_, i) => players.filter(p => p.answer === i).length) : [],
+      // Op het bord staat de Schildknaap-versie: de staafjes tellen alleen wie die versie kreeg.
+      counts: q ? q.answers.map((_, i) => players.filter(p => p.answer === i && this.qFor(p) === q).length) : [],
+      niveaus: !!(this.quiz && this.quiz.gedeeld),
       ranking: this.ranking(),
       lastPoints: this.phase === 'reveal' ? Object.fromEntries([...this.players.entries()].map(([id, p]) => [id, p.lastPoints])) : {},
       resultsFile: this.resultsFile,
@@ -220,7 +230,7 @@ class Game {
   // Status voor één leerling: de vraag in het klein (groot staat ze op het bord) en het eigen resultaat.
   playerState(playerId) {
     const p = this.players.get(playerId);
-    const q = this.question;
+    const q = p ? this.qFor(p) : this.question;
     const ranking = this.ranking();
     const state = {
       phase: this.phase,

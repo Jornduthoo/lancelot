@@ -265,7 +265,7 @@ function showNiveaus() {
   const used = Niveau.LIST.filter(n => count[n]);
   const multi = used.length > 1;
   $('e-niveaus').classList.toggle('hidden', !multi);
-  $('e-niveaus').textContent = multi ? `Quiz op ${used.length} niveaus: ${used.map(n => `${Niveau.label(n)} ${count[n]}`).join(' · ')}. Met "👤 Per leerling" krijgt elke leerling de vragen van zijn niveau; Toernooi, Duel en Het Rijk spelen Schildknaap.` : '';
+  $('e-niveaus').textContent = multi ? `Quiz op ${used.length} niveaus: ${used.map(n => `${Niveau.label(n)} ${count[n]}`).join(' · ')}. Met "👤 Per leerling" krijgt elke leerling de vragen van zijn niveau. In Toernooi, Duel en Het Rijk krijgt iedereen dezelfde vraag, elk in de versie van zijn niveau.` : '';
   els.forEach((el, i) => {
     el.querySelector('.q-number').textContent = `Vraag ${i + 1}${multi ? ` · ${Niveau.label(el.querySelector('.q-niveau').value)}` : ''}`;
   });

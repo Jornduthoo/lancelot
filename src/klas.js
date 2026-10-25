@@ -72,9 +72,14 @@ function names() {
 }
 
 // De leerling op de lijst met deze naam (hoofdletters maken niet uit), of null.
+// Spellen vragen dit bij elke vraag op: de lijst wordt pas opnieuw gelezen als het bestand veranderde.
+let cache = { mtime: -1, list: [] };
 function match(name) {
   const key = cleanName(name).toLowerCase();
-  return read().leerlingen.find(l => l.naam.toLowerCase() === key) || null;
+  let mtime = 0;
+  try { mtime = fs.statSync(FILE).mtimeMs; } catch {}
+  if (mtime !== cache.mtime) cache = { mtime, list: read().leerlingen };
+  return cache.list.find(l => l.naam.toLowerCase() === key) || null;
 }
 
 // Het niveau van een leerling voor een vak uit de doelen ('Wiskunde', 'Geschiedenis' ...).
