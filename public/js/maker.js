@@ -20,15 +20,18 @@ const makerDoel = DoelKies.multi({
 $('m-doel').appendChild(makerDoel);
 
 // Een quiz heeft één niveau (standaard Schildknaap). Page en Ridder kies je bewust.
+// "drie": elke vraag op de drie niveaus, met "niveau" per vraag, zoals Per leerling het gebruikt.
 const QUIZ_NIVEAU = {
   page: 'Niveau Page (met hulp): eenvoudiger en kortere vragen, met een tip of voorbeeld in de vraag waar dat helpt, en foute antwoorden die duidelijk fout zijn.',
   ridder: 'Niveau Ridder (uitdaging): moeilijkere vragen waarbij de leerling de leerstof toepast in een nieuwe situatie of meerdere denkstappen zet.',
 };
 
 function withDoel(quiz) {
-  // Elke vraag krijgt het gekozen niveau.
+  // Elke vraag krijgt het gekozen niveau. Op drie niveaus houdt elke vraag het niveau van de AI (zonder: Schildknaap),
+  // en staan de vragen per niveau bij elkaar: eerst Page, dan Schildknaap, dan Ridder.
   const niveau = $('m-niveau').value;
-  for (const q of quiz.questions) q.niveau = q.niveau || niveau;
+  for (const q of quiz.questions) q.niveau = q.niveau || (niveau === 'drie' ? 'schildknaap' : niveau);
+  if (niveau === 'drie') quiz.questions.sort((a, b) => Niveau.LIST.indexOf(a.niveau) - Niveau.LIST.indexOf(b.niveau));
   DoelKies.apply(quiz.questions, makerDoel.codes());
   return quiz;
 }
@@ -40,31 +43,36 @@ function buildPrompt(forGemini = false) {
   const topic = $('m-topic').value.trim() || (doel ? doel.cluster : '') || (hasSources ? 'de bijgevoegde lesstof' : '[ONDERWERP]');
   const level = $('m-level').value;
   const niveau = $('m-niveau').value;
-  const count = Math.min(40, Math.max(3, Number($('m-count').value) || 10));
+  const drie = niveau === 'drie';
+  // Op drie niveaus is het aantal per niveau; samen blijft het onder de 100 vragen per quiz.
+  const count = Math.min(drie ? 30 : 40, Math.max(3, Number($('m-count').value) || 10));
   const time = Math.min(120, Math.max(5, Number($('m-time').value) || 20));
   const extra = $('m-extra').value.trim();
   return `Je bent een ervaren leerkracht in Vlaanderen. Maak een quiz voor leerlingen uit: ${level} (Belgisch onderwijs). Onderwerp: ${topic}.
 ${DoelKies.prompt(codes, 'vragen')}${hasSources ? '\nBaseer alle vragen op de bijgevoegde lesstof. Vraag alleen naar dingen die daarin staan.\n' : ''}${extra ? `\nExtra wensen van de docent:\n${extra}\n` : ''}
 Regels:
-- Maak precies ${count} meerkeuzevragen in het Nederlands zoals in Vlaanderen.
+- Maak precies ${drie ? `${count} meerkeuzevragen per niveau, dus ${count * 3} vragen samen,` : `${count} meerkeuzevragen`} in het Nederlands zoals in Vlaanderen.
 - Elke vraag heeft 4 antwoorden (bij een waar/niet waar-vraag 2), met precies één goed antwoord.
 - Zet het goede antwoord niet steeds op dezelfde plek.
 - De foute antwoorden zijn geloofwaardig, maar duidelijk fout voor wie de stof kent.
 - Houd vragen kort (hooguit 120 tekens) en antwoorden heel kort (hooguit 60 tekens).
 - Pas de moeilijkheid en het taalgebruik aan het niveau ${level} aan.
-${QUIZ_NIVEAU[niveau] ? `- ${QUIZ_NIVEAU[niveau]}\n` : ''}
+${QUIZ_NIVEAU[niveau] ? `- ${QUIZ_NIVEAU[niveau]}\n` : ''}${drie ? `\n${Niveau.prompt(level, 'vragen')}\nGeef elke vraag het veld "niveau" met "page", "schildknaap" of "ridder". Zet eerst alle Page-vragen, dan Schildknaap, dan Ridder.\n` : ''}
 Belangrijk: maak GEEN interactieve quiz, app, webpagina of canvas en schrijf geen code. Ik heb enkel de gegevens nodig als tekst.
 Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uitleg ervoor of erna, precies in dit formaat:
 {
   "title": "korte titel van de quiz",
   "questions": [
-    { "question": "de vraag", "answers": ["antwoord A", "antwoord B", "antwoord C", "antwoord D"], "correct": 0, "time": ${time}${codes.length > 1 ? ', "doel": "code van het doel"' : ''} }
+    { "question": "de vraag", "answers": ["antwoord A", "antwoord B", "antwoord C", "antwoord D"], "correct": 0, "time": ${time}${drie ? ', "niveau": "page"' : ''}${codes.length > 1 ? ', "doel": "code van het doel"' : ''} }
   ]
 }
 "correct" is het nummer van het goede antwoord, geteld vanaf 0 (0 = eerste antwoord, 3 = vierde antwoord).`;
 }
 
 function updatePrompt() {
+  const drie = $('m-niveau').value === 'drie';
+  $('m-count-label').textContent = drie ? 'Vragen per niveau' : 'Aantal vragen';
+  $('m-drie-note').classList.toggle('hidden', !drie);
   $('m-prompt').value = buildPrompt();
   $('m-copied').textContent = '';
   $('m-attach-note').classList.toggle('hidden', !$('m-attach').checked);
@@ -244,15 +252,30 @@ function openEditor(quiz, file) {
   $('e-title').value = quiz.title;
   $('e-questions').innerHTML = '';
   quiz.questions.forEach(addQuestion);
+  showNiveaus();
   $('e-error').textContent = '';
   show('editor');
 }
 
+// Heeft de quiz vragen op meer dan één niveau? Dan tonen we hoeveel per niveau, en het niveau bij elke vraag.
+function showNiveaus() {
+  const els = [...$('e-questions').children];
+  const count = {};
+  for (const el of els) count[el.querySelector('.q-niveau').value] = (count[el.querySelector('.q-niveau').value] || 0) + 1;
+  const used = Niveau.LIST.filter(n => count[n]);
+  const multi = used.length > 1;
+  $('e-niveaus').classList.toggle('hidden', !multi);
+  $('e-niveaus').textContent = multi ? `Quiz op ${used.length} niveaus: ${used.map(n => `${Niveau.label(n)} ${count[n]}`).join(' · ')}. Met "👤 Per leerling" krijgt elke leerling de vragen van zijn niveau; Toernooi, Duel en Het Rijk spelen Schildknaap.` : '';
+  els.forEach((el, i) => {
+    el.querySelector('.q-number').textContent = `Vraag ${i + 1}${multi ? ` · ${Niveau.label(el.querySelector('.q-niveau').value)}` : ''}`;
+  });
+}
+
 function renumber() {
   [...$('e-questions').children].forEach((el, i) => {
-    el.querySelector('.q-number').textContent = `Vraag ${i + 1}`;
     for (const r of el.querySelectorAll('input[type=radio]')) r.name = `correct-${i}`;
   });
+  showNiveaus();
 }
 
 function addQuestion(q) {
@@ -276,6 +299,7 @@ function addQuestion(q) {
     <p class="muted small">Klik het rondje aan bij het goede antwoord.</p>
     <div class="answers">${answers}</div>`;
   el.appendChild(DoelKies.field(q.doel));
+  el.querySelector('.q-niveau').addEventListener('change', showNiveaus);
   el.querySelector('.q-delete').addEventListener('click', () => {
     el.remove();
     renumber();

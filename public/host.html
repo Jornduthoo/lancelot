@@ -372,7 +372,7 @@
             <option>volwassenenonderwijs</option>
           </select>
         </label>
-        <label>Aantal vragen<input id="m-count" type="number" min="3" max="40" value="10"></label>
+        <label><span id="m-count-label">Aantal vragen</span><input id="m-count" type="number" min="3" max="40" value="10"></label>
         <label>Seconden per vraag<input id="m-time" type="number" min="5" max="120" value="20"></label>
       </div>
       <label>Moeilijkheid van deze quiz
@@ -380,8 +380,10 @@
           <option value="schildknaap" selected>🛡️ Schildknaap: het doel zelf</option>
           <option value="page">🪶 Page: met hulp, eenvoudiger</option>
           <option value="ridder">⚔️ Ridder: uitdaging, moeilijker</option>
+          <option value="drie">🪶🛡️⚔️ Op de drie niveaus: Page, Schildknaap en Ridder samen</option>
         </select>
       </label>
+      <p class="muted small hidden" id="m-drie-note">De AI maakt elke vraag op drie niveaus in één quiz. Met "👤 Per leerling" boven de quizlijst krijgt elke leerling de vragen van zijn niveau uit Mijn klas. Toernooi, Duel en Het Rijk spelen de Schildknaap-vragen.</p>
       <label>Extra wensen (mag leeg)<textarea id="m-extra" rows="2" placeholder="bijv. vooral vragen over jaartallen, of: maak het extra moeilijk"></textarea></label>
     </div>
     <div class="panel form">
@@ -426,6 +428,7 @@
     </div>
     <div class="panel form">
       <label>Titel<input id="e-title" maxlength="100"></label>
+      <p class="muted small hidden" id="e-niveaus"></p>
     </div>
     <div id="e-questions" class="form"></div>
     <div><button class="secondary" id="e-add">+ Vraag toevoegen</button></div>
