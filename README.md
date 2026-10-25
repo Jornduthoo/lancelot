@@ -22,6 +22,7 @@ Het thema: middeleeuws met een scifi-kantje. Het startscherm heeft drie grote te
    - **Leraar-baas**: de leerkracht is de eindbaas, een reuzenridder op het bord. De klas valt samen aan met goede antwoorden, de leerkracht slaat terug
    - **Het Rijk**: een spel dat weken doorloopt. Teams veroveren les na les gebieden op een kaart; vragen over oudere leerstof komen terug om je land te verdedigen
 2. **De Ronde Tafel**, peilen met de hele klas: polls, stellingen, woordwolken, open vragen en schalen, live op het bord. Met de knop **💡 Voorkennis activeren** in De Ronde Tafel maak je met AI meteen een peiling voor het begin van een les.
+   - **Het Runenraadsel**: elke dag een geheim woord om in zes pogingen te kraken, op drie niveaus (Page 4 letters met hulp, Schildknaap 5, Ridder 6 of 7). Leerlingen spelen wanneer ze willen via **🔮 Runenraadsel** op hun startscherm (of `/runen`). Daarna zien ze de betekenis en een voorbeeldzin. Runen, een reeks 🔥 en een klasdoel leveren een runenkrans rond hun ridder op. Op het bord zie je alleen kleuren, tot je de woorden onthult. Eigen woorden van de week kan je toevoegen (betekenissen eventueel met AI). Gegevens in `runen/` (blijft bij updates). De lijst met geldige woorden komt van OpenTaal (BSD/CC BY 3.0, `src/woordenlijst.txt`).
 3. **De Smidse**: oefenbladen maken. Een oefenblad speel je **live** (leerlingen vullen in, het verbetert zichzelf) of je kiest **🖨 Opslaan en printen** voor een werkblad op papier met verbeterblad.
 
 ## Eigen ridders
@@ -59,7 +60,7 @@ Met **+ Nieuwe map** orden je je quizzen in mappen (per vak of klas). Sleep een 
 
 ### Exporteren en importeren
 
-Thuis voorbereiden op je laptop en in de klas op de bord-pc gebruiken? Met **⬇** naast een quiz, oefenblad of sessie bewaar je die als bestand. Met **⬇** naast een map exporteer je de hele map met de mappen erin, en **⬇ Alles exporteren** neemt alles mee, met de mappen erbij. Op de andere pc klik je op **⬆ Importeren** (of sleep je het bestand op de lijst, of op een map). Wat er al precies zo staat, wordt overgeslagen, dus je kan gerust opnieuw importeren. Je kan ook een gewoon quizbestand (`.json`) van een collega importeren.
+Thuis voorbereiden op je laptop en in de klas op de bord-pc gebruiken? Het makkelijkst is **Mijn lesmap** in Instellingen: kies op beide pc's dezelfde map in OneDrive of Google Drive. Quizzen, oefenbladen en Ronde Tafels blijven dan vanzelf gelijk (bij opstart en elke minuut). Klaslijst, logboek en resultaten gaan nooit mee. Liever met de hand? Met **⬇** naast een quiz, oefenblad of sessie bewaar je die als bestand. Met **⬇** naast een map exporteer je de hele map met de mappen erin, en **⬇ Alles exporteren** neemt alles mee, met de mappen erbij. Op de andere pc klik je op **⬆ Importeren** (of sleep je het bestand op de lijst, of op een map). Wat er al precies zo staat, wordt overgeslagen, dus je kan gerust opnieuw importeren. Je kan ook een gewoon quizbestand (`.json`) van een collega importeren.
 
 Met **Lege quiz** maak je zelf een quiz, en met **Bewerken** pas je een bestaande quiz aan. Dat kan ook rechtstreeks vanuit Schattenjacht en De prinses in de toren; na het opslaan kom je daar terug.
 

@@ -1,9 +1,9 @@
 /* Gauntlet en Ridder-Royale: gedeelde stijl voor de leerling en het bord. */
 
 /* Op het leerlingscherm: als een van deze spellen loopt, verdwijnt de rest. */
-body[data-gt="1"] main > :not(#gauntlet), body[data-ry="1"] main > :not(#royale), body[data-sv="1"] main > :not(#sterren), body[data-rs="1"] main > :not(#slang) { display: none !important; }
-body:not([data-gt="1"]) #gauntlet, body:not([data-ry="1"]) #royale, body:not([data-sv="1"]) #sterren, body:not([data-rs="1"]) #slang { display: none !important; }
-#gauntlet, #royale, #sterren, #slang { display: contents; }
+body[data-gt="1"] main > :not(#gauntlet), body[data-ry="1"] main > :not(#royale), body[data-sv="1"] main > :not(#sterren), body[data-rs="1"] main > :not(#slang), body[data-bs="1"] main > :not(#storm) { display: none !important; }
+body:not([data-gt="1"]) #gauntlet, body:not([data-ry="1"]) #royale, body:not([data-sv="1"]) #sterren, body:not([data-rs="1"]) #slang, body:not([data-bs="1"]) #storm { display: none !important; }
+#gauntlet, #royale, #sterren, #slang, #storm { display: contents; }
 
 .ak-game { position: fixed; inset: 0; z-index: 20; display: flex; flex-direction: column; background: #03050b; user-select: none; -webkit-user-select: none; }
 .ak-game.hidden { display: none; }
@@ -198,3 +198,16 @@ body:not([data-pw="1"]) #poort, body:not([data-nv="1"]) #vlucht, body:not([data-
   .nv-q p { font-size: 1rem; }
   .nv-a { flex-direction: column; gap: 4px; padding: 6px; font-size: .85rem; text-align: center; }
 }
+/* Burchtstorm */
+.bs-runes { display: flex; gap: 6px; font-family: var(--tech, Orbitron, sans-serif); font-size: .85rem; }
+.bs-runes b { padding: 2px 7px; border-radius: 8px; border: 1px solid var(--line); opacity: .35; white-space: nowrap; }
+.bs-runes b.on { opacity: 1; border-color: #7ef0ff; box-shadow: 0 0 10px rgba(126, 240, 255, .6); }
+.bs-runes b.hot { border-color: #ff9a3d; color: #ffc94a; box-shadow: 0 0 12px rgba(255, 154, 61, .7); animation: breathe .9s ease-in-out infinite; }
+#bs-game .ls-stage canvas { cursor: default; }
+.bs-pad { display: none; gap: 6px; padding: 8px 8px calc(8px + env(safe-area-inset-bottom)); background: rgba(6, 10, 19, .95); border-top: 1px solid var(--line); justify-content: center; flex-wrap: nowrap; }
+.bs-pad .ls-btn { width: auto; flex: 1 1 0; max-width: 76px; height: 62px; border-radius: 14px; font-size: 1.6rem; background: rgba(76, 201, 255, .14); border: 1px solid rgba(76, 201, 255, .45); }
+.bs-pad .ls-btn.down { transform: scale(.93); filter: brightness(1.4); }
+.bs-pad .bs-drop { background: rgba(255, 201, 74, .22); border-color: rgba(255, 201, 74, .7); }
+@media (hover: none), (pointer: coarse) { .bs-pad { display: flex; } }
+#bs-game.low .ls-hud { box-shadow: 0 2px 22px rgba(255, 77, 109, .7); }
+#bs-game .ak-question { z-index: 6; }

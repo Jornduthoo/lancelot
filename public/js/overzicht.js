@@ -133,4 +133,10 @@ const Overzicht = (() => {
   return { render, button, bar, when };
 })();
 
-if (typeof socket !== 'undefined' && !document.body.classList.contains('klas-host')) Overzicht.button(socket);
+if (typeof socket !== 'undefined' && !document.body.classList.contains('klas-host')) {
+  Overzicht.button(socket);
+  // Op elk spelbord ook de knop "Namen", om een verkeerde naam weg te klikken.
+  const namen = document.createElement('script');
+  namen.src = '/js/namen-host.js';
+  document.body.appendChild(namen);
+}

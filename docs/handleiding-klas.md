@@ -164,6 +164,16 @@ Tip: speel het een paar weken na elkaar, bijvoorbeeld als afsluiter van elke les
 
 Tip: leg vooraf uit dat je in de pitstop stilstaat. Wie de vragen kent, tankt snel en wint.
 
+## Burchtstorm
+
+1. Kies op het startscherm **De Arena** en dan **Burchtstorm**, kies de speeltijd (1 tot 10 minuten) en klik op de quiz.
+2. Leerlingen scannen de QR-code. Klik op **Laat de storm los!** Na drie tellen vallen de eerste neonstenen.
+3. Chromebook: ← → schuiven, ↑ of X draaien, Z of W andersom, ↓ sneller, spatie laten vallen, C of Shift bijhouden. Gsm: de knoppen onderaan, of vegen op de toren (tik = draaien, snel omlaag vegen = laten vallen).
+4. Twee of meer rijen tegelijk opruimen stuurt belegeringsrijen naar een klasgenoot. Om de acht stenen komt een runevraag: juist geeft een 🛡 schild en een aanval die dubbel telt, drie op rij een drakenvuur naar de koploper, fout een rij erbij.
+5. Op het bord zie je alle torens, de aanvallen die overvliegen en ❓ bij wie een vraag beantwoordt.
+
+Tip: wie instort, begint meteen opnieuw (−25 punten). Zwakkere spelers halen dus vooral punten met juiste antwoorden.
+
 ## Voorkennis activeren
 
 1. Klik op het startscherm op **Voorkennis activeren**.
@@ -217,6 +227,14 @@ Elke leerling wordt vergeleken met de klas op dezelfde vragen, dus een moeilijke
 
 Onderaan: **Klassikaal herhalen** (doelen waar 4 op 10 leerlingen of meer nog niet mee zijn) en **Groepjes voor verlengde instructie** (doelen waar maar een paar leerlingen vastzitten, met hun namen). Kies bovenaan de periode (2 weken, 6 weken of heel het schooljaar) en eventueel een vak. Alles blijft op deze pc.
 
+Nog meer in het zorgoverzicht:
+
+- **Zeker of twijfel**: in de lobby van het Toernooi (en de Opwarmer) staat "Zeker of twijfel vragen" aan. Na zijn antwoord tikt de leerling 💪 Zeker of 🤔 Twijfel aan, in de wachttijd tot de rest geantwoord heeft. Het kost geen tijd en geen punten. "Zeker maar fout" wijst op een misverstand (je ziet ze per doel onder **Hardnekkige misverstanden**), "vaak twijfel terwijl het juist is" op weinig zelfvertrouwen. Op het einde ziet de leerling zelf hoe goed hij zich inschatte.
+- **Notities**: klik een leerling aan en schrijf observaties of afspraken op. Ze blijven op deze pc (map klas).
+- **Zorgfiche**: bij een leerling, knop "Zorgfiche". Een sober A4-blad met cijfers, sterke punten, doelen die nog niet lukken, zelfinschatting, notities en lege lijnen voor afspraken. Print het of kies "Opslaan als PDF" voor het MDO of het CLB.
+- **Herhaalquiz**: bij een leerling, een groepje of een doel. LANcelot zoekt in je quizzen de vragen bij die doelen en bewaart een nieuwe quiz in de map **Herhaling**.
+- **Persoonlijke herhaling**: knop bovenaan. Eén quiz met de vragen van de gekozen periode. Speel hem in een spel op eigen tempo (Schattenjacht, Laserslag, ...): elke leerling krijgt de vragen in zijn eigen volgorde, met eerst wat hij fout had of lang niet meer zag (gespreid herhalen).
+
 ## Opwarmer
 
 Start je les met een paar herhaalvragen uit vorige lessen. Kort ophalen wat je vroeger leerde, is een van de beste manieren om het te onthouden.
@@ -225,6 +243,19 @@ Start je les met een paar herhaalvragen uit vorige lessen. Kort ophalen wat je v
 2. Voorrang krijgen: vragen en leerplandoelen die in het logboek vaak fout gingen, en leerstof die al een tijd niet aan bod kwam. Wat de klas vandaag al zag, komt achteraan. De vragen zijn gemengd over verschillende lessen en doelen.
 3. Kies het aantal vragen en eventueel een vak. Onder elke vraag staat waarom ze gekozen is. Klik op ✕ om een vraag over te slaan, of op **Andere vragen** voor een nieuw voorstel.
 4. Klik op **Start de Opwarmer**. Je speelt hem als een gewoon Toernooi, en de antwoorden gaan mee in het logboek. Zo wordt de volgende Opwarmer slimmer.
+
+## Het Runenraadsel
+
+Elke dag een geheim woord, goed voor de woordenschat.
+
+1. Leerlingen tikken op hun startscherm op **🔮 Runenraadsel van vandaag** (of surfen naar het adres met `/runen`). Dat kan altijd: bij aankomst, als ze klaar zijn met een taak, ook als er geen spel loopt.
+2. Drie niveaus: **Page** raadt 4 letters en ziet de betekenis als hulp, **Schildknaap** 5 letters (hulp na 4 pogingen), **Ridder** 6 of 7 letters. Het eigen niveau komt uit Mijn klas. Ze hebben zes pogingen; alleen bestaande woorden tellen.
+3. Na het raden zien ze het woord, de betekenis en een voorbeeldzin.
+4. Runen: 2 voor je eigen niveau (of hoger), 1 extra in drie pogingen of minder, 1 per extra niveau, 2 extra per 5 dagen na elkaar, en 1 extra als 8 op 10 van de klas het kraakte. Met 5, 15, 30 en 50 runen krijgt de ridder een runenkrans die in elk spel meedoet.
+5. Op het bord (tegel **Het Runenraadsel** bij De Ronde Tafel) zie je wie het al kraakte, alleen in kleuren. Met **✨ Onthul de woorden van vandaag** bespreek je ze samen.
+6. **Woorden van de week**: typ woorden uit je les (4 tot 7 letters). Die komen eerst aan bod. Laat de betekenissen aanvullen met AI of typ ze zelf.
+
+De antwoorden gaan in het logboek (doel woordenschat), dus ook in het zorgoverzicht.
 
 ## Lukt verbinden niet?
 
@@ -244,6 +275,17 @@ Op het startscherm en in elke lobby staat de knop **Netwerk werkt niet?**. Die p
 - Werkt iets niet zoals verwacht, noteer dan wat er gebeurde. Dan kunnen we het verbeteren.
 
 ## Thuis voorbereiden
+
+### Automatisch, met Mijn lesmap (aangeraden)
+
+1. Zorg dat OneDrive of Google Drive (voor bureaublad) op de bord-pc én op je pc thuis staat, met hetzelfde account.
+2. Open op de bord-pc **Instellingen** en klik bij **Mijn lesmap** op **Gebruik OneDrive** (of Google Drive), of op **Kies map…**. LANcelot maakt daar een map `LANcelot` met je quizzen, oefenbladen en Ronde Tafels.
+3. Doe thuis in je eigen LANcelot hetzelfde, met dezelfde map.
+4. Klaar. Wat je thuis maakt of aanpast, staat op het digibord zodra LANcelot opstart, en daarna wordt elke minuut bijgewerkt. Het werkt ook in de andere richting.
+
+Je klaslijst, het logboek, de resultaten en de avatars gaan nooit mee: die blijven op de pc zelf. Verwijder je iets, dan staat het nog 30 dagen in de map `_prullenbak`. Tip: zet in OneDrive de map `LANcelot` op **Altijd behouden op dit apparaat**.
+
+### Met de hand, via een bestand
 
 1. Maak je quizzen, oefenbladen of sessies thuis in LANcelot op je eigen laptop.
 2. Klik op **⬇** naast een item of een map, of op **⬇ Alles exporteren**. Er wordt een bestand gedownload. Zet het op een usb-stick, in je mail of in de cloud.

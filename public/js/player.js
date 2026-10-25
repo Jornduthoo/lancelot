@@ -130,6 +130,8 @@ function render(state) {
       show('intro');
       break;
     case 'question':
+      $('zk-vraag').classList.toggle('hidden', !state.zekerVraag);
+      $('zk-wacht').classList.toggle('hidden', !!state.zekerVraag);
       if (state.answered) return show('answered');
       const key = JSON.stringify([state.index, state.answers]);
       if (shownIndex !== key) {
@@ -146,7 +148,8 @@ function render(state) {
       $('r-mark').textContent = good ? '✔' : state.answered ? '✖' : '⌛';
       $('r-title').textContent = good ? 'Raak!' : state.answered ? 'Mis!' : 'Te laat!';
       $('r-points').textContent = good ? `+${state.points}` : '+0';
-      $('r-streak').textContent = good && state.streak > 1 ? `🔥 ${state.streak} op een rij` : '';
+      $('r-streak').textContent = good && state.streak > 1 ? `🔥 ${state.streak} op een rij`
+        : !good && state.zeker === 'zeker' ? 'Je was zeker, maar het is fout. Kijk goed naar het juiste antwoord op het bord!' : '';
       $('r-rank').textContent = `Je staat op plek ${state.rank}`;
       if (shownReveal !== state.index) {
         shownReveal = state.index;
@@ -160,6 +163,17 @@ function render(state) {
       $('p-medal').textContent = medals[state.rank - 1] || '🛡️';
       $('p-rank').textContent = state.rank === 1 ? 'Jij wint het toernooi!' : `Plek ${state.rank}`;
       $('p-score').textContent = `${state.score} punten`;
+      // Hoe goed schatte de leerling zichzelf in? Leren nadenken over je eigen leren.
+      const t = state.zekerTel;
+      $('p-zeker').innerHTML = '';
+      if (t) {
+        for (const [k, text] of [['zeker-juist', '💪 Terecht zeker'], ['twijfel-juist', '🤔 Getwijfeld, maar juist'], ['zeker-fout', '⚠️ Zeker, maar fout'], ['twijfel-fout', '🤔 Getwijfeld en fout']]) {
+          if (!t[k]) continue;
+          const row = document.createElement('span');
+          row.textContent = `${text}: ${t[k]}×`;
+          $('p-zeker').appendChild(row);
+        }
+      }
       if (!$('podium').dataset.done && state.rank <= 3) confetti(4000);
       $('podium').dataset.done = '1';
       show('podium');
@@ -169,6 +183,15 @@ function render(state) {
 }
 
 socket.on('state', render);
+
+for (const [id, value] of [['zk-zeker', 'zeker'], ['zk-twijfel', 'twijfel']]) {
+  $(id).addEventListener('click', () => {
+    socket.emit('zeker', value);
+    buzz(20);
+    $('zk-vraag').classList.add('hidden');
+    $('zk-wacht').classList.remove('hidden');
+  });
+}
 
 // Nieuwe quiz geladen of quiz gesloten: opnieuw aanmelden met dezelfde naam.
 socket.on('reset', ({ open }) => {
@@ -202,7 +225,7 @@ document.addEventListener('keydown', e => {
   if (!/^[1-4]$/.test(e.key) || e.target.matches('input, textarea')) return;
   // Niet antwoorden terwijl je je ridder samenstelt.
   if (document.querySelector('#av-maker:not(.hidden)')) return;
-  const buttons = [...document.querySelectorAll('#answer-buttons .answer, #sj-answers .answer, .rt-choice, #kr-answers .answer, #kr-chest-row .kr-chest, #kr-targets button, #vr-answers .answer, #vr-roster button, #bb-answers .answer, #du-answers .answer, #rk-answers .answer')]
+  const buttons = [...document.querySelectorAll('#answer-buttons .answer, #zk-vraag button, #sj-answers .answer, .rt-choice, #kr-answers .answer, #kr-chest-row .kr-chest, #kr-targets button, #vr-answers .answer, #vr-roster button, #bb-answers .answer, #du-answers .answer, #rk-answers .answer')]
     .filter(b => b.getClientRects().length && !b.disabled);
   if (buttons[e.key - 1]) buttons[e.key - 1].click();
 });
