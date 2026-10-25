@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LANcelot · Zorgoverzicht</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/zorg.css">
+</head>
+<body class="klas-host">
+<main>
+  <div class="topbar">
+    <div class="brand" id="brand" title="Naar het startscherm">
+      <img src="/img/mark.webp" alt="">
+      <div>
+        <div class="wordmark">LAN<span>celot</span></div>
+        <div class="subtitle">Zorgoverzicht</div>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="secondary" id="to-klas">Mijn klas en doelen</button>
+      <button class="secondary" id="to-home">Terug</button>
+    </div>
+  </div>
+
+  <section>
+    <div class="panel form">
+      <div class="zg-filters">
+        <label>Periode
+          <select id="z-dagen">
+            <option value="14">Laatste 2 weken</option>
+            <option value="42" selected>Laatste 6 weken</option>
+            <option value="0">Heel het schooljaar</option>
+          </select>
+        </label>
+        <label>Vak<select id="z-vak"><option value="">Alle vakken</option></select></label>
+        <p class="muted small" id="z-info"></p>
+      </div>
+      <div class="zg-tellers" id="z-tellers"></div>
+    </div>
+
+    <div id="z-leeg" class="panel form" style="display:none"></div>
+
+    <div class="panel form" id="z-leerlingen-box">
+      <h3>Leerlingen</h3>
+      <p class="muted small">Wie het meest aandacht vraagt, staat bovenaan. We vergelijken elke leerling met de klas op <em>dezelfde vragen</em>, zodat een moeilijke quiz niemand onterecht rood kleurt. Klik een leerling aan voor meer.</p>
+      <div class="zg-grid" id="z-leerlingen"></div>
+    </div>
+
+    <div class="zg-twee">
+      <div class="panel form">
+        <h3>Klassikaal herhalen</h3>
+        <p class="muted small">Doelen waar minstens 4 op 10 leerlingen nog niet mee zijn. Dat ligt eerder aan de les dan aan de leerling: neem het opnieuw met de hele klas.</p>
+        <div id="z-klassikaal"></div>
+      </div>
+      <div class="panel form">
+        <h3>Groepjes voor verlengde instructie</h3>
+        <p class="muted small">Doelen waar maar een paar leerlingen nog niet mee zijn. Neem hen apart aan de instructietafel terwijl de rest verder oefent.</p>
+        <div id="z-groepjes"></div>
+      </div>
+    </div>
+
+    <div class="panel form">
+      <h3>Hoe lezen?</h3>
+      <ul class="muted small zg-uitleg">
+        <li><b class="zg-k rood">Rood</b>: maar onder 50% juist bij de laatste 20 antwoorden, of 20 procentpunten of meer onder de klas.</li>
+        <li><b class="zg-k oranje">Oranje</b>: 10 procentpunten onder de klas, gaat achteruit, 3 of meer doelen nog niet beheerst, of gokte meermaals.</li>
+        <li><b class="zg-k groen">Groen</b>: mee met de klas. <b class="zg-k weinig">Grijs</b>: nog minder dan 10 antwoorden in deze periode.</li>
+        <li>Het lijntje toont elke les: de leerling (vol) tegenover de klas (stippel). Niveau-advies verschijnt vanaf 20 antwoorden.</li>
+        <li>Alles blijft op deze pc. Dit is een signaal om eens te gaan kijken, geen oordeel: praat met de leerling.</li>
+      </ul>
+    </div>
+  </section>
+</main>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/niveau.js"></script>
+<script src="/js/zorg.js"></script>
+</body>
+</html>

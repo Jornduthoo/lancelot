@@ -4,6 +4,7 @@
 //   en een seintje op het bord voor de leerkracht.
 // server.js zet guard() rond de question/answer van een spel; judge() is voor spellen met één vraag voor iedereen.
 const { factor } = require('./tempo');
+const logboek = require('./logboek');
 
 const WRONG_MS = 3000;
 const PAUSE_MS = 12000;
@@ -39,6 +40,7 @@ function create(io) {
     s.fast = 0;
     s.flags++;
     io.to('host').emit('gok', { name, spel, flags: s.flags });
+    logboek.gok(spel, name);
     if (socketId) io.to(socketId).emit('gok-pauze', { ms: pause || 4000 });
     return true;
   }
