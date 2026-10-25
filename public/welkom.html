@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LANcelot · Welkom</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body class="klas-host netwerk-hulp">
+<main>
+  <div class="topbar">
+    <div class="brand" id="brand" title="Naar het startscherm">
+      <img src="/img/mark.webp" alt="">
+      <div>
+        <div class="wordmark">LAN<span>celot</span></div>
+        <div class="subtitle">Welkom · <span id="w-stap">stap 1 van 4</span></div>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="secondary" id="w-later">Later</button>
+    </div>
+  </div>
+
+  <section>
+    <div class="panel form w-step" data-step="1">
+      <h3>1. Jouw klas</h3>
+      <p>Welkom bij LANcelot! In vier korte stappen staat alles klaar. Je kan alles later nog aanpassen in <em>Mijn klas en doelen</em> en <em>Instellingen</em>.</p>
+      <div class="row">
+        <label>Naam van de klas (mag leeg)<input id="w-naam" maxlength="40" placeholder="bv. 6B"></label>
+        <label>Leerjaar
+          <select id="w-leerjaar">
+            <option value="2">2e leerjaar</option>
+            <option value="3">3e leerjaar</option>
+            <option value="4">4e leerjaar</option>
+            <option value="5">5e leerjaar</option>
+            <option value="6" selected>6e leerjaar</option>
+          </select>
+        </label>
+      </div>
+      <p class="muted small">Het leerjaar bepaalt welke leerplandoelen LANcelot eerst toont.</p>
+    </div>
+
+    <div class="panel form w-step hidden" data-step="2">
+      <h3>2. De klaslijst</h3>
+      <p>Typ of plak de voornamen van je leerlingen, één per regel. Leerlingen tikken bij het aanmelden hun naam aan, zo komen hun antwoorden in elk spel bij dezelfde leerling. Mag ook leeg: dan typen leerlingen zelf een naam.</p>
+      <textarea id="w-namen" rows="10" placeholder="Lotte&#10;Milan&#10;Nora"></textarea>
+      <p class="muted small"><span id="w-telling">0 leerlingen</span> · hooguit 40. De klaslijst blijft alleen op deze pc. <a href="/privacy" target="_blank">Meer over privacy</a></p>
+    </div>
+
+    <div class="panel form w-step hidden" data-step="3">
+      <h3>3. Quizzen maken met AI (mag je overslaan)</h3>
+      <p>Zonder sleutel kopieer je een prompt naar Gemini, ChatGPT of Claude en plak je het antwoord terug. Met een eigen Gemini-sleutel maakt LANcelot de quiz of het oefenblad meteen.</p>
+      <p class="muted small">Een sleutel maak je gratis aan op <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a>. Zolang je daar geen betaalgegevens koppelt, kost het niets. De sleutel blijft alleen op deze pc.</p>
+      <label>Gemini-sleutel (mag leeg)<input id="w-key" type="password" autocomplete="off" placeholder="Plak hier je sleutel"></label>
+      <p class="muted small" id="w-key-status"></p>
+    </div>
+
+    <div class="panel form w-step hidden" data-step="4">
+      <h3>4. Het netwerk</h3>
+      <p>Leerlingen surfen op hun Chromebook of gsm naar het adres van deze pc. Ze moeten op <strong>hetzelfde netwerk</strong> zitten. Internet is niet nodig om te spelen.</p>
+      <p><strong>Windows Firewall:</strong> laat leerlingen binnen met één klik. Windows vraagt eerst om toestemming: klik daar op <em>Ja</em>.</p>
+      <div class="actions"><button class="secondary" id="w-fw">Firewall goed zetten</button></div>
+      <p class="error" id="w-fw-error"></p>
+      <p>Dit zijn de adressen van deze pc. Test het bovenste even op een Chromebook of gsm:</p>
+      <ul class="nw-adressen" id="w-adressen"><li class="muted">Laden…</li></ul>
+      <p class="muted small">Lukt het niet? Kijk bij <a href="/netwerk">Netwerk werkt niet?</a></p>
+    </div>
+
+    <p class="error" id="w-error"></p>
+    <div class="bar">
+      <button class="secondary" id="w-terug" disabled>Terug</button>
+      <button class="gold" id="w-verder">Verder</button>
+    </div>
+  </section>
+</main>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  const socket = io({ query: { role: 'host' } });
+  const $ = id => document.getElementById(id);
+  const ask = (event, arg) => new Promise(resolve => socket.emit(event, arg, resolve));
+  const namen = () => $('w-namen').value.split('\n').map(n => n.trim()).filter(Boolean);
+  let stap = 1;
+  const telling = () => { const n = namen().length; $('w-telling').textContent = `${n} ${n === 1 ? 'leerling' : 'leerlingen'}`; };
+
+  function toon(n) {
+    stap = n;
+    for (const el of document.querySelectorAll('.w-step')) el.classList.toggle('hidden', Number(el.dataset.step) !== n);
+    $('w-stap').textContent = `stap ${n} van 4`;
+    $('w-terug').disabled = n === 1;
+    $('w-verder').textContent = n === 4 ? 'Klaar: naar LANcelot' : 'Verder';
+    $('w-error').textContent = '';
+  }
+
+  async function klaar() {
+    await ask('welkom-klaar');
+    location.href = '/host';
+  }
+
+  // Wat er al is, staat al ingevuld (bv. wie de wizard opnieuw opent).
+  ask('klas-get').then(res => {
+    if (!res.ok) return;
+    $('w-naam').value = res.klas.naam;
+    $('w-leerjaar').value = String(res.klas.leerjaar);
+    $('w-namen').value = res.klas.leerlingen.map(l => l.naam).join('\n');
+    telling();
+  });
+  socket.on('settings', s => { $('w-key-status').textContent = s.hasKey ? `Er is al een sleutel ingesteld (${s.keyHint}).` : ''; });
+  $('w-namen').addEventListener('input', telling);
+
+  $('w-terug').addEventListener('click', () => toon(stap - 1));
+  $('w-verder').addEventListener('click', async () => {
+    if (stap === 2) {
+      const res = await ask('klas-save', { naam: $('w-naam').value, leerjaar: Number($('w-leerjaar').value), namen: namen() });
+      if (res.error) return void ($('w-error').textContent = res.error);
+    }
+    if (stap === 3 && $('w-key').value.trim()) {
+      const res = await ask('save-settings', { geminiKey: $('w-key').value });
+      if (res.error) return void ($('w-error').textContent = res.error);
+      $('w-key').value = '';
+    }
+    if (stap === 4) return klaar();
+    toon(stap + 1);
+  });
+  $('w-later').addEventListener('click', klaar);
+  $('brand').addEventListener('click', () => { location.href = '/host'; });
+
+  $('w-fw').addEventListener('click', async () => {
+    $('w-fw-error').textContent = '';
+    $('w-fw').disabled = true;
+    const res = await ask('firewall-zet');
+    $('w-fw').disabled = false;
+    $('w-fw-error').textContent = res.error || '';
+    if (res.ok) $('w-fw').textContent = '✓ Firewall staat goed';
+  });
+
+  socket.on('addresses', list => {
+    $('w-adressen').replaceChildren(...(list.length ? list : [{ url: '' }]).map((a, i) => {
+      const li = document.createElement('li');
+      if (!a.url) li.textContent = 'Deze pc zit op geen enkel netwerk. Verbind met de wifi of steek de netwerkkabel in.';
+      else {
+        const code = document.createElement('code');
+        code.textContent = a.url.replace('http://', '');
+        li.append(code, i === 0 ? ' (dit adres komt op het bord)' : ` ${a.name || ''}`);
+      }
+      return li;
+    }));
+  });
+</script>
+</body>
+</html>

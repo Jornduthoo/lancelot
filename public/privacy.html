@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LANcelot · Privacy</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body class="klas-host netwerk-hulp">
+<main>
+  <div class="topbar">
+    <div class="brand" id="brand" title="Naar het startscherm">
+      <img src="/img/mark.webp" alt="">
+      <div>
+        <div class="wordmark">LAN<span>celot</span></div>
+        <div class="subtitle">Privacy en leerlinggegevens</div>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="secondary" id="to-home">Naar het startscherm</button>
+    </div>
+  </div>
+
+  <section>
+    <div class="panel form">
+      <h3>Kort</h3>
+      <p>LANcelot draait op <strong>deze pc</strong>. Alles wat over leerlingen gaat, blijft op deze pc: er is geen account, geen cloud en geen bedrijf dat meekijkt. Leerlingen surfen over het netwerk van de klas naar deze pc; hun antwoorden gaan nergens anders heen.</p>
+      <p>De gegevens staan in deze map: <code id="p-map">…</code></p>
+    </div>
+
+    <div class="panel form">
+      <h3>Wat bewaart LANcelot over leerlingen?</h3>
+      <ul class="nw-stappen">
+        <li><strong>De klaslijst:</strong> voornamen (of wat je zelf intypt), het leerjaar en per leerling het niveau (Page, Schildknaap, Ridder), ook per vak.</li>
+        <li><strong>Het logboek:</strong> per leerling welke vraag goed of fout was, bij welk leerplandoel, hoe zeker de leerling was en of er gegokt werd. Eén bestand per schooljaar.</li>
+        <li><strong>Resultaten:</strong> na elk spel een Excel-bestand met de scores.</li>
+        <li><strong>Zorg:</strong> het zorgoverzicht wordt berekend uit het logboek. Notities die je zelf typt, staan in de klaslijstmap.</li>
+        <li><strong>Ridders en Runenraadsel:</strong> hoe een leerling zijn ridder aankleedde en zijn pogingen in het woordspel, bij zijn naam.</li>
+        <li><strong>Posters:</strong> foto's die je zelf toevoegt voor in de arena.</li>
+      </ul>
+      <p class="muted small">Leerlingtoestellen bewaren alleen een willekeurige spelerscode, de gekozen naam, hun ridder en kleine voorkeuren (zoals geluid aan of uit) in de browser, om na een herlaadbeurt verder te spelen.</p>
+    </div>
+
+    <div class="panel form">
+      <h3>Wat gaat er wél naar internet?</h3>
+      <ul class="nw-stappen">
+        <li><strong>Quizzen en oefenbladen maken met AI.</strong> Het onderwerp, je extra wensen en de lesstof die je toevoegt (screenshot, pdf) gaan naar Google Gemini, of naar de chatbot waar je de prompt zelf plakt. Namen of resultaten van leerlingen gaan daar niet mee. Voeg dus geen lesstof toe waar namen van leerlingen op staan.</li>
+        <li><strong>Mijn lesmap</strong> (als je die koppelt): alleen je quizzen, oefenbladen en Ronde Tafels gaan naar je OneDrive of Google Drive. De klaslijst, het logboek en de resultaten nooit.</li>
+        <li><strong>Bijwerken:</strong> LANcelot vraagt aan GitHub of er een nieuwe versie is, alleen als jij op de knop drukt.</li>
+        <li><strong>Voorlezen</strong> gebruikt de stem van de browser. Sommige browserstemmen werken online; dan gaat de voorgelezen tekst van het oefenblad naar de maker van de browser, nooit iets over de leerling.</li>
+      </ul>
+    </div>
+
+    <div class="panel form">
+      <h3>Goed om te doen</h3>
+      <ul class="nw-stappen">
+        <li><strong>Voornamen volstaan.</strong> Gebruik geen achternamen of andere gegevens die je niet nodig hebt.</li>
+        <li><strong>Zet de pc op slot</strong> als je wegloopt: wie op deze pc zit, kan het docentenscherm openen. Leerlingtoestellen kunnen het docentenscherm, het logboek en de resultaten niet openen.</li>
+        <li><strong>Back-ups</strong> (Instellingen) bevatten alle gegevens van de klas. Bewaar ze op een veilige plek, bv. een usb-stick die je niet laat rondslingeren.</li>
+        <li><strong>Einde van het schooljaar:</strong> maak een back-up als de school dat wil, en wis daarna de klaslijst, het logboek en de resultaten in de gegevensmap. Ouders en leerlingen mogen vragen wat er over hen bewaard wordt; dat vind je allemaal in die map.</li>
+        <li><strong>Vraag het aan je school.</strong> De school is verantwoordelijk voor leerlinggegevens (GDPR). Laat de directie of de privacyverantwoordelijke weten dat je LANcelot gebruikt en wat er bewaard wordt. Deze pagina mag je daarvoor gebruiken.</li>
+      </ul>
+      <p class="muted small">Deze uitleg beschrijft hoe LANcelot werkt. Ze is geen juridisch advies.</p>
+    </div>
+  </section>
+</main>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  const socket = io({ query: { role: 'host' } });
+  const $ = id => document.getElementById(id);
+  $('brand').addEventListener('click', () => { location.href = '/host'; });
+  $('to-home').addEventListener('click', () => { location.href = '/host'; });
+  socket.emit('gegevens-get', null, v => { if (v && v.map) $('p-map').textContent = v.map; });
+</script>
+</body>
+</html>

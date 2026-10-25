@@ -3,9 +3,10 @@
 // Elk antwoord hoort bij een sessie: één keer een spel spelen. Daaruit komen het overzicht na elk spel en de doelenkaart.
 const fs = require('fs');
 const path = require('path');
+const gegevens = require('./gegevens');
 const klas = require('./klas');
 
-const DIR = path.join(__dirname, '..', 'logboek');
+const DIR = gegevens.pad('logboek');
 // Een half uur geen antwoorden meer in hetzelfde spel: dan begint er een nieuwe sessie.
 const SESSION_GAP_MS = 30 * 60000;
 const FLUSH_MS = 3000;

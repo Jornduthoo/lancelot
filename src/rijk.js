@@ -4,10 +4,11 @@
 // Zo wordt herhalen vanzelf deel van het spel. Elk rijk is een bestand in rijken/.
 const fs = require('fs');
 const path = require('path');
+const gegevens = require('./gegevens');
 const logboek = require('./logboek');
 const quizzes = require('./quizzes');
 
-const DIR = path.join(__dirname, '..', 'rijken');
+const DIR = gegevens.pad('rijken');
 const COLS = 11;
 const ROWS = 7;
 const WATER = 10;

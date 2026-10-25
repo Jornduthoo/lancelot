@@ -1,9 +1,10 @@
 // Resultaten van elke gespeelde quiz, als CSV-bestand in de map resultaten/ (opent in Excel).
 const fs = require('fs');
 const path = require('path');
+const gegevens = require('./gegevens');
 const { TYPE_NAMES } = require('./rondetafel');
 
-const DIR = path.join(__dirname, '..', 'resultaten');
+const DIR = gegevens.pad('resultaten');
 const LETTERS = ['A', 'B', 'C', 'D'];
 
 // Puntkomma als scheidingsteken, zoals Excel in België verwacht.

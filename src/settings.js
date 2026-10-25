@@ -1,8 +1,9 @@
 // Instellingen van de leerkracht, alleen op deze pc opgeslagen in settings.json (staat in .gitignore).
 const fs = require('fs');
 const path = require('path');
+const gegevens = require('./gegevens');
 
-const FILE = path.join(__dirname, '..', 'settings.json');
+const FILE = gegevens.pad('settings.json');
 const DEFAULTS = { geminiKey: '', geminiModel: 'auto', geminiAutoModel: '', preferredAddress: '' };
 
 function read() {

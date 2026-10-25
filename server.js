@@ -1,4 +1,20 @@
 const fs = require('fs');
+// Een klaargezette update eerst installeren en dan de nieuwe versie starten, nog voor er iets anders geladen is.
+{
+  const bijgewerkt = require('./src/bijwerken').pasToe();
+  if (bijgewerkt) {
+    const { spawnSync } = require('child_process');
+    console.log('\n  LANcelot is bijgewerkt.');
+    if (bijgewerkt.npm) {
+      console.log('  Nieuwe onderdelen installeren...');
+      spawnSync('npm', ['install', '--omit=dev'], { cwd: __dirname, stdio: 'inherit', shell: true });
+    }
+    const r = spawnSync(process.execPath, [__filename, ...process.argv.slice(2)], { stdio: 'inherit', env: { ...process.env, LANCELOT_BIJGEWERKT: '1' } });
+    process.exit(r.status || 0);
+  }
+}
+// Eerst de gegevensmap: een verhuis of een terug te zetten back-up gebeurt nog voordat iets de bestanden leest.
+const gegevens = require('./src/gegevens');
 const http = require('http');
 const os = require('os');
 const dgram = require('dgram');
@@ -51,6 +67,7 @@ const notities = require('./src/notities');
 const herhaal = require('./src/herhaal');
 const results = require('./src/results');
 const lesmap = require('./src/lesmap');
+const beheer = require('./src/beheer');
 const { execFile } = require('child_process');
 const { generateQuiz } = require('./src/gemini');
 const antigok = require('./src/antigok');
@@ -356,7 +373,7 @@ function isLocal(address) {
   return ['127.0.0.1', '::1', '::ffff:127.0.0.1'].includes(address);
 }
 
-for (const [route, page] of [['/host', 'host.html'], ['/rondetafel', 'rondetafel.html'], ['/toren', 'toren.html'], ['/schattenjacht', 'schattenjacht.html'], ['/laserslag', 'laserslag.html'], ['/ridderrace', 'ridderrace.html'], ['/kristalroof', 'kristalroof.html'], ['/verrader', 'verrader.html'], ['/burchtbouwers', 'burchtbouwers.html'], ['/duel', 'duel.html'], ['/packnight', 'packnight.html'], ['/strijdrossen', 'strijdrossen.html'], ['/gauntlet', 'gauntlet.html'], ['/ridder-royale', 'royale.html'], ['/sterrenvreter', 'sterrenvreter.html'], ['/ridderslang', 'ridderslang.html'], ['/burchtstorm', 'burchtstorm.html'], ['/poortwacht', 'poortwacht.html'], ['/neonvlucht', 'neonvlucht.html'], ['/diepboor', 'diepboor.html'], ['/pixelridder', 'pixelridder.html'], ['/robomol', 'robomol.html'], ['/robopaarden', 'robopaarden.html'], ['/neonduel', 'neonduel.html'], ['/leraarbaas', 'leraarbaas.html'], ['/cybergalaga', 'cybergalaga.html'], ['/bomberknight', 'bomberknight.html'], ['/rijk', 'rijk.html'], ['/oefenblad', 'oefenblad.html'], ['/oefenblad-print', 'oefenblad-print.html'], ['/klas', 'klas.html'], ['/zorg', 'zorg.html'], ['/zorg-fiche', 'zorg-fiche.html'], ['/runenraadsel', 'runenraadsel.html'], ['/netwerk', 'netwerk.html']]) {
+for (const [route, page] of [['/host', 'host.html'], ['/rondetafel', 'rondetafel.html'], ['/toren', 'toren.html'], ['/schattenjacht', 'schattenjacht.html'], ['/laserslag', 'laserslag.html'], ['/ridderrace', 'ridderrace.html'], ['/kristalroof', 'kristalroof.html'], ['/verrader', 'verrader.html'], ['/burchtbouwers', 'burchtbouwers.html'], ['/duel', 'duel.html'], ['/packnight', 'packnight.html'], ['/strijdrossen', 'strijdrossen.html'], ['/gauntlet', 'gauntlet.html'], ['/ridder-royale', 'royale.html'], ['/sterrenvreter', 'sterrenvreter.html'], ['/ridderslang', 'ridderslang.html'], ['/burchtstorm', 'burchtstorm.html'], ['/poortwacht', 'poortwacht.html'], ['/neonvlucht', 'neonvlucht.html'], ['/diepboor', 'diepboor.html'], ['/pixelridder', 'pixelridder.html'], ['/robomol', 'robomol.html'], ['/robopaarden', 'robopaarden.html'], ['/neonduel', 'neonduel.html'], ['/leraarbaas', 'leraarbaas.html'], ['/cybergalaga', 'cybergalaga.html'], ['/bomberknight', 'bomberknight.html'], ['/rijk', 'rijk.html'], ['/oefenblad', 'oefenblad.html'], ['/oefenblad-print', 'oefenblad-print.html'], ['/klas', 'klas.html'], ['/zorg', 'zorg.html'], ['/zorg-fiche', 'zorg-fiche.html'], ['/runenraadsel', 'runenraadsel.html'], ['/netwerk', 'netwerk.html'], ['/welkom', 'welkom.html'], ['/privacy', 'privacy.html']]) {
   app.get(route, (req, res) => {
     if (!isLocal(req.socket.remoteAddress)) return res.status(403).send('Het docentenscherm is alleen bereikbaar op de pc van de leerkracht.');
     res.setHeader('Cache-Control', 'no-cache');
@@ -368,6 +385,7 @@ app.get('/runen', (req, res) => {
   res.setHeader('Cache-Control', 'no-cache');
   res.sendFile(path.join(__dirname, 'public', 'runen.html'));
 });
+beheer.routes(app, isLocal);
 // Resultaten downloaden kan alleen op de pc van de leerkracht.
 app.get('/resultaten/:file', (req, res) => {
   if (!isLocal(req.socket.remoteAddress)) return res.status(403).end();
@@ -401,9 +419,9 @@ app.get('/export/:kind', (req, res) => {
     res.status(400).type('text/plain; charset=utf-8').send(err.message);
   }
 });
-// Posters voor aan de muren van de arena's (Laserslag). Eigen foto's in de map posters/ naast LANcelot;
+// Posters voor aan de muren van de arena's (Laserslag). Eigen foto's in de map posters/ bij de gegevens;
 // die map gaat nooit mee naar GitHub. Leeg of niet aanwezig: dan hangen er alleen banieren.
-const POSTERS = path.join(__dirname, 'posters');
+const POSTERS = gegevens.pad('posters');
 app.get('/posters/lijst', (req, res) => {
   let files = [];
   try { files = fs.readdirSync(POSTERS).filter(f => /\.(png|jpe?g|webp|gif)$/i.test(f)).sort(); } catch {}
@@ -567,6 +585,7 @@ io.on('connection', socket => {
       sendAddresses(io.to('host'));
     });
     socket.emit('settings', settings.publicView());
+    beheer.host(socket, { port: PORT });
     // Mijn lesmap: kiezen, nu synchroniseren, openen.
     socket.emit('lesmap', lesmap.view());
     socket.on('lesmap-suggest', (_, cb) => typeof cb === 'function' && cb(lesmap.suggestions()));
@@ -1477,10 +1496,12 @@ io.on('connection', socket => {
 });
 
 server.listen(PORT, () => {
+  gegevens.dagelijks();
   runSync();
   setInterval(runSync, 60 * 1000);
   console.log('\n  LANcelot draait!\n');
   console.log(`  Docentenscherm:  http://localhost:${PORT}/host`);
+  if (gegevens.DATA !== gegevens.APP) console.log(`  Gegevens:        ${gegevens.DATA}`);
   for (const a of lanAddresses()) console.log(`  Leerlingen:      http://${a}:${PORT}`);
   console.log('\n  Sluit dit venster om te stoppen.\n');
 });

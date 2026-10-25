@@ -28,6 +28,7 @@
       <img src="/img/logo.webp" alt="LANcelot">
       <p>Oefenen, peilen en werkbladen · over je eigen netwerk</p>
     </div>
+    <p class="notice hidden" id="welkom-tip">👋 De eerste keer LANcelot? <a href="/welkom">Zet in vier stappen je klas, je leerjaar en het netwerk klaar.</a></p>
     <!-- Drie rijken: klik op een tegel, de onderdelen verschijnen eronder. -->
     <div class="realms">
       <button class="realm" data-realm="arena">
@@ -348,6 +349,66 @@
         <button class="secondary" id="s-remove">Sleutel verwijderen</button>
       </div>
     </div>
+    <div class="panel form" id="posters-panel">
+      <h3>Posters in de arena</h3>
+      <p class="muted small">Eigen foto's voor aan de muren van de arena (bv. van je klas of van de leerkrachten). Ze worden vierkant bijgesneden en klein gemaakt, en blijven alleen op deze pc. <span id="po-count"></span></p>
+      <div class="poster-grid" id="po-grid"></div>
+      <p class="error" id="po-error"></p>
+      <div class="actions">
+        <label class="file-button"><input id="po-files" type="file" accept="image/*" multiple hidden>Foto's toevoegen</label>
+      </div>
+    </div>
+    <div class="panel form" id="gegevens-panel">
+      <h3>Mijn gegevens en back-ups</h3>
+      <p class="muted small">Je klaslijst, het logboek, je quizzen, de resultaten en de posters staan in deze map. <a href="/privacy">Wat bewaart LANcelot over leerlingen?</a></p>
+      <p><code id="gg-map"></code></p>
+      <p class="notice hidden" id="gg-melding"></p>
+      <div class="actions">
+        <button class="secondary" id="gg-open">Map openen</button>
+      </div>
+      <div id="gg-verhuis">
+        <p class="muted small" id="gg-uitleg"></p>
+        <label>Nieuwe map<input id="gg-pad" autocomplete="off"></label>
+        <p class="error" id="gg-error"></p>
+        <div class="actions">
+          <button class="secondary" id="gg-kies">Verhuis bij de volgende start</button>
+          <button class="secondary hidden" id="gg-annuleer">Verhuis annuleren</button>
+        </div>
+      </div>
+      <h3>Back-up</h3>
+      <p class="muted small">LANcelot bewaart elke dag bij het opstarten zelf een back-up (de laatste tien). Download er af en toe een naar een usb-stick: dan ben je niets kwijt als de pc stukgaat. Je Gemini-sleutel gaat nooit mee in een back-up.</p>
+      <div class="actions">
+        <a class="button" id="bu-download" href="/back-up">Download een back-up</a>
+        <button class="secondary" id="bu-nu">Bewaar nu een back-up</button>
+        <button class="secondary" id="bu-open">Map met back-ups</button>
+        <label class="file-button secondary"><input id="bu-file" type="file" accept=".zip,application/zip" hidden>Back-up terugzetten…</label>
+      </div>
+      <p class="notice hidden" id="bu-klaar"></p>
+      <p class="error" id="bu-error"></p>
+      <ul class="file-list" id="bu-lijst"></ul>
+    </div>
+    <div class="panel form" id="update-panel">
+      <h3>LANcelot bijwerken</h3>
+      <p class="muted small">Haal de nieuwste versie op (daar is internet voor nodig). Ze wordt pas geïnstalleerd de volgende keer dat je LANcelot start, dus nooit midden in een les. Je gegevens blijven altijd staan.</p>
+      <p id="up-status"></p>
+      <p class="error" id="up-error"></p>
+      <div class="actions">
+        <button class="secondary" id="up-zoek">Zoek naar een update</button>
+        <button class="hidden" id="up-download">Download de update</button>
+        <button class="secondary hidden" id="up-annuleer">Update annuleren</button>
+      </div>
+    </div>
+    <div class="panel form">
+      <h3>Eerste keer en netwerk</h3>
+      <p class="muted small">Leerlingen geraken niet binnen? Vaak houdt de Windows Firewall ze tegen. Met de knop zet LANcelot de firewall zelf goed; Windows vraagt eerst om toestemming.</p>
+      <p class="error" id="fw-error"></p>
+      <div class="actions">
+        <button class="secondary" id="fw-zet">Firewall goed zetten</button>
+        <a class="button secondary" href="/netwerk">Netwerk werkt niet?</a>
+        <a class="button secondary" href="/welkom">Wizard voor de eerste keer</a>
+        <a class="button secondary" href="/privacy">Privacy</a>
+      </div>
+    </div>
   </section>
 
   <section id="maker" class="hidden">
@@ -521,6 +582,7 @@
 <script src="/js/doel-kies.js"></script>
 <script src="/js/maker.js"></script>
 <script src="/js/lesmap.js"></script>
+<script src="/js/beheer.js"></script>
 <script src="/js/opwarmer.js"></script>
 <script src="/js/overzicht.js"></script>
 </body>
