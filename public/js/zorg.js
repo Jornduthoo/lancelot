@@ -146,7 +146,8 @@ function kaart(l) {
 
   if (isOpen) box.appendChild(detail(l));
   box.addEventListener('click', ev => {
-    if (ev.target.closest('button, a')) return;
+    // Klikken in het detail (bv. een notitie typen) laat de kaart open.
+    if (ev.target.closest('button, a, .zg-detail')) return;
     open = isOpen ? '' : l.key;
     render();
     if (open) document.querySelector('.zg-kaart.open')?.scrollIntoView({ block: 'nearest' });
