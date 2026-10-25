@@ -198,6 +198,17 @@ Tip: een klas die goed en vlot antwoordt, houdt de poort. Bij veel foute antwoor
 4. Wie bovenaan komt, verkoopt zijn stenen vanzelf en kan in de smidse een betere boor, tank, laadruim of pantser kopen.
 5. Op het bord zie je alle mijnen naast elkaar: wie diep zit, wie veel gangen graaft, en waar elke boor nu is.
 
+## Pixelridder
+
+1. Kies op het startscherm **De Arena** en dan **Pixelridder**, kies de speeltijd (1 tot 10 minuten) en klik op de quiz.
+2. Leerlingen scannen de QR-code. In de lobby zien ze hun eigen ridder. Klik op **Spring erin!** Na drie tellen rennen ze weg.
+3. Chromebook: ← → lopen, spatie of ↑ springen (langer drukken = hoger), X of Shift schieten met het plasmazwaard. Gsm: links de pijlen, rechts springen en schieten.
+4. Wie van onder tegen een runeblok springt, krijgt een vraag. Juist: er komt een power-up uit het blok (💎 groter, 🔥 schieten, ⭐ even onkwetsbaar). Fout: even wachten en het blok geeft maar één munt. Tijdens een vraag staat de wereld van die leerling stil.
+5. Op het einde van elke wereld staat de runepoort naar een nieuwe, moeilijkere wereld. Wie valt, begint terug bij de laatste vlag (−50 punten).
+6. Op het bord zie je bovenaan een racebalk met alle ridders, groot de koploper en daaronder twee andere leerlingen die afwisselen. Er speelt retromuziek op het bord (zet het geluid uit met 🔊). Leerlingen kunnen zelf muziek aanzetten met 🎵.
+
+Tip: iedereen speelt dezelfde werelden en ziet klasgenoten als doorschijnende ridders, maar je kan elkaar niet hinderen. Zwakkere spelers halen punten met juiste antwoorden.
+
 ## Voorkennis activeren
 
 1. Klik op het startscherm op **Voorkennis activeren**.

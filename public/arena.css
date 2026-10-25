@@ -1,9 +1,9 @@
 /* Gauntlet en Ridder-Royale: gedeelde stijl voor de leerling en het bord. */
 
 /* Op het leerlingscherm: als een van deze spellen loopt, verdwijnt de rest. */
-body[data-gt="1"] main > :not(#gauntlet), body[data-ry="1"] main > :not(#royale), body[data-sv="1"] main > :not(#sterren), body[data-rs="1"] main > :not(#slang), body[data-bs="1"] main > :not(#storm) { display: none !important; }
-body:not([data-gt="1"]) #gauntlet, body:not([data-ry="1"]) #royale, body:not([data-sv="1"]) #sterren, body:not([data-rs="1"]) #slang, body:not([data-bs="1"]) #storm { display: none !important; }
-#gauntlet, #royale, #sterren, #slang, #storm { display: contents; }
+body[data-gt="1"] main > :not(#gauntlet), body[data-ry="1"] main > :not(#royale), body[data-sv="1"] main > :not(#sterren), body[data-rs="1"] main > :not(#slang), body[data-bs="1"] main > :not(#storm), body[data-px="1"] main > :not(#pixel) { display: none !important; }
+body:not([data-gt="1"]) #gauntlet, body:not([data-ry="1"]) #royale, body:not([data-sv="1"]) #sterren, body:not([data-rs="1"]) #slang, body:not([data-bs="1"]) #storm, body:not([data-px="1"]) #pixel { display: none !important; }
+#gauntlet, #royale, #sterren, #slang, #storm, #pixel { display: contents; }
 
 .ak-game { position: fixed; inset: 0; z-index: 20; display: flex; flex-direction: column; background: #03050b; user-select: none; -webkit-user-select: none; }
 .ak-game.hidden { display: none; }
@@ -211,3 +211,29 @@ body:not([data-pw="1"]) #poort, body:not([data-nv="1"]) #vlucht, body:not([data-
 @media (hover: none), (pointer: coarse) { .bs-pad { display: flex; } }
 #bs-game.low .ls-hud { box-shadow: 0 2px 22px rgba(255, 77, 109, .7); }
 #bs-game .ak-question { z-index: 6; }
+
+/* Pixelridder */
+.px-stage { background: #03050b; }
+.ak-game .px-stage canvas { left: 0; top: 0; image-rendering: pixelated; image-rendering: crisp-edges; }
+.px-hud { gap: 10px; }
+.px-chip { font-size: .95rem; color: var(--gold); white-space: nowrap; }
+.px-world { color: var(--cyan); font-size: .8rem; }
+.px-power { display: flex; gap: 4px; font-size: .95rem; }
+.px-power b { opacity: .25; filter: grayscale(1); }
+.px-power b.on { opacity: 1; filter: none; }
+.px-power b.hot { filter: drop-shadow(0 0 6px #ff9a3d); }
+.px-power b.star { animation: breathe .5s ease-in-out infinite; filter: drop-shadow(0 0 8px #ffd166); }
+.px-music { padding: 2px 8px; min-height: 0; font-size: 1rem; opacity: .45; background: transparent; box-shadow: inset 0 0 0 1px var(--line); clip-path: none; }
+.px-music.on { opacity: 1; box-shadow: inset 0 0 0 1px var(--gold); }
+#px-lobby-knight { display: block; margin: 6px auto 0; image-rendering: pixelated; }
+.px-pad { position: absolute; left: 0; right: 0; bottom: 0; display: none; justify-content: space-between; align-items: flex-end; padding: 10px 12px calc(12px + env(safe-area-inset-bottom)); pointer-events: none; z-index: 3; }
+.px-dpad { display: flex; width: 190px; height: 86px; border-radius: 43px; background: rgba(76, 201, 255, .12); box-shadow: inset 0 0 0 2px rgba(76, 201, 255, .45); pointer-events: auto; touch-action: none; overflow: hidden; }
+.px-dpad span { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: #fff; user-select: none; }
+.px-dpad span.down { background: rgba(76, 201, 255, .35); }
+.px-ab { display: flex; gap: 12px; align-items: flex-end; pointer-events: auto; }
+.px-a { width: 96px !important; height: 96px !important; font-size: 2.4rem !important; background: radial-gradient(circle at 40% 35%, #fff3b0, #ffb703); color: #2a1600 !important; box-shadow: 0 0 22px rgba(255, 201, 74, .6); }
+.px-b { width: 70px !important; height: 70px !important; margin-bottom: 30px; background: radial-gradient(circle at 40% 35%, #ffb08a, #ff5a1a); box-shadow: 0 0 18px rgba(255, 90, 26, .55); }
+.px-a.down, .px-b.down { transform: scale(.92); filter: brightness(1.3); }
+@media (hover: none), (pointer: coarse) { .px-pad { display: flex; } }
+@media (max-width: 520px), (max-height: 420px) { .px-dpad { width: 160px; height: 74px; } .px-a { width: 82px !important; height: 82px !important; } .px-b { width: 60px !important; height: 60px !important; } .px-world, .px-power { display: none; } }
+#px-game .ak-question { z-index: 6; }
