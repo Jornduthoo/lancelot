@@ -2,10 +2,11 @@
 // Leerlingen tikken bij het aanmelden hun naam aan, zodat hun antwoorden in elk spel bij dezelfde leerling horen.
 const fs = require('fs');
 const path = require('path');
+const gegevens = require('./gegevens');
 const niveaus = require('./niveaus');
 const doelen = require('./doelen');
 
-const DIR = path.join(__dirname, '..', 'klas');
+const DIR = gegevens.pad('klas');
 const FILE = path.join(DIR, 'klas.json');
 const MAX = 40;
 

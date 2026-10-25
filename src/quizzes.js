@@ -3,6 +3,7 @@
 // zodat een quiz verplaatsen niets kapotmaakt.
 const fs = require('fs');
 const path = require('path');
+const gegevens = require('./gegevens');
 const { library } = require('./library');
 const doelen = require('./doelen');
 const { extract } = require('./ai-json');
@@ -10,7 +11,7 @@ const niveaus = require('./niveaus');
 const settings = require('./settings');
 const klas = require('./klas');
 
-const DIR = path.join(__dirname, '..', 'quizzes');
+const DIR = gegevens.pad('quizzes');
 
 function text(value, max) {
   return typeof value === 'string' || typeof value === 'number' ? String(value).trim().slice(0, max) : '';

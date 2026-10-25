@@ -41,7 +41,7 @@
         <li><strong>Zelfde wifi?</strong> Kijk op een leerlingtoestel met welk wifi-netwerk het verbonden is. Een gastnetwerk en het netwerk van de leerkrachten zijn vaak gescheiden.</li>
         <li><strong>Probeer een ander adres.</strong> Staan er in de lobby meerdere adressen onder de QR-code? Klik op een ander adres, meestal dat met Wi-Fi of Ethernet erbij. LANcelot onthoudt het adres dat werkt.</li>
         <li><strong>VPN uit.</strong> Een VPN (bijvoorbeeld NordVPN) kan toestellen in de klas blokkeren. Zet hem uit zolang je speelt.</li>
-        <li><strong>Firewall.</strong> Heb je de vraag van Windows de eerste keer weggeklikt? Zoek in Start naar <em>Een app toestaan via Windows Firewall</em>, klik op <em>Instellingen wijzigen</em> en zet een vinkje bij Node.js, bij <em>Privé</em> en <em>Openbaar</em>.</li>
+        <li><strong>Firewall.</strong> Heb je de vraag van Windows de eerste keer weggeklikt? Zoek in Start naar <em>Een app toestaan via Windows Firewall</em>, klik op <em>Instellingen wijzigen</em> en zet een vinkje bij Node.js, bij <em>Privé</em> en <em>Openbaar</em>. Of laat LANcelot het zelf doen (Windows vraagt eerst om toestemming): <button class="secondary" id="nw-fw">Firewall goed zetten</button> <span class="error" id="nw-fw-error"></span></li>
         <li><strong>Laat de school het netwerk openzetten.</strong> Veel schoolnetwerken zetten "client isolation" aan: toestellen mogen dan wel op internet, maar niet bij elkaar. Vraag ICT of toestellen in de klas deze pc mogen bereiken op poort 3000. Dat is de beste oplossing, want dan werkt het elke les.</li>
       </ol>
     </div>
@@ -75,6 +75,15 @@
   const $ = id => document.getElementById(id);
   $('brand').addEventListener('click', () => { location.href = '/host'; });
   $('to-home').addEventListener('click', () => { location.href = '/host'; });
+  $('nw-fw').addEventListener('click', () => {
+    $('nw-fw').disabled = true;
+    $('nw-fw-error').textContent = '';
+    socket.emit('firewall-zet', null, res => {
+      $('nw-fw').disabled = false;
+      $('nw-fw-error').textContent = res.error || '';
+      if (res.ok) $('nw-fw').textContent = '✓ Firewall staat goed';
+    });
+  });
 
   // Wat voor netwerk is dit adres? Een korte uitleg helpt het juiste adres kiezen.
   function soort(a) {

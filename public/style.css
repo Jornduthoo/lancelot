@@ -358,6 +358,13 @@ span.play { padding: 13px 22px; display: flex; align-items: center; }
 .file-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 6px; width: 100%; }
 .file-list li { display: flex; justify-content: space-between; align-items: center; background: rgba(76, 201, 255, .08); padding: 6px 6px 6px 12px; }
 .file-list button { padding: 4px 12px; }
+.form label.file-button.secondary { background: rgba(76, 201, 255, .08); color: var(--text); box-shadow: inset 0 0 0 1px var(--line); }
+.poster-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 8px; }
+.poster-grid:empty { display: none; }
+.poster-grid figure { position: relative; margin: 0; aspect-ratio: 1; }
+.poster-grid img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.poster-grid button { position: absolute; top: 2px; right: 2px; padding: 2px 8px; }
+#gg-map { word-break: break-all; }
 .answer-edit { flex-direction: row !important; align-items: center; padding: 8px 10px; }
 .answer-edit.a0 { background: var(--a0); }
 .answer-edit.a1 { background: var(--a1); }

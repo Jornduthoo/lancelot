@@ -2,10 +2,11 @@
 // Sessies staan als JSON-bestanden in de map rondetafel/.
 const fs = require('fs');
 const path = require('path');
+const gegevens = require('./gegevens');
 const { library } = require('./library');
 const { extract } = require('./ai-json');
 
-const DIR = path.join(__dirname, '..', 'rondetafel');
+const DIR = gegevens.pad('rondetafel');
 const TYPES = ['keuze', 'woorden', 'open', 'schaal'];
 const TYPE_NAMES = { keuze: 'Meerkeuze', woorden: 'Woordwolk', open: 'Open vraag', schaal: 'Schaal' };
 const MAX_WORDS = 3;  // woorden per leerling per woordwolk

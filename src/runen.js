@@ -5,13 +5,14 @@
 // Alles staat in de map runen/ (in .gitignore): één bestand per schooljaar en de woorden van de week van de leerkracht.
 const fs = require('fs');
 const path = require('path');
+const gegevens = require('./gegevens');
 const klas = require('./klas');
 const logboek = require('./logboek');
 const doelen = require('./doelen');
 const niveaus = require('./niveaus');
 const ingebouwd = require('./runen-woorden');
 
-const DIR = path.join(__dirname, '..', 'runen');
+const DIR = gegevens.pad('runen');
 const LIJST = path.join(DIR, 'weeklijst.json');
 const POGINGEN = 6;
 const LEVELS = {

@@ -5,11 +5,12 @@ const fs = require('fs');
 const fsp = fs.promises;
 const os = require('os');
 const path = require('path');
+const gegevens = require('./gegevens');
 const crypto = require('crypto');
 const settings = require('./settings');
 
 // Wat we bij de vorige keer zagen, om te weten wat aan welke kant veranderd of verwijderd is.
-const STATE = path.join(__dirname, '..', 'lesmap-sync.json');
+const STATE = gegevens.pad('lesmap-sync.json');
 const TRASH = '_prullenbak';
 const META = '_mappen.json';
 const FILE_RE = /^[^_\\/][^\\/]*\.json$/;
@@ -199,7 +200,8 @@ function choose(folder) {
   if (!path.isAbsolute(clean)) throw new Error('Geef het volledige pad van de map, bv. C:\\Users\\jij\\OneDrive\\LANcelot.');
   const resolved = path.resolve(clean);
   // Nooit de mappen van LANcelot zelf als lesmap.
-  if (resolved.startsWith(path.resolve(__dirname, '..'))) throw new Error('Kies een map buiten LANcelot, bv. in je OneDrive.');
+  const binnen = dir => resolved === dir || resolved.startsWith(dir + path.sep);
+  if (binnen(gegevens.APP) || binnen(gegevens.DATA)) throw new Error('Kies een map buiten LANcelot, bv. in je OneDrive.');
   fs.mkdirSync(resolved, { recursive: true });
   settings.write({ lesmap: resolved });
   status = { at: 0, pulled: 0, pushed: 0, removed: 0, error: '' };

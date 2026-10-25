@@ -12,12 +12,13 @@
 // zijn optioneel. Een leerling op een niveau zonder eigen blokken krijgt het Schildknaap-blad.
 const fs = require('fs');
 const path = require('path');
+const gegevens = require('./gegevens');
 const { library } = require('./library');
 const { extract } = require('./ai-json');
 const doelen = require('./doelen');
 const { NIVEAUS, NAMES } = require('./niveaus');
 
-const DIR = path.join(__dirname, '..', 'oefenbladen');
+const DIR = gegevens.pad('oefenbladen');
 const TYPES = ['tekst', 'invullen', 'meerkeuze', 'juistfout', 'verbinden', 'woorden', 'overschrijven', 'open'];
 const TYPE_NAMES = {
   tekst: 'Tekst', invullen: 'Invullen', meerkeuze: 'Meerkeuze', juistfout: 'Juist of fout', verbinden: 'Verbinden',

@@ -341,3 +341,14 @@ Je klaslijst, het logboek, de resultaten en de avatars gaan nooit mee: die blijv
 3. Open op de bord-pc dezelfde pagina (Toernooi, Oefenbladen of De Ronde Tafel) en klik op **⬆ Importeren**, of sleep het bestand op de lijst.
 
 Alles waar je mee speelt, staat op de pc waar LANcelot draait, in de map LANcelot: `quizzes`, `oefenbladen`, `rondetafel` en `resultaten`.
+
+## Bijwerken, back-ups en je gegevens
+
+Alles staat in **Instellingen**:
+
+- **LANcelot bijwerken:** klik op *Zoek naar een update* en daarna op *Download de update* (internet nodig). De update wordt pas geïnstalleerd de volgende keer dat je LANcelot start, nooit midden in een les. Je gegevens blijven staan; de vervangen bestanden worden bewaard in `_update\oud`.
+- **Mijn gegevens:** zet je klaslijst, logboek, quizzen, resultaten en posters in een aparte map (standaard `%LOCALAPPDATA%\LANcelot`). Dan raakt een update of herinstallatie ze nooit. De gegevens worden gekopieerd bij de volgende start; de oude mappen naast de app blijven staan.
+- **Back-up:** elke dag bij het opstarten maakt LANcelot zelf een back-up (de laatste tien blijven bewaard). Met *Download een back-up* zet je er een op een usb-stick. *Back-up terugzetten* gebeurt bij de volgende start; LANcelot bewaart eerst nog een back-up van hoe het ervoor was. Je Gemini-sleutel gaat nooit mee in een back-up.
+- **Posters:** voeg eigen foto's toe voor aan de muren van de arena (hooguit 40). Ze worden vierkant bijgesneden en klein gemaakt.
+- **Firewall goed zetten:** één klik, Windows vraagt eerst om toestemming.
+- **Wizard voor de eerste keer** en **Privacy**: uitleg over wat LANcelot bewaart over leerlingen, handig voor de directie of de privacyverantwoordelijke.

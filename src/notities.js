@@ -1,8 +1,9 @@
 // Notities per leerling voor de zorg (observaties, afspraken), alleen op deze pc in klas/notities.json (map klas/ staat in .gitignore).
 const fs = require('fs');
 const path = require('path');
+const gegevens = require('./gegevens');
 
-const FILE = path.join(__dirname, '..', 'klas', 'notities.json');
+const FILE = gegevens.pad('klas', 'notities.json');
 const MAX = 200; // per leerling
 
 function read() {
