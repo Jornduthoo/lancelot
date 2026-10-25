@@ -173,6 +173,13 @@ body:not([data-pw="1"]) #poort, body:not([data-nv="1"]) #vlucht, body:not([data-
 .db-full { margin: 0; padding: 14px; text-align: center; font-weight: 700; color: var(--gold); }
 .db-full.hidden { display: none; }
 .db-stage { touch-action: none; }
+.db-pad { display: none; position: absolute; left: 0; right: 0; bottom: 0; padding: 8px; justify-content: space-between; align-items: flex-end; pointer-events: none; z-index: 4; }
+.db-pad button { pointer-events: auto; width: 54px; height: 54px; padding: 0; border-radius: 14px; font-size: 1.4rem; color: #fff; background: rgba(6, 10, 19, .55); border: 1px solid rgba(76, 201, 255, .5); }
+.db-pad button.down { transform: scale(.93); filter: brightness(1.5); }
+.db-pad-move { display: flex; gap: 6px; }
+.db-pad .db-up { width: 78px; height: 78px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 1.8rem; background: rgba(255, 140, 66, .3); border: 2px solid #ffc94a; box-shadow: 0 0 16px rgba(255, 201, 74, .5); }
+.db-pad .db-up small { font-family: var(--tech); font-size: .55rem; text-transform: uppercase; }
+@media (hover: none), (pointer: coarse) { .db-pad { display: flex; } }
 @media (max-height: 500px) { .db-panel .pw-tip { display: none; } }
 @media (orientation: portrait) {
   .db-stage.pw-stage { aspect-ratio: 1 / 1; max-height: 52vh; }
