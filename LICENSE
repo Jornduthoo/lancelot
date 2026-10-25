@@ -1,0 +1,47 @@
+LANcelot
+Copyright (c) 2026 Jorn Duthoo. Alle rechten voorbehouden. / All rights reserved.
+
+NEDERLANDS
+
+Deze software, met inbegrip van de broncode, het ontwerp, de naam en het logo
+"LANcelot", de spelconcepten, afbeeldingen, iconen, teksten en documentatie,
+is eigendom van Jorn Duthoo.
+
+Dat de broncode openbaar te bekijken is, geeft niemand het recht om ze te
+gebruiken. Zonder voorafgaande schriftelijke toestemming van de eigenaar is
+het niet toegestaan om deze software of delen ervan te kopiëren, te wijzigen,
+te verspreiden, te verkopen, in licentie te geven, te publiceren of er
+afgeleide werken van te maken.
+
+Leerkrachten en scholen die een exemplaar rechtstreeks van de eigenaar kregen,
+mogen dat exemplaar gratis gebruiken in hun eigen lessen. Dat gebruiksrecht
+is persoonlijk, niet overdraagbaar en kan worden ingetrokken.
+
+Onderdelen van derden (zoals de npm-pakketten in package.json) vallen onder
+hun eigen licentie.
+
+DE SOFTWARE WORDT GELEVERD "ZOALS ZE IS", ZONDER ENIGE GARANTIE. DE EIGENAAR
+IS NIET AANSPRAKELIJK VOOR SCHADE DIE VOORTVLOEIT UIT HET GEBRUIK ERVAN.
+
+Toestemming vragen: via github.com/Jornduthoo.
+
+ENGLISH
+
+This software, including its source code, design, the name and logo
+"LANcelot", game concepts, images, icons, texts and documentation, is the
+property of Jorn Duthoo.
+
+Public visibility of the source code does not grant any right to use it.
+Without prior written permission from the owner, you may not copy, modify,
+distribute, sell, sublicense, publish, or create derivative works of this
+software or any part of it.
+
+Teachers and schools who received a copy directly from the owner may use that
+copy free of charge in their own lessons. This right of use is personal,
+non-transferable and revocable.
+
+Third-party components (such as the npm packages in package.json) are covered
+by their own licenses.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND. THE OWNER IS
+NOT LIABLE FOR ANY DAMAGE ARISING FROM ITS USE.
