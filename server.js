@@ -174,6 +174,31 @@ const oefenblad = new OefenbladLive(io, o => {
   return finished(file);
 });
 
+// Elk spel met leerlingen, bij het adres van zijn docentenscherm. Een nieuw spel komt hier ook bij:
+// zo werken de grijze (bezette) namen bij het aanmelden en de knop "Namen" op het bord meteen mee.
+const SPELLEN = { '/host': game, '/toren': toren, '/schattenjacht': schat, '/laserslag': laserslag, '/ridderrace': race, '/kristalroof': roof, '/verrader': verrader, '/burchtbouwers': burcht, '/duel': duel, '/packnight': knight, '/strijdrossen': rossen, '/gauntlet': gauntlet, '/ridder-royale': royale, '/sterrenvreter': sterren, '/ridderslang': slang, '/burchtstorm': storm, '/neonduel': neon, '/leraarbaas': baas, '/cybergalaga': galaga, '/bomberknight': bomber, '/rijk': rijk, '/oefenblad': oefenblad };
+const online = socketId => !!(socketId && io.sockets.sockets.get(socketId));
+function* spelers() {
+  for (const spel of Object.values(SPELLEN)) {
+    if (spel.phase === 'idle' || !(spel.players instanceof Map)) continue;
+    for (const [id, p] of spel.players) yield { id, p };
+  }
+}
+// Namen die al bij een verbonden leerling horen. De eigen naam telt niet mee, zodat terugkomen na een wifi-onderbreking gewoon werkt.
+function bezetteNamen(playerId) {
+  const uit = new Set();
+  for (const { id, p } of spelers()) if (id !== playerId && p.name && online(p.socketId)) uit.add(p.name.toLowerCase());
+  return [...uit];
+}
+// Kiest een leerling een naam die bij een speler zonder verbinding hoort (andere Chromebook, pagina herladen),
+// dan neemt hij die speler terug over: zijn punten blijven en de naam is niet "al bezet".
+function oudeSpeler(name) {
+  const want = String(name || '').trim().toLowerCase();
+  if (!want || !klas.names().some(n => n.toLowerCase() === want)) return null;
+  for (const { id, p } of spelers()) if (p.name && p.name.toLowerCase() === want && !online(p.socketId)) return id;
+  return null;
+}
+
 // Tegen gokken: elk spel krijgt dezelfde regels (wachten na fout, vraag komt terug, seintje bij snel gokken).
 const gok = antigok.create(io);
 oefenblad.gok = gok;
@@ -413,6 +438,8 @@ io.on('connection', socket => {
   // een spel: zo weet de leerling al of een onthouden naam op de lijst staat voordat hij automatisch meedoet.
   socket.emit('klas-namen', klas.names());
   socket.on('klas-namen', (_, cb) => typeof cb === 'function' && cb(klas.names()));
+  socket.on('klas-bezet', (playerId, cb) => typeof cb === 'function' && cb(bezetteNamen(playerId)));
+  socket.on('klas-claim', (name, cb) => typeof cb === 'function' && cb({ id: oudeSpeler(name) }));
   const host = socket.handshake.query.role === 'host' && isLocal(socket.handshake.address);
 
   // Een leerling kwam binnen: via welk adres van deze pc? Dat adres werkt dus, en komt voortaan vooraan.
@@ -921,6 +948,17 @@ io.on('connection', socket => {
     socket.on('next', () => game.next());
     socket.on('reveal', () => game.reveal());
     socket.on('kick', id => game.kick(id));
+    // De knop "Namen" op elk spelbord: ook tijdens het spel een verkeerde naam wegklikken.
+    socket.on('namen-lijst', (pad, cb) => {
+      const spel = SPELLEN[pad];
+      if (typeof cb !== 'function') return;
+      if (!spel || !(spel.players instanceof Map)) return cb({ geen: true });
+      cb({ spelers: spel.phase === 'idle' ? [] : [...spel.players].map(([id, p]) => ({ id, name: p.name, online: online(p.socketId) })) });
+    });
+    socket.on('namen-weg', ({ pad, id } = {}) => {
+      const spel = SPELLEN[pad];
+      if (spel && typeof id === 'string') spel.kick(id);
+    });
     socket.on('restart', () => game.quiz && game.load(game.quiz));
     socket.on('close', () => game.stop());
     socket.on('stop', (_, cb) => cb && cb({ file: game.stop() }));

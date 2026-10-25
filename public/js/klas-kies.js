@@ -3,6 +3,8 @@
 // Gebruikt socket uit player.js.
 let klasNamen = [];
 
+let klasBezet = new Set(); // namen die al bij een andere, verbonden leerling horen
+
 function klasPaint() {
   for (const form of document.querySelectorAll('form.welcome')) {
     const input = form.querySelector('input');
@@ -23,21 +25,59 @@ function klasPaint() {
       const b = document.createElement('button');
       b.type = 'button';
       b.textContent = naam;
-      b.addEventListener('click', () => {
-        input.value = naam;
-        form.requestSubmit();
-      });
+      if (klasBezet.has(naam.toLowerCase())) {
+        b.disabled = true;
+        b.className = 'bezet';
+        b.title = 'Deze naam is al binnen. Is dit jouw naam? Vraag de leerkracht om hem weg te klikken.';
+      }
+      b.addEventListener('click', () => klasPick(form, input, naam));
       box.appendChild(b);
+    }
+    if (klasBezet.size) {
+      const hint = document.createElement('p');
+      hint.className = 'muted small klas-hint';
+      hint.textContent = 'Grijze namen zijn al binnen. Staat jouw naam grijs? Vraag de leerkracht om hem weg te klikken.';
+      box.appendChild(hint);
     }
     input.placeholder = 'Niet in de lijst? Typ je naam';
   }
 }
+
+// Hoort de naam bij een speler die even weg was (andere Chromebook, pagina herladen), dan neemt de leerling die speler terug over.
+function klasPick(form, input, naam) {
+  socket.emit('klas-claim', naam, res => {
+    if (res && typeof res.id === 'string' && res.id) {
+      playerId = res.id;
+      store('lancelot-id', res.id);
+    }
+    input.value = naam;
+    form.requestSubmit();
+  });
+}
+
+// Welke namen zijn al bezet? Alleen vragen zolang een aanmeldscherm open staat.
+let klasBezetKey = '';
+function klasCheck() {
+  if (!klasNamen.length || !socket.connected) return;
+  const open = [...document.querySelectorAll('form.welcome')].some(f => !f.classList.contains('hidden') && f.offsetParent !== null);
+  if (!open) return;
+  socket.emit('klas-bezet', playerId, namen => {
+    const lijst = Array.isArray(namen) ? namen : [];
+    const key = lijst.slice().sort().join('|');
+    if (key === klasBezetKey) return;
+    klasBezetKey = key;
+    klasBezet = new Set(lijst);
+    klasPaint();
+  });
+}
+setInterval(klasCheck, 3000);
 
 function klasLoad() {
   socket.emit('klas-namen', null, namen => {
     klasNamen = Array.isArray(namen) ? namen : [];
     klasForget();
     klasPaint();
+    klasCheck();
   });
 }
 
