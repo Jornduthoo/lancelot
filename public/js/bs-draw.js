@@ -131,22 +131,64 @@ const BsDraw = (() => {
     const fw = cell * W, fh = cell * VIS;
     const c = canvas(fw + m * 2, fh + m + top);
     const g = c.getContext('2d');
-    // kantelen
+    // rand van gemetselde steen: blokken met een lichte bovenkant en donkere voegen
+    const stone = (x, y, w, h) => {
+      const fg = g.createLinearGradient(x, 0, x + w, 0);
+      fg.addColorStop(0, '#2a3044'); fg.addColorStop(.5, '#3e4660'); fg.addColorStop(1, '#262c3e');
+      g.fillStyle = fg;
+      g.fillRect(x, y, w, h);
+      const bh = Math.max(3, cell * .5), bw = Math.max(4, cell * .9);
+      let row = 0;
+      for (let yy = y; yy < y + h; yy += bh, row++) {
+        for (let xx = x + (row % 2 ? bw / 2 : 0) - bw; xx < x + w; xx += bw) {
+          const v = Math.sin(xx * 12.9898 + yy * 78.233) * 43758.5453 % 1;
+          g.fillStyle = v > 0 ? `rgba(255,255,255,${v * .08})` : `rgba(0,0,0,${-v * .18})`;
+          g.fillRect(Math.round(xx), Math.round(yy), Math.round(bw), Math.round(bh));
+        }
+        g.fillStyle = 'rgba(0,0,0,.5)';
+        g.fillRect(x, yy + bh - 1, w, 1);
+        g.fillStyle = 'rgba(255,255,255,.07)';
+        g.fillRect(x, yy, w, 1);
+        for (let xx = x + (row % 2 ? bw / 2 : 0); xx < x + w; xx += bw) {
+          g.fillStyle = 'rgba(0,0,0,.3)';
+          g.fillRect(Math.round(xx), yy, 1, bh);
+        }
+      }
+    };
+    stone(0, top * .55, c.width, c.height - top * .55);
+    // kantelen met een lichte kant en schaduw
     const merl = Math.max(3, cell * .9);
-    const mg = g.createLinearGradient(0, 0, 0, top);
-    mg.addColorStop(0, '#5d6680');
-    mg.addColorStop(1, '#2a3042');
-    g.fillStyle = mg;
-    for (let x = 0; x < c.width; x += merl * 2) g.fillRect(x, 0, Math.min(merl, c.width - x), top);
-    // rand
-    const fg = g.createLinearGradient(0, 0, c.width, 0);
-    fg.addColorStop(0, '#20263a');
-    fg.addColorStop(.5, '#3b4460');
-    fg.addColorStop(1, '#20263a');
-    g.fillStyle = fg;
-    g.fillRect(0, top * .55, c.width, c.height - top * .55);
+    for (let x = 0; x < c.width; x += merl * 2) {
+      const mw = Math.min(merl, c.width - x);
+      const mg = g.createLinearGradient(0, 0, 0, top);
+      mg.addColorStop(0, '#6a7390'); mg.addColorStop(1, '#2a3042');
+      g.fillStyle = mg;
+      g.fillRect(x, 0, mw, top);
+      g.fillStyle = 'rgba(255,255,255,.22)';
+      g.fillRect(x, 0, mw, Math.max(1, cell * .08));
+      g.fillStyle = 'rgba(0,0,0,.3)';
+      g.fillRect(x + mw - Math.max(1, cell * .1), 0, Math.max(1, cell * .1), top);
+    }
     g.fillStyle = 'rgba(255,201,74,.75)';
     g.fillRect(0, top * .55, c.width, Math.max(1, cell * .06));
+    // schietgaten in de zijkanten, en een edelsteen in de kleur van de ridder bovenaan
+    if (m >= 5) {
+      for (let y = top + cell * 2; y < top + fh - cell; y += cell * 4) {
+        for (const x of [m / 2, c.width - m / 2]) {
+          g.fillStyle = '#05070f';
+          g.fillRect(x - 1, y, 2, cell * 1.2);
+          g.fillRect(x - 2, y + cell * .45, 4, 2);
+        }
+      }
+    }
+    {
+      const gx = c.width / 2, gy = top * .55 + Math.max(1, cell * .06) + 1, gs = Math.max(2, cell * .28);
+      Glow.glow(g, gx, gy, gs * 3, color, .6);
+      g.fillStyle = color;
+      g.beginPath(); g.moveTo(gx, gy - gs); g.lineTo(gx + gs, gy); g.lineTo(gx, gy + gs); g.lineTo(gx - gs, gy); g.closePath(); g.fill();
+      g.fillStyle = 'rgba(255,255,255,.7)';
+      g.beginPath(); g.moveTo(gx, gy - gs); g.lineTo(gx + gs * .4, gy - gs * .2); g.lineTo(gx, gy); g.closePath(); g.fill();
+    }
     // binnenkant
     const ig = g.createLinearGradient(0, top, 0, top + fh);
     ig.addColorStop(0, '#060a18');
@@ -159,6 +201,16 @@ const BsDraw = (() => {
     bg.addColorStop(1, Glow.rgba(color, .22));
     g.fillStyle = bg;
     g.fillRect(m, top, fw, fh);
+    // vage stenen achterwand van de toren
+    if (cell >= 10) {
+      g.fillStyle = 'rgba(140,160,220,.045)';
+      const bh = cell * .5;
+      let row = 0;
+      for (let y = top; y < top + fh; y += bh, row++) {
+        g.fillRect(m, Math.round(y), fw, 1);
+        for (let x = m + (row % 2 ? cell / 2 : 0); x < m + fw; x += cell) g.fillRect(Math.round(x), Math.round(y), 1, bh);
+      }
+    }
     // raster
     if (cell >= 8) {
       g.strokeStyle = 'rgba(120,170,255,.07)';
@@ -223,7 +275,17 @@ const BsDraw = (() => {
       const base = h * .97;
       let seed = 7;
       const rnd = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
-      // twee lagen torens, de achterste flauwer
+      // maan en bergen
+      Glow.glow(g, w * .82, h * .2, h * .2, '#ffe2b0', .35);
+      g.fillStyle = '#f4e6c8';
+      g.beginPath(); g.arc(w * .82, h * .2, h * .045, 0, 7); g.fill();
+      g.fillStyle = 'rgba(0,0,0,.18)';
+      g.beginPath(); g.arc(w * .82 + h * .012, h * .2 - h * .008, h * .012, 0, 7); g.arc(w * .82 - h * .015, h * .2 + h * .012, h * .008, 0, 7); g.fill();
+      g.fillStyle = '#121633';
+      g.beginPath(); g.moveTo(0, base);
+      for (let x = 0; x <= w + 40; x += w * .06) g.lineTo(x, base - h * (.18 + rnd() * .16));
+      g.lineTo(w, base); g.closePath(); g.fill();
+      // twee lagen torens, de achterste flauwer; sommige met een spits dak en een vaandel
       for (const [k, col, a] of [[.55, '#1a1f3d', .9], [.35, '#0d1124', 1]]) {
         g.globalAlpha = a;
         g.fillStyle = col;
@@ -231,9 +293,21 @@ const BsDraw = (() => {
         while (x < w) {
           const tw = w * (.03 + rnd() * .05), th = h * k * (.25 + rnd() * .6);
           g.fillRect(x, base - th, tw, th + h);
-          // kantelen
-          const mw = tw / 5;
-          for (let i = 0; i < 5; i += 2) g.fillRect(x + i * mw, base - th - mw * .8, mw, mw * .8);
+          if (rnd() < .45) {
+            // spits dak met een vlaggetje
+            g.beginPath(); g.moveTo(x - tw * .1, base - th); g.lineTo(x + tw / 2, base - th - tw * 1.2); g.lineTo(x + tw * 1.1, base - th); g.closePath(); g.fill();
+            const pole = Math.min(tw * .5, h * .03), fw = Math.min(tw * .3, h * .018), ptop = base - th - tw * 1.2 - pole;
+            g.fillStyle = '#4a5068';
+            g.fillRect(x + tw / 2 - .75, ptop, 1.5, pole);
+            g.fillStyle = ['#ff4d6d', '#4cc9ff', '#ffc94a', '#c77dff'][Math.floor(rnd() * 4)];
+            g.globalAlpha = a * .75;
+            g.beginPath(); g.moveTo(x + tw / 2 + .75, ptop); g.lineTo(x + tw / 2 + .75 + fw, ptop + fw * .3); g.lineTo(x + tw / 2 + .75, ptop + fw * .6); g.closePath(); g.fill();
+            g.globalAlpha = a;
+            g.fillStyle = col;
+          } else {
+            const mw = tw / 5;
+            for (let i = 0; i < 5; i += 2) g.fillRect(x + i * mw, base - th - mw * .8, mw, mw * .8);
+          }
           // vensters van neon
           if (k < .5) {
             for (let i = 0; i < 3; i++) {
@@ -243,10 +317,29 @@ const BsDraw = (() => {
               g.fillStyle = '#bfe8ff';
               g.fillRect(wx - 1.5, wy - 3, 3, 6);
               g.fillStyle = col;
+              g.fillRect(wx - .5, wy - 3, 1, 6);
+              g.fillRect(wx - 1.5, wy - .5, 3, 1);
             }
           }
+          // bruggetje naar de volgende toren
+          if (k < .5 && rnd() < .3) g.fillRect(x + tw, base - th * .55, w * .03, Math.max(2, h * .006));
           x += tw + w * (.005 + rnd() * .03);
         }
+      }
+      // voorgrond: een burchtmuur met kantelen en fakkels
+      g.globalAlpha = 1;
+      const wy = base - h * .05;
+      g.fillStyle = '#080a18';
+      g.fillRect(0, wy, w, h - wy);
+      const mw = Math.max(8, w * .012);
+      for (let x = 0; x < w; x += mw * 2) g.fillRect(x, wy - mw * .9, mw, mw * .9);
+      g.fillStyle = 'rgba(76,201,255,.35)';
+      g.fillRect(0, wy, w, 1);
+      for (let x = w * .06; x < w; x += w * .14) {
+        Glow.glow(g, x, wy + h * .015, h * .05, '#ff8a2a', .5);
+        Glow.glow(g, x, wy + h * .012, h * .012, '#fff2b0', .9);
+        g.fillStyle = '#3a2412';
+        g.fillRect(x - 1.5, wy + h * .015, 3, h * .02);
       }
       g.globalAlpha = 1;
       const hz = g.createLinearGradient(0, base - h * .25, 0, h);
