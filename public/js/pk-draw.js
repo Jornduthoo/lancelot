@@ -20,22 +20,49 @@ const PacDraw = (() => {
     let seed = W * 31 + H;
     const rnd = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
     for (let i = 0; i < 14; i++) Glow.glow(g, rnd() * c.width, rnd() * c.height, tile * (3 + rnd() * 5), ['#3c1a78', '#123a7a', '#5a1050'][i % 3], .5);
-    g.strokeStyle = 'rgba(76, 201, 255, .06)';
-    g.lineWidth = 1;
-    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (!wall(x, y)) g.strokeRect(x * tile + .5, y * tile + .5, tile - 1, tile - 1);
+    // Gangen: donkere plavuizen in iets verschillende tinten, met gruis en schaduw onder de muren.
+    const hash = (x, y, k) => { const v = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return v - Math.floor(v); };
+    const m = Math.max(1, tile * .04);
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+      if (wall(x, y)) continue;
+      const L = x * tile, T = y * tile;
+      g.fillStyle = `rgba(${90 + hash(x, y, 1) * 40 | 0}, ${110 + hash(x, y, 2) * 40 | 0}, 190, ${.08 + hash(x, y, 3) * .08})`;
+      g.fillRect(L + m, T + m, tile - m * 2, tile - m * 2);
+      g.fillStyle = 'rgba(180, 210, 255, .05)';
+      g.fillRect(L + m, T + m, tile - m * 2, m);
+      g.fillStyle = 'rgba(150, 180, 240, .1)';
+      for (let i = 0; i < 3; i++) g.fillRect(L + hash(x, y, 10 + i) * (tile - 2), T + hash(x, y, 20 + i) * (tile - 2), m, m);
+      if (wall(x, y - 1)) {
+        const sh = g.createLinearGradient(0, T, 0, T + tile * .45);
+        sh.addColorStop(0, 'rgba(0, 0, 0, .55)');
+        sh.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        g.fillStyle = sh;
+        g.fillRect(L, T, tile, tile * .45);
+      }
+    }
     g.fillStyle = 'rgba(127, 220, 255, .14)';
     for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (!wall(x, y)) g.fillRect((x + .5) * tile - 1, (y + .5) * tile - 1, 2, 2);
     // Hangar van de drones.
     let hx0 = W, hx1 = -1, hy0 = H, hy1 = -1;
     for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (maze[y][x] === 'h') { hx0 = Math.min(hx0, x); hx1 = Math.max(hx1, x); hy0 = Math.min(hy0, y); hy1 = Math.max(hy1, y); }
     if (hx1 >= 0) {
-      g.fillStyle = 'rgba(255, 77, 109, .07)';
-      g.fillRect(hx0 * tile, hy0 * tile, (hx1 - hx0 + 1) * tile, (hy1 - hy0 + 1) * tile);
-      g.setLineDash([tile * .25, tile * .2]);
-      g.strokeStyle = 'rgba(255, 77, 109, .45)';
-      g.lineWidth = Math.max(1, tile * .05);
-      g.strokeRect(hx0 * tile + 2, hy0 * tile + 2, (hx1 - hx0 + 1) * tile - 4, (hy1 - hy0 + 1) * tile - 4);
-      g.setLineDash([]);
+      // Een kerker met een rode gloed en een valhek ervoor.
+      const HX = hx0 * tile, HY = hy0 * tile, HW = (hx1 - hx0 + 1) * tile, HH = (hy1 - hy0 + 1) * tile;
+      g.fillStyle = 'rgba(255, 77, 109, .08)';
+      g.fillRect(HX, HY, HW, HH);
+      Glow.glow(g, HX + HW / 2, HY + HH / 2, Math.max(HW, HH) * .55, '#ff4d6d', .35, HH / Math.max(HW, HH));
+      g.strokeStyle = 'rgba(30, 34, 52, .9)';
+      g.lineWidth = Math.max(2, tile * .14);
+      g.beginPath();
+      for (let x = HX + tile * .6; x < HX + HW - tile * .3; x += tile * .7) { g.moveTo(x, HY); g.lineTo(x, HY + HH); }
+      for (const k of [.3, .7]) { g.moveTo(HX, HY + HH * k); g.lineTo(HX + HW, HY + HH * k); }
+      g.stroke();
+      g.strokeStyle = 'rgba(160, 175, 210, .45)';
+      g.lineWidth = Math.max(1, tile * .04);
+      g.stroke();
+      g.strokeStyle = 'rgba(255, 77, 109, .6)';
+      g.lineWidth = Math.max(1, tile * .06);
+      g.strokeRect(HX + 2, HY + 2, HW - 4, HH - 4);
     }
     // Muurblokken met een neonrand waar ze aan een gang grenzen.
     const wg = g.createLinearGradient(0, 0, c.width, c.height);
@@ -44,6 +71,31 @@ const PacDraw = (() => {
     wg.addColorStop(1, '#1a1040');
     g.fillStyle = wg;
     for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (wall(x, y)) g.fillRect(x * tile, y * tile, tile + .5, tile + .5);
+    // Gemetselde stenen op de muren: twee rijen per vakje, verspringend, elk blok een eigen tint.
+    const lw = Math.max(1, tile * .035);
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+      if (!wall(x, y)) continue;
+      const L = x * tile, T = y * tile;
+      for (let r = 0; r < 2; r++) {
+        const off = (y * 2 + r) % 2 ? tile / 2 : 0;
+        for (let i = -1; i < 2; i++) {
+          const bx = Math.max(L, L + off + i * tile), ex = Math.min(L + tile, L + off + (i + 1) * tile);
+          if (ex <= bx) continue;
+          const k = hash(x * 3 + i, y * 2 + r, 5);
+          g.fillStyle = k < .5 ? `rgba(150, 180, 255, ${.02 + k * .06})` : `rgba(0, 0, 0, ${(k - .5) * .3})`;
+          g.fillRect(bx, T + r * tile / 2, ex - bx, tile / 2);
+        }
+        g.fillStyle = 'rgba(0, 0, 0, .35)';
+        g.fillRect(L, T + (r + 1) * tile / 2 - lw, tile + .5, lw);
+        const jx = L + off + (off ? 0 : tile / 2);
+        g.fillRect(jx - lw / 2, T + r * tile / 2, lw, tile / 2);
+        g.fillStyle = 'rgba(190, 215, 255, .06)';
+        g.fillRect(L, T + r * tile / 2, tile + .5, lw);
+      }
+      // Bovenkant licht, voorkant naar de gang toe donker: zo staan de muren recht op.
+      if (!wall(x, y - 1)) { g.fillStyle = 'rgba(190, 215, 255, .12)'; g.fillRect(L, T, tile + .5, tile * .14); }
+      if (!wall(x, y + 1)) { g.fillStyle = 'rgba(0, 0, 0, .35)'; g.fillRect(L, T + tile * .72, tile + .5, tile * .28); }
+    }
     // Printplaatlijntjes op de muren
     g.strokeStyle = 'rgba(120, 160, 255, .16)';
     g.lineWidth = Math.max(1, tile * .04);
