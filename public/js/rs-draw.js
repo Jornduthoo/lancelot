@@ -1,4 +1,4 @@
-// Ridderslang tekenen (bord en leerling): de neonvloer, de burchtmuur met vuurbakens, de lichtbollen en de lansslangen.
+// Ridderslang tekenen (bord en leerling): de stenen burchtvloer, de burchtmuur met torens en vuurbakens, zwevende ruïnes, de lichtbollen en de lansslangen.
 // Een lichaam is één pad dat we een paar keer overtrekken (gloed, pantser, schubben, kern): veel goedkoper dan honderden bolletjes.
 // Koppen, bollen en de kroon tekenen we één keer vooraf. Gebruikt AK (arena-kit.js), Glow (fx.js) en RsWorld.
 const RsDraw = (() => {
@@ -157,24 +157,275 @@ const RsDraw = (() => {
     return c;
   })();
 
-  // Neonraster voor de vloer.
-  let gridPattern = null;
-  function grid(ctx) {
-    if (gridPattern) return gridPattern;
-    const c = canvas(120);
-    const g = c.getContext('2d');
-    g.strokeStyle = 'rgba(255,90,200,.12)';
-    g.lineWidth = 2;
-    g.strokeRect(0, 0, 120, 120);
-    g.strokeStyle = 'rgba(90,200,255,.06)';
-    g.beginPath();
-    g.moveTo(60, 0); g.lineTo(60, 120); g.moveTo(0, 60); g.lineTo(120, 60);
-    g.stroke();
-    g.fillStyle = 'rgba(255,140,220,.35)';
-    g.fillRect(-2, -2, 4, 4);
-    gridPattern = ctx.createPattern(c, 'repeat');
-    return gridPattern;
+  // Vaste toevalsgetallen, zodat elke tegel en elke steen altijd hetzelfde blijft.
+  function rng(seed) {
+    let a = seed >>> 0;
+    return () => {
+      a = (a + 0x6d2b79f5) >>> 0;
+      let t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
   }
+
+  // De burchtvloer: tegels van 240 eenheden met vier leistenen platen, barsten, slijtplekken en hier en daar een oplichtende rune.
+  // De voegen geven een zachte neongloed, zoals het oude raster.
+  const TILE = 240;
+  const tiles = [0, 1, 2, 3, 4, 5].map(v => {
+    const c = canvas(TILE);
+    const g = c.getContext('2d');
+    const r = rng(v * 977 + 13);
+    g.fillStyle = '#07060f';
+    g.fillRect(0, 0, TILE, TILE);
+    for (let sy = 0; sy < 2; sy++) for (let sx = 0; sx < 2; sx++) {
+      const x = sx * 120 + 3, y = sy * 120 + 3, w = 114;
+      const l = 9 + r() * 5, hue = 238 + r() * 24;
+      const slab = g.createLinearGradient(x, y, x + w, y + w);
+      slab.addColorStop(0, `hsl(${hue},20%,${l + 4}%)`);
+      slab.addColorStop(1, `hsl(${hue},24%,${l - 3}%)`);
+      g.fillStyle = slab;
+      g.fillRect(x, y, w, w);
+      // Afgeschuinde rand: licht linksboven, schaduw rechtsonder
+      g.fillStyle = 'rgba(255,255,255,.07)';
+      g.fillRect(x, y, w, 3);
+      g.fillRect(x, y, 3, w);
+      g.fillStyle = 'rgba(0,0,0,.35)';
+      g.fillRect(x, y + w - 3, w, 3);
+      g.fillRect(x + w - 3, y, 3, w);
+      // Korrel en slijtplekken
+      for (let i = 0; i < 26; i++) {
+        g.fillStyle = r() < .5 ? 'rgba(255,255,255,.05)' : 'rgba(0,0,0,.18)';
+        const d = 1 + r() * 3;
+        g.fillRect(x + 6 + r() * (w - 12), y + 6 + r() * (w - 12), d, d);
+      }
+      if (r() < .35) {
+        const wear = g.createRadialGradient(x + w / 2, y + w / 2, 4, x + w / 2, y + w / 2, w * .55);
+        wear.addColorStop(0, 'rgba(120,110,170,.10)');
+        wear.addColorStop(1, 'rgba(120,110,170,0)');
+        g.fillStyle = wear;
+        g.fillRect(x, y, w, w);
+      }
+      // Een barst
+      if (r() < .45) {
+        g.strokeStyle = 'rgba(0,0,0,.55)';
+        g.lineWidth = 1.6;
+        g.beginPath();
+        let cx = x + 10 + r() * (w - 20), cy = y + 6;
+        g.moveTo(cx, cy);
+        for (let k = 0; k < 5; k++) { cx += (r() - .5) * 26; cy += 10 + r() * 16; g.lineTo(Math.max(x + 4, Math.min(x + w - 4, cx)), Math.min(y + w - 4, cy)); }
+        g.stroke();
+        g.strokeStyle = 'rgba(255,255,255,.06)';
+        g.lineWidth = 1;
+        g.translate(1, 1);
+        g.stroke();
+        g.translate(-1, -1);
+      }
+    }
+    // Een oplichtende rune op sommige tegels
+    if (v === 1 || v === 4) {
+      const col = v === 1 ? '#9ff3ff' : '#ff6bd6';
+      const x = 60 + (v === 4 ? 120 : 0), y = 60 + (v === 4 ? 120 : 0);
+      glow(g, x, y, 34, col, .35);
+      g.strokeStyle = rgba(col, .7);
+      g.lineWidth = 2.5;
+      g.lineCap = 'round';
+      g.beginPath();
+      g.arc(x, y, 18, 0, TAU);
+      g.moveTo(x, y - 12); g.lineTo(x, y + 12);
+      g.moveTo(x, y - 4); g.lineTo(x + 8, y - 12);
+      g.moveTo(x, y + 2); g.lineTo(x - 8, y - 6);
+      g.stroke();
+    }
+    // Neonvoegen
+    g.strokeStyle = 'rgba(255,90,200,.16)';
+    g.lineWidth = 2;
+    g.beginPath();
+    g.moveTo(1, 0); g.lineTo(1, TILE); g.moveTo(0, 1); g.lineTo(TILE, 1);
+    g.moveTo(121, 0); g.lineTo(121, TILE); g.moveTo(0, 121); g.lineTo(TILE, 121);
+    g.stroke();
+    g.fillStyle = 'rgba(255,140,220,.45)';
+    for (const [px, py] of [[1, 1], [121, 1], [1, 121], [121, 121]]) g.fillRect(px - 2, py - 2, 4, 4);
+    return c;
+  });
+  const tileAt = (ix, iy) => {
+    const hsh = Math.imul(ix * 73856093 ^ iy * 19349663, 0x27d4eb2d) >>> 0;
+    const k = hsh % 13;
+    return tiles[k < 11 ? [0, 2, 3, 5][k % 4] : k < 12 ? 1 : 4];
+  };
+  // Tegels in het stuk { x0, x1, y0, y1 }, alleen binnen de muur.
+  function floorTiles(ctx, R, v) {
+    const x0 = Math.max(-R, v.x0), x1 = Math.min(R, v.x1), y0 = Math.max(-R, v.y0), y1 = Math.min(R, v.y1);
+    for (let ix = Math.floor(x0 / TILE); ix * TILE < x1; ix++) {
+      for (let iy = Math.floor(y0 / TILE); iy * TILE < y1; iy++) {
+        const nx = Math.max(ix * TILE, Math.min(0, (ix + 1) * TILE)), ny = Math.max(iy * TILE, Math.min(0, (iy + 1) * TILE));
+        if (nx * nx + ny * ny > R * R) continue;
+        ctx.drawImage(tileAt(ix, iy), ix * TILE, iy * TILE, TILE + .5, TILE + .5);
+      }
+    }
+  }
+
+  // Een stuk burchtmuur van boven: een loopgang van metselwerk met kantelen aan de buitenkant.
+  // x loopt langs de muur, y van binnen (0) naar buiten (WALL_H).
+  const WALL_W = 128, WALL_H = 104;
+  const wallSprites = [0, 1, 2].map(v => {
+    const c = canvas(WALL_W, WALL_H);
+    const g = c.getContext('2d');
+    const r = rng(v * 431 + 7);
+    // Binnenrand (borstwering)
+    g.fillStyle = '#3b4266';
+    g.fillRect(0, 0, WALL_W, 10);
+    g.fillStyle = 'rgba(255,107,214,.35)';
+    g.fillRect(0, 0, WALL_W, 2);
+    // Loopgang: stenen in rijen
+    for (let row = 0; row < 4; row++) {
+      const y = 10 + row * 15, off = row % 2 ? -18 : 0;
+      for (let x = off; x < WALL_W; x += 36) {
+        const l = 14 + r() * 7;
+        g.fillStyle = `hsl(232,18%,${l}%)`;
+        g.fillRect(x + 1, y + 1, 34, 13);
+        g.fillStyle = 'rgba(255,255,255,.06)';
+        g.fillRect(x + 1, y + 1, 34, 2);
+        g.fillStyle = 'rgba(0,0,0,.3)';
+        g.fillRect(x + 1, y + 12, 34, 2);
+      }
+    }
+    // Schaduw onder de kantelen
+    g.fillStyle = 'rgba(0,0,0,.45)';
+    g.fillRect(0, 66, WALL_W, 6);
+    // Kantelen: hoge blokken met ruimtes ertussen
+    g.fillStyle = '#20253b';
+    g.fillRect(0, 72, WALL_W, 32);
+    for (let x = 4; x < WALL_W; x += 32) {
+      const top = g.createLinearGradient(0, 72, 0, 104);
+      top.addColorStop(0, '#7c86ad');
+      top.addColorStop(1, '#4a5378');
+      g.fillStyle = top;
+      g.fillRect(x, 74, 22, 28);
+      g.fillStyle = 'rgba(255,255,255,.14)';
+      g.fillRect(x, 74, 22, 3);
+      g.fillStyle = 'rgba(0,0,0,.35)';
+      g.fillRect(x + 19, 74, 3, 28);
+    }
+    // Een schietgat of een banier op sommige stukken
+    if (v === 1) {
+      g.fillStyle = '#7a1546';
+      g.fillRect(52, 12, 24, 40);
+      g.fillStyle = '#ff6bd6';
+      g.fillRect(52, 12, 24, 3);
+      g.fillStyle = '#ffe17a';
+      g.beginPath();
+      g.moveTo(64, 22); g.lineTo(70, 34); g.lineTo(64, 46); g.lineTo(58, 34);
+      g.fill();
+    } else if (v === 2) {
+      g.fillStyle = '#0b0d18';
+      g.fillRect(60, 40, 8, 26);
+      g.fillStyle = 'rgba(159,243,255,.5)';
+      g.fillRect(62, 44, 4, 18);
+    }
+    return c;
+  });
+
+  // Een ronde toren met kantelen en een vuurbaken in het midden.
+  const TOWER = 176;
+  const tower = (() => {
+    const c = canvas(TOWER);
+    const g = c.getContext('2d');
+    const m = TOWER / 2;
+    g.fillStyle = 'rgba(0,0,0,.45)';
+    g.beginPath();
+    g.arc(m + 6, m + 8, 78, 0, TAU);
+    g.fill();
+    const stone = g.createRadialGradient(m - 20, m - 24, 10, m, m, 80);
+    stone.addColorStop(0, '#6b749c');
+    stone.addColorStop(1, '#2a3050');
+    g.fillStyle = stone;
+    g.beginPath();
+    g.arc(m, m, 78, 0, TAU);
+    g.fill();
+    // Kantelen rondom
+    g.fillStyle = '#1a1e33';
+    g.beginPath();
+    g.arc(m, m, 60, 0, TAU);
+    g.fill();
+    for (let i = 0; i < 16; i++) {
+      const a = (i / 16) * TAU;
+      g.save();
+      g.translate(m + Math.cos(a) * 69, m + Math.sin(a) * 69);
+      g.rotate(a);
+      g.fillStyle = i % 2 ? '#3a4266' : '#8a94bb';
+      g.fillRect(-9, -11, 18, 22);
+      g.restore();
+    }
+    // Vloer van de torentop, met voegen
+    const floor = g.createRadialGradient(m, m, 4, m, m, 60);
+    floor.addColorStop(0, '#3a3552');
+    floor.addColorStop(1, '#1b1a2e');
+    g.fillStyle = floor;
+    g.beginPath();
+    g.arc(m, m, 56, 0, TAU);
+    g.fill();
+    g.strokeStyle = 'rgba(0,0,0,.4)';
+    g.lineWidth = 2;
+    for (const rr of [24, 40]) { g.beginPath(); g.arc(m, m, rr, 0, TAU); g.stroke(); }
+    g.beginPath();
+    for (let i = 0; i < 8; i++) { const a = (i / 8) * TAU; g.moveTo(m + Math.cos(a) * 24, m + Math.sin(a) * 24); g.lineTo(m + Math.cos(a) * 56, m + Math.sin(a) * 56); }
+    g.stroke();
+    // Neonring
+    g.strokeStyle = 'rgba(255,107,214,.8)';
+    g.lineWidth = 3;
+    g.beginPath();
+    g.arc(m, m, 57, 0, TAU);
+    g.stroke();
+    return c;
+  })();
+
+  // Zwevende rotsen met een burchtruïne in de ruimte buiten de muur.
+  const rocks = [0, 1, 2].map(v => {
+    const c = canvas(220);
+    const g = c.getContext('2d');
+    const r = rng(v * 59 + 3);
+    const pts = [];
+    for (let i = 0; i < 11; i++) { const a = (i / 11) * TAU, d = 70 + r() * 30; pts.push([110 + Math.cos(a) * d, 110 + Math.sin(a) * d * .8]); }
+    const shape = () => { g.beginPath(); for (const [x, y] of pts) g.lineTo(x, y); g.closePath(); };
+    glow(g, 110, 110, 105, '#c77dff', .18);
+    g.save();
+    g.translate(6, 12);
+    shape();
+    g.fillStyle = 'rgba(0,0,0,.5)';
+    g.fill();
+    g.restore();
+    shape();
+    const rock = g.createLinearGradient(40, 40, 180, 180);
+    rock.addColorStop(0, '#5c5878');
+    rock.addColorStop(1, '#1d1b2c');
+    g.fillStyle = rock;
+    g.fill();
+    g.strokeStyle = 'rgba(255,255,255,.12)';
+    g.lineWidth = 2;
+    g.stroke();
+    for (let i = 0; i < 8; i++) {
+      g.fillStyle = 'rgba(0,0,0,.28)';
+      g.beginPath();
+      g.arc(70 + r() * 80, 70 + r() * 70, 4 + r() * 9, 0, TAU);
+      g.fill();
+    }
+    // Ruïne: een stukje muur en een toren
+    g.fillStyle = '#7c86ad';
+    g.fillRect(78, 96, 56, 14);
+    for (let x = 78; x < 134; x += 14) g.fillRect(x, 88, 8, 8);
+    g.fillStyle = 'rgba(0,0,0,.35)';
+    g.fillRect(78, 108, 56, 4);
+    g.fillStyle = '#5a6388';
+    g.beginPath();
+    g.arc(140 - v * 50, 92 + v * 14, 16, 0, TAU);
+    g.fill();
+    g.fillStyle = '#20253b';
+    g.beginPath();
+    g.arc(140 - v * 50, 92 + v * 14, 9, 0, TAU);
+    g.fill();
+    glow(g, 140 - v * 50, 92 + v * 14, 18, '#9ff3ff', .6);
+    return c;
+  });
 
   // ---------- De scène ----------
   class Scene {
@@ -291,18 +542,25 @@ const RsDraw = (() => {
   // De vloer in één keer: verloop, raster en runencirkel. Gebruikt voor het vooraf getekende beeld.
   function floorFull(ctx, R, ts, withGrid = true) {
     ctx.save();
+    if (withGrid) {
+      ctx.beginPath();
+      ctx.arc(0, 0, R, 0, TAU);
+      ctx.save();
+      ctx.clip();
+      floorTiles(ctx, R, { x0: -R, x1: R, y0: -R, y1: R });
+      // Ver uitgezoomd (bord) wat donkerder, zodat de slangen en lichtbollen er goed uitspringen.
+      ctx.fillStyle = 'rgba(8,6,22,.35)';
+      ctx.fillRect(-R, -R, R * 2, R * 2);
+      ctx.restore();
+    }
     ctx.beginPath();
     ctx.arc(0, 0, R, 0, TAU);
     const floor = ctx.createRadialGradient(0, 0, 0, 0, 0, R);
-    floor.addColorStop(0, 'rgba(60,14,80,.55)');
-    floor.addColorStop(.75, 'rgba(10,12,40,.5)');
-    floor.addColorStop(1, 'rgba(120,20,90,.45)');
+    floor.addColorStop(0, 'rgba(60,14,80,.4)');
+    floor.addColorStop(.75, 'rgba(10,12,40,.3)');
+    floor.addColorStop(1, 'rgba(120,20,90,.4)');
     ctx.fillStyle = floor;
     ctx.fill();
-    if (withGrid) {
-      ctx.fillStyle = grid(ctx);
-      ctx.fill();
-    }
     // Grote lichtcirkels op de vloer (een runencirkel in het midden)
     ctx.globalCompositeOperation = 'lighter';
     ctx.strokeStyle = 'rgba(255,107,214,.18)';
@@ -321,8 +579,8 @@ const RsDraw = (() => {
     ctx.restore();
   }
 
-  // Ingezoomd (gsm, Chromebook): het verloop en de runen uit een vooraf getekend beeld, en het raster als losse lijnen.
-  // Een verloop of patroon over het hele scherm kost op een Chromebook veel meer dan één beeld en wat dunne lijnen.
+  // Ingezoomd (gsm, Chromebook): de stenen tegels die in beeld zijn, met daarover het verloop en de runen uit een vooraf getekend beeld.
+  // Een verloop of patroon over het hele scherm kost op een Chromebook veel meer dan een handvol beelden.
   let floorCache = null;
   function floorView(ctx, R, view) {
     if (!floorCache || floorCache.R !== R) {
@@ -336,22 +594,19 @@ const RsDraw = (() => {
     }
     const { c, k } = floorCache;
     const x0 = Math.max(-R, view.x0), x1 = Math.min(R, view.x1), y0 = Math.max(-R, view.y0), y1 = Math.min(R, view.y1);
-    if (x1 > x0 && y1 > y0) ctx.drawImage(c, (x0 + R) * k, (y0 + R) * k, (x1 - x0) * k, (y1 - y0) * k, x0, y0, x1 - x0, y1 - y0);
-    // Raster: elke 120 eenheden een lijn, alleen binnen de muur.
-    ctx.beginPath();
-    for (let x = Math.ceil(x0 / 120) * 120; x <= x1; x += 120) {
-      const half = Math.sqrt(Math.max(0, R * R - x * x));
-      const a = Math.max(y0, -half), b = Math.min(y1, half);
-      if (b > a) { ctx.moveTo(x, a); ctx.lineTo(x, b); }
+    if (!(x1 > x0 && y1 > y0)) return;
+    // Bij de muur knippen we de tegels af op de cirkel; in het midden is dat niet nodig.
+    const cx = (view.x0 + view.x1) / 2, cy = (view.y0 + view.y1) / 2;
+    const edge = Math.hypot(cx, cy) + Math.hypot(view.x1 - view.x0, view.y1 - view.y0) / 2 > R;
+    if (edge) {
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(0, 0, R, 0, TAU);
+      ctx.clip();
     }
-    for (let y = Math.ceil(y0 / 120) * 120; y <= y1; y += 120) {
-      const half = Math.sqrt(Math.max(0, R * R - y * y));
-      const a = Math.max(x0, -half), b = Math.min(x1, half);
-      if (b > a) { ctx.moveTo(a, y); ctx.lineTo(b, y); }
-    }
-    ctx.strokeStyle = 'rgba(255,90,200,.14)';
-    ctx.lineWidth = 2;
-    ctx.stroke();
+    floorTiles(ctx, R, view);
+    if (edge) ctx.restore();
+    ctx.drawImage(c, (x0 + R) * k, (y0 + R) * k, (x1 - x0) * k, (y1 - y0) * k, x0, y0, x1 - x0, y1 - y0);
   }
 
   // De vloer en de burchtmuur. Op het bord (ver uitgezoomd) tekenen we dit één keer vooraf in een beeld van 2048 px.
@@ -374,21 +629,19 @@ const RsDraw = (() => {
       }
     }
     const ring = (r) => { ctx.beginPath(); ctx.arc(0, 0, r, a0, a1); };
-    ctx.lineCap = 'butt';
-    ctx.strokeStyle = '#1a2036';
-    ctx.lineWidth = 70;
-    ring(R + 35);
-    ctx.stroke();
-    ctx.strokeStyle = '#3a4468';
-    ctx.lineWidth = 26;
-    ctx.setLineDash([34, 22]);
-    ring(R + 58);
-    ctx.stroke();
-    ctx.setLineDash([]);
-    ctx.strokeStyle = '#59658f';
-    ctx.lineWidth = 4;
-    ring(R + 4);
-    ctx.stroke();
+    // Muurstukken langs de ring, elk gedraaid zodat de kantelen naar buiten wijzen.
+    const segs = Math.round((TAU * (R + 50)) / WALL_W);
+    const da = TAU / segs, sw = da * (R + WALL_H) + 2;
+    for (let i = Math.floor(a0 / da); i <= Math.ceil(a1 / da); i++) {
+      const a = (i + .5) * da;
+      const x = Math.cos(a) * R, y = Math.sin(a) * R;
+      if (!inView(x, y, 160)) continue;
+      ctx.translate(x, y);
+      ctx.rotate(a - Math.PI / 2);
+      ctx.drawImage(wallSprites[((i % 7) + 7) % 7 === 3 ? 1 : ((i % 5) + 5) % 5 === 1 ? 2 : 0], -sw / 2, -1, sw, WALL_H);
+      ctx.rotate(Math.PI / 2 - a);
+      ctx.translate(-x, -y);
+    }
     ctx.globalCompositeOperation = 'lighter';
     for (const [lw, a] of [[30, .1], [10, .45], [3, .9]]) {
       ctx.strokeStyle = rgba('#ff6bd6', a);
@@ -397,11 +650,18 @@ const RsDraw = (() => {
       ctx.stroke();
     }
     ctx.globalCompositeOperation = 'source-over';
+    // Torens met een vuurbaken, en zwevende rotsen met ruïnes buiten de muur.
     const beacons = Math.max(12, Math.round((TAU * R) / 420));
     for (let i = 0; i < beacons; i++) {
       const a = (i / beacons) * TAU;
-      const x = Math.cos(a) * (R + 40), y = Math.sin(a) * (R + 40);
-      if (!inView(x, y, 80)) continue;
+      const x = Math.cos(a) * (R + 56), y = Math.sin(a) * (R + 56);
+      if (view && i % 3 === 1 && inView(x, y, 260)) {
+        const ra = a + .5 / beacons * TAU, d = R + 300 + (i * 53) % 160;
+        const rx = Math.cos(ra) * d, ry = Math.sin(ra) * d, rs = 220 * (.8 + (i % 4) * .15);
+        ctx.drawImage(rocks[i % 3], rx - rs / 2, ry - rs / 2 + Math.sin(ts * .8 + i) * 6, rs, rs);
+      }
+      if (!inView(x, y, 100)) continue;
+      ctx.drawImage(tower, x - TOWER / 2, y - TOWER / 2);
       const f = 1 + .12 * Math.sin(ts * 9 + i * 1.7);
       ctx.drawImage(beacon, x - 48 * f, y - 48 * f, 96 * f, 96 * f);
     }
@@ -409,7 +669,7 @@ const RsDraw = (() => {
   let baked = null;
   function bakedArena(R) {
     if (baked && baked.R === R) return baked;
-    const size = 2048, span = R * 2 + 260, k = size / span;
+    const size = 2048, span = R * 2 + 360, k = size / span;
     const c = canvas(size);
     const g = c.getContext('2d');
     g.translate(size / 2, size / 2);
@@ -497,6 +757,12 @@ const RsDraw = (() => {
       ctx.lineCap = 'butt';
       ctx.setLineDash([wd * .42, wd * .2]);
       ctx.lineDashOffset = -ts * 30;
+      ctx.stroke();
+      // Glans op elke pantserplaat
+      ctx.strokeStyle = shade(color, .5);
+      ctx.lineWidth = wd * .3;
+      ctx.lineDashOffset = -ts * 30 - wd * .06;
+      ctx.setLineDash([wd * .26, wd * .36]);
       ctx.stroke();
       ctx.setLineDash([]);
       ctx.lineCap = 'round';
