@@ -39,6 +39,8 @@ const logboek = require('./src/logboek');
 const opwarmer = require('./src/opwarmer');
 const overzicht = require('./src/overzicht');
 const zorg = require('./src/zorg');
+const notities = require('./src/notities');
+const herhaal = require('./src/herhaal');
 const results = require('./src/results');
 const { execFile } = require('child_process');
 const { generateQuiz } = require('./src/gemini');
@@ -247,7 +249,7 @@ function isLocal(address) {
   return ['127.0.0.1', '::1', '::ffff:127.0.0.1'].includes(address);
 }
 
-for (const [route, page] of [['/host', 'host.html'], ['/rondetafel', 'rondetafel.html'], ['/toren', 'toren.html'], ['/schattenjacht', 'schattenjacht.html'], ['/laserslag', 'laserslag.html'], ['/ridderrace', 'ridderrace.html'], ['/kristalroof', 'kristalroof.html'], ['/verrader', 'verrader.html'], ['/burchtbouwers', 'burchtbouwers.html'], ['/duel', 'duel.html'], ['/packnight', 'packnight.html'], ['/strijdrossen', 'strijdrossen.html'], ['/gauntlet', 'gauntlet.html'], ['/ridder-royale', 'royale.html'], ['/sterrenvreter', 'sterrenvreter.html'], ['/ridderslang', 'ridderslang.html'], ['/neonduel', 'neonduel.html'], ['/leraarbaas', 'leraarbaas.html'], ['/cybergalaga', 'cybergalaga.html'], ['/bomberknight', 'bomberknight.html'], ['/rijk', 'rijk.html'], ['/oefenblad', 'oefenblad.html'], ['/oefenblad-print', 'oefenblad-print.html'], ['/klas', 'klas.html'], ['/zorg', 'zorg.html'], ['/netwerk', 'netwerk.html']]) {
+for (const [route, page] of [['/host', 'host.html'], ['/rondetafel', 'rondetafel.html'], ['/toren', 'toren.html'], ['/schattenjacht', 'schattenjacht.html'], ['/laserslag', 'laserslag.html'], ['/ridderrace', 'ridderrace.html'], ['/kristalroof', 'kristalroof.html'], ['/verrader', 'verrader.html'], ['/burchtbouwers', 'burchtbouwers.html'], ['/duel', 'duel.html'], ['/packnight', 'packnight.html'], ['/strijdrossen', 'strijdrossen.html'], ['/gauntlet', 'gauntlet.html'], ['/ridder-royale', 'royale.html'], ['/sterrenvreter', 'sterrenvreter.html'], ['/ridderslang', 'ridderslang.html'], ['/neonduel', 'neonduel.html'], ['/leraarbaas', 'leraarbaas.html'], ['/cybergalaga', 'cybergalaga.html'], ['/bomberknight', 'bomberknight.html'], ['/rijk', 'rijk.html'], ['/oefenblad', 'oefenblad.html'], ['/oefenblad-print', 'oefenblad-print.html'], ['/klas', 'klas.html'], ['/zorg', 'zorg.html'], ['/zorg-fiche', 'zorg-fiche.html'], ['/netwerk', 'netwerk.html']]) {
   app.get(route, (req, res) => {
     if (!isLocal(req.socket.remoteAddress)) return res.status(403).send('Het docentenscherm is alleen bereikbaar op de pc van de leerkracht.');
     res.setHeader('Cache-Control', 'no-cache');
@@ -492,6 +494,19 @@ io.on('connection', socket => {
     }));
     socket.on('doelenkaart-get', handle(() => ({ kaart: overzicht.kaart() })));
     socket.on('zorg-get', handle(opts => ({ zorg: zorg.overzicht(opts || {}) })));
+    socket.on('notitie-add', handle(({ leerling, tekst } = {}) => ({ notities: notities.add(leerling, tekst).slice().reverse() })));
+    socket.on('notitie-del', handle(({ leerling, t } = {}) => ({ notities: notities.remove(leerling, t).slice().reverse() })));
+    // Herhaalquizzen maken vanuit het zorgoverzicht. Ze komen bij je quizzen in de map Herhaling.
+    socket.on('herhaal-doelen', handle(opts => {
+      const out = herhaal.voorDoelen(opts || {});
+      refreshList();
+      return out;
+    }));
+    socket.on('herhaal-persoonlijk', handle(opts => {
+      const out = herhaal.persoonlijk(opts || {});
+      refreshList();
+      return out;
+    }));
     socket.on('open-logboek-folder', () => {
       fs.mkdirSync(logboek.DIR, { recursive: true });
       if (process.platform === 'win32') execFile('explorer', [logboek.DIR]);
@@ -858,6 +873,13 @@ io.on('connection', socket => {
     socket.on('ob-set-niveau', ({ id, niveau } = {}, cb) => { const res = oefenblad.setNiveau(id, niveau); if (typeof cb === 'function') cb(res); });
     socket.on('ob-stop', (_, cb) => cb && cb({ file: oefenblad.stop() }));
 
+    // Zeker of twijfel vragen na elk antwoord in het Toernooi (en de Opwarmer). Staat standaard aan.
+    socket.emit('zekerheid', settings.read().zekerheid !== false);
+    socket.on('zekerheid', on => {
+      settings.write({ zekerheid: !!on });
+      game.zekerheid = !!on;
+      io.to('host').emit('zekerheid', !!on);
+    });
     socket.on('start', () => game.start());
     socket.on('next', () => game.next());
     socket.on('reveal', () => game.reveal());
@@ -878,6 +900,11 @@ io.on('connection', socket => {
     socket.data.playerId = result.ok ? playerId : null;
     cb && cb(result);
     if (result.ok) socket.emit('state', game.playerState(playerId));
+  });
+
+  socket.on('zeker', value => {
+    const id = socket.data.playerId;
+    if (id) game.zeker(id, value);
   });
 
   socket.on('answer', choice => {

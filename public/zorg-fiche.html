@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LANcelot · Zorgfiche</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <style>
+    /* Een sober blad voor het MDO of het CLB: wit papier, zwarte tekst, A4. */
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #e9edf2; color: #111; font: 14px/1.45 system-ui, "Segoe UI", Arial, sans-serif; }
+    .blad { max-width: 210mm; margin: 16px auto; background: #fff; padding: 14mm 15mm; box-shadow: 0 2px 12px rgba(0, 0, 0, .15); }
+    .knoppen { max-width: 210mm; margin: 16px auto 0; display: flex; gap: 8px; padding: 0 8px; }
+    .knoppen button { font: inherit; padding: 8px 14px; border-radius: 6px; border: 1px solid #889; background: #fff; cursor: pointer; }
+    .knoppen button.hoofd { background: #123; color: #fff; border-color: #123; }
+    h1 { font-size: 22px; margin: 0; }
+    h2 { font-size: 15px; margin: 18px 0 6px; padding-bottom: 3px; border-bottom: 2px solid #123; text-transform: uppercase; letter-spacing: .04em; }
+    .kop { display: flex; justify-content: space-between; gap: 12px; align-items: flex-end; }
+    .kop p { margin: 2px 0 0; color: #444; }
+    .cijfers { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 12px; }
+    .cijfers div { border: 1px solid #ccd; border-radius: 6px; padding: 6px 8px; }
+    .cijfers b { display: block; font-size: 20px; }
+    .cijfers span { color: #555; font-size: 12px; }
+    table { width: 100%; border-collapse: collapse; }
+    td, th { text-align: left; padding: 4px 6px; border-bottom: 1px solid #dde; vertical-align: top; }
+    th { font-size: 12px; color: #555; font-weight: 600; }
+    td.n { text-align: right; white-space: nowrap; width: 70px; }
+    code { font-size: 12px; color: #245; }
+    ul { margin: 4px 0; padding-left: 18px; }
+    .lijnen div { border-bottom: 1px solid #aab; height: 26px; }
+    .klein { color: #555; font-size: 12px; }
+    .kleur { display: inline-block; padding: 1px 8px; border-radius: 4px; font-weight: 600; }
+    .kleur.rood { background: #fbd5dc; } .kleur.oranje { background: #fde9b8; } .kleur.groen { background: #cdf3e3; } .kleur.weinig { background: #e3e7ee; }
+    @media print {
+      body { background: #fff; }
+      .knoppen { display: none; }
+      .blad { margin: 0; box-shadow: none; padding: 0; max-width: none; }
+      @page { size: A4; margin: 14mm; }
+      h2 { break-after: avoid; }
+      tr { break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+<div class="knoppen">
+  <button class="hoofd" id="print">🖨️ Printen of bewaren als PDF</button>
+  <button id="sluit">Sluiten</button>
+</div>
+<div class="blad" id="blad">Laden…</div>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+// De zorgfiche van één leerling: wat het logboek over hem weet, plus de notities, om mee te nemen naar het MDO of het CLB.
+const socket = io({ query: { role: 'host' } });
+const params = new URLSearchParams(location.search);
+const id = params.get('id') || '';
+const dagen = Number(params.get('dagen')) || 0;
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const datum = iso => new Date(iso).toLocaleDateString('nl-BE', { day: 'numeric', month: 'long', year: 'numeric' });
+const KLEUR = { rood: 'aandacht nodig', oranje: 'opvolgen', groen: 'mee met de klas', weinig: 'te weinig gegevens' };
+const NIVEAU = { page: 'Page (met hulp)', schildknaap: 'Schildknaap (het doel)', ridder: 'Ridder (uitdaging)' };
+
+document.getElementById('print').addEventListener('click', () => print());
+document.getElementById('sluit').addEventListener('click', () => close());
+
+socket.on('connect', () => socket.emit('zorg-get', { dagen }, res => {
+  const blad = document.getElementById('blad');
+  if (res.error) return (blad.textContent = res.error);
+  const z = res.zorg;
+  const l = z.leerlingen.find(x => x.key === id);
+  if (!l) return (blad.textContent = 'Deze leerling staat niet (meer) op de klaslijst.');
+  document.title = `Zorgfiche ${l.naam}`;
+  const periode = z.dagen ? `laatste ${z.dagen / 7} weken` : `schooljaar ${z.schooljaar}`;
+  const klasVak = new Map(z.klasVakken.map(v => [v.vak, v.pct]));
+  const rows = (list, cols) => list.map(r => `<tr>${cols(r).map(c => c).join('')}</tr>`).join('');
+  const zk = l.zekerheid;
+  blad.innerHTML = `
+    <div class="kop">
+      <div>
+        <h1>Zorgfiche ${esc(l.naam)}</h1>
+        <p>${esc(z.klas || 'Klas')} · ${esc(String(z.leerjaar).match(/^\d/) ? `${z.leerjaar}e leerjaar` : z.leerjaar)} · periode: ${periode}</p>
+      </div>
+      <p class="klein">Gemaakt op ${datum(new Date().toISOString())}<br>met LANcelot</p>
+    </div>
+    <div class="cijfers">
+      <div><b>${l.antwoorden}</b><span>antwoorden</span></div>
+      <div><b>${l.pct}%</b><span>juist (klas ${z.pct}%)</span></div>
+      <div><b>${l.tovKlas === null ? '–' : `${l.tovKlas > 0 ? '+' : ''}${l.tovKlas}`}</b><span>procentpunten t.o.v. de klas op dezelfde vragen</span></div>
+      <div><b>${l.trend === null ? '–' : l.trend <= -10 ? '↘' : l.trend >= 10 ? '↗' : '→'}</b><span>verloop laatste lessen</span></div>
+    </div>
+    <h2>Samenvatting</h2>
+    <p>Stand: <span class="kleur ${l.kleur}">${KLEUR[l.kleur]}</span> · Niveau: ${NIVEAU[l.niveau] || '–'}${l.advies ? ` · advies: ${NIVEAU[l.advies.naar]}` : ''}</p>
+    ${l.signalen.length ? `<ul>${l.signalen.map(s => `<li>${esc(s.tekst)}</li>`).join('')}</ul>` : '<p class="klein">Geen signalen in deze periode.</p>'}
+    <h2>Per vak</h2>
+    ${l.vakken.length ? `<table><tr><th>Vak</th><th class="n">Antw.</th><th class="n">Juist</th><th class="n">Klas</th></tr>
+      ${rows(l.vakken, v => [`<td>${esc(v.vak)}</td>`, `<td class="n">${v.n}</td>`, `<td class="n">${v.pct}%</td>`, `<td class="n">${klasVak.has(v.vak) ? `${klasVak.get(v.vak)}%` : ''}</td>`])}</table>` : '<p class="klein">Nog geen vragen met een leerplandoel.</p>'}
+    <h2>Sterk in</h2>
+    ${l.sterk.length ? `<table>${rows(l.sterk, d => [`<td><code>${esc(d.code)}</code> ${esc(d.tekst)}</td>`, `<td class="n">${d.pct}%</td>`])}</table>` : '<p class="klein">Nog geen doelen met minstens 80% juist bij de laatste antwoorden.</p>'}
+    <h2>Nog niet beheerst</h2>
+    ${l.nietDoelen.length ? `<table>${rows(l.nietDoelen.slice(0, 15), d => [`<td><code>${esc(d.code)}</code> ${esc(d.tekst)}</td>`, `<td class="n">${d.pct}%</td>`])}</table>` : '<p class="klein">Geen doelen onder 50% bij de laatste antwoorden.</p>'}
+    <p class="klein">Beheerst = minstens 80% juist bij de laatste 10 antwoorden op dat doel; nog niet = minder dan 50%.</p>
+    ${zk ? `<h2>Zelfinschatting (zeker of twijfel)</h2>
+      <p>Terecht zeker: ${zk['zeker-juist']}× · getwijfeld maar juist: ${zk['twijfel-juist']}× · zeker maar fout: ${zk['zeker-fout']}× · getwijfeld en fout: ${zk['twijfel-fout']}×</p>` : ''}
+    ${l.gok ? `<p>Snel gegokt (drie keer snel en fout na elkaar): ${l.gok}×.</p>` : ''}
+    <h2>Notities van de leerkracht</h2>
+    ${l.notities.length ? `<ul>${l.notities.map(n => `<li><span class="klein">${datum(n.t)}:</span> ${esc(n.tekst)}</li>`).join('')}</ul>` : '<p class="klein">Geen notities.</p>'}
+    <h2>Afspraken en aanpak</h2>
+    <div class="lijnen"><div></div><div></div><div></div><div></div><div></div></div>
+    <p class="klein" style="margin-top:14px">Deze cijfers komen uit de oefeningen en spellen in de klas. Ze zijn een signaal om samen naar te kijken, geen toets of eindoordeel.</p>`;
+}));
+</script>
+</body>
+</html>

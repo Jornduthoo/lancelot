@@ -45,3 +45,9 @@
 .zg-k.rood { background: rgba(255, 77, 109, .3); } .zg-k.oranje { background: rgba(255, 201, 74, .3); } .zg-k.groen { background: rgba(46, 230, 166, .25); } .zg-k.weinig { background: rgba(143, 167, 199, .25); }
 @media (max-width: 900px) { .zg-detail { grid-template-columns: 1fr; } }
 .zg-uitleg { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; }
+.zg-mini { padding: 3px 9px; font-size: .8rem; }
+.zg-doel .zg-mini { margin-top: 6px; }
+.zg-acties { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+.zg-herhaal { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-top: 12px; }
+.zg-herhaal span { flex: 1; min-width: 240px; }
+.zg-detail textarea { width: 100%; margin: 4px 0 6px; }
