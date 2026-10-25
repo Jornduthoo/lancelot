@@ -56,4 +56,20 @@ function scoort(code) {
   return !d || d.score !== false;
 }
 
-module.exports = { all, find, clean, leerjaar, scoort, LEERJAREN };
+// Het vak van een doelcode ('Wiskunde'), of ''.
+function vak(code) {
+  const d = code && find(code);
+  return d ? d.vak : '';
+}
+
+// Het vak dat het vaakst voorkomt bij deze doelcodes: zo weet een quiz of oefenblad bij welk vak hij hoort.
+function hoofdvak(codes) {
+  const tel = new Map();
+  for (const c of codes) {
+    const v = vak(c);
+    if (v) tel.set(v, (tel.get(v) || 0) + 1);
+  }
+  return [...tel.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] || '';
+}
+
+module.exports = { all, find, clean, leerjaar, scoort, vak, hoofdvak, LEERJAREN };

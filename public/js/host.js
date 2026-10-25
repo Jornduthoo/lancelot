@@ -144,7 +144,7 @@ function renderQuestion() {
   const phase = state.phase;
   const revealed = phase === 'reveal';
   const fresh = shownIndex !== state.index;
-  $('q-progress').textContent = `RONDE ${state.index + 1} / ${state.total}`;
+  $('q-progress').textContent = `RONDE ${state.index + 1} / ${state.total}${state.niveaus ? ' · 🪶🛡️⚔️ elk op zijn niveau' : ''}`;
   $('q-text').textContent = q.question;
   $('q-answered').textContent = `${state.answered} / ${state.ranking.length} geantwoord`;
 

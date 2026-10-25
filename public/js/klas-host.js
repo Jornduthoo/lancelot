@@ -19,11 +19,14 @@ function loadKlas() {
     $('k-naam').value = res.klas.naam;
     $('k-leerjaar').value = String(res.klas.leerjaar);
     $('k-namen').value = res.klas.leerlingen.map(l => l.naam).join('\n');
+    vakgroepen = res.vakgroepen || [];
     renderNiveaus(res.klas.leerlingen);
   });
 }
 
-// Per leerling drie knoppen: Page, Schildknaap of Ridder. Een klik bewaart meteen.
+// Een raster: per leerling een algemeen niveau en een niveau per vak. Een vak zonder eigen keuze volgt het algemene niveau.
+// Elke keuze bewaart meteen.
+let vakgroepen = [];
 function renderNiveaus(leerlingen) {
   const box = $('k-niveaus');
   box.innerHTML = '';
@@ -31,26 +34,42 @@ function renderNiveaus(leerlingen) {
     box.innerHTML = '<p class="muted">Zet eerst je leerlingen op de klaslijst hierboven.</p>';
     return;
   }
-  for (const l of leerlingen) {
-    const row = document.createElement('div');
-    row.className = 'row-niveau';
-    const name = document.createElement('span');
-    name.textContent = l.naam;
-    const pick = document.createElement('span');
-    pick.className = 'niveau-pick';
-    const current = l.niveau || 'schildknaap';
-    pick.innerHTML = Niveau.LIST.map(n => `<button type="button" class="secondary${n === current ? ' on' : ''}" data-niveau="${n}" title="${Niveau.NAMES[n]}: ${Niveau.HELP[n]}">${Niveau.label(n)}</button>`).join('');
-    for (const b of pick.querySelectorAll('button')) {
-      b.addEventListener('click', () => {
-        socket.emit('klas-niveau', { id: l.id, niveau: b.dataset.niveau }, res => {
-          $('k-niveau-error').textContent = res.error || '';
-          if (!res.error) renderNiveaus(res.klas.leerlingen);
-        });
+  const table = document.createElement('table');
+  table.className = 'niveau-raster';
+  table.innerHTML = `<thead><tr><th>Leerling</th><th>Algemeen</th>${vakgroepen.map(g => `<th title="${g.vakken.join(', ')}">${g.naam}</th>`).join('')}</tr></thead>`;
+  const body = document.createElement('tbody');
+  const opts = (current, algemeen) => (algemeen ? `<option value="">= ${Niveau.ICONS[algemeen]}</option>` : '')
+    + Niveau.LIST.map(n => `<option value="${n}"${n === current ? ' selected' : ''}>${Niveau.label(n)}</option>`).join('');
+  const pick = (l, vak, html, eigen) => {
+    const td = document.createElement('td');
+    const sel = document.createElement('select');
+    sel.innerHTML = html;
+    if (eigen) sel.classList.add('eigen');
+    sel.addEventListener('change', () => {
+      socket.emit('klas-niveau', { id: l.id, niveau: sel.value, vak }, res => {
+        $('k-niveau-error').textContent = res.error || '';
+        if (!res.error) renderNiveaus(res.klas.leerlingen);
       });
+    });
+    td.appendChild(sel);
+    return td;
+  };
+  for (const l of leerlingen) {
+    const row = document.createElement('tr');
+    const name = document.createElement('th');
+    name.textContent = l.naam;
+    const algemeen = l.niveau || 'schildknaap';
+    row.append(name, pick(l, '', opts(algemeen), algemeen !== 'schildknaap'));
+    for (const g of vakgroepen) {
+      const eigen = (l.vakNiveaus || {})[g.id] || '';
+      const td = pick(l, g.id, opts(eigen, algemeen), !!eigen);
+      td.title = `${l.naam}, ${g.naam}: ${Niveau.NAMES[eigen || algemeen]}${eigen ? '' : ' (zoals algemeen)'}`;
+      row.appendChild(td);
     }
-    row.append(name, pick);
-    box.appendChild(row);
+    body.appendChild(row);
   }
+  table.appendChild(body);
+  box.appendChild(table);
 }
 
 $('k-save').addEventListener('click', () => {

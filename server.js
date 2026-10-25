@@ -643,8 +643,8 @@ io.on('connection', socket => {
     };
     const refreshList = () => sendLibrary('quiz');
     // Mijn klas: de klaslijst, de leerplandoelen en wat het logboek al weet.
-    socket.on('klas-get', handle(() => ({ klas: klas.read() })));
-    socket.on('klas-niveau', handle(({ id, niveau } = {}) => ({ klas: klas.setNiveau(id, niveau) })));
+    socket.on('klas-get', handle(() => ({ klas: klas.read(), vakgroepen: niveaus.VAKGROEPEN })));
+    socket.on('klas-niveau', handle(({ id, niveau, vak } = {}) => ({ klas: klas.setNiveau(id, niveau, vak) })));
     // Op welk niveau de klas de quizspellen speelt (Page, Schildknaap, Ridder of alles door elkaar).
     socket.emit('quiz-niveau', quizzes.classNiveau());
     socket.on('quiz-niveau', niveau => {
@@ -1132,7 +1132,7 @@ io.on('connection', socket => {
     const id = socket.data.playerId;
     if (!id) return;
     const p = game.players.get(id);
-    const q = game.quiz && game.quiz.questions[game.index];
+    const q = p && game.question && game.qFor(p);
     const open = p && q && game.phase === 'question' && p.answer === null;
     game.answer(id, choice);
     // Te snel en fout, drie keer na elkaar: een seintje voor de leerkracht.

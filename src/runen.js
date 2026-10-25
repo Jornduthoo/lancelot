@@ -296,7 +296,7 @@ function wie(naam) {
   const n = String(naam || '').trim().replace(/\s+/g, ' ').slice(0, 20);
   if (!n) return null;
   const l = klas.match(n);
-  return { key: l ? `id:${l.id}` : `n:${n.toLowerCase()}`, naam: l ? l.naam : n, eigen: (l && niveaus.clean(l.niveau)) || 'schildknaap' };
+  return { key: l ? `id:${l.id}` : `n:${n.toLowerCase()}`, naam: l ? l.naam : n, eigen: l ? klas.niveauVoor(l, 'Nederlands') : 'schildknaap' };
 }
 
 // Runen, reeks en wat er vandaag al verdiend is, uit alle dagen van dit schooljaar.

@@ -89,24 +89,61 @@ function forNiveau(quiz, niveau) {
 }
 
 // Een quiz laden om te spelen: op het niveau van de klas, of met alle vragen als elke leerling zijn eigen niveau krijgt.
-// shared: iedereen krijgt dezelfde vragen (Toernooi, Duel, Het Rijk); per leerling wordt daar Schildknaap.
+// shared: iedereen krijgt dezelfde vragen (Toernooi, Duel, Het Rijk); per leerling krijgt daar elke leerling
+// dezelfde vraag in de versie van zijn eigen niveau (zie gedeeld).
 function play(file, { shared = false } = {}) {
   const quiz = load(file);
   const n = classNiveau();
-  if (n === 'leerling' && shared) return forNiveau(quiz, 'schildknaap');
+  if (n === 'leerling' && shared) return gedeeld(quiz);
   if (n === 'leerling') return niveausOf(quiz).length > 1 ? { ...quiz, perLeerling: true } : quiz;
   return forNiveau(quiz, n);
 }
 
+// Voor spellen waar iedereen tegelijk dezelfde vraag krijgt: de k-de Schildknaap-vraag hoort bij de k-de Page- en
+// de k-de Ridder-vraag (zo maakt de AI een quiz "op de drie niveaus"). Elke vraag krijgt die versies mee als varianten;
+// het bord toont Schildknaap, elke leerling krijgt zijn eigen versie (vraagVoor). Zonder Schildknaap-vragen: het eerste niveau.
+function gedeeld(quiz) {
+  const used = niveausOf(quiz);
+  if (used.length < 2) return quiz;
+  const per = Object.fromEntries(niveaus.NIVEAUS.map(n => [n, quiz.questions.filter(q => (q.niveau || 'schildknaap') === n)]));
+  const basis = per.schildknaap.length ? 'schildknaap' : used[0];
+  const hoofd = doelen.hoofdvak(quiz.questions.map(q => q.doel));
+  const questions = per[basis].map((q, k) => {
+    const varianten = {};
+    for (const n of niveaus.NIVEAUS) if (n !== basis && per[n][k]) varianten[n] = per[n][k];
+    return { ...q, vak: doelen.vak(q.doel) || hoofd, varianten };
+  });
+  return { ...quiz, questions, gedeeld: true };
+}
+
+// De versie van een gedeelde vraag voor deze leerling (op naam), volgens zijn niveau voor het vak van de vraag.
+// Geen versie op dat niveau (of het niveau van het bord): de vraag zelf.
+function vraagVoor(q, name) {
+  if (!q || !q.varianten) return q;
+  return q.varianten[klas.niveauVoor(klas.match(name), q.vak)] || q;
+}
+
 // De vragen voor één leerling, door elkaar (als nummers in quiz.questions).
 // Speelt elke leerling op zijn eigen niveau, dan alleen de vragen van zijn niveau (Schildknaap als hij niet op de klaslijst staat).
+// Het niveau hangt af van het vak: Page voor wiskunde kan samengaan met Schildknaap voor Nederlands.
+// Een vraag zonder doel hoort bij het hoofdvak van de quiz. Heeft een vak geen vragen op dat niveau, dan Schildknaap.
 function order(quiz, name) {
   if (quiz.herhaal) return require('./herhaal').volgorde(quiz, name);
   let all = quiz.questions.map((_, i) => i);
   if (quiz.perLeerling) {
     const leerling = klas.match(name);
-    const niveau = (leerling && leerling.niveau) || 'schildknaap';
-    const mine = all.filter(i => (quiz.questions[i].niveau || 'schildknaap') === niveau);
+    const hoofd = doelen.hoofdvak(quiz.questions.map(q => q.doel));
+    const perVak = new Map();
+    for (const i of all) {
+      const v = doelen.vak(quiz.questions[i].doel) || hoofd;
+      (perVak.get(v) || perVak.set(v, []).get(v)).push(i);
+    }
+    const mine = [];
+    for (const [v, list] of perVak) {
+      const op = n => list.filter(i => (quiz.questions[i].niveau || 'schildknaap') === n);
+      const eigen = op(klas.niveauVoor(leerling, v));
+      mine.push(...(eigen.length ? eigen : op('schildknaap')));
+    }
     if (mine.length) all = mine;
   }
   return all.sort(() => Math.random() - .5);
@@ -156,4 +193,4 @@ function remove(file) {
 
 const lib = library({ kind: 'quiz', dir: DIR, checkFile, load, save, validate, list });
 
-module.exports = { list, load, play, order, forNiveau, niveausOf, classNiveau, save, remove, validate, parseAiText, lib, DIR };
+module.exports = { list, load, play, order, gedeeld, vraagVoor, forNiveau, niveausOf, classNiveau, save, remove, validate, parseAiText, lib, DIR };

@@ -248,10 +248,10 @@ Elk oefenblad en elke quiz kan drie niveaus hebben: **🪶 Page** (met hulp), **
 1. In de oefenbladmaker staat **Op drie niveaus** aangevinkt. De AI maakt dan elke oefening in drie versies.
 2. In de oefenbladmaker wissel je met de knoppen boven de oefeningen tussen de niveaus. Laat Page of Ridder leeg als je ze niet nodig hebt; die leerlingen krijgen dan het Schildknaap-blad.
 3. Een quiz maak je op één niveau: kies bij **Moeilijkheid van deze quiz** Schildknaap (standaard), Page of Ridder. In de quizeditor kan je het niveau per vraag nog aanpassen.
-4. Op de pagina **Mijn klas en doelen** zet je elke leerling op zijn niveau.
+4. Op de pagina **Mijn klas en doelen** zet je elke leerling op zijn niveau: een **algemeen** niveau en, als het anders is, een eigen niveau voor **Wiskunde, Nederlands, Frans en WO** (aardrijkskunde, geschiedenis, wetenschap en techniek). Een vak op "=" volgt het algemene niveau, net als de andere vakken. Een quiz of oefenblad kijkt naar het vak van zijn doelen en neemt het niveau van dat vak.
 5. Een oefenblad live zetten: kies bij **Niveau** of iedereen hetzelfde niveau krijgt, of elke leerling zijn niveau uit Mijn klas, of dat de leerling zelf kiest. Klik tijdens het werken op een naam om een leerling op een ander niveau te zetten.
 6. Printen: bovenaan het printblad kies je Page, Schildknaap, Ridder of **Alle drie** (elk niveau op een eigen blad). Het verbeterblad werkt hetzelfde.
-7. Quizspellen: heeft een quiz vragen op meerdere niveaus, dan kies je boven de quizlijst het **niveau van de klas**. Het spel gebruikt dan alleen de vragen van dat niveau, of alles door elkaar. Met **👤 Per leerling** krijgt elke leerling de vragen van zijn eigen niveau uit Mijn klas. Dat werkt in alle spellen waar iedereen eigen vragen krijgt; in het Toernooi, Duel in de arena en Het Rijk spelen ze dan op Schildknaap.
+7. Quizspellen: heeft een quiz vragen op meerdere niveaus, dan kies je boven de quizlijst het **niveau van de klas**. Het spel gebruikt dan alleen de vragen van dat niveau, of alles door elkaar. Met **👤 Per leerling** krijgt elke leerling de vragen van zijn eigen niveau uit Mijn klas. Dat werkt in alle spellen. In het Toernooi, Duel in de arena en Het Rijk krijgt iedereen tegelijk dezelfde vraag, maar elk in de versie van zijn niveau (voor het vak van die vraag): het bord toont de Schildknaap-versie, de leerling ziet zijn eigen versie op zijn scherm. Bij een quiz "op de drie niveaus" hoort de 1e Page-vraag bij de 1e Schildknaap- en de 1e Ridder-vraag.
 
 ## Mijn klas en de leerplandoelen
 
@@ -272,7 +272,7 @@ Klik op het startscherm (of in Mijn klas) op **Zorgoverzicht**. Je ziet in één
 - **Oranje** (opvolgen): 10 procentpunten onder de klas, gaat achteruit in de laatste lessen, 3 of meer doelen nog niet beheerst, of gokte meermaals.
 - **Groen**: mee met de klas. **Grijs**: nog te weinig antwoorden.
 
-Elke leerling wordt vergeleken met de klas op dezelfde vragen, dus een moeilijke quiz kleurt niemand onterecht rood. Het lijntje toont elke les de leerling tegenover de klas. Klik een leerling aan voor zijn scores per vak, de doelen die nog niet lukken en de laatste lessen. Bij genoeg antwoorden krijg je een **niveau-advies** (Page, Schildknaap of Ridder) dat je met één klik instelt.
+Elke leerling wordt vergeleken met de klas op dezelfde vragen, dus een moeilijke quiz kleurt niemand onterecht rood. Het lijntje toont elke les de leerling tegenover de klas. Klik een leerling aan voor zijn scores per vak, de doelen die nog niet lukken en de laatste lessen. Bij genoeg antwoorden krijg je een **niveau-advies** per vak (Page, Schildknaap of Ridder) dat je met één klik instelt.
 
 Onderaan: **Klassikaal herhalen** (doelen waar 4 op 10 leerlingen of meer nog niet mee zijn) en **Groepjes voor verlengde instructie** (doelen waar maar een paar leerlingen vastzitten, met hun namen). Kies bovenaan de periode (2 weken, 6 weken of heel het schooljaar) en eventueel een vak. Alles blijft op deze pc.
 

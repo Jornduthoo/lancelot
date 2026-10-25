@@ -2,6 +2,7 @@
 // slaat toe en de ander verliest een hart. Fout geantwoord? Dan mag je bij die vraag niet meer.
 // Alle duels van een ronde lopen tegelijk; de winnaars gaan door in een toernooischema tot er één kampioen is.
 const logboek = require('./logboek');
+const quizzes = require('./quizzes');
 const QUESTION_MS = 20000;
 const RESULT_MS = 2600;       // na elke vraag even tonen wie toesloeg
 const ROUND_BREAK_MS = 7000;  // tussen twee rondes
@@ -171,8 +172,9 @@ class Duel {
     const s = m && this.side(m, playerId);
     if (!m || !s || m.winner || m.q === null || m.hit || Date.now() > m.until) return { error: 'Er staat geen vraag open.' };
     if (m.locked[s]) return { error: 'Je antwoordde al.' };
-    const q = this.quiz.questions[m.q];
     const p = this.players.get(playerId);
+    // Bij een quiz op drie niveaus krijgt elke ridder dezelfde vraag in de versie van zijn eigen niveau.
+    const q = quizzes.vraagVoor(this.quiz.questions[m.q], p.name);
     m.locked[s] = true;
     logboek.answer('Duel in de arena', this.quiz.title, p.name, q, choice === q.correct);
     if (choice === q.correct) {
@@ -192,8 +194,9 @@ class Duel {
   resolve(m, striker) {
     if (m.hit || m.winner) return;
     clearTimeout(m.timer);
-    const q = this.quiz.questions[m.q];
-    m.hit = { by: striker, right: q.correct, at: Date.now() };
+    // Het goede antwoord per kant: elke ridder kan een andere versie van de vraag hebben.
+    const right = id => (id && this.players.get(id) ? quizzes.vraagVoor(this.quiz.questions[m.q], this.players.get(id).name).correct : null);
+    m.hit = { by: striker, right: { a: right(m.a), b: right(m.b) }, at: Date.now() };
     if (striker) {
       m.hits = m.hits || {};
       m.hits[striker] = (m.hits[striker] || 0) + 1;
@@ -360,10 +363,10 @@ class Duel {
       state.match = {
         me: s, opponent: opp ? opp.name : null, hp: m.hp[s], opHp: m.hp[o], winner: m.winner ? (m.winner === playerId ? 'ik' : 'ander') : null,
         note: m.note, number: m.number, until: m.until, locked: !!m.locked[s], opLocked: !!m.locked[o],
-        hit: m.hit ? { by: m.hit.by === s ? 'ik' : m.hit.by ? 'ander' : null, right: m.hit.right } : null,
+        hit: m.hit ? { by: m.hit.by === s ? 'ik' : m.hit.by ? 'ander' : null, right: m.hit.right[s] } : null,
       };
       if (m.q !== null && !m.winner) {
-        const q = this.quiz.questions[m.q];
+        const q = quizzes.vraagVoor(this.quiz.questions[m.q], p.name);
         state.match.question = q.question;
         state.match.answers = q.answers;
       }

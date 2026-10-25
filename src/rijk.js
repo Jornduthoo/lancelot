@@ -5,6 +5,7 @@
 const fs = require('fs');
 const path = require('path');
 const logboek = require('./logboek');
+const quizzes = require('./quizzes');
 
 const DIR = path.join(__dirname, '..', 'rijken');
 const COLS = 11;
@@ -257,7 +258,15 @@ class Rijk {
     this.startedAt = Date.now() + 3000;
     this.endsAt = this.startedAt + this.minutes * 60000;
     this.before = counts(this.data);
-    this.data.quizzes[this.quizId] = { title: this.quiz.title, questions: this.quiz.questions.map(q => ({ question: q.question, answers: q.answers, correct: q.correct, ...(q.doel ? { doel: q.doel } : {}) })) };
+    // Bij een quiz op drie niveaus (Per leerling) bewaren we ook de Page- en Ridder-versie van elke vraag.
+    const kort = q => ({ question: q.question, answers: q.answers, correct: q.correct, ...(q.doel ? { doel: q.doel } : {}) });
+    this.data.quizzes[this.quizId] = {
+      title: this.quiz.title,
+      questions: this.quiz.questions.map(q => ({
+        ...kort(q),
+        ...(q.varianten ? { vak: q.vak, varianten: Object.fromEntries(Object.entries(q.varianten).map(([n, v]) => [n, kort(v)])) } : {}),
+      })),
+    };
     this.endTimer = setTimeout(() => this.finish(), this.endsAt - Date.now());
     this.saveTimer = setInterval(() => this.save(), 20000);
     const n = this.data.lessons.length + 1;
@@ -297,7 +306,7 @@ class Rijk {
       }
       p.question = { id, index };
     }
-    const q = this.data.quizzes[p.question.id].questions[p.question.index];
+    const q = quizzes.vraagVoor(this.data.quizzes[p.question.id].questions[p.question.index], p.name);
     const old = p.question.id !== this.quizId ? this.data.quizzes[p.question.id].title : null;
     return { question: q.question, answers: q.answers, number: p.right + p.wrong + 1, old };
   }
@@ -307,7 +316,7 @@ class Rijk {
     if (!this.playing(p) || !p.question) return { error: 'Er staat geen vraag open.' };
     const { id, index } = p.question;
     p.question = null;
-    const q = this.data.quizzes[id].questions[index];
+    const q = quizzes.vraagVoor(this.data.quizzes[id].questions[index], p.name);
     const old = id !== this.quizId;
     const correct = choice === q.correct;
     logboek.answer('Het Rijk', this.quiz.title, p.name, q, correct);
