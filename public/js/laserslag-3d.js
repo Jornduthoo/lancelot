@@ -4,7 +4,7 @@
 // Gebruikt Arena uit laserslag-world.js en SlagDraw (kleuren).
 const Slag3D = (() => {
   const FOV = 1.15;          // ongeveer 66 graden
-  const WALL_H = 74;
+  const WALL_H = 92;
   const FP_EYE = 28;
   const KNIGHT_H = 48;
   const FAR = 1900;
@@ -14,85 +14,334 @@ const Slag3D = (() => {
   const TP_EYE = 44;
   const TP_HORIZON = .42;
 
-  const OUT_H = 150;         // de burchtmuur errond is hoger dan de muren binnenin
+  // De burchtmuur errond is veel hoger dan de muren binnenin: je staat echt binnen de burcht.
+  const OUT_H = 220;
+  const TOWER_H = 330;       // de torens op de hoeken
+  const GATE_H = 290;        // de poort achter elk kamp
+  const GATE_W = 220;        // even lang als de poort van bovenaf (SlagDraw)
+  const TOWER_W = 100;       // zo ver loopt een hoektoren langs elke muur
   const RED = '#ff4d6d', BLUE = '#3d8bff';
   const neonOf = r => (r.x + r.w / 2 < Arena.W * .4 ? '#ff6b86' : r.x + r.w / 2 > Arena.W * .6 ? '#5ea3ff' : '#4cc9ff');
+  const rand = seed => () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
 
-  // Muren binnenin: steen met een neonrand en gloeiende spleten, in de kleur van de kant waar ze staan.
+  // Een textuur één keer tekenen. cren: hoe hoog de kantelen bovenaan zijn; open[u] zegt of kolom u daar een gat heeft,
+  // zodat de mist verre muren donkerder maakt zonder de hemel tussen de kantelen mee te kleuren.
+  function paint(w, h, fn, cren = 0) {
+    const c = document.createElement('canvas');
+    c.width = w;
+    c.height = h;
+    const g = c.getContext('2d');
+    fn(g, w, h);
+    c.cren = cren;
+    c.open = new Uint8Array(w);
+    if (cren) {
+      const row = g.getImageData(0, Math.floor(cren / 2), w, 1).data;
+      for (let u = 0; u < w; u++) c.open[u] = row[u * 4 + 3] < 128 ? 1 : 0;
+    }
+    return c;
+  }
+
+  // Gekapte stenen: elk blok een eigen tint, voegen, een lichte bovenrand, hier en daar een barst of wat mos.
+  function blocks(g, x, y, w, h, bw, bh, base, r, moss = 0) {
+    g.save();
+    g.beginPath(); g.rect(x, y, w, h); g.clip();
+    g.fillStyle = '#100d1c';
+    g.fillRect(x, y, w, h);
+    for (let yy = y, row = 0; yy < y + h; yy += bh, row++) {
+      for (let xx = x - (row % 2 ? bw / 2 : 0); xx < x + w; xx += bw) {
+        const v = r();
+        const s = (v - .5) * 26;
+        g.fillStyle = `rgb(${base[0] + s | 0}, ${base[1] + s | 0}, ${base[2] + s | 0})`;
+        g.fillRect(xx + 1, yy + 1, bw - 2, bh - 2);
+        g.fillStyle = 'rgba(255, 255, 255, .1)';
+        g.fillRect(xx + 1, yy + 1, bw - 2, 1);
+        g.fillStyle = 'rgba(0, 0, 0, .25)';
+        g.fillRect(xx + 1, yy + bh - 2, bw - 2, 1);
+        if (v > .9) {
+          const cx = xx + 4 + r() * (bw - 8);
+          g.fillStyle = 'rgba(0, 0, 0, .5)';
+          g.fillRect(cx, yy + 2, 1, bh * .45);
+          g.fillRect(cx + 1, yy + 2 + bh * .45, 1, bh * .35);
+        }
+        if (moss && r() < moss) {
+          g.fillStyle = `rgba(80, 130, 70, ${.25 + r() * .2})`;
+          g.fillRect(xx + 1, yy + bh - 4 - r() * 3, bw - 2, 3 + r() * 3);
+        }
+      }
+    }
+    g.restore();
+  }
+  // Kantelen bovenaan: blokken met gaten waar je de hemel door ziet, elk met een smalle schietspleet.
+  function crenels(g, w, h, mw, gap, base, r) {
+    for (let x = gap / 2; x < w; x += mw + gap) {
+      blocks(g, x, 0, mw, h, mw / 2, h / 2, base, r);
+      g.fillStyle = 'rgba(255, 255, 255, .2)';
+      g.fillRect(x, 0, mw, 2);
+      g.fillStyle = 'rgba(0, 0, 0, .3)';
+      g.fillRect(x + mw - 3, 0, 3, h);
+      g.fillStyle = '#05040c';
+      if (mw > 20) g.fillRect(x + mw / 2 - 1.5, h * .3, 3, h * .5);
+    }
+  }
+  // Mezekouwen onder de weergang: uitstekende stenen met gaten ertussen, en de schaduw eronder.
+  function corbels(g, y, w, h, color) {
+    g.fillStyle = color;
+    g.fillRect(0, y, w, h);
+    g.fillStyle = 'rgba(255, 255, 255, .14)';
+    g.fillRect(0, y, w, 2);
+    g.fillStyle = '#06050c';
+    for (let x = 4; x < w; x += 16) g.fillRect(x, y + h * .45, 8, h * .55);
+    const sh = g.createLinearGradient(0, y + h, 0, y + h + 22);
+    sh.addColorStop(0, 'rgba(0, 0, 0, .55)');
+    sh.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    g.fillStyle = sh;
+    g.fillRect(0, y + h, w, 22);
+  }
+  // Een kruisvormig schietgat, met een vleugje licht van binnenuit.
+  function slit(g, x, y, h, light) {
+    g.fillStyle = 'rgba(0, 0, 0, .35)';
+    g.fillRect(x - 4, y - 3, 8, h + 6);
+    g.fillStyle = '#04030a';
+    g.fillRect(x - 1.5, y, 3, h);
+    g.fillRect(x - 7, y + h * .36, 14, 3);
+    if (light) {
+      g.fillStyle = light;
+      g.fillRect(x - .5, y + 4, 1, h - 8);
+    }
+  }
+  // Onderaan een smalle neonband: de sci-fi kant van de burcht.
+  function neonFoot(g, w, h, color) {
+    g.fillStyle = '#0c0a18';
+    g.fillRect(0, h - 15, w, 7);
+    g.fillStyle = color;
+    g.fillRect(0, h - 14, w, 2);
+    g.globalAlpha = .3;
+    g.fillRect(0, h - 18, w, 3);
+    g.globalAlpha = 1;
+  }
+
+  // De burchtmuur: kantelen, mezekouwen, grote stenen, regensporen, een schietgat en een sokkel met mos.
+  const rampTex = paint(128, OUT_H, (g, w, h) => {
+    const r = rand(5);
+    blocks(g, 0, 40, w, h - 40, 32, 18, [58, 52, 78], r, .08);
+    blocks(g, 0, h - 36, w, 36, 42, 18, [44, 40, 60], r, .55);
+    crenels(g, w, 26, 44, 20, [72, 66, 96], r);
+    corbels(g, 26, w, 14, '#3e3858');
+    for (let i = 0; i < 7; i++) {
+      const x = r() * w, len = 60 + r() * 90;
+      const gr = g.createLinearGradient(0, 40, 0, 40 + len);
+      gr.addColorStop(0, 'rgba(0, 0, 0, .25)');
+      gr.addColorStop(1, 'rgba(0, 0, 0, 0)');
+      g.fillStyle = gr;
+      g.fillRect(x, 40, 3 + r() * 5, len);
+    }
+    slit(g, 96, 66, 46, 'rgba(255, 150, 70, .55)');
+    neonFoot(g, w, h, '#4cc9ff');
+  }, 26);
+
+  // Een hoektoren: hoger, met grotere kantelen, een verlicht boograam en een band in de kleur van het team.
+  const towerCache = {};
+  function towerTex(color) {
+    if (towerCache[color]) return towerCache[color];
+    towerCache[color] = paint(TOWER_W, TOWER_H, (g, w, h) => {
+      const r = rand(color === RED ? 7 : 8);
+      blocks(g, 0, 48, w, h - 48, 25, 20, [66, 60, 90], r, .15);
+      blocks(g, 0, h - 40, w, 40, 33, 20, [46, 42, 64], r, .6);
+      crenels(g, w, 34, 21, 4, [78, 72, 106], r);
+      corbels(g, 34, w, 14, '#453e62');
+      // Verlicht raam met een boog.
+      const cx = w / 2, top = 104, ww = 24, wh = 48;
+      g.fillStyle = '#2a2440';
+      g.beginPath(); g.arc(cx, top, ww / 2 + 6, Math.PI, 0); g.lineTo(cx + ww / 2 + 6, top + wh + 4); g.lineTo(cx - ww / 2 - 6, top + wh + 4); g.closePath(); g.fill();
+      const lg = g.createLinearGradient(0, top - ww / 2, 0, top + wh);
+      lg.addColorStop(0, '#ffe2a0');
+      lg.addColorStop(1, '#ff8a2a');
+      g.fillStyle = lg;
+      g.beginPath(); g.arc(cx, top, ww / 2, Math.PI, 0); g.lineTo(cx + ww / 2, top + wh); g.lineTo(cx - ww / 2, top + wh); g.closePath(); g.fill();
+      g.fillStyle = '#2a2034';
+      g.fillRect(cx - 1.5, top - ww / 2, 3, wh + ww / 2);
+      g.fillRect(cx - ww / 2, top + wh * .35, ww, 3);
+      // Band en schild in de kleur van het team.
+      g.fillStyle = '#0c0a18';
+      g.fillRect(0, 186, w, 8);
+      g.fillStyle = color;
+      g.fillRect(0, 188, w, 3);
+      const s = 13, sy = 222;
+      g.fillStyle = color;
+      g.strokeStyle = '#ffd36b';
+      g.lineWidth = 2.5;
+      g.beginPath();
+      g.moveTo(cx - s, sy - s); g.lineTo(cx + s, sy - s); g.lineTo(cx + s, sy);
+      g.quadraticCurveTo(cx + s, sy + s * .9, cx, sy + s * 1.3); g.quadraticCurveTo(cx - s, sy + s * .9, cx - s, sy);
+      g.closePath(); g.fill(); g.stroke();
+      slit(g, 18, 140, 40);
+      slit(g, w - 18, 140, 40);
+      neonFoot(g, w, h, color);
+    }, 34);
+    return towerCache[color];
+  }
+
+  // De poort achter een kamp: een spitsboog met een ijzeren valhek, en daarachter het krachtveld van het team.
+  const gateCache = {};
+  function gateTex(color) {
+    if (gateCache[color]) return gateCache[color];
+    gateCache[color] = paint(GATE_W, GATE_H, (g, w, h) => {
+      const r = rand(color === RED ? 11 : 12);
+      blocks(g, 0, 44, w, h - 44, 30, 20, [62, 56, 84], r, .12);
+      blocks(g, 0, h - 36, w, 36, 40, 18, [46, 42, 64], r, .5);
+      crenels(g, w, 30, 26, 10, [76, 70, 102], r);
+      corbels(g, 30, w, 14, '#433c60');
+      const cx = w / 2, aw = 112, top = 120, bot = h - 8;
+      const arch = () => {
+        g.beginPath();
+        g.moveTo(cx - aw / 2, bot);
+        g.lineTo(cx - aw / 2, top + 40);
+        g.quadraticCurveTo(cx - aw / 2, top - 4, cx, top - 22);
+        g.quadraticCurveTo(cx + aw / 2, top - 4, cx + aw / 2, top + 40);
+        g.lineTo(cx + aw / 2, bot);
+        g.closePath();
+      };
+      // Boogstenen.
+      arch();
+      g.strokeStyle = '#7a7298';
+      g.lineWidth = 16;
+      g.stroke();
+      g.strokeStyle = '#262036';
+      g.lineWidth = 2;
+      g.stroke();
+      // Het krachtveld achter het hek.
+      arch();
+      const fg = g.createLinearGradient(0, top - 22, 0, bot);
+      fg.addColorStop(0, '#05040a');
+      fg.addColorStop(.55, Glow.rgba(color, .55));
+      fg.addColorStop(1, color);
+      g.fillStyle = fg;
+      g.fill();
+      g.save();
+      arch();
+      g.clip();
+      g.fillStyle = 'rgba(255, 255, 255, .35)';
+      for (let y = top; y < bot; y += 9) g.fillRect(cx - aw / 2, y, aw, 1);
+      // Het valhek.
+      for (let x = cx - aw / 2 + 6; x < cx + aw / 2; x += 14) {
+        g.fillStyle = '#1a1722';
+        g.fillRect(x, top - 30, 5, bot - top + 22);
+        g.fillStyle = '#8a90a8';
+        g.fillRect(x, top - 30, 1.5, bot - top + 22);
+        g.fillStyle = '#1a1722';
+        g.beginPath(); g.moveTo(x - 1, bot - 8); g.lineTo(x + 6, bot - 8); g.lineTo(x + 2.5, bot); g.closePath(); g.fill();
+      }
+      for (let y = top - 6; y < bot - 10; y += 22) {
+        g.fillStyle = '#1a1722';
+        g.fillRect(cx - aw / 2, y, aw, 5);
+        g.fillStyle = 'rgba(160, 170, 200, .5)';
+        g.fillRect(cx - aw / 2, y, aw, 1.5);
+      }
+      g.restore();
+      // Schild boven de poort.
+      const s = 16, sy = 70;
+      g.fillStyle = color;
+      g.strokeStyle = '#ffd36b';
+      g.lineWidth = 3;
+      g.beginPath();
+      g.moveTo(cx - s, sy - s); g.lineTo(cx + s, sy - s); g.lineTo(cx + s, sy);
+      g.quadraticCurveTo(cx + s, sy + s * .9, cx, sy + s * 1.3); g.quadraticCurveTo(cx - s, sy + s * .9, cx - s, sy);
+      g.closePath(); g.fill(); g.stroke();
+      g.strokeStyle = 'rgba(255, 255, 255, .7)';
+      g.lineWidth = 2;
+      g.beginPath(); g.moveTo(cx - 8, sy - 8); g.lineTo(cx + 8, sy + 8); g.moveTo(cx + 8, sy - 8); g.lineTo(cx - 8, sy + 8); g.stroke();
+      slit(g, 26, 90, 44, 'rgba(255, 150, 70, .55)');
+      slit(g, w - 26, 90, 44, 'rgba(255, 150, 70, .55)');
+      neonFoot(g, w, h, color);
+    }, 30);
+    return gateCache[color];
+  }
+
+  // Steunbeer: een smalle pijler die uit de muur springt, iets hoger dan de muur.
+  const buttTex = paint(32, OUT_H + 20, (g, w, h) => {
+    const r = rand(21);
+    blocks(g, 0, 0, w, h, 16, 16, [66, 60, 88], r, .2);
+    g.fillStyle = 'rgba(255, 255, 255, .22)';
+    g.fillRect(0, 0, w, 3);
+    g.fillStyle = 'rgba(0, 0, 0, .3)';
+    g.fillRect(w - 4, 0, 4, h);
+    g.fillStyle = 'rgba(255, 255, 255, .08)';
+    g.fillRect(0, 0, 3, h);
+    neonFoot(g, w, h, '#4cc9ff');
+  });
+
+  // Een lange vaandel in de kleur van het team, met een gouden kroon en een zwaluwstaart onderaan.
+  const flagCache = {};
+  function pennant(color) {
+    if (flagCache[color]) return flagCache[color];
+    const c = document.createElement('canvas');
+    c.width = 48;
+    c.height = 200;
+    const g = c.getContext('2d');
+    const cl = g.createLinearGradient(0, 0, 48, 0);
+    cl.addColorStop(0, Glow.rgba(color, .55));
+    cl.addColorStop(.5, color);
+    cl.addColorStop(1, Glow.rgba(color, .55));
+    g.fillStyle = '#16121e';
+    g.fillRect(0, 0, 48, 200);
+    g.fillStyle = cl;
+    g.beginPath(); g.moveTo(4, 8); g.lineTo(44, 8); g.lineTo(44, 196); g.lineTo(24, 168); g.lineTo(4, 196); g.closePath(); g.fill();
+    // Schaduw van de plooien.
+    for (const x of [14, 30]) {
+      g.fillStyle = 'rgba(0, 0, 0, .18)';
+      g.fillRect(x, 8, 4, 170);
+    }
+    g.fillStyle = '#ffd36b';
+    g.fillRect(4, 18, 40, 3);
+    g.fillRect(4, 150, 40, 3);
+    g.beginPath();
+    g.moveTo(12, 70); g.lineTo(12, 52); g.lineTo(18, 60); g.lineTo(24, 46); g.lineTo(30, 60); g.lineTo(36, 52); g.lineTo(36, 70);
+    g.closePath(); g.fill();
+    g.fillRect(12, 74, 24, 4);
+    g.fillStyle = '#c9a24a';
+    g.fillRect(0, 2, 48, 7);
+    // Waar geen doek hangt, zie je de muur: doorzichtig maken.
+    g.globalCompositeOperation = 'destination-out';
+    g.fillRect(0, 0, 48, 2);
+    g.beginPath(); g.moveTo(4, 200); g.lineTo(24, 168); g.lineTo(44, 200); g.closePath(); g.fill();
+    g.fillRect(0, 9, 4, 191);
+    g.fillRect(44, 9, 4, 191);
+    flagCache[color] = c;
+    return c;
+  }
+
+  // Muren binnenin: steen met kantelen bovenaan en een band met gloeiende spleten in de kleur van hun kant.
   const texCache = {};
   function wallTex(neon) {
     if (texCache[neon]) return texCache[neon];
-    const tex = document.createElement('canvas');
-    tex.width = 64;
-    tex.height = 64;
-    const g = tex.getContext('2d');
-    g.fillStyle = '#1c2742';
-    g.fillRect(0, 0, 64, 64);
-    for (let row = 0; row < 8; row++) {
-      for (let col = -1; col < 4; col++) {
-        const x = col * 20 + (row % 2 ? 10 : 0);
-        const shade = 34 + ((row * 7 + col * 13) % 5) * 5;
-        g.fillStyle = `rgb(${shade}, ${shade + 10}, ${shade + 30})`;
-        g.fillRect(x + 1, row * 8 + 1, 18, 6);
-        g.fillStyle = 'rgba(255,255,255,.08)';
-        g.fillRect(x + 1, row * 8 + 1, 18, 1);
-      }
-    }
-    // Een donkere band met gloeiende spleten halverwege.
-    g.fillStyle = '#0a0f1e';
-    g.fillRect(0, 26, 64, 10);
-    g.fillStyle = neon;
-    g.fillRect(6, 29, 20, 4);
-    g.fillRect(38, 29, 20, 4);
-    g.fillStyle = 'rgba(255,255,255,.7)';
-    g.fillRect(10, 30, 12, 2);
-    g.fillRect(42, 30, 12, 2);
-    g.fillStyle = neon;
-    g.fillRect(0, 0, 64, 3);
-    g.fillRect(0, 61, 64, 3);
-    g.globalAlpha = .4;
-    g.fillRect(0, 3, 64, 2);
-    g.fillRect(0, 59, 64, 2);
-    g.fillRect(0, 0, 1, 64);
-    g.globalAlpha = 1;
-    texCache[neon] = tex;
-    return tex;
+    texCache[neon] = paint(64, WALL_H, (g, w, h) => {
+      const r = rand(neon.charCodeAt(2) * 31 + 3);
+      blocks(g, 0, 16, w, h - 16, 32, 13, [50, 56, 84], r, .2);
+      crenels(g, w, 14, 22, 10, [64, 70, 102], r);
+      // Afdekstenen onder de kantelen.
+      g.fillStyle = '#5a6290';
+      g.fillRect(0, 13, w, 5);
+      g.fillStyle = 'rgba(255, 255, 255, .25)';
+      g.fillRect(0, 13, w, 1);
+      g.fillStyle = 'rgba(0, 0, 0, .4)';
+      g.fillRect(0, 18, w, 3);
+      g.fillStyle = '#0a0f1e';
+      g.fillRect(0, 48, w, 9);
+      g.fillStyle = neon;
+      g.fillRect(6, 51, 20, 3);
+      g.fillRect(38, 51, 20, 3);
+      g.fillStyle = 'rgba(255,255,255,.7)';
+      g.fillRect(10, 52, 12, 1);
+      g.fillRect(42, 52, 12, 1);
+      g.fillStyle = 'rgba(0, 0, 0, .3)';
+      g.fillRect(0, 16, 1, h);
+      neonFoot(g, w, h + 6, neon);
+    }, 13);
+    return texCache[neon];
   }
 
-  // De burchtmuur: grote stenen, kantelen bovenaan (met gaten waar je de hemel door ziet) en een neonband onderaan.
-  const rampTex = document.createElement('canvas');
-  rampTex.width = 64;
-  rampTex.height = 150;
-  (() => {
-    const g = rampTex.getContext('2d');
-    g.fillStyle = '#2b2640';
-    g.fillRect(0, 18, 64, 132);
-    g.fillRect(0, 0, 32, 18);
-    for (let row = 0; row < 7; row++) {
-      for (let col = -1; col < 3; col++) {
-        const x = col * 32 + (row % 2 ? 16 : 0);
-        const shade = 46 + ((row * 5 + col * 11) % 4) * 6;
-        g.fillStyle = `rgb(${shade}, ${shade - 6}, ${shade + 22})`;
-        g.fillRect(x + 1.5, 20 + row * 17 + 1.5, 29, 14);
-        g.fillStyle = 'rgba(255,255,255,.1)';
-        g.fillRect(x + 1.5, 20 + row * 17 + 1.5, 29, 1.5);
-      }
-    }
-    g.fillStyle = '#5a527c';
-    g.fillRect(1, 1, 30, 16);
-    g.fillStyle = 'rgba(255,255,255,.2)';
-    g.fillRect(1, 1, 30, 2);
-    g.fillStyle = '#16122a';
-    g.fillRect(0, 17, 64, 3);
-    g.fillStyle = '#0c0a18';
-    g.fillRect(0, 138, 64, 12);
-    g.fillStyle = '#4cc9ff';
-    g.fillRect(0, 139, 64, 3);
-    g.fillStyle = 'rgba(76, 201, 255, .35)';
-    g.fillRect(0, 136, 64, 3);
-  })();
-
-  // Hoe de muren erbij staan voor deze maat van de arena, met de posters en banieren die eraan hangen.
+  // Hoe de burcht erbij staat voor deze maat van de arena: muren, torens, poorten en steunberen,
+  // met de posters, vaandels en fakkels die eraan hangen.
   let lay = null;
   function layout() {
     const key = `${Arena.tier}/${typeof Posters !== 'undefined' ? Posters.version : 0}`;
@@ -107,35 +356,92 @@ const Slag3D = (() => {
       const pw = (v1 - v0) * img.width / img.height;
       r.deco.push({ face, u0: center - pw / 2, u1: center + pw / 2, v0, v1, img });
     };
+    const torches = [];
+    // Een plek langs een muur (c = afstand vanaf de hoek) als punt in de arena, d eenheden van de muur af.
+    const at = (face, c, d) => (face === 'S' ? [c, d] : face === 'N' ? [c, H - d] : face === 'E' ? [d, c] : [W - d, c]);
     const outer = [
       { x: -60, y: -60, w: W + 120, h: 60, face: 'S', len: W, off: 60 },
       { x: -60, y: H, w: W + 120, h: 60, face: 'N', len: W, off: 60 },
       { x: -60, y: 0, w: 60, h: H, face: 'E', len: H, off: 0 },
       { x: W, y: 0, w: 60, h: H, face: 'W', len: H, off: 0 },
     ];
+    // Wat uit de muur springt: een klein stukje de arena in, nooit tot waar een ridder kan komen.
+    const parts = [];
+    const part = (x, y, w, h, main, tex, wh, extra) => {
+      const p = { x, y, w, h, main, tex, wh, deco: [], ...extra };
+      parts.push(p);
+      return p;
+    };
+    // Hoektorens: aan elke hoek een stuk langs beide muren.
+    for (const [cx, cy] of [[0, 0], [W, 0], [0, H], [W, H]]) {
+      const tex = towerTex(cx ? BLUE : RED);
+      part(cx ? W - TOWER_W : -60, cy ? H - 10 : -60, TOWER_W + 60, 70, cy ? 'N' : 'S', tex, TOWER_H, { uo: cx ? 0 : -60, sideU: 8 });
+      part(cx ? W - 10 : -60, cy ? H - TOWER_W : -60, 70, TOWER_W + 60, cx ? 'W' : 'E', tex, TOWER_H, { uo: cy ? 0 : -60, sideU: 8 });
+    }
+    // De poorten achter de kampen, met een fakkel aan elke kant.
+    for (const [face, color] of [['E', RED], ['W', BLUE]]) {
+      part(face === 'E' ? -60 : W - 14, H / 2 - GATE_W / 2, 74, GATE_W, face, gateTex(color), GATE_H, { sideU: 8 });
+      for (const s of [-1, 1]) torches.push([...at(face, H / 2 + s * (GATE_W / 2 + 22), 5), 112]);
+    }
     for (const r of outer) {
       r.tex = rampTex;
       r.wh = OUT_H;
       r.deco = [];
+      const vert = r.face === 'E' || r.face === 'W';
+      const color = c => (r.face === 'E' ? RED : r.face === 'W' ? BLUE : c < W / 2 ? RED : BLUE);
       const cnt = Math.max(2, Math.round(r.len / 320));
+      const step = r.len / cnt;
       for (let i = 0; i < cnt; i++) {
-        const c = ((i + .5) * r.len) / cnt;
-        const side = r.face === 'E' ? RED : r.face === 'W' ? BLUE : c < W / 2 ? RED : BLUE;
-        if (photos.length && i % 3 !== 2) hang(r, r.face, r.off + c, 26, 128, photos[n++ % photos.length]);
-        else hang(r, r.face, r.off + c, 34, 134, banner(side));
+        const c = (i + .5) * step;
+        if (vert && Math.abs(c - H / 2) < GATE_W / 2 + 50) continue;
+        if (photos.length && i % 3 !== 2) hang(r, r.face, r.off + c, 30, 132, photos[n++ % photos.length]);
+        else hang(r, r.face, r.off + c, 36, 136, banner(color(c)));
+        for (const s of [-1, 1]) if (c + s * 74 > TOWER_W + 20 && c + s * 74 < r.len - TOWER_W - 20) torches.push([...at(r.face, c + s * 74, 5), 104]);
+      }
+      // Steunberen tussen de posters, met een vaandel.
+      for (let i = 1; i < cnt; i++) {
+        const c = i * step;
+        if (vert && Math.abs(c - H / 2) < GATE_W / 2 + 30) continue;
+        const [px, py] = at(r.face, c, 0);
+        const b = vert
+          ? part(r.face === 'E' ? -60 : W - 12, py - 16, 72, 32, r.face, buttTex, OUT_H + 20, { sideU: 4 })
+          : part(px - 16, r.face === 'S' ? -60 : H - 12, 32, 72, r.face, buttTex, OUT_H + 20, { sideU: 4 });
+        hang(b, r.face, 16, 62, 196, pennant(color(c)));
       }
     }
     const inner = Arena.WALLS.map(w => ({ ...w, tex: wallTex(neonOf(w)), wh: WALL_H, deco: [] }));
     // Lange muren binnenin krijgen aan elke lange kant een poster.
     if (photos.length) {
       for (const r of inner) {
-        if (r.w >= 190) for (const f of ['N', 'S']) hang(r, f, r.w / 2, 10, 64, photos[n++ % photos.length]);
-        else if (r.h >= 190) for (const f of ['W', 'E']) hang(r, f, r.h / 2, 10, 64, photos[n++ % photos.length]);
+        if (r.w >= 190) for (const f of ['N', 'S']) hang(r, f, r.w / 2, 12, 70, photos[n++ % photos.length]);
+        else if (r.h >= 190) for (const f of ['W', 'E']) hang(r, f, r.h / 2, 12, 70, photos[n++ % photos.length]);
       }
     }
-    lay = { key, outer, inner, all: [...inner, ...outer] };
+    const all = [...parts, ...outer];
+    lay = { key, outer: all, inner, all: [...inner, ...all], torches: torches.map(([x, y, z]) => ({ x, y, z })) };
     return lay;
   }
+
+  // Een fakkelvlam, in vier standen om te flakkeren.
+  const flames = [0, 1, 2, 3].map(i => {
+    const c = document.createElement('canvas');
+    c.width = 16;
+    c.height = 28;
+    const g = c.getContext('2d');
+    const lean = (i - 1.5) * 1.2;
+    const fl = (col, s, y0) => {
+      g.fillStyle = col;
+      g.beginPath();
+      g.moveTo(8 + lean * 2, y0);
+      g.quadraticCurveTo(8 + 7 * s, 18, 8, 27);
+      g.quadraticCurveTo(8 - 7 * s, 18, 8 + lean * 2, y0);
+      g.fill();
+    };
+    fl('#ff6a1a', 1, 1 + i);
+    fl('#ffb43c', .7, 7 + i);
+    fl('#fff3c0', .4, 14);
+    return c;
+  });
   // Ridder van voren, in pixelkunst. C = kleur van het team.
   const FRONT = [
     '.....CC.....',
@@ -433,27 +739,36 @@ const Slag3D = (() => {
     // Muren, kolom per kolom: eerst de burchtmuur errond, dan een muur binnenin als die dichterbij staat.
     const L = layout();
     const yAt = (z, perp) => horizon + ((EYE - z) * proj) / perp;
-    const column = (x, hit, ra, dx, dy) => {
+    // cut: waar een muur ervoor begint (onder de kantelen); wat daaronder zit, tekenen we niet voor niets.
+    const column = (x, hit, ra, dx, dy, cut = Infinity) => {
       const perp = hit.d * Math.cos(ra - a);
       const r = hit.r;
       const top = yAt(r.wh, perp);
       const bottom = yAt(0, perp);
-      const tu = Math.floor(((hit.u % 64) + 64) % 64);
-      g.drawImage(r.tex, tu, 0, 1, r.tex.height, x, top, 1, bottom - top);
+      const end = Math.min(bottom, cut);
+      if (end <= top) return perp;
+      const face = hit.side ? (dy > 0 ? 'N' : 'S') : (dx > 0 ? 'W' : 'E');
+      // Op de smalle zijkant van wat uit de muur springt: gewone steen.
+      const tw = r.tex.width;
+      const tu = !r.main || r.main === face ? Math.floor((((hit.u + (r.uo || 0)) % tw) + tw) % tw) : r.sideU + (Math.floor(hit.u) & 7);
+      g.drawImage(r.tex, tu, 0, 1, r.tex.height * (end - top) / (bottom - top), x, top, 1, end - top);
       if (r.deco.length) {
-        const face = hit.side ? (dy > 0 ? 'N' : 'S') : (dx > 0 ? 'W' : 'E');
         for (const d of r.deco) {
           if (d.face !== face || hit.u < d.u0 || hit.u >= d.u1) continue;
           const y1 = yAt(d.v1, perp);
+          const y0 = yAt(d.v0, perp);
+          if (y1 >= end) continue;
           // Op de noord- en oostkant loopt u van rechts naar links (voor wie ernaar kijkt): spiegel terug.
           let k = (hit.u - d.u0) / (d.u1 - d.u0);
           if (face === 'N' || face === 'E') k = 1 - k;
-          g.drawImage(d.img, Math.min(d.img.width - 1, Math.floor(k * d.img.width)), 0, 1, d.img.height, x, y1, 1, yAt(d.v0, perp) - y1);
+          const y2 = Math.min(y0, end);
+          g.drawImage(d.img, Math.min(d.img.width - 1, Math.floor(k * d.img.width)), 0, 1, d.img.height * (y2 - y1) / (y0 - y1), x, y1, 1, y2 - y1);
         }
       }
-      const fog = Math.min(.85, perp / 1700 + (hit.side ? .16 : 0));
-      g.fillStyle = `rgba(6, 8, 22, ${fog})`;
-      g.fillRect(x, top, 1, bottom - top);
+      // Mist: tussen twee kantelen niet over de hemel heen.
+      const fogTop = r.tex.open[tu] ? top + (bottom - top) * r.tex.cren / r.tex.height : top;
+      g.fillStyle = `rgba(6, 8, 22, ${Math.min(.85, perp / 1700 + (hit.side ? .16 : 0))})`;
+      g.fillRect(x, fogTop, 1, end - fogTop);
       return perp;
     };
     for (let x = 0; x < resW; x++) {
@@ -464,8 +779,11 @@ const Slag3D = (() => {
       const ho = castIn(L.outer, cam.x, cam.y, dx, dy);
       const hi = castIn(L.inner, cam.x, cam.y, dx, dy);
       let perp = FAR;
-      if (ho.r) perp = column(x, ho, ra, dx, dy);
-      if (hi.r && hi.d < ho.d) perp = column(x, hi, ra, dx, dy);
+      const front = hi.r && hi.d < ho.d;
+      // Achter een muur binnenin zie je van de burchtmuur alleen wat erboven uitsteekt (en tussen de kantelen door).
+      const cut = front ? yAt(WALL_H - hi.r.tex.cren * WALL_H / hi.r.tex.height, hi.d * Math.cos(ra - a)) : Infinity;
+      if (ho.r) perp = column(x, ho, ra, dx, dy, cut);
+      if (front) perp = column(x, hi, ra, dx, dy);
       zbuf[x] = perp;
     }
     // Ridders, kogels en het kristal: van ver naar dichtbij, achter muren verborgen.
@@ -473,6 +791,7 @@ const Slag3D = (() => {
     for (const o of scene.others) things.push({ kind: 'knight', o, x: o.x, y: o.y });
     for (const b of scene.bullets) things.push({ kind: 'bullet', o: b, x: b.x, y: b.y });
     if (scene.crystal) things.push({ kind: 'crystal', x: scene.crystal.x, y: scene.crystal.y });
+    for (const tc of L.torches) things.push({ kind: 'torch', x: tc.x, y: tc.y, z: tc.z });
     for (const b of scene.booms) things.push({ kind: 'boom', o: b, x: b.x, y: b.y });
     if (tp) things.push({ kind: 'knight', self: true, o: { ...scene.self, x: me.x, y: me.y }, x: me.x, y: me.y });
     for (const th of things) th.d = Math.hypot(th.x - cam.x, th.y - cam.y);
@@ -542,6 +861,26 @@ const Slag3D = (() => {
         g.beginPath(); g.arc(sx, y, s * 1.8, 0, Math.PI * 2); g.fill();
         g.fillStyle = '#ffc94a';
         g.beginPath(); g.moveTo(sx, y - s); g.lineTo(sx + s * .65, y - s * .2); g.lineTo(sx, y + s); g.lineTo(sx - s * .65, y - s * .2); g.closePath(); g.fill();
+      } else if (th.kind === 'torch') {
+        // Fakkel aan de muur: een ijzeren houder, een flakkerende vlam en een gloed op de stenen errond.
+        const c = Math.round(sx);
+        if (c < 0 || c >= resW || zbuf[c] < perp - 10 || perp > 1500) continue;
+        const fl = .88 + Math.sin(scene.t * 13 + th.x * .7) * .07 + Math.sin(scene.t * 7.7 + th.y) * .05;
+        const y = horizon + (EYE - th.z) * k;
+        const fade = 1 - perp / 1500;
+        g.fillStyle = '#2a2230';
+        g.fillRect(sx - 2 * k, y, 4 * k, 18 * k);
+        g.fillStyle = '#8a7046';
+        g.fillRect(sx - 5 * k, y - 2 * k, 10 * k, 4 * k);
+        g.globalCompositeOperation = 'lighter';
+        g.globalAlpha = .6 * fl * fade;
+        const R = 56 * k * fl;
+        g.drawImage(Glow.glowSprite('#ff8a2a'), sx - R, y - R * .85, R * 2, R * 2);
+        g.globalCompositeOperation = 'source-over';
+        g.globalAlpha = .5 + fade * .5;
+        const fw = 9 * k * fl, fh = 17 * k * fl;
+        g.drawImage(flames[Math.floor(scene.t * 9 + th.x) & 3], sx - fw / 2, y - fh, fw, fh);
+        g.globalAlpha = 1;
       } else if (th.kind === 'boom') {
         const c = Math.round(sx);
         if (c < 0 || c >= resW || zbuf[c] < perp) continue;
