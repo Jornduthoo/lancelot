@@ -164,6 +164,16 @@ Tip: speel het een paar weken na elkaar, bijvoorbeeld als afsluiter van elke les
 
 Tip: leg vooraf uit dat je in de pitstop stilstaat. Wie de vragen kent, tankt snel en wint.
 
+## Burchtstorm
+
+1. Kies op het startscherm **De Arena** en dan **Burchtstorm**, kies de speeltijd (1 tot 10 minuten) en klik op de quiz.
+2. Leerlingen scannen de QR-code. Klik op **Laat de storm los!** Na drie tellen vallen de eerste neonstenen.
+3. Chromebook: ← → schuiven, ↑ of X draaien, Z of W andersom, ↓ sneller, spatie laten vallen, C of Shift bijhouden. Gsm: de knoppen onderaan, of vegen op de toren (tik = draaien, snel omlaag vegen = laten vallen).
+4. Twee of meer rijen tegelijk opruimen stuurt belegeringsrijen naar een klasgenoot. Om de acht stenen komt een runevraag: juist geeft een 🛡 schild en een aanval die dubbel telt, drie op rij een drakenvuur naar de koploper, fout een rij erbij.
+5. Op het bord zie je alle torens, de aanvallen die overvliegen en ❓ bij wie een vraag beantwoordt.
+
+Tip: wie instort, begint meteen opnieuw (−25 punten). Zwakkere spelers halen dus vooral punten met juiste antwoorden.
+
 ## Voorkennis activeren
 
 1. Klik op het startscherm op **Voorkennis activeren**.
