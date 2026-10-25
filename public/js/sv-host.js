@@ -191,33 +191,6 @@ setInterval(() => {
   if (left < 60000 && left > 59000 && !state.warned) { state.warned = true; banner('🕳️ EINDSTORM! Het zwarte gat groeit!'); sfx.go(); }
 }, 200);
 
-// Ridderbollen die rond een zwart gat cirkelen op het introscherm.
-(function intro() {
-  const c = $('intro');
-  const ictx = c.getContext('2d');
-  const colors = ['#ff4d6d', '#4cc9ff', '#ffc94a', '#4ade80'];
-  (function loop(t) {
-    if (view === 'setup') {
-      ictx.setTransform(1, 0, 0, 1, 0, 0);
-      ictx.clearRect(0, 0, c.width, c.height);
-      Glow.glow(ictx, 110, 70, 70, '#7b2cff', .6);
-      ictx.fillStyle = '#000';
-      ictx.beginPath();
-      ictx.arc(110, 70, 16, 0, Math.PI * 2);
-      ictx.fill();
-      ictx.strokeStyle = 'rgba(255,230,190,.9)';
-      ictx.lineWidth = 2;
-      ictx.stroke();
-      colors.forEach((col, i) => {
-        const a = t / 1600 + (i * Math.PI) / 2;
-        const r = 9 + i * 3;
-        Glow.glow(ictx, 110 + Math.cos(a) * 70, 70 + Math.sin(a) * 42, r * 1.8, col, .5);
-        ictx.drawImage(SvDraw.orbSprite(col), 110 + Math.cos(a) * 70 - r, 70 + Math.sin(a) * 42 - r, r * 2, r * 2);
-      });
-    }
-    requestAnimationFrame(loop);
-  })(0);
-})();
 
 $('start').addEventListener('click', () => socket.emit('sv-start'));
 $('p-finish').addEventListener('click', () => {

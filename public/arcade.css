@@ -46,7 +46,6 @@ body:not([data-cg="1"]) #galaga, body:not([data-bk="1"]) #bomber { display: none
 /* Het bord. */
 .ar-board { height: calc(100vh - 190px); }
 .ar-stage { background: #05030f; }
-.ar-logo { width: 120px; height: 120px; flex: none; filter: drop-shadow(0 0 24px rgba(255, 77, 210, .45)); animation: float 5s ease-in-out infinite; }
 
 @media (max-width: 560px) {
   .cg-hud, .bk-hud { gap: 8px; padding: 6px 8px; }

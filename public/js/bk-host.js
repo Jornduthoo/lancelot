@@ -33,14 +33,6 @@ function downloadLink(file) {
   return link;
 }
 
-// Een mijn op een krat als logo bij de uitleg.
-(function logo() {
-  const c = $('logo-canvas');
-  const g = c.getContext('2d');
-  g.drawImage(BomberDraw.crate(150), 45, 70);
-  g.drawImage(BomberDraw.glow('#ff6b3d', 90), 30, -10);
-  g.drawImage(BomberDraw.mine(120, '#ffc94a'), 60, 10);
-})();
 
 QuizList.mount($('quiz-list'), {
   play: q => {

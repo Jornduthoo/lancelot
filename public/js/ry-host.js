@@ -187,30 +187,6 @@ setInterval(() => {
   $('p-clock').classList.toggle('low', left < 30000);
 }, 200);
 
-// Ridders die rond elkaar cirkelen op het introscherm.
-(function intro() {
-  const c = $('intro');
-  const ictx = c.getContext('2d');
-  const colors = ['#ff4d6d', '#4cc9ff', '#ffc94a', '#4ade80'];
-  (function loop(t) {
-    if (view === 'setup') {
-      ictx.clearRect(0, 0, c.width, c.height);
-      ictx.strokeStyle = '#e07bff';
-      ictx.lineWidth = 3;
-      ictx.shadowColor = '#c77dff';
-      ictx.shadowBlur = 12;
-      ictx.beginPath();
-      ictx.arc(110, 70, 58 + Math.sin(t / 900) * 6, 0, Math.PI * 2);
-      ictx.stroke();
-      ictx.shadowBlur = 0;
-      colors.forEach((col, i) => {
-        const a = t / 1400 + (i * Math.PI) / 2;
-        AK.knight(ictx, 110 + Math.cos(a) * 38, 70 + Math.sin(a) * 30, a + Math.PI / 2, { r: 14, color: col, kind: 'royale', t: t / 1000, moving: true });
-      });
-    }
-    requestAnimationFrame(loop);
-  })(0);
-})();
 
 $('start').addEventListener('click', () => socket.emit('ry-start'));
 $('p-finish').addEventListener('click', () => {

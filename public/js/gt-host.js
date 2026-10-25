@@ -220,20 +220,6 @@ setInterval(() => {
   if (wait > 0) $('p-countdown').textContent = Math.ceil(wait / 1000);
 }, 200);
 
-// Een ridder van elke klasse op het introscherm.
-(function intro() {
-  const c = $('intro');
-  if (!c) return;
-  const ctx = c.getContext('2d');
-  const ids = GtWorld.CLASS_IDS;
-  (function loop(t) {
-    if (view === 'setup') {
-      ctx.clearRect(0, 0, c.width, c.height);
-      ids.forEach((id, i) => AK.knight(ctx, 32 + i * 52, 78 + Math.sin(t / 300 + i) * 4, -Math.PI / 2 + Math.sin(t / 700 + i) * .5, { r: 19, color: CLASSES[id].color, kind: id, t: t / 1000, moving: true }));
-    }
-    requestAnimationFrame(loop);
-  })(0);
-})();
 
 $('start').addEventListener('click', () => socket.emit('gt-start'));
 $('p-finish').addEventListener('click', () => {
