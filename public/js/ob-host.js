@@ -287,11 +287,11 @@ $('a-gemini').addEventListener('click', () => {
 
 const EDIT_HELP = {
   tekst: 'Een leestekst of uitleg. Laat een lege regel tussen alinea\'s.',
-  invullen: 'Zet de woorden die de leerling invult tussen [ en ]. Meerdere goede antwoorden: [fiets|velo].',
+  invullen: 'Zet de woorden die de leerling invult tussen [ en ]. Meerdere goede antwoorden: [fiets|velo]. Hoofdletters tellen mee, schrijf het antwoord zoals het in de zin hoort.',
   meerkeuze: 'Eén vraag per regel: vraag | keuze | keuze | keuze. Zet een * voor het goede antwoord.',
   juistfout: 'Eén zin per regel, met | J (juist) of | F (fout) erachter.',
   verbinden: 'Eén paar per regel: links = rechts. De rechterkant wordt voor de leerlingen door elkaar gezet.',
-  woorden: 'Eén woord per regel: opgave = antwoord. Andere goede schrijfwijzen: antwoord | ander antwoord.',
+  woorden: 'Eén woord per regel: opgave = antwoord. Andere goede schrijfwijzen: antwoord | ander antwoord. Hoofdletters tellen mee.',
   overschrijven: 'Eén zin per regel. De leerling schrijft hem foutloos over (hoofdletters en leestekens tellen mee).',
   open: 'Eén vraag per regel. Deze vragen worden niet automatisch verbeterd; je leest ze op het bord.',
 };

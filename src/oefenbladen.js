@@ -190,7 +190,8 @@ function fields(sheet) {
   return out;
 }
 
-const loose = s => String(s || '').trim().replace(/\s+/g, ' ').toLowerCase().replace(/[.!?]+$/, '');
+// Hoofdletters tellen mee: "de Hond" is fout als het model "de hond" zegt. Spaties en een punt op het einde niet.
+const loose = s => String(s || '').trim().replace(/\s+/g, ' ').replace(/[.!?]+$/, '');
 const exact = s => String(s || '').trim().replace(/\s+/g, ' ');
 
 // Is dit antwoord goed? null = wordt niet automatisch verbeterd (open vraag) of nog niet ingevuld.
