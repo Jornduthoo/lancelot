@@ -17,8 +17,8 @@
   const bodyLen = L => 40 + L * 7;
   const width = L => 16 + Math.sqrt(L) * 1.5;
   const turn = L => Math.max(2.2, 4.4 - Math.sqrt(L) * .08);
-  const arenaR = n => Math.min(2800, 1300 + 60 * Math.max(1, n));
-  const dustCount = n => Math.min(800, 200 + 20 * Math.max(1, n));
+  const arenaR = n => Math.min(4400, 1500 + 110 * Math.max(1, n));
+  const dustCount = n => Math.min(1400, Math.round(arenaR(n) ** 2 * 9.6e-5));
 
   // Draai de hoek a hooguit max radialen richting want.
   function steer(a, want, max) {

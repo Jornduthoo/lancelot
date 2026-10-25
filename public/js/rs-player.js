@@ -20,7 +20,7 @@
     <p><strong>Goede antwoorden maken je langer en geven ⚡ boost.</strong> Drie op rij: een 🛡 schild dat één botsing tegenhoudt. Een fout antwoord: even wachten, de vraag komt later terug.</p>
     <p class="muted small">Tijdens een vraag word je een geest: je staat stil en niemand kan je raken. Pas op voor de burchtmuur!</p>
     <p class="muted small ls-hint-touch">Duim links om te sturen. Rechts: ⚡ boost (ingedrukt houden) en ❓ vraag.</p>
-    <p class="muted small ls-hint-keys">Sturen met de muis of touchpad (wijs waar je heen wil), of pijltjes/ZQSD. Spatie of muisknop ingedrukt = boost, E vraag, 1-4 antwoorden.</p>
+    <p class="muted small ls-hint-keys">Sturen met de muis of touchpad (wijs waar je heen wil), of pijltjes/ZQSD. Spatie, Shift of muisknop ingedrukt = boost, E vraag, 1-4 antwoorden.</p>
     <div class="spinner"></div>
   </section>
   <section id="rs-game" class="ak-game hidden">
@@ -40,7 +40,7 @@
         <button class="ls-btn ak-ask" id="rs-ask">❓<small>Vraag</small></button>
         <button class="ls-btn ak-attack" id="rs-boost">⚡<small>Boost</small></button>
       </div>
-      <p class="ls-keys">muis/pijltjes sturen · spatie boost · E vraag · 1-4 antwoorden</p>
+      <p class="ls-keys">muis/pijltjes sturen · spatie/shift boost · E vraag · 1-4 antwoorden</p>
       <div class="ls-out hidden" id="rs-out">
         <p class="ls-out-title" id="rs-out-title">Gebotst!</p>
         <p class="ls-out-by" id="rs-out-by"></p>
@@ -276,9 +276,17 @@
     const r = canvas.getBoundingClientRect();
     g.mouse = { x: e.clientX - r.left - r.width / 2, y: e.clientY - r.top - r.height / 2, at: performance.now() };
   });
-  canvas.addEventListener('pointerleave', () => { g.mouse = null; g.boostKey = false; });
-  canvas.addEventListener('pointerdown', e => { if (e.pointerType === 'mouse') { sfx.unlock(); g.boostKey = true; } });
+  canvas.addEventListener('pointerleave', () => { if (!g.boostKey) g.mouse = null; });
+  // Muisknop vasthouden = boost. We houden de muis vast, zodat de boost blijft werken als je al sturend over
+  // de knoppen of de rand van het scherm schuift.
+  canvas.addEventListener('pointerdown', e => {
+    if (e.pointerType !== 'mouse') return;
+    sfx.unlock();
+    g.boostKey = true;
+    try { canvas.setPointerCapture(e.pointerId); } catch {}
+  });
   addEventListener('pointerup', e => { if (e.pointerType === 'mouse') g.boostKey = false; });
+  addEventListener('blur', () => { g.boostKey = false; });
   AK.holdButton($('rs-boost'), v => { g.boostKey = v; });
   $('rs-ask').addEventListener('click', e => { e.currentTarget.blur(); ask(); });
   $('rs-out-ask').addEventListener('click', () => ask());
@@ -287,11 +295,12 @@
     if (!on() || e.target.tagName === 'INPUT' || $('rs-game').classList.contains('hidden')) return;
     if (quiz.key(e)) { e.preventDefault(); return; }
     if (AK.isMoveKey(e.key)) { e.preventDefault(); g.mouse = null; }
-    if (e.key === ' ') { e.preventDefault(); g.boostKey = true; }
+    // Spatie of Shift: Shift botst nooit met de pijltjes op goedkope toetsenborden.
+    if (e.key === ' ' || e.key === 'Shift') { e.preventDefault(); g.boostKey = true; }
     const k = e.key.toLowerCase();
     if (k === 'e' || e.key === 'Enter') ask();
   });
-  document.addEventListener('keyup', e => { if (e.key === ' ') g.boostKey = false; });
+  document.addEventListener('keyup', e => { if (e.key === ' ' || e.key === 'Shift') g.boostKey = false; });
 
   function playing() {
     return g.me && g.me.alive && !quiz.open && now() >= g.state.startedAt;
@@ -324,7 +333,8 @@
         const d = Math.hypot(g.mouse.x, g.mouse.y);
         if (d > 18) v = { x: g.mouse.x / d, y: g.mouse.y / d };
       }
-      if (Math.hypot(v.x, v.y) > .2) g.a = RsWorld.steer(g.a, Math.atan2(v.y, v.x), RsWorld.turn(g.L) * dt);
+      // Met boost draai je ook sneller, zodat je bocht even krap blijft en je kan blijven boosten in een bocht.
+      if (Math.hypot(v.x, v.y) > .2) g.a = RsWorld.steer(g.a, Math.atan2(v.y, v.x), RsWorld.turn(g.L) * dt * (g.boosting ? 1.6 : 1));
       const want = g.boostKey && g.boostMs > 0;
       if (g.boostKey && g.boostMs <= 0 && t - emptyToast > 2500) { emptyToast = t; sfx.empty(); toast('Geen boost! Druk op ❓ Vraag', 'bad'); }
       if (want !== g.boosting) { g.boosting = want; hud(); }
