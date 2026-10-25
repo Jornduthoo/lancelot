@@ -31,7 +31,8 @@ function sessionFor(spel, bron, now) {
   return current.id;
 }
 
-// entries: [{ naam, spel, bron, vraag, doel, juist, leeg, zeker }] (zeker: 'zeker', 'twijfel' of niets)
+// entries: [{ naam, spel, bron, vraag, doel, juist, leeg, zeker, sessie }] (zeker: 'zeker', 'twijfel' of niets).
+// Met een eigen sessie (zoals het Runenraadsel, dat naast de andere spellen loopt) blijft de sessie van het lopende spel ongemoeid.
 function add(entries) {
   if (!entries.length) return;
   const now = new Date();
@@ -40,7 +41,7 @@ function add(entries) {
     const bron = String(e.bron || '').slice(0, 100);
     return JSON.stringify({
       t: now.toISOString(),
-      sessie: sessionFor(e.spel, bron, now.getTime()),
+      sessie: e.sessie || sessionFor(e.spel, bron, now.getTime()),
       leerling: leerling ? leerling.id : null,
       naam: e.naam,
       spel: e.spel,

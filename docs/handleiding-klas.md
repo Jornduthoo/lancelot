@@ -244,6 +244,19 @@ Start je les met een paar herhaalvragen uit vorige lessen. Kort ophalen wat je v
 3. Kies het aantal vragen en eventueel een vak. Onder elke vraag staat waarom ze gekozen is. Klik op ✕ om een vraag over te slaan, of op **Andere vragen** voor een nieuw voorstel.
 4. Klik op **Start de Opwarmer**. Je speelt hem als een gewoon Toernooi, en de antwoorden gaan mee in het logboek. Zo wordt de volgende Opwarmer slimmer.
 
+## Het Runenraadsel
+
+Elke dag een geheim woord, goed voor de woordenschat.
+
+1. Leerlingen tikken op hun startscherm op **🔮 Runenraadsel van vandaag** (of surfen naar het adres met `/runen`). Dat kan altijd: bij aankomst, als ze klaar zijn met een taak, ook als er geen spel loopt.
+2. Drie niveaus: **Page** raadt 4 letters en ziet de betekenis als hulp, **Schildknaap** 5 letters (hulp na 4 pogingen), **Ridder** 6 of 7 letters. Het eigen niveau komt uit Mijn klas. Ze hebben zes pogingen; alleen bestaande woorden tellen.
+3. Na het raden zien ze het woord, de betekenis en een voorbeeldzin.
+4. Runen: 2 voor je eigen niveau (of hoger), 1 extra in drie pogingen of minder, 1 per extra niveau, 2 extra per 5 dagen na elkaar, en 1 extra als 8 op 10 van de klas het kraakte. Met 5, 15, 30 en 50 runen krijgt de ridder een runenkrans die in elk spel meedoet.
+5. Op het bord (tegel **Het Runenraadsel** bij De Ronde Tafel) zie je wie het al kraakte, alleen in kleuren. Met **✨ Onthul de woorden van vandaag** bespreek je ze samen.
+6. **Woorden van de week**: typ woorden uit je les (4 tot 7 letters). Die komen eerst aan bod. Laat de betekenissen aanvullen met AI of typ ze zelf.
+
+De antwoorden gaan in het logboek (doel woordenschat), dus ook in het zorgoverzicht.
+
 ## Lukt verbinden niet?
 
 Op het startscherm en in elke lobby staat de knop **Netwerk werkt niet?**. Die pagina toont de netwerken van je pc en loopt alle stappen hieronder met je door.

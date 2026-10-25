@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LANcelot · Runenraadsel</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/runen.css">
+</head>
+<body class="rn-host">
+<main>
+  <div class="topbar">
+    <div class="brand" id="brand" title="Naar het startscherm">
+      <img src="/img/mark.webp" alt="">
+      <div>
+        <div class="wordmark">LAN<span>celot</span></div>
+        <div class="subtitle">Runenraadsel</div>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="secondary" id="to-home">Terug</button>
+    </div>
+  </div>
+
+  <section class="panel rnh-intro">
+    <div class="tw-intro">
+      <img class="game-logo" src="/img/icons/runenraadsel.webp" alt="">
+      <div>
+        <p class="title">Het Runenraadsel van <span id="rnh-dag"></span></p>
+        <p>Elke dag een geheim woord: <b>Page</b> 4 letters met hulp, <b>Schildknaap</b> 5 letters, <b>Ridder</b> 6 of 7. Leerlingen spelen wanneer ze willen, op hun eigen toestel. Na het raden zien ze de betekenis en een voorbeeldzin, en verdienen ze runen voor een runenkrans rond hun ridder.</p>
+        <p class="muted">Hier zie je alleen de kleuren, nooit de letters. Zo kan het bord gerust openstaan.</p>
+      </div>
+      <div class="rnh-join">
+        <div class="rnh-qr" id="rnh-qr"></div>
+        <p><b id="rnh-url"></b><br><span class="muted small">of tik 🔮 Runenraadsel op het startscherm</span></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="rnh-boven">
+    <div class="panel rnh-klasdoel">
+      <p class="rn-kaart-kop">Klasdoel van vandaag</p>
+      <div class="rn-balk goud groot"><span id="rnh-klas-balk"></span></div>
+      <p id="rnh-klas-tekst"></p>
+    </div>
+    <button class="gold rnh-onthul-knop" id="rnh-onthul">✨ Onthul de woorden van vandaag</button>
+  </section>
+
+  <section class="rnh-niveaus" id="rnh-niveaus"></section>
+
+  <section class="rnh-onder">
+    <div class="panel">
+      <h3>🔮 Runenmeesters</h3>
+      <p class="muted small">Meeste runen dit schooljaar. 🔥 = dagen na elkaar gekraakt.</p>
+      <ol class="rnh-rang" id="rnh-rang"></ol>
+    </div>
+    <div class="panel form">
+      <h3>Woorden van de week</h3>
+      <p class="muted small">Eén woord per regel (4 tot 7 letters), bijvoorbeeld uit je les. Ze komen vóór de ingebouwde woorden: 4 letters voor Page, 5 voor Schildknaap, 6 of 7 voor Ridder. Betekenis en voorbeeldzin mag je zelf typen (<code>woord = betekenis | zin</code>) of laten aanvullen.</p>
+      <textarea id="rnh-lijst" rows="8" placeholder="kompas&#10;oogst = het binnenhalen van wat op het veld gegroeid is | Na de oogst was er feest.&#10;vazal"></textarea>
+      <label>Leerplandoel (voor het logboek)
+        <select id="rnh-doel"><option value="">Geen doel</option></select>
+      </label>
+      <div class="actions">
+        <button class="secondary" id="rnh-ai">✨ Betekenissen aanvullen met AI</button>
+        <button class="gold" id="rnh-bewaar">Bewaar</button>
+      </div>
+      <p class="muted small" id="rnh-lijst-info"></p>
+      <div class="rnh-chips" id="rnh-chips"></div>
+    </div>
+  </section>
+</main>
+
+<div class="rnh-overlay hidden" id="rnh-overlay">
+  <div class="rnh-onthulling" id="rnh-onthulling"></div>
+  <button class="secondary" id="rnh-sluit">Sluiten</button>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/fx.js"></script>
+<script src="/js/avatar.js"></script>
+<script src="/js/rn-host.js"></script>
+</body>
+</html>

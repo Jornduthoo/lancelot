@@ -109,12 +109,15 @@ const AV_TABS = [
   ] },
   { id: 'rug', label: '🚀 Rug', rows: [{ key: 'rug', list: Avatar.BACKS, back: true }] },
   { id: 'wapen', label: '⚔️ Wapen', rows: [{ key: 'wapen', list: Avatar.WEAPONS, weapon: true }] },
+  { id: 'runen', label: '🔮 Runen', rows: [{ key: 'runen', list: Avatar.RUNES, runes: true }] },
   { id: 'schild', label: '🛡️ Schild', rows: [
     { key: 'patroon', list: Avatar.PATTERNS, shield: true },
     { key: 'schild', label: 'Kleur van je schild', colors: Avatar.SHIELDS },
   ] },
 ];
 avState.tab = 'ridder';
+// Hoeveel runenkrans je al verdiende in het Runenraadsel (de server weet het).
+avState.krans = { niveau: 0, drempels: [0, 5, 15, 30, 50] };
 avState.back = false;
 
 $('av-tabs').innerHTML = AV_TABS.map(t => `<button type="button" class="av-tab" data-tab="${t.id}">${t.label}</button>`).join('');
@@ -148,9 +151,16 @@ function avOptions() {
     if (r.label) row.innerHTML = `<span class="av-label">${r.label}</span>`;
     const wrap = document.createElement('div');
     wrap.className = r.colors ? 'av-swatches' : 'av-tiles';
+    if (r.runes) {
+      const uitleg = document.createElement('p');
+      uitleg.className = 'muted av-runen-uitleg';
+      uitleg.textContent = `Verdien runen met het Runenraadsel van elke dag. Jij hebt er ${avState.krans.runen || 0}.`;
+      row.appendChild(uitleg);
+    }
     (r.colors || r.list).forEach((item, i) => {
       const b = document.createElement('button');
       b.type = 'button';
+      const locked = r.runes && i > avState.krans.niveau;
       b.dataset.key = r.key;
       b.dataset.i = i;
       if (r.colors) {
@@ -161,8 +171,12 @@ function avOptions() {
         b.className = 'av-tile' + (d[r.key] === i ? ' on' : '') + (r.head ? ' head' : r.shield ? ' shield' : r.weapon || r.arm ? ' weapon' : '');
         b.appendChild(avTile(r, i));
         const name = document.createElement('span');
-        name.textContent = item.name;
+        name.textContent = locked ? `🔒 ${avState.krans.drempels[i]} runen` : item.name;
         b.appendChild(name);
+        if (locked) {
+          b.classList.add('locked');
+          b.disabled = true;
+        }
       }
       b.addEventListener('click', () => {
         avState.draft[r.key] = i;
@@ -199,6 +213,15 @@ function avOpen() {
   $('av-name').textContent = avName() || '';
   maker.classList.remove('hidden');
   avRefresh();
+  const name = avName();
+  if (name) {
+    socket.emit('rn-get', name, res => {
+      if (!res || res.error) return;
+      avState.krans = { ...res.krans, runen: res.runen };
+      if (avState.draft.runen > res.krans.niveau) avState.draft.runen = res.krans.niveau;
+      avRefresh();
+    });
+  }
 }
 
 $('av-turn').addEventListener('click', () => {
@@ -212,7 +235,7 @@ $('av-turn').addEventListener('click', () => {
   }, 160);
 });
 $('av-random').addEventListener('click', () => {
-  avState.draft = Avatar.random();
+  avState.draft = { ...Avatar.random(), runen: avState.draft.runen };
   avRefresh(true);
   sfx.swoosh();
 });

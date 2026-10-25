@@ -6,7 +6,7 @@ const path = require('path');
 const FILE = path.join(__dirname, '..', 'avatars.json');
 const KEYS = {
   helm: 10, accent: 10, kleur: 10, vizier: 5, patroon: 6, schild: 8, wapen: 7, huid: 5,
-  type: 2, haar: 6, haarkleur: 7, harnas: 5, rug: 5, arm: 2,
+  type: 2, haar: 6, haarkleur: 7, harnas: 5, rug: 5, arm: 2, runen: 5,
 };
 const MAX = 2000;
 
