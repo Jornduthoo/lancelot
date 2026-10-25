@@ -67,6 +67,9 @@ document.querySelector('[data-module="bomberknight"]').addEventListener('click',
 document.querySelector('[data-module="gauntlet"]').addEventListener('click', () => { location.href = '/gauntlet'; });
 document.querySelector('[data-module="royale"]').addEventListener('click', () => { location.href = '/ridder-royale'; });
 document.querySelector('[data-module="sterrenvreter"]').addEventListener('click', () => { location.href = '/sterrenvreter'; });
+document.querySelector('[data-module="poortwacht"]').addEventListener('click', () => { location.href = '/poortwacht'; });
+document.querySelector('[data-module="neonvlucht"]').addEventListener('click', () => { location.href = '/neonvlucht'; });
+document.querySelector('[data-module="diepboor"]').addEventListener('click', () => { location.href = '/diepboor'; });
 document.querySelector('[data-module="ridderslang"]').addEventListener('click', () => { location.href = '/ridderslang'; });
 document.querySelector('[data-module="burchtstorm"]').addEventListener('click', () => { location.href = '/burchtstorm'; });
 document.querySelector('[data-module="pixelridder"]').addEventListener('click', () => { location.href = '/pixelridder'; });

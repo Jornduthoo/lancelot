@@ -15,10 +15,13 @@ Het thema: middeleeuws met een scifi-kantje. Het startscherm heeft drie grote te
    - **Burchtbouwers**: de hele klas bouwt samen één burcht. Elk goed antwoord is een steen die je zelf op een deel van de burcht legt. Als de tijd om is, valt de draak aan
    - **Duel in de arena**: één tegen één op dezelfde vraag, wie eerst juist antwoordt slaat toe. Een toernooischema op het bord tot er één kampioen is
    - **Pac-Knight**: alle ridders samen in één neon doolhof. Raap kristallen en ontwijk de drones; een goed antwoord geeft een kracht waarmee jij op de drones jaagt
-   - **Strijdrossen**: zoals Smash Karts. Hoverrossen in een 3D-gevechtsarena; lasers, raketten en mijnen krijg je alleen met goede antwoorden
+   - **Strijdrossen**: hoverrossen in een 3D-gevechtsarena; lasers, raketten en mijnen krijg je alleen met goede antwoorden
    - **Cyber-Galaga**: elke leerling vliegt op zijn eigen toestel met een jetpack tegen golven cyberdraken. Een goed antwoord geeft een beloning naar keuze (dubbele laser, schild of bom); op het einde verslaat de hele klas samen de klasbaas met één gedeelde levensbalk
    - **Bomber-Knight**: tot dertig ridders in één burchtarena. Een mijn kost energie en energie verdien je met goede antwoorden; uit kratten komen kristallen, grotere ontploffingen en schilden
    - **Neon Duel**: een vechtspel. De klas speelt in twee teams, op het bord vechten twee grote ridders. Elk goed antwoord is een slag, snel juist een combo, drie op rij een supermove
+   - **Poortwacht**: de klas verdedigt samen de burchtpoort tegen golven monsters en een draak. Goede antwoorden geven goud voor je eigen toren
+   - **Neonvlucht**: rennen, springen en glijden door de neonburcht. Bij een vraagpoort loop je door het juiste antwoord voor turbo en een hogere vermenigvuldiger
+   - **Diepboor**: graaf met je boorridder naar goud, kristal en neonkernen. Goede antwoorden geven brandstof; in de smidse koop je een betere boor
    - **Leraar-baas**: de leerkracht is de eindbaas, een reuzenridder op het bord. De klas valt samen aan met goede antwoorden, de leerkracht slaat terug
    - **Het Rijk**: een spel dat weken doorloopt. Teams veroveren les na les gebieden op een kaart; vragen over oudere leerstof komen terug om je land te verdedigen
 2. **De Ronde Tafel**, peilen met de hele klas: polls, stellingen, woordwolken, open vragen en schalen, live op het bord. Met de knop **💡 Voorkennis activeren** in De Ronde Tafel maak je met AI meteen een peiling voor het begin van een les.
@@ -112,7 +115,7 @@ Een lasergevecht in een scifi-arena, van bovenaf. De ridders schieten elkaar met
 
 ## Kristalroof
 
-Een spel vol list, zoals Crypto Hack. Elke leerling kiest bij het begin een **geheim woord** uit vier woorden en houdt het geheim. Daarna beantwoordt iedereen op eigen tempo vragen.
+Een spel vol list. Elke leerling kiest bij het begin een **geheim woord** uit vier woorden en houdt het geheim. Daarna beantwoordt iedereen op eigen tempo vragen.
 
 - **Goed antwoord:** kies een van drie kisten. Er zitten kristallen in (meer naarmate je meer goed hebt), een verdubbelaar, een schild (45 seconden onberoofbaar), soms pech (15% kwijt)... of een **roof**.
 - **Roof:** kies een andere ridder en raad diens geheime woord uit drie woorden. Juist? Dan neem je 15 tot 40% van diens kristallen mee. Wie net beroofd is, staat 20 seconden achter een schild. Het slachtoffer ziet wie de kluis kraakte (of probeerde te kraken).
@@ -171,6 +174,35 @@ Een vechtspel met de hele klas. LANcelot verdeelt de klas in **⚡ Team Bliksem*
 - Een ronde duurt tot een ridder **K.O.** gaat of de tijd op is (kies 1 tot 3 minuten). Kies 1 ronde, best of 3 of best of 5. Een groter team slaat vaker, dus elke slag doet dan iets minder schade.
 - **Tegen gokken**: na een fout antwoord blijft het juiste antwoord 3 seconden staan, en die vraag komt een paar vragen later terug.
 - Chromebook: 1-4 antwoorden. Elk antwoord komt in het logboek, met het leerplandoel. Resultaten (team, schade, supermoves, combo's, juist en fout) in `resultaten/`.
+
+## Poortwacht
+
+De hele klas verdedigt samen de **burchtpoort**. Langs een kronkelpad heeft elke leerling een eigen torenplaats; golven scifi-monsters marcheren uit het portaal naar de poort, en op het einde komt de 🐉 draak.
+
+- **Goud verdien je alleen met goede antwoorden.** Daarmee bouw je een 🔷 lasertoren, ☄️ plasmakatapult of ❄️ ijstoren (vertraagt) en verbeter je hem tot niveau 5. Drie juist op rij: een ⚡ bliksem rond je toren.
+- Houdt de poort stand tot de tijd om is (1 tot 10 minuten), dan wint de klas. Hoe meer leerlingen en hoe langer het spel, hoe sterker de monsters.
+- Punten: 50 per goed antwoord, plus de schade van je toren en de monsters die hij verslaat.
+- **Tegen gokken**: na een fout antwoord even wachten (het juiste antwoord blijft staan), en die vraag komt later terug.
+- Chromebook: 1-4 antwoorden, U toren sterker, spatie bliksem, L/K/I kies je toren. Elk antwoord komt in het logboek. Resultaten in `resultaten/`.
+
+## Neonvlucht
+
+Iedereen rent op zijn eigen scherm door dezelfde **neonburcht**: springen over rode lasers, glijden onder paarse balken, opzij voor kisten. De anderen zie je als schimmen naast je; het bord volgt de koploper.
+
+- **Vraagpoorten**: af en toe vertraagt alles en tonen de drie banen elk een antwoord. Loop door de juiste poort voor ⚡ turbo, een 🛡️ schild en een hogere vermenigvuldiger (tot ×5). Een foute poort: struikelen en terug naar ×1.
+- Punten: afstand × vermenigvuldiger, plus de munten. Met genoeg munten krijg je een lichtspoor en later vleugels.
+- Chromebook: ← → of A/D opzij, ↑ of spatie springen, ↓ glijden, 1-3 kiest de poort. Gsm: vegen, tik = springen. Elk antwoord komt in het logboek. Resultaten in `resultaten/`.
+
+## Diepboor
+
+Elke leerling stuurt een eigen **boorridder** de diepte in: door aarde, klei, steen en kristalgrotten tot in het magma. Iedereen graaft in dezelfde mijn, elk in een eigen kopie. Hoe dieper, hoe kostbaarder de stenen: koper, ijzer, zilver, goud, kristal en de zeldzame 💗 neonkern.
+
+- **Brandstof krijg je alleen met goede antwoorden.** De vragen staan altijd naast de mijn, zolang je tank niet vol is.
+- Breng je stenen naar boven: in de **smidse** worden ze vanzelf goud. Daarmee koop je een snellere boor, een grotere tank, een groter laadruim, sterker pantser of een 🌀 teleport (terug naar boven).
+- 🔥 Lava, 🟢 gaszakken en diepe vallen kosten pantser. Is je pantser op, dan is je laadruim weg en begin je weer bovenaan.
+- Punten: al het goud dat je verdient, plus 3 per meter diep. Wat op het einde nog in je laadruim zit, telt voor de helft.
+- Op het bord zie je alle mijnen als doorsnede naast elkaar, met de gangen van elke leerling en waar zijn boor nu is.
+- Chromebook: pijltjes of WASD rijden, graven en vliegen; 1-4 antwoorden; T teleport. Gsm: duim op de mijn. Elk antwoord komt in het logboek. Resultaten in `resultaten/`.
 
 ## Leraar-baas
 
@@ -257,3 +289,7 @@ Quizzen zijn JSON-bestanden in de map `quizzes/`. Kijk naar `quizzes/voorbeeld-b
 - Een vraag sluit als de tijd om is of als iedereen heeft geantwoord. Je kunt ook zelf op **Toon antwoord** klikken.
 - Leerlingen die hun pagina herladen of even geen wifi hebben, komen terug met dezelfde naam en score.
 - Het docentenscherm werkt alleen op de pc waar de server draait, zodat leerlingen het spel niet kunnen besturen.
+
+## Licentie
+
+© 2026 Jorn Duthoo. Alle rechten voorbehouden. De code is openbaar te bekijken, maar kopiëren, aanpassen of verspreiden mag niet zonder schriftelijke toestemming. Leerkrachten die LANcelot rechtstreeks van Jorn kregen, mogen het gratis in hun eigen lessen gebruiken. Zie [LICENSE](LICENSE).

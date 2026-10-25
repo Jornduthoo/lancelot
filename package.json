@@ -2,6 +2,8 @@
   "name": "lancelot",
   "version": "0.1.0",
   "description": "Lokale klasquiz-server: Kahoot-achtige quizzen via het schoolnetwerk",
+  "license": "SEE LICENSE IN LICENSE",
+  "private": true,
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
