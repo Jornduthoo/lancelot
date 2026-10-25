@@ -214,3 +214,5 @@
   .rnh-niveaus, .rnh-onder, .rnh-onthulling { grid-template-columns: 1fr; }
   .rnh-boven { grid-template-columns: 1fr; }
 }
+.rnh-thema { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+.rnh-thema input { flex: 1 1 180px; min-width: 0; }

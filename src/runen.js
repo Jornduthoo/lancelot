@@ -154,24 +154,73 @@ function gebruikteWoorden() {
   return set;
 }
 
+// De AI noemt de velden niet altijd hetzelfde ("betekenis", "uitleg", "meaning", "voorbeeldzin"...) en zet er
+// soms een lidwoord bij ("het kompas"). Daarom zoeken we de velden op hun naam en het woord ook binnenin.
+function aiItems(res) {
+  const lijst = Array.isArray(res) ? res : Object.values(res || {}).find(Array.isArray) || [];
+  return lijst.filter(r => r && typeof r === 'object').map(r => {
+    const veld = re => String(Object.entries(r).find(([k, v]) => re.test(k) && typeof v === 'string')?.[1] || '').trim().slice(0, 200);
+    return { woord: veld(/^(woord|word|term)$/i) || veld(/woord|word/i), b: veld(/betek|uitleg|mean|defin|omschr/i), z: veld(/zin|sentence|voorbeeld|example/i) };
+  });
+}
+
+const aiVraag = (raw, aiJson) => aiJson.extract(raw, 'woordenlijst', d => aiItems(d).length > 0);
+const lijstTekst = woorden => woorden.map(x => `${x.w}${x.b || x.z ? ` = ${x.b} | ${x.z}` : ''}`).join('\n');
+const voorWie = () => {
+  const lj = klas.read().leerjaar;
+  return `Je helpt een leerkracht in Vlaanderen (${typeof lj === 'number' ? `${lj}e leerjaar` : 'kleuterklas'}). Gebruik Belgisch-Nederlands.`;
+};
+const UITLEG = 'een korte, eenvoudige betekenis (hooguit 15 woorden, zonder het woord zelf te gebruiken) en één voorbeeldzin die een kind van die leeftijd begrijpt';
+
 // Betekenissen en voorbeeldzinnen die nog ontbreken laten aanvullen door Gemini.
 async function vulAan(text, gemini, aiJson) {
   const woorden = leesLijst(text);
   const open = woorden.filter(x => !x.b || !x.z);
-  if (!open.length) return { text: woorden.map(x => `${x.w} = ${x.b} | ${x.z}`).join('\n') };
-  const lj = klas.read().leerjaar;
-  const prompt = `Je helpt een leerkracht in Vlaanderen (${typeof lj === 'number' ? `${lj}e leerjaar` : 'kleuterklas'}).
-Geef voor elk woord hieronder een korte, eenvoudige betekenis (hooguit 15 woorden, zonder het woord zelf te gebruiken) en één voorbeeldzin die een kind van die leeftijd begrijpt. Gebruik Belgisch-Nederlands.
-Antwoord enkel met JSON: {"woorden":[{"woord":"...","betekenis":"...","zin":"..."}]}
+  if (!open.length) return { text: lijstTekst(woorden), aangevuld: 0 };
+  const prompt = `${voorWie()}
+Geef voor elk woord hieronder ${UITLEG}.
+Antwoord enkel met JSON, met precies deze sleutels: {"woorden":[{"woord":"kompas","betekenis":"...","zin":"..."}]}
 Woorden: ${open.map(x => x.w).join(', ')}`;
-  const res = await gemini.generateQuiz(prompt, [], raw => aiJson.extract(raw, 'woordenlijst', d => Array.isArray(d.woorden)));
-  for (const r of res.woorden || []) {
-    const x = woorden.find(y => y.w === normaal(r.woord));
-    if (!x) continue;
-    if (!x.b) x.b = String(r.betekenis || '').trim().slice(0, 200);
-    if (!x.z) x.z = String(r.zin || '').trim().slice(0, 200);
+  const items = aiItems(await gemini.generateQuiz(prompt, [], raw => aiVraag(raw, aiJson)));
+  let aangevuld = 0;
+  open.forEach((x, i) => {
+    // Eerst exact, dan "het kompas", en anders op volgorde (de AI antwoordt in dezelfde volgorde).
+    const r = items.find(y => normaal(y.woord) === x.w) || items.find(y => normaal(y.woord).includes(x.w))
+      || (items.length === open.length && !normaal(items[i].woord) ? items[i] : null);
+    if (!r || (!r.b && !r.z)) return;
+    if (!x.b) x.b = r.b;
+    if (!x.z) x.z = r.z;
+    aangevuld++;
+  });
+  if (!aangevuld) throw new Error('Gemini gaf geen bruikbare betekenissen terug. Probeer het nog eens.');
+  return { text: lijstTekst(woorden), aangevuld, open: open.length };
+}
+
+// Een woordenlijst rond een thema: een week woorden voor elk niveau, met betekenis en voorbeeldzin.
+// Ze komen onder wat er al staat; woorden die er al staan of niet passen vallen weg.
+async function maakLijst(thema, text, gemini, aiJson) {
+  thema = String(thema || '').trim().slice(0, 120);
+  if (!thema) throw new Error('Typ eerst een thema, bijvoorbeeld "de middeleeuwen" of "het weer".');
+  const woorden = String(text || '').trim() ? leesLijst(text) : [];
+  const prompt = `${voorWie()}
+Maak een woordenlijst rond het thema "${thema}" voor een woordraadspel. Kies bestaande, nuttige Nederlandse woorden (zelfstandige naamwoorden, werkwoorden of bijvoeglijke naamwoorden in hun gewone vorm), zonder spaties, koppeltekens of hoofdletters.
+Geef 7 woorden van precies 4 letters, 7 woorden van precies 5 letters en 7 woorden van 6 of 7 letters. Tel de letters goed na.
+Geef bij elk woord ${UITLEG}.
+Antwoord enkel met JSON, met precies deze sleutels: {"woorden":[{"woord":"...","betekenis":"...","zin":"..."}]}`;
+  const items = aiItems(await gemini.generateQuiz(prompt, [], raw => aiVraag(raw, aiJson)));
+  const per = Object.fromEntries(NIVEAUS.map(n => [n, 0]));
+  let nieuw = 0;
+  for (const r of items) {
+    const w = normaal(r.woord);
+    const n = niveauVanLengte(w.length);
+    // Een week (5 dagen) per niveau, en hooguit 60 woorden in totaal.
+    if (!n || per[n] >= 5 || woorden.length >= 60 || /\s/.test(r.woord.trim()) || woorden.some(x => x.w === w)) continue;
+    woorden.push({ w, b: r.b, z: r.z });
+    per[n]++;
+    nieuw++;
   }
-  return { text: woorden.map(x => `${x.w}${x.b || x.z ? ` = ${x.b} | ${x.z}` : ''}`).join('\n') };
+  if (!nieuw) throw new Error('Gemini gaf geen woorden die passen. Probeer het nog eens of kies een ander thema.');
+  return { text: lijstTekst(woorden), nieuw, per };
 }
 
 // ---------- Het woord van de dag ----------
@@ -450,4 +499,4 @@ function onthul() {
   return { dag, woorden: out };
 }
 
-module.exports = { view, raad, bord, onthul, kransVan, bewaarLijst, lijstView, vulAan, kleur, normaal, dagVan, flush, DIR, KRANS, KRANS_NAMEN };
+module.exports = { view, raad, bord, onthul, kransVan, bewaarLijst, lijstView, vulAan, maakLijst, kleur, normaal, dagVan, flush, DIR, KRANS, KRANS_NAMEN };

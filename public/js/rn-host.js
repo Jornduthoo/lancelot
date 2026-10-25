@@ -134,7 +134,22 @@ $('rnh-ai').addEventListener('click', () => {
     b.disabled = false;
     if (res.error) return ($('rnh-lijst-info').textContent = res.error);
     $('rnh-lijst').value = res.text;
-    $('rnh-lijst-info').textContent = 'Aangevuld. Kijk ze even na en klik op Bewaar.';
+    $('rnh-lijst-info').textContent = res.open > res.aangevuld
+      ? `${res.aangevuld} van de ${res.open} woorden aangevuld. Kijk ze even na en klik op Bewaar.`
+      : 'Aangevuld. Kijk ze even na en klik op Bewaar.';
+  });
+});
+
+$('rnh-thema-ai').addEventListener('click', () => {
+  const b = $('rnh-thema-ai');
+  b.disabled = true;
+  $('rnh-lijst-info').textContent = 'Gemini zoekt woorden rond je thema…';
+  socket.emit('rn-lijst-thema', { thema: $('rnh-thema').value, text: $('rnh-lijst').value }, res => {
+    b.disabled = false;
+    if (res.error) return ($('rnh-lijst-info').textContent = res.error);
+    $('rnh-lijst').value = res.text;
+    const p = res.per;
+    $('rnh-lijst-info').textContent = `${res.nieuw} woorden toegevoegd (Page ${p.page}, Schildknaap ${p.schildknaap}, Ridder ${p.ridder}). Kijk ze even na en klik op Bewaar.`;
   });
 });
 
