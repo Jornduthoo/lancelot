@@ -64,7 +64,7 @@ class Verrader {
     this.reset();
     this.run++;
     this.quiz = quiz;
-    this.minutes = [8, 10, 12, 15, 20].includes(opts.minutes) ? opts.minutes : 15;
+    this.minutes = [3, 5, 8, 10, 12, 15, 20].includes(opts.minutes) ? opts.minutes : 15;
     this.traitorSetting = ['1', '2', '3'].includes(String(opts.traitors)) ? Number(opts.traitors) : 'auto';
     this.length = PER_KNIGHT[opts.length] ? opts.length : 'normaal';
     this.talk = TALK_MS[opts.talk] ? opts.talk : 'normaal';

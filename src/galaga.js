@@ -20,6 +20,8 @@ const BOSS_DPS_CAP = 45;     // meer schade per seconde kan één leerling niet 
 const REWARDS = ['laser', 'schild', 'bom'];
 
 function bossMsFor(minutes) {
+  if (minutes <= 1) return 30000;
+  if (minutes <= 2) return 45000;
   if (minutes <= 3) return 60000;
   if (minutes <= 5) return 90000;
   return 120000;
@@ -73,7 +75,7 @@ class Galaga {
     this.reset();
     this.run++;
     this.quiz = quiz;
-    this.minutes = [3, 4, 5, 6, 8, 10].includes(minutes) ? minutes : 5;
+    this.minutes = [1, 2, 3, 4, 5, 6, 8, 10].includes(minutes) ? minutes : 5;
     this.tempo = tempoOf(tempo);
     this.phase = 'lobby';
     this.broadcast();

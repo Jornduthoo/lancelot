@@ -50,7 +50,7 @@ class Toren {
     this.run++;
     this.quiz = quiz;
     this.tempo = tempoOf(tempo);
-    this.minutes = [3, 5, 6, 8, 10, 15].includes(minutes) ? minutes : 6;
+    this.minutes = [1, 2, 3, 5, 6, 8, 10, 15].includes(minutes) ? minutes : 6;
     this.seed = Math.floor(Math.random() * 2 ** 31);
     this.world = world.build(this.seed);
     this.zoneReached = 0;

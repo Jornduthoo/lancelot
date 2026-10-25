@@ -63,7 +63,7 @@ class Gauntlet {
     this.reset();
     this.run++;
     this.quiz = quiz;
-    this.minutes = [4, 5, 6, 8, 10, 12, 15].includes(minutes) ? minutes : 8;
+    this.minutes = [1, 2, 3, 4, 5, 6, 8, 10, 12, 15].includes(minutes) ? minutes : 8;
     this.tempo = tempoOf(tempo);
     this.vragen = new Vragen(quiz, 'Gauntlet', this.tempo);
     this.phase = 'lobby';

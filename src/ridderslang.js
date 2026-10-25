@@ -60,7 +60,7 @@ class Ridderslang {
     this.reset();
     this.run++;
     this.quiz = quiz;
-    this.minutes = [3, 4, 5, 6, 8, 10].includes(minutes) ? minutes : 6;
+    this.minutes = [1, 2, 3, 4, 5, 6, 8, 10].includes(minutes) ? minutes : 6;
     this.tempo = tempoOf(tempo);
     this.vragen = new Vragen(quiz, 'Ridderslang', this.tempo);
     this.phase = 'lobby';
