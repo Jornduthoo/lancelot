@@ -179,6 +179,7 @@
   const quiz = AK.quiz({
     root: $('mo-game'),
     closeText: 'Terug naar de putten',
+    lock: 1000, // je bent nog aan het meppen: eerst rustig lezen
     status: () => 'Juist = ⚡ volle lading en 🔥 Vuurzwaard',
     ask: cb => socket.emit('mo-question', null, cb),
     answer: (i, cb) => socket.emit('mo-answer', i, cb),
