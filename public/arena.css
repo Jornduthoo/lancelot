@@ -147,6 +147,37 @@ body:not([data-pw="1"]) #poort, body:not([data-nv="1"]) #vlucht, body:not([data-
   .pw-stage { flex: 0 0 auto; aspect-ratio: 16 / 9; width: 100%; }
   .pw-dock { flex: 1 1 auto; border-left: 0; border-top: 1px solid var(--line); }
 }
+/* Diepboor */
+.db-bar { position: relative; width: clamp(80px, 14vw, 170px); height: 24px; border-radius: 12px; background: rgba(255, 255, 255, .08); overflow: hidden; box-shadow: inset 0 0 0 1px var(--line); }
+.db-bar i { position: absolute; inset: 0 auto 0 0; width: 100%; background: linear-gradient(90deg, #ff8c42, #ffc94a); transition: width .2s; }
+.db-bar.hull i { background: linear-gradient(90deg, #4cc9ff, #7aa2ff); }
+.db-bar span { position: relative; display: block; padding: 0 10px; line-height: 24px; font-family: var(--tech, Orbitron, sans-serif); font-size: .8rem; font-weight: 800; color: #fff; text-shadow: 0 1px 3px #000; white-space: nowrap; }
+.db-bar.low { box-shadow: inset 0 0 0 2px var(--bad), 0 0 12px rgba(255, 77, 109, .6); animation: breathe 1s ease-in-out infinite; }
+.db-panel { display: flex; flex-direction: column; gap: 6px; }
+.db-title { margin: 0; font-size: .9rem; font-weight: 700; }
+.db-title b { font-family: var(--tech); color: var(--gold); }
+.db-shop { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; }
+.db-buy { display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 5px 2px; min-width: 0; background: rgba(255, 201, 74, .1); box-shadow: inset 0 0 0 2px rgba(255, 201, 74, .45); color: var(--text); text-transform: none; letter-spacing: 0; }
+.db-buy b { font-size: 1.15rem; line-height: 1; }
+.db-buy span { font-size: .66rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.db-buy em { font-style: normal; font-size: .6rem; line-height: 1; color: var(--gold); letter-spacing: -1px; }
+.db-buy small { font-family: var(--tech); font-size: .7rem; color: var(--gold); }
+.db-buy:not(:disabled) { animation: breathe 1.6s ease-in-out infinite; }
+.db-cargo { flex: 1; min-width: 0; }
+.db-slots { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+.db-slot { width: 16px; height: 16px; border-radius: 4px; background: rgba(255, 255, 255, .07); box-shadow: inset 0 0 0 1px var(--line); }
+.db-slot[style] { background: radial-gradient(circle at 35% 30%, #fff, var(--c) 55%); box-shadow: 0 0 8px var(--c); }
+.db-tele { flex: 0 0 86px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 1.4rem; background: rgba(199, 125, 255, .12); box-shadow: inset 0 0 0 2px rgba(199, 125, 255, .4); color: #fff; }
+.db-tele small { font-family: var(--tech); font-size: .6rem; text-transform: uppercase; }
+.db-tele.ready { background: radial-gradient(circle at 40% 35%, #e9d5ff, #7c3aed); box-shadow: 0 0 14px rgba(199, 125, 255, .6); }
+.db-full { margin: 0; padding: 14px; text-align: center; font-weight: 700; color: var(--gold); }
+.db-full.hidden { display: none; }
+.db-stage { touch-action: none; }
+@media (max-height: 500px) { .db-panel .pw-tip { display: none; } }
+@media (orientation: portrait) {
+  .db-stage.pw-stage { aspect-ratio: 1 / 1; max-height: 52vh; }
+  .ak-hud .db-bar { width: 74px; }
+}
 .ak-wide main { max-width: 1840px; }
 .ak-wide .ak-board { grid-template-columns: 1fr 280px; height: calc(100vh - 150px); }
 
