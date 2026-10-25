@@ -12,6 +12,7 @@ const Rp3D = (() => {
   const FAR = 4200;
   const HW = 150;            // breedte van een paardplaatje in baaneenheden
   const FOG = [44, 24, 58];
+  const GRASS = [26, 58, 48];
   const LIGHT = [-.45, -.6, .66];
 
   // ---------- Vaste dingen langs de baan (één keer berekend) ----------
@@ -38,6 +39,68 @@ const Rp3D = (() => {
       }
     }
   }
+  // De weg zelf als echte vlakken (scherp, ook vlak voor je neus). Per stukje van 30 eenheden:
+  // het asfalt, de neonranden links en rechts, nitrostroken. De kloof krijgt eigen wanden.
+  const ASPHALT = { hoofd: '#34324a', burcht: '#4f4b60', kloof: '#3a3346', bos: '#4a3b2c' };
+  const SEGS = [];
+  // Ligt dit punt op het begin of einde van een zijweg? Dan krijgt de hoofdbaan daar geen rand (de weg loopt door).
+  const onBranch = (x, y) => {
+    for (const p of Wd.PATHS) {
+      if (p.closed) continue;
+      for (const [a, b] of [[p.first, Math.min(p.last, p.first + 30)], [Math.max(p.first, p.last - 30), p.last]]) {
+        for (let i = a; i <= b; i++) if ((Wd.X[i] - x) ** 2 + (Wd.Y[i] - y) ** 2 < (Wd.HALF[i] + 4) ** 2) return true;
+      }
+    }
+    return false;
+  };
+  for (const p of Wd.PATHS) {
+    for (let i = p.first; i <= p.last; i++) {
+      const j = Wd.NEXT[i];
+      if (j < 0 || (Wd.FLAG[i] & Wd.F_GAP) || (Wd.FLAG[j] & Wd.F_GAP)) continue;
+      const side = (k, off) => [Wd.X[k] - Wd.TY[k] * off, Wd.Y[k] + Wd.TX[k] * off];
+      const edge = [-1, 1].map(sd => {
+        if (!RpDraw.EDGE[p.key] && p.key !== 'bos') return null;
+        if (!p.closed && (RpDraw.onMain(...side(i, sd * (Wd.HALF[i] - 6)), p) || RpDraw.onMain(...side(j, sd * (Wd.HALF[j] - 6)), p))) return null;
+        if (p.closed && (onBranch(...side(i, sd * (Wd.HALF[i] - 6))) || onBranch(...side(j, sd * (Wd.HALF[j] - 6))))) return null;
+        return {
+          line: [side(i, sd * (Wd.HALF[i] - 18)), side(j, sd * (Wd.HALF[j] - 18)), side(j, sd * (Wd.HALF[j] + 1)), side(i, sd * (Wd.HALF[i] + 1))],
+        };
+      });
+      SEGS.push({
+        i, x: (Wd.X[i] + Wd.X[j]) / 2, y: (Wd.Y[i] + Wd.Y[j]) / 2, key: p.key, alt: (i >> 1) & 1, pad: !!(Wd.FLAG[i] & Wd.F_PAD),
+        road: [side(i, -Wd.HALF[i] - 2), side(j, -Wd.HALF[j] - 2), side(j, Wd.HALF[j] + 2), side(i, Wd.HALF[i] + 2)],
+        berm: [side(i, -Wd.HALF[i] - Wd.OFF), side(j, -Wd.HALF[j] - Wd.OFF), side(j, Wd.HALF[j] + Wd.OFF), side(i, Wd.HALF[i] + Wd.OFF)],
+        mid: [side(i, -Wd.HALF[i] * .55), side(j, -Wd.HALF[j] * .55), side(j, Wd.HALF[j] * .55), side(i, Wd.HALF[i] * .55)],
+        edge,
+      });
+    }
+  }
+  const ellipse = (cx, cy, rx, ry, n = 40) => Array.from({ length: n }, (_, k) => [cx + Math.cos((k / n) * Math.PI * 2) * rx, cy + Math.sin((k / n) * Math.PI * 2) * ry]);
+  const LAKE = ellipse(4900, 3350, 2050, 1000, 56), ISLE = ellipse(4900, 3350, 520, 330), ISLE2 = ellipse(4900, 3350, 430, 260);
+  // De startlijn: een dambord dwars over de weg.
+  const CHECKS = [];
+  {
+    const i = Wd.START, j = Wd.NEXT[i], n = 10, hw = Wd.HALF[i];
+    for (let r = 0; r < 2; r++) {
+      for (let c = 0; c < n; c++) {
+        const a = -hw + (2 * hw * c) / n, b = -hw + (2 * hw * (c + 1)) / n;
+        const t0 = r * 15, t1 = t0 + 15;
+        const P = (t, off) => [Wd.X[i] + Wd.TX[i] * t - Wd.TY[i] * off, Wd.Y[i] + Wd.TY[i] * t + Wd.TX[i] * off];
+        CHECKS.push({ white: (r + c) % 2 === 0, pts: [P(t0, a), P(t0, b), P(t1, b), P(t1, a)] });
+      }
+    }
+    void j;
+  }
+  // De Drakenkloof: de rand van de spleet (links heen, rechts terug).
+  const GAP_W = Wd.HALF[Wd.GAP.from] + Wd.OFF + 30;
+  const GAP_L = [], GAP_R = [];
+  for (let i = Wd.step(Wd.GAP.from, -1); ; i = Wd.NEXT[i]) {
+    GAP_L.push([Wd.X[i] - Wd.TY[i] * GAP_W, Wd.Y[i] + Wd.TX[i] * GAP_W]);
+    GAP_R.push([Wd.X[i] + Wd.TY[i] * GAP_W, Wd.Y[i] - Wd.TX[i] * GAP_W]);
+    if (i === Wd.GAP.to) break;
+  }
+  const GAP_MID = [Wd.X[(Wd.GAP.from + Wd.GAP.to) >> 1], Wd.Y[(Wd.GAP.from + Wd.GAP.to) >> 1]];
+
   // Lantaarns langs de hoofdbaan en de burchtroute.
   const LAMPS = [];
   for (const p of Wd.PATHS) {
@@ -244,18 +307,6 @@ const Rp3D = (() => {
   const spark = (x, y, color) => add({ x, y, r: 40, life: .35, kind: 'spark', color });
 
   // ---------- De grond ----------
-  const low = document.createElement('canvas');
-  const lctx = low.getContext('2d');
-  let img = null, px = null, skyRows = null, floor = null;
-  function floorData() {
-    if (floor) return floor;
-    const k = .2;
-    const c = RpDraw.mapImage(k);
-    const g = c.getContext('2d');
-    floor = { k, w: c.width, h: c.height, px: new Uint32Array(g.getImageData(0, 0, c.width, c.height).data.buffer) };
-    return floor;
-  }
-
   // scene: { me: {x, y, z}, a, self: {look, av, frame, boost, shield, spin, zap} of null,
   //          others: [{x, y, z, a, look, av, name, frame, flags, rank}], boxes (verborgen ids), shots, traps, t, quality }
   function render(ctx, w, h, scene) {
@@ -269,59 +320,24 @@ const Rp3D = (() => {
     const hz = Math.round(HORIZON * h);
     const q = scene.quality || 1;
 
-    const resW = Math.max(150, Math.min(360, Math.round((w / 3.2) * q)));
-    const resH = Math.max(90, Math.round(resW * h / w));
-    if (low.width !== resW || low.height !== resH) {
-      low.width = resW;
-      low.height = resH;
-      img = lctx.createImageData(resW, resH);
-      px = new Uint32Array(img.data.buffer);
-      skyRows = null;
-    }
-    const lhz = Math.round(HORIZON * resH);
-    const lf = resW / 2 / half;
-    if (!skyRows) {
-      skyRows = new Uint32Array(lhz + 1);
-      for (let y = 0; y <= lhz; y++) {
-        const k = y / Math.max(1, lhz);
-        // Van diep paars bovenaan naar een gloeiende oranje horizon.
-        const r = Math.round(28 + k * k * 200), g = Math.round(14 + k * k * 70), b = Math.round(60 + k * 30);
-        skyRows[y] = (255 << 24) | (b << 16) | (g << 8) | r;
-      }
-    }
-    for (let y = 0; y < lhz; y++) px.fill(skyRows[y], y * resW, (y + 1) * resW);
-    const fl = floorData();
-    const tex = fl.px, tw = fl.w, th = fl.h, tk = fl.k;
-    const plx = -sa * half, ply = ca * half;
-    const lx = ca - plx, ly = sa - ply;
-    const rx = ca + plx, ry = sa + ply;
+    // Lucht en gras als verlopen; het meer, de bermen en de weg komen er later als echte vlakken op.
     const camZ = Math.max(40, cam.z);
-    for (let y = lhz; y < resH; y++) {
-      const rowD = (camZ * lf) / Math.max(.5, y - lhz + .5);
-      let wx = (cam.x + rowD * lx) * tk;
-      let wy = (cam.y + rowD * ly) * tk;
-      const sx = ((rowD * (rx - lx)) / resW) * tk;
-      const sy = ((rowD * (ry - ly)) / resW) * tk;
-      let i = y * resW;
-      // De mist zit meteen in de pixels: een laag minder om over het hele scherm te tekenen.
-      const fog = Math.min(.92, (rowD / FAR) ** 1.3 * 1.5);
-      if (fog < .02) {
-        for (let x = 0; x < resW; x++, i++, wx += sx, wy += sy) {
-          const tx = wx | 0, ty = wy | 0;
-          px[i] = tx < 0 || ty < 0 || tx >= tw || ty >= th ? 0xff2a2a14 : tex[ty * tw + tx];
-        }
-      } else {
-        const keep = 1 - fog, fr = FOG[0] * fog, fg = FOG[1] * fog, fb = FOG[2] * fog;
-        for (let x = 0; x < resW; x++, i++, wx += sx, wy += sy) {
-          const tx = wx | 0, ty = wy | 0;
-          const v = tx < 0 || ty < 0 || tx >= tw || ty >= th ? 0xff2a2a14 : tex[ty * tw + tx];
-          px[i] = 0xff000000 | (((v >>> 16 & 255) * keep + fb) << 16) | (((v >>> 8 & 255) * keep + fg) << 8) | ((v & 255) * keep + fr);
-        }
+    {
+      const sky = ctx.createLinearGradient(0, 0, 0, hz);
+      sky.addColorStop(0, 'rgb(28, 14, 60)');
+      sky.addColorStop(.5, 'rgb(78, 31, 75)');
+      sky.addColorStop(1, 'rgb(228, 84, 90)');
+      ctx.fillStyle = sky;
+      ctx.fillRect(0, 0, w, hz + 1);
+      const fogAt = y => Math.min(.92, (((camZ * f) / Math.max(.5, y - hz + .5)) / FAR) ** 1.3 * 1.5);
+      const grass = ctx.createLinearGradient(0, hz, 0, h);
+      for (const k of [0, .02, .05, .1, .2, .35, .6, 1]) {
+        const fo = fogAt(hz + k * (h - hz)), keep = 1 - fo;
+        grass.addColorStop(k, `rgb(${Math.round(GRASS[0] * keep + FOG[0] * fo)}, ${Math.round(GRASS[1] * keep + FOG[1] * fo)}, ${Math.round(GRASS[2] * keep + FOG[2] * fo)})`);
       }
+      ctx.fillStyle = grass;
+      ctx.fillRect(0, hz, w, h - hz);
     }
-    lctx.putImageData(img, 0, 0);
-    ctx.imageSmoothingEnabled = true;
-    ctx.drawImage(low, 0, 0, w, h);
     // Sterren, de zon en het panorama, meedraaiend.
     ctx.fillStyle = '#ffe9f6';
     for (const s of STARS) {
@@ -541,20 +557,125 @@ const Rp3D = (() => {
       if (s) { ctx.fillStyle = '#fff3b0'; ctx.beginPath(); s.forEach((v, k) => (k ? ctx.lineTo(v[0], v[1]) : ctx.moveTo(v[0], v[1]))); ctx.fill(); }
     }
 
-    // De verre wand van de kloof, met lava die naar boven gloeit.
-    function drawCliff(d) {
-      const i = Wd.GAP.to;
-      const off = Wd.HALF[i] + Wd.OFF + 30;
-      const L = [Wd.X[i] - Wd.TY[i] * off, Wd.Y[i] + Wd.TX[i] * off], R = [Wd.X[i] + Wd.TY[i] * off, Wd.Y[i] - Wd.TX[i] * off];
-      const s = face([[L[0], L[1], 0], [R[0], R[1], 0], [R[0], R[1], -380], [L[0], L[1], -380]], '#1a0e10');
-      if (s) {
-        const top = Math.min(s[0][1], s[1][1]), bot = Math.max(s[2][1], s[3][1]);
-        const g = ctx.createLinearGradient(0, top, 0, bot);
-        g.addColorStop(0, 'rgba(255, 120, 40, 0)');
-        g.addColorStop(1, 'rgba(255, 90, 30, .75)');
-        ctx.fillStyle = g;
-        ctx.fill();
+    // ---------- De weg: platte vlakken, per kleur en afstand samen getekend ----------
+    function addPoly(layer, key, style, pts, z = 0) {
+      const sp = polygon(pts.map(p => [p[0], p[1], z]));
+      if (!sp) return;
+      let g = layer.get(key);
+      if (!g) layer.set(key, (g = { style, path: new Path2D() }));
+      g.path.moveTo(sp[0][0], sp[0][1]);
+      for (let k = 1; k < sp.length; k++) g.path.lineTo(sp[k][0], sp[k][1]);
+      g.path.closePath();
+    }
+    function fillLayer(layer) {
+      for (const g of layer.values()) {
+        ctx.globalAlpha = g.style.a;
+        ctx.fillStyle = g.style.c;
+        ctx.fill(g.path);
       }
+      ctx.globalAlpha = 1;
+    }
+    function drawRoad() {
+      const berm = new Map(), road = new Map(), deco = new Map(), lines = new Map();
+      // Het burchtmeer met zijn eiland.
+      if (near(4900, 3350, FAR_S + 2000)) {
+        const dl = Math.max(0, dist2(4900, 3350) - 1400), fk = Math.max(.35, 1 - dl / FAR);
+        for (const [pts, col] of [[LAKE, '#1f5a72'], [ISLE, '#3d5a3a'], [ISLE2, '#596a76']]) {
+          const sp = polygon(pts.map(p => [p[0], p[1], 0]));
+          if (!sp) continue;
+          ctx.fillStyle = shade(col, fk);
+          ctx.beginPath(); sp.forEach((v, k) => (k ? ctx.lineTo(v[0], v[1]) : ctx.moveTo(v[0], v[1]))); ctx.closePath(); ctx.fill();
+        }
+      }
+      const BANDS = 4, step = FAR_S / BANDS;
+      for (const sg of SEGS) {
+        if (!near(sg.x, sg.y, FAR_S)) continue;
+        const c = toCam(sg.x, sg.y, 0);
+        if (c[2] < -60 || Math.abs(c[0]) > (Math.max(c[2], 0) + 300) * half * 1.3 + 300) continue;
+        const d = Math.hypot(c[0], c[2]);
+        if (d > FAR_S) continue;
+        const band = Math.min(BANDS - 1, Math.floor(d / step));
+        const fogK = Math.max(.3, 1 - ((band + .5) * step) / FAR);
+        const base = ASPHALT[sg.key];
+        // Afwisselende banden (geeft snelheid) alleen dichtbij: elke kleur is een tekenbeurt.
+        const alt = band < 2 && sg.alt;
+        addPoly(berm, `${sg.key === 'bos' ? 'b' : 'g'}${band}`, { c: shade(sg.key === 'bos' ? '#22402a' : '#3b4a32', fogK), a: 1 }, sg.berm);
+        addPoly(road, `${sg.key}${alt ? 1 : 0}${band}`, { c: shade(base, fogK * (alt ? .9 : 1)), a: 1 }, sg.road);
+        if (sg.pad) addPoly(deco, `p${sg.alt}${band}`, { c: sg.alt ? '#4cf0ff' : '#1d8fb8', a: .55 * fogK }, sg.mid);
+        for (const e of sg.edge) {
+          if (!e) continue;
+          const col = RpDraw.EDGE[sg.key] || '#8cffaa';
+          addPoly(lines, `${col}${band}`, { c: col, a: Math.min(1, .35 + fogK) }, e.line);
+        }
+      }
+      if (near(Wd.X[Wd.START], Wd.Y[Wd.START], FAR_S)) for (const ch of CHECKS) addPoly(deco, ch.white ? 'cw' : 'cb', { c: ch.white ? '#f2f2f8' : '#15151f', a: 1 }, ch.pts);
+      fillLayer(berm);
+      fillLayer(road);
+      fillLayer(deco);
+      fillLayer(lines);
+      if (near(GAP_MID[0], GAP_MID[1], FAR_S)) drawChasm();
+    }
+    // De kloof: een zwarte opening, met binnenin rotswanden en lava diep onderaan.
+    function drawChasm() {
+      const rim = [...GAP_L, ...[...GAP_R].reverse()];
+      const top = polygon(rim.map(p => [p[0], p[1], 0]));
+      if (!top) return;
+      const hole = new Path2D();
+      hole.moveTo(top[0][0], top[0][1]);
+      for (let k = 1; k < top.length; k++) hole.lineTo(top[k][0], top[k][1]);
+      hole.closePath();
+      ctx.save();
+      ctx.clip(hole);
+      ctx.fillStyle = '#07040a';
+      ctx.fill(hole);
+      const DEEP = -180;
+      // Lava onderaan
+      const bot = polygon(rim.map(p => [p[0], p[1], DEEP]));
+      if (bot) {
+        const pb = place(GAP_MID[0], GAP_MID[1], DEEP);
+        const r = pb ? Math.max(30, 900 * pb.k) : 200;
+        const lava = ctx.createRadialGradient(pb ? pb.x : w / 2, pb ? pb.y : h, 0, pb ? pb.x : w / 2, pb ? pb.y : h, r);
+        lava.addColorStop(0, '#ffb347');
+        lava.addColorStop(.35, '#ff5a1f');
+        lava.addColorStop(1, '#5a0d0a');
+        ctx.fillStyle = lava;
+        ctx.beginPath(); bot.forEach((v, k) => (k ? ctx.lineTo(v[0], v[1]) : ctx.moveTo(v[0], v[1]))); ctx.closePath(); ctx.fill();
+      }
+      // Wanden: de verre wand en de twee zijwanden, van boven donker naar onder gloeiend.
+      const wall = (a, b, shadeK) => {
+        const sp = polygon([[a[0], a[1], 0], [b[0], b[1], 0], [b[0], b[1], DEEP], [a[0], a[1], DEEP]]);
+        if (!sp) return;
+        const y0 = Math.min(sp[0][1], sp[1][1]), y1 = Math.max(...sp.map(v => v[1]));
+        // Rots bovenaan, onderaan gloeiend van de lava; met een paar lagen in de steen.
+        const g = ctx.createLinearGradient(0, y0, 0, y1);
+        g.addColorStop(0, shade('#5a4038', shadeK));
+        g.addColorStop(.08, shade('#24140f', shadeK));
+        g.addColorStop(.3, '#5a1a0e');
+        g.addColorStop(.6, '#c2441a');
+        g.addColorStop(1, '#ffb04a');
+        ctx.fillStyle = g;
+        ctx.beginPath(); sp.forEach((v, k) => (k ? ctx.lineTo(v[0], v[1]) : ctx.moveTo(v[0], v[1]))); ctx.closePath(); ctx.fill();
+        ctx.strokeStyle = 'rgba(0, 0, 0, .25)';
+        ctx.lineWidth = 1.5;
+        for (const t of [.2, .38, .6]) {
+          ctx.beginPath();
+          ctx.moveTo(sp[0][0] + (sp[3][0] - sp[0][0]) * t, sp[0][1] + (sp[3][1] - sp[0][1]) * t);
+          ctx.lineTo(sp[1][0] + (sp[2][0] - sp[1][0]) * t, sp[1][1] + (sp[2][1] - sp[1][1]) * t);
+          ctx.stroke();
+        }
+      };
+      const fwd = ca * Wd.TX[Wd.GAP.from] + sa * Wd.TY[Wd.GAP.from] >= 0;
+      if (fwd) wall(GAP_L[GAP_L.length - 1], GAP_R[GAP_R.length - 1], 1);
+      else wall(GAP_R[0], GAP_L[0], 1);
+      for (let k = 0; k + 1 < GAP_L.length; k++) {
+        wall(GAP_L[k], GAP_L[k + 1], .8);
+        wall(GAP_R[k + 1], GAP_R[k], .8);
+      }
+      ctx.restore();
+      // Gloeiende rand
+      ctx.strokeStyle = 'rgba(255, 140, 60, .8)';
+      ctx.lineWidth = 3;
+      ctx.stroke(hole);
     }
 
     // ---------- Alles op volgorde: van ver naar dichtbij ----------
@@ -566,6 +687,7 @@ const Rp3D = (() => {
     };
     const near = (x, y, max) => Math.abs(x - cam.x) < max && Math.abs(y - cam.y) < max;
     const FAR_S = FAR * (q < .8 ? .75 : 1);
+    drawRoad();
     for (const o of FENCE) if (near(o.x, o.y, FAR_S * .7) && inView(o.x, o.y, 120)) things.push({ kind: 'fence', o, d: dist2(o.x, o.y) + 20 });
     for (const o of WALLS) { const x = (o.ax + o.bx) / 2, y = (o.ay + o.by) / 2; if (near(x, y, FAR_S) && inView(x, y, 160)) things.push({ kind: 'wall', o, d: dist2(x, y) }); }
     for (const g of GATES) if (near(Wd.X[g.i], Wd.Y[g.i], FAR_S) && inView(Wd.X[g.i], Wd.Y[g.i], g.w)) things.push({ kind: 'gate', o: g, d: dist2(Wd.X[g.i], Wd.Y[g.i]) - 40 });
@@ -584,10 +706,6 @@ const Rp3D = (() => {
     {
       const i = Wd.START;
       if (near(Wd.X[i], Wd.Y[i], FAR_S) && inView(Wd.X[i], Wd.Y[i], 300)) things.push({ kind: 'start', d: dist2(Wd.X[i], Wd.Y[i]) - 30 });
-      // De kloofwand zie je alleen als je zelf op de kloofweg naar de sprong rijdt.
-      const j = Wd.GAP.to;
-      const cl = Wd.locate(me.x, me.y, {});
-      if (cl.i >= 0 && Wd.PATHS[Wd.PATH[cl.i]].key === 'kloof' && cl.i <= j && near(Wd.X[j], Wd.Y[j], FAR_S * .6) && inView(Wd.X[j], Wd.Y[j], 400)) things.push({ kind: 'cliff', d: dist2(Wd.X[j], Wd.Y[j]) + 400 });
     }
     const hidden = scene.boxes;
     for (const b of Wd.BOXES) if (!(hidden && hidden.has(b.id)) && near(b.x, b.y, FAR_S * .7) && inView(b.x, b.y, 60)) things.push({ kind: 'box', o: b, d: dist2(b.x, b.y) });
@@ -617,7 +735,6 @@ const Rp3D = (() => {
         case 'cyl': drawCyl(o, th.d); break;
         case 'ramp': drawRamp(o, th.d); break;
         case 'start': drawStart(th.d); break;
-        case 'cliff': drawCliff(th.d); break;
         case 'pine': {
           const p = place(o.x, o.y, 0);
           if (!p) break;
