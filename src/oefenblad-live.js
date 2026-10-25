@@ -31,6 +31,7 @@ class OefenbladLive {
     this.file = null;
     this.phase = 'idle'; // idle -> open -> einde
     this.feedback = 'direct';
+    this.voorlees = 'iedereen';
     this.mode = 'schildknaap';
     this.players = new Map();
     this.levels = {};
@@ -44,12 +45,13 @@ class OefenbladLive {
     return this.phase !== 'idle';
   }
 
-  load(sheet, file, feedback, niveau) {
+  load(sheet, file, feedback, niveau, voorlees) {
     this.reset();
     this.run++;
     this.sheet = sheet;
     this.file = file;
     this.feedback = feedback === 'inleveren' ? 'inleveren' : 'direct';
+    this.voorlees = ['iedereen', 'page', 'uit'].includes(voorlees) ? voorlees : 'iedereen';
     this.mode = MODES.includes(niveau) ? niveau : 'schildknaap';
     for (const n of sheets.niveausOf(sheet)) {
       const s = sheets.forNiveau(sheet, n);
@@ -82,6 +84,11 @@ class OefenbladLive {
       if (l && this.levels[l.niveau]) return l.niveau;
     }
     return 'schildknaap';
+  }
+
+  // Op 🪶 Page: op dit blad, of anders zoals ingesteld bij Mijn klas (ook bij een blad met één niveau).
+  isPage(p) {
+    return this.multi ? p.niveau === 'page' : p.klasPage;
   }
 
   // Een ander niveau: de leerling begint op een ander blad, dus de antwoorden van het oude blad vervallen.
@@ -130,8 +137,9 @@ class OefenbladLive {
     const clean = String(name || '').trim().replace(/\s+/g, ' ').slice(0, 20);
     if (!clean) return { error: 'Vul een naam in.' };
     if ([...this.players.values()].some(p => p.name.toLowerCase() === clean.toLowerCase())) return { error: 'Die naam is al bezet.' };
+    const kl = klas.match(clean);
     this.players.set(playerId, {
-      name: clean, socketId, niveau: this.startNiveau(clean), choosing: this.mode === 'kies' && this.multi,
+      name: clean, socketId, niveau: this.startNiveau(clean), klasPage: !!kl && kl.niveau === 'page', choosing: this.mode === 'kies' && this.multi,
       answers: {}, results: {}, first: {}, lockUntil: {}, submitted: false, submittedAt: 0, joinedAt: Date.now(), lastAt: Date.now(),
     });
     this.changed();
@@ -335,6 +343,7 @@ class OefenbladLive {
         name: p.name, sheet: this.lv(p).view, niveau: this.multi ? p.niveau : null, choosing: p.choosing,
         niveaus: p.choosing ? Object.keys(this.levels) : null, answers: p.answers, submitted: p.submitted,
         results: this.feedback === 'direct' || p.submitted ? p.results : {},
+        voorlees: this.voorlees === 'iedereen' || (this.voorlees === 'page' && this.isPage(p)),
       });
       if (p.submitted) state.report = this.report(p);
     }
