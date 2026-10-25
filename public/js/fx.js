@@ -162,7 +162,7 @@ function confetti(duration = 4000) {
 // Een spel starten. Loopt er nog een ander spel, dan vragen we of dat mag stoppen in plaats van een foutmelding te tonen.
 const GAME_OF_EVENT = {
   load: 'toernooi', 'rt-load': 'rondetafel', 'tw-load': 'toren', 'sj-load': 'schat', 'ls-load': 'laserslag', 'rr-load': 'race',
-  'bb-load': 'burcht', 'du-load': 'duel', 'pk-load': 'knight', 'sr-load': 'rossen', 'gt-load': 'gauntlet', 'ry-load': 'royale', 'nd-load': 'neon', 'lb-load': 'baas', 'rk-load': 'rijk', 'kr-load': 'roof', 'vr-load': 'verrader', 'ob-load': 'oefenblad',
+  'bb-load': 'burcht', 'du-load': 'duel', 'pk-load': 'knight', 'sr-load': 'rossen', 'gt-load': 'gauntlet', 'ry-load': 'royale', 'sv-load': 'sterren', 'rs-load': 'slang', 'nd-load': 'neon', 'lb-load': 'baas', 'rk-load': 'rijk', 'kr-load': 'roof', 'vr-load': 'verrader', 'ob-load': 'oefenblad',
   'cg-load': 'galaga', 'bk-load': 'bomber', 'opwarmer-start': 'toernooi',
 };
 function loadGame(event, payload, cb) {
@@ -294,7 +294,7 @@ const Glow = (() => {
   }
   // Teken een lichtvlek met straal r. sy < 1 maakt hem plat (een lichtplas op de grond).
   function glow(ctx, x, y, r, color, alpha = 1, sy = 1) {
-    if (r <= 0 || alpha <= 0) return;
+    if (r <= 0 || alpha <= 0 || !color) return;
     const op = ctx.globalCompositeOperation, ga = ctx.globalAlpha;
     ctx.globalCompositeOperation = 'lighter';
     ctx.globalAlpha = ga * Math.min(1, alpha);

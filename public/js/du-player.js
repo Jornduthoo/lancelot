@@ -52,6 +52,7 @@ socket.on('du-state', s => {
   du.state = s;
   du.offset = s.now - Date.now();
   document.body.dataset.du = s.active ? '1' : '';
+  if (s.active) duBg();
   if (!s.active) {
     du.joined = false;
     return;
@@ -209,3 +210,22 @@ socket.on('du-kicked', () => {
 socket.on('connect', () => {
   if (du.joined) duJoin(store('lancelot-name') || '');
 });
+
+// Het colosseum als achtergrond: één keer getekend per schermgrootte, wat donkerder zodat de vragen leesbaar blijven.
+function duBg() {
+  const c = $('du-bg');
+  const dpr = Math.min(1.5, window.devicePixelRatio || 1);
+  const w = Math.round(innerWidth * dpr);
+  const h = Math.round(innerHeight * dpr);
+  if (c.width === w && c.height === h) return;
+  c.width = w;
+  c.height = h;
+  const g = c.getContext('2d');
+  const art = DuArt.colosseum(w, h, 15);
+  g.drawImage(art.c, 0, 0);
+  art.torches.forEach(([x, y, u], i) => DuArt.torch(g, x, y, u, i, i));
+  g.fillStyle = 'rgba(4, 3, 10, .45)';
+  g.fillRect(0, 0, w, h);
+  Glow.vignette(g, w, h, .7);
+}
+window.addEventListener('resize', () => { if (document.body.dataset.du === '1') duBg(); });

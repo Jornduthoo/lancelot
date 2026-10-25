@@ -24,6 +24,8 @@ const { NeonDuel } = require('./src/neonduel');
 const { LeraarBaas } = require('./src/leraarbaas');
 const { Gauntlet } = require('./src/gauntlet');
 const { Royale } = require('./src/royale');
+const { Sterrenvreter } = require('./src/sterrenvreter');
+const { Ridderslang } = require('./src/ridderslang');
 const rijken = require('./src/rijk');
 const avatars = require('./src/avatars');
 const { Verrader } = require('./src/verrader');
@@ -144,6 +146,16 @@ const royale = new Royale(io, r => {
   return finished(file);
 });
 
+const sterren = new Sterrenvreter(io, s => {
+  const file = s.save();
+  return finished(file);
+});
+
+const slang = new Ridderslang(io, s => {
+  const file = s.save();
+  return finished(file);
+});
+
 const rijk = new rijken.Rijk(io, r => {
   const file = results.saveRijk(r);
   return finished(file);
@@ -156,6 +168,7 @@ const oefenblad = new OefenbladLive(io, o => {
 
 // Tegen gokken: elk spel krijgt dezelfde regels (wachten na fout, vraag komt terug, seintje bij snel gokken).
 const gok = antigok.create(io);
+oefenblad.gok = gok;
 const guarded = {
   toren: gok.guard(toren, 'toren', 'De prinses in de toren'),
   schat: gok.guard(schat, 'schat', 'Schattenjacht'),
@@ -173,6 +186,8 @@ const guarded = {
   bomber: gok.guard(bomber, 'bomber', 'Bomber-Knight', { own: true }),
   baas: gok.guard(baas, 'baas', 'Leraar-baas', { own: true }),
   royale: gok.guard(royale, 'royale', 'Ridder-Royale', { own: true }),
+  sterren: gok.guard(sterren, 'sterren', 'Sterrenvreter', { own: true }),
+  slang: gok.guard(slang, 'slang', 'Ridderslang', { own: true }),
 };
 
 // Er loopt altijd hooguit één spel tegelijk.
@@ -180,7 +195,7 @@ const busyError = message => Object.assign(new Error(message), { busy: true });
 
 // Alles stoppen wat nog loopt (behalve het spel dat je wil starten). De resultaten worden bewaard zoals bij Stop.
 function stopOthers(except) {
-  const all = { toernooi: game, rondetafel: rt, toren, schat, laserslag, race, roof, verrader, burcht, duel, knight, rossen, gauntlet, royale, neon, baas, rijk, oefenblad, galaga, bomber };
+  const all = { toernooi: game, rondetafel: rt, toren, schat, laserslag, race, roof, verrader, burcht, duel, knight, rossen, gauntlet, royale, sterren, slang, neon, baas, rijk, oefenblad, galaga, bomber };
   for (const [key, mod] of Object.entries(all)) {
     if (key === except) continue;
     if (key === 'toernooi' ? game.phase !== 'idle' : mod.active) mod.stop();
@@ -206,6 +221,8 @@ function busyWith(except) {
   if (except !== 'baas' && baas.active) return 'Leraar-baas loopt nog. Stop dat spel eerst.';
   if (except !== 'gauntlet' && gauntlet.active) return 'Gauntlet loopt nog. Stop dat spel eerst.';
   if (except !== 'royale' && royale.active) return 'Ridder-Royale loopt nog. Stop dat spel eerst.';
+  if (except !== 'sterren' && sterren.active) return 'Sterrenvreter loopt nog. Stop dat spel eerst.';
+  if (except !== 'slang' && slang.active) return 'Ridderslang loopt nog. Stop dat spel eerst.';
   if (except !== 'rijk' && rijk.active) return 'Het Rijk loopt nog. Stop dat spel eerst.';
   if (except !== 'oefenblad' && oefenblad.active) return 'Er staat nog een oefenblad open. Sluit dat eerst.';
   return null;
@@ -229,7 +246,7 @@ function isLocal(address) {
   return ['127.0.0.1', '::1', '::ffff:127.0.0.1'].includes(address);
 }
 
-for (const [route, page] of [['/host', 'host.html'], ['/rondetafel', 'rondetafel.html'], ['/toren', 'toren.html'], ['/schattenjacht', 'schattenjacht.html'], ['/laserslag', 'laserslag.html'], ['/ridderrace', 'ridderrace.html'], ['/kristalroof', 'kristalroof.html'], ['/verrader', 'verrader.html'], ['/burchtbouwers', 'burchtbouwers.html'], ['/duel', 'duel.html'], ['/packnight', 'packnight.html'], ['/strijdrossen', 'strijdrossen.html'], ['/gauntlet', 'gauntlet.html'], ['/ridder-royale', 'royale.html'], ['/neonduel', 'neonduel.html'], ['/leraarbaas', 'leraarbaas.html'], ['/cybergalaga', 'cybergalaga.html'], ['/bomberknight', 'bomberknight.html'], ['/rijk', 'rijk.html'], ['/oefenblad', 'oefenblad.html'], ['/oefenblad-print', 'oefenblad-print.html'], ['/klas', 'klas.html'], ['/netwerk', 'netwerk.html']]) {
+for (const [route, page] of [['/host', 'host.html'], ['/rondetafel', 'rondetafel.html'], ['/toren', 'toren.html'], ['/schattenjacht', 'schattenjacht.html'], ['/laserslag', 'laserslag.html'], ['/ridderrace', 'ridderrace.html'], ['/kristalroof', 'kristalroof.html'], ['/verrader', 'verrader.html'], ['/burchtbouwers', 'burchtbouwers.html'], ['/duel', 'duel.html'], ['/packnight', 'packnight.html'], ['/strijdrossen', 'strijdrossen.html'], ['/gauntlet', 'gauntlet.html'], ['/ridder-royale', 'royale.html'], ['/sterrenvreter', 'sterrenvreter.html'], ['/ridderslang', 'ridderslang.html'], ['/neonduel', 'neonduel.html'], ['/leraarbaas', 'leraarbaas.html'], ['/cybergalaga', 'cybergalaga.html'], ['/bomberknight', 'bomberknight.html'], ['/rijk', 'rijk.html'], ['/oefenblad', 'oefenblad.html'], ['/oefenblad-print', 'oefenblad-print.html'], ['/klas', 'klas.html'], ['/netwerk', 'netwerk.html']]) {
   app.get(route, (req, res) => {
     if (!isLocal(req.socket.remoteAddress)) return res.status(403).send('Het docentenscherm is alleen bereikbaar op de pc van de leerkracht.');
     res.setHeader('Cache-Control', 'no-cache');
@@ -339,7 +356,28 @@ function sendAddresses(target) {
     .then(qrs => target.emit('addresses', urls.map((url, k) => ({ url, qr: qrs[k], name: list[k].name, sure: list[k].address === preferred }))));
 }
 
+// Eén fout in een spel mag nooit de hele server (en dus de les) laten vallen.
+// Elke handler vangt zijn eigen fouten op; de leerling krijgt een foutmelding in plaats van een vastgelopen knop.
+function safeHandlers(socket) {
+  const on = socket.on.bind(socket);
+  socket.on = (event, fn) => on(event, (...args) => {
+    try {
+      return fn(...args);
+    } catch (err) {
+      console.error(`Fout bij '${event}':`, (err && err.stack) || err);
+      const cb = args[args.length - 1];
+      if (typeof cb === 'function') {
+        try { cb({ error: 'Er ging iets mis. Probeer het opnieuw.' }); } catch {}
+      }
+    }
+  });
+}
+// Ook een fout in een speltimer laat de server gewoon verder draaien.
+process.on('uncaughtException', err => console.error('Onverwachte fout:', (err && err.stack) || err));
+process.on('unhandledRejection', err => console.error('Onverwachte fout:', (err && err.stack) || err));
+
 io.on('connection', socket => {
+  safeHandlers(socket);
   // De namen op de klaslijst, om bij het aanmelden aan te tikken. Meteen meesturen, nog voor de stand van
   // een spel: zo weet de leerling al of een onthouden naam op de lijst staat voordat hij automatisch meedoet.
   socket.emit('klas-namen', klas.names());
@@ -699,6 +737,8 @@ io.on('connection', socket => {
     // Gauntlet en Ridder-Royale
     gauntlet.attachHost(socket, handle, busyWith, busyError, quizzes);
     royale.attachHost(socket, handle, busyWith, busyError, quizzes);
+    sterren.attachHost(socket, handle, busyWith, busyError, quizzes);
+    slang.attachHost(socket, handle, busyWith, busyError, quizzes);
 
     // Strijdrossen
     socket.on('sr-load', handle(({ file, minutes, mode, tempo } = {}) => {
@@ -1029,6 +1069,8 @@ io.on('connection', socket => {
   // Gauntlet en Ridder-Royale
   gauntlet.attachPlayer(socket, validId, guarded.gauntlet);
   royale.attachPlayer(socket, validId, guarded.royale);
+  sterren.attachPlayer(socket, validId, guarded.sterren);
+  slang.attachPlayer(socket, validId, guarded.slang);
 
   // Strijdrossen
   socket.emit('sr-state', rossen.base());

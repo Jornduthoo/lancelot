@@ -229,3 +229,14 @@ $('av-done').addEventListener('click', () => {
 
 // Opnieuw verbonden (bijvoorbeeld na een herstart van de server): ridder opnieuw doorgeven.
 socket.on('connect', () => avSend(store('lancelot-name')));
+
+// Begint het spel terwijl een leerling nog zijn ridder aanpast, dan bewaren we de ridder en sluiten we het venster,
+// zodat niemand het begin van het spel mist achter dit scherm.
+const avPlaying = new Set(['play', 'question', 'intro', 'duel', 'bouwen', 'spel', 'rollen', 'taken']);
+const avPhases = {};
+socket.onAny((event, s) => {
+  if (!s || typeof s.phase !== 'string' || !/(^|-)state$/.test(event)) return;
+  const was = avPhases[event];
+  avPhases[event] = s.phase;
+  if (was === 'lobby' && avPlaying.has(s.phase) && !maker.classList.contains('hidden')) $('av-done').click();
+});

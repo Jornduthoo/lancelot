@@ -7,7 +7,7 @@
   <link rel="icon" type="image/png" href="/favicon.png">
   <link rel="stylesheet" href="/style.css">
 </head>
-<body class="rt">
+<body class="rt rt-host">
 <main>
   <div class="topbar">
     <div class="brand" id="brand" title="Naar het startscherm">
@@ -150,6 +150,7 @@
       <h2><span class="count" id="w-count">0</span> <span id="w-word">ridders</span> aan tafel</h2>
       <button class="gold big" id="w-start">Open de Ronde Tafel</button>
     </div>
+    <canvas class="rt-table" id="w-table"></canvas>
     <p class="muted small">Leerlingen antwoorden anoniem. Je hoeft niet te wachten tot iedereen er is: wie later binnenkomt, doet gewoon mee.</p>
   </section>
 
@@ -184,10 +185,13 @@
     </div>
   </section>
 </main>
+<canvas class="sj-back" id="p-back"></canvas>
 <script src="/socket.io/socket.io.js"></script>
 <script src="/js/fx.js"></script>
 <script src="/js/avatar.js"></script>
 <script src="/js/quiz-list.js"></script>
+<script src="/js/kr-art.js"></script>
+<script src="/js/vr-art.js"></script>
 <script src="/js/rt-host.js"></script>
 <script src="/js/address.js"></script>
 </body>
