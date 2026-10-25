@@ -425,25 +425,101 @@ const CgArt = (() => {
         g.clip();
         g.fillStyle = 'rgba(3, 2, 10, .6)';
         g.fillRect(x0, 0, gw, h);
+        // Verre bergen en een burcht als silhouet achter de torens.
+        g.fillStyle = '#0a0720';
+        g.beginPath(); g.moveTo(x0, h);
+        for (let x = x0; x <= x1 + 10; x += gw / 6) g.lineTo(x, h * (.5 + rnd() * .14));
+        g.lineTo(x1, h); g.closePath(); g.fill();
         // Torens van ver naar dichtbij, aan de buitenkant het hoogst.
+        const lit = side ? '#4cc9ff' : '#ff5fd2';
         for (let k = 0; k < 3; k++) {
           const tw = gw * (.28 + rnd() * .14);
           const edge = side ? x1 - tw * (k * 1.1 + .2) - tw : x0 + tw * (k * 1.1 + .2);
           const th = h * (.55 - k * .12 + rnd() * .08);
           const top = h - th;
-          g.fillStyle = ['#0b0820', '#120c2c', '#1a1238'][k];
+          const body = ['#0b0820', '#120c2c', '#1a1238'][k];
+          g.fillStyle = body;
           g.fillRect(edge, top, tw, th);
+          // Gemetselde rijen: een lichte voeg om de zoveel, verspringend.
+          const row = Math.max(6, tw * .16);
+          g.fillStyle = 'rgba(160, 140, 255, .05)';
+          for (let y = top + row, i = 0; y < h; y += row, i++) {
+            g.fillRect(edge, y, tw, 1);
+            for (let x = edge + (i % 2 ? row : row * 2); x < edge + tw; x += row * 2.2) g.fillRect(x, y - row, 1, row);
+          }
+          // Een lichtrand aan de kant van het speelveld, schaduw aan de andere kant.
+          const rim = g.createLinearGradient(edge, 0, edge + tw, 0);
+          rim.addColorStop(0, side ? Glow.rgba(lit, .16) : 'rgba(0,0,0,.35)');
+          rim.addColorStop(.25, 'rgba(0,0,0,0)');
+          rim.addColorStop(.75, 'rgba(0,0,0,0)');
+          rim.addColorStop(1, side ? 'rgba(0,0,0,.35)' : Glow.rgba(lit, .16));
+          g.fillStyle = rim;
+          g.fillRect(edge, top, tw, th);
+          g.fillStyle = body;
           for (let m = 0; m < 5; m += 2) g.fillRect(edge + m * tw / 5, top - tw * .14, tw / 5, tw * .14);
+          g.fillStyle = ['#0d0a26', '#150f33', '#1e1642'][k];
           g.beginPath(); g.moveTo(edge - tw * .1, top - tw * .14); g.lineTo(edge + tw / 2, top - tw * .9); g.lineTo(edge + tw * 1.1, top - tw * .14); g.closePath(); g.fill();
+          // Dak: een lichte kant en leien rijen.
+          g.fillStyle = Glow.rgba(lit, .1);
+          g.beginPath(); g.moveTo(edge + tw / 2, top - tw * .9);
+          if (side) { g.lineTo(edge - tw * .1, top - tw * .14); g.lineTo(edge + tw * .5, top - tw * .14); } else { g.lineTo(edge + tw * 1.1, top - tw * .14); g.lineTo(edge + tw * .5, top - tw * .14); }
+          g.closePath(); g.fill();
+          g.strokeStyle = 'rgba(0, 0, 0, .35)';
+          g.lineWidth = 1;
+          for (let q = 1; q < 4; q++) {
+            const yy = top - tw * .14 - tw * .76 * q / 4, half = tw * .6 * (1 - q / 4);
+            g.beginPath(); g.moveTo(edge + tw / 2 - half, yy); g.lineTo(edge + tw / 2 + half, yy); g.stroke();
+          }
+          // Vlaggetje op de spits.
+          g.strokeStyle = '#3a3460';
+          g.beginPath(); g.moveTo(edge + tw / 2, top - tw * .9); g.lineTo(edge + tw / 2, top - tw * 1.15); g.stroke();
+          g.fillStyle = Glow.rgba(lit, .8);
+          g.beginPath(); g.moveTo(edge + tw / 2, top - tw * 1.15); g.lineTo(edge + tw / 2 + (side ? -1 : 1) * tw * .22, top - tw * 1.09); g.lineTo(edge + tw / 2, top - tw * 1.03); g.closePath(); g.fill();
+          // Boogramen met neonlicht.
           for (let y = top + tw * .3; y < h - tw * .3; y += tw * .55) {
             if (rnd() < .45) continue;
             const col = rnd() < .5 ? '#4cc9ff' : '#ff5fd2';
+            const wx = edge + tw * .4, ww = tw * .2, wh = tw * .28;
+            glowDot(g, wx + ww / 2, y + wh / 2, tw * .5, col);
+            g.fillStyle = '#05040c';
+            g.beginPath(); g.moveTo(wx - 1, y + wh + 1); g.lineTo(wx - 1, y + ww / 2); g.arc(wx + ww / 2, y + ww / 2, ww / 2 + 1, Math.PI, 0); g.lineTo(wx + ww + 1, y + wh + 1); g.closePath(); g.fill();
             g.fillStyle = col;
             g.globalAlpha = .55 + rnd() * .4;
-            g.fillRect(edge + tw * .4, y, tw * .2, tw * .28);
+            g.beginPath(); g.moveTo(wx, y + wh); g.lineTo(wx, y + ww / 2); g.arc(wx + ww / 2, y + ww / 2, ww / 2, Math.PI, 0); g.lineTo(wx + ww, y + wh); g.closePath(); g.fill();
             g.globalAlpha = 1;
-            glowDot(g, edge + tw * .5, y + tw * .14, tw * .5, col);
+            g.fillStyle = 'rgba(5, 4, 12, .7)';
+            g.fillRect(wx + ww / 2 - .5, y + ww * .2, 1, wh - ww * .2);
+            g.fillRect(wx, y + wh * .6, ww, 1);
           }
+          // Een uitbouw met een lampje naar de volgende toren.
+          if (k < 2) {
+            const by = top + th * (.25 + rnd() * .2);
+            g.fillStyle = body;
+            g.fillRect(side ? edge - tw * .2 : edge + tw, by, tw * .2, tw * .14);
+            g.fillStyle = 'rgba(255, 201, 74, .5)';
+            g.fillRect(side ? edge - tw * .14 : edge + tw * 1.04, by + tw * .05, tw * .03, tw * .04);
+          }
+        }
+        // Een kantelmuur vooraan met fakkels.
+        const wy = h * .9;
+        g.fillStyle = '#161036';
+        g.fillRect(x0, wy, gw, h - wy);
+        const mw = Math.max(8, gw * .07);
+        for (let x = x0; x < x1; x += mw * 2) g.fillRect(x, wy - mw * .7, mw, mw * .7);
+        g.fillStyle = 'rgba(160, 140, 255, .07)';
+        for (let x = x0; x < x1; x += mw * 2) g.fillRect(x, wy - mw * .7, mw, 1);
+        for (let y = wy + mw * .8, i = 0; y < h; y += mw * .8, i++) {
+          g.fillRect(x0, y, gw, 1);
+          for (let x = x0 + (i % 2 ? mw : 0); x < x1; x += mw * 2) g.fillRect(x, y - mw * .8, 1, mw * .8);
+        }
+        g.fillStyle = Glow.rgba(lit, .35);
+        g.fillRect(x0, wy, gw, 1.5);
+        for (let x = x0 + gw * .25; x < x1; x += gw * .5) {
+          glowDot(g, x, wy + mw * .6, mw * 2.4, '#ff8a2a');
+          g.fillStyle = '#ffd27a';
+          g.beginPath(); g.ellipse(x, wy + mw * .5, mw * .18, mw * .34, 0, 0, Math.PI * 2); g.fill();
+          g.fillStyle = '#2a1c10';
+          g.fillRect(x - mw * .08, wy + mw * .8, mw * .16, mw * .6);
         }
         // Banier aan de rail.
         const bx = side ? x0 + gw * .12 : x1 - gw * .12 - gw * .16;
@@ -506,28 +582,62 @@ const CgArt = (() => {
   // Een zwevende burcht op een rotsblok, als silhouet in de verte.
   function castle(s) {
     return cached(`c${s.toFixed(2)}`, () => {
-      const c = canvas(140 * s, 130 * s);
+      const c = canvas(140 * s, 150 * s);
       const g = c.getContext('2d');
       g.scale(s, s);
-      g.fillStyle = '#1a1438';
+      // Het rotsblok met lagen en hangende kristallen.
+      const rock = g.createLinearGradient(0, 70, 0, 128);
+      rock.addColorStop(0, '#241c4a');
+      rock.addColorStop(1, '#0f0b26');
+      g.fillStyle = rock;
       g.beginPath();
       g.moveTo(10, 70); g.lineTo(130, 70); g.lineTo(108, 92); g.lineTo(84, 104); g.lineTo(70, 128); g.lineTo(56, 104); g.lineTo(30, 92);
       g.closePath();
       g.fill();
+      g.strokeStyle = 'rgba(0, 0, 0, .35)';
+      g.lineWidth = 1;
+      for (const [ax, ay, bx, by] of [[22, 80, 116, 80], [36, 92, 102, 92], [58, 104, 82, 104]]) { g.beginPath(); g.moveTo(ax, ay); g.lineTo(bx, by); g.stroke(); }
+      for (const [x, y, l, col] of [[40, 92, 12, '#4cc9ff'], [64, 112, 18, '#b26bff'], [92, 98, 10, '#ff5fd2']]) {
+        glowDot(g, x, y + l * .6, l, col);
+        g.fillStyle = col;
+        g.beginPath(); g.moveTo(x - 3, y); g.lineTo(x + 3, y); g.lineTo(x, y + l); g.closePath(); g.fill();
+        g.fillStyle = 'rgba(255, 255, 255, .5)';
+        g.beginPath(); g.moveTo(x - 3, y); g.lineTo(x - .5, y); g.lineTo(x, y + l); g.closePath(); g.fill();
+      }
+      // Muur en torens met puntdaken.
       g.fillStyle = '#231c4a';
-      const tower = (x, w, h) => {
+      g.fillRect(14, 54, 112, 16);
+      for (let i = 14; i < 126; i += 8) g.fillRect(i, 50, 5, 4);
+      const tower = (x, w, h, roof) => {
+        g.fillStyle = '#2a2254';
         g.fillRect(x, 70 - h, w, h);
-        for (let i = 0; i < w; i += 6) g.fillRect(x + i, 70 - h - 5, 4, 5);
+        g.fillStyle = 'rgba(76, 201, 255, .12)';
+        g.fillRect(x, 70 - h, 2, h);
+        g.fillStyle = 'rgba(0, 0, 0, .3)';
+        g.fillRect(x + w - 3, 70 - h, 3, h);
+        g.fillStyle = '#1b1540';
+        g.beginPath(); g.moveTo(x - 2, 70 - h); g.lineTo(x + w / 2, 70 - h - roof); g.lineTo(x + w + 2, 70 - h); g.closePath(); g.fill();
+        g.fillStyle = 'rgba(76, 201, 255, .18)';
+        g.beginPath(); g.moveTo(x - 2, 70 - h); g.lineTo(x + w / 2, 70 - h - roof); g.lineTo(x + w / 2, 70 - h); g.closePath(); g.fill();
+        g.strokeStyle = '#3a3460';
+        g.beginPath(); g.moveTo(x + w / 2, 70 - h - roof); g.lineTo(x + w / 2, 70 - h - roof - 7); g.stroke();
+        g.fillStyle = '#ff5fd2';
+        g.beginPath(); g.moveTo(x + w / 2, 70 - h - roof - 7); g.lineTo(x + w / 2 + 7, 70 - h - roof - 5); g.lineTo(x + w / 2, 70 - h - roof - 3); g.closePath(); g.fill();
       };
-      tower(22, 18, 38);
-      tower(46, 48, 26);
-      tower(60, 20, 52);
-      tower(100, 16, 34);
-      g.beginPath();
-      g.moveTo(58, 18); g.lineTo(70, 2); g.lineTo(82, 18);
-      g.fill();
-      g.fillStyle = 'rgba(255, 201, 74, .8)';
-      for (const [x, y] of [[66, 30], [73, 30], [28, 44], [104, 46], [52, 52], [86, 52]]) g.fillRect(x, y, 2.5, 4);
+      tower(20, 16, 36, 16);
+      tower(100, 16, 32, 14);
+      tower(42, 14, 28, 12);
+      tower(60, 20, 50, 22);
+      tower(82, 14, 26, 12);
+      // Poort en ramen
+      g.fillStyle = '#0a0818';
+      g.beginPath(); g.moveTo(64, 70); g.lineTo(64, 60); g.arc(70, 60, 6, Math.PI, 0); g.lineTo(76, 70); g.closePath(); g.fill();
+      g.fillStyle = 'rgba(255, 201, 74, .85)';
+      for (const [x, y] of [[66, 30], [73, 30], [69, 42], [26, 44], [106, 48], [47, 52], [86, 54]]) {
+        glowDot(g, x + 1.2, y + 2, 5, '#ffc94a');
+        g.fillStyle = 'rgba(255, 201, 74, .85)';
+        g.fillRect(x, y, 2.5, 4);
+      }
       g.strokeStyle = 'rgba(76, 201, 255, .5)';
       g.lineWidth = 1;
       g.beginPath();
