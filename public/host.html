@@ -272,6 +272,21 @@
       <h2>Instellingen</h2>
       <button class="secondary" data-back="home">Terug</button>
     </div>
+    <div class="panel form" id="lesmap">
+      <h3>Mijn lesmap: van overal voorbereiden</h3>
+      <p class="muted small">Kies een map in je OneDrive of Google Drive. Je quizzen, oefenbladen en Ronde Tafels komen daar ook in. Op een andere pc met LANcelot kies je dezelfde map: wat je daar maakt, staat hier vanzelf klaar bij het opstarten (en daarna elke minuut). Je klaslijst, het logboek en de resultaten gaan nooit mee: die blijven op deze pc.</p>
+      <p id="lm-status"></p>
+      <div class="actions" id="lm-suggest"></div>
+      <label>Map<input id="lm-path" autocomplete="off" placeholder="bv. C:\Users\jij\OneDrive\LANcelot"></label>
+      <p class="error" id="lm-error"></p>
+      <div class="actions">
+        <button id="lm-pick" class="secondary">Kies map…</button>
+        <button id="lm-save">Deze map gebruiken</button>
+        <button id="lm-sync" class="secondary hidden">Nu synchroniseren</button>
+        <button id="lm-open" class="secondary hidden">Map openen</button>
+        <button id="lm-off" class="secondary hidden">Loskoppelen</button>
+      </div>
+    </div>
     <div class="panel form">
       <h3>Eigen Gemini-sleutel (optioneel)</h3>
       <p class="muted small">Met een eigen sleutel maakt Google Gemini de quiz direct, zonder kopiëren en plakken. Een sleutel maak je gratis aan op <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a>. Zolang je daar geen betaalgegevens koppelt, kost het niets; er geldt dan een gratis daglimiet. De sleutel wordt alleen op deze pc bewaard.</p>
@@ -457,6 +472,7 @@
 <script src="/js/address.js"></script>
 <script src="/js/doel-kies.js"></script>
 <script src="/js/maker.js"></script>
+<script src="/js/lesmap.js"></script>
 <script src="/js/opwarmer.js"></script>
 <script src="/js/overzicht.js"></script>
 </body>

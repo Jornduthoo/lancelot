@@ -40,6 +40,7 @@ const opwarmer = require('./src/opwarmer');
 const overzicht = require('./src/overzicht');
 const zorg = require('./src/zorg');
 const results = require('./src/results');
+const lesmap = require('./src/lesmap');
 const { execFile } = require('child_process');
 const { generateQuiz } = require('./src/gemini');
 const antigok = require('./src/antigok');
@@ -236,10 +237,31 @@ const LIBS = {
   sessie: { mod: rondetafel, list: 'rt-sessions', folders: 'rt-folders' },
 };
 
-function sendLibrary(kind, target = io.to('host')) {
+// Zonder target: naar alle docentenschermen, en daarna ook naar de lesmap (er werd iets bewaard, verplaatst of verwijderd).
+function sendLibrary(kind, target, fromSync = false) {
   const l = LIBS[kind];
-  target.emit(l.folders, l.mod.lib.folders());
-  target.emit(l.list, l.mod.list());
+  const to = target || io.to('host');
+  to.emit(l.folders, l.mod.lib.folders());
+  to.emit(l.list, l.mod.list());
+  if (!target && !fromSync) syncSoon();
+}
+
+// Mijn lesmap (OneDrive of Google Drive): bij opstart, elke minuut en kort na elke wijziging.
+lesmap.init([
+  { kind: 'quiz', dir: quizzes.DIR, remote: 'quizzen', validate: quizzes.validate },
+  { kind: 'oefenblad', dir: oefenbladen.DIR, remote: 'oefenbladen', validate: oefenbladen.validate },
+  { kind: 'sessie', dir: rondetafel.DIR, remote: 'ronde-tafel', validate: rondetafel.validate },
+]);
+let syncTimer = null;
+function runSync() {
+  return lesmap.sync().then(changed => {
+    for (const kind of changed) sendLibrary(kind, null, true);
+    io.to('host').emit('lesmap', lesmap.view());
+  });
+}
+function syncSoon() {
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(runSync, 3000);
 }
 
 // Het docentenscherm werkt alleen op de pc waar de server draait.
@@ -413,6 +435,34 @@ io.on('connection', socket => {
       sendAddresses(io.to('host'));
     });
     socket.emit('settings', settings.publicView());
+    // Mijn lesmap: kiezen, nu synchroniseren, openen.
+    socket.emit('lesmap', lesmap.view());
+    socket.on('lesmap-suggest', (_, cb) => typeof cb === 'function' && cb(lesmap.suggestions()));
+    socket.on('lesmap-choose', (folder, cb) => {
+      try {
+        lesmap.choose(folder);
+      } catch (err) {
+        return cb && cb({ error: err.message });
+      }
+      io.to('host').emit('lesmap', lesmap.view());
+      runSync().then(() => cb && cb({ ok: true, ...lesmap.view() }));
+    });
+    socket.on('lesmap-sync', (_, cb) => runSync().then(() => cb && cb(lesmap.view())));
+    // Het gewone Windows-venster om een map te kiezen.
+    socket.on('lesmap-pick', (_, cb) => {
+      if (process.platform !== 'win32') return cb && cb({ error: 'Typ het pad van de map hieronder.' });
+      const ps = 'Add-Type -AssemblyName System.Windows.Forms; $d = New-Object System.Windows.Forms.FolderBrowserDialog; '
+        + '$d.Description = \'Kies je lesmap in OneDrive of Google Drive\'; $d.ShowNewFolderButton = $true; '
+        + '$w = New-Object System.Windows.Forms.Form -Property @{TopMost=$true}; '
+        + 'if ($d.ShowDialog($w) -eq \'OK\') { [Console]::OutputEncoding = [Text.Encoding]::UTF8; $d.SelectedPath }';
+      execFile('powershell', ['-NoProfile', '-STA', '-Command', ps], { windowsHide: true }, (err, out) => {
+        cb && cb(err ? { error: 'Het venster om een map te kiezen opende niet. Typ het pad hieronder.' } : { path: String(out).trim() });
+      });
+    });
+    socket.on('lesmap-open', () => {
+      const dir = settings.read().lesmap;
+      if (dir && process.platform === 'win32') execFile('explorer', [dir]);
+    });
     socket.emit('results', results.list());
     socket.on('open-results-folder', () => {
       fs.mkdirSync(results.DIR, { recursive: true });
@@ -1222,6 +1272,8 @@ io.on('connection', socket => {
 });
 
 server.listen(PORT, () => {
+  runSync();
+  setInterval(runSync, 60 * 1000);
   console.log('\n  LANcelot draait!\n');
   console.log(`  Docentenscherm:  http://localhost:${PORT}/host`);
   for (const a of lanAddresses()) console.log(`  Leerlingen:      http://${a}:${PORT}`);

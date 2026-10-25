@@ -245,6 +245,17 @@ Op het startscherm en in elke lobby staat de knop **Netwerk werkt niet?**. Die p
 
 ## Thuis voorbereiden
 
+### Automatisch, met Mijn lesmap (aangeraden)
+
+1. Zorg dat OneDrive of Google Drive (voor bureaublad) op de bord-pc én op je pc thuis staat, met hetzelfde account.
+2. Open op de bord-pc **Instellingen** en klik bij **Mijn lesmap** op **Gebruik OneDrive** (of Google Drive), of op **Kies map…**. LANcelot maakt daar een map `LANcelot` met je quizzen, oefenbladen en Ronde Tafels.
+3. Doe thuis in je eigen LANcelot hetzelfde, met dezelfde map.
+4. Klaar. Wat je thuis maakt of aanpast, staat op het digibord zodra LANcelot opstart, en daarna wordt elke minuut bijgewerkt. Het werkt ook in de andere richting.
+
+Je klaslijst, het logboek, de resultaten en de avatars gaan nooit mee: die blijven op de pc zelf. Verwijder je iets, dan staat het nog 30 dagen in de map `_prullenbak`. Tip: zet in OneDrive de map `LANcelot` op **Altijd behouden op dit apparaat**.
+
+### Met de hand, via een bestand
+
 1. Maak je quizzen, oefenbladen of sessies thuis in LANcelot op je eigen laptop.
 2. Klik op **⬇** naast een item of een map, of op **⬇ Alles exporteren**. Er wordt een bestand gedownload. Zet het op een usb-stick, in je mail of in de cloud.
 3. Open op de bord-pc dezelfde pagina (Toernooi, Oefenbladen of De Ronde Tafel) en klik op **⬆ Importeren**, of sleep het bestand op de lijst.
