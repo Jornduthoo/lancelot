@@ -40,8 +40,22 @@ function openRealm(id, scroll) {
   for (const t of document.querySelectorAll('.realm')) t.classList.toggle('on', t.dataset.realm === id);
   for (const p of document.querySelectorAll('.realm-panel')) p.classList.toggle('hidden', p.id !== `realm-${id}`);
   try { localStorage.setItem('lancelot-realm', id); } catch {}
+  fillRows();
   if (scroll) $(`realm-${id}`).scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
+// Elke rij tegels vol: de eerste tegels worden breed tot de laatste rij gevuld is.
+function fillRows() {
+  const grid = document.querySelector('.realm-panel:not(.hidden) .modules');
+  if (!grid) return;
+  const tiles = [...grid.children];
+  for (const t of tiles) t.style.gridColumn = '';
+  const gap = parseFloat(getComputedStyle(grid).columnGap) || 0;
+  const cols = Math.min(tiles.length, Math.floor((grid.clientWidth + gap) / (240 + gap)));
+  const extra = cols > 1 ? (cols - tiles.length % cols) % cols : 0;
+  for (const t of tiles.slice(0, extra)) t.style.gridColumn = 'span 2';
+}
+addEventListener('resize', fillRows);
+document.querySelector('[data-realm="arena"] .tag').textContent = `${document.querySelectorAll('#realm-arena .module').length} spellen`;
 for (const t of document.querySelectorAll('.realm')) t.addEventListener('click', () => { openRealm(t.dataset.realm, true); sfx.tick(); });
 let savedRealm = 'arena';
 try { savedRealm = localStorage.getItem('lancelot-realm') || 'arena'; } catch {}
