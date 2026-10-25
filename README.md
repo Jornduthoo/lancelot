@@ -59,7 +59,7 @@ Met **+ Nieuwe map** orden je je quizzen in mappen (per vak of klas). Sleep een 
 
 ### Exporteren en importeren
 
-Thuis voorbereiden op je laptop en in de klas op de bord-pc gebruiken? Met **⬇** naast een quiz, oefenblad of sessie bewaar je die als bestand. Met **⬇** naast een map exporteer je de hele map met de mappen erin, en **⬇ Alles exporteren** neemt alles mee, met de mappen erbij. Op de andere pc klik je op **⬆ Importeren** (of sleep je het bestand op de lijst, of op een map). Wat er al precies zo staat, wordt overgeslagen, dus je kan gerust opnieuw importeren. Je kan ook een gewoon quizbestand (`.json`) van een collega importeren.
+Thuis voorbereiden op je laptop en in de klas op de bord-pc gebruiken? Het makkelijkst is **Mijn lesmap** in Instellingen: kies op beide pc's dezelfde map in OneDrive of Google Drive. Quizzen, oefenbladen en Ronde Tafels blijven dan vanzelf gelijk (bij opstart en elke minuut). Klaslijst, logboek en resultaten gaan nooit mee. Liever met de hand? Met **⬇** naast een quiz, oefenblad of sessie bewaar je die als bestand. Met **⬇** naast een map exporteer je de hele map met de mappen erin, en **⬇ Alles exporteren** neemt alles mee, met de mappen erbij. Op de andere pc klik je op **⬆ Importeren** (of sleep je het bestand op de lijst, of op een map). Wat er al precies zo staat, wordt overgeslagen, dus je kan gerust opnieuw importeren. Je kan ook een gewoon quizbestand (`.json`) van een collega importeren.
 
 Met **Lege quiz** maak je zelf een quiz, en met **Bewerken** pas je een bestaande quiz aan. Dat kan ook rechtstreeks vanuit Schattenjacht en De prinses in de toren; na het opslaan kom je daar terug.
 
