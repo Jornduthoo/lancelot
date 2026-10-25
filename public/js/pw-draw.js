@@ -22,62 +22,101 @@ const PwDraw = (() => {
     const g = c.getContext('2d');
     g.scale(k, k);
     const r = rnd(4242);
-    // Grond: donker mos met nevel
+    // Grond: donker gras met vlekken, aarde, grassprietjes, bloemetjes en lichtgevende paddenstoelen.
     const bg = g.createLinearGradient(0, 0, W, H);
-    bg.addColorStop(0, '#0c1a22');
-    bg.addColorStop(.5, '#0a1519');
-    bg.addColorStop(1, '#0d1222');
+    bg.addColorStop(0, '#0f2321');
+    bg.addColorStop(.5, '#0c1c1c');
+    bg.addColorStop(1, '#101a26');
     g.fillStyle = bg;
     g.fillRect(0, 0, W, H);
-    for (let i = 0; i < 40; i++) glow(g, r() * W, r() * H, 80 + r() * 160, ['#1d4a3a', '#1b2f5a', '#3a1f55'][i % 3], .25);
-    // Raster van licht, zoals een scifi-vloer
-    g.strokeStyle = 'rgba(76, 201, 255, .05)';
-    g.lineWidth = 1;
-    for (let x = 0; x <= W; x += 40) { g.beginPath(); g.moveTo(x, 0); g.lineTo(x, H); g.stroke(); }
-    for (let y = 0; y <= H; y += 40) { g.beginPath(); g.moveTo(0, y); g.lineTo(W, y); g.stroke(); }
-    // Grasplukjes en steentjes
-    for (let i = 0; i < 1400; i++) {
+    for (let i = 0; i < 40; i++) glow(g, r() * W, r() * H, 80 + r() * 160, ['#1d4a3a', '#1b2f5a', '#3a1f55'][i % 3], .22);
+    // Zachte vlekken licht en donker gras, en kale plekken aarde
+    for (let i = 0; i < 220; i++) glow(g, r() * W, r() * H, 20 + r() * 50, r() < .55 ? '#2f7a52' : '#05080a', .13, .6 + r() * .4);
+    for (let i = 0; i < 30; i++) {
       const x = r() * W, y = r() * H;
-      if (PwWorld.distToPath(x, y) < PwWorld.ROAD + 8) continue;
-      g.fillStyle = r() < .7 ? `rgba(60, ${110 + r() * 60}, ${90 + r() * 40}, ${.25 + r() * .3})` : `rgba(120, 130, 150, ${.2 + r() * .2})`;
-      g.fillRect(x, y, 1.5 + r() * 2, 1.5 + r() * 2);
+      if (PwWorld.distToPath(x, y) < PwWorld.ROAD + 40) continue;
+      glow(g, x, y, 26 + r() * 30, '#6b4a2b', .3, .55);
     }
-    // Het pad: donkere rand, kasseien, lichtende randen
+    g.lineCap = 'round';
+    for (let i = 0; i < 2600; i++) {
+      const x = r() * W, y = r() * H;
+      if (PwWorld.distToPath(x, y) < PwWorld.ROAD + 10) continue;
+      const v = r();
+      if (v < .82) {
+        g.strokeStyle = `rgba(${50 + r() * 40}, ${120 + r() * 70}, ${90 + r() * 40}, ${.3 + r() * .35})`;
+        g.lineWidth = 1.2;
+        g.beginPath(); g.moveTo(x, y); g.lineTo(x + (r() - .5) * 4, y - 3 - r() * 5); g.moveTo(x + 2, y); g.lineTo(x + 2 + (r() - .5) * 4, y - 2 - r() * 4); g.stroke();
+      } else if (v < .93) {
+        g.fillStyle = ['#ffd6a5', '#ff6bd6', '#9be7ff', '#fff2b0'][Math.floor(r() * 4)];
+        g.globalAlpha = .55;
+        g.beginPath(); g.arc(x, y, 1.6, 0, TAU); g.fill();
+        g.globalAlpha = 1;
+      } else rock(g, x, y, 2 + r() * 4, r);
+    }
+    // Het pad: donkere berm, kasseien dicht naast elkaar, wielsporen, stoepranden en een dun neonlijntje.
     const path = () => { g.beginPath(); PwWorld.PTS.forEach((p, i) => g[i ? 'lineTo' : 'moveTo'](p[0], p[1])); };
     g.lineCap = g.lineJoin = 'round';
     path();
-    g.strokeStyle = '#04060b';
-    g.lineWidth = PwWorld.ROAD * 2 + 16;
+    g.strokeStyle = 'rgba(2, 4, 8, .7)';
+    g.lineWidth = PwWorld.ROAD * 2 + 22;
     g.stroke();
     path();
-    g.strokeStyle = '#262a36';
+    g.strokeStyle = '#2a2a33';
     g.lineWidth = PwWorld.ROAD * 2;
     g.stroke();
-    for (let i = 0; i < PwWorld.PTS.length; i += 3) {
-      const [px, py] = PwWorld.PTS[i];
-      for (let j = 0; j < 2; j++) {
-        const a = r() * TAU, d = r() * (PwWorld.ROAD - 6);
-        const v = 46 + r() * 26;
-        g.fillStyle = `rgb(${v}, ${v + 3}, ${v + 14})`;
-        AK.roundRect(g, px + Math.cos(a) * d - 6, py + Math.sin(a) * d - 4, 9 + r() * 6, 7 + r() * 4, 3);
-        g.fill();
+    for (let d = 0; d < PwWorld.LENGTH; d += 9) {
+      const p = PwWorld.pos(d), nx = -Math.sin(p.a), ny = Math.cos(p.a);
+      for (let o = -PwWorld.ROAD + 6; o < PwWorld.ROAD - 4; o += 9) {
+        const x = p.x + nx * (o + (r() - .5) * 3), y = p.y + ny * (o + (r() - .5) * 3);
+        const v = 54 + r() * 30;
+        g.save();
+        g.translate(x, y);
+        g.rotate(p.a + (r() - .5) * .4);
+        g.fillStyle = `rgb(${v}, ${v - 2}, ${v + 8})`;
+        AK.roundRect(g, -4, -3.5, 8, 7, 2.5); g.fill();
+        g.fillStyle = 'rgba(255, 255, 255, .1)';
+        g.fillRect(-3, -3, 6, 1.5);
+        g.restore();
       }
     }
-    // Neonranden langs het pad
+    for (const o of [-11, 11]) {
+      g.beginPath();
+      for (let i = 0; i < PwWorld.PTS.length; i++) {
+        const q = PwWorld.pos(i * PwWorld.STEP);
+        g[i ? 'lineTo' : 'moveTo'](q.x - Math.sin(q.a) * o, q.y + Math.cos(q.a) * o);
+      }
+      g.strokeStyle = 'rgba(10, 8, 14, .35)';
+      g.lineWidth = 5;
+      g.stroke();
+    }
     for (const side of [-1, 1]) {
+      // Stoepranden: lange blokken, afwisselend licht en donker
+      let k2 = 0;
+      for (let d = 0; d < PwWorld.LENGTH; d += 16, k2++) {
+        const p = PwWorld.pos(d);
+        const x = p.x - Math.sin(p.a) * (PwWorld.ROAD + 3) * side, y = p.y + Math.cos(p.a) * (PwWorld.ROAD + 3) * side;
+        g.save();
+        g.translate(x, y);
+        g.rotate(p.a);
+        g.fillStyle = k2 % 2 ? '#5a5d70' : '#4a4d60';
+        g.fillRect(-8, -3.5, 15, 7);
+        g.fillStyle = 'rgba(255, 255, 255, .14)';
+        g.fillRect(-8, -3.5, 15, 2);
+        g.restore();
+      }
       g.beginPath();
       for (let i = 0; i < PwWorld.PTS.length; i += 2) {
-        const p = PwWorld.pos(i * PwWorld.STEP);
-        const x = p.x - Math.sin(p.a) * PwWorld.ROAD * side, y = p.y + Math.cos(p.a) * PwWorld.ROAD * side;
+        const q = PwWorld.pos(i * PwWorld.STEP);
+        const x = q.x - Math.sin(q.a) * (PwWorld.ROAD - 2) * side, y = q.y + Math.cos(q.a) * (PwWorld.ROAD - 2) * side;
         g[i ? 'lineTo' : 'moveTo'](x, y);
-        if (i % 10 === 0) glow(g, x, y, 14, '#4cc9ff', .22);
+        if (i % 14 === 0) glow(g, x, y, 12, '#4cc9ff', .18);
       }
-      g.strokeStyle = 'rgba(120, 220, 255, .75)';
-      g.lineWidth = 2;
+      g.strokeStyle = 'rgba(120, 220, 255, .5)';
+      g.lineWidth = 1.5;
       g.stroke();
     }
     // Runen in het midden van het pad
-    g.fillStyle = 'rgba(255, 201, 74, .18)';
+    g.fillStyle = 'rgba(255, 201, 74, .2)';
     for (let d = 60; d < PwWorld.LENGTH - 40; d += 70) {
       const p = PwWorld.pos(d);
       g.save();
@@ -89,13 +128,37 @@ const PwDraw = (() => {
       g.fill();
       g.restore();
     }
-    // Dennen en kristallen (niet op het pad en niet op torenplaatsen)
-    const free = (x, y, m) => PwWorld.distToPath(x, y) > PwWorld.ROAD + m && !PwWorld.SLOTS.some(s => Math.hypot(s.x - x, s.y - y) < 38 + m) && x < 1440 && Math.hypot(x - PwWorld.PORTAL.x, y - PwWorld.PORTAL.y) > 90;
-    for (let i = 0; i < 90; i++) {
+    // Bomen, dennen, struiken, ruïnes en kristallen (niet op het pad en niet op torenplaatsen)
+    const free = (x, y, m) => PwWorld.distToPath(x, y) > PwWorld.ROAD + m && !PwWorld.SLOTS.some(s => Math.hypot(s.x - x, s.y - y) < 38 + m) && x < 1440 && Math.hypot(x - PwWorld.PORTAL.x, y - PwWorld.PORTAL.y) > 110;
+    const props = [];
+    for (let i = 0; i < 220; i++) {
       const x = 20 + r() * (W - 40), y = 20 + r() * (H - 40);
       if (!free(x, y, 18)) continue;
-      if (r() < .78) pine(g, x, y, 12 + r() * 10, r);
+      props.push([x, y, r()]);
+    }
+    props.sort((a, b2) => a[1] - b2[1]);
+    for (const [x, y, v] of props) {
+      if (v < .38) pine(g, x, y, 12 + r() * 10, r);
+      else if (v < .64) tree(g, x, y, 13 + r() * 9, r);
+      else if (v < .8) bush(g, x, y, 6 + r() * 5, r);
+      else if (v < .86) ruin(g, x, y, r);
+      else if (v < .93) rock(g, x, y, 6 + r() * 6, r);
       else crystal(g, x, y, 6 + r() * 7, ['#4cc9ff', '#c77dff', '#2de2c8'][Math.floor(r() * 3)]);
+    }
+    // Staande stenen rond het portaal
+    for (let i = 0; i < 9; i++) {
+      const a = i / 9 * TAU + .3, P0 = PwWorld.PORTAL;
+      const x = P0.x + Math.cos(a) * 86, y = P0.y + Math.sin(a) * 76;
+      if (x < 6 || y < 6 || PwWorld.distToPath(x, y) < PwWorld.ROAD + 6) continue;
+      g.fillStyle = 'rgba(0, 0, 0, .4)';
+      g.beginPath(); g.ellipse(x + 3, y + 6, 9, 4, 0, 0, TAU); g.fill();
+      const sg = g.createLinearGradient(x - 6, 0, x + 6, 0);
+      sg.addColorStop(0, '#6b6f86'); sg.addColorStop(1, '#2e3142');
+      g.fillStyle = sg;
+      AK.roundRect(g, x - 6, y - 18, 12, 24, 4); g.fill();
+      g.fillStyle = 'rgba(199, 125, 255, .8)';
+      g.fillRect(x - 1, y - 12, 2, 8);
+      glow(g, x, y - 8, 12, '#c77dff', .35);
     }
     castle(g);
     // Portaalring (de draaiende kolk tekenen we live)
@@ -122,8 +185,64 @@ const PwDraw = (() => {
       const yy = y - k * s * .45, w = s * (1 - k * .25);
       g.fillStyle = k === 2 ? '#1c4a44' : k ? '#163c3a' : '#112e30';
       g.beginPath(); g.moveTo(x, yy - s * .9); g.lineTo(x + w, yy + s * .5); g.lineTo(x - w, yy + s * .5); g.closePath(); g.fill();
+      // Lichte kant links, zoals bij de bomen
+      g.fillStyle = 'rgba(140, 230, 190, .12)';
+      g.beginPath(); g.moveTo(x, yy - s * .9); g.lineTo(x, yy + s * .5); g.lineTo(x - w, yy + s * .5); g.closePath(); g.fill();
     }
     if (r() < .3) glow(g, x, y - s * 1.2, 6, '#7df9ff', .5);
+  }
+
+  function tree(g, x, y, s, r) {
+    // Loofboom van bovenaf: schaduw, stam, drie lagen bladeren met een lichte kant.
+    g.fillStyle = 'rgba(0, 0, 0, .38)';
+    g.beginPath(); g.ellipse(x + s * .35, y + s * .45, s * 1.05, s * .6, 0, 0, TAU); g.fill();
+    for (const [dx, dy, k, col] of [[0, 0, 1, '#123a2c'], [-.25, -.2, .78, '#1a4d38'], [-.4, -.38, .45, '#2a6a47']]) {
+      g.fillStyle = col;
+      g.beginPath();
+      for (let i = 0; i < 9; i++) {
+        const a = i / 9 * TAU, rr = s * k * (.86 + r() * .2);
+        g.lineTo(x + dx * s + Math.cos(a) * rr, y + dy * s + Math.sin(a) * rr * .92);
+      }
+      g.closePath(); g.fill();
+    }
+    if (r() < .25) { g.fillStyle = '#ff6b6b'; for (let i = 0; i < 3; i++) { g.beginPath(); g.arc(x + (r() - .5) * s, y + (r() - .5) * s, 1.6, 0, TAU); g.fill(); } }
+  }
+  function bush(g, x, y, s, r) {
+    g.fillStyle = 'rgba(0, 0, 0, .3)';
+    g.beginPath(); g.ellipse(x + 2, y + s * .5, s * 1.3, s * .5, 0, 0, TAU); g.fill();
+    for (let i = 0; i < 4; i++) {
+      g.fillStyle = i < 2 ? '#174433' : '#23603f';
+      g.beginPath(); g.arc(x + (r() - .5) * s * 1.2, y + (r() - .5) * s * .7 - i * .6, s * (.55 + r() * .25), 0, TAU); g.fill();
+    }
+  }
+  function rock(g, x, y, s, r) {
+    g.fillStyle = 'rgba(0, 0, 0, .35)';
+    g.beginPath(); g.ellipse(x + s * .3, y + s * .4, s, s * .6, 0, 0, TAU); g.fill();
+    const rg = g.createLinearGradient(x - s, y - s, x + s, y + s);
+    rg.addColorStop(0, '#7a7f96'); rg.addColorStop(1, '#30334a');
+    g.fillStyle = rg;
+    g.beginPath();
+    for (let i = 0; i < 7; i++) { const a = i / 7 * TAU, rr = s * (.75 + r() * .3); g.lineTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr * .8); }
+    g.closePath(); g.fill();
+  }
+  function ruin(g, x, y, r) {
+    // Een stuk oude muur met mos.
+    const a = r() * Math.PI, len = 26 + r() * 22;
+    g.save();
+    g.translate(x, y);
+    g.rotate(a);
+    g.fillStyle = 'rgba(0, 0, 0, .4)';
+    g.fillRect(-len / 2 + 3, -3, len, 11);
+    for (let i = 0; i < len; i += 7) {
+      const h = 5 + r() * 4;
+      g.fillStyle = i % 14 ? '#4a4d60' : '#5a5d72';
+      g.fillRect(-len / 2 + i, -h / 2, 6.5, h);
+      g.fillStyle = 'rgba(255, 255, 255, .12)';
+      g.fillRect(-len / 2 + i, -h / 2, 6.5, 1.5);
+    }
+    g.fillStyle = 'rgba(70, 140, 80, .5)';
+    for (let i = 0; i < 3; i++) g.fillRect(-len / 2 + r() * len, -3 + r() * 3, 4, 2);
+    g.restore();
   }
 
   function crystal(g, x, y, s, col) {
@@ -134,53 +253,113 @@ const PwDraw = (() => {
     g.beginPath(); g.moveTo(x, y - s * 1.6); g.lineTo(x + s * .2, y - s * .2); g.lineTo(x - s * .15, y); g.closePath(); g.fill();
   }
 
-  // De burcht rechts: muren, twee torens met vaandels, en de poort waar het pad eindigt.
+  // Fakkels: langs de burchtmuur en langs het pad. De houders zitten in de kaart, de vlammen tekenen we live.
+  const TORCHES = (() => {
+    const out = [];
+    const gx = PwWorld.GATE.x, gy = PwWorld.GATE.y;
+    for (let y = 40; y < H; y += 105) if (Math.abs(y - gy) > 46 && Math.abs(Math.abs(y - gy) - 150) > 56) out.push({ x: gx + 2, y, wall: true });
+    let side = 1;
+    for (let d = 150; d < PwWorld.LENGTH - 120; d += 260, side = -side) {
+      const p = PwWorld.pos(d);
+      const x = p.x - Math.sin(p.a) * (PwWorld.ROAD + 14) * side, y = p.y + Math.cos(p.a) * (PwWorld.ROAD + 14) * side;
+      if (PwWorld.SLOTS.some(s => Math.hypot(s.x - x, s.y - y) < 40) || PwWorld.distToPath(x, y) < PwWorld.ROAD + 8 || y < 50) continue;
+      out.push({ x, y });
+    }
+    return out;
+  })();
+
+  // De burcht rechts: een dikke muur met kantelen en een weergang, ronde torens met spitse daken en vaandels,
+  // een poortgebouw met twee vierkante torens, hangende banieren en de poort waar het pad eindigt.
   function castle(g) {
     const gx = PwWorld.GATE.x, gy = PwWorld.GATE.y;
-    const stone = (x, y, w, h, light = 0) => {
-      const grad = g.createLinearGradient(x, y, x + w, y);
-      grad.addColorStop(0, `rgb(${52 + light},${56 + light},${70 + light})`);
-      grad.addColorStop(1, `rgb(${34 + light},${37 + light},${50 + light})`);
-      g.fillStyle = grad;
+    const r = rnd(77);
+    const blocks = (x, y, w, h, base) => {
+      g.fillStyle = base;
       g.fillRect(x, y, w, h);
-      g.strokeStyle = 'rgba(0,0,0,.35)';
-      g.lineWidth = 1;
-      for (let yy = y + 12; yy < y + h; yy += 12) { g.beginPath(); g.moveTo(x, yy); g.lineTo(x + w, yy); g.stroke(); }
-      for (let yy = y; yy < y + h; yy += 12) for (let xx = x + ((yy - y) / 12 % 2 ? 9 : 0); xx < x + w; xx += 18) { g.beginPath(); g.moveTo(xx, yy); g.lineTo(xx, yy + 12); g.stroke(); }
-    };
-    g.fillStyle = 'rgba(0,0,0,.5)';
-    g.fillRect(gx - 14, 0, W - gx + 14, H);
-    stone(gx + 8, 0, W - gx, H);
-    // Kantelen
-    g.fillStyle = '#2b2f3d';
-    for (let y = 6; y < H; y += 26) g.fillRect(gx - 2, y, 12, 16);
-    // Torens naast de poort
-    for (const ty of [gy - 150, gy + 150]) {
-      g.fillStyle = 'rgba(0,0,0,.45)';
-      g.beginPath(); g.arc(gx + 46, ty + 6, 54, 0, TAU); g.fill();
-      const grad = g.createRadialGradient(gx + 34, ty - 12, 6, gx + 40, ty, 52);
-      grad.addColorStop(0, '#5a6078');
-      grad.addColorStop(1, '#262a38');
-      g.fillStyle = grad;
-      g.beginPath(); g.arc(gx + 40, ty, 50, 0, TAU); g.fill();
-      for (let i = 0; i < 12; i++) {
-        const a = i / 12 * TAU;
-        g.fillStyle = i % 2 ? '#3a3f52' : '#1c1f2a';
-        g.beginPath(); g.arc(gx + 40 + Math.cos(a) * 44, ty + Math.sin(a) * 44, 7, 0, TAU); g.fill();
+      for (let yy = y; yy < y + h; yy += 11) {
+        for (let xx = x + ((yy - y) / 11 % 2 ? 8 : 0); xx < x + w; xx += 16) {
+          const v = (r() - .5) * 14;
+          g.fillStyle = `rgba(${v > 0 ? 255 : 0}, ${v > 0 ? 255 : 0}, ${v > 0 ? 255 : 0}, ${Math.abs(v) / 140})`;
+          g.fillRect(xx, yy, 15, 10);
+        }
+        g.fillStyle = 'rgba(0, 0, 0, .3)';
+        g.fillRect(x, yy + 10, w, 1);
       }
-      g.fillStyle = '#151824';
-      g.beginPath(); g.arc(gx + 40, ty, 26, 0, TAU); g.fill();
-      glow(g, gx + 40, ty, 30, '#ffc94a', .35);
-      // Vaandel
-      g.fillStyle = '#1f4fbf';
-      g.beginPath(); g.moveTo(gx + 26, ty - 14); g.lineTo(gx + 54, ty - 14); g.lineTo(gx + 54, ty + 18); g.lineTo(gx + 40, ty + 10); g.lineTo(gx + 26, ty + 18); g.closePath(); g.fill();
-      g.strokeStyle = '#ffc94a';
-      g.lineWidth = 2;
-      g.stroke();
-      g.fillStyle = '#ffc94a';
-      g.beginPath(); g.moveTo(gx + 40, ty - 8); g.lineTo(gx + 45, ty + 1); g.lineTo(gx + 40, ty + 6); g.lineTo(gx + 35, ty + 1); g.closePath(); g.fill();
+    };
+    // Schaduw van de muur op het gras
+    const sh = g.createLinearGradient(gx - 40, 0, gx + 6, 0);
+    sh.addColorStop(0, 'rgba(0,0,0,0)'); sh.addColorStop(1, 'rgba(0,0,0,.6)');
+    g.fillStyle = sh;
+    g.fillRect(gx - 40, 0, 46, H);
+    // Muur, weergang met planken, kantelen aan de buitenkant
+    blocks(gx + 4, 0, W - gx, H, '#3b3e52');
+    g.fillStyle = '#2b2233';
+    g.fillRect(gx + 30, 0, 30, H);
+    for (let y = 0; y < H; y += 9) { g.fillStyle = y % 18 ? '#4a3626' : '#553e2b'; g.fillRect(gx + 31, y, 28, 8); }
+    g.fillStyle = 'rgba(0,0,0,.35)';
+    g.fillRect(gx + 30, 0, 3, H); g.fillRect(gx + 57, 0, 3, H);
+    for (let y = 0; y < H; y += 22) {
+      g.fillStyle = '#555a70';
+      g.fillRect(gx + 4, y, 16, 13);
+      g.fillStyle = 'rgba(255,255,255,.16)';
+      g.fillRect(gx + 4, y, 16, 3);
+      g.fillStyle = 'rgba(0,0,0,.35)';
+      g.fillRect(gx + 4, y + 13, 16, 3);
     }
-    // De poortboog
+    g.fillStyle = 'rgba(76, 201, 255, .6)';
+    g.fillRect(gx + 3, 0, 1.5, H);
+    // Hangende banieren aan de buitenkant
+    for (const by of [gy - 250, gy + 250, gy - 95, gy + 95]) {
+      if (by < 30 || by > H - 60) continue;
+      g.fillStyle = 'rgba(0,0,0,.4)';
+      g.fillRect(gx - 9, by + 3, 15, 46);
+      g.fillStyle = '#1f4fbf';
+      g.beginPath(); g.moveTo(gx - 12, by); g.lineTo(gx + 4, by); g.lineTo(gx + 4, by + 44); g.lineTo(gx - 4, by + 36); g.lineTo(gx - 12, by + 44); g.closePath(); g.fill();
+      g.strokeStyle = '#ffc94a'; g.lineWidth = 1.5; g.stroke();
+      g.fillStyle = '#ffc94a';
+      g.beginPath(); g.moveTo(gx - 4, by + 10); g.lineTo(gx, by + 17); g.lineTo(gx - 4, by + 24); g.lineTo(gx - 8, by + 17); g.closePath(); g.fill();
+    }
+    // Ronde torens met een spits leien dak, een vaandel en een lichtje
+    const round = (tx, ty, rad) => {
+      g.fillStyle = 'rgba(0,0,0,.45)';
+      g.beginPath(); g.ellipse(tx - 8, ty + 10, rad + 6, rad + 3, 0, 0, TAU); g.fill();
+      g.fillStyle = '#4a4e64';
+      g.beginPath(); g.arc(tx, ty, rad, 0, TAU); g.fill();
+      for (let i = 0; i < 16; i++) {
+        const a0 = i / 16 * TAU;
+        g.fillStyle = i % 2 ? '#2f2548' : '#3a2d58';
+        g.beginPath(); g.moveTo(tx, ty); g.arc(tx, ty, rad - 5, a0, a0 + TAU / 16); g.closePath(); g.fill();
+      }
+      const lg = g.createRadialGradient(tx - rad * .4, ty - rad * .4, 2, tx, ty, rad);
+      lg.addColorStop(0, 'rgba(255,255,255,.28)'); lg.addColorStop(.6, 'rgba(255,255,255,0)'); lg.addColorStop(1, 'rgba(0,0,0,.35)');
+      g.fillStyle = lg;
+      g.beginPath(); g.arc(tx, ty, rad - 5, 0, TAU); g.fill();
+      g.strokeStyle = 'rgba(76, 201, 255, .55)'; g.lineWidth = 1.5;
+      g.beginPath(); g.arc(tx, ty, rad - 5, 0, TAU); g.stroke();
+      g.fillStyle = '#ffc94a';
+      g.beginPath(); g.arc(tx, ty, 4, 0, TAU); g.fill();
+      g.strokeStyle = '#c9cfe0'; g.lineWidth = 1.5;
+      g.beginPath(); g.moveTo(tx, ty); g.lineTo(tx - 4, ty - 22); g.stroke();
+      g.fillStyle = '#ff4d6d';
+      g.beginPath(); g.moveTo(tx - 4, ty - 22); g.lineTo(tx - 22, ty - 18); g.lineTo(tx - 4, ty - 13); g.closePath(); g.fill();
+    };
+    for (const ty of [70, gy - 150, gy + 150, H - 70]) round(gx + 42, ty, ty === 70 || ty === H - 70 ? 40 : 50);
+    // Poortgebouw: twee vierkante torens met kantelen en een vuurkorf
+    for (const ty of [gy - 72, gy + 72]) {
+      g.fillStyle = 'rgba(0,0,0,.45)';
+      g.fillRect(gx - 22, ty - 20, 56, 52);
+      blocks(gx - 16, ty - 24, 52, 48, '#464a60');
+      for (let i = 0; i < 4; i++) {
+        g.fillStyle = '#5a5f78';
+        g.fillRect(gx - 16 + i * 14, ty - 24, 10, 8);
+        g.fillRect(gx - 16 + i * 14, ty + 16, 10, 8);
+      }
+      g.fillStyle = '#1a1626';
+      g.beginPath(); g.arc(gx + 10, ty, 9, 0, TAU); g.fill();
+      g.fillStyle = '#8a7a50';
+      g.beginPath(); g.arc(gx + 10, ty, 6, 0, TAU); g.fill();
+    }
+    // De poortboog met valhek
     g.fillStyle = '#0b0d14';
     AK.roundRect(g, gx - 8, gy - 52, 40, 104, 10);
     g.fill();
@@ -188,17 +367,18 @@ const PwDraw = (() => {
     g.lineWidth = 3;
     AK.roundRect(g, gx - 8, gy - 52, 40, 104, 10);
     g.stroke();
-    g.strokeStyle = 'rgba(255, 201, 74, .4)';
+    g.strokeStyle = 'rgba(255, 201, 74, .45)';
     g.lineWidth = 2;
     for (let y = gy - 40; y <= gy + 40; y += 14) { g.beginPath(); g.moveTo(gx - 4, y); g.lineTo(gx + 28, y); g.stroke(); }
-    // Vensters met licht
-    for (let i = 0; i < 9; i++) {
-      const y = 70 + i * 92;
-      if (Math.abs(y - gy) < 200) continue;
-      g.fillStyle = '#ffcf6b';
-      AK.roundRect(g, gx + 50, y, 10, 16, 5);
-      g.fill();
-      glow(g, gx + 55, y + 8, 22, '#ffb347', .5);
+    for (let x = gx + 2; x < gx + 28; x += 9) { g.beginPath(); g.moveTo(x, gy - 46); g.lineTo(x, gy + 46); g.stroke(); }
+    // Fakkelhouders
+    for (const t of TORCHES) {
+      g.fillStyle = 'rgba(0,0,0,.4)';
+      g.beginPath(); g.ellipse(t.x + 3, t.y + 5, 6, 3, 0, 0, TAU); g.fill();
+      g.fillStyle = '#3a2412';
+      g.fillRect(t.x - 2, t.y - 2, 4, 8);
+      g.fillStyle = '#8a7a50';
+      g.beginPath(); g.moveTo(t.x - 5, t.y - 3); g.lineTo(t.x + 5, t.y - 3); g.lineTo(t.x + 3, t.y + 1); g.lineTo(t.x - 3, t.y + 1); g.closePath(); g.fill();
     }
   }
 
@@ -578,8 +758,18 @@ const PwDraw = (() => {
       if (!s) continue;
       const who = roster.get(owner);
       const col = who ? who.color : '#5b6280';
-      ctx.fillStyle = 'rgba(10, 12, 20, .8)';
+      // Stenen sokkel: schaduw, zijkant en een lichtere bovenkant
+      ctx.fillStyle = 'rgba(0, 0, 0, .45)';
+      poly(ctx, s.x + 4, s.y + 10, 28 * big, 6);
+      ctx.fill();
+      ctx.fillStyle = '#2c2f40';
+      poly(ctx, s.x, s.y + 8, 27 * big, 6);
+      ctx.fill();
+      ctx.fillStyle = '#464a60';
       poly(ctx, s.x, s.y + 4, 27 * big, 6);
+      ctx.fill();
+      ctx.fillStyle = 'rgba(10, 12, 20, .55)';
+      poly(ctx, s.x, s.y + 4, 20 * big, 6);
       ctx.fill();
       ctx.strokeStyle = rgba(col, slot === opts.me ? .95 : .55);
       ctx.lineWidth = slot === opts.me ? 3 : 2;
@@ -654,6 +844,18 @@ const PwDraw = (() => {
       ctx.beginPath(); ctx.arc(0, 0, 38 - i * 7, 0, Math.PI * 1.2); ctx.stroke();
     }
     ctx.restore();
+    const G0 = PwWorld.GATE;
+    // Fakkels en de vuurkorven van het poortgebouw flakkeren.
+    for (const f of TORCHES) {
+      const fl = .8 + Math.sin(t * 13 + f.x) * .1 + Math.sin(t * 7.3 + f.y * .37) * .1;
+      glow(ctx, f.x, f.y - 4, 44 * fl, '#ff8a2a', .6 * fl);
+      glow(ctx, f.x, f.y - 5, 10 * fl, '#fff2b0', .95);
+    }
+    for (const ty of [G0.y - 72, G0.y + 72]) {
+      const fl = .85 + Math.sin(t * 11 + ty) * .1;
+      glow(ctx, G0.x + 10, ty, 34 * fl, '#ff8a2a', .7 * fl);
+      glow(ctx, G0.x + 10, ty, 10 * fl, '#fff2b0', .9);
+    }
     // Het schild van de poort: hoe zwakker de poort, hoe roder en flakkerender.
     const G = PwWorld.GATE;
     const gk = scene.gate / PwWorld.GATE_HP;
