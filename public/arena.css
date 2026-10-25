@@ -247,3 +247,8 @@ body:not([data-pw="1"]) #poort, body:not([data-nv="1"]) #vlucht, body:not([data-
 #mo-game .ls-stage canvas { cursor: crosshair; }
 .mo-total { font-family: var(--tech, Orbitron, sans-serif); }
 @media (max-width: 520px) { .mo-ask { padding: 5px 8px; font-size: .75rem; } #mo-game .ry-alive { display: none; } }
+
+/* Antwoorden even op slot (Robomol): grijs, met een balkje dat volloopt. */
+.ak-locked .answer { pointer-events: none; filter: grayscale(.7) brightness(.7); position: relative; overflow: hidden; }
+.ak-locked .answer::after { content: ''; position: absolute; left: 0; bottom: 0; height: 4px; width: 100%; background: var(--gold); transform-origin: left; animation: ak-lock var(--lock, 1s) linear both; }
+@keyframes ak-lock { from { transform: scaleX(0); } to { transform: scaleX(1); } }

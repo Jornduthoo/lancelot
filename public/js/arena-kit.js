@@ -679,11 +679,17 @@ const AK = (() => {
           return;
         }
         if (!res || res.error) return q.close();
-        q.cur = { answers: res.answers };
+        // lock: in snelle spellen zijn de antwoorden even op slot, zodat een klik die nog voor het spel bedoeld was niet telt.
+        q.cur = { answers: res.answers, lockUntil: performance.now() + (opts.lock || 0) };
         $s('.status').textContent = opts.status(res);
         $s('.tw-q-text').textContent = res.question;
         const list = $s('.answers');
         list.innerHTML = res.answers.map((_, i) => `<button type="button" class="answer a${i} enter" style="animation-delay:${i * 50}ms">${ICONS[i]}<span></span></button>`).join('');
+        if (opts.lock) {
+          list.classList.add('ak-locked');
+          list.style.setProperty('--lock', `${opts.lock}ms`);
+          setTimeout(() => list.classList.remove('ak-locked'), opts.lock);
+        }
         [...list.children].forEach((b, i) => {
           b.querySelector('span').textContent = res.answers[i];
           b.addEventListener('click', () => q.pick(i));
@@ -698,7 +704,7 @@ const AK = (() => {
       load();
     };
     q.pick = i => {
-      if (!q.cur || q.cur.done || !q.cur.answers) return;
+      if (!q.cur || q.cur.done || !q.cur.answers || performance.now() < q.cur.lockUntil) return;
       q.cur.done = true;
       opts.answer(i, res => {
         if (!res || res.error) return q.close();
