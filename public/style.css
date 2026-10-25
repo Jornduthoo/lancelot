@@ -967,8 +967,13 @@ select.ob-wacht { opacity: .55; }
 .niveau-pick { display: inline-flex; gap: 4px; flex-wrap: wrap; }
 .niveau-pick button { padding: 4px 10px; font-size: .9rem; }
 .niveau-pick button.on { background: var(--gold, #ffc94a); color: #1d2433; border-color: var(--gold, #ffc94a); }
-.klas-niveaus { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 8px 18px; margin-top: 8px; }
-.klas-niveaus .row-niveau { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.klas-niveaus { margin-top: 8px; overflow-x: auto; }
+.niveau-raster { border-collapse: collapse; font-size: .92rem; }
+.niveau-raster th, .niveau-raster td { padding: 3px 6px; text-align: left; white-space: nowrap; }
+.niveau-raster thead th { font-size: .82rem; opacity: .8; }
+.niveau-raster tbody tr:nth-child(odd) { background: rgba(127, 127, 127, .08); }
+.niveau-raster select { padding: 3px 4px; font-size: .88rem; opacity: .6; }
+.niveau-raster select.eigen { opacity: 1; font-weight: 700; }
 .quiz-niveau-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 10px; }
 
 @media print {

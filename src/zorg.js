@@ -5,6 +5,7 @@ const logboek = require('./logboek');
 const klas = require('./klas');
 const doelen = require('./doelen');
 const notities = require('./notities');
+const niveaus = require('./niveaus');
 
 const DAG = 86400000;
 const RECENT = 20; // de laatste zoveel antwoorden van een leerling
@@ -18,7 +19,7 @@ const avg = list => (list.length ? list.reduce((a, b) => a + b, 0) / list.length
 
 function who(e, list) {
   const l = (e.leerling && list.find(x => x.id === e.leerling)) || list.find(x => x.naam.toLowerCase() === String(e.naam || '').toLowerCase());
-  return l ? { key: l.id, naam: l.naam, opLijst: true, niveau: l.niveau || 'schildknaap' } : { key: `naam:${String(e.naam || '').toLowerCase()}`, naam: e.naam || '?', opLijst: false, niveau: '' };
+  return l ? { key: l.id, naam: l.naam, opLijst: true, niveau: l.niveau || 'schildknaap', vakNiveaus: l.vakNiveaus || {} } : { key: `naam:${String(e.naam || '').toLowerCase()}`, naam: e.naam || '?', opLijst: false, niveau: '' };
 }
 
 // dagen: 0 = heel het schooljaar. vak: alleen antwoorden op doelen van dat vak.
@@ -45,7 +46,7 @@ function overzicht({ dagen = 42, vak = '' } = {}) {
   // De sessies (één keer een spel spelen), voor de trend en de lijntjes.
   const sessies = new Map();
   const leerlingen = new Map();
-  for (const l of list) leerlingen.set(l.id, { key: l.id, naam: l.naam, opLijst: true, niveau: l.niveau || 'schildknaap', items: [] });
+  for (const l of list) leerlingen.set(l.id, { key: l.id, naam: l.naam, opLijst: true, niveau: l.niveau || 'schildknaap', vakNiveaus: l.vakNiveaus || {}, items: [] });
   for (const e of entries) {
     const w = who(e, list);
     if (!w.opLijst && list.length) continue;
@@ -168,17 +169,36 @@ function overzicht({ dagen = 42, vak = '' } = {}) {
     const kleur = n < MIN && !signalen.some(x => x.niveau === 'rood' || x.niveau === 'oranje') ? 'weinig'
       : signalen.some(x => x.niveau === 'rood') ? 'rood' : signalen.some(x => x.niveau === 'oranje') ? 'oranje' : 'groen';
 
-    // Niveau-advies: alleen voor leerlingen op de klaslijst en met genoeg antwoorden.
-    let advies = null;
-    if (s.opLijst && n >= MIN * 2) {
-      const i = NIVEAUS.indexOf(s.niveau);
-      if (recentPct >= 85 && (tovKlas === null || tovKlas >= 5) && i < 2) advies = { naar: NIVEAUS[i + 1], waarom: `${recentPct}% juist bij de laatste ${recent.length} antwoorden: klaar voor meer uitdaging` };
-      else if (recentPct < 50 && i > 0) advies = { naar: NIVEAUS[i - 1], waarom: `${recentPct}% juist bij de laatste ${recent.length} antwoorden: eerst met meer hulp` };
+    // Niveau-advies per vak (Wiskunde, Nederlands, Frans, WO) en voor het algemene niveau (de andere vakken
+    // en vragen zonder doel). Alleen voor leerlingen op de klaslijst en met genoeg antwoorden in dat vak.
+    const adviezen = [];
+    if (s.opLijst) {
+      const perGroep = new Map();
+      for (const e of s.items) {
+        const g = niveaus.groep(vakVan(e.doel));
+        (perGroep.get(g) || perGroep.set(g, []).get(g)).push(e);
+      }
+      for (const [g, items] of perGroep) {
+        if (items.length < MIN * 2) continue;
+        const eigen = g && s.vakNiveaus[g];
+        const nu = eigen || s.niveau;
+        const r = items.slice(-RECENT);
+        const rp = pct(r.filter(e => e.juist).length, r.length);
+        const d = items.map(e => [e, kans(e.vraag)]).filter(([, p]) => p !== null).map(([e, p]) => (e.juist ? 1 : 0) - p);
+        const tk = d.length >= 5 ? Math.round(avg(d) * 100) : null;
+        const i = NIVEAUS.indexOf(nu);
+        const vakNaam = g ? niveaus.VAKGROEPEN.find(x => x.id === g).naam : '';
+        const bij = vakNaam ? ` in ${vakNaam}` : '';
+        if (rp >= 85 && (tk === null || tk >= 5) && i < 2) adviezen.push({ vak: g, vakNaam, van: nu, naar: NIVEAUS[i + 1], waarom: `${rp}% juist bij de laatste ${r.length} antwoorden${bij}: klaar voor meer uitdaging` });
+        else if (rp < 50 && i > 0) adviezen.push({ vak: g, vakNaam, van: nu, naar: NIVEAUS[i - 1], waarom: `${rp}% juist bij de laatste ${r.length} antwoorden${bij}: eerst met meer hulp` });
+      }
+      adviezen.sort((a, b) => (a.vak ? 0 : 1) - (b.vak ? 0 : 1) || a.vakNaam.localeCompare(b.vakNaam));
     }
+    const advies = adviezen[0] || null;
 
     rows.push({
-      key: s.key, naam: s.naam, opLijst: s.opLijst, niveau: s.niveau,
-      antwoorden: n, pct: pct(juist, n), recentPct, tovKlas, trend, gok, leeg, laatst, kleur, signalen, advies,
+      key: s.key, naam: s.naam, opLijst: s.opLijst, niveau: s.niveau, vakNiveaus: s.vakNiveaus || {},
+      antwoorden: n, pct: pct(juist, n), recentPct, tovKlas, trend, gok, leeg, laatst, kleur, signalen, advies, adviezen,
       lijn: lijn.slice(-12).map(({ diff, ...x }) => x),
       vakken: [...perVak.values()].map(v => ({ ...v, pct: pct(v.juist, v.n) })).sort((a, b) => a.pct - b.pct),
       nietDoelen,

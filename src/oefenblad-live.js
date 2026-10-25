@@ -7,6 +7,7 @@
 const sheets = require('./oefenbladen');
 const logboek = require('./logboek');
 const klas = require('./klas');
+const doelen = require('./doelen');
 const { NIVEAUS, NAMES } = require('./niveaus');
 
 const MODES = [...NIVEAUS, 'klas', 'kies'];
@@ -53,6 +54,9 @@ class OefenbladLive {
     this.feedback = feedback === 'inleveren' ? 'inleveren' : 'direct';
     this.voorlees = ['iedereen', 'page', 'uit'].includes(voorlees) ? voorlees : 'iedereen';
     this.mode = MODES.includes(niveau) ? niveau : 'schildknaap';
+    // Het vak van het blad (uit de doelen van de oefeningen) kiest welk niveau uit Mijn klas geldt.
+    const blocks = ['blocks', 'page', 'ridder'].flatMap(k => sheet[k] || []);
+    this.vak = doelen.hoofdvak(blocks.map(b => b.doel));
     for (const n of sheets.niveausOf(sheet)) {
       const s = sheets.forNiveau(sheet, n);
       const shuffles = sheets.shufflesFor(s);
@@ -81,7 +85,8 @@ class OefenbladLive {
     if (this.levels[this.mode]) return this.mode;
     if (this.mode === 'klas') {
       const l = klas.match(name);
-      if (l && this.levels[l.niveau]) return l.niveau;
+      const n = klas.niveauVoor(l, this.vak);
+      if (l && this.levels[n]) return n;
     }
     return 'schildknaap';
   }
@@ -139,7 +144,7 @@ class OefenbladLive {
     if ([...this.players.values()].some(p => p.name.toLowerCase() === clean.toLowerCase())) return { error: 'Die naam is al bezet.' };
     const kl = klas.match(clean);
     this.players.set(playerId, {
-      name: clean, socketId, niveau: this.startNiveau(clean), klasPage: !!kl && kl.niveau === 'page', choosing: this.mode === 'kies' && this.multi,
+      name: clean, socketId, niveau: this.startNiveau(clean), klasPage: !!kl && klas.niveauVoor(kl, this.vak) === 'page', choosing: this.mode === 'kies' && this.multi,
       answers: {}, results: {}, first: {}, lockUntil: {}, submitted: false, submittedAt: 0, joinedAt: Date.now(), lastAt: Date.now(),
     });
     this.changed();

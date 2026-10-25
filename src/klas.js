@@ -32,8 +32,12 @@ function write({ naam, leerjaar, namen } = {}) {
     if (!name || seen.has(name.toLowerCase())) continue;
     seen.add(name.toLowerCase());
     const old = before.find(l => l.naam.toLowerCase() === name.toLowerCase());
-    // Ook het niveau (Page, Schildknaap of Ridder) blijft bewaard.
-    leerlingen.push({ id: old ? old.id : Math.random().toString(36).slice(2, 10), naam: name, ...(old && old.niveau ? { niveau: old.niveau } : {}) });
+    // Ook het niveau (Page, Schildknaap of Ridder) en de niveaus per vak blijven bewaard.
+    leerlingen.push({
+      id: old ? old.id : Math.random().toString(36).slice(2, 10), naam: name,
+      ...(old && old.niveau ? { niveau: old.niveau } : {}),
+      ...(old && old.vakNiveaus ? { vakNiveaus: old.vakNiveaus } : {}),
+    });
   }
   if (leerlingen.length > MAX) throw new Error(`Een klas mag hooguit ${MAX} leerlingen hebben.`);
   const data = { naam: String(naam || '').trim().slice(0, 40), leerjaar: doelen.leerjaar(leerjaar), leerlingen };
@@ -42,13 +46,21 @@ function write({ naam, leerjaar, namen } = {}) {
   return data;
 }
 
-// Het niveau waarop een leerling oefenbladen maakt. Schildknaap is het gewone niveau en wordt niet bewaard.
-function setNiveau(id, niveau) {
+// Het niveau waarop een leerling oefent. Zonder vak: het algemene niveau (Schildknaap wordt niet bewaard).
+// Met een vakgroep (wiskunde, nederlands, frans, wo): het niveau voor dat vak, of leeg = zoals het algemene niveau.
+function setNiveau(id, niveau, vak) {
   const data = read();
   const leerling = data.leerlingen.find(l => l.id === id);
   if (!leerling) throw new Error('Die leerling staat niet meer op de lijst.');
   const n = niveaus.clean(niveau);
-  if (n && n !== 'schildknaap') leerling.niveau = n;
+  if (vak) {
+    if (!niveaus.VAKGROEPEN.some(g => g.id === vak)) throw new Error('Dat vak kent LANcelot niet.');
+    const per = { ...(leerling.vakNiveaus || {}) };
+    if (n) per[vak] = n;
+    else delete per[vak];
+    if (Object.keys(per).length) leerling.vakNiveaus = per;
+    else delete leerling.vakNiveaus;
+  } else if (n && n !== 'schildknaap') leerling.niveau = n;
   else delete leerling.niveau;
   fs.mkdirSync(DIR, { recursive: true });
   fs.writeFileSync(FILE, JSON.stringify(data, null, 2) + '\n');
@@ -65,4 +77,12 @@ function match(name) {
   return read().leerlingen.find(l => l.naam.toLowerCase() === key) || null;
 }
 
-module.exports = { read, write, setNiveau, names, match };
+// Het niveau van een leerling voor een vak uit de doelen ('Wiskunde', 'Geschiedenis' ...).
+// Zonder eigen niveau voor dat vak: het algemene niveau, en anders Schildknaap.
+function niveauVoor(leerling, vak) {
+  if (!leerling) return 'schildknaap';
+  const g = niveaus.groep(vak);
+  return niveaus.clean(g && leerling.vakNiveaus && leerling.vakNiveaus[g]) || niveaus.clean(leerling.niveau) || 'schildknaap';
+}
+
+module.exports = { read, write, setNiveau, niveauVoor, names, match };

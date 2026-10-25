@@ -100,13 +100,25 @@ function play(file, { shared = false } = {}) {
 
 // De vragen voor één leerling, door elkaar (als nummers in quiz.questions).
 // Speelt elke leerling op zijn eigen niveau, dan alleen de vragen van zijn niveau (Schildknaap als hij niet op de klaslijst staat).
+// Het niveau hangt af van het vak: Page voor wiskunde kan samengaan met Schildknaap voor Nederlands.
+// Een vraag zonder doel hoort bij het hoofdvak van de quiz. Heeft een vak geen vragen op dat niveau, dan Schildknaap.
 function order(quiz, name) {
   if (quiz.herhaal) return require('./herhaal').volgorde(quiz, name);
   let all = quiz.questions.map((_, i) => i);
   if (quiz.perLeerling) {
     const leerling = klas.match(name);
-    const niveau = (leerling && leerling.niveau) || 'schildknaap';
-    const mine = all.filter(i => (quiz.questions[i].niveau || 'schildknaap') === niveau);
+    const hoofd = doelen.hoofdvak(quiz.questions.map(q => q.doel));
+    const perVak = new Map();
+    for (const i of all) {
+      const v = doelen.vak(quiz.questions[i].doel) || hoofd;
+      (perVak.get(v) || perVak.set(v, []).get(v)).push(i);
+    }
+    const mine = [];
+    for (const [v, list] of perVak) {
+      const op = n => list.filter(i => (quiz.questions[i].niveau || 'schildknaap') === n);
+      const eigen = op(klas.niveauVoor(leerling, v));
+      mine.push(...(eigen.length ? eigen : op('schildknaap')));
+    }
     if (mine.length) all = mine;
   }
   return all.sort(() => Math.random() - .5);

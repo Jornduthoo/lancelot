@@ -105,8 +105,10 @@ function kaart(l) {
   const top = el('div', 'zg-top');
   top.append(el('span', 'zg-naam', l.naam));
   if (l.opLijst) {
-    const n = el('span', '', Niveau.ICONS[l.niveau]);
-    n.title = `${Niveau.NAMES[l.niveau]} (${Niveau.HELP[l.niveau]})`;
+    // Het algemene niveau, en een vak met een eigen niveau erachter (W🪶 = Page voor wiskunde).
+    const per = Object.entries(l.vakNiveaus || {});
+    const n = el('span', '', Niveau.ICONS[l.niveau] + per.map(([g, v]) => ` ${g === 'wo' ? 'WO' : g[0].toUpperCase()}${Niveau.ICONS[v]}`).join(''));
+    n.title = [`Algemeen: ${Niveau.NAMES[l.niveau]} (${Niveau.HELP[l.niveau]})`, ...per.map(([g, v]) => `${g === 'wo' ? 'WO' : g[0].toUpperCase() + g.slice(1)}: ${Niveau.NAMES[v]}`)].join('\n');
     top.append(n);
   }
   top.append(el('span', 'zg-pct', l.antwoorden ? `${l.recentPct}%` : '–'));
@@ -125,14 +127,15 @@ function kaart(l) {
   if (!isOpen && l.signalen.length > 2) sig.appendChild(el('li', '', `en nog ${l.signalen.length - 2}…`));
   box.appendChild(sig);
 
-  if (l.advies) {
+  for (const ad of l.adviezen || []) {
     const a = el('div', 'zg-advies');
-    a.append(el('span', '', `Niveau-advies: ${Niveau.label(l.advies.naar)}. ${l.advies.waarom}.`));
-    const b = el('button', 'secondary', `Zet op ${Niveau.NAMES[l.advies.naar]}`);
+    const wat = ad.vakNaam ? `Niveau-advies ${ad.vakNaam}` : 'Niveau-advies algemeen';
+    a.append(el('span', '', `${wat}: ${Niveau.label(ad.naar)}. ${ad.waarom}.`));
+    const b = el('button', 'secondary', `Zet ${ad.vakNaam || 'algemeen'} op ${Niveau.NAMES[ad.naar]}`);
     b.addEventListener('click', ev => {
       ev.stopPropagation();
       b.disabled = true;
-      socket.emit('klas-niveau', { id: l.key, niveau: l.advies.naar }, res => {
+      socket.emit('klas-niveau', { id: l.key, niveau: ad.naar, vak: ad.vak }, res => {
         if (res.error) {
           b.disabled = false;
           return a.appendChild(el('span', 'error', res.error));

@@ -10,4 +10,19 @@ function clean(value) {
   return NIVEAUS.includes(n) ? n : '';
 }
 
-module.exports = { NIVEAUS, NAMES, clean };
+// Een leerling kan per vak op een ander niveau zitten (Page voor wiskunde, Schildknaap voor Nederlands).
+// WO bundelt aardrijkskunde, geschiedenis en wetenschap en techniek. Andere vakken volgen het algemene niveau.
+const VAKGROEPEN = [
+  { id: 'wiskunde', naam: 'Wiskunde', vakken: ['Wiskunde'] },
+  { id: 'nederlands', naam: 'Nederlands', vakken: ['Nederlands'] },
+  { id: 'frans', naam: 'Frans', vakken: ['Frans'] },
+  { id: 'wo', naam: 'WO', vakken: ['Aardrijkskunde', 'Geschiedenis', 'Wetenschap en techniek'] },
+];
+
+// De vakgroep van een vak uit de doelen ('Geschiedenis' -> 'wo'), of '' als het vak het algemene niveau volgt.
+function groep(vak) {
+  const g = VAKGROEPEN.find(x => x.vakken.includes(vak));
+  return g ? g.id : '';
+}
+
+module.exports = { NIVEAUS, NAMES, VAKGROEPEN, clean, groep };
