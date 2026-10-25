@@ -227,6 +227,14 @@ Elke leerling wordt vergeleken met de klas op dezelfde vragen, dus een moeilijke
 
 Onderaan: **Klassikaal herhalen** (doelen waar 4 op 10 leerlingen of meer nog niet mee zijn) en **Groepjes voor verlengde instructie** (doelen waar maar een paar leerlingen vastzitten, met hun namen). Kies bovenaan de periode (2 weken, 6 weken of heel het schooljaar) en eventueel een vak. Alles blijft op deze pc.
 
+Nog meer in het zorgoverzicht:
+
+- **Zeker of twijfel**: in de lobby van het Toernooi (en de Opwarmer) staat "Zeker of twijfel vragen" aan. Na zijn antwoord tikt de leerling 💪 Zeker of 🤔 Twijfel aan, in de wachttijd tot de rest geantwoord heeft. Het kost geen tijd en geen punten. "Zeker maar fout" wijst op een misverstand (je ziet ze per doel onder **Hardnekkige misverstanden**), "vaak twijfel terwijl het juist is" op weinig zelfvertrouwen. Op het einde ziet de leerling zelf hoe goed hij zich inschatte.
+- **Notities**: klik een leerling aan en schrijf observaties of afspraken op. Ze blijven op deze pc (map klas).
+- **Zorgfiche**: bij een leerling, knop "Zorgfiche". Een sober A4-blad met cijfers, sterke punten, doelen die nog niet lukken, zelfinschatting, notities en lege lijnen voor afspraken. Print het of kies "Opslaan als PDF" voor het MDO of het CLB.
+- **Herhaalquiz**: bij een leerling, een groepje of een doel. LANcelot zoekt in je quizzen de vragen bij die doelen en bewaart een nieuwe quiz in de map **Herhaling**.
+- **Persoonlijke herhaling**: knop bovenaan. Eén quiz met de vragen van de gekozen periode. Speel hem in een spel op eigen tempo (Schattenjacht, Laserslag, ...): elke leerling krijgt de vragen in zijn eigen volgorde, met eerst wat hij fout had of lang niet meer zag (gespreid herhalen).
+
 ## Opwarmer
 
 Start je les met een paar herhaalvragen uit vorige lessen. Kort ophalen wat je vroeger leerde, is een van de beste manieren om het te onthouden.

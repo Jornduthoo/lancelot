@@ -31,7 +31,7 @@ function sessionFor(spel, bron, now) {
   return current.id;
 }
 
-// entries: [{ naam, spel, bron, vraag, doel, juist, leeg }]
+// entries: [{ naam, spel, bron, vraag, doel, juist, leeg, zeker }] (zeker: 'zeker', 'twijfel' of niets)
 function add(entries) {
   if (!entries.length) return;
   const now = new Date();
@@ -49,6 +49,7 @@ function add(entries) {
       doel: e.doel || '',
       juist: Boolean(e.juist),
       ...(e.leeg ? { leeg: true } : {}),
+      ...(e.zeker === 'zeker' || e.zeker === 'twijfel' ? { zeker: e.zeker } : {}),
     });
   });
   try {

@@ -55,8 +55,12 @@
   <section id="answered" class="screen panel hidden">
     <p class="status">Antwoord verstuurd</p>
     <p class="title">Je lans is geworpen!</p>
-    <div class="spinner"></div>
-    <p class="muted">Wachten op de andere ridders…</p>
+    <div id="zk-vraag" class="hidden">
+      <p>Was je zeker?</p>
+      <div class="zk-row"><button type="button" class="secondary" id="zk-zeker">💪 Zeker</button><button type="button" class="secondary" id="zk-twijfel">🤔 Twijfel</button></div>
+    </div>
+    <div id="zk-wacht"><div class="spinner"></div>
+    <p class="muted">Wachten op de andere ridders…</p></div>
   </section>
 
   <section id="reveal" class="screen panel result hidden">
@@ -71,6 +75,7 @@
     <div class="mark" id="p-medal" style="font-size:5rem"></div>
     <p class="title" id="p-rank"></p>
     <p class="big" id="p-score" style="font-size:2.2rem"></p>
+    <div class="zk-stats" id="p-zeker"></div>
     <p class="muted">Bedankt om mee te spelen!</p>
   </section>
 

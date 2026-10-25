@@ -1662,3 +1662,9 @@ body:not([data-sr="1"]) #rossen { display: none !important; }
 .gok-list ul li:nth-child(n + 6) { display: none; }
 .gok-list.flash { animation: gok-flash .6s 2; }
 @keyframes gok-flash { 50% { box-shadow: 0 0 24px var(--gold); } }
+
+/* Zeker of twijfel (Toernooi) */
+.zk-toggle { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; }
+.zk-row { display: flex; gap: 12px; justify-content: center; margin-top: 14px; }
+.zk-row button { flex: 1; max-width: 220px; font-size: 1.25rem; padding: 18px 10px; }
+.zk-stats { display: flex; flex-direction: column; gap: 4px; margin-top: 10px; font-size: .95rem; }
