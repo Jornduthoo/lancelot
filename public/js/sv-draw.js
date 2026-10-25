@@ -1,4 +1,4 @@
-// Sterrenvreter tekenen (bord en leerling): de ruimte, de lichtmuur met torens, het zwarte gat, het sterrenstof en de ridderbollen.
+// Sterrenvreter tekenen (bord en leerling): de ruimte, het stalen zeshoekdek, de burchtmuur met lichtschild en torens, zwevende ruïnes, het zwarte gat, het sterrenstof en de ridderbollen.
 // Alles wat duur is (bollen, stof, torens, de schijf van het zwarte gat) tekenen we één keer vooraf; per frame is het drawImage.
 // Gebruikt AK (arena-kit.js), Glow (fx.js) en SvWorld.
 const SvDraw = (() => {
@@ -225,50 +225,208 @@ const SvDraw = (() => {
     return c;
   })();
 
-  // Zeshoekig raster op de vloer van de arena, als patroon.
-  let hexPattern = null;
-  function hex(ctx) {
-    if (hexPattern) return hexPattern;
-    const s = 46, w = s * Math.sqrt(3), h = s * 3;
-    const c = canvas(Math.round(w), Math.round(h));
-    const g = c.getContext('2d');
-    g.strokeStyle = 'rgba(90,170,255,.11)';
-    g.lineWidth = 2;
-    const cell = (cx, cy) => {
-      g.beginPath();
-      for (let i = 0; i < 6; i++) {
-        const a = Math.PI / 6 + (i * Math.PI) / 3;
-        g.lineTo(cx + Math.cos(a) * s, cy + Math.sin(a) * s);
-      }
-      g.closePath();
-      g.stroke();
+  // Vaste toevalsgetallen, zodat elke plaat en elke steen altijd hetzelfde blijft.
+  function rng(seed) {
+    let a = seed >>> 0;
+    return () => {
+      a = (a + 0x6d2b79f5) >>> 0;
+      let t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
     };
-    for (const [cx, cy] of [[0, 0], [w, 0], [w / 2, h / 2], [0, h], [w, h]]) cell(cx, cy);
-    hexPattern = ctx.createPattern(c, 'repeat');
-    return hexPattern;
   }
 
+  // De vloer: een dek van zeshoekige stalen platen met lichtvoegen, sommige met een lamp of een sterrune.
+  // Eén vooraf getekende tegel bevat 4 x 4 zeshoeken; vier varianten wisselen elkaar af.
+  // Zeshoeken op de rand van een tegel zijn in elke variant gelijk, zodat de naden kloppen.
+  const HS = 46, HW = HS * Math.sqrt(3), HH = HS * 1.5, MW = HW * 4, MH = HH * 4;
+  function hexPath(g, cx, cy, r) {
+    g.beginPath();
+    for (let i = 0; i < 6; i++) {
+      const a = Math.PI / 6 + (i * Math.PI) / 3;
+      g.lineTo(cx + Math.cos(a) * r, cy + Math.sin(a) * r);
+    }
+    g.closePath();
+  }
+  const plates = [0, 1, 2, 3].map(v => {
+    const c = canvas(Math.ceil(MW), Math.ceil(MH));
+    const g = c.getContext('2d');
+    const r = rng(v * 811 + 5);
+    g.fillStyle = '#04060e';
+    g.fillRect(0, 0, c.width, c.height);
+    for (let row = -1; row <= 4; row++) {
+      for (let col = -1; col <= 4; col++) {
+        const cx = col * HW + (row & 1 ? HW / 2 : 0), cy = row * HH;
+        const edge = cx < HS || cx > MW - HS || cy < HS || cy > MH - HS;
+        const l = edge ? 12 : 9 + r() * 6;
+        const plate = g.createLinearGradient(cx - HS, cy - HS, cx + HS, cy + HS);
+        plate.addColorStop(0, `hsl(218,26%,${l + 5}%)`);
+        plate.addColorStop(1, `hsl(226,30%,${l - 4}%)`);
+        g.fillStyle = plate;
+        hexPath(g, cx, cy, HS - 3);
+        g.fill();
+        // Afgeschuinde rand: licht boven, donker onder
+        g.lineWidth = 2;
+        g.strokeStyle = 'rgba(255,255,255,.08)';
+        g.beginPath();
+        for (const i of [3, 4, 5]) { const a = Math.PI / 6 + (i * Math.PI) / 3; g.lineTo(cx + Math.cos(a) * (HS - 4), cy + Math.sin(a) * (HS - 4)); }
+        g.stroke();
+        g.strokeStyle = 'rgba(0,0,0,.35)';
+        g.beginPath();
+        for (const i of [0, 1, 2]) { const a = Math.PI / 6 + (i * Math.PI) / 3; g.lineTo(cx + Math.cos(a) * (HS - 4), cy + Math.sin(a) * (HS - 4)); }
+        g.stroke();
+        if (edge) continue;
+        const kind = r();
+        if (kind < .3) {
+          // Binnenplaat met klinknagels
+          g.strokeStyle = 'rgba(0,0,0,.3)';
+          g.lineWidth = 1.5;
+          hexPath(g, cx, cy, HS * .55);
+          g.stroke();
+          g.fillStyle = 'rgba(200,220,255,.18)';
+          for (let i = 0; i < 6; i += 2) { const a = Math.PI / 6 + (i * Math.PI) / 3; g.fillRect(cx + Math.cos(a) * HS * .72 - 1.5, cy + Math.sin(a) * HS * .72 - 1.5, 3, 3); }
+        } else if (kind < .4) {
+          // Een lamp in de vloer
+          glow(g, cx, cy, 30, '#4cc9ff', .4);
+          g.fillStyle = '#bff6ff';
+          hexPath(g, cx, cy, 6);
+          g.fill();
+        } else if (kind < .47) {
+          // Een kompasster die zacht oplicht
+          glow(g, cx, cy, 22, '#c77dff', .3);
+          g.fillStyle = 'rgba(214,160,255,.6)';
+          g.beginPath();
+          for (let i = 0; i < 8; i++) { const a = -Math.PI / 2 + (i * Math.PI) / 4, d = i % 2 ? 4 : 15; g.lineTo(cx + Math.cos(a) * d, cy + Math.sin(a) * d); }
+          g.closePath();
+          g.fill();
+        } else if (kind < .7) {
+          // Krassen
+          g.strokeStyle = 'rgba(255,255,255,.07)';
+          g.lineWidth = 1;
+          g.beginPath();
+          for (let i = 0; i < 3; i++) { const x = cx - 20 + r() * 40, y = cy - 20 + r() * 40; g.moveTo(x, y); g.lineTo(x + 8 + r() * 12, y + (r() - .5) * 10); }
+          g.stroke();
+        }
+      }
+    }
+    // Lichtvoegen
+    g.strokeStyle = 'rgba(90,170,255,.16)';
+    g.lineWidth = 1.5;
+    for (let row = -1; row <= 4; row++) for (let col = -1; col <= 4; col++) {
+      hexPath(g, col * HW + (row & 1 ? HW / 2 : 0), row * HH, HS - .5);
+      g.stroke();
+    }
+    return c;
+  });
+  // Platen in het stuk { x0, x1, y0, y1 }, alleen binnen de muur.
+  function floorPlates(ctx, R, v) {
+    const x0 = Math.max(-R, v.x0), x1 = Math.min(R, v.x1), y0 = Math.max(-R, v.y0), y1 = Math.min(R, v.y1);
+    for (let ix = Math.floor(x0 / MW); ix * MW < x1; ix++) {
+      for (let iy = Math.floor(y0 / MH); iy * MH < y1; iy++) {
+        const nx = Math.max(ix * MW, Math.min(0, (ix + 1) * MW)), ny = Math.max(iy * MH, Math.min(0, (iy + 1) * MH));
+        if (nx * nx + ny * ny > R * R) continue;
+        const k = (Math.imul(ix * 73856093 ^ iy * 19349663, 0x27d4eb2d) >>> 0) % 4;
+        ctx.drawImage(plates[k], ix * MW, iy * MH, MW + .5, MH + .5);
+      }
+    }
+  }
+
+  // De burchtmuur achter het lichtschild: een stuk van boven, met kantelen aan de buitenkant.
+  // x loopt langs de muur, y van binnen (0) naar buiten (WALL_H).
+  const WALL_W = 128, WALL_H = 96;
+  const wallSprites = [0, 1].map(v => {
+    const c = canvas(WALL_W, WALL_H);
+    const g = c.getContext('2d');
+    const r = rng(v * 271 + 9);
+    for (let row = 0; row < 4; row++) {
+      const y = row * 15, off = row % 2 ? -18 : 0;
+      for (let x = off; x < WALL_W; x += 36) {
+        g.fillStyle = `hsl(222,22%,${13 + r() * 7}%)`;
+        g.fillRect(x + 1, y + 1, 34, 13);
+        g.fillStyle = 'rgba(255,255,255,.06)';
+        g.fillRect(x + 1, y + 1, 34, 2);
+      }
+    }
+    g.fillStyle = 'rgba(0,0,0,.45)';
+    g.fillRect(0, 60, WALL_W, 6);
+    g.fillStyle = '#1b2236';
+    g.fillRect(0, 66, WALL_W, 30);
+    for (let x = 4; x < WALL_W; x += 32) {
+      const top = g.createLinearGradient(0, 66, 0, 96);
+      top.addColorStop(0, '#8296c2');
+      top.addColorStop(1, '#45557d');
+      g.fillStyle = top;
+      g.fillRect(x, 68, 22, 26);
+      g.fillStyle = 'rgba(255,255,255,.14)';
+      g.fillRect(x, 68, 22, 3);
+      g.fillStyle = 'rgba(0,0,0,.35)';
+      g.fillRect(x + 19, 68, 3, 26);
+    }
+    if (v === 1) {
+      // Een banier met een ster
+      g.fillStyle = '#163a6e';
+      g.fillRect(52, 6, 24, 44);
+      g.fillStyle = '#4cc9ff';
+      g.fillRect(52, 6, 24, 3);
+      g.fillStyle = '#ffe17a';
+      g.beginPath();
+      for (let i = 0; i <= 5; i++) { const a = -Math.PI / 2 + (i * 4 * Math.PI) / 5; g.lineTo(64 + Math.cos(a) * 9, 28 + Math.sin(a) * 9); }
+      g.fill();
+    }
+    return c;
+  });
+
+  // Zwevende rotsen met een ruïne, buiten de muur in de ruimte.
+  const rocks = [0, 1, 2].map(v => {
+    const c = canvas(200);
+    const g = c.getContext('2d');
+    const r = rng(v * 37 + 11);
+    const pts = [];
+    for (let i = 0; i < 10; i++) { const a = (i / 10) * TAU, d = 62 + r() * 28; pts.push([100 + Math.cos(a) * d, 100 + Math.sin(a) * d * .8]); }
+    glow(g, 100, 100, 96, '#4cc9ff', .16);
+    g.beginPath();
+    for (const [x, y] of pts) g.lineTo(x, y);
+    g.closePath();
+    const rock = g.createLinearGradient(30, 30, 170, 170);
+    rock.addColorStop(0, '#556283');
+    rock.addColorStop(1, '#171c2e');
+    g.fillStyle = rock;
+    g.fill();
+    g.strokeStyle = 'rgba(159,243,255,.18)';
+    g.lineWidth = 2;
+    g.stroke();
+    for (let i = 0; i < 7; i++) {
+      g.fillStyle = 'rgba(0,0,0,.28)';
+      g.beginPath();
+      g.arc(60 + r() * 80, 60 + r() * 70, 4 + r() * 8, 0, TAU);
+      g.fill();
+    }
+    g.fillStyle = '#8296c2';
+    g.fillRect(70, 88, 52, 12);
+    for (let x = 70; x < 122; x += 13) g.fillRect(x, 81, 7, 7);
+    g.fillStyle = '#45557d';
+    g.beginPath();
+    g.arc(130 - v * 46, 84 + v * 12, 14, 0, TAU);
+    g.fill();
+    glow(g, 130 - v * 46, 84 + v * 12, 16, '#ffe17a', .6);
+    return c;
+  });
+
   // ---------- Vloer ----------
-  // Ver uitgezoomd (bord): verloop en zeshoekpatroon over de hele cirkel.
-  function floorFull(ctx, R, withHex = true) {
-    ctx.save();
+  // Het verloop over de hele cirkel (blauwe gloed naar de rand).
+  function floorTint(ctx, R) {
     ctx.beginPath();
     ctx.arc(0, 0, R, 0, TAU);
     const floor = ctx.createRadialGradient(0, 0, R * .2, 0, 0, R);
-    floor.addColorStop(0, 'rgba(40,10,70,.35)');
-    floor.addColorStop(.7, 'rgba(8,20,50,.25)');
-    floor.addColorStop(1, 'rgba(30,90,180,.28)');
+    floor.addColorStop(0, 'rgba(40,10,70,.3)');
+    floor.addColorStop(.7, 'rgba(8,20,50,.2)');
+    floor.addColorStop(1, 'rgba(30,90,180,.3)');
     ctx.fillStyle = floor;
     ctx.fill();
-    if (withHex) {
-      ctx.fillStyle = hex(ctx);
-      ctx.fill();
-    }
-    ctx.restore();
   }
 
-  // Ingezoomd (gsm, Chromebook): het verloop uit een vooraf getekend beeld en de zeshoeken als één pad van dunne lijnen.
-  // Een verloop of patroon over het hele scherm kost op een Chromebook veel meer dan één beeld en wat lijntjes.
+  // Ingezoomd (gsm, Chromebook): de platen in beeld en het verloop uit een vooraf getekend beeld.
+  // Een verloop of patroon over het hele scherm kost op een Chromebook veel meer dan een handvol beelden.
   let floorCache = null;
   function floorView(ctx, R, view) {
     if (!floorCache || floorCache.R !== R) {
@@ -277,30 +435,72 @@ const SvDraw = (() => {
       const g = c.getContext('2d');
       g.translate(size / 2, size / 2);
       g.scale(k, k);
-      floorFull(g, R, false);
+      floorTint(g, R);
       floorCache = { c, R, k };
     }
     const { c, k } = floorCache;
     const x0 = Math.max(-R, view.x0), x1 = Math.min(R, view.x1), y0 = Math.max(-R, view.y0), y1 = Math.min(R, view.y1);
     if (x1 <= x0 || y1 <= y0) return;
-    ctx.drawImage(c, (x0 + R) * k, (y0 + R) * k, (x1 - x0) * k, (y1 - y0) * k, x0, y0, x1 - x0, y1 - y0);
-    const S = 46, W = S * Math.sqrt(3), H = S * 1.5;
-    ctx.beginPath();
-    for (let row = Math.floor(y0 / H) - 1; row * H <= y1 + S; row++) {
-      const off = row & 1 ? W / 2 : 0;
-      for (let col = Math.floor((x0 - off) / W) - 1; col * W + off <= x1 + W; col++) {
-        const cx = col * W + off, cy = row * H;
-        if (cx * cx + cy * cy > (R - S) * (R - S)) continue;
-        for (let i = 0; i <= 3; i++) {
-          const a = Math.PI / 6 + (i * Math.PI) / 3 - Math.PI / 3;
-          const x = cx + Math.cos(a) * S, y = cy + Math.sin(a) * S;
-          if (i) ctx.lineTo(x, y); else ctx.moveTo(x, y);
-        }
-      }
+    // Bij de muur knippen we de platen af op de cirkel; in het midden is dat niet nodig.
+    const cx = (view.x0 + view.x1) / 2, cy = (view.y0 + view.y1) / 2;
+    const edge = Math.hypot(cx, cy) + Math.hypot(view.x1 - view.x0, view.y1 - view.y0) / 2 > R;
+    if (edge) {
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(0, 0, R, 0, TAU);
+      ctx.clip();
     }
-    ctx.strokeStyle = 'rgba(90,170,255,.11)';
-    ctx.lineWidth = 2;
-    ctx.stroke();
+    floorPlates(ctx, R, view);
+    if (edge) ctx.restore();
+    ctx.drawImage(c, (x0 + R) * k, (y0 + R) * k, (x1 - x0) * k, (y1 - y0) * k, x0, y0, x1 - x0, y1 - y0);
+  }
+
+  // De stenen muur buiten het lichtschild, en zwevende rotsen daarbuiten. a0..a1: het stuk boog dat in beeld is.
+  function rampart(ctx, R, a0, a1, inView, rocksToo, ts) {
+    const segs = Math.round((TAU * (R + 60)) / WALL_W);
+    const da = TAU / segs, sw = da * (R + 30 + WALL_H) + 2;
+    for (let i = Math.floor(a0 / da); i <= Math.ceil(a1 / da); i++) {
+      const a = (i + .5) * da;
+      const x = Math.cos(a) * (R + 30), y = Math.sin(a) * (R + 30);
+      if (!inView(x, y, 150)) continue;
+      ctx.translate(x, y);
+      ctx.rotate(a - Math.PI / 2);
+      ctx.drawImage(wallSprites[((i % 6) + 6) % 6 === 2 ? 1 : 0], -sw / 2, -1, sw, WALL_H);
+      ctx.rotate(Math.PI / 2 - a);
+      ctx.translate(-x, -y);
+    }
+    if (!rocksToo) return;
+    const n = Math.max(10, Math.round((TAU * R) / 520));
+    for (let i = 0; i < n; i += 2) {
+      const a = ((i + .5) / n) * TAU, d = R + 320 + (i * 61) % 170;
+      const x = Math.cos(a) * d, y = Math.sin(a) * d, rs = 200 * (.8 + (i % 3) * .2);
+      if (!inView(x, y, rs)) continue;
+      ctx.drawImage(rocks[i % 3], x - rs / 2, y - rs / 2 + Math.sin(ts * .7 + i) * 6, rs, rs);
+    }
+  }
+
+  // Ver uitgezoomd (bord): vloer en muur één keer vooraf getekend in een beeld van 2048 px.
+  let baked = null;
+  function bakedArena(R) {
+    if (baked && baked.R === R) return baked;
+    const size = 2048, span = R * 2 + 300, k = size / span;
+    const c = canvas(size);
+    const g = c.getContext('2d');
+    g.translate(size / 2, size / 2);
+    g.scale(k, k);
+    g.save();
+    g.beginPath();
+    g.arc(0, 0, R, 0, TAU);
+    g.clip();
+    floorPlates(g, R, { x0: -R, x1: R, y0: -R, y1: R });
+    // Ver uitgezoomd wat donkerder, zodat de bollen en het stof goed opvallen.
+    g.fillStyle = 'rgba(4,6,18,.35)';
+    g.fillRect(-R, -R, R * 2, R * 2);
+    g.restore();
+    floorTint(g, R);
+    rampart(g, R, 0, TAU, () => true, false, 0);
+    baked = { c, R, span };
+    return baked;
   }
 
   // ---------- De scène ----------
@@ -413,9 +613,12 @@ const SvDraw = (() => {
     ctx.scale(zoom, zoom);
     ctx.translate(-cam.x, -cam.y);
     const R = s.R;
-    // Vloer: een licht zeshoekraster binnen de muur, met een blauwe gloed naar de rand toe.
-    if (zoom < .45) floorFull(ctx, R);
-    else floorView(ctx, R, view);
+    // Vloer: zeshoekige stalen platen binnen de muur, met een blauwe gloed naar de rand toe.
+    const board = zoom < .45;
+    if (board) {
+      const b = bakedArena(R);
+      ctx.drawImage(b.c, -b.span / 2, -b.span / 2, b.span, b.span);
+    } else floorView(ctx, R, view);
     // De lichtmuur: brede gloed, felle kern, en een energiegolf die rondloopt. Alleen het stuk boog dat in beeld is.
     let a0 = 0, a1 = TAU, wall = true;
     {
@@ -429,6 +632,7 @@ const SvDraw = (() => {
         a1 = a0 + span * 2;
       }
     }
+    if (wall && !board) rampart(ctx, R, a0, a1, inView, true, ts);
     if (wall) {
       ctx.lineCap = 'round';
       for (const [lw, col, a] of [[90, '#4cc9ff', .07], [34, '#4cc9ff', .18], [10, '#9ff3ff', .7], [3, '#ffffff', .9]]) {
@@ -456,9 +660,9 @@ const SvDraw = (() => {
     const towers = Math.max(10, Math.round((TAU * R) / 520));
     for (let i = 0; i < towers; i++) {
       const a = (i / towers) * TAU;
-      const x = Math.cos(a) * R, y = Math.sin(a) * R;
-      if (!inView(x, y, 60)) continue;
-      ctx.drawImage(tower, x - 48, y - 48, 96, 96);
+      const x = Math.cos(a) * (R + 40), y = Math.sin(a) * (R + 40);
+      if (!inView(x, y, 80)) continue;
+      ctx.drawImage(tower, x - 66, y - 66, 132, 132);
     }
     // Het zwarte gat
     const bh = s.bhShown;
