@@ -732,7 +732,7 @@ const AK = (() => {
           result.textContent = opts.bad(res);
           sfx.bad();
           if (typeof buzz === 'function') buzz(200);
-          wait(res.wait || 3000, () => { if (q.open) load(); });
+          wait(res.wait || 3000, () => { if (!q.open) return; if (opts.again === false) q.close(); else load(); });
         }
       });
     };

@@ -197,6 +197,13 @@ Tip: een klas die goed en vlot antwoordt, houdt de poort. Bij veel foute antwoor
 3. Goudhelmen hebben twee slagen nodig, bomdrones niet raken. Raakt het zwaard leeg, dan komt er een vraag: juist = volle lading en het 🔥 Vuurzwaard.
 4. Het bord toont dezelfde putten, wie elke mol mepte en hoeveel mollen de klas samen al mepte.
 
+## Robopaarden
+
+1. Kies **De Arena** en dan **Robopaarden**, kies de speeltijd (1 tot 10 minuten) en klik op de quiz.
+2. Terwijl iedereen binnenkomt, bouwen de leerlingen hun robotpaard in de stal. Op het bord galopperen alle paarden al. Klik op **Start de race!**
+3. Chromebook: pijltjes of ZQSD (spatie = wapen, Shift = nitro). Gsm: het paard loopt vanzelf, met de duim sturen.
+4. Door een runenkist rijden geeft een vraag. Juist = een wapen. Op het bord kun je wisselen tussen de hele baan en **🎥 Volg de leider**.
+
 ## Diepboor
 
 1. Kies **De Arena** en dan **Diepboor**, kies de speeltijd en klik op de quiz. Klik op **Start de boren!**

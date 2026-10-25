@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LANcelot · Robopaarden</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/arena.css">
+</head>
+<body class="sj-host ak-wide">
+<main>
+  <div class="topbar">
+    <div class="brand" id="brand" title="Naar het startscherm">
+      <img src="/img/mark.webp" alt="">
+      <div>
+        <div class="wordmark">LAN<span>celot</span></div>
+        <div class="subtitle" id="status">Robopaarden</div>
+      </div>
+    </div>
+    <div class="actions">
+      <span class="join-mini hidden" id="join-mini"></span>
+      <button class="secondary icon" id="mute" title="Geluid aan/uit">🔊</button>
+      <button class="secondary hidden" id="stop">Stop het spel</button>
+    </div>
+  </div>
+
+  <section id="setup">
+    <div class="bar">
+      <h2>Robopaarden</h2>
+      <div class="actions">
+        <button class="secondary" id="to-home">Terug</button>
+        <button class="secondary" data-make="leeg">Lege quiz</button>
+        <button data-make="ai">Nieuwe quiz met AI</button>
+      </div>
+    </div>
+    <div class="panel tw-intro">
+      <img class="game-logo" src="/img/icons/robopaarden.webp" alt="">
+      <div>
+        <p>Een race met <strong>robotpaarden</strong>, in 3D vanachter je eigen paard. In de wachtzaal bouwt elke leerling zijn paard: romp, neonkleur, manen, ogen, een hoorn, vleugels of raketten. Daarna gaat het rond het burchtmeer, over schansen en nitrostroken.</p>
+        <p>Er zijn <strong>andere wegen</strong>: de smalle burchtroute vol runenkisten, een sprong over de Drakenkloof (te traag en je valt erin) en een <strong>geheim bospad</strong> dat je zelf moet vinden.</p>
+        <p><strong>Vragen:</strong> rij door een runenkist en je krijgt een vraag, terwijl je paard vanzelf verder galoppeert. Juist = een wapen: 🔥 vuurbal, 🦅 robovalk, ⚙️ spijkers, 🛡️ schild, ⚡ driedubbele nitro of 🌩️ donderslag. Wie achteraan rijdt, krijgt de sterkste wapens. Wie na de speeltijd het verst staat, wint.</p>
+        <p class="muted">Op de gsm geeft je paard zelf gas en stuur je met je duim; op een Chromebook met de pijltjes. Tegen gokken: na een fout antwoord even wachten, en die vraag komt later terug. Elk antwoord komt in het logboek.</p>
+      </div>
+    </div>
+    <div class="panel form">
+      <label>Racetijd
+        <select id="rp-minutes">
+          <option value="1">1 minuut</option>
+          <option value="2">2 minuten</option>
+          <option value="3">3 minuten</option>
+          <option value="4" selected>4 minuten</option>
+          <option value="5">5 minuten</option>
+          <option value="6">6 minuten</option>
+          <option value="8">8 minuten</option>
+          <option value="10">10 minuten</option>
+        </select>
+      </label>
+      <label>Tempo van de vragen
+        <select id="rp-tempo" class="tempo-select">
+          <option value="rustig">Rustig: na een fout iets langer wachten</option>
+          <option value="normaal" selected>Normaal</option>
+          <option value="intens">Intens: sneller weer een nieuwe kist</option>
+        </select>
+      </label>
+      <p class="muted small">Kies hieronder de quiz waaruit de vragen komen.</p>
+    </div>
+    <p class="notice hidden" id="stopped"></p>
+    <div class="quiz-list" id="quiz-list"></div>
+    <p class="error" id="load-error"></p>
+  </section>
+
+  <section id="lobby" class="hidden">
+    <div class="panel join">
+      <div class="qr" id="qr"></div>
+      <div class="join-text">
+        <p class="muted">Scan de QR-code of surf naar</p>
+        <div class="join-url" id="join-url"></div>
+        <p class="muted small" id="other-urls"></p>
+      </div>
+    </div>
+    <div class="bar">
+      <h2><span class="count" id="player-count">0</span> <span id="player-word">robotpaarden</span> in de stal</h2>
+      <button class="gold big" id="start" disabled>Start de race!</button>
+    </div>
+    <p class="muted small">De leerlingen bouwen hun paard op hun eigen scherm. Klik op een paard om die speler te verwijderen. Wie later binnenkomt, start achteraan.</p>
+    <div class="rp-stall" id="names"></div>
+  </section>
+
+  <section id="play" class="hidden">
+    <div class="hud">
+      <span class="round" id="p-title"></span>
+      <span class="rr-record" id="p-record"></span>
+      <span class="tw-clock" id="p-clock"></span>
+      <button class="secondary" id="p-finish">Race stoppen</button>
+    </div>
+    <div class="ls-board rp-board">
+      <div class="panel ls-arena"><canvas id="p-map"></canvas><button class="secondary rp-view" id="p-view">🎥 Volg de leider</button><div class="ls-banner" id="p-banner"></div><div class="tw-countdown hidden" id="p-countdown"></div></div>
+      <div class="tw-side">
+        <ol class="tw-rank rp-rank" id="p-rank"></ol>
+        <ul class="tw-feed" id="p-feed"></ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="podium" class="hidden">
+    <h2 class="center" id="w-title">De snelste robotpaarden</h2>
+    <canvas class="rp-podium" id="podium-canvas" width="1200" height="520"></canvas>
+    <ol class="ranking" id="final"></ol>
+    <p class="center muted" id="results-saved"></p>
+    <div class="bar">
+      <button class="secondary" id="restart">Nog een race</button>
+      <button id="close">Andere quiz kiezen</button>
+    </div>
+  </section>
+</main>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/fx.js"></script>
+<script src="/js/avatar.js"></script>
+<script src="/js/quiz-links.js"></script>
+<script src="/js/quiz-list.js"></script>
+<script src="/js/arena-kit.js"></script>
+<script src="/js/rp-world.js"></script>
+<script src="/js/rp-draw.js"></script>
+<script src="/js/rp-3d.js"></script>
+<script src="/js/rp-host.js"></script>
+<script src="/js/address.js"></script>
+<script src="/js/overzicht.js"></script>
+</body>
+</html>

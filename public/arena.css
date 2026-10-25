@@ -110,9 +110,9 @@ body:not([data-gt="1"]) #gauntlet, body:not([data-ry="1"]) #royale, body:not([da
 #rs-boost:not(.ready) { opacity: .5; }
 
 /* Poortwacht, Neonvlucht en Diepboor op het leerlingscherm: als een van deze spellen loopt, verdwijnt de rest. */
-body[data-pw="1"] main > :not(#poort), body[data-nv="1"] main > :not(#vlucht), body[data-db="1"] main > :not(#diep), body[data-mo="1"] main > :not(#robomol) { display: none !important; }
-body:not([data-pw="1"]) #poort, body:not([data-nv="1"]) #vlucht, body:not([data-db="1"]) #diep, body:not([data-mo="1"]) #robomol { display: none !important; }
-#poort, #vlucht, #diep, #robomol { display: contents; }
+body[data-pw="1"] main > :not(#poort), body[data-nv="1"] main > :not(#vlucht), body[data-db="1"] main > :not(#diep), body[data-mo="1"] main > :not(#robomol), body[data-rp="1"] main > :not(#paarden) { display: none !important; }
+body:not([data-pw="1"]) #poort, body:not([data-nv="1"]) #vlucht, body:not([data-db="1"]) #diep, body:not([data-mo="1"]) #robomol, body:not([data-rp="1"]) #paarden { display: none !important; }
+#poort, #vlucht, #diep, #robomol, #paarden { display: contents; }
 
 /* Poortwacht: kaart en vragen naast elkaar (Chromebook) of onder elkaar (gsm rechtop). */
 .pw-gold { font-family: var(--tech, Orbitron, sans-serif); font-size: 1.1rem; font-weight: 800; color: var(--gold); text-shadow: 0 0 10px rgba(255, 201, 74, .5); white-space: nowrap; }
@@ -259,3 +259,71 @@ body:not([data-pw="1"]) #poort, body:not([data-nv="1"]) #vlucht, body:not([data-
 .ak-locked .answer { pointer-events: none; filter: grayscale(.7) brightness(.7); position: relative; overflow: hidden; }
 .ak-locked .answer::after { content: ''; position: absolute; left: 0; bottom: 0; height: 4px; width: 100%; background: var(--gold); transform-origin: left; animation: ak-lock var(--lock, 1s) linear both; }
 @keyframes ak-lock { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+/* Robopaarden */
+.rp-stable { max-width: 820px; }
+.rp-builder { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 14px; align-items: center; text-align: left; }
+.rp-preview { position: relative; border-radius: 16px; background: radial-gradient(ellipse at 50% 85%, rgba(76, 240, 255, .12), rgba(6, 10, 19, .6) 70%); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .08); }
+.rp-preview canvas { display: block; width: 100%; height: auto; cursor: pointer; }
+.rp-turn { position: absolute; right: 8px; top: 8px; width: 42px; height: 42px; padding: 0; font-size: 1.3rem; }
+.rp-opts { display: flex; flex-direction: column; gap: 8px; }
+.rp-opt { display: flex; align-items: center; gap: 10px; }
+.rp-opt-label { width: 64px; flex: none; font-family: var(--tech); font-size: .78rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+.rp-opt-pick { flex: 1; display: flex; align-items: center; gap: 6px; }
+.rp-opt-pick b { flex: 1; text-align: center; font-size: .95rem; }
+.rp-opt-pick.swatches { flex-wrap: wrap; gap: 5px; }
+.rp-step { width: 38px; height: 34px; padding: 0; font-size: .9rem; }
+.rp-swatch { width: 28px; height: 28px; padding: 0; border-radius: 50%; clip-path: none; background: var(--c); box-shadow: inset 0 0 0 2px rgba(0, 0, 0, .35); }
+.rp-swatch.on { box-shadow: 0 0 0 3px #fff, 0 0 14px var(--c); transform: scale(1.1); }
+.rp-dice { align-self: flex-start; margin-top: 4px; }
+@media (max-width: 640px) { .rp-builder { grid-template-columns: 1fr; } .rp-preview canvas { max-height: 34vh; object-fit: contain; } }
+
+.rp-hud { gap: 14px; }
+.rp-pos { font-family: var(--tech); font-weight: 900; font-size: 1.9rem; line-height: 1; color: var(--gold); text-shadow: 0 0 14px rgba(255, 201, 74, .6); }
+.rp-pos small { font-size: .9rem; color: var(--muted); }
+.rp-lap { font-size: .9rem; color: var(--cyan); white-space: nowrap; }
+.rp-item { width: 46px; height: 46px; display: flex; align-items: center; justify-content: center; border-radius: 12px; font-size: 1.7rem; background: rgba(255, 255, 255, .06); box-shadow: inset 0 0 0 2px rgba(255, 255, 255, .15); }
+.rp-item .empty { opacity: .3; filter: grayscale(1); font-size: 1.3rem; }
+.rp-item.ready { background: rgba(255, 201, 74, .18); box-shadow: inset 0 0 0 2px var(--gold), 0 0 18px rgba(255, 201, 74, .55); animation: breathe 1.2s ease-in-out infinite; }
+.rp-nitro { display: flex; gap: 1px; }
+.rp-nitro i { font-style: normal; font-size: 1.1rem; opacity: .18; filter: grayscale(1); }
+.rp-nitro i.on { opacity: 1; filter: drop-shadow(0 0 6px #4cf0ff); }
+.rp-wrong { position: absolute; left: 50%; top: 34%; transform: translateX(-50%); padding: 8px 18px; font-family: var(--tech); font-weight: 900; font-size: 1.3rem; color: #fff; background: rgba(255, 45, 77, .75); border-radius: 10px; animation: breathe .6s ease-in-out infinite; pointer-events: none; }
+.rp-wrong.hidden { display: none; }
+.rp-touch { grid-template-columns: auto; grid-template-rows: auto auto; }
+.rp-use { width: 112px !important; height: 112px !important; font-size: 2.6rem !important; background: rgba(255, 255, 255, .08); box-shadow: inset 0 0 0 2px rgba(255, 255, 255, .25); }
+.rp-use.ready { background: radial-gradient(circle at 40% 35%, #ffe7a3, #ff9b2f); box-shadow: 0 0 24px rgba(255, 155, 47, .65); animation: breathe 1.2s ease-in-out infinite; }
+.rp-boost { width: 80px; height: 80px; font-size: 1.8rem; background: rgba(76, 240, 255, .1); box-shadow: inset 0 0 0 2px rgba(76, 240, 255, .4); opacity: .5; }
+.rp-boost.ready { opacity: 1; background: radial-gradient(circle at 40% 35%, #d9fdff, #19b8d6); box-shadow: 0 0 22px rgba(76, 240, 255, .7); }
+/* De vraag onderaan, zodat je je paard boven nog ziet galopperen. */
+#rp-game .ak-question { align-items: flex-end; background: linear-gradient(rgba(6, 10, 19, 0) 25%, rgba(6, 10, 19, .88) 60%); backdrop-filter: none; }
+#rp-game .ak-question .panel { max-width: 680px; }
+@media (max-width: 520px), (max-height: 420px) {
+  .rp-pos { font-size: 1.4rem; }
+  .rp-item { width: 38px; height: 38px; font-size: 1.3rem; }
+  .rp-use { width: 92px !important; height: 92px !important; }
+  .rp-boost { width: 66px; height: 66px; }
+  #rp-game .ak-question { padding: 6px 10px; }
+  #rp-game .ak-question .panel { gap: 6px; padding: 10px 12px; }
+  #rp-game .ak-question .status { display: none; }
+  #rp-game .ak-question .tw-q-text { font-size: 1.05rem; }
+  #rp-game .ak-question .answer { min-height: 46px; padding: 6px; flex-direction: row; gap: 8px; font-size: .92rem; }
+  #rp-game .ak-question .answer svg { width: 20px; height: 20px; flex: none; }
+  #rp-game .ak-question .ls-q-actions button { padding: 6px 14px; font-size: .85rem; }
+  #rp-game .ak-question .tw-q-result { font-size: 1.05rem; }
+}
+
+/* Robopaarden op het bord */
+.rp-board .ls-arena { position: relative; backdrop-filter: none; -webkit-backdrop-filter: none; }
+.rp-board .ls-arena canvas { width: 100%; height: 100%; }
+.rp-stall { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
+.rp-stall .rp-card { position: relative; display: flex; flex-direction: column; align-items: center; padding: 6px 6px 8px; background: rgba(6, 10, 19, .6); border-radius: 12px; box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--c) 45%, transparent); cursor: pointer; }
+.rp-stall .rp-card canvas { width: 170px; height: 136px; }
+.rp-stall .rp-card b { font-size: .95rem; }
+.rp-stall .rp-card:hover::after { content: '✕'; position: absolute; right: 8px; top: 4px; color: var(--bad); font-weight: 900; }
+.rp-rank li { display: grid; grid-template-columns: 28px 14px 1fr auto; gap: 8px; align-items: center; }
+.rp-rank .pos { font-family: var(--tech); font-weight: 900; color: var(--gold); }
+.rp-rank .dot { width: 12px; height: 12px; border-radius: 50%; background: var(--c); box-shadow: 0 0 8px var(--c); }
+.rp-rank small { color: var(--muted); }
+.rp-view { position: absolute; right: 10px; top: 10px; z-index: 2; }
+.rp-podium { display: block; width: min(100%, 980px); height: auto; margin: 0 auto; }
