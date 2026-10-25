@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#060a13">
+  <title>LANcelot · Runenraadsel</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="apple-touch-icon" href="/img/icon-192.png">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/runen.css">
+</head>
+<body class="player rn-page">
+<main>
+  <div class="rn-top">
+    <a class="rn-back" href="/" title="Terug naar de spellen">←</a>
+    <img class="rn-logo" src="/img/icons/runenraadsel.webp" alt="">
+    <div class="rn-titel">
+      <div class="rn-naam-spel">Runenraadsel</div>
+      <div class="rn-dag" id="rn-dag"></div>
+    </div>
+    <div class="rn-tellers hidden" id="rn-tellers">
+      <span class="rn-teller" title="Jouw runen"><b id="rn-runen">0</b><i>runen</i></span>
+      <span class="rn-teller vuur" title="Dagen na elkaar gekraakt"><b id="rn-reeks">0</b><i>🔥 reeks</i></span>
+    </div>
+  </div>
+
+  <div class="rn-spel-start hidden" id="rn-start-banner">
+    <span>⚔️ De leerkracht startte een spel!</span>
+    <a class="button gold" href="/">Ga meedoen</a>
+  </div>
+
+  <form id="rn-join" class="screen welcome hidden">
+    <p class="title">Het Runenraadsel</p>
+    <p class="muted">Elke dag een geheim woord. Kraak het in zes pogingen en verdien runen voor je ridder.</p>
+    <input id="rn-name" maxlength="20" autocomplete="off" placeholder="Je naam">
+    <p class="error" id="rn-join-error"></p>
+    <button type="submit" class="big">Naar het raadsel</button>
+  </form>
+
+  <section id="rn-spel" class="hidden">
+    <div class="rn-niveaus" id="rn-niveaus"></div>
+    <div class="rn-veld">
+      <div class="rn-links">
+        <p class="rn-hulp hidden" id="rn-hulp"></p>
+        <div class="rn-bord-wrap">
+          <div class="rn-krans-bg" aria-hidden="true"></div>
+          <div class="rn-grid" id="rn-grid"></div>
+        </div>
+        <p class="rn-melding" id="rn-melding" aria-live="polite"></p>
+        <div class="rn-keys" id="rn-keys"></div>
+      </div>
+      <aside class="rn-zij">
+        <div class="rn-klaar hidden" id="rn-klaar">
+          <p class="rn-klaar-kop" id="rn-klaar-kop"></p>
+          <div class="rn-woord" id="rn-woord"></div>
+          <p class="rn-betekenis" id="rn-betekenis"></p>
+          <p class="rn-zin" id="rn-zin"></p>
+          <ul class="rn-verdiend" id="rn-verdiend"></ul>
+          <p class="rn-verder" id="rn-verder"></p>
+        </div>
+        <div class="rn-kaart">
+          <p class="rn-kaart-kop">Jouw runenkrans</p>
+          <div class="rn-krans-rij">
+            <canvas id="rn-ridder" width="72" height="102"></canvas>
+            <div>
+              <p class="rn-krans-naam" id="rn-krans-naam"></p>
+              <div class="rn-balk"><span id="rn-krans-balk"></span></div>
+              <p class="muted small" id="rn-krans-volgende"></p>
+            </div>
+          </div>
+          <button type="button" class="secondary" id="rn-ridder-knop">🛡️ Pas je ridder aan</button>
+        </div>
+        <div class="rn-kaart">
+          <p class="rn-kaart-kop">Klasdoel van vandaag</p>
+          <div class="rn-balk goud"><span id="rn-klas-balk"></span></div>
+          <p class="muted small" id="rn-klas-tekst"></p>
+        </div>
+        <details class="rn-uitleg">
+          <summary>Hoe werkt het?</summary>
+          <p>Typ een bestaand woord en druk op Enter. De runen kleuren:</p>
+          <p><span class="rn-mini g">A</span> juiste letter op de juiste plaats</p>
+          <p><span class="rn-mini o">A</span> letter zit erin, maar ergens anders</p>
+          <p><span class="rn-mini x">A</span> letter zit er niet in</p>
+          <p>Gekraakt op je eigen niveau: 2 runen, en 1 extra in drie pogingen of minder. Elke 5 dagen na elkaar: 2 runen extra. Kraakt de hele klas het samen (8 op 10), dan krijgt iedereen die het kraakte nog een rune.</p>
+        </details>
+        <button type="button" class="secondary klas-switch" id="rn-switch">Niet jij? Kies je naam</button>
+      </aside>
+    </div>
+  </section>
+</main>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/fx.js"></script>
+<script src="/js/avatar.js"></script>
+<script src="/js/rn-player.js"></script>
+<script src="/js/av-player.js"></script>
+<script src="/js/klas-kies.js"></script>
+</body>
+</html>

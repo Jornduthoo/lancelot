@@ -44,6 +44,9 @@ const lesmap = require('./src/lesmap');
 const { execFile } = require('child_process');
 const { generateQuiz } = require('./src/gemini');
 const antigok = require('./src/antigok');
+const runen = require('./src/runen');
+const gemini = require('./src/gemini');
+const aiJson = require('./src/ai-json');
 
 const PORT = Number(process.env.PORT) || 3000;
 
@@ -269,13 +272,18 @@ function isLocal(address) {
   return ['127.0.0.1', '::1', '::ffff:127.0.0.1'].includes(address);
 }
 
-for (const [route, page] of [['/host', 'host.html'], ['/rondetafel', 'rondetafel.html'], ['/toren', 'toren.html'], ['/schattenjacht', 'schattenjacht.html'], ['/laserslag', 'laserslag.html'], ['/ridderrace', 'ridderrace.html'], ['/kristalroof', 'kristalroof.html'], ['/verrader', 'verrader.html'], ['/burchtbouwers', 'burchtbouwers.html'], ['/duel', 'duel.html'], ['/packnight', 'packnight.html'], ['/strijdrossen', 'strijdrossen.html'], ['/gauntlet', 'gauntlet.html'], ['/ridder-royale', 'royale.html'], ['/sterrenvreter', 'sterrenvreter.html'], ['/ridderslang', 'ridderslang.html'], ['/neonduel', 'neonduel.html'], ['/leraarbaas', 'leraarbaas.html'], ['/cybergalaga', 'cybergalaga.html'], ['/bomberknight', 'bomberknight.html'], ['/rijk', 'rijk.html'], ['/oefenblad', 'oefenblad.html'], ['/oefenblad-print', 'oefenblad-print.html'], ['/klas', 'klas.html'], ['/zorg', 'zorg.html'], ['/netwerk', 'netwerk.html']]) {
+for (const [route, page] of [['/host', 'host.html'], ['/rondetafel', 'rondetafel.html'], ['/toren', 'toren.html'], ['/schattenjacht', 'schattenjacht.html'], ['/laserslag', 'laserslag.html'], ['/ridderrace', 'ridderrace.html'], ['/kristalroof', 'kristalroof.html'], ['/verrader', 'verrader.html'], ['/burchtbouwers', 'burchtbouwers.html'], ['/duel', 'duel.html'], ['/packnight', 'packnight.html'], ['/strijdrossen', 'strijdrossen.html'], ['/gauntlet', 'gauntlet.html'], ['/ridder-royale', 'royale.html'], ['/sterrenvreter', 'sterrenvreter.html'], ['/ridderslang', 'ridderslang.html'], ['/neonduel', 'neonduel.html'], ['/leraarbaas', 'leraarbaas.html'], ['/cybergalaga', 'cybergalaga.html'], ['/bomberknight', 'bomberknight.html'], ['/rijk', 'rijk.html'], ['/oefenblad', 'oefenblad.html'], ['/oefenblad-print', 'oefenblad-print.html'], ['/klas', 'klas.html'], ['/zorg', 'zorg.html'], ['/runenraadsel', 'runenraadsel.html'], ['/netwerk', 'netwerk.html']]) {
   app.get(route, (req, res) => {
     if (!isLocal(req.socket.remoteAddress)) return res.status(403).send('Het docentenscherm is alleen bereikbaar op de pc van de leerkracht.');
     res.setHeader('Cache-Control', 'no-cache');
     res.sendFile(path.join(__dirname, 'public', page));
   });
 }
+// Het Runenraadsel voor leerlingen: elke dag te spelen op hun eigen toestel, ook als er geen spel loopt.
+app.get('/runen', (req, res) => {
+  res.setHeader('Cache-Control', 'no-cache');
+  res.sendFile(path.join(__dirname, 'public', 'runen.html'));
+});
 // Resultaten downloaden kan alleen op de pc van de leerkracht.
 app.get('/resultaten/:file', (req, res) => {
   if (!isLocal(req.socket.remoteAddress)) return res.status(403).end();
@@ -419,7 +427,24 @@ io.on('connection', socket => {
   // Eigen ridders: iedereen mag ze zien, een leerling stelt de zijne in.
   socket.on('avatars-get', (_, cb) => typeof cb === 'function' && cb(avatars.all()));
   socket.on('avatar-set', ({ name, avatar } = {}) => {
-    if (avatars.set(name, avatar)) io.emit('avatars', avatars.all());
+    // De runenkrans moet je verdienen in het Runenraadsel.
+    const av = avatar && typeof avatar === 'object' ? { ...avatar, runen: Math.min(Number(avatar.runen) || 0, runen.kransVan(name)) } : avatar;
+    if (avatars.set(name, av)) io.emit('avatars', avatars.all());
+  });
+
+  // Het Runenraadsel: de stand van een leerling en een poging. Het bord krijgt na elke poging de kleuren (nooit de letters).
+  socket.on('rn-get', (naam, cb) => {
+    if (typeof cb !== 'function') return;
+    try { cb({ ok: true, ...runen.view(naam) }); } catch (err) { cb({ error: err.message }); }
+  });
+  socket.on('rn-raad', (arg, cb) => {
+    if (typeof cb !== 'function') return;
+    try {
+      cb({ ok: true, ...runen.raad(arg) });
+      io.to('host').emit('rn-bord', runen.bord());
+    } catch (err) {
+      cb({ error: err.message, onbekend: !!err.onbekend });
+    }
   });
 
 
@@ -590,6 +615,22 @@ io.on('connection', socket => {
     socket.on('generate', ({ prompt, files } = {}, cb) => {
       generateQuiz(prompt, files)
         .then(quiz => cb && cb({ ok: true, quiz }))
+        .finally(() => io.to('host').emit('settings', settings.publicView()))
+        .catch(err => cb && cb({ error: err.message }));
+    });
+
+    // Het Runenraadsel op het bord, en de woorden van de week.
+    socket.on('rn-bord', handle(() => ({ bord: runen.bord() })));
+    socket.on('rn-onthul', handle(() => runen.onthul()));
+    socket.on('rn-lijst-get', handle(() => ({ lijst: runen.lijstView(), doelen: doelen.all().filter(d => d.vak === 'Nederlands' && String(d.leerjaar) === String(klas.read().leerjaar)) })));
+    socket.on('rn-lijst-save', handle(arg => {
+      const lijst = runen.bewaarLijst(arg || {});
+      io.to('host').emit('rn-bord', runen.bord());
+      return { lijst };
+    }));
+    socket.on('rn-lijst-ai', ({ text } = {}, cb) => {
+      runen.vulAan(text, gemini, aiJson)
+        .then(res => cb && cb({ ok: true, ...res }))
         .finally(() => io.to('host').emit('settings', settings.publicView()))
         .catch(err => cb && cb({ error: err.message }));
     });

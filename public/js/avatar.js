@@ -12,6 +12,8 @@ const Avatar = (() => {
   const ARMORS = [{ name: 'Klassiek' }, { name: 'Cyber' }, { name: 'Goud' }, { name: 'Mecha' }, { name: 'Kristal' }];
   const BACKS = [{ name: 'Cape' }, { name: 'Jetpack' }, { name: 'Lichtvleugels' }, { name: 'Niets' }, { name: 'Drone' }];
   const ARMS = [{ name: 'Gewone arm' }, { name: 'Robotarm' }];
+  // De runenkrans verdien je in het Runenraadsel (de server controleert hoeveel runen je hebt).
+  const RUNES = [{ name: 'Geen krans' }, { name: 'Runengloed' }, { name: 'Zilveren runen' }, { name: 'Gouden runen' }, { name: 'Sterrenrunen' }];
   // Helmen waaronder je het gezicht en het haar ziet.
   const OPEN = [4, 5, 7, 8];
 
@@ -48,13 +50,14 @@ const Avatar = (() => {
   const KEYS = {
     helm: HELMS.length, accent: ACCENTS.length, kleur: COLORS.length, vizier: VISORS.length,
     patroon: PATTERNS.length, schild: SHIELDS.length, wapen: WEAPONS.length, huid: SKINS.length,
-    type: TYPES.length, haar: HAIRS.length, haarkleur: HAIR_COLORS.length, harnas: ARMORS.length, rug: BACKS.length, arm: ARMS.length,
+    type: TYPES.length, haar: HAIRS.length, haarkleur: HAIR_COLORS.length, harnas: ARMORS.length, rug: BACKS.length, arm: ARMS.length, runen: RUNES.length,
   };
 
   const pick = n => Math.floor(Math.random() * n);
   function random() {
     const av = {};
     for (const [k, n] of Object.entries(KEYS)) av[k] = pick(n);
+    av.runen = 0;
     if (av.schild === av.kleur % SHIELDS.length) av.schild = (av.schild + 1) % SHIELDS.length;
     return av;
   }
@@ -871,6 +874,73 @@ const Avatar = (() => {
     }
   }
 
+  // De runenkrans: een gloeiende ring met runentekens achter de ridder. Hoe meer runen, hoe rijker.
+  const RUNE_COLORS = ['', '#4cc9ff', '#e6ecf7', '#ffc94a', '#c77dff'];
+  // Runentekens als lijntjes in een vakje van 1 bij 1.4.
+  const GLYPHS = [
+    [[0, 0, 0, 1.4], [0, 0, .7, .35], [.7, .35, 0, .7], [0, .7, .7, 1.4]],
+    [[.35, 0, .35, 1.4], [.35, .3, .8, 0], [.35, .3, -.1, 0]],
+    [[0, 0, 0, 1.4], [.7, 0, .7, 1.4], [0, .5, .7, .9]],
+    [[.35, 0, .35, 1.4], [.35, .2, .8, .55], [.35, .55, .8, .9]],
+    [[0, 1.4, .35, 0], [.35, 0, .7, 1.4], [.15, .8, .55, .8]],
+    [[.35, 0, .7, .45], [.7, .45, .35, .9], [.35, .9, 0, .45], [0, .45, .35, 0], [0, 1.4, .35, .9], [.35, .9, .7, 1.4]],
+  ];
+  function drawRunes(g, lv) {
+    if (!lv) return;
+    const col = RUNE_COLORS[lv];
+    const cx = 6, cy = 7.4, r = 5.4;
+    g.save();
+    const glow = g.createRadialGradient(cx, cy, r * .3, cx, cy, r + .6);
+    glow.addColorStop(0, 'rgba(0,0,0,0)');
+    glow.addColorStop(.75, col + '33');
+    glow.addColorStop(.92, col + '66');
+    glow.addColorStop(1, 'rgba(0,0,0,0)');
+    g.fillStyle = glow;
+    g.beginPath();
+    g.arc(cx, cy, r + .6, 0, Math.PI * 2);
+    g.fill();
+    g.shadowColor = col;
+    g.shadowBlur = lv >= 3 ? 1.4 : .9;
+    g.lineCap = 'round';
+    const rings = lv >= 3 ? [r, r - .9] : [r];
+    for (const rr of rings) {
+      g.beginPath();
+      g.arc(cx, cy, rr, 0, Math.PI * 2);
+      g.strokeStyle = lv === 4 ? '#7fe3ff' : col;
+      g.globalAlpha = rr === r ? .9 : .5;
+      g.lineWidth = rr === r ? .16 : .1;
+      g.stroke();
+    }
+    g.globalAlpha = 1;
+    // Runen op de ring, schuin mee met de cirkel. Bij Sterrenrunen wisselen de kleuren.
+    const n = 6 + lv * 2;
+    for (let i = 0; i < n; i++) {
+      const a = -Math.PI / 2 + (i / n) * Math.PI * 2;
+      g.save();
+      g.translate(cx + Math.cos(a) * (r + .02), cy + Math.sin(a) * (r + .02));
+      g.rotate(a + Math.PI / 2);
+      g.scale(.55, .55);
+      g.translate(-.35, -.7);
+      g.beginPath();
+      for (const [x1, y1, x2, y2] of GLYPHS[i % GLYPHS.length]) { g.moveTo(x1, y1); g.lineTo(x2, y2); }
+      g.strokeStyle = lv === 4 ? (i % 2 ? '#7fe3ff' : '#ff8ff0') : '#ffffff';
+      g.lineWidth = .32;
+      g.stroke();
+      g.restore();
+    }
+    if (lv === 4) {
+      // Sterrenrunen: een paar fonkelende sterretjes rond de krans.
+      g.fillStyle = '#fff';
+      for (const [x, y, s] of [[1, 2.6, .5], [11.1, 3.4, .4], [.8, 11.6, .35], [11.2, 11, .5], [6, 1.2, .4]]) {
+        g.beginPath();
+        g.moveTo(x, y - s); g.lineTo(x + s * .25, y - s * .25); g.lineTo(x + s, y); g.lineTo(x + s * .25, y + s * .25);
+        g.lineTo(x, y + s); g.lineTo(x - s * .25, y + s * .25); g.lineTo(x - s, y); g.lineTo(x - s * .25, y - s * .25);
+        g.fill();
+      }
+    }
+    g.restore();
+  }
+
   function drawKnight(g, k, av, opts) {
     const a = clean(av) || random();
     const pal = palette(a, opts);
@@ -880,6 +950,7 @@ const Avatar = (() => {
     const cape = a.rug === 0 || a.rug === 4;
     g.save();
     g.scale(k, k);
+    drawRunes(g, a.runen);
     if (opts.back) {
       // Van achteren: het wapen over de schouder, de cape (of het rugstuk) met het schild erop.
       if (a.rug === 2) drawBackItem(d, pal, a.rug, true);
@@ -982,7 +1053,7 @@ const Avatar = (() => {
   }
 
   return {
-    COLORS, VISORS, SHIELDS, SKINS, HAIR_COLORS, TYPES, HAIRS, ARMORS, BACKS, ARMS, OPEN, HELMS, ACCENTS, PATTERNS, WEAPONS, KEYS,
+    COLORS, VISORS, SHIELDS, SKINS, HAIR_COLORS, TYPES, HAIRS, ARMORS, BACKS, ARMS, RUNES, OPEN, HELMS, ACCENTS, PATTERNS, WEAPONS, KEYS,
     random, clean, sprite, head, chip, byName, setAll, setMine, mine: () => mine, all: () => all, onChange: fn => listeners.push(fn),
   };
 })();

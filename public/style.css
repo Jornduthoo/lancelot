@@ -370,6 +370,8 @@ span.play { padding: 13px 22px; display: flex; align-items: center; }
 .player .mini img { width: 44px; height: 44px; border-radius: 50%; box-shadow: 0 0 0 2px rgba(76, 201, 255, .55), 0 0 12px var(--cyan-glow); animation: mark-glow 3.5s ease-in-out infinite; }
 .player .mini .wordmark { font-size: 1.5rem; }
 .player .welcome img { width: min(300px, 72vw); display: block; margin: 0 auto; filter: drop-shadow(0 0 22px var(--cyan-glow)); animation: float 6s ease-in-out infinite, logo-glow 3.5s ease-in-out infinite; }
+.player .rn-knop { display: flex; align-items: center; justify-content: center; gap: 10px; text-decoration: none; background: linear-gradient(90deg, rgba(199, 125, 255, .35), rgba(76, 201, 255, .25)); border: 1px solid #c77dff; box-shadow: 0 0 18px rgba(199, 125, 255, .35); color: #fff; font-weight: 800; }
+.player .welcome .rn-knop img { width: 36px; height: 36px; border-radius: 8px; margin: 0; animation: none; filter: none; }
 .player .screen { display: flex; flex-direction: column; gap: 16px; text-align: center; align-items: stretch; }
 .player .title { font-family: var(--head); font-weight: 900; font-size: 2rem; }
 .player input#name { font-size: 1.3rem; padding: 14px; text-align: center; border: 1px solid var(--cyan); background: rgba(10, 20, 38, .9); color: var(--text); box-shadow: 0 0 18px var(--cyan-glow); }
@@ -1469,6 +1471,8 @@ body[data-du="1"] .sj-card { background: linear-gradient(180deg, rgba(36, 22, 40
 .av-tile canvas { width: 56px; height: auto; }
 .av-tile.head canvas { width: 64px; }
 .av-tile.shield canvas { width: 40px; }
+.av-runen-uitleg { margin: 0 0 8px; font-size: .9rem; }
+.av-tile.locked { opacity: .45; filter: grayscale(.8); cursor: not-allowed; }
 .av-tile.weapon canvas { width: 46px; }
 .av-tile:hover { box-shadow: inset 0 0 0 1px rgba(76, 201, 255, .6); }
 .av-tile.on { box-shadow: inset 0 0 0 2px #ffc94a, 0 0 16px rgba(255, 201, 74, .45); background: radial-gradient(circle at 50% 40%, rgba(255, 201, 74, .22), rgba(255, 255, 255, .04) 70%); }
