@@ -174,6 +174,30 @@ Tip: leg vooraf uit dat je in de pitstop stilstaat. Wie de vragen kent, tankt sn
 
 Tip: wie instort, begint meteen opnieuw (−25 punten). Zwakkere spelers halen dus vooral punten met juiste antwoorden.
 
+## Poortwacht
+
+1. Kies op het startscherm **De Arena** en dan **Poortwacht**, kies de speeltijd (1 tot 10 minuten) en klik op de quiz.
+2. Leerlingen scannen de QR-code; elk krijgt een eigen torenplaats. Klik op **Verdedig de poort!**
+3. De vragen staan altijd naast de kaart. Goede antwoorden geven goud: bouwen kost 40, daarna telkens meer per niveau. Chromebook: 1-4 antwoorden, U toren sterker, spatie bliksem.
+4. Op het bord zie je het pad, alle torens met de naam van hun bouwer, de monsters en de poort. Op het einde komt de draak.
+
+Tip: een klas die goed en vlot antwoordt, houdt de poort. Bij veel foute antwoorden valt de poort, en dat is een mooi gesprek waard.
+
+## Neonvlucht
+
+1. Kies **De Arena** en dan **Neonvlucht**, kies de speeltijd en klik op de quiz. Klik op **Rennen!**
+2. Leerlingen rennen meteen. Chromebook: ← → opzij, ↑ of spatie springen, ↓ glijden. Gsm: vegen.
+3. Bij een vraagpoort vertraagt alles: loop door de baan met het juiste antwoord (of druk 1-3).
+4. Het bord volgt de koploper; de anderen lopen als schimmen mee.
+
+## Diepboor
+
+1. Kies **De Arena** en dan **Diepboor**, kies de speeltijd en klik op de quiz. Klik op **Start de boren!**
+2. Leerlingen beginnen met een halve tank. Goede antwoorden geven brandstof; de vragen staan naast de mijn.
+3. Chromebook: pijltjes of WASD (omlaag = graven, omhoog = vliegen), T = teleport naar boven. Gsm: duim op de mijn.
+4. Wie bovenaan komt, verkoopt zijn stenen vanzelf en kan in de smidse een betere boor, tank, laadruim of pantser kopen.
+5. Op het bord zie je alle mijnen naast elkaar: wie diep zit, wie veel gangen graaft, en waar elke boor nu is.
+
 ## Voorkennis activeren
 
 1. Klik op het startscherm op **Voorkennis activeren**.
