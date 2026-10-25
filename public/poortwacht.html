@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LANcelot · Poortwacht</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/arena.css">
+</head>
+<body class="sj-host pw-wide">
+<main>
+  <div class="topbar">
+    <div class="brand" id="brand" title="Naar het startscherm">
+      <img src="/img/mark.webp" alt="">
+      <div>
+        <div class="wordmark">LAN<span>celot</span></div>
+        <div class="subtitle" id="status">Poortwacht</div>
+      </div>
+    </div>
+    <div class="actions">
+      <span class="join-mini hidden" id="join-mini"></span>
+      <button class="secondary icon" id="mute" title="Geluid aan/uit">🔊</button>
+      <button class="secondary hidden" id="stop">Stop het spel</button>
+    </div>
+  </div>
+
+  <section id="setup">
+    <div class="bar">
+      <h2>Poortwacht</h2>
+      <div class="actions">
+        <button class="secondary" id="to-home">Terug</button>
+        <button class="secondary" data-make="leeg">Lege quiz</button>
+        <button data-make="ai">Nieuwe quiz met AI</button>
+      </div>
+    </div>
+    <div class="panel tw-intro">
+      <img class="game-logo" src="/img/icons/poortwacht.webp" alt="">
+      <div>
+        <p>De hele klas verdedigt samen de <strong>burchtpoort</strong>. Langs het kronkelpad heeft elke leerling een eigen <strong>torenplaats</strong>. Golven scifi-monsters marcheren uit het portaal naar de poort, en op het einde komt de 🐉 <strong>draak</strong>.</p>
+        <p><strong>Goud verdien je alleen met goede antwoorden.</strong> Daarmee bouw je een 🔷 lasertoren, ☄️ plasmakatapult of ❄️ ijstoren en verbeter je hem tot niveau 5. Drie juist op rij: een ⚡ bliksem rond je toren.</p>
+        <p class="muted">Houdt de poort stand tot de tijd om is, dan wint de klas. Punten: 50 per goed antwoord, plus de schade van je toren en de monsters die hij verslaat. Tegen gokken: na een fout antwoord even wachten (het juiste antwoord blijft staan), en die vraag komt later terug. Elk antwoord komt in het logboek.</p>
+      </div>
+    </div>
+    <div class="panel form">
+      <label>Speeltijd
+        <select id="pw-minutes">
+          <option value="1">1 minuut</option>
+          <option value="2">2 minuten</option>
+          <option value="3">3 minuten</option>
+          <option value="4">4 minuten</option>
+          <option value="5">5 minuten</option>
+          <option value="6" selected>6 minuten</option>
+          <option value="8">8 minuten</option>
+          <option value="10">10 minuten</option>
+        </select>
+      </label>
+      <label>Tempo van de vragen
+        <select id="pw-tempo" class="tempo-select">
+          <option value="rustig">Rustig: meer goud per antwoord</option>
+          <option value="normaal" selected>Normaal</option>
+          <option value="intens">Intens: minder goud per antwoord</option>
+        </select>
+      </label>
+      <p class="muted small">Kies hieronder de quiz waaruit de vragen komen. Hoe langer het spel, hoe sterker de draak op het einde.</p>
+    </div>
+    <p class="notice hidden" id="stopped"></p>
+    <div class="quiz-list" id="quiz-list"></div>
+    <p class="error" id="load-error"></p>
+  </section>
+
+  <section id="lobby" class="hidden">
+    <div class="panel join">
+      <div class="qr" id="qr"></div>
+      <div class="join-text">
+        <p class="muted">Scan de QR-code of surf naar</p>
+        <div class="join-url" id="join-url"></div>
+        <p class="muted small" id="other-urls"></p>
+      </div>
+    </div>
+    <div class="bar">
+      <h2><span class="count" id="player-count">0</span> <span id="player-word">verdedigers</span> klaar</h2>
+      <button class="gold big" id="start" disabled>Verdedig de poort!</button>
+    </div>
+    <p class="muted small">Klik op een naam om die speler te verwijderen. Wie later binnenkomt, krijgt meteen een vrije torenplaats.</p>
+    <div class="names" id="names"></div>
+  </section>
+
+  <section id="play" class="hidden">
+    <div class="hud">
+      <span class="round" id="p-title"></span>
+      <span class="ry-big"><b id="p-alive"></b></span>
+      <span class="tw-clock" id="p-clock"></span>
+      <button class="secondary" id="p-finish">Nu stoppen</button>
+    </div>
+    <div class="ak-board">
+      <div class="ak-stage"><canvas id="p-canvas"></canvas><div class="bb-banner hidden" id="p-banner"></div></div>
+      <div class="tw-side">
+        <div class="panel bb-builders"><p class="muted small">Verdedigers · punten</p><ol id="p-top"></ol></div>
+        <ul class="tw-feed" id="p-feed"></ul>
+      </div>
+    </div>
+    <div class="sj-countdown hidden" id="p-countdown"></div>
+  </section>
+
+  <section id="podium" class="hidden">
+    <div class="center"><h2 id="w-title"></h2><p class="muted" id="w-why"></p></div>
+    <ol class="ranking" id="final"></ol>
+    <p class="center muted" id="results-saved"></p>
+    <div class="bar">
+      <button class="secondary" id="restart">Nog een keer</button>
+      <button id="close">Andere quiz kiezen</button>
+    </div>
+  </section>
+</main>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/fx.js"></script>
+<script src="/js/avatar.js"></script>
+<script src="/js/quiz-links.js"></script>
+<script src="/js/quiz-list.js"></script>
+<script src="/js/arena-kit.js"></script>
+<script src="/js/pw-world.js"></script>
+<script src="/js/pw-draw.js"></script>
+<script src="/js/pw-host.js"></script>
+<script src="/js/address.js"></script>
+<script src="/js/overzicht.js"></script>
+</body>
+</html>
