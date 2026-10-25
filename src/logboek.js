@@ -135,6 +135,41 @@ function summary() {
   };
 }
 
+// Gokken (drie keer na elkaar snel en fout) bewaren we apart, voor het zorgoverzicht: logboek/<schooljaar>-gok.jsonl.
+function gokFile(now) {
+  return path.join(DIR, `${schooljaar(now)}-gok.jsonl`);
+}
+
+function gok(spel, naam) {
+  const now = new Date();
+  const leerling = klas.match(naam);
+  try {
+    fs.mkdirSync(DIR, { recursive: true });
+    fs.appendFileSync(gokFile(now), JSON.stringify({ t: now.toISOString(), leerling: leerling ? leerling.id : null, naam, spel }) + '\n');
+  } catch (err) {
+    console.error('Gokken bijhouden mislukt:', err.message);
+  }
+}
+
+// Een klein bestand: helemaal opnieuw lezen als het veranderd is.
+let gokCache = { path: '', size: -1, list: [] };
+function readGok(now) {
+  const p = gokFile(now);
+  let size = 0;
+  try { size = fs.statSync(p).size; } catch { return []; }
+  if (gokCache.path !== p || gokCache.size !== size) {
+    const list = [];
+    try {
+      for (const l of fs.readFileSync(p, 'utf8').split('\n')) {
+        if (!l) continue;
+        try { list.push(JSON.parse(l)); } catch {}
+      }
+    } catch {}
+    gokCache = { path: p, size, list };
+  }
+  return gokCache.list;
+}
+
 process.on('exit', flush);
 
-module.exports = { add, answer, flush, endSession, read, summary, schooljaar, DIR };
+module.exports = { add, answer, flush, endSession, read, summary, schooljaar, gok, readGok, DIR };

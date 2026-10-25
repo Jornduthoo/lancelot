@@ -205,6 +205,18 @@ Elk oefenblad en elke quiz kan drie niveaus hebben: **🪶 Page** (met hulp), **
 
 De doelen van Op.stap (versie 1.3, G-doelen en plusdoelen) staan erin voor elk leerjaar, van de 1e kleuterklas tot het 6e leerjaar, en voor alle vakken: wiskunde, Nederlands, Frans (5e en 6e leerjaar), wetenschap en techniek, aardrijkskunde, geschiedenis, ICT, veilige en gezonde levensstijl, muzische vorming, LO en motoriek, sociaal-emotioneel leren, leren leren en rooms-katholieke godsdienst. Standaard zie je de doelen van het leerjaar van je klas. Wil je doelen van een ander leerjaar (bijvoorbeeld van vorig jaar herhalen), kies dan bij **Doelen van** in de quizmaker of de oefenbladmaker, of bij **Leerjaar** op de pagina Mijn klas, een ander leerjaar. Sociaal-emotioneel leren, leren leren en godsdienst zijn er voor gesprekken (de Ronde Tafel): die doelen krijgen geen score op de doelenkaart of in het overzicht. De doelen zijn automatisch overgenomen uit de Op.stap-pdf's; de officiële versie staat in de Op.stap-leerplantool. De routedoelen per fase (P, S, V, Z, A) staan er niet in.
 
+## Zorgoverzicht
+
+Klik op het startscherm (of in Mijn klas) op **Zorgoverzicht**. Je ziet in één oogopslag welke leerlingen uitvallen:
+
+- **Rood** (aandacht nodig): minder dan 50% juist bij de laatste 20 antwoorden, of 20 procentpunten of meer onder de klas op dezelfde vragen.
+- **Oranje** (opvolgen): 10 procentpunten onder de klas, gaat achteruit in de laatste lessen, 3 of meer doelen nog niet beheerst, of gokte meermaals.
+- **Groen**: mee met de klas. **Grijs**: nog te weinig antwoorden.
+
+Elke leerling wordt vergeleken met de klas op dezelfde vragen, dus een moeilijke quiz kleurt niemand onterecht rood. Het lijntje toont elke les de leerling tegenover de klas. Klik een leerling aan voor zijn scores per vak, de doelen die nog niet lukken en de laatste lessen. Bij genoeg antwoorden krijg je een **niveau-advies** (Page, Schildknaap of Ridder) dat je met één klik instelt.
+
+Onderaan: **Klassikaal herhalen** (doelen waar 4 op 10 leerlingen of meer nog niet mee zijn) en **Groepjes voor verlengde instructie** (doelen waar maar een paar leerlingen vastzitten, met hun namen). Kies bovenaan de periode (2 weken, 6 weken of heel het schooljaar) en eventueel een vak. Alles blijft op deze pc.
+
 ## Opwarmer
 
 Start je les met een paar herhaalvragen uit vorige lessen. Kort ophalen wat je vroeger leerde, is een van de beste manieren om het te onthouden.

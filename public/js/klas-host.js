@@ -11,6 +11,7 @@ let perDoel = {};
 
 $('brand').addEventListener('click', () => { location.href = '/host'; });
 $('to-home').addEventListener('click', () => { location.href = '/host'; });
+$('to-zorg').addEventListener('click', () => { location.href = '/zorg'; });
 
 function loadKlas() {
   socket.emit('klas-get', null, res => {

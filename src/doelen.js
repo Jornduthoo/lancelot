@@ -33,8 +33,11 @@ function all() {
   return cache;
 }
 
+// Opzoeken per code gebeurt voor elk antwoord in het logboek: daarom een Map.
+let byCode = null;
 function find(code) {
-  return all().find(d => d.code === code) || null;
+  if (!byCode) byCode = new Map(all().map(d => [d.code, d]));
+  return byCode.get(code) || null;
 }
 
 // Een doelcode uit een quiz of oefenblad: geldig, of leeg.
