@@ -1,6 +1,7 @@
 // Een oefenblad tekenen. Gedeeld door de leerling (invullen), het bord (bekijken) en het printblad.
 // view: het blad zonder oplossingen (zoals de server het naar leerlingen stuurt).
-// opts: { mode: 'live' | 'view' | 'print', answers, results, solutions, key, onAnswer(id, value) }
+// opts: { mode: 'live' | 'view' | 'print', answers, results, solutions, key, onAnswer(id, value), voorlees }
+// voorlees: 🔊-knopjes die de opdracht en de vragen voorlezen (Voorlees uit voorlees.js).
 const ObSheet = (() => {
   const NAMES = {
     tekst: 'Lees', invullen: 'Invullen', meerkeuze: 'Meerkeuze', juistfout: 'Juist of fout', verbinden: 'Verbinden',
@@ -17,14 +18,30 @@ const ObSheet = (() => {
     const key = mode === 'print' && opts.key;
     const live = mode === 'live';
     let n = 0;
+    // Wat elk 🔊-knopje voorleest. Een open vakje leest als een pauze.
+    const said = [];
+    const talk = mode !== 'print' && opts.voorlees && typeof Voorlees !== 'undefined' && Voorlees.ok;
+    const say = text => talk ? `<button type="button" class="ob-say" data-say="${said.push(text) - 1}" title="Lees voor" aria-label="Lees voor">🔊</button>` : '';
+    const gaps = parts => parts.map(part => typeof part === 'string' ? part : ' … ').join('');
+    const block = b => {
+      if (b.type === 'invullen') return gaps(b.parts);
+      if (b.type === 'meerkeuze') return b.items.map(q => q.question).join('\n');
+      if (b.type === 'juistfout') return b.items.map(q => q.statement).join('\n');
+      if (b.type === 'verbinden') return [...b.left, 'Kies uit:', ...b.right.map((r, j) => `${LETTERS[j]}: ${r}`)].join('\n');
+      if (b.type === 'woorden') return b.items.map(q => q.prompt).join('\n');
+      if (b.type === 'overschrijven') return b.lines.join('\n');
+      if (b.type === 'open') return b.items.map(q => q.question).join('\n');
+      return '';
+    };
+    const choices = q => `${q.question}\n${q.options.map((o, j) => `${LETTERS[j]}: ${o}`).join('\n')}`;
     let html = `<header class="ob-head"><h1>${esc(view.title)}</h1>${mode === 'print' ? '<div class="ob-meta"><span>Naam: <i></i></span><span>Klas: <i class="short"></i></span><span>Datum: <i class="short"></i></span></div>' : ''}</header>`;
     view.blocks.forEach((b, bi) => {
       if (b.type === 'tekst') {
-        html += `<section class="ob-block ob-tekst">${b.title ? `<h2>${esc(b.title)}</h2>` : ''}${paras(b.text)}</section>`;
+        html += `<section class="ob-block ob-tekst">${b.title || talk ? `<h2>${say([b.title, b.text].filter(Boolean).join('\n'))}${esc(b.title || '')}</h2>` : ''}${paras(b.text)}</section>`;
         return;
       }
       n++;
-      html += `<section class="ob-block ob-${b.type}"><h2><span class="ob-num">${n}</span> ${esc(b.instruction)} <small>${NAMES[b.type]}</small></h2>`;
+      html += `<section class="ob-block ob-${b.type}"><h2><span class="ob-num">${n}</span>${say(`${b.instruction}\n${block(b)}`)} ${esc(b.instruction)} <small>${NAMES[b.type]}</small></h2>`;
       if (b.type === 'invullen') {
         html += '<p class="ob-gaps">' + b.parts.map(part => {
           if (typeof part === 'string') return esc(part).replace(/\n/g, '<br>');
@@ -34,7 +51,7 @@ const ObSheet = (() => {
       } else if (b.type === 'meerkeuze') {
         html += '<ol class="ob-items">' + b.items.map((q, i) => {
           const id = `${bi}.${i}`;
-          return `<li><p>${esc(q.question)}</p><div class="ob-choices" data-field="${id}">${q.options.map((o, j) =>
+          return `<li><p>${say(choices(q))}${esc(q.question)}</p><div class="ob-choices" data-field="${id}">${q.options.map((o, j) =>
             mode === 'print'
               ? `<span class="ob-check${key && sol[id] === j ? ' on' : ''}">${LETTERS[j]}</span> ${esc(o)}`
               : `<button type="button" class="ob-choice${String(answers[id]) === String(j) ? ' on' : ''}" data-value="${j}"${live ? '' : ' disabled'}><b>${LETTERS[j]}</b> ${esc(o)}</button>`).join(mode === 'print' ? '<br>' : '')}</div></li>`;
@@ -42,7 +59,7 @@ const ObSheet = (() => {
       } else if (b.type === 'juistfout') {
         html += '<ol class="ob-items">' + b.items.map((q, i) => {
           const id = `${bi}.${i}`;
-          return `<li class="ob-jf"><p>${esc(q.statement)}</p><div class="ob-choices" data-field="${id}">${['J', 'F'].map(v =>
+          return `<li class="ob-jf"><p>${say(q.statement)}${esc(q.statement)}</p><div class="ob-choices" data-field="${id}">${['J', 'F'].map(v =>
             mode === 'print'
               ? `<span class="ob-check${key && sol[id] === v ? ' on' : ''}">${v}</span>`
               : `<button type="button" class="ob-choice${answers[id] === v ? ' on' : ''}" data-value="${v}"${live ? '' : ' disabled'}>${v === 'J' ? 'Juist' : 'Fout'}</button>`).join(' ')}</div></li>`;
@@ -61,28 +78,37 @@ const ObSheet = (() => {
       } else if (b.type === 'woorden') {
         html += '<ol class="ob-items ob-words">' + b.items.map((q, i) => {
           const id = `${bi}.${i}`;
-          return `<li><span>${esc(q.prompt)}</span>${mode === 'print'
+          return `<li><span>${say(q.prompt)}${esc(q.prompt)}</span>${mode === 'print'
             ? `<span class="ob-line wide">${key ? esc(sol[id] ?? '') : ''}</span>`
             : `<input class="ob-field" data-field="${id}" autocomplete="off" autocapitalize="off" spellcheck="false" value="${esc(answers[id] ?? '')}"${live ? '' : ' readonly'}>`}</li>`;
         }).join('') + '</ol>';
       } else if (b.type === 'overschrijven') {
         html += '<ol class="ob-items ob-copy">' + b.lines.map((l, i) => {
           const id = `${bi}.${i}`;
-          return `<li><p class="ob-model">${esc(l)}</p>${mode === 'print'
+          return `<li><p class="ob-model">${say(l)}${esc(l)}</p>${mode === 'print'
             ? '<div class="ob-writing"></div>'
             : `<input class="ob-field" data-field="${id}" autocomplete="off" autocapitalize="off" spellcheck="false" value="${esc(answers[id] ?? '')}"${live ? '' : ' readonly'}>`}</li>`;
         }).join('') + '</ol>';
       } else if (b.type === 'open') {
         html += '<ol class="ob-items">' + b.items.map((q, i) => {
           const id = `${bi}.${i}`;
-          return `<li><p>${esc(q.question)}</p>${mode === 'print'
+          return `<li><p>${say(q.question)}${esc(q.question)}</p>${mode === 'print'
             ? '<div class="ob-lines">' + '<i></i>'.repeat(q.lines) + '</div>'
             : `<textarea class="ob-field" data-field="${id}" rows="${Math.min(6, q.lines)}"${live ? '' : ' readonly'}>${esc(answers[id] ?? '')}</textarea>`}</li>`;
         }).join('') + '</ol>';
       }
       html += '</section>';
     });
+    if (typeof Voorlees !== 'undefined') Voorlees.stop();
     box.innerHTML = html;
+    box.obSaid = said;
+    if (talk && !box.obSayWired) {
+      box.obSayWired = true;
+      box.addEventListener('click', e => {
+        const b = e.target.closest('.ob-say');
+        if (b) Voorlees.speak(box.obSaid[b.dataset.say], b);
+      });
+    }
     if (mode !== 'print') mark(box, opts.results || {}, opts.solutions, view);
     if (live) wire(box, opts.onAnswer);
   }

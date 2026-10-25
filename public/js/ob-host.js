@@ -65,7 +65,7 @@ ItemList.mount($('sheet-list'), {
 
 function goLive(file) {
   $('stopped').classList.add('hidden');
-  loadGame('ob-load', { file, feedback: $('ob-feedback').value, niveau: $('ob-niveau').value }, res => {
+  loadGame('ob-load', { file, feedback: $('ob-feedback').value, niveau: $('ob-niveau').value, voorlees: $('ob-voorlees').value }, res => {
     $('list-error').textContent = res.error || '';
     $('e-error').textContent = res.error || '';
   });

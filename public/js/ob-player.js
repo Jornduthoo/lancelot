@@ -4,6 +4,7 @@ const ob = { state: null, joined: false, run: -1, answers: {}, results: {}, rend
 
 function obShow(name) {
   for (const s of ['ob-join', 'ob-choose', 'ob-work']) $(s).classList.toggle('hidden', s !== name);
+  if (name !== 'ob-work') Voorlees.stop();
 }
 
 function obJoin(name) {
@@ -29,6 +30,7 @@ socket.on('ob-state', s => {
   ob.state = s;
   document.body.dataset.ob = s.active ? '1' : '';
   if (!s.active) {
+    Voorlees.stop();
     ob.joined = false;
     return;
   }
@@ -68,7 +70,7 @@ socket.on('ob-state', s => {
   $('ob-who').append(s.name);
   if (s.niveau) $('ob-who').insertAdjacentHTML('beforeend', ` <span class="ob-niveau-tag ${s.niveau}">${Niveau.label(s.niveau)}</span>`);
   // Een ander niveau is een ander blad: opnieuw tekenen.
-  const key = `${s.run}:${s.niveau || ''}`;
+  const key = `${s.run}:${s.niveau || ''}:${s.voorlees ? 1 : 0}`;
   if (ob.rendered !== key) {
     ob.rendered = key;
     obRender();
@@ -95,6 +97,7 @@ function obRender() {
     answers: ob.answers,
     results: s.feedback === 'direct' || done ? (done ? ob.report.results : ob.results) : {},
     solutions: done && ob.report.solutions,
+    voorlees: s.voorlees,
     onAnswer: obSend,
   });
 }

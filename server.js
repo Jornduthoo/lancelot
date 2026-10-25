@@ -1069,10 +1069,10 @@ io.on('connection', socket => {
         .finally(() => io.to('host').emit('settings', settings.publicView()))
         .catch(err => cb && cb({ error: err.message }));
     });
-    socket.on('ob-load', handle(({ file, feedback, niveau } = {}) => {
+    socket.on('ob-load', handle(({ file, feedback, niveau, voorlees } = {}) => {
       const busy = busyWith('oefenblad');
       if (busy) throw busyError(busy);
-      oefenblad.load(oefenbladen.load(file), file, feedback, niveau);
+      oefenblad.load(oefenbladen.load(file), file, feedback, niveau, voorlees);
       return {};
     }));
     socket.on('ob-reveal', () => oefenblad.reveal());
