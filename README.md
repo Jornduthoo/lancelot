@@ -11,14 +11,14 @@ Het thema: middeleeuws met een scifi-kantje. Het startscherm heeft drie grote te
    - **Laserslag**: lasergevecht rood tegen blauw of ieder voor zich; munitie verdien je met goede antwoorden. Elke leerling kiest zelf het zicht: van bovenaf, achter de ridder of first person
    - **Ridderrace**: een racegame in 3D op hoverrossen; goede antwoorden vullen je tank en geven turbo
    - **Kristalroof**: mijn kristallen met goede antwoorden, open kisten en kraak de kluis van een ander met diens geheime woord
-   - **De Verrader**: zoals Among Us. Ridders herstellen de kristalkern met goede antwoorden, de geheime verraders betoveren ze. Aan de Ronde Tafel praat de klas en stemt wie verbannen wordt
+   - **De Verrader**: ridders herstellen de kristalkern met goede antwoorden, de geheime verraders betoveren ze. Aan de Ronde Tafel praat de klas en stemt wie verbannen wordt
    - **Burchtbouwers**: de hele klas bouwt samen één burcht. Elk goed antwoord is een steen die je zelf op een deel van de burcht legt. Als de tijd om is, valt de draak aan
    - **Duel in de arena**: één tegen één op dezelfde vraag, wie eerst juist antwoordt slaat toe. Een toernooischema op het bord tot er één kampioen is
    - **Pac-Knight**: alle ridders samen in één neon doolhof. Raap kristallen en ontwijk de drones; een goed antwoord geeft een kracht waarmee jij op de drones jaagt
    - **Strijdrossen**: zoals Smash Karts. Hoverrossen in een 3D-gevechtsarena; lasers, raketten en mijnen krijg je alleen met goede antwoorden
    - **Cyber-Galaga**: elke leerling vliegt op zijn eigen toestel met een jetpack tegen golven cyberdraken. Een goed antwoord geeft een beloning naar keuze (dubbele laser, schild of bom); op het einde verslaat de hele klas samen de klasbaas met één gedeelde levensbalk
-   - **Bomber-Knight**: zoals Bomberman, tot dertig ridders in één burchtarena. Een mijn kost energie en energie verdien je met goede antwoorden; uit kratten komen kristallen, grotere ontploffingen en schilden
-   - **Neon Duel**: zoals Street Fighter. De klas speelt in twee teams, op het bord vechten twee grote ridders. Elk goed antwoord is een slag, snel juist een combo, drie op rij een supermove
+   - **Bomber-Knight**: tot dertig ridders in één burchtarena. Een mijn kost energie en energie verdien je met goede antwoorden; uit kratten komen kristallen, grotere ontploffingen en schilden
+   - **Neon Duel**: een vechtspel. De klas speelt in twee teams, op het bord vechten twee grote ridders. Elk goed antwoord is een slag, snel juist een combo, drie op rij een supermove
    - **Leraar-baas**: de leerkracht is de eindbaas, een reuzenridder op het bord. De klas valt samen aan met goede antwoorden, de leerkracht slaat terug
    - **Het Rijk**: een spel dat weken doorloopt. Teams veroveren les na les gebieden op een kaart; vragen over oudere leerstof komen terug om je land te verdedigen
 2. **De Ronde Tafel**, peilen met de hele klas: polls, stellingen, woordwolken, open vragen en schalen, live op het bord. Met de knop **💡 Voorkennis activeren** in De Ronde Tafel maak je met AI meteen een peiling voor het begin van een les.
@@ -59,7 +59,7 @@ Met **+ Nieuwe map** orden je je quizzen in mappen (per vak of klas). Sleep een 
 
 ### Exporteren en importeren
 
-Thuis voorbereiden op je laptop en in de klas op de bord-pc gebruiken? Met **⬇** naast een quiz, oefenblad of sessie bewaar je die als bestand. Met **⬇** naast een map exporteer je de hele map met de mappen erin, en **⬇ Alles exporteren** neemt alles mee, met de mappen erbij. Op de andere pc klik je op **⬆ Importeren** (of sleep je het bestand op de lijst, of op een map). Wat er al precies zo staat, wordt overgeslagen, dus je kan gerust opnieuw importeren. Je kan ook een gewoon quizbestand (`.json`) van een collega importeren.
+Thuis voorbereiden op je laptop en in de klas op de bord-pc gebruiken? Het makkelijkst is **Mijn lesmap** in Instellingen: kies op beide pc's dezelfde map in OneDrive of Google Drive. Quizzen, oefenbladen en Ronde Tafels blijven dan vanzelf gelijk (bij opstart en elke minuut). Klaslijst, logboek en resultaten gaan nooit mee. Liever met de hand? Met **⬇** naast een quiz, oefenblad of sessie bewaar je die als bestand. Met **⬇** naast een map exporteer je de hele map met de mappen erin, en **⬇ Alles exporteren** neemt alles mee, met de mappen erbij. Op de andere pc klik je op **⬆ Importeren** (of sleep je het bestand op de lijst, of op een map). Wat er al precies zo staat, wordt overgeslagen, dus je kan gerust opnieuw importeren. Je kan ook een gewoon quizbestand (`.json`) van een collega importeren.
 
 Met **Lege quiz** maak je zelf een quiz, en met **Bewerken** pas je een bestaande quiz aan. Dat kan ook rechtstreeks vanuit Schattenjacht en De prinses in de toren; na het opslaan kom je daar terug.
 
@@ -69,7 +69,7 @@ Maak gratis een sleutel aan op [aistudio.google.com/apikey](https://aistudio.goo
 
 ## De Ronde Tafel
 
-Stel de klas vragen en zie de antwoorden live op het bord, zoals bij Mentimeter. Leerlingen antwoorden anoniem via dezelfde QR-code.
+Stel de klas vragen en zie de antwoorden live op het bord. Leerlingen antwoorden anoniem via dezelfde QR-code.
 
 - **Meerkeuze** (ook voor stellingen): 2 tot 6 keuzes, met balken die live meegroeien. Leerlingen mogen van mening veranderen.
 - **Woordwolk**: elke leerling geeft tot 3 woorden; woorden die vaker voorkomen worden groter.
@@ -80,7 +80,7 @@ Klik op een woord of een kaartje om het te verbergen (handig bij flauwe antwoord
 
 ## Schattenjacht
 
-Elke leerling beantwoordt op eigen tempo vragen uit een quiz, zoals bij Gimkit. Een goed antwoord levert goud op, een fout kost een beetje goud. In de **schatkamer** koop je upgrades:
+Elke leerling beantwoordt op eigen tempo vragen uit een quiz. Een goed antwoord levert goud op, een fout kost een beetje goud. In de **schatkamer** koop je upgrades:
 
 - **Scherper zwaard**: meer goud per goed antwoord (10 → 25 → 60 → 150 → 400).
 - **Kroon van de reeks**: extra goud voor elk antwoord op rij goed.
@@ -91,7 +91,7 @@ Wie na de speeltijd (3 tot 15 minuten) het meeste goud heeft, wint. Op het bord 
 
 ## De prinses in de toren
 
-Een platformspel in Mario-stijl. Elke leerling klimt op de gsm met een ridder in dezelfde scifi-riddertoren, van platform naar platform, langs laserpoorten, drones en stekels. Wie geraakt wordt, valt een stuk naar beneden. Iedereen ziet de andere ridders live meeklimmen.
+Een platformspel. Elke leerling klimt op de gsm met een ridder in dezelfde scifi-riddertoren, van platform naar platform, langs laserpoorten, drones en stekels. Wie geraakt wordt, valt een stuk naar beneden. Iedereen ziet de andere ridders live meeklimmen.
 
 - **Elke sprong kost ⚡ energie.** Is de energie op, dan verschijnt een vraag uit de gekozen quiz: juist geeft +5 ⚡, fout +1 ⚡. Met de knop **⚡ Vraag** kan een leerling ook zelf energie tanken.
 - **Winnen:** wie als eerste de prinses bovenaan (verdieping 80) redt, wint. Redt niemand haar, dan wint wie het hoogst staat als de tijd om is (3 tot 15 minuten).
@@ -120,7 +120,7 @@ Een spel vol list, zoals Crypto Hack. Elke leerling kiest bij het begin een **ge
 
 ## De Verrader
 
-Een spel zoals Among Us, met de hele klas. Bij de start krijgt iedereen in het geheim een rol: **ridder** of **verrader** (1 verrader tot 7 spelers, 2 vanaf 8, 3 vanaf 16; of kies zelf). Minstens 3 spelers.
+Een spel vol geheimen, met de hele klas. Bij de start krijgt iedereen in het geheim een rol: **ridder** of **verrader** (1 verrader tot 7 spelers, 2 vanaf 8, 3 vanaf 16; of kies zelf). Minstens 3 spelers.
 
 - **Ridders** beantwoorden vragen. Elk goed antwoord herstelt de **kristalkern**. Is de kern vol, dan winnen de ridders. Elke 4 goede antwoorden krijgt een ridder een tip: de naam van iemand die zeker te vertrouwen is.
 - **Verraders** beantwoorden ook vragen, zodat niemand iets merkt, maar hun antwoorden helpen de kern niet. Na 3 goede antwoorden kunnen ze een ridder **betoveren**. Die wordt een geest: geesten stemmen niet meer, maar hun antwoorden helpen de kern nog.
@@ -140,7 +140,7 @@ Een samenwerkingsspel: de hele klas bouwt één burcht met zes delen (twee toren
 
 ## Pac-Knight
 
-Zoals Pac-Man, maar met de hele klas in één doolhof. Elke leerling speelt op zijn eigen gsm of Chromebook, het bord toont het hele doolhof.
+Met de hele klas in één doolhof. Elke leerling speelt op zijn eigen gsm of Chromebook, het bord toont het hele doolhof.
 
 - Elk vakje heeft een 💎 kristal. Gouden kristallen zijn 5 waard. Zijn de meeste op, dan groeien er nieuwe.
 - **Drones** jagen op de ridders. Wie gevangen wordt, verliest 5 kristallen en komt na 3 seconden terug op een plek ver van de drones.
@@ -163,7 +163,7 @@ Zoals Smash Karts: elke leerling rijdt op een hoverros door een open, ovale aren
 
 ## Neon Duel
 
-Een vechtspel zoals Street Fighter met de hele klas. LANcelot verdeelt de klas in **⚡ Team Bliksem** en **🔥 Team Vuur** (op een naam klikken zet die leerling in het andere team). Op het bord vechten twee grote ridders in een neon arena; elke ronde vecht een andere leerling uit elk team als kampioen, met zijn eigen ridder.
+Een vechtspel met de hele klas. LANcelot verdeelt de klas in **⚡ Team Bliksem** en **🔥 Team Vuur** (op een naam klikken zet die leerling in het andere team). Op het bord vechten twee grote ridders in een neon arena; elke ronde vecht een andere leerling uit elk team als kampioen, met zijn eigen ridder.
 
 - Elke leerling beantwoordt vragen op zijn gsm of Chromebook. **Elk goed antwoord is een slag** van de ridder van zijn team. **Snel juist** (binnen 6 seconden) is een **combo** (anderhalve keer zoveel schade), **drie juist op rij** een **supermove** (driedubbel). Slagen van het team vlak na elkaar tellen op als combo-teller.
 - Alle goede antwoorden van een team vullen samen de **energiebalk**. Is die vol, dan volgt de **NEON OVERDRIVE**: bliksems op de tegenstander.

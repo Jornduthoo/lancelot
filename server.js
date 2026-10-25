@@ -26,6 +26,7 @@ const { Gauntlet } = require('./src/gauntlet');
 const { Royale } = require('./src/royale');
 const { Sterrenvreter } = require('./src/sterrenvreter');
 const { Ridderslang } = require('./src/ridderslang');
+const { Burchtstorm } = require('./src/burchtstorm');
 const rijken = require('./src/rijk');
 const avatars = require('./src/avatars');
 const { Verrader } = require('./src/verrader');
@@ -42,6 +43,7 @@ const zorg = require('./src/zorg');
 const notities = require('./src/notities');
 const herhaal = require('./src/herhaal');
 const results = require('./src/results');
+const lesmap = require('./src/lesmap');
 const { execFile } = require('child_process');
 const { generateQuiz } = require('./src/gemini');
 const antigok = require('./src/antigok');
@@ -159,6 +161,11 @@ const slang = new Ridderslang(io, s => {
   return finished(file);
 });
 
+const storm = new Burchtstorm(io, s => {
+  const file = s.save();
+  return finished(file);
+});
+
 const rijk = new rijken.Rijk(io, r => {
   const file = results.saveRijk(r);
   return finished(file);
@@ -191,6 +198,7 @@ const guarded = {
   royale: gok.guard(royale, 'royale', 'Ridder-Royale', { own: true }),
   sterren: gok.guard(sterren, 'sterren', 'Sterrenvreter', { own: true }),
   slang: gok.guard(slang, 'slang', 'Ridderslang', { own: true }),
+  storm: gok.guard(storm, 'storm', 'Burchtstorm', { own: true }),
 };
 
 // Er loopt altijd hooguit één spel tegelijk.
@@ -198,7 +206,7 @@ const busyError = message => Object.assign(new Error(message), { busy: true });
 
 // Alles stoppen wat nog loopt (behalve het spel dat je wil starten). De resultaten worden bewaard zoals bij Stop.
 function stopOthers(except) {
-  const all = { toernooi: game, rondetafel: rt, toren, schat, laserslag, race, roof, verrader, burcht, duel, knight, rossen, gauntlet, royale, sterren, slang, neon, baas, rijk, oefenblad, galaga, bomber };
+  const all = { toernooi: game, rondetafel: rt, toren, schat, laserslag, race, roof, verrader, burcht, duel, knight, rossen, gauntlet, royale, sterren, slang, storm, neon, baas, rijk, oefenblad, galaga, bomber };
   for (const [key, mod] of Object.entries(all)) {
     if (key === except) continue;
     if (key === 'toernooi' ? game.phase !== 'idle' : mod.active) mod.stop();
@@ -226,6 +234,7 @@ function busyWith(except) {
   if (except !== 'royale' && royale.active) return 'Ridder-Royale loopt nog. Stop dat spel eerst.';
   if (except !== 'sterren' && sterren.active) return 'Sterrenvreter loopt nog. Stop dat spel eerst.';
   if (except !== 'slang' && slang.active) return 'Ridderslang loopt nog. Stop dat spel eerst.';
+  if (except !== 'storm' && storm.active) return 'Burchtstorm loopt nog. Stop dat spel eerst.';
   if (except !== 'rijk' && rijk.active) return 'Het Rijk loopt nog. Stop dat spel eerst.';
   if (except !== 'oefenblad' && oefenblad.active) return 'Er staat nog een oefenblad open. Sluit dat eerst.';
   return null;
@@ -238,10 +247,31 @@ const LIBS = {
   sessie: { mod: rondetafel, list: 'rt-sessions', folders: 'rt-folders' },
 };
 
-function sendLibrary(kind, target = io.to('host')) {
+// Zonder target: naar alle docentenschermen, en daarna ook naar de lesmap (er werd iets bewaard, verplaatst of verwijderd).
+function sendLibrary(kind, target, fromSync = false) {
   const l = LIBS[kind];
-  target.emit(l.folders, l.mod.lib.folders());
-  target.emit(l.list, l.mod.list());
+  const to = target || io.to('host');
+  to.emit(l.folders, l.mod.lib.folders());
+  to.emit(l.list, l.mod.list());
+  if (!target && !fromSync) syncSoon();
+}
+
+// Mijn lesmap (OneDrive of Google Drive): bij opstart, elke minuut en kort na elke wijziging.
+lesmap.init([
+  { kind: 'quiz', dir: quizzes.DIR, remote: 'quizzen', validate: quizzes.validate },
+  { kind: 'oefenblad', dir: oefenbladen.DIR, remote: 'oefenbladen', validate: oefenbladen.validate },
+  { kind: 'sessie', dir: rondetafel.DIR, remote: 'ronde-tafel', validate: rondetafel.validate },
+]);
+let syncTimer = null;
+function runSync() {
+  return lesmap.sync().then(changed => {
+    for (const kind of changed) sendLibrary(kind, null, true);
+    io.to('host').emit('lesmap', lesmap.view());
+  });
+}
+function syncSoon() {
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(runSync, 3000);
 }
 
 // Het docentenscherm werkt alleen op de pc waar de server draait.
@@ -249,7 +279,7 @@ function isLocal(address) {
   return ['127.0.0.1', '::1', '::ffff:127.0.0.1'].includes(address);
 }
 
-for (const [route, page] of [['/host', 'host.html'], ['/rondetafel', 'rondetafel.html'], ['/toren', 'toren.html'], ['/schattenjacht', 'schattenjacht.html'], ['/laserslag', 'laserslag.html'], ['/ridderrace', 'ridderrace.html'], ['/kristalroof', 'kristalroof.html'], ['/verrader', 'verrader.html'], ['/burchtbouwers', 'burchtbouwers.html'], ['/duel', 'duel.html'], ['/packnight', 'packnight.html'], ['/strijdrossen', 'strijdrossen.html'], ['/gauntlet', 'gauntlet.html'], ['/ridder-royale', 'royale.html'], ['/sterrenvreter', 'sterrenvreter.html'], ['/ridderslang', 'ridderslang.html'], ['/neonduel', 'neonduel.html'], ['/leraarbaas', 'leraarbaas.html'], ['/cybergalaga', 'cybergalaga.html'], ['/bomberknight', 'bomberknight.html'], ['/rijk', 'rijk.html'], ['/oefenblad', 'oefenblad.html'], ['/oefenblad-print', 'oefenblad-print.html'], ['/klas', 'klas.html'], ['/zorg', 'zorg.html'], ['/zorg-fiche', 'zorg-fiche.html'], ['/netwerk', 'netwerk.html']]) {
+for (const [route, page] of [['/host', 'host.html'], ['/rondetafel', 'rondetafel.html'], ['/toren', 'toren.html'], ['/schattenjacht', 'schattenjacht.html'], ['/laserslag', 'laserslag.html'], ['/ridderrace', 'ridderrace.html'], ['/kristalroof', 'kristalroof.html'], ['/verrader', 'verrader.html'], ['/burchtbouwers', 'burchtbouwers.html'], ['/duel', 'duel.html'], ['/packnight', 'packnight.html'], ['/strijdrossen', 'strijdrossen.html'], ['/gauntlet', 'gauntlet.html'], ['/ridder-royale', 'royale.html'], ['/sterrenvreter', 'sterrenvreter.html'], ['/ridderslang', 'ridderslang.html'], ['/burchtstorm', 'burchtstorm.html'], ['/neonduel', 'neonduel.html'], ['/leraarbaas', 'leraarbaas.html'], ['/cybergalaga', 'cybergalaga.html'], ['/bomberknight', 'bomberknight.html'], ['/rijk', 'rijk.html'], ['/oefenblad', 'oefenblad.html'], ['/oefenblad-print', 'oefenblad-print.html'], ['/klas', 'klas.html'], ['/zorg', 'zorg.html'], ['/zorg-fiche', 'zorg-fiche.html'], ['/netwerk', 'netwerk.html']]) {
   app.get(route, (req, res) => {
     if (!isLocal(req.socket.remoteAddress)) return res.status(403).send('Het docentenscherm is alleen bereikbaar op de pc van de leerkracht.');
     res.setHeader('Cache-Control', 'no-cache');
@@ -415,6 +445,34 @@ io.on('connection', socket => {
       sendAddresses(io.to('host'));
     });
     socket.emit('settings', settings.publicView());
+    // Mijn lesmap: kiezen, nu synchroniseren, openen.
+    socket.emit('lesmap', lesmap.view());
+    socket.on('lesmap-suggest', (_, cb) => typeof cb === 'function' && cb(lesmap.suggestions()));
+    socket.on('lesmap-choose', (folder, cb) => {
+      try {
+        lesmap.choose(folder);
+      } catch (err) {
+        return cb && cb({ error: err.message });
+      }
+      io.to('host').emit('lesmap', lesmap.view());
+      runSync().then(() => cb && cb({ ok: true, ...lesmap.view() }));
+    });
+    socket.on('lesmap-sync', (_, cb) => runSync().then(() => cb && cb(lesmap.view())));
+    // Het gewone Windows-venster om een map te kiezen.
+    socket.on('lesmap-pick', (_, cb) => {
+      if (process.platform !== 'win32') return cb && cb({ error: 'Typ het pad van de map hieronder.' });
+      const ps = 'Add-Type -AssemblyName System.Windows.Forms; $d = New-Object System.Windows.Forms.FolderBrowserDialog; '
+        + '$d.Description = \'Kies je lesmap in OneDrive of Google Drive\'; $d.ShowNewFolderButton = $true; '
+        + '$w = New-Object System.Windows.Forms.Form -Property @{TopMost=$true}; '
+        + 'if ($d.ShowDialog($w) -eq \'OK\') { [Console]::OutputEncoding = [Text.Encoding]::UTF8; $d.SelectedPath }';
+      execFile('powershell', ['-NoProfile', '-STA', '-Command', ps], { windowsHide: true }, (err, out) => {
+        cb && cb(err ? { error: 'Het venster om een map te kiezen opende niet. Typ het pad hieronder.' } : { path: String(out).trim() });
+      });
+    });
+    socket.on('lesmap-open', () => {
+      const dir = settings.read().lesmap;
+      if (dir && process.platform === 'win32') execFile('explorer', [dir]);
+    });
     socket.emit('results', results.list());
     socket.on('open-results-folder', () => {
       fs.mkdirSync(results.DIR, { recursive: true });
@@ -756,6 +814,7 @@ io.on('connection', socket => {
     royale.attachHost(socket, handle, busyWith, busyError, quizzes);
     sterren.attachHost(socket, handle, busyWith, busyError, quizzes);
     slang.attachHost(socket, handle, busyWith, busyError, quizzes);
+    storm.attachHost(socket, handle, busyWith, busyError, quizzes);
 
     // Strijdrossen
     socket.on('sr-load', handle(({ file, minutes, mode, tempo } = {}) => {
@@ -1100,6 +1159,7 @@ io.on('connection', socket => {
   royale.attachPlayer(socket, validId, guarded.royale);
   sterren.attachPlayer(socket, validId, guarded.sterren);
   slang.attachPlayer(socket, validId, guarded.slang);
+  storm.attachPlayer(socket, validId, guarded.storm);
 
   // Strijdrossen
   socket.emit('sr-state', rossen.base());
@@ -1249,6 +1309,8 @@ io.on('connection', socket => {
 });
 
 server.listen(PORT, () => {
+  runSync();
+  setInterval(runSync, 60 * 1000);
   console.log('\n  LANcelot draait!\n');
   console.log(`  Docentenscherm:  http://localhost:${PORT}/host`);
   for (const a of lanAddresses()) console.log(`  Leerlingen:      http://${a}:${PORT}`);

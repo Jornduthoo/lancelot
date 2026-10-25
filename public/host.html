@@ -57,7 +57,7 @@
         <em class="tag">Speel nu</em>
       </button>
       <button class="module" data-module="opwarmer">
-        <img class="tile-icon" src="/img/icons/portaal.webp" alt="">
+        <img class="tile-icon" src="/img/icons/opwarmer.webp" alt="">
         <strong>Opwarmer</strong>
         <span>Start je les met een paar herhaalvragen uit vorige lessen. LANcelot kiest wat lang geleden is of vaak fout ging.</span>
         <em class="tag">5 minuten</em>
@@ -95,7 +95,7 @@
       <button class="module" data-module="verrader">
         <img class="tile-icon" src="/img/icons/verrader.webp" alt="">
         <strong>De Verrader</strong>
-        <span>Zoals Among Us: herstel samen de kern, maar wie is de verrader? Stem aan de Ronde Tafel.</span>
+        <span>Herstel samen de kern, maar wie is de verrader? Stem aan de Ronde Tafel.</span>
         <em class="tag">Speel nu</em>
       </button>
       <button class="module" data-module="burchtbouwers">
@@ -117,7 +117,7 @@
         <em class="tag">Speel nu</em>
       </button>
       <button class="module" data-module="strijdrossen">
-        <img class="tile-icon" src="/img/icons/ridder.webp" alt="">
+        <img class="tile-icon" src="/img/icons/strijdrossen.webp" alt="">
         <strong>Strijdrossen</strong>
         <span>Hoverrossen in een gevechtsarena. Lasers, raketten en mijnen krijg je alleen met goede antwoorden.</span>
         <em class="tag">Speel nu</em>
@@ -137,7 +137,7 @@
       <button class="module" data-module="neonduel">
         <img class="tile-icon" src="/img/icons/neonduel.webp" alt="">
         <strong>Neon Duel</strong>
-        <span>Street Fighter met de hele klas: twee teams, twee ridders op het bord. Juist = slag, snel = combo, drie op rij = supermove.</span>
+        <span>Vechtspel met de hele klas: twee teams, twee ridders op het bord. Juist = slag, snel = combo, drie op rij = supermove.</span>
         <em class="tag">Speel nu</em>
       </button>
       <button class="module" data-module="leraarbaas">
@@ -161,13 +161,19 @@
       <button class="module" data-module="sterrenvreter">
         <img class="tile-icon" src="/img/icons/sterrenvreter.webp" alt="">
         <strong>Sterrenvreter</strong>
-        <span>Zoals agar.io: eet sterrenstof en kleinere ridders, ontwijk het zwarte gat. Goede antwoorden geven massa, turbo en supernova.</span>
+        <span>Eet sterrenstof en kleinere ridders, ontwijk het zwarte gat. Goede antwoorden geven massa, turbo en supernova.</span>
         <em class="tag">Nieuw</em>
       </button>
       <button class="module" data-module="ridderslang">
         <img class="tile-icon" src="/img/icons/ridderslang.webp" alt="">
         <strong>Ridderslang</strong>
-        <span>Zoals slither.io: een neon lansslang die groeit met goede antwoorden. Snijd anderen af en eet hun licht op.</span>
+        <span>Een neon lansslang die groeit met goede antwoorden. Snijd anderen af en eet hun licht op.</span>
+        <em class="tag">Nieuw</em>
+      </button>
+      <button class="module" data-module="burchtstorm">
+        <img class="tile-icon" src="/img/icons/burchtstorm.webp" alt="">
+        <strong>Burchtstorm</strong>
+        <span>Vallende neonstenen: vul rijen en bestook de burchten van je klasgenoten. Goede antwoorden geven een runeschild en dubbele aanvallen.</span>
         <em class="tag">Nieuw</em>
       </button>
       <button class="module" data-module="rijk">
@@ -271,6 +277,21 @@
     <div class="bar">
       <h2>Instellingen</h2>
       <button class="secondary" data-back="home">Terug</button>
+    </div>
+    <div class="panel form" id="lesmap">
+      <h3>Mijn lesmap: van overal voorbereiden</h3>
+      <p class="muted small">Kies een map in je OneDrive of Google Drive. Je quizzen, oefenbladen en Ronde Tafels komen daar ook in. Op een andere pc met LANcelot kies je dezelfde map: wat je daar maakt, staat hier vanzelf klaar bij het opstarten (en daarna elke minuut). Je klaslijst, het logboek en de resultaten gaan nooit mee: die blijven op deze pc.</p>
+      <p id="lm-status"></p>
+      <div class="actions" id="lm-suggest"></div>
+      <label>Map<input id="lm-path" autocomplete="off" placeholder="bv. C:\Users\jij\OneDrive\LANcelot"></label>
+      <p class="error" id="lm-error"></p>
+      <div class="actions">
+        <button id="lm-pick" class="secondary">Kies map…</button>
+        <button id="lm-save">Deze map gebruiken</button>
+        <button id="lm-sync" class="secondary hidden">Nu synchroniseren</button>
+        <button id="lm-open" class="secondary hidden">Map openen</button>
+        <button id="lm-off" class="secondary hidden">Loskoppelen</button>
+      </div>
     </div>
     <div class="panel form">
       <h3>Eigen Gemini-sleutel (optioneel)</h3>
@@ -458,6 +479,7 @@
 <script src="/js/address.js"></script>
 <script src="/js/doel-kies.js"></script>
 <script src="/js/maker.js"></script>
+<script src="/js/lesmap.js"></script>
 <script src="/js/opwarmer.js"></script>
 <script src="/js/overzicht.js"></script>
 </body>
