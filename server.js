@@ -2,6 +2,7 @@ const fs = require('fs');
 const http = require('http');
 const os = require('os');
 const dgram = require('dgram');
+const zlib = require('zlib');
 const path = require('path');
 const express = require('express');
 const { Server } = require('socket.io');
@@ -401,6 +402,27 @@ app.get('/posters/lijst', (req, res) => {
   res.json(files.slice(0, 40));
 });
 app.use('/posters', express.static(POSTERS, { setHeaders: res => res.setHeader('Cache-Control', 'no-cache') }));
+// Pagina's, scripts en stijlen gezipt versturen: een gsm laadt de leerlingpagina dan in een kwart van de tijd
+// (1,9 MB wordt ongeveer 0,5 MB). Elk bestand wordt één keer gezipt en bewaard tot het verandert.
+const PUBLIC = path.join(__dirname, 'public');
+const gzipped = new Map();
+app.get(/^\/(?:[\w./-]*\.(?:js|css|html))?$/, (req, res, next) => {
+  if (!/\bgzip\b/.test(req.headers['accept-encoding'] || '')) return next();
+  const file = path.join(PUBLIC, req.path === '/' ? 'index.html' : req.path);
+  if (!file.startsWith(PUBLIC + path.sep)) return next();
+  fs.stat(file, (err, st) => {
+    if (err || !st.isFile()) return next();
+    const tag = `W/"${st.size.toString(16)}-${st.mtimeMs.toString(16)}-gz"`;
+    let hit = gzipped.get(file);
+    if (!hit || hit.tag !== tag) {
+      try { hit = { tag, body: zlib.gzipSync(fs.readFileSync(file)) }; } catch { return next(); }
+      gzipped.set(file, hit);
+    }
+    res.set({ 'Content-Encoding': 'gzip', Vary: 'Accept-Encoding', ETag: tag, 'Cache-Control': 'no-cache' }).type(path.extname(file));
+    if (req.headers['if-none-match'] === tag) return res.status(304).end();
+    res.send(hit.body);
+  });
+});
 // Altijd even navragen of een bestand veranderd is, zodat gsm's en Chromebooks na een update meteen de nieuwe versie hebben.
 app.use(express.static(path.join(__dirname, 'public'), { index: 'index.html', setHeaders: res => res.setHeader('Cache-Control', 'no-cache') }));
 

@@ -79,13 +79,15 @@ const DoelKies = (() => {
   }
 
   // Doelen waarin elk getypt woord voorkomt, in de code, de tekst, de cluster of het domein.
+  // Eerst de doelen waarvan het vak of domein een getypt woord is: "nederlands" toont Nederlands, niet eerst Frans ("vertaal naar het Nederlands").
   function search(query) {
     const words = query.toLowerCase().split(/\s+/).filter(Boolean);
     if (!words.length) return [];
+    const top = d => words.some(w => `${d.vak} ${d.domein}`.toLowerCase().includes(w)) ? 0 : 1;
     return doelen.filter(d => {
       const hay = `${d.code} ${d.tekst} ${d.cluster} ${d.domein} ${d.vak}`.toLowerCase();
       return words.every(w => hay.includes(w));
-    });
+    }).sort((a, b) => top(a) - top(b));
   }
 
   // Een veld om een doel te kiezen. onChange(code) wordt opgeroepen als het doel verandert.
