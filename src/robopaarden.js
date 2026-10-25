@@ -6,11 +6,13 @@
 // De gsm rijdt zelf en stuurt zijn plek; de server rekent de afstand, de ronden, de wapens en de treffers.
 const World = require('../public/js/rp-world');
 const { Vragen, saveCsv, pct } = require('./vragen');
-const { tempoOf } = require('./tempo');
+const { tempoOf, factor } = require('./tempo');
 
 const TICK_MS = 33;
 const SEND_MS = 66;
 const MAX_NITRO = 3;
+// Na een vraag rij je zo lang voor de kisten weer een vraag geven (normaal tempo). Zo blijft het vooral racen.
+const BOX_REST_MS = 16000;
 const ITEM_KEYS = Object.keys(World.ITEMS);
 const ITEM_CODE = { vuurbal: 1, valk: 2 };
 
@@ -87,7 +89,7 @@ class Robopaarden {
       n, name: clean, socketId, look: World.cleanLook(look, clean, n),
       x: 0, y: 0, z: 0, a: 0, v: 0, boost: false, spawn: 0, movedAt: 0, prog: 0, lastS: 0, laps: 0, maxLap: 0, lapStart: 0, bestLap: 0, lastLap: 0,
       item: null, nitro: 0, shieldUntil: 0, spinUntil: 0, safeUntil: 0, zapUntil: 0, asking: false, boxOpen: false, boxes: new Map(),
-      hits: 0, taken: 0, used: 0, falls: 0, right: 0, wrong: 0, streak: 0, bestStreak: 0, question: null, order: [], last: null, waitUntil: 0,
+      hits: 0, taken: 0, used: 0, falls: 0, right: 0, wrong: 0, streak: 0, bestStreak: 0, question: null, order: [], last: null, waitUntil: 0, boxReady: 0,
     };
     this.players.set(playerId, p);
     if (this.phase === 'play') this.place(p, this.players.size - 1);
@@ -194,7 +196,11 @@ class Robopaarden {
       this.bestLap = { name: p.name, ms };
       this.addFeed(`⏱️ ${p.name} rijdt de snelste ronde: ${(ms / 1000).toFixed(1).replace('.', ',')} s`);
     }
-    this.io.to(p.socketId).emit('rp-lap', { laps, ms, personal, record });
+    // Elke ronde een gratis nitro: ook zonder wapen valt er iets te doen.
+    const bonus = p.nitro < MAX_NITRO;
+    if (bonus) p.nitro++;
+    this.io.to(p.socketId).emit('rp-lap', { laps, ms, personal, record, bonus });
+    if (bonus) this.sendMe(p);
   }
 
   // In de kloof gevallen: terug op de weg, een eind voor de schans.
@@ -228,6 +234,7 @@ class Robopaarden {
     if (p.boxOpen || (p.question !== null && p.question !== undefined)) return { ok: true };
     const b = World.BOXES[box];
     const now = Date.now();
+    if (now < p.boxReady) return { error: 'De kisten laden nog op.', rest: p.boxReady - now };
     if (!b || Math.hypot(b.x - p.x, b.y - p.y) > 520) return { error: 'Geen kist.' };
     if (now - (p.boxes.get(box) || 0) < World.BOX_BACK_MS - 600) return { error: 'Geen kist.' };
     p.boxes.set(box, now);
@@ -266,6 +273,7 @@ class Robopaarden {
     const res = this.vragen.answer(p, choice);
     if (!res) return { error: 'Er staat geen vraag open.' };
     p.boxOpen = false;
+    p.boxReady = Date.now() + BOX_REST_MS * factor(this.tempo);
     let got = null;
     let nitro = false;
     if (res.correct) {
@@ -527,7 +535,7 @@ class Robopaarden {
     this.io.to(p.socketId).emit('rp-me', {
       n: p.n, item: p.item, nitro: p.nitro, spawn: p.spawn, x: Math.round(p.x), y: Math.round(p.y), a: p.a,
       shield: Math.max(0, p.shieldUntil - now), spin: Math.max(0, p.spinUntil - now), zap: Math.max(0, p.zapUntil - now),
-      safe: Math.max(0, p.safeUntil - now), laps: p.laps, bestLap: p.bestLap, lapStart: p.lapStart, now,
+      safe: Math.max(0, p.safeUntil - now), box: Math.max(0, p.boxReady - now), laps: p.laps, bestLap: p.bestLap, lapStart: p.lapStart, now,
     });
   }
 
