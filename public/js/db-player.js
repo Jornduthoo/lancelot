@@ -22,7 +22,7 @@
     <p><strong>Goede antwoorden geven brandstof.</strong> Breng je stenen naar boven: in de smidse worden ze goud, en daarmee koop je een betere boor.</p>
     <p class="muted small">Pas op voor 🔥 lava, 🟢 gas en diepe vallen. Een fout antwoord: even wachten, de vraag komt later terug.</p>
     <p class="muted small ls-hint-keys">Pijltjes of WASD: rijden, graven en vliegen · 1-4 antwoorden · T teleport naar boven</p>
-    <p class="muted small ls-hint-touch">Duim links op de mijn: rijden, graven en vliegen. Tik op een antwoord voor brandstof.</p>
+    <p class="muted small ls-hint-touch">Knoppen op de mijn: ◀ ▶ rijden, ▼ graven, ▲ ingedrukt houden om naar boven te vliegen. Tik op een antwoord voor brandstof.</p>
     <div class="spinner"></div>
   </section>
   <section id="db-game" class="ak-game pw-game hidden">
@@ -39,6 +39,10 @@
         <div class="ls-banner" id="db-banner"></div>
         <div class="tw-toast" id="db-toast"></div>
         <div class="tw-countdown hidden" id="db-countdown"></div>
+        <div class="db-pad" id="db-pad">
+          <div class="db-pad-move"><button type="button" data-x="-1" aria-label="Links">◀</button><button type="button" data-y="1" aria-label="Graven">▼</button><button type="button" data-x="1" aria-label="Rechts">▶</button></div>
+          <button type="button" class="db-up" data-y="-1" aria-label="Omhoog vliegen">▲<small>Omhoog</small></button>
+        </div>
       </div>
       <div class="pw-dock" id="db-dock">
         <div class="db-panel" id="db-panel"></div>
@@ -183,9 +187,10 @@
   const solid = (x, y) => (y < -1 ? true : tileAt(x, y) !== T.LEEG);
 
   let stick = null;
+  const pad = { x: 0, y: 0 };
   function input() {
     const k = AK.keyVector();
-    let x = k.x, y = k.y;
+    let x = k.x + pad.x, y = k.y + pad.y;
     if (stick && stick.active) { x += stick.x; y += stick.y; }
     if (Math.abs(x) < .3 && Math.abs(y) < .3) return { x: 0, y: 0 };
     return Math.abs(y) > Math.abs(x) ? { x: 0, y: Math.sign(y) } : { x: Math.sign(x), y: 0 };
@@ -231,7 +236,12 @@
     if (g.cy >= 0) g.onTop = false;
     if (v.y < 0) {
       if (g.cy > -1 && !solid(g.cx, g.cy - 1)) { if (useFuel(W.FUEL.up)) go('fly', g.cx, g.cy - 1, .2); }
-      else if (g.cy > -1) bump();
+      else if (g.cy > -1) {
+        // Omhoog geblokkeerd: rij vanzelf door je gang naar de dichtste plek waar het wel omhoog gaat.
+        const dx = climbSide();
+        if (dx && useFuel(W.FUEL.move)) { g.face = g.dir = dx < 0 ? 'l' : 'r'; go('move', g.cx + dx, g.cy, .16); }
+        else if (!dx) bump();
+      }
       return;
     }
     if (v.x) {
@@ -245,6 +255,17 @@
       return;
     }
     if (v.y > 0 && below) { g.dir = 'd'; startDig(g.cx, g.cy + 1); }
+  }
+
+  // Richting (-1 of 1) naar de dichtste open kolom in deze gang waarboven het vrij is; 0 als er geen is.
+  function climbSide() {
+    let best = 0, dist = Infinity;
+    for (const d of [-1, 1]) {
+      for (let x = g.cx + d, n = 1; x >= 0 && x < W.COLS && !solid(x, g.cy); x += d, n++) {
+        if (!solid(x, g.cy - 1)) { if (n < dist) { dist = n; best = d; } break; }
+      }
+    }
+    return best;
   }
 
   function startDig(x, y) {
@@ -482,6 +503,12 @@
   const canvas = $('db-canvas');
   const ctx = canvas.getContext('2d');
   stick = AK.stick($('db-stage'));
+  for (const b of $('db-pad').querySelectorAll('button')) {
+    AK.holdButton(b, down => {
+      if (b.dataset.x) pad.x = down ? Number(b.dataset.x) : 0;
+      if (b.dataset.y) pad.y = down ? Number(b.dataset.y) : 0;
+    });
+  }
   let last = performance.now();
   let hudKey = '';
   const view = {};
