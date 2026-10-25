@@ -21,7 +21,7 @@ const DoelKies = (() => {
 
   const same = (a, b) => String(a) === String(b);
 
-  // "6e leerjaar", "2e kleuterklas" ...
+  // "6e leerjaar", "2e leerjaar" ...
   function naam(lj) {
     const l = leerjaren.find(x => same(x.id, lj));
     return l ? l.naam : `${lj}e leerjaar`;

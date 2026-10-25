@@ -8,13 +8,11 @@ const path = require('path');
 const DIR = path.join(__dirname, '..', 'doelen');
 const CODE = /^\d+(-\d+)?\.\d+\.[GPS+A]([LF]\d+|JK|K\d)\.\d+$/;
 
-// Alle leerjaren waarvoor doelen kunnen bestaan, van jong naar oud. De naam past bij de niveaus in de quizmaker.
-const LEERJAREN = [
-  { id: 'JK', naam: '1e kleuterklas' },
-  { id: 'K2', naam: '2e kleuterklas' },
-  { id: 'K3', naam: '3e kleuterklas' },
-  ...[1, 2, 3, 4, 5, 6].map(n => ({ id: n, naam: `${n}e leerjaar` })),
-];
+// De leerjaren die LANcelot toont, van jong naar oud. De naam past bij de niveaus in de quizmaker.
+// Kleuterklas en 1e leerjaar zijn voor later (LANcelot Junior): hun doelbestanden blijven in doelen/,
+// maar worden niet ingelezen. Terugzetten = { id: 'JK', naam: '1e kleuterklas' }, K2, K3 en 1 weer toevoegen.
+const LEERJAREN = [2, 3, 4, 5, 6].map(n => ({ id: n, naam: `${n}e leerjaar` }));
+const TOONBAAR = new Set(LEERJAREN.map(l => String(l.id)));
 
 let cache = null;
 
@@ -25,7 +23,7 @@ function all() {
   for (const file of fs.readdirSync(DIR).filter(f => f.endsWith('.json')).sort()) {
     try {
       const data = JSON.parse(fs.readFileSync(path.join(DIR, file), 'utf8'));
-      for (const d of data.doelen || []) if (CODE.test(d.code)) cache.push(d);
+      for (const d of data.doelen || []) if (CODE.test(d.code) && TOONBAAR.has(String(d.leerjaar))) cache.push(d);
     } catch (err) {
       console.error(`Doelen in ${file} niet ingelezen:`, err.message);
     }
