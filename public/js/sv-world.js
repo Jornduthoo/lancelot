@@ -18,8 +18,9 @@
   const speed = m => Math.max(70, 560 * Math.pow(m, -.27));
 
   // De arena groeit mee met het aantal spelers, zodat er altijd ruimte is om te vluchten.
-  const arenaR = n => Math.min(3000, 1300 + 70 * Math.max(1, n));
-  const dustCount = n => Math.min(900, 220 + 22 * Math.max(1, n));
+  // Evenveel stof per oppervlakte, hoe groot de arena ook is.
+  const arenaR = n => Math.min(4000, 1400 + 95 * Math.max(1, n));
+  const dustCount = n => Math.min(1300, Math.round(arenaR(n) ** 2 * 9e-5));
 
   // Het zwarte gat: groeit rustig, en in de laatste minuut snel (de eindstorm).
   function hole(elapsed, total) {
