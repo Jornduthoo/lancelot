@@ -22,6 +22,7 @@ Het thema: middeleeuws met een scifi-kantje. Het startscherm heeft drie grote te
    - **Poortwacht**: de klas verdedigt samen de burchtpoort tegen golven monsters en een draak. Goede antwoorden geven goud voor je eigen toren
    - **Neonvlucht**: rennen, springen en glijden door de neonburcht. Bij een vraagpoort loop je door het juiste antwoord voor turbo en een hogere vermenigvuldiger
    - **Diepboor**: graaf met je boorridder naar goud, kristal en neonkernen. Goede antwoorden geven brandstof; in de smidse koop je een betere boor
+   - **Robomol**: robotmollen schieten uit negen burchtputten en elke leerling mept ze met een zwaard, in 3D vanuit de ogen van de ridder. Een juist antwoord laadt het zwaard op en geeft het Vuurzwaard
    - **Leraar-baas**: de leerkracht is de eindbaas, een reuzenridder op het bord. De klas valt samen aan met goede antwoorden, de leerkracht slaat terug
    - **Het Rijk**: een spel dat weken doorloopt. Teams veroveren les na les gebieden op een kaart; vragen over oudere leerstof komen terug om je land te verdedigen
 2. **De Ronde Tafel**, peilen met de hele klas: polls, stellingen, woordwolken, open vragen en schalen, live op het bord. Met de knop **💡 Voorkennis activeren** in De Ronde Tafel maak je met AI meteen een peiling voor het begin van een les.
@@ -192,6 +193,14 @@ Iedereen rent op zijn eigen scherm door dezelfde **neonburcht**: springen over r
 - **Vraagpoorten**: af en toe vertraagt alles en tonen de drie banen elk een antwoord. Loop door de juiste poort voor ⚡ turbo, een 🛡️ schild en een hogere vermenigvuldiger (tot ×5). Een foute poort: struikelen en terug naar ×1.
 - Punten: afstand × vermenigvuldiger, plus de munten. Met genoeg munten krijg je een lichtspoor en later vleugels.
 - Chromebook: ← → of A/D opzij, ↑ of spatie springen, ↓ glijden, 1-3 kiest de poort. Gsm: vegen, tik = springen. Elk antwoord komt in het logboek. Resultaten in `resultaten/`.
+
+## Robomol
+
+Op het **burchtplein** schieten robotmollen uit negen putten. Elke leerling slaat ze op zijn eigen scherm met een kristallen zwaard, in 3D vanuit de ogen van de ridder. Iedereen ziet dezelfde mollen op hetzelfde moment; het bord toont wie elke mol als eerste mepte.
+
+- 🪖 gewone mol: 1 slag · 👑 goudhelm: 2 slagen, 3× zoveel punten · 💣 bomdrone: niet raken (punten kwijt, even duizelig). Veel op rij raken geeft een combo tot ×4; mis slaan zet de reeks terug op nul.
+- **Vragen**: de zwaardlading raakt leeg (rustig tempo: minder vaak). Een juist antwoord geeft een volle lading en het 🔥 **Vuurzwaard**: dubbele punten en elke slag raakt ook de buurputten.
+- Chromebook: klik op een put of gebruik Q W E · A S D · Z X C (op een AZERTY-klavier toont het spel de letters die daar staan), spatie = vraag. Gsm: tik op een put. Elk antwoord komt in het logboek. Resultaten in `resultaten/`.
 
 ## Diepboor
 

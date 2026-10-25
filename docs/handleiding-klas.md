@@ -190,6 +190,13 @@ Tip: een klas die goed en vlot antwoordt, houdt de poort. Bij veel foute antwoor
 3. Bij een vraagpoort vertraagt alles: loop door de baan met het juiste antwoord (of druk 1-3).
 4. Het bord volgt de koploper; de anderen lopen als schimmen mee.
 
+## Robomol
+
+1. Kies **De Arena** en dan **Robomol**, kies de speeltijd en klik op de quiz. Klik op **Meppen maar!**
+2. Leerlingen slaan robotmollen met hun zwaard. Chromebook: klik op een put of de 9 toetsen links op het klavier (Q W E · A S D · Z X C). Gsm: tikken.
+3. Goudhelmen hebben twee slagen nodig, bomdrones niet raken. Raakt het zwaard leeg, dan komt er een vraag: juist = volle lading en het 🔥 Vuurzwaard.
+4. Het bord toont dezelfde putten, wie elke mol mepte en hoeveel mollen de klas samen al mepte.
+
 ## Diepboor
 
 1. Kies **De Arena** en dan **Diepboor**, kies de speeltijd en klik op de quiz. Klik op **Start de boren!**
