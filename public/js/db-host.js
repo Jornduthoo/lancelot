@@ -142,7 +142,7 @@ function frame(t) {
   if (view !== 'play') return;
   board.update(dt);
   const { w, h, dpr } = AK.fit(canvas, 1.5);
-  board.render(ctx, w, h, roster, { dpr });
+  board.render(ctx, w, h, roster, { dpr, t: t / 1000 });
   // Aftellen voor de start
   const wait = state ? state.startedAt - (Date.now() + offset) : 0;
   if (wait > 0) {
