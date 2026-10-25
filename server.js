@@ -26,6 +26,7 @@ const { Gauntlet } = require('./src/gauntlet');
 const { Royale } = require('./src/royale');
 const { Sterrenvreter } = require('./src/sterrenvreter');
 const { Ridderslang } = require('./src/ridderslang');
+const { Burchtstorm } = require('./src/burchtstorm');
 const rijken = require('./src/rijk');
 const avatars = require('./src/avatars');
 const { Verrader } = require('./src/verrader');
@@ -39,6 +40,8 @@ const logboek = require('./src/logboek');
 const opwarmer = require('./src/opwarmer');
 const overzicht = require('./src/overzicht');
 const zorg = require('./src/zorg');
+const notities = require('./src/notities');
+const herhaal = require('./src/herhaal');
 const results = require('./src/results');
 const lesmap = require('./src/lesmap');
 const { execFile } = require('child_process');
@@ -161,6 +164,11 @@ const slang = new Ridderslang(io, s => {
   return finished(file);
 });
 
+const storm = new Burchtstorm(io, s => {
+  const file = s.save();
+  return finished(file);
+});
+
 const rijk = new rijken.Rijk(io, r => {
   const file = results.saveRijk(r);
   return finished(file);
@@ -170,6 +178,31 @@ const oefenblad = new OefenbladLive(io, o => {
   const file = results.saveOefenblad(o);
   return finished(file);
 });
+
+// Elk spel met leerlingen, bij het adres van zijn docentenscherm. Een nieuw spel komt hier ook bij:
+// zo werken de grijze (bezette) namen bij het aanmelden en de knop "Namen" op het bord meteen mee.
+const SPELLEN = { '/host': game, '/toren': toren, '/schattenjacht': schat, '/laserslag': laserslag, '/ridderrace': race, '/kristalroof': roof, '/verrader': verrader, '/burchtbouwers': burcht, '/duel': duel, '/packnight': knight, '/strijdrossen': rossen, '/gauntlet': gauntlet, '/ridder-royale': royale, '/sterrenvreter': sterren, '/ridderslang': slang, '/burchtstorm': storm, '/neonduel': neon, '/leraarbaas': baas, '/cybergalaga': galaga, '/bomberknight': bomber, '/rijk': rijk, '/oefenblad': oefenblad };
+const online = socketId => !!(socketId && io.sockets.sockets.get(socketId));
+function* spelers() {
+  for (const spel of Object.values(SPELLEN)) {
+    if (spel.phase === 'idle' || !(spel.players instanceof Map)) continue;
+    for (const [id, p] of spel.players) yield { id, p };
+  }
+}
+// Namen die al bij een verbonden leerling horen. De eigen naam telt niet mee, zodat terugkomen na een wifi-onderbreking gewoon werkt.
+function bezetteNamen(playerId) {
+  const uit = new Set();
+  for (const { id, p } of spelers()) if (id !== playerId && p.name && online(p.socketId)) uit.add(p.name.toLowerCase());
+  return [...uit];
+}
+// Kiest een leerling een naam die bij een speler zonder verbinding hoort (andere Chromebook, pagina herladen),
+// dan neemt hij die speler terug over: zijn punten blijven en de naam is niet "al bezet".
+function oudeSpeler(name) {
+  const want = String(name || '').trim().toLowerCase();
+  if (!want || !klas.names().some(n => n.toLowerCase() === want)) return null;
+  for (const { id, p } of spelers()) if (p.name && p.name.toLowerCase() === want && !online(p.socketId)) return id;
+  return null;
+}
 
 // Tegen gokken: elk spel krijgt dezelfde regels (wachten na fout, vraag komt terug, seintje bij snel gokken).
 const gok = antigok.create(io);
@@ -193,6 +226,7 @@ const guarded = {
   royale: gok.guard(royale, 'royale', 'Ridder-Royale', { own: true }),
   sterren: gok.guard(sterren, 'sterren', 'Sterrenvreter', { own: true }),
   slang: gok.guard(slang, 'slang', 'Ridderslang', { own: true }),
+  storm: gok.guard(storm, 'storm', 'Burchtstorm', { own: true }),
 };
 
 // Er loopt altijd hooguit één spel tegelijk.
@@ -200,7 +234,7 @@ const busyError = message => Object.assign(new Error(message), { busy: true });
 
 // Alles stoppen wat nog loopt (behalve het spel dat je wil starten). De resultaten worden bewaard zoals bij Stop.
 function stopOthers(except) {
-  const all = { toernooi: game, rondetafel: rt, toren, schat, laserslag, race, roof, verrader, burcht, duel, knight, rossen, gauntlet, royale, sterren, slang, neon, baas, rijk, oefenblad, galaga, bomber };
+  const all = { toernooi: game, rondetafel: rt, toren, schat, laserslag, race, roof, verrader, burcht, duel, knight, rossen, gauntlet, royale, sterren, slang, storm, neon, baas, rijk, oefenblad, galaga, bomber };
   for (const [key, mod] of Object.entries(all)) {
     if (key === except) continue;
     if (key === 'toernooi' ? game.phase !== 'idle' : mod.active) mod.stop();
@@ -228,6 +262,7 @@ function busyWith(except) {
   if (except !== 'royale' && royale.active) return 'Ridder-Royale loopt nog. Stop dat spel eerst.';
   if (except !== 'sterren' && sterren.active) return 'Sterrenvreter loopt nog. Stop dat spel eerst.';
   if (except !== 'slang' && slang.active) return 'Ridderslang loopt nog. Stop dat spel eerst.';
+  if (except !== 'storm' && storm.active) return 'Burchtstorm loopt nog. Stop dat spel eerst.';
   if (except !== 'rijk' && rijk.active) return 'Het Rijk loopt nog. Stop dat spel eerst.';
   if (except !== 'oefenblad' && oefenblad.active) return 'Er staat nog een oefenblad open. Sluit dat eerst.';
   return null;
@@ -272,7 +307,7 @@ function isLocal(address) {
   return ['127.0.0.1', '::1', '::ffff:127.0.0.1'].includes(address);
 }
 
-for (const [route, page] of [['/host', 'host.html'], ['/rondetafel', 'rondetafel.html'], ['/toren', 'toren.html'], ['/schattenjacht', 'schattenjacht.html'], ['/laserslag', 'laserslag.html'], ['/ridderrace', 'ridderrace.html'], ['/kristalroof', 'kristalroof.html'], ['/verrader', 'verrader.html'], ['/burchtbouwers', 'burchtbouwers.html'], ['/duel', 'duel.html'], ['/packnight', 'packnight.html'], ['/strijdrossen', 'strijdrossen.html'], ['/gauntlet', 'gauntlet.html'], ['/ridder-royale', 'royale.html'], ['/sterrenvreter', 'sterrenvreter.html'], ['/ridderslang', 'ridderslang.html'], ['/neonduel', 'neonduel.html'], ['/leraarbaas', 'leraarbaas.html'], ['/cybergalaga', 'cybergalaga.html'], ['/bomberknight', 'bomberknight.html'], ['/rijk', 'rijk.html'], ['/oefenblad', 'oefenblad.html'], ['/oefenblad-print', 'oefenblad-print.html'], ['/klas', 'klas.html'], ['/zorg', 'zorg.html'], ['/runenraadsel', 'runenraadsel.html'], ['/netwerk', 'netwerk.html']]) {
+for (const [route, page] of [['/host', 'host.html'], ['/rondetafel', 'rondetafel.html'], ['/toren', 'toren.html'], ['/schattenjacht', 'schattenjacht.html'], ['/laserslag', 'laserslag.html'], ['/ridderrace', 'ridderrace.html'], ['/kristalroof', 'kristalroof.html'], ['/verrader', 'verrader.html'], ['/burchtbouwers', 'burchtbouwers.html'], ['/duel', 'duel.html'], ['/packnight', 'packnight.html'], ['/strijdrossen', 'strijdrossen.html'], ['/gauntlet', 'gauntlet.html'], ['/ridder-royale', 'royale.html'], ['/sterrenvreter', 'sterrenvreter.html'], ['/ridderslang', 'ridderslang.html'], ['/burchtstorm', 'burchtstorm.html'], ['/neonduel', 'neonduel.html'], ['/leraarbaas', 'leraarbaas.html'], ['/cybergalaga', 'cybergalaga.html'], ['/bomberknight', 'bomberknight.html'], ['/rijk', 'rijk.html'], ['/oefenblad', 'oefenblad.html'], ['/oefenblad-print', 'oefenblad-print.html'], ['/klas', 'klas.html'], ['/zorg', 'zorg.html'], ['/zorg-fiche', 'zorg-fiche.html'], ['/runenraadsel', 'runenraadsel.html'], ['/netwerk', 'netwerk.html']]) {
   app.get(route, (req, res) => {
     if (!isLocal(req.socket.remoteAddress)) return res.status(403).send('Het docentenscherm is alleen bereikbaar op de pc van de leerkracht.');
     res.setHeader('Cache-Control', 'no-cache');
@@ -413,6 +448,8 @@ io.on('connection', socket => {
   // een spel: zo weet de leerling al of een onthouden naam op de lijst staat voordat hij automatisch meedoet.
   socket.emit('klas-namen', klas.names());
   socket.on('klas-namen', (_, cb) => typeof cb === 'function' && cb(klas.names()));
+  socket.on('klas-bezet', (playerId, cb) => typeof cb === 'function' && cb(bezetteNamen(playerId)));
+  socket.on('klas-claim', (name, cb) => typeof cb === 'function' && cb({ id: oudeSpeler(name) }));
   const host = socket.handshake.query.role === 'host' && isLocal(socket.handshake.address);
 
   // Een leerling kwam binnen: via welk adres van deze pc? Dat adres werkt dus, en komt voortaan vooraan.
@@ -567,6 +604,19 @@ io.on('connection', socket => {
     }));
     socket.on('doelenkaart-get', handle(() => ({ kaart: overzicht.kaart() })));
     socket.on('zorg-get', handle(opts => ({ zorg: zorg.overzicht(opts || {}) })));
+    socket.on('notitie-add', handle(({ leerling, tekst } = {}) => ({ notities: notities.add(leerling, tekst).slice().reverse() })));
+    socket.on('notitie-del', handle(({ leerling, t } = {}) => ({ notities: notities.remove(leerling, t).slice().reverse() })));
+    // Herhaalquizzen maken vanuit het zorgoverzicht. Ze komen bij je quizzen in de map Herhaling.
+    socket.on('herhaal-doelen', handle(opts => {
+      const out = herhaal.voorDoelen(opts || {});
+      refreshList();
+      return out;
+    }));
+    socket.on('herhaal-persoonlijk', handle(opts => {
+      const out = herhaal.persoonlijk(opts || {});
+      refreshList();
+      return out;
+    }));
     socket.on('open-logboek-folder', () => {
       fs.mkdirSync(logboek.DIR, { recursive: true });
       if (process.platform === 'win32') execFile('explorer', [logboek.DIR]);
@@ -832,6 +882,7 @@ io.on('connection', socket => {
     royale.attachHost(socket, handle, busyWith, busyError, quizzes);
     sterren.attachHost(socket, handle, busyWith, busyError, quizzes);
     slang.attachHost(socket, handle, busyWith, busyError, quizzes);
+    storm.attachHost(socket, handle, busyWith, busyError, quizzes);
 
     // Strijdrossen
     socket.on('sr-load', handle(({ file, minutes, mode, tempo } = {}) => {
@@ -949,10 +1000,28 @@ io.on('connection', socket => {
     socket.on('ob-set-niveau', ({ id, niveau } = {}, cb) => { const res = oefenblad.setNiveau(id, niveau); if (typeof cb === 'function') cb(res); });
     socket.on('ob-stop', (_, cb) => cb && cb({ file: oefenblad.stop() }));
 
+    // Zeker of twijfel vragen na elk antwoord in het Toernooi (en de Opwarmer). Staat standaard aan.
+    socket.emit('zekerheid', settings.read().zekerheid !== false);
+    socket.on('zekerheid', on => {
+      settings.write({ zekerheid: !!on });
+      game.zekerheid = !!on;
+      io.to('host').emit('zekerheid', !!on);
+    });
     socket.on('start', () => game.start());
     socket.on('next', () => game.next());
     socket.on('reveal', () => game.reveal());
     socket.on('kick', id => game.kick(id));
+    // De knop "Namen" op elk spelbord: ook tijdens het spel een verkeerde naam wegklikken.
+    socket.on('namen-lijst', (pad, cb) => {
+      const spel = SPELLEN[pad];
+      if (typeof cb !== 'function') return;
+      if (!spel || !(spel.players instanceof Map)) return cb({ geen: true });
+      cb({ spelers: spel.phase === 'idle' ? [] : [...spel.players].map(([id, p]) => ({ id, name: p.name, online: online(p.socketId) })) });
+    });
+    socket.on('namen-weg', ({ pad, id } = {}) => {
+      const spel = SPELLEN[pad];
+      if (spel && typeof id === 'string') spel.kick(id);
+    });
     socket.on('restart', () => game.quiz && game.load(game.quiz));
     socket.on('close', () => game.stop());
     socket.on('stop', (_, cb) => cb && cb({ file: game.stop() }));
@@ -969,6 +1038,11 @@ io.on('connection', socket => {
     socket.data.playerId = result.ok ? playerId : null;
     cb && cb(result);
     if (result.ok) socket.emit('state', game.playerState(playerId));
+  });
+
+  socket.on('zeker', value => {
+    const id = socket.data.playerId;
+    if (id) game.zeker(id, value);
   });
 
   socket.on('answer', choice => {
@@ -1164,6 +1238,7 @@ io.on('connection', socket => {
   royale.attachPlayer(socket, validId, guarded.royale);
   sterren.attachPlayer(socket, validId, guarded.sterren);
   slang.attachPlayer(socket, validId, guarded.slang);
+  storm.attachPlayer(socket, validId, guarded.storm);
 
   // Strijdrossen
   socket.emit('sr-state', rossen.base());

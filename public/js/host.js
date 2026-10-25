@@ -68,6 +68,7 @@ document.querySelector('[data-module="gauntlet"]').addEventListener('click', () 
 document.querySelector('[data-module="royale"]').addEventListener('click', () => { location.href = '/ridder-royale'; });
 document.querySelector('[data-module="sterrenvreter"]').addEventListener('click', () => { location.href = '/sterrenvreter'; });
 document.querySelector('[data-module="ridderslang"]').addEventListener('click', () => { location.href = '/ridderslang'; });
+document.querySelector('[data-module="burchtstorm"]').addEventListener('click', () => { location.href = '/burchtstorm'; });
 document.querySelector('[data-module="rijk"]').addEventListener('click', () => { location.href = '/rijk'; });
 document.querySelector('[data-module="voorkennis"]').addEventListener('click', () => { location.href = '/rondetafel?doel=voorkennis'; });
 document.querySelector('[data-module="oefenblad"]').addEventListener('click', () => { location.href = '/oefenblad'; });
@@ -244,6 +245,8 @@ socket.on('results', files => {
 $('open-results').addEventListener('click', () => show('results'));
 $('open-klas').addEventListener('click', () => { location.href = '/klas'; });
 $('open-zorg').addEventListener('click', () => { location.href = '/zorg'; });
+socket.on('zekerheid', on => { $('zekerheid').checked = on; });
+$('zekerheid').addEventListener('change', e => socket.emit('zekerheid', e.target.checked));
 $('open-netwerk').addEventListener('click', () => { location.href = '/netwerk'; });
 for (const b of document.querySelectorAll('.open-folder')) {
   b.addEventListener('click', () => socket.emit('open-results-folder'));

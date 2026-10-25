@@ -3,9 +3,12 @@
 // In de intro staat de vraag al op het bord, maar kunnen leerlingen nog niet antwoorden.
 
 const logboek = require('./logboek');
+const settings = require('./settings');
 
 const MAX_POINTS = 1000;
 const INTRO_MS = 4000;
+// Zeker of twijfel: heeft iedereen geantwoord, dan krijgt de laatste nog even tijd om dat aan te tikken.
+const ZEKER_MS = 2500;
 
 class Game {
   // onFinish(game) wordt aangeroepen als de quiz klaar is en geeft de bestandsnaam van de resultaten terug.
@@ -29,6 +32,7 @@ class Game {
   load(quiz) {
     this.reset();
     this.quiz = quiz;
+    this.zekerheid = settings.read().zekerheid !== false;
     this.phase = 'lobby';
     this.io.to('players').emit('reset', { open: true });
     this.broadcast();
@@ -83,6 +87,7 @@ class Game {
     for (const p of this.players.values()) {
       p.answer = null;
       p.answeredAt = 0;
+      p.zeker = null;
     }
     this.phase = 'intro';
     this.introEndsAt = Date.now() + INTRO_MS;
@@ -108,15 +113,34 @@ class Game {
     if (!Number.isInteger(choice) || choice < 0 || choice >= q.answers.length) return;
     p.answer = choice;
     p.answeredAt = Date.now() - this.questionStartedAt;
-    if ([...this.players.values()].every(pl => pl.answer !== null)) {
-      this.reveal();
-    } else {
-      this.broadcast();
+    this.checkDone();
+  }
+
+  // Na het antwoord: was de leerling zeker of twijfelde hij? Telt niet mee voor de punten, alleen voor het logboek.
+  zeker(playerId, value) {
+    const p = this.players.get(playerId);
+    if (!p || !this.zekerheid || this.phase !== 'question' || p.answer === null || p.zeker) return;
+    if (value !== 'zeker' && value !== 'twijfel') return;
+    p.zeker = value;
+    this.checkDone();
+  }
+
+  // Iedereen geantwoord (en, met zeker of twijfel, dat ook aangetikt)? Dan meteen het antwoord tonen.
+  checkDone() {
+    const all = [...this.players.values()];
+    if (!all.every(pl => pl.answer !== null)) return this.broadcast();
+    if (!this.zekerheid || all.every(pl => pl.zeker)) return this.reveal();
+    if (!this.waiting) {
+      this.waiting = true;
+      clearTimeout(this.timer);
+      this.timer = setTimeout(() => this.reveal(), ZEKER_MS);
     }
+    this.broadcast();
   }
 
   reveal() {
     if (this.phase !== 'question') return;
+    this.waiting = false;
     clearTimeout(this.timer);
     const q = this.question;
     const limit = q.time * 1000;
@@ -135,8 +159,14 @@ class Game {
     }
     logboek.add([...this.players.values()].map(p => ({
       naam: p.name, spel: this.quiz.spel || 'Toernooi', bron: this.quiz.title, vraag: q.question, doel: q.doel,
-      juist: p.answer === q.correct, leeg: p.answer === null,
+      juist: p.answer === q.correct, leeg: p.answer === null, zeker: p.zeker,
     })));
+    for (const p of this.players.values()) {
+      if (!p.zeker || p.answer === null) continue;
+      const k = `${p.zeker}-${p.answer === q.correct ? 'juist' : 'fout'}`;
+      p.zekerTel = p.zekerTel || {};
+      p.zekerTel[k] = (p.zekerTel[k] || 0) + 1;
+    }
     this.phase = 'reveal';
     this.broadcast();
   }
@@ -206,6 +236,9 @@ class Game {
       state.name = p.name;
       state.score = p.score;
       state.answered = p.answer !== null;
+      state.zekerVraag = this.phase === 'question' && this.zekerheid && p.answer !== null && !p.zeker;
+      state.zeker = p.zeker;
+      if (this.phase === 'podium') state.zekerTel = p.zekerTel || null;
       state.rank = ranking.findIndex(r => r.id === playerId) + 1;
       if (this.phase === 'reveal') {
         state.correct = p.answer === q.correct;

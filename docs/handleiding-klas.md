@@ -164,6 +164,16 @@ Tip: speel het een paar weken na elkaar, bijvoorbeeld als afsluiter van elke les
 
 Tip: leg vooraf uit dat je in de pitstop stilstaat. Wie de vragen kent, tankt snel en wint.
 
+## Burchtstorm
+
+1. Kies op het startscherm **De Arena** en dan **Burchtstorm**, kies de speeltijd (1 tot 10 minuten) en klik op de quiz.
+2. Leerlingen scannen de QR-code. Klik op **Laat de storm los!** Na drie tellen vallen de eerste neonstenen.
+3. Chromebook: ← → schuiven, ↑ of X draaien, Z of W andersom, ↓ sneller, spatie laten vallen, C of Shift bijhouden. Gsm: de knoppen onderaan, of vegen op de toren (tik = draaien, snel omlaag vegen = laten vallen).
+4. Twee of meer rijen tegelijk opruimen stuurt belegeringsrijen naar een klasgenoot. Om de acht stenen komt een runevraag: juist geeft een 🛡 schild en een aanval die dubbel telt, drie op rij een drakenvuur naar de koploper, fout een rij erbij.
+5. Op het bord zie je alle torens, de aanvallen die overvliegen en ❓ bij wie een vraag beantwoordt.
+
+Tip: wie instort, begint meteen opnieuw (−25 punten). Zwakkere spelers halen dus vooral punten met juiste antwoorden.
+
 ## Voorkennis activeren
 
 1. Klik op het startscherm op **Voorkennis activeren**.
@@ -216,6 +226,14 @@ Klik op het startscherm (of in Mijn klas) op **Zorgoverzicht**. Je ziet in één
 Elke leerling wordt vergeleken met de klas op dezelfde vragen, dus een moeilijke quiz kleurt niemand onterecht rood. Het lijntje toont elke les de leerling tegenover de klas. Klik een leerling aan voor zijn scores per vak, de doelen die nog niet lukken en de laatste lessen. Bij genoeg antwoorden krijg je een **niveau-advies** (Page, Schildknaap of Ridder) dat je met één klik instelt.
 
 Onderaan: **Klassikaal herhalen** (doelen waar 4 op 10 leerlingen of meer nog niet mee zijn) en **Groepjes voor verlengde instructie** (doelen waar maar een paar leerlingen vastzitten, met hun namen). Kies bovenaan de periode (2 weken, 6 weken of heel het schooljaar) en eventueel een vak. Alles blijft op deze pc.
+
+Nog meer in het zorgoverzicht:
+
+- **Zeker of twijfel**: in de lobby van het Toernooi (en de Opwarmer) staat "Zeker of twijfel vragen" aan. Na zijn antwoord tikt de leerling 💪 Zeker of 🤔 Twijfel aan, in de wachttijd tot de rest geantwoord heeft. Het kost geen tijd en geen punten. "Zeker maar fout" wijst op een misverstand (je ziet ze per doel onder **Hardnekkige misverstanden**), "vaak twijfel terwijl het juist is" op weinig zelfvertrouwen. Op het einde ziet de leerling zelf hoe goed hij zich inschatte.
+- **Notities**: klik een leerling aan en schrijf observaties of afspraken op. Ze blijven op deze pc (map klas).
+- **Zorgfiche**: bij een leerling, knop "Zorgfiche". Een sober A4-blad met cijfers, sterke punten, doelen die nog niet lukken, zelfinschatting, notities en lege lijnen voor afspraken. Print het of kies "Opslaan als PDF" voor het MDO of het CLB.
+- **Herhaalquiz**: bij een leerling, een groepje of een doel. LANcelot zoekt in je quizzen de vragen bij die doelen en bewaart een nieuwe quiz in de map **Herhaling**.
+- **Persoonlijke herhaling**: knop bovenaan. Eén quiz met de vragen van de gekozen periode. Speel hem in een spel op eigen tempo (Schattenjacht, Laserslag, ...): elke leerling krijgt de vragen in zijn eigen volgorde, met eerst wat hij fout had of lang niet meer zag (gespreid herhalen).
 
 ## Opwarmer
 

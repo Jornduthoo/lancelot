@@ -52,3 +52,11 @@
 .dk-table a.button.dk-dl { padding: 5px 10px; font-size: .8rem; }
 .ov-sessies button.ov-sessie { padding: 8px 14px; }
 .ov-modal .ob-modal-box { max-height: calc(100vh - 40px); align-self: flex-start; }
+/* De knop "Namen" linksonder: een verkeerde naam wegklikken, ook tijdens het spel. */
+.namen-knop { position: fixed; left: 18px; bottom: 18px; z-index: 25; opacity: .75; }
+.namen-knop:hover { opacity: 1; }
+.namen-box { max-width: 560px; align-self: flex-start; max-height: calc(100vh - 40px); }
+.namen-rij { display: flex; align-items: center; gap: 12px; padding: 6px 0; border-bottom: 1px solid rgba(255, 255, 255, .08); }
+.namen-rij span { flex: 1; font-weight: 700; }
+.namen-rij button { padding: 6px 12px; min-height: 0; }
+.namen-on { color: var(--green, #2ee6a6); }

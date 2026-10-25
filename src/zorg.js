@@ -4,6 +4,7 @@
 const logboek = require('./logboek');
 const klas = require('./klas');
 const doelen = require('./doelen');
+const notities = require('./notities');
 
 const DAG = 86400000;
 const RECENT = 20; // de laatste zoveel antwoorden van een leerling
@@ -60,6 +61,8 @@ function overzicht({ dagen = 42, vak = '' } = {}) {
   }
 
   const doelStatus = new Map(); // code -> { niet: [], bijna: [], ok: 0 }
+  const misverstanden = new Map(); // code -> namen die zeker waren maar fout zaten
+  const alleNotities = notities.read();
   const gokken = logboek.readGok().filter(g => g.t >= vanaf);
   const laatsteKlas = entries.length ? entries[entries.length - 1].t : '';
 
@@ -109,6 +112,7 @@ function overzicht({ dagen = 42, vak = '' } = {}) {
       if (d.recent.length > DOEL_RECENT) d.recent.shift();
     }
     const nietDoelen = [];
+    const sterk = [];
     for (const [code, d] of perDoel) {
       if (d.n < MIN_DOEL) continue;
       const p = pct(d.recent.reduce((a, b) => a + b, 0), d.recent.length);
@@ -117,8 +121,23 @@ function overzicht({ dagen = 42, vak = '' } = {}) {
       if (st === 'ok') ds.ok++;
       else ds[st].push(s.naam);
       if (st === 'niet') nietDoelen.push({ code, tekst: (doelen.find(code) || {}).tekst || '', pct: p, n: d.n });
+      if (st === 'ok') sterk.push({ code, tekst: (doelen.find(code) || {}).tekst || '', pct: p, n: d.n });
     }
     nietDoelen.sort((a, b) => a.pct - b.pct);
+    sterk.sort((a, b) => b.pct - a.pct || b.n - a.n);
+
+    // Zeker of twijfel (Toernooi): hoe goed schat de leerling zichzelf in?
+    const zk = { 'zeker-juist': 0, 'zeker-fout': 0, 'twijfel-juist': 0, 'twijfel-fout': 0 };
+    for (const e of s.items) {
+      if (!e.zeker) continue;
+      zk[`${e.zeker}-${e.juist ? 'juist' : 'fout'}`]++;
+      if (e.zeker === 'zeker' && !e.juist && e.doel) {
+        const m = misverstanden.get(e.doel) || misverstanden.set(e.doel, new Map()).get(e.doel);
+        m.set(s.naam, (m.get(s.naam) || 0) + 1);
+      }
+    }
+    const zeker = zk['zeker-juist'] + zk['zeker-fout'];
+    const twijfel = zk['twijfel-juist'] + zk['twijfel-fout'];
 
     const gok = gokken.filter(g => (g.leerling && g.leerling === s.key) || String(g.naam || '').toLowerCase() === s.naam.toLowerCase()).length;
     const leeg = s.items.filter(e => e.leeg).length;
@@ -135,6 +154,10 @@ function overzicht({ dagen = 42, vak = '' } = {}) {
       else if (nietDoelen.length) signalen.push({ niveau: 'info', tekst: `${nietDoelen.length === 1 ? '1 doel' : `${nietDoelen.length} doelen`} nog niet beheerst` });
       if (leeg >= 5 && leeg / n > 0.2) signalen.push({ niveau: 'info', tekst: `Liet ${leeg} vragen open` });
     }
+    // Overschat zichzelf: de meeste fouten maakte hij terwijl hij zeker was. Onderschat: twijfelt vaak, en dat terwijl het meestal juist is.
+    const fouten = zk['zeker-fout'] + zk['twijfel-fout'];
+    if (zk['zeker-fout'] >= 3 && zk['zeker-fout'] / fouten >= 0.6 && zk['zeker-fout'] / zeker >= 0.2) signalen.push({ niveau: 'oranje', tekst: `Was ${zk['zeker-fout']} keer zeker, maar zat fout: overschat zichzelf of een misverstand?` });
+    if (twijfel >= 5 && twijfel / (zeker + twijfel) >= 0.4 && zk['twijfel-juist'] / twijfel >= 0.7) signalen.push({ niveau: 'info', tekst: `Twijfelt vaak terwijl het juist is (${zk['twijfel-juist']}×): weinig zelfvertrouwen?` });
     if (gok >= 2) signalen.push({ niveau: 'oranje', tekst: `Gokte ${gok} keer (snel en fout na elkaar)` });
     else if (gok === 1) signalen.push({ niveau: 'info', tekst: 'Gokte 1 keer' });
     if (s.opLijst && laatsteKlas && (!laatst || Date.parse(laatsteKlas) - Date.parse(laatst) > 7 * DAG)) {
@@ -158,7 +181,10 @@ function overzicht({ dagen = 42, vak = '' } = {}) {
       antwoorden: n, pct: pct(juist, n), recentPct, tovKlas, trend, gok, leeg, laatst, kleur, signalen, advies,
       lijn: lijn.slice(-12).map(({ diff, ...x }) => x),
       vakken: [...perVak.values()].map(v => ({ ...v, pct: pct(v.juist, v.n) })).sort((a, b) => a.pct - b.pct),
-      nietDoelen: nietDoelen.slice(0, 8),
+      nietDoelen,
+      sterk: sterk.slice(0, 6),
+      zekerheid: zeker + twijfel ? zk : null,
+      notities: s.opLijst ? (alleNotities[s.key] || []).slice().reverse() : [],
     });
   }
 
@@ -183,8 +209,14 @@ function overzicht({ dagen = 42, vak = '' } = {}) {
     if (e.juist) x.juist++;
   }
 
+  // Doelen waar leerlingen zeker waren maar toch fout zaten: hardnekkige misverstanden, de moeite om klassikaal uit te klaren.
+  const misRows = [...misverstanden.entries()].map(([code, m]) => ({ code, tekst: (doelen.find(code) || {}).tekst || '', vak: vakVan(code), namen: [...m.keys()].sort(), keer: [...m.values()].reduce((a, b) => a + b, 0) }))
+    .sort((a, b) => b.namen.length - a.namen.length || b.keer - a.keer);
+
   return {
     schooljaar: logboek.schooljaar(),
+    leerjaar: k.leerjaar,
+    misverstanden: misRows.slice(0, 8),
     klas: k.naam,
     dagen,
     vak,

@@ -47,7 +47,8 @@ function validate(quiz) {
     if (niveau && niveau !== 'schildknaap') out.niveau = niveau;
     return out;
   });
-  return { title, questions };
+  // Een herhaalquiz uit het zorgoverzicht: elke leerling krijgt de vragen in zijn eigen volgorde (gespreid herhalen).
+  return quiz.herhaal === true ? { title, herhaal: true, questions } : { title, questions };
 }
 
 function list() {
@@ -100,6 +101,7 @@ function play(file, { shared = false } = {}) {
 // De vragen voor één leerling, door elkaar (als nummers in quiz.questions).
 // Speelt elke leerling op zijn eigen niveau, dan alleen de vragen van zijn niveau (Schildknaap als hij niet op de klaslijst staat).
 function order(quiz, name) {
+  if (quiz.herhaal) return require('./herhaal').volgorde(quiz, name);
   let all = quiz.questions.map((_, i) => i);
   if (quiz.perLeerling) {
     const leerling = klas.match(name);
