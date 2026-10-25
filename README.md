@@ -289,3 +289,7 @@ Quizzen zijn JSON-bestanden in de map `quizzes/`. Kijk naar `quizzes/voorbeeld-b
 - Een vraag sluit als de tijd om is of als iedereen heeft geantwoord. Je kunt ook zelf op **Toon antwoord** klikken.
 - Leerlingen die hun pagina herladen of even geen wifi hebben, komen terug met dezelfde naam en score.
 - Het docentenscherm werkt alleen op de pc waar de server draait, zodat leerlingen het spel niet kunnen besturen.
+
+## Licentie
+
+© 2026 Jorn Duthoo. Alle rechten voorbehouden. De code is openbaar te bekijken, maar kopiëren, aanpassen of verspreiden mag niet zonder schriftelijke toestemming. Leerkrachten die LANcelot rechtstreeks van Jorn kregen, mogen het gratis in hun eigen lessen gebruiken. Zie [LICENSE](LICENSE).
