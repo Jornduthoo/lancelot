@@ -7,7 +7,8 @@ const SlagDraw = (() => {
   const colorOf = (team, color) => TEAM[team] || COLORS[((color % 8) + 8) % 8] || COLORS[0];
 
   // De burchtmuur rond de arena. Bovenaan is ze dieper: daar zie je de voorkant, met posters en fakkels.
-  const EDGE = { n: 230, s: 64, w: 64, e: 64 };
+  const EDGE = { n: 230, s: 80, w: 80, e: 80 };
+  const GATE = 220; // lengte van de poort achter elk kamp, langs de muur
   const FACE = 175; // hoogte van de voorkant van de noordmuur
   const wallNeon = w => (w.x + w.w / 2 < Arena.W * .4 ? '#ff6b86' : w.x + w.w / 2 > Arena.W * .6 ? '#5ea3ff' : '#4cc9ff');
   const isPillar = w => Math.abs(w.w - w.h) < Math.min(w.w, w.h) * .4;
@@ -44,12 +45,35 @@ const SlagDraw = (() => {
       if (i) torches.push({ x: i * W / slots, y: -FACE * .62 });
     }
     torches.push({ x: 26, y: -FACE * .62 }, { x: W - 26, y: -FACE * .62 });
+    const side = x => (x < W / 2 ? TEAM.rood : TEAM.blauw);
+    // Torens op de hoeken (rond, met een spits dak), poorten achter de kampen met twee flanktorens,
+    // en vierkante torens langs de zuidmuur en de zijmuren.
+    const round = [
+      { x: -EDGE.w * .5, y: -EDGE.n + 66, R: 60, color: TEAM.rood }, { x: W + EDGE.e * .5, y: -EDGE.n + 66, R: 60, color: TEAM.blauw },
+      { x: -EDGE.w * .5, y: H + EDGE.s * .5, R: 60, color: TEAM.rood }, { x: W + EDGE.e * .5, y: H + EDGE.s * .5, R: 60, color: TEAM.blauw },
+    ];
+    const gates = [{ x: -EDGE.w / 2, y: H / 2, dir: 1, color: TEAM.rood }, { x: W + EDGE.e / 2, y: H / 2, dir: -1, color: TEAM.blauw }];
+    for (const gt of gates) for (const s of [-1, 1]) round.push({ x: gt.x, y: gt.y + s * GATE / 2, R: 36, color: gt.color });
+    const square = [];
+    for (const fx of [.25, .5, .75]) square.push({ x: fx * W, y: H + EDGE.s / 2, s: EDGE.s + 14, color: fx === .5 ? '#ffc94a' : side(fx * W) });
+    for (const fy of [.18, .82]) {
+      square.push({ x: -EDGE.w / 2, y: fy * H, s: EDGE.w + 14, color: TEAM.rood }, { x: W + EDGE.e / 2, y: fy * H, s: EDGE.e + 14, color: TEAM.blauw });
+    }
+    // Fakkels aan de binnenkant van de zijmuren en de zuidmuur, niet bij een poort of toren.
+    const free = (v, list) => list.every(([c, m]) => Math.abs(v - c) > m);
+    const sideBusy = [[H / 2, GATE / 2 + 50], [H * .18, 70], [H * .82, 70]];
+    for (let y = 110; y < H - 90; y += 190) {
+      if (!free(y, sideBusy)) continue;
+      torches.push({ x: -9, y: y + 16, s: .75 }, { x: W + 9, y: y + 16, s: .75 });
+    }
+    const southBusy = [[W * .25, 80], [W * .5, 80], [W * .75, 80]];
+    for (let x = 130; x < W - 100; x += 210) if (free(x, southBusy)) torches.push({ x, y: H + 13, s: .75 });
     const beacons = [
-      { x: -EDGE.w * .5, y: -EDGE.n + 52, color: TEAM.rood }, { x: W + EDGE.e * .5, y: -EDGE.n + 52, color: TEAM.blauw },
-      { x: -EDGE.w * .5, y: H + EDGE.s * .5, color: TEAM.rood }, { x: W + EDGE.e * .5, y: H + EDGE.s * .5, color: TEAM.blauw },
+      ...round.map(t => ({ x: t.x, y: t.y, color: t.color, s: t.R / 110 })),
+      ...square.map(t => ({ x: t.x, y: t.y, color: t.color, s: .55 })),
     ];
     const cores = Arena.WALLS.filter(isPillar).map(w => ({ x: w.x + w.w / 2, y: w.y + w.h / 2, r: Math.min(w.w, w.h) * .32, color: wallNeon(w) }));
-    deco = { key, lanes, art, torches, beacons, cores };
+    deco = { key, lanes, art, torches, beacons, cores, round, gates, square };
     return deco;
   }
 
@@ -75,7 +99,7 @@ const SlagDraw = (() => {
   }
 
   // De vloer: metalen platen, roosters, brandplekken, energiebanen, het midden en de kampen.
-  function paintFloor(g) {
+  function paintFloor(g, inner) {
     const W = Arena.W, H = Arena.H, C = Arena.CRYSTAL, r = rand(11);
     const bg = g.createLinearGradient(0, 0, W, 0);
     bg.addColorStop(0, '#2a1222');
@@ -122,6 +146,7 @@ const SlagDraw = (() => {
         }
       }
     }
+    edgeShade(g, inner);
     for (const [team, b] of Object.entries(Arena.BASES)) Glow.glow(g, b.x + b.w / 2, b.y + b.h / 2, H * .7, TEAM[team], .2);
     // Energiebanen: een gleuf in de vloer met een gloeiende kern.
     for (const l of decoNow().lanes) {
@@ -314,61 +339,198 @@ const SlagDraw = (() => {
     }
   }
 
-  // De burchtmuur rond de arena, met torens op de hoeken en posters op de voorkant van de noordmuur.
+  // Een ronde toren van bovenaf: stenen voet met kantelen en een spits leien dak met een vaantje.
+  function roundTower(g, x, y, R, color, r) {
+    const k = R / 54;
+    g.fillStyle = 'rgba(0, 0, 0, .5)';
+    g.beginPath(); g.arc(x + 7 * k, y + 10 * k, R, 0, Math.PI * 2); g.fill();
+    const tg = g.createRadialGradient(x - R * .3, y - R * .3, 4, x, y, R);
+    tg.addColorStop(0, '#6a6290');
+    tg.addColorStop(1, '#2a253e');
+    g.fillStyle = tg;
+    g.beginPath(); g.arc(x, y, R, 0, Math.PI * 2); g.fill();
+    g.strokeStyle = 'rgba(0, 0, 0, .35)';
+    g.lineWidth = 1.5;
+    for (const f of [.88, .76]) { g.beginPath(); g.arc(x, y, R * f, 0, Math.PI * 2); g.stroke(); }
+    const n = Math.max(8, Math.round(R / 5));
+    for (let i = 0; i < n; i++) {
+      const a = (i / n) * Math.PI * 2;
+      g.save();
+      g.translate(x + Math.cos(a) * (R - 7 * k), y + Math.sin(a) * (R - 7 * k));
+      g.rotate(a);
+      g.fillStyle = 'rgba(0, 0, 0, .4)';
+      g.fillRect(-5 * k, -6 * k, 12 * k, 14 * k);
+      g.fillStyle = r() < .5 ? '#7a72a4' : '#6c6494';
+      g.fillRect(-6 * k, -7 * k, 12 * k, 14 * k);
+      g.fillStyle = '#100d1c';
+      g.fillRect(-1 * k, -4 * k, 2 * k, 8 * k);
+      g.restore();
+    }
+    // Dak: kegel met leien, licht van linksboven.
+    const rr = R * .7;
+    const rg = g.createRadialGradient(x - rr * .4, y - rr * .45, 2, x, y, rr * 1.05);
+    rg.addColorStop(0, '#6f7aa6');
+    rg.addColorStop(.6, '#343b5e');
+    rg.addColorStop(1, '#161a2e');
+    g.fillStyle = rg;
+    g.beginPath(); g.arc(x, y, rr, 0, Math.PI * 2); g.fill();
+    g.strokeStyle = 'rgba(0, 0, 0, .35)';
+    g.lineWidth = 1.2;
+    for (const f of [.25, .5, .75]) { g.beginPath(); g.arc(x, y, rr * f, 0, Math.PI * 2); g.stroke(); }
+    g.strokeStyle = 'rgba(255, 255, 255, .13)';
+    for (let i = 0; i < 12; i++) {
+      const a = (i / 12) * Math.PI * 2;
+      g.beginPath(); g.moveTo(x, y); g.lineTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr); g.stroke();
+    }
+    g.strokeStyle = Glow.rgba(color, .85);
+    g.lineWidth = 2.5 * k;
+    g.beginPath(); g.arc(x, y, rr, 0, Math.PI * 2); g.stroke();
+    // Vaantje op de spits.
+    g.strokeStyle = '#d8c48a';
+    g.lineWidth = 2.2 * k;
+    g.beginPath(); g.moveTo(x, y); g.lineTo(x, y - R * .95); g.stroke();
+    g.fillStyle = color;
+    g.beginPath(); g.moveTo(x, y - R * .95); g.lineTo(x + R * .55, y - R * .82); g.lineTo(x + R * .4, y - R * .74); g.lineTo(x + R * .55, y - R * .64); g.lineTo(x, y - R * .62); g.closePath(); g.fill();
+    g.fillStyle = 'rgba(255, 255, 255, .3)';
+    g.fillRect(x, y - R * .95, R * .5, 1.5 * k);
+  }
+
+  // Een vierkante toren van bovenaf: stenen dak, kantelen rondom en een luik met een baken.
+  function squareTower(g, cx, cy, s, color, r) {
+    const x = cx - s / 2, y = cy - s / 2;
+    g.fillStyle = 'rgba(0, 0, 0, .5)';
+    g.fillRect(x + 7, y + 10, s, s);
+    stones(g, x, y, s, s, 24, 14, '#4a4366', r);
+    g.fillStyle = 'rgba(255, 255, 255, .16)';
+    g.fillRect(x, y, s, 2.5); g.fillRect(x, y, 2.5, s);
+    g.fillStyle = 'rgba(0, 0, 0, .4)';
+    g.fillRect(x, y + s - 3, s, 3); g.fillRect(x + s - 3, y, 3, s);
+    const m = s * .2;
+    for (let i = 0; i < 3; i++) {
+      const p = 3 + i * (s - m - 6) / 2;
+      for (const [mx, my] of [[x + p, y + 3], [x + p, y + s - m - 3], [x + 3, y + p], [x + s - m - 3, y + p]]) {
+        g.fillStyle = 'rgba(0, 0, 0, .45)';
+        g.fillRect(mx + 2, my + 3, m, m);
+        g.fillStyle = '#6c6494';
+        g.fillRect(mx, my, m, m);
+        g.fillStyle = 'rgba(255, 255, 255, .22)';
+        g.fillRect(mx, my, m, 1.5);
+      }
+    }
+    g.fillStyle = '#100d1c';
+    g.fillRect(cx - s * .17, cy - s * .17, s * .34, s * .34);
+    g.strokeStyle = Glow.rgba(color, .8);
+    g.lineWidth = 2;
+    g.strokeRect(cx - s * .17, cy - s * .17, s * .34, s * .34);
+  }
+
+  // De burchtmuur rond de arena: een weergang met kantelen en schietgaten, torens op de hoeken en langs de muren,
+  // een poort achter elk kamp, fakkels, en de voorkant van de noordmuur met posters.
   function paintRampart(g) {
     const W = Arena.W, H = Arena.H, E = EDGE, r = rand(37);
     const stone = '#3b3550';
-    // Bovenkant van de muren.
+    const d = decoNow();
+    // Bovenkant van de muren: de weergang.
     stones(g, -E.w, -E.n, W + E.w + E.e, E.n - FACE, 40, 20, stone, r);
     stones(g, -E.w, -FACE, E.w, H + FACE + E.s, 40, 20, stone, r);
     stones(g, W, -FACE, E.e, H + FACE + E.s, 40, 20, stone, r);
     stones(g, 0, H, W, E.s, 40, 20, stone, r);
-    // Kantelen langs de buitenkant.
-    const merlon = (x, y, w, h) => {
+    // Sleet in het midden van de weergang: een iets donkerder pad.
+    g.fillStyle = 'rgba(0, 0, 0, .14)';
+    g.fillRect(-E.w * .72, -FACE, E.w * .44, H + FACE + E.s * .3);
+    g.fillRect(W + E.e * .28, -FACE, E.e * .44, H + FACE + E.s * .3);
+    g.fillRect(-E.w * .3, H + E.s * .28, W + E.w * .6, E.s * .44);
+    // Kantelen langs de buitenkant, elk met een schietspleet.
+    const merlon = (x, y, w, h, upright) => {
       g.fillStyle = 'rgba(0, 0, 0, .5)';
       g.fillRect(x + 3, y + 4, w, h);
       g.fillStyle = '#58507a';
       g.fillRect(x, y, w, h);
       g.fillStyle = 'rgba(255, 255, 255, .2)';
       g.fillRect(x, y, w, 2);
+      g.fillStyle = 'rgba(0, 0, 0, .3)';
+      g.fillRect(x + w - 2, y, 2, h);
+      g.fillStyle = '#0c0a16';
+      if (upright) g.fillRect(x + w / 2 - 1.5, y + 3, 3, h - 6);
+      else g.fillRect(x + 3, y + h / 2 - 1.5, w - 6, 3);
     };
-    for (let x = -E.w + 6; x < W + E.e - 20; x += 40) { merlon(x, -E.n + 4, 20, 16); merlon(x, H + E.s - 20, 20, 16); }
-    for (let y = -E.n + 40; y < H + E.s - 30; y += 40) { merlon(-E.w + 4, y, 16, 20); merlon(W + E.e - 20, y, 16, 20); }
-    // Rand aan de binnenkant van de muren: een neonlijn.
-    g.fillStyle = 'rgba(0, 0, 0, .5)';
-    g.fillRect(0, H, W, 6);
-    g.fillRect(0, 0, 8, H);
-    g.fillRect(W - 8, 0, 8, H);
-    // Voorkant van de noordmuur: grote blokken, lampen en posters.
+    for (let x = -E.w + 6; x < W + E.e - 20; x += 40) { merlon(x, -E.n + 4, 20, 16, true); merlon(x, H + E.s - 20, 20, 16, true); }
+    for (let y = -E.n + 40; y < H + E.s - 30; y += 40) { merlon(-E.w + 4, y, 16, 20, false); merlon(W + E.e - 20, y, 16, 20, false); }
+    // Een lage borstwering aan de binnenkant, met inkepingen.
+    const lip = (x, y, w, h, upright) => {
+      g.fillStyle = 'rgba(0, 0, 0, .45)';
+      g.fillRect(x + 2, y + 3, w, h);
+      g.fillStyle = '#4d4670';
+      g.fillRect(x, y, w, h);
+      g.fillStyle = 'rgba(255, 255, 255, .16)';
+      g.fillRect(x, y, w, 1.5);
+      g.fillStyle = '#1b1729';
+      if (upright) for (let yy = y + 14; yy < y + h - 8; yy += 28) g.fillRect(x, yy, w, 8);
+      else for (let xx = x + 14; xx < x + w - 8; xx += 28) g.fillRect(xx, y, 8, h);
+    };
+    lip(-12, -FACE, 12, H + FACE, true);
+    lip(W, -FACE, 12, H + FACE, true);
+    lip(-E.w + 24, H, W + E.w + E.e - 48, 12, false);
+    // Fakkelhouders aan de borstwering.
+    for (const t of d.torches) {
+      if (t.y < 0) continue;
+      g.fillStyle = '#1a1626';
+      g.beginPath(); g.arc(t.x, t.y, 6, 0, Math.PI * 2); g.fill();
+      g.fillStyle = '#8a7a50';
+      g.beginPath(); g.arc(t.x, t.y, 4, 0, Math.PI * 2); g.fill();
+    }
+    // Voorkant van de noordmuur: grote blokken, mezekouwen bovenaan, een sokkel, lampen en posters.
+    stones(g, 0, -FACE, W, FACE, 60, 25, '#2e2944', r);
     const fg = g.createLinearGradient(0, -FACE, 0, 0);
-    fg.addColorStop(0, '#2c2740');
-    fg.addColorStop(1, '#141123');
+    fg.addColorStop(0, 'rgba(255, 255, 255, .03)');
+    fg.addColorStop(1, 'rgba(0, 0, 0, .45)');
     g.fillStyle = fg;
     g.fillRect(0, -FACE, W, FACE);
-    g.strokeStyle = 'rgba(0, 0, 0, .5)';
-    g.lineWidth = 1.5;
-    for (let y = -FACE + 25; y < 0; y += 25) { g.beginPath(); g.moveTo(0, y); g.lineTo(W, y); g.stroke(); }
-    for (let y = -FACE, row = 0; y < 0; y += 25, row++) {
-      for (let x = row % 2 ? 30 : 0; x < W; x += 60) { g.beginPath(); g.moveTo(x, y); g.lineTo(x, y + 25); g.stroke(); }
-    }
+    g.fillStyle = '#3a3454';
+    g.fillRect(0, -FACE, W, 12);
     g.fillStyle = 'rgba(255, 255, 255, .14)';
-    g.fillRect(0, -FACE, W, 3);
-    const d = decoNow();
+    g.fillRect(0, -FACE, W, 2);
+    g.fillStyle = '#07060d';
+    for (let x = 6; x < W; x += 22) g.fillRect(x, -FACE + 6, 10, 6);
+    const ms = g.createLinearGradient(0, -FACE + 12, 0, -FACE + 30);
+    ms.addColorStop(0, 'rgba(0, 0, 0, .55)');
+    ms.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    g.fillStyle = ms;
+    g.fillRect(0, -FACE + 12, W, 18);
+    // Sokkel met mos.
+    stones(g, 0, -24, W, 20, 48, 20, '#262236', r);
+    for (let x = 0; x < W; x += 9) {
+      if (r() < .45) { g.fillStyle = `rgba(80, 130, 70, ${.2 + r() * .25})`; g.fillRect(x, -24 + r() * 6, 7 + r() * 8, 3 + r() * 5); }
+    }
+    // Pilasters tussen de posters, achter de fakkels.
+    for (const t of d.torches) {
+      if (t.y >= 0) continue;
+      g.fillStyle = 'rgba(0, 0, 0, .35)';
+      g.fillRect(t.x - 12, -FACE + 12, 26, FACE - 36);
+      g.fillStyle = '#3d3658';
+      g.fillRect(t.x - 13, -FACE + 12, 24, FACE - 36);
+      g.fillStyle = 'rgba(255, 255, 255, .1)';
+      g.fillRect(t.x - 13, -FACE + 12, 2, FACE - 36);
+      g.fillStyle = '#07060d';
+      g.fillRect(t.x - 2, -FACE + 34, 4, 26);
+      g.fillRect(t.x - 6, -FACE + 43, 12, 3);
+    }
     for (const a of d.art) {
-      const ph = a.photo ? FACE - 30 : FACE - 26;
+      const ph = a.photo ? FACE - 46 : FACE - 42;
       const pw = ph * a.img.width / a.img.height;
-      const x = a.cx - pw / 2, y = -FACE + 12;
+      const x = a.cx - pw / 2, y = -FACE + 18;
       // Een lampje erboven met een lichtkegel.
       const cone = g.createLinearGradient(0, -FACE, 0, 0);
       cone.addColorStop(0, 'rgba(255, 236, 190, .28)');
       cone.addColorStop(1, 'rgba(255, 236, 190, 0)');
       g.fillStyle = cone;
-      g.beginPath(); g.moveTo(a.cx - 10, -FACE); g.lineTo(a.cx + 10, -FACE); g.lineTo(a.cx + pw * .75, -2); g.lineTo(a.cx - pw * .75, -2); g.closePath(); g.fill();
+      g.beginPath(); g.moveTo(a.cx - 10, -FACE + 12); g.lineTo(a.cx + 10, -FACE + 12); g.lineTo(a.cx + pw * .75, -2); g.lineTo(a.cx - pw * .75, -2); g.closePath(); g.fill();
       g.fillStyle = 'rgba(0, 0, 0, .55)';
       g.fillRect(x + 4, y + 5, pw, ph);
       g.drawImage(a.img, x, y, pw, ph);
     }
     for (const t of d.torches) {
+      if (t.y >= 0) continue;
       // Fakkelhouder (de vlam flakkert in arena()).
       g.fillStyle = '#1a1626';
       g.fillRect(t.x - 4, t.y, 8, 26);
@@ -377,30 +539,59 @@ const SlagDraw = (() => {
     }
     g.fillStyle = 'rgba(76, 201, 255, .9)';
     g.fillRect(0, -4, W, 3);
-    // Torens op de hoeken.
-    for (const b of d.beacons) {
-      const R = 54;
+    // Vierkante torens langs de muren.
+    for (const t of d.square) squareTower(g, t.x, t.y, t.s, t.color, r);
+    // De poorten achter de kampen: een poortgebouw met een valhek, en het krachtveld van het team erachter.
+    for (const gt of d.gates) {
+      const gw = E.w + 20, x0 = gt.dir > 0 ? -E.w : W - 20, y0 = gt.y - GATE / 2;
       g.fillStyle = 'rgba(0, 0, 0, .5)';
-      g.beginPath(); g.arc(b.x + 6, b.y + 8, R, 0, Math.PI * 2); g.fill();
-      const tg = g.createRadialGradient(b.x - R * .3, b.y - R * .3, 4, b.x, b.y, R);
-      tg.addColorStop(0, '#6a6290');
-      tg.addColorStop(1, '#2a253e');
-      g.fillStyle = tg;
-      g.beginPath(); g.arc(b.x, b.y, R, 0, Math.PI * 2); g.fill();
-      for (let i = 0; i < 10; i++) {
-        const a = (i / 10) * Math.PI * 2;
-        g.fillStyle = '#7a72a4';
-        g.save();
-        g.translate(b.x + Math.cos(a) * (R - 8), b.y + Math.sin(a) * (R - 8));
-        g.rotate(a);
-        g.fillRect(-6, -8, 12, 16);
-        g.restore();
-      }
-      g.fillStyle = '#16122a';
-      g.beginPath(); g.arc(b.x, b.y, R * .55, 0, Math.PI * 2); g.fill();
-      g.strokeStyle = b.color;
-      g.lineWidth = 3;
-      g.stroke();
+      g.fillRect(x0 + 7, y0 + 10, gw, GATE);
+      stones(g, x0, y0, gw, GATE, 30, 18, '#463f62', r);
+      g.fillStyle = 'rgba(255, 255, 255, .15)';
+      g.fillRect(x0, y0, gw, 2.5); g.fillRect(x0, y0, 2.5, GATE);
+      g.fillStyle = 'rgba(0, 0, 0, .4)';
+      g.fillRect(x0, y0 + GATE - 3, gw, 3); g.fillRect(x0 + gw - 3, y0, 3, GATE);
+      for (let y = y0 + 40; y < y0 + GATE - 50; y += 26) for (const mx of [x0 + 3, x0 + gw - 15]) merlon(mx, y, 12, 14, false);
+      const ix = gt.dir > 0 ? x0 + gw - 12 : x0;
+      g.fillStyle = '#05040a';
+      g.fillRect(ix, gt.y - 58, 12, 116);
+      Glow.glow(g, ix + 6 + gt.dir * 10, gt.y, 90, gt.color, .55);
+      g.fillStyle = '#9aa0b8';
+      for (let y = gt.y - 54; y < gt.y + 54; y += 10) g.fillRect(ix + 1, y, 10, 3);
+      g.fillRect(ix + (gt.dir > 0 ? 9 : 0), gt.y - 58, 3, 116);
+      // Het schild van het team op het dak van de poort.
+      const sx = x0 + gw / 2 - gt.dir * 4, sy = gt.y, s = 15;
+      g.fillStyle = Glow.rgba(gt.color, .85);
+      g.strokeStyle = '#ffd36b';
+      g.lineWidth = 2.5;
+      g.beginPath();
+      g.moveTo(sx - s, sy - s); g.lineTo(sx + s, sy - s); g.lineTo(sx + s, sy);
+      g.quadraticCurveTo(sx + s, sy + s * .9, sx, sy + s * 1.3); g.quadraticCurveTo(sx - s, sy + s * .9, sx - s, sy);
+      g.closePath(); g.fill(); g.stroke();
+    }
+    // Ronde torens: op de hoeken en naast de poorten.
+    for (const t of d.round) roundTower(g, t.x, t.y, t.R, t.color, r);
+  }
+
+  // De schaduw van de hoge burchtmuren op de vloer, en in 3D ook rond de muren binnenin.
+  function edgeShade(g, inner) {
+    const W = Arena.W, H = Arena.H;
+    const band = (x, y, w, h, x0, y0, x1, y1, a) => {
+      const gr = g.createLinearGradient(x0, y0, x1, y1);
+      gr.addColorStop(0, `rgba(0, 0, 8, ${a})`);
+      gr.addColorStop(1, 'rgba(0, 0, 8, 0)');
+      g.fillStyle = gr;
+      g.fillRect(x, y, w, h);
+    };
+    band(0, 0, W, 110, 0, 0, 0, 110, .6);
+    band(0, 0, 70, H, 0, 0, 70, 0, .5);
+    band(W - 70, 0, 70, H, W, 0, W - 70, 0, .5);
+    band(0, H - 50, W, 50, 0, H, 0, H - 50, .4);
+    if (!inner) return;
+    for (const w of Arena.WALLS) {
+      g.fillStyle = 'rgba(0, 0, 8, .2)';
+      g.fillRect(w.x - 10, w.y - 10, w.w + 20, w.h + 20);
+      g.fillRect(w.x - 5, w.y - 5, w.w + 10, w.h + 10);
     }
   }
 
@@ -425,7 +616,7 @@ const SlagDraw = (() => {
     g.scale(k, k);
     const ox = walls ? EDGE.w : 0, oy = walls ? EDGE.n : 0;
     g.translate(ox, oy);
-    paintFloor(g);
+    paintFloor(g, !walls);
     if (walls) {
       paintWalls(g);
       paintRampart(g);
@@ -482,12 +673,13 @@ const SlagDraw = (() => {
       const [px, py] = P(f.x, f.y);
       if (!on(px, py, 60)) continue;
       const fl = .8 + Math.sin(t * 13 + f.x) * .1 + Math.sin(t * 7.3 + f.x * .37) * .1;
-      Glow.glow(ctx, px, py - 4 * sc, 46 * sc * fl + 4, '#ff8a2a', .75 * fl);
-      Glow.glow(ctx, px, py - 6 * sc, 14 * sc * fl + 2, '#fff2b0', .95);
+      const k = f.s || 1;
+      Glow.glow(ctx, px, py - 4 * sc, 46 * k * sc * fl + 4, '#ff8a2a', .75 * fl);
+      Glow.glow(ctx, px, py - 6 * sc, 14 * k * sc * fl + 2, '#fff2b0', .95);
     }
     for (const b of d.beacons) {
       const [px, py] = P(b.x, b.y);
-      if (on(px, py, 100)) Glow.glow(ctx, px, py, (34 + Math.sin(t * 2 + b.x) * 8) * sc + 4, b.color, .8);
+      if (on(px, py, 100)) Glow.glow(ctx, px, py, (34 + Math.sin(t * 2 + b.x + b.y) * 8) * b.s * sc + 4, b.color, .8);
     }
     // Kampen: een krachtveld dat zacht pulseert, met een lichtrand die rondloopt.
     for (const [team, b] of Object.entries(Arena.BASES)) {
