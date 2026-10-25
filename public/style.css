@@ -591,6 +591,8 @@ body:not([data-rt="1"]) #rondetafel, body:not([data-tw="1"]) #toren { display: n
 /* Bord van de toren */
 .tw-intro { display: flex; gap: 20px; align-items: center; }
 .tw-intro img { width: 110px; flex: none; filter: drop-shadow(0 0 20px var(--cyan-glow)); }
+/* Het icoon van de tegel op het startscherm, ook bij de uitleg van elk spel. */
+.tw-intro .game-logo { width: 120px; height: 120px; border-radius: 20px; animation: float 5s ease-in-out infinite; }
 .tw-intro p { margin: 0 0 8px; }
 .tw-host .names .name { border-bottom: 3px solid var(--cape, var(--cyan)); }
 .tw-clock { font-family: var(--tech); font-weight: 800; font-size: 2.2rem; color: var(--cyan); text-shadow: 0 0 18px var(--cyan-glow); }
@@ -705,7 +707,6 @@ body.sj-host:has(#play:not(.hidden)) { background: transparent; }
 .sj-host .sj-race li:nth-child(3) .pos { background: linear-gradient(180deg, #ffc58a, #a8601e); color: #2a1200; }
 .sj-host .sj-race .gold { font-size: 1.45rem; text-shadow: 0 0 14px rgba(255, 201, 74, .55); }
 .sj-host .sj-race .gold .coin { width: 26px; height: 26px; }
-.sj-chest { width: 120px; margin: 0 auto; filter: drop-shadow(0 0 24px rgba(255, 201, 74, .45)); animation: float 5s ease-in-out infinite; }
 .sj-total { text-align: center; font-family: var(--tech); font-weight: 800; font-size: 1.8rem; color: var(--gold); }
 @media (max-width: 1000px) { .sj-board { grid-template-columns: 1fr; } }
 .address-choice { padding: 6px 12px; margin: 4px 0 0 6px; font-size: .85rem; }
@@ -770,7 +771,6 @@ body:not([data-ls="1"]) #laserslag { display: none !important; }
 .ls-out-timer { margin: 0 0 10px; color: var(--muted); font-family: var(--tech); }
 .ls-q-actions { display: flex; justify-content: center; }
 /* Laserslag op het bord */
-.ls-logo { width: 110px; flex: none; filter: drop-shadow(0 0 20px var(--cyan-glow)); }
 .ls-teams { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
 .ls-team { background: var(--panel); box-shadow: inset 0 0 0 1px var(--line); padding: 12px 14px; }
 .ls-team h3 { margin: 0 0 10px; font-family: var(--tech); text-transform: uppercase; letter-spacing: .06em; }
@@ -1072,7 +1072,6 @@ body:not([data-kr="1"]) #kristalroof { display: none !important; }
 .kr-alert.good { background: rgba(46, 230, 166, .92); color: #04121f; }
 .kr-alert.hidden { display: none; }
 .sj-race .kr-gems { color: var(--cyan); }
-.kr-logo { filter: drop-shadow(0 0 24px rgba(76, 201, 255, .5)); }
 /* Kristalroof: een kristalgrot in plaats van de schatkamer. */
 .kr-crystal { display: block; width: 100%; height: 210px; }
 .kr-host .kr-vault { background: linear-gradient(180deg, rgba(20, 14, 48, .82), rgba(8, 6, 22, .9)); box-shadow: inset 0 0 0 1px rgba(76, 201, 255, .5), 0 0 34px rgba(120, 90, 255, .25); }
@@ -1171,7 +1170,6 @@ body:not([data-vr="1"]) #verrader { display: none !important; }
 @keyframes grow { from { width: 0; } }
 .vr-winner { text-align: center; font-size: 6rem; }
 .vr-final li.verrader { box-shadow: inset 0 0 0 2px var(--bad); }
-.vr-logo { filter: drop-shadow(0 0 24px rgba(255, 77, 109, .5)); }
 /* De Verrader: de burchtzaal bij nacht, de kern op een sokkel, de Ronde Tafel. */
 .vr-core-cv { display: block; width: 100%; height: 250px; }
 .vr-host .vr-core, .vr-host .vr-traitor-count { background: linear-gradient(180deg, rgba(22, 16, 40, .82), rgba(8, 6, 18, .9)); box-shadow: inset 0 0 0 1px rgba(76, 201, 255, .4), 0 0 30px rgba(76, 201, 255, .15); }
@@ -1217,7 +1215,6 @@ body:not([data-bb="1"]) #burcht { display: none !important; }
 #burcht, #duel { display: contents; }
 #bb-game { display: flex; flex-direction: column; gap: 12px; position: relative; }
 #bb-game.hidden { display: none; }
-.bb-logo { filter: drop-shadow(0 0 24px rgba(159, 180, 217, .5)); }
 .bb-dragon-mark { font-size: 5rem; animation: breathe 1.2s ease-in-out infinite; }
 .bb-mini { display: flex; gap: 6px; height: 44px; align-items: flex-end; padding: 6px 8px; border-radius: 10px; background: rgba(76, 201, 255, .08); box-shadow: inset 0 0 0 1px var(--line); }
 .bb-mini-col { flex: 1; height: 100%; display: flex; align-items: flex-end; border-bottom: 2px dashed rgba(255, 77, 109, .6); }
@@ -1272,7 +1269,6 @@ body[data-du="1"] #toernooi, body[data-du="1"] #rondetafel, body[data-du="1"] #t
 body:not([data-du="1"]) #duel { display: none !important; }
 #du-game { display: flex; flex-direction: column; gap: 12px; position: relative; }
 #du-game.hidden { display: none; }
-.du-logo { filter: drop-shadow(0 0 24px rgba(255, 77, 109, .45)); }
 .du-round { margin: 0; text-align: center; }
 .du-versus { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 10px; }
 .du-versus .du-side { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px; border-radius: 12px; background: var(--panel); box-shadow: inset 0 0 0 1px var(--line); }
@@ -1328,7 +1324,6 @@ body:not([data-rk="1"]) #rijk { display: none !important; }
 #rijk { display: contents; }
 #rk-game { display: flex; flex-direction: column; gap: 12px; position: relative; }
 #rk-game.hidden { display: none; }
-.rk-logo { filter: drop-shadow(0 0 24px rgba(76, 201, 255, .45)); }
 .rk-dot { display: inline-block; width: 12px; height: 12px; margin-right: 8px; border-radius: 50%; background: var(--team, var(--rk-team, #fff)); box-shadow: 0 0 10px var(--team, var(--rk-team, #fff)); vertical-align: middle; flex: none; }
 .rk-me { display: flex; align-items: center; padding: 8px 14px; border-radius: 10px; font-weight: 800; background: color-mix(in srgb, var(--rk-team, #4cc9ff) 22%, transparent); box-shadow: inset 0 0 0 2px var(--rk-team, #4cc9ff); }
 .rk-banner { display: flex; flex-direction: column; gap: 2px; margin: 8px 0 12px; padding: 14px; border-radius: 12px; background: color-mix(in srgb, var(--rk-team, #4cc9ff) 25%, transparent); box-shadow: inset 0 0 0 2px var(--rk-team, #4cc9ff), 0 0 24px color-mix(in srgb, var(--rk-team, #4cc9ff) 40%, transparent); }
@@ -1601,7 +1596,6 @@ body:not([data-pk="1"]) #packnight { display: none !important; }
   .pk-pad .ls-btn { width: 54px; height: 54px; }
   .pk-use { width: 84px; height: 84px; }
 }
-.pk-logo { filter: drop-shadow(0 0 24px rgba(255, 201, 74, .5)); }
 .pk-board { height: calc(100vh - 190px); }
 .pk-stage { background: #03060d; }
 
@@ -1643,7 +1637,6 @@ body:not([data-sr="1"]) #rossen { display: none !important; }
   .sr-weapons .sr-laser { width: 100px; height: 100px; }
   .sr-w, .sr-touch .ls-load { width: 62px; height: 62px; font-size: 1.35rem; }
 }
-.sr-logo { filter: drop-shadow(0 0 20px rgba(199, 125, 255, .6)); }
 
 /* Opwarmer: voorgestelde herhaalvragen */
 .ow-vraag .play { cursor: default; align-items: flex-start; padding: 12px 14px; }

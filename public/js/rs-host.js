@@ -190,40 +190,6 @@ setInterval(() => {
   if (left < 60000 && left > 59000 && !state.warned) { state.warned = true; banner('⏳ Nog één minuut!'); sfx.go(); }
 }, 200);
 
-// Lansslangen die over het introscherm kronkelen.
-(function intro() {
-  const c = $('intro');
-  const ictx = c.getContext('2d');
-  const colors = ['#ff6bd6', '#4cc9ff', '#ffc94a'];
-  (function loop(t) {
-    if (view === 'setup') {
-      ictx.setTransform(1, 0, 0, 1, 0, 0);
-      ictx.clearRect(0, 0, c.width, c.height);
-      colors.forEach((col, i) => {
-        const pts = [];
-        for (let j = 0; j < 22; j++) {
-          const k = t / 900 + i * 2.1 - j * .09;
-          pts.push(110 + Math.cos(k) * (60 + i * 8) + Math.sin(k * 3) * 6, 70 + Math.sin(k * 1.3) * (34 + i * 4));
-        }
-        ictx.lineCap = ictx.lineJoin = 'round';
-        for (const [lw, st] of [[16, Glow.rgba(col, .25)], [9, col], [2, '#fff']]) {
-          ictx.strokeStyle = st;
-          ictx.lineWidth = lw;
-          ictx.beginPath();
-          for (let j = 0; j < pts.length; j += 2) ictx.lineTo(pts[j], pts[j + 1]);
-          ictx.stroke();
-        }
-        const a = Math.atan2(pts[1] - pts[3], pts[0] - pts[2]);
-        ictx.save();
-        ictx.translate(pts[0], pts[1]);
-        ictx.rotate(a);
-        ictx.drawImage(RsDraw.headSprite(col), -52 * .16, -64 * .16, 200 * .16, 128 * .16);
-        ictx.restore();
-      });
-    }
-    requestAnimationFrame(loop);
-  })(0);
-})();
 
 $('start').addEventListener('click', () => socket.emit('rs-start'));
 $('p-finish').addEventListener('click', () => {

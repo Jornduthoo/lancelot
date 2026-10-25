@@ -10,8 +10,6 @@ body[data-lb="1"] main > div:not(#leraarbaas) { display: none !important; }
 :root { --nd0: #3fd8ff; --nd1: #ff3d6e; --boss: #c23cff; --boss-glow: rgba(194, 60, 255, .55); }
 
 /* ---------- Neon Duel: bord ---------- */
-.nd-logo { flex: none; display: flex; align-items: center; gap: 6px; font-size: 3rem; filter: drop-shadow(0 0 18px rgba(199, 125, 255, .6)); }
-.nd-logo b { font-family: var(--tech); font-style: italic; font-size: 2.2rem; color: var(--gold); text-shadow: 0 0 14px rgba(255, 201, 74, .8); }
 .nd-teams { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 10px; }
 .nd-team { padding: 14px; border-radius: 14px; background: rgba(10, 6, 30, .55); box-shadow: inset 0 0 0 1px var(--line); min-height: 120px; }
 .nd-team h3 { margin: 0 0 10px; font-family: var(--tech); letter-spacing: .06em; }

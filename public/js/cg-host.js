@@ -46,13 +46,6 @@ QuizList.mount($('quiz-list'), {
   },
 });
 
-// Een draak als logo bij de uitleg.
-(function logo() {
-  const c = $('logo-canvas');
-  const g = c.getContext('2d');
-  const img = CgArt.dragon(1, 0, 3.6);
-  g.drawImage(img, (c.width - img.width) / 2, (c.height - img.height) / 2);
-})();
 
 socket.on('cg-state', s => {
   prev = state;
