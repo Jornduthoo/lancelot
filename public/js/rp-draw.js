@@ -793,5 +793,5 @@ const RpDraw = (() => {
     ctx.restore();
   }
 
-  return { horse, sprite, live, mapImage, marker, colors, shade, rgba, dot, glowLine, FRAMES, BW, BH };
+  return { horse, sprite, live, mapImage, marker, colors, shade, rgba, dot, glowLine, onMain, EDGE, FRAMES, BW, BH };
 })();

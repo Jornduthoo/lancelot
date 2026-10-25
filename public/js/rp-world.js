@@ -90,7 +90,7 @@
   // Alle baanpunten in platte lijsten (snel, ook op een Chromebook).
   const X = [], Y = [], TX = [], TY = [], S = [], HALF = [], PATH = [], NEXT = [], PREV = [], GROUND = [], FLAG = [];
   const PATHS = [];
-  const F_PAD = 1, F_GAP = 2, F_BOX = 4, F_START = 8;
+  const F_PAD = 1, F_GAP = 2, F_BOX = 4, F_START = 8, F_FORK = 16;
 
   function addPath(points, closed, half, info) {
     const first = X.length;
@@ -158,6 +158,26 @@
     RAMPS.push({ i, len, h });
   }
   const step = (i, n) => { for (let k = 0; k < Math.abs(n); k++) { const j = n > 0 ? NEXT[i] : PREV[i]; if (j < 0) break; i = j; } return i; };
+
+  // Rond een splitsing liggen twee wegen over elkaar. De stuurhulp volgt daar de weg
+  // waar je paard al naartoe kijkt, anders trekt ze je heen en weer.
+  const FORK_OF = new Int16Array(X.length).fill(-1);
+  const FORKS = [];
+  for (const p of PATHS) {
+    if (p.closed) continue;
+    for (const [end, br] of [[p.from, p.first], [p.to, p.last]]) {
+      const zone = { main: [], br: [] };
+      for (let m = -14; m <= 14; m++) zone.main.push(step(end, m));
+      for (let m = 0; m <= 16; m++) zone.br.push(br === p.first ? Math.min(p.last, p.first + m) : Math.max(p.first, p.last - m));
+      for (const i of [...zone.main, ...zone.br]) { FLAG[i] |= F_FORK; FORK_OF[i] = FORKS.length; }
+      FORKS.push(zone);
+    }
+  }
+  const nearestOf = (list, x, y) => {
+    let best = list[0], bd = Infinity;
+    for (const i of list) { const d = (X[i] - x) ** 2 + (Y[i] - y) ** 2; if (d < bd) { bd = d; best = i; } }
+    return best;
+  };
 
   const kloof = pathOf('kloof');
   const GAP = { from: at(kloof, .43), to: at(kloof, .55) };
@@ -335,10 +355,18 @@
     // Stuurhulp: rijd je ongeveer met de weg mee, dan draait het paard zelf mee in de bocht
     // en blijft het weg van de rand. Stuur je zelf, dan helpt het maar een beetje.
     if (input.assist && !air && !spin && l.i >= 0 && s.v > 80) {
-      const fwd = Math.cos(s.a) * TX[l.i] + Math.sin(s.a) * TY[l.i] >= 0 ? 1 : -1;
-      const j = step(l.i, 4 * fwd);
+      let i = l.i, edge = l.lat / (HALF[l.i] || 1);
+      if (FLAG[i] & F_FORK) {
+        // Kies de weg (hoofdbaan of zijweg) die het best bij je kijkrichting past.
+        const zone = FORKS[FORK_OF[i]];
+        const cand = [nearestOf(zone.main, s.x, s.y), nearestOf(zone.br, s.x, s.y)];
+        const score = k => -Math.abs(Math.cos(s.a) * TX[k] + Math.sin(s.a) * TY[k]);
+        i = score(cand[0]) <= score(cand[1]) ? cand[0] : cand[1];
+        edge = (-(s.x - X[i]) * TY[i] + (s.y - Y[i]) * TX[i]) / HALF[i];
+      }
+      const fwd = Math.cos(s.a) * TX[i] + Math.sin(s.a) * TY[i] >= 0 ? 1 : -1;
+      const j = step(i, 4 * fwd);
       let want = Math.atan2(TY[j] * fwd, TX[j] * fwd);
-      const edge = l.lat / (HALF[l.i] || 1);
       if (Math.abs(edge) > .55) want -= Math.sign(edge) * fwd * Math.min(.45, (Math.abs(edge) - .55) * .9);
       const diff = wrap(want - s.a);
       if (Math.abs(diff) < 1.2) s.a = wrap(s.a + diff * Math.min(1, dt * (turn ? .7 : 2.6)));
