@@ -61,7 +61,7 @@ class Laserslag {
     this.reset();
     this.run++;
     this.quiz = quiz;
-    this.minutes = [3, 5, 6, 8, 10, 15].includes(minutes) ? minutes : 6;
+    this.minutes = [1, 2, 3, 5, 6, 8, 10, 15].includes(minutes) ? minutes : 6;
     this.mode = mode === 'ieder' ? 'ieder' : 'teams';
     this.tempo = tempoOf(tempo);
     this.phase = 'lobby';

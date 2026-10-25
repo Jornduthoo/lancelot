@@ -70,7 +70,7 @@ class NeonDuel {
     this.run++;
     this.quiz = quiz;
     this.bestOf = [1, 3, 5].includes(bestOf) ? bestOf : 3;
-    this.roundSec = [60, 90, 120, 180].includes(roundSec) ? roundSec : 120;
+    this.roundSec = [30, 45, 60, 90, 120, 180].includes(roundSec) ? roundSec : 120;
     this.tempo = tempoOf(tempo);
     this.phase = 'lobby';
     this.broadcast();

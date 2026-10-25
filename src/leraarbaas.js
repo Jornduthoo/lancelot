@@ -94,7 +94,7 @@ class LeraarBaas {
     this.reset();
     this.run++;
     this.quiz = quiz;
-    this.minutes = [5, 6, 8, 10, 12, 15].includes(minutes) ? minutes : 8;
+    this.minutes = [1, 2, 3, 5, 6, 8, 10, 12, 15].includes(minutes) ? minutes : 8;
     this.tempo = tempoOf(tempo);
     this.auto = auto !== false;
     this.qStats = quiz.questions.map(() => ({ right: 0, wrong: 0 }));
@@ -189,7 +189,7 @@ class LeraarBaas {
   }
 
   baseDamage() {
-    return 100 / ((Math.max(8, this.minutes * PER_MINUTE) / factor(this.tempo)) * this.size);
+    return 100 / ((Math.max(PER_MINUTE, this.minutes * PER_MINUTE) / factor(this.tempo)) * this.size);
   }
 
   answer(playerId, choice) {

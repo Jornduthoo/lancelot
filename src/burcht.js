@@ -55,7 +55,7 @@ class Burcht {
     this.reset();
     this.run++;
     this.quiz = quiz;
-    this.minutes = [3, 4, 5, 6, 8, 10, 12].includes(minutes) ? minutes : 6;
+    this.minutes = [1, 2, 3, 4, 5, 6, 8, 10, 12].includes(minutes) ? minutes : 6;
     this.level = LEVELS[level] ? level : 'normaal';
     this.phase = 'lobby';
     this.broadcast();
@@ -97,7 +97,7 @@ class Burcht {
     const total = this.players.size * this.minutes * PACE * LEVELS[this.level];
     this.need = Math.max(3, Math.round(total / PARTS.length));
     this.endTimer = setTimeout(() => this.dragon(), this.endsAt - Date.now());
-    this.addFeed('🧱 De bouw begint! De draak komt over ' + this.minutes + ' minuten.');
+    this.addFeed('🧱 De bouw begint! De draak komt over ' + (this.minutes === 1 ? '1 minuut.' : this.minutes + ' minuten.'));
     this.broadcast();
   }
 

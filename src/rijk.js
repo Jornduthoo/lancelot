@@ -196,7 +196,7 @@ class Rijk {
     this.data = data;
     this.quiz = quiz;
     this.quizId = String(quizFile || quiz.title).replace(/\.json$/, '');
-    this.minutes = [4, 6, 8, 10, 12, 15].includes(minutes) ? minutes : 8;
+    this.minutes = [1, 2, 3, 4, 6, 8, 10, 12, 15].includes(minutes) ? minutes : 8;
     this.phase = 'lobby';
     this.broadcast();
   }
