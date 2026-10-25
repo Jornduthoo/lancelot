@@ -202,7 +202,7 @@ Tip: een klas die goed en vlot antwoordt, houdt de poort. Bij veel foute antwoor
 1. Kies **De Arena** en dan **Robopaarden**, kies de speeltijd (1 tot 10 minuten) en klik op de quiz.
 2. Terwijl iedereen binnenkomt, bouwen de leerlingen hun robotpaard in de stal. Op het bord galopperen alle paarden al. Klik op **Start de race!**
 3. Chromebook: pijltjes of ZQSD (spatie = wapen, Shift = nitro). Gsm: het paard loopt vanzelf, met de duim sturen.
-4. Door een runenkist rijden geeft een vraag. Juist = een wapen. Op het bord kun je wisselen tussen de hele baan en **🎥 Volg de leider**.
+4. Door een gouden runenkist rijden geeft een vraag. Juist = een wapen. Daarna laden de kisten even op (de kist linksboven telt af), zodat het vooral racen blijft. Op het bord kun je wisselen tussen de hele baan en **🎥 Volg de leider**.
 
 ## Diepboor
 

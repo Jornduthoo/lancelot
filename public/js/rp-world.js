@@ -10,12 +10,12 @@
   const W = 9000;
   const H = 6000;
   const STEP = 30;          // afstand tussen twee baanpunten
-  const OFF = 220;          // zo ver naast de weg kan je nog (traag) door het gras
+  const OFF = 150;          // zo ver naast de weg kan je nog (traag) door het gras
   const R = 34;             // straal van een paard
   const G = 1150;           // zwaartekracht bij een sprong
 
   // Galopperen: optrekken, remmen, uitbollen en sturen.
-  const HORSE = { accel: 640, brake: 1300, coast: 260, max: 650, offMax: 330, nitro: 980, reverse: 200, turn: 2.5, nitroTime: 1.7, padTime: 1.1 };
+  const HORSE = { accel: 640, brake: 1300, coast: 260, max: 650, offMax: 450, nitro: 980, reverse: 200, turn: 2.7, nitroTime: 1.7, padTime: 1.1 };
 
   // Wapens (de server beslist over elke treffer).
   const ITEMS = {
@@ -189,8 +189,9 @@
       BOXES.push({ id: BOXES.length, i, x: X[i] - TY[i] * off, y: Y[i] + TX[i] * off });
     }
   }
-  for (const k of [.08, .21, .34, .52, .64, .77, .9]) boxRow(at(main, k), 4);
-  for (const k of [.25, .55, .85]) boxRow(at(pathOf('burcht'), k), 3);
+  // Weinig rijen: na een vraag laden de kisten even op, en het is vooral een race.
+  for (const k of [.2, .52, .82]) boxRow(at(main, k), 4);
+  boxRow(at(pathOf('burcht'), .5), 3);
   boxRow(at(pathOf('bos'), .5), 2);
   boxRow(at(kloof, .8), 3);
   const BOX_R = 52;
@@ -326,11 +327,22 @@
         s.v -= Math.sign(s.v) * Math.min(Math.abs(s.v), HORSE.coast * dt);
       }
       // In het gras verlies je snel snelheid.
-      if (s.v > max) s.v = Math.max(max, s.v - (out.off ? 1400 : 500) * dt);
+      if (s.v > max) s.v = Math.max(max, s.v - (out.off ? 700 : 500) * dt);
     }
     // Sturen: trager bij volle snelheid, zodat je bochten moet nemen; ook stilstaand kan je draaien.
-    const grip = Math.abs(s.v) < 60 ? .8 : Math.max(.62, Math.min(1, 1.15 - Math.abs(s.v) / 1700));
+    const grip = Math.abs(s.v) < 60 ? .8 : Math.max(.78, Math.min(1, 1.2 - Math.abs(s.v) / 1700));
     s.a = wrap(s.a + turn * HORSE.turn * dt * (air ? .45 : 1) * (s.v < -20 ? -grip : grip) + (spin ? dt * 11 : 0));
+    // Stuurhulp: rijd je ongeveer met de weg mee, dan draait het paard zelf mee in de bocht
+    // en blijft het weg van de rand. Stuur je zelf, dan helpt het maar een beetje.
+    if (input.assist && !air && !spin && l.i >= 0 && s.v > 80) {
+      const fwd = Math.cos(s.a) * TX[l.i] + Math.sin(s.a) * TY[l.i] >= 0 ? 1 : -1;
+      const j = step(l.i, 4 * fwd);
+      let want = Math.atan2(TY[j] * fwd, TX[j] * fwd);
+      const edge = l.lat / (HALF[l.i] || 1);
+      if (Math.abs(edge) > .55) want -= Math.sign(edge) * fwd * Math.min(.45, (Math.abs(edge) - .55) * .9);
+      const diff = wrap(want - s.a);
+      if (Math.abs(diff) < 1.2) s.a = wrap(s.a + diff * Math.min(1, dt * (turn ? .7 : 2.6)));
+    }
     const nx = s.x + Math.cos(s.a) * s.v * dt, ny = s.y + Math.sin(s.a) * s.v * dt;
     const before = ground;
     const ln = locate(nx, ny, s.loc);

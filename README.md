@@ -208,7 +208,8 @@ Op het **burchtplein** schieten robotmollen uit negen putten. Elke leerling slaa
 Elke leerling bouwt in de **stal** een eigen robotpaard (kleur, neon, manen, ogen, extra's en patroon) terwijl de klas wacht, en racet het daarna in 3D rond het **burchtmeer**. Iedereen rijdt op dezelfde baan; het bord toont de kaart met alle paarden of volgt de leider.
 
 - De baan: schansen, ⚡ nitrostroken, een **burchtroute** door de poorten, een sprong over de **Drakenkloof** (met te weinig vaart val je erin en begin je terug vóór de schans) en een **geheime bosweg**.
-- **Runenkisten**: rij erdoor en je krijgt een vraag (je paard draaft zelf verder). Juist = een wapen: 🔥 vuurbal, 🦅 robovalk (zoekt het paard voor je), ⚙️ spijkers, 🛡️ schild, ⚡ nitro ×3 of 🌩️ donderslag. Wie achteraan rijdt, krijgt vaker een sterk wapen.
+- **Runenkisten**: rij erdoor en je krijgt een vraag (je paard draaft zelf verder). Daarna laden de kisten even op (16 s, rustig tempo langer): zo blijft het vooral racen. Elke ronde geeft ook een gratis ⚡ nitro. Juist = een wapen: 🔥 vuurbal, 🦅 robovalk (zoekt het paard voor je), ⚙️ spijkers, 🛡️ schild, ⚡ nitro ×3 of 🌩️ donderslag. Wie achteraan rijdt, krijgt vaker een sterk wapen.
+- Stuurhulp: rijd je ongeveer met de weg mee, dan draait het paard zelf mee in de bocht. Gele pijlborden tonen de scherpe bochten.
 - Chromebook: pijltjes of ZQSD/WASD, spatie = wapen, Shift = nitro, 1-4 antwoorden. Gsm: het paard galoppeert vanzelf, duim stuurt. Elk antwoord komt in het logboek. Resultaten in `resultaten/`.
 
 ## Diepboor

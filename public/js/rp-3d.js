@@ -52,6 +52,47 @@ const Rp3D = (() => {
       }
     }
   }
+  // Gele pijlborden aan de buitenkant van elke bocht: zo zie je van ver waar de weg heen gaat.
+  const SIGNS = [];
+  for (const p of Wd.PATHS) {
+    let lastX = -1e9, lastY = -1e9;
+    for (let i = p.first; i <= p.last; i += 2) {
+      const a0 = Math.atan2(Wd.TY[Wd.step(i, -7)], Wd.TX[Wd.step(i, -7)]);
+      const a1 = Math.atan2(Wd.TY[Wd.step(i, 7)], Wd.TX[Wd.step(i, 7)]);
+      const bend = Math.atan2(Math.sin(a1 - a0), Math.cos(a1 - a0));
+      if (Math.abs(bend) < .45) continue;
+      const turn = bend > 0 ? 1 : -1; // 1 = rechtsaf (y naar beneden)
+      const off = -turn * (Wd.HALF[i] + 45);
+      const x = Wd.X[i] - Wd.TY[i] * off, y = Wd.Y[i] + Wd.TX[i] * off;
+      if (Math.hypot(x - lastX, y - lastY) < 330) continue;
+      const l = Wd.locate(x, y, {});
+      if (l.i >= 0 && l.edge < 10) continue;
+      lastX = x; lastY = y;
+      SIGNS.push({ x, y, i, turn });
+    }
+  }
+  const SIGN_IMG = [-1, 1].map(turn => {
+    const c = document.createElement('canvas');
+    c.width = 160;
+    c.height = 64;
+    const g = c.getContext('2d');
+    g.fillStyle = '#14182b';
+    g.fillRect(0, 0, 160, 64);
+    g.strokeStyle = '#4cf0ff';
+    g.lineWidth = 4;
+    g.strokeRect(2, 2, 156, 60);
+    g.fillStyle = '#ffd34f';
+    for (let k = 0; k < 3; k++) {
+      const cx = 40 + k * 40;
+      g.beginPath();
+      g.moveTo(cx - 12 * turn, 12); g.lineTo(cx + 12 * turn, 32); g.lineTo(cx - 12 * turn, 52);
+      g.lineTo(cx - 24 * turn, 52); g.lineTo(cx, 32); g.lineTo(cx - 24 * turn, 12);
+      g.closePath();
+      g.fill();
+    }
+    return c;
+  });
+
   // Bomen: overal waar geen weg is, dicht opeen rond het geheime bospad.
   const PINES = [];
   for (let n = 0; n < 2200 && PINES.length < 420; n++) {
@@ -262,21 +303,25 @@ const Rp3D = (() => {
       const sx = ((rowD * (rx - lx)) / resW) * tk;
       const sy = ((rowD * (ry - ly)) / resW) * tk;
       let i = y * resW;
-      for (let x = 0; x < resW; x++, i++, wx += sx, wy += sy) {
-        const tx = wx | 0, ty = wy | 0;
-        px[i] = tx < 0 || ty < 0 || tx >= tw || ty >= th ? 0xff2a2a14 : tex[ty * tw + tx];
+      // De mist zit meteen in de pixels: een laag minder om over het hele scherm te tekenen.
+      const fog = Math.min(.92, (rowD / FAR) ** 1.3 * 1.5);
+      if (fog < .02) {
+        for (let x = 0; x < resW; x++, i++, wx += sx, wy += sy) {
+          const tx = wx | 0, ty = wy | 0;
+          px[i] = tx < 0 || ty < 0 || tx >= tw || ty >= th ? 0xff2a2a14 : tex[ty * tw + tx];
+        }
+      } else {
+        const keep = 1 - fog, fr = FOG[0] * fog, fg = FOG[1] * fog, fb = FOG[2] * fog;
+        for (let x = 0; x < resW; x++, i++, wx += sx, wy += sy) {
+          const tx = wx | 0, ty = wy | 0;
+          const v = tx < 0 || ty < 0 || tx >= tw || ty >= th ? 0xff2a2a14 : tex[ty * tw + tx];
+          px[i] = 0xff000000 | (((v >>> 16 & 255) * keep + fb) << 16) | (((v >>> 8 & 255) * keep + fg) << 8) | ((v & 255) * keep + fr);
+        }
       }
     }
     lctx.putImageData(img, 0, 0);
     ctx.imageSmoothingEnabled = true;
     ctx.drawImage(low, 0, 0, w, h);
-    {
-      const fogAt = y => Math.min(.92, (((camZ * f) / Math.max(.5, y - hz + .5)) / FAR) ** 1.3 * 1.5);
-      const grad = ctx.createLinearGradient(0, hz, 0, h);
-      for (const k of [0, .02, .05, .1, .2, .35, .6, 1]) grad.addColorStop(k, `rgba(${FOG[0]}, ${FOG[1]}, ${FOG[2]}, ${fogAt(hz + k * (h - hz)).toFixed(3)})`);
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, hz, w, h - hz);
-    }
     // Sterren, de zon en het panorama, meedraaiend.
     ctx.fillStyle = '#ffe9f6';
     for (const s of STARS) {
@@ -402,7 +447,8 @@ const Rp3D = (() => {
     function drawFence(o, d) {
       // Van buitenaf alleen dichtbij tekenen: zo zie je de omheining ook als je paard ertegen staat.
       if (d > 600 && !facing(o.x, o.y, -o.nx, -o.ny)) return;
-      face([[o.ax, o.ay, 0], [o.bx, o.by, 0], [o.bx, o.by, 34], [o.ax, o.ay, 34]], `rgba(76, 201, 255, ${Math.max(.06, .2 * (1 - d / FAR))})`);
+      // Ver weg alleen de lichtrand: het doorzichtige gaas zie je daar toch niet meer.
+      if (d < 1700) face([[o.ax, o.ay, 0], [o.bx, o.by, 0], [o.bx, o.by, 34], [o.ax, o.ay, 34]], `rgba(76, 201, 255, ${Math.max(.06, .2 * (1 - d / FAR))})`);
       const s = polygon([[o.ax, o.ay, 34], [o.bx, o.by, 34], [o.bx, o.by, 40], [o.ax, o.ay, 40]]);
       if (s) {
         ctx.fillStyle = `rgba(140, 236, 255, ${Math.max(.25, 1 - d / FAR)})`;
@@ -525,8 +571,16 @@ const Rp3D = (() => {
     for (const g of GATES) if (near(Wd.X[g.i], Wd.Y[g.i], FAR_S) && inView(Wd.X[g.i], Wd.Y[g.i], g.w)) things.push({ kind: 'gate', o: g, d: dist2(Wd.X[g.i], Wd.Y[g.i]) - 40 });
     for (const c of CYLS) if (inView(c.x, c.y, c.r * 2)) things.push({ kind: 'cyl', o: c, d: dist2(c.x, c.y) });
     for (const r of Wd.RAMPS) { const i = Wd.step(r.i, r.len >> 1); if (near(Wd.X[i], Wd.Y[i], FAR_S) && inView(Wd.X[i], Wd.Y[i], 300)) things.push({ kind: 'ramp', o: r, d: dist2(Wd.X[i], Wd.Y[i]) + 60 }); }
-    for (const pn of PINES) if (near(pn.x, pn.y, FAR_S * .8) && inView(pn.x, pn.y, 100)) things.push({ kind: 'pine', o: pn, d: dist2(pn.x, pn.y) });
+    // Op een trager toestel: ver weg maar de helft van de bomen.
+    for (let k = 0; k < PINES.length; k++) {
+      const pn = PINES[k];
+      if (!near(pn.x, pn.y, FAR_S * .8) || !inView(pn.x, pn.y, 100)) continue;
+      if (q < .8 && (k & 1) && !near(pn.x, pn.y, 1400)) continue;
+      things.push({ kind: 'pine', o: pn, d: dist2(pn.x, pn.y) });
+    }
     for (const l of LAMPS) if (near(l.x, l.y, FAR_S * .6) && inView(l.x, l.y, 60)) things.push({ kind: 'lamp', o: l, d: dist2(l.x, l.y) });
+    // Pijlborden alleen voor wie de goede kant op rijdt.
+    for (const sg of SIGNS) if (near(sg.x, sg.y, FAR_S * .6) && ca * Wd.TX[sg.i] + sa * Wd.TY[sg.i] > .2 && inView(sg.x, sg.y, 80)) things.push({ kind: 'sign', o: sg, d: dist2(sg.x, sg.y) });
     {
       const i = Wd.START;
       if (near(Wd.X[i], Wd.Y[i], FAR_S) && inView(Wd.X[i], Wd.Y[i], 300)) things.push({ kind: 'start', d: dist2(Wd.X[i], Wd.Y[i]) - 30 });
@@ -584,11 +638,23 @@ const Rp3D = (() => {
           break;
         }
         case 'box': {
-          const bob = Math.sin(scene.t * 3 + o.id) * 12;
+          // Laden de kisten nog op, dan staan ze doorzichtig en stil.
+          const bob = scene.boxRest ? 0 : Math.sin(scene.t * 3 + o.id) * 12;
           const p = place(o.x, o.y, 60 + bob);
           if (!p) break;
           const s = Math.max(4, 120 * p.k);
+          if (scene.boxRest) ctx.globalAlpha = .28;
           ctx.drawImage(BOX_IMG, p.x - s / 2, p.y - s / 2, s, s);
+          ctx.globalAlpha = 1;
+          break;
+        }
+        case 'sign': {
+          const p = place(o.x, o.y, 0), top = place(o.x, o.y, 150);
+          if (!p || !top || p.k < .01) break;
+          ctx.fillStyle = '#2a2f48';
+          ctx.fillRect(p.x - 3 * p.k, top.y, 6 * p.k, p.y - top.y);
+          const sw = 260 * p.k, sh = 104 * p.k;
+          ctx.drawImage(SIGN_IMG[o.turn > 0 ? 1 : 0], p.x - sw / 2, top.y - sh / 2, sw, sh);
           break;
         }
         case 'horse': {

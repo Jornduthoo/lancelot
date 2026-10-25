@@ -26,7 +26,7 @@
         <button type="button" class="secondary rp-dice" id="rp-dice">🎲 Verras me</button>
       </div>
     </div>
-    <p class="small">📦 Rij door een <strong>runenkist</strong>: juist antwoord = een wapen. 🔥 vuurbal · 🦅 robovalk · ⚙️ spijkers · 🛡️ schild · ⚡ nitro · 🌩️ donder</p>
+    <p class="small">🏁 Rij zoveel mogelijk rondjes. 📦 Rij door een gouden <strong>runenkist</strong>: juist antwoord = een wapen. 🔥 vuurbal · 🦅 robovalk · ⚙️ spijkers · 🛡️ schild · ⚡ nitro · 🌩️ donder</p>
     <p class="muted small ls-hint-keys">↑ gas · ↓ rem · ← → sturen · spatie = wapen · Shift = nitro · 1-4 = antwoorden</p>
     <p class="muted small ls-hint-touch">Je paard geeft zelf gas. Duim links = sturen, naar beneden trekken = remmen. Rechts: wapen en nitro.</p>
     <p class="muted small">Wacht tot de leerkracht de race start…</p>
@@ -45,6 +45,13 @@
       <div class="tw-toast" id="rp-toast"></div>
       <div class="tw-countdown hidden" id="rp-countdown"></div>
       <div class="rp-wrong hidden" id="rp-wrong">⟲ VERKEERDE RICHTING</div>
+      <div class="rp-goal hidden" id="rp-goal">
+        <strong>🏁 Rij zoveel mogelijk rondjes</strong>
+        <span>Volg de weg en de gele pijlen. Je paard stuurt een beetje mee.</span>
+        <span>📦 Gouden kist = een vraag. Juist = een wapen.</span>
+        <span class="ls-hint-keys">↑ gas · ← → sturen · spatie = wapen · Shift = nitro</span>
+        <span class="ls-hint-touch">Je paard loopt vanzelf. Duim links opzij = sturen.</span>
+      </div>
       <div class="ak-touch rp-touch">
         <button type="button" class="ls-btn rp-use" id="rp-use-btn"><span id="rp-use-icon">·</span><small>wapen</small></button>
         <button type="button" class="ls-btn rp-boost" id="rp-boost-btn">⚡<small>nitro</small></button>
@@ -65,7 +72,7 @@
   const g = {
     state: null, joined: false, run: -1, offset: 0, me: null, spawn: -1, car: fresh(), camA: 0, phase: 0,
     others: new AK.Interp(120), info: new Map(), ranks: new Map(), shots: [], traps: [], hiddenBoxes: new Map(), box: -1,
-    waitUntil: 0, lastSend: 0, shieldEnd: 0, safeEnd: 0, falling: 0, wrongFor: 0, view: 'side', look: null, quality: 1,
+    waitUntil: 0, boxReady: 0, turn: 0, lastSend: 0, shieldEnd: 0, safeEnd: 0, falling: 0, wrongFor: 0, view: 'side', look: null, quality: 1,
   };
   const now = () => Date.now() + g.offset;
   const on = () => document.body.dataset.rp === '1';
@@ -221,6 +228,7 @@
     g.car.zap = Math.max(g.car.zap, me.zap / 1000);
     g.shieldEnd = performance.now() + me.shield;
     g.safeEnd = performance.now() + me.safe;
+    g.boxReady = performance.now() + (me.box || 0);
     hud();
   });
 
@@ -263,7 +271,7 @@
   socket.on('rp-donder', d => { g.flash = performance.now() + 350; if (!g.me || d.n !== g.me.n) sfx.boom(); });
   socket.on('rp-lap', l => {
     const sec = (l.ms / 1000).toFixed(1).replace('.', ',');
-    banner(l.record ? '⏱️ SNELSTE RONDE!' : `RONDE ${l.laps + 1}`, `Vorige ronde: ${sec} s${l.personal && !l.record ? ' · je beste!' : ''}`, l.record ? 'gold' : '');
+    banner(l.record ? '⏱️ SNELSTE RONDE!' : `RONDE ${l.laps + 1}`, `Vorige ronde: ${sec} s${l.personal && !l.record ? ' · je beste!' : ''}${l.bonus ? ' · +1 ⚡ nitro' : ''}`, l.record ? 'gold' : '');
     sfx.go();
   });
 
@@ -276,9 +284,10 @@
       $('rp-lap').textContent = `Ronde ${r.laps + 1}`;
     }
     const item = me.item ? W.ITEMS[me.item] : null;
-    $('rp-item').innerHTML = item ? `<span>${item.icon}</span>` : '<span class="empty">📦</span>';
+    const rest = Math.ceil((g.boxReady - performance.now()) / 1000);
+    $('rp-item').innerHTML = item ? `<span>${item.icon}</span>` : rest > 0 ? `<span class="empty">📦</span><b class="rp-rest">${rest}</b>` : '<span class="empty">📦</span>';
     $('rp-item').classList.toggle('ready', !!item);
-    $('rp-item').title = item ? `${item.name} (spatie)` : 'Rij door een runenkist';
+    $('rp-item').title = item ? `${item.name} (spatie)` : rest > 0 ? `De kisten laden op: nog ${rest} s` : 'Rij door een gouden runenkist';
     $('rp-use-icon').textContent = item ? item.icon : '📦';
     $('rp-use-btn').classList.toggle('ready', !!item);
     $('rp-nitro').innerHTML = Array.from({ length: Math.max(3, me.nitro) }, (_, i) => `<i class="${i < me.nitro ? 'on' : ''}">⚡</i>`).join('');
@@ -315,8 +324,7 @@
   });
 
   function openBox(b) {
-    if (quiz.open) return;
-    if (performance.now() < g.waitUntil) { toast('⏳ Nog even wachten voor een nieuwe kist', 'bad'); return; }
+    if (quiz.open || performance.now() < Math.max(g.waitUntil, g.boxReady)) return;
     g.box = b.id;
     sfx.marker();
     buzz(30);
@@ -365,7 +373,7 @@
   document.addEventListener('keyup', e => keys.delete(e.key.toLowerCase()));
   addEventListener('blur', () => keys.clear());
   const stick = AK.stick($('rp-stage'));
-  function input() {
+  function input(dt) {
     if (quiz.open) return { auto: true };
     let gas = 0, turn = 0;
     if (keys.has('arrowup') || keys.has('z') || keys.has('w')) gas = 1;
@@ -375,9 +383,12 @@
     if (touch) {
       // Op de gsm geef je vanzelf gas; trek de duim naar beneden om te remmen.
       gas = stick.active && stick.y > .55 ? -1 : 1;
-      if (stick.active) turn = Math.max(-1, Math.min(1, stick.x * 1.3));
+      if (stick.active) turn = Math.abs(stick.x) < .12 ? 0 : Math.max(-1, Math.min(1, (stick.x - Math.sign(stick.x) * .12) * 1.5));
     }
-    return { gas, turn };
+    // Zacht insturen: een toets geeft niet meteen een ruk aan het stuur.
+    g.turn += (turn - g.turn) * Math.min(1, dt * (turn ? 9 : 14));
+    if (Math.abs(g.turn) < .02) g.turn = 0;
+    return { gas, turn: g.turn, assist: true };
   }
   function playing() {
     return g.state && g.state.phase === 'play' && now() >= g.state.startedAt && !$('rp-game').classList.contains('hidden');
@@ -498,6 +509,8 @@
     $('rp-countdown').classList.toggle('hidden', !(wait > 0));
     if (wait > 0) $('rp-countdown').textContent = Math.ceil(wait / 1000);
     else if (wait > -900) $('rp-countdown').textContent = 'GO!';
+    $('rp-goal').classList.toggle('hidden', !(wait > -2500));
+    if (pt - (g.hudAt || 0) > 300) { g.hudAt = pt; if (g.boxReady > performance.now() - 400) hud(); }
     const car = g.car;
     // Rijden
     if (playing() && g.me) {
@@ -509,7 +522,7 @@
           socket.emit('rp-fall');
         }
       } else {
-        const ev = W.drive(car, input(), dt);
+        const ev = W.drive(car, input(dt), dt);
         if (ev.jump) { sfx.jump(); buzz(20); }
         if (ev.land) { buzz(40); }
         if (ev.bump) { sfx.hit(); buzz(60); }
@@ -528,6 +541,8 @@
         lastBoxCheck = pt;
         for (const b of W.BOXES) {
           if ((b.x - car.x) ** 2 + (b.y - car.y) ** 2 > (W.BOX_R + W.R) ** 2 || car.z > 160) continue;
+          // Laden de kisten nog op, dan rij je er gewoon door.
+          if (quiz.open || pt < Math.max(g.waitUntil, g.boxReady)) continue;
           const at = g.hiddenBoxes.get(b.id);
           if (at && pt - at < W.BOX_BACK_MS) continue;
           g.hiddenBoxes.set(b.id, pt);
@@ -568,7 +583,7 @@
         look: g.look, av: myAv(), frame: Math.floor(g.phase * RpDraw.FRAMES), boost: car.boost > 0, spin: car.spin > 0,
         shield: g.shieldEnd > nowMs, asking: quiz.open, zap: car.zap > 0,
       },
-      others, boxes: shown, shots: g.shots, traps: g.traps,
+      others, boxes: shown, shots: g.shots, traps: g.traps, boxRest: pt < Math.max(g.waitUntil, g.boxReady) || quiz.open,
     });
     if (car.boost > 0) {
       // Snelheidsstrepen aan de rand.
