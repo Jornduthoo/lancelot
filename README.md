@@ -23,6 +23,7 @@ Het thema: middeleeuws met een scifi-kantje. Het startscherm heeft drie grote te
    - **Neonvlucht**: rennen, springen en glijden door de neonburcht. Bij een vraagpoort loop je door het juiste antwoord voor turbo en een hogere vermenigvuldiger
    - **Diepboor**: graaf met je boorridder naar goud, kristal en neonkernen. Goede antwoorden geven brandstof; in de smidse koop je een betere boor
    - **Robomol**: robotmollen schieten uit negen burchtputten en elke leerling mept ze met een zwaard, in 3D vanuit de ogen van de ridder. Een juist antwoord laadt het zwaard op en geeft het Vuurzwaard
+   - **Robopaarden**: elke leerling bouwt een eigen robotpaard en racet in 3D rond het burchtmeer, met schansen, nitro, een burchtroute, een sprong over de Drakenkloof en een geheime bosweg. Runenkisten geven een vraag: juist = een wapen
    - **Leraar-baas**: de leerkracht is de eindbaas, een reuzenridder op het bord. De klas valt samen aan met goede antwoorden, de leerkracht slaat terug
    - **Het Rijk**: een spel dat weken doorloopt. Teams veroveren les na les gebieden op een kaart; vragen over oudere leerstof komen terug om je land te verdedigen
 2. **De Ronde Tafel**, peilen met de hele klas: polls, stellingen, woordwolken, open vragen en schalen, live op het bord. Met de knop **💡 Voorkennis activeren** in De Ronde Tafel maak je met AI meteen een peiling voor het begin van een les.
@@ -201,6 +202,14 @@ Op het **burchtplein** schieten robotmollen uit negen putten. Elke leerling slaa
 - 🪖 gewone mol: 1 slag · 👑 goudhelm: 2 slagen, 3× zoveel punten · 💣 bomdrone: niet raken (punten kwijt, even duizelig). Veel op rij raken geeft een combo tot ×4; mis slaan zet de reeks terug op nul.
 - **Vragen**: de zwaardlading raakt leeg (rustig tempo: minder vaak). Een juist antwoord geeft een volle lading en het 🔥 **Vuurzwaard**: dubbele punten en elke slag raakt ook de buurputten.
 - Chromebook: klik op een put of gebruik Q W E · A S D · Z X C (op een AZERTY-klavier toont het spel de letters die daar staan), spatie = vraag. Gsm: tik op een put. Elk antwoord komt in het logboek. Resultaten in `resultaten/`.
+
+## Robopaarden
+
+Elke leerling bouwt in de **stal** een eigen robotpaard (kleur, neon, manen, ogen, extra's en patroon) terwijl de klas wacht, en racet het daarna in 3D rond het **burchtmeer**. Iedereen rijdt op dezelfde baan; het bord toont de kaart met alle paarden of volgt de leider.
+
+- De baan: schansen, ⚡ nitrostroken, een **burchtroute** door de poorten, een sprong over de **Drakenkloof** (met te weinig vaart val je erin en begin je terug vóór de schans) en een **geheime bosweg**.
+- **Runenkisten**: rij erdoor en je krijgt een vraag (je paard draaft zelf verder). Juist = een wapen: 🔥 vuurbal, 🦅 robovalk (zoekt het paard voor je), ⚙️ spijkers, 🛡️ schild, ⚡ nitro ×3 of 🌩️ donderslag. Wie achteraan rijdt, krijgt vaker een sterk wapen.
+- Chromebook: pijltjes of ZQSD/WASD, spatie = wapen, Shift = nitro, 1-4 antwoorden. Gsm: het paard galoppeert vanzelf, duim stuurt. Elk antwoord komt in het logboek. Resultaten in `resultaten/`.
 
 ## Diepboor
 
