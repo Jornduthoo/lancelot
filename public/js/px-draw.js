@@ -242,6 +242,62 @@ const PxDraw = (() => {
     return c;
   }
 
+  // ---------- Versiering op de grond ----------
+  // Een strook van DECOR_N tekeningen (16 × 16) per wereld: plantjes, steentjes, paddenstoelen, een fakkel, een bordje.
+  // scene() kiest per tegel met een vaste hash wat erop staat, zodat het bij iedereen hetzelfde is.
+  const DECOR_N = 8;
+  const decors = new Map();
+  function decor(theme) {
+    if (decors.has(theme)) return decors.get(theme);
+    const P = PAL[theme];
+    const key = W.THEMES[theme].key;
+    const c = canvas(T * DECOR_N, T);
+    const g = c.getContext('2d');
+    const px = (x, y, col, w = 1, h = 1) => { g.fillStyle = col; g.fillRect(x, y, w, h); };
+    for (let i = 0; i < DECOR_N; i++) {
+      const o = i * T;
+      if (key === 'weide') {
+        if (i === 0) { for (const x of [3, 5, 6, 9, 11]) px(o + x, 12 + (x % 3), P.grass, 1, 4 - (x % 3)); px(o + 6, 11, P.grassHi); }
+        else if (i === 1) { px(o + 7, 10, P.grassD, 1, 6); px(o + 6, 8, '#ff7ab3', 3, 3); px(o + 7, 9, '#fff07a'); px(o + 11, 12, P.grassD, 1, 4); px(o + 10, 11, '#5ee7ff', 3, 2); }
+        else if (i === 2) { px(o + 4, 12, P.stoneD, 7, 4); px(o + 5, 11, P.stone, 5, 3); px(o + 5, 11, P.stoneHi, 3, 1); px(o + 9, 13, P.grass, 2, 3); }
+        else if (i === 3) { px(o + 7, 10, '#c9b4f0', 1, 6); px(o + 5, 8, '#c13cff', 5, 3); px(o + 6, 8, '#f0a8ff', 2, 1); px(o + 6, 9, '#ffffff'); }
+        else if (i === 4) { px(o + 4, 6, '#3a2412', 1, 10); px(o + 11, 6, '#3a2412', 1, 10); px(o + 2, 8, '#6b4526', 12, 2); px(o + 2, 12, '#6b4526', 12, 2); }
+        else if (i === 5) { for (let k = 0; k < 6; k++) px(o + 2 + k * 2, 13 - (k % 2), P.grassD, 1, 3 + (k % 2)); px(o + 4, 11, '#ffd166'); px(o + 10, 12, '#ffffff'); }
+        else if (i === 6) { px(o + 7, 6, '#3a2412', 2, 10); px(o + 6, 5, '#8a7a50', 4, 2); }
+        else { px(o + 3, 9, '#1a3a30', 10, 7); px(o + 2, 11, '#1a3a30', 12, 5); px(o + 4, 9, P.grassD, 4, 2); px(o + 9, 12, '#ff4d6d'); px(o + 5, 13, '#ff4d6d'); }
+      } else if (key === 'grot') {
+        if (i === 0) { px(o + 6, 9, P.accent, 2, 7); px(o + 7, 7, '#f0d0ff', 1, 3); px(o + 9, 11, P.farHi, 2, 5); px(o + 10, 10, '#ffffff'); }
+        else if (i === 1) { px(o + 7, 11, '#9ab0d0', 1, 5); px(o + 5, 9, P.farHi, 5, 2); px(o + 6, 8, '#bff6ff', 3, 1); px(o + 11, 13, '#9ab0d0', 1, 3); px(o + 10, 12, P.accent, 3, 1); }
+        else if (i === 2) { px(o + 4, 12, P.stoneD, 8, 4); px(o + 5, 11, P.stone, 6, 3); px(o + 5, 11, P.stoneHi, 4, 1); }
+        else if (i === 3) { px(o + 3, 14, '#e8f1ff', 6, 1); px(o + 4, 13, '#e8f1ff', 1, 1); px(o + 8, 13, '#e8f1ff', 1, 1); px(o + 10, 12, '#d0d8e8', 3, 3); px(o + 11, 13, '#05070f'); }
+        else if (i === 4) { for (let k = 0; k < 4; k++) px(o + 3 + k * 3, 12 + (k % 2), k % 2 ? P.accent : P.farHi, 2, 4 - (k % 2)); }
+        else if (i === 5) { px(o + 4, 14, P.grassD, 8, 2); px(o + 5, 13, P.grass, 2, 1); px(o + 9, 13, P.grass, 2, 1); }
+        else if (i === 6) { px(o + 7, 6, '#3a2f4a', 2, 10); px(o + 6, 5, '#6a5f80', 4, 2); }
+        else { px(o + 5, 7, P.accent, 3, 9); px(o + 6, 4, P.accent, 1, 3); px(o + 6, 6, '#f0d0ff', 1, 6); px(o + 9, 10, P.farHi, 3, 6); px(o + 10, 8, '#ffffff', 1, 3); }
+      } else if (key === 'burcht') {
+        if (i === 0) { px(o + 4, 13, '#e8dccc', 8, 1); px(o + 5, 12, '#e8dccc', 1, 1); px(o + 10, 12, '#e8dccc', 1, 1); }
+        else if (i === 1) { px(o + 3, 10, '#4a2a1a', 10, 6); px(o + 3, 10, '#7a4a2a', 10, 1); px(o + 3, 12, '#2a1810', 10, 1); px(o + 7, 10, '#8a8a9a', 2, 6); }
+        else if (i === 2) { px(o + 4, 12, P.stoneD, 8, 4); px(o + 5, 11, P.stone, 6, 3); px(o + 5, 11, P.stoneHi, 4, 1); }
+        else if (i === 3) { px(o + 5, 8, '#5a3a2a', 6, 8); px(o + 5, 8, '#8a5a3a', 6, 1); px(o + 5, 11, '#3a2418', 6, 1); px(o + 5, 14, '#3a2418', 6, 1); px(o + 4, 9, '#2a1a10', 1, 6); px(o + 11, 9, '#2a1a10', 1, 6); }
+        else if (i === 4) { for (let k = 0; k < 5; k++) px(o + 3 + k * 2, 8 + k, '#6a6a7a', 1, 2); px(o + 12, 13, '#6a6a7a', 2, 3); }
+        else if (i === 5) { px(o + 3, 14, P.grassD, 10, 2); px(o + 5, 13, '#ff8a3d'); px(o + 9, 13, '#ffb703'); }
+        else if (i === 6) { px(o + 7, 6, '#2a1a1a', 2, 10); px(o + 6, 5, '#6a5a40', 4, 2); }
+        else { px(o + 4, 8, '#2a1c1c', 8, 8); px(o + 5, 9, '#ff5a1a', 6, 2); px(o + 6, 8, '#ffe08a', 4, 1); px(o + 3, 15, '#4a3a3c', 10, 1); }
+      } else {
+        if (i === 0) { px(o + 6, 10, P.metalHi, 4, 6); px(o + 7, 9, P.grass, 2, 1); px(o + 7, 11, P.accent, 2, 1); }
+        else if (i === 1) { px(o + 4, 12, P.metal, 8, 4); px(o + 4, 12, P.metalHi, 8, 1); px(o + 6, 13, P.grass, 1, 1); px(o + 9, 13, P.accent, 1, 1); }
+        else if (i === 2) { px(o + 7, 4, P.metalHi, 1, 12); px(o + 5, 4, P.metalHi, 5, 1); px(o + 7, 3, '#ff4d6d'); }
+        else if (i === 3) { px(o + 3, 13, '#2a3350', 10, 3); px(o + 4, 12, '#3a4570', 8, 1); px(o + 5, 13, '#5ee7ff', 2, 1); px(o + 9, 13, '#ffd166', 2, 1); }
+        else if (i === 4) { px(o + 5, 11, '#1b2238', 6, 5); px(o + 6, 12, '#39ffb0', 4, 2); px(o + 6, 12, '#bfffe8', 2, 1); }
+        else if (i === 5) { px(o + 2, 15, P.grassD, 12, 1); px(o + 4, 14, P.grass, 1, 1); px(o + 11, 14, P.grass, 1, 1); }
+        else if (i === 6) { px(o + 7, 6, P.metal, 2, 10); px(o + 6, 5, P.metalHi, 4, 2); }
+        else { px(o + 4, 7, P.metal, 8, 9); px(o + 5, 8, '#0a0d18', 6, 4); px(o + 6, 9, P.accent, 2, 1); px(o + 9, 10, '#ff4d6d', 1, 1); px(o + 4, 7, P.metalHi, 8, 1); }
+      }
+    }
+    decors.set(theme, c);
+    return c;
+  }
+
   // ---------- Achtergronden (drie lagen die met een andere snelheid meeschuiven) ----------
   const BG_W = 512;
   const bgs = new Map();
@@ -394,6 +450,103 @@ const PxDraw = (() => {
           const y = 140 + Math.floor(r() * 60), s = 6 + Math.floor(r() * 10);
           g.beginPath(); g.moveTo(x, y); g.lineTo(x + s, y - s * .7); g.lineTo(x + s * 2, y); g.lineTo(x + s * 1.4, y + s * .8); g.lineTo(x + s * .4, y + s * .6); g.fill();
           g.fillStyle = P.nearHi; g.fillRect(x + s, y - s * .7, 2, 1); g.fillStyle = P.near;
+        }
+      });
+    }
+    // Extra details per wereld, ook in pixels: bomen en vuurvliegjes, kristalclusters, banieren, lichtjes van een ruimtestation.
+    const disc = (g, x, y, rad) => { for (let dy = -rad; dy <= rad; dy++) { const hw = Math.round(Math.sqrt(rad * rad - dy * dy)); g.fillRect(x - hw, y + dy, hw * 2 + 1, 1); } };
+    const halo = (g, x, y, col, rad) => { g.fillStyle = col; for (let k = rad; k > 0; k -= Math.max(1, Math.round(rad / 4))) { g.globalAlpha = .08; disc(g, x, y, k); } g.globalAlpha = 1; };
+    if (key === 'weide') {
+      wrap(g2, g => {
+        for (let x = 6; x < BG_W; x += 22 + Math.floor(r() * 30)) {
+          const y = H - 46 - Math.sin(x / BG_W * Math.PI * 4) * 16 - Math.sin(x / BG_W * Math.PI * 10) * 5;
+          const s2 = 5 + Math.floor(r() * 5);
+          g.fillStyle = '#0c0418';
+          g.fillRect(x, y - s2 * 2, 2, s2 * 2);
+          disc(g, x + 1, y - s2 * 2 - 2, s2);
+          disc(g, x - s2 * .6, y - s2 * 2 + 1, Math.round(s2 * .7));
+          disc(g, x + s2 * .7, y - s2 * 2 + 1, Math.round(s2 * .7));
+          g.fillStyle = P.nearHi;
+          g.globalAlpha = .28;
+          g.fillRect(x - s2 + 3, y - s2 * 3 - 1, s2 - 1, 1);
+          g.fillRect(x - s2 + 2, y - s2 * 3, 1, 2);
+          g.globalAlpha = 1;
+        }
+        for (let i = 0; i < 26; i++) {
+          const x = Math.floor(r() * BG_W), y = H - 70 - Math.floor(r() * 60);
+          halo(g, x, y, '#fff07a', 4);
+          g.fillStyle = '#fff07a';
+          g.fillRect(x, y, 1, 1);
+        }
+      });
+      wrap(g1, g => {
+        for (let x = 20; x < BG_W; x += 70 + Math.floor(r() * 50)) {
+          const y = H - 120 - Math.floor(r() * 30);
+          g.fillStyle = P.far;
+          g.fillRect(x, y, 1, 14);
+          g.fillStyle = ['#ff4d6d', '#39ffb0', '#ffd166'][Math.floor(r() * 3)];
+          g.fillRect(x + 1, y, 6, 4);
+          g.fillRect(x + 1, y + 4, 4, 1);
+        }
+      });
+    } else if (key === 'grot') {
+      wrap(g1, g => {
+        for (let i = 0; i < 9; i++) {
+          const x = Math.floor(r() * BG_W), col = r() < .5 ? P.farHi : P.nearHi;
+          halo(g, x, H - 38, col, 12);
+          for (let k = 0; k < 4; k++) {
+            const sx = x - 6 + k * 4, h = 5 + Math.floor(r() * 12) - Math.abs(k - 1.5) * 2;
+            g.fillStyle = col;
+            g.globalAlpha = .7;
+            g.fillRect(sx, H - 32 - h, 3, h);
+            g.fillRect(sx + 1, H - 34 - h, 1, 2);
+            g.globalAlpha = .8;
+            g.fillStyle = '#ffffff';
+            g.fillRect(sx, H - 32 - h, 1, Math.ceil(h / 2));
+            g.globalAlpha = 1;
+          }
+        }
+      });
+      wrap(g2, g => {
+        for (let i = 0; i < 14; i++) {
+          const x = Math.floor(r() * BG_W), y = 30 + Math.floor(r() * 40);
+          halo(g, x, y, P.nearHi, 6);
+          g.fillStyle = P.nearHi;
+          g.fillRect(x, y - 3, 1, 3);
+          g.fillRect(x - 1, y, 3, 2);
+        }
+      });
+    } else if (key === 'burcht') {
+      wrap(g1, g => {
+        for (let x = 6; x < BG_W; x += 64) {
+          g.fillStyle = '#3a0a14';
+          g.fillRect(x, 44, 10, 36);
+          g.fillRect(x, 80, 4, 4); g.fillRect(x + 6, 80, 4, 4);
+          g.fillStyle = '#ffb703';
+          g.fillRect(x + 4, 54, 2, 12); g.fillRect(x + 2, 58, 6, 2);
+          g.fillStyle = '#5a4040';
+          for (let k = 0; k < 6; k++) g.fillRect(x + 32 + (k % 2), 40 + k * 4, 1, 3);
+        }
+        for (let i = 0; i < 30; i++) {
+          const x = Math.floor(r() * BG_W), y = H - 20 - Math.floor(r() * 80);
+          g.fillStyle = r() < .5 ? '#ffb703' : '#ff5a1a';
+          g.fillRect(x, y, 1, 1);
+        }
+      });
+      wrap(g2, g => {
+        for (let x = 30; x < BG_W; x += 128) halo(g, x + 9, 120, '#ff8a3d', 14);
+      });
+    } else {
+      wrap(g1, g => {
+        for (let x = 40; x < BG_W; x += 150) {
+          const y = 40 + Math.floor(r() * 40);
+          g.fillStyle = P.far;
+          g.fillRect(x, y, 40, 14); g.fillRect(x + 14, y - 12, 12, 38); g.fillRect(x - 20, y + 5, 80, 3);
+          g.fillStyle = '#0a0d26';
+          for (let k = 0; k < 5; k++) g.fillRect(x - 18 + k * 16, y + 5, 10, 3);
+          for (let k = 0; k < 6; k++) { g.fillStyle = k % 2 ? P.farHi : '#5ee7ff'; g.fillRect(x + 3 + k * 6, y + 5, 2, 2); }
+          halo(g, x + 20, y - 12, '#ff4d6d', 6);
+          g.fillStyle = '#ff4d6d'; g.fillRect(x + 19, y - 14, 2, 2);
         }
       });
     }
@@ -584,6 +737,31 @@ const PxDraw = (() => {
         }
       }
     }
+    // Versiering bovenop de grond (index 6 is een fakkel: de vlam flakkert live)
+    const dec = decor(theme);
+    for (let tx = tx0; tx <= tx1; tx++) {
+      const col = tx * W.ROWS;
+      for (let ty = 2; ty < W.ROWS; ty++) {
+        if (world.tiles[col + ty] !== W.GROUND || world.tiles[col + ty - 1] !== W.AIR || world.tiles[col + ty - 2] !== W.AIR) continue;
+        const h = hash(tx, theme * 31 + ty);
+        if (h > .42) break;
+        const i = h < .03 ? 6 : Math.floor(h / .42 * DECOR_N) % DECOR_N;
+        const di = i === 6 && h >= .03 ? 0 : i;
+        g.drawImage(dec, di * T, 0, T, T, tx * T, (ty - 1) * T, T, T);
+        if (di === 6) {
+          const fx = tx * T + 8, fy = (ty - 1) * T + 4, f = Math.floor(o.t * 10 + tx) % 3;
+          g.globalAlpha = .12;
+          g.fillStyle = key === 'weide' ? '#ffb347' : P.accent;
+          for (const rr of [12, 8, 5]) { g.beginPath(); g.arc(fx, fy, rr, 0, 7); g.fill(); }
+          g.globalAlpha = 1;
+          g.fillStyle = '#ff8a3d';
+          g.fillRect(fx - 2, fy - 3 - f, 4, 4 + f);
+          g.fillStyle = '#ffe08a';
+          g.fillRect(fx - 1, fy - 2 - (f % 2), 2, 3);
+        }
+        break;
+      }
+    }
     // bewegende platforms
     for (const p of world.plats) {
       const pos = W.platPos(p, o.time);
@@ -720,6 +898,46 @@ const PxDraw = (() => {
     g.fillStyle = '#ff4d6d';
     g.fillRect(bx + 39, y - 130, 2, 20);
     g.fillRect(bx + 41, y - 130, 8, 6);
+    // Hoektorens met een spits dak, banieren en vuurkorven op de muur
+    for (const tx of [bx - 6, bx + 70]) {
+      g.fillStyle = '#0a0d1a';
+      g.fillRect(tx, y - 84, 16, 84);
+      for (let k = 0; k < 16; k += 5) g.fillRect(tx + k, y - 89, 3, 5);
+      // Spits dak: een driehoek van 20 breed, met een lichte kant links
+      for (let k = 0; k < 16; k++) {
+        const hw = Math.round(k * .65);
+        g.fillStyle = '#1d1238';
+        g.fillRect(tx + 8 - hw, y - 105 + k, hw * 2 + 1, 1);
+        g.fillStyle = '#3a2468';
+        g.fillRect(tx + 8 - hw, y - 105 + k, Math.max(1, hw - 1), 1);
+      }
+      g.fillStyle = P.accent;
+      g.fillRect(tx + 6, y - 70, 4, 6);
+      g.fillRect(tx + 6, y - 46, 4, 6);
+      g.fillStyle = '#ff4d6d';
+      g.fillRect(tx + 8, y - 116, 1, 12);
+      g.fillRect(tx + 9, y - 116, 6, 4);
+    }
+    for (const bxx of [bx + 12, bx + 58]) {
+      g.fillStyle = '#5e1a3d';
+      g.fillRect(bxx, y - 60, 10, 26);
+      g.fillRect(bxx, y - 34, 4, 3); g.fillRect(bxx + 6, y - 34, 4, 3);
+      g.fillStyle = '#ffd166';
+      g.fillRect(bxx + 4, y - 54, 2, 10); g.fillRect(bxx + 2, y - 50, 6, 2);
+    }
+    {
+      const f = Math.floor(o.t * 10) % 3;
+      for (const fx of [bx + 4, bx + 76]) {
+        g.globalAlpha = .12;
+        g.fillStyle = '#ffb347';
+        for (const rr of [11, 7, 4]) { g.beginPath(); g.arc(fx, y - 75, rr, 0, 7); g.fill(); }
+        g.globalAlpha = 1;
+        g.fillStyle = '#ff8a3d';
+        g.fillRect(fx - 2, y - 76 - f, 4, 4 + f);
+        g.fillStyle = '#ffe08a';
+        g.fillRect(fx - 1, y - 75, 2, 2);
+      }
+    }
     // poort
     for (const sx of [gx - 4, gx + 32]) {
       g.fillStyle = '#05070f';
