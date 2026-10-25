@@ -747,6 +747,13 @@ io.on('connection', socket => {
         .catch(err => cb && cb({ error: err.message }));
     });
 
+    socket.on('rn-lijst-thema', ({ thema, text } = {}, cb) => {
+      runen.maakLijst(thema, text, gemini, aiJson)
+        .then(res => cb && cb({ ok: true, ...res }))
+        .finally(() => io.to('host').emit('settings', settings.publicView()))
+        .catch(err => cb && cb({ error: err.message }));
+    });
+
     socket.on('rt-generate', ({ prompt } = {}, cb) => {
       generateQuiz(prompt, [], rondetafel.parseAiText)
         .then(session => cb && cb({ ok: true, session }))
