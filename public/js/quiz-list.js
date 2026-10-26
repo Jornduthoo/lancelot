@@ -22,6 +22,8 @@ const ItemList = (() => {
   const NIVEAUS = [['page', '🪶 Page', 'met hulp'], ['schildknaap', '🛡️ Schildknaap', 'het doel'], ['ridder', '⚔️ Ridder', 'uitdaging'], ['leerling', '👤 Per leerling', 'elke leerling zijn niveau uit Mijn klas, per vak'], ['alle', 'Alles door elkaar', 'alle vragen']];
   const ICONS = { page: '🪶', schildknaap: '🛡️', ridder: '⚔️' };
   let quizNiveau = 'schildknaap';
+  let uitlegSpellen = true;
+  const uitlegBars = new Set();
   const niveauBars = new Set();
 
   function mount(box, opts) {
@@ -223,6 +225,14 @@ const ItemList = (() => {
         niveauBars.add(lv);
         renderNiveauBar(lv);
       }
+      // In de spellen kan de leerkracht de uitleg na een fout antwoord uitzetten. In het Toernooi staat ze altijd aan.
+      if (kind === 'quiz' && location.pathname !== '/host') {
+        const ub = document.createElement('label');
+        ub.className = 'quiz-uitleg-bar';
+        box.appendChild(ub);
+        uitlegBars.add(ub);
+        renderUitlegBar(ub);
+      }
       if (items.length === 0 && folders.length === 0) {
         box.insertAdjacentHTML('beforeend', `<div class="leeg"><p>Nog geen ${k.many}.</p><p class="muted small">Maak er een met de knoppen hierboven, of importeer een bestand.</p></div>`);
         return;
@@ -254,10 +264,21 @@ const ItemList = (() => {
       <span class="muted small">voor quizzen met ${Object.values(ICONS).join('')}</span>`;
     for (const b of lv.querySelectorAll('button')) b.addEventListener('click', () => socket.emit('quiz-niveau', b.dataset.niveau));
   }
+  function renderUitlegBar(ub) {
+    ub.innerHTML = `<input type="checkbox"${uitlegSpellen ? ' checked' : ''}> <strong>Uitleg na een fout antwoord</strong> <span class="muted small">de leerling ziet even waarom zijn antwoord fout was (voor vragen met uitleg)</span>`;
+    ub.querySelector('input').addEventListener('change', e => socket.emit('uitleg-spellen', e.target.checked));
+  }
   let listening = false;
   function listenNiveau() {
     if (listening) return;
     listening = true;
+    socket.on('uitleg-spellen', aan => {
+      uitlegSpellen = aan;
+      for (const ub of uitlegBars) {
+        if (ub.isConnected) renderUitlegBar(ub);
+        else uitlegBars.delete(ub);
+      }
+    });
     socket.on('quiz-niveau', n => {
       quizNiveau = n;
       for (const lv of niveauBars) {

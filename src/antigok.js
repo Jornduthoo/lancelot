@@ -8,6 +8,7 @@ const { factor } = require('./tempo');
 const logboek = require('./logboek');
 const quizzes = require('./quizzes');
 const getal = require('./getal');
+const settings = require('./settings');
 
 const WRONG_MS = 3000;
 const PAUSE_MS = 12000;
@@ -121,7 +122,8 @@ function create(io) {
   // Een fout antwoord: de uitleg naar de leerling, en wat hij koos naar de veelgemaakte fouten.
   function fout(game, p, spel, s, ex, gekozen, out) {
     const juist = s.answers && Number.isInteger(out.right) ? s.answers[out.right] : ex ? ex.juist : '';
-    if (ex && ex.uitleg) {
+    // De leerkracht kan de uitleg in de spellen uitzetten (Instellingen bij de quizlijst).
+    if (ex && ex.uitleg && settings.read().uitlegSpellen !== false) {
       out.uitleg = ex.uitleg;
       uitleg(p.socketId, ex.uitleg, juist);
     }
