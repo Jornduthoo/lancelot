@@ -183,8 +183,8 @@ function bak() {
   c.height = hoog;
   const ox = c.width / 2;
   const oy = Math.round(T * 2);
-  BuArt.teken(c.getContext('2d'), wereld.kaart, T, ox, oy, { diep: 1 });
-  const gloed = BuArt.gloeiers(wereld.kaart, T, ox, oy, { glinster: false });
+  const { motoren } = BuArt.teken(c.getContext('2d'), wereld.kaart, T, ox, oy, { diep: 1 });
+  const gloed = [...BuArt.gloeiers(wereld.kaart, T, ox, oy, { glinster: false }), ...motoren];
   const bordjes = wereld.bordjes.map(p => ({ ...p, px: ox + (p.x - p.y) * T / 2, py: oy + (p.x + p.y) * T / 4 }));
   beeld = { c, T, ox, oy, gloed, bordjes };
   ke.eilandjes = bakEilandjes();
@@ -192,6 +192,7 @@ function bak() {
 
 // De zwevende eilandjes van wie Legende is: kleine eilandjes in de lucht rond het Klaseiland,
 // aan de kant van hun burcht. Op vaste plekken in de hoeken van het scherm.
+const PLANEET = { x: 0.5, y: 0.1, r: 0.04 }; // boven de top van het eiland, tussen de eilandjes
 const PLEKKEN = {
   links: [[0.1, 0.34], [0.09, 0.76], [0.25, 0.21], [0.37, 0.15], [0.22, 0.92]],
   rechts: [[0.9, 0.34], [0.91, 0.7], [0.75, 0.21], [0.63, 0.15], [0.75, 0.92]],
@@ -212,17 +213,30 @@ function bakEilandjes() {
     kort.width = r.w;
     kort.height = r.h;
     kort.getContext('2d').drawImage(c, -r.x, -r.y);
-    return { c: kort, b: p.b, fase: BuArt.hash(p.x, p.y, 7) * 6.28 };
+    // de lichtbrug loopt naar het midden van de burcht
+    const n2 = Burcht.RANGEN[p.b.rang].grond;
+    const mx = p.x - n2 / 2;
+    const my = p.y - n2 / 2;
+    const doel = [beeld.ox + ((mx - my) * beeld.T) / 2, beeld.oy + ((mx + my) * beeld.T) / 4];
+    return { c: kort, b: p.b, doel, fase: BuArt.hash(p.x, p.y, 7) * 6.28 };
   });
-  // de linkse helft van de burchten links, de rest rechts
-  uit.forEach((e, i) => { e.kant = i < Math.floor(uit.length / 2) ? 'links' : 'rechts'; });
-  // elk eilandje een plek aan zijn kant, en anders aan de andere kant
-  const vrij = { links: [...PLEKKEN.links], rechts: [...PLEKKEN.rechts] };
+  // Elk eilandje op de vrije plek die het dichtst bij zijn burcht ligt (zo blijven de lichtbruggen kort).
+  const o = overzicht();
+  const scherm = e => [(cv.width / 2 + (e.doel[0] - o.x) * o.s) / cv.width, (cv.height / 2 + (e.doel[1] - o.y) * o.s) / cv.height];
+  const vrij = [...PLEKKEN.links, ...PLEKKEN.rechts];
+  const paren = [];
   for (const e of uit) {
-    const ander = e.kant === 'links' ? 'rechts' : 'links';
-    e.plek = vrij[e.kant].shift() || vrij[ander].shift() || null;
+    const [x, y] = scherm(e);
+    for (const p of vrij) paren.push({ e, p, d: Math.hypot((p[0] - x) * cv.width / cv.height, p[1] - y) });
   }
-  return uit.filter(e => e.plek);
+  paren.sort((a, b) => a.d - b.d);
+  const bezet = new Set();
+  for (const { e, p } of paren) {
+    if (e.plek || bezet.has(p)) continue;
+    e.plek = p;
+    bezet.add(p);
+  }
+  return uit;
 }
 
 // Elk eilandje met zijn naambordje één keer op schermgrootte gebakken, zodat elk beeldje maar één drawImage kost.
@@ -259,11 +273,77 @@ function eilandjeSprite(e, h) {
   return e.sprite;
 }
 
-function tekenEilandjes(g, t) {
+// Tijdens de tour: het eilandje van de leerling in een eigen kader met lucht, zodat het niet tussen de andere burchten hangt.
+function tourKaart(e, H) {
+  if (e.tourKaart && e.tourKaart.height === H) return e.tourKaart;
+  const W = Math.round(H * 1.05);
+  const c = document.createElement('canvas');
+  c.width = W;
+  c.height = H;
+  const g = c.getContext('2d');
+  const r = Math.round(H * 0.06);
+  g.save();
+  g.beginPath();
+  if (g.roundRect) g.roundRect(1, 1, W - 2, H - 2, r);
+  else g.rect(1, 1, W - 2, H - 2);
+  g.clip();
+  g.drawImage(BuArt.hemel(W, H, PLANEET), 0, 0);
+  const ih = Math.round(H * 0.72);
+  const iw = Math.round((ih * e.c.width) / e.c.height);
+  const s = Math.min(1, (W * 0.9) / iw);
+  g.drawImage(e.c, Math.round((W - iw * s) / 2), Math.round(H * 0.2), Math.round(iw * s), Math.round(ih * s));
+  g.restore();
+  g.strokeStyle = '#ffc94a';
+  g.lineWidth = Math.max(2, H / 150);
+  g.beginPath();
+  if (g.roundRect) g.roundRect(1, 1, W - 2, H - 2, r);
+  else g.rect(1, 1, W - 2, H - 2);
+  g.stroke();
+  const fs = Math.round(H * 0.065);
+  g.font = `800 ${fs}px "Exo 2", "Segoe UI", sans-serif`;
+  g.textAlign = 'center';
+  g.textBaseline = 'middle';
+  g.fillStyle = '#ffe7a3';
+  g.fillText(`🏝️ Het eilandje van ${e.b.leerling}`, W / 2, H * 0.1);
+  e.tourKaart = c;
+  return c;
+}
+
+function tekenEilandjes(g, t, zweef) {
   const lijst = ke.eilandjes || [];
   if (!lijst.length) return;
   const h = Math.round(cv.height * (lijst.length > 6 ? 0.15 : 0.19));
+  // eerst de lichtbruggen, dan de eilandjes erover
+  g.save();
+  g.lineCap = 'round';
   for (const e of lijst) {
+    if (!e.plek) continue;
+    const x0 = e.plek[0] * cv.width;
+    const y0 = e.plek[1] * cv.height + h * 0.12;
+    const x1 = cv.width / 2 + (e.doel[0] - cam.x) * cam.s;
+    const y1 = cv.height / 2 + zweef + (e.doel[1] - cam.y) * cam.s;
+    const cx = (x0 + x1) / 2;
+    const cy = Math.min(y0, y1) - cv.height * 0.06;
+    g.beginPath();
+    g.moveTo(x0, y0);
+    g.quadraticCurveTo(cx, cy, x1, y1);
+    g.setLineDash([]);
+    g.strokeStyle = 'rgba(76,201,255,.22)';
+    g.lineWidth = 9 * dpr;
+    g.stroke();
+    g.strokeStyle = 'rgba(190,240,255,.75)';
+    g.lineWidth = 2 * dpr;
+    g.stroke();
+    // lichtpulsen die over de brug naar de burcht lopen
+    g.setLineDash([4 * dpr, 22 * dpr]);
+    g.lineDashOffset = -t * 60 * dpr;
+    g.strokeStyle = 'rgba(255,255,255,.95)';
+    g.lineWidth = 3.5 * dpr;
+    g.stroke();
+  }
+  g.restore();
+  for (const e of lijst) {
+    if (!e.plek) continue;
     const sp = eilandjeSprite(e, h).c;
     const x = e.plek[0] * cv.width;
     const y = e.plek[1] * cv.height + Math.sin(t * 0.7 + e.fase) * 5 * dpr;
@@ -358,7 +438,7 @@ function frame(now) {
   }
   const zweef = Math.round(Math.sin(t * 0.6) * 4 * dpr);
 
-  ctx.drawImage(BuArt.hemel(cv.width, cv.height), 0, 0);
+  ctx.drawImage(BuArt.hemel(cv.width, cv.height, PLANEET), 0, 0);
   if (stil) {
     if (!scene || scene.beeld !== beeld || scene.w !== cv.width || scene.h !== cv.height || scene.x !== cam.x || scene.y !== cam.y || scene.s !== cam.s) scene = maakScene();
     ctx.drawImage(scene.c, 0, zweef);
@@ -376,7 +456,14 @@ function frame(now) {
     bordjes(ctx, (px, py) => [cv.width / 2 + (px - cam.x) * cam.s, cv.height / 2 + zweef + (py - cam.y) * cam.s]);
   }
 
-  if (!cam.doel) tekenEilandjes(ctx, t);
+  if (!cam.doel) tekenEilandjes(ctx, t, zweef);
+  else if (ke.tour && ke.tour.eilandje) {
+    // tijdens de tour zweeft het eilandje van deze leerling groot naast zijn burcht
+    const kaart = tourKaart(ke.tour.eilandje, Math.round(cv.height * 0.4));
+    ctx.globalAlpha = Math.min(1, (now - ke.tour.sinds) / 600);
+    ctx.drawImage(kaart, Math.round(cv.width * 0.97 - kaart.width), Math.round(cv.height * 0.5 - kaart.height / 2));
+    ctx.globalAlpha = 1;
+  }
 
   // Wolken die voorbij drijven (op maat gemaakt, zodat ze niet elke keer geschaald moeten worden).
   ctx.globalAlpha = 0.45;
@@ -432,6 +519,8 @@ function tourVolgende() {
   const n = Burcht.RANGEN[p.b.rang].grond;
   const s = Math.min((cv.height * 0.62) / (beeld.T * 9), (cv.width * 0.5) / (beeld.T * 12));
   cam.doel = { x: p.px, y: p.py - (n * beeld.T) / 4 - beeld.T * 0.6 - (cv.height * 0.06) / s, s };
+  ke.tour.eilandje = (ke.eilandjes || []).find(e => e.b.id === p.b.id) || null;
+  ke.tour.sinds = performance.now();
   $('ke-tour-wie').textContent = p.b.leerling;
   $('ke-tour-burcht').textContent = p.b.naam || `De burcht van ${p.b.leerling}`;
   $('ke-tour').classList.remove('hidden');
