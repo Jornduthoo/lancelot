@@ -88,7 +88,7 @@ function stempel(d = new Date()) {
   return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}_${p(d.getHours())}${p(d.getMinutes())}`;
 }
 
-// Een zip met alle gegevens van de klas. De Gemini-sleutel gaat nooit mee in een back-up.
+// Een zip met alle gegevens van de klas. De AI-sleutels gaan nooit mee in een back-up.
 function maakBackup() {
   const entries = [{ name: 'lancelot-backup.json', data: Buffer.from(JSON.stringify({ gemaakt: new Date().toISOString(), map: DATA }, null, 2)) }];
   for (const item of ITEMS) {
@@ -103,7 +103,7 @@ function maakBackup() {
       if (name === 'settings.json') {
         try {
           const s = JSON.parse(data);
-          delete s.geminiKey;
+          for (const k of ['geminiKey', 'claudeKey', 'openaiKey']) delete s[k];
           data = Buffer.from(JSON.stringify(s, null, 2) + '\n');
         } catch {}
       }
@@ -172,7 +172,13 @@ function zetTerug() {
   try {
     const files = controleer(fs.readFileSync(pad(RESTORE)));
     bewaar('voor-terugzetten');
-    const sleutel = (() => { try { return JSON.parse(fs.readFileSync(pad('settings.json'), 'utf8')).geminiKey || ''; } catch { return ''; } })();
+    const SLEUTELS = ['geminiKey', 'claudeKey', 'openaiKey'];
+    const sleutels = (() => {
+      try {
+        const s = JSON.parse(fs.readFileSync(pad('settings.json'), 'utf8'));
+        return Object.fromEntries(SLEUTELS.filter(k => s[k]).map(k => [k, s[k]]));
+      } catch { return {}; }
+    })();
     const items = new Set(files.map(f => f.name.split('/')[0]).filter(i => ITEMS.includes(i)));
     for (const item of items) fs.rmSync(pad(item), { recursive: true, force: true });
     for (const f of files) {
@@ -181,9 +187,9 @@ function zetTerug() {
       fs.mkdirSync(path.dirname(target), { recursive: true });
       fs.writeFileSync(target, f.data);
     }
-    if (sleutel) {
+    if (Object.keys(sleutels).length) {
       const s = (() => { try { return JSON.parse(fs.readFileSync(pad('settings.json'), 'utf8')); } catch { return {}; } })();
-      fs.writeFileSync(pad('settings.json'), JSON.stringify({ ...s, geminiKey: sleutel }, null, 2) + '\n');
+      fs.writeFileSync(pad('settings.json'), JSON.stringify({ ...s, ...sleutels }, null, 2) + '\n');
     }
     melding = 'De back-up is teruggezet. Een kopie van hoe het ervoor was, staat bij je back-ups.';
     console.log(`  ${melding}`);

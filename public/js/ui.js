@@ -319,5 +319,12 @@
     // Een klein icoon uit style.css (.ic-…) voor in een knop.
     ic: naam => `<i class="ic ic-${naam}" aria-hidden="true"></i>`,
     pauze: Pauze,
+    // De AI die de leerkracht bij Instellingen koos (Gemini, Claude of ChatGPT), voor knoppen en teksten.
+    ai: 'Gemini',
+    zetAi(s) {
+      if (!s || !s.aiNaam) return;
+      this.ai = s.aiNaam;
+      for (const el of document.querySelectorAll('.ai-naam')) el.textContent = s.aiNaam;
+    },
   };
 })();

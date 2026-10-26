@@ -4,14 +4,30 @@ const path = require('path');
 const gegevens = require('./gegevens');
 
 const FILE = gegevens.pad('settings.json');
-const DEFAULTS = { geminiKey: '', geminiModel: 'auto', geminiAutoModel: '', preferredAddress: '' };
+// Welke AI de quiz direct maakt. Gemini blijft de standaard omdat die gratis kan.
+const DIENSTEN = {
+  gemini: { naam: 'Gemini', key: 'geminiKey', model: 'geminiModel' },
+  claude: { naam: 'Claude', key: 'claudeKey', model: 'claudeModel' },
+  openai: { naam: 'ChatGPT', key: 'openaiKey', model: 'openaiModel' },
+};
+const SLEUTELS = Object.values(DIENSTEN).map(d => d.key);
+const DEFAULTS = {
+  aiDienst: 'gemini',
+  geminiKey: '', geminiModel: 'auto', geminiAutoModel: '',
+  claudeKey: '', claudeModel: 'claude-opus-5-5',
+  openaiKey: '', openaiModel: 'gpt-6.1-sol',
+  preferredAddress: '',
+};
 
 function read() {
+  let s;
   try {
-    return { ...DEFAULTS, ...JSON.parse(fs.readFileSync(FILE, 'utf8')) };
+    s = { ...DEFAULTS, ...JSON.parse(fs.readFileSync(FILE, 'utf8')) };
   } catch {
-    return { ...DEFAULTS };
+    s = { ...DEFAULTS };
   }
+  if (!DIENSTEN[s.aiDienst]) s.aiDienst = 'gemini';
+  return s;
 }
 
 function write(changes) {
@@ -20,15 +36,30 @@ function write(changes) {
   return next;
 }
 
+// De sleutel van de gekozen dienst (leeg als er geen is).
+function actief() {
+  const s = read();
+  const d = DIENSTEN[s.aiDienst];
+  return { dienst: s.aiDienst, naam: d.naam, key: s[d.key], model: s[d.model] };
+}
+
 // Wat het docentenscherm te zien krijgt: nooit de hele sleutel.
 function publicView() {
   const s = read();
+  const diensten = {};
+  for (const [id, d] of Object.entries(DIENSTEN)) {
+    diensten[id] = { naam: d.naam, hasKey: Boolean(s[d.key]), keyHint: s[d.key] ? `…${s[d.key].slice(-4)}` : '', model: s[d.model] };
+  }
+  const nu = diensten[s.aiDienst];
   return {
-    hasKey: Boolean(s.geminiKey),
-    keyHint: s.geminiKey ? `…${s.geminiKey.slice(-4)}` : '',
+    aiDienst: s.aiDienst,
+    aiNaam: nu.naam,
+    hasKey: nu.hasKey,
+    keyHint: nu.keyHint,
+    diensten,
     geminiModel: s.geminiModel,
     geminiAutoModel: s.geminiAutoModel,
   };
 }
 
-module.exports = { read, write, publicView };
+module.exports = { read, write, actief, publicView, DIENSTEN, SLEUTELS, DEFAULTS };

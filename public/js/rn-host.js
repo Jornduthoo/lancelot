@@ -112,6 +112,7 @@ function lijst(l) {
 
 socket.on('connect', load);
 socket.on('rn-bord', render);
+socket.on('settings', s => Ui.zetAi(s));
 socket.on('addresses', list => {
   if (!list || !list.length) return;
   $('rnh-qr').innerHTML = list[0].qr;
@@ -131,7 +132,7 @@ $('rnh-bewaar').addEventListener('click', () => {
 $('rnh-ai').addEventListener('click', () => {
   const b = $('rnh-ai');
   b.disabled = true;
-  $('rnh-lijst-info').textContent = 'Gemini zoekt betekenissen en voorbeeldzinnen…';
+  $('rnh-lijst-info').textContent = `${Ui.ai} zoekt betekenissen en voorbeeldzinnen…`;
   socket.emit('rn-lijst-ai', { text: $('rnh-lijst').value }, res => {
     b.disabled = false;
     if (res.error) return ($('rnh-lijst-info').textContent = res.error);
@@ -145,7 +146,7 @@ $('rnh-ai').addEventListener('click', () => {
 $('rnh-thema-ai').addEventListener('click', () => {
   const b = $('rnh-thema-ai');
   b.disabled = true;
-  $('rnh-lijst-info').textContent = 'Gemini zoekt woorden rond je thema…';
+  $('rnh-lijst-info').textContent = `${Ui.ai} zoekt woorden rond je thema…`;
   socket.emit('rn-lijst-thema', { thema: $('rnh-thema').value, text: $('rnh-lijst').value }, res => {
     b.disabled = false;
     if (res.error) return ($('rnh-lijst-info').textContent = res.error);
