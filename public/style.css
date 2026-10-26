@@ -455,6 +455,31 @@ a:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; border-ra
 @keyframes ui-in { from { opacity: 0; transform: translateY(-8px); } }
 @keyframes spin { to { transform: rotate(360deg); } }
 
+/* ---------- Pauzeknop (ui.js) ---------- */
+.pauze-scherm {
+  position: fixed; inset: 0; z-index: 2147483000; display: none; align-items: center; justify-content: center; padding: 16px;
+  overflow: auto; text-align: center; touch-action: none; user-select: none;
+  background: radial-gradient(ellipse at 50% 42%, rgba(76, 201, 255, .2), transparent 55%), rgba(3, 7, 16, .95);
+}
+.pauze-scherm.aan { display: flex; animation: ui-in .25s ease-out; }
+.pauze-scherm::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none; opacity: .5;
+  background: repeating-linear-gradient(0deg, rgba(76, 201, 255, .05) 0 1px, transparent 1px 4px);
+}
+.pauze-inhoud { position: relative; display: flex; flex-direction: column; align-items: center; gap: 10px; max-width: 760px; }
+.pauze-slot { width: min(44vh, 62vw, 340px); height: auto; filter: drop-shadow(0 0 28px rgba(76, 201, 255, .45)); animation: pauze-zweef 3.2s ease-in-out infinite; }
+.pauze-scherm h2 { margin: 6px 0 0; font-family: var(--head); font-size: clamp(2rem, 6vw, 3.4rem); color: var(--gold); letter-spacing: .06em; text-shadow: 0 0 18px rgba(255, 201, 74, .35); }
+.pauze-tekst { margin: 0; font-family: var(--tech); font-size: clamp(1.05rem, 3.2vw, 1.6rem); color: var(--cyan); text-shadow: 0 0 14px var(--cyan-glow); }
+.pauze-tekst:empty { display: none; }
+.pauze-bord .pauze-slot { width: min(30vh, 40vw, 260px); }
+.pauze-host { display: flex; flex-direction: column; align-items: center; gap: 10px; margin-top: 10px; user-select: text; }
+.pauze-host p { margin: 0; }
+.pauze-snel, .pauze-form { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.pauze-form input { width: min(320px, 70vw); }
+.pauze-verder { margin-top: 6px; font-size: 1.15rem; padding: 14px 34px; }
+@keyframes pauze-zweef { 50% { transform: translateY(-10px); } }
+@media (prefers-reduced-motion: reduce) { .pauze-slot { animation: none; } }
+
 /* ---------- Vensters in ridderstijl (ui.js) ---------- */
 .ui-venster {
   width: min(480px, calc(100% - 32px)); padding: 26px 26px 22px; border: 0;

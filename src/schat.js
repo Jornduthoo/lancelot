@@ -1,5 +1,6 @@
 // Schattenjacht: elke leerling beantwoordt op eigen tempo vragen en verdient goud.
 // Met dat goud koop je upgrades in de schatkamer. Wie na de speeltijd het meeste goud heeft, wint.
+const { Date, setTimeout, setInterval, clearTimeout, clearInterval } = require('./pauze').klok; // stil tijdens de pauzeknop
 const logboek = require('./logboek');
 const quizzes = require('./quizzes');
 

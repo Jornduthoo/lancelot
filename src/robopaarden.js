@@ -4,6 +4,7 @@
 // of extra nitro als je al een wapen hebt. Wie na de speeltijd het verst staat, wint.
 // Tegen gokken: na een fout antwoord even wachten (het juiste antwoord blijft staan), en die vraag komt later terug.
 // De gsm rijdt zelf en stuurt zijn plek; de server rekent de afstand, de ronden, de wapens en de treffers.
+const { Date, setTimeout, setInterval, clearTimeout, clearInterval } = require('./pauze').klok; // stil tijdens de pauzeknop
 const World = require('../public/js/rp-world');
 const { Vragen, saveCsv, pct } = require('./vragen');
 const { tempoOf, factor } = require('./tempo');

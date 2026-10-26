@@ -3,6 +3,7 @@
 // Je zwaardlading raakt leeg: een juist antwoord laadt hem op en geeft het Vuurzwaard (dubbele punten, je slag raakt ook de buurputten).
 // Tegen gokken: na een fout antwoord even wachten, en die vraag komt later terug.
 // De server kijkt elke slag na met hetzelfde schema van de mollen en rekent zelf de punten.
+const { Date, setTimeout, setInterval, clearTimeout, clearInterval } = require('./pauze').klok; // stil tijdens de pauzeknop
 const World = require('../public/js/mo-world');
 const { Vragen, saveCsv, pct } = require('./vragen');
 const { tempoOf, factor } = require('./tempo');

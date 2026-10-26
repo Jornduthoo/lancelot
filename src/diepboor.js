@@ -3,6 +3,7 @@
 // koop je een snellere boor, een grotere tank, een groter laadruim en sterker pantser. Lava en gaszakken beschadigen je pantser.
 // Tegen gokken: na een fout antwoord even wachten (het juiste antwoord blijft staan), en die vraag komt later terug.
 // De leerling graaft zelf (geen vertraging); de server controleert elk vakje (dezelfde mijn uit dezelfde seed) en houdt goud en laadruim bij.
+const { Date, setTimeout, setInterval, clearTimeout, clearInterval } = require('./pauze').klok; // stil tijdens de pauzeknop
 const World = require('../public/js/db-world');
 const { Vragen, saveCsv, pct } = require('./vragen');
 const { tempoOf, factor } = require('./tempo');

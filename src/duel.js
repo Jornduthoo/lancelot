@@ -1,6 +1,7 @@
 // Duel in de arena: één tegen één, met dezelfde vraag op hetzelfde moment. Wie eerst juist antwoordt,
 // slaat toe en de ander verliest een hart. Fout geantwoord? Dan mag je bij die vraag niet meer.
 // Alle duels van een ronde lopen tegelijk; de winnaars gaan door in een toernooischema tot er één kampioen is.
+const { Date, setTimeout, setInterval, clearTimeout, clearInterval } = require('./pauze').klok; // stil tijdens de pauzeknop
 const logboek = require('./logboek');
 const quizzes = require('./quizzes');
 const QUESTION_MS = 20000;

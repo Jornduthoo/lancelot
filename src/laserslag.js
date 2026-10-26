@@ -2,6 +2,7 @@
 // Munitie krijg je alleen door quizvragen juist te beantwoorden. Geraakt worden is niet erg:
 // je teleporteert terug naar je kamp en kan daar meteen nieuwe munitie verdienen.
 // De gsm stuurt zijn positie; de server beslist over schoten, treffers en punten.
+const { Date, setTimeout, setInterval, clearTimeout, clearInterval } = require('./pauze').klok; // stil tijdens de pauzeknop
 const Arena = require('../public/js/laserslag-world');
 const { tempoOf, factor } = require('./tempo');
 const logboek = require('./logboek');

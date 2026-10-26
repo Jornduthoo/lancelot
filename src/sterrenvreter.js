@@ -3,6 +3,7 @@
 // Goede antwoorden geven massa, ⚡ turbo en (drie op rij) 💥 supernova. In het midden groeit een zwart gat dat je uitspuwt.
 // Tegen gokken: na een fout antwoord even wachten (het juiste antwoord blijft staan), en die vraag komt later terug.
 // De leerling beweegt zelf (geen vertraging) en stuurt zijn positie; de server beslist wie wat opeet.
+const { Date, setTimeout, setInterval, clearTimeout, clearInterval } = require('./pauze').klok; // stil tijdens de pauzeknop
 const World = require('../public/js/sv-world');
 const { Vragen, saveCsv, pct } = require('./vragen');
 const { tempoOf, factor } = require('./tempo');

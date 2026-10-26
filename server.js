@@ -73,6 +73,7 @@ const settings = require('./src/settings');
 const klas = require('./src/klas');
 const doelen = require('./src/doelen');
 const logboek = require('./src/logboek');
+const pauze = require('./src/pauze');
 const opwarmer = require('./src/opwarmer');
 const overzicht = require('./src/overzicht');
 const zorg = require('./src/zorg');
@@ -563,11 +564,15 @@ function safeHandlers(socket) {
 process.on('uncaughtException', err => console.error('Onverwachte fout:', (err && err.stack) || err));
 process.on('unhandledRejection', err => console.error('Onverwachte fout:', (err && err.stack) || err));
 
+pauze.opWijziging(stand => io.emit('pauze', stand));
+
 io.on('connection', socket => {
   safeHandlers(socket);
   // De namen op de klaslijst, om bij het aanmelden aan te tikken. Meteen meesturen, nog voor de stand van
   // een spel: zo weet de leerling al of een onthouden naam op de lijst staat voordat hij automatisch meedoet.
   socket.emit('klas-namen', klas.names());
+  // Staat de pauzeknop aan, dan ziet ook wie nu pas binnenkomt meteen het slot.
+  if (pauze.stand().aan) socket.emit('pauze', pauze.stand());
   socket.on('klas-namen', (_, cb) => typeof cb === 'function' && cb(klas.names()));
   socket.on('klas-bezet', (playerId, cb) => typeof cb === 'function' && cb(bezetteNamen(playerId)));
   socket.on('klas-claim', (name, cb) => typeof cb === 'function' && cb({ id: oudeSpeler(name) }));
@@ -687,6 +692,7 @@ io.on('connection', socket => {
     socket.emit('vr-state', verrader.hostState());
     socket.emit('ob-state', oefenblad.hostState());
 
+    socket.on('pauze-zet', ({ aan, tekst } = {}) => pauze.zet(aan, tekst));
     socket.on('stop-others', (except, cb) => {
       stopOthers(String(except || ''));
       if (typeof cb === 'function') cb({ ok: true });

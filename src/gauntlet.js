@@ -3,6 +3,7 @@
 // Geveld? Dan beantwoord je een vraag om terug te komen. Elke ploeg krijgt dezelfde kerkers: wie raakt het diepst?
 // Tegen gokken: na een fout antwoord even wachten (het juiste antwoord blijft staan), en die vraag komt later terug.
 // De leerling beweegt zelf (geen vertraging) en stuurt zijn positie; de server beslist over monsters, schoten en treffers.
+const { Date, setTimeout, setInterval, clearTimeout, clearInterval } = require('./pauze').klok; // stil tijdens de pauzeknop
 const World = require('../public/js/gt-world');
 const { Vragen, saveCsv, pct } = require('./vragen');
 const { tempoOf, factor } = require('./tempo');

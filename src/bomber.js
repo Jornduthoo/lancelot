@@ -4,6 +4,7 @@
 // Wie geraakt wordt, verliest een paar kristallen en staat even later ergens anders weer op.
 // Tegen gokken: na een fout antwoord even wachten (het juiste antwoord blijft staan), en die vraag komt later terug.
 // De server beslist alles: leerlingen sturen alleen een richting en "mijn leggen".
+const { Date, setTimeout, setInterval, clearTimeout, clearInterval } = require('./pauze').klok; // stil tijdens de pauzeknop
 const logboek = require('./logboek');
 const { tempoOf, factor } = require('./tempo');
 const quizzes = require('./quizzes');

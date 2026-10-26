@@ -3,6 +3,7 @@
 // Drie juist op rij: een ⚡ bliksem rond je toren. Op het einde komt de draak. Houdt de poort stand tot de tijd om is, dan wint de klas.
 // Tegen gokken: na een fout antwoord even wachten (het juiste antwoord blijft staan), en die vraag komt later terug.
 // De server rekent alles uit (monsters, torens, schoten); de schermen tekenen het na.
+const { Date, setTimeout, setInterval, clearTimeout, clearInterval } = require('./pauze').klok; // stil tijdens de pauzeknop
 const World = require('../public/js/pw-world');
 const { Vragen, saveCsv, pct } = require('./vragen');
 const { tempoOf, factor } = require('./tempo');

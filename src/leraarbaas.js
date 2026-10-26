@@ -5,6 +5,7 @@
 // De klas wint als de baas op 0 staat. Is de moed van de klas op, of is de tijd om, dan wint de baas.
 // De schade tonen we in punten: de volle levensbalk van de baas is 1000.
 // Tegen gokken: na een fout antwoord even wachten (het juiste antwoord blijft staan), en die vraag komt later terug.
+const { Date, setTimeout, setInterval, clearTimeout, clearInterval } = require('./pauze').klok; // stil tijdens de pauzeknop
 const logboek = require('./logboek');
 const avatars = require('./avatars');
 const { tempoOf, factor } = require('./tempo');

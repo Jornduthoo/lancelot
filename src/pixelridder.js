@@ -4,6 +4,7 @@
 // plasmazwaard = schieten, sterrenschild = even onkwetsbaar). Fout: even wachten, de vraag komt later terug, en het blok geeft maar een munt.
 // Elke runepoort brengt je naar een nieuwe, moeilijkere wereld. Niemand valt af: wie valt, begint opnieuw bij de laatste vlag.
 // De leerling speelt zelf (geen vertraging); de server controleert munten, vijanden en poorten, houdt de stand bij en toont alles op het bord.
+const { Date, setTimeout, setInterval, clearTimeout, clearInterval } = require('./pauze').klok; // stil tijdens de pauzeknop
 const World = require('../public/js/px-world');
 const { Vragen, saveCsv, pct } = require('./vragen');
 const { tempoOf, factor } = require('./tempo');

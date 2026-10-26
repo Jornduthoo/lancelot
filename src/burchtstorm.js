@@ -4,6 +4,7 @@
 // Drie op rij juist: er vliegt meteen een drakenvuur van drie rijen naar de koploper. Fout: één belegeringsrij bij jezelf.
 // Niemand valt af: stort je burcht in, dan begin je opnieuw met een lege schacht (en verlies je wat punten).
 // De leerling speelt zelf (geen vertraging); de server kiest de doelwitten, houdt de stand bij en toont alle burchten op het bord.
+const { Date, setTimeout, setInterval, clearTimeout, clearInterval } = require('./pauze').klok; // stil tijdens de pauzeknop
 const Core = require('../public/js/bs-core');
 const { Vragen, saveCsv, pct } = require('./vragen');
 const { tempoOf, factor } = require('./tempo');

@@ -1,6 +1,7 @@
 // Kristalroof: elke leerling beantwoordt vragen en mijnt kristallen. Na een goed antwoord kies je een kist:
 // kristallen, een verdubbelaar, een schild, soms pech, of een roof. Bij een roof kies je een andere ridder
 // en raad je diens geheime woord. Juist geraden? Dan neem je een deel van zijn kristallen mee.
+const { Date, setTimeout, setInterval, clearTimeout, clearInterval } = require('./pauze').klok; // stil tijdens de pauzeknop
 const logboek = require('./logboek');
 const quizzes = require('./quizzes');
 const WORDS = [
