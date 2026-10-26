@@ -2,6 +2,7 @@
 // Lasers, raketten en mijnen krijg je alleen met goede antwoorden. Uitgeschakeld? Na drie seconden rijd je weer mee.
 // Tegen gokken: na een fout antwoord even wachten (het juiste antwoord blijft staan), en die vraag komt later terug.
 // De gsm rijdt zelf en stuurt zijn positie; de server beslist over schoten, treffers en punten.
+const { Date, setTimeout, setInterval, clearTimeout, clearInterval } = require('./pauze').klok; // stil tijdens de pauzeknop
 const World = require('../public/js/sr-world');
 const logboek = require('./logboek');
 const { tempoOf, factor } = require('./tempo');

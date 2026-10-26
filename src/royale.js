@@ -3,6 +3,7 @@
 // Wie uitgeschakeld is, kijkt mee en verdient met vragen extra munitie voor de volgende ronde. Er volgen rondes tot de tijd op is.
 // Tegen gokken: na een fout antwoord even wachten (het juiste antwoord blijft staan), en die vraag komt later terug.
 // De leerling beweegt zelf (geen vertraging) en stuurt zijn positie; de server beslist over schoten, treffers en de storm.
+const { Date, setTimeout, setInterval, clearTimeout, clearInterval } = require('./pauze').klok; // stil tijdens de pauzeknop
 const World = require('../public/js/ry-world');
 const { Vragen, saveCsv, pct } = require('./vragen');
 const { tempoOf, factor } = require('./tempo');

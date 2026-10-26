@@ -4,6 +4,7 @@
 // Na elke betovering (of als iemand de hoorn blaast) komt de Ronde Tafel samen: praten, dan stemmen wie verbannen wordt.
 // De ridders winnen als de kern hersteld is of alle verraders verbannen zijn. De verraders winnen als ze even talrijk
 // worden als de ridders, of als de tijd op is.
+const { Date, setTimeout, setInterval, clearTimeout, clearInterval } = require('./pauze').klok; // stil tijdens de pauzeknop
 const logboek = require('./logboek');
 const quizzes = require('./quizzes');
 const TALK_MS = { kort: 45000, normaal: 75000, lang: 120000 };

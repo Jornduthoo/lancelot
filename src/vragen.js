@@ -1,6 +1,7 @@
 // Vragen voor de actiespellen Gauntlet en Ridder-Royale: elke leerling krijgt de quizvragen in een eigen volgorde.
 // Tegen gokken: na een fout antwoord even wachten (het juiste antwoord blijft staan), en die vraag komt een paar vragen later terug.
 // Elk antwoord gaat naar het logboek, met het leerplandoel van de vraag. Ook het CSV-bestand met de eindstand maken we hier.
+const { Date, setTimeout, setInterval, clearTimeout, clearInterval } = require('./pauze').klok; // stil tijdens de pauzeknop
 const fs = require('fs');
 const path = require('path');
 const logboek = require('./logboek');

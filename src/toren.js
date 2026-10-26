@@ -1,6 +1,7 @@
 // De prinses in de toren: iedereen klimt in dezelfde toren. Springen kost energie,
 // een goed antwoord op een quizvraag geeft nieuwe energie. De bewegingen gebeuren op de gsm;
 // de server houdt de energie, de vragen en de hoogtes bij en stuurt iedereen elkaars positie.
+const { Date, setTimeout, setInterval, clearTimeout, clearInterval } = require('./pauze').klok; // stil tijdens de pauzeknop
 const world = require('../public/js/toren-world');
 const { tempoOf, factor } = require('./tempo');
 const logboek = require('./logboek');

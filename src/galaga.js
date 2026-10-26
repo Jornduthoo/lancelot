@@ -5,6 +5,7 @@
 // Een goed antwoord geeft een beloning naar keuze: dubbele laser, schild of bom. Drie op rij: twee beloningen.
 // Tegen gokken: na een fout antwoord raakt je jetpack oververhit (even wachten, het juiste antwoord blijft staan)
 // en die vraag komt later terug.
+const { Date, setTimeout, setInterval, clearTimeout, clearInterval } = require('./pauze').klok; // stil tijdens de pauzeknop
 const logboek = require('./logboek');
 const { tempoOf, factor } = require('./tempo');
 const quizzes = require('./quizzes');

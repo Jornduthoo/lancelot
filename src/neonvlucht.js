@@ -3,6 +3,7 @@
 // Loop door de juiste poort: turbo, een schild en een hogere vermenigvuldiger (tot ×5). Foute poort: struikelen en de vermenigvuldiger valt terug.
 // Tegen gokken: na een fout antwoord even wachten tot de volgende vraagpoort, en die vraag komt later terug.
 // De leerling rent zelf (geen vertraging); de server houdt de afstand, de munten en de punten bij.
+const { Date, setTimeout, setInterval, clearTimeout, clearInterval } = require('./pauze').klok; // stil tijdens de pauzeknop
 const World = require('../public/js/nv-world');
 const { Vragen, saveCsv, pct } = require('./vragen');
 const { tempoOf, factor } = require('./tempo');

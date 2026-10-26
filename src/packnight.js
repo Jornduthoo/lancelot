@@ -3,6 +3,7 @@
 // de drones, en wie er een raakt, schakelt hem uit. Wie zonder kracht gevangen wordt, verliest kristallen.
 // Tegen gokken: na een fout antwoord even wachten (het juiste antwoord blijft staan), en die vraag komt later terug.
 // De server beslist alles: leerlingen sturen alleen een richting. Het doolhof wordt bij elke start opnieuw gemaakt.
+const { Date, setTimeout, setInterval, clearTimeout, clearInterval } = require('./pauze').klok; // stil tijdens de pauzeknop
 const logboek = require('./logboek');
 const { tempoOf, factor } = require('./tempo');
 const quizzes = require('./quizzes');

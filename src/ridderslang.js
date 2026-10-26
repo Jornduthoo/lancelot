@@ -4,6 +4,7 @@
 // Tijdens een vraag word je een geest: je staat stil, niemand kan je raken en jij raakt niemand.
 // Tegen gokken: na een fout antwoord even wachten (het juiste antwoord blijft staan), en die vraag komt later terug.
 // De leerling stuurt zelf (geen vertraging) en stuurt zijn kop door; de server houdt de lichamen bij en beslist over botsingen.
+const { Date, setTimeout, setInterval, clearTimeout, clearInterval } = require('./pauze').klok; // stil tijdens de pauzeknop
 const World = require('../public/js/rs-world');
 const { Vragen, saveCsv, pct } = require('./vragen');
 const { tempoOf, factor } = require('./tempo');

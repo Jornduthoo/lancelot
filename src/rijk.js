@@ -2,6 +2,7 @@
 // Een gebied onthoudt met welke leerstof het veroverd werd. In latere lessen komen vragen over die oudere
 // leerstof terug: juist geeft dubbel, fout verzwakt een gebied dat met die leerstof veroverd werd.
 // Zo wordt herhalen vanzelf deel van het spel. Elk rijk is een bestand in rijken/.
+const { Date, setTimeout, setInterval, clearTimeout, clearInterval } = require('./pauze').klok; // stil tijdens de pauzeknop
 const fs = require('fs');
 const path = require('path');
 const gegevens = require('./gegevens');

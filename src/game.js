@@ -2,6 +2,7 @@
 // Fases: idle -> lobby -> intro -> question -> reveal -> (intro ...) -> podium
 // In de intro staat de vraag al op het bord, maar kunnen leerlingen nog niet antwoorden.
 
+const { Date, setTimeout, setInterval, clearTimeout, clearInterval } = require('./pauze').klok; // stil tijdens de pauzeknop
 const logboek = require('./logboek');
 const settings = require('./settings');
 const quizzes = require('./quizzes');

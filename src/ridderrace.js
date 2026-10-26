@@ -2,6 +2,7 @@
 // Rijden kost brandstof. Tanken doe je in de pitstop met quizvragen: elk goed antwoord vult de tank,
 // twee juist op rij geeft een turbo. Wie na de speeltijd het verst staat, wint.
 // De gsm rijdt zelf en stuurt zijn afstand; de server bewaakt brandstof, ronden en de stand.
+const { Date, setTimeout, setInterval, clearTimeout, clearInterval } = require('./pauze').klok; // stil tijdens de pauzeknop
 const Track = require('../public/js/race-track');
 const { tempoOf, factor } = require('./tempo');
 const logboek = require('./logboek');

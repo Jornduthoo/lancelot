@@ -4,6 +4,7 @@
 // Heeft het blad niveaus, dan werkt elke leerling op Page, Schildknaap of Ridder, elk met een eigen blad.
 // Wie welk niveau krijgt: de hele klas hetzelfde, per leerling zoals in Mijn klas ('klas'), of de leerling kiest ('kies').
 // De leerkracht kan het niveau van een leerling tijdens het werken nog veranderen.
+const { Date, setTimeout, setInterval, clearTimeout, clearInterval } = require('./pauze').klok; // stil tijdens de pauzeknop
 const sheets = require('./oefenbladen');
 const logboek = require('./logboek');
 const klas = require('./klas');

@@ -2,6 +2,7 @@
 // kiest zelf op welk deel van de burcht ze komen. Als de tijd om is, valt de draak aan: elk deel moet
 // hoog genoeg zijn om zijn vuur te doorstaan. De burcht houdt stand als hooguit één deel valt.
 // Een samenwerkingsspel: niemand wint alleen, en elke steen telt.
+const { Date, setTimeout, setInterval, clearTimeout, clearInterval } = require('./pauze').klok; // stil tijdens de pauzeknop
 const logboek = require('./logboek');
 const quizzes = require('./quizzes');
 const PARTS = [

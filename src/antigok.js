@@ -3,6 +3,7 @@
 // - Drie keer na elkaar fout en veel te snel om de vraag gelezen te hebben: een langere pauze voor de leerling
 //   en een seintje op het bord voor de leerkracht.
 // server.js zet guard() rond de question/answer van een spel; judge() is voor spellen met één vraag voor iedereen.
+const { Date, setTimeout, setInterval, clearTimeout, clearInterval } = require('./pauze').klok; // stil tijdens de pauzeknop
 const { factor } = require('./tempo');
 const logboek = require('./logboek');
 

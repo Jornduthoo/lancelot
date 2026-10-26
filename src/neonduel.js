@@ -4,6 +4,7 @@
 // Tegen gokken: na een fout antwoord even wachten (het juiste antwoord blijft staan), en die vraag komt later terug.
 // De schade tonen we in punten: een volle levensbalk is 1000.
 // Een ronde duurt tot een ridder K.O. gaat of de tijd op is. Wie eerst de meeste rondes wint, wint het duel.
+const { Date, setTimeout, setInterval, clearTimeout, clearInterval } = require('./pauze').klok; // stil tijdens de pauzeknop
 const logboek = require('./logboek');
 const { tempoOf, factor } = require('./tempo');
 const quizzes = require('./quizzes');
