@@ -520,6 +520,8 @@ const BossDraw = (() => {
       S.bgAura = auraKey;
       S.bg = paintHall(w, h, AURAS[auraKey || 0]);
     }
+    // Posters komen na het laden binnen: dan de zaal opnieuw tekenen.
+    if (typeof Posters !== 'undefined') Posters.onChange(() => { S.bg = null; });
 
     function paintHall(W, H, aura) {
       const c = document.createElement('canvas');
@@ -590,6 +592,30 @@ const BossDraw = (() => {
           g.moveTo(x, top + H * .06);
           g.quadraticCurveTo((x + nx) / 2, top - H * .06, nx, top + H * .13);
           g.stroke();
+        }
+      }
+      // Posters tussen de pilaren, aan twee kettingen (eigen foto's of de grappige).
+      if (typeof Posters !== 'undefined' && Posters.list.length) {
+        let n = 0;
+        for (const side of [-1, 1]) {
+          for (let i = 0; i < 2; i++) {
+            const img = Posters.pick(n++);
+            const x = side < 0 ? W * (.095 + i * .11) : W * (.905 - i * .11);
+            const ph = Math.min(H * .2 * (1 - i * .18), W * .085 * 236 / 200), pw = ph * 200 / 236;
+            const py = H * (.26 + i * .06);
+            g.strokeStyle = '#8a6a2a';
+            g.lineWidth = Math.max(1, H * .003);
+            g.beginPath();
+            g.moveTo(x - pw * .3, py); g.lineTo(x, py - ph * .3); g.lineTo(x + pw * .3, py);
+            g.stroke();
+            g.shadowColor = aura.c;
+            g.shadowBlur = H * .02;
+            g.drawImage(img, x - pw / 2, py, pw, ph);
+            g.shadowBlur = 0;
+            // Wat schemer over de poster, zodat de baas de blikvanger blijft.
+            g.fillStyle = 'rgba(10,4,20,.25)';
+            g.fillRect(x - pw / 2, py, pw, ph);
+          }
         }
       }
       // De vloer met tegels die in de verte verdwijnen.
