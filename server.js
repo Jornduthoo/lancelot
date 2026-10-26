@@ -778,7 +778,7 @@ io.on('connection', socket => {
     // Het Runenraadsel op het bord, en de woorden van de week.
     socket.on('rn-bord', handle(() => ({ bord: runen.bord() })));
     socket.on('rn-onthul', handle(() => runen.onthul()));
-    socket.on('rn-lijst-get', handle(() => ({ lijst: runen.lijstView(), doelen: doelen.all().filter(d => d.vak === 'Nederlands' && String(d.leerjaar) === String(klas.read().leerjaar)) })));
+    socket.on('rn-lijst-get', handle(() => ({ lijst: runen.lijstView(), prompt: runen.chatPrompt(), doelen: doelen.all().filter(d => d.vak === 'Nederlands' && String(d.leerjaar) === String(klas.read().leerjaar)) })));
     socket.on('rn-lijst-save', handle(arg => {
       const lijst = runen.bewaarLijst(arg || {});
       io.to('host').emit('rn-bord', runen.bord());
