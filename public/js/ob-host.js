@@ -25,6 +25,7 @@ $('to-home').addEventListener('click', () => { location.href = '/host'; });
 for (const b of document.querySelectorAll('[data-back]')) b.addEventListener('click', () => show(b.dataset.back));
 
 socket.on('settings', s => {
+  Ui.zetAi(s);
   hasKey = s.hasKey;
   $('a-gemini-panel').classList.toggle('hidden', !hasKey);
 });
@@ -277,7 +278,7 @@ document.addEventListener('paste', e => {
 $('a-gemini').addEventListener('click', () => {
   $('a-gemini-error').textContent = '';
   $('a-gemini').disabled = true;
-  $('a-gemini-busy').textContent = 'Gemini is bezig… dit duurt meestal 10 tot 40 seconden.';
+  $('a-gemini-busy').textContent = `${Ui.ai} is bezig… dit duurt meestal 10 tot 40 seconden.`;
   socket.emit('ob-generate', { prompt: buildPrompt(true), files: sources.map(({ mimeType, data }) => ({ mimeType, data })) }, res => {
     $('a-gemini').disabled = false;
     $('a-gemini-busy').textContent = '';

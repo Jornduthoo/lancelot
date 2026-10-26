@@ -18,6 +18,7 @@
       </div>
     </div>
     <div class="actions">
+      <button class="secondary pauze-knop pauze-home" data-pauze title="Alle leerlingschermen op slot om de aandacht te vragen"><img src="/img/icons/pauze-klein.webp" alt=""> Pauze</button>
       <button class="secondary icon" id="mute" title="Geluid aan/uit" aria-label="Geluid aan/uit"><i class="ic ic-geluid"></i></button>
       <button class="secondary hidden" id="stop">Stop toernooi</button>
     </div>
@@ -236,7 +237,7 @@
         <em class="tag">Elke dag</em>
       </button>
       <button class="module" data-module="voorkennis">
-        <img class="tile-icon" src="/img/icons/netwerk.webp" alt="">
+        <img class="tile-icon" src="/img/icons/voorkennis.webp" alt="">
         <strong>Voorkennis activeren</strong>
         <span>Start je les met een woordwolk, stellingen en een peiling: wat weet de klas al?</span>
         <em class="tag">Maak met AI</em>
@@ -244,7 +245,7 @@
       </div></div>
     <div class="realm-panel hidden" id="realm-smidse"><div class="modules">
       <button class="module" data-module="werkblad">
-        <img class="tile-icon" src="/img/icons/smidse.webp" alt="">
+        <img class="tile-icon" src="/img/icons/oefenblad-ai.webp" alt="">
         <strong>Nieuw oefenblad met AI</strong>
         <span>Laat AI een oefenblad smeden over je les, ook vanaf een screenshot van het bordboek. Daarna kies je: live spelen of printen.</span>
         <em class="tag">Maak met AI</em>
@@ -343,15 +344,22 @@
       </div>
     </div>
     <div class="panel form">
-      <h3>Eigen Gemini-sleutel (optioneel)</h3>
-      <p class="muted small">Met een eigen sleutel maakt Google Gemini de quiz direct, zonder kopiëren en plakken. Een sleutel maak je gratis aan op <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a>. Zolang je daar geen betaalgegevens koppelt, kost het niets; er geldt dan een gratis daglimiet. De sleutel wordt alleen op deze pc bewaard.</p>
+      <h3>Eigen AI-sleutel (optioneel)</h3>
+      <p class="muted small">Met een eigen sleutel maakt de AI de quiz, het oefenblad of de woordenlijst direct, zonder kopiëren en plakken. De sleutel wordt alleen op deze pc bewaard.</p>
+      <label>AI-dienst<select id="s-dienst">
+        <option value="gemini">Gemini (Google), kan gratis</option>
+        <option value="claude">Claude (Anthropic), betalend</option>
+        <option value="openai">ChatGPT (OpenAI), betalend</option>
+      </select></label>
+      <p class="muted small" id="s-uitleg"></p>
       <p id="s-status"></p>
       <label>API-sleutel<input id="s-key" type="password" autocomplete="off" placeholder="Plak hier je sleutel"></label>
-      <label>Model<input id="s-model" placeholder="auto"></label>
-      <p class="muted small">Laat op <strong>auto</strong> staan: LANcelot kiest dan zelf een werkend Gemini-model, ook als Google oude modellen stopzet. <span id="s-auto-model"></span></p>
+      <label>Model<input id="s-model" list="s-modellen" autocomplete="off"></label>
+      <datalist id="s-modellen"></datalist>
+      <p class="muted small" id="s-model-uitleg"></p>
       <p class="error" id="s-error"></p>
       <div class="actions">
-        <button id="s-save">Opslaan</button>
+        <button id="s-save">Opslaan en gebruiken</button>
         <button class="secondary" id="s-remove">Sleutel verwijderen</button>
       </div>
     </div>
@@ -385,7 +393,7 @@
         </div>
       </div>
       <h3>Back-up</h3>
-      <p class="muted small">LANcelot bewaart elke dag bij het opstarten zelf een back-up (de laatste tien). Download er af en toe een naar een usb-stick: dan ben je niets kwijt als de pc stukgaat. Je Gemini-sleutel gaat nooit mee in een back-up.</p>
+      <p class="muted small">LANcelot bewaart elke dag bij het opstarten zelf een back-up (de laatste tien). Download er af en toe een naar een usb-stick: dan ben je niets kwijt als de pc stukgaat. Je AI-sleutel gaat nooit mee in een back-up.</p>
       <div class="actions">
         <a class="button" id="bu-download" href="/back-up">Download een back-up</a>
         <button class="secondary" id="bu-nu">Bewaar nu een back-up</button>
@@ -485,16 +493,16 @@
       <p class="muted" id="m-copied"></p>
     </div>
     <div class="panel form hidden" id="m-gemini-panel">
-      <h3>Of: laat Gemini de quiz direct maken</h3>
+      <h3>Of: laat <span class="ai-naam">Gemini</span> de quiz direct maken</h3>
       <p class="muted small">Gebruikt je eigen sleutel uit Instellingen.</p>
       <div class="sources">
         <strong>Lesstof (mag leeg)</strong>
-        <p class="muted small">Voeg een screenshot van het bordboek, een foto of een pdf toe, of plak een screenshot met Ctrl+V. Gemini maakt de vragen dan op basis van die lesstof.</p>
+        <p class="muted small">Voeg een screenshot van het bordboek, een foto of een pdf toe, of plak een screenshot met Ctrl+V. <span class="ai-naam">Gemini</span> maakt de vragen dan op basis van die lesstof.</p>
         <label class="file-button"><input id="m-files" type="file" accept="image/*,application/pdf" multiple hidden>Bestand kiezen</label>
         <ul class="file-list" id="m-file-list"></ul>
       </div>
       <p class="error" id="m-gemini-error"></p>
-      <div><button id="m-gemini">Maak direct met Gemini</button> <span class="muted" id="m-gemini-busy"></span></div>
+      <div><button id="m-gemini">Maak direct met <span class="ai-naam">Gemini</span></button> <span class="muted" id="m-gemini-busy"></span></div>
     </div>
     <div class="panel form">
       <h3>3. Plak het antwoord van de AI</h3>

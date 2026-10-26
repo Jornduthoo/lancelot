@@ -86,6 +86,11 @@
     }
 
     // Toetsen gaan niet naar het spel; loslaten wel, zodat er geen toets blijft "hangen".
+    // Elke knop met data-pauze zet de klas op pauze (startscherm, Klaseiland).
+    document.addEventListener('click', e => {
+      if (e.target.closest && e.target.closest('[data-pauze]')) stuur(true, '');
+    });
+
     window.addEventListener('keydown', e => {
       if (sinds && !(scherm && scherm.contains(e.target))) { e.stopImmediatePropagation(); e.preventDefault(); }
     }, true);
@@ -319,5 +324,12 @@
     // Een klein icoon uit style.css (.ic-…) voor in een knop.
     ic: naam => `<i class="ic ic-${naam}" aria-hidden="true"></i>`,
     pauze: Pauze,
+    // De AI die de leerkracht bij Instellingen koos (Gemini, Claude of ChatGPT), voor knoppen en teksten.
+    ai: 'Gemini',
+    zetAi(s) {
+      if (!s || !s.aiNaam) return;
+      this.ai = s.aiNaam;
+      for (const el of document.querySelectorAll('.ai-naam')) el.textContent = s.aiNaam;
+    },
   };
 })();

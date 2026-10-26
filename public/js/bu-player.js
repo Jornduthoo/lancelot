@@ -242,12 +242,16 @@ $('bu-burcht-naam').addEventListener('keydown', e => {
 // De kaart van je eiland: je grond (volgens je rang) met een randje wilde weide errond, en je ridder.
 function buKaart() {
   const av = Avatar.byName(bu.naam);
-  return BuArt.perceelKaart(bu.stand.burcht, bu.stand.rang, av ? Avatar.sprite(av, { k: 4 }) : null);
+  return BuArt.draai(BuArt.perceelKaart(bu.stand.burcht, bu.stand.rang, av ? Avatar.sprite(av, { k: 4 }) : null), bu.zicht.draai);
 }
 
 const cv = $('bu-canvas');
 const ctx = cv.getContext('2d');
 let dpr = 1;
+
+// Hoe je kijkt: zoom (1 tot 3), verschuiving in pixels en een kwartslag draaien.
+bu.zicht = { z: 1, px: 0, py: 0, draai: Number(store('lancelot-burcht-draai')) || 0 };
+let pasBasis = null; // T, ox en oy waarmee het hele eiland net in beeld past
 
 function buMaat() {
   dpr = Math.min(2, window.devicePixelRatio || 1);
@@ -262,13 +266,34 @@ function buMaat() {
   return false;
 }
 
-// Het eiland één keer tekenen in een apart canvas. Elk beeldje tekenen we dat plaatje, plus de gloed en wat je aanwijst.
+// T, ox en oy voor de huidige zoom en verschuiving.
+function buLive() {
+  const { z, px, py } = bu.zicht;
+  const cx = cv.width / 2;
+  const cy = cv.height / 2;
+  return { T: pasBasis.T * z, ox: cx + (pasBasis.ox - cx) * z + px, oy: cy + (pasBasis.oy - cy) * z + py };
+}
+
+// Niet verder schuiven dan het eiland reikt.
+function buKlem() {
+  const zv = bu.zicht;
+  zv.z = Math.max(1, Math.min(3, zv.z));
+  const mx = ((zv.z - 1) * cv.width) / 2;
+  const my = ((zv.z - 1) * cv.height) / 2;
+  zv.px = Math.max(-mx, Math.min(mx, zv.px));
+  zv.py = Math.max(-my, Math.min(my, zv.py));
+}
+
+// Het eiland één keer tekenen in een apart canvas, op de huidige zoom. Elk beeldje tekenen we dat plaatje,
+// plus de gloed en wat je aanwijst. Tijdens zoomen of schuiven rekken we het oude plaatje even op.
 function buBak() {
   if (!bu.stand || $('bu-spel').classList.contains('hidden')) return;
   buMaat();
   const k = buKaart();
   // Zo groot mogelijk, met ruimte voor torens bovenaan en de rotspunt onderaan.
-  const { T, ox, oy } = BuArt.pas(k, cv.width, cv.height);
+  pasBasis = BuArt.pas(k, cv.width, cv.height);
+  buKlem();
+  const { T, ox, oy } = buLive();
   const b = document.createElement('canvas');
   b.width = cv.width;
   b.height = cv.height;
@@ -276,10 +301,50 @@ function buBak() {
   bu.beeld = { c: b, k, T, ox, oy, gloed: BuArt.gloeiers(k, T, ox, oy) };
 }
 
+let bakTimer = null;
+function buZicht(nu = false) {
+  buKlem();
+  clearTimeout(bakTimer);
+  if (nu) buBak();
+  else bakTimer = setTimeout(buBak, 140);
+  $('bu-zoom-uit').disabled = bu.zicht.z <= 1;
+  $('bu-zoom-in').disabled = bu.zicht.z >= 3;
+}
+
+// Zoomen rond een punt op het scherm (in canvaspixels): dat punt blijft op zijn plaats.
+function buZoom(nieuw, sx = cv.width / 2, sy = cv.height / 2) {
+  const zv = bu.zicht;
+  const z2 = Math.max(1, Math.min(3, nieuw));
+  const qx = (sx - cv.width / 2 - zv.px) / zv.z;
+  const qy = (sy - cv.height / 2 - zv.py) / zv.z;
+  zv.px = sx - cv.width / 2 - qx * z2;
+  zv.py = sy - cv.height / 2 - qy * z2;
+  zv.z = z2;
+  buZicht();
+}
+
+function buDraai(stap) {
+  bu.zicht.draai = (bu.zicht.draai + stap + 4) % 4;
+  store('lancelot-burcht-draai', String(bu.zicht.draai));
+  bu.zicht.px = -bu.zicht.px; // ongeveer hetzelfde stukje blijft in beeld
+  bu.hover = null;
+  sfx.swoosh();
+  buZicht(true);
+}
+
+$('bu-zoom-in').addEventListener('click', () => buZoom(bu.zicht.z * 1.4));
+$('bu-zoom-uit').addEventListener('click', () => buZoom(bu.zicht.z / 1.4));
+$('bu-draai-l').addEventListener('click', () => buDraai(-1));
+$('bu-draai-r').addEventListener('click', () => buDraai(1));
+$('bu-zoom-weg').addEventListener('click', () => {
+  Object.assign(bu.zicht, { z: 1, px: 0, py: 0 });
+  buZicht(true);
+});
+
 let vorigeTijd = 0;
 function buFrame(now) {
   requestAnimationFrame(buFrame);
-  if (!bu.beeld || document.visibilityState !== 'visible') return;
+  if (!bu.beeld || !pasBasis || document.visibilityState !== 'visible') return;
   // 30 beeldjes per seconde is genoeg voor wat gloed en zweven.
   if (now - vorigeTijd < 32) return;
   vorigeTijd = now;
@@ -287,8 +352,11 @@ function buFrame(now) {
   const { c, k, T, ox, oy, gloed } = bu.beeld;
   ctx.drawImage(BuArt.hemel(cv.width, cv.height), 0, 0);
   const dy = Math.sin(t * 0.8) * 3 * dpr;
+  // Van het gebakken plaatje naar wat je nu wil zien (verschilt alleen even tijdens zoomen of schuiven).
+  const live = buLive();
+  const s = live.T / T;
   ctx.save();
-  ctx.translate(0, dy);
+  ctx.setTransform(s, 0, 0, s, live.ox - ox * s, live.oy - oy * s + dy);
   ctx.drawImage(c, 0, 0);
   BuArt.gloei(ctx, gloed, t);
   // Wat je aanwijst: een gouden ruit, en bij bouwen alvast een doorschijnend voorbeeld.
@@ -321,18 +389,93 @@ function buFrame(now) {
 }
 requestAnimationFrame(buFrame);
 
-function buVakje(e) {
-  if (!bu.beeld) return null;
+function buPunt(e) {
   const r = cv.getBoundingClientRect();
-  const dy = Math.sin((performance.now() / 1000) * 0.8) * 3 * dpr;
-  const px = (e.clientX - r.left) * dpr;
-  const py = (e.clientY - r.top) * dpr - dy;
-  return BuArt.vakjeOp(px, py, bu.beeld.T, bu.beeld.ox, bu.beeld.oy);
+  return [(e.clientX - r.left) * dpr, (e.clientY - r.top) * dpr];
 }
 
-cv.addEventListener('pointermove', e => { bu.hover = buVakje(e); });
-cv.addEventListener('pointerleave', () => { bu.hover = null; });
+function buVakje(e) {
+  if (!bu.beeld || !pasBasis) return null;
+  const [px, py] = buPunt(e);
+  const dy = Math.sin((performance.now() / 1000) * 0.8) * 3 * dpr;
+  const { T, ox, oy } = buLive();
+  return BuArt.vakjeOp(px, py - dy, T, ox, oy);
+}
+
+// Slepen schuift, met twee vingers knijpen zoomt. Een korte tik blijft bouwen.
+const vingers = new Map();
+let sleep = null; // { x, y, px, py, ver } bij één vinger, { d, z, mx, my } bij twee
+let geenKlik = false;
+
+function buKnijp() {
+  const [a, b] = [...vingers.values()];
+  return { d: Math.hypot(a[0] - b[0], a[1] - b[1]) || 1, mx: (a[0] + b[0]) / 2, my: (a[1] + b[1]) / 2 };
+}
+
+cv.addEventListener('pointerdown', e => {
+  vingers.set(e.pointerId, buPunt(e));
+  if (vingers.size === 1) {
+    const [x, y] = buPunt(e);
+    sleep = { x, y, px: bu.zicht.px, py: bu.zicht.py, ver: false };
+    geenKlik = false;
+  } else if (vingers.size === 2) {
+    const k = buKnijp();
+    sleep = { ...k, z: bu.zicht.z, px: bu.zicht.px, py: bu.zicht.py, ver: true };
+    geenKlik = true;
+  }
+});
+cv.addEventListener('pointermove', e => {
+  if (e.pointerType === 'mouse' || !vingers.size) bu.hover = buVakje(e);
+  if (!vingers.has(e.pointerId) || !sleep) return;
+  vingers.set(e.pointerId, buPunt(e));
+  if (vingers.size >= 2 && sleep.d) {
+    const k = buKnijp();
+    // eerst terug naar het begin van het knijpen, dan zoomen rond het midden van je vingers
+    Object.assign(bu.zicht, { z: sleep.z, px: sleep.px + (k.mx - sleep.mx), py: sleep.py + (k.my - sleep.my) });
+    buZoom(sleep.z * (k.d / sleep.d), k.mx, k.my);
+    return;
+  }
+  const [x, y] = buPunt(e);
+  if (!sleep.ver && Math.hypot(x - sleep.x, y - sleep.y) > 8 * dpr) sleep.ver = true;
+  if (sleep.ver && bu.zicht.z > 1) {
+    bu.zicht.px = sleep.px + x - sleep.x;
+    bu.zicht.py = sleep.py + y - sleep.y;
+    bu.hover = null;
+    buZicht();
+  }
+});
+function buLos(e) {
+  if (!vingers.delete(e.pointerId)) return;
+  if (sleep && sleep.ver) geenKlik = true;
+  if (vingers.size === 1) {
+    // van knijpen terug naar schuiven met de vinger die nog ligt
+    const [x, y] = [...vingers.values()][0];
+    sleep = { x, y, px: bu.zicht.px, py: bu.zicht.py, ver: true };
+  } else if (!vingers.size) sleep = null;
+}
+cv.addEventListener('pointerup', buLos);
+cv.addEventListener('pointercancel', buLos);
+cv.addEventListener('pointerleave', e => {
+  if (e.pointerType === 'mouse') bu.hover = null;
+});
+cv.addEventListener('wheel', e => {
+  e.preventDefault();
+  const [x, y] = buPunt(e);
+  buZoom(bu.zicht.z * Math.exp(-e.deltaY * (e.ctrlKey ? 0.01 : 0.0018)), x, y);
+}, { passive: false });
+document.addEventListener('keydown', e => {
+  if (!bu.beeld || /INPUT|TEXTAREA/.test(document.activeElement.tagName)) return;
+  if (e.key === '+' || e.key === '=') buZoom(bu.zicht.z * 1.4);
+  else if (e.key === '-') buZoom(bu.zicht.z / 1.4);
+  else if (e.key === 'q' || e.key === 'Q') buDraai(-1);
+  else if (e.key === 'e' || e.key === 'E') buDraai(1);
+});
+
 cv.addEventListener('click', e => {
+  if (geenKlik) {
+    geenKlik = false;
+    return;
+  }
   const v = buVakje(e);
   bu.hover = v;
   if (!v || !bu.beeld || bu.bezig) return;

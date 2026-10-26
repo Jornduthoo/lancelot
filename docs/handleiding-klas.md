@@ -226,7 +226,7 @@ Tip: iedereen speelt dezelfde werelden en ziet klasgenoten als doorschijnende ri
 ## Voorkennis activeren
 
 1. Klik op het startscherm op **Voorkennis activeren**.
-2. Vul het onderwerp van je les en het niveau in, kopieer de vraag naar een chatbot en plak het antwoord terug (of laat je Gemini-sleutel het doen).
+2. Vul het onderwerp van je les en het niveau in, kopieer de vraag naar een chatbot en plak het antwoord terug (of laat je eigen AI-sleutel het doen: Gemini, Claude of ChatGPT, te kiezen bij Instellingen).
 3. Je krijgt een korte Ronde Tafel: een woordwolk, stellingen met "Ik weet het niet" en een schaal. Start ze voor de les begint en zie meteen wat de klas al weet.
 
 ## Oefenbladen
@@ -312,7 +312,7 @@ Een beloningssysteem per leerling dat inzet en groei beloont, niet alleen de bes
 
 1. **Eer verdienen** gaat vanzelf, in elk spel: 1 Eer per beantwoorde vraag en 1 extra als ze juist is (hooguit 40 per spel), 5 voor een spel uitspelen, 10 als je beter doet dan je vorige spellen, 10 voor een herhaalquiz, 2 tot 5 voor het Runenraadsel, 3 per dag dat je meedoet en 15 extra per 5 schooldagen na elkaar. Gokken kost 5 Eer. Page, Schildknaap en Ridder verdienen evenveel.
 2. **Rangen**: Rekruut, Wapenknecht (150), Banierdrager (400), Burchtheer (900), Paladijn (1800) en Legende (3500). Met elke rang wordt de grond van de leerling groter (van 5 × 5 tot 10 × 10) en kan hij meer bouwen. Een rang zakt nooit.
-3. **Mijn burcht**: leerlingen tikken op hun startscherm op **🏰 Mijn burcht** (of surfen naar het adres met `/burcht`). Ze zien hun Eer, hun rang, hun wapenschilden en waarmee ze Eer verdienden. Bouwen kan alleen tijdens **Kasteeltijd**: muren, torens, huisjes, een smidse, een draak... Iets weghalen geeft alle Eer terug.
+3. **Mijn burcht**: leerlingen tikken op hun startscherm op **🏰 Mijn burcht** (of surfen naar het adres met `/burcht`). Ze zien hun Eer, hun rang, hun wapenschilden en waarmee ze Eer verdienden. Bouwen kan alleen tijdens **Kasteeltijd**: muren, torens, huisjes, een smidse, een draak... Iets weghalen geeft alle Eer terug. Met de knoppen rechts naast het eiland zoomen en draaien ze per kwartslag. Op de Chromebook kan dat ook met scrollen, + en − of Q en E, en op de gsm met twee vingers knijpen en één vinger slepen.
 4. **Het Klaseiland** (tegel bij De Arena) toont alle burchten samen op één zwevend eiland op het bord, met de naam van elke leerling. Er staan geen punten of rangen op: geen ranglijst in de klas.
    - **🏗️ Kasteeltijd**: zet je aan en uit. Bijvoorbeeld 5 minuten op vrijdag, of als beloning na een taak.
    - **👑 Eer geven**: aan één leerling, een groepje of iedereen, met een reden die de leerling ziet (inzet, helpen, een mooie taak). Een vergissing neem je terug in het Ridderboek.
@@ -365,7 +365,7 @@ Alles staat in **Instellingen**:
 - **LANcelot bijwerken:** klik op *Zoek naar een update* en daarna op *Download de update* (internet nodig). De update wordt pas geïnstalleerd de volgende keer dat je LANcelot start, nooit midden in een les. Je gegevens blijven staan; de vervangen bestanden worden bewaard in `_update\oud`. Geen internet, of werkt GitHub niet meer? Kies dan *Bijwerken met een zip-bestand* (bv. de schoolzip van een usb-stick), of vul onder *Update-adres* het adres in dat je kreeg.
 - **Snelkoppeling:** *Snelkoppeling op het bureaublad* zet LANcelot op het bureaublad en in het startmenu, zonder beheerdersrechten.
 - **Mijn gegevens:** zet je klaslijst, logboek, quizzen, resultaten en posters in een aparte map (standaard `%LOCALAPPDATA%\LANcelot`). Dan raakt een update of herinstallatie ze nooit. De gegevens worden gekopieerd bij de volgende start; de oude mappen naast de app blijven staan.
-- **Back-up:** elke dag bij het opstarten maakt LANcelot zelf een back-up (de laatste tien blijven bewaard). Met *Download een back-up* zet je er een op een usb-stick. *Back-up terugzetten* gebeurt bij de volgende start; LANcelot bewaart eerst nog een back-up van hoe het ervoor was. Je Gemini-sleutel gaat nooit mee in een back-up.
+- **Back-up:** elke dag bij het opstarten maakt LANcelot zelf een back-up (de laatste tien blijven bewaard). Met *Download een back-up* zet je er een op een usb-stick. *Back-up terugzetten* gebeurt bij de volgende start; LANcelot bewaart eerst nog een back-up van hoe het ervoor was. Je AI-sleutel gaat nooit mee in een back-up.
 - **Posters:** voeg eigen foto's toe (hooguit 40). Ze hangen aan de muren in Laserslag, Robomol en Leraar-baas, op de megaschermen in Neon Duel en op de borden langs de baan in Robopaarden. Ze worden vierkant bijgesneden en klein gemaakt. Er hangen ook achttien grappige standaardposters (een varken aan het spit, Sir Dikbuik, een niezende draak...): zonder eigen foto's alleen die, met eigen foto's één grappige na elke twee foto's. Zet ze uit met het vinkje **Grappige posters erbij**, of zet alle posters uit met **Posters tonen**.
 - **Firewall goed zetten:** één klik, Windows vraagt eerst om toestemming.
 - **Wizard voor de eerste keer** en **Privacy**: uitleg over wat LANcelot bewaart over leerlingen, handig voor de directie of de privacyverantwoordelijke.

@@ -84,11 +84,11 @@ const results = require('./src/results');
 const lesmap = require('./src/lesmap');
 const beheer = require('./src/beheer');
 const { execFile } = require('child_process');
-const { generateQuiz } = require('./src/gemini');
+const { generateQuiz } = require('./src/ai');
 const antigok = require('./src/antigok');
 const runen = require('./src/runen');
 const burchten = require('./src/burchten');
-const gemini = require('./src/gemini');
+const ai = require('./src/ai');
 const aiJson = require('./src/ai-json');
 
 // Is poort 3000 bezet door een ander programma, dan neemt LANcelot de volgende vrije (tot 3010), tenzij PORT vastgezet is.
@@ -808,17 +808,18 @@ io.on('connection', socket => {
       return {};
     }));
 
-    // Eigen Gemini-sleutel (optioneel). De sleutel gaat nooit terug naar de browser.
-    socket.on('save-settings', handle(({ geminiKey, geminiModel } = {}) => {
+    // Eigen AI-sleutel (optioneel): Gemini, Claude of ChatGPT. De sleutel gaat nooit terug naar de browser.
+    socket.on('save-settings', handle((arg = {}) => {
       const changes = {};
-      if (typeof geminiKey === 'string') {
-        changes.geminiKey = geminiKey.trim().slice(0, 200);
-        changes.geminiAutoModel = '';
+      if (typeof arg.aiDienst === 'string' && settings.DIENSTEN[arg.aiDienst]) changes.aiDienst = arg.aiDienst;
+      for (const d of Object.values(settings.DIENSTEN)) {
+        if (typeof arg[d.key] === 'string') changes[d.key] = arg[d.key].trim().slice(0, 300);
+        if (typeof arg[d.model] === 'string') {
+          const model = arg[d.model].trim() || settings.DEFAULTS[d.model];
+          if (/^[\w.-]{1,80}$/.test(model)) changes[d.model] = model;
+        }
       }
-      if (typeof geminiModel === 'string') {
-        const model = geminiModel.trim() || 'auto';
-        if (/^[\w.-]{1,80}$/.test(model)) changes.geminiModel = model;
-      }
+      if ('geminiKey' in changes || 'geminiModel' in changes) changes.geminiAutoModel = '';
       settings.write(changes);
       io.to('host').emit('settings', settings.publicView());
       return {};
@@ -860,14 +861,14 @@ io.on('connection', socket => {
       return { lijst };
     }));
     socket.on('rn-lijst-ai', ({ text } = {}, cb) => {
-      runen.vulAan(text, gemini, aiJson)
+      runen.vulAan(text, ai, aiJson)
         .then(res => cb && cb({ ok: true, ...res }))
         .finally(() => io.to('host').emit('settings', settings.publicView()))
         .catch(err => cb && cb({ error: err.message }));
     });
 
     socket.on('rn-lijst-thema', ({ thema, text } = {}, cb) => {
-      runen.maakLijst(thema, text, gemini, aiJson)
+      runen.maakLijst(thema, text, ai, aiJson)
         .then(res => cb && cb({ ok: true, ...res }))
         .finally(() => io.to('host').emit('settings', settings.publicView()))
         .catch(err => cb && cb({ error: err.message }));
