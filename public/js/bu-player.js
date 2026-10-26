@@ -79,8 +79,9 @@ function buZet(s) {
     $('bu-rang-volgende').textContent = `Nog ${volgende.vanaf - s.eer} Eer tot ${volgende.naam}: dan wordt je grond ${volgende.grond} × ${volgende.grond}.`;
   } else {
     $('bu-rang-balk').style.width = '100%';
-    $('bu-rang-volgende').textContent = 'De hoogste rang! Je hele grond is van jou.';
+    $('bu-rang-volgende').textContent = s.burcht.eiland ? 'De hoogste rang! Je hele grond en je eilandje zijn van jou.' : 'De hoogste rang! Je hele grond is van jou, en je kan een zwevend eilandje kopen.';
   }
+  buEilandjeKnop();
   $('bu-totaal').textContent = `In totaal verdiende je ${s.eer} Eer. Daarvan zit ${s.uitgegeven} in je burcht.`;
   buRidder();
 
@@ -134,6 +135,40 @@ function buZet(s) {
   buNieuws(vorige, s);
   buBak();
 }
+
+// Het zwevende eilandje: te koop vanaf de hoogste rang. Leeg kan je het terug verkopen.
+function buEilandjeKnop() {
+  const s = bu.stand;
+  const E = Burcht.EILANDJE;
+  const knop = $('bu-eilandje');
+  const heeft = !!s.burcht.eiland;
+  const leeg = heeft && ![...Object.keys(s.burcht.stukken), ...Object.keys(s.burcht.grond)].some(k => k.startsWith('e:'));
+  knop.classList.toggle('hidden', s.rang < E.rang || (heeft && !leeg));
+  knop.textContent = heeft ? `🏝️ Eilandje terug verkopen (+${E.prijs} Eer)` : `🏝️ Koop een zwevend eilandje · ${E.prijs} Eer`;
+  knop.classList.toggle('verkoop', heeft);
+}
+$('bu-eilandje').addEventListener('click', () => {
+  const s = bu.stand;
+  if (!s || bu.bezig) return;
+  if (!s.kasteeltijd) return buMelding('Kopen kan tijdens Kasteeltijd.');
+  const koop = !s.burcht.eiland;
+  if (koop && s.saldo < Burcht.EILANDJE.prijs) return buMelding(`Daarvoor heb je nog ${Burcht.EILANDJE.prijs - s.saldo} Eer te weinig.`);
+  bu.bezig = true;
+  socket.emit('bu-eilandje', { naam: bu.naam, koop }, res => {
+    bu.bezig = false;
+    if (!res || res.error) {
+      sfx.empty();
+      return buMelding((res && res.error) || 'Dat lukte niet.');
+    }
+    if (koop) {
+      buMelding('🏝️ Je eilandje is er! Bouw erop tijdens Kasteeltijd.', true);
+      if (typeof confetti === 'function') confetti(2500);
+      sfx.fanfare ? sfx.fanfare() : sfx.good();
+      Object.assign(bu.zicht, { z: 1, px: 0, py: 0 });
+    } else sfx.swoosh();
+    buZet(res);
+  });
+});
 
 // Sinds je laatste bezoek: hoeveel Eer erbij kwam, en of je een rang hoger ging.
 function buNieuws(vorige, s) {
@@ -497,14 +532,17 @@ cv.addEventListener('click', e => {
   bu.hover = v;
   if (!v || !bu.beeld || bu.bezig) return;
   const k = bu.beeld.k;
+  if (k.brug && k.brug(v[0], v[1])) return;
   if (!k.eigen(v[0], v[1])) return buMelding('Daar is je grond nog niet. Met een hogere rang wordt je eiland groter.');
   if (!bu.stand.kasteeltijd) return buMelding('Bouwen kan tijdens Kasteeltijd.');
-  const [x, y] = k.sleutel(v[0], v[1]).split(',').map(Number);
+  const sl = k.sleutel(v[0], v[1]);
+  const eiland = sl.startsWith('e:');
+  const [x, y] = sl.replace('e:', '').split(',').map(Number);
   const weg = bu.tab === 'weg';
   const item = Burcht.BY_ID[bu.keuze];
   if (!weg && item && item.rang > bu.stand.rang) return buMelding(`Dit kan je bouwen vanaf ${Burcht.RANGEN[item.rang].naam}.`);
   bu.bezig = true;
-  socket.emit('bu-zet', { naam: bu.naam, x, y, stuk: weg ? '' : bu.keuze }, res => {
+  socket.emit('bu-zet', { naam: bu.naam, x, y, eiland, stuk: weg ? '' : bu.keuze }, res => {
     bu.bezig = false;
     if (!res || res.error) {
       sfx.empty();

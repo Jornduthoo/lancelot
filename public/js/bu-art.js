@@ -985,6 +985,7 @@ const BuArt = (() => {
     plein: ['#b3ac9f', '#aba496', '#b8b1a4'],
     water: ['#2f7fd0', '#2c78c6', '#3386d8'],
     neon: ['#1d2638', '#1b2334', '#1f283b'],
+    brug: ['#8a6038', '#83593a', '#916640'],
   };
 
   function diamant(g, T, grow = 0.6) {
@@ -1077,6 +1078,24 @@ const BuArt = (() => {
         g.quadraticCurveTo(x, y - 1.5 * s, x + 4 * s, y);
         g.stroke();
       }
+    } else if (soort === 'brug') {
+      // houten planken dwars over de brug
+      for (let i = 0; i < 6; i++) {
+        const u = (i + 0.5) / 6 - 0.5;
+        g.strokeStyle = 'rgba(40,22,10,.55)';
+        g.lineWidth = Math.max(0.6, s * 1.2);
+        g.beginPath();
+        g.moveTo(...P(u - 1 / 12, -0.5).map(z => z * s));
+        g.lineTo(...P(u - 1 / 12, 0.5).map(z => z * s));
+        g.stroke();
+        g.fillStyle = 'rgba(255,220,160,.12)';
+        g.beginPath();
+        g.moveTo(...P(u - 0.06, -0.45).map(z => z * s));
+        g.lineTo(...P(u - 0.04, -0.45).map(z => z * s));
+        g.lineTo(...P(u - 0.04, 0.45).map(z => z * s));
+        g.lineTo(...P(u - 0.06, 0.45).map(z => z * s));
+        g.fill();
+      }
     } else if (soort === 'neon') {
       g.strokeStyle = 'rgba(76,201,255,.85)';
       g.lineWidth = Math.max(0.8, 1.2 * s);
@@ -1116,6 +1135,9 @@ const BuArt = (() => {
       const rel = Math.min(1, Math.abs(cx - cy - midden) / breed);
       return T * ((opts.diep || 1) * (0.5 + 0.12 * breed * (1 - rel) ** 1.6) + 0.5 * hash(cx, cy, 5));
     };
+    // Een brug hangt in de lucht: geen rotswand eronder, en de rotswand van het eiland loopt eronder door.
+    const brug = (x, y) => !!(kaart.brug && kaart.brug(x, y));
+    const vast = (x, y) => kaart.land(x, y) && !brug(x, y);
     // 1. kliffen en vloer, van achter naar voor
     for (let som = 0; som <= kaart.w + kaart.h - 2; som++) {
       for (let x = Math.max(0, som - kaart.h + 1); x <= Math.min(kaart.w - 1, som); x++) {
@@ -1123,8 +1145,27 @@ const BuArt = (() => {
         if (!kaart.land(x, y)) continue;
         const sx = ox + (x - y) * half;
         const sy = oy + (x + y) * kwart;
-        const leegY = !kaart.land(x, y + 1);
-        const leegX = !kaart.land(x + 1, y);
+        if (brug(x, y)) {
+          // een balk onder de planken, en touwen opzij
+          const balk = T * 0.14;
+          const zij = (a, b, kleur) => {
+            g.fillStyle = kleur;
+            g.beginPath();
+            g.moveTo(a[0], a[1]);
+            g.lineTo(b[0], b[1]);
+            g.lineTo(b[0], b[1] + balk);
+            g.lineTo(a[0], a[1] + balk);
+            g.closePath();
+            g.fill();
+          };
+          if (!kaart.land(x, y + 1)) zij([sx - half, sy], [sx, sy + kwart], '#5a3a22');
+          if (!kaart.land(x + 1, y)) zij([sx, sy + kwart], [sx + half, sy], '#3f2818');
+          const t = tegel('brug', T, 0);
+          g.drawImage(t.c, sx - t.ax, sy - t.ay);
+          continue;
+        }
+        const leegY = !vast(x, y + 1);
+        const leegX = !vast(x + 1, y);
         if (leegY) klif(g, [sx - half, sy], [sx, sy + kwart], diepte(x, y + 1), diepte(x + 1, y + 1), 'l', x * 31 + y, T);
         if (leegX) klif(g, [sx, sy + kwart], [sx + half, sy], diepte(x + 1, y + 1), diepte(x + 1, y), 'r', x * 17 + y * 3, T);
         const soort = kaart.vloer(x, y);
@@ -1151,6 +1192,28 @@ const BuArt = (() => {
         if (!kaart.land(x, y)) continue;
         const sx = ox + (x - y) * half;
         const sy = oy + (x + y) * kwart;
+        if (brug(x, y)) {
+          // touwen met paaltjes langs beide kanten
+          const langsX = brug(x - 1, y) || brug(x + 1, y) || !brug(x, y - 1);
+          const pt = (u, v, h = 0) => [sx + (u - v) * half, sy + (u + v) * kwart - h];
+          const zp = langsX ? (a, z) => pt(a, z) : (a, z) => pt(z, a);
+          const zph = langsX ? (a, z, h) => pt(a, z, h) : (a, z, h) => pt(z, a, h);
+          const hoogte = T * 0.24;
+          g.lineWidth = Math.max(1, T / 30);
+          for (const z of [-0.46, 0.46]) {
+            g.strokeStyle = '#c9a26b';
+            g.beginPath();
+            g.moveTo(...zph(-0.5, z, hoogte));
+            g.quadraticCurveTo(...zph(0, z, hoogte * 0.7), ...zph(0.5, z, hoogte));
+            g.stroke();
+            for (const a of [-0.5, 0.5]) {
+              const [px, py] = zp(a, z);
+              g.fillStyle = '#5a3a22';
+              g.fillRect(px - T / 40, py - hoogte, T / 20, hoogte);
+            }
+          }
+          continue;
+        }
         const st = kaart.stuk(x, y);
         if (st) {
           let n = {};
@@ -1444,7 +1507,7 @@ const BuArt = (() => {
         }
       }
     }
-    return {
+    const k = {
       w: W,
       h: W,
       n,
@@ -1464,26 +1527,80 @@ const BuArt = (() => {
       },
       ridder: (x, y) => (plek && plek[0] === x && plek[1] === y ? ridder : null),
     };
+    if (!burcht.eiland) return k;
+    // Het eilandje ligt rechts naast je burcht, met een brug ertussen.
+    const e = eilandjeKaart(burcht);
+    const ex = W + 3;
+    const ey = Math.floor((W - e.w) / 2);
+    const by = ey + Math.floor(e.h / 2);
+    const isBrug = (x, y) => y === by && x >= W - 1 && x <= ex;
+    const inE = (x, y) => x >= ex && y >= ey && x < ex + e.w && y < ey + e.h;
+    const via = (f, anders) => (x, y) => (isBrug(x, y) ? anders(true) : inE(x, y) ? e[f](x - ex, y - ey) : x < W ? k[f](x, y) : anders(false));
+    return {
+      ...k,
+      w: ex + e.w,
+      brug: isBrug,
+      eigen: via('eigen', () => false),
+      sleutel: via('sleutel', () => null),
+      land: via('land', b => b),
+      vloer: via('vloer', b => (b ? 'brug' : 'wild')),
+      stuk: via('stuk', () => null),
+      ridder: (x, y) => (x < W && !isBrug(x, y) ? k.ridder(x, y) : null),
+    };
+  }
+
+  // Het zwevende eilandje van een burcht: 5 x 5 eigen grond met een randje weide. Vakjes heten "e:x,y".
+  function eilandjeKaart(burcht) {
+    const n = Burcht.EILANDJE.grond;
+    const W = n + 2;
+    const kleur = Burcht.KLEUREN[burcht.kleur] || Burcht.KLEUREN[0];
+    const eigen = (x, y) => x >= 1 && y >= 1 && x <= n && y <= n;
+    const sleutel = (x, y) => Burcht.eSleutel(x - 1, y - 1);
+    const rand = (x, y) => {
+      if (x < 0 || y < 0 || x >= W || y >= W) return false;
+      const hoek = (x === 0 || x === W - 1) && (y === 0 || y === W - 1);
+      return !hoek && hash(x + 40, y + 40, 11) < 0.7;
+    };
+    return {
+      w: W,
+      h: W,
+      eigen,
+      sleutel,
+      land: (x, y) => eigen(x, y) || rand(x, y),
+      vloer: (x, y) => (eigen(x, y) ? burcht.grond[sleutel(x, y)] || 'gras' : 'wild'),
+      stuk: (x, y) => {
+        if (eigen(x, y)) {
+          const id = burcht.stukken[sleutel(x, y)];
+          return id ? { id, kleur } : null;
+        }
+        if (!rand(x, y)) return null;
+        const h = hash(x + 40, y + 40, 3);
+        return h < 0.2 ? { id: 'den', kleur } : null;
+      },
+      ridder: () => null,
+    };
   }
 
   // Dezelfde kaart een kwartslag (r keer) gedraaid. De stukken zelf blijven rechtop staan.
   function draai(kaart, r) {
     r = ((r % 4) + 4) % 4;
     if (!r) return kaart;
-    const L = kaart.w - 1;
-    const naar = [null, (x, y) => [y, L - x], (x, y) => [L - x, L - y], (x, y) => [L - y, x]][r];
+    const W = kaart.w;
+    const H = kaart.h;
+    const naar = [null, (x, y) => [y, H - 1 - x], (x, y) => [W - 1 - x, H - 1 - y], (x, y) => [W - 1 - y, x]][r];
     const via = f => (x, y) => f(...naar(x, y));
-    const k = { ...kaart };
-    for (const f of ['eigen', 'sleutel', 'land', 'vloer', 'stuk', 'ridder']) k[f] = via(kaart[f]);
+    const k = { ...kaart, w: r % 2 ? H : W, h: r % 2 ? W : H };
+    for (const f of ['eigen', 'sleutel', 'land', 'vloer', 'stuk', 'ridder', 'brug']) if (kaart[f]) k[f] = via(kaart[f]);
     return k;
   }
 
   // Een eilandje zo groot mogelijk in een rechthoek van w x h pixels: geeft T, ox en oy.
   function pas(kaart, w, h) {
-    const hoog = kaart.w * 0.5 + 2.6 + 0.12 * kaart.w; // torens boven, eiland, rotspunt onder (in tegels)
-    const T = Math.floor(Math.min(w / (kaart.w + 0.6), h / (hoog + 0.6)));
+    const breed = (kaart.w + kaart.h) / 2;
+    const hoog = breed * 0.5 + 2.6 + 0.12 * breed; // torens boven, eiland, rotspunt onder (in tegels)
+    const T = Math.floor(Math.min(w / (breed + 0.6), h / (hoog + 0.6)));
     return { T, ox: w / 2 - ((kaart.w - kaart.h) * T) / 4, oy: Math.round((h - hoog * T) / 2 + T * 1.55) };
   }
 
-  return { stuk, tegel, teken, gloeiers, gloei, hemel, wolk, vakjeOp, icoon, perceelKaart, draai, pas, hash, rng, shade };
+  return { stuk, tegel, teken, gloeiers, gloei, hemel, wolk, vakjeOp, icoon, perceelKaart, eilandjeKaart, draai, pas, inhoud, hash, rng, shade };
 })();

@@ -12,6 +12,8 @@
     { naam: 'Legende', vanaf: 3500, grond: 10 },
   ];
   const MAX_GROND = 10;
+  // Is je burcht af? Vanaf de hoogste rang koop je er een zwevend eilandje bij, met een brug naar je burcht.
+  const EILANDJE = { prijs: 300, rang: 5, grond: 5 };
 
   // grond: de vloer van een vakje. stuk: iets dat erop staat. Wat je weghaalt, krijg je volledig terug.
   const STUKKEN = [
@@ -72,15 +74,18 @@
     return x >= o && y >= o && x < o + n && y < o + n;
   }
 
+  // Een vakje op je eilandje: "e:x,y" met x en y van 0 tot EILANDJE.grond-1.
+  const eSleutel = (x, y) => `e:${x},${y}`;
+
   // Wat een burcht gekost heeft.
   function kost(b) {
-    let n = 0;
+    let n = b && b.eiland ? EILANDJE.prijs : 0;
     for (const id of Object.values((b && b.grond) || {})) n += BY_ID[id] ? BY_ID[id].prijs : 0;
     for (const id of Object.values((b && b.stukken) || {})) n += BY_ID[id] ? BY_ID[id].prijs : 0;
     return n;
   }
 
-  const api = { RANGEN, MAX_GROND, STUKKEN, BY_ID, KLEUREN, SCHILDEN, rangVan, sleutel, binnen, kost };
+  const api = { RANGEN, MAX_GROND, EILANDJE, eSleutel, STUKKEN, BY_ID, KLEUREN, SCHILDEN, rangVan, sleutel, binnen, kost };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.Burcht = api;
 })(this);

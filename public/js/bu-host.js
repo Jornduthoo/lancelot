@@ -187,6 +187,88 @@ function bak() {
   const gloed = BuArt.gloeiers(wereld.kaart, T, ox, oy, { glinster: false });
   const bordjes = wereld.bordjes.map(p => ({ ...p, px: ox + (p.x - p.y) * T / 2, py: oy + (p.x + p.y) * T / 4 }));
   beeld = { c, T, ox, oy, gloed, bordjes };
+  ke.eilandjes = bakEilandjes();
+}
+
+// De zwevende eilandjes van wie Legende is: kleine eilandjes in de lucht rond het Klaseiland,
+// aan de kant van hun burcht. Op vaste plekken in de hoeken van het scherm.
+const PLEKKEN = {
+  links: [[0.1, 0.34], [0.09, 0.76], [0.25, 0.21], [0.37, 0.15], [0.22, 0.92]],
+  rechts: [[0.9, 0.34], [0.91, 0.7], [0.75, 0.21], [0.63, 0.15], [0.75, 0.92]],
+};
+function bakEilandjes() {
+  const lijst = beeld.bordjes.filter(p => p.b.eiland).sort((a, b) => a.px - b.px);
+  if (!lijst.length) return [];
+  const Tm = Math.round(26 * dpr);
+  const uit = lijst.map(p => {
+    const k = BuArt.eilandjeKaart(p.b);
+    const c = document.createElement('canvas');
+    c.width = Math.round(k.w * Tm + Tm);
+    c.height = Math.round(k.w * Tm * 0.5 + Tm * 4.6);
+    BuArt.teken(c.getContext('2d'), k, Tm, c.width / 2, Tm * 2, { diep: 0.8 });
+    // alleen wat er echt op staat
+    const r = BuArt.inhoud(c);
+    const kort = document.createElement('canvas');
+    kort.width = r.w;
+    kort.height = r.h;
+    kort.getContext('2d').drawImage(c, -r.x, -r.y);
+    return { c: kort, b: p.b, fase: BuArt.hash(p.x, p.y, 7) * 6.28 };
+  });
+  // de linkse helft van de burchten links, de rest rechts
+  uit.forEach((e, i) => { e.kant = i < Math.floor(uit.length / 2) ? 'links' : 'rechts'; });
+  // elk eilandje een plek aan zijn kant, en anders aan de andere kant
+  const vrij = { links: [...PLEKKEN.links], rechts: [...PLEKKEN.rechts] };
+  for (const e of uit) {
+    const ander = e.kant === 'links' ? 'rechts' : 'links';
+    e.plek = vrij[e.kant].shift() || vrij[ander].shift() || null;
+  }
+  return uit.filter(e => e.plek);
+}
+
+// Elk eilandje met zijn naambordje één keer op schermgrootte gebakken, zodat elk beeldje maar één drawImage kost.
+function eilandjeSprite(e, h) {
+  if (e.sprite && e.sprite.h === h) return e.sprite;
+  const w = Math.round((h * e.c.width) / e.c.height);
+  const fs = Math.max(11, Math.round(h * 0.085));
+  const g0 = document.createElement('canvas').getContext('2d');
+  g0.font = `800 ${fs}px "Exo 2", "Segoe UI", sans-serif`;
+  const tekst = `🏝️ ${e.b.leerling}`;
+  const bw = Math.ceil(g0.measureText(tekst).width + fs * 1.1);
+  const bh = Math.ceil(fs * 1.55);
+  const c = document.createElement('canvas');
+  c.width = Math.max(w, bw + 4);
+  c.height = h + bh + Math.ceil(bh * 0.2) + 4;
+  const g = c.getContext('2d');
+  g.drawImage(e.c, Math.round((c.width - w) / 2), 0, w, h);
+  const x = c.width / 2;
+  const by = h + bh * 0.2 + bh / 2;
+  g.font = g0.font;
+  g.textAlign = 'center';
+  g.textBaseline = 'middle';
+  g.fillStyle = 'rgba(6,10,19,.78)';
+  g.strokeStyle = Burcht.KLEUREN[e.b.kleur] || '#ffc94a';
+  g.lineWidth = Math.max(1.5, fs / 9);
+  g.beginPath();
+  if (g.roundRect) g.roundRect(x - bw / 2, by - bh / 2, bw, bh, bh / 2);
+  else g.rect(x - bw / 2, by - bh / 2, bw, bh);
+  g.fill();
+  g.stroke();
+  g.fillStyle = '#eaf4ff';
+  g.fillText(tekst, x, by + fs * 0.04);
+  e.sprite = { c, h };
+  return e.sprite;
+}
+
+function tekenEilandjes(g, t) {
+  const lijst = ke.eilandjes || [];
+  if (!lijst.length) return;
+  const h = Math.round(cv.height * (lijst.length > 6 ? 0.15 : 0.19));
+  for (const e of lijst) {
+    const sp = eilandjeSprite(e, h).c;
+    const x = e.plek[0] * cv.width;
+    const y = e.plek[1] * cv.height + Math.sin(t * 0.7 + e.fase) * 5 * dpr;
+    g.drawImage(sp, Math.round(x - sp.width / 2), Math.round(y - h / 2));
+  }
 }
 
 // De camera: het hele eiland in beeld, met een langzame zweefbeweging. Bij de tour zoomt hij in op één burcht.
@@ -293,6 +375,8 @@ function frame(now) {
     ctx.restore();
     bordjes(ctx, (px, py) => [cv.width / 2 + (px - cam.x) * cam.s, cv.height / 2 + zweef + (py - cam.y) * cam.s]);
   }
+
+  if (!cam.doel) tekenEilandjes(ctx, t);
 
   // Wolken die voorbij drijven (op maat gemaakt, zodat ze niet elke keer geschaald moeten worden).
   ctx.globalAlpha = 0.45;
