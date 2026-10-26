@@ -21,7 +21,7 @@
       const fig = document.createElement('figure');
       fig.innerHTML = `<img loading="lazy" src="/posters/${encodeURIComponent(file)}?t=${Date.now()}" alt=""><button class="secondary" title="Weghalen">✕</button>`;
       fig.querySelector('button').addEventListener('click', async () => {
-        if (confirm('Deze poster weghalen?')) toonPosters(await ask('poster-del', file));
+        if (await Ui.vraag('Deze poster weghalen?')) toonPosters(await ask('poster-del', file));
       });
       return fig;
     }));
@@ -103,7 +103,7 @@
     e.target.value = '';
     if (!file) return;
     $('bu-error').textContent = '';
-    if (!confirm('Deze back-up terugzetten? Bij de volgende start van LANcelot vervangt hij je huidige klaslijst, logboek, quizzen... LANcelot bewaart eerst nog een back-up van hoe het nu is.')) return;
+    if (!await Ui.vraag('Deze back-up terugzetten? Bij de volgende start van LANcelot vervangt hij je huidige klaslijst, logboek, quizzen... LANcelot bewaart eerst nog een back-up van hoe het nu is.')) return;
     try {
       const res = await (await fetch('/back-up/terugzetten', { method: 'POST', headers: { 'Content-Type': 'application/octet-stream' }, body: file })).json();
       if (res.error) throw new Error(res.error);

@@ -195,8 +195,8 @@ window.addEventListener('focus', klembord);
 
 // ---------- De onthulling ----------
 
-$('rnh-onthul').addEventListener('click', () => {
-  if (!confirm('De woorden van vandaag op het bord tonen? Wie nog niet speelde, ziet dan het antwoord.')) return;
+$('rnh-onthul').addEventListener('click', async () => {
+  if (!await Ui.vraag('De woorden van vandaag op het bord tonen? Wie nog niet speelde, ziet dan het antwoord.')) return;
   socket.emit('rn-onthul', null, res => {
     if (!res || res.error) return;
     const box = $('rnh-onthulling');

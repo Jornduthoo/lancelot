@@ -18,8 +18,8 @@ function show(name) {
 }
 
 document.addEventListener('click', () => sfx.unlock(), { once: true });
-$('mute').textContent = sfx.muted ? '🔇' : '🔊';
-$('mute').addEventListener('click', () => { $('mute').textContent = sfx.toggle() ? '🔇' : '🔊'; });
+$('mute').innerHTML = Ui.ic(sfx.muted ? 'stil' : 'geluid');
+$('mute').addEventListener('click', () => { $('mute').innerHTML = Ui.ic(sfx.toggle() ? 'stil' : 'geluid'); });
 $('brand').addEventListener('click', () => { location.href = '/host'; });
 $('to-home').addEventListener('click', () => { location.href = '/host'; });
 for (const b of document.querySelectorAll('[data-back]')) b.addEventListener('click', () => show(b.dataset.back));
@@ -57,8 +57,8 @@ ItemList.mount($('sheet-list'), {
       openEditor(res.sheet, s.file);
     });
   },
-  remove: s => {
-    if (!confirm(`"${s.title}" verwijderen?`)) return;
+  remove: async s => {
+    if (!await Ui.vraag(`"${s.title}" verwijderen?`)) return;
     socket.emit('ob-delete', s.file, res => { $('list-error').textContent = res.error || ''; });
   },
 });
@@ -622,11 +622,11 @@ function renderDetailNiveaus(id, current) {
   if (!state.multi) return;
   box.innerHTML = Niveau.LIST.filter(n => state.levels[n]).map(n => `<button type="button" class="secondary${n === current ? ' on' : ''}" data-niveau="${n}" title="${Niveau.HELP[n]}">${Niveau.label(n)}</button>`).join('');
   for (const b of box.querySelectorAll('button')) {
-    b.addEventListener('click', () => {
+    b.addEventListener('click', async () => {
       const n = b.dataset.niveau;
       if (n === current) return;
       const r = state.ranking.find(p => p.id === id);
-      if (r && r.done && !confirm(`${r.name} op ${Niveau.NAMES[n]} zetten? Het blad begint dan opnieuw; wat al ingevuld is, vervalt.`)) return;
+      if (r && r.done && !await Ui.vraag(`${r.name} op ${Niveau.NAMES[n]} zetten? Het blad begint dan opnieuw; wat al ingevuld is, vervalt.`)) return;
       socket.emit('ob-set-niveau', { id, niveau: n }, () => openDetail(id, true));
     });
   }
@@ -644,17 +644,17 @@ $('l-reveal').addEventListener('click', () => socket.emit('ob-reveal'));
 $('d-reopen').addEventListener('click', () => {
   if (detailId) socket.emit('ob-reopen', detailId, () => openDetail(detailId, true));
 });
-$('l-reopen').addEventListener('click', () => {
+$('l-reopen').addEventListener('click', async () => {
   const msg = state.phase === 'einde'
     ? 'Het blad weer openzetten voor iedereen? De leerlingen werken verder met hun antwoorden. Sluit daarna opnieuw af om de nieuwe resultaten te bewaren.'
     : 'Het blad weer openzetten voor iedereen die al inleverde? Hun antwoorden blijven staan.';
-  if (confirm(msg)) socket.emit('ob-reopen', null);
+  if (await Ui.vraag(msg)) socket.emit('ob-reopen', null);
 });
-$('l-finish').addEventListener('click', () => {
-  if (confirm('Het oefenblad afsluiten? Wie nog bezig is, levert automatisch in. De resultaten worden bewaard.')) socket.emit('ob-finish');
+$('l-finish').addEventListener('click', async () => {
+  if (await Ui.vraag('Het oefenblad afsluiten? Wie nog bezig is, levert automatisch in. De resultaten worden bewaard.')) socket.emit('ob-finish');
 });
-$('stop').addEventListener('click', () => {
-  if (!confirm('Het oefenblad sluiten en terug naar de lijst?')) return;
+$('stop').addEventListener('click', async () => {
+  if (!await Ui.vraag('Het oefenblad sluiten en terug naar de lijst?')) return;
   socket.emit('ob-stop', null, res => {
     const note = $('stopped');
     note.innerHTML = '';

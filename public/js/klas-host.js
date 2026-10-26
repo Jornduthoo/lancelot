@@ -31,7 +31,7 @@ function renderNiveaus(leerlingen) {
   const box = $('k-niveaus');
   box.innerHTML = '';
   if (!leerlingen.length) {
-    box.innerHTML = '<p class="muted">Zet eerst je leerlingen op de klaslijst hierboven.</p>';
+    box.innerHTML = '<div class="leeg"><p class="muted">Zet eerst je leerlingen op de klaslijst hierboven.</p></div>';
     return;
   }
   const table = document.createElement('table');
@@ -152,22 +152,45 @@ function renderDoelen() {
   }
   const vakKeuze = $('d-vak').value;
   const shown = mine.filter(d => !vakKeuze || d.vak === vakKeuze).filter(d => !q || d.code.toLowerCase().includes(q) || d.tekst.toLowerCase().includes(q) || d.cluster.toLowerCase().includes(q));
+  // Per vak een inklapbaar blok: zo blijft de pagina kort. Bij zoeken of één vak staat alles open.
+  const open = Boolean(q || vakKeuze);
   let vak = '';
   let domein = '';
   let cluster = '';
+  let groep = box;
+  let teller = null;
   for (const d of shown) {
-    if (d.vak !== vak || d.domein !== domein) {
+    if (d.vak !== vak) {
+      const det = document.createElement('details');
+      det.className = 'doel-groep';
+      det.open = open;
+      const sum = document.createElement('summary');
       const h = document.createElement('h3');
-      h.textContent = `${d.vak} · ${d.domein}`;
-      box.appendChild(h);
+      h.textContent = d.vak;
+      teller = document.createElement('span');
+      teller.className = 'muted small';
+      teller.dataset.n = '0';
+      sum.append(h, teller);
+      det.appendChild(sum);
+      box.appendChild(det);
+      groep = det;
       vak = d.vak;
+      domein = '';
+    }
+    if (d.domein !== domein) {
+      const h = document.createElement('h3');
+      h.className = 'doel-domein';
+      h.textContent = d.domein;
+      groep.appendChild(h);
       domein = d.domein;
       cluster = '';
     }
+    teller.dataset.n = Number(teller.dataset.n) + 1;
+    teller.textContent = `${teller.dataset.n} doelen`;
     if (d.cluster !== cluster) {
       const h = document.createElement('h4');
       h.textContent = d.cluster;
-      box.appendChild(h);
+      groep.appendChild(h);
       cluster = d.cluster;
     }
     const row = document.createElement('div');
@@ -185,7 +208,7 @@ function renderDoelen() {
     const log = perDoel[d.code];
     if (log) tags.appendChild(tag(`${log.antwoorden} antw. · ${Math.round((log.juist / log.antwoorden) * 100)}% juist`, 'log'));
     row.append(code, text, tags);
-    box.appendChild(row);
+    groep.appendChild(row);
   }
   if (!shown.length) box.textContent = 'Geen doelen gevonden.';
   $('d-bron').textContent = `${shown.length} doelen. Bron: Op.stap (Katholiek Onderwijs Vlaanderen), leerplanversie V1.3. De officiële versie staat in de Op.stap-leerplantool.`;

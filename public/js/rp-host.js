@@ -24,8 +24,8 @@ function show(name) {
 }
 
 document.addEventListener('click', () => sfx.unlock(), { once: true });
-$('mute').textContent = sfx.muted ? '🔇' : '🔊';
-$('mute').addEventListener('click', () => { $('mute').textContent = sfx.toggle() ? '🔇' : '🔊'; });
+$('mute').innerHTML = Ui.ic(sfx.muted ? 'stil' : 'geluid');
+$('mute').addEventListener('click', () => { $('mute').innerHTML = Ui.ic(sfx.toggle() ? 'stil' : 'geluid'); });
 $('brand').addEventListener('click', () => { location.href = '/host'; });
 $('to-home').addEventListener('click', () => { location.href = '/host'; });
 
@@ -125,7 +125,7 @@ function renderLobby() {
       el.dataset.id = p.id;
       el.title = 'Verwijderen';
       el.innerHTML = '<canvas width="210" height="168"></canvas><b></b>';
-      el.addEventListener('click', () => { if (confirm(`${p.name} uit de race halen?`)) socket.emit('rp-kick', p.id); });
+      el.addEventListener('click', async () => { if (await Ui.vraag(`${p.name} uit de race halen?`)) socket.emit('rp-kick', p.id); });
       box.appendChild(el);
       if (prev && prev.phase === 'lobby') sfx.join();
     }
@@ -324,13 +324,13 @@ setInterval(() => {
 }, 200);
 
 $('start').addEventListener('click', () => socket.emit('rp-start'));
-$('p-finish').addEventListener('click', () => {
-  if (confirm('De race nu stoppen en de eindstand tonen?')) socket.emit('rp-finish');
+$('p-finish').addEventListener('click', async () => {
+  if (await Ui.vraag('De race nu stoppen en de eindstand tonen?')) socket.emit('rp-finish');
 });
 $('restart').addEventListener('click', () => socket.emit('rp-restart'));
 $('close').addEventListener('click', () => socket.emit('rp-stop', null, () => show('setup')));
-$('stop').addEventListener('click', () => {
-  if (!confirm('Het spel stoppen en terug naar het begin?')) return;
+$('stop').addEventListener('click', async () => {
+  if (!await Ui.vraag('Het spel stoppen en terug naar het begin?')) return;
   socket.emit('rp-stop', null, res => {
     const note = $('stopped');
     note.innerHTML = '';

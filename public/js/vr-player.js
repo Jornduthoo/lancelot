@@ -190,8 +190,8 @@ function vrTools() {
 }
 setInterval(() => { if (vr.state && ['taken', 'tafel'].includes(vr.state.phase)) vrTools(); }, 500);
 
-$('vr-horn').addEventListener('click', () => {
-  if (!confirm('De Ronde Tafel samenroepen? Dat kan maar één keer.')) return;
+$('vr-horn').addEventListener('click', async () => {
+  if (!await Ui.vraag('De Ronde Tafel samenroepen? Dat kan maar één keer.')) return;
   socket.emit('vr-horn', null, res => { if (res && res.error) vrAlert(res.error, 'bad'); });
 });
 

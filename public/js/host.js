@@ -29,8 +29,8 @@ function show(name) {
 
 // Browsers spelen pas geluid af na een klik; elke klik ontgrendelt het geluid.
 document.addEventListener('click', () => sfx.unlock(), { once: true });
-$('mute').textContent = sfx.muted ? '🔇' : '🔊';
-$('mute').addEventListener('click', () => { $('mute').textContent = sfx.toggle() ? '🔇' : '🔊'; });
+$('mute').innerHTML = Ui.ic(sfx.muted ? 'stil' : 'geluid');
+$('mute').addEventListener('click', () => { $('mute').innerHTML = Ui.ic(sfx.toggle() ? 'stil' : 'geluid'); });
 
 $('brand').addEventListener('click', () => {
   if (OWN_VIEWS.includes(view)) show('home');
@@ -43,17 +43,18 @@ function openRealm(id, scroll) {
   fillRows();
   if (scroll) $(`realm-${id}`).scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
-// Elke rij tegels vol: de eerste tegels worden breed tot de laatste rij gevuld is.
+// Elke rij tegels vol: de eerste tegels worden breed tot de laatste rij gevuld is. De Arena heeft per groep een eigen raster.
 function fillRows() {
-  const grid = document.querySelector('.realm-panel:not(.hidden) .modules');
-  if (!grid) return;
-  // Een brede balk (zoals het Klaseiland) neemt een hele rij: die telt niet mee.
-  const tiles = [...grid.children].filter(t => !t.classList.contains('balk'));
-  for (const t of tiles) t.style.gridColumn = '';
-  const gap = parseFloat(getComputedStyle(grid).columnGap) || 0;
-  const cols = Math.min(tiles.length, Math.floor((grid.clientWidth + gap) / (240 + gap)));
-  const extra = cols > 1 ? (cols - tiles.length % cols) % cols : 0;
-  for (const t of tiles.slice(0, extra)) t.style.gridColumn = 'span 2';
+  for (const grid of document.querySelectorAll('.realm-panel:not(.hidden) .modules')) {
+    // Een brede balk (zoals het Klaseiland) neemt een hele rij: die telt niet mee.
+    const tiles = [...grid.children].filter(t => !t.classList.contains('balk'));
+    for (const t of tiles) t.style.gridColumn = '';
+    if (!tiles.length) continue;
+    const gap = parseFloat(getComputedStyle(grid).columnGap) || 0;
+    const cols = Math.min(tiles.length, Math.floor((grid.clientWidth + gap) / (240 + gap)));
+    const extra = cols > 1 ? (cols - tiles.length % cols) % cols : 0;
+    for (const t of tiles.slice(0, extra)) t.style.gridColumn = 'span 2';
+  }
 }
 addEventListener('resize', fillRows);
 document.querySelector('[data-realm="arena"] .tag').textContent = `${document.querySelectorAll('#realm-arena .module:not([data-module="klaseiland"])').length} spellen`;
@@ -107,8 +108,8 @@ QuizList.mount($('quiz-list'), {
   go: 'Speel ▶',
   play: q => loadQuiz(q.file),
   edit: q => editQuiz(q.file),
-  remove: q => {
-    if (!confirm(`"${q.title}" verwijderen?`)) return;
+  remove: async q => {
+    if (!await Ui.vraag(`"${q.title}" verwijderen?`)) return;
     socket.emit('delete', q.file, res => { $('load-error').textContent = res.error || ''; });
   },
 });
@@ -254,7 +255,7 @@ $('to-board').addEventListener('click', () => { renderBoard(); show('board'); })
 
 socket.on('results', files => {
   const box = $('results-list');
-  box.innerHTML = files.length ? '' : '<p class="muted">Nog geen resultaten. Speel eerst een quiz tot het einde.</p>';
+  box.innerHTML = files.length ? '' : '<div class="leeg"><p>Nog geen resultaten.</p><p class="muted small">Speel eerst een quiz tot het einde: dan staan de scores hier, klaar voor Excel.</p></div>';
   for (const file of files) {
     const row = document.createElement('div');
     row.className = 'quiz-row';
@@ -308,8 +309,8 @@ function renderPodium() {
 
 // ---------- Stoppen ----------
 
-$('stop').addEventListener('click', () => {
-  if (!confirm('Toernooi stoppen en terug naar de quizlijst?')) return;
+$('stop').addEventListener('click', async () => {
+  if (!await Ui.vraag('Toernooi stoppen en terug naar de quizlijst?')) return;
   socket.emit('stop', null, res => {
     const note = $('stopped');
     note.innerHTML = '';

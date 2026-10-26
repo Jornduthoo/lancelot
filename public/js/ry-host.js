@@ -18,8 +18,8 @@ function show(name) {
 }
 
 document.addEventListener('click', () => sfx.unlock(), { once: true });
-$('mute').textContent = sfx.muted ? '🔇' : '🔊';
-$('mute').addEventListener('click', () => { $('mute').textContent = sfx.toggle() ? '🔇' : '🔊'; });
+$('mute').innerHTML = Ui.ic(sfx.muted ? 'stil' : 'geluid');
+$('mute').addEventListener('click', () => { $('mute').innerHTML = Ui.ic(sfx.toggle() ? 'stil' : 'geluid'); });
 $('brand').addEventListener('click', () => { location.href = '/host'; });
 $('to-home').addEventListener('click', () => { location.href = '/host'; });
 
@@ -189,13 +189,13 @@ setInterval(() => {
 
 
 $('start').addEventListener('click', () => socket.emit('ry-start'));
-$('p-finish').addEventListener('click', () => {
-  if (confirm('Het spel nu stoppen en de eindstand tonen?')) socket.emit('ry-finish');
+$('p-finish').addEventListener('click', async () => {
+  if (await Ui.vraag('Het spel nu stoppen en de eindstand tonen?')) socket.emit('ry-finish');
 });
 $('restart').addEventListener('click', () => socket.emit('ry-restart'));
 $('close').addEventListener('click', () => socket.emit('ry-stop', null, () => show('setup')));
-$('stop').addEventListener('click', () => {
-  if (!confirm('Het spel stoppen en terug naar het begin?')) return;
+$('stop').addEventListener('click', async () => {
+  if (!await Ui.vraag('Het spel stoppen en terug naar het begin?')) return;
   socket.emit('ry-stop', null, res => {
     const note = $('stopped');
     note.innerHTML = '';

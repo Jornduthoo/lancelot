@@ -4,7 +4,7 @@
   const pad = location.pathname.replace(/\/+$/, '') || '/';
   const btn = document.createElement('button');
   btn.className = 'secondary namen-knop hidden';
-  btn.textContent = '👥 Namen';
+  btn.innerHTML = `${Ui.ic('namen')} Namen`;
   btn.title = 'Wie is er binnen? Een verkeerde naam wegklikken';
   const modal = document.createElement('div');
   modal.className = 'ob-modal hidden';
@@ -18,7 +18,8 @@
   function laad() {
     socket.emit('namen-lijst', pad, res => {
       if (!res || res.geen) return;
-      btn.classList.remove('hidden');
+      // Alleen tonen zolang er een spel loopt, niet in de quizlijst of de maker.
+      btn.classList.toggle('hidden', !res.actief);
       if (modal.classList.contains('hidden')) return;
       const spelers = (res.spelers || []).slice().sort((a, b) => a.name.localeCompare(b.name, 'nl'));
       lijst.innerHTML = '';
@@ -33,9 +34,9 @@
         stip.textContent = p.online ? '● verbonden' : '○ niet verbonden';
         const weg = document.createElement('button');
         weg.className = 'secondary';
-        weg.textContent = '✕ Wegklikken';
-        weg.addEventListener('click', () => {
-          if (!confirm(`"${p.name}" wegklikken? Wat deze leerling al verdiende in dit spel, gaat verloren.`)) return;
+        weg.innerHTML = `${Ui.ic('kruis')} Wegklikken`;
+        weg.addEventListener('click', async () => {
+          if (!await Ui.vraag(`"${p.name}" wegklikken? Wat deze leerling al verdiende in dit spel, gaat verloren.`)) return;
           socket.emit('namen-weg', { pad, id: p.id });
           setTimeout(laad, 300);
         });
@@ -58,4 +59,5 @@
   modal.addEventListener('click', e => { if (e.target === modal) sluit(); });
   socket.on('connect', laad);
   laad();
+  setInterval(() => { if (modal.classList.contains('hidden')) laad(); }, 2500);
 })();

@@ -25,8 +25,8 @@ function show(name) {
 }
 
 document.addEventListener('click', () => sfx.unlock(), { once: true });
-$('mute').textContent = sfx.muted ? '🔇' : '🔊';
-$('mute').addEventListener('click', () => { $('mute').textContent = sfx.toggle() ? '🔇' : '🔊'; });
+$('mute').innerHTML = Ui.ic(sfx.muted ? 'stil' : 'geluid');
+$('mute').addEventListener('click', () => { $('mute').innerHTML = Ui.ic(sfx.toggle() ? 'stil' : 'geluid'); });
 $('brand').addEventListener('click', () => { location.href = '/host'; });
 $('to-home').addEventListener('click', () => { location.href = '/host'; });
 for (const b of document.querySelectorAll('[data-back]')) b.addEventListener('click', () => show(b.dataset.back));
@@ -49,8 +49,8 @@ ItemList.mount($('session-list'), {
   edit: s => {
     socket.emit('rt-open', s.file, res => res.error ? ($('list-error').textContent = res.error) : openEditor(res.session, s.file));
   },
-  remove: s => {
-    if (!confirm(`"${s.title}" verwijderen?`)) return;
+  remove: async s => {
+    if (!await Ui.vraag(`"${s.title}" verwijderen?`)) return;
     socket.emit('rt-delete', s.file, res => { $('list-error').textContent = res.error || ''; });
   },
 });
@@ -147,8 +147,8 @@ $('l-toggle').addEventListener('click', () => socket.emit('rt-results'));
 $('end-back').addEventListener('click', () => socket.emit('rt-go', state.total - 1));
 $('end-close').addEventListener('click', () => socket.emit('rt-stop', null, () => show('list')));
 
-$('stop').addEventListener('click', () => {
-  if (!confirm('De Ronde Tafel stoppen en terug naar de sessies?')) return;
+$('stop').addEventListener('click', async () => {
+  if (!await Ui.vraag('De Ronde Tafel stoppen en terug naar de sessies?')) return;
   socket.emit('rt-stop', null, res => {
     const note = $('stopped');
     note.innerHTML = '';

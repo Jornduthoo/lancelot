@@ -19,8 +19,8 @@ function show(name) {
 }
 
 document.addEventListener('click', () => sfx.unlock(), { once: true });
-$('mute').textContent = sfx.muted ? '🔇' : '🔊';
-$('mute').addEventListener('click', () => { $('mute').textContent = sfx.toggle() ? '🔇' : '🔊'; });
+$('mute').innerHTML = Ui.ic(sfx.muted ? 'stil' : 'geluid');
+$('mute').addEventListener('click', () => { $('mute').innerHTML = Ui.ic(sfx.toggle() ? 'stil' : 'geluid'); });
 $('brand').addEventListener('click', () => { location.href = '/host'; });
 $('to-home').addEventListener('click', () => { location.href = '/host'; });
 $('w-crown').innerHTML = CROWN;
@@ -207,16 +207,16 @@ setInterval(() => {
 }, 150);
 
 $('start').addEventListener('click', () => socket.emit('du-start', null, res => { $('start-error').textContent = (res && res.error) || ''; }));
-$('p-decide').addEventListener('click', () => {
-  if (confirm('Alle lopende duels nu beslissen? Wie de meeste harten heeft, wint.')) socket.emit('du-decide');
+$('p-decide').addEventListener('click', async () => {
+  if (await Ui.vraag('Alle lopende duels nu beslissen? Wie de meeste harten heeft, wint.')) socket.emit('du-decide');
 });
-$('p-finish').addEventListener('click', () => {
-  if (confirm('Het toernooi nu stoppen? Wie het verst kwam en de meeste vragen juist had, wint.')) socket.emit('du-finish');
+$('p-finish').addEventListener('click', async () => {
+  if (await Ui.vraag('Het toernooi nu stoppen? Wie het verst kwam en de meeste vragen juist had, wint.')) socket.emit('du-finish');
 });
 $('restart').addEventListener('click', () => socket.emit('du-restart'));
 $('close').addEventListener('click', () => socket.emit('du-stop', null, () => show('setup')));
-$('stop').addEventListener('click', () => {
-  if (!confirm('Het spel stoppen en terug naar het begin?')) return;
+$('stop').addEventListener('click', async () => {
+  if (!await Ui.vraag('Het spel stoppen en terug naar het begin?')) return;
   socket.emit('du-stop', null, res => {
     const note = $('stopped');
     note.innerHTML = '';

@@ -21,7 +21,8 @@ body[data-lb="1"] main > div:not(#leraarbaas) { display: none !important; }
 .nd-kick { font-style: normal; opacity: .45; padding: 0 2px; }
 .nd-kick:hover { opacity: 1; color: var(--bad); }
 .nd-host .hud { margin-bottom: 8px; }
-.nd-host main { max-width: 1800px; }
+/* Breed alleen tijdens het spel; de keuzeschermen blijven even breed als overal. */
+.nd-host.breed main { max-width: 1800px; }
 .nd-stage { position: relative; height: calc(100vh - 250px); min-height: 380px; border-radius: 14px; overflow: hidden; box-shadow: inset 0 0 0 1px rgba(199, 125, 255, .5), 0 0 40px rgba(199, 125, 255, .2); background: #05021a; }
 .nd-stage:fullscreen { height: 100vh; border-radius: 0; }
 .nd-stage canvas { display: block; width: 100%; height: 100%; }
@@ -111,7 +112,7 @@ body[data-nd-team="1"] #nd-game { --me: var(--nd1); --them: var(--nd0); }
 }
 
 /* ---------- Leraar-baas: bord ---------- */
-.lb-host main { max-width: 1800px; }
+.lb-host.breed main { max-width: 1800px; }
 .lb-builder { display: grid; grid-template-columns: minmax(280px, 420px) 1fr; gap: 18px; align-items: stretch; margin: 14px 0; }
 .lb-preview { position: relative; min-height: 420px; border-radius: 14px; overflow: hidden; box-shadow: inset 0 0 0 1px var(--boss), 0 0 40px var(--boss-glow); }
 .lb-preview canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }

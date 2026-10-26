@@ -89,13 +89,13 @@ const ItemList = (() => {
       el.draggable = true;
       el.dataset.file = q.file;
       const options = ['<option value="">Zonder map</option>', ...folders.map(f => `<option value="${esc(f)}"${f === q.folder ? ' selected' : ''}>${esc(f.split('/').join(' › '))}</option>`)].join('');
-      el.innerHTML = `<span class="grip" title="Sleep naar een map">⋮⋮</span>
+      el.innerHTML = `<span class="grip" title="Sleep naar een map">${Ui.ic('grip')}</span>
         <button class="play">${esc(q.title)} <span class="muted">· ${esc(detail(q))}${kind === 'quiz' && (q.niveaus || []).length > 1 ? ` · ${q.niveaus.map(n => ICONS[n]).join('')}` : ''}</span><span class="go">${opts.go || 'Kies ▶'}</span></button>
         ${folders.length ? `<label class="move" title="Naar een andere map">📁<select>${options}</select></label>` : ''}
         ${(opts.buttons || []).map((b, i) => `<button class="secondary extra ${b.cls || ''}" data-extra="${i}" title="${esc(b.title || '')}">${b.label}</button>`).join('')}
         <button class="secondary edit">Bewerken</button>
-        <button class="secondary export" title="Exporteren naar een bestand">⬇</button>
-        ${opts.remove ? '<button class="secondary delete" title="Verwijderen">✕</button>' : ''}`;
+        <button class="secondary export" title="Exporteren naar een bestand" aria-label="Exporteren">${Ui.ic('download')}</button>
+        ${opts.remove ? `<button class="secondary delete" title="Verwijderen" aria-label="Verwijderen">${Ui.ic('kruis')}</button>` : ''}`;
       el.querySelector('.play').addEventListener('click', () => opts.play(q));
       el.querySelector('.edit').addEventListener('click', () => opts.edit(q));
       el.querySelector('.export').addEventListener('click', () => download({ file: q.file }));
@@ -146,12 +146,12 @@ const ItemList = (() => {
       sec.className = `quiz-folder${closed.has(f) ? ' closed' : ''}`;
       sec.dataset.folder = f;
       sec.innerHTML = `<div class="folder-head" draggable="true">
-          <span class="grip" title="Sleep naar een andere map">⋮⋮</span>
+          <span class="grip" title="Sleep naar een andere map">${Ui.ic('grip')}</span>
           <button class="folder-toggle" type="button"><span class="chev">▾</span> 📁 <strong></strong> <span class="muted">· ${total} ${total === 1 ? k.one : k.many}${subs.length ? ` · ${subs.length} ${subs.length === 1 ? 'map' : 'mappen'}` : ''}</span></button>
           <button class="secondary sub" type="button" title="Nieuwe map in deze map">+📁</button>
-          ${total || subs.length ? '<button class="secondary export" type="button" title="Deze map (met de mappen erin) exporteren naar een bestand">⬇</button>' : ''}
+          ${total || subs.length ? `<button class="secondary export" type="button" title="Deze map (met de mappen erin) exporteren naar een bestand" aria-label="Map exporteren">${Ui.ic('download')}</button>` : ''}
           <button class="secondary rename" type="button" title="Naam wijzigen">✎</button>
-          <button class="secondary delete" type="button" title="Map verwijderen">✕</button>
+          <button class="secondary delete" type="button" title="Map verwijderen" aria-label="Map verwijderen">${Ui.ic('kruis')}</button>
         </div><div class="folder-body"></div>`;
       sec.querySelector('strong').textContent = baseOf(f);
       sec.querySelector('.folder-toggle').addEventListener('click', () => {
@@ -172,10 +172,10 @@ const ItemList = (() => {
         const to = prompt('Nieuwe naam voor de map:', baseOf(f));
         if (to && to !== baseOf(f)) socket.emit('lib-folder-rename', { kind, from: f, to }, error);
       });
-      sec.querySelector('.delete').addEventListener('click', () => {
+      sec.querySelector('.delete').addEventListener('click', async () => {
         const where = parentOf(f) ? `in de map "${baseOf(parentOf(f))}"` : 'zonder map';
         const extra = subs.length ? ' De mappen erin verdwijnen ook.' : '';
-        if (confirm(`De map "${baseOf(f)}" verwijderen?${extra} De ${k.many} erin blijven bewaard, ${where}.`)) socket.emit('lib-folder-remove', { kind, name: f }, error);
+        if (await Ui.vraag(`De map "${baseOf(f)}" verwijderen?${extra} De ${k.many} erin blijven bewaard, ${where}.`)) socket.emit('lib-folder-remove', { kind, name: f }, error);
       });
       const head = sec.querySelector('.folder-head');
       head.addEventListener('dragstart', e => {
@@ -203,9 +203,9 @@ const ItemList = (() => {
       const bar = document.createElement('div');
       bar.className = 'quiz-tools';
       bar.innerHTML = `<span class="muted small lib-note"></span>
-        <button class="secondary small-btn new-folder" type="button">+ Nieuwe map</button>
-        <label class="button secondary small-btn" title="Een bestand van ⬇ Exporteren inladen, bijvoorbeeld van je laptop thuis">⬆ Importeren<input type="file" accept=".json,application/json" multiple hidden></label>
-        ${items.length ? `<button class="secondary small-btn export-all" type="button" title="Alle ${k.many} met hun mappen in één bestand">⬇ Alles exporteren</button>` : ''}`;
+        <button class="secondary small-btn new-folder" type="button">${Ui.ic('map')} Nieuwe map</button>
+        <label class="button secondary small-btn" title="Een bestand van ⬇ Exporteren inladen, bijvoorbeeld van je laptop thuis">${Ui.ic('upload')} Importeren<input type="file" accept=".json,application/json" multiple hidden></label>
+        ${items.length ? `<button class="secondary small-btn export-all" type="button" title="Alle ${k.many} met hun mappen in één bestand">${Ui.ic('download')} Alles exporteren</button>` : ''}`;
       bar.querySelector('.lib-note').textContent = note;
       bar.querySelector('.new-folder').addEventListener('click', () => {
         const name = prompt('Naam van de nieuwe map (bijvoorbeeld een vak of een klas):');
@@ -224,7 +224,7 @@ const ItemList = (() => {
         renderNiveauBar(lv);
       }
       if (items.length === 0 && folders.length === 0) {
-        box.insertAdjacentHTML('beforeend', `<p class="muted">Nog geen ${k.many}. Maak er een met de knoppen hierboven, of importeer een bestand.</p>`);
+        box.insertAdjacentHTML('beforeend', `<div class="leeg"><p>Nog geen ${k.many}.</p><p class="muted small">Maak er een met de knoppen hierboven, of importeer een bestand.</p></div>`);
         return;
       }
       for (const f of folders.filter(f => !parentOf(f))) box.appendChild(folderSection(f));
@@ -273,8 +273,8 @@ const ItemList = (() => {
 // Elke quizlijst kan een quiz verwijderen, in elk spel (een pagina mag een eigen remove meegeven).
 const QuizList = {
   mount: (el, opts) => ItemList.mount(el, {
-    remove: q => {
-      if (!confirm(`"${q.title}" verwijderen?`)) return;
+    remove: async q => {
+      if (!await Ui.vraag(`"${q.title}" verwijderen?`)) return;
       socket.emit('delete', q.file, res => {
         const err = document.getElementById(opts.errorId || 'load-error');
         if (err) err.textContent = (res && res.error) || '';

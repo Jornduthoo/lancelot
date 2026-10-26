@@ -19,8 +19,8 @@ function show(name) {
 }
 
 document.addEventListener('click', () => sfx.unlock(), { once: true });
-$('mute').textContent = sfx.muted ? '🔇' : '🔊';
-$('mute').addEventListener('click', () => { $('mute').textContent = sfx.toggle() ? '🔇' : '🔊'; });
+$('mute').innerHTML = Ui.ic(sfx.muted ? 'stil' : 'geluid');
+$('mute').addEventListener('click', () => { $('mute').innerHTML = Ui.ic(sfx.toggle() ? 'stil' : 'geluid'); });
 $('brand').addEventListener('click', () => { location.href = '/host'; });
 $('to-home').addEventListener('click', () => { location.href = '/host'; });
 
@@ -208,13 +208,13 @@ setInterval(() => {
 }, 200);
 
 $('start').addEventListener('click', () => socket.emit('bb-start'));
-$('p-dragon').addEventListener('click', () => {
-  if (confirm('De draak nu laten aanvallen? Dan stopt het bouwen.')) socket.emit('bb-dragon');
+$('p-dragon').addEventListener('click', async () => {
+  if (await Ui.vraag('De draak nu laten aanvallen? Dan stopt het bouwen.')) socket.emit('bb-dragon');
 });
 $('restart').addEventListener('click', () => socket.emit('bb-restart'));
 $('close').addEventListener('click', () => socket.emit('bb-stop', null, () => show('setup')));
-$('stop').addEventListener('click', () => {
-  if (!confirm('Het spel stoppen en terug naar het begin?')) return;
+$('stop').addEventListener('click', async () => {
+  if (!await Ui.vraag('Het spel stoppen en terug naar het begin?')) return;
   socket.emit('bb-stop', null, res => {
     const note = $('stopped');
     note.innerHTML = '';
