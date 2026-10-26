@@ -1,0 +1,145 @@
+{
+  "title": "Volgorde van bewerkingen en handig rekenen",
+  "questions": [
+    {
+      "question": "Hoeveel is 6 + 4 x 5?",
+      "answers": [
+        "50",
+        "26",
+        "30",
+        "15"
+      ],
+      "correct": 1,
+      "time": 30,
+      "uitleg": "Eerst vermenigvuldigen, dan optellen: 4 x 5 = 20, en 6 + 20 = 26.",
+      "doel": "2.2.GL6.9",
+      "typ": "getal"
+    },
+    {
+      "question": "Hoeveel is (6 + 4) x 5?",
+      "answers": [
+        "26",
+        "50",
+        "34",
+        "10"
+      ],
+      "correct": 1,
+      "time": 30,
+      "uitleg": "Haakjes eerst: 6 + 4 = 10, en 10 x 5 = 50.",
+      "doel": "2.2.GL6.9",
+      "typ": "getal"
+    },
+    {
+      "question": "Hoeveel is 20 - 12 : 4?",
+      "answers": [
+        "2",
+        "17",
+        "8",
+        "3"
+      ],
+      "correct": 1,
+      "time": 30,
+      "uitleg": "Delen gaat voor aftrekken: 12 : 4 = 3, en 20 - 3 = 17.",
+      "doel": "2.2.GL6.9",
+      "typ": "getal"
+    },
+    {
+      "question": "Hoeveel is 36 x 25?",
+      "answers": [
+        "900",
+        "960",
+        "90",
+        "825"
+      ],
+      "correct": 0,
+      "time": 30,
+      "uitleg": "Handig: x 25 is x 100 en dan : 4. 36 x 100 = 3 600, en 3 600 : 4 = 900.",
+      "doel": "2.2.GL6.31",
+      "typ": "getal"
+    },
+    {
+      "question": "Hoeveel is 48 x 5?",
+      "answers": [
+        "200",
+        "240",
+        "2 400",
+        "245"
+      ],
+      "correct": 1,
+      "time": 30,
+      "uitleg": "x 5 is x 10 en dan : 2. 48 x 10 = 480, en 480 : 2 = 240.",
+      "doel": "2.2.GL6.31",
+      "typ": "getal"
+    },
+    {
+      "question": "Hoeveel is 350 : 50?",
+      "answers": [
+        "70",
+        "7",
+        "17 500",
+        "0,7"
+      ],
+      "correct": 1,
+      "time": 30,
+      "uitleg": ": 50 is : 100 en dan x 2. 350 : 100 = 3,5, en 3,5 x 2 = 7.",
+      "doel": "2.2.GL6.31",
+      "typ": "getal"
+    },
+    {
+      "question": "Hoeveel is 64 x 0,5?",
+      "answers": [
+        "128",
+        "3,2",
+        "32",
+        "0,32"
+      ],
+      "correct": 2,
+      "time": 30,
+      "uitleg": "x 0,5 is hetzelfde als de helft nemen: 64 : 2 = 32.",
+      "doel": "2.2.GL6.32",
+      "typ": "getal"
+    },
+    {
+      "question": "Hoeveel is 7 : 0,1?",
+      "answers": [
+        "0,7",
+        "70",
+        "7",
+        "700"
+      ],
+      "correct": 1,
+      "time": 30,
+      "uitleg": "Delen door 0,1 is hetzelfde als x 10. Het getal wordt groter: 7 : 0,1 = 70.",
+      "doel": "2.2.GL6.32",
+      "typ": "getal"
+    },
+    {
+      "question": "Hoeveel is 250 x 0,01?",
+      "answers": [
+        "25",
+        "0,25",
+        "2,5",
+        "25 000"
+      ],
+      "correct": 2,
+      "time": 30,
+      "uitleg": "x 0,01 is : 100. 250 : 100 = 2,5.",
+      "doel": "2.2.GL6.32",
+      "typ": "getal"
+    },
+    {
+      "question": "Hoeveel is 3 x (10 - 4) + 2?",
+      "answers": [
+        "20",
+        "36",
+        "24",
+        "15"
+      ],
+      "correct": 0,
+      "time": 30,
+      "uitleg": "Haakjes eerst: 10 - 4 = 6. Dan 3 x 6 = 18. Dan 18 + 2 = 20.",
+      "doel": "2.2.GL6.9",
+      "typ": "getal"
+    }
+  ]
+}

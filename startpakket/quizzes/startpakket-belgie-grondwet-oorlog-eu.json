@@ -1,0 +1,135 @@
+{
+  "title": "België, de Tweede Wereldoorlog en Europa",
+  "questions": [
+    {
+      "question": "In welk jaar kreeg België zijn eerste Grondwet?",
+      "answers": [
+        "1830",
+        "1831",
+        "1914",
+        "1958"
+      ],
+      "correct": 1,
+      "time": 20,
+      "uitleg": "België werd onafhankelijk in 1830. Een jaar later, in 1831, kwam de Grondwet: de basisregels van ons land.",
+      "doel": "5.1.GL6.2"
+    },
+    {
+      "question": "Wat staat er in een grondwet?",
+      "answers": [
+        "De belangrijkste regels en rechten van een land",
+        "De verkeersregels",
+        "De schoolregels",
+        "De regels van het voetbal"
+      ],
+      "correct": 0,
+      "time": 20,
+      "uitleg": "Een grondwet legt vast hoe een land bestuurd wordt en welke rechten iedereen heeft, zoals vrijheid van mening.",
+      "doel": "5.1.GL6.2"
+    },
+    {
+      "question": "Wat was het Fort van Breendonk in de Tweede Wereldoorlog?",
+      "answers": [
+        "Een ziekenhuis",
+        "Een gevangenkamp van de Duitse bezetter",
+        "Een school",
+        "Een kasteel van de koning"
+      ],
+      "correct": 1,
+      "time": 20,
+      "uitleg": "De Duitse bezetter sloot er verzetsstrijders, Joden en politieke gevangenen op. Velen werden er gefolterd.",
+      "doel": "5.1.GL6.4"
+    },
+    {
+      "question": "Wat deed een verzetsstrijder?",
+      "answers": [
+        "Samenwerken met de bezetter",
+        "Zich verzetten tegen de bezetter",
+        "Vluchten naar Amerika",
+        "Soldaat zijn in het Duitse leger"
+      ],
+      "correct": 1,
+      "time": 20,
+      "uitleg": "Een verzetsstrijder werkte in het geheim tegen de bezetter. Wie wél samenwerkte met de bezetter, noemen we een collaborateur.",
+      "doel": "5.1.GL6.4"
+    },
+    {
+      "question": "Wat was de Kazerne Dossin in Mechelen?",
+      "answers": [
+        "Een doorgangskamp van waaruit Joden werden weggevoerd",
+        "Een fabriek",
+        "Een kazerne van het Belgische leger",
+        "Een museum over de ridders"
+      ],
+      "correct": 0,
+      "time": 20,
+      "uitleg": "Van daaruit werden meer dan 25 000 Joden en Roma naar concentratiekampen zoals Auschwitz gebracht. Nu is het een herdenkingsplek.",
+      "doel": "5.1.GL6.5"
+    },
+    {
+      "question": "Wat is een collaborateur?",
+      "answers": [
+        "Iemand die in het verzet zat",
+        "Iemand die samenwerkte met de bezetter",
+        "Een soldaat van de bondgenoten",
+        "Een journalist"
+      ],
+      "correct": 1,
+      "time": 20,
+      "uitleg": "Collaboreren betekent samenwerken. In de oorlog bedoelen we samenwerken met de Duitse bezetter.",
+      "doel": "5.1.GL6.4"
+    },
+    {
+      "question": "Waarom werden de Verenigde Naties (VN) opgericht na de Tweede Wereldoorlog?",
+      "answers": [
+        "Om de vrede in de wereld te bewaren",
+        "Om samen voetbaltoernooien te houden",
+        "Om één wereldmunt te maken",
+        "Om de koning te kiezen"
+      ],
+      "correct": 0,
+      "time": 20,
+      "uitleg": "Na zoveel oorlog wilden landen samen praten in plaats van vechten. De VN werkt voor vrede en mensenrechten.",
+      "doel": "5.1.GL6.6"
+    },
+    {
+      "question": "In welke stad zitten veel instellingen van de Europese Unie?",
+      "answers": [
+        "Parijs",
+        "Brussel",
+        "Berlijn",
+        "Genève"
+      ],
+      "correct": 1,
+      "time": 20,
+      "uitleg": "Brussel is een belangrijke hoofdstad van de EU: de Europese Commissie en de Raad zitten er.",
+      "doel": "5.1.GL6.6"
+    },
+    {
+      "question": "Welke munt gebruiken we in België en veel andere EU-landen?",
+      "answers": [
+        "De frank",
+        "De euro",
+        "De dollar",
+        "De gulden"
+      ],
+      "correct": 1,
+      "time": 20,
+      "uitleg": "Sinds 2002 betalen we met de euro. Daarvoor had België de Belgische frank.",
+      "doel": "5.1.GL6.6"
+    },
+    {
+      "question": "Waarom begonnen Europese landen na de oorlog samen te werken?",
+      "answers": [
+        "Zodat er nooit meer oorlog zou komen tussen hen",
+        "Omdat ze één koning wilden",
+        "Om samen de Olympische Spelen te winnen",
+        "Omdat het verplicht was van Amerika"
+      ],
+      "correct": 0,
+      "time": 20,
+      "uitleg": "Landen die samen handel drijven en afspraken maken, gaan minder snel met elkaar in oorlog. Dat was het idee achter de Europese samenwerking.",
+      "doel": "5.1.GL6.6"
+    }
+  ]
+}

@@ -75,6 +75,7 @@ const doelen = require('./src/doelen');
 const logboek = require('./src/logboek');
 const pauze = require('./src/pauze');
 const opwarmer = require('./src/opwarmer');
+const startpakket = require('./src/startpakket');
 const overzicht = require('./src/overzicht');
 const zorg = require('./src/zorg');
 const notities = require('./src/notities');
@@ -739,6 +740,14 @@ io.on('connection', socket => {
       if (busy) throw busyError(busy);
       game.load(opwarmer.prepare(quiz));
       return {};
+    }));
+    // Het startpakket 6e leerjaar: kant-en-klare quizzen en oefenbladen erbij zetten.
+    socket.on('startpakket-status', handle(() => startpakket.status()));
+    socket.on('startpakket-installeer', handle(() => {
+      const out = startpakket.installeer();
+      sendLibrary('quiz');
+      sendLibrary('oefenblad');
+      return out;
     }));
     socket.on('sessies-get', handle(() => ({ sessies: overzicht.sessions() })));
     socket.on('sessie-get', handle(id => {

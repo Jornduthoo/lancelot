@@ -1,0 +1,169 @@
+{
+  "title": "Breuken, procenten en kommagetallen",
+  "questions": [
+    {
+      "question": "Hoeveel is 3/4 van 60?",
+      "answers": [
+        "45",
+        "15",
+        "20",
+        "80"
+      ],
+      "correct": 0,
+      "time": 30,
+      "uitleg": "Deel 60 door 4 (= 15), en neem dat 3 keer: 3 x 15 = 45.",
+      "doel": "2.1.GL6.38",
+      "typ": "getal"
+    },
+    {
+      "question": "Schrijf 25% als kommagetal.",
+      "answers": [
+        "2,5",
+        "0,025",
+        "0,25",
+        "25,0"
+      ],
+      "correct": 2,
+      "time": 30,
+      "uitleg": "Procent betekent \"op 100\": 25% = 25/100 = 0,25.",
+      "doel": "2.1.GL6.33",
+      "typ": "getal"
+    },
+    {
+      "question": "Welke breuk is gelijk aan 0,2?",
+      "answers": [
+        "1/2",
+        "1/5",
+        "2/100",
+        "1/20"
+      ],
+      "correct": 1,
+      "time": 20,
+      "uitleg": "0,2 = 2/10. Deel teller en noemer door 2: 2/10 = 1/5.",
+      "doel": "2.1.GL6.33"
+    },
+    {
+      "question": "Hoeveel is 20% van 45 euro?",
+      "answers": [
+        "9",
+        "4,5",
+        "20",
+        "25"
+      ],
+      "correct": 0,
+      "time": 30,
+      "uitleg": "10% van 45 is 4,5. 20% is het dubbele: 2 x 4,5 = 9 euro.",
+      "doel": "2.1.GL6.38",
+      "typ": "getal"
+    },
+    {
+      "question": "Hoeveel procent is 1/4?",
+      "answers": [
+        "14%",
+        "40%",
+        "4%",
+        "25%"
+      ],
+      "correct": 3,
+      "time": 30,
+      "uitleg": "1/4 = 25/100, en \"op 100\" is procent: 25%.",
+      "doel": "2.1.GL6.33",
+      "typ": "getal"
+    },
+    {
+      "question": "In een klas van 24 leerlingen dragen er 6 een bril. Welk deel is dat?",
+      "answers": [
+        "1/6",
+        "1/4",
+        "6/18",
+        "1/3"
+      ],
+      "correct": 1,
+      "time": 20,
+      "uitleg": "Het deel is 6 op het geheel 24: 6/24. Deel boven en onder door 6: 1/4.",
+      "doel": "2.1.GL6.37"
+    },
+    {
+      "question": "Welk getal is het grootst?",
+      "answers": [
+        "0,7",
+        "0,65",
+        "0,099",
+        "0,69"
+      ],
+      "correct": 0,
+      "time": 20,
+      "uitleg": "Vergelijk eerst de tienden: 7 tienden is meer dan 6 of 0 tienden. Meer cijfers na de komma maakt een getal niet groter.",
+      "doel": "2.1.GL6.35"
+    },
+    {
+      "question": "Hoeveel is 0,6 + 0,45?",
+      "answers": [
+        "0,51",
+        "1,05",
+        "1,5",
+        "0,105"
+      ],
+      "correct": 1,
+      "time": 30,
+      "uitleg": "Zet de komma's onder elkaar: 0,60 + 0,45 = 1,05.",
+      "doel": "2.1.GL6.35",
+      "typ": "getal"
+    },
+    {
+      "question": "Een fiets kost 300 euro. Je krijgt 15% korting. Hoeveel korting is dat in euro?",
+      "answers": [
+        "15",
+        "30",
+        "45",
+        "285"
+      ],
+      "correct": 2,
+      "time": 30,
+      "uitleg": "10% van 300 is 30, 5% is de helft daarvan: 15. Samen 30 + 15 = 45 euro korting.",
+      "doel": "2.1.GL6.38",
+      "typ": "getal"
+    },
+    {
+      "question": "Welke breuk is gelijk aan 50%?",
+      "answers": [
+        "5/10",
+        "1/5",
+        "5/100",
+        "50/10"
+      ],
+      "correct": 0,
+      "time": 20,
+      "uitleg": "50% = 50/100 = 1/2, en 5/10 is ook de helft.",
+      "doel": "2.1.GL6.33"
+    },
+    {
+      "question": "Op een feest zijn 40 kinderen. 30% drinkt water. Hoeveel kinderen drinken water?",
+      "answers": [
+        "30",
+        "10",
+        "12",
+        "4"
+      ],
+      "correct": 2,
+      "time": 30,
+      "uitleg": "10% van 40 is 4. 30% is 3 keer zoveel: 3 x 4 = 12 kinderen.",
+      "doel": "2.1.GL6.38",
+      "typ": "getal"
+    },
+    {
+      "question": "Hoeveel is 1/3 van 1,5?",
+      "answers": [
+        "0,3",
+        "0,5",
+        "4,5",
+        "0,15"
+      ],
+      "correct": 1,
+      "time": 30,
+      "uitleg": "1/3 van iets: je deelt door 3. 1,5 : 3 = 0,5.",
+      "doel": "2.1.GL6.38",
+      "typ": "getal"
+    }
+  ]
+}

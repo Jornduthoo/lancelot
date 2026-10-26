@@ -1,0 +1,161 @@
+{
+  "title": "Europa: landen en hoofdsteden",
+  "questions": [
+    {
+      "question": "Wat is de hoofdstad van Nederland?",
+      "answers": [
+        "Den Haag",
+        "Rotterdam",
+        "Amsterdam",
+        "Utrecht"
+      ],
+      "correct": 2,
+      "time": 20,
+      "uitleg": "Amsterdam is de hoofdstad. De regering zit wel in Den Haag, dat verwarren veel mensen.",
+      "doel": "4.1.GL6.10"
+    },
+    {
+      "question": "Wat is de hoofdstad van Duitsland?",
+      "answers": [
+        "Berlijn",
+        "München",
+        "Bonn",
+        "Frankfurt"
+      ],
+      "correct": 0,
+      "time": 20,
+      "uitleg": "Berlijn is de hoofdstad. Bonn was het vroeger, toen Duitsland in twee delen was gesplitst.",
+      "doel": "4.1.GL6.10"
+    },
+    {
+      "question": "Wat is de hoofdstad van Zwitserland?",
+      "answers": [
+        "Genève",
+        "Zürich",
+        "Bern",
+        "Bazel"
+      ],
+      "correct": 2,
+      "time": 20,
+      "uitleg": "Bern is de hoofdstad, ook al zijn Zürich en Genève groter.",
+      "doel": "4.1.GL6.10"
+    },
+    {
+      "question": "Wat is de hoofdstad van Spanje?",
+      "answers": [
+        "Barcelona",
+        "Madrid",
+        "Sevilla",
+        "Lissabon"
+      ],
+      "correct": 1,
+      "time": 20,
+      "uitleg": "Madrid ligt in het midden van Spanje. Lissabon is de hoofdstad van Portugal.",
+      "doel": "4.1.GL6.10"
+    },
+    {
+      "question": "Welk land is GEEN lid van de Europese Unie?",
+      "answers": [
+        "Oostenrijk",
+        "Polen",
+        "Noorwegen",
+        "Ierland"
+      ],
+      "correct": 2,
+      "time": 20,
+      "uitleg": "Noorwegen werkt nauw samen met de EU, maar is geen lid. Het Verenigd Koninkrijk en Zwitserland ook niet.",
+      "doel": "4.1.GL6.10"
+    },
+    {
+      "question": "Wat is de hoofdstad van Italië?",
+      "answers": [
+        "Milaan",
+        "Rome",
+        "Venetië",
+        "Napels"
+      ],
+      "correct": 1,
+      "time": 20,
+      "uitleg": "Rome is de hoofdstad van Italië.",
+      "doel": "4.1.GL6.10"
+    },
+    {
+      "question": "Wat is de hoofdstad van Polen?",
+      "answers": [
+        "Krakau",
+        "Praag",
+        "Warschau",
+        "Boedapest"
+      ],
+      "correct": 2,
+      "time": 20,
+      "uitleg": "Warschau is de hoofdstad van Polen. Praag is van Tsjechië en Boedapest van Hongarije.",
+      "doel": "4.1.GL6.10"
+    },
+    {
+      "question": "Welk land grenst NIET aan België?",
+      "answers": [
+        "Luxemburg",
+        "Frankrijk",
+        "Zwitserland",
+        "Duitsland"
+      ],
+      "correct": 2,
+      "time": 20,
+      "uitleg": "België grenst aan Nederland, Duitsland, Luxemburg en Frankrijk. Zwitserland ligt verder naar het zuidoosten.",
+      "doel": "4.1.GL6.10"
+    },
+    {
+      "question": "Wat is de hoofdstad van Zweden?",
+      "answers": [
+        "Oslo",
+        "Stockholm",
+        "Kopenhagen",
+        "Helsinki"
+      ],
+      "correct": 1,
+      "time": 20,
+      "uitleg": "Stockholm is van Zweden. Oslo is van Noorwegen, Kopenhagen van Denemarken, Helsinki van Finland.",
+      "doel": "4.1.GL6.10"
+    },
+    {
+      "question": "Wat is de hoofdstad van het Verenigd Koninkrijk?",
+      "answers": [
+        "Londen",
+        "Dublin",
+        "Edinburgh",
+        "Manchester"
+      ],
+      "correct": 0,
+      "time": 20,
+      "uitleg": "Londen is de hoofdstad. Dublin is de hoofdstad van Ierland, een ander land.",
+      "doel": "4.1.GL6.10"
+    },
+    {
+      "question": "Wat is de hoofdstad van Griekenland?",
+      "answers": [
+        "Athene",
+        "Ankara",
+        "Sofia",
+        "Thessaloniki"
+      ],
+      "correct": 0,
+      "time": 20,
+      "uitleg": "Athene is de hoofdstad van Griekenland. Ankara is van Turkije, Sofia van Bulgarije.",
+      "doel": "4.1.GL6.10"
+    },
+    {
+      "question": "Wat is de hoofdstad van Rusland?",
+      "answers": [
+        "Sint-Petersburg",
+        "Kiev",
+        "Moskou",
+        "Minsk"
+      ],
+      "correct": 2,
+      "time": 20,
+      "uitleg": "Moskou is de hoofdstad van Rusland. Kiev (Kyiv) is de hoofdstad van Oekraïne.",
+      "doel": "4.1.GL6.10"
+    }
+  ]
+}

@@ -1,0 +1,124 @@
+{
+  "title": "Procenten in de winkel",
+  "level": "6e leerjaar",
+  "blocks": [
+    {
+      "type": "tekst",
+      "title": "Korting!",
+      "text": "Procent betekent \"op honderd\". 25% is dus 25 op 100, of 25/100 = 1/4.\n\nHandig rekenen met procenten: 10% vind je door te delen door 10. 5% is de helft van 10%. 50% is de helft, 25% is een vierde.\n\nVoorbeeld: een spel kost 40 euro met 25% korting. 25% is 1/4, en 1/4 van 40 is 10. Je betaalt dus 40 - 10 = 30 euro."
+    },
+    {
+      "type": "invullen",
+      "instruction": "Vul de ontbrekende getallen in.",
+      "doel": "2.1.GL6.33",
+      "text": "50% = [1/2] = 0,5. 25% = 1/4 = [0,25|0.25]. 10% = 1/10 = [0,1|0.1]. 75% = [3/4] = 0,75. 20% = 1/5 = [0,2|0.2]."
+    },
+    {
+      "type": "woorden",
+      "instruction": "Reken uit. Typ enkel het getal.",
+      "doel": "2.1.GL6.38",
+      "items": [
+        {
+          "prompt": "10% van 80 euro",
+          "answer": "8"
+        },
+        {
+          "prompt": "50% van 36 euro",
+          "answer": "18"
+        },
+        {
+          "prompt": "25% van 60 euro",
+          "answer": "15"
+        },
+        {
+          "prompt": "5% van 200 euro",
+          "answer": "10"
+        },
+        {
+          "prompt": "20% van 45 euro",
+          "answer": "9"
+        },
+        {
+          "prompt": "75% van 12 euro",
+          "answer": "9"
+        }
+      ]
+    },
+    {
+      "type": "meerkeuze",
+      "instruction": "Kies het juiste antwoord.",
+      "doel": "2.1.GL6.38",
+      "items": [
+        {
+          "question": "Een trui kost 50 euro. Je krijgt 20% korting. Hoeveel betaal je?",
+          "options": [
+            "30 euro",
+            "40 euro",
+            "48 euro"
+          ],
+          "correct": 1
+        },
+        {
+          "question": "Een fiets van 200 euro kost nu 150 euro. Hoeveel procent korting is dat?",
+          "options": [
+            "50%",
+            "25%",
+            "75%"
+          ],
+          "correct": 1
+        },
+        {
+          "question": "Wat is goedkoper: 30% korting op 100 euro, of 10 euro korting op 80 euro?",
+          "options": [
+            "30% korting op 100 euro",
+            "10 euro korting op 80 euro",
+            "Allebei even duur"
+          ],
+          "correct": 2
+        }
+      ]
+    },
+    {
+      "type": "verbinden",
+      "instruction": "Verbind wat even veel is.",
+      "doel": "2.1.GL6.33",
+      "pairs": [
+        [
+          "50%",
+          "1/2"
+        ],
+        [
+          "25%",
+          "1/4"
+        ],
+        [
+          "10%",
+          "1/10"
+        ],
+        [
+          "20%",
+          "1/5"
+        ],
+        [
+          "75%",
+          "3/4"
+        ],
+        [
+          "100%",
+          "het geheel"
+        ]
+      ]
+    },
+    {
+      "type": "open",
+      "instruction": "Leg uit in je eigen woorden.",
+      "doel": "2.1.GL6.33",
+      "items": [
+        {
+          "question": "Mila zegt: \"25% korting is hetzelfde als 25 euro korting.\" Klopt dat? Leg uit.",
+          "lines": 3
+        }
+      ]
+    }
+  ]
+}

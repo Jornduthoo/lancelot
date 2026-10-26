@@ -429,3 +429,23 @@ if (returnTo) {
   else if (params.get('maak') === 'leeg') $('new-empty').click();
   else if (params.get('bewerk')) editQuiz(params.get('bewerk'));
 }
+
+// Het startpakket 6e leerjaar: tonen zolang er quizzen of oefenbladen uit het pakket nog niet bij de leerkracht staan.
+function startpakketStatus() {
+  socket.emit('startpakket-status', null, res => {
+    if (!res || !res.ok) return;
+    $('startpakket').classList.toggle('hidden', !res.nieuw);
+    $('sp-tekst').textContent = `${res.nieuw} kant-en-klare quizzen en oefenbladen bij Op.stap-doelen (breuken en procenten, deelbaarheid, schaal, oppervlakte, werkwoorden, Europa, WO II), met uitleg bij elke vraag. Ze komen in de map "Startpakket 6e leerjaar".`;
+  });
+}
+$('sp-knop').addEventListener('click', () => {
+  $('sp-knop').disabled = true;
+  socket.emit('startpakket-installeer', null, res => {
+    $('sp-knop').disabled = false;
+    if (!res || res.error) return Ui.melding(res ? res.error : 'Dat lukte niet.');
+    $('startpakket').classList.add('hidden');
+    Ui.melding(`${res.erbij} quizzen en oefenbladen staan nu in de map "${res.map}".`);
+  });
+});
+socket.on('connect', startpakketStatus);
+startpakketStatus();

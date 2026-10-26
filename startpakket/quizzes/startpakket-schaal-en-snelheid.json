@@ -1,0 +1,143 @@
+{
+  "title": "Schaal en snelheid",
+  "questions": [
+    {
+      "question": "Op een kaart met schaal 1 : 100 000 is een weg 5 cm. Hoeveel km is dat in het echt?",
+      "answers": [
+        "50",
+        "0,5",
+        "5",
+        "500"
+      ],
+      "correct": 2,
+      "time": 30,
+      "uitleg": "1 cm op de kaart is 100 000 cm = 1 km in het echt. 5 cm is dus 5 km.",
+      "doel": "2.3.GL6.50",
+      "typ": "getal"
+    },
+    {
+      "question": "Wat betekent schaal 1 : 50?",
+      "answers": [
+        "1 cm op de tekening is 50 cm in het echt",
+        "50 cm op de tekening is 1 cm in het echt",
+        "De tekening is 50 keer groter",
+        "1 m op de tekening is 50 km in het echt"
+      ],
+      "correct": 0,
+      "time": 20,
+      "uitleg": "Het eerste getal is de tekening, het tweede de werkelijkheid: 1 cm tekening = 50 cm echt.",
+      "doel": "2.3.GL6.47"
+    },
+    {
+      "question": "Twee steden liggen 30 km uit elkaar. Op de kaart is dat 6 cm. Hoeveel km in het echt is 1 cm op de kaart?",
+      "answers": [
+        "5",
+        "180",
+        "6",
+        "0,2"
+      ],
+      "correct": 0,
+      "time": 30,
+      "uitleg": "30 km verdeeld over 6 cm: 30 : 6 = 5 km per cm.",
+      "doel": "2.3.GL6.50",
+      "typ": "getal"
+    },
+    {
+      "question": "Een plan heeft schaal 1 : 200. De muur is 4 cm op het plan. Hoe lang is de muur in meter?",
+      "answers": [
+        "8",
+        "800",
+        "80",
+        "50"
+      ],
+      "correct": 0,
+      "time": 30,
+      "uitleg": "4 cm x 200 = 800 cm in het echt, en 800 cm = 8 m.",
+      "doel": "2.3.GL6.50",
+      "typ": "getal"
+    },
+    {
+      "question": "Een auto rijdt 2 uur aan 90 km per uur. Hoeveel km legt hij af?",
+      "answers": [
+        "45",
+        "180",
+        "92",
+        "90"
+      ],
+      "correct": 1,
+      "time": 30,
+      "uitleg": "Afstand = snelheid x tijd: 90 km per uur x 2 uur = 180 km.",
+      "doel": "2.3.GL6.72",
+      "typ": "getal"
+    },
+    {
+      "question": "Je fietst 30 km in 2 uur. Wat is je gemiddelde snelheid in km per uur?",
+      "answers": [
+        "60",
+        "15",
+        "32",
+        "28"
+      ],
+      "correct": 1,
+      "time": 30,
+      "uitleg": "Snelheid = afstand : tijd: 30 km : 2 uur = 15 km per uur.",
+      "doel": "2.3.GL6.72",
+      "typ": "getal"
+    },
+    {
+      "question": "Een trein rijdt 120 km per uur. Hoeveel minuten doet hij over 60 km?",
+      "answers": [
+        "30",
+        "60",
+        "120",
+        "2"
+      ],
+      "correct": 0,
+      "time": 30,
+      "uitleg": "60 km is de helft van 120 km, dus de helft van een uur: 30 minuten.",
+      "doel": "2.3.GL6.72",
+      "typ": "getal"
+    },
+    {
+      "question": "Je wandelt 5 km per uur. Hoe lang doe je over 15 km (in uur)?",
+      "answers": [
+        "75",
+        "10",
+        "3",
+        "20"
+      ],
+      "correct": 2,
+      "time": 30,
+      "uitleg": "Tijd = afstand : snelheid: 15 : 5 = 3 uur.",
+      "doel": "2.3.GL6.72",
+      "typ": "getal"
+    },
+    {
+      "question": "Een schaal is 1 : 25 000. Welke schaal toont meer detail?",
+      "answers": [
+        "1 : 100 000",
+        "1 : 50 000",
+        "1 : 10 000",
+        "1 : 25 000 000"
+      ],
+      "correct": 2,
+      "time": 20,
+      "uitleg": "Hoe kleiner het tweede getal, hoe minder de kaart verkleint en hoe meer detail je ziet.",
+      "doel": "2.3.GL6.47"
+    },
+    {
+      "question": "Een slak kruipt 3 meter in 1 minuut. Hoeveel meter is dat in 1 uur?",
+      "answers": [
+        "63",
+        "180",
+        "20",
+        "3 600"
+      ],
+      "correct": 1,
+      "time": 30,
+      "uitleg": "1 uur = 60 minuten, dus 60 x 3 m = 180 m.",
+      "doel": "2.3.GL6.72",
+      "typ": "getal"
+    }
+  ]
+}
