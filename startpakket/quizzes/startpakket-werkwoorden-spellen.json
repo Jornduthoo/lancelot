@@ -1,0 +1,161 @@
+{
+  "title": "Werkwoorden spellen",
+  "questions": [
+    {
+      "question": "Welke vorm is juist? \"Hij ... elke dag de bus.\"",
+      "answers": [
+        "neemd",
+        "neemt",
+        "neem",
+        "neemdt"
+      ],
+      "correct": 1,
+      "time": 20,
+      "uitleg": "Tegenwoordige tijd bij hij: stam + t. De stam van nemen is neem, dus: hij neemt.",
+      "doel": "1.3.GL6.19"
+    },
+    {
+      "question": "Welke vorm is juist? \"Wanneer ... jij naar huis?\"",
+      "answers": [
+        "gaat",
+        "ga",
+        "gaad",
+        "gaan"
+      ],
+      "correct": 1,
+      "time": 20,
+      "uitleg": "Staat jij of je achter het werkwoord, dan valt de t weg: ga jij.",
+      "doel": "1.3.GL6.19"
+    },
+    {
+      "question": "Welke vorm is juist? \"Gisteren ... ik een taart.\"",
+      "answers": [
+        "bakten",
+        "bakde",
+        "bakte",
+        "bakd"
+      ],
+      "correct": 2,
+      "time": 20,
+      "uitleg": "De stam bak eindigt op k, een letter uit 't kofschip. Dus te in de verleden tijd: ik bakte.",
+      "doel": "1.3.GL6.20"
+    },
+    {
+      "question": "Welke vorm is juist? \"Vorige week ... wij samen.\"",
+      "answers": [
+        "speelte",
+        "speelden",
+        "speelten",
+        "speelde"
+      ],
+      "correct": 1,
+      "time": 20,
+      "uitleg": "De stam speel eindigt niet op een letter uit 't kofschip, dus de. Met wij: den. Wij speelden.",
+      "doel": "1.3.GL6.20"
+    },
+    {
+      "question": "Welke vorm is juist? \"Ik heb mijn fiets ... .\"",
+      "answers": [
+        "gepoetst",
+        "gepoetsd",
+        "gepoets",
+        "gepoetsdt"
+      ],
+      "correct": 0,
+      "time": 20,
+      "uitleg": "Stam poets eindigt op s, een letter uit 't kofschip, dus een t achteraan: gepoetst.",
+      "doel": "1.3.GL6.21"
+    },
+    {
+      "question": "Welke vorm is juist? \"Het brood is goed ... .\"",
+      "answers": [
+        "gebakt",
+        "gebakken",
+        "gebakd",
+        "gebaken"
+      ],
+      "correct": 1,
+      "time": 20,
+      "uitleg": "Bakken is een sterk werkwoord in het voltooid deelwoord: gebakken, net zoals gelopen of gezwommen.",
+      "doel": "1.3.GL6.21"
+    },
+    {
+      "question": "Welke vorm is juist? \"Wie ... dat boek geschreven?\"",
+      "answers": [
+        "heb",
+        "hebt",
+        "heeft",
+        "hebd"
+      ],
+      "correct": 2,
+      "time": 20,
+      "uitleg": "Wie gebruik je zoals hij of zij: wie heeft.",
+      "doel": "1.3.GL6.19"
+    },
+    {
+      "question": "Welke vorm is juist? \"Mijn zus ... morgen naar zee.\"",
+      "answers": [
+        "zal gaan",
+        "zal gaat",
+        "zult gaan",
+        "zalt gaan"
+      ],
+      "correct": 0,
+      "time": 20,
+      "uitleg": "Toekomende tijd: een vorm van zullen + het hele werkwoord. Bij zij hoort zal: zij zal gaan.",
+      "doel": "1.3.GL6.22"
+    },
+    {
+      "question": "Welke vorm is juist? \"Hij ... (verhuizen) vorig jaar.\"",
+      "answers": [
+        "verhuisde",
+        "verhuiste",
+        "verhuisden",
+        "verhuisdte"
+      ],
+      "correct": 0,
+      "time": 20,
+      "uitleg": "Kijk naar de stam van het hele werkwoord: verhuiz (met z). Z zit niet in 't kofschip, dus de: verhuisde.",
+      "doel": "1.3.GL6.20"
+    },
+    {
+      "question": "Welke vorm is juist? \"Ik ... (vinden) mijn sleutel niet.\"",
+      "answers": [
+        "vint",
+        "vind",
+        "vindt",
+        "vinnd"
+      ],
+      "correct": 1,
+      "time": 20,
+      "uitleg": "Bij ik schrijf je enkel de stam: ik vind. Geen t, ook al hoor je er een.",
+      "doel": "1.3.GL6.19"
+    },
+    {
+      "question": "Welke vorm is juist? \"Je ... (worden) groot.\"",
+      "answers": [
+        "word",
+        "wordt",
+        "wort",
+        "wordd"
+      ],
+      "correct": 1,
+      "time": 20,
+      "uitleg": "Staat je vóór het werkwoord, dan stam + t: je wordt. (Maar: word je groot?)",
+      "doel": "1.3.GL6.19"
+    },
+    {
+      "question": "Welke vorm is juist? \"Ze hebben de wedstrijd ... (verliezen).\"",
+      "answers": [
+        "verliest",
+        "verloren",
+        "verliesd",
+        "verlozen"
+      ],
+      "correct": 1,
+      "time": 20,
+      "uitleg": "Verliezen is een sterk werkwoord: het voltooid deelwoord is verloren.",
+      "doel": "1.3.GL6.21"
+    }
+  ]
+}

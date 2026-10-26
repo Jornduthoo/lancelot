@@ -133,7 +133,11 @@ Regels:
 - Bij woordjes is "answer" het woord dat de leerling typt; geef andere goede schrijfwijzen gescheiden door |.
 - Bij verbinden: 4 tot 8 paren, elk woord maar één keer.
 - Bij meerkeuze is "correct" het nummer van het goede antwoord, geteld vanaf 0. Zet het goede antwoord niet steeds op dezelfde plek.
+- Bij meerkeuze en juist/fout: de foute keuzes zijn typische fouten of misvattingen van leerlingen, geen onzin.
+- Bouw op van kennis (begrippen en feiten) naar begrip en toepassen in een korte, herkenbare situatie.
+- Gebruik de Belgische schrijfwijze en context: komma als decimaalteken, euro, Belgische namen en plaatsen, Vlaamse woorden.
 - Pas moeilijkheid en taalgebruik aan het niveau ${level} aan.
+- Controleer op het einde elke oefening: reken elk antwoord opnieuw na en kijk of de computer het eenduidig kan verbeteren.
 ${three ? `\n${Niveau.prompt(level, 'oefeningen')}\n` : ''}
 Belangrijk: maak GEEN interactieve quiz, app, webpagina of canvas en schrijf geen code. Ik heb enkel de gegevens nodig als tekst.
 Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uitleg ervoor of erna, precies in dit formaat:

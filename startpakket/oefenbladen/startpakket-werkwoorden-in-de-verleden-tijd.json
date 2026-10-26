@@ -1,0 +1,80 @@
+{
+  "title": "Werkwoorden in de verleden tijd",
+  "level": "6e leerjaar",
+  "blocks": [
+    {
+      "type": "tekst",
+      "title": "'t Kofschip",
+      "text": "Schrijf je een zwak werkwoord in de verleden tijd? Zoek de stam (het hele werkwoord min -en). Eindigt de stam op een letter uit 't kofschip (t, k, f, s, ch, p), dan schrijf je -te of -ten. Anders schrijf je -de of -den.\n\nLet op: kijk naar het hele werkwoord. Verhuizen heeft een z, dus: verhuisde. Leven heeft een v, dus: leefde."
+    },
+    {
+      "type": "invullen",
+      "instruction": "Vul het werkwoord in de verleden tijd in.",
+      "doel": "1.3.GL6.20",
+      "text": "Gisteren [werkte] ik in de tuin (werken). Wij [speelden] samen voetbal (spelen). Zij [fietste] naar school (fietsen). Het [regende] de hele dag (regenen). Jullie [stopten] aan het rode licht (stoppen). Hij [verhuisde] naar Gent (verhuizen)."
+    },
+    {
+      "type": "juistfout",
+      "instruction": "Is het werkwoord juist geschreven?",
+      "doel": "1.3.GL6.20",
+      "items": [
+        {
+          "statement": "Ik maakte mijn huiswerk.",
+          "correct": true
+        },
+        {
+          "statement": "Wij wandelte door het bos.",
+          "correct": false
+        },
+        {
+          "statement": "Zij leefde in de middeleeuwen.",
+          "correct": true
+        },
+        {
+          "statement": "Hij bakde een taart.",
+          "correct": false
+        },
+        {
+          "statement": "De hond blafte de hele nacht.",
+          "correct": true
+        }
+      ]
+    },
+    {
+      "type": "woorden",
+      "instruction": "Schrijf het voltooid deelwoord.",
+      "doel": "1.3.GL6.21",
+      "items": [
+        {
+          "prompt": "Ik heb ... (fietsen)",
+          "answer": "gefietst"
+        },
+        {
+          "prompt": "Wij hebben ... (spelen)",
+          "answer": "gespeeld"
+        },
+        {
+          "prompt": "Zij heeft ... (verhuizen)",
+          "answer": "verhuisd"
+        },
+        {
+          "prompt": "Jij hebt ... (poetsen)",
+          "answer": "gepoetst"
+        },
+        {
+          "prompt": "Het is ... (gebeuren)",
+          "answer": "gebeurd"
+        }
+      ]
+    },
+    {
+      "type": "overschrijven",
+      "instruction": "Schrijf de zinnen foutloos over.",
+      "doel": "1.3.GL6.20",
+      "lines": [
+        "Gisteren fietste ik naar de bakker.",
+        "Wij speelden een spel en lachten veel."
+      ]
+    }
+  ]
+}

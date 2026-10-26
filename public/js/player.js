@@ -80,6 +80,15 @@ function myOrder(n, index, question) {
 function buildButtons(state) {
   const box = $('answer-buttons');
   box.innerHTML = '';
+  // Een getalvraag: zelf het getal typen.
+  if (state.typ === 'getal') {
+    Ui.getal(box, tekst => {
+      socket.emit('answer', { getal: tekst });
+      buzz(30);
+      show('answered');
+    });
+    return;
+  }
   myOrder(state.answerCount, state.index, state.question).forEach((orig, i) => {
     const b = document.createElement('button');
     b.className = 'answer neutral enter';
@@ -149,7 +158,8 @@ function render(state) {
       $('r-title').textContent = good ? 'Raak!' : state.answered ? 'Mis!' : 'Te laat!';
       $('r-points').textContent = good ? `+${state.points}` : '+0';
       $('r-streak').textContent = good && state.streak > 1 ? `🔥 ${state.streak} op een rij`
-        : !good && state.zeker === 'zeker' ? 'Je was zeker, maar het is fout. Kijk goed naar het juiste antwoord op het bord!' : '';
+        : !good && state.getypt ? `Jij typte ${state.getypt}. Juist is ${state.juist}.`
+          : !good && state.zeker === 'zeker' ? 'Je was zeker, maar het is fout. Kijk goed naar het juiste antwoord op het bord!' : '';
       $('r-rank').textContent = `Je staat op plek ${state.rank}`;
       if (shownReveal !== state.index) {
         shownReveal = state.index;

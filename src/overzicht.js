@@ -71,8 +71,29 @@ function session(id) {
     }
   }
   const juist = entries.filter(e => e.juist).length;
+  // Het foute antwoord dat het vaakst gekozen werd, per vraag (uit logboek/<schooljaar>-keuze.jsonl).
+  const van = Date.parse(entries[0].t) - 60000;
+  const tot = Date.parse(entries[entries.length - 1].t) + 60000;
+  const gekozen = new Map();
+  for (const k of logboek.readKeuze()) {
+    const t = Date.parse(k.t);
+    if (t < van || t > tot || !vragen.has(k.vraag) || k.spel !== entries[0].spel) continue;
+    const per = gekozen.get(k.vraag) || gekozen.set(k.vraag, new Map()).get(k.vraag);
+    per.set(k.gekozen, (per.get(k.gekozen) || 0) + 1);
+  }
+  const vaakst = vraag => {
+    const per = gekozen.get(vraag);
+    if (!per) return null;
+    const [tekst, keer] = [...per.entries()].sort((a, b) => b[1] - a[1])[0];
+    return keer >= 2 ? { tekst, keer } : null;
+  };
+  // Leertijd: vragen per leerling per minuut. Pas vanaf twee minuten spelen zegt dat iets.
+  const minuten = (Date.parse(entries[entries.length - 1].t) - Date.parse(entries[0].t)) / 60000;
+  const beantwoord = entries.filter(e => !e.leeg).length;
   return {
     id,
+    minuten: Math.round(minuten),
+    perMinuut: minuten >= 2 && spelers.size ? Math.round((beantwoord / spelers.size / minuten) * 10) / 10 : null,
     spel: entries[0].spel,
     bron: entries[0].bron,
     start: entries[0].t,
@@ -82,7 +103,7 @@ function session(id) {
     pct: pct(juist, entries.length),
     grens: GRENS,
     minAntwoorden: MIN_ANTWOORDEN,
-    vragen: [...vragen.values()].map(v => ({ ...v, fout: [...v.fout].sort(), pct: pct(v.juist, v.antwoorden) }))
+    vragen: [...vragen.values()].map(v => ({ ...v, fout: [...v.fout].sort(), pct: pct(v.juist, v.antwoorden), vaakstFout: vaakst(v.vraag) }))
       .sort((a, b) => a.pct - b.pct || b.antwoorden - a.antwoorden),
     spelers: [...spelers.values()].map(s => ({ ...s, foutDoelen: [...s.foutDoelen], pct: pct(s.juist, s.antwoorden) }))
       .sort((a, b) => a.pct - b.pct || a.naam.localeCompare(b.naam)),

@@ -93,7 +93,7 @@ function render() {
   knop.href = d.leerlingen.length ? '/host' : '/klas';
   leeg.append(knop);
   // Zonder antwoorden zijn de lege blokken hieronder enkel ruis: alleen de uitleg blijft staan.
-  for (const id of ['z-leerlingen', 'z-misverstanden', 'z-klassikaal']) {
+  for (const id of ['z-leerlingen', 'z-misverstanden', 'z-fouten', 'z-klassikaal', 'z-leertijd']) {
     const blok = $(id).closest('.zg-twee') || $(id).closest('.panel');
     blok.style.display = d.antwoorden ? '' : 'none';
   }
@@ -103,6 +103,8 @@ function render() {
   for (const l of d.leerlingen) grid.appendChild(kaart(l));
 
   renderMisverstanden($('z-misverstanden'), d.misverstanden);
+  renderFouten($('z-fouten'), d.fouten || []);
+  renderLeertijd($('z-leertijd'), d.leertijd || []);
   renderDoelen($('z-klassikaal'), d.klassikaal, 'Geen enkel doel waar de klas samen op vastzit.');
   renderDoelen($('z-groepjes'), d.groepjes, 'Niemand zit nog vast op een doel. Knap!');
 }
@@ -294,6 +296,39 @@ function renderMisverstanden(box, list) {
     const namen = el('div', 'namen');
     for (const n of d.namen) namen.appendChild(el('span', '', n));
     row.append(head, el('div', 'muted small', `${d.keer} keer zeker maar fout, door:`), namen);
+    box.appendChild(row);
+  }
+}
+
+function renderFouten(box, list) {
+  box.innerHTML = '';
+  if (!list.length) return box.appendChild(el('p', 'muted small', 'Nog geen fout antwoord dat meerdere leerlingen kozen.'));
+  for (const f of list) {
+    const row = el('div', 'zg-doel');
+    const head = el('div');
+    head.append(document.createTextNode(f.vraag));
+    if (f.doel) head.prepend(el('code', '', f.doel));
+    const wat = el('div', 'small');
+    wat.append(el('span', 'zg-fout', `"${f.gekozen}"`), document.createTextNode(` gekozen door ${f.namen.length} leerlingen`), el('span', 'muted', ` · juist is "${f.juist}"`));
+    const namen = el('div', 'namen');
+    for (const n of f.namen) namen.appendChild(el('span', '', n));
+    row.append(head, wat, namen);
+    box.appendChild(row);
+  }
+}
+
+function renderLeertijd(box, list) {
+  box.innerHTML = '';
+  if (!list.length) return box.appendChild(el('p', 'muted small', 'Speel eerst een paar spellen van minstens twee minuten.'));
+  const max = Math.max(...list.map(x => x.perMinuut), 1);
+  for (const x of list) {
+    const row = el('div', 'zg-leertijd');
+    const oordeel = x.perMinuut >= 3 ? 'veel oefening' : x.perMinuut >= 1 ? 'gemiddeld' : 'vooral spelen';
+    const balk = el('span', `zg-lt-balk ${x.perMinuut >= 3 ? 'ok' : x.perMinuut >= 1 ? 'bijna' : 'niet'}`);
+    const fill = el('i');
+    fill.style.width = `${Math.round((x.perMinuut / max) * 100)}%`;
+    balk.appendChild(fill);
+    row.append(el('b', '', x.spel), balk, el('span', 'small', `${String(x.perMinuut).replace('.', ',')} per minuut · ${oordeel}`), el('span', 'muted small', `${x.sessies}× gespeeld, ${x.pct}% juist`));
     box.appendChild(row);
   }
 }

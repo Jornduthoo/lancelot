@@ -1,0 +1,141 @@
+{
+  "title": "Deelbaarheid, ggd en kgv",
+  "questions": [
+    {
+      "question": "Wat is de grootste gemeenschappelijke deler (ggd) van 12 en 18?",
+      "answers": [
+        "3",
+        "6",
+        "36",
+        "2"
+      ],
+      "correct": 1,
+      "time": 30,
+      "uitleg": "Delers van 12: 1, 2, 3, 4, 6, 12. Delers van 18: 1, 2, 3, 6, 9, 18. De grootste die in beide lijsten staat is 6.",
+      "doel": "2.1.GL6.4",
+      "typ": "getal"
+    },
+    {
+      "question": "Wat is het kleinste gemeenschappelijke veelvoud (kgv) van 4 en 6?",
+      "answers": [
+        "24",
+        "2",
+        "12",
+        "10"
+      ],
+      "correct": 2,
+      "time": 30,
+      "uitleg": "Veelvouden van 4: 4, 8, 12... Veelvouden van 6: 6, 12... Het eerste getal in beide rijen is 12. 24 is ook gemeenschappelijk, maar niet het kleinste.",
+      "doel": "2.1.GL6.4",
+      "typ": "getal"
+    },
+    {
+      "question": "Welk getal is deelbaar door 3?",
+      "answers": [
+        "742",
+        "1 000",
+        "514",
+        "825"
+      ],
+      "correct": 3,
+      "time": 20,
+      "uitleg": "Een getal is deelbaar door 3 als de som van de cijfers deelbaar is door 3: 8 + 2 + 5 = 15, en 15 is deelbaar door 3.",
+      "doel": "2.1.GL6.6"
+    },
+    {
+      "question": "Welk getal is deelbaar door 9?",
+      "answers": [
+        "3 456",
+        "1 239",
+        "4 445",
+        "2 501"
+      ],
+      "correct": 0,
+      "time": 20,
+      "uitleg": "Tel de cijfers op: 3 + 4 + 5 + 6 = 18. 18 is deelbaar door 9, dus 3 456 ook.",
+      "doel": "2.1.GL6.6"
+    },
+    {
+      "question": "Welk getal is deelbaar door 4?",
+      "answers": [
+        "1 318",
+        "2 734",
+        "5 216",
+        "9 102"
+      ],
+      "correct": 2,
+      "time": 20,
+      "uitleg": "Kijk naar de laatste twee cijfers: 16 is deelbaar door 4, dus 5 216 ook. 18, 34 en 02 zijn dat niet.",
+      "doel": "2.1.GL6.5"
+    },
+    {
+      "question": "Welk getal is deelbaar door 25?",
+      "answers": [
+        "1 235",
+        "4 550",
+        "3 205",
+        "7 715"
+      ],
+      "correct": 1,
+      "time": 20,
+      "uitleg": "Een getal is deelbaar door 25 als het eindigt op 00, 25, 50 of 75. 4 550 eindigt op 50.",
+      "doel": "2.1.GL6.5"
+    },
+    {
+      "question": "Wat is de ggd van 20 en 30?",
+      "answers": [
+        "10",
+        "5",
+        "60",
+        "2"
+      ],
+      "correct": 0,
+      "time": 30,
+      "uitleg": "Delers van 20: 1, 2, 4, 5, 10, 20. Delers van 30: 1, 2, 3, 5, 6, 10, 15, 30. De grootste gemeenschappelijke is 10.",
+      "doel": "2.1.GL6.4",
+      "typ": "getal"
+    },
+    {
+      "question": "Wat is het kgv van 3 en 5?",
+      "answers": [
+        "8",
+        "15",
+        "1",
+        "30"
+      ],
+      "correct": 1,
+      "time": 30,
+      "uitleg": "3 en 5 hebben geen gemeenschappelijke deler behalve 1. Dan is het kgv gewoon 3 x 5 = 15.",
+      "doel": "2.1.GL6.4",
+      "typ": "getal"
+    },
+    {
+      "question": "Wat is de rest als je 1 000 deelt door 9?",
+      "answers": [
+        "0",
+        "9",
+        "1",
+        "10"
+      ],
+      "correct": 2,
+      "time": 30,
+      "uitleg": "Som van de cijfers: 1 + 0 + 0 + 0 = 1. Bij delen door 9 is de rest dezelfde als bij die som: 1.",
+      "doel": "2.1.GL6.7",
+      "typ": "getal"
+    },
+    {
+      "question": "Lisa en Noah zwemmen op dezelfde dag. Lisa zwemt elke 4 dagen, Noah elke 6 dagen. Na hoeveel dagen zwemmen ze weer samen?",
+      "answers": [
+        "10",
+        "24",
+        "2",
+        "12"
+      ],
+      "correct": 3,
+      "time": 30,
+      "uitleg": "Je zoekt het kleinste getal dat in de tafel van 4 en van 6 zit: het kgv is 12 dagen.",
+      "doel": "2.1.GL6.4",
+      "typ": "getal"
+    }
+  ]
+}

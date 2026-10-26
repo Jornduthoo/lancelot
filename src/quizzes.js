@@ -11,7 +11,15 @@ const niveaus = require('./niveaus');
 const settings = require('./settings');
 const klas = require('./klas');
 
+const getal = require('./getal');
+
 const DIR = gegevens.pad('quizzes');
+
+// Uitleg, vraagsoort, juist antwoord en doel per vraagtekst, van elke quiz die geladen werd. Zo vindt de gokcontrole (antigok.js) ze terug
+// voor elk spel, zonder dat elk spel ze zelf moet meesturen.
+const extra = new Map();
+const vraagKey = t => String(t || '').trim().toLowerCase().slice(0, 160);
+const extraVoor = vraag => extra.get(vraagKey(vraag)) || null;
 
 function text(value, max) {
   return typeof value === 'string' || typeof value === 'number' ? String(value).trim().slice(0, max) : '';
@@ -46,6 +54,12 @@ function validate(quiz) {
     // Page (met hulp), Schildknaap (het doel) of Ridder (uitdaging). Zonder niveau telt de vraag als Schildknaap.
     const niveau = niveaus.clean(q.niveau);
     if (niveau && niveau !== 'schildknaap') out.niveau = niveau;
+    // Een zin die uitlegt waarom het juiste antwoord juist is. De leerling ziet hem na een fout antwoord.
+    const uitleg = text(q.uitleg, 220);
+    if (uitleg) out.uitleg = uitleg;
+    // Een rekenvraag waarbij de leerling het getal zelf typt (in de spellen die dat kunnen; elders blijft het meerkeuze).
+    if (q.typ === 'getal' && getal.isGetal(answers[correct])) out.typ = 'getal';
+    extra.set(vraagKey(question), { uitleg: out.uitleg || '', typ: out.typ || '', juist: answers[correct], doel: out.doel || '' });
     return out;
   });
   // Een herhaalquiz uit het zorgoverzicht: elke leerling krijgt de vragen in zijn eigen volgorde (gespreid herhalen).
@@ -194,4 +208,4 @@ function remove(file) {
 
 const lib = library({ kind: 'quiz', dir: DIR, checkFile, load, save, validate, list });
 
-module.exports = { list, load, play, order, gedeeld, vraagVoor, forNiveau, niveausOf, classNiveau, save, remove, validate, parseAiText, lib, DIR };
+module.exports = { extraVoor, list, load, play, order, gedeeld, vraagVoor, forNiveau, niveausOf, classNiveau, save, remove, validate, parseAiText, lib, DIR };

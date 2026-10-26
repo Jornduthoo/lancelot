@@ -1,0 +1,145 @@
+{
+  "title": "Oppervlakte, maten en gemiddelde",
+  "questions": [
+    {
+      "question": "Een driehoek heeft een basis van 8 cm en een hoogte van 5 cm. Hoeveel cm² is de oppervlakte?",
+      "answers": [
+        "40",
+        "20",
+        "13",
+        "26"
+      ],
+      "correct": 1,
+      "time": 30,
+      "uitleg": "Een driehoek is de helft van een rechthoek: (basis x hoogte) : 2 = (8 x 5) : 2 = 20 cm².",
+      "doel": "2.3.GL6.35",
+      "typ": "getal"
+    },
+    {
+      "question": "Een parallellogram heeft een basis van 7 cm en een hoogte van 4 cm. Hoeveel cm² is de oppervlakte?",
+      "answers": [
+        "14",
+        "22",
+        "28",
+        "11"
+      ],
+      "correct": 2,
+      "time": 30,
+      "uitleg": "Knip een driehoek af en leg hem aan de andere kant: je krijgt een rechthoek. Oppervlakte = basis x hoogte = 7 x 4 = 28 cm².",
+      "doel": "2.3.GL6.35",
+      "typ": "getal"
+    },
+    {
+      "question": "Een ruit heeft diagonalen van 6 cm en 10 cm. Hoeveel cm² is de oppervlakte?",
+      "answers": [
+        "60",
+        "16",
+        "30",
+        "32"
+      ],
+      "correct": 2,
+      "time": 30,
+      "uitleg": "Een ruit is de helft van de rechthoek rond de diagonalen: (6 x 10) : 2 = 30 cm².",
+      "doel": "2.3.GL6.35",
+      "typ": "getal"
+    },
+    {
+      "question": "Hoeveel dm² is 1 m²?",
+      "answers": [
+        "10",
+        "100",
+        "1 000",
+        "1"
+      ],
+      "correct": 1,
+      "time": 30,
+      "uitleg": "Bij oppervlaktematen is elke stap x 100, omdat je in twee richtingen telt: 10 dm x 10 dm = 100 dm².",
+      "doel": "2.3.GL6.27",
+      "typ": "getal"
+    },
+    {
+      "question": "Hoeveel cl is 2,5 l?",
+      "answers": [
+        "25",
+        "250",
+        "2 500",
+        "0,25"
+      ],
+      "correct": 1,
+      "time": 30,
+      "uitleg": "1 l = 100 cl. Dus 2,5 l = 2,5 x 100 = 250 cl.",
+      "doel": "2.3.GL6.27",
+      "typ": "getal"
+    },
+    {
+      "question": "Hoeveel m² is 3 a (are)?",
+      "answers": [
+        "30",
+        "3 000",
+        "300",
+        "0,03"
+      ],
+      "correct": 2,
+      "time": 30,
+      "uitleg": "1 are = 1 dam² = 100 m². 3 are = 300 m².",
+      "doel": "2.3.GL6.27",
+      "typ": "getal"
+    },
+    {
+      "question": "Hoeveel ml is 0,75 l?",
+      "answers": [
+        "75",
+        "7,5",
+        "750",
+        "7 500"
+      ],
+      "correct": 2,
+      "time": 30,
+      "uitleg": "1 l = 1 000 ml. 0,75 x 1 000 = 750 ml.",
+      "doel": "2.3.GL6.27",
+      "typ": "getal"
+    },
+    {
+      "question": "Je behaalt 6, 8 en 10 op drie toetsen. Wat is je gemiddelde?",
+      "answers": [
+        "8",
+        "24",
+        "10",
+        "7"
+      ],
+      "correct": 0,
+      "time": 30,
+      "uitleg": "Gemiddelde = som : aantal. 6 + 8 + 10 = 24, en 24 : 3 = 8.",
+      "doel": "2.5.GL6.15",
+      "typ": "getal"
+    },
+    {
+      "question": "Vier vrienden hebben 3, 5, 2 en 6 knikkers. Ze verdelen alles eerlijk. Hoeveel krijgt elk?",
+      "answers": [
+        "16",
+        "4",
+        "5",
+        "3"
+      ],
+      "correct": 1,
+      "time": 30,
+      "uitleg": "Alles samen: 3 + 5 + 2 + 6 = 16. Eerlijk verdelen over 4: 16 : 4 = 4 knikkers.",
+      "doel": "2.5.GL6.16",
+      "typ": "getal"
+    },
+    {
+      "question": "Een rechthoekig terras is 4 m lang en 2,5 m breed. Hoeveel m² is dat?",
+      "answers": [
+        "6,5",
+        "10",
+        "13",
+        "8"
+      ],
+      "correct": 1,
+      "time": 30,
+      "uitleg": "Oppervlakte van een rechthoek = lengte x breedte: 4 x 2,5 = 10 m². 13 is de omtrek, geen oppervlakte.",
+      "doel": "2.3.GL6.11",
+      "typ": "getal"
+    }
+  ]
+}

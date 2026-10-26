@@ -54,16 +54,21 @@ Regels:
 - Maak precies ${drie ? `${count} meerkeuzevragen per niveau, dus ${count * 3} vragen samen,` : `${count} meerkeuzevragen`} in het Nederlands zoals in Vlaanderen.
 - Elke vraag heeft 4 antwoorden (bij een waar/niet waar-vraag 2), met precies één goed antwoord.
 - Zet het goede antwoord niet steeds op dezelfde plek.
-- De foute antwoorden zijn geloofwaardig, maar duidelijk fout voor wie de stof kent.
+- De foute antwoorden zijn typische fouten of misvattingen van leerlingen (bijvoorbeeld een rekenfout die vaak gemaakt wordt, of een begrip dat ze vaak verwarren). Zo zie ik achteraf welke denkfout er zit. Geen onzinantwoorden, en duidelijk fout voor wie de stof kent.
+- Wissel af: kennis (feiten en begrippen die ze moeten kennen), begrip (waarom of hoe) en toepassen in een korte, herkenbare situatie.
+- Geef elke vraag een korte uitleg ("uitleg", hooguit 200 tekens) die de leerling ziet na een fout antwoord: leg de regel of de redenering uit, niet enkel het antwoord herhalen.
+- Bij een rekenvraag waarvan het antwoord één getal is (zoals 3,75 of 12 cm of 3/4): zet "typ": "getal". De leerling typt dan zelf het getal. Zet het juiste getal ook bij de antwoorden, en als foute antwoorden de getallen die je krijgt bij typische rekenfouten. Bij andere vragen laat je "typ" weg.
+- Gebruik de Belgische schrijfwijze en context: komma als decimaalteken, euro, Belgische namen en plaatsen, Vlaamse woorden.
 - Houd vragen kort (hooguit 120 tekens) en antwoorden heel kort (hooguit 60 tekens).
 - Pas de moeilijkheid en het taalgebruik aan het niveau ${level} aan.
+- Controleer op het einde elke vraag: reken het antwoord opnieuw na, kijk of precies één antwoord juist is en of "correct" naar dat antwoord wijst.
 ${QUIZ_NIVEAU[niveau] ? `- ${QUIZ_NIVEAU[niveau]}\n` : ''}${drie ? `\n${Niveau.prompt(level, 'vragen')}\nGeef elke vraag het veld "niveau" met "page", "schildknaap" of "ridder". Zet eerst alle Page-vragen, dan Schildknaap, dan Ridder.\n` : ''}
 Belangrijk: maak GEEN interactieve quiz, app, webpagina of canvas en schrijf geen code. Ik heb enkel de gegevens nodig als tekst.
 Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uitleg ervoor of erna, precies in dit formaat:
 {
   "title": "korte titel van de quiz",
   "questions": [
-    { "question": "de vraag", "answers": ["antwoord A", "antwoord B", "antwoord C", "antwoord D"], "correct": 0, "time": ${time}${drie ? ', "niveau": "page"' : ''}${codes.length > 1 ? ', "doel": "code van het doel"' : ''} }
+    { "question": "de vraag", "answers": ["antwoord A", "antwoord B", "antwoord C", "antwoord D"], "correct": 0, "time": ${time}, "uitleg": "waarom het juiste antwoord juist is"${drie ? ', "niveau": "page"' : ''}${codes.length > 1 ? ', "doel": "code van het doel"' : ''} }
   ]
 }
 "correct" is het nummer van het goede antwoord, geteld vanaf 0 (0 = eerste antwoord, 3 = vierde antwoord).`;
@@ -297,7 +302,11 @@ function addQuestion(q) {
     </div>
     <textarea class="q-text" rows="2" maxlength="250" placeholder="De vraag">${esc(q.question)}</textarea>
     <p class="muted small">Klik het rondje aan bij het goede antwoord.</p>
-    <div class="answers">${answers}</div>`;
+    <div class="answers">${answers}</div>
+    <label class="q-uitleg-veld">Uitleg na een fout antwoord (waarom is het juiste antwoord juist?)
+      <input class="q-uitleg" maxlength="220" placeholder="bv. Je deelt teller en noemer door hetzelfde getal, dus 4/8 = 1/2." value="${esc(q.uitleg || '')}">
+    </label>
+    <label class="inline q-getal-veld"><input type="checkbox" class="q-getal" ${q.typ === 'getal' ? 'checked' : ''}> Leerlingen typen het getal zelf (het goede antwoord moet een getal zijn)</label>`;
   el.appendChild(DoelKies.field(q.doel));
   el.querySelector('.q-niveau').addEventListener('change', showNiveaus);
   el.querySelector('.q-delete').addEventListener('click', () => {
@@ -328,7 +337,8 @@ function readEditor() {
       if (j === checked) correct = answers.length;
       answers.push(t);
     });
-    return { question: el.querySelector('.q-text').value, answers, correct, time: Number(el.querySelector('.q-time').value), niveau: el.querySelector('.q-niveau').value, doel: DoelKies.read(el.querySelector('.doel-veld')) };
+    return { question: el.querySelector('.q-text').value, answers, correct, time: Number(el.querySelector('.q-time').value), niveau: el.querySelector('.q-niveau').value, doel: DoelKies.read(el.querySelector('.doel-veld')),
+      uitleg: el.querySelector('.q-uitleg').value.trim(), typ: el.querySelector('.q-getal').checked ? 'getal' : '' };
   });
   return { title: $('e-title').value, questions };
 }
@@ -419,3 +429,23 @@ if (returnTo) {
   else if (params.get('maak') === 'leeg') $('new-empty').click();
   else if (params.get('bewerk')) editQuiz(params.get('bewerk'));
 }
+
+// Het startpakket 6e leerjaar: tonen zolang er quizzen of oefenbladen uit het pakket nog niet bij de leerkracht staan.
+function startpakketStatus() {
+  socket.emit('startpakket-status', null, res => {
+    if (!res || !res.ok) return;
+    $('startpakket').classList.toggle('hidden', !res.nieuw);
+    $('sp-tekst').textContent = `${res.nieuw} kant-en-klare quizzen en oefenbladen bij Op.stap-doelen (breuken en procenten, deelbaarheid, schaal, oppervlakte, werkwoorden, Europa, WO II), met uitleg bij elke vraag. Ze komen in de map "Startpakket 6e leerjaar".`;
+  });
+}
+$('sp-knop').addEventListener('click', () => {
+  $('sp-knop').disabled = true;
+  socket.emit('startpakket-installeer', null, res => {
+    $('sp-knop').disabled = false;
+    if (!res || res.error) return Ui.melding(res ? res.error : 'Dat lukte niet.');
+    $('startpakket').classList.add('hidden');
+    Ui.melding(`${res.erbij} quizzen en oefenbladen staan nu in de map "${res.map}".`);
+  });
+});
+socket.on('connect', startpakketStatus);
+startpakketStatus();

@@ -83,6 +83,7 @@ function flush() {
 // Het spel is klaar: wat nog wacht wegschrijven en de sessie afsluiten. Geeft de id van die sessie terug.
 function endSession() {
   flush();
+  flushKeuze();
   const id = current && current.id;
   current = null;
   return id || null;
@@ -173,6 +174,56 @@ function readGok(now) {
   return gokCache.list;
 }
 
-process.on('exit', flush);
+// Welk fout antwoord een leerling koos (of typte), voor de veelgemaakte fouten: logboek/<schooljaar>-keuze.jsonl.
+// Apart van het logboek, zodat alles wat antwoorden telt ongemoeid blijft. Alleen foute antwoorden.
+function keuzeFile(now) {
+  return path.join(DIR, `${schooljaar(now)}-keuze.jsonl`);
+}
 
-module.exports = { add, answer, flush, endSession, read, summary, schooljaar, gok, readGok, DIR };
+let keuzes = [];
+let keuzeTimer = null;
+function keuze({ naam, spel, bron, vraag, doel, gekozen, juist }) {
+  if (!vraag || !gekozen) return;
+  const leerling = klas.match(naam);
+  keuzes.push(JSON.stringify({
+    t: new Date().toISOString(), leerling: leerling ? leerling.id : null, naam, spel, bron: String(bron || '').slice(0, 100),
+    vraag: String(vraag).slice(0, 160), doel: doel || '', gekozen: String(gekozen).slice(0, 60), juist: String(juist || '').slice(0, 60),
+  }));
+  if (!keuzeTimer) keuzeTimer = setTimeout(flushKeuze, FLUSH_MS);
+}
+
+function flushKeuze() {
+  clearTimeout(keuzeTimer);
+  keuzeTimer = null;
+  if (!keuzes.length) return;
+  const lines = keuzes;
+  keuzes = [];
+  try {
+    fs.mkdirSync(DIR, { recursive: true });
+    fs.appendFileSync(keuzeFile(new Date()), lines.join('\n') + '\n');
+  } catch (err) {
+    console.error('Foute antwoorden bijhouden mislukt:', err.message);
+  }
+}
+
+let keuzeCache = { path: '', size: -1, list: [] };
+function readKeuze(now) {
+  const p = keuzeFile(now);
+  let size = 0;
+  try { size = fs.statSync(p).size; } catch { return []; }
+  if (keuzeCache.path !== p || keuzeCache.size !== size) {
+    const list = [];
+    try {
+      for (const l of fs.readFileSync(p, 'utf8').split('\n')) {
+        if (!l) continue;
+        try { list.push(JSON.parse(l)); } catch {}
+      }
+    } catch {}
+    keuzeCache = { path: p, size, list };
+  }
+  return keuzeCache.list;
+}
+
+process.on('exit', () => { flush(); flushKeuze(); });
+
+module.exports = { add, answer, flush, endSession, read, summary, schooljaar, gok, readGok, keuze, readKeuze, DIR };
