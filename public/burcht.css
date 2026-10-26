@@ -48,6 +48,11 @@
 .bu-tijd { border-color: var(--gold); color: #ffe7a3; box-shadow: 0 0 18px rgba(255, 201, 74, .35); }
 .bu-melding { position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); margin: 0; padding: 7px 14px; border-radius: 10px; background: rgba(6, 10, 19, .88); border: 1px solid rgba(255, 77, 109, .6); color: #ffb3c1; font-weight: 700; white-space: nowrap; max-width: 94%; overflow: hidden; text-overflow: ellipsis; pointer-events: none; transition: opacity .3s; }
 .bu-melding:empty { opacity: 0; }
+.bu-zicht { position: absolute; right: 10px; bottom: 10px; display: flex; flex-direction: column; gap: 6px; }
+.bu-zicht button { width: 40px; height: 40px; padding: 0; border-radius: 10px; font-size: 1.25rem; line-height: 1; clip-path: none; background: rgba(6, 10, 19, .78); color: #cfe9ff; box-shadow: inset 0 0 0 1px rgba(76, 201, 255, .45); }
+.bu-zicht button:hover:not(:disabled) { color: #ffe7a3; box-shadow: inset 0 0 0 1px var(--gold), 0 0 12px rgba(255, 201, 74, .35); }
+.bu-zicht button:disabled { opacity: .35; }
+@media (max-width: 560px) { .bu-zicht { gap: 5px; right: 8px; bottom: 8px; } .bu-zicht button { width: 36px; height: 36px; font-size: 1.1rem; } }
 .bu-melding.goed { border-color: rgba(46, 230, 166, .6); color: #a8ffd9; }
 
 .bu-bouw { background: rgba(16, 28, 50, .8); border: 1px solid var(--line); border-radius: 14px; padding: 10px; }

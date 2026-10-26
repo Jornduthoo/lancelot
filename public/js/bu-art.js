@@ -1466,6 +1466,18 @@ const BuArt = (() => {
     };
   }
 
+  // Dezelfde kaart een kwartslag (r keer) gedraaid. De stukken zelf blijven rechtop staan.
+  function draai(kaart, r) {
+    r = ((r % 4) + 4) % 4;
+    if (!r) return kaart;
+    const L = kaart.w - 1;
+    const naar = [null, (x, y) => [y, L - x], (x, y) => [L - x, L - y], (x, y) => [L - y, x]][r];
+    const via = f => (x, y) => f(...naar(x, y));
+    const k = { ...kaart };
+    for (const f of ['eigen', 'sleutel', 'land', 'vloer', 'stuk', 'ridder']) k[f] = via(kaart[f]);
+    return k;
+  }
+
   // Een eilandje zo groot mogelijk in een rechthoek van w x h pixels: geeft T, ox en oy.
   function pas(kaart, w, h) {
     const hoog = kaart.w * 0.5 + 2.6 + 0.12 * kaart.w; // torens boven, eiland, rotspunt onder (in tegels)
@@ -1473,5 +1485,5 @@ const BuArt = (() => {
     return { T, ox: w / 2 - ((kaart.w - kaart.h) * T) / 4, oy: Math.round((h - hoog * T) / 2 + T * 1.55) };
   }
 
-  return { stuk, tegel, teken, gloeiers, gloei, hemel, wolk, vakjeOp, icoon, perceelKaart, pas, hash, rng, shade };
+  return { stuk, tegel, teken, gloeiers, gloei, hemel, wolk, vakjeOp, icoon, perceelKaart, draai, pas, hash, rng, shade };
 })();
