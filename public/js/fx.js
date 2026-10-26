@@ -166,10 +166,10 @@ const GAME_OF_EVENT = {
   'cg-load': 'galaga', 'bk-load': 'bomber', 'opwarmer-start': 'toernooi',
 };
 function loadGame(event, payload, cb) {
-  socket.emit(event, payload, res => {
+  socket.emit(event, payload, async res => {
     if (res && res.busy) {
       const what = res.error.replace(/\s*(Stop|Sluit) \S+ (spel )?eerst\.$/, '');
-      if (confirm(`${what}\n\nWil je dat nu stoppen en hier beginnen? De resultaten worden bewaard.`)) {
+      if (await Ui.vraag(`${what}\n\nWil je dat nu stoppen en hier beginnen? De resultaten worden bewaard.`)) {
         socket.emit('stop-others', GAME_OF_EVENT[event], () => socket.emit(event, payload, cb));
         return;
       }

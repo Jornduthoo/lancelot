@@ -15,7 +15,7 @@
   --panel-solid: #101c32;
   --line: rgba(92, 196, 255, .28);
   --text: #eaf4ff;
-  --muted: #8fa7c7;
+  --muted: #9db3d1;
   --cyan: #4cc9ff;
   --cyan-glow: rgba(76, 201, 255, .55);
   --steel: #c9d6e6;
@@ -167,6 +167,11 @@ input, select, textarea { font: inherit; font-family: var(--body); color: #0b132
 .module.balk:hover { box-shadow: inset 0 0 0 1px var(--gold), 0 0 30px rgba(255, 201, 74, .25); }
 @media (max-width: 640px) { .module.balk .tag { display: none; } .module.balk { grid-template-columns: auto 1fr; } }
 .module.soon { opacity: .55; cursor: default; }
+.module .tag.nieuw { position: absolute; top: 14px; right: 18px; margin: 0; padding: 2px 8px; color: #04121f; background: var(--gold); letter-spacing: .15em; }
+.module { position: relative; }
+.realm-panel > .modules + .groep-kop { margin-top: 26px; }
+.groep-kop { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; margin: 0 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--line); }
+.groep-kop h3 { color: var(--cyan); text-shadow: 0 0 14px var(--cyan-glow); }
 .module.soon .tag { color: var(--muted); }
 .module:not(.soon):hover { box-shadow: inset 0 0 0 1px var(--cyan), 0 0 30px rgba(76, 201, 255, .25); }
 
@@ -345,7 +350,7 @@ span.play { padding: 13px 22px; display: flex; align-items: center; }
 #confetti { position: fixed; inset: 0; pointer-events: none; z-index: 50; }
 
 /* ---------- Formulieren (quizmaker, editor, instellingen) ---------- */
-.form { display: flex; flex-direction: column; gap: 12px; }
+.form { display: flex; flex-direction: column; gap: 12px; color-scheme: dark; }
 .form label { display: flex; flex-direction: column; gap: 6px; font-weight: 600; }
 .form label.inline { flex-direction: row; align-items: center; font-weight: 400; }
 .form label.check input { width: 20px; height: 20px; flex: none; accent-color: var(--cyan); }
@@ -353,8 +358,15 @@ span.play { padding: 13px 22px; display: flex; align-items: center; }
 .form .row label { flex: 1; min-width: 160px; }
 .form input, .form select, .form textarea {
   font-size: 1rem; text-align: left; padding: 10px 12px; border: 1px solid var(--line); width: 100%;
-  background: rgba(234, 244, 255, .95); border-radius: 4px;
+  background: rgba(4, 10, 22, .78); color: var(--text); border-radius: 4px;
+  transition: border-color .15s, box-shadow .15s;
 }
+/* Donkere velden in de stijl van het bord; het oefenblad zelf blijft papier. */
+.form input::placeholder, .form textarea::placeholder { color: rgba(143, 167, 199, .7); }
+.form input:hover, .form select:hover, .form textarea:hover { border-color: rgba(92, 196, 255, .5); }
+.form input:focus, .form select:focus, .form textarea:focus { outline: none; border-color: var(--cyan); box-shadow: 0 0 0 1px var(--cyan), 0 0 14px var(--cyan-glow); }
+.form select option, .form select optgroup { background: var(--panel-solid); color: var(--text); }
+.form input:disabled, .form select:disabled, .form textarea:disabled { opacity: .55; }
 .form textarea { resize: vertical; }
 .form .q-time { width: 80px; }
 .sources { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
@@ -410,7 +422,6 @@ span.play { padding: 13px 22px; display: flex; align-items: center; }
 .player .result .mark { font-size: 5rem; line-height: 1; animation: pop .5s cubic-bezier(.2, 1.6, .4, 1) both; }
 @keyframes pop { from { transform: scale(0); } }
 .spinner { width: 54px; height: 54px; margin: 0 auto; border: 4px solid rgba(76, 201, 255, .2); border-top-color: var(--cyan); border-radius: 50%; animation: spin 1s linear infinite; }
-@keyframes spin { to { transform: rotate(360deg); } }
 
 @media (max-width: 640px) {
   .answers { grid-template-columns: 1fr; }
@@ -420,6 +431,43 @@ span.play { padding: 13px 22px; display: flex; align-items: center; }
   .ranking li { font-size: 1.05rem; grid-template-columns: 40px 1fr auto; }
   .ranking .gain { display: none; }
 }
+
+/* Wie met Tab door de app gaat, ziet altijd waar hij staat. Binnenin, want de schuine hoeken knippen alles erbuiten weg. */
+:where(button, .button, summary, [tabindex], label.file-button):focus-visible { outline: 2px solid var(--gold); outline-offset: -5px; }
+a:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; border-radius: 2px; }
+
+/* ---------- Lege schermen: wat ontbreekt, en waar je het maakt ---------- */
+.leeg { display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; padding: 28px 20px; border: 1px dashed var(--line); background: rgba(76, 201, 255, .04); }
+.leeg > p:first-child { font-size: 1.1rem; font-weight: 600; }
+.leeg .button { margin-top: 6px; }
+
+/* ---------- Verbinding kwijt (ui.js) ---------- */
+.ui-verbinding {
+  position: fixed; left: 12px; right: 12px; top: 12px; z-index: 1000; width: fit-content; margin: 0 auto; padding: 10px 18px 10px 40px;
+  font-weight: 600; color: #ffe2e8; background: rgba(40, 8, 18, .94);
+  box-shadow: inset 0 0 0 1px var(--bad), 0 0 24px rgba(255, 77, 109, .35);
+  clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+  animation: ui-in .2s ease-out;
+}
+.ui-verbinding::before { content: ''; position: absolute; left: 16px; top: 50%; width: 12px; height: 12px; margin-top: -6px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: spin 1s linear infinite; }
+.ui-verbinding.ok { color: #d6fff0; background: rgba(6, 36, 28, .94); box-shadow: inset 0 0 0 1px var(--good), 0 0 24px rgba(46, 230, 166, .3); }
+.ui-verbinding.ok::before { content: '✓'; border: 0; animation: none; width: auto; height: auto; margin-top: -.6em; line-height: 1.2; }
+@keyframes ui-in { from { opacity: 0; transform: translateY(-8px); } }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ---------- Vensters in ridderstijl (ui.js) ---------- */
+.ui-venster {
+  width: min(480px, calc(100% - 32px)); padding: 26px 26px 22px; border: 0;
+  color: var(--text); background: linear-gradient(160deg, #13284a, var(--panel-solid) 60%);
+  box-shadow: inset 0 0 0 1px var(--cyan), 0 0 40px var(--cyan-glow);
+  clip-path: polygon(18px 0, 100% 0, 100% calc(100% - 18px), calc(100% - 18px) 100%, 0 100%, 0 18px);
+  animation: ui-pop .18s ease-out;
+}
+.ui-venster::backdrop { background: rgba(3, 6, 14, .72); }
+.ui-venster p { white-space: pre-line; font-size: 1.1rem; line-height: 1.45; margin-bottom: 20px; }
+.ui-venster .actions { justify-content: flex-end; }
+.ui-venster button.danger { background: linear-gradient(180deg, #ff8fa3, var(--bad)); }
+@keyframes ui-pop { from { opacity: 0; transform: scale(.96); } }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
@@ -1553,7 +1601,6 @@ body[data-du="1"] .sj-card { background: linear-gradient(180deg, rgba(36, 22, 40
 .realm .tile-icon { width: 112px; height: 112px; border-radius: 18px; }
 .module:hover .tile-icon, .realm:hover .tile-icon { transform: scale(1.06) rotate(-2deg); filter: drop-shadow(0 0 16px rgba(76, 201, 255, .7)); }
 .realm.on .tile-icon { filter: drop-shadow(0 0 16px rgba(255, 201, 74, .65)); }
-.btn-icon { width: 22px; height: 22px; border-radius: 5px; vertical-align: -5px; margin-right: 6px; }
 @media (max-width: 760px) {
   .realm .tile-icon { width: 56px; height: 56px; border-radius: 10px; flex: none; }
   .tile-icon { width: 64px; height: 64px; }
@@ -1578,6 +1625,15 @@ body[data-du="1"] .sj-card { background: linear-gradient(180deg, rgba(36, 22, 40
 .doel-veld .doel-tekst { font-size: .85rem; color: var(--muted); min-height: 1em; }
 .doel-lijst { display: grid; gap: 6px; }
 .doel-lijst h3 { margin: 18px 0 4px; }
+.doel-groep { border-bottom: 1px solid var(--line); padding-bottom: 6px; }
+.doel-groep > summary { display: flex; align-items: baseline; gap: 12px; cursor: pointer; list-style: none; padding: 10px 0 4px; }
+.doel-groep > summary::-webkit-details-marker { display: none; }
+.doel-groep > summary::before { content: '▸'; display: inline-block; color: var(--cyan); transition: transform .15s; }
+.doel-groep[open] > summary::before { transform: rotate(90deg); }
+.doel-groep > .doel-rij { margin-top: 6px; }
+.doel-groep > .doel-domein { margin: 14px 0 2px; font-size: 1rem; color: var(--cyan); }
+.doel-groep > summary h3 { margin: 0; }
+.doel-groep > summary:hover h3 { color: var(--cyan); }
 .doel-lijst h4 { margin: 10px 0 2px; color: var(--muted); font-weight: 600; }
 .doel-rij { display: grid; grid-template-columns: 7.5em 1fr auto; gap: 10px; align-items: baseline; padding: 6px 10px; border: 1px solid var(--line); background: var(--panel); }
 .doel-rij code { color: var(--cyan); }
@@ -1701,3 +1757,20 @@ body:not([data-sr="1"]) #rossen { display: none !important; }
 .zk-row { display: flex; gap: 12px; justify-content: center; margin-top: 14px; }
 .zk-row button { flex: 1; max-width: 220px; font-size: 1.25rem; padding: 18px 10px; }
 .zk-stats { display: flex; flex-direction: column; gap: 4px; margin-top: 10px; font-size: .95rem; }
+/* ---------- Kleine knop-iconen (één kleur, volgen de tekstkleur) ---------- */
+.ic { display: inline-block; flex: none; width: 1.15em; height: 1.15em; vertical-align: -.2em; background: currentColor; -webkit-mask: var(--ic) center / contain no-repeat; mask: var(--ic) center / contain no-repeat; }
+button .ic + *, .button .ic { margin-right: .1em; }
+.ic-geluid { --ic: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M4 9v6h4l5 4V5L8 9z' fill='black'/%3E%3Cpath stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' fill='none' d='M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12'/%3E%3C/svg%3E"); }
+.ic-stil { --ic: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M4 9v6h4l5 4V5L8 9z' fill='black'/%3E%3Cpath stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' fill='none' d='M16 9.5l5 5M21 9.5l-5 5'/%3E%3C/svg%3E"); }
+.ic-download { --ic: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' fill='none' d='M12 4v11M7 10l5 5 5-5M5 20h14'/%3E%3C/svg%3E"); }
+.ic-upload { --ic: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' fill='none' d='M12 16V5M7 10l5-5 5 5M5 20h14'/%3E%3C/svg%3E"); }
+.ic-kruis { --ic: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' fill='none' d='M6 6l12 12M18 6L6 18'/%3E%3C/svg%3E"); }
+.ic-map { --ic: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' fill='none' d='M3 6.5h6l2 2h10V19H3z M12 11.5v5M9.5 14h5'/%3E%3C/svg%3E"); }
+.ic-grip { --ic: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cg fill='black'%3E%3Ccircle cx='9' cy='6' r='1.7'/%3E%3Ccircle cx='15' cy='6' r='1.7'/%3E%3Ccircle cx='9' cy='12' r='1.7'/%3E%3Ccircle cx='15' cy='12' r='1.7'/%3E%3Ccircle cx='9' cy='18' r='1.7'/%3E%3Ccircle cx='15' cy='18' r='1.7'/%3E%3C/g%3E%3C/svg%3E"); }
+.ic-namen { --ic: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cg stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' fill='none'%3E%3Ccircle cx='9' cy='8' r='3.2'/%3E%3Cpath d='M3 20c0-3.6 2.7-6 6-6s6 2.4 6 6'/%3E%3Ccircle cx='17' cy='9' r='2.4'/%3E%3Cpath d='M16 14.1c3 .2 5 2.5 5 5.9'/%3E%3C/g%3E%3C/svg%3E"); }
+.ic-doel { --ic: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cg stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' fill='none'%3E%3Ccircle cx='11' cy='13' r='8'/%3E%3Ccircle cx='11' cy='13' r='4'/%3E%3Cpath d='M11 13l9-9M16 4h4v4'/%3E%3C/g%3E%3C/svg%3E"); }
+.ic-zorg { --ic: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' fill='none' d='M12 20s-8-4.8-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 9c0 6.2-8 11-8 11z M7 12h2.5l1.5-3 2 5 1.5-2H17'/%3E%3C/svg%3E"); }
+.ic-resultaten { --ic: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' fill='none' d='M4 20h16M7 20v-6M12 20V6M17 20v-9'/%3E%3C/svg%3E"); }
+.ic-netwerk { --ic: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cg stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' fill='none'%3E%3Cpath d='M3 9.5a13 13 0 0 1 18 0M6 13a8.5 8.5 0 0 1 12 0M9 16.4a4 4 0 0 1 6 0'/%3E%3Ccircle cx='12' cy='19.5' r='.6' fill='black'/%3E%3C/g%3E%3C/svg%3E"); }
+.ic-instellingen { --ic: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cg stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' fill='none'%3E%3Ccircle cx='12' cy='12' r='3'/%3E%3Cpath d='M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1'/%3E%3C/g%3E%3C/svg%3E"); }
+.ic-terug { --ic: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' fill='none' d='M15 5l-7 7 7 7'/%3E%3C/svg%3E"); }

@@ -20,8 +20,8 @@ function show(name) {
 }
 
 document.addEventListener('click', () => sfx.unlock(), { once: true });
-$('mute').textContent = sfx.muted ? '🔇' : '🔊';
-$('mute').addEventListener('click', () => { $('mute').textContent = sfx.toggle() ? '🔇' : '🔊'; });
+$('mute').innerHTML = Ui.ic(sfx.muted ? 'stil' : 'geluid');
+$('mute').addEventListener('click', () => { $('mute').innerHTML = Ui.ic(sfx.toggle() ? 'stil' : 'geluid'); });
 $('brand').addEventListener('click', () => { location.href = '/host'; });
 $('to-home').addEventListener('click', () => { location.href = '/host'; });
 
@@ -52,11 +52,11 @@ function loadList() {
       </div>`).join('');
     for (const card of box.children) {
       card.querySelector('.rk-pick').addEventListener('click', () => choose(card.dataset.file));
-      card.querySelector('.rk-del').addEventListener('click', () => {
+      card.querySelector('.rk-del').addEventListener('click', async () => {
         const name = card.querySelector('strong').textContent;
-        if (!confirm(`Het rijk "${name}" echt verwijderen? Alle veroverde gebieden zijn dan weg.`)) return;
+        if (!await Ui.vraag(`Het rijk "${name}" echt verwijderen? Alle veroverde gebieden zijn dan weg.`)) return;
         socket.emit('rk-delete', { file: card.dataset.file }, res => {
-          if (res.error) return alert(res.error);
+          if (res.error) return Ui.melding(res.error);
           loadList();
         });
       });
@@ -77,7 +77,7 @@ $('rk-new').addEventListener('submit', e => {
 let peek = null;
 function choose(file) {
   socket.emit('rk-peek', { file }, res => {
-    if (res.error) return alert(res.error);
+    if (res.error) return Ui.melding(res.error);
     chosen = file;
     peek = res;
     try { localStorage.setItem('lancelot-rijk', file); } catch {}
@@ -246,12 +246,12 @@ setInterval(() => {
 }, 200);
 
 $('start').addEventListener('click', () => socket.emit('rk-start'));
-$('p-finish').addEventListener('click', () => {
-  if (confirm('De les nu beëindigen? Het rijk wordt bewaard zoals het nu is.')) socket.emit('rk-finish');
+$('p-finish').addEventListener('click', async () => {
+  if (await Ui.vraag('De les nu beëindigen? Het rijk wordt bewaard zoals het nu is.')) socket.emit('rk-finish');
 });
 $('close').addEventListener('click', () => socket.emit('rk-stop', null, () => backToSetup()));
-$('stop').addEventListener('click', () => {
-  if (!confirm('Het spel stoppen? Het rijk wordt bewaard zoals het nu is.')) return;
+$('stop').addEventListener('click', async () => {
+  if (!await Ui.vraag('Het spel stoppen? Het rijk wordt bewaard zoals het nu is.')) return;
   socket.emit('rk-stop', null, res => {
     const note = $('stopped');
     note.innerHTML = '';

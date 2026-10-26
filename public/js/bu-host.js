@@ -543,7 +543,7 @@ function boekTonen() {
     terug.className = 'secondary mini';
     terug.textContent = 'Laatste gift terugnemen';
     terug.addEventListener('click', () => socket.emit('bu-terug', l.id, res => {
-      if (res && res.error) return alert(res.error);
+      if (res && res.error) return Ui.melding(res.error);
       ke.boek = res.boek;
       boekTonen();
     }));
@@ -573,7 +573,7 @@ function boekTonen() {
   }
   if (!ke.boek.length) {
     const tr = document.createElement('tr');
-    tr.innerHTML = '<td colspan="6" class="muted">Nog geen klaslijst. Zet je leerlingen in Mijn klas.</td>';
+    tr.innerHTML = '<td colspan="6" class="muted">Nog geen klaslijst. <a class="button secondary" href="/klas">Klaslijst invullen</a></td>';
     tb.appendChild(tr);
   }
 }

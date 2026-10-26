@@ -18,7 +18,7 @@
       </div>
     </div>
     <div class="actions">
-      <button class="secondary icon" id="mute" title="Geluid aan/uit">🔊</button>
+      <button class="secondary icon" id="mute" title="Geluid aan/uit" aria-label="Geluid aan/uit"><i class="ic ic-geluid"></i></button>
       <button class="secondary hidden" id="stop">Stop toernooi</button>
     </div>
   </div>
@@ -57,11 +57,13 @@
         <span>Elke leerling verdient Eer met inzet en groei, en bouwt daarmee zijn eigen burcht. Samen één eiland op het bord, met een klasdoel.</span>
         <em class="tag">Beloningen</em>
       </button>
+      </div>
+      <div class="groep-kop"><h3>Quiz en duel</h3><p class="muted small">Snel antwoorden: wie het eerst juist heeft, scoort. De klas volgt alles op het bord.</p></div>
+      <div class="modules">
       <button class="module" data-module="toernooi">
         <img class="tile-icon" src="/img/icons/toernooi.webp" alt="">
         <strong>Toernooi</strong>
         <span>Snelle quiz: wie antwoordt het snelst en het best?</span>
-        <em class="tag">Speel nu</em>
       </button>
       <button class="module" data-module="opwarmer">
         <img class="tile-icon" src="/img/icons/opwarmer.webp" alt="">
@@ -69,155 +71,44 @@
         <span>Start je les met een paar herhaalvragen uit vorige lessen. LANcelot kiest wat lang geleden is of vaak fout ging.</span>
         <em class="tag">5 minuten</em>
       </button>
-      <button class="module" data-module="schattenjacht">
-        <img class="tile-icon" src="/img/icons/schattenjacht.webp" alt="">
-        <strong>Schattenjacht</strong>
-        <span>Verzamel goud met goede antwoorden en koop slimme upgrades.</span>
-        <em class="tag">Speel nu</em>
-      </button>
-      <button class="module" data-module="toren">
-        <img class="tile-icon" src="/img/icons/toren.webp" alt="">
-        <strong>De prinses in de toren</strong>
-        <span>Spring naar de top en red de prinses. Goede antwoorden geven energie.</span>
-        <em class="tag">Speel nu</em>
-      </button>
-      <button class="module" data-module="laserslag">
-        <img class="tile-icon" src="/img/icons/laserslag.webp" alt="">
-        <strong>Laserslag</strong>
-        <span>Lasergevecht rood tegen blauw. Munitie verdien je met goede antwoorden. Elke leerling kiest zelf het zicht: van bovenaf, achter de ridder of first person.</span>
-        <em class="tag">Speel nu</em>
-      </button>
-      <button class="module" data-module="ridderrace">
-        <img class="tile-icon" src="/img/icons/strijdros.webp" alt="">
-        <strong>Ridderrace</strong>
-        <span>Race op hoverrossen in 3D. Goede antwoorden vullen je tank en geven turbo.</span>
-        <em class="tag">Speel nu</em>
-      </button>
-      <button class="module" data-module="kristalroof">
-        <img class="tile-icon" src="/img/icons/kristalroof.webp" alt="">
-        <strong>Kristalroof</strong>
-        <span>Mijn kristallen met goede antwoorden en kraak de kluis van een ander met het geheime woord.</span>
-        <em class="tag">Speel nu</em>
-      </button>
-      <button class="module" data-module="verrader">
-        <img class="tile-icon" src="/img/icons/verrader.webp" alt="">
-        <strong>De Verrader</strong>
-        <span>Herstel samen de kern, maar wie is de verrader? Stem aan de Ronde Tafel.</span>
-        <em class="tag">Speel nu</em>
-      </button>
-      <button class="module" data-module="burchtbouwers">
-        <img class="tile-icon" src="/img/icons/burcht.webp" alt="">
-        <strong>Burchtbouwers</strong>
-        <span>Samen één burcht bouwen: elk goed antwoord is een steen. Houdt hij stand als de draak aanvalt?</span>
-        <em class="tag">Speel nu</em>
-      </button>
       <button class="module" data-module="duel">
         <img class="tile-icon" src="/img/icons/duel.webp" alt="">
         <strong>Duel in de arena</strong>
         <span>Eén tegen één: wie eerst juist antwoordt, slaat toe. Een toernooischema tot er één kampioen is.</span>
-        <em class="tag">Speel nu</em>
       </button>
-      <button class="module" data-module="packnight">
-        <img class="tile-icon" src="/img/icons/packnight.webp" alt="">
-        <strong>Pac-Knight</strong>
-        <span>Raap kristallen in een neon doolhof en ontwijk de drones. Een goed antwoord geeft een kracht: dan jaag jij op hen.</span>
-        <em class="tag">Speel nu</em>
-      </button>
-      <button class="module" data-module="strijdrossen">
-        <img class="tile-icon" src="/img/icons/strijdrossen.webp" alt="">
-        <strong>Strijdrossen</strong>
-        <span>Hoverrossen in een gevechtsarena. Lasers, raketten en mijnen krijg je alleen met goede antwoorden.</span>
-        <em class="tag">Speel nu</em>
-      </button>
-      <button class="module" data-module="cybergalaga">
-        <img class="tile-icon" src="/img/icons/cybergalaga.webp" alt="">
-        <strong>Cyber-Galaga</strong>
-        <span>Vlieg met je jetpack tegen golven cyberdraken, op je eigen toestel. Op het einde verslaat de hele klas samen de klasbaas.</span>
-        <em class="tag">Speel nu</em>
-      </button>
-      <button class="module" data-module="bomberknight">
-        <img class="tile-icon" src="/img/icons/bomberknight.webp" alt="">
-        <strong>Bomber-Knight</strong>
-        <span>Tot dertig ridders in één arena. Een mijn kost energie, en energie verdien je met goede antwoorden.</span>
-        <em class="tag">Speel nu</em>
-      </button>
-      <button class="module" data-module="neonduel">
-        <img class="tile-icon" src="/img/icons/neonduel.webp" alt="">
-        <strong>Neon Duel</strong>
-        <span>Vechtspel met de hele klas: twee teams, twee ridders op het bord. Juist = slag, snel = combo, drie op rij = supermove.</span>
-        <em class="tag">Speel nu</em>
-      </button>
-      <button class="module" data-module="leraarbaas">
-        <img class="tile-icon" src="/img/icons/leraarbaas.webp" alt="">
-        <strong>Leraar-baas</strong>
-        <span>Jij bent de eindbaas: een reuzenridder op het bord. De klas valt aan met goede antwoorden, jij slaat terug.</span>
-        <em class="tag">Speel nu</em>
-      </button>
-      <button class="module" data-module="gauntlet">
-        <img class="tile-icon" src="/img/icons/gauntlet.webp" alt="">
-        <strong>Gauntlet</strong>
-        <span>Ploegen van vier (paladijn, mage, ranger, mech) vechten zich samen door een kerker. Goede antwoorden genezen je ploeg.</span>
-        <em class="tag">Speel nu</em>
-      </button>
-      <button class="module" data-module="royale">
-        <img class="tile-icon" src="/img/icons/royale.webp" alt="">
-        <strong>Ridder-Royale</strong>
-        <span>Iedereen in één arena en de neonstorm krimpt. Munitie verdien je met goede antwoorden. De laatste ridder wint.</span>
-        <em class="tag">Speel nu</em>
-      </button>
-      <button class="module" data-module="sterrenvreter">
-        <img class="tile-icon" src="/img/icons/sterrenvreter.webp" alt="">
-        <strong>Sterrenvreter</strong>
-        <span>Eet sterrenstof en kleinere ridders, ontwijk het zwarte gat. Goede antwoorden geven massa, turbo en supernova.</span>
-        <em class="tag">Nieuw</em>
-      </button>
-      <button class="module" data-module="ridderslang">
-        <img class="tile-icon" src="/img/icons/ridderslang.webp" alt="">
-        <strong>Ridderslang</strong>
-        <span>Een neon lansslang die groeit met goede antwoorden. Snijd anderen af en eet hun licht op.</span>
-        <em class="tag">Nieuw</em>
+      </div>
+      <div class="groep-kop"><h3>Samen spelen</h3><p class="muted small">Samenwerken in ploegen, of met de hele klas tegen één tegenstander.</p></div>
+      <div class="modules">
+      <button class="module" data-module="burchtbouwers">
+        <img class="tile-icon" src="/img/icons/burcht.webp" alt="">
+        <strong>Burchtbouwers</strong>
+        <span>Samen één burcht bouwen: elk goed antwoord is een steen. Houdt hij stand als de draak aanvalt?</span>
       </button>
       <button class="module" data-module="poortwacht">
         <img class="tile-icon" src="/img/icons/poortwacht.webp" alt="">
         <strong>Poortwacht</strong>
         <span>Verdedig samen de burchtpoort. Goede antwoorden geven goud voor je eigen toren. Op het einde komt de draak.</span>
-        <em class="tag">Nieuw</em>
+        <em class="tag nieuw">Nieuw</em>
       </button>
-      <button class="module" data-module="neonvlucht">
-        <img class="tile-icon" src="/img/icons/neonvlucht.webp" alt="">
-        <strong>Neonvlucht</strong>
-        <span>Ren, spring en glij door de neonburcht. Bij een vraagpoort loop je door het juiste antwoord voor turbo en een hogere ×.</span>
-        <em class="tag">Nieuw</em>
+      <button class="module" data-module="gauntlet">
+        <img class="tile-icon" src="/img/icons/gauntlet.webp" alt="">
+        <strong>Gauntlet</strong>
+        <span>Ploegen van vier (paladijn, mage, ranger, mech) vechten zich samen door een kerker. Goede antwoorden genezen je ploeg.</span>
       </button>
-      <button class="module" data-module="diepboor">
-        <img class="tile-icon" src="/img/icons/diepboor.webp" alt="">
-        <strong>Diepboor</strong>
-        <span>Boor zo diep als je kan naar goud, kristal en neonkernen. Goede antwoorden geven brandstof, de smidse maakt je boor sterker.</span>
-        <em class="tag">Nieuw</em>
+      <button class="module" data-module="cybergalaga">
+        <img class="tile-icon" src="/img/icons/cybergalaga.webp" alt="">
+        <strong>Cyber-Galaga</strong>
+        <span>Vlieg met je jetpack tegen golven cyberdraken, op je eigen toestel. Op het einde verslaat de hele klas samen de klasbaas.</span>
       </button>
-      <button class="module" data-module="burchtstorm">
-        <img class="tile-icon" src="/img/icons/burchtstorm.webp" alt="">
-        <strong>Burchtstorm</strong>
-        <span>Vallende neonstenen: vul rijen en bestook de burchten van je klasgenoten. Goede antwoorden geven een runeschild en dubbele aanvallen.</span>
-        <em class="tag">Nieuw</em>
+      <button class="module" data-module="leraarbaas">
+        <img class="tile-icon" src="/img/icons/leraarbaas.webp" alt="">
+        <strong>Leraar-baas</strong>
+        <span>Jij bent de eindbaas: een reuzenridder op het bord. De klas valt aan met goede antwoorden, jij slaat terug.</span>
       </button>
-      <button class="module" data-module="pixelridder">
-        <img class="tile-icon" src="/img/icons/pixelridder.webp" alt="">
-        <strong>Pixelridder</strong>
-        <span>Ren en spring met je eigen ridder door retro pixelwerelden. Runeblokken geven een vraag: juist = power-up. Wie haalt de meeste runepoorten?</span>
-        <em class="tag">Nieuw</em>
-      </button>
-      <button class="module" data-module="robomol">
-        <img class="tile-icon" src="/img/icons/robomol.webp" alt="">
-        <strong>Robomol</strong>
-        <span>Robotmollen schieten uit de burchtputten: mep ze met je zwaard. Goede antwoorden laden je zwaard op en geven het Vuurzwaard.</span>
-        <em class="tag">Nieuw</em>
-      </button>
-      <button class="module" data-module="robopaarden">
-        <img class="tile-icon" src="/img/icons/robopaarden.webp" alt="">
-        <strong>Robopaarden</strong>
-        <span>Bouw je eigen robotpaard en race rond het burchtmeer, met schansen, nitro en geheime wegen. Runenkisten geven een vraag: juist = een wapen.</span>
-        <em class="tag">Nieuw</em>
+      <button class="module" data-module="verrader">
+        <img class="tile-icon" src="/img/icons/verrader.webp" alt="">
+        <strong>De Verrader</strong>
+        <span>Herstel samen de kern, maar wie is de verrader? Stem aan de Ronde Tafel.</span>
       </button>
       <button class="module" data-module="rijk">
         <img class="tile-icon" src="/img/icons/rijk.webp" alt="">
@@ -225,7 +116,112 @@
         <span>Les na les gebieden veroveren in teams. Oude leerstof komt terug om je land te verdedigen.</span>
         <em class="tag">Over meerdere lessen</em>
       </button>
-      </div></div>
+      </div>
+      <div class="groep-kop"><h3>Race en avontuur</h3><p class="muted small">Op eigen tempo: elke leerling speelt zijn eigen weg, goede antwoorden geven voorsprong.</p></div>
+      <div class="modules">
+      <button class="module" data-module="ridderrace">
+        <img class="tile-icon" src="/img/icons/strijdros.webp" alt="">
+        <strong>Ridderrace</strong>
+        <span>Race op hoverrossen in 3D. Goede antwoorden vullen je tank en geven turbo.</span>
+      </button>
+      <button class="module" data-module="robopaarden">
+        <img class="tile-icon" src="/img/icons/robopaarden.webp" alt="">
+        <strong>Robopaarden</strong>
+        <span>Bouw je eigen robotpaard en race rond het burchtmeer, met schansen, nitro en geheime wegen. Runenkisten geven een vraag: juist = een wapen.</span>
+        <em class="tag nieuw">Nieuw</em>
+      </button>
+      <button class="module" data-module="toren">
+        <img class="tile-icon" src="/img/icons/toren.webp" alt="">
+        <strong>De prinses in de toren</strong>
+        <span>Spring naar de top en red de prinses. Goede antwoorden geven energie.</span>
+      </button>
+      <button class="module" data-module="pixelridder">
+        <img class="tile-icon" src="/img/icons/pixelridder.webp" alt="">
+        <strong>Pixelridder</strong>
+        <span>Ren en spring met je eigen ridder door retro pixelwerelden. Runeblokken geven een vraag: juist = power-up. Wie haalt de meeste runepoorten?</span>
+        <em class="tag nieuw">Nieuw</em>
+      </button>
+      <button class="module" data-module="neonvlucht">
+        <img class="tile-icon" src="/img/icons/neonvlucht.webp" alt="">
+        <strong>Neonvlucht</strong>
+        <span>Ren, spring en glij door de neonburcht. Bij een vraagpoort loop je door het juiste antwoord voor turbo en een hogere ×.</span>
+        <em class="tag nieuw">Nieuw</em>
+      </button>
+      <button class="module" data-module="diepboor">
+        <img class="tile-icon" src="/img/icons/diepboor.webp" alt="">
+        <strong>Diepboor</strong>
+        <span>Boor zo diep als je kan naar goud, kristal en neonkernen. Goede antwoorden geven brandstof, de smidse maakt je boor sterker.</span>
+        <em class="tag nieuw">Nieuw</em>
+      </button>
+      <button class="module" data-module="schattenjacht">
+        <img class="tile-icon" src="/img/icons/schattenjacht.webp" alt="">
+        <strong>Schattenjacht</strong>
+        <span>Verzamel goud met goede antwoorden en koop slimme upgrades.</span>
+      </button>
+      <button class="module" data-module="kristalroof">
+        <img class="tile-icon" src="/img/icons/kristalroof.webp" alt="">
+        <strong>Kristalroof</strong>
+        <span>Mijn kristallen met goede antwoorden en kraak de kluis van een ander met het geheime woord.</span>
+      </button>
+      </div>
+      <div class="groep-kop"><h3>Gevecht in de arena</h3><p class="muted small">Iedereen in één arena. Munitie, kracht en levens verdien je met goede antwoorden.</p></div>
+      <div class="modules">
+      <button class="module" data-module="laserslag">
+        <img class="tile-icon" src="/img/icons/laserslag.webp" alt="">
+        <strong>Laserslag</strong>
+        <span>Lasergevecht rood tegen blauw. Munitie verdien je met goede antwoorden. Elke leerling kiest zelf het zicht: van bovenaf, achter de ridder of first person.</span>
+      </button>
+      <button class="module" data-module="strijdrossen">
+        <img class="tile-icon" src="/img/icons/strijdrossen.webp" alt="">
+        <strong>Strijdrossen</strong>
+        <span>Hoverrossen in een gevechtsarena. Lasers, raketten en mijnen krijg je alleen met goede antwoorden.</span>
+      </button>
+      <button class="module" data-module="bomberknight">
+        <img class="tile-icon" src="/img/icons/bomberknight.webp" alt="">
+        <strong>Bomber-Knight</strong>
+        <span>Tot dertig ridders in één arena. Een mijn kost energie, en energie verdien je met goede antwoorden.</span>
+      </button>
+      <button class="module" data-module="neonduel">
+        <img class="tile-icon" src="/img/icons/neonduel.webp" alt="">
+        <strong>Neon Duel</strong>
+        <span>Vechtspel met de hele klas: twee teams, twee ridders op het bord. Juist = slag, snel = combo, drie op rij = supermove.</span>
+      </button>
+      <button class="module" data-module="royale">
+        <img class="tile-icon" src="/img/icons/royale.webp" alt="">
+        <strong>Ridder-Royale</strong>
+        <span>Iedereen in één arena en de neonstorm krimpt. Munitie verdien je met goede antwoorden. De laatste ridder wint.</span>
+      </button>
+      <button class="module" data-module="sterrenvreter">
+        <img class="tile-icon" src="/img/icons/sterrenvreter.webp" alt="">
+        <strong>Sterrenvreter</strong>
+        <span>Eet sterrenstof en kleinere ridders, ontwijk het zwarte gat. Goede antwoorden geven massa, turbo en supernova.</span>
+        <em class="tag nieuw">Nieuw</em>
+      </button>
+      <button class="module" data-module="ridderslang">
+        <img class="tile-icon" src="/img/icons/ridderslang.webp" alt="">
+        <strong>Ridderslang</strong>
+        <span>Een neon lansslang die groeit met goede antwoorden. Snijd anderen af en eet hun licht op.</span>
+        <em class="tag nieuw">Nieuw</em>
+      </button>
+      <button class="module" data-module="packnight">
+        <img class="tile-icon" src="/img/icons/packnight.webp" alt="">
+        <strong>Pac-Knight</strong>
+        <span>Raap kristallen in een neon doolhof en ontwijk de drones. Een goed antwoord geeft een kracht: dan jaag jij op hen.</span>
+      </button>
+      <button class="module" data-module="robomol">
+        <img class="tile-icon" src="/img/icons/robomol.webp" alt="">
+        <strong>Robomol</strong>
+        <span>Robotmollen schieten uit de burchtputten: mep ze met je zwaard. Goede antwoorden laden je zwaard op en geven het Vuurzwaard.</span>
+        <em class="tag nieuw">Nieuw</em>
+      </button>
+      <button class="module" data-module="burchtstorm">
+        <img class="tile-icon" src="/img/icons/burchtstorm.webp" alt="">
+        <strong>Burchtstorm</strong>
+        <span>Vallende neonstenen: vul rijen en bestook de burchten van je klasgenoten. Goede antwoorden geven een runeschild en dubbele aanvallen.</span>
+        <em class="tag nieuw">Nieuw</em>
+      </button>
+      </div>
+    </div>
     <div class="realm-panel hidden" id="realm-tafel"><div class="modules">
       <button class="module" data-module="rondetafel">
         <img class="tile-icon" src="/img/icons/ronde-tafel.webp" alt="">
@@ -261,11 +257,11 @@
       </button>
       </div></div>
     <div class="actions" style="justify-content:center">
-      <button class="secondary" id="open-klas">Mijn klas en doelen</button>
-      <button class="secondary" id="open-zorg">Zorgoverzicht</button>
-      <button class="secondary" id="open-results">Resultaten</button>
-      <button class="secondary" id="open-netwerk">Netwerk werkt niet?</button>
-      <button class="secondary" id="open-settings"><img class="btn-icon" src="/img/icons/instellingen.webp" alt="">Instellingen</button>
+      <button class="secondary" id="open-klas"><i class="ic ic-doel" aria-hidden="true"></i> Mijn klas en doelen</button>
+      <button class="secondary" id="open-zorg"><i class="ic ic-zorg" aria-hidden="true"></i> Zorgoverzicht</button>
+      <button class="secondary" id="open-results"><i class="ic ic-resultaten" aria-hidden="true"></i> Resultaten</button>
+      <button class="secondary" id="open-netwerk"><i class="ic ic-netwerk" aria-hidden="true"></i> Netwerk werkt niet?</button>
+      <button class="secondary" id="open-settings"><i class="ic ic-instellingen" aria-hidden="true"></i> Instellingen</button>
     </div>
   </section>
 
@@ -587,6 +583,7 @@
   </section>
 </main>
 <script src="/socket.io/socket.io.js"></script>
+<script src="/js/ui.js"></script>
 <script src="/js/fx.js"></script>
 <script src="/js/avatar.js"></script>
 <script src="/js/niveau.js"></script>

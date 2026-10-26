@@ -156,10 +156,10 @@ function obStatus() {
   }
 }
 
-$('ob-submit').addEventListener('click', () => {
+$('ob-submit').addEventListener('click', async () => {
   const all = [...$('ob-paper').querySelectorAll('[data-field]')];
   const empty = all.filter(el => !ob.answers[el.dataset.field]).length;
-  if (!confirm(empty ? `Nog ${empty} vakjes leeg. Toch inleveren?` : 'Je blad inleveren? Daarna kan alleen je leerkracht het weer openzetten.')) return;
+  if (!await Ui.vraag(empty ? `Nog ${empty} vakjes leeg. Toch inleveren?` : 'Je blad inleveren? Daarna kan alleen je leerkracht het weer openzetten.')) return;
   // Wat nog in een vakje staat maar nog niet verstuurd is, eerst doorsturen.
   for (const el of $('ob-paper').querySelectorAll('input.ob-field, textarea.ob-field')) {
     if ((ob.answers[el.dataset.field] || '') !== el.value) obSend(el.dataset.field, el.value);

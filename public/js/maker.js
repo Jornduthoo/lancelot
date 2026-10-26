@@ -390,8 +390,8 @@ $('s-save').addEventListener('click', () => {
   saveSettings(changes);
 });
 
-$('s-remove').addEventListener('click', () => {
-  if (confirm('De Gemini-sleutel verwijderen van deze pc?')) saveSettings({ geminiKey: '' });
+$('s-remove').addEventListener('click', async () => {
+  if (await Ui.vraag('De Gemini-sleutel verwijderen van deze pc?')) saveSettings({ geminiKey: '' });
 });
 
 $('m-gemini').addEventListener('click', () => {

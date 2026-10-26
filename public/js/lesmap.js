@@ -62,7 +62,7 @@
     socket.emit('lesmap-sync', null, render);
   });
   $('lm-open').addEventListener('click', () => socket.emit('lesmap-open'));
-  $('lm-off').addEventListener('click', () => {
-    if (confirm('De lesmap loskoppelen? Je quizzen blijven op deze pc en in de lesmap staan, maar worden niet meer gelijk gehouden.')) choose('');
+  $('lm-off').addEventListener('click', async () => {
+    if (await Ui.vraag('De lesmap loskoppelen? Je quizzen blijven op deze pc en in de lesmap staan, maar worden niet meer gelijk gehouden.')) choose('');
   });
 })();

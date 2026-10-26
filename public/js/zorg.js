@@ -85,9 +85,18 @@ function render() {
 
   const leeg = $('z-leeg');
   leeg.style.display = d.antwoorden ? 'none' : '';
-  leeg.textContent = d.leerlingen.length
+  leeg.innerHTML = '';
+  leeg.append(el('p', '', d.leerlingen.length
     ? 'In deze periode staat er nog niets in het logboek. Speel een spel of een oefenblad, of kies een langere periode.'
-    : 'Zet eerst je leerlingen op de klaslijst bij Mijn klas en doelen, en speel een paar spellen. Dan verschijnt hier wie extra zorg kan gebruiken.';
+    : 'Zet eerst je leerlingen op de klaslijst bij Mijn klas en doelen, en speel een paar spellen. Dan verschijnt hier wie extra zorg kan gebruiken.'));
+  const knop = el('a', 'button', d.leerlingen.length ? 'Naar De Arena' : 'Klaslijst invullen');
+  knop.href = d.leerlingen.length ? '/host' : '/klas';
+  leeg.append(knop);
+  // Zonder antwoorden zijn de lege blokken hieronder enkel ruis: alleen de uitleg blijft staan.
+  for (const id of ['z-leerlingen', 'z-misverstanden', 'z-klassikaal']) {
+    const blok = $(id).closest('.zg-twee') || $(id).closest('.panel');
+    blok.style.display = d.antwoorden ? '' : 'none';
+  }
 
   const grid = $('z-leerlingen');
   grid.innerHTML = '';
@@ -237,8 +246,8 @@ function detail(l) {
       t.append(el('small', 'muted', `${datum(n.t)} · `), document.createTextNode(n.tekst));
       const del = el('button', 'secondary zg-mini', '✕');
       del.title = 'Notitie verwijderen';
-      del.addEventListener('click', () => {
-        if (confirm('Deze notitie verwijderen?')) socket.emit('notitie-del', { leerling: l.key, t: n.t }, load);
+      del.addEventListener('click', async () => {
+        if (await Ui.vraag('Deze notitie verwijderen?')) socket.emit('notitie-del', { leerling: l.key, t: n.t }, load);
       });
       r.append(t, del);
       nota.appendChild(r);
@@ -271,7 +280,7 @@ function maakHerhaling(button, opts, event = 'herhaal-doelen') {
   socket.emit(event, opts, res => {
     button.disabled = false;
     const msg = res.error || `"${res.title}" staat bij je quizzen in de map Herhaling (${res.vragen} vragen). Speel hem in een spel op eigen tempo, zoals Schattenjacht of Laserslag.`;
-    alert(msg);
+    Ui.melding(msg);
   });
 }
 

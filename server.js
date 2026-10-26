@@ -1187,7 +1187,7 @@ io.on('connection', socket => {
       const spel = SPELLEN[pad];
       if (typeof cb !== 'function') return;
       if (!spel || !(spel.players instanceof Map)) return cb({ geen: true });
-      cb({ spelers: spel.phase === 'idle' ? [] : [...spel.players].map(([id, p]) => ({ id, name: p.name, online: online(p.socketId) })) });
+      cb({ actief: spel.phase !== 'idle', spelers: spel.phase === 'idle' ? [] : [...spel.players].map(([id, p]) => ({ id, name: p.name, online: online(p.socketId) })) });
     });
     socket.on('namen-weg', ({ pad, id } = {}) => {
       const spel = SPELLEN[pad];
