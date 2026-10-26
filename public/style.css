@@ -1092,6 +1092,8 @@ select.ob-wacht { opacity: .55; }
 .niveau-raster select { padding: 3px 4px; font-size: .88rem; opacity: .6; }
 .niveau-raster select.eigen { opacity: 1; font-weight: 700; }
 .quiz-niveau-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 10px; }
+.quiz-uitleg-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 10px; cursor: pointer; }
+.quiz-uitleg-bar input { width: 18px; height: 18px; margin: 0; }
 
 @media print {
   @page { size: A4; margin: 14mm; }

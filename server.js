@@ -721,6 +721,12 @@ io.on('connection', socket => {
     socket.on('klas-get', handle(() => ({ klas: klas.read(), vakgroepen: niveaus.VAKGROEPEN })));
     socket.on('klas-niveau', handle(({ id, niveau, vak } = {}) => ({ klas: klas.setNiveau(id, niveau, vak) })));
     // Op welk niveau de klas de quizspellen speelt (Page, Schildknaap, Ridder of alles door elkaar).
+    // Uitleg na een fout antwoord in de spellen (in het Toernooi en het Duel altijd).
+    socket.emit('uitleg-spellen', settings.read().uitlegSpellen !== false);
+    socket.on('uitleg-spellen', aan => {
+      settings.write({ uitlegSpellen: aan !== false });
+      io.to('host').emit('uitleg-spellen', aan !== false);
+    });
     socket.emit('quiz-niveau', quizzes.classNiveau());
     socket.on('quiz-niveau', niveau => {
       settings.write({ quizNiveau: ['alle', 'leerling'].includes(niveau) ? niveau : niveaus.clean(niveau) || 'schildknaap' });
