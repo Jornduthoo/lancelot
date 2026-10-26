@@ -57,6 +57,10 @@
     </div>
     <div class="panel form">
       <h3>Woorden van de week</h3>
+      <p class="muted small" id="rnh-lijst-info"></p>
+      <!-- Dicht, want het bord staat open voor de klas: de woorden zijn de antwoorden van de komende dagen. -->
+      <details class="rnh-bewerk" id="rnh-bewerk">
+      <summary>✏️ Woorden bekijken en bewerken <span class="muted small">(niet op het bord tonen)</span></summary>
       <p class="muted small">Eén woord per regel (4 tot 7 letters), bijvoorbeeld uit je les. Ze komen vóór de ingebouwde woorden: 4 letters voor Page, 5 voor Schildknaap, 6 of 7 voor Ridder. Betekenis en voorbeeldzin mag je zelf typen (<code>woord = betekenis | zin</code>) of laten aanvullen.</p>
       <div class="rnh-thema">
         <input id="rnh-thema" maxlength="120" placeholder="Thema, bv. de middeleeuwen">
@@ -76,8 +80,8 @@
         <button class="secondary" id="rnh-ai">✨ Betekenissen aanvullen met AI</button>
         <button class="gold" id="rnh-bewaar">Bewaar</button>
       </div>
-      <p class="muted small" id="rnh-lijst-info"></p>
       <div class="rnh-chips" id="rnh-chips"></div>
+      </details>
     </div>
   </section>
 </main>
