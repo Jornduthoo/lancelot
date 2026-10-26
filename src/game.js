@@ -6,6 +6,7 @@ const { Date, setTimeout, setInterval, clearTimeout, clearInterval } = require('
 const logboek = require('./logboek');
 const settings = require('./settings');
 const quizzes = require('./quizzes');
+const getal = require('./getal');
 
 const MAX_POINTS = 1000;
 const INTRO_MS = 4000;
@@ -118,6 +119,14 @@ class Game {
     const p = this.players.get(playerId);
     const q = p && this.qFor(p);
     if (!p || this.phase !== 'question' || p.answer !== null) return;
+    // Een getalvraag: de leerling typte { getal: '3,5' }.
+    p.getypt = null;
+    if (choice && typeof choice === 'object' && q.typ === 'getal') {
+      const typed = String(choice.getal ?? '').trim().slice(0, 30);
+      if (!typed) return;
+      p.getypt = typed;
+      choice = getal.kies(q.answers, q.answers[q.correct], typed);
+    }
     if (!Number.isInteger(choice) || choice < 0 || choice >= q.answers.length) return;
     p.answer = choice;
     p.answeredAt = Date.now() - this.questionStartedAt;
@@ -170,6 +179,15 @@ class Game {
       naam: p.name, spel: this.quiz.spel || 'Toernooi', bron: this.quiz.title, vraag: p.q.question, doel: p.q.doel,
       juist: p.answer === p.q.correct, leeg: p.answer === null, zeker: p.zeker,
     })));
+    // Fout of niet geantwoord: de uitleg op het eigen scherm. Wat een leerling fout koos, gaat naar de veelgemaakte fouten.
+    for (const p of this.players.values()) {
+      if (p.answer === p.q.correct) continue;
+      const juist = p.q.answers[p.q.correct];
+      if (p.q.uitleg) this.io.to(p.socketId).emit('uitleg', { tekst: p.q.uitleg, juist });
+      if (p.answer !== null) {
+        logboek.keuze({ naam: p.name, spel: this.quiz.spel || 'Toernooi', bron: this.quiz.title, vraag: p.q.question, doel: p.q.doel, gekozen: p.getypt || p.q.answers[p.answer], juist });
+      }
+    }
     for (const p of this.players.values()) {
       if (!p.zeker || p.answer === null) continue;
       const k = `${p.zeker}-${p.answer === p.q.correct ? 'juist' : 'fout'}`;
@@ -214,7 +232,8 @@ class Game {
       title: this.quiz && this.quiz.title,
       index: this.index,
       total: this.quiz ? this.quiz.questions.length : 0,
-      question: q ? { question: q.question, answers: q.answers, time: q.time } : null,
+      question: q ? { question: q.question, answers: q.answers, time: q.time, typ: q.typ || '' } : null,
+      uitleg: this.phase === 'reveal' && q.uitleg ? q.uitleg : '',
       introRemaining: this.phase === 'intro' ? Math.max(0, this.introEndsAt - Date.now()) : 0,
       correct: this.phase === 'reveal' ? q.correct : null,
       remaining: this.phase === 'question' ? Math.max(0, q.time * 1000 - (Date.now() - this.questionStartedAt)) : 0,
@@ -240,6 +259,7 @@ class Game {
       answerCount: q ? q.answers.length : 0,
       answers: q ? q.answers : [],
       question: q ? q.question : '',
+      typ: q && q.typ ? q.typ : '',
       introRemaining: this.phase === 'intro' ? Math.max(0, this.introEndsAt - Date.now()) : 0,
       remaining: this.phase === 'question' ? Math.max(0, q.time * 1000 - (Date.now() - this.questionStartedAt)) : 0,
     };
@@ -253,6 +273,10 @@ class Game {
       state.rank = ranking.findIndex(r => r.id === playerId) + 1;
       if (this.phase === 'reveal') {
         state.correct = p.answer === q.correct;
+        if (q.typ === 'getal') {
+          state.getypt = p.getypt || '';
+          state.juist = q.answers[q.correct];
+        }
         state.points = p.lastPoints;
         state.streak = p.streak;
       }

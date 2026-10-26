@@ -209,8 +209,66 @@
       const socket = io(...args);
       volg(socket, opts);
       Pauze.volg(socket, !!(opts.query && opts.query.role === 'host'));
+      socket.on('uitleg', u => u && toonUitleg(u));
       return socket;
     }, io);
+  }
+
+  // ---------- Uitleg na een fout antwoord ----------
+  // De server stuurt { tekst, juist } in elk spel. Tik erop om hem weg te doen.
+  const uitleg = document.createElement('div');
+  uitleg.className = 'ui-uitleg hidden';
+  uitleg.setAttribute('role', 'status');
+  let uitlegWeg = null;
+  uitleg.addEventListener('click', () => uitleg.classList.add('hidden'));
+
+  function toonUitleg({ tekst, juist }) {
+    if (!tekst) return;
+    uitleg.innerHTML = '<b>Waarom?</b><span></span><small></small>';
+    uitleg.children[1].textContent = tekst;
+    uitleg.children[2].textContent = juist ? `Juist antwoord: ${juist}` : '';
+    if (!uitleg.isConnected) document.body.appendChild(uitleg);
+    uitleg.classList.remove('hidden');
+    // Opnieuw laten inschuiven, ook als er al een uitleg stond.
+    uitleg.style.animation = 'none';
+    void uitleg.offsetWidth;
+    uitleg.style.animation = '';
+    clearTimeout(uitlegWeg);
+    uitlegWeg = setTimeout(() => uitleg.classList.add('hidden'), Math.min(11000, 4500 + 55 * tekst.length));
+  }
+
+  // ---------- Getal typen ----------
+  // Bij een getalvraag (res.typ === 'getal') vervangt een invulveld de antwoordknoppen in box.
+  // kies(tekst) krijgt wat de leerling typte. Geeft het invulveld terug.
+  function getal(box, kies) {
+    box.innerHTML = `<form class="ui-getal"><input type="text" inputmode="decimal" autocomplete="off" maxlength="20" placeholder="Typ je antwoord" aria-label="Typ je antwoord"><button type="submit" class="gold">OK</button></form>`;
+    const form = box.firstChild;
+    const veld = form.querySelector('input');
+    // Cijfers zijn hier om te typen, niet om een antwoord 1 tot 4 te kiezen of je ridder te sturen.
+    for (const soort of ['keydown', 'keyup']) veld.addEventListener(soort, e => e.stopPropagation());
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      const tekst = veld.value.trim();
+      if (!tekst || veld.disabled) return;
+      veld.disabled = true;
+      form.querySelector('button').disabled = true;
+      kies(tekst);
+    });
+    setTimeout(() => veld.focus({ preventScroll: true }), 50);
+    return veld;
+  }
+
+  // Na het antwoord: groen of rood, met het juiste getal erbij als het fout was.
+  function getalKlaar(veld, goed, juist) {
+    const form = veld && veld.closest('form');
+    if (!form) return;
+    form.classList.add(goed ? 'goed' : 'fout');
+    if (!goed && juist) {
+      const p = document.createElement('p');
+      p.className = 'ui-getal-juist';
+      p.textContent = `Juist: ${juist}`;
+      form.appendChild(p);
+    }
   }
 
   // ---------- Vensters ----------
@@ -255,6 +313,9 @@
       { tekst: o.ja || 'Ja', klas: o.gevaar ? 'danger' : '', waarde: true },
     ]),
     melding: tekst => wachtrij(tekst, [{ tekst: 'OK', waarde: true }]),
+    uitleg: toonUitleg,
+    getal,
+    getalKlaar,
     // Een klein icoon uit style.css (.ic-…) voor in een knop.
     ic: naam => `<i class="ic ic-${naam}" aria-hidden="true"></i>`,
     pauze: Pauze,

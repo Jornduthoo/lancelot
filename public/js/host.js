@@ -188,6 +188,10 @@ function renderQuestion() {
       </div>`).join('');
     if (phase === 'question') sfx.go();
   }
+  // Een getalvraag: de leerlingen typen het getal, dus de antwoorden staan pas bij de onthulling op het bord.
+  $('q-answers').classList.toggle('getal', q.typ === 'getal');
+  $('q-uitleg').classList.toggle('hidden', !state.uitleg);
+  $('q-uitleg').textContent = state.uitleg || '';
 
   if (phase === 'question') {
     deadline = Date.now() + state.remaining;

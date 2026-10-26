@@ -694,6 +694,8 @@ const AK = (() => {
           b.querySelector('span').textContent = res.answers[i];
           b.addEventListener('click', () => q.pick(i));
         });
+        // Een getalvraag: zelf het getal typen in plaats van kiezen.
+        if (res.typ === 'getal' && window.Ui) q.cur.veld = Ui.getal(list, t => q.pick({ getal: t }));
       });
     }
 
@@ -705,10 +707,12 @@ const AK = (() => {
     };
     q.pick = i => {
       if (!q.cur || q.cur.done || !q.cur.answers || performance.now() < q.cur.lockUntil) return;
+      if (q.cur.veld && typeof i === 'number') return;
       q.cur.done = true;
       opts.answer(i, res => {
         if (!res || res.error) return q.close();
-        const tiles = [...$s('.answers').children];
+        const tiles = q.cur && q.cur.veld ? [] : [...$s('.answers').children];
+        if (q.cur && q.cur.veld) Ui.getalKlaar(q.cur.veld, res.correct, Number.isInteger(res.right) ? q.cur.answers[res.right] : '');
         tiles.forEach((t, j) => {
           t.classList.remove('enter');
           t.classList.toggle('dim', j !== res.right && j !== i);
@@ -728,7 +732,7 @@ const AK = (() => {
           }, 850);
         } else {
           // Tegen gokken: het juiste antwoord blijft even staan, en pas daarna komt een nieuwe vraag.
-          tiles[i].classList.add('wrong');
+          if (tiles[i]) tiles[i].classList.add('wrong');
           result.textContent = opts.bad(res);
           sfx.bad();
           if (typeof buzz === 'function') buzz(200);

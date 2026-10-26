@@ -1230,8 +1230,8 @@ io.on('connection', socket => {
     const open = p && q && game.phase === 'question' && p.answer === null;
     game.answer(id, choice);
     // Te snel en fout, drie keer na elkaar: een seintje voor de leerkracht.
-    if (open && p.answer === choice) {
-      gok.judge('toernooi', id, { correct: choice === q.correct, ms: p.answeredAt, limit: antigok.fastMs(q.question, q.answers), name: p.name, socketId: socket.id, spel: 'Toernooi' });
+    if (open && p.answer !== null) {
+      gok.judge('toernooi', id, { correct: p.answer === q.correct, ms: p.answeredAt, limit: antigok.fastMs(q.question, q.answers), name: p.name, socketId: socket.id, spel: 'Toernooi' });
     }
   });
 

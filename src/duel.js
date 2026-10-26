@@ -185,6 +185,10 @@ class Duel {
       return { correct: true, right: q.correct };
     }
     p.wrong++;
+    const juist = q.answers[q.correct];
+    logboek.keuze({ naam: p.name, spel: 'Duel in de arena', bron: this.quiz.title, vraag: q.question, doel: q.doel, gekozen: q.answers[choice], juist });
+    // De uitleg pas als de vraag voorbij is: de andere ridder kan nog antwoorden.
+    if (q.uitleg) (m.uitleg || (m.uitleg = [])).push({ socketId: p.socketId, tekst: q.uitleg, juist });
     const other = s === 'a' ? 'b' : 'a';
     if (m.locked[other]) this.resolve(m, null);
     else this.sendMatch(m);
@@ -198,6 +202,8 @@ class Duel {
     // Het goede antwoord per kant: elke ridder kan een andere versie van de vraag hebben.
     const right = id => (id && this.players.get(id) ? quizzes.vraagVoor(this.quiz.questions[m.q], this.players.get(id).name).correct : null);
     m.hit = { by: striker, right: { a: right(m.a), b: right(m.b) }, at: Date.now() };
+    for (const u of m.uitleg || []) this.io.to(u.socketId).emit('uitleg', { tekst: u.tekst, juist: u.juist });
+    m.uitleg = null;
     if (striker) {
       m.hits = m.hits || {};
       m.hits[striker] = (m.hits[striker] || 0) + 1;

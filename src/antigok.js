@@ -6,6 +6,8 @@
 const { Date, setTimeout, setInterval, clearTimeout, clearInterval } = require('./pauze').klok; // stil tijdens de pauzeknop
 const { factor } = require('./tempo');
 const logboek = require('./logboek');
+const quizzes = require('./quizzes');
+const getal = require('./getal');
 
 const WRONG_MS = 3000;
 const PAUSE_MS = 12000;
@@ -68,13 +70,32 @@ function create(io) {
           s.askedAt = now;
           s.limit = fastMs(out.question, out.answers);
         }
+        if (out && out.question) {
+          // Wat de leerling nu ziet: voor de getalvragen, de uitleg en de veelgemaakte fouten.
+          s.vraag = out.question;
+          s.answers = Array.isArray(out.answers) ? out.answers : null;
+          const ex = quizzes.extraVoor(out.question);
+          if (ex && ex.typ === 'getal') out.typ = 'getal';
+        }
         return out;
       },
       answer(id, choice) {
         const p = game.players.get(id);
         const asked = p ? p.question : null;
+        const s0 = get(key, id);
+        const ex = s0.vraag ? quizzes.extraVoor(s0.vraag) : null;
+        // Een getalvraag: de leerling typte { getal: '3,5' }. Dat wordt het nummer van het juiste of een fout antwoord.
+        let getypt = null;
+        if (choice && typeof choice === 'object') {
+          if (!ex || ex.typ !== 'getal' || !s0.answers) return { error: 'Deze vraag is meerkeuze.' };
+          getypt = String(choice.getal ?? '').trim().slice(0, 30);
+          if (!getypt) return { error: 'Typ eerst een getal.' };
+          choice = getal.kies(s0.answers, ex.juist, getypt);
+        }
         const out = game.answer(id, choice);
         if (!p || !out || out.error || typeof out.correct !== 'boolean') return out;
+        if (!out.correct) fout(game, p, spel, s0, ex, getypt ?? (s0.answers || [])[choice], out);
+        if (getypt !== null) out.getypt = getypt;
         const s = get(key, id);
         const now = Date.now();
         const ms = s.open ? now - s.askedAt : Infinity;
@@ -84,6 +105,8 @@ function create(io) {
         if (out.correct) return out;
         let wait = own ? out.wait || 0 : Math.round(WRONG_MS * scale(game.tempo));
         if (!own) requeue(game, p, asked);
+        // Met uitleg erbij: wat langer, zodat de leerling ze kan lezen.
+        if (out.uitleg) wait += Math.min(4000, 1000 + 25 * out.uitleg.length);
         if (gok) {
           wait = Math.max(wait, pause);
           out.gok = true;
@@ -95,7 +118,22 @@ function create(io) {
     };
   }
 
-  return { guard, judge, fastMs };
+  // Een fout antwoord: de uitleg naar de leerling, en wat hij koos naar de veelgemaakte fouten.
+  function fout(game, p, spel, s, ex, gekozen, out) {
+    const juist = s.answers && Number.isInteger(out.right) ? s.answers[out.right] : ex ? ex.juist : '';
+    if (ex && ex.uitleg) {
+      out.uitleg = ex.uitleg;
+      uitleg(p.socketId, ex.uitleg, juist);
+    }
+    logboek.keuze({ naam: p.name, spel, bron: game.quiz && game.quiz.title, vraag: s.vraag, doel: ex ? ex.doel : '', gekozen, juist });
+  }
+
+  // Elk scherm toont de uitleg met ui.js, welk spel er ook loopt.
+  function uitleg(socketId, tekst, juist) {
+    if (socketId && tekst) io.to(socketId).emit('uitleg', { tekst, juist });
+  }
+
+  return { guard, judge, fastMs, uitleg };
 }
 
 module.exports = { create, fastMs };
