@@ -402,21 +402,23 @@ function buVakje(e) {
   return BuArt.vakjeOp(px, py - dy, T, ox, oy);
 }
 
-// Slepen schuift, met twee vingers knijpen zoomt. Een korte tik blijft bouwen.
+// Slepen schuift (ingezoomd) of draait per kwartslag (niet ingezoomd, of met de rechtermuisknop).
+// Met twee vingers knijpen zoomt en draaien draait. Een korte tik blijft bouwen.
 const vingers = new Map();
-let sleep = null; // { x, y, px, py, ver } bij één vinger, { d, z, mx, my } bij twee
+let sleep = null; // { x, y, px, py, ver, draai, stapX } bij één vinger, { d, z, mx, my, hoek } bij twee
+const DRAAISTAP = 90; // zoveel pixels slepen is een kwartslag
 let geenKlik = false;
 
 function buKnijp() {
   const [a, b] = [...vingers.values()];
-  return { d: Math.hypot(a[0] - b[0], a[1] - b[1]) || 1, mx: (a[0] + b[0]) / 2, my: (a[1] + b[1]) / 2 };
+  return { d: Math.hypot(a[0] - b[0], a[1] - b[1]) || 1, mx: (a[0] + b[0]) / 2, my: (a[1] + b[1]) / 2, hoek: Math.atan2(b[1] - a[1], b[0] - a[0]) };
 }
 
 cv.addEventListener('pointerdown', e => {
   vingers.set(e.pointerId, buPunt(e));
   if (vingers.size === 1) {
     const [x, y] = buPunt(e);
-    sleep = { x, y, px: bu.zicht.px, py: bu.zicht.py, ver: false };
+    sleep = { x, y, px: bu.zicht.px, py: bu.zicht.py, ver: false, draai: e.button === 2 || bu.zicht.z <= 1, stapX: x };
     geenKlik = false;
   } else if (vingers.size === 2) {
     const k = buKnijp();
@@ -430,6 +432,14 @@ cv.addEventListener('pointermove', e => {
   vingers.set(e.pointerId, buPunt(e));
   if (vingers.size >= 2 && sleep.d) {
     const k = buKnijp();
+    // twee vingers draaien: per 40 graden een kwartslag
+    let dh = k.hoek - sleep.hoek;
+    if (dh > Math.PI) dh -= 2 * Math.PI;
+    if (dh < -Math.PI) dh += 2 * Math.PI;
+    if (Math.abs(dh) > 0.7) {
+      buDraai(dh > 0 ? 1 : -1);
+      sleep.hoek = k.hoek;
+    }
     // eerst terug naar het begin van het knijpen, dan zoomen rond het midden van je vingers
     Object.assign(bu.zicht, { z: sleep.z, px: sleep.px + (k.mx - sleep.mx), py: sleep.py + (k.my - sleep.my) });
     buZoom(sleep.z * (k.d / sleep.d), k.mx, k.my);
@@ -437,7 +447,13 @@ cv.addEventListener('pointermove', e => {
   }
   const [x, y] = buPunt(e);
   if (!sleep.ver && Math.hypot(x - sleep.x, y - sleep.y) > 8 * dpr) sleep.ver = true;
-  if (sleep.ver && bu.zicht.z > 1) {
+  if (sleep.ver && sleep.draai) {
+    while (Math.abs(x - sleep.stapX) > DRAAISTAP * dpr) {
+      const r = x > sleep.stapX ? 1 : -1;
+      buDraai(r);
+      sleep.stapX += r * DRAAISTAP * dpr;
+    }
+  } else if (sleep.ver && bu.zicht.z > 1) {
     bu.zicht.px = sleep.px + x - sleep.x;
     bu.zicht.py = sleep.py + y - sleep.y;
     bu.hover = null;
@@ -454,6 +470,7 @@ function buLos(e) {
   } else if (!vingers.size) sleep = null;
 }
 cv.addEventListener('pointerup', buLos);
+cv.addEventListener('contextmenu', e => e.preventDefault());
 cv.addEventListener('pointercancel', buLos);
 cv.addEventListener('pointerleave', e => {
   if (e.pointerType === 'mouse') bu.hover = null;
