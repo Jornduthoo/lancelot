@@ -380,6 +380,7 @@ span.play { padding: 13px 22px; display: flex; align-items: center; }
 .player .mini .wordmark { font-size: 1.5rem; }
 .player .welcome img { width: min(300px, 72vw); display: block; margin: 0 auto; filter: drop-shadow(0 0 22px var(--cyan-glow)); animation: float 6s ease-in-out infinite, logo-glow 3.5s ease-in-out infinite; }
 .player .rn-knop { display: flex; align-items: center; justify-content: center; gap: 10px; text-decoration: none; background: linear-gradient(90deg, rgba(199, 125, 255, .35), rgba(76, 201, 255, .25)); border: 1px solid #c77dff; box-shadow: 0 0 18px rgba(199, 125, 255, .35); color: #fff; font-weight: 800; }
+.player .bu-knop { background: linear-gradient(90deg, rgba(255, 201, 74, .32), rgba(76, 201, 255, .2)); border-color: var(--gold); box-shadow: 0 0 18px rgba(255, 201, 74, .3); }
 .player .welcome .rn-knop img { width: 36px; height: 36px; border-radius: 8px; margin: 0; animation: none; filter: none; }
 .player .screen { display: flex; flex-direction: column; gap: 16px; text-align: center; align-items: stretch; }
 .player .title { font-family: var(--head); font-weight: 900; font-size: 2rem; }

@@ -306,6 +306,22 @@ Elke dag een geheim woord, goed voor de woordenschat.
 
 De antwoorden gaan in het logboek (doel woordenschat), dus ook in het zorgoverzicht.
 
+## Het Klaseiland: Eer en burchten
+
+Een beloningssysteem per leerling dat inzet en groei beloont, niet alleen de beste scores.
+
+1. **Eer verdienen** gaat vanzelf, in elk spel: 1 Eer per beantwoorde vraag en 1 extra als ze juist is (hooguit 40 per spel), 5 voor een spel uitspelen, 10 als je beter doet dan je vorige spellen, 10 voor een herhaalquiz, 2 tot 5 voor het Runenraadsel, 3 per dag dat je meedoet en 15 extra per 5 schooldagen na elkaar. Gokken kost 5 Eer. Page, Schildknaap en Ridder verdienen evenveel.
+2. **Rangen**: Rekruut, Wapenknecht (150), Banierdrager (400), Burchtheer (900), Paladijn (1800) en Legende (3500). Met elke rang wordt de grond van de leerling groter (van 5 × 5 tot 10 × 10) en kan hij meer bouwen. Een rang zakt nooit.
+3. **Mijn burcht**: leerlingen tikken op hun startscherm op **🏰 Mijn burcht** (of surfen naar het adres met `/burcht`). Ze zien hun Eer, hun rang, hun wapenschilden en waarmee ze Eer verdienden. Bouwen kan alleen tijdens **Kasteeltijd**: muren, torens, huisjes, een smidse, een draak... Iets weghalen geeft alle Eer terug.
+4. **Het Klaseiland** (tegel bij De Arena) toont alle burchten samen op één zwevend eiland op het bord, met de naam van elke leerling. Er staan geen punten of rangen op: geen ranglijst in de klas.
+   - **🏗️ Kasteeltijd**: zet je aan en uit. Bijvoorbeeld 5 minuten op vrijdag, of als beloning na een taak.
+   - **👑 Eer geven**: aan één leerling, een groepje of iedereen, met een reden die de leerling ziet (inzet, helpen, een mooie taak). Een vergissing neem je terug in het Ridderboek.
+   - **🎯 Klasdoel**: samen zoveel Eer verdienen vanaf nu, met een beloning die je zelf kiest. De klasburcht in het midden groeit mee tot een gouden toren met een draak.
+   - **🔭 Burchtentour**: de camera vliegt langs elke burcht.
+   - **📖 Ridderboek**: Eer, rang en wat er recent bijkwam per leerling. Dat staat op het bord, dus open het niet als de klas meekijkt. Een burchtnaam die niet door de beugel kan, wis je hier.
+
+De burchten staan in de map `burchten` bij je gegevens, alleen op deze pc.
+
 ## Lukt verbinden niet?
 
 Op het startscherm en in elke lobby staat de knop **Netwerk werkt niet?**. Die pagina toont de netwerken van je pc en loopt alle stappen hieronder met je door.

@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#060a13">
+  <title>LANcelot · Mijn burcht</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="apple-touch-icon" href="/img/icon-192.png">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/burcht.css">
+</head>
+<body class="player bu-page">
+<main>
+  <div class="bu-top">
+    <a class="bu-back" href="/" title="Terug naar de spellen">←</a>
+    <img class="bu-logo" src="/img/icons/klaseiland.webp" alt="">
+    <div class="bu-titel">
+      <div class="bu-naam-spel" id="bu-burchtnaam">Mijn burcht</div>
+      <div class="bu-rang" id="bu-rang"></div>
+    </div>
+    <div class="bu-tellers hidden" id="bu-tellers">
+      <span class="bu-teller" title="Eer die je nog kan uitgeven"><b id="bu-saldo">0</b><i>Eer</i></span>
+      <span class="bu-teller vuur" title="Schooldagen na elkaar meegedaan"><b id="bu-reeks">0</b><i>🔥 reeks</i></span>
+    </div>
+  </div>
+
+  <div class="bu-spel-start hidden" id="bu-start-banner">
+    <span>⚔️ De leerkracht startte een spel!</span>
+    <a class="button gold" href="/">Ga meedoen</a>
+  </div>
+
+  <form id="bu-join" class="screen welcome hidden">
+    <p class="title">Mijn burcht</p>
+    <p class="muted">Met je Eer bouw je je eigen burcht. Alle burchten samen vormen het Klaseiland.</p>
+    <input id="bu-name" maxlength="20" autocomplete="off" placeholder="Je naam">
+    <p class="error" id="bu-join-error"></p>
+    <button type="submit" class="big">Naar mijn burcht</button>
+  </form>
+
+  <section id="bu-spel" class="hidden">
+    <div class="bu-veld">
+      <div class="bu-links">
+        <p class="bu-nieuw hidden" id="bu-nieuw"></p>
+        <div class="bu-kijk" id="bu-kijk">
+          <canvas id="bu-canvas"></canvas>
+          <div class="bu-slot hidden" id="bu-slot">🔒 Bouwen kan tijdens <b>Kasteeltijd</b>. Je leerkracht zet die aan.</div>
+          <div class="bu-tijd hidden" id="bu-tijd">🏗️ Kasteeltijd! Kies iets en tik op je grond.</div>
+          <p class="bu-melding" id="bu-melding" aria-live="polite"></p>
+        </div>
+        <div class="bu-bouw" id="bu-bouw">
+          <div class="bu-tabs" role="tablist">
+            <button type="button" class="bu-tab on" data-tab="stuk">🏰 Bouwen</button>
+            <button type="button" class="bu-tab" data-tab="grond">🟩 Vloer</button>
+            <button type="button" class="bu-tab bu-weg" data-tab="weg" title="Weghalen: je krijgt alle Eer terug">↩️ Weghalen</button>
+          </div>
+          <div class="bu-items" id="bu-items"></div>
+        </div>
+      </div>
+      <aside class="bu-zij">
+        <div class="bu-kaart">
+          <p class="bu-kaart-kop">Jouw rang</p>
+          <div class="bu-rangrij">
+            <canvas id="bu-ridder" width="72" height="102"></canvas>
+            <div>
+              <p class="bu-rang-naam" id="bu-rang-naam"></p>
+              <div class="bu-balk"><span id="bu-rang-balk"></span></div>
+              <p class="muted small" id="bu-rang-volgende"></p>
+            </div>
+          </div>
+          <p class="muted small" id="bu-totaal"></p>
+        </div>
+        <div class="bu-kaart">
+          <p class="bu-kaart-kop">Wapenschilden</p>
+          <div class="bu-schilden" id="bu-schilden"></div>
+        </div>
+        <div class="bu-kaart">
+          <p class="bu-kaart-kop">Zo verdiende je Eer</p>
+          <ul class="bu-posten" id="bu-posten"></ul>
+        </div>
+        <div class="bu-kaart">
+          <p class="bu-kaart-kop">Jouw burcht</p>
+          <input id="bu-burcht-naam" maxlength="24" placeholder="Geef je burcht een naam">
+          <div class="bu-kleuren" id="bu-kleuren"></div>
+        </div>
+        <details class="bu-uitleg">
+          <summary>Hoe verdien ik Eer?</summary>
+          <p>Elke vraag die je beantwoordt in een spel: 1 Eer, en 1 extra als ze juist is. Een spel uitspelen: 5 Eer.</p>
+          <p>Beter doen dan je vorige spellen: 10 Eer. Een herhaalquiz uitspelen: 10 Eer. Het Runenraadsel: 2 tot 5 Eer.</p>
+          <p>Elke dag dat je meedoet: 3 Eer, en elke 5 schooldagen na elkaar 15 extra. Ook je leerkracht kan je Eer geven.</p>
+          <p>Gokken levert niets op: dan verlies je 5 Eer. Page, Schildknaap en Ridder verdienen allemaal evenveel.</p>
+          <p>Haal je iets weg, dan krijg je alle Eer terug. Je rang zakt nooit.</p>
+        </details>
+        <button type="button" class="secondary klas-switch" id="bu-switch">Niet jij? Kies je naam</button>
+      </aside>
+    </div>
+  </section>
+</main>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/fx.js"></script>
+<script src="/js/avatar.js"></script>
+<script src="/js/bu-catalogus.js"></script>
+<script src="/js/bu-art.js"></script>
+<script src="/js/bu-player.js"></script>
+<script src="/js/klas-kies.js"></script>
+</body>
+</html>
