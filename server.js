@@ -454,13 +454,15 @@ app.get('/export/:kind', (req, res) => {
     res.status(400).type('text/plain; charset=utf-8').send(err.message);
   }
 });
-// Posters voor aan de muren van de arena's (Laserslag). Eigen foto's in de map posters/ bij de gegevens;
-// die map gaat nooit mee naar GitHub. Leeg of niet aanwezig: dan hangen er alleen banieren.
+// Posters voor aan de muren van de arena's. Eigen foto's in de map posters/ bij de gegevens;
+// die map gaat nooit mee naar GitHub. De grappige standaardposters (public/img/posters) kunnen uit in de instellingen.
 const POSTERS = gegevens.pad('posters');
 app.get('/posters/lijst', (req, res) => {
   let files = [];
   try { files = fs.readdirSync(POSTERS).filter(f => /\.(png|jpe?g|webp|gif)$/i.test(f)).sort(); } catch {}
-  res.json(files.slice(0, 40));
+  const s = settings.read();
+  if (s.posters === false) return res.json({ eigen: [], grappig: false });
+  res.json({ eigen: files.slice(0, 40), grappig: s.grappigePosters !== false });
 });
 app.use('/posters', express.static(POSTERS, { setHeaders: res => res.setHeader('Cache-Control', 'no-cache') }));
 // Pagina's, scripts en stijlen gezipt versturen: een gsm laadt de leerlingpagina dan in een kwart van de tijd

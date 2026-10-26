@@ -51,6 +51,16 @@ const NeonDraw = (() => {
       S.H = h;
       S.bg = paintBackground(w, h);
     }
+    // Posters komen na het laden binnen: dan de achtergrond met de megaschermen opnieuw tekenen.
+    if (typeof Posters !== 'undefined') Posters.onChange(() => { if (S.W) S.bg = paintBackground(S.W, S.H); });
+
+    // Twee megaschermen boven de burcht waarop om de beurt een poster komt (eigen foto's of de grappige).
+    const hasScreens = () => typeof Posters !== 'undefined' && Posters.list.length > 0;
+    function screenRect(i) {
+      const { W, H } = S;
+      const h = H * .25, w = h * 200 / 236;
+      return { x: (i ? W * .8 : W * .2) - w / 2, y: H * .17, w, h };
+    }
 
     // ---------- Achtergrond (één keer getekend, daarna hergebruikt) ----------
 
@@ -169,6 +179,26 @@ const NeonDraw = (() => {
         }
       }
       g.restore();
+      // Megaschermen: kabels, een stalen kader en een neonrand.
+      if (hasScreens()) {
+        for (let i = 0; i < 2; i++) {
+          const r = screenRect(i), m = H * .012;
+          g.strokeStyle = '#3a2f5c';
+          g.lineWidth = Math.max(1, H * .003);
+          g.beginPath();
+          g.moveTo(r.x + r.w * .2, r.y); g.lineTo(r.x + r.w * .1, 0);
+          g.moveTo(r.x + r.w * .8, r.y); g.lineTo(r.x + r.w * .9, 0);
+          g.stroke();
+          g.fillStyle = '#120a2a';
+          g.shadowColor = TEAM[i].c;
+          g.shadowBlur = H * .03;
+          g.fillRect(r.x - m, r.y - m, r.w + m * 2, r.h + m * 2);
+          g.shadowBlur = 0;
+          g.strokeStyle = TEAM[i].c;
+          g.lineWidth = Math.max(1, H * .004);
+          g.strokeRect(r.x - m * .5, r.y - m * .5, r.w + m, r.h + m);
+        }
+      }
       // De vloer: donker met een vervaagde horizon.
       const floor = g.createLinearGradient(0, H * .7, 0, H);
       floor.addColorStop(0, '#12062c');
@@ -189,6 +219,16 @@ const NeonDraw = (() => {
     function drawLive(t) {
       const { W, H } = S;
       ctx.drawImage(S.bg, 0, 0);
+      // De posters op de megaschermen wisselen elke 8 seconden.
+      if (hasScreens()) {
+        const k = Math.floor(t / 8000);
+        for (let i = 0; i < 2; i++) {
+          const r = screenRect(i);
+          ctx.globalAlpha = .9;
+          ctx.drawImage(Posters.pick(k * 2 + i), r.x, r.y, r.w, r.h);
+        }
+        ctx.globalAlpha = 1;
+      }
       // Twinkelende sterren.
       for (const s of S.stars) {
         const a = .35 + .65 * Math.abs(Math.sin(t / 900 + s.p));

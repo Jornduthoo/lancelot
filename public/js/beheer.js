@@ -14,8 +14,18 @@
   }
 
   // --- Posters ---
+  const GRAPPIG = ['varken', 'gans', 'dikbuik', 'stokpaard', 'draak', 'zorp', 'miauw', 'selfie', 'krieeep', 'prinses', 'kip', 'wasdag', 'slak', 'tanden', 'spook', 'robopaard', 'koning', 'kaasdief'];
+  $('po-fun').innerHTML = GRAPPIG.map(f => `<figure><img loading="lazy" src="/img/posters/${f}.webp" alt=""></figure>`).join('');
+  $('po-aan').addEventListener('change', async e => toonPosters(await ask('posters-aan', e.target.checked)));
+  $('po-grappig').addEventListener('change', async e => toonPosters(await ask('posters-grappig', e.target.checked)));
+
   function toonPosters(res) {
     if (res.error) return void ($('po-error').textContent = res.error);
+    $('po-aan').checked = res.aan !== false;
+    $('po-grappig').checked = res.grappig !== false;
+    $('po-grappig').disabled = res.aan === false;
+    $('po-grid').classList.toggle('off', res.aan === false);
+    $('po-fun').classList.toggle('off', res.grappig === false || res.aan === false);
     $('po-count').textContent = `${res.posters.length} van de ${res.max} posters.`;
     $('po-grid').replaceChildren(...res.posters.map(file => {
       const fig = document.createElement('figure');
