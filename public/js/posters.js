@@ -7,8 +7,11 @@ const Posters = (() => {
   const list = [];
   const subs = [];
   const GRAPPIG = [
-    ['varken', 'ZONNEBANK'], ['dikbuik', 'SIR DIKBUIK'], ['draak', 'HATSJOE'], ['miauw', 'SIR MIAUW'],
-    ['krieeep', 'OLIE NODIG'], ['kip', 'DAPPERE KIP'], ['slak', 'TURBOSLAK'], ['spook', 'BANG SPOOKJE'],
+    ['varken', 'ZONNEBANK'], ['gans', 'DE GANS!'], ['dikbuik', 'SIR DIKBUIK'], ['stokpaard', 'STOKPAARD'],
+    ['draak', 'HATSJOE'], ['zorp', 'SIR ZORP'], ['miauw', 'SIR MIAUW'], ['selfie', 'SELFIE'],
+    ['krieeep', 'OLIE NODIG'], ['prinses', 'PRINSES PAN'], ['kip', 'DAPPERE KIP'], ['wasdag', 'WASDAG'],
+    ['slak', 'TURBOSLAK'], ['tanden', 'POETSEN!'], ['spook', 'BANG SPOOKJE'], ['robopaard', 'STROOMHAVER'],
+    ['koning', 'KONING BLIND'], ['kaasdief', 'KAASDIEF'],
   ];
   let version = 0;
 
@@ -133,7 +136,11 @@ const Posters = (() => {
     return out.concat(fun.slice(f));
   }
 
-  if (typeof fetch !== 'undefined') {
+  // Pas laden als een spel de posters echt nodig heeft: zo haalt de leerlingpagina ze niet op voor elk spel.
+  let started = false;
+  function start() {
+    if (started || typeof fetch === 'undefined') return;
+    started = true;
     fetch('/posters/lijst')
       .then(r => (r.ok ? r.json() : []))
       .then(res => {
@@ -141,7 +148,7 @@ const Posters = (() => {
         const fun = res.grappig === false ? [] : GRAPPIG;
         return Promise.all([
           Promise.all(names.map(n => load(`/posters/${encodeURIComponent(n)}`))),
-          Promise.all(fun.map(([file]) => load(`/img/posters/${file}.svg`))),
+          Promise.all(fun.map(([file]) => load(`/img/posters/${file}.webp`))),
         ]).then(([own, funny]) => mix(
           own.filter(Boolean).map(img => frame(img)),
           funny.map((img, i) => img && frame(img, fun[i][1])).filter(Boolean),
@@ -168,14 +175,14 @@ const Posters = (() => {
   }
 
   // De i-de poster (rondgaand), of null als er geen zijn.
-  const pick = i => (list.length ? list[((i % list.length) + list.length) % list.length] : null);
+  const pick = i => (start(), list.length ? list[((i % list.length) + list.length) % list.length] : null);
 
   return {
-    list,
+    get list() { start(); return list; },
     pick,
     plane,
     banner,
-    get version() { return version; },
+    get version() { start(); return version; },
     onChange(f) { subs.push(f); },
   };
 })();

@@ -14,8 +14,8 @@
   }
 
   // --- Posters ---
-  const GRAPPIG = ['varken', 'dikbuik', 'draak', 'miauw', 'krieeep', 'kip', 'slak', 'spook'];
-  $('po-fun').innerHTML = GRAPPIG.map(f => `<figure><img loading="lazy" src="/img/posters/${f}.svg" alt=""></figure>`).join('');
+  const GRAPPIG = ['varken', 'gans', 'dikbuik', 'stokpaard', 'draak', 'zorp', 'miauw', 'selfie', 'krieeep', 'prinses', 'kip', 'wasdag', 'slak', 'tanden', 'spook', 'robopaard', 'koning', 'kaasdief'];
+  $('po-fun').innerHTML = GRAPPIG.map(f => `<figure><img loading="lazy" src="/img/posters/${f}.webp" alt=""></figure>`).join('');
   $('po-aan').addEventListener('change', async e => toonPosters(await ask('posters-aan', e.target.checked)));
   $('po-grappig').addEventListener('change', async e => toonPosters(await ask('posters-grappig', e.target.checked)));
 
