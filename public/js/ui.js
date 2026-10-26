@@ -86,6 +86,11 @@
     }
 
     // Toetsen gaan niet naar het spel; loslaten wel, zodat er geen toets blijft "hangen".
+    // Elke knop met data-pauze zet de klas op pauze (startscherm, Klaseiland).
+    document.addEventListener('click', e => {
+      if (e.target.closest && e.target.closest('[data-pauze]')) stuur(true, '');
+    });
+
     window.addEventListener('keydown', e => {
       if (sinds && !(scherm && scherm.contains(e.target))) { e.stopImmediatePropagation(); e.preventDefault(); }
     }, true);
