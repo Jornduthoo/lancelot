@@ -224,17 +224,25 @@ function view(naam) {
 }
 
 // Bouwen of weghalen. stuk: een id uit de catalogus, of '' om het vakje leeg te maken (je krijgt alles terug).
-function zet(naam, { x, y, stuk, laag } = {}) {
+function zet(naam, { x, y, stuk, laag, eiland } = {}) {
   if (!kasteeltijd) throw new Error('Het is nu geen Kasteeltijd. Je leerkracht zet die aan.');
   const l = wie(naam);
   x = Number(x);
   y = Number(y);
   if (!Number.isInteger(x) || !Number.isInteger(y)) throw new Error('Dat vakje bestaat niet.');
   const st = stand(l);
-  if (!cat.binnen(st.rang, x, y)) throw new Error('Dat stuk grond is nog niet van jou. Met een hogere rang wordt je grond groter.');
   const d = load();
   const b = d.burchten[l.id] || (d.burchten[l.id] = leeg());
-  const k = cat.sleutel(x, y);
+  let k;
+  if (eiland) {
+    const n = cat.EILANDJE.grond;
+    if (!b.eiland) throw new Error('Je hebt nog geen eilandje.');
+    if (x < 0 || y < 0 || x >= n || y >= n) throw new Error('Dat vakje bestaat niet.');
+    k = cat.eSleutel(x, y);
+  } else {
+    if (!cat.binnen(st.rang, x, y)) throw new Error('Dat stuk grond is nog niet van jou. Met een hogere rang wordt je grond groter.');
+    k = cat.sleutel(x, y);
+  }
   if (!stuk) {
     // Eerst wat erop staat, dan de vloer.
     if (laag !== 'grond' && b.stukken[k]) delete b.stukken[k];
@@ -251,6 +259,29 @@ function zet(naam, { x, y, stuk, laag } = {}) {
     if (laagNaam === 'stukken' && b.grond[k] === 'water') throw new Error('Op water kan je niet bouwen.');
     if (laagNaam === 'grond' && stuk === 'water' && b.stukken[k]) throw new Error('Haal eerst weg wat op dat vakje staat.');
     b[laagNaam][k] = stuk;
+  }
+  save();
+  return view(naam);
+}
+
+// Een zwevend eilandje kopen (vanaf de hoogste rang). Verkopen kan als het leeg is: dan krijg je alles terug.
+function eilandje(naam, { koop } = {}) {
+  if (!kasteeltijd) throw new Error('Het is nu geen Kasteeltijd. Je leerkracht zet die aan.');
+  const l = wie(naam);
+  const st = stand(l);
+  const d = load();
+  const b = d.burchten[l.id] || (d.burchten[l.id] = leeg());
+  const E = cat.EILANDJE;
+  if (koop) {
+    if (b.eiland) return view(naam);
+    if (st.rang < E.rang) throw new Error(`Een eilandje kan je kopen vanaf ${cat.RANGEN[E.rang].naam}.`);
+    if (E.prijs > st.saldo) throw new Error(`Daarvoor heb je nog ${E.prijs - st.saldo} Eer te weinig.`);
+    b.eiland = true;
+  } else {
+    if (!b.eiland) return view(naam);
+    const bezet = k => k.startsWith('e:');
+    if (Object.keys(b.stukken).some(bezet) || Object.keys(b.grond).some(bezet)) throw new Error('Haal eerst alles van je eilandje weg.');
+    delete b.eiland;
   }
   save();
   return view(naam);
@@ -342,7 +373,7 @@ function eiland() {
     const s = per.get(l.id);
     const rang = rangVan(l.id, s ? s.eer : 0);
     const b = burchtVan(l.id);
-    return { id: l.id, leerling: l.naam, naam: b.naam, kleur: b.kleur, grond: b.grond, stukken: b.stukken, rang };
+    return { id: l.id, leerling: l.naam, naam: b.naam, kleur: b.kleur, grond: b.grond, stukken: b.stukken, eiland: !!b.eiland, rang };
   });
   return { burchten, klasdoel: klasdoelView(per), kasteeltijd };
 }
@@ -355,4 +386,4 @@ function ridderboek() {
   });
 }
 
-module.exports = { view, zet, stijl, setKasteeltijd, kasteeltijd: () => kasteeltijd, geef, neemTerug, wisNaam, setKlasdoel, eiland, ridderboek, DIR };
+module.exports = { view, zet, eilandje, stijl, setKasteeltijd, kasteeltijd: () => kasteeltijd, geef, neemTerug, wisNaam, setKlasdoel, eiland, ridderboek, DIR };

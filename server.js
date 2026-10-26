@@ -608,7 +608,7 @@ io.on('connection', socket => {
     if (typeof cb !== 'function') return;
     try { cb({ ok: true, ...burchten.view(naam) }); } catch (err) { cb({ error: err.message }); }
   });
-  for (const [event, fn] of [['bu-zet', burchten.zet], ['bu-stijl', burchten.stijl]]) {
+  for (const [event, fn] of [['bu-zet', burchten.zet], ['bu-eilandje', burchten.eilandje], ['bu-stijl', burchten.stijl]]) {
     socket.on(event, ({ naam, ...arg } = {}, cb) => {
       if (typeof cb !== 'function') return;
       try {
