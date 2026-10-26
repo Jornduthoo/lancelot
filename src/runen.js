@@ -174,7 +174,7 @@ const voorWie = () => {
 };
 const UITLEG = 'een korte, eenvoudige betekenis (hooguit 15 woorden, zonder het woord zelf te gebruiken) en één voorbeeldzin die een kind van die leeftijd begrijpt';
 
-// Betekenissen en voorbeeldzinnen die nog ontbreken laten aanvullen door Gemini.
+// Betekenissen en voorbeeldzinnen die nog ontbreken laten aanvullen door de gekozen AI.
 async function vulAan(text, gemini, aiJson) {
   const woorden = leesLijst(text);
   const open = woorden.filter(x => !x.b || !x.z);
@@ -194,7 +194,7 @@ Woorden: ${open.map(x => x.w).join(', ')}`;
     if (!x.z) x.z = r.z;
     aangevuld++;
   });
-  if (!aangevuld) throw new Error('Gemini gaf geen bruikbare betekenissen terug. Probeer het nog eens.');
+  if (!aangevuld) throw new Error('De AI gaf geen bruikbare betekenissen terug. Probeer het nog eens.');
   return { text: lijstTekst(woorden), aangevuld, open: open.length };
 }
 
@@ -221,7 +221,7 @@ Antwoord enkel met JSON, met precies deze sleutels: {"woorden":[{"woord":"...","
     per[n]++;
     nieuw++;
   }
-  if (!nieuw) throw new Error('Gemini gaf geen woorden die passen. Probeer het nog eens of kies een ander thema.');
+  if (!nieuw) throw new Error('De AI gaf geen woorden die passen. Probeer het nog eens of kies een ander thema.');
   return { text: lijstTekst(woorden), nieuw, per };
 }
 

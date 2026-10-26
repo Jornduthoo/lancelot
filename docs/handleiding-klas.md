@@ -226,7 +226,7 @@ Tip: iedereen speelt dezelfde werelden en ziet klasgenoten als doorschijnende ri
 ## Voorkennis activeren
 
 1. Klik op het startscherm op **Voorkennis activeren**.
-2. Vul het onderwerp van je les en het niveau in, kopieer de vraag naar een chatbot en plak het antwoord terug (of laat je Gemini-sleutel het doen).
+2. Vul het onderwerp van je les en het niveau in, kopieer de vraag naar een chatbot en plak het antwoord terug (of laat je eigen AI-sleutel het doen: Gemini, Claude of ChatGPT, te kiezen bij Instellingen).
 3. Je krijgt een korte Ronde Tafel: een woordwolk, stellingen met "Ik weet het niet" en een schaal. Start ze voor de les begint en zie meteen wat de klas al weet.
 
 ## Oefenbladen
@@ -365,7 +365,7 @@ Alles staat in **Instellingen**:
 - **LANcelot bijwerken:** klik op *Zoek naar een update* en daarna op *Download de update* (internet nodig). De update wordt pas geïnstalleerd de volgende keer dat je LANcelot start, nooit midden in een les. Je gegevens blijven staan; de vervangen bestanden worden bewaard in `_update\oud`. Geen internet, of werkt GitHub niet meer? Kies dan *Bijwerken met een zip-bestand* (bv. de schoolzip van een usb-stick), of vul onder *Update-adres* het adres in dat je kreeg.
 - **Snelkoppeling:** *Snelkoppeling op het bureaublad* zet LANcelot op het bureaublad en in het startmenu, zonder beheerdersrechten.
 - **Mijn gegevens:** zet je klaslijst, logboek, quizzen, resultaten en posters in een aparte map (standaard `%LOCALAPPDATA%\LANcelot`). Dan raakt een update of herinstallatie ze nooit. De gegevens worden gekopieerd bij de volgende start; de oude mappen naast de app blijven staan.
-- **Back-up:** elke dag bij het opstarten maakt LANcelot zelf een back-up (de laatste tien blijven bewaard). Met *Download een back-up* zet je er een op een usb-stick. *Back-up terugzetten* gebeurt bij de volgende start; LANcelot bewaart eerst nog een back-up van hoe het ervoor was. Je Gemini-sleutel gaat nooit mee in een back-up.
+- **Back-up:** elke dag bij het opstarten maakt LANcelot zelf een back-up (de laatste tien blijven bewaard). Met *Download een back-up* zet je er een op een usb-stick. *Back-up terugzetten* gebeurt bij de volgende start; LANcelot bewaart eerst nog een back-up van hoe het ervoor was. Je AI-sleutel gaat nooit mee in een back-up.
 - **Posters:** voeg eigen foto's toe voor aan de muren van de arena (hooguit 40). Ze worden vierkant bijgesneden en klein gemaakt.
 - **Firewall goed zetten:** één klik, Windows vraagt eerst om toestemming.
 - **Wizard voor de eerste keer** en **Privacy**: uitleg over wat LANcelot bewaart over leerlingen, handig voor de directie of de privacyverantwoordelijke.

@@ -47,7 +47,7 @@ function posterWeg(file) {
 // De eerste keer: nog geen klaslijst, geen sleutel en de wizard nooit afgerond.
 function welkomNodig() {
   const s = settings.read();
-  return !s.welkom && !s.geminiKey && klas.read().leerlingen.length === 0;
+  return !s.welkom && !s.geminiKey && !s.claudeKey && !s.openaiKey && klas.read().leerlingen.length === 0;
 }
 
 // PowerShell-opdrachten gaan gecodeerd mee, zodat paden met spaties of aanhalingstekens niets kapotmaken.

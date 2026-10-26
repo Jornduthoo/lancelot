@@ -369,21 +369,65 @@ function saveEditor(play) {
 $('e-save').addEventListener('click', () => saveEditor(false));
 $('e-play').addEventListener('click', () => saveEditor(true));
 
-// --- Instellingen en Gemini ---
+// --- Instellingen en de eigen AI-sleutel ---
+
+// Wat elke AI-dienst nodig heeft: waar je een sleutel haalt, wat het kost en welke modellen er zijn.
+const DIENST_INFO = {
+  gemini: {
+    uitleg: 'Een sleutel maak je gratis aan op <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a>. Zolang je daar geen betaalgegevens koppelt, kost het niets; er geldt dan een gratis daglimiet.',
+    modellen: ['auto'],
+    model: 'Laat op <strong>auto</strong> staan: LANcelot kiest dan zelf een werkend Gemini-model, ook als Google oude modellen stopzet.',
+  },
+  claude: {
+    uitleg: 'Een sleutel maak je op <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">console.anthropic.com</a>. Je betaalt per gebruik met tegoed dat je vooraf koopt: één quiz kost ongeveer 2 tot 10 cent. Een gewoon Claude Pro-abonnement telt hier niet.',
+    modellen: ['claude-opus-5-5', 'claude-sonnet-5-5', 'claude-haiku-5-5'],
+    model: '<strong>claude-opus-5-5</strong> is het sterkst. Goedkoper: claude-sonnet-5-5 (ongeveer de helft) of claude-haiku-5-5 (minder dan 1 cent per quiz).',
+  },
+  openai: {
+    uitleg: 'Een sleutel maak je op <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener">platform.openai.com</a>. Je betaalt per gebruik met tegoed dat je vooraf koopt: één quiz kost ongeveer 2 tot 5 cent. Een gewoon ChatGPT Plus-abonnement telt hier niet.',
+    modellen: ['gpt-6.1-sol', 'gpt-6-sol', 'gpt-6-luna'],
+    model: '<strong>gpt-6.1-sol</strong> is een goede keuze. Goedkoper: gpt-6-luna (minder dan 1 cent per quiz).',
+  },
+};
+const VELDEN = { gemini: ['geminiKey', 'geminiModel'], claude: ['claudeKey', 'claudeModel'], openai: ['openaiKey', 'openaiModel'] };
+let aiSettings = null;
+
+function toonDienst() {
+  if (!aiSettings) return;
+  const id = $('s-dienst').value;
+  const d = aiSettings.diensten[id];
+  const info = DIENST_INFO[id];
+  $('s-uitleg').innerHTML = info.uitleg;
+  $('s-model-uitleg').innerHTML = `${info.model} ${id === 'gemini' && aiSettings.geminiAutoModel ? `Nu in gebruik: ${aiSettings.geminiAutoModel}.` : ''}`;
+  $('s-modellen').innerHTML = info.modellen.map(m => `<option value="${m}">`).join('');
+  $('s-model').value = d.model;
+  $('s-model').placeholder = info.modellen[0];
+  const actief = id === aiSettings.aiDienst ? ' Deze AI wordt nu gebruikt.' : '';
+  $('s-status').textContent = d.hasKey ? `Er is een ${d.naam}-sleutel opgeslagen (${d.keyHint}).${actief}` : `Er is nog geen ${d.naam}-sleutel opgeslagen.${actief}`;
+  $('s-remove').classList.toggle('hidden', !d.hasKey);
+}
 
 socket.on('settings', s => {
-  $('s-status').textContent = s.hasKey ? `Er is een sleutel opgeslagen (${s.keyHint}).` : 'Er is nog geen sleutel opgeslagen.';
-  $('s-model').value = s.geminiModel;
-  $('s-auto-model').textContent = s.geminiAutoModel ? `Nu in gebruik: ${s.geminiAutoModel}.` : '';
-  $('s-remove').classList.toggle('hidden', !s.hasKey);
+  aiSettings = s;
+  Ui.zetAi(s);
+  if (document.activeElement !== $('s-dienst')) $('s-dienst').value = s.aiDienst;
+  toonDienst();
   $('m-gemini-panel').classList.toggle('hidden', !s.hasKey);
   hasKey = s.hasKey;
   updatePrompt();
 });
 
+$('s-dienst').addEventListener('change', () => {
+  $('s-key').value = '';
+  $('s-error').textContent = '';
+  toonDienst();
+});
+
 $('open-settings').addEventListener('click', () => {
   $('s-key').value = '';
   $('s-error').textContent = '';
+  if (aiSettings) $('s-dienst').value = aiSettings.aiDienst;
+  toonDienst();
   show('settings');
 });
 
@@ -395,20 +439,23 @@ function saveSettings(changes) {
 }
 
 $('s-save').addEventListener('click', () => {
-  const changes = { geminiModel: $('s-model').value };
-  if ($('s-key').value.trim()) changes.geminiKey = $('s-key').value;
+  const id = $('s-dienst').value;
+  const [key, model] = VELDEN[id];
+  const changes = { aiDienst: id, [model]: $('s-model').value };
+  if ($('s-key').value.trim()) changes[key] = $('s-key').value;
   saveSettings(changes);
 });
 
 $('s-remove').addEventListener('click', async () => {
-  if (await Ui.vraag('De Gemini-sleutel verwijderen van deze pc?')) saveSettings({ geminiKey: '' });
+  const id = $('s-dienst').value;
+  if (await Ui.vraag(`De ${aiSettings.diensten[id].naam}-sleutel verwijderen van deze pc?`)) saveSettings({ [VELDEN[id][0]]: '' });
 });
 
 $('m-gemini').addEventListener('click', () => {
   const button = $('m-gemini');
   button.disabled = true;
   $('m-gemini-error').textContent = '';
-  $('m-gemini-busy').textContent = 'Gemini is bezig, dit duurt meestal 10 tot 60 seconden…';
+  $('m-gemini-busy').textContent = `${Ui.ai} is bezig, dit duurt meestal 10 tot 60 seconden…`;
   const files = sources.map(({ mimeType, data }) => ({ mimeType, data }));
   socket.emit('generate', { prompt: buildPrompt(true), files }, res => {
     button.disabled = false;

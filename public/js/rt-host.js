@@ -444,6 +444,7 @@ window.addEventListener('focus', checkClipboard);
 document.addEventListener('visibilitychange', () => document.visibilityState === 'visible' && checkClipboard());
 
 socket.on('settings', s => {
+  Ui.zetAi(s);
   hasKey = s.hasKey;
   $('r-gemini-panel').classList.toggle('hidden', !hasKey);
 });
@@ -452,7 +453,7 @@ $('r-gemini').addEventListener('click', () => {
   const button = $('r-gemini');
   button.disabled = true;
   $('r-gemini-error').textContent = '';
-  $('r-gemini-busy').textContent = 'Gemini is bezig, dit duurt meestal 10 tot 60 seconden…';
+  $('r-gemini-busy').textContent = `${Ui.ai} is bezig, dit duurt meestal 10 tot 60 seconden…`;
   socket.emit('rt-generate', { prompt: buildPrompt() }, res => {
     button.disabled = false;
     $('r-gemini-busy').textContent = '';

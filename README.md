@@ -70,9 +70,11 @@ Thuis voorbereiden op je laptop en in de klas op de bord-pc gebruiken? Het makke
 
 Met **Lege quiz** maak je zelf een quiz, en met **Bewerken** pas je een bestaande quiz aan. Dat kan ook rechtstreeks vanuit Schattenjacht en De prinses in de toren; na het opslaan kom je daar terug.
 
-### Nog sneller: met je eigen Gemini-sleutel
+### Nog sneller: met je eigen AI-sleutel
 
-Maak gratis een sleutel aan op [aistudio.google.com/apikey](https://aistudio.google.com/apikey) en vul hem in bij **Instellingen**. In de quizmaker verschijnt dan het blok **Of: laat Gemini de quiz direct maken**. Daar upload je je lesstof (screenshot, foto of pdf, ook met Ctrl+V) rechtstreeks in LANcelot en maak je de quiz met één klik op **Maak direct met Gemini**. Zolang je in AI Studio geen betaalgegevens koppelt, kost het niets (er geldt een gratis daglimiet). De sleutel staat alleen op je eigen pc, in `settings.json`, en gaat nooit naar GitHub.
+Maak gratis een Gemini-sleutel aan op [aistudio.google.com/apikey](https://aistudio.google.com/apikey) en vul hem in bij **Instellingen**. In de quizmaker verschijnt dan het blok **Of: laat Gemini de quiz direct maken**. Daar upload je je lesstof (screenshot, foto of pdf, ook met Ctrl+V) rechtstreeks in LANcelot en maak je de quiz met één klik. Zolang je in AI Studio geen betaalgegevens koppelt, kost het niets (er geldt een gratis daglimiet).
+
+Betaalt je school al voor **Claude** (Anthropic) of **ChatGPT** (OpenAI)? Kies dan bij **Instellingen > AI-dienst** die dienst en plak een API-sleutel van [console.anthropic.com](https://console.anthropic.com/settings/keys) of [platform.openai.com](https://platform.openai.com/api-keys). Dat is betalen per gebruik (een paar cent per quiz); een gewoon Pro- of Plus-abonnement telt niet. Quizmaker, oefenbladen, Ronde Tafel en de woorden van het Runenraadsel gebruiken dan die AI. De sleutels staan alleen op je eigen pc, in `settings.json`, gaan nooit mee in een back-up en nooit naar GitHub.
 
 ## De Ronde Tafel
 
@@ -277,7 +279,7 @@ Echte oefenbladen, maar virtueel. Leerlingen vullen ze in op hun Chromebook of g
 | Overschrijven | een zin foutloos overschrijven | één zin per regel |
 | Open vragen | vrij antwoorden (niet verbeterd) | één vraag per regel |
 
-- **Maken:** zelf in de maker (met een live voorbeeld ernaast), of met AI: kies onderwerp, niveau en soorten oefeningen, kopieer de vraag naar een chatbot en plak het antwoord terug (of laat je Gemini-sleutel het meteen doen).
+- **Maken:** zelf in de maker (met een live voorbeeld ernaast), of met AI: kies onderwerp, niveau en soorten oefeningen, kopieer de vraag naar een chatbot en plak het antwoord terug (of laat je eigen AI-sleutel het meteen doen).
 - **Live:** klik op **Live**. Kies vooraf of leerlingen **meteen** groen of rood zien, of pas **na het inleveren**. Op het bord zie je per leerling hoe ver hij staat en hoeveel goed en fout, en per oefening hoeveel procent van de klas het goed heeft. Klik op een leerling om zijn blad te bekijken. Met **Toon oplossingen** zien leerlingen die ingeleverd hebben de verbetering. **Afsluiten** levert alles in en bewaart de resultaten in `resultaten/`. Te vroeg ingeleverd? Klik op de leerling en kies **Heropen voor deze leerling**, of gebruik **Heropen voor iedereen**. De antwoorden blijven staan. Ook na het afsluiten kan dat: sluit daarna opnieuw af om de nieuwe resultaten te bewaren.
 - **Printen:** **🖨 Print** opent het blad als A4 met lijnen, vakjes en Naam/Klas/Datum; **Verbeterblad** toont hetzelfde blad met de oplossingen in het rood. Opslaan als pdf kan ook.
 - Bladen staan als JSON-bestanden in de map `oefenbladen/` (zie `oefenbladen/voorbeeld-belgie.json`).
