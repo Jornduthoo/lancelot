@@ -85,6 +85,7 @@ const { execFile } = require('child_process');
 const { generateQuiz } = require('./src/gemini');
 const antigok = require('./src/antigok');
 const runen = require('./src/runen');
+const burchten = require('./src/burchten');
 const gemini = require('./src/gemini');
 const aiJson = require('./src/ai-json');
 
@@ -383,12 +384,22 @@ function syncSoon() {
   syncTimer = setTimeout(runSync, 3000);
 }
 
+// Een leerling bouwde iets: het Klaseiland op het bord even later bijwerken (niet bij elke klik).
+let eilandTimer = null;
+function eilandSoon() {
+  if (eilandTimer) return;
+  eilandTimer = setTimeout(() => {
+    eilandTimer = null;
+    io.to('host').emit('bu-eiland', burchten.eiland());
+  }, 3000);
+}
+
 // Het docentenscherm werkt alleen op de pc waar de server draait.
 function isLocal(address) {
   return ['127.0.0.1', '::1', '::ffff:127.0.0.1'].includes(address);
 }
 
-for (const [route, page] of [['/host', 'host.html'], ['/rondetafel', 'rondetafel.html'], ['/toren', 'toren.html'], ['/schattenjacht', 'schattenjacht.html'], ['/laserslag', 'laserslag.html'], ['/ridderrace', 'ridderrace.html'], ['/kristalroof', 'kristalroof.html'], ['/verrader', 'verrader.html'], ['/burchtbouwers', 'burchtbouwers.html'], ['/duel', 'duel.html'], ['/packnight', 'packnight.html'], ['/strijdrossen', 'strijdrossen.html'], ['/gauntlet', 'gauntlet.html'], ['/ridder-royale', 'royale.html'], ['/sterrenvreter', 'sterrenvreter.html'], ['/ridderslang', 'ridderslang.html'], ['/burchtstorm', 'burchtstorm.html'], ['/poortwacht', 'poortwacht.html'], ['/neonvlucht', 'neonvlucht.html'], ['/diepboor', 'diepboor.html'], ['/pixelridder', 'pixelridder.html'], ['/robomol', 'robomol.html'], ['/robopaarden', 'robopaarden.html'], ['/neonduel', 'neonduel.html'], ['/leraarbaas', 'leraarbaas.html'], ['/cybergalaga', 'cybergalaga.html'], ['/bomberknight', 'bomberknight.html'], ['/rijk', 'rijk.html'], ['/oefenblad', 'oefenblad.html'], ['/oefenblad-print', 'oefenblad-print.html'], ['/klas', 'klas.html'], ['/zorg', 'zorg.html'], ['/zorg-fiche', 'zorg-fiche.html'], ['/runenraadsel', 'runenraadsel.html'], ['/netwerk', 'netwerk.html'], ['/welkom', 'welkom.html'], ['/privacy', 'privacy.html']]) {
+for (const [route, page] of [['/host', 'host.html'], ['/rondetafel', 'rondetafel.html'], ['/toren', 'toren.html'], ['/schattenjacht', 'schattenjacht.html'], ['/laserslag', 'laserslag.html'], ['/ridderrace', 'ridderrace.html'], ['/kristalroof', 'kristalroof.html'], ['/verrader', 'verrader.html'], ['/burchtbouwers', 'burchtbouwers.html'], ['/duel', 'duel.html'], ['/packnight', 'packnight.html'], ['/strijdrossen', 'strijdrossen.html'], ['/gauntlet', 'gauntlet.html'], ['/ridder-royale', 'royale.html'], ['/sterrenvreter', 'sterrenvreter.html'], ['/ridderslang', 'ridderslang.html'], ['/burchtstorm', 'burchtstorm.html'], ['/poortwacht', 'poortwacht.html'], ['/neonvlucht', 'neonvlucht.html'], ['/diepboor', 'diepboor.html'], ['/pixelridder', 'pixelridder.html'], ['/robomol', 'robomol.html'], ['/robopaarden', 'robopaarden.html'], ['/neonduel', 'neonduel.html'], ['/leraarbaas', 'leraarbaas.html'], ['/cybergalaga', 'cybergalaga.html'], ['/bomberknight', 'bomberknight.html'], ['/rijk', 'rijk.html'], ['/oefenblad', 'oefenblad.html'], ['/oefenblad-print', 'oefenblad-print.html'], ['/klas', 'klas.html'], ['/zorg', 'zorg.html'], ['/zorg-fiche', 'zorg-fiche.html'], ['/runenraadsel', 'runenraadsel.html'], ['/klaseiland', 'klaseiland.html'], ['/netwerk', 'netwerk.html'], ['/welkom', 'welkom.html'], ['/privacy', 'privacy.html']]) {
   app.get(route, (req, res) => {
     if (!isLocal(req.socket.remoteAddress)) return res.status(403).send('Het docentenscherm is alleen bereikbaar op de pc van de leerkracht.');
     res.setHeader('Cache-Control', 'no-cache');
@@ -399,6 +410,11 @@ for (const [route, page] of [['/host', 'host.html'], ['/rondetafel', 'rondetafel
 app.get('/runen', (req, res) => {
   res.setHeader('Cache-Control', 'no-cache');
   res.sendFile(path.join(__dirname, 'public', 'runen.html'));
+});
+// Mijn burcht: elke leerling bouwt met zijn Eer, op zijn eigen toestel, ook als er geen spel loopt.
+app.get('/burcht', (req, res) => {
+  res.setHeader('Cache-Control', 'no-cache');
+  res.sendFile(path.join(__dirname, 'public', 'burcht.html'));
 });
 beheer.routes(app, isLocal);
 // Zo herkent een tweede start dat LANcelot al draait.
@@ -579,6 +595,22 @@ io.on('connection', socket => {
     if (typeof cb !== 'function') return;
     try { cb({ ok: true, ...runen.view(naam) }); } catch (err) { cb({ error: err.message }); }
   });
+  // Mijn burcht: je Eer, je rang en je burcht. Bouwen kan alleen tijdens Kasteeltijd.
+  socket.on('bu-get', (naam, cb) => {
+    if (typeof cb !== 'function') return;
+    try { cb({ ok: true, ...burchten.view(naam) }); } catch (err) { cb({ error: err.message }); }
+  });
+  for (const [event, fn] of [['bu-zet', burchten.zet], ['bu-stijl', burchten.stijl]]) {
+    socket.on(event, ({ naam, ...arg } = {}, cb) => {
+      if (typeof cb !== 'function') return;
+      try {
+        cb({ ok: true, ...fn(naam, arg) });
+        eilandSoon();
+      } catch (err) {
+        cb({ error: err.message });
+      }
+    });
+  }
   socket.on('rn-raad', (arg, cb) => {
     if (typeof cb !== 'function') return;
     try {
@@ -774,6 +806,26 @@ io.on('connection', socket => {
         .finally(() => io.to('host').emit('settings', settings.publicView()))
         .catch(err => cb && cb({ error: err.message }));
     });
+
+    // Het Klaseiland: alle burchten op het bord, Kasteeltijd, Eer geven en het klasdoel.
+    socket.on('bu-eiland', handle(() => ({ eiland: burchten.eiland() })));
+    socket.on('bu-ridderboek', handle(() => ({ boek: burchten.ridderboek() })));
+    socket.on('bu-kasteeltijd', handle(aan => {
+      burchten.setKasteeltijd(aan);
+      io.emit('bu-kasteeltijd', burchten.kasteeltijd());
+      eilandSoon();
+      return {};
+    }));
+    const eerWijzigt = fn => handle(arg => {
+      const out = fn(arg);
+      io.emit('bu-eer');
+      eilandSoon();
+      return { ...out, boek: burchten.ridderboek() };
+    });
+    socket.on('bu-geef', eerWijzigt(arg => burchten.geef(arg || {})));
+    socket.on('bu-terug', eerWijzigt(id => burchten.neemTerug(String(id || ''))));
+    socket.on('bu-wisnaam', eerWijzigt(id => burchten.wisNaam(String(id || ''))));
+    socket.on('bu-klasdoel', eerWijzigt(arg => burchten.setKlasdoel(arg || {})));
 
     // Het Runenraadsel op het bord, en de woorden van de week.
     socket.on('rn-bord', handle(() => ({ bord: runen.bord() })));

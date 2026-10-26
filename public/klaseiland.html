@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LANcelot · Klaseiland</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/burcht.css">
+</head>
+<body class="ke-host">
+<main>
+  <canvas id="ke-canvas"></canvas>
+
+  <div class="ke-boven">
+    <div class="ke-titel">
+      <img src="/img/icons/klaseiland.webp" alt="" id="ke-home" title="Naar het startscherm">
+      <div>
+        <h1>Het Klaseiland</h1>
+        <p id="ke-sub">Elke leerling bouwt zijn eigen burcht met Eer</p>
+      </div>
+    </div>
+    <div class="ke-knoppen">
+      <button class="secondary" id="ke-tijd" title="Tijdens Kasteeltijd kunnen leerlingen bouwen op hun toestel">🏗️ Kasteeltijd: uit</button>
+      <button class="secondary" id="ke-geef-knop">👑 Eer geven</button>
+      <button class="secondary" id="ke-doel-knop">🎯 Klasdoel</button>
+      <button class="secondary" id="ke-boek-knop">📖 Ridderboek</button>
+      <button class="secondary" id="ke-tour-knop">🔭 Burchtentour</button>
+      <button class="secondary" id="ke-terug">Terug</button>
+    </div>
+  </div>
+
+  <div class="ke-leeg hidden" id="ke-leeg">
+    <p><b>Nog geen klaslijst.</b></p>
+    <p class="muted">Zet eerst je leerlingen in <a href="/klas">Mijn klas</a>. Elke leerling krijgt dan een stuk grond op het eiland.</p>
+  </div>
+
+  <div class="ke-tour hidden" id="ke-tour">
+    <div class="wie" id="ke-tour-wie"></div>
+    <div class="burcht" id="ke-tour-burcht"></div>
+  </div>
+
+  <div class="ke-doel" id="ke-doel" title="Klik om het klasdoel aan te passen">
+    <p class="kop" id="ke-doel-kop"></p>
+    <div class="bu-balk groot"><span id="ke-doel-balk"></span></div>
+    <p class="muted small" id="ke-doel-tekst"></p>
+  </div>
+
+  <div class="ke-join" id="ke-join">
+    <div class="qr" id="ke-qr"></div>
+    <p>Bouw mee op je toestel:<br><b id="ke-url"></b><br><span class="muted small">of tik 🏰 Mijn burcht</span></p>
+  </div>
+
+  <section class="ke-paneel hidden" id="ke-geef">
+    <h3>👑 Eer geven <button class="secondary sluit" data-sluit>✕</button></h3>
+    <p class="muted small">Voor inzet, een mooie taak, goed samenwerken, iemand helpen... Kies een of meer leerlingen.</p>
+    <div class="ke-rij"><button class="secondary" id="ke-iedereen">Iedereen</button><button class="secondary" id="ke-niemand">Niemand</button></div>
+    <div class="ke-namen" id="ke-namen"></div>
+    <div class="ke-rij">
+      <button class="secondary" data-eer="5">+5</button>
+      <button class="secondary" data-eer="10">+10</button>
+      <button class="secondary" data-eer="20">+20</button>
+      <input type="number" id="ke-eer" min="1" max="50" value="10" aria-label="Hoeveel Eer">
+    </div>
+    <div class="ke-rij"><input class="lang" id="ke-reden" maxlength="40" placeholder="Waarvoor? (de leerling ziet dit)"></div>
+    <button class="gold" id="ke-geef-ok">Geef Eer</button>
+    <p class="muted small" id="ke-geef-info"></p>
+  </section>
+
+  <section class="ke-paneel hidden" id="ke-doelpaneel">
+    <h3>🎯 Klasdoel <button class="secondary sluit" data-sluit>✕</button></h3>
+    <p class="muted small">De hele klas verdient samen Eer vanaf nu. De burcht in het midden van het eiland groeit mee. Kies zelf de beloning.</p>
+    <div class="ke-rij"><input class="lang" id="ke-doel-wat" maxlength="80" placeholder="Beloning, bv. 15 minuten extra speeltijd"></div>
+    <div class="ke-rij"><label>Doel <input type="number" id="ke-doel-n" min="50" max="100000" step="50"></label> <span class="muted small">Eer samen</span></div>
+    <p class="muted small" id="ke-doel-tip"></p>
+    <button class="gold" id="ke-doel-ok">Start dit klasdoel</button>
+    <p class="error" id="ke-doel-fout"></p>
+  </section>
+
+  <section class="ke-paneel hidden" id="ke-boek">
+    <h3>📖 Ridderboek <button class="secondary sluit" data-sluit>✕</button></h3>
+    <p class="muted small">⚠️ Dit staat op het bord. Toon het niet aan de klas: Eer is geen ranglijst. Klik op een naam voor wat er recent bijkwam.</p>
+    <table class="ke-boek">
+      <thead><tr><th>Leerling</th><th>Rang</th><th>Eer</th><th>Over</th><th>🔥</th><th></th></tr></thead>
+      <tbody id="ke-boek-rijen"></tbody>
+    </table>
+  </section>
+</main>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/fx.js"></script>
+<script src="/js/avatar.js"></script>
+<script src="/js/bu-catalogus.js"></script>
+<script src="/js/bu-art.js"></script>
+<script src="/js/bu-host.js"></script>
+</body>
+</html>

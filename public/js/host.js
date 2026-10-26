@@ -55,7 +55,7 @@ function fillRows() {
   for (const t of tiles.slice(0, extra)) t.style.gridColumn = 'span 2';
 }
 addEventListener('resize', fillRows);
-document.querySelector('[data-realm="arena"] .tag').textContent = `${document.querySelectorAll('#realm-arena .module').length} spellen`;
+document.querySelector('[data-realm="arena"] .tag').textContent = `${document.querySelectorAll('#realm-arena .module:not([data-module="klaseiland"])').length} spellen`;
 for (const t of document.querySelectorAll('.realm')) t.addEventListener('click', () => { openRealm(t.dataset.realm, true); sfx.tick(); });
 let savedRealm = 'arena';
 try { savedRealm = localStorage.getItem('lancelot-realm') || 'arena'; } catch {}
@@ -64,6 +64,7 @@ openRealm(document.getElementById(`realm-${savedRealm}`) ? savedRealm : 'arena')
 document.querySelector('[data-module="toernooi"]').addEventListener('click', () => show('idle'));
 document.querySelector('[data-module="rondetafel"]').addEventListener('click', () => { location.href = '/rondetafel'; });
 document.querySelector('[data-module="runenraadsel"]').addEventListener('click', () => { location.href = '/runenraadsel'; });
+document.querySelector('[data-module="klaseiland"]').addEventListener('click', () => { location.href = '/klaseiland'; });
 document.querySelector('[data-module="toren"]').addEventListener('click', () => { location.href = '/toren'; });
 document.querySelector('[data-module="schattenjacht"]').addEventListener('click', () => { location.href = '/schattenjacht'; });
 document.querySelector('[data-module="laserslag"]').addEventListener('click', () => { location.href = '/laserslag'; });

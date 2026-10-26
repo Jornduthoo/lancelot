@@ -11,7 +11,7 @@ const zip = require('./zip');
 
 const APP = path.resolve(__dirname, '..');
 // Alles wat van de leerkracht en de klas is. De rest (public, src, doelen...) hoort bij de app.
-const ITEMS = ['klas', 'logboek', 'runen', 'rijken', 'resultaten', 'posters', 'quizzes', 'oefenbladen', 'rondetafel', 'avatars.json', 'settings.json', 'lesmap-sync.json'];
+const ITEMS = ['klas', 'logboek', 'runen', 'burchten', 'rijken', 'resultaten', 'posters', 'quizzes', 'oefenbladen', 'rondetafel', 'avatars.json', 'settings.json', 'lesmap-sync.json'];
 const POINTER = path.join(APP, 'gegevensmap.json');
 const MARKER = '.lancelot-gegevens.json';
 const RESTORE = 'terugzetten.zip';
