@@ -332,8 +332,8 @@ function buBak() {
   const b = document.createElement('canvas');
   b.width = cv.width;
   b.height = cv.height;
-  BuArt.teken(b.getContext('2d'), k, T, ox, oy);
-  bu.beeld = { c: b, k, T, ox, oy, gloed: BuArt.gloeiers(k, T, ox, oy) };
+  const { motoren } = BuArt.teken(b.getContext('2d'), k, T, ox, oy);
+  bu.beeld = { c: b, k, T, ox, oy, gloed: [...BuArt.gloeiers(k, T, ox, oy), ...motoren] };
 }
 
 let bakTimer = null;

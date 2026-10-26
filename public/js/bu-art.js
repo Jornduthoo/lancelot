@@ -58,8 +58,13 @@ const BuArt = (() => {
     poly(g, right, opts.right || shade(col, -0.42));
     if (opts.stenen) stenen(g, right, 'r', z1 - z0);
     poly(g, top, opts.top || shade(col, 0.08));
+    // Muren krijgen een neonstrook langs beide zijkanten.
+    if (opts.stenen && z1 - z0 > 8) {
+      const z = z0 + (z1 - z0) * 0.62;
+      for (const [a, b] of [[P(u0, v1, z), P(u1, v1, z)], [P(u1, v1, z), P(u1, v0, z)]]) neonlijn(g, a, b, 1);
+    }
     // Een dun licht randje bovenaan maakt het blok scherp.
-    g.strokeStyle = 'rgba(255,255,255,.18)';
+    g.strokeStyle = 'rgba(150,225,255,.3)';
     g.lineWidth = 0.6;
     g.beginPath();
     g.moveTo(...top[3]);
@@ -67,6 +72,36 @@ const BuArt = (() => {
     g.lineTo(...top[1]);
     g.stroke();
     return { left, right, top };
+  }
+
+  // Een gloeiende neonlijn: brede zachte gloed en een felle kern (geen shadowBlur: gebakken is dat toch goedkoop genoeg).
+  function neonlijn(g, a, b, dikte = 1, kleur = '76,201,255') {
+    g.save();
+    g.lineCap = 'round';
+    g.strokeStyle = `rgba(${kleur},.28)`;
+    g.lineWidth = 3.2 * dikte;
+    g.beginPath();
+    g.moveTo(a[0], a[1]);
+    g.lineTo(b[0], b[1]);
+    g.stroke();
+    g.strokeStyle = 'rgba(200,245,255,.95)';
+    g.lineWidth = 0.9 * dikte;
+    g.stroke();
+    g.restore();
+  }
+
+  // Een neonband rond een ronde toren (alleen de voorkant is zichtbaar).
+  function neonband(g, r, z, dikte = 1, kleur = '76,201,255') {
+    g.save();
+    g.strokeStyle = `rgba(${kleur},.3)`;
+    g.lineWidth = 3.2 * dikte;
+    g.beginPath();
+    g.ellipse(0, -z, r, r / 2, 0, 0.05, Math.PI - 0.05);
+    g.stroke();
+    g.strokeStyle = 'rgba(200,245,255,.95)';
+    g.lineWidth = 0.9 * dikte;
+    g.stroke();
+    g.restore();
   }
 
   // Metselwerk op een zijvlak: rijen stenen die de schuine lijn van het vlak volgen.
@@ -156,6 +191,10 @@ const BuArt = (() => {
         }
       }
       g.restore();
+      if (z1 - z0 > 20) {
+        neonband(g, r, z0 + (z1 - z0) * 0.32);
+        neonband(g, r, z0 + (z1 - z0) * 0.78);
+      }
     }
     g.fillStyle = opts.top || shade(col, 0.15);
     g.beginPath();
@@ -263,8 +302,8 @@ const BuArt = (() => {
     g.fill();
   }
 
-  const STEEN = '#aab3c2';
-  const DONKERSTEEN = '#7c8698';
+  const STEEN = '#7a8396'; // donkere ridderstaal-steen, met neon
+  const DONKERSTEEN = '#4d5566';
   const HOUT = '#8a5a33';
   const GOUD = '#ffc94a';
 
@@ -328,9 +367,9 @@ const BuArt = (() => {
       g.lineTo(-2, -21);
       g.fill();
       const f = g.createRadialGradient(0, -28, 0.5, 0, -27, 6);
-      f.addColorStop(0, '#fff6c2');
-      f.addColorStop(0.4, '#ffb03a');
-      f.addColorStop(1, 'rgba(255,80,20,0)');
+      f.addColorStop(0, '#eaffff');
+      f.addColorStop(0.4, '#4cc9ff');
+      f.addColorStop(1, 'rgba(60,120,255,0)');
       g.fillStyle = f;
       g.beginPath();
       g.moveTo(-4, -24);
@@ -915,6 +954,421 @@ const BuArt = (() => {
         g.fill();
       }
     },
+    // ---------- Ridder-sci-fi: nieuwe stukken ----------
+    lichtpaal(g) {
+      schaduw(g, 6);
+      cyl(g, 3.5, 0, 4, '#2b3242');
+      g.fillStyle = '#3a4254';
+      g.fillRect(-1.2, -31, 2.4, 27);
+      const kern = g.createRadialGradient(0, -38, 0.5, 0, -38, 7);
+      kern.addColorStop(0, '#f2ffff');
+      kern.addColorStop(0.45, '#4cc9ff');
+      kern.addColorStop(1, 'rgba(60,140,255,0)');
+      g.fillStyle = kern;
+      g.beginPath();
+      g.arc(0, -38, 7, 0, Math.PI * 2);
+      g.fill();
+      // een zeshoekige kooi rond de lichtkern
+      g.strokeStyle = '#6f7889';
+      g.lineWidth = 1.3;
+      g.beginPath();
+      for (let i = 0; i <= 6; i++) {
+        const a = (i / 6) * Math.PI * 2 + Math.PI / 6;
+        const x = Math.cos(a) * 7.5;
+        const y = -38 + Math.sin(a) * 7.5;
+        if (i) g.lineTo(x, y);
+        else g.moveTo(x, y);
+      }
+      g.stroke();
+      poly(g, [[-3, -46], [3, -46], [0, -50]], '#4d5566');
+    },
+    zwaardsteen(g) {
+      schaduw(g, 17, 8);
+      poly(g, [[-17, 1], [-13, -8], [-5, -13], [6, -12], [14, -7], [18, 1], [8, 6], [-8, 6]], '#4d5566');
+      poly(g, [[-13, -8], [-5, -13], [6, -12], [14, -7], [3, -5], [-6, -5]], '#6f7889');
+      g.fillStyle = 'rgba(0,0,0,.25)';
+      g.fillRect(-9, -2, 6, 1.2);
+      g.fillRect(4, 0, 7, 1.2);
+      // de kling van licht, met de punt in de steen
+      const kl = g.createLinearGradient(-2, 0, 2, 0);
+      kl.addColorStop(0, '#eaffff');
+      kl.addColorStop(1, '#3aa8f0');
+      poly(g, [[-2, -9], [2, -9], [2.4, -44], [0, -47], [-2.4, -44]], kl);
+      neonlijn(g, [0, -10], [0, -44], 1.2);
+      g.fillStyle = GOUD;
+      g.fillRect(-8, -48, 16, 3);
+      g.fillStyle = '#4a3020';
+      g.fillRect(-1.4, -58, 2.8, 10);
+      g.fillStyle = GOUD;
+      g.beginPath();
+      g.arc(0, -60, 2.4, 0, Math.PI * 2);
+      g.fill();
+    },
+    robopaard(g, k) {
+      schaduw(g, 19, 8);
+      const metaal = g.createLinearGradient(-15, -30, 15, -14);
+      metaal.addColorStop(0, '#c3cad6');
+      metaal.addColorStop(1, '#5d6678');
+      // benen, met een gloeiend knie-gewricht
+      for (const [x, achter] of [[9, true], [-8, true], [12, false], [-5, false]]) {
+        g.fillStyle = achter ? '#3a4254' : '#4d5566';
+        g.fillRect(x - 1.6, -17, 3.2, 17);
+        g.fillStyle = '#7ee0ff';
+        g.fillRect(x - 1.6, -10, 3.2, 1.6);
+        g.fillStyle = '#2b3242';
+        g.fillRect(x - 2.2, -1.5, 4.4, 1.5);
+      }
+      g.fillStyle = metaal;
+      g.beginPath();
+      g.ellipse(2, -22, 15, 7, 0, 0, Math.PI * 2);
+      g.fill();
+      // nek en kop
+      poly(g, [[-8, -25], [-13, -39], [-9, -41], [-3, -26]], metaal);
+      poly(g, [[-11, -42], [-22, -37], [-23, -33], [-13, -35]], metaal);
+      g.fillStyle = '#9aa3b4';
+      poly(g, [[-11, -42], [-9, -47], [-8, -41]], '#9aa3b4');
+      g.fillStyle = '#bff3ff';
+      g.beginPath();
+      g.arc(-17, -37.5, 1.4, 0, Math.PI * 2);
+      g.fill();
+      // neon manen en staart, zadel in de kleur van je burcht
+      neonlijn(g, [-6, -28], [-11, -42], 1);
+      neonlijn(g, [16, -23], [21, -12], 1);
+      g.fillStyle = k;
+      g.beginPath();
+      g.ellipse(3, -29, 6, 2.6, 0, 0, Math.PI * 2);
+      g.fill();
+      g.strokeStyle = 'rgba(255,255,255,.35)';
+      g.lineWidth = 0.8;
+      g.beginPath();
+      g.moveTo(-6, -20);
+      g.lineTo(12, -20);
+      g.stroke();
+    },
+    holoridder(g) {
+      schaduw(g, 13);
+      cyl(g, 11, 0, 6, '#3a4254');
+      neonband(g, 11, 4);
+      // projectiekegel
+      g.fillStyle = 'rgba(76,201,255,.12)';
+      poly(g, [[-3, -6], [3, -6], [13, -56], [-13, -56]]);
+      g.fill();
+      // de ridder zelf, van licht
+      g.save();
+      g.globalAlpha = 0.75;
+      const licht = g.createLinearGradient(0, -56, 0, -8);
+      licht.addColorStop(0, 'rgba(200,250,255,.9)');
+      licht.addColorStop(1, 'rgba(76,201,255,.45)');
+      g.fillStyle = licht;
+      g.fillRect(-5, -26, 3.6, 18);
+      g.fillRect(1.4, -26, 3.6, 18);
+      poly(g, [[-7, -26], [7, -26], [5, -42], [-5, -42]]);
+      g.fill();
+      g.beginPath();
+      g.arc(0, -47, 5, 0, Math.PI * 2);
+      g.fill();
+      g.beginPath();
+      g.ellipse(-9, -33, 4.5, 7, 0, 0, Math.PI * 2);
+      g.fill();
+      g.restore();
+      g.strokeStyle = 'rgba(220,250,255,.9)';
+      g.lineWidth = 0.8;
+      g.strokeRect(-5, -26, 3.6, 18);
+      g.strokeRect(1.4, -26, 3.6, 18);
+      g.beginPath();
+      g.arc(0, -47, 5, 0, Math.PI * 2);
+      g.stroke();
+      g.fillStyle = '#0b2c44';
+      g.fillRect(-3, -48, 6, 1.4);
+      neonlijn(g, [8, -26], [10, -58], 1.2);
+      // scanlijntjes
+      g.fillStyle = 'rgba(220,250,255,.25)';
+      for (let y = -54; y < -8; y += 3) g.fillRect(-9, y, 18, 0.6);
+    },
+    radar(g) {
+      schaduw(g, 14);
+      box(g, -0.18, 0.18, -0.18, 0.18, 0, 8, DONKERSTEEN);
+      g.fillStyle = '#5d6678';
+      g.fillRect(-1.6, -31, 3.2, 23);
+      g.save();
+      g.translate(3, -38);
+      g.rotate(-0.45);
+      const sch = g.createLinearGradient(-14, 0, 14, 0);
+      sch.addColorStop(0, '#d7dde8');
+      sch.addColorStop(1, '#6f7889');
+      g.fillStyle = sch;
+      g.beginPath();
+      g.ellipse(0, 0, 15, 8, 0, 0, Math.PI * 2);
+      g.fill();
+      g.fillStyle = 'rgba(30,40,60,.35)';
+      g.beginPath();
+      g.ellipse(1, 1, 10, 5, 0, 0, Math.PI * 2);
+      g.fill();
+      g.strokeStyle = 'rgba(150,230,255,.9)';
+      g.lineWidth = 1;
+      g.beginPath();
+      g.ellipse(0, 0, 15, 8, 0, 0, Math.PI * 2);
+      g.stroke();
+      g.restore();
+      g.strokeStyle = '#3a4254';
+      g.lineWidth = 1.2;
+      g.beginPath();
+      g.moveTo(3, -38);
+      g.lineTo(11, -50);
+      g.stroke();
+      g.fillStyle = '#ff4d6d';
+      g.beginPath();
+      g.arc(11, -51, 1.8, 0, Math.PI * 2);
+      g.fill();
+    },
+    rondetafel(g) {
+      schaduw(g, 24, 12);
+      const kruk = (x, y) => {
+        g.save();
+        g.translate(x, y);
+        cyl(g, 3.6, 0, 6, '#4d5566', { top: '#7ee0ff' });
+        g.restore();
+      };
+      kruk(-15, -6);
+      kruk(15, -6);
+      cyl(g, 16, 0, 9, '#6f7889');
+      g.strokeStyle = 'rgba(190,240,255,.9)';
+      g.lineWidth = 1;
+      g.beginPath();
+      g.ellipse(0, -9, 13, 6.5, 0, 0, Math.PI * 2);
+      g.stroke();
+      kruk(-15, 7);
+      kruk(15, 7);
+      // een hologram van een wereldbol boven de tafel
+      g.fillStyle = 'rgba(76,201,255,.12)';
+      poly(g, [[-9, -9], [9, -9], [6, -28], [-6, -28]]);
+      g.fill();
+      const bol = g.createRadialGradient(-2, -30, 1, 0, -28, 8);
+      bol.addColorStop(0, 'rgba(230,255,255,.9)');
+      bol.addColorStop(1, 'rgba(76,201,255,.35)');
+      g.fillStyle = bol;
+      g.beginPath();
+      g.arc(0, -28, 8, 0, Math.PI * 2);
+      g.fill();
+      g.strokeStyle = 'rgba(220,250,255,.75)';
+      g.lineWidth = 0.7;
+      for (const rx of [3, 6]) {
+        g.beginPath();
+        g.ellipse(0, -28, rx, 8, 0, 0, Math.PI * 2);
+        g.stroke();
+      }
+      g.beginPath();
+      g.ellipse(0, -28, 8, 2.5, 0, 0, Math.PI * 2);
+      g.stroke();
+    },
+    schildkoepel(g, k) {
+      schaduw(g, 27, 13, 0.14);
+      cyl(g, 6, 0, 9, '#3a4254');
+      neonband(g, 6, 6);
+      const kern = g.createRadialGradient(0, -12, 0.5, 0, -12, 5);
+      kern.addColorStop(0, '#ffffff');
+      kern.addColorStop(1, 'rgba(76,201,255,0)');
+      g.fillStyle = kern;
+      g.beginPath();
+      g.arc(0, -12, 5, 0, Math.PI * 2);
+      g.fill();
+      // de koepel van energie, met zeshoek-lijnen
+      const koepel = () => {
+        g.beginPath();
+        g.ellipse(0, 0, 29, 36, 0, Math.PI, Math.PI * 2);
+        g.ellipse(0, 0, 29, 14.5, 0, 0, Math.PI);
+        g.closePath();
+      };
+      koepel();
+      const gr = g.createLinearGradient(0, -36, 0, 10);
+      gr.addColorStop(0, 'rgba(160,235,255,.32)');
+      gr.addColorStop(1, 'rgba(76,201,255,.08)');
+      g.fillStyle = gr;
+      g.fill();
+      g.save();
+      koepel();
+      g.clip();
+      g.strokeStyle = 'rgba(190,240,255,.4)';
+      g.lineWidth = 0.7;
+      for (const rx of [10, 20]) {
+        g.beginPath();
+        g.ellipse(0, 0, rx, 36, 0, Math.PI, Math.PI * 2);
+        g.stroke();
+      }
+      for (const h of [12, 24]) {
+        const r = 29 * Math.sqrt(1 - (h / 36) ** 2);
+        g.beginPath();
+        g.ellipse(0, -h, r, r / 2, 0, 0, Math.PI);
+        g.stroke();
+      }
+      g.restore();
+      g.strokeStyle = 'rgba(210,248,255,.85)';
+      g.lineWidth = 1.1;
+      g.beginPath();
+      g.ellipse(0, 0, 29, 36, 0, Math.PI, Math.PI * 2);
+      g.stroke();
+      g.strokeStyle = shade(k, 0.2);
+      g.beginPath();
+      g.ellipse(0, 0, 29, 14.5, 0, 0, Math.PI);
+      g.stroke();
+    },
+    laserkanon(g, k) {
+      schaduw(g, 17, 8);
+      cyl(g, 12, 0, 8, DONKERSTEEN);
+      neonband(g, 12, 5);
+      const f = box(g, -0.17, 0.17, -0.17, 0.17, 8, 20, '#5d6678');
+      poly(g, [f.left[0], f.left[1], f.left[2], f.left[3]].map((p, i) => [p[0], p[1] - (i < 2 ? 4 : 0)]), shade(k, -0.1));
+      // de loop, schuin omhoog
+      g.lineCap = 'round';
+      g.strokeStyle = '#2b3242';
+      g.lineWidth = 5;
+      g.beginPath();
+      g.moveTo(2, -17);
+      g.lineTo(19, -34);
+      g.stroke();
+      g.strokeStyle = '#6f7889';
+      g.lineWidth = 2;
+      g.beginPath();
+      g.moveTo(3, -18);
+      g.lineTo(18, -33);
+      g.stroke();
+      g.lineCap = 'butt';
+      const tip = g.createRadialGradient(20, -35, 0.5, 20, -35, 5);
+      tip.addColorStop(0, '#ffffff');
+      tip.addColorStop(0.5, '#4cc9ff');
+      tip.addColorStop(1, 'rgba(76,201,255,0)');
+      g.fillStyle = tip;
+      g.beginPath();
+      g.arc(20, -35, 5, 0, Math.PI * 2);
+      g.fill();
+    },
+    mechridder(g, k) {
+      schaduw(g, 18, 9);
+      const staal = '#7a8396';
+      box(g, 0.03, 0.14, -0.07, 0.07, 0, 26, '#4d5566');
+      box(g, -0.14, -0.03, -0.07, 0.07, 0, 26, '#5d6678');
+      box(g, -0.32, -0.22, -0.05, 0.05, 28, 44, '#5d6678');
+      box(g, -0.2, 0.2, -0.12, 0.12, 26, 50, staal);
+      // wapen op de borst in de kleur van je burcht
+      const m = P(0, 0.12, 38);
+      poly(g, [[m[0] - 4, m[1] - 4], [m[0] + 4, m[1]], [m[0] - 1, m[1] + 6], [m[0] - 8, m[1] + 1]], k);
+      box(g, -0.32, -0.18, -0.11, 0.11, 44, 52, k);
+      box(g, 0.18, 0.32, -0.11, 0.11, 44, 52, shade(k, -0.15));
+      box(g, -0.08, 0.08, -0.08, 0.08, 50, 61, '#8a93a6');
+      neonlijn(g, P(-0.08, 0.08, 56), P(0.08, 0.08, 56), 1);
+      neonlijn(g, P(0.08, 0.08, 56), P(0.08, -0.08, 56), 1);
+      box(g, 0.22, 0.32, -0.05, 0.05, 28, 44, '#4d5566');
+      // het lichtzwaard
+      const h = P(0.3, 0, 42);
+      g.fillStyle = GOUD;
+      g.fillRect(h[0] - 4, h[1] - 2, 8, 2.5);
+      neonlijn(g, [h[0], h[1] - 2], [h[0] + 3, h[1] - 38], 2);
+    },
+    ruimteschip(g, k) {
+      box(g, -0.45, 0.45, -0.45, 0.45, 0, 3, '#3a4254');
+      g.strokeStyle = 'rgba(190,240,255,.8)';
+      g.lineWidth = 1;
+      g.beginPath();
+      g.ellipse(0, -3, 19, 9.5, 0, 0, Math.PI * 2);
+      g.stroke();
+      g.fillStyle = '#ffc94a';
+      for (const [u, v] of [[-0.4, -0.4], [0.4, -0.4], [0.4, 0.4], [-0.4, 0.4]]) {
+        const p = P(u, v, 3);
+        g.fillRect(p[0] - 1.2, p[1] - 1.2, 2.4, 2.4);
+      }
+      // landingspoten
+      g.strokeStyle = '#2b3242';
+      g.lineWidth = 1.6;
+      g.beginPath();
+      g.moveTo(-10, -9);
+      g.lineTo(-11, -3);
+      g.moveTo(10, -9);
+      g.lineTo(12, -3);
+      g.stroke();
+      // het schip
+      g.fillStyle = shade(k, -0.3);
+      poly(g, [[-2, -18], [8, -36], [14, -34], [10, -18]]);
+      g.fill();
+      const romp = g.createLinearGradient(0, -28, 0, -6);
+      romp.addColorStop(0, '#e2e7ef');
+      romp.addColorStop(1, '#6f7889');
+      poly(g, [[-27, -14], [4, -27], [19, -23], [19, -11], [2, -6]], romp);
+      g.strokeStyle = k;
+      g.lineWidth = 1.8;
+      g.beginPath();
+      g.moveTo(-18, -14);
+      g.lineTo(16, -18);
+      g.stroke();
+      const kuip = g.createLinearGradient(-12, -22, -2, -14);
+      kuip.addColorStop(0, '#eaffff');
+      kuip.addColorStop(1, '#2a7fd6');
+      g.fillStyle = kuip;
+      g.beginPath();
+      g.ellipse(-8, -18, 7, 3.4, -0.35, 0, Math.PI * 2);
+      g.fill();
+      g.fillStyle = shade(k, -0.1);
+      poly(g, [[0, -10], [12, -1], [18, -3], [12, -12]]);
+      g.fill();
+      const vuur = g.createRadialGradient(21, -17, 0.5, 21, -17, 6);
+      vuur.addColorStop(0, '#ffffff');
+      vuur.addColorStop(0.5, '#4cc9ff');
+      vuur.addColorStop(1, 'rgba(76,201,255,0)');
+      g.fillStyle = vuur;
+      g.beginPath();
+      g.arc(21, -17, 6, 0, Math.PI * 2);
+      g.fill();
+    },
+    robodraak(g, k) {
+      schaduw(g, 26, 12, 0.3);
+      const metaal = g.createLinearGradient(-20, -40, 20, 0);
+      metaal.addColorStop(0, '#c3cad6');
+      metaal.addColorStop(1, '#4d5566');
+      // staart met neonpunten
+      g.strokeStyle = '#4d5566';
+      g.lineWidth = 5;
+      g.lineCap = 'round';
+      g.beginPath();
+      g.moveTo(-10, -8);
+      g.quadraticCurveTo(-26, -6, -22, 5);
+      g.quadraticCurveTo(-16, 11, -4, 8);
+      g.stroke();
+      g.lineCap = 'butt';
+      neonlijn(g, [-22, 0], [-18, 8], 1);
+      // vleugels van metaal met lichtnerven
+      const vleugel = [[-4, -18], [-14, -54], [-4, -44], [6, -58], [9, -40], [18, -44], [9, -20]];
+      poly(g, vleugel, shade(k, -0.35));
+      g.fillStyle = 'rgba(76,201,255,.18)';
+      poly(g, vleugel);
+      g.fill();
+      for (const p of [[-14, -54], [6, -58], [18, -44]]) neonlijn(g, [2, -22], p, 0.9);
+      g.fillStyle = metaal;
+      g.beginPath();
+      g.ellipse(0, -12, 16, 10, -0.1, 0, Math.PI * 2);
+      g.fill();
+      g.strokeStyle = 'rgba(30,40,60,.4)';
+      g.lineWidth = 0.8;
+      for (const x of [-8, -2, 4]) {
+        g.beginPath();
+        g.moveTo(x, -20);
+        g.lineTo(x + 2, -4);
+        g.stroke();
+      }
+      neonlijn(g, [-10, -6], [10, -8], 1, '76,201,255');
+      // nek en kop
+      g.fillStyle = metaal;
+      g.beginPath();
+      g.moveTo(8, -16);
+      g.quadraticCurveTo(18, -26, 16, -36);
+      g.lineTo(22, -34);
+      g.quadraticCurveTo(24, -22, 15, -10);
+      g.fill();
+      poly(g, [[14, -40], [29, -38], [28, -33], [15, -34]], metaal);
+      poly(g, [[16, -40], [13, -48], [20, -41]], shade(k, -0.2));
+      g.fillStyle = '#bff3ff';
+      g.beginPath();
+      g.arc(22, -37.5, 1.5, 0, Math.PI * 2);
+      g.fill();
+    },
     // Het kampvuur van de klasburcht in het begin.
     kampvuur(g) {
       g.fillStyle = '#6b6f7a';
@@ -941,7 +1395,7 @@ const BuArt = (() => {
 
   // Stukken die bewegen of gloeien: hier tekent het bord elke beeldje een gloed bovenop.
   const GLOED = {
-    fakkel: { y: -29, r: 16, kleur: '255,170,60', soort: 'vuur' },
+    fakkel: { y: -29, r: 16, kleur: '110,215,255', soort: 'vuur' },
     kampvuur: { y: -8, r: 22, kleur: '255,170,60', soort: 'vuur' },
     smidse: { y: -6, r: 18, kleur: '255,140,40', soort: 'vuur' },
     kristal: { y: -20, r: 24, kleur: '126,224,255', soort: 'puls' },
@@ -950,6 +1404,16 @@ const BuArt = (() => {
     fontein: { y: -14, r: 14, kleur: '160,230,255', soort: 'puls' },
     goudtoren: { y: -97, r: 14, kleur: '255,220,120', soort: 'puls' },
     draak: { y: -38, r: 10, kleur: '255,150,60', soort: 'vuur' },
+    lichtpaal: { y: -38, r: 18, kleur: '120,220,255', soort: 'puls' },
+    zwaardsteen: { y: -28, r: 16, kleur: '120,220,255', soort: 'puls' },
+    holoridder: { y: -32, r: 22, kleur: '120,220,255', soort: 'puls' },
+    radar: { x: 11, y: -51, r: 7, kleur: '255,90,110', soort: 'puls' },
+    rondetafel: { y: -28, r: 20, kleur: '120,220,255', soort: 'puls' },
+    schildkoepel: { y: -16, r: 30, kleur: '120,220,255', soort: 'puls' },
+    laserkanon: { x: 20, y: -35, r: 12, kleur: '120,220,255', soort: 'puls' },
+    mechridder: { x: 12, y: -62, r: 14, kleur: '120,220,255', soort: 'puls' },
+    ruimteschip: { x: 21, y: -17, r: 14, kleur: '120,220,255', soort: 'vuur' },
+    robodraak: { x: 22, y: -37, r: 9, kleur: '120,220,255', soort: 'puls' },
   };
 
   const MUURACHTIG = new Set(['muur', 'poort', 'toren', 'wachttoren', 'goudtoren', 'donjon']);
@@ -981,11 +1445,13 @@ const BuArt = (() => {
     gras: ['#5fae4e', '#57a548', '#64b553'],
     wild: ['#3f8a3f', '#3b833b', '#448f42'],
     bloemen: ['#5fae4e', '#57a548', '#64b553'],
-    pad: ['#9b9488', '#938c80', '#a29b8f'],
-    plein: ['#b3ac9f', '#aba496', '#b8b1a4'],
+    pad: ['#5b6272', '#575e6d', '#606778'],
+    plein: ['#6c7385', '#676e80', '#71788a'],
     water: ['#2f7fd0', '#2c78c6', '#3386d8'],
     neon: ['#1d2638', '#1b2334', '#1f283b'],
-    brug: ['#8a6038', '#83593a', '#916640'],
+    lava: ['#3a2622', '#36221f', '#3e2924'],
+    sterrenglas: ['#0d1430', '#0c122c', '#0f1734'],
+    brug: ['rgba(60,170,255,.42)', 'rgba(60,170,255,.42)', 'rgba(60,170,255,.42)'],
   };
 
   function diamant(g, T, grow = 0.6) {
@@ -1062,6 +1528,23 @@ const BuArt = (() => {
           g.fillRect(x - sz * 0.4, y - sz * 0.25, sz * 0.5, Math.max(0.6, s));
         }
       }
+      // lichtvoegen tussen de stenen
+      g.fillStyle = 'rgba(120,225,255,.55)';
+      for (let i = 0; i < (soort === 'pad' ? 4 : 2); i++) {
+        const u = r() - 0.5;
+        const v = r() - 0.5;
+        g.fillRect((u - v) * T / 2, (u + v) * T / 4, Math.max(1, 1.4 * s), Math.max(0.8, s));
+      }
+      if (soort === 'plein') {
+        g.strokeStyle = 'rgba(76,201,255,.35)';
+        g.lineWidth = Math.max(0.6, s);
+        g.beginPath();
+        g.moveTo(...P(-0.5, 0).map(z => z * s));
+        g.lineTo(...P(0.5, 0).map(z => z * s));
+        g.moveTo(...P(0, -0.5).map(z => z * s));
+        g.lineTo(...P(0, 0.5).map(z => z * s));
+        g.stroke();
+      }
     } else if (soort === 'water') {
       const w = g.createLinearGradient(0, -T / 4, 0, T / 4);
       w.addColorStop(0, '#2a6fc4');
@@ -1078,23 +1561,61 @@ const BuArt = (() => {
         g.quadraticCurveTo(x, y - 1.5 * s, x + 4 * s, y);
         g.stroke();
       }
+    } else if (soort === 'lava') {
+      // gloeiende barsten
+      for (let i = 0; i < 3; i++) {
+        const pts = [];
+        let u = r() - 0.5;
+        let v = -0.5;
+        for (let j = 0; j < 5; j++) {
+          pts.push(P(u, v).map(z => z * s));
+          u = Math.max(-0.5, Math.min(0.5, u + (r() - 0.5) * 0.35));
+          v += 0.25;
+        }
+        for (const [w, kl] of [[3.2, 'rgba(255,110,30,.45)'], [1.1, '#ffd27a']]) {
+          g.strokeStyle = kl;
+          g.lineWidth = Math.max(0.6, w * s);
+          g.beginPath();
+          g.moveTo(...pts[0]);
+          for (const p of pts.slice(1)) g.lineTo(...p);
+          g.stroke();
+        }
+      }
+    } else if (soort === 'sterrenglas') {
+      g.fillStyle = 'rgba(255,255,255,.85)';
+      for (let i = 0; i < 9; i++) {
+        const u = r() - 0.5;
+        const v = r() - 0.5;
+        const z = r() < 0.8 ? 1 : 1.8;
+        g.fillRect((u - v) * T / 2, (u + v) * T / 4, Math.max(0.6, z * s), Math.max(0.6, z * s));
+      }
+      const glans = g.createLinearGradient(-T / 2, -T / 4, T / 2, T / 4);
+      glans.addColorStop(0, 'rgba(120,200,255,0)');
+      glans.addColorStop(0.5, 'rgba(160,220,255,.18)');
+      glans.addColorStop(1, 'rgba(120,200,255,0)');
+      g.fillStyle = glans;
+      g.fillRect(-T / 2, -T / 4, T, T / 2);
+      g.strokeStyle = 'rgba(76,201,255,.6)';
+      g.lineWidth = Math.max(0.6, s);
+      diamant(g, T * 0.92, 0);
+      g.stroke();
     } else if (soort === 'brug') {
-      // houten planken dwars over de brug
-      for (let i = 0; i < 6; i++) {
-        const u = (i + 0.5) / 6 - 0.5;
-        g.strokeStyle = 'rgba(40,22,10,.55)';
-        g.lineWidth = Math.max(0.6, s * 1.2);
+      // een brug van hard licht: doorschijnend, met lichtlijnen dwars en een felle rand
+      g.strokeStyle = 'rgba(190,240,255,.55)';
+      g.lineWidth = Math.max(0.6, s);
+      for (const u of [-0.25, 0, 0.25]) {
         g.beginPath();
-        g.moveTo(...P(u - 1 / 12, -0.5).map(z => z * s));
-        g.lineTo(...P(u - 1 / 12, 0.5).map(z => z * s));
+        g.moveTo(...P(u, -0.5).map(z => z * s));
+        g.lineTo(...P(u, 0.5).map(z => z * s));
         g.stroke();
-        g.fillStyle = 'rgba(255,220,160,.12)';
+      }
+      g.strokeStyle = 'rgba(220,250,255,.9)';
+      g.lineWidth = Math.max(0.8, 1.6 * s);
+      for (const v of [-0.47, 0.47]) {
         g.beginPath();
-        g.moveTo(...P(u - 0.06, -0.45).map(z => z * s));
-        g.lineTo(...P(u - 0.04, -0.45).map(z => z * s));
-        g.lineTo(...P(u - 0.04, 0.45).map(z => z * s));
-        g.lineTo(...P(u - 0.06, 0.45).map(z => z * s));
-        g.fill();
+        g.moveTo(...P(-0.5, v).map(z => z * s));
+        g.lineTo(...P(0.5, v).map(z => z * s));
+        g.stroke();
       }
     } else if (soort === 'neon') {
       g.strokeStyle = 'rgba(76,201,255,.85)';
@@ -1137,6 +1658,7 @@ const BuArt = (() => {
     };
     // Een brug hangt in de lucht: geen rotswand eronder, en de rotswand van het eiland loopt eronder door.
     const brug = (x, y) => !!(kaart.brug && kaart.brug(x, y));
+    const bodems = []; // de onderkant van elke rotswand: daar komen de zweefmotoren
     const vast = (x, y) => kaart.land(x, y) && !brug(x, y);
     // 1. kliffen en vloer, van achter naar voor
     for (let som = 0; som <= kaart.w + kaart.h - 2; som++) {
@@ -1147,7 +1669,7 @@ const BuArt = (() => {
         const sy = oy + (x + y) * kwart;
         if (brug(x, y)) {
           // een balk onder de planken, en touwen opzij
-          const balk = T * 0.14;
+          const balk = T * 0.06;
           const zij = (a, b, kleur) => {
             g.fillStyle = kleur;
             g.beginPath();
@@ -1158,16 +1680,26 @@ const BuArt = (() => {
             g.closePath();
             g.fill();
           };
-          if (!kaart.land(x, y + 1)) zij([sx - half, sy], [sx, sy + kwart], '#5a3a22');
-          if (!kaart.land(x + 1, y)) zij([sx, sy + kwart], [sx + half, sy], '#3f2818');
+          if (!kaart.land(x, y + 1)) zij([sx - half, sy], [sx, sy + kwart], 'rgba(76,201,255,.55)');
+          if (!kaart.land(x + 1, y)) zij([sx, sy + kwart], [sx + half, sy], 'rgba(40,140,230,.55)');
           const t = tegel('brug', T, 0);
           g.drawImage(t.c, sx - t.ax, sy - t.ay);
           continue;
         }
         const leegY = !vast(x, y + 1);
         const leegX = !vast(x + 1, y);
-        if (leegY) klif(g, [sx - half, sy], [sx, sy + kwart], diepte(x, y + 1), diepte(x + 1, y + 1), 'l', x * 31 + y, T);
-        if (leegX) klif(g, [sx, sy + kwart], [sx + half, sy], diepte(x + 1, y + 1), diepte(x + 1, y), 'r', x * 17 + y * 3, T);
+        if (leegY) {
+          const da = diepte(x, y + 1);
+          const db = diepte(x + 1, y + 1);
+          klif(g, [sx - half, sy], [sx, sy + kwart], da, db, 'l', x * 31 + y, T);
+          bodems.push([sx - half / 2, sy + kwart / 2 + (da + db) / 2]);
+        }
+        if (leegX) {
+          const da = diepte(x + 1, y + 1);
+          const db = diepte(x + 1, y);
+          klif(g, [sx, sy + kwart], [sx + half, sy], da, db, 'r', x * 17 + y * 3, T);
+          bodems.push([sx + half / 2, sy + kwart / 2 + (da + db) / 2]);
+        }
         const soort = kaart.vloer(x, y);
         const t = tegel(soort, T, Math.floor(hash(x, y) * 3));
         g.drawImage(t.c, sx - t.ax, sy - t.ay);
@@ -1185,6 +1717,20 @@ const BuArt = (() => {
         }
       }
     }
+    // 1b. zweefmotoren onder de diepste punten van de rots
+    const motoren = [];
+    if (bodems.length) {
+      const n = Math.max(1, Math.min(5, Math.round(breed / 8)));
+      const x0 = Math.min(...bodems.map(b => b[0]));
+      const x1 = Math.max(...bodems.map(b => b[0])) + 1;
+      for (let i = 0; i < n; i++) {
+        const a = x0 + ((x1 - x0) * i) / n;
+        const b = x0 + ((x1 - x0) * (i + 1)) / n;
+        let best = null;
+        for (const p of bodems) if (p[0] >= a && p[0] < b && (!best || p[1] > best[1])) best = p;
+        if (best) motoren.push(motor(g, best[0], best[1] - T * 0.08, T));
+      }
+    }
     // 2. stukken, van achter naar voor
     for (let som = 0; som <= kaart.w + kaart.h - 2; som++) {
       for (let x = Math.max(0, som - kaart.h + 1); x <= Math.min(kaart.w - 1, som); x++) {
@@ -1193,23 +1739,32 @@ const BuArt = (() => {
         const sx = ox + (x - y) * half;
         const sy = oy + (x + y) * kwart;
         if (brug(x, y)) {
-          // touwen met paaltjes langs beide kanten
+          // lichtrailings langs beide kanten, met kleine zenders aan de uiteinden
           const langsX = brug(x - 1, y) || brug(x + 1, y) || !brug(x, y - 1);
           const pt = (u, v, h = 0) => [sx + (u - v) * half, sy + (u + v) * kwart - h];
-          const zp = langsX ? (a, z) => pt(a, z) : (a, z) => pt(z, a);
           const zph = langsX ? (a, z, h) => pt(a, z, h) : (a, z, h) => pt(z, a, h);
-          const hoogte = T * 0.24;
-          g.lineWidth = Math.max(1, T / 30);
+          const hoogte = T * 0.16;
           for (const z of [-0.46, 0.46]) {
-            g.strokeStyle = '#c9a26b';
+            g.save();
+            g.lineCap = 'round';
+            g.strokeStyle = 'rgba(76,201,255,.3)';
+            g.lineWidth = Math.max(2, T / 14);
             g.beginPath();
             g.moveTo(...zph(-0.5, z, hoogte));
-            g.quadraticCurveTo(...zph(0, z, hoogte * 0.7), ...zph(0.5, z, hoogte));
+            g.lineTo(...zph(0.5, z, hoogte));
             g.stroke();
-            for (const a of [-0.5, 0.5]) {
-              const [px, py] = zp(a, z);
-              g.fillStyle = '#5a3a22';
-              g.fillRect(px - T / 40, py - hoogte, T / 20, hoogte);
+            g.strokeStyle = 'rgba(210,248,255,.95)';
+            g.lineWidth = Math.max(0.8, T / 50);
+            g.stroke();
+            g.restore();
+            const eind = langsX ? [[-0.5, !brug(x - 1, y)], [0.5, !brug(x + 1, y)]] : [[-0.5, !brug(x, y - 1)], [0.5, !brug(x, y + 1)]];
+            for (const [a, aan] of eind) {
+              if (!aan) continue;
+              const [px, py] = zph(a, z, 0);
+              g.fillStyle = '#2b3242';
+              g.fillRect(px - T / 36, py - hoogte - T / 30, T / 18, hoogte + T / 30);
+              g.fillStyle = '#bff3ff';
+              g.fillRect(px - T / 36, py - hoogte - T / 30, T / 18, T / 30);
             }
           }
           continue;
@@ -1240,6 +1795,41 @@ const BuArt = (() => {
         }
       }
     }
+    return { motoren };
+  }
+
+  // Een zweefmotor: een metalen ring met een straal blauw licht naar beneden.
+  function motor(g, x, y, T) {
+    const rx = T * 0.32;
+    const ry = T * 0.13;
+    g.save();
+    g.globalCompositeOperation = 'lighter';
+    const st = g.createLinearGradient(0, y, 0, y + T * 1.8);
+    st.addColorStop(0, 'rgba(120,220,255,.55)');
+    st.addColorStop(1, 'rgba(60,120,255,0)');
+    g.fillStyle = st;
+    g.beginPath();
+    g.moveTo(x - rx * 0.7, y);
+    g.lineTo(x + rx * 0.7, y);
+    g.lineTo(x + rx * 0.25, y + T * 1.8);
+    g.lineTo(x - rx * 0.25, y + T * 1.8);
+    g.closePath();
+    g.fill();
+    g.restore();
+    g.fillStyle = '#2b3242';
+    g.beginPath();
+    g.ellipse(x, y - ry * 0.6, rx, ry, 0, 0, Math.PI * 2);
+    g.fill();
+    g.fillStyle = '#3d4658';
+    g.beginPath();
+    g.ellipse(x, y - ry * 1.1, rx * 0.9, ry * 0.85, 0, 0, Math.PI * 2);
+    g.fill();
+    g.strokeStyle = 'rgba(190,240,255,.95)';
+    g.lineWidth = Math.max(0.8, T / 40);
+    g.beginPath();
+    g.ellipse(x, y - ry * 0.3, rx * 0.75, ry * 0.65, 0, 0, Math.PI);
+    g.stroke();
+    return { x, y: y + T * 0.1, r: T * 0.7, kleur: '76,201,255', soort: 'puls', fase: hash(Math.round(x), Math.round(y), 6) * 6.28 };
   }
 
   // Een rotswand onder de rand van het eiland, met een gloeiend kristal hier en daar.
@@ -1247,13 +1837,13 @@ const BuArt = (() => {
     const r = rng(seed * 2654435761);
     const grad = g.createLinearGradient(0, a[1], 0, a[1] + Math.max(da, db));
     if (side === 'l') {
-      grad.addColorStop(0, '#6d5a45');
-      grad.addColorStop(0.12, '#5a4a3a');
-      grad.addColorStop(1, '#2a2430');
+      grad.addColorStop(0, '#5f5148');
+      grad.addColorStop(0.12, '#4a4048');
+      grad.addColorStop(1, '#1e1c30');
     } else {
-      grad.addColorStop(0, '#4f4033');
-      grad.addColorStop(0.12, '#3f342b');
-      grad.addColorStop(1, '#1b1822');
+      grad.addColorStop(0, '#43393a');
+      grad.addColorStop(0.12, '#352e36');
+      grad.addColorStop(1, '#14131f');
     }
     g.fillStyle = grad;
     g.beginPath();
@@ -1278,6 +1868,20 @@ const BuArt = (() => {
     g.lineTo(a[0], a[1] + T * 0.12);
     g.closePath();
     g.fill();
+    // een neonrand onder het gras: het eiland is een ridderburcht met sci-fi motoren
+    const nl = T * 0.12;
+    g.save();
+    g.lineCap = 'round';
+    g.strokeStyle = 'rgba(76,201,255,.3)';
+    g.lineWidth = Math.max(1.5, T / 14);
+    g.beginPath();
+    g.moveTo(a[0], a[1] + nl);
+    g.lineTo(b[0], b[1] + nl);
+    g.stroke();
+    g.strokeStyle = 'rgba(190,240,255,.9)';
+    g.lineWidth = Math.max(0.7, T / 45);
+    g.stroke();
+    g.restore();
     // breuklijnen
     g.strokeStyle = 'rgba(0,0,0,.25)';
     g.lineWidth = Math.max(0.6, T / 64);
@@ -1319,7 +1923,8 @@ const BuArt = (() => {
         const st = kaart.stuk(x, y);
         const gl = st && GLOED[st.id];
         const s = T / 64;
-        if (gl) out.push({ x: ox + (x - y) * T / 2, y: oy + (x + y) * T / 4 + gl.y * s, r: gl.r * s, kleur: gl.kleur, soort: gl.soort, fase: hash(x, y, 9) * 6.28 });
+        if (gl) out.push({ x: ox + (x - y) * T / 2 + (gl.x || 0) * s, y: oy + (x + y) * T / 4 + gl.y * s, r: gl.r * s, kleur: gl.kleur, soort: gl.soort, fase: hash(x, y, 9) * 6.28 });
+        else if (kaart.vloer(x, y) === 'lava' && hash(x, y, 4) < 0.6) out.push({ x: ox + (x - y) * T / 2, y: oy + (x + y) * T / 4, r: T * 0.35, kleur: '255,120,40', soort: 'puls', fase: hash(x, y, 9) * 6.28 });
         else if (opts.glinster !== false && kaart.vloer(x, y) === 'water' && hash(x, y, 4) < 0.5) out.push({ x: ox + (x - y) * T / 2, y: oy + (x + y) * T / 4, r: T * 0.18, kleur: '220,245,255', soort: 'glinster', fase: hash(x, y, 9) * 6.28 });
       }
     }
@@ -1374,8 +1979,9 @@ const BuArt = (() => {
   }
 
   // Een sterrenhemel met nevels, één keer gebakken.
-  function hemel(w, h) {
-    const key = `h|${w}|${h}`;
+  // planeet: waar de verre planeet staat, als deel van de breedte en hoogte, met zijn straal.
+  function hemel(w, h, planeet = { x: 0.86, y: 0.2, r: 0.075 }) {
+    const key = `h|${w}|${h}|${planeet.x}|${planeet.y}|${planeet.r}`;
     let c = cache.get(key);
     if (c) return c;
     c = canvas(w, h);
@@ -1399,6 +2005,37 @@ const BuArt = (() => {
       const s = r() < 0.92 ? 1 : 2;
       g.fillRect(r() * w, r() * h, s, s);
     }
+    // een verre planeet met ringen
+    const pr = Math.min(w, h) * planeet.r;
+    const px = w * planeet.x;
+    const py = h * planeet.y;
+    const ring = (a0, a1) => {
+      g.strokeStyle = 'rgba(190,170,255,.35)';
+      g.lineWidth = pr * 0.12;
+      g.beginPath();
+      g.ellipse(px, py, pr * 1.9, pr * 0.45, -0.3, a0, a1);
+      g.stroke();
+      g.strokeStyle = 'rgba(140,220,255,.25)';
+      g.lineWidth = pr * 0.05;
+      g.beginPath();
+      g.ellipse(px, py, pr * 2.25, pr * 0.55, -0.3, a0, a1);
+      g.stroke();
+    };
+    ring(Math.PI, Math.PI * 2);
+    const pl = g.createRadialGradient(px - pr * 0.4, py - pr * 0.4, pr * 0.1, px, py, pr);
+    pl.addColorStop(0, '#8a7cff');
+    pl.addColorStop(0.6, '#4b3aa8');
+    pl.addColorStop(1, '#1c1546');
+    g.fillStyle = pl;
+    g.beginPath();
+    g.arc(px, py, pr, 0, Math.PI * 2);
+    g.fill();
+    g.strokeStyle = 'rgba(160,220,255,.35)';
+    g.lineWidth = Math.max(1, pr * 0.04);
+    g.beginPath();
+    g.arc(px, py, pr, Math.PI * 1.05, Math.PI * 1.7);
+    g.stroke();
+    ring(0, Math.PI);
     cache.set(key, c);
     return c;
   }
