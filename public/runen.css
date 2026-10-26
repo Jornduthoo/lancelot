@@ -216,5 +216,6 @@
 }
 .rnh-thema { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
 .rnh-thema input { flex: 1 1 180px; min-width: 0; }
+.rnh-bewerk summary { cursor: pointer; font-weight: 700; margin-bottom: 8px; }
 .rnh-bots { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-bottom: 8px; }
 .rnh-bots button { padding: 6px 12px; }

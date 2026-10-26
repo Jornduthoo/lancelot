@@ -122,6 +122,7 @@ $('rnh-bewaar').addEventListener('click', () => {
   socket.emit('rn-lijst-save', { text: $('rnh-lijst').value, doel: $('rnh-doel').value }, res => {
     if (res.error) return ($('rnh-lijst-info').textContent = res.error);
     lijst(res.lijst);
+    $('rnh-bewerk').open = false;
     $('rnh-lijst-info').textContent = `Bewaard. ${$('rnh-lijst-info').textContent}`;
     sfx.good();
   });
