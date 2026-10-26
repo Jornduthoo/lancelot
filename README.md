@@ -23,6 +23,7 @@ Het thema: middeleeuws met een scifi-kantje. Het startscherm heeft drie grote te
    - **Neonvlucht**: rennen, springen en glijden door de neonburcht. Bij een vraagpoort loop je door het juiste antwoord voor turbo en een hogere vermenigvuldiger
    - **Diepboor**: graaf met je boorridder naar goud, kristal en neonkernen. Goede antwoorden geven brandstof; in de smidse koop je een betere boor
    - **Robomol**: robotmollen schieten uit negen burchtputten en elke leerling mept ze met een zwaard, in 3D vanuit de ogen van de ridder. Een juist antwoord laadt het zwaard op en geeft het Vuurzwaard
+   - **Ontsnap uit de kerker**: de hele klas zit samen opgesloten en opent deur na deur: een sleuteldeur, een runenslot (de code ligt verspreid over de klas), een laserhek (iedereen moet helpen), een valhek en de Kerkermeester
    - **Robopaarden**: elke leerling bouwt een eigen robotpaard en racet in 3D rond het burchtmeer, met schansen, nitro, een burchtroute, een sprong over de Drakenkloof en een geheime bosweg. Runenkisten geven een vraag: juist = een wapen
    - **Leraar-baas**: de leerkracht is de eindbaas, een reuzenridder op het bord. De klas valt samen aan met goede antwoorden, de leerkracht slaat terug
    - **Het Rijk**: een spel dat weken doorloopt. Teams veroveren les na les gebieden op een kaart; vragen over oudere leerstof komen terug om je land te verdedigen
@@ -205,6 +206,17 @@ Op het **burchtplein** schieten robotmollen uit negen putten. Elke leerling slaa
 - 🪖 gewone mol: 1 slag · 👑 goudhelm: 2 slagen, 3× zoveel punten · 💣 bomdrone: niet raken (punten kwijt, even duizelig). Veel op rij raken geeft een combo tot ×4; mis slaan zet de reeks terug op nul.
 - **Vragen**: de zwaardlading raakt leeg (rustig tempo: minder vaak). Een juist antwoord geeft een volle lading en het 🔥 **Vuurzwaard**: dubbele punten en elke slag raakt ook de buurputten.
 - Chromebook: klik op een put of gebruik Q W E · A S D · Z X C (op een AZERTY-klavier toont het spel de letters die daar staan), spatie = vraag. Gsm: tik op een put. Elk antwoord komt in het logboek. Resultaten in `resultaten/`.
+
+## Ontsnap uit de kerker
+
+Een samenwerkingsspel: de hele klas zit **opgesloten in de kerker** onder de burcht en komt alleen samen buiten. Op het bord en op elk toestel staat dezelfde kerkergang met de deur van nu; vooraan staat de klas als ridders. Langer spelen = meer deuren (1 minuut: 3, 15 minuten: 8).
+
+- 🗝️ **Sleuteldeur**: elk juist antwoord smeedt een sleutel die naar het slot vliegt (5 op rij = een gouden sleutel die dubbel telt).
+- ᛟ **Runenslot**: wie juist antwoordt, ziet op zijn eigen scherm één rune van de code van vier (Zwaard, Kroon, Ster, Maan, Bliksem, Toren, Schild of Sleutel). Vertel ze aan elkaar en typ de code in. Een foute code: 4 s wachten en je ziet hoeveel runen juist stonden. Lukt het niet, dan toont het bord na 45 s om de 15 s één rune.
+- 🔴 **Laserhek**: elke ridder (80 % van wie verbonden is) moet minstens één keer juist antwoorden; dan gaat zijn kristal boven de deur aan.
+- ⛓️ **Valhek**: juiste antwoorden draaien de lier. Is het 3 s stil, dan zakt het valhek terug.
+- 🤖 **De Kerkermeester**: een robotbewaker voor de laatste poort. Elk juist antwoord is een treffer (3 op rij = dubbel).
+- Hoeveel antwoorden een deur vraagt, hangt af van het aantal leerlingen, de speeltijd en het tempo. Ontsnapt de klas, dan krijgt ze 1 tot 3 sterren volgens de tijd die over is. Chromebook: 1-4 antwoorden, spatie = vraag, bij het runenslot 1-8 = rune en Enter = openen. Elk antwoord komt in het logboek. Resultaten in `resultaten/`.
 
 ## Robopaarden
 
