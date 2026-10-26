@@ -233,9 +233,37 @@ function overzicht({ dagen = 42, vak = '' } = {}) {
   const misRows = [...misverstanden.entries()].map(([code, m]) => ({ code, tekst: (doelen.find(code) || {}).tekst || '', vak: vakVan(code), namen: [...m.keys()].sort(), keer: [...m.values()].reduce((a, b) => a + b, 0) }))
     .sort((a, b) => b.namen.length - a.namen.length || b.keer - a.keer);
 
+  // Veelgemaakte fouten: hetzelfde foute antwoord bij dezelfde vraag, door minstens twee leerlingen. Dat wijst op een denkfout.
+  const fouten = new Map();
+  for (const e of logboek.readKeuze()) {
+    if (e.t < vanaf || (vak && vakVan(e.doel) !== vak) || (e.doel && !doelen.scoort(e.doel))) continue;
+    const w = who(e, list);
+    if (!w.opLijst && list.length) continue;
+    const key = `${e.vraag}\u0000${String(e.gekozen).trim().toLowerCase()}`;
+    const f = fouten.get(key) || fouten.set(key, { vraag: e.vraag, gekozen: e.gekozen, juist: e.juist, doel: e.doel || '', namen: new Set(), keer: 0 }).get(key);
+    f.namen.add(w.naam);
+    f.keer++;
+  }
+  const foutRows = [...fouten.values()].filter(f => f.namen.size >= 2)
+    .map(f => ({ ...f, namen: [...f.namen].sort(), van: (vragen.get(f.vraag) || {}).n || 0 }))
+    .sort((a, b) => b.namen.length - a.namen.length || b.keer - a.keer);
+
+  // Leertijd per spel: hoeveel vragen beantwoordt een leerling per minuut? Zo zie je welke spellen vooral spelen zijn.
+  const leertijd = new Map();
+  for (const ses of leertijdSessies(entries)) {
+    const x = leertijd.get(ses.spel) || leertijd.set(ses.spel, { spel: ses.spel, sessies: 0, antwoorden: 0, minuten: 0, juist: 0 }).get(ses.spel);
+    x.sessies++;
+    x.antwoorden += ses.antwoorden;
+    x.juist += ses.juist;
+    x.minuten += ses.minuten * ses.leerlingen;
+  }
+
   return {
     schooljaar: logboek.schooljaar(),
     leerjaar: k.leerjaar,
+    fouten: foutRows.slice(0, 10),
+    leertijd: [...leertijd.values()].map(x => ({ spel: x.spel, sessies: x.sessies, perMinuut: Math.round((x.antwoorden / x.minuten) * 10) / 10, pct: pct(x.juist, x.antwoorden) }))
+      .sort((a, b) => b.perMinuut - a.perMinuut),
     misverstanden: misRows.slice(0, 8),
     klas: k.naam,
     dagen,
@@ -253,4 +281,21 @@ function overzicht({ dagen = 42, vak = '' } = {}) {
   };
 }
 
-module.exports = { overzicht };
+// Per sessie: hoe lang er gespeeld werd en hoeveel vragen elke leerling gemiddeld beantwoordde.
+// Een sessie van minder dan twee minuten zegt te weinig (en de tijdstempels zijn een paar seconden grof).
+function leertijdSessies(entries) {
+  const map = new Map();
+  for (const e of entries) {
+    if (!e.sessie || e.spel === 'Runenraadsel' || e.spel === 'Oefenblad') continue;
+    const t = Date.parse(e.t);
+    const s = map.get(e.sessie) || map.set(e.sessie, { spel: e.spel, start: t, end: t, antwoorden: 0, juist: 0, namen: new Set() }).get(e.sessie);
+    s.start = Math.min(s.start, t);
+    s.end = Math.max(s.end, t);
+    if (!e.leeg) s.antwoorden++;
+    if (e.juist) s.juist++;
+    s.namen.add(String(e.naam || '').toLowerCase());
+  }
+  return [...map.values()].map(s => ({ ...s, leerlingen: s.namen.size, minuten: (s.end - s.start) / 60000 })).filter(s => s.minuten >= 2 && s.leerlingen);
+}
+
+module.exports = { overzicht, leertijdSessies };

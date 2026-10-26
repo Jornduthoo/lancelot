@@ -35,6 +35,11 @@ const Overzicht = (() => {
     const head = el('div', 'ov-head');
     const title = el('div');
     title.append(el('h3', '', `${o.spel} · ${o.bron}`), el('p', 'muted', `${when(o.start)} · ${o.spelers.length} leerlingen · ${o.antwoorden} antwoorden`));
+    // Leertijd: hoeveel vragen beantwoordde elke leerling per minuut spelen?
+    if (o.perMinuut !== null && o.perMinuut !== undefined) {
+      const oordeel = o.perMinuut >= 3 ? 'veel oefening' : o.perMinuut >= 1 ? 'gemiddeld' : 'vooral spelen, weinig vragen';
+      title.append(el('p', 'muted small', `Leertijd: ${String(o.perMinuut).replace('.', ',')} vragen per leerling per minuut, ${o.minuten} minuten gespeeld (${oordeel}).`));
+    }
     const link = el('a', 'button secondary', 'Download voor Excel');
     link.href = `/logboek/sessie?id=${encodeURIComponent(o.id)}`;
     head.append(title, bar(o.pct), link);
@@ -48,6 +53,7 @@ const Overzicht = (() => {
       const text = el('div', 'ov-text');
       text.appendChild(el('span', '', v.vraag));
       if (v.doel) text.appendChild(el('code', '', v.doel));
+      if (v.vaakstFout) text.appendChild(el('small', 'ov-fout', `${v.vaakstFout.keer} keer gekozen: "${v.vaakstFout.tekst}"`));
       if (v.fout.length) text.appendChild(el('small', 'muted', `Fout: ${v.fout.join(', ')}`));
       row.append(text, bar(v.pct));
       hard.appendChild(row);

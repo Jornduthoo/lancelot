@@ -66,3 +66,4 @@ body:has(#home:not(.hidden)) .bord-knoppen { display: none; }
 .namen-rij span { flex: 1; font-weight: 700; }
 .namen-rij button { padding: 6px 12px; min-height: 0; }
 .namen-on { color: var(--green, #2ee6a6); }
+.ov-fout { color: var(--bad); }
