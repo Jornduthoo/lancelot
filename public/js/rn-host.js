@@ -88,6 +88,7 @@ function load() {
       o.value = d.code;
       sel.appendChild(o);
     }
+    aiPrompt = res.prompt || '';
     lijst(res.lijst);
   });
 }
@@ -152,6 +153,44 @@ $('rnh-thema-ai').addEventListener('click', () => {
     $('rnh-lijst-info').textContent = `${res.nieuw} woorden toegevoegd (Page ${p.page}, Schildknaap ${p.schildknaap}, Ridder ${p.ridder}). Kijk ze even na en klik op Bewaar.`;
   });
 });
+
+// Zelf via een chatbot: prompt kopiëren, chatbot openen, en het antwoord bij terugkomst van het klembord halen.
+let aiPrompt = '';
+let gekopieerd = '';
+
+function kopieer(text) {
+  const t = el('textarea');
+  t.value = text;
+  document.body.appendChild(t);
+  t.select();
+  const ok = document.execCommand('copy');
+  t.remove();
+  if (!ok) navigator.clipboard?.writeText(text).catch(() => {});
+}
+
+for (const b of document.querySelectorAll('.chatbot')) {
+  b.addEventListener('click', () => {
+    const thema = $('rnh-thema').value.trim();
+    if (!thema) return ($('rnh-lijst-info').textContent = 'Typ eerst een thema, bijvoorbeeld "de middeleeuwen".');
+    gekopieerd = aiPrompt.replace('{thema}', thema);
+    // Eerst kopiëren (de pagina heeft dan nog de focus), dan het tabblad openen.
+    kopieer(gekopieerd);
+    window.open(b.dataset.url, '_blank', 'noopener');
+    $('rnh-lijst-info').textContent = 'Prompt gekopieerd! Plak hem met Ctrl+V, kopieer het antwoord (kopieerknop van het codeblok) en kom hier terug.';
+  });
+}
+
+async function klembord() {
+  if (!gekopieerd || !navigator.clipboard?.readText) return;
+  let text;
+  try { text = await navigator.clipboard.readText(); } catch { return; }
+  if (!text || text === gekopieerd || (text.match(/=.*\|/g) || []).length < 3) return;
+  gekopieerd = text;
+  const oud = $('rnh-lijst').value.trim();
+  $('rnh-lijst').value = (oud ? oud + '\n' : '') + text.replace(/^\s*```.*$/gm, '').trim();
+  $('rnh-lijst-info').textContent = 'Antwoord van de AI geplakt. Kijk de woorden even na en klik op Bewaar.';
+}
+window.addEventListener('focus', klembord);
 
 // ---------- De onthulling ----------
 

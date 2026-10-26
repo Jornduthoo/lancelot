@@ -116,7 +116,8 @@ function leesLijst(text) {
   const woorden = [];
   const fout = [];
   for (const regel of String(text || '').split(/\r?\n/)) {
-    if (!regel.trim()) continue;
+    // Uit een chatbot geplakt: codeblok-strepen en kopjes overslaan.
+    if (!regel.trim() || /^\s*(```|#)/.test(regel)) continue;
     const [kop, ...rest] = regel.split('=');
     const [b = '', z = ''] = rest.join('=').split('|');
     const w = normaal(kop);
@@ -222,6 +223,16 @@ Antwoord enkel met JSON, met precies deze sleutels: {"woorden":[{"woord":"...","
   }
   if (!nieuw) throw new Error('Gemini gaf geen woorden die passen. Probeer het nog eens of kies een ander thema.');
   return { text: lijstTekst(woorden), nieuw, per };
+}
+
+// Dezelfde vraag als tekst, om zelf in Gemini, ChatGPT of Claude te plakken. {thema} vult de pagina in.
+function chatPrompt() {
+  return `${voorWie()}
+Maak een woordenlijst rond het thema "{thema}" voor een woordraadspel. Kies bestaande, nuttige Nederlandse woorden (zelfstandige naamwoorden, werkwoorden of bijvoeglijke naamwoorden in hun gewone vorm), zonder spaties, koppeltekens of hoofdletters.
+Geef 5 woorden van precies 4 letters, 5 woorden van precies 5 letters en 5 woorden van 6 of 7 letters. Tel de letters goed na.
+Geef bij elk woord ${UITLEG}.
+Antwoord met één codeblok, één woord per regel, zonder nummers of kopjes, precies zo:
+woord = betekenis | voorbeeldzin`;
 }
 
 // ---------- Het woord van de dag ----------
@@ -500,4 +511,4 @@ function onthul() {
   return { dag, woorden: out };
 }
 
-module.exports = { view, raad, bord, onthul, kransVan, bewaarLijst, lijstView, vulAan, maakLijst, kleur, normaal, dagVan, flush, DIR, KRANS, KRANS_NAMEN };
+module.exports = { view, raad, bord, onthul, kransVan, bewaarLijst, lijstView, vulAan, maakLijst, chatPrompt, kleur, normaal, dagVan, flush, DIR, KRANS, KRANS_NAMEN };
