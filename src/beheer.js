@@ -147,9 +147,11 @@ function host(socket, { port }) {
   socket.on('update-download', handle(() => bijwerken.download()));
   socket.on('update-annuleer', handle(() => bijwerken.annuleer()));
   socket.on('update-bron', handle(url => bijwerken.kiesBron(url)));
-  socket.on('posters-get', handle(() => ({ posters: posters(), max: MAX_POSTERS })));
-  socket.on('poster-add', handle(data => { posterErbij(data); return { posters: posters(), max: MAX_POSTERS }; }));
-  socket.on('poster-del', handle(file => { posterWeg(file); return { posters: posters(), max: MAX_POSTERS }; }));
+  const posterView = () => ({ posters: posters(), max: MAX_POSTERS, grappig: settings.read().grappigePosters !== false });
+  socket.on('posters-get', handle(posterView));
+  socket.on('poster-add', handle(data => { posterErbij(data); return posterView(); }));
+  socket.on('poster-del', handle(file => { posterWeg(file); return posterView(); }));
+  socket.on('posters-grappig', handle(aan => { settings.write({ grappigePosters: aan !== false }); return posterView(); }));
   socket.on('firewall-zet', (_, cb) => firewall(port, r => cb && cb(r)));
   socket.on('snelkoppeling', (_, cb) => snelkoppeling(r => cb && cb(r)));
 }

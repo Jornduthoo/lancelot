@@ -245,6 +245,8 @@ const MoDraw = (() => {
       this.board = board;
       this.w = 0; this.h = 0;
       this.sprites = null;
+      // Posters komen na het laden binnen: dan het plein opnieuw tekenen.
+      if (typeof Posters !== 'undefined') Posters.onChange(() => { if (this.w) this.bake(); });
     }
 
     project(x, y, z) {
@@ -377,8 +379,9 @@ const MoDraw = (() => {
           const pts = [[s * side, wallH, z], [s * side, wallH, z + .8], [s * side, wallH + .8, z + .8], [s * side, wallH + .8, z]].map(p => this.project(...p));
           poly(g, pts, '#353947');
         }
-        // Banieren
+        // Banieren, en posters ertussen
         for (const z of [6.2, 12.5, 19]) this.banner(g, (u, v) => [s * (side - .05), v, z + u], 1.6);
+        [9.4, 15.75].forEach((z, i) => this.poster(g, (u, v) => [s * (side - .05), v, z + (s < 0 ? u : 1 - u) * 1.7 - .85], 1.7, 2.5, i * 2 + (s > 0)));
       }
       // Achtermuur met poort
       this.brickWall(g, (u, v) => [-side + u, v, back], side * 2, wallH, rock, 9);
@@ -399,7 +402,20 @@ const MoDraw = (() => {
       for (let y = .5; y < 4; y += .55) { const a = this.project(-1.6, y, back - .02), b = this.project(1.6, y, back - .02); g.beginPath(); g.moveTo(...a); g.lineTo(...b); g.stroke(); }
       // Torens
       for (const x of [-side, -6.5, 6.5, side]) this.tower(g, x, back, Math.abs(x) > 10 ? 10.5 : 8.5, Math.abs(x) < 10);
-      for (const x of [-9.5, -3.6, 3.6, 9.5]) this.banner(g, (u, v) => [x - .8 + u, v, back - .02], 1.6);
+      // Op de achtermuur: posters naast de poort en banieren tussen de torens (geen posters: alleen banieren).
+      for (const x of [-9.5, -3.6, 3.6, 9.5]) {
+        if (Math.abs(x) < 5 && this.poster(g, (u, v) => [Math.sign(x) * 3.35 - 1.4 + u * 2.8, v, back - .02], 2.8, 2.0, x < 0 ? 4 : 5)) continue;
+        this.banner(g, (u, v) => [x - .8 + u, v, back - .02], 1.6);
+      }
+    }
+
+    // Een ingelijste poster aan een muur: corner(u, v) met u van 0 tot 1 over de breedte, v in wereldhoogte.
+    poster(g, corner, wide, bottom, n) {
+      const img = typeof Posters !== 'undefined' && Posters.pick(n);
+      if (!img) return false;
+      const high = wide * img.height / img.width;
+      Posters.plane(g, img, (u, v) => this.project(...corner(u, bottom + v * high)));
+      return true;
     }
 
     tower(g, x, z, height, spire) {

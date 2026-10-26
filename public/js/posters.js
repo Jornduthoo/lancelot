@@ -1,9 +1,15 @@
-// Posters en banieren voor aan de muren van de arena.
+// Posters en banieren voor de arena's: muren in Laserslag, Robomol en Leraar-baas, megaschermen in Neon Duel, borden langs de baan in Robopaarden.
 // Eigen foto's staan in de map posters/ naast LANcelot (nooit op GitHub). De server geeft de lijst via /posters/lijst.
-// Elke foto krijgt een ijzeren lijst met gouden rand en een naambordje; tussen de posters hangen banieren van de teams.
+// Daarnaast hangen er grappige standaardposters uit public/img/posters (uit te zetten in de instellingen):
+// zonder eigen foto's alleen die, met eigen foto's één grappige na elke twee foto's.
+// Elke poster krijgt een ijzeren lijst met gouden rand en een naambordje; tussen de posters hangen banieren van de teams.
 const Posters = (() => {
   const list = [];
   const subs = [];
+  const GRAPPIG = [
+    ['varken', 'ZONNEBANK'], ['dikbuik', 'SIR DIKBUIK'], ['draak', 'HATSJOE'], ['miauw', 'SIR MIAUW'],
+    ['krieeep', 'OLIE NODIG'], ['kip', 'DAPPERE KIP'], ['slak', 'TURBOSLAK'], ['spook', 'BANG SPOOKJE'],
+  ];
   let version = 0;
 
   function cover(g, img, x, y, w, h) {
@@ -13,7 +19,7 @@ const Posters = (() => {
   }
 
   // Een ingelijste poster: 200 x 236 pixels.
-  function frame(img) {
+  function frame(img, label = 'LEGENDE') {
     const c = document.createElement('canvas');
     c.width = 200;
     c.height = 236;
@@ -48,9 +54,11 @@ const Posters = (() => {
     g.fillStyle = pl;
     g.fillRect(34, 200, 132, 28);
     g.fillStyle = '#3a2508';
-    g.font = "900 18px 'Orbitron', 'Exo 2', sans-serif";
+    let size = 18;
+    g.font = `900 ${size}px 'Orbitron', 'Exo 2', sans-serif`;
+    while (size > 10 && g.measureText(label).width > 122) g.font = `900 ${--size}px 'Orbitron', 'Exo 2', sans-serif`;
     g.textAlign = 'center';
-    g.fillText('LEGENDE', 100, 221);
+    g.fillText(label, 100, 214 + size * .38);
     g.fillStyle = '#c9d6e6';
     for (const [x, y] of [[4, 4], [190, 4], [4, 226], [190, 226], [4, 116], [190, 116]]) {
       g.beginPath(); g.arc(x + 3, y + 3, 3, 0, Math.PI * 2); g.fill();
@@ -107,30 +115,65 @@ const Posters = (() => {
     return `rgb(${f(n >> 16)}, ${f((n >> 8) & 255)}, ${f(n & 255)})`;
   }
 
-  function load(name) {
+  function load(src) {
     return new Promise(done => {
       const img = new Image();
       img.onload = () => done(img);
       img.onerror = () => done(null);
-      img.src = `/posters/${encodeURIComponent(name)}`;
+      img.src = src;
     });
+  }
+
+  // Twee eigen foto's, dan een grappige; wat overblijft komt achteraan.
+  function mix(own, fun) {
+    if (!own.length || !fun.length) return [...own, ...fun];
+    const out = [];
+    let f = 0;
+    own.forEach((p, i) => { out.push(p); if (i % 2 && f < fun.length) out.push(fun[f++]); });
+    return out.concat(fun.slice(f));
   }
 
   if (typeof fetch !== 'undefined') {
     fetch('/posters/lijst')
       .then(r => (r.ok ? r.json() : []))
-      .then(names => Promise.all(names.map(load)))
-      .then(imgs => {
-        for (const img of imgs) if (img) list.push(frame(img));
-        if (!list.length) return;
+      .then(res => {
+        const names = Array.isArray(res) ? res : res.eigen || [];
+        const fun = res.grappig === false ? [] : GRAPPIG;
+        return Promise.all([
+          Promise.all(names.map(n => load(`/posters/${encodeURIComponent(n)}`))),
+          Promise.all(fun.map(([file]) => load(`/img/posters/${file}.svg`))),
+        ]).then(([own, funny]) => mix(
+          own.filter(Boolean).map(img => frame(img)),
+          funny.map((img, i) => img && frame(img, fun[i][1])).filter(Boolean),
+        ));
+      })
+      .then(frames => {
+        if (!frames.length) return;
+        list.push(...frames);
         version++;
         for (const f of subs) f();
       })
       .catch(() => {});
   }
 
+  // Een poster op een schuin vlak (een zijmuur in perspectief), in smalle verticale stroken.
+  // P(u, v) geeft het scherm-punt voor u (0 links, 1 rechts) en v (0 onder, 1 boven) van de poster.
+  function plane(g, img, P, n = 14) {
+    for (let k = 0; k < n; k++) {
+      const a = k / n, b = (k + 1) / n;
+      const [x0, b0] = P(a, 0), [, t0] = P(a, 1), [x1, b1] = P(b, 0), [, t1] = P(b, 1);
+      const top = (t0 + t1) / 2, h = (b0 + b1) / 2 - top;
+      if (h > 0) g.drawImage(img, a * img.width, 0, img.width / n, img.height, Math.min(x0, x1), top, Math.abs(x1 - x0) + .7, h);
+    }
+  }
+
+  // De i-de poster (rondgaand), of null als er geen zijn.
+  const pick = i => (list.length ? list[((i % list.length) + list.length) % list.length] : null);
+
   return {
     list,
+    pick,
+    plane,
     banner,
     get version() { return version; },
     onChange(f) { subs.push(f); },

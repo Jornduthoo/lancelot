@@ -14,8 +14,14 @@
   }
 
   // --- Posters ---
+  const GRAPPIG = ['varken', 'dikbuik', 'draak', 'miauw', 'krieeep', 'kip', 'slak', 'spook'];
+  $('po-fun').innerHTML = GRAPPIG.map(f => `<figure><img loading="lazy" src="/img/posters/${f}.svg" alt=""></figure>`).join('');
+  $('po-grappig').addEventListener('change', async e => toonPosters(await ask('posters-grappig', e.target.checked)));
+
   function toonPosters(res) {
     if (res.error) return void ($('po-error').textContent = res.error);
+    $('po-grappig').checked = res.grappig !== false;
+    $('po-fun').classList.toggle('off', res.grappig === false);
     $('po-count').textContent = `${res.posters.length} van de ${res.max} posters.`;
     $('po-grid').replaceChildren(...res.posters.map(file => {
       const fig = document.createElement('figure');

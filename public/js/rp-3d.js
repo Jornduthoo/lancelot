@@ -134,6 +134,24 @@ const Rp3D = (() => {
       SIGNS.push({ x, y, i, turn });
     }
   }
+  // Posterborden langs de rechte stukken (eigen foto's of de grappige posters), om beurten links en rechts.
+  const BOARDS = [];
+  for (const p of Wd.PATHS) {
+    if (p.key === 'bos') continue;
+    let side = 1;
+    for (let i = p.first + 12; i <= p.last - 12; i += 3) {
+      const a0 = Math.atan2(Wd.TY[Wd.step(i, -10)], Wd.TX[Wd.step(i, -10)]);
+      const a1 = Math.atan2(Wd.TY[Wd.step(i, 10)], Wd.TX[Wd.step(i, 10)]);
+      if (Math.abs(Math.atan2(Math.sin(a1 - a0), Math.cos(a1 - a0))) > .2) continue;
+      const off = side * (Wd.HALF[i] + 120);
+      const x = Wd.X[i] - Wd.TY[i] * off, y = Wd.Y[i] + Wd.TX[i] * off;
+      if (BOARDS.some(b => Math.hypot(b.x - x, b.y - y) < 1700) || SIGNS.some(s => Math.hypot(s.x - x, s.y - y) < 250)) continue;
+      const l = Wd.locate(x, y, {});
+      if ((l.i >= 0 && l.edge < 30) || inLake(x, y)) continue;
+      BOARDS.push({ x, y, i, n: BOARDS.length });
+      side = -side;
+    }
+  }
   const SIGN_IMG = [-1, 1].map(turn => {
     const c = document.createElement('canvas');
     c.width = 160;
@@ -702,6 +720,9 @@ const Rp3D = (() => {
     }
     for (const l of LAMPS) if (near(l.x, l.y, FAR_S * .6) && inView(l.x, l.y, 60)) things.push({ kind: 'lamp', o: l, d: dist2(l.x, l.y) });
     // Pijlborden alleen voor wie de goede kant op rijdt.
+    if (typeof Posters !== 'undefined' && Posters.list.length) {
+      for (const b of BOARDS) if (near(b.x, b.y, FAR_S * .6) && ca * Wd.TX[b.i] + sa * Wd.TY[b.i] > .2 && inView(b.x, b.y, 120)) things.push({ kind: 'board', o: b, d: dist2(b.x, b.y) });
+    }
     for (const sg of SIGNS) if (near(sg.x, sg.y, FAR_S * .6) && ca * Wd.TX[sg.i] + sa * Wd.TY[sg.i] > .2 && inView(sg.x, sg.y, 80)) things.push({ kind: 'sign', o: sg, d: dist2(sg.x, sg.y) });
     {
       const i = Wd.START;
@@ -763,6 +784,16 @@ const Rp3D = (() => {
           if (scene.boxRest) ctx.globalAlpha = .28;
           ctx.drawImage(BOX_IMG, p.x - s / 2, p.y - s / 2, s, s);
           ctx.globalAlpha = 1;
+          break;
+        }
+        case 'board': {
+          const p = place(o.x, o.y, 0), top = place(o.x, o.y, 240);
+          if (!p || !top || p.k < .01) break;
+          const bw = 160 * p.k, bh = 189 * p.k;
+          ctx.fillStyle = '#2a2f48';
+          ctx.fillRect(p.x - bw * .38, top.y, 7 * p.k, p.y - top.y);
+          ctx.fillRect(p.x + bw * .38 - 7 * p.k, top.y, 7 * p.k, p.y - top.y);
+          ctx.drawImage(Posters.pick(o.n), p.x - bw / 2, top.y - bh * .55, bw, bh);
           break;
         }
         case 'sign': {
