@@ -315,7 +315,7 @@ Op het startscherm en in elke lobby staat de knop **Netwerk werkt niet?**. Die p
 - **Noodoplossing:** zet een mobiele hotspot aan op je telefoon of laptop en laat de pc en de leerlingen daarmee verbinden. Dat werkt zonder dat ICT iets hoeft te doen; om te spelen hoeft je hotspot geen internet te hebben (een quiz maken met AI doe je vooraf, als je wel internet hebt). Let op: een telefoon-hotspot laat vaak maar 5 tot 10 apparaten toe, en de hotspot van Windows zelf (Instellingen → Netwerk en internet → Mobiele hotspot) hooguit 8. Veel scholen verbieden eigen hotspots en beheerde Chromebooks mogen vaak alleen op het schoolnetwerk: vraag het eerst aan ICT.
 - **Firewall:** heb je de vraag van Windows per ongeluk weggeklikt? Zoek in Start naar "Een app toestaan via Windows Firewall" en zet een vinkje bij Node.js (privé en openbaar).
 - **Meerdere adressen op het bord:** probeer eerst het grote adres. Werkt dat niet, klik dan op een van de andere adressen eronder (meestal het adres met Wi-Fi of Ethernet erbij). Dat wordt het grote adres met de QR-code, en LANcelot onthoudt die keuze voor de volgende keer. Zodra één leerling binnen is, weet LANcelot zelf welk adres werkt en zet het dat voortaan vooraan.
-- **Ander poortnummer:** is poort 3000 al bezet, zet dan `set PORT=3001` boven in Start LANcelot.bat.
+- **Ander poortnummer:** is poort 3000 al bezet door een ander programma, dan neemt LANcelot zelf 3001 tot 3010 en zegt dat in het zwarte venster. Een vaste poort kies je met `set PORT=3005` boven in Start LANcelot.bat. Start je LANcelot een tweede keer terwijl het al draait, dan opent gewoon het docentenscherm.
 
 ## Tips
 
@@ -346,7 +346,8 @@ Alles waar je mee speelt, staat op de pc waar LANcelot draait, in de map LANcelo
 
 Alles staat in **Instellingen**:
 
-- **LANcelot bijwerken:** klik op *Zoek naar een update* en daarna op *Download de update* (internet nodig). De update wordt pas geïnstalleerd de volgende keer dat je LANcelot start, nooit midden in een les. Je gegevens blijven staan; de vervangen bestanden worden bewaard in `_update\oud`.
+- **LANcelot bijwerken:** klik op *Zoek naar een update* en daarna op *Download de update* (internet nodig). De update wordt pas geïnstalleerd de volgende keer dat je LANcelot start, nooit midden in een les. Je gegevens blijven staan; de vervangen bestanden worden bewaard in `_update\oud`. Geen internet, of werkt GitHub niet meer? Kies dan *Bijwerken met een zip-bestand* (bv. de schoolzip van een usb-stick), of vul onder *Update-adres* het adres in dat je kreeg.
+- **Snelkoppeling:** *Snelkoppeling op het bureaublad* zet LANcelot op het bureaublad en in het startmenu, zonder beheerdersrechten.
 - **Mijn gegevens:** zet je klaslijst, logboek, quizzen, resultaten en posters in een aparte map (standaard `%LOCALAPPDATA%\LANcelot`). Dan raakt een update of herinstallatie ze nooit. De gegevens worden gekopieerd bij de volgende start; de oude mappen naast de app blijven staan.
 - **Back-up:** elke dag bij het opstarten maakt LANcelot zelf een back-up (de laatste tien blijven bewaard). Met *Download een back-up* zet je er een op een usb-stick. *Back-up terugzetten* gebeurt bij de volgende start; LANcelot bewaart eerst nog een back-up van hoe het ervoor was. Je Gemini-sleutel gaat nooit mee in een back-up.
 - **Posters:** voeg eigen foto's toe voor aan de muren van de arena (hooguit 40). Ze worden vierkant bijgesneden en klein gemaakt.

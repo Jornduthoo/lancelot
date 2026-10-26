@@ -50,13 +50,44 @@ function welkomNodig() {
   return !s.welkom && !s.geminiKey && klas.read().leerlingen.length === 0;
 }
 
-// Windows Firewall: één regel die leerlingen binnenlaat op de poort van LANcelot. Windows vraagt zelf toestemming.
+// PowerShell-opdrachten gaan gecodeerd mee, zodat paden met spaties of aanhalingstekens niets kapotmaken.
+const psCode = script => Buffer.from(script, 'utf16le').toString('base64');
+const psTekst = t => `'${String(t).replace(/'/g, "''")}'`;
+
+// Windows Firewall: één regel die leerlingen binnenlaat op de poorten van LANcelot. Dit is het enige dat
+// beheerdersrechten vraagt: Windows vraagt zelf één keer toestemming. Weigerde iemand ooit het venster van Windows
+// voor Node.js, dan staat er een blokkeerregel die alles tegenhoudt: die gaat er ook af.
 function firewall(port, cb) {
   if (process.platform !== 'win32') return cb({ error: 'Dit kan alleen op Windows.' });
-  const regel = `Remove-NetFirewallRule -DisplayName 'LANcelot' -ErrorAction SilentlyContinue; New-NetFirewallRule -DisplayName 'LANcelot' -Direction Inbound -Protocol TCP -LocalPort ${Number(port)} -Action Allow -Profile Any | Out-Null`;
-  const ps = `$p = Start-Process powershell -Verb RunAs -WindowStyle Hidden -Wait -PassThru -ArgumentList '-NoProfile','-Command',"${regel.replace(/"/g, '`"')}"; exit $p.ExitCode`;
+  const poorten = port >= 3000 && port <= 3010 ? '3000-3010' : String(Number(port));
+  const regel = [
+    `Get-NetFirewallApplicationFilter -Program ${psTekst(process.execPath)} -ErrorAction SilentlyContinue | Get-NetFirewallRule | Where-Object { $_.Action -eq 'Block' -and $_.Direction -eq 'Inbound' } | Remove-NetFirewallRule`,
+    `Remove-NetFirewallRule -DisplayName 'LANcelot' -ErrorAction SilentlyContinue`,
+    `New-NetFirewallRule -DisplayName 'LANcelot' -Direction Inbound -Protocol TCP -LocalPort ${poorten} -Action Allow -Profile Any | Out-Null`,
+  ].join('; ');
+  const ps = `$p = Start-Process powershell -Verb RunAs -WindowStyle Hidden -Wait -PassThru -ArgumentList '-NoProfile','-EncodedCommand','${psCode(regel)}'; exit $p.ExitCode`;
   execFile('powershell', ['-NoProfile', '-Command', ps], { windowsHide: true }, err => {
     cb(err ? { error: 'Het lukte niet. Klikte je op Ja toen Windows om toestemming vroeg?' } : { ok: true });
+  });
+}
+
+// Een snelkoppeling op het bureaublad en in het startmenu (zonder beheerdersrechten). De installer maakt ze later zelf.
+function snelkoppeling(cb) {
+  if (process.platform !== 'win32') return cb({ error: 'Dit kan alleen op Windows.' });
+  const app = gegevens.APP;
+  const script = [
+    '$s = New-Object -ComObject WScript.Shell',
+    "foreach ($d in @([Environment]::GetFolderPath('Desktop'), [Environment]::GetFolderPath('Programs'))) {",
+    "  $l = $s.CreateShortcut((Join-Path $d 'LANcelot.lnk'))",
+    `  $l.TargetPath = ${psTekst(path.join(app, 'Start LANcelot.bat'))}`,
+    `  $l.WorkingDirectory = ${psTekst(app)}`,
+    `  $l.IconLocation = ${psTekst(path.join(app, 'public', 'img', 'lancelot.ico'))}`,
+    "  $l.Description = 'LANcelot starten'",
+    '  $l.Save()',
+    '}',
+  ].join('\n');
+  execFile('powershell', ['-NoProfile', '-EncodedCommand', psCode(script)], { windowsHide: true }, err => {
+    cb(err ? { error: `De snelkoppeling maken lukte niet: ${err.message.split('\n')[0]}` } : { ok: true });
   });
 }
 
@@ -88,6 +119,15 @@ function routes(app, isLocal) {
       res.status(400).json({ error: err.message });
     }
   });
+  // Bijwerken met een zip-bestand: klaarzetten voor de volgende start.
+  app.post('/bijwerken/bestand', express.raw({ type: () => true, limit: '300mb' }), (req, res) => {
+    if (!isLocal(req.socket.remoteAddress)) return res.status(403).end();
+    try {
+      res.json({ ok: true, ...bijwerken.uitBestand(req.body, req.query.naam) });
+    } catch (err) {
+      res.status(400).json({ error: err.message });
+    }
+  });
 }
 
 function host(socket, { port }) {
@@ -106,10 +146,12 @@ function host(socket, { port }) {
   socket.on('update-zoek', handle(() => bijwerken.zoek()));
   socket.on('update-download', handle(() => bijwerken.download()));
   socket.on('update-annuleer', handle(() => bijwerken.annuleer()));
+  socket.on('update-bron', handle(url => bijwerken.kiesBron(url)));
   socket.on('posters-get', handle(() => ({ posters: posters(), max: MAX_POSTERS })));
   socket.on('poster-add', handle(data => { posterErbij(data); return { posters: posters(), max: MAX_POSTERS }; }));
   socket.on('poster-del', handle(file => { posterWeg(file); return { posters: posters(), max: MAX_POSTERS }; }));
   socket.on('firewall-zet', (_, cb) => firewall(port, r => cb && cb(r)));
+  socket.on('snelkoppeling', (_, cb) => snelkoppeling(r => cb && cb(r)));
 }
 
 module.exports = { routes, host };

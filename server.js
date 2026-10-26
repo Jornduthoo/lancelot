@@ -1,4 +1,17 @@
 const fs = require('fs');
+// Draait LANcelot al (een tweede dubbelklik op de snelkoppeling)? Dan gewoon het docentenscherm openen.
+// Dit gebeurt nog voor het bijwerken, zodat een tweede start nooit de bestanden onder een lopend spel vervangt.
+{
+  const eerste = Number(process.env.PORT) || 3000;
+  const probe = `const http=require('http');let n=0;for(let p=${eerste};p<=${eerste + 10};p++){const r=http.get({host:'127.0.0.1',port:p,path:'/lancelot-ping',timeout:800},res=>{let b='';res.on('data',d=>b+=d);res.on('end',()=>{if(b.includes('"lancelot":true')){console.log(p);process.exit(0)}if(++n>10)process.exit(1)})});r.on('timeout',()=>r.destroy());r.on('error',()=>{if(++n>10)process.exit(1)})}`;
+  const r = require('child_process').spawnSync(process.execPath, ['-e', probe], { encoding: 'utf8', timeout: 3000 });
+  const draait = r.status === 0 && Number(r.stdout.trim());
+  if (draait) {
+    console.log(`\n  LANcelot draait al (poort ${draait}). Het docentenscherm wordt geopend.\n`);
+    if (process.platform === 'win32') require('child_process').spawnSync('cmd', ['/c', 'start', '', `http://localhost:${draait}/host`], { windowsHide: true });
+    process.exit(0);
+  }
+}
 // Een klaargezette update eerst installeren en dan de nieuwe versie starten, nog voor er iets anders geladen is.
 {
   const bijgewerkt = require('./src/bijwerken').pasToe();
@@ -75,7 +88,9 @@ const runen = require('./src/runen');
 const gemini = require('./src/gemini');
 const aiJson = require('./src/ai-json');
 
-const PORT = Number(process.env.PORT) || 3000;
+// Is poort 3000 bezet door een ander programma, dan neemt LANcelot de volgende vrije (tot 3010), tenzij PORT vastgezet is.
+const VASTE_POORT = Boolean(process.env.PORT);
+let PORT = Number(process.env.PORT) || 3000;
 
 const app = express();
 const server = http.createServer(app);
@@ -386,6 +401,8 @@ app.get('/runen', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'runen.html'));
 });
 beheer.routes(app, isLocal);
+// Zo herkent een tweede start dat LANcelot al draait.
+app.get('/lancelot-ping', (req, res) => res.json({ lancelot: true }));
 // Resultaten downloaden kan alleen op de pc van de leerkracht.
 app.get('/resultaten/:file', (req, res) => {
   if (!isLocal(req.socket.remoteAddress)) return res.status(403).end();
@@ -1495,7 +1512,9 @@ io.on('connection', socket => {
   });
 });
 
-server.listen(PORT, () => {
+const EERSTE_POORT = PORT;
+server.once('listening', () => {
+  server.removeListener('error', poortBezet);
   gegevens.dagelijks();
   runSync();
   setInterval(runSync, 60 * 1000);
@@ -1503,5 +1522,22 @@ server.listen(PORT, () => {
   console.log(`  Docentenscherm:  http://localhost:${PORT}/host`);
   if (gegevens.DATA !== gegevens.APP) console.log(`  Gegevens:        ${gegevens.DATA}`);
   for (const a of lanAddresses()) console.log(`  Leerlingen:      http://${a}:${PORT}`);
+  if (PORT !== EERSTE_POORT) console.log(`\n  Let op: poort ${EERSTE_POORT} is bezet door een ander programma, daarom gebruikt LANcelot nu poort ${PORT}.\n  Leerlingen gebruiken gewoon het adres op het bord. Lukt het niet, druk dan in Instellingen nog eens op "Firewall goed zetten".`);
   console.log('\n  Sluit dit venster om te stoppen.\n');
+  // Start LANcelot.bat vraagt om het docentenscherm te openen zodra de server echt luistert, op de juiste poort.
+  if (process.env.LANCELOT_OPEN && process.platform === 'win32') execFile('cmd', ['/c', 'start', '', `http://localhost:${PORT}/host`], { windowsHide: true });
 });
+function poortBezet(err) {
+  if (err.code === 'EADDRINUSE' && !VASTE_POORT && PORT < EERSTE_POORT + 10) {
+    PORT++;
+    return server.listen(PORT);
+  }
+  if (err.code === 'EADDRINUSE') {
+    console.error(`\n  Poort ${PORT} is bezet door een ander programma, dus LANcelot kan niet starten.`);
+    console.error(VASTE_POORT ? '  Kies een andere poort met set PORT=... in Start LANcelot.bat, of sluit het andere programma.\n' : '  Sluit andere programma\'s (of herstart de pc) en probeer opnieuw.\n');
+    process.exit(1);
+  }
+  throw err;
+}
+server.on('error', poortBezet);
+server.listen(PORT);

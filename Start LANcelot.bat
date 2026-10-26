@@ -2,6 +2,9 @@
 title LANcelot
 cd /d "%~dp0"
 
+rem Een meegeleverde Node.js (map node naast de app) heeft voorrang: dan hoeft er niets met beheerdersrechten geinstalleerd te worden.
+if exist "%~dp0node\node.exe" set "PATH=%~dp0node;%PATH%"
+
 where node >nul 2>nul
 if errorlevel 1 (
   echo.
@@ -25,7 +28,7 @@ if errorlevel 1 (
   )
 )
 
-rem Open het docentenscherm zodra de server draait.
-start "" /b cmd /c "timeout /t 2 >nul & start http://localhost:3000/host"
+rem LANcelot opent zelf het docentenscherm zodra de server draait, ook als poort 3000 bezet was.
+set LANCELOT_OPEN=1
 node server.js
-pause
+if errorlevel 1 pause

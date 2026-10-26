@@ -396,14 +396,22 @@
         <button class="secondary" id="up-zoek">Zoek naar een update</button>
         <button class="hidden" id="up-download">Download de update</button>
         <button class="secondary hidden" id="up-annuleer">Update annuleren</button>
+        <label class="file-button secondary"><input id="up-file" type="file" accept=".zip,application/zip" hidden>Bijwerken met een zip-bestand…</label>
       </div>
+      <details class="small">
+        <summary>Update-adres</summary>
+        <p class="muted small">Leeg laten: LANcelot haalt updates rechtstreeks bij de maker op GitHub. Kreeg je een eigen update-adres (bv. van je school), vul het hier in.</p>
+        <label>Update-adres<input id="up-bron" autocomplete="off" placeholder="https://…"></label>
+        <div class="actions"><button class="secondary" id="up-bron-zet">Bewaren</button></div>
+      </details>
     </div>
     <div class="panel form">
       <h3>Eerste keer en netwerk</h3>
-      <p class="muted small">Leerlingen geraken niet binnen? Vaak houdt de Windows Firewall ze tegen. Met de knop zet LANcelot de firewall zelf goed; Windows vraagt eerst om toestemming.</p>
+      <p class="muted small">Leerlingen geraken niet binnen? Vaak houdt de Windows Firewall ze tegen. Met de knop zet LANcelot de firewall zelf goed; Windows vraagt eerst om toestemming. Dat is het enige waarvoor LANcelot beheerdersrechten nodig heeft, en maar één keer.</p>
       <p class="error" id="fw-error"></p>
       <div class="actions">
         <button class="secondary" id="fw-zet">Firewall goed zetten</button>
+        <button class="secondary" id="sk-zet">Snelkoppeling op het bureaublad</button>
         <a class="button secondary" href="/netwerk">Netwerk werkt niet?</a>
         <a class="button secondary" href="/welkom">Wizard voor de eerste keer</a>
         <a class="button secondary" href="/privacy">Privacy</a>

@@ -1,0 +1,4 @@
+{
+  "installer": true,
+  "uitleg": "Dit bestand zet de installer naast de app. Daardoor bewaart LANcelot de gegevens van de klas apart, in %LOCALAPPDATA%\\LANcelot."
+}
