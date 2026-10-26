@@ -20,3 +20,6 @@ back-ups/
 terugzetten.zip
 .lancelot-gegevens.json
 GEGEVENS-STAAN-NU-ELDERS.txt
+/node/
+/installatie.json
+/update-bron.json

@@ -122,6 +122,7 @@
     let tekst = v.huidig && v.huidig.datum ? `Jouw versie: ${datum(v.huidig.datum)}.` : 'Jouw versie: bijgewerkt met een zip.';
     if (v.melding) tekst = `✓ ${v.melding} ${tekst}`;
     if (v.bezig) tekst = 'Even geduld…';
+    else if (v.klaar && v.klaar.bestand) tekst = `✓ De update ${v.klaar.bericht} staat klaar. Hij wordt geïnstalleerd de volgende keer dat je LANcelot start (doe dat na de les).`;
     else if (v.klaar) tekst = `✓ De update van ${datum(v.klaar.datum)} staat klaar. Hij wordt geïnstalleerd de volgende keer dat je LANcelot start (doe dat na de les).`;
     else if (actueel) tekst += ' Dat is de nieuwste versie.';
     else if (nieuwst) tekst += ` Nieuwste versie: ${datum(nieuwst.datum)}${nieuwst.bericht ? ` (${nieuwst.bericht})` : ''}.`;
@@ -129,11 +130,26 @@
     $('up-download').classList.toggle('hidden', !nieuwst || actueel || !!v.klaar || v.bezig);
     $('up-annuleer').classList.toggle('hidden', !v.klaar);
     $('up-zoek').disabled = $('up-download').disabled = v.bezig;
+    if (document.activeElement !== $('up-bron')) $('up-bron').value = v.bron || '';
   }
   const bezig = () => toonUpdate({ bezig: true });
   $('up-zoek').addEventListener('click', async () => { bezig(); toonUpdate(await ask('update-zoek')); });
   $('up-download').addEventListener('click', async () => { bezig(); toonUpdate(await ask('update-download')); });
   $('up-annuleer').addEventListener('click', async () => toonUpdate(await ask('update-annuleer')));
+  $('up-bron-zet').addEventListener('click', async () => toonUpdate(await ask('update-bron', $('up-bron').value)));
+  // Een zip van LANcelot (bv. van een usb-stick): werkt zonder internet en zonder GitHub.
+  $('up-file').addEventListener('change', async e => {
+    const file = e.target.files[0];
+    e.target.value = '';
+    if (!file) return;
+    bezig();
+    try {
+      const res = await (await fetch(`/bijwerken/bestand?naam=${encodeURIComponent(file.name)}`, { method: 'POST', headers: { 'Content-Type': 'application/octet-stream' }, body: file })).json();
+      toonUpdate(res);
+    } catch (err) {
+      toonUpdate({ error: err.message });
+    }
+  });
 
   // --- Firewall ---
   $('fw-zet').addEventListener('click', async () => {
@@ -143,6 +159,12 @@
     $('fw-zet').disabled = false;
     $('fw-error').textContent = res.error || '';
     if (res.ok) $('fw-zet').textContent = '✓ Firewall staat goed';
+  });
+  $('sk-zet').addEventListener('click', async () => {
+    $('fw-error').textContent = '';
+    const res = await ask('snelkoppeling');
+    $('fw-error').textContent = res.error || '';
+    if (res.ok) $('sk-zet').textContent = '✓ Snelkoppeling staat klaar';
   });
 
   $('open-settings').addEventListener('click', async () => {
