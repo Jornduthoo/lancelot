@@ -47,7 +47,8 @@ function openRealm(id, scroll) {
 function fillRows() {
   const grid = document.querySelector('.realm-panel:not(.hidden) .modules');
   if (!grid) return;
-  const tiles = [...grid.children];
+  // Een brede balk (zoals het Klaseiland) neemt een hele rij: die telt niet mee.
+  const tiles = [...grid.children].filter(t => !t.classList.contains('balk'));
   for (const t of tiles) t.style.gridColumn = '';
   const gap = parseFloat(getComputedStyle(grid).columnGap) || 0;
   const cols = Math.min(tiles.length, Math.floor((grid.clientWidth + gap) / (240 + gap)));
