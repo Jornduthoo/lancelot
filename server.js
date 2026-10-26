@@ -460,7 +460,9 @@ const POSTERS = gegevens.pad('posters');
 app.get('/posters/lijst', (req, res) => {
   let files = [];
   try { files = fs.readdirSync(POSTERS).filter(f => /\.(png|jpe?g|webp|gif)$/i.test(f)).sort(); } catch {}
-  res.json({ eigen: files.slice(0, 40), grappig: settings.read().grappigePosters !== false });
+  const s = settings.read();
+  if (s.posters === false) return res.json({ eigen: [], grappig: false });
+  res.json({ eigen: files.slice(0, 40), grappig: s.grappigePosters !== false });
 });
 app.use('/posters', express.static(POSTERS, { setHeaders: res => res.setHeader('Cache-Control', 'no-cache') }));
 // Pagina's, scripts en stijlen gezipt versturen: een gsm laadt de leerlingpagina dan in een kwart van de tijd
