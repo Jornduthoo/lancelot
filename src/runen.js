@@ -112,6 +112,8 @@ function lijst() {
 }
 
 // Tekst van de leerkracht: één woord per regel, eventueel "woord = betekenis | voorbeeldzin".
+// Woorden die niet passen (te kort, te lang, met spaties) worden overgeslagen en staan in woorden.fout,
+// zodat één te lang woord van de AI de rest niet tegenhoudt.
 function leesLijst(text) {
   const woorden = [];
   const fout = [];
@@ -124,18 +126,20 @@ function leesLijst(text) {
     if (w.length < 4 || w.length > 7) fout.push(kop.trim());
     else if (!woorden.some(x => x.w === w)) woorden.push({ w, b: b.trim().slice(0, 200), z: z.trim().slice(0, 200) });
   }
-  if (fout.length) throw new Error(`Deze woorden passen niet (4 tot 7 letters, zonder spaties of cijfers): ${fout.slice(0, 6).join(', ')}`);
   if (woorden.length > 60) throw new Error('Hooguit 60 woorden tegelijk.');
+  woorden.fout = fout;
   return woorden;
 }
 
 function bewaarLijst({ text, doel } = {}) {
-  const l = { woorden: leesLijst(text), doel: doelen.clean(doel) };
+  const woorden = leesLijst(text);
+  if (!woorden.length && woorden.fout.length) throw new Error(`Geen enkel woord past (4 tot 7 letters, zonder spaties of cijfers): ${woorden.fout.slice(0, 6).join(', ')}`);
+  const l = { woorden: [...woorden], doel: doelen.clean(doel) };
   fs.mkdirSync(DIR, { recursive: true });
   fs.writeFileSync(LIJST + '.tmp', JSON.stringify(l, null, 1));
   fs.renameSync(LIJST + '.tmp', LIJST);
   lijstCache = l;
-  return lijstView();
+  return { ...lijstView(), overgeslagen: woorden.fout };
 }
 
 function lijstView() {
@@ -178,7 +182,7 @@ const UITLEG = 'een korte, eenvoudige betekenis (hooguit 15 woorden, zonder het 
 async function vulAan(text, gemini, aiJson) {
   const woorden = leesLijst(text);
   const open = woorden.filter(x => !x.b || !x.z);
-  if (!open.length) return { text: lijstTekst(woorden), aangevuld: 0 };
+  if (!open.length) return { text: lijstTekst(woorden), aangevuld: 0, overgeslagen: woorden.fout };
   const prompt = `${voorWie()}
 Geef voor elk woord hieronder ${UITLEG}.
 Antwoord enkel met JSON, met precies deze sleutels: {"woorden":[{"woord":"kompas","betekenis":"...","zin":"..."}]}
@@ -195,7 +199,7 @@ Woorden: ${open.map(x => x.w).join(', ')}`;
     aangevuld++;
   });
   if (!aangevuld) throw new Error('De AI gaf geen bruikbare betekenissen terug. Probeer het nog eens.');
-  return { text: lijstTekst(woorden), aangevuld, open: open.length };
+  return { text: lijstTekst(woorden), aangevuld, open: open.length, overgeslagen: woorden.fout };
 }
 
 // Een woordenlijst rond een thema: een week woorden voor elk niveau, met betekenis en voorbeeldzin.
@@ -204,6 +208,7 @@ async function maakLijst(thema, text, gemini, aiJson) {
   thema = String(thema || '').trim().slice(0, 120);
   if (!thema) throw new Error('Typ eerst een thema, bijvoorbeeld "de middeleeuwen" of "het weer".');
   const woorden = String(text || '').trim() ? leesLijst(text) : [];
+  const overgeslagen = woorden.fout || [];
   const prompt = `${voorWie()}
 Maak een woordenlijst rond het thema "${thema}" voor een woordraadspel. Kies bestaande, nuttige Nederlandse woorden (zelfstandige naamwoorden, werkwoorden of bijvoeglijke naamwoorden in hun gewone vorm), zonder spaties, koppeltekens of hoofdletters.
 Geef 7 woorden van precies 4 letters, 7 woorden van precies 5 letters en 7 woorden van 6 of 7 letters. Tel de letters goed na.
@@ -222,7 +227,7 @@ Antwoord enkel met JSON, met precies deze sleutels: {"woorden":[{"woord":"...","
     nieuw++;
   }
   if (!nieuw) throw new Error('De AI gaf geen woorden die passen. Probeer het nog eens of kies een ander thema.');
-  return { text: lijstTekst(woorden), nieuw, per };
+  return { text: lijstTekst(woorden), nieuw, per, overgeslagen };
 }
 
 // Dezelfde vraag als tekst, om zelf in Gemini, ChatGPT of Claude te plakken. {thema} vult de pagina in.

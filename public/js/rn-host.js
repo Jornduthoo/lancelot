@@ -119,12 +119,17 @@ socket.on('addresses', list => {
   $('rnh-url').textContent = `${list[0].url.replace(/^https?:\/\//, '')}/runen`;
 });
 
+// Woorden die niet passen worden overgeslagen; zeg welke, zodat de leerkracht ze kan vervangen.
+const weg = res => res.overgeslagen?.length
+  ? ` Overgeslagen (niet 4 tot 7 letters of met spaties): ${res.overgeslagen.slice(0, 8).join(', ')}${res.overgeslagen.length > 8 ? '…' : ''}.`
+  : '';
+
 $('rnh-bewaar').addEventListener('click', () => {
   socket.emit('rn-lijst-save', { text: $('rnh-lijst').value, doel: $('rnh-doel').value }, res => {
     if (res.error) return ($('rnh-lijst-info').textContent = res.error);
     lijst(res.lijst);
     $('rnh-bewerk').open = false;
-    $('rnh-lijst-info').textContent = `Bewaard. ${$('rnh-lijst-info').textContent}`;
+    $('rnh-lijst-info').textContent = `Bewaard. ${$('rnh-lijst-info').textContent}${weg(res.lijst)}`;
     sfx.good();
   });
 });
@@ -140,6 +145,7 @@ $('rnh-ai').addEventListener('click', () => {
     $('rnh-lijst-info').textContent = res.open > res.aangevuld
       ? `${res.aangevuld} van de ${res.open} woorden aangevuld. Kijk ze even na en klik op Bewaar.`
       : 'Aangevuld. Kijk ze even na en klik op Bewaar.';
+    $('rnh-lijst-info').textContent += weg(res);
   });
 });
 
@@ -152,7 +158,7 @@ $('rnh-thema-ai').addEventListener('click', () => {
     if (res.error) return ($('rnh-lijst-info').textContent = res.error);
     $('rnh-lijst').value = res.text;
     const p = res.per;
-    $('rnh-lijst-info').textContent = `${res.nieuw} woorden toegevoegd (Page ${p.page}, Schildknaap ${p.schildknaap}, Ridder ${p.ridder}). Kijk ze even na en klik op Bewaar.`;
+    $('rnh-lijst-info').textContent = `${res.nieuw} woorden toegevoegd (Page ${p.page}, Schildknaap ${p.schildknaap}, Ridder ${p.ridder}). Kijk ze even na en klik op Bewaar.${weg(res)}`;
   });
 });
 
