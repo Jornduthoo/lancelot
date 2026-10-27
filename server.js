@@ -76,6 +76,8 @@ const klas = require('./src/klas');
 const doelen = require('./src/doelen');
 const logboek = require('./src/logboek');
 const pauze = require('./src/pauze');
+// Moet overeenkomen met de lijst in public/js/ui.js.
+const THEMAS = ['nachtburcht', 'daglicht', 'ijspaleis', 'rozenkasteel', 'smaragdwoud', 'drakenvuur', 'contrast'];
 const opwarmer = require('./src/opwarmer');
 const startpakket = require('./src/startpakket');
 const overzicht = require('./src/overzicht');
@@ -656,6 +658,8 @@ io.on('connection', socket => {
   socket.emit('klas-namen', klas.names());
   // Staat de pauzeknop aan, dan ziet ook wie nu pas binnenkomt meteen het slot.
   if (pauze.stand().aan) socket.emit('pauze', pauze.stand());
+  // Het thema dat de leerkracht koos (Instellingen > Uiterlijk), voor elk scherm.
+  socket.emit('thema', settings.read().thema || 'nachtburcht');
   socket.on('klas-namen', (_, cb) => typeof cb === 'function' && cb(klas.names()));
   socket.on('klas-bezet', (playerId, cb) => typeof cb === 'function' && cb(bezetteNamen(playerId)));
   socket.on('klas-claim', (name, cb) => typeof cb === 'function' && cb({ id: oudeSpeler(name) }));
@@ -799,6 +803,11 @@ io.on('connection', socket => {
     socket.emit('ob-state', oefenblad.hostState());
 
     socket.on('pauze-zet', ({ aan, tekst } = {}) => pauze.zet(aan, tekst));
+    socket.on('thema-zet', id => {
+      if (!THEMAS.includes(id)) return;
+      settings.write({ thema: id });
+      io.emit('thema', id);
+    });
     socket.on('stop-others', (except, cb) => {
       stopOthers(String(except || ''));
       if (typeof cb === 'function') cb({ ok: true });
