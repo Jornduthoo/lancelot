@@ -44,11 +44,6 @@
       <img src="/img/logo.webp" alt="LANcelot">
       <p>Oefenen, peilen en werkbladen · over je eigen netwerk</p>
     </div>
-    <!-- Snel een quiz maken of je quizzen ordenen, zonder eerst een spel te kiezen. Een quiz werkt in elk spel. -->
-    <div class="home-snel">
-      <button id="home-nieuwe-quiz"><i class="ic ic-plus" aria-hidden="true"></i> Nieuwe quiz</button>
-      <button class="secondary" id="home-quizzen"><i class="ic ic-mappen" aria-hidden="true"></i> Mijn quizzen</button>
-    </div>
     <p class="notice hidden" id="welkom-tip">👋 De eerste keer LANcelot? <a href="/welkom">Zet in vier stappen je klas, je leerjaar en het netwerk klaar.</a></p>
     <!-- Drie rijken: klik op een tegel, de onderdelen verschijnen eronder. -->
     <div class="realms">
@@ -67,7 +62,7 @@
       <button class="realm" data-realm="smidse">
         <img class="tile-icon" src="/img/icons/smidse.webp" alt="">
         <strong>De Smidse</strong>
-        <span>Smeed je eigen lesmateriaal: oefenbladen om live te spelen of te printen.</span>
+        <span>Smeed je eigen lesmateriaal: quizzen voor elk spel en oefenbladen om live te spelen of te printen.</span>
         <em class="tag">Maken</em>
       </button>
     </div>
@@ -275,7 +270,20 @@
         <em class="tag">Maak met AI</em>
       </button>
       </div></div>
+    <!-- De Smidse: al je lesmateriaal. Een quiz werkt in elk spel, dus je maakt en ordent hem hier zonder eerst een spel te kiezen. -->
     <div class="realm-panel hidden" id="realm-smidse"><div class="modules">
+      <button class="module" id="home-nieuwe-quiz">
+        <img class="tile-icon" src="/img/icons/smidse.webp" alt="">
+        <strong>Nieuwe quiz met AI</strong>
+        <span>Laat AI een quiz smeden over je les, of begin met een lege quiz. Hij werkt meteen in elk spel.</span>
+        <em class="tag">Maak met AI</em>
+      </button>
+      <button class="module" id="home-quizzen">
+        <img class="tile-icon" src="/img/icons/toernooi.webp" alt="">
+        <strong>Mijn quizzen</strong>
+        <span>Al je quizzen in mappen: bewerken, ordenen, exporteren of wissen.</span>
+        <em class="tag">Open</em>
+      </button>
       <button class="module" data-module="werkblad">
         <img class="tile-icon" src="/img/icons/oefenblad-ai.webp" alt="">
         <strong>Nieuw oefenblad met AI</strong>
