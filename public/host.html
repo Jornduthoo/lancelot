@@ -44,6 +44,11 @@
       <img src="/img/logo.webp" alt="LANcelot">
       <p>Oefenen, peilen en werkbladen · over je eigen netwerk</p>
     </div>
+    <!-- Snel een quiz maken of je quizzen ordenen, zonder eerst een spel te kiezen. Een quiz werkt in elk spel. -->
+    <div class="home-snel">
+      <button id="home-nieuwe-quiz"><i class="ic ic-plus" aria-hidden="true"></i> Nieuwe quiz</button>
+      <button class="secondary" id="home-quizzen"><i class="ic ic-mappen" aria-hidden="true"></i> Mijn quizzen</button>
+    </div>
     <p class="notice hidden" id="welkom-tip">👋 De eerste keer LANcelot? <a href="/welkom">Zet in vier stappen je klas, je leerjaar en het netwerk klaar.</a></p>
     <!-- Drie rijken: klik op een tegel, de onderdelen verschijnen eronder. -->
     <div class="realms">
@@ -310,6 +315,21 @@
     <p class="notice hidden" id="stopped"></p>
     <div class="quiz-list" id="quiz-list"></div>
     <p class="error" id="load-error"></p>
+  </section>
+
+  <!-- Quizbibliotheek: alle quizzen op één plek, los van een spel. Maken, bewerken, ordenen en wissen. -->
+  <section id="bibliotheek" class="hidden">
+    <div class="bar">
+      <h2>Mijn quizzen</h2>
+      <div class="actions">
+        <button class="secondary" data-back="home">Terug</button>
+        <button class="secondary" id="lib-new-empty">Lege quiz</button>
+        <button id="lib-new-ai">Nieuwe quiz met AI</button>
+      </div>
+    </div>
+    <p class="muted small lib-uitleg">Elke quiz werkt in elk spel: bij het starten van een spel kies je hem gewoon uit de lijst.</p>
+    <div class="quiz-list" id="lib-list"></div>
+    <p class="error" id="lib-error"></p>
   </section>
 
   <section id="opwarmer" class="hidden">

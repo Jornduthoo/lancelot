@@ -21,7 +21,17 @@ De eerste keer kiest elke leerling na het aanmelden een **eigen ridder** (ridder
 
 Bij de Ridderrace, Laserslag, de toren, Pac-Knight, Strijdrossen, Neon Duel, Leraar-baas, Cyber-Galaga en Bomber-Knight kies je ook het **tempo van de vragen**: *rustig*, *normaal* of *intens* (vaker nieuwe vragen).
 
-## De Ronde Tafel
+## Mijn quizzen en mappen
+
+Op het startscherm staan **Nieuwe quiz** en **Mijn quizzen**. Zo maak of bewerk je een quiz zonder eerst een spel te kiezen: elke quiz werkt in elk spel. In elk spel blijft de knop **Nieuwe quiz met AI** staan; die quiz komt in dezelfde lijst.
+
+De lijst werkt zoals de Verkenner van Windows, ook bij de oefenbladen en De Ronde Tafel:
+
+- Links staan je mappen. Klik op een map om ze rechts te openen, en op ▸ om de mappen erin te tonen.
+- Bovenaan zie je waar je bent, bijvoorbeeld *Alle quizzen › Wiskunde › Breuken*. Klik erop om terug te gaan. Daar staan ook de knoppen om de open map te exporteren, een andere naam te geven of te verwijderen.
+- De zoekbalk zoekt in alle mappen.
+- Verplaatsen: sleep een quiz (of een map) naar een map links, naar een mapje rechts of naar het pad bovenaan. Op een touchscreen kies je de map met het mapje 📁 in de rij.
+
 
 1. Klik op het startscherm op de tegel **De Ronde Tafel** en klik bij een sessie op **Start**.
 2. Leerlingen scannen dezelfde QR-code. Ze hoeven geen naam in te vullen: alles is anoniem.

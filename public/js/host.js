@@ -14,9 +14,9 @@ function esc(text) {
 }
 
 let view = 'home';
-const VIEWS = ['home', 'idle', 'opwarmer', 'results', 'settings', 'maker', 'editor', 'lobby', 'question', 'board', 'podium'];
+const VIEWS = ['home', 'idle', 'bibliotheek', 'opwarmer', 'results', 'settings', 'maker', 'editor', 'lobby', 'question', 'board', 'podium'];
 // Schermen die de leerkracht zelf opent en die een statusupdate niet mag wegklikken.
-const OWN_VIEWS = ['home', 'idle', 'opwarmer', 'results', 'settings', 'maker', 'editor'];
+const OWN_VIEWS = ['home', 'idle', 'bibliotheek', 'opwarmer', 'results', 'settings', 'maker', 'editor'];
 // Tijdens het maken of bewerken van een quiz springen we nooit naar een lopend toernooi.
 const EDITING = ['results', 'settings', 'maker', 'editor'];
 const follow = name => { if (!EDITING.includes(view)) show(name); };
@@ -150,11 +150,19 @@ function loadQuiz(file) {
 QuizList.mount($('quiz-list'), {
   go: 'Speel ▶',
   play: q => loadQuiz(q.file),
-  edit: q => editQuiz(q.file),
+  edit: q => { quizBase = 'idle'; editQuiz(q.file); },
   remove: async q => {
     if (!await Ui.vraag(`"${q.title}" verwijderen?`)) return;
     socket.emit('delete', q.file, res => { $('load-error').textContent = res.error || ''; });
   },
+});
+
+// De quizbibliotheek: klikken op een quiz opent hem om te bewerken.
+QuizList.mount($('lib-list'), {
+  beheer: true,
+  errorId: 'lib-error',
+  go: 'Bewerken',
+  play: q => { quizBase = 'bibliotheek'; editQuiz(q.file); },
 });
 
 // ---------- Lobby ----------

@@ -2,6 +2,8 @@
 // Gebruikt socket, $, esc, show en loadQuiz uit host.js.
 
 let editingFile = null;
+// Waar de maker en de editor naar teruggaan: het Toernooi ('idle') of de quizbibliotheek.
+let quizBase = 'idle';
 
 // Toegevoegde lesstof: { name, mimeType, data (base64), size }
 let sources = [];
@@ -138,7 +140,7 @@ for (const id of ['m-topic', 'm-level', 'm-count', 'm-time', 'm-extra', 'm-attac
   $(id).addEventListener('input', updatePrompt);
 }
 
-$('new-ai').addEventListener('click', () => {
+function openMaker() {
   sources = [];
   $('m-attach').checked = false;
   renderSources();
@@ -151,11 +153,17 @@ $('new-ai').addEventListener('click', () => {
     }
   });
   show('maker');
-});
+}
+const openEmpty = () => openEditor({ title: '', questions: [emptyQuestion()] }, null);
+const vanuit = (base, fn) => () => { quizBase = base; fn(); };
 
-$('new-empty').addEventListener('click', () => {
-  openEditor({ title: '', questions: [emptyQuestion()] }, null);
-});
+$('new-ai').addEventListener('click', vanuit('idle', openMaker));
+$('new-empty').addEventListener('click', vanuit('idle', openEmpty));
+$('lib-new-ai').addEventListener('click', vanuit('bibliotheek', openMaker));
+$('lib-new-empty').addEventListener('click', vanuit('bibliotheek', openEmpty));
+// Startscherm: meteen een nieuwe quiz maken, of naar de bibliotheek. Na het bewaren kom je in de bibliotheek.
+$('home-nieuwe-quiz').addEventListener('click', vanuit('bibliotheek', openMaker));
+$('home-quizzen').addEventListener('click', () => show('bibliotheek'));
 
 // Vanuit een ander spel een quiz maken: daarna gaan we daar weer naartoe.
 const params = new URLSearchParams(location.search);
@@ -166,7 +174,7 @@ const returnTo = GAMES.includes(params.get('terug')) ? params.get('terug') : nul
 for (const b of document.querySelectorAll('[data-back]')) {
   b.addEventListener('click', () => {
     if (returnTo && ['maker', 'editor'].includes(view)) location.href = returnTo;
-    else show(b.dataset.back || 'idle');
+    else show(b.dataset.back || quizBase);
   });
 }
 
@@ -238,7 +246,7 @@ document.addEventListener('visibilitychange', () => {
 function editQuiz(file) {
   socket.emit('open-quiz', file, res => {
     if (res.error) {
-      $('load-error').textContent = res.error;
+      $(quizBase === 'bibliotheek' ? 'lib-error' : 'load-error').textContent = res.error;
       return;
     }
     openEditor(res.quiz, file);
@@ -259,6 +267,8 @@ function openEditor(quiz, file) {
   quiz.questions.forEach(addQuestion);
   showNiveaus();
   $('e-error').textContent = '';
+  // Opslaan en spelen start het Toernooi: dat kan alleen vanuit het Toernooi.
+  $('e-play').classList.toggle('hidden', !!returnTo || quizBase !== 'idle');
   show('editor');
 }
 
@@ -361,8 +371,8 @@ function saveEditor(play) {
       location.href = returnTo;
       return;
     }
-    show('idle');
-    if (play) loadQuiz(res.file);
+    show(quizBase);
+    if (play && quizBase === 'idle') loadQuiz(res.file);
   });
 }
 
