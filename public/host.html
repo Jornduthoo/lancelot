@@ -389,6 +389,7 @@
       <button type="button" data-tab="gegevens">Gegevens</button>
       <button type="button" data-tab="bijwerken">Bijwerken</button>
       <button type="button" data-tab="netwerk">Netwerk</button>
+      <button type="button" data-tab="schermen">Bureau-pc</button>
     </nav>
     <div class="panel form" id="lesmap" data-tab="lesmap">
       <h3>Mijn lesmap: van overal voorbereiden<details class="hulp"><summary aria-label="Uitleg">?</summary><p>Handig als je thuis voorbereidt. Kies een map die OneDrive of Google Drive op deze pc bijhoudt. LANcelot kopieert je quizzen en oefenbladen daarheen en haalt nieuwe op. Zonder lesmap werkt alles gewoon, alleen op deze pc.</p></details></h3>
@@ -496,6 +497,23 @@
         <a class="button secondary" href="/welkom">Wizard voor de eerste keer</a>
         <a class="button secondary" href="/privacy">Privacy</a>
       </div>
+    </div>
+    <div class="panel form" id="schermen-panel" data-tab="schermen">
+      <h3>Bureau-pc koppelen<details class="hulp"><summary aria-label="Uitleg">?</summary><p>LANcelot draait op het digibord en bewaart daar alles. Met een koppelcode wordt je bureau-pc (of laptop) een tweede leerkrachtscherm: quizzen maken, taken geven, het zorgoverzicht opvolgen of een spel starten. Alles wat je op het ene scherm doet, zie je meteen op het andere. Leerlingen kunnen dit niet: de code werkt maar 10 minuten, één keer, en vervalt na 5 foute pogingen.</p></details></h3>
+      <div id="sc-maak">
+        <p class="muted small">Druk op de knop op het digibord. Surf dan op je bureau-pc naar het adres hieronder en tik de code in.</p>
+        <div class="actions"><button id="sc-code">Koppelcode tonen</button></div>
+        <div id="sc-toon" class="sc-toon hidden">
+          <div class="sc-adres" id="sc-adres"></div>
+          <div class="sc-code" id="sc-cijfers"></div>
+          <p class="muted small" id="sc-tot"></p>
+          <div class="actions"><button class="secondary" id="sc-stop">Code intrekken</button></div>
+        </div>
+      </div>
+      <p class="muted small hidden" id="sc-extern">Dit scherm is gekoppeld met het digibord. Een nieuwe koppelcode maak je op het digibord zelf.</p>
+      <h4>Gekoppelde schermen</h4>
+      <p class="error" id="sc-error"></p>
+      <ul class="sc-lijst" id="sc-lijst"></ul>
     </div>
   </section>
 

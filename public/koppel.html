@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LANcelot · Bureau-pc koppelen</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body class="klas-host">
+<main class="koppel-main">
+  <div class="topbar">
+    <div class="brand">
+      <img src="/img/mark.webp" alt="">
+      <div>
+        <div class="wordmark">LAN<span>celot</span></div>
+        <div class="subtitle">Bureau-pc koppelen</div>
+      </div>
+    </div>
+  </div>
+  <section>
+    <form class="panel form" id="koppel" style="max-width:520px;margin:0 auto">
+      <h3>Maak van deze pc een leerkrachtscherm</h3>
+      <p class="muted small">Op het digibord: <strong>Instellingen › Bureau-pc › Koppelcode tonen</strong>. Tik die code hier in. Daarna doe je hier alles wat je op het digibord kan, en ziet het digibord het meteen.</p>
+      <label>Koppelcode<input id="code" inputmode="numeric" autocomplete="one-time-code" maxlength="7" placeholder="123 456" required autofocus style="font-size:1.8rem;letter-spacing:.15em;text-align:center"></label>
+      <label>Naam van deze pc<input id="naam" maxlength="40" value="Bureau-pc"></label>
+      <p class="error" id="fout"></p>
+      <div class="actions"><button id="knop">Koppelen</button></div>
+      <p class="muted small">Leerling? Dan heb je hier niets nodig: speel via het adres op het bord.</p>
+    </form>
+  </section>
+</main>
+<script>
+  document.getElementById('koppel').addEventListener('submit', async e => {
+    e.preventDefault();
+    const knop = document.getElementById('knop');
+    const fout = document.getElementById('fout');
+    knop.disabled = true;
+    fout.textContent = '';
+    try {
+      const res = await (await fetch('/koppel', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code: document.getElementById('code').value, naam: document.getElementById('naam').value }) })).json();
+      if (res.ok) return void (location.href = '/host');
+      fout.textContent = res.error || 'Dat lukte niet.';
+    } catch {
+      fout.textContent = 'Geen verbinding met LANcelot op het digibord.';
+    }
+    knop.disabled = false;
+  });
+</script>
+</body>
+</html>

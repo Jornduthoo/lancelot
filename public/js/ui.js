@@ -234,6 +234,22 @@
     if (!balk.isConnected) document.body.appendChild(balk);
   }
 
+  let extern = false;
+  // Een gekoppelde bureau-pc: een klein merkje, en na ontkoppelen terug naar de koppelpagina.
+  function schermInfo(socket) {
+    socket.on('scherm-info', info => {
+      extern = !!(info && info.extern);
+      if (!extern || document.querySelector('.scherm-merk') || /print|fiche/.test(location.pathname)) return;
+      const merk = document.createElement('div');
+      merk.className = 'scherm-merk';
+      merk.textContent = `🖥️ ${info.naam || 'Bureau-pc'} · gekoppeld met het digibord`;
+      document.body.appendChild(merk);
+      // Even tonen, dan weg: het mag niets van een spel of lijst verbergen.
+      echt.st(() => merk.remove(), 8000);
+    });
+    socket.on('scherm-ontkoppeld', () => { location.href = '/koppel'; });
+  }
+
   function volg(socket, opts) {
     const host = !!(opts && opts.query && opts.query.role === 'host');
     socket.on('disconnect', reden => {
@@ -245,7 +261,7 @@
       toon = echt.st(() => {
         kwijt = true;
         zet(host
-          ? 'Verbinding met LANcelot kwijt. Draait LANcelot nog op deze pc? We proberen het opnieuw…'
+          ? `Verbinding met LANcelot kwijt. Draait LANcelot nog op ${extern ? 'het digibord' : 'deze pc'}? We proberen het opnieuw…`
           : 'Verbinding kwijt. Blijf even wachten, we proberen het opnieuw…');
       }, 1500);
     });
@@ -285,7 +301,7 @@
       Pauze.volg(socket, isHost);
       socket.on('uitleg', u => u && toonUitleg(u));
       socket.on('thema', zetThema);
-      if (isHost) namenKnop(socket);
+      if (isHost) { namenKnop(socket); schermInfo(socket); }
       // De leerkracht klikte deze naam weg (buiten een spel): opnieuw kiezen wie je bent.
       else socket.on('naam-weg', () => {
         try { localStorage.removeItem('lancelot-name'); } catch { /* geen opslag */ }
