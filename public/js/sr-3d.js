@@ -103,7 +103,7 @@ const Sr3D = (() => {
 
   function head(ctx, av, cx, top, hw, back) {
     if (av && typeof Avatar !== 'undefined') {
-      const img = Avatar.sprite(av, { back, k: 8 });
+      const img = Avatar.sprite(av, { back, k: Avatar.kFor(hw / 12) });
       const hh = hw * (8 / 12);
       ctx.drawImage(img, 0, 0, img.width, img.height * (8 / 17), cx - hw / 2, top - hh, hw, hh);
     } else {

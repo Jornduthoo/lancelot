@@ -442,8 +442,8 @@ const RaceDraw = (() => {
     }
     if (o.av && typeof Avatar !== 'undefined') {
       // Het hoofd van de eigen ridder (versiering en helm), van achteren gezien.
-      const img = Avatar.sprite(o.av, { back: true, k: 8 });
       const hw = .34 * w;
+      const img = Avatar.sprite(o.av, { back: true, k: Avatar.kFor(hw / 12) });
       const hh = hw * (8 / 12);
       ctx.drawImage(img, 0, 0, img.width, img.height * (8 / 17), -hw / 2, -.8 * h - hh, hw, hh);
     } else {
