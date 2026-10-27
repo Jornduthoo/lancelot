@@ -80,7 +80,7 @@ function list() {
         return { file, folder, title: `${file} (ongeldig bestand)`, count: 0 };
       }
     })
-    .sort((a, b) => a.title.localeCompare(b.title, 'nl'));
+    .sort((a, b) => a.title.localeCompare(b.title, 'nl', { numeric: true }));
 }
 
 // Welke niveaus komen in deze quiz voor? Een quiz zonder niveaus heeft alleen Schildknaap.

@@ -281,7 +281,7 @@ function listSheets() {
         return { file, folder, title: `${file} (ongeldig bestand)`, count: 0, types: [], niveaus: ['schildknaap'] };
       }
     })
-    .sort((a, b) => a.title.localeCompare(b.title, 'nl'));
+    .sort((a, b) => a.title.localeCompare(b.title, 'nl', { numeric: true }));
 }
 
 function checkFile(file) {
