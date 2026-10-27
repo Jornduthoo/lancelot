@@ -18,7 +18,6 @@ const datum = iso => new Date(iso).toLocaleDateString('nl-BE', { weekday: 'short
 
 $('brand').addEventListener('click', () => { location.href = '/host'; });
 $('to-home').addEventListener('click', () => { location.href = '/host'; });
-$('to-klas').addEventListener('click', () => { location.href = '/klas'; });
 $('z-dagen').addEventListener('change', load);
 $('z-vak').addEventListener('change', load);
 $('z-persoonlijk').addEventListener('click', e => maakHerhaling(e.target, { dagen: Number($('z-dagen').value) || 365 }, 'herhaal-persoonlijk'));
@@ -88,7 +87,7 @@ function render() {
   leeg.innerHTML = '';
   leeg.append(el('p', '', d.leerlingen.length
     ? 'In deze periode staat er nog niets in het logboek. Speel een spel of een oefenblad, of kies een langere periode.'
-    : 'Zet eerst je leerlingen op de klaslijst bij Mijn klas en doelen, en speel een paar spellen. Dan verschijnt hier wie extra zorg kan gebruiken.'));
+    : 'Zet eerst je leerlingen op de klaslijst bij Mijn klas, en speel een paar spellen. Dan verschijnt hier wie extra zorg kan gebruiken.'));
   const knop = el('a', 'button', d.leerlingen.length ? 'Naar De Arena' : 'Klaslijst invullen');
   knop.href = d.leerlingen.length ? '/host' : '/klas';
   leeg.append(knop);

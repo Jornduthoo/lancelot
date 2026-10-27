@@ -290,9 +290,7 @@
       </button>
       </div></div>
     <div class="actions" style="justify-content:center">
-      <button class="secondary" id="open-klas"><i class="ic ic-doel" aria-hidden="true"></i> Mijn klas en doelen</button>
-      <button class="secondary" id="open-zorg"><i class="ic ic-zorg" aria-hidden="true"></i> Zorgoverzicht</button>
-      <button class="secondary" id="open-taken"><i class="ic ic-taak" aria-hidden="true"></i> Taken</button>
+      <button class="secondary" id="open-klas" title="Klaslijst, doelen, zorgoverzicht, taken en logboek"><i class="ic ic-doel" aria-hidden="true"></i> Mijn klas</button>
       <button class="secondary" id="open-results"><i class="ic ic-resultaten" aria-hidden="true"></i> Resultaten</button>
       <button class="secondary" id="open-netwerk"><i class="ic ic-netwerk" aria-hidden="true"></i> Netwerk werkt niet?</button>
       <button class="secondary" id="open-settings"><i class="ic ic-instellingen" aria-hidden="true"></i> Instellingen</button>
@@ -376,8 +374,16 @@
       <h2>Instellingen</h2>
       <button class="secondary" data-back="home">Terug</button>
     </div>
-    <div class="panel form" id="lesmap">
-      <h3>Mijn lesmap: van overal voorbereiden</h3>
+    <nav class="tabbalk" id="set-tabs" aria-label="Instellingen">
+      <button type="button" data-tab="ai">AI</button>
+      <button type="button" data-tab="lesmap">Lesmap</button>
+      <button type="button" data-tab="uiterlijk">Uiterlijk</button>
+      <button type="button" data-tab="gegevens">Gegevens</button>
+      <button type="button" data-tab="bijwerken">Bijwerken</button>
+      <button type="button" data-tab="netwerk">Netwerk</button>
+    </nav>
+    <div class="panel form" id="lesmap" data-tab="lesmap">
+      <h3>Mijn lesmap: van overal voorbereiden<details class="hulp"><summary aria-label="Uitleg">?</summary><p>Handig als je thuis voorbereidt. Kies een map die OneDrive of Google Drive op deze pc bijhoudt. LANcelot kopieert je quizzen en oefenbladen daarheen en haalt nieuwe op. Zonder lesmap werkt alles gewoon, alleen op deze pc.</p></details></h3>
       <p class="muted small">Kies een map in je OneDrive of Google Drive. Je quizzen, oefenbladen en Ronde Tafels komen daar ook in. Op een andere pc met LANcelot kies je dezelfde map: wat je daar maakt, staat hier vanzelf klaar bij het opstarten (en daarna elke minuut). Je klaslijst, het logboek en de resultaten gaan nooit mee: die blijven op deze pc.</p>
       <p id="lm-status"></p>
       <div class="actions" id="lm-suggest"></div>
@@ -391,8 +397,8 @@
         <button id="lm-off" class="secondary hidden">Loskoppelen</button>
       </div>
     </div>
-    <div class="panel form">
-      <h3>Eigen AI-sleutel (optioneel)</h3>
+    <div class="panel form" data-tab="ai">
+      <h3>Eigen AI-sleutel (optioneel)<details class="hulp"><summary aria-label="Uitleg">?</summary><p>Zonder sleutel kopieer je een opdracht naar een chatbot en plak je het antwoord terug. Met een sleutel doet LANcelot dat zelf. Een sleutel is een lange code die je één keer aanmaakt op de website van de AI-dienst. Deel hem met niemand.</p></details></h3>
       <p class="muted small">Met een eigen sleutel maakt de AI de quiz, het oefenblad of de woordenlijst direct, zonder kopiëren en plakken. De sleutel wordt alleen op deze pc bewaard.</p>
       <label>AI-dienst<select id="s-dienst">
         <option value="gemini">Gemini (Google), kan gratis</option>
@@ -402,7 +408,7 @@
       <p class="muted small" id="s-uitleg"></p>
       <p id="s-status"></p>
       <label>API-sleutel<input id="s-key" type="password" autocomplete="off" placeholder="Plak hier je sleutel"></label>
-      <label>Model<input id="s-model" list="s-modellen" autocomplete="off"></label>
+      <label><span>Model <details class="hulp"><summary aria-label="Uitleg">?</summary><p>Welke versie van de AI. Laat de voorgestelde staan, tenzij je weet wat je doet.</p></details></span><input id="s-model" list="s-modellen" autocomplete="off"></label>
       <datalist id="s-modellen"></datalist>
       <p class="muted small" id="s-model-uitleg"></p>
       <p class="error" id="s-error"></p>
@@ -412,8 +418,8 @@
       </div>
     </div>
     <div id="thema-kiezer" data-tab="uiterlijk"></div>
-    <div class="panel form" id="posters-panel">
-      <h3>Posters in de arena's</h3>
+    <div class="panel form" id="posters-panel" data-tab="uiterlijk">
+      <h3>Posters in de arena's<details class="hulp"><summary aria-label="Uitleg">?</summary><p>Puur voor de sfeer: aan de spelregels verandert niets. Foto's van leerlingen? Vraag eerst of dat mag.</p></details></h3>
       <p class="muted small">Eigen foto's voor aan de muren in Laserslag, Robomol en Leraar-baas, op de megaschermen in Neon Duel en op de borden langs de baan in Robopaarden (bv. van je klas of van de leerkrachten). Ze worden vierkant bijgesneden en klein gemaakt, en blijven alleen op deze pc. <span id="po-count"></span></p>
       <div class="poster-grid" id="po-grid"></div>
       <label class="inline check"><input type="checkbox" id="po-aan" checked> <strong>Posters tonen</strong> <span class="muted small">uit: in alle games hangen dan alleen banieren.</span></label>
@@ -424,7 +430,7 @@
         <label class="file-button"><input id="po-files" type="file" accept="image/*" multiple hidden>Foto's toevoegen</label>
       </div>
     </div>
-    <div class="panel form" id="gegevens-panel">
+    <div class="panel form" id="gegevens-panel" data-tab="gegevens">
       <h3>Mijn gegevens en back-ups</h3>
       <p class="muted small">Je klaslijst, het logboek, je quizzen, de resultaten en de posters staan in deze map. <a href="/privacy">Wat bewaart LANcelot over leerlingen?</a></p>
       <p><code id="gg-map"></code></p>
@@ -434,14 +440,14 @@
       </div>
       <div id="gg-verhuis">
         <p class="muted small" id="gg-uitleg"></p>
-        <label>Nieuwe map<input id="gg-pad" autocomplete="off"></label>
+        <label><span>Nieuwe map <details class="hulp"><summary aria-label="Uitleg">?</summary><p>Alleen nodig als je je gegevens ergens anders wil bewaren, bv. op een andere schijf. LANcelot verhuist alles bij de volgende start. Twijfel je? Laat dit dan gewoon staan.</p></details></span><input id="gg-pad" autocomplete="off"></label>
         <p class="error" id="gg-error"></p>
         <div class="actions">
           <button class="secondary" id="gg-kies">Verhuis bij de volgende start</button>
           <button class="secondary hidden" id="gg-annuleer">Verhuis annuleren</button>
         </div>
       </div>
-      <h3>Back-up</h3>
+      <h3>Back-up<details class="hulp"><summary aria-label="Uitleg">?</summary><p>Een back-up is één zip-bestand met je klaslijst, logboek, quizzen en resultaten. Terugzetten vervangt wat nu op deze pc staat door wat in de back-up zit.</p></details></h3>
       <p class="muted small">LANcelot bewaart elke dag bij het opstarten zelf een back-up (de laatste tien). Download er af en toe een naar een usb-stick: dan ben je niets kwijt als de pc stukgaat. Je AI-sleutel gaat nooit mee in een back-up.</p>
       <div class="actions">
         <a class="button" id="bu-download" href="/back-up">Download een back-up</a>
@@ -453,8 +459,8 @@
       <p class="error" id="bu-error"></p>
       <ul class="file-list" id="bu-lijst"></ul>
     </div>
-    <div class="panel form" id="update-panel">
-      <h3>LANcelot bijwerken</h3>
+    <div class="panel form" id="update-panel" data-tab="bijwerken">
+      <h3>LANcelot bijwerken<details class="hulp"><summary aria-label="Uitleg">?</summary><p>Bijwerken geeft je nieuwe spellen en verbeteringen. Kreeg je een zip-bestand van een collega of de school? Kies dan "Bijwerken met een zip-bestand".</p></details></h3>
       <p class="muted small">Haal de nieuwste versie op (daar is internet voor nodig). Ze wordt pas geïnstalleerd de volgende keer dat je LANcelot start, dus nooit midden in een les. Je gegevens blijven altijd staan.</p>
       <p id="up-status"></p>
       <p class="error" id="up-error"></p>
@@ -471,8 +477,8 @@
         <div class="actions"><button class="secondary" id="up-bron-zet">Bewaren</button></div>
       </details>
     </div>
-    <div class="panel form">
-      <h3>Eerste keer en netwerk</h3>
+    <div class="panel form" data-tab="netwerk">
+      <h3>Eerste keer en netwerk<details class="hulp"><summary aria-label="Uitleg">?</summary><p>De leerlingen moeten op hetzelfde wifi-netwerk zitten als deze pc. Lukt het niet? Kijk bij "Netwerk werkt niet?": daar staat stap voor stap wat je kan nakijken.</p></details></h3>
       <p class="muted small">Leerlingen geraken niet binnen? Vaak houdt de Windows Firewall ze tegen. Met de knop zet LANcelot de firewall zelf goed; Windows vraagt eerst om toestemming. Dat is het enige waarvoor LANcelot beheerdersrechten nodig heeft, en maar één keer.</p>
       <p class="error" id="fw-error"></p>
       <div class="actions">

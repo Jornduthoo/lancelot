@@ -20,7 +20,6 @@ for (const n of (vraag.get('namen') || '').split('|').filter(Boolean)) tk.gekoze
 
 $('brand').addEventListener('click', () => { location.href = '/host'; });
 $('to-home').addEventListener('click', () => { location.href = '/host'; });
-$('to-zorg').addEventListener('click', () => { location.href = '/zorg'; });
 
 // ---------- Wat? ----------
 

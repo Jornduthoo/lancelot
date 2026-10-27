@@ -269,7 +269,7 @@ Liever op papier? Klik bij een blad op **🖨 Print** voor het werkblad en op **
 
 Geef een oefenblad of quiz aan één leerling, een paar leerlingen of de hele klas, om in de klas aan te werken in hun eigen tempo. Er hoeft geen spel te lopen.
 
-1. Op het startscherm: **Taken** (onder de tegels). Of bij **Mijn oefenbladen**: **📋 Als taak**. Of in het **Zorgoverzicht** bij een doel: **📋 Geef een taak** (de leerlingen die het doel nog niet beheersen staan dan al aangevinkt).
+1. Op het startscherm: **Mijn klas** (onder de tegels), tabblad **Taken**. Of bij **Mijn oefenbladen**: **📋 Als taak**. Of in het **Zorgoverzicht** bij een doel: **📋 Geef een taak** (de leerlingen die het doel nog niet beheersen staan dan al aangevinkt).
 2. Kies **Oefenblad** of **Quiz** en wat ze moeten maken. Bij een oefenblad kies je ook of het meteen verbeterd wordt of pas na het inleveren.
 3. Tik de leerlingen aan, of kies snel: **Hele klas**, **Aandacht nodig** of **Opvolgen** (de kleuren uit het zorgoverzicht) of een **groepje bij een doel**. Naast elke naam staat het niveau dat de leerling krijgt (🪶 Page, 🛡️ Schildknaap of ⚔️ Ridder), zoals in Mijn klas voor dat vak. Heeft het blad of de quiz maar één niveau, dan krijgt iedereen hetzelfde.
 4. **Geef taak**. Leerlingen tikken op hun startscherm op **Mijn taken** (of surfen naar het adres met `/mijn-taken`). Daar staat de taak meteen, met een bolletje op de knop.
@@ -285,25 +285,25 @@ Elk oefenblad en elke quiz kan drie niveaus hebben: **🪶 Page** (met hulp), **
 1. In de oefenbladmaker staat **Op drie niveaus** aangevinkt. De AI maakt dan elke oefening in drie versies.
 2. In de oefenbladmaker wissel je met de knoppen boven de oefeningen tussen de niveaus. Laat Page of Ridder leeg als je ze niet nodig hebt; die leerlingen krijgen dan het Schildknaap-blad.
 3. Een quiz maak je op één niveau: kies bij **Moeilijkheid van deze quiz** Schildknaap (standaard), Page of Ridder. In de quizeditor kan je het niveau per vraag nog aanpassen.
-4. Op de pagina **Mijn klas en doelen** zet je elke leerling op zijn niveau: een **algemeen** niveau en, als het anders is, een eigen niveau voor **Wiskunde, Nederlands, Frans en WO** (aardrijkskunde, geschiedenis, wetenschap en techniek). Een vak op "=" volgt het algemene niveau, net als de andere vakken. Een quiz of oefenblad kijkt naar het vak van zijn doelen en neemt het niveau van dat vak.
+4. Bij **Mijn klas**, tabblad **Klas**, zet je elke leerling op zijn niveau: een **algemeen** niveau en, als het anders is, een eigen niveau voor **Wiskunde, Nederlands, Frans en WO** (aardrijkskunde, geschiedenis, wetenschap en techniek). Een vak op "=" volgt het algemene niveau, net als de andere vakken. Een quiz of oefenblad kijkt naar het vak van zijn doelen en neemt het niveau van dat vak.
 5. Een oefenblad live zetten: kies bij **Niveau** of iedereen hetzelfde niveau krijgt, of elke leerling zijn niveau uit Mijn klas, of dat de leerling zelf kiest. Klik tijdens het werken op een naam om een leerling op een ander niveau te zetten.
 6. Printen: bovenaan het printblad kies je Page, Schildknaap, Ridder of **Alle drie** (elk niveau op een eigen blad). Het verbeterblad werkt hetzelfde.
 7. Quizspellen: heeft een quiz vragen op meerdere niveaus, dan kies je boven de quizlijst het **niveau van de klas**. Het spel gebruikt dan alleen de vragen van dat niveau, of alles door elkaar. Met **👤 Per leerling** krijgt elke leerling de vragen van zijn eigen niveau uit Mijn klas. Dat werkt in alle spellen. In het Toernooi, Duel in de arena en Het Rijk krijgt iedereen tegelijk dezelfde vraag, maar elk in de versie van zijn niveau (voor het vak van die vraag): het bord toont de Schildknaap-versie, de leerling ziet zijn eigen versie op zijn scherm. Bij een quiz "op de drie niveaus" hoort de 1e Page-vraag bij de 1e Schildknaap- en de 1e Ridder-vraag.
 
 ## Mijn klas en de leerplandoelen
 
-1. Klik op het startscherm op **Mijn klas en doelen**. Zet je leerlingen erin, één naam per regel, kies het leerjaar en klik op **Klaslijst bewaren**. De lijst blijft op deze pc.
+1. Klik op het startscherm op **Mijn klas**. Bovenaan staan tabbladen: **Klas**, **Zorg**, **Taken**, **Doelen** en **Logboek**. Zet bij **Klas** je leerlingen erin, één naam per regel, kies het leerjaar en klik op **Klaslijst bewaren**. De lijst blijft op deze pc.
 2. Leerlingen tikken voortaan hun naam aan bij het aanmelden, in elk spel. Typen kan nog altijd, bijvoorbeeld voor een gast.
 3. In de quizmaker en de oefenbladmaker kies je de **leerplandoelen** van je les uit Op.stap: typ een code (2.1.GL6.4) of een woord (deler) en klik het doel aan. Een les mag meerdere doelen hebben. De AI verdeelt de vragen over die doelen en zet bij elke vraag het doel dat ze oefent. Je kan het doel per vraag of per oefening nog aanpassen.
 4. Elk antwoord, in elk spel en in een live oefenblad, komt in het **logboek** (map `logboek`, één bestand per schooljaar). Op de pagina Mijn klas zie je per doel hoeveel antwoorden er al zijn en hoeveel procent juist. De Opwarmer gebruikt dit om te kiezen welke vragen terugkomen.
 5. **Overzicht na elk spel.** Na elk spel verschijnt rechtsonder op het docentenscherm de knop **📊 Overzicht**. Die gaat pas open als je erop klikt (het bord hangt voor de klas, en het overzicht toont namen). Je ziet de moeilijkste vragen met wie ze fout had, welke leerlingen onder 60% zaten (extra uitleg) en hoe het per leerplandoel ging. Met **Download voor Excel** krijg je alles in één bestand. Alle overzichten van het schooljaar staan ook op de pagina Mijn klas.
-6. **Doelenkaart.** Op de pagina Mijn klas zie je per leerplandoel en per leerling een gekleurd vakje: groen = beheerst (minstens 80% juist bij de laatste 10 antwoorden op dat doel), geel = bijna (minstens 50%), rood = nog niet, open vakje = minder dan 3 antwoorden. Kies een leerling om zijn of haar doelen op een rij te zien, van zwak naar sterk. **Download voor Excel** geeft de hele kaart; de knop **Excel** naast een doel geeft dat ene doel, per leerling en per vraag.
+6. **Doelenkaart.** Bij Mijn klas, tabblad **Doelen**, zie je per leerplandoel en per leerling een gekleurd vakje: groen = beheerst (minstens 80% juist bij de laatste 10 antwoorden op dat doel), geel = bijna (minstens 50%), rood = nog niet, open vakje = minder dan 3 antwoorden. Kies een leerling om zijn of haar doelen op een rij te zien, van zwak naar sterk. **Download voor Excel** geeft de hele kaart; de knop **Excel** naast een doel geeft dat ene doel, per leerling en per vraag.
 
 De doelen van Op.stap (versie 1.3, G-doelen en plusdoelen) staan erin voor het 2e tot het 6e leerjaar, en voor alle vakken: wiskunde, Nederlands, Frans (5e en 6e leerjaar), wetenschap en techniek, aardrijkskunde, geschiedenis, ICT, veilige en gezonde levensstijl, muzische vorming, LO en motoriek, sociaal-emotioneel leren, leren leren en rooms-katholieke godsdienst. Standaard zie je de doelen van het leerjaar van je klas. Wil je doelen van een ander leerjaar (bijvoorbeeld van vorig jaar herhalen), kies dan bij **Doelen van** in de quizmaker of de oefenbladmaker, of bij **Leerjaar** op de pagina Mijn klas, een ander leerjaar. Sociaal-emotioneel leren, leren leren en godsdienst zijn er voor gesprekken (de Ronde Tafel): die doelen krijgen geen score op de doelenkaart of in het overzicht. De doelen zijn automatisch overgenomen uit de Op.stap-pdf's; de officiële versie staat in de Op.stap-leerplantool. De routedoelen per fase (P, S, V, Z, A) staan er niet in.
 
 ## Zorgoverzicht
 
-Klik op het startscherm (of in Mijn klas) op **Zorgoverzicht**. Je ziet in één oogopslag welke leerlingen uitvallen:
+Klik op het startscherm op **Mijn klas** en kies het tabblad **Zorg**. Je ziet in één oogopslag welke leerlingen uitvallen:
 
 - **Rood** (aandacht nodig): minder dan 50% juist bij de laatste 20 antwoorden, of 20 procentpunten of meer onder de klas op dezelfde vragen.
 - **Oranje** (opvolgen): 10 procentpunten onder de klas, gaat achteruit in de laatste lessen, 3 of meer doelen nog niet beheerst, of gokte meermaals.
@@ -397,7 +397,7 @@ Alles waar je mee speelt, staat op de pc waar LANcelot draait, in de map LANcelo
 
 ## Bijwerken, back-ups en je gegevens
 
-Alles staat in **Instellingen**:
+Alles staat in **Instellingen**, verdeeld over tabbladen (AI, Lesmap, Uiterlijk, Gegevens, Bijwerken en Netwerk). Een **?** naast een instelling geeft een korte uitleg.
 
 - **LANcelot bijwerken:** klik op *Zoek naar een update* en daarna op *Download de update* (internet nodig). De update wordt pas geïnstalleerd de volgende keer dat je LANcelot start, nooit midden in een les. Je gegevens blijven staan; de vervangen bestanden worden bewaard in `_update\oud`. Geen internet, of werkt GitHub niet meer? Kies dan *Bijwerken met een zip-bestand* (bv. de schoolzip van een usb-stick), of vul onder *Update-adres* het adres in dat je kreeg.
 - **Snelkoppeling:** *Snelkoppeling op het bureaublad* zet LANcelot op het bureaublad en in het startmenu, zonder beheerdersrechten.

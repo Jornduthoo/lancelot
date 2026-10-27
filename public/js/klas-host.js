@@ -11,7 +11,19 @@ let perDoel = {};
 
 $('brand').addEventListener('click', () => { location.href = '/host'; });
 $('to-home').addEventListener('click', () => { location.href = '/host'; });
-$('to-zorg').addEventListener('click', () => { location.href = '/zorg'; });
+
+// Klas, Doelen en Logboek zijn tabbladen op deze pagina (/klas#doelen); Zorg en Taken zijn eigen pagina's met dezelfde balk.
+// Een oud adres als /klas#overzicht opent het tabblad waar dat stuk in staat.
+const kiesTab = Ui.tabs($('klas-tabs'));
+function tabUitAdres() {
+  const id = location.hash.slice(1);
+  const doel = id && document.getElementById(id);
+  const tab = doel && doel.dataset.tab ? doel.dataset.tab : id;
+  kiesTab(tab || 'klas');
+  if (doel && doel.dataset.tab && doel.id !== tab) doel.scrollIntoView();
+}
+addEventListener('hashchange', tabUitAdres);
+tabUitAdres();
 
 function loadKlas() {
   socket.emit('klas-get', null, res => {

@@ -388,7 +388,46 @@
     return beurt;
   }
 
+  // Hulpbolletjes (?): er staat er maar één open, een klik ernaast sluit hem, en hij blijft binnen zijn paneel.
+  document.addEventListener('click', e => {
+    for (const d of document.querySelectorAll('details.hulp[open]')) if (!d.contains(e.target)) d.open = false;
+  });
+  document.addEventListener('toggle', e => {
+    const d = e.target;
+    if (!d.matches || !d.matches('details.hulp') || !d.open) return;
+    const p = d.querySelector('p');
+    p.style.left = '';
+    const doos = (d.closest('.panel') || document.body).getBoundingClientRect();
+    const r = p.getBoundingClientRect();
+    const over = Math.min(r.right - doos.right + 8, r.left - Math.max(doos.left, 0) - 8);
+    if (over > 0) p.style.left = `${-10 - over}px`;
+  }, true);
+
+  // Tabbladen: knoppen met data-tab in een .tabbalk tonen de elementen met dezelfde data-tab eronder.
+  // Het laatst gekozen tabblad wordt onthouden (onder de naam `bewaar`).
+  function tabs(balk, bewaar, bijWissel) {
+    const knoppen = [...balk.querySelectorAll('[data-tab]')];
+    const scope = balk.parentElement;
+    const kies = naam => {
+      if (!knoppen.some(k => k.dataset.tab === naam)) naam = knoppen[0].dataset.tab;
+      for (const k of knoppen) {
+        k.classList.toggle('on', k.dataset.tab === naam);
+        if (k.dataset.tab === naam) k.setAttribute('aria-current', 'page');
+        else k.removeAttribute('aria-current');
+      }
+      for (const el of scope.querySelectorAll('[data-tab]')) if (!balk.contains(el)) el.classList.toggle('tab-uit', el.dataset.tab !== naam);
+      try { if (bewaar) localStorage.setItem(bewaar, naam); } catch {}
+      if (bijWissel) bijWissel(naam);
+    };
+    for (const k of knoppen) k.addEventListener('click', () => kies(k.dataset.tab));
+    let start = '';
+    try { start = bewaar ? localStorage.getItem(bewaar) || '' : ''; } catch {}
+    kies(start);
+    return kies;
+  }
+
   window.Ui = {
+    tabs,
     vraag: (tekst, o = {}) => wachtrij(tekst, [
       { tekst: o.nee || 'Annuleren', klas: 'secondary', waarde: false },
       { tekst: o.ja || 'Ja', klas: o.gevaar ? 'danger' : '', waarde: true },
