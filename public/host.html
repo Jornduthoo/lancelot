@@ -19,10 +19,25 @@
     </div>
     <div class="actions">
       <button class="secondary pauze-knop pauze-home" data-pauze title="Alle leerlingschermen op slot om de aandacht te vragen"><img src="/img/icons/pauze-klein.webp" alt=""> Pauze</button>
+      <button class="secondary qr-home" id="qr-open" title="De QR-codes waarmee leerlingen verbinden, groot op het bord"><i class="ic ic-qr"></i> QR-codes</button>
       <button class="secondary icon" id="mute" title="Geluid aan/uit" aria-label="Geluid aan/uit"><i class="ic ic-geluid"></i></button>
       <button class="secondary hidden" id="stop">Stop toernooi</button>
     </div>
   </div>
+
+  <!-- Alle QR-codes samen: meedoen, Runenraadsel en Mijn burcht. Groot genoeg om vanaf het bord te scannen. -->
+  <dialog class="qr-venster" id="qr-venster">
+    <div class="qr-venster-kop">
+      <h2>Verbinden met LANcelot</h2>
+      <button class="secondary icon" id="qr-dicht" title="Sluiten" aria-label="Sluiten"><i class="ic ic-kruis"></i></button>
+    </div>
+    <div class="qr-kaarten">
+      <figure><div class="qr" data-qr=""></div><figcaption><strong>Meedoen met een spel</strong><span data-url=""></span></figcaption></figure>
+      <figure><div class="qr" data-qr="/runen"></div><figcaption><strong>Runenraadsel</strong><span data-url="/runen"></span></figcaption></figure>
+      <figure><div class="qr" data-qr="/burcht"></div><figcaption><strong>Mijn burcht</strong><span data-url="/burcht"></span></figcaption></figure>
+    </div>
+    <p class="muted small center" id="qr-hulp">Leerlingen moeten op hetzelfde netwerk zitten als deze pc. <a href="/netwerk" target="_blank">Netwerk werkt niet?</a></p>
+  </dialog>
 
   <section id="home">
     <div class="hero">

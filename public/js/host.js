@@ -57,6 +57,24 @@ function fillRows() {
   }
 }
 addEventListener('resize', fillRows);
+// Knop QR-codes: alle codes samen groot op het bord, voor het adres dat ook in de lobby staat.
+$('qr-open').addEventListener('click', () => {
+  const dlg = $('qr-venster');
+  const ip = ($('join-url').textContent || '').replace(/:\d+$/, '');
+  socket.emit('qr-codes', ip, res => {
+    if (res.error) return Ui.melding(res.error);
+    const kort = res.url.replace(/^http:\/\//, '');
+    for (const el of dlg.querySelectorAll('[data-qr]')) el.innerHTML = res.qr[el.dataset.qr] || '';
+    for (const el of dlg.querySelectorAll('[data-url]')) el.textContent = kort + el.dataset.url;
+    if (!dlg.open) dlg.showModal();
+  });
+});
+$('qr-dicht').addEventListener('click', () => $('qr-venster').close());
+// Klik naast het venster sluit het ook.
+$('qr-venster').addEventListener('click', e => {
+  const r = e.currentTarget.getBoundingClientRect();
+  if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) e.currentTarget.close();
+});
 document.querySelector('[data-realm="arena"] .tag').textContent = `${document.querySelectorAll('#realm-arena .module:not([data-module="klaseiland"])').length} spellen`;
 for (const t of document.querySelectorAll('.realm')) t.addEventListener('click', () => { openRealm(t.dataset.realm, true); sfx.tick(); });
 let savedRealm = 'arena';
