@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LANcelot · Taken</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/taken.css">
+</head>
+<body class="klas-host tk-host">
+<main>
+  <div class="topbar">
+    <div class="brand" id="brand" title="Naar het startscherm">
+      <img src="/img/mark.webp" alt="">
+      <div>
+        <div class="wordmark">LAN<span>celot</span></div>
+        <div class="subtitle">Taken</div>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="secondary" id="to-zorg"><i class="ic ic-zorg" aria-hidden="true"></i> Zorgoverzicht</button>
+      <button class="secondary" id="to-home">Terug</button>
+    </div>
+  </div>
+
+  <section class="panel form tk-nieuw">
+    <h2><i class="ic ic-taak" aria-hidden="true"></i> Nieuwe taak</h2>
+    <p class="muted small">Geef een oefenblad of quiz aan een of meer leerlingen. Elke leerling krijgt het op zijn eigen niveau uit Mijn klas en werkt eraan in zijn eigen tempo: op zijn toestel bij <b>Mijn taken</b>. Er hoeft geen spel te lopen.</p>
+    <div class="tk-soort" role="tablist">
+      <button type="button" class="on" data-soort="oefenblad"><img src="/img/icons/oefenblad.webp" alt=""> Oefenblad</button>
+      <button type="button" data-soort="quiz"><img src="/img/icons/toernooi.webp" alt=""> Quiz</button>
+    </div>
+    <div class="row">
+      <label>Wat?<select id="tk-bron"></select></label>
+      <label id="tk-fb-label">Verbeteren
+        <select id="tk-feedback">
+          <option value="direct">Meteen (groen of rood)</option>
+          <option value="inleveren">Pas na het inleveren</option>
+        </select>
+      </label>
+    </div>
+    <p class="muted small" id="tk-bron-info"></p>
+
+    <div class="tk-wie-kop">
+      <strong>Voor wie?</strong>
+      <div class="tk-snel" id="tk-snel">
+        <button type="button" class="secondary" data-snel="alle">Hele klas</button>
+        <button type="button" class="secondary" data-snel="geen">Niemand</button>
+        <button type="button" class="secondary hidden" data-snel="rood">🔴 Aandacht nodig</button>
+        <button type="button" class="secondary hidden" data-snel="oranje">🟠 Opvolgen</button>
+        <select id="tk-groepje" class="hidden" title="Een groepje uit het zorgoverzicht: wie dit doel nog niet beheerst"><option value="">Groepje bij een doel…</option></select>
+      </div>
+    </div>
+    <div class="tk-namen" id="tk-namen"></div>
+    <p class="muted small hidden" id="tk-geen-klas">Er staat nog geen klaslijst. Zet je leerlingen eerst in <a href="/klas">Mijn klas</a>: dan tik je hier hun naam aan.</p>
+    <div class="actions">
+      <button class="gold big" id="tk-geef" disabled>Geef taak</button>
+    </div>
+    <p class="error" id="tk-fout"></p>
+  </section>
+
+  <section class="tk-lopend">
+    <div class="bar">
+      <h2>Gegeven taken</h2>
+      <label class="inline tk-toon-dicht"><input type="checkbox" id="tk-toon-dicht"> Afgesloten taken tonen</label>
+    </div>
+    <div id="tk-taken"></div>
+    <p class="muted" id="tk-geen">Nog geen taken gegeven.</p>
+  </section>
+
+  <dialog class="ui-venster tk-venster" id="tk-detail">
+    <div class="bar">
+      <h2 id="d-naam"></h2>
+      <div class="actions">
+        <select id="d-niveau" class="hidden" title="Op een ander niveau zetten"></select>
+        <button class="secondary hidden" id="d-heropen">🔓 Heropen</button>
+        <button class="secondary" id="d-weg">Weghalen uit taak</button>
+        <button class="secondary" id="d-sluit">Sluiten</button>
+      </div>
+    </div>
+    <p class="muted small" id="d-info"></p>
+    <article class="ob-paper hidden" id="d-paper"></article>
+    <div id="d-quiz"></div>
+  </dialog>
+
+  <dialog class="ui-venster tk-venster" id="tk-erbij">
+    <h2>Leerlingen erbij</h2>
+    <div class="tk-namen" id="e-namen"></div>
+    <div class="actions">
+      <button class="secondary" id="e-annuleer">Annuleren</button>
+      <button class="gold" id="e-ok">Toevoegen</button>
+    </div>
+  </dialog>
+</main>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/ui.js"></script>
+<script src="/js/niveau.js"></script>
+<script src="/js/ob-sheet.js"></script>
+<script src="/js/tk-host.js"></script>
+</body>
+</html>

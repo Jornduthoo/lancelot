@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#060a13">
+  <title>LANcelot · Mijn taken</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="apple-touch-icon" href="/img/icon-192.png">
+  <style>html { background: #060a13; }</style>
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/taken.css">
+</head>
+<body class="player tk-page">
+<main>
+  <div class="tk-top">
+    <a class="tk-back" href="/" id="tk-back" title="Terug">←</a>
+    <img class="tk-logo" id="tk-logo" src="/img/icons/oefenblad.webp" alt="">
+    <div class="tk-kop">
+      <div class="tk-kop-titel" id="tk-kop-titel">Mijn taken</div>
+      <div class="tk-kop-sub" id="tk-kop-sub"></div>
+    </div>
+  </div>
+
+  <div class="bu-spel-start tk-spel-start hidden" id="tk-start-banner">
+    <span>⚔️ De leerkracht startte een spel!</span>
+    <a class="button gold" href="/">Ga meedoen</a>
+  </div>
+
+  <form id="tk-join" class="screen welcome hidden">
+    <p class="title">Mijn taken</p>
+    <p class="muted">Hier vind je wat je leerkracht voor jou klaarzette. Je werkt in je eigen tempo.</p>
+    <input id="tk-name" maxlength="20" autocomplete="off" placeholder="Je naam">
+    <p class="error" id="tk-join-error"></p>
+    <button type="submit" class="big">Naar mijn taken</button>
+  </form>
+
+  <section id="tk-lijst" class="hidden">
+    <div class="tk-taken" id="tk-taken"></div>
+    <div class="tk-leeg hidden" id="tk-leeg">
+      <p class="title">Alles gedaan!</p>
+      <p class="muted">Je hebt nu geen taken. Je leerkracht kan je er altijd een geven: die verschijnt hier vanzelf.</p>
+      <a class="button rn-knop" href="/runen"><img src="/img/icons/runenraadsel.webp" alt="">Runenraadsel van vandaag</a>
+      <a class="button rn-knop bu-knop" href="/burcht"><img src="/img/icons/klaseiland.webp" alt="">Mijn burcht</a>
+    </div>
+    <button type="button" class="secondary klas-switch" id="tk-switch">Niet jij? Kies je naam</button>
+  </section>
+
+  <section id="tk-blad" class="hidden">
+    <div class="ob-bar">
+      <span class="ob-who" id="tk-blad-wie"></span>
+      <span class="ob-progress"><i id="tk-blad-balk"></i></span>
+      <span class="ob-count" id="tk-blad-tel"></span>
+    </div>
+    <article class="ob-paper" id="tk-paper"></article>
+    <div class="ob-submit-bar">
+      <p class="ob-score hidden" id="tk-blad-score"></p>
+      <button class="gold big" id="tk-inleveren">Inleveren</button>
+      <button class="secondary hidden" id="tk-blad-terug">Terug naar mijn taken</button>
+    </div>
+  </section>
+
+  <section id="tk-quiz" class="hidden">
+    <div class="ob-bar">
+      <span class="ob-who" id="tk-quiz-wie"></span>
+      <span class="ob-progress"><i id="tk-quiz-balk"></i></span>
+      <span class="ob-count" id="tk-quiz-tel"></span>
+    </div>
+    <div id="tk-vraag-blok">
+      <p class="tk-vraag" id="tk-vraag"></p>
+      <div class="answers tk-antwoorden" id="tk-antwoorden"></div>
+      <div class="tk-feedback hidden" id="tk-feedback">
+        <p class="tk-oordeel" id="tk-oordeel"></p>
+        <p class="q-uitleg hidden" id="tk-uitleg"></p>
+        <button class="gold big" id="tk-volgende">Volgende vraag</button>
+      </div>
+    </div>
+    <div class="tk-einde hidden" id="tk-einde">
+      <p class="title">Taak klaar!</p>
+      <p class="tk-eindscore" id="tk-eindscore"></p>
+      <div id="tk-terugblik"></div>
+      <button class="gold big" id="tk-quiz-terug">Terug naar mijn taken</button>
+    </div>
+  </section>
+</main>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/ui.js"></script>
+<script src="/js/fx.js"></script>
+<script src="/js/niveau.js"></script>
+<script src="/js/voorlees.js"></script>
+<script src="/js/ob-sheet.js"></script>
+<script src="/js/tk-player.js"></script>
+<script src="/js/klas-kies.js"></script>
+</body>
+</html>

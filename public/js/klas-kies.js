@@ -58,7 +58,8 @@ function klasPick(form, input, naam) {
 // Welke namen zijn al bezet? Alleen vragen zolang een aanmeldscherm open staat.
 let klasBezetKey = '';
 function klasCheck() {
-  if (!klasNamen.length || !socket.connected) return;
+  // Mijn burcht, het Runenraadsel en Mijn taken hebben geen speler: daar mag je naam ook kiezen als je in een spel zit.
+  if (!klasNamen.length || !socket.connected || typeof playerId === 'undefined') return;
   const open = [...document.querySelectorAll('form.welcome')].some(f => !f.classList.contains('hidden') && f.offsetParent !== null);
   if (!open) return;
   socket.emit('klas-bezet', playerId, namen => {

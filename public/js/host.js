@@ -292,6 +292,7 @@ socket.on('results', files => {
 $('open-results').addEventListener('click', () => show('results'));
 $('open-klas').addEventListener('click', () => { location.href = '/klas'; });
 $('open-zorg').addEventListener('click', () => { location.href = '/zorg'; });
+$('open-taken').addEventListener('click', () => { location.href = '/taken'; });
 socket.on('zekerheid', on => { $('zekerheid').checked = on; });
 $('zekerheid').addEventListener('change', e => socket.emit('zekerheid', e.target.checked));
 $('open-netwerk').addEventListener('click', () => { location.href = '/netwerk'; });

@@ -255,6 +255,19 @@ Tip: iedereen speelt dezelfde werelden en ziet klasgenoten als doorschijnende ri
 
 Liever op papier? Klik bij een blad op **🖨 Print** voor het werkblad en op **Verbeterblad** voor de oplossingen. Via **Werkblad maken** op het startscherm laat je AI meteen een nieuw blad maken.
 
+## Taken per leerling
+
+Geef een oefenblad of quiz aan één leerling, een paar leerlingen of de hele klas, om in de klas aan te werken in hun eigen tempo. Er hoeft geen spel te lopen.
+
+1. Op het startscherm: **Taken** (onder de tegels). Of bij **Mijn oefenbladen**: **📋 Als taak**. Of in het **Zorgoverzicht** bij een doel: **📋 Geef een taak** (de leerlingen die het doel nog niet beheersen staan dan al aangevinkt).
+2. Kies **Oefenblad** of **Quiz** en wat ze moeten maken. Bij een oefenblad kies je ook of het meteen verbeterd wordt of pas na het inleveren.
+3. Tik de leerlingen aan, of kies snel: **Hele klas**, **Aandacht nodig** of **Opvolgen** (de kleuren uit het zorgoverzicht) of een **groepje bij een doel**. Naast elke naam staat het niveau dat de leerling krijgt (🪶 Page, 🛡️ Schildknaap of ⚔️ Ridder), zoals in Mijn klas voor dat vak. Heeft het blad of de quiz maar één niveau, dan krijgt iedereen hetzelfde.
+4. **Geef taak**. Leerlingen tikken op hun startscherm op **Mijn taken** (of surfen naar het adres met `/mijn-taken`). Daar staat de taak meteen, met een bolletje op de knop.
+
+Onder **Gegeven taken** zie je live per leerling: grijs = nog niet begonnen, goud = bezig (hoeveel al gedaan), groen = klaar met de score. Tik op een naam om te zien wat hij invulde. Daar kan je hem ook op een ander niveau zetten, zijn taak weer openzetten of hem uit de taak halen. **+ Leerlingen** zet er later nog iemand bij. **Afsluiten**: wie bezig is, levert in zoals het er staat.
+
+Een quiz als taak gaat vraag per vraag, met meteen de uitleg na een fout antwoord. Alle antwoorden gaan in het logboek (spel "Taak"), dus ook in het zorgoverzicht, de doelenkaart en de Eer van het Klaseiland. De taken staan in de map `taken` bij je gegevens, alleen op deze pc. Thuiswerk kan (nog) niet: Mijn taken werkt over het netwerk van de klas.
+
 ## Niveaus: Page, Schildknaap en Ridder
 
 Elk oefenblad en elke quiz kan drie niveaus hebben: **🪶 Page** (met hulp), **🛡️ Schildknaap** (het doel zelf) en **⚔️ Ridder** (uitdaging).
