@@ -388,7 +388,8 @@ const ItemList = (() => {
   // Geldt voor elke quiz met niveaus. Een quiz zonder niveaus speelt altijd alle vragen.
   function renderNiveauBar(lv) {
     lv.innerHTML = `<strong>Niveau van de klas:</strong> <span class="niveau-pick">${NIVEAUS.map(([n, label, help]) => `<button type="button" class="secondary${n === quizNiveau ? ' on' : ''}" data-niveau="${n}" title="${help}">${label}</button>`).join('')}</span>
-      <span class="muted small">voor quizzen met ${Object.values(ICONS).join('')}</span>`;
+      <span class="muted small">voor quizzen met ${Object.values(ICONS).join('')}</span>
+      <details class="hulp"><summary aria-label="Uitleg">?</summary><p>Sommige quizzen hebben elke vraag in drie versies: 🪶 makkelijker, 🛡️ op het doel en ⚔️ moeilijker. Hier kies je welke versie de klas krijgt. Met 👤 Per leerling krijgt elke leerling de versie van zijn niveau uit Mijn klas.</p></details>`;
     for (const b of lv.querySelectorAll('button')) b.addEventListener('click', () => socket.emit('quiz-niveau', b.dataset.niveau));
   }
   function renderUitlegBar(ub) {

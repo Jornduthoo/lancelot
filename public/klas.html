@@ -14,17 +14,23 @@
       <img src="/img/mark.webp" alt="">
       <div>
         <div class="wordmark">LAN<span>celot</span></div>
-        <div class="subtitle">Mijn klas en doelen</div>
+        <div class="subtitle">Mijn klas</div>
       </div>
     </div>
     <div class="actions">
-      <button class="secondary" id="to-zorg">Zorgoverzicht</button>
       <button class="secondary" id="to-home">Terug</button>
     </div>
   </div>
+  <nav class="tabbalk" id="klas-tabs" aria-label="Mijn klas">
+    <a href="/klas#klas" data-tab="klas" class="on" aria-current="page"><i class="ic ic-namen" aria-hidden="true"></i> Klas</a>
+    <a href="/zorg"><i class="ic ic-zorg" aria-hidden="true"></i> Zorg</a>
+    <a href="/taken"><i class="ic ic-taak" aria-hidden="true"></i> Taken</a>
+    <a href="/klas#doelen" data-tab="doelen"><i class="ic ic-doel" aria-hidden="true"></i> Doelen</a>
+    <a href="/klas#logboek" data-tab="logboek"><i class="ic ic-resultaten" aria-hidden="true"></i> Logboek</a>
+  </nav>
 
   <section>
-    <div class="panel form">
+    <div class="panel form" data-tab="klas">
       <h3>Mijn klas</h3>
       <p class="muted">Zet hier je leerlingen, één naam per regel (voornaam en eventueel een initiaal). Bij het aanmelden tikken ze dan hun naam aan, en elk antwoord wordt bij de juiste leerling bewaard. De lijst blijft op deze pc.</p>
       <div class="row">
@@ -44,27 +50,27 @@
       <div class="actions"><button id="k-save">Klaslijst bewaren</button> <span class="muted" id="k-saved"></span></div>
     </div>
 
-    <div class="panel form">
-      <h3>Niveaus</h3>
+    <div class="panel form" data-tab="klas">
+      <h3>Niveaus<details class="hulp"><summary aria-label="Uitleg">?</summary><p>Twijfel je? Laat iedereen op 🛡️ Schildknaap staan: dat is het gewone doel. Zet alleen leerlingen die extra hulp of extra uitdaging nodig hebben op een ander niveau. Je kan het altijd terug veranderen.</p></details></h3>
       <p class="muted">Op welk niveau oefent elke leerling? 🪶 Page (met hulp), 🛡️ Schildknaap (het doel) of ⚔️ Ridder (uitdaging). Per vak kan het anders: een vak op "=" volgt het algemene niveau. Een quiz of oefenblad kiest het niveau van het vak van zijn doelen (WO = aardrijkskunde, geschiedenis, wetenschap en techniek; andere vakken volgen Algemeen). Bij een oefenblad met niveaus krijgt elke leerling dan zijn eigen versie, als je kiest voor "Per leerling, zoals ingesteld bij Mijn klas".</p>
       <div class="klas-niveaus" id="k-niveaus"></div>
       <p class="error" id="k-niveau-error"></p>
     </div>
 
-    <div class="panel form">
+    <div class="panel form" data-tab="logboek">
       <h3>Logboek</h3>
       <p id="l-summary" class="muted">Laden…</p>
       <div class="actions"><button class="secondary" id="l-folder">Open map</button></div>
     </div>
 
-    <div class="panel form" id="overzicht">
+    <div class="panel form" id="overzicht" data-tab="logboek">
       <h3>Overzicht na elk spel</h3>
       <p class="muted">Elke keer dat je een spel speelt, maakt LANcelot een overzicht: de moeilijkste vragen, wie extra uitleg kan gebruiken en hoe het per leerplandoel ging. Klik een spel aan.</p>
       <div class="ov-sessies" id="o-lijst"></div>
       <div id="o-detail"></div>
     </div>
 
-    <div class="panel form" id="doelenkaart">
+    <div class="panel form" id="doelenkaart" data-tab="doelen">
       <h3>Doelenkaart</h3>
       <p class="muted">Welke leerplandoelen beheerst elke leerling? We kijken naar de laatste <span id="dk-recent">10</span> antwoorden per doel: minstens 80% juist is beheerst, minstens 50% is bijna. Alleen vragen met een leerplandoel tellen mee.</p>
       <div class="dk-tabs">
@@ -82,7 +88,7 @@
       <div id="dk-box"></div>
     </div>
 
-    <div class="panel form">
+    <div class="panel form" data-tab="doelen">
       <h3>Leerplandoelen</h3>
       <p class="muted">De doelen uit Op.stap, standaard die van jouw leerjaar. Kies gerust een ander leerjaar, bijvoorbeeld om doelen van vorig jaar te herhalen. Koppel ze aan een quizvraag of een oefening in de quizmaker of de oefenbladmaker. Groen gemarkeerd: zoveel antwoorden staan er al in het logboek.</p>
       <div class="row">
