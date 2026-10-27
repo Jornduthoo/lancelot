@@ -1,9 +1,11 @@
 // De lijst met quizzen, oefenbladen of Ronde Tafel-sessies op elk docentenscherm, geordend in mappen.
-// Items sleep je naar een map (of kies de map met het mapje in de rij). Mappen kunnen in mappen zitten:
-// maak ze met +📁 en sleep een map aan haar kop naar een andere map. Mappen klappen open en dicht.
+// Zoals de Verkenner: links de mappenboom, rechts de items van de open map met een kruimelpad erboven, en een
+// zoekbalk die in alle mappen zoekt. Items en mappen sleep je naar een map (links, in het kruimelpad of op een
+// mapje rechts), of je kiest de map met het mapje 📁 in de rij (ook op een touchscreen).
 // Met ⬇ exporteer je een item, een map of alles naar een bestand; met ⬆ Importeren (of door een bestand
 // op de lijst te slepen) laad je dat op een andere pc weer in.
 // Gebruik: QuizList.mount($('quiz-list'), { go: 'Kies ▶', play: q => ..., edit: q => ..., remove: q => ... }).
+// Met beheer: true (de quizbibliotheek) staan de balken voor niveau en uitleg er niet bij.
 // Voor oefenbladen en sessies: ItemList.mount(el, { kind: 'oefenblad', ... }) met dezelfde opties, plus
 // detail: q => 'tekst achter de titel' en buttons: [{ label, title, cls, click: q => ... }] voor extra knoppen.
 // Gebruikt de globale socket van de pagina.
@@ -31,13 +33,32 @@ const ItemList = (() => {
     if (kind === 'quiz') listenNiveau();
     const k = KINDS[kind];
     const detail = opts.detail || k.detail;
-    const storeKey = kind === 'quiz' ? 'lancelot-closed-folders' : `lancelot-closed-folders-${kind}`;
+    // Zoals de Verkenner: links de mappen, rechts wat er in de open map zit. Beide onthouden per soort.
+    const openKey = `lancelot-mappen-open-${kind}`;
+    const hereKey = `lancelot-map-hier-${kind}`;
     let items = null;
     let folders = [];
-    let closed = new Set();
+    let open = new Set();
+    let here = '';
+    let query = '';
     let note = '';
-    try { closed = new Set(JSON.parse(localStorage.getItem(storeKey) || '[]')); } catch {}
-    const saveClosed = () => { try { localStorage.setItem(storeKey, JSON.stringify([...closed])); } catch {} };
+    let explorer = null;
+    try {
+      open = new Set(JSON.parse(localStorage.getItem(openKey) || '[]'));
+      here = localStorage.getItem(hereKey) || '';
+    } catch {}
+    const save = () => { try { localStorage.setItem(openKey, JSON.stringify([...open])); localStorage.setItem(hereKey, here); } catch {} };
+    const countIn = f => items.filter(q => q.folder && within(q.folder, f)).length;
+    const subsOf = f => folders.filter(x => parentOf(x) === f);
+    const norm = s => String(s).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+
+    // De zoekbalk blijft staan tijdens het typen: alleen de verkenner eronder wordt opnieuw getekend.
+    const search = document.createElement('input');
+    search.type = 'search';
+    search.className = 'lib-zoek';
+    search.placeholder = `Zoek in alle ${k.many}…`;
+    search.setAttribute('aria-label', `Zoek in alle ${k.many}`);
+    search.addEventListener('input', () => { query = search.value.trim(); redraw(); });
 
     function error(res) {
       const el = document.getElementById(opts.errorId || 'load-error');
@@ -46,6 +67,27 @@ const ItemList = (() => {
 
     function move(file, folder) {
       socket.emit('lib-move', { kind, file, folder }, error);
+    }
+
+    // Een map verplaatsen. Stond je in die map (of dieper), dan ga je mee.
+    function moveFolder(from, into) {
+      if (from === into || parentOf(from) === into || within(into, from)) return;
+      socket.emit('lib-folder-move', { kind, from, into }, res => {
+        error(res);
+        if (res && res.error || !within(here, from)) return;
+        here = (into ? `${into}/` : '') + baseOf(from) + here.slice(from.length);
+        save();
+        render();
+      });
+    }
+
+    function go(f) {
+      here = f;
+      for (let p = f; p; p = parentOf(p)) open.add(p);
+      query = '';
+      search.value = '';
+      save();
+      redraw();
     }
 
     function download(query) {
@@ -85,28 +127,11 @@ const ItemList = (() => {
       }
     }
 
-    function row(q) {
-      const el = document.createElement('div');
-      el.className = 'quiz-row';
+    function dragStart(el, data) {
       el.draggable = true;
-      el.dataset.file = q.file;
-      const options = ['<option value="">Zonder map</option>', ...folders.map(f => `<option value="${esc(f)}"${f === q.folder ? ' selected' : ''}>${esc(f.split('/').join(' › '))}</option>`)].join('');
-      el.innerHTML = `<span class="grip" title="Sleep naar een map">${Ui.ic('grip')}</span>
-        <button class="play">${esc(q.title)} <span class="muted">· ${esc(detail(q))}${kind === 'quiz' && (q.niveaus || []).length > 1 ? ` · ${q.niveaus.map(n => ICONS[n]).join('')}` : ''}</span><span class="go">${opts.go || 'Kies ▶'}</span></button>
-        ${folders.length ? `<label class="move" title="Naar een andere map">📁<select>${options}</select></label>` : ''}
-        ${(opts.buttons || []).map((b, i) => `<button class="secondary extra ${b.cls || ''}" data-extra="${i}" title="${esc(b.title || '')}">${b.label}</button>`).join('')}
-        <button class="secondary edit">Bewerken</button>
-        <button class="secondary export" title="Exporteren naar een bestand" aria-label="Exporteren">${Ui.ic('download')}</button>
-        ${opts.remove ? `<button class="secondary delete" title="Verwijderen" aria-label="Verwijderen">${Ui.ic('kruis')}</button>` : ''}`;
-      el.querySelector('.play').addEventListener('click', () => opts.play(q));
-      el.querySelector('.edit').addEventListener('click', () => opts.edit(q));
-      el.querySelector('.export').addEventListener('click', () => download({ file: q.file }));
-      for (const b of el.querySelectorAll('[data-extra]')) b.addEventListener('click', () => opts.buttons[b.dataset.extra].click(q));
-      if (opts.remove) el.querySelector('.delete').addEventListener('click', () => opts.remove(q));
-      const select = el.querySelector('.move select');
-      if (select) select.addEventListener('change', () => move(q.file, select.value));
       el.addEventListener('dragstart', e => {
-        e.dataTransfer.setData('text/plain', `file:${q.file}`);
+        e.stopPropagation();
+        e.dataTransfer.setData('text/plain', data);
         e.dataTransfer.effectAllowed = 'move';
         el.classList.add('dragging');
         box.classList.add('dragging');
@@ -115,10 +140,9 @@ const ItemList = (() => {
         el.classList.remove('dragging');
         box.classList.remove('dragging');
       });
-      return el;
     }
 
-    // Een map (of "Zonder map") waarop je een item of een andere map kan laten vallen, of een geëxporteerd bestand.
+    // Een plek waarop je een item, een map of een geëxporteerd bestand kan laten vallen.
     function dropZone(el, folder) {
       el.addEventListener('dragover', e => { e.preventDefault(); e.stopPropagation(); el.classList.add('over'); });
       el.addEventListener('dragleave', e => { if (!el.contains(e.relatedTarget)) el.classList.remove('over'); });
@@ -128,80 +152,184 @@ const ItemList = (() => {
         el.classList.remove('over');
         if (e.dataTransfer.files && e.dataTransfer.files.length) return importFiles(e.dataTransfer.files, folder);
         const data = e.dataTransfer.getData('text/plain');
-        if (data.startsWith('folder:')) {
-          const from = data.slice(7);
-          if (from !== folder && parentOf(from) !== folder) socket.emit('lib-folder-move', { kind, from, into: folder }, error);
-          return;
-        }
+        if (data.startsWith('folder:')) return moveFolder(data.slice(7), folder);
         const file = data.replace(/^file:/, '');
         const q = items.find(x => x.file === file);
         if (q && q.folder !== folder) move(file, folder);
       });
     }
 
-    // Een map met de mappen en items erin. Mappen sleep je aan hun kop naar een andere map.
-    function folderSection(f) {
-      const inside = items.filter(q => q.folder === f);
-      const total = items.filter(q => q.folder && within(q.folder, f)).length;
-      const subs = folders.filter(x => parentOf(x) === f);
-      const sec = document.createElement('section');
-      sec.className = `quiz-folder${closed.has(f) ? ' closed' : ''}`;
-      sec.dataset.folder = f;
-      sec.innerHTML = `<div class="folder-head" draggable="true">
-          <span class="grip" title="Sleep naar een andere map">${Ui.ic('grip')}</span>
-          <button class="folder-toggle" type="button"><span class="chev">▾</span> 📁 <strong></strong> <span class="muted">· ${total} ${total === 1 ? k.one : k.many}${subs.length ? ` · ${subs.length} ${subs.length === 1 ? 'map' : 'mappen'}` : ''}</span></button>
-          <button class="secondary sub" type="button" title="Nieuwe map in deze map">+📁</button>
-          ${total || subs.length ? `<button class="secondary export" type="button" title="Deze map (met de mappen erin) exporteren naar een bestand" aria-label="Map exporteren">${Ui.ic('download')}</button>` : ''}
-          <button class="secondary rename" type="button" title="Naam wijzigen">✎</button>
-          <button class="secondary delete" type="button" title="Map verwijderen" aria-label="Map verwijderen">${Ui.ic('kruis')}</button>
-        </div><div class="folder-body"></div>`;
-      sec.querySelector('strong').textContent = baseOf(f);
-      sec.querySelector('.folder-toggle').addEventListener('click', () => {
-        if (closed.has(f)) closed.delete(f); else closed.add(f);
-        saveClosed();
-        sec.classList.toggle('closed');
+    // Eén item. Bij zoeken staat de map erbij. Verplaatsen kan met slepen of met het mapje (werkt ook op een touchscreen).
+    function row(q) {
+      const el = document.createElement('div');
+      el.className = 'quiz-row';
+      el.dataset.file = q.file;
+      // De keuzelijst krijgt pas al haar mappen als je ze opent: een lange lijst tekent zo veel sneller.
+      const option = f => `<option value="${esc(f)}"${f === (q.folder || '') ? ' selected' : ''}>${f ? esc(f.split('/').join(' › ')) : 'Bovenaan, in geen map'}</option>`;
+      const place = query && q.folder ? ` · 📁 ${esc(q.folder.split('/').join(' › '))}` : '';
+      el.innerHTML = `<span class="grip" title="Sleep naar een map">${Ui.ic('grip')}</span>
+        <button class="play">${esc(q.title)} <span class="muted">· ${esc(detail(q))}${kind === 'quiz' && (q.niveaus || []).length > 1 ? ` · ${q.niveaus.map(n => ICONS[n]).join('')}` : ''}${place}</span><span class="go">${opts.go || 'Kies ▶'}</span></button>
+        ${folders.length ? `<label class="move" title="Verplaats naar…">📁<select aria-label="Verplaats naar…">${option(q.folder || '')}</select></label>` : ''}
+        ${(opts.buttons || []).map((b, i) => `<button class="secondary extra ${b.cls || ''}" data-extra="${i}" title="${esc(b.title || '')}">${b.label}</button>`).join('')}
+        ${opts.edit ? '<button class="secondary edit">Bewerken</button>' : ''}
+        <button class="secondary export" title="Exporteren naar een bestand" aria-label="Exporteren">${Ui.ic('download')}</button>
+        ${opts.remove ? `<button class="secondary delete" title="Verwijderen" aria-label="Verwijderen">${Ui.ic('kruis')}</button>` : ''}`;
+      el.querySelector('.play').addEventListener('click', () => opts.play(q));
+      if (opts.edit) el.querySelector('.edit').addEventListener('click', () => opts.edit(q));
+      el.querySelector('.export').addEventListener('click', () => download({ file: q.file }));
+      for (const b of el.querySelectorAll('[data-extra]')) b.addEventListener('click', () => opts.buttons[b.dataset.extra].click(q));
+      if (opts.remove) el.querySelector('.delete').addEventListener('click', () => opts.remove(q));
+      const select = el.querySelector('.move select');
+      if (select) {
+        const fill = () => { if (select.options.length < 2) select.innerHTML = ['', ...folders].map(option).join(''); };
+        select.addEventListener('pointerdown', fill);
+        select.addEventListener('focus', fill);
+        select.addEventListener('change', () => move(q.file, select.value));
+      }
+      dragStart(el, `file:${q.file}`);
+      return el;
+    }
+
+    // Links: de mappenboom. Alleen de mappen die je openklapt tonen hun mappen; de items staan rechts.
+    function tree() {
+      const nav = document.createElement('nav');
+      nav.className = 'lib-tree';
+      nav.setAttribute('aria-label', 'Mappen');
+      nav.appendChild(node('', 0));
+      const add = (parent, depth) => {
+        for (const f of subsOf(parent)) {
+          nav.appendChild(node(f, depth));
+          if (open.has(f)) add(f, depth + 1);
+        }
+      };
+      add('', 1);
+      return nav;
+    }
+
+    function node(f, depth) {
+      const subs = f && subsOf(f).length;
+      const el = document.createElement('div');
+      el.className = `lib-node${f === here && !query ? ' on' : ''}${open.has(f) ? ' open' : ''}`;
+      el.style.paddingLeft = `${depth * 14}px`;
+      el.innerHTML = `<button type="button" class="chev${subs ? '' : ' none'}" aria-label="Open- of dichtklappen" tabindex="${subs ? 0 : -1}">▸</button>
+        <button type="button" class="lib-open"><span class="lib-naam"></span><span class="muted">${f ? countIn(f) : items.length}</span></button>`;
+      el.querySelector('.lib-naam').textContent = f ? `📁 ${baseOf(f)}` : `Alle ${k.many}`;
+      el.querySelector('.lib-open').addEventListener('click', () => go(f));
+      el.querySelector('.chev').addEventListener('click', () => {
+        if (!subs) return;
+        if (open.has(f)) open.delete(f); else open.add(f);
+        save();
+        redraw();
       });
-      sec.querySelector('.sub').addEventListener('click', () => {
-        const name = prompt(`Naam van de nieuwe map in "${baseOf(f)}":`);
-        if (!name) return;
-        closed.delete(f);
-        saveClosed();
-        socket.emit('lib-folder-add', { kind, name, parent: f }, error);
+      if (f) dragStart(el, `folder:${f}`);
+      dropZone(el, f);
+      return el;
+    }
+
+    // Rechts: het kruimelpad met de knoppen van de open map, de mappen erin en de items erin (of de zoekresultaten).
+    function main() {
+      const m = document.createElement('div');
+      m.className = 'lib-main';
+      const path = document.createElement('div');
+      path.className = 'lib-path';
+      if (query) path.innerHTML = `<span class="muted">Zoeken in alle ${k.many}</span>`;
+      else {
+        const crumbs = [''];
+        for (let p = here; p; p = parentOf(p)) crumbs.splice(1, 0, p);
+        crumbs.forEach((c, i) => {
+          if (i) path.insertAdjacentHTML('beforeend', '<span class="muted sep">›</span>');
+          const b = document.createElement('button');
+          b.type = 'button';
+          b.className = `crumb${c === here ? ' on' : ''}`;
+          b.textContent = c ? baseOf(c) : `Alle ${k.many}`;
+          b.addEventListener('click', () => go(c));
+          dropZone(b, c);
+          path.appendChild(b);
+        });
+        if (here) path.appendChild(folderButtons(here));
+      }
+      m.appendChild(path);
+      const list = query ? items.filter(q => norm(`${q.title} ${q.folder || ''}`).includes(norm(query))) : items.filter(q => (q.folder || '') === here);
+      const subs = query ? [] : subsOf(here);
+      if (subs.length) {
+        const chips = document.createElement('div');
+        chips.className = 'lib-sub';
+        for (const f of subs) {
+          const n = countIn(f);
+          const c = document.createElement('button');
+          c.type = 'button';
+          c.className = 'lib-chip';
+          c.innerHTML = `📁 <strong></strong> <span class="muted">${n}</span>`;
+          c.querySelector('strong').textContent = baseOf(f);
+          c.title = `${n} ${n === 1 ? k.one : k.many}`;
+          c.addEventListener('click', () => go(f));
+          dragStart(c, `folder:${f}`);
+          dropZone(c, f);
+          chips.appendChild(c);
+        }
+        m.appendChild(chips);
+      }
+      for (const q of list) m.appendChild(row(q));
+      if (!list.length && !subs.length) {
+        m.insertAdjacentHTML('beforeend', query ? `<p class="muted small lib-leeg">Geen ${k.many} gevonden met "${esc(query)}".</p>`
+          : `<p class="muted small lib-leeg">${here ? 'Deze map is leeg.' : `Nog geen ${k.many} buiten de mappen.`} Sleep een ${k.one} hierheen, of kies het mapje 📁 bij een ${k.one}.</p>`);
+      }
+      if (!query) dropZone(m, here);
+      return m;
+    }
+
+    // De knoppen van de open map: map erin, naam wijzigen, exporteren en verwijderen.
+    function folderButtons(f) {
+      const total = countIn(f);
+      const subs = subsOf(f);
+      const el = document.createElement('span');
+      el.className = 'lib-map-knoppen';
+      el.innerHTML = `${total || subs.length ? `<button class="secondary" type="button" data-do="export" title="Deze map (met de mappen erin) exporteren naar een bestand" aria-label="Map exporteren">${Ui.ic('download')}</button>` : ''}
+        <button class="secondary" type="button" data-do="rename" title="Naam van de map wijzigen" aria-label="Naam wijzigen">✎</button>
+        <button class="secondary" type="button" data-do="delete" title="Map verwijderen" aria-label="Map verwijderen">${Ui.ic('kruis')}</button>`;
+      const on = (what, fn) => { const b = el.querySelector(`[data-do=${what}]`); if (b) b.addEventListener('click', fn); };
+      on('export', () => download({ folder: f }));
+      on('rename', () => {
+        const to = (prompt('Nieuwe naam voor de map:', baseOf(f)) || '').trim();
+        if (!to || to === baseOf(f)) return;
+        socket.emit('lib-folder-rename', { kind, from: f, to }, res => {
+          error(res);
+          if (res && res.error) return;
+          here = (parentOf(f) ? `${parentOf(f)}/` : '') + to;
+          save();
+          render();
+        });
       });
-      const exp = sec.querySelector('.export');
-      if (exp) exp.addEventListener('click', () => download({ folder: f }));
-      sec.querySelector('.rename').addEventListener('click', () => {
-        const to = prompt('Nieuwe naam voor de map:', baseOf(f));
-        if (to && to !== baseOf(f)) socket.emit('lib-folder-rename', { kind, from: f, to }, error);
-      });
-      sec.querySelector('.delete').addEventListener('click', async () => {
-        const where = parentOf(f) ? `in de map "${baseOf(parentOf(f))}"` : 'zonder map';
+      on('delete', async () => {
+        const where = parentOf(f) ? `in de map "${baseOf(parentOf(f))}"` : 'bovenaan, in geen map';
         const extra = subs.length ? ' De mappen erin verdwijnen ook.' : '';
         if (await Ui.vraag(`De map "${baseOf(f)}" verwijderen?${extra} De ${k.many} erin blijven bewaard, ${where}.`)) socket.emit('lib-folder-remove', { kind, name: f }, error);
       });
-      const head = sec.querySelector('.folder-head');
-      head.addEventListener('dragstart', e => {
-        e.stopPropagation();
-        e.dataTransfer.setData('text/plain', `folder:${f}`);
-        e.dataTransfer.effectAllowed = 'move';
-        sec.classList.add('dragging');
-        box.classList.add('dragging');
-      });
-      head.addEventListener('dragend', () => {
-        sec.classList.remove('dragging');
-        box.classList.remove('dragging');
-      });
-      const body = sec.querySelector('.folder-body');
-      for (const sub of subs) body.appendChild(folderSection(sub));
-      if (inside.length === 0 && subs.length === 0) body.innerHTML = `<p class="muted small folder-empty">Sleep een ${k.one} of een map hierheen.</p>`;
-      for (const q of inside) body.appendChild(row(q));
-      dropZone(sec, f);
-      return sec;
+      return el;
+    }
+
+    function redraw() {
+      if (!explorer) return render();
+      const next = explorerView();
+      explorer.replaceWith(next);
+      explorer = next;
+    }
+
+    function explorerView() {
+      while (here && !folders.includes(here)) here = parentOf(here);
+      const el = document.createElement('div');
+      el.className = 'lib';
+      // Nog geen mappen: dan is een boom met alleen "Alle quizzen" overbodig.
+      if (folders.length) el.append(tree(), main());
+      else { el.classList.add('zonder-boom'); el.append(main()); }
+      return el;
     }
 
     function render() {
       if (!items) return;
+      const typing = document.activeElement === search;
       box.innerHTML = '';
+      explorer = null;
       const bar = document.createElement('div');
       bar.className = 'quiz-tools';
       bar.innerHTML = `<span class="muted small lib-note"></span>
@@ -209,16 +337,21 @@ const ItemList = (() => {
         <label class="button secondary small-btn" title="Een bestand van ⬇ Exporteren inladen, bijvoorbeeld van je laptop thuis">${Ui.ic('upload')} Importeren<input type="file" accept=".json,application/json" multiple hidden></label>
         ${items.length ? `<button class="secondary small-btn export-all" type="button" title="Alle ${k.many} met hun mappen in één bestand">${Ui.ic('download')} Alles exporteren</button>` : ''}`;
       bar.querySelector('.lib-note').textContent = note;
+      if (items.length || folders.length) bar.prepend(search);
       bar.querySelector('.new-folder').addEventListener('click', () => {
-        const name = prompt('Naam van de nieuwe map (bijvoorbeeld een vak of een klas):');
-        if (name) socket.emit('lib-folder-add', { kind, name }, error);
+        const parent = query ? '' : here;
+        const name = prompt(parent ? `Naam van de nieuwe map in "${baseOf(parent)}":` : 'Naam van de nieuwe map (bijvoorbeeld een vak of een klas):');
+        if (!name) return;
+        if (parent) { open.add(parent); save(); }
+        socket.emit('lib-folder-add', { kind, name, parent }, error);
       });
       const input = bar.querySelector('input[type=file]');
-      input.addEventListener('change', () => { importFiles(input.files, ''); input.value = ''; });
+      input.addEventListener('change', () => { importFiles(input.files, query ? '' : here); input.value = ''; });
       const all = bar.querySelector('.export-all');
       if (all) all.addEventListener('click', () => download({}));
       box.appendChild(bar);
-      if (kind === 'quiz' && items.some(q => (q.niveaus || []).length > 1)) {
+      if (typing) search.focus();
+      if (kind === 'quiz' && !opts.beheer && items.some(q => (q.niveaus || []).length > 1)) {
         const lv = document.createElement('div');
         lv.className = 'quiz-niveau-bar';
         box.appendChild(lv);
@@ -226,7 +359,7 @@ const ItemList = (() => {
         renderNiveauBar(lv);
       }
       // In de spellen kan de leerkracht de uitleg na een fout antwoord uitzetten. In het Toernooi staat ze altijd aan.
-      if (kind === 'quiz' && location.pathname !== '/host') {
+      if (kind === 'quiz' && !opts.beheer && location.pathname !== '/host') {
         const ub = document.createElement('label');
         ub.className = 'quiz-uitleg-bar';
         box.appendChild(ub);
@@ -237,22 +370,16 @@ const ItemList = (() => {
         box.insertAdjacentHTML('beforeend', `<div class="leeg"><p>Nog geen ${k.many}.</p><p class="muted small">Maak er een met de knoppen hierboven, of importeer een bestand.</p></div>`);
         return;
       }
-      for (const f of folders.filter(f => !parentOf(f))) box.appendChild(folderSection(f));
-      const loose = items.filter(q => !q.folder);
-      const rest = document.createElement('section');
-      rest.className = 'quiz-loose';
-      if (folders.length) rest.innerHTML = '<p class="muted small loose-head">Zonder map</p>';
-      for (const q of loose) rest.appendChild(row(q));
-      dropZone(rest, '');
-      box.appendChild(rest);
+      explorer = explorerView();
+      box.appendChild(explorer);
     }
 
-    // Een bestand ergens op de lijst laten vallen: importeren zonder map.
+    // Een bestand ergens op de lijst laten vallen: importeren in de open map.
     box.addEventListener('dragover', e => { if (e.dataTransfer.types.includes('Files')) e.preventDefault(); });
     box.addEventListener('drop', e => {
       if (!e.dataTransfer.files || !e.dataTransfer.files.length) return;
       e.preventDefault();
-      importFiles(e.dataTransfer.files, '');
+      importFiles(e.dataTransfer.files, query ? '' : here);
     });
     socket.on(k.folders, list => { folders = list; render(); });
     socket.on(k.list, list => { items = list; render(); });
