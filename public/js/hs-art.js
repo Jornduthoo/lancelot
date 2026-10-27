@@ -749,7 +749,8 @@ const HsArt = (() => {
 
   // ---------- De hofschilder zelf ----------
   const fallback = new Map();
-  // De ridder van de leerling (of een standaardridder), groot en scherp (pixels), met een lichtend penseel.
+  // De ridder van de leerling (of een standaardridder), groot en scherp, met een lichtend penseel.
+  // We tekenen hem op zijn echte grootte op het bord (niet klein en dan uitvergroot), anders worden de randen trapjes.
   function painter(ctx, x, footY, hgt, name, color, t, active) {
     let spr = null;
     if (typeof Avatar !== 'undefined') {
@@ -758,7 +759,7 @@ const HsArt = (() => {
         if (!fallback.has(name)) fallback.set(name, Avatar.random());
         av = fallback.get(name);
       }
-      try { spr = Avatar.sprite(av, { k: 8 }); } catch { spr = null; }
+      try { spr = Avatar.sprite(av, { k: Avatar.kFor(hgt / 17) }); } catch { spr = null; }
     }
     const bob = active ? Math.sin(t * 3) * hgt * .01 : 0;
     glow(ctx, x, footY, hgt * .5, color || '#5ee7ff', .3, .2);
@@ -767,9 +768,7 @@ const HsArt = (() => {
     ctx.beginPath(); ctx.ellipse(x, footY, hgt * .3, hgt * .05, 0, 0, Math.PI * 2); ctx.fill();
     if (spr) {
       const sw = hgt * 12 / 17;
-      ctx.imageSmoothingEnabled = false;
       ctx.drawImage(spr, x - sw / 2, footY - hgt + bob, sw, hgt);
-      ctx.imageSmoothingEnabled = true;
     }
     // Het penseel, schuin omhoog naar het doek, met een lichtende punt.
     const hx = x + hgt * .3, hy = footY - hgt * .48 + bob;

@@ -1041,9 +1041,13 @@ const Avatar = (() => {
   let mine = null;
   const setMine = m => { mine = m; };
 
-  // Een klein canvas als element, voor lijsten en lobby's.
+  // Hoeveel pixels per eenheid we nodig hebben om de ridder px pixels per eenheid groot te tekenen zonder uit te vergroten
+  // (uitvergroten geeft trapjes of een wazige ridder). In vaste stappen, zodat de cache klein blijft.
+  const kFor = px => [4, 6, 8, 10, 12, 16, 20, 24, 32].find(k => k >= px) || 32;
+
+  // Een klein canvas als element, voor lijsten en lobby's (ook groot op het podium, dus ruim genoeg).
   function chip(av, cls = 'av-chip') {
-    const src = sprite(av, { k: 6 });
+    const src = sprite(av, { k: 10 });
     const c = document.createElement('canvas');
     c.width = src.width;
     c.height = src.height;
@@ -1054,7 +1058,7 @@ const Avatar = (() => {
 
   return {
     COLORS, VISORS, SHIELDS, SKINS, HAIR_COLORS, TYPES, HAIRS, ARMORS, BACKS, ARMS, RUNES, OPEN, HELMS, ACCENTS, PATTERNS, WEAPONS, KEYS,
-    random, clean, sprite, head, chip, byName, setAll, setMine, mine: () => mine, all: () => all, onChange: fn => listeners.push(fn),
+    random, clean, sprite, head, chip, kFor, byName, setAll, setMine, mine: () => mine, all: () => all, onChange: fn => listeners.push(fn),
   };
 })();
 

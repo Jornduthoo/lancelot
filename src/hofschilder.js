@@ -106,16 +106,27 @@ function uitTekst(text) {
   return out;
 }
 
+// De opdracht voor de AI. In de prompt voor een chatbot blijft {thema} staan: de pagina vult het onderwerp zelf in.
+function opdracht(thema) {
+  const lj = require('./klas').read().leerjaar;
+  return `Je helpt een leerkracht in Vlaanderen (${typeof lj === 'number' ? `${lj}e leerjaar` : 'lagere school'}). Gebruik Belgisch-Nederlands.
+Maak 20 begrippen rond het onderwerp "${thema}" voor een teken- en raadspel: één leerling tekent het begrip, de klas raadt het.
+Kies begrippen uit de leerstof die je goed kan TEKENEN (voorwerpen, dieren, plaatsen, gebouwen, handelingen, verschijnselen), geen abstracte woorden.
+Elk begrip is 1 tot 3 woorden en hooguit 24 tekens, zonder cijfers. Schrijf het zoals een kind het zou typen (gewone schrijfwijze, kleine letters, geen lidwoord).
+Geef bij elk begrip een korte, eenvoudige uitleg van hooguit 15 woorden, zonder het begrip zelf te gebruiken.`;
+}
+
+function chatPrompt() {
+  return `${opdracht('{thema}')}
+Antwoord met één codeblok, één begrip per regel, zonder nummers of kopjes, precies zo:
+begrip = uitleg`;
+}
+
 // Begrippen rond een onderwerp, met AI: dingen die je kan tekenen, met een korte uitleg. Geeft tekst voor het vak "Eigen woorden".
 async function maakBegrippen(thema, ai, aiJson) {
   thema = String(thema || '').trim().slice(0, 120);
   if (!thema) throw new Error('Typ eerst een onderwerp, bijvoorbeeld "de middeleeuwen" of "het menselijk lichaam".');
-  const lj = require('./klas').read().leerjaar;
-  const prompt = `Je helpt een leerkracht in Vlaanderen (${typeof lj === 'number' ? `${lj}e leerjaar` : 'lagere school'}). Gebruik Belgisch-Nederlands.
-Maak 20 begrippen rond het onderwerp "${thema}" voor een teken- en raadspel: één leerling tekent het begrip, de klas raadt het.
-Kies begrippen uit de leerstof die je goed kan TEKENEN (voorwerpen, dieren, plaatsen, gebouwen, handelingen, verschijnselen), geen abstracte woorden.
-Elk begrip is 1 tot 3 woorden en hooguit 24 tekens, zonder cijfers. Schrijf het zoals een kind het zou typen (gewone schrijfwijze, kleine letters, geen lidwoord).
-Geef bij elk begrip een korte, eenvoudige uitleg van hooguit 15 woorden, zonder het begrip zelf te gebruiken.
+  const prompt = `${opdracht(thema)}
 Antwoord enkel met JSON, met precies deze sleutels: {"begrippen":[{"begrip":"...","uitleg":"..."}]}`;
   const lijst = res => (Array.isArray(res) ? res : Object.values(res || {}).find(Array.isArray) || []).filter(r => r && typeof r === 'object');
   const veld = (r, re) => String(Object.entries(r).find(([k, v]) => re.test(k) && typeof v === 'string')?.[1] || '').trim();
@@ -607,6 +618,7 @@ class Hofschilder {
 
   attachHost(socket, handle, busyWith, busyError, quizzes, runen, ai, aiJson) {
     socket.emit('hs-state', this.hostState(true));
+    socket.emit('hs-prompt', chatPrompt());
     socket.on('hs-ai', ({ thema } = {}, cb) => {
       maakBegrippen(thema, ai, aiJson)
         .then(text => cb && cb({ ok: true, text }))

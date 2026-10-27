@@ -507,3 +507,5 @@ body:not([data-hs="1"]) #hofschilder { display: none !important; }
 .hs-stand li.ik span { color: var(--gold); font-weight: 700; }
 .hs-ai { display: flex; gap: 8px; align-items: flex-end; flex-wrap: wrap; }
 .hs-ai label { flex: 1 1 320px; }
+.hs-bots { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-top: 8px; }
+.hs-bots button { padding: 6px 12px; }

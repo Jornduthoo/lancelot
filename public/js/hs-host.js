@@ -74,6 +74,46 @@ $('ai-go').addEventListener('click', () => {
     $('ai-info').textContent = `${res.text.split('\n').length} begrippen erbij. Kijk ze even na en schrap wat niet past.`;
   });
 });
+// Zelf via een chatbot: prompt kopiëren, chatbot openen, en het antwoord bij terugkomst van het klembord halen.
+let aiPrompt = '';
+let gekopieerd = '';
+socket.on('hs-prompt', p => { aiPrompt = p; });
+
+function kopieer(text) {
+  const t = document.createElement('textarea');
+  t.value = text;
+  document.body.appendChild(t);
+  t.select();
+  const ok = document.execCommand('copy');
+  t.remove();
+  if (!ok) navigator.clipboard?.writeText(text).catch(() => {});
+}
+
+for (const b of document.querySelectorAll('.chatbot')) {
+  b.addEventListener('click', () => {
+    const thema = $('ai-thema').value.trim();
+    if (!thema) return ($('ai-info').textContent = 'Typ eerst een onderwerp, bijvoorbeeld "de middeleeuwen".');
+    gekopieerd = aiPrompt.replace('{thema}', thema);
+    // Eerst kopiëren (de pagina heeft dan nog de focus), dan het tabblad openen.
+    kopieer(gekopieerd);
+    window.open(b.dataset.url, '_blank', 'noopener');
+    $('ai-info').textContent = 'Prompt gekopieerd! Plak hem met Ctrl+V, kopieer het antwoord (kopieerknop van het codeblok) en kom hier terug.';
+  });
+}
+
+async function klembord() {
+  if (!gekopieerd || !navigator.clipboard?.readText) return;
+  let text;
+  try { text = await navigator.clipboard.readText(); } catch { return; }
+  if (!text || text === gekopieerd || (text.match(/=/g) || []).length < 3) return;
+  gekopieerd = text;
+  const regels = text.replace(/^\s*```.*$/gm, '').trim();
+  const old = $('eigen-tekst').value.trim();
+  $('eigen-tekst').value = (old ? old + '\n' : '') + regels;
+  store('hs-eigen', $('eigen-tekst').value);
+  $('ai-info').textContent = `${regels.split('\n').filter(r => r.trim()).length} begrippen van de AI geplakt. Kijk ze even na en schrap wat niet past.`;
+}
+window.addEventListener('focus', klembord);
 $('week-go').addEventListener('click', () => load({ bron: 'week' }));
 $('eigen-go').addEventListener('click', () => load({ bron: 'eigen', text: $('eigen-tekst').value }));
 
