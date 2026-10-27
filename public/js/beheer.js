@@ -177,6 +177,57 @@
     if (res.ok) $('sk-zet').textContent = '✓ Snelkoppeling staat klaar';
   });
 
+  // --- Bureau-pc: een tweede leerkrachtscherm koppelen ---
+  let adres = '';
+  let sc = { lijst: [], code: null, extern: false };
+  let scKlok = null;
+  socket.on('addresses', list => {
+    adres = list && list[0] ? list[0].url.replace('http://', '') : '';
+    toonSchermen();
+  });
+  socket.on('schermen', v => { sc = v || sc; toonSchermen(); });
+  socket.on('scherm-gekoppeld', naam => Ui.melding(`${naam} is gekoppeld. Wat je daar doet, zie je ook hier.`));
+  function toonSchermen() {
+    $('sc-maak').classList.toggle('hidden', !!sc.extern);
+    $('sc-extern').classList.toggle('hidden', !sc.extern);
+    $('sc-toon').classList.toggle('hidden', !sc.code);
+    $('sc-code').classList.toggle('hidden', !!sc.code);
+    clearInterval(scKlok);
+    if (sc.code) {
+      $('sc-adres').textContent = `${adres || 'het adres van LANcelot'}/koppel`;
+      $('sc-cijfers').textContent = `${sc.code.code.slice(0, 3)} ${sc.code.code.slice(3)}`;
+      const tik = () => {
+        const s = Math.max(0, Math.round((sc.code.tot - Date.now()) / 1000));
+        $('sc-tot').textContent = s ? `Nog ${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')} geldig, voor één scherm.` : 'De code is verlopen.';
+        if (!s) { sc.code = null; toonSchermen(); }
+      };
+      tik();
+      scKlok = setInterval(tik, 1000);
+    }
+    const lijst = $('sc-lijst');
+    if (!sc.lijst.length) return void (lijst.innerHTML = '<li class="muted small">Nog geen scherm gekoppeld.</li>');
+    lijst.replaceChildren(...sc.lijst.map(s => {
+      const li = document.createElement('li');
+      li.innerHTML = `<span class="sc-stip${s.open ? ' aan' : ''}" title="${s.open ? 'Nu open' : 'Niet open'}"></span>`
+        + `<span class="sc-naam">${esc(s.naam)}<small class="muted">${s.open ? 'nu open' : `laatst ${datum(s.laatst)}`}${s.ip ? ` · ${esc(s.ip)}` : ''}</small></span>`;
+      const b = document.createElement('button');
+      b.className = 'secondary';
+      b.textContent = 'Ontkoppelen';
+      b.addEventListener('click', async () => {
+        if (!await Ui.vraag(`${s.naam} ontkoppelen? Dat scherm kan dan niets meer als leerkracht, tot je het opnieuw koppelt.`, { ja: 'Ontkoppelen', nee: 'Annuleren' })) return;
+        const res = await ask('schermen-ontkoppel', s.id);
+        $('sc-error').textContent = res.error || '';
+      });
+      li.append(b);
+      return li;
+    }));
+  }
+  $('sc-code').addEventListener('click', async () => {
+    const res = await ask('schermen-code', true);
+    $('sc-error').textContent = res.error || '';
+  });
+  $('sc-stop').addEventListener('click', () => ask('schermen-code', false));
+
   $('open-settings').addEventListener('click', async () => {
     toonPosters(await ask('posters-get'));
     toonGegevens(await ask('gegevens-get'));

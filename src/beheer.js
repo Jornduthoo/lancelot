@@ -91,10 +91,10 @@ function snelkoppeling(cb) {
   });
 }
 
-function routes(app, isLocal) {
+function routes(app, isLeerkracht) {
   // Een back-up downloaden: alles van de klas in één zip (zonder de Gemini-sleutel).
   app.get('/back-up', (req, res) => {
-    if (!isLocal(req.socket.remoteAddress)) return res.status(403).end();
+    if (!isLeerkracht(req)) return res.status(403).end();
     try {
       const buf = gegevens.maakBackup();
       res.attachment(`LANcelot-back-up_${gegevens.stempel()}.zip`);
@@ -105,14 +105,14 @@ function routes(app, isLocal) {
   });
   // Een bewaarde back-up uit de map back-ups.
   app.get('/back-up/:file', (req, res) => {
-    if (!isLocal(req.socket.remoteAddress)) return res.status(403).end();
+    if (!isLeerkracht(req)) return res.status(403).end();
     const file = String(req.params.file);
     if (!/^[\w.-]+\.zip$/.test(file)) return res.status(404).end();
     res.download(path.join(gegevens.backupDir(), file), err => err && !res.headersSent && res.status(404).end());
   });
   // Een back-up terugzetten: klaarzetten voor de volgende start.
   app.post('/back-up/terugzetten', express.raw({ type: () => true, limit: '500mb' }), (req, res) => {
-    if (!isLocal(req.socket.remoteAddress)) return res.status(403).end();
+    if (!isLeerkracht(req)) return res.status(403).end();
     try {
       res.json({ ok: true, ...gegevens.zetKlaar(req.body), ...gegevens.view() });
     } catch (err) {
@@ -121,7 +121,7 @@ function routes(app, isLocal) {
   });
   // Bijwerken met een zip-bestand: klaarzetten voor de volgende start.
   app.post('/bijwerken/bestand', express.raw({ type: () => true, limit: '300mb' }), (req, res) => {
-    if (!isLocal(req.socket.remoteAddress)) return res.status(403).end();
+    if (!isLeerkracht(req)) return res.status(403).end();
     try {
       res.json({ ok: true, ...bijwerken.uitBestand(req.body, req.query.naam) });
     } catch (err) {
@@ -130,7 +130,7 @@ function routes(app, isLocal) {
   });
 }
 
-function host(socket, { port }) {
+function host(socket, { port, extern }) {
   const handle = fn => (arg, cb) => {
     Promise.resolve().then(() => fn(arg)).then(r => cb && cb({ ok: true, ...(r || {}) }), err => cb && cb({ error: err.message }));
   };
@@ -153,8 +153,10 @@ function host(socket, { port }) {
   socket.on('poster-del', handle(file => { posterWeg(file); return posterView(); }));
   socket.on('posters-aan', handle(aan => { settings.write({ posters: aan !== false }); return posterView(); }));
   socket.on('posters-grappig', handle(aan => { settings.write({ grappigePosters: aan !== false }); return posterView(); }));
-  socket.on('firewall-zet', (_, cb) => firewall(port, r => cb && cb(r)));
-  socket.on('snelkoppeling', (_, cb) => snelkoppeling(r => cb && cb(r)));
+  // Op een gekoppelde bureau-pc zou dit op het digibord gebeuren: daar doe je het beter zelf.
+  const opBord = { error: 'Dit doe je op het digibord zelf (de pc waar LANcelot draait).' };
+  socket.on('firewall-zet', (_, cb) => (extern ? cb && cb(opBord) : firewall(port, r => cb && cb(r))));
+  socket.on('snelkoppeling', (_, cb) => (extern ? cb && cb(opBord) : snelkoppeling(r => cb && cb(r))));
 }
 
 module.exports = { routes, host };

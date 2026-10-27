@@ -87,6 +87,7 @@ const herhaal = require('./src/herhaal');
 const results = require('./src/results');
 const lesmap = require('./src/lesmap');
 const beheer = require('./src/beheer');
+const schermen = require('./src/schermen');
 const { execFile } = require('child_process');
 const { generateQuiz } = require('./src/ai');
 const antigok = require('./src/antigok');
@@ -473,14 +474,22 @@ function takenSoon() {
 // De docentenschermen, elk bij zijn adres.
 const PAGINAS = [['/host', 'host.html'], ['/rondetafel', 'rondetafel.html'], ['/toren', 'toren.html'], ['/schattenjacht', 'schattenjacht.html'], ['/laserslag', 'laserslag.html'], ['/ridderrace', 'ridderrace.html'], ['/kristalroof', 'kristalroof.html'], ['/verrader', 'verrader.html'], ['/burchtbouwers', 'burchtbouwers.html'], ['/duel', 'duel.html'], ['/packnight', 'packnight.html'], ['/strijdrossen', 'strijdrossen.html'], ['/gauntlet', 'gauntlet.html'], ['/ridder-royale', 'royale.html'], ['/sterrenvreter', 'sterrenvreter.html'], ['/ridderslang', 'ridderslang.html'], ['/burchtstorm', 'burchtstorm.html'], ['/poortwacht', 'poortwacht.html'], ['/neonvlucht', 'neonvlucht.html'], ['/diepboor', 'diepboor.html'], ['/pixelridder', 'pixelridder.html'], ['/robomol', 'robomol.html'], ['/kerker', 'kerker.html'], ['/hofschilder', 'hofschilder.html'], ['/robopaarden', 'robopaarden.html'], ['/neonduel', 'neonduel.html'], ['/leraarbaas', 'leraarbaas.html'], ['/cybergalaga', 'cybergalaga.html'], ['/bomberknight', 'bomberknight.html'], ['/rijk', 'rijk.html'], ['/oefenblad', 'oefenblad.html'], ['/oefenblad-print', 'oefenblad-print.html'], ['/klas', 'klas.html'], ['/zorg', 'zorg.html'], ['/taken', 'taken.html'], ['/zorg-fiche', 'zorg-fiche.html'], ['/runenraadsel', 'runenraadsel.html'], ['/klaseiland', 'klaseiland.html'], ['/netwerk', 'netwerk.html'], ['/welkom', 'welkom.html'], ['/privacy', 'privacy.html']];
 
-// Het docentenscherm werkt alleen op de pc waar de server draait.
+// Het docentenscherm werkt op de pc waar de server draait (meestal het digibord),
+// en op een tweede scherm dat de leerkracht met een koppelcode koppelde (de bureau-pc).
 function isLocal(address) {
   return ['127.0.0.1', '::1', '::ffff:127.0.0.1'].includes(address);
 }
+function isLeerkracht(req) {
+  return isLocal(req.socket.remoteAddress) || !!schermen.uitCookie(req.headers.cookie);
+}
+const GEEN_TOEGANG = '<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>LANcelot</title>'
+  + '<body style="font-family:system-ui,sans-serif;background:#0f1424;color:#e8ecf6;display:grid;place-items:center;min-height:90vh;text-align:center;padding:16px">'
+  + '<div><h2>Dit is het scherm van de leerkracht</h2><p>Leerlingen spelen via het adres op het bord.</p>'
+  + '<p style="opacity:.75">Ben jij de leerkracht op je bureau-pc? <a style="color:#7fc8ff" href="/koppel">Koppel deze pc met een code van het digibord</a>.</p></div>';
 
 for (const [route, page] of PAGINAS) {
   app.get(route, (req, res) => {
-    if (!isLocal(req.socket.remoteAddress)) return res.status(403).send('Het docentenscherm is alleen bereikbaar op de pc van de leerkracht.');
+    if (!isLeerkracht(req)) return res.status(403).send(GEEN_TOEGANG);
     res.setHeader('Cache-Control', 'no-cache');
     res.sendFile(path.join(__dirname, 'public', page));
   });
@@ -500,12 +509,42 @@ app.get('/burcht', (req, res) => {
   res.setHeader('Cache-Control', 'no-cache');
   res.sendFile(path.join(__dirname, 'public', 'burcht.html'));
 });
-beheer.routes(app, isLocal);
+beheer.routes(app, isLeerkracht);
+// Een tweede leerkrachtscherm koppelen: de bureau-pc tikt hier de code van het digibord in.
+app.get('/koppel', (req, res) => {
+  if (isLeerkracht(req)) return res.redirect('/host');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.sendFile(path.join(__dirname, 'public', 'koppel.html'));
+});
+app.post('/koppel', express.json({ limit: '2kb' }), (req, res) => {
+  try {
+    const { code, naam } = req.body || {};
+    const { sleutel, scherm } = schermen.koppel(code, naam, req.socket.remoteAddress);
+    res.setHeader('Set-Cookie', `${schermen.COOKIE}=${sleutel}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${5 * 365 * 24 * 3600}`);
+    stuurSchermen();
+    io.to('host').emit('scherm-gekoppeld', scherm.naam);
+    res.json({ ok: true });
+  } catch (err) {
+    stuurSchermen();
+    res.status(400).json({ error: err.message });
+  }
+});
+// Wie gekoppeld is, en of dat scherm nu open staat.
+// De koppelcode zelf gaat alleen naar het digibord, nooit naar een gekoppeld scherm.
+function stuurSchermen(alleen) {
+  const open = new Set();
+  for (const s of io.sockets.sockets.values()) if (s.data.scherm) open.add(s.data.scherm);
+  const lijst = schermen.lijst().map(s => ({ ...s, open: open.has(s.id) }));
+  const code = schermen.codeView();
+  for (const s of alleen ? [alleen] : io.sockets.sockets.values()) {
+    if (s.data.host) s.emit('schermen', { lijst, code: s.data.scherm ? null : code, extern: !!s.data.scherm });
+  }
+}
 // Zo herkent een tweede start dat LANcelot al draait.
 app.get('/lancelot-ping', (req, res) => res.json({ lancelot: true }));
 // Resultaten downloaden kan alleen op de pc van de leerkracht.
 app.get('/resultaten/:file', (req, res) => {
-  if (!isLocal(req.socket.remoteAddress)) return res.status(403).end();
+  if (!isLeerkracht(req)) return res.status(403).end();
   try {
     res.download(results.filePath(req.params.file));
   } catch {
@@ -514,7 +553,7 @@ app.get('/resultaten/:file', (req, res) => {
 });
 // Het logboek voor Excel: het overzicht van één sessie, één leerplandoel of de hele doelenkaart.
 app.get('/logboek/:what', (req, res) => {
-  if (!isLocal(req.socket.remoteAddress)) return res.status(403).end();
+  if (!isLeerkracht(req)) return res.status(403).end();
   const what = req.params.what;
   const out = what === 'sessie' ? overzicht.sessionCsv(String(req.query.id || ''))
     : what === 'doel' ? overzicht.doelCsv(String(req.query.code || ''))
@@ -525,7 +564,7 @@ app.get('/logboek/:what', (req, res) => {
 });
 // Exporteren: één item (?file=), een map (?folder=) of alles, als bestand om op een andere pc te importeren.
 app.get('/export/:kind', (req, res) => {
-  if (!isLocal(req.socket.remoteAddress)) return res.status(403).end();
+  if (!isLeerkracht(req)) return res.status(403).end();
   const l = LIBS[req.params.kind];
   if (!l) return res.status(404).end();
   try {
@@ -663,8 +702,10 @@ io.on('connection', socket => {
   socket.on('klas-namen', (_, cb) => typeof cb === 'function' && cb(klas.names()));
   socket.on('klas-bezet', (playerId, cb) => typeof cb === 'function' && cb(bezetteNamen(playerId)));
   socket.on('klas-claim', (name, cb) => typeof cb === 'function' && cb({ id: oudeSpeler(name) }));
-  const host = socket.handshake.query.role === 'host' && isLocal(socket.handshake.address);
+  const scherm = isLocal(socket.handshake.address) ? null : schermen.uitCookie(socket.handshake.headers.cookie);
+  const host = socket.handshake.query.role === 'host' && (isLocal(socket.handshake.address) || !!scherm);
   socket.data.host = host;
+  if (host && scherm) socket.data.scherm = scherm.id;
 
   // Een leerling kwam binnen: via welk adres van deze pc? Dat adres werkt dus, en komt voortaan vooraan.
   if (!isLocal(socket.handshake.address)) {
@@ -740,6 +781,34 @@ io.on('connection', socket => {
 
   if (host) {
     socket.join('host');
+    // Tweede leerkrachtscherm: welk scherm dit is, de lijst van gekoppelde schermen en de koppelcode.
+    // Een nieuwe code maken kan alleen op de pc waar LANcelot draait, zodat één gestolen cookie er geen nieuwe kan bijmaken.
+    socket.emit('scherm-info', { extern: !!scherm, naam: scherm ? scherm.naam : '' });
+    stuurSchermen(socket);
+    if (scherm) stuurSchermen();
+    socket.on('disconnect', () => { if (scherm) setTimeout(() => stuurSchermen(), 100); });
+    socket.on('schermen-code', (aan, cb) => {
+      if (scherm) return cb && cb({ error: 'Een koppelcode maak je op het digibord zelf.' });
+      if (aan === false) schermen.stopCode();
+      else schermen.nieuweCode();
+      stuurSchermen();
+      cb && cb({ ok: true });
+    });
+    socket.on('schermen-ontkoppel', (id, cb) => {
+      try {
+        schermen.ontkoppel(String(id || ''));
+      } catch (err) {
+        return cb && cb({ error: err.message });
+      }
+      for (const s of io.sockets.sockets.values()) if (s.data.scherm === id) {
+        s.emit('scherm-ontkoppeld');
+        s.leave('host');
+        s.data.host = false;
+        setTimeout(() => s.disconnect(true), 500);
+      }
+      stuurSchermen();
+      cb && cb({ ok: true });
+    });
     for (const kind of Object.keys(LIBS)) sendLibrary(kind, socket);
     sendAddresses(socket);
     // De leerkracht kiest het adres dat werkt; dat onthouden we voor de volgende keer.
@@ -749,7 +818,7 @@ io.on('connection', socket => {
       sendAddresses(io.to('host'));
     });
     socket.emit('settings', settings.publicView());
-    beheer.host(socket, { port: PORT });
+    beheer.host(socket, { port: PORT, extern: !!scherm });
     // Mijn lesmap: kiezen, nu synchroniseren, openen.
     socket.emit('lesmap', lesmap.view());
     socket.on('lesmap-suggest', (_, cb) => typeof cb === 'function' && cb(lesmap.suggestions()));
@@ -765,6 +834,7 @@ io.on('connection', socket => {
     socket.on('lesmap-sync', (_, cb) => runSync().then(() => cb && cb(lesmap.view())));
     // Het gewone Windows-venster om een map te kiezen.
     socket.on('lesmap-pick', (_, cb) => {
+      if (scherm) return cb && cb({ error: 'Dat venster zou op het digibord openen. Typ het pad van de map hieronder.' });
       if (process.platform !== 'win32') return cb && cb({ error: 'Typ het pad van de map hieronder.' });
       const ps = 'Add-Type -AssemblyName System.Windows.Forms; $d = New-Object System.Windows.Forms.FolderBrowserDialog; '
         + '$d.Description = \'Kies je lesmap in OneDrive of Google Drive\'; $d.ShowNewFolderButton = $true; '

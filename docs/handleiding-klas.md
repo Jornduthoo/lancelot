@@ -21,6 +21,16 @@ De eerste keer kiest elke leerling na het aanmelden een **eigen ridder** (ridder
 
 Bij de Ridderrace, Laserslag, de toren, Pac-Knight, Strijdrossen, Neon Duel, Leraar-baas, Cyber-Galaga en Bomber-Knight kies je ook het **tempo van de vragen**: *rustig*, *normaal* of *intens* (vaker nieuwe vragen).
 
+## Je bureau-pc als tweede leerkrachtscherm
+
+LANcelot draait op het digibord en bewaart daar alles. Wil je ook vanaf je bureau-pc (of laptop) werken, bijvoorbeeld een quiz maken, een taak geven of het zorgoverzicht opvolgen, koppel die dan één keer:
+
+1. Op het digibord: **Instellingen › Bureau-pc › Koppelcode tonen**.
+2. Op je bureau-pc: surf naar het adres dat erbij staat (bijv. `192.168.1.20:3000/koppel`) en tik de code in.
+3. Je komt op het leerkrachtscherm. Zet dat adres (zonder `/koppel`, dus `…:3000/host`) bij je favorieten.
+
+Wat je op het ene scherm doet, zie je meteen op het andere. De code werkt 10 minuten, voor één scherm, en vervalt na 5 foute pogingen; leerlingen kunnen er dus niets mee. Onder **Gekoppelde schermen** zie je welke schermen gekoppeld zijn en of ze nu open staan, en ontkoppel je er een met één klik. Krijgt het digibord een ander adres, koppel dan opnieuw.
+
 ## Mijn quizzen en mappen
 
 Op het startscherm, bij **De Smidse**, staan **Nieuwe quiz** en **Mijn quizzen**, naast je oefenbladen. Zo maak of bewerk je een quiz zonder eerst een spel te kiezen: elke quiz werkt in elk spel. In elk spel blijft de knop **Nieuwe quiz met AI** staan; die quiz komt in dezelfde lijst.
