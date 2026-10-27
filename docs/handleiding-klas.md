@@ -197,6 +197,13 @@ Tip: een klas die goed en vlot antwoordt, houdt de poort. Bij veel foute antwoor
 3. Goudhelmen hebben twee slagen nodig, bomdrones niet raken. Raakt het zwaard leeg, dan komt er een vraag: juist = volle lading en het 🔥 Vuurzwaard.
 4. Het bord toont dezelfde putten, wie elke mol mepte en hoeveel mollen de klas samen al mepte.
 
+## De Hofschilder
+
+1. Kies **De Arena** en dan **De Hofschilder**. Kies de tijd per tekening en het aantal beurten.
+2. Kies waar de begrippen vandaan komen: **Uit een quiz** (het juiste antwoord wordt het begrip, enkel korte antwoorden; werkt het best met een quiz vol begrippen), **Woorden van de week** (van het Runenraadsel) of **Eigen woorden** (één per regel, `woord = uitleg`). Bij Eigen woorden kan de AI ook 20 tekenbare begrippen rond een onderwerp maken (daarvoor is internet nodig).
+3. Minstens twee leerlingen, dan **Penselen klaar!** Om de beurt kiest een leerling één van drie begrippen en tekent het. De anderen typen hun gok op hun eigen toestel. Na een tijdje verschijnen hulpletters.
+4. Op het bord: **🧽 Wis tekening** (bijvoorbeeld als er iets ongepasts staat) en **⏭ Overslaan**. Chromebook-tekenaar: 1-0 kleur, [ ] dikte, E gom, Z terug.
+
 ## Robopaarden
 
 1. Kies **De Arena** en dan **Robopaarden**, kies de speeltijd (1 tot 10 minuten) en klik op de quiz.

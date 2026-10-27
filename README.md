@@ -23,6 +23,7 @@ Het thema: middeleeuws met een scifi-kantje. Het startscherm heeft drie grote te
    - **Neonvlucht**: rennen, springen en glijden door de neonburcht. Bij een vraagpoort loop je door het juiste antwoord voor turbo en een hogere vermenigvuldiger
    - **Diepboor**: graaf met je boorridder naar goud, kristal en neonkernen. Goede antwoorden geven brandstof; in de smidse koop je een betere boor
    - **Robomol**: robotmollen schieten uit negen burchtputten en elke leerling mept ze met een zwaard, in 3D vanuit de ogen van de ridder. Een juist antwoord laadt het zwaard op en geeft het Vuurzwaard
+   - **De Hofschilder**: tekenen en raden. Om de beurt tekent een leerling een begrip uit de les met neoninkt op zijn toestel; de anderen zien het live en raden op hun eigen toestel. Begrippen uit een quiz, de woorden van de week of een eigen lijst (ook met AI)
    - **Robopaarden**: elke leerling bouwt een eigen robotpaard en racet in 3D rond het burchtmeer, met schansen, nitro, een burchtroute, een sprong over de Drakenkloof en een geheime bosweg. Runenkisten geven een vraag: juist = een wapen
    - **Leraar-baas**: de leerkracht is de eindbaas, een reuzenridder op het bord. De klas valt samen aan met goede antwoorden, de leerkracht slaat terug
    - **Het Rijk**: een spel dat weken doorloopt. Teams veroveren les na les gebieden op een kaart; vragen over oudere leerstof komen terug om je land te verdedigen
@@ -205,6 +206,15 @@ Op het **burchtplein** schieten robotmollen uit negen putten. Elke leerling slaa
 - 🪖 gewone mol: 1 slag · 👑 goudhelm: 2 slagen, 3× zoveel punten · 💣 bomdrone: niet raken (punten kwijt, even duizelig). Veel op rij raken geeft een combo tot ×4; mis slaan zet de reeks terug op nul.
 - **Vragen**: de zwaardlading raakt leeg (rustig tempo: minder vaak). Een juist antwoord geeft een volle lading en het 🔥 **Vuurzwaard**: dubbele punten en elke slag raakt ook de buurputten.
 - Chromebook: klik op een put of gebruik Q W E · A S D · Z X C (op een AZERTY-klavier toont het spel de letters die daar staan), spatie = vraag. Gsm: tik op een put. Elk antwoord komt in het logboek. Resultaten in `resultaten/`.
+
+## De Hofschilder
+
+Tekenen en raden in de **grote zaal** van de burcht. Om de beurt is één leerling de hofschilder: die kiest één van drie begrippen en tekent het met neoninkt op een holodoek (vinger, muis of touchpad). De tekening verschijnt live op het bord en op de toestellen van de anderen, die typen wat ze denken.
+
+- Punten: hoe sneller juist, hoe meer (de eerste krijgt een bonus). De hofschilder scoort mee volgens hoeveel ridders het raden. Gokken worden nagekeken zonder hoofdletters, accenten of lidwoord; meervoud of verkleinwoord telt ook. "Bijna!" ziet enkel wie het typte.
+- Hulpletters komen vanzelf op de runetegels (vanaf 35% van de tijd). Na elke beurt rolt het woord open met de uitleg (de vraag uit de quiz, of de betekenis).
+- Begrippen: uit een quiz (korte juiste antwoorden), de woorden van de week van het Runenraadsel (of de ingebouwde woordenschat), of een eigen lijst, ook te maken met AI rond een onderwerp.
+- Logboek: juist geraden, of fout als je wel gokte maar het niet vond; de tekenaar is juist als iemand het raadde. De leerkracht kan een tekening wissen of een beurt overslaan. Resultaten in `resultaten/`.
 
 ## Robopaarden
 

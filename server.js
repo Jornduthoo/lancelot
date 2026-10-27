@@ -62,6 +62,7 @@ const { Diepboor } = require('./src/diepboor');
 const { Burchtstorm } = require('./src/burchtstorm');
 const { Pixelridder } = require('./src/pixelridder');
 const { Robomol } = require('./src/robomol');
+const { Hofschilder } = require('./src/hofschilder');
 const { Robopaarden } = require('./src/robopaarden');
 const rijken = require('./src/rijk');
 const avatars = require('./src/avatars');
@@ -236,6 +237,11 @@ const robomol = new Robomol(io, s => {
   return finished(file);
 });
 
+const hof = new Hofschilder(io, s => {
+  const file = s.save();
+  return finished(file);
+});
+
 const paarden = new Robopaarden(io, s => {
   const file = s.save();
   return finished(file);
@@ -253,7 +259,7 @@ const oefenblad = new OefenbladLive(io, o => {
 
 // Elk spel met leerlingen, bij het adres van zijn docentenscherm. Een nieuw spel komt hier ook bij:
 // zo werken de grijze (bezette) namen bij het aanmelden en de knop "Namen" op het bord meteen mee.
-const SPELLEN = { '/host': game, '/toren': toren, '/schattenjacht': schat, '/laserslag': laserslag, '/ridderrace': race, '/kristalroof': roof, '/verrader': verrader, '/burchtbouwers': burcht, '/duel': duel, '/packnight': knight, '/strijdrossen': rossen, '/gauntlet': gauntlet, '/ridder-royale': royale, '/sterrenvreter': sterren, '/ridderslang': slang, '/burchtstorm': storm, '/poortwacht': poort, '/neonvlucht': vlucht, '/diepboor': diep, '/pixelridder': pixel, '/robomol': robomol, '/robopaarden': paarden, '/neonduel': neon, '/leraarbaas': baas, '/cybergalaga': galaga, '/bomberknight': bomber, '/rijk': rijk, '/oefenblad': oefenblad };
+const SPELLEN = { '/host': game, '/toren': toren, '/schattenjacht': schat, '/laserslag': laserslag, '/ridderrace': race, '/kristalroof': roof, '/verrader': verrader, '/burchtbouwers': burcht, '/duel': duel, '/packnight': knight, '/strijdrossen': rossen, '/gauntlet': gauntlet, '/ridder-royale': royale, '/sterrenvreter': sterren, '/ridderslang': slang, '/burchtstorm': storm, '/poortwacht': poort, '/neonvlucht': vlucht, '/diepboor': diep, '/pixelridder': pixel, '/robomol': robomol, '/hofschilder': hof, '/robopaarden': paarden, '/neonduel': neon, '/leraarbaas': baas, '/cybergalaga': galaga, '/bomberknight': bomber, '/rijk': rijk, '/oefenblad': oefenblad };
 const online = socketId => !!(socketId && io.sockets.sockets.get(socketId));
 function* spelers() {
   for (const spel of Object.values(SPELLEN)) {
@@ -312,7 +318,7 @@ const busyError = message => Object.assign(new Error(message), { busy: true });
 
 // Alles stoppen wat nog loopt (behalve het spel dat je wil starten). De resultaten worden bewaard zoals bij Stop.
 function stopOthers(except) {
-  const all = { toernooi: game, rondetafel: rt, toren, schat, laserslag, race, roof, verrader, burcht, duel, knight, rossen, gauntlet, royale, sterren, slang, storm, poort, vlucht, diep, pixel, robomol, paarden, neon, baas, rijk, oefenblad, galaga, bomber };
+  const all = { toernooi: game, rondetafel: rt, toren, schat, laserslag, race, roof, verrader, burcht, duel, knight, rossen, gauntlet, royale, sterren, slang, storm, poort, vlucht, diep, pixel, robomol, hofschilder: hof, paarden, neon, baas, rijk, oefenblad, galaga, bomber };
   for (const [key, mod] of Object.entries(all)) {
     if (key === except) continue;
     if (key === 'toernooi' ? game.phase !== 'idle' : mod.active) mod.stop();
@@ -346,6 +352,7 @@ function busyWith(except) {
   if (except !== 'storm' && storm.active) return 'Burchtstorm loopt nog. Stop dat spel eerst.';
   if (except !== 'pixel' && pixel.active) return 'Pixelridder loopt nog. Stop dat spel eerst.';
   if (except !== 'robomol' && robomol.active) return 'Robomol loopt nog. Stop dat spel eerst.';
+  if (except !== 'hofschilder' && hof.active) return 'De Hofschilder loopt nog. Stop dat spel eerst.';
   if (except !== 'paarden' && paarden.active) return 'Robopaarden loopt nog. Stop die race eerst.';
   if (except !== 'rijk' && rijk.active) return 'Het Rijk loopt nog. Stop dat spel eerst.';
   if (except !== 'oefenblad' && oefenblad.active) return 'Er staat nog een oefenblad open. Sluit dat eerst.';
@@ -401,7 +408,7 @@ function isLocal(address) {
   return ['127.0.0.1', '::1', '::ffff:127.0.0.1'].includes(address);
 }
 
-for (const [route, page] of [['/host', 'host.html'], ['/rondetafel', 'rondetafel.html'], ['/toren', 'toren.html'], ['/schattenjacht', 'schattenjacht.html'], ['/laserslag', 'laserslag.html'], ['/ridderrace', 'ridderrace.html'], ['/kristalroof', 'kristalroof.html'], ['/verrader', 'verrader.html'], ['/burchtbouwers', 'burchtbouwers.html'], ['/duel', 'duel.html'], ['/packnight', 'packnight.html'], ['/strijdrossen', 'strijdrossen.html'], ['/gauntlet', 'gauntlet.html'], ['/ridder-royale', 'royale.html'], ['/sterrenvreter', 'sterrenvreter.html'], ['/ridderslang', 'ridderslang.html'], ['/burchtstorm', 'burchtstorm.html'], ['/poortwacht', 'poortwacht.html'], ['/neonvlucht', 'neonvlucht.html'], ['/diepboor', 'diepboor.html'], ['/pixelridder', 'pixelridder.html'], ['/robomol', 'robomol.html'], ['/robopaarden', 'robopaarden.html'], ['/neonduel', 'neonduel.html'], ['/leraarbaas', 'leraarbaas.html'], ['/cybergalaga', 'cybergalaga.html'], ['/bomberknight', 'bomberknight.html'], ['/rijk', 'rijk.html'], ['/oefenblad', 'oefenblad.html'], ['/oefenblad-print', 'oefenblad-print.html'], ['/klas', 'klas.html'], ['/zorg', 'zorg.html'], ['/zorg-fiche', 'zorg-fiche.html'], ['/runenraadsel', 'runenraadsel.html'], ['/klaseiland', 'klaseiland.html'], ['/netwerk', 'netwerk.html'], ['/welkom', 'welkom.html'], ['/privacy', 'privacy.html']]) {
+for (const [route, page] of [['/host', 'host.html'], ['/rondetafel', 'rondetafel.html'], ['/toren', 'toren.html'], ['/schattenjacht', 'schattenjacht.html'], ['/laserslag', 'laserslag.html'], ['/ridderrace', 'ridderrace.html'], ['/kristalroof', 'kristalroof.html'], ['/verrader', 'verrader.html'], ['/burchtbouwers', 'burchtbouwers.html'], ['/duel', 'duel.html'], ['/packnight', 'packnight.html'], ['/strijdrossen', 'strijdrossen.html'], ['/gauntlet', 'gauntlet.html'], ['/ridder-royale', 'royale.html'], ['/sterrenvreter', 'sterrenvreter.html'], ['/ridderslang', 'ridderslang.html'], ['/burchtstorm', 'burchtstorm.html'], ['/poortwacht', 'poortwacht.html'], ['/neonvlucht', 'neonvlucht.html'], ['/diepboor', 'diepboor.html'], ['/pixelridder', 'pixelridder.html'], ['/robomol', 'robomol.html'], ['/hofschilder', 'hofschilder.html'], ['/robopaarden', 'robopaarden.html'], ['/neonduel', 'neonduel.html'], ['/leraarbaas', 'leraarbaas.html'], ['/cybergalaga', 'cybergalaga.html'], ['/bomberknight', 'bomberknight.html'], ['/rijk', 'rijk.html'], ['/oefenblad', 'oefenblad.html'], ['/oefenblad-print', 'oefenblad-print.html'], ['/klas', 'klas.html'], ['/zorg', 'zorg.html'], ['/zorg-fiche', 'zorg-fiche.html'], ['/runenraadsel', 'runenraadsel.html'], ['/klaseiland', 'klaseiland.html'], ['/netwerk', 'netwerk.html'], ['/welkom', 'welkom.html'], ['/privacy', 'privacy.html']]) {
   app.get(route, (req, res) => {
     if (!isLocal(req.socket.remoteAddress)) return res.status(403).send('Het docentenscherm is alleen bereikbaar op de pc van de leerkracht.');
     res.setHeader('Cache-Control', 'no-cache');
@@ -1077,6 +1084,7 @@ io.on('connection', socket => {
     storm.attachHost(socket, handle, busyWith, busyError, quizzes);
     pixel.attachHost(socket, handle, busyWith, busyError, quizzes);
     robomol.attachHost(socket, handle, busyWith, busyError, quizzes);
+    hof.attachHost(socket, handle, busyWith, busyError, quizzes, runen, ai, aiJson);
     paarden.attachHost(socket, handle, busyWith, busyError, quizzes);
 
     // Strijdrossen
@@ -1439,6 +1447,7 @@ io.on('connection', socket => {
   storm.attachPlayer(socket, validId, guarded.storm);
   pixel.attachPlayer(socket, validId, guarded.pixel);
   robomol.attachPlayer(socket, validId, guarded.robomol);
+  hof.attachPlayer(socket, validId);
   paarden.attachPlayer(socket, validId, guarded.paarden);
 
   // Strijdrossen
