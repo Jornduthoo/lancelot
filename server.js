@@ -90,6 +90,7 @@ const { generateQuiz } = require('./src/ai');
 const antigok = require('./src/antigok');
 const runen = require('./src/runen');
 const burchten = require('./src/burchten');
+const taken = require('./src/taken');
 const ai = require('./src/ai');
 const aiJson = require('./src/ai-json');
 
@@ -411,12 +412,22 @@ function eilandSoon() {
   }, 3000);
 }
 
+// Taken: een leerling werkte iets bij. Het bord hooguit twee keer per seconde bijwerken.
+let takenTimer = null;
+function takenSoon() {
+  if (takenTimer) return;
+  takenTimer = setTimeout(() => {
+    takenTimer = null;
+    io.to('host').emit('tk-lijst', taken.lijst());
+  }, 500);
+}
+
 // Het docentenscherm werkt alleen op de pc waar de server draait.
 function isLocal(address) {
   return ['127.0.0.1', '::1', '::ffff:127.0.0.1'].includes(address);
 }
 
-for (const [route, page] of [['/host', 'host.html'], ['/rondetafel', 'rondetafel.html'], ['/toren', 'toren.html'], ['/schattenjacht', 'schattenjacht.html'], ['/laserslag', 'laserslag.html'], ['/ridderrace', 'ridderrace.html'], ['/kristalroof', 'kristalroof.html'], ['/verrader', 'verrader.html'], ['/burchtbouwers', 'burchtbouwers.html'], ['/duel', 'duel.html'], ['/packnight', 'packnight.html'], ['/strijdrossen', 'strijdrossen.html'], ['/gauntlet', 'gauntlet.html'], ['/ridder-royale', 'royale.html'], ['/sterrenvreter', 'sterrenvreter.html'], ['/ridderslang', 'ridderslang.html'], ['/burchtstorm', 'burchtstorm.html'], ['/poortwacht', 'poortwacht.html'], ['/neonvlucht', 'neonvlucht.html'], ['/diepboor', 'diepboor.html'], ['/pixelridder', 'pixelridder.html'], ['/robomol', 'robomol.html'], ['/kerker', 'kerker.html'], ['/hofschilder', 'hofschilder.html'], ['/robopaarden', 'robopaarden.html'], ['/neonduel', 'neonduel.html'], ['/leraarbaas', 'leraarbaas.html'], ['/cybergalaga', 'cybergalaga.html'], ['/bomberknight', 'bomberknight.html'], ['/rijk', 'rijk.html'], ['/oefenblad', 'oefenblad.html'], ['/oefenblad-print', 'oefenblad-print.html'], ['/klas', 'klas.html'], ['/zorg', 'zorg.html'], ['/zorg-fiche', 'zorg-fiche.html'], ['/runenraadsel', 'runenraadsel.html'], ['/klaseiland', 'klaseiland.html'], ['/netwerk', 'netwerk.html'], ['/welkom', 'welkom.html'], ['/privacy', 'privacy.html']]) {
+for (const [route, page] of [['/host', 'host.html'], ['/rondetafel', 'rondetafel.html'], ['/toren', 'toren.html'], ['/schattenjacht', 'schattenjacht.html'], ['/laserslag', 'laserslag.html'], ['/ridderrace', 'ridderrace.html'], ['/kristalroof', 'kristalroof.html'], ['/verrader', 'verrader.html'], ['/burchtbouwers', 'burchtbouwers.html'], ['/duel', 'duel.html'], ['/packnight', 'packnight.html'], ['/strijdrossen', 'strijdrossen.html'], ['/gauntlet', 'gauntlet.html'], ['/ridder-royale', 'royale.html'], ['/sterrenvreter', 'sterrenvreter.html'], ['/ridderslang', 'ridderslang.html'], ['/burchtstorm', 'burchtstorm.html'], ['/poortwacht', 'poortwacht.html'], ['/neonvlucht', 'neonvlucht.html'], ['/diepboor', 'diepboor.html'], ['/pixelridder', 'pixelridder.html'], ['/robomol', 'robomol.html'], ['/kerker', 'kerker.html'], ['/hofschilder', 'hofschilder.html'], ['/robopaarden', 'robopaarden.html'], ['/neonduel', 'neonduel.html'], ['/leraarbaas', 'leraarbaas.html'], ['/cybergalaga', 'cybergalaga.html'], ['/bomberknight', 'bomberknight.html'], ['/rijk', 'rijk.html'], ['/oefenblad', 'oefenblad.html'], ['/oefenblad-print', 'oefenblad-print.html'], ['/klas', 'klas.html'], ['/zorg', 'zorg.html'], ['/taken', 'taken.html'], ['/zorg-fiche', 'zorg-fiche.html'], ['/runenraadsel', 'runenraadsel.html'], ['/klaseiland', 'klaseiland.html'], ['/netwerk', 'netwerk.html'], ['/welkom', 'welkom.html'], ['/privacy', 'privacy.html']]) {
   app.get(route, (req, res) => {
     if (!isLocal(req.socket.remoteAddress)) return res.status(403).send('Het docentenscherm is alleen bereikbaar op de pc van de leerkracht.');
     res.setHeader('Cache-Control', 'no-cache');
@@ -427,6 +438,11 @@ for (const [route, page] of [['/host', 'host.html'], ['/rondetafel', 'rondetafel
 app.get('/runen', (req, res) => {
   res.setHeader('Cache-Control', 'no-cache');
   res.sendFile(path.join(__dirname, 'public', 'runen.html'));
+});
+// Mijn taken: de leerling werkt aan wat de leerkracht hem gaf, op zijn eigen toestel, ook als er geen spel loopt.
+app.get('/mijn-taken', (req, res) => {
+  res.setHeader('Cache-Control', 'no-cache');
+  res.sendFile(path.join(__dirname, 'public', 'mijn-taken.html'));
 });
 // Mijn burcht: elke leerling bouwt met zijn Eer, op zijn eigen toestel, ook als er geen spel loopt.
 app.get('/burcht', (req, res) => {
@@ -634,6 +650,21 @@ io.on('connection', socket => {
       }
     });
   }
+  // Mijn taken: de lijst, een taak openen, een vakje of een quizvraag beantwoorden en inleveren.
+  // Een leerling meldt zich aan met zijn naam, net zoals bij Mijn burcht.
+  for (const [event, fn, bord] of [['tk-mijn', taken.mijn], ['tk-open', taken.open], ['tk-antwoord', taken.antwoord, true], ['tk-inleveren', taken.inleveren, true], ['tk-quiz', taken.quizAntwoord, true]]) {
+    socket.on(event, (arg, cb) => {
+      if (typeof cb !== 'function') return;
+      try {
+        cb({ ok: true, ...fn(arg) });
+        if (bord) takenSoon();
+      } catch (err) {
+        cb({ error: err.message });
+      }
+    });
+  }
+  socket.on('tk-aantal', (naam, cb) => typeof cb === 'function' && cb(taken.aantal(naam)));
+
   socket.on('rn-raad', (arg, cb) => {
     if (typeof cb !== 'function') return;
     try {
@@ -791,6 +822,25 @@ io.on('connection', socket => {
     }));
     socket.on('doelenkaart-get', handle(() => ({ kaart: overzicht.kaart() })));
     socket.on('zorg-get', handle(opts => ({ zorg: zorg.overzicht(opts || {}) })));
+    // Taken geven: een oefenblad of quiz aan een of meer leerlingen, elk op zijn niveau.
+    // Na elke wijziging krijgen alle leerlingschermen een seintje, zodat Mijn taken meteen klopt.
+    const taak = fn => handle(arg => {
+      const out = fn(arg || {});
+      io.to('host').emit('tk-lijst', taken.lijst());
+      io.emit('tk-nieuw');
+      return out || {};
+    });
+    socket.on('tk-bronnen', handle(() => ({ quizzen: quizzes.list(), bladen: oefenbladen.list(), klas: klas.names() })));
+    socket.on('tk-lijst', handle(() => ({ taken: taken.lijst() })));
+    socket.on('tk-voorbeeld', handle(arg => taken.voorbeeld(arg || {})));
+    socket.on('tk-detail', handle(arg => taken.detail(arg || {})));
+    socket.on('tk-maak', taak(arg => ({ id: taken.maak(arg).id })));
+    socket.on('tk-toevoegen', taak(arg => ({ n: taken.voegToe(arg) })));
+    socket.on('tk-weg', taak(taken.haalWeg));
+    socket.on('tk-niveau', taak(taken.zetNiveau));
+    socket.on('tk-sluit', taak(arg => taken.sluit(arg.id)));
+    socket.on('tk-heropen', taak(taken.heropen));
+    socket.on('tk-wis', taak(arg => taken.wis(arg.id)));
     socket.on('notitie-add', handle(({ leerling, tekst } = {}) => ({ notities: notities.add(leerling, tekst).slice().reverse() })));
     socket.on('notitie-del', handle(({ leerling, t } = {}) => ({ notities: notities.remove(leerling, t).slice().reverse() })));
     // Herhaalquizzen maken vanuit het zorgoverzicht. Ze komen bij je quizzen in de map Herhaling.

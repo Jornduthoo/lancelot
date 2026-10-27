@@ -350,6 +350,13 @@ function renderDoelen(box, list, leeg) {
       b.addEventListener('click', () => maakHerhaling(b, { doelen: [d.code], voor: d.code }));
       row.appendChild(b);
     }
+    // Een taak voor wie dit doel nog niet beheerst: de namen staan op het scherm Taken al aangevinkt.
+    if (d.niet.length) {
+      const t = el('button', 'secondary zg-mini', '📋 Geef een taak');
+      t.title = 'Geef deze leerlingen een oefenblad of quiz, elk op zijn niveau.';
+      t.addEventListener('click', () => { location.href = `/taken?namen=${encodeURIComponent(d.niet.join('|'))}`; });
+      row.appendChild(t);
+    }
     box.appendChild(row);
   }
 }

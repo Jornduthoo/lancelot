@@ -230,6 +230,18 @@ socket.on('connect', () => {
 
 show('idle');
 
+// Mijn taken: hoeveel taken nog open staan voor deze leerling, als bolletje op de knop.
+function tkTel() {
+  const naam = store('lancelot-name');
+  if (!naam) return;
+  socket.emit('tk-aantal', naam, n => {
+    $('tk-teller').textContent = n;
+    $('tk-teller').classList.toggle('hidden', !n);
+  });
+}
+socket.on('connect', tkTel);
+socket.on('tk-nieuw', tkTel);
+
 // Chromebook: met de toetsen 1-4 antwoorden in de quiz, de Ronde Tafel en de spellen.
 document.addEventListener('keydown', e => {
   if (!/^[1-4]$/.test(e.key) || e.target.matches('input, textarea')) return;

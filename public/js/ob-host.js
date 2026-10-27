@@ -51,6 +51,7 @@ ItemList.mount($('sheet-list'), {
   buttons: [
     { label: '🖨 Print', cls: 'print', title: 'Afdrukken', click: s => window.open(`/oefenblad-print?file=${encodeURIComponent(s.file)}`, '_blank') },
     { label: 'Verbeterblad', cls: 'key', title: 'Verbeterblad afdrukken', click: s => window.open(`/oefenblad-print?file=${encodeURIComponent(s.file)}&sleutel=1`, '_blank') },
+    { label: '📋 Als taak', cls: 'taak', title: 'Geef dit blad als taak aan een of meer leerlingen', click: s => { location.href = `/taken?soort=oefenblad&file=${encodeURIComponent(s.file)}`; } },
   ],
   edit: s => {
     socket.emit('ob-open', s.file, res => {
