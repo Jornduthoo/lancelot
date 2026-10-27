@@ -169,7 +169,8 @@ class Toren {
     if (!p || this.phase !== 'play' || p.question === null) return { error: 'Er staat geen vraag open.' };
     const q = this.quiz.questions[p.question];
     const correct = choice === q.correct;
-    logboek.answer('De prinses in de toren', this.quiz.title, p.name, q, correct);
+    // stil: een taak die de leerling alleen speelt; die houdt zelf bij wat in het logboek komt (solo.js).
+    if (!this.stil) logboek.answer('De prinses in de toren', this.quiz.title, p.name, q, correct);
     p.last = p.question;
     p.question = null;
     if (correct) {

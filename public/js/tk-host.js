@@ -38,9 +38,17 @@ function laadBronnen() {
   });
 }
 
+// Een quiz kan de leerling ook alleen in een spel spelen: dan ook de speeltijd per ronde.
+function spelKeuze() {
+  $('tk-spel-label').classList.toggle('hidden', tk.soort !== 'quiz');
+  $('tk-min-label').classList.toggle('hidden', tk.soort !== 'quiz' || !$('tk-spel').value);
+}
+$('tk-spel').addEventListener('change', spelKeuze);
+
 function vulBron() {
   for (const b of document.querySelectorAll('.tk-soort button')) b.classList.toggle('on', b.dataset.soort === tk.soort);
   $('tk-fb-label').classList.toggle('hidden', tk.soort !== 'oefenblad');
+  spelKeuze();
   const lijst = tk.soort === 'quiz' ? tk.bronnen.quizzen : tk.bronnen.bladen;
   const sel = $('tk-bron');
   sel.innerHTML = '';
@@ -165,7 +173,7 @@ $('tk-geef').addEventListener('click', () => {
   const namen = [...tk.gekozen];
   const b = $('tk-geef');
   b.disabled = true;
-  socket.emit('tk-maak', { soort: tk.soort, file: $('tk-bron').value, namen, feedback: $('tk-feedback').value }, res => {
+  socket.emit('tk-maak', { soort: tk.soort, file: $('tk-bron').value, namen, feedback: $('tk-feedback').value, spel: $('tk-spel').value, minuten: Number($('tk-minuten').value) }, res => {
     knop();
     if (res.error) return ($('tk-fout').textContent = res.error);
     $('tk-fout').textContent = '';
@@ -192,11 +200,11 @@ function kaart(t) {
   const k = el('div', `panel tk-taak${t.dicht ? ' dicht' : ''}`);
   const kop = el('div', 'tk-taak-kop');
   const img = el('img');
-  img.src = `/img/icons/${t.soort === 'quiz' ? 'toernooi' : 'oefenblad'}.webp`;
+  img.src = `/img/icons/${t.spel ? t.spel.icoon : t.soort === 'quiz' ? 'toernooi' : 'oefenblad'}.webp`;
   img.alt = '';
   const tel = s => t.leerlingen.filter(l => l.status === s).length;
   const titel = el('div', 'tk-taak-titel');
-  titel.append(el('strong', '', t.titel), el('small', 'muted', `${t.soort === 'quiz' ? 'Quiz' : 'Oefenblad'}${t.vak ? ` · ${t.vak}` : ''} · ${datum(t.gemaakt)}${t.dicht ? ' · afgesloten' : ''}`));
+  titel.append(el('strong', '', t.titel), el('small', 'muted', `${t.soort === 'quiz' ? 'Quiz' : 'Oefenblad'}${t.spel ? ` in ${t.spel.naam}` : ''}${t.vak ? ` · ${t.vak}` : ''} · ${datum(t.gemaakt)}${t.dicht ? ' · afgesloten' : ''}`));
   const telling = el('div', 'tk-telling');
   telling.append(el('span', 'klaar', `${tel('klaar')} klaar`), el('span', 'bezig', `${tel('bezig')} bezig`), el('span', 'nieuw', `${tel('nieuw')} nog niet`));
   const acties = el('div', 'actions');

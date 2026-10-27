@@ -105,7 +105,8 @@ class Schat {
     const p = this.players.get(playerId);
     if (!this.playing(p) || p.question === null) return { error: 'Er staat geen vraag open.' };
     const q = this.quiz.questions[p.question];
-    logboek.answer('Schattenjacht', this.quiz.title, p.name, q, choice === q.correct);
+    // stil: een taak die de leerling alleen speelt; die houdt zelf bij wat in het logboek komt (solo.js).
+    if (!this.stil) logboek.answer('Schattenjacht', this.quiz.title, p.name, q, choice === q.correct);
     p.last = p.question;
     p.question = null;
     const base = UPGRADES.zwaard.values[p.levels.zwaard];

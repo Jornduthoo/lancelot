@@ -71,8 +71,8 @@ function tkTekenLijst(taken) {
     b.type = 'button';
     b.className = `tk-kaart ${t.status}`;
     const pct = t.totaal ? Math.round((t.gedaan / t.totaal) * 100) : 0;
-    b.innerHTML = `<img src="/img/icons/${t.soort === 'quiz' ? 'toernooi' : 'oefenblad'}.webp" alt="">
-      <span class="tk-kaart-tekst"><strong></strong><small>${t.soort === 'quiz' ? 'Quiz' : 'Oefenblad'}${t.vak ? ` · ${tkEsc(t.vak)}` : ''}${t.niveau ? ` · ${Niveau.label(t.niveau)}` : ''}</small>
+    b.innerHTML = `<img src="/img/icons/${t.spel ? t.spel.icoon : t.soort === 'quiz' ? 'toernooi' : 'oefenblad'}.webp" alt="">
+      <span class="tk-kaart-tekst"><strong></strong><small>${t.spel ? `Quiz in ${tkEsc(t.spel.naam)}` : t.soort === 'quiz' ? 'Quiz' : 'Oefenblad'}${t.vak ? ` · ${tkEsc(t.vak)}` : ''}${t.niveau ? ` · ${Niveau.label(t.niveau)}` : ''}</small>
       <span class="tk-balk"><i style="width:${t.status === 'klaar' ? 100 : pct}%"></i></span><em>${tkStatus(t)}</em></span>
       <span class="tk-pijl">${t.status === 'klaar' ? '👁' : '▶'}</span>`;
     b.querySelector('strong').textContent = t.titel;
@@ -96,8 +96,10 @@ $('tk-quiz-terug').addEventListener('click', () => tkLijst());
 function tkOpen(id) {
   socket.emit('tk-open', { id, naam: tk.naam }, res => {
     if (!res || res.error) return Ui.melding((res && res.error) || 'Die taak kon niet open.');
+    // Een quiz in een spel: naar het startscherm, dat dan alleen dit eigen spel toont (tk-solo.js). Klaar: hier terugblikken.
+    if (res.spel && !res.klaar) return location.assign(`/?taak=${encodeURIComponent(id)}`);
     tk.taak = res;
-    $('tk-logo').src = `/img/icons/${res.soort === 'quiz' ? 'toernooi' : 'oefenblad'}.webp`;
+    $('tk-logo').src = `/img/icons/${res.spel ? res.spel.icoon : res.soort === 'quiz' ? 'toernooi' : 'oefenblad'}.webp`;
     $('tk-kop-titel').textContent = res.titel;
     $('tk-kop-sub').textContent = res.niveau ? Niveau.label(res.niveau) : tk.naam;
     if (res.soort === 'quiz') tkQuiz(res);

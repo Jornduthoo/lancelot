@@ -94,6 +94,7 @@ const antigok = require('./src/antigok');
 const runen = require('./src/runen');
 const burchten = require('./src/burchten');
 const taken = require('./src/taken');
+const soloSpel = require('./src/solo');
 const ai = require('./src/ai');
 const aiJson = require('./src/ai-json');
 
@@ -294,7 +295,7 @@ function oudeSpeler(name) {
 
 // Wie zit waar? Voor de knop "Namen" op elk docentenscherm. Een spel weet zijn spelers; op het Runenraadsel,
 // Mijn burcht, Mijn taken en het startscherm onthoudt de verbinding zelf welke naam erop staat.
-const ZONDER_SPEL = { runen: 'Runenraadsel', burcht: 'Mijn burcht', taken: 'Mijn taken', start: 'Wacht op een spel' };
+const ZONDER_SPEL = { runen: 'Runenraadsel', burcht: 'Mijn burcht', taken: 'Mijn taken', solo: 'Taak in een spel', start: 'Wacht op een spel' };
 function hier(socket, naam, waar) {
   if (typeof naam !== 'string' || !naam.trim() || naam.length > 60 || !ZONDER_SPEL[waar]) return;
   socket.data.naam = naam.trim();
@@ -369,6 +370,9 @@ const guarded = {
   kerker: gok.guard(kerker, 'kerker', 'Ontsnap uit de kerker', { own: true }),
   paarden: gok.guard(paarden, 'paarden', 'Robopaarden', { own: true }),
 };
+
+// Taken die een leerling alleen speelt, elk in een eigen spel (los van het spel op het bord).
+const solo = soloSpel.create(io, gok, () => takenSoon());
 
 // Er loopt altijd hooguit één spel tegelijk.
 const busyError = message => Object.assign(new Error(message), { busy: true });
@@ -1428,6 +1432,13 @@ io.on('connection', socket => {
     socket.on('restart', () => game.quiz && game.load(game.quiz));
     socket.on('close', () => game.stop());
     socket.on('stop', (_, cb) => cb && cb({ file: game.stop() }));
+    return;
+  }
+
+  // Een taak alleen spelen in een spel (startscherm met ?taak=...): alleen de handlers van dat eigen spel.
+  if (socket.handshake.query.taak) {
+    hier(socket, socket.handshake.query.naam, 'solo');
+    solo.verbind(socket);
     return;
   }
 
