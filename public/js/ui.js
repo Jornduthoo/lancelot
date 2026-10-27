@@ -203,6 +203,19 @@
     });
   }
 
+  // De knop "Namen" op elk docentenscherm (niet op de afdrukbladen).
+  function namenKnop(socket) {
+    if (window.Ui.hostSocket || /print|fiche/.test(location.pathname)) return;
+    window.Ui.hostSocket = socket;
+    const laad = () => {
+      const s = document.createElement('script');
+      s.src = '/js/namen-host.js';
+      document.body.appendChild(s);
+    };
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', laad);
+    else laad();
+  }
+
   if (typeof window.io === 'function') {
     const io = window.io;
     window.io = Object.assign(function (...args) {
@@ -213,8 +226,15 @@
       const opts = args.find(a => a && typeof a === 'object');
       const socket = io(...args);
       volg(socket, opts);
-      Pauze.volg(socket, !!(opts.query && opts.query.role === 'host'));
+      const isHost = !!(opts.query && opts.query.role === 'host');
+      Pauze.volg(socket, isHost);
       socket.on('uitleg', u => u && toonUitleg(u));
+      if (isHost) namenKnop(socket);
+      // De leerkracht klikte deze naam weg (buiten een spel): opnieuw kiezen wie je bent.
+      else socket.on('naam-weg', () => {
+        try { localStorage.removeItem('lancelot-name'); } catch { /* geen opslag */ }
+        location.reload();
+      });
       return socket;
     }, io);
   }
