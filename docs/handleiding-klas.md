@@ -23,7 +23,7 @@ Bij de Ridderrace, Laserslag, de toren, Pac-Knight, Strijdrossen, Neon Duel, Ler
 
 ## Mijn quizzen en mappen
 
-Op het startscherm staan **Nieuwe quiz** en **Mijn quizzen**. Zo maak of bewerk je een quiz zonder eerst een spel te kiezen: elke quiz werkt in elk spel. In elk spel blijft de knop **Nieuwe quiz met AI** staan; die quiz komt in dezelfde lijst.
+Op het startscherm, bij **De Smidse**, staan **Nieuwe quiz** en **Mijn quizzen**, naast je oefenbladen. Zo maak of bewerk je een quiz zonder eerst een spel te kiezen: elke quiz werkt in elk spel. In elk spel blijft de knop **Nieuwe quiz met AI** staan; die quiz komt in dezelfde lijst.
 
 De lijst werkt zoals de Verkenner van Windows, ook bij de oefenbladen en De Ronde Tafel:
 

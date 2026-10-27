@@ -1924,7 +1924,6 @@ body:has(#home:not(.hidden)) .bord-knoppen { display: none; }
 @media print { .namen-knop, .bord-knoppen { display: none !important; } }
 
 /* Startscherm: snel een quiz maken of naar de quizbibliotheek. */
-.home-snel { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin: 4px 0 18px; }
 .lib-uitleg { margin: -6px 0 12px; }
 .ic-plus { --ic: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath stroke='black' stroke-width='2.4' stroke-linecap='round' fill='none' d='M12 5v14M5 12h14'/%3E%3C/svg%3E"); }
 .ic-mappen { --ic: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' fill='none' d='M3 6.5h6l2 2h10V19H3z M3 11h18'/%3E%3C/svg%3E"); }
