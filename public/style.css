@@ -531,7 +531,7 @@ body:has(#home.hidden) .pauze-home, body:has(#home.hidden) .qr-home { display: n
 .ui-venster button.danger { background: linear-gradient(180deg, #ff8fa3, var(--bad)); }
 /* Alle QR-codes samen (startscherm). */
 .qr-venster {
-  width: min(1100px, calc(100% - 32px)); max-height: calc(100% - 32px); padding: 22px 26px 18px; border: 0;
+  width: min(640px, calc(100% - 32px)); max-height: calc(100% - 32px); padding: 22px 26px 18px; border: 0;
   color: var(--text); background: linear-gradient(160deg, #13284a, var(--panel-solid) 60%);
   box-shadow: inset 0 0 0 1px var(--cyan), 0 0 40px var(--cyan-glow);
   clip-path: polygon(18px 0, 100% 0, 100% calc(100% - 18px), calc(100% - 18px) 100%, 0 100%, 0 18px);
@@ -540,13 +540,11 @@ body:has(#home.hidden) .pauze-home, body:has(#home.hidden) .qr-home { display: n
 .qr-venster::backdrop { background: rgba(3, 6, 14, .8); }
 .qr-venster-kop { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
 .qr-venster h2 { font-family: var(--head); margin: 0; }
-.qr-kaarten { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 26px; margin-bottom: 16px; }
-.qr-kaarten figure { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 14px; text-align: center; }
-.qr-kaarten .qr { width: min(100%, 300px); height: auto; aspect-ratio: 1; }
-.qr-kaarten .qr:empty { display: block; }
-.qr-kaarten figcaption { display: flex; flex-direction: column; gap: 4px; }
-.qr-kaarten strong { font-family: var(--head); font-size: 1.3rem; color: var(--gold); }
-.qr-kaarten span { font-family: var(--tech); font-weight: 700; color: var(--cyan); word-break: break-all; }
+.qr-groot { display: flex; flex-direction: column; align-items: center; gap: 16px; margin-bottom: 16px; text-align: center; }
+.qr-groot .qr { width: min(100%, 52vh, 420px); height: auto; aspect-ratio: 1; }
+.qr-adressen { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 8px; margin-bottom: 12px; }
+.qr-adressen:empty { display: none; }
+.qr-adressen button.on { box-shadow: inset 0 0 0 2px var(--cyan), 0 0 16px var(--cyan-glow); color: var(--cyan); }
 @keyframes ui-pop { from { opacity: 0; transform: scale(.96); } }
 
 @media (prefers-reduced-motion: reduce) {

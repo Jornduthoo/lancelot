@@ -687,17 +687,6 @@ io.on('connection', socket => {
       settings.write({ preferredAddress: address });
       sendAddresses(io.to('host'));
     });
-    // Alle QR-codes samen voor het bord: meedoen, Runenraadsel en Mijn burcht, op het adres dat nu op het bord staat.
-    socket.on('qr-codes', (address, cb) => {
-      if (typeof cb !== 'function') return;
-      const ip = lanAddresses().includes(address) ? address : lanAddresses()[0];
-      if (!ip) return cb({ error: 'Deze pc zit op geen enkel netwerk.' });
-      const url = `http://${ip}:${PORT}`;
-      const paden = ['', '/runen', '/burcht'];
-      Promise.all(paden.map(p => QRCode.toString(url + p, { type: 'svg', margin: 1 })))
-        .then(svgs => cb({ url, qr: Object.fromEntries(paden.map((p, k) => [p, svgs[k]])) }))
-        .catch(() => cb({ error: 'De QR-codes konden niet gemaakt worden.' }));
-    });
     socket.emit('settings', settings.publicView());
     beheer.host(socket, { port: PORT });
     // Mijn lesmap: kiezen, nu synchroniseren, openen.
