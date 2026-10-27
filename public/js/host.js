@@ -57,17 +57,40 @@ function fillRows() {
   }
 }
 addEventListener('resize', fillRows);
-// Knop QR-codes: alle codes samen groot op het bord, voor het adres dat ook in de lobby staat.
+// Knop QR-code: de QR-code van het adres uit de lobby, groot op het bord. Meerdere adressen? Dan wissel je eronder;
+// de keuze geldt ook voor de lobby (address.js) en wordt onthouden.
+let qrLijst = [];
+let qrIp = '';
+const qrIpVan = a => a.url.replace(/^http:\/\//, '').replace(/:\d+$/, '');
+function toonQr() {
+  const a = qrLijst.find(x => qrIpVan(x) === qrIp) || qrLijst[0];
+  $('qr-groot').innerHTML = a ? a.qr : '';
+  $('qr-url').textContent = a ? a.url.replace('http://', '') : 'Geen netwerk gevonden';
+  const box = $('qr-adressen');
+  box.innerHTML = '';
+  if (qrLijst.length < 2) return;
+  box.append('Werkt dit adres niet? Kies een ander: ');
+  for (const x of qrLijst) {
+    const b = document.createElement('button');
+    b.className = 'secondary address-choice' + (x === a ? ' on' : '');
+    b.textContent = x.name ? `${qrIpVan(x)} · ${x.name}` : qrIpVan(x);
+    b.addEventListener('click', () => {
+      qrIp = qrIpVan(x);
+      toonQr();
+      try { localStorage.setItem('lancelot-address', qrIp); } catch {}
+      socket.emit('choose-address', qrIp);
+    });
+    box.append(b);
+  }
+}
+socket.on('addresses', list => {
+  qrLijst = list || [];
+  if ($('qr-venster').open) toonQr();
+});
 $('qr-open').addEventListener('click', () => {
-  const dlg = $('qr-venster');
-  const ip = ($('join-url').textContent || '').replace(/:\d+$/, '');
-  socket.emit('qr-codes', ip, res => {
-    if (res.error) return Ui.melding(res.error);
-    const kort = res.url.replace(/^http:\/\//, '');
-    for (const el of dlg.querySelectorAll('[data-qr]')) el.innerHTML = res.qr[el.dataset.qr] || '';
-    for (const el of dlg.querySelectorAll('[data-url]')) el.textContent = kort + el.dataset.url;
-    if (!dlg.open) dlg.showModal();
-  });
+  qrIp = ($('join-url').textContent || '').replace(/:\d+$/, '');
+  toonQr();
+  if (!$('qr-venster').open) $('qr-venster').showModal();
 });
 $('qr-dicht').addEventListener('click', () => $('qr-venster').close());
 // Klik naast het venster sluit het ook.
