@@ -20,7 +20,9 @@ let myName = store('lancelot-name') || '';
 
 // Pas verbinden als alle spelscripts geladen zijn: anders kan de eerste stand van een spel binnenkomen
 // voordat dat spel luistert, en blijft de leerling op een leeg scherm staan.
-const socket = io({ autoConnect: false });
+// Een taak alleen spelen in een spel (vanuit Mijn taken): /?taak=... Dan alleen dat eigen spel (tk-solo.js).
+const soloTaak = new URLSearchParams(location.search).get('taak');
+const socket = io(soloTaak ? { autoConnect: false, query: { taak: soloTaak, naam: myName } } : { autoConnect: false });
 document.addEventListener('DOMContentLoaded', () => socket.connect());
 const $ = id => document.getElementById(id);
 const sections = ['idle', 'join', 'lobby', 'intro', 'question', 'answered', 'reveal', 'podium'];

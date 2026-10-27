@@ -19,6 +19,14 @@ const MAX = 80; // daarboven vallen de oudste afgesloten taken weg
 const SAVE_MS = 1000;
 // Tegen gokken bij meteen verbeteren, zoals bij het oefenblad live: na een fout keuzeantwoord even wachten.
 const WRONG_MS = 3000;
+// Een quiz kan de leerling ook alleen spelen in een spel zonder tegenstanders (solo.js). Zonder spel: vraag per vraag.
+// De keuzelijst daarvoor staat in taken.html. Per spel: de naam en het icoon (public/img/icons).
+const SOLO = {
+  toren: ['De prinses in de toren', 'toren'], schat: ['Schattenjacht', 'schattenjacht'], pixel: ['Pixelridder', 'pixelridder'],
+  diep: ['Diepboor', 'diepboor'], vlucht: ['Neonvlucht', 'neonvlucht'], robomol: ['Robomol', 'robomol'],
+};
+const spelVan = t => (t.spel && SOLO[t.spel] ? { id: t.spel, naam: SOLO[t.spel][0], icoon: SOLO[t.spel][1], minuten: t.minuten } : null);
+const MINUTEN = [3, 5, 8, 10];
 const closed = field => field.kind === 'keuze' || field.kind === 'paar';
 const key = naam => String(naam || '').trim().replace(/\s+/g, ' ').toLowerCase();
 const clean = naam => String(naam || '').trim().replace(/\s+/g, ' ').slice(0, 20);
@@ -126,7 +134,7 @@ function voorbeeld({ soort, file } = {}) {
   return { titel: inhoud.title, vak, niveaus, per };
 }
 
-function maak({ soort, file, namen, feedback } = {}) {
+function maak({ soort, file, namen, feedback, spel, minuten } = {}) {
   const inhoud = laad(soort, file);
   const lijst = [...new Set((Array.isArray(namen) ? namen : []).map(clean).filter(Boolean))];
   if (!lijst.length) throw new Error('Kies minstens één leerling.');
@@ -135,6 +143,7 @@ function maak({ soort, file, namen, feedback } = {}) {
     id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), soort, file, titel: inhoud.title, vak,
     feedback: feedback === 'inleveren' ? 'inleveren' : 'direct', gemaakt: new Date().toISOString(), dicht: false, inhoud, werk: {},
   };
+  if (soort === 'quiz' && SOLO[spel]) Object.assign(t, { spel, minuten: MINUTEN.includes(Number(minuten)) ? Number(minuten) : 5 });
   for (const naam of lijst) t.werk[key(naam)] = nieuwWerk(t, naam, niveauVoor(soort, inhoud, vak, naam));
   const list = all();
   list.unshift(t);
@@ -224,7 +233,7 @@ function voortgang(t, w) {
 // Alle taken voor het bord, zonder de inhoud.
 function lijst() {
   return all().map(t => ({
-    id: t.id, soort: t.soort, titel: t.titel, vak: t.vak, feedback: t.feedback, gemaakt: t.gemaakt, dicht: t.dicht,
+    id: t.id, soort: t.soort, titel: t.titel, vak: t.vak, feedback: t.feedback, gemaakt: t.gemaakt, dicht: t.dicht, spel: spelVan(t),
     niveaus: niveausVan(t.soort, t.inhoud),
     leerlingen: Object.values(t.werk).map(w => ({ naam: w.naam, niveau: w.niveau, status: w.status, klaar: w.klaar, ...voortgang(t, w) }))
       .sort((a, b) => a.naam.localeCompare(b.naam, 'nl')),
@@ -242,7 +251,7 @@ function detail({ id, naam } = {}) {
       ...base,
       vragen: w.antwoorden.map(a => {
         const q = t.inhoud.questions[a.i];
-        return { vraag: q.question, gekozen: q.answers[a.keuze], juist: a.juist, goed: q.answers[q.correct] };
+        return { vraag: q.question, gekozen: q.answers[a.keuze] ?? '(getypt)', juist: a.juist, goed: q.answers[q.correct] };
       }),
     };
   }
@@ -270,7 +279,7 @@ function mijn(naam) {
   }).map(t => {
     const w = t.werk[k];
     const open = !t.dicht && w.status !== 'klaar';
-    return { id: t.id, soort: t.soort, titel: t.titel, vak: t.vak, gemaakt: t.gemaakt, niveau: niveausVan(t.soort, t.inhoud).length > 1 ? w.niveau : null, status: open ? w.status : 'klaar', ...voortgang(t, w) };
+    return { id: t.id, soort: t.soort, titel: t.titel, vak: t.vak, gemaakt: t.gemaakt, spel: spelVan(t), niveau: niveausVan(t.soort, t.inhoud).length > 1 ? w.niveau : null, status: open ? w.status : 'klaar', ...voortgang(t, w) };
   });
   lijst.sort((a, b) => (a.status === 'klaar') - (b.status === 'klaar') || (a.gemaakt < b.gemaakt ? 1 : -1));
   const l = klas.match(naam);
@@ -293,7 +302,7 @@ function begin(t, w) {
 function open({ id, naam } = {}) {
   const { t, w } = werkVan(id, naam);
   const klaar = t.dicht || w.status === 'klaar';
-  const base = { id, soort: t.soort, titel: t.titel, niveau: niveausVan(t.soort, t.inhoud).length > 1 ? w.niveau : null, klaar, dicht: t.dicht, ...voortgang(t, w) };
+  const base = { id, soort: t.soort, titel: t.titel, spel: spelVan(t), niveau: niveausVan(t.soort, t.inhoud).length > 1 ? w.niveau : null, klaar, dicht: t.dicht, ...voortgang(t, w) };
   if (t.soort === 'quiz') return { ...base, vraag: klaar ? null : vraagVoor(t, w), terug: klaar ? terugblik(t, w) : null };
   const b = blad(t, w.niveau);
   return {
@@ -399,4 +408,36 @@ function quizAntwoord({ id, naam, keuze } = {}) {
   return { juist, goed: q.correct, uitleg: juist ? '' : q.uitleg || '', klaar, ...voortgang(t, w) };
 }
 
-module.exports = { voorbeeld, maak, voegToe, haalWeg, zetNiveau, sluit, heropen, wis, lijst, detail, mijn, aantal, open, antwoord, inleveren, quizAntwoord, flush, DIR };
+// ---------- Solo in een spel ----------
+
+// Een ronde in het spel: de vragen die de leerling nog niet beantwoordde, als een gewone quiz voor dat spel.
+// nr zet een vraag van die quiz terug om naar haar nummer in de taak.
+function soloRonde({ id, naam } = {}) {
+  const { t, w } = werkVan(id, naam);
+  nogOpen(t, w);
+  if (!t.spel) throw new Error('Deze taak speel je niet in een spel.');
+  const nr = w.volgorde.slice(w.antwoorden.length);
+  if (!nr.length) throw new Error('Je beantwoordde alle vragen al.');
+  const quiz = { title: t.titel, questions: nr.map(i => t.inhoud.questions[i]) };
+  return { spel: t.spel, minuten: t.minuten, naam: w.naam, quiz, nr, ...voortgang(t, w) };
+}
+
+// Een antwoord uit het spel. Alleen de eerste poging op een vraag telt voor de taak en gaat naar het logboek
+// (in het spel komt een foute vraag later terug, om te oefenen). De vragen die al beantwoord zijn, staan vooraan in de volgorde.
+function soloAntwoord({ id, naam, i, keuze, juist } = {}) {
+  const { t, w } = werkVan(id, naam);
+  if (t.dicht || w.status === 'klaar' || t.soort !== 'quiz') return null;
+  const plek = w.volgorde.indexOf(i);
+  if (plek < w.antwoorden.length) return null;
+  [w.volgorde[plek], w.volgorde[w.antwoorden.length]] = [w.volgorde[w.antwoorden.length], w.volgorde[plek]];
+  const q = t.inhoud.questions[i];
+  begin(t, w);
+  w.antwoorden.push({ i, keuze: Number.isInteger(keuze) ? keuze : -1, juist: !!juist });
+  logboek.add([{ naam: w.naam, spel: 'Taak', bron: t.titel, sessie: `taak-${t.id}`, vraag: q.question, doel: q.doel, juist: !!juist }]);
+  const klaar = w.antwoorden.length >= w.volgorde.length;
+  if (klaar) inleverenWerk(t, w);
+  save();
+  return { klaar, ...voortgang(t, w) };
+}
+
+module.exports = { SOLO, MINUTEN, soloRonde, soloAntwoord, voorbeeld, maak, voegToe, haalWeg, zetNiveau, sluit, heropen, wis, lijst, detail, mijn, aantal, open, antwoord, inleveren, quizAntwoord, flush, DIR };

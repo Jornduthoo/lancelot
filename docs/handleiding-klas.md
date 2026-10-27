@@ -276,7 +276,9 @@ Geef een oefenblad of quiz aan één leerling, een paar leerlingen of de hele kl
 
 Onder **Gegeven taken** zie je live per leerling: grijs = nog niet begonnen, goud = bezig (hoeveel al gedaan), groen = klaar met de score. Tik op een naam om te zien wat hij invulde. Daar kan je hem ook op een ander niveau zetten, zijn taak weer openzetten of hem uit de taak halen. **+ Leerlingen** zet er later nog iemand bij. **Afsluiten**: wie bezig is, levert in zoals het er staat.
 
-Een quiz als taak gaat vraag per vraag, met meteen de uitleg na een fout antwoord. Alle antwoorden gaan in het logboek (spel "Taak"), dus ook in het zorgoverzicht, de doelenkaart en de Eer van het Klaseiland. De taken staan in de map `taken` bij je gegevens, alleen op deze pc. Thuiswerk kan (nog) niet: Mijn taken werkt over het netwerk van de klas.
+Een quiz als taak gaat standaard vraag per vraag (zoals het Toernooi), met meteen de uitleg na een fout antwoord.
+
+Bij **Hoe spelen?** kan je een quiz ook **alleen in een spel** laten spelen: De prinses in de toren, Schattenjacht, Pixelridder, Diepboor, Neonvlucht of Robomol, met een speeltijd per ronde. Elke leerling speelt dan zijn eigen spel op zijn eigen toestel, los van wat er op het bord loopt (er hoeft geen spel te lopen). Hij krijgt de vragen van zijn niveau; de eerste poging op elke vraag telt voor de taak, een foute vraag komt in het spel later terug om te oefenen. Is de tijd om voor alle vragen beantwoord zijn, dan speelt hij gewoon nog een ronde met de vragen die overblijven. Alle antwoorden gaan in het logboek (spel "Taak"), dus ook in het zorgoverzicht, de doelenkaart en de Eer van het Klaseiland. De taken staan in de map `taken` bij je gegevens, alleen op deze pc. Thuiswerk kan (nog) niet: Mijn taken werkt over het netwerk van de klas.
 
 ## Niveaus: Page, Schildknaap en Ridder
 

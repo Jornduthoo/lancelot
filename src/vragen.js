@@ -45,7 +45,8 @@ class Vragen {
     if (p.question === null || p.question === undefined) return null;
     const q = this.quiz.questions[p.question];
     const correct = choice === q.correct;
-    this.log.push({ naam: p.name, spel: this.spel, bron: this.quiz.title, vraag: q.question, doel: q.doel, juist: correct });
+    // stil: een taak die de leerling alleen speelt; die houdt zelf bij wat in het logboek komt (solo.js).
+    if (!this.stil) this.log.push({ naam: p.name, spel: this.spel, bron: this.quiz.title, vraag: q.question, doel: q.doel, juist: correct });
     p.last = p.question;
     let wait = 0;
     if (correct) {
