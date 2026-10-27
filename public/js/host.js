@@ -98,7 +98,7 @@ $('qr-venster').addEventListener('click', e => {
   const r = e.currentTarget.getBoundingClientRect();
   if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) e.currentTarget.close();
 });
-document.querySelector('[data-realm="arena"] .tag').textContent = `${document.querySelectorAll('#realm-arena .module:not([data-module="klaseiland"])').length} spellen`;
+document.querySelector('[data-realm="arena"] .tag').textContent = `${document.querySelectorAll('#realm-arena .module').length} spellen`;
 for (const t of document.querySelectorAll('.realm')) t.addEventListener('click', () => { openRealm(t.dataset.realm, true); sfx.tick(); });
 let savedRealm = 'arena';
 try { savedRealm = localStorage.getItem('lancelot-realm') || 'arena'; } catch {}
