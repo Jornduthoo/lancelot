@@ -53,6 +53,7 @@ function rnLaad(naam = rn.naam, first = false) {
     }
     rn.naam = res.naam;
     store('lancelot-name', res.naam);
+    socket.emit('hier', { naam: res.naam, waar: 'runen' });
     rn.stand = res;
     if (!rn.niveau || first) rn.niveau = rnKies(res);
     rnToon('spel');
