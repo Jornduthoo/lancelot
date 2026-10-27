@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LANcelot · Ontsnap uit de kerker</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/arena.css">
+</head>
+<body class="sj-host ak-wide">
+<main>
+  <div class="topbar">
+    <div class="brand" id="brand" title="Naar het startscherm">
+      <img src="/img/mark.webp" alt="">
+      <div>
+        <div class="wordmark">LAN<span>celot</span></div>
+        <div class="subtitle" id="status">Ontsnap uit de kerker</div>
+      </div>
+    </div>
+    <div class="actions">
+      <span class="join-mini hidden" id="join-mini"></span>
+      <button class="secondary icon" id="mute" title="Geluid aan/uit" aria-label="Geluid aan/uit"><i class="ic ic-geluid"></i></button>
+      <button class="secondary hidden" id="stop">Stop het spel</button>
+    </div>
+  </div>
+
+  <section id="setup">
+    <div class="bar">
+      <h2>Ontsnap uit de kerker</h2>
+      <div class="actions">
+        <button class="secondary" id="to-home">Terug</button>
+        <button class="secondary" data-make="leeg">Lege quiz</button>
+        <button data-make="ai">Nieuwe quiz met AI</button>
+      </div>
+    </div>
+    <div class="panel tw-intro">
+      <img class="game-logo" src="/img/icons/kerker.webp" alt="">
+      <div>
+        <p>De hele klas zit samen <strong>opgesloten in de kerker</strong> onder de burcht. Alleen met juiste antwoorden komen jullie buiten, deur na deur. Niemand wint alleen: iedereen helpt dezelfde deur open.</p>
+        <p>🗝️ <strong>Sleuteldeur</strong>: elk juist antwoord smeedt een sleutel · ᛟ <strong>Runenslot</strong>: wie juist antwoordt, ziet één rune van de code. Vertel ze aan elkaar en typ de code in · 🔴 <strong>Laserhek</strong>: elke ridder moet minstens één keer juist antwoorden · ⛓️ <strong>Valhek</strong>: blijf antwoorden, anders zakt het terug · 🤖 <strong>De Kerkermeester</strong> bewaakt de laatste poort.</p>
+        <p>Hoeveel antwoorden een deur vraagt, past zich aan het aantal leerlingen en de speeltijd aan. Langer spelen = meer deuren.</p>
+        <p class="muted">Tegen gokken: na een fout antwoord even wachten, en die vraag komt later terug. Elk antwoord komt in het logboek.</p>
+      </div>
+    </div>
+    <div class="panel form">
+      <label>Speeltijd
+        <select id="kk-minutes">
+          <option value="1">1 minuut (3 deuren)</option>
+          <option value="2">2 minuten (3 deuren)</option>
+          <option value="3">3 minuten (4 deuren)</option>
+          <option value="4">4 minuten (4 deuren)</option>
+          <option value="5" selected>5 minuten (5 deuren)</option>
+          <option value="6">6 minuten (5 deuren)</option>
+          <option value="8">8 minuten (6 deuren)</option>
+          <option value="10">10 minuten (7 deuren)</option>
+          <option value="12">12 minuten (8 deuren)</option>
+          <option value="15">15 minuten (8 deuren)</option>
+        </select>
+      </label>
+      <label>Tempo van de vragen
+        <select id="kk-tempo" class="tempo-select">
+          <option value="rustig">Rustig: deuren vragen minder antwoorden</option>
+          <option value="normaal" selected>Normaal</option>
+          <option value="intens">Intens: deuren vragen meer antwoorden</option>
+        </select>
+      </label>
+      <p class="muted small">Kies hieronder de quiz waaruit de vragen komen.</p>
+    </div>
+    <p class="notice hidden" id="stopped"></p>
+    <div class="quiz-list" id="quiz-list"></div>
+    <p class="error" id="load-error"></p>
+  </section>
+
+  <section id="lobby" class="hidden">
+    <div class="panel join">
+      <div class="qr" id="qr"></div>
+      <div class="join-text">
+        <p class="muted">Scan de QR-code of surf naar</p>
+        <div class="join-url" id="join-url"></div>
+        <p class="muted small" id="other-urls"></p>
+      </div>
+    </div>
+    <div class="bar">
+      <h2><span class="count" id="player-count">0</span> <span id="player-word">ridders</span> klaar</h2>
+      <button class="gold big" id="start" disabled>Deur dicht!</button>
+    </div>
+    <p class="muted small">Klik op een naam om die speler te verwijderen. Wie later binnenkomt, start meteen.</p>
+    <div class="names" id="names"></div>
+  </section>
+
+  <section id="play" class="hidden">
+    <div class="hud">
+      <span class="round" id="p-title"></span>
+      <span class="kk-hud-door" id="p-door"></span>
+      <span class="tw-clock" id="p-clock"></span>
+      <button class="secondary" id="p-finish">Nu stoppen</button>
+    </div>
+    <div class="ak-board">
+      <div class="ak-stage"><canvas id="p-canvas"></canvas><div class="bb-banner hidden" id="p-banner"></div><div class="kk-how" id="p-how"></div></div>
+      <div class="tw-side">
+        <ol class="kk-route" id="p-route"></ol>
+        <div class="panel bb-builders"><p class="muted small">Wie helpt het meest</p><ol id="p-top"></ol></div>
+        <ul class="tw-feed" id="p-feed"></ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="podium" class="hidden">
+    <div class="center"><div class="kk-stars" id="w-stars"></div><h2 id="w-title"></h2><p class="muted" id="w-why"></p></div>
+    <ol class="ranking" id="final"></ol>
+    <p class="center muted" id="results-saved"></p>
+    <div class="bar">
+      <button class="secondary" id="restart">Nog een keer</button>
+      <button id="close">Andere quiz kiezen</button>
+    </div>
+  </section>
+</main>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/ui.js"></script>
+<script src="/js/fx.js"></script>
+<script src="/js/avatar.js"></script>
+<script src="/js/quiz-links.js"></script>
+<script src="/js/quiz-list.js"></script>
+<script src="/js/arena-kit.js"></script>
+<script src="/js/kk-world.js"></script>
+<script src="/js/kk-draw.js"></script>
+<script src="/js/kk-host.js"></script>
+<script src="/js/address.js"></script>
+<script src="/js/overzicht.js"></script>
+</body>
+</html>

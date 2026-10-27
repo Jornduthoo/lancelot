@@ -87,6 +87,7 @@ document.querySelector('[data-module="sterrenvreter"]').addEventListener('click'
 document.querySelector('[data-module="poortwacht"]').addEventListener('click', () => { location.href = '/poortwacht'; });
 document.querySelector('[data-module="neonvlucht"]').addEventListener('click', () => { location.href = '/neonvlucht'; });
 document.querySelector('[data-module="robomol"]').addEventListener('click', () => { location.href = '/robomol'; });
+document.querySelector('[data-module="kerker"]').addEventListener('click', () => { location.href = '/kerker'; });
 document.querySelector('[data-module="hofschilder"]').addEventListener('click', () => { location.href = '/hofschilder'; });
 document.querySelector('[data-module="robopaarden"]').addEventListener('click', () => { location.href = '/robopaarden'; });
 document.querySelector('[data-module="diepboor"]').addEventListener('click', () => { location.href = '/diepboor'; });

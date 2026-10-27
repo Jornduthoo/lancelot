@@ -197,6 +197,13 @@ Tip: een klas die goed en vlot antwoordt, houdt de poort. Bij veel foute antwoor
 3. Goudhelmen hebben twee slagen nodig, bomdrones niet raken. Raakt het zwaard leeg, dan komt er een vraag: juist = volle lading en het 🔥 Vuurzwaard.
 4. Het bord toont dezelfde putten, wie elke mol mepte en hoeveel mollen de klas samen al mepte.
 
+## Ontsnap uit de kerker
+
+1. Kies **De Arena** en dan **Ontsnap uit de kerker** (bij Samen spelen), kies de speeltijd (meer tijd = meer deuren) en klik op de quiz. Klik op **Deur dicht!**
+2. De klas werkt samen: elk juist antwoord helpt de deur van nu open. Het bord toont de route naar buiten en wie het meest helpt.
+3. Bij het **runenslot** ziet een leerling na een juist antwoord één rune van de code. Laat ze die aan elkaar vertellen (dat is de bedoeling!) en de code intypen op hun toestel.
+4. Bij het **laserhek** moet iedereen minstens één keer juist antwoorden: zo zie je ook wie nog niet meedoet. Het **valhek** zakt terug als de klas stopt met antwoorden.
+5. Op het einde staat de **Kerkermeester**. Verslaan = ontsnapt, met 1 tot 3 sterren.
 ## De Hofschilder
 
 1. Kies **De Arena** en dan **De Hofschilder**. Kies de tijd per tekening en het aantal beurten.
