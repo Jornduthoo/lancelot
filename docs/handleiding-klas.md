@@ -204,6 +204,12 @@ Tip: een klas die goed en vlot antwoordt, houdt de poort. Bij veel foute antwoor
 3. Bij het **runenslot** ziet een leerling na een juist antwoord één rune van de code. Laat ze die aan elkaar vertellen (dat is de bedoeling!) en de code intypen op hun toestel.
 4. Bij het **laserhek** moet iedereen minstens één keer juist antwoorden: zo zie je ook wie nog niet meedoet. Het **valhek** zakt terug als de klas stopt met antwoorden.
 5. Op het einde staat de **Kerkermeester**. Verslaan = ontsnapt, met 1 tot 3 sterren.
+## De Hofschilder
+
+1. Kies **De Arena** en dan **De Hofschilder**. Kies de tijd per tekening en het aantal beurten.
+2. Kies waar de begrippen vandaan komen: **Uit een quiz** (het juiste antwoord wordt het begrip, enkel korte antwoorden; werkt het best met een quiz vol begrippen), **Woorden van de week** (van het Runenraadsel) of **Eigen woorden** (één per regel, `woord = uitleg`). Bij Eigen woorden kan de AI ook 20 tekenbare begrippen rond een onderwerp maken (daarvoor is internet nodig).
+3. Minstens twee leerlingen, dan **Penselen klaar!** Om de beurt kiest een leerling één van drie begrippen en tekent het. De anderen typen hun gok op hun eigen toestel. Na een tijdje verschijnen hulpletters.
+4. Op het bord: **🧽 Wis tekening** (bijvoorbeeld als er iets ongepasts staat) en **⏭ Overslaan**. Chromebook-tekenaar: 1-0 kleur, [ ] dikte, E gom, Z terug.
 
 ## Robopaarden
 

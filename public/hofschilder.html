@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LANcelot · De Hofschilder</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/arena.css">
+</head>
+<body class="sj-host ak-wide hs-host">
+<main>
+  <div class="topbar">
+    <div class="brand" id="brand" title="Naar het startscherm">
+      <img src="/img/mark.webp" alt="">
+      <div>
+        <div class="wordmark">LAN<span>celot</span></div>
+        <div class="subtitle" id="status">De Hofschilder</div>
+      </div>
+    </div>
+    <div class="actions">
+      <span class="join-mini hidden" id="join-mini"></span>
+      <button class="secondary icon" id="mute" title="Geluid aan/uit" aria-label="Geluid aan/uit"><i class="ic ic-geluid"></i></button>
+      <button class="secondary hidden" id="stop">Stop het spel</button>
+    </div>
+  </div>
+
+  <section id="setup">
+    <div class="bar">
+      <h2>De Hofschilder</h2>
+      <div class="actions">
+        <button class="secondary" id="to-home">Terug</button>
+        <button class="secondary" data-make="leeg">Lege quiz</button>
+        <button data-make="ai">Nieuwe quiz met AI</button>
+      </div>
+    </div>
+    <div class="panel tw-intro">
+      <img class="game-logo" src="/img/icons/hofschilder.webp" alt="">
+      <div>
+        <p>In de grote zaal van de burcht staat een <strong>holodoek</strong> in een gouden lijst. Om de beurt is één ridder de <strong>hofschilder</strong>: die kiest een begrip uit de les en tekent het met neoninkt op zijn eigen toestel.</p>
+        <p>Alle anderen zien de tekening live verschijnen, op het bord en op hun eigen scherm, en <strong>typen wat ze denken</strong>. Hoe sneller juist, hoe meer punten. De hofschilder scoort mee voor elke ridder die het raadt. Na een tijdje verschijnen er vanzelf hulpletters op de runetegels.</p>
+        <p class="muted">Geen letters of cijfers tekenen: dat is valsspelen! Na elke beurt zie je het woord met de uitleg. Elk raadsel komt in het logboek, bij het leerplandoel van de vraag of de woordenlijst.</p>
+      </div>
+    </div>
+    <div class="panel form">
+      <label>Tijd per tekening
+        <select id="hs-seconden">
+          <option value="40">40 seconden</option>
+          <option value="60">60 seconden</option>
+          <option value="80" selected>80 seconden</option>
+          <option value="100">100 seconden</option>
+          <option value="120">2 minuten</option>
+        </select>
+      </label>
+      <label>Aantal tekenbeurten
+        <select id="hs-beurten">
+          <option value="5">5 beurten (± 8 minuten)</option>
+          <option value="8" selected>8 beurten (± 12 minuten)</option>
+          <option value="10">10 beurten</option>
+          <option value="12">12 beurten</option>
+          <option value="15">15 beurten</option>
+          <option value="20">20 beurten</option>
+          <option value="0">Iedereen tekent één keer</option>
+        </select>
+      </label>
+      <p class="muted small">Waar komen de begrippen vandaan?</p>
+      <div class="hs-bronnen" role="tablist">
+        <button type="button" class="hs-bron on" data-bron="quiz">📜 Uit een quiz</button>
+        <button type="button" class="hs-bron" data-bron="week">ᚱ Woorden van de week</button>
+        <button type="button" class="hs-bron" data-bron="eigen">✍️ Eigen woorden</button>
+      </div>
+    </div>
+    <p class="notice hidden" id="stopped"></p>
+    <div id="bron-quiz">
+      <p class="muted small">Het <strong>juiste antwoord</strong> van elke vraag wordt het begrip om te tekenen (enkel korte antwoorden), en de vraag helpt de hofschilder. Kies de quiz:</p>
+      <div class="quiz-list" id="quiz-list"></div>
+    </div>
+    <div id="bron-week" class="hidden">
+      <div class="panel">
+        <p>De woorden van de week van het <strong>Runenraadsel</strong> worden de begrippen, met hun betekenis als uitleg. Ideaal voor woordenschat.</p>
+        <p class="muted small" id="week-info">Even kijken welke woorden er klaarstaan…</p>
+        <div class="bar"><span></span><button class="gold" id="week-go">Speel met deze woorden</button></div>
+      </div>
+    </div>
+    <div id="bron-eigen" class="hidden">
+      <div class="panel form">
+        <div class="hs-ai">
+          <label>Begrippen laten maken met AI (daarvoor is internet nodig)
+            <input id="ai-thema" maxlength="120" placeholder="Onderwerp, bijvoorbeeld: de middeleeuwen, het menselijk lichaam, het weer">
+          </label>
+          <button type="button" id="ai-go">✨ Maak 20 begrippen</button>
+        </div>
+        <p class="muted small" id="ai-info"></p>
+        <label>Eén begrip per regel. Wil je een uitleg tonen na de beurt? Zet hem achter een =.
+          <textarea id="eigen-tekst" rows="9" placeholder="kasteel = een versterkt gebouw met muren en torens&#10;ophaalbrug&#10;fotosynthese = planten maken suiker met zonlicht&#10;delta"></textarea>
+        </label>
+        <div class="bar"><span class="muted small">Hooguit 3 woorden per begrip. Bewaard op deze pc voor de volgende keer.</span><button class="gold" id="eigen-go">Speel met deze woorden</button></div>
+      </div>
+    </div>
+    <p class="error" id="load-error"></p>
+  </section>
+
+  <section id="lobby" class="hidden">
+    <div class="panel join">
+      <div class="qr" id="qr"></div>
+      <div class="join-text">
+        <p class="muted">Scan de QR-code of surf naar</p>
+        <div class="join-url" id="join-url"></div>
+        <p class="muted small" id="other-urls"></p>
+      </div>
+    </div>
+    <div class="bar">
+      <h2><span class="count" id="player-count">0</span> <span id="player-word">ridders</span> klaar</h2>
+      <button class="gold big" id="start" disabled>Penselen klaar!</button>
+    </div>
+    <p class="muted small" id="lobby-hint">Je hebt minstens twee ridders nodig. Klik op een naam om die speler te verwijderen. Wie later binnenkomt, raadt meteen mee.</p>
+    <div class="names" id="names"></div>
+  </section>
+
+  <section id="play" class="hidden">
+    <div class="hud">
+      <span class="round" id="p-title"></span>
+      <span class="ry-big"><b id="p-beurt"></b></span>
+      <span class="hs-host-knoppen">
+        <button class="secondary" id="p-wis" title="Wis de tekening (bijvoorbeeld als er iets ongepasts op staat)">🧽 Wis tekening</button>
+        <button class="secondary" id="p-skip">⏭ Volgende beurt</button>
+        <button class="secondary" id="p-finish">Nu stoppen</button>
+      </span>
+    </div>
+    <div class="ak-board">
+      <div class="ak-stage hs-stage"><canvas id="p-canvas"></canvas></div>
+      <div class="tw-side">
+        <div class="panel bb-builders"><p class="muted small">Ridders · punten</p><ol id="p-top"></ol></div>
+        <ul class="tw-feed" id="p-feed"></ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="podium" class="hidden">
+    <div class="center"><h2 id="w-title"></h2><p class="muted" id="w-why"></p></div>
+    <div class="hs-eer" id="w-eer"></div>
+    <ol class="ranking" id="final"></ol>
+    <p class="center muted" id="results-saved"></p>
+    <div class="bar">
+      <button class="secondary" id="restart">Nog een keer</button>
+      <button id="close">Andere woorden kiezen</button>
+    </div>
+  </section>
+</main>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/ui.js"></script>
+<script src="/js/fx.js"></script>
+<script src="/js/avatar.js"></script>
+<script src="/js/quiz-links.js"></script>
+<script src="/js/quiz-list.js"></script>
+<script src="/js/arena-kit.js"></script>
+<script src="/js/posters.js"></script>
+<script src="/js/hs-art.js"></script>
+<script src="/js/hs-host.js"></script>
+<script src="/js/address.js"></script>
+<script src="/js/overzicht.js"></script>
+</body>
+</html>
