@@ -2,13 +2,13 @@
 .zg-filters { display: flex; gap: 14px; flex-wrap: wrap; align-items: flex-end; }
 .zg-filters p { margin: 0 0 8px; flex: 1; min-width: 200px; }
 .zg-tellers { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
-.zg-teller { display: flex; align-items: baseline; gap: 8px; padding: 10px 16px; border-radius: 10px; border: 1px solid var(--line); background: rgba(6, 10, 19, .35); }
+.zg-teller { display: flex; align-items: baseline; gap: 8px; padding: 10px 16px; border-radius: 10px; border: 1px solid var(--line); background: rgb(var(--k-bg) / .35); }
 .zg-teller b { font-size: 1.8rem; line-height: 1; }
 .zg-teller.rood b { color: var(--bad); } .zg-teller.oranje b { color: var(--gold); } .zg-teller.groen b { color: var(--good); } .zg-teller.weinig b { color: var(--muted); }
 
 .zg-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px; }
-.zg-kaart { text-align: left; display: flex; flex-direction: column; align-items: stretch; gap: 6px; padding: 10px 12px; border-radius: 10px; background: rgba(6, 10, 19, .45); box-shadow: inset 4px 0 0 var(--k, var(--muted)), inset 0 0 0 1px var(--line); color: var(--text); font: inherit; cursor: pointer; }
-.zg-kaart.rood { --k: var(--bad); background: rgba(255, 77, 109, .08); }
+.zg-kaart { text-align: left; display: flex; flex-direction: column; align-items: stretch; gap: 6px; padding: 10px 12px; border-radius: 10px; background: rgb(var(--k-bg) / .45); box-shadow: inset 4px 0 0 var(--k, var(--muted)), inset 0 0 0 1px var(--line); color: var(--text); font: inherit; cursor: pointer; }
+.zg-kaart.rood { --k: var(--bad); background: rgb(var(--k-rood) / .08); }
 .zg-kaart.oranje { --k: var(--gold); }
 .zg-kaart.groen { --k: var(--good); }
 .zg-kaart.open { grid-column: 1 / -1; cursor: default; }
@@ -23,26 +23,26 @@
 .zg-sig { margin: 0; padding: 0; list-style: none; font-size: .88rem; display: flex; flex-direction: column; gap: 2px; }
 .zg-sig li::before { content: '●'; margin-right: 6px; color: var(--muted); }
 .zg-sig li.rood::before { color: var(--bad); } .zg-sig li.oranje::before { color: var(--gold); } .zg-sig li.goed::before { color: var(--good); }
-.zg-advies { font-size: .88rem; padding: 6px 8px; border-radius: 8px; background: rgba(76, 201, 255, .1); display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.zg-advies { font-size: .88rem; padding: 6px 8px; border-radius: 8px; background: rgb(var(--k-cyan) / .1); display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 .zg-advies button { padding: 4px 10px; font-size: .85rem; }
 .zg-detail { display: grid; grid-template-columns: 1fr 2fr 1fr; gap: 14px; margin-top: 6px; }
 .zg-detail h4 { margin: 4px 0; color: var(--gold); }
-.zg-rij { display: flex; align-items: center; gap: 10px; padding: 4px 0; border-top: 1px solid rgba(92, 196, 255, .12); font-size: .9rem; }
+.zg-rij { display: flex; align-items: center; gap: 10px; padding: 4px 0; border-top: 1px solid rgb(var(--k-cyan) / .12); font-size: .9rem; }
 .zg-rij > span:first-child { flex: 1; min-width: 0; }
 .zg-rij .zg-txt { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .zg-rij code { color: var(--cyan); margin-right: 6px; }
-.zg-bar { flex: none; position: relative; width: 90px; height: 18px; border-radius: 5px; background: rgba(143, 167, 199, .15); overflow: hidden; }
+.zg-bar { flex: none; position: relative; width: 90px; height: 18px; border-radius: 5px; background: rgb(var(--k-muted) / .15); overflow: hidden; }
 .zg-bar i { position: absolute; inset: 0 auto 0 0; background: var(--good); opacity: .55; }
 .zg-bar.bijna i { background: var(--gold); } .zg-bar.niet i { background: var(--bad); }
 .zg-bar b { position: relative; display: block; text-align: center; font-size: .8rem; line-height: 18px; }
 .zg-twee { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
-.zg-doel { padding: 8px 0; border-top: 1px solid rgba(92, 196, 255, .12); font-size: .92rem; }
+.zg-doel { padding: 8px 0; border-top: 1px solid rgb(var(--k-cyan) / .12); font-size: .92rem; }
 .zg-doel code { color: var(--cyan); margin-right: 6px; }
 .zg-doel .namen { margin-top: 4px; display: flex; flex-wrap: wrap; gap: 4px; }
-.zg-doel .namen span { padding: 2px 8px; border-radius: 999px; background: rgba(255, 77, 109, .16); font-size: .85rem; }
-.zg-doel .namen span.bijna { background: rgba(255, 201, 74, .14); }
+.zg-doel .namen span { padding: 2px 8px; border-radius: 999px; background: rgb(var(--k-rood) / .16); font-size: .85rem; }
+.zg-doel .namen span.bijna { background: rgb(var(--k-goud) / .14); }
 .zg-k { padding: 0 6px; border-radius: 4px; }
-.zg-k.rood { background: rgba(255, 77, 109, .3); } .zg-k.oranje { background: rgba(255, 201, 74, .3); } .zg-k.groen { background: rgba(46, 230, 166, .25); } .zg-k.weinig { background: rgba(143, 167, 199, .25); }
+.zg-k.rood { background: rgb(var(--k-rood) / .3); } .zg-k.oranje { background: rgb(var(--k-goud) / .3); } .zg-k.groen { background: rgb(var(--k-groen) / .25); } .zg-k.weinig { background: rgb(var(--k-muted) / .25); }
 @media (max-width: 900px) { .zg-detail { grid-template-columns: 1fr; } }
 .zg-uitleg { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; }
 .zg-mini { padding: 3px 9px; font-size: .8rem; }
@@ -52,8 +52,8 @@
 .zg-herhaal span { flex: 1; min-width: 240px; }
 .zg-detail textarea { width: 100%; margin: 4px 0 6px; }
 .zg-fout { color: var(--bad); font-weight: 700; }
-.zg-leertijd { display: grid; grid-template-columns: minmax(130px, 1.2fr) 2fr minmax(150px, 1fr) minmax(120px, auto); gap: 10px; align-items: center; padding: 6px 0; border-top: 1px solid rgba(92, 196, 255, .12); }
-.zg-lt-balk { position: relative; height: 14px; background: rgba(143, 167, 199, .15); overflow: hidden; }
+.zg-leertijd { display: grid; grid-template-columns: minmax(130px, 1.2fr) 2fr minmax(150px, 1fr) minmax(120px, auto); gap: 10px; align-items: center; padding: 6px 0; border-top: 1px solid rgb(var(--k-cyan) / .12); }
+.zg-lt-balk { position: relative; height: 14px; background: rgb(var(--k-muted) / .15); overflow: hidden; }
 .zg-lt-balk i { position: absolute; inset: 0 auto 0 0; background: var(--good); opacity: .7; }
 .zg-lt-balk.bijna i { background: var(--gold); }
 .zg-lt-balk.niet i { background: var(--bad); }

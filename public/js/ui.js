@@ -1,6 +1,61 @@
 // Gedeelde stukjes voor elk scherm: een melding als de verbinding wegvalt, en eigen vensters in ridderstijl
 // in plaats van de grijze browservensters. Wordt meteen na socket.io.js geladen, vóór de andere scripts.
 (() => {
+  // ---------- Thema ----------
+  // De leerkracht kiest bij Instellingen > Uiterlijk een thema voor alle schermen. Het staat in de server
+  // en elk scherm onthoudt het ook zelf, zodat het bij het laden meteen in de juiste kleuren verschijnt.
+  const THEMAS = [
+    { id: 'nachtburcht', naam: 'Nachtburcht', uitleg: 'Donker met blauw neon', kleuren: ['#060a13', '#101c32', '#4cc9ff', '#ffc94a'] },
+    { id: 'daglicht', naam: 'Daglicht', uitleg: 'Licht perkament, voor een zonnige klas', kleuren: ['#ece6d6', '#fdfaf2', '#1666a0', '#a87006'] },
+    { id: 'ijspaleis', naam: 'IJspaleis', uitleg: 'Licht en koel blauw', kleuren: ['#e4eef8', '#fafdff', '#0074ba', '#a66e00'] },
+    { id: 'rozenkasteel', naam: 'Rozenkasteel', uitleg: 'Donkerpaars met roze en goud', kleuren: ['#16081e', '#321242', '#ff70c8', '#ffc94a'] },
+    { id: 'smaragdwoud', naam: 'Smaragdwoud', uitleg: 'Diepgroen met goud', kleuren: ['#04100a', '#0e281c', '#46e292', '#ffc94a'] },
+    { id: 'drakenvuur', naam: 'Drakenvuur', uitleg: 'Zwart met vuurrode gloed', kleuren: ['#100604', '#2c100a', '#ff742c', '#ffc94a'] },
+    { id: 'contrast', naam: 'Hoog contrast', uitleg: 'Zwart en fel geel, het best leesbaar', kleuren: ['#000000', '#0a0a0a', '#ffe600', '#ffffff'] },
+  ];
+  let thema = 'nachtburcht';
+  function zetThema(id) {
+    if (!THEMAS.some(t => t.id === id)) id = 'nachtburcht';
+    thema = id;
+    if (id === 'nachtburcht') delete document.documentElement.dataset.thema;
+    else document.documentElement.dataset.thema = id;
+    try { localStorage.setItem('lancelot-thema', id); } catch { /* geen opslag */ }
+    for (const b of document.querySelectorAll('.thema-keuze')) b.setAttribute('aria-pressed', String(b.dataset.thema === id));
+  }
+  try { zetThema(localStorage.getItem('lancelot-thema')); } catch { /* geen opslag */ }
+  // Bij een licht thema: zodra er een speelveld open staat (bord of leerling), terug naar donker.
+  const SPELVELD = 'section#play:not(.hidden), [id$="-game"]:not(.hidden), .ak-game:not(.hidden), #vr-meeting:not(.hidden), #bb-dragon:not(.hidden), #du-wait:not(.hidden)';
+  setInterval(() => {
+    const html = document.documentElement;
+    const spel = /^(daglicht|ijspaleis)$/.test(thema) && !!document.querySelector(SPELVELD);
+    if (spel !== html.hasAttribute('data-spel')) html.toggleAttribute('data-spel', spel);
+  }, 400);
+
+  // Vult een leeg <div id="thema-kiezer"> met de keuzes (alleen op het docentenscherm).
+  function themaKiezer() {
+    const vak = document.getElementById('thema-kiezer');
+    if (!vak || vak.dataset.klaar) return;
+    vak.dataset.klaar = '1';
+    vak.classList.add('panel', 'form');
+    vak.innerHTML = '<h3>Thema</h3><p class="muted small">Kies de kleuren van LANcelot. Het thema geldt voor het bord en voor de schermen van de leerlingen. Is het bord moeilijk leesbaar in een lichte klas, kies dan Daglicht, IJspaleis of Hoog contrast. De games zelf houden hun eigen kleuren.</p><div class="thema-raster"></div>';
+    const raster = vak.querySelector('.thema-raster');
+    for (const t of THEMAS) {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'secondary thema-keuze';
+      b.dataset.thema = t.id;
+      b.setAttribute('aria-pressed', String(t.id === thema));
+      b.innerHTML = `<span class="thema-staal">${t.kleuren.map(k => `<i style="background:${k}"></i>`).join('')}</span><strong>${t.naam}</strong><small>${t.uitleg}</small>`;
+      b.addEventListener('click', () => {
+        zetThema(t.id);
+        if (window.Ui.hostSocket) window.Ui.hostSocket.emit('thema-zet', t.id);
+      });
+      raster.appendChild(b);
+    }
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', themaKiezer);
+  else themaKiezer();
+
   // ---------- Pauzeknop ----------
   // De leerkracht zet de klas stil. Dan staat op dit scherm de klok stil: Date.now, performance.now,
   // requestAnimationFrame en de timers wachten tot de pauze voorbij is. Zo bevriest elk spel vanzelf,
@@ -229,6 +284,7 @@
       const isHost = !!(opts.query && opts.query.role === 'host');
       Pauze.volg(socket, isHost);
       socket.on('uitleg', u => u && toonUitleg(u));
+      socket.on('thema', zetThema);
       if (isHost) namenKnop(socket);
       // De leerkracht klikte deze naam weg (buiten een spel): opnieuw kiezen wie je bent.
       else socket.on('naam-weg', () => {
@@ -383,6 +439,8 @@
     // Een klein icoon uit style.css (.ic-…) voor in een knop.
     ic: naam => `<i class="ic ic-${naam}" aria-hidden="true"></i>`,
     pauze: Pauze,
+    themas: THEMAS,
+    get thema() { return thema; },
     // De AI die de leerkracht bij Instellingen koos (Gemini, Claude of ChatGPT), voor knoppen en teksten.
     ai: 'Gemini',
     zetAi(s) {
