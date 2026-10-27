@@ -62,7 +62,7 @@ function list() {
         return { file, folder, title: `${file} (ongeldig bestand)`, count: 0 };
       }
     })
-    .sort((a, b) => a.title.localeCompare(b.title, 'nl'));
+    .sort((a, b) => a.title.localeCompare(b.title, 'nl', { numeric: true }));
 }
 
 function load(file) {

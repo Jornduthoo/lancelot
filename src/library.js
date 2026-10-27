@@ -55,7 +55,7 @@ function library({ kind, dir, checkFile, load, save, validate, list }) {
   const sameName = (a, b) => a.toLowerCase() === b.toLowerCase();
 
   function sortFolders(meta) {
-    meta.folders.sort((a, b) => a.localeCompare(b, 'nl'));
+    meta.folders.sort((a, b) => a.localeCompare(b, 'nl', { numeric: true }));
   }
 
   // Een map en alles eronder een ander pad geven, met de items erin.

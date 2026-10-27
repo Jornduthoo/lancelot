@@ -138,7 +138,7 @@ async function syncKind(kind, root, state, count) {
   if (lm && rm && lm.hash !== rm.hash) {
     if (lm.hash === seenMeta) meta = rm;
     else if (rm.hash === seenMeta) meta = lm;
-    else meta = { folders: [...new Set([...rm.folders, ...lm.folders])].sort((a, b) => a.localeCompare(b, 'nl')), place: { ...rm.place, ...lm.place } };
+    else meta = { folders: [...new Set([...rm.folders, ...lm.folders])].sort((a, b) => a.localeCompare(b, 'nl', { numeric: true })), place: { ...rm.place, ...lm.place } };
   } else meta = lm || rm;
   if (meta) {
     const place = {};
