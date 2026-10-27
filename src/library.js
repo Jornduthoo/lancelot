@@ -9,7 +9,7 @@ const KINDS = {
   oefenblad: { one: 'oefenblad', many: 'oefenbladen' },
   sessie: { one: 'sessie', many: 'sessies' },
 };
-const MAX_IMPORT = 300;
+const MAX_IMPORT = 2000;
 const MAX_DEPTH = 6;
 
 function slug(text, fallback) {
