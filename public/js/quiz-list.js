@@ -382,7 +382,16 @@ const ItemList = (() => {
       e.preventDefault();
       importFiles(e.dataTransfer.files, query ? '' : here);
     });
-    socket.on(k.folders, list => { folders = list; render(); });
+    // opts.startFolder: deze map meteen openen (bv. Voorkennis vanuit De Ronde Tafel), één keer.
+    let start = opts.startFolder || '';
+    socket.on(k.folders, list => {
+      folders = list;
+      const match = start && folders.find(f => norm(f) === norm(start));
+      if (match) { here = match; for (let p = match; p; p = parentOf(p)) open.add(p); save(); }
+      else if (start) note = `Nog geen map "${start}". Importeer het bestand hier met Importeren.`;
+      start = '';
+      render();
+    });
     socket.on(k.list, list => { items = list; render(); });
   }
 
