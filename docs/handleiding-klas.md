@@ -279,9 +279,21 @@ In **De Kronieken > De Zonnewijzer** plan je je week.
 
 ## Voorkennis activeren
 
-1. Klik op het startscherm op **Voorkennis activeren**.
+1. Klik op het startscherm op **De Ronde Tafel**, dan op de tegel **De Ronde Tafel** en op **💡 Voorkennis activeren**.
 2. Vul het onderwerp van je les en het niveau in, kopieer de vraag naar een chatbot en plak het antwoord terug (of laat je eigen AI-sleutel het doen: Gemini, Claude of ChatGPT, te kiezen bij Instellingen).
 3. Je krijgt een korte Ronde Tafel: een woordwolk, stellingen met "Ik weet het niet" en een schaal. Start ze voor de les begint en zie meteen wat de klas al weet.
+
+Wil je per leerling weten wat er nog ontbreekt? Klik dan op **🎯 Voorkennis peilen**: dat is een quiz met namen, dus de tekorten komen in Zorg.
+
+## Het Kringgesprek
+
+Een klasgesprek waarin iedereen om de beurt spreekt. Klik op het startscherm op **De Ronde Tafel** en dan op **Het Kringgesprek**.
+
+1. Iedereen van je klaslijst krijgt een stoel aan de ronde tafel. Wie afwezig is, tik je weg bij **Aanwezig** (dezelfde lijst als in De Wapenkamer).
+2. Kies bij **Vraag** een vraag uit de lijst of typ je eigen vraag. Je eigen vragen blijven bewaard.
+3. Kies bij **Spreektijd** vrij, 30 seconden, 1 of 2 minuten. Een ring rond het midden loopt leeg.
+4. Druk op **spatie** (of **→**): de gloeiende steen gaat naar de volgende stoel. **←** gaat terug, **P** is pas: wie past, krijgt aan het einde van de ronde een tweede kans. **Willekeurig** laat de steen kiezen wie begint. Klik op een naam om hem de steen te geven.
+5. **Door elkaar** geeft iedereen een andere stoel, **Nieuwe ronde** begint opnieuw.
 
 ## Oefenbladen
 

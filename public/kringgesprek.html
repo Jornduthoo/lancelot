@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LANcelot · Het Kringgesprek</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/kringgesprek.css">
+</head>
+<body class="kg-host">
+<main>
+  <div class="topbar">
+    <div class="brand" id="brand" title="Naar het startscherm">
+      <img src="/img/mark.webp" alt="">
+      <div>
+        <div class="wordmark">LAN<span>celot</span></div>
+        <div class="subtitle">Het Kringgesprek</div>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="secondary" id="aanwezig" title="Wie is er vandaag? Afwezigen krijgen geen stoel aan de tafel. Dezelfde lijst als in De Wapenkamer."><i class="ic ic-namen" aria-hidden="true"></i> <span>Aanwezig</span></button>
+      <button class="secondary icon" id="mute" title="Geluid aan/uit" aria-label="Geluid aan/uit"><i class="ic ic-geluid"></i></button>
+      <button class="secondary" id="groot" title="Schermvullend op het bord">⛶ Groot</button>
+      <button class="secondary" id="to-home">Terug</button>
+    </div>
+  </div>
+
+  <div class="kg-balk">
+    <button class="kg-knop kg-vraagknop" id="kies-vraag" title="Kies een vraag of typ je eigen vraag (V)"><span>Vraag</span><b id="vraag-kort">Kies een vraag</b></button>
+    <button class="kg-knop" id="spreektijd" title="Hoe lang mag elke ridder spreken? (T)"><span>Spreektijd</span><b id="spreektijd-tekst">vrij</b></button>
+    <button class="kg-knop" id="willekeurig" title="De steen kiest wie begint (R)"><span>Start</span><b>Willekeurig</b></button>
+    <button class="kg-knop" id="schud" title="Iedereen een andere stoel"><span>Stoelen</span><b>Door elkaar</b></button>
+    <button class="kg-knop" id="nieuwe-ronde" title="Iedereen opnieuw aan de beurt"><span>Ronde <i id="ronde-nr">1</i></span><b>Nieuwe ronde</b></button>
+  </div>
+
+  <p class="leeg hidden" id="geen-klas"><span>Er staat nog niemand op je klaslijst.</span><a class="button" href="/klas#klas">Vul je klaslijst in bij Mijn klas</a></p>
+
+  <!-- De tafel: het hout en de runenring tekent kg-tafel één keer op een canvas, de stoelen en de steen zijn gewone elementen. -->
+  <section id="kg-game">
+    <div class="kg-zaal" id="zaal">
+      <canvas id="tafel" aria-hidden="true"></canvas>
+      <div class="kg-stoelen" id="stoelen"></div>
+      <div class="kg-steen" id="steen" aria-hidden="true"><i></i></div>
+      <div class="kg-midden">
+        <svg class="kg-klok hidden" id="klok" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><circle class="kg-klok-baan" cx="50" cy="50" r="46"/><circle class="kg-klok-rest" id="klok-rest" cx="50" cy="50" r="46" pathLength="100"/></svg>
+        <p class="kg-vraag" id="vraag">Kies een vraag en geef de steen door.</p>
+        <p class="kg-naam" id="naam">&nbsp;</p>
+        <p class="kg-info" id="info"></p>
+        <p class="kg-tijd hidden" id="tijd"></p>
+      </div>
+    </div>
+    <p class="kg-toetsen"><kbd>Spatie</kbd> / <kbd>→</kbd> volgende · <kbd>←</kbd> vorige · <kbd>P</kbd> pas · <kbd>R</kbd> willekeurig · <kbd>V</kbd> vraag · klik op een naam: die krijgt de steen</p>
+  </section>
+</main>
+
+<dialog class="kg-dialoog" id="vraag-venster">
+  <div class="kg-dialoog-kop">
+    <h2>Kies een vraag</h2>
+    <button class="secondary icon" id="vraag-dicht" aria-label="Sluiten"><i class="ic ic-kruis"></i></button>
+  </div>
+  <div id="vraag-lijst"></div>
+  <form class="kg-eigen" id="eigen-vorm">
+    <label>Of typ je eigen vraag<input id="eigen-vraag" maxlength="140" placeholder="bijv. Wat zou jij doen als je koning was voor één dag?" autocomplete="off"></label>
+    <button type="submit">Gebruiken</button>
+  </form>
+</dialog>
+
+<dialog class="kg-dialoog" id="aanwezig-venster">
+  <div class="kg-dialoog-kop">
+    <h2>Wie is er vandaag?</h2>
+    <button class="secondary icon" id="aanwezig-dicht" aria-label="Sluiten"><i class="ic ic-kruis"></i></button>
+  </div>
+  <p class="muted small">Tik op wie afwezig is. Afwezigen krijgen vandaag geen stoel. Dit is dezelfde lijst als in De Wapenkamer, morgen is iedereen weer aanwezig.</p>
+  <div class="kg-namen" id="aanwezig-namen"></div>
+</dialog>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/ui.js"></script>
+<script src="/js/fx.js"></script>
+<script src="/js/kg-tafel.js"></script>
+<script src="/js/kringgesprek.js"></script>
+</body>
+</html>
