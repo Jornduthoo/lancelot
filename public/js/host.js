@@ -106,6 +106,7 @@ openRealm(document.getElementById(`realm-${savedRealm}`) ? savedRealm : 'arena')
 
 document.querySelector('[data-module="toernooi"]').addEventListener('click', () => show('idle'));
 document.querySelector('[data-module="rondetafel"]').addEventListener('click', () => { location.href = '/rondetafel'; });
+document.querySelector('[data-module="kronieken"]').addEventListener('click', () => { location.href = '/kronieken'; });
 document.querySelector('[data-module="reeks"]').addEventListener('click', () => { location.href = '/reeks'; });
 document.querySelector('[data-module="runenraadsel"]').addEventListener('click', () => { location.href = '/runenraadsel'; });
 document.querySelector('[data-module="klaseiland"]').addEventListener('click', () => { location.href = '/klaseiland'; });
@@ -152,6 +153,12 @@ function loadQuiz(file) {
 // /host?map=Voorkennis (knop "Voorkennis peilen" in De Ronde Tafel): meteen de quizlijst, in die map.
 const startMap = new URLSearchParams(location.search).get('map') || '';
 if (startMap) show('idle');
+// /host?quiz=… (vanuit De Kronieken): die quiz meteen in de lobby van het Toernooi.
+const startQuiz = new URLSearchParams(location.search).get('quiz') || '';
+if (startQuiz) {
+  show('idle');
+  loadQuiz(startQuiz);
+}
 
 QuizList.mount($('quiz-list'), {
   startFolder: startMap,
