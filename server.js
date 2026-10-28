@@ -1520,13 +1520,19 @@ io.on('connection', socket => {
       if (typeof cb !== 'function') return;
       let basis;
       try { basis = zonnewijzer.ingebouwdVoorstel(arg); } catch (err) { return cb({ error: err.message }); }
-      if (!settings.actief().key) return cb({ ok: true, ...basis, bron: 'ingebouwd' });
+      if (arg.zonderAi || !settings.actief().key) return cb({ ok: true, ...basis, bron: 'ingebouwd' });
       const prompt = zonnewijzer.voorstelPrompt({ ...arg, leerjaar: `${klas.read().leerjaar}e leerjaar` });
       generateQuiz(prompt, [], text => zonnewijzer.leesVoorstel(aiJson.extract(text, 'voorstel')))
         .then(res => cb({ ok: true, ...res, bron: 'ai' }))
         .catch(err => cb({ ok: true, ...basis, bron: 'ingebouwd', fout: err.message }))
         .finally(() => io.to('host').emit('settings', settings.publicView()));
     });
+    // Zonder sleutel (of liever zelf): de prompt voor een chatbot, en het geplakte antwoord terug inlezen.
+    socket.on('zw-voorstel-prompt', handle((arg = {}) => {
+      zonnewijzer.ingebouwdVoorstel(arg);
+      return { prompt: zonnewijzer.voorstelPrompt({ ...arg, leerjaar: `${klas.read().leerjaar}e leerjaar` }) };
+    }));
+    socket.on('zw-voorstel-lees', handle(text => zonnewijzer.leesVoorstel(aiJson.extract(text, 'voorstel'))));
     socket.on('zw-quiz-doelen', handle(({ file } = {}) => {
       const quiz = quizzes.load(file);
       const tel = new Map();
