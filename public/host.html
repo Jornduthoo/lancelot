@@ -20,6 +20,8 @@
     <div class="actions">
       <button class="secondary pauze-knop pauze-home" data-pauze title="Alle leerlingschermen op slot om de aandacht te vragen"><img src="/img/icons/pauze-klein.webp" alt=""> Pauze</button>
       <button class="secondary qr-home" id="qr-open" title="De QR-code waarmee leerlingen verbinden, groot op het bord"><i class="ic ic-qr"></i> QR-code</button>
+      <button class="secondary icon" id="open-netwerk" title="Netwerk werkt niet?" aria-label="Netwerk werkt niet?"><i class="ic ic-netwerk"></i></button>
+      <button class="secondary icon" id="open-settings" title="Instellingen" aria-label="Instellingen"><i class="ic ic-instellingen"></i></button>
       <button class="secondary icon" id="mute" title="Geluid aan/uit" aria-label="Geluid aan/uit"><i class="ic ic-geluid"></i></button>
       <button class="secondary hidden" id="stop">Stop toernooi</button>
     </div>
@@ -45,7 +47,7 @@
       <p>Oefenen, peilen en werkbladen · over je eigen netwerk</p>
     </div>
     <p class="notice hidden" id="welkom-tip">👋 De eerste keer LANcelot? <a href="/welkom">Zet in vier stappen je klas, je leerjaar en het netwerk klaar.</a></p>
-    <!-- Vijf rijken: klik op een tegel, de onderdelen verschijnen eronder. -->
+    <!-- Het startscherm toont enkel de vijf rijken. Een klik opent het rijk; het logo of "Alle rijken" brengt je terug. -->
     <div class="realms">
       <button class="realm" data-realm="arena">
         <img class="tile-icon" src="/img/icons/arena.webp" alt="">
@@ -56,38 +58,34 @@
       <button class="realm" data-realm="tafel">
         <img class="tile-icon" src="/img/icons/ronde-tafel.webp" alt="">
         <strong>De Ronde Tafel</strong>
-        <span>Vragen aan de klas: polls, woordwolken en voorkennis activeren.</span>
+        <span>Vragen aan de klas: polls, woordwolken en voorkennis.</span>
         <em class="tag">Peilen</em>
       </button>
       <button class="realm" data-realm="smidse">
         <img class="tile-icon" src="/img/icons/smidse.webp" alt="">
         <strong>De Smidse</strong>
-        <span>Smeed je eigen lesmateriaal: quizzen voor elk spel en oefenbladen om live te spelen of te printen.</span>
+        <span>Smeed je eigen quizzen en oefenbladen, met of zonder AI.</span>
         <em class="tag">Maken</em>
       </button>
       <button class="realm" data-realm="wapenkamer">
         <img class="tile-icon" src="/img/icons/wapenkamer.webp" alt="">
         <strong>De Wapenkamer</strong>
-        <span>Klastools op het bord: een leerling kiezen, groepjes, timer, klastaken en meer.</span>
-        <em class="tag">8 tools</em>
+        <span>Klastools op het bord: kiezen, groepjes, timer en meer.</span>
+        <em class="tag">9 tools</em>
       </button>
       <button class="realm" data-realm="kronieken">
         <img class="tile-icon" src="/img/icons/kronieken.webp" alt="">
         <strong>De Kronieken</strong>
-        <span>Je eigen methodes: bordboeken en handleidingen per vak, blok en les, meteen op het bord.</span>
+        <span>Je methodes, je planning en je klas: lesgeven en opvolgen.</span>
         <em class="tag">Lesgeven</em>
       </button>
     </div>
-    <!-- Het Klaseiland staat vast onder de vijf rijken, welk rijk ook open is. -->
-    <div class="modules eiland-rij">
-      <button class="module balk" data-module="klaseiland">
-        <img class="tile-icon" src="/img/icons/klaseiland.webp" alt="">
-        <strong>Het Klaseiland</strong>
-        <span>Elke leerling verdient Eer met inzet en groei, en bouwt daarmee zijn eigen burcht. Samen één eiland op het bord, met een klasdoel.</span>
-        <em class="tag">Beloningen</em>
-      </button>
+    <div class="rijk-kop hidden" id="rijk-kop">
+      <button class="secondary" id="rijk-terug"><i class="ic ic-terug" aria-hidden="true"></i> Alle rijken</button>
+      <img class="rijk-kop-icoon" id="rijk-kop-icoon" src="" alt="">
+      <h2 id="rijk-kop-naam"></h2>
     </div>
-    <div class="realm-panel" id="realm-arena">
+    <div class="realm-panel hidden" id="realm-arena">
       <div class="groep-kop"><h3>Quiz en duel</h3><p class="muted small">Snel antwoorden: wie het eerst juist heeft, scoort. De klas volgt alles op het bord.</p></div>
       <div class="modules">
       <button class="module" data-module="toernooi">
@@ -325,6 +323,12 @@
     <div class="realm-panel hidden" id="realm-wapenkamer">
       <div class="groep-kop"><h3>Klastools</h3><p class="muted small">Snel iets regelen in de klas, schermvullend op het bord. Ze gebruiken de namen uit Mijn klas.</p></div>
       <div class="modules">
+      <button class="module" data-module="klaseiland">
+        <img class="tile-icon" src="/img/icons/klaseiland.webp" alt="">
+        <strong>Het Klaseiland</strong>
+        <span>Elke leerling verdient Eer met inzet en groei, en bouwt daarmee zijn eigen burcht. Samen één eiland op het bord, met een klasdoel.</span>
+        <em class="tag">Beloningen</em>
+      </button>
       <button class="module" data-wk="lot">
         <img class="tile-icon" src="/img/icons/wk-lot.webp" alt="">
         <strong>Het Lot</strong>
@@ -375,19 +379,38 @@
       </button>
       </div></div>
     <!-- De Kronieken: je eigen methodes per les. De boeken blijven op deze pc. -->
-    <div class="realm-panel hidden" id="realm-kronieken"><div class="modules">
+    <!-- De Kronieken: lesgeven en opvolgen. De boeken blijven op deze pc. -->
+    <div class="realm-panel hidden" id="realm-kronieken">
+      <div class="groep-kop"><h3>Lesgeven</h3><p class="muted small">Je methodes en je planning, meteen op het bord.</p></div>
+      <div class="modules">
       <button class="module" data-module="kronieken">
         <img class="tile-icon" src="/img/icons/kronieken.webp" alt="">
         <strong>Mijn methodes</strong>
-        <span>Je bordboeken, handleidingen en kopieerbladen in mappen per vak en blok. Per les meteen de juiste pagina, de voorkennisquiz, de quiz en het oefenblad.</span>
+        <span>Je bordboeken, handleidingen en kopieerbladen per vak en blok. Per les meteen de juiste pagina, de voorkennisquiz, de quiz en het oefenblad.</span>
         <em class="tag">Open</em>
       </button>
-      </div></div>
-    <div class="actions" style="justify-content:center">
-      <button class="secondary" id="open-klas" title="Klaslijst, doelen, zorgoverzicht, taken en logboek"><i class="ic ic-doel" aria-hidden="true"></i> Mijn klas</button>
-      <button class="secondary" id="open-results"><i class="ic ic-resultaten" aria-hidden="true"></i> Resultaten</button>
-      <button class="secondary" id="open-netwerk"><i class="ic ic-netwerk" aria-hidden="true"></i> Netwerk werkt niet?</button>
-      <button class="secondary" id="open-settings"><i class="ic ic-instellingen" aria-hidden="true"></i> Instellingen</button>
+      <button class="module" data-module="zonnewijzer">
+        <img class="tile-icon" src="/img/icons/zonnewijzer.webp" alt="">
+        <strong>De Zonnewijzer</strong>
+        <span>Je lesroosters en je weekplanning. Op het bord: de dag van vandaag, met het doel en de succescriteria van elke les.</span>
+        <em class="tag nieuw">Nieuw</em>
+      </button>
+      </div>
+      <div class="groep-kop"><h3>Opvolgen</h3><p class="muted small">Hoe gaat het met je klas?</p></div>
+      <div class="modules">
+      <button class="module" id="open-klas" title="Klaslijst, doelen, zorgoverzicht, taken en logboek">
+        <img class="tile-icon" src="/img/icons/burcht.webp" alt="">
+        <strong>Mijn klas</strong>
+        <span>Klaslijst, niveaus, zorgoverzicht, taken per leerling, doelen en het logboek.</span>
+        <em class="tag">Open</em>
+      </button>
+      <button class="module" id="open-results">
+        <img class="tile-icon" src="/img/icons/zegelrol.webp" alt="">
+        <strong>Resultaten</strong>
+        <span>De resultaten van elke quiz en elk spel, per leerling.</span>
+        <em class="tag">Open</em>
+      </button>
+      </div>
     </div>
   </section>
 
@@ -478,8 +501,8 @@
       <button type="button" data-tab="schermen">Bureau-pc</button>
     </nav>
     <div class="panel form" id="lesmap" data-tab="lesmap">
-      <h3>Mijn lesmap: van overal voorbereiden<details class="hulp"><summary aria-label="Uitleg">?</summary><p>Handig als je thuis voorbereidt. Kies een map die OneDrive of Google Drive op deze pc bijhoudt. LANcelot kopieert je quizzen en oefenbladen daarheen en haalt nieuwe op. Zonder lesmap werkt alles gewoon, alleen op deze pc.</p></details></h3>
-      <p class="muted small">Kies een map in je OneDrive of Google Drive. Je quizzen, oefenbladen en Ronde Tafels komen daar ook in. Op een andere pc met LANcelot kies je dezelfde map: wat je daar maakt, staat hier vanzelf klaar bij het opstarten (en daarna elke minuut). Je klaslijst, het logboek en de resultaten gaan nooit mee: die blijven op deze pc.</p>
+      <h3>Mijn lesmap: van overal voorbereiden<details class="hulp"><summary aria-label="Uitleg">?</summary><p>Handig als je thuis voorbereidt. Kies een map die OneDrive of Google Drive op deze pc bijhoudt. LANcelot kopieert je quizzen, oefenbladen en je planning uit De Zonnewijzer daarheen en haalt nieuwe op. Zonder lesmap werkt alles gewoon, alleen op deze pc.</p></details></h3>
+      <p class="muted small">Kies een map in je OneDrive of Google Drive. Je quizzen, oefenbladen, Ronde Tafels en je planning uit De Zonnewijzer komen daar ook in. Op een andere pc met LANcelot kies je dezelfde map: wat je daar maakt, staat hier vanzelf klaar bij het opstarten (en daarna elke minuut). Je klaslijst, het logboek en de resultaten gaan nooit mee: die blijven op deze pc.</p>
       <p id="lm-status"></p>
       <div class="actions" id="lm-suggest"></div>
       <label>Map<input id="lm-path" autocomplete="off" placeholder="bv. C:\Users\jij\OneDrive\LANcelot"></label>

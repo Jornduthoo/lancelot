@@ -32,17 +32,30 @@ document.addEventListener('click', () => sfx.unlock(), { once: true });
 $('mute').innerHTML = Ui.ic(sfx.muted ? 'stil' : 'geluid');
 $('mute').addEventListener('click', () => { $('mute').innerHTML = Ui.ic(sfx.toggle() ? 'stil' : 'geluid'); });
 
+// Het logo brengt je altijd terug naar het startscherm met de vijf rijken.
 $('brand').addEventListener('click', () => {
-  if (OWN_VIEWS.includes(view)) show('home');
+  if (!OWN_VIEWS.includes(view)) return;
+  show('home');
+  openRealm('');
 });
-// Startscherm: drie rijken. De gekozen tegel toont zijn onderdelen eronder en wordt onthouden.
+// Startscherm: enkel de vijf rijken. Een klik opent het rijk in hun plaats, met bovenaan "Alle rijken" om terug te gaan.
+// Een rijk staat ook in het adres (/host#arena), zodat Terug in de browser en herladen gewoon werken.
 function openRealm(id, scroll) {
-  for (const t of document.querySelectorAll('.realm')) t.classList.toggle('on', t.dataset.realm === id);
+  const tegel = id && document.querySelector(`.realm[data-realm="${id}"]`);
+  if (!tegel) id = '';
   for (const p of document.querySelectorAll('.realm-panel')) p.classList.toggle('hidden', p.id !== `realm-${id}`);
-  try { localStorage.setItem('lancelot-realm', id); } catch {}
+  $('home').classList.toggle('in-rijk', !!id);
+  $('rijk-kop').classList.toggle('hidden', !id);
+  if (id) {
+    $('rijk-kop-icoon').src = tegel.querySelector('.tile-icon').src;
+    $('rijk-kop-naam').textContent = tegel.querySelector('strong').textContent;
+  }
+  if (location.hash.slice(1) !== id) history.replaceState(null, '', id ? `#${id}` : location.pathname + location.search);
   fillRows();
-  if (scroll) $(`realm-${id}`).scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  if (scroll) window.scrollTo(0, 0);
 }
+$('rijk-terug').addEventListener('click', () => { openRealm(''); sfx.tick(); });
+addEventListener('hashchange', () => openRealm(location.hash.slice(1)));
 // Elke rij tegels vol: de eerste tegels worden breed tot de laatste rij gevuld is. De Arena heeft per groep een eigen raster.
 function fillRows() {
   for (const grid of document.querySelectorAll('.realm-panel:not(.hidden) .modules')) {
@@ -99,13 +112,13 @@ $('qr-venster').addEventListener('click', e => {
   if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) e.currentTarget.close();
 });
 document.querySelector('[data-realm="arena"] .tag').textContent = `${document.querySelectorAll('#realm-arena .module').length} spellen`;
-for (const t of document.querySelectorAll('.realm')) t.addEventListener('click', () => { openRealm(t.dataset.realm, true); sfx.tick(); });
-let savedRealm = 'arena';
-try { savedRealm = localStorage.getItem('lancelot-realm') || 'arena'; } catch {}
-openRealm(document.getElementById(`realm-${savedRealm}`) ? savedRealm : 'arena');
+for (const t of document.querySelectorAll('.realm')) t.addEventListener('click', () => { history.pushState(null, '', `#${t.dataset.realm}`); openRealm(t.dataset.realm, true); sfx.tick(); });
+addEventListener('popstate', () => openRealm(location.hash.slice(1)));
+openRealm(location.hash.slice(1));
 
 document.querySelector('[data-module="toernooi"]').addEventListener('click', () => show('idle'));
 document.querySelector('[data-module="rondetafel"]').addEventListener('click', () => { location.href = '/rondetafel'; });
+document.querySelector('[data-module="zonnewijzer"]').addEventListener('click', () => { location.href = '/zonnewijzer'; });
 document.querySelector('[data-module="kronieken"]').addEventListener('click', () => { location.href = '/kronieken'; });
 document.querySelector('[data-module="reeks"]').addEventListener('click', () => { location.href = '/reeks'; });
 document.querySelector('[data-module="runenraadsel"]').addEventListener('click', () => { location.href = '/runenraadsel'; });

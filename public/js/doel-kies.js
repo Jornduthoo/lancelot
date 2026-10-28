@@ -254,6 +254,10 @@ const DoelKies = (() => {
     });
     el.append(leerjaarKeuze(), search, chips);
     el.codes = () => codes.slice();
+    el.zet = lijst => {
+      codes = (lijst || []).slice();
+      paint();
+    };
     return el;
   }
 

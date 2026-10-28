@@ -19,19 +19,37 @@ try { kr.hier = localStorage.getItem(BEWAAR) || ''; } catch {}
 try { for (const m of JSON.parse(localStorage.getItem(`${BEWAAR}-open`) || '[]')) kr.open.add(m); } catch {}
 
 $('brand').addEventListener('click', () => { location.href = '/host'; });
-$('to-home').addEventListener('click', () => { location.href = '/host'; });
+$('to-home').addEventListener('click', () => { location.href = '/host#kronieken'; });
 
 let tekenKlaar = 0;
 const later = () => {
   cancelAnimationFrame(tekenKlaar);
   tekenKlaar = requestAnimationFrame(teken);
 };
-socket.on('kr-lijst', l => { kr.lijst = l; later(); });
+// /kronieken?map=…&naam=…&pagina=… (vanuit De Zonnewijzer): dat boek meteen open, op die pagina.
+const vraag = new URLSearchParams(location.search);
+let meteen = vraag.get('naam') ? { map: vraag.get('map') || '', naam: vraag.get('naam'), pagina: Number(vraag.get('pagina')) || 0 } : null;
+function openMeteen() {
+  if (!meteen) return;
+  const b = kr.lijst.bestanden.find(x => x.map === meteen.map && x.naam === meteen.naam);
+  if (!b) return;
+  const p = meteen.pagina;
+  meteen = null;
+  history.replaceState(null, '', '/kronieken');
+  gaNaar(b.map);
+  openBoek(b, p);
+}
+socket.on('kr-lijst', l => { kr.lijst = l; later(); openMeteen(); });
 socket.on('quizzes', l => { kr.quizzen = l; later(); });
 socket.on('ob-sheets', l => { kr.bladen = l; later(); });
 socket.on('quiz-folders', l => { kr.quizMappen = l; later(); });
 socket.on('ob-folders', l => { kr.bladMappen = l; later(); });
-socket.on('connect', () => socket.emit('kr-lijst', null, res => { if (res && res.ok) { kr.lijst = res; later(); } }));
+socket.on('connect', () => socket.emit('kr-lijst', null, res => {
+  if (!res || !res.ok) return;
+  kr.lijst = res;
+  later();
+  openMeteen();
+}));
 
 function alleMappen() {
   const s = new Set(kr.lijst.mappen);
@@ -151,8 +169,7 @@ function tekenSubmappen(mappen) {
 }
 
 const mb = n => (n >= 1048576 ? `${(n / 1048576).toFixed(n >= 10485760 ? 0 : 1)} MB` : `${Math.max(1, Math.round(n / 1024))} kB`);
-const sleutel = b => (b.map ? `${b.map}/${b.naam}` : b.naam);
-const boekVan = k => kr.lijst.bestanden.find(b => sleutel(b) === k);
+const sleutel = Lessen.sleutel;
 const zonderExt = n => n.replace(/\.[^.]+$/, '');
 
 function tekenBoeken() {
@@ -188,46 +205,7 @@ function tekenBoeken() {
 
 // ---------- Lessen ----------
 
-const LES = /^les\s*(\d{1,3})\b\s*[·:.\-–]?\s*(.*)$/i;
-const VOORKENNIS = /^voorkennis\s+les\s*(\d{1,3})\b/i;
-const XL = /\(XL\)\s*$/i;
-
-function lessenVan(map) {
-  if (!map) return [];
-  const per = new Map();
-  const les = nr => {
-    if (!per.has(nr)) per.set(nr, { nr, titel: '', quiz: null, voorkennis: null, blad: null, xl: null, links: [] });
-    return per.get(nr);
-  };
-  for (const q of kr.quizzen) {
-    if (q.folder === map) {
-      const m = LES.exec(q.title);
-      if (m) {
-        const l = les(Number(m[1]));
-        if (!l.quiz) l.quiz = q;
-        if (!l.titel) l.titel = m[2];
-      }
-    } else if (q.folder === `Voorkennis/${map}`) {
-      const m = VOORKENNIS.exec(q.title);
-      if (m) les(Number(m[1])).voorkennis = q;
-    }
-  }
-  for (const s of kr.bladen) {
-    if (s.folder !== map) continue;
-    const m = LES.exec(s.title);
-    if (!m) continue;
-    const l = les(Number(m[1]));
-    if (XL.test(s.title)) l.xl = l.xl || s;
-    else l.blad = l.blad || s;
-    if (!l.titel) l.titel = m[2].replace(XL, '').trim();
-  }
-  for (const [nr, links] of Object.entries((kr.lijst.lessen || {})[map] || {})) {
-    const l = les(Number(nr));
-    l.links = (links || []).filter(x => boekVan(x.boek));
-  }
-  for (const l of per.values()) if (!l.titel && l.voorkennis) l.titel = l.voorkennis.title.replace(/^voorkennis\s+les\s*\d+\s*[·:.\-–]?\s*/i, '');
-  return [...per.values()].sort((a, b) => a.nr - b.nr);
-}
+const lessenVan = map => Lessen.van(map, { quizzen: kr.quizzen, bladen: kr.bladen, kronieken: kr.lijst });
 
 function tekenLessen() {
   const doos = $('kr-lessen');
@@ -241,7 +219,7 @@ function tekenLessen() {
     kop.append(el('span', 'kr-les-nr', `Les ${l.nr}`), el('span', 'kr-les-titel', l.titel || ''));
     const knoppen = el('div', 'kr-les-knoppen');
     for (const link of l.links) {
-      const b = boekVan(link.boek);
+      const b = link.bestand;
       const groep = el('span', 'kr-link');
       const open = el('button', 'secondary kr-link-open', `📖 ${zonderExt(b.naam)} · p. ${link.pagina}`);
       open.type = 'button';
@@ -263,11 +241,11 @@ function tekenLessen() {
       b.addEventListener('click', klik);
       knoppen.append(b);
     };
-    if (l.voorkennis) knop('🎯 Voorkennis', 'De voorkennisquiz van deze les starten in het Toernooi', 'secondary', () => { location.href = `/host?quiz=${encodeURIComponent(l.voorkennis.file)}`; });
-    if (l.quiz) knop('⚔ Quiz', 'De quiz van deze les starten in het Toernooi', 'secondary', () => { location.href = `/host?quiz=${encodeURIComponent(l.quiz.file)}`; });
-    if (l.blad) knop('📝 Oefenblad', 'Het oefenblad live starten', 'secondary', () => { location.href = `/oefenblad?live=${encodeURIComponent(l.blad.file)}`; });
-    if (l.xl) knop('📝 XL', 'Het lange oefenblad live starten', 'secondary', () => { location.href = `/oefenblad?live=${encodeURIComponent(l.xl.file)}`; });
-    if (l.blad || l.xl) knop('🖨', 'Het oefenblad afdrukken', 'secondary icon', () => window.open(`/oefenblad-print?file=${encodeURIComponent((l.blad || l.xl).file)}`, '_blank'));
+    if (l.voorkennis) knop('🎯 Voorkennis', 'De voorkennisquiz van deze les starten in het Toernooi', 'secondary', () => { location.href = Lessen.link.quiz(l.voorkennis); });
+    if (l.quiz) knop('⚔ Quiz', 'De quiz van deze les starten in het Toernooi', 'secondary', () => { location.href = Lessen.link.quiz(l.quiz); });
+    if (l.blad) knop('📝 Oefenblad', 'Het oefenblad live starten', 'secondary', () => { location.href = Lessen.link.blad(l.blad); });
+    if (l.xl) knop('📝 XL', 'Het lange oefenblad live starten', 'secondary', () => { location.href = Lessen.link.blad(l.xl); });
+    if (l.blad || l.xl) knop('🖨', 'Het oefenblad afdrukken', 'secondary icon', () => window.open(Lessen.link.print(l.blad || l.xl), '_blank'));
     rij.append(kop, knoppen);
     doos.append(rij);
   }

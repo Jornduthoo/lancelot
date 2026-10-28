@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LANcelot · De Zonnewijzer</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/zonnewijzer.css">
+</head>
+<body class="zonnewijzer">
+<main>
+  <div class="topbar">
+    <div class="brand" id="brand" title="Naar het startscherm">
+      <img src="/img/mark.webp" alt="">
+      <div>
+        <div class="wordmark">LAN<span>celot</span></div>
+        <div class="subtitle">De Zonnewijzer</div>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="secondary pauze-knop" data-pauze title="Alle leerlingschermen op slot om de aandacht te vragen"><img src="/img/icons/pauze-klein.webp" alt=""> Pauze</button>
+      <button class="secondary" id="to-home">Terug</button>
+    </div>
+  </div>
+
+  <nav class="tabbalk" id="zw-tabs" aria-label="De Zonnewijzer">
+    <button data-tab="vandaag">☀️ Vandaag</button>
+    <button data-tab="week">📅 Week</button>
+    <button data-tab="roosters">🗓️ Lesroosters</button>
+  </nav>
+
+  <!-- Vandaag: de dag als tijdlijn, en de les van nu groot op het bord. -->
+  <section data-tab="vandaag" class="zw-vandaag" id="zw-vandaag">
+    <div class="zw-dagbalk">
+      <button class="secondary icon" id="zw-dag-vorige" aria-label="Vorige dag">◀</button>
+      <strong class="zw-dagnaam" id="zw-dagnaam"></strong>
+      <button class="secondary icon" id="zw-dag-volgende" aria-label="Volgende dag">▶</button>
+      <button class="secondary" id="zw-dag-nu">Vandaag</button>
+      <span class="muted small" id="zw-dag-rooster"></span>
+      <button class="secondary icon zw-vol" id="zw-vol" title="Schermvullend op het bord" aria-label="Schermvullend">⛶</button>
+    </div>
+    <div class="zw-dag">
+      <ol class="zw-tijdlijn" id="zw-tijdlijn" aria-label="De lessen van vandaag"></ol>
+      <article class="panel zw-nu" id="zw-nu"></article>
+    </div>
+  </section>
+
+  <!-- Week: per lesuur een les plannen. -->
+  <section data-tab="week" class="zw-weekvak">
+    <div class="panel zw-weekbalk">
+      <button class="secondary icon" id="zw-week-vorige" aria-label="Vorige week">◀</button>
+      <strong id="zw-weeknaam"></strong>
+      <button class="secondary icon" id="zw-week-volgende" aria-label="Volgende week">▶</button>
+      <button class="secondary" id="zw-week-nu">Deze week</button>
+      <label class="zw-weekrooster">Rooster deze week <select id="zw-week-rooster"></select></label>
+      <details class="hulp"><summary>?</summary><p>Tik op een lesuur om een les te plannen: uit De Kronieken (met quiz en oefenblad) of een eigen les. Werk je thuis aan je planning, kies dan bij Instellingen dezelfde Mijn lesmap als op het digibord: dan staat ze er 's morgens.</p></details>
+    </div>
+    <div class="zw-week-scroll"><table class="zw-week" id="zw-week"></table></div>
+    <p class="error" id="zw-fout"></p>
+  </section>
+
+  <!-- Roosters: welk vak op welk uur. Zoveel roosters als je wil. -->
+  <section data-tab="roosters" class="zw-roostervak">
+    <div class="panel zw-roosterkeuze">
+      <div class="zw-chips" id="zw-rooster-chips"></div>
+      <button class="secondary" id="zw-rooster-nieuw"><i class="ic ic-plus" aria-hidden="true"></i> Nieuw rooster</button>
+    </div>
+    <div class="panel zw-roosterbewerk">
+      <div class="row zw-roosterkop">
+        <label>Naam <input id="zw-rooster-naam" maxlength="40"></label>
+        <label class="zw-check"><input type="checkbox" id="zw-rooster-standaard"> Dit is mijn gewone rooster</label>
+        <button class="secondary danger-tekst" id="zw-rooster-weg">Rooster verwijderen</button>
+      </div>
+      <div class="zw-week-scroll"><table class="zw-raster" id="zw-raster"></table></div>
+      <div class="actions">
+        <button class="secondary" id="zw-uur-les"><i class="ic ic-plus" aria-hidden="true"></i> Lesuur</button>
+        <button class="secondary" id="zw-uur-pauze"><i class="ic ic-plus" aria-hidden="true"></i> Pauze</button>
+        <button id="zw-rooster-bewaar">Rooster bewaren</button>
+        <span class="muted small" id="zw-rooster-ok"></span>
+      </div>
+      <datalist id="zw-vakken"></datalist>
+    </div>
+  </section>
+</main>
+
+<!-- Een les plannen of aanpassen. -->
+<dialog class="zw-editor" id="zw-editor">
+  <form method="dialog" id="zw-form">
+    <div class="zw-editor-kop">
+      <h2 id="zw-ed-titel">Les plannen</h2>
+      <button type="button" class="secondary icon" id="zw-ed-dicht" aria-label="Sluiten"><i class="ic ic-kruis"></i></button>
+    </div>
+    <div class="row">
+      <label>Vak <input id="zw-ed-vak" list="zw-vakken" maxlength="30"></label>
+      <label>Uit De Kronieken <select id="zw-ed-map"><option value="">Eigen les (zonder quiz)</option></select></label>
+      <label id="zw-ed-les-label" class="hidden">Les <select id="zw-ed-les"></select></label>
+    </div>
+    <label>Titel van de les <input id="zw-ed-naam" maxlength="120" placeholder="bijv. Breuken optellen"></label>
+    <div id="zw-ed-doelen"></div>
+    <label>Ons doel, zoals de klas het op het bord ziet <textarea id="zw-ed-doel" rows="2" maxlength="300" placeholder="bijv. Ik leer breuken met een verschillende noemer optellen."></textarea></label>
+    <div class="zw-ed-criteria">
+      <div class="zw-ed-crit-kop"><strong>Succescriteria</strong> <span class="muted small">"Ik kan …"</span>
+        <button type="button" class="secondary small" id="zw-ed-voorstel" title="Een voorstel uit de gekozen doelen">✨ Voorstel uit de doelen</button>
+      </div>
+      <div id="zw-ed-crit"></div>
+      <button type="button" class="secondary small" id="zw-ed-crit-plus"><i class="ic ic-plus" aria-hidden="true"></i> Criterium</button>
+    </div>
+    <label>Notitie voor jezelf (niet op het bord) <textarea id="zw-ed-notitie" rows="2" maxlength="600"></textarea></label>
+    <p class="error" id="zw-ed-fout"></p>
+    <div class="actions zw-ed-knoppen">
+      <button type="button" class="secondary" id="zw-ed-schuif" title="Deze les en de volgende lessen van dit vak één uur opschuiven">⏭ Doorschuiven</button>
+      <button type="button" class="secondary" id="zw-ed-wis">Wissen</button>
+      <button type="button" id="zw-ed-bewaar">Bewaren</button>
+    </div>
+  </form>
+</dialog>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/ui.js"></script>
+<script src="/js/doel-kies.js"></script>
+<script src="/js/lessen.js"></script>
+<script src="/js/zw-host.js"></script>
+</body>
+</html>
