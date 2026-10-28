@@ -17,36 +17,55 @@
 //   open        model (het modelantwoord voor de leerkracht), regels
 //   papier      een opdracht op papier (bv. tekenen met passer); de leerkracht geeft de punten
 //   bron        titel, tekst, beeld en vragen (deelvragen a, b, c): de bron staat links, de vragen rechts
+//   getallenas  min, max, stap (de streepjes), antwoord (een getal op een streepje), getallen: 'rand' | 'alle', breuk (getallen als breuk)
+//   markeren    tekst waarin de leerling woorden aanduidt; de juiste staan tussen [ ]: "De [hond] [blaft] luid."
+//   tekenen     een tekenvak (eventueel op een afbeelding: beeld, verhouding); de leerkracht geeft de punten
+//   spreken     de leerling spreekt zijn antwoord in (seconden: hoe lang hooguit); de leerkracht geeft de punten
 //   blad        een pagina van de eigen toets-pdf zoals hij is (beeld, verhouding), met invulvakjes erop:
 //               velden: [{ x, y, w, h (procent van breedte en hoogte), soort: tekst | kruis | kies | open, antwoord, eenheid, punten, groep, opties }]
 //               kies = een keuzelijstje: opties, antwoord is de juiste optie
+//               teken = een vak om in te tekenen (de leerkracht verbetert), luister = een knop die audio afspeelt (geen antwoord)
 //               kruisjes met dezelfde groep tellen samen: alleen goed als precies de juiste aangekruist zijn
+// Bij invullen is {goed|fout|fout} een keuzelijstje: de eerste is de juiste, de leerling ziet ze alfabetisch.
+// Elke vraag kan audio hebben (eigen opname of geluidsbestand, als data-adres): de leerling hoort de uitleg met 🔊.
 // exact: true laat hoofdletters en leestekens meetellen bij invullen, kort en tabel.
 (function (root, factory) {
   if (typeof module === 'object' && module.exports) module.exports = factory();
   else root.PfKern = factory();
 })(typeof self !== 'undefined' ? self : this, () => {
-  const TYPES = ['meerkeuze', 'juistfout', 'invullen', 'kort', 'rekenen', 'verbinden', 'ordenen', 'tabel', 'aanduiden', 'open', 'papier', 'bron', 'blad'];
+  const TYPES = ['meerkeuze', 'juistfout', 'invullen', 'kort', 'rekenen', 'verbinden', 'ordenen', 'tabel', 'aanduiden', 'getallenas', 'markeren', 'tekenen', 'spreken', 'open', 'papier', 'bron', 'blad'];
   const NAMES = {
     meerkeuze: 'Meerkeuze', juistfout: 'Juist of fout', invullen: 'Invullen', kort: 'Kort antwoord', rekenen: 'Rekenvraag',
     verbinden: 'Verbinden', ordenen: 'Ordenen', tabel: 'Tabel invullen', aanduiden: 'Aanduiden op een afbeelding',
+    getallenas: 'Getallenas', markeren: 'Woorden aanduiden', tekenen: 'Tekenen', spreken: 'Inspreken',
     open: 'Open vraag', papier: 'Op papier', bron: 'Bron met deelvragen', blad: 'Blad uit je pdf',
   };
   // Wat de leerkracht zelf verbetert.
-  const MANUEEL = new Set(['open', 'papier']);
+  const MANUEEL = new Set(['open', 'papier', 'tekenen', 'spreken']);
   const NIVEAUS = ['page', 'schildknaap', 'ridder'];
   const MAX_VRAGEN = 80;
   const MAX_DEEL = 15;
   const MAX_VELDEN = 80;
-  const SOORTEN = ['tekst', 'kruis', 'kies', 'open'];
+  const SOORTEN = ['tekst', 'kruis', 'kies', 'open', 'teken', 'luister'];
+  // Wat de leerkracht verbetert op een blad.
+  const HAND_VELD = new Set(['open', 'teken']);
   // Een afbeelding is een klein webp-bestand (de editor verkleint), als data-adres in de toets zelf.
   const MAX_BEELD = 700000;
-  const GAP = /\[([^\[\]]+)\]/g;
+  // Audio: een opname van een minuut is ongeveer 300 kB; een geluidsbestand mag wat groter.
+  const MAX_AUDIO = 2000000;
+  // Een tekening of ingesproken antwoord van een leerling.
+  const MAX_TEKENING = 500000;
+  const MAX_OPNAME = 1500000;
+  // Een gat [antwoord] of een keuzelijstje {juist|fout|fout}.
+  const GAP = /\[([^\[\]]+)\]|\{([^{}]+)\}/g;
 
   const text = (v, max) => (typeof v === 'string' || typeof v === 'number' ? String(v).replace(/\r/g, '').trim().slice(0, max) : '');
   const list = (v, max) => (Array.isArray(v) ? v.slice(0, max) : []);
   const beeldOf = v => (typeof v === 'string' && /^data:image\/(webp|png|jpeg|gif);base64,[A-Za-z0-9+/=]+$/.test(v) && v.length <= MAX_BEELD ? v : '');
   // Een plaatshouder voor een afbeelding terwijl de AI een toets aanpast ("#beeld3"); de editor zet het beeld terug.
+  const audioOf = v => (typeof v === 'string' && /^data:audio\/[\w.+-]+(;codecs=[\w.,-]+)?;base64,[A-Za-z0-9+/=]+$/.test(v) && v.length <= MAX_AUDIO ? v : '');
+  const tekeningOf = v => (typeof v === 'string' && /^data:image\/(webp|png);base64,[A-Za-z0-9+/=]+$/.test(v) && v.length <= MAX_TEKENING ? v : null);
+  const opnameOf = v => (typeof v === 'string' && /^data:audio\/[\w.+-]+(;codecs=[\w.,-]+)?;base64,[A-Za-z0-9+/=]+$/.test(v) && v.length <= MAX_OPNAME ? v : null);
   const plaatsOf = v => (typeof v === 'string' && /^#beeld\d{1,3}$/.test(v) ? v : '');
   const punt = (v, standaard) => {
     if (v === undefined || v === null || v === '') return standaard;
@@ -54,7 +73,33 @@
     return Number.isFinite(n) && n >= 0 ? Math.min(100, Math.round(n * 2) / 2) : standaard;
   };
   const alts = s => String(s || '').split('|').map(a => a.trim()).filter(Boolean);
-  const gapsOf = s => [...String(s || '').matchAll(GAP)].map(m => alts(m[1]));
+  // Per gat de goede antwoorden; bij een keuzelijstje alleen de eerste.
+  const gapsOf = s => [...String(s || '').matchAll(GAP)].map(m => (m[2] !== undefined ? alts(m[2]).slice(0, 1) : alts(m[1])));
+  // Woorden aanduiden: de tekst in stukken; w = het nummer van een woord dat de leerling kan aanduiden, doel = juist.
+  const WOORD = /\[([^\[\]]+)\]|[\p{L}\p{N}][\p{L}\p{N}'’-]*/gu;
+  function woordenVan(tekst) {
+    const out = [];
+    let last = 0;
+    let w = 0;
+    for (const m of String(tekst || '').matchAll(WOORD)) {
+      if (m.index > last) out.push({ t: tekst.slice(last, m.index) });
+      out.push({ t: m[1] !== undefined ? m[1].trim() : m[0], w: w++, doel: m[1] !== undefined });
+      last = m.index + m[0].length;
+    }
+    if (last < String(tekst || '').length) out.push({ t: tekst.slice(last) });
+    return out;
+  }
+  const doelenVan = tekst => woordenVan(tekst).filter(s => s.doel).map(s => s.w);
+  // Een getal op de getallenas als tekst: 0,25 of als breuk 1/4 (de noemer volgt uit de stap).
+  function asTekst(x, breuk) {
+    if (breuk && Math.abs(x - Math.round(x)) > 1e-9) {
+      for (let d = 2; d <= 100; d++) {
+        const n = x * d;
+        if (Math.abs(n - Math.round(n)) < 1e-6) return `${Math.round(n)}/${d}`;
+      }
+    }
+    return String(Math.round(x * 1000) / 1000).replace('.', ',');
+  }
   // Ook een AI die Engelse namen gebruikt, of een gewone vraag zonder soort, komt goed.
   const pick = (o, ...keys) => { for (const k of keys) if (o[k] !== undefined) return o[k]; return undefined; };
 
@@ -74,6 +119,8 @@
     if (pagina >= 1 && pagina <= 999 && !beeld) out.beeldPagina = pagina;
     if (q.doel && typeof q.doel === 'string') out.doel = q.doel.trim().slice(0, 40);
     if (q.exact === true) out.exact = true;
+    const audio = audioOf(q.audio);
+    if (audio) out.audio = audio;
     const naam = `${waar} (${NAMES[type].toLowerCase()})`;
     if (type === 'bron') {
       out.titel = text(q.titel || q.title, 120);
@@ -109,6 +156,34 @@
       if (!n) throw new Error(`${naam} heeft geen gaten. Zet wat de leerling invult tussen [ en ].`);
       if (n > 40) throw new Error(`${naam} heeft te veel gaten (hooguit 40).`);
       max = n;
+    } else if (type === 'getallenas') {
+      const min = getal(q.min);
+      const maxi = getal(q.max);
+      const stap = getal(q.stap);
+      if (min === null || maxi === null || maxi <= min) throw new Error(`${naam}: kies een begin en een einde (het einde groter dan het begin).`);
+      if (!(stap > 0) || (maxi - min) / stap > 100.000001) throw new Error(`${naam}: de stap tussen de streepjes is te klein (hooguit 100 streepjes).`);
+      Object.assign(out, { min: text(q.min, 20), max: text(q.max, 20), stap: text(q.stap, 20) });
+      const a = getal(pick(q, 'antwoord', 'answer'));
+      if (a === null) throw new Error(`${naam}: het juiste getal ontbreekt.`);
+      out.antwoord = text(pick(q, 'antwoord', 'answer'), 20);
+      out.getallen = q.getallen === 'alle' ? 'alle' : 'rand';
+      if (q.breuk === true) out.breuk = true;
+    } else if (type === 'markeren') {
+      out.tekst = text(q.tekst || q.text, 4000);
+      const n = doelenVan(out.tekst).length;
+      if (!n) throw new Error(`${naam}: zet de woorden die de leerling moet aanduiden tussen [ en ].`);
+      max = n;
+    } else if (type === 'tekenen') {
+      const v = Number(q.verhouding);
+      out.verhouding = v > 0.05 && v < 20 ? Math.round(v * 1000) / 1000 : 0.6;
+      const model = text(pick(q, 'model', 'modelantwoord'), 2000);
+      if (model) out.model = model;
+      max = 2;
+    } else if (type === 'spreken') {
+      out.seconden = Math.min(180, Math.max(10, Math.round(Number(q.seconden)) || 60));
+      const model = text(pick(q, 'model', 'modelantwoord'), 2000);
+      if (model) out.model = model;
+      max = 2;
     } else if (type === 'kort' || type === 'rekenen') {
       out.antwoord = text(pick(q, 'antwoord', 'answer', 'uitkomst'), 300);
       if (!alts(out.antwoord).length) throw new Error(`${naam}: het juiste antwoord ontbreekt.`);
@@ -174,6 +249,16 @@
         const antwoord = text(f.antwoord, 80);
         if (antwoord) veld.antwoord = antwoord;
         veld.punten = punt(f.punten, 1);
+      } else if (soort === 'luister') {
+        const audio = audioOf(f.audio);
+        if (audio) veld.audio = audio;
+        const tekst = text(f.tekst, 1000);
+        if (tekst) veld.tekst = tekst;
+        veld.punten = 0;
+      } else if (soort === 'teken') {
+        const antwoord = text(f.antwoord, 1000);
+        if (antwoord) veld.antwoord = antwoord;
+        veld.punten = punt(f.punten, 1);
       } else {
         const antwoord = text(f.antwoord, soort === 'open' ? 1000 : 300);
         if (antwoord) veld.antwoord = antwoord;
@@ -183,7 +268,7 @@
       }
       return veld;
     });
-    out.punten = out.velden.filter(f => f.soort !== 'open').reduce((s, f) => s + f.punten, 0);
+    out.punten = out.velden.filter(f => !HAND_VELD.has(f.soort)).reduce((s, f) => s + f.punten, 0);
     return out;
   }
 
@@ -251,6 +336,13 @@
           if (v.type === 'aanduiden' && !v.beeld) out.push(`${tag}vraag ${nr}: kies de afbeelding waarop de leerling aanduidt`);
           else if (v.type === 'aanduiden' && !v.zones.length) out.push(`${tag}vraag ${nr}: klik op de afbeelding waar het juiste antwoord ligt`);
           if (typeof v.beeld === 'string' && v.beeld.startsWith('#')) out.push(`${tag}vraag ${nr}: de afbeelding ontbreekt`);
+          if (v.type === 'getallenas') {
+            const min = getal(v.min); const stap = getal(v.stap); const a = getal(v.antwoord);
+            const k = (a - min) / stap;
+            if (a < min - 1e-9 || a > getal(v.max) + 1e-9) out.push(`${tag}vraag ${nr}: het juiste getal ligt niet op de getallenas`);
+            else if (Math.abs(k - Math.round(k)) > 1e-6) out.push(`${tag}vraag ${nr}: het juiste getal ligt niet op een streepje (kies een kleinere stap)`);
+          }
+          if (v.type === 'blad' && v.velden.some(f => f.soort === 'luister' && !f.audio && !f.tekst)) out.push(`${tag}blad ${nr}: een luisterknop heeft nog geen opname`);
           if (v.type === 'blad' && !v.velden.length) out.push(`${tag}blad ${nr}: zet invulvakjes op het blad`);
           if (v.type === 'blad') {
             const zonder = v.velden.map((f, k) => ((f.soort === 'tekst' && !alts(f.antwoord).length) || (f.soort === 'kies' && (f.opties.length < 2 || !f.opties.includes(f.antwoord))) ? k + 1 : 0)).filter(Boolean);
@@ -281,7 +373,7 @@
   }
 
   // Punten: wat de computer verbetert en wat de leerkracht verbetert.
-  const openVelden = q => q.velden.filter(f => f.soort === 'open').reduce((s, f) => s + f.punten, 0);
+  const openVelden = q => q.velden.filter(f => HAND_VELD.has(f.soort)).reduce((s, f) => s + f.punten, 0);
   const handPunten = q => (MANUEEL.has(q.type) ? q.punten : q.type === 'rekenen' ? q.werkPunten : q.type === 'blad' ? openVelden(q) : 0);
   const autoPunten = q => (MANUEEL.has(q.type) ? 0 : q.punten);
   const maxVan = q => autoPunten(q) + handPunten(q);
@@ -297,7 +389,8 @@
     let g = 0;
     for (const m of String(tekst).matchAll(GAP)) {
       parts.push(tekst.slice(last, m.index));
-      parts.push({ gap: g++, size: Math.min(28, Math.max(4, Math.max(...alts(m[1]).map(s => s.length)) + 2)) });
+      if (m[2] !== undefined) parts.push({ gap: g++, opties: [...new Set(alts(m[2]))].sort((a, b) => a.localeCompare(b, 'nl', { numeric: true })) });
+      else parts.push({ gap: g++, size: Math.min(28, Math.max(4, Math.max(...alts(m[1]).map(s => s.length)) + 2)) });
       last = m.index + m[0].length;
     }
     parts.push(tekst.slice(last));
@@ -308,6 +401,7 @@
     const v = { id, type: q.type, punten: maxVan(q) };
     if (q.vraag) v.vraag = q.vraag;
     if (q.beeld && !q.beeld.startsWith('#')) v.beeld = img(q.beeld);
+    if (q.audio) v.audio = img(q.audio);
     const p = perms[id];
     if (q.type === 'meerkeuze') {
       const order = p || q.opties.map((_, i) => i);
@@ -327,11 +421,21 @@
         const m = ri > 0 && /^\[([^\[\]]+)\]$/.exec(c);
         return m ? { gap: g++, size: Math.min(14, Math.max(3, Math.max(...alts(m[1]).map(s => s.length)) + 1)) } : c;
       }));
-    } else if (q.type === 'aanduiden') v.verhouding = q.verhouding;
+    } else if (q.type === 'aanduiden' || q.type === 'tekenen') v.verhouding = q.verhouding;
+    else if (q.type === 'getallenas') {
+      Object.assign(v, { min: getal(q.min), max: getal(q.max), stap: getal(q.stap), getallen: q.getallen });
+      if (q.breuk) v.breuk = true;
+    } else if (q.type === 'markeren') v.stukken = woordenVan(q.tekst).map(s => (s.w === undefined ? { t: s.t } : { t: s.t, w: s.w }));
+    else if (q.type === 'spreken') v.seconden = q.seconden;
     else if (q.type === 'open') v.regels = q.regels;
     else if (q.type === 'blad') {
       v.verhouding = q.verhouding;
-      v.velden = q.velden.map(f => (f.soort === 'kies' ? { x: f.x, y: f.y, w: f.w, h: f.h, soort: f.soort, opties: f.opties } : { x: f.x, y: f.y, w: f.w, h: f.h, soort: f.soort }));
+      v.velden = q.velden.map(f => {
+        const o = { x: f.x, y: f.y, w: f.w, h: f.h, soort: f.soort };
+        if (f.soort === 'kies') o.opties = f.opties;
+        if (f.soort === 'luister') { if (f.audio) o.audio = img(f.audio); if (f.tekst) o.tekst = f.tekst; }
+        return o;
+      });
     }
     return v;
   }
@@ -455,6 +559,18 @@
       for (const g of groepen.values()) if (g.goed) som += g.punten;
       return half(som);
     }
+    if (q.type === 'getallenas') {
+      const x = getal(q.antwoord);
+      return Number.isFinite(Number(a)) && Math.abs(Number(a) - x) < Math.max(1e-6, getal(q.stap) / 1000) ? p : 0;
+    }
+    if (q.type === 'markeren') {
+      const doelen = new Set(doelenVan(q.tekst));
+      const gekozen = new Set(Array.isArray(a) ? a : []);
+      let goed = 0;
+      let fout = 0;
+      for (const w of gekozen) if (doelen.has(w)) goed++; else fout++;
+      return half((p * Math.max(0, goed - fout)) / doelen.size);
+    }
     if (q.type === 'aanduiden') {
       if (!a || typeof a !== 'object') return 0;
       const x = Number(a.x);
@@ -473,7 +589,11 @@
     if (q.type === 'invullen' || q.type === 'tabel') return list(a, 60).map(v => str(v).slice(0, 200));
     if (q.type === 'verbinden' || q.type === 'ordenen') return list(a, 12).map(v => (v === null || v === '' ? null : Number.isInteger(Number(v)) ? Number(v) : null));
     if (q.type === 'rekenen') return a && typeof a === 'object' ? { werk: str(a.werk), uitkomst: str(a.uitkomst).slice(0, 200) } : null;
-    if (q.type === 'blad') return list(a, MAX_VELDEN).map(v => (v === true ? true : v === false || v === null ? null : str(v).slice(0, 1000)));
+    if (q.type === 'blad') return list(a, MAX_VELDEN).map((v, k) => (v === true ? true : v === false || v === null ? null : q.velden[k] && q.velden[k].soort === 'teken' ? tekeningOf(v) : str(v).slice(0, 1000)));
+    if (q.type === 'getallenas') return a !== '' && Number.isFinite(Number(a)) ? Math.round(Number(a) * 1e6) / 1e6 : null;
+    if (q.type === 'markeren') return [...new Set(list(a, 400).map(Number).filter(n => Number.isInteger(n) && n >= 0))].sort((x, y) => x - y);
+    if (q.type === 'tekenen') return tekeningOf(a);
+    if (q.type === 'spreken') return opnameOf(a);
     if (q.type === 'aanduiden') return a && typeof a === 'object' && Number.isFinite(Number(a.x)) && Number.isFinite(Number(a.y)) ? { x: Math.round(Number(a.x) * 10) / 10, y: Math.round(Number(a.y) * 10) / 10 } : null;
     return str(a);
   }
@@ -481,7 +601,7 @@
   // "36 cm", maar geen "36 cm cm" als de eenheid al in het antwoord staat.
   const metEenheid = (a, e) => (e && !String(a || '').toLowerCase().includes(e.toLowerCase()) ? `${a} ${e}` : String(a || ''));
   // Het juiste antwoord per vakje van een blad: tekst, ✗ (aankruisen) of leeg.
-  const veldSleutel = q => q.velden.map(f => (f.soort === 'kruis' ? (f.antwoord ? '✗' : '') : f.soort === 'open' || f.soort === 'kies' ? (f.antwoord || '') : metEenheid(alts(f.antwoord)[0] || '', f.eenheid)));
+  const veldSleutel = q => q.velden.map(f => (f.soort === 'kruis' ? (f.antwoord ? '✗' : '') : f.soort === 'luister' ? '' : f.soort === 'tekst' ? metEenheid(alts(f.antwoord)[0] || '', f.eenheid) : (f.antwoord || '')));
 
   // Het juiste antwoord als tekst, voor het verbeterblad en de leerkracht.
   function oplossing(q) {
@@ -494,7 +614,9 @@
     if (q.type === 'verbinden') return q.paren.map(p => `${p[0]} = ${p[1]}`).join(' · ');
     if (q.type === 'ordenen') return q.items.join(' → ');
     if (q.type === 'tabel') return q.rijen.slice(1).flat().map(c => /^\[([^\[\]]+)\]$/.exec(c)).filter(Boolean).map(m => alts(m[1])[0]).join(' · ');
-    if (q.type === 'open' || q.type === 'papier') return q.model || '';
+    if (q.type === 'getallenas') return asTekst(getal(q.antwoord), q.breuk);
+    if (q.type === 'markeren') return woordenVan(q.tekst).filter(s => s.doel).map(s => s.t).join(' · ');
+    if (MANUEEL.has(q.type)) return q.model || '';
     return '';
   }
 
@@ -524,6 +646,6 @@
   return {
     TYPES, NAMES, MANUEEL, NIVEAUS, MAX_BEELD, validate, problemen, vragenVan, niveausVan, lijstVoor,
     maxVan, autoPunten, handPunten, totaal, viewOf, studentView, partsOf, getal, zelfde, canoniek, auto, schoon, oplossing, schud, alts, gapsOf,
-    waarschuwingen, veldSleutel, vakGoed, metEenheid, volgorde, SOORTEN,
+    waarschuwingen, veldSleutel, vakGoed, metEenheid, volgorde, SOORTEN, HAND_VELD, woordenVan, doelenVan, asTekst, MAX_AUDIO,
   };
 });

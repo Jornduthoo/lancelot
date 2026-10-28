@@ -80,7 +80,7 @@ class ProefLive {
   // Afbeeldingen gaan niet mee in elke stand: de leerling laadt ze één keer via /toets-beeld/<run>/<nummer>.
   img(data) {
     if (!this.beeldIndex.has(data)) {
-      const m = /^data:(image\/[\w+.-]+);base64,(.*)$/.exec(data);
+      const m = /^data:((?:image|audio)\/[\w+.-]+)(?:;codecs=[\w.,-]+)?;base64,(.*)$/.exec(data);
       if (!m) return '';
       this.beeldIndex.set(data, this.beelden.length);
       this.beelden.push({ mime: m[1], buf: Buffer.from(m[2], 'base64') });

@@ -327,3 +327,73 @@ select.pf-veld.kies { padding: 0 .1em; appearance: auto; cursor: pointer; }
 .pf-vak-chips button.fout { background: rgb(var(--k-rood) / .25); color: var(--text); }
 .pf-vak-chips button.zelf { box-shadow: inset 0 0 0 2px rgb(var(--k-goud)); }
 .pf-veld-sleutel.in { display: flex; align-items: center; z-index: 1; transform: none; background: none; overflow: hidden; }
+
+/* ---------- Startkeuzes en vraag toevoegen ---------- */
+.pf-start { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px; margin: 0 0 14px; }
+.pf-start-k { display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-start; gap: 4px; text-transform: none; letter-spacing: 0; font-weight: 400; padding: 14px 16px; text-align: left; background: rgb(var(--k-cyan) / .07); color: var(--text); box-shadow: inset 0 0 0 1px var(--line); clip-path: none; border-radius: 8px; transition: transform .12s, box-shadow .12s; }
+.pf-start-k:hover { transform: translateY(-2px); box-shadow: inset 0 0 0 2px rgb(var(--k-goud)); background: rgb(var(--k-goud) / .08); }
+.pf-start-k strong { font-size: 1.02rem; }
+.pf-start-k small { color: var(--muted); font-weight: 400; line-height: 1.3; }
+.pf-start-ic { font-size: 1.7rem; line-height: 1; }
+#e-add { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; }
+.pf-add-groep { display: flex; flex-direction: column; gap: 6px; }
+.pf-add-groep > b { font-size: .8rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+.ob-add .pf-add-k { display: flex; flex-direction: row; justify-content: flex-start; align-items: center; gap: 10px; width: 100%; min-height: 0; margin: 0; text-transform: none; letter-spacing: 0; font-weight: 400; padding: 7px 10px; text-align: left; background: rgb(var(--k-cyan) / .06); color: var(--text); box-shadow: inset 0 0 0 1px var(--line); clip-path: none; border-radius: 6px; font-size: .9rem; cursor: pointer; }
+.ob-add .pf-add-k:hover { box-shadow: inset 0 0 0 2px rgb(var(--k-goud)); }
+.pf-add-k > span:last-child { display: flex; flex-direction: column; align-items: flex-start; }
+.pf-add-k strong { font-weight: 700; }
+.pf-add-k small { color: var(--muted); font-weight: 400; font-size: .78rem; }
+.pf-add-ic { width: 1.6em; font-size: 1.25rem; text-align: center; flex: none; }
+.pf-vragen:empty::before { content: 'Nog geen vragen. Kies hieronder wat voor vraag je toevoegt.'; display: block; padding: 18px; border: 2px dashed var(--line); border-radius: 8px; color: var(--muted); text-align: center; }
+.pf-vragen.hidden:empty::before { display: none; }
+
+/* ---------- Audio ---------- */
+.pf-audio-rij, .pf-audio-knop, .pf-spreek, .pf-be-luister { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.pf-audio-rij audio, .pf-spreek audio, .pf-be-luister audio { height: 34px; max-width: 260px; }
+.pf-rec.stop { background: #d6334f; color: #fff; animation: pf-puls 1.2s infinite; }
+@keyframes pf-puls { 50% { opacity: .75; } }
+.pf-rec-uitleg { max-width: 420px; }
+.pf-luister { display: inline-grid; place-items: center; min-width: 0; margin-right: 6px; padding: 2px 8px; font-size: 1.05rem; line-height: 1.4; background: rgb(var(--k-cyan) / .14); color: inherit; box-shadow: inset 0 0 0 1px var(--line); clip-path: none; border-radius: 999px; cursor: pointer; }
+.pf-luister.speelt { background: rgb(var(--k-goud) / .35); }
+.pf-blad-luister { position: absolute; margin: 0; padding: 0; font-size: max(12px, 2cqw); border-radius: 50%; background: rgba(255, 236, 150, .9); box-shadow: 0 0 0 2px #c49a3a; z-index: 2; }
+.pf-be-veld.luister { background: rgba(255, 170, 0, .25); box-shadow: inset 0 0 0 1.5px #e08a00; }
+.pf-be-veld.teken { background: rgba(0, 150, 200, .1); box-shadow: inset 0 0 0 1.5px #0096c8; }
+.pf-blad-mini i.teken { background: rgba(0, 150, 200, .15); box-shadow: inset 0 0 0 1px #0096c8; }
+.pf-blad-mini i.luister { background: rgba(255, 170, 0, .4); }
+
+/* ---------- Keuzelijstje, getallenas, woorden aanduiden ---------- */
+select.pf-kies { width: auto; min-width: 6em; display: inline-block; margin: 0 2px; }
+.pf-kies-print { white-space: nowrap; }
+.pf-as { position: relative; height: 74px; margin: 10px 0 6px; user-select: none; touch-action: none; }
+.pf-as.live { cursor: pointer; }
+.pf-as-lijn { position: absolute; left: 2%; right: 2%; top: 30px; height: 3px; background: currentColor; }
+.pf-as-lijn::after { content: ''; position: absolute; right: -8px; top: -5px; border: 6.5px solid transparent; border-left: 9px solid currentColor; border-right: 0; }
+.pf-as-streep { position: absolute; top: 24px; width: 2px; height: 15px; margin-left: -1px; background: currentColor; }
+.pf-as-streep.groot { top: 20px; height: 23px; }
+.pf-as-getal { position: absolute; top: 46px; transform: translateX(-50%); font-weight: 700; font-size: .95rem; white-space: nowrap; }
+.pf-as-pin { position: absolute; top: 2px; width: 0; height: 0; margin-left: -10px; border: 10px solid transparent; border-top: 16px solid #d6334f; border-bottom: 0; filter: drop-shadow(0 1px 2px rgba(0, 0, 0, .4)); pointer-events: none; }
+.pf-markeer { line-height: 2.1; font-size: 1.08rem; }
+.pf-woord { padding: 2px 3px; border-radius: 4px; }
+.pf-markeer.live .pf-woord { cursor: pointer; }
+.pf-markeer.live .pf-woord:hover { background: rgb(var(--k-cyan) / .18); }
+.pf-woord.on { background: #ffe14d; color: #1d1d1f; box-shadow: 0 0 0 1px #d4b100; }
+.pf-print .pf-woord.on { background: none; text-decoration: underline 2px; }
+
+/* ---------- Tekenen ---------- */
+.pf-teken-wrap { position: relative; width: 100%; max-width: 760px; background: #fff; border-radius: 4px; box-shadow: 0 0 0 1.5px #b9ab88; overflow: hidden; }
+.pf-teken-wrap.klein { max-width: 360px; }
+.pf-teken-wrap > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
+.pf-teken { position: absolute; inset: 0; }
+.pf-tekenvak canvas { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; cursor: crosshair; }
+.pf-teken-balk { position: absolute; right: 6px; top: 6px; display: flex; gap: 4px; padding: 4px; background: rgba(255, 255, 255, .92); border-radius: 8px; box-shadow: 0 1px 6px rgba(0, 0, 0, .25); }
+.pf-teken-balk button { min-width: 0; width: 32px; height: 32px; padding: 0; display: grid; place-items: center; background: #f1f1f1; color: #1d1d1f; clip-path: none; border-radius: 6px; font-size: 1rem; box-shadow: none; }
+.pf-teken-balk button.on { box-shadow: 0 0 0 2px #2b6cff; background: #fff; }
+.pf-kleur::after { content: ''; width: 16px; height: 16px; border-radius: 50%; background: var(--kleur); }
+.pf-veld.teken { padding: 0; background: rgba(255, 255, 255, .25); box-shadow: inset 0 0 0 1.5px rgba(0, 150, 200, .7); }
+.pf-veld.teken .pf-teken-balk { top: auto; bottom: 100%; right: 0; padding: 2px; opacity: 0; pointer-events: none; transition: opacity .15s; z-index: 3; }
+.pf-veld.teken:hover .pf-teken-balk, .pf-veld.teken:focus-within .pf-teken-balk { opacity: 1; pointer-events: auto; }
+.pf-veld.teken .pf-teken-balk button { width: 26px; height: 26px; font-size: .85rem; }
+.pf-veld.teken.kijk img { width: 100%; height: 100%; }
+.pf-tekening { position: absolute; inset: 0; width: 100%; height: 100%; }
+.pf-vak-tekening { display: block; max-width: 320px; max-height: 200px; margin-top: 4px; background: #fff; box-shadow: 0 0 0 1px var(--line); }
+@media (hover: none) { .pf-veld.teken .pf-teken-balk { opacity: 1; pointer-events: auto; } }

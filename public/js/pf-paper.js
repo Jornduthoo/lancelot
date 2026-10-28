@@ -18,9 +18,10 @@ const PfPaper = (() => {
     const ro = live ? '' : ' readonly';
     const say = o.voorlees && !print && typeof Voorlees !== 'undefined' && Voorlees.ok
       ? `<button type="button" class="ob-say pf-say" data-say="${o.said.push([q.vraag, ...(q.opties || []).map((x, i) => `${L[i]}: ${x.tekst || ''}`)].filter(Boolean).join('\n')) - 1}" title="Lees voor" aria-label="Lees voor">🔊</button>` : '';
+    const luister = q.audio && !print ? `<button type="button" class="pf-luister" data-src="${esc(q.audio)}" title="Luister naar de uitleg" aria-label="Luister">🎧</button>` : '';
     const got = o.punten && o.punten[q.id];
     let h = `<div class="pf-q pf-${q.type}" data-id="${esc(q.id)}" data-type="${q.type}">
-      <h3><span class="pf-nr">${esc(nr)}</span>${say}<span class="pf-vraag">${esc(q.vraag || '').replace(/\n/g, '<br>')}</span>
+      <h3><span class="pf-nr">${esc(nr)}</span>${say}${luister}<span class="pf-vraag">${esc(q.vraag || '').replace(/\n/g, '<br>')}</span>
       <small class="pf-ptn">${got ? `<b>${nl(got[0] ?? '?')}</b> / ${nl(got[1])}` : `/ ${nl(q.punten)}`}</small></h3>`;
     if (q.type === 'blad') return `${h}${bladHtml(q, a, o)}</div>`;
     if (q.beeld && q.type !== 'aanduiden') h += `<img class="pf-beeld" src="${esc(q.beeld)}" alt="" loading="lazy">`;
@@ -37,6 +38,10 @@ const PfPaper = (() => {
     } else if (q.type === 'invullen') {
       h += `<p class="pf-gaten">${q.parts.map(part => {
         if (typeof part === 'string') return esc(part).replace(/\n/g, '<br>');
+        if (part.opties) {
+          if (print) return `<span class="pf-kies-print">( ${part.opties.map(esc).join(' / ')} )</span>`;
+          return `<select class="ob-field ob-gap pf-in pf-kies" data-k="${part.gap}"${dis}><option value=""></option>${part.opties.map(x => `<option${(a || [])[part.gap] === x ? ' selected' : ''}>${esc(x)}</option>`).join('')}</select>`;
+        }
         if (print) return `<span class="ob-line" style="min-width:${part.size * 0.62}em"></span>`;
         return `<input class="ob-field ob-gap pf-in" data-k="${part.gap}" size="${part.size}" autocomplete="off" autocapitalize="off" spellcheck="false" value="${esc((a || [])[part.gap] ?? '')}"${ro}>`;
       }).join('')}</p>`;
@@ -72,6 +77,20 @@ const PfPaper = (() => {
         <div class="pf-kaart${live ? ' live' : ''}" style="aspect-ratio:${1 / (q.verhouding || 0.75)}">${q.beeld ? `<img src="${esc(q.beeld)}" alt="" draggable="false">` : '<span class="muted">Nog geen afbeelding</span>'}
         ${zones.map(z => `<i class="pf-zone" style="left:${z.x}%;top:${z.y}%;width:${z.r * 2}%;"></i>`).join('')}
         ${pt ? `<i class="pf-pin" style="left:${pt.x}%;top:${pt.y}%"></i>` : ''}</div>`;
+    } else if (q.type === 'getallenas') {
+      h += `<p class="pf-tip">${print ? 'Zet een pijltje op de juiste plek.' : 'Tik op de getallenas waar het getal ligt.'}</p>${asHtml(q, a, live)}`;
+    } else if (q.type === 'markeren') {
+      const on = new Set([].concat(a ?? []).map(Number));
+      h += `<p class="pf-tip">${print ? 'Onderstreep de juiste woorden.' : 'Tik op de woorden om ze aan te duiden. Nog eens tikken haalt het weg.'}</p>
+        <p class="pf-markeer${live ? ' live' : ''}">${q.stukken.map(x => (x.w === undefined ? esc(x.t).replace(/\n/g, '<br>') : `<span class="pf-woord${on.has(x.w) ? ' on' : ''}" data-w="${x.w}"${live ? ' role="button" tabindex="0"' : ''}>${esc(x.t)}</span>`)).join('')}</p>`;
+    } else if (q.type === 'tekenen') {
+      const st = `aspect-ratio:${Math.round((1 / (q.verhouding || 0.6)) * 1000) / 1000}`;
+      h += `${live ? '<p class="pf-tip">Teken met je vinger, pen of muis.</p>' : ''}<div class="pf-teken-wrap" style="${st}">${q.beeld ? `<img src="${esc(q.beeld)}" alt="" draggable="false">` : ''}
+        ${live ? '<div class="pf-teken"></div>' : typeof a === 'string' && a ? `<img class="pf-tekening" src="${esc(a)}" alt="">` : ''}</div>`;
+    } else if (q.type === 'spreken') {
+      h += print ? '<p class="pf-papier">🗣 Deze vraag beantwoord je mondeling.</p>'
+        : live ? `<p class="pf-tip">Neem je antwoord op (hooguit ${q.seconden || 60} seconden). Je mag opnieuw opnemen.</p><div class="pf-spreek" data-seconden="${q.seconden || 60}"></div>`
+          : typeof a === 'string' && a ? `<audio controls preload="none" src="${esc(a)}"></audio>` : '<p class="muted">Nog niets ingesproken.</p>';
     } else if (q.type === 'open') {
       h += print ? `<div class="ob-lines">${'<i></i>'.repeat(q.regels || 3)}</div>`
         : `<textarea class="ob-field pf-open" rows="${Math.min(8, Math.max(2, q.regels || 3))}"${ro}>${esc(a ?? '')}</textarea>`;
@@ -80,6 +99,28 @@ const PfPaper = (() => {
     }
     if (o.sleutel && String(o.sleutel[q.id] || '').trim()) h += `<p class="pf-sleutel">✔ ${esc(o.sleutel[q.id]).replace(/\n/g, '<br>')}</p>`;
     return `${h}</div>`;
+  }
+
+  // Een getallenas: streepjes per stap, de getallen aan de uiteinden of overal. De leerling ziet niet welk getal hij aanduidt.
+  // Zoals PfKern.asTekst (die laadt niet bij de leerling).
+  function asTekst(x, breuk) {
+    if (breuk && Math.abs(x - Math.round(x)) > 1e-9) {
+      for (let d = 2; d <= 100; d++) if (Math.abs(x * d - Math.round(x * d)) < 1e-6) return `${Math.round(x * d)}/${d}`;
+    }
+    return String(Math.round(x * 1000) / 1000).replace('.', ',');
+  }
+  function asHtml(q, a, live) {
+    const n = Math.round((q.max - q.min) / q.stap);
+    const pos = x => 4 + (92 * (x - q.min)) / (q.max - q.min);
+    const elke = q.getallen === 'alle' ? Math.max(1, Math.ceil(n / 20)) : n;
+    let streep = '';
+    for (let i = 0; i <= n; i++) {
+      const x = q.min + i * q.stap;
+      const label = i === 0 || i === n || i % elke === 0;
+      streep += `<i class="pf-as-streep${label ? ' groot' : ''}" style="left:${pos(x)}%"></i>${label ? `<b class="pf-as-getal" style="left:${pos(x)}%">${esc(asTekst(x, q.breuk))}</b>` : ''}`;
+    }
+    const pin = a !== null && a !== undefined && a !== '' && Number.isFinite(Number(a)) ? `<i class="pf-as-pin" style="left:${pos(Number(a))}%"></i>` : '';
+    return `<div class="pf-as${live ? ' live' : ''}" data-min="${q.min}" data-max="${q.max}" data-stap="${q.stap}"${pin ? ` data-waarde="${Number(a)}"` : ''}><span class="pf-as-lijn"></span>${streep}${pin}</div>`;
   }
 
   // Een blad uit de pdf: de pagina zelf, met de vakjes erop. De letters groeien mee met het blad (cqw).
@@ -106,6 +147,12 @@ const PfPaper = (() => {
 
     function veldEl(f, k, pos, g) {
       const kl = g === true ? ' goed' : g === false ? ' fout' : '';
+      if (f.soort === 'luister') return `<button type="button" class="pf-luister pf-blad-luister" ${f.audio ? `data-src="${esc(f.audio)}"` : `data-tekst="${esc(f.tekst || '')}"`} style="left:${f.x}%;top:${f.y}%;width:${f.w}%;height:${f.h}%" title="Luister" aria-label="Luister">🎧</button>`;
+      if (f.soort === 'teken') {
+        const box = `left:${f.x}%;top:${f.y}%;width:${f.w}%;height:${f.h}%`;
+        if (live) return `<div class="pf-veld teken" data-k="${k}" style="${box}"></div>`;
+        return `<div class="pf-veld teken kijk" data-k="${k}" style="${box}">${typeof b[k] === 'string' && b[k] ? `<img src="${esc(b[k])}" alt="">` : ''}</div>`;
+      }
       if (f.soort === 'kruis') return `<button type="button" class="pf-veld kruis${kl}${b[k] === true ? ' on' : ''}" data-k="${k}" style="${pos}" aria-label="Aankruisen"${live ? '' : ' disabled'}>${b[k] === true ? '✗' : ''}</button>`;
       if (f.soort === 'kies') return `<select class="pf-veld kies${kl}" data-k="${k}" style="${pos}"${live ? '' : ' disabled'}><option value=""></option>${(f.opties || []).map(x => `<option${b[k] === x ? ' selected' : ''}>${esc(x)}</option>`).join('')}</select>`;
       if (f.soort === 'open') return `<textarea class="pf-veld open${kl}" data-k="${k}" style="${pos}" spellcheck="false"${ro}>${esc(b[k] ?? '')}</textarea>`;
@@ -135,7 +182,49 @@ const PfPaper = (() => {
         if (b) Voorlees.speak(box.pfSaid[b.dataset.say], b);
       });
     }
-    if (o.mode === 'live') wire(box, o.onAnswer);
+    if (!box.pfLuisterWired) {
+      box.pfLuisterWired = true;
+      box.addEventListener('click', e => {
+        const b = e.target.closest('.pf-luister');
+        if (!b) return;
+        e.preventDefault();
+        if (b.dataset.src) PfAudio.speel(b.dataset.src, b);
+        else if (b.dataset.tekst && typeof Voorlees !== 'undefined') Voorlees.speak(b.dataset.tekst, b);
+      });
+    }
+    if (o.mode === 'live') {
+      mountMedia(box, o);
+      wire(box, o.onAnswer);
+    }
+  }
+
+  // Tekenvakken en opnameknoppen in een toets die de leerling maakt. Het antwoord zit op het element (pfWaarde).
+  function mountMedia(box, o) {
+    const meld = el => el.dispatchEvent(new Event('pf-antwoord', { bubbles: true }));
+    for (const el of box.querySelectorAll('.pf-q')) {
+      const a = o.answers[el.dataset.id];
+      const t = el.querySelector('.pf-teken');
+      if (t && typeof PfTeken !== 'undefined') {
+        t.pfWaarde = typeof a === 'string' ? a : null;
+        const wrap = t.closest('.pf-teken-wrap');
+        PfTeken.mount(t, { breedte: 900, verhouding: wrap.offsetHeight && wrap.offsetWidth ? wrap.offsetHeight / wrap.offsetWidth : 0.6, waarde: t.pfWaarde, onChange: d => { t.pfWaarde = d; meld(t); } });
+      }
+      const sp = el.querySelector('.pf-spreek');
+      if (sp && typeof PfAudio !== 'undefined') {
+        sp.pfWaarde = typeof a === 'string' ? a : null;
+        PfAudio.knop(sp, { waarde: sp.pfWaarde, max: Number(sp.dataset.seconden) || 60, grootte: 1500000, label: 'Neem je antwoord op', onChange: d => { sp.pfWaarde = d || null; meld(sp); }, weg: true });
+      }
+      for (const v of el.querySelectorAll('.pf-veld.teken:not(.kijk)')) {
+        const b = Array.isArray(a) ? a : [];
+        const k = Number(v.dataset.k);
+        v.pfWaarde = typeof b[k] === 'string' ? b[k] : null;
+        const r = v.getBoundingClientRect();
+        // Zo groot als het vak op een blad van 1240 pixels breed.
+        const vel = v.parentElement.getBoundingClientRect();
+        const breed = Math.max(120, Math.round((r.width / Math.max(1, vel.width)) * 1240));
+        PfTeken.mount(v, { breedte: breed, verhouding: r.width ? r.height / r.width : 0.5, klein: true, waarde: v.pfWaarde, onChange: d => { v.pfWaarde = d; meld(v); } });
+      }
+    }
   }
 
   // Het antwoord van één vraag uit het scherm halen.
@@ -157,9 +246,13 @@ const PfPaper = (() => {
     if (type === 'ordenen') return [...el.querySelectorAll('.pf-orden li')].map(li => Number(li.dataset.i));
     if (type === 'aanduiden') return el.pfPunt || null;
     if (type === 'open') return el.querySelector('.pf-open').value;
+    if (type === 'getallenas') { const as = el.querySelector('.pf-as'); return as.dataset.waarde !== undefined ? Number(as.dataset.waarde) : null; }
+    if (type === 'markeren') return [...el.querySelectorAll('.pf-woord.on')].map(w => Number(w.dataset.w));
+    if (type === 'tekenen') return (el.querySelector('.pf-teken') || {}).pfWaarde || null;
+    if (type === 'spreken') return (el.querySelector('.pf-spreek') || {}).pfWaarde || null;
     if (type === 'blad') {
       const out = [];
-      for (const f of el.querySelectorAll('.pf-veld')) out[Number(f.dataset.k)] = f.classList.contains('kruis') ? (f.classList.contains('on') ? true : null) : f.value;
+      for (const f of el.querySelectorAll('.pf-veld')) out[Number(f.dataset.k)] = f.classList.contains('kruis') ? (f.classList.contains('on') ? true : null) : f.classList.contains('teken') ? (f.pfWaarde || null) : f.value;
       return out;
     }
     return null;
@@ -191,6 +284,35 @@ const PfPaper = (() => {
           b.textContent = b.classList.contains('on') ? '✗' : '';
           send(el);
         });
+      }
+      el.addEventListener('pf-antwoord', () => send(el));
+      for (const w of el.querySelectorAll('.pf-woord')) {
+        const klik = () => { w.classList.toggle('on'); send(el); };
+        w.addEventListener('click', klik);
+        w.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); klik(); } });
+      }
+      const as = el.querySelector('.pf-as.live');
+      if (as) {
+        const zet = e => {
+          const r = as.getBoundingClientRect();
+          const min = Number(as.dataset.min);
+          const max = Number(as.dataset.max);
+          const stap = Number(as.dataset.stap);
+          const ruw = min + ((((e.clientX - r.left) / r.width) * 100 - 4) / 92) * (max - min);
+          const x = Math.min(max, Math.max(min, min + Math.round((ruw - min) / stap) * stap));
+          const w = Math.round(x * 1e6) / 1e6;
+          if (as.dataset.waarde === String(w)) return;
+          as.dataset.waarde = String(w);
+          let pin = as.querySelector('.pf-as-pin');
+          if (!pin) { as.insertAdjacentHTML('beforeend', '<i class="pf-as-pin"></i>'); pin = as.querySelector('.pf-as-pin'); }
+          pin.style.left = `${4 + (92 * (x - min)) / (max - min)}%`;
+        };
+        let sleept = false;
+        as.addEventListener('pointerdown', e => { sleept = true; as.setPointerCapture(e.pointerId); zet(e); });
+        as.addEventListener('pointermove', e => { if (sleept) zet(e); });
+        const los = () => { if (sleept) { sleept = false; send(el); } };
+        as.addEventListener('pointerup', los);
+        as.addEventListener('pointercancel', los);
       }
       const groter = el.querySelector('.pf-groter');
       if (groter) groter.addEventListener('click', () => { groter.textContent = el.classList.toggle('groot') ? '🔍 Kleiner' : '🔍 Groter'; });

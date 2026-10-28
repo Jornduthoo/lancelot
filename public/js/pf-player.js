@@ -292,7 +292,8 @@ document.addEventListener('visibilitychange', () => {
 });
 window.addEventListener('blur', () => {
   // Klikken in een venster van de browser zelf (bv. een melding) laat de focus even los: kort wachten.
-  setTimeout(() => { if (!document.hasFocus()) weg('tab'); }, 400);
+  // De vraag om de microfoon (inspreken) telt niet als de toets verlaten.
+  setTimeout(() => { if (!document.hasFocus() && !(window.pfMicVraag && Date.now() - window.pfMicVraag < 15000)) weg('tab'); }, 400);
 });
 window.addEventListener('focus', () => { if (!document.hidden) terug(); });
 document.addEventListener('fullscreenchange', () => {
