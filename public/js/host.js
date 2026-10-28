@@ -65,7 +65,7 @@ const qrIpVan = a => a.url.replace(/^http:\/\//, '').replace(/:\d+$/, '');
 function toonQr() {
   const a = qrLijst.find(x => qrIpVan(x) === qrIp) || qrLijst[0];
   $('qr-groot').innerHTML = a ? a.qr : '';
-  $('qr-url').textContent = a ? a.url.replace('http://', '') : 'Geen netwerk gevonden';
+  $('qr-url').textContent = a ? a.url : 'Geen netwerk gevonden';
   const box = $('qr-adressen');
   box.innerHTML = '';
   if (qrLijst.length < 2) return;
@@ -88,7 +88,7 @@ socket.on('addresses', list => {
   if ($('qr-venster').open) toonQr();
 });
 $('qr-open').addEventListener('click', () => {
-  qrIp = ($('join-url').textContent || '').replace(/:\d+$/, '');
+  qrIp = ($('join-url').textContent || '').replace(/^http:\/\//, '').replace(/:\d+$/, '');
   toonQr();
   if (!$('qr-venster').open) $('qr-venster').showModal();
 });

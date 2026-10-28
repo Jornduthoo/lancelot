@@ -588,7 +588,7 @@ socket.on('bu-eiland', toonEiland);
 socket.on('addresses', list => {
   if (!list || !list.length) return;
   $('ke-qr').innerHTML = list[0].qr;
-  $('ke-url').textContent = `${list[0].url.replace(/^https?:\/\//, '')}/burcht`;
+  $('ke-url').textContent = `${list[0].url}/burcht`;
 });
 // Eer uit de spellen telt mee voor het klasdoel: af en toe opnieuw vragen.
 setInterval(() => {
