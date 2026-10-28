@@ -19,6 +19,8 @@ const ItemList = (() => {
     oefenblad: { list: 'ob-sheets', folders: 'ob-folders', one: 'oefenblad', many: 'oefenbladen', detail: q => `${q.count} ${q.count === 1 ? 'oefening' : 'oefeningen'}` },
     sessie: { list: 'rt-sessions', folders: 'rt-folders', one: 'sessie', many: 'sessies', detail: q => `${q.count} vragen` },
     proef: { list: 'pf-lijst', folders: 'pf-mappen', one: 'toets', many: 'toetsen', detail: q => `${q.count} vragen` },
+    // Resultaten zijn Excel-bestanden: ordenen in mappen wel, exporteren en importeren niet (je downloadt ze).
+    resultaat: { list: 'res-lijst', folders: 'res-mappen', one: 'resultaat', many: 'resultaten', bestanden: true, detail: q => [q.soort, q.datum].filter(Boolean).join(' · ') },
   };
 
   const parentOf = p => (p.includes('/') ? p.slice(0, p.lastIndexOf('/')) : '');
@@ -124,6 +126,7 @@ const ItemList = (() => {
 
     // Bestanden van een andere pc inladen, eventueel meteen in een map.
     function importFiles(files, folder) {
+      if (k.bestanden) return;
       const list = [...files].filter(f => /\.json$/i.test(f.name) || f.type === 'application/json');
       if (!list.length) return error({ error: 'Kies een .json-bestand dat je met ⬇ Exporteren gemaakt hebt.' });
       error({});
@@ -198,7 +201,7 @@ const ItemList = (() => {
         ${folders.length && !kiezen ? `<label class="move" title="Verplaats naar…">📁<select aria-label="Verplaats naar…">${option(q.folder || '')}</select></label>` : ''}
         ${(opts.buttons || []).map((b, i) => `<button class="secondary extra ${b.cls || ''}" data-extra="${i}" title="${esc(b.title || '')}">${b.label}</button>`).join('')}
         ${opts.edit ? '<button class="secondary edit">Bewerken</button>' : ''}
-        ${kiezen ? '' : `<button class="secondary export" title="Exporteren naar een bestand" aria-label="Exporteren">${Ui.ic('download')}</button>`}
+        ${kiezen || k.bestanden ? '' : `<button class="secondary export" title="Exporteren naar een bestand" aria-label="Exporteren">${Ui.ic('download')}</button>`}
         ${opts.remove ? `<button class="secondary delete" title="Verwijderen" aria-label="Verwijderen">${Ui.ic('kruis')}</button>` : ''}`;
       if (picking) {
         const tick = el.querySelector('.kies');
@@ -216,7 +219,7 @@ const ItemList = (() => {
         el.querySelector('.play').addEventListener('click', pick);
       } else el.querySelector('.play').addEventListener('click', () => opts.play(q));
       if (opts.edit) el.querySelector('.edit').addEventListener('click', () => opts.edit(q));
-      if (!kiezen) el.querySelector('.export').addEventListener('click', () => download({ file: q.file }));
+      if (!kiezen && !k.bestanden) el.querySelector('.export').addEventListener('click', () => download({ file: q.file }));
       for (const b of el.querySelectorAll('[data-extra]')) b.addEventListener('click', () => opts.buttons[b.dataset.extra].click(q));
       if (opts.remove) el.querySelector('.delete').addEventListener('click', () => opts.remove(q));
       const select = el.querySelector('.move select');
@@ -331,7 +334,7 @@ const ItemList = (() => {
       el.innerHTML = `<strong>${n} ${n === 1 ? k.one : k.many} geselecteerd</strong>
         <button class="secondary" type="button" data-do="alles">Alles hier</button>
         <button class="secondary" type="button" data-do="niets"${n ? '' : ' disabled'}>Niets</button>
-        <button class="secondary" type="button" data-do="dubbels" title="Kiest overal de ${k.many} met dezelfde titel en hetzelfde aantal als een andere. Eén ervan blijft telkens staan.">Dubbels</button>
+        ${k.bestanden ? '' : `<button class="secondary" type="button" data-do="dubbels" title="Kiest overal de ${k.many} met dezelfde titel en hetzelfde aantal als een andere. Eén ervan blijft telkens staan.">Dubbels</button>`}
         ${folders.length ? `<label class="button secondary lib-kies-map${n ? '' : ' disabled'}" title="De selectie naar een map verplaatsen">📁 Verplaats naar…<select aria-label="Verplaats naar…"${n ? '' : ' disabled'}><option value="" disabled selected>Kies een map</option><option value="">Bovenaan, in geen map</option>${folders.map(f => `<option value="${esc(f)}">${esc(f.split('/').join(' › '))}</option>`).join('')}</select></label>` : ''}
         <button class="danger" type="button" data-do="weg"${n ? '' : ' disabled'}>${Ui.ic('kruis')} Verwijderen</button>
         <span class="muted small lib-kies-tip">Shift-klik kiest een reeks. Sleep een aangevinkte naar een map: alles gaat mee.</span>`;
@@ -340,7 +343,7 @@ const ItemList = (() => {
       on('niets', () => { picked.clear(); redraw(); });
       const map = el.querySelector('.lib-kies-map select');
       if (map) map.addEventListener('change', () => moveMany([...picked], map.value));
-      on('dubbels', () => {
+      if (!k.bestanden) on('dubbels', () => {
         const seen = new Set();
         let found = 0;
         for (const q of items) {
@@ -374,7 +377,7 @@ const ItemList = (() => {
       const subs = subsOf(f);
       const el = document.createElement('span');
       el.className = 'lib-map-knoppen';
-      el.innerHTML = `${total || subs.length ? `<button class="secondary" type="button" data-do="export" title="Deze map (met de mappen erin) exporteren naar een bestand" aria-label="Map exporteren">${Ui.ic('download')}</button>` : ''}
+      el.innerHTML = `${(total || subs.length) && !k.bestanden ? `<button class="secondary" type="button" data-do="export" title="Deze map (met de mappen erin) exporteren naar een bestand" aria-label="Map exporteren">${Ui.ic('download')}</button>` : ''}
         <button class="secondary" type="button" data-do="rename" title="Naam van de map wijzigen" aria-label="Naam wijzigen">✎</button>
         <button class="secondary" type="button" data-do="delete" title="Map verwijderen" aria-label="Map verwijderen">${Ui.ic('kruis')}</button>`;
       const on = (what, fn) => { const b = el.querySelector(`[data-do=${what}]`); if (b) b.addEventListener('click', fn); };
@@ -426,8 +429,8 @@ const ItemList = (() => {
       bar.innerHTML = kiezen ? '<span class="muted small lib-note"></span>' : `<span class="muted small lib-note"></span>
         ${items.length && opts.remove ? `<button class="secondary small-btn kies-knop${picking ? ' on' : ''}" type="button" title="Meerdere ${k.many} aanvinken, bijvoorbeeld om ze samen te verwijderen">${picking ? 'Klaar met selecteren' : '☑ Selecteren'}</button>` : ''}
         <button class="secondary small-btn new-folder" type="button">${Ui.ic('map')} Nieuwe map</button>
-        <label class="button secondary small-btn" title="Een bestand van ⬇ Exporteren inladen, bijvoorbeeld van je laptop thuis">${Ui.ic('upload')} Importeren<input type="file" accept=".json,application/json" multiple hidden></label>
-        ${items.length ? `<button class="secondary small-btn export-all" type="button" title="Alle ${k.many} met hun mappen in één bestand">${Ui.ic('download')} Alles exporteren</button>` : ''}`;
+        ${k.bestanden ? '' : `<label class="button secondary small-btn" title="Een bestand van ⬇ Exporteren inladen, bijvoorbeeld van je laptop thuis">${Ui.ic('upload')} Importeren<input type="file" accept=".json,application/json" multiple hidden></label>`}
+        ${items.length && !k.bestanden ? `<button class="secondary small-btn export-all" type="button" title="Alle ${k.many} met hun mappen in één bestand">${Ui.ic('download')} Alles exporteren</button>` : ''}`;
       bar.querySelector('.lib-note').textContent = note;
       if (items.length || folders.length) bar.prepend(search);
       if (!kiezen) bar.querySelector('.new-folder').addEventListener('click', () => {
@@ -461,7 +464,7 @@ const ItemList = (() => {
         renderUitlegBar(ub);
       }
       if (items.length === 0 && folders.length === 0) {
-        box.insertAdjacentHTML('beforeend', `<div class="leeg"><p>Nog geen ${k.many}.</p><p class="muted small">${kiezen ? `Maak of importeer eerst ${k.many} in De Smidse.` : 'Maak er een met de knoppen hierboven, of importeer een bestand.'}</p></div>`);
+        box.insertAdjacentHTML('beforeend', `<div class="leeg"><p>Nog geen ${k.many}.</p><p class="muted small">${k.bestanden ? 'Speel eerst een quiz, spel, oefenblad of toets tot het einde: dan staan de scores hier, klaar voor Excel.' : kiezen ? `Maak of importeer eerst ${k.many} in De Smidse.` : 'Maak er een met de knoppen hierboven, of importeer een bestand.'}</p></div>`);
         return;
       }
       explorer = explorerView();

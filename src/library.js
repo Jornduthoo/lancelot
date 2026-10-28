@@ -9,6 +9,7 @@ const KINDS = {
   oefenblad: { one: 'oefenblad', many: 'oefenbladen', waar: 'De Smidse > Mijn oefenbladen' },
   sessie: { one: 'sessie', many: 'sessies', waar: 'De Ronde Tafel' },
   proef: { one: 'toets', many: 'toetsen', waar: 'De Smidse > Mijn toetsen' },
+  resultaat: { one: 'resultaat', many: 'resultaten', waar: 'Resultaten' },
 };
 const MAX_IMPORT = 2000;
 const MAX_DEPTH = 6;
@@ -26,7 +27,9 @@ function library({ kind, dir, checkFile, load, save, validate, list }) {
   function readMeta() {
     try {
       const meta = JSON.parse(fs.readFileSync(META, 'utf8'));
-      return { folders: Array.isArray(meta.folders) ? meta.folders.filter(f => typeof f === 'string') : [], place: meta.place && typeof meta.place === 'object' ? meta.place : {} };
+      const out = { folders: Array.isArray(meta.folders) ? meta.folders.filter(f => typeof f === 'string') : [], place: meta.place && typeof meta.place === 'object' ? meta.place : {} };
+      if (Array.isArray(meta.gezien)) out.gezien = meta.gezien.filter(f => typeof f === 'string');
+      return out;
     } catch {
       return { folders: [], place: {} };
     }
@@ -152,6 +155,23 @@ function library({ kind, dir, checkFile, load, save, validate, list }) {
     writeMeta(meta);
   }
 
+  // Nieuwe bestanden één keer vanzelf in een map zetten (pick geeft het pad, of niets).
+  // Wat al eens bekeken is (gezien), blijft waar de leerkracht het zet, ook bovenaan.
+  function autoPlace(files, pick) {
+    const meta = readMeta();
+    const seen = new Set(meta.gezien || []);
+    const nieuw = files.filter(f => !seen.has(f));
+    if (!nieuw.length) return;
+    for (const f of nieuw) {
+      let folder = '';
+      try { folder = folderPath(pick(f) || ''); } catch {}
+      if (folder && !meta.place[f]) meta.place[f] = ensurePath(meta, folder);
+    }
+    const bestaat = new Set(files);
+    meta.gezien = [...seen].filter(f => bestaat.has(f)).concat(nieuw);
+    writeMeta(meta);
+  }
+
   // Verwijderen: de bestanden gaan naar _prullenbak in de eigen map en blijven daar 30 dagen.
   // Zo is een verkeerde klik nooit meteen weg. Geeft het aantal verwijderde bestanden terug.
   function trash(files) {
@@ -170,7 +190,7 @@ function library({ kind, dir, checkFile, load, save, validate, list }) {
     files.forEach((file, i) => {
       if (!fs.existsSync(paths[i])) return;
       let to = path.join(bin, file);
-      if (fs.existsSync(to)) to = path.join(bin, file.replace(/\.json$/, `-${now}.json`));
+      if (fs.existsSync(to)) to = path.join(bin, file.replace(/(\.\w+)$/, `-${now}$1`));
       fs.renameSync(paths[i], to);
       try { fs.utimesSync(to, new Date(now), new Date(now)); } catch {}
       delete meta.place[file];
@@ -278,7 +298,7 @@ function library({ kind, dir, checkFile, load, save, validate, list }) {
     return { count: clean.length - skipped, skipped, placed, folders: meta.folders.length - before };
   }
 
-  return { folders, places, addFolder, renameFolder, moveFolder, removeFolder, move, trash, exportBundle, importBundle };
+  return { folders, places, addFolder, renameFolder, moveFolder, removeFolder, move, trash, autoPlace, exportBundle, importBundle };
 }
 
 module.exports = { library, KINDS };
