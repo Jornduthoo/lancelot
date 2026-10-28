@@ -138,7 +138,7 @@
     </div>
     <div class="panel form pf-alleen-blad" id="a-blad-panel">
       <h3>2. Neem je pdf over</h3>
-      <p class="muted small">Elke pagina wordt een blad. LANcelot zoekt zelf de puntjes en lijntjes waar iets ingevuld moet worden en zet daar vakjes. Daarna kijk je de vakjes na en vul je de antwoorden in (of laat je de AI dat doen).</p>
+      <p class="muted small">Elke pagina wordt een blad. LANcelot zoekt zelf de puntjes en lijntjes waar iets ingevuld moet worden en zet daar vakjes. Daarna kijk je de vakjes na en vul je de antwoorden in, of laat je de AI dat doen: met je eigen sleutel, of zonder sleutel via een chatbot (de knop Verbetersleutel voor alle bladen).</p>
       <label class="inline check hidden" id="a-blad-ai-label"><input type="checkbox" id="a-blad-ai" checked> Laat <span class="ai-naam">Gemini</span> meteen de antwoorden zoeken</label>
       <p class="error" id="a-blad-error"></p>
       <div><button id="a-blad">📄 Neem mijn pdf over</button> <span class="muted" id="a-blad-busy"></span></div>
@@ -191,6 +191,20 @@
         <div class="panel ob-add">
           <strong>Vraag toevoegen:</strong>
           <div class="actions" id="e-add"></div>
+        </div>
+        <div class="panel form pf-bijsturen hidden" id="s-panel">
+          <h3>📄 Verbetersleutel voor alle bladen</h3>
+          <p class="muted small">De AI leest je bladen en vult de antwoorden in alle vakjes in. Kijk ze daarna na: de AI kan zich vergissen.</p>
+          <div class="actions">
+            <button id="s-key" class="hidden">✨ Vul alles in met <span class="ai-naam">Gemini</span></button>
+            <button class="secondary" id="s-copy">📋 Prompt en bladen voor een chatbot</button>
+          </div>
+          <span class="muted small" id="s-busy"></span>
+          <div class="hidden" id="s-copy-box">
+            <p class="small">De prompt is gekopieerd en je bladen met genummerde vakjes zijn gedownload. Plak de prompt in een chatbot (Gemini, ChatGPT, Claude), voeg de bladen toe met de paperclip of het plusje, kopieer het antwoord en kom terug: het wordt vanzelf ingelezen. Of plak het hier:</p>
+            <textarea id="s-answer" rows="3" placeholder="Plak hier het hele antwoord…"></textarea>
+          </div>
+          <p class="error" id="s-error"></p>
         </div>
         <div class="panel form pf-bijsturen">
           <h3>✨ Pas aan met AI</h3>
