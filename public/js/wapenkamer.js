@@ -538,11 +538,12 @@ const Wachtlijst = (() => {
     $('wl-week').textContent = `Week van ${maandag(new Date()).toLocaleDateString('nl-BE', { day: 'numeric', month: 'long' })}`;
     $('wl-raster').innerHTML = !klas.leerlingen.length ? '' : !data.taken.length
       ? '<div class="leeg"><p>Nog geen klastaken.</p><p class="muted small">Klik op Taken aanpassen.</p></div>'
-      : verdeling().map((t, i) => `<div class="wl-taak" style="animation-delay:${i * 50}ms; --kantel:${((i * 37) % 7 - 3) * .6}deg"><i class="wl-nagel" aria-hidden="true"></i><div class="wl-taak-naam">${esc(t.naam)}</div><div class="wl-taak-wie">${t.namen.map(esc).join('<br>') || '<span class="muted">niemand</span>'}</div></div>`).join('');
+      : verdeling().map((t, i) => `<div class="wl-taak" style="animation-delay:${i * 50}ms; --kantel:${((i * 37) % 7 - 3) * .6}deg"><i class="wl-nagel" aria-hidden="true"></i><div class="wl-taak-naam">${esc(t.naam)}</div>${t.uitleg ? `<div class="wl-taak-uitleg">${esc(t.uitleg)}</div>` : ''}<div class="wl-taak-wie">${t.namen.map(esc).join('<br>') || '<span class="muted">niemand</span>'}</div></div>`).join('');
     $('wl-editor').classList.toggle('hidden', !bewerken);
     if (bewerken) {
       $('wl-rijen').innerHTML = data.taken.map((t, i) => `<div class="wl-rij" data-i="${i}">
-        <input type="text" maxlength="30" value="${esc(t.naam)}" aria-label="Taak">
+        <input type="text" maxlength="40" value="${esc(t.naam)}" aria-label="Taak" placeholder="Taak">
+        <input type="text" class="wl-uitleg-in" maxlength="90" value="${esc(t.uitleg || '')}" aria-label="Wat doe je?" placeholder="Wat doe je? (mag leeg)">
         <select aria-label="Hoeveel leerlingen">${[1, 2, 3, 4, 5, 6].map(n => `<option ${n === t.aantal ? 'selected' : ''}>${n}</option>`).join('')}</select>
         <button class="secondary icon" data-weg="${i}" aria-label="Taak weg"><i class="ic ic-kruis"></i></button></div>`).join('');
       $('wl-auto').checked = data.auto;
@@ -550,7 +551,7 @@ const Wachtlijst = (() => {
   }
 
   function leesEditor() {
-    data.taken = [...document.querySelectorAll('#wl-rijen .wl-rij')].map(r => ({ naam: r.querySelector('input').value.trim(), aantal: +r.querySelector('select').value }));
+    data.taken = [...document.querySelectorAll('#wl-rijen .wl-rij')].map(r => ({ naam: r.querySelector('input').value.trim(), uitleg: r.querySelector('.wl-uitleg-in').value.trim(), aantal: +r.querySelector('select').value }));
     data.auto = $('wl-auto').checked;
   }
 

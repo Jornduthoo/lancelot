@@ -204,13 +204,16 @@ body.tijd-om main { animation: tijd-om .5s ease-in-out 6; }
   clip-path: polygon(0 2%, 4% 0, 30% 1%, 62% 0, 96% 1%, 100% 4%, 99% 40%, 100% 78%, 98% 100%, 60% 99%, 25% 100%, 1% 98%, 0 60%);
   animation: wk-in .35s ease-out both; }
 .wl-nagel { position: absolute; left: 50%; top: 7px; width: 14px; height: 14px; transform: translateX(-50%); border-radius: 50%; background: radial-gradient(circle at 35% 35%, #fff4c8, #c9962e 55%, #5a3c08); box-shadow: 0 2px 3px rgb(0 0 0 / .6); }
-.wl-taak-naam { font-family: var(--head); font-weight: 900; font-size: 1.25rem; color: #8a1d14; margin-bottom: 6px; text-align: center; border-bottom: 1px solid rgb(138 29 20 / .35); padding-bottom: 6px; }
+.wl-taak-naam { font-family: var(--head); font-weight: 900; font-size: 1.15rem; hyphens: auto; overflow-wrap: anywhere; color: #8a1d14; margin-bottom: 6px; text-align: center; border-bottom: 1px solid rgb(138 29 20 / .35); padding-bottom: 6px; }
+.wl-taak-uitleg { font-size: .9rem; line-height: 1.3; color: #5a4220; text-align: center; font-style: italic; margin-bottom: 8px; }
 .wl-taak-wie { font-size: 1.6rem; font-weight: 800; line-height: 1.3; text-align: center; }
 .wl-taak-wie .muted { color: #7a6440; }
 .wl-bord .leeg { background: rgb(0 0 0 / .3); color: #f3dfb7; }
 .wl-bewerk { display: flex; flex-direction: column; gap: 10px; max-width: 680px; align-self: center; width: 100%; }
 .wl-rij { display: flex; gap: 8px; margin-bottom: 6px; }
 .wl-rij input { flex: 1; }
+.wl-rij .wl-uitleg-in { flex: 2; }
+@media (max-width: 700px) { .wl-rij { flex-wrap: wrap; } .wl-rij .wl-uitleg-in { flex-basis: 100%; order: 3; } }
 .wl-rij select { width: 70px; }
 
 /* ---------- De Stilte-banier ---------- */

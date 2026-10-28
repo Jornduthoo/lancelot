@@ -439,7 +439,7 @@ Op het startscherm en in elke lobby staat de knop **Netwerk werkt niet?**. Die p
 ### Automatisch, met Mijn lesmap (aangeraden)
 
 1. Zorg dat OneDrive of Google Drive (voor bureaublad) op de bord-pc én op je pc thuis staat, met hetzelfde account.
-2. Open op de bord-pc **Instellingen** en klik bij **Mijn lesmap** op **Gebruik OneDrive** (of Google Drive), of op **Kies map…**. LANcelot maakt daar een map `LANcelot` met je quizzen, oefenbladen, Ronde Tafels, de taken die je geeft (zonder het werk van de leerlingen) en de klastaken van De Wachtlijst (wie welke taak heeft, rekent elke pc uit met zijn eigen klaslijst).
+2. Open op de bord-pc **Instellingen** en klik bij **Mijn lesmap** op **Gebruik OneDrive** (of Google Drive), of op **Kies map…**. LANcelot maakt daar een map `LANcelot` met je quizzen, oefenbladen, Ronde Tafels, de taken die je geeft (zonder het werk van de leerlingen) en de klastaken van De Wachtlijst (met de volgorde van de leerlingen, op voornaam).
 3. Doe thuis in je eigen LANcelot hetzelfde, met dezelfde map.
 4. Klaar. Wat je thuis maakt of aanpast, staat op het digibord zodra LANcelot opstart, en daarna wordt elke minuut bijgewerkt. Het werkt ook in de andere richting.
 
@@ -473,7 +473,7 @@ Klik op het startscherm op **De Wapenkamer**. Bovenaan staat het wapenrek: elk w
 - **Het Lot**: klik op **Draai!** (of druk op de spatiebalk). Staat **Wie gekozen is, gaat eruit** aan, dan komt elke leerling één keer aan de beurt; **Iedereen terug in het rad** begint opnieuw.
 - **De Banieren**: kies een aantal groepjes of een aantal leerlingen per groepje, en hoe je verdeelt: door elkaar, gemengd (elk niveau in elk groepje) of per niveau samen. Het niveau komt uit Mijn klas, algemeen of per vak. Tik op twee namen om ze van groepje te wisselen.
 - **De Zandloper**: kies een tijd, druk op **Start**. De laatste tien seconden tikt hij, op het einde klinkt een gong. Loopt de tijd en open je een andere tool, dan zie je de tijd bovenaan.
-- **De Wachtlijst**: de klastaken van de week. Elke maandag schuift iedereen vanzelf door, zodat elke leerling om de beurt een taak krijgt. Met **Schuif door** kan het ook met de hand. Bij **Taken aanpassen** kies je de taken, met hoeveel leerlingen elke taak gebeurt, en kan je de volgorde schudden. Met Mijn lesmap gaan de taken mee naar je andere pc; de volgorde van de leerlingen blijft op elke pc apart.
+- **De Wachtlijst**: de klastaken van de week. Elke maandag schuift iedereen vanzelf door, zodat elke leerling om de beurt een taak krijgt. Met **Schuif door** kan het ook met de hand. Bij **Taken aanpassen** kies je de taken, met hoeveel leerlingen elke taak gebeurt en een korte uitleg (wat doe je?), en kan je de volgorde schudden. Met Mijn lesmap gaan de taken en de volgorde mee naar je andere pc; de volgorde staat er met de voornamen in, zodat elke pc ze in zijn eigen klaslijst terugvindt.
 - **De Stilte-banier**: klik op **Start de micro**. De banier vult zich met het geluid van de klas; komt het boven de lijn, dan wordt ze rood. Met **Zo luid mag het** schuif je de lijn. De micro werkt alleen op het bord zelf, niet op een gekoppelde bureau-pc.
 - **Het Werklicht**: rood is stil werken, oranje fluisteren, groen samenwerken.
 - **De Runensteen**: tot zes dobbelstenen, van 1 tot 6, tot 10, 12, 20, 100 of met eigen getallen.
