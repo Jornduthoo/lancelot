@@ -70,6 +70,7 @@ const avatars = require('./src/avatars');
 const { Verrader } = require('./src/verrader');
 const oefenbladen = require('./src/oefenbladen');
 const reeks = require('./src/reeks');
+const kronieken = require('./src/kronieken');
 const { OefenbladLive } = require('./src/oefenblad-live');
 const niveaus = require('./src/niveaus');
 const settings = require('./src/settings');
@@ -477,7 +478,7 @@ function takenSoon() {
 }
 
 // De docentenschermen, elk bij zijn adres.
-const PAGINAS = [['/host', 'host.html'], ['/rondetafel', 'rondetafel.html'], ['/toren', 'toren.html'], ['/schattenjacht', 'schattenjacht.html'], ['/laserslag', 'laserslag.html'], ['/ridderrace', 'ridderrace.html'], ['/kristalroof', 'kristalroof.html'], ['/verrader', 'verrader.html'], ['/burchtbouwers', 'burchtbouwers.html'], ['/duel', 'duel.html'], ['/packnight', 'packnight.html'], ['/strijdrossen', 'strijdrossen.html'], ['/gauntlet', 'gauntlet.html'], ['/ridder-royale', 'royale.html'], ['/sterrenvreter', 'sterrenvreter.html'], ['/ridderslang', 'ridderslang.html'], ['/burchtstorm', 'burchtstorm.html'], ['/poortwacht', 'poortwacht.html'], ['/neonvlucht', 'neonvlucht.html'], ['/diepboor', 'diepboor.html'], ['/pixelridder', 'pixelridder.html'], ['/robomol', 'robomol.html'], ['/kerker', 'kerker.html'], ['/hofschilder', 'hofschilder.html'], ['/robopaarden', 'robopaarden.html'], ['/neonduel', 'neonduel.html'], ['/leraarbaas', 'leraarbaas.html'], ['/cybergalaga', 'cybergalaga.html'], ['/bomberknight', 'bomberknight.html'], ['/rijk', 'rijk.html'], ['/oefenblad', 'oefenblad.html'], ['/reeks', 'reeks.html'], ['/oefenblad-print', 'oefenblad-print.html'], ['/klas', 'klas.html'], ['/zorg', 'zorg.html'], ['/taken', 'taken.html'], ['/zorg-fiche', 'zorg-fiche.html'], ['/runenraadsel', 'runenraadsel.html'], ['/klaseiland', 'klaseiland.html'], ['/netwerk', 'netwerk.html'], ['/welkom', 'welkom.html'], ['/privacy', 'privacy.html']];
+const PAGINAS = [['/host', 'host.html'], ['/rondetafel', 'rondetafel.html'], ['/toren', 'toren.html'], ['/schattenjacht', 'schattenjacht.html'], ['/laserslag', 'laserslag.html'], ['/ridderrace', 'ridderrace.html'], ['/kristalroof', 'kristalroof.html'], ['/verrader', 'verrader.html'], ['/burchtbouwers', 'burchtbouwers.html'], ['/duel', 'duel.html'], ['/packnight', 'packnight.html'], ['/strijdrossen', 'strijdrossen.html'], ['/gauntlet', 'gauntlet.html'], ['/ridder-royale', 'royale.html'], ['/sterrenvreter', 'sterrenvreter.html'], ['/ridderslang', 'ridderslang.html'], ['/burchtstorm', 'burchtstorm.html'], ['/poortwacht', 'poortwacht.html'], ['/neonvlucht', 'neonvlucht.html'], ['/diepboor', 'diepboor.html'], ['/pixelridder', 'pixelridder.html'], ['/robomol', 'robomol.html'], ['/kerker', 'kerker.html'], ['/hofschilder', 'hofschilder.html'], ['/robopaarden', 'robopaarden.html'], ['/neonduel', 'neonduel.html'], ['/leraarbaas', 'leraarbaas.html'], ['/cybergalaga', 'cybergalaga.html'], ['/bomberknight', 'bomberknight.html'], ['/rijk', 'rijk.html'], ['/oefenblad', 'oefenblad.html'], ['/reeks', 'reeks.html'], ['/kronieken', 'kronieken.html'], ['/oefenblad-print', 'oefenblad-print.html'], ['/klas', 'klas.html'], ['/zorg', 'zorg.html'], ['/taken', 'taken.html'], ['/zorg-fiche', 'zorg-fiche.html'], ['/runenraadsel', 'runenraadsel.html'], ['/klaseiland', 'klaseiland.html'], ['/netwerk', 'netwerk.html'], ['/welkom', 'welkom.html'], ['/privacy', 'privacy.html']];
 
 // Het docentenscherm werkt op de pc waar de server draait (meestal het digibord),
 // en op een tweede scherm dat de leerkracht met een koppelcode koppelde (de bureau-pc).
@@ -515,6 +516,8 @@ app.get('/burcht', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'burcht.html'));
 });
 beheer.routes(app, isLeerkracht);
+// De Kronieken: eigen bordboeken en handleidingen tonen en toevoegen (enkel de leerkracht).
+kronieken.routes(app, isLeerkracht, express, () => io.to('host').emit('kr-lijst', kronieken.lijst()));
 // Een tweede leerkrachtscherm koppelen: de bureau-pc tikt hier de code van het digibord in.
 app.get('/koppel', (req, res) => {
   if (isLeerkracht(req)) return res.redirect('/host');
@@ -1410,6 +1413,21 @@ io.on('connection', socket => {
       sendLibrary(arg.soort);
       return res;
     }));
+    // De Kronieken: mappen per vak en blok, boeken, de pagina waar je stopte en koppelingen per les.
+    const krWijzig = fn => handle(arg => {
+      const res = fn(arg || {});
+      io.to('host').emit('kr-lijst', kronieken.lijst());
+      return res;
+    });
+    socket.on('kr-lijst', handle(() => kronieken.lijst()));
+    socket.on('kr-map', krWijzig(({ map }) => kronieken.nieuweMap(map)));
+    socket.on('kr-map-weg', krWijzig(({ map }) => kronieken.verwijderMap(map)));
+    socket.on('kr-weg', krWijzig(({ map, naam }) => kronieken.verwijder(map, naam)));
+    socket.on('kr-koppel', krWijzig(arg => kronieken.koppel(arg)));
+    socket.on('kr-ontkoppel', krWijzig(arg => kronieken.ontkoppel(arg)));
+    socket.on('kr-pagina', ({ map, naam, pagina } = {}) => {
+      try { kronieken.zetPagina(map, naam, pagina); } catch { /* een verdwenen boek: niets te onthouden */ }
+    });
     socket.on('ob-load', handle(({ file, feedback, niveau, voorlees } = {}) => {
       const busy = busyWith('oefenblad');
       if (busy) throw busyError(busy);

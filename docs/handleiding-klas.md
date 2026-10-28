@@ -258,6 +258,15 @@ Tip: een klas die goed en vlot antwoordt, houdt de poort. Bij veel foute antwoor
 
 Tip: iedereen speelt dezelfde werelden en ziet klasgenoten als doorschijnende ridders, maar je kan elkaar niet hinderen. Zwakkere spelers halen punten met juiste antwoorden.
 
+## De Kronieken: je eigen methodes
+
+In **De Kronieken** (blok op het startscherm) bewaar je je bordboeken, handleidingen en kopieerbladen (pdf of afbeelding), in mappen per vak en blok. De mappen van je quizzen en oefenbladen staan er vanzelf.
+
+- **Toevoegen:** open de map (bijv. Rekenen > Blok 3) en sleep je pdf erin, of tik op **Boek toevoegen**.
+- **Openen:** tik op een boek. Het opent schermvullend op één pagina. Bladeren met de pijlen, de randen, de pijltjestoetsen of door te vegen. Met de pen (rood, blauw, markeerstift) teken je op de pagina; dat blijft staan tot je het boek sluit. LANcelot onthoudt op welke pagina je stopte.
+- **Per les:** onder Lessen staat elke les uit je lespakket met knoppen voor de voorkennisquiz, de quiz (Toernooi), het oefenblad live (ook XL) en printen. Tik in een open boek op **📌 Les** om de pagina aan een les te koppelen: dan staat bij die les een knop die het boek meteen op die pagina opent.
+- De boeken blijven enkel op deze pc, in de map `kronieken` bij je gegevens. Ze gaan niet mee in de back-up-zip (te groot), wel bij een verhuis van je gegevensmap, en een update laat ze staan.
+
 ## Voorkennis activeren
 
 1. Klik op het startscherm op **Voorkennis activeren**.
