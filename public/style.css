@@ -1725,7 +1725,8 @@ body[data-du="1"] .sj-card { background: linear-gradient(180deg, rgba(36, 22, 40
 .realm.on svg { color: var(--gold); filter: drop-shadow(0 0 12px rgb(var(--k-goud) / .6)); }
 .realm.on::after { content: ''; position: absolute; left: 50%; bottom: 6px; width: 46px; height: 4px; transform: translateX(-50%); border-radius: 2px; background: var(--gold); box-shadow: 0 0 10px var(--gold); }
 /* Een rijk open: de vijf tegels en het grote logo maken plaats voor de onderdelen van dat rijk. */
-#home.in-rijk .realms, #home.in-rijk .hero, #home.in-rijk #welkom-tip { display: none; }
+#home.in-rijk .realms, #home.in-rijk .hero, #home.in-rijk #welkom-tip, #home.in-rijk .eiland-rij { display: none; }
+.eiland-rij { width: 100%; margin: 0 0 18px; }
 /* Op het startscherm passen logo en vijf rijken samen op één scherm (bord en Chromebook). */
 #home .hero img { width: auto; height: clamp(150px, 34vh, 340px); max-width: 70vw; object-fit: contain; }
 .rijk-kop { display: flex; align-items: center; gap: 14px; width: 100%; margin: 4px 0 18px; }
