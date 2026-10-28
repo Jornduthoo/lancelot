@@ -1456,6 +1456,7 @@ io.on('connection', socket => {
       kronieken.testInbed(res.id).then(() => io.to('host').emit('kr-lijst', kronieken.lijst()), () => {});
       return res;
     }));
+    socket.on('kr-link-apart', krWijzig(({ id }) => kronieken.linkApart(String(id || ''))));
     socket.on('kr-link-weg', krWijzig(({ id }) => kronieken.verwijderLink(String(id || ''))));
     // De Zonnewijzer: roosters, de planning per week, doel en succescriteria. Elke wijziging gaat ook naar Mijn lesmap.
     const zwWijzig = fn => handle(arg => {
@@ -1470,6 +1471,7 @@ io.on('connection', socket => {
     socket.on('zw-week-rooster', zwWijzig(arg => ({ weekData: zonnewijzer.zetWeekRooster(arg) })));
     socket.on('zw-vink', zwWijzig(arg => ({ weekData: zonnewijzer.vink(arg) })));
     socket.on('zw-schuif', zwWijzig(arg => ({ weekData: zonnewijzer.schuif(arg) })));
+    socket.on('zw-laatste', handle(arg => zonnewijzer.laatsteVan(arg)));
     socket.on('zw-doelen', handle(({ codes } = {}) => zonnewijzer.doelInfo(codes)));
     // De doelen van een les uit zijn quiz: de codes die het vaakst voorkomen (Ridder-vragen niet, dat is de uitdaging).
     socket.on('zw-quiz-doelen', handle(({ file } = {}) => {

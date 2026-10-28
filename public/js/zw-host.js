@@ -341,13 +341,99 @@ $('zw-week-rooster').addEventListener('change', e => {
 const doelVeld = DoelKies.multi({ label: 'Leerplandoelen (Op.stap)' });
 $('zw-ed-doelen').append(doelVeld);
 
-function vulMappen(huidig) {
-  const sel = $('zw-ed-map');
-  const mappen = Lessen.mappen(zw.bron);
-  sel.length = 1;
-  for (const m of mappen) sel.append(new Option(m, m));
-  if (huidig && !mappen.includes(huidig)) sel.append(new Option(huidig, huidig));
-  sel.value = huidig || '';
+// De mappen met lessen, per groep (alles behalve de laatste map): "Rekenen" → Blok 1, Blok 2…; "Methodes/Taal" → Thema 1…
+// Geen eindeloze lijst: de groep van het vak van dit lesuur staat open, de rest is dicht tot je zoekt.
+const bovenMap = m => (m.includes('/') ? m.slice(0, m.lastIndexOf('/')) : '');
+const naamMap = m => m.slice(m.lastIndexOf('/') + 1);
+const isVanVak = (m, vak) => !!vak && m.toLowerCase().split('/').some(d => d === vak.toLowerCase() || d.startsWith(`${vak.toLowerCase()} `));
+
+function zetMap(map) {
+  $('zw-ed-map').value = map || '';
+  $('zw-ed-mapknop').textContent = map ? `📁 ${map.split('/').join(' › ')}` : '✏️ Eigen les (zonder quiz)';
+}
+
+function tekenKiezer() {
+  const doos = $('zw-kies-groepen');
+  doos.textContent = '';
+  const zoek = $('zw-kies-zoek').value.trim().toLowerCase();
+  const vak = $('zw-ed-vak').value.trim();
+  const hier = $('zw-ed-map').value;
+  const groepen = new Map();
+  for (const m of Lessen.mappen(zw.bron)) {
+    if (zoek && !m.toLowerCase().includes(zoek)) continue;
+    const g = bovenMap(m) || m;
+    if (!groepen.has(g)) groepen.set(g, []);
+    groepen.get(g).push(m);
+  }
+  // De groep van het vak eerst.
+  const volgorde = [...groepen.keys()].sort((a, b) => (isVanVak(b, vak) - isVanVak(a, vak)) || a.localeCompare(b, 'nl', { numeric: true }));
+  for (const g of volgorde) {
+    const d = el('details', 'zw-kies-groep');
+    d.open = !!zoek || isVanVak(g, vak) || groepen.get(g).includes(hier) || groepen.size === 1;
+    const sum = el('summary', '', g.split('/').join(' › '));
+    sum.append(' ', el('em', '', `(${groepen.get(g).length})`));
+    const chips = el('div', 'zw-kies-chips');
+    for (const m of groepen.get(g)) {
+      const b = el('button', `secondary${m === hier ? ' on' : ''}`, m === g ? naamMap(m) : naamMap(m));
+      b.type = 'button';
+      b.addEventListener('click', () => {
+        zetMap(m);
+        vulLessen(m, 0);
+        sluitKiezer();
+        $('zw-ed-les').focus();
+      });
+      chips.append(b);
+    }
+    d.append(sum, chips);
+    doos.append(d);
+  }
+  if (!groepen.size) doos.append(el('p', 'muted small', zoek ? 'Geen map gevonden.' : 'Nog geen lessen in De Kronieken: plan een eigen les.'));
+}
+function openKiezer() {
+  $('zw-kies').classList.remove('hidden');
+  $('zw-ed-mapknop').setAttribute('aria-expanded', 'true');
+  $('zw-kies-zoek').value = '';
+  tekenKiezer();
+}
+function sluitKiezer() {
+  $('zw-kies').classList.add('hidden');
+  $('zw-ed-mapknop').setAttribute('aria-expanded', 'false');
+}
+$('zw-ed-mapknop').addEventListener('click', () => ($('zw-kies').classList.contains('hidden') ? openKiezer() : sluitKiezer()));
+$('zw-kies-zoek').addEventListener('input', tekenKiezer);
+$('zw-kies-eigen').addEventListener('click', () => {
+  zetMap('');
+  vulLessen('', 0);
+  sluitKiezer();
+});
+
+// Een nieuw lesuur: de les na de vorige les van dit vak (dezelfde map, of de eerste les van de volgende map).
+function stelVoor(slot, vak) {
+  socket.emit('zw-laatste', { vak, week: zw.week, slot }, res => {
+    if (zw.bewerk.slot !== slot || $('zw-ed-map').value || !$('zw-editor').open) return;
+    const vorige = res && res.les;
+    if (vorige) {
+      const mappen = Lessen.mappen(zw.bron);
+      let map = vorige.map;
+      let volgende = Lessen.van(map, zw.bron).find(l => l.nr > vorige.nr);
+      if (!volgende) {
+        const broers = mappen.filter(m => bovenMap(m) === bovenMap(vorige.map));
+        const na = broers[broers.indexOf(vorige.map) + 1];
+        if (na) {
+          map = na;
+          volgende = Lessen.van(na, zw.bron)[0];
+        }
+      }
+      if (volgende) {
+        zetMap(map);
+        vulLessen(map, volgende.nr);
+        kiesLes(volgende.nr);
+        $('zw-ed-voorstel-info').textContent = `Voorstel: de les na Les ${vorige.nr}. Andere les? Kies hierboven.`;
+        return;
+      }
+    }
+    if (Lessen.mappen(zw.bron).some(m => isVanVak(m, vak))) openKiezer();
+  });
 }
 
 function vulLessen(map, nr) {
@@ -393,8 +479,10 @@ function openEditor(slot) {
   zw.bewerk = { slot, oud: les };
   $('zw-ed-titel').textContent = `${DAGEN[d - 1]} · ${u + 1}e lesuur${vak ? ` · ${vak}` : ''}`;
   $('zw-ed-vak').value = les ? les.vak : vak;
-  vulMappen(les && les.map);
+  zetMap(les && les.map);
   vulLessen(les && les.map, les && les.nr);
+  sluitKiezer();
+  $('zw-ed-voorstel-info').textContent = '';
   $('zw-ed-naam').value = les ? les.titel : '';
   $('zw-ed-doel').value = les ? les.doel : '';
   doelVeld.zet(les ? les.doelen : []);
@@ -404,13 +492,13 @@ function openEditor(slot) {
   $('zw-ed-wis').classList.toggle('hidden', !les);
   $('zw-ed-schuif').classList.toggle('hidden', !les);
   $('zw-editor').showModal();
+  if (!les && vak) stelVoor(slot, vak);
 }
 
 $('zw-ed-dicht').addEventListener('click', () => $('zw-editor').close());
-$('zw-ed-map').addEventListener('change', e => vulLessen(e.target.value, 0));
 // Een les uit De Kronieken kiezen: titel, doelen en een voorstel van succescriteria komen mee (wat je zelf schreef, blijft).
-$('zw-ed-les').addEventListener('change', e => {
-  const nr = Number(e.target.value);
+$('zw-ed-les').addEventListener('change', e => kiesLes(Number(e.target.value)));
+function kiesLes(nr) {
   const info = Lessen.van($('zw-ed-map').value, zw.bron).find(l => l.nr === nr);
   if (!info) return;
   $('zw-ed-naam').value = info.titel || $('zw-ed-naam').value;
@@ -422,7 +510,7 @@ $('zw-ed-les').addEventListener('change', e => {
     if (!$('zw-ed-doel').value.trim() && res.doel) $('zw-ed-doel').value = res.doel;
     if (!criteria().length) zetCriteria(res.criteria);
   });
-});
+}
 $('zw-ed-voorstel').addEventListener('click', () => {
   const codes = doelVeld.codes();
   if (!codes.length) return ($('zw-ed-fout').textContent = 'Kies eerst een of meer leerplandoelen, of kies een les uit De Kronieken.');

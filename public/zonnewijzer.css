@@ -121,3 +121,16 @@ body.zonnewijzer main { max-width: 1440px; }
   .zw-dagnaam { min-width: 0; font-size: 1.2rem; }
 }
 .zw-editor .doel-multi, .zw-editor .doel-veld, .zw-editor .doel-veld input { width: 100%; }
+
+/* Map kiezen in de editor: per vak een groep, de groep van het vak staat open. */
+.zw-ed-mapveld { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 200px; }
+.zw-ed-label { font-weight: 700; font-size: .9rem; }
+.zw-ed-mapknop { text-align: left; justify-content: flex-start; }
+.zw-kies { display: flex; flex-direction: column; gap: 8px; padding: 10px; border-radius: 10px; background: rgb(var(--k-bg2) / .6); box-shadow: inset 0 0 0 1px var(--line); }
+.zw-kies-eigen { align-self: flex-start; }
+.zw-kies-groepen { display: flex; flex-direction: column; gap: 4px; max-height: 260px; overflow-y: auto; }
+.zw-kies-groep summary { cursor: pointer; font-weight: 700; padding: 4px 2px; }
+.zw-kies-groep summary em { font-style: normal; font-weight: 400; color: var(--muted); font-size: .85em; }
+.zw-kies-chips { display: flex; flex-wrap: wrap; gap: 6px; padding: 4px 0 8px 14px; }
+.zw-kies-chips button { padding: 6px 12px; font-size: .9rem; }
+.zw-kies-chips button.on { box-shadow: inset 0 0 0 2px rgb(var(--k-goud)); }
