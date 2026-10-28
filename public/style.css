@@ -2042,3 +2042,20 @@ body.tk-solo #toernooi { display: none !important; }
 .sc-stip.aan { background: rgb(var(--k-groen)); box-shadow: 0 0 8px rgb(var(--k-groen) / .8); }
 .scherm-merk { position: fixed; left: 10px; bottom: 10px; z-index: 50; font-size: .75rem; padding: 4px 10px; border-radius: 999px; background: rgb(var(--k-panel) / .9); border: 1px solid rgb(var(--k-cyan) / .4); color: rgb(var(--k-cyan-l)); pointer-events: none; }
 .sc-toon .actions { justify-content: center; }
+
+/* Reeks met AI: per les een quiz en een oefenblad */
+.reeks .r-handleiding { border-top: 1px solid var(--line); padding-top: 10px; display: flex; flex-direction: column; gap: 10px; }
+.reeks .r-handleiding summary { cursor: pointer; color: rgb(var(--k-cyan)); }
+.reeks .r-handleiding[open] { gap: 10px; }
+.r-voortgang h4 { margin: 14px 0 6px; }
+.r-voortgang ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 4px; }
+.r-voortgang li { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 6px 10px; background: rgb(var(--k-cyan) / .05); }
+.r-voortgang .r-les { flex: 1 1 220px; min-width: 0; overflow-wrap: anywhere; }
+.r-voortgang small.error { flex-basis: 100%; margin: 0; }
+.r-chip { font-size: .85rem; padding: 2px 10px; border-radius: 999px; background: rgb(var(--k-wit) / .08); color: var(--muted); white-space: nowrap; }
+.r-chip.ok { background: rgb(var(--k-groen) / .18); color: rgb(var(--k-groen)); }
+.r-chip.nu { background: rgb(var(--k-goud) / .18); color: rgb(var(--k-goud)); }
+.r-chip.fout { background: rgb(var(--k-rood) / .18); color: rgb(var(--k-rood-l)); }
+.reeks #r-direct, .reeks #r-kopie, .reeks #r-plan-direct { display: flex; flex-direction: column; gap: 10px; }
+.reeks #r-direct:not(.hidden) + #r-kopie { border-top: 1px solid var(--line); padding-top: 12px; }
+.reeks .r-zonder { margin: 0; }
