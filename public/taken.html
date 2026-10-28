@@ -83,6 +83,7 @@
     <div class="tk-namen" id="tk-namen"></div>
     <p class="muted small hidden" id="tk-geen-klas">Er staat nog geen klaslijst. Zet je leerlingen eerst in <a href="/klas">Mijn klas</a>: dan tik je hier hun naam aan.</p>
     <div class="actions">
+      <button class="secondary big" id="tk-bekijk" disabled title="Bekijk de taak zoals de leerling ze krijgt, per niveau"><i class="ic ic-oog" aria-hidden="true"></i> Bekijk vooraf</button>
       <button class="gold big" id="tk-geef" disabled>Geef taak</button>
     </div>
     <p class="error" id="tk-fout"></p>
@@ -120,6 +121,26 @@
     <div id="k-quiz" class="quiz-list"></div>
     <div id="k-oefenblad" class="quiz-list"></div>
     <p class="error" id="k-fout"></p>
+  </dialog>
+
+  <!-- Vooraf bekijken: het blad of de vragen zoals de leerling ze krijgt, per niveau. -->
+  <dialog class="ui-venster tk-venster tk-vb" id="tk-vb">
+    <div class="bar">
+      <h2><i class="ic ic-oog" aria-hidden="true"></i> <span id="vb-titel"></span></h2>
+      <div class="actions">
+        <button class="secondary" id="vb-sluit">Sluiten</button>
+      </div>
+    </div>
+    <div class="tk-vb-kop">
+      <div class="tk-soort tk-vb-niveaus" id="vb-niveaus"></div>
+      <label class="inline tk-toon-dicht"><input type="checkbox" id="vb-antw"> Juiste antwoorden tonen</label>
+    </div>
+    <p class="muted small" id="vb-info"></p>
+    <article class="ob-paper hidden" id="vb-paper"></article>
+    <div class="tk-vb-vragen" id="vb-vragen"></div>
+    <div class="actions hidden" id="vb-acties">
+      <button class="gold big" id="vb-geef">Ziet er goed uit: geef taak</button>
+    </div>
   </dialog>
 
   <dialog class="ui-venster tk-venster" id="tk-erbij">

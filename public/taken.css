@@ -110,3 +110,22 @@
 .tk-kies-ander { grid-column: 2; grid-row: 1 / span 2; font-size: .85em; color: var(--cyan); }
 .tk-kiezer { width: min(1100px, 96vw); }
 .tk-kiezer .bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+
+/* Vooraf bekijken: per niveau, zoals de leerling het krijgt. */
+.tk-vb-kop { display: flex; align-items: center; justify-content: space-between; gap: 10px 16px; flex-wrap: wrap; margin-bottom: 4px; }
+.tk-vb-niveaus button { padding: 6px 14px; }
+.tk-vb-vragen { display: flex; flex-direction: column; gap: 12px; }
+.tk-vb-vraag { padding: 12px 14px; background: rgb(var(--k-bg) / .5); box-shadow: inset 0 0 0 1px var(--line); }
+.tk-vb-vraag > p { margin: 0 0 10px; font-size: 1.1rem; font-weight: 800; }
+.tk-vb-vraag > p b { color: var(--gold); font-family: var(--tech); margin-right: 6px; }
+.tk-vb-vraag .answers { gap: 8px; }
+.tk-vb-vraag .answer { min-height: 0; padding: 8px 12px; font-size: 1rem; gap: 10px; }
+.tk-vb-vraag .answer::before { display: none; }
+.tk-vb-vraag .answer .rune { width: 30px; height: 30px; font-size: 1rem; }
+.tk-vb.antw .answer:not([data-goed]) { opacity: .45; }
+.tk-vb.antw .answer[data-goed] { box-shadow: inset 0 0 0 3px var(--good), 0 0 14px rgb(var(--k-groen) / .5); }
+.tk-vb-vraag .q-uitleg { margin: 8px 0 0; font-size: .95rem; }
+.tk-vb:not(.antw) .q-uitleg { display: none; }
+.tk-vb #vb-acties { justify-content: flex-end; margin-top: 12px; }
+.tk-vb #vb-acties.hidden { display: none; }
+@media (max-width: 560px) { .tk-vb-vraag .answers { grid-template-columns: 1fr; } }

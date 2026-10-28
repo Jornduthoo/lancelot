@@ -276,6 +276,9 @@ function tekenLessen() {
     if (l.quiz) knop('⚔ Quiz', 'De quiz van deze les starten in het Toernooi', 'secondary', () => { location.href = Lessen.link.quiz(l.quiz); });
     if (l.blad) knop('📝 Oefenblad', 'Het oefenblad live starten', 'secondary', () => { location.href = Lessen.link.blad(l.blad); });
     if (l.xl) knop('📝 XL', 'Het lange oefenblad live starten', 'secondary', () => { location.href = Lessen.link.blad(l.xl); });
+    // Als taak: het oefenblad van de les, of anders de quiz. Op /taken bekijk je hem eerst en kies je de leerlingen.
+    const taak = l.blad || l.xl;
+    if (taak || l.quiz) knop('📋 Taak', `${taak ? 'Het oefenblad' : 'De quiz'} van deze les als taak geven aan je leerlingen`, 'secondary', () => { location.href = `/taken?soort=${taak ? 'oefenblad' : 'quiz'}&file=${encodeURIComponent((taak || l.quiz).file)}`; });
     if (l.blad || l.xl) knop('🖨', 'Het oefenblad afdrukken', 'secondary icon', () => window.open(Lessen.link.print(l.blad || l.xl), '_blank'));
     rij.append(kop, knoppen);
     doos.append(rij);

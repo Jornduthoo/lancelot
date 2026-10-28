@@ -143,6 +143,25 @@ function voorbeeld({ soort, file } = {}) {
   return { titel: inhoud.title, vak, niveaus, per };
 }
 
+// De taak vooraf bekijken zoals een leerling op dit niveau ze krijgt: een gekozen bron (soort + file) of een gegeven taak (id).
+function inhoud({ soort, file, id, niveau } = {}) {
+  let bron;
+  if (id) {
+    const t = find(id);
+    bron = { soort: t.soort, inhoud: t.inhoud, spel: spelVan(t) };
+  } else bron = { soort, inhoud: laad(soort, file), spel: null };
+  const niveaus = niveausVan(bron.soort, bron.inhoud);
+  const nv = niveaus.includes(niveau) ? niveau : niveaus.includes('schildknaap') ? 'schildknaap' : niveaus[0];
+  const base = { soort: bron.soort, titel: bron.inhoud.title, niveaus, niveau: nv, spel: bron.spel };
+  if (bron.soort === 'quiz') {
+    const qs = bron.inhoud.questions.filter(q => niveaus.length < 2 || (q.niveau || 'schildknaap') === nv);
+    return { ...base, vragen: qs.map(q => ({ vraag: q.question, antwoorden: q.answers, correct: q.correct, uitleg: q.uitleg || '' })) };
+  }
+  const s = sheets.forNiveau(bron.inhoud, nv);
+  const shuffles = sheets.shufflesFor(s, `voorbeeld:${nv}`);
+  return { ...base, view: sheets.studentView(s, shuffles), solutions: sheets.solutions(s, shuffles) };
+}
+
 function maak({ soort, file, namen, feedback, spel, minuten, niveau } = {}) {
   const inhoud = laad(soort, file);
   const lijst = [...new Set((Array.isArray(namen) ? namen : []).map(clean).filter(Boolean))];
@@ -529,4 +548,4 @@ function soloAntwoord({ id, naam, i, keuze, juist } = {}) {
   return { klaar, ...voortgang(t, w) };
 }
 
-module.exports = { PLAN, planGeldig, uitLesmap, SOLO, MINUTEN, soloRonde, soloAntwoord, voorbeeld, maak, voegToe, haalWeg, zetNiveau, sluit, heropen, wis, lijst, detail, mijn, aantal, open, antwoord, inleveren, quizAntwoord, flush, DIR };
+module.exports = { PLAN, planGeldig, uitLesmap, SOLO, MINUTEN, soloRonde, soloAntwoord, voorbeeld, inhoud, maak, voegToe, haalWeg, zetNiveau, sluit, heropen, wis, lijst, detail, mijn, aantal, open, antwoord, inleveren, quizAntwoord, flush, DIR };
