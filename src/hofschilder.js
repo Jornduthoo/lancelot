@@ -18,8 +18,8 @@ const W = 1000, H = 700; // het tekenvel, in eigen eenheden
 const KLEUREN = 10, DIKTES = 4;
 const COLORS = ['#ffc94a', '#4cc9ff', '#ff5d8f', '#7dff8a', '#c08bff', '#ff9a3c', '#5ee7d0', '#ff6b6b', '#9fb4ff', '#f4e285', '#e879f9', '#8bd450'];
 
-// Zo vergelijken we een gok met het begrip.
-const LIDWOORD = /^(de|het|een|der|den|'t|le|la|les|l'|un|une|des|the|a|an)\s+/;
+// Zo vergelijken we een gok met het begrip. De apostrof is dan al een spatie: l'école wordt "l école".
+const LIDWOORD = /^(de|het|een|der|den|t|le|la|les|l|un|une|des|the|a|an)\s+/;
 function normaal(text) {
   return String(text || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
     .replace(/[^a-z0-9\s'-]/g, ' ').replace(/[-']/g, ' ').replace(/\s+/g, ' ').trim()
