@@ -4,7 +4,8 @@
 // mapje rechts), of je kiest de map met het mapje 📁 in de rij (ook op een touchscreen).
 // Met ⬇ exporteer je een item, een map of alles naar een bestand; met ⬆ Importeren (of door een bestand
 // op de lijst te slepen) laad je dat op een andere pc weer in.
-// Met ☑ Selecteren vink je meerdere items aan (shift-klik voor een hele reeks, of Dubbels) en verwijder je ze in één keer.
+// Met ☑ Selecteren vink je meerdere items aan (shift-klik voor een hele reeks, of Dubbels) en verwijder of verplaats je ze
+// in één keer (met 📁 in de balk, of door een aangevinkt item naar een map te slepen: de hele selectie gaat mee).
 // Gebruik: QuizList.mount($('quiz-list'), { go: 'Kies ▶', play: q => ..., edit: q => ..., remove: q => ... }).
 // Met beheer: true (de quizbibliotheek) staan de balken voor niveau en uitleg er niet bij.
 // Voor oefenbladen en sessies: ItemList.mount(el, { kind: 'oefenblad', ... }) met dezelfde opties, plus
@@ -73,6 +74,19 @@ const ItemList = (() => {
 
     function move(file, folder) {
       socket.emit('lib-move', { kind, file, folder }, error);
+    }
+
+    // De selectie naar een map: alleen wat er nog niet in staat.
+    function moveMany(files, folder) {
+      const todo = files.filter(f => { const q = items.find(x => x.file === f); return q && (q.folder || '') !== folder; });
+      if (!todo.length) return;
+      socket.emit('lib-move', { kind, file: todo, folder }, res => {
+        error(res);
+        if (res && res.error) return;
+        picked.clear();
+        note = `${todo.length} ${todo.length === 1 ? k.one : k.many} verplaatst naar ${folder ? baseOf(folder) : 'bovenaan'}.`;
+        render();
+      });
     }
 
     // Een map verplaatsen. Stond je in die map (of dieper), dan ga je mee.
@@ -159,6 +173,7 @@ const ItemList = (() => {
         if (e.dataTransfer.files && e.dataTransfer.files.length) return importFiles(e.dataTransfer.files, folder);
         const data = e.dataTransfer.getData('text/plain');
         if (data.startsWith('folder:')) return moveFolder(data.slice(7), folder);
+        if (data.startsWith('files:')) return moveMany(JSON.parse(data.slice(6)), folder);
         const file = data.replace(/^file:/, '');
         const q = items.find(x => x.file === file);
         if (q && q.folder !== folder) move(file, folder);
@@ -206,7 +221,8 @@ const ItemList = (() => {
         select.addEventListener('focus', fill);
         select.addEventListener('change', () => move(q.file, select.value));
       }
-      if (!picking) dragStart(el, `file:${q.file}`);
+      // Sleep je een aangevinkt item, dan gaat de hele selectie mee.
+      dragStart(el, picking && picked.has(q.file) ? `files:${JSON.stringify([...picked])}` : `file:${q.file}`);
       return el;
     }
 
@@ -310,11 +326,14 @@ const ItemList = (() => {
         <button class="secondary" type="button" data-do="alles">Alles hier</button>
         <button class="secondary" type="button" data-do="niets"${n ? '' : ' disabled'}>Niets</button>
         <button class="secondary" type="button" data-do="dubbels" title="Kiest overal de ${k.many} met dezelfde titel en hetzelfde aantal als een andere. Eén ervan blijft telkens staan.">Dubbels</button>
+        ${folders.length ? `<label class="button secondary lib-kies-map${n ? '' : ' disabled'}" title="De selectie naar een map verplaatsen">📁 Verplaats naar…<select aria-label="Verplaats naar…"${n ? '' : ' disabled'}><option value="" disabled selected>Kies een map</option><option value="">Bovenaan, in geen map</option>${folders.map(f => `<option value="${esc(f)}">${esc(f.split('/').join(' › '))}</option>`).join('')}</select></label>` : ''}
         <button class="danger" type="button" data-do="weg"${n ? '' : ' disabled'}>${Ui.ic('kruis')} Verwijderen</button>
-        <span class="muted small lib-kies-tip">Shift-klik kiest een hele reeks.</span>`;
+        <span class="muted small lib-kies-tip">Shift-klik kiest een reeks. Sleep een aangevinkte naar een map: alles gaat mee.</span>`;
       const on = (what, fn) => el.querySelector(`[data-do=${what}]`).addEventListener('click', fn);
       on('alles', () => { for (const f of shown) picked.add(f); redraw(); });
       on('niets', () => { picked.clear(); redraw(); });
+      const map = el.querySelector('.lib-kies-map select');
+      if (map) map.addEventListener('change', () => moveMany([...picked], map.value));
       on('dubbels', () => {
         const seen = new Set();
         let found = 0;
