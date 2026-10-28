@@ -225,14 +225,18 @@ function tekenNu(r) {
   }
   const info = lesInfo(les);
   const knoppen = el('div', 'zw-lesknoppen');
-  const knop = (tekst, href, titel) => {
+  const knop = (tekst, href, titel, venster) => {
     const a = el('a', 'button secondary', tekst);
     a.href = href;
     a.title = titel;
+    if (venster) a.target = 'lancelot-bordboek';
     knoppen.append(a);
   };
   if (info) {
-    for (const l of info.links) knop(`📖 ${l.bestand.naam.replace(/\.[^.]+$/, '')} · p. ${l.pagina}`, Lessen.link.boek(l.bestand, l.pagina), 'Het boek openen op deze pagina');
+    for (const l of info.links) {
+      if (l.bestand.soort === 'online') knop(`🌐 ${l.bestand.naam}`, Lessen.link.online(l.bestand, l.url), 'Het online bordboek openen', l.bestand.inbed === false);
+      else knop(`📖 ${l.bestand.naam.replace(/\.[^.]+$/, '')} · p. ${l.pagina}`, Lessen.link.boek(l.bestand, l.pagina), 'Het boek openen op deze pagina');
+    }
     if (info.voorkennis) knop('🎯 Voorkennis', Lessen.link.quiz(info.voorkennis), 'De voorkennisquiz starten');
     if (info.quiz) knop('⚔ Quiz', Lessen.link.quiz(info.quiz), 'De quiz starten in het Toernooi');
     if (info.blad) knop('📝 Oefenblad', Lessen.link.blad(info.blad), 'Het oefenblad live starten');

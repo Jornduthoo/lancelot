@@ -2,7 +2,10 @@
 // De bestanden blijven lokaal in de gegevensmap (kronieken/<vak>/<blok>/...), nooit in een back-up-zip of op GitHub:
 // het is uitgeversmateriaal en een bordboek is al snel 30 MB.
 // In _kronieken.json staat per bestand de pagina waar je stopte, en per les een koppeling naar een pagina in een boek.
+// Een online bordboek (Bingel, Diddit, Scoodle...) is enkel een link: het opent met de eigen login van de leerkracht.
+// LANcelot downloadt er niets van. Laat de site zich niet in een ander programma tonen, dan opent ze in een apart venster.
 const fs = require('fs');
+const crypto = require('crypto');
 const path = require('path');
 const gegevens = require('./gegevens');
 
@@ -20,9 +23,10 @@ function leesMeta() {
       mappen: Array.isArray(m.mappen) ? m.mappen.filter(x => typeof x === 'string') : [],
       pagina: m.pagina && typeof m.pagina === 'object' ? m.pagina : {},
       lessen: m.lessen && typeof m.lessen === 'object' ? m.lessen : {},
+      online: Array.isArray(m.online) ? m.online.filter(x => x && typeof x.id === 'string' && typeof x.url === 'string') : [],
     };
   } catch {
-    return { mappen: [], pagina: {}, lessen: {} };
+    return { mappen: [], pagina: {}, lessen: {}, online: [] };
   }
 }
 
@@ -82,6 +86,10 @@ function lijst() {
     }
   };
   loop(DIR, '');
+  for (const o of m.online) {
+    if (o.map) mappen.add(o.map);
+    bestanden.push({ map: o.map || '', naam: o.naam, soort: 'online', id: o.id, url: o.url, inbed: o.inbed === undefined ? null : o.inbed });
+  }
   // De mappen erboven bestaan ook.
   for (const p of [...mappen]) for (let i = p.indexOf('/'); i > 0; i = p.indexOf('/', i + 1)) mappen.add(p.slice(0, i));
   const sorteer = (a, b) => a.localeCompare(b, 'nl', { numeric: true });
@@ -124,13 +132,78 @@ function verwijder(map, naam) {
   const m = leesMeta();
   const k = sleutel(map, path.basename(bron));
   delete m.pagina[k];
+  zonderKoppeling(m, k);
+  schrijfMeta(m);
+}
+
+// ---------- Online bordboeken ----------
+
+const ONLINE = 'online:';
+
+function webAdres(url) {
+  let u;
+  try { u = new URL(String(url || '').trim()); } catch { throw new Error('Plak het volledige adres, bijv. https://bordboeken.bingel.be/...'); }
+  if (!/^https?:$/.test(u.protocol)) throw new Error('Enkel een adres dat begint met https:// kan.');
+  if (u.href.length > 2000) throw new Error('Dat adres is te lang.');
+  return u.href;
+}
+
+function linkNaam(naam, url) {
+  const n = String(naam || '').replace(/[\x00-\x1f]/g, ' ').trim().replace(/\s+/g, ' ').slice(0, 80);
+  return n || new URL(url).hostname.replace(/^www\./, '');
+}
+
+function voegLinkToe({ map, naam, url }) {
+  const adres = webAdres(url);
+  const m = leesMeta();
+  const o = { id: crypto.randomBytes(6).toString('hex'), map: mapPad(map), naam: linkNaam(naam, adres), url: adres, inbed: null };
+  m.online.push(o);
+  schrijfMeta(m);
+  return { id: o.id };
+}
+
+function verwijderLink(id) {
+  const m = leesMeta();
+  if (!m.online.some(o => o.id === id)) throw new Error('Die link bestaat niet meer.');
+  m.online = m.online.filter(o => o.id !== id);
+  zonderKoppeling(m, ONLINE + id);
+  schrijfMeta(m);
+}
+
+// Mag de site in LANcelot getoond worden? Dat zegt ze zelf met X-Frame-Options of Content-Security-Policy frame-ancestors.
+// Het digibord vraagt het één keer na bij het toevoegen. Geen internet of geen antwoord: null, dan probeert de lezer het
+// en staat de knop "Apart venster" er altijd bij.
+function magInbedden(headers) {
+  if (headers.get('x-frame-options')) return false;
+  const csp = headers.get('content-security-policy') || '';
+  const fa = /(?:^|;)\s*frame-ancestors([^;]*)/i.exec(csp);
+  if (fa) return /(^|\s)\*(\s|$)/.test(fa[1]);
+  return true;
+}
+
+async function testInbed(id) {
+  const o = leesMeta().online.find(x => x.id === id);
+  if (!o) return;
+  let inbed = null;
+  try {
+    const res = await fetch(o.url, { redirect: 'follow', signal: AbortSignal.timeout(8000) });
+    inbed = magInbedden(res.headers);
+    try { await res.body?.cancel(); } catch {}
+  } catch { /* offline of geblokkeerd: blijft null */ }
+  const m = leesMeta();
+  const nu = m.online.find(x => x.id === id);
+  if (!nu) return;
+  nu.inbed = inbed;
+  schrijfMeta(m);
+}
+
+function zonderKoppeling(m, boek) {
   for (const lessen of Object.values(m.lessen)) {
     for (const [nr, links] of Object.entries(lessen)) {
-      lessen[nr] = (Array.isArray(links) ? links : []).filter(l => l.boek !== k);
+      lessen[nr] = (Array.isArray(links) ? links : []).filter(l => l.boek !== boek);
       if (!lessen[nr].length) delete lessen[nr];
     }
   }
-  schrijfMeta(m);
 }
 
 // Een lege map weghalen. Een map met bestanden blijft: die verwijder je eerst één voor één.
@@ -159,10 +232,21 @@ function zetPagina(map, naam, pagina) {
 }
 
 // Een les (map + lesnummer) koppelen aan een pagina in een boek. Per les kan er een link naar elk boek zijn.
-function koppel({ map, les, boek, pagina }) {
+// Bij een online bordboek is dat het adres van de juiste pagina (of leeg: dan opent het boek zelf).
+function koppel({ map, les, boek, pagina, url }) {
   const p = mapPad(map);
   const nr = getal(les, MAX_LES);
   if (!p || !nr) throw new Error('Kies een les.');
+  if (String(boek || '').startsWith(ONLINE)) {
+    const m = leesMeta();
+    if (!m.online.some(o => ONLINE + o.id === boek)) throw new Error('Die link bestaat niet meer.');
+    const lessen = m.lessen[p] || (m.lessen[p] = {});
+    const links = (Array.isArray(lessen[nr]) ? lessen[nr] : []).filter(l => l.boek !== boek);
+    links.push(url && String(url).trim() ? { boek, url: webAdres(url) } : { boek });
+    lessen[nr] = links;
+    schrijfMeta(m);
+    return;
+  }
   const delen = String(boek || '').split('/');
   const naam = delen.pop();
   if (!fs.existsSync(volledig(delen.join('/'), naam))) throw new Error('Dat boek bestaat niet meer.');
@@ -206,4 +290,4 @@ function routes(app, isLeerkracht, express, wijzig) {
   });
 }
 
-module.exports = { DIR, lijst, nieuweMap, bewaar, verwijder, verwijderMap, zetPagina, koppel, ontkoppel, routes };
+module.exports = { DIR, lijst, nieuweMap, bewaar, verwijder, verwijderMap, zetPagina, koppel, ontkoppel, voegLinkToe, verwijderLink, testInbed, magInbedden, routes };

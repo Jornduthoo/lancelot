@@ -41,7 +41,15 @@
           <label class="button" id="kr-toevoegen" title="Pdf of afbeelding toevoegen. Slepen kan ook."><i class="ic ic-upload" aria-hidden="true"></i> Boek toevoegen
             <input type="file" id="kr-bestand" accept="application/pdf,.pdf,image/png,image/jpeg,image/webp" multiple hidden>
           </label>
+          <button class="secondary" id="kr-nieuw-link" title="Een bordboek van Bingel, Diddit, Scoodle of een andere site">🌐 Online bordboek</button>
         </div>
+        <form class="kr-map-form kr-link-form hidden" id="kr-link-form">
+          <input id="kr-link-url" type="url" maxlength="2000" placeholder="Plak het adres, bijv. https://bordboeken.bingel.be/..." autocomplete="off" required>
+          <input id="kr-link-naam" maxlength="80" placeholder="Naam, bijv. Bingel rekenen 6" autocomplete="off">
+          <button type="submit">Toevoegen</button>
+          <button type="button" class="secondary" id="kr-link-annuleer">Annuleren</button>
+          <p class="muted small kr-link-uitleg">Open het bordboek eerst in je browser en kopieer het adres bovenaan. Het opent op het bord met je eigen login: LANcelot downloadt er niets van.</p>
+        </form>
         <form class="kr-map-form hidden" id="kr-map-form">
           <input id="kr-map-naam" maxlength="40" placeholder="bijv. Rekenen of Blok 3" autocomplete="off">
           <button type="submit">Maken</button>
@@ -56,11 +64,11 @@
       <div class="panel kr-boeken-paneel">
         <h3>Boeken <span class="muted small" id="kr-boeken-tel"></span></h3>
         <div class="kr-boeken" id="kr-boeken"></div>
-        <div class="kr-leeg muted" id="kr-boeken-leeg">Sleep hier je bordboek, handleiding of kopieerbladen (pdf) naartoe, of tik op <strong>Boek toevoegen</strong>.</div>
+        <div class="kr-leeg muted" id="kr-boeken-leeg">Sleep hier je bordboek, handleiding of kopieerbladen (pdf) naartoe, of tik op <strong>Boek toevoegen</strong>. Werk je met een online bordboek, tik dan op <strong>🌐 Online bordboek</strong> en plak het adres.</div>
       </div>
 
       <div class="panel kr-lessen-paneel" id="kr-lessen-paneel">
-        <h3>Lessen <details class="hulp"><summary>?</summary><p>De lessen komen uit je quizzen en oefenbladen in deze map (titels die beginnen met "Les 12"). Open een boek en tik op 📌 om een pagina aan een les te koppelen: dan opent die les het boek meteen op de juiste pagina.</p></details></h3>
+        <h3>Lessen <details class="hulp"><summary>?</summary><p>De lessen komen uit je quizzen en oefenbladen in deze map (titels die beginnen met "Les 12"). Open een boek en tik op 📌 om een pagina aan een les te koppelen: dan opent die les het boek meteen op de juiste pagina. Bij een online bordboek tik je op 📌 op de kaart en plak je het adres van de juiste pagina.</p></details></h3>
         <div class="kr-lessen" id="kr-lessen"></div>
         <p class="muted small" id="kr-lessen-leeg">In deze map zitten nog geen lessen. Lespakketten en een <a href="/reeks">Reeks met AI</a> zetten hun quizzen per les in een map Vak > Blok.</p>
       </div>
@@ -113,6 +121,36 @@
   <button class="kr-rand links" id="kr-rand-links" aria-label="Vorige pagina">‹</button>
   <button class="kr-rand rechts" id="kr-rand-rechts" aria-label="Volgende pagina">›</button>
 </section>
+
+<!-- Een online bordboek: in LANcelot als de site dat toelaat, anders in een apart venster. -->
+<section class="kr-lezer kr-online hidden" id="kr-online" aria-label="Online bordboek">
+  <div class="kr-lezer-balk">
+    <strong class="kr-lezer-titel" id="kr-online-titel"></strong>
+    <span class="muted small kr-online-tip">Lukt inloggen hier niet? Open het in een apart venster.</span>
+    <div class="kr-gereedschap">
+      <button class="secondary" id="kr-online-apart" title="Openen in een apart venster, naast LANcelot">↗ Apart venster</button>
+      <button class="secondary icon" id="kr-online-vol" title="Schermvullend" aria-label="Schermvullend">⛶</button>
+      <button class="secondary icon" id="kr-online-dicht" title="Sluiten (Esc)" aria-label="Sluiten"><i class="ic ic-kruis"></i></button>
+    </div>
+  </div>
+  <iframe id="kr-online-frame" title="Online bordboek" referrerpolicy="no-referrer-when-downgrade" allow="fullscreen; autoplay; clipboard-write"></iframe>
+</section>
+
+<!-- Een online bordboek aan een les koppelen. -->
+<dialog class="kr-koppel-dialoog" id="kr-online-koppel">
+  <form method="dialog" id="kr-ok-form">
+    <h3>📌 <span id="kr-ok-naam"></span> koppelen aan een les</h3>
+    <label>Les <select id="kr-ok-les"></select></label>
+    <input id="kr-ok-nr" type="number" min="1" max="999" placeholder="lesnummer" class="hidden">
+    <label>Adres van de juiste pagina (mag leeg) <input id="kr-ok-url" type="url" maxlength="2000" placeholder="https://..." autocomplete="off"></label>
+    <p class="muted small">Blader in het bordboek naar de pagina van de les en kopieer het adres bovenaan. Leeg = het bordboek opent zoals altijd.</p>
+    <p class="error" id="kr-ok-fout"></p>
+    <div class="actions">
+      <button type="button" class="secondary" id="kr-ok-annuleer">Annuleren</button>
+      <button type="submit">Koppelen</button>
+    </div>
+  </form>
+</dialog>
 
 <script src="/socket.io/socket.io.js"></script>
 <script src="/js/ui.js"></script>

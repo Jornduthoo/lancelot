@@ -88,3 +88,14 @@ body.kr-leest { overflow: hidden; }
   .kr-lezer-titel { max-width: 100%; flex-basis: 100%; }
   .kr-rand { display: none; }
 }
+
+/* Online bordboek */
+.kr-link-uitleg { flex-basis: 100%; margin: 0; }
+.kr-online iframe { flex: 1; width: 100%; border: 0; background: #fff; }
+.kr-online-tip { flex: 1; min-width: 0; }
+.kr-koppel-dialoog { max-width: min(520px, calc(100vw - 32px)); border: 1px solid var(--line); border-radius: 14px; background: var(--panel-solid); color: inherit; padding: 18px; }
+.kr-koppel-dialoog::backdrop { background: rgb(0 0 0 / .5); }
+.kr-koppel-dialoog form { display: flex; flex-direction: column; gap: 10px; }
+.kr-koppel-dialoog h3 { margin: 0; }
+.kr-koppel-dialoog .actions { justify-content: flex-end; }
+@media (max-width: 640px) { .kr-online-tip { display: none; } }
