@@ -448,6 +448,8 @@ lesmap.init([
   { kind: 'sessie', dir: rondetafel.DIR, remote: 'ronde-tafel', validate: rondetafel.validate },
   // De planning van De Zonnewijzer: thuis voorbereiden, op het bord gebruiken.
   { kind: 'zonnewijzer', dir: zonnewijzer.DIR, remote: 'zonnewijzer', validate: d => { if (!d || typeof d !== 'object' || Array.isArray(d)) throw new Error('Ongeldig bestand.'); } },
+  // Taken: thuis klaarzetten, op het digibord werken de leerlingen eraan. Alleen de taak zelf, nooit het werk.
+  { kind: 'taak', dir: taken.PLAN, remote: 'taken', validate: taken.planGeldig },
 ]);
 let syncTimer = null;
 function runSync() {
@@ -455,6 +457,10 @@ function runSync() {
     for (const kind of changed) {
       if (LIBS[kind]) sendLibrary(kind, null, true);
       else if (kind === 'zonnewijzer') io.to('host').emit('zw-gewijzigd');
+    }
+    if (taken.uitLesmap()) {
+      io.to('host').emit('tk-lijst', taken.lijst());
+      io.emit('tk-nieuw');
     }
     io.to('host').emit('lesmap', lesmap.view());
   });
@@ -975,6 +981,8 @@ io.on('connection', socket => {
       const out = fn(arg || {});
       io.to('host').emit('tk-lijst', taken.lijst());
       io.emit('tk-nieuw');
+      // Een nieuwe of gewiste taak gaat ook naar Mijn lesmap.
+      syncSoon();
       return out || {};
     });
     socket.on('tk-bronnen', handle(() => ({ quizzen: quizzes.list(), bladen: oefenbladen.list(), klas: klas.names() })));

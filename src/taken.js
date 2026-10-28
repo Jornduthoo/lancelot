@@ -3,6 +3,9 @@
 // (zoals in Mijn klas, per vak). Er hoeft geen spel te lopen. De leerkracht ziet live wie bezig of klaar is.
 // Een taak bewaart een kopie van het blad of de quiz: later iets aanpassen of wissen breekt een lopende taak niet.
 // Alles staat in taken/taken.json bij de gegevens (in .gitignore), alleen op deze pc.
+// Met Mijn lesmap gaat elke gegeven taak (zonder het werk van de leerlingen) als bestand in taken/plan mee naar de
+// andere pc: thuis klaarzetten, en op het digibord staat ze klaar. Het werk en de voortgang blijven op de pc waar
+// de leerlingen werken.
 const fs = require('fs');
 const path = require('path');
 const gegevens = require('./gegevens');
@@ -15,6 +18,7 @@ const { NAMES } = require('./niveaus');
 
 const DIR = gegevens.pad('taken');
 const FILE = path.join(DIR, 'taken.json');
+const PLAN = path.join(DIR, 'plan');
 const MAX = 80; // daarboven vallen de oudste afgesloten taken weg
 const SAVE_MS = 1000;
 // Tegen gokken bij meteen verbeteren, zoals bij het oefenblad live: na een fout keuzeantwoord even wachten.
@@ -152,15 +156,91 @@ function maak({ soort, file, namen, feedback, spel, minuten, niveau } = {}) {
   // De leerkracht kan iedereen op één niveau zetten (bv. de hele klas eens Page), anders elk zijn eigen niveau.
   if (niveausVan(soort, inhoud).length > 1 && niveausVan(soort, inhoud).includes(niveau)) t.niveau = niveau;
   for (const naam of lijst) t.werk[key(naam)] = nieuwWerk(t, naam, startNiveau(t, naam));
+  bewaarNieuw(t);
+  planBewaar(t);
+  return t;
+}
+
+function bewaarNieuw(t) {
   const list = all();
   list.unshift(t);
   // Niet eindeloos bijhouden: de oudste afgesloten taken vallen weg (hun antwoorden staan in het logboek).
   while (list.length > MAX) {
     const i = list.map(x => x.dicht).lastIndexOf(true);
-    list.splice(i >= 0 ? i : list.length - 1, 1);
+    planWeg(list.splice(i >= 0 ? i : list.length - 1, 1)[0].id);
   }
   save();
-  return t;
+}
+
+// ---------- Mee met Mijn lesmap ----------
+
+// De taak zoals ze gegeven werd: wat, voor wie en hoe. Geen antwoorden, geen voortgang.
+function planBewaar(t) {
+  try {
+    fs.mkdirSync(PLAN, { recursive: true });
+    const plan = {
+      id: t.id, soort: t.soort, file: t.file, titel: t.titel, vak: t.vak, feedback: t.feedback, gemaakt: t.gemaakt,
+      spel: t.spel || null, minuten: t.minuten || null, niveau: t.niveau || null,
+      namen: Object.values(t.werk).map(w => w.naam), inhoud: t.inhoud,
+    };
+    fs.writeFileSync(path.join(PLAN, `${t.id}.json`), JSON.stringify(plan) + '\n');
+    t.plan = true;
+  } catch (err) {
+    console.error('Taak voor de lesmap bewaren mislukt:', err.message);
+  }
+}
+
+function planWeg(id) {
+  try { fs.unlinkSync(path.join(PLAN, `${id}.json`)); } catch {}
+}
+
+function planGeldig(p) {
+  if (!p || typeof p.id !== 'string' || !/^[a-z0-9]{4,20}$/.test(p.id)) throw new Error('Ongeldige taak.');
+  if (!['quiz', 'oefenblad'].includes(p.soort) || !p.inhoud || typeof p.inhoud !== 'object' || !Array.isArray(p.namen)) throw new Error('Ongeldige taak.');
+}
+
+// Na het synchroniseren: nieuwe taken uit de lesmap klaarzetten, en taken die aan de andere kant gewist zijn ook hier
+// weghalen, maar alleen zolang hier nog niemand eraan begon (wat leerlingen deden, gaat nooit verloren).
+// Geeft terug of er iets veranderde.
+function uitLesmap() {
+  let plannen = [];
+  try { plannen = fs.readdirSync(PLAN).filter(n => /^[a-z0-9]+\.json$/.test(n)); } catch {}
+  const ids = new Set();
+  let veranderd = false;
+  for (const naam of plannen) {
+    let p;
+    try { p = JSON.parse(fs.readFileSync(path.join(PLAN, naam), 'utf8')); planGeldig(p); } catch { continue; }
+    if (`${p.id}.json` !== naam) continue;
+    ids.add(p.id);
+    let t = all().find(x => x.id === p.id);
+    if (!t) {
+      t = {
+        id: p.id, soort: p.soort, file: p.file, titel: String(p.titel || p.inhoud.title || 'Taak'), vak: p.vak || '',
+        feedback: p.feedback === 'inleveren' ? 'inleveren' : 'direct', gemaakt: p.gemaakt || new Date().toISOString(), dicht: false,
+        inhoud: p.inhoud, werk: {}, plan: true, uitLesmap: true,
+      };
+      if (p.soort === 'quiz' && SOLO[p.spel]) Object.assign(t, { spel: p.spel, minuten: MINUTEN.includes(p.minuten) ? p.minuten : 5 });
+      if (niveausVan(t.soort, t.inhoud).includes(p.niveau) && niveausVan(t.soort, t.inhoud).length > 1) t.niveau = p.niveau;
+      bewaarNieuw(t);
+      veranderd = true;
+    }
+    // Wie er aan de andere kant bij kwam, komt er hier ook bij (alleen wie op deze klaslijst staat).
+    for (const n of p.namen.map(clean).filter(Boolean)) {
+      if (t.werk[key(n)] || !klas.match(n)) continue;
+      t.werk[key(n)] = nieuwWerk(t, klas.match(n).naam, startNiveau(t, n));
+      veranderd = true;
+    }
+  }
+  const list = all();
+  for (let i = list.length - 1; i >= 0; i--) {
+    const t = list[i];
+    if (!t.plan || ids.has(t.id)) continue;
+    if (Object.values(t.werk).every(w => w.status === 'nieuw')) list.splice(i, 1);
+    else t.plan = false;
+    veranderd = true;
+  }
+  if (veranderd) save();
+  return veranderd;
 }
 
 // Er later nog leerlingen bij zetten.
@@ -173,6 +253,7 @@ function voegToe({ id, namen } = {}) {
     n++;
   }
   t.dicht = false;
+  if (n && t.plan) planBewaar(t);
   save();
   return n;
 }
@@ -221,6 +302,7 @@ function wis(id) {
   const list = all();
   const i = list.findIndex(x => x.id === id);
   if (i >= 0) list.splice(i, 1);
+  planWeg(id);
   save();
 }
 
@@ -240,7 +322,7 @@ function voortgang(t, w) {
 // Alle taken voor het bord, zonder de inhoud.
 function lijst() {
   return all().map(t => ({
-    id: t.id, soort: t.soort, titel: t.titel, vak: t.vak, feedback: t.feedback, gemaakt: t.gemaakt, dicht: t.dicht, spel: spelVan(t),
+    id: t.id, soort: t.soort, titel: t.titel, vak: t.vak, feedback: t.feedback, gemaakt: t.gemaakt, dicht: t.dicht, spel: spelVan(t), uitLesmap: !!t.uitLesmap,
     niveaus: niveausVan(t.soort, t.inhoud), niveau: t.niveau || null,
     leerlingen: Object.values(t.werk).map(w => ({ naam: w.naam, niveau: w.niveau, status: w.status, klaar: w.klaar, ...voortgang(t, w) }))
       .sort((a, b) => a.naam.localeCompare(b.naam, 'nl')),
@@ -447,4 +529,4 @@ function soloAntwoord({ id, naam, i, keuze, juist } = {}) {
   return { klaar, ...voortgang(t, w) };
 }
 
-module.exports = { SOLO, MINUTEN, soloRonde, soloAntwoord, voorbeeld, maak, voegToe, haalWeg, zetNiveau, sluit, heropen, wis, lijst, detail, mijn, aantal, open, antwoord, inleveren, quizAntwoord, flush, DIR };
+module.exports = { PLAN, planGeldig, uitLesmap, SOLO, MINUTEN, soloRonde, soloAntwoord, voorbeeld, maak, voegToe, haalWeg, zetNiveau, sluit, heropen, wis, lijst, detail, mijn, aantal, open, antwoord, inleveren, quizAntwoord, flush, DIR };
