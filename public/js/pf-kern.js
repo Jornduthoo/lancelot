@@ -27,6 +27,7 @@
 //               kies = een keuzelijstje: opties, antwoord is de juiste optie
 //               teken = een vak om in te tekenen (de leerkracht verbetert), luister = een knop die audio afspeelt (geen antwoord)
 //               breuk = teller boven noemer, sleep = de leerling sleept er een woord in (uit alle sleepwoorden van het blad + woorden: [foute keuzes])
+//               plek = aanduiden: de leerling tikt in het vak een plek aan; doel: { x, y, r } (procent van het vak; r van de breedte)
 //               vlak = een gekleurd vlak dat iets op het blad bedekt (kleur), notitie = tekst van de leerkracht op het blad (tekst)
 //               kruisjes met dezelfde groep tellen samen: alleen goed als precies de juiste aangekruist zijn
 //               rond = een bolletje (meerkeuze: de leerling kiest er één per groep), label = een letter op het hokje (A, B, J, F)
@@ -51,11 +52,11 @@
   const MAX_VRAGEN = 80;
   const MAX_DEEL = 15;
   const MAX_VELDEN = 80;
-  const SOORTEN = ['tekst', 'kruis', 'kies', 'open', 'teken', 'luister', 'breuk', 'sleep', 'vlak', 'notitie'];
+  const SOORTEN = ['tekst', 'kruis', 'kies', 'open', 'teken', 'luister', 'breuk', 'sleep', 'vlak', 'notitie', 'plek'];
   // Vakjes zonder antwoord: ze staan alleen op het blad.
   const GEEN_ANTWOORD = new Set(['luister', 'vlak', 'notitie']);
   // Vakjes die de computer verbetert met een getypt of gekozen antwoord.
-  const AUTO_VELD = new Set(['tekst', 'kies', 'breuk', 'sleep']);
+  const AUTO_VELD = new Set(['tekst', 'kies', 'breuk', 'sleep', 'plek']);
   const KLEUREN = ['#ffffff', '#fff3b0', '#d8ecff', '#e4e4e4', '#ffd9d9'];
   // Wat de leerkracht verbetert op een blad.
   const HAND_VELD = new Set(['open', 'teken']);
@@ -290,6 +291,10 @@
         const tekst = text(f.tekst, 1000);
         if (tekst) veld.tekst = tekst;
         veld.punten = 0;
+      } else if (soort === 'plek') {
+        const d = f.doel && typeof f.doel === 'object' ? f.doel : null;
+        if (d) veld.doel = { x: pct(d.x), y: pct(d.y), r: Math.max(2, Math.min(100, pct(d.r) || 12)) };
+        veld.punten = punt(f.punten, 1);
       } else if (soort === 'teken') {
         const antwoord = text(f.antwoord, 1000);
         if (antwoord) veld.antwoord = antwoord;
@@ -566,6 +571,15 @@
     return a;
   }
 
+  // Een aangetikte plek ("x,y" in procent van het vak) binnen de juiste cirkel? Rekent in echte verhoudingen.
+  function plekGoed(f, a, verhouding = 1.414) {
+    const m = /^(-?[\d.]+),(-?[\d.]+)$/.exec(String(a || ''));
+    if (!m || !f.doel) return false;
+    const dx = ((Number(m[1]) - f.doel.x) / 100) * f.w;
+    const dy = ((Number(m[2]) - f.doel.y) / 100) * f.h * verhouding;
+    return Math.hypot(dx, dy) <= (f.doel.r / 100) * f.w;
+  }
+
   // Per vakje van een blad: goed (true), fout (false) of null (open vak, hokje). ov: wat de leerkracht zelf aanduidde.
   function vakGoed(q, a, ov = {}) {
     const b = Array.isArray(a) ? a : [];
@@ -573,6 +587,7 @@
       if (!AUTO_VELD.has(f.soort)) return null;
       if (ov[k] === true || ov[k] === false) return ov[k];
       if (f.soort === 'kies') return b[k] === f.antwoord;
+      if (f.soort === 'plek') return plekGoed(f, b[k], q.verhouding);
       if (f.soort === 'sleep') return alts(f.antwoord).includes(String(b[k] || ''));
       return zelfde(f.antwoord, b[k], f);
     });
@@ -668,7 +683,7 @@
   // "36 cm", maar geen "36 cm cm" als de eenheid al in het antwoord staat.
   const metEenheid = (a, e) => (e && !String(a || '').toLowerCase().includes(e.toLowerCase()) ? `${a} ${e}` : String(a || ''));
   // Het juiste antwoord per vakje van een blad: tekst, ✗ (aankruisen) of leeg.
-  const veldSleutel = q => q.velden.map(f => (f.soort === 'kruis' ? (f.antwoord ? '✗' : '') : GEEN_ANTWOORD.has(f.soort) ? '' : f.soort === 'tekst' || f.soort === 'breuk' ? metEenheid(alts(f.antwoord)[0] || '', f.eenheid) : f.soort === 'sleep' ? (alts(f.antwoord)[0] || '') : (f.antwoord || '')));
+  const veldSleutel = q => q.velden.map(f => (f.soort === 'kruis' ? (f.antwoord ? '✗' : '') : f.soort === 'plek' ? (f.doel ? '📍' : '') : GEEN_ANTWOORD.has(f.soort) ? '' : f.soort === 'tekst' || f.soort === 'breuk' ? metEenheid(alts(f.antwoord)[0] || '', f.eenheid) : f.soort === 'sleep' ? (alts(f.antwoord)[0] || '') : (f.antwoord || '')));
 
   // Het juiste antwoord als tekst, voor het verbeterblad en de leerkracht.
   function oplossing(q) {

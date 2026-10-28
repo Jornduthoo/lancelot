@@ -170,7 +170,10 @@ const PfPaper = (() => {
     const velden = q.velden.map((f, k) => {
       const pos = `left:${f.x}%;top:${f.y}%;width:${f.w}%;height:${f.h}%;font-size:max(9px,${Math.round(Math.min(f.h * v * 0.62, 2.2) * 100) / 100}cqw)`;
       // Met een oordeel (verbeteren) alleen de sleutel bij een fout vakje, anders staat alles vol rood.
-      const s = sleutel && sleutel[k] && !(oordeel && oordeel.goed[k] !== false) ? `<span class="pf-veld-sleutel${b[k] ? '' : ' in'}" style="left:${f.x}%;top:${b[k] ? f.y + f.h : f.y}%;${b[k] ? '' : `width:${f.w}%;height:${f.h}%;`}">${esc(sleutel[k])}</span>` : '';
+      // Bij aanduiden toont de sleutel de juiste plek als cirkel (als het vak die kent).
+      const zone = sleutel && f.soort === 'plek' && f.doel ? `<i class="pf-plek-doel" style="left:${f.x + (f.doel.x * f.w) / 100}%;top:${f.y + (f.doel.y * f.h) / 100}%;width:${(2 * f.doel.r * f.w) / 100}%"></i>` : '';
+      if (f.soort === 'plek' && print) return zone;
+      const s = f.soort === 'plek' ? zone : sleutel && sleutel[k] && !(oordeel && oordeel.goed[k] !== false) ? `<span class="pf-veld-sleutel${b[k] ? '' : ' in'}" style="left:${f.x}%;top:${b[k] ? f.y + f.h : f.y}%;${b[k] ? '' : `width:${f.w}%;height:${f.h}%;`}">${esc(sleutel[k])}</span>` : '';
       if (f.soort === 'vlak') return `<i class="pf-vlak" style="left:${f.x}%;top:${f.y}%;width:${f.w}%;height:${f.h}%;background:${esc(f.kleur || '#fff')}"></i>`;
       if (f.soort === 'notitie') return `<span class="pf-notitie" style="${pos}">${esc(f.tekst || '').replace(/\n/g, '<br>')}</span>`;
       if (print) return s;
@@ -197,6 +200,10 @@ const PfPaper = (() => {
         return `<span class="pf-veld breuk${kl}" data-k="${k}" style="${pos}"><input class="teller pf-breuk-in" inputmode="numeric" autocomplete="off" aria-label="Teller" value="${esc(String(t).trim())}"${ro}><i></i><input class="noemer pf-breuk-in" inputmode="numeric" autocomplete="off" aria-label="Noemer" value="${esc(String(n).trim())}"${ro}></span>`;
       }
       if (f.soort === 'sleep') return `<button type="button" class="pf-veld sleep${kl}${b[k] ? ' vol' : ''}" data-k="${k}" data-waarde="${esc(b[k] || '')}" style="${pos}"${live ? '' : ' disabled'}>${esc(b[k] || '')}</button>`;
+      if (f.soort === 'plek') {
+        const [px, py] = String(b[k] || '').split(',').map(Number);
+        return `<div class="pf-veld plek${kl}${live ? '' : ' kijk'}" data-k="${k}" data-waarde="${esc(b[k] || '')}" style="left:${f.x}%;top:${f.y}%;width:${f.w}%;height:${f.h}%" title="Tik de juiste plek aan">${b[k] ? `<i class="pf-plek-pin" style="left:${px}%;top:${py}%"></i>` : ''}</div>`;
+      }
       if (f.soort === 'kies') return `<select class="pf-veld kies${kl}" data-k="${k}" style="${pos}"${live ? '' : ' disabled'}><option value=""></option>${(f.opties || []).map(x => `<option${b[k] === x ? ' selected' : ''}>${esc(x)}</option>`).join('')}</select>`;
       if (f.soort === 'open') return `<textarea class="pf-veld open${kl}" data-k="${k}" style="${pos}" spellcheck="false"${ro}>${esc(b[k] ?? '')}</textarea>`;
       return `<input class="pf-veld${kl}" data-k="${k}" style="${pos}" autocomplete="off" autocapitalize="off" spellcheck="false" value="${esc(b[k] ?? '')}"${ro}>`;
@@ -346,7 +353,7 @@ const PfPaper = (() => {
         const k = Number(f.dataset.k);
         if (f.classList.contains('kruis')) out[k] = f.classList.contains('on') ? true : null;
         else if (f.classList.contains('teken')) out[k] = f.pfWaarde || null;
-        else if (f.classList.contains('sleep')) out[k] = f.dataset.waarde || null;
+        else if (f.classList.contains('sleep') || f.classList.contains('plek')) out[k] = f.dataset.waarde || null;
         else if (f.classList.contains('breuk')) {
           const t = f.querySelector('.teller').value.trim();
           const n = f.querySelector('.noemer').value.trim();
@@ -386,6 +393,17 @@ const PfPaper = (() => {
           if (b.classList.contains('rond')) {
             for (const x of el.querySelectorAll(`.pf-veld.kruis.rond[data-g="${b.dataset.g}"]`)) if (x !== b) x.classList.remove('on');
           } else b.textContent = b.classList.contains('on') ? '✗' : label;
+          send(el);
+        });
+      }
+      // Aanduiden op een blad: een speld waar de leerling tikt.
+      for (const v of el.querySelectorAll('.pf-veld.plek')) {
+        v.addEventListener('click', e => {
+          const r = v.getBoundingClientRect();
+          const x = Math.round(Math.min(100, Math.max(0, ((e.clientX - r.left) / r.width) * 100)) * 10) / 10;
+          const y = Math.round(Math.min(100, Math.max(0, ((e.clientY - r.top) / r.height) * 100)) * 10) / 10;
+          v.dataset.waarde = `${x},${y}`;
+          v.innerHTML = `<i class="pf-plek-pin" style="left:${x}%;top:${y}%"></i>`;
           send(el);
         });
       }

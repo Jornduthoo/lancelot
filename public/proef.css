@@ -490,3 +490,10 @@ select.pf-kies { width: auto; min-width: 6em; display: inline-block; margin: 0 2
 .bv-kleur { width: 40px; height: 40px; padding: 0; min-width: 0; clip-path: none; border-radius: 6px; box-shadow: inset 0 0 0 1px #999; }
 .bv-kleur.on { box-shadow: inset 0 0 0 3px rgb(var(--k-goud)); }
 @media (max-width: 900px) { .pf-be-zij { max-height: none; } }
+/* Aanduiden op een blad: de leerling tikt in het vak een plek aan. */
+.pf-veld.plek { padding: 0; cursor: crosshair; background: rgba(43, 108, 255, .06); box-shadow: inset 0 0 0 1.5px rgba(43, 108, 255, .45); border-radius: 4px; }
+.pf-veld.plek.kijk { cursor: default; }
+.pf-plek-pin { position: absolute; width: 16px; height: 16px; margin: -8px 0 0 -8px; border-radius: 50%; background: #d6334f; box-shadow: 0 0 0 3px #fff, 0 2px 6px rgba(0, 0, 0, .4); pointer-events: none; }
+.pf-plek-doel { position: absolute; aspect-ratio: 1; transform: translate(-50%, -50%); border-radius: 50%; border: 2px dashed #1a9e6e; background: rgba(26, 158, 110, .18); pointer-events: none; }
+.pf-be-veld.plek { background: rgba(43, 108, 255, .08); box-shadow: inset 0 0 0 1.5px #2b6cff; }
+.bv-plek { position: relative; width: 100%; overflow: hidden; border-radius: 6px; background-repeat: no-repeat; cursor: crosshair; box-shadow: inset 0 0 0 1px var(--line); }
