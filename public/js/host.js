@@ -192,6 +192,7 @@ QuizList.mount($('lib-list'), {
   errorId: 'lib-error',
   go: 'Bewerken',
   play: q => { quizBase = 'bibliotheek'; editQuiz(q.file); },
+  buttons: [{ label: '📋 Als taak', cls: 'taak', title: 'Geef deze quiz als taak aan een of meer leerlingen', click: q => { location.href = `/taken?soort=quiz&file=${encodeURIComponent(q.file)}`; } }],
 });
 
 // ---------- Lobby ----------
@@ -353,6 +354,7 @@ $('open-results').addEventListener('click', () => show('results'));
 // Instellingen in tabbladen; het laatst gekozen tabblad komt terug.
 Ui.tabs($('set-tabs'), 'lancelot-instellingen-tab');
 $('open-klas').addEventListener('click', () => { location.href = '/klas'; });
+$('open-taken').addEventListener('click', () => { location.href = '/taken'; });
 socket.on('zekerheid', on => { $('zekerheid').checked = on; });
 $('zekerheid').addEventListener('change', e => socket.emit('zekerheid', e.target.checked));
 $('open-netwerk').addEventListener('click', () => { location.href = '/netwerk'; });

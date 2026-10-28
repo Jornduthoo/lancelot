@@ -11,7 +11,7 @@ const el = (tag, cls, text) => {
 };
 const datum = iso => new Date(iso).toLocaleDateString('nl-BE', { weekday: 'short', day: 'numeric', month: 'short' });
 
-const tk = { soort: 'oefenblad', bronnen: null, klas: [], gekozen: new Set(), per: {}, eigen: null, vak: null, zorg: null, taken: [], detail: null, erbij: null };
+const tk = { soort: 'oefenblad', bronnen: null, klas: [], gekozen: new Set(), per: {}, eigen: null, vak: null, zorg: null, taken: [], detail: null, erbij: null, vb: null };
 
 // Komt de leerkracht van het zorgoverzicht of een lijst, dan staat de keuze al klaar (?namen=a|b, ?soort=…&file=…).
 const vraag = new URLSearchParams(location.search);
@@ -19,7 +19,12 @@ if (vraag.get('soort') === 'quiz') tk.soort = 'quiz';
 for (const n of (vraag.get('namen') || '').split('|').filter(Boolean)) tk.gekozen.add(n);
 
 $('brand').addEventListener('click', () => { location.href = '/host'; });
-$('to-home').addEventListener('click', () => { location.href = '/host'; });
+// Terug gaat naar waar je vandaan kwam (De Kronieken, Mijn quizzen…), anders naar het startscherm.
+$('to-home').addEventListener('click', () => {
+  const van = document.referrer && new URL(document.referrer);
+  if (van && van.origin === location.origin && van.pathname !== '/taken' && history.length > 1) history.back();
+  else location.href = '/host';
+});
 
 // ---------- Wat? ----------
 
@@ -152,6 +157,7 @@ function tekenNamen() {
 function knop() {
   const n = tk.gekozen.size;
   $('tk-geef').disabled = !n || !$('tk-bron').value;
+  $('tk-bekijk').disabled = !$('tk-bron').value;
   $('tk-geef').textContent = !n ? 'Tik eerst leerlingen aan' : n === tk.klas.length && n > 1 ? 'Geef taak aan de hele klas' : `Geef taak aan ${n} ${n === 1 ? 'leerling' : 'leerlingen'}`;
 }
 
@@ -245,6 +251,7 @@ function kaart(t) {
     acties.appendChild(b);
   };
   if (!t.dicht) knopje('+ Leerlingen', () => erbij(t));
+  knopje('👁 Bekijk', () => bekijk({ id: t.id }, t));
   if (t.dicht) knopje('🔓 Weer openen', () => socket.emit('tk-heropen', { id: t.id }, uit));
   else knopje('🔒 Afsluiten', async () => {
     if (await Ui.vraag('Deze taak afsluiten? Wie bezig is, levert in zoals het er nu staat. Wie nog niet begon, telt niet mee.', { ja: 'Afsluiten', nee: 'Nee' })) socket.emit('tk-sluit', { id: t.id }, uit);
@@ -349,6 +356,100 @@ $('d-niveau').addEventListener('change', async () => {
     return;
   }
   socket.emit('tk-niveau', { id: d.id, naam: d.naam, niveau }, uit);
+});
+
+// ---------- Vooraf bekijken ----------
+
+// Het blad of de vragen zoals de leerling ze krijgt, per niveau. Bij een nieuwe taak kan je van hieruit meteen geven.
+function bekijk(bron, taak) {
+  let niveau = '';
+  if (!taak) {
+    // Het niveau dat de meeste aangetikte leerlingen krijgen, of het vaste niveau.
+    const tel = {};
+    for (const n of tk.gekozen) if (tk.per[n]) tel[tk.per[n]] = (tel[tk.per[n]] || 0) + 1;
+    niveau = $('tk-niveau').value || Object.keys(tel).sort((a, b) => tel[b] - tel[a])[0] || '';
+  }
+  tk.vb = { bron, taak, niveau };
+  $('vb-antw').checked = false;
+  $('tk-vb').classList.remove('antw');
+  laadVoorbeeld();
+}
+
+function laadVoorbeeld() {
+  const vb = tk.vb;
+  socket.emit('tk-inhoud', { ...vb.bron, niveau: vb.niveau }, res => {
+    if (res.error) return Ui.melding(res.error);
+    vb.niveau = res.niveau;
+    $('vb-titel').textContent = res.titel;
+    const nv = $('vb-niveaus');
+    nv.innerHTML = '';
+    nv.classList.toggle('hidden', res.niveaus.length < 2);
+    for (const n of res.niveaus) {
+      const b = el('button', n === res.niveau ? 'on' : '', Niveau.label(n));
+      b.type = 'button';
+      b.addEventListener('click', () => { vb.niveau = n; laadVoorbeeld(); });
+      nv.appendChild(b);
+    }
+    $('vb-info').textContent = voorbeeldInfo(res);
+    const paper = $('vb-paper');
+    const vragen = $('vb-vragen');
+    paper.classList.toggle('hidden', res.soort !== 'oefenblad');
+    vragen.innerHTML = '';
+    if (res.soort === 'oefenblad') {
+      vb.res = res;
+      tekenBlad();
+    } else {
+      res.vragen.forEach((v, i) => {
+        const k = el('div', 'tk-vb-vraag');
+        const p = el('p');
+        p.append(el('b', '', `${i + 1}.`), v.vraag);
+        const box = el('div', 'answers');
+        v.antwoorden.forEach((a, j) => {
+          const b = el('div', `answer a${j}`);
+          if (j === v.correct) b.dataset.goed = '';
+          b.append(el('b', 'rune', j + 1), el('span', 'label', a));
+          box.appendChild(b);
+        });
+        k.append(p, box);
+        if (v.uitleg) k.appendChild(el('p', 'q-uitleg', v.uitleg));
+        vragen.appendChild(k);
+      });
+      if (!res.vragen.length) vragen.appendChild(el('p', 'muted', 'Op dit niveau staan geen vragen.'));
+    }
+    $('vb-acties').classList.toggle('hidden', !!vb.taak);
+    $('vb-geef').disabled = $('tk-geef').disabled;
+    $('vb-geef').textContent = $('tk-geef').disabled ? 'Tik eerst leerlingen aan' : `Ziet er goed uit: ${$('tk-geef').textContent.toLowerCase()}`;
+    if (!$('tk-vb').open) $('tk-vb').showModal();
+  });
+}
+
+function tekenBlad() {
+  const res = tk.vb.res;
+  ObSheet.render($('vb-paper'), res.view, { mode: 'view', answers: {}, results: {}, solutions: $('vb-antw').checked ? res.solutions : null });
+}
+
+// Wie krijgt dit niveau, en hoe speelt de leerling het?
+function voorbeeldInfo(res) {
+  const zin = [];
+  let namen;
+  if (tk.vb.taak) namen = tk.vb.taak.leerlingen.filter(l => res.niveaus.length < 2 || l.niveau === res.niveau).map(l => l.naam);
+  else namen = [...tk.gekozen].filter(n => res.niveaus.length < 2 || (tk.per[n] || res.niveau) === res.niveau);
+  if (namen.length) zin.push(`Zo krijgen ${namen.length > 4 ? `${namen.slice(0, 4).join(', ')} en nog ${namen.length - 4}` : namen.join(', ')} het.`);
+  else if (res.niveaus.length > 1) zin.push(`Niemand ${tk.vb.taak ? 'in deze taak' : 'die je aantikte'} krijgt dit niveau.`);
+  const spel = tk.vb.taak ? res.spel && res.spel.naam : $('tk-spel').value && $('tk-spel').selectedOptions[0].textContent.replace(/^Alleen in:\s*/, '');
+  if (res.soort === 'quiz') zin.push(spel ? `De leerling speelt alleen in ${spel}: deze vragen komen tussendoor in het spel.` : `${res.vragen.length} ${res.vragen.length === 1 ? 'vraag' : 'vragen'}, een voor een, bij elke leerling in een andere volgorde.`);
+  return zin.join(' ');
+}
+
+$('tk-bekijk').addEventListener('click', () => bekijk({ soort: tk.soort, file: $('tk-bron').value }));
+$('vb-sluit').addEventListener('click', () => $('tk-vb').close());
+$('vb-antw').addEventListener('change', () => {
+  $('tk-vb').classList.toggle('antw', $('vb-antw').checked);
+  if (tk.vb && tk.vb.res && tk.vb.res.soort === 'oefenblad' && !$('vb-paper').classList.contains('hidden')) tekenBlad();
+});
+$('vb-geef').addEventListener('click', () => {
+  $('tk-vb').close();
+  $('tk-geef').click();
 });
 
 // ---------- Leerlingen erbij ----------
