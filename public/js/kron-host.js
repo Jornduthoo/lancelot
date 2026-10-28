@@ -28,9 +28,20 @@ const later = () => {
 };
 // /kronieken?map=…&naam=…&pagina=… (vanuit De Zonnewijzer): dat boek meteen open, op die pagina.
 const vraag = new URLSearchParams(location.search);
-let meteen = vraag.get('naam') ? { map: vraag.get('map') || '', naam: vraag.get('naam'), pagina: Number(vraag.get('pagina')) || 0 } : null;
+let meteen = vraag.get('naam') ? { map: vraag.get('map') || '', naam: vraag.get('naam'), pagina: Number(vraag.get('pagina')) || 0 }
+  : vraag.get('online') ? { online: vraag.get('online'), url: vraag.get('url') || '' } : null;
 function openMeteen() {
   if (!meteen) return;
+  if (meteen.online) {
+    const o = kr.lijst.bestanden.find(x => x.soort === 'online' && x.id === meteen.online);
+    if (!o) return;
+    const url = meteen.url;
+    meteen = null;
+    history.replaceState(null, '', '/kronieken');
+    gaNaar(o.map);
+    openOnline(o, url);
+    return;
+  }
   const b = kr.lijst.bestanden.find(x => x.map === meteen.map && x.naam === meteen.naam);
   if (!b) return;
   const p = meteen.pagina;
@@ -183,22 +194,38 @@ function tekenBoeken() {
     const open = el('button', 'kr-boek-open');
     open.type = 'button';
     open.title = 'Openen op het bord';
-    open.append(el('span', 'kr-boek-rug', b.soort === 'pdf' ? '📖' : '🖼'));
+    const online = b.soort === 'online';
+    open.append(el('span', 'kr-boek-rug', online ? '🌐' : b.soort === 'pdf' ? '📖' : '🖼'));
     const tekst = el('span', 'kr-boek-tekst');
-    tekst.append(el('strong', '', zonderExt(b.naam)));
-    tekst.append(el('span', 'muted small', b.soort === 'pdf' ? `${b.pagina > 1 ? `verder op p. ${b.pagina} · ` : ''}${mb(b.grootte)}` : `afbeelding · ${mb(b.grootte)}`));
+    tekst.append(el('strong', '', online ? b.naam : zonderExt(b.naam)));
+    const info = online ? `online · ${host(b.url)}${b.inbed === false ? ' · apart venster' : ''}`
+      : b.soort === 'pdf' ? `${b.pagina > 1 ? `verder op p. ${b.pagina} · ` : ''}${mb(b.grootte)}` : `afbeelding · ${mb(b.grootte)}`;
+    tekst.append(el('span', 'muted small', info));
     open.append(tekst);
-    open.addEventListener('click', () => openBoek(b));
+    open.addEventListener('click', () => (online ? openOnline(b) : openBoek(b)));
     const weg = el('button', 'secondary icon kr-weg');
     weg.type = 'button';
     weg.title = 'Verwijderen';
     weg.setAttribute('aria-label', `${b.naam} verwijderen`);
     weg.innerHTML = Ui.ic('kruis');
     weg.addEventListener('click', async () => {
+      if (online) {
+        if (!await Ui.vraag(`De link "${b.naam}" uit De Kronieken verwijderen? Het bordboek zelf blijft gewoon online.`, { ja: 'Verwijderen', gevaar: true })) return;
+        return socket.emit('kr-link-weg', { id: b.id }, res => { $('kr-fout').textContent = res.error || ''; });
+      }
       if (!await Ui.vraag(`"${zonderExt(b.naam)}" uit De Kronieken verwijderen? Het gaat naar de prullenbak in de map kronieken.`, { ja: 'Verwijderen', gevaar: true })) return;
       socket.emit('kr-weg', { map: b.map, naam: b.naam }, res => { $('kr-fout').textContent = res.error || ''; });
     });
-    kaart.append(open, weg);
+    kaart.append(open);
+    if (online && (b.map || kr.hier)) {
+      const pin = el('button', 'secondary icon kr-weg', '📌');
+      pin.type = 'button';
+      pin.title = 'Aan een les koppelen';
+      pin.setAttribute('aria-label', `${b.naam} aan een les koppelen`);
+      pin.addEventListener('click', () => koppelOnline(b));
+      kaart.append(pin);
+    }
+    kaart.append(weg);
     doos.append(kaart);
   }
 }
@@ -221,10 +248,11 @@ function tekenLessen() {
     for (const link of l.links) {
       const b = link.bestand;
       const groep = el('span', 'kr-link');
-      const open = el('button', 'secondary kr-link-open', `📖 ${zonderExt(b.naam)} · p. ${link.pagina}`);
+      const online = b.soort === 'online';
+      const open = el('button', 'secondary kr-link-open', online ? `🌐 ${b.naam}` : `📖 ${zonderExt(b.naam)} · p. ${link.pagina}`);
       open.type = 'button';
-      open.title = 'Het boek openen op deze pagina';
-      open.addEventListener('click', () => openBoek(b, link.pagina));
+      open.title = online ? 'Het online bordboek openen' : 'Het boek openen op deze pagina';
+      open.addEventListener('click', () => (online ? openOnline(b, link.url) : openBoek(b, link.pagina)));
       const los = el('button', 'kr-link-los');
       los.type = 'button';
       los.title = 'Koppeling weghalen';
@@ -273,6 +301,93 @@ $('kr-map-form').addEventListener('submit', e => {
   });
 });
 
+// ---------- Online bordboeken ----------
+
+const host = url => { try { return new URL(url).hostname.replace(/^www\./, ''); } catch { return url; } };
+
+$('kr-nieuw-link').addEventListener('click', () => {
+  $('kr-link-form').classList.remove('hidden');
+  $('kr-link-url').value = '';
+  $('kr-link-naam').value = '';
+  $('kr-link-url').focus();
+});
+$('kr-link-annuleer').addEventListener('click', () => $('kr-link-form').classList.add('hidden'));
+$('kr-link-form').addEventListener('submit', e => {
+  e.preventDefault();
+  socket.emit('kr-link', { map: kr.hier, url: $('kr-link-url').value, naam: $('kr-link-naam').value }, res => {
+    $('kr-fout').textContent = res.error || '';
+    if (res.error) return;
+    $('kr-link-form').classList.add('hidden');
+    $('kr-bezig').textContent = `🌐 Toegevoegd${kr.hier ? ` aan ${kr.hier}` : ''}.`;
+  });
+});
+
+// Laat de site zich niet inbedden (dat zegt ze zelf), dan opent ze in één vast apart venster: zo blijf je ingelogd
+// en vervangt de volgende les dat venster in plaats van telkens een nieuw tabblad.
+const VENSTER = 'lancelot-bordboek';
+function openOnline(b, url) {
+  const adres = url || b.url;
+  if (b.inbed === false) {
+    const w = window.open(adres, VENSTER);
+    $('kr-bezig').textContent = w ? `🌐 ${b.naam} staat open in een apart venster (${host(adres)} laat zich niet in LANcelot tonen).` : '';
+    if (!w) $('kr-fout').textContent = 'Je browser hield het venster tegen. Sta pop-ups toe voor LANcelot.';
+    return;
+  }
+  const lz = $('kr-online');
+  $('kr-online-titel').textContent = b.naam;
+  $('kr-online-frame').src = adres;
+  lz.dataset.url = adres;
+  lz.classList.remove('hidden');
+  document.body.classList.add('kr-leest');
+}
+function sluitOnline() {
+  if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+  $('kr-online').classList.add('hidden');
+  $('kr-online-frame').src = 'about:blank';
+  document.body.classList.remove('kr-leest');
+}
+$('kr-online-dicht').addEventListener('click', sluitOnline);
+$('kr-online-apart').addEventListener('click', () => {
+  window.open($('kr-online').dataset.url, VENSTER);
+  sluitOnline();
+});
+$('kr-online-vol').addEventListener('click', () => {
+  if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+  else $('kr-online').requestFullscreen().catch(() => {});
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && !$('kr-online').classList.contains('hidden') && !document.fullscreenElement) sluitOnline();
+});
+
+let okBoek = null;
+function koppelOnline(b) {
+  okBoek = b;
+  $('kr-ok-naam').textContent = b.naam;
+  $('kr-ok-url').value = '';
+  $('kr-ok-fout').textContent = '';
+  const sel = $('kr-ok-les');
+  sel.textContent = '';
+  for (const l of lessenVan(b.map || kr.hier)) sel.append(new Option(`Les ${l.nr}${l.titel ? ` · ${l.titel}` : ''}`.slice(0, 80), l.nr));
+  sel.append(new Option('Andere les (nummer)…', ''));
+  const nr = $('kr-ok-nr');
+  nr.value = '';
+  nr.classList.toggle('hidden', sel.options.length > 1);
+  sel.onchange = () => nr.classList.toggle('hidden', sel.value !== '');
+  $('kr-online-koppel').showModal();
+}
+$('kr-ok-annuleer').addEventListener('click', () => $('kr-online-koppel').close());
+$('kr-ok-form').addEventListener('submit', e => {
+  e.preventDefault();
+  const les = Number($('kr-ok-les').value || $('kr-ok-nr').value);
+  if (!les) return ($('kr-ok-fout').textContent = 'Kies een les.');
+  socket.emit('kr-koppel', { map: okBoek.map || kr.hier, les, boek: sleutel(okBoek), url: $('kr-ok-url').value }, res => {
+    $('kr-ok-fout').textContent = res.error || '';
+    if (res.error) return;
+    $('kr-online-koppel').close();
+    $('kr-bezig').textContent = `📌 Les ${les} opent nu ${okBoek.naam}.`;
+  });
+});
+
 const TOEGELATEN = /\.(pdf|png|jpe?g|webp)$/i;
 
 // Eén voor één versturen, met de voortgang erbij: een bordboek van 30 MB is op het eigen netwerk toch even bezig.
@@ -317,7 +432,7 @@ $('kr-bestand').addEventListener('change', e => {
 let sleep = 0;
 const heeftBestanden = e => [...(e.dataTransfer && e.dataTransfer.types) || []].includes('Files');
 document.addEventListener('dragenter', e => {
-  if (!heeftBestanden(e) || !$('kr-lezer').classList.contains('hidden')) return;
+  if (!heeftBestanden(e) || !$('kr-lezer').classList.contains('hidden') || !$('kr-online').classList.contains('hidden')) return;
   sleep++;
   $('kr-drop').classList.remove('hidden');
 });

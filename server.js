@@ -1439,6 +1439,12 @@ io.on('connection', socket => {
     socket.on('kr-weg', krWijzig(({ map, naam }) => kronieken.verwijder(map, naam)));
     socket.on('kr-koppel', krWijzig(arg => kronieken.koppel(arg)));
     socket.on('kr-ontkoppel', krWijzig(arg => kronieken.ontkoppel(arg)));
+    socket.on('kr-link', krWijzig(arg => {
+      const res = kronieken.voegLinkToe(arg);
+      kronieken.testInbed(res.id).then(() => io.to('host').emit('kr-lijst', kronieken.lijst()), () => {});
+      return res;
+    }));
+    socket.on('kr-link-weg', krWijzig(({ id }) => kronieken.verwijderLink(String(id || ''))));
     // De Zonnewijzer: roosters, de planning per week, doel en succescriteria. Elke wijziging gaat ook naar Mijn lesmap.
     const zwWijzig = fn => handle(arg => {
       const res = fn(arg || {});

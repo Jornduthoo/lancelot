@@ -5,7 +5,7 @@ const Lessen = (() => {
   const LES = /^les\s*(\d{1,3})\b\s*[·:.\-–]?\s*(.*)$/i;
   const VOORKENNIS = /^voorkennis\s+les\s*(\d{1,3})\b/i;
   const XL = /\(XL\)\s*$/i;
-  const sleutel = b => (b.map ? `${b.map}/${b.naam}` : b.naam);
+  const sleutel = b => (b.soort === 'online' ? `online:${b.id}` : b.map ? `${b.map}/${b.naam}` : b.naam);
 
   // bron = { quizzen, bladen, kronieken: { bestanden, lessen } }
   function van(map, bron) {
@@ -60,6 +60,8 @@ const Lessen = (() => {
     blad: s => `/oefenblad?live=${encodeURIComponent(s.file)}`,
     print: s => `/oefenblad-print?file=${encodeURIComponent(s.file)}`,
     boek: (b, pagina) => `/kronieken?${new URLSearchParams({ map: b.map, naam: b.naam, pagina })}`,
+    // Een online bordboek dat zich niet laat inbedden opent meteen op de site zelf, anders in de lezer van De Kronieken.
+    online: (b, url) => (b.inbed === false ? url || b.url : `/kronieken?${new URLSearchParams({ online: b.id, url: url || '' })}`),
   };
 
   return { van, mappen, link, sleutel };

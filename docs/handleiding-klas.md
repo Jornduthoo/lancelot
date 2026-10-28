@@ -265,6 +265,7 @@ In **De Kronieken** (blok op het startscherm) bewaar je je bordboeken, handleidi
 - **Toevoegen:** open de map (bijv. Rekenen > Blok 3) en sleep je pdf erin, of tik op **Boek toevoegen**.
 - **Openen:** tik op een boek. Het opent schermvullend op één pagina. Bladeren met de pijlen, de randen, de pijltjestoetsen of door te vegen. Met de pen (rood, blauw, markeerstift) teken je op de pagina; dat blijft staan tot je het boek sluit. LANcelot onthoudt op welke pagina je stopte.
 - **Per les:** onder Lessen staat elke les uit je lespakket met knoppen voor de voorkennisquiz, de quiz (Toernooi), het oefenblad live (ook XL) en printen. Tik in een open boek op **📌 Les** om de pagina aan een les te koppelen: dan staat bij die les een knop die het boek meteen op die pagina opent.
+- **Online bordboek** (Bingel, Diddit, Scoodle, ...): tik op **🌐 Online bordboek** en plak het adres uit je browser. Het opent met je eigen login; LANcelot downloadt er niets van. Laat de site zich niet in een ander programma tonen (dat zegt de site zelf, LANcelot kijkt het na bij het toevoegen), dan opent ze in één apart venster naast LANcelot. Met **📌** op de kaart koppel je een les aan het adres van de juiste pagina.
 - De boeken blijven enkel op deze pc, in de map `kronieken` bij je gegevens. Ze gaan niet mee in de back-up-zip (te groot), wel bij een verhuis van je gegevensmap, en een update laat ze staan.
 
 ## De Zonnewijzer: je lesroosters en je planning
