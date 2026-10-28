@@ -122,7 +122,6 @@ document.querySelector('[data-module="zonnewijzer"]').addEventListener('click', 
 document.querySelector('[data-module="kronieken"]').addEventListener('click', () => { location.href = '/kronieken'; });
 document.querySelector('[data-module="reeks"]').addEventListener('click', () => { location.href = '/reeks'; });
 document.querySelector('[data-module="proef"]').addEventListener('click', () => { location.href = '/proef'; });
-document.querySelector('[data-module="proef-ai"]').addEventListener('click', () => { location.href = '/proef?maak=ai'; });
 document.querySelector('[data-module="runenraadsel"]').addEventListener('click', () => { location.href = '/runenraadsel'; });
 document.querySelector('[data-module="klaseiland"]').addEventListener('click', () => { location.href = '/klaseiland'; });
 document.querySelector('[data-module="toren"]').addEventListener('click', () => { location.href = '/toren'; });
@@ -156,7 +155,6 @@ document.querySelector('[data-module="rijk"]').addEventListener('click', () => {
 document.querySelector('[data-module="kringgesprek"]').addEventListener('click', () => { location.href = '/kringgesprek'; });
 for (const t of document.querySelectorAll('[data-wk]')) t.addEventListener('click', () => { location.href = `/wapenkamer#${t.dataset.wk}`; });
 document.querySelector('[data-module="oefenblad"]').addEventListener('click', () => { location.href = '/oefenblad'; });
-document.querySelector('[data-module="werkblad"]').addEventListener('click', () => { location.href = '/oefenblad?maak=ai'; });
 
 function loadQuiz(file) {
   loadGame('load', file, res => {

@@ -192,8 +192,6 @@ input, select, textarea { font: inherit; font-family: var(--body); color: rgb(va
 .module .tag.nieuw { position: absolute; top: 14px; right: 18px; margin: 0; padding: 2px 8px; color: rgb(var(--k-op-cyan)); background: var(--gold); letter-spacing: .15em; }
 .module { position: relative; }
 .realm-panel > .modules + .groep-kop { margin-top: 26px; }
-/* De Smidse: overal even brede tegels, ook in de rij met maar twee. */
-.modules.smidse-rij { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
 .groep-kop { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; margin: 0 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--line); }
 .groep-kop h3 { color: var(--cyan); text-shadow: 0 0 14px var(--cyan-glow); }
 .module.soon .tag { color: var(--muted); }
