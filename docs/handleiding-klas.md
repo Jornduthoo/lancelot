@@ -318,7 +318,9 @@ Onder **Gegeven taken** zie je live per leerling: grijs = nog niet begonnen, gou
 
 Een quiz als taak gaat standaard vraag per vraag (zoals het Toernooi), met meteen de uitleg na een fout antwoord.
 
-Bij **Hoe spelen?** kan je een quiz ook **alleen in een spel** laten spelen: De prinses in de toren, Schattenjacht, Pixelridder, Diepboor, Neonvlucht of Robomol, met een speeltijd per ronde. Elke leerling speelt dan zijn eigen spel op zijn eigen toestel, los van wat er op het bord loopt (er hoeft geen spel te lopen). Hij krijgt de vragen van zijn niveau; de eerste poging op elke vraag telt voor de taak, een foute vraag komt in het spel later terug om te oefenen. Is de tijd om voor alle vragen beantwoord zijn, dan speelt hij gewoon nog een ronde met de vragen die overblijven. Alle antwoorden gaan in het logboek (spel "Taak"), dus ook in het zorgoverzicht, de doelenkaart en de Eer van het Klaseiland. De taken staan in de map `taken` bij je gegevens, alleen op deze pc. Thuiswerk kan (nog) niet: Mijn taken werkt over het netwerk van de klas.
+Bij **Hoe spelen?** kan je een quiz ook **alleen in een spel** laten spelen: De prinses in de toren, Schattenjacht, Pixelridder, Diepboor, Neonvlucht of Robomol, met een speeltijd per ronde. Elke leerling speelt dan zijn eigen spel op zijn eigen toestel, los van wat er op het bord loopt (er hoeft geen spel te lopen). Hij krijgt de vragen van zijn niveau; de eerste poging op elke vraag telt voor de taak, een foute vraag komt in het spel later terug om te oefenen. Is de tijd om voor alle vragen beantwoord zijn, dan speelt hij gewoon nog een ronde met de vragen die overblijven. Alle antwoorden gaan in het logboek (spel "Taak"), dus ook in het zorgoverzicht, de doelenkaart en de Eer van het Klaseiland. De taken staan in de map `taken` bij je gegevens. Thuiswerk kan (nog) niet: Mijn taken werkt over het netwerk van de klas.
+
+**Thuis klaarzetten:** gebruik je **Mijn lesmap** (zie verder), dan gaat elke taak die je geeft mee naar de andere pc. Zet ze 's avonds thuis klaar, en 's morgens staan ze op het digibord, met "uit je lesmap" erbij. Op het digibord krijgt elke leerling zijn niveau uit de klaslijst van het digibord (of het vaste niveau dat je koos). Alleen de taak gaat mee, nooit wat leerlingen invulden: de voortgang zie je op het digibord. Wis je een taak thuis, dan verdwijnt ze ook op het digibord, maar alleen zolang nog geen enkele leerling eraan begon.
 
 ## Niveaus: Page, Schildknaap en Ridder
 
@@ -423,7 +425,7 @@ Op het startscherm en in elke lobby staat de knop **Netwerk werkt niet?**. Die p
 ### Automatisch, met Mijn lesmap (aangeraden)
 
 1. Zorg dat OneDrive of Google Drive (voor bureaublad) op de bord-pc én op je pc thuis staat, met hetzelfde account.
-2. Open op de bord-pc **Instellingen** en klik bij **Mijn lesmap** op **Gebruik OneDrive** (of Google Drive), of op **Kies map…**. LANcelot maakt daar een map `LANcelot` met je quizzen, oefenbladen en Ronde Tafels.
+2. Open op de bord-pc **Instellingen** en klik bij **Mijn lesmap** op **Gebruik OneDrive** (of Google Drive), of op **Kies map…**. LANcelot maakt daar een map `LANcelot` met je quizzen, oefenbladen, Ronde Tafels en de taken die je geeft (zonder het werk van de leerlingen).
 3. Doe thuis in je eigen LANcelot hetzelfde, met dezelfde map.
 4. Klaar. Wat je thuis maakt of aanpast, staat op het digibord zodra LANcelot opstart, en daarna wordt elke minuut bijgewerkt. Het werkt ook in de andere richting.
 
