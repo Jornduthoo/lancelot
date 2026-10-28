@@ -113,6 +113,7 @@ body.zonnewijzer main { max-width: 1440px; }
 .zw-editor-kop h2 { margin: 0; font-family: var(--head); font-size: 1.25rem; text-transform: capitalize; }
 .zw-ed-crit-kop { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 6px; }
 .zw-ed-crit-kop button { margin-left: auto; }
+.zw-ed-bots { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin-bottom: 6px; }
 .zw-crit-rij { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
 .zw-crit-rij input { flex: 1; }
 .zw-crit-rij .zw-picto { font-size: 1.3rem; width: 28px; }

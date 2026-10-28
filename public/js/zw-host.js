@@ -679,6 +679,8 @@ function openEditor(slot) {
   $('zw-ed-meer').open = !!(les && (les.doelen.length || les.notitie));
   meerTel();
   $('zw-ed-fout').textContent = '';
+  stopDenken();
+  maakPrompt();
   $('zw-ed-wis').classList.toggle('hidden', !les);
   $('zw-ed-schuif').classList.toggle('hidden', !les);
   $('zw-editor').showModal();
@@ -731,27 +733,111 @@ function zetVoorstel(res) {
   if (!criteria().length) zetCriteria(nieuw); else for (const c of nieuw) critRij(c);
   if (!$('zw-ed-doel').value.trim() && res.doel) $('zw-ed-doel').value = res.doel;
 }
+// Een AI die te lang wacht (de dienst is druk, of geen internet) laat de knop niet eeuwig hangen:
+// na een halve minuut komt het ingebouwde voorstel, een laat antwoord telt dan niet meer.
+let vraagNr = 0;
+function stopDenken() {
+  vraagNr++;
+  $('zw-ed-voorstel').disabled = false;
+  $('zw-ed-crit-info').textContent = '';
+}
+function lesInfo() {
+  return { titel: $('zw-ed-naam').value.trim(), vak: $('zw-ed-vak').value.trim(), notitie: $('zw-ed-notitie').value.trim() };
+}
 $('zw-ed-voorstel').addEventListener('click', () => {
   const codes = doelVeld.codes();
   const knop = $('zw-ed-voorstel');
   $('zw-ed-fout').textContent = '';
   $('zw-ed-crit-info').textContent = '';
   if (codes.length) return socket.emit('zw-doelen', { codes }, res => { if (res && !res.error) zetVoorstel(res); });
-  const titel = $('zw-ed-naam').value.trim();
-  if (!titel) return ($('zw-ed-fout').textContent = 'Geef de les eerst een titel (bv. Onthaal / Jeugdjournaal), dan help ik met het doel en de succescriteria.');
+  const info = lesInfo();
+  if (!info.titel) return ($('zw-ed-fout').textContent = 'Geef de les eerst een titel (bv. Onthaal / Jeugdjournaal), dan help ik met het doel en de succescriteria.');
+  const nr = ++vraagNr;
   knop.disabled = true;
   $('zw-ed-crit-info').textContent = '✨ Even denken…';
-  socket.emit('zw-voorstel', { titel, vak: $('zw-ed-vak').value.trim(), notitie: $('zw-ed-notitie').value.trim() }, res => {
-    knop.disabled = false;
-    if (!res || res.error) {
-      $('zw-ed-crit-info').textContent = '';
-      return ($('zw-ed-fout').textContent = (res && res.error) || 'Dat lukte niet.');
-    }
+  const klaar = res => {
+    if (nr !== vraagNr) return;
+    stopDenken();
+    if (!res || res.error) return ($('zw-ed-fout').textContent = (res && res.error) || 'Dat lukte niet.');
     zetVoorstel(res);
     $('zw-ed-crit-info').textContent = res.bron === 'ai'
       ? '✨ Voorstel van de AI. Pas gerust aan.'
-      : `✨ Een eenvoudig voorstel. ${res.fout ? `De AI lukte niet (${res.fout}).` : 'Met een AI-sleutel bij Instellingen wordt het slimmer.'} Pas gerust aan.`;
+      : `✨ Een eenvoudig voorstel. ${res.fout ? `De AI lukte niet (${res.fout}).` : 'Met een AI-sleutel bij Instellingen, of via de chatbotknoppen, wordt het slimmer.'} Pas gerust aan.`;
+  };
+  const wacht = setTimeout(() => socket.emit('zw-voorstel', { ...info, zonderAi: true }, res =>
+    klaar(res && !res.error ? { ...res, fout: 'het duurde te lang' } : res)), 30000);
+  socket.emit('zw-voorstel', info, res => { clearTimeout(wacht); klaar(res); });
+});
+
+// Zelf via een chatbot: prompt kopiëren, chatbot openen, en het antwoord bij terugkomst van het klembord halen.
+let gekopieerd = '';
+function kopieer(text) {
+  // In het open venster zelf: alles daarbuiten is onbereikbaar zolang het venster open is.
+  const t = el('textarea');
+  t.value = text;
+  $('zw-editor').appendChild(t);
+  t.select();
+  const ok = document.execCommand('copy');
+  t.remove();
+  if (!ok) navigator.clipboard?.writeText(text).catch(() => {});
+}
+// De prompt staat al klaar vóór de klik: kopiëren lukt alleen zolang deze pagina de focus heeft.
+const klaarPrompt = { sleutel: '', prompt: '' };
+let promptTik = 0;
+function maakPrompt() {
+  clearTimeout(promptTik);
+  promptTik = setTimeout(() => {
+    const info = lesInfo();
+    const sleutel = JSON.stringify(info);
+    if (!info.titel || sleutel === klaarPrompt.sleutel) return;
+    socket.emit('zw-voorstel-prompt', info, res => { if (res && !res.error) Object.assign(klaarPrompt, { sleutel, prompt: res.prompt }); });
+  }, 300);
+}
+for (const id of ['zw-ed-naam', 'zw-ed-notitie', 'zw-ed-vak']) $(id).addEventListener('input', maakPrompt);
+$('zw-ed-vakken').addEventListener('click', maakPrompt);
+for (const b of document.querySelectorAll('#zw-editor .chatbot')) {
+  b.addEventListener('click', () => {
+    $('zw-ed-fout').textContent = '';
+    const info = lesInfo();
+    if (!info.titel) return ($('zw-ed-fout').textContent = 'Geef de les eerst een titel, dan maak ik de prompt voor de chatbot.');
+    const tip = 'Plak hem in de chatbot met Ctrl+V, kopieer het antwoord en kom hier terug. Lukt het niet vanzelf, plak dan hier met Ctrl+V.';
+    if (klaarPrompt.sleutel === JSON.stringify(info)) {
+      gekopieerd = klaarPrompt.prompt;
+      kopieer(gekopieerd);
+      window.open(b.dataset.url, '_blank', 'noopener');
+      return ($('zw-ed-crit-info').textContent = `Prompt gekopieerd! ${tip}`);
+    }
+    // Nog niet klaar (net getypt): eerst kopiëren, dan pas zelf de chatbot openen.
+    socket.emit('zw-voorstel-prompt', info, res => {
+      if (!res || res.error) return ($('zw-ed-fout').textContent = (res && res.error) || 'Dat lukte niet.');
+      Object.assign(klaarPrompt, { sleutel: JSON.stringify(info), prompt: res.prompt });
+      gekopieerd = res.prompt;
+      kopieer(gekopieerd);
+      $('zw-ed-crit-info').textContent = `Prompt gekopieerd! Klik nog eens op ${b.textContent} om de chatbot te openen. ${tip}`;
+    });
   });
+}
+function leesAntwoord(text, stil) {
+  if (!gekopieerd || !text || text === gekopieerd || !/criteria|doel/i.test(text)) return false;
+  socket.emit('zw-voorstel-lees', text, res => {
+    if (!res || res.error) { if (!stil) $('zw-ed-fout').textContent = (res && res.error) || 'Dat lukte niet.'; return; }
+    gekopieerd = text;
+    $('zw-ed-fout').textContent = '';
+    zetVoorstel(res);
+    $('zw-ed-crit-info').textContent = '✨ Antwoord van de chatbot ingevuld. Pas gerust aan.';
+  });
+  return true;
+}
+window.addEventListener('focus', async () => {
+  if (!gekopieerd || !$('zw-editor').open || !navigator.clipboard?.readText) return;
+  try { leesAntwoord(await navigator.clipboard.readText(), true); } catch { /* geen toestemming: dan plakt de leerkracht zelf */ }
+});
+// Plakken kan overal in het venster; in een tekstvak alleen als het echt het antwoord van de chatbot is (JSON).
+$('zw-editor').addEventListener('paste', e => {
+  const text = e.clipboardData && e.clipboardData.getData('text');
+  const veld = /^(INPUT|TEXTAREA)$/.test(e.target.tagName);
+  if (veld && !/[{]/.test(text || '')) return;
+  if (leesAntwoord(text, false)) e.preventDefault();
 });
 $('zw-ed-crit-plus').addEventListener('click', () => critRij('').focus());
 
