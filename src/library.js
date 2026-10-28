@@ -138,12 +138,16 @@ function library({ kind, dir, checkFile, load, save, validate, list }) {
     writeMeta(meta);
   }
 
+  // Eén bestand of een lijst (meerdere tegelijk verplaatsen): één keer _mappen.json schrijven.
   function move(file, folder) {
-    checkFile(file);
+    const files = [].concat(file);
+    files.forEach(checkFile);
     const meta = readMeta();
     if (folder && !meta.folders.includes(folder)) throw new Error('Die map bestaat niet meer.');
-    if (folder) meta.place[file] = folder;
-    else delete meta.place[file];
+    for (const f of files) {
+      if (folder) meta.place[f] = folder;
+      else delete meta.place[f];
+    }
     writeMeta(meta);
   }
 
