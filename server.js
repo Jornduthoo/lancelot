@@ -71,6 +71,7 @@ const { Verrader } = require('./src/verrader');
 const oefenbladen = require('./src/oefenbladen');
 const reeks = require('./src/reeks');
 const kronieken = require('./src/kronieken');
+const zonnewijzer = require('./src/zonnewijzer');
 const { OefenbladLive } = require('./src/oefenblad-live');
 const niveaus = require('./src/niveaus');
 const settings = require('./src/settings');
@@ -445,11 +446,16 @@ lesmap.init([
   { kind: 'quiz', dir: quizzes.DIR, remote: 'quizzen', validate: quizzes.validate },
   { kind: 'oefenblad', dir: oefenbladen.DIR, remote: 'oefenbladen', validate: oefenbladen.validate },
   { kind: 'sessie', dir: rondetafel.DIR, remote: 'ronde-tafel', validate: rondetafel.validate },
+  // De planning van De Zonnewijzer: thuis voorbereiden, op het bord gebruiken.
+  { kind: 'zonnewijzer', dir: zonnewijzer.DIR, remote: 'zonnewijzer', validate: d => { if (!d || typeof d !== 'object' || Array.isArray(d)) throw new Error('Ongeldig bestand.'); } },
 ]);
 let syncTimer = null;
 function runSync() {
   return lesmap.sync().then(changed => {
-    for (const kind of changed) sendLibrary(kind, null, true);
+    for (const kind of changed) {
+      if (LIBS[kind]) sendLibrary(kind, null, true);
+      else if (kind === 'zonnewijzer') io.to('host').emit('zw-gewijzigd');
+    }
     io.to('host').emit('lesmap', lesmap.view());
   });
 }
@@ -479,7 +485,7 @@ function takenSoon() {
 }
 
 // De docentenschermen, elk bij zijn adres.
-const PAGINAS = [['/host', 'host.html'], ['/rondetafel', 'rondetafel.html'], ['/toren', 'toren.html'], ['/schattenjacht', 'schattenjacht.html'], ['/laserslag', 'laserslag.html'], ['/ridderrace', 'ridderrace.html'], ['/kristalroof', 'kristalroof.html'], ['/verrader', 'verrader.html'], ['/burchtbouwers', 'burchtbouwers.html'], ['/duel', 'duel.html'], ['/packnight', 'packnight.html'], ['/strijdrossen', 'strijdrossen.html'], ['/gauntlet', 'gauntlet.html'], ['/ridder-royale', 'royale.html'], ['/sterrenvreter', 'sterrenvreter.html'], ['/ridderslang', 'ridderslang.html'], ['/burchtstorm', 'burchtstorm.html'], ['/poortwacht', 'poortwacht.html'], ['/neonvlucht', 'neonvlucht.html'], ['/diepboor', 'diepboor.html'], ['/pixelridder', 'pixelridder.html'], ['/robomol', 'robomol.html'], ['/kerker', 'kerker.html'], ['/hofschilder', 'hofschilder.html'], ['/robopaarden', 'robopaarden.html'], ['/neonduel', 'neonduel.html'], ['/leraarbaas', 'leraarbaas.html'], ['/cybergalaga', 'cybergalaga.html'], ['/bomberknight', 'bomberknight.html'], ['/rijk', 'rijk.html'], ['/oefenblad', 'oefenblad.html'], ['/reeks', 'reeks.html'], ['/wapenkamer', 'wapenkamer.html'], ['/kronieken', 'kronieken.html'], ['/oefenblad-print', 'oefenblad-print.html'], ['/klas', 'klas.html'], ['/zorg', 'zorg.html'], ['/taken', 'taken.html'], ['/zorg-fiche', 'zorg-fiche.html'], ['/runenraadsel', 'runenraadsel.html'], ['/klaseiland', 'klaseiland.html'], ['/netwerk', 'netwerk.html'], ['/welkom', 'welkom.html'], ['/privacy', 'privacy.html']];
+const PAGINAS = [['/host', 'host.html'], ['/rondetafel', 'rondetafel.html'], ['/toren', 'toren.html'], ['/schattenjacht', 'schattenjacht.html'], ['/laserslag', 'laserslag.html'], ['/ridderrace', 'ridderrace.html'], ['/kristalroof', 'kristalroof.html'], ['/verrader', 'verrader.html'], ['/burchtbouwers', 'burchtbouwers.html'], ['/duel', 'duel.html'], ['/packnight', 'packnight.html'], ['/strijdrossen', 'strijdrossen.html'], ['/gauntlet', 'gauntlet.html'], ['/ridder-royale', 'royale.html'], ['/sterrenvreter', 'sterrenvreter.html'], ['/ridderslang', 'ridderslang.html'], ['/burchtstorm', 'burchtstorm.html'], ['/poortwacht', 'poortwacht.html'], ['/neonvlucht', 'neonvlucht.html'], ['/diepboor', 'diepboor.html'], ['/pixelridder', 'pixelridder.html'], ['/robomol', 'robomol.html'], ['/kerker', 'kerker.html'], ['/hofschilder', 'hofschilder.html'], ['/robopaarden', 'robopaarden.html'], ['/neonduel', 'neonduel.html'], ['/leraarbaas', 'leraarbaas.html'], ['/cybergalaga', 'cybergalaga.html'], ['/bomberknight', 'bomberknight.html'], ['/rijk', 'rijk.html'], ['/oefenblad', 'oefenblad.html'], ['/reeks', 'reeks.html'], ['/wapenkamer', 'wapenkamer.html'], ['/kronieken', 'kronieken.html'], ['/zonnewijzer', 'zonnewijzer.html'], ['/oefenblad-print', 'oefenblad-print.html'], ['/klas', 'klas.html'], ['/zorg', 'zorg.html'], ['/taken', 'taken.html'], ['/zorg-fiche', 'zorg-fiche.html'], ['/runenraadsel', 'runenraadsel.html'], ['/klaseiland', 'klaseiland.html'], ['/netwerk', 'netwerk.html'], ['/welkom', 'welkom.html'], ['/privacy', 'privacy.html']];
 
 // Het docentenscherm werkt op de pc waar de server draait (meestal het digibord),
 // en op een tweede scherm dat de leerkracht met een koppelcode koppelde (de bureau-pc).
@@ -1433,6 +1439,27 @@ io.on('connection', socket => {
     socket.on('kr-weg', krWijzig(({ map, naam }) => kronieken.verwijder(map, naam)));
     socket.on('kr-koppel', krWijzig(arg => kronieken.koppel(arg)));
     socket.on('kr-ontkoppel', krWijzig(arg => kronieken.ontkoppel(arg)));
+    // De Zonnewijzer: roosters, de planning per week, doel en succescriteria. Elke wijziging gaat ook naar Mijn lesmap.
+    const zwWijzig = fn => handle(arg => {
+      const res = fn(arg || {});
+      socket.broadcast.to('host').emit('zw-gewijzigd');
+      syncSoon();
+      return res;
+    });
+    socket.on('zw-get', handle(({ week } = {}) => ({ ...zonnewijzer.roosters(), weekData: zonnewijzer.week(week), vandaag: zonnewijzer.weekVan(new Date()) })));
+    socket.on('zw-roosters', zwWijzig(arg => zonnewijzer.bewaarRoosters(arg)));
+    socket.on('zw-les', zwWijzig(arg => ({ weekData: zonnewijzer.zetLes(arg) })));
+    socket.on('zw-week-rooster', zwWijzig(arg => ({ weekData: zonnewijzer.zetWeekRooster(arg) })));
+    socket.on('zw-vink', zwWijzig(arg => ({ weekData: zonnewijzer.vink(arg) })));
+    socket.on('zw-schuif', zwWijzig(arg => ({ weekData: zonnewijzer.schuif(arg) })));
+    socket.on('zw-doelen', handle(({ codes } = {}) => zonnewijzer.doelInfo(codes)));
+    // De doelen van een les uit zijn quiz: de codes die het vaakst voorkomen (Ridder-vragen niet, dat is de uitdaging).
+    socket.on('zw-quiz-doelen', handle(({ file } = {}) => {
+      const quiz = quizzes.load(file);
+      const tel = new Map();
+      for (const q of quiz.questions || []) if (q.doel && q.niveau !== 'ridder') tel.set(q.doel, (tel.get(q.doel) || 0) + 1);
+      return zonnewijzer.doelInfo([...tel.entries()].sort((a, b) => b[1] - a[1]).slice(0, 3).map(([c]) => c));
+    }));
     socket.on('kr-pagina', ({ map, naam, pagina } = {}) => {
       try { kronieken.zetPagina(map, naam, pagina); } catch { /* een verdwenen boek: niets te onthouden */ }
     });

@@ -267,6 +267,15 @@ In **De Kronieken** (blok op het startscherm) bewaar je je bordboeken, handleidi
 - **Per les:** onder Lessen staat elke les uit je lespakket met knoppen voor de voorkennisquiz, de quiz (Toernooi), het oefenblad live (ook XL) en printen. Tik in een open boek op **📌 Les** om de pagina aan een les te koppelen: dan staat bij die les een knop die het boek meteen op die pagina opent.
 - De boeken blijven enkel op deze pc, in de map `kronieken` bij je gegevens. Ze gaan niet mee in de back-up-zip (te groot), wel bij een verhuis van je gegevensmap, en een update laat ze staan.
 
+## De Zonnewijzer: je lesroosters en je planning
+
+In **De Kronieken > De Zonnewijzer** plan je je week.
+
+- **Lesroosters:** vul één keer in welk vak op welk uur staat. Je mag meerdere roosters maken (bijv. Week A en Week B); per week kies je welk rooster geldt.
+- **Week:** tik op een lesuur om een les te plannen. Kies een les uit De Kronieken (dan komen de titel, de leerplandoelen en een voorstel van succescriteria mee), of maak een eigen les met enkel een titel, een doel en succescriteria. **⏭ Doorschuiven** zet een les die je niet haalde op het volgende uur van dat vak; de lessen erna schuiven mee.
+- **Vandaag:** de dag als tijdlijn met een icoon per vak. De les van nu staat groot op het bord, met **Ons doel** en de succescriteria ("Ik kan …"), die je samen met de klas afvinkt. Knoppen openen meteen het boek, de voorkennisquiz, de quiz of het oefenblad.
+- **Thuis voorbereiden:** kies bij Instellingen op het digibord en thuis dezelfde **Mijn lesmap** (OneDrive of Google Drive). Je planning gaat mee; je bordboeken niet (die blijven op het digibord).
+
 ## Voorkennis activeren
 
 1. Klik op het startscherm op **Voorkennis activeren**.
