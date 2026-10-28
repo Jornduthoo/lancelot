@@ -17,35 +17,106 @@ const KgTafel = (() => {
     return { cx, cy, sx, sy, rx: sx * .8, ry: sy * .74 };
   }
 
+  function rand(seed) {
+    let s = seed % 2147483647 || 1;
+    return () => (s = (s * 16807) % 2147483647) / 2147483647;
+  }
+
+  // De raadzaal van bovenaf: stenen vloerplaten, een rond tapijt onder de tafel,
+  // vier zuilen met een vuurschaal in de hoeken. Geeft de plaats van de vuurschalen terug (voor de CSS-vlammen).
   function vloer(g, w, h, m) {
-    g.fillStyle = '#05080f';
+    const r = rand(1215);
+    g.fillStyle = '#1b1820';
     g.fillRect(0, 0, w, h);
-    // Stenen tegels in een kring rond de tafel, met een fijn holo-raster erover.
+    // Vloerplaten in rijen, elk met een eigen tint en een donkere voeg.
+    const ph = Math.max(46, Math.min(w, h) * .09);
+    for (let y = -ph * r(), rij = 0; y < h; y += ph, rij++) {
+      for (let x = -(rij % 2) * ph * .7; x < w; ) {
+        const pw = ph * (1 + r() * .9);
+        const t = 46 + Math.floor(r() * 18);
+        g.fillStyle = `rgb(${t} ${t - 4} ${t + 6})`;
+        g.fillRect(x + 2, y + 2, pw - 4, ph - 4);
+        g.fillStyle = 'rgb(255 255 255 / .05)';
+        g.fillRect(x + 2, y + 2, pw - 4, 2);
+        g.fillStyle = 'rgb(0 0 0 / .25)';
+        g.fillRect(x + 2, y + ph - 5, pw - 4, 3);
+        if (r() < .12) {
+          g.strokeStyle = 'rgb(0 0 0 / .4)';
+          g.lineWidth = 1;
+          g.beginPath();
+          let cx = x + pw * r(), cy = y + 4;
+          g.moveTo(cx, cy);
+          for (let i = 0; i < 4; i++) { cx += (r() - .5) * pw * .3; cy += ph * .22; g.lineTo(cx, cy); }
+          g.stroke();
+        }
+        x += pw;
+      }
+    }
+    // Het ronde tapijt: diep rood met een gouden boord en een fijne runenlijn in neon.
+    const tx = m.sx * 1.08, ty = m.sy * 1.09;
     g.save();
-    g.translate(m.cx, m.cy);
-    g.scale(1, m.ry / m.rx);
-    g.strokeStyle = 'rgb(255 255 255 / .035)';
-    g.lineWidth = 2;
-    const rMax = Math.hypot(w, h);
-    for (let r = m.rx * 1.12; r < rMax; r += m.rx * .22) {
-      g.beginPath(); g.arc(0, 0, r, 0, Math.PI * 2); g.stroke();
-    }
-    for (let i = 0; i < 36; i++) {
-      const a = i / 36 * Math.PI * 2;
-      g.beginPath(); g.moveTo(Math.cos(a) * m.rx * 1.12, Math.sin(a) * m.rx * 1.12); g.lineTo(Math.cos(a) * rMax, Math.sin(a) * rMax); g.stroke();
-    }
+    g.shadowColor = 'rgb(0 0 0 / .6)';
+    g.shadowBlur = 30;
+    g.fillStyle = '#4a0d18';
+    g.beginPath(); g.ellipse(m.cx, m.cy, tx, ty, 0, 0, Math.PI * 2); g.fill();
     g.restore();
-    g.strokeStyle = kleur('--k-cyan', .05);
-    g.lineWidth = 1;
-    for (let x = 0; x < w; x += 32) { g.beginPath(); g.moveTo(x + .5, 0); g.lineTo(x + .5, h); g.stroke(); }
-    for (let y = 0; y < h; y += 32) { g.beginPath(); g.moveTo(0, y + .5); g.lineTo(w, y + .5); g.stroke(); }
-    // Licht van boven op de tafel, donker naar de randen.
-    const licht = g.createRadialGradient(m.cx, m.cy, m.rx * .3, m.cx, m.cy, Math.max(w, h) * .7);
-    licht.addColorStop(0, kleur('--k-cyan', .12));
-    licht.addColorStop(.45, 'rgb(0 0 0 / 0)');
-    licht.addColorStop(1, 'rgb(0 0 0 / .7)');
-    g.fillStyle = licht;
+    const tapijt = g.createRadialGradient(m.cx, m.cy, m.rx * .5, m.cx, m.cy, tx);
+    tapijt.addColorStop(0, '#7a1424'); tapijt.addColorStop(.85, '#5a0f1c'); tapijt.addColorStop(1, '#3a0912');
+    g.fillStyle = tapijt;
+    g.beginPath(); g.ellipse(m.cx, m.cy, tx * .985, ty * .985, 0, 0, Math.PI * 2); g.fill();
+    g.lineWidth = Math.max(3, Math.min(w, h) * .008);
+    g.strokeStyle = kleur('--k-goud-d', .9);
+    g.beginPath(); g.ellipse(m.cx, m.cy, tx * .955, ty * .955, 0, 0, Math.PI * 2); g.stroke();
+    g.lineWidth = 1.5;
+    g.beginPath(); g.ellipse(m.cx, m.cy, tx * .92, ty * .92, 0, 0, Math.PI * 2); g.stroke();
+    // Gouden lelies op de boord.
+    g.fillStyle = kleur('--k-goud', .75);
+    for (let i = 0; i < 48; i++) {
+      const a = i / 48 * Math.PI * 2;
+      const x = m.cx + Math.cos(a) * tx * .937, y = m.cy + Math.sin(a) * ty * .937;
+      g.beginPath(); g.moveTo(x, y - 4); g.lineTo(x + 3, y); g.lineTo(x, y + 4); g.lineTo(x - 3, y); g.closePath(); g.fill();
+    }
+    g.save();
+    g.strokeStyle = kleur('--k-cyan', .55);
+    g.shadowColor = kleur('--k-cyan');
+    g.shadowBlur = 10;
+    g.lineWidth = 1.5;
+    g.beginPath(); g.ellipse(m.cx, m.cy, tx * 1.015, ty * 1.015, 0, 0, Math.PI * 2); g.stroke();
+    g.restore();
+    // Vier zuilen met een vuurschaal, in de hoeken van de zaal.
+    const zs = Math.max(22, Math.min(w, h) * .05);
+    const schalen = [[zs * 1.5, zs * 1.5], [w - zs * 1.5, zs * 1.5], [zs * 1.5, h - zs * 1.5], [w - zs * 1.5, h - zs * 1.5]];
+    for (const [x, y] of schalen) {
+      const licht = g.createRadialGradient(x, y, 0, x, y, zs * 7);
+      licht.addColorStop(0, 'rgb(255 154 60 / .35)'); licht.addColorStop(1, 'rgb(255 154 60 / 0)');
+      g.fillStyle = licht;
+      g.fillRect(x - zs * 7, y - zs * 7, zs * 14, zs * 14);
+      g.fillStyle = 'rgb(0 0 0 / .45)';
+      g.beginPath(); g.arc(x + zs * .25, y + zs * .3, zs * 1.15, 0, Math.PI * 2); g.fill();
+      const steen = g.createRadialGradient(x - zs * .4, y - zs * .4, 0, x, y, zs * 1.1);
+      steen.addColorStop(0, '#8a8494'); steen.addColorStop(1, '#3b3744');
+      g.fillStyle = steen;
+      g.beginPath(); g.arc(x, y, zs * 1.1, 0, Math.PI * 2); g.fill();
+      g.strokeStyle = kleur('--k-goud-d', .8);
+      g.lineWidth = 3;
+      g.beginPath(); g.arc(x, y, zs * .78, 0, Math.PI * 2); g.stroke();
+      g.fillStyle = '#1a0d05';
+      g.beginPath(); g.arc(x, y, zs * .62, 0, Math.PI * 2); g.fill();
+      const kool = g.createRadialGradient(x, y, 0, x, y, zs * .6);
+      kool.addColorStop(0, '#ffd27a'); kool.addColorStop(.5, '#ff6a1a'); kool.addColorStop(1, '#5a1a05');
+      g.fillStyle = kool;
+      g.beginPath(); g.arc(x, y, zs * .5, 0, Math.PI * 2); g.fill();
+    }
+    // Koel licht van de tafel, donkere randen.
+    const gloed = g.createRadialGradient(m.cx, m.cy, m.rx * .3, m.cx, m.cy, m.rx * 1.5);
+    gloed.addColorStop(0, kleur('--k-cyan', .1)); gloed.addColorStop(1, 'rgb(0 0 0 / 0)');
+    g.fillStyle = gloed;
     g.fillRect(0, 0, w, h);
+    const rand2 = g.createRadialGradient(m.cx, m.cy, Math.min(w, h) * .45, m.cx, m.cy, Math.hypot(w, h) * .6);
+    rand2.addColorStop(0, 'rgb(0 0 0 / 0)'); rand2.addColorStop(1, 'rgb(0 0 0 / .55)');
+    g.fillStyle = rand2;
+    g.fillRect(0, 0, w, h);
+    return schalen.map(([x, y]) => [x, y, zs]);
   }
 
   // Een hoge ridderstoel, met de rugleuning naar buiten en een schildje erop.
@@ -181,7 +252,7 @@ const KgTafel = (() => {
     const g = canvas.getContext('2d');
     g.setTransform(dpr, 0, 0, dpr, 0, 0);
     const m = maten(w, h);
-    vloer(g, w, h, m);
+    m.vuur = vloer(g, w, h, m);
     const s = Math.max(26, Math.min(64, Math.min(w, h) * .075, (2 * Math.PI * (m.sx + m.sy) / 2) / Math.max(1, hoeken.length) * .55));
     // Eerst de stoelen achteraan (bovenaan), dan de tafel, dan de stoelen vooraan: zo staat alles goed voor elkaar.
     const achter = hoeken.filter(a => Math.sin(a) < 0);

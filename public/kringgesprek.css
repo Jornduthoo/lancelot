@@ -2,7 +2,7 @@
    hier de knoppenbalk, de naamschildjes op de stoelen, de steen en het midden.
    Tijdens het gesprek bewegen alleen transform en opacity, zodat het ook op een Chromebook vlot blijft. */
 
-.kg-host { background: var(--bg); }
+.kg-host { background: radial-gradient(ellipse at 50% 0%, #2a2230, #0d0b12 70%); }
 .kg-host main { max-width: none; padding-bottom: 6px; }
 
 /* ---------- De balk met de keuzes ---------- */
@@ -15,12 +15,27 @@
 .kg-vraagknop { flex: 1 1 260px; }
 .kg-vraagknop b { max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
 
+/* Titel met het icoon, links in de balk. */
+.kg-titel { display: flex; align-items: center; gap: 10px; padding-right: 6px; }
+.kg-titel img { width: 52px; height: 52px; border-radius: 10px; filter: drop-shadow(0 0 10px rgb(var(--k-cyan) / .5)) drop-shadow(0 4px 8px rgb(0 0 0 / .7)); }
+.kg-titel span { font-family: var(--head); font-weight: 900; font-size: 1.35rem; letter-spacing: .05em; color: rgb(var(--k-goud-l)); text-shadow: 0 0 14px rgb(var(--k-goud) / .5), 0 2px 0 #000; white-space: nowrap; }
+
 /* ---------- De zaal ---------- */
 #kg-game { position: relative; }
 .kg-zaal { position: relative; height: max(420px, calc(100vh - 196px)); overflow: hidden; border-radius: 10px;
   box-shadow: inset 0 0 0 1px rgb(var(--k-goud) / .35), 0 18px 40px rgb(var(--k-zwart) / .5); }
 :fullscreen .kg-zaal { height: calc(100vh - 170px); }
 #tafel { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+/* Vuur in de vier vuurschalen: twee lagen die flakkeren (alleen transform en opacity). */
+.kg-vlammen { position: absolute; inset: 0; pointer-events: none; }
+.kg-vlammen i { position: absolute; width: var(--s); height: calc(var(--s) * 1.5); transform: translate(-50%, -78%); transform-origin: 50% 80%;
+  background: radial-gradient(ellipse 50% 60% at 50% 72%, #fff6c8 0 22%, #ffb347 42%, #ff6a1a 62%, rgb(255 106 26 / 0) 72%);
+  border-radius: 50% 50% 45% 45% / 65% 65% 35% 35%; animation: kg-vlam .18s ease-in-out infinite alternate; }
+.kg-vlammen i::after { content: ''; position: absolute; left: 50%; top: 60%; width: calc(var(--s) * 4); height: calc(var(--s) * 4); transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgb(255 154 60 / .25), rgb(255 154 60 / 0) 65%); animation: kg-gloed 1.3s ease-in-out infinite alternate; }
+@keyframes kg-vlam { from { transform: translate(-50%, -78%) scale(1, 1) skewX(-3deg); } to { transform: translate(-50%, -78%) scale(.9, 1.12) skewX(3deg); } }
+@keyframes kg-gloed { to { opacity: .55; } }
 .kg-stoelen { position: absolute; inset: 0; }
 
 /* Een naamschildje op elke stoel. */
@@ -104,6 +119,8 @@
 .kg-namen button.weg { background: rgb(var(--k-rood) / .12); color: var(--muted); text-decoration: line-through; box-shadow: inset 0 0 0 1px rgb(var(--k-rood) / .5); }
 
 @media (max-width: 700px) {
+  .kg-titel { width: 100%; }
+  .kg-titel img { width: 40px; height: 40px; }
   .kg-knop { padding: 6px 10px; }
   .kg-knop b { font-size: .85rem; }
   .kg-zaal { height: max(360px, calc(100vh - 250px)); }
