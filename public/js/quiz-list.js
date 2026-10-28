@@ -316,7 +316,6 @@ const ItemList = (() => {
     }
 
     function explorerView() {
-      while (here && !folders.includes(here)) here = parentOf(here);
       const el = document.createElement('div');
       el.className = 'lib';
       // Nog geen mappen: dan is een boom met alleen "Alle quizzen" overbodig.
@@ -327,6 +326,8 @@ const ItemList = (() => {
 
     function render() {
       if (!items) return;
+      // Bestaat de open map niet meer (verwijderd, of alles leeggemaakt), dan sta je weer bovenaan.
+      while (here && !folders.includes(here)) here = parentOf(here);
       const typing = document.activeElement === search;
       box.innerHTML = '';
       explorer = null;
