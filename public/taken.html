@@ -38,7 +38,7 @@
       <button type="button" data-soort="quiz"><img src="/img/icons/toernooi.webp" alt=""> Quiz</button>
     </div>
     <div class="row">
-      <label>Wat?<select id="tk-bron"></select></label>
+      <label>Wat?<button type="button" class="secondary tk-kies-knop" id="tk-kies"></button><input type="hidden" id="tk-bron"></label>
       <label id="tk-nv-label" class="hidden" title="Bijvoorbeeld de hele klas eens Page geven, ook wie op Ridder staat">Op welk niveau?
         <select id="tk-niveau"></select>
       </label>
@@ -112,6 +112,16 @@
     <div id="d-quiz"></div>
   </dialog>
 
+  <dialog class="ui-venster tk-venster tk-kiezer" id="tk-kiezer">
+    <div class="bar">
+      <h2 id="k-titel">Kies een quiz</h2>
+      <button class="secondary" id="k-sluit">Sluiten</button>
+    </div>
+    <div id="k-quiz" class="quiz-list"></div>
+    <div id="k-oefenblad" class="quiz-list"></div>
+    <p class="error" id="k-fout"></p>
+  </dialog>
+
   <dialog class="ui-venster tk-venster" id="tk-erbij">
     <h2>Leerlingen erbij</h2>
     <div class="tk-namen" id="e-namen"></div>
@@ -125,6 +135,7 @@
 <script src="/js/ui.js"></script>
 <script src="/js/niveau.js"></script>
 <script src="/js/ob-sheet.js"></script>
+<script src="/js/quiz-list.js"></script>
 <script src="/js/tk-host.js"></script>
 </body>
 </html>
