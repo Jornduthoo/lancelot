@@ -60,6 +60,8 @@ function load(niveau) {
 }
 load(params.get('niveau') || 'schildknaap');
 document.getElementById('p-print').addEventListener('click', () => window.print());
+// Met bekijk=1 staat het blad in het 👁 Bekijken-venster van de lijst: afdrukken en sluiten gebeurt daar niet.
+if (params.get('bekijk') === '1') for (const id of ['p-print', 'p-close']) document.getElementById(id).classList.add('hidden');
 document.getElementById('p-close').addEventListener('click', () => window.close());
 </script>
 </body>

@@ -8,6 +8,7 @@
 // in één keer (met 📁 in de balk, of door een aangevinkt item naar een map te slepen: de hele selectie gaat mee).
 // Gebruik: QuizList.mount($('quiz-list'), { go: 'Kies ▶', play: q => ..., edit: q => ..., remove: q => ... }).
 // Met beheer: true (de quizbibliotheek) staan de balken voor niveau en uitleg er niet bij.
+// Met 👁 bekijk je een quiz, oefenblad of toets snel: alle vragen met de juiste antwoorden in een venster.
 // Met kiezen: true (bv. een taak geven) alleen zoeken, mappen openen en kiezen: niets slepen, verplaatsen of exporteren.
 // Voor oefenbladen en sessies: ItemList.mount(el, { kind: 'oefenblad', ... }) met dezelfde opties, plus
 // detail: q => 'tekst achter de titel' en buttons: [{ label, title, cls, click: q => ... }] voor extra knoppen.
@@ -31,6 +32,34 @@ const ItemList = (() => {
   let uitlegSpellen = true;
   const uitlegBars = new Set();
   const niveauBars = new Set();
+
+  // 👁 Bekijken: snel alle vragen met de juiste antwoorden zien, zonder te bewerken of te spelen.
+  // Een quiz tekenen we hier; een oefenblad of toets toont zijn verbeterblad in het venster.
+  const BLADEN = { oefenblad: '/oefenblad-print', proef: '/proef-print' };
+  const kanBekijken = kind => kind === 'quiz' || !!BLADEN[kind];
+  function bekijk(kind, q) {
+    const dlg = document.createElement('dialog');
+    dlg.className = `lib-bekijk${BLADEN[kind] ? ' blad' : ''}`;
+    dlg.innerHTML = `<div class="lib-bekijk-kop"><h2></h2><button type="button" class="secondary" aria-label="Sluiten">${Ui.ic('kruis')} Sluiten</button></div><div class="lib-bekijk-inhoud"><p class="muted">Even laden…</p></div>`;
+    dlg.querySelector('h2').textContent = q.title;
+    dlg.querySelector('.lib-bekijk-kop button').addEventListener('click', () => dlg.close());
+    dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close(); });
+    dlg.addEventListener('close', () => dlg.remove());
+    document.body.appendChild(dlg);
+    dlg.showModal();
+    const box = dlg.querySelector('.lib-bekijk-inhoud');
+    if (BLADEN[kind]) {
+      box.innerHTML = `<iframe title="Verbeterblad" src="${BLADEN[kind]}?file=${encodeURIComponent(q.file)}&sleutel=1&bekijk=1"></iframe>`;
+      return;
+    }
+    socket.emit('open-quiz', q.file, res => {
+      if (res.error) return (box.innerHTML = `<p class="error">${esc(res.error)}</p>`);
+      box.innerHTML = `<ol class="lib-vragen">${res.quiz.questions.map(v => `<li>
+        <p class="lib-vraag">${v.niveau || (q.niveaus || []).length > 1 ? `${ICONS[v.niveau || 'schildknaap']} ` : ''}${esc(v.question)}</p>
+        <ul>${v.answers.map((a, i) => `<li class="${i === v.correct ? 'juist' : ''}">${i === v.correct ? '✔ ' : ''}${esc(a)}</li>`).join('')}</ul>
+        ${v.uitleg ? `<p class="muted small">${esc(v.uitleg)}</p>` : ''}</li>`).join('')}</ol>`;
+    });
+  }
 
   function mount(box, opts) {
     const kind = opts.kind || 'quiz';
@@ -195,6 +224,7 @@ const ItemList = (() => {
       const place = query && q.folder ? ` · 📁 ${esc(q.folder.split('/').join(' › '))}` : '';
       el.innerHTML = `${picking ? `<input type="checkbox" class="kies" aria-label="Selecteren"${picked.has(q.file) ? ' checked' : ''}>` : kiezen ? '' : `<span class="grip" title="Sleep naar een map">${Ui.ic('grip')}</span>`}
         <button class="play">${esc(q.title)} <span class="muted">· ${esc(detail(q))}${kind === 'quiz' && (q.niveaus || []).length > 1 ? ` · ${q.niveaus.map(n => ICONS[n]).join('')}` : ''}${place}</span>${picking ? '' : `<span class="go">${opts.go || 'Kies ▶'}</span>`}</button>
+        ${kanBekijken(kind) && !picking ? `<button class="secondary bekijk" title="Snel bekijken: alle vragen met de juiste antwoorden" aria-label="Bekijken">${Ui.ic('oog')}</button>` : ''}
         ${folders.length && !kiezen ? `<label class="move" title="Verplaats naar…">📁<select aria-label="Verplaats naar…">${option(q.folder || '')}</select></label>` : ''}
         ${(opts.buttons || []).map((b, i) => `<button class="secondary extra ${b.cls || ''}" data-extra="${i}" title="${esc(b.title || '')}">${b.label}</button>`).join('')}
         ${opts.edit ? '<button class="secondary edit">Bewerken</button>' : ''}
@@ -215,6 +245,8 @@ const ItemList = (() => {
         tick.addEventListener('click', pick);
         el.querySelector('.play').addEventListener('click', pick);
       } else el.querySelector('.play').addEventListener('click', () => opts.play(q));
+      const oog = el.querySelector('.bekijk');
+      if (oog) oog.addEventListener('click', () => bekijk(kind, q));
       if (opts.edit) el.querySelector('.edit').addEventListener('click', () => opts.edit(q));
       if (!kiezen) el.querySelector('.export').addEventListener('click', () => download({ file: q.file }));
       for (const b of el.querySelectorAll('[data-extra]')) b.addEventListener('click', () => opts.buttons[b.dataset.extra].click(q));
