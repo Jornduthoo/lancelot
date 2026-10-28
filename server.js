@@ -1471,6 +1471,7 @@ io.on('connection', socket => {
     });
     socket.on('zw-get', handle(({ week } = {}) => ({ ...zonnewijzer.roosters(), weekData: zonnewijzer.week(week), vandaag: zonnewijzer.weekVan(new Date()) })));
     socket.on('zw-roosters', zwWijzig(arg => zonnewijzer.bewaarRoosters(arg)));
+    socket.on('zw-roosters-import', zwWijzig(arg => zonnewijzer.importeerRoosters(arg)));
     socket.on('zw-les', zwWijzig(arg => ({ weekData: zonnewijzer.zetLes(arg) })));
     socket.on('zw-week-rooster', zwWijzig(arg => ({ weekData: zonnewijzer.zetWeekRooster(arg) })));
     socket.on('zw-vink', zwWijzig(arg => ({ weekData: zonnewijzer.vink(arg) })));

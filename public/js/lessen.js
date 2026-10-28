@@ -5,6 +5,8 @@ const Lessen = (() => {
   const LES = /^les\s*(\d{1,3})\b\s*[·:.\-–]?\s*(.*)$/i;
   const VOORKENNIS = /^voorkennis\s+les\s*(\d{1,3})\b/i;
   const XL = /\(XL\)\s*$/i;
+  // Een map "RekenenXL" of "XL" houdt de lange oefenbladen van dezelfde lessen: Rekenen/RekenenXL/Blok 3 hoort bij Rekenen/Blok 3.
+  const zonderXL = f => String(f || '').split('/').filter(d => !/^\S*XL$/.test(d)).join('/');
   const sleutel = b => (b.soort === 'online' ? `online:${b.id}` : b.map ? `${b.map}/${b.naam}` : b.naam);
 
   // bron = { quizzen, bladen, kronieken: { bestanden, lessen } }
@@ -29,11 +31,12 @@ const Lessen = (() => {
       }
     }
     for (const s of bron.bladen || []) {
-      if (s.folder !== map) continue;
+      const xlMap = s.folder !== map && zonderXL(s.folder) === map;
+      if (s.folder !== map && !xlMap) continue;
       const m = LES.exec(s.title);
       if (!m) continue;
       const l = les(Number(m[1]));
-      if (XL.test(s.title)) l.xl = l.xl || s;
+      if (XL.test(s.title) || xlMap) l.xl = l.xl || s;
       else l.blad = l.blad || s;
       if (!l.titel) l.titel = m[2].replace(XL, '').trim();
     }
@@ -50,7 +53,7 @@ const Lessen = (() => {
   // De mappen met minstens één les, voor een keuzelijst.
   function mappen(bron) {
     const s = new Set();
-    for (const it of [...(bron.quizzen || []), ...(bron.bladen || [])]) if (it.folder && !/^(Voorkennis|Hofschilder)(\/|$)/i.test(it.folder) && LES.test(it.title)) s.add(it.folder);
+    for (const it of [...(bron.quizzen || []), ...(bron.bladen || [])]) if (it.folder && !/^(Voorkennis|Hofschilder)(\/|$)/i.test(it.folder) && zonderXL(it.folder) === it.folder && LES.test(it.title)) s.add(it.folder);
     return [...s].sort((a, b) => a.localeCompare(b, 'nl', { numeric: true }));
   }
 
@@ -64,5 +67,5 @@ const Lessen = (() => {
     online: (b, url) => (b.inbed === false ? url || b.url : `/kronieken?${new URLSearchParams({ online: b.id, url: url || '' })}`),
   };
 
-  return { van, mappen, link, sleutel };
+  return { van, mappen, link, sleutel, zonderXL };
 })();

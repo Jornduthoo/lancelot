@@ -22,8 +22,8 @@ $('to-home').addEventListener('click', () => { location.href = '/host#kronieken'
 const VAKKEN = [
   [/reken|wiskunde|getal|meten|meetkunde/, '🧮', 'cyan'], [/spelling|schrijf/, '✏️', 'paars'], [/lezen|lees|bib/, '📚', 'groen'],
   [/taal|nederlands/, '📖', 'blauw'], [/frans/, '🥐', 'rood'], [/engels/, '💂', 'rood'], [/wo|wereld|natuur|techniek|aardrijk|geschied/, '🌍', 'groen'],
-  [/muzo|muziek|beeld|drama|kunst|tekenen/, '🎨', 'oranje'], [/lo\b|turnen|zwem|sport|bewegen/, '⚽', 'oranje'], [/godsdienst|rkg|zedenleer|levensb/, '🕊️', 'goud'],
-  [/ict|computer|media/, '💻', 'cyan'], [/sel|kring|welbevinden|klasraad/, '💬', 'goud'], [/project|atelier|hoek/, '🧩', 'paars'],
+  [/muzo|muzisch|muziek|beeld|drama|kunst|tekenen/, '🎨', 'oranje'], [/^lo\b|turnen|zwem|sport|beweg/, '⚽', 'oranje'], [/godsdienst|rkg|zedenleer|levensb/, '🕊️', 'goud'],
+  [/ict|computer|media/, '💻', 'cyan'], [/sel\b|kring|welbevinden|klasraad|evaluatie|vragen/, '💬', 'goud'], [/onthaal|ochtend/, '👋', 'goud'], [/contract|weektaak|hoekenwerk/, '📋', 'paars'], [/project|atelier|hoek/, '🧩', 'paars'],
 ];
 function vakStijl(vak) {
   const v = String(vak || '').toLowerCase();
@@ -68,10 +68,17 @@ function rooster() {
   return zw.roosters.find(r => r.id === zw.weekData.rooster) || zw.roosters.find(r => r.id === zw.standaard) || zw.roosters[0];
 }
 
-// De rijen van een rooster met hun lesuurnummer (pauzes hebben er geen).
-function rijen(r) {
+// De uren van één dag met hun lesuurnummer (pauzes hebben er geen). Elke dag heeft zijn eigen tijden.
+function dagUren(r, d) {
   let n = 0;
-  return (r ? r.uren : []).map(u => ({ ...u, les: u.soort === 'les' ? n++ : -1 }));
+  return ((r && r.dagen && r.dagen[d]) || []).map(u => ({ ...u, les: u.soort === 'les' ? n++ : -1 }));
+}
+const vakOp = (r, d, u) => (dagUren(r, d).find(x => x.les === u) || {}).vak || '';
+// Alle vakken uit het rooster, het vaakst eerst.
+function roosterVakken(r) {
+  const tel = new Map();
+  for (let d = 1; d <= 5; d++) for (const u of dagUren(r, d)) if (u.soort === 'les' && u.vak) tel.set(u.vak, (tel.get(u.vak) || 0) + 1);
+  return [...tel.entries()].sort((a, b) => b[1] - a[1]).map(([v]) => v);
 }
 
 // ---------- Laden ----------
@@ -131,16 +138,16 @@ function tekenVandaag() {
   lijst.textContent = '';
   const nu = nuMinuten();
   let nuSlot = null;
-  for (const u of rijen(r)) {
+  for (const u of dagUren(r, zw.dag)) {
     const li = el('li', `zw-uur ${u.soort}`);
     const tijd = el('span', 'zw-tijd', u.van ? `${u.van}` : '');
     if (u.soort === 'pauze') {
-      li.append(tijd, el('span', 'zw-pauze', '☕ pauze'));
+      li.append(tijd, el('span', 'zw-pauze', `☕ ${u.vak || 'pauze'}`));
       lijst.append(li);
       continue;
     }
     const slot = `${zw.dag}-${u.les}`;
-    const vak = ((r.vakken || {})[zw.dag] || [])[u.les] || '';
+    const vak = u.vak;
     const les = zw.weekData.lessen[slot];
     const st = vakStijl((les && les.vak) || vak);
     if (isVandaag && u.van && u.tot && nu >= min(u.van) && nu < min(u.tot)) {
@@ -177,7 +184,7 @@ function tekenNu(r) {
     return;
   }
   const [d, u] = slot.split('-').map(Number);
-  const vak = ((r.vakken || {})[d] || [])[u] || '';
+  const vak = vakOp(r, d, u);
   const les = zw.weekData.lessen[slot];
   const st = vakStijl((les && les.vak) || vak);
   kaart.className = `panel zw-nu kleur-${st.kleur}`;
@@ -277,6 +284,9 @@ setInterval(() => { if (!document.hidden) tekenVandaag(); }, 60000);
 
 // ---------- Week ----------
 
+// De week zoals een schoolrooster: per dag een kolom, elk uur op zijn tijd en zo hoog als het duurt.
+const PX = 1.45;
+const hhmm = m => `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
 function tekenWeek() {
   const r = rooster();
   const ma = maandag(zw.week);
@@ -285,43 +295,64 @@ function tekenWeek() {
   sel.textContent = '';
   for (const x of zw.roosters) sel.append(new Option(`${x.naam}${x.id === zw.standaard ? ' (gewoon)' : ''}`, x.id));
   sel.value = r ? r.id : '';
-  const t = $('zw-week');
-  t.textContent = '';
-  const kop = el('tr');
-  kop.append(el('th', 'zw-th-tijd', ''));
-  DAGEN.forEach((naam, i) => {
-    const th = el('th', '', `${KORT[i]} ${plusDagen(ma, i).getDate()}/${plusDagen(ma, i).getMonth() + 1}`);
-    if (zw.week === weekVan(new Date()) && i + 1 === vandaagDag()) th.classList.add('vandaag');
-    kop.append(th);
-  });
-  t.append(kop);
-  for (const u of rijen(r)) {
-    const tr = el('tr', u.soort);
-    tr.append(el('th', 'zw-th-tijd', u.van ? `${u.van}–${u.tot}` : ''));
-    for (let d = 1; d <= 5; d++) {
-      const td = el('td');
+  const doos = $('zw-week');
+  doos.textContent = '';
+  const alle = [1, 2, 3, 4, 5].flatMap(d => dagUren(r, d)).filter(u => u.van && u.tot);
+  const start = Math.floor(Math.min(8 * 60 + 30, ...alle.map(u => min(u.van))) / 30) * 30;
+  const eind = Math.ceil(Math.max(start + 120, ...alle.map(u => min(u.tot))) / 30) * 30;
+  const hoog = (eind - start) * PX;
+  doos.style.setProperty('--hoog', `${hoog}px`);
+  const as = el('div', 'zw-wk-as');
+  as.append(el('div', 'zw-wk-kop', ''));
+  const asLijf = el('div', 'zw-wk-lijf');
+  for (let t = Math.ceil(start / 60) * 60; t <= eind; t += 60) {
+    const l = el('span', 'zw-wk-uur', hhmm(t));
+    l.style.top = `${(t - start) * PX}px`;
+    asLijf.append(l);
+  }
+  as.append(asLijf);
+  doos.append(as);
+  for (let d = 1; d <= 5; d++) {
+    const kol = el('div', 'zw-wk-dag');
+    const kop = el('div', 'zw-wk-kop', `${KORT[d - 1]} ${plusDagen(ma, d - 1).getDate()}/${plusDagen(ma, d - 1).getMonth() + 1}`);
+    if (zw.week === weekVan(new Date()) && d === vandaagDag()) kop.classList.add('vandaag');
+    const lijf = el('div', 'zw-wk-lijf');
+    for (let t = Math.ceil(start / 60) * 60; t <= eind; t += 60) {
+      const lijn = el('i', 'zw-wk-lijn');
+      lijn.style.top = `${(t - start) * PX}px`;
+      lijf.append(lijn);
+    }
+    for (const u of dagUren(r, d)) {
+      if (!u.van || !u.tot) continue;
+      const top = (min(u.van) - start) * PX;
+      const h = Math.max(14, (min(u.tot) - min(u.van)) * PX - 3);
       if (u.soort === 'pauze') {
-        td.className = 'zw-pauzecel';
-        tr.append(td);
+        const p = el('div', 'zw-wk-pauze', u.vak || 'pauze');
+        p.style.top = `${top}px`;
+        p.style.height = `${h}px`;
+        lijf.append(p);
         continue;
       }
       const slot = `${d}-${u.les}`;
-      const vak = ((r.vakken || {})[d] || [])[u.les] || '';
       const les = zw.weekData.lessen[slot];
-      const st = vakStijl((les && les.vak) || vak);
-      const b = el('button', `zw-cel kleur-${st.kleur}${les ? ' gepland' : ''}`);
+      const st = vakStijl((les && les.vak) || u.vak);
+      const b = el('button', `zw-cel kleur-${st.kleur}${les ? ' gepland' : ''}${h < 44 ? ' kort' : ''}`);
       b.type = 'button';
-      b.append(el('span', 'zw-cel-vak', `${st.icoon} ${(les && les.vak) || vak || '—'}`));
+      b.style.top = `${top}px`;
+      b.style.height = `${h}px`;
+      b.title = `${u.van}–${u.tot} · ${(les && les.vak) || u.vak}${les && les.titel ? ` · ${les.titel}` : ''}`;
+      b.append(el('span', 'zw-cel-vak', `${st.icoon} ${(les && les.vak) || u.vak || '—'}`));
+      if (h >= 44) b.append(el('span', 'zw-cel-tijd', `${u.van}–${u.tot}`));
       if (les) {
         b.append(el('span', 'zw-cel-titel', les.titel || les.doel || '(zonder titel)'));
         const tags = [les.doel || les.doelen.length ? '🎯' : '', les.criteria.length ? `⭐${les.criteria.length}` : '', les.map ? '📚' : ''].filter(Boolean).join(' ');
-        if (tags) b.append(el('span', 'zw-cel-tags', tags));
-      } else if (vak) b.append(el('span', 'zw-cel-leeg', '+ plannen'));
+        if (tags && h >= 70) b.append(el('span', 'zw-cel-tags', tags));
+      } else if (h >= 60) b.append(el('span', 'zw-cel-leeg', '+ plannen'));
       b.addEventListener('click', () => openEditor(slot));
-      td.append(b);
-      tr.append(td);
+      lijf.append(b);
     }
-    t.append(tr);
+    kol.append(kop, lijf);
+    doos.append(kol);
   }
 }
 
@@ -349,63 +380,120 @@ const isVanVak = (m, vak) => !!vak && m.toLowerCase().split('/').some(d => d ===
 
 function zetMap(map) {
   $('zw-ed-map').value = map || '';
-  $('zw-ed-mapknop').textContent = map ? `📁 ${map.split('/').join(' › ')}` : '✏️ Eigen les (zonder quiz)';
+  for (const b of $('zw-ed-blokken').querySelectorAll('[data-map]')) b.classList.toggle('on', b.dataset.map === map);
 }
 
-function tekenKiezer() {
-  const doos = $('zw-kies-groepen');
+// Vak, soort les en blok: drie keuzes bovenaan, de rest volgt.
+const ed = { soort: 'pakket', zoek: '' };
+function tekenVakChips(huidig) {
+  const doos = $('zw-ed-vakken');
   doos.textContent = '';
-  const zoek = $('zw-kies-zoek').value.trim().toLowerCase();
+  const lijst = roosterVakken(rooster());
+  if (huidig && !lijst.includes(huidig)) lijst.unshift(huidig);
+  for (const v of lijst) {
+    const st = vakStijl(v);
+    const b = el('button', `zw-chip kleur-${st.kleur}${v === huidig ? ' on' : ''}`, `${st.icoon} ${v}`);
+    b.type = 'button';
+    b.addEventListener('click', () => kiesVak(v));
+    doos.append(b);
+  }
+  const ander = el('button', 'zw-chip', '＋ Ander vak');
+  ander.type = 'button';
+  ander.addEventListener('click', () => {
+    $('zw-ed-vak').classList.remove('hidden');
+    $('zw-ed-vak').value = '';
+    $('zw-ed-vak').focus();
+  });
+  doos.append(ander);
+}
+function kiesVak(v) {
+  $('zw-ed-vak').value = v;
+  $('zw-ed-vak').classList.add('hidden');
+  tekenVakChips(v);
+  if ($('zw-ed-map').value && !isVanVak($('zw-ed-map').value, v)) {
+    zetMap('');
+    vulLessen('', 0);
+  }
+  zetSoort(mappenVan(v).length || $('zw-ed-map').value ? 'pakket' : 'eigen');
+}
+$('zw-ed-vak').addEventListener('change', e => kiesVak(e.target.value.trim()));
+
+const mappenVan = vak => Lessen.mappen(zw.bron).filter(m => isVanVak(m, vak));
+function zetSoort(soort) {
+  ed.soort = soort;
+  for (const b of document.querySelectorAll('.zw-seg [data-soort]')) b.setAttribute('aria-checked', b.dataset.soort === soort);
+  $('zw-ed-pakket').classList.toggle('hidden', soort !== 'pakket');
+  if (soort === 'eigen') {
+    zetMap('');
+    vulLessen('', 0);
+    $('zw-ed-voorstel-info').textContent = '';
+  }
+  tekenBlokken();
+}
+for (const b of document.querySelectorAll('.zw-seg [data-soort]')) b.addEventListener('click', () => zetSoort(b.dataset.soort));
+
+// De blokken of thema's van het vak, per methode gegroepeerd. Geen lespakket voor dit vak? Dan zoek je in alle mappen.
+function tekenBlokken() {
+  const doos = $('zw-ed-blokken');
+  doos.textContent = '';
+  if (ed.soort !== 'pakket') return;
   const vak = $('zw-ed-vak').value.trim();
   const hier = $('zw-ed-map').value;
+  let mappen = mappenVan(vak);
+  const zoekModus = !mappen.length || ed.zoek;
+  if (zoekModus) {
+    const zoek = el('input', 'zw-ed-zoek');
+    zoek.type = 'search';
+    zoek.placeholder = mappen.length ? 'Zoek in alle mappen' : `Geen lespakket voor ${vak || 'dit vak'}. Zoek een map, bijv. blok 3`;
+    zoek.value = ed.zoek;
+    zoek.addEventListener('input', () => {
+      ed.zoek = zoek.value;
+      tekenBlokken();
+      const z = $('zw-ed-blokken').querySelector('input');
+      z.focus();
+      z.setSelectionRange(z.value.length, z.value.length);
+    });
+    doos.append(zoek);
+    const q = ed.zoek.trim().toLowerCase();
+    mappen = q ? Lessen.mappen(zw.bron).filter(m => m.toLowerCase().includes(q)).slice(0, 30) : [];
+  }
   const groepen = new Map();
-  for (const m of Lessen.mappen(zw.bron)) {
-    if (zoek && !m.toLowerCase().includes(zoek)) continue;
-    const g = bovenMap(m) || m;
+  for (const m of mappen) {
+    const g = bovenMap(m);
     if (!groepen.has(g)) groepen.set(g, []);
     groepen.get(g).push(m);
   }
-  // De groep van het vak eerst.
-  const volgorde = [...groepen.keys()].sort((a, b) => (isVanVak(b, vak) - isVanVak(a, vak)) || a.localeCompare(b, 'nl', { numeric: true }));
-  for (const g of volgorde) {
-    const d = el('details', 'zw-kies-groep');
-    d.open = !!zoek || isVanVak(g, vak) || groepen.get(g).includes(hier) || groepen.size === 1;
-    const sum = el('summary', '', g.split('/').join(' › '));
-    sum.append(' ', el('em', '', `(${groepen.get(g).length})`));
-    const chips = el('div', 'zw-kies-chips');
-    for (const m of groepen.get(g)) {
-      const b = el('button', `secondary${m === hier ? ' on' : ''}`, m === g ? naamMap(m) : naamMap(m));
+  for (const [g, lijst] of groepen) {
+    const groep = el('div', 'zw-ed-groep');
+    if (groepen.size > 1 || zoekModus) groep.append(el('span', 'zw-ed-groepnaam', g ? g.split('/').join(' › ') : 'Mappen'));
+    const chips = el('div', 'zw-chips');
+    for (const m of lijst) {
+      const b = el('button', `zw-chip${m === hier ? ' on' : ''}`, naamMap(m));
       b.type = 'button';
+      b.dataset.map = m;
+      b.title = m.split('/').join(' › ');
       b.addEventListener('click', () => {
         zetMap(m);
         vulLessen(m, 0);
-        sluitKiezer();
+        $('zw-ed-voorstel-info').textContent = '';
         $('zw-ed-les').focus();
       });
       chips.append(b);
     }
-    d.append(sum, chips);
-    doos.append(d);
+    groep.append(chips);
+    doos.append(groep);
   }
-  if (!groepen.size) doos.append(el('p', 'muted small', zoek ? 'Geen map gevonden.' : 'Nog geen lessen in De Kronieken: plan een eigen les.'));
+  if (!zoekModus) {
+    const meer = el('button', 'zw-link', 'Andere map zoeken…');
+    meer.type = 'button';
+    meer.addEventListener('click', () => {
+      ed.zoek = ' ';
+      tekenBlokken();
+      $('zw-ed-blokken').querySelector('input').focus();
+    });
+    doos.append(meer);
+  }
 }
-function openKiezer() {
-  $('zw-kies').classList.remove('hidden');
-  $('zw-ed-mapknop').setAttribute('aria-expanded', 'true');
-  $('zw-kies-zoek').value = '';
-  tekenKiezer();
-}
-function sluitKiezer() {
-  $('zw-kies').classList.add('hidden');
-  $('zw-ed-mapknop').setAttribute('aria-expanded', 'false');
-}
-$('zw-ed-mapknop').addEventListener('click', () => ($('zw-kies').classList.contains('hidden') ? openKiezer() : sluitKiezer()));
-$('zw-kies-zoek').addEventListener('input', tekenKiezer);
-$('zw-kies-eigen').addEventListener('click', () => {
-  zetMap('');
-  vulLessen('', 0);
-  sluitKiezer();
-});
 
 // Een nieuw lesuur: de les na de vorige les van dit vak (dezelfde map, of de eerste les van de volgende map).
 function stelVoor(slot, vak) {
@@ -428,11 +516,10 @@ function stelVoor(slot, vak) {
         zetMap(map);
         vulLessen(map, volgende.nr);
         kiesLes(volgende.nr);
-        $('zw-ed-voorstel-info').textContent = `Voorstel: de les na Les ${vorige.nr}. Andere les? Kies hierboven.`;
-        return;
+        tekenBlokken();
+        $('zw-ed-voorstel-info').textContent = `✨ Voorstel: de les na Les ${vorige.nr}. Een andere les kiezen kan hierboven.`;
       }
     }
-    if (Lessen.mappen(zw.bron).some(m => isVanVak(m, vak))) openKiezer();
   });
 }
 
@@ -474,20 +561,27 @@ function zetCriteria(lijst) {
 function openEditor(slot) {
   const r = rooster();
   const [d, u] = slot.split('-').map(Number);
-  const vak = ((r.vakken || {})[d] || [])[u] || '';
+  const uur = dagUren(r, d).find(x => x.les === u) || {};
+  const vak = uur.vak || '';
   const les = zw.weekData.lessen[slot] || null;
   zw.bewerk = { slot, oud: les };
-  $('zw-ed-titel').textContent = `${DAGEN[d - 1]} · ${u + 1}e lesuur${vak ? ` · ${vak}` : ''}`;
-  $('zw-ed-vak').value = les ? les.vak : vak;
+  $('zw-ed-titel').textContent = `${DAGEN[d - 1]}${uur.van ? ` · ${uur.van}–${uur.tot}` : ''}`;
+  const hetVak = les ? les.vak : vak;
+  $('zw-ed-vak').value = hetVak;
+  $('zw-ed-vak').classList.add('hidden');
+  tekenVakChips(hetVak);
+  ed.zoek = '';
   zetMap(les && les.map);
   vulLessen(les && les.map, les && les.nr);
-  sluitKiezer();
+  zetSoort(les ? (les.map ? 'pakket' : 'eigen') : mappenVan(hetVak).length ? 'pakket' : 'eigen');
   $('zw-ed-voorstel-info').textContent = '';
   $('zw-ed-naam').value = les ? les.titel : '';
   $('zw-ed-doel').value = les ? les.doel : '';
   doelVeld.zet(les ? les.doelen : []);
   zetCriteria(les ? les.criteria : []);
   $('zw-ed-notitie').value = les ? les.notitie : '';
+  $('zw-ed-meer').open = !!(les && (les.doelen.length || les.notitie));
+  meerTel();
   $('zw-ed-fout').textContent = '';
   $('zw-ed-wis').classList.toggle('hidden', !les);
   $('zw-ed-schuif').classList.toggle('hidden', !les);
@@ -496,6 +590,11 @@ function openEditor(slot) {
 }
 
 $('zw-ed-dicht').addEventListener('click', () => $('zw-editor').close());
+function meerTel() {
+  const n = doelVeld.codes().length;
+  $('zw-ed-meer-tel').textContent = [n ? `${n} ${n === 1 ? 'doel' : 'doelen'}` : '', $('zw-ed-notitie').value.trim() ? 'notitie' : ''].filter(Boolean).join(' · ');
+}
+$('zw-ed-meer').addEventListener('toggle', meerTel);
 // Een les uit De Kronieken kiezen: titel, doelen en een voorstel van succescriteria komen mee (wat je zelf schreef, blijft).
 $('zw-ed-les').addEventListener('change', e => kiesLes(Number(e.target.value)));
 function kiesLes(nr) {
@@ -509,11 +608,15 @@ function kiesLes(nr) {
     if (!doelVeld.codes().length) doelVeld.zet(res.doelen.map(x => x.code));
     if (!$('zw-ed-doel').value.trim() && res.doel) $('zw-ed-doel').value = res.doel;
     if (!criteria().length) zetCriteria(res.criteria);
+    meerTel();
   });
 }
 $('zw-ed-voorstel').addEventListener('click', () => {
   const codes = doelVeld.codes();
-  if (!codes.length) return ($('zw-ed-fout').textContent = 'Kies eerst een of meer leerplandoelen, of kies een les uit De Kronieken.');
+  if (!codes.length) {
+    $('zw-ed-meer').open = true;
+    return ($('zw-ed-fout').textContent = 'Kies eerst een of meer leerplandoelen (hieronder), of kies een les uit je lespakket.');
+  }
   socket.emit('zw-doelen', { codes }, res => {
     if (!res || res.error) return;
     const er = new Set(criteria());
@@ -525,7 +628,7 @@ $('zw-ed-voorstel').addEventListener('click', () => {
 $('zw-ed-crit-plus').addEventListener('click', () => critRij('').focus());
 
 function leesEditor() {
-  const map = $('zw-ed-map').value;
+  const map = ed.soort === 'pakket' ? $('zw-ed-map').value : '';
   return {
     vak: $('zw-ed-vak').value.trim(),
     map,
@@ -577,11 +680,11 @@ function kiesRooster(id) {
 }
 
 function tekenVakken() {
-  const s = new Set(['Rekenen', 'Taal', 'Spelling', 'Lezen', 'Frans', 'WO', 'Muzo', 'LO', 'Godsdienst']);
-  for (const r of zw.roosters) for (const d of Object.values(r.vakken || {})) for (const v of d) if (v) s.add(v);
+  const set = new Set(['Rekenen', 'Taal', 'Spelling', 'Lezen', 'Frans', 'Wereldoriëntatie', 'Muzische', 'Beweging', 'Godsdienst', 'Speeltijd']);
+  for (const r of zw.roosters) for (const v of roosterVakken(r)) set.add(v);
   const dl = $('zw-vakken');
   dl.textContent = '';
-  for (const v of s) dl.append(new Option(v));
+  for (const v of set) dl.append(new Option(v));
   const chips = $('zw-rooster-chips');
   chips.textContent = '';
   for (const r of zw.roosters) {
@@ -592,82 +695,209 @@ function tekenVakken() {
   }
 }
 
+// Een rooster bewerken: per dag de uren met hun tijden, want elke dag ziet er anders uit.
+zw.rDag = 1;
+const plusMin = (t, n) => hhmm(Math.min(23 * 60 + 59, min(t) + n));
 function tekenRooster() {
   const r = zw.rb;
   if (!r) return;
+  r.dagen = r.dagen || {};
   $('zw-rooster-naam').value = r.naam;
   $('zw-rooster-standaard').checked = r.id === zw.standaard;
+  const tabs = $('zw-rooster-dagen');
+  tabs.textContent = '';
+  DAGEN.forEach((naam, i) => {
+    const n = (r.dagen[i + 1] || []).filter(u => u.soort === 'les').length;
+    const b = el('button', `zw-chip${zw.rDag === i + 1 ? ' on' : ''}`, `${naam} `);
+    b.type = 'button';
+    b.append(el('em', 'muted small', `${n}`));
+    b.addEventListener('click', () => { zw.rDag = i + 1; tekenRooster(); });
+    tabs.append(b);
+  });
+  const uren = r.dagen[zw.rDag] = r.dagen[zw.rDag] || [];
   const t = $('zw-raster');
   t.textContent = '';
   const kop = el('tr');
-  for (const x of ['Van', 'Tot', ...KORT, '']) kop.append(el('th', '', x));
+  for (const x of ['Van', 'Tot', 'Vak of activiteit', 'Pauze', '']) kop.append(el('th', '', x));
   t.append(kop);
-  let n = 0;
-  r.uren.forEach((u, i) => {
+  uren.forEach((u, i) => {
     const tr = el('tr', u.soort);
-    const tijdVeld = sleutel => {
+    const veld = (sleutel, type) => {
       const inp = el('input');
-      inp.type = 'time';
-      inp.value = u[sleutel];
-      inp.addEventListener('change', () => { u[sleutel] = inp.value; });
+      inp.type = type;
+      inp.value = u[sleutel] || '';
+      if (type === 'text') {
+        inp.setAttribute('list', 'zw-vakken');
+        inp.maxLength = 30;
+        inp.placeholder = u.soort === 'pauze' ? 'Speeltijd' : 'bijv. Rekenen';
+        inp.setAttribute('aria-label', `${DAGEN[zw.rDag - 1]}, ${u.van}`);
+      }
+      inp.addEventListener('change', () => {
+        u[sleutel] = inp.value.trim();
+        if (sleutel === 'vak' && /^speeltijd|^pauze|^middag/i.test(u.vak) && u.soort === 'les') { u.soort = 'pauze'; tekenRooster(); }
+      });
       const td = el('td');
       td.append(inp);
       return td;
     };
-    tr.append(tijdVeld('van'), tijdVeld('tot'));
-    if (u.soort === 'pauze') {
-      const td = el('td', 'zw-pauzecel', '☕ pauze');
-      td.colSpan = 5;
-      tr.append(td);
-    } else {
-      const les = n++;
-      for (let d = 1; d <= 5; d++) {
-        const td = el('td');
-        const inp = el('input');
-        inp.setAttribute('list', 'zw-vakken');
-        inp.maxLength = 30;
-        inp.value = ((r.vakken[d] || [])[les]) || '';
-        inp.setAttribute('aria-label', `${DAGEN[d - 1]}, ${les + 1}e lesuur`);
-        inp.addEventListener('change', () => {
-          r.vakken[d] = r.vakken[d] || [];
-          r.vakken[d][les] = inp.value.trim();
-        });
-        td.append(inp);
-        tr.append(td);
-      }
-    }
+    tr.append(veld('van', 'time'), veld('tot', 'time'), veld('vak', 'text'));
+    const pz = el('td', 'zw-pz');
+    const cb = el('input');
+    cb.type = 'checkbox';
+    cb.checked = u.soort === 'pauze';
+    cb.title = 'Pauze (speeltijd, middag): daar plan je geen les';
+    cb.addEventListener('change', () => { u.soort = cb.checked ? 'pauze' : 'les'; tekenRooster(); });
+    pz.append(cb);
+    tr.append(pz);
     const td = el('td');
     const weg = el('button', 'secondary icon');
     weg.type = 'button';
     weg.title = 'Deze rij weghalen';
     weg.setAttribute('aria-label', 'Rij weghalen');
     weg.innerHTML = Ui.ic('kruis');
-    weg.addEventListener('click', () => {
-      if (u.soort === 'les') {
-        const nr = r.uren.slice(0, i).filter(x => x.soort === 'les').length;
-        for (let d = 1; d <= 5; d++) (r.vakken[d] || []).splice(nr, 1);
-      }
-      r.uren.splice(i, 1);
-      tekenRooster();
-    });
+    weg.addEventListener('click', () => { uren.splice(i, 1); tekenRooster(); });
     td.append(weg);
     tr.append(td);
     t.append(tr);
   });
+  if (!uren.length) {
+    const tr = el('tr');
+    const td = el('td', 'muted small', `Op ${DAGEN[zw.rDag - 1]} staat nog niets. Voeg een lesuur toe of kopieer een andere dag.`);
+    td.colSpan = 5;
+    tr.append(td);
+    t.append(tr);
+  }
+  const kopie = $('zw-rooster-kopie');
+  kopie.textContent = '';
+  kopie.append(new Option(`${DAGEN[zw.rDag - 1]} kopiëren naar…`, ''));
+  DAGEN.forEach((naam, i) => { if (i + 1 !== zw.rDag) kopie.append(new Option(naam, i + 1)); });
+  kopie.append(new Option('alle andere dagen', 'alle'));
   tekenVakken();
 }
+$('zw-rooster-kopie').addEventListener('change', e => {
+  const r = zw.rb;
+  const naar = e.target.value === 'alle' ? [1, 2, 3, 4, 5].filter(d => d !== zw.rDag) : [Number(e.target.value)];
+  for (const d of naar) if (d) r.dagen[d] = JSON.parse(JSON.stringify(r.dagen[zw.rDag] || []));
+  e.target.value = '';
+  $('zw-rooster-ok').textContent = 'Gekopieerd. Vergeet niet te bewaren.';
+  tekenRooster();
+});
 
 function voegUurToe(soort) {
-  const r = zw.rb;
-  const laatste = r.uren[r.uren.length - 1];
-  const van = laatste ? laatste.tot : '08:30';
-  const [h, m] = van.split(':').map(Number);
-  const eind = h * 60 + m + (soort === 'pauze' ? 15 : 50);
-  r.uren.push({ van, tot: `${String(Math.floor(eind / 60) % 24).padStart(2, '0')}:${String(eind % 60).padStart(2, '0')}`, soort });
+  const uren = zw.rb.dagen[zw.rDag] = zw.rb.dagen[zw.rDag] || [];
+  const laatste = uren[uren.length - 1];
+  const van = laatste && laatste.tot ? laatste.tot : '08:30';
+  uren.push({ van, tot: plusMin(van, soort === 'pauze' ? 15 : 50), soort, vak: soort === 'pauze' ? 'Speeltijd' : '' });
   tekenRooster();
+  if (soort === 'les') { const ins = $('zw-raster').querySelectorAll('input[type=text]'); ins[ins.length - 1].focus(); }
 }
 $('zw-uur-les').addEventListener('click', () => voegUurToe('les'));
 $('zw-uur-pauze').addEventListener('click', () => voegUurToe('pauze'));
+
+// Roosters uit een bestand: van een collega, of zoals je ze kreeg van LANcelot.
+$('zw-rooster-bestand').addEventListener('change', async e => {
+  const f = e.target.files[0];
+  e.target.value = '';
+  if (!f) return;
+  let data;
+  try { data = JSON.parse(await f.text()); } catch { return Ui.melding('Dit is geen geldig roosterbestand.'); }
+  socket.emit('zw-roosters-import', data, res => {
+    if (res.error) return Ui.melding(res.error);
+    zw.roosters = res.roosters;
+    zw.standaard = res.standaard;
+    kiesRooster(zw.roosters[zw.roosters.length - 1].id);
+    teken();
+    $('zw-rooster-ok').textContent = `✓ ${res.toegevoegd} ${res.toegevoegd === 1 ? 'rooster' : 'roosters'} toegevoegd.`;
+  });
+});
+$('zw-rooster-export').addEventListener('click', () => {
+  bewaarBestand('LANcelot-lesroosters.json', JSON.stringify({ lancelot: 'lesroosters', roosters: zw.roosters }, null, 1), 'application/json');
+});
+
+function bewaarBestand(naam, tekst, type) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([tekst], { type }));
+  a.download = naam;
+  document.body.append(a);
+  a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+}
+
+// ---------- Afdrukken en naar je agenda ----------
+
+function weekLessen() {
+  const r = rooster();
+  const ma = maandag(zw.week);
+  return [1, 2, 3, 4, 5].map(d => ({
+    d,
+    datum: plusDagen(ma, d - 1),
+    uren: dagUren(r, d).filter(u => u.soort === 'les').map(u => ({ ...u, plan: zw.weekData.lessen[`${d}-${u.les}`] || null })),
+  }));
+}
+
+$('zw-print').addEventListener('click', () => {
+  const doos = $('zw-afdruk');
+  doos.textContent = '';
+  const r = rooster();
+  const ma = maandag(zw.week);
+  doos.append(el('h1', '', `Week ${Number(zw.week.split('-W')[1])} · ${datum(ma)} – ${datum(plusDagen(ma, 4))}`));
+  doos.append(el('p', 'zw-af-sub', r ? r.naam : ''));
+  for (const dag of weekLessen()) {
+    if (!dag.uren.length) continue;
+    const blok = el('section', 'zw-af-dag');
+    blok.append(el('h2', '', `${DAGEN[dag.d - 1]} ${datum(dag.datum)}`));
+    const t = el('table');
+    for (const u of dag.uren) {
+      const l = u.plan;
+      const tr = el('tr', l ? 'gepland' : '');
+      tr.append(el('td', 'zw-af-tijd', `${u.van}–${u.tot}`));
+      tr.append(el('td', 'zw-af-vak', `${vakStijl((l && l.vak) || u.vak).icoon} ${(l && l.vak) || u.vak}`));
+      const inhoud = el('td');
+      if (l) {
+        if (l.titel) inhoud.append(el('strong', '', l.titel));
+        if (l.doel) inhoud.append(el('div', 'zw-af-doel', `🎯 ${l.doel}`));
+        if (l.criteria.length) {
+          const ul = el('ul');
+          for (const c of l.criteria) ul.append(el('li', '', `${picto(c)} ${c}`));
+          inhoud.append(ul);
+        }
+        if (l.doelen.length) inhoud.append(el('div', 'zw-af-codes', l.doelen.join(' · ')));
+        if (l.notitie) inhoud.append(el('div', 'zw-af-notitie', `🗒 ${l.notitie}`));
+      }
+      tr.append(inhoud);
+      t.append(tr);
+    }
+    blok.append(t);
+    doos.append(blok);
+  }
+  window.print();
+});
+
+// Een .ics-bestand: Outlook, Google Agenda en je gsm openen het als afspraken met doel en succescriteria erin.
+$('zw-ics').addEventListener('click', () => {
+  const esc = t => String(t).replace(/\\/g, '\\\\').replace(/[,;]/g, m => `\\${m}`).replace(/\n/g, '\\n');
+  const stip = (dag, t) => `${dag.getFullYear()}${String(dag.getMonth() + 1).padStart(2, '0')}${String(dag.getDate()).padStart(2, '0')}T${t.replace(':', '')}00`;
+  const nu = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d+/, '');
+  const regels = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//LANcelot//De Zonnewijzer//NL', 'CALSCALE:GREGORIAN'];
+  let n = 0;
+  for (const dag of weekLessen()) {
+    for (const u of dag.uren) {
+      if (!u.van || !u.tot) continue;
+      const l = u.plan;
+      const vak = (l && l.vak) || u.vak || 'Les';
+      const tekst = l ? [l.doel && `Doel: ${l.doel}`, ...l.criteria.map(c => `- ${c}`), l.notitie && `Notitie: ${l.notitie}`].filter(Boolean).join('\n') : '';
+      regels.push('BEGIN:VEVENT', `UID:${zw.week}-${dag.d}-${u.les}@lancelot`, `DTSTAMP:${nu}`, `DTSTART:${stip(dag.datum, u.van)}`, `DTEND:${stip(dag.datum, u.tot)}`,
+        `SUMMARY:${esc(l && l.titel ? `${vak}: ${l.titel}` : vak)}`);
+      if (tekst) regels.push(`DESCRIPTION:${esc(tekst)}`);
+      regels.push('END:VEVENT');
+      n++;
+    }
+  }
+  regels.push('END:VCALENDAR');
+  if (!n) return Ui.melding('Deze week staan er nog geen lesuren in je rooster.');
+  bewaarBestand(`LANcelot-week-${zw.week}.ics`, regels.join('\r\n') + '\r\n', 'text/calendar');
+});
+
 $('zw-rooster-naam').addEventListener('input', e => { zw.rb.naam = e.target.value; });
 
 function bewaarRoosters(lijst, standaard, melding) {
