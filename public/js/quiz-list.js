@@ -279,6 +279,11 @@ const ItemList = (() => {
         }
       };
       add('', 1);
+      // De boom is breder te slepen (hoekje rechtsonder); die breedte onthouden we.
+      try { const w = localStorage.getItem('lancelot-boom-breedte'); if (w) nav.style.width = `${w}px`; } catch {}
+      nav.addEventListener('pointerup', () => {
+        try { if (nav.style.width) localStorage.setItem('lancelot-boom-breedte', parseInt(nav.style.width, 10)); } catch {}
+      });
       return nav;
     }
 
@@ -286,10 +291,11 @@ const ItemList = (() => {
       const subs = f && subsOf(f).length;
       const el = document.createElement('div');
       el.className = `lib-node${f === here && !query ? ' on' : ''}${open.has(f) ? ' open' : ''}`;
-      el.style.paddingLeft = `${depth * 14}px`;
+      el.style.paddingLeft = `${depth * 10}px`;
       el.innerHTML = `<button type="button" class="chev${subs ? '' : ' none'}" aria-label="Open- of dichtklappen" tabindex="${subs ? 0 : -1}">▸</button>
         <button type="button" class="lib-open"><span class="lib-naam"></span><span class="muted">${f ? countIn(f) : items.length}</span></button>`;
       el.querySelector('.lib-naam').textContent = f ? `📁 ${baseOf(f)}` : `Alle ${k.many}`;
+      el.querySelector('.lib-open').title = f ? f.split('/').join(' › ') : `Alle ${k.many}`;
       el.querySelector('.lib-open').addEventListener('click', () => go(f));
       el.querySelector('.chev').addEventListener('click', () => {
         if (!subs) return;

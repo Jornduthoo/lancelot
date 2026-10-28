@@ -9,6 +9,7 @@
 @font-face { font-family: 'Exo 2'; font-weight: 800; font-display: swap; src: url(/fonts/exo-2-latin-800-normal.woff2) format('woff2'); }
 
 :root {
+  scrollbar-color: rgb(var(--k-cyan) / .45) rgb(var(--k-panel) / .6);
   /* Themakleuren als kanalen (r g b), zodat ook doorschijnende tinten mee wisselen. Andere thema's: themas.css */
   --k-bg: 6 10 19;
   --k-bg2: 11 19 36;
@@ -1006,19 +1007,21 @@ body:not([data-ls="1"]) #laserslag { display: none !important; }
 .quiz-tools .lib-zoek { flex: 1 1 220px; max-width: 360px; margin-right: auto; padding: 8px 12px; font: inherit; color: var(--text); background: var(--panel); border: 1px solid var(--line); }
 .quiz-tools .lib-zoek:focus { outline: none; border-color: var(--cyan); }
 .quiz-tools .lib-zoek + .lib-note { margin-right: 0; }
-.lib { display: grid; grid-template-columns: minmax(170px, 230px) 1fr; gap: 14px; align-items: start; }
+.lib { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 14px; align-items: start; }
 .lib.zonder-boom { grid-template-columns: 1fr; }
 /* Veel knoppen in een smalle rij: de knoppen schuiven onder de titel. */
 .lib .quiz-row { flex-wrap: wrap; }
 .lib .quiz-row .play { flex: 1 1 300px; }
-.lib-tree { position: sticky; top: 10px; display: flex; flex-direction: column; gap: 1px; max-height: 70vh; overflow-y: auto; padding: 6px; background: rgb(var(--k-panel) / .45); box-shadow: inset 0 0 0 1px var(--line); }
+.lib-tree { position: sticky; top: 10px; display: flex; flex-direction: column; gap: 1px; width: var(--boom, 280px); min-width: 180px; max-width: 55cqi; max-height: 70vh; overflow-y: auto; overflow-x: hidden; resize: horizontal; scrollbar-width: thin; padding: 6px; background: rgb(var(--k-panel) / .45); box-shadow: inset 0 0 0 1px var(--line); }
 .lib-node { display: flex; align-items: center; }
 .lib-node button { background: none; box-shadow: none; clip-path: none; color: var(--text); font-weight: 600; letter-spacing: 0; }
 .lib-node .chev { flex: none; width: 24px; padding: 6px 0; color: var(--cyan); transition: transform .15s; }
 .lib-node .chev.none { visibility: hidden; }
 .lib-node.open .chev { transform: rotate(90deg); }
-.lib-open { flex: 1; min-width: 0; display: flex; gap: 8px; justify-content: space-between; padding: 6px 8px; text-align: left; }
-.lib-open .lib-naam { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lib-open { flex: 1; min-width: 0; display: flex; align-items: flex-start; gap: 8px; justify-content: space-between; padding: 6px 8px; text-align: left; line-height: 1.25; }
+/* Lange mapnamen lopen door op een volgende regel, zodat je ze altijd helemaal kunt lezen. */
+.lib-open .lib-naam { min-width: 0; white-space: normal; overflow-wrap: anywhere; }
+.lib-open .muted { flex: none; }
 .lib-node:hover .lib-open { color: var(--cyan); }
 .lib-node.on .lib-open { color: var(--gold); background: rgb(var(--k-goud) / .1); }
 .lib-main { display: flex; flex-direction: column; gap: 10px; min-width: 0; min-height: 120px; padding: 2px; }
@@ -1038,7 +1041,7 @@ body:not([data-ls="1"]) #laserslag { display: none !important; }
 .lib-main.over { outline-offset: 2px; }
 @container (max-width: 620px) {
   .lib { grid-template-columns: 1fr; }
-  .lib-tree { position: static; max-height: 190px; }
+  .lib-tree { position: static; width: auto; max-width: none; max-height: 190px; resize: none; }
 }
 
 /* ---------- Oefenblad ---------- */
