@@ -9,6 +9,9 @@
   <link rel="stylesheet" href="/wapenkamer.css">
 </head>
 <body class="wk-host">
+<!-- De zaal achter alles: één keer getekend, alleen de fakkels flakkeren. -->
+<canvas id="wk-zaal" aria-hidden="true"></canvas>
+<div id="wk-vlammen" aria-hidden="true"></div>
 <main>
   <div class="topbar">
     <div class="brand" id="brand" title="Naar het startscherm">
@@ -28,7 +31,7 @@
     </div>
   </div>
 
-  <!-- Het wapenrek: elk wapen is een tool. -->
+  <!-- Het wapenrek: een houten balk, elk wapen is een tool. -->
   <nav class="wk-rek" id="rek" aria-label="Tools">
     <a href="#lot" data-tool="lot"><img src="/img/icons/wk-lot.webp" alt=""><span>Het Lot</span></a>
     <a href="#banieren" data-tool="banieren"><img src="/img/icons/wk-banieren.webp" alt=""><span>Banieren</span></a>
@@ -42,24 +45,29 @@
 
   <p class="leeg hidden" id="geen-klas"><span>Er staat nog niemand op je klaslijst.</span><a class="button" href="/klas#klas">Vul je klaslijst in bij Mijn klas</a></p>
 
+  <div id="wk-game">
   <!-- Het Lot: een rad met de namen. -->
   <section class="wk-tool hidden" id="t-lot">
-    <div class="wk-kop">
-      <h2><img src="/img/icons/wk-lot.webp" alt=""> Het Lot</h2>
-      <label class="wk-schakel"><input type="checkbox" id="lot-eruit" checked> Wie gekozen is, gaat eruit</label>
-    </div>
+    <div class="wk-titel"><img src="/img/icons/wk-lot.webp" alt=""><span>Het Lot</span></div>
     <div class="lot-veld">
-      <div class="lot-rad" id="lot-rad">
-        <canvas id="lot-canvas" width="720" height="720"></canvas>
-        <div class="lot-wijzer" aria-hidden="true"></div>
-        <button class="gold lot-knop" id="lot-draai">Draai!</button>
+      <div class="lot-kant">
+        <div class="lot-rad" id="lot-rad">
+          <div class="lot-krans" aria-hidden="true"></div>
+          <canvas id="lot-canvas" width="720" height="720"></canvas>
+          <div class="lot-wijzer" aria-hidden="true"><i></i></div>
+          <button class="lot-knop" id="lot-draai"><span>Draai!</span></button>
+        </div>
+        <div class="lot-sokkel" aria-hidden="true"></div>
       </div>
       <div class="lot-zij">
-        <div class="lot-uitslag panel" id="lot-uitslag">
-          <p class="muted small">Het Lot kiest…</p>
+        <div class="wk-lijst lot-uitslag" id="lot-uitslag">
+          <div class="wk-lijst-label">Het Lot kiest</div>
           <div class="lot-naam" id="lot-naam">?</div>
         </div>
-        <p class="muted small" id="lot-tel"></p>
+        <div class="wk-bediening">
+          <label class="wk-schakel"><input type="checkbox" id="lot-eruit" checked> Wie gekozen is, gaat eruit</label>
+          <span class="wk-tel" id="lot-tel"></span>
+        </div>
         <div class="lot-geweest" id="lot-geweest"></div>
         <button class="secondary hidden" id="lot-reset">Iedereen terug in het rad</button>
       </div>
@@ -68,10 +76,8 @@
 
   <!-- De Banieren: groepjes maken. -->
   <section class="wk-tool hidden" id="t-banieren">
-    <div class="wk-kop">
-      <h2><img src="/img/icons/wk-banieren.webp" alt=""> De Banieren</h2>
-    </div>
-    <div class="panel form ban-keuze">
+    <div class="wk-titel"><img src="/img/icons/wk-banieren.webp" alt=""><span>De Banieren</span></div>
+    <div class="wk-bediening form ban-keuze">
       <label>Maak
         <select id="ban-soort"><option value="groepen">groepjes</option><option value="per">per groepje</option></select>
       </label>
@@ -90,45 +96,59 @@
       </label>
       <button class="gold" id="ban-maak">Hijs de banieren</button>
     </div>
-    <p class="muted small center" id="ban-tip">Tik op twee namen om ze van groepje te wisselen.</p>
+    <div class="ban-balk hidden" id="ban-balk" aria-hidden="true"></div>
     <div class="ban-raster" id="ban-raster"></div>
+    <p class="wk-tip hidden" id="ban-tip">Tik op twee namen om ze van groepje te wisselen.</p>
   </section>
 
   <!-- De Zandloper: de timer. -->
   <section class="wk-tool hidden" id="t-zandloper">
-    <div class="wk-kop">
-      <h2><img src="/img/icons/wk-zandloper.webp" alt=""> De Zandloper</h2>
-    </div>
+    <div class="wk-titel"><img src="/img/icons/wk-zandloper.webp" alt=""><span>De Zandloper</span></div>
     <div class="zl-veld">
-      <svg class="zl-glas" id="zl-glas" viewBox="0 0 120 200" aria-hidden="true">
-        <defs>
-          <clipPath id="zl-boven"><path d="M18 14 H102 C102 62 70 80 62 100 H58 C50 80 18 62 18 14Z"/></clipPath>
-          <clipPath id="zl-onder"><path d="M58 100 H62 C70 120 102 138 102 186 H18 C18 138 50 120 58 100Z"/></clipPath>
-        </defs>
-        <rect x="6" y="2" width="108" height="12" rx="3" class="zl-hout"/>
-        <rect x="6" y="186" width="108" height="12" rx="3" class="zl-hout"/>
-        <path class="zl-rand" d="M18 14 H102 C102 62 70 80 62 100 C70 120 102 138 102 186 H18 C18 138 50 120 58 100 C50 80 18 62 18 14Z"/>
-        <rect id="zl-zand-boven" class="zl-zand" x="10" y="14" width="100" height="86" clip-path="url(#zl-boven)"/>
-        <rect id="zl-zand-onder" class="zl-zand" x="10" y="186" width="100" height="0" clip-path="url(#zl-onder)"/>
-        <line id="zl-straal" class="zl-straal" x1="60" y1="100" x2="60" y2="186"/>
-      </svg>
+      <div class="zl-kant">
+        <svg class="zl-glas" id="zl-glas" viewBox="0 0 140 230" aria-hidden="true">
+          <defs>
+            <clipPath id="zl-boven"><path d="M28 24 H112 C112 72 80 90 72 110 H68 C60 90 28 72 28 24Z"/></clipPath>
+            <clipPath id="zl-onder"><path d="M68 110 H72 C80 130 112 148 112 196 H28 C28 148 60 130 68 110Z"/></clipPath>
+            <linearGradient id="zl-goud" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe9a8"/><stop offset=".5" stop-color="#ffc94a"/><stop offset="1" stop-color="#a8781c"/></linearGradient>
+            <linearGradient id="zl-hout" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#3b2412"/><stop offset=".5" stop-color="#8a5a2f"/><stop offset="1" stop-color="#3b2412"/></linearGradient>
+            <linearGradient id="zl-glans" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset=".35" stop-color="#fff" stop-opacity="0"/></linearGradient>
+          </defs>
+          <rect x="16" y="24" width="9" height="172" fill="url(#zl-hout)"/>
+          <rect x="115" y="24" width="9" height="172" fill="url(#zl-hout)"/>
+          <path class="zl-rand" d="M28 24 H112 C112 72 80 90 72 110 C80 130 112 148 112 196 H28 C28 148 60 130 68 110 C60 90 28 72 28 24Z"/>
+          <rect id="zl-zand-boven" class="zl-zand" x="20" y="24" width="100" height="86" clip-path="url(#zl-boven)"/>
+          <rect id="zl-zand-onder" class="zl-zand" x="20" y="196" width="100" height="0" clip-path="url(#zl-onder)"/>
+          <line id="zl-straal" class="zl-straal" x1="70" y1="110" x2="70" y2="196"/>
+          <path d="M28 24 H112 C112 72 80 90 72 110 C80 130 112 148 112 196 H28 C28 148 60 130 68 110 C60 90 28 72 28 24Z" fill="url(#zl-glans)"/>
+          <rect x="6" y="8" width="128" height="16" rx="4" fill="url(#zl-goud)" stroke="#5a3c08" stroke-width="2"/>
+          <rect x="6" y="196" width="128" height="16" rx="4" fill="url(#zl-goud)" stroke="#5a3c08" stroke-width="2"/>
+          <circle cx="70" cy="16" r="4" class="zl-steen"/>
+          <circle cx="70" cy="204" r="4" class="zl-steen"/>
+        </svg>
+        <div class="wk-sokkel" aria-hidden="true"></div>
+      </div>
       <div class="zl-rechts">
-        <div class="zl-tijd" id="zl-tijd">5:00</div>
-        <div class="zl-klaar hidden" id="zl-klaar">De tijd is om!</div>
-        <div class="zl-snel" id="zl-snel">
-          <button class="secondary" data-min="1">1 min</button>
-          <button class="secondary" data-min="2">2 min</button>
-          <button class="secondary" data-min="3">3 min</button>
-          <button class="secondary" data-min="5">5 min</button>
-          <button class="secondary" data-min="10">10 min</button>
-          <button class="secondary" data-min="15">15 min</button>
-          <button class="secondary" data-min="20">20 min</button>
+        <div class="wk-lijst zl-plaat">
+          <div class="zl-tijd" id="zl-tijd">5:00</div>
+          <div class="zl-klaar hidden" id="zl-klaar">De tijd is om!</div>
         </div>
-        <form class="form zl-eigen" id="zl-eigen">
-          <input type="number" id="zl-m" min="0" max="180" value="5" aria-label="Minuten"> <span>min</span>
-          <input type="number" id="zl-s" min="0" max="59" value="0" aria-label="Seconden"> <span>sec</span>
-          <button class="secondary" type="submit">Zet</button>
-        </form>
+        <div class="wk-bediening zl-bediening">
+          <div class="zl-snel" id="zl-snel">
+            <button class="secondary" data-min="1">1 min</button>
+            <button class="secondary" data-min="2">2 min</button>
+            <button class="secondary" data-min="3">3 min</button>
+            <button class="secondary" data-min="5">5 min</button>
+            <button class="secondary" data-min="10">10 min</button>
+            <button class="secondary" data-min="15">15 min</button>
+            <button class="secondary" data-min="20">20 min</button>
+          </div>
+          <form class="form zl-eigen" id="zl-eigen">
+            <input type="number" id="zl-m" min="0" max="180" value="5" aria-label="Minuten"> <span>min</span>
+            <input type="number" id="zl-s" min="0" max="59" value="0" aria-label="Seconden"> <span>sec</span>
+            <button class="secondary" type="submit">Zet</button>
+          </form>
+        </div>
         <div class="zl-knoppen">
           <button class="gold big" id="zl-start">Start</button>
           <button class="secondary" id="zl-plus">+1 min</button>
@@ -140,17 +160,17 @@
 
   <!-- De Wachtlijst: klastaken die elke week doorschuiven. -->
   <section class="wk-tool hidden" id="t-wachtlijst">
-    <div class="wk-kop">
-      <h2><img src="/img/icons/wk-wachtlijst.webp" alt=""> De Wachtlijst</h2>
-      <div class="actions">
-        <button class="secondary" id="wl-terug" title="Een week terug">◀</button>
-        <span class="wl-week" id="wl-week"></span>
-        <button class="secondary" id="wl-verder" title="Iedereen schuift een beurt door">Schuif door ▶</button>
-        <button class="secondary" id="wl-bewerk">Taken aanpassen</button>
-      </div>
+    <div class="wk-titel"><img src="/img/icons/wk-wachtlijst.webp" alt=""><span>De Wachtlijst</span></div>
+    <div class="wk-bediening wl-bediening">
+      <button class="secondary" id="wl-terug" title="Een week terug">◀</button>
+      <span class="wl-week" id="wl-week"></span>
+      <button class="secondary" id="wl-verder" title="Iedereen schuift een beurt door">Schuif door ▶</button>
+      <button class="secondary" id="wl-bewerk">Taken aanpassen</button>
     </div>
-    <div class="wl-raster" id="wl-raster"></div>
-    <div class="panel form wl-bewerk hidden" id="wl-editor">
+    <div class="wl-bord">
+      <div class="wl-raster" id="wl-raster"></div>
+    </div>
+    <div class="wk-lijst form wl-bewerk hidden" id="wl-editor">
       <h3>De taken</h3>
       <p class="muted small">Elke taak met hoeveel leerlingen ze doen. Wie deze week niets heeft, komt de volgende weken aan de beurt.</p>
       <div id="wl-rijen"></div>
@@ -165,46 +185,60 @@
 
   <!-- De Stilte-banier: een geluidsmeter. -->
   <section class="wk-tool hidden" id="t-stilte">
-    <div class="wk-kop">
-      <h2><img src="/img/icons/wk-stilte.webp" alt=""> De Stilte-banier</h2>
-      <div class="actions">
-        <label class="st-grens">Zo luid mag het
-          <input type="range" id="st-grens" min="10" max="90" value="55">
-        </label>
-        <button class="gold" id="st-start">Start de micro</button>
-      </div>
-    </div>
+    <div class="wk-titel"><img src="/img/icons/wk-stilte.webp" alt=""><span>De Stilte-banier</span></div>
     <div class="st-veld" id="st-veld">
-      <svg class="st-banier" viewBox="0 0 200 280" aria-hidden="true">
-        <defs><clipPath id="st-vorm"><path d="M20 20 H180 V230 L100 270 L20 230Z"/></clipPath></defs>
-        <rect x="8" y="6" width="184" height="14" rx="5" class="st-stok"/>
-        <path class="st-doek" d="M20 20 H180 V230 L100 270 L20 230Z"/>
-        <rect id="st-vul" class="st-vul" x="20" y="270" width="160" height="0" clip-path="url(#st-vorm)"/>
-        <line id="st-lijn" class="st-lijn" x1="20" x2="180" y1="120" y2="120"/>
-        <path class="st-rand" d="M20 20 H180 V230 L100 270 L20 230Z"/>
-      </svg>
+      <div class="st-kant">
+        <svg class="st-banier" viewBox="0 0 220 320" aria-hidden="true">
+          <defs>
+            <clipPath id="st-vorm"><path d="M30 34 H190 V250 L110 292 L30 250Z"/></clipPath>
+            <linearGradient id="st-goud" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe9a8"/><stop offset=".5" stop-color="#ffc94a"/><stop offset="1" stop-color="#a8781c"/></linearGradient>
+            <linearGradient id="st-plooi" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#000" stop-opacity=".35"/><stop offset=".2" stop-color="#fff" stop-opacity=".06"/><stop offset=".5" stop-color="#000" stop-opacity=".15"/><stop offset=".8" stop-color="#fff" stop-opacity=".06"/><stop offset="1" stop-color="#000" stop-opacity=".4"/></linearGradient>
+          </defs>
+          <rect x="104" y="290" width="12" height="30" fill="#3b2412"/>
+          <rect x="10" y="22" width="200" height="14" rx="6" fill="url(#st-goud)" stroke="#5a3c08" stroke-width="2"/>
+          <circle cx="12" cy="29" r="9" fill="url(#st-goud)" stroke="#5a3c08" stroke-width="2"/>
+          <circle cx="208" cy="29" r="9" fill="url(#st-goud)" stroke="#5a3c08" stroke-width="2"/>
+          <path class="st-doek" d="M30 34 H190 V250 L110 292 L30 250Z"/>
+          <rect id="st-vul" class="st-vul" x="30" y="292" width="160" height="0" clip-path="url(#st-vorm)"/>
+          <path d="M30 34 H190 V250 L110 292 L30 250Z" fill="url(#st-plooi)"/>
+          <line id="st-lijn" class="st-lijn" x1="30" x2="190" y1="140" y2="140"/>
+          <path class="st-rand" d="M30 34 H190 V250 L110 292 L30 250Z"/>
+          <path class="st-rand-in" d="M42 46 H178 V242 L110 278 L42 242Z"/>
+        </svg>
+      </div>
       <div class="st-info">
-        <div class="st-tekst" id="st-tekst">Mooi stil</div>
-        <p class="muted" id="st-uitleg">Start de micro van het bord. De banier vult zich met geluid: komt het boven de lijn, dan wordt ze rood.</p>
-        <div class="st-tel"><span class="muted small">Rustige tijd</span><strong id="st-rust">0:00</strong></div>
+        <div class="wk-lijst st-plaat">
+          <div class="st-tekst" id="st-tekst">Mooi stil</div>
+          <div class="st-tel"><span>Rustige tijd</span><strong id="st-rust">0:00</strong></div>
+        </div>
+        <p class="wk-tip" id="st-uitleg">Start de micro van het bord. De banier vult zich met geluid: komt het boven de lijn, dan wordt ze rood.</p>
+        <div class="wk-bediening">
+          <label class="st-grens">Zo luid mag het
+            <input type="range" id="st-grens" min="10" max="90" value="55">
+          </label>
+          <button class="gold" id="st-start">Start de micro</button>
+        </div>
       </div>
     </div>
   </section>
 
   <!-- Het Werklicht: rood, oranje of groen. -->
   <section class="wk-tool hidden" id="t-werklicht">
-    <div class="wk-kop">
-      <h2><img src="/img/icons/wk-werklicht.webp" alt=""> Het Werklicht</h2>
-    </div>
+    <div class="wk-titel"><img src="/img/icons/wk-werklicht.webp" alt=""><span>Het Werklicht</span></div>
     <div class="wl-licht">
       <div class="wl-toren">
-        <button class="wl-lamp" data-licht="rood" aria-label="Stil werken"></button>
-        <button class="wl-lamp" data-licht="oranje" aria-label="Fluisteren"></button>
-        <button class="wl-lamp" data-licht="groen" aria-label="Samenwerken"></button>
+        <div class="wl-kantelen" aria-hidden="true"></div>
+        <div class="wl-romp">
+          <button class="wl-lamp" data-licht="rood" aria-label="Stil werken"></button>
+          <button class="wl-lamp" data-licht="oranje" aria-label="Fluisteren"></button>
+          <button class="wl-lamp" data-licht="groen" aria-label="Samenwerken"></button>
+        </div>
       </div>
       <div class="wl-uitleg">
-        <div class="wl-titel" id="licht-titel">Tik op een lamp</div>
-        <p id="licht-tekst" class="muted"></p>
+        <div class="wk-lijst wl-plaat">
+          <div class="wl-titel" id="licht-titel">Tik op een lamp</div>
+          <p id="licht-tekst"></p>
+        </div>
         <button class="secondary hidden" id="licht-uit">Licht uit</button>
       </div>
     </div>
@@ -212,10 +246,8 @@
 
   <!-- De Runensteen: dobbelstenen. -->
   <section class="wk-tool hidden" id="t-runensteen">
-    <div class="wk-kop">
-      <h2><img src="/img/icons/wk-runensteen.webp" alt=""> De Runensteen</h2>
-    </div>
-    <div class="panel form rs-keuze">
+    <div class="wk-titel"><img src="/img/icons/wk-runensteen.webp" alt=""><span>De Runensteen</span></div>
+    <div class="wk-bediening form rs-keuze">
       <label>Aantal stenen
         <select id="rs-aantal"><option>1</option><option selected>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select>
       </label>
@@ -234,16 +266,16 @@
       </label>
       <button class="gold" id="rs-gooi">Gooi!</button>
     </div>
-    <div class="rs-stenen" id="rs-stenen"></div>
+    <div class="rs-tafel">
+      <div class="rs-stenen" id="rs-stenen"></div>
+    </div>
     <div class="rs-som" id="rs-som"></div>
   </section>
 
   <!-- De Heraut: een opdracht groot op het bord. -->
   <section class="wk-tool hidden" id="t-heraut">
-    <div class="wk-kop">
-      <h2><img src="/img/icons/wk-heraut.webp" alt=""> De Heraut</h2>
-    </div>
-    <div class="panel form hr-maak" id="hr-maak">
+    <div class="wk-titel"><img src="/img/icons/wk-heraut.webp" alt=""><span>De Heraut</span></div>
+    <div class="wk-lijst form hr-maak" id="hr-maak">
       <label>Wat moet de klas doen?
         <textarea id="hr-tekst" rows="4" maxlength="300" placeholder="Bijvoorbeeld: Maak oefening 3 en 4 op blz. 25. Klaar? Lees in je leesboek."></textarea>
       </label>
@@ -257,12 +289,18 @@
     </div>
     <div class="hr-bord hidden" id="hr-bord">
       <div class="hr-rol">
-        <div class="hr-opdracht" id="hr-opdracht"></div>
-        <div class="hr-klok hidden" id="hr-klok">0:00</div>
+        <div class="hr-stok" aria-hidden="true"></div>
+        <div class="hr-perkament">
+          <div class="hr-zegel" aria-hidden="true"></div>
+          <div class="hr-opdracht" id="hr-opdracht"></div>
+        </div>
+        <div class="hr-stok" aria-hidden="true"></div>
       </div>
+      <div class="wk-lijst hr-klok hidden" id="hr-klok">0:00</div>
       <button class="secondary" id="hr-bewerk">Andere opdracht</button>
     </div>
   </section>
+  </div>
 </main>
 
 <dialog class="wk-dialoog" id="aanwezig-venster">
@@ -278,6 +316,7 @@
 <script src="/js/ui.js"></script>
 <script src="/js/fx.js"></script>
 <script src="/js/niveau.js"></script>
+<script src="/js/wk-art.js"></script>
 <script src="/js/wapenkamer.js"></script>
 </body>
 </html>

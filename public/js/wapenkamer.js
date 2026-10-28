@@ -83,7 +83,8 @@ addEventListener('hashchange', () => { open(); sfx.tick(); });
 const Lot = (() => {
   const canvas = $('lot-canvas');
   const ctx = canvas.getContext('2d');
-  const KLEUREN = ['76 201 255', '255 201 74', '255 77 109', '46 230 166', '199 125 255', '255 140 66', '61 139 255', '255 109 182'];
+  // Edelsteenkleuren voor de vakken: [rand, midden].
+  const KLEUREN = [['#d62a55', '#5a0c22'], ['#1f8fe0', '#0a2a5a'], ['#e8a91c', '#5c3a05'], ['#13a877', '#053d2b'], ['#8a4fe0', '#2a1050'], ['#e86a1c', '#5a2405'], ['#16b3c9', '#053e48'], ['#c93aa8', '#4a0c3c']];
   let geweest = bewaarLees('lancelot-wk-lot', { datum: '', ids: [] });
   if (geweest.datum !== vandaag()) geweest = { datum: vandaag(), ids: [] };
   let pot = [];
@@ -98,47 +99,71 @@ const Lot = (() => {
   // Het rad wordt één keer getekend; draaien is daarna alleen een CSS-rotatie (zuinig op Chromebooks en het bord).
   function teken() {
     pot = rad();
-    const W = canvas.width, R = W / 2 - 8;
+    const W = canvas.width, RAND = 34, R = W / 2 - RAND - 6;
     ctx.clearRect(0, 0, W, W);
     ctx.save();
     ctx.translate(W / 2, W / 2);
     const n = Math.max(pot.length, 1);
     const stuk = Math.PI * 2 / n;
-    const fs = Math.max(13, Math.min(40, 820 / n));
+    const fs = Math.max(13, Math.min(38, 760 / n));
     for (let i = 0; i < n; i++) {
       const a = -Math.PI / 2 + i * stuk;
       ctx.beginPath();
       ctx.moveTo(0, 0);
       ctx.arc(0, 0, R, a, a + stuk);
       ctx.closePath();
-      ctx.fillStyle = pot.length ? `rgb(${KLEUREN[i % KLEUREN.length]} / ${i % 2 ? .62 : .82})` : 'rgb(42 51 80)';
+      // Elk vak als een edelsteen: donker in het midden, licht aan de rand.
+      const kleur = pot.length ? KLEUREN[(i + (n % KLEUREN.length === 1 && i === n - 1 ? 1 : 0)) % KLEUREN.length] : ['#2a3350', '#1b2238'];
+      const gr = ctx.createRadialGradient(0, 0, R * .15, 0, 0, R);
+      gr.addColorStop(0, kleur[1]);
+      gr.addColorStop(1, kleur[0]);
+      ctx.fillStyle = gr;
       ctx.fill();
-      ctx.strokeStyle = 'rgb(6 10 19 / .8)';
-      ctx.lineWidth = 3;
-      ctx.stroke();
       if (!pot.length) continue;
       ctx.save();
       ctx.rotate(a + stuk / 2);
-      ctx.fillStyle = '#06101f';
       ctx.font = `800 ${fs}px "Exo 2", sans-serif`;
       ctx.textAlign = 'right';
       ctx.textBaseline = 'middle';
       let naam = pot[i].naam;
-      while (ctx.measureText(naam).width > R - 90 && naam.length > 3) naam = naam.slice(0, -2) + '…';
-      ctx.fillText(naam, R - 22, 1);
+      while (ctx.measureText(naam).width > R - 110 && naam.length > 3) naam = naam.slice(0, -2) + '…';
+      ctx.lineWidth = Math.max(3, fs * .18);
+      ctx.strokeStyle = 'rgba(6,10,20,.75)';
+      ctx.lineJoin = 'round';
+      ctx.strokeText(naam, R - 24, 1);
+      ctx.fillStyle = '#fffaf0';
+      ctx.fillText(naam, R - 24, 1);
       ctx.restore();
     }
-    ctx.beginPath();
-    ctx.arc(0, 0, R, 0, Math.PI * 2);
-    ctx.lineWidth = 10;
-    ctx.strokeStyle = '#ffc94a';
-    ctx.stroke();
-    for (let i = 0; i < 24; i++) {
-      const a = i * Math.PI / 12;
+    // Gouden spaken tussen de vakken
+    if (pot.length > 1) {
+      ctx.strokeStyle = '#e8b84a';
+      ctx.lineWidth = Math.max(1.5, 5 - n / 10);
       ctx.beginPath();
-      ctx.arc(Math.cos(a) * R, Math.sin(a) * R, 4, 0, Math.PI * 2);
-      ctx.fillStyle = '#fff4c8';
-      ctx.fill();
+      for (let i = 0; i < n; i++) { const a = -Math.PI / 2 + i * stuk; ctx.moveTo(Math.cos(a) * R * .2, Math.sin(a) * R * .2); ctx.lineTo(Math.cos(a) * R, Math.sin(a) * R); }
+      ctx.stroke();
+    }
+    // Glans over het hele rad
+    const glans = ctx.createLinearGradient(-R, -R, R, R);
+    glans.addColorStop(0, 'rgba(255,255,255,.18)');
+    glans.addColorStop(.45, 'rgba(255,255,255,0)');
+    glans.addColorStop(1, 'rgba(0,0,0,.25)');
+    ctx.fillStyle = glans;
+    ctx.beginPath(); ctx.arc(0, 0, R, 0, Math.PI * 2); ctx.fill();
+    // De rand: donker staal tussen twee gouden ringen, met lampjes.
+    ctx.lineWidth = RAND;
+    ctx.strokeStyle = '#141a2b';
+    ctx.beginPath(); ctx.arc(0, 0, R + RAND / 2, 0, Math.PI * 2); ctx.stroke();
+    for (const [rr, lw] of [[R + 2, 6], [R + RAND, 7]]) {
+      ctx.lineWidth = lw;
+      ctx.strokeStyle = '#ffc94a';
+      ctx.beginPath(); ctx.arc(0, 0, rr, 0, Math.PI * 2); ctx.stroke();
+    }
+    for (let i = 0; i < 32; i++) {
+      const a = i * Math.PI / 16, x = Math.cos(a) * (R + RAND / 2), y = Math.sin(a) * (R + RAND / 2);
+      Glow.glow(ctx, x, y, 22, i % 2 ? '#ffd76a' : '#5ee7ff', .7);
+      ctx.fillStyle = i % 2 ? '#fff4c8' : '#c8f6ff';
+      ctx.beginPath(); ctx.arc(x, y, 6, 0, Math.PI * 2); ctx.fill();
     }
     ctx.restore();
     const totaal = aanwezigen().length;
@@ -182,6 +207,7 @@ const Lot = (() => {
     $('lot-naam').textContent = l.naam;
     $('lot-uitslag').classList.add('raak');
     sfx.good();
+    confetti(2500);
     if ($('lot-eruit').checked && !geweest.ids.includes(l.id)) {
       geweest.ids.push(l.id);
       bewaar('lancelot-wk-lot', geweest);
@@ -203,6 +229,8 @@ const Lot = (() => {
 const Banieren = (() => {
   const NAMEN = ['De Draken', 'De Griffioenen', 'De Leeuwen', 'De Wolven', 'De Valken', 'De Eenhoorns', 'De Feniksen', 'De Beren', 'De Adelaars', 'De Uilen', 'De Vossen', 'De Herten'];
   const KLEUREN = ['rood', 'cyan', 'goud', 'groen', 'paars', 'oranje', 'blauw', 'rood-l', 'cyan-l', 'goud-l', 'groen', 'paars'];
+  // Heraldische kleuren voor het doek: [licht, donker].
+  const BAN_KLEUR = { rood: ['#c0183c', '#5e0a1d'], cyan: ['#1590c9', '#0a3d5c'], goud: ['#d99a1c', '#5c3a05'], groen: ['#12996c', '#053d2b'], paars: ['#7c45d0', '#2a1050'], oranje: ['#d9621a', '#5a2405'], blauw: ['#2a5fd0', '#0c2260'], 'rood-l': ['#c93aa8', '#4a0c3c'], 'cyan-l': ['#16b3c9', '#053e48'], 'goud-l': ['#b8a03a', '#4a3a08'] };
   let groepen = bewaarLees('lancelot-wk-groepen', []);
   let gekozen = null; // [groep, plaats] van de eerste naam bij het wisselen
 
@@ -249,16 +277,24 @@ const Banieren = (() => {
   function teken(nieuw) {
     const perId = Object.fromEntries(klas.leerlingen.map(l => [l.id, l]));
     const toonNiveau = $('ban-verdeling').value !== 'los';
-    $('ban-raster').innerHTML = groepen.map((g, k) => `
-      <div class="ban ${nieuw ? 'hijs' : ''}" style="--ban: var(--k-${g.kleur}); animation-delay: ${k * 70}ms">
-        <div class="ban-doek"><strong>${esc(g.naam)}</strong><span>${g.leden.length}</span></div>
-        <ul>${g.leden.map((id, p) => {
-          const l = perId[id];
-          if (!l) return '';
-          const sel = gekozen && gekozen[0] === k && gekozen[1] === p;
-          return `<li><button data-g="${k}" data-p="${p}" class="${sel ? 'sel' : ''}">${toonNiveau ? `<i title="${Niveau.NAMES[niveauVan(l)]}">${Niveau.ICONS[niveauVan(l)]}</i> ` : ''}${esc(l.naam)}</button></li>`;
-        }).join('')}</ul>
-      </div>`).join('');
+    $('ban-raster').innerHTML = groepen.map((g, k) => {
+      const [licht, donker] = BAN_KLEUR[g.kleur] || BAN_KLEUR.rood;
+      return `
+      <div class="ban ${nieuw ? 'hijs' : ''}" style="--ban: ${licht}; --ban-d: ${donker}; animation-delay: ${k * 90}ms">
+        <div class="ban-ringen" aria-hidden="true"><i></i><i></i></div>
+        <div class="ban-doek">
+          <div class="ban-wapen">${ICONS[k % ICONS.length]}</div>
+          <strong>${esc(g.naam)}</strong>
+          <ul>${g.leden.map((id, p) => {
+            const l = perId[id];
+            if (!l) return '';
+            const sel = gekozen && gekozen[0] === k && gekozen[1] === p;
+            return `<li><button data-g="${k}" data-p="${p}" class="${sel ? 'sel' : ''}">${toonNiveau ? `<i title="${Niveau.NAMES[niveauVan(l)]}">${Niveau.ICONS[niveauVan(l)]}</i> ` : ''}${esc(l.naam)}</button></li>`;
+          }).join('')}</ul>
+        </div>
+      </div>`;
+    }).join('');
+    $('ban-balk').classList.toggle('hidden', !groepen.length);
     $('ban-tip').classList.toggle('hidden', !groepen.length);
   }
 
@@ -417,7 +453,7 @@ const Wachtlijst = (() => {
     $('wl-week').textContent = `Week van ${maandag(new Date()).toLocaleDateString('nl-BE', { day: 'numeric', month: 'long' })}`;
     $('wl-raster').innerHTML = !klas.leerlingen.length ? '' : !data.taken.length
       ? '<div class="leeg"><p>Nog geen klastaken.</p><p class="muted small">Klik op Taken aanpassen.</p></div>'
-      : verdeling().map((t, i) => `<div class="wl-taak" style="animation-delay:${i * 50}ms"><div class="wl-taak-naam">${esc(t.naam)}</div><div class="wl-taak-wie">${t.namen.map(esc).join('<br>') || '<span class="muted">niemand</span>'}</div></div>`).join('');
+      : verdeling().map((t, i) => `<div class="wl-taak" style="animation-delay:${i * 50}ms; --kantel:${((i * 37) % 7 - 3) * .6}deg"><i class="wl-nagel" aria-hidden="true"></i><div class="wl-taak-naam">${esc(t.naam)}</div><div class="wl-taak-wie">${t.namen.map(esc).join('<br>') || '<span class="muted">niemand</span>'}</div></div>`).join('');
     $('wl-editor').classList.toggle('hidden', !bewerken);
     if (bewerken) {
       $('wl-rijen').innerHTML = data.taken.map((t, i) => `<div class="wl-rij" data-i="${i}">
@@ -637,6 +673,24 @@ const Licht = (() => {
   $('hr-bewerk').addEventListener('click', () => { $('hr-bord').classList.add('hidden'); $('hr-maak').classList.remove('hidden'); tekenVorige(); });
   $('hr-vorige').addEventListener('click', e => { const b = e.target.closest('[data-i]'); if (b) $('hr-tekst').value = vorige[+b.dataset.i]; });
   tekenVorige();
+})();
+
+// ---------- De zaal ----------
+// Eén keer tekenen per schermgrootte (niet groter dan nodig), de fakkels zijn CSS-vlammen.
+(() => {
+  const doek = $('wk-zaal');
+  let wacht = null;
+  function teken() {
+    const k = Math.min(window.devicePixelRatio || 1, 1.5);
+    const w = Math.min(3000, Math.round(innerWidth * k)), h = Math.round(innerHeight * k);
+    const { canvas, fakkels } = WkArt.zaal(w, h);
+    doek.width = w;
+    doek.height = h;
+    doek.getContext('2d').drawImage(canvas, 0, 0);
+    $('wk-vlammen').innerHTML = fakkels.map(([x, y], i) => `<i style="left:${x * 100}%;top:${y * 100}%;animation-delay:-${i * .37}s"></i>`).join('');
+  }
+  addEventListener('resize', () => { clearTimeout(wacht); wacht = setTimeout(teken, 200); });
+  teken();
 })();
 
 open();
