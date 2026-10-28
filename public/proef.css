@@ -1,0 +1,226 @@
+/* De Proef: toetsen maken, afnemen en verbeteren. Alleen geladen op de toetspagina's (proef.html, toets.html, proef-print.html).
+   Kleuren van het scherm komen uit de themavariabelen (--k-*); het papier van de toets is altijd perkament, zoals bij oefenbladen. */
+
+.small-btn { padding: 5px 10px; font-size: .85rem; }
+button.link { background: none; box-shadow: none; clip-path: none; color: var(--cyan); padding: 0; font-weight: 700; text-decoration: underline; }
+
+/* ---------- Lijst en instellingen ---------- */
+.pf-inst h3 { margin: 0; }
+.pf-checks { display: flex; flex-wrap: wrap; gap: 6px 18px; }
+.pf-afnames { margin-top: 16px; display: flex; flex-direction: column; gap: 8px; }
+.pf-afnames h3 { margin: 0; }
+.pf-afname { display: flex; gap: 8px; align-items: stretch; }
+.pf-afname .play { flex: 1; clip-path: none; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; text-align: left; padding: 10px 14px; background: rgb(var(--k-panel) / .7); color: var(--text); box-shadow: inset 0 0 0 1px var(--line); }
+.pf-afname .tag { margin-left: auto; font-size: .78rem; font-style: normal; padding: 2px 10px; border-radius: 999px; }
+.pf-afname .tag.todo { background: rgb(var(--k-goud) / .18); color: rgb(var(--k-goud-l)); }
+.pf-afname .tag.ok { background: rgb(var(--k-groen) / .16); color: rgb(var(--k-groen)); }
+
+/* ---------- Maker ---------- */
+.pf-modus { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; }
+.form label.pf-modus-k { flex-direction: row; align-items: flex-start; gap: 10px; padding: 12px 14px; background: rgb(var(--k-cyan) / .06); box-shadow: inset 0 0 0 1px var(--line); cursor: pointer; }
+.pf-modus-k:has(input:checked) { box-shadow: inset 0 0 0 2px rgb(var(--k-goud)); background: rgb(var(--k-goud) / .08); }
+.pf-modus-k input { margin-top: 4px; width: 18px; height: 18px; flex: none; }
+.pf-modus-k span { display: flex; flex-direction: column; gap: 2px; }
+.pf-modus-k small { color: var(--muted); font-weight: 400; }
+.pf-drop { border: 2px dashed rgb(var(--k-cyan) / .35); padding: 12px 14px; }
+.pf-drop.over { border-color: rgb(var(--k-goud)); background: rgb(var(--k-goud) / .08); }
+
+/* ---------- Editor ---------- */
+.pf-totaal { margin: 0; color: var(--muted); font-weight: 700; }
+.pf-vragen { display: flex; flex-direction: column; gap: 12px; }
+.pf-kaart-edit { display: flex; flex-direction: column; gap: 8px; }
+.pf-kaart-edit.bron { box-shadow: inset 0 0 0 1px rgb(var(--k-goud) / .5); }
+.pf-kaart-edit.deel { background: rgb(var(--k-bg) / .45); }
+.pf-k-body { display: flex; flex-direction: column; gap: 8px; }
+.pf-k-body label { display: flex; flex-direction: column; gap: 4px; }
+.pf-k-body label.inline { flex-direction: row; align-items: center; gap: 8px; }
+.pf-k-body .row { display: flex; flex-wrap: wrap; gap: 10px; }
+.pf-k-body .row label { flex: 1 1 140px; }
+.pf-k-onder { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 18px; }
+.pf-k-onder input[type="number"] { width: 5.5em; }
+.pf-beeld-rij { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.pf-beeld-rij img { max-height: 70px; max-width: 160px; border-radius: 4px; box-shadow: 0 0 0 1px var(--line); background: #fff; }
+.pf-beeld-rij .file-button { display: inline-flex; align-items: center; cursor: pointer; }
+.pf-nodig { font-size: .85rem; color: rgb(var(--k-goud-l)); background: rgb(var(--k-goud) / .12); padding: 3px 8px; border-radius: 6px; }
+.pf-opties { display: flex; flex-direction: column; gap: 6px; }
+.pf-optie { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.pf-k-body label.pf-juist { flex-direction: row; align-items: center; gap: 4px; font-size: .85rem; color: var(--muted); }
+.pf-optie-tekst { flex: 1 1 180px; }
+.pf-optie-beeld .pf-beeld-rij img { max-height: 40px; }
+.pf-optie-beeld .pf-beeld-rij .knip, .pf-optie-beeld .pf-beeld-rij .file-button { padding: 3px 7px; font-size: .78rem; }
+.pf-deelvragen { display: flex; flex-direction: column; gap: 10px; padding-left: 12px; border-left: 3px solid rgb(var(--k-goud) / .45); }
+.pf-deel-add { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.pf-zone-edit .pf-kaart { max-width: 520px; cursor: crosshair; }
+.pf-bijsturen { box-shadow: inset 0 0 0 1px rgb(var(--k-paars) / .5); }
+.pf-bijsturen h3 { margin: 0; }
+.pf-problemen { padding: 10px 14px; background: rgb(var(--k-goud) / .12); box-shadow: inset 0 0 0 1px rgb(var(--k-goud) / .45); color: var(--text); }
+.pf-problemen ul { margin: 6px 0 0; padding-left: 1.2em; }
+.pf-editor .ob-preview-col { position: sticky; top: 10px; max-height: calc(100vh - 20px); overflow-y: auto; }
+
+/* ---------- Het papier van de toets ---------- */
+.pf-paper .pf-page { margin: 0 0 22px; }
+.pf-paper .pf-page:last-child { margin-bottom: 0; }
+.pf-q { margin: 0 0 18px; }
+.pf-q:last-child { margin-bottom: 0; }
+.pf-q h3 { margin: 0 0 8px; font-size: 1.08rem; font-family: var(--body); font-weight: 700; color: #2a3350; display: flex; gap: 8px; align-items: baseline; }
+.pf-nr { flex: none; display: inline-grid; place-items: center; min-width: 1.8em; height: 1.8em; padding: 0 4px; border-radius: 50%; background: #2a3350; color: #fbf7ec; font-size: .85rem; font-weight: 800; }
+.pf-nr:empty { display: none; }
+.pf-vraag { flex: 1; }
+.pf-ptn { flex: none; font-size: .8rem; color: #8a7a55; font-weight: 700; white-space: nowrap; }
+.pf-ptn b { color: #1a6e4e; }
+.pf-beeld { display: block; max-width: 100%; max-height: 360px; margin: 6px 0 10px; border-radius: 4px; box-shadow: 0 0 0 1px #d8cdb2; background: #fff; }
+.pf-beeld.klein { max-height: 180px; }
+.pf-tip { margin: 0 0 6px; font-size: .88rem; color: #6b5d3d; font-style: italic; }
+.pf-keuzes { display: flex; flex-direction: column; gap: 8px; }
+.pf-keuzes.jf { flex-direction: row; flex-wrap: wrap; }
+.pf-keuzes.met-beeld { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+.pf-keuze { clip-path: none; display: flex; align-items: center; gap: 10px; padding: 10px 14px; min-height: 48px; font-size: 1rem; font-weight: 600; background: #fff; color: #1d2433; box-shadow: inset 0 0 0 1.5px #b9ab88; text-align: left; justify-content: flex-start; }
+.pf-keuze b { color: #8a7a55; }
+.pf-keuze img { max-height: 110px; max-width: 100%; border-radius: 3px; }
+.met-beeld .pf-keuze { flex-direction: column; align-items: flex-start; }
+.pf-keuze.on { background: #2a3350; color: #fbf7ec; box-shadow: inset 0 0 0 2px #2a3350; }
+.pf-keuze.on b { color: #ffd98a; }
+.pf-keuze:disabled { opacity: 1; cursor: default; }
+.pf-gaten { margin: 0; line-height: 2.2; }
+.pf-kort { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 4px 0 0; }
+.pf-kort input { flex: 0 1 260px; }
+.pf-paper .pf-werk { display: flex; flex-direction: column; gap: 4px; font-size: .92rem; color: #4a4030; }
+.pf-paper textarea.ob-field, .pf-paper input.ob-field { font-family: inherit; }
+.pf-orden { margin: 0; padding-left: 0; list-style: none; counter-reset: pf-orden; display: flex; flex-direction: column; gap: 6px; }
+.pf-orden li::before { counter-increment: pf-orden; content: counter(pf-orden) '.'; font-weight: 700; color: #8a7a55; min-width: 1.4em; }
+.pf-orden li { display: flex; align-items: center; gap: 6px; padding: 6px 8px; background: #fff; box-shadow: inset 0 0 0 1.5px #b9ab88; }
+.pf-orden li span { flex: 1; }
+.pf-orden li button { padding: 4px 10px; min-width: 40px; background: #efe6cf; color: #2a3350; box-shadow: inset 0 0 0 1px #b9ab88; clip-path: none; }
+.pf-tabel-wrap { overflow-x: auto; }
+.pf-tabel { border-collapse: collapse; margin: 4px 0; }
+.pf-tabel th, .pf-tabel td { border: 1.5px solid #b9ab88; padding: 6px 10px; text-align: center; min-width: 4em; }
+.pf-tabel th { background: #efe6cf; }
+.pf-tabel td input { width: 100%; min-width: 4em; text-align: center; }
+.pf-tabel td.pf-leeg { height: 2em; }
+.pf-kaart { position: relative; max-width: 640px; overflow: hidden; border-radius: 4px; box-shadow: 0 0 0 1.5px #b9ab88; background: #fff; user-select: none; }
+.pf-kaart img { display: block; width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
+.pf-kaart.live { cursor: crosshair; touch-action: manipulation; }
+.pf-zone { position: absolute; aspect-ratio: 1; transform: translate(-50%, -50%); border-radius: 50%; border: 3px solid #1a9e6e; background: rgba(46, 230, 166, .25); }
+.pf-kaart.edit .pf-zone { cursor: pointer; }
+.pf-pin { position: absolute; width: 26px; height: 26px; transform: translate(-50%, -50%); border-radius: 50%; border: 3px solid #fff; background: #d6334f; box-shadow: 0 0 0 2px #d6334f, 0 2px 8px rgba(0, 0, 0, .5); pointer-events: none; }
+.pf-papier { margin: 4px 0 0; padding: 10px 14px; background: #efe6cf; border-left: 4px solid #c49a3a; }
+.pf-sleutel { margin: 8px 0 0; color: #c8102e; font-weight: 700; font-size: .92rem; }
+.pf-bron-page { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 22px; align-items: start; }
+.pf-bron { padding: 12px 16px; background: #f1e8d2; border-left: 4px solid #c49a3a; max-height: 75vh; overflow-y: auto; }
+.pf-bron h3 { margin: 0 0 8px; font-family: var(--head); color: #2a3350; }
+.pf-bron p { margin: 0 0 10px; }
+.pf-say { margin-right: 2px; }
+@media (max-width: 760px) {
+  .pf-bron-page { grid-template-columns: 1fr; }
+  .pf-bron { max-height: none; }
+}
+
+/* ---------- De leerling ---------- */
+body.pf-leerling main.player { max-width: 1100px; }
+.pf-intro { max-width: 640px; margin: 24px auto; display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; }
+.pf-icoon { width: 110px; height: 110px; object-fit: contain; }
+.pf-wie { margin: 0; font-weight: 700; color: var(--muted); }
+.pf-regels { text-align: left; margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap: 6px; }
+.pf-balk { position: sticky; top: 0; z-index: 5; display: flex; align-items: center; gap: 12px; padding: 8px 12px; background: rgb(var(--k-bg2) / .95); box-shadow: 0 1px 0 var(--line); font-weight: 700; }
+.pf-naam { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pf-tijd { font-variant-numeric: tabular-nums; padding: 2px 10px; border-radius: 999px; background: rgb(var(--k-cyan) / .12); }
+.pf-tijd.bijna { background: rgb(var(--k-rood) / .25); color: rgb(var(--k-rood-l)); }
+.pf-bolletjes { display: flex; flex-wrap: wrap; gap: 6px; padding: 10px 2px; }
+.pf-bol { clip-path: none; width: 34px; height: 34px; padding: 0; border-radius: 50%; font-size: .85rem; background: rgb(var(--k-panel)); color: var(--muted); box-shadow: inset 0 0 0 1.5px var(--line); }
+.pf-bol.half { box-shadow: inset 0 0 0 2px rgb(var(--k-goud)); color: var(--text); }
+.pf-bol.ok { background: rgb(var(--k-cyan) / .25); color: var(--text); box-shadow: inset 0 0 0 2px var(--cyan); }
+.pf-bol.nu { background: rgb(var(--k-goud)); color: rgb(var(--k-op-goud)); box-shadow: none; }
+.pf-bol:disabled { opacity: .4; }
+.pf-paper { min-height: 40vh; }
+.pf-nav { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 0 28px; }
+.pf-nav .error { flex: 1; text-align: center; margin: 0; }
+.pf-nav button { min-width: 140px; }
+.pf-klaar-mark { font-size: 4rem; color: var(--good); }
+.pf-slot { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; padding: 16px; background: rgb(var(--k-bg) / .96); }
+.pf-slot.hidden { display: none; }
+.pf-slot .panel { max-width: 520px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 28px 24px; }
+.pf-slot h2 { margin: 0; }
+.pf-slot-icoon { font-size: 3.4rem; }
+body.pf-leerling .pf-paper { user-select: none; -webkit-user-select: none; }
+body.pf-leerling .pf-paper input, body.pf-leerling .pf-paper textarea { user-select: text; -webkit-user-select: text; }
+@media (max-width: 600px) {
+  .pf-nav button { min-width: 0; flex: 1; }
+  .pf-balk { gap: 8px; font-size: .9rem; }
+}
+
+/* ---------- Afnemen (bord) ---------- */
+.pf-leerlingen { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; }
+.pf-lln { display: flex; flex-direction: column; gap: 5px; padding: 12px 14px; background: var(--panel); box-shadow: inset 0 0 0 1px var(--line); cursor: pointer; }
+.pf-lln:hover { box-shadow: inset 0 0 0 1px var(--cyan); }
+.pf-lln .n { font-weight: 800; font-size: 1.05rem; }
+.pf-lln .st { font-size: .85rem; font-weight: 700; color: var(--muted); }
+.pf-lln .bar { height: 6px; background: rgb(var(--k-wit) / .1); }
+.pf-lln .bar i { display: block; height: 100%; background: linear-gradient(90deg, var(--cyan), var(--good)); transition: width .4s; }
+.pf-lln .info { font-size: .8rem; color: var(--muted); }
+.pf-lln .weg { font-size: .8rem; font-weight: 700; color: rgb(var(--k-goud-l)); }
+.pf-lln.bezig .st { color: var(--cyan); }
+.pf-lln.klaar { box-shadow: inset 0 0 0 1px rgb(var(--k-groen) / .6); }
+.pf-lln.klaar .st { color: var(--good); }
+.pf-lln.weg { box-shadow: inset 0 0 0 2px rgb(var(--k-goud)); }
+.pf-lln.slot { box-shadow: inset 0 0 0 2px var(--bad); background: rgb(var(--k-rood) / .12); animation: pf-knipper 1.6s ease-in-out infinite; }
+.pf-lln.slot .st { color: rgb(var(--k-rood-l)); }
+.pf-lln.offline { opacity: .6; }
+@keyframes pf-knipper { 50% { background: rgb(var(--k-rood) / .22); } }
+@media (prefers-reduced-motion: reduce) { .pf-lln.slot { animation: none; } }
+.pf-alarm { color: rgb(var(--k-rood-l)) !important; font-weight: 800; font-size: 1rem !important; }
+.pf-einde { margin-top: 14px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
+.pf-einde p { margin: 0; }
+.pf-events { padding: 8px 12px; background: rgb(var(--k-panel)); box-shadow: inset 0 0 0 1px var(--line); font-size: .9rem; }
+
+/* ---------- Verbeteren ---------- */
+.pf-tabs { display: flex; gap: 6px; margin: 10px 0; }
+.pf-tabs button.on { background: rgb(var(--k-goud)); color: rgb(var(--k-op-goud)); }
+#v-vragen { display: flex; flex-direction: column; gap: 14px; }
+.pf-vg h3 { margin: 0 0 6px; }
+.pf-vg-vraag { margin: 0 0 6px; font-weight: 700; }
+.pf-vg .pf-sleutel { color: rgb(var(--k-groen)); }
+.pf-bron-kort { margin: 0 0 6px; font-size: .9rem; color: var(--muted); }
+.pf-vg-lijst { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
+.pf-vg-rij { display: grid; grid-template-columns: 130px minmax(0, 1fr) auto; gap: 10px; align-items: start; padding: 8px 10px; background: rgb(var(--k-bg) / .4); }
+.pf-vg-rij .naam { font-weight: 800; }
+.pf-vg-rij .antw { white-space: normal; word-break: break-word; }
+.pf-vg-rij .antw p { margin: 4px 0 0; }
+.pf-werk-antw { font-family: ui-monospace, Consolas, monospace; font-size: .92rem; }
+.pf-punten { display: flex; flex-wrap: wrap; gap: 4px; justify-content: flex-end; max-width: 300px; }
+.pf-punten button { padding: 5px 10px; min-width: 38px; font-size: .9rem; }
+.pf-punten button.on { background: rgb(var(--k-groen)); color: rgb(var(--k-zwart)); box-shadow: none; }
+.pf-resultaten { border-collapse: collapse; width: 100%; }
+.pf-resultaten th, .pf-resultaten td { padding: 8px 10px; text-align: left; border-bottom: 1px solid var(--line); }
+@media (max-width: 700px) {
+  .pf-vg-rij { grid-template-columns: 1fr; }
+  .pf-punten { justify-content: flex-start; }
+}
+
+/* ---------- Knippen ---------- */
+.pf-knip { max-width: 1100px; background: var(--panel-solid); padding: 14px; }
+.pf-knip-balk { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.pf-knip-vlak { position: relative; min-height: 240px; max-height: 68vh; overflow: auto; background: rgb(var(--k-bg)); display: grid; place-items: start center; touch-action: none; cursor: crosshair; }
+.pf-knip-vlak canvas { width: 100%; height: auto; display: block; }
+.pf-knip-vlak #k-leeg { place-self: center; padding: 30px; text-align: center; }
+.pf-kader { position: absolute; border: 2px dashed rgb(var(--k-goud)); background: rgb(var(--k-goud) / .15); box-shadow: 0 0 0 9999px rgb(var(--k-zwart) / .35); pointer-events: none; }
+.pf-knip-knoppen { justify-content: flex-end; }
+
+/* ---------- Afdrukken ---------- */
+.pf-print .pf-q { break-inside: avoid; }
+.pf-print .pf-bron-page { grid-template-columns: 1fr; }
+.pf-print .pf-bron { max-height: none; }
+.pf-intro-print { margin: 6px 0 0; font-style: italic; }
+.pf-keuze-print { display: flex; align-items: center; gap: 6px; margin: 4px 0; }
+.pf-keuze-print img { max-height: 90px; }
+.pf-antwoordlijn { display: flex; align-items: baseline; gap: 8px; margin: 8px 0 0; }
+.pf-werkvak { min-height: 7em; margin: 6px 0; padding: 6px 8px; border: 1.5px solid #999; color: #777; font-size: .85rem; }
+.pf-werkvak.groot { min-height: 12em; }
+.pf-orden-print { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
+@media print {
+  .pf-print .pf-nr { background: #fff; color: #111; border: 1.5px solid #111; }
+  .pf-print .pf-bron { background: none; }
+  .pf-print .pf-kaart { box-shadow: 0 0 0 1px #777; }
+}
+
+#pf-volgende { margin-left: auto; }
+#verbeter { padding-bottom: 90px; }

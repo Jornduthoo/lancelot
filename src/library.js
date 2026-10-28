@@ -1,4 +1,4 @@
-// Mappen en uitwisselen, samen voor quizzen, oefenbladen en Ronde Tafel-sessies.
+// Mappen en uitwisselen, samen voor quizzen, oefenbladen, Ronde Tafel-sessies en toetsen.
 // Mappen (ook mappen in mappen) bestaan alleen in _mappen.json in de eigen map: de bestanden zelf blijven op hun plaats.
 // Exporteren geeft één JSON-bestand met een of meer items (en hun map), dat je op een andere pc weer importeert.
 const fs = require('fs');
@@ -8,6 +8,7 @@ const KINDS = {
   quiz: { one: 'quiz', many: 'quizzen', waar: 'De Smidse > Mijn quizzen' },
   oefenblad: { one: 'oefenblad', many: 'oefenbladen', waar: 'De Smidse > Mijn oefenbladen' },
   sessie: { one: 'sessie', many: 'sessies', waar: 'De Ronde Tafel' },
+  proef: { one: 'toets', many: 'toetsen', waar: 'De Smidse > Mijn toetsen' },
 };
 const MAX_IMPORT = 2000;
 const MAX_DEPTH = 6;
@@ -17,7 +18,7 @@ function slug(text, fallback) {
     .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 50) || fallback;
 }
 
-// kind: 'quiz', 'oefenblad' of 'sessie'. checkFile, load, save, validate en list komen uit de module zelf.
+// kind: 'quiz', 'oefenblad', 'sessie' of 'proef' (een toets). checkFile, load, save, validate en list komen uit de module zelf.
 function library({ kind, dir, checkFile, load, save, validate, list }) {
   const META = path.join(dir, '_mappen.json');
   const words = KINDS[kind];

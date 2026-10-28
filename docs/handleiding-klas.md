@@ -309,6 +309,18 @@ Een klasgesprek waarin iedereen om de beurt spreekt. Klik op het startscherm op 
 
 Liever op papier? Klik bij een blad op **🖨 Print** voor het werkblad en op **Verbeterblad** voor de oplossingen. Via **Werkblad maken** op het startscherm laat je AI meteen een nieuw blad maken.
 
+## De Proef: toetsen met AI
+
+Maak een toets uit je eigen toets-pdf en neem hem beveiligd af op de Chromebooks.
+
+1. Klik in **De Smidse** op **Nieuwe toets met AI**. Sleep je pdf (of foto's) erin, of beschrijf de toets in een paar zinnen. Met een eigen AI-sleutel maakt LANcelot de toets meteen; zonder sleutel kopieer je de prompt naar een chatbot en kopieer je het antwoord terug.
+2. Pas alles aan in de editor: vragen, punten, antwoorden, niveaus. Met **Pas aan met AI** vraag je een wijziging in gewone taal ("maak vraag 3 moeilijker"). Afbeeldingen knip je zelf uit de pdf met ✂: ze worden kleine bestandjes.
+3. Vraagsoorten: meerkeuze, juist/fout, invullen, kort antwoord, rekenvraag met bewerking, verbinden, ordenen, tabel, aanduiden op een afbeelding, open vraag, bron met deelvragen en een opdracht op papier.
+4. Klik op **Afnemen**. Kies of de vragen geschud worden, of leerlingen terug mogen, een tijdslimiet en wat er gebeurt als iemand de toets verlaat (op slot of enkel melden). De leerlingen gaan naar het gewone adres en komen vanzelf bij de toets.
+5. Verlaat een leerling het scherm of het tabblad, dan zie je dat meteen op het bord en geef je de toets weer vrij. Eerlijk is eerlijk: een gewone Chromebook kan je niet helemaal op slot zetten, enkel in kioskmodus. LANcelot merkt het wel altijd op en schrijft het op.
+6. Na de toets verbeter je open vragen en papieren opdrachten per vraag. Klik **Klaar met verbeteren**: de punten gaan naar het logboek en naar Excel.
+7. Afdrukken kan ook: de toets op papier en een verbetersleutel per niveau.
+
 ## Een hele reeks met AI
 
 Per les een quiz en een oefenblad op 🪶 Page, 🛡️ Schildknaap en ⚔️ Ridder, voor een heel blok of een heel jaar in één keer.

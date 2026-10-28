@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LANcelot · Toets afdrukken</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/proef.css">
+</head>
+<body class="ob-print">
+  <div class="ob-print-bar">
+    <span id="p-what">Toets</span>
+    <span class="ob-niveau-tabs hidden" id="p-niveaus"></span>
+    <button id="p-print">🖨 Afdrukken of opslaan als pdf</button>
+    <button class="secondary" id="p-close">Sluiten</button>
+  </div>
+  <div id="p-papers"><article class="ob-paper ob-sheet-print"><p>Even laden…</p></article></div>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/ui.js"></script>
+<script src="/js/niveau.js"></script>
+<script src="/js/pf-kern.js"></script>
+<script src="/js/pf-paper.js"></script>
+<script>
+// Een toets op papier, of de verbetersleutel met de antwoorden in het rood. Per niveau een eigen blad.
+const socket = io({ query: { role: 'host' } });
+const params = new URLSearchParams(location.search);
+const key = params.get('sleutel') === '1';
+const file = params.get('file');
+document.getElementById('p-what').textContent = key ? 'Verbetersleutel' : 'Toets voor de leerlingen';
+let toets = null;
+
+function teken(niveau) {
+  const box = document.getElementById('p-papers');
+  const niveaus = PfKern.niveausVan(toets);
+  const multi = niveaus.length > 1;
+  const kies = niveau === 'alle' ? niveaus : [niveaus.includes(niveau) ? niveau : 'schildknaap'];
+  const bar = document.getElementById('p-niveaus');
+  bar.classList.toggle('hidden', !multi);
+  if (multi) {
+    bar.innerHTML = [...niveaus.map(n => [n, Niveau.label(n)]), ['alle', 'Alle drie']]
+      .map(([n, label]) => `<button type="button" class="secondary${n === (niveau === 'alle' ? 'alle' : kies[0]) ? ' on' : ''}" data-niveau="${n}">${label}</button>`).join('');
+    for (const b of bar.querySelectorAll('button')) b.addEventListener('click', () => teken(b.dataset.niveau));
+  }
+  box.innerHTML = '';
+  for (const n of kies) {
+    const lijst = PfKern.lijstVoor(toets, n);
+    const v = PfKern.studentView(toets, lijst);
+    const sleutel = {};
+    const zones = {};
+    if (key) for (const { id, q } of PfKern.vragenVan(lijst)) {
+      sleutel[id] = PfKern.oplossing(q) || ' ';
+      if (q.type === 'aanduiden') zones[id] = q.zones;
+    }
+    const paper = document.createElement('article');
+    paper.className = 'ob-paper ob-sheet-print pf-paper pf-print';
+    paper.innerHTML = `<header class="ob-head"><h1>${PfPaper.esc(toets.title)}${multi ? ` <span class="ob-niveau-tag ${n}">${Niveau.label(n)}</span>` : ''}${key ? ' <span class="ob-key-tag">verbetersleutel</span>' : ''}</h1>
+      <div class="ob-meta"><span>Naam: <i></i></span><span>Klas: <i class="short"></i></span><span>Datum: <i class="short"></i></span><span>Punten: <i class="short"></i> / ${PfPaper.nl(v.totaal)}</span></div>
+      ${toets.intro ? `<p class="pf-intro-print">${PfPaper.esc(toets.intro)}</p>` : ''}</header><div class="pf-vragen-print"></div>`;
+    box.appendChild(paper);
+    PfPaper.render(paper.querySelector('.pf-vragen-print'), v.pages, { mode: 'print', nummer: true, sleutel: key ? sleutel : null, zones });
+  }
+  document.title = `${toets.title}${multi && niveau !== 'alle' ? ` (${Niveau.NAMES[kies[0]]})` : ''}${key ? ' (verbetersleutel)' : ''}`;
+  const url = new URL(location.href);
+  url.searchParams.set('niveau', niveau === 'alle' ? 'alle' : kies[0]);
+  history.replaceState(null, '', url);
+}
+
+socket.emit('pf-open', file, res => {
+  if (res.error) return (document.getElementById('p-papers').textContent = res.error);
+  toets = res.toets;
+  teken(params.get('niveau') || 'schildknaap');
+});
+document.getElementById('p-print').addEventListener('click', () => window.print());
+document.getElementById('p-close').addEventListener('click', () => window.close());
+</script>
+</body>
+</html>

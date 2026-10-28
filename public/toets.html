@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LANcelot · Toets</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/proef.css">
+</head>
+<body class="pf-leerling">
+<main class="player">
+  <section id="pf-geen" class="screen welcome hidden">
+    <img src="/img/logo.webp" alt="LANcelot">
+    <p class="title">Toets</p>
+    <p class="muted" id="pf-geen-tekst">Er is nu geen toets bezig.</p>
+    <a class="button secondary" href="/">Terug naar LANcelot</a>
+  </section>
+
+  <form id="pf-join" class="screen welcome hidden">
+    <img src="/img/logo.webp" alt="LANcelot">
+    <p class="title" id="pf-join-title">Toets</p>
+    <input id="pf-name" maxlength="20" autocomplete="off" placeholder="Je naam">
+    <p class="error" id="pf-join-error"></p>
+    <button type="submit" class="big">Verder</button>
+  </form>
+
+  <section id="pf-kies" class="screen hidden">
+    <div class="ob-choose">
+      <p class="title">Kies je niveau</p>
+      <p class="muted">Kies eerlijk. Je leerkracht kan het nog veranderen.</p>
+      <div class="ob-choose-list" id="pf-kies-lijst"></div>
+      <p class="error" id="pf-kies-error"></p>
+    </div>
+  </section>
+
+  <section id="pf-intro" class="screen hidden">
+    <div class="panel pf-intro">
+      <img class="pf-icoon" src="/img/icons/proef.webp" alt="">
+      <p class="title" id="pf-titel"></p>
+      <p class="pf-wie" id="pf-wie"></p>
+      <p id="pf-intro-tekst"></p>
+      <ul class="pf-regels" id="pf-regels"></ul>
+      <p class="error" id="pf-intro-error"></p>
+      <button class="gold big" id="pf-start">Start de toets</button>
+    </div>
+  </section>
+
+  <section id="pf-werk" class="hidden">
+    <div class="pf-balk">
+      <span class="pf-naam" id="pf-naam"></span>
+      <span class="pf-teller" id="pf-teller"></span>
+      <span class="pf-tijd hidden" id="pf-tijd"></span>
+    </div>
+    <nav class="pf-bolletjes" id="pf-bolletjes" aria-label="Vragen"></nav>
+    <article class="ob-paper pf-paper" id="pf-paper"></article>
+    <div class="pf-nav">
+      <button class="secondary" id="pf-vorige">◀ Vorige</button>
+      <p class="error" id="pf-fout"></p>
+      <button id="pf-volgende">Volgende ▶</button>
+    </div>
+  </section>
+
+  <section id="pf-klaar" class="screen welcome hidden">
+    <div class="mark pf-klaar-mark">✔</div>
+    <p class="title">Ingeleverd!</p>
+    <p id="pf-uitslag"></p>
+    <p class="muted">Je leerkracht verbetert je toets. Je mag rustig wachten.</p>
+  </section>
+
+  <div class="pf-slot hidden" id="pf-slot">
+    <div class="panel">
+      <div class="pf-slot-icoon" id="pf-slot-icoon">🔒</div>
+      <h2 id="pf-slot-titel">Je toets staat op slot</h2>
+      <p id="pf-slot-tekst">Je verliet de toets. Je leerkracht ziet dat en zet je toets weer open.</p>
+      <button class="gold big hidden" id="pf-verder">Verder met de toets</button>
+    </div>
+  </div>
+</main>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/ui.js"></script>
+<script src="/js/voorlees.js"></script>
+<script src="/js/niveau.js"></script>
+<script src="/js/pf-paper.js"></script>
+<script src="/js/pf-player.js"></script>
+<script src="/js/klas-kies.js"></script>
+</body>
+</html>

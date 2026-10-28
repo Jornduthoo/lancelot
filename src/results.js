@@ -447,4 +447,36 @@ function saveBaas(b) {
   return write(now, `leraar-baas-${slugOf(b.quiz.title)}`, lines);
 }
 
-module.exports = { save, saveKnight, saveRossen, saveRijk, saveRace, saveRoof, saveVerrader, saveBurcht, saveDuel, saveRondeTafel, saveToren, saveSchat, saveLaserslag, saveOefenblad, saveNeon, saveBaas, saveGalaga, saveBomber, list, filePath, DIR };
+// De Proef (een toets): punten per leerling en per vraag, en hoe vaak de leerling de toets verliet.
+function saveProef(rec, standVan) {
+  const K = require('../public/js/pf-kern');
+  const now = new Date();
+  const names = { page: 'Page (met hulp)', schildknaap: 'Schildknaap (het doel)', ridder: 'Ridder (uitdaging)' };
+  const multi = K.niveausVan(rec.toets).length > 1;
+  const nl = n => String(n).replace('.', ',');
+  const lines = [
+    row(['Toets', rec.title]),
+    row(['Afgenomen', stamp(new Date(rec.datum))]),
+    row(['Leerlingen', rec.spelers.length]),
+  ];
+  for (const n of K.niveausVan(rec.toets)) {
+    const spelers = rec.spelers.filter(s => (multi ? s.niveau === n : true));
+    if (multi && !spelers.length) continue;
+    const vragen = K.vragenVan(K.lijstVoor(rec.toets, n));
+    lines.push('');
+    if (multi) lines.push(row(['Niveau', names[n]]));
+    lines.push(row(['Naam', 'Punten', 'Op', '%', 'Verliet de toets', ...vragen.map(v => `V${v.nr} (/${nl(K.maxVan(v.q))})`)]));
+    for (const s of spelers) {
+      const st = standVan(s);
+      const cel = v => {
+        const a = Number(s.auto[v.id]) || 0;
+        const h = K.handPunten(v.q) ? s.hand[v.id] : 0;
+        return h === null || h === undefined ? `${nl(a)} + ?` : nl(a + Number(h));
+      };
+      lines.push(row([s.naam, nl(st.punten), nl(st.max), st.max ? `${Math.round((st.punten / st.max) * 100)}%` : '-', (s.events || []).length, ...vragen.map(cel)]));
+    }
+  }
+  return write(now, `toets-${slugOf(rec.title)}`, lines);
+}
+
+module.exports = { saveProef, save, saveKnight, saveRossen, saveRijk, saveRace, saveRoof, saveVerrader, saveBurcht, saveDuel, saveRondeTafel, saveToren, saveSchat, saveLaserslag, saveOefenblad, saveNeon, saveBaas, saveGalaga, saveBomber, list, filePath, DIR };
