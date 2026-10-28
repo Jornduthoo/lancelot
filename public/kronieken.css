@@ -99,3 +99,4 @@ body.kr-leest { overflow: hidden; }
 .kr-koppel-dialoog h3 { margin: 0; }
 .kr-koppel-dialoog .actions { justify-content: flex-end; }
 @media (max-width: 640px) { .kr-online-tip { display: none; } }
+.kr-boek-map { display: block; color: rgb(var(--k-goud-l)); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

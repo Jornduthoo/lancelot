@@ -186,7 +186,9 @@ const zonderExt = n => n.replace(/\.[^.]+$/, '');
 function tekenBoeken() {
   const doos = $('kr-boeken');
   doos.textContent = '';
-  const hier = kr.lijst.bestanden.filter(b => b.map === kr.hier);
+  // Bij Alle methodes: al je boeken, met de map erbij.
+  const alles = !kr.hier;
+  const hier = alles ? kr.lijst.bestanden : kr.lijst.bestanden.filter(b => b.map === kr.hier);
   $('kr-boeken-leeg').classList.toggle('hidden', hier.length > 0);
   $('kr-boeken-tel').textContent = hier.length ? `(${hier.length})` : '';
   for (const b of hier) {
@@ -201,6 +203,7 @@ function tekenBoeken() {
     const info = online ? `online · ${host(b.url)}${b.inbed === false ? ' · apart venster' : ''}`
       : b.soort === 'pdf' ? `${b.pagina > 1 ? `verder op p. ${b.pagina} · ` : ''}${mb(b.grootte)}` : `afbeelding · ${mb(b.grootte)}`;
     tekst.append(el('span', 'muted small', info));
+    if (alles && b.map) tekst.append(el('span', 'kr-boek-map small', `📁 ${b.map.split('/').join(' › ')}`));
     open.append(tekst);
     open.addEventListener('click', () => (online ? openOnline(b) : openBoek(b)));
     const weg = el('button', 'secondary icon kr-weg');
