@@ -312,9 +312,9 @@ function save(sheet, file) {
   return file;
 }
 
+// Naar de prullenbak (30 dagen), niet meteen weg.
 function remove(file) {
-  fs.unlinkSync(checkFile(file));
-  lib.forget(file);
+  lib.trash([file]);
 }
 
 // Het antwoord van een chatbot omzetten in een oefenblad.

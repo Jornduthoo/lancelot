@@ -86,9 +86,9 @@ function save(session, file) {
   return file;
 }
 
+// Naar de prullenbak (30 dagen), niet meteen weg.
 function remove(file) {
-  fs.unlinkSync(checkFile(file));
-  lib.forget(file);
+  lib.trash([file]);
 }
 
 // Haalt de sessie uit het antwoord van een chatbot, ook met tekst of ```json eromheen.

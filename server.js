@@ -1000,6 +1000,11 @@ io.on('connection', socket => {
     socket.on('lib-folder-rename', lib((l, { from, to }) => l.renameFolder(from, to)));
     socket.on('lib-folder-remove', lib((l, { name }) => l.removeFolder(name)));
     socket.on('lib-move', lib((l, { file, folder }) => l.move(file, folder || '')));
+    // Meerdere items tegelijk verwijderen (naar de prullenbak).
+    socket.on('lib-remove', lib((l, { files }) => {
+      if (!Array.isArray(files) || !files.length || files.length > 5000) throw new Error('Kies eerst wat je wil verwijderen.');
+      return { count: l.trash(files) };
+    }));
     socket.on('lib-import', lib((l, { text, folder }) => l.importBundle(text, folder || '')));
     socket.on('parse', handle(text => ({ quiz: quizzes.parseAiText(text) })));
     socket.on('open-quiz', handle(file => ({ quiz: quizzes.load(file) })));
