@@ -88,7 +88,8 @@ function lijst() {
   loop(DIR, '');
   for (const o of m.online) {
     if (o.map) mappen.add(o.map);
-    bestanden.push({ map: o.map || '', naam: o.naam, soort: 'online', id: o.id, url: o.url, inbed: o.inbed === undefined ? null : o.inbed });
+    const inbed = altijdVenster(o.url) ? false : o.inbed === undefined ? null : o.inbed;
+    bestanden.push({ map: o.map || '', naam: o.naam, soort: 'online', id: o.id, url: o.url, inbed });
   }
   // De mappen erboven bestaan ook.
   for (const p of [...mappen]) for (let i = p.indexOf('/'); i > 0; i = p.indexOf('/', i + 1)) mappen.add(p.slice(0, i));
@@ -140,6 +141,11 @@ function verwijder(map, naam) {
 
 const ONLINE = 'online:';
 
+// Platformen van uitgevers die zich nooit laten inbedden: het bordboek zelf mag misschien wel, maar het
+// inloggen gebeurt op een pagina die het weigert. Die openen altijd in het aparte venster.
+const NOOIT_INBEDDEN = /(^|\.)(bingel\.be|vanin\.be|diddit\.be|scoodle\.be|plantyn\.com|pelckmans\.be|pelckmansportaal\.be|die-keure\.be|dekeure\.be|knooppunt\.net|averbode\.be|uitgeverijaverbode\.be|edu\.vlaanderen)$/i;
+const altijdVenster = url => { try { return NOOIT_INBEDDEN.test(new URL(url).hostname); } catch { return false; } };
+
 function webAdres(url) {
   let u;
   try { u = new URL(String(url || '').trim()); } catch { throw new Error('Plak het volledige adres, bijv. https://bordboeken.bingel.be/...'); }
@@ -160,6 +166,15 @@ function voegLinkToe({ map, naam, url }) {
   m.online.push(o);
   schrijfMeta(m);
   return { id: o.id };
+}
+
+// De leerkracht zag dat het niet lukt in LANcelot: deze link opent voortaan altijd in het aparte venster.
+function linkApart(id) {
+  const m = leesMeta();
+  const o = m.online.find(x => x.id === id);
+  if (!o) throw new Error('Die link bestaat niet meer.');
+  o.inbed = false;
+  schrijfMeta(m);
 }
 
 function verwijderLink(id) {
@@ -183,7 +198,7 @@ function magInbedden(headers) {
 
 async function testInbed(id) {
   const o = leesMeta().online.find(x => x.id === id);
-  if (!o) return;
+  if (!o || altijdVenster(o.url)) return;
   let inbed = null;
   try {
     const res = await fetch(o.url, { redirect: 'follow', signal: AbortSignal.timeout(8000) });
@@ -290,4 +305,4 @@ function routes(app, isLeerkracht, express, wijzig) {
   });
 }
 
-module.exports = { DIR, lijst, nieuweMap, bewaar, verwijder, verwijderMap, zetPagina, koppel, ontkoppel, voegLinkToe, verwijderLink, testInbed, magInbedden, routes };
+module.exports = { DIR, lijst, nieuweMap, bewaar, verwijder, verwijderMap, zetPagina, koppel, ontkoppel, voegLinkToe, verwijderLink, linkApart, testInbed, magInbedden, routes };

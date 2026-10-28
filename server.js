@@ -1444,6 +1444,7 @@ io.on('connection', socket => {
       kronieken.testInbed(res.id).then(() => io.to('host').emit('kr-lijst', kronieken.lijst()), () => {});
       return res;
     }));
+    socket.on('kr-link-apart', krWijzig(({ id }) => kronieken.linkApart(String(id || ''))));
     socket.on('kr-link-weg', krWijzig(({ id }) => kronieken.verwijderLink(String(id || ''))));
     // De Zonnewijzer: roosters, de planning per week, doel en succescriteria. Elke wijziging gaat ook naar Mijn lesmap.
     const zwWijzig = fn => handle(arg => {

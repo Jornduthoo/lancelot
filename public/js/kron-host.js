@@ -337,6 +337,7 @@ function openOnline(b, url) {
   $('kr-online-titel').textContent = b.naam;
   $('kr-online-frame').src = adres;
   lz.dataset.url = adres;
+  lz.dataset.id = b.id;
   lz.classList.remove('hidden');
   document.body.classList.add('kr-leest');
 }
@@ -347,8 +348,11 @@ function sluitOnline() {
   document.body.classList.remove('kr-leest');
 }
 $('kr-online-dicht').addEventListener('click', sluitOnline);
+// Lukt het niet in LANcelot (bv. "verbinding geweigerd" bij het inloggen), dan onthoudt LANcelot dat voor deze link.
 $('kr-online-apart').addEventListener('click', () => {
-  window.open($('kr-online').dataset.url, VENSTER);
+  const lz = $('kr-online');
+  window.open(lz.dataset.url, VENSTER);
+  socket.emit('kr-link-apart', { id: lz.dataset.id }, () => {});
   sluitOnline();
 });
 $('kr-online-vol').addEventListener('click', () => {
