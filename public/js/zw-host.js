@@ -241,7 +241,7 @@ function tekenNu(r) {
     knoppen.append(a);
   };
   if (info) {
-    for (const l of info.links) {
+    for (const l of info.links || []) {
       if (l.bestand.soort === 'online') knop(`🌐 ${l.bestand.naam}`, Lessen.link.online(l.bestand, l.url), 'Het online bordboek openen', l.bestand.inbed === false);
       else knop(`📖 ${l.bestand.naam.replace(/\.[^.]+$/, '')} · p. ${l.pagina}`, Lessen.link.boek(l.bestand, l.pagina), 'Het boek openen op deze pagina');
     }
@@ -1049,42 +1049,74 @@ function weekLessen() {
   }));
 }
 
-$('zw-print').addEventListener('click', () => {
-  const doos = $('zw-afdruk');
-  doos.textContent = '';
-  const r = rooster();
-  const ma = maandag(zw.week);
-  doos.append(el('h1', '', `Week ${Number(zw.week.split('-W')[1])} · ${datum(ma)} – ${datum(plusDagen(ma, 4))}`));
-  doos.append(el('p', 'zw-af-sub', r ? r.naam : ''));
-  for (const dag of weekLessen()) {
-    if (!dag.uren.length) continue;
-    const blok = el('section', 'zw-af-dag');
-    blok.append(el('h2', '', `${DAGEN[dag.d - 1]} ${datum(dag.datum)}`));
-    const t = el('table');
-    for (const u of dag.uren) {
-      const l = u.plan;
-      const tr = el('tr', l ? 'gepland' : '');
-      tr.append(el('td', 'zw-af-tijd', `${u.van}–${u.tot}`));
-      tr.append(el('td', 'zw-af-vak', `${vakStijl((l && l.vak) || u.vak).icoon} ${(l && l.vak) || u.vak}`));
-      const inhoud = el('td');
-      if (l) {
-        if (l.titel) inhoud.append(el('strong', '', l.titel));
-        if (l.doel) inhoud.append(el('div', 'zw-af-doel', `🎯 ${l.doel}`));
-        if (l.criteria.length) {
-          const ul = el('ul');
-          for (const c of l.criteria) ul.append(el('li', '', `${picto(c)} ${c}`));
-          inhoud.append(ul);
+// Afdrukken: A4 liggend, per dag een kolom met elk lesuur: tijd, vak, thema/les, titel, doel en succescriteria.
+const themaVan = les => les && les.map ? `${les.map.split('/').pop()}${les.nr ? ` · Les ${les.nr}` : ''}` : '';
+
+// Lessen uit je lespakket die nog geen doel of succescriteria hebben, krijgen die op papier uit de quiz van die les.
+async function vulAanVoorPapier(les) {
+  if (!les || (les.doel && les.criteria.length)) return les;
+  const info = lesInfo(les);
+  const res = info && info.quiz ? await Promise.race([vraagDoelen(info.quiz.file), new Promise(k => setTimeout(() => k(null), 4000))]) : null;
+  if (!res) return les;
+  return { ...les, doel: les.doel || res.doel || '', criteria: les.criteria.length ? les.criteria : (res.criteria || []), doelen: les.doelen.length ? les.doelen : (res.doelen || []).map(x => x.code) };
+}
+
+$('zw-print').addEventListener('click', async () => {
+  const knop = $('zw-print');
+  knop.disabled = true;
+  try {
+    const doos = $('zw-afdruk');
+    doos.textContent = '';
+    const r = rooster();
+    const ma = maandag(zw.week);
+    const kop = el('div', 'zw-af-kop');
+    kop.append(el('h1', '', `Week ${Number(zw.week.split('-W')[1])} · ${datum(ma)} – ${datum(plusDagen(ma, 4))}`), el('span', 'zw-af-sub', r ? r.naam : ''));
+    doos.append(kop);
+    const t = el('table', 'zw-af-week');
+    const rij = el('tr');
+    const kopRij = el('tr');
+    for (let d = 1; d <= 5; d++) {
+      kopRij.append(el('th', '', `${DAGEN[d - 1]} ${datum(plusDagen(ma, d - 1))}`));
+      const td = el('td');
+      for (const u of dagUren(r, d)) {
+        if (!u.van || !u.tot) continue;
+        if (u.soort === 'pauze') {
+          td.append(el('div', 'zw-af-pauze', `${u.van} ${u.vak || 'pauze'}`));
+          continue;
         }
-        if (l.doelen.length) inhoud.append(el('div', 'zw-af-codes', l.doelen.join(' · ')));
-        if (l.notitie) inhoud.append(el('div', 'zw-af-notitie', `🗒 ${l.notitie}`));
+        const l = await vulAanVoorPapier(zw.weekData.lessen[`${d}-${u.les}`] || null);
+        const vak = (l && l.vak) || u.vak || '';
+        const st = vakStijl(vak);
+        const les = el('div', `zw-af-les kleur-${st.kleur}${l ? ' gepland' : ''}`);
+        const lijn = el('div', 'zw-af-lijn');
+        lijn.append(el('span', 'zw-af-tijd', `${u.van}–${u.tot}`), el('span', 'zw-af-vak', `${st.icoon} ${vak}`));
+        les.append(lijn);
+        if (l) {
+          const thema = themaVan(l);
+          if (thema) les.append(el('div', 'zw-af-thema', thema));
+          if (l.titel) les.append(el('div', 'zw-af-titel', l.titel));
+          if (l.doel) les.append(el('div', 'zw-af-doel', `🎯 ${l.doel}`));
+          if (l.criteria.length) {
+            const ul = el('ul');
+            for (const c of l.criteria) ul.append(el('li', '', c));
+            les.append(ul);
+          }
+          if (l.notitie) les.append(el('div', 'zw-af-notitie', `🗒 ${l.notitie}`));
+        }
+        td.append(les);
       }
-      tr.append(inhoud);
-      t.append(tr);
+      rij.append(td);
     }
-    blok.append(t);
-    doos.append(blok);
+    const thead = el('thead');
+    thead.append(kopRij);
+    const tbody = el('tbody');
+    tbody.append(rij);
+    t.append(thead, tbody);
+    doos.append(t);
+    window.print();
+  } finally {
+    knop.disabled = false;
   }
-  window.print();
 });
 
 // Een .ics-bestand: Outlook, Google Agenda en je gsm openen het als afspraken met doel en succescriteria erin.
