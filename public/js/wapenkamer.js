@@ -83,8 +83,8 @@ addEventListener('hashchange', () => { open(); sfx.tick(); });
 const Lot = (() => {
   const canvas = $('lot-canvas');
   const ctx = canvas.getContext('2d');
-  // Edelsteenkleuren voor de vakken: [rand, midden].
-  const KLEUREN = [['#d62a55', '#5a0c22'], ['#1f8fe0', '#0a2a5a'], ['#e8a91c', '#5c3a05'], ['#13a877', '#053d2b'], ['#8a4fe0', '#2a1050'], ['#e86a1c', '#5a2405'], ['#16b3c9', '#053e48'], ['#c93aa8', '#4a0c3c']];
+  // Wapenschildkleuren voor de vakken: [licht, donker].
+  const KLEUREN = [['#c22a2a', '#5e0d0d'], ['#2c5cb8', '#0e2357'], ['#d9a632', '#6e4a0c'], ['#2f8a4c', '#0d3a1d'], ['#7a3fa0', '#2e1145'], ['#b8561c', '#4f1f05']];
   let geweest = bewaarLees('lancelot-wk-lot', { datum: '', ids: [] });
   if (geweest.datum !== vandaag()) geweest = { datum: vandaag(), ids: [] };
   let pot = [];
@@ -96,75 +96,158 @@ const Lot = (() => {
     return aanwezigen().filter(l => !eruit || !geweest.ids.includes(l.id));
   }
 
-  // Het rad wordt één keer getekend; draaien is daarna alleen een CSS-rotatie (zuinig op Chromebooks en het bord).
+  // Een korrelig perkamentpatroon, één keer gemaakt, over de vakken gelegd.
+  let korrel = null;
+  function korrelPatroon() {
+    if (korrel) return korrel;
+    const c = document.createElement('canvas');
+    c.width = c.height = 160;
+    const k = c.getContext('2d');
+    for (let i = 0; i < 1400; i++) {
+      k.fillStyle = Math.random() < .5 ? 'rgba(255,240,200,.5)' : 'rgba(0,0,0,.5)';
+      k.fillRect(Math.random() * 160, Math.random() * 160, 1 + Math.random() * 2, 1 + Math.random() * 2);
+    }
+    k.strokeStyle = 'rgba(0,0,0,.35)';
+    for (let i = 0; i < 26; i++) {
+      k.beginPath();
+      const x = Math.random() * 160, y = Math.random() * 160;
+      k.moveTo(x, y); k.quadraticCurveTo(x + 20, y + Math.random() * 10 - 5, x + 30 + Math.random() * 30, y + Math.random() * 6 - 3);
+      k.stroke();
+    }
+    return (korrel = ctx.createPattern(c, 'repeat'));
+  }
+
+  // Een houten ring met nerven tussen twee stralen.
+  function houtRing(r1, r2) {
+    const hout = ctx.createRadialGradient(0, 0, r1, 0, 0, r2);
+    hout.addColorStop(0, '#3e2412');
+    hout.addColorStop(.35, '#8a5a2f');
+    hout.addColorStop(.7, '#a46e3b');
+    hout.addColorStop(1, '#4a2c14');
+    ctx.fillStyle = hout;
+    ctx.beginPath(); ctx.arc(0, 0, r2, 0, Math.PI * 2); ctx.arc(0, 0, r1, 0, Math.PI * 2, true); ctx.fill();
+    ctx.strokeStyle = 'rgba(40,20,6,.45)';
+    ctx.lineWidth = 1.2;
+    for (let i = 0; i < 7; i++) {
+      const r = r1 + (r2 - r1) * (i + .5) / 7, a0 = Math.random() * 6.28;
+      ctx.beginPath(); ctx.arc(0, 0, r, a0, a0 + 1.5 + Math.random() * 2.5); ctx.stroke();
+    }
+    // Voegen tussen de houten stukken
+    ctx.strokeStyle = 'rgba(25,12,3,.8)';
+    ctx.lineWidth = 3;
+    for (let i = 0; i < 8; i++) {
+      const a = i * Math.PI / 4 + .2;
+      ctx.beginPath(); ctx.moveTo(Math.cos(a) * r1, Math.sin(a) * r1); ctx.lineTo(Math.cos(a) * r2, Math.sin(a) * r2); ctx.stroke();
+    }
+  }
+
+  // Een ijzeren band met klinknagels.
+  function ijzerRing(r1, r2, nagels) {
+    const ijzer = ctx.createRadialGradient(0, 0, r1, 0, 0, r2);
+    ijzer.addColorStop(0, '#1b1e26');
+    ijzer.addColorStop(.45, '#6c7383');
+    ijzer.addColorStop(.6, '#9aa2b2');
+    ijzer.addColorStop(1, '#22262f');
+    ctx.fillStyle = ijzer;
+    ctx.beginPath(); ctx.arc(0, 0, r2, 0, Math.PI * 2); ctx.arc(0, 0, r1, 0, Math.PI * 2, true); ctx.fill();
+    const rm = (r1 + r2) / 2, rn = Math.max(3.5, (r2 - r1) * .22);
+    for (let i = 0; i < nagels; i++) {
+      const a = i * Math.PI * 2 / nagels, x = Math.cos(a) * rm, y = Math.sin(a) * rm;
+      const g = ctx.createRadialGradient(x - rn * .35, y - rn * .35, 0, x, y, rn);
+      g.addColorStop(0, '#f1f3f8'); g.addColorStop(.5, '#8a92a3'); g.addColorStop(1, '#2a2e38');
+      ctx.fillStyle = g;
+      ctx.beginPath(); ctx.arc(x, y, rn, 0, Math.PI * 2); ctx.fill();
+    }
+  }
+
+  // Het rad van fortuin wordt één keer getekend; draaien is daarna alleen een CSS-rotatie (zuinig op Chromebooks en het bord).
   function teken() {
     pot = rad();
-    const W = canvas.width, RAND = 34, R = W / 2 - RAND - 6;
+    const W = canvas.width, H = W / 2;
+    const R_BAND = H - 4, R_HOUT = R_BAND - 24, R = R_HOUT - 38;
     ctx.clearRect(0, 0, W, W);
     ctx.save();
-    ctx.translate(W / 2, W / 2);
+    ctx.translate(H, H);
     const n = Math.max(pot.length, 1);
     const stuk = Math.PI * 2 / n;
-    const fs = Math.max(13, Math.min(38, 760 / n));
+    const fs = Math.max(14, Math.min(40, 820 / n));
+    // Kleuren zo kiezen dat de laatste en de eerste niet gelijk zijn.
+    const kl = i => KLEUREN[(n > 1 && n % KLEUREN.length === 1 && i === n - 1 ? 2 : i) % KLEUREN.length];
     for (let i = 0; i < n; i++) {
       const a = -Math.PI / 2 + i * stuk;
       ctx.beginPath();
       ctx.moveTo(0, 0);
       ctx.arc(0, 0, R, a, a + stuk);
       ctx.closePath();
-      // Elk vak als een edelsteen: donker in het midden, licht aan de rand.
-      const kleur = pot.length ? KLEUREN[(i + (n % KLEUREN.length === 1 && i === n - 1 ? 1 : 0)) % KLEUREN.length] : ['#2a3350', '#1b2238'];
-      const gr = ctx.createRadialGradient(0, 0, R * .15, 0, 0, R);
+      const kleur = pot.length ? kl(i) : ['#4a3a2a', '#241a10'];
+      const gr = ctx.createRadialGradient(0, 0, R * .12, 0, 0, R);
       gr.addColorStop(0, kleur[1]);
-      gr.addColorStop(1, kleur[0]);
+      gr.addColorStop(.55, kleur[0]);
+      gr.addColorStop(1, kleur[1]);
       ctx.fillStyle = gr;
       ctx.fill();
-      if (!pot.length) continue;
-      ctx.save();
-      ctx.rotate(a + stuk / 2);
-      ctx.font = `800 ${fs}px "Exo 2", sans-serif`;
-      ctx.textAlign = 'right';
-      ctx.textBaseline = 'middle';
-      let naam = pot[i].naam;
-      while (ctx.measureText(naam).width > R - 110 && naam.length > 3) naam = naam.slice(0, -2) + '…';
-      ctx.lineWidth = Math.max(3, fs * .18);
-      ctx.strokeStyle = 'rgba(6,10,20,.75)';
-      ctx.lineJoin = 'round';
-      ctx.strokeText(naam, R - 24, 1);
-      ctx.fillStyle = '#fffaf0';
-      ctx.fillText(naam, R - 24, 1);
-      ctx.restore();
     }
-    // Gouden spaken tussen de vakken
-    if (pot.length > 1) {
-      ctx.strokeStyle = '#e8b84a';
-      ctx.lineWidth = Math.max(1.5, 5 - n / 10);
-      ctx.beginPath();
-      for (let i = 0; i < n; i++) { const a = -Math.PI / 2 + i * stuk; ctx.moveTo(Math.cos(a) * R * .2, Math.sin(a) * R * .2); ctx.lineTo(Math.cos(a) * R, Math.sin(a) * R); }
-      ctx.stroke();
-    }
-    // Glans over het hele rad
+    // Perkamentkorrel en een warme glans uit de fakkels linksboven.
+    ctx.save();
+    ctx.globalAlpha = .22;
+    ctx.fillStyle = korrelPatroon();
+    ctx.beginPath(); ctx.arc(0, 0, R, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
     const glans = ctx.createLinearGradient(-R, -R, R, R);
-    glans.addColorStop(0, 'rgba(255,255,255,.18)');
-    glans.addColorStop(.45, 'rgba(255,255,255,0)');
-    glans.addColorStop(1, 'rgba(0,0,0,.25)');
+    glans.addColorStop(0, 'rgba(255,220,150,.22)');
+    glans.addColorStop(.5, 'rgba(255,220,150,0)');
+    glans.addColorStop(1, 'rgba(0,0,0,.3)');
     ctx.fillStyle = glans;
     ctx.beginPath(); ctx.arc(0, 0, R, 0, Math.PI * 2); ctx.fill();
-    // De rand: donker staal tussen twee gouden ringen, met lampjes.
-    ctx.lineWidth = RAND;
-    ctx.strokeStyle = '#141a2b';
-    ctx.beginPath(); ctx.arc(0, 0, R + RAND / 2, 0, Math.PI * 2); ctx.stroke();
-    for (const [rr, lw] of [[R + 2, 6], [R + RAND, 7]]) {
-      ctx.lineWidth = lw;
-      ctx.strokeStyle = '#ffc94a';
-      ctx.beginPath(); ctx.arc(0, 0, rr, 0, Math.PI * 2); ctx.stroke();
+    // Gouden lijnen tussen de vakken, met een donkere schaduw ernaast.
+    if (pot.length > 1) {
+      for (const [kleur, dik, schuif] of [['rgba(20,10,2,.65)', 5, .004], ['#e8c06a', 2.4, 0]]) {
+        ctx.strokeStyle = kleur;
+        ctx.lineWidth = Math.max(1.4, dik - n / 14);
+        ctx.beginPath();
+        for (let i = 0; i < n; i++) { const a = -Math.PI / 2 + i * stuk + schuif; ctx.moveTo(Math.cos(a) * R * .2, Math.sin(a) * R * .2); ctx.lineTo(Math.cos(a) * R, Math.sin(a) * R); }
+        ctx.stroke();
+      }
     }
-    for (let i = 0; i < 32; i++) {
-      const a = i * Math.PI / 16, x = Math.cos(a) * (R + RAND / 2), y = Math.sin(a) * (R + RAND / 2);
-      Glow.glow(ctx, x, y, 22, i % 2 ? '#ffd76a' : '#5ee7ff', .7);
-      ctx.fillStyle = i % 2 ? '#fff4c8' : '#c8f6ff';
-      ctx.beginPath(); ctx.arc(x, y, 6, 0, Math.PI * 2); ctx.fill();
+    // Namen in een middeleeuwse letter.
+    if (pot.length) {
+      ctx.font = `700 ${fs}px Cinzel, Georgia, serif`;
+      ctx.textAlign = 'right';
+      ctx.textBaseline = 'middle';
+      ctx.lineJoin = 'round';
+      for (let i = 0; i < n; i++) {
+        ctx.save();
+        ctx.rotate(-Math.PI / 2 + i * stuk + stuk / 2);
+        let naam = pot[i].naam;
+        while (ctx.measureText(naam).width > R - 120 && naam.length > 3) naam = naam.slice(0, -2) + '…';
+        ctx.lineWidth = Math.max(3, fs * .2);
+        ctx.strokeStyle = 'rgba(20,10,2,.85)';
+        ctx.strokeText(naam, R - 22, 1);
+        ctx.fillStyle = '#fff1cf';
+        ctx.fillText(naam, R - 22, 1);
+        ctx.restore();
+      }
     }
+    // Een dun cyaan runenlijntje: het sci-fi randje.
+    ctx.save();
+    ctx.shadowColor = '#5ee7ff';
+    ctx.shadowBlur = 14;
+    ctx.strokeStyle = 'rgba(150,240,255,.9)';
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(0, 0, R + 1, 0, Math.PI * 2); ctx.stroke();
+    ctx.restore();
+    // De velg: hout met gouden spijkers, daarrond de ijzeren band.
+    houtRing(R + 2, R_HOUT);
+    for (let i = 0; i < 16; i++) {
+      const a = i * Math.PI / 8 + Math.PI / 16, x = Math.cos(a) * (R + 21), y = Math.sin(a) * (R + 21);
+      const g = ctx.createRadialGradient(x - 2, y - 2, 0, x, y, 7);
+      g.addColorStop(0, '#fff3c4'); g.addColorStop(.5, '#d9a632'); g.addColorStop(1, '#5a3c08');
+      ctx.fillStyle = g;
+      ctx.beginPath(); ctx.arc(x, y, 7, 0, Math.PI * 2); ctx.fill();
+    }
+    ijzerRing(R_HOUT, R_BAND, 36);
+    // Ijzeren ring rond de naaf
+    ijzerRing(R * .27, R * .33, 12);
     ctx.restore();
     const totaal = aanwezigen().length;
     $('lot-tel').textContent = !totaal ? '' : pot.length === totaal ? `${totaal} namen in het rad` : `Nog ${pot.length} van ${totaal} in het rad`;
@@ -222,6 +305,8 @@ const Lot = (() => {
   $('lot-eruit').checked = bewaarLees('lancelot-wk-eruit', true);
   $('lot-reset').addEventListener('click', () => { geweest.ids = []; bewaar('lancelot-wk-lot', geweest); teken(); });
   addEventListener('keydown', e => { if (huidig === 'lot' && (e.code === 'Space' || e.code === 'Enter') && e.target === document.body) { e.preventDefault(); draai(); } });
+  // De namen staan in Cinzel: opnieuw tekenen zodra die letter geladen is.
+  if (document.fonts) document.fonts.load('700 30px Cinzel').then(() => { if (!bezig) teken(); }, () => {});
   return { klasNieuw: () => { if (!bezig) teken(); } };
 })();
 
@@ -331,7 +416,6 @@ const Klok = (() => {
   let eindOp = 0; // tijdstip waarop de tijd om is, als hij loopt
   let timer = null;
   let laatsteTik = -1;
-  const ZAND_H = 86;
 
   function over() { return eindOp ? Math.max(0, (eindOp - Date.now()) / 1000) : rest; }
 
@@ -342,11 +426,12 @@ const Klok = (() => {
     $('hr-klok').textContent = tekst;
     $('mini-klok').querySelector('span').textContent = tekst;
     const p = totaal ? 1 - s / totaal : 1;
-    const boven = ZAND_H * (1 - p);
-    $('zl-zand-boven').setAttribute('y', 100 - boven);
-    $('zl-zand-boven').setAttribute('height', boven);
-    $('zl-zand-onder').setAttribute('y', 186 - ZAND_H * p);
-    $('zl-zand-onder').setAttribute('height', ZAND_H * p);
+    // Boven zakt het zand met een kuiltje in het midden; onder groeit een bergje.
+    const top = 70 + 74 * p, kuil = eindOp ? Math.min(10, 4 + 14 * p) : 2;
+    $('zl-zand-boven').setAttribute('d', p >= 1 ? '' : `M30 ${top} Q100 ${top + kuil * 2} 170 ${top} V152 H30Z`);
+    const h = 70 * p, rand = 262 - h * .55, piek = 262 - h * 1.25;
+    $('zl-zand-onder').setAttribute('d', p <= 0 ? '' : `M30 264 V${rand} Q100 ${piek * 2 - rand} 170 ${rand} V264Z`);
+    $('zl-straal').setAttribute('y2', 262 - h);
     $('zl-straal').classList.toggle('hidden', !eindOp);
     const laatste = eindOp && s <= 10;
     $('zl-tijd').classList.toggle('bijna', !!laatste);
