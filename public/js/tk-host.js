@@ -11,7 +11,7 @@ const el = (tag, cls, text) => {
 };
 const datum = iso => new Date(iso).toLocaleDateString('nl-BE', { weekday: 'short', day: 'numeric', month: 'short' });
 
-const tk = { soort: 'oefenblad', bronnen: null, klas: [], gekozen: new Set(), per: {}, zorg: null, taken: [], detail: null, erbij: null };
+const tk = { soort: 'oefenblad', bronnen: null, klas: [], gekozen: new Set(), per: {}, eigen: null, vak: null, zorg: null, taken: [], detail: null, erbij: null };
 
 // Komt de leerkracht van het zorgoverzicht of een lijst, dan staat de keuze al klaar (?namen=a|b, ?soort=…&file=…).
 const vraag = new URLSearchParams(location.search);
@@ -84,18 +84,35 @@ $('tk-bron').addEventListener('change', kiesBron);
 function kiesBron() {
   const file = $('tk-bron').value;
   tk.per = {};
+  tk.eigen = tk.vak = null;
   $('tk-bron-info').textContent = '';
+  $('tk-nv-label').classList.add('hidden');
+  $('tk-niveau').innerHTML = '';
   if (!file) return tekenNamen();
   socket.emit('tk-voorbeeld', { soort: tk.soort, file }, res => {
     if (res.error) return ($('tk-bron-info').textContent = res.error);
     if ($('tk-bron').value !== file) return;
-    tk.per = res.niveaus.length > 1 ? res.per : {};
-    $('tk-bron-info').textContent = res.niveaus.length > 1
-      ? `Op ${res.niveaus.length} niveaus${res.vak ? ` (${res.vak})` : ''}: elke leerling krijgt het niveau dat bij zijn naam staat, zoals in Mijn klas.`
-      : `Eén niveau: iedereen krijgt hetzelfde${res.vak ? ` (${res.vak})` : ''}.`;
-    tekenNamen();
+    tk.eigen = res.niveaus.length > 1 ? res : null;
+    tk.vak = res.vak;
+    // Standaard elk zijn eigen niveau; de leerkracht kan ook iedereen op één niveau zetten.
+    $('tk-nv-label').classList.toggle('hidden', !tk.eigen);
+    if (tk.eigen) $('tk-niveau').innerHTML = '<option value="">Eigen niveau van elke leerling</option>'
+      + res.niveaus.map(n => `<option value="${n}">Iedereen ${Niveau.label(n)}</option>`).join('');
+    kiesNiveau();
   });
 }
+
+function kiesNiveau() {
+  const res = tk.eigen, vast = $('tk-niveau').value;
+  tk.per = {};
+  if (res) for (const naam of Object.keys(res.per)) tk.per[naam] = vast || res.per[naam];
+  $('tk-bron-info').textContent = !res
+    ? $('tk-bron').value ? `Eén niveau: iedereen krijgt hetzelfde${tk.vak ? ` (${tk.vak})` : ''}.` : ''
+    : vast ? `Iedereen die je aantikt, krijgt ${Niveau.NAMES[vast]} (${Niveau.HELP[vast]}), los van zijn niveau in Mijn klas.`
+    : `Op ${res.niveaus.length} niveaus${res.vak ? ` (${res.vak})` : ''}: elke leerling krijgt het niveau dat bij zijn naam staat, zoals in Mijn klas.`;
+  tekenNamen();
+}
+$('tk-niveau').addEventListener('change', kiesNiveau);
 
 // ---------- Voor wie? ----------
 
@@ -173,10 +190,13 @@ $('tk-geef').addEventListener('click', () => {
   const namen = [...tk.gekozen];
   const b = $('tk-geef');
   b.disabled = true;
-  socket.emit('tk-maak', { soort: tk.soort, file: $('tk-bron').value, namen, feedback: $('tk-feedback').value, spel: $('tk-spel').value, minuten: Number($('tk-minuten').value) }, res => {
+  socket.emit('tk-maak', { soort: tk.soort, file: $('tk-bron').value, namen, feedback: $('tk-feedback').value, spel: $('tk-spel').value, minuten: Number($('tk-minuten').value), niveau: $('tk-niveau').value }, res => {
     knop();
     if (res.error) return ($('tk-fout').textContent = res.error);
     $('tk-fout').textContent = '';
+    // Volgende taak weer standaard op ieders eigen niveau.
+    $('tk-niveau').value = '';
+    kiesNiveau();
     kiesNamen([]);
     Ui.melding(`De taak staat klaar bij ${namen.length === 1 ? namen[0] : `${namen.length} leerlingen`}. Zij vinden ze op hun toestel bij Mijn taken.`);
   });
@@ -204,7 +224,7 @@ function kaart(t) {
   img.alt = '';
   const tel = s => t.leerlingen.filter(l => l.status === s).length;
   const titel = el('div', 'tk-taak-titel');
-  titel.append(el('strong', '', t.titel), el('small', 'muted', `${t.soort === 'quiz' ? 'Quiz' : 'Oefenblad'}${t.spel ? ` in ${t.spel.naam}` : ''}${t.vak ? ` · ${t.vak}` : ''} · ${datum(t.gemaakt)}${t.dicht ? ' · afgesloten' : ''}`));
+  titel.append(el('strong', '', t.titel), el('small', 'muted', `${t.soort === 'quiz' ? 'Quiz' : 'Oefenblad'}${t.spel ? ` in ${t.spel.naam}` : ''}${t.vak ? ` · ${t.vak}` : ''}${t.niveau ? ` · iedereen ${Niveau.NAMES[t.niveau]}` : ''} · ${datum(t.gemaakt)}${t.dicht ? ' · afgesloten' : ''}`));
   const telling = el('div', 'tk-telling');
   telling.append(el('span', 'klaar', `${tel('klaar')} klaar`), el('span', 'bezig', `${tel('bezig')} bezig`), el('span', 'nieuw', `${tel('nieuw')} nog niet`));
   const acties = el('div', 'actions');
