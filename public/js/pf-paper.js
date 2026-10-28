@@ -22,6 +22,7 @@ const PfPaper = (() => {
     let h = `<div class="pf-q pf-${q.type}" data-id="${esc(q.id)}" data-type="${q.type}">
       <h3><span class="pf-nr">${esc(nr)}</span>${say}<span class="pf-vraag">${esc(q.vraag || '').replace(/\n/g, '<br>')}</span>
       <small class="pf-ptn">${got ? `<b>${nl(got[0] ?? '?')}</b> / ${nl(got[1])}` : `/ ${nl(q.punten)}`}</small></h3>`;
+    if (q.type === 'blad') return `${h}${bladHtml(q, a, o)}</div>`;
     if (q.beeld && q.type !== 'aanduiden') h += `<img class="pf-beeld" src="${esc(q.beeld)}" alt="" loading="lazy">`;
     if (q.type === 'meerkeuze') {
       const gekozen = new Set([].concat(a ?? []).map(String));
@@ -41,12 +42,12 @@ const PfPaper = (() => {
       }).join('')}</p>`;
     } else if (q.type === 'kort') {
       h += print ? `<p class="pf-antwoordlijn">Antwoord: <span class="ob-line wide"></span> ${esc(q.eenheid || '')}</p>`
-        : `<p class="pf-kort">Antwoord: <input class="ob-field pf-in" data-k="0" autocomplete="off" autocapitalize="off" spellcheck="false" value="${esc(a ?? '')}"${ro}> ${esc(q.eenheid || '')}</p>`;
+        : `<p class="pf-kort"><input class="ob-field pf-in" data-k="0" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="antwoord" aria-label="Antwoord" value="${esc(a ?? '')}"${ro}>${q.eenheid ? `<span class="pf-eenheid">${esc(q.eenheid)}</span>` : ''}</p>`;
     } else if (q.type === 'rekenen') {
       const w = a && typeof a === 'object' ? a : {};
       h += print ? '<div class="pf-werkvak">Bewerking:</div><p class="pf-antwoordlijn">Uitkomst: <span class="ob-line" style="min-width:6em"></span> ' + esc(q.eenheid || '') + '</p>'
         : `<label class="pf-werk">Bewerking (hoe reken je het uit?)<textarea class="ob-field pf-werkveld" rows="4"${ro}>${esc(w.werk || '')}</textarea></label>
-          <p class="pf-kort">Uitkomst: <input class="ob-field pf-uitkomst" autocomplete="off" spellcheck="false" value="${esc(w.uitkomst || '')}"${ro}> ${esc(q.eenheid || '')}</p>`;
+          <p class="pf-kort">Uitkomst: <input class="ob-field pf-uitkomst" autocomplete="off" spellcheck="false" value="${esc(w.uitkomst || '')}"${ro}>${q.eenheid ? `<span class="pf-eenheid">${esc(q.eenheid)}</span>` : ''}</p>`;
     } else if (q.type === 'verbinden') {
       if (print) {
         h += `<div class="ob-match-print"><ol>${q.links.map(l => `<li><span class="ob-box"></span> ${esc(l)}</li>`).join('')}</ol><ul>${q.rechts.map((r, j) => `<li><b>${L[j]}</b> ${esc(r)}</li>`).join('')}</ul></div>`;
@@ -79,6 +80,37 @@ const PfPaper = (() => {
     }
     if (o.sleutel && String(o.sleutel[q.id] || '').trim()) h += `<p class="pf-sleutel">✔ ${esc(o.sleutel[q.id]).replace(/\n/g, '<br>')}</p>`;
     return `${h}</div>`;
+  }
+
+  // Een blad uit de pdf: de pagina zelf, met de vakjes erop. De letters groeien mee met het blad (cqw).
+  function bladHtml(q, a, o) {
+    const live = o.mode === 'live';
+    const print = o.mode === 'print';
+    const ro = live ? '' : ' readonly';
+    const b = Array.isArray(a) ? a : [];
+    const v = q.verhouding || 1.414;
+    const sleutel = o.sleutel && Array.isArray(o.sleutel[q.id]) ? o.sleutel[q.id] : null;
+    // Bij verbeteren: per vakje ✔ of ✘, de leerkracht klikt om het om te draaien.
+    const oordeel = o.vakken && o.vakken[q.id];
+    const velden = q.velden.map((f, k) => {
+      const pos = `left:${f.x}%;top:${f.y}%;width:${f.w}%;height:${f.h}%;font-size:max(9px,${Math.round(Math.min(f.h * v * 0.62, 2.2) * 100) / 100}cqw)`;
+      // Met een oordeel (verbeteren) alleen de sleutel bij een fout vakje, anders staat alles vol rood.
+      const s = sleutel && sleutel[k] && !(oordeel && oordeel.goed[k] !== false) ? `<span class="pf-veld-sleutel${b[k] ? '' : ' in'}" style="left:${f.x}%;top:${b[k] ? f.y + f.h : f.y}%;${b[k] ? '' : `width:${f.w}%;height:${f.h}%;`}">${esc(sleutel[k])}</span>` : '';
+      if (print) return s;
+      const g = oordeel ? oordeel.goed[k] : null;
+      const knop = g === null || g === undefined ? '' : `<button type="button" class="pf-vak-oordeel ${g ? 'goed' : 'fout'}${oordeel.zelf[k] !== undefined ? ' zelf' : ''}" data-id="${esc(q.id)}" data-k="${k}" style="left:${f.x + f.w}%;top:${f.y}%" title="Klik om ${g ? 'fout' : 'goed'} te zetten">${g ? '✔' : '✘'}</button>`;
+      return veldEl(f, k, pos, g) + knop + s;
+    }).join('');
+    return `${live ? '<p class="pf-tip pf-blad-tip">Typ je antwoorden in de vakjes op het blad. <button type="button" class="link pf-groter">🔍 Groter</button></p>' : ''}
+      <div class="pf-blad-wrap"><div class="pf-blad-vel" style="aspect-ratio:${Math.round((1 / v) * 10000) / 10000}">${q.beeld ? `<img src="${esc(q.beeld)}" alt="" draggable="false">` : ''}${velden}</div></div>`;
+
+    function veldEl(f, k, pos, g) {
+      const kl = g === true ? ' goed' : g === false ? ' fout' : '';
+      if (f.soort === 'kruis') return `<button type="button" class="pf-veld kruis${kl}${b[k] === true ? ' on' : ''}" data-k="${k}" style="${pos}" aria-label="Aankruisen"${live ? '' : ' disabled'}>${b[k] === true ? '✗' : ''}</button>`;
+      if (f.soort === 'kies') return `<select class="pf-veld kies${kl}" data-k="${k}" style="${pos}"${live ? '' : ' disabled'}><option value=""></option>${(f.opties || []).map(x => `<option${b[k] === x ? ' selected' : ''}>${esc(x)}</option>`).join('')}</select>`;
+      if (f.soort === 'open') return `<textarea class="pf-veld open${kl}" data-k="${k}" style="${pos}" spellcheck="false"${ro}>${esc(b[k] ?? '')}</textarea>`;
+      return `<input class="pf-veld${kl}" data-k="${k}" style="${pos}" autocomplete="off" autocapitalize="off" spellcheck="false" value="${esc(b[k] ?? '')}"${ro}>`;
+    }
   }
 
   function pageHtml(p, i, o) {
@@ -125,6 +157,11 @@ const PfPaper = (() => {
     if (type === 'ordenen') return [...el.querySelectorAll('.pf-orden li')].map(li => Number(li.dataset.i));
     if (type === 'aanduiden') return el.pfPunt || null;
     if (type === 'open') return el.querySelector('.pf-open').value;
+    if (type === 'blad') {
+      const out = [];
+      for (const f of el.querySelectorAll('.pf-veld')) out[Number(f.dataset.k)] = f.classList.contains('kruis') ? (f.classList.contains('on') ? true : null) : f.value;
+      return out;
+    }
     return null;
   }
 
@@ -148,6 +185,15 @@ const PfPaper = (() => {
           send(el);
         });
       }
+      for (const b of el.querySelectorAll('.pf-veld.kruis')) {
+        b.addEventListener('click', () => {
+          b.classList.toggle('on');
+          b.textContent = b.classList.contains('on') ? '✗' : '';
+          send(el);
+        });
+      }
+      const groter = el.querySelector('.pf-groter');
+      if (groter) groter.addEventListener('click', () => { groter.textContent = el.classList.toggle('groot') ? '🔍 Kleiner' : '🔍 Groter'; });
       for (const b of el.querySelectorAll('.pf-op, .pf-neer')) {
         b.addEventListener('click', () => {
           const li = b.closest('li');

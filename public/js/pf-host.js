@@ -26,7 +26,8 @@ for (const b of document.querySelectorAll('[data-back]')) b.addEventListener('cl
 socket.on('settings', s => {
   Ui.zetAi(s);
   hasKey = s.hasKey;
-  $('a-key-panel').classList.toggle('hidden', !hasKey);
+  $('a-key-panel').classList.toggle('hidden', !hasKey || modus() === 'blad');
+  $('a-blad-ai-label').classList.toggle('hidden', !hasKey);
   $('b-key').classList.toggle('hidden', !hasKey);
   $('a-copy-nr').textContent = hasKey ? '3' : '2';
   $('a-copy-kop').textContent = hasKey ? 'Of: kopieer de prompt naar een chatbot' : 'Kopieer de prompt naar een chatbot';
@@ -40,7 +41,7 @@ function downloadLink(file) {
   return link;
 }
 
-const TYPE_ICONS = { meerkeuze: '🔘', juistfout: '✔✖', invullen: '✏️', kort: '⌨️', rekenen: '🧮', verbinden: '🔗', ordenen: '↕️', tabel: '▦', aanduiden: '📍', open: '💬', papier: '📝' };
+const TYPE_ICONS = { meerkeuze: '🔘', juistfout: '✔✖', invullen: '✏️', kort: '⌨️', rekenen: '🧮', verbinden: '🔗', ordenen: '↕️', tabel: '▦', aanduiden: '📍', open: '💬', papier: '📝', blad: '📄' };
 
 // ---------- Lijst ----------
 
@@ -211,7 +212,12 @@ makerDoel = DoelKies.multi({
 $('a-doel').appendChild(makerDoel);
 
 function updatePrompt() {
-  for (const el of document.querySelectorAll('.pf-nieuw')) el.classList.toggle('hidden', modus() === 'over');
+  const m = modus();
+  for (const el of document.querySelectorAll('.pf-nieuw')) el.classList.toggle('hidden', m !== 'nieuw');
+  for (const el of document.querySelectorAll('.pf-niet-blad')) el.classList.toggle('hidden', m === 'blad' || (el.id === 'a-key-panel' && !hasKey));
+  for (const el of document.querySelectorAll('.pf-alleen-blad')) el.classList.toggle('hidden', m !== 'blad');
+  $('a-niveaus').closest('label').classList.toggle('hidden', m === 'blad');
+  $('a-extra').closest('label').classList.toggle('hidden', m === 'blad');
   $('a-prompt').value = buildPrompt(false);
   $('a-copied').textContent = '';
 }
@@ -350,6 +356,50 @@ $('a-key').addEventListener('click', () => {
   });
 });
 
+// ---------- Mijn pdf zoals hij is ----------
+// Elke pagina wordt een blad met vakjes (PfBlad, pf-blad.js). De AI zoekt eventueel meteen de antwoorden.
+function alsBron(file) {
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve({ naam: file.name, mimeType: file.type, size: file.size, data: r.result.split(',')[1] });
+    r.onerror = () => reject(new Error('Kon het bestand niet lezen.'));
+    r.readAsDataURL(file);
+  });
+}
+async function bladenUit(lijst, voortgang) {
+  const out = [];
+  for (const b of lijst) {
+    if (!/^image\/|^application\/pdf$/.test(b.mimeType)) continue;
+    out.push(...await PfBlad.uit(b, (i, n) => voortgang(`${b.naam}: pagina ${i} van ${n}…`)));
+  }
+  if (!out.length) throw new Error('Voeg eerst je toets toe (pdf, scan of foto).');
+  return out;
+}
+$('a-blad').addEventListener('click', async () => {
+  $('a-blad-error').textContent = '';
+  if (!bronnen.length) return ($('a-blad-error').textContent = 'Voeg eerst je toets toe (pdf, scan of foto).');
+  $('a-blad').disabled = true;
+  const busy = t => { $('a-blad-busy').textContent = t; };
+  try {
+    const bladen = await bladenUit(bronnen, busy);
+    const n = bladen.reduce((s, b) => s + b.velden.length, 0);
+    if (hasKey && $('a-blad-ai').checked && n) {
+      busy(`${Ui.ai} zoekt de antwoorden voor ${n} vakjes… dit duurt meestal 20 tot 60 seconden.`);
+      try {
+        PfBlad.zetSleutel(bladen, await aiSleutel(bladen));
+      } catch (err) {
+        Ui.melding(`De bladen staan klaar, maar de antwoorden zoeken lukte niet: ${err.message} Vul ze zelf in, of probeer het opnieuw per blad.`);
+      }
+    }
+    const titel = $('a-topic').value.trim() || bronnen[0].naam.replace(/\.[a-z]+$/i, '').replace(/[_-]+/g, ' ').slice(0, 100);
+    openEditor(metDoel({ title: titel, vragen: bladen }), null);
+  } catch (err) {
+    $('a-blad-error').textContent = err.message;
+  }
+  busy('');
+  $('a-blad').disabled = false;
+});
+
 // ---------- Bewerken ----------
 // Elke vraag is een kaart. Afbeeldingen zitten op de kaart zelf (card.pfBeeld), net als de juiste plekken bij aanduiden.
 
@@ -368,6 +418,7 @@ const HELP = {
   open: 'Jij verbetert deze vraag na de toets. Het modelantwoord helpt je (en de AI) snel verbeteren.',
   papier: 'De leerling maakt deze opdracht op papier. Na de toets geef jij de punten.',
   bron: 'Een leestekst, tabel of prent links, met de deelvragen a, b, c rechts ervan.',
+  blad: 'De leerling ziet dit blad zoals het in je pdf staat en typt in de vakjes. Klik op het blad om vakjes te verschuiven, bij te maken of weg te halen en de antwoorden in te vullen.',
 };
 
 let editingFile = null;
@@ -438,7 +489,8 @@ function vraagKaart(q, inBron) {
     body.appendChild(d);
     return d;
   };
-  if (q.type === 'bron') {
+  if (q.type === 'blad') bladKaart(card, body, q);
+  else if (q.type === 'bron') {
     veld('<label>Titel van de bron<input class="e-titel" maxlength="120" placeholder="bijv. Het verhaal van de Leie"></label>');
     veld('<label>Tekst of gegevens<textarea class="e-tekst" rows="5" placeholder="De leestekst, of gegevens waar de deelvragen over gaan."></textarea></label>');
     card.querySelector('.e-titel').value = q.titel || '';
@@ -450,7 +502,7 @@ function vraagKaart(q, inBron) {
     for (const d of q.vragen || []) deel.appendChild(vraagKaart(d, true));
     body.appendChild(deel);
     const add = veld('<strong>Deelvraag toevoegen:</strong> ', 'actions pf-deel-add');
-    for (const t of PfKern.TYPES.filter(x => x !== 'bron')) {
+    for (const t of PfKern.TYPES.filter(x => x !== 'bron' && x !== 'blad')) {
       const b = document.createElement('button');
       b.className = 'secondary small-btn';
       b.textContent = `+ ${PfKern.NAMES[t]}`;
@@ -549,6 +601,60 @@ function vraagKaart(q, inBron) {
   return card;
 }
 
+// Een blad uit de pdf: een kleine weergave met de vakjes, en een knop om ze te plaatsen en de antwoorden in te vullen.
+function bladKaart(card, body, q) {
+  card.pfBeeld = q.beeld;
+  card.pfBlad = { verhouding: q.verhouding, velden: (q.velden || []).map(f => ({ ...f })) };
+  const vak = document.createElement('div');
+  vak.className = 'pf-blad-kaart';
+  body.appendChild(vak);
+  const teken = () => {
+    const velden = card.pfBlad.velden;
+    const leeg = velden.filter(PfBlad.leegVeld).length;
+    vak.innerHTML = `<button type="button" class="pf-blad-mini" title="Vakjes plaatsen en antwoorden invullen" style="aspect-ratio:${1 / (card.pfBlad.verhouding || 1.414)}">
+        <img src="${card.pfBeeld}" alt="">${velden.map(f => `<i class="${f.soort}${PfBlad.leegVeld(f) ? ' zonder' : ''}" style="left:${f.x}%;top:${f.y}%;width:${f.w}%;height:${f.h}%"></i>`).join('')}</button>
+      <div class="pf-blad-info"><p><strong>${velden.length} vakjes</strong> · ${nl(velden.filter(f => f.soort !== 'open').reduce((s, f) => s + (Number(f.punten) || 0), 0))} punten${velden.some(f => f.soort === 'open') ? ' + open vakjes (verbeter jij)' : ''}</p>
+        ${leeg ? `<p class="pf-nodig">⚠ ${leeg} ${leeg === 1 ? 'vakje heeft' : 'vakjes hebben'} nog geen antwoord</p>` : velden.length ? '<p class="muted small">Alle antwoorden staan erin.</p>' : '<p class="pf-nodig">⚠ Nog geen vakjes</p>'}
+        <button type="button" class="secondary small-btn bewerk">✏️ Vakjes en antwoorden</button></div>`;
+    for (const b of vak.querySelectorAll('.pf-blad-mini, .bewerk')) b.addEventListener('click', bewerk);
+  };
+  const bewerk = async () => {
+    const nr = card.querySelector('.pf-k-nr').textContent;
+    const velden = await PfBlad.bewerk({ beeld: card.pfBeeld, verhouding: card.pfBlad.verhouding, velden: card.pfBlad.velden }, {
+      titel: `Blad ${nr}`, nr, niveau: $('a-level').value, ai: hasKey ? aiSleutel : null,
+    });
+    if (!velden) return;
+    card.pfBlad.velden = velden;
+    teken();
+    preview();
+  };
+  card.pfBewerk = bewerk;
+  teken();
+  const v = document.createElement('div');
+  v.innerHTML = `<p class="muted small">${HELP.blad}</p>`;
+  body.appendChild(v);
+}
+
+// De AI zoekt de antwoorden voor de vakjes op de bladen (met de eigen sleutel). Per 8 bladen één vraag.
+async function aiSleutel(bladen) {
+  const alles = [];
+  for (let i = 0; i < bladen.length; i += 8) {
+    const deel = bladen.slice(i, i + 8);
+    const start = 1 + bladen.slice(0, i).reduce((s, b) => s + b.velden.length, 0);
+    let nr = start;
+    const files = [];
+    for (const b of deel) {
+      const g = await PfBlad.genummerd(b, nr);
+      files.push({ mimeType: g.mimeType, data: g.data });
+      nr += b.velden.length;
+    }
+    const res = await new Promise(resolve => socket.emit('pf-sleutel', { prompt: PfBlad.aiPrompt(deel, start, $('a-level').value), files }, resolve));
+    if (res.error) throw new Error(res.error);
+    alles.push(...res.velden);
+  }
+  return alles;
+}
+
 const waarde = (card, sel) => { const el = card.querySelector(`:scope > .pf-k-body ${sel}`); return el ? el.value : ''; };
 
 function leesKaart(card) {
@@ -561,6 +667,12 @@ function leesKaart(card) {
   }
   const doel = card.querySelector(':scope > .pf-k-body > .doel-veld');
   if (doel && DoelKies.read(doel)) q.doel = DoelKies.read(doel);
+  if (type === 'blad') {
+    q.beeld = card.pfBeeld;
+    q.verhouding = card.pfBlad.verhouding;
+    q.velden = card.pfBlad.velden;
+    return q;
+  }
   if (type === 'bron') {
     q.titel = waarde(card, '.e-titel');
     q.tekst = waarde(card, '.e-tekst');
@@ -676,14 +788,16 @@ function preview() {
     const sleutel = {};
     const zones = {};
     for (const { id, q } of PfKern.vragenVan(lijst)) {
-      sleutel[id] = PfKern.oplossing(q);
+      sleutel[id] = q.type === 'blad' ? PfKern.veldSleutel(q) : PfKern.oplossing(q);
       if (q.type === 'aanduiden') zones[id] = q.zones;
     }
     PfPaper.render($('e-preview'), v.pages, { mode: 'view', nummer: true, sleutel, zones });
     $('e-totaal').textContent = `${PfKern.vragenVan(lijst).length} vragen · ${nl(PfKern.totaal(lijst))} punten${PfKern.niveausVan(t).length > 1 ? ` (${Niveau.NAMES[editNiveau]})` : ''}`;
     const pr = PfKern.problemen(t);
-    $('e-problemen').classList.toggle('hidden', !pr.length);
-    $('e-problemen').innerHTML = pr.length ? `<strong>Nog te doen voor je de toets afneemt:</strong><ul>${pr.map(p => `<li>${esc(p)}</li>`).join('')}</ul>` : '';
+    const tips = PfKern.waarschuwingen(t);
+    $('e-problemen').classList.toggle('hidden', !pr.length && !tips.length);
+    $('e-problemen').innerHTML = (pr.length ? `<strong>Nog te doen voor je de toets afneemt:</strong><ul>${pr.map(p => `<li>${esc(p)}</li>`).join('')}</ul>` : '')
+      + (tips.length ? `<strong>Tip:</strong><ul>${tips.map(p => `<li>${esc(p)}: knip ze uit je pdf met ✂ of voeg een afbeelding toe.</li>`).join('')}</ul>` : '');
   }, 250);
 }
 
@@ -703,8 +817,19 @@ function openEditor(t, file) {
   showNiveau('schildknaap');
 }
 
-$('e-add').innerHTML = PfKern.TYPES.map(t => `<button class="secondary" data-type="${t}">+ ${PfKern.NAMES[t]}</button>`).join('');
-for (const b of $('e-add').querySelectorAll('button')) {
+$('e-add').innerHTML = `${PfKern.TYPES.filter(t => t !== 'blad').map(t => `<button class="secondary" data-type="${t}">+ ${PfKern.NAMES[t]}</button>`).join('')}
+  <label class="file-button secondary">+ Bladen uit een pdf<input type="file" id="e-add-blad" accept="application/pdf,image/*" hidden></label>`;
+$('e-add-blad').addEventListener('change', async e => {
+  const f = e.target.files[0];
+  e.target.value = '';
+  if (!f) return;
+  try {
+    const bladen = await bladenUit([await alsBron(f)], () => {});
+    for (const q of bladen) vragenBox(editNiveau).appendChild(vraagKaart(q));
+    preview();
+  } catch (err) { Ui.melding(err.message); }
+});
+for (const b of $('e-add').querySelectorAll('button[data-type]')) {
   b.addEventListener('click', () => {
     const t = b.dataset.type;
     const card = vraagKaart(t === 'bron' ? { type: t, vragen: [] } : { type: t, vraag: DEFAULT_VRAAG[t] });
@@ -927,7 +1052,7 @@ function papierVan(toets, niveau, answers, punten) {
   const sleutel = {};
   const zones = {};
   for (const { id, q } of PfKern.vragenVan(lijst)) {
-    sleutel[id] = PfKern.oplossing(q);
+    sleutel[id] = q.type === 'blad' ? PfKern.veldSleutel(q) : PfKern.oplossing(q);
     if (q.type === 'aanduiden') zones[id] = q.zones;
   }
   return { pages: v.pages, opts: { mode: 'view', nummer: true, answers: answers || {}, sleutel, zones, punten } };
@@ -1019,10 +1144,18 @@ function openAfname(file) {
 $('v-terug').addEventListener('click', () => show(state && state.active ? 'lobby' : 'list'));
 for (const b of $('v-tabs').querySelectorAll('button')) {
   b.addEventListener('click', () => {
-    for (const x of $('v-tabs').querySelectorAll('button')) x.classList.toggle('on', x === b);
-    $('v-vragen').classList.toggle('hidden', b.dataset.tab !== 'vragen');
-    $('v-leerlingen').classList.toggle('hidden', b.dataset.tab !== 'leerlingen');
+    for (const x of $('v-tabs').querySelectorAll('button')) {
+      x.classList.toggle('on', x === b);
+      $(`v-${x.dataset.tab}`).classList.toggle('hidden', x !== b);
+    }
   });
+}
+
+// De punten die een vraag echt oplevert: wat jij zelf gaf (over), anders computer + jouw punten.
+const zelfGegeven = (s, id) => s.over && s.over[id] !== undefined && s.over[id] !== null;
+function kreeg(s, id) {
+  if (zelfGegeven(s, id)) return Number(s.over[id]);
+  return (Number(s.auto[id]) || 0) + (Number(s.hand[id]) || 0);
 }
 
 function standVan(s) {
@@ -1031,6 +1164,7 @@ function standVan(s) {
   let open = 0;
   for (const { id, q } of PfKern.vragenVan(PfKern.lijstVoor(afname.toets, s.niveau))) {
     max += PfKern.maxVan(q);
+    if (zelfGegeven(s, id)) { punten += Number(s.over[id]); continue; }
     punten += Number(s.auto[id]) || 0;
     if (PfKern.handPunten(q)) {
       if (s.hand[id] === undefined || s.hand[id] === null) open++;
@@ -1043,9 +1177,31 @@ function standVan(s) {
 function antwoordTekst(q, a) {
   if (a === undefined || a === null || a === '') return '<em class="muted">niet ingevuld</em>';
   if (q.type === 'rekenen') return `<div class="pf-werk-antw">${esc(a.werk || '').replace(/\n/g, '<br>') || '<em class="muted">geen bewerking</em>'}</div><p>Uitkomst: <strong>${esc(a.uitkomst || '–')}</strong> ${q.eenheid && !String(a.uitkomst || '').includes(q.eenheid) ? esc(q.eenheid) : ''}</p>`;
+  if (q.type === 'blad') {
+    const rijen = q.velden.map((f, k) => (f.soort === 'open' ? `<p><b>Vak ${k + 1}:</b> ${a[k] ? esc(a[k]).replace(/\n/g, '<br>') : '<em class="muted">leeg</em>'}</p>` : '')).join('');
+    return rijen || esc(antwoordKort(q, a));
+  }
+  if (typeof a === 'object') return esc(antwoordKort(q, a));
   return esc(String(a)).replace(/\n/g, '<br>');
 }
 
+// Een antwoord kort als tekst (voor de lijst en de foutenanalyse), in de volgorde van de toets zelf.
+function antwoordKort(q, a) {
+  const L = 'ABCDEFGH';
+  if (a === undefined || a === null || a === '' || (Array.isArray(a) && !a.some(x => x !== null && x !== undefined && x !== ''))) return '';
+  const opt = i => (typeof q.opties[i] === 'string' ? q.opties[i] : (q.opties[i] && q.opties[i].tekst) || '');
+  if (q.type === 'meerkeuze') return [].concat(a).map(i => `${L[i]}${opt(i) ? ` (${opt(i)})` : ''}`).join(' + ');
+  if (q.type === 'juistfout') return a === 'J' ? 'Juist' : 'Fout';
+  if (q.type === 'rekenen') return String(a.uitkomst || '');
+  if (q.type === 'invullen' || q.type === 'tabel') return a.map(x => x || '…').join(' · ');
+  if (q.type === 'verbinden') return q.paren.map((p, k) => `${p[0]} = ${a[k] === null || a[k] === undefined ? '…' : q.paren[a[k]][1]}`).join(' · ');
+  if (q.type === 'ordenen') return a.map(i => q.items[i]).join(' → ');
+  if (q.type === 'aanduiden') return 'een plek op de afbeelding';
+  if (q.type === 'blad') return q.velden.map((f, k) => (a[k] === true ? `${k + 1}: ✗` : a[k] ? `${k + 1}: ${a[k]}` : '')).filter(Boolean).join(' · ');
+  return String(a).slice(0, 200);
+}
+
+let alleVragen = false;
 function renderAfname() {
   const a = afname;
   $('v-title').textContent = `Verbeteren · ${a.title}`;
@@ -1054,42 +1210,49 @@ function renderAfname() {
   const note = $('v-klaar-note');
   note.innerHTML = '';
   if (a.klaar && a.resultaten) {
-    note.append('Klaar: de punten staan in het logboek en in Excel. ');
+    note.append('Klaar: de punten staan in het logboek en in Excel. Pas je nog iets aan, klik dan op Excel opnieuw maken. ');
     note.append(downloadLink(a.resultaten));
   }
   note.classList.toggle('hidden', !(a.klaar && a.resultaten));
   $('v-klaar').textContent = a.klaar ? 'Excel opnieuw maken' : 'Klaar met verbeteren';
 
-  // Per vraag: alleen wat jij verbetert (open, op papier, de bewerking bij rekenvragen), alle leerlingen onder elkaar.
+  // Per vraag: wat jij verbetert (open, op papier, de bewerking), of alle vragen om ook de computer te corrigeren.
   const groepen = [];
   for (const n of PfKern.niveausVan(a.toets)) {
     const spelers = a.spelers.map((s, i) => ({ s, i })).filter(x => (PfKern.niveausVan(a.toets).length > 1 ? x.s.niveau === n : true));
     if (!spelers.length) continue;
     for (const { id, q, nr, bron } of PfKern.vragenVan(PfKern.lijstVoor(a.toets, n))) {
-      if (PfKern.handPunten(q)) groepen.push({ n, id, q, nr, bron, spelers });
+      if (alleVragen || PfKern.handPunten(q)) groepen.push({ n, id, q, nr, bron, spelers });
     }
   }
   const multi = PfKern.niveausVan(a.toets).length > 1;
-  $('v-vragen').innerHTML = groepen.length ? groepen.map(g => `<div class="panel pf-vg">
-      <h3>${multi ? `${Niveau.ICONS[g.n]} ` : ''}Vraag ${esc(g.nr)} · ${esc(PfKern.NAMES[g.q.type])} <span class="muted small">(${nl(PfKern.handPunten(g.q))} ${g.q.type === 'rekenen' ? 'punten voor de bewerking' : 'punten'})</span></h3>
+  const filter = `<div class="pf-tabs pf-filter"><button type="button" class="secondary${alleVragen ? '' : ' on'}" data-alle="0">Te verbeteren door jou</button><button type="button" class="secondary${alleVragen ? ' on' : ''}" data-alle="1">Alle vragen (ook ✔ / ✘ van de computer aanpassen)</button></div>`;
+  $('v-vragen').innerHTML = filter + (groepen.length ? groepen.map(g => {
+    const hand = !alleVragen && PfKern.handPunten(g.q);
+    const sleutel = g.q.type === 'blad' ? PfKern.oplossing(g.q) : g.q.model || PfKern.oplossing(g.q);
+    return `<div class="panel pf-vg">
+      <h3>${multi ? `${Niveau.ICONS[g.n]} ` : ''}Vraag ${esc(g.nr)} · ${esc(PfKern.NAMES[g.q.type])} <span class="muted small">(${hand ? `${nl(PfKern.handPunten(g.q))} ${g.q.type === 'rekenen' ? 'punten voor de bewerking' : 'punten'}` : `${nl(PfKern.maxVan(g.q))} punten`})</span></h3>
       ${g.bron && g.bron.tekst ? `<details class="pf-bron-kort"><summary>Bron: ${esc(g.bron.titel || 'tekst')}</summary><p>${esc(g.bron.tekst).replace(/\n/g, '<br>')}</p></details>` : ''}
-      <p class="pf-vg-vraag">${esc(g.q.vraag || '')}</p>
-      ${g.q.beeld && !g.q.beeld.startsWith('#') ? `<img class="pf-beeld klein" src="${g.q.beeld}" alt="">` : ''}
-      ${g.q.model ? `<p class="pf-sleutel">✔ ${esc(g.q.model)}</p>` : g.q.type === 'rekenen' ? `<p class="pf-sleutel">✔ Uitkomst: ${esc(PfKern.oplossing(g.q))}</p>` : ''}
-      <div class="pf-vg-lijst">${g.spelers.map(({ s, i }) => `<div class="pf-vg-rij">
+      ${g.q.vraag ? `<p class="pf-vg-vraag">${esc(g.q.vraag)}</p>` : ''}
+      ${g.q.beeld && !g.q.beeld.startsWith('#') && g.q.type !== 'blad' ? `<img class="pf-beeld klein" src="${g.q.beeld}" alt="">` : ''}
+      ${sleutel ? `<p class="pf-sleutel">✔ ${esc(sleutel)}</p>` : ''}
+      <div class="pf-vg-lijst">${g.spelers.map(({ s, i }) => `<div class="pf-vg-rij${!hand && zelfGegeven(s, g.id) ? ' zelf' : ''}">
         <span class="naam">${esc(s.naam)}</span>
-        <div class="antw">${g.q.type === 'papier' ? '<em class="muted">op papier</em>' : antwoordTekst(g.q, s.antwoorden[g.id])}</div>
-        ${puntKnoppen(i, g.id, PfKern.handPunten(g.q), s.hand[g.id])}
-      </div>`).join('')}</div></div>`).join('') : '<p class="muted">Deze toets heeft geen open vragen: de computer verbeterde alles.</p>';
+        <div class="antw">${g.q.type === 'papier' ? '<em class="muted">op papier</em>' : antwoordTekst(g.q, s.antwoorden[g.id])}${!hand && g.q.type === 'blad' ? vakChips(i, g.id, g.q, s) : ''}</div>
+        ${hand ? puntKnoppen(i, g.id, PfKern.handPunten(g.q), s.hand[g.id]) : corrKnoppen(i, g.id, g.q, s)}
+      </div>`).join('')}</div></div>`;
+  }).join('') : '<p class="muted">Niets meer te verbeteren: de computer verbeterde alles. Klik op Alle vragen om een ✔ of ✘ van de computer aan te passen.</p>');
+  for (const b of $('v-vragen').querySelectorAll('[data-alle]')) b.addEventListener('click', () => { alleVragen = b.dataset.alle === '1'; renderAfname(); });
 
   // Per leerling: punten, procent, hoe vaak hij de toets verliet. Klik voor zijn hele toets.
-  $('v-leerlingen').innerHTML = `<div class="pf-tabel-wrap"><table class="pf-resultaten"><tr><th>Naam</th>${multi ? '<th>Niveau</th>' : ''}<th>Punten</th><th>%</th><th>Nog te verbeteren</th><th>Verliet de toets</th></tr>
+  $('v-leerlingen').innerHTML = `<p class="muted small">Klik op een naam: je ziet de hele toets van die leerling en past bij elke vraag de punten aan.</p><div class="pf-tabel-wrap"><table class="pf-resultaten"><tr><th>Naam</th>${multi ? '<th>Niveau</th>' : ''}<th>Punten</th><th>%</th><th>Nog te verbeteren</th><th>Verliet de toets</th></tr>
     ${a.spelers.map((s, i) => {
       const st = standVan(s);
       return `<tr data-i="${i}"><td><button class="link">${esc(s.naam)}</button></td>${multi ? `<td>${Niveau.label(s.niveau)}</td>` : ''}<td>${nl(st.punten)} / ${nl(st.max)}</td><td>${st.max ? Math.round((st.punten / st.max) * 100) : 0}%</td><td>${st.open || '–'}</td><td>${(s.events || []).length ? `⚠ ${(s.events || []).length}×` : '–'}</td></tr>`;
     }).join('')}</table></div>`;
   for (const tr of $('v-leerlingen').querySelectorAll('tr[data-i]')) tr.querySelector('button').addEventListener('click', () => leerlingAfname(Number(tr.dataset.i)));
   wirePunten($('v-vragen'));
+  renderAnalyse();
 }
 
 function puntKnoppen(speler, id, max, nu) {
@@ -1099,18 +1262,79 @@ function puntKnoppen(speler, id, max, nu) {
   return `<div class="pf-punten" data-speler="${speler}" data-id="${esc(id)}">${stappen.map(p => `<button type="button" class="secondary${nu === p ? ' on' : ''}" data-p="${p}">${nl(p)}</button>`).join('')}</div>`;
 }
 
-function wirePunten(box) {
+// Per vakje van een blad: wat de leerling schreef, ✔ of ✘. Klik om het om te draaien.
+function vakOordeel(s, id, q) {
+  const zelf = (s.vak && s.vak[id]) || {};
+  return { goed: PfKern.vakGoed(q, s.antwoorden[id], zelf), zelf };
+}
+function vakChips(speler, id, q, s) {
+  const { goed, zelf } = vakOordeel(s, id, q);
+  const a = Array.isArray(s.antwoorden[id]) ? s.antwoorden[id] : [];
+  return `<div class="pf-vak-chips" data-speler="${speler}" data-id="${esc(id)}">${goed.map((g, k) => (g === null ? '' : `<button type="button" class="secondary ${g ? 'goed' : 'fout'}${zelf[k] !== undefined ? ' zelf' : ''}" data-k="${k}" title="Klik om ${g ? 'fout' : 'goed'} te zetten">${k + 1}: ${esc(a[k] || '…')} ${g ? '✔' : '✘'}</button>`)).join('')}</div>`;
+}
+function zetVak(speler, id, k, klaar) {
+  const s = afname.spelers[speler];
+  const q = PfKern.vragenVan(PfKern.lijstVoor(afname.toets, s.niveau)).find(v => v.id === id).q;
+  const { goed, zelf } = vakOordeel(s, id, q);
+  const computer = PfKern.vakGoed(q, s.antwoorden[id], {})[k];
+  // Terugdraaien naar wat de computer vond: dan is er geen eigen oordeel meer nodig.
+  const nieuw = !goed[k] === computer ? null : !goed[k];
+  socket.emit('pf-cijfer', { file: afname.file, speler, id, vak: k, goed: nieuw }, res => {
+    if (res.error) return Ui.melding(res.error);
+    s.vak = s.vak || {};
+    s.vak[id] = { ...zelf };
+    if (nieuw === null) delete s.vak[id][k]; else s.vak[id][k] = nieuw;
+    s.auto[id] = PfKern.auto(q, s.antwoorden[id], s.vak[id]);
+    if (s.over) delete s.over[id];
+    renderAfname();
+    if (klaar) klaar();
+  });
+}
+document.addEventListener('click', e => {
+  const b = e.target.closest('.pf-vak-chips button');
+  if (!b || !afname) return;
+  const box = b.closest('.pf-vak-chips');
+  zetVak(Number(box.dataset.speler), box.dataset.id, Number(b.dataset.k));
+});
+
+// ✔ / ✘ en punten voor een hele vraag, ook als de computer al verbeterde. Jouw keuze telt; ↺ geeft het terug aan de computer.
+function corrKnoppen(speler, id, q, s) {
+  const max = PfKern.maxVan(q);
+  const nu = kreeg(s, id);
+  const zelf = zelfGegeven(s, id);
+  const open = !zelf && PfKern.handPunten(q) && (s.hand[id] === undefined || s.hand[id] === null);
+  const stappen = [];
+  if (max > 1) for (let p = max > 6 ? 1 : 0.5; p < max && stappen.length < 10; p += max > 6 ? 1 : 0.5) stappen.push(p);
+  const knop = (p, label, cls) => `<button type="button" class="secondary ${cls || ''}${!open && nu === p ? ' on' : ''}" data-p="${p}" title="${nl(p)} van ${nl(max)}">${label}</button>`;
+  const computer = open ? 'nog te verbeteren' : zelf ? `jij: ${nl(nu)} / ${nl(max)}` : `${nu >= max ? '✔' : nu > 0 ? '½' : '✘'} computer: ${nl(nu)} / ${nl(max)}`;
+  return `<div class="pf-punten pf-corr" data-speler="${speler}" data-id="${esc(id)}" data-over="1">
+    <span class="pf-corr-wie">${computer}</span>
+    ${knop(0, '✘', 'fout')}${stappen.map(p => knop(p, nl(p))).join('')}${knop(max, `✔ ${nl(max)}`, 'goed')}
+    ${zelf ? '<button type="button" class="secondary terug" data-p="terug" title="Terug naar de punten van de computer">↺</button>' : ''}</div>`;
+}
+
+function wirePunten(box, na) {
   for (const g of box.querySelectorAll('.pf-punten')) {
     for (const b of g.querySelectorAll('button')) {
       b.addEventListener('click', () => {
         const s = afname.spelers[Number(g.dataset.speler)];
-        const p = b.classList.contains('on') ? null : Number(b.dataset.p);
-        socket.emit('pf-cijfer', { file: afname.file, speler: Number(g.dataset.speler), id: g.dataset.id, punten: p }, res => {
+        const over = g.dataset.over === '1';
+        const p = b.dataset.p === 'terug' || (!over && b.classList.contains('on')) ? null : Number(b.dataset.p);
+        socket.emit('pf-cijfer', { file: afname.file, speler: Number(g.dataset.speler), id: g.dataset.id, punten: p, over }, res => {
           if (res.error) return Ui.melding(res.error);
+          if (over) {
+            s.over = s.over || {};
+            if (p === null) delete s.over[g.dataset.id]; else s.over[g.dataset.id] = p;
+            renderAfname();
+            if (na) na();
+            return;
+          }
           s.hand[g.dataset.id] = p;
           for (const x of g.querySelectorAll('button')) x.classList.toggle('on', p !== null && Number(x.dataset.p) === p);
           const totOpen = afname.spelers.reduce((n, sp) => n + standVan(sp).open, 0);
           $('v-info').textContent = $('v-info').textContent.replace(/·[^·]*$/, `· ${totOpen ? `nog ${totOpen} antwoorden te verbeteren` : 'alles verbeterd'}`);
+          renderAnalyse();
+          if (na) na();
         });
       });
     }
@@ -1120,21 +1344,97 @@ function wirePunten(box) {
 function leerlingAfname(i) {
   const s = afname.spelers[i];
   const punten = {};
-  for (const { id, q } of PfKern.vragenVan(PfKern.lijstVoor(afname.toets, s.niveau))) {
-    const h = PfKern.handPunten(q) ? s.hand[id] : 0;
-    punten[id] = [h === null || h === undefined ? `${nl(Number(s.auto[id]) || 0)} + ?` : (Number(s.auto[id]) || 0) + Number(h), PfKern.maxVan(q)];
+  const vragen = PfKern.vragenVan(PfKern.lijstVoor(afname.toets, s.niveau));
+  for (const { id, q } of vragen) {
+    const open = !zelfGegeven(s, id) && PfKern.handPunten(q) && (s.hand[id] === null || s.hand[id] === undefined);
+    punten[id] = [open ? `${nl(Number(s.auto[id]) || 0)} + ?` : kreeg(s, id), PfKern.maxVan(q)];
   }
   const { pages, opts } = papierVan(afname.toets, s.niveau, s.antwoorden, punten);
+  opts.vakken = {};
+  for (const { id, q } of vragen) if (q.type === 'blad') opts.vakken[id] = vakOordeel(s, id, q);
   const st = standVan(s);
   $('d-name').textContent = `${s.naam} · ${nl(st.punten)} / ${nl(st.max)}`;
-  $('d-actions').innerHTML = '<button class="secondary" data-a="sluit">Sluiten</button>';
-  $('d-actions').querySelector('button').addEventListener('click', sluitDetail);
+  $('d-actions').innerHTML = `${i > 0 ? '<button class="secondary" data-a="vorige">◀ Vorige leerling</button>' : ''}${i < afname.spelers.length - 1 ? '<button class="secondary" data-a="volgende">Volgende leerling ▶</button>' : ''}<button class="secondary" data-a="sluit">Sluiten</button>`;
+  for (const b of $('d-actions').querySelectorAll('button')) {
+    b.addEventListener('click', () => {
+      if (b.dataset.a === 'sluit') return sluitDetail();
+      leerlingAfname(i + (b.dataset.a === 'volgende' ? 1 : -1));
+    });
+  }
   $('d-events').innerHTML = (s.events || []).length
     ? `<strong>⚠ Verliet de toets ${s.events.length}×:</strong> ${s.events.map(e => `${tijd(e.t)} ${esc(SOORT[e.soort] || e.soort)}${e.ms ? ` (${Math.round(e.ms / 1000)} s weg)` : ''}`).join(' · ')}`
     : '<span class="muted">Bleef de hele tijd in de toets.</span>';
+  const scroll = $('detail').classList.contains('hidden') ? 0 : $('detail').querySelector('.ob-modal-box').scrollTop;
   PfPaper.render($('d-paper'), pages, opts);
+  // Onder elke vraag: ✔ / ✘ of punten, ook waar de computer al verbeterde.
+  for (const { id, q } of vragen) {
+    const el = $('d-paper').querySelector(`.pf-q[data-id="${id}"]`);
+    if (el) el.insertAdjacentHTML('beforeend', corrKnoppen(i, id, q, s));
+  }
+  wirePunten($('d-paper'), () => leerlingAfname(i));
+  for (const b of $('d-paper').querySelectorAll('.pf-vak-oordeel')) b.addEventListener('click', () => zetVak(i, b.dataset.id, Number(b.dataset.k), () => leerlingAfname(i)));
   $('detail').classList.remove('hidden');
-  $('detail').querySelector('.ob-modal-box').scrollTop = 0;
+  $('detail').querySelector('.ob-modal-box').scrollTop = scroll;
+}
+
+// Foutenanalyse: per vraag (en per vakje op een blad) hoeveel procent het juist had en welke foute antwoorden het vaakst voorkwamen.
+function renderAnalyse() {
+  const a = afname;
+  const multi = PfKern.niveausVan(a.toets).length > 1;
+  const blokken = [];
+  for (const n of PfKern.niveausVan(a.toets)) {
+    const spelers = a.spelers.filter(s => (multi ? s.niveau === n : true));
+    if (!spelers.length) continue;
+    const items = [];
+    for (const { id, q, nr } of PfKern.vragenVan(PfKern.lijstVoor(a.toets, n))) {
+      const max = PfKern.maxVan(q);
+      if (!max) continue;
+      if (q.type === 'blad') {
+        q.velden.forEach((f, k) => {
+          if (f.soort === 'kruis' || f.soort === 'open') return;
+          const fout = new Map();
+          let juist = 0;
+          let leeg = 0;
+          for (const s of spelers) {
+            const x = (s.antwoorden[id] || [])[k];
+            if (x === undefined || x === null || x === '') { leeg++; continue; }
+            const ok = f.soort === 'kies' ? x === f.antwoord : PfKern.zelfde(f.antwoord, x, { eenheid: f.eenheid });
+            if (ok) juist++; else fout.set(String(x).trim(), (fout.get(String(x).trim()) || 0) + 1);
+          }
+          items.push({ nr: `${nr} · vak ${k + 1}`, juist, n: spelers.length, leeg, fout, sleutel: PfKern.veldSleutel(q)[k] });
+        });
+        continue;
+      }
+      const fout = new Map();
+      let juist = 0;
+      let leeg = 0;
+      let open = 0;
+      for (const s of spelers) {
+        const x = s.antwoorden[id];
+        const tekst = antwoordKort(q, x);
+        const nog = !zelfGegeven(s, id) && PfKern.handPunten(q) && (s.hand[id] === null || s.hand[id] === undefined);
+        if (nog) { open++; continue; }
+        if (kreeg(s, id) >= max) juist++;
+        else if (!tekst) leeg++;
+        else if (!PfKern.MANUEEL.has(q.type)) fout.set(tekst, (fout.get(tekst) || 0) + 1);
+      }
+      items.push({ nr, vraag: q.vraag, juist, n: spelers.length - open, leeg, fout, sleutel: q.model || PfKern.oplossing(q), open });
+    }
+    blokken.push({ n, items });
+  }
+  $('v-analyse').innerHTML = blokken.map(({ n, items }) => `<div class="panel">
+    ${multi ? `<h3>${Niveau.label(n)}</h3>` : ''}
+    <p class="muted small">Gesorteerd van moeilijk naar makkelijk. Een rood balkje: hier is herhaling nodig.</p>
+    <div class="pf-analyse">${items.slice().sort((x, y) => x.juist / (x.n || 1) - y.juist / (y.n || 1)).map(it => {
+      const pct = it.n ? Math.round((it.juist / it.n) * 100) : 0;
+      const top = [...it.fout.entries()].sort((x, y) => y[1] - x[1]).slice(0, 3);
+      return `<div class="pf-an-rij">
+        <span class="pf-an-nr">Vraag ${esc(it.nr)}</span>
+        <span class="pf-an-balk ${pct < 50 ? 'laag' : pct < 75 ? 'mid' : 'hoog'}"><i style="width:${pct}%"></i><b>${it.n ? `${pct}% juist` : 'nog niet verbeterd'}</b></span>
+        <span class="pf-an-tekst">${it.vraag ? `${esc(it.vraag.slice(0, 90))}${it.vraag.length > 90 ? '…' : ''}<br>` : ''}${it.sleutel ? `<span class="pf-sleutel-klein">✔ ${esc(String(it.sleutel).slice(0, 80))}</span>` : ''}
+          ${top.length ? `<br><span class="pf-an-fout">Vaakste fouten: ${top.map(([t, c]) => `<b>${esc(t.slice(0, 50))}</b> (${c}×)`).join(', ')}</span>` : ''}${it.leeg ? ` <span class="muted">· ${it.leeg}× niet ingevuld</span>` : ''}${it.open ? ` <span class="muted">· ${it.open} nog te verbeteren</span>` : ''}</span>
+      </div>`;
+    }).join('')}</div></div>`).join('');
 }
 
 $('v-klaar').addEventListener('click', async () => {

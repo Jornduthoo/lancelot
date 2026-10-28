@@ -72,6 +72,13 @@ function parseAiText(raw) {
   return K.validate(data);
 }
 
+// Het antwoord van de AI met de antwoorden voor de vakjes op een blad.
+function parseSleutel(raw) {
+  const data = extract(raw, 'verbetersleutel', d => Array.isArray(d.velden) || Array.isArray(d));
+  const velden = Array.isArray(data) ? data : data.velden;
+  return velden.filter(v => v && typeof v === 'object').slice(0, 400);
+}
+
 const lib = library({ kind: 'proef', dir: DIR, checkFile, load, save, validate: K.validate, list });
 
 // ---------- Afnames ----------
@@ -115,6 +122,7 @@ function stand(rec, s) {
   let open = 0;
   for (const { id, q } of K.vragenVan(lijst)) {
     max += K.maxVan(q);
+    if (s.over && s.over[id] !== undefined && s.over[id] !== null) { punten += Number(s.over[id]) || 0; continue; }
     punten += Number(s.auto[id]) || 0;
     if (K.handPunten(q)) {
       if (s.hand[id] === undefined || s.hand[id] === null) open++;
@@ -137,12 +145,40 @@ function afnames() {
   }).filter(Boolean).sort((a, b) => b.datum.localeCompare(a.datum));
 }
 
+// De punten die een vraag echt oplevert: wat de leerkracht zelf gaf (over), anders computer + leerkracht.
+const kregen = (s, id) => (s.over && s.over[id] !== undefined && s.over[id] !== null ? Number(s.over[id]) : (Number(s.auto[id]) || 0) + (Number(s.hand[id]) || 0));
+
 // Punten van de leerkracht voor één vraag van één leerling (null = nog niet verbeterd).
-function cijfer({ file, speler, id, punten } = {}) {
+// over: true = de leerkracht zet de punten van de hele vraag zelf (ook als de computer al verbeterde); null = terug naar de computer.
+function cijfer({ file, speler, id, punten, over, vak, goed } = {}) {
   const rec = laadAfname(file);
   const s = rec.spelers[Number(speler)];
   if (!s) throw new Error('Die leerling staat niet in deze afname.');
   const v = K.vragenVan(K.lijstVoor(rec.toets, s.niveau)).find(x => x.id === id);
+  // Eén vakje van een blad zelf goed of fout zetten (goed: null = terug naar de computer).
+  if (vak !== undefined) {
+    const k = Number(vak);
+    if (!v || v.q.type !== 'blad' || !v.q.velden[k]) throw new Error('Dat vakje bestaat niet.');
+    s.vak = s.vak || {};
+    s.vak[id] = s.vak[id] || {};
+    if (goed === true || goed === false) s.vak[id][k] = goed; else delete s.vak[id][k];
+    s.auto[id] = K.auto(v.q, s.antwoorden[id], s.vak[id]);
+    if (s.over) delete s.over[id]; // een eigen oordeel per vakje vervangt de punten voor het hele blad
+    schrijf(rec);
+    return stand(rec, s);
+  }
+  if (over) {
+    if (!v) throw new Error('Die vraag staat niet in deze toets.');
+    s.over = s.over || {};
+    if (punten === null || punten === '') delete s.over[id];
+    else {
+      const n = Math.round(Number(String(punten).replace(',', '.')) * 2) / 2;
+      if (!Number.isFinite(n) || n < 0 || n > K.maxVan(v.q)) throw new Error(`Geef 0 tot ${K.maxVan(v.q)} punten.`);
+      s.over[id] = n;
+    }
+    schrijf(rec);
+    return stand(rec, s);
+  }
   if (!v || !K.handPunten(v.q)) throw new Error('Deze vraag verbeter je niet zelf.');
   if (punten === null || punten === '') s.hand[id] = null;
   else {
@@ -163,7 +199,7 @@ function klaar(file, saveCsv) {
       for (const { id, q, nr } of K.vragenVan(K.lijstVoor(rec.toets, s.niveau))) {
         const max = K.maxVan(q);
         if (!max) continue;
-        const kreeg = (Number(s.auto[id]) || 0) + (Number(s.hand[id]) || 0);
+        const kreeg = kregen(s, id);
         entries.push({
           naam: s.naam, spel: 'Toets', bron: rec.title, vraag: `Vraag ${nr}: ${q.vraag || K.NAMES[q.type]}`,
           doel: q.doel, juist: kreeg >= max / 2, sessie: `toets-${rec.file.replace(/\.json$/, '')}`, leeg: s.antwoorden[id] === undefined || s.antwoorden[id] === null,
@@ -186,4 +222,4 @@ function verwijderAfname(file) {
   fs.renameSync(p, path.join(bin, `afname-${Date.now()}-${file}`));
 }
 
-module.exports = { DIR, list, load, save, remove, parseAiText, lib, bewaarAfname, laadAfname, afnames, cijfer, klaar, stand, verwijderAfname, K };
+module.exports = { kregen, DIR, list, load, save, remove, parseAiText, parseSleutel, lib, bewaarAfname, laadAfname, afnames, cijfer, klaar, stand, verwijderAfname, K };

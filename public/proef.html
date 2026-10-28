@@ -96,7 +96,8 @@
     <div class="panel form">
       <h3>1. Wat moet de AI doen?</h3>
       <div class="pf-modus" id="a-modus">
-        <label class="pf-modus-k"><input type="radio" name="a-modus" value="over" checked><span><strong>Mijn toets overnemen</strong><small>Je eigen toets (pdf, scan of foto) wordt een digitale toets: dezelfde vragen en punten.</small></span></label>
+        <label class="pf-modus-k"><input type="radio" name="a-modus" value="blad" checked><span><strong>Mijn pdf zoals hij is</strong><small>Je toets blijft er precies zo uitzien, met alle figuren. De leerlingen typen in vakjes op het blad.</small></span></label>
+        <label class="pf-modus-k"><input type="radio" name="a-modus" value="over"><span><strong>Mijn toets als losse vragen</strong><small>De AI zet elke vraag van je toets om: dezelfde vragen en punten, één vraag per scherm.</small></span></label>
         <label class="pf-modus-k"><input type="radio" name="a-modus" value="nieuw"><span><strong>Een nieuwe toets maken</strong><small>Over je lesstof (een pdf of foto van het bordboek) of een onderwerp.</small></span></label>
       </div>
       <div class="sources pf-drop" id="a-drop">
@@ -105,7 +106,7 @@
         <label class="file-button"><input id="a-files" type="file" accept="image/*,application/pdf" multiple hidden>Bestand kiezen</label>
         <ul class="file-list" id="a-file-list"></ul>
       </div>
-      <label>Onderwerp of titel (mag leeg)<input id="a-topic" placeholder="bijv. Toets breuken blok 4, of: de Belgische provincies"></label>
+      <label>Titel (mag leeg)<input id="a-topic" placeholder="bijv. Toets breuken blok 4, of: de Belgische provincies"></label>
       <div id="a-doel"></div>
       <div class="row">
         <label>Leerjaar
@@ -135,13 +136,20 @@
       <label class="inline check"><input type="checkbox" id="a-niveaus"> Op drie niveaus: 🪶 Page (met hulp), 🛡️ Schildknaap (het doel) en ⚔️ Ridder (uitdaging)</label>
       <label>Extra wensen (mag leeg)<textarea id="a-extra" rows="2" placeholder="bijv. vraag 6 mag weg, of: geef bij rekenvragen 1 punt voor de bewerking"></textarea></label>
     </div>
-    <div class="panel form hidden" id="a-key-panel">
+    <div class="panel form pf-alleen-blad" id="a-blad-panel">
+      <h3>2. Neem je pdf over</h3>
+      <p class="muted small">Elke pagina wordt een blad. LANcelot zoekt zelf de puntjes en lijntjes waar iets ingevuld moet worden en zet daar vakjes. Daarna kijk je de vakjes na en vul je de antwoorden in (of laat je de AI dat doen).</p>
+      <label class="inline check hidden" id="a-blad-ai-label"><input type="checkbox" id="a-blad-ai" checked> Laat <span class="ai-naam">Gemini</span> meteen de antwoorden zoeken</label>
+      <p class="error" id="a-blad-error"></p>
+      <div><button id="a-blad">📄 Neem mijn pdf over</button> <span class="muted" id="a-blad-busy"></span></div>
+    </div>
+    <div class="panel form hidden pf-niet-blad" id="a-key-panel">
       <h3>2. Laat <span class="ai-naam">Gemini</span> de toets maken</h3>
       <p class="muted small">Je toets of lesstof hierboven gaat mee naar <span class="ai-naam">Gemini</span>. Dat duurt meestal 20 tot 60 seconden.</p>
       <p class="error" id="a-key-error"></p>
       <div><button id="a-key">Maak de toets met <span class="ai-naam">Gemini</span></button> <span class="muted" id="a-key-busy"></span></div>
     </div>
-    <div class="panel form">
+    <div class="panel form pf-niet-blad">
       <h3><span id="a-copy-nr">2</span>. <span id="a-copy-kop">Of: kopieer de prompt naar een chatbot</span></h3>
       <p class="muted">Klik op een chatbot: de prompt wordt gekopieerd en de chatbot opent. Plak met Ctrl+V en voeg daar je pdf of foto toe (paperclip of plusje).</p>
       <textarea id="a-prompt" rows="7" readonly></textarea>
@@ -256,9 +264,11 @@
     <div class="pf-tabs" id="v-tabs">
       <button type="button" class="secondary on" data-tab="vragen">Per vraag</button>
       <button type="button" class="secondary" data-tab="leerlingen">Per leerling</button>
+      <button type="button" class="secondary" data-tab="analyse">Foutenanalyse</button>
     </div>
     <div id="v-vragen"></div>
     <div id="v-leerlingen" class="hidden"></div>
+    <div id="v-analyse" class="hidden"></div>
   </section>
 
   <div class="ob-modal hidden" id="detail">
@@ -303,6 +313,7 @@
 <script src="/js/pf-kern.js"></script>
 <script src="/js/pf-paper.js"></script>
 <script src="/js/pf-knip.js"></script>
+<script src="/js/pf-blad.js"></script>
 <script src="/js/pf-host.js"></script>
 <script src="/js/address.js"></script>
 </body>

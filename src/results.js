@@ -469,6 +469,7 @@ function saveProef(rec, standVan) {
     for (const s of spelers) {
       const st = standVan(s);
       const cel = v => {
+        if (s.over && s.over[v.id] !== undefined && s.over[v.id] !== null) return nl(s.over[v.id]);
         const a = Number(s.auto[v.id]) || 0;
         const h = K.handPunten(v.q) ? s.hand[v.id] : 0;
         return h === null || h === undefined ? `${nl(a)} + ?` : nl(a + Number(h));
