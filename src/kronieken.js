@@ -16,23 +16,39 @@ const SOORTEN = { '.pdf': 'pdf', '.png': 'beeld', '.jpg': 'beeld', '.jpeg': 'bee
 const MAX_DIEPTE = 6;
 const MAX_LES = 999;
 
+// De mappen, de online links en de koppelingen per les gaan mee in Mijn lesmap (kronieken-links/links.json): klein, en
+// zo bereid je thuis voor wat 's morgens op het bord staat. De pdf's zelf en de pagina waar je stopte blijven op deze pc.
+const LINKS_DIR = gegevens.pad('kronieken-links');
+const LINKS = path.join(LINKS_DIR, 'links.json');
+
+const leesJson = f => { try { return JSON.parse(fs.readFileSync(f, 'utf8')); } catch { return null; } };
+
 function leesMeta() {
-  try {
-    const m = JSON.parse(fs.readFileSync(META, 'utf8'));
-    return {
-      mappen: Array.isArray(m.mappen) ? m.mappen.filter(x => typeof x === 'string') : [],
-      pagina: m.pagina && typeof m.pagina === 'object' ? m.pagina : {},
-      lessen: m.lessen && typeof m.lessen === 'object' ? m.lessen : {},
-      online: Array.isArray(m.online) ? m.online.filter(x => x && typeof x.id === 'string' && typeof x.url === 'string') : [],
-    };
-  } catch {
-    return { mappen: [], pagina: {}, lessen: {}, online: [] };
-  }
+  const lokaal = leesJson(META) || {};
+  // Nog geen links.json: de gegevens van voor de sync staan in _kronieken.json.
+  const m = leesJson(LINKS) || lokaal;
+  return {
+    mappen: Array.isArray(m.mappen) ? m.mappen.filter(x => typeof x === 'string') : [],
+    pagina: lokaal.pagina && typeof lokaal.pagina === 'object' ? lokaal.pagina : {},
+    lessen: m.lessen && typeof m.lessen === 'object' ? m.lessen : {},
+    online: Array.isArray(m.online) ? m.online.filter(x => x && typeof x.id === 'string' && typeof x.url === 'string') : [],
+  };
 }
 
+const schrijfJson = (dir, f, data) => {
+  fs.mkdirSync(dir, { recursive: true });
+  const tekst = JSON.stringify(data, null, 2) + '\n';
+  try { if (fs.readFileSync(f, 'utf8') === tekst) return; } catch {}
+  fs.writeFileSync(f, tekst);
+};
 function schrijfMeta(m) {
-  fs.mkdirSync(DIR, { recursive: true });
-  fs.writeFileSync(META, JSON.stringify(m, null, 2) + '\n');
+  schrijfJson(DIR, META, { pagina: m.pagina });
+  schrijfJson(LINKS_DIR, LINKS, { mappen: m.mappen, lessen: m.lessen, online: m.online });
+}
+
+function geldigeLinks(d) {
+  if (!d || typeof d !== 'object' || Array.isArray(d)) throw new Error('Ongeldig bestand.');
+  if (d.online !== undefined && !Array.isArray(d.online)) throw new Error('Ongeldig bestand.');
 }
 
 // Zelfde regels als de mappen van de quizzen: geen schuine strepen in een naam, hooguit 40 tekens, 6 diep.
@@ -305,4 +321,4 @@ function routes(app, isLeerkracht, express, wijzig) {
   });
 }
 
-module.exports = { DIR, lijst, nieuweMap, bewaar, verwijder, verwijderMap, zetPagina, koppel, ontkoppel, voegLinkToe, verwijderLink, linkApart, testInbed, magInbedden, routes };
+module.exports = { DIR, LINKS_DIR, geldigeLinks, lijst, nieuweMap, bewaar, verwijder, verwijderMap, zetPagina, koppel, ontkoppel, voegLinkToe, verwijderLink, linkApart, testInbed, magInbedden, routes };

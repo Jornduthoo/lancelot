@@ -11,7 +11,7 @@ const zip = require('./zip');
 
 const APP = path.resolve(__dirname, '..');
 // Alles wat van de leerkracht en de klas is. De rest (public, src, doelen...) hoort bij de app.
-const ITEMS = ['klas', 'logboek', 'runen', 'burchten', 'taken', 'rijken', 'resultaten', 'posters', 'quizzes', 'oefenbladen', 'rondetafel', 'kronieken', 'zonnewijzer', 'avatars.json', 'settings.json', 'lesmap-sync.json'];
+const ITEMS = ['klas', 'logboek', 'runen', 'burchten', 'taken', 'rijken', 'resultaten', 'posters', 'quizzes', 'oefenbladen', 'rondetafel', 'kronieken', 'kronieken-links', 'zonnewijzer', 'avatars.json', 'settings.json', 'lesmap-sync.json'];
 // Bordboeken en handleidingen zijn te groot voor de dagelijkse back-up-zip. Ze verhuizen wel mee en een update laat ze staan.
 const NIET_IN_BACKUP = new Set(['kronieken']);
 const POINTER = path.join(APP, 'gegevensmap.json');

@@ -448,6 +448,8 @@ lesmap.init([
   { kind: 'sessie', dir: rondetafel.DIR, remote: 'ronde-tafel', validate: rondetafel.validate },
   // De planning van De Zonnewijzer: thuis voorbereiden, op het bord gebruiken.
   { kind: 'zonnewijzer', dir: zonnewijzer.DIR, remote: 'zonnewijzer', validate: d => { if (!d || typeof d !== 'object' || Array.isArray(d)) throw new Error('Ongeldig bestand.'); } },
+  // De Kronieken: mappen, online bordboeken en koppelingen per les (de pdf's zelf blijven op elke pc).
+  { kind: 'kronieken', dir: kronieken.LINKS_DIR, remote: 'kronieken', validate: kronieken.geldigeLinks },
   // Taken: thuis klaarzetten, op het digibord werken de leerlingen eraan. Alleen de taak zelf, nooit het werk.
   { kind: 'taak', dir: taken.PLAN, remote: 'taken', validate: taken.planGeldig },
   // De klastaken van De Wachtlijst (de taken en de beurt, niet de volgorde van de leerlingen).
@@ -459,6 +461,7 @@ function runSync() {
     for (const kind of changed) {
       if (LIBS[kind]) sendLibrary(kind, null, true);
       else if (kind === 'zonnewijzer') io.to('host').emit('zw-gewijzigd');
+      else if (kind === 'kronieken') io.to('host').emit('kr-lijst', kronieken.lijst());
       else if (kind === 'klastaken') io.to('host').emit('wk-taken', klastaken.read());
     }
     if (taken.uitLesmap()) {
@@ -1443,6 +1446,7 @@ io.on('connection', socket => {
     const krWijzig = fn => handle(arg => {
       const res = fn(arg || {});
       io.to('host').emit('kr-lijst', kronieken.lijst());
+      syncSoon();
       return res;
     });
     socket.on('kr-lijst', handle(() => kronieken.lijst()));
