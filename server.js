@@ -96,6 +96,7 @@ const antigok = require('./src/antigok');
 const runen = require('./src/runen');
 const burchten = require('./src/burchten');
 const taken = require('./src/taken');
+const klastaken = require('./src/klastaken');
 const soloSpel = require('./src/solo');
 const ai = require('./src/ai');
 const aiJson = require('./src/ai-json');
@@ -478,7 +479,7 @@ function takenSoon() {
 }
 
 // De docentenschermen, elk bij zijn adres.
-const PAGINAS = [['/host', 'host.html'], ['/rondetafel', 'rondetafel.html'], ['/toren', 'toren.html'], ['/schattenjacht', 'schattenjacht.html'], ['/laserslag', 'laserslag.html'], ['/ridderrace', 'ridderrace.html'], ['/kristalroof', 'kristalroof.html'], ['/verrader', 'verrader.html'], ['/burchtbouwers', 'burchtbouwers.html'], ['/duel', 'duel.html'], ['/packnight', 'packnight.html'], ['/strijdrossen', 'strijdrossen.html'], ['/gauntlet', 'gauntlet.html'], ['/ridder-royale', 'royale.html'], ['/sterrenvreter', 'sterrenvreter.html'], ['/ridderslang', 'ridderslang.html'], ['/burchtstorm', 'burchtstorm.html'], ['/poortwacht', 'poortwacht.html'], ['/neonvlucht', 'neonvlucht.html'], ['/diepboor', 'diepboor.html'], ['/pixelridder', 'pixelridder.html'], ['/robomol', 'robomol.html'], ['/kerker', 'kerker.html'], ['/hofschilder', 'hofschilder.html'], ['/robopaarden', 'robopaarden.html'], ['/neonduel', 'neonduel.html'], ['/leraarbaas', 'leraarbaas.html'], ['/cybergalaga', 'cybergalaga.html'], ['/bomberknight', 'bomberknight.html'], ['/rijk', 'rijk.html'], ['/oefenblad', 'oefenblad.html'], ['/reeks', 'reeks.html'], ['/kronieken', 'kronieken.html'], ['/oefenblad-print', 'oefenblad-print.html'], ['/klas', 'klas.html'], ['/zorg', 'zorg.html'], ['/taken', 'taken.html'], ['/zorg-fiche', 'zorg-fiche.html'], ['/runenraadsel', 'runenraadsel.html'], ['/klaseiland', 'klaseiland.html'], ['/netwerk', 'netwerk.html'], ['/welkom', 'welkom.html'], ['/privacy', 'privacy.html']];
+const PAGINAS = [['/host', 'host.html'], ['/rondetafel', 'rondetafel.html'], ['/toren', 'toren.html'], ['/schattenjacht', 'schattenjacht.html'], ['/laserslag', 'laserslag.html'], ['/ridderrace', 'ridderrace.html'], ['/kristalroof', 'kristalroof.html'], ['/verrader', 'verrader.html'], ['/burchtbouwers', 'burchtbouwers.html'], ['/duel', 'duel.html'], ['/packnight', 'packnight.html'], ['/strijdrossen', 'strijdrossen.html'], ['/gauntlet', 'gauntlet.html'], ['/ridder-royale', 'royale.html'], ['/sterrenvreter', 'sterrenvreter.html'], ['/ridderslang', 'ridderslang.html'], ['/burchtstorm', 'burchtstorm.html'], ['/poortwacht', 'poortwacht.html'], ['/neonvlucht', 'neonvlucht.html'], ['/diepboor', 'diepboor.html'], ['/pixelridder', 'pixelridder.html'], ['/robomol', 'robomol.html'], ['/kerker', 'kerker.html'], ['/hofschilder', 'hofschilder.html'], ['/robopaarden', 'robopaarden.html'], ['/neonduel', 'neonduel.html'], ['/leraarbaas', 'leraarbaas.html'], ['/cybergalaga', 'cybergalaga.html'], ['/bomberknight', 'bomberknight.html'], ['/rijk', 'rijk.html'], ['/oefenblad', 'oefenblad.html'], ['/reeks', 'reeks.html'], ['/wapenkamer', 'wapenkamer.html'], ['/kronieken', 'kronieken.html'], ['/oefenblad-print', 'oefenblad-print.html'], ['/klas', 'klas.html'], ['/zorg', 'zorg.html'], ['/taken', 'taken.html'], ['/zorg-fiche', 'zorg-fiche.html'], ['/runenraadsel', 'runenraadsel.html'], ['/klaseiland', 'klaseiland.html'], ['/netwerk', 'netwerk.html'], ['/welkom', 'welkom.html'], ['/privacy', 'privacy.html']];
 
 // Het docentenscherm werkt op de pc waar de server draait (meestal het digibord),
 // en op een tweede scherm dat de leerkracht met een koppelcode koppelde (de bureau-pc).
@@ -911,6 +912,13 @@ io.on('connection', socket => {
     const refreshList = () => sendLibrary('quiz');
     // Mijn klas: de klaslijst, de leerplandoelen en wat het logboek al weet.
     socket.on('klas-get', handle(() => ({ klas: klas.read(), vakgroepen: niveaus.VAKGROEPEN })));
+    // De Wapenkamer: de klastaken (Wachtlijst). Elke wijziging gaat naar alle docentenschermen.
+    socket.on('wk-taken-get', handle(() => ({ data: klastaken.read() })));
+    socket.on('wk-taken-zet', handle(arg => {
+      const data = klastaken.write(arg || {});
+      socket.to('host').emit('wk-taken', data);
+      return { data };
+    }));
     socket.on('klas-niveau', handle(({ id, niveau, vak } = {}) => ({ klas: klas.setNiveau(id, niveau, vak) })));
     // Op welk niveau de klas de quizspellen speelt (Page, Schildknaap, Ridder of alles door elkaar).
     // Uitleg na een fout antwoord in de spellen (in het Toernooi en het Duel altijd).

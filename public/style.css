@@ -1712,7 +1712,7 @@ body[data-du="1"] .sj-card { background: linear-gradient(180deg, rgba(36, 22, 40
 }
 
 /* ---------- Startscherm: drie rijken ---------- */
-.realms { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; width: 100%; margin: 6px 0 16px; }
+.realms { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; width: 100%; margin: 6px 0 16px; }
 .realm { position: relative; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px; padding: 22px 18px 18px; color: var(--text);
   background: radial-gradient(circle at 50% 0%, rgb(var(--k-cyan) / .16), transparent 65%), var(--panel); border: 1px solid rgb(var(--k-cyan) / .25);
   clip-path: polygon(16px 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%, 0 16px); transition: transform .15s, box-shadow .15s; }
@@ -1726,6 +1726,8 @@ body[data-du="1"] .sj-card { background: linear-gradient(180deg, rgba(36, 22, 40
 .realm.on::after { content: ''; position: absolute; left: 50%; bottom: 6px; width: 46px; height: 4px; transform: translateX(-50%); border-radius: 2px; background: var(--gold); box-shadow: 0 0 10px var(--gold); }
 .eiland-rij { width: 100%; margin: 0 0 18px; }
 .realm-panel { width: 100%; margin-bottom: 22px; animation: tile-in .25s ease-out; }
+/* Vijf rijken: op een smaller scherm drie per rij. */
+@media (max-width: 1100px) and (min-width: 761px) { .realms { grid-template-columns: repeat(3, 1fr); } }
 @media (max-width: 760px) {
   .realms { grid-template-columns: 1fr; gap: 10px; }
   .realm { flex-direction: row; text-align: left; padding: 14px; }

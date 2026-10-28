@@ -438,3 +438,17 @@ Alles staat in **Instellingen**, verdeeld over tabbladen (AI, Lesmap, Uiterlijk,
 - **Posters:** voeg eigen foto's toe (hooguit 40). Ze hangen aan de muren in Laserslag, Robomol en Leraar-baas, op de megaschermen in Neon Duel en op de borden langs de baan in Robopaarden. Ze worden vierkant bijgesneden en klein gemaakt. Er hangen ook achttien grappige standaardposters (een varken aan het spit, Sir Dikbuik, een niezende draak...): zonder eigen foto's alleen die, met eigen foto's één grappige na elke twee foto's. Zet ze uit met het vinkje **Grappige posters erbij**, of zet alle posters uit met **Posters tonen**.
 - **Firewall goed zetten:** één klik, Windows vraagt eerst om toestemming.
 - **Wizard voor de eerste keer** en **Privacy**: uitleg over wat LANcelot bewaart over leerlingen, handig voor de directie of de privacyverantwoordelijke.
+
+## De Wapenkamer: klastools op het bord
+
+Klik op het startscherm op **De Wapenkamer**. Bovenaan staat het wapenrek: elk wapen is een tool. Ze gebruiken de namen uit **Mijn klas**. Met **Groot** zet je de tool schermvullend op het bord.
+
+- **Aanwezig** (bovenaan): tik aan wie er vandaag niet is. Die leerlingen doen vandaag niet mee bij het Lot en de Banieren. De volgende dag is iedereen weer aanwezig.
+- **Het Lot**: klik op **Draai!** (of druk op de spatiebalk). Staat **Wie gekozen is, gaat eruit** aan, dan komt elke leerling één keer aan de beurt; **Iedereen terug in het rad** begint opnieuw.
+- **De Banieren**: kies een aantal groepjes of een aantal leerlingen per groepje, en hoe je verdeelt: door elkaar, gemengd (elk niveau in elk groepje) of per niveau samen. Het niveau komt uit Mijn klas, algemeen of per vak. Tik op twee namen om ze van groepje te wisselen.
+- **De Zandloper**: kies een tijd, druk op **Start**. De laatste tien seconden tikt hij, op het einde klinkt een gong. Loopt de tijd en open je een andere tool, dan zie je de tijd bovenaan.
+- **De Wachtlijst**: de klastaken van de week. Elke maandag schuift iedereen vanzelf door, zodat elke leerling om de beurt een taak krijgt. Met **Schuif door** kan het ook met de hand. Bij **Taken aanpassen** kies je de taken, met hoeveel leerlingen elke taak gebeurt, en kan je de volgorde schudden.
+- **De Stilte-banier**: klik op **Start de micro**. De banier vult zich met het geluid van de klas; komt het boven de lijn, dan wordt ze rood. Met **Zo luid mag het** schuif je de lijn. De micro werkt alleen op het bord zelf, niet op een gekoppelde bureau-pc.
+- **Het Werklicht**: rood is stil werken, oranje fluisteren, groen samenwerken.
+- **De Runensteen**: tot zes dobbelstenen, van 1 tot 6, tot 10, 12, 20, 100 of met eigen getallen.
+- **De Heraut**: typ een opdracht en kies eventueel een tijd. **Roep het om** zet ze in grote letters op het bord, met de zandloper eronder.

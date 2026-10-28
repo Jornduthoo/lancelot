@@ -139,6 +139,7 @@ document.querySelector('[data-module="burchtstorm"]').addEventListener('click', 
 document.querySelector('[data-module="pixelridder"]').addEventListener('click', () => { location.href = '/pixelridder'; });
 document.querySelector('[data-module="rijk"]').addEventListener('click', () => { location.href = '/rijk'; });
 document.querySelector('[data-module="voorkennis"]').addEventListener('click', () => { location.href = '/rondetafel?doel=voorkennis'; });
+for (const t of document.querySelectorAll('[data-wk]')) t.addEventListener('click', () => { location.href = `/wapenkamer#${t.dataset.wk}`; });
 document.querySelector('[data-module="oefenblad"]').addEventListener('click', () => { location.href = '/oefenblad'; });
 document.querySelector('[data-module="werkblad"]').addEventListener('click', () => { location.href = '/oefenblad?maak=ai'; });
 
