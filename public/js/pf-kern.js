@@ -29,6 +29,8 @@
 //               breuk = teller boven noemer, sleep = de leerling sleept er een woord in (uit alle sleepwoorden van het blad + woorden: [foute keuzes])
 //               vlak = een gekleurd vlak dat iets op het blad bedekt (kleur), notitie = tekst van de leerkracht op het blad (tekst)
 //               kruisjes met dezelfde groep tellen samen: alleen goed als precies de juiste aangekruist zijn
+//               rond = een bolletje (meerkeuze: de leerling kiest er één per groep), label = een letter op het hokje (A, B, J, F)
+//               bij tekst: hoofdletters, leestekens (tellen mee) en spaties (alle spaties negeren)
 // Bij invullen is {goed|fout|fout} een keuzelijstje: de eerste is de juiste, de leerling ziet ze alfabetisch.
 // Elke vraag kan audio hebben (eigen opname of geluidsbestand, als data-adres): de leerling hoort de uitleg met 🔊.
 // exact: true laat hoofdletters en leestekens meetellen bij invullen, kort en tabel.
@@ -267,6 +269,9 @@
         veld.antwoord = f.antwoord === true || /^(true|ja|x|✗|✔|juist)$/i.test(String(f.antwoord || ''));
         veld.groep = Math.max(1, Math.min(99, Math.round(Number(f.groep)) || 1));
         veld.punten = punt(f.punten, veld.antwoord ? 1 : 0);
+        if (f.rond) veld.rond = true;
+        const label = text(f.label, 3);
+        if (label) veld.label = label;
       } else if (soort === 'kies') {
         veld.opties = [...new Set(list(f.opties, 8).map(o => text(o, 80)).filter(Boolean))];
         const antwoord = text(f.antwoord, 80);
@@ -294,6 +299,7 @@
         if (antwoord) veld.antwoord = antwoord;
         const eenheid = soort === 'tekst' || soort === 'breuk' ? text(f.eenheid, 20) : '';
         if (eenheid) veld.eenheid = eenheid;
+        if (soort === 'tekst') for (const k of ['hoofdletters', 'leestekens', 'spaties']) if (f[k]) veld[k] = true;
         veld.punten = punt(f.punten, 1);
       }
       return veld;
@@ -471,6 +477,7 @@
       v.velden = q.velden.map(f => {
         const o = { x: f.x, y: f.y, w: f.w, h: f.h, soort: f.soort };
         if (f.soort === 'kies') o.opties = f.opties;
+        if (f.soort === 'kruis') { o.groep = f.groep; if (f.rond) o.rond = true; if (f.label) o.label = f.label; }
         if (f.soort === 'luister') { if (f.audio) o.audio = img(f.audio); if (f.tekst) o.tekst = f.tekst; }
         if (f.soort === 'vlak') o.kleur = f.kleur;
         if (f.soort === 'notitie') o.tekst = f.tekst || '';
@@ -499,7 +506,7 @@
   // Getallen zoals een leerling ze typt: 12,5 · 12.5 · 1 000 · 1.000 · ½ · 3/4 · 1 1/2 · € 3,50 · -4.
   const BREUK = { '½': '1/2', '¼': '1/4', '¾': '3/4', '⅓': '1/3', '⅔': '2/3', '⅕': '1/5', '⅛': '1/8' };
   function getal(s, eenheid) {
-    let t = String(s || '').trim().toLowerCase().replace(/[−–]/g, '-');
+    let t = String(s ?? '').trim().toLowerCase().replace(/[−–]/g, '-');
     if (eenheid) t = t.split(eenheid.toLowerCase()).join(' ');
     t = t.replace(/([a-z])[²³]/g, '$1 ').replace(/[€$%]|euro|(?<![a-z])(cm|mm|dm|km|hm|dam|m|ha|are|kg|hg|dag|g|mg|l|ml|cl|dl|hl|min|sec|s|u|uur)\b/g, ' ').replace(/[½¼¾⅓⅔⅕⅛]/g, c => ` ${BREUK[c]}`).trim();
     let m = /^(-?)(\d+)\s+(\d+)\s*\/\s*(\d+)$/.exec(t);
@@ -523,18 +530,23 @@
     return n > 1 && ggd(t, n) === 1;
   }
 
-  const zacht = (s, exact) => {
-    let t = String(s || '').trim().replace(/\s+/g, ' ').replace(/[’‘`]/g, "'").replace(/[“”„]/g, '"');
-    if (!exact) t = t.replace(/[.!?]+$/, '').toLowerCase();
-    return t;
+  // o: true (exact: alles telt mee) of { exact, hoofdletters, leestekens, spaties }.
+  // Leestekens tussen cijfers (1,5 en 1.000) blijven altijd staan.
+  const zacht = (s, o) => {
+    const { exact, hoofdletters, leestekens, spaties } = typeof o === 'object' && o ? o : { exact: !!o };
+    let t = String(s || '').trim().replace(/[’‘`]/g, "'").replace(/[“”„]/g, '"');
+    if (!exact && !leestekens) t = t.replace(/[!?;:¿¡"«»()]|(?<!\d)[.,]|[.,](?!\d)/g, ' ');
+    if (!exact && !hoofdletters) t = t.toLowerCase();
+    return spaties && !exact ? t.replace(/\s+/g, '') : t.trim().replace(/\s+/g, ' ');
   };
 
   // Is dit getypte antwoord goed? Getallen tellen ook in een andere schrijfwijze (0,5 = 0.5 = ½ = 1/2).
-  function zelfde(goed, gegeven, { exact, eenheid } = {}) {
+  function zelfde(goed, gegeven, { exact, eenheid, hoofdletters, leestekens, spaties } = {}) {
     if (gegeven === undefined || gegeven === null || String(gegeven).trim() === '') return false;
+    const o = { exact, hoofdletters, leestekens, spaties };
     return alts(goed).some(a => {
-      if (zacht(a, exact) === zacht(gegeven, exact)) return true;
-      if (!exact && eenheid && zacht(`${a} ${eenheid}`, false) === zacht(gegeven, false)) return true;
+      if (zacht(a, o) === zacht(gegeven, o)) return true;
+      if (!exact && eenheid && zacht(`${a} ${eenheid}`, o) === zacht(gegeven, o)) return true;
       const x = getal(a, eenheid);
       const y = getal(gegeven, eenheid);
       return x !== null && y !== null && Math.abs(x - y) < 1e-9 * Math.max(1, Math.abs(x));
@@ -562,7 +574,7 @@
       if (ov[k] === true || ov[k] === false) return ov[k];
       if (f.soort === 'kies') return b[k] === f.antwoord;
       if (f.soort === 'sleep') return alts(f.antwoord).includes(String(b[k] || ''));
-      return zelfde(f.antwoord, b[k], { eenheid: f.eenheid });
+      return zelfde(f.antwoord, b[k], f);
     });
   }
 

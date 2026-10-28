@@ -162,7 +162,6 @@ $('new-empty').addEventListener('click', vanuit('idle', openEmpty));
 $('lib-new-ai').addEventListener('click', vanuit('bibliotheek', openMaker));
 $('lib-new-empty').addEventListener('click', vanuit('bibliotheek', openEmpty));
 // Startscherm: meteen een nieuwe quiz maken, of naar de bibliotheek. Na het bewaren kom je in de bibliotheek.
-$('home-nieuwe-quiz').addEventListener('click', vanuit('bibliotheek', openMaker));
 $('home-quizzen').addEventListener('click', () => show('bibliotheek'));
 
 // Vanuit een ander spel een quiz maken: daarna gaan we daar weer naartoe.

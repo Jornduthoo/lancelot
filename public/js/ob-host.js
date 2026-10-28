@@ -357,7 +357,7 @@ function blockCard(b) {
   const card = document.createElement('div');
   card.className = 'panel ob-edit-block';
   card.dataset.type = b.type;
-  card.innerHTML = `<div class="ob-edit-head"><strong>${ObSheet.NAMES[b.type]}</strong>
+  card.innerHTML = `<div class="ob-edit-head"><strong>${TYPE_ICONS[b.type]} ${ObSheet.NAMES[b.type]}</strong>
       <div class="actions"><button class="secondary up" title="Omhoog">▲</button><button class="secondary down" title="Omlaag">▼</button><button class="secondary del" title="Verwijderen">✕</button></div></div>
     ${b.type === 'tekst' ? '<label>Titel (mag leeg)<input class="e-btitle" maxlength="100"></label>' : '<label>Opdracht<input class="e-instr" maxlength="200"></label>'}
     <label>Inhoud<textarea class="e-body" rows="5" spellcheck="true"></textarea></label>
@@ -382,6 +382,11 @@ const blockBox = n => $(n === 'schildknaap' ? 'e-blocks' : `e-blocks-${n}`);
 
 function readBlocks(box) {
   return [...box.children].map(card => {
+      // Een vraag zoals in De Proef (getallenas, tabel, tekenen, een blad uit een pdf ...).
+      if (card.classList.contains('pf-kaart-edit')) {
+        const q = PfEdit.lees(card);
+        return q.doel ? { type: 'vraag', q, doel: q.doel } : { type: 'vraag', q };
+      }
       const block = textToBlock(
         card.dataset.type,
         card.querySelector('.e-instr') ? card.querySelector('.e-instr').value : '',
@@ -426,7 +431,7 @@ function renderNiveauTabs() {
     copy.className = 'secondary small-btn';
     copy.textContent = 'Begin met een kopie van Schildknaap';
     copy.addEventListener('click', () => {
-      for (const b of readBlocks($('e-blocks'))) blockBox(editNiveau).appendChild(blockCard(b));
+      for (const b of readBlocks($('e-blocks'))) blockBox(editNiveau).appendChild(kaartVan(b));
       renderNiveauTabs();
       preview();
     });
@@ -444,8 +449,10 @@ let previewTimer = null;
 function preview() {
   clearTimeout(previewTimer);
   previewTimer = setTimeout(() => {
-    socket.emit('ob-check', readEditor(), res => {
-      $('e-error').textContent = res.error || '';
+    const sheet = readEditor();
+    socket.emit('ob-check', sheet, res => {
+      // Nog niets toegevoegd: geen foutmelding, de gereedschapskist staat eronder.
+      $('e-error').textContent = sheet.blocks.length ? res.error || '' : '';
       renderNiveauTabs();
       if (res.sheet) ObSheet.render($('e-preview'), previewView({ title: res.sheet.title, blocks: res.sheet[editNiveau] || res.sheet.blocks }), { mode: 'view' });
     });
@@ -453,7 +460,7 @@ function preview() {
 }
 
 // Zelfde vorm als wat leerlingen krijgen (zonder door elkaar te schudden).
-function previewView(sheet) {
+function previewView(sheet, perms) {
   return {
     title: sheet.title,
     blocks: sheet.blocks.map((b, bi) => {
@@ -470,10 +477,14 @@ function previewView(sheet) {
         return { type: b.type, instruction: b.instruction, parts };
       }
       if (b.type === 'verbinden') return { ...b, left: b.pairs.map(p => p.left), right: b.pairs.map(p => p.right) };
+      if (b.type === 'vraag') return { type: b.type, view: PfKern.viewOf(b.q, `${bi}.0`, { [`${bi}.0`]: perms && perms[bi] }) };
       return b;
     }),
   };
 }
+
+// Een oefening als kaart: de gewone soorten typ je als tekst, een vraag zoals in De Proef heeft zijn eigen kaart.
+const kaartVan = b => (b.type === 'vraag' ? PfEdit.kaart(b.doel && !b.q.doel ? { ...b.q, doel: b.doel } : b.q) : blockCard(b));
 
 function openEditor(sheet, file) {
   editingFile = file;
@@ -481,25 +492,48 @@ function openEditor(sheet, file) {
   $('e-title').value = sheet.title || '';
   for (const n of Niveau.LIST) {
     blockBox(n).innerHTML = '';
-    for (const b of (n === 'schildknaap' ? sheet.blocks : sheet[n]) || []) blockBox(n).appendChild(blockCard(b));
+    for (const b of (n === 'schildknaap' ? sheet.blocks : sheet[n]) || []) blockBox(n).appendChild(kaartVan(b));
   }
   $('e-error').textContent = '';
   show('editor');
   showNiveau('schildknaap');
 }
 
-$('e-add').innerHTML = Object.keys(EDIT_HELP).map(t => `<button class="secondary" data-type="${t}">+ ${ObSheet.NAMES[t]}</button>`).join('');
-for (const b of $('e-add').querySelectorAll('button')) {
-  b.addEventListener('click', () => {
-    const card = blockCard({ type: b.dataset.type });
+// Oefening toevoegen: dezelfde gereedschapskist als in De Proef, met een icoon en een zinnetje per soort.
+// De gewone soorten (tekst, meerkeuze, invullen ...) typ je snel als tekst; de rest is een vraag zoals in De Proef.
+const ADD_GROEPEN = [
+  ['Lezen en kiezen', [['tekst', 'Een leestekst of uitleg', TYPE_ICONS.tekst, 'Leestekst'], ['meerkeuze', 'Vragen met keuzes', TYPE_ICONS.meerkeuze, 'Meerkeuze'],
+    ['juistfout', 'Zinnen: juist of fout?', TYPE_ICONS.juistfout, 'Juist of fout'], ['verbinden', 'Wat hoort bij elkaar?', TYPE_ICONS.verbinden, 'Verbinden'], ['ordenen', 'In de juiste volgorde']]],
+  ['Typen', [['invullen', 'Woorden in een tekst invullen', TYPE_ICONS.invullen, 'Invullen'], ['woorden', 'Een woord typen bij elke opgave', TYPE_ICONS.woorden, 'Woordjes'],
+    ['overschrijven', 'Zinnen foutloos overschrijven', TYPE_ICONS.overschrijven, 'Overschrijven'], ['kort', 'Een woord of getal, ook als breuk'], ['rekenen', 'Bewerking en uitkomst'], ['tabel', 'Cellen in een tabel']]],
+  ['Aanduiden', [['aanduiden', 'Een plek op een afbeelding'], ['getallenas', 'Een getal op de getallenas'], ['markeren', 'Woorden in een tekst']]],
+  ['Maken', [['tekenen', 'Tekenen, op een afbeelding of leeg'], ['spreken', 'Een antwoord inspreken'], ['open', 'Open vragen, jij leest ze na', TYPE_ICONS.open, 'Open vragen']]],
+];
+PfEdit.config({ preview: () => preview(), ai: () => null, niveau: () => '' });
+PfEdit.palet($('e-add'), ADD_GROEPEN, {
+  onKies: t => {
+    const card = EDIT_HELP[t] ? blockCard({ type: t }) : PfEdit.kaart(PfEdit.nieuw(t));
     blockBox(editNiveau).appendChild(card);
-    card.querySelector('.e-body').focus();
+    const f = card.querySelector('.e-body, textarea, input');
+    if (f) f.focus();
+    card.scrollIntoView({ block: 'center', behavior: 'smooth' });
     preview();
-  });
+  },
+  onBladen: bladen => {
+    for (const q of bladen) blockBox(editNiveau).appendChild(PfEdit.kaart(q));
+    preview();
+  },
+});
+// Een vraag zoals in De Proef meldt zijn wijzigingen niet zelf.
+for (const n of Niveau.LIST) {
+  for (const ev of ['input', 'change']) blockBox(n).addEventListener(ev, e => { if (e.target.closest('.pf-kaart-edit')) preview(); });
 }
 $('e-title').addEventListener('input', preview);
 
-$('new-empty').addEventListener('click', () => openEditor({ title: '', blocks: [{ type: 'invullen' }] }, null));
+$('new-empty').addEventListener('click', () => {
+  openEditor({ title: '', blocks: [] }, null);
+  $('e-title').focus();
+});
 
 function save(then, fail) {
   socket.emit('ob-save', { sheet: readEditor(), file: editingFile }, res => {
@@ -589,15 +623,16 @@ function statsHtml(blocks, stats) {
     if (b.type === 'tekst') return '';
     n++;
     const fs = stats.filter(f => f.block === bi);
-    if (b.type === 'open') {
+    const naam = b.type === 'vraag' ? PfKern.NAMES[b.q.type] : ObSheet.NAMES[b.type];
+    if (fs.every(f => f.kind === 'open')) {
       const filled = fs.reduce((a, f) => a + f.filled, 0);
-      return `<div class="ob-stat"><span>${n}. ${ObSheet.NAMES[b.type]}</span><span class="muted">${filled} antwoorden</span></div>`;
+      return `<div class="ob-stat"><span>${n}. ${naam}</span><span class="muted">${filled} antwoorden</span></div>`;
     }
     const filled = fs.reduce((a, f) => a + f.filled, 0);
     const right = fs.reduce((a, f) => a + f.right, 0);
     const pct = filled ? Math.round((right / filled) * 100) : 0;
     const hardest = fs.filter(f => f.filled).sort((x, y) => x.right / x.filled - y.right / y.filled)[0];
-    return `<div class="ob-stat"><span>${n}. ${ObSheet.NAMES[b.type]}</span><span class="pct ${pct >= 75 ? 'hi' : pct >= 50 ? 'mid' : 'lo'}">${filled ? `${pct}%` : '–'}</span>
+    return `<div class="ob-stat"><span>${n}. ${naam}</span><span class="pct ${pct >= 75 ? 'hi' : pct >= 50 ? 'mid' : 'lo'}">${filled ? `${pct}%` : '–'}</span>
       <span class="sbar"><i style="width:${pct}%"></i></span>${hardest && filled > 2 && hardest.right / hardest.filled < .6 ? `<span class="muted small">Moeilijkst: vraag ${Number(hardest.id.split('.')[1]) + 1}</span>` : ''}</div>`;
   }).join('');
 }
@@ -640,7 +675,7 @@ function renderDetailNiveaus(id, current) {
 
 // Het blad zoals de leerlingen het zien, met dezelfde volgorde bij verbinden. level: { sheet, shuffles } van een niveau.
 function hostView(level = state) {
-  const v = previewView(level.sheet);
+  const v = previewView(level.sheet, level.shuffles);
   v.blocks = v.blocks.map((b, bi) => (b.type === 'verbinden' ? { ...b, right: level.shuffles[bi].map(i => level.sheet.blocks[bi].pairs[i].right) } : b));
   return v;
 }

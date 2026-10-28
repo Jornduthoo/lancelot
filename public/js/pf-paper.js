@@ -190,7 +190,8 @@ const PfPaper = (() => {
         if (live) return `<div class="pf-veld teken" data-k="${k}" style="${box}"></div>`;
         return `<div class="pf-veld teken kijk" data-k="${k}" style="${box}">${typeof b[k] === 'string' && b[k] ? `<img src="${esc(b[k])}" alt="">` : ''}</div>`;
       }
-      if (f.soort === 'kruis') return `<button type="button" class="pf-veld kruis${kl}${b[k] === true ? ' on' : ''}" data-k="${k}" style="${pos}" aria-label="Aankruisen"${live ? '' : ' disabled'}>${b[k] === true ? '✗' : ''}</button>`;
+      // Een bolletje (rond): één keuze per groep. Een hokje: aankruisen, ook meerdere.
+      if (f.soort === 'kruis') return `<button type="button" class="pf-veld kruis${f.rond ? ' rond' : ''}${kl}${b[k] === true ? ' on' : ''}" data-k="${k}" data-g="${f.groep || 1}" style="${pos}" aria-label="${f.label ? esc(f.label) : 'Aankruisen'}"${live ? '' : ' disabled'}>${f.rond ? esc(f.label || '') : b[k] === true ? '✗' : esc(f.label || '')}</button>`;
       if (f.soort === 'breuk') {
         const [t, n] = /\//.test(String(b[k] || '')) ? String(b[k]).split('/') : [b[k] || '', ''];
         return `<span class="pf-veld breuk${kl}" data-k="${k}" style="${pos}"><input class="teller pf-breuk-in" inputmode="numeric" autocomplete="off" aria-label="Teller" value="${esc(String(t).trim())}"${ro}><i></i><input class="noemer pf-breuk-in" inputmode="numeric" autocomplete="off" aria-label="Noemer" value="${esc(String(n).trim())}"${ro}></span>`;
@@ -378,9 +379,13 @@ const PfPaper = (() => {
         });
       }
       for (const b of el.querySelectorAll('.pf-veld.kruis')) {
+        const label = b.getAttribute('aria-label') === 'Aankruisen' ? '' : b.getAttribute('aria-label');
         b.addEventListener('click', () => {
           b.classList.toggle('on');
-          b.textContent = b.classList.contains('on') ? '✗' : '';
+          // Een bolletje: de andere bolletjes van dezelfde vraag gaan uit.
+          if (b.classList.contains('rond')) {
+            for (const x of el.querySelectorAll(`.pf-veld.kruis.rond[data-g="${b.dataset.g}"]`)) if (x !== b) x.classList.remove('on');
+          } else b.textContent = b.classList.contains('on') ? '✗' : label;
           send(el);
         });
       }

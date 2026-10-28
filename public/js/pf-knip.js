@@ -4,6 +4,30 @@
 // PDF.js laadt pas als er echt een pdf getekend wordt (public/vendor/pdfjs, ook gebruikt door De Kronieken).
 const PfKnip = (() => {
   const $ = id => document.getElementById(id);
+  // Het knipvenster zelf: één keer in de pagina gezet, zo werkt het op elke pagina die pf-knip.js laadt.
+  if (!$('knip')) document.body.insertAdjacentHTML('beforeend', `<div class="ob-modal hidden" id="knip">
+    <div class="ob-modal-box pf-knip">
+      <div class="bar">
+        <h2 id="k-titel">Knip een afbeelding</h2>
+        <div class="actions">
+          <label class="file-button secondary"><input id="k-file" type="file" accept="image/*,application/pdf" hidden>📎 Ander bestand</label>
+          <button class="secondary" id="k-annuleer">Annuleren</button>
+        </div>
+      </div>
+      <div class="pf-knip-balk">
+        <select id="k-bron" aria-label="Bestand"></select>
+        <button class="secondary" id="k-vorige" aria-label="Vorige pagina">◀</button>
+        <span id="k-pagina"></span>
+        <button class="secondary" id="k-volgende" aria-label="Volgende pagina">▶</button>
+        <span class="muted small">Sleep een kader rond wat je wil gebruiken.</span>
+      </div>
+      <div class="pf-knip-vlak" id="k-vlak"><canvas id="k-canvas"></canvas><i class="pf-kader hidden" id="k-kader"></i><p class="muted" id="k-leeg">Kies een pdf of afbeelding, of plak een screenshot met Ctrl+V.</p></div>
+      <div class="actions pf-knip-knoppen">
+        <button class="secondary" id="k-heel">Hele pagina</button>
+        <button class="gold" id="k-ok" disabled>Gebruik dit stuk</button>
+      </div>
+    </div>
+  </div>`);
   const bronnen = [];
   let pdfjs = null;
   let huidig = null; // { bron, pagina }

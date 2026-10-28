@@ -452,7 +452,7 @@ function antwoord({ id, naam, veld, waarde } = {}) {
   const guard = t.feedback === 'direct' && closed(field);
   w.lock = w.lock || {};
   if (guard && w.lock[veld] > now) return { wait: w.lock[veld] - now, id: veld, value: w.answers[veld] ?? '', error: 'Even wachten.' };
-  const v = typeof waarde === 'string' || typeof waarde === 'number' ? String(waarde).slice(0, 1000) : '';
+  const v = sheets.clean(field, waarde);
   begin(t, w);
   if (v === '') delete w.answers[veld];
   else w.answers[veld] = v;
@@ -489,7 +489,7 @@ function inleverenWerk(t, w) {
     const block = sheet.blocks[f.block];
     return {
       naam: w.naam, spel: 'Taak', bron: t.titel, sessie: `taak-${t.id}`,
-      vraag: `${tag}Oefening ${f.block + 1}.${Number(f.id.split('.')[1]) + 1}: ${block.instruction || ''}`,
+      vraag: `${tag}Oefening ${f.block + 1}.${Number(f.id.split('.')[1]) + 1}: ${block.instruction || (block.q && block.q.vraag) || ''}`,
       doel: block.doel, juist: w.results[f.id] === true && (t.feedback !== 'direct' || w.first[f.id] !== false), leeg: w.answers[f.id] === undefined,
     };
   }));

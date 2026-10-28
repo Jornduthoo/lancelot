@@ -171,7 +171,7 @@ class OefenbladLive {
     const now = Date.now();
     const guard = this.feedback === 'direct' && closed(field);
     if (guard && p.lockUntil[id] > now) return { error: 'Even wachten.', wait: p.lockUntil[id] - now, id, value: p.answers[id] ?? '' };
-    const clean = typeof value === 'string' || typeof value === 'number' ? String(value).slice(0, 1000) : '';
+    const clean = sheets.clean(field, value);
     if (clean === '') delete p.answers[id];
     else p.answers[id] = clean;
     p.results[id] = sheets.grade(field, clean, shuffles);
@@ -271,7 +271,7 @@ class OefenbladLive {
       for (const f of this.graded(p)) {
         const block = sheet.blocks[f.block];
         entries.push({
-          naam: p.name, spel: 'Oefenblad', bron: this.sheet.title, vraag: `${tag}Oefening ${f.block + 1}.${Number(f.id.split('.')[1]) + 1}: ${block.instruction || ''}`,
+          naam: p.name, spel: 'Oefenblad', bron: this.sheet.title, vraag: `${tag}Oefening ${f.block + 1}.${Number(f.id.split('.')[1]) + 1}: ${block.instruction || (block.q && block.q.vraag) || ''}`,
           // Meteen verbeterd: een keuzevraag telt pas als juist als de eerste poging goed was.
           doel: block.doel, juist: p.results[f.id] === true && (this.feedback !== 'direct' || p.first[f.id] !== false), leeg: p.answers[f.id] === undefined,
         });

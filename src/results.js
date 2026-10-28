@@ -173,7 +173,9 @@ function saveOefenblad(ob) {
   const now = new Date();
   const ranking = ob.ranking();
   const label = f => `Oef ${f.block + 1}.${Number(f.id.split('.')[1]) + 1}`;
-  const cell = (p, f) => (f.kind === 'open' ? p.answers[f.id] || '' : p.results[f.id] === true ? 'goed' : p.results[f.id] === false ? (f.kind === 'tekst' || f.kind === 'exact' ? `fout: ${p.answers[f.id]}` : 'fout') : '-');
+  // Een tekening of opname (data-adres) past niet in Excel.
+  const open = a => (typeof a === 'string' && !a.startsWith('data:') ? a : a ? '(ingevuld)' : '');
+  const cell = (p, f) => (f.kind === 'open' ? open(p.answers[f.id]) : p.results[f.id] === true ? 'goed' : p.results[f.id] === false ? (f.kind === 'tekst' || f.kind === 'exact' ? `fout: ${p.answers[f.id]}` : 'fout') : '-');
   // Elk niveau heeft eigen oefeningen, dus per niveau een eigen tabel.
   const groups = Object.keys(ob.levels).map(n => ({ n, rows: ranking.filter(r => (ob.levels[r.niveau] ? r.niveau : 'schildknaap') === n) })).filter(g => g.rows.length || !ob.multi);
   const names = { page: 'Page (met hulp)', schildknaap: 'Schildknaap (het doel)', ridder: 'Ridder (uitdaging)' };

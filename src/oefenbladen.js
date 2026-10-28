@@ -8,6 +8,7 @@
 //   woorden        woordjes: een opgave en het woord dat de leerling typt
 //   overschrijven  zinnen die de leerling foutloos overschrijft
 //   open           open vragen (niet automatisch verbeterd)
+//   vraag          één vraag zoals in De Proef (q): getallenas, tabel, tekenen, een blad uit een pdf ... (zie public/js/pf-kern.js)
 // Een blad kan drie niveaus hebben: blocks is Schildknaap (het doel zelf), page (met hulp) en ridder (uitdaging)
 // zijn optioneel. Een leerling op een niveau zonder eigen blokken krijgt het Schildknaap-blad.
 const fs = require('fs');
@@ -17,12 +18,13 @@ const { library } = require('./library');
 const { extract } = require('./ai-json');
 const doelen = require('./doelen');
 const { NIVEAUS, NAMES } = require('./niveaus');
+const K = require('../public/js/pf-kern');
 
 const DIR = gegevens.pad('oefenbladen');
-const TYPES = ['tekst', 'invullen', 'meerkeuze', 'juistfout', 'verbinden', 'woorden', 'overschrijven', 'open'];
+const TYPES = ['tekst', 'invullen', 'meerkeuze', 'juistfout', 'verbinden', 'woorden', 'overschrijven', 'open', 'vraag'];
 const TYPE_NAMES = {
   tekst: 'Tekst', invullen: 'Invullen', meerkeuze: 'Meerkeuze', juistfout: 'Juist of fout', verbinden: 'Verbinden',
-  woorden: 'Woordjes', overschrijven: 'Overschrijven', open: 'Open vragen',
+  woorden: 'Woordjes', overschrijven: 'Overschrijven', open: 'Open vragen', vraag: 'Vraag',
 };
 const DEFAULT_INSTRUCTION = {
   invullen: 'Vul de ontbrekende woorden in.',
@@ -50,6 +52,16 @@ function cleanBlock(b, n) {
   const type = b.type;
   const instruction = text(b.instruction, 200) || DEFAULT_INSTRUCTION[type] || '';
   const where = `Oefening ${n} (${TYPE_NAMES[type].toLowerCase()})`;
+  if (type === 'vraag') {
+    if (!b.q || typeof b.q !== 'object' || b.q.type === 'bron') throw new Error(`${where} is geen geldige vraag.`);
+    let q;
+    try {
+      q = K.validate({ title: 'x', vragen: [b.q] }).vragen[0];
+    } catch (err) {
+      throw new Error(`${where}: ${err.message.replace(/^Vraag 1\s*(\([^)]*\))?:?\s*/, '')}`);
+    }
+    return { type, instruction: text(b.instruction, 200), q };
+  }
   if (type === 'tekst') {
     const body = text(b.text, 4000);
     if (!body) throw new Error(`${where} is leeg.`);
@@ -186,6 +198,9 @@ function fields(sheet) {
       b.lines.forEach((l, i) => out.push({ id: `${bi}.${i}`, block: bi, kind: 'exact', answer: l }));
     } else if (b.type === 'open') {
       b.items.forEach((q, i) => out.push({ id: `${bi}.${i}`, block: bi, kind: 'open' }));
+    } else if (b.type === 'vraag') {
+      // Een vraag die de leerkracht zelf verbetert (tekenen, inspreken, open) telt als open.
+      out.push({ id: `${bi}.0`, block: bi, kind: K.MANUEEL.has(b.q.type) || !K.autoPunten(b.q) ? 'open' : 'proef', q: b.q });
     }
   });
   return out;
@@ -199,10 +214,21 @@ const exact = s => String(s || '').trim().replace(/\s+/g, ' ');
 function grade(field, value, shuffles) {
   if (value === undefined || value === null || value === '') return null;
   if (field.kind === 'open') return null;
+  // Een vraag uit De Proef is pas goed met alle punten (bij invullen dus alle gaten juist).
+  if (field.kind === 'proef') return K.auto(field.q, K.canoniek(field.q, value, shuffles[field.block])) >= K.autoPunten(field.q);
   if (field.kind === 'tekst') return field.answers.some(a => loose(a) === loose(value));
   if (field.kind === 'exact') return exact(field.answer) === exact(value);
   if (field.kind === 'paar') return shuffles[field.block][Number(value)] === field.pair;
   return String(field.answer) === String(value);
+}
+
+// Een antwoord opschonen: tekst voor de gewone vakjes, bij een vraag uit De Proef zijn eigen vorm. '' = leeg.
+function clean(field, value) {
+  if (field.q) {
+    const v = K.schoon(field.q, value);
+    return v === null || v === '' || (Array.isArray(v) && !v.some(x => x !== null && x !== '')) ? '' : v;
+  }
+  return typeof value === 'string' || typeof value === 'number' ? String(value).slice(0, 1000) : '';
 }
 
 // Wat de leerling te zien krijgt: alles behalve de goede antwoorden.
@@ -230,6 +256,7 @@ function studentView(sheet, shuffles) {
       if (b.type === 'verbinden') return { type: b.type, instruction: b.instruction, left: b.pairs.map(p => p.left), right: shuffles[bi].map(i => b.pairs[i].right) };
       if (b.type === 'woorden') return { type: b.type, instruction: b.instruction, items: b.items.map(q => ({ prompt: q.prompt })) };
       if (b.type === 'overschrijven') return { type: b.type, instruction: b.instruction, lines: b.lines };
+      if (b.type === 'vraag') return { type: b.type, view: K.viewOf(b.q, `${bi}.0`, { [`${bi}.0`]: shuffles[bi] }) };
       return { type: b.type, instruction: b.instruction, items: b.items };
     }),
   };
@@ -243,6 +270,8 @@ function solutions(sheet, shuffles) {
     else if (f.kind === 'exact') out[f.id] = f.answer;
     else if (f.kind === 'paar') out[f.id] = shuffles[f.block].indexOf(f.pair);
     else if (f.kind === 'keuze') out[f.id] = f.answer;
+    // Bij een blad een sleutel per vakje, anders het antwoord als tekst.
+    else if (f.q) out[f.id] = f.q.type === 'blad' ? K.veldSleutel(f.q) : K.oplossing(f.q);
   }
   return out;
 }
@@ -253,8 +282,11 @@ function shufflesFor(sheet, seed) {
   for (const c of String(seed || '')) h = Math.imul(h ^ c.charCodeAt(0), 16777619) >>> 0;
   const random = seed ? () => ((h = Math.imul(h ^ (h >>> 15), 2246822507) + 0x9e3779b9 >>> 0) / 4294967296) : Math.random;
   return sheet.blocks.map(b => {
-    if (b.type !== 'verbinden') return null;
-    const order = b.pairs.map((_, i) => i);
+    // Verbinden en ordenen schudden, ook in een vraag uit De Proef.
+    const q = b.type === 'vraag' ? b.q : null;
+    const n = b.type === 'verbinden' ? b.pairs.length : q && q.type === 'verbinden' ? q.paren.length : q && q.type === 'ordenen' ? q.items.length : 0;
+    if (!n) return null;
+    const order = [...Array(n).keys()];
     for (let i = order.length - 1; i > 0; i--) {
       const j = Math.floor(random() * (i + 1));
       [order[i], order[j]] = [order[j], order[i]];
@@ -327,6 +359,6 @@ function parseAiText(raw) {
 const lib = library({ kind: 'oefenblad', dir: DIR, checkFile, load, save, validate, list: listSheets });
 
 module.exports = {
-  TYPES, TYPE_NAMES, validate, niveausOf, forNiveau, fields, grade, studentView, solutions, shufflesFor,
+  TYPES, TYPE_NAMES, validate, niveausOf, forNiveau, fields, grade, clean, studentView, solutions, shufflesFor,
   list: listSheets, load, save, remove, parseAiText, lib, DIR,
 };
