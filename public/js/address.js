@@ -3,7 +3,8 @@
 // op een ander adres. Dat wordt het grote adres met de QR-code, en LANcelot onthoudt die keuze.
 function showAddress(list, i) {
   const main = list[i];
-  const short = a => a.url.replace('http://', '');
+  // Met http:// erbij: zonder typt een Chromebook er soms https:// van, of zoekt hij het adres op Google.
+  const short = a => a.url;
   $('join-url').textContent = main ? short(main) : 'Geen netwerk gevonden';
   if ($('join-mini')) $('join-mini').textContent = main ? short(main) : '';
   $('qr').innerHTML = main ? main.qr : '';

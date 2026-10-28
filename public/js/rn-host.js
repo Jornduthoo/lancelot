@@ -116,7 +116,7 @@ socket.on('settings', s => Ui.zetAi(s));
 socket.on('addresses', list => {
   if (!list || !list.length) return;
   $('rnh-qr').innerHTML = list[0].qr;
-  $('rnh-url').textContent = `${list[0].url.replace(/^https?:\/\//, '')}/runen`;
+  $('rnh-url').textContent = `${list[0].url}/runen`;
 });
 
 // Woorden die niet passen worden overgeslagen; zeg welke, zodat de leerkracht ze kan vervangen.
