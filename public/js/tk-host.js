@@ -50,35 +50,46 @@ function vulBron() {
   $('tk-fb-label').classList.toggle('hidden', tk.soort !== 'oefenblad');
   spelKeuze();
   const lijst = tk.soort === 'quiz' ? tk.bronnen.quizzen : tk.bronnen.bladen;
-  const sel = $('tk-bron');
-  sel.innerHTML = '';
-  sel.appendChild(new Option(lijst.length ? `Kies ${tk.soort === 'quiz' ? 'een quiz' : 'een oefenblad'}…` : `Nog geen ${tk.soort === 'quiz' ? 'quizzen' : 'oefenbladen'}`, ''));
-  // Per map, zoals in de lijsten. Losse items eerst.
-  const mappen = new Map();
-  for (const x of lijst) {
-    const m = x.folder || '';
-    (mappen.get(m) || mappen.set(m, []).get(m)).push(x);
-  }
-  for (const [m, items] of [...mappen].sort((a, b) => (a[0] === '' ? -1 : b[0] === '' ? 1 : a[0].localeCompare(b[0], 'nl')))) {
-    const doel = m ? sel.appendChild(Object.assign(document.createElement('optgroup'), { label: m })) : sel;
-    for (const x of items) {
-      const lv = (x.niveaus || []).length > 1 ? ' · 3 niveaus' : '';
-      doel.appendChild(new Option(`${x.title}${lv}`, x.file));
-    }
-  }
   const file = vraag.get('file');
-  if (file && lijst.some(x => x.file === file)) sel.value = file;
+  zetBron(file && lijst.find(x => x.file === file));
+}
+
+// De gekozen quiz of het gekozen oefenblad staat op de knop; klik erop om een ander te kiezen.
+function zetBron(x) {
+  const wat = tk.soort === 'quiz' ? 'een quiz' : 'een oefenblad';
+  $('tk-bron').value = x ? x.file : '';
+  const b = $('tk-kies');
+  b.innerHTML = '';
+  if (x) b.append(el('strong', '', x.title), el('span', 'muted', [x.folder ? `📁 ${x.folder.split('/').join(' › ')}` : '', (x.niveaus || []).length > 1 ? '3 niveaus' : ''].filter(Boolean).join(' · ')), el('span', 'tk-kies-ander', 'Ander kiezen'));
+  else b.textContent = `📂 Kies ${wat}…`;
   kiesBron();
 }
 
 for (const b of document.querySelectorAll('.tk-soort button')) {
   b.addEventListener('click', () => {
+    if (tk.soort === b.dataset.soort) return;
     tk.soort = b.dataset.soort;
     vraag.delete('file');
     vulBron();
   });
 }
-$('tk-bron').addEventListener('change', kiesBron);
+
+// Kiezen gaat zoals in Mijn quizzen: mappen links, zoeken in alles. Hier alleen kiezen, niets verplaatsen.
+for (const soort of ['quiz', 'oefenblad']) {
+  ItemList.mount($(`k-${soort}`), {
+    kind: soort, kiezen: true, errorId: 'k-fout', go: 'Kies ▶',
+    play: q => { $('tk-kiezer').close(); zetBron(q); },
+  });
+}
+$('tk-kies').addEventListener('click', () => {
+  $('k-titel').textContent = tk.soort === 'quiz' ? 'Kies een quiz' : 'Kies een oefenblad';
+  $('k-quiz').classList.toggle('hidden', tk.soort !== 'quiz');
+  $('k-oefenblad').classList.toggle('hidden', tk.soort !== 'oefenblad');
+  $('tk-kiezer').showModal();
+  const zoek = $(`k-${tk.soort}`).querySelector('.lib-zoek');
+  if (zoek) zoek.focus();
+});
+$('k-sluit').addEventListener('click', () => $('tk-kiezer').close());
 
 // Welk niveau krijgt elke leerling? Dat tonen we bij de namen.
 function kiesBron() {

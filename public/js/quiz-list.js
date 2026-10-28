@@ -8,6 +8,7 @@
 // in één keer (met 📁 in de balk, of door een aangevinkt item naar een map te slepen: de hele selectie gaat mee).
 // Gebruik: QuizList.mount($('quiz-list'), { go: 'Kies ▶', play: q => ..., edit: q => ..., remove: q => ... }).
 // Met beheer: true (de quizbibliotheek) staan de balken voor niveau en uitleg er niet bij.
+// Met kiezen: true (bv. een taak geven) alleen zoeken, mappen openen en kiezen: niets slepen, verplaatsen of exporteren.
 // Voor oefenbladen en sessies: ItemList.mount(el, { kind: 'oefenblad', ... }) met dezelfde opties, plus
 // detail: q => 'tekst achter de titel' en buttons: [{ label, title, cls, click: q => ... }] voor extra knoppen.
 // Gebruikt de globale socket van de pagina.
@@ -32,6 +33,7 @@ const ItemList = (() => {
 
   function mount(box, opts) {
     const kind = opts.kind || 'quiz';
+    const kiezen = !!opts.kiezen;
     if (kind === 'quiz') listenNiveau();
     const k = KINDS[kind];
     const detail = opts.detail || k.detail;
@@ -148,6 +150,7 @@ const ItemList = (() => {
     }
 
     function dragStart(el, data) {
+      if (kiezen) return;
       el.draggable = true;
       el.addEventListener('dragstart', e => {
         e.stopPropagation();
@@ -164,6 +167,7 @@ const ItemList = (() => {
 
     // Een plek waarop je een item, een map of een geëxporteerd bestand kan laten vallen.
     function dropZone(el, folder) {
+      if (kiezen) return;
       el.addEventListener('dragover', e => { e.preventDefault(); e.stopPropagation(); el.classList.add('over'); });
       el.addEventListener('dragleave', e => { if (!el.contains(e.relatedTarget)) el.classList.remove('over'); });
       el.addEventListener('drop', e => {
@@ -188,12 +192,12 @@ const ItemList = (() => {
       // De keuzelijst krijgt pas al haar mappen als je ze opent: een lange lijst tekent zo veel sneller.
       const option = f => `<option value="${esc(f)}"${f === (q.folder || '') ? ' selected' : ''}>${f ? esc(f.split('/').join(' › ')) : 'Bovenaan, in geen map'}</option>`;
       const place = query && q.folder ? ` · 📁 ${esc(q.folder.split('/').join(' › '))}` : '';
-      el.innerHTML = `${picking ? `<input type="checkbox" class="kies" aria-label="Selecteren"${picked.has(q.file) ? ' checked' : ''}>` : `<span class="grip" title="Sleep naar een map">${Ui.ic('grip')}</span>`}
+      el.innerHTML = `${picking ? `<input type="checkbox" class="kies" aria-label="Selecteren"${picked.has(q.file) ? ' checked' : ''}>` : kiezen ? '' : `<span class="grip" title="Sleep naar een map">${Ui.ic('grip')}</span>`}
         <button class="play">${esc(q.title)} <span class="muted">· ${esc(detail(q))}${kind === 'quiz' && (q.niveaus || []).length > 1 ? ` · ${q.niveaus.map(n => ICONS[n]).join('')}` : ''}${place}</span>${picking ? '' : `<span class="go">${opts.go || 'Kies ▶'}</span>`}</button>
-        ${folders.length ? `<label class="move" title="Verplaats naar…">📁<select aria-label="Verplaats naar…">${option(q.folder || '')}</select></label>` : ''}
+        ${folders.length && !kiezen ? `<label class="move" title="Verplaats naar…">📁<select aria-label="Verplaats naar…">${option(q.folder || '')}</select></label>` : ''}
         ${(opts.buttons || []).map((b, i) => `<button class="secondary extra ${b.cls || ''}" data-extra="${i}" title="${esc(b.title || '')}">${b.label}</button>`).join('')}
         ${opts.edit ? '<button class="secondary edit">Bewerken</button>' : ''}
-        <button class="secondary export" title="Exporteren naar een bestand" aria-label="Exporteren">${Ui.ic('download')}</button>
+        ${kiezen ? '' : `<button class="secondary export" title="Exporteren naar een bestand" aria-label="Exporteren">${Ui.ic('download')}</button>`}
         ${opts.remove ? `<button class="secondary delete" title="Verwijderen" aria-label="Verwijderen">${Ui.ic('kruis')}</button>` : ''}`;
       if (picking) {
         const tick = el.querySelector('.kies');
@@ -211,7 +215,7 @@ const ItemList = (() => {
         el.querySelector('.play').addEventListener('click', pick);
       } else el.querySelector('.play').addEventListener('click', () => opts.play(q));
       if (opts.edit) el.querySelector('.edit').addEventListener('click', () => opts.edit(q));
-      el.querySelector('.export').addEventListener('click', () => download({ file: q.file }));
+      if (!kiezen) el.querySelector('.export').addEventListener('click', () => download({ file: q.file }));
       for (const b of el.querySelectorAll('[data-extra]')) b.addEventListener('click', () => opts.buttons[b.dataset.extra].click(q));
       if (opts.remove) el.querySelector('.delete').addEventListener('click', () => opts.remove(q));
       const select = el.querySelector('.move select');
@@ -282,7 +286,7 @@ const ItemList = (() => {
           dropZone(b, c);
           path.appendChild(b);
         });
-        if (here) path.appendChild(folderButtons(here));
+        if (here && !kiezen) path.appendChild(folderButtons(here));
       }
       m.appendChild(path);
       if (picking) m.appendChild(pickBar());
@@ -310,6 +314,7 @@ const ItemList = (() => {
       for (const q of list) m.appendChild(row(q));
       if (!list.length && !subs.length) {
         m.insertAdjacentHTML('beforeend', query ? `<p class="muted small lib-leeg">Geen ${k.many} gevonden met "${esc(query)}".</p>`
+          : kiezen ? `<p class="muted small lib-leeg">${here ? 'Deze map is leeg.' : `Geen ${k.many} buiten de mappen: open links een map.`}</p>`
           : `<p class="muted small lib-leeg">${here ? 'Deze map is leeg.' : `Nog geen ${k.many} buiten de mappen.`} Sleep een ${k.one} hierheen, of kies het mapje 📁 bij een ${k.one}.</p>`);
       }
       if (!query) dropZone(m, here);
@@ -417,14 +422,14 @@ const ItemList = (() => {
       explorer = null;
       const bar = document.createElement('div');
       bar.className = 'quiz-tools';
-      bar.innerHTML = `<span class="muted small lib-note"></span>
+      bar.innerHTML = kiezen ? '<span class="muted small lib-note"></span>' : `<span class="muted small lib-note"></span>
         ${items.length && opts.remove ? `<button class="secondary small-btn kies-knop${picking ? ' on' : ''}" type="button" title="Meerdere ${k.many} aanvinken, bijvoorbeeld om ze samen te verwijderen">${picking ? 'Klaar met selecteren' : '☑ Selecteren'}</button>` : ''}
         <button class="secondary small-btn new-folder" type="button">${Ui.ic('map')} Nieuwe map</button>
         <label class="button secondary small-btn" title="Een bestand van ⬇ Exporteren inladen, bijvoorbeeld van je laptop thuis">${Ui.ic('upload')} Importeren<input type="file" accept=".json,application/json" multiple hidden></label>
         ${items.length ? `<button class="secondary small-btn export-all" type="button" title="Alle ${k.many} met hun mappen in één bestand">${Ui.ic('download')} Alles exporteren</button>` : ''}`;
       bar.querySelector('.lib-note').textContent = note;
       if (items.length || folders.length) bar.prepend(search);
-      bar.querySelector('.new-folder').addEventListener('click', () => {
+      if (!kiezen) bar.querySelector('.new-folder').addEventListener('click', () => {
         const parent = query ? '' : here;
         const name = prompt(parent ? `Naam van de nieuwe map in "${baseOf(parent)}":` : 'Naam van de nieuwe map (bijvoorbeeld een vak of een klas):');
         if (!name) return;
@@ -432,14 +437,14 @@ const ItemList = (() => {
         socket.emit('lib-folder-add', { kind, name, parent }, error);
       });
       const input = bar.querySelector('input[type=file]');
-      input.addEventListener('change', () => { importFiles(input.files, query ? '' : here); input.value = ''; });
+      if (input) input.addEventListener('change', () => { importFiles(input.files, query ? '' : here); input.value = ''; });
       const kies = bar.querySelector('.kies-knop');
       if (kies) kies.addEventListener('click', () => { picking = !picking; picked.clear(); last = null; note = ''; render(); });
       const all = bar.querySelector('.export-all');
       if (all) all.addEventListener('click', () => download({}));
       box.appendChild(bar);
       if (typing) search.focus();
-      if (kind === 'quiz' && !opts.beheer && items.some(q => (q.niveaus || []).length > 1)) {
+      if (kind === 'quiz' && !opts.beheer && !kiezen && items.some(q => (q.niveaus || []).length > 1)) {
         const lv = document.createElement('div');
         lv.className = 'quiz-niveau-bar';
         box.appendChild(lv);
@@ -447,7 +452,7 @@ const ItemList = (() => {
         renderNiveauBar(lv);
       }
       // In de spellen kan de leerkracht de uitleg na een fout antwoord uitzetten. In het Toernooi staat ze altijd aan.
-      if (kind === 'quiz' && !opts.beheer && location.pathname !== '/host') {
+      if (kind === 'quiz' && !opts.beheer && !kiezen && location.pathname !== '/host') {
         const ub = document.createElement('label');
         ub.className = 'quiz-uitleg-bar';
         box.appendChild(ub);
@@ -455,7 +460,7 @@ const ItemList = (() => {
         renderUitlegBar(ub);
       }
       if (items.length === 0 && folders.length === 0) {
-        box.insertAdjacentHTML('beforeend', `<div class="leeg"><p>Nog geen ${k.many}.</p><p class="muted small">Maak er een met de knoppen hierboven, of importeer een bestand.</p></div>`);
+        box.insertAdjacentHTML('beforeend', `<div class="leeg"><p>Nog geen ${k.many}.</p><p class="muted small">${kiezen ? `Maak of importeer eerst ${k.many} in De Smidse.` : 'Maak er een met de knoppen hierboven, of importeer een bestand.'}</p></div>`);
         return;
       }
       explorer = explorerView();
@@ -463,7 +468,7 @@ const ItemList = (() => {
     }
 
     // Een bestand ergens op de lijst laten vallen: importeren in de open map.
-    box.addEventListener('dragover', e => { if (e.dataTransfer.types.includes('Files')) e.preventDefault(); });
+    if (!kiezen) box.addEventListener('dragover', e => { if (e.dataTransfer.types.includes('Files')) e.preventDefault(); });
     box.addEventListener('drop', e => {
       if (!e.dataTransfer.files || !e.dataTransfer.files.length) return;
       e.preventDefault();

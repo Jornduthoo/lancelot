@@ -291,7 +291,7 @@ Per les een quiz en een oefenblad op 🪶 Page, 🛡️ Schildknaap en ⚔️ Ri
 Geef een oefenblad of quiz aan één leerling, een paar leerlingen of de hele klas, om in de klas aan te werken in hun eigen tempo. Er hoeft geen spel te lopen.
 
 1. Op het startscherm: **Mijn klas** (onder de tegels), tabblad **Taken**. Of bij **Mijn oefenbladen**: **📋 Als taak**. Of in het **Zorgoverzicht** bij een doel: **📋 Geef een taak** (de leerlingen die het doel nog niet beheersen staan dan al aangevinkt).
-2. Kies **Oefenblad** of **Quiz** en wat ze moeten maken. Bij een oefenblad kies je ook of het meteen verbeterd wordt of pas na het inleveren.
+2. Kies **Oefenblad** of **Quiz**, en bij **Wat?** wat ze moeten maken: je krijgt dezelfde mappen als in Mijn quizzen, met een zoekbalk die in alle mappen zoekt. Bij **Op welk niveau?** laat je elke leerling zijn eigen niveau, of geef je iedereen hetzelfde (bv. de hele klas eens 🪶 Page). Bij een oefenblad kies je ook of het meteen verbeterd wordt of pas na het inleveren.
 3. Tik de leerlingen aan, of kies snel: **Hele klas**, **Aandacht nodig** of **Opvolgen** (de kleuren uit het zorgoverzicht) of een **groepje bij een doel**. Naast elke naam staat het niveau dat de leerling krijgt (🪶 Page, 🛡️ Schildknaap of ⚔️ Ridder), zoals in Mijn klas voor dat vak. Heeft het blad of de quiz maar één niveau, dan krijgt iedereen hetzelfde.
 4. **Geef taak**. Leerlingen tikken op hun startscherm op **Mijn taken** (of surfen naar het adres met `/mijn-taken`). Daar staat de taak meteen, met een bolletje op de knop.
 

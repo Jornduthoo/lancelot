@@ -102,3 +102,11 @@
   .tk-vraag { font-size: 1.2rem; }
 }
 
+
+/* Wat? Een knop met de gekozen quiz of het oefenblad; het kiezen gebeurt in de mappenlijst. */
+.tk-kies-knop { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 2px 12px; width: 100%; text-align: left; font-weight: 600; letter-spacing: 0; text-transform: none; }
+.tk-kies-knop strong { color: var(--text); }
+.tk-kies-knop .muted { grid-column: 1; font-size: .85em; }
+.tk-kies-ander { grid-column: 2; grid-row: 1 / span 2; font-size: .85em; color: var(--cyan); }
+.tk-kiezer { width: min(1100px, 96vw); }
+.tk-kiezer .bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
