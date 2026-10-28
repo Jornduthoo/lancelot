@@ -106,6 +106,7 @@ openRealm(document.getElementById(`realm-${savedRealm}`) ? savedRealm : 'arena')
 
 document.querySelector('[data-module="toernooi"]').addEventListener('click', () => show('idle'));
 document.querySelector('[data-module="rondetafel"]').addEventListener('click', () => { location.href = '/rondetafel'; });
+document.querySelector('[data-module="reeks"]').addEventListener('click', () => { location.href = '/reeks'; });
 document.querySelector('[data-module="runenraadsel"]').addEventListener('click', () => { location.href = '/runenraadsel'; });
 document.querySelector('[data-module="klaseiland"]').addEventListener('click', () => { location.href = '/klaseiland'; });
 document.querySelector('[data-module="toren"]').addEventListener('click', () => { location.href = '/toren'; });

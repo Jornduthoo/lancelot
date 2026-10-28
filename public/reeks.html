@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LANcelot · Reeks met AI</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body class="reeks">
+<main>
+  <div class="topbar">
+    <div class="brand" id="brand" title="Naar het startscherm">
+      <img src="/img/mark.webp" alt="">
+      <div>
+        <div class="wordmark">LAN<span>celot</span></div>
+        <div class="subtitle">Reeks met AI</div>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="secondary" id="to-home">Terug</button>
+    </div>
+  </div>
+
+  <div class="panel tw-intro">
+    <img class="game-logo" src="/img/icons/oefenblad-ai.webp" alt="">
+    <div>
+      <p><strong>Een hele reeks in één keer:</strong> per les een quiz en een oefenblad, op 🪶 Page, 🛡️ Schildknaap en ⚔️ Ridder. Alles komt in De Smidse in mappen per vak en per blok.</p>
+      <p class="muted">Met een eigen AI-sleutel gaat het vanzelf. Zonder sleutel kopieer je een paar prompts naar een chatbot. Stop je halverwege? Kom later terug: wat al klaar is, wordt niet opnieuw gemaakt.</p>
+    </div>
+  </div>
+
+  <div class="panel form">
+    <h3>1. Welke lessen?</h3>
+    <div class="row">
+      <label>Vak (de bovenste map)<input id="r-vak" maxlength="40" placeholder="bijv. Rekenen" list="r-vakken"></label>
+      <datalist id="r-vakken"><option>Rekenen</option><option>Taal</option><option>Spelling</option><option>Frans</option><option>WO</option><option>Engels</option><option>Godsdienst</option></datalist>
+      <label>Niveau
+        <select id="r-level">
+          <option>3e kleuterklas</option>
+          <option>1e leerjaar</option>
+          <option>2e leerjaar</option>
+          <option>3e leerjaar</option>
+          <option>4e leerjaar</option>
+          <option>5e leerjaar</option>
+          <option selected>6e leerjaar</option>
+          <option>1e middelbaar</option>
+          <option>2e middelbaar</option>
+          <option>3e middelbaar</option>
+          <option>4e middelbaar</option>
+          <option>5e middelbaar</option>
+          <option>6e middelbaar</option>
+          <option>hoger onderwijs</option>
+        </select>
+      </label>
+    </div>
+    <label><span>De lessen, één per regel <details class="hulp"><summary aria-label="Uitleg">?</summary><p>Een regel met # ervoor is een blok of thema: dat wordt een map. Daaronder één les per regel. Na een | mag je kort zeggen wat de les inhoudt: dan wordt het materiaal beter. Bijvoorbeeld:<br># Blok 1 - Grote getallen<br>Les 1 - Getallen tot 1 miljard | lezen, schrijven, plaatswaarde<br>Les 2 - Afronden</p></details></span>
+      <textarea id="r-lessen" rows="10" spellcheck="false" placeholder="# Blok 1 - Grote getallen&#10;Les 1 - Getallen tot 1 miljard | lezen, schrijven, plaatswaarde&#10;Les 2 - Afronden | op tientallen, honderdtallen en duizendtallen"></textarea>
+    </label>
+    <p class="muted small" id="r-telling"></p>
+    <details class="r-handleiding">
+      <summary>Of: laat AI de lessenlijst maken uit je handleiding of jaarplan</summary>
+      <p class="muted small">De AI leest de inhoudstafel en de lessen en schrijft per les kort wat erin zit, in eigen woorden. LANcelot bewaart je handleiding niet: hij gaat enkel naar de AI.</p>
+      <div class="hidden" id="r-plan-direct">
+        <label class="file-button"><input id="r-files" type="file" accept="image/*,application/pdf" multiple hidden>Handleiding kiezen (pdf of foto's, samen hooguit 15 MB)</label>
+        <ul class="file-list" id="r-file-list"></ul>
+        <div><button id="r-plan-go">Maak de lessenlijst met <span class="ai-naam">Gemini</span></button> <span class="muted" id="r-plan-busy"></span></div>
+      </div>
+      <p class="muted small">Zonder sleutel, of is je handleiding groter dan 15 MB? Kopieer de prompt, plak hem in een chatbot en voeg daar je handleiding toe. Kopieer het antwoord en kom terug: de lijst verschijnt vanzelf hierboven.</p>
+      <div class="actions">
+        <button class="chatbot" data-plan data-url="https://gemini.google.com/app">Gemini</button>
+        <button class="chatbot" data-plan data-url="https://chatgpt.com/">ChatGPT</button>
+        <button class="chatbot" data-plan data-url="https://claude.ai/new">Claude</button>
+      </div>
+      <label>Antwoord van de chatbot (meestal vanzelf)<textarea id="r-plan-answer" rows="3" placeholder="Plak hier het antwoord…"></textarea></label>
+      <p class="error" id="r-plan-error"></p>
+    </details>
+  </div>
+
+  <div class="panel form">
+    <h3>2. Wat per les?</h3>
+    <div class="row">
+      <label class="inline check"><input type="checkbox" id="r-quiz" checked> Quiz</label>
+      <label>Vragen per niveau<input id="r-vragen" type="number" min="3" max="10" value="5"></label>
+      <label class="inline check"><input type="checkbox" id="r-blad" checked> Oefenblad</label>
+      <label>Oefeningen per niveau<input id="r-oef" type="number" min="2" max="6" value="3"></label>
+    </div>
+    <label class="inline check"><input type="checkbox" id="r-drie" checked> Op drie niveaus: 🪶 Page (met hulp), 🛡️ Schildknaap (het doel) en ⚔️ Ridder (uitdaging)</label>
+    <label>Extra wensen voor alle lessen (mag leeg)<textarea id="r-extra" rows="2" placeholder="bijv. veel oefeningen met geld en meten, of: woordjes Frans altijd met lidwoord"></textarea></label>
+  </div>
+
+  <div class="panel form">
+    <h3>3. Maken</h3>
+    <div class="hidden" id="r-direct">
+      <p class="muted small"><span class="ai-naam">Gemini</span> maakt de lessen één voor één (meestal 20 tot 60 seconden per les). Laat deze pagina open; je mag intussen in een ander tabblad verder werken.</p>
+      <div class="actions"><button id="r-start">Maak alles met <span class="ai-naam">Gemini</span></button><button class="secondary hidden" id="r-pauze">Pauzeer na deze les</button></div>
+    </div>
+    <div id="r-kopie">
+      <h4 class="r-zonder hidden" id="r-zonder">Of zonder sleutel: kopiëren en plakken</h4>
+      <p class="muted small" id="r-kopie-uitleg">Klik op een chatbot: de prompt wordt gekopieerd en de chatbot opent. Plak hem daar, kopieer het antwoord en klik terug naar LANcelot. Het wordt vanzelf bewaard en de volgende prompt staat klaar. Tip: blijf in hetzelfde gesprek, dan kent de chatbot je handleiding nog.</p>
+      <div class="row">
+        <label>Lessen per prompt
+          <select id="r-per">
+            <option value="1">1 (het zekerst)</option>
+            <option value="2" selected>2</option>
+            <option value="3">3</option>
+          </select>
+        </label>
+      </div>
+      <div class="actions">
+        <button class="chatbot" data-url="https://gemini.google.com/app">Gemini</button>
+        <button class="chatbot" data-url="https://chatgpt.com/">ChatGPT</button>
+        <button class="chatbot" data-url="https://claude.ai/new">Claude</button>
+        <button class="secondary" id="r-copy">Alleen kopiëren</button>
+      </div>
+      <p class="muted" id="r-copied"></p>
+      <label>Antwoord van de chatbot (meestal vanzelf)<textarea id="r-answer" rows="3" placeholder="Plak hier het antwoord…"></textarea></label>
+    </div>
+    <p class="error" id="r-error"></p>
+    <div class="r-voortgang" id="r-voortgang"></div>
+  </div>
+</main>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/ui.js"></script>
+<script src="/js/niveau.js"></script>
+<script src="/js/reeks.js"></script>
+</body>
+</html>

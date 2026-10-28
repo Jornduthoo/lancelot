@@ -275,6 +275,16 @@ Tip: iedereen speelt dezelfde werelden en ziet klasgenoten als doorschijnende ri
 
 Liever op papier? Klik bij een blad op **🖨 Print** voor het werkblad en op **Verbeterblad** voor de oplossingen. Via **Werkblad maken** op het startscherm laat je AI meteen een nieuw blad maken.
 
+## Een hele reeks met AI
+
+Per les een quiz en een oefenblad op 🪶 Page, 🛡️ Schildknaap en ⚔️ Ridder, voor een heel blok of een heel jaar in één keer.
+
+1. Klik in **De Smidse** op **Reeks met AI**.
+2. Vul het vak in (dat wordt de bovenste map) en zet de lessen eronder: een regel met `#` is een blok of thema (een map), daaronder één les per regel. Na een `|` mag je kort zeggen wat in de les zit. Of laat AI de lijst maken uit je handleiding of jaarplan: LANcelot bewaart die handleiding niet.
+3. Kies wat je per les wil: een quiz, een oefenblad of allebei.
+4. Met een eigen AI-sleutel klik je op **Maak alles met …**: de lessen komen één voor één klaar. Zonder sleutel kopieer je de prompt naar een chatbot, kopieer je het antwoord en klik je terug naar LANcelot. Alles komt vanzelf in de juiste map.
+5. Stop je halverwege? Kom later terug: wat al in de juiste map staat (met dezelfde titel), wordt niet opnieuw gemaakt.
+
 ## Taken per leerling
 
 Geef een oefenblad of quiz aan één leerling, een paar leerlingen of de hele klas, om in de klas aan te werken in hun eigen tempo. Er hoeft geen spel te lopen.
