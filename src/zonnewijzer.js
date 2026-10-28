@@ -319,4 +319,83 @@ function doelInfo(codes) {
   return { doelen: info, doel, criteria: info.filter(d => d.tekst).map(d => kort(d.tekst)) };
 }
 
-module.exports = { DIR, vul, roosters, bewaarRoosters, importeerRoosters, schoonRooster, week, laatsteVan, zetLes, zetWeekRooster, vink, schuif, doelInfo, ikZin, weekVan };
+// ---------- Mijn lessen: eigen lessen bewaren en later opnieuw kiezen (bv. elke maandag Onthaal) ----------
+// Eén klein bestand in zonnewijzer/, dus het gaat mee met Mijn lesmap.
+const MIJN = 'mijn-lessen.json';
+const MAX_MIJN = 300;
+
+function mijnLessen() {
+  const d = lees(MIJN, {});
+  return (Array.isArray(d.lessen) ? d.lessen : []).filter(l => l && typeof l.id === 'string');
+}
+
+function bewaarMijnLes(l) {
+  const les = schoonLes(l);
+  if (!les || !les.titel) throw new Error('Geef de les eerst een titel.');
+  const { vak, titel, doel, criteria, doelen: codes, notitie } = les;
+  const lijst = mijnLessen();
+  // Dezelfde titel bij hetzelfde vak: die les bijwerken in plaats van een tweede te maken.
+  const zelfde = x => x.titel.toLowerCase() === titel.toLowerCase() && x.vak.toLowerCase() === vak.toLowerCase();
+  const oud = lijst.find(zelfde);
+  const nieuw = { id: oud ? oud.id : crypto.randomBytes(6).toString('hex'), vak, titel, doel, criteria, doelen: codes, notitie, bewaard: Date.now() };
+  const rest = lijst.filter(x => !zelfde(x));
+  if (rest.length >= MAX_MIJN) throw new Error(`Hooguit ${MAX_MIJN} lessen in Mijn lessen. Haal er eerst een paar weg.`);
+  schrijf(MIJN, { lessen: [nieuw, ...rest] });
+  return { mijnLessen: mijnLessen(), id: nieuw.id };
+}
+
+function verwijderMijnLes(id) {
+  schrijf(MIJN, { lessen: mijnLessen().filter(x => x.id !== id) });
+  return { mijnLessen: mijnLessen() };
+}
+
+// ---------- Help me invullen: een doel en succescriteria voor een eigen les ----------
+// Met een AI-sleutel vraagt de server het aan de AI; zonder sleutel (of als de AI faalt) komt dit ingebouwde voorstel.
+const VASTE = [
+  [/onthaal|ochtend|welkom|maandagverhaal|weekend/i, 'Ik kan vertellen hoe ik me voel en wat ik beleefde.'],
+  [/journaal|nieuws|actua/i, 'Ik kan in eigen woorden vertellen wat er in het nieuws was.'],
+  [/quiz/i, 'Ik kan de vragen beantwoorden en weet wat ik nog moet oefenen.'],
+  [/kring|gesprek|klasraad/i, 'Ik kan luisteren naar anderen en wacht op mijn beurt.'],
+  [/lees|bib|boek/i, 'Ik kan rustig lezen en vertellen waarover mijn boek gaat.'],
+  [/contract|weektaak|hoek|zelfstandig/i, 'Ik kan zelfstandig werken en vraag hulp als ik vastzit.'],
+  [/dictee|spelling/i, 'Ik kan de woorden juist schrijven met de regel die we leerden.'],
+  [/toets|evaluatie|proef/i, 'Ik kan rustig en zelfstandig mijn toets maken en nakijken.'],
+  [/turn|zwem|sport|bewe|lo\b/i, 'Ik kan veilig bewegen en hou me aan de afspraken.'],
+  [/teken|knutsel|muzi|muziek|zang|drama|beeld/i, 'Ik kan mijn eigen idee uitwerken en vertellen wat ik maakte.'],
+  [/godsdienst|levensbeschouw|filosof/i, 'Ik kan mijn mening vertellen en luister naar die van anderen.'],
+  [/opruim|afsluit|einde|planning|agenda/i, 'Ik kan vertellen wat ik vandaag leerde en wat ik nog moet doen.'],
+];
+
+function ingebouwdVoorstel({ vak, titel } = {}) {
+  const delen = tekst(titel, 120).split(/\s*(?:[/,;+&|]|\s-\s)\s*/).filter(Boolean);
+  if (!delen.length && vak) delen.push(tekst(vak, 30));
+  if (!delen.length) throw new Error('Geef de les eerst een titel, dan help ik met het doel en de succescriteria.');
+  const criteria = [];
+  for (const deel of delen.slice(0, 5)) {
+    const vast = VASTE.find(([re]) => re.test(deel));
+    const zin = vast ? vast[1] : `Ik kan vertellen wat ik leerde bij ${deel.charAt(0).toLowerCase()}${deel.slice(1)}.`;
+    if (!criteria.includes(zin)) criteria.push(zin);
+  }
+  const lijst = delen.length > 1 ? `${delen.slice(0, -1).join(', ')} en ${delen[delen.length - 1]}` : delen[0];
+  return { doel: `Vandaag: ${lijst.charAt(0).toLowerCase()}${lijst.slice(1)}.`, criteria };
+}
+
+function voorstelPrompt({ vak, titel, notitie, leerjaar } = {}) {
+  return [
+    `Je helpt een leerkracht in Vlaanderen (${leerjaar || '6e leerjaar'}) een les voor te bereiden.`,
+    `Vak of activiteit: ${tekst(vak, 30) || 'onbekend'}. Titel van de les: ${tekst(titel, 120)}.`,
+    notitie ? `Notitie van de leerkracht: ${tekst(notitie, 600)}` : '',
+    'Schrijf het lesdoel zoals de klas het op het bord ziet, kort en in kindertaal, beginnend met "Vandaag leer ik" of "Vandaag".',
+    'Schrijf 2 tot 4 succescriteria, elk één korte zin die begint met "Ik kan", concreet en zichtbaar voor de leerkracht.',
+    'Standaardnederlands zoals in Vlaanderen. Geef enkel JSON: {"doel": "...", "criteria": ["Ik kan ...", "..."]}',
+  ].filter(Boolean).join('\n');
+}
+
+function leesVoorstel(data) {
+  const doel = tekst(data && data.doel, 300);
+  const criteria = (Array.isArray(data && data.criteria) ? data.criteria : []).map(c => tekst(c, 160)).filter(Boolean).slice(0, 6);
+  if (!doel && !criteria.length) throw new Error('De AI gaf geen bruikbaar voorstel.');
+  return { doel, criteria };
+}
+
+module.exports = { DIR, mijnLessen, bewaarMijnLes, verwijderMijnLes, ingebouwdVoorstel, voorstelPrompt, leesVoorstel, vul, roosters, bewaarRoosters, importeerRoosters, schoonRooster, week, laatsteVan, zetLes, zetWeekRooster, vink, schuif, doelInfo, ikZin, weekVan };

@@ -178,3 +178,7 @@ body.zonnewijzer main { max-width: 1440px; }
   .zw-af-doel { margin-top: 1pt; }
   .zw-af-codes, .zw-af-notitie { font-size: 8.5pt; color: #555; margin-top: 2pt; }
 }
+.zw-ed-mijn { display: flex; align-items: flex-end; gap: 8px; }
+.zw-ed-mijn label { flex: 1; min-width: 0; }
+.zw-ed-mijn select { width: 100%; }
+#zw-ed-crit-info:empty { display: none; }

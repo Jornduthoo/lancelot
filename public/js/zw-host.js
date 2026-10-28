@@ -91,6 +91,7 @@ function laad(week = zw.week) {
     zw.weekData = res.weekData;
     zw.week = week;
     zw.vandaag = res.vandaag;
+    zw.mijn = res.mijnLessen || [];
     if (!zw.rb || !zw.roosters.some(r => r.id === zw.rb.id)) kiesRooster((rooster() || {}).id);
     teken();
   });
@@ -423,6 +424,7 @@ function zetSoort(soort) {
   ed.soort = soort;
   for (const b of document.querySelectorAll('.zw-seg [data-soort]')) b.setAttribute('aria-checked', b.dataset.soort === soort);
   $('zw-ed-pakket').classList.toggle('hidden', soort !== 'pakket');
+  tekenMijn();
   if (soort === 'eigen') {
     zetMap('');
     vulLessen('', 0);
@@ -518,7 +520,7 @@ async function stelVoor(slot, vak) {
   vulLessen(v.map, v.les.nr);
   kiesLes(v.les.nr);
   tekenBlokken();
-  $('zw-ed-voorstel-info').textContent = `✨ Voorstel: de les na Les ${vorige.nr}. Een andere les kiezen kan hierboven.`;
+  $('zw-ed-voorstel-info').textContent = `✨ Voorstel: Les ${v.les.nr}, want vorige keer stond Les ${vorige.nr} gepland. Een andere les kiezen kan hierboven.`;
 }
 
 // Vul de week aan: elk leeg lesuur van een vak krijgt de volgende les, na de laatst geplande les van dat vak.
@@ -533,22 +535,32 @@ $('zw-vul').addEventListener('click', async () => {
     // Nog geen vorige les gevonden (bv. maandag ligt vóór je eerste geplande les)? Dan bij het volgende lesuur opnieuw kijken.
     if (!stand.get(sleutel)) stand.set(sleutel, await vraagLaatste(p.vak, p.slot));
     const vorige = stand.get(sleutel);
-    if (!vorige) continue;
+    if (!vorige) {
+      // Geen lespakket voor dit vak? Dan je vaste les uit Mijn lessen (de laatst bewaarde van dat vak).
+      const vast = (zw.mijn || []).find(l => l.vak.toLowerCase() === sleutel);
+      if (vast) plan.push({ ...p, vast });
+      continue;
+    }
     const v = volgendeNa(vorige.map, vorige.nr);
     if (!v) continue;
     stand.set(sleutel, { map: v.map, nr: v.les.nr });
     plan.push({ ...p, map: v.map, les: v.les });
   }
-  if (!plan.length) return Ui.melding('Er valt niets aan te vullen. Plan eerst één les per vak uit je lespakket (bv. Rekenen Les 31): dan vult LANcelot de lessen daarna in.');
+  if (!plan.length) return Ui.melding('Er valt niets aan te vullen. Plan eerst één les per vak uit je lespakket (bv. Rekenen Les 31): dan vult LANcelot de lessen daarna in. Vaste lessen zoals Onthaal bewaar je met ⭐ In Mijn lessen.');
   const perVak = new Map();
   for (const p of plan) {
     if (!perVak.has(p.vak)) perVak.set(p.vak, []);
-    perVak.get(p.vak).push(p.les.nr);
+    perVak.get(p.vak).push(p.vast ? p.vast.titel : p.les.nr);
   }
-  const samen = [...perVak].map(([v, nrs]) => `${v}: les ${nrs.length > 1 ? `${nrs[0]}–${nrs[nrs.length - 1]}` : nrs[0]}`).join(', ');
+  const samen = [...perVak].map(([v, nrs]) => typeof nrs[0] === 'string' ? `${v}: ${nrs[0]}${nrs.length > 1 ? ` (${nrs.length}×)` : ''}` : `${v}: les ${nrs.length > 1 ? `${nrs[0]}–${nrs[nrs.length - 1]}` : nrs[0]}`).join(', ');
   if (!await Ui.vraag(`${plan.length} ${plan.length === 1 ? 'les' : 'lessen'} invullen? ${samen}. Je kan elke les daarna nog aanpassen of wissen.`, { ja: 'Invullen' })) return;
   const lessen = {};
   for (const p of plan) {
+    if (p.vast) {
+      const { titel, doel, criteria: crit, doelen: codes, notitie } = p.vast;
+      lessen[p.slot] = { vak: p.vak, titel, doel, criteria: crit, doelen: codes, notitie };
+      continue;
+    }
     const info = p.les.quiz ? await vraagDoelen(p.les.quiz.file) : null;
     lessen[p.slot] = { vak: p.vak, map: p.map, nr: p.les.nr, titel: p.les.titel || '', doelen: info ? info.doelen.map(x => x.code) : [], doel: (info && info.doel) || '', criteria: (info && info.criteria) || [] };
   }
@@ -556,6 +568,52 @@ $('zw-vul').addEventListener('click', async () => {
     if (res.error) return Ui.melding(res.error);
     zw.weekData = res.weekData;
     teken();
+  });
+});
+
+// Mijn lessen: eigen lessen die je bewaarde, eerst die van dit vak.
+function tekenMijn(gekozen = '') {
+  const sel = $('zw-ed-mijn-kies');
+  const vak = $('zw-ed-vak').value.trim().toLowerCase();
+  const lijst = [...(zw.mijn || [])].sort((a, b) => (b.vak.toLowerCase() === vak) - (a.vak.toLowerCase() === vak));
+  sel.textContent = '';
+  sel.append(new Option(lijst.length ? 'Kies een bewaarde les…' : 'Nog niets bewaard', ''));
+  for (const l of lijst) sel.append(new Option(`${l.titel}${l.vak ? ` · ${l.vak}` : ''}`.slice(0, 90), l.id));
+  sel.value = gekozen;
+  $('zw-ed-mijn').classList.toggle('hidden', ed.soort !== 'eigen' || !lijst.length);
+  $('zw-ed-mijn-weg').classList.toggle('hidden', !gekozen);
+}
+$('zw-ed-mijn-kies').addEventListener('change', e => {
+  const l = (zw.mijn || []).find(x => x.id === e.target.value);
+  $('zw-ed-mijn-weg').classList.toggle('hidden', !l);
+  if (!l) return;
+  if (l.vak) { $('zw-ed-vak').value = l.vak; tekenVakChips(l.vak); }
+  $('zw-ed-naam').value = l.titel;
+  $('zw-ed-doel').value = l.doel;
+  zetCriteria(l.criteria);
+  doelVeld.zet(l.doelen);
+  $('zw-ed-notitie').value = l.notitie;
+  $('zw-ed-crit-info').textContent = '';
+  meerTel();
+});
+$('zw-ed-mijn-weg').addEventListener('click', async () => {
+  const l = (zw.mijn || []).find(x => x.id === $('zw-ed-mijn-kies').value);
+  if (!l || !await Ui.vraag(`"${l.titel}" uit Mijn lessen halen? Wat al gepland staat, blijft staan.`, { ja: 'Weghalen', gevaar: true })) return;
+  socket.emit('zw-mijn-les-weg', { id: l.id }, res => {
+    if (res.error) return ($('zw-ed-fout').textContent = res.error);
+    zw.mijn = res.mijnLessen;
+    tekenMijn();
+  });
+});
+$('zw-ed-mijn-bewaar').addEventListener('click', () => {
+  const les = leesEditor();
+  if (!les.titel) return ($('zw-ed-fout').textContent = 'Geef de les eerst een titel.');
+  socket.emit('zw-mijn-les', les, res => {
+    if (res.error) return ($('zw-ed-fout').textContent = res.error);
+    zw.mijn = res.mijnLessen;
+    $('zw-ed-fout').textContent = '';
+    tekenMijn(ed.soort === 'eigen' ? res.id : '');
+    Ui.melding(`"${les.titel}" staat in Mijn lessen. Kies ze later bij Eigen les${les.vak ? `, en Vul de week aan zet ze op elk leeg uur ${les.vak}` : ''}.`);
   });
 });
 
@@ -601,6 +659,8 @@ function openEditor(slot) {
   const vak = uur.vak || '';
   const les = zw.weekData.lessen[slot] || null;
   zw.bewerk = { slot, oud: les };
+  // Een les uit het lespakket: wat erbij staat, mag een andere les vervangen.
+  ed.auto = les && les.map ? { titel: les.titel, doel: les.doel, criteria: JSON.stringify(les.criteria), doelen: JSON.stringify(les.doelen) } : null;
   $('zw-ed-titel').textContent = `${DAGEN[d - 1]}${uur.van ? ` · ${uur.van}–${uur.tot}` : ''}`;
   const hetVak = les ? les.vak : vak;
   $('zw-ed-vak').value = hetVak;
@@ -632,33 +692,65 @@ function meerTel() {
 }
 $('zw-ed-meer').addEventListener('toggle', meerTel);
 // Een les uit De Kronieken kiezen: titel, doelen en een voorstel van succescriteria komen mee (wat je zelf schreef, blijft).
-$('zw-ed-les').addEventListener('change', e => kiesLes(Number(e.target.value)));
+$('zw-ed-les').addEventListener('change', e => {
+  $('zw-ed-voorstel-info').textContent = '';
+  kiesLes(Number(e.target.value));
+});
+// Wat LANcelot zelf invulde: dat mag een andere les vervangen. Wat je zelf typte, blijft staan.
+const zelfGetypt = (nu, auto) => nu !== '' && nu !== auto;
 function kiesLes(nr) {
   const info = Lessen.van($('zw-ed-map').value, zw.bron).find(l => l.nr === nr);
   if (!info) return;
-  $('zw-ed-naam').value = info.titel || $('zw-ed-naam').value;
+  const a = ed.auto || { titel: '', doel: '', criteria: '[]', doelen: '[]' };
+  if (!zelfGetypt($('zw-ed-naam').value.trim(), a.titel)) $('zw-ed-naam').value = info.titel || '';
   if (!$('zw-ed-vak').value) $('zw-ed-vak').value = $('zw-ed-map').value.split('/')[0];
+  const doelVrij = !zelfGetypt($('zw-ed-doel').value.trim(), a.doel);
+  const critVrij = !zelfGetypt(criteria().length ? JSON.stringify(criteria()) : '', a.criteria);
+  const doelenVrij = !zelfGetypt(doelVeld.codes().length ? JSON.stringify(doelVeld.codes()) : '', a.doelen);
+  const onthoud = () => { ed.auto = { titel: $('zw-ed-naam').value.trim(), doel: $('zw-ed-doel').value.trim(), criteria: JSON.stringify(criteria()), doelen: JSON.stringify(doelVeld.codes()) }; };
+  // Eerst leegmaken wat van de vorige les kwam, zodat er niets van een andere les blijft hangen.
+  if (doelVrij) $('zw-ed-doel').value = '';
+  if (critVrij) zetCriteria([]);
+  if (doelenVrij) doelVeld.zet([]);
+  onthoud();
+  meerTel();
   if (!info.quiz) return;
   socket.emit('zw-quiz-doelen', { file: info.quiz.file }, res => {
-    if (!res || res.error) return;
-    if (!doelVeld.codes().length) doelVeld.zet(res.doelen.map(x => x.code));
-    if (!$('zw-ed-doel').value.trim() && res.doel) $('zw-ed-doel').value = res.doel;
-    if (!criteria().length) zetCriteria(res.criteria);
+    if (!res || res.error || Number($('zw-ed-les').value) !== nr) return;
+    if (doelenVrij) doelVeld.zet(res.doelen.map(x => x.code));
+    if (doelVrij && res.doel) $('zw-ed-doel').value = res.doel;
+    if (critVrij) zetCriteria(res.criteria);
+    onthoud();
     meerTel();
   });
 }
+// Help me invullen: uit de leerplandoelen als je die koos, anders uit de titel (met je AI-sleutel of ingebouwd).
+function zetVoorstel(res) {
+  const er = new Set(criteria());
+  const nieuw = res.criteria.filter(c => !er.has(c));
+  if (!criteria().length) zetCriteria(nieuw); else for (const c of nieuw) critRij(c);
+  if (!$('zw-ed-doel').value.trim() && res.doel) $('zw-ed-doel').value = res.doel;
+}
 $('zw-ed-voorstel').addEventListener('click', () => {
   const codes = doelVeld.codes();
-  if (!codes.length) {
-    $('zw-ed-meer').open = true;
-    return ($('zw-ed-fout').textContent = 'Kies eerst een of meer leerplandoelen (hieronder), of kies een les uit je lespakket.');
-  }
-  socket.emit('zw-doelen', { codes }, res => {
-    if (!res || res.error) return;
-    const er = new Set(criteria());
-    const nieuw = res.criteria.filter(c => !er.has(c));
-    if (!criteria().length) zetCriteria(nieuw); else for (const c of nieuw) critRij(c);
-    if (!$('zw-ed-doel').value.trim() && res.doel) $('zw-ed-doel').value = res.doel;
+  const knop = $('zw-ed-voorstel');
+  $('zw-ed-fout').textContent = '';
+  $('zw-ed-crit-info').textContent = '';
+  if (codes.length) return socket.emit('zw-doelen', { codes }, res => { if (res && !res.error) zetVoorstel(res); });
+  const titel = $('zw-ed-naam').value.trim();
+  if (!titel) return ($('zw-ed-fout').textContent = 'Geef de les eerst een titel (bv. Onthaal / Jeugdjournaal), dan help ik met het doel en de succescriteria.');
+  knop.disabled = true;
+  $('zw-ed-crit-info').textContent = '✨ Even denken…';
+  socket.emit('zw-voorstel', { titel, vak: $('zw-ed-vak').value.trim(), notitie: $('zw-ed-notitie').value.trim() }, res => {
+    knop.disabled = false;
+    if (!res || res.error) {
+      $('zw-ed-crit-info').textContent = '';
+      return ($('zw-ed-fout').textContent = (res && res.error) || 'Dat lukte niet.');
+    }
+    zetVoorstel(res);
+    $('zw-ed-crit-info').textContent = res.bron === 'ai'
+      ? '✨ Voorstel van de AI. Pas gerust aan.'
+      : `✨ Een eenvoudig voorstel. ${res.fout ? `De AI lukte niet (${res.fout}).` : 'Met een AI-sleutel bij Instellingen wordt het slimmer.'} Pas gerust aan.`;
   });
 });
 $('zw-ed-crit-plus').addEventListener('click', () => critRij('').focus());

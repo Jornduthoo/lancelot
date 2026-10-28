@@ -1498,7 +1498,7 @@ io.on('connection', socket => {
       syncSoon();
       return res;
     });
-    socket.on('zw-get', handle(({ week } = {}) => ({ ...zonnewijzer.roosters(), weekData: zonnewijzer.week(week), vandaag: zonnewijzer.weekVan(new Date()) })));
+    socket.on('zw-get', handle(({ week } = {}) => ({ ...zonnewijzer.roosters(), mijnLessen: zonnewijzer.mijnLessen(), weekData: zonnewijzer.week(week), vandaag: zonnewijzer.weekVan(new Date()) })));
     socket.on('zw-roosters', zwWijzig(arg => zonnewijzer.bewaarRoosters(arg)));
     socket.on('zw-vul', zwWijzig(arg => ({ weekData: zonnewijzer.vul(arg) })));
     socket.on('zw-roosters-import', zwWijzig(arg => zonnewijzer.importeerRoosters(arg)));
@@ -1509,6 +1509,20 @@ io.on('connection', socket => {
     socket.on('zw-laatste', handle(arg => zonnewijzer.laatsteVan(arg)));
     socket.on('zw-doelen', handle(({ codes } = {}) => zonnewijzer.doelInfo(codes)));
     // De doelen van een les uit zijn quiz: de codes die het vaakst voorkomen (Ridder-vragen niet, dat is de uitdaging).
+    socket.on('zw-mijn-les', zwWijzig(arg => zonnewijzer.bewaarMijnLes(arg)));
+    socket.on('zw-mijn-les-weg', zwWijzig(({ id } = {}) => zonnewijzer.verwijderMijnLes(String(id || ''))));
+    // Help me invullen: met een AI-sleutel slim, anders (of als de AI faalt) het ingebouwde voorstel.
+    socket.on('zw-voorstel', (arg = {}, cb) => {
+      if (typeof cb !== 'function') return;
+      let basis;
+      try { basis = zonnewijzer.ingebouwdVoorstel(arg); } catch (err) { return cb({ error: err.message }); }
+      if (!settings.actief().key) return cb({ ok: true, ...basis, bron: 'ingebouwd' });
+      const prompt = zonnewijzer.voorstelPrompt({ ...arg, leerjaar: `${klas.read().leerjaar}e leerjaar` });
+      generateQuiz(prompt, [], text => zonnewijzer.leesVoorstel(aiJson.extract(text, 'voorstel')))
+        .then(res => cb({ ok: true, ...res, bron: 'ai' }))
+        .catch(err => cb({ ok: true, ...basis, bron: 'ingebouwd', fout: err.message }))
+        .finally(() => io.to('host').emit('settings', settings.publicView()));
+    });
     socket.on('zw-quiz-doelen', handle(({ file } = {}) => {
       const quiz = quizzes.load(file);
       const tel = new Map();
