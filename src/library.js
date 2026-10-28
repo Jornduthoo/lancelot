@@ -5,9 +5,9 @@ const fs = require('fs');
 const path = require('path');
 
 const KINDS = {
-  quiz: { one: 'quiz', many: 'quizzen' },
-  oefenblad: { one: 'oefenblad', many: 'oefenbladen' },
-  sessie: { one: 'sessie', many: 'sessies' },
+  quiz: { one: 'quiz', many: 'quizzen', waar: 'De Smidse > Mijn quizzen' },
+  oefenblad: { one: 'oefenblad', many: 'oefenbladen', waar: 'De Smidse > Mijn oefenbladen' },
+  sessie: { one: 'sessie', many: 'sessies', waar: 'De Ronde Tafel' },
 };
 const MAX_IMPORT = 2000;
 const MAX_DEPTH = 6;
@@ -211,7 +211,7 @@ function library({ kind, dir, checkFile, load, save, validate, list }) {
     if (data.lancelot) {
       if (data.lancelot !== kind) {
         const other = KINDS[data.lancelot];
-        throw new Error(other ? `Dit bestand bevat ${other.many}, geen ${words.many}. Importeer het op de juiste pagina.` : 'Dit is geen geldig LANcelot-bestand.');
+        throw new Error(other ? `Dit bestand bevat ${other.many}, geen ${words.many}. Importeer het bij ${other.waar}.` : 'Dit is geen geldig LANcelot-bestand.');
       }
       items = Array.isArray(data.items) ? data.items : [];
       emptyFolders = Array.isArray(data.folders) ? data.folders.filter(f => typeof f === 'string').slice(0, MAX_IMPORT) : [];

@@ -147,7 +147,12 @@ function loadQuiz(file) {
   });
 }
 
+// /host?map=Voorkennis (knop "Voorkennis peilen" in De Ronde Tafel): meteen de quizlijst, in die map.
+const startMap = new URLSearchParams(location.search).get('map') || '';
+if (startMap) show('idle');
+
 QuizList.mount($('quiz-list'), {
+  startFolder: startMap,
   go: 'Speel ▶',
   play: q => loadQuiz(q.file),
   edit: q => { quizBase = 'idle'; editQuiz(q.file); },

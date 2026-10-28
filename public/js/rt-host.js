@@ -388,6 +388,8 @@ function startVoorkennis() {
   show('maker');
 }
 $('new-voorkennis').addEventListener('click', startVoorkennis);
+// Voorkennis peilen is een gewone quiz (met namen en juiste antwoorden), dus die speel je als Toernooi, in de map Voorkennis.
+$('peil-voorkennis').addEventListener('click', () => { location.href = '/host?map=Voorkennis'; });
 if (new URLSearchParams(location.search).get('doel') === 'voorkennis') startVoorkennis();
 
 let promptCopied = false;
