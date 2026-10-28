@@ -147,13 +147,32 @@ function library({ kind, dir, checkFile, load, save, validate, list }) {
     writeMeta(meta);
   }
 
-  // Na het verwijderen van een bestand.
-  function forget(file) {
-    const meta = readMeta();
-    if (meta.place[file]) {
-      delete meta.place[file];
-      writeMeta(meta);
+  // Verwijderen: de bestanden gaan naar _prullenbak in de eigen map en blijven daar 30 dagen.
+  // Zo is een verkeerde klik nooit meteen weg. Geeft het aantal verwijderde bestanden terug.
+  function trash(files) {
+    const paths = files.map(checkFile);
+    const bin = path.join(dir, '_prullenbak');
+    fs.mkdirSync(bin, { recursive: true });
+    const now = Date.now();
+    for (const old of fs.readdirSync(bin)) {
+      try {
+        const p = path.join(bin, old);
+        if (now - fs.statSync(p).mtimeMs > 30 * 864e5) fs.unlinkSync(p);
+      } catch {}
     }
+    const meta = readMeta();
+    let count = 0;
+    files.forEach((file, i) => {
+      if (!fs.existsSync(paths[i])) return;
+      let to = path.join(bin, file);
+      if (fs.existsSync(to)) to = path.join(bin, file.replace(/\.json$/, `-${now}.json`));
+      fs.renameSync(paths[i], to);
+      try { fs.utimesSync(to, new Date(now), new Date(now)); } catch {}
+      delete meta.place[file];
+      count++;
+    });
+    if (count) writeMeta(meta);
+    return count;
   }
 
   // Eén item ({ file }), een hele map met de mappen erin ({ folder }) of alles ({}). Geeft { name, bundle } terug.
@@ -254,7 +273,7 @@ function library({ kind, dir, checkFile, load, save, validate, list }) {
     return { count: clean.length - skipped, skipped, placed, folders: meta.folders.length - before };
   }
 
-  return { folders, places, addFolder, renameFolder, moveFolder, removeFolder, move, forget, exportBundle, importBundle };
+  return { folders, places, addFolder, renameFolder, moveFolder, removeFolder, move, trash, exportBundle, importBundle };
 }
 
 module.exports = { library, KINDS };

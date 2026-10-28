@@ -39,6 +39,7 @@ De lijst werkt zoals de Verkenner van Windows, ook bij de oefenbladen en De Rond
 
 - Links staan je mappen. Klik op een map om ze rechts te openen, en op ▸ om de mappen erin te tonen.
 - Bovenaan zie je waar je bent, bijvoorbeeld *Alle quizzen › Wiskunde › Breuken*. Klik erop om terug te gaan. Daar staan ook de knoppen om de open map te exporteren, een andere naam te geven of te verwijderen.
+- Veel tegelijk verwijderen? Klik op **☑ Selecteren** en vink aan wat weg mag. Shift-klik kiest een hele reeks, **Alles hier** kiest alles in de open map en **Dubbels** kiest overal de dubbele (dezelfde titel en hetzelfde aantal vragen; één blijft staan). Met **Verwijderen** gaan ze in één keer naar de map `_prullenbak`, waar ze nog 30 dagen blijven.
 - De zoekbalk zoekt in alle mappen.
 - Verplaatsen: sleep een quiz (of een map) naar een map links, naar een mapje rechts of naar het pad bovenaan. Op een touchscreen kies je de map met het mapje 📁 in de rij.
 

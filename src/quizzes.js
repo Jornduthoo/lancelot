@@ -201,9 +201,9 @@ function parseAiText(raw) {
   return validate(data);
 }
 
+// Naar de prullenbak (30 dagen), niet meteen weg.
 function remove(file) {
-  fs.unlinkSync(checkFile(file));
-  lib.forget(file);
+  lib.trash([file]);
 }
 
 const lib = library({ kind: 'quiz', dir: DIR, checkFile, load, save, validate, list });

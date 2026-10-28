@@ -4,6 +4,7 @@
 // mapje rechts), of je kiest de map met het mapje 📁 in de rij (ook op een touchscreen).
 // Met ⬇ exporteer je een item, een map of alles naar een bestand; met ⬆ Importeren (of door een bestand
 // op de lijst te slepen) laad je dat op een andere pc weer in.
+// Met ☑ Selecteren vink je meerdere items aan (shift-klik voor een hele reeks, of Dubbels) en verwijder je ze in één keer.
 // Gebruik: QuizList.mount($('quiz-list'), { go: 'Kies ▶', play: q => ..., edit: q => ..., remove: q => ... }).
 // Met beheer: true (de quizbibliotheek) staan de balken voor niveau en uitleg er niet bij.
 // Voor oefenbladen en sessies: ItemList.mount(el, { kind: 'oefenblad', ... }) met dezelfde opties, plus
@@ -43,6 +44,11 @@ const ItemList = (() => {
     let query = '';
     let note = '';
     let explorer = null;
+    // Selecteren: aangevinkte bestanden, ook over mappen heen. last = het laatst aangeklikte item, voor shift-klik.
+    let picking = false;
+    let picked = new Set();
+    let last = null;
+    let shown = [];
     try {
       open = new Set(JSON.parse(localStorage.getItem(openKey) || '[]'));
       here = localStorage.getItem(hereKey) || '';
@@ -162,19 +168,33 @@ const ItemList = (() => {
     // Eén item. Bij zoeken staat de map erbij. Verplaatsen kan met slepen of met het mapje (werkt ook op een touchscreen).
     function row(q) {
       const el = document.createElement('div');
-      el.className = 'quiz-row';
+      el.className = `quiz-row${picking && picked.has(q.file) ? ' gekozen' : ''}`;
       el.dataset.file = q.file;
       // De keuzelijst krijgt pas al haar mappen als je ze opent: een lange lijst tekent zo veel sneller.
       const option = f => `<option value="${esc(f)}"${f === (q.folder || '') ? ' selected' : ''}>${f ? esc(f.split('/').join(' › ')) : 'Bovenaan, in geen map'}</option>`;
       const place = query && q.folder ? ` · 📁 ${esc(q.folder.split('/').join(' › '))}` : '';
-      el.innerHTML = `<span class="grip" title="Sleep naar een map">${Ui.ic('grip')}</span>
-        <button class="play">${esc(q.title)} <span class="muted">· ${esc(detail(q))}${kind === 'quiz' && (q.niveaus || []).length > 1 ? ` · ${q.niveaus.map(n => ICONS[n]).join('')}` : ''}${place}</span><span class="go">${opts.go || 'Kies ▶'}</span></button>
+      el.innerHTML = `${picking ? `<input type="checkbox" class="kies" aria-label="Selecteren"${picked.has(q.file) ? ' checked' : ''}>` : `<span class="grip" title="Sleep naar een map">${Ui.ic('grip')}</span>`}
+        <button class="play">${esc(q.title)} <span class="muted">· ${esc(detail(q))}${kind === 'quiz' && (q.niveaus || []).length > 1 ? ` · ${q.niveaus.map(n => ICONS[n]).join('')}` : ''}${place}</span>${picking ? '' : `<span class="go">${opts.go || 'Kies ▶'}</span>`}</button>
         ${folders.length ? `<label class="move" title="Verplaats naar…">📁<select aria-label="Verplaats naar…">${option(q.folder || '')}</select></label>` : ''}
         ${(opts.buttons || []).map((b, i) => `<button class="secondary extra ${b.cls || ''}" data-extra="${i}" title="${esc(b.title || '')}">${b.label}</button>`).join('')}
         ${opts.edit ? '<button class="secondary edit">Bewerken</button>' : ''}
         <button class="secondary export" title="Exporteren naar een bestand" aria-label="Exporteren">${Ui.ic('download')}</button>
         ${opts.remove ? `<button class="secondary delete" title="Verwijderen" aria-label="Verwijderen">${Ui.ic('kruis')}</button>` : ''}`;
-      el.querySelector('.play').addEventListener('click', () => opts.play(q));
+      if (picking) {
+        const tick = el.querySelector('.kies');
+        const pick = e => {
+          // Shift-klik: alles tussen het vorige en dit item krijgt dezelfde keuze.
+          const on = e.target === tick ? tick.checked : !picked.has(q.file);
+          const a = shown.indexOf(last);
+          const b = shown.indexOf(q.file);
+          const range = e.shiftKey && a >= 0 ? shown.slice(Math.min(a, b), Math.max(a, b) + 1) : [q.file];
+          for (const f of range) if (on) picked.add(f); else picked.delete(f);
+          last = q.file;
+          redraw();
+        };
+        tick.addEventListener('click', pick);
+        el.querySelector('.play').addEventListener('click', pick);
+      } else el.querySelector('.play').addEventListener('click', () => opts.play(q));
       if (opts.edit) el.querySelector('.edit').addEventListener('click', () => opts.edit(q));
       el.querySelector('.export').addEventListener('click', () => download({ file: q.file }));
       for (const b of el.querySelectorAll('[data-extra]')) b.addEventListener('click', () => opts.buttons[b.dataset.extra].click(q));
@@ -186,7 +206,7 @@ const ItemList = (() => {
         select.addEventListener('focus', fill);
         select.addEventListener('change', () => move(q.file, select.value));
       }
-      dragStart(el, `file:${q.file}`);
+      if (!picking) dragStart(el, `file:${q.file}`);
       return el;
     }
 
@@ -249,6 +269,7 @@ const ItemList = (() => {
         if (here) path.appendChild(folderButtons(here));
       }
       m.appendChild(path);
+      if (picking) m.appendChild(pickBar());
       const list = query ? items.filter(q => norm(`${q.title} ${q.folder || ''}`).includes(norm(query))) : items.filter(q => (q.folder || '') === here);
       const subs = query ? [] : subsOf(here);
       if (subs.length) {
@@ -269,6 +290,7 @@ const ItemList = (() => {
         }
         m.appendChild(chips);
       }
+      shown = list.map(q => q.file);
       for (const q of list) m.appendChild(row(q));
       if (!list.length && !subs.length) {
         m.insertAdjacentHTML('beforeend', query ? `<p class="muted small lib-leeg">Geen ${k.many} gevonden met "${esc(query)}".</p>`
@@ -276,6 +298,49 @@ const ItemList = (() => {
       }
       if (!query) dropZone(m, here);
       return m;
+    }
+
+    // De balk tijdens het selecteren: alles hier, niets, dubbels, en verwijderen.
+    function pickBar() {
+      for (const f of picked) if (!items.some(q => q.file === f)) picked.delete(f);
+      const n = picked.size;
+      const el = document.createElement('div');
+      el.className = 'lib-kies';
+      el.innerHTML = `<strong>${n} ${n === 1 ? k.one : k.many} geselecteerd</strong>
+        <button class="secondary" type="button" data-do="alles">Alles hier</button>
+        <button class="secondary" type="button" data-do="niets"${n ? '' : ' disabled'}>Niets</button>
+        <button class="secondary" type="button" data-do="dubbels" title="Kiest overal de ${k.many} met dezelfde titel en hetzelfde aantal als een andere. Eén ervan blijft telkens staan.">Dubbels</button>
+        <button class="danger" type="button" data-do="weg"${n ? '' : ' disabled'}>${Ui.ic('kruis')} Verwijderen</button>
+        <span class="muted small lib-kies-tip">Shift-klik kiest een hele reeks.</span>`;
+      const on = (what, fn) => el.querySelector(`[data-do=${what}]`).addEventListener('click', fn);
+      on('alles', () => { for (const f of shown) picked.add(f); redraw(); });
+      on('niets', () => { picked.clear(); redraw(); });
+      on('dubbels', () => {
+        const seen = new Set();
+        let found = 0;
+        for (const q of items) {
+          const key = `${norm(q.title).trim()}|${q.count}`;
+          if (!seen.has(key)) { seen.add(key); continue; }
+          if (!picked.has(q.file)) found++;
+          picked.add(q.file);
+        }
+        note = found ? `${found} ${found === 1 ? 'dubbel' : 'dubbels'} gekozen, in alle mappen.` : 'Geen dubbels gevonden.';
+        render();
+      });
+      on('weg', async () => {
+        const files = [...picked];
+        const names = items.filter(q => picked.has(q.file)).slice(0, 5).map(q => `"${q.title}"`).join(', ');
+        const more = files.length > 5 ? ` en nog ${files.length - 5}` : '';
+        if (!await Ui.vraag(`${files.length} ${files.length === 1 ? k.one : k.many} verwijderen? ${names}${more}. Ze blijven nog 30 dagen in de map _prullenbak.`)) return;
+        socket.emit('lib-remove', { kind, files }, res => {
+          error(res);
+          if (res && res.error) return;
+          picked.clear();
+          note = `${res.count} ${res.count === 1 ? k.one : k.many} verwijderd.`;
+          render();
+        });
+      });
+      return el;
     }
 
     // De knoppen van de open map: map erin, naam wijzigen, exporteren en verwijderen.
@@ -334,6 +399,7 @@ const ItemList = (() => {
       const bar = document.createElement('div');
       bar.className = 'quiz-tools';
       bar.innerHTML = `<span class="muted small lib-note"></span>
+        ${items.length && opts.remove ? `<button class="secondary small-btn kies-knop${picking ? ' on' : ''}" type="button" title="Meerdere ${k.many} aanvinken, bijvoorbeeld om ze samen te verwijderen">${picking ? 'Klaar met selecteren' : '☑ Selecteren'}</button>` : ''}
         <button class="secondary small-btn new-folder" type="button">${Ui.ic('map')} Nieuwe map</button>
         <label class="button secondary small-btn" title="Een bestand van ⬇ Exporteren inladen, bijvoorbeeld van je laptop thuis">${Ui.ic('upload')} Importeren<input type="file" accept=".json,application/json" multiple hidden></label>
         ${items.length ? `<button class="secondary small-btn export-all" type="button" title="Alle ${k.many} met hun mappen in één bestand">${Ui.ic('download')} Alles exporteren</button>` : ''}`;
@@ -348,6 +414,8 @@ const ItemList = (() => {
       });
       const input = bar.querySelector('input[type=file]');
       input.addEventListener('change', () => { importFiles(input.files, query ? '' : here); input.value = ''; });
+      const kies = bar.querySelector('.kies-knop');
+      if (kies) kies.addEventListener('click', () => { picking = !picking; picked.clear(); last = null; note = ''; render(); });
       const all = bar.querySelector('.export-all');
       if (all) all.addEventListener('click', () => download({}));
       box.appendChild(bar);
