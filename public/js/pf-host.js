@@ -282,7 +282,12 @@ window.addEventListener('focus', async () => {
   if (!promptCopied || !navigator.clipboard?.readText || !['maker', 'editor'].includes(view)) return;
   let text;
   try { text = await navigator.clipboard.readText(); } catch { return; }
-  if (!text || text === lastClipboard || !(text.includes('"vragen"') || text.includes('"niveaus"'))) return;
+  if (!text || text === lastClipboard) return;
+  if (view === 'editor' && sleutelWacht && text.includes('"velden"')) {
+    lastClipboard = text;
+    return zetAlleSleutels(text);
+  }
+  if (!(text.includes('"vragen"') || text.includes('"niveaus"'))) return;
   lastClipboard = text;
   if (view === 'maker') parseAnswer(text, true);
   else bijgestuurd(text, true);
@@ -629,6 +634,7 @@ function bladKaart(card, body, q) {
     preview();
   };
   card.pfBewerk = bewerk;
+  card.pfTeken = teken;
   teken();
   const v = document.createElement('div');
   v.innerHTML = `<p class="muted small">${HELP.blad}</p>`;
@@ -654,6 +660,57 @@ async function aiSleutel(bladen) {
   }
   return alles;
 }
+
+// De verbetersleutel voor alle bladen tegelijk: met de eigen sleutel, of via een chatbot (prompt + genummerde bladen).
+const bladKaarten = () => [...vragenBox(editNiveau).querySelectorAll(':scope > .pf-kaart-edit[data-type="blad"]')];
+const bladenVan = kaarten => kaarten.map(c => ({ beeld: c.pfBeeld, verhouding: c.pfBlad.verhouding, velden: c.pfBlad.velden.map(f => ({ ...f })) }));
+let sleutelWacht = false;
+function zetAlleSleutels(raw) {
+  const kaarten = bladKaarten();
+  const bladen = bladenVan(kaarten);
+  try {
+    const n = PfBlad.zetSleutel(bladen, raw);
+    kaarten.forEach((c, i) => { c.pfBlad.velden = bladen[i].velden; c.pfTeken(); });
+    sleutelWacht = false;
+    $('s-copy-box').classList.add('hidden');
+    $('s-answer').value = '';
+    $('s-error').textContent = '';
+    $('s-busy').textContent = `${n} antwoorden ingevuld. Kijk ze na: de AI kan zich vergissen.`;
+    preview();
+  } catch (err) {
+    $('s-error').textContent = err.message;
+  }
+}
+$('s-key').addEventListener('click', async () => {
+  const kaarten = bladKaarten();
+  const bladen = bladenVan(kaarten);
+  if (!bladen.some(b => b.velden.length)) return ($('s-error').textContent = 'Zet eerst vakjes op de bladen.');
+  $('s-error').textContent = '';
+  $('s-key').disabled = true;
+  $('s-busy').textContent = `${Ui.ai} zoekt de antwoorden… dit duurt meestal 20 tot 60 seconden.`;
+  try {
+    zetAlleSleutels(await aiSleutel(bladen));
+  } catch (err) {
+    $('s-busy').textContent = '';
+    $('s-error').textContent = err.message;
+  }
+  $('s-key').disabled = false;
+});
+$('s-copy').addEventListener('click', async () => {
+  const bladen = bladenVan(bladKaarten());
+  if (!bladen.some(b => b.velden.length)) return ($('s-error').textContent = 'Zet eerst vakjes op de bladen.');
+  $('s-error').textContent = '';
+  await kopieer(PfBlad.aiPrompt(bladen, 1, $('a-level').value));
+  let nr = 1;
+  for (const [i, b] of bladen.entries()) {
+    const g = await PfBlad.genummerd(b, nr);
+    nr += b.velden.length;
+    PfBlad.download(g.url, `blad-${i + 1}-vakjes.jpg`);
+  }
+  sleutelWacht = true;
+  $('s-copy-box').classList.remove('hidden');
+});
+$('s-answer').addEventListener('paste', () => setTimeout(() => zetAlleSleutels($('s-answer').value), 0));
 
 const waarde = (card, sel) => { const el = card.querySelector(`:scope > .pf-k-body ${sel}`); return el ? el.value : ''; };
 
@@ -793,6 +850,8 @@ function preview() {
     }
     PfPaper.render($('e-preview'), v.pages, { mode: 'view', nummer: true, sleutel, zones });
     $('e-totaal').textContent = `${PfKern.vragenVan(lijst).length} vragen · ${nl(PfKern.totaal(lijst))} punten${PfKern.niveausVan(t).length > 1 ? ` (${Niveau.NAMES[editNiveau]})` : ''}`;
+    $('s-panel').classList.toggle('hidden', !bladKaarten().length);
+    $('s-key').classList.toggle('hidden', !hasKey);
     const pr = PfKern.problemen(t);
     const tips = PfKern.waarschuwingen(t);
     $('e-problemen').classList.toggle('hidden', !pr.length && !tips.length);
