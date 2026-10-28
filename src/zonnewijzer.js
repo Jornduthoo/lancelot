@@ -13,7 +13,7 @@ const DIR = gegevens.pad('zonnewijzer');
 const ROOSTERS = 'roosters.json';
 const WEEK = /^\d{4}-W\d{2}$/;
 const DAGEN = [1, 2, 3, 4, 5];
-const MAX_UREN = 14;
+const MAX_UREN = 20;
 const MAX_ROOSTERS = 12;
 const tekst = (v, max) => String(v == null ? '' : v).replace(/[\x00-\x1f]/g, ' ').trim().slice(0, max);
 const tijd = v => (/^([01]\d|2[0-3]):[0-5]\d$/.test(String(v)) ? String(v) : '');
@@ -28,6 +28,10 @@ function schrijf(naam, data) {
   fs.renameSync(`${doel}.tmp`, doel);
 }
 
+// Een rooster = per dag (1 = maandag) een lijst uren: { van, tot, soort: 'les' | 'pauze', vak }.
+// Elke dag heeft zijn eigen tijden: maandag begint met onthaal om 9 uur, woensdagnamiddag is vrij...
+// Oudere roosters (één lijst uren voor alle dagen + vakken per dag) worden bij het lezen omgezet.
+
 // Een gewone schooldag: vier lesuren voor de middag, drie erna (woensdagnamiddag vrij).
 function voorbeeldRooster() {
   const uren = [
@@ -35,17 +39,37 @@ function voorbeeldRooster() {
     ['12:05', '13:15', 'pauze'], ['13:15', '14:05'], ['14:05', '14:55'], ['14:55', '15:10', 'pauze'], ['15:10', '16:00'],
   ].map(([van, tot, soort]) => ({ van, tot, soort: soort || 'les' }));
   const vakken = { 1: ['Rekenen', 'Taal', 'Frans', 'WO', 'Muzo', 'Muzo', 'LO'], 2: ['Rekenen', 'Taal', 'Spelling', 'WO', 'Godsdienst', 'WO', 'Lezen'],
-    3: ['Rekenen', 'Taal', 'Frans', 'Spelling', '', '', ''], 4: ['Rekenen', 'Taal', 'WO', 'Godsdienst', 'Frans', 'LO', 'Muzo'], 5: ['Rekenen', 'Taal', 'Spelling', 'Lezen', 'WO', 'Godsdienst', 'Muzo'] };
-  return { id: 'standaard', naam: 'Mijn rooster', uren, vakken };
+    3: ['Rekenen', 'Taal', 'Frans', 'Spelling'], 4: ['Rekenen', 'Taal', 'WO', 'Godsdienst', 'Frans', 'LO', 'Muzo'], 5: ['Rekenen', 'Taal', 'Spelling', 'Lezen', 'WO', 'Godsdienst', 'Muzo'] };
+  return schoonRooster({ id: 'standaard', naam: 'Mijn rooster', uren, vakken });
+}
+
+// Van het oude formaat naar uren per dag. Een dag zonder vakken na de middag (woensdag) stopt na het laatste vak.
+function naarDagen(r) {
+  const dagen = {};
+  for (const d of DAGEN) {
+    const vakken = (r.vakken || {})[d] || [];
+    let n = 0;
+    const lijst = (Array.isArray(r.uren) ? r.uren : []).map(u => (u.soort === 'pauze' ? { ...u, vak: '' } : { ...u, vak: vakken[n++] || '' }));
+    let laatste = -1;
+    lijst.forEach((u, i) => { if (u.soort === 'les' && u.vak) laatste = i; });
+    dagen[d] = laatste < 0 ? [] : lijst.slice(0, laatste + 1);
+  }
+  return dagen;
 }
 
 function schoonRooster(r) {
-  const uren = (Array.isArray(r && r.uren) ? r.uren : []).slice(0, MAX_UREN).map(u => ({ van: tijd(u.van), tot: tijd(u.tot), soort: u.soort === 'pauze' ? 'pauze' : 'les' }));
-  const lesuren = uren.filter(u => u.soort === 'les').length;
-  const vakken = {};
-  for (const d of DAGEN) vakken[d] = Array.from({ length: lesuren }, (_, i) => tekst(((r.vakken || {})[d] || [])[i], 30));
-  return { id: /^[\w-]{1,40}$/.test(r.id || '') ? r.id : crypto.randomBytes(4).toString('hex'), naam: tekst(r.naam, 40) || 'Rooster', uren, vakken };
+  const bron = r && r.dagen && typeof r.dagen === 'object' ? r.dagen : naarDagen(r || {});
+  const dagen = {};
+  for (const d of DAGEN) {
+    dagen[d] = (Array.isArray(bron[d]) ? bron[d] : []).slice(0, MAX_UREN)
+      .map(u => ({ van: tijd(u.van), tot: tijd(u.tot), soort: u.soort === 'pauze' ? 'pauze' : 'les', vak: u.soort === 'pauze' ? tekst(u.vak, 30) || '' : tekst(u.vak, 30) }))
+      .sort((a, b) => (a.van && b.van ? a.van.localeCompare(b.van) : 0));
+  }
+  return { id: /^[\w-]{1,40}$/.test((r && r.id) || '') ? r.id : crypto.randomBytes(4).toString('hex'), naam: tekst(r && r.naam, 40) || 'Rooster', dagen };
 }
+
+// De lesuren van een dag met hun nummer (pauzes tellen niet mee): de plek van een les is "dag-nummer".
+const lesUren = (r, d) => (r.dagen[d] || []).filter(u => u.soort === 'les');
 
 function roosters() {
   const data = lees(ROOSTERS, null);
@@ -61,6 +85,25 @@ function bewaarRoosters(data) {
   const standaard = lijst.some(r => r.id === data.standaard) ? data.standaard : lijst[0].id;
   schrijf(ROOSTERS, { roosters: lijst, standaard });
   return roosters();
+}
+
+// Roosters uit een bestand toevoegen (bv. van een collega of uit het schoolrooster). Zelfde naam = vervangen.
+function importeerRoosters(data) {
+  const nieuw = (Array.isArray(data && data.roosters) ? data.roosters : Array.isArray(data) ? data : []).map(schoonRooster);
+  if (!nieuw.length) throw new Error('In dit bestand staan geen lesroosters.');
+  const nu = lees(ROOSTERS, null) ? roosters() : { roosters: [], standaard: '' };
+  const lijst = nu.roosters.slice();
+  for (const r of nieuw) {
+    const i = lijst.findIndex(x => x.naam.toLowerCase() === r.naam.toLowerCase());
+    if (i >= 0) lijst[i] = { ...r, id: lijst[i].id };
+    else {
+      if (lijst.some(x => x.id === r.id)) r.id = crypto.randomBytes(4).toString('hex');
+      lijst.push(r);
+    }
+  }
+  if (lijst.length > MAX_ROOSTERS) throw new Error(`Hooguit ${MAX_ROOSTERS} roosters.`);
+  const standaard = lijst.some(r => r.id === nu.standaard) ? nu.standaard : lijst.find(r => r.naam.toLowerCase() === nieuw[0].naam.toLowerCase()).id;
+  return { ...bewaarRoosters({ roosters: lijst, standaard }), toegevoegd: nieuw.length };
 }
 
 // ---------- Weken ----------
@@ -204,8 +247,8 @@ function schuif({ week: id, slot }) {
     const data = weken.get(w) || week(w);
     weken.set(w, data);
     const r = roosterVan(data, alle);
-    for (const d of DAGEN) (r.vakken[d] || []).forEach((v, u) => {
-      if (v.toLowerCase() === vak) plekken.push({ w, slot: `${d}-${u}`, d, u });
+    for (const d of DAGEN) lesUren(r, d).forEach((x, u) => {
+      if (x.vak.toLowerCase() === vak) plekken.push({ w, slot: `${d}-${u}`, d, u });
     });
   }
   plekken.sort((a, b) => a.w.localeCompare(b.w) || a.d - b.d || a.u - b.u);
@@ -264,4 +307,4 @@ function doelInfo(codes) {
   return { doelen: info, doel, criteria: info.filter(d => d.tekst).map(d => kort(d.tekst)) };
 }
 
-module.exports = { DIR, roosters, bewaarRoosters, week, laatsteVan, zetLes, zetWeekRooster, vink, schuif, doelInfo, ikZin, weekVan };
+module.exports = { DIR, roosters, bewaarRoosters, importeerRoosters, schoonRooster, week, laatsteVan, zetLes, zetWeekRooster, vink, schuif, doelInfo, ikZin, weekVan };

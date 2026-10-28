@@ -273,7 +273,8 @@ In **De Kronieken** (blok op het startscherm) bewaar je je bordboeken, handleidi
 
 In **De Kronieken > De Zonnewijzer** plan je je week.
 
-- **Lesroosters:** vul één keer in welk vak op welk uur staat. Je mag meerdere roosters maken (bijv. Week A en Week B); per week kies je welk rooster geldt.
+- **Lesroosters:** vul per dag in welk vak of welke activiteit op welk uur staat, met de eigen tijden van die dag (vink Pauze aan bij speeltijd). Je mag meerdere roosters maken (bijv. Turnweek en Zwemweek); per week kies je welk rooster geldt. Met **Importeren** en **Exporteren** wissel je roosters uit als bestand, bv. met een collega.
+- **Afdrukken en agenda:** in Week maakt **🖨 Afdrukken** een A4 met per dag de lessen, het doel en de succescriteria (ook als pdf te bewaren). **📅 Naar agenda** geeft een .ics-bestand voor Outlook, Google Agenda of je gsm.
 - **Week:** tik op een lesuur om een les te plannen. Kies een les uit De Kronieken (dan komen de titel, de leerplandoelen en een voorstel van succescriteria mee), of maak een eigen les met enkel een titel, een doel en succescriteria. **⏭ Doorschuiven** zet een les die je niet haalde op het volgende uur van dat vak; de lessen erna schuiven mee.
 - **Vandaag:** de dag als tijdlijn met een icoon per vak. De les van nu staat groot op het bord, met **Ons doel** en de succescriteria ("Ik kan …"), die je samen met de klas afvinkt. Knoppen openen meteen het boek, de voorkennisquiz, de quiz of het oefenblad.
 - **Thuis voorbereiden:** kies bij Instellingen op het digibord en thuis dezelfde **Mijn lesmap** (OneDrive of Google Drive). Je planning gaat mee; je bordboeken niet (die blijven op het digibord).

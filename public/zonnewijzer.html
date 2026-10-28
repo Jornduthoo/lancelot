@@ -54,9 +54,11 @@
       <button class="secondary icon" id="zw-week-volgende" aria-label="Volgende week">▶</button>
       <button class="secondary" id="zw-week-nu">Deze week</button>
       <label class="zw-weekrooster">Rooster deze week <select id="zw-week-rooster"></select></label>
+      <button class="secondary" id="zw-print" title="De planning van deze week afdrukken of als pdf bewaren">🖨 Afdrukken</button>
+      <button class="secondary" id="zw-ics" title="Deze week als agenda-bestand (.ics) voor Outlook, Google Agenda of je gsm">📅 Naar agenda</button>
       <details class="hulp"><summary>?</summary><p>Tik op een lesuur om een les te plannen: uit De Kronieken (met quiz en oefenblad) of een eigen les. Werk je thuis aan je planning, kies dan bij Instellingen dezelfde Mijn lesmap als op het digibord: dan staat ze er 's morgens.</p></details>
     </div>
-    <div class="zw-week-scroll"><table class="zw-week" id="zw-week"></table></div>
+    <div class="zw-week-scroll"><div class="zw-week" id="zw-week"></div></div>
     <p class="error" id="zw-fout"></p>
   </section>
 
@@ -65,6 +67,10 @@
     <div class="panel zw-roosterkeuze">
       <div class="zw-chips" id="zw-rooster-chips"></div>
       <button class="secondary" id="zw-rooster-nieuw"><i class="ic ic-plus" aria-hidden="true"></i> Nieuw rooster</button>
+      <label class="button secondary" title="Lesroosters uit een bestand toevoegen (zelfde naam = vervangen)"><i class="ic ic-upload" aria-hidden="true"></i> Importeren
+        <input type="file" id="zw-rooster-bestand" accept=".json,application/json" hidden>
+      </label>
+      <button class="secondary" id="zw-rooster-export" title="Al je lesroosters als bestand, bv. voor een collega">⬇ Exporteren</button>
     </div>
     <div class="panel zw-roosterbewerk">
       <div class="row zw-roosterkop">
@@ -72,10 +78,12 @@
         <label class="zw-check"><input type="checkbox" id="zw-rooster-standaard"> Dit is mijn gewone rooster</label>
         <button class="secondary danger-tekst" id="zw-rooster-weg">Rooster verwijderen</button>
       </div>
+      <div class="zw-chips zw-rooster-dagen" id="zw-rooster-dagen"></div>
       <div class="zw-week-scroll"><table class="zw-raster" id="zw-raster"></table></div>
       <div class="actions">
         <button class="secondary" id="zw-uur-les"><i class="ic ic-plus" aria-hidden="true"></i> Lesuur</button>
         <button class="secondary" id="zw-uur-pauze"><i class="ic ic-plus" aria-hidden="true"></i> Pauze</button>
+        <select id="zw-rooster-kopie" aria-label="Deze dag kopiëren"></select>
         <button id="zw-rooster-bewaar">Rooster bewaren</button>
         <span class="muted small" id="zw-rooster-ok"></span>
       </div>
@@ -91,31 +99,40 @@
       <h2 id="zw-ed-titel">Les plannen</h2>
       <button type="button" class="secondary icon" id="zw-ed-dicht" aria-label="Sluiten"><i class="ic ic-kruis"></i></button>
     </div>
-    <div class="row">
-      <label>Vak <input id="zw-ed-vak" list="zw-vakken" maxlength="30"></label>
-      <div class="zw-ed-mapveld"><span class="zw-ed-label">Uit De Kronieken</span>
-        <input type="hidden" id="zw-ed-map">
-        <button type="button" class="secondary zw-ed-mapknop" id="zw-ed-mapknop" aria-expanded="false"></button>
+
+    <div class="zw-ed-blok">
+      <span class="zw-ed-label">Vak</span>
+      <div class="zw-chips" id="zw-ed-vakken"></div>
+      <input id="zw-ed-vak" class="hidden" list="zw-vakken" maxlength="30" placeholder="Naam van het vak">
+    </div>
+
+    <div class="zw-ed-blok">
+      <div class="zw-seg" role="radiogroup" aria-label="Soort les">
+        <button type="button" data-soort="pakket" role="radio">📚 Uit mijn lespakket</button>
+        <button type="button" data-soort="eigen" role="radio">✏️ Eigen les</button>
       </div>
-      <label id="zw-ed-les-label" class="hidden">Les <select id="zw-ed-les"></select></label>
+      <input type="hidden" id="zw-ed-map">
+      <div class="zw-ed-pakket" id="zw-ed-pakket">
+        <div id="zw-ed-blokken"></div>
+        <label id="zw-ed-les-label" class="hidden">Les <select id="zw-ed-les"></select></label>
+        <p class="muted small zw-ed-voorstel-info" id="zw-ed-voorstel-info"></p>
+      </div>
     </div>
-    <p class="muted small zw-ed-voorstel-info" id="zw-ed-voorstel-info"></p>
-    <div class="zw-kies hidden" id="zw-kies">
-      <input id="zw-kies-zoek" type="search" placeholder="Zoek een map, bijv. blok 3 of thema 7" autocomplete="off">
-      <button type="button" class="secondary small zw-kies-eigen" id="zw-kies-eigen">✏️ Eigen les (zonder quiz)</button>
-      <div class="zw-kies-groepen" id="zw-kies-groepen"></div>
-    </div>
+
     <label>Titel van de les <input id="zw-ed-naam" maxlength="120" placeholder="bijv. Breuken optellen"></label>
-    <div id="zw-ed-doelen"></div>
-    <label>Ons doel, zoals de klas het op het bord ziet <textarea id="zw-ed-doel" rows="2" maxlength="300" placeholder="bijv. Ik leer breuken met een verschillende noemer optellen."></textarea></label>
+    <label>🎯 Ons doel, zoals de klas het op het bord ziet <textarea id="zw-ed-doel" rows="2" maxlength="300" placeholder="bijv. Vandaag leer ik breuken met een verschillende noemer optellen."></textarea></label>
     <div class="zw-ed-criteria">
-      <div class="zw-ed-crit-kop"><strong>Succescriteria</strong> <span class="muted small">"Ik kan …"</span>
-        <button type="button" class="secondary small" id="zw-ed-voorstel" title="Een voorstel uit de gekozen doelen">✨ Voorstel uit de doelen</button>
+      <div class="zw-ed-crit-kop"><strong>⭐ Succescriteria</strong> <span class="muted small">"Ik kan …"</span>
+        <button type="button" class="secondary small" id="zw-ed-voorstel" title="Een voorstel uit de gekozen leerplandoelen">✨ Voorstel uit de doelen</button>
       </div>
       <div id="zw-ed-crit"></div>
       <button type="button" class="secondary small" id="zw-ed-crit-plus"><i class="ic ic-plus" aria-hidden="true"></i> Criterium</button>
     </div>
-    <label>Notitie voor jezelf (niet op het bord) <textarea id="zw-ed-notitie" rows="2" maxlength="600"></textarea></label>
+    <details class="zw-ed-meer" id="zw-ed-meer">
+      <summary>Leerplandoelen en notitie <span class="muted small" id="zw-ed-meer-tel"></span></summary>
+      <div id="zw-ed-doelen"></div>
+      <label>Notitie voor jezelf (niet op het bord) <textarea id="zw-ed-notitie" rows="2" maxlength="600"></textarea></label>
+    </details>
     <p class="error" id="zw-ed-fout"></p>
     <div class="actions zw-ed-knoppen">
       <button type="button" class="secondary" id="zw-ed-schuif" title="Deze les en de volgende lessen van dit vak één uur opschuiven">⏭ Doorschuiven</button>
@@ -124,6 +141,9 @@
     </div>
   </form>
 </dialog>
+
+<!-- Wat er op papier komt (enkel bij afdrukken zichtbaar). -->
+<section class="zw-afdruk" id="zw-afdruk" aria-hidden="true"></section>
 
 <script src="/socket.io/socket.io.js"></script>
 <script src="/js/ui.js"></script>
