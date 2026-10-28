@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LANcelot · De Kronieken</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/kronieken.css">
+</head>
+<body class="kronieken">
+<main>
+  <div class="topbar">
+    <div class="brand" id="brand" title="Naar het startscherm">
+      <img src="/img/mark.webp" alt="">
+      <div>
+        <div class="wordmark">LAN<span>celot</span></div>
+        <div class="subtitle">De Kronieken</div>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="secondary pauze-knop" data-pauze title="Alle leerlingschermen op slot om de aandacht te vragen"><img src="/img/icons/pauze-klein.webp" alt=""> Pauze</button>
+      <button class="secondary" id="to-home">Terug</button>
+    </div>
+  </div>
+
+  <div class="kr" id="kr">
+    <aside class="panel kr-boom" aria-label="Mappen">
+      <div class="kr-boom-kop">
+        <strong>Mijn methodes</strong>
+        <details class="hulp"><summary>?</summary><p>Elke map is een vak, en daarin een blok of thema, net zoals bij je quizzen. Mappen uit je lespakket staan er vanzelf. Je bordboeken en handleidingen blijven enkel op deze pc, in de map kronieken bij je gegevens.</p></details>
+      </div>
+      <div class="kr-mappen" id="kr-mappen"></div>
+    </aside>
+
+    <section class="kr-hier" id="kr-hier">
+      <div class="panel kr-kop">
+        <nav class="kr-pad" id="kr-pad" aria-label="Waar ben je"></nav>
+        <div class="actions">
+          <button class="secondary" id="kr-nieuw-map"><i class="ic ic-plus" aria-hidden="true"></i> Map</button>
+          <label class="button" id="kr-toevoegen" title="Pdf of afbeelding toevoegen. Slepen kan ook."><i class="ic ic-upload" aria-hidden="true"></i> Boek toevoegen
+            <input type="file" id="kr-bestand" accept="application/pdf,.pdf,image/png,image/jpeg,image/webp" multiple hidden>
+          </label>
+        </div>
+        <form class="kr-map-form hidden" id="kr-map-form">
+          <input id="kr-map-naam" maxlength="40" placeholder="bijv. Rekenen of Blok 3" autocomplete="off">
+          <button type="submit">Maken</button>
+          <button type="button" class="secondary" id="kr-map-annuleer">Annuleren</button>
+        </form>
+        <p class="muted small" id="kr-bezig"></p>
+        <p class="error" id="kr-fout"></p>
+      </div>
+
+      <div class="kr-submappen" id="kr-submappen"></div>
+
+      <div class="panel kr-boeken-paneel">
+        <h3>Boeken <span class="muted small" id="kr-boeken-tel"></span></h3>
+        <div class="kr-boeken" id="kr-boeken"></div>
+        <div class="kr-leeg muted" id="kr-boeken-leeg">Sleep hier je bordboek, handleiding of kopieerbladen (pdf) naartoe, of tik op <strong>Boek toevoegen</strong>.</div>
+      </div>
+
+      <div class="panel kr-lessen-paneel" id="kr-lessen-paneel">
+        <h3>Lessen <details class="hulp"><summary>?</summary><p>De lessen komen uit je quizzen en oefenbladen in deze map (titels die beginnen met "Les 12"). Open een boek en tik op 📌 om een pagina aan een les te koppelen: dan opent die les het boek meteen op de juiste pagina.</p></details></h3>
+        <div class="kr-lessen" id="kr-lessen"></div>
+        <p class="muted small" id="kr-lessen-leeg">In deze map zitten nog geen lessen. Lespakketten en een <a href="/reeks">Reeks met AI</a> zetten hun quizzen per les in een map Vak > Blok.</p>
+      </div>
+    </section>
+  </div>
+
+  <div class="kr-drop hidden" id="kr-drop"><div><i class="ic ic-upload" aria-hidden="true"></i> Laat los om toe te voegen aan <strong id="kr-drop-map"></strong></div></div>
+</main>
+
+<!-- De lezer: één pagina tegelijk, schermvullend op het bord. -->
+<section class="kr-lezer hidden" id="kr-lezer" aria-label="Boek">
+  <div class="kr-lezer-balk">
+    <strong class="kr-lezer-titel" id="kr-titel"></strong>
+    <div class="kr-blader">
+      <button class="secondary icon" id="kr-vorige" title="Vorige pagina (pijl links)" aria-label="Vorige pagina">◀</button>
+      <label class="kr-pagina">p. <input id="kr-pagina" type="number" min="1" inputmode="numeric"> <span id="kr-totaal"></span></label>
+      <button class="secondary icon" id="kr-volgende" title="Volgende pagina (pijl rechts)" aria-label="Volgende pagina">▶</button>
+    </div>
+    <div class="kr-gereedschap">
+      <button class="secondary icon" id="kr-kleiner" title="Kleiner" aria-label="Kleiner">−</button>
+      <button class="secondary icon" id="kr-groter" title="Groter" aria-label="Groter">+</button>
+      <button class="secondary" id="kr-passen" title="Hele pagina of volle breedte">Hele pagina</button>
+      <span class="kr-pennen" id="kr-pennen">
+        <button class="secondary icon kr-pen" data-kleur="rood" title="Pen rood" aria-label="Pen rood"><i></i></button>
+        <button class="secondary icon kr-pen" data-kleur="blauw" title="Pen blauw" aria-label="Pen blauw"><i></i></button>
+        <button class="secondary icon kr-pen" data-kleur="geel" title="Markeerstift" aria-label="Markeerstift"><i></i></button>
+        <button class="secondary icon" id="kr-wis" title="Tekeningen op deze pagina wissen" aria-label="Wissen">🧽</button>
+      </span>
+      <button class="secondary" id="kr-koppel-open" title="Deze pagina koppelen aan een les">📌 Les</button>
+      <button class="secondary icon" id="kr-vol" title="Schermvullend" aria-label="Schermvullend">⛶</button>
+      <button class="secondary icon" id="kr-dicht" title="Sluiten (Esc)" aria-label="Sluiten"><i class="ic ic-kruis"></i></button>
+    </div>
+  </div>
+  <form class="kr-koppel hidden" id="kr-koppel">
+    <span>Pagina <strong id="kr-koppel-p"></strong> koppelen aan</span>
+    <select id="kr-koppel-les"></select>
+    <input id="kr-koppel-nr" type="number" min="1" max="999" placeholder="lesnummer" class="hidden">
+    <button type="submit">Koppelen</button>
+    <button type="button" class="secondary" id="kr-koppel-annuleer">Annuleren</button>
+    <span class="muted small" id="kr-koppel-ok"></span>
+  </form>
+  <div class="kr-blad" id="kr-blad">
+    <div class="kr-vel" id="kr-vel">
+      <canvas id="kr-doek"></canvas>
+      <img id="kr-beeld" alt="" class="hidden">
+      <canvas id="kr-inkt" class="kr-inkt"></canvas>
+    </div>
+    <p class="kr-laden muted" id="kr-laden">Laden…</p>
+  </div>
+  <button class="kr-rand links" id="kr-rand-links" aria-label="Vorige pagina">‹</button>
+  <button class="kr-rand rechts" id="kr-rand-rechts" aria-label="Volgende pagina">›</button>
+</section>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/ui.js"></script>
+<script src="/js/kron-host.js"></script>
+<script type="module" src="/js/kron-lezer.js"></script>
+</body>
+</html>

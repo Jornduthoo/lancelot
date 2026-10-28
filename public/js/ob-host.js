@@ -677,3 +677,5 @@ $('stop').addEventListener('click', async () => {
 // Vanaf het startscherm: meteen een nieuw blad maken.
 const params = new URLSearchParams(location.search);
 if (params.get('maak') === 'ai') $('new-ai').click();
+// Vanuit De Kronieken: dat blad meteen live.
+if (params.get('live')) goLive(params.get('live'));

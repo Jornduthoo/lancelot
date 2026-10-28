@@ -11,7 +11,9 @@ const zip = require('./zip');
 
 const APP = path.resolve(__dirname, '..');
 // Alles wat van de leerkracht en de klas is. De rest (public, src, doelen...) hoort bij de app.
-const ITEMS = ['klas', 'logboek', 'runen', 'burchten', 'taken', 'rijken', 'resultaten', 'posters', 'quizzes', 'oefenbladen', 'rondetafel', 'avatars.json', 'settings.json', 'lesmap-sync.json'];
+const ITEMS = ['klas', 'logboek', 'runen', 'burchten', 'taken', 'rijken', 'resultaten', 'posters', 'quizzes', 'oefenbladen', 'rondetafel', 'kronieken', 'avatars.json', 'settings.json', 'lesmap-sync.json'];
+// Bordboeken en handleidingen zijn te groot voor de dagelijkse back-up-zip. Ze verhuizen wel mee en een update laat ze staan.
+const NIET_IN_BACKUP = new Set(['kronieken']);
 const POINTER = path.join(APP, 'gegevensmap.json');
 const MARKER = '.lancelot-gegevens.json';
 const RESTORE = 'terugzetten.zip';
@@ -92,6 +94,7 @@ function stempel(d = new Date()) {
 function maakBackup() {
   const entries = [{ name: 'lancelot-backup.json', data: Buffer.from(JSON.stringify({ gemaakt: new Date().toISOString(), map: DATA }, null, 2)) }];
   for (const item of ITEMS) {
+    if (NIET_IN_BACKUP.has(item)) continue;
     const full = pad(item);
     let st;
     try { st = fs.statSync(full); } catch { continue; }
