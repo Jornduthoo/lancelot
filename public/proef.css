@@ -511,3 +511,4 @@ select.pf-kies { width: auto; min-width: 6em; display: inline-block; margin: 0 2
 .pf-be-groep:first-child > div { grid-template-columns: 1fr; }
 .pf-be-tool { justify-content: flex-start; }
 .pf-be-trek line { stroke: #2b6cff; stroke-dasharray: 5 4; }
+.pf-voorbeeld-fout { margin: 0 0 10px; padding: 8px 12px; border-radius: 6px; background: #fff1d6; color: #7a4a00; font-size: .9rem; box-shadow: inset 0 0 0 1px #e8c27a; }

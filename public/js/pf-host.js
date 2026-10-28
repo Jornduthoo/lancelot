@@ -542,14 +542,22 @@ function preview() {
   previewTimer = setTimeout(() => {
     nummer();
     renderNiveauTabs();
-    let t;
+    // Is een vraag nog niet af, dan toont het voorbeeld de vragen die wel af zijn, met erboven wat er nog ontbreekt.
+    const ruw = readEditor();
+    let t = null;
+    let fout = '';
     try {
-      t = PfKern.validate(readEditor());
-      $('e-error').textContent = '';
+      t = PfKern.validate(ruw);
     } catch (err) {
-      $('e-error').textContent = err.message;
-      return;
+      fout = err.message;
+      const af = l => (l || []).filter(q => { try { PfKern.validate({ title: 'Toets', vragen: [q] }); return true; } catch { return false; } });
+      const deel = { ...ruw, title: ruw.title.trim() || 'Toets', vragen: af(ruw.vragen) };
+      for (const n of ['page', 'ridder']) { if (ruw[n]) { const l = af(ruw[n]); if (l.length) deel[n] = l; else delete deel[n]; } }
+      try { if (deel.vragen.length) t = PfKern.validate(deel); } catch { t = null; }
     }
+    $('e-error').textContent = fout;
+    const melding = fout ? `<p class="pf-voorbeeld-fout">⚠️ ${fout.replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[c])}</p>` : '';
+    if (!t) { $('e-preview').innerHTML = melding; return; }
     const lijst = PfKern.lijstVoor(t, editNiveau);
     const v = PfKern.studentView(t, lijst);
     const sleutel = {};
@@ -559,6 +567,7 @@ function preview() {
       if (q.type === 'aanduiden') zones[id] = q.zones;
     }
     PfPaper.render($('e-preview'), v.pages, { mode: 'view', nummer: true, sleutel, zones });
+    if (melding) $('e-preview').insertAdjacentHTML('afterbegin', melding);
     $('e-totaal').textContent = `${PfKern.vragenVan(lijst).length} vragen · ${nl(PfKern.totaal(lijst))} punten${PfKern.niveausVan(t).length > 1 ? ` (${Niveau.NAMES[editNiveau]})` : ''}`;
     $('s-panel').classList.toggle('hidden', !bladKaarten().length);
     $('s-key').classList.toggle('hidden', !hasKey);
