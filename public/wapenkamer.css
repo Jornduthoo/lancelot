@@ -101,20 +101,22 @@
 
 /* ---------- Het Lot ---------- */
 .lot-veld { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 34px; align-items: center; }
-.lot-kant { display: flex; flex-direction: column; align-items: center; }
-.lot-rad { position: relative; width: min(100%, max(280px, calc(100vh - 330px))); aspect-ratio: 1; }
-.lot-krans { position: absolute; inset: -6%; border-radius: 50%; background: radial-gradient(circle, rgb(94 231 255 / .28) 40%, rgb(255 201 74 / .12) 58%, rgb(0 0 0 / 0) 70%); }
-.lot-rad canvas { position: relative; width: 100%; height: 100%; display: block; cursor: pointer; will-change: transform; filter: drop-shadow(0 14px 26px rgb(0 0 0 / .7)); }
-.lot-wijzer { position: absolute; left: 50%; top: -5%; width: 13%; aspect-ratio: .8; transform: translateX(-50%); z-index: 2; filter: drop-shadow(0 4px 6px rgb(0 0 0 / .7)) drop-shadow(0 0 10px rgb(255 201 74 / .6)); }
-.lot-wijzer::before { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, #a8781c, #ffe9a8 45%, #c9962e 55%, #7a5310); clip-path: polygon(0 0, 100% 0, 100% 35%, 50% 100%, 0 35%); }
-.lot-wijzer i { position: absolute; left: 50%; top: 18%; width: 34%; aspect-ratio: 1; transform: translateX(-50%) rotate(45deg); background: radial-gradient(circle at 35% 35%, #e9fbff, #5ee7ff 45%, #0d4a66); box-shadow: 0 0 10px #5ee7ff; }
-.lot-knop { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 24%; aspect-ratio: 1; padding: 0; border-radius: 50%; clip-path: none; z-index: 2;
-  background: radial-gradient(circle at 50% 40%, #1d3a66, #0a1328 70%); color: #ffe9a8; border: 6px solid #e0a93a;
-  box-shadow: 0 0 0 3px #3a2504, 0 0 0 9px rgb(20 26 43 / .9), 0 0 30px rgb(255 201 74 / .55), inset 0 0 24px rgb(94 231 255 / .5); }
-.lot-knop span { font-family: var(--head); font-weight: 900; font-size: clamp(1rem, 2.3vw, 1.7rem); text-shadow: 0 0 12px rgb(255 201 74 / .8); }
-.lot-knop:hover:not(:disabled) { transform: translate(-50%, -50%) scale(1.05); filter: brightness(1.15); }
+.lot-kant { overflow-x: clip; display: flex; flex-direction: column; align-items: center; }
+.lot-rad { position: relative; width: min(100%, max(280px, calc(100vh - 450px))); aspect-ratio: 1; margin: 7% 0 13%; }
+/* De houten bok waarop het rad van fortuin staat */
+.lot-bok { position: absolute; left: 10%; top: 50%; width: 80%; height: 63%; filter: drop-shadow(0 10px 14px rgb(0 0 0 / .7)); }
+.lot-krans { position: absolute; inset: -5%; border-radius: 50%; background: radial-gradient(circle, rgb(255 180 90 / .22) 45%, rgb(94 231 255 / .1) 60%, rgb(0 0 0 / 0) 70%); }
+.lot-rad canvas { position: relative; width: 100%; height: 100%; display: block; cursor: pointer; will-change: transform; filter: drop-shadow(0 16px 24px rgb(0 0 0 / .75)); }
+/* Het zwaard als wijzer, met de punt in het rad */
+.lot-wijzer { position: absolute; left: 50%; top: -16%; width: 12%; transform: translateX(-50%); z-index: 2; overflow: visible;
+  filter: drop-shadow(0 5px 5px rgb(0 0 0 / .75)) drop-shadow(0 0 8px rgb(94 231 255 / .45)); }
+/* De naaf: een ijzeren schildknop met gouden rand */
+.lot-knop { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 22%; aspect-ratio: 1; padding: 0; border-radius: 50%; clip-path: none; z-index: 2;
+  background: radial-gradient(circle at 38% 32%, #c4cad6, #6c7383 40%, #262a34 75%); color: #ffe9a8; border: 5px solid #d9a632;
+  box-shadow: 0 0 0 3px #3a2504, 0 8px 18px rgb(0 0 0 / .7), 0 0 26px rgb(255 190 90 / .4), inset 0 -8px 16px rgb(0 0 0 / .55), inset 0 6px 10px rgb(255 255 255 / .25); }
+.lot-knop span { font-family: var(--head); font-weight: 900; font-size: clamp(.95rem, 2vw, 1.55rem); color: #ffe9a8; text-shadow: 0 2px 0 #2a1a04, 0 0 12px rgb(255 201 74 / .8); }
+.lot-knop:hover:not(:disabled) { transform: translate(-50%, -50%) scale(1.05); filter: brightness(1.12); }
 .lot-knop:active:not(:disabled) { transform: translate(-50%, -50%) scale(.97); }
-.lot-sokkel { width: 46%; height: 34px; margin-top: -10px; background: linear-gradient(180deg, #59607a, #2a2f3c); border-top: 4px solid #c9962e; clip-path: polygon(14% 0, 86% 0, 100% 100%, 0 100%); }
 .lot-zij { display: flex; flex-direction: column; gap: 16px; }
 .lot-uitslag { text-align: center; padding: 28px 22px 32px; }
 .lot-naam { margin-top: 6px; font-family: var(--head); font-weight: 900; font-size: clamp(2.6rem, 6vw, 5.2rem); line-height: 1.05; word-break: break-word; color: #dfe9f7; }
@@ -164,13 +166,16 @@
 
 /* ---------- De Zandloper ---------- */
 .zl-veld { display: grid; grid-template-columns: minmax(180px, 1fr) minmax(0, 1.6fr); gap: 34px; align-items: center; }
-.zl-kant { display: flex; flex-direction: column; align-items: center; }
-.zl-glas { width: 100%; height: max(240px, calc(100vh - 340px)); filter: drop-shadow(0 0 26px rgb(94 231 255 / .35)) drop-shadow(0 12px 18px rgb(0 0 0 / .6)); }
-.zl-rand { fill: rgb(127 220 255 / .08); stroke: #cfefff; stroke-width: 2.5; }
-.zl-zand { fill: #4fd8ff; }
-.zl-steen { fill: #5ee7ff; }
-.zl-straal { stroke: #9ff0ff; stroke-width: 2.5; stroke-dasharray: 4 5; animation: zl-val .4s linear infinite; }
-@keyframes zl-val { to { stroke-dashoffset: -9; } }
+.zl-kant { overflow-x: clip; position: relative; display: flex; flex-direction: column; align-items: center; }
+.zl-kant::before { content: ''; position: absolute; left: 50%; top: 50%; width: min(100%, 70vh); aspect-ratio: 1; transform: translate(-50%, -50%); border-radius: 50%; pointer-events: none;
+  background: radial-gradient(circle, rgb(255 190 90 / .2) 20%, rgb(94 231 255 / .08) 45%, rgb(0 0 0 / 0) 65%); }
+.zl-glas { position: relative; width: 100%; height: max(240px, calc(100vh - 380px)); filter: drop-shadow(0 14px 18px rgb(0 0 0 / .7)); }
+.zl-rand { fill: none; stroke: #d8f4ff; stroke-opacity: .75; stroke-width: 2.2; }
+.zl-glim { fill: none; stroke: #fff; stroke-opacity: .55; stroke-width: 3; stroke-linecap: round; }
+.zl-glim.dun { stroke-width: 2; stroke-opacity: .35; }
+.zl-zand { fill: url(#zl-zandkleur); }
+.zl-straal { stroke: #ffe7a0; stroke-width: 2.4; stroke-dasharray: 3 4; animation: zl-val .35s linear infinite; }
+@keyframes zl-val { to { stroke-dashoffset: -7; } }
 .zl-rechts { display: flex; flex-direction: column; gap: 18px; align-items: center; }
 .zl-plaat { padding: 18px 44px 22px; text-align: center; }
 .zl-tijd { font-family: var(--tech); font-weight: 800; font-size: clamp(4rem, 13vw, 10rem); line-height: 1; color: #eaf8ff; text-shadow: 0 0 30px rgb(94 231 255 / .75); font-variant-numeric: tabular-nums; }
