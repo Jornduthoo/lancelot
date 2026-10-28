@@ -41,7 +41,7 @@ function downloadLink(file) {
   return link;
 }
 
-const TYPE_ICONS = { meerkeuze: '🔘', juistfout: '✔✖', invullen: '✏️', kort: '⌨️', rekenen: '🧮', verbinden: '🔗', ordenen: '↕️', tabel: '▦', aanduiden: '📍', open: '💬', papier: '📝', blad: '📄' };
+const TYPE_ICONS = { meerkeuze: '🔘', juistfout: '✔✖', invullen: '✏️', kort: '⌨️', rekenen: '🧮', verbinden: '🔗', ordenen: '↕️', tabel: '▦', aanduiden: '📍', getallenas: '📏', markeren: '🖍️', tekenen: '🎨', spreken: '🎙️', open: '💬', papier: '📝', blad: '📄', bron: '📜' };
 
 // ---------- Lijst ----------
 
@@ -130,11 +130,16 @@ const FORMATS = {
   juistfout: '{ "type": "juistfout", "vraag": "een stelling", "juist": false, "punten": 1 }',
   invullen: '{ "type": "invullen", "vraag": "Vul aan.", "tekst": "Een zin met een gat: de hoofdstad van België is [Brussel]. Meerdere goede antwoorden: [fiets|velo].", "punten": 2 }',
   kort: '{ "type": "kort", "vraag": "de vraag", "antwoord": "het antwoord|andere goede schrijfwijze", "eenheid": "", "punten": 1 }',
+  breuk: '{ "type": "kort", "vraag": "Vereenvoudig 6/8.", "antwoord": "3/4", "breuk": true, "vereenvoudigd": true, "punten": 1 }',
   rekenen: '{ "type": "rekenen", "vraag": "een vraagstuk", "antwoord": "36", "eenheid": "cm", "punten": 1, "werkPunten": 1 }',
   verbinden: '{ "type": "verbinden", "vraag": "Verbind wat bij elkaar hoort.", "paren": [["links", "rechts"], ["links", "rechts"]], "punten": 4 }',
   ordenen: '{ "type": "ordenen", "vraag": "Zet in de juiste volgorde.", "items": ["eerste", "tweede", "derde"], "punten": 1 }',
   tabel: '{ "type": "tabel", "vraag": "Vul de tabel aan.", "rijen": [["kg", "g"], ["2", "[2000]"], ["[0,5]", "500"]], "punten": 2 }',
   aanduiden: '{ "type": "aanduiden", "vraag": "Duid Antwerpen aan op de kaart.", "beeldPagina": 2, "beeldNodig": "kaart van België", "punten": 1 }',
+  getallenas: '{ "type": "getallenas", "vraag": "Duid 3/4 aan op de getallenas.", "min": "0", "max": "2", "stap": "1/4", "antwoord": "3/4", "getallen": "rand", "breuk": true, "punten": 1 }',
+  markeren: '{ "type": "markeren", "vraag": "Duid alle werkwoorden aan.", "tekst": "De hond [blaft] en de kat [slaapt] in de zon.", "punten": 2 }',
+  tekenen: '{ "type": "tekenen", "vraag": "Teken een rechthoek met een omtrek van 12 cm.", "model": "waar de leerkracht op let", "punten": 2 }',
+  spreken: '{ "type": "spreken", "vraag": "Stel jezelf voor in het Frans: naam, leeftijd en woonplaats.", "seconden": 60, "model": "waar de leerkracht op let", "punten": 3 }',
   open: '{ "type": "open", "vraag": "een open vraag", "model": "het modelantwoord en wat er zeker in moet staan", "regels": 3, "punten": 2 }',
   papier: '{ "type": "papier", "vraag": "Teken een hoek van 45° met je geodriehoek.", "model": "waar de leerkracht op let", "punten": 2 }',
   bron: '{ "type": "bron", "titel": "titel van de bron", "tekst": "de leestekst of de gegevens", "vragen": [ ...deelvragen in dezelfde vorm als hierboven... ] }',
@@ -151,8 +156,9 @@ function buildPrompt(metBestanden) {
   const topic = $('a-topic').value.trim();
   const extra = $('a-extra').value.trim();
   const drie = $('a-niveaus').checked;
-  const types = over ? Object.keys(FORMATS) : [...new Set([...chosenTypes(), 'papier'])];
+  const types = over ? Object.keys(FORMATS).filter(t => t !== 'spreken') : [...new Set([...chosenTypes(), 'papier'])];
   if (!over && !types.some(t => t !== 'papier' && t !== 'bron')) types.push('meerkeuze', 'kort');
+  if (!over && (types.includes('kort') || types.includes('rekenen'))) types.push('breuk');
   const count = Math.min(60, Math.max(3, Number($('a-count').value) || 15));
   const bijlage = metBestanden ? 'de bijgevoegde bestanden' : 'de pdf of foto die ik zo meteen toevoeg';
   const vragen = `[
@@ -164,12 +170,13 @@ Regels:
 - Neem elke vraag van de toets over, in dezelfde volgorde en met dezelfde punten als op de toets. Staan er geen punten bij, geef dan 1 punt per antwoord.
 - Verander de inhoud niet. Kies per vraag de soort die het best past. Een vraag met deelvragen a, b, c over een tekst, tabel of prent wordt een "bron".
 - Heeft een vraag een prent, kaart, grafiek, figuur of foto nodig, zet dan "beeldPagina" (het paginanummer in de pdf) en "beeldNodig" (een korte omschrijving van wat er moet uitgeknipt worden). Typ tabellen en gewone teksten liever over.
-- Een vraag die digitaal niet goed kan (tekenen, construeren, meten met een lat, iets kleuren op papier) wordt "papier".
+- Een opdracht om iets te tekenen of te schetsen wordt "tekenen" (met "beeldPagina" en "beeldNodig" als er op een figuur getekend wordt). Wat digitaal niet goed kan (construeren met passer of geodriehoek, meten met een lat) wordt "papier".
+- Een getal aanduiden op een getallenas wordt "getallenas"; woorden onderstrepen of omcirkelen in een zin of tekst wordt "markeren"; een woord omcirkelen uit een paar keuzes in een zin wordt een keuzelijstje bij invullen.
 - Geef bij elke vraag het juiste antwoord. Staat er geen verbetersleutel bij, los de vraag dan zelf op en controleer je antwoord twee keer.`
     : `Maak een nieuwe toets voor leerlingen uit: ${level} (Belgisch onderwijs)${topic ? ` over: ${topic}` : ''}.${metBestanden || $('a-files').dataset.heeft ? `\nBaseer alle vragen op ${bijlage}. Vraag alleen naar wat daarin staat.` : ''}
 Regels:
 - Maak ongeveer ${count} vragen${drie ? ' per niveau' : ''}, in het Nederlands zoals in Vlaanderen.
-- Gebruik deze soorten, afwisselend: ${types.filter(t => t !== 'papier').join(', ')}.
+- Gebruik deze soorten, afwisselend: ${types.filter(t => t !== 'papier' && t !== 'breuk').join(', ')}.
 - Bouw op van kennis (begrippen, feiten) naar begrip en toepassen in een herkenbare situatie.
 - Bij meerkeuze en juist/fout zijn de foute keuzes typische fouten of misvattingen, geen onzin. Zet het juiste antwoord niet steeds op dezelfde plek.
 - Heeft een vraag een afbeelding uit de lesstof nodig, zet dan "beeldPagina" (het paginanummer in de pdf) en "beeldNodig" (een korte omschrijving).
@@ -178,10 +185,12 @@ Regels:
 ${DoelKies.prompt(codes, 'vragen')}${extra ? `\nExtra wensen van de leerkracht:\n${extra}\n` : ''}
 Over de soorten vragen:
 - "juist" bij meerkeuze is het nummer van het juiste antwoord, geteld vanaf 0. Zijn er meerdere juiste antwoorden, geef dan een lijst: "juist": [0, 2].
-- Bij invullen staat elk in te vullen woord tussen [vierkante haken]; bij een tabel staat een in te vullen cel tussen [ ].
+- Bij invullen staat elk in te vullen woord tussen [vierkante haken]. Een keuzelijstje schrijf je als {juist|fout|fout} met het juiste antwoord eerst. Bij een tabel staat een in te vullen cel tussen [ ], een keuzelijstje in een cel als {juist|fout}.
+- Is het antwoord een breuk, zet dan bij kort of rekenen "breuk": true (de leerling krijgt een breukvak); moet de breuk vereenvoudigd zijn, ook "vereenvoudigd": true.
 - Bij kort antwoord en rekenvragen mag "antwoord" meerdere goede schrijfwijzen hebben, gescheiden door |. Getallen met een komma: 0,5.
 - Bij een rekenvraag is "punten" voor de uitkomst en "werkPunten" voor de bewerking (die verbetert de leerkracht).
-- Bij open vragen en vragen op papier zet je in "model" wat een goed antwoord is, zodat de leerkracht snel kan verbeteren.
+- Bij markeren staan de woorden die de leerling moet aanduiden tussen [ ]. Bij een getallenas ligt het juiste getal op een streepje (een veelvoud van de stap vanaf het begin).
+- Bij open vragen, tekenen, inspreken en vragen op papier zet je in "model" wat een goed antwoord is, zodat de leerkracht snel kan verbeteren.
 - Gebruik de Belgische schrijfwijze en context: komma als decimaalteken, euro, Belgische namen en plaatsen.
 ${drie ? `\n${Niveau.prompt(level, 'vragen')}\n` : ''}
 Belangrijk: maak GEEN interactieve quiz, app, webpagina of canvas en schrijf geen code. Ik heb enkel de gegevens nodig als tekst.
@@ -378,7 +387,30 @@ async function bladenUit(lijst, voortgang) {
     out.push(...await PfBlad.uit(b, (i, n) => voortgang(`${b.naam}: pagina ${i} van ${n}…`)));
   }
   if (!out.length) throw new Error('Voeg eerst je toets toe (pdf, scan of foto).');
-  return out;
+  voortgang('');
+  return out.length > 1 ? kiesPaginas(out) : out;
+}
+
+// Welke pagina's neem je over? Een venster met alle pagina's, allemaal aangevinkt.
+function kiesPaginas(bladen) {
+  return new Promise((resolve, reject) => {
+    const box = document.createElement('div');
+    box.className = 'ob-modal';
+    box.innerHTML = `<div class="ob-modal-box pf-paginas">
+      <div class="bar"><h2>Welke pagina's neem je over?</h2></div>
+      <label class="inline check"><input type="checkbox" class="alle" checked> Alles (<span class="tel">${bladen.length}</span> van ${bladen.length})</label>
+      <div class="pf-pag-grid">${bladen.map((b, i) => `<label class="pf-pag"><img src="${b.beeld}" alt=""><span><input type="checkbox" data-i="${i}" checked> Pagina ${i + 1}</span></label>`).join('')}</div>
+      <div class="actions"><button class="secondary terug">Annuleren</button><button class="gold ok">Neem over</button></div></div>`;
+    document.body.appendChild(box);
+    const vinkjes = [...box.querySelectorAll('input[data-i]')];
+    const tel = () => { const n = vinkjes.filter(v => v.checked).length; box.querySelector('.tel').textContent = n; box.querySelector('.alle').checked = n === vinkjes.length; box.querySelector('.ok').disabled = !n; };
+    box.addEventListener('change', e => {
+      if (e.target.classList.contains('alle')) for (const v of vinkjes) v.checked = e.target.checked;
+      tel();
+    });
+    box.querySelector('.terug').addEventListener('click', () => { box.remove(); reject(new Error('Je koos geen pagina\'s.')); });
+    box.querySelector('.ok').addEventListener('click', () => { box.remove(); resolve(bladen.filter((_, i) => vinkjes[i].checked)); });
+  });
 }
 $('a-blad').addEventListener('click', async () => {
   $('a-blad-error').textContent = '';
@@ -411,14 +443,19 @@ $('a-blad').addEventListener('click', async () => {
 const DEFAULT_VRAAG = {
   meerkeuze: '', juistfout: '', invullen: 'Vul aan.', kort: '', rekenen: '', verbinden: 'Verbind wat bij elkaar hoort.',
   ordenen: 'Zet in de juiste volgorde.', tabel: 'Vul de tabel aan.', aanduiden: '', open: '', papier: '',
+  getallenas: 'Duid aan op de getallenas.', markeren: 'Duid alle werkwoorden aan.', tekenen: '', spreken: '',
 };
 const HELP = {
-  invullen: 'Zet wat de leerling invult tussen [ en ]. Meerdere goede antwoorden: [fiets|velo].',
-  kort: 'Meerdere goede antwoorden: scheid ze met |. Getallen tellen ook in een andere schrijfwijze (0,5 = ½ = 1/2).',
+  invullen: 'Zet wat de leerling typt tussen [ en ]. Meerdere goede antwoorden: [fiets|velo]. Een keuzelijstje: {juist|fout|fout}, het eerste is het juiste (de leerling ziet ze alfabetisch).',
+  getallenas: 'Kies het begin, het einde en de stap tussen de streepjes. Het juiste getal moet op een streepje liggen. Breuken mag je typen als 3/4.',
+  markeren: 'Typ of plak de tekst en zet de woorden die de leerling moet aanduiden tussen [ en ]. Een fout aangeduid woord kost een juist.',
+  tekenen: 'De leerling tekent met vinger, pen of muis, eventueel op een afbeelding (bv. een rooster, kaart of figuur). Na de toets geef jij de punten.',
+  spreken: 'De leerling neemt zijn antwoord op. Na de toets luister je en geef jij de punten. Opnemen lukt op Chromebooks alleen als ICT het adres van LANcelot toelaat; op de pc zelf altijd.',
+  kort: 'Meerdere goede antwoorden: scheid ze met |. Getallen tellen ook in een andere schrijfwijze (0,5 = ½ = 1/2). Met een breukvak typt de leerling de teller en de noemer apart; 6/8 is dan ook juist voor 3/4, tenzij je "alleen vereenvoudigd" aanvinkt.',
   rekenen: 'De leerling schrijft zijn bewerking en de uitkomst. De computer verbetert de uitkomst, jij de bewerking.',
   verbinden: 'Eén paar per regel: links = rechts. De rechterkant komt door elkaar.',
   ordenen: 'Eén ding per regel, in de juiste volgorde. De leerling krijgt ze door elkaar.',
-  tabel: 'Eén rij per regel, cellen gescheiden door |. De eerste regel is de kop. Zet wat de leerling invult tussen [ ], bv. 2 | [2000].',
+  tabel: 'Eén rij per regel, cellen gescheiden door |. De eerste regel is de kop. Zet wat de leerling invult tussen [ ], bv. 2 | [2000]. Een keuzelijstje in een cel: {groter|kleiner|gelijk}, het eerste is het juiste.',
   aanduiden: 'Kies een afbeelding en klik waar het juiste antwoord ligt. Klik op een cirkel om hem weg te halen.',
   open: 'Jij verbetert deze vraag na de toets. Het modelantwoord helpt je (en de AI) snel verbeteren.',
   papier: 'De leerling maakt deze opdracht op papier. Na de toets geef jij de punten.',
@@ -464,6 +501,23 @@ function beeldRij(houder, waarde, opts = {}) {
   return rij;
 }
 
+// Audio bij een vraag: eigen opname of een geluidsbestand. Eerst alleen een klein knopje, zo blijft de kaart rustig.
+function audioRij(houder, waarde) {
+  const rij = document.createElement('div');
+  rij.className = 'pf-audio-rij';
+  houder.pfAudio = waarde || '';
+  const open = () => {
+    rij.innerHTML = '<span class="small">🎧 Uitleg om te beluisteren:</span> <span class="pf-audio-knop"></span>';
+    PfAudio.knop(rij.querySelector('.pf-audio-knop'), { waarde: houder.pfAudio, max: 90, grootte: PfKern.MAX_AUDIO, onChange: d => { houder.pfAudio = d; if (!d) dicht(); preview(); } });
+  };
+  const dicht = () => {
+    rij.innerHTML = '<button type="button" class="link small pf-audio-open">🎧 Audio toevoegen (bv. de vraag voorlezen)</button>';
+    rij.querySelector('button').addEventListener('click', open);
+  };
+  if (houder.pfAudio) open(); else dicht();
+  return rij;
+}
+
 function optieRij(o, juist) {
   const rij = document.createElement('div');
   rij.className = 'pf-optie';
@@ -476,6 +530,32 @@ function optieRij(o, juist) {
   rij.querySelector('.pf-optie-beeld').appendChild(beeldRij(rij, o && typeof o === 'object' ? o.beeld : ''));
   rij.querySelector('.weg').addEventListener('click', () => { rij.remove(); preview(); });
   return rij;
+}
+
+// Een knop die het geselecteerde woord tussen [ ] of { } zet (bij een keuzelijstje met plaats voor foute keuzes).
+function gatKnoppen(box, ta) {
+  for (const b of box.querySelectorAll('button[data-in]')) {
+    b.addEventListener('mousedown', e => e.preventDefault());
+    b.addEventListener('click', () => {
+      const [l, r] = b.dataset.in;
+      const { selectionStart: a, selectionEnd: z, value } = ta;
+      const woord = value.slice(a, z).trim() || 'juist';
+      const extra = l === '{' ? '|fout|fout' : '';
+      ta.value = `${value.slice(0, a)}${l}${woord}${extra}${r}${value.slice(z)}`;
+      ta.focus();
+      const start = a + 1 + woord.length + 1;
+      if (extra) ta.setSelectionRange(start, start + 4); else ta.setSelectionRange(a + woord.length + 2, a + woord.length + 2);
+      preview();
+    });
+  }
+}
+
+// De verhouding van een afbeelding (hoogte / breedte), voor het tekenvak erop.
+function meetBeeld(card, url) {
+  if (!url) { card.pfVerhouding = Number((card.querySelector('.e-hoogte') || {}).value) || 0.6; return preview(); }
+  const img = new Image();
+  img.onload = () => { card.pfVerhouding = Math.round((img.naturalHeight / img.naturalWidth) * 1000) / 1000; preview(); };
+  img.src = url;
 }
 
 function vraagKaart(q, inBron) {
@@ -517,7 +597,8 @@ function vraagKaart(q, inBron) {
   } else {
     veld(`<label>${q.type === 'invullen' || q.type === 'tabel' ? 'Opdracht' : 'Vraag'}<textarea class="e-vraag" rows="2" maxlength="1500"></textarea></label>`);
     card.querySelector('.e-vraag').value = q.vraag ?? DEFAULT_VRAAG[q.type] ?? '';
-    if (q.type !== 'aanduiden') body.appendChild(beeldRij(card, q.beeld, { nodig: q.beeldNodig, pagina: q.beeldPagina }));
+    body.appendChild(audioRij(card, q.audio));
+    if (!['aanduiden', 'tekenen', 'markeren', 'getallenas', 'spreken'].includes(q.type)) body.appendChild(beeldRij(card, q.beeld, { nodig: q.beeldNodig, pagina: q.beeldPagina }));
     if (q.type === 'meerkeuze') {
       const box = veld('', 'pf-opties');
       const juist = new Set([].concat(q.juist ?? 0));
@@ -528,13 +609,27 @@ function vraagKaart(q, inBron) {
       veld('<label>Het juiste antwoord<select class="e-jf"><option value="J">Juist</option><option value="F">Fout</option></select></label>');
       card.querySelector('.e-jf').value = q.juist ? 'J' : 'F';
     } else if (q.type === 'invullen') {
-      veld('<label>Tekst met gaten<textarea class="e-tekst" rows="3" placeholder="De hoofdstad van België is [Brussel]."></textarea></label>');
+      veld('<label>Tekst met gaten<textarea class="e-tekst" rows="3" placeholder="De hoofdstad van België is [Brussel]. Een spin heeft {acht|zes|tien} poten."></textarea></label>');
       card.querySelector('.e-tekst').value = q.tekst || '';
+      const hulp = veld('<button type="button" class="secondary small-btn" data-in="[]">+ Gat om te typen</button> <button type="button" class="secondary small-btn" data-in="{}">+ Keuzelijstje</button> <span class="muted small">Selecteer eerst het juiste woord in de tekst.</span>', 'actions');
+      gatKnoppen(hulp, card.querySelector('.e-tekst'));
+      veld('<label class="inline check"><input type="checkbox" class="e-bank"> 🧲 Woordenbank: de leerling sleept de woorden in de gaten</label><label class="e-extra-label">Extra woorden in de bank (foute keuzes, gescheiden door /)<input class="e-extra" maxlength="600" placeholder="bijv. hond / tafel"></label>');
+      card.querySelector('.e-bank').checked = !!q.bank;
+      card.querySelector('.e-extra').value = (q.extra || []).join(' / ');
+      const bk = () => card.querySelector('.e-extra-label').classList.toggle('hidden', !card.querySelector('.e-bank').checked);
+      card.querySelector('.e-bank').addEventListener('change', bk);
+      bk();
     } else if (q.type === 'kort' || q.type === 'rekenen') {
       veld(`<div class="row"><label>${q.type === 'rekenen' ? 'Uitkomst' : 'Juist antwoord'}<input class="e-antwoord" maxlength="300" placeholder="bijv. 0,5|1/2"></label><label>Eenheid (mag leeg)<input class="e-eenheid" maxlength="20" placeholder="bijv. cm"></label>${q.type === 'rekenen' ? '<label>Punten bewerking<input class="e-werkpunten" type="number" min="0" max="100" step="0.5"></label>' : ''}</div>`);
       card.querySelector('.e-antwoord').value = q.antwoord || '';
       card.querySelector('.e-eenheid').value = q.eenheid || '';
       if (q.type === 'rekenen') card.querySelector('.e-werkpunten').value = q.werkPunten ?? 1;
+      veld('<label class="inline check"><input type="checkbox" class="e-breuk"> Antwoord in een breukvak (teller boven, noemer onder)</label> <label class="inline check e-vv-label"><input type="checkbox" class="e-vv"> Alleen vereenvoudigd is juist</label>', 'pf-checks');
+      card.querySelector('.e-breuk').checked = !!q.breuk;
+      card.querySelector('.e-vv').checked = !!q.vereenvoudigd;
+      const vv = () => card.querySelector('.e-vv-label').classList.toggle('hidden', !card.querySelector('.e-breuk').checked);
+      card.querySelector('.e-breuk').addEventListener('change', vv);
+      vv();
     } else if (q.type === 'verbinden') {
       veld('<label>Paren<textarea class="e-lijst" rows="4" placeholder="Antwerpen = Schelde\nLuik = Maas"></textarea></label>');
       card.querySelector('.e-lijst').value = (q.paren || []).map(p => `${p[0]} = ${p[1]}`).join('\n');
@@ -576,6 +671,34 @@ function vraagKaart(q, inBron) {
         if (last) { last.r = Number(e.target.value); tekenZones(); preview(); }
       });
       tekenZones();
+    } else if (q.type === 'getallenas') {
+      veld(`<div class="row"><label>Begin<input class="e-min" maxlength="20" placeholder="0"></label><label>Einde<input class="e-max" maxlength="20" placeholder="10"></label><label>Stap tussen de streepjes<input class="e-stap" maxlength="20" placeholder="1 of 1/4"></label><label>Juiste getal<input class="e-antwoord" maxlength="20" placeholder="bijv. 3/4"></label></div>
+        <div class="row"><label>Getallen bij de streepjes<select class="e-getallen"><option value="rand">Alleen begin en einde</option><option value="alle">Bij elk streepje</option></select></label>
+        <label class="inline check"><input type="checkbox" class="e-breuk"> Toon als breuken</label></div>`);
+      card.querySelector('.e-min').value = q.min ?? '0';
+      card.querySelector('.e-max').value = q.max ?? '10';
+      card.querySelector('.e-stap').value = q.stap ?? '1';
+      card.querySelector('.e-antwoord').value = q.antwoord ?? '';
+      card.querySelector('.e-getallen').value = q.getallen === 'alle' ? 'alle' : 'rand';
+      card.querySelector('.e-breuk').checked = !!q.breuk;
+    } else if (q.type === 'markeren') {
+      veld('<label>Tekst<textarea class="e-tekst" rows="4" placeholder="De hond [blaft] en de kat [slaapt]."></textarea></label>');
+      card.querySelector('.e-tekst').value = q.tekst || '';
+      const hulp = veld('<button type="button" class="secondary small-btn" data-in="[]">[ ] Juist woord</button> <span class="muted small">Selecteer een woord in de tekst en klik.</span>', 'actions');
+      gatKnoppen(hulp, card.querySelector('.e-tekst'));
+    } else if (q.type === 'tekenen') {
+      card.pfVerhouding = q.verhouding || 0.6;
+      body.appendChild(beeldRij(card, q.beeld, { nodig: q.beeldNodig, pagina: q.beeldPagina, onChange: url => meetBeeld(card, url) }));
+      veld('<label class="inline">Hoogte van het tekenvak (zonder afbeelding) <select class="e-hoogte"><option value="0.4">laag</option><option value="0.6">gewoon</option><option value="0.9">hoog</option></select></label>');
+      card.querySelector('.e-hoogte').value = [0.4, 0.6, 0.9].includes(q.verhouding) ? String(q.verhouding) : '0.6';
+      card.querySelector('.e-hoogte').addEventListener('change', e => { if (!card.pfBeeld) card.pfVerhouding = Number(e.target.value); });
+      veld('<label>Waar je op let (voor jou, niet voor de leerling)<textarea class="e-model" rows="2" maxlength="2000"></textarea></label>');
+      card.querySelector('.e-model').value = q.model || '';
+    } else if (q.type === 'spreken') {
+      veld('<label class="inline">Hoe lang mag de leerling spreken? <select class="e-seconden"><option value="30">30 seconden</option><option value="60">1 minuut</option><option value="120">2 minuten</option><option value="180">3 minuten</option></select></label>');
+      card.querySelector('.e-seconden').value = String([30, 60, 120, 180].includes(q.seconden) ? q.seconden : 60);
+      veld('<label>Waar je op let (voor jou, niet voor de leerling)<textarea class="e-model" rows="2" maxlength="2000"></textarea></label>');
+      card.querySelector('.e-model').value = q.model || '';
     } else if (q.type === 'open' || q.type === 'papier') {
       veld('<label>Modelantwoord of waar je op let (voor jou, niet voor de leerling)<textarea class="e-model" rows="2" maxlength="2000"></textarea></label>');
       card.querySelector('.e-model').value = q.model || '';
@@ -609,7 +732,7 @@ function vraagKaart(q, inBron) {
 // Een blad uit de pdf: een kleine weergave met de vakjes, en een knop om ze te plaatsen en de antwoorden in te vullen.
 function bladKaart(card, body, q) {
   card.pfBeeld = q.beeld;
-  card.pfBlad = { verhouding: q.verhouding, velden: (q.velden || []).map(f => ({ ...f })) };
+  card.pfBlad = { verhouding: q.verhouding, velden: (q.velden || []).map(f => ({ ...f })), woorden: q.woorden || [] };
   const vak = document.createElement('div');
   vak.className = 'pf-blad-kaart';
   body.appendChild(vak);
@@ -618,18 +741,19 @@ function bladKaart(card, body, q) {
     const leeg = velden.filter(PfBlad.leegVeld).length;
     vak.innerHTML = `<button type="button" class="pf-blad-mini" title="Vakjes plaatsen en antwoorden invullen" style="aspect-ratio:${1 / (card.pfBlad.verhouding || 1.414)}">
         <img src="${card.pfBeeld}" alt="">${velden.map(f => `<i class="${f.soort}${PfBlad.leegVeld(f) ? ' zonder' : ''}" style="left:${f.x}%;top:${f.y}%;width:${f.w}%;height:${f.h}%"></i>`).join('')}</button>
-      <div class="pf-blad-info"><p><strong>${velden.length} vakjes</strong> · ${nl(velden.filter(f => f.soort !== 'open').reduce((s, f) => s + (Number(f.punten) || 0), 0))} punten${velden.some(f => f.soort === 'open') ? ' + open vakjes (verbeter jij)' : ''}</p>
+      <div class="pf-blad-info"><p><strong>${velden.length} vakjes</strong> · ${nl(velden.filter(f => !PfKern.HAND_VELD.has(f.soort)).reduce((s, f) => s + (Number(f.punten) || 0), 0))} punten${velden.some(f => PfKern.HAND_VELD.has(f.soort)) ? ' + open vakjes en tekenvakken (verbeter jij)' : ''}</p>
         ${leeg ? `<p class="pf-nodig">⚠ ${leeg} ${leeg === 1 ? 'vakje heeft' : 'vakjes hebben'} nog geen antwoord</p>` : velden.length ? '<p class="muted small">Alle antwoorden staan erin.</p>' : '<p class="pf-nodig">⚠ Nog geen vakjes</p>'}
         <button type="button" class="secondary small-btn bewerk">✏️ Vakjes en antwoorden</button></div>`;
     for (const b of vak.querySelectorAll('.pf-blad-mini, .bewerk')) b.addEventListener('click', bewerk);
   };
   const bewerk = async () => {
     const nr = card.querySelector('.pf-k-nr').textContent;
-    const velden = await PfBlad.bewerk({ beeld: card.pfBeeld, verhouding: card.pfBlad.verhouding, velden: card.pfBlad.velden }, {
+    const velden = await PfBlad.bewerk({ beeld: card.pfBeeld, verhouding: card.pfBlad.verhouding, velden: card.pfBlad.velden, woorden: card.pfBlad.woorden }, {
       titel: `Blad ${nr}`, nr, niveau: $('a-level').value, ai: hasKey ? aiSleutel : null,
     });
     if (!velden) return;
     card.pfBlad.velden = velden;
+    card.pfBlad.woorden = velden.woorden || [];
     teken();
     preview();
   };
@@ -728,6 +852,7 @@ function leesKaart(card) {
     q.beeld = card.pfBeeld;
     q.verhouding = card.pfBlad.verhouding;
     q.velden = card.pfBlad.velden;
+    if (card.pfBlad.woorden && card.pfBlad.woorden.length) q.woorden = card.pfBlad.woorden;
     return q;
   }
   if (type === 'bron') {
@@ -737,6 +862,7 @@ function leesKaart(card) {
     return q;
   }
   q.vraag = waarde(card, '.e-vraag');
+  if (card.pfAudio) q.audio = card.pfAudio;
   const p = waarde(card, '.e-punten');
   if (p !== '') q.punten = p;
   const exact = card.querySelector(':scope > .pf-k-body .e-exact');
@@ -752,22 +878,53 @@ function leesKaart(card) {
     const juist = rijen.map((r, i) => (r.querySelector('.pf-juist input').checked ? i : -1)).filter(i => i >= 0);
     q.juist = juist.length > 1 ? juist : juist[0];
   } else if (type === 'juistfout') q.juist = waarde(card, '.e-jf') === 'J';
-  else if (type === 'invullen') q.tekst = waarde(card, '.e-tekst');
+  else if (type === 'invullen') {
+    q.tekst = waarde(card, '.e-tekst');
+    if (card.querySelector(':scope > .pf-k-body .e-bank').checked) {
+      q.bank = true;
+      q.extra = waarde(card, '.e-extra').split('/').map(w => w.trim()).filter(Boolean);
+    }
+  }
   else if (type === 'kort' || type === 'rekenen') {
     q.antwoord = waarde(card, '.e-antwoord');
     q.eenheid = waarde(card, '.e-eenheid');
     if (type === 'rekenen') q.werkPunten = waarde(card, '.e-werkpunten');
+    q.breuk = card.querySelector(':scope > .pf-k-body .e-breuk').checked;
+    q.vereenvoudigd = q.breuk && card.querySelector(':scope > .pf-k-body .e-vv').checked;
   } else if (type === 'verbinden') q.paren = regels(waarde(card, '.e-lijst')).map(l => split(l, '='));
   else if (type === 'ordenen') q.items = regels(waarde(card, '.e-lijst'));
-  else if (type === 'tabel') q.rijen = regels(waarde(card, '.e-lijst')).map(l => l.split('|').map(c => c.trim()));
+  else if (type === 'tabel') q.rijen = regels(waarde(card, '.e-lijst')).map(cellenVan);
   else if (type === 'aanduiden') {
     q.zones = card.pfZones || [];
     q.verhouding = card.pfVerhouding;
+  } else if (type === 'getallenas') {
+    for (const k of ['min', 'max', 'stap', 'antwoord']) q[k] = waarde(card, `.e-${k}`);
+    q.getallen = waarde(card, '.e-getallen');
+    q.breuk = card.querySelector(':scope > .pf-k-body .e-breuk').checked;
+  } else if (type === 'markeren') q.tekst = waarde(card, '.e-tekst');
+  else if (type === 'tekenen') {
+    q.verhouding = card.pfBeeld ? card.pfVerhouding : Number(waarde(card, '.e-hoogte')) || 0.6;
+    q.model = waarde(card, '.e-model');
+  } else if (type === 'spreken') {
+    q.seconden = Number(waarde(card, '.e-seconden'));
+    q.model = waarde(card, '.e-model');
   } else if (type === 'open' || type === 'papier') {
     q.model = waarde(card, '.e-model');
     if (type === 'open') q.regels = waarde(card, '.e-regels');
   }
   return q;
+}
+
+// Een rij van een tabel in cellen, gescheiden door |, maar niet binnen [fiets|velo] of {juist|fout}.
+function cellenVan(regel) {
+  const out = [''];
+  let diep = 0;
+  for (const c of regel) {
+    if (c === '[' || c === '{') diep++;
+    if (c === ']' || c === '}') diep = Math.max(0, diep - 1);
+    if (c === '|' && !diep) out.push(''); else out[out.length - 1] += c;
+  }
+  return out.map(c => c.trim());
 }
 
 function leesLijst(box) {
@@ -876,8 +1033,16 @@ function openEditor(t, file) {
   showNiveau('schildknaap');
 }
 
-$('e-add').innerHTML = `${PfKern.TYPES.filter(t => t !== 'blad').map(t => `<button class="secondary" data-type="${t}">+ ${PfKern.NAMES[t]}</button>`).join('')}
-  <label class="file-button secondary">+ Bladen uit een pdf<input type="file" id="e-add-blad" accept="application/pdf,image/*" hidden></label>`;
+// Vraag toevoegen: in groepjes, met een icoon en een zinnetje, zodat je meteen ziet wat elke soort doet.
+const ADD_GROEPEN = [
+  ['Kiezen', [['meerkeuze', 'Eén of meer juiste keuzes'], ['juistfout', 'Juist of fout'], ['verbinden', 'Wat hoort bij elkaar?'], ['ordenen', 'In de juiste volgorde']]],
+  ['Typen', [['invullen', 'Gaten of keuzelijstjes in een tekst'], ['kort', 'Een woord of getal'], ['rekenen', 'Bewerking en uitkomst'], ['tabel', 'Cellen in een tabel']]],
+  ['Aanduiden', [['aanduiden', 'Een plek op een afbeelding'], ['getallenas', 'Een getal op de getallenas'], ['markeren', 'Woorden in een tekst']]],
+  ['Maken', [['tekenen', 'Tekenen, op een afbeelding of leeg'], ['spreken', 'Een antwoord inspreken'], ['open', 'Een open vraag'], ['papier', 'Een opdracht op papier']]],
+  ['Meer', [['bron', 'Een tekst of prent met deelvragen']]],
+];
+$('e-add').innerHTML = `${ADD_GROEPEN.map(([kop, lijst]) => `<div class="pf-add-groep"><b>${kop}</b>${lijst.map(([t, uitleg]) => `<button class="pf-add-k" data-type="${t}"><span class="pf-add-ic">${TYPE_ICONS[t]}</span><span><strong>${PfKern.NAMES[t]}</strong><small>${uitleg}</small></span></button>`).join('')}
+  ${kop === 'Meer' ? '<label class="pf-add-k file-button"><span class="pf-add-ic">📄</span><span><strong>Bladen uit een pdf</strong><small>Je blad zoals het is, met vakjes</small></span><input type="file" id="e-add-blad" accept="application/pdf,image/*" hidden></label>' : ''}</div>`).join('')}`;
 $('e-add-blad').addEventListener('change', async e => {
   const f = e.target.files[0];
   e.target.value = '';
@@ -902,7 +1067,21 @@ for (const b of $('e-add').querySelectorAll('button[data-type]')) {
 $('editor').addEventListener('input', e => { if (e.target.closest('.pf-vragen') || ['e-title', 'e-intro'].includes(e.target.id)) preview(); });
 $('editor').addEventListener('change', e => { if (e.target.closest('.pf-vragen')) preview(); });
 
-$('new-empty').addEventListener('click', () => openEditor({ title: '', vragen: [{ type: 'meerkeuze', vraag: '' }] }, null));
+$('new-empty').addEventListener('click', () => {
+  openEditor({ title: '', vragen: [] }, null);
+  $('e-title').focus();
+});
+// De vier manieren om te beginnen op het startscherm van De Proef.
+for (const k of document.querySelectorAll('#pf-start [data-start]')) {
+  k.addEventListener('click', () => {
+    const w = k.dataset.start;
+    if (w === 'leeg') return $('new-empty').click();
+    if (w === 'bewerk') return $('toets-list').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    document.querySelector(`input[name="a-modus"][value="${w}"]`).checked = true;
+    $('a-modus').dispatchEvent(new Event('change', { bubbles: true }));
+    $('new-ai').click();
+  });
+}
 
 function save(then, fail) {
   socket.emit('pf-save', { toets: readEditor(), file: editingFile }, res => {
@@ -1236,8 +1415,11 @@ function standVan(s) {
 function antwoordTekst(q, a) {
   if (a === undefined || a === null || a === '') return '<em class="muted">niet ingevuld</em>';
   if (q.type === 'rekenen') return `<div class="pf-werk-antw">${esc(a.werk || '').replace(/\n/g, '<br>') || '<em class="muted">geen bewerking</em>'}</div><p>Uitkomst: <strong>${esc(a.uitkomst || '–')}</strong> ${q.eenheid && !String(a.uitkomst || '').includes(q.eenheid) ? esc(q.eenheid) : ''}</p>`;
+  if (q.type === 'tekenen') return `<div class="pf-teken-wrap klein" style="aspect-ratio:${1 / (q.verhouding || 0.6)}">${q.beeld ? `<img src="${esc(q.beeld)}" alt="">` : ''}<img class="pf-tekening" src="${esc(a)}" alt="Tekening"></div>`;
+  if (q.type === 'spreken') return `<audio controls preload="none" src="${esc(a)}"></audio>`;
   if (q.type === 'blad') {
-    const rijen = q.velden.map((f, k) => (f.soort === 'open' ? `<p><b>Vak ${k + 1}:</b> ${a[k] ? esc(a[k]).replace(/\n/g, '<br>') : '<em class="muted">leeg</em>'}</p>` : '')).join('');
+    const rijen = q.velden.map((f, k) => (f.soort === 'open' ? `<p><b>Vak ${k + 1}:</b> ${a[k] ? esc(a[k]).replace(/\n/g, '<br>') : '<em class="muted">leeg</em>'}</p>`
+      : f.soort === 'teken' ? `<p><b>Vak ${k + 1}:</b> ${a[k] ? `<img class="pf-vak-tekening" src="${esc(a[k])}" alt="Tekening">` : '<em class="muted">leeg</em>'}</p>` : '')).join('');
     return rijen || esc(antwoordKort(q, a));
   }
   if (typeof a === 'object') return esc(antwoordKort(q, a));
@@ -1256,7 +1438,11 @@ function antwoordKort(q, a) {
   if (q.type === 'verbinden') return q.paren.map((p, k) => `${p[0]} = ${a[k] === null || a[k] === undefined ? '…' : q.paren[a[k]][1]}`).join(' · ');
   if (q.type === 'ordenen') return a.map(i => q.items[i]).join(' → ');
   if (q.type === 'aanduiden') return 'een plek op de afbeelding';
-  if (q.type === 'blad') return q.velden.map((f, k) => (a[k] === true ? `${k + 1}: ✗` : a[k] ? `${k + 1}: ${a[k]}` : '')).filter(Boolean).join(' · ');
+  if (q.type === 'getallenas') return PfKern.asTekst(Number(a), q.breuk);
+  if (q.type === 'markeren') { const w = PfKern.woordenVan(q.tekst); return a.map(i => (w.find(x => x.w === i) || {}).t || '?').join(' · '); }
+  if (q.type === 'tekenen') return 'een tekening';
+  if (q.type === 'spreken') return 'een opname';
+  if (q.type === 'blad') return q.velden.map((f, k) => (a[k] === true ? `${k + 1}: ✗` : f.soort === 'teken' && a[k] ? `${k + 1}: tekening` : a[k] ? `${k + 1}: ${a[k]}` : '')).filter(Boolean).join(' · ');
   return String(a).slice(0, 200);
 }
 
@@ -1450,14 +1636,14 @@ function renderAnalyse() {
       if (!max) continue;
       if (q.type === 'blad') {
         q.velden.forEach((f, k) => {
-          if (f.soort === 'kruis' || f.soort === 'open') return;
+          if (!PfKern.AUTO_VELD.has(f.soort)) return;
           const fout = new Map();
           let juist = 0;
           let leeg = 0;
           for (const s of spelers) {
             const x = (s.antwoorden[id] || [])[k];
             if (x === undefined || x === null || x === '') { leeg++; continue; }
-            const ok = f.soort === 'kies' ? x === f.antwoord : PfKern.zelfde(f.antwoord, x, { eenheid: f.eenheid });
+            const ok = PfKern.vakGoed(q, s.antwoorden[id] || [])[k];
             if (ok) juist++; else fout.set(String(x).trim(), (fout.get(String(x).trim()) || 0) + 1);
           }
           items.push({ nr: `${nr} · vak ${k + 1}`, juist, n: spelers.length, leeg, fout, sleutel: PfKern.veldSleutel(q)[k] });

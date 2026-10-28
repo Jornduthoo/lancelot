@@ -31,9 +31,16 @@
       <h2>De Proef · Mijn toetsen</h2>
       <div class="actions">
         <button class="secondary" id="to-home">Terug</button>
-        <button class="secondary" id="new-empty">Lege toets</button>
-        <button id="new-ai">Nieuwe toets met AI</button>
+        <button class="secondary hidden" id="new-empty">Lege toets</button>
+        <button class="hidden" id="new-ai">Nieuwe toets met AI</button>
       </div>
+    </div>
+    <div class="pf-start" id="pf-start">
+      <button class="pf-start-k" data-start="blad"><span class="pf-start-ic">📄</span><strong>Mijn pdf zoals hij is</strong><small>Je toets met alle figuren. De leerlingen typen, kruisen en tekenen in vakjes op het blad.</small></button>
+      <button class="pf-start-k" data-start="over"><span class="pf-start-ic">🔁</span><strong>Mijn toets als losse vragen</strong><small>De AI zet je pdf om naar digitale vragen, één per scherm.</small></button>
+      <button class="pf-start-k" data-start="nieuw"><span class="pf-start-ic">✨</span><strong>Laat de AI een toets maken</strong><small>Over je lesstof, een onderwerp of je doelen.</small></button>
+      <button class="pf-start-k" data-start="leeg"><span class="pf-start-ic">✏️</span><strong>Zelf van nul</strong><small>Kies zelf je vragen: keuzes, invullen, getallenas, tekenen, inspreken…</small></button>
+      <button class="pf-start-k" data-start="bewerk"><span class="pf-start-ic">📂</span><strong>Een toets bewerken</strong><small>Kies hieronder een toets en klik op ✏️.</small></button>
     </div>
     <div class="panel tw-intro">
       <img class="game-logo" src="/img/icons/proef.webp" alt="">
@@ -90,7 +97,7 @@
   <!-- ---------- Maken met AI ---------- -->
   <section id="maker" class="hidden">
     <div class="bar">
-      <h2>Nieuwe toets met AI</h2>
+      <h2>Nieuwe toets</h2>
       <button class="secondary" data-back="list">Terug</button>
     </div>
     <div class="panel form">
@@ -131,6 +138,10 @@
         <label class="inline check"><input type="checkbox" value="tabel"> Tabel invullen</label>
         <label class="inline check"><input type="checkbox" value="bron"> Bron met deelvragen</label>
         <label class="inline check"><input type="checkbox" value="aanduiden"> Aanduiden op een afbeelding</label>
+        <label class="inline check"><input type="checkbox" value="getallenas"> Getallenas</label>
+        <label class="inline check"><input type="checkbox" value="markeren"> Woorden aanduiden in een tekst</label>
+        <label class="inline check"><input type="checkbox" value="tekenen"> Tekenen</label>
+        <label class="inline check"><input type="checkbox" value="spreken"> Inspreken</label>
         <label class="inline check"><input type="checkbox" value="open"> Open vragen</label>
       </div>
       <label class="inline check"><input type="checkbox" id="a-niveaus"> Op drie niveaus: 🪶 Page (met hulp), 🛡️ Schildknaap (het doel) en ⚔️ Ridder (uitdaging)</label>
@@ -324,7 +335,9 @@
 <script src="/js/quiz-list.js"></script>
 <script src="/js/doel-kies.js"></script>
 <script src="/js/niveau.js"></script>
+<script src="/js/voorlees.js"></script>
 <script src="/js/pf-kern.js"></script>
+<script src="/js/pf-media.js"></script>
 <script src="/js/pf-paper.js"></script>
 <script src="/js/pf-knip.js"></script>
 <script src="/js/pf-blad.js"></script>
