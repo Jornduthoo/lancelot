@@ -142,7 +142,9 @@ async function syncKind(kind, root, state, count) {
   } else meta = lm || rm;
   if (meta) {
     const place = {};
-    for (const [file, f] of Object.entries(meta.place)) if (next[file] && meta.folders.includes(f)) place[file] = f;
+    // Ook een bestand dat pas tijdens deze ronde binnenkwam (bv. een import) houdt zijn map.
+    const exists = file => next[file] || fs.existsSync(path.join(local, file));
+    for (const [file, f] of Object.entries(meta.place)) if (FILE_RE.test(file) && exists(file) && meta.folders.includes(f)) place[file] = f;
     const text = JSON.stringify({ folders: meta.folders, place }, null, 2) + '\n';
     if (!lm || lm.text !== text) { await write(local, META, text); changedHere = true; }
     if (!rm || rm.text !== text) await write(remote, META, text);
