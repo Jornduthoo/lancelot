@@ -106,6 +106,11 @@ function blad(t, niveau) {
   return bladen.get(k);
 }
 
+// Het niveau bij het geven: het vaste niveau van de taak, of het eigen niveau van de leerling.
+function startNiveau(t, naam) {
+  return t.niveau || niveauVoor(t.soort, t.inhoud, t.vak, naam);
+}
+
 // De vragen van een quiz voor deze leerling, als nummers: alleen die van zijn niveau, door elkaar.
 function volgordeVoor(t, naam, niveau) {
   const quiz = t.inhoud;
@@ -134,7 +139,7 @@ function voorbeeld({ soort, file } = {}) {
   return { titel: inhoud.title, vak, niveaus, per };
 }
 
-function maak({ soort, file, namen, feedback, spel, minuten } = {}) {
+function maak({ soort, file, namen, feedback, spel, minuten, niveau } = {}) {
   const inhoud = laad(soort, file);
   const lijst = [...new Set((Array.isArray(namen) ? namen : []).map(clean).filter(Boolean))];
   if (!lijst.length) throw new Error('Kies minstens één leerling.');
@@ -144,7 +149,9 @@ function maak({ soort, file, namen, feedback, spel, minuten } = {}) {
     feedback: feedback === 'inleveren' ? 'inleveren' : 'direct', gemaakt: new Date().toISOString(), dicht: false, inhoud, werk: {},
   };
   if (soort === 'quiz' && SOLO[spel]) Object.assign(t, { spel, minuten: MINUTEN.includes(Number(minuten)) ? Number(minuten) : 5 });
-  for (const naam of lijst) t.werk[key(naam)] = nieuwWerk(t, naam, niveauVoor(soort, inhoud, vak, naam));
+  // De leerkracht kan iedereen op één niveau zetten (bv. de hele klas eens Page), anders elk zijn eigen niveau.
+  if (niveausVan(soort, inhoud).length > 1 && niveausVan(soort, inhoud).includes(niveau)) t.niveau = niveau;
+  for (const naam of lijst) t.werk[key(naam)] = nieuwWerk(t, naam, startNiveau(t, naam));
   const list = all();
   list.unshift(t);
   // Niet eindeloos bijhouden: de oudste afgesloten taken vallen weg (hun antwoorden staan in het logboek).
@@ -162,7 +169,7 @@ function voegToe({ id, namen } = {}) {
   let n = 0;
   for (const naam of (Array.isArray(namen) ? namen : []).map(clean).filter(Boolean)) {
     if (t.werk[key(naam)]) continue;
-    t.werk[key(naam)] = nieuwWerk(t, naam, niveauVoor(t.soort, t.inhoud, t.vak, naam));
+    t.werk[key(naam)] = nieuwWerk(t, naam, startNiveau(t, naam));
     n++;
   }
   t.dicht = false;
@@ -234,7 +241,7 @@ function voortgang(t, w) {
 function lijst() {
   return all().map(t => ({
     id: t.id, soort: t.soort, titel: t.titel, vak: t.vak, feedback: t.feedback, gemaakt: t.gemaakt, dicht: t.dicht, spel: spelVan(t),
-    niveaus: niveausVan(t.soort, t.inhoud),
+    niveaus: niveausVan(t.soort, t.inhoud), niveau: t.niveau || null,
     leerlingen: Object.values(t.werk).map(w => ({ naam: w.naam, niveau: w.niveau, status: w.status, klaar: w.klaar, ...voortgang(t, w) }))
       .sort((a, b) => a.naam.localeCompare(b.naam, 'nl')),
   }));

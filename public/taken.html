@@ -32,13 +32,16 @@
 
   <section class="panel form tk-nieuw">
     <h2><i class="ic ic-taak" aria-hidden="true"></i> Nieuwe taak</h2>
-    <p class="muted small">Geef een oefenblad of quiz aan een of meer leerlingen. Elke leerling krijgt het op zijn eigen niveau uit Mijn klas en werkt eraan in zijn eigen tempo: op zijn toestel bij <b>Mijn taken</b>. Er hoeft geen spel te lopen.</p>
+    <p class="muted small">Geef een oefenblad of quiz aan een of meer leerlingen. Elke leerling krijgt het op zijn eigen niveau uit Mijn klas (of je kiest één niveau voor iedereen) en werkt eraan in zijn eigen tempo: op zijn toestel bij <b>Mijn taken</b>. Er hoeft geen spel te lopen.</p>
     <div class="tk-soort" role="tablist">
       <button type="button" class="on" data-soort="oefenblad"><img src="/img/icons/oefenblad.webp" alt=""> Oefenblad</button>
       <button type="button" data-soort="quiz"><img src="/img/icons/toernooi.webp" alt=""> Quiz</button>
     </div>
     <div class="row">
       <label>Wat?<select id="tk-bron"></select></label>
+      <label id="tk-nv-label" class="hidden" title="Bijvoorbeeld de hele klas eens Page geven, ook wie op Ridder staat">Op welk niveau?
+        <select id="tk-niveau"></select>
+      </label>
       <label id="tk-fb-label">Verbeteren
         <select id="tk-feedback">
           <option value="direct">Meteen (groen of rood)</option>
