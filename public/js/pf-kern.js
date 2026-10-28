@@ -28,6 +28,7 @@
 //               teken = een vak om in te tekenen (de leerkracht verbetert), luister = een knop die audio afspeelt (geen antwoord)
 //               breuk = teller boven noemer, sleep = de leerling sleept er een woord in (uit alle sleepwoorden van het blad + woorden: [foute keuzes])
 //               plek = aanduiden: de leerling tikt in het vak een plek aan; doel: { x, y, r } (procent van het vak; r van de breedte)
+//               lijn = verbinden: de leerling trekt een lijn van het bolletje (het vak) naar een plek op het blad; naar: { x, y } (procent van het blad), r: hoe dicht (procent van de breedte)
 //               vlak = een gekleurd vlak dat iets op het blad bedekt (kleur), notitie = tekst van de leerkracht op het blad (tekst)
 //               kruisjes met dezelfde groep tellen samen: alleen goed als precies de juiste aangekruist zijn
 //               rond = een bolletje (meerkeuze: de leerling kiest er één per groep), label = een letter op het hokje (A, B, J, F)
@@ -52,11 +53,11 @@
   const MAX_VRAGEN = 80;
   const MAX_DEEL = 15;
   const MAX_VELDEN = 80;
-  const SOORTEN = ['tekst', 'kruis', 'kies', 'open', 'teken', 'luister', 'breuk', 'sleep', 'vlak', 'notitie', 'plek'];
+  const SOORTEN = ['tekst', 'kruis', 'kies', 'open', 'teken', 'luister', 'breuk', 'sleep', 'vlak', 'notitie', 'plek', 'lijn'];
   // Vakjes zonder antwoord: ze staan alleen op het blad.
   const GEEN_ANTWOORD = new Set(['luister', 'vlak', 'notitie']);
   // Vakjes die de computer verbetert met een getypt of gekozen antwoord.
-  const AUTO_VELD = new Set(['tekst', 'kies', 'breuk', 'sleep', 'plek']);
+  const AUTO_VELD = new Set(['tekst', 'kies', 'breuk', 'sleep', 'plek', 'lijn']);
   const KLEUREN = ['#ffffff', '#fff3b0', '#d8ecff', '#e4e4e4', '#ffd9d9'];
   // Wat de leerkracht verbetert op een blad.
   const HAND_VELD = new Set(['open', 'teken']);
@@ -295,6 +296,11 @@
         const d = f.doel && typeof f.doel === 'object' ? f.doel : null;
         if (d) veld.doel = { x: pct(d.x), y: pct(d.y), r: Math.max(2, Math.min(100, pct(d.r) || 12)) };
         veld.punten = punt(f.punten, 1);
+      } else if (soort === 'lijn') {
+        const n = f.naar && typeof f.naar === 'object' ? f.naar : null;
+        if (n) veld.naar = { x: pct(n.x), y: pct(n.y) };
+        veld.r = Math.max(0.5, Math.min(20, pct(f.r) || 3));
+        veld.punten = punt(f.punten, 1);
       } else if (soort === 'teken') {
         const antwoord = text(f.antwoord, 1000);
         if (antwoord) veld.antwoord = antwoord;
@@ -388,7 +394,7 @@
           if (v.type === 'blad' && v.velden.some(f => f.soort === 'luister' && !f.audio && !f.tekst)) out.push(`${tag}blad ${nr}: een luisterknop heeft nog geen opname`);
           if (v.type === 'blad' && !v.velden.length) out.push(`${tag}blad ${nr}: zet invulvakjes op het blad`);
           if (v.type === 'blad') {
-            const zonder = v.velden.map((f, k) => (((f.soort === 'tekst' || f.soort === 'breuk' || f.soort === 'sleep') && !alts(f.antwoord).length) || (f.soort === 'kies' && (f.opties.length < 2 || !f.opties.includes(f.antwoord))) ? k + 1 : 0)).filter(Boolean);
+            const zonder = v.velden.map((f, k) => (((f.soort === 'tekst' || f.soort === 'breuk' || f.soort === 'sleep') && !alts(f.antwoord).length) || (f.soort === 'kies' && (f.opties.length < 2 || !f.opties.includes(f.antwoord))) || (f.soort === 'lijn' && !f.naar) ? k + 1 : 0)).filter(Boolean);
             if (zonder.length) out.push(`${tag}blad ${nr}: vakje ${zonder.slice(0, 6).join(', ')}${zonder.length > 6 ? ', …' : ''} ${zonder.length > 1 ? 'hebben' : 'heeft'} nog geen antwoord`);
           }
         }
@@ -580,6 +586,13 @@
     return Math.hypot(dx, dy) <= (f.doel.r / 100) * f.w;
   }
 
+  // Verbinden: het eindpunt van de lijn ("x,y" in procent van het blad) dicht genoeg bij de juiste plek?
+  function lijnGoed(f, a, verhouding = 1.414) {
+    const m = /^(-?[\d.]+),(-?[\d.]+)$/.exec(String(a || ''));
+    if (!m || !f.naar) return false;
+    return Math.hypot(Number(m[1]) - f.naar.x, (Number(m[2]) - f.naar.y) * verhouding) <= (f.r || 3);
+  }
+
   // Per vakje van een blad: goed (true), fout (false) of null (open vak, hokje). ov: wat de leerkracht zelf aanduidde.
   function vakGoed(q, a, ov = {}) {
     const b = Array.isArray(a) ? a : [];
@@ -588,6 +601,7 @@
       if (ov[k] === true || ov[k] === false) return ov[k];
       if (f.soort === 'kies') return b[k] === f.antwoord;
       if (f.soort === 'plek') return plekGoed(f, b[k], q.verhouding);
+      if (f.soort === 'lijn') return lijnGoed(f, b[k], q.verhouding);
       if (f.soort === 'sleep') return alts(f.antwoord).includes(String(b[k] || ''));
       return zelfde(f.antwoord, b[k], f);
     });
@@ -683,7 +697,7 @@
   // "36 cm", maar geen "36 cm cm" als de eenheid al in het antwoord staat.
   const metEenheid = (a, e) => (e && !String(a || '').toLowerCase().includes(e.toLowerCase()) ? `${a} ${e}` : String(a || ''));
   // Het juiste antwoord per vakje van een blad: tekst, ✗ (aankruisen) of leeg.
-  const veldSleutel = q => q.velden.map(f => (f.soort === 'kruis' ? (f.antwoord ? '✗' : '') : f.soort === 'plek' ? (f.doel ? '📍' : '') : GEEN_ANTWOORD.has(f.soort) ? '' : f.soort === 'tekst' || f.soort === 'breuk' ? metEenheid(alts(f.antwoord)[0] || '', f.eenheid) : f.soort === 'sleep' ? (alts(f.antwoord)[0] || '') : (f.antwoord || '')));
+  const veldSleutel = q => q.velden.map(f => (f.soort === 'kruis' ? (f.antwoord ? '✗' : '') : f.soort === 'plek' ? (f.doel ? '📍' : '') : f.soort === 'lijn' ? (f.naar ? '↗' : '') : GEEN_ANTWOORD.has(f.soort) ? '' : f.soort === 'tekst' || f.soort === 'breuk' ? metEenheid(alts(f.antwoord)[0] || '', f.eenheid) : f.soort === 'sleep' ? (alts(f.antwoord)[0] || '') : (f.antwoord || '')));
 
   // Het juiste antwoord als tekst, voor het verbeterblad en de leerkracht.
   function oplossing(q) {
@@ -728,6 +742,6 @@
   return {
     TYPES, NAMES, MANUEEL, NIVEAUS, MAX_BEELD, validate, problemen, vragenVan, niveausVan, lijstVoor,
     maxVan, autoPunten, handPunten, totaal, viewOf, studentView, partsOf, getal, zelfde, canoniek, auto, schoon, oplossing, schud, alts, gapsOf,
-    waarschuwingen, veldSleutel, vakGoed, metEenheid, volgorde, SOORTEN, HAND_VELD, woordenVan, doelenVan, asTekst, MAX_AUDIO, celGat, vereenvoudigd, GEEN_ANTWOORD, AUTO_VELD, KLEUREN,
+    waarschuwingen, veldSleutel, vakGoed, lijnGoed, metEenheid, volgorde, SOORTEN, HAND_VELD, woordenVan, doelenVan, asTekst, MAX_AUDIO, celGat, vereenvoudigd, GEEN_ANTWOORD, AUTO_VELD, KLEUREN,
   };
 });

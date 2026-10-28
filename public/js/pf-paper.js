@@ -172,8 +172,10 @@ const PfPaper = (() => {
       // Met een oordeel (verbeteren) alleen de sleutel bij een fout vakje, anders staat alles vol rood.
       // Bij aanduiden toont de sleutel de juiste plek als cirkel (als het vak die kent).
       const zone = sleutel && f.soort === 'plek' && f.doel ? `<i class="pf-plek-doel" style="left:${f.x + (f.doel.x * f.w) / 100}%;top:${f.y + (f.doel.y * f.h) / 100}%;width:${(2 * f.doel.r * f.w) / 100}%"></i>` : '';
+      const zoneLijn = sleutel && f.soort === 'lijn' && f.naar ? `<i class="pf-plek-doel" style="left:${f.naar.x}%;top:${f.naar.y}%;width:${2 * (f.r || 3)}%"></i>` : '';
       if (f.soort === 'plek' && print) return zone;
-      const s = f.soort === 'plek' ? zone : sleutel && sleutel[k] && !(oordeel && oordeel.goed[k] !== false) ? `<span class="pf-veld-sleutel${b[k] ? '' : ' in'}" style="left:${f.x}%;top:${b[k] ? f.y + f.h : f.y}%;${b[k] ? '' : `width:${f.w}%;height:${f.h}%;`}">${esc(sleutel[k])}</span>` : '';
+      if (f.soort === 'lijn' && print) return `<span class="pf-veld lijn" style="left:${f.x}%;top:${f.y}%;width:${f.w}%;height:${f.h}%"></span>${zoneLijn}`;
+      const s = f.soort === 'plek' ? zone : f.soort === 'lijn' ? zoneLijn : sleutel && sleutel[k] && !(oordeel && oordeel.goed[k] !== false) ? `<span class="pf-veld-sleutel${b[k] ? '' : ' in'}" style="left:${f.x}%;top:${b[k] ? f.y + f.h : f.y}%;${b[k] ? '' : `width:${f.w}%;height:${f.h}%;`}">${esc(sleutel[k])}</span>` : '';
       if (f.soort === 'vlak') return `<i class="pf-vlak" style="left:${f.x}%;top:${f.y}%;width:${f.w}%;height:${f.h}%;background:${esc(f.kleur || '#fff')}"></i>`;
       if (f.soort === 'notitie') return `<span class="pf-notitie" style="${pos}">${esc(f.tekst || '').replace(/\n/g, '<br>')}</span>`;
       if (print) return s;
@@ -181,9 +183,19 @@ const PfPaper = (() => {
       const knop = g === null || g === undefined ? '' : `<button type="button" class="pf-vak-oordeel ${g ? 'goed' : 'fout'}${oordeel.zelf[k] !== undefined ? ' zelf' : ''}" data-id="${esc(q.id)}" data-k="${k}" style="left:${f.x + f.w}%;top:${f.y}%" title="Klik om ${g ? 'fout' : 'goed'} te zetten">${g ? '✔' : '✘'}</button>`;
       return veldEl(f, k, pos, g) + knop + s;
     }).join('');
+    // Verbinden: de lijnen van de leerling (en bij de sleutel de juiste lijn, gestreept).
+    const lijnen = q.velden.map((f, k) => {
+      if (f.soort !== 'lijn') return '';
+      const x1 = f.x + f.w / 2;
+      const y1 = f.y + f.h / 2;
+      const m = /^(-?[\d.]+),(-?[\d.]+)$/.exec(String(b[k] || ''));
+      return (sleutel && f.naar ? `<line class="sleutel" x1="${x1}" y1="${y1}" x2="${f.naar.x}" y2="${f.naar.y}" vector-effect="non-scaling-stroke"/>` : '')
+        + (m && !print ? `<line class="ant" data-k="${k}" x1="${x1}" y1="${y1}" x2="${m[1]}" y2="${m[2]}" vector-effect="non-scaling-stroke"/>` : '');
+    }).join('');
+    const svg = q.velden.some(f => f.soort === 'lijn') ? `<svg class="pf-lijnen" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${lijnen}</svg>` : '';
     const bank = bankHtml(q.bank, live, print);
     return `${live ? '<p class="pf-tip pf-blad-tip">Typ je antwoorden in de vakjes op het blad. <button type="button" class="link pf-groter">🔍 Groter</button></p>' : ''}${bank}
-      <div class="pf-blad-wrap"><div class="pf-blad-vel" style="aspect-ratio:${Math.round((1 / v) * 10000) / 10000}">${q.beeld ? `<img src="${esc(q.beeld)}" alt="" draggable="false">` : ''}${velden}</div></div>`;
+      <div class="pf-blad-wrap"><div class="pf-blad-vel" style="aspect-ratio:${Math.round((1 / v) * 10000) / 10000}">${q.beeld ? `<img src="${esc(q.beeld)}" alt="" draggable="false">` : ''}${svg}${velden}</div></div>`;
 
     function veldEl(f, k, pos, g) {
       const kl = g === true ? ' goed' : g === false ? ' fout' : '';
@@ -204,6 +216,7 @@ const PfPaper = (() => {
         const [px, py] = String(b[k] || '').split(',').map(Number);
         return `<div class="pf-veld plek${kl}${live ? '' : ' kijk'}" data-k="${k}" data-waarde="${esc(b[k] || '')}" style="left:${f.x}%;top:${f.y}%;width:${f.w}%;height:${f.h}%" title="Tik de juiste plek aan">${b[k] ? `<i class="pf-plek-pin" style="left:${px}%;top:${py}%"></i>` : ''}</div>`;
       }
+      if (f.soort === 'lijn') return live ? `<button type="button" class="pf-veld lijn" data-k="${k}" data-waarde="${esc(b[k] || '')}" style="left:${f.x}%;top:${f.y}%;width:${f.w}%;height:${f.h}%" title="Sleep een lijn naar de juiste plek" aria-label="Verbinden"></button>` : `<span class="pf-veld lijn${kl}" data-k="${k}" data-waarde="${esc(b[k] || '')}" style="left:${f.x}%;top:${f.y}%;width:${f.w}%;height:${f.h}%"></span>`;
       if (f.soort === 'kies') return `<select class="pf-veld kies${kl}" data-k="${k}" style="${pos}"${live ? '' : ' disabled'}><option value=""></option>${(f.opties || []).map(x => `<option${b[k] === x ? ' selected' : ''}>${esc(x)}</option>`).join('')}</select>`;
       if (f.soort === 'open') return `<textarea class="pf-veld open${kl}" data-k="${k}" style="${pos}" spellcheck="false"${ro}>${esc(b[k] ?? '')}</textarea>`;
       return `<input class="pf-veld${kl}" data-k="${k}" style="${pos}" autocomplete="off" autocapitalize="off" spellcheck="false" value="${esc(b[k] ?? '')}"${ro}>`;
@@ -353,7 +366,7 @@ const PfPaper = (() => {
         const k = Number(f.dataset.k);
         if (f.classList.contains('kruis')) out[k] = f.classList.contains('on') ? true : null;
         else if (f.classList.contains('teken')) out[k] = f.pfWaarde || null;
-        else if (f.classList.contains('sleep') || f.classList.contains('plek')) out[k] = f.dataset.waarde || null;
+        else if (f.classList.contains('sleep') || f.classList.contains('plek') || f.classList.contains('lijn')) out[k] = f.dataset.waarde || null;
         else if (f.classList.contains('breuk')) {
           const t = f.querySelector('.teller').value.trim();
           const n = f.querySelector('.noemer').value.trim();
@@ -406,6 +419,65 @@ const PfPaper = (() => {
           v.innerHTML = `<i class="pf-plek-pin" style="left:${x}%;top:${y}%"></i>`;
           send(el);
         });
+      }
+      // Verbinden op een blad: sleep van het bolletje naar de juiste plek. Een tik op het bolletje haalt de lijn weg.
+      for (const v of el.querySelectorAll('button.pf-veld.lijn')) {
+        const vel = v.closest('.pf-blad-vel');
+        const svg = vel && vel.querySelector('.pf-lijnen');
+        if (!svg) continue;
+        const k = v.dataset.k;
+        const x1 = parseFloat(v.style.left) + parseFloat(v.style.width) / 2;
+        const y1 = parseFloat(v.style.top) + parseFloat(v.style.height) / 2;
+        const punt = e => {
+          const r = vel.getBoundingClientRect();
+          return [Math.round(Math.min(100, Math.max(0, ((e.clientX - r.left) / r.width) * 100)) * 10) / 10, Math.round(Math.min(100, Math.max(0, ((e.clientY - r.top) / r.height) * 100)) * 10) / 10];
+        };
+        const lijn = () => {
+          let l = svg.querySelector(`line.ant[data-k="${k}"]`);
+          if (!l) {
+            l = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            l.setAttribute('class', 'ant');
+            l.dataset.k = k;
+            l.setAttribute('vector-effect', 'non-scaling-stroke');
+            l.setAttribute('x1', x1);
+            l.setAttribute('y1', y1);
+            svg.appendChild(l);
+          }
+          return l;
+        };
+        let trek = false;
+        v.addEventListener('pointerdown', e => {
+          if (e.button > 0) return;
+          e.preventDefault();
+          v.setPointerCapture(e.pointerId);
+          trek = true;
+        });
+        v.addEventListener('pointermove', e => {
+          if (!trek) return;
+          const [x, y] = punt(e);
+          const l = lijn();
+          l.setAttribute('x2', x);
+          l.setAttribute('y2', y);
+        });
+        const los = e => {
+          if (!trek) return;
+          trek = false;
+          const [x, y] = punt(e);
+          const r = vel.getBoundingClientRect();
+          if (Math.hypot(((x - x1) / 100) * r.width, ((y - y1) / 100) * r.height) < 12) {
+            const l = svg.querySelector(`line.ant[data-k="${k}"]`);
+            if (l) l.remove();
+            v.dataset.waarde = '';
+          } else {
+            const l = lijn();
+            l.setAttribute('x2', x);
+            l.setAttribute('y2', y);
+            v.dataset.waarde = `${x},${y}`;
+          }
+          send(el);
+        };
+        v.addEventListener('pointerup', los);
+        v.addEventListener('pointercancel', los);
       }
       el.addEventListener('pf-antwoord', () => send(el));
       for (const w of el.querySelectorAll('.pf-woord')) {
