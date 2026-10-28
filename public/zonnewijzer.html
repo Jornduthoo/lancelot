@@ -118,14 +118,19 @@
         <label id="zw-ed-les-label" class="hidden">Les <select id="zw-ed-les"></select></label>
         <p class="muted small zw-ed-voorstel-info" id="zw-ed-voorstel-info"></p>
       </div>
+      <div class="zw-ed-mijn hidden" id="zw-ed-mijn">
+        <label>📂 Uit Mijn lessen <select id="zw-ed-mijn-kies"></select></label>
+        <button type="button" class="secondary icon hidden" id="zw-ed-mijn-weg" title="Deze les uit Mijn lessen halen" aria-label="Uit Mijn lessen halen">🗑</button>
+      </div>
     </div>
 
     <label>Titel van de les <input id="zw-ed-naam" maxlength="120" placeholder="bijv. Breuken optellen"></label>
     <label>🎯 Ons doel, zoals de klas het op het bord ziet <textarea id="zw-ed-doel" rows="2" maxlength="300" placeholder="bijv. Vandaag leer ik breuken met een verschillende noemer optellen."></textarea></label>
     <div class="zw-ed-criteria">
       <div class="zw-ed-crit-kop"><strong>⭐ Succescriteria</strong> <span class="muted small">"Ik kan …"</span>
-        <button type="button" class="secondary small" id="zw-ed-voorstel" title="Een voorstel uit de gekozen leerplandoelen">✨ Voorstel uit de doelen</button>
+        <button type="button" class="secondary small" id="zw-ed-voorstel" title="Een voorstel voor het doel en de succescriteria, uit de leerplandoelen of uit de titel">✨ Help me invullen</button>
       </div>
+      <p class="muted small" id="zw-ed-crit-info"></p>
       <div id="zw-ed-crit"></div>
       <button type="button" class="secondary small" id="zw-ed-crit-plus"><i class="ic ic-plus" aria-hidden="true"></i> Criterium</button>
     </div>
@@ -137,6 +142,7 @@
     <p class="error" id="zw-ed-fout"></p>
     <div class="actions zw-ed-knoppen">
       <button type="button" class="secondary" id="zw-ed-schuif" title="Deze les en de volgende lessen van dit vak één uur opschuiven">⏭ Doorschuiven</button>
+      <button type="button" class="secondary" id="zw-ed-mijn-bewaar" title="Deze les bewaren om ze later opnieuw te kiezen, bv. elke week">⭐ In Mijn lessen</button>
       <button type="button" class="secondary" id="zw-ed-wis">Wissen</button>
       <button type="button" id="zw-ed-bewaar">Bewaren</button>
     </div>
