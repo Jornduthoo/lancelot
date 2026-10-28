@@ -1,11 +1,14 @@
 // De Wachtlijst in de Wapenkamer: de klastaken en wie ze deze week doet.
-// Bewaard naast de klaslijst in klas/klastaken.json (zit dus mee in elke back-up).
-// De server bewaart alleen; het scherm rekent uit wie welke taak heeft.
+// De taken en de beurt staan in klas/wachtlijst/klastaken.json: die map gaat mee met Mijn lesmap.
+// De volgorde van de leerlingen blijft op deze pc (klas/klastaken.json), want de klaslijst synchroniseert niet.
+// Alles zit in klas/, dus mee in elke back-up. De server bewaart alleen; het scherm rekent uit wie welke taak heeft.
 const fs = require('fs');
 const path = require('path');
 const gegevens = require('./gegevens');
 
 const FILE = path.join(gegevens.pad('klas'), 'klastaken.json');
+const DIR = path.join(gegevens.pad('klas'), 'wachtlijst');
+const GEDEELD = path.join(DIR, 'klastaken.json');
 const MAX_TAKEN = 20;
 
 const STANDAARD = [
@@ -23,19 +26,28 @@ function maandag(d = new Date()) {
   return m.toISOString().slice(0, 10);
 }
 
+const lees = file => { try { return JSON.parse(fs.readFileSync(file, 'utf8')); } catch { return null; } };
+
 function read() {
-  try {
-    const d = JSON.parse(fs.readFileSync(FILE, 'utf8'));
-    return {
-      taken: Array.isArray(d.taken) ? d.taken : STANDAARD,
-      volgorde: Array.isArray(d.volgorde) ? d.volgorde : [],
-      stap: Number.isInteger(d.stap) ? d.stap : 0,
-      sinds: typeof d.sinds === 'string' ? d.sinds : maandag(),
-      auto: d.auto !== false,
-    };
-  } catch {
-    return { taken: STANDAARD, volgorde: [], stap: 0, sinds: maandag(), auto: true };
-  }
+  const lokaal = lees(FILE) || {};
+  // Nog geen gedeeld bestand (van voor de lesmap): alles staat dan nog in het oude bestand.
+  const d = lees(GEDEELD) || lokaal;
+  return {
+    taken: Array.isArray(d.taken) ? d.taken : STANDAARD,
+    volgorde: Array.isArray(lokaal.volgorde) ? lokaal.volgorde : [],
+    stap: Number.isInteger(d.stap) ? d.stap : 0,
+    sinds: typeof d.sinds === 'string' ? d.sinds : maandag(),
+    auto: d.auto !== false,
+  };
+}
+
+// Bewaar alleen als er echt iets veranderde, zodat de lesmap geen lege wijzigingen ziet.
+function bewaar(file, data) {
+  const text = JSON.stringify(data, null, 2) + '\n';
+  if (fs.existsSync(file) && fs.readFileSync(file, 'utf8') === text) return;
+  fs.mkdirSync(path.dirname(file), { recursive: true });
+  fs.writeFileSync(`${file}.tmp`, text);
+  fs.renameSync(`${file}.tmp`, file);
 }
 
 function write(data = {}) {
@@ -44,16 +56,25 @@ function write(data = {}) {
     .filter(t => t.naam)
     .slice(0, MAX_TAKEN);
   const volgorde = (Array.isArray(data.volgorde) ? data.volgorde : []).filter(id => typeof id === 'string' && id.length <= 20).slice(0, 60);
-  const schoon = {
+  const gedeeld = {
     taken,
-    volgorde,
     stap: Number.isInteger(data.stap) ? data.stap % 10000 : 0,
     sinds: /^\d{4}-\d{2}-\d{2}$/.test(data.sinds) ? data.sinds : maandag(),
     auto: data.auto !== false,
   };
-  fs.mkdirSync(path.dirname(FILE), { recursive: true });
-  fs.writeFileSync(FILE, JSON.stringify(schoon, null, 2) + '\n');
-  return schoon;
+  bewaar(GEDEELD, gedeeld);
+  bewaar(FILE, { volgorde });
+  return { ...gedeeld, volgorde };
 }
 
-module.exports = { read, write };
+// Van voor de lesmap: de taken uit het oude bestand meteen naar de gedeelde map, zodat ze mee kunnen.
+if (!fs.existsSync(GEDEELD) && lees(FILE) && Array.isArray(lees(FILE).taken)) {
+  try { write(read()); } catch {}
+}
+
+// Voor Mijn lesmap: een bestand uit de lesmap moet een lijst taken hebben.
+function geldig(d) {
+  if (!d || typeof d !== 'object' || !Array.isArray(d.taken)) throw new Error('Ongeldig bestand.');
+}
+
+module.exports = { read, write, geldig, DIR };

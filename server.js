@@ -450,6 +450,8 @@ lesmap.init([
   { kind: 'zonnewijzer', dir: zonnewijzer.DIR, remote: 'zonnewijzer', validate: d => { if (!d || typeof d !== 'object' || Array.isArray(d)) throw new Error('Ongeldig bestand.'); } },
   // Taken: thuis klaarzetten, op het digibord werken de leerlingen eraan. Alleen de taak zelf, nooit het werk.
   { kind: 'taak', dir: taken.PLAN, remote: 'taken', validate: taken.planGeldig },
+  // De klastaken van De Wachtlijst (de taken en de beurt, niet de volgorde van de leerlingen).
+  { kind: 'klastaken', dir: klastaken.DIR, remote: 'klastaken', validate: klastaken.geldig },
 ]);
 let syncTimer = null;
 function runSync() {
@@ -457,6 +459,7 @@ function runSync() {
     for (const kind of changed) {
       if (LIBS[kind]) sendLibrary(kind, null, true);
       else if (kind === 'zonnewijzer') io.to('host').emit('zw-gewijzigd');
+      else if (kind === 'klastaken') io.to('host').emit('wk-taken', klastaken.read());
     }
     if (taken.uitLesmap()) {
       io.to('host').emit('tk-lijst', taken.lijst());
@@ -929,6 +932,7 @@ io.on('connection', socket => {
     socket.on('wk-taken-zet', handle(arg => {
       const data = klastaken.write(arg || {});
       socket.to('host').emit('wk-taken', data);
+      syncSoon();
       return { data };
     }));
     socket.on('klas-niveau', handle(({ id, niveau, vak } = {}) => ({ klas: klas.setNiveau(id, niveau, vak) })));
