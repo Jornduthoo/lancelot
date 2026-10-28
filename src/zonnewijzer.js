@@ -159,6 +159,31 @@ const volgendeWeek = id => {
   return weekVan(d);
 };
 
+// De laatst geplande les van dit vak vóór dit lesuur (tot 12 weken terug), om de volgende les voor te stellen.
+const slotNr = k => k.split('-').map(Number);
+const vroeger = (a, b) => { const [da, ua] = slotNr(a); const [db, ub] = slotNr(b); return da - db || ua - ub; };
+const vorigeWeek = id => {
+  const d = maandag(id);
+  d.setUTCDate(d.getUTCDate() - 7);
+  return weekVan(d);
+};
+function laatsteVan({ vak, week: id, slot } = {}) {
+  const v = tekst(vak, 30).toLowerCase();
+  if (!v || !WEEK.test(String(id))) return { les: null };
+  let w = String(id);
+  for (let i = 0; i < 12; i++, w = vorigeWeek(w)) {
+    const lessen = week(w).lessen || {};
+    const kandidaten = Object.keys(lessen)
+      .filter(k => (i > 0 || !SLOT.test(String(slot)) || vroeger(k, slot) < 0) && lessen[k].map && lessen[k].nr && String(lessen[k].vak || '').toLowerCase() === v)
+      .sort(vroeger);
+    if (kandidaten.length) {
+      const l = lessen[kandidaten[kandidaten.length - 1]];
+      return { les: { map: l.map, nr: l.nr } };
+    }
+  }
+  return { les: null };
+}
+
 function roosterVan(w, alle) {
   return alle.roosters.find(r => r.id === w.rooster) || alle.roosters.find(r => r.id === alle.standaard) || alle.roosters[0];
 }
@@ -239,4 +264,4 @@ function doelInfo(codes) {
   return { doelen: info, doel, criteria: info.filter(d => d.tekst).map(d => kort(d.tekst)) };
 }
 
-module.exports = { DIR, roosters, bewaarRoosters, week, zetLes, zetWeekRooster, vink, schuif, doelInfo, ikZin, weekVan };
+module.exports = { DIR, roosters, bewaarRoosters, week, laatsteVan, zetLes, zetWeekRooster, vink, schuif, doelInfo, ikZin, weekVan };

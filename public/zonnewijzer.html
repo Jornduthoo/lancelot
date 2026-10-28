@@ -93,8 +93,17 @@
     </div>
     <div class="row">
       <label>Vak <input id="zw-ed-vak" list="zw-vakken" maxlength="30"></label>
-      <label>Uit De Kronieken <select id="zw-ed-map"><option value="">Eigen les (zonder quiz)</option></select></label>
+      <div class="zw-ed-mapveld"><span class="zw-ed-label">Uit De Kronieken</span>
+        <input type="hidden" id="zw-ed-map">
+        <button type="button" class="secondary zw-ed-mapknop" id="zw-ed-mapknop" aria-expanded="false"></button>
+      </div>
       <label id="zw-ed-les-label" class="hidden">Les <select id="zw-ed-les"></select></label>
+    </div>
+    <p class="muted small zw-ed-voorstel-info" id="zw-ed-voorstel-info"></p>
+    <div class="zw-kies hidden" id="zw-kies">
+      <input id="zw-kies-zoek" type="search" placeholder="Zoek een map, bijv. blok 3 of thema 7" autocomplete="off">
+      <button type="button" class="secondary small zw-kies-eigen" id="zw-kies-eigen">✏️ Eigen les (zonder quiz)</button>
+      <div class="zw-kies-groepen" id="zw-kies-groepen"></div>
     </div>
     <label>Titel van de les <input id="zw-ed-naam" maxlength="120" placeholder="bijv. Breuken optellen"></label>
     <div id="zw-ed-doelen"></div>
