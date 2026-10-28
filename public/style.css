@@ -1074,6 +1074,10 @@ select.ob-wacht { opacity: .55; }
 .ob-choice.on b { color: #ffd98a; }
 .ob-choice:disabled { cursor: default; }
 .ob-choices.ok .ob-choice.on { background: #1a9e6e; }
+/* Een vraag uit De Proef op een oefenblad: zijn eigen vak, groen of rood als geheel. */
+.ob-paper .ob-pf { min-height: 0; border-radius: 8px; }
+.ob-paper .ob-pf.ok { box-shadow: 0 0 0 2px #1a9e6e; }
+.ob-paper .ob-pf.bad { box-shadow: 0 0 0 2px #d0453a; }
 .ob-choices.bad .ob-choice.on { background: #d6334f; }
 .ob-jf { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
 .ob-jf p { margin: 0 !important; flex: 1; min-width: 12em; }
@@ -2083,3 +2087,6 @@ body.tk-solo #toernooi { display: none !important; }
 .reeks #r-direct, .reeks #r-kopie, .reeks #r-plan-direct { display: flex; flex-direction: column; gap: 10px; }
 .reeks #r-direct:not(.hidden) + #r-kopie { border-top: 1px solid var(--line); padding-top: 12px; }
 .reeks .r-zonder { margin: 0; }
+/* Op een oefenblad tellen geen punten: dat veldje van een vraag uit De Proef valt weg. */
+:is(#e-blocks, #e-blocks-page, #e-blocks-ridder) label:has(> .e-punten, > .e-werkpunten) { display: none; }
+.ob-pf .pf-ptn { display: none; }

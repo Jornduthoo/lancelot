@@ -499,7 +499,7 @@
   // Getallen zoals een leerling ze typt: 12,5 · 12.5 · 1 000 · 1.000 · ½ · 3/4 · 1 1/2 · € 3,50 · -4.
   const BREUK = { '½': '1/2', '¼': '1/4', '¾': '3/4', '⅓': '1/3', '⅔': '2/3', '⅕': '1/5', '⅛': '1/8' };
   function getal(s, eenheid) {
-    let t = String(s || '').trim().toLowerCase().replace(/[−–]/g, '-');
+    let t = String(s ?? '').trim().toLowerCase().replace(/[−–]/g, '-');
     if (eenheid) t = t.split(eenheid.toLowerCase()).join(' ');
     t = t.replace(/([a-z])[²³]/g, '$1 ').replace(/[€$%]|euro|(?<![a-z])(cm|mm|dm|km|hm|dam|m|ha|are|kg|hg|dag|g|mg|l|ml|cl|dl|hl|min|sec|s|u|uur)\b/g, ' ').replace(/[½¼¾⅓⅔⅕⅛]/g, c => ` ${BREUK[c]}`).trim();
     let m = /^(-?)(\d+)\s+(\d+)\s*\/\s*(\d+)$/.exec(t);

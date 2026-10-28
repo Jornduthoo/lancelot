@@ -2,10 +2,11 @@
 // view: het blad zonder oplossingen (zoals de server het naar leerlingen stuurt).
 // opts: { mode: 'live' | 'view' | 'print', answers, results, solutions, key, onAnswer(id, value), voorlees }
 // voorlees: 🔊-knopjes die de opdracht en de vragen voorlezen (Voorlees uit voorlees.js).
+// Een blok 'vraag' is een vraag zoals in De Proef: die tekent PfPaper (pf-paper.js), dat pas laadt als een blad zo'n vraag heeft.
 const ObSheet = (() => {
   const NAMES = {
     tekst: 'Lees', invullen: 'Invullen', meerkeuze: 'Meerkeuze', juistfout: 'Juist of fout', verbinden: 'Verbinden',
-    woorden: 'Woordjes', overschrijven: 'Overschrijven', open: 'Open vragen',
+    woorden: 'Woordjes', overschrijven: 'Overschrijven', open: 'Open vragen', vraag: 'Vraag',
   };
   const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
   const esc = text => String(text).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
@@ -41,6 +42,10 @@ const ObSheet = (() => {
         return;
       }
       n++;
+      if (b.type === 'vraag') {
+        html += `<section class="ob-block ob-vraag"><div class="pf-paper ob-pf" data-field="${esc(b.view.id)}" data-bi="${bi}" data-nr="${n}"></div></section>`;
+        return;
+      }
       html += `<section class="ob-block ob-${b.type}"><h2><span class="ob-num">${n}</span>${say(`${b.instruction}\n${block(b)}`)} ${esc(b.instruction)} <small>${NAMES[b.type]}</small></h2>`;
       if (b.type === 'invullen') {
         html += '<p class="ob-gaps">' + b.parts.map(part => {
@@ -111,6 +116,42 @@ const ObSheet = (() => {
     }
     if (mode !== 'print') mark(box, opts.results || {}, opts.solutions, view);
     if (live) wire(box, opts.onAnswer);
+    return vraagjes(box, view, opts);
+  }
+
+  // De vragen uit De Proef in hun vak tekenen, zodra pf-paper.js geladen is.
+  let laden = null;
+  const laad = () => laden || (laden = new Promise((resolve, reject) => {
+    if (!document.querySelector('link[href="/proef.css"]')) document.head.insertAdjacentHTML('beforeend', '<link rel="stylesheet" href="/proef.css">');
+    const nodig = [typeof PfAudio === 'undefined' && '/js/pf-media.js', typeof PfPaper === 'undefined' && '/js/pf-paper.js'].filter(Boolean);
+    const volgende = () => {
+      const src = nodig.shift();
+      if (!src) return resolve();
+      const el = document.createElement('script');
+      el.src = src;
+      el.onload = volgende;
+      el.onerror = () => { laden = null; reject(new Error(`${src} laadt niet`)); };
+      document.head.appendChild(el);
+    };
+    volgende();
+  }));
+  function vraagjes(box, view, opts) {
+    const vakken = [...box.querySelectorAll('.ob-pf')];
+    if (!vakken.length) return Promise.resolve();
+    const mode = opts.mode || 'live';
+    return laad().then(() => {
+      for (const el of vakken) {
+        if (!el.isConnected) continue;
+        const id = el.dataset.field;
+        const r = (opts.results || {})[id];
+        const sol = opts.solutions && opts.solutions[id];
+        const toon = sol !== undefined && sol !== '' && (mode === 'print' ? opts.key : r !== true);
+        PfPaper.render(el, [view.blocks[Number(el.dataset.bi)].view], {
+          mode, answers: { [id]: (opts.answers || {})[id] }, sleutel: toon ? { [id]: sol } : null, nummer: true, start: Number(el.dataset.nr) - 1,
+          voorlees: opts.voorlees, onAnswer: (i, v) => opts.onAnswer && opts.onAnswer(i, v),
+        });
+      }
+    });
   }
 
   // Groen of rood per veld, en de oplossing naast wat fout is.
@@ -120,6 +161,8 @@ const ObSheet = (() => {
       const r = results[id];
       el.classList.toggle('ok', r === true);
       el.classList.toggle('bad', r === false);
+      // Een vraag uit De Proef toont zijn oplossing zelf.
+      if (el.classList.contains('ob-pf')) continue;
       const next = el.nextElementSibling;
       if (next && next.classList.contains('ob-sol')) next.remove();
       if (solutions && r !== true && solutions[id] !== undefined) {
@@ -137,7 +180,8 @@ const ObSheet = (() => {
   function wire(box, onAnswer) {
     const timers = new Map();
     const send = (id, value) => onAnswer && onAnswer(id, value);
-    for (const el of box.querySelectorAll('input.ob-field, textarea.ob-field')) {
+    const eigen = sel => [...box.querySelectorAll(sel)].filter(el => !el.closest('.ob-pf'));
+    for (const el of eigen('input.ob-field, textarea.ob-field')) {
       el.addEventListener('input', () => {
         el.classList.remove('ok', 'bad');
         clearTimeout(timers.get(el));
@@ -152,14 +196,14 @@ const ObSheet = (() => {
         el.addEventListener('keydown', e => {
           if (e.key !== 'Enter') return;
           e.preventDefault();
-          const all = [...box.querySelectorAll('input.ob-field, select.ob-field, textarea.ob-field')];
+          const all = eigen('input.ob-field, select.ob-field, textarea.ob-field');
           const next = all[all.indexOf(el) + 1];
           if (next) next.focus(); else el.blur();
         });
       }
     }
-    for (const el of box.querySelectorAll('select.ob-field')) el.addEventListener('change', () => send(el.dataset.field, el.value));
-    for (const group of box.querySelectorAll('.ob-choices')) {
+    for (const el of eigen('select.ob-field')) el.addEventListener('change', () => send(el.dataset.field, el.value));
+    for (const group of eigen('.ob-choices')) {
       for (const b of group.querySelectorAll('.ob-choice')) {
         b.addEventListener('click', () => {
           for (const o of group.querySelectorAll('.ob-choice')) o.classList.toggle('on', o === b);
