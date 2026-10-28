@@ -1568,6 +1568,13 @@ io.on('connection', socket => {
         .finally(() => io.to('host').emit('settings', settings.publicView()))
         .catch(err => cb && cb({ error: err.message }));
     });
+    // De verbetersleutel voor de vakjes op een blad uit de pdf: de AI krijgt de bladen met genummerde kaders.
+    socket.on('pf-sleutel', ({ prompt, files } = {}, cb) => {
+      generateQuiz(prompt, files || [], proeven.parseSleutel, { max: 30000 })
+        .then(velden => cb && cb({ ok: true, velden }))
+        .finally(() => io.to('host').emit('settings', settings.publicView()))
+        .catch(err => cb && cb({ error: err.message }));
+    });
     socket.on('pf-load', handle(({ file, inst } = {}) => {
       const busy = busyWith('proef');
       if (busy) throw busyError(busy);

@@ -111,7 +111,7 @@ class ProefLive {
   schik(id, p) {
     const lijst = this.lijst(p);
     const seed = `${this.run}|${id}|${p.niveau}`;
-    p.order = this.inst.schudden ? K.schud(lijst.length, `${seed}|vragen`) : lijst.map((_, i) => i);
+    p.order = K.volgorde(lijst, `${seed}|vragen`, this.inst.schudden);
     p.perms = {};
     for (const { id: qid, q } of K.vragenVan(lijst)) {
       if (q.type === 'meerkeuze' && this.inst.schudden) p.perms[qid] = K.schud(q.opties.length, `${seed}|${qid}`);

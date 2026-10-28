@@ -49,7 +49,7 @@ function teken(niveau) {
     const sleutel = {};
     const zones = {};
     if (key) for (const { id, q } of PfKern.vragenVan(lijst)) {
-      sleutel[id] = PfKern.oplossing(q) || ' ';
+      sleutel[id] = q.type === 'blad' ? PfKern.veldSleutel(q) : PfKern.oplossing(q) || ' ';
       if (q.type === 'aanduiden') zones[id] = q.zones;
     }
     const paper = document.createElement('article');
