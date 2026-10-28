@@ -397,3 +397,57 @@ select.pf-kies { width: auto; min-width: 6em; display: inline-block; margin: 0 2
 .pf-tekening { position: absolute; inset: 0; width: 100%; height: 100%; }
 .pf-vak-tekening { display: block; max-width: 320px; max-height: 200px; margin-top: 4px; background: #fff; box-shadow: 0 0 0 1px var(--line); }
 @media (hover: none) { .pf-veld.teken .pf-teken-balk { opacity: 1; pointer-events: auto; } }
+
+/* ---------- Breukvak en symbolenbalk ---------- */
+.pf-breuk { display: inline-flex; align-items: center; gap: 6px; vertical-align: middle; }
+.pf-breuk-st { display: inline-flex; flex-direction: column; align-items: stretch; gap: 3px; }
+.pf-breuk-st > i { height: 2.5px; background: currentColor; border-radius: 2px; }
+.pf-paper .pf-breuk input.pf-breuk-in.ob-field { flex: none; width: 3.6em; height: auto; min-width: 0; padding: 4px 6px; text-align: center; font-size: 1.1rem; }
+.pf-paper .pf-breuk input.pf-breuk-in.geheel { width: 3em; }
+.pf-breuk.print { gap: 8px; }
+.pf-symbolen { position: fixed; left: 10px; right: 10px; bottom: 10px; z-index: 50; width: fit-content; margin: 0 auto; display: flex; align-items: center; flex-wrap: wrap; justify-content: center; gap: 4px; max-width: calc(100vw - 20px); padding: 6px; background: rgba(250, 246, 235, .97); border-radius: 10px; box-shadow: 0 2px 14px rgba(0, 0, 0, .35); }
+.pf-symbolen.hidden { display: none; }
+.pf-sym-set { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; }
+.pf-sym-set.hidden { display: none; }
+.pf-symbolen button { min-width: 34px; height: 34px; padding: 0 6px; background: #fff; color: #1d1d1f; clip-path: none; border-radius: 6px; box-shadow: inset 0 0 0 1px #cfc5aa; font-size: 1.05rem; font-weight: 600; text-transform: none; letter-spacing: 0; }
+.pf-symbolen button:hover { background: #fff6cc; }
+.pf-symbolen .pf-sym-wissel { background: #2a3350; color: #fff; box-shadow: none; }
+
+/* ---------- Gereedschapskist op het blad ---------- */
+.pf-be-kist { display: flex; flex-wrap: wrap; gap: 6px 14px; flex: 1 1 100%; }
+.pf-be-groep { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
+.pf-be-groep > b { margin-right: 2px; font-size: .74rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+.pf-be-groep label { display: inline-flex; margin: 0; cursor: pointer; }
+.pf-be-groep input { position: absolute; opacity: 0; pointer-events: none; }
+.pf-be-groep label span { padding: 4px 9px; border-radius: 6px; font-size: .86rem; font-weight: 600; background: rgb(var(--k-cyan) / .08); box-shadow: inset 0 0 0 1px var(--line); white-space: nowrap; }
+.pf-be-groep input:checked + span { background: rgb(var(--k-goud) / .25); box-shadow: inset 0 0 0 2px rgb(var(--k-goud)); }
+.pf-be-groep input:focus-visible + span { outline: 2px solid #2b6cff; }
+.pf-be-woorden { margin-top: 8px; }
+.pf-be-veld.breuk { background: rgba(255, 120, 0, .14); box-shadow: inset 0 0 0 1.5px #e06a00; }
+.pf-be-veld.sleep { background: rgba(120, 200, 60, .2); box-shadow: inset 0 0 0 1.5px #4f9a1c; }
+.pf-be-veld.vlak { box-shadow: inset 0 0 0 1.5px #888; }
+.pf-be-veld.notitie { background: rgba(255, 255, 255, .7); box-shadow: inset 0 0 0 1.5px #999; color: #1d1d1f; }
+.pf-blad-mini i.vlak { background: rgba(255, 255, 255, .9); box-shadow: inset 0 0 0 1px #999; }
+.pf-blad-mini i.notitie, .pf-blad-mini i.sleep, .pf-blad-mini i.breuk { background: rgba(120, 200, 60, .3); }
+
+/* Op het blad van de leerling */
+.pf-vlak { position: absolute; pointer-events: none; }
+.pf-notitie { position: absolute; display: flex; align-items: center; padding: 0 .3em; color: #c8102e; font-weight: 700; line-height: 1.15; pointer-events: none; }
+.pf-veld.breuk { display: flex; flex-direction: column; align-items: stretch; justify-content: center; gap: 1px; padding: 1px 2px; background: rgba(255, 236, 150, .55); }
+.pf-veld.breuk input { flex: 1 1 0; min-height: 0; width: 100%; margin: 0; padding: 0; border: 0; background: rgba(255, 255, 255, .7); color: #1036a8; font: inherit; font-weight: 700; text-align: center; }
+.pf-veld.breuk input:focus { outline: 2px solid #2b6cff; background: #fff; }
+.pf-veld.breuk > i { height: 2px; flex: none; background: #1036a8; }
+.pf-veld.sleep { display: grid; place-items: center; min-width: 0; cursor: pointer; clip-path: none; color: #1036a8; text-transform: none; letter-spacing: 0; }
+.pf-q.kiest .pf-veld.sleep, .pf-q.kiest .pf-gat-sleep { box-shadow: inset 0 0 0 2px #2b6cff; animation: pf-puls 1.2s infinite; }
+.pf-bank { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 6px 0 10px; }
+.pf-bank-w { min-width: 0; padding: 5px 12px; background: #fff; color: #1d1d1f; clip-path: none; border-radius: 999px; box-shadow: inset 0 0 0 1.5px #b9ab88; font-weight: 700; text-transform: none; letter-spacing: 0; cursor: grab; }
+.pf-bank-w.on { background: #2b6cff; color: #fff; box-shadow: none; }
+.pf-bank-w:disabled { cursor: default; opacity: 1; }
+.pf-gat-sleep { display: inline-block; min-height: 1.7em; margin: 0 3px; padding: 0 8px; vertical-align: middle; background: rgba(43, 108, 255, .08); color: #1036a8; clip-path: none; border-radius: 4px; box-shadow: inset 0 -2px 0 #b9ab88; font-weight: 700; text-transform: none; letter-spacing: 0; }
+.pf-gat-sleep.vol { background: #fff; box-shadow: inset 0 0 0 1.5px #2b6cff; }
+.pf-paginas { max-width: 900px; height: fit-content; max-height: calc(100vh - 40px); background: var(--panel-solid); padding: 16px; border-radius: 8px; }
+.pf-pag-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; max-height: 60vh; overflow: auto; margin: 10px 0; }
+.pf-pag { display: flex; flex-direction: column; gap: 6px; margin: 0; cursor: pointer; }
+.pf-pag img { width: 100%; background: #fff; box-shadow: 0 0 0 1px var(--line); border-radius: 3px; }
+.pf-pag:has(input:checked) img { box-shadow: 0 0 0 3px #3d8bff; }
+.pf-pag:has(input:not(:checked)) img { opacity: .45; }

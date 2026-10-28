@@ -215,7 +215,7 @@ const PfBlad = (() => {
 
   function aiPrompt(bladen, start = 1, niveau = '') {
     let nr = start;
-    const lijst = bladen.map((b, i) => `Blad ${i + 1}: ${b.velden.map(f => `${nr++}${f.soort === 'kruis' ? ' (hokje)' : f.soort === 'open' ? ' (open)' : f.soort === 'kies' ? ' (keuzelijst)' : f.soort === 'teken' ? ' (tekenvak: zet in antwoord waar de leerkracht op let)' : f.soort === 'luister' ? ' (luisterknop: sla over)' : ''}`).join(', ')}`).join('\n');
+    const lijst = bladen.map((b, i) => `Blad ${i + 1}: ${b.velden.map(f => `${nr++}${f.soort === 'kruis' ? ' (hokje)' : f.soort === 'open' ? ' (open)' : f.soort === 'kies' ? ' (keuzelijst)' : f.soort === 'teken' ? ' (tekenvak: zet in antwoord waar de leerkracht op let)' : f.soort === 'luister' || f.soort === 'vlak' || f.soort === 'notitie' ? ' (geen antwoord: sla over)' : f.soort === 'breuk' ? ' (breuk, bv. 3/4)' : f.soort === 'sleep' ? ' (sleepwoord)' : ''}`).join(', ')}`).join('\n');
     return `Je bent een ervaren leerkracht in Vlaanderen${niveau ? ` (${niveau})` : ''}. Op de bijgevoegde afbeeldingen staan de bladen van een toets.
 Elk rood kader met een nummer is een plek waar de leerling iets invult. Maak de verbetersleutel: geef voor elk nummer het juiste antwoord.
 De vakjes per blad:
@@ -254,7 +254,11 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
       const plek = alle[Number(r && r.nr) - start];
       if (!plek) continue;
       const { b, f } = plek;
-      if (f.soort === 'luister') continue;
+      if (f.soort === 'luister' || f.soort === 'vlak' || f.soort === 'notitie') continue;
+      if (f.soort === 'breuk' || f.soort === 'sleep') {
+        if (r.antwoord) { f.antwoord = String(r.antwoord).slice(0, 300); n++; b.gewijzigd = true; }
+        continue;
+      }
       if (f.soort === 'teken') {
         if (r.antwoord) { f.antwoord = String(r.antwoord).slice(0, 1000); n++; b.gewijzigd = true; }
         continue;
@@ -278,7 +282,13 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
 
   // ---------- Het blad bewerken ----------
   let box = null;
-  let staat = null; // { velden, sel, klaar, opts }
+  let staat = null; // { velden, sel, klaar, opts, woorden }
+  // De gereedschapskist: kies een soort en sleep op het blad.
+  const KIST = [
+    ['Invullen', [['tekst', '✏️', 'antwoord'], ['breuk', '➗', 'breuk'], ['kies', '▾', 'keuzelijst'], ['sleep', '🧲', 'sleepwoord'], ['kruis', '☐', 'hokje'], ['open', '💬', 'open']]],
+    ['Maken', [['teken', '🎨', 'tekenvak'], ['luister', '🎧', 'luisterknop']]],
+    ['Op het blad', [['vlak', '⬜', 'vlak (verbergt iets)'], ['notitie', '🗒️', 'notitie']]],
+  ];
   const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 
   function maakBox() {
@@ -289,13 +299,9 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
       <div class="bar"><h2 id="be-titel">Vakjes op het blad</h2>
         <div class="actions"><button class="secondary" id="be-annuleer">Annuleren</button><button class="gold" id="be-klaar">Klaar</button></div></div>
       <div class="pf-be-balk">
-        <span class="pf-be-soort">Nieuw vakje:
-          <label><input type="radio" name="be-soort" value="tekst" checked> ✏️ antwoord</label>
-          <label><input type="radio" name="be-soort" value="kruis"> ☐ hokje</label>
-          <label><input type="radio" name="be-soort" value="kies"> ▾ keuzelijst</label>
-          <label><input type="radio" name="be-soort" value="open"> 💬 open</label>
-          <label><input type="radio" name="be-soort" value="teken"> 🎨 tekenvak</label>
-          <label><input type="radio" name="be-soort" value="luister"> 🎧 luisterknop</label></span>
+        <div class="pf-be-kist" role="radiogroup" aria-label="Gereedschap">
+          ${KIST.map(([kop, lijst]) => `<span class="pf-be-groep"><b>${kop}</b>${lijst.map(([v, ic, naam]) => `<label title="${naam}"><input type="radio" name="be-soort" value="${v}"${v === 'tekst' ? ' checked' : ''}><span>${ic} ${naam}</span></label>`).join('')}</span>`).join('')}
+        </div>
         <button class="secondary small-btn" id="be-zoek">🔍 Zoek vakjes opnieuw</button>
         <button class="secondary small-btn" id="be-ai">✨ Antwoorden met AI</button>
         <button class="secondary small-btn" id="be-copy">📋 Prompt voor een chatbot</button>
@@ -308,7 +314,8 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
       <p class="error" id="be-error"></p><span class="muted small" id="be-busy"></span>
       <div class="pf-be-grid">
         <div class="pf-be-vlak"><div class="pf-blad-vel pf-be-vel" id="be-vel"><img id="be-img" alt="" draggable="false"><div id="be-velden"></div></div></div>
-        <div class="pf-be-lijst"><div class="pf-be-kop"><span>#</span><span>Soort</span><span>Juist antwoord</span><span>Eenheid</span><span>Ptn</span><span></span></div><div id="be-rijen"></div></div>
+        <div class="pf-be-lijst"><div class="pf-be-kop"><span>#</span><span>Soort</span><span>Juist antwoord</span><span>Eenheid</span><span>Ptn</span><span></span></div><div id="be-rijen"></div>
+          <label class="pf-be-woorden hidden">🧲 Extra sleepwoorden (foute keuzes, gescheiden door /)<input id="be-woorden" placeholder="bijv. struik / bloem"></label></div>
       </div>
     </div>`;
     document.body.appendChild(box);
@@ -333,7 +340,8 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
         sleep = { k, soort: e.target.classList.contains('greep') ? 'groot' : 'schuif', p, f0: { ...f } };
       } else {
         const soort = box.querySelector('input[name="be-soort"]:checked').value;
-        const f = { x: r2(p.x), y: r2(p.y), w: 0.5, h: 0.5, soort, punten: soort === 'kruis' || soort === 'luister' ? 0 : 1 };
+        const f = { x: r2(p.x), y: r2(p.y), w: 0.5, h: 0.5, soort, punten: ['kruis', 'luister', 'vlak', 'notitie'].includes(soort) ? 0 : 1 };
+        if (soort === 'vlak') f.kleur = '#ffffff';
         if (soort === 'kruis') { f.antwoord = false; f.groep = groepBij(f); }
         staat.velden.push(f);
         sleep = { k: staat.velden.length - 1, soort: 'nieuw', p, f0: { ...f } };
@@ -368,7 +376,7 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
         // Een klik zonder slepen: een vakje van normale grootte.
         const v = staat.verhouding || 1.414;
         if (f.w < 1.2 && f.h < 1.2) {
-          if (f.soort === 'kruis') { f.w = 2.4; f.h = r2(2.4 / v); } else if (f.soort === 'luister') { f.w = 4; f.h = r2(4 / v); } else if (f.soort === 'open') { f.w = 60; f.h = 8; } else if (f.soort === 'teken') { f.w = 40; f.h = 16; } else { f.w = 14; f.h = 2.6; }
+          if (f.soort === 'kruis') { f.w = 2.4; f.h = r2(2.4 / v); } else if (f.soort === 'luister') { f.w = 4; f.h = r2(4 / v); } else if (f.soort === 'open') { f.w = 60; f.h = 8; } else if (f.soort === 'teken') { f.w = 40; f.h = 16; } else if (f.soort === 'breuk') { f.w = 5; f.h = r2(8 / v); } else if (f.soort === 'vlak') { f.w = 20; f.h = 5; } else if (f.soort === 'notitie') { f.w = 40; f.h = 3; } else { f.w = 14; f.h = 2.6; }
           f.x = r2(clamp(f.x - (f.soort === 'kruis' || f.soort === 'luister' ? f.w / 2 : 0), 0, 100 - f.w));
           f.y = r2(clamp(f.y - f.h / 2, 0, 100 - f.h));
         }
@@ -395,7 +403,12 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
       else kies(Number(r.dataset.k));
     });
     $('be-annuleer').addEventListener('click', () => sluit(null));
-    $('be-klaar').addEventListener('click', () => sluit(sorteer(staat.velden)));
+    $('be-klaar').addEventListener('click', () => {
+      const velden = sorteer(staat.velden);
+      // De extra sleepwoorden gaan mee als eigenschap van de lijst.
+      velden.woorden = $('be-woorden').value.split('/').map(w => w.trim()).filter(Boolean);
+      sluit(velden);
+    });
     $('be-zoek').addEventListener('click', async () => {
       if (staat.velden.length && !await Ui.vraag('De vakjes die er nu staan, worden vervangen door wat LANcelot vindt. Doorgaan?')) return;
       const img = $('be-img');
@@ -480,29 +493,33 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
     return Math.max(0, ...staat.velden.filter(g => g !== f && g.soort === 'kruis').map(g => g.groep || 1)) + 1;
   }
 
-  const SOORT = { tekst: '✏️ antwoord', kruis: '☐ hokje', kies: '▾ keuzelijst', open: '💬 open', teken: '🎨 tekenvak', luister: '🎧 luisterknop' };
+  const SOORT = Object.fromEntries(KIST.flatMap(([, l]) => l.map(([v, ic, naam]) => [v, `${ic} ${naam.split(' ')[0]}`])));
+  const KLEUR_NAAM = { '#ffffff': 'wit', '#fff3b0': 'geel', '#d8ecff': 'blauw', '#e4e4e4': 'grijs', '#ffd9d9': 'roze' };
   function rijHtml(f, k) {
     const s = `<select class="be-s" aria-label="Soort">${Object.entries(SOORT).map(([v, l]) => `<option value="${v}"${f.soort === v ? ' selected' : ''}>${l}</option>`).join('')}</select>`;
     let antw;
     if (f.soort === 'kruis') antw = `<span class="pf-be-kruis"><label><input type="checkbox" class="be-a"${f.antwoord ? ' checked' : ''}> aankruisen</label><label>groep <input class="be-g" type="number" min="1" max="99" value="${f.groep || 1}"></label></span>`;
     else if (f.soort === 'kies') antw = `<span class="pf-be-kies"><input class="be-o" value="${esc((f.opties || []).join(' / '))}" placeholder="keuzes: groter / kleiner / gelijk"><select class="be-a" aria-label="Juiste keuze"><option value="">juist?</option>${(f.opties || []).map(o => `<option${o === f.antwoord ? ' selected' : ''}>${esc(o)}</option>`).join('')}</select></span>`;
+    else if (f.soort === 'vlak') antw = `<select class="be-a" aria-label="Kleur">${Object.entries(KLEUR_NAAM).map(([k, n]) => `<option value="${k}"${f.kleur === k ? ' selected' : ''}>${n}</option>`).join('')}</select>`;
+    else if (f.soort === 'notitie') antw = `<input class="be-a" value="${esc(f.tekst || '')}" placeholder="tekst op het blad">`;
     else if (f.soort === 'luister') antw = `<span class="pf-be-luister"><span class="pf-be-audio" data-k="${k}"></span><input class="be-a" value="${esc(f.tekst || '')}" placeholder="of: tekst om voor te lezen"></span>`;
-    else antw = `<input class="be-a" value="${esc(f.antwoord || '')}" placeholder="${f.soort === 'open' ? 'modelantwoord (voor jou)' : f.soort === 'teken' ? 'waar je op let (voor jou)' : 'bijv. 1600|1 600'}">`;
+    else antw = `<input class="be-a" value="${esc(f.antwoord || '')}" placeholder="${f.soort === 'open' ? 'modelantwoord (voor jou)' : f.soort === 'teken' ? 'waar je op let (voor jou)' : f.soort === 'breuk' ? 'bijv. 3/4' : f.soort === 'sleep' ? 'het juiste woord' : 'bijv. 1600|1 600'}">`;
     return `<div class="pf-be-rij${staat.sel === k ? ' on' : ''}${leegVeld(f) ? ' zonder' : ''}" data-k="${k}"><b>${k + 1}</b>${s}${antw}
-      <input class="be-e" value="${esc(f.eenheid || '')}"${f.soort === 'tekst' ? '' : ' disabled'} aria-label="Eenheid"><input class="be-p" type="number" min="0" max="100" step="0.5" value="${f.punten ?? 1}" aria-label="Punten"${f.soort === 'luister' ? ' disabled' : ''}><button type="button" class="secondary small-btn weg" title="Vakje weghalen">✕</button></div>`;
+      <input class="be-e" value="${esc(f.eenheid || '')}"${f.soort === 'tekst' || f.soort === 'breuk' ? '' : ' disabled'} aria-label="Eenheid"><input class="be-p" type="number" min="0" max="100" step="0.5" value="${f.punten ?? 1}" aria-label="Punten"${['luister', 'vlak', 'notitie'].includes(f.soort) ? ' disabled' : ''}><button type="button" class="secondary small-btn weg" title="Vakje weghalen">✕</button></div>`;
   }
 
-  const leegVeld = f => (f.soort === 'tekst' && !String(f.antwoord || '').trim()) || (f.soort === 'luister' && !f.audio && !String(f.tekst || '').trim()) || (f.soort === 'kies' && (!(f.opties || []).includes(f.antwoord) || f.opties.length < 2));
+  const leegVeld = f => ((f.soort === 'tekst' || f.soort === 'breuk' || f.soort === 'sleep') && !String(f.antwoord || '').trim()) || (f.soort === 'luister' && !f.audio && !String(f.tekst || '').trim()) || (f.soort === 'kies' && (!(f.opties || []).includes(f.antwoord) || f.opties.length < 2));
   function veldHtml(f, k) {
     const leeg = leegVeld(f);
-    const tekst = f.soort === 'kruis' ? (f.antwoord ? '✗' : '') : f.soort === 'luister' ? '🎧' : f.soort === 'teken' ? '🎨' : f.soort === 'open' ? '' : f.antwoord ? `${f.soort === 'kies' ? '▾ ' : ''}${String(f.antwoord).split('|')[0]}` : '';
-    return `<div class="pf-be-veld ${f.soort}${staat.sel === k ? ' on' : ''}${leeg ? ' zonder' : ''}" data-k="${k}" style="left:${f.x}%;top:${f.y}%;width:${f.w}%;height:${f.h}%"><span class="nr">${k + 1}${f.soort === 'kruis' ? `·${f.groep || 1}` : ''}</span><span class="t">${esc(tekst)}</span><i class="greep"></i></div>`;
+    const tekst = f.soort === 'kruis' ? (f.antwoord ? '✗' : '') : f.soort === 'luister' ? '🎧' : f.soort === 'teken' ? '🎨' : f.soort === 'vlak' ? '' : f.soort === 'notitie' ? (f.tekst || '🗒️') : f.soort === 'open' ? '' : f.antwoord ? `${f.soort === 'kies' ? '▾ ' : ''}${String(f.antwoord).split('|')[0]}` : '';
+    return `<div class="pf-be-veld ${f.soort}${staat.sel === k ? ' on' : ''}${leeg ? ' zonder' : ''}" data-k="${k}" style="left:${f.x}%;top:${f.y}%;width:${f.w}%;height:${f.h}%${f.soort === 'vlak' ? `;background:${f.kleur || '#fff'}` : ''}"><span class="nr">${k + 1}${f.soort === 'kruis' ? `·${f.groep || 1}` : ''}</span><span class="t">${esc(tekst)}</span><i class="greep"></i></div>`;
   }
 
   function teken() {
     box.querySelector('#be-velden').innerHTML = staat.velden.map(veldHtml).join('');
     box.querySelector('#be-rijen').innerHTML = staat.velden.length ? staat.velden.map(rijHtml).join('') : '<p class="muted small">Nog geen vakjes. Sleep op het blad om er een te maken.</p>';
     audioKnoppen();
+    box.querySelector('.pf-be-woorden').classList.toggle('hidden', !staat.velden.some(f => f.soort === 'sleep'));
     titel();
   }
   // Een luisterknop op het blad: opnemen of een geluidsbestand.
@@ -550,7 +567,8 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
     if (el.classList.contains('be-s')) {
       f.soort = el.value;
       if (f.soort === 'kruis') { f.antwoord = false; f.groep = groepBij(f); f.punten = 0; delete f.eenheid; } else if (typeof f.antwoord === 'boolean') delete f.antwoord;
-      if (f.soort === 'luister') { f.punten = 0; delete f.antwoord; delete f.eenheid; }
+      if (['luister', 'vlak', 'notitie'].includes(f.soort)) { f.punten = 0; delete f.antwoord; delete f.eenheid; }
+      if (f.soort === 'vlak' && !f.kleur) f.kleur = '#ffffff';
       if (f.soort === 'kies' && !f.opties) f.opties = [];
       if (f.soort === 'kruis') { const v = staat.verhouding || 1.414; f.h = r2(Math.min(f.h, 3)); f.w = r2(f.h * v); }
       teken();
@@ -558,7 +576,7 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
       return;
     }
     if (el.classList.contains('be-a')) {
-      if (f.soort === 'kruis') { f.antwoord = el.checked; f.punten = el.checked ? Math.max(1, f.punten || 0) : 0; rij.querySelector('.be-p').value = f.punten; } else if (f.soort === 'luister') f.tekst = el.value; else f.antwoord = el.value;
+      if (f.soort === 'kruis') { f.antwoord = el.checked; f.punten = el.checked ? Math.max(1, f.punten || 0) : 0; rij.querySelector('.be-p').value = f.punten; } else if (f.soort === 'luister' || f.soort === 'notitie') f.tekst = el.value; else if (f.soort === 'vlak') f.kleur = el.value; else f.antwoord = el.value;
     }
     if (el.classList.contains('be-o')) {
       f.opties = [...new Set(el.value.split('/').map(o => o.trim()).filter(Boolean))].slice(0, 8);
@@ -588,6 +606,7 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
     if (!box) maakBox();
     if (staat && staat.klaar) sluit(null);
     staat = { velden: (b.velden || []).map(f => ({ ...f })), sel: null, beeld: b.beeld, verhouding: b.verhouding, opts };
+    box.querySelector('#be-woorden').value = (b.woorden || []).join(' / ');
     box.querySelector('#be-img').src = b.beeld;
     box.querySelector('#be-vel').style.aspectRatio = String(1 / (b.verhouding || 1.414));
     box.querySelector('#be-ai').classList.toggle('hidden', !opts.ai);
