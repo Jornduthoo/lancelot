@@ -336,16 +336,23 @@ $('to-board').addEventListener('click', () => { renderBoard(); show('board'); })
 
 // ---------- Podium ----------
 
-socket.on('results', files => {
-  const box = $('results-list');
-  box.innerHTML = files.length ? '' : '<div class="leeg"><p>Nog geen resultaten.</p><p class="muted small">Speel eerst een quiz tot het einde: dan staan de scores hier, klaar voor Excel.</p></div>';
-  for (const file of files) {
-    const row = document.createElement('div');
-    row.className = 'quiz-row';
-    row.innerHTML = `<span class="play"></span><a class="button" download href="/resultaten/${encodeURIComponent(file)}">Download</a>`;
-    row.querySelector('.play').textContent = file.replace(/\.csv$/, '').replace(/_/g, ' ');
-    box.appendChild(row);
-  }
+// Resultaten in mappen, zoals Mijn quizzen: een nieuw resultaat komt vanzelf in de map van zijn quiz, oefenblad of toets.
+ItemList.mount($('results-list'), {
+  kind: 'resultaat',
+  errorId: 'results-error',
+  go: 'Download',
+  play: q => {
+    const a = document.createElement('a');
+    a.href = `/resultaten/${encodeURIComponent(q.file)}`;
+    a.download = '';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  },
+  remove: async q => {
+    if (!await Ui.vraag(`"${q.title}" (${q.datum}) verwijderen? Het blijft nog 30 dagen in de map _prullenbak.`)) return;
+    socket.emit('lib-remove', { kind: 'resultaat', files: [q.file] }, res => { $('results-error').textContent = (res && res.error) || ''; });
+  },
 });
 
 $('open-results').addEventListener('click', () => show('results'));

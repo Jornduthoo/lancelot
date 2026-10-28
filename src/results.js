@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const gegevens = require('./gegevens');
 const { TYPE_NAMES } = require('./rondetafel');
+const { library } = require('./library');
 
 const DIR = gegevens.pad('resultaten');
 const LETTERS = ['A', 'B', 'C', 'D'];
@@ -128,6 +129,71 @@ function filePath(file) {
   }
   return path.join(DIR, file);
 }
+
+// De eerste regel van elk bestand: de soort (Quiz, Toets, Oefenblad, een spel) en de titel. Bestanden veranderen niet, dus één keer lezen.
+const koppen = new Map();
+function kop(file) {
+  if (koppen.has(file)) return koppen.get(file);
+  let soort = '';
+  let title = file.replace(/\.csv$/, '').replace(/^\d{4}-\d\d-\d\d_\d{4}_/, '').replace(/-/g, ' ');
+  try {
+    const fd = fs.openSync(path.join(DIR, file), 'r');
+    const buf = Buffer.alloc(600);
+    const n = fs.readSync(fd, buf, 0, buf.length, 0);
+    fs.closeSync(fd);
+    const line = buf.toString('utf8', 0, n).replace(/^\ufeff/, '').split(/\r?\n/)[0];
+    const cells = (line.match(/("([^"]|"")*"|[^;]*)(;|$)/g) || []).map(c => c.replace(/;$/, '').replace(/^"|"$/g, '').replace(/""/g, '"'));
+    if (cells[0]) soort = cells[0];
+    if (cells[1]) title = cells[1].replace(/^'(?=[=+\-@])/, '');
+  } catch {}
+  const k = { soort, title };
+  koppen.set(file, k);
+  return k;
+}
+
+// Een nieuw resultaat komt in dezelfde map als de quiz, het oefenblad, de toets of de Ronde Tafel waar het van komt.
+const norm = s => String(s).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+function bronnen() {
+  const soorten = { quiz: './quizzes', oefenblad: './oefenbladen', sessie: './rondetafel', proef: './proeven' };
+  const maps = {};
+  return kind => {
+    if (!maps[kind]) {
+      maps[kind] = new Map();
+      try {
+        for (const q of require(soorten[kind]).list()) if (q.folder && !maps[kind].has(norm(q.title))) maps[kind].set(norm(q.title), q.folder);
+      } catch {}
+    }
+    return maps[kind];
+  };
+}
+function bronSoort(soort) {
+  if (soort === 'Toets') return 'proef';
+  if (soort === 'Oefenblad') return 'oefenblad';
+  if (soort === 'Ronde Tafel') return 'sessie';
+  if (soort === 'Het Rijk') return null;
+  return 'quiz';
+}
+
+// De resultaten zoals de mappenlijst ze toont: nieuwste eerst, met titel, soort en datum.
+function items() {
+  const files = list();
+  if (!files.length) return [];
+  const bron = bronnen();
+  lib.autoPlace(files, file => {
+    const { soort, title } = kop(file);
+    const kind = bronSoort(soort);
+    return kind ? bron(kind).get(norm(title)) : '';
+  });
+  const where = lib.places();
+  return files.map(file => {
+    const { soort, title } = kop(file);
+    const m = file.match(/^(\d{4})-(\d\d)-(\d\d)_(\d\d)(\d\d)/);
+    return { file, folder: where(file), title, soort, datum: m ? `${m[3]}/${m[2]}/${m[1]} ${m[4]}:${m[5]}` : '' };
+  });
+}
+
+const geen = () => { throw new Error('Resultaten kan je niet exporteren of importeren: download ze als Excel-bestand.'); };
+const lib = library({ kind: 'resultaat', dir: DIR, checkFile: filePath, load: geen, save: geen, validate: geen, list: items });
 
 // De prinses in de toren: per leerling hoe hoog hij kwam en hoeveel vragen goed waren.
 function saveToren(t) {
@@ -482,4 +548,4 @@ function saveProef(rec, standVan) {
   return write(now, `toets-${slugOf(rec.title)}`, lines);
 }
 
-module.exports = { saveProef, save, saveKnight, saveRossen, saveRijk, saveRace, saveRoof, saveVerrader, saveBurcht, saveDuel, saveRondeTafel, saveToren, saveSchat, saveLaserslag, saveOefenblad, saveNeon, saveBaas, saveGalaga, saveBomber, list, filePath, DIR };
+module.exports = { saveProef, save, saveKnight, saveRossen, saveRijk, saveRace, saveRoof, saveVerrader, saveBurcht, saveDuel, saveRondeTafel, saveToren, saveSchat, saveLaserslag, saveOefenblad, saveNeon, saveBaas, saveGalaga, saveBomber, list, items, lib, filePath, DIR };

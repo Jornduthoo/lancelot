@@ -114,7 +114,7 @@ const server = http.createServer(app);
 const io = new Server(server, { maxHttpBufferSize: 30e6 });
 // Na elk spel: de lijst met resultaten bijwerken, de sessie in het logboek afsluiten en het overzicht ervan naar het docentenscherm sturen.
 function finished(file) {
-  io.to('host').emit('results', results.list());
+  sendLibrary('resultaat');
   const id = logboek.endSession();
   const o = id && overzicht.session(id);
   if (o) io.to('host').emit('sessie-klaar', o);
@@ -444,15 +444,19 @@ const LIBS = {
   oefenblad: { mod: oefenbladen, list: 'ob-sheets', folders: 'ob-folders' },
   sessie: { mod: rondetafel, list: 'rt-sessions', folders: 'rt-folders' },
   proef: { mod: proeven, list: 'pf-lijst', folders: 'pf-mappen' },
+  // De resultaten (Excel-bestanden) ordenen in mappen. Die gaan nooit naar de lesmap.
+  resultaat: { mod: { lib: results.lib, list: results.items }, list: 'res-lijst', folders: 'res-mappen' },
 };
 
 // Zonder target: naar alle docentenschermen, en daarna ook naar de lesmap (er werd iets bewaard, verplaatst of verwijderd).
 function sendLibrary(kind, target, fromSync = false) {
   const l = LIBS[kind];
   const to = target || io.to('host');
+  // Eerst de lijst: bij de resultaten kan die vanzelf nieuwe mappen maken.
+  const list = l.mod.list();
   to.emit(l.folders, l.mod.lib.folders());
-  to.emit(l.list, l.mod.list());
-  if (!target && !fromSync) syncSoon();
+  to.emit(l.list, list);
+  if (!target && !fromSync && kind !== 'resultaat') syncSoon();
 }
 
 // Mijn lesmap (OneDrive of Google Drive): bij opstart, elke minuut en kort na elke wijziging.
@@ -903,7 +907,6 @@ io.on('connection', socket => {
       const dir = settings.read().lesmap;
       if (dir && process.platform === 'win32') execFile('explorer', [dir]);
     });
-    socket.emit('results', results.list());
     socket.on('open-results-folder', () => {
       fs.mkdirSync(results.DIR, { recursive: true });
       if (process.platform === 'win32') execFile('explorer', [results.DIR]);
@@ -1600,7 +1603,7 @@ io.on('connection', socket => {
     socket.on('pf-cijfer', handle(arg => ({ stand: proeven.cijfer(arg) })));
     socket.on('pf-klaar', handle(file => {
       const rec = proeven.klaar(file, results.saveProef);
-      io.to('host').emit('results', results.list());
+      sendLibrary('resultaat');
       io.to('host').emit('pf-afnames', proeven.afnames());
       return { resultaten: rec.resultaten };
     }));

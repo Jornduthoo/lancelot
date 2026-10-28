@@ -465,6 +465,8 @@ Je klaslijst, het logboek, de resultaten en de avatars gaan nooit mee: die blijv
 
 Alles waar je mee speelt, staat op de pc waar LANcelot draait, in de map LANcelot: `quizzes`, `oefenbladen`, `rondetafel` en `resultaten`.
 
+**Resultaten in mappen.** Bij **Resultaten** staan de scores in dezelfde mappen als je quizzen, oefenbladen en toetsen: een nieuw resultaat komt vanzelf in de map van zijn quiz (bijvoorbeeld `Rekenen › Blok 3`). Verplaatsen kan zoals bij Mijn quizzen, met slepen of het mapje 📁. Op de schijf blijven de Excel-bestanden gewoon in de map `resultaten` staan.
+
 ## Bijwerken, back-ups en je gegevens
 
 Alles staat in **Instellingen**, verdeeld over tabbladen (AI, Lesmap, Uiterlijk, Gegevens, Bijwerken en Netwerk). Een **?** naast een instelling geeft een korte uitleg.
