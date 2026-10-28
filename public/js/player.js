@@ -253,3 +253,8 @@ document.addEventListener('keydown', e => {
     .filter(b => b.getClientRects().length && !b.disabled);
   if (buttons[e.key - 1]) buttons[e.key - 1].click();
 });
+
+// De Proef: staat er een toets klaar, dan gaat de leerling naar de toetspagina (licht, en apart van de spellen).
+socket.on('pf-state', s => {
+  if (s && s.active && s.phase === 'open' && !soloTaak) location.href = '/toets';
+});

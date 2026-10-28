@@ -18,6 +18,7 @@ const ItemList = (() => {
     quiz: { list: 'quizzes', folders: 'quiz-folders', one: 'quiz', many: 'quizzen', detail: q => `${q.count} vragen` },
     oefenblad: { list: 'ob-sheets', folders: 'ob-folders', one: 'oefenblad', many: 'oefenbladen', detail: q => `${q.count} ${q.count === 1 ? 'oefening' : 'oefeningen'}` },
     sessie: { list: 'rt-sessions', folders: 'rt-folders', one: 'sessie', many: 'sessies', detail: q => `${q.count} vragen` },
+    proef: { list: 'pf-lijst', folders: 'pf-mappen', one: 'toets', many: 'toetsen', detail: q => `${q.count} vragen` },
   };
 
   const parentOf = p => (p.includes('/') ? p.slice(0, p.lastIndexOf('/')) : '');

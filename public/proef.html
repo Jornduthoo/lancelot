@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LANcelot · De Proef</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/proef.css">
+</head>
+<body class="ob-host pf-host">
+<main>
+  <div class="topbar">
+    <div class="brand" id="brand" title="Naar het startscherm">
+      <img src="/img/mark.webp" alt="">
+      <div>
+        <div class="wordmark">LAN<span>celot</span></div>
+        <div class="subtitle" id="status">De Proef</div>
+      </div>
+    </div>
+    <div class="actions">
+      <span class="join-mini hidden" id="join-mini"></span>
+      <button class="secondary icon" id="mute" title="Geluid aan/uit" aria-label="Geluid aan/uit"><i class="ic ic-geluid"></i></button>
+      <button class="secondary hidden" id="stop">Sluit toets</button>
+    </div>
+  </div>
+
+  <!-- ---------- Lijst ---------- -->
+  <section id="list">
+    <div class="bar">
+      <h2>De Proef · Mijn toetsen</h2>
+      <div class="actions">
+        <button class="secondary" id="to-home">Terug</button>
+        <button class="secondary" id="new-empty">Lege toets</button>
+        <button id="new-ai">Nieuwe toets met AI</button>
+      </div>
+    </div>
+    <div class="panel tw-intro">
+      <img class="game-logo" src="/img/icons/proef.webp" alt="">
+      <div>
+        <p><strong>Toetsen maken en beveiligd afnemen.</strong> Sleep je eigen toets (pdf, scan of foto) erin en de AI maakt er een digitale toets van, die je daarna nog aanpast. De leerlingen maken hem op hun Chromebook of gsm, vraag per vraag. De computer verbetert wat hij kan; open vragen verbeter jij snel per vraag.</p>
+        <p class="muted small">Beveiligd zover een browser dat kan: volledig scherm, vragen en keuzes door elkaar, niet kopiëren of plakken, en wie de toets verlaat, staat meteen op het bord (en gaat op slot als je dat wil). Echt vergrendelen kan alleen als je school de Chromebooks in kioskmodus zet.<details class="hulp"><summary aria-label="Uitleg">?</summary><p>Een webpagina kan een leerling nooit helemaal tegenhouden: de Esc-toets haalt het volledige scherm altijd weg, en een tweede toestel ziet LANcelot niet. LANcelot merkt wel elke keer dat de leerling de toets verlaat en toont dat live op het bord en in de resultaten. Wil je echt vergrendelen? Vraag ICT om de Chromebooks voor toetsen in kioskmodus te zetten (Google Admin) met het adres van LANcelot.</p></details></p>
+      </div>
+    </div>
+    <div class="panel form pf-inst">
+      <h3>Zo neem je af</h3>
+      <div class="row">
+        <label>Tijd (minuten, leeg = geen limiet)<input id="i-tijd" type="number" min="0" max="240" placeholder="geen"></label>
+        <label>Verlaat een leerling de toets
+          <select id="i-slot">
+            <option value="slot" selected>Op slot tot ik hem vrijgeef</option>
+            <option value="melden">Alleen melden op het bord</option>
+          </select>
+        </label>
+      </div>
+      <div class="pf-checks">
+        <label class="inline check"><input type="checkbox" id="i-scherm" checked> Volledig scherm</label>
+        <label class="inline check"><input type="checkbox" id="i-schudden" checked> Vragen en keuzes door elkaar (per leerling anders)</label>
+        <label class="inline check"><input type="checkbox" id="i-terug" checked> Terug naar vorige vragen mag</label>
+        <label class="inline check"><input type="checkbox" id="i-uitslag"> Leerling ziet zijn punten na het inleveren</label>
+      </div>
+      <div class="row">
+        <label>Niveau (bij een toets met 🪶 Page, 🛡️ Schildknaap en ⚔️ Ridder)
+          <select id="i-niveau">
+            <option value="klas" selected>Per leerling, zoals ingesteld bij Mijn klas</option>
+            <option value="kies">De leerling kiest zelf</option>
+            <option value="schildknaap">Iedereen 🛡️ Schildknaap</option>
+            <option value="page">Iedereen 🪶 Page</option>
+            <option value="ridder">Iedereen ⚔️ Ridder</option>
+          </select>
+        </label>
+        <label>Voorlezen 🔊
+          <select id="i-voorlees">
+            <option value="uit" selected>Uit</option>
+            <option value="page">Alleen voor leerlingen op 🪶 Page</option>
+            <option value="iedereen">Iedereen</option>
+          </select>
+        </label>
+      </div>
+    </div>
+    <p class="notice hidden" id="stopped"></p>
+    <div class="quiz-list" id="toets-list"></div>
+    <p class="error" id="list-error"></p>
+    <div class="panel pf-afnames" id="afnames-panel">
+      <h3>Afgenomen toetsen <span class="muted small">· verbeteren, punten en Excel</span></h3>
+      <div id="afnames"></div>
+    </div>
+  </section>
+
+  <!-- ---------- Maken met AI ---------- -->
+  <section id="maker" class="hidden">
+    <div class="bar">
+      <h2>Nieuwe toets met AI</h2>
+      <button class="secondary" data-back="list">Terug</button>
+    </div>
+    <div class="panel form">
+      <h3>1. Wat moet de AI doen?</h3>
+      <div class="pf-modus" id="a-modus">
+        <label class="pf-modus-k"><input type="radio" name="a-modus" value="over" checked><span><strong>Mijn toets overnemen</strong><small>Je eigen toets (pdf, scan of foto) wordt een digitale toets: dezelfde vragen en punten.</small></span></label>
+        <label class="pf-modus-k"><input type="radio" name="a-modus" value="nieuw"><span><strong>Een nieuwe toets maken</strong><small>Over je lesstof (een pdf of foto van het bordboek) of een onderwerp.</small></span></label>
+      </div>
+      <div class="sources pf-drop" id="a-drop">
+        <strong>Je toets of lesstof</strong>
+        <p class="muted small">Sleep een pdf, scan of foto hierheen, of plak een screenshot met Ctrl+V. Hij blijft op deze pc: LANcelot gebruikt hem om afbeeldingen uit te knippen en bewaart hem niet.</p>
+        <label class="file-button"><input id="a-files" type="file" accept="image/*,application/pdf" multiple hidden>Bestand kiezen</label>
+        <ul class="file-list" id="a-file-list"></ul>
+      </div>
+      <label>Onderwerp of titel (mag leeg)<input id="a-topic" placeholder="bijv. Toets breuken blok 4, of: de Belgische provincies"></label>
+      <div id="a-doel"></div>
+      <div class="row">
+        <label>Leerjaar
+          <select id="a-level">
+            <option>1e leerjaar</option><option>2e leerjaar</option><option>3e leerjaar</option><option>4e leerjaar</option>
+            <option>5e leerjaar</option><option selected>6e leerjaar</option><option>1e middelbaar</option><option>2e middelbaar</option>
+            <option>3e middelbaar</option><option>4e middelbaar</option><option>5e middelbaar</option><option>6e middelbaar</option>
+            <option>hoger onderwijs</option><option>volwassenenonderwijs</option>
+          </select>
+        </label>
+        <label class="pf-nieuw">Aantal vragen<input id="a-count" type="number" min="3" max="60" value="15"></label>
+      </div>
+      <div class="ob-types pf-nieuw" id="a-types">
+        <strong>Soorten vragen</strong>
+        <label class="inline check"><input type="checkbox" value="meerkeuze" checked> Meerkeuze</label>
+        <label class="inline check"><input type="checkbox" value="juistfout" checked> Juist of fout</label>
+        <label class="inline check"><input type="checkbox" value="invullen" checked> Invullen</label>
+        <label class="inline check"><input type="checkbox" value="kort" checked> Kort antwoord</label>
+        <label class="inline check"><input type="checkbox" value="rekenen"> Rekenvraag met bewerking</label>
+        <label class="inline check"><input type="checkbox" value="verbinden" checked> Verbinden</label>
+        <label class="inline check"><input type="checkbox" value="ordenen"> Ordenen</label>
+        <label class="inline check"><input type="checkbox" value="tabel"> Tabel invullen</label>
+        <label class="inline check"><input type="checkbox" value="bron"> Bron met deelvragen</label>
+        <label class="inline check"><input type="checkbox" value="aanduiden"> Aanduiden op een afbeelding</label>
+        <label class="inline check"><input type="checkbox" value="open"> Open vragen</label>
+      </div>
+      <label class="inline check"><input type="checkbox" id="a-niveaus"> Op drie niveaus: 🪶 Page (met hulp), 🛡️ Schildknaap (het doel) en ⚔️ Ridder (uitdaging)</label>
+      <label>Extra wensen (mag leeg)<textarea id="a-extra" rows="2" placeholder="bijv. vraag 6 mag weg, of: geef bij rekenvragen 1 punt voor de bewerking"></textarea></label>
+    </div>
+    <div class="panel form hidden" id="a-key-panel">
+      <h3>2. Laat <span class="ai-naam">Gemini</span> de toets maken</h3>
+      <p class="muted small">Je toets of lesstof hierboven gaat mee naar <span class="ai-naam">Gemini</span>. Dat duurt meestal 20 tot 60 seconden.</p>
+      <p class="error" id="a-key-error"></p>
+      <div><button id="a-key">Maak de toets met <span class="ai-naam">Gemini</span></button> <span class="muted" id="a-key-busy"></span></div>
+    </div>
+    <div class="panel form">
+      <h3><span id="a-copy-nr">2</span>. <span id="a-copy-kop">Of: kopieer de prompt naar een chatbot</span></h3>
+      <p class="muted">Klik op een chatbot: de prompt wordt gekopieerd en de chatbot opent. Plak met Ctrl+V en voeg daar je pdf of foto toe (paperclip of plusje).</p>
+      <textarea id="a-prompt" rows="7" readonly></textarea>
+      <div class="actions">
+        <button class="chatbot" data-url="https://gemini.google.com/app">Gemini</button>
+        <button class="chatbot" data-url="https://chatgpt.com/">ChatGPT</button>
+        <button class="chatbot" data-url="https://claude.ai/new">Claude</button>
+        <button class="secondary" id="a-copy">Alleen kopiëren</button>
+      </div>
+      <p class="muted" id="a-copied"></p>
+      <label>Plak het antwoord van de chatbot<details class="hulp"><summary aria-label="Uitleg">?</summary><p>Meestal hoef je niet te plakken: kopieer het antwoord in de chatbot (het kopieerknopje onder het codeblok) en klik terug naar LANcelot. Het wordt dan vanzelf ingelezen.</p></details><textarea id="a-answer" rows="5" placeholder="Plak hier het hele antwoord…"></textarea></label>
+      <p class="error" id="a-error"></p>
+      <div><button class="secondary" id="a-parse">Controleren</button></div>
+    </div>
+  </section>
+
+  <!-- ---------- Bewerken ---------- -->
+  <section id="editor" class="hidden">
+    <div class="bar">
+      <h2 id="e-heading">Toets bewerken</h2>
+      <button class="secondary" data-back="list">Annuleren</button>
+    </div>
+    <div class="ob-editor pf-editor">
+      <div class="ob-edit-col">
+        <div class="panel form">
+          <label>Titel<input id="e-title" maxlength="100" placeholder="bijv. Toets breuken blok 4"></label>
+          <label>Uitleg voor de leerlingen bij de start (mag leeg)<textarea id="e-intro" rows="2" maxlength="1000" placeholder="bijv. Lees elke vraag goed. Een rekenmachine mag niet."></textarea></label>
+          <p class="pf-totaal" id="e-totaal"></p>
+        </div>
+        <div class="ob-niveau-tabs" id="e-niveaus">
+          <button type="button" class="secondary" data-niveau="page"></button>
+          <button type="button" class="secondary on" data-niveau="schildknaap"></button>
+          <button type="button" class="secondary" data-niveau="ridder"></button>
+        </div>
+        <p class="muted small" id="e-niveau-help"></p>
+        <div id="e-vragen-page" class="pf-vragen hidden"></div>
+        <div id="e-vragen" class="pf-vragen"></div>
+        <div id="e-vragen-ridder" class="pf-vragen hidden"></div>
+        <div class="panel ob-add">
+          <strong>Vraag toevoegen:</strong>
+          <div class="actions" id="e-add"></div>
+        </div>
+        <div class="panel form pf-bijsturen">
+          <h3>✨ Pas aan met AI</h3>
+          <label>Wat moet er anders?<textarea id="b-opdracht" rows="2" placeholder="bijv. maak vraag 4 moeilijker · voeg 3 vragen over breuken toe · maak er 3 niveaus van · geef elke open vraag 2 punten"></textarea></label>
+          <div class="actions">
+            <button id="b-key" class="hidden">Pas aan met <span class="ai-naam">Gemini</span></button>
+            <button class="secondary" id="b-copy">Kopieer de prompt voor een chatbot</button>
+          </div>
+          <span class="muted small" id="b-busy"></span>
+          <label class="hidden" id="b-answer-label">Plak het antwoord van de chatbot<textarea id="b-answer" rows="3" placeholder="Plak hier het hele antwoord…"></textarea></label>
+          <p class="error" id="b-error"></p>
+        </div>
+        <div class="pf-problemen hidden" id="e-problemen"></div>
+        <p class="error" id="e-error"></p>
+        <div class="bar">
+          <span></span>
+          <div class="actions">
+            <button class="secondary" id="e-save">Opslaan</button>
+            <button class="secondary" id="e-print">🖨 Opslaan en printen</button>
+            <button id="e-live">Opslaan en afnemen</button>
+          </div>
+        </div>
+      </div>
+      <div class="ob-preview-col">
+        <p class="muted small">Voorbeeld met verbetersleutel (de leerling ziet één vraag per keer, zonder sleutel)</p>
+        <article class="ob-paper pf-paper" id="e-preview"></article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ---------- Afnemen ---------- -->
+  <section id="lobby" class="hidden">
+    <div class="panel join">
+      <div class="qr" id="qr"></div>
+      <div class="join-text">
+        <p class="muted">Scan de QR-code of surf naar</p>
+        <div class="join-url" id="join-url"></div>
+        <p class="muted small" id="other-urls"></p>
+        <p class="muted small">Wie al op het startscherm staat, komt vanzelf in de toets.</p>
+      </div>
+    </div>
+    <div class="hud">
+      <span class="round" id="l-title"></span>
+      <span class="ob-summary" id="l-summary"></span>
+      <div class="actions">
+        <button class="secondary hidden" id="l-vrij">🔓 Alles vrijgeven</button>
+        <button class="secondary hidden" id="l-extra">+5 min voor iedereen</button>
+        <button class="secondary" id="l-uitslag">Leerlingen zien hun punten: uit</button>
+        <button class="gold" id="l-finish">Afsluiten</button>
+      </div>
+    </div>
+    <p class="muted small" id="l-uitleg"></p>
+    <div class="pf-leerlingen" id="l-students"></div>
+    <div class="panel hidden pf-einde" id="l-einde">
+      <p><strong>De toets is afgesloten.</strong> <span id="l-einde-tekst"></span></p>
+      <div class="actions"><button class="gold" id="l-verbeter">Verbeteren ▶</button><button class="secondary" id="l-sluit">Sluit de toets</button></div>
+    </div>
+  </section>
+
+  <!-- ---------- Verbeteren ---------- -->
+  <section id="verbeter" class="hidden">
+    <div class="bar">
+      <h2 id="v-title">Verbeteren</h2>
+      <div class="actions">
+        <button class="secondary" id="v-terug">Terug</button>
+        <button class="gold" id="v-klaar">Klaar met verbeteren</button>
+      </div>
+    </div>
+    <p class="muted" id="v-info"></p>
+    <p class="notice hidden" id="v-klaar-note"></p>
+    <div class="pf-tabs" id="v-tabs">
+      <button type="button" class="secondary on" data-tab="vragen">Per vraag</button>
+      <button type="button" class="secondary" data-tab="leerlingen">Per leerling</button>
+    </div>
+    <div id="v-vragen"></div>
+    <div id="v-leerlingen" class="hidden"></div>
+  </section>
+
+  <div class="ob-modal hidden" id="detail">
+    <div class="ob-modal-box">
+      <div class="bar"><h2 id="d-name"></h2><div class="actions" id="d-actions"></div></div>
+      <div class="pf-events" id="d-events"></div>
+      <article class="ob-paper pf-paper" id="d-paper"></article>
+    </div>
+  </div>
+
+  <div class="ob-modal hidden" id="knip">
+    <div class="ob-modal-box pf-knip">
+      <div class="bar">
+        <h2 id="k-titel">Knip een afbeelding</h2>
+        <div class="actions">
+          <label class="file-button secondary"><input id="k-file" type="file" accept="image/*,application/pdf" hidden>📎 Ander bestand</label>
+          <button class="secondary" id="k-annuleer">Annuleren</button>
+        </div>
+      </div>
+      <div class="pf-knip-balk">
+        <select id="k-bron" aria-label="Bestand"></select>
+        <button class="secondary" id="k-vorige" aria-label="Vorige pagina">◀</button>
+        <span id="k-pagina"></span>
+        <button class="secondary" id="k-volgende" aria-label="Volgende pagina">▶</button>
+        <span class="muted small">Sleep een kader rond wat je wil gebruiken.</span>
+      </div>
+      <div class="pf-knip-vlak" id="k-vlak"><canvas id="k-canvas"></canvas><i class="pf-kader hidden" id="k-kader"></i><p class="muted" id="k-leeg">Kies een pdf of afbeelding, of plak een screenshot met Ctrl+V.</p></div>
+      <div class="actions pf-knip-knoppen">
+        <button class="secondary" id="k-heel">Hele pagina</button>
+        <button class="gold" id="k-ok" disabled>Gebruik dit stuk</button>
+      </div>
+    </div>
+  </div>
+</main>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/ui.js"></script>
+<script src="/js/fx.js"></script>
+<script src="/js/avatar.js"></script>
+<script src="/js/quiz-list.js"></script>
+<script src="/js/doel-kies.js"></script>
+<script src="/js/niveau.js"></script>
+<script src="/js/pf-kern.js"></script>
+<script src="/js/pf-paper.js"></script>
+<script src="/js/pf-knip.js"></script>
+<script src="/js/pf-host.js"></script>
+<script src="/js/address.js"></script>
+</body>
+</html>

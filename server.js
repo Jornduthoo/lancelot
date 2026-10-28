@@ -73,6 +73,8 @@ const reeks = require('./src/reeks');
 const kronieken = require('./src/kronieken');
 const zonnewijzer = require('./src/zonnewijzer');
 const { OefenbladLive } = require('./src/oefenblad-live');
+const proeven = require('./src/proeven');
+const { ProefLive } = require('./src/proef-live');
 const niveaus = require('./src/niveaus');
 const settings = require('./src/settings');
 const klas = require('./src/klas');
@@ -272,9 +274,19 @@ const oefenblad = new OefenbladLive(io, o => {
   return finished(file);
 });
 
+// De Proef: een afgenomen toets wordt een afname. Zonder open vragen is hij meteen verbeterd en komt hij in het logboek.
+const proef = new ProefLive(io, rec => {
+  const file = proeven.bewaarAfname(rec);
+  const hand = rec.spelers.some(s => proeven.stand(rec, s).open);
+  if (!hand) proeven.klaar(file, results.saveProef);
+  io.to('host').emit('pf-afnames', proeven.afnames());
+  finished(null);
+  return file;
+});
+
 // Elk spel met leerlingen, bij het adres van zijn docentenscherm. Een nieuw spel komt hier ook bij:
 // zo werken de grijze (bezette) namen bij het aanmelden en de knop "Namen" op het bord meteen mee.
-const SPELLEN = { '/host': game, '/toren': toren, '/schattenjacht': schat, '/laserslag': laserslag, '/ridderrace': race, '/kristalroof': roof, '/verrader': verrader, '/burchtbouwers': burcht, '/duel': duel, '/packnight': knight, '/strijdrossen': rossen, '/gauntlet': gauntlet, '/ridder-royale': royale, '/sterrenvreter': sterren, '/ridderslang': slang, '/burchtstorm': storm, '/poortwacht': poort, '/neonvlucht': vlucht, '/diepboor': diep, '/pixelridder': pixel, '/robomol': robomol, '/kerker': kerker, '/hofschilder': hof, '/robopaarden': paarden, '/neonduel': neon, '/leraarbaas': baas, '/cybergalaga': galaga, '/bomberknight': bomber, '/rijk': rijk, '/oefenblad': oefenblad };
+const SPELLEN = { '/host': game, '/toren': toren, '/schattenjacht': schat, '/laserslag': laserslag, '/ridderrace': race, '/kristalroof': roof, '/verrader': verrader, '/burchtbouwers': burcht, '/duel': duel, '/packnight': knight, '/strijdrossen': rossen, '/gauntlet': gauntlet, '/ridder-royale': royale, '/sterrenvreter': sterren, '/ridderslang': slang, '/burchtstorm': storm, '/poortwacht': poort, '/neonvlucht': vlucht, '/diepboor': diep, '/pixelridder': pixel, '/robomol': robomol, '/kerker': kerker, '/hofschilder': hof, '/robopaarden': paarden, '/neonduel': neon, '/leraarbaas': baas, '/cybergalaga': galaga, '/bomberknight': bomber, '/rijk': rijk, '/oefenblad': oefenblad, '/proef': proef };
 const online = socketId => !!(socketId && io.sockets.sockets.get(socketId));
 function* spelers() {
   for (const spel of Object.values(SPELLEN)) {
@@ -383,7 +395,7 @@ const busyError = message => Object.assign(new Error(message), { busy: true });
 
 // Alles stoppen wat nog loopt (behalve het spel dat je wil starten). De resultaten worden bewaard zoals bij Stop.
 function stopOthers(except) {
-  const all = { toernooi: game, rondetafel: rt, toren, schat, laserslag, race, roof, verrader, burcht, duel, knight, rossen, gauntlet, royale, sterren, slang, storm, poort, vlucht, diep, pixel, robomol, kerker, hofschilder: hof, paarden, neon, baas, rijk, oefenblad, galaga, bomber };
+  const all = { toernooi: game, rondetafel: rt, toren, schat, laserslag, race, roof, verrader, burcht, duel, knight, rossen, gauntlet, royale, sterren, slang, storm, poort, vlucht, diep, pixel, robomol, kerker, hofschilder: hof, paarden, neon, baas, rijk, oefenblad, proef, galaga, bomber };
   for (const [key, mod] of Object.entries(all)) {
     if (key === except) continue;
     if (key === 'toernooi' ? game.phase !== 'idle' : mod.active) mod.stop();
@@ -422,6 +434,7 @@ function busyWith(except) {
   if (except !== 'paarden' && paarden.active) return 'Robopaarden loopt nog. Stop die race eerst.';
   if (except !== 'rijk' && rijk.active) return 'Het Rijk loopt nog. Stop dat spel eerst.';
   if (except !== 'oefenblad' && oefenblad.active) return 'Er staat nog een oefenblad open. Sluit dat eerst.';
+  if (except !== 'proef' && proef.active) return 'Er loopt nog een toets. Sluit die eerst.';
   return null;
 }
 
@@ -430,6 +443,7 @@ const LIBS = {
   quiz: { mod: quizzes, list: 'quizzes', folders: 'quiz-folders' },
   oefenblad: { mod: oefenbladen, list: 'ob-sheets', folders: 'ob-folders' },
   sessie: { mod: rondetafel, list: 'rt-sessions', folders: 'rt-folders' },
+  proef: { mod: proeven, list: 'pf-lijst', folders: 'pf-mappen' },
 };
 
 // Zonder target: naar alle docentenschermen, en daarna ook naar de lesmap (er werd iets bewaard, verplaatst of verwijderd).
@@ -446,6 +460,8 @@ lesmap.init([
   { kind: 'quiz', dir: quizzes.DIR, remote: 'quizzen', validate: quizzes.validate },
   { kind: 'oefenblad', dir: oefenbladen.DIR, remote: 'oefenbladen', validate: oefenbladen.validate },
   { kind: 'sessie', dir: rondetafel.DIR, remote: 'ronde-tafel', validate: rondetafel.validate },
+  // Toetsen thuis maken, op het digibord afnemen. De afnames (antwoorden van leerlingen) blijven op deze pc.
+  { kind: 'proef', dir: proeven.DIR, remote: 'toetsen', validate: proeven.K.validate },
   // De planning van De Zonnewijzer: thuis voorbereiden, op het bord gebruiken.
   { kind: 'zonnewijzer', dir: zonnewijzer.DIR, remote: 'zonnewijzer', validate: d => { if (!d || typeof d !== 'object' || Array.isArray(d)) throw new Error('Ongeldig bestand.'); } },
   // De Kronieken: mappen, online bordboeken en koppelingen per les (de pdf's zelf blijven op elke pc).
@@ -497,7 +513,7 @@ function takenSoon() {
 }
 
 // De docentenschermen, elk bij zijn adres.
-const PAGINAS = [['/host', 'host.html'], ['/rondetafel', 'rondetafel.html'], ['/toren', 'toren.html'], ['/schattenjacht', 'schattenjacht.html'], ['/laserslag', 'laserslag.html'], ['/ridderrace', 'ridderrace.html'], ['/kristalroof', 'kristalroof.html'], ['/verrader', 'verrader.html'], ['/burchtbouwers', 'burchtbouwers.html'], ['/duel', 'duel.html'], ['/packnight', 'packnight.html'], ['/strijdrossen', 'strijdrossen.html'], ['/gauntlet', 'gauntlet.html'], ['/ridder-royale', 'royale.html'], ['/sterrenvreter', 'sterrenvreter.html'], ['/ridderslang', 'ridderslang.html'], ['/burchtstorm', 'burchtstorm.html'], ['/poortwacht', 'poortwacht.html'], ['/neonvlucht', 'neonvlucht.html'], ['/diepboor', 'diepboor.html'], ['/pixelridder', 'pixelridder.html'], ['/robomol', 'robomol.html'], ['/kerker', 'kerker.html'], ['/hofschilder', 'hofschilder.html'], ['/robopaarden', 'robopaarden.html'], ['/neonduel', 'neonduel.html'], ['/leraarbaas', 'leraarbaas.html'], ['/cybergalaga', 'cybergalaga.html'], ['/bomberknight', 'bomberknight.html'], ['/rijk', 'rijk.html'], ['/oefenblad', 'oefenblad.html'], ['/reeks', 'reeks.html'], ['/wapenkamer', 'wapenkamer.html'], ['/kringgesprek', 'kringgesprek.html'], ['/kronieken', 'kronieken.html'], ['/zonnewijzer', 'zonnewijzer.html'], ['/oefenblad-print', 'oefenblad-print.html'], ['/klas', 'klas.html'], ['/zorg', 'zorg.html'], ['/taken', 'taken.html'], ['/zorg-fiche', 'zorg-fiche.html'], ['/runenraadsel', 'runenraadsel.html'], ['/klaseiland', 'klaseiland.html'], ['/netwerk', 'netwerk.html'], ['/welkom', 'welkom.html'], ['/privacy', 'privacy.html']];
+const PAGINAS = [['/host', 'host.html'], ['/rondetafel', 'rondetafel.html'], ['/toren', 'toren.html'], ['/schattenjacht', 'schattenjacht.html'], ['/laserslag', 'laserslag.html'], ['/ridderrace', 'ridderrace.html'], ['/kristalroof', 'kristalroof.html'], ['/verrader', 'verrader.html'], ['/burchtbouwers', 'burchtbouwers.html'], ['/duel', 'duel.html'], ['/packnight', 'packnight.html'], ['/strijdrossen', 'strijdrossen.html'], ['/gauntlet', 'gauntlet.html'], ['/ridder-royale', 'royale.html'], ['/sterrenvreter', 'sterrenvreter.html'], ['/ridderslang', 'ridderslang.html'], ['/burchtstorm', 'burchtstorm.html'], ['/poortwacht', 'poortwacht.html'], ['/neonvlucht', 'neonvlucht.html'], ['/diepboor', 'diepboor.html'], ['/pixelridder', 'pixelridder.html'], ['/robomol', 'robomol.html'], ['/kerker', 'kerker.html'], ['/hofschilder', 'hofschilder.html'], ['/robopaarden', 'robopaarden.html'], ['/neonduel', 'neonduel.html'], ['/leraarbaas', 'leraarbaas.html'], ['/cybergalaga', 'cybergalaga.html'], ['/bomberknight', 'bomberknight.html'], ['/rijk', 'rijk.html'], ['/oefenblad', 'oefenblad.html'], ['/proef', 'proef.html'], ['/proef-print', 'proef-print.html'], ['/reeks', 'reeks.html'], ['/wapenkamer', 'wapenkamer.html'], ['/kringgesprek', 'kringgesprek.html'], ['/kronieken', 'kronieken.html'], ['/zonnewijzer', 'zonnewijzer.html'], ['/oefenblad-print', 'oefenblad-print.html'], ['/klas', 'klas.html'], ['/zorg', 'zorg.html'], ['/taken', 'taken.html'], ['/zorg-fiche', 'zorg-fiche.html'], ['/runenraadsel', 'runenraadsel.html'], ['/klaseiland', 'klaseiland.html'], ['/netwerk', 'netwerk.html'], ['/welkom', 'welkom.html'], ['/privacy', 'privacy.html']];
 
 // Het docentenscherm werkt op de pc waar de server draait (meestal het digibord),
 // en op een tweede scherm dat de leerkracht met een koppelcode koppelde (de bureau-pc).
@@ -523,6 +539,18 @@ for (const [route, page] of PAGINAS) {
 app.get('/runen', (req, res) => {
   res.setHeader('Cache-Control', 'no-cache');
   res.sendFile(path.join(__dirname, 'public', 'runen.html'));
+});
+// De Proef: de toets voor leerlingen, in een eigen, lichte pagina (het startscherm stuurt de leerling hierheen).
+app.get('/toets', (req, res) => {
+  res.setHeader('Cache-Control', 'no-cache');
+  res.sendFile(path.join(__dirname, 'public', 'toets.html'));
+});
+// De afbeeldingen van de toets die nu loopt (zo zitten ze niet in elke stand die naar de leerlingen gaat).
+app.get('/toets-beeld/:run/:nr', (req, res) => {
+  const b = proef.beeld(req.params.run, req.params.nr);
+  if (!b) return res.status(404).end();
+  res.setHeader('Cache-Control', 'private, max-age=3600');
+  res.type(b.mime).send(b.buf);
 });
 // Mijn taken: de leerling werkt aan wat de leerkracht hem gaf, op zijn eigen toestel, ook als er geen spel loopt.
 app.get('/mijn-taken', (req, res) => {
@@ -898,6 +926,7 @@ io.on('connection', socket => {
     socket.emit('rk-state', rijk.hostState());
     socket.emit('vr-state', verrader.hostState());
     socket.emit('ob-state', oefenblad.hostState());
+    socket.emit('pf-state', proef.hostState());
 
     socket.on('pauze-zet', ({ aan, tekst } = {}) => pauze.zet(aan, tekst));
     socket.on('thema-zet', id => {
@@ -1503,6 +1532,62 @@ io.on('connection', socket => {
     socket.on('ob-set-niveau', ({ id, niveau } = {}, cb) => { const res = oefenblad.setNiveau(id, niveau); if (typeof cb === 'function') cb(res); });
     socket.on('ob-stop', (_, cb) => cb && cb({ file: oefenblad.stop() }));
 
+    // De Proef: toetsen maken (zelf of met AI), afnemen en verbeteren.
+    const refreshProeven = () => sendLibrary('proef');
+    socket.on('pf-parse', handle(text => ({ toets: proeven.parseAiText(text) })));
+    socket.on('pf-open', handle(file => ({ toets: proeven.load(file) })));
+    socket.on('pf-save', handle(({ toets, file } = {}) => {
+      const saved = proeven.save(toets, file);
+      refreshProeven();
+      return { file: saved };
+    }));
+    socket.on('pf-delete', handle(file => {
+      proeven.remove(file);
+      refreshProeven();
+      return {};
+    }));
+    // Maken of bijsturen met de eigen AI-sleutel. Bij bijsturen gaat de hele toets mee, dus een langere prompt.
+    socket.on('pf-generate', ({ prompt, files, lang } = {}, cb) => {
+      generateQuiz(prompt, files || [], proeven.parseAiText, { max: lang ? 120000 : 30000 })
+        .then(toets => cb && cb({ ok: true, toets }))
+        .finally(() => io.to('host').emit('settings', settings.publicView()))
+        .catch(err => cb && cb({ error: err.message }));
+    });
+    socket.on('pf-load', handle(({ file, inst } = {}) => {
+      const busy = busyWith('proef');
+      if (busy) throw busyError(busy);
+      proef.load(proeven.load(file), file, inst);
+      return {};
+    }));
+    socket.emit('pf-toets', proef.hostToets());
+    socket.on('pf-toets', (_, cb) => typeof cb === 'function' && cb(proef.hostToets()));
+    socket.on('pf-kick', id => proef.kick(id));
+    socket.on('pf-finish', () => proef.finish());
+    socket.on('pf-stop', (_, cb) => cb && cb({ afname: proef.stop() }));
+    const pfHost = fn => (arg, cb) => { const res = fn(arg || {}); if (typeof cb === 'function') cb(res || { ok: true }); };
+    socket.on('pf-vrij', pfHost(({ id }) => proef.vrijgeven(id)));
+    socket.on('pf-extra', pfHost(({ id, minuten }) => proef.extraTijd(id, minuten)));
+    socket.on('pf-heropen', pfHost(({ id }) => proef.heropen(id)));
+    socket.on('pf-detail', pfHost(({ id }) => proef.detail(id)));
+    socket.on('pf-zet-niveau', pfHost(({ id, niveau }) => proef.setNiveau(id, niveau)));
+    socket.on('pf-uitslag', pfHost(({ aan }) => proef.toonUitslag(aan)));
+    // Afnames: verder verbeteren na de les (open vragen, op papier, de werkwijze), dan klaar: Excel en logboek.
+    socket.emit('pf-afnames', proeven.afnames());
+    socket.on('pf-afnames', (_, cb) => typeof cb === 'function' && cb(proeven.afnames()));
+    socket.on('pf-afname', handle(file => ({ afname: proeven.laadAfname(file) })));
+    socket.on('pf-cijfer', handle(arg => ({ stand: proeven.cijfer(arg) })));
+    socket.on('pf-klaar', handle(file => {
+      const rec = proeven.klaar(file, results.saveProef);
+      io.to('host').emit('results', results.list());
+      io.to('host').emit('pf-afnames', proeven.afnames());
+      return { resultaten: rec.resultaten };
+    }));
+    socket.on('pf-afname-weg', handle(file => {
+      proeven.verwijderAfname(file);
+      io.to('host').emit('pf-afnames', proeven.afnames());
+      return {};
+    }));
+
     // Zeker of twijfel vragen na elk antwoord in het Toernooi (en de Opwarmer). Staat standaard aan.
     socket.emit('zekerheid', settings.read().zekerheid !== false);
     socket.on('zekerheid', on => {
@@ -1887,6 +1972,27 @@ io.on('connection', socket => {
   socket.on('ob-answer', ob((id, a) => oefenblad.answer(id, a)));
   socket.on('ob-submit', ob(id => oefenblad.submit(id)));
   socket.on('ob-niveau', ob((id, niveau) => oefenblad.choose(id, niveau)));
+
+  // De Proef (een toets)
+  socket.emit('pf-state', proef.base());
+  socket.on('pf-join', ({ playerId, name } = {}, cb) => {
+    if (!validId(playerId)) return cb && cb({ error: 'Ongeldige speler.' });
+    const result = proef.join(playerId, name, socket.id);
+    socket.data.pfId = result.ok ? playerId : null;
+    cb && cb(result);
+    if (result.ok) proef.sendPlayer(playerId);
+  });
+  const pf = fn => (arg, cb) => {
+    const out = socket.data.pfId ? fn(socket.data.pfId, arg) : { error: 'Meld je eerst aan.' };
+    if (typeof cb === 'function') cb(out || {});
+  };
+  socket.on('pf-start', pf(id => proef.start(id)));
+  socket.on('pf-answer', pf((id, a) => proef.answer(id, a)));
+  socket.on('pf-pos', pf((id, i) => proef.pos(id, i)));
+  socket.on('pf-weg', pf((id, soort) => proef.weg(id, soort)));
+  socket.on('pf-terug', pf(id => proef.terug(id)));
+  socket.on('pf-submit', pf(id => proef.submit(id)));
+  socket.on('pf-niveau', pf((id, niveau) => proef.choose(id, niveau)));
 
   // Wie wegvalt tijdens een vraag, blijft niet onkwetsbaar staan.
   socket.on('disconnect', () => {

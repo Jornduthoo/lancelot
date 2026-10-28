@@ -85,13 +85,14 @@ async function openai(prompt, files, key, model) {
 }
 
 // files: [{ mimeType, data }] met base64-data. parse zet de tekst om (standaard een Toernooi-quiz).
-async function generateQuiz(prompt, files = [], parse = quizzes.parseAiText) {
+// max: hoe lang de prompt mag zijn (een toets bijsturen stuurt de hele toets mee).
+async function generateQuiz(prompt, files = [], parse = quizzes.parseAiText, { max = 20000 } = {}) {
   const { dienst, naam, key, model } = settings.actief();
-  if (dienst === 'gemini') return gemini.generateQuiz(prompt, files, parse);
+  if (dienst === 'gemini') return gemini.generateQuiz(prompt, files, parse, { max });
   if (!key) throw new Error(`Er is nog geen ${naam}-sleutel ingesteld. Kies Instellingen op het startscherm.`);
   if (typeof prompt !== 'string' || !prompt.trim()) throw new Error('De prompt is leeg.');
   checkFiles(files);
-  const vraag = `${prompt.slice(0, 20000)}\n\nAntwoord alleen met de JSON, zonder uitleg ervoor of erna.`;
+  const vraag = `${prompt.slice(0, max)}\n\nAntwoord alleen met de JSON, zonder uitleg ervoor of erna.`;
   const text = await (dienst === 'claude' ? claude : openai)(vraag, files, key, model);
   if (!text) throw new Error(`${naam} gaf een leeg antwoord. Probeer het opnieuw of pas het onderwerp aan.`);
   return parse(text);

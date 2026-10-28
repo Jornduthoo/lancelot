@@ -71,7 +71,7 @@ const BUSY = new Set([429, 500, 503, 504]);
 
 // files: [{ mimeType, data }] met base64-data, bijvoorbeeld een screenshot van het bordboek of een pdf.
 // parse zet de tekst van Gemini om in een quiz of een andere vorm (standaard een Toernooi-quiz).
-async function generateQuiz(prompt, files = [], parse = quizzes.parseAiText) {
+async function generateQuiz(prompt, files = [], parse = quizzes.parseAiText, { max = 20000 } = {}) {
   const { geminiKey, geminiModel, geminiAutoModel } = settings.read();
   if (!geminiKey) throw new Error('Er is nog geen Gemini-sleutel ingesteld. Kies Instellingen op het startscherm.');
   if (typeof prompt !== 'string' || !prompt.trim()) throw new Error('De prompt is leeg.');
@@ -88,7 +88,7 @@ async function generateQuiz(prompt, files = [], parse = quizzes.parseAiText) {
   if (total > MAX_FILE_BYTES) throw new Error('De lesstof is te groot (meer dan 20 MB).');
 
   const body = JSON.stringify({
-    contents: [{ role: 'user', parts: [...fileParts, { text: prompt.slice(0, 20000) }] }],
+    contents: [{ role: 'user', parts: [...fileParts, { text: prompt.slice(0, max) }] }],
     generationConfig: { responseMimeType: 'application/json' },
   });
 
