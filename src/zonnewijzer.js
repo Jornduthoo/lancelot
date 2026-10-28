@@ -160,6 +160,18 @@ function zetLes({ week: id, slot, les }) {
   return w;
 }
 
+// Meerdere lessen tegelijk, enkel op lege plekken (Vul de week aan).
+function vul({ week: id, lessen }) {
+  const w = week(id);
+  for (const [slot, l] of Object.entries(lessen || {})) {
+    if (!SLOT.test(slot) || w.lessen[slot]) continue;
+    const les = schoonLes(l);
+    if (les) w.lessen[slot] = les;
+  }
+  bewaarWeek(w);
+  return w;
+}
+
 function zetWeekRooster({ week: id, rooster }) {
   const w = week(id);
   w.rooster = tekst(rooster, 40);
@@ -307,4 +319,4 @@ function doelInfo(codes) {
   return { doelen: info, doel, criteria: info.filter(d => d.tekst).map(d => kort(d.tekst)) };
 }
 
-module.exports = { DIR, roosters, bewaarRoosters, importeerRoosters, schoonRooster, week, laatsteVan, zetLes, zetWeekRooster, vink, schuif, doelInfo, ikZin, weekVan };
+module.exports = { DIR, vul, roosters, bewaarRoosters, importeerRoosters, schoonRooster, week, laatsteVan, zetLes, zetWeekRooster, vink, schuif, doelInfo, ikZin, weekVan };

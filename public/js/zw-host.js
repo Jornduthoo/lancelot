@@ -496,32 +496,68 @@ function tekenBlokken() {
 }
 
 // Een nieuw lesuur: de les na de vorige les van dit vak (dezelfde map, of de eerste les van de volgende map).
-function stelVoor(slot, vak) {
-  socket.emit('zw-laatste', { vak, week: zw.week, slot }, res => {
-    if (zw.bewerk.slot !== slot || $('zw-ed-map').value || !$('zw-editor').open) return;
-    const vorige = res && res.les;
-    if (vorige) {
-      const mappen = Lessen.mappen(zw.bron);
-      let map = vorige.map;
-      let volgende = Lessen.van(map, zw.bron).find(l => l.nr > vorige.nr);
-      if (!volgende) {
-        const broers = mappen.filter(m => bovenMap(m) === bovenMap(vorige.map));
-        const na = broers[broers.indexOf(vorige.map) + 1];
-        if (na) {
-          map = na;
-          volgende = Lessen.van(na, zw.bron)[0];
-        }
-      }
-      if (volgende) {
-        zetMap(map);
-        vulLessen(map, volgende.nr);
-        kiesLes(volgende.nr);
-        tekenBlokken();
-        $('zw-ed-voorstel-info').textContent = `✨ Voorstel: de les na Les ${vorige.nr}. Een andere les kiezen kan hierboven.`;
-      }
-    }
-  });
+// De les na Les nr in deze map, of de eerste les van de volgende map (Blok 3 → Blok 4).
+function volgendeNa(map, nr) {
+  const volgende = Lessen.van(map, zw.bron).find(l => l.nr > nr);
+  if (volgende) return { map, les: volgende };
+  const broers = Lessen.mappen(zw.bron).filter(m => bovenMap(m) === bovenMap(map));
+  const na = broers[broers.indexOf(map) + 1];
+  const eerste = na && Lessen.van(na, zw.bron)[0];
+  return eerste ? { map: na, les: eerste } : null;
 }
+const vraagLaatste = (vak, slot) => new Promise(klaar => socket.emit('zw-laatste', { vak, week: zw.week, slot }, res => klaar((res && res.les) || null)));
+const vraagDoelen = file => new Promise(klaar => socket.emit('zw-quiz-doelen', { file }, res => klaar(res && !res.error ? res : null)));
+
+// Een nieuw lesuur: de les na de vorige les van dit vak.
+async function stelVoor(slot, vak) {
+  const vorige = await vraagLaatste(vak, slot);
+  if (zw.bewerk.slot !== slot || $('zw-ed-map').value || !$('zw-editor').open || !vorige) return;
+  const v = volgendeNa(vorige.map, vorige.nr);
+  if (!v) return;
+  zetMap(v.map);
+  vulLessen(v.map, v.les.nr);
+  kiesLes(v.les.nr);
+  tekenBlokken();
+  $('zw-ed-voorstel-info').textContent = `✨ Voorstel: de les na Les ${vorige.nr}. Een andere les kiezen kan hierboven.`;
+}
+
+// Vul de week aan: elk leeg lesuur van een vak krijgt de volgende les, na de laatst geplande les van dat vak.
+$('zw-vul').addEventListener('click', async () => {
+  const r = rooster();
+  const leeg = [];
+  for (let d = 1; d <= 5; d++) for (const u of dagUren(r, d)) if (u.soort === 'les' && u.vak && !zw.weekData.lessen[`${d}-${u.les}`]) leeg.push({ slot: `${d}-${u.les}`, vak: u.vak });
+  const stand = new Map();
+  const plan = [];
+  for (const p of leeg) {
+    const sleutel = p.vak.toLowerCase();
+    // Nog geen vorige les gevonden (bv. maandag ligt vóór je eerste geplande les)? Dan bij het volgende lesuur opnieuw kijken.
+    if (!stand.get(sleutel)) stand.set(sleutel, await vraagLaatste(p.vak, p.slot));
+    const vorige = stand.get(sleutel);
+    if (!vorige) continue;
+    const v = volgendeNa(vorige.map, vorige.nr);
+    if (!v) continue;
+    stand.set(sleutel, { map: v.map, nr: v.les.nr });
+    plan.push({ ...p, map: v.map, les: v.les });
+  }
+  if (!plan.length) return Ui.melding('Er valt niets aan te vullen. Plan eerst één les per vak uit je lespakket (bv. Rekenen Les 31): dan vult LANcelot de lessen daarna in.');
+  const perVak = new Map();
+  for (const p of plan) {
+    if (!perVak.has(p.vak)) perVak.set(p.vak, []);
+    perVak.get(p.vak).push(p.les.nr);
+  }
+  const samen = [...perVak].map(([v, nrs]) => `${v}: les ${nrs.length > 1 ? `${nrs[0]}–${nrs[nrs.length - 1]}` : nrs[0]}`).join(', ');
+  if (!await Ui.vraag(`${plan.length} ${plan.length === 1 ? 'les' : 'lessen'} invullen? ${samen}. Je kan elke les daarna nog aanpassen of wissen.`, { ja: 'Invullen' })) return;
+  const lessen = {};
+  for (const p of plan) {
+    const info = p.les.quiz ? await vraagDoelen(p.les.quiz.file) : null;
+    lessen[p.slot] = { vak: p.vak, map: p.map, nr: p.les.nr, titel: p.les.titel || '', doelen: info ? info.doelen.map(x => x.code) : [], doel: (info && info.doel) || '', criteria: (info && info.criteria) || [] };
+  }
+  socket.emit('zw-vul', { week: zw.week, lessen }, res => {
+    if (res.error) return Ui.melding(res.error);
+    zw.weekData = res.weekData;
+    teken();
+  });
+});
 
 function vulLessen(map, nr) {
   const sel = $('zw-ed-les');
