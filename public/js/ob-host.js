@@ -15,6 +15,7 @@ function show(name) {
   if (view !== name) window.scrollTo(0, 0);
   view = name;
   for (const s of VIEWS) $(s).classList.toggle('hidden', s !== name);
+  document.body.classList.toggle('breed', name === 'editor');
 }
 
 document.addEventListener('click', () => sfx.unlock(), { once: true });
