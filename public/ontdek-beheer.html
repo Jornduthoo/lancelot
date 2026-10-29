@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LANcelot · Avalon</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/ontdek.css">
+</head>
+<body class="odh-page">
+<main>
+  <div class="topbar">
+    <div class="brand" id="brand" title="Naar het startscherm">
+      <img src="/img/mark.webp" alt="">
+      <div>
+        <div class="wordmark">LAN<span>celot</span></div>
+        <div class="subtitle od-wereldnaam">Avalon</div>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="secondary" id="to-home">Terug</button>
+    </div>
+  </div>
+
+  <section class="panel odh-intro">
+    <img class="game-logo" src="/img/icons/ontdek.webp" alt="">
+    <div>
+      <p class="title"><span class="od-wereldnaam">Avalon</span>: de ontdekwereld</p>
+      <p>Zwevende eilanden vol raadsels voor wie klaar is. Leerlingen lossen denkpuzzels op, programmeren een robotridder, doen proeven in het labo, kraken geheimschrift en vullen hun <b>woordenboek</b> en <b>ontdekkersboek</b>. Alles op drie niveaus.</p>
+      <p class="muted small">Elk opgelost raadsel geeft een kristal (één per plek per dag) en 3 Eer voor Mijn burcht, hooguit 5 raadsels per dag. Met 3 kristallen bouwen ze de brug naar de Neonruïnes.</p>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h3>Wie mag erin?</h3>
+    <div class="odh-toegang" id="odh-toegang">
+      <button data-t="dicht"><span>🔒</span><b>Dicht</b><small>Niemand, ook niet wie klaar is.</small></button>
+      <button data-t="klaar"><span>✅</span><b>Wie klaar is</b><small>Pas als al je taken af zijn.</small></button>
+      <button data-t="open"><span>🌍</span><b>Open</b><small>Iedereen mag op ontdekking.</small></button>
+    </div>
+    <p class="muted small">Leerlingen openen de wereld met de knop <b class="od-wereldnaam">Avalon</b> op hun startscherm.</p>
+  </section>
+
+  <section class="panel">
+    <h3>Vandaag ontdekt</h3>
+    <p class="muted small" id="odh-samen"></p>
+    <div class="odh-tabel-wrap">
+      <table class="odh-tabel">
+        <thead><tr><th>Leerling</th><th>Vandaag opgelost</th><th title="Kristallen dit schooljaar">💎</th><th title="Woorden in het woordenboek">📖</th><th title="Weetjes in het ontdekkersboek">🔭</th></tr></thead>
+        <tbody id="odh-rijen"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="panel form">
+    <h3>Eigen weetjes en woorden voor je klas</h3>
+    <p class="muted small">De ingebouwde raadsels werken voor elk leerjaar. Weetjes en woorden kan je laten maken op maat van jouw leerjaar en je lessen. Ze komen eerst aan de beurt. De woorden van de week uit het Runenraadsel zitten er ook al in (<b id="odh-week">0</b>).</p>
+    <div class="odh-ai">
+      <label>Leerjaar
+        <select id="odh-leerjaar">
+          <option value="kleuter">3e kleuterklas</option>
+          <option value="1">1e leerjaar</option><option value="2">2e leerjaar</option><option value="3">3e leerjaar</option>
+          <option value="4">4e leerjaar</option><option value="5">5e leerjaar</option><option value="6">6e leerjaar</option>
+          <option value="m1">1e middelbaar</option><option value="m2">2e middelbaar</option>
+        </select>
+      </label>
+      <label class="odh-onderwerp">Onderwerp (mag leeg)
+        <input id="odh-onderwerp" maxlength="120" placeholder="bv. de ruimte, het lichaam, onze les over België">
+      </label>
+    </div>
+    <div class="actions">
+      <button class="gold" id="odh-maak">✨ Maak 15 weetjes en 15 woorden met <span class="ai-naam">Gemini</span></button>
+    </div>
+    <div class="rnh-bots odh-bots">
+      <span class="muted small">Geen sleutel? Prompt wordt gekopieerd:</span>
+      <button class="secondary chatbot" data-url="https://gemini.google.com/app">Gemini</button>
+      <button class="secondary chatbot" data-url="https://chatgpt.com/">ChatGPT</button>
+      <button class="secondary chatbot" data-url="https://claude.ai/new">Claude</button>
+    </div>
+    <details class="odh-plak" id="odh-plak">
+      <summary>Antwoord van de chatbot zelf plakken</summary>
+      <textarea id="odh-plak-tekst" rows="5" placeholder="Plak hier het antwoord (de JSON) van de chatbot."></textarea>
+      <button class="secondary" id="odh-plak-knop">Toevoegen</button>
+    </details>
+    <p class="odh-info" id="odh-info" aria-live="polite"></p>
+
+    <div class="odh-eigen">
+      <div>
+        <h4>Weetjes <span class="muted" id="odh-nw">(0)</span></h4>
+        <ul class="odh-weetjes" id="odh-weetjes"></ul>
+      </div>
+      <div>
+        <h4>Woorden</h4>
+        <p class="muted small">Eén per regel: <code>woord = betekenis | voorbeeldzin</code>. Ook langere woorden mogen.</p>
+        <textarea id="odh-woorden" rows="10" placeholder="ontdekking = iets wat je voor het eerst vindt of te weten komt | De ontdekking van de fossielen was groot nieuws."></textarea>
+        <div class="actions">
+          <button class="secondary danger" id="odh-wis">Alles wissen</button>
+          <button class="gold" id="odh-woorden-bewaar">Bewaar woorden</button>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/ui.js"></script>
+<script src="/js/avatar.js"></script>
+<script src="/js/od-host.js"></script>
+</body>
+</html>

@@ -97,6 +97,7 @@ const { execFile } = require('child_process');
 const { generateQuiz } = require('./src/ai');
 const antigok = require('./src/antigok');
 const runen = require('./src/runen');
+const ontdek = require('./src/ontdek');
 const burchten = require('./src/burchten');
 const taken = require('./src/taken');
 const klastaken = require('./src/klastaken');
@@ -311,7 +312,7 @@ function oudeSpeler(name) {
 
 // Wie zit waar? Voor de knop "Namen" op elk docentenscherm. Een spel weet zijn spelers; op het Runenraadsel,
 // Mijn burcht, Mijn taken en het startscherm onthoudt de verbinding zelf welke naam erop staat.
-const ZONDER_SPEL = { runen: 'Runenraadsel', burcht: 'Mijn burcht', taken: 'Mijn taken', solo: 'Taak in een spel', start: 'Wacht op een spel' };
+const ZONDER_SPEL = { runen: 'Runenraadsel', ontdek: ontdek.NAAM, burcht: 'Mijn burcht', taken: 'Mijn taken', solo: 'Taak in een spel', start: 'Wacht op een spel' };
 function hier(socket, naam, waar) {
   if (typeof naam !== 'string' || !naam.trim() || naam.length > 60 || !ZONDER_SPEL[waar]) return;
   socket.data.naam = naam.trim();
@@ -524,8 +525,19 @@ function takenSoon() {
   }, 500);
 }
 
+// De ontdekwereld: wie wat oploste, hooguit om de twee seconden naar de docentenschermen.
+let ontdekTimer = null;
+const ontdekBinnen = () => [...io.sockets.sockets.values()].filter(s => !s.data.host && s.data.waar === 'ontdek' && s.data.naam).map(s => s.data.naam);
+function ontdekSoon() {
+  if (ontdekTimer) return;
+  ontdekTimer = setTimeout(() => {
+    ontdekTimer = null;
+    io.to('host').emit('od-bord', ontdek.bord(ontdekBinnen()));
+  }, 2000);
+}
+
 // De docentenschermen, elk bij zijn adres.
-const PAGINAS = [['/host', 'host.html'], ['/rondetafel', 'rondetafel.html'], ['/toren', 'toren.html'], ['/schattenjacht', 'schattenjacht.html'], ['/laserslag', 'laserslag.html'], ['/ridderrace', 'ridderrace.html'], ['/kristalroof', 'kristalroof.html'], ['/verrader', 'verrader.html'], ['/burchtbouwers', 'burchtbouwers.html'], ['/duel', 'duel.html'], ['/packnight', 'packnight.html'], ['/strijdrossen', 'strijdrossen.html'], ['/gauntlet', 'gauntlet.html'], ['/ridder-royale', 'royale.html'], ['/sterrenvreter', 'sterrenvreter.html'], ['/ridderslang', 'ridderslang.html'], ['/burchtstorm', 'burchtstorm.html'], ['/poortwacht', 'poortwacht.html'], ['/neonvlucht', 'neonvlucht.html'], ['/diepboor', 'diepboor.html'], ['/pixelridder', 'pixelridder.html'], ['/robomol', 'robomol.html'], ['/kerker', 'kerker.html'], ['/hofschilder', 'hofschilder.html'], ['/robopaarden', 'robopaarden.html'], ['/neonduel', 'neonduel.html'], ['/leraarbaas', 'leraarbaas.html'], ['/cybergalaga', 'cybergalaga.html'], ['/bomberknight', 'bomberknight.html'], ['/rijk', 'rijk.html'], ['/oefenblad', 'oefenblad.html'], ['/proef', 'proef.html'], ['/proef-print', 'proef-print.html'], ['/reeks', 'reeks.html'], ['/wapenkamer', 'wapenkamer.html'], ['/kringgesprek', 'kringgesprek.html'], ['/kronieken', 'kronieken.html'], ['/zonnewijzer', 'zonnewijzer.html'], ['/oefenblad-print', 'oefenblad-print.html'], ['/klas', 'klas.html'], ['/zorg', 'zorg.html'], ['/taken', 'taken.html'], ['/zorg-fiche', 'zorg-fiche.html'], ['/runenraadsel', 'runenraadsel.html'], ['/klaseiland', 'klaseiland.html'], ['/netwerk', 'netwerk.html'], ['/welkom', 'welkom.html'], ['/privacy', 'privacy.html']];
+const PAGINAS = [['/host', 'host.html'], ['/rondetafel', 'rondetafel.html'], ['/toren', 'toren.html'], ['/schattenjacht', 'schattenjacht.html'], ['/laserslag', 'laserslag.html'], ['/ridderrace', 'ridderrace.html'], ['/kristalroof', 'kristalroof.html'], ['/verrader', 'verrader.html'], ['/burchtbouwers', 'burchtbouwers.html'], ['/duel', 'duel.html'], ['/packnight', 'packnight.html'], ['/strijdrossen', 'strijdrossen.html'], ['/gauntlet', 'gauntlet.html'], ['/ridder-royale', 'royale.html'], ['/sterrenvreter', 'sterrenvreter.html'], ['/ridderslang', 'ridderslang.html'], ['/burchtstorm', 'burchtstorm.html'], ['/poortwacht', 'poortwacht.html'], ['/neonvlucht', 'neonvlucht.html'], ['/diepboor', 'diepboor.html'], ['/pixelridder', 'pixelridder.html'], ['/robomol', 'robomol.html'], ['/kerker', 'kerker.html'], ['/hofschilder', 'hofschilder.html'], ['/robopaarden', 'robopaarden.html'], ['/neonduel', 'neonduel.html'], ['/leraarbaas', 'leraarbaas.html'], ['/cybergalaga', 'cybergalaga.html'], ['/bomberknight', 'bomberknight.html'], ['/rijk', 'rijk.html'], ['/oefenblad', 'oefenblad.html'], ['/proef', 'proef.html'], ['/proef-print', 'proef-print.html'], ['/reeks', 'reeks.html'], ['/wapenkamer', 'wapenkamer.html'], ['/kringgesprek', 'kringgesprek.html'], ['/kronieken', 'kronieken.html'], ['/zonnewijzer', 'zonnewijzer.html'], ['/oefenblad-print', 'oefenblad-print.html'], ['/klas', 'klas.html'], ['/zorg', 'zorg.html'], ['/taken', 'taken.html'], ['/zorg-fiche', 'zorg-fiche.html'], ['/runenraadsel', 'runenraadsel.html'], ['/ontdek-beheer', 'ontdek-beheer.html'], ['/klaseiland', 'klaseiland.html'], ['/netwerk', 'netwerk.html'], ['/welkom', 'welkom.html'], ['/privacy', 'privacy.html']];
 
 // Het docentenscherm werkt op de pc waar de server draait (meestal het digibord),
 // en op een tweede scherm dat de leerkracht met een koppelcode koppelde (de bureau-pc).
@@ -551,6 +563,11 @@ for (const [route, page] of PAGINAS) {
 app.get('/runen', (req, res) => {
   res.setHeader('Cache-Control', 'no-cache');
   res.sendFile(path.join(__dirname, 'public', 'runen.html'));
+});
+// De ontdekwereld voor leerlingen: op hun eigen toestel, als de leerkracht hem openzet.
+app.get('/ontdek', (req, res) => {
+  res.setHeader('Cache-Control', 'no-cache');
+  res.sendFile(path.join(__dirname, 'public', 'ontdek.html'));
 });
 // De Proef: de toets voor leerlingen, in een eigen, lichte pagina (het startscherm stuurt de leerling hierheen).
 app.get('/toets', (req, res) => {
@@ -833,6 +850,23 @@ io.on('connection', socket => {
     if (socket.data.waar !== 'taken') hier(socket, naam, 'start');
     cb(taken.aantal(naam));
   });
+
+  // De ontdekwereld: je stand, een raadsel openen, een poging, bouwen en je boeken (woordenboek en ontdekkersboek).
+  for (const [event, fn, bord] of [['od-get', ontdek.view], ['od-open', ontdek.open], ['od-poging', ontdek.poging, true], ['od-bouw', ontdek.bouw, true], ['od-boek', ontdek.boek]]) {
+    socket.on(event, (arg, cb) => {
+      if (typeof cb !== 'function') return;
+      if (event === 'od-get') {
+        hier(socket, arg, 'ontdek');
+        ontdekSoon();
+      }
+      try {
+        cb({ ok: true, ...fn(arg) });
+        if (bord) ontdekSoon();
+      } catch (err) {
+        cb({ error: err.message });
+      }
+    });
+  }
 
   socket.on('rn-raad', (arg, cb) => {
     if (typeof cb !== 'function') return;
@@ -1142,6 +1176,25 @@ io.on('connection', socket => {
 
     // Het Runenraadsel op het bord, en de woorden van de week.
     socket.on('rn-bord', handle(() => ({ bord: runen.bord() })));
+    // De ontdekwereld: open of dicht, wie wat oploste, en eigen weetjes en woorden (met AI of uit een chatbot).
+    socket.on('od-bord', handle(() => ({ bord: ontdek.bord(ontdekBinnen()), eigen: ontdek.eigenView(), leerjaar: klas.read().leerjaar })));
+    socket.on('od-toegang', handle(toegang => {
+      const res = ontdek.zetToegang(toegang);
+      io.emit('od-toegang', res.toegang);
+      ontdekSoon();
+      return res;
+    }));
+    socket.on('od-woorden', handle(text => ({ eigen: ontdek.zetWoorden(text) })));
+    socket.on('od-weetje-wis', handle(i => ({ eigen: ontdek.wisWeetje(i) })));
+    socket.on('od-wis-alles', handle(() => ({ eigen: ontdek.wisAlles() })));
+    socket.on('od-prompt', handle(({ leerjaar, onderwerp } = {}) => ({ prompt: ontdek.aiPrompt(leerjaar, onderwerp) })));
+    socket.on('od-plak', handle(arg => ({ eigen: ontdek.plak(arg, aiJson) })));
+    socket.on('od-ai', (arg, cb) => {
+      ontdek.aiMaak(arg, ai, aiJson)
+        .then(eigen => cb && cb({ ok: true, eigen }))
+        .finally(() => io.to('host').emit('settings', settings.publicView()))
+        .catch(err => cb && cb({ error: err.message }));
+    });
     socket.on('rn-onthul', handle(() => runen.onthul()));
     socket.on('rn-lijst-get', handle(() => ({ lijst: runen.lijstView(), prompt: runen.chatPrompt(), doelen: doelen.all().filter(d => d.vak === 'Nederlands' && String(d.leerjaar) === String(klas.read().leerjaar)) })));
     socket.on('rn-lijst-save', handle(arg => {

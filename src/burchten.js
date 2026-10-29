@@ -21,6 +21,8 @@ const HERHAAL = 10;
 const DAG = 3;
 const REEKS = 15; // elke 5 schooldagen na elkaar
 const GOK = 5;
+const ONTDEK_EER = 3; // per opgelost raadsel in de ontdekwereld
+const ONTDEK_MAX = 5; // zoveel raadsels per dag geven Eer
 const GIFT_MAX = 50;
 const POSTEN = 40;
 
@@ -78,7 +80,7 @@ function telling() {
   const van = id => {
     let s = per.get(id);
     if (!s) {
-      s = { eer: 0, posten: [], sessies: new Map(), dagen: new Set(), antwoorden: 0, groei: 0, herhaal: 0, runen: 0, reeks: 0, besteReeks: 0, gift: 0, eerste: '' };
+      s = { eer: 0, posten: [], sessies: new Map(), dagen: new Set(), antwoorden: 0, groei: 0, herhaal: 0, runen: 0, reeks: 0, besteReeks: 0, gift: 0, eerste: '', ontdek: {} };
       per.set(id, s);
     }
     return s;
@@ -94,6 +96,13 @@ function telling() {
     s.antwoorden++;
     if (!s.eerste) s.eerste = e.t;
     s.dagen.add(dagVan(e.t));
+    // De ontdekwereld: 3 Eer per opgelost raadsel, hooguit 5 per dag (herkenbaar aan de eigen sessie per dag).
+    if (String(e.sessie || '').startsWith('ontdek-')) {
+      const dag = e.sessie.slice(7);
+      s.ontdek[dag] = (s.ontdek[dag] || 0) + 1;
+      if (s.ontdek[dag] <= ONTDEK_MAX) post(s, e.t, `Raadsel opgelost: ${e.vraag.replace(/ \(.*\)$/, '')}`, ONTDEK_EER);
+      continue;
+    }
     if (e.spel === 'Runenraadsel') {
       if (e.juist) s.runen++;
       post(s, e.t, e.juist ? 'Runenraadsel gekraakt' : 'Runenraadsel geprobeerd', e.juist ? 5 : 2);

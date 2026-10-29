@@ -286,7 +286,7 @@ function overzicht({ dagen = 42, vak = '' } = {}) {
 function leertijdSessies(entries) {
   const map = new Map();
   for (const e of entries) {
-    if (!e.sessie || e.spel === 'Runenraadsel' || e.spel === 'Oefenblad') continue;
+    if (!e.sessie || e.spel === 'Runenraadsel' || e.spel === 'Oefenblad' || e.sessie.startsWith('ontdek-')) continue;
     const t = Date.parse(e.t);
     const s = map.get(e.sessie) || map.set(e.sessie, { spel: e.spel, start: t, end: t, antwoorden: 0, juist: 0, namen: new Set() }).get(e.sessie);
     s.start = Math.min(s.start, t);
