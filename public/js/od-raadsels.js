@@ -26,6 +26,14 @@ const OdRaadsels = (() => {
     codeslot: 'Kraak de code van de lavapoort.',
     lampen: 'Laat alle vuurkristallen gloeien.',
     hanoi: 'Verhuis de toren van schijven naar de laatste paal.',
+    breuk: 'Kleur het juiste deel van de taart.',
+    munten: 'Betaal de piraten met precies genoeg geld.',
+    coord: 'Zet de kruisjes op de schatkaart.',
+    kubus: 'Tel de blokjes van de wolkentoren.',
+    magisch: 'Maak het magische vierkant af.',
+    route: 'Zoek de kortste vlucht tussen de wolken.',
+    drijven: 'Wat drijft er, en wat zinkt?',
+    thermo: 'Lees de thermometer af.',
   };
   let nu = null; // het open raadsel
   let bezig = false;
@@ -128,6 +136,8 @@ const OdRaadsels = (() => {
         sterrenpoort: '🌌 Genoeg kristallen voor de sterrenpoort! Ze staat bij de Neonruïnes.',
         drakenzadel: '🐉 Genoeg kristallen voor het drakenzadel! De draak wacht bij de rotsen op de Drakenkust.',
         ijsraket: '❄️ Genoeg kristallen voor de ijsraket! Ze staat in de Sterrenhaven.',
+        duikboot: '🐠 Genoeg kristallen voor de duikboot! Ze ligt bij de vijver op de Drakenkust.',
+        luchtballon: '🎈 Genoeg kristallen voor de luchtballon! Hij staat in het IJsrijk.',
       };
       const wat = st && st.bouw && Object.keys(tips).find(k => !st.gebouwd.includes(k) && (!st.bouw[k].nodig || st.gebouwd.includes(st.bouw[k].nodig)) && st.kristallen >= st.bouw[k].kost);
       if (wat) b.appendChild(el('p', 'od-brug-tip', tips[wat]));
@@ -1662,7 +1672,478 @@ const OdRaadsels = (() => {
     zetTel(0);
   }
 
-  const TEKEN = { schuif, robot, licht, stroom, tandwiel, wip, woorden, code, weetje, weeg, reeks, pixel, sudoku, doolhof, toren, ijs, klok, spiegel, codeslot, lampen, hanoi };
+  // ---------- Koraalrif: de parelschelp (breuken) ----------
+
+  function breukTekst(t, n) {
+    const s = el('span', 'od-breukje');
+    s.appendChild(el('b', '', String(t)));
+    s.appendChild(el('b', '', String(n)));
+    return s;
+  }
+
+  function breuk(r) {
+    const pz = r.pz;
+    const aan = new Set();
+    const opdracht = el('p', 'od-vraag-groot', 'Kleur ');
+    opdracht.appendChild(breukTekst(pz.teller, pz.noemer));
+    opdracht.appendChild(document.createTextNode(pz.taarten > 1 ? ' van een taart. Je hebt er twee.' : ' van de taart.'));
+    body().appendChild(opdracht);
+    body().appendChild(el('p', 'od-opdracht', 'Tik op de stukjes om ze te kleuren. Nog eens tikken maakt ze weer leeg.'));
+    const b = bord(pz.taarten * 4 + (pz.taarten - 1), 4);
+    const { g, vak } = b;
+    const R = vak * 1.8;
+    const midden = i => [vak * (2 + i * 5), vak * 2];
+    function stukOp(px, py) {
+      for (let i = 0; i < pz.taarten; i++) {
+        const [cx, cy] = midden(i);
+        const dx = px - cx;
+        const dy = py - cy;
+        if (pz.vorm === 'rond') {
+          if (Math.hypot(dx, dy) > R) continue;
+          const a = (Math.atan2(dy, dx) + Math.PI / 2 + Math.PI * 2) % (Math.PI * 2);
+          return i * pz.delen + Math.floor((a / (Math.PI * 2)) * pz.delen);
+        }
+        if (Math.abs(dx) > R || Math.abs(dy) > R) continue;
+        return i * pz.delen + Math.min(pz.delen - 1, Math.floor(((dx + R) / (2 * R)) * pz.delen));
+      }
+      return -1;
+    }
+    function tekenBreuk() {
+      g.fillStyle = '#0d1630';
+      g.fillRect(0, 0, b.w, b.h);
+      for (let i = 0; i < pz.taarten; i++) {
+        const [cx, cy] = midden(i);
+        for (let d = 0; d < pz.delen; d++) {
+          const k = i * pz.delen + d;
+          g.fillStyle = aan.has(k) ? '#ff8fb8' : '#1f3058';
+          g.strokeStyle = '#f8f4ff';
+          g.lineWidth = 2;
+          g.beginPath();
+          if (pz.vorm === 'rond') {
+            const a0 = -Math.PI / 2 + (d / pz.delen) * Math.PI * 2;
+            g.moveTo(cx, cy);
+            g.arc(cx, cy, R, a0, a0 + (Math.PI * 2) / pz.delen);
+            g.closePath();
+          } else {
+            const w = (2 * R) / pz.delen;
+            g.rect(cx - R + d * w, cy - R, w, 2 * R);
+          }
+          g.fill();
+          g.stroke();
+        }
+      }
+    }
+    b.c.addEventListener('click', e => {
+      const rc = b.c.getBoundingClientRect();
+      const k = stukOp(e.clientX - rc.left, e.clientY - rc.top);
+      if (k < 0) return;
+      if (aan.has(k)) aan.delete(k);
+      else aan.add(k);
+      sfx.tick();
+      tekenBreuk();
+    });
+    tekenBreuk();
+    body().appendChild(knop('Klaar!', 'gold', () => {
+      if (!aan.size) return melding('Kleur eerst een paar stukjes.', 'fout');
+      stuur([...aan], res => {
+        if (res.klaar) return klaar(res);
+        sfx.bad();
+        melding('Nog niet. Hoeveel stukjes is één deel van de noemer?', 'fout');
+      });
+    }));
+  }
+
+  // ---------- Koraalrif: het wrak (geld) ----------
+
+  const euro = c => `€${(c / 100).toFixed(2).replace('.', ',')}`;
+  const geldNaam = c => (c >= 100 ? `€${c / 100}` : `${c}c`);
+
+  function munten(r) {
+    const pz = r.pz;
+    const hand = [];
+    if (pz.soort === 'terug') {
+      body().appendChild(el('p', 'od-vraag-groot', `Een schat kost ${euro(pz.prijs)}. De piraat betaalt met ${euro(pz.betaal)}.`));
+      body().appendChild(el('p', 'od-opdracht', `Geef het wisselgeld terug met zo weinig mogelijk munten en briefjes (hooguit ${pz.max}).`));
+    } else {
+      body().appendChild(el('p', 'od-vraag-groot', `Betaal precies ${euro(pz.bedrag)}.`));
+      body().appendChild(el('p', 'od-opdracht', pz.max ? `Gebruik hooguit ${pz.max} munten en briefjes.` : 'Tik op de munten om ze in je hand te nemen.'));
+    }
+    const kas = el('div', 'od-kas');
+    for (const c of pz.geld) kas.appendChild(knop(geldNaam(c), `od-munt${c >= 500 ? ' briefje' : c >= 100 ? ' euro' : c >= 10 ? ' goud' : ''}`, () => {
+      if (hand.length >= 40) return;
+      hand.push(c);
+      hand.sort((a, b2) => b2 - a);
+      sfx.tick();
+      tekenHand();
+    }));
+    body().appendChild(kas);
+    const handEl = el('div', 'od-hand');
+    const som = el('p', 'od-teller-tekst', '');
+    body().appendChild(handEl);
+    body().appendChild(som);
+    function tekenHand() {
+      handEl.innerHTML = '';
+      hand.forEach((c, i) => handEl.appendChild(knop(geldNaam(c), `od-munt klein${c >= 500 ? ' briefje' : c >= 100 ? ' euro' : c >= 10 ? ' goud' : ''}`, () => {
+        hand.splice(i, 1);
+        tekenHand();
+      })));
+      if (!hand.length) handEl.appendChild(el('span', 'muted', 'Je hand is leeg.'));
+      som.textContent = hand.length ? `In je hand: ${euro(hand.reduce((a, c) => a + c, 0))} · ${hand.length} ${hand.length === 1 ? 'stuk' : 'stukken'} (tik om terug te leggen)` : '';
+    }
+    tekenHand();
+    body().appendChild(knop(pz.soort === 'terug' ? 'Geef terug' : 'Betalen', 'gold', () => {
+      if (!hand.length) return melding('Neem eerst munten in je hand.', 'fout');
+      stuur(hand.slice(), res => {
+        if (res.klaar) return klaar(res);
+        sfx.bad();
+        const t = hand.reduce((a, c) => a + c, 0);
+        melding(t !== pz.bedrag ? 'Dat is niet het juiste bedrag. Reken nog eens!' : 'Het bedrag klopt, maar het kan met minder munten.', 'fout');
+      });
+    }));
+  }
+
+  // ---------- Koraalrif: de schatkaart (coördinaten) ----------
+
+  function coord(r) {
+    const pz = r.pz;
+    const antw = [];
+    const n = pz.size;
+    const vraag = el('p', 'od-vraag-groot', '');
+    body().appendChild(vraag);
+    const b = bord(n + 1, n + 1);
+    const { g, vak } = b;
+    const L = 'ABCDEFGH';
+    function tekenKaart() {
+      g.fillStyle = '#e8d6a8';
+      g.fillRect(0, 0, b.w, b.h);
+      g.textAlign = 'center';
+      g.textBaseline = 'middle';
+      g.font = `bold ${Math.round(vak * 0.42)}px sans-serif`;
+      g.fillStyle = '#5a3a1c';
+      if (pz.assen) {
+        // een assenstelsel: de punten liggen op de kruisingen van de lijnen
+        for (let i = 0; i < n; i++) {
+          g.strokeStyle = i === pz.R ? '#5a3a1c' : 'rgba(90,58,28,.3)';
+          g.lineWidth = i === pz.R ? 3 : 1;
+          g.beginPath();
+          g.moveTo((i + 1) * vak, vak * 0.5);
+          g.lineTo((i + 1) * vak, (n + 0.5) * vak);
+          g.moveTo(vak * 0.5, (i + 0.5) * vak);
+          g.lineTo((n + 0.5) * vak, (i + 0.5) * vak);
+          g.stroke();
+          if (i !== pz.R) {
+            g.fillText(String(i - pz.R), (i + 1) * vak, (pz.R + 0.5) * vak + vak * 0.32);
+            g.fillText(String(pz.R - i), (pz.R + 1) * vak - vak * 0.3, (i + 0.5) * vak);
+          }
+        }
+      } else {
+        for (let i = 0; i < n; i++) {
+          g.fillText(L[i], (i + 1.5) * vak, (n + 0.5) * vak);
+          g.fillText(String(n - i), vak * 0.5, (i + 0.5) * vak);
+        }
+        g.strokeStyle = 'rgba(90,58,28,.45)';
+        g.lineWidth = 1.5;
+        for (let i = 0; i <= n; i++) {
+          g.beginPath();
+          g.moveTo((i + 1) * vak, 0);
+          g.lineTo((i + 1) * vak, n * vak);
+          g.moveTo(vak, i * vak);
+          g.lineTo((n + 1) * vak, i * vak);
+          g.stroke();
+        }
+      }
+      antw.forEach(([x, y], i) => {
+        const [px, py] = pz.assen ? [(x + 1) * vak, (y + 0.5) * vak] : [(x + 1.5) * vak, (n - 1 - y + 0.5) * vak];
+        g.fillStyle = '#c0392b';
+        g.font = `bold ${Math.round(vak * 0.6)}px sans-serif`;
+        g.fillText('✕', px, py);
+        g.font = `bold ${Math.round(vak * 0.3)}px sans-serif`;
+        g.fillText(String(i + 1), px + vak * 0.32, py - vak * 0.3);
+      });
+      vraag.textContent = antw.length < pz.vragen.length ? `${antw.length + 1}/${pz.vragen.length} · ${pz.vragen[antw.length].tekst}` : '';
+    }
+    b.c.addEventListener('click', e => {
+      if (antw.length >= pz.vragen.length) return;
+      const rc = b.c.getBoundingClientRect();
+      const px = e.clientX - rc.left;
+      const py = e.clientY - rc.top;
+      let x;
+      let y;
+      if (pz.assen) {
+        x = Math.round(px / vak - 1);
+        y = Math.round(py / vak - 0.5);
+      } else {
+        x = Math.floor(px / vak) - 1;
+        y = n - 1 - Math.floor(py / vak);
+      }
+      if (x < 0 || y < 0 || x >= n || y >= n) return;
+      antw.push([x, y]);
+      sfx.tick();
+      tekenKaart();
+      if (antw.length === pz.vragen.length) {
+        stuur(antw.slice(), res => {
+          if (res.klaar) return klaar(res);
+          sfx.bad();
+          antw.length = 0;
+          melding('Niet elk kruisje stond goed. Probeer opnieuw!', 'fout');
+          tekenKaart();
+        });
+      }
+    });
+    tekenKaart();
+    body().appendChild(knop('↶ Laatste kruisje weg', 'secondary klein', () => { antw.pop(); tekenKaart(); }));
+  }
+
+  // ---------- Wolkenstad: de wolkentoren (blokjes tellen) ----------
+
+  function kubus(r) {
+    const pz = r.pz;
+    body().appendChild(el('p', 'od-opdracht', 'Er zweven geen blokjes: onder elk blokje staat er nog een, tot op de grond.'));
+    const c = el('canvas', 'od-klok-bord');
+    const s = Math.min(320, Math.floor(window.innerHeight * 0.38));
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    c.width = s * dpr;
+    c.height = s * dpr;
+    c.style.width = `${s}px`;
+    c.style.height = `${s}px`;
+    const g = c.getContext('2d');
+    g.scale(dpr, dpr);
+    body().appendChild(c);
+    const maxH = Math.max(...pz.h.flat(), 1);
+    const u = s / (Math.max(pz.w + pz.d, maxH * 1.6) * 1.0 + 1.2);
+    const ox = s / 2 + (pz.d - pz.w) * u * 0.43;
+    const oy = s - (pz.w + pz.d) * u * 0.5 - u * 0.4;
+    const P = (x, y, z) => [ox + (x - y) * u * 0.866, oy + (x + y) * u * 0.5 - z * u];
+    const vlak = (pts, kleur) => {
+      g.beginPath();
+      g.moveTo(...pts[0]);
+      for (const p of pts.slice(1)) g.lineTo(...p);
+      g.closePath();
+      g.fillStyle = kleur;
+      g.fill();
+      g.strokeStyle = '#2a1f55';
+      g.lineWidth = 1.2;
+      g.stroke();
+    };
+    const lijst = [];
+    for (let y = 0; y < pz.d; y++) for (let x = 0; x < pz.w; x++) for (let z = 0; z < pz.h[y][x]; z++) lijst.push([x, y, z]);
+    lijst.sort((a, b2) => a[0] + a[1] - (b2[0] + b2[1]) || a[2] - b2[2]);
+    for (const [x, y, z] of lijst) {
+      vlak([P(x, y, z + 1), P(x + 1, y, z + 1), P(x + 1, y + 1, z + 1), P(x, y + 1, z + 1)], '#e9dcff');
+      vlak([P(x, y + 1, z), P(x + 1, y + 1, z), P(x + 1, y + 1, z + 1), P(x, y + 1, z + 1)], '#b48cff');
+      vlak([P(x + 1, y, z), P(x + 1, y + 1, z), P(x + 1, y + 1, z + 1), P(x + 1, y, z + 1)], '#8a5ce0');
+    }
+    body().appendChild(el('p', 'od-vraag-groot', pz.vraag === 'kubus'
+      ? `Hoeveel blokjes moet je erbij leggen voor een grote kubus van ${pz.kubus} op ${pz.kubus} op ${pz.kubus}?`
+      : 'Hoeveel blokjes tel je?'));
+    body().appendChild(getalVeld(getalStuur));
+  }
+
+  // ---------- Wolkenstad: het windorgel (magisch vierkant) ----------
+
+  function magisch(r) {
+    const pz = r.pz;
+    body().appendChild(el('p', 'od-vraag-groot', `Elke rij, kolom en schuine lijn is samen ${pz.som}.`));
+    body().appendChild(el('p', 'od-opdracht', 'Zoek eerst een lijn waar maar één getal ontbreekt.'));
+    const f = el('form', 'od-magisch-veld');
+    const velden = pz.gegeven.map(v => {
+      if (v !== null) {
+        f.appendChild(el('span', 'od-mst', String(v)));
+        return null;
+      }
+      const inp = el('input', 'od-mst leeg');
+      inp.type = 'number';
+      inp.inputMode = 'numeric';
+      f.appendChild(inp);
+      return inp;
+    });
+    body().appendChild(f);
+    const knopC = knop('Controleer', 'gold', () => f.requestSubmit());
+    body().appendChild(knopC);
+    f.addEventListener('submit', e => {
+      e.preventDefault();
+      if (velden.some(i => i && i.value.trim() === '')) return melding('Vul eerst alle lege vakjes in.', 'fout');
+      const poging = pz.gegeven.map((v, i) => (v !== null ? v : Number(velden[i].value)));
+      stuur(poging, res => {
+        if (res.klaar) return klaar(res);
+        sfx.bad();
+        melding('Nog niet. Tel elke rij, kolom en schuine lijn eens na!', 'fout');
+      });
+    });
+    setTimeout(() => { const v = velden.find(Boolean); if (v) v.focus(); }, 50);
+  }
+
+  // ---------- Wolkenstad: de luchthaven (kortste route) ----------
+
+  function route(r) {
+    const pz = r.pz;
+    const pad = [pz.start];
+    body().appendChild(el('p', 'od-opdracht', 'Vlieg van de groene wolk naar de gouden vlag. Tik de wolken na elkaar aan. De getallen zijn de lengtes. Zoek de kortste weg!'));
+    const xs = pz.punten.map(p => p[0]);
+    const ys = pz.punten.map(p => p[1]);
+    const kol = Math.max(...xs) - Math.min(...xs) + 1.2;
+    const rij = Math.max(...ys) - Math.min(...ys) + 1.2;
+    const b = bord(Math.round(kol * 2), Math.round(rij * 2));
+    const { g } = b;
+    const sx = b.w / kol;
+    const sy = b.h / rij;
+    const pos = i => [(pz.punten[i][0] - Math.min(...xs) + 0.6) * sx, (pz.punten[i][1] - Math.min(...ys) + 0.6) * sy];
+    const R = Math.min(sx, sy) * 0.2;
+    const lengte = () => OdPuzzels.routeLengte(pz, pad);
+    const teller = el('p', 'od-teller-tekst', '');
+    function tekenRoute() {
+      g.fillStyle = '#7fb8ff';
+      g.fillRect(0, 0, b.w, b.h);
+      g.textAlign = 'center';
+      g.textBaseline = 'middle';
+      for (const [a, c, l] of pz.bruggen) {
+        const [x1, y1] = pos(a);
+        const [x2, y2] = pos(c);
+        const opPad = pad.some((p, i) => i && ((pad[i - 1] === a && p === c) || (pad[i - 1] === c && p === a)));
+        g.strokeStyle = opPad ? '#ffc94a' : 'rgba(255,255,255,.85)';
+        g.lineWidth = opPad ? 6 : 3;
+        g.setLineDash(opPad ? [] : [6, 5]);
+        g.beginPath();
+        g.moveTo(x1, y1);
+        g.lineTo(x2, y2);
+        g.stroke();
+        g.setLineDash([]);
+        const mx = (x1 + x2) / 2;
+        const my = (y1 + y2) / 2;
+        g.fillStyle = '#1b2a48';
+        g.beginPath();
+        g.arc(mx, my, R * 0.62, 0, Math.PI * 2);
+        g.fill();
+        g.fillStyle = '#ffffff';
+        g.font = `bold ${Math.round(R * 0.7)}px sans-serif`;
+        g.fillText(String(l), mx, my + 1);
+      }
+      pz.punten.forEach((_, i) => {
+        const [x, y] = pos(i);
+        const kleur = i === pz.start ? '#2ee6a6' : i === pz.doel ? '#ffc94a' : pad.includes(i) ? '#ffe9a8' : '#ffffff';
+        for (const [dx, dy, rr] of [[-0.5, 0.15, 0.6], [0.5, 0.15, 0.6], [0, -0.15, 0.8]]) {
+          g.fillStyle = kleur;
+          g.beginPath();
+          g.arc(x + dx * R, y + dy * R, R * rr, 0, Math.PI * 2);
+          g.fill();
+        }
+        if (i === pz.doel) {
+          g.fillStyle = '#c0392b';
+          g.fillRect(x + R * 0.1, y - R * 1.4, R * 0.5, R * 0.35);
+          g.fillStyle = '#5a3a1c';
+          g.fillRect(x, y - R * 1.4, R * 0.1, R * 1.1);
+        }
+      });
+      const [hx, hy] = pos(pad[pad.length - 1]);
+      g.font = `${Math.round(R * 1.1)}px sans-serif`;
+      g.fillText('🎈', hx, hy - R * 0.2);
+      teller.textContent = pad.length > 1 ? `Je route is ${lengte()} lang.` : '';
+    }
+    b.c.addEventListener('click', e => {
+      const rc = b.c.getBoundingClientRect();
+      const px = e.clientX - rc.left;
+      const py = e.clientY - rc.top;
+      const i = pz.punten.findIndex((_, k) => Math.hypot(pos(k)[0] - px, pos(k)[1] - py) < R * 1.3);
+      if (i < 0) return;
+      const laatste = pad[pad.length - 1];
+      if (i === laatste && pad.length > 1) pad.pop();
+      else if (pad.length > 1 && i === pad[pad.length - 2]) pad.pop();
+      else if (OdPuzzels.routeLengte(pz, [laatste, i]) !== Infinity) pad.push(i);
+      else return melding('Daar is geen brug naartoe.', 'fout');
+      melding('');
+      sfx.tick();
+      tekenRoute();
+      if (i === pz.doel && pad[pad.length - 1] === pz.doel) {
+        stuur(pad.slice(), res => {
+          if (res.klaar) return klaar(res);
+          sfx.bad();
+          melding(`Je bent er, met een route van ${lengte()}. Maar het kan korter!`, 'fout');
+        });
+      }
+    });
+    body().appendChild(teller);
+    body().appendChild(knop('↺ Opnieuw beginnen', 'secondary klein', () => { pad.length = 1; melding(''); tekenRoute(); }));
+    tekenRoute();
+  }
+
+  // ---------- Onderzeelab: zinken of drijven ----------
+
+  function drijven(r) {
+    const pz = r.pz;
+    const keuze = pz.dingen.map(() => null);
+    body().appendChild(el('p', 'od-opdracht', 'Je gooit alles in een bak water. Wat drijft er, en wat zinkt?'));
+    const lijst = el('div', 'od-drijf');
+    pz.dingen.forEach((d, i) => {
+      const rij = el('div', 'od-drijf-rij');
+      rij.appendChild(el('span', 'od-drijf-naam', d));
+      const ja = knop('🫧 drijft', 'od-optie klein', () => { keuze[i] = 1; ja.classList.add('on'); nee.classList.remove('on'); });
+      const nee = knop('⚓ zinkt', 'od-optie klein', () => { keuze[i] = 0; nee.classList.add('on'); ja.classList.remove('on'); });
+      rij.appendChild(ja);
+      rij.appendChild(nee);
+      lijst.appendChild(rij);
+    });
+    body().appendChild(lijst);
+    body().appendChild(knop('Gooi in het water!', 'gold', () => {
+      if (keuze.includes(null)) return melding('Kies eerst bij alles: drijft het of zinkt het?', 'fout');
+      stuur(keuze.slice(), res => {
+        if (res.klaar) return klaar(res);
+        sfx.bad();
+        melding('Niet alles klopt. Denk aan wat lichter is dan water!', 'fout');
+      });
+    }));
+  }
+
+  // ---------- Weerstation: de thermometer ----------
+
+  function thermo(r) {
+    const pz = r.pz;
+    const n = pz.temps.length;
+    const c = el('canvas', 'od-klok-bord');
+    const H = Math.min(340, Math.floor(window.innerHeight * 0.42));
+    const W = 130 * n;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    c.width = W * dpr;
+    c.height = H * dpr;
+    c.style.width = `${W}px`;
+    c.style.height = `${H}px`;
+    const g = c.getContext('2d');
+    g.scale(dpr, dpr);
+    body().appendChild(c);
+    const top = 34;
+    const bodem = H - 40;
+    const yVan = t => bodem - ((t - pz.min) / (pz.max - pz.min)) * (bodem - top);
+    pz.temps.forEach((t, i) => {
+      const x = 130 * i + 50;
+      rrect(g, x - 9, top - 14, 18, bodem - top + 30, 9, '#e8eef8');
+      g.fillStyle = '#ff4d6d';
+      g.fillRect(x - 4, yVan(t), 8, bodem - yVan(t) + 10);
+      g.beginPath();
+      g.arc(x, bodem + 18, 14, 0, Math.PI * 2);
+      g.fill();
+      g.textAlign = 'left';
+      g.textBaseline = 'middle';
+      g.font = '11px sans-serif';
+      for (let v = pz.min; v <= pz.max; v += 1) {
+        const y = yVan(v);
+        const groot = v % 10 === 0;
+        const mid = v % 5 === 0;
+        if (pz.max - pz.min > 40 && !mid && v % 2) continue;
+        g.fillStyle = '#c8d4ea';
+        g.fillRect(x + 11, y - 0.5, groot ? 14 : mid ? 10 : 5, groot ? 2 : 1);
+        if (groot || (mid && pz.max - pz.min <= 30)) g.fillText(String(v), x + 28, y);
+      }
+      if (n > 1) {
+        g.textAlign = 'center';
+        g.fillStyle = '#ffe08a';
+        g.font = 'bold 13px sans-serif';
+        g.fillText(i ? "'s middags" : "'s morgens", x + 10, 12);
+      }
+    });
+    body().appendChild(el('p', 'od-vraag-groot', pz.vraag === 'verschil' ? 'Hoeveel graden verschil is er?' : 'Hoeveel graden is het?'));
+    body().appendChild(getalVeld(getalStuur));
+  }
+
+  const TEKEN = { schuif, robot, licht, stroom, tandwiel, wip, woorden, code, weetje, weeg, reeks, pixel, sudoku, doolhof, toren, ijs, klok, spiegel, codeslot, lampen, hanoi, breuk, munten, coord, kubus, magisch, route, drijven, thermo };
 
   // ---------- Woordenboek en ontdekkersboek ----------
 

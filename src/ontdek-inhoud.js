@@ -77,6 +77,18 @@ const LABO = {
     'Archimedes zei: "Geef me een vaste plaats om te staan, en ik til de aarde op." Hij bedoelde een heel lange hefboom.',
     'Een schaar, een notenkraker en een kruiwagen zijn ook hefbomen.',
   ],
+  drijven: [
+    'Iets drijft als het lichter is dan evenveel water. Kurk en hout zijn lichter dan water, ijzer en steen zwaarder.',
+    'Een bolletje klei zinkt, maar maak je er een bootje van, dan drijft het: het duwt meer water opzij.',
+    'In zout water drijf je makkelijker dan in zoet water. In de Dode Zee kan je bijna zitten op het water.',
+    'Een sinaasappel met schil drijft dankzij de luchtbelletjes in de schil. Zonder schil zinkt hij.',
+  ],
+  thermo: [
+    'Water bevriest bij 0 graden en kookt bij 100 graden. Daarop is de schaal van Celsius gebouwd.',
+    'Onder nul schrijf je een min: -5 graden is 5 graden kouder dan 0.',
+    'Het verschil tussen -3 en 4 graden is 7 graden: 3 tot nul en dan nog 4.',
+    'Je lichaam is ongeveer 37 graden warm. Met 38 graden of meer heb je koorts.',
+  ],
 };
 
 module.exports = { PAGE, SCHILDKNAAP, RIDDER, LABO };
