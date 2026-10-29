@@ -468,7 +468,7 @@
     tafel: ['rondetafel', 'kringgesprek', 'ontdek-beheer', 'runenraadsel'],
     smidse: ['oefenblad', 'proef', 'reeks'],
     wapenkamer: ['wapenkamer'],
-    kronieken: ['kronieken', 'zonnewijzer', 'zegelrol'],
+    kronieken: ['kronieken', 'zonnewijzer', 'zegelrol', 'postduif'],
     geen: ['host', 'klas', 'zorg', 'taken', 'netwerk', 'welkom', 'privacy', 'koppel'],
   };
   function rijkHier() {

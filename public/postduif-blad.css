@@ -1,0 +1,41 @@
+/* De Postduif: de brief op papier (A4). Vaste kleuren, ook als het scherm in een donker thema staat. */
+.pd-blad { width: 210mm; min-height: 297mm; box-sizing: border-box; padding: 14mm 15mm 12mm; background: #fffdf8; color: #1d2330;
+  font: 10.5pt/1.45 "Segoe UI", system-ui, Arial, sans-serif; display: flex; flex-direction: column; gap: 5mm; }
+.pd-blad h1 { font-family: Georgia, "Times New Roman", serif; font-size: 22pt; margin: 0; color: #1f4e8c; letter-spacing: .02em; }
+.pd-blad h2 { font-size: 11pt; margin: 0 0 2mm; color: #1f4e8c; text-transform: uppercase; letter-spacing: .06em; border-bottom: 1.5px solid #e8c45a; padding-bottom: 1mm; }
+.pd-blad p { margin: 0 0 1.5mm; }
+.pd-kop { display: flex; align-items: center; gap: 5mm; }
+.pd-kop svg { width: 22mm; height: 22mm; flex: none; }
+.pd-naam { font-size: 15pt; font-weight: 700; margin: 0 !important; }
+.pd-klein { font-size: 9pt; color: #5b6275; }
+.pd-woordje { background: #f3ead3; border-left: 4px solid #c9a227; padding: 3mm 4mm; border-radius: 2mm; font-size: 11pt; }
+.pd-afz { text-align: right; font-style: italic; color: #5b6275; margin: 0 !important; }
+.pd-deel { break-inside: avoid; }
+.pd-toetsen { width: 100%; border-collapse: collapse; }
+.pd-toetsen td { padding: 1.6mm 2mm; border-bottom: 1px solid #e3e1d8; vertical-align: middle; }
+.pd-toetsen td:first-child span { display: block; font-size: 8.5pt; color: #5b6275; }
+.pd-pt { font-weight: 700; font-size: 12pt; white-space: nowrap; text-align: right; font-variant-numeric: tabular-nums; }
+.pd-meter-cel { width: 42%; }
+.pd-meter-cel span { font-size: 8.5pt; color: #5b6275; }
+.pd-meter { position: relative; height: 3.2mm; background: #ebe8de; border-radius: 2mm; }
+.pd-meter b { position: absolute; inset: 0 auto 0 0; border-radius: 2mm; }
+.pd-gem { position: absolute; top: -1mm; bottom: -1mm; width: 0; border-left: 2px dashed #1d2330; }
+.pd-twee { display: grid; grid-template-columns: 1fr 1fr; gap: 6mm; }
+.pd-blad ul { margin: 0; padding-left: 5mm; }
+.pd-blad li { margin-bottom: 1mm; }
+.pd-blad li span { font-size: 8.5pt; color: #5b6275; }
+.pd-cijfers { display: flex; gap: 3mm; flex-wrap: wrap; margin-bottom: 2mm; }
+.pd-cijfers div { border: 1px solid #e3e1d8; border-radius: 2mm; padding: 1.5mm 3mm; min-width: 24mm; background: #fff; }
+.pd-cijfers b { display: block; font-size: 14pt; color: #1f4e8c; }
+.pd-cijfers span { font-size: 8.5pt; color: #5b6275; }
+.pd-compl { display: flex; gap: 2mm; flex-wrap: wrap; }
+.pd-compl span { background: #e3f1e8; color: #1e5e3a; border-radius: 10mm; padding: .6mm 3mm; font-size: 9.5pt; }
+.pd-fotos { display: grid; gap: 2mm; margin-top: 2mm; }
+.pd-fotos.n2 { grid-template-columns: 1fr 1fr; } .pd-fotos.n3 { grid-template-columns: 1fr 1fr 1fr; }
+.pd-fotos img { width: 100%; max-height: 55mm; object-fit: cover; border-radius: 2mm; }
+.pd-fotos.n1 img { max-height: 75mm; }
+.pd-strook { margin-top: auto; border-top: 1.5px dashed #8a8f9c; padding-top: 3mm; display: flex; flex-direction: column; gap: 2mm; font-size: 9.5pt; }
+.pd-strook p { margin: 0; }
+.pd-strook div { display: flex; gap: 2mm; align-items: flex-end; }
+.pd-strook div span { white-space: nowrap; }
+.pd-strook i { flex: 1; border-bottom: 1px solid #8a8f9c; height: 6mm; }

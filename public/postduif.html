@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LANcelot · De Postduif</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/postduif-blad.css">
+  <link rel="stylesheet" href="/postduif.css">
+</head>
+<body class="postduif">
+<main>
+  <div class="topbar">
+    <div class="brand" id="brand" title="Naar het startscherm">
+      <img src="/img/mark.webp" alt="">
+      <div>
+        <div class="wordmark">LAN<span>celot</span></div>
+        <div class="subtitle">De Postduif</div>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="secondary" id="to-home">Terug</button>
+    </div>
+  </div>
+
+  <!-- Mijn brieven: elke brief hoort bij een periode. -->
+  <section id="pd-start">
+    <div class="pd-intro">
+      <img src="/img/icons/postduif.webp" alt="">
+      <div>
+        <h2>Brieven voor thuis</h2>
+        <p class="muted">Per leerling een brief voor de ouders: de toetsen met de verbeterde toets erbij, wat al lukt, wat nog oefenen, complimentjes en nieuws uit de klas. Druk af, of bewaar als PDF en stuur mee in een bericht aan de ouders.</p>
+      </div>
+    </div>
+    <div class="pd-brieven" id="pd-brieven"></div>
+  </section>
+
+  <!-- Eén brief -->
+  <section id="pd-brief" class="hidden">
+    <div class="panel pd-balk">
+      <button class="secondary icon" id="pd-terug" aria-label="Alle brieven"><i class="ic ic-terug" aria-hidden="true"></i></button>
+      <input id="pd-titel" class="pd-titel-in" maxlength="60" aria-label="Naam van de brief">
+      <label class="pd-datum-in">Van <input type="date" id="pd-van"></label>
+      <label class="pd-datum-in">Tot <input type="date" id="pd-tot"></label>
+      <span class="muted small pd-bewaard" id="pd-bewaard"></span>
+      <button class="gold" id="pd-print-alles">🖨️ Alle brieven afdrukken</button>
+    </div>
+
+    <div class="pd-werk">
+      <!-- Links: wat in elke brief staat -->
+      <div class="panel pd-opties">
+        <h3>📣 Nieuws uit de klas</h3>
+        <textarea id="pd-nieuws" rows="5" maxlength="2000" placeholder="bv. Deze week bezochten we het museum. Volgende vrijdag is het sportdag: breng sportkledij mee!"></textarea>
+        <div class="pd-fotolijst" id="pd-fotos"></div>
+        <label class="secondary small" style="align-self:flex-start;cursor:pointer" id="pd-foto-knop">📷 Foto toevoegen <input type="file" id="pd-foto" accept="image/*" hidden></label>
+        <h3>✅ Wat staat erin?</h3>
+        <div id="pd-toon"></div>
+        <label class="pd-datum-in" style="font-size:.9rem">Ondertekend door <input id="pd-afzender" maxlength="60" placeholder="bv. Juf Sarah"></label>
+      </div>
+
+      <!-- Midden: de leerlingen -->
+      <nav class="panel pd-namen" id="pd-namen" aria-label="Leerlingen"></nav>
+
+      <!-- Rechts: een persoonlijk woordje en de brief zoals hij op papier komt -->
+      <div class="pd-rechts">
+        <div class="panel pd-woord">
+          <strong id="pd-woord-kop">Een persoonlijk woordje</strong>
+          <textarea id="pd-woordje" rows="3" maxlength="800" placeholder="Schrijf iets persoonlijks, of kies hieronder een zinnetje. {naam} wordt de voornaam."></textarea>
+          <div class="pd-zinnen" id="pd-zinnen"></div>
+          <div class="pd-knoppen">
+            <button class="secondary" id="pd-kopieer">📋 Kopieer als tekst</button>
+            <button class="secondary" id="pd-print-een">🖨️ Deze brief afdrukken</button>
+          </div>
+        </div>
+        <div class="pd-voorbeeld" id="pd-voorbeeld-box"><div class="pd-schaal" id="pd-voorbeeld"></div></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- De brief als tekst: om te plakken in een bericht aan de ouders -->
+<dialog class="pd-dlg" id="pd-tekst">
+  <div class="pd-dlg-kop"><h2>Brief als tekst</h2><button type="button" class="secondary icon" data-sluit aria-label="Sluiten"><i class="ic ic-kruis"></i></button></div>
+  <p class="muted small">Plak dit in een bericht aan de ouders. De verbeterde toets en de foto's stuur je mee als PDF (🖨️ Deze brief afdrukken, kies "Opslaan als PDF").</p>
+  <textarea id="pd-tekst-in" rows="14" readonly></textarea>
+  <div class="actions pd-dlg-knoppen"><button id="pd-tekst-kopie">📋 Kopiëren</button></div>
+</dialog>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/ui.js"></script>
+<script src="/js/pd-brief.js"></script>
+<script src="/js/pd-host.js"></script>
+</body>
+</html>

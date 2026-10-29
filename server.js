@@ -73,6 +73,7 @@ const reeks = require('./src/reeks');
 const kronieken = require('./src/kronieken');
 const zonnewijzer = require('./src/zonnewijzer');
 const zegelrol = require('./src/zegelrol');
+const postduif = require('./src/postduif');
 const { OefenbladLive } = require('./src/oefenblad-live');
 const proeven = require('./src/proeven');
 const { ProefLive } = require('./src/proef-live');
@@ -543,7 +544,7 @@ function ontdekSoon() {
 }
 
 // De docentenschermen, elk bij zijn adres.
-const PAGINAS = [['/host', 'host.html'], ['/rondetafel', 'rondetafel.html'], ['/toren', 'toren.html'], ['/schattenjacht', 'schattenjacht.html'], ['/laserslag', 'laserslag.html'], ['/ridderrace', 'ridderrace.html'], ['/kristalroof', 'kristalroof.html'], ['/verrader', 'verrader.html'], ['/burchtbouwers', 'burchtbouwers.html'], ['/duel', 'duel.html'], ['/packnight', 'packnight.html'], ['/strijdrossen', 'strijdrossen.html'], ['/gauntlet', 'gauntlet.html'], ['/ridder-royale', 'royale.html'], ['/sterrenvreter', 'sterrenvreter.html'], ['/ridderslang', 'ridderslang.html'], ['/burchtstorm', 'burchtstorm.html'], ['/poortwacht', 'poortwacht.html'], ['/neonvlucht', 'neonvlucht.html'], ['/diepboor', 'diepboor.html'], ['/pixelridder', 'pixelridder.html'], ['/robomol', 'robomol.html'], ['/kerker', 'kerker.html'], ['/hofschilder', 'hofschilder.html'], ['/robopaarden', 'robopaarden.html'], ['/neonduel', 'neonduel.html'], ['/leraarbaas', 'leraarbaas.html'], ['/cybergalaga', 'cybergalaga.html'], ['/bomberknight', 'bomberknight.html'], ['/rijk', 'rijk.html'], ['/oefenblad', 'oefenblad.html'], ['/proef', 'proef.html'], ['/proef-print', 'proef-print.html'], ['/reeks', 'reeks.html'], ['/wapenkamer', 'wapenkamer.html'], ['/kringgesprek', 'kringgesprek.html'], ['/kronieken', 'kronieken.html'], ['/zonnewijzer', 'zonnewijzer.html'], ['/zegelrol', 'zegelrol.html'], ['/zegelrol-print', 'zegelrol-print.html'], ['/oefenblad-print', 'oefenblad-print.html'], ['/klas', 'klas.html'], ['/zorg', 'zorg.html'], ['/taken', 'taken.html'], ['/zorg-fiche', 'zorg-fiche.html'], ['/runenraadsel', 'runenraadsel.html'], ['/ontdek-beheer', 'ontdek-beheer.html'], ['/klaseiland', 'klaseiland.html'], ['/netwerk', 'netwerk.html'], ['/welkom', 'welkom.html'], ['/privacy', 'privacy.html']];
+const PAGINAS = [['/host', 'host.html'], ['/rondetafel', 'rondetafel.html'], ['/toren', 'toren.html'], ['/schattenjacht', 'schattenjacht.html'], ['/laserslag', 'laserslag.html'], ['/ridderrace', 'ridderrace.html'], ['/kristalroof', 'kristalroof.html'], ['/verrader', 'verrader.html'], ['/burchtbouwers', 'burchtbouwers.html'], ['/duel', 'duel.html'], ['/packnight', 'packnight.html'], ['/strijdrossen', 'strijdrossen.html'], ['/gauntlet', 'gauntlet.html'], ['/ridder-royale', 'royale.html'], ['/sterrenvreter', 'sterrenvreter.html'], ['/ridderslang', 'ridderslang.html'], ['/burchtstorm', 'burchtstorm.html'], ['/poortwacht', 'poortwacht.html'], ['/neonvlucht', 'neonvlucht.html'], ['/diepboor', 'diepboor.html'], ['/pixelridder', 'pixelridder.html'], ['/robomol', 'robomol.html'], ['/kerker', 'kerker.html'], ['/hofschilder', 'hofschilder.html'], ['/robopaarden', 'robopaarden.html'], ['/neonduel', 'neonduel.html'], ['/leraarbaas', 'leraarbaas.html'], ['/cybergalaga', 'cybergalaga.html'], ['/bomberknight', 'bomberknight.html'], ['/rijk', 'rijk.html'], ['/oefenblad', 'oefenblad.html'], ['/proef', 'proef.html'], ['/proef-print', 'proef-print.html'], ['/reeks', 'reeks.html'], ['/wapenkamer', 'wapenkamer.html'], ['/kringgesprek', 'kringgesprek.html'], ['/kronieken', 'kronieken.html'], ['/zonnewijzer', 'zonnewijzer.html'], ['/zegelrol', 'zegelrol.html'], ['/zegelrol-print', 'zegelrol-print.html'], ['/postduif', 'postduif.html'], ['/postduif-print', 'postduif-print.html'], ['/oefenblad-print', 'oefenblad-print.html'], ['/klas', 'klas.html'], ['/zorg', 'zorg.html'], ['/taken', 'taken.html'], ['/zorg-fiche', 'zorg-fiche.html'], ['/runenraadsel', 'runenraadsel.html'], ['/ontdek-beheer', 'ontdek-beheer.html'], ['/klaseiland', 'klaseiland.html'], ['/netwerk', 'netwerk.html'], ['/welkom', 'welkom.html'], ['/privacy', 'privacy.html']];
 
 // Het docentenscherm werkt op de pc waar de server draait (meestal het digibord),
 // en op een tweede scherm dat de leerkracht met een koppelcode koppelde (de bureau-pc).
@@ -1753,6 +1754,18 @@ io.on('connection', socket => {
         .finally(() => io.to('host').emit('settings', settings.publicView()));
     });
     socket.on('zr-commentaar-lees', handle(text => zegelrol.leesCommentaar(aiJson.extract(text, 'commentaar'))));
+
+    // De Postduif: een brief voor thuis per leerling (toetsen, doelen, Eer, klasnieuws). Blijft op deze pc.
+    const pdWijzig = fn => handle(arg => {
+      const res = fn(arg || {});
+      socket.broadcast.to('host').emit('pd-gewijzigd');
+      return res;
+    });
+    socket.on('pd-lijst', handle(() => ({ lijst: postduif.lijst() })));
+    socket.on('pd-laad', handle(({ id } = {}) => postduif.laad(String(id || ''))));
+    socket.on('pd-nieuw', pdWijzig(arg => postduif.nieuw(arg)));
+    socket.on('pd-bewaar', pdWijzig(arg => postduif.bewaar(arg)));
+    socket.on('pd-weg', pdWijzig(({ id }) => { postduif.verwijder(String(id || '')); return {}; }));
 
     // Zeker of twijfel vragen na elk antwoord in het Toernooi (en de Opwarmer). Staat standaard aan.
     socket.emit('zekerheid', settings.read().zekerheid !== false);
