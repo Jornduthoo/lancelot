@@ -72,7 +72,8 @@ function odLaad(naam = od.naam) {
     if (eerst) {
       // Terug waar je was, als dat gebied open is.
       const k = store('od-kaart');
-      const open = k === 'labo' || (k === 'draken' && res.gebouwd.includes('luchtschip')) || (k === 'sterren' && res.gebouwd.includes('sterrenpoort'));
+      const nodig = { draken: 'luchtschip', sterren: 'sterrenpoort', vuur: 'drakenzadel', ijs: 'ijsraket' };
+      const open = k === 'labo' || (nodig[k] && res.gebouwd.includes(nodig[k]));
       odKaart(open ? k : 'woud', open || k === 'woud' ? odBewaardePlek() : null);
     }
     else odBak();
@@ -130,6 +131,7 @@ function odKaart(id, plek) {
   od.kaart = OdWereld.kaart(id);
   od.plekken = OdWereld.plekken(od.kaart);
   od.stukken = OdWereld.stukken(od.kaart);
+  if (odCanvas.width) odHemel();
   od.deuren = ['D', 'q', 'Q'].map(c => OdWereld.vind(od.kaart, c) && { ...OdWereld.vind(od.kaart, c), c }).filter(Boolean);
   odBak();
   let p = plek;
@@ -172,6 +174,30 @@ function odGebied() {
 const odCanvas = $('od-canvas');
 const odG = odCanvas.getContext('2d');
 
+// De sterrenhemel, met een gloed in de kleur van het eiland (koud bij het ijs, rood bij de vulkaan).
+const OD_GLOED = { ijs: 'rgba(150,210,255,.22)', vuur: 'rgba(255,90,30,.22)' };
+function odHemel() {
+  const hemel = $('od-hemel');
+  hemel.width = odCanvas.width;
+  hemel.height = odCanvas.height;
+  const g = hemel.getContext('2d');
+  g.drawImage(BuArt.hemel(odCanvas.width, odCanvas.height), 0, 0);
+  const gloed = OD_GLOED[od.kaartId];
+  if (!gloed) return;
+  const lg = g.createLinearGradient(0, 0, 0, hemel.height);
+  lg.addColorStop(0, 'rgba(0,0,0,0)');
+  lg.addColorStop(1, gloed);
+  g.fillStyle = lg;
+  g.fillRect(0, 0, hemel.width, hemel.height);
+}
+
+// "de Drakenkust", "het Kristalwoud": de naam van het eiland waar de Q-tegel naartoe gaat.
+function odTerugNaam() {
+  const t = od.kaart.terug;
+  const naam = t ? OdWereld.KAARTEN[t.kaart].naam : 'Het Kristalwoud';
+  return naam.replace(/^(De|Het) /, m => m.toLowerCase());
+}
+
 function odMaat() {
   const r = odCanvas.getBoundingClientRect();
   if (!r.width) return;
@@ -184,10 +210,7 @@ function odMaat() {
   const zoom = Math.max(0.75, Math.min(1.25, Math.max(r.width / 1000, r.height / 900))) * dpr;
   const T = Math.round((64 * zoom) / 4) * 4;
   // De sterrenhemel staat op een eigen canvas erachter: die moet maar één keer getekend worden.
-  const hemel = $('od-hemel');
-  hemel.width = odCanvas.width;
-  hemel.height = odCanvas.height;
-  hemel.getContext('2d').drawImage(BuArt.hemel(odCanvas.width, odCanvas.height), 0, 0);
+  odHemel();
   if (T === od.T) return;
   od.T = T;
   if (od.kaart) {
@@ -242,7 +265,7 @@ function odTeken(t) {
       g.font = `bold ${od.T * 0.2}px sans-serif`;
       g.textAlign = 'center';
       g.textBaseline = 'middle';
-      g.fillText(d.c === 'q' ? '⇩ Naar buiten' : '⇩ Terug naar het woud', dx, dy + od.T * 0.42);
+      g.fillText(d.c === 'q' ? '⇩ Naar buiten' : `⇩ Terug naar ${odTerugNaam()}`, dx, dy + od.T * 0.42);
     }
   }
 
@@ -666,6 +689,8 @@ async function odBouw(wat) {
       brug: 'De lichtbrug staat er! Steek over naar de Neonruïnes.',
       luchtschip: 'Het luchtschip is klaar! Tik erop om naar de Drakenkust te vliegen.',
       sterrenpoort: 'De sterrenpoort gloeit! Tik erop om naar de Sterrenhaven te gaan.',
+      drakenzadel: 'De draak is gezadeld! Tik erop om naar de Vuurberg te vliegen.',
+      ijsraket: 'De ijsraket is klaar! Tik erop om naar het IJsrijk te gaan.',
     }[wat] || 'Gebouwd!', 4000);
   });
 }

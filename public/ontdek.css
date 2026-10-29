@@ -215,3 +215,14 @@ input.od-mst.leeg { background: #1b2a48; color: #fff; outline: 2px dashed rgba(2
 input.od-mst.leeg::-webkit-inner-spin-button { -webkit-appearance: none; }
 .od-runen-tel { margin: 0 0 8px; padding: 8px 12px; border-radius: 10px; background: rgb(var(--k-cyan) / .12); font-weight: 700; }
 @media (max-width: 520px) { .od-mst { width: 52px; height: 40px; font-size: 1rem; } .od-schaal { font-size: 1.2rem; } }
+
+/* IJsrijk en Vuurberg */
+.od-klok-bord { display: block; margin: 4px auto; }
+.od-klok-opties { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 420px; margin: 0 auto; }
+.od-klok-opties .od-optie { font-family: var(--tech); font-size: 1.15rem; }
+.od-hints { display: flex; flex-direction: column; gap: 6px; width: 100%; max-width: 520px; margin: 0 auto; }
+.od-hintrij { display: flex; align-items: center; gap: 10px; padding: 6px 10px; border-radius: 10px; background: rgb(var(--k-panel)); border: 1px solid rgb(var(--k-goud) / .3); text-align: left; }
+.od-gok { display: flex; gap: 4px; flex: none; }
+.od-gok b { display: grid; place-items: center; width: 30px; height: 36px; border-radius: 6px; background: #2c1a16; border: 1px solid #ff7a3a; color: #ffd0a0; font: 700 1.15rem var(--tech); }
+.od-hintuitleg { font-size: .9rem; }
+.od-code-in { font-family: var(--tech); font-size: 1.4rem; letter-spacing: .4em; text-align: center; max-width: 10ch; }

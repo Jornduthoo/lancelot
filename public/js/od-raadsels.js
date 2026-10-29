@@ -20,6 +20,12 @@ const OdRaadsels = (() => {
     sudoku: 'Elk getal één keer in elke rij, kolom en elk blok.',
     doolhof: 'Vind de uitgang van de donjon. Pak eerst de sleutels!',
     toren: 'Elke steen is de som van de twee stenen eronder.',
+    ijs: 'Glijd over het ijsmeer naar het kristal.',
+    klok: 'Lees de klokken in de klokkentoren.',
+    spiegel: 'Maak het ijsbeeld af in de spiegel.',
+    codeslot: 'Kraak de code van de lavapoort.',
+    lampen: 'Laat alle vuurkristallen gloeien.',
+    hanoi: 'Verhuis de toren van schijven naar de laatste paal.',
   };
   let nu = null; // het open raadsel
   let bezig = false;
@@ -120,6 +126,8 @@ const OdRaadsels = (() => {
         brug: '🌉 Genoeg kristallen voor de brug! Loop naar de rand bij de banier om hem te bouwen.',
         luchtschip: '🚀 Genoeg kristallen voor het luchtschip! Het staat aan de zuidrand van het woud.',
         sterrenpoort: '🌌 Genoeg kristallen voor de sterrenpoort! Ze staat bij de Neonruïnes.',
+        drakenzadel: '🐉 Genoeg kristallen voor het drakenzadel! De draak wacht bij de rotsen op de Drakenkust.',
+        ijsraket: '❄️ Genoeg kristallen voor de ijsraket! Ze staat in de Sterrenhaven.',
       };
       const wat = st && st.bouw && Object.keys(tips).find(k => !st.gebouwd.includes(k) && (!st.bouw[k].nodig || st.gebouwd.includes(st.bouw[k].nodig)) && st.kristallen >= st.bouw[k].kost);
       if (wat) b.appendChild(el('p', 'od-brug-tip', tips[wat]));
@@ -1221,7 +1229,440 @@ const OdRaadsels = (() => {
     setTimeout(() => { const f = velden.flat().find(Boolean); if (f) f.focus(); }, 50);
   }
 
-  const TEKEN = { schuif, robot, licht, stroom, tandwiel, wip, woorden, code, weetje, weeg, reeks, pixel, sudoku, doolhof, toren };
+  // Zetten-teller met "het kan in ..." en een knop om opnieuw te beginnen.
+  function tellerEnOpnieuw(min, opnieuw) {
+    const teller = el('p', 'od-teller-tekst', '');
+    body().appendChild(teller);
+    body().appendChild(knop('↺ Opnieuw beginnen', 'secondary klein', opnieuw));
+    return n => { teller.textContent = `${n} ${n === 1 ? 'zet' : 'zetten'}${min ? ` · het kan in ${min}` : ''}`; };
+  }
+
+  // ---------- IJsrijk: het ijsmeer (glijden) ----------
+
+  function ijs(r) {
+    const pz = r.pz;
+    let stappen = '';
+    let klaarGezet = false;
+    let anim = null;
+    body().appendChild(el('p', 'od-opdracht', 'Op het ijs glijd je door tot je ergens tegen botst. Kom precies op het kristal terecht.'));
+    const b = bord(pz.w, pz.h);
+    const { g, vak } = b;
+    const rots = new Set(pz.rotsen);
+    function tekenIjs(px, py) {
+      g.fillStyle = '#0d1e36';
+      g.fillRect(0, 0, b.w, b.h);
+      for (let y = 0; y < pz.h; y++) for (let x = 0; x < pz.w; x++) {
+        if (rots.has(y * pz.w + x)) {
+          rrect(g, x * vak + 1, y * vak + 1, vak - 2, vak - 2, 4, '#9fb2cc');
+          g.fillStyle = '#6b7f9e';
+          g.beginPath();
+          g.moveTo(x * vak + vak * 0.15, y * vak + vak * 0.85);
+          g.lineTo(x * vak + vak * 0.5, y * vak + vak * 0.2);
+          g.lineTo(x * vak + vak * 0.85, y * vak + vak * 0.85);
+          g.fill();
+          g.fillStyle = '#f4f8ff';
+          g.fillRect(x * vak + vak * 0.42, y * vak + vak * 0.22, vak * 0.16, vak * 0.12);
+        } else {
+          rrect(g, x * vak + 1, y * vak + 1, vak - 2, vak - 2, 3, (x + y) % 2 ? '#bfe6f7' : '#aedcf2');
+          if ((x * 7 + y * 3) % 5 === 0) {
+            g.strokeStyle = 'rgba(255,255,255,.8)';
+            g.lineWidth = 1.5;
+            g.beginPath();
+            g.moveTo(x * vak + vak * 0.25, y * vak + vak * 0.6);
+            g.lineTo(x * vak + vak * 0.55, y * vak + vak * 0.3);
+            g.stroke();
+          }
+        }
+      }
+      kristal(g, (pz.doel.x + 0.5) * vak, (pz.doel.y + 0.5) * vak, vak * 0.34, '#c77dff', 0.35);
+      g.fillStyle = '#ffffff';
+      g.beginPath();
+      g.arc((px + 0.5) * vak, (py + 0.5) * vak, vak * 0.32, 0, Math.PI * 2);
+      g.fill();
+      g.fillStyle = '#2a8fe0';
+      g.beginPath();
+      g.arc((px + 0.5) * vak, (py + 0.5) * vak, vak * 0.2, 0, Math.PI * 2);
+      g.fill();
+    }
+    const zetTel = tellerEnOpnieuw(pz.zetten, () => {
+      if (klaarGezet) return;
+      stappen = '';
+      cancelAnimationFrame(anim);
+      anim = null;
+      tekenIjs(pz.start.x, pz.start.y);
+      zetTel(0);
+    });
+    function stap(c) {
+      if (klaarGezet || anim || !nu || nu.soort !== 'ijs') return;
+      const van = OdPuzzels.ijsLoop(pz, stappen);
+      const naar = OdPuzzels.ijsLoop(pz, stappen + c);
+      if (naar.x === van.x && naar.y === van.y) return;
+      stappen += c;
+      zetTel(stappen.length);
+      sfx.tick();
+      // glijden: even zien hoe je over het ijs schuift
+      const duur = 90 * (Math.abs(naar.x - van.x) + Math.abs(naar.y - van.y));
+      const t0 = performance.now();
+      const loop = nu2 => {
+        const f = Math.min(1, (nu2 - t0) / duur);
+        tekenIjs(van.x + (naar.x - van.x) * f, van.y + (naar.y - van.y) * f);
+        if (f < 1) { anim = requestAnimationFrame(loop); return; }
+        anim = null;
+        if (naar.ok) {
+          klaarGezet = true;
+          sfx.good();
+          setTimeout(() => stuur(stappen), 400);
+        }
+      };
+      anim = requestAnimationFrame(loop);
+    }
+    pijlenBesturing(b, () => OdPuzzels.ijsLoop(pz, stappen), stap, 'ijs');
+    tekenIjs(pz.start.x, pz.start.y);
+    zetTel(0);
+  }
+
+  // Pijltjes, toetsen en tikken naast de speler (voor het doolhof en het ijs).
+  function pijlenBesturing(b, waar, stap, soort) {
+    const toets = e => {
+      if (!nu || nu.soort !== soort) return window.removeEventListener('keydown', toets);
+      const c = { ArrowUp: 'N', ArrowRight: 'O', ArrowDown: 'Z', ArrowLeft: 'W', KeyW: 'N', KeyD: 'O', KeyS: 'Z', KeyA: 'W' }[e.code];
+      if (c) {
+        e.preventDefault();
+        stap(c);
+      }
+    };
+    window.addEventListener('keydown', toets);
+    b.c.addEventListener('click', e => {
+      const [x, y] = b.vakOp(e);
+      const st = waar();
+      const dx = x - st.x;
+      const dy = y - st.y;
+      if (Math.abs(dx) >= Math.abs(dy) && dx) stap(dx > 0 ? 'O' : 'W');
+      else if (dy) stap(dy > 0 ? 'Z' : 'N');
+    });
+    const pijlen = el('div', 'od-pijlen');
+    for (const [c, t] of [['N', '▲'], ['W', '◀'], ['Z', '▼'], ['O', '▶']]) pijlen.appendChild(knop(t, `od-pijl od-pijl-${c}`, () => stap(c)));
+    body().appendChild(pijlen);
+  }
+
+  // ---------- IJsrijk: de klokkentoren ----------
+
+  function tekenKlok(g, s, uur, min) {
+    const c = s / 2;
+    const R = s * 0.46;
+    g.clearRect(0, 0, s, s);
+    g.fillStyle = '#2b3a63';
+    g.beginPath();
+    g.arc(c, c, R + s * 0.03, 0, Math.PI * 2);
+    g.fill();
+    g.fillStyle = '#f4f8ff';
+    g.beginPath();
+    g.arc(c, c, R, 0, Math.PI * 2);
+    g.fill();
+    g.fillStyle = '#1b2a48';
+    g.textAlign = 'center';
+    g.textBaseline = 'middle';
+    g.font = `bold ${Math.round(s * 0.09)}px sans-serif`;
+    for (let i = 1; i <= 12; i++) {
+      const a = (i / 12) * Math.PI * 2 - Math.PI / 2;
+      g.fillText(String(i), c + Math.cos(a) * R * 0.8, c + Math.sin(a) * R * 0.8);
+    }
+    for (let i = 0; i < 60; i++) {
+      const a = (i / 60) * Math.PI * 2;
+      const l = i % 5 ? 0.04 : 0.08;
+      g.strokeStyle = i % 5 ? '#9aa6bf' : '#1b2a48';
+      g.lineWidth = i % 5 ? 1 : 2;
+      g.beginPath();
+      g.moveTo(c + Math.sin(a) * R * (0.97 - l), c - Math.cos(a) * R * (0.97 - l));
+      g.lineTo(c + Math.sin(a) * R * 0.97, c - Math.cos(a) * R * 0.97);
+      g.stroke();
+    }
+    const wijzer = (a, l, w, kleur) => {
+      g.strokeStyle = kleur;
+      g.lineWidth = w;
+      g.lineCap = 'round';
+      g.beginPath();
+      g.moveTo(c, c);
+      g.lineTo(c + Math.sin(a) * R * l, c - Math.cos(a) * R * l);
+      g.stroke();
+    };
+    wijzer(((uur % 12) + min / 60) / 12 * Math.PI * 2, 0.5, s * 0.035, '#1b2a48');
+    wijzer((min / 60) * Math.PI * 2, 0.78, s * 0.022, '#e0485e');
+    g.fillStyle = '#1b2a48';
+    g.beginPath();
+    g.arc(c, c, s * 0.03, 0, Math.PI * 2);
+    g.fill();
+  }
+
+  function klok(r) {
+    const pz = r.pz;
+    const antwoorden = [];
+    const kop = el('p', 'od-opdracht', '');
+    body().appendChild(kop);
+    const c = el('canvas', 'od-klok-bord');
+    const s = Math.min(220, Math.floor(window.innerHeight * 0.32));
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    c.width = s * dpr;
+    c.height = s * dpr;
+    c.style.width = `${s}px`;
+    c.style.height = `${s}px`;
+    const g = c.getContext('2d');
+    g.scale(dpr, dpr);
+    body().appendChild(c);
+    const vraag = el('p', 'od-vraag-groot', '');
+    body().appendChild(vraag);
+    const opties = el('div', 'od-opties od-klok-opties');
+    body().appendChild(opties);
+    function toonKlok() {
+      const i = antwoorden.length;
+      const k = pz.klokken[i];
+      kop.textContent = `Klok ${i + 1} van ${pz.klokken.length}. Kijk goed naar de korte en de lange wijzer.`;
+      tekenKlok(g, s, k.uur, k.min);
+      vraag.textContent = k.vraag;
+      opties.innerHTML = '';
+      k.opties.forEach((o, j) => opties.appendChild(knop(o, 'od-optie', () => {
+        sfx.tick();
+        antwoorden.push(j);
+        if (antwoorden.length < pz.klokken.length) return toonKlok();
+        stuur(antwoorden.slice(), res => {
+          if (res.klaar) return klaar(res);
+          sfx.bad();
+          antwoorden.length = 0;
+          melding('Niet alle klokken waren juist. Begin opnieuw en kijk nog eens goed!', 'fout');
+          toonKlok();
+        });
+      })));
+    }
+    toonKlok();
+  }
+
+  // ---------- IJsrijk: het ijsbeeld (symmetrie) ----------
+
+  function spiegel(r) {
+    const pz = r.pz;
+    const { W, H, v: doel } = OdPuzzels.spiegelVeld(pz);
+    const gegeven = i => (i % W) < pz.half && Math.floor(i / W) < pz.h;
+    const veld = doel.map((x, i) => (gegeven(i) ? x : 0));
+    let klaarGezet = false;
+    body().appendChild(el('p', 'od-opdracht', pz.dubbel
+      ? 'Het beeld is gespiegeld naar rechts én naar onder. Tik de vakjes aan zodat alle vier de stukken kloppen.'
+      : 'Maak het ijsbeeld af: tik de vakjes aan zodat de rechterkant het spiegelbeeld is van de linkerkant.'));
+    const b = bord(W, H);
+    const { g, vak } = b;
+    function tekenSpiegel() {
+      g.fillStyle = '#0d1630';
+      g.fillRect(0, 0, b.w, b.h);
+      for (let i = 0; i < W * H; i++) {
+        const x = i % W;
+        const y = Math.floor(i / W);
+        const vast = gegeven(i);
+        rrect(g, x * vak + 2, y * vak + 2, vak - 4, vak - 4, 5, veld[i] ? (vast ? '#4cc9ff' : '#9ff3ff') : vast ? '#16233f' : '#1d2e52');
+        if (veld[i]) rrect(g, x * vak + 5, y * vak + 5, vak * 0.4, vak * 0.15, 3, 'rgba(255,255,255,.5)');
+      }
+      // de spiegel(s)
+      g.strokeStyle = '#ffe08a';
+      g.lineWidth = 3;
+      g.setLineDash([8, 6]);
+      g.beginPath();
+      g.moveTo(pz.half * vak, 0);
+      g.lineTo(pz.half * vak, b.h);
+      if (pz.dubbel) {
+        g.moveTo(0, pz.h * vak);
+        g.lineTo(b.w, pz.h * vak);
+      }
+      g.stroke();
+      g.setLineDash([]);
+    }
+    b.c.addEventListener('click', e => {
+      if (klaarGezet) return;
+      const [x, y] = b.vakOp(e);
+      if (x < 0 || y < 0 || x >= W || y >= H || gegeven(y * W + x)) return;
+      veld[y * W + x] = veld[y * W + x] ? 0 : 1;
+      sfx.tick();
+      tekenSpiegel();
+      if (OdPuzzels.check('spiegel', pz, veld)) {
+        klaarGezet = true;
+        sfx.good();
+        setTimeout(() => stuur(veld.slice()), 600);
+      }
+    });
+    tekenSpiegel();
+  }
+
+  // ---------- Vuurberg: de lavapoort (codeslot) ----------
+
+  function codeslot(r) {
+    const pz = r.pz;
+    body().appendChild(el('p', 'od-opdracht', `De poort heeft een code van ${pz.len} cijfers (${pz.van} tot ${pz.tot})${pz.uniek ? ', elk cijfer maar één keer' : ''}. Elke poging op de muur geeft een aanwijzing.`));
+    const lijst = el('div', 'od-hints');
+    for (const h of pz.hints) {
+      const rij = el('div', 'od-hintrij');
+      const gok = el('span', 'od-gok');
+      for (const c of h.gok) gok.appendChild(el('b', '', c));
+      rij.appendChild(gok);
+      const delen = [];
+      if (h.plek) delen.push(`🟢 ${h.plek} juist op de juiste plaats`);
+      if (h.ander) delen.push(`🟡 ${h.ander} juist maar op een andere plaats`);
+      rij.appendChild(el('span', 'od-hintuitleg', delen.length ? delen.join(' · ') : '⚫ geen enkel cijfer zit in de code'));
+      lijst.appendChild(rij);
+    }
+    body().appendChild(lijst);
+    const f = el('form', 'od-typ od-getal');
+    const inp = el('input', 'od-code-in');
+    inp.inputMode = 'numeric';
+    inp.autocomplete = 'off';
+    inp.maxLength = pz.len;
+    inp.placeholder = '?'.repeat(pz.len);
+    f.appendChild(inp);
+    const knopC = el('button', 'gold', 'Open de poort');
+    knopC.type = 'submit';
+    f.appendChild(knopC);
+    f.addEventListener('submit', e => {
+      e.preventDefault();
+      const code = inp.value.replace(/\D/g, '');
+      if (code.length !== pz.len) return melding(`De code heeft ${pz.len} cijfers.`, 'fout');
+      stuur(code, res => {
+        if (res.klaar) return klaar(res);
+        sfx.bad();
+        melding('De poort blijft dicht. Klopt jouw code met elke aanwijzing?', 'fout');
+        inp.select();
+      });
+    });
+    body().appendChild(f);
+    setTimeout(() => inp.focus(), 50);
+  }
+
+  // ---------- Vuurberg: het vuurkristal (lampen) ----------
+
+  function lampen(r) {
+    const pz = r.pz;
+    const n = pz.size;
+    let aan = pz.aan.map(Boolean);
+    const tikken = [];
+    let klaarGezet = false;
+    body().appendChild(el('p', 'od-opdracht', 'Tik op een kristal: hij en zijn buren boven, onder, links en rechts wisselen. Laat alle kristallen gloeien!'));
+    const b = bord(n, n);
+    const { g, vak } = b;
+    function tekenLampen() {
+      g.fillStyle = '#1a0e0c';
+      g.fillRect(0, 0, b.w, b.h);
+      for (let i = 0; i < n * n; i++) {
+        const x = i % n;
+        const y = Math.floor(i / n);
+        rrect(g, x * vak + 2, y * vak + 2, vak - 4, vak - 4, 8, '#2c1a16');
+        kristal(g, (x + 0.5) * vak, (y + 0.5) * vak, vak * 0.32, aan[i] ? '#ff9a3a' : '#4a3430', aan[i] ? 0.45 : 0);
+      }
+    }
+    const zetTel = tellerEnOpnieuw(0, () => {
+      if (klaarGezet) return;
+      aan = pz.aan.map(Boolean);
+      tikken.length = 0;
+      tekenLampen();
+      zetTel(0);
+    });
+    b.c.addEventListener('click', e => {
+      if (klaarGezet) return;
+      const [x, y] = b.vakOp(e);
+      if (x < 0 || y < 0 || x >= n || y >= n) return;
+      aan = OdPuzzels.lampenTik(aan, n, y * n + x);
+      tikken.push(y * n + x);
+      sfx.tick();
+      zetTel(tikken.length);
+      tekenLampen();
+      if (aan.every(Boolean)) {
+        klaarGezet = true;
+        sfx.good();
+        setTimeout(() => stuur(tikken.slice()), 600);
+      }
+    });
+    tekenLampen();
+    zetTel(0);
+  }
+
+  // ---------- Vuurberg: de vuurtoren (torens van Hanoi) ----------
+
+  function hanoi(r) {
+    const pz = r.pz;
+    const zetten = [];
+    let hand = null; // de paal waarvan je een schijf opnam
+    let klaarGezet = false;
+    body().appendChild(el('p', 'od-opdracht', 'Breng de hele toren naar de laatste paal. Tik op een paal om de bovenste schijf te nemen en op een andere paal om ze neer te leggen. Nooit een grote schijf op een kleinere!'));
+    const rijen = Math.ceil(pz.schijven * 0.6 + 2.2);
+    const b = bord(9, rijen);
+    const { g, vak } = b;
+    const KL = [['#ff5a5a', '#ff9a3a', '#ffc94a', '#ffe08a', '#ff7aa8', '#c77dff', '#4cc9ff'], ['#4cc9ff', '#2ee6a6', '#ffc94a', '#ff9a3a', '#ff5a5a', '#c77dff', '#ff7aa8'], ['#c77dff', '#ff7aa8', '#ff5a5a', '#ff9a3a', '#ffc94a', '#2ee6a6', '#4cc9ff']][pz.kleur || 0];
+    function tekenHanoi() {
+      const st = OdPuzzels.hanoiLoop(pz, zetten);
+      g.fillStyle = '#140c14';
+      g.fillRect(0, 0, b.w, b.h);
+      const dikte = vak * 0.55;
+      const vloer = b.h - vak * 0.4;
+      rrect(g, vak * 0.2, vloer, b.w - vak * 0.4, vak * 0.25, 4, '#4a3434');
+      st.palen.forEach((paal, p) => {
+        const cx = (p * 3 + 1.5) * vak;
+        rrect(g, cx - vak * 0.08, vloer - (pz.schijven + 0.6) * dikte, vak * 0.16, (pz.schijven + 0.6) * dikte, 4, p === 2 ? '#ffc94a' : '#7a6a6a');
+        paal.forEach((sch, i) => {
+          const omhoog = hand === p && i === paal.length - 1;
+          const w = vak * (0.9 + 1.8 * sch / pz.schijven);
+          const y = omhoog ? vak * 0.15 : vloer - (i + 1) * dikte;
+          rrect(g, cx - w / 2, y + 1, w, dikte - 2, dikte * 0.4, KL[(sch - 1) % KL.length]);
+          rrect(g, cx - w / 2 + 4, y + 3, w * 0.4, dikte * 0.22, 3, 'rgba(255,255,255,.35)');
+        });
+      });
+      return st;
+    }
+    const zetTel = tellerEnOpnieuw(pz.min, () => {
+      if (klaarGezet) return;
+      zetten.length = 0;
+      hand = null;
+      tekenHanoi();
+      zetTel(0);
+    });
+    function kies(p) {
+      if (klaarGezet || !nu || nu.soort !== 'hanoi') return;
+      const st = OdPuzzels.hanoiLoop(pz, zetten);
+      if (hand === null) {
+        if (!st.palen[p].length) return;
+        hand = p;
+        sfx.tick();
+      } else if (hand === p) {
+        hand = null;
+      } else {
+        const na = OdPuzzels.hanoiLoop(pz, [...zetten, [hand, p]]);
+        if (na.fout) {
+          sfx.bad();
+          melding('Een grote schijf mag niet op een kleinere.', 'fout');
+          hand = null;
+        } else {
+          zetten.push([hand, p]);
+          hand = null;
+          melding('');
+          sfx.tick();
+          zetTel(zetten.length);
+          if (na.ok) {
+            klaarGezet = true;
+            sfx.good();
+            setTimeout(() => stuur(zetten.slice()), 600);
+          }
+        }
+      }
+      tekenHanoi();
+    }
+    b.c.addEventListener('click', e => {
+      const [x] = b.vakOp(e);
+      if (x >= 0 && x < 9) kies(Math.floor(x / 3));
+    });
+    const toets = e => {
+      if (!nu || nu.soort !== 'hanoi') return window.removeEventListener('keydown', toets);
+      const p = { Digit1: 0, Digit2: 1, Digit3: 2, Numpad1: 0, Numpad2: 1, Numpad3: 2 }[e.code];
+      if (p !== undefined) kies(p);
+    };
+    window.addEventListener('keydown', toets);
+    tekenHanoi();
+    zetTel(0);
+  }
+
+  const TEKEN = { schuif, robot, licht, stroom, tandwiel, wip, woorden, code, weetje, weeg, reeks, pixel, sudoku, doolhof, toren, ijs, klok, spiegel, codeslot, lampen, hanoi };
 
   // ---------- Woordenboek en ontdekkersboek ----------
 

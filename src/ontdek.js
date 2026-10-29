@@ -43,15 +43,23 @@ const STATIONS = {
   koepel: { soort: 'sudoku', naam: 'De Sterrenkoepel', gebied: 'sterren' },
   donjon: { soort: 'doolhof', naam: 'De Donjon', gebied: 'sterren' },
   goudtoren: { soort: 'toren', naam: 'De Gouden Toren', gebied: 'sterren' },
+  ijsmeer: { soort: 'ijs', naam: 'Het IJsmeer', gebied: 'ijs' },
+  klokkentoren: { soort: 'klok', naam: 'De Klokkentoren', gebied: 'ijs' },
+  ijsbeeld: { soort: 'spiegel', naam: 'Het IJsbeeld', gebied: 'ijs' },
+  lavapoort: { soort: 'codeslot', naam: 'De Lavapoort', gebied: 'vuur' },
+  vuurkristal: { soort: 'lampen', naam: 'Het Vuurkristal', gebied: 'vuur' },
+  vuurtoren: { soort: 'hanoi', naam: 'De Vuurtoren', gebied: 'vuur' },
 };
 // Bouwen met kristallen: zo wordt de wereld groter. nodig: wat er eerst moet staan.
 const BOUW = {
   brug: { naam: 'de brug naar de Neonruïnes', kost: 3 },
   luchtschip: { naam: 'het luchtschip naar de Drakenkust', kost: 10 },
   sterrenpoort: { naam: 'de sterrenpoort naar de Sterrenhaven', kost: 20, nodig: 'brug' },
+  drakenzadel: { naam: 'het drakenzadel naar de Vuurberg', kost: 30, nodig: 'luchtschip' },
+  ijsraket: { naam: 'de ijsraket naar het IJsrijk', kost: 30, nodig: 'sterrenpoort' },
 };
 // Welk gebied pas open is als er iets gebouwd is.
-const GEBIED_NODIG = { ruine: 'brug', draken: 'luchtschip', sterren: 'sterrenpoort' };
+const GEBIED_NODIG = { ruine: 'brug', draken: 'luchtschip', sterren: 'sterrenpoort', ijs: 'ijsraket', vuur: 'drakenzadel' };
 const KRISTAL_PER_PLEK = 3; // zoveel kristallen kan je per plek per dag verdienen
 const RUNEN = W.runen(); // de verborgen runenstenen ("kaart:x,y")
 const WOORDEN_PER_RONDE = 3;
@@ -606,7 +614,7 @@ function vind({ naam, id } = {}) {
   if (!RUNEN.includes(id)) throw new Error('Hier ligt geen runensteen.');
   const s = speler(w);
   const kaart = id.split(':')[0];
-  const nodig = { draken: 'luchtschip', sterren: 'sterrenpoort' }[kaart];
+  const nodig = GEBIED_NODIG[kaart];
   if (nodig && !s.gebouwd.includes(nodig)) throw new Error('Hier kan je nog niet komen.');
   let nieuw = false;
   if (!s.runen[id]) {
