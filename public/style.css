@@ -1765,6 +1765,12 @@ body[data-du="1"] .sj-card { background: linear-gradient(180deg, rgba(36, 22, 40
 /* Een rijk open: de vijf tegels en het grote logo maken plaats voor de onderdelen van dat rijk. */
 #home.in-rijk .realms, #home.in-rijk .hero, #home.in-rijk #welkom-tip, #home.in-rijk .eiland-rij { display: none; }
 .eiland-rij { width: 100%; margin: 0 0 18px; }
+/* Drie balken naast elkaar: korter, zelfde rustige stijl; op smalle schermen onder elkaar. */
+.eiland-rij { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.eiland-rij .module.balk { grid-column: auto; grid-template-columns: auto 1fr; padding: 14px 18px; column-gap: 14px; }
+.eiland-rij .module.balk .tile-icon { width: 56px; height: 56px; }
+.eiland-rij .module.balk .tag { display: none; }
+@media (max-width: 1000px) { .eiland-rij { grid-template-columns: 1fr; } }
 /* Op het startscherm passen logo en vijf rijken samen op één scherm (bord en Chromebook). */
 #home .hero img { width: auto; height: clamp(150px, 34vh, 340px); max-width: 70vw; object-fit: contain; }
 .rijk-kop { display: flex; align-items: center; gap: 14px; width: 100%; margin: 4px 0 18px; }
