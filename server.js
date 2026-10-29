@@ -102,6 +102,7 @@ const ontdek = require('./src/ontdek');
 const burchten = require('./src/burchten');
 const taken = require('./src/taken');
 const klastaken = require('./src/klastaken');
+const klasindeling = require('./src/klasindeling');
 const soloSpel = require('./src/solo');
 const ai = require('./src/ai');
 const aiJson = require('./src/ai-json');
@@ -476,6 +477,8 @@ lesmap.init([
   { kind: 'taak', dir: taken.PLAN, remote: 'taken', validate: taken.planGeldig },
   // De klastaken van De Wachtlijst (de taken en de beurt, niet de volgorde van de leerlingen).
   { kind: 'klastaken', dir: klastaken.DIR, remote: 'klastaken', validate: klastaken.geldig },
+  // De Klasindeling: je lokaal en wie waar zit, thuis klaar te zetten.
+  { kind: 'klasindeling', dir: klasindeling.DIR, remote: 'klasindeling', validate: klasindeling.geldig },
   // De klaslijst (alleen namen en niveaus), zodat je thuis taken per kind klaarzet. Twee lijsten worden samengevoegd.
   { kind: 'klas', dir: klas.LESMAP, remote: 'klas', validate: klas.lesmapGeldig, merge: klas.lesmapSamen },
 ]);
@@ -493,6 +496,7 @@ function runSync() {
       else if (kind === 'zonnewijzer') io.to('host').emit('zw-gewijzigd');
       else if (kind === 'kronieken') io.to('host').emit('kr-lijst', kronieken.lijst());
       else if (kind === 'klastaken') io.to('host').emit('wk-taken', klastaken.read());
+      else if (kind === 'klasindeling') io.to('host').emit('wk-indeling', klasindeling.read());
     }
     if (taken.uitLesmap()) {
       io.to('host').emit('tk-lijst', taken.lijst());
@@ -1015,6 +1019,14 @@ io.on('connection', socket => {
     socket.on('wk-taken-zet', handle(arg => {
       const data = klastaken.write(arg || {});
       socket.to('host').emit('wk-taken', data);
+      syncSoon();
+      return { data };
+    }));
+    // De Klasindeling: het lokaal en de plaatsen. Ook naar de andere docentenschermen.
+    socket.on('wk-indeling-get', handle(() => ({ data: klasindeling.read() })));
+    socket.on('wk-indeling-zet', handle(arg => {
+      const data = klasindeling.write(arg || {});
+      socket.to('host').emit('wk-indeling', data);
       syncSoon();
       return { data };
     }));

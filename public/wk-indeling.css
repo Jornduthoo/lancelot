@@ -1,0 +1,129 @@
+/* De Klasindeling: het lokaal van bovenaf. Alles staat op een rooster van vakjes van --cel pixels.
+   De meubels zijn kleine svg's (één keer getekend per wijziging), alleen het stuk dat je sleept beweegt. */
+
+.ki-balk { justify-content: space-between; align-items: center; }
+.ki-modus { display: flex; gap: 6px; }
+.ki-modus button { display: inline-flex; align-items: center; gap: 8px; }
+.ki-modus button.on { background: var(--gold); color: rgb(var(--k-op-goud)); box-shadow: 0 0 14px rgb(var(--k-goud) / .55); }
+.ki-op { flex-direction: row !important; align-items: center; gap: 8px !important; }
+.ki-op select { min-width: 180px; }
+
+.ki-veld { display: grid; grid-template-columns: 1fr 270px; gap: 16px; align-items: start; }
+.ki-wrap { min-width: 0; display: flex; flex-direction: column; align-items: center; }
+.ki-printnaam { display: none; }
+.ki-zij { display: flex; flex-direction: column; gap: 12px; user-select: none; -webkit-user-select: none; }
+.ki-paneel { display: flex; flex-direction: column; align-items: stretch !important; gap: 10px; padding: 12px 14px; border-radius: 6px;
+  background: rgb(var(--k-panel) / .92); border: 1px solid var(--line); box-shadow: 0 8px 20px rgb(var(--k-zwart) / .45); }
+.ki-paneel.wk-bediening { background: linear-gradient(180deg, rgb(var(--k-panel)), rgb(var(--k-bg2))); }
+.ki-kop { font-family: var(--tech); font-size: .72rem; letter-spacing: .22em; text-transform: uppercase; color: var(--cyan); }
+.ki-uitleg { margin: 0; font-size: .85rem; color: var(--muted); }
+.ki-rij { display: flex; gap: 8px; }
+.ki-rij > * { flex: 1; }
+.ki-rij input { width: 100%; }
+
+/* Nog geen plaats: namen om te slepen of aan te tikken. */
+.ki-namen { display: flex; flex-wrap: wrap; gap: 6px; max-height: 32vh; overflow-y: auto; }
+.ki-naam { padding: 6px 10px; font-size: .9rem; color: rgb(var(--k-op-goud)); background: #f3e3bf; border-radius: 4px; cursor: grab; touch-action: none;
+  box-shadow: 0 2px 0 #b89a62, 0 3px 6px rgb(var(--k-zwart) / .4); }
+.ki-zonder.doel { box-shadow: 0 0 0 3px var(--gold), 0 0 22px rgb(var(--k-goud) / .5); }
+.ki-zonder.vol .ki-namen { opacity: .8; }
+
+/* ---------- Het lokaal ---------- */
+.ki-lokaal { --cel: 40px; position: relative; width: calc(var(--W) * var(--cel)); height: calc(var(--H) * var(--cel)); flex: none;
+  /* Een houten vloer met planken, en een stenen muur eromheen. */
+  background:
+    repeating-linear-gradient(90deg, rgb(0 0 0 / 0) 0 calc(var(--cel) * 1 - 1px), rgb(70 40 14 / .35) calc(var(--cel) * 1 - 1px) var(--cel)),
+    repeating-linear-gradient(0deg, rgb(255 255 255 / .04) 0 calc(var(--cel) * 3), rgb(0 0 0 / .06) calc(var(--cel) * 3) calc(var(--cel) * 6)),
+    linear-gradient(160deg, #c99a63, #a8743f 55%, #94622f);
+  outline: calc(var(--cel) * .32) solid #3a4258; outline-offset: 0; border-radius: 2px; margin: calc(var(--cel) * .32);
+  box-shadow: 0 0 0 calc(var(--cel) * .32 + 3px) rgb(var(--k-goud) / .55), 0 18px 40px rgb(var(--k-zwart) / .65), inset 0 0 calc(var(--cel) * 1.2) rgb(40 20 5 / .45);
+  user-select: none; -webkit-user-select: none; touch-action: none; }
+.ki-lokaal.bouw { background-image:
+    linear-gradient(rgb(var(--k-cyan) / .22) 1px, rgb(0 0 0 / 0) 1px), linear-gradient(90deg, rgb(var(--k-cyan) / .22) 1px, rgb(0 0 0 / 0) 1px),
+    linear-gradient(160deg, #c99a63, #a8743f 55%, #94622f);
+  background-size: var(--cel) var(--cel), var(--cel) var(--cel), auto; }
+.ki-leeg { position: absolute; inset: 30% 10% auto; margin: 0; text-align: center; font-size: 1.1rem; color: #3b2412; font-weight: 700; }
+
+.ki-stuk { position: absolute; z-index: 2; left: calc(var(--x) * var(--cel)); top: calc(var(--y) * var(--cel)); width: calc(var(--w) * var(--cel)); height: calc(var(--h) * var(--cel)); }
+.ki-stuk.vloer { z-index: 1; }
+.ki-stuk.muur { z-index: 3; }
+.ki-vorm { position: absolute; left: 50%; top: 50%; width: calc(var(--bw) * var(--cel)); height: calc(var(--bh) * var(--cel));
+  transform: translate(-50%, -50%) rotate(calc(var(--r) * 90deg)); filter: drop-shadow(0 calc(var(--cel) * .06) calc(var(--cel) * .08) rgb(30 15 4 / .55)); }
+.ki-stuk.vloer .ki-vorm { filter: none; opacity: .92; }
+.ki-vorm svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.ki-lokaal.bouw .ki-stuk { cursor: grab; }
+.ki-lokaal.bouw .ki-stuk:hover .ki-vorm { filter: drop-shadow(0 0 calc(var(--cel) * .12) rgb(var(--k-cyan) / .9)); }
+.ki-stuk.gekozen .ki-vorm { filter: drop-shadow(0 0 2px rgb(var(--k-goud))) drop-shadow(0 0 calc(var(--cel) * .2) rgb(var(--k-goud) / .9)); }
+.ki-stuk.sleept { z-index: 9; cursor: grabbing; opacity: .9; }
+
+/* Naamkaartjes op de banken: altijd rechtop, wat de bank ook doet. */
+.ki-plaats { position: absolute; z-index: 1; left: calc(var(--px) * var(--cel)); top: calc(var(--py) * var(--cel)); width: calc(1.84 * var(--cel)); height: calc(.8 * var(--cel));
+  transform: translate(-50%, -50%); display: flex; align-items: center; justify-content: center; gap: 2px; padding: 0 3px; box-sizing: border-box;
+  font-size: calc(var(--cel) * .36 * var(--f, 1)); font-weight: 700; line-height: 1; color: #2a1a06; white-space: nowrap; overflow: hidden;
+  background: linear-gradient(180deg, #fff8e6, #f0dcae); border-radius: calc(var(--cel) * .1); box-shadow: 0 1px 0 #b89a62, 0 2px 5px rgb(30 15 4 / .45);
+  cursor: grab; touch-action: none; transition: transform .12s; }
+.ki-plaats span { overflow: hidden; text-overflow: ellipsis; }
+.ki-plaats b { font-size: .7em; }
+.ki-niv { font-style: normal; font-size: .8em; }
+.ki-plaats.vrij { background: rgb(255 248 230 / .18); box-shadow: inset 0 0 0 1.5px rgb(255 248 230 / .55); cursor: pointer; }
+.ki-plaats.dicht { color: #fff; background: repeating-linear-gradient(45deg, rgb(160 30 50 / .75) 0 6px, rgb(110 15 30 / .75) 6px 12px); box-shadow: none; cursor: pointer; }
+.ki-plaats.vast { box-shadow: 0 0 0 2px rgb(var(--k-goud)), 0 2px 5px rgb(30 15 4 / .45); }
+.ki-plaats.weg { opacity: .45; }
+.ki-plaats.onbekend { font-style: italic; opacity: .6; }
+.ki-plaats.botst { box-shadow: 0 0 0 2.5px rgb(var(--k-rood)), 0 0 12px rgb(var(--k-rood) / .8); }
+.ki-plaats.doel { transform: translate(-50%, -50%) scale(1.14); box-shadow: 0 0 0 3px rgb(var(--k-cyan)), 0 0 16px rgb(var(--k-cyan) / .8); }
+.ki-lokaal.bouw .ki-plaats { pointer-events: none; opacity: .55; }
+.ki-weg { opacity: .25; }
+.ki-spook { position: fixed; z-index: 1000; pointer-events: none; transform: translate(-50%, -60%) scale(1.1); left: 0; top: 0; }
+.ki-spook.ki-plaats { box-shadow: 0 10px 24px rgb(var(--k-zwart) / .6); }
+
+/* ---------- De gereedschapskist ---------- */
+.ki-doos { max-height: 62vh; overflow-y: auto; }
+.ki-gereedschap { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.ki-tool { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 6px 2px; font-size: .72rem; line-height: 1.1; color: var(--text);
+  background: rgb(var(--k-bg2) / .8); box-shadow: inset 0 0 0 1px var(--line); border-radius: 6px; cursor: grab; touch-action: none; }
+.ki-tool:hover { box-shadow: inset 0 0 0 1px rgb(var(--k-cyan) / .8), 0 0 12px rgb(var(--k-cyan) / .35); }
+.ki-mini { display: flex; align-items: center; justify-content: center; width: 46px; height: 34px; padding: 3px; border-radius: 4px; background: linear-gradient(160deg, #c99a63, #94622f); }
+.ki-mini svg { max-width: 100%; max-height: 100%; width: 100%; height: 100%; }
+.ki-spook.ki-tool { width: 90px; }
+
+/* ---------- Het menu bij een stuk of een plaats ---------- */
+#t-indeling { position: relative; }
+.ki-menu { position: absolute; z-index: 20; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; max-width: 420px; padding: 8px 10px;
+  background: var(--panel-solid); border: 1px solid rgb(var(--k-goud) / .7); border-radius: 8px; box-shadow: 0 12px 30px rgb(var(--k-zwart) / .6); }
+.ki-menu strong { width: 100%; font-family: var(--head); color: var(--gold); }
+.ki-menu button { padding: 6px 10px; font-size: .9rem; }
+.ki-kleuren { display: flex; gap: 4px; }
+.ki-kleuren button { width: 26px; height: 26px; padding: 0; border-radius: 50%; box-shadow: inset 0 0 0 2px rgb(var(--k-wit) / .5); }
+.ki-kleuren button.on { box-shadow: 0 0 0 2px var(--gold), inset 0 0 0 2px rgb(var(--k-wit) / .8); }
+
+/* Uit elkaar zetten */
+.ki-paar-nieuw { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 12px 0; }
+.ki-paar-nieuw select { flex: 1; min-width: 140px; }
+.ki-paar-lijst { display: flex; flex-direction: column; gap: 6px; max-height: 40vh; overflow-y: auto; }
+.ki-paar { display: flex; align-items: center; gap: 10px; padding: 6px 10px; border-radius: 6px; background: rgb(var(--k-rood) / .1); box-shadow: inset 0 0 0 1px rgb(var(--k-rood) / .4); }
+.ki-paar span { font-weight: 700; }
+.ki-paar em { color: var(--muted); font-size: .85rem; }
+.ki-paar button { margin-left: auto; }
+
+@media (max-width: 900px) {
+  .ki-veld { grid-template-columns: 1fr; }
+  .ki-gereedschap { grid-template-columns: repeat(auto-fill, minmax(78px, 1fr)); }
+  .ki-doos { max-height: none; }
+  .ki-balk { justify-content: center; }
+}
+
+/* Afdrukken: alleen het lokaal, op wit papier. */
+@media print {
+  @page { size: landscape; margin: 10mm; }
+  html, body.wk-host { background: #fff !important; }
+  .wk-tool#t-indeling { padding: 0; gap: 6px; }
+  #wk-zaal, #wk-vlammen, .topbar, .wk-rek, .ki-balk, .ki-zij, #ki-tip, .ki-menu, #geen-klas, .wk-tool:not(#t-indeling), .ui-schermbalk, .namen-knop { display: none !important; }
+  .wk-host main { max-width: none; padding: 0; }
+  .wk-titel span { color: #000; background: none; box-shadow: none; border: none; text-shadow: none; }
+  .wk-titel::before, .wk-titel::after, .wk-titel img { display: none; }
+  .ki-veld { display: block; }
+  .ki-printnaam { display: block; margin: 0 0 4px; font: 700 1.1rem var(--body); color: #000; }
+  .ki-lokaal { box-shadow: none; outline-color: #888; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .ki-lokaal * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
