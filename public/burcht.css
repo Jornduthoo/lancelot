@@ -153,3 +153,8 @@ body.ke-host { overflow: hidden; background: #060a13; }
 .ke-boek details summary { cursor: pointer; }
 .ke-boek ul { margin: 4px 0 0; padding-left: 16px; color: var(--muted); }
 .ke-boek .mini { padding: 3px 8px; font-size: .75rem; clip-path: none; border-radius: 7px; }
+
+/* Mijn burcht: een kaart naar je huisdier */
+.bu-dier-kaart { flex-direction: row; align-items: center; gap: 10px; text-decoration: none; color: inherit; border-color: rgba(199, 125, 255, .55); }
+.bu-dier-kaart:hover { box-shadow: 0 0 16px rgba(199, 125, 255, .35); }
+.bu-dier-kaart canvas { width: 56px; height: 56px; flex: none; }

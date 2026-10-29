@@ -1,0 +1,58 @@
+/* Mijn huisdier: kiezen, verzorgen en zien groeien. Bouwt verder op burcht.css (bu-top, bu-kaart, bu-balk). */
+
+.hd-logo { width: 48px; height: 48px; }
+.hd-page .bu-teller { border-color: rgb(var(--k-paars) / .55); box-shadow: 0 0 14px rgb(var(--k-paars) / .2); }
+.hd-page .bu-teller b { color: rgb(var(--k-paars)); }
+.hd-page .bu-teller.plop b { animation: bu-plop .6s ease; }
+.hd-page #hd-join { max-width: 520px; margin: 4vh auto 0; width: 100%; }
+.hd-page #hd-name { font-size: 1.3rem; padding: 14px; text-align: center; }
+
+/* Een ei kiezen */
+.hd-kies { display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center; padding: 6px 0 20px; }
+.hd-kop { margin: 0; font-family: var(--head); font-weight: 900; font-size: 1.6rem; color: rgb(var(--k-goud)); }
+.hd-kies > .muted { margin: 0; }
+.hd-soorten { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; width: min(100%, 860px); }
+.hd-soort { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px 6px 8px; border-radius: 14px; clip-path: none; background: rgb(var(--k-panel) / .85); color: rgb(var(--k-tekst)); box-shadow: inset 0 0 0 1px rgb(var(--k-rand)); font-weight: 800; }
+.hd-soort canvas { width: 100%; max-width: 130px; aspect-ratio: 1; }
+.hd-soort small { font-weight: 600; color: rgb(var(--k-muted)); font-size: .74rem; }
+.hd-soort.on { box-shadow: inset 0 0 0 2px rgb(var(--k-goud)), 0 0 18px rgb(var(--k-goud) / .4); background: linear-gradient(180deg, rgb(var(--k-goud) / .18), rgb(var(--k-panel) / .9)); }
+@media (max-width: 640px) { .hd-soorten { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.hd-kleuren { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.hd-kleur { width: 34px; height: 34px; padding: 0; border-radius: 50%; clip-path: none; box-shadow: inset 0 0 0 2px rgb(var(--k-zwart) / .35); }
+.hd-kleur.on { box-shadow: 0 0 0 3px rgb(var(--k-wit)), 0 0 14px rgb(var(--k-wit) / .5); }
+.hd-kies-rij { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; width: min(100%, 640px); }
+.hd-kies-rij input { flex: 1 1 240px; font-size: 1.05rem; padding: 12px; }
+
+/* Het podium met je huisdier */
+.hd-podium { position: relative; border-radius: 16px; overflow: hidden; border: 1px solid rgb(var(--k-cyan) / .25); box-shadow: 0 0 30px rgb(var(--k-cyan) / .12); background: #0b1226; }
+#hd-canvas { display: block; width: 100%; height: clamp(260px, calc(100vh - 380px), 520px); touch-action: none; cursor: pointer; }
+.hd-podium.poets #hd-canvas { cursor: grab; }
+@media (max-width: 900px) { #hd-canvas { height: min(48vh, 420px); } }
+.hd-ballon { position: absolute; left: 50%; top: 12px; transform: translateX(-50%); margin: 0; padding: 7px 14px; border-radius: 12px; max-width: 92%; text-align: center; background: rgb(var(--k-bg) / .85); border: 1px solid rgb(var(--k-goud) / .6); color: rgb(var(--k-tekst)); font-weight: 700; pointer-events: none; transition: opacity .3s; }
+.hd-ballon:empty { opacity: 0; }
+.hd-spelbalk { position: absolute; left: 10px; right: 10px; bottom: 10px; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 6px 8px 6px 14px; border-radius: 12px; background: rgb(var(--k-bg) / .8); border: 1px solid rgb(var(--k-cyan) / .45); font-weight: 800; }
+.hd-spelbalk button { padding: 6px 14px; }
+.hd-wakker { position: absolute; right: 14px; bottom: 14px; }
+
+.hd-meters { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.hd-meter { display: flex; flex-direction: column; gap: 4px; padding: 8px 10px; border-radius: 12px; background: rgb(var(--k-panel) / .8); border: 1px solid rgb(var(--k-rand)); font-size: .85rem; font-weight: 700; }
+.hd-meter .bu-balk span { transition: width .6s ease; }
+.hd-meters.slaapt { opacity: .5; }
+
+.hd-acties { display: flex; flex-wrap: wrap; gap: 8px; align-items: stretch; }
+.hd-trucs { display: contents; }
+.hd-actie { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 84px; padding: 8px 12px; border-radius: 12px; clip-path: none; font-weight: 800; font-size: .85rem; background: rgb(var(--k-panel) / .9); color: rgb(var(--k-tekst)); box-shadow: inset 0 0 0 1px rgb(var(--k-cyan) / .45); }
+.hd-actie b { font-size: 1.5rem; line-height: 1.1; }
+.hd-actie:hover:not(:disabled) { box-shadow: inset 0 0 0 2px rgb(var(--k-goud)), 0 0 14px rgb(var(--k-goud) / .35); }
+.hd-actie.truc { box-shadow: inset 0 0 0 1px rgb(var(--k-paars) / .6); }
+.hd-actie:disabled { opacity: .45; }
+.hd-actie.aan { box-shadow: inset 0 0 0 2px rgb(var(--k-goud)), 0 0 18px rgb(var(--k-goud) / .5); background: rgb(var(--k-goud) / .2); }
+.hd-scheiding { width: 1px; background: rgb(var(--k-rand)); margin: 4px 2px; }
+@media (max-width: 560px) { .hd-actie { min-width: 0; flex: 1 1 64px; padding: 6px; font-size: .78rem; } .hd-scheiding { display: none; } }
+.hd-ei-tekst { margin: 0; padding: 10px 14px; border-radius: 12px; text-align: center; font-weight: 700; background: rgb(var(--k-goud) / .12); border: 1px solid rgb(var(--k-goud) / .5); }
+
+.hd-hoeden { display: grid; grid-template-columns: repeat(auto-fill, minmax(52px, 1fr)); gap: 6px; }
+.hd-hoed { aspect-ratio: 1; padding: 0; border-radius: 10px; clip-path: none; font-size: 1.5rem; background: rgb(var(--k-bg) / .6); box-shadow: inset 0 0 0 1px rgb(var(--k-rand)); }
+.hd-hoed:first-child { font-size: .8rem; font-weight: 700; color: rgb(var(--k-muted)); }
+.hd-hoed.on { box-shadow: inset 0 0 0 2px rgb(var(--k-goud)), 0 0 12px rgb(var(--k-goud) / .4); }
+.hd-hoed.slot { opacity: .45; filter: grayscale(1); font-size: 1.1rem; }

@@ -10,6 +10,7 @@ const gegevens = require('./gegevens');
 const klas = require('./klas');
 const logboek = require('./logboek');
 const cat = require('../public/js/bu-catalogus');
+const huisdieren = require('./huisdieren');
 
 const DIR = gegevens.pad('burchten');
 const FILE = path.join(DIR, 'burchten.json');
@@ -229,8 +230,12 @@ function wie(naam) {
 
 // Wat een leerling op zijn eigen toestel ziet.
 function view(naam) {
-  return { ...stand(wie(naam)), kasteeltijd };
+  const st = stand(wie(naam));
+  return { ...st, dier: dierVan(st), kasteeltijd };
 }
+
+// Het huisdier bij je ridder (Mijn burcht, het Klaseiland).
+const dierVan = st => huisdieren.tekenVan(st.id, st.eer, st.rang, st.schilden);
 
 // Bouwen of weghalen. stuk: een id uit de catalogus, of '' om het vakje leeg te maken (je krijgt alles terug).
 function zet(naam, { x, y, stuk, laag, eiland } = {}) {
@@ -353,6 +358,7 @@ function neemTerug(leerling) {
 function wisNaam(leerling) {
   const d = load();
   if (d.burchten[leerling]) d.burchten[leerling].naam = '';
+  huisdieren.wisNaam(leerling);
   save();
   return {};
 }
@@ -379,10 +385,9 @@ function klasdoelView(per) {
 function eiland() {
   const per = telling();
   const burchten = klas.read().leerlingen.map(l => {
-    const s = per.get(l.id);
-    const rang = rangVan(l.id, s ? s.eer : 0);
-    const b = burchtVan(l.id);
-    return { id: l.id, leerling: l.naam, naam: b.naam, kleur: b.kleur, grond: b.grond, stukken: b.stukken, eiland: !!b.eiland, rang };
+    const st = stand(l);
+    const b = st.burcht;
+    return { id: l.id, leerling: l.naam, naam: b.naam, kleur: b.kleur, grond: b.grond, stukken: b.stukken, eiland: !!b.eiland, rang: st.rang, dier: dierVan(st) };
   });
   return { burchten, klasdoel: klasdoelView(per), kasteeltijd };
 }
@@ -391,7 +396,7 @@ function eiland() {
 function ridderboek() {
   return klas.read().leerlingen.map(l => {
     const s = stand(l);
-    return { id: l.id, naam: l.naam, eer: s.eer, saldo: s.saldo, rang: s.rang, reeks: s.reeks, schilden: s.schilden, posten: s.posten.slice(0, 12), burchtnaam: s.burcht.naam };
+    return { id: l.id, naam: l.naam, eer: s.eer, saldo: s.saldo, rang: s.rang, reeks: s.reeks, schilden: s.schilden, posten: s.posten.slice(0, 12), burchtnaam: s.burcht.naam, diernaam: huisdieren.naamVan(l.id) };
   });
 }
 

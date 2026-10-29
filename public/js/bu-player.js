@@ -202,6 +202,18 @@ function buRidder() {
   g.clearRect(0, 0, c.width, c.height);
   const av = Avatar.byName(bu.naam);
   if (av) g.drawImage(Avatar.sprite(av, { k: 6 }), 0, 0);
+  buDierKaart();
+}
+
+// Een knop naar Mijn huisdier, met je huisdier (of je ei) erop.
+function buDierKaart() {
+  const d = bu.stand && bu.stand.dier;
+  const c = $('bu-dier');
+  const g = c.getContext('2d');
+  g.clearRect(0, 0, c.width, c.height);
+  HdArt.teken(g, d || { soort: 'draak', kleur: 0, fase: 0 }, 36, 68, d && d.fase ? 66 : 58, { stil: true, geenSchaduw: true });
+  $('bu-dier-naam').textContent = d ? d.naam || HdArt.SOORTEN.find(s => s.id === d.soort).naam : 'Mijn huisdier';
+  $('bu-dier-uitleg').textContent = !d ? 'Kies een ei en zorg ervoor.' : d.fase ? 'Ga even langs bij je huisdier!' : 'Je ei komt uit als je Eer verdient.';
 }
 
 // ---------- De bouwknoppen ----------
@@ -277,7 +289,7 @@ $('bu-burcht-naam').addEventListener('keydown', e => {
 // De kaart van je eiland: je grond (volgens je rang) met een randje wilde weide errond, en je ridder.
 function buKaart() {
   const av = Avatar.byName(bu.naam);
-  return BuArt.draai(BuArt.perceelKaart(bu.stand.burcht, bu.stand.rang, av ? Avatar.sprite(av, { k: 4 }) : null), bu.zicht.draai);
+  return BuArt.draai(BuArt.perceelKaart(bu.stand.burcht, bu.stand.rang, HdArt.metRidder(av ? Avatar.sprite(av, { k: 4 }) : null, bu.stand.dier)), bu.zicht.draai);
 }
 
 const cv = $('bu-canvas');
