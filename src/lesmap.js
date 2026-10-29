@@ -1,6 +1,7 @@
 // Mijn lesmap: quizzen, oefenbladen en Ronde Tafel-sessies gelijk houden met een map in OneDrive of Google Drive.
 // Thuis maak je ze in je eigen LANcelot, het digibord haalt ze bij opstart (en daarna elke minuut) binnen, en omgekeerd.
-// Alleen wat de leerkracht maakt gaat mee. Klaslijst, logboek, resultaten en avatars blijven altijd op deze pc.
+// Alleen wat de leerkracht maakt gaat mee, plus de namen en niveaus van de klaslijst (om thuis taken per kind klaar te zetten).
+// Logboek, resultaten, notities en avatars blijven altijd op deze pc.
 const fs = require('fs');
 const fsp = fs.promises;
 const os = require('os');
@@ -122,6 +123,13 @@ async function syncKind(kind, root, state, count) {
     } else if (rChanged && !lChanged) {
       if (r) await pull();
       else { await trash(local, name); changedHere = true; count.removed++; }
+    } else if (l && r && kind.merge) {
+      // Aan beide kanten aangepast en de soort kan samenvoegen (de klaslijst): niemand verliest iets.
+      let text;
+      try { text = kind.merge(l.text, r.text); kind.validate(JSON.parse(text)); } catch { next[name] = s; continue; }
+      if (text !== l.text) { await write(local, name, text); changedHere = true; count.pulled++; }
+      if (text !== r.text) { await write(remote, name, text); count.pushed++; }
+      next[name] = hash(text);
     } else if (l && r) {
       // Aan beide kanten aangepast: de nieuwste wint, de andere versie gaat naar de prullenbak.
       if (r.mtime > l.mtime) await pull(true);

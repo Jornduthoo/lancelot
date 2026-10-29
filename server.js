@@ -474,10 +474,18 @@ lesmap.init([
   { kind: 'taak', dir: taken.PLAN, remote: 'taken', validate: taken.planGeldig },
   // De klastaken van De Wachtlijst (de taken en de beurt, niet de volgorde van de leerlingen).
   { kind: 'klastaken', dir: klastaken.DIR, remote: 'klastaken', validate: klastaken.geldig },
+  // De klaslijst (alleen namen en niveaus), zodat je thuis taken per kind klaarzet. Twee lijsten worden samengevoegd.
+  { kind: 'klas', dir: klas.LESMAP, remote: 'klas', validate: klas.lesmapGeldig, merge: klas.lesmapSamen },
 ]);
 let syncTimer = null;
 function runSync() {
+  try { klas.naarLesmap(); } catch (err) { console.error('Klaslijst voor de lesmap bewaren mislukt:', err.message); }
   return lesmap.sync().then(changed => {
+    // Eerst de klaslijst: taken uit de lesmap gaan alleen naar wie op de klaslijst staat.
+    if (changed.includes('klas') && klas.uitLesmap()) {
+      io.emit('klas-namen', klas.names());
+      io.to('host').emit('klas-gewijzigd');
+    }
     for (const kind of changed) {
       if (LIBS[kind]) sendLibrary(kind, null, true);
       else if (kind === 'zonnewijzer') io.to('host').emit('zw-gewijzigd');
@@ -970,7 +978,11 @@ io.on('connection', socket => {
       syncSoon();
       return { data };
     }));
-    socket.on('klas-niveau', handle(({ id, niveau, vak } = {}) => ({ klas: klas.setNiveau(id, niveau, vak) })));
+    socket.on('klas-niveau', handle(({ id, niveau, vak } = {}) => {
+      const data = klas.setNiveau(id, niveau, vak);
+      syncSoon();
+      return { klas: data };
+    }));
     // Op welk niveau de klas de quizspellen speelt (Page, Schildknaap, Ridder of alles door elkaar).
     // Uitleg na een fout antwoord in de spellen (in het Toernooi en het Duel altijd).
     socket.emit('uitleg-spellen', settings.read().uitlegSpellen !== false);
@@ -986,6 +998,7 @@ io.on('connection', socket => {
     socket.on('klas-save', handle(data => {
       const saved = klas.write(data);
       io.emit('klas-namen', klas.names());
+      syncSoon();
       return { klas: saved };
     }));
     socket.on('doelen-get', handle(() => ({ doelen: doelen.all(), leerjaar: klas.read().leerjaar, leerjaren: doelen.LEERJAREN })));

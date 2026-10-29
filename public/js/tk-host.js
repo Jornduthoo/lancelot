@@ -487,6 +487,12 @@ socket.on('connect', () => {
     tekenTaken();
   });
 });
+// Thuis klaarzetten: met Mijn lesmap gaan de klaslijst en de taken mee naar het digibord.
+socket.on('lesmap', v => {
+  $('tk-thuis-tekst').textContent = v && v.lesmap
+    ? 'Mijn lesmap is gekoppeld: taken die je hier geeft, staan ook op je andere pc (thuis of op het digibord). Je klaslijst gaat mee.'
+    : 'Thuis klaarzetten? Kies bij Instellingen › Lesmap dezelfde map op je pc thuis en op het digibord: je klaslijst en je taken gaan dan vanzelf mee.';
+});
 socket.on('klas-namen', namen => {
   tk.klas = Array.isArray(namen) ? namen : [];
   tekenNamen();
