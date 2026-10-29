@@ -54,6 +54,9 @@
 .ki-lokaal.bouw .ki-stuk { cursor: grab; }
 .ki-lokaal.bouw .ki-stuk:hover .ki-vorm { filter: drop-shadow(0 0 calc(var(--cel) * .12) rgb(var(--k-cyan) / .9)); }
 .ki-stuk.gekozen .ki-vorm { filter: drop-shadow(0 0 2px rgb(var(--k-goud))) drop-shadow(0 0 calc(var(--cel) * .2) rgb(var(--k-goud) / .9)); }
+.ki-stuk.schuin { transform: rotate(45deg); }
+.ki-stuk.schuin .ki-plaats { transform: translate(-50%, -50%) rotate(-45deg); }
+.ki-stuk.schuin .ki-plaats.doel { transform: translate(-50%, -50%) rotate(-45deg) scale(1.14); }
 .ki-stuk.sleept { z-index: 9; cursor: grabbing; opacity: .9; }
 
 /* Naamkaartjes op de banken: altijd rechtop, wat de bank ook doet. */

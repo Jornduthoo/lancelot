@@ -12,6 +12,8 @@ const Indeling = (() => {
   // Een stoel; de leuning aan de kant van de rug (onder = de leerling kijkt naar voren).
   const stoel = (cx, cy, rug = 1) => `<rect x="${cx - 3.6}" y="${cy - 3}" width="7.2" height="6" rx="1.8" fill="url(#ki-g-stoel)" stroke="#123a55" stroke-width=".7"/><path d="M${cx - 3.8} ${cy + rug * 3.4} Q${cx} ${cy + rug * 5.6} ${cx + 3.8} ${cy + rug * 3.4}" fill="none" stroke="#0e2f45" stroke-width="1.6" stroke-linecap="round"/>`;
   const rij = (n, f) => Array.from({ length: n }, (_, i) => f(i)).join('');
+  // De naamkaartjes rond de Ridderronde: zes plaatsen op een cirkel.
+  function rij6() { return Array.from({ length: 6 }, (_, i) => { const a = i * Math.PI / 3 - Math.PI / 2; return [+(3 + Math.cos(a) * 1.68).toFixed(2), +(3 + Math.sin(a) * 1.68).toFixed(2)]; }); }
   const KLEUR = [['#b8323e', '#6a1220'], ['#2c62b8', '#122d63'], ['#2f8a4c', '#11411f'], ['#7a3fa0', '#3a1452'], ['#d9a632', '#7a5310'], ['#d9621a', '#6a2a05']];
 
   const STUK = {
@@ -89,6 +91,55 @@ const Indeling = (() => {
         <path d="M10 2.8 L11.6 4.6 L10 6.6 L8.4 4.6Z" fill="#ffc94a"/>` },
     lamp: { naam: 'Lamp', w: 1, h: 1, groep: 'accent',
       teken: () => `<circle cx="5" cy="5" r="4.8" fill="url(#ki-g-licht)"/><circle cx="5" cy="5" r="2.2" fill="#fff6c8" stroke="#c9962e" stroke-width=".6"/>` },
+
+    // Meer banken: zitbank, lange tafel, ronde tafels, poef.
+    zitbank: { naam: 'Lange zitbank', w: 8, h: 1, groep: 'banken', plaatsen: [[1, .5], [3, .5], [5, .5], [7, .5]],
+      teken: () => `<rect x=".6" y="1.2" width="78.8" height="7.6" rx="1.4" fill="url(#ki-g-donker)" stroke="#2a1808" stroke-width=".9"/>` +
+        rij(4, i => `<path d="M${2 + i * 20} 3.6 H${18 + i * 20} M${2 + i * 20} 6.4 H${18 + i * 20}" stroke="#2a1808" stroke-width=".5" opacity=".6"/>`) +
+        rij(3, i => `<rect x="${19.4 + i * 20}" y="1.2" width="1.2" height="7.6" fill="#2a1808" opacity=".5"/>`) },
+    langetafel: { naam: 'Lange tafel', w: 8, h: 2, groep: 'banken', plaatsen: [[1, .58], [3, .58], [5, .58], [7, .58]],
+      teken: () => tafel(1, 1, 78, 9.5) + `<rect x="2" y="12" width="76" height="6.4" rx="1.4" fill="url(#ki-g-donker)" stroke="#2a1808" stroke-width=".8"/>` },
+    rond: { naam: 'Ronde tafel', w: 4, h: 4, groep: 'banken', plaatsen: [[2, 1.02], [3.02, 2], [2, 2.98], [.98, 2]],
+      teken: () => rij(4, i => { const a = i * Math.PI / 2 - Math.PI / 2, x = 20 + Math.cos(a) * 16.4, y = 20 + Math.sin(a) * 16.4; return `<g transform="rotate(${i * 90 + 180} ${x} ${y})">${stoel(x, y)}</g>`; }) +
+        `<circle cx="20" cy="20" r="13" fill="${HOUT}" stroke="${RAND}" stroke-width="1"/><circle cx="20" cy="20" r="10.5" fill="none" stroke="#fff" stroke-width=".8" opacity=".25"/>` },
+    ridderronde: { naam: 'Ridderronde (6)', w: 6, h: 6, groep: 'banken', plaatsen: rij6(),
+      teken: () => Array.from({ length: 6 }, (_, i) => { const a = i * Math.PI / 3 - Math.PI / 2, x = 30 + Math.cos(a) * 26.4, y = 30 + Math.sin(a) * 26.4; return `<g transform="rotate(${i * 60 + 180} ${x} ${y})">${stoel(x, y)}</g>`; }).join('') +
+        `<circle cx="30" cy="30" r="23" fill="url(#ki-g-donker)" stroke="#c9962e" stroke-width="1.6"/><circle cx="30" cy="30" r="20" fill="${HOUT}"/>
+        <circle cx="30" cy="30" r="5" fill="none" stroke="#c9962e" stroke-width="1"/><path d="M30 25 V35 M25 30 H35" stroke="#c9962e" stroke-width=".8"/>` },
+    poef: { naam: 'Poef', w: 1, h: 1, groep: 'banken', kleuren: 6, plaatsen: [[.5, .5]],
+      teken: k => `<circle cx="5" cy="5" r="4.4" fill="${KLEUR[k][0]}" stroke="${KLEUR[k][1]}" stroke-width=".8"/><circle cx="5" cy="5" r="1" fill="${KLEUR[k][1]}"/>` },
+    // Meer voor het lokaal
+    krijtbord: { naam: 'Oud krijtbord', w: 6, h: 1, groep: 'lokaal', muur: true,
+      teken: () => `<rect x="0" y="0" width="60" height="2.6" fill="#59607a"/><rect x="1.5" y=".8" width="57" height="6.6" rx=".6" fill="#2f4a3a" stroke="#8a5a2f" stroke-width="1.4"/>
+        <path d="M6 3 q3 -1.4 6 0 t6 0 M24 4.6 h10 M40 3 l3 2 l3 -2 l3 2" stroke="#f4ecd8" stroke-width=".6" fill="none" opacity=".75"/>
+        <rect x="2" y="7.4" width="56" height="1.8" fill="#6b4220"/><rect x="10" y="7.6" width="3" height="1.2" rx=".5" fill="#fffaf0"/><rect x="40" y="7.6" width="4" height="1.4" rx=".4" fill="#c9a274"/>` },
+    piano: { naam: 'Piano', w: 4, h: 2, groep: 'lokaal',
+      teken: () => `<rect x="1" y="1" width="38" height="11" rx="1.2" fill="#14161c" stroke="#3a3f4c" stroke-width=".8"/><rect x="3" y="12" width="34" height="5.4" fill="#f4f1ea" stroke="#9aa2b2" stroke-width=".5"/>` +
+        rij(16, i => `<path d="M${3 + i * 2.125} 12 V17.4" stroke="#9aa2b2" stroke-width=".3"/>`) + rij(11, i => `<rect x="${4.3 + i * 3.05}" y="12" width="1.2" height="3.2" fill="#14161c"/>`) },
+    laadkar: { naam: 'Laptopkar', w: 2, h: 1, groep: 'lokaal',
+      teken: () => `<rect x="1" y=".8" width="18" height="8.4" rx="1" fill="#59607a" stroke="#2a2f3c" stroke-width=".8"/>` + rij(6, i => `<rect x="${2.6 + i * 2.6}" y="2" width="1.6" height="6" fill="#1c2233"/><rect x="${2.9 + i * 2.6}" y="2.4" width="1" height=".8" fill="#2ee6a6"/>`) },
+    printer: { naam: 'Printer', w: 2, h: 1, groep: 'lokaal',
+      teken: () => `<rect x="2" y="1" width="16" height="8" rx="1.4" fill="#d9dee8" stroke="#7d8596" stroke-width=".8"/><rect x="5" y="1.6" width="10" height="3" fill="#fffaf0"/><rect x="4" y="6" width="12" height="1.2" rx=".6" fill="#2a2f3c"/><circle cx="16" cy="3" r=".7" fill="#2ee6a6"/>` },
+    // Meer accenten uit de burcht
+    troon: { naam: 'Troon', w: 2, h: 2, groep: 'accent',
+      teken: () => `<rect x="2" y="1" width="16" height="6" rx="2" fill="#c9962e" stroke="#6e4a0c" stroke-width=".8"/><path d="M5 1 L6.5 -1 L8 1 M12 1 L13.5 -1 L15 1" fill="#ffc94a" stroke="#6e4a0c" stroke-width=".5"/>
+        <rect x="3" y="6" width="14" height="12" rx="2" fill="#8a1426" stroke="#c9962e" stroke-width="1.2"/><rect x="5.5" y="8" width="9" height="8" rx="1.5" fill="#b8323e"/><circle cx="10" cy="4" r="1.4" fill="url(#ki-g-gem)"/>` },
+    zwaard: { naam: 'Zwaard in de steen', w: 2, h: 2, groep: 'accent',
+      teken: () => `<path d="M3 10 C2 5 6 2 10 2.4 C15 2 18.4 6 17.4 11 C16.6 16 13 18 9.6 17.6 C5 17.4 3.4 14 3 10Z" fill="#7d8596" stroke="#3a3f4c" stroke-width=".8"/>
+        <path d="M6 7 Q9 5.6 12 6.6 M7 13 Q11 14.6 14 12" stroke="#a9b0be" stroke-width=".6" fill="none"/>
+        <rect x="9.2" y="3" width="1.6" height="9" fill="url(#ki-g-staal)" stroke="#2a2f3c" stroke-width=".3"/><rect x="6" y="11.4" width="8" height="1.6" rx=".6" fill="#c9962e"/><rect x="9.3" y="13" width="1.4" height="3.6" fill="#5a3a1c"/><circle cx="10" cy="17.2" r="1" fill="url(#ki-g-gem)"/>` },
+    kroonluchter: { naam: 'Kroonluchter', w: 2, h: 2, groep: 'accent',
+      teken: () => `<circle cx="10" cy="10" r="9.6" fill="url(#ki-g-licht)"/><circle cx="10" cy="10" r="6.4" fill="none" stroke="#c9962e" stroke-width="1.2"/><path d="M10 3.6 V16.4 M3.6 10 H16.4" stroke="#c9962e" stroke-width=".7"/>` +
+        rij(6, i => { const a = i * Math.PI / 3; return `<circle cx="${10 + Math.cos(a) * 6.4}" cy="${10 + Math.sin(a) * 6.4}" r="1.1" fill="#fff6c8" stroke="#ff8c42" stroke-width=".4"/>`; }) },
+    schild: { naam: 'Schild', w: 1, h: 1, groep: 'accent', muur: true, kleuren: 6,
+      teken: k => `<rect x="0" y="0" width="10" height="1.4" fill="#59607a"/><path d="M1.6 1.4 H8.4 V5 Q8.4 8 5 9.4 Q1.6 8 1.6 5Z" fill="${KLEUR[k][0]}" stroke="#c9962e" stroke-width=".7"/><path d="M5 2.4 V8 M2.6 4.6 H7.4" stroke="#ffc94a" stroke-width=".7"/>` },
+    haard: { naam: 'Open haard', w: 4, h: 1, groep: 'accent', muur: true,
+      teken: () => `<rect x="0" y="0" width="40" height="4" fill="#59607a"/><rect x="2" y="0" width="36" height="9" rx="1" fill="#7d8596" stroke="#3a3f4c" stroke-width=".8"/>
+        <rect x="8" y="0" width="24" height="7" rx="1" fill="#1b1e26"/><ellipse cx="20" cy="4.4" rx="9" ry="2.6" fill="url(#ki-g-vuur)"/><path d="M14 5.6 h12" stroke="#5a3a1c" stroke-width="1.4" stroke-linecap="round"/>` },
+    draak: { naam: 'Knuffeldraak', w: 2, h: 2, groep: 'accent', kleuren: 6,
+      teken: k => `<path d="M10 3 L3 1 L6 8Z M10 3 L17 1 L14 8Z" fill="${KLEUR[k][1]}" opacity=".85"/><ellipse cx="10" cy="11" rx="6" ry="6.6" fill="${KLEUR[k][0]}" stroke="${KLEUR[k][1]}" stroke-width=".8"/>
+        <path d="M10 17 Q13 19.6 16.6 17.8" fill="none" stroke="${KLEUR[k][0]}" stroke-width="2.2" stroke-linecap="round"/><circle cx="10" cy="7" r="3.6" fill="${KLEUR[k][0]}" stroke="${KLEUR[k][1]}" stroke-width=".7"/>
+        <circle cx="8.6" cy="6.4" r=".7" fill="#1b1e26"/><circle cx="11.4" cy="6.4" r=".7" fill="#1b1e26"/><path d="M8 12 L10 10.4 L12 12 L10 15Z" fill="#ffc94a" opacity=".8"/>` },
   };
   const GROEPEN = [['banken', 'Banken'], ['lokaal', 'Het lokaal'], ['accent', 'Leuke accenten']];
   const RANG = { page: 0, schildknaap: 1, ridder: 2 };
@@ -102,6 +153,8 @@ const Indeling = (() => {
     <linearGradient id="ki-g-scherm" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#1590c9"/><stop offset=".5" stop-color="#7fdcff"/><stop offset="1" stop-color="#1590c9"/></linearGradient>
     <linearGradient id="ki-g-glas" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#bfefff"/><stop offset=".5" stop-color="#7fc8e8"/><stop offset="1" stop-color="#bfefff"/></linearGradient>
     <radialGradient id="ki-g-staal" cx=".35" cy=".35"><stop offset="0" stop-color="#f1f3f8"/><stop offset=".6" stop-color="#9aa2b2"/><stop offset="1" stop-color="#4a505e"/></radialGradient>
+    <radialGradient id="ki-g-gem" cx=".35" cy=".35"><stop offset="0" stop-color="#e9fbff"/><stop offset=".45" stop-color="#5ee7ff"/><stop offset="1" stop-color="#0d4a66"/></radialGradient>
+    <radialGradient id="ki-g-vuur"><stop offset="0" stop-color="#fff6c8"/><stop offset=".45" stop-color="#ffb347"/><stop offset="1" stop-color="#ff6a1a" stop-opacity=".2"/></radialGradient>
     <radialGradient id="ki-g-licht"><stop offset="0" stop-color="#fff6c8"/><stop offset=".5" stop-color="#ffc94a" stop-opacity=".5"/><stop offset="1" stop-color="#ffc94a" stop-opacity="0"/></radialGradient>
   </defs></svg>`);
 
@@ -121,7 +174,13 @@ const Indeling = (() => {
     const d = STUK[s.s], w = d.w, h = d.h;
     return (d.plaatsen || []).map(([x, y], i) => {
       const [px, py] = [[x, y], [h - y, x], [w - x, h - y], [y, w - x]][s.r];
-      return { k: `${s.id}.${i}`, i, px, py, x: s.x + px, y: s.y + py, dicht: !!(s.dicht && s.dicht.includes(i)) };
+      // Schuin: het hele stuk staat 45° gedraaid rond zijn midden (de kaartjes blijven rechtop).
+      let [ax, ay] = [px, py];
+      if (s.d) {
+        const [ow, oh] = maat(s), dx = px - ow / 2, dy = py - oh / 2, c = Math.SQRT1_2;
+        [ax, ay] = [ow / 2 + (dx - dy) * c, oh / 2 + (dx + dy) * c];
+      }
+      return { k: `${s.id}.${i}`, i, px, py, x: s.x + ax, y: s.y + ay, dicht: !!(s.dicht && s.dicht.includes(i)) };
     });
   }
   const allePlaatsen = () => op().stukken.filter(s => STUK[s.s].plaatsen).flatMap(kaartjes);
@@ -202,7 +261,7 @@ const Indeling = (() => {
     lok.innerHTML = stukken.map(s => {
       const d = STUK[s.s], [w, h] = maat(s);
       const kaart = d.plaatsen ? kaartjes(s).map(p => kaartje(p, b, botsen)).join('') : '';
-      return `<div class="ki-stuk${d.laag === 0 ? ' vloer' : ''}${d.muur ? ' muur' : ''}${s.id === gekozen ? ' gekozen' : ''}" data-id="${s.id}" style="--x:${s.x};--y:${s.y};--w:${w};--h:${h}">
+      return `<div class="ki-stuk${d.laag === 0 ? ' vloer' : ''}${d.muur ? ' muur' : ''}${s.d && !d.muur ? ' schuin' : ''}${s.id === gekozen ? ' gekozen' : ''}" data-id="${s.id}" style="--x:${s.x};--y:${s.y};--w:${w};--h:${h}">
         <div class="ki-vorm" style="--bw:${d.w};--bh:${d.h};--r:${s.r}">${svg(s)}</div>${kaart}</div>`;
     }).join('') + (o.stukken.length ? '' : '<p class="ki-leeg">Een leeg lokaal. Kies rechts een bank of een bord om te beginnen.</p>');
     // Het zijpaneel
@@ -214,7 +273,7 @@ const Indeling = (() => {
       : `<span class="muted small">${klas.leerlingen.length ? 'Iedereen heeft een plaats.' : 'Je klaslijst is nog leeg.'}</span>`;
     $('ki-zonder').classList.toggle('vol', !b.zonder.length);
     $('ki-tip').textContent = modus === 'bouw'
-      ? 'Tik op een stuk rechts of sleep het in je lokaal. Tik op een stuk in het lokaal om het te draaien of weg te doen.'
+      ? 'Tik op een stuk rechts of sleep het in je lokaal. Tik op een stuk in het lokaal om het te draaien (ook schuin) of weg te doen.'
       : 'Sleep een naam naar een andere plaats om te wisselen. Tik op een plaats om ze vast te zetten of dicht te doen.';
     for (const k of document.querySelectorAll('.ki-modus [data-modus]')) k.classList.toggle('on', k.dataset.modus === modus);
     $('ki-zij-zit').classList.toggle('hidden', modus !== 'zit');
@@ -349,7 +408,7 @@ const Indeling = (() => {
       const d = STUK[s.s];
       const dicht = d.plaatsen && s.dicht && s.dicht.length === d.plaatsen.length;
       html = `<strong>${esc(d.naam)}</strong>
-        <button class="secondary" data-doe="draai">⟳ ${d.muur ? 'Andere muur' : 'Draai'}</button>
+        <button class="secondary" data-doe="draai" title="${d.muur ? 'Naar de volgende muur' : 'Een achtste draai: schuin of recht'}">⟳ ${d.muur ? 'Andere muur' : 'Draai'}</button>
         <button class="secondary" data-doe="kopie">⧉ Nog een</button>
         ${d.plaatsen ? `<button class="secondary" data-doe="dicht">${dicht ? '✓ Plaatsen open' : '✕ Plaatsen dicht'}</button>` : ''}
         ${d.kleuren ? `<span class="ki-kleuren">${KLEUR.slice(0, d.kleuren).map((c, i) => `<button class="${(s.k || 0) === i ? 'on' : ''}" data-kleur="${i}" style="background:${c[0]}" aria-label="Kleur ${i + 1}"></button>`).join('')}</span>` : ''}
@@ -428,8 +487,11 @@ const Indeling = (() => {
   // Draaien: een kwartslag; een muurstuk gaat naar de volgende muur.
   function draai(s) {
     const o = op();
+    if (STUK[s.s].muur) { s.r = (s.r + 1) % 4; return tegenMuur(s, s.x + maat(s)[0] / 2, s.y + maat(s)[1] / 2, s.r); }
+    // Per 45°: eerst schuin, dan de volgende kwartslag recht.
+    if (!s.d) { s.d = true; return; }
+    delete s.d;
     s.r = (s.r + 1) % 4;
-    if (STUK[s.s].muur) return tegenMuur(s, s.x + maat(s)[0] / 2, s.y + maat(s)[1] / 2, s.r);
     const [w, h] = maat(s);
     s.x = Math.max(0, Math.min(o.w - w, s.x));
     s.y = Math.max(0, Math.min(o.h - h, s.y));
