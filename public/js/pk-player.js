@@ -390,7 +390,7 @@ function pkCamera(s) {
   const k = pk.me && s.knights.get(pk.me.n);
   let fx = s.W / 2, fy = s.H / 2;
   if (k) {
-    const p = PacDraw.pos(k, s.W, performance.now());
+    const p = PacDraw.pos(s, k, performance.now());
     fx = p.x + .5;
     fy = p.y + .5;
   }
@@ -421,6 +421,8 @@ function pkFrame() {
   if (!s || !s.maze || $('pk-game').classList.contains('hidden')) return;
   if (!pkView.w) pkResize();
   if (!pkView.w) return;
+  s.meN = pk.me ? pk.me.n : -1;
+  s.want = pk.lastDir;
   const cam = pkCamera(s);
   PacDraw.scene(pkCtx, s, cam, { names: true, me: pk.me ? pk.me.n : -1 });
   // Klein overzicht in de hoek, zodat je weet waar de drones zitten.
