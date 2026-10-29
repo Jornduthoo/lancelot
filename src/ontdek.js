@@ -16,6 +16,7 @@ const runen = require('./runen');
 const runenWoorden = require('./runen-woorden');
 const inhoud = require('./ontdek-inhoud');
 const P = require('../public/js/od-puzzels');
+const W = require('../public/js/od-wereld');
 
 const NAAM = 'Het rijk van Lancelot';
 const SPEL = NAAM; // zo staat het in het logboek
@@ -36,9 +37,23 @@ const STATIONS = {
   stroom: { soort: 'stroom', naam: 'De Stroomkring', gebied: 'labo' },
   tandwiel: { soort: 'tandwiel', naam: 'De Tandwielen', gebied: 'labo' },
   wip: { soort: 'wip', naam: 'De Wip', gebied: 'labo' },
+  smidse: { soort: 'weeg', naam: 'De Goudsmid', gebied: 'draken' },
+  nest: { soort: 'reeks', naam: 'Het Drakennest', gebied: 'draken' },
+  beeld: { soort: 'pixel', naam: 'Het Drakenbeeld', gebied: 'draken' },
+  koepel: { soort: 'sudoku', naam: 'De Sterrenkoepel', gebied: 'sterren' },
+  donjon: { soort: 'doolhof', naam: 'De Donjon', gebied: 'sterren' },
+  goudtoren: { soort: 'toren', naam: 'De Gouden Toren', gebied: 'sterren' },
 };
-// Bouwen met kristallen: zo wordt de wereld groter.
-const BOUW = { brug: { naam: 'de brug naar de Neonruïnes', kost: 3 } };
+// Bouwen met kristallen: zo wordt de wereld groter. nodig: wat er eerst moet staan.
+const BOUW = {
+  brug: { naam: 'de brug naar de Neonruïnes', kost: 3 },
+  luchtschip: { naam: 'het luchtschip naar de Drakenkust', kost: 10 },
+  sterrenpoort: { naam: 'de sterrenpoort naar de Sterrenhaven', kost: 20, nodig: 'brug' },
+};
+// Welk gebied pas open is als er iets gebouwd is.
+const GEBIED_NODIG = { ruine: 'brug', draken: 'luchtschip', sterren: 'sterrenpoort' };
+const KRISTAL_PER_PLEK = 3; // zoveel kristallen kan je per plek per dag verdienen
+const RUNEN = W.runen(); // de verborgen runenstenen ("kaart:x,y")
 const WOORDEN_PER_RONDE = 3;
 
 // ---------- Opslag ----------
@@ -285,10 +300,12 @@ function wie(naam) {
 }
 
 function speler(w) {
-  if (w.lk) return lkSpeler || (lkSpeler = { naam: w.naam, kristallen: 0, uitgegeven: 0, gebouwd: ['brug'], woorden: {}, weetjes: {}, dagen: {}, open: {} });
+  if (w.lk) return lkSpeler || (lkSpeler = { naam: w.naam, kristallen: 0, uitgegeven: 0, gebouwd: Object.keys(BOUW), woorden: {}, weetjes: {}, dagen: {}, open: {}, trap: {}, runen: {} });
   const j = jaar();
   const s = j.spelers[w.key] || (j.spelers[w.key] = { naam: w.naam, kristallen: 0, uitgegeven: 0, gebouwd: [], woorden: {}, weetjes: {}, dagen: {}, open: {} });
   s.naam = w.naam;
+  s.trap = s.trap || {};
+  s.runen = s.runen || {};
   return s;
 }
 
@@ -297,6 +314,8 @@ function eigenNiveau(w, soort) {
 }
 
 const kristallen = s => s.kristallen - s.uitgegeven;
+// Hoeveel kristallen je vandaag al bij deze plek verdiende (een oud bestand telde er één).
+const vandaagN = (d, id) => (d && d[id] ? d[id].n || 1 : 0);
 
 function view(naam) {
   const w = wie(naam);
@@ -312,9 +331,17 @@ function view(naam) {
     kristallen: s ? kristallen(s) : 0,
     gebouwd: s ? s.gebouwd : [],
     bouw: BOUW,
-    stations: Object.fromEntries(Object.entries(STATIONS).map(([id, st]) => [id, { naam: st.naam, soort: st.soort, gebied: st.gebied, vandaag: !!vandaag[id] }])),
+    stations: Object.fromEntries(Object.entries(STATIONS).map(([id, st]) => [id, {
+      naam: st.naam, soort: st.soort, gebied: st.gebied,
+      vandaag: vandaagN(vandaag, id) >= KRISTAL_PER_PLEK,
+      kristallen: vandaagN(vandaag, id),
+      trap: ((s && s.trap && s.trap[id]) || 0) + 1,
+    }])),
+    perPlek: KRISTAL_PER_PLEK,
     woorden: s ? Object.keys(s.woorden).length : 0,
     weetjes: s ? Object.keys(s.weetjes).length : 0,
+    runen: s && s.runen ? Object.keys(s.runen) : [],
+    runenTotaal: RUNEN.length,
   };
 }
 
@@ -365,15 +392,17 @@ function nieuwRaadsel(w, s, id, niveau) {
   const st = STATIONS[id];
   const dag = dagVan();
   const nr = ((s.open[id] && s.open[id].nr) || 0) + 1;
+  const trap = (s.trap[id] || 0) + 1; // elke keer dat je een plek oplost, ga je een trap hoger
   const seed = `${dag}|${w.key}|${id}|${nr}`;
   const r = P.rng(seed);
-  const o = { niveau, nr, seed };
+  const o = { niveau, nr, seed, trap };
   if (P.SOORTEN.includes(st.soort)) {
-    o.pz = P.maak(st.soort, niveau, seed);
+    o.pz = P.maak(st.soort, niveau, seed, trap);
   } else if (st.soort === 'woorden') {
     const bank = woordenBank(niveau);
     const rij = [];
-    for (let i = 0; i < WOORDEN_PER_RONDE && rij.length < bank.length; i++) {
+    const aantal = WOORDEN_PER_RONDE + Math.min(3, Math.floor((trap - 1) / 3));
+    for (let i = 0; i < aantal && rij.length < bank.length; i++) {
       const heb = { ...s.woorden };
       for (const x of rij) heb[x] = true;
       rij.push(kiesNieuw(bank, heb, r, x => x.w).w);
@@ -406,7 +435,7 @@ function woordInfo(w, niveau) {
 // Wat de gsm te zien krijgt (zonder antwoorden).
 function publiek(id, o) {
   const st = STATIONS[id];
-  const uit = { station: id, naam: st.naam, soort: st.soort, niveau: o.niveau };
+  const uit = { station: id, naam: st.naam, soort: st.soort, niveau: o.niveau, trap: o.trap || 1 };
   if (o.pz) {
     const { opl, ...pz } = o.pz;
     uit.pz = pz;
@@ -444,12 +473,13 @@ function open({ naam, station, niveau } = {}) {
   const t = w.lk ? { mag: true } : toegangVoor(w.naam);
   if (!t.mag) throw new Error(t.tekst);
   const s = speler(w);
-  if (st.gebied === 'ruine' && !s.gebouwd.includes('brug')) throw new Error('Bouw eerst de brug.');
+  const nodig = GEBIED_NODIG[st.gebied];
+  if (nodig && !s.gebouwd.includes(nodig)) throw new Error(`Bouw eerst ${BOUW[nodig].naam}.`);
   s.laatst = new Date().toISOString();
   const n = niveaus.clean(niveau) || eigenNiveau(w, st.soort);
   let o = s.open[station];
   if (!o || o.niveau !== n || o.dag !== undefined) o = nieuwRaadsel(w, s, station, n);
-  return { ...publiek(station, o), eigen: eigenNiveau(w, st.soort), vandaag: !!(s.dagen[dagVan()] || {})[station] };
+  return { ...publiek(station, o), eigen: eigenNiveau(w, st.soort), vandaag: vandaagN(s.dagen[dagVan()], station) >= KRISTAL_PER_PLEK, perPlek: KRISTAL_PER_PLEK };
 }
 
 // ---------- Een poging ----------
@@ -457,8 +487,9 @@ function open({ naam, station, niveau } = {}) {
 function beloon(w, s, id, niveau) {
   const dag = dagVan();
   const d = s.dagen[dag] || (s.dagen[dag] = {});
-  if (d[id]) return null;
-  d[id] = { t: new Date().toISOString(), niveau };
+  const n = vandaagN(d, id);
+  if (n >= KRISTAL_PER_PLEK) return null;
+  d[id] = { t: new Date().toISOString(), niveau, n: n + 1 };
   s.kristallen++;
   if (w.lk) return { kristal: 1 };
   logboek.add([{
@@ -491,11 +522,12 @@ function poging({ naam, station, poging: p } = {}) {
   s.laatst = new Date().toISOString();
   const klaar = extra => {
     const beloning = beloon(w, s, station, o.niveau);
+    s.trap[station] = Math.max(s.trap[station] || 0, o.trap || 1);
     delete s.open[station];
     o.nr = o.nr || 1;
     s.open[station] = { nr: o.nr, niveau: o.niveau, dag: dagVan() }; // het volgende raadsel wordt een nieuw
     save();
-    return { ok: true, klaar: true, beloning, ...extra, stand: view(w.naam) };
+    return { ok: true, klaar: true, beloning, trap: o.trap || 1, ...extra, stand: view(w.lk ? LK : w.naam) };
   };
 
   if (o.pz) {
@@ -556,12 +588,34 @@ function bouw({ naam, wat } = {}) {
   const b = BOUW[wat];
   if (!b) throw new Error('Dat kan je niet bouwen.');
   const s = speler(w);
-  if (s.gebouwd.includes(wat)) return { stand: view(w.naam) };
+  if (s.gebouwd.includes(wat)) return { stand: view(w.lk ? LK : w.naam) };
+  if (b.nodig && !s.gebouwd.includes(b.nodig)) throw new Error(`Bouw eerst ${BOUW[b.nodig].naam}.`);
   if (kristallen(s) < b.kost) throw new Error(`Je hebt ${b.kost} kristallen nodig om ${b.naam} te bouwen. Los nog wat raadsels op!`);
   s.uitgegeven += b.kost;
   s.gebouwd.push(wat);
   save();
-  return { stand: view(w.naam) };
+  return { stand: view(w.lk ? LK : w.naam) };
+}
+
+// ---------- Runenstenen ----------
+
+// Een verborgen runensteen opgeraapt: één keer per steen, en elke steen is een kristal waard.
+function vind({ naam, id } = {}) {
+  const w = wie(naam);
+  if (!w) throw new Error('Kies eerst je naam.');
+  if (!RUNEN.includes(id)) throw new Error('Hier ligt geen runensteen.');
+  const s = speler(w);
+  const kaart = id.split(':')[0];
+  const nodig = { draken: 'luchtschip', sterren: 'sterrenpoort' }[kaart];
+  if (nodig && !s.gebouwd.includes(nodig)) throw new Error('Hier kan je nog niet komen.');
+  let nieuw = false;
+  if (!s.runen[id]) {
+    s.runen[id] = dagVan();
+    s.kristallen++;
+    nieuw = true;
+    save();
+  }
+  return { nieuw, aantal: Object.keys(s.runen).length, totaal: RUNEN.length, stand: view(w.lk ? LK : w.naam) };
 }
 
 // ---------- Het woordenboek en het ontdekkersboek ----------
@@ -607,6 +661,7 @@ function bord(binnen = []) {
 
 module.exports = {
   LK,
+  vind,
   NAAM, SPEL, DIR, STATIONS, view, open, poging, bouw, boek, bord, zetToegang, toegangVoor,
   eigenView, zetWoorden, wisWeetje, wisAlles, aiMaak, aiPrompt, plak, flush, dagVan, versleutel,
 };

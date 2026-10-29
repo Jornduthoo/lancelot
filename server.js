@@ -857,7 +857,7 @@ io.on('connection', socket => {
   });
 
   // De ontdekwereld: je stand, een raadsel openen, een poging, bouwen en je boeken (woordenboek en ontdekkersboek).
-  for (const [event, fn, bord] of [['od-get', ontdek.view], ['od-open', ontdek.open], ['od-poging', ontdek.poging, true], ['od-bouw', ontdek.bouw, true], ['od-boek', ontdek.boek]]) {
+  for (const [event, fn, bord] of [['od-get', ontdek.view], ['od-open', ontdek.open], ['od-poging', ontdek.poging, true], ['od-bouw', ontdek.bouw, true], ['od-boek', ontdek.boek], ['od-vind', ontdek.vind, true]]) {
     socket.on(event, (arg, cb) => {
       if (typeof cb !== 'function') return;
       // De leerkracht kijkt zelf rond (vanuit de beheerpagina): zijn naam wordt de vaste leerkrachtnaam.
