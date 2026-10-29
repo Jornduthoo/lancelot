@@ -818,16 +818,7 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
     teken();
   }
 
-  async function kopieer(tekst) {
-    try { await navigator.clipboard.writeText(tekst); } catch {
-      const t = document.createElement('textarea');
-      t.value = tekst;
-      document.body.appendChild(t);
-      t.select();
-      document.execCommand('copy');
-      t.remove();
-    }
-  }
+  const kopieer = tekst => Ui.kopieer(tekst);
   function download(url, naam) {
     const a = document.createElement('a');
     a.href = url;

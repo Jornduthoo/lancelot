@@ -817,8 +817,9 @@ function zetCommentaar(tekst) {
   data.alg = tekst;
   wijzigLl();
 }
-$('zr-ai-kopieer').addEventListener('click', async () => {
-  try { await navigator.clipboard.writeText($('zr-ai').dataset.prompt); $('zr-ai-kopieer').textContent = '✓ Gekopieerd'; } catch {
+$('zr-ai-kopieer').addEventListener('click', () => {
+  if (Ui.kopieer($('zr-ai').dataset.prompt)) $('zr-ai-kopieer').textContent = '✓ Gekopieerd';
+  else {
     $('zr-ai-plak').value = $('zr-ai').dataset.prompt;
     $('zr-ai-plak').select();
   }

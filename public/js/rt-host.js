@@ -395,12 +395,11 @@ if (new URLSearchParams(location.search).get('doel') === 'voorkennis') startVoor
 let promptCopied = false;
 let lastClipboard = '';
 
-async function copyPrompt() {
-  try {
-    await navigator.clipboard.writeText($('r-prompt').value);
-  } catch {
+function copyPrompt() {
+  if (!Ui.kopieer($('r-prompt').value)) {
     $('r-prompt').select();
-    document.execCommand('copy');
+    $('r-copied').textContent = 'Kopiëren lukte niet. Klik in de prompt hieronder, druk Ctrl+A en dan Ctrl+C.';
+    return;
   }
   promptCopied = true;
   lastClipboard = $('r-prompt').value;
@@ -409,8 +408,9 @@ async function copyPrompt() {
 $('r-copy').addEventListener('click', copyPrompt);
 for (const b of document.querySelectorAll('.chatbot')) {
   b.addEventListener('click', () => {
-    window.open(b.dataset.url, '_blank', 'noopener');
+    // Eerst kopiëren (de pagina heeft dan nog de focus), dan pas het tabblad openen.
     copyPrompt();
+    window.open(b.dataset.url, '_blank', 'noopener');
   });
 }
 

@@ -796,16 +796,7 @@ $('zw-ed-voorstel').addEventListener('click', () => {
 
 // Zelf via een chatbot: prompt kopiëren, chatbot openen, en het antwoord bij terugkomst van het klembord halen.
 let gekopieerd = '';
-function kopieer(text) {
-  // In het open venster zelf: alles daarbuiten is onbereikbaar zolang het venster open is.
-  const t = el('textarea');
-  t.value = text;
-  $('zw-editor').appendChild(t);
-  t.select();
-  const ok = document.execCommand('copy');
-  t.remove();
-  if (!ok) navigator.clipboard?.writeText(text).catch(() => {});
-}
+const kopieer = text => Ui.kopieer(text);
 // De prompt staat al klaar vóór de klik: kopiëren lukt alleen zolang deze pagina de focus heeft.
 const klaarPrompt = { sleutel: '', prompt: '' };
 let promptTik = 0;

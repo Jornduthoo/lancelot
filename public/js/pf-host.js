@@ -254,16 +254,11 @@ $('new-ai').addEventListener('click', () => {
 
 let promptCopied = false;
 let lastClipboard = '';
-async function kopieer(tekst, el) {
-  try {
-    await navigator.clipboard.writeText(tekst);
-  } catch {
-    const t = document.createElement('textarea');
-    t.value = tekst;
-    document.body.appendChild(t);
-    t.select();
-    document.execCommand('copy');
-    t.remove();
+function kopieer(tekst, el) {
+  if (!Ui.kopieer(tekst)) {
+    $('a-prompt').select();
+    if (el) el.textContent = 'Kopiëren lukte niet. Klik in de prompt hieronder, druk Ctrl+A en dan Ctrl+C.';
+    return;
   }
   promptCopied = true;
   lastClipboard = tekst;
@@ -272,8 +267,9 @@ async function kopieer(tekst, el) {
 $('a-copy').addEventListener('click', () => kopieer($('a-prompt').value, $('a-copied')));
 for (const b of document.querySelectorAll('.chatbot')) {
   b.addEventListener('click', () => {
-    window.open(b.dataset.url, '_blank', 'noopener');
+    // Eerst kopiëren (de pagina heeft dan nog de focus), dan pas het tabblad openen.
     kopieer($('a-prompt').value, $('a-copied'));
+    window.open(b.dataset.url, '_blank', 'noopener');
   });
 }
 
