@@ -191,3 +191,4 @@ button.klein, .od-body .klein { font-size: .85rem; padding: 6px 12px; }
   .odh-toegang, .odh-eigen, .odh-ai { grid-template-columns: 1fr; }
   .odh-intro { flex-direction: column; text-align: center; }
 }
+.od-brug-tip { margin: 8px 0 0; padding: 8px 12px; border-radius: 10px; background: rgb(var(--k-goud) / .14); color: rgb(var(--k-goud-l)); font-weight: 700; }

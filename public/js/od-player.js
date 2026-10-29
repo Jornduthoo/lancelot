@@ -273,7 +273,15 @@ function odTeken(t) {
     g.drawImage(p.c, lx, ly);
   }
   for (const st of od.stukken) {
-    if (!st.plek || st.plek === 'bord') continue;
+    if (!st.plek) continue;
+    if (st.plek === 'bord') {
+      // Genoeg kristallen voor de brug? Dan wijst een uitroepteken boven de banier de weg.
+      if (odKanBouwen()) {
+        const [bx, by] = odScherm(st.x, st.y);
+        odMarker(g, bx, by, t, false);
+      }
+      continue;
+    }
     const [sx0, sy0] = odScherm(st.x, st.y);
     if (sx0 < x0 || sx0 > x1 || sy0 < y0 || sy0 > y1) continue;
     odMarker(g, sx0, sy0, t, vandaag[st.plek] && vandaag[st.plek].vandaag);
@@ -381,7 +389,7 @@ function odLoopNaar(x, y) {
     if (!pad.length) odOpenPlek(plek);
     return;
   }
-  if (OdWereld.teken(od.kaart, x, y) === 'b' && !od.stand.gebouwd.includes('brug')) return odToast('Hier komt een brug. Bouw hem bij de banier met 3 kristallen!');
+  if (OdWereld.teken(od.kaart, x, y) === 'b' && !od.stand.gebouwd.includes('brug')) return odBrugRand();
   if (!odMag(x, y)) return;
   const pad = odWeg([{ x, y }]);
   if (!pad) return odToast('Daar kan je niet komen.');
@@ -412,7 +420,7 @@ function odStap(t) {
     ik.dir = d;
     const n = { x: ik.x + OD_RICHTING[d][0], y: ik.y + OD_RICHTING[d][1] };
     if (odMag(n.x, n.y)) volgende = n;
-    else if (OdWereld.teken(od.kaart, n.x, n.y) === 'b') odToastEens('brug', 'Hier komt een brug. Bouw hem bij de banier met 3 kristallen!');
+    else if (OdWereld.teken(od.kaart, n.x, n.y) === 'b') odBrugRand();
   } else if (ik.pad.length) {
     volgende = ik.pad.shift();
     if (!odMag(volgende.x, volgende.y)) {
@@ -570,12 +578,28 @@ function odOpenPlek(p) {
   OdRaadsels.open(p.id);
 }
 
+const odKanBouwen = () => !!od.stand && !od.stand.gebouwd.includes('brug') && od.stand.kristallen >= od.stand.bouw.brug.kost;
+
+// Aan de rand waar de brug komt: met genoeg kristallen meteen bouwen, anders zeggen hoeveel je er nog nodig hebt.
+function odBrugRand() {
+  if (od.venster || od.bouwVraag) return;
+  if (odKanBouwen()) return odBouwBrug();
+  const kost = od.stand.bouw.brug.kost;
+  odToastEens('brug', `Hier komt een brug. Je hebt ${kost} kristallen nodig, je hebt er nu ${od.stand.kristallen}. Los raadsels op!`);
+}
+
 async function odBouwBrug() {
   const s = od.stand;
   const b = s.bouw.brug;
   if (s.gebouwd.includes('brug')) return odToast('De brug staat er al. Op naar de Neonruïnes!');
   if (s.kristallen < b.kost) return Ui.melding(`Hier kan je ${b.naam} bouwen met ${b.kost} kristallen. Je hebt er nu ${s.kristallen}. Los raadsels op om kristallen te verdienen!`);
-  if (!await Ui.vraag(`Bouw ${b.naam} voor ${b.kost} kristallen? Je hebt er ${s.kristallen}.`, { ja: 'Bouwen!' })) return;
+  od.toetsen.clear();
+  od.ik.pad = [];
+  od.bouwVraag = true;
+  const ja = await Ui.vraag(`Bouw ${b.naam} voor ${b.kost} kristallen? Je hebt er ${s.kristallen}.`, { ja: 'Bouwen!' });
+  od.bouwVraag = false;
+  od.toetsen.clear();
+  if (!ja) return;
   socket.emit('od-bouw', { naam: od.naam, wat: 'brug' }, res => {
     if (!res || res.error) return Ui.melding((res && res.error) || 'Dat lukte niet.');
     odStand(res.stand);
