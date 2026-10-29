@@ -110,6 +110,188 @@ const OdWereld = (() => {
     return hash(x, y, 3) < 0.25 ? 'wild' : 'gras';
   }
 
+  // ---------- Low-poly grond ----------
+  // Het eiland als vlakjes: elk vakje zijn twee driehoeken met een eigen tint, op een licht golvende grond.
+  // De rotswanden eronder zijn grote, schuine rotsvlakken. Alles wordt één keer gebakken, dus het kost niets per beeld.
+  const RGB = hex => [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16));
+  const kleurStr = c => `rgb(${c.map(v => Math.max(0, Math.min(255, Math.round(v)))).join(',')})`;
+  const LP = { gras: '#66c24c', wild: '#57ad43', bloemen: '#6dc650', pad: '#9a9fb3', plein: '#8d93ad', neon: '#3b4563', water: '#3a8ee0' };
+  const LICHT = (() => { const l = [-0.55, -0.35, 1]; const n = Math.hypot(...l); return l.map(v => v / n); })();
+
+  function driehoek(g, a, b, c, kleur) {
+    g.beginPath();
+    g.moveTo(a[0], a[1]);
+    g.lineTo(b[0], b[1]);
+    g.lineTo(c[0], c[1]);
+    g.closePath();
+    g.fillStyle = kleur;
+    g.fill();
+    // dezelfde kleur als rand: geen dunne naden tussen de vlakjes
+    g.strokeStyle = kleur;
+    g.lineWidth = 0.6;
+    g.stroke();
+  }
+
+  // Hoe fel een vlak is: hoe meer het naar het licht kijkt, hoe lichter.
+  function belicht(p0, p1, p2) {
+    const a = [p1[0] - p0[0], p1[1] - p0[1], p1[2] - p0[2]];
+    const b = [p2[0] - p0[0], p2[1] - p0[1], p2[2] - p0[2]];
+    let n = [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+    if (n[2] < 0) n = n.map(v => -v);
+    const l = Math.hypot(...n) || 1;
+    return (n[0] * LICHT[0] + n[1] * LICHT[1] + n[2] * LICHT[2]) / l;
+  }
+
+  function laagPoly(g, k, T, ox, oy) {
+    const half = T / 2;
+    const kwart = T / 4;
+    const land = (x, y) => { const c = teken(k, x, y); return c !== '~' && c !== 'b'; };
+    const golvend = c => '.,T'.includes(c);
+    // Hoogte van elke hoek: golvend gras, maar vlak waar een pad, plek of gebouw aan raakt.
+    const hoogte = (cx, cy) => {
+      for (const [x, y] of [[cx - 1, cy - 1], [cx, cy - 1], [cx - 1, cy], [cx, cy]]) {
+        const c = teken(k, x, y);
+        if (c !== '~' && !golvend(c)) return 0;
+      }
+      return (hash(cx, cy, 11) - 0.35) * T * 0.16;
+    };
+    const H = [];
+    for (let cy = 0; cy <= k.h; cy++) { H.push([]); for (let cx = 0; cx <= k.w; cx++) H[cy].push(hoogte(cx, cy)); }
+    const scherm = (cx, cy, z = H[cy][cx]) => [ox + (cx - cy) * half, oy + (cx + cy - 1) * kwart - z];
+    const wereld = (cx, cy) => [cx, cy, H[cy][cx] / half];
+
+    // Rotsdiepte onder de rand: diep in het midden van een eiland, ondieper aan de punten.
+    const breed = (k.w + k.h) / 2;
+    const diepte = (cx, cy) => {
+      const rel = Math.min(1, Math.abs(cx - cy - (k.w - k.h) / 2) / breed);
+      return T * (0.7 + 2.6 * (1 - rel) ** 1.4 + 0.9 * hash(cx, cy, 5));
+    };
+    const ROTS = { l: RGB('#6c5a80'), r: RGB('#45395c') };
+
+    function wand(a, b, da, db, zij, seed) {
+      const r = BuArt.rng(seed * 2654435761);
+      const basis = ROTS[zij];
+      const tint = (f, donker) => kleurStr(basis.map(v => v * (1 + (r() - 0.5) * 0.22) * (1 - donker)));
+      const mid = t => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t];
+      // drie rijen punten: de rand, het midden en de grillige onderkant
+      const boven = [a, b];
+      const m0 = [a[0], a[1] + da * (0.4 + r() * 0.15)];
+      const m1 = [b[0], b[1] + db * (0.4 + r() * 0.15)];
+      const mm = mid(0.5);
+      const mc = [mm[0] + (r() - 0.5) * T * 0.12, mm[1] + (da + db) / 2 * (0.5 + r() * 0.2)];
+      const o0 = [a[0], a[1] + da];
+      const o1 = [b[0], b[1] + db];
+      const oc = [mm[0] + (r() - 0.5) * T * 0.1, mm[1] + Math.max(da, db) * (1.05 + r() * 0.25)];
+      driehoek(g, boven[0], boven[1], mc, tint(0, 0));
+      driehoek(g, boven[0], mc, m0, tint(0, 0.08));
+      driehoek(g, boven[1], m1, mc, tint(0, 0.12));
+      driehoek(g, m0, mc, o0, tint(0, 0.3));
+      driehoek(g, mc, oc, o0, tint(0, 0.42));
+      driehoek(g, mc, m1, o1, tint(0, 0.34));
+      driehoek(g, mc, o1, oc, tint(0, 0.48));
+      // een kartelrand van gras over de rots
+      const lip = T * 0.09;
+      for (let i = 0; i < 2; i++) {
+        const p = mid(i / 2);
+        const q = mid((i + 1) / 2);
+        const punt = mid((i + 0.5) / 2);
+        driehoek(g, p, q, [punt[0], punt[1] + lip * (0.8 + r() * 0.7)], zij === 'l' ? '#4f9a3a' : '#3e8030');
+      }
+      // de neonrand van onze eilanden
+      g.save();
+      g.lineCap = 'round';
+      const nl = T * 0.2;
+      g.strokeStyle = 'rgba(76,201,255,.28)';
+      g.lineWidth = Math.max(1.5, T / 14);
+      g.beginPath();
+      g.moveTo(a[0], a[1] + nl);
+      g.lineTo(b[0], b[1] + nl);
+      g.stroke();
+      g.strokeStyle = 'rgba(190,240,255,.85)';
+      g.lineWidth = Math.max(0.7, T / 45);
+      g.stroke();
+      g.restore();
+      // een kristal in de rots
+      if (r() < 0.25) {
+        const t = 0.3 + r() * 0.4;
+        const p = mid(t);
+        kristalletje(g, p[0], p[1] + Math.min(da, db) * (0.45 + r() * 0.25), T * (0.08 + r() * 0.05), r() < 0.6);
+      }
+    }
+
+    for (let som = 0; som <= k.w + k.h - 2; som++) {
+      for (let x = Math.max(0, som - k.h + 1); x <= Math.min(k.w - 1, som); x++) {
+        const y = som - x;
+        if (!land(x, y)) continue;
+        // rotswanden aan de kanten die naar ons kijken
+        if (!land(x, y + 1)) wand(scherm(x, y + 1), scherm(x + 1, y + 1), diepte(x, y + 1), diepte(x + 1, y + 1), 'l', x * 31 + y);
+        if (!land(x + 1, y)) wand(scherm(x + 1, y + 1), scherm(x + 1, y), diepte(x + 1, y + 1), diepte(x + 1, y), 'r', x * 17 + y * 3);
+        // de bovenkant: twee driehoeken, de diagonaal wisselt willekeurig
+        const soort = vloerVan(k, x, y);
+        const basis = RGB(LP[soort] || LP.gras);
+        const hoeken = [[x, y], [x + 1, y], [x + 1, y + 1], [x, y + 1]];
+        const tris = hash(x, y, 12) < 0.5 ? [[0, 1, 2], [0, 2, 3]] : [[0, 1, 3], [1, 2, 3]];
+        tris.forEach((t, i) => {
+          const pw = t.map(j => wereld(...hoeken[j]));
+          const f = belicht(...pw);
+          const jitter = (hash(x * 2 + i, y, 13) - 0.5) * (soort === 'neon' ? 0.1 : 0.16);
+          const mul = 0.82 + f * 0.22 + jitter;
+          driehoek(g, ...t.map(j => scherm(...hoeken[j])), kleurStr(basis.map(v => v * mul)));
+        });
+        const c = scherm(x, y, 0);
+        const mx = c[0];
+        const my = c[1] + kwart;
+        if (soort === 'neon' && hash(x, y, 14) < 0.35) {
+          // oude lichtlijnen in de vloer van de ruïne
+          g.strokeStyle = 'rgba(76,201,255,.55)';
+          g.lineWidth = Math.max(0.8, T / 50);
+          g.beginPath();
+          g.moveTo(mx - half * 0.5, my);
+          g.lineTo(mx, my + kwart * 0.5);
+          g.lineTo(mx + half * 0.5, my);
+          g.stroke();
+        } else if (soort === 'bloemen' || (soort === 'wild' && hash(x, y, 15) < 0.4)) {
+          // bloemetjes als kleine ruitjes
+          const kl = ['#ff7aa8', '#ffe066', '#ffffff', '#b98cff', '#ff9a4a'];
+          const n = soort === 'bloemen' ? 5 : 2;
+          for (let i = 0; i < n; i++) {
+            const u = hash(x, y, 20 + i) - 0.5;
+            const v = hash(x, y, 30 + i) - 0.5;
+            const px = mx + (u - v) * half * 0.8;
+            const py = my + (u + v) * kwart * 0.8 - T * 0.02;
+            const s = T * 0.03;
+            g.fillStyle = kl[Math.floor(hash(x, y, 40 + i) * kl.length)];
+            g.beginPath();
+            g.moveTo(px, py - s);
+            g.lineTo(px + s, py);
+            g.lineTo(px, py + s * 0.7);
+            g.lineTo(px - s, py);
+            g.closePath();
+            g.fill();
+          }
+        } else if (soort === 'pad' && hash(x, y, 16) < 0.5) {
+          // een paar platte stenen in het pad
+          for (let i = 0; i < 2; i++) {
+            const u = (hash(x, y, 50 + i) - 0.5) * 0.6;
+            const v = (hash(x, y, 60 + i) - 0.5) * 0.6;
+            const px = mx + (u - v) * half;
+            const py = my + (u + v) * kwart;
+            const s = T * 0.09;
+            driehoek(g, [px - s, py], [px, py - s * 0.45], [px + s * 0.8, py + s * 0.1], 'rgba(255,255,255,.14)');
+            driehoek(g, [px - s, py], [px + s * 0.8, py + s * 0.1], [px, py + s * 0.4], 'rgba(0,0,0,.1)');
+          }
+        }
+      }
+    }
+  }
+
+  // Een klein kristal met twee vlakken.
+  function kristalletje(g, x, y, s, blauw) {
+    const [licht, donker] = blauw ? ['#9ff3ff', '#2a8fe0'] : ['#e6d0ff', '#7a3fe0'];
+    driehoek(g, [x, y - s * 1.6], [x - s * 0.6, y], [x, y + s * 0.5], licht);
+    driehoek(g, [x, y - s * 1.6], [x, y + s * 0.5], [x + s * 0.6, y], donker);
+  }
+
   function bak(k, T, gebouwd = []) {
     const m = maat(k, T);
     const c = document.createElement('canvas');
@@ -117,14 +299,20 @@ const OdWereld = (() => {
     c.height = Math.ceil(m.h);
     const g = c.getContext('2d');
     const brug = (x, y) => teken(k, x, y) === 'b' && gebouwd.includes('brug');
-    BuArt.teken(g, {
-      w: k.w,
-      h: k.h,
-      land: (x, y) => teken(k, x, y) !== '~' && (teken(k, x, y) !== 'b' || brug(x, y)),
-      brug,
-      vloer: (x, y) => vloerVan(k, x, y),
-      stuk: () => null,
-    }, T, m.ox, m.oy, { diep: k.id === 'labo' ? 0.8 : 0.45 });
+    if (k.id === 'woud') {
+      laagPoly(g, k, T, m.ox, m.oy);
+      // De brug van hard licht komt uit Mijn burcht: enkel de brugvakjes, zonder rotswand.
+      if (gebouwd.includes('brug')) BuArt.teken(g, { w: k.w, h: k.h, land: brug, brug, vloer: () => 'brug', stuk: () => null }, T, m.ox, m.oy);
+    } else {
+      BuArt.teken(g, {
+        w: k.w,
+        h: k.h,
+        land: (x, y) => teken(k, x, y) !== '~' && (teken(k, x, y) !== 'b' || brug(x, y)),
+        brug,
+        vloer: (x, y) => vloerVan(k, x, y),
+        stuk: () => null,
+      }, T, m.ox, m.oy, { diep: 0.8 });
+    }
     // Alle vaste stukken meteen mee in hetzelfde plaatje: elk beeld moet dan maar één plaatje tekenen.
     // Staat de ridder achter een stuk, dan tekent de gsm alleen dat stuk nog eens over hem heen.
     for (const st of stukken(k)) {
@@ -155,14 +343,75 @@ const OdWereld = (() => {
     return P;
   }
 
+  // Low-poly bomen: een den van gestapelde kegels en een loofboom als bol van vlakjes, licht van linksboven.
+  function lpBoom(g, T, den, variant) {
+    const r = BuArt.rng(variant * 977 + (den ? 13 : 7));
+    g.fillStyle = 'rgba(10,20,30,.28)';
+    g.beginPath();
+    g.ellipse(0, 0, T * 0.3, T * 0.13, 0, 0, Math.PI * 2);
+    g.fill();
+    const stam = T * (den ? 0.05 : 0.06);
+    const stamH = T * (den ? 0.22 : 0.34);
+    driehoek(g, [-stam, 0], [0, T * 0.03], [0, -stamH], '#7a5232');
+    driehoek(g, [0, T * 0.03], [stam, 0], [0, -stamH], '#553820');
+    driehoek(g, [-stam, 0], [0, -stamH], [-stam, -stamH], '#7a5232');
+    if (den) {
+      const groen = [['#4fb06a', '#2f7d4a', '#25643c'], ['#56b873', '#348552', '#286b41'], ['#4aa865', '#2c7646', '#225e38']][variant % 3];
+      const lagen = 3;
+      const hoog = T * (0.95 + variant * 0.12);
+      for (let i = 0; i < lagen; i++) {
+        const t = i / lagen;
+        const b = -T * 0.16 - hoog * t * 0.72;
+        const w = T * (0.32 - t * 0.08);
+        const top = b - hoog * 0.5;
+        const voor = b + w * 0.28;
+        driehoek(g, [-w, b], [0, voor], [0, top], groen[0]);
+        driehoek(g, [0, voor], [w, b], [0, top], groen[1]);
+        driehoek(g, [-w, b], [-w * 0.35, b - (b - top) * 0.25], [0, top], BuArt.shade(groen[0], 0.18));
+        driehoek(g, [w, b], [w * 0.45, b - (b - top) * 0.2], [0, top], groen[2]);
+      }
+    } else {
+      const tint = [['#8bd65a', '#64b84a', '#46963c', '#33762f'], ['#a5d95a', '#7cbc45', '#5a9a38', '#41782c'], ['#7fce6a', '#58b056', '#3f9048', '#2f703a']][variant % 3];
+      const cx = 0;
+      const cy = -T * (0.56 + variant * 0.06);
+      const R = T * (0.3 + variant * 0.03);
+      // een bol van vlakjes: een ring van punten rond een iets verschoven midden
+      const n = 7;
+      const ring = [];
+      for (let i = 0; i < n; i++) {
+        const a = (i / n) * Math.PI * 2 - Math.PI / 2 + r() * 0.25;
+        const rr = R * (0.88 + r() * 0.2);
+        ring.push([cx + Math.cos(a) * rr, cy + Math.sin(a) * rr * 0.92]);
+      }
+      const m = [cx - R * 0.18, cy - R * 0.2];
+      for (let i = 0; i < n; i++) {
+        const a = ring[i];
+        const b = ring[(i + 1) % n];
+        // hoe meer naar linksboven, hoe lichter
+        const hoek = Math.atan2((a[1] + b[1]) / 2 - cy, (a[0] + b[0]) / 2 - cx);
+        const f = (Math.cos(hoek - (-2.4)) + 1) / 2;
+        driehoek(g, m, a, b, tint[Math.min(3, Math.floor((1 - f) * 4))]);
+      }
+      // een tweede, kleinere bol bovenop voor wat meer vorm
+      const m2 = [cx + R * 0.2, cy - R * 0.55];
+      const r2 = R * 0.55;
+      for (let i = 0; i < 5; i++) {
+        const a0 = (i / 5) * Math.PI * 2 - Math.PI / 2;
+        const a1 = ((i + 1) / 5) * Math.PI * 2 - Math.PI / 2;
+        const f = (Math.cos((a0 + a1) / 2 + 2.4) + 1) / 2;
+        driehoek(g, [m2[0] - r2 * 0.2, m2[1] - r2 * 0.2], [m2[0] + Math.cos(a0) * r2, m2[1] + Math.sin(a0) * r2], [m2[0] + Math.cos(a1) * r2, m2[1] + Math.sin(a1) * r2], tint[Math.min(3, Math.floor((1 - f) * 3.2))]);
+      }
+    }
+  }
+
   const eigenCache = new Map();
   // Tekeningen die niet in Mijn burcht bestaan: de werktafels van het labo, een kast en de binnenmuren.
-  function eigenStuk(id, T) {
-    const key = `${id}|${T}`;
+  function eigenStuk(id, T, variant = 0) {
+    const key = `${id}|${T}|${variant}`;
     if (eigenCache.has(key)) return eigenCache.get(key);
     const c = document.createElement('canvas');
     c.width = Math.ceil(T * 1.2);
-    c.height = Math.ceil(T * 2);
+    c.height = Math.ceil(T * (id.startsWith('lp') ? 2.4 : 2));
     const g = c.getContext('2d');
     const ax = c.width / 2;
     const ay = c.height - T * 0.35;
@@ -175,7 +424,9 @@ const OdWereld = (() => {
       for (const [u, v] of [[-0.32, -0.32], [0.28, -0.32], [-0.32, 0.28], [0.28, 0.28]]) blok(g, T, u, u + 0.05, v, v + 0.05, 0, 0.3, '#3b2a1c');
       return blok(g, T, -0.36, 0.36, -0.36, 0.36, 0.3, 0.36, '#6b4a2c', '#8a6038');
     };
-    if (id === 'stroom') {
+    if (id === 'lpden' || id === 'lpboom') {
+      lpBoom(g, T, id === 'lpden', variant);
+    } else if (id === 'stroom') {
       const P = tafel();
       blok(g, T, -0.25, -0.05, -0.15, 0.05, 0.36, 0.5, '#ffc94a');
       blok(g, T, -0.2, -0.1, -0.1, 0.0, 0.5, 0.54, '#d0d8e8');
@@ -276,7 +527,7 @@ const OdWereld = (() => {
     for (let y = 0; y < k.h; y++) for (let x = 0; x < k.w; x++) {
       const c = teken(k, x, y);
       let st = null;
-      if (c === 'T') st = { bu: hash(x, y, 1) < 0.55 ? 'boom' : 'den', kleur: '#4cc9ff' };
+      if (c === 'T') st = { eigen: hash(x, y, 1) < 0.5 ? 'lpboom' : 'lpden', v: Math.floor(hash(x, y, 3) * 3) };
       else if (c === 'k') st = { bu: 'kristal', kleur: '#4cc9ff' };
       else if (c === 'f') st = { bu: 'fakkel', kleur: '#4cc9ff' };
       else if (c === 'R') st = { bu: 'muur', kleur: '#6b5bd6', muur: true };
@@ -298,7 +549,7 @@ const OdWereld = (() => {
   }
 
   function sprite(st, k, T) {
-    if (st.eigen) return eigenStuk(st.eigen, T);
+    if (st.eigen) return eigenStuk(st.eigen, T, st.v || 0);
     if (st.groot) return BuArt.stuk(st.groot, st.kleur, T * 2, {}, 0);
     let n = {};
     if (st.muur) {
