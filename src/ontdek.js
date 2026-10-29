@@ -17,7 +17,7 @@ const runenWoorden = require('./runen-woorden');
 const inhoud = require('./ontdek-inhoud');
 const P = require('../public/js/od-puzzels');
 
-const NAAM = 'Avalon';
+const NAAM = 'Het rijk van Lancelot';
 const SPEL = NAAM; // zo staat het in het logboek
 const DIR = gegevens.pad('ontdek');
 const INSTELLINGEN = path.join(DIR, 'instellingen.json');
