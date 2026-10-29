@@ -76,7 +76,7 @@ function odLaad(naam = od.naam) {
     if (eerst) {
       // Terug waar je was, als dat gebied open is.
       const k = store('od-kaart');
-      const nodig = { draken: 'luchtschip', sterren: 'sterrenpoort', vuur: 'drakenzadel', ijs: 'ijsraket', koraal: 'duikboot', koraallab: 'duikboot', wolk: 'luchtballon', weerlab: 'luchtballon', mijn: 'mijnlift', maan: 'maanraket' };
+      const nodig = { draken: 'luchtschip', sterren: 'sterrenpoort', vuur: 'drakenzadel', ijs: 'ijsraket', koraal: 'duikboot', koraallab: 'duikboot', wolk: 'luchtballon', weerlab: 'luchtballon', mijn: 'mijnlift', maan: 'maanraket', cyber: 'hyperloop', station: 'shuttle' };
       const open = k === 'labo' || (nodig[k] && res.gebouwd.includes(nodig[k]));
       odKaart(open ? k : 'woud', open || k === 'woud' ? odBewaardePlek() : null);
     }
@@ -138,6 +138,7 @@ function odKaart(id, plek) {
   od.plekken = OdWereld.plekken(od.kaart);
   od.stukken = OdWereld.stukken(od.kaart);
   if (odCanvas.width) odHemel();
+  od.drones = odMaakDrones(od.kaart);
   od.deuren = ['D', 'q', 'Q'].map(c => OdWereld.vind(od.kaart, c) && { ...OdWereld.vind(od.kaart, c), c }).filter(Boolean);
   odBak();
   let p = plek;
@@ -182,13 +183,14 @@ const odCanvas = $('od-canvas');
 const odG = odCanvas.getContext('2d');
 
 // De sterrenhemel, met een gloed in de kleur van het eiland (koud bij het ijs, rood bij de vulkaan).
-const OD_GLOED = { ijs: 'rgba(150,210,255,.22)', vuur: 'rgba(255,90,30,.22)', koraal: 'rgba(40,200,210,.2)', wolk: 'rgba(255,180,230,.22)', mijn: 'rgba(120,60,200,.22)', maan: 'rgba(170,170,255,.18)' };
+const OD_GLOED = { ijs: 'rgba(150,210,255,.22)', vuur: 'rgba(255,90,30,.22)', koraal: 'rgba(40,200,210,.2)', wolk: 'rgba(255,180,230,.22)', mijn: 'rgba(120,60,200,.22)', maan: 'rgba(170,170,255,.18)', cyber: 'rgba(255,60,200,.25)', station: 'rgba(60,160,255,.2)' };
 function odHemel() {
   const hemel = $('od-hemel');
   hemel.width = odCanvas.width;
   hemel.height = odCanvas.height;
   const g = hemel.getContext('2d');
   g.drawImage(BuArt.hemel(odCanvas.width, odCanvas.height), 0, 0);
+  odNevel(g, hemel.width, hemel.height);
   const gloed = OD_GLOED[od.kaartId];
   if (!gloed) return;
   const lg = g.createLinearGradient(0, 0, 0, hemel.height);
@@ -203,6 +205,80 @@ function odTerugNaam() {
   const t = od.kaart.terug;
   const naam = t ? OdWereld.KAARTEN[t.kaart].naam : 'Het Kristalwoud';
   return naam.replace(/^(De|Het) /, m => m.toLowerCase());
+}
+
+// Sci-fi in de verte: twee nevels in de kleur van het eiland en een ringstation dat ver weg in de ruimte hangt.
+const OD_NEVEL = { woud: ['76,201,255', '199,125,255'], ijs: ['159,243,255', '120,160,255'], vuur: ['255,90,40', '199,60,120'], cyber: ['255,60,200', '76,201,255'], station: ['76,201,255', '46,230,166'], maan: ['170,170,255', '199,125,255'] };
+function odNevel(g, W, H) {
+  const [a, b] = OD_NEVEL[od.kaartId] || ['199,125,255', '76,201,255'];
+  for (const [x, y, r, k] of [[0.15, 0.25, 0.45, a], [0.85, 0.7, 0.5, b]]) {
+    const rg = g.createRadialGradient(x * W, y * H, 0, x * W, y * H, r * Math.max(W, H));
+    rg.addColorStop(0, `rgba(${k},.16)`);
+    rg.addColorStop(1, `rgba(${k},0)`);
+    g.fillStyle = rg;
+    g.fillRect(0, 0, W, H);
+  }
+  // het ringstation: een ring met een as en lichtjes
+  const s = Math.min(W, H) * 0.07;
+  const cx = W * 0.12;
+  const cy = H * 0.78;
+  g.save();
+  g.translate(cx, cy);
+  g.rotate(-0.35);
+  g.strokeStyle = 'rgba(200,212,234,.5)';
+  g.lineWidth = Math.max(2, s * 0.12);
+  g.beginPath();
+  g.ellipse(0, 0, s, s * 0.32, 0, 0, Math.PI * 2);
+  g.stroke();
+  g.fillStyle = 'rgba(200,212,234,.55)';
+  g.fillRect(-s * 0.08, -s * 0.5, s * 0.16, s);
+  g.fillStyle = 'rgba(76,201,255,.9)';
+  for (let i = 0; i < 6; i++) g.fillRect(Math.cos(i) * s - 1.5, Math.sin(i) * s * 0.32 - 1.5, 3, 3);
+  g.restore();
+}
+
+// Drones die boven de eilanden zoemen: een paar per eiland, elk in een eigen lus.
+function odMaakDrones(k) {
+  if (k.binnen) return [];
+  const land = [];
+  for (let y = 0; y < k.h; y++) for (let x = 0; x < k.w; x++) if (OdWereld.teken(k, x, y) !== '~') land.push([x, y]);
+  const r = OdPuzzels.rng(`drone|${k.id}`);
+  return Array.from({ length: Math.min(4, 2 + Math.floor(land.length / 150)) }, () => {
+    const [x, y] = land[r.int(land.length)];
+    return { x, y, rx: 2 + r() * 3, ry: 1.5 + r() * 2.5, v: 0.00025 + r() * 0.0002, f: r() * 6.3, h: 1.4 + r() * 0.8 };
+  });
+}
+let odDroneBeeld = null;
+function odDroneSprite(T) {
+  if (odDroneBeeld && odDroneBeeld.T === T) return odDroneBeeld.c;
+  const c = document.createElement('canvas');
+  c.width = Math.ceil(T * 0.7);
+  c.height = Math.ceil(T * 0.4);
+  const g = c.getContext('2d');
+  const cx = c.width / 2;
+  const cy = c.height / 2;
+  g.fillStyle = 'rgba(200,212,234,.35)';
+  for (const dx of [-1, 1]) {
+    g.beginPath();
+    g.ellipse(cx + dx * T * 0.24, cy - T * 0.06, T * 0.1, T * 0.035, 0, 0, Math.PI * 2);
+    g.fill();
+  }
+  g.strokeStyle = '#5a6478';
+  g.lineWidth = Math.max(1, T / 40);
+  g.beginPath();
+  g.moveTo(cx - T * 0.24, cy - T * 0.05);
+  g.lineTo(cx + T * 0.24, cy - T * 0.05);
+  g.stroke();
+  g.fillStyle = '#2b3558';
+  g.beginPath();
+  g.ellipse(cx, cy, T * 0.13, T * 0.08, 0, 0, Math.PI * 2);
+  g.fill();
+  g.fillStyle = '#4cc9ff';
+  g.beginPath();
+  g.ellipse(cx, cy + T * 0.01, T * 0.07, T * 0.03, 0, 0, Math.PI * 2);
+  g.fill();
+  odDroneBeeld = { T, c };
+  return c;
 }
 
 function odMaat() {
@@ -318,6 +394,20 @@ function odTeken(t) {
     g.lineTo(dx - od.T / 2, dy);
     g.closePath();
     g.fill();
+    if (d.c === 'Q') {
+      // een teleportstraal
+      const lg = g.createLinearGradient(0, dy - od.T * 1.4, 0, dy);
+      lg.addColorStop(0, 'rgba(46,230,166,0)');
+      lg.addColorStop(1, `rgba(46,230,166,${0.25 + 0.15 * Math.sin(t / 200)})`);
+      g.fillStyle = lg;
+      g.fillRect(dx - od.T * 0.22, dy - od.T * 1.4, od.T * 0.44, od.T * 1.4);
+      const f = (t / 900) % 1;
+      g.strokeStyle = `rgba(159,255,220,${0.8 * (1 - f)})`;
+      g.lineWidth = 2;
+      g.beginPath();
+      g.ellipse(dx, dy - f * od.T * 1.1, od.T * 0.22, od.T * 0.08, 0, 0, Math.PI * 2);
+      g.stroke();
+    }
     if (d.c !== 'D') {
       g.fillStyle = '#e8fff6';
       g.font = `bold ${od.T * 0.2}px sans-serif`;
@@ -371,7 +461,7 @@ function odTeken(t) {
   }
   for (const st of od.stukken) {
     if (!st.plek) continue;
-    const bouw = st.plek === 'bord' ? 'brug' : OdWereld.REIS[st.plek] ? st.plek : null;
+    const bouw = st.plek === 'bord' ? 'brug' : OdWereld.REIS[st.plek] || st.plek === 'kroonburcht' ? st.plek : null;
     if (bouw) {
       // Genoeg kristallen om hier te bouwen? Dan wijst een uitroepteken de weg.
       if (odKanBouwen(bouw)) {
@@ -382,9 +472,35 @@ function odTeken(t) {
     }
     const [sx0, sy0] = odScherm(st.x, st.y);
     if (sx0 < x0 || sx0 > x1 || sy0 < y0 || sy0 > y1) continue;
+    // een hologramring rond elke raadselplek
+    g.strokeStyle = `rgba(76,201,255,${0.45 + 0.25 * Math.sin(t / 400 + st.x)})`;
+    g.lineWidth = 2;
+    g.setLineDash([6, 5]);
+    g.lineDashOffset = -t / 60;
+    g.beginPath();
+    g.ellipse(sx0, sy0, od.T * 0.46, od.T * 0.22, 0, 0, Math.PI * 2);
+    g.stroke();
+    g.setLineDash([]);
     odMarker(g, sx0, sy0, t, vandaag[st.plek] && vandaag[st.plek].vandaag);
   }
   BuArt.gloei(g, od.gloed.filter(p => p.x > x0 && p.x < x1 && p.y > y0 && p.y < y1), t / 1000, 1);
+  // de drones: een schaduw op de grond en het toestel hoog erboven, met een knipperlicht
+  const dr = odDroneSprite(od.T);
+  for (const d of od.drones || []) {
+    const a = t * d.v + d.f;
+    const [dx, dy] = odScherm(d.x + Math.cos(a) * d.rx, d.y + Math.sin(a * 1.3) * d.ry);
+    if (dx < x0 || dx > x1 || dy < y0 || dy > y1) continue;
+    g.fillStyle = 'rgba(10,14,24,.18)';
+    g.beginPath();
+    g.ellipse(dx, dy, od.T * 0.14, od.T * 0.06, 0, 0, Math.PI * 2);
+    g.fill();
+    const hy = dy - od.T * d.h + Math.sin(t / 300 + d.f) * 3;
+    g.drawImage(dr, Math.round(dx - dr.width / 2), Math.round(hy - dr.height / 2));
+    if (Math.floor(t / 400 + d.f) % 2) {
+      g.fillStyle = '#ff4d6d';
+      g.fillRect(dx - 1.5, hy + od.T * 0.06, 3, 3);
+    }
+  }
   // Een gloeiend doelvakje waar je naartoe loopt.
   if (ik.doel) {
     const [dx, dy] = odScherm(ik.doel.x, ik.doel.y);
@@ -765,6 +881,8 @@ async function odBouw(wat) {
       luchtballon: 'De luchtballon is klaar! Tik erop om naar de Wolkenstad te zweven.',
       mijnlift: 'De mijnlift werkt! Tik erop om af te dalen naar De Mijnen.',
       maanraket: 'De maanraket staat klaar! Tik erop om naar de Maanbasis te vliegen.',
+      hyperloop: 'De hyperloop zoemt! Tik erop om naar de Cyberstad te flitsen.',
+      shuttle: 'De shuttle is klaar voor vertrek! Tik erop om naar het Ruimtestation te vliegen.',
       kroonburcht: '🏰 De Gouden Burcht staat in het woud! Iedereen kan zien dat jij het hele rijk ontdekte.',
     }[wat] || 'Gebouwd!', 4000);
   });

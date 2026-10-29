@@ -40,6 +40,12 @@ const OdRaadsels = (() => {
     eenheden: 'Reken de maten om in het maanlab.',
     opp: 'Meet het grondplan van de maankoepel.',
     sterren: 'Verbind de sterren in de juiste volgorde.',
+    binair: 'Computers tellen met lampjes die aan of uit zijn.',
+    poorten: 'Laat de stroom tot bij de lamp lopen.',
+    lichtkleur: 'Meng rood, groen en blauw licht.',
+    vracht: 'Laad het vrachtruim precies vol.',
+    aftel: 'Maak het doelgetal en lanceer de raket.',
+    sein: 'Ontcijfer het sein uit de ruimte.',
   };
   let nu = null; // het open raadsel
   let bezig = false;
@@ -146,6 +152,8 @@ const OdRaadsels = (() => {
         luchtballon: '🎈 Genoeg kristallen voor de luchtballon! Hij staat in het IJsrijk.',
         mijnlift: '⛏️ Genoeg kristallen voor de mijnlift! Hij staat op de Vuurberg.',
         maanraket: '🌙 Genoeg kristallen voor de maanraket! Ze staat in de Wolkenstad.',
+        hyperloop: '⚡ Genoeg kristallen voor de hyperloop! Hij staat in de Sterrenhaven.',
+        shuttle: '🚀 Genoeg kristallen voor de shuttle! Ze staat op de Maanbasis.',
         kroonburcht: '🏰 Genoeg kristallen voor de Gouden Burcht! De banier staat in het woud.',
       };
       const wat = st && st.bouw && Object.keys(tips).find(k => !st.gebouwd.includes(k) && (!st.bouw[k].nodig || st.gebouwd.includes(st.bouw[k].nodig)) && st.kristallen >= st.bouw[k].kost);
@@ -2504,7 +2512,349 @@ const OdRaadsels = (() => {
     tekenSterren();
   }
 
-  const TEKEN = { schuif, robot, licht, stroom, tandwiel, wip, woorden, code, weetje, weeg, reeks, pixel, sudoku, doolhof, toren, ijs, klok, spiegel, codeslot, lampen, hanoi, breuk, munten, coord, kubus, magisch, route, drijven, thermo, tafels, lijn, patroon, eenheden, opp, sterren };
+  // Een eigen canvas van een vaste grootte (in css-pixels), scherp op elk scherm.
+  function doek(W, H) {
+    const c = el('canvas', 'od-klok-bord');
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    c.width = W * dpr;
+    c.height = H * dpr;
+    c.style.width = `${W}px`;
+    c.style.height = `${H}px`;
+    const g = c.getContext('2d');
+    g.scale(dpr, dpr);
+    body().appendChild(c);
+    return { c, g };
+  }
+
+  // ---------- Cyberstad: de datatoren (binaire lampjes) ----------
+
+  function binair(r) {
+    const pz = r.pz;
+    const antw = [];
+    const kop = el('p', 'od-opdracht', '');
+    body().appendChild(kop);
+    const vraag = el('p', 'od-vraag-groot', '');
+    body().appendChild(vraag);
+    const rij = el('div', 'od-bits');
+    body().appendChild(rij);
+    const onder = el('div', 'od-acties');
+    body().appendChild(onder);
+    function toon() {
+      const q = pz.vragen[antw.length];
+      kop.textContent = `Scherm ${antw.length + 1} van ${pz.vragen.length}. Elk lampje dat aan is, telt zijn getal mee.`;
+      rij.innerHTML = '';
+      onder.innerHTML = '';
+      const aan = q.soort === 'zet' ? Array(q.bits).fill(0) : q.lampen.slice();
+      const som = el('p', 'od-teller-tekst', '');
+      const tel = () => { if (q.soort === 'zet') som.textContent = `Samen: ${OdPuzzels.binairWaarde(aan)}`; };
+      aan.forEach((v, i) => {
+        const w = 2 ** (q.bits - 1 - i);
+        const b = knop('', `od-bit${v ? ' aan' : ''}`, () => {
+          if (q.soort !== 'zet') return;
+          aan[i] = aan[i] ? 0 : 1;
+          b.classList.toggle('aan', !!aan[i]);
+          sfx.tick();
+          tel();
+        });
+        b.appendChild(el('span', 'od-bit-lamp'));
+        b.appendChild(el('small', '', String(w)));
+        if (q.soort !== 'zet') b.disabled = true;
+        rij.appendChild(b);
+      });
+      const volgende = waarde => {
+        antw.push(waarde);
+        if (antw.length < pz.vragen.length) return toon();
+        stuur(antw.slice(), res => {
+          if (res.klaar) return klaar(res);
+          sfx.bad();
+          antw.length = 0;
+          melding('Een scherm klopte niet. Tel de getallen van de lampjes nog eens op!', 'fout');
+          toon();
+        });
+      };
+      if (q.soort === 'zet') {
+        vraag.textContent = `Laat het getal ${q.getal} zien.`;
+        onder.appendChild(som);
+        onder.appendChild(knop('Klaar', 'gold', () => volgende(aan.slice())));
+        tel();
+      } else {
+        vraag.textContent = 'Welk getal toont de datatoren?';
+        onder.appendChild(getalVeld(g => volgende(g), 'Klaar'));
+      }
+    }
+    toon();
+  }
+
+  // ---------- Cyberstad: de stroompoort (logische poorten) ----------
+
+  function poorten(r) {
+    const pz = r.pz;
+    const aan = Array(pz.ingangen).fill(0);
+    let klaarGezet = false;
+    body().appendChild(el('p', 'od-opdracht', 'EN: beide draden moeten stroom hebben. OF: één draad is genoeg. NIET: draait het om. Zet de schakelaars zo dat de lamp brandt.'));
+    // de boom uittekenen: ingangen links, de lamp rechts
+    const lagen = k => (k.in !== undefined ? 0 : 1 + Math.max(lagen(k.a), k.b ? lagen(k.b) : 0));
+    const diep = lagen(pz.boom);
+    const W = Math.min(body().clientWidth || 340, 560);
+    const H = 70 + pz.ingangen * 56;
+    const { c, g } = doek(W, H);
+    const kolom = W / (diep + 2);
+    const rijY = i => 40 + i * 56;
+    // de ingangen staan in de volgorde van de boom, zo kruisen er geen draden
+    const rij = [];
+    const blad = k => (k.in !== undefined ? rij.push(k.in) : (blad(k.a), k.b && blad(k.b)));
+    blad(pz.boom);
+    const rijVan = i => rij.indexOf(i);
+    const plaats = new Map();
+    // y van een knoop: het midden van zijn ingangen
+    const zet = k => {
+      if (k.in !== undefined) { plaats.set(k, [kolom * 0.6, rijY(rijVan(k.in))]); return rijY(rijVan(k.in)); }
+      const ya = zet(k.a);
+      const yb = k.b ? zet(k.b) : ya;
+      const y = (ya + yb) / 2;
+      plaats.set(k, [kolom * (lagen(k) + 0.6), y]);
+      return y;
+    };
+    zet(pz.boom);
+    function draad(g2, a, b, stroom) {
+      g2.strokeStyle = stroom ? '#2ee6a6' : '#3a4568';
+      g2.lineWidth = stroom ? 4 : 3;
+      g2.beginPath();
+      g2.moveTo(...a);
+      const mx = (a[0] + b[0]) / 2;
+      g2.lineTo(mx, a[1]);
+      g2.lineTo(mx, b[1]);
+      g2.lineTo(...b);
+      g2.stroke();
+    }
+    function teken() {
+      g.fillStyle = '#0c1226';
+      g.fillRect(0, 0, W, H);
+      const lamp = [kolom * (diep + 1.4), plaats.get(pz.boom)[1]];
+      const loop = k => {
+        const [x, y] = plaats.get(k);
+        if (k.in !== undefined) return;
+        for (const kind of [k.a, k.b].filter(Boolean)) {
+          const [x2, y2] = plaats.get(kind);
+          draad(g, [x2 + 18, y2], [x - 26, y + (k.b ? (kind === k.a ? -8 : 8) : 0)], OdPuzzels.poortWaarde(kind, aan));
+          loop(kind);
+        }
+      };
+      loop(pz.boom);
+      const uit = OdPuzzels.poortWaarde(pz.boom, aan);
+      const [bx, by] = plaats.get(pz.boom);
+      draad(g, [bx + 26, by], [lamp[0] - 16, lamp[1]], uit);
+      g.textAlign = 'center';
+      g.textBaseline = 'middle';
+      for (const [k, [x, y]] of plaats) {
+        if (k.in !== undefined) {
+          rrect(g, x - 18, y - 16, 36, 32, 8, aan[k.in] ? '#2ee6a6' : '#2b3558');
+          g.fillStyle = aan[k.in] ? '#0c1226' : '#c8d4ea';
+          g.font = 'bold 14px sans-serif';
+          g.fillText(aan[k.in] ? 'AAN' : 'UIT', x, y);
+          g.fillStyle = '#9ff3ff';
+          g.font = 'bold 12px sans-serif';
+          g.fillText('ABCD'[rijVan(k.in)], x - 28, y);
+        } else {
+          rrect(g, x - 26, y - 18, 52, 36, 10, { EN: '#3b5bdb', OF: '#c2255c', NIET: '#e8590c' }[k.op]);
+          g.fillStyle = '#ffffff';
+          g.font = 'bold 13px sans-serif';
+          g.fillText(k.op, x, y);
+        }
+      }
+      g.fillStyle = uit ? '#ffe08a' : '#3a4160';
+      g.beginPath();
+      g.arc(lamp[0], lamp[1], 16, 0, Math.PI * 2);
+      g.fill();
+      if (uit) {
+        g.fillStyle = 'rgba(255,224,138,.3)';
+        g.beginPath();
+        g.arc(lamp[0], lamp[1], 28, 0, Math.PI * 2);
+        g.fill();
+      }
+      return uit;
+    }
+    c.addEventListener('click', e => {
+      if (klaarGezet) return;
+      const rc = c.getBoundingClientRect();
+      const px = e.clientX - rc.left;
+      const py = e.clientY - rc.top;
+      for (const [k, [x, y]] of plaats) {
+        if (k.in === undefined || Math.abs(px - x) > 22 || Math.abs(py - y) > 20) continue;
+        aan[k.in] = aan[k.in] ? 0 : 1;
+        sfx.tick();
+        if (teken()) {
+          klaarGezet = true;
+          sfx.good();
+          setTimeout(() => stuur(aan.slice()), 600);
+        }
+      }
+    });
+    teken();
+  }
+
+  // ---------- Cyberstad: het lichtlab (kleuren mengen) ----------
+
+  function lichtkleur(r) {
+    const pz = r.pz;
+    const antw = [];
+    const kop = el('p', 'od-opdracht', '');
+    body().appendChild(kop);
+    const vlakken = el('div', 'od-licht-vlakken');
+    const doel = el('div', 'od-licht-vlak');
+    const mijn = el('div', 'od-licht-vlak');
+    vlakken.appendChild(el('span', 'od-licht-label', 'Doel'));
+    vlakken.appendChild(doel);
+    vlakken.appendChild(el('span', 'od-licht-label', 'Jouw licht'));
+    vlakken.appendChild(mijn);
+    body().appendChild(vlakken);
+    const knoppen = el('div', 'od-licht-knoppen');
+    body().appendChild(knoppen);
+    const onder = el('div', 'od-acties');
+    body().appendChild(onder);
+    const kleur = rgb => `rgb(${rgb.map(v => Math.round((v / pz.stappen) * 255)).join(',')})`;
+    function toon() {
+      const q = pz.vragen[antw.length];
+      const nu2 = [0, 0, 0];
+      kop.textContent = `Lamp ${antw.length + 1} van ${pz.vragen.length}. ${pz.stappen > 1 ? 'Tik vaker op een kleur om ze feller te zetten.' : 'Tik op de kleuren om ze aan of uit te zetten.'}${q.naam ? ` Maak ${q.naam}.` : ''}`;
+      doel.style.background = kleur(q.rgb);
+      knoppen.innerHTML = '';
+      onder.innerHTML = '';
+      const teken = () => { mijn.style.background = kleur(nu2); };
+      [['Rood', '#ff3b3b'], ['Groen', '#2ee64a'], ['Blauw', '#3b6bff']].forEach(([n, k], i) => {
+        const b = knop(n, 'od-licht-knop', () => {
+          nu2[i] = (nu2[i] + 1) % (pz.stappen + 1);
+          sfx.tick();
+          b.style.setProperty('--fel', nu2[i] / pz.stappen);
+          b.querySelector('small').textContent = pz.stappen > 1 ? ['uit', 'zwak', 'half', 'fel'][Math.round((nu2[i] / pz.stappen) * 3)] : nu2[i] ? 'aan' : 'uit';
+          teken();
+        });
+        b.style.setProperty('--kleur', k);
+        b.style.setProperty('--fel', 0);
+        b.appendChild(el('small', '', 'uit'));
+        knoppen.appendChild(b);
+      });
+      onder.appendChild(knop('Klaar', 'gold', () => {
+        antw.push(nu2.slice());
+        if (antw.length < pz.vragen.length) return toon();
+        stuur(antw.slice(), res => {
+          if (res.klaar) return klaar(res);
+          sfx.bad();
+          antw.length = 0;
+          melding('Een kleur klopte niet helemaal. Vergelijk je licht goed met het doel!', 'fout');
+          toon();
+        });
+      }));
+      teken();
+    }
+    toon();
+  }
+
+  // ---------- Ruimtestation: het vrachtruim ----------
+
+  function vracht(r) {
+    const pz = r.pz;
+    const kies = new Set();
+    const kg = x => String(x).replace('.', ',');
+    body().appendChild(el('p', 'od-vraag-groot', `Laad precies ${kg(pz.doel)} kg in de shuttle.`));
+    body().appendChild(el('p', 'od-opdracht', 'Tik op de kisten om ze in te laden of er weer uit te halen.'));
+    const lijst = el('div', 'od-kisten');
+    const som = el('p', 'od-teller-tekst', '');
+    pz.kisten.forEach((k, i) => {
+      const b = knop(`${kg(k)} kg`, 'od-kist', () => {
+        if (kies.has(i)) kies.delete(i);
+        else kies.add(i);
+        b.classList.toggle('on', kies.has(i));
+        sfx.tick();
+        const t = Math.round([...kies].reduce((a, j) => a + pz.kisten[j], 0) * 10) / 10;
+        som.textContent = `Geladen: ${kg(t)} kg van ${kg(pz.doel)} kg`;
+      });
+      lijst.appendChild(b);
+    });
+    body().appendChild(lijst);
+    body().appendChild(som);
+    body().appendChild(knop('Vertrekken!', 'gold', () => {
+      if (!kies.size) return melding('Laad eerst een paar kisten in.', 'fout');
+      stuur([...kies], res => {
+        if (res.klaar) return klaar(res);
+        sfx.bad();
+        melding('Dat is niet precies het juiste gewicht. De shuttle kan niet vertrekken!', 'fout');
+      });
+    }));
+  }
+
+  // ---------- Ruimtestation: de aftelling ----------
+
+  function aftel(r) {
+    const pz = r.pz;
+    body().appendChild(el('p', 'od-vraag-groot', `Maak ${pz.doel}`));
+    body().appendChild(el('p', 'od-opdracht', 'Gebruik de getallen (elk hooguit één keer) met + − × : en haakjes. Je hoeft ze niet allemaal te gebruiken.'));
+    const scherm = el('p', 'od-som od-aftel-scherm', '');
+    body().appendChild(scherm);
+    const deel = [];
+    const getalKnoppen = el('div', 'od-cijfers');
+    const opKnoppen = el('div', 'od-cijfers');
+    const bijwerken = () => {
+      scherm.textContent = deel.map(d => d.t).join(' ') || '…';
+      const u = deel.length ? OdPuzzels.rekenUit(deel.map(d => d.t).join(' ')) : null;
+      scherm.dataset.uitkomst = u ? `= ${String(Math.round(u.waarde * 100) / 100).replace('.', ',')}` : '';
+      [...getalKnoppen.children].forEach((b, i) => { b.disabled = deel.some(d => d.i === i); });
+    };
+    pz.getallen.forEach((x, i) => getalKnoppen.appendChild(knop(String(x), 'od-cijfer', () => { deel.push({ t: String(x), i }); sfx.tick(); bijwerken(); })));
+    for (const o of ['+', '−', '×', ':', '(', ')']) opKnoppen.appendChild(knop(o, 'od-cijfer secondary', () => { deel.push({ t: o }); sfx.tick(); bijwerken(); }));
+    opKnoppen.appendChild(knop('⌫', 'od-cijfer secondary', () => { deel.pop(); bijwerken(); }));
+    body().appendChild(getalKnoppen);
+    body().appendChild(opKnoppen);
+    body().appendChild(knop('🚀 Lanceer', 'gold', () => {
+      const tekst = deel.map(d => d.t).join(' ');
+      const u = OdPuzzels.rekenUit(tekst);
+      if (!u) return melding('Die som klopt nog niet. Kijk naar de haakjes en tekens.', 'fout');
+      if (u.waarde !== pz.doel) return melding(`Dat geeft ${String(Math.round(u.waarde * 100) / 100).replace('.', ',')}, niet ${pz.doel}. Probeer iets anders!`, 'fout');
+      stuur(tekst);
+    }));
+    bijwerken();
+  }
+
+  // ---------- Ruimtestation: de seinpost ----------
+
+  function sein(r) {
+    const pz = r.pz;
+    body().appendChild(el('p', 'od-opdracht', 'Een sein uit de ruimte! Elk groepje is één letter. Zoek de letters op in de sleutel.'));
+    const seinen = el('div', 'od-seinen');
+    for (const s of pz.seinen) seinen.appendChild(el('span', 'od-seinletter', s.replace(/\./g, '•').replace(/-/g, '▬')));
+    body().appendChild(seinen);
+    const sleutel = el('div', 'od-sleutel');
+    for (const [l, s] of Object.entries(pz.sleutel)) {
+      const k = el('span', 'od-sleutel-l');
+      k.appendChild(el('b', '', l));
+      k.appendChild(document.createTextNode(` ${s.replace(/\./g, '•').replace(/-/g, '▬')}`));
+      sleutel.appendChild(k);
+    }
+    body().appendChild(sleutel);
+    const f = el('form', 'od-typ');
+    const inp = el('input');
+    inp.autocomplete = 'off';
+    inp.placeholder = 'Het woord';
+    inp.maxLength = 20;
+    f.appendChild(inp);
+    const b = el('button', 'gold', 'Ontcijferd!');
+    b.type = 'submit';
+    f.appendChild(b);
+    f.addEventListener('submit', e => {
+      e.preventDefault();
+      if (!inp.value.trim()) return;
+      stuur(inp.value.trim(), res => {
+        if (res.klaar) return klaar(res);
+        sfx.bad();
+        melding('Dat is niet het woord. Kijk elke letter nog eens na!', 'fout');
+        inp.select();
+      });
+    });
+    body().appendChild(f);
+    setTimeout(() => inp.focus(), 50);
+  }
+
+  const TEKEN = { schuif, robot, licht, stroom, tandwiel, wip, woorden, code, weetje, weeg, reeks, pixel, sudoku, doolhof, toren, ijs, klok, spiegel, codeslot, lampen, hanoi, breuk, munten, coord, kubus, magisch, route, drijven, thermo, tafels, lijn, patroon, eenheden, opp, sterren, binair, poorten, lichtkleur, vracht, aftel, sein };
 
   // ---------- Woordenboek en ontdekkersboek ----------
 
