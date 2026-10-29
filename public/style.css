@@ -1749,12 +1749,12 @@ body[data-du="1"] .sj-card { background: linear-gradient(180deg, rgba(36, 22, 40
 }
 
 /* ---------- Startscherm: drie rijken ---------- */
-.realms { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; width: 100%; margin: 6px 0 16px; }
-.realm { position: relative; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px; padding: 22px 18px 18px; color: var(--text);
+.realms { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); grid-auto-rows: 1fr; gap: 16px; width: 100%; margin: 6px 0 16px; }
+.realm { position: relative; min-width: 0; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px; padding: 22px 18px 18px; color: var(--text);
   background: radial-gradient(circle at 50% 0%, rgb(var(--k-cyan) / .16), transparent 65%), var(--panel); border: 1px solid rgb(var(--k-cyan) / .25);
   clip-path: polygon(16px 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%, 0 16px); transition: transform .15s, box-shadow .15s; }
 .realm svg { width: 58px; height: 58px; color: var(--cyan); filter: drop-shadow(0 0 12px var(--cyan-glow)); }
-.realm strong { font-family: var(--head); font-size: clamp(1.15rem, 1.55vw, 1.55rem); letter-spacing: .03em; white-space: nowrap; line-height: 1.15; margin-top: 4px; }
+.realm strong { font-family: var(--head); font-size: clamp(1rem, 1.3vw, 1.15rem); letter-spacing: .03em; text-wrap: balance; line-height: 1.15; margin-top: 4px; }
 .realm span { color: var(--muted); font-size: .92rem; line-height: 1.35; flex: 1; }
 .realm .tag { font-family: var(--tech); font-size: .7rem; letter-spacing: .2em; text-transform: uppercase; color: var(--cyan); font-style: normal; margin-top: auto; }
 .realm:hover { transform: translateY(-3px); box-shadow: inset 0 0 0 1px var(--cyan), 0 0 30px rgb(var(--k-cyan) / .25); }
@@ -1770,13 +1770,13 @@ body[data-du="1"] .sj-card { background: linear-gradient(180deg, rgba(36, 22, 40
 .rijk-kop-icoon { width: 56px; height: 56px; object-fit: cover; clip-path: polygon(22% 0, 78% 0, 100% 22%, 100% 78%, 78% 100%, 22% 100%, 0 78%, 0 22%); }
 .rijk-kop h2 { margin: 0; font-family: var(--head); font-size: 1.8rem; }
 .realm-panel { width: 100%; margin-bottom: 22px; animation: tile-in .25s ease-out; }
-/* Vijf rijken: op een smaller scherm drie per rij. */
-@media (max-width: 1100px) and (min-width: 761px) { .realms { grid-template-columns: repeat(3, 1fr); } }
+/* Vijf rijken, allemaal even breed en even hoog (minmax 0 + 1fr rijen); op een smaller scherm drie per rij. */
+@media (max-width: 1100px) and (min-width: 761px) { .realms { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 @media (max-width: 760px) {
   .realms { grid-template-columns: 1fr; gap: 10px; }
   .realm { flex-direction: row; text-align: left; padding: 14px; }
   .realm svg { width: 42px; height: 42px; flex: none; }
-  .realm strong { font-size: 1.3rem; }
+  .realm strong { font-size: 1.15rem; flex: 1; text-align: left; }
   .realm span { display: none; }
 }
 
