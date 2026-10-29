@@ -58,3 +58,12 @@ body.postduif main { max-width: 1500px; }
 .pd-dlg-kop { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .pd-dlg-kop h2 { margin: 0; }
 .pd-dlg-knoppen { justify-content: flex-end; }
+
+.pd-soort { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.pd-soort button { flex-direction: column; align-items: flex-start; gap: 2px; text-align: left; padding: 10px 12px; clip-path: none; border-radius: 8px;
+  background: var(--panel); color: var(--text); box-shadow: inset 0 0 0 1px var(--line); }
+.pd-soort button span { font-weight: 400; font-size: .78rem; color: var(--muted); }
+.pd-soort button.on { background: rgb(var(--k-goud) / .16); box-shadow: inset 0 0 0 2px rgb(var(--k-goud) / .8); }
+.pd-zelf summary { cursor: pointer; color: var(--muted); font-size: .88rem; }
+.pd-zelf[open] summary { margin-bottom: 6px; }
+.pd-nieuws-blok { display: flex; flex-direction: column; gap: 12px; }
