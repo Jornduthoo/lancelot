@@ -30,6 +30,7 @@
 </div>
 <div class="bladen" id="bladen"></div>
 <script src="/socket.io/socket.io.js"></script>
+<script src="/js/zr-reken.js"></script>
 <script src="/js/zr-rapport.js"></script>
 <script>
 // Alle rapporten van de klas (of van één leerling) onder elkaar: elk op een eigen A4. Printen of bewaren als PDF.
@@ -39,11 +40,12 @@ document.getElementById('print').addEventListener('click', () => window.print())
 document.getElementById('sluit').addEventListener('click', () => { if (history.length > 1) history.back(); else window.close(); });
 socket.emit('zr-laad', { id: params.get('id') }, res => {
   if (res.error) { document.getElementById('info').textContent = res.error; return; }
+  // ?l=<id>: één leerling, ?klas=1: enkel het klasoverzicht, anders alle leerlingen.
   const enkel = params.get('l');
-  const lijst = res.klas.leerlingen.filter(l => !enkel || l.id === enkel);
-  document.title = `${res.rapport.titel}${enkel && lijst[0] ? ` · ${lijst[0].naam}` : ''}`;
-  document.getElementById('bladen').innerHTML = lijst.map(l => Zegelrol.blad(res, res.opmaak, l.id)).join('');
-  document.getElementById('info').textContent = `${lijst.length} rapport${lijst.length === 1 ? '' : 'en'} · kies "Opslaan als PDF" als printer om ze te bewaren`;
+  const lijst = params.get('klas') ? [] : res.klas.leerlingen.filter(l => !enkel || l.id === enkel);
+  document.title = `${res.rapport.titel}${params.get('klas') ? ' · klasoverzicht' : enkel && lijst[0] ? ` · ${lijst[0].naam}` : ''}`;
+  document.getElementById('bladen').innerHTML = (params.get('klas') ? Zegelrol.klas(res, res.opmaak) : '') + lijst.map(l => Zegelrol.blad(res, res.opmaak, l.id)).join('');
+  document.getElementById('info').textContent = `${params.get('klas') ? 'Klasoverzicht' : `${lijst.length} rapport${lijst.length === 1 ? '' : 'en'}`} · kies "Opslaan als PDF" als printer om te bewaren`;
   if (params.get('auto')) setTimeout(() => window.print(), 300);
 });
 </script>

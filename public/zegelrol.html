@@ -49,19 +49,17 @@
     </div>
 
     <nav class="tabbalk" id="zr-tabs" aria-label="Rapport">
-      <button data-tab="punten">📊 Punten</button>
+      <button data-tab="punten">📊 Puntenboek</button>
       <button data-tab="leerling">👤 Per leerling</button>
+      <button data-tab="klas">📈 Klasoverzicht</button>
       <button data-tab="opmaak">🎨 Opmaak</button>
+      <button data-tab="druk">🖨️ Afdrukken</button>
     </nav>
 
-    <!-- Punten: per vak een tabel. Rijen = leerlingen, kolommen = toetsen en eigen onderdelen. -->
-    <section data-tab="punten">
-      <p class="muted small zr-uitleg">⚡ = uit De Proef, vanzelf ingevuld. Tik een cijfer aan om het zelf te veranderen (A = afwezig, V = vrijgesteld). Tik een kolomkop om hem te bewerken of naar een ander vak te zetten.</p>
-      <div id="zr-vakken"></div>
-      <div class="actions zr-onder">
-        <button class="secondary" id="zr-vak-nieuw"><i class="ic ic-plus" aria-hidden="true"></i> Vak toevoegen</button>
-        <button class="secondary" id="zr-csv">⬇ Naar Excel</button>
-      </div>
+    <!-- Puntenboek: links de vakken (en hun domeinen), rechts de toetsen van dat vak. Rijen = leerlingen. -->
+    <section data-tab="punten" class="zr-boek">
+      <aside class="zr-vaklijst" id="zr-vaklijst" aria-label="Vakken"></aside>
+      <div class="zr-boek-rechts" id="zr-boek"></div>
     </section>
 
     <!-- Per leerling: symbolen, commentaar, hoe werk ik, afwezigheden. Rechts het rapport zoals het op papier komt. -->
@@ -69,6 +67,17 @@
       <aside class="zr-namen" id="zr-namen" aria-label="Leerlingen"></aside>
       <div class="zr-invul" id="zr-invul"></div>
       <div class="zr-voorbeeld"><div class="zr-schaal" id="zr-voorbeeld-ll"></div></div>
+    </section>
+
+    <!-- Klasoverzicht: alle leerlingen x vakken, klasgemiddelden, per toets. -->
+    <section data-tab="klas" class="zr-klasvak">
+      <div class="actions"><button class="secondary" id="zr-klas-print">🖨️ Klasoverzicht afdrukken</button><button class="secondary" id="zr-csv">⬇ Alle punten naar Excel</button></div>
+      <div class="zr-voorbeeld zr-voorbeeld-klas"><div class="zr-schaal" id="zr-voorbeeld-klas"></div></div>
+    </section>
+
+    <!-- Afdrukken: alles, het klasoverzicht of één leerling. Elk opent een blad om te printen of als PDF te bewaren. -->
+    <section data-tab="druk">
+      <div class="panel zr-druk" id="zr-druk"></div>
     </section>
 
     <!-- Opmaak: hoe het rapport eruitziet. Geldt voor al je rapporten. -->
@@ -87,13 +96,27 @@
     <label>Naam <input id="zr-k-naam" maxlength="80" required></label>
     <label>Korte inhoud <span class="muted small">(komt klein onder de naam op het rapport)</span><input id="zr-k-inhoud" maxlength="160"></label>
     <div class="row">
-      <label>Op hoeveel <input id="zr-k-max" type="number" min="0.5" step="0.5" max="1000"></label>
+      <label>Op hoeveel <input id="zr-k-max" type="number" min="0.5" step="0.5" max="1000" required></label>
+      <label>Datum <input id="zr-k-datum" type="date"></label>
+    </div>
+    <div class="row">
       <label>Vak <select id="zr-k-vak"></select></label>
+      <label>Domein <select id="zr-k-domein"></select></label>
     </div>
     <div class="actions zr-dlg-knoppen">
       <button type="button" class="secondary danger-tekst" id="zr-k-weg">Van het rapport halen</button>
       <button type="submit">Klaar</button>
     </div>
+  </form>
+</dialog>
+
+<!-- Een notitie bij één punt (bv. "mocht de toets mondeling maken") -->
+<dialog class="zr-dlg" id="zr-notdlg">
+  <form method="dialog" id="zr-not-form">
+    <div class="zr-dlg-kop"><h2 id="zr-not-titel">Notitie</h2><button type="button" class="secondary icon" data-sluit aria-label="Sluiten"><i class="ic ic-kruis"></i></button></div>
+    <p class="muted small">Komt klein onder de toets op het rapport van deze leerling (zet het aan bij 🎨 Opmaak).</p>
+    <input id="zr-not-tekst" maxlength="200" placeholder="bv. Mondeling afgenomen, extra tijd gekregen">
+    <div class="actions zr-dlg-knoppen"><button type="button" class="secondary" id="zr-not-weg">Wissen</button><button type="submit">Klaar</button></div>
   </form>
 </dialog>
 
@@ -107,6 +130,12 @@
     </div>
     <div class="zr-iconen" id="zr-v-iconen"></div>
     <label class="zr-check"><input type="checkbox" id="zr-v-punten"> Dit vak krijgt punten <span class="muted small">(anders enkel een symbool en commentaar, bv. LO of Muzo)</span></label>
+    <label class="zr-check">Gewicht in het totaal <input id="zr-v-gewicht" type="number" min="0" max="100" class="zr-getal-in"> % <span class="muted small">(leeg = deelt wat overblijft tot 100%)</span></label>
+    <div class="zr-domeinen">
+      <strong>Domeinen</strong> <span class="muted small">bv. Getallenkennis, Bewerkingen... Geen gewichten = alle punten gewoon samen.</span>
+      <div id="zr-v-domeinen"></div>
+      <div class="actions"><button type="button" class="secondary" id="zr-v-dom-plus">＋ Domein</button><button type="button" class="secondary hidden" id="zr-v-dom-std">✨ De gewone domeinen</button></div>
+    </div>
     <div class="actions zr-dlg-knoppen">
       <button type="button" class="secondary" id="zr-v-op">▲ Hoger</button>
       <button type="button" class="secondary" id="zr-v-neer">▼ Lager</button>
@@ -143,6 +172,7 @@
 
 <script src="/socket.io/socket.io.js"></script>
 <script src="/js/ui.js"></script>
+<script src="/js/zr-reken.js"></script>
 <script src="/js/zr-rapport.js"></script>
 <script src="/js/zr-host.js"></script>
 </body>

@@ -142,3 +142,42 @@ body.zegelrol main { max-width: 1500px; }
   .zr-naam { flex: none; }
 }
 .danger-tekst { color: rgb(var(--k-rood-l)) !important; }
+
+/* Puntenboek: links de vakken, rechts de tabel */
+.zr-boek { display: grid; grid-template-columns: 230px minmax(0, 1fr); gap: 14px; align-items: start; }
+.zr-vaklijst { display: flex; flex-direction: column; gap: 3px; position: sticky; top: 10px; max-height: calc(100vh - 40px); overflow: auto; }
+.zr-vakknop, .zr-domknop { justify-content: flex-start; gap: 8px; clip-path: none; color: var(--text); background: rgb(var(--k-cyan) / .05); box-shadow: inset 0 0 0 1px var(--line); padding: 9px 10px; font-weight: 700; text-align: left; }
+.zr-vakknop.on { background: rgb(var(--k-cyan) / .25); box-shadow: inset 0 0 0 2px var(--cyan); }
+.zr-vk-i { font-size: 1.2rem; }
+.zr-vk-n { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.zr-vakknop small, .zr-domknop small { color: var(--muted); font-weight: 500; }
+.zr-domknop { margin-left: 18px; padding: 6px 10px; font-weight: 500; font-size: .9rem; background: none; }
+.zr-domknop span { flex: 1; }
+.zr-domknop.on { background: rgb(var(--k-goud) / .16); box-shadow: inset 3px 0 0 var(--gold); }
+.zr-vak-nieuw { margin-top: 8px; }
+.zr-boek-rechts { min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+.zr-boek-kop { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.zr-boek-rechts .zr-tabel-scroll { background: var(--panel); border: 1px solid var(--line); padding: 6px; }
+.zr-domrij th { font-size: .78rem; color: var(--gold); text-transform: uppercase; letter-spacing: .04em; border-bottom: 2px solid rgb(var(--k-goud) / .5) !important; }
+.zr-maxrij td, .zr-gemrij td { font-weight: 700; background: rgb(var(--k-cyan) / .07); }
+.zr-gemrij td { color: var(--gold); border-top: 2px solid var(--line); }
+.zr-celvak { position: relative; }
+.zr-notknop { position: absolute; top: 1px; right: -2px; padding: 0 2px; font-size: .7rem; clip-path: none; background: none; box-shadow: none; opacity: 0; }
+.zr-celvak:hover .zr-notknop, .zr-celvak:focus-within .zr-notknop, .zr-notknop.heeft { opacity: 1; }
+.zr-notknop:not(.heeft) { filter: grayscale(1); }
+.zr-getal-in { width: 74px; padding: 6px 8px; }
+.zr-domeinen { display: flex; flex-direction: column; gap: 6px; padding: 10px; border: 1px solid var(--line); }
+.zr-dom-rij { display: flex; gap: 6px; align-items: center; }
+.zr-dom-rij input:first-child { flex: 1; min-width: 0; }
+.zr-dom-rij button { padding: 6px 10px; }
+.zr-klasvak { display: flex; flex-direction: column; gap: 12px; }
+.zr-voorbeeld-klas { position: static; max-width: 900px; }
+.zr-druk { display: flex; flex-direction: column; gap: 2px; max-width: 760px; }
+.zr-drukrij { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 4px; border-bottom: 1px solid var(--line); }
+.zr-drukrij > div { display: flex; flex-direction: column; }
+.zr-drukrij button { padding: 8px 14px; }
+@media (max-width: 800px) {
+  .zr-boek { grid-template-columns: 1fr; }
+  .zr-vaklijst { position: static; flex-direction: row; flex-wrap: wrap; max-height: none; }
+  .zr-domknop { margin-left: 0; }
+}
