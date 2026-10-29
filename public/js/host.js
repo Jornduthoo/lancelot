@@ -166,12 +166,8 @@ function loadQuiz(file) {
 // /host?map=Voorkennis (knop "Voorkennis peilen" in De Ronde Tafel): meteen de quizlijst, in die map.
 const startMap = new URLSearchParams(location.search).get('map') || '';
 if (startMap) show('idle');
-// /host?quiz=… (vanuit De Kronieken): die quiz meteen in de lobby van het Toernooi.
-const startQuiz = new URLSearchParams(location.search).get('quiz') || '';
-if (startQuiz) {
-  show('idle');
-  loadQuiz(startQuiz);
-}
+// /host?quiz=… (vanuit De Kronieken): die quiz meteen in de lobby van het Toernooi (QuizList laadt hem).
+if (new URLSearchParams(location.search).get('quiz')) show('idle');
 
 QuizList.mount($('quiz-list'), {
   startFolder: startMap,

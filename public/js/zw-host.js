@@ -250,12 +250,35 @@ function tekenNu(r) {
     if (info.blad) knop('📝 Oefenblad', Lessen.link.blad(info.blad), 'Het oefenblad live starten');
     if (info.xl) knop('📝 XL', Lessen.link.blad(info.xl), 'Het lange oefenblad live starten');
   }
+  if ((les.oefen || []).length) kaart.append(oefenKnoppen(les.oefen));
   if (knoppen.children.length) kaart.append(knoppen);
   if (les.notitie) {
     const n = el('details', 'zw-notitie');
     n.append(el('summary', '', '🗒 Mijn notitie'), el('p', '', les.notitie));
     kaart.append(n);
   }
+}
+
+// Zelf gekoppelde oefeningen: één grote knop per oefening, met het icoon van het spel.
+function oefenTegel(o, tag = 'a') {
+  const v = Lessen.vorm(o);
+  const t = el(tag, 'zw-oefen');
+  t.append(v.icoon ? Object.assign(el('img'), { src: `/img/icons/${v.icoon}.webp`, alt: '' }) : el('span', 'zw-oefen-teken', v.teken));
+  const tekst = el('span', 'zw-oefen-tekst');
+  tekst.append(el('strong', '', v.naam), el('span', '', `${Lessen.SOORTEN[o.soort]}: ${o.titel || o.file}`));
+  t.append(tekst);
+  return t;
+}
+function oefenKnoppen(lijst) {
+  const box = el('div', 'zw-oefenknoppen');
+  for (const o of lijst) {
+    const a = oefenTegel(o);
+    a.href = Lessen.link.oefen(o);
+    a.title = 'Meteen starten';
+    if (Lessen.vorm(o).id === 'print') a.target = '_blank';
+    box.append(a);
+  }
+  return box;
 }
 
 $('zw-dag-vorige').addEventListener('click', () => naarDag(-1));
@@ -422,7 +445,7 @@ $('zw-ed-vak').addEventListener('change', e => kiesVak(e.target.value.trim()));
 const mappenVan = vak => Lessen.mappen(zw.bron).filter(m => isVanVak(m, vak));
 function zetSoort(soort) {
   ed.soort = soort;
-  for (const b of document.querySelectorAll('.zw-seg [data-soort]')) b.setAttribute('aria-checked', b.dataset.soort === soort);
+  for (const b of document.querySelectorAll('#zw-editor .zw-seg [data-soort]')) b.setAttribute('aria-checked', b.dataset.soort === soort);
   $('zw-ed-pakket').classList.toggle('hidden', soort !== 'pakket');
   tekenMijn();
   if (soort === 'eigen') {
@@ -432,7 +455,7 @@ function zetSoort(soort) {
   }
   tekenBlokken();
 }
-for (const b of document.querySelectorAll('.zw-seg [data-soort]')) b.addEventListener('click', () => zetSoort(b.dataset.soort));
+for (const b of document.querySelectorAll('#zw-editor .zw-seg [data-soort]')) b.addEventListener('click', () => zetSoort(b.dataset.soort));
 
 // De blokken of thema's van het vak, per methode gegroepeerd. Geen lespakket voor dit vak? Dan zoek je in alle mappen.
 function tekenBlokken() {
@@ -557,8 +580,8 @@ $('zw-vul').addEventListener('click', async () => {
   const lessen = {};
   for (const p of plan) {
     if (p.vast) {
-      const { titel, doel, criteria: crit, doelen: codes, notitie } = p.vast;
-      lessen[p.slot] = { vak: p.vak, titel, doel, criteria: crit, doelen: codes, notitie };
+      const { titel, doel, criteria: crit, doelen: codes, notitie, oefen } = p.vast;
+      lessen[p.slot] = { vak: p.vak, titel, doel, criteria: crit, doelen: codes, notitie, oefen };
       continue;
     }
     const info = p.les.quiz ? await vraagDoelen(p.les.quiz.file) : null;
@@ -593,6 +616,7 @@ $('zw-ed-mijn-kies').addEventListener('change', e => {
   zetCriteria(l.criteria);
   doelVeld.zet(l.doelen);
   $('zw-ed-notitie').value = l.notitie;
+  zetOefen(l.oefen || []);
   $('zw-ed-crit-info').textContent = '';
   meerTel();
 });
@@ -676,6 +700,7 @@ function openEditor(slot) {
   doelVeld.zet(les ? les.doelen : []);
   zetCriteria(les ? les.criteria : []);
   $('zw-ed-notitie').value = les ? les.notitie : '';
+  zetOefen(les ? les.oefen || [] : []);
   $('zw-ed-meer').open = !!(les && (les.doelen.length || les.notitie));
   meerTel();
   $('zw-ed-fout').textContent = '';
@@ -841,6 +866,89 @@ $('zw-editor').addEventListener('paste', e => {
 });
 $('zw-ed-crit-plus').addEventListener('click', () => critRij('').focus());
 
+// ---------- Oefenen in deze les: wat (quiz, oefenblad, toets) en hoe (welk spel, live, als taak) ----------
+
+ed.oefen = [];
+function zetOefen(lijst) {
+  ed.oefen = lijst.map(o => ({ ...o }));
+  tekenOefen();
+}
+function tekenOefen() {
+  const box = $('zw-ed-oefen');
+  box.textContent = '';
+  ed.oefen.forEach((o, i) => {
+    const rij = el('div', 'zw-oefen-rij');
+    const weg = el('button', 'secondary icon');
+    weg.type = 'button';
+    weg.setAttribute('aria-label', 'Weghalen');
+    weg.innerHTML = Ui.ic('kruis');
+    weg.addEventListener('click', () => { ed.oefen.splice(i, 1); tekenOefen(); });
+    rij.append(oefenTegel(o, 'div'), weg);
+    box.append(rij);
+  });
+  $('zw-ed-oefen-plus').classList.toggle('hidden', ed.oefen.length >= 6);
+}
+
+// Het venster: 1. kies wat, 2. kies hoe. De quiz en het oefenblad van de les uit het lespakket staan al klaar.
+const kz = { soort: 'quiz', item: null };
+for (const soort of ['quiz', 'oefenblad', 'proef']) {
+  ItemList.mount($(`zw-k-${soort}`), {
+    kind: soort, kiezen: true, errorId: 'zw-k-fout', go: 'Kies ▶',
+    play: q => kiesItem(soort, q),
+  });
+}
+function kiesSoort(soort) {
+  kz.soort = soort;
+  for (const b of document.querySelectorAll('#zw-k-soorten [data-soort]')) b.setAttribute('aria-checked', b.dataset.soort === soort);
+  for (const s of ['quiz', 'oefenblad', 'proef']) $(`zw-k-${s}`).classList.toggle('hidden', s !== soort);
+}
+for (const b of document.querySelectorAll('#zw-k-soorten [data-soort]')) b.addEventListener('click', () => kiesSoort(b.dataset.soort));
+function kiesItem(soort, q) {
+  kz.item = { soort, file: q.file, titel: q.title };
+  $('zw-k-wat').classList.add('hidden');
+  $('zw-k-hoe').classList.remove('hidden');
+  $('zw-k-gekozen').textContent = `${Lessen.SOORTEN[soort]}: ${q.title}`;
+  const box = $('zw-k-vormen');
+  box.textContent = '';
+  for (const v of Lessen.VORMEN[soort]) {
+    const b = oefenTegel({ ...kz.item, vorm: v.id }, 'button');
+    b.type = 'button';
+    b.querySelector('.zw-oefen-tekst span').remove();
+    b.addEventListener('click', () => {
+      ed.oefen.push({ ...kz.item, vorm: v.id });
+      tekenOefen();
+      $('zw-kiezer').close();
+    });
+    box.append(b);
+  }
+}
+function openKiezer() {
+  kz.item = null;
+  $('zw-k-wat').classList.remove('hidden');
+  $('zw-k-hoe').classList.add('hidden');
+  $('zw-k-fout').textContent = '';
+  // Snel: de quiz en het oefenblad van de gekozen les uit het lespakket.
+  const snel = $('zw-k-snel');
+  snel.textContent = '';
+  const map = ed.soort === 'pakket' ? $('zw-ed-map').value : '';
+  const info = map && Lessen.van(map, zw.bron).find(l => l.nr === Number($('zw-ed-les').value));
+  if (info) {
+    for (const [soort, q, label] of [['quiz', info.quiz, '⚔ De quiz'], ['quiz', info.voorkennis, '🎯 De voorkennisquiz'], ['oefenblad', info.blad, '📝 Het oefenblad'], ['oefenblad', info.xl, '📝 Het XL-blad']]) {
+      if (!q) continue;
+      const b = el('button', 'secondary', `${label} van Les ${info.nr}`);
+      b.type = 'button';
+      b.addEventListener('click', () => kiesItem(soort, q));
+      snel.append(b);
+    }
+  }
+  snel.classList.toggle('hidden', !snel.children.length);
+  kiesSoort(kz.soort);
+  $('zw-kiezer').showModal();
+}
+$('zw-ed-oefen-plus').addEventListener('click', openKiezer);
+$('zw-k-terug').addEventListener('click', () => { $('zw-k-hoe').classList.add('hidden'); $('zw-k-wat').classList.remove('hidden'); });
+$('zw-k-sluit').addEventListener('click', () => $('zw-kiezer').close());
+
 function leesEditor() {
   const map = ed.soort === 'pakket' ? $('zw-ed-map').value : '';
   return {
@@ -854,6 +962,7 @@ function leesEditor() {
     // Afgevinkte criteria blijven alleen staan als de lijst niet veranderde.
     af: zw.bewerk.oud && JSON.stringify(zw.bewerk.oud.criteria) === JSON.stringify(criteria()) ? zw.bewerk.oud.af : [],
     notitie: $('zw-ed-notitie').value.trim(),
+    oefen: ed.oefen,
   };
 }
 
@@ -867,7 +976,7 @@ function stuurLes(les) {
 }
 $('zw-ed-bewaar').addEventListener('click', () => {
   const les = leesEditor();
-  if (!les.titel && !les.doel && !les.criteria.length && !les.nr) return ($('zw-ed-fout').textContent = 'Geef de les een titel, een doel of een succescriterium.');
+  if (!les.titel && !les.doel && !les.criteria.length && !les.nr && !les.oefen.length) return ($('zw-ed-fout').textContent = 'Geef de les een titel, een doel of een succescriterium.');
   stuurLes(les);
 });
 $('zw-ed-wis').addEventListener('click', async () => {

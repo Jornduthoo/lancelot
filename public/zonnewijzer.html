@@ -140,6 +140,11 @@
       <div id="zw-ed-crit"></div>
       <button type="button" class="secondary small" id="zw-ed-crit-plus"><i class="ic ic-plus" aria-hidden="true"></i> Criterium</button>
     </div>
+    <div class="zw-ed-oefen-blok">
+      <div class="zw-ed-crit-kop"><strong>🎮 Oefenen in deze les</strong> <span class="muted small">Koppel een quiz, oefenblad of toets aan een spel: op het bord start het met één klik.</span></div>
+      <div id="zw-ed-oefen"></div>
+      <button type="button" class="secondary small" id="zw-ed-oefen-plus"><i class="ic ic-plus" aria-hidden="true"></i> Oefening koppelen</button>
+    </div>
     <details class="zw-ed-meer" id="zw-ed-meer">
       <summary>Leerplandoelen en notitie <span class="muted small" id="zw-ed-meer-tel"></span></summary>
       <div id="zw-ed-doelen"></div>
@@ -155,12 +160,39 @@
   </form>
 </dialog>
 
+<!-- Een oefening koppelen: eerst wat, dan hoe. -->
+<dialog class="zw-editor zw-kiezer" id="zw-kiezer">
+  <div class="zw-editor-kop">
+    <h2>Oefening koppelen</h2>
+    <button type="button" class="secondary icon" id="zw-k-sluit" aria-label="Sluiten"><i class="ic ic-kruis"></i></button>
+  </div>
+  <div id="zw-k-wat">
+    <p class="muted">1. Wat oefent de klas?</p>
+    <div class="zw-lesknoppen" id="zw-k-snel"></div>
+    <div class="zw-seg" role="radiogroup" aria-label="Soort" id="zw-k-soorten">
+      <button type="button" data-soort="quiz" role="radio">⚔ Quiz</button>
+      <button type="button" data-soort="oefenblad" role="radio">📝 Oefenblad</button>
+      <button type="button" data-soort="proef" role="radio">📜 Toets</button>
+    </div>
+    <div id="zw-k-quiz" class="quiz-list"></div>
+    <div id="zw-k-oefenblad" class="quiz-list hidden"></div>
+    <div id="zw-k-proef" class="quiz-list hidden"></div>
+  </div>
+  <div id="zw-k-hoe" class="hidden">
+    <p><button type="button" class="secondary small" id="zw-k-terug">◀ Iets anders</button> <strong id="zw-k-gekozen"></strong></p>
+    <p class="muted">2. Hoe? Kies het spel of de vorm.</p>
+    <div class="zw-k-vormen" id="zw-k-vormen"></div>
+  </div>
+  <p class="error" id="zw-k-fout"></p>
+</dialog>
+
 <!-- Wat er op papier komt (enkel bij afdrukken zichtbaar). -->
 <section class="zw-afdruk" id="zw-afdruk" aria-hidden="true"></section>
 
 <script src="/socket.io/socket.io.js"></script>
 <script src="/js/ui.js"></script>
 <script src="/js/doel-kies.js"></script>
+<script src="/js/quiz-list.js"></script>
 <script src="/js/lessen.js"></script>
 <script src="/js/zw-host.js"></script>
 </body>

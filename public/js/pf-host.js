@@ -1249,3 +1249,5 @@ $('v-klaar').addEventListener('click', async () => {
 // Vanaf het startscherm: meteen een nieuwe toets maken.
 const params = new URLSearchParams(location.search);
 if (params.get('maak') === 'ai') $('new-ai').click();
+// Vanuit De Zonnewijzer: die toets meteen afnemen.
+if (params.get('afnemen')) afnemen(params.get('afnemen'));
