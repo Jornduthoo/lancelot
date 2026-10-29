@@ -5,6 +5,9 @@
 // H labo (2 op 2)  D deur van het labo  S start  W muur (binnen)  _ vloer (binnen)  x kast  v plant  q uitgang
 // Plekken met een raadsel: u woordenwachter  s zwaardsteen  r robotwerkplaats  l lichtbaken  c runenportaal  o sterrenwacht
 // p banier bij de brug  e stroomkring  g tandwielen  w wip
+// Bouwen en reizen: L luchtschip (naar de Drakenkust)  P sterrenpoort (naar de Sterrenhaven)  Q terug naar het woud  J runensteen
+// Drakenkust: z zand  a water  Y palm  K rots  G robodraak  M molen  m goudsmid  i drakennest  y drakenbeeld
+// Sterrenhaven: X ruimteschip  d sterrenkoepel  h donjon  t gouden toren
 // Coördinaten: vakje (x, y) heeft zijn midden op ((x - y) * T/2, (x + y) * T/4), net als in Mijn burcht.
 const OdWereld = (() => {
   const KAARTEN = {
@@ -13,8 +16,8 @@ const OdWereld = (() => {
       rijen: [
         '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~',
         '~TTTTTTTT.TTTTTTTTTTT~~~~TTTTTTTTTTT~~~',
-        '~T.......,.,.T....,..T~~~T.....T..T.T~~',
-        '~T..T...TT....TT......~~~~...........T~',
+        '~TJ......,.,.T....,.JT~~~T.....T..T.T~~',
+        '~T..T...TT....TT......~~~~..........PT~',
         '~T,Tk.,.,T=,...TT......~~~~.RRR:RRRR.T~',
         '~T.,T,,T..=...,...kT...~~~~.R::::::R.T~',
         '~T.....,..=T...........~~~~.R:f::k:R.T~',
@@ -28,13 +31,13 @@ const OdWereld = (() => {
         '~T........=...,.T.....~~~~..R::::::R.T~',
         '~T........=............~~~~.RRRcRRRR.T~',
         '~T.,......=...HH...T..~~~~..R::::::R.T~',
-        '~T....r...=...HH......~~~~..R:::::::.T~',
+        '~T....r...=...HH......~~~~..R::::J::.T~',
         '~T.T......=....D.....~~~~...R:::o::R.T~',
         '~T........=======....~~~~...R:k:::fR.T~',
         '~T,TTT....=.........T~~~~...R::::::R.T~',
         '~T.T...T,.=T........~~~~....RRRR:RRR.T~',
-        '~T.........T..T..,..~~~~.............T~',
-        '~TTTTTTTT,....T..T.T~~~~.TTTTTTTTTTTTT~',
+        '~TJ........T..T..,..~~~~............JT~',
+        '~TTTTTTTT,.L..T..T.T~~~~.TTTTTTTTTTTTT~',
         '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~',
       ],
       ruine: x => x >= 25,
@@ -48,16 +51,77 @@ const OdWereld = (() => {
         'W____g___x',
         'W________v',
         'Wv_____w__',
-        'Wv________',
+        'Wv_______J',
         'W______q__',
       ],
       ruine: () => false,
+      binnen: true,
+    },
+    draken: {
+      naam: 'De Drakenkust',
+      rijen: [
+        '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~',
+        '~~~zzzzzzz~~~~~~~~~~zzzzzzz~~~~~',
+        '~~zzYzzzzzzz~~~~~~zzzz.Kzzzz~~~~',
+        '~zzz...T..zzz~~~~zz...KKK..zz~~~',
+        '~zz..,..T...zzzzzz...KGK....z~~~',
+        '~z..T..i....=====..........Jzz~~',
+        '~z.,....T...=...,..T....T....z~~',
+        '~zz..T......=.......aaa......z~~',
+        '~~z.........=..m...aaaaa.....z~~',
+        '~~zz..T..====......aaaa.....zz~~',
+        '~~~z.....=......,..........zz~~~',
+        '~~~z..J..=..T......T..y....z~~~~',
+        '~~~zz....=.........M.......z~~~~',
+        '~~~~z....=.....T.......,..zz~~~~',
+        '~~~~zz...=================zz~~~~',
+        '~~~~~z.T.=..T......T.....z~~~~~~',
+        '~~~~~zz..S....Y......Y..zz~~~~~~',
+        '~~~~~~zz.Q..........J..zz~~~~~~~',
+        '~~~~~~~zzzzzzzzzzzzzzzzz~~~~~~~~',
+        '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~',
+      ],
+      ruine: () => false,
+      terug: { kaart: 'woud', bij: 'L' },
+    },
+    sterren: {
+      naam: 'De Sterrenhaven',
+      rijen: [
+        '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~',
+        '~~v:::::::::v~~~~~v::::::::v~~',
+        '~~:RRRRR:RRR:~~~~~:RRR:RRRR:~~',
+        '~~:R:::::::R:~~~~~:R::::::R:~~',
+        '~~:R::d::k:R::::::::::t:::R:~~',
+        '~~:R:::::::R:~~~~~:R:k::::R:~~',
+        '~~:RRR:RRRRR:~~~~~:RRRRR:RR:~~',
+        '~~::::::::::::::::::::::::J:~~',
+        '~~v::X::::::::f:::::::::::::~~',
+        '~~~:::::::::RRRRRR::::::::v~~~',
+        '~~~::J::::::R::::R::::X:::::~~',
+        '~~~:::::::::R:h::R::::::::~~~~',
+        '~~~~::::f:::R:J::R:::f::::~~~~',
+        '~~~~::::::::RR::RR::::::::~~~~',
+        '~~~~~:::::::::::::::::::::~~~~',
+        '~~~~~~:::::S:Q::::::::::~~~~~~',
+        '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~',
+      ],
+      ruine: () => true,
+      terug: { kaart: 'woud', bij: 'P' },
     },
   };
-  const STATION = { u: 'uil', s: 'schuif', r: 'robot', l: 'licht', c: 'code', o: 'steen', e: 'stroom', g: 'tandwiel', w: 'wip' };
+  const STATION = {
+    u: 'uil', s: 'schuif', r: 'robot', l: 'licht', c: 'code', o: 'steen', e: 'stroom', g: 'tandwiel', w: 'wip',
+    m: 'smidse', i: 'nest', y: 'beeld', d: 'koepel', h: 'donjon', t: 'goudtoren',
+  };
   // Welk plaatje uit Mijn burcht bij welke plek hoort.
-  const STUK = { uil: 'holoridder', schuif: 'zwaardsteen', robot: 'mechridder', licht: 'baken', code: 'portaal', steen: 'radar', bord: 'banier' };
-  const BLOKKEERT = new Set('T~RHWxvkf'.split('').concat(Object.keys(STATION), ['p']));
+  const STUK = {
+    uil: 'holoridder', schuif: 'zwaardsteen', robot: 'mechridder', licht: 'baken', code: 'portaal', steen: 'radar', bord: 'banier',
+    smidse: 'smidse', nest: 'draak', beeld: 'drakenbeeld', koepel: 'schildkoepel', donjon: 'donjon', goudtoren: 'goudtoren',
+  };
+  // Plekken waar je iets bouwt met kristallen (en daarna mee reist).
+  const BOUWPLEK = { p: 'brug', L: 'luchtschip', P: 'sterrenpoort' };
+  const REIS = { luchtschip: 'draken', sterrenpoort: 'sterren' };
+  const BLOKKEERT = new Set('T~RHWxvkfaYKGMXLP'.split('').concat(Object.keys(STATION), ['p']));
 
   const hash = (x, y, k = 0) => BuArt.hash(x, y, k);
 
@@ -81,7 +145,8 @@ const OdWereld = (() => {
     for (let y = 0; y < k.h; y++) for (let x = 0; x < k.w; x++) {
       const c = teken(k, x, y);
       if (STATION[c]) out.push({ id: STATION[c], x, y });
-      if (c === 'p') out.push({ id: 'bord', x, y });
+      if (c === 'p') out.push({ id: 'bord', bouw: 'brug', x, y });
+      if (c === 'L' || c === 'P') out.push({ id: BOUWPLEK[c], bouw: BOUWPLEK[c], reis: REIS[BOUWPLEK[c]], x, y });
     }
     return out;
   }
@@ -102,10 +167,12 @@ const OdWereld = (() => {
 
   function vloerVan(k, x, y) {
     const c = teken(k, x, y);
-    if (k.id === 'labo') return 'neon';
+    if (k.binnen) return 'neon';
+    if (c === 'z' || c === 'Y' || c === 'Q') return 'zand';
+    if (c === 'a') return 'water';
     if (c === '=' || c === 'S' || c === 'D') return 'pad';
     if (c === ',') return 'bloemen';
-    if (k.ruine(x) && ':RlcokfS'.includes(c)) return c === 'R' ? 'plein' : 'neon';
+    if (k.ruine(x) && ':RlcokfSdhtJvXP'.includes(c)) return c === 'R' ? 'plein' : 'neon';
     if (k.ruine(x)) return 'wild';
     return hash(x, y, 3) < 0.25 ? 'wild' : 'gras';
   }
@@ -115,7 +182,7 @@ const OdWereld = (() => {
   // De rotswanden eronder zijn grote, schuine rotsvlakken. Alles wordt één keer gebakken, dus het kost niets per beeld.
   const RGB = hex => [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16));
   const kleurStr = c => `rgb(${c.map(v => Math.max(0, Math.min(255, Math.round(v)))).join(',')})`;
-  const LP = { gras: '#66c24c', wild: '#57ad43', bloemen: '#6dc650', pad: '#9a9fb3', plein: '#8d93ad', neon: '#3b4563', water: '#3a8ee0' };
+  const LP = { gras: '#66c24c', wild: '#57ad43', bloemen: '#6dc650', pad: '#9a9fb3', plein: '#8d93ad', neon: '#3b4563', water: '#3a8ee0', zand: '#e3c98c' };
   const LICHT = (() => { const l = [-0.55, -0.35, 1]; const n = Math.hypot(...l); return l.map(v => v / n); })();
 
   function driehoek(g, a, b, c, kleur) {
@@ -146,7 +213,7 @@ const OdWereld = (() => {
     const half = T / 2;
     const kwart = T / 4;
     const land = (x, y) => { const c = teken(k, x, y); return c !== '~' && c !== 'b'; };
-    const golvend = c => '.,T'.includes(c);
+    const golvend = c => '.,TYz'.includes(c);
     // Hoogte van elke hoek: golvend gras, maar vlak waar een pad, plek of gebouw aan raakt.
     const hoogte = (cx, cy) => {
       for (const [x, y] of [[cx - 1, cy - 1], [cx, cy - 1], [cx - 1, cy], [cx, cy]]) {
@@ -292,14 +359,14 @@ const OdWereld = (() => {
     driehoek(g, [x, y - s * 1.6], [x, y + s * 0.5], [x + s * 0.6, y], donker);
   }
 
-  function bak(k, T, gebouwd = []) {
+  function bak(k, T, gebouwd = [], gevonden = []) {
     const m = maat(k, T);
     const c = document.createElement('canvas');
     c.width = Math.ceil(m.w);
     c.height = Math.ceil(m.h);
     const g = c.getContext('2d');
     const brug = (x, y) => teken(k, x, y) === 'b' && gebouwd.includes('brug');
-    if (k.id === 'woud') {
+    if (!k.binnen) {
       laagPoly(g, k, T, m.ox, m.oy);
       // De brug van hard licht komt uit Mijn burcht: enkel de brugvakjes, zonder rotswand.
       if (gebouwd.includes('brug')) BuArt.teken(g, { w: k.w, h: k.h, land: brug, brug, vloer: () => 'brug', stuk: () => null }, T, m.ox, m.oy);
@@ -315,7 +382,7 @@ const OdWereld = (() => {
     }
     // Alle vaste stukken meteen mee in hetzelfde plaatje: elk beeld moet dan maar één plaatje tekenen.
     // Staat de ridder achter een stuk, dan tekent de gsm alleen dat stuk nog eens over hem heen.
-    for (const st of stukken(k)) {
+    for (const st of stukken(k, gevonden)) {
       const p = sprite(st, k, T);
       const x = m.ox + (st.x + (st.dx || 0) - st.y - (st.dy || 0)) * T / 2;
       const y = m.oy + (st.x + (st.dx || 0) + st.y + (st.dy || 0)) * T / 4;
@@ -404,6 +471,70 @@ const OdWereld = (() => {
     }
   }
 
+  // Een palm: een gebogen stam van blokjes en bladeren als lange driehoeken.
+  function lpPalm(g, T, variant) {
+    g.fillStyle = 'rgba(10,20,30,.25)';
+    g.beginPath();
+    g.ellipse(0, 0, T * 0.26, T * 0.11, 0, 0, Math.PI * 2);
+    g.fill();
+    const buig = (variant - 1) * 0.08;
+    let x = 0;
+    let y = 0;
+    for (let i = 0; i < 6; i++) {
+      const nx = x + T * buig;
+      const ny = y - T * 0.16;
+      driehoek(g, [x - T * 0.05, y], [x + T * 0.05, y], [nx + T * 0.04, ny], i % 2 ? '#a0703c' : '#8a5c2e');
+      driehoek(g, [x - T * 0.05, y], [nx + T * 0.04, ny], [nx - T * 0.04, ny], i % 2 ? '#7a5028' : '#6a4422');
+      x = nx;
+      y = ny;
+    }
+    const groen = ['#5fc45a', '#3f9a44', '#2f7a38'];
+    for (let i = 0; i < 6; i++) {
+      const a = (i / 6) * Math.PI * 2 + variant;
+      const lx = Math.cos(a) * T * 0.42;
+      const ly = Math.sin(a) * T * 0.16 + T * 0.1;
+      driehoek(g, [x, y], [x + lx, y + ly], [x + lx * 0.5, y + ly * 0.5 - T * 0.08], groen[i % 3]);
+    }
+    driehoek(g, [x - T * 0.05, y], [x + T * 0.05, y], [x, y - T * 0.06], '#7a5028');
+  }
+
+  // Een rotsblok van vlakjes.
+  function lpRots(g, T, variant) {
+    const s = T * (0.32 + variant * 0.06);
+    g.fillStyle = 'rgba(10,20,30,.28)';
+    g.beginPath();
+    g.ellipse(0, 0, s, s * 0.42, 0, 0, Math.PI * 2);
+    g.fill();
+    const top = [s * 0.1, -s * 1.15];
+    const l = [-s, -s * 0.1];
+    const r = [s, -s * 0.15];
+    const v = [s * 0.05, s * 0.25];
+    const m = [-s * 0.15, -s * 0.55];
+    driehoek(g, l, m, top, '#8a7d9a');
+    driehoek(g, m, r, top, '#6c5f80');
+    driehoek(g, l, v, m, '#5e5272');
+    driehoek(g, m, v, r, '#463c5c');
+  }
+
+  // Een verborgen runensteen: klein, met een gloeiende rune.
+  function runeSteen(g, T) {
+    const s = T * 0.16;
+    g.fillStyle = 'rgba(76,201,255,.25)';
+    g.beginPath();
+    g.ellipse(0, 0, s * 1.6, s * 0.7, 0, 0, Math.PI * 2);
+    g.fill();
+    driehoek(g, [-s, 0], [0, s * 0.35], [-s * 0.2, -s * 1.9], '#7d88a3');
+    driehoek(g, [0, s * 0.35], [s, 0], [-s * 0.2, -s * 1.9], '#545e78');
+    g.strokeStyle = '#9ff3ff';
+    g.lineWidth = Math.max(1, T / 40);
+    g.beginPath();
+    g.moveTo(-s * 0.35, -s * 1.2);
+    g.lineTo(-s * 0.15, -s * 0.3);
+    g.moveTo(-s * 0.15, -s * 0.8);
+    g.lineTo(s * 0.2, -s * 1.05);
+    g.stroke();
+  }
+
   const eigenCache = new Map();
   // Tekeningen die niet in Mijn burcht bestaan: de werktafels van het labo, een kast en de binnenmuren.
   function eigenStuk(id, T, variant = 0) {
@@ -426,6 +557,12 @@ const OdWereld = (() => {
     };
     if (id === 'lpden' || id === 'lpboom') {
       lpBoom(g, T, id === 'lpden', variant);
+    } else if (id === 'lppalm') {
+      lpPalm(g, T, variant);
+    } else if (id === 'lprots') {
+      lpRots(g, T, variant);
+    } else if (id === 'rune') {
+      runeSteen(g, T);
     } else if (id === 'stroom') {
       const P = tafel();
       blok(g, T, -0.25, -0.05, -0.15, 0.05, 0.36, 0.5, '#ffc94a');
@@ -522,7 +659,8 @@ const OdWereld = (() => {
   }
 
   // Alle vaste stukken van een kaart, al in de goede volgorde (van achter naar voor).
-  function stukken(k) {
+  // gevonden: de runenstenen die al opgeraapt zijn ("kaart:x,y"); die staan er niet meer.
+  function stukken(k, gevonden = []) {
     const out = [];
     for (let y = 0; y < k.h; y++) for (let x = 0; x < k.w; x++) {
       const c = teken(k, x, y);
@@ -535,6 +673,14 @@ const OdWereld = (() => {
       else if (c === 'x') st = { eigen: 'kast' };
       else if (c === 'v') st = { bu: 'lichtpaal', kleur: '#2ee6a6' };
       else if (c === 'W') st = { eigen: 'binnenmuur' };
+      else if (c === 'Y') st = { eigen: 'lppalm', v: Math.floor(hash(x, y, 3) * 3) };
+      else if (c === 'K') st = { eigen: 'lprots', v: Math.floor(hash(x, y, 3) * 3) };
+      else if (c === 'G') st = { bu: 'robodraak', kleur: '#ff5a5a' };
+      else if (c === 'M') st = { bu: 'molen', kleur: '#ffc94a' };
+      else if (c === 'X') st = { bu: 'ruimteschip', kleur: '#4cc9ff' };
+      else if (c === 'L') st = { bu: 'ruimteschip', kleur: '#ffc94a', plek: 'luchtschip' };
+      else if (c === 'P') st = { bu: 'portaal', kleur: '#c77dff', plek: 'sterrenpoort' };
+      else if (c === 'J' && !gevonden.includes(`${k.id}:${x},${y}`)) st = { eigen: 'rune', rune: true };
       else if (STATION[c]) {
         const id = STATION[c];
         st = STUK[id] ? { bu: STUK[id], kleur: '#ffc94a', plek: id } : { eigen: id, plek: id };
@@ -571,5 +717,16 @@ const OdWereld = (() => {
     }, T, ox, oy, { glinster: false });
   }
 
-  return { KAARTEN, STATION, STUK, kaart, teken, loopbaar, plekken, vind, maat, bak, stukken, sprite, gloeiers, eigenStuk };
+  // Alle runenstenen in alle kaarten ("kaart:x,y"), ook voor de server.
+  function runen() {
+    const out = [];
+    for (const id of Object.keys(KAARTEN)) {
+      const k = kaart(id);
+      for (let y = 0; y < k.h; y++) for (let x = 0; x < k.w; x++) if (teken(k, x, y) === 'J') out.push(`${id}:${x},${y}`);
+    }
+    return out;
+  }
+
+  return { KAARTEN, STATION, STUK, BOUWPLEK, REIS, kaart, teken, loopbaar, plekken, vind, maat, bak, stukken, sprite, gloeiers, eigenStuk, runen };
 })();
+if (typeof module === 'object' && module.exports) module.exports = OdWereld;

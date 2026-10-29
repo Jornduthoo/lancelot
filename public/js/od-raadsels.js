@@ -14,6 +14,12 @@ const OdRaadsels = (() => {
     stroom: 'Draai de draadjes tot de lamp brandt.',
     tandwiel: 'Hoe draaien de tandwielen?',
     wip: 'Breng de wip in evenwicht.',
+    weeg: 'De goudsmid weegt zijn schatten. Hoeveel weegt er één?',
+    reeks: 'De draak legt eieren met getallen. Welk getal hoort erbij?',
+    pixel: 'Herstel het mozaïek van het drakenbeeld.',
+    sudoku: 'Elk getal één keer in elke rij, kolom en elk blok.',
+    doolhof: 'Vind de uitgang van de donjon. Pak eerst de sleutels!',
+    toren: 'Elke steen is de som van de twee stenen eronder.',
   };
   let nu = null; // het open raadsel
   let bezig = false;
@@ -62,7 +68,7 @@ const OdRaadsels = (() => {
 
   function teken() {
     $('odv-titel').textContent = nu.naam;
-    $('odv-sub').textContent = UITLEG[nu.soort] || '';
+    $('odv-sub').textContent = `${nu.trap > 1 ? `Trap ${nu.trap} · ` : ''}${UITLEG[nu.soort] || ''}`;
     const niv = $('odv-niv');
     niv.innerHTML = '';
     for (const [id, naam] of NIV) {
@@ -72,7 +78,7 @@ const OdRaadsels = (() => {
       b.title = id === nu.eigen ? 'Jouw niveau' : naam;
       niv.appendChild(b);
     }
-    melding(nu.vandaag ? 'Hier verdiende je vandaag al een kristal. Oefenen mag altijd!' : '');
+    melding(nu.vandaag ? `Hier verdiende je vandaag al ${nu.perPlek || 3} kristallen. Oefenen mag altijd, en je gaat wel een trap hoger!` : '');
     body().innerHTML = '';
     body().className = `od-body od-${nu.soort}`;
     (TEKEN[nu.soort] || (() => {}))(nu);
@@ -110,10 +116,17 @@ const OdRaadsels = (() => {
       beloning.innerHTML = '<span class="od-kristal-ic groot"></span>';
       beloning.appendChild(el('span', '', '+1 kristal en Eer voor je burcht'));
       const st = res.stand;
-      if (st && st.bouw && !st.gebouwd.includes('brug') && st.kristallen >= st.bouw.brug.kost) b.appendChild(el('p', 'od-brug-tip', `🌉 Je hebt ${st.kristallen} kristallen: genoeg voor de brug! Loop naar de rand bij de banier om hem te bouwen.`));
+      const tips = {
+        brug: '🌉 Genoeg kristallen voor de brug! Loop naar de rand bij de banier om hem te bouwen.',
+        luchtschip: '🚀 Genoeg kristallen voor het luchtschip! Het staat aan de zuidrand van het woud.',
+        sterrenpoort: '🌌 Genoeg kristallen voor de sterrenpoort! Ze staat bij de Neonruïnes.',
+      };
+      const wat = st && st.bouw && Object.keys(tips).find(k => !st.gebouwd.includes(k) && (!st.bouw[k].nodig || st.gebouwd.includes(st.bouw[k].nodig)) && st.kristallen >= st.bouw[k].kost);
+      if (wat) b.appendChild(el('p', 'od-brug-tip', tips[wat]));
     } else {
-      beloning.appendChild(el('span', 'muted', 'Goed geoefend! Het kristal van deze plek had je vandaag al.'));
+      beloning.appendChild(el('span', 'muted', 'Goed geoefend! De kristallen van deze plek had je vandaag al.'));
     }
+    if (res.trap) beloning.appendChild(el('span', 'od-trap', `⬆ Volgende keer: trap ${res.trap + 1}`));
     b.appendChild(beloning);
     if (res.woord) b.appendChild(woordKaart(res.woord, true));
     if (res.weetje && res.weetje.w) b.appendChild(weetjeKaart(res.weetje));
@@ -886,7 +899,329 @@ const OdRaadsels = (() => {
     body().appendChild(opties);
   }
 
-  const TEKEN = { schuif, robot, licht, stroom, tandwiel, wip, woorden, code, weetje };
+  // ---------- Een getal intikken ----------
+
+  function getalVeld(fn, label = 'Controleer') {
+    const f = el('form', 'od-typ od-getal');
+    const inp = el('input');
+    inp.type = 'number';
+    inp.inputMode = 'numeric';
+    inp.autocomplete = 'off';
+    inp.placeholder = '?';
+    f.appendChild(inp);
+    const b = el('button', 'gold', label);
+    b.type = 'submit';
+    f.appendChild(b);
+    f.addEventListener('submit', e => {
+      e.preventDefault();
+      if (inp.value.trim() !== '') fn(Number(inp.value), inp);
+    });
+    setTimeout(() => inp.focus(), 50);
+    return f;
+  }
+  const getalStuur = (getal, inp) => stuur(getal, res => {
+    if (res.klaar) return klaar(res);
+    sfx.bad();
+    melding(res.tekst || 'Nog niet. Reken nog eens na!', 'fout');
+    inp.select();
+  });
+
+  // ---------- Drakenkust: de goudsmid (weegschalen) ----------
+
+  function weeg(r) {
+    const pz = r.pz;
+    body().appendChild(el('p', 'od-opdracht', 'Elke weegschaal is in evenwicht. Gebruik wat je weet!'));
+    const lijst = el('div', 'od-schalen');
+    for (const sch of pz.schalen) {
+      const rij = el('div', 'od-schaal');
+      rij.appendChild(el('span', 'od-schaal-l', sch.links.join(' ')));
+      rij.appendChild(el('span', 'od-schaal-m', '⚖️'));
+      rij.appendChild(el('span', 'od-schaal-r', `${sch.rechts.join(' ')} 🪙`));
+      lijst.appendChild(rij);
+    }
+    body().appendChild(lijst);
+    body().appendChild(el('p', 'od-vraag-groot', `Hoeveel 🪙 weegt één ${pz.vraag}?`));
+    body().appendChild(getalVeld(getalStuur));
+  }
+
+  // ---------- Drakenkust: het drakennest (reeksen) ----------
+
+  function reeks(r) {
+    const pz = r.pz;
+    const toon = pz.rij.slice();
+    if (!toon.includes(null)) toon.push(null);
+    body().appendChild(el('p', 'od-opdracht', 'Zoek de regel. Welk getal hoort op het lege ei?'));
+    const rij = el('div', 'od-eieren');
+    for (const x of toon) rij.appendChild(el('span', `od-ei${x === null ? ' leeg' : ''}`, x === null ? '?' : String(x)));
+    body().appendChild(rij);
+    body().appendChild(getalVeld(getalStuur));
+  }
+
+  // ---------- Drakenkust: het drakenbeeld (pixelpuzzel) ----------
+
+  function pixel(r) {
+    const pz = r.pz;
+    const n = pz.size;
+    const cw = Math.max(...pz.rijen.map(g => g.length));
+    const ch = Math.max(...pz.kolommen.map(g => g.length));
+    const veld = Array(n * n).fill(0); // 0 leeg, 1 gekleurd, 2 kruisje
+    let klaarGezet = false;
+    body().appendChild(el('p', 'od-opdracht', 'Tik om een vakje te kleuren, nog eens voor een kruisje. De getallen zeggen hoeveel vakjes na elkaar gekleurd zijn.'));
+    const b = bord(n + cw, n + ch);
+    const { g, vak } = b;
+    function tekenAlles() {
+      g.fillStyle = '#0d1630';
+      g.fillRect(0, 0, b.w, b.h);
+      const fs = Math.max(9, Math.round(vak * 0.42));
+      g.font = `bold ${fs}px sans-serif`;
+      g.textAlign = 'center';
+      g.textBaseline = 'middle';
+      const rijOk = y => OdPuzzels.lijnGetallen(veld.slice(y * n, y * n + n).map(v => (v === 1 ? 1 : 0))).join() === pz.rijen[y].join();
+      const kolOk = x => OdPuzzels.lijnGetallen(Array.from({ length: n }, (_, y) => (veld[y * n + x] === 1 ? 1 : 0))).join() === pz.kolommen[x].join();
+      pz.rijen.forEach((gt, y) => {
+        g.fillStyle = rijOk(y) ? '#2ee6a6' : '#ffe08a';
+        gt.forEach((v, i) => g.fillText(String(v), (cw - gt.length + i + 0.5) * vak, (ch + y + 0.5) * vak));
+      });
+      pz.kolommen.forEach((gt, x) => {
+        g.fillStyle = kolOk(x) ? '#2ee6a6' : '#ffe08a';
+        gt.forEach((v, i) => g.fillText(String(v), (cw + x + 0.5) * vak, (ch - gt.length + i + 0.5) * vak));
+      });
+      for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) {
+        const v = veld[y * n + x];
+        const px = (cw + x) * vak;
+        const py = (ch + y) * vak;
+        rrect(g, px + 1, py + 1, vak - 2, vak - 2, 3, v === 1 ? '#c77dff' : '#1b2a48');
+        if (v === 1) rrect(g, px + 3, py + 3, vak * 0.4, vak * 0.18, 2, 'rgba(255,255,255,.35)');
+        if (v === 2) {
+          g.strokeStyle = '#5b6b8c';
+          g.lineWidth = 2;
+          g.beginPath();
+          g.moveTo(px + vak * 0.3, py + vak * 0.3);
+          g.lineTo(px + vak * 0.7, py + vak * 0.7);
+          g.moveTo(px + vak * 0.7, py + vak * 0.3);
+          g.lineTo(px + vak * 0.3, py + vak * 0.7);
+          g.stroke();
+        }
+      }
+      // dikkere lijnen om de 5 vakjes, zoals in een echt raster
+      g.strokeStyle = 'rgba(76,201,255,.5)';
+      g.lineWidth = 1.5;
+      for (let i = 0; i <= n; i += 5) {
+        g.beginPath();
+        g.moveTo((cw + i) * vak, ch * vak);
+        g.lineTo((cw + i) * vak, (ch + n) * vak);
+        g.moveTo(cw * vak, (ch + i) * vak);
+        g.lineTo((cw + n) * vak, (ch + i) * vak);
+        g.stroke();
+      }
+    }
+    b.c.addEventListener('click', e => {
+      if (klaarGezet) return;
+      const [x0, y0] = b.vakOp(e);
+      const x = x0 - cw;
+      const y = y0 - ch;
+      if (x < 0 || y < 0 || x >= n || y >= n) return;
+      veld[y * n + x] = (veld[y * n + x] + 1) % 3;
+      sfx.tick();
+      tekenAlles();
+      const poging = veld.map(v => (v === 1 ? 1 : 0));
+      if (OdPuzzels.check('pixel', pz, poging)) {
+        klaarGezet = true;
+        sfx.good();
+        setTimeout(() => stuur(poging), 600);
+      }
+    });
+    tekenAlles();
+  }
+
+  // ---------- Sterrenhaven: de sterrenkoepel (sudoku) ----------
+
+  function sudoku(r) {
+    const pz = r.pz;
+    const n = pz.size;
+    const v = pz.gegeven.slice();
+    let kies = v.findIndex(x => !x);
+    let klaarGezet = false;
+    body().appendChild(el('p', 'od-opdracht', 'Tik op een leeg vakje en kies een getal.'));
+    const b = bord(n, n);
+    const { g, vak } = b;
+    function tekenSudoku() {
+      g.fillStyle = '#0d1630';
+      g.fillRect(0, 0, b.w, b.h);
+      g.textAlign = 'center';
+      g.textBaseline = 'middle';
+      g.font = `bold ${Math.round(vak * 0.5)}px sans-serif`;
+      for (let i = 0; i < n * n; i++) {
+        const x = i % n;
+        const y = Math.floor(i / n);
+        const blok = (Math.floor(x / pz.bw) + Math.floor(y / pz.bh)) % 2;
+        rrect(g, x * vak + 1, y * vak + 1, vak - 2, vak - 2, 4, i === kies ? '#3a2f6b' : blok ? '#18264a' : '#1f3058');
+        if (v[i]) {
+          g.fillStyle = pz.gegeven[i] ? '#ffe08a' : '#9ff3ff';
+          g.fillText(String(v[i]), x * vak + vak / 2, y * vak + vak / 2 + 1);
+        }
+      }
+      g.strokeStyle = 'rgba(199,125,255,.9)';
+      g.lineWidth = 2.5;
+      for (let x = 0; x <= n; x += pz.bw) { g.beginPath(); g.moveTo(x * vak, 0); g.lineTo(x * vak, n * vak); g.stroke(); }
+      for (let y = 0; y <= n; y += pz.bh) { g.beginPath(); g.moveTo(0, y * vak); g.lineTo(n * vak, y * vak); g.stroke(); }
+    }
+    function zet(getal) {
+      if (klaarGezet || kies < 0 || pz.gegeven[kies]) return;
+      v[kies] = getal;
+      sfx.tick();
+      const volgende = v.findIndex((x, i) => !x && i > kies);
+      if (getal && volgende >= 0) kies = volgende;
+      tekenSudoku();
+      if (v.every(Boolean)) {
+        if (OdPuzzels.check('sudoku', pz, v)) {
+          klaarGezet = true;
+          sfx.good();
+          setTimeout(() => stuur(v.slice()), 600);
+        } else melding('Bijna! Ergens staat een getal twee keer in een rij, kolom of blok.', 'fout');
+      } else melding('');
+    }
+    b.c.addEventListener('click', e => {
+      const [x, y] = b.vakOp(e);
+      if (x < 0 || y < 0 || x >= n || y >= n || pz.gegeven[y * n + x]) return;
+      kies = y * n + x;
+      tekenSudoku();
+    });
+    const knoppen = el('div', 'od-cijfers');
+    for (let i = 1; i <= n; i++) knoppen.appendChild(knop(String(i), 'od-cijfer', () => zet(i)));
+    knoppen.appendChild(knop('⌫', 'od-cijfer secondary', () => zet(0)));
+    body().appendChild(knoppen);
+    const toets = e => {
+      if (!nu || nu.soort !== 'sudoku') return window.removeEventListener('keydown', toets);
+      const k = Number(e.key);
+      if (k >= 1 && k <= n) zet(k);
+      else if (e.key === 'Backspace' || e.key === 'Delete') zet(0);
+    };
+    window.addEventListener('keydown', toets);
+    tekenSudoku();
+  }
+
+  // ---------- Sterrenhaven: de donjon (doolhof met sleutels) ----------
+
+  function doolhof(r) {
+    const pz = r.pz;
+    let stappen = '';
+    let klaarGezet = false;
+    const KLEUR = { goud: '#ffc94a', blauw: '#4cc9ff', rood: '#ff5a7a' };
+    body().appendChild(el('p', 'od-opdracht', pz.deuren.length ? 'Loop met de pijltjes (of tik naast je ridder). Een deur gaat open met de sleutel in dezelfde kleur.' : 'Loop met de pijltjes (of tik naast je ridder) naar de uitgang.'));
+    const b = bord(pz.size, pz.size);
+    const { g, vak } = b;
+    function tekenDoolhof() {
+      const st = OdPuzzels.doolhofLoop(pz, stappen);
+      g.fillStyle = '#0a1024';
+      g.fillRect(0, 0, b.w, b.h);
+      for (let y = 0; y < pz.size; y++) for (let x = 0; x < pz.size; x++) {
+        if (pz.muren[y * pz.size + x] === '1') rrect(g, x * vak, y * vak, vak, vak, 1, '#2b3a63');
+        else rrect(g, x * vak, y * vak, vak, vak, 0, '#121c38');
+      }
+      for (const s of pz.sleutels) if (!st.heb.has(s.k)) {
+        g.fillStyle = KLEUR[s.k];
+        g.font = `${Math.round(vak * 0.8)}px sans-serif`;
+        g.textAlign = 'center';
+        g.textBaseline = 'middle';
+        g.beginPath();
+        g.arc(s.x * vak + vak * 0.38, s.y * vak + vak * 0.5, vak * 0.22, 0, Math.PI * 2);
+        g.fill();
+        g.fillRect(s.x * vak + vak * 0.5, s.y * vak + vak * 0.44, vak * 0.4, vak * 0.12);
+      }
+      for (const d of pz.deuren) {
+        const open = st.heb.has(d.k);
+        rrect(g, d.x * vak + 1, d.y * vak + 1, vak - 2, vak - 2, 3, open ? 'rgba(255,255,255,.08)' : KLEUR[d.k]);
+        if (!open) rrect(g, d.x * vak + vak * 0.42, d.y * vak + vak * 0.35, vak * 0.16, vak * 0.3, 2, '#1a1a2a');
+      }
+      kristal(g, pz.doel.x * vak + vak / 2, pz.doel.y * vak + vak / 2, vak * 0.38, '#2ee6a6', 0.35);
+      g.fillStyle = '#ffffff';
+      g.beginPath();
+      g.arc(st.x * vak + vak / 2, st.y * vak + vak / 2, vak * 0.34, 0, Math.PI * 2);
+      g.fill();
+      g.fillStyle = '#c77dff';
+      g.beginPath();
+      g.arc(st.x * vak + vak / 2, st.y * vak + vak / 2, vak * 0.22, 0, Math.PI * 2);
+      g.fill();
+      if (st.ok && !klaarGezet) {
+        klaarGezet = true;
+        sfx.good();
+        setTimeout(() => stuur(stappen), 500);
+      }
+      return st;
+    }
+    function stap(c) {
+      if (klaarGezet || !nu || nu.soort !== 'doolhof') return;
+      const voor = OdPuzzels.doolhofLoop(pz, stappen);
+      const na = OdPuzzels.doolhofLoop(pz, stappen + c);
+      if (na.x === voor.x && na.y === voor.y) return; // tegen een muur of een dichte deur
+      stappen += c;
+      if (na.heb.size > voor.heb.size) sfx.good();
+      tekenDoolhof();
+    }
+    const toets = e => {
+      if (!nu || nu.soort !== 'doolhof') return window.removeEventListener('keydown', toets);
+      const c = { ArrowUp: 'N', ArrowRight: 'O', ArrowDown: 'Z', ArrowLeft: 'W', KeyW: 'N', KeyD: 'O', KeyS: 'Z', KeyA: 'W' }[e.code];
+      if (c) {
+        e.preventDefault();
+        stap(c);
+      }
+    };
+    window.addEventListener('keydown', toets);
+    b.c.addEventListener('click', e => {
+      const [x, y] = b.vakOp(e);
+      const st = OdPuzzels.doolhofLoop(pz, stappen);
+      const dx = x - st.x;
+      const dy = y - st.y;
+      if (Math.abs(dx) >= Math.abs(dy) && dx) stap(dx > 0 ? 'O' : 'W');
+      else if (dy) stap(dy > 0 ? 'Z' : 'N');
+    });
+    const pijlen = el('div', 'od-pijlen');
+    for (const [c, t] of [['N', '▲'], ['W', '◀'], ['Z', '▼'], ['O', '▶']]) pijlen.appendChild(knop(t, `od-pijl od-pijl-${c}`, () => stap(c)));
+    body().appendChild(pijlen);
+    tekenDoolhof();
+  }
+
+  // ---------- Sterrenhaven: de gouden toren (rekenmuur) ----------
+
+  function toren(r) {
+    const pz = r.pz;
+    body().appendChild(el('p', 'od-opdracht', 'Elke steen is de som van de twee stenen eronder. Vul de lege stenen in.'));
+    const muur = el('form', 'od-rekenmuur');
+    const velden = [];
+    pz.rijen.forEach((rij, y) => {
+      const lijn = el('div', 'od-rekenmuur-rij');
+      velden.push(rij.map(v => {
+        if (v !== null) {
+          lijn.appendChild(el('span', 'od-mst', String(v)));
+          return null;
+        }
+        const inp = el('input', 'od-mst leeg');
+        inp.type = 'number';
+        inp.inputMode = 'numeric';
+        lijn.appendChild(inp);
+        return inp;
+      }));
+      muur.appendChild(lijn);
+    });
+    const knopC = el('button', 'gold', 'Controleer');
+    knopC.type = 'submit';
+    muur.appendChild(knopC);
+    muur.addEventListener('submit', e => {
+      e.preventDefault();
+      const poging = pz.rijen.map((rij, y) => rij.map((v, x) => (v !== null ? v : Number(velden[y][x].value))));
+      if (velden.flat().some(i => i && i.value.trim() === '')) return melding('Vul eerst alle lege stenen in.', 'fout');
+      stuur(poging, res => {
+        if (res.klaar) return klaar(res);
+        sfx.bad();
+        melding('Nog niet. Tel de twee stenen onder elke steen eens op!', 'fout');
+      });
+    });
+    body().appendChild(muur);
+    setTimeout(() => { const f = velden.flat().find(Boolean); if (f) f.focus(); }, 50);
+  }
+
+  const TEKEN = { schuif, robot, licht, stroom, tandwiel, wip, woorden, code, weetje, weeg, reeks, pixel, sudoku, doolhof, toren };
 
   // ---------- Woordenboek en ontdekkersboek ----------
 
@@ -907,6 +1242,7 @@ const OdRaadsels = (() => {
     $('odb-nw').textContent = boekData.woorden.length;
     $('odb-nf').textContent = boekData.weetjes.length;
     for (const k of document.querySelectorAll('[data-boek]')) k.classList.toggle('on', k.dataset.boek === boekTab);
+    if (od.stand && od.stand.runenTotaal) b.appendChild(el('p', 'od-runen-tel', `🪨 Verborgen runenstenen gevonden: ${(od.stand.runen || []).length} van de ${od.stand.runenTotaal}`));
     if (boekTab === 'woorden') {
       if (!boekData.woorden.length) b.appendChild(el('p', 'muted', 'Nog leeg. Bij de Woordenwachter en het Runenportaal vind je nieuwe woorden.'));
       for (const w of boekData.woorden) b.appendChild(woordKaart({ woord: w.w, b: w.b, z: w.z }, false));

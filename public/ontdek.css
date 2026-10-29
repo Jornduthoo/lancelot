@@ -192,3 +192,26 @@ button.klein, .od-body .klein { font-size: .85rem; padding: 6px 12px; }
   .odh-intro { flex-direction: column; text-align: center; }
 }
 .od-brug-tip { margin: 8px 0 0; padding: 8px 12px; border-radius: 10px; background: rgb(var(--k-goud) / .14); color: rgb(var(--k-goud-l)); font-weight: 700; }
+/* Nieuwe raadsels: weegschalen, reeksen, pixelpuzzel, sudoku, doolhof, rekenmuur */
+.od-trap { display: block; margin-top: 4px; color: rgb(var(--k-cyan)); font-weight: 700; font-size: .9rem; }
+.od-schalen { display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 420px; }
+.od-schaal { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 12px; background: rgba(255, 255, 255, .06); font-size: 1.5rem; }
+.od-schaal-l { text-align: right; letter-spacing: 2px; }
+.od-schaal-r { font-weight: 800; font-size: 1.3rem; color: rgb(var(--k-goud-l)); }
+.od-vraag-groot { margin: 6px 0 0; font-size: 1.25rem; font-weight: 800; text-align: center; }
+.od-getal input { max-width: 160px; }
+.od-eieren { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.od-ei { display: grid; place-items: center; min-width: 54px; height: 66px; padding: 0 8px; border-radius: 50% 50% 46% 46% / 58% 58% 42% 42%; background: linear-gradient(160deg, #ffe7b0, #d9a24a); color: #3a2400; font-weight: 900; font-size: 1.2rem; box-shadow: inset -4px -6px 0 rgba(0, 0, 0, .15); }
+.od-ei.leeg { background: linear-gradient(160deg, #6b4bd6, #2a1a66); color: #fff; outline: 2px dashed rgba(255, 255, 255, .6); }
+.od-cijfers { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
+.od-cijfer { min-width: 48px; font-size: 1.2rem; font-weight: 800; }
+.od-pijlen { display: grid; grid-template-columns: repeat(3, 52px); grid-template-areas: ". n ." "w z o"; gap: 6px; justify-content: center; }
+.od-pijl { padding: 8px 0; font-size: 1.1rem; }
+.od-pijl-N { grid-area: n; } .od-pijl-W { grid-area: w; } .od-pijl-Z { grid-area: z; } .od-pijl-O { grid-area: o; }
+.od-rekenmuur { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.od-rekenmuur-rij { display: flex; gap: 6px; justify-content: center; }
+.od-mst { display: grid; place-items: center; width: 64px; height: 44px; border-radius: 8px; background: linear-gradient(180deg, #ffd56b, #c79630); color: #2a1a00; font-weight: 900; font-size: 1.15rem; text-align: center; border: 0; }
+input.od-mst.leeg { background: #1b2a48; color: #fff; outline: 2px dashed rgba(255, 201, 74, .7); padding: 0; -moz-appearance: textfield; }
+input.od-mst.leeg::-webkit-inner-spin-button { -webkit-appearance: none; }
+.od-runen-tel { margin: 0 0 8px; padding: 8px 12px; border-radius: 10px; background: rgb(var(--k-cyan) / .12); font-weight: 700; }
+@media (max-width: 520px) { .od-mst { width: 52px; height: 40px; font-size: 1rem; } .od-schaal { font-size: 1.2rem; } }

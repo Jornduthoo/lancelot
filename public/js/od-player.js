@@ -69,7 +69,12 @@ function odLaad(naam = od.naam) {
     }
     const eerst = !od.kaart;
     odToon('spel');
-    if (eerst) odKaart(store('od-kaart') === 'labo' ? 'labo' : 'woud', odBewaardePlek());
+    if (eerst) {
+      // Terug waar je was, als dat gebied open is.
+      const k = store('od-kaart');
+      const open = k === 'labo' || (k === 'draken' && res.gebouwd.includes('luchtschip')) || (k === 'sterren' && res.gebouwd.includes('sterrenpoort'));
+      odKaart(open ? k : 'woud', open || k === 'woud' ? odBewaardePlek() : null);
+    }
     else odBak();
   });
 }
@@ -82,7 +87,7 @@ function odStand(s) {
   if (od.kaart && od.gebaktMet !== odSleutel()) odBak();
 }
 
-const odSleutel = () => `${od.kaartId}|${(od.stand && od.stand.gebouwd || []).join(',')}`;
+const odSleutel = () => `${od.kaartId}|${(od.stand && od.stand.gebouwd || []).join(',')}|${(od.stand && od.stand.runen || []).length}`;
 
 $('od-join').addEventListener('submit', e => {
   e.preventDefault();
@@ -125,7 +130,7 @@ function odKaart(id, plek) {
   od.kaart = OdWereld.kaart(id);
   od.plekken = OdWereld.plekken(od.kaart);
   od.stukken = OdWereld.stukken(od.kaart);
-  od.deuren = ['D', 'q'].map(c => OdWereld.vind(od.kaart, c) && { ...OdWereld.vind(od.kaart, c), c }).filter(Boolean);
+  od.deuren = ['D', 'q', 'Q'].map(c => OdWereld.vind(od.kaart, c) && { ...OdWereld.vind(od.kaart, c), c }).filter(Boolean);
   odBak();
   let p = plek;
   const gebouwd = od.stand.gebouwd;
@@ -146,7 +151,7 @@ function odNaast(p, binnen) {
 
 function odBak() {
   od.gebaktMet = odSleutel();
-  od.grond = OdWereld.bak(od.kaart, od.T, od.stand.gebouwd);
+  od.grond = OdWereld.bak(od.kaart, od.T, od.stand.gebouwd, od.stand.runen || []);
   od.gloed = OdWereld.gloeiers(od.kaart, od.T, od.grond.ox, od.grond.oy);
 }
 
@@ -158,7 +163,8 @@ function odScherm(x, y) {
 
 function odGebied() {
   if (od.kaartId === 'labo') return 'Het Labo';
-  return (OD_LK ? 'Leerkracht · ' : '') + (od.kaart.ruine(od.ik.x) ? 'De Neonruïnes' : 'Het Kristalwoud');
+  const naam = od.kaartId === 'woud' ? (od.kaart.ruine(od.ik.x) ? 'De Neonruïnes' : 'Het Kristalwoud') : od.kaart.naam;
+  return (OD_LK ? 'Leerkracht · ' : '') + naam;
 }
 
 // ---------- Tekenen ----------
@@ -223,7 +229,7 @@ function odTeken(t) {
   for (const d of od.deuren) {
     const [dx, dy] = odScherm(d.x, d.y);
     const a = 0.35 + 0.25 * Math.sin(t / 260);
-    g.fillStyle = d.c === 'q' ? `rgba(46,230,166,${a})` : `rgba(76,201,255,${a})`;
+    g.fillStyle = d.c === 'D' ? `rgba(76,201,255,${a})` : `rgba(46,230,166,${a})`;
     g.beginPath();
     g.moveTo(dx, dy - od.T / 4);
     g.lineTo(dx + od.T / 2, dy);
@@ -231,12 +237,12 @@ function odTeken(t) {
     g.lineTo(dx - od.T / 2, dy);
     g.closePath();
     g.fill();
-    if (d.c === 'q') {
+    if (d.c !== 'D') {
       g.fillStyle = '#e8fff6';
       g.font = `bold ${od.T * 0.2}px sans-serif`;
       g.textAlign = 'center';
       g.textBaseline = 'middle';
-      g.fillText('⇩ Naar buiten', dx, dy + od.T * 0.42);
+      g.fillText(d.c === 'q' ? '⇩ Naar buiten' : '⇩ Terug naar het woud', dx, dy + od.T * 0.42);
     }
   }
 
@@ -274,9 +280,10 @@ function odTeken(t) {
   }
   for (const st of od.stukken) {
     if (!st.plek) continue;
-    if (st.plek === 'bord') {
-      // Genoeg kristallen voor de brug? Dan wijst een uitroepteken boven de banier de weg.
-      if (odKanBouwen()) {
+    const bouw = st.plek === 'bord' ? 'brug' : OdWereld.REIS[st.plek] ? st.plek : null;
+    if (bouw) {
+      // Genoeg kristallen om hier te bouwen? Dan wijst een uitroepteken de weg.
+      if (odKanBouwen(bouw)) {
         const [bx, by] = odScherm(st.x, st.y);
         odMarker(g, bx, by, t, false);
       }
@@ -444,6 +451,8 @@ function odAangekomen() {
   const c = OdWereld.teken(od.kaart, ik.x, ik.y);
   if (c === 'D') return odDeur('labo');
   if (c === 'q') return odDeur('woud');
+  if (c === 'Q') return odReis(od.kaart.terug.kaart, od.kaart.terug.bij);
+  if (c === 'J') odRaapRune(ik.x, ik.y);
   if (!ik.pad.length) {
     ik.doel = null;
     if (ik.plek) {
@@ -574,24 +583,72 @@ function odToastEens(id, tekst) {
 
 function odOpenPlek(p) {
   od.toetsen.clear();
-  if (p.id === 'bord') return odBouwBrug();
+  if (p.bouw) {
+    // Al gebouwd? Dan reis je ermee. Anders: bouwen.
+    if (od.stand.gebouwd.includes(p.bouw)) {
+      if (p.reis) return odReis(p.reis);
+      return odToast('De brug staat er al. Op naar de Neonruïnes!');
+    }
+    return odBouw(p.bouw);
+  }
   OdRaadsels.open(p.id);
 }
 
-const odKanBouwen = () => !!od.stand && !od.stand.gebouwd.includes('brug') && od.stand.kristallen >= od.stand.bouw.brug.kost;
+function odKanBouwen(wat = 'brug') {
+  const s = od.stand;
+  const b = s && s.bouw[wat];
+  return !!b && !s.gebouwd.includes(wat) && (!b.nodig || s.gebouwd.includes(b.nodig)) && s.kristallen >= b.kost;
+}
+
+// Met het luchtschip of door de sterrenpoort naar een ander eiland (of terug naar het woud, bij de plek waar je vertrok).
+function odReis(naar, bij) {
+  od.toetsen.clear();
+  od.ik.pad = [];
+  const sluier = document.createElement('div');
+  sluier.className = 'od-sluier';
+  $('od-game').appendChild(sluier);
+  sfx.fanfare();
+  setTimeout(() => {
+    let plek = null;
+    if (bij) {
+      const k = OdWereld.kaart(naar);
+      const p = OdWereld.vind(k, bij);
+      plek = p && [[0, 1], [-1, 0], [1, 0], [0, -1]].map(([dx, dy]) => ({ x: p.x + dx, y: p.y + dy })).find(q => OdWereld.loopbaar(k, q.x, q.y, od.stand.gebouwd));
+    }
+    odKaart(naar, plek);
+    sluier.classList.add('weg');
+    setTimeout(() => sluier.remove(), 500);
+    if (naar !== 'woud') odToastEens(`reis-${naar}`, `Welkom op ${od.kaart.naam}! Hier wachten nieuwe raadsels.`);
+  }, 450);
+}
+
+// Een runensteen opgeraapt.
+function odRaapRune(x, y) {
+  const id = `${od.kaartId}:${x},${y}`;
+  if ((od.stand.runen || []).includes(id)) return;
+  socket.emit('od-vind', { naam: od.naam, id }, res => {
+    if (!res || res.error) return;
+    odStand(res.stand);
+    if (!res.nieuw) return;
+    sfx.fanfare();
+    confetti(1500);
+    odToast(res.aantal === res.totaal ? `Alle ${res.totaal} runenstenen gevonden! Je bent een echte ontdekker!` : `Een runensteen! +1 kristal. Je vond er ${res.aantal} van de ${res.totaal}.`, 3500);
+  });
+}
 
 // Aan de rand waar de brug komt: met genoeg kristallen meteen bouwen, anders zeggen hoeveel je er nog nodig hebt.
 function odBrugRand() {
   if (od.venster || od.bouwVraag) return;
-  if (odKanBouwen()) return odBouwBrug();
+  if (odKanBouwen('brug')) return odBouw('brug');
   const kost = od.stand.bouw.brug.kost;
   odToastEens('brug', `Hier komt een brug. Je hebt ${kost} kristallen nodig, je hebt er nu ${od.stand.kristallen}. Los raadsels op!`);
 }
 
-async function odBouwBrug() {
+async function odBouw(wat) {
   const s = od.stand;
-  const b = s.bouw.brug;
-  if (s.gebouwd.includes('brug')) return odToast('De brug staat er al. Op naar de Neonruïnes!');
+  const b = s.bouw[wat];
+  if (s.gebouwd.includes(wat)) return;
+  if (b.nodig && !s.gebouwd.includes(b.nodig)) return Ui.melding(`Bouw eerst ${s.bouw[b.nodig].naam}.`);
   if (s.kristallen < b.kost) return Ui.melding(`Hier kan je ${b.naam} bouwen met ${b.kost} kristallen. Je hebt er nu ${s.kristallen}. Los raadsels op om kristallen te verdienen!`);
   od.toetsen.clear();
   od.ik.pad = [];
@@ -600,12 +657,16 @@ async function odBouwBrug() {
   od.bouwVraag = false;
   od.toetsen.clear();
   if (!ja) return;
-  socket.emit('od-bouw', { naam: od.naam, wat: 'brug' }, res => {
+  socket.emit('od-bouw', { naam: od.naam, wat }, res => {
     if (!res || res.error) return Ui.melding((res && res.error) || 'Dat lukte niet.');
     odStand(res.stand);
     sfx.fanfare();
     confetti(2500);
-    odToast('De lichtbrug staat er! Steek over naar de Neonruïnes.', 3500);
+    odToast({
+      brug: 'De lichtbrug staat er! Steek over naar de Neonruïnes.',
+      luchtschip: 'Het luchtschip is klaar! Tik erop om naar de Drakenkust te vliegen.',
+      sterrenpoort: 'De sterrenpoort gloeit! Tik erop om naar de Sterrenhaven te gaan.',
+    }[wat] || 'Gebouwd!', 4000);
   });
 }
 

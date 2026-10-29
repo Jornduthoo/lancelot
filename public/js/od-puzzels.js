@@ -46,8 +46,9 @@
   // Vanuit de oplossing een reeks geldige zetten terug: zo is hij altijd op te lossen.
 
   function maakSchuif(n, r) {
-    const size = { page: 3, schildknaap: 3, ridder: 4 }[n];
-    const zetten = { page: 16, schildknaap: 46, ridder: 90 }[n];
+    const t = r.t || 0; // hoger op de trap: meer door elkaar, en een groter bord voor de Schildknaap
+    const size = { page: 3, schildknaap: t >= 6 ? 4 : 3, ridder: 4 }[n];
+    const zetten = { page: 16, schildknaap: 46, ridder: 90 }[n] + Math.min(150, t * 10);
     const bord = [...Array(size * size - 1).keys()].map(i => i + 1).concat(0);
     let leeg = bord.length - 1;
     let vorige = -1;
@@ -119,7 +120,8 @@
   }
 
   function maakRobot(n, r) {
-    const size = { page: 5, schildknaap: 6, ridder: 7 }[n];
+    const t = r.t || 0;
+    const size = { page: 5, schildknaap: 6, ridder: 7 }[n] + Math.min(3, Math.floor(t / 3));
     for (let poging = 0; poging < 400; poging++) {
       const start = { x: r.int(size), y: r.int(size), d: r.int(4) };
       let blokken = [];
@@ -133,7 +135,7 @@
         herhaal = 2 + r.int(3);
       } else {
         // Stukken rechtdoor met draaien ertussen.
-        const stukken = n === 'page' ? 2 + r.int(2) : 3 + r.int(2);
+        const stukken = (n === 'page' ? 2 + r.int(2) : 3 + r.int(2)) + Math.min(2, Math.floor(t / 3));
         for (let i = 0; i < stukken; i++) {
           if (i) blokken.push(r.pick(['L', 'R']));
           const k = 1 + r.int(n === 'page' ? 3 : 3);
@@ -205,9 +207,10 @@
   }
 
   function maakLicht(n, r) {
-    const w = { page: 5, schildknaap: 6, ridder: 7 }[n];
-    const h = { page: 4, schildknaap: 5, ridder: 6 }[n];
-    const nodig = { page: 2, schildknaap: 3, ridder: 4 }[n];
+    const t = r.t || 0;
+    const w = { page: 5, schildknaap: 6, ridder: 7 }[n] + Math.min(3, Math.floor(t / 3));
+    const h = { page: 4, schildknaap: 5, ridder: 6 }[n] + Math.min(2, Math.floor(t / 4));
+    const nodig = { page: 2, schildknaap: 3, ridder: 4 }[n] + Math.min(3, Math.floor(t / 3));
     for (let poging = 0; poging < 600; poging++) {
       const bron = r.int(h);
       let x = 0;
@@ -244,12 +247,12 @@
       for (let yy = 0; yy < h; yy++) for (let xx = 0; xx < w; xx++) if (!gezien.has(`${xx},${yy}`)) vrij.push([xx, yy]);
       const extra = r.shuffle(vrij);
       // Lokspiegels en rotsen maken het moeilijker.
-      const lok = { page: 0, schildknaap: 1, ridder: 2 }[n];
+      const lok = { page: 0, schildknaap: 1, ridder: 2 }[n] + Math.min(3, Math.floor(t / 2));
       for (let i = 0; i < lok && extra.length; i++) {
         const [xx, yy] = extra.pop();
         pz.spiegels.push({ x: xx, y: yy, s: r() < 0.5 ? '/' : '\\' });
       }
-      const rots = { page: 0, schildknaap: 1, ridder: 2 }[n];
+      const rots = { page: 0, schildknaap: 1, ridder: 2 }[n] + Math.min(3, Math.floor(t / 2));
       for (let i = 0; i < rots && extra.length; i++) pz.rotsen.push(extra.pop());
       // Alle spiegels door elkaar draaien, tot het licht het doel niet meer raakt.
       for (const m of pz.spiegels) if (r() < 0.6) m.s = m.s === '/' ? '\\' : '/';
@@ -311,8 +314,9 @@
   }
 
   function maakStroom(n, r) {
-    const w = { page: 4, schildknaap: 5, ridder: 6 }[n];
-    const h = { page: 3, schildknaap: 4, ridder: 5 }[n];
+    const t = r.t || 0;
+    const w = { page: 4, schildknaap: 5, ridder: 6 }[n] + Math.min(3, Math.floor(t / 3));
+    const h = { page: 3, schildknaap: 4, ridder: 5 }[n] + Math.min(2, Math.floor(t / 4));
     for (let poging = 0; poging < 200; poging++) {
       const a = r.int(h);
       const b = r.int(h);
@@ -487,6 +491,336 @@
     return w * d === wipLinks(pz);
   }
 
+
+  // ---------- De Goudsmid: weegschalen ----------
+  // Dingen op een weegschaal: hoeveel weegt één ding? Het antwoord (opl) blijft op de server.
+  const WAREN = ['👑', '💎', '🛡️', '🗡️', '🥚', '🍎'];
+
+  function maakWeeg(n, r) {
+    const t = r.t || 0;
+    const max = { page: 6, schildknaap: 9, ridder: 12 }[n] + Math.min(20, t * 2);
+    const [a, b, c] = r.shuffle(WAREN);
+    const wa = 2 + r.int(max - 1);
+    const wb = 2 + r.int(max - 1);
+    const wc = 2 + r.int(max - 1);
+    const rij = (links, rechts) => ({ links, rechts });
+    const keer = (ding, k) => Array(k).fill(ding);
+    if (n === 'page') {
+      // k keer hetzelfde ding = een aantal goudstukken
+      const k = 2 + r.int(Math.min(4, 2 + Math.floor(t / 2)));
+      return { schalen: [rij(keer(a, k), [`${k * wa}`])], vraag: a, opl: wa };
+    }
+    if (n === 'schildknaap') {
+      // eerst één ding uitrekenen, dan het tweede
+      const k = 2 + r.int(3);
+      const schalen = [rij(keer(a, k), [`${k * wa}`]), rij([a, ...keer(b, 1 + r.int(2))], null)];
+      const nb = schalen[1].links.length - 1;
+      schalen[1].rechts = [`${wa + nb * wb}`];
+      return { schalen: r() < 0.5 ? schalen : schalen.reverse(), vraag: b, opl: wb };
+    }
+    // Ridder: drie dingen, en een schaal met twee soorten aan één kant
+    const k = 2 + r.int(2);
+    const schalen = [
+      rij(keer(a, k), [`${k * wa}`]),
+      rij([a, b, b], [`${wa + 2 * wb}`]),
+      rij([b, c, c, c], [`${wb + 3 * wc}`]),
+    ];
+    if (t >= 4) schalen[0] = rij([a, a, b], [`${2 * wa + wb}`]); // dan moet je ook a eerst zoeken met b
+    if (t >= 4) schalen.splice(1, 0, rij([b, b, b], [`${3 * wb}`]));
+    return { schalen: r.shuffle(schalen), vraag: c, opl: wc };
+  }
+  const checkWeeg = (pz, poging) => Number(poging) === pz.opl;
+
+  // ---------- Het Drakennest: reeksen ----------
+  // Welk getal komt er nu? Hoe hoger op de trap, hoe moeilijker de regel.
+
+  function maakReeks(n, r) {
+    const t = r.t || 0;
+    const groot = 1 + Math.floor(t / 3);
+    const regels = {
+      page: [
+        () => { const s = 1 + r.int(10); const d = 1 + r.int(4 + groot); return i => s + d * i; },
+        () => { const d = 2 + r.int(3 + groot); const s = d * (8 + r.int(5)); return i => s - d * i; },
+        () => { const d = [2, 5, 10][r.int(3)] * groot; const s = d * r.int(5); return i => s + d * i; },
+      ],
+      schildknaap: [
+        () => { const s = 1 + r.int(3); const f = 2 + r.int(groot > 2 ? 2 : 1); return i => s * f ** i; },
+        () => { const a = 2 + r.int(5); const b = 1 + r.int(4); const s = r.int(10); return i => s + Math.ceil(i / 2) * a - Math.floor(i / 2) * b; },
+        () => { const s = 1 + r.int(5); const d = 1 + r.int(2 + groot); return i => s + d * (i * (i + 1)) / 2; },
+        () => { const d = 3 + r.int(6 + groot * 2); const s = 2 + r.int(20); return i => s + d * i; },
+      ],
+      ridder: [
+        () => { const a = 1 + r.int(3); const b = 1 + r.int(4); return i => { let x = a; let y = b; for (let k = 0; k < i; k++) [x, y] = [y, x + y]; return x; }; },
+        () => { const s = 1 + r.int(4); return i => (i + s) ** 2; },
+        () => { const s = 2 + r.int(5); const f = 2; const d = 1 + r.int(3); return i => { let x = s; for (let k = 0; k < i; k++) x = x * f - d; return x; }; },
+        () => { const s = 50 + r.int(50) + groot * 20; const d = 1 + r.int(3); return i => s - d * (i * (i + 1)) / 2; },
+        () => { const a = 2 + r.int(3); const s = 1 + r.int(4); return i => (i % 2 ? s * a ** Math.ceil(i / 2) : s + i * a); },
+      ],
+    }[n];
+    // Hoger op de trap komen er ook regels van het niveau erboven bij.
+    const pool = regels.slice();
+    if (n === 'page' && t >= 5) pool.push(() => { const a = 3 + r.int(4); const b = 1 + r.int(2); const s0 = r.int(10); return i => s0 + Math.ceil(i / 2) * a - Math.floor(i / 2) * b; });
+    if (n === 'schildknaap' && t >= 6) pool.push(() => { const a = 1 + r.int(3); const b = 1 + r.int(3); return i => { let x = a; let y = b; for (let k = 0; k < i; k++) [x, y] = [y, x + y]; return x; }; });
+    for (let poging = 0; poging < 60; poging++) {
+      const f = r.pick(pool)();
+      const len = { page: 5, schildknaap: 6, ridder: 6 }[n];
+      const rij = Array.from({ length: len + 1 }, (_, i) => f(i));
+      if (rij.some(x => !Number.isInteger(x) || x < 0 || x > 9999)) continue;
+      if (new Set(rij).size < 3) continue;
+      // Ridder: soms ontbreekt er een getal in het midden in plaats van op het einde.
+      const gat = n === 'ridder' && t >= 3 && r() < 0.5 ? 2 + r.int(len - 3) : len;
+      const opl = rij[gat];
+      const toon = rij.map((x, i) => (i === gat ? null : x));
+      if (gat === len) toon.pop();
+      return { rij: toon, opl };
+    }
+    return { rij: [2, 4, 6, 8, null], opl: 10 };
+  }
+  const checkReeks = (pz, poging) => Number(poging) === pz.opl;
+
+  // ---------- Het Drakenbeeld: pixelpuzzel ----------
+  // Kleur vakjes zodat elke rij en kolom de getallen volgt. Elke tekening die klopt met de getallen is goed.
+
+  const lijnGetallen = rij => {
+    const uit = [];
+    let k = 0;
+    for (const v of rij) {
+      if (v) k++;
+      else if (k) { uit.push(k); k = 0; }
+    }
+    if (k) uit.push(k);
+    return uit.length ? uit : [0];
+  };
+
+  function maakPixel(n, r) {
+    const t = r.t || 0;
+    const size = { page: 5, schildknaap: 6, ridder: 8 }[n] + Math.min(4, Math.floor(t / 3));
+    const vol = { page: 0.62, schildknaap: 0.56, ridder: 0.52 }[n];
+    for (let poging = 0; poging < 40; poging++) {
+      const veld = Array.from({ length: size }, () => Array.from({ length: size }, () => (r() < vol ? 1 : 0)));
+      // spiegelen maakt het een mooier figuurtje
+      if (r() < 0.7) for (const rij of veld) for (let x = 0; x < size / 2; x++) rij[size - 1 - x] = rij[x];
+      const rijen = veld.map(lijnGetallen);
+      const kolommen = veld[0].map((_, x) => lijnGetallen(veld.map(rij => rij[x])));
+      if (rijen.some(g => g[0] === 0) || kolommen.some(g => g[0] === 0)) continue;
+      return { size, rijen, kolommen };
+    }
+    return { size: 3, rijen: [[3], [1, 1], [3]], kolommen: [[3], [1, 1], [3]] };
+  }
+
+  function checkPixel(pz, poging) {
+    if (!Array.isArray(poging) || poging.length !== pz.size * pz.size) return false;
+    const v = poging.map(x => (x ? 1 : 0));
+    for (let y = 0; y < pz.size; y++) if (lijnGetallen(v.slice(y * pz.size, y * pz.size + pz.size)).join() !== pz.rijen[y].join()) return false;
+    for (let x = 0; x < pz.size; x++) if (lijnGetallen(Array.from({ length: pz.size }, (_, y) => v[y * pz.size + x])).join() !== pz.kolommen[x].join()) return false;
+    return true;
+  }
+
+  // ---------- De Sterrenkoepel: sudoku ----------
+  // 4 op 4 of 6 op 6. Elke rij, kolom en elk blok heeft elk getal één keer.
+
+  function maakSudoku(n, r) {
+    const t = r.t || 0;
+    const size = n === 'page' ? 4 : n === 'schildknaap' ? (t >= 4 ? 6 : 4) : 6;
+    const bw = size === 4 ? 2 : 3; // breedte van een blok
+    const bh = 2;
+    // Een geldig rooster uit een vast patroon, daarna rijen, kolommen en getallen schudden.
+    const basis = (y, x) => ((y % bh) * bw + Math.floor(y / bh) + x) % size;
+    const banden = r.shuffle([...Array(size / bh).keys()]);
+    const rijen = banden.flatMap(b => r.shuffle([...Array(bh).keys()]).map(k => b * bh + k));
+    const stapels = r.shuffle([...Array(size / bw).keys()]);
+    const kols = stapels.flatMap(b => r.shuffle([...Array(bw).keys()]).map(k => b * bw + k));
+    const getal = r.shuffle([...Array(size).keys()].map(i => i + 1));
+    const opl = [];
+    for (let y = 0; y < size; y++) for (let x = 0; x < size; x++) opl.push(getal[basis(rijen[y], kols[x])]);
+    const leeg = size === 4 ? { page: 6, schildknaap: 8, ridder: 9 }[n] : { page: 14, schildknaap: 14, ridder: 18 }[n];
+    const weg = Math.min(size * size - (size === 4 ? 4 : 10), leeg + Math.floor(t / 2));
+    const cellen = r.shuffle([...opl.keys()]).slice(0, weg);
+    const gegeven = opl.map((v, i) => (cellen.includes(i) ? 0 : v));
+    return { size, bw, bh, gegeven };
+  }
+
+  function checkSudoku(pz, poging) {
+    const { size, bw, bh, gegeven } = pz;
+    if (!Array.isArray(poging) || poging.length !== size * size) return false;
+    const v = poging.map(Number);
+    if (gegeven.some((g, i) => g && g !== v[i])) return false;
+    if (v.some(x => !Number.isInteger(x) || x < 1 || x > size)) return false;
+    const groepen = [];
+    for (let i = 0; i < size; i++) {
+      groepen.push([...Array(size).keys()].map(x => i * size + x));
+      groepen.push([...Array(size).keys()].map(y => y * size + i));
+    }
+    for (let by = 0; by < size; by += bh) for (let bx = 0; bx < size; bx += bw) {
+      const g = [];
+      for (let y = by; y < by + bh; y++) for (let x = bx; x < bx + bw; x++) g.push(y * size + x);
+      groepen.push(g);
+    }
+    return groepen.every(g => new Set(g.map(i => v[i])).size === size);
+  }
+
+  // ---------- De Donjon: doolhof met sleutels ----------
+  // Een doolhof op een rooster. Deuren gaan pas open met de sleutel in dezelfde kleur.
+
+  function maakDoolhof(n, r) {
+    const t = r.t || 0;
+    const cel = { page: 5, schildknaap: 6, ridder: 7 }[n] + Math.min(4, Math.floor(t / 2)); // cellen per kant
+    const size = cel * 2 + 1;
+    const muur = Array(size * size).fill(1);
+    const id = (x, y) => y * size + x;
+    // Diepte eerst door de cellen: een doolhof zonder lussen.
+    const stapel = [[1, 1]];
+    muur[id(1, 1)] = 0;
+    while (stapel.length) {
+      const [x, y] = stapel[stapel.length - 1];
+      const buren = r.shuffle([0, 1, 2, 3]).map(d => [x + DX[d] * 2, y + DY[d] * 2, d]).filter(([nx, ny]) => nx > 0 && ny > 0 && nx < size - 1 && ny < size - 1 && muur[id(nx, ny)]);
+      if (!buren.length) { stapel.pop(); continue; }
+      const [nx, ny, d] = buren[0];
+      muur[id(x + DX[d], y + DY[d])] = 0;
+      muur[id(nx, ny)] = 0;
+      stapel.push([nx, ny]);
+    }
+    const start = { x: 1, y: 1 };
+    const doel = { x: size - 2, y: size - 2 };
+    // Het pad van start naar doel, en wat er vanaf de start bereikbaar is zonder over een vakje te gaan.
+    const pad = (() => {
+      const van = new Map([[id(start.x, start.y), -1]]);
+      const rij = [id(start.x, start.y)];
+      while (rij.length) {
+        const p = rij.shift();
+        if (p === id(doel.x, doel.y)) break;
+        for (let d = 0; d < 4; d++) {
+          const q = p + DX[d] + DY[d] * size;
+          if (!muur[q] && !van.has(q)) { van.set(q, p); rij.push(q); }
+        }
+      }
+      const uit = [];
+      for (let p = id(doel.x, doel.y); p !== -1; p = van.get(p)) uit.unshift(p);
+      return uit;
+    })();
+    const bereik = (van, dicht) => {
+      const zien = new Set([van]);
+      const rij = [van];
+      while (rij.length) {
+        const p = rij.shift();
+        for (let d = 0; d < 4; d++) {
+          const q = p + DX[d] + DY[d] * size;
+          if (!muur[q] && !zien.has(q) && !dicht.includes(q)) { zien.add(q); rij.push(q); }
+        }
+      }
+      return zien;
+    };
+    const aantal = { page: 0, schildknaap: 1, ridder: 2 }[n] + (t >= 6 && n !== 'ridder' ? 1 : 0);
+    const deuren = [];
+    const sleutels = [];
+    const KLEUR = ['goud', 'blauw', 'rood'];
+    // Deuren op het pad, verspreid; elke sleutel ligt in het stuk vóór zijn deur, liefst ver van het pad.
+    for (let i = 0; i < aantal; i++) {
+      const plek = pad[Math.floor((pad.length * (i + 1)) / (aantal + 1))];
+      deuren.push(plek);
+    }
+    for (let i = 0; i < aantal; i++) {
+      const voor = bereik(id(start.x, start.y), deuren.slice(i));
+      const opPad = new Set(pad);
+      const kand = [...voor].filter(p => !opPad.has(p) && !sleutels.includes(p));
+      const kies = kand.length ? kand[r.int(kand.length)] : [...voor].filter(p => p !== id(start.x, start.y) && !sleutels.includes(p))[0];
+      sleutels.push(kies);
+    }
+    return {
+      size,
+      muren: muur.map(m => (m ? 1 : 0)).join(''),
+      start,
+      doel,
+      deuren: deuren.map((p, i) => ({ x: p % size, y: Math.floor(p / size), k: KLEUR[i] })),
+      sleutels: sleutels.map((p, i) => ({ x: p % size, y: Math.floor(p / size), k: KLEUR[i] })),
+    };
+  }
+
+  // Een wandeling door het doolhof: elke stap N/O/Z/W. Geeft de plaats, de sleutels en of je bij het doel bent.
+  function doolhofLoop(pz, stappen) {
+    let { x, y } = pz.start;
+    const heb = new Set();
+    for (const s of stappen) {
+      const d = 'NOZW'.indexOf(s);
+      if (d < 0) return { x, y, heb, fout: true };
+      const nx = x + DX[d];
+      const ny = y + DY[d];
+      if (pz.muren[ny * pz.size + nx] !== '0') continue; // tegen een muur: blijf staan
+      const deur = pz.deuren.find(q => q.x === nx && q.y === ny);
+      if (deur && !heb.has(deur.k)) continue;
+      x = nx;
+      y = ny;
+      const sl = pz.sleutels.find(q => q.x === x && q.y === y);
+      if (sl) heb.add(sl.k);
+    }
+    return { x, y, heb, ok: x === pz.doel.x && y === pz.doel.y };
+  }
+  const checkDoolhof = (pz, poging) => typeof poging === 'string' && poging.length < 4000 && doolhofLoop(pz, poging).ok;
+
+  // ---------- De Gouden Toren: rekenmuur ----------
+  // Elke steen is de som van de twee stenen eronder. Vul de lege stenen in.
+
+  function torenRijen(onder) {
+    const rijen = [onder];
+    while (rijen[0].length > 1) {
+      const r0 = rijen[0];
+      rijen.unshift(r0.slice(1).map((v, i) => r0[i] + v));
+    }
+    return rijen; // rijen[0] is de top
+  }
+
+  function torenOplosbaar(rijen, open) {
+    // open: set van "rij,kol" die leeg zijn. Vul in met optellen en aftrekken, tot er niets meer bij komt.
+    const k = new Set(open);
+    let bezig = true;
+    while (bezig && k.size) {
+      bezig = false;
+      for (let y = 0; y < rijen.length - 1; y++) for (let x = 0; x <= y; x++) {
+        const a = `${y},${x}`;
+        const b = `${y + 1},${x}`;
+        const c = `${y + 1},${x + 1}`;
+        const leeg = [a, b, c].filter(q => k.has(q));
+        if (leeg.length === 1) { k.delete(leeg[0]); bezig = true; }
+      }
+    }
+    return k.size === 0;
+  }
+
+  function maakToren(n, r) {
+    const t = r.t || 0;
+    const hoog = { page: 3, schildknaap: 4, ridder: 5 }[n] + (t >= 5 ? 1 : 0);
+    const max = { page: 9, schildknaap: 15, ridder: 20 }[n] + t * 3;
+    for (let poging = 0; poging < 200; poging++) {
+      const onder = Array.from({ length: hoog }, () => 1 + r.int(max));
+      const rijen = torenRijen(onder);
+      const alle = [];
+      for (let y = 0; y < hoog; y++) for (let x = 0; x <= y; x++) alle.push(`${y},${x}`);
+      // Page: alleen optellen (onderste rij gegeven). Hoger: ook aftrekken nodig.
+      const kandidaten = n === 'page' ? alle.filter(q => Number(q.split(',')[0]) < hoog - 1) : alle;
+      const aantal = Math.min(kandidaten.length, { page: hoog === 3 ? 3 : 5, schildknaap: 5, ridder: 8 }[n] + Math.floor(t / 2));
+      const open = r.shuffle(kandidaten).slice(0, aantal);
+      if (n !== 'page' && !open.some(q => Number(q.split(',')[0]) === hoog - 1)) continue; // er moet ook onderaan iets ontbreken
+      if (!torenOplosbaar(rijen, open)) continue;
+      return { rijen: rijen.map((rij, y) => rij.map((v, x) => (open.includes(`${y},${x}`) ? null : v))) };
+    }
+    const rijen = torenRijen([1, 2, 3]);
+    return { rijen: rijen.map((rij, y) => rij.map(v => (y === 0 ? null : v))) };
+  }
+
+  function checkToren(pz, poging) {
+    if (!Array.isArray(poging) || poging.length !== pz.rijen.length) return false;
+    const v = poging.map((rij, y) => (Array.isArray(rij) ? rij.map(Number) : []));
+    for (let y = 0; y < pz.rijen.length; y++) {
+      if (v[y].length !== y + 1) return false;
+      for (let x = 0; x <= y; x++) {
+        if (!Number.isInteger(v[y][x])) return false;
+        if (pz.rijen[y][x] !== null && pz.rijen[y][x] !== v[y][x]) return false;
+        if (y < pz.rijen.length - 1 && v[y][x] !== v[y + 1][x] + v[y + 1][x + 1]) return false;
+      }
+    }
+    return true;
+  }
+
   // ---------- Samen ----------
 
   const SOORTEN = {
@@ -496,12 +830,22 @@
     stroom: { maak: maakStroom, check: checkStroom },
     tandwiel: { maak: maakTandwiel, check: checkTandwiel },
     wip: { maak: maakWip, check: checkWip },
+    weeg: { maak: maakWeeg, check: checkWeeg },
+    reeks: { maak: maakReeks, check: checkReeks },
+    pixel: { maak: maakPixel, check: checkPixel },
+    sudoku: { maak: maakSudoku, check: checkSudoku },
+    doolhof: { maak: maakDoolhof, check: checkDoolhof },
+    toren: { maak: maakToren, check: checkToren },
   };
 
-  function maak(soort, niveau, seed) {
+  // trap: hoe vaak je deze plek al oploste (1, 2, 3...). Hoe hoger, hoe moeilijker.
+  function maak(soort, niveau, seed, trap = 1) {
     const s = SOORTEN[soort];
     if (!s) return null;
-    return s.maak(niv(niveau), rng(`${soort}|${niveau}|${seed}`));
+    const t = Math.max(0, Math.min(60, (Number(trap) || 1) - 1));
+    const r = rng(`${soort}|${niveau}|${seed}${t ? `|${t}` : ''}`);
+    r.t = t;
+    return s.maak(niv(niveau), r);
   }
 
   function check(soort, pz, poging) {
@@ -515,6 +859,6 @@
 
   return {
     NIVEAUS, SOORTEN: Object.keys(SOORTEN), maak, check, rng,
-    schuifZet, schuifKlaar, robotLoop, lichtPad, stroomBereik, stroomOk, draai, wipLinks, KAATS, DX, DY,
+    schuifZet, schuifKlaar, robotLoop, doolhofLoop, lijnGetallen, WAREN, lichtPad, stroomBereik, stroomOk, draai, wipLinks, KAATS, DX, DY,
   };
 }));
