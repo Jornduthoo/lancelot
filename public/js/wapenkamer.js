@@ -1,6 +1,6 @@
 // De Wapenkamer: klastools op het bord. Het Lot, de Banieren, de Zandloper, de Wachtlijst,
-// de Stilte-banier, het Werklicht, de Runensteen en de Heraut. Alles draait in deze pagina;
-// alleen de klastaken (Wachtlijst) bewaart de server, in klas/klastaken.json.
+// de Stilte-banier, het Werklicht, de Runensteen, de Heraut en de Klasindeling (wk-indeling.js). Alles draait in deze pagina;
+// alleen de klastaken (Wachtlijst) en de klasindeling bewaart de server, in klas/.
 const socket = io({ query: { role: 'host' } });
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
@@ -40,6 +40,7 @@ function laadKlas() {
     Lot.klasNieuw();
     Banieren.klasNieuw();
     Wachtlijst.teken();
+    Indeling.klasNieuw();
   });
 }
 socket.on('connect', laadKlas);
@@ -61,14 +62,20 @@ $('aanwezig-namen').addEventListener('click', e => {
   bewaar('lancelot-wk-afwezig', { datum: vandaag(), ids: [...afwezig] });
   toonAanwezig();
   Lot.klasNieuw();
+  Indeling.teken();
 });
 
 // ---------- Het rek: welke tool open is ----------
-const TOOLS = ['lot', 'banieren', 'zandloper', 'wachtlijst', 'stilte', 'werklicht', 'runensteen', 'heraut'];
+const TOOLS = ['lot', 'banieren', 'zandloper', 'wachtlijst', 'stilte', 'werklicht', 'runensteen', 'heraut', 'indeling'];
 let huidig = '';
 function open() {
   const tool = TOOLS.includes(location.hash.slice(1)) ? location.hash.slice(1) : 'lot';
   if (huidig === 'stilte' && tool !== 'stilte') Stilte.stop();
+  // De Klasindeling (wk-indeling.js) laadt na deze pagina.
+  if (typeof Indeling !== 'undefined') {
+    if (huidig === 'indeling' && tool !== 'indeling') Indeling.dicht();
+    if (tool === 'indeling' && huidig !== 'indeling') Indeling.open();
+  }
   huidig = tool;
   for (const t of TOOLS) $(`t-${t}`).classList.toggle('hidden', t !== tool);
   for (const a of document.querySelectorAll('#rek a')) a.classList.toggle('on', a.dataset.tool === tool);

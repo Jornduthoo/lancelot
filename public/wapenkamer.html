@@ -7,6 +7,7 @@
   <link rel="icon" type="image/png" href="/favicon.png">
   <link rel="stylesheet" href="/style.css">
   <link rel="stylesheet" href="/wapenkamer.css">
+  <link rel="stylesheet" href="/wk-indeling.css">
 </head>
 <body class="wk-host">
 <!-- De zaal achter alles: één keer getekend, alleen de fakkels flakkeren. -->
@@ -41,6 +42,7 @@
     <a href="#werklicht" data-tool="werklicht"><img src="/img/icons/wk-werklicht.webp" alt=""><span>Werklicht</span></a>
     <a href="#runensteen" data-tool="runensteen"><img src="/img/icons/wk-runensteen.webp" alt=""><span>Runensteen</span></a>
     <a href="#heraut" data-tool="heraut"><img src="/img/icons/wk-heraut.webp" alt=""><span>Heraut</span></a>
+    <a href="#indeling" data-tool="indeling"><img src="/img/icons/wk-indeling.webp" alt=""><span>Klasindeling</span></a>
   </nav>
 
   <p class="leeg hidden" id="geen-klas"><span>Er staat nog niemand op je klaslijst.</span><a class="button" href="/klas#klas">Vul je klaslijst in bij Mijn klas</a></p>
@@ -349,8 +351,91 @@
       <button class="secondary" id="hr-bewerk">Andere opdracht</button>
     </div>
   </section>
+
+  <!-- De Klasindeling: het lokaal nabouwen en wie waar zit. -->
+  <section class="wk-tool hidden" id="t-indeling">
+    <div class="wk-titel"><img src="/img/icons/wk-indeling.webp" alt=""><span>De Klasindeling</span></div>
+    <div class="wk-bediening ki-balk">
+      <div class="ki-modus" role="tablist">
+        <button class="secondary on" data-modus="zit" role="tab"><i class="ic ic-namen" aria-hidden="true"></i> Wie zit waar</button>
+        <button class="secondary" data-modus="bouw" role="tab">🔨 Lokaal bouwen</button>
+      </div>
+      <label class="ki-op">Opstelling
+        <select id="ki-op"></select>
+      </label>
+      <button class="secondary icon" id="ki-terug" title="Ongedaan maken" aria-label="Ongedaan maken" disabled>↶</button>
+    </div>
+    <p class="wk-tip" id="ki-tip"></p>
+    <div class="ki-veld">
+      <div class="ki-wrap" id="ki-wrap">
+        <p class="ki-printnaam" id="ki-printnaam"></p>
+        <div class="ki-lokaal" id="ki-lokaal"></div>
+      </div>
+      <!-- Wie zit waar -->
+      <aside class="ki-zij" id="ki-zij-zit">
+        <div class="wk-bediening form ki-paneel">
+          <label>Verdeel
+            <select id="ki-hoe">
+              <option value="los">Door elkaar</option>
+              <option value="gemengd">Gemengd niveau</option>
+              <option value="vooraan">Page vooraan</option>
+              <option value="abc">Op alfabet</option>
+            </select>
+          </label>
+          <label class="hidden" id="ki-vak-label">Niveau voor
+            <select id="ki-vak"><option value="">Algemeen</option></select>
+          </label>
+          <button class="gold" id="ki-verdeel" data-spatie>Verdeel de klas</button>
+          <p class="ki-uitleg">Wie vastzit <span aria-hidden="true">🔒</span> blijft op zijn plaats.</p>
+        </div>
+        <div class="ki-paneel ki-zonder" id="ki-zonder">
+          <div class="ki-kop">Nog geen plaats <span id="ki-zonder-tel"></span></div>
+          <div class="ki-namen" id="ki-zonder-namen"></div>
+        </div>
+        <div class="ki-paneel ki-extra">
+          <label class="wk-schakel"><input type="checkbox" id="ki-niveau"> Toon het niveau</label>
+          <button class="secondary" id="ki-paren-knop">Uit elkaar zetten…</button>
+          <button class="secondary" id="ki-leeg">Iedereen eraf</button>
+          <button class="secondary" id="ki-print">🖨 Afdrukken</button>
+          <span class="wk-tel" id="ki-tel"></span>
+        </div>
+      </aside>
+      <!-- Lokaal bouwen -->
+      <aside class="ki-zij hidden" id="ki-zij-bouw">
+        <div class="ki-paneel ki-doos" id="ki-doos"></div>
+        <div class="wk-bediening form ki-paneel ki-maat">
+          <label>Naam van de opstelling <input type="text" id="ki-naam" maxlength="40"></label>
+          <div class="ki-rij">
+            <label>Breedte <input type="number" id="ki-w" min="10" max="40"></label>
+            <label>Diepte <input type="number" id="ki-h" min="8" max="30"></label>
+          </div>
+          <div class="ki-rij">
+            <button class="secondary" id="ki-nieuw">+ Nieuwe opstelling</button>
+            <button class="secondary" id="ki-op-weg">Opstelling weg</button>
+          </div>
+          <button class="secondary" id="ki-alles-weg">Leeg lokaal</button>
+        </div>
+      </aside>
+    </div>
+    <div class="ki-menu hidden" id="ki-menu"></div>
+  </section>
   </div>
 </main>
+
+<dialog class="wk-dialoog" id="ki-paren">
+  <div class="wk-dialoog-kop">
+    <h2>Uit elkaar zetten</h2>
+    <button class="secondary icon" id="ki-paren-dicht" aria-label="Sluiten"><i class="ic ic-kruis"></i></button>
+  </div>
+  <p class="muted small">Wie mag niet naast of achter elkaar zitten? Bij het verdelen zet de Klasindeling hen uit elkaar.</p>
+  <div class="ki-paar-nieuw form">
+    <select id="ki-paar-a" aria-label="Eerste leerling"></select>
+    <span>en</span>
+    <select id="ki-paar-b" aria-label="Tweede leerling"></select>
+    <button class="gold" id="ki-paar-erbij">Zet uit elkaar</button>
+  </div>
+  <div class="ki-paar-lijst" id="ki-paar-lijst"></div>
+</dialog>
 
 <dialog class="wk-dialoog" id="aanwezig-venster">
   <div class="wk-dialoog-kop">
@@ -367,5 +452,6 @@
 <script src="/js/niveau.js"></script>
 <script src="/js/wk-art.js"></script>
 <script src="/js/wapenkamer.js"></script>
+<script src="/js/wk-indeling.js"></script>
 </body>
 </html>
