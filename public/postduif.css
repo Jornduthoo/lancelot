@@ -1,0 +1,60 @@
+/* De Postduif: het scherm van de leerkracht. Kleuren via de themakleuren; de brief zelf staat in postduif-blad.css. */
+body.postduif main { max-width: 1500px; }
+.pd-intro { display: flex; align-items: center; gap: 16px; margin: 18px 0 14px; }
+.pd-intro img { width: 84px; height: 84px; clip-path: polygon(24% 0, 76% 0, 100% 24%, 100% 76%, 76% 100%, 24% 100%, 0 76%, 0 24%); }
+.pd-intro h2 { margin: 0 0 4px; font-family: var(--head); }
+.pd-intro p { margin: 0; max-width: 680px; }
+.pd-brieven { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px; }
+.pd-kaart { position: relative; display: flex; }
+.pd-kaart > .pd-kaart-open, .pd-kaart-nieuw { flex: 1; flex-direction: column; align-items: flex-start; gap: 6px; text-align: left; padding: 18px 20px; min-height: 140px;
+  color: var(--text); background: var(--panel); box-shadow: inset 0 0 0 1px var(--line); justify-content: flex-start; }
+.pd-kaart-nieuw { border: 0; background: rgb(var(--k-goud) / .08); box-shadow: inset 0 0 0 2px rgb(var(--k-goud) / .55); }
+.pd-kaart-weg { position: absolute; top: 8px; right: 8px; padding: 6px 10px; }
+.pd-groot { font-size: 2rem; line-height: 1; }
+
+.pd-balk { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 14px; padding: 12px 16px; }
+.pd-titel-in { font-family: var(--head); font-size: 1.25rem; padding: 6px 10px; flex: 1 1 220px; min-width: 0; }
+.pd-datum-in { display: flex; flex-direction: column; font-size: .78rem; color: var(--muted); gap: 2px; }
+.pd-datum-in input { padding: 5px 8px; }
+.pd-bewaard { min-width: 70px; }
+
+.pd-werk { display: grid; grid-template-columns: 300px 220px minmax(0, 1fr); gap: 14px; margin-top: 14px; align-items: start; }
+.pd-werk > * { min-width: 0; }
+.pd-opties { display: flex; flex-direction: column; gap: 12px; padding: 14px 16px; }
+.pd-opties h3 { margin: 0; font-family: var(--head); font-size: 1rem; }
+.pd-opties textarea { width: 100%; box-sizing: border-box; resize: vertical; }
+.pd-vink { display: flex; gap: 8px; align-items: center; font-size: .92rem; }
+.pd-fotolijst { display: flex; gap: 6px; flex-wrap: wrap; }
+.pd-foto { position: relative; }
+.pd-foto img { width: 78px; height: 58px; object-fit: cover; border-radius: 6px; display: block; }
+.pd-foto button { position: absolute; top: -6px; right: -6px; padding: 0 6px; min-height: 0; font-size: .8rem; }
+.pd-namen { display: flex; flex-direction: column; gap: 4px; padding: 8px; max-height: 78vh; overflow: auto; }
+.pd-namen button { justify-content: space-between; text-align: left; clip-path: none; background: transparent; color: var(--text); box-shadow: none; padding: 7px 10px; border-radius: 6px; font-weight: 600; }
+.pd-namen button.on { background: rgb(var(--k-cyan) / .16); box-shadow: inset 0 0 0 1px rgb(var(--k-cyan) / .6); }
+.pd-namen button span { font-weight: 400; color: var(--muted); font-size: .8rem; white-space: nowrap; }
+.pd-namen button.klaar span::after { content: " ✍"; }
+.pd-rechts { display: flex; flex-direction: column; gap: 10px; }
+.pd-woord { padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; }
+.pd-woord textarea { width: 100%; box-sizing: border-box; resize: vertical; }
+.pd-zinnen { display: flex; gap: 6px; flex-wrap: wrap; }
+.pd-zinnen button { font-size: .8rem; padding: 4px 10px; min-height: 0; }
+.pd-knoppen { display: flex; gap: 8px; flex-wrap: wrap; }
+.pd-voorbeeld { overflow: hidden; border-radius: 8px; background: rgb(0 0 0 / .25); padding: 12px; }
+.pd-schaal { transform-origin: top left; width: 210mm; }
+.pd-schaal .pd-blad { box-shadow: 0 2px 14px rgba(0, 0, 0, .25); }
+.pd-leeg { padding: 18px; }
+@media (max-width: 1100px) {
+  .pd-werk { grid-template-columns: 1fr; }
+  .pd-namen { flex-direction: row; flex-wrap: wrap; max-height: none; }
+}
+.pd-dlg { width: min(560px, calc(100% - 24px)); max-height: calc(100vh - 24px); overflow: auto; padding: 20px 22px; border: 0; color: var(--text);
+  background: linear-gradient(160deg, rgb(var(--k-panel)), var(--panel-solid) 60%); box-shadow: inset 0 0 0 1px var(--cyan), 0 0 40px var(--cyan-glow); }
+.pd-dlg::backdrop { background: rgb(var(--k-bg) / .72); }
+.pd-dlg form, .pd-dlg { display: flex; flex-direction: column; gap: 12px; }
+.pd-dlg:not([open]) { display: none; }
+.pd-dlg label { display: flex; flex-direction: column; gap: 4px; font-weight: 600; }
+.pd-dlg .row > label { flex: 1 1 140px; }
+.pd-dlg input, .pd-dlg select, .pd-dlg textarea { padding: 7px 9px; }
+.pd-dlg-kop { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.pd-dlg-kop h2 { margin: 0; }
+.pd-dlg-knoppen { justify-content: flex-end; }

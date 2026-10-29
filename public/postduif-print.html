@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LANcelot · Brieven voor thuis</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/proef.css">
+  <link rel="stylesheet" href="/postduif-blad.css">
+  <style>
+    body { margin: 0; background: #dfe3ea; }
+    .knoppen { position: sticky; top: 0; z-index: 2; display: flex; gap: 8px; align-items: center; padding: 10px 16px; background: #1d2330; color: #fff; flex-wrap: wrap; }
+    .knoppen button { font: inherit; padding: 8px 14px; border-radius: 6px; border: 1px solid #889; background: #fff; color: #1d2330; cursor: pointer; clip-path: none; min-height: 0; box-shadow: none; }
+    .knoppen button.hoofd { background: #d4a017; border-color: #d4a017; font-weight: 700; }
+    .knoppen span { opacity: .8; }
+    .bladen { display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 16px; }
+    .bladen .pd-blad, .bladen .ob-paper { box-shadow: 0 2px 14px rgba(0, 0, 0, .18); margin: 0; }
+    .bladen .ob-paper { width: 210mm; box-sizing: border-box; }
+    .pd-toetskop { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; border-bottom: 2px solid #1f4e8c; margin-bottom: 10px; padding-bottom: 4px; }
+    .pd-toetskop h1 { font-size: 16pt; margin: 0; color: #1f4e8c; }
+    .pd-toetskop b { font-size: 14pt; white-space: nowrap; }
+    @media print {
+      @page { size: A4; margin: 0; }
+      body { background: #fff; }
+      .knoppen { display: none; }
+      .bladen { display: block; padding: 0; }
+      .bladen .pd-blad, .bladen .ob-paper { box-shadow: none; break-after: page; }
+      .bladen .ob-paper { padding: 14mm 15mm; }
+    }
+  </style>
+</head>
+<body class="ob-print">
+<div class="knoppen">
+  <button class="hoofd" id="print">🖨️ Printen of bewaren als PDF</button>
+  <button id="sluit">Sluiten</button>
+  <span id="info">Laden…</span>
+</div>
+<div class="bladen" id="bladen"></div>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/ui.js"></script>
+<script src="/js/niveau.js"></script>
+<script src="/js/pf-kern.js"></script>
+<script src="/js/pf-paper.js"></script>
+<script src="/js/pd-brief.js"></script>
+<script>
+// De brieven van de klas (of van één leerling, ?l=<id>) onder elkaar, elk op een eigen A4.
+// Staat "de verbeterde toets erachter" aan, dan volgt na elke brief de toets van die leerling: zijn antwoorden, de punten per vraag en de juiste antwoorden.
+const socket = io({ query: { role: 'host' } });
+const params = new URLSearchParams(location.search);
+const P = window.Postduif;
+document.getElementById('print').addEventListener('click', () => window.print());
+document.getElementById('sluit').addEventListener('click', () => { if (history.length > 1) history.back(); else window.close(); });
+
+const haal = file => new Promise(resolve => socket.emit('pf-afname', file, res => resolve(res && res.afname)));
+
+// De toets van één leerling, verbeterd: zoals de leerkracht hem ziet bij het verbeteren.
+function verbeterd(afname, i, l, t) {
+  const s = afname.spelers[i];
+  const lijst = PfKern.lijstVoor(afname.toets, s.niveau);
+  const v = PfKern.studentView(afname.toets, lijst);
+  const sleutel = {};
+  const zones = {};
+  const punten = {};
+  const vakken = {};
+  for (const { id, q } of PfKern.vragenVan(lijst)) {
+    sleutel[id] = q.type === 'blad' ? PfKern.veldSleutel(q) : PfKern.oplossing(q);
+    if (q.type === 'aanduiden') zones[id] = q.zones;
+    const over = s.over && s.over[id] !== undefined && s.over[id] !== null;
+    punten[id] = [over ? Number(s.over[id]) : (Number(s.auto[id]) || 0) + (Number(s.hand && s.hand[id]) || 0), PfKern.maxVan(q)];
+    if (q.type === 'blad') vakken[id] = { goed: PfKern.vakGoed(q, s.antwoorden[id], (s.vak && s.vak[id]) || {}), zelf: (s.vak && s.vak[id]) || {} };
+  }
+  const paper = document.createElement('article');
+  paper.className = 'ob-paper ob-sheet-print pf-paper pf-print';
+  paper.innerHTML = `<header class="pd-toetskop"><h1>${P.esc(t.titel)}</h1><span>${P.esc(l.naam)} · ${P.kort(t.datum)}</span><b>${PfPaper.nl(t.punten)} / ${PfPaper.nl(t.max)}</b></header><div class="pf-vragen-print"></div>`;
+  PfPaper.render(paper.querySelector('.pf-vragen-print'), v.pages, { mode: 'view', nummer: true, answers: s.antwoorden || {}, sleutel, zones, punten, vakken });
+  return paper;
+}
+
+socket.emit('pd-laad', { id: params.get('id') }, async res => {
+  const info = document.getElementById('info');
+  if (res.error) { info.textContent = res.error; return; }
+  const enkel = params.get('l');
+  const lijst = res.leerlingen.filter(l => !enkel || l.id === enkel);
+  document.title = `${res.brief.titel}${enkel && lijst[0] ? ` · ${lijst[0].naam}` : ''}`;
+  const box = document.getElementById('bladen');
+  const cache = new Map();
+  let toetsen = 0;
+  for (const l of lijst) {
+    box.insertAdjacentHTML('beforeend', P.blad(res, l.id));
+    if (!res.brief.toon.toetsen || !res.brief.toon.verbeterd) continue;
+    for (const t of l.toetsen) {
+      if (!cache.has(t.file)) cache.set(t.file, await haal(t.file));
+      const afname = cache.get(t.file);
+      if (!afname || !afname.spelers[t.speler]) continue;
+      box.append(verbeterd(afname, t.speler, l, t));
+      toetsen++;
+    }
+  }
+  info.textContent = `${lijst.length} brie${lijst.length === 1 ? 'f' : 'ven'}${toetsen ? ` en ${toetsen} verbeterde toets${toetsen === 1 ? '' : 'en'}` : ''} · kies "Opslaan als PDF" als printer om te bewaren`;
+  if (params.get('auto')) setTimeout(() => window.print(), 300);
+});
+</script>
+</body>
+</html>

@@ -400,4 +400,25 @@ function ridderboek() {
   });
 }
 
-module.exports = { view, zet, eilandje, stijl, setKasteeltijd, kasteeltijd: () => kasteeltijd, geef, neemTerug, wisNaam, setKlasdoel, eiland, ridderboek, DIR };
+// Voor de brief naar huis (De Postduif): de Eer van een leerling in een periode, de complimentjes van de leerkracht en de rang.
+// van/tot zijn dagen (jjjj-mm-dd), op de klok van deze pc.
+function periode(id, van, tot) {
+  const s = telling().get(id);
+  const st = stand({ id, naam: '' });
+  const inPeriode = p => {
+    const d = new Date(p.t);
+    const dagStr = `${d.getFullYear()}-${p2(d.getMonth() + 1)}-${p2(d.getDate())}`;
+    return dagStr >= van && dagStr <= tot;
+  };
+  const posten = s ? s.alle.filter(inPeriode) : [];
+  const complimenten = load().giften.filter(g => g.leerling === id && g.reden && inPeriode(g)).map(g => g.reden);
+  return {
+    eer: Math.max(0, posten.reduce((n, p) => n + p.n, 0)),
+    complimenten: [...new Set(complimenten)].slice(0, 6),
+    groei: posten.filter(p => p.wat.startsWith('Groeier')).length,
+    rang: (cat.RANGEN[st.rang] || cat.RANGEN[0]).naam,
+    schilden: st.schilden.length,
+  };
+}
+
+module.exports = { periode, view, zet, eilandje, stijl, setKasteeltijd, kasteeltijd: () => kasteeltijd, geef, neemTerug, wisNaam, setKlasdoel, eiland, ridderboek, DIR };

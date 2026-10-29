@@ -129,6 +129,7 @@ document.querySelector('[data-module="toernooi"]').addEventListener('click', () 
 document.querySelector('[data-module="rondetafel"]').addEventListener('click', () => { location.href = '/rondetafel'; });
 document.querySelector('[data-module="zonnewijzer"]').addEventListener('click', () => { location.href = '/zonnewijzer'; });
 document.querySelector('[data-module="zegelrol"]').addEventListener('click', () => { location.href = '/zegelrol'; });
+document.querySelector('[data-module="postduif"]').addEventListener('click', () => { location.href = '/postduif'; });
 document.querySelector('[data-module="kronieken"]').addEventListener('click', () => { location.href = '/kronieken'; });
 document.querySelector('[data-module="reeks"]').addEventListener('click', () => { location.href = '/reeks'; });
 document.querySelector('[data-module="proef"]').addEventListener('click', () => { location.href = '/proef'; });
