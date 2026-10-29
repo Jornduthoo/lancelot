@@ -1,0 +1,104 @@
+/* De Zegelrol: het rapportblad. Papier is altijd licht (zoals de oefenbladen), los van het thema van LANcelot.
+   --zr = de kleur die de leerkracht koos. Vier opmaken: perkament, strak, kleurrijk, compact. */
+.zr-blad { --zr: #1f4e8c; --inkt: #1d2330; --zacht: #5b6474; --lijn: #d9dee7; box-sizing: border-box; width: 210mm; min-height: 297mm; padding: 13mm 14mm;
+  background: #fff; color: var(--inkt); font: 13px/1.4 "Segoe UI", system-ui, Arial, sans-serif; position: relative; display: flex; flex-direction: column; gap: 10px; }
+.zr-blad *, .zr-blad *::before { box-sizing: border-box; }
+.zr-blad h1, .zr-blad h2 { margin: 0; color: var(--inkt); }
+.zr-blad h1 { font-size: 24px; line-height: 1.15; }
+.zr-blad h2 { font-size: 15px; }
+.zr-klein { font-size: 11px; color: var(--zacht); }
+.zr-kop { display: flex; align-items: center; gap: 14px; padding-bottom: 10px; border-bottom: 3px solid var(--zr); }
+.zr-logo { max-height: 64px; max-width: 120px; object-fit: contain; }
+.zr-school { display: flex; flex-direction: column; font-size: 12px; color: var(--zacht); flex: 1; min-width: 0; }
+.zr-school strong { font-size: 14px; color: var(--inkt); }
+.zr-titel { text-align: right; display: flex; flex-direction: column; }
+.zr-zegel { width: 54px; height: 54px; flex: none; border-radius: 50%; display: grid; place-items: center; color: #fff; font: 700 22px Georgia, serif;
+  background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--zr) 55%, #fff), var(--zr) 60%, color-mix(in srgb, var(--zr) 70%, #000));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--zr) 35%, #fff), inset 0 -3px 6px rgba(0, 0, 0, .3); transform: rotate(-8deg); }
+.zr-zegel span { text-shadow: 0 1px 1px rgba(0, 0, 0, .4); }
+.zr-wie { display: flex; gap: 22px; flex-wrap: wrap; }
+.zr-wie > div { display: flex; flex-direction: column; }
+.zr-wie strong { font-size: 16px; }
+.zr-vakken { display: flex; flex-direction: column; gap: 8px; }
+.zr-vak, .zr-blok { break-inside: avoid; border: 1px solid var(--lijn); border-radius: 8px; padding: 8px 10px; }
+.zr-vak-kop { display: flex; align-items: center; gap: 8px; }
+.zr-vak-kop h2 { flex: 1; }
+.zr-icoon { font-size: 18px; width: 26px; text-align: center; }
+.zr-niveau { font-size: 10.5px; font-weight: 600; padding: 1px 8px; border-radius: 10px; background: color-mix(in srgb, var(--zr) 14%, #fff); color: var(--zr); }
+.zr-tabel { width: 100%; border-collapse: collapse; margin-top: 4px; }
+.zr-tabel td { padding: 3px 4px; border-bottom: 1px dotted var(--lijn); vertical-align: middle; }
+.zr-tabel tr:last-child td { border-bottom: 0; }
+.zr-n { text-align: right; white-space: nowrap; width: 90px; font-weight: 600; }
+.zr-n small, .zr-tot small { font-weight: 400; color: var(--zacht); }
+.zr-n em { font-weight: 400; color: var(--zacht); }
+.zr-inhoud { display: block; font-size: 10.5px; color: var(--zacht); }
+.zr-tot { display: flex; align-items: baseline; gap: 10px; justify-content: flex-end; margin-top: 4px; padding-top: 4px; border-top: 1px solid var(--lijn); }
+.zr-tot > span:first-child { margin-right: auto; font-weight: 600; color: var(--zacht); }
+.zr-tot b { font-size: 16px; }
+.zr-pct { color: var(--zacht); }
+.zr-evo { font-size: 12px; color: var(--zacht); }
+.zr-evo.op { color: #1e9e57; }
+.zr-evo.neer { color: #c0392b; }
+.zr-balk { position: relative; height: 7px; border-radius: 4px; background: #eef1f5; margin-top: 5px; }
+.zr-balk i { position: absolute; inset: 0 auto 0 0; border-radius: 4px; background: var(--zr); }
+.zr-balk b { position: absolute; top: -3px; width: 2px; height: 13px; background: var(--inkt); }
+.zr-gem { display: block; text-align: right; }
+.zr-com { margin: 6px 0 0; font-style: italic; }
+.zr-blok h2 { margin-bottom: 4px; }
+.zr-alg p { margin: 0; font-size: 13.5px; }
+.zr-afw, .zr-boodschap { margin: 0; }
+.zr-boodschap { padding: 8px 10px; border-left: 4px solid var(--zr); background: color-mix(in srgb, var(--zr) 7%, #fff); }
+.zr-symbool { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; color: var(--zacht); }
+.zr-sym { width: 22px; height: 22px; flex: none; }
+.zr-sym.klein { width: 14px; height: 14px; }
+.zr-sterren { display: inline-flex; gap: 1px; }
+.zr-woord { display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 10px; white-space: nowrap; }
+.zr-w-kroon { background: #fdf1c7; color: #8a6500; }
+.zr-w-duim { background: #dcebfb; color: #1c5a99; }
+.zr-w-vinkje { background: #d8f3e3; color: #1b7a44; }
+.zr-w-plant { background: #fde6d2; color: #a3510c; }
+.zr-legenda { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 11px; justify-content: center; padding-top: 4px; }
+.zr-hand { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: auto; padding-top: 10px; break-inside: avoid; }
+.zr-hand div { border-top: 1px solid var(--inkt); padding-top: 3px; height: 46px; display: flex; flex-direction: column; font-size: 11px; color: var(--zacht); }
+.zr-strook { border-top: 2px dashed var(--zacht); padding-top: 8px; position: relative; font-size: 12px; break-inside: avoid; }
+.zr-strook p { margin: 2px 0; }
+.zr-lijn { border-bottom: 1px solid var(--lijn); height: 20px; }
+.zr-schaar { position: absolute; top: -11px; left: 6px; background: #fff; padding: 0 4px; font-size: 14px; color: var(--zacht); }
+.zr-datum { margin: 0; text-align: right; font-size: 11px; color: var(--zacht); }
+
+/* Perkament: een rol van de burcht, warm papier, sierlijke koppen en een lakzegel. */
+.zr-perkament { background: #fbf5e6; --lijn: #e2d5b5; --zacht: #6d5f45; --inkt: #2b2214; border: 0; box-shadow: inset 0 0 0 5mm #fbf5e6, inset 0 0 0 calc(5mm + 1.5px) color-mix(in srgb, var(--zr) 60%, #b08d57); }
+.zr-perkament h1, .zr-perkament h2 { font-family: Georgia, "Times New Roman", serif; }
+.zr-perkament h1 { font-variant: small-caps; letter-spacing: .02em; }
+.zr-perkament .zr-vak, .zr-perkament .zr-blok { background: rgba(255, 255, 255, .45); border-color: #e2d5b5; }
+.zr-perkament .zr-kop { border-bottom-style: double; border-bottom-width: 4px; }
+
+/* Strak: wit, dunne lijnen, alles in één tabelgevoel. */
+.zr-strak .zr-vak, .zr-strak .zr-blok { border: 0; border-bottom: 1px solid var(--lijn); border-radius: 0; padding: 6px 0; }
+.zr-strak .zr-vak-kop h2 { text-transform: uppercase; letter-spacing: .05em; font-size: 13px; color: var(--zr); }
+.zr-strak .zr-zegel { display: none; }
+
+/* Kleurrijk: elk vak een eigen gekleurde kaart, speels voor de jongere kinderen. */
+.zr-kleurrijk .zr-vakken { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.zr-kleurrijk .zr-vak { border: 0; border-radius: 14px; background: hsl(var(--h) 80% 95%); box-shadow: inset 0 0 0 2px hsl(var(--h) 60% 80%); }
+.zr-kleurrijk .zr-vak:nth-child(6n+1) { --h: 205; } .zr-kleurrijk .zr-vak:nth-child(6n+2) { --h: 140; } .zr-kleurrijk .zr-vak:nth-child(6n+3) { --h: 30; }
+.zr-kleurrijk .zr-vak:nth-child(6n+4) { --h: 280; } .zr-kleurrijk .zr-vak:nth-child(6n+5) { --h: 350; } .zr-kleurrijk .zr-vak:nth-child(6n+6) { --h: 50; }
+.zr-kleurrijk .zr-vak-kop h2 { color: hsl(var(--h) 60% 30%); }
+.zr-kleurrijk .zr-balk i { background: hsl(var(--h) 65% 50%); }
+.zr-kleurrijk .zr-blok { border-radius: 14px; border-width: 2px; border-color: color-mix(in srgb, var(--zr) 40%, #fff); }
+.zr-kleurrijk h1 { color: var(--zr); }
+.zr-kleurrijk .zr-kop { border-bottom: 0; background: color-mix(in srgb, var(--zr) 10%, #fff); border-radius: 14px; padding: 10px 12px; }
+
+/* Compact: twee kolommen, kleiner, zodat alles op één blad past. */
+.zr-compact { font-size: 11.5px; padding: 10mm 11mm; gap: 7px; }
+.zr-compact h1 { font-size: 20px; }
+.zr-compact h2 { font-size: 13px; }
+.zr-compact .zr-vakken { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.zr-compact .zr-vak, .zr-compact .zr-blok { padding: 5px 8px; border-radius: 4px; }
+.zr-compact .zr-tabel td { padding: 1px 3px; }
+.zr-compact .zr-sym { width: 17px; height: 17px; }
+
+@media print {
+  .zr-blad { box-shadow: none; margin: 0; break-after: page; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .zr-perkament { box-shadow: inset 0 0 0 5mm #fbf5e6, inset 0 0 0 calc(5mm + 1.5px) color-mix(in srgb, var(--zr) 60%, #b08d57); }
+}
