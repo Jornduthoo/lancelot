@@ -9,6 +9,7 @@
 // Gebruik: QuizList.mount($('quiz-list'), { go: 'Kies ▶', play: q => ..., edit: q => ..., remove: q => ... }).
 // Met beheer: true (de quizbibliotheek) staan de balken voor niveau en uitleg er niet bij.
 // Met 👁 bekijk je een quiz, oefenblad of toets snel: alle vragen met de juiste antwoorden in een venster.
+// Met ?quiz=<bestand> in het adres start de quiz meteen in dat spel (vanuit De Zonnewijzer).
 // Met kiezen: true (bv. een taak geven) alleen zoeken, mappen openen en kiezen: niets slepen, verplaatsen of exporteren.
 // Voor oefenbladen en sessies: ItemList.mount(el, { kind: 'oefenblad', ... }) met dezelfde opties, plus
 // detail: q => 'tekst achter de titel' en buttons: [{ label, title, cls, click: q => ... }] voor extra knoppen.
@@ -526,7 +527,26 @@ const ItemList = (() => {
       start = '';
       render();
     });
-    socket.on(k.list, list => { items = list; render(); });
+    socket.on(k.list, list => {
+      items = list;
+      render();
+      if (kind === 'quiz' && !kiezen && !opts.beheer) startUitAdres(items, opts.play, error);
+    });
+  }
+
+  // /laserslag?quiz=… (een les in De Zonnewijzer): die quiz meteen laden in dit spel, één keer per pagina.
+  let gestart = false;
+  function startUitAdres(lijst, play, error) {
+    if (gestart || !play) return;
+    const vraag = new URLSearchParams(location.search);
+    const file = vraag.get('quiz');
+    if (!file) return;
+    gestart = true;
+    vraag.delete('quiz');
+    try { history.replaceState(null, '', `${location.pathname}${vraag.toString() ? `?${vraag}` : ''}${location.hash}`); } catch {}
+    const q = lijst.find(x => x.file === file);
+    if (q) play(q);
+    else error({ error: 'Die quiz bestaat niet meer. Kies er hieronder een.' });
   }
 
   // Geldt voor elke quiz met niveaus. Een quiz zonder niveaus speelt altijd alle vragen.

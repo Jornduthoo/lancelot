@@ -67,5 +67,34 @@ const Lessen = (() => {
     online: (b, url) => (b.inbed === false ? url || b.url : `/kronieken?${new URLSearchParams({ online: b.id, url: url || '' })}`),
   };
 
-  return { van, mappen, link, sleutel, zonderXL };
+  // Een oefening die je zelf aan een les koppelt (De Zonnewijzer): wat (quiz, oefenblad of toets) en hoe het start.
+  // icoon = een tegel uit public/img/icons, teken = een emoji als er geen tegel is.
+  const SPELEN = [['/host', 'Toernooi', 'toernooi'], ['/hofschilder', 'De Hofschilder', 'hofschilder'], ['/duel', 'Duel in de arena', 'duel'],
+    ['/kerker', 'Ontsnap uit de kerker', 'kerker'], ['/burchtbouwers', 'Burchtbouwers', 'burcht'], ['/poortwacht', 'Poortwacht', 'poortwacht'],
+    ['/gauntlet', 'Gauntlet', 'gauntlet'], ['/cybergalaga', 'Cyber-Galaga', 'cybergalaga'], ['/leraarbaas', 'Leraar-baas', 'leraarbaas'],
+    ['/verrader', 'De Verrader', 'verrader'], ['/ridderrace', 'Ridderrace', 'strijdros'], ['/robopaarden', 'Robopaarden', 'robopaarden'],
+    ['/toren', 'De prinses in de toren', 'toren'], ['/pixelridder', 'Pixelridder', 'pixelridder'], ['/neonvlucht', 'Neonvlucht', 'neonvlucht'],
+    ['/diepboor', 'Diepboor', 'diepboor'], ['/schattenjacht', 'Schattenjacht', 'schattenjacht'], ['/kristalroof', 'Kristalroof', 'kristalroof'],
+    ['/laserslag', 'Laserslag', 'laserslag'], ['/strijdrossen', 'Strijdrossen', 'strijdrossen'], ['/bomberknight', 'Bomber-Knight', 'bomberknight'],
+    ['/neonduel', 'Neon Duel', 'neonduel'], ['/ridder-royale', 'Ridder-Royale', 'royale'], ['/sterrenvreter', 'Sterrenvreter', 'sterrenvreter'],
+    ['/ridderslang', 'Ridderslang', 'ridderslang'], ['/packnight', 'Pac-Knight', 'packnight'], ['/robomol', 'Robomol', 'robomol'], ['/burchtstorm', 'Burchtstorm', 'burchtstorm']];
+  const taak = { id: 'taak', naam: 'Als taak per leerling', teken: '📋' };
+  const VORMEN = {
+    quiz: [...SPELEN.map(([id, naam, icoon]) => ({ id, naam, icoon })), taak],
+    oefenblad: [{ id: 'live', naam: 'Live in de klas', icoon: 'oefenblad' }, { id: 'print', naam: 'Afdrukken', teken: '🖨' }, taak],
+    proef: [{ id: 'afnemen', naam: 'Toets afnemen', icoon: 'proef' }, { id: 'print', naam: 'Afdrukken', teken: '🖨' }],
+  };
+  const SOORTEN = { quiz: 'Quiz', oefenblad: 'Oefenblad', proef: 'Toets' };
+  const vorm = o => (VORMEN[o.soort] || []).find(v => v.id === o.vorm) || (VORMEN[o.soort] || [])[0];
+  function oefenLink(o) {
+    const f = encodeURIComponent(o.file);
+    const v = vorm(o).id;
+    if (v === 'taak') return `/taken?soort=${o.soort}&file=${f}`;
+    if (o.soort === 'quiz') return `${v}?quiz=${f}`;
+    if (o.soort === 'proef') return v === 'print' ? `/proef-print?file=${f}` : `/proef?afnemen=${f}`;
+    return v === 'print' ? `/oefenblad-print?file=${f}` : `/oefenblad?live=${f}`;
+  }
+  link.oefen = oefenLink;
+
+  return { van, mappen, link, sleutel, zonderXL, VORMEN, SOORTEN, vorm };
 })();

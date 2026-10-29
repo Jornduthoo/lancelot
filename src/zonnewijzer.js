@@ -115,6 +115,16 @@ function weekNaam(week) {
 
 const SLOT = /^[1-5]-\d{1,2}$/;
 
+const MAX_OEFEN = 6;
+const SOORTEN = ['quiz', 'oefenblad', 'proef'];
+function schoonOefen(o) {
+  if (!o || !SOORTEN.includes(o.soort)) return null;
+  const file = tekst(o.file, 300);
+  const vorm = tekst(o.vorm, 40);
+  if (!file || file.includes('..') || !/^(\/[a-z-]+|live|print|taak|afnemen)$/.test(vorm)) return null;
+  return { soort: o.soort, file, titel: tekst(o.titel, 120), vorm };
+}
+
 function schoonLes(l) {
   if (!l || typeof l !== 'object') return null;
   const les = {
@@ -127,8 +137,10 @@ function schoonLes(l) {
     criteria: (Array.isArray(l.criteria) ? l.criteria : []).map(c => tekst(c, 160)).filter(Boolean).slice(0, 8),
     af: (Array.isArray(l.af) ? l.af : []).map(Number).filter(n => Number.isInteger(n) && n >= 0 && n < 8),
     notitie: tekst(l.notitie, 600),
+    // Zelf gekoppelde oefeningen: een quiz in een gekozen spel, een oefenblad live, een toets... (zie public/js/lessen.js).
+    oefen: (Array.isArray(l.oefen) ? l.oefen : []).slice(0, MAX_OEFEN).map(schoonOefen).filter(Boolean),
   };
-  if (!les.titel && !les.doel && !les.criteria.length && !les.notitie && !les.nr) return null;
+  if (!les.titel && !les.doel && !les.criteria.length && !les.notitie && !les.nr && !les.oefen.length) return null;
   return les;
 }
 
@@ -332,12 +344,12 @@ function mijnLessen() {
 function bewaarMijnLes(l) {
   const les = schoonLes(l);
   if (!les || !les.titel) throw new Error('Geef de les eerst een titel.');
-  const { vak, titel, doel, criteria, doelen: codes, notitie } = les;
+  const { vak, titel, doel, criteria, doelen: codes, notitie, oefen } = les;
   const lijst = mijnLessen();
   // Dezelfde titel bij hetzelfde vak: die les bijwerken in plaats van een tweede te maken.
   const zelfde = x => x.titel.toLowerCase() === titel.toLowerCase() && x.vak.toLowerCase() === vak.toLowerCase();
   const oud = lijst.find(zelfde);
-  const nieuw = { id: oud ? oud.id : crypto.randomBytes(6).toString('hex'), vak, titel, doel, criteria, doelen: codes, notitie, bewaard: Date.now() };
+  const nieuw = { id: oud ? oud.id : crypto.randomBytes(6).toString('hex'), vak, titel, doel, criteria, doelen: codes, notitie, oefen, bewaard: Date.now() };
   const rest = lijst.filter(x => !zelfde(x));
   if (rest.length >= MAX_MIJN) throw new Error(`Hooguit ${MAX_MIJN} lessen in Mijn lessen. Haal er eerst een paar weg.`);
   schrijf(MIJN, { lessen: [nieuw, ...rest] });
