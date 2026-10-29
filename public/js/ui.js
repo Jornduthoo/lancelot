@@ -460,6 +460,52 @@
     for (const k of document.querySelectorAll('[data-spatie]')) if (!k.title) k.title = 'Of druk op de spatiebalk';
   });
 
+  // ---------- Snel naar ----------
+  // Op elk docentenscherm naast het logo: Start en de vijf rijken. Zo ben je als leerkracht met één klik overal.
+  // Het rijk waar je nu bent, licht op. Loopt er een spel, dan eerst even vragen (het spel loopt gewoon door).
+  const RIJKEN = [['arena', 'Arena', 'arena'], ['tafel', 'Ronde Tafel', 'ronde-tafel'], ['smidse', 'Smidse', 'smidse'], ['wapenkamer', 'Wapenkamer', 'wapenkamer'], ['kronieken', 'Kronieken', 'kronieken']];
+  const PAD_RIJK = {
+    tafel: ['rondetafel', 'kringgesprek', 'ontdek-beheer', 'runenraadsel'],
+    smidse: ['oefenblad', 'proef', 'reeks'],
+    wapenkamer: ['wapenkamer'],
+    kronieken: ['kronieken', 'zonnewijzer', 'zegelrol'],
+    geen: ['host', 'klas', 'zorg', 'taken', 'netwerk', 'welkom', 'privacy', 'koppel'],
+  };
+  function rijkHier() {
+    const pad = location.pathname.replace(/^\/+/, '') || 'host';
+    if (pad === 'host') return location.hash.slice(1);
+    for (const [r, paden] of Object.entries(PAD_RIJK)) if (paden.includes(pad)) return r === 'geen' ? '' : r;
+    return 'arena'; // alle andere docentenschermen met een topbalk zijn spellen
+  }
+  let snelMarkeer = () => {};
+  function snelmenu() {
+    const brand = document.querySelector('.topbar > .brand');
+    if (!brand || document.body.classList.contains('player') || /^\/koppel/.test(location.pathname)) return;
+    const nav = document.createElement('nav');
+    nav.className = 'snelmenu';
+    nav.setAttribute('aria-label', 'Snel naar');
+    nav.innerHTML = `<a class="snel-start" href="/host" title="Naar het startscherm"><i class="ic ic-huis" aria-hidden="true"></i><span>Start</span></a>${
+      RIJKEN.map(([id, naam, ic]) => `<a href="/host#${id}" data-rijk="${id}" title="Naar De ${naam}"><img src="/img/icons/${ic}.webp" alt=""><span>${naam}</span></a>`).join('')}`;
+    brand.after(nav);
+    snelMarkeer = () => { const r = rijkHier(); for (const a of nav.querySelectorAll('[data-rijk]')) a.classList.toggle('on', a.dataset.rijk === r); };
+    snelMarkeer();
+    addEventListener('hashchange', () => snelMarkeer());
+    nav.addEventListener('click', async e => {
+      const a = e.target.closest('a');
+      if (!a) return;
+      e.preventDefault();
+      const doel = a.getAttribute('href');
+      // Op het startscherm zelf: geen nieuwe pagina, gewoon het rijk openen (host.js).
+      if (location.pathname === '/host' && window.snelNaar) return window.snelNaar(doel.split('#')[1] || '');
+      const stop = document.getElementById('stop');
+      const spel = stop && !stop.classList.contains('hidden') && stop.getClientRects().length;
+      if (spel && !await window.Ui.vraag('Er loopt nog een spel. Het blijft gewoon lopen en je vindt het terug in De Arena. Toch weggaan?')) return;
+      location.href = doel;
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', snelmenu);
+  else snelmenu();
+
   window.Ui = {
     tabs,
     vraag: (tekst, o = {}) => wachtrij(tekst, [
@@ -472,6 +518,8 @@
     getalKlaar,
     // Een klein icoon uit style.css (.ic-…) voor in een knop.
     ic: naam => `<i class="ic ic-${naam}" aria-hidden="true"></i>`,
+    // Het snelmenu opnieuw laten oplichten als een pagina zelf het adres verandert (host.js, rijk openen).
+    snelMarkeer: () => snelMarkeer(),
     pauze: Pauze,
     themas: THEMAS,
     get thema() { return thema; },

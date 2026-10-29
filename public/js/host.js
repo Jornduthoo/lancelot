@@ -52,8 +52,17 @@ function openRealm(id, scroll) {
   }
   if (location.hash.slice(1) !== id) history.replaceState(null, '', id ? `#${id}` : location.pathname + location.search);
   fillRows();
+  Ui.snelMarkeer();
   if (scroll) window.scrollTo(0, 0);
 }
+// Snel naar (ui.js): Start of een rijk, vanuit elk scherm van deze pagina. Niet midden in een toernooi.
+window.snelNaar = id => {
+  if (!OWN_VIEWS.includes(view)) return Ui.melding('Het toernooi loopt nog. Stop het eerst met Stop toernooi.');
+  show('home');
+  if (location.hash.slice(1) !== id) history.pushState(null, '', id ? `#${id}` : location.pathname + location.search);
+  openRealm(id);
+  sfx.tick();
+};
 $('rijk-terug').addEventListener('click', () => { openRealm(''); sfx.tick(); });
 addEventListener('hashchange', () => openRealm(location.hash.slice(1)));
 // Elke rij tegels vol: de eerste tegels worden breed tot de laatste rij gevuld is. De Arena heeft per groep een eigen raster.
