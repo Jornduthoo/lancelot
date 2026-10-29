@@ -402,6 +402,7 @@ $('a-blad').addEventListener('click', async () => {
 // Elke vraag is een kaart. Afbeeldingen zitten op de kaart zelf (card.pfBeeld), net als de juiste plekken bij aanduiden.
 
 let editingFile = null;
+const mapKeuze = ItemList.mapKeuze($('e-map'), 'proef');
 let editNiveau = 'schildknaap';
 const vragenBox = n => $(n === 'schildknaap' ? 'e-vragen' : `e-vragen-${n}`);
 
@@ -577,6 +578,7 @@ function preview() {
 
 function openEditor(t, file) {
   editingFile = file;
+  mapKeuze.zet(file);
   $('e-heading').textContent = file ? 'Toets bewerken' : 'Nieuwe toets';
   $('e-title').value = t.title || '';
   $('e-intro').value = t.intro || '';
@@ -633,7 +635,7 @@ for (const k of document.querySelectorAll('#pf-start [data-start]')) {
 }
 
 function save(then, fail) {
-  socket.emit('pf-save', { toets: readEditor(), file: editingFile }, res => {
+  socket.emit('pf-save', { toets: readEditor(), file: editingFile, folder: mapKeuze.waarde() }, res => {
     if (res.error) {
       $('e-error').textContent = res.error;
       if (fail) fail();

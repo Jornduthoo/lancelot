@@ -2,6 +2,7 @@
 // Gebruikt socket, $, esc, show en loadQuiz uit host.js.
 
 let editingFile = null;
+const mapKeuze = ItemList.mapKeuze($('e-map'), 'quiz');
 // Waar de maker en de editor naar teruggaan: het Toernooi ('idle') of de quizbibliotheek.
 let quizBase = 'idle';
 
@@ -259,6 +260,7 @@ function emptyQuestion() {
 
 function openEditor(quiz, file) {
   editingFile = file;
+  mapKeuze.zet(file);
   $('e-heading').textContent = file ? 'Quiz bewerken' : 'Nieuwe quiz controleren';
   $('e-title').value = quiz.title;
   $('e-questions').innerHTML = '';
@@ -359,7 +361,7 @@ function saveEditor(play) {
     $('e-error').textContent = err.message;
     return;
   }
-  socket.emit('save', { quiz, file: editingFile }, res => {
+  socket.emit('save', { quiz, file: editingFile, folder: mapKeuze.waarde() }, res => {
     if (res.error) {
       $('e-error').textContent = res.error;
       return;

@@ -353,6 +353,7 @@ const DEFAULT_INSTRUCTION = {
 };
 
 let editingFile = null;
+const mapKeuze = ItemList.mapKeuze($('e-map'), 'oefenblad');
 
 function blockCard(b) {
   const card = document.createElement('div');
@@ -489,6 +490,7 @@ const kaartVan = b => (b.type === 'vraag' ? PfEdit.kaart(b.doel && !b.q.doel ? {
 
 function openEditor(sheet, file) {
   editingFile = file;
+  mapKeuze.zet(file);
   $('e-heading').textContent = file ? 'Oefenblad bewerken' : 'Nieuw oefenblad';
   $('e-title').value = sheet.title || '';
   for (const n of Niveau.LIST) {
@@ -537,7 +539,7 @@ $('new-empty').addEventListener('click', () => {
 });
 
 function save(then, fail) {
-  socket.emit('ob-save', { sheet: readEditor(), file: editingFile }, res => {
+  socket.emit('ob-save', { sheet: readEditor(), file: editingFile, folder: mapKeuze.waarde() }, res => {
     if (res.error) {
       $('e-error').textContent = res.error;
       if (fail) fail();
