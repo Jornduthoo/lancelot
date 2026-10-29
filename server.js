@@ -860,7 +860,12 @@ io.on('connection', socket => {
   for (const [event, fn, bord] of [['od-get', ontdek.view], ['od-open', ontdek.open], ['od-poging', ontdek.poging, true], ['od-bouw', ontdek.bouw, true], ['od-boek', ontdek.boek]]) {
     socket.on(event, (arg, cb) => {
       if (typeof cb !== 'function') return;
-      if (event === 'od-get') {
+      // De leerkracht kijkt zelf rond (vanuit de beheerpagina): zijn naam wordt de vaste leerkrachtnaam.
+      const lk = socket.data.host && socket.handshake.query.leerkracht === '1';
+      const naamVan = a => (a && typeof a === 'object' ? a.naam : a);
+      if (!lk && naamVan(arg) === ontdek.LK) return cb({ error: 'Kies eerst je naam.' });
+      if (lk) arg = arg && typeof arg === 'object' ? { ...arg, naam: ontdek.LK } : ontdek.LK;
+      if (event === 'od-get' && !lk) {
         hier(socket, arg, 'ontdek');
         ontdekSoon();
       }

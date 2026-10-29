@@ -272,7 +272,12 @@ function plak({ text, leerjaar } = {}, aiJson) {
 
 // ---------- Leerlingen ----------
 
+// De leerkracht kan zelf rondkijken: alles open, de brug al gebouwd, en niets in het logboek of op het bord.
+const LK = '\u0000leerkracht';
+let lkSpeler = null;
+
 function wie(naam) {
+  if (naam === LK) return { key: 'lk', naam: 'Leerkracht', leerling: null, lk: true };
   const n = String(naam || '').trim().replace(/\s+/g, ' ').slice(0, 20);
   if (!n) return null;
   const l = klas.match(n);
@@ -280,6 +285,7 @@ function wie(naam) {
 }
 
 function speler(w) {
+  if (w.lk) return lkSpeler || (lkSpeler = { naam: w.naam, kristallen: 0, uitgegeven: 0, gebouwd: ['brug'], woorden: {}, weetjes: {}, dagen: {}, open: {} });
   const j = jaar();
   const s = j.spelers[w.key] || (j.spelers[w.key] = { naam: w.naam, kristallen: 0, uitgegeven: 0, gebouwd: [], woorden: {}, weetjes: {}, dagen: {}, open: {} });
   s.naam = w.naam;
@@ -295,13 +301,14 @@ const kristallen = s => s.kristallen - s.uitgegeven;
 function view(naam) {
   const w = wie(naam);
   if (!w) throw new Error('Kies eerst je naam.');
-  const s = jaar().spelers[w.key];
+  const s = w.lk ? speler(w) : jaar().spelers[w.key];
   const vandaag = (s && s.dagen[dagVan()]) || {};
   return {
     wereld: NAAM,
     naam: w.naam,
     niveau: klas.niveauVoor(w.leerling, ''),
-    toegang: toegangVoor(w.naam),
+    toegang: w.lk ? { mag: true } : toegangVoor(w.naam),
+    leerkracht: !!w.lk,
     kristallen: s ? kristallen(s) : 0,
     gebouwd: s ? s.gebouwd : [],
     bouw: BOUW,
@@ -434,7 +441,7 @@ function open({ naam, station, niveau } = {}) {
   if (!w) throw new Error('Kies eerst je naam.');
   const st = STATIONS[station];
   if (!st) throw new Error('Deze plek bestaat niet.');
-  const t = toegangVoor(w.naam);
+  const t = w.lk ? { mag: true } : toegangVoor(w.naam);
   if (!t.mag) throw new Error(t.tekst);
   const s = speler(w);
   if (st.gebied === 'ruine' && !s.gebouwd.includes('brug')) throw new Error('Bouw eerst de brug.');
@@ -453,6 +460,7 @@ function beloon(w, s, id, niveau) {
   if (d[id]) return null;
   d[id] = { t: new Date().toISOString(), niveau };
   s.kristallen++;
+  if (w.lk) return { kristal: 1 };
   logboek.add([{
     sessie: `ontdek-${dag}`,
     naam: w.naam,
@@ -561,7 +569,7 @@ function bouw({ naam, wat } = {}) {
 function boek(naam) {
   const w = wie(naam);
   if (!w) throw new Error('Kies eerst je naam.');
-  const s = jaar().spelers[w.key];
+  const s = w.lk ? speler(w) : jaar().spelers[w.key];
   if (!s) return { woorden: [], weetjes: [] };
   const woorden = Object.entries(s.woorden).map(([x, dag]) => ({ ...woordInfo(x, 'schildknaap'), dag, bron: undefined }))
     .sort((a, b) => a.w.localeCompare(b.w, 'nl'));
@@ -598,6 +606,7 @@ function bord(binnen = []) {
 }
 
 module.exports = {
+  LK,
   NAAM, SPEL, DIR, STATIONS, view, open, poging, bouw, boek, bord, zetToegang, toegangVoor,
   eigenView, zetWoorden, wisWeetje, wisAlles, aiMaak, aiPrompt, plak, flush, dagVan, versleutel,
 };
