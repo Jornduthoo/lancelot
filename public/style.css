@@ -435,6 +435,7 @@ span.play { padding: 13px 22px; display: flex; align-items: center; }
 .player .rn-knop { display: flex; align-items: center; justify-content: center; gap: 10px; text-decoration: none; background: linear-gradient(90deg, rgb(var(--k-paars) / .35), rgb(var(--k-cyan) / .25)); border: 1px solid rgb(var(--k-paars)); box-shadow: 0 0 18px rgb(var(--k-paars) / .35); color: rgb(var(--k-wit)); font-weight: 800; }
 .player .bu-knop { background: linear-gradient(90deg, rgb(var(--k-goud) / .32), rgb(var(--k-cyan) / .2)); border-color: var(--gold); box-shadow: 0 0 18px rgb(var(--k-goud) / .3); }
 .player .tk-knop { background: linear-gradient(90deg, rgb(var(--k-groen) / .3), rgb(var(--k-cyan) / .2)); border-color: var(--good); box-shadow: 0 0 18px rgb(var(--k-groen) / .3); }
+.player .od-knop-start { background: linear-gradient(90deg, rgb(var(--k-cyan) / .32), rgb(var(--k-blauw) / .22)); border-color: var(--cyan); box-shadow: 0 0 18px rgb(var(--k-cyan) / .35); }
 .tk-teller { min-width: 1.7em; padding: 2px 8px; border-radius: 999px; background: var(--gold); color: rgb(var(--k-op-goud)); font-family: var(--tech); font-size: .85rem; }
 .tk-teller.hidden { display: none; }
 .player .welcome .rn-knop img { width: 36px; height: 36px; border-radius: 8px; margin: 0; animation: none; filter: none; }

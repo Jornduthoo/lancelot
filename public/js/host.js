@@ -123,6 +123,7 @@ document.querySelector('[data-module="kronieken"]').addEventListener('click', ()
 document.querySelector('[data-module="reeks"]').addEventListener('click', () => { location.href = '/reeks'; });
 document.querySelector('[data-module="proef"]').addEventListener('click', () => { location.href = '/proef'; });
 document.querySelector('[data-module="runenraadsel"]').addEventListener('click', () => { location.href = '/runenraadsel'; });
+document.querySelector('[data-module="ontdek"]').addEventListener('click', () => { location.href = '/ontdek-beheer'; });
 document.querySelector('[data-module="klaseiland"]').addEventListener('click', () => { location.href = '/klaseiland'; });
 document.querySelector('[data-module="toren"]').addEventListener('click', () => { location.href = '/toren'; });
 document.querySelector('[data-module="schattenjacht"]').addEventListener('click', () => { location.href = '/schattenjacht'; });

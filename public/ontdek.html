@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#060a13">
+  <title>LANcelot · Avalon</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="apple-touch-icon" href="/img/icon-192.png">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/ontdek.css">
+</head>
+<body class="player od-page">
+<main>
+  <form id="od-join" class="screen welcome od-join hidden">
+    <img class="od-join-icoon" src="/img/icons/ontdek.webp" alt="">
+    <p class="title"><span class="od-wereldnaam">Avalon</span></p>
+    <p class="muted">Een wereld vol raadsels, proeven en geheimen. Los ze op, verzamel kristallen en vul je woordenboek.</p>
+    <input id="od-name" maxlength="20" autocomplete="off" placeholder="Je naam">
+    <p class="error" id="od-join-error"></p>
+    <button type="submit" class="big">Op ontdekking!</button>
+    <a class="od-terug-link" href="/">← Terug</a>
+  </form>
+
+  <section id="od-slot" class="screen panel od-slot hidden">
+    <img src="/img/icons/ontdek.webp" alt="">
+    <p class="title">🔒 <span class="od-wereldnaam">Avalon</span></p>
+    <p id="od-slot-tekst"></p>
+    <div class="actions">
+      <a class="button gold hidden" id="od-slot-taken" href="/mijn-taken">Naar Mijn taken</a>
+      <a class="button secondary" href="/">Terug</a>
+    </div>
+    <button type="button" class="secondary klas-switch" id="od-switch-slot">Niet jij? Kies je naam</button>
+  </section>
+
+  <section id="od-game" class="od-game hidden">
+    <canvas id="od-hemel" aria-hidden="true"></canvas>
+    <canvas id="od-canvas" aria-label="De ontdekwereld"></canvas>
+    <div class="od-hud">
+      <a class="od-knop od-terug" href="/" title="Terug naar de spellen" aria-label="Terug">←</a>
+      <div class="od-titel">
+        <b class="od-wereldnaam">Avalon</b>
+        <small id="od-gebied">Het Kristalwoud</small>
+      </div>
+      <div class="od-teller" title="Jouw kristallen"><span class="od-kristal-ic" aria-hidden="true"></span><b id="od-kristallen">0</b></div>
+      <button type="button" class="od-knop" id="od-boek-knop" title="Woordenboek en ontdekkersboek">📖<span class="od-badge" id="od-boek-aantal">0</span></button>
+    </div>
+    <div class="od-spel-start hidden" id="od-start-banner">
+      <span>⚔️ De leerkracht startte een spel!</span>
+      <a class="button gold" href="/">Ga meedoen</a>
+    </div>
+    <div class="od-hint" id="od-hint">Tik waar je heen wil, of loop met de pijltjes. Bij een <b>!</b> wacht een raadsel.</div>
+    <div class="od-toast hidden" id="od-toast" role="status"></div>
+    <div class="od-pad" id="od-pad" aria-hidden="true">
+      <button type="button" data-d="0">▲</button><button type="button" data-d="3">◀</button><button type="button" data-d="1">▶</button><button type="button" data-d="2">▼</button>
+    </div>
+  </section>
+
+  <!-- Eén venster voor elk raadsel. -->
+  <div class="od-venster hidden" id="od-venster" role="dialog" aria-modal="true">
+    <div class="od-kaart">
+      <header class="od-kop">
+        <div class="od-kop-tekst"><b id="odv-titel"></b><small id="odv-sub"></small></div>
+        <div class="od-niv" id="odv-niv"></div>
+        <button type="button" class="od-dicht" id="odv-dicht" aria-label="Sluiten">✕</button>
+      </header>
+      <div class="od-body" id="odv-body"></div>
+      <p class="od-melding" id="odv-melding" aria-live="polite"></p>
+    </div>
+  </div>
+
+  <!-- Het woordenboek en het ontdekkersboek. -->
+  <div class="od-venster hidden" id="od-boek" role="dialog" aria-modal="true">
+    <div class="od-kaart od-boek">
+      <header class="od-kop">
+        <div class="od-tabs">
+          <button type="button" class="on" data-boek="woorden">📖 Woordenboek <span id="odb-nw"></span></button>
+          <button type="button" data-boek="weetjes">🔭 Ontdekkersboek <span id="odb-nf"></span></button>
+        </div>
+        <button type="button" class="od-dicht" id="odb-dicht" aria-label="Sluiten">✕</button>
+      </header>
+      <div class="od-body" id="odb-body"></div>
+    </div>
+  </div>
+  <button type="button" class="secondary klas-switch hidden" id="od-switch">Niet jij? Kies je naam</button>
+</main>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/ui.js"></script>
+<script src="/js/fx.js"></script>
+<script src="/js/avatar.js"></script>
+<script src="/js/voorlees.js"></script>
+<script src="/js/bu-art.js"></script>
+<script src="/js/od-puzzels.js"></script>
+<script src="/js/od-wereld.js"></script>
+<script src="/js/od-player.js"></script>
+<script src="/js/od-raadsels.js"></script>
+<script src="/js/klas-kies.js"></script>
+</body>
+</html>
