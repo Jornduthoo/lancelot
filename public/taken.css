@@ -49,8 +49,6 @@
 /* ---------- Leerling ---------- */
 .tk-page main { max-width: 860px; justify-content: flex-start; padding-bottom: 30px; }
 .tk-top { display: flex; align-items: center; gap: 12px; }
-.tk-back { font-size: 1.6rem; color: var(--muted); text-decoration: none; padding: 4px 8px; }
-.tk-back:hover { color: var(--cyan); }
 .tk-logo { width: 48px; height: 48px; filter: drop-shadow(0 0 10px rgb(var(--k-goud) / .45)); }
 .tk-kop { min-width: 0; }
 .tk-kop-titel { font-family: var(--head); font-weight: 900; font-size: 1.4rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

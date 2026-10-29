@@ -147,6 +147,7 @@ function obStatus() {
   $('ob-count').textContent = `${filled}/${all.length}`;
   $('ob-progress-bar').style.width = `${all.length ? (filled / all.length) * 100 : 0}%`;
   const submitted = !!ob.report;
+  klaarBalk('oefenblad', submitted && ob.state.phase === 'open');
   $('ob-submit').classList.toggle('hidden', submitted || ob.state.phase !== 'open');
   const score = $('ob-score');
   score.classList.toggle('hidden', !submitted);
