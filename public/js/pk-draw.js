@@ -194,12 +194,50 @@ const PacDraw = (() => {
     }
   }
 
-  // Waar staat een ridder of drone nu, in vakjes (met komma)?
-  function pos(e, W, now) {
-    const p = Math.max(0, Math.min(1, (e.age + (now - e.recv)) / e.ms));
-    let dx = e.x - e.px;
-    if (Math.abs(dx) > 1) return { x: e.x, y: e.y };
-    return { x: e.px + dx * p, y: e.py + (e.y - e.py) * p };
+  // Waar staat een ridder of drone nu, in vakjes (met komma)? Gerekend op de klok van de server (s.off), zodat een tick
+  // die laat binnenkomt (trage Chromebook, druk wifi) niemand terugduwt. Is de stap af, dan loopt de figuur alvast verder
+  // in zijn richting (nooit door een muur) tot de volgende tick er is. Een kleine correctie wordt zacht weggewerkt.
+  const DX = [0, 1, 0, -1], DY = [-1, 0, 1, 0];
+  const SMOOTH_MS = 150;
+  const free = (s, x, y) => y >= 0 && y < s.H && s.maze[y][((x % s.W) + s.W) % s.W] !== '#';
+
+  function raw(s, e, now) {
+    if (Math.abs(e.x - e.px) > 1) return { x: e.x, y: e.y }; // door de tunnel
+    const p = Math.max(0, (now - (s.off || 0) - e.start) / e.ms);
+    if (p <= 1) return { x: e.px + (e.x - e.px) * p, y: e.py + (e.y - e.py) * p };
+    const moving = (e.x !== e.px || e.y !== e.py) && !(e.flags & 2);
+    const want = e.n !== undefined && e.n === s.meN ? s.want : null;
+    const d = moving ? [want, e.dir].find(k => k != null && k >= 0 && free(s, e.x + DX[k], e.y + DY[k])) : undefined;
+    if (d === undefined) return { x: e.x, y: e.y };
+    const q = Math.min(p - 1, .5);
+    return { x: e.x + DX[d] * q, y: e.y + DY[d] * q };
+  }
+
+  function pos(s, e, now) {
+    const p = raw(s, e, now);
+    const f = e.ex || e.ey ? 1 - (now - e.eAt) / SMOOTH_MS : 0;
+    if (f > 0) { p.x += e.ex * f; p.y += e.ey * f; }
+    return p;
+  }
+
+  // De nieuwe stand van de server: het verschil met wat er nu getekend staat zacht wegwerken (niet bij wegspringen).
+  function settle(s, old, e, now) {
+    if (!old || (old.flags | e.flags) & 6) return;
+    const a = pos(s, old, now), b = raw(s, e, now);
+    const ex = a.x - b.x, ey = a.y - b.y;
+    if (Math.hypot(ex, ey) > 1.2 || Math.hypot(ex, ey) < .002) return;
+    e.ex = ex;
+    e.ey = ey;
+    e.eAt = now;
+  }
+
+  // Het verschil tussen de klok van de server en de eigen klok. De snelste tick telt; daarna mag het heel traag opschuiven
+  // (of ineens, na een pauze of een grote sprong).
+  function clock(s, t, now) {
+    if (typeof t !== 'number') return;
+    const o = now - t;
+    if (s.off === undefined || o < s.off || o - s.off > 600) s.off = o;
+    else s.off += Math.min(o - s.off, .25);
   }
 
   function knight(ctx, cx, cy, tile, k, info, t, opts = {}) {
@@ -357,45 +395,55 @@ const PacDraw = (() => {
     const at = p => ({ x: cam.ox + (p.x + .5) * cam.tile, y: cam.oy + (p.y + .5) * cam.tile });
     for (const d of s.drones) {
       if (d.flags & 2) continue;
-      const p = at(pos(d, s.W, now));
+      const p = at(pos(s, d, now));
       drone(ctx, p.x, p.y, cam.tile, d, t);
     }
     const mine = [];
     for (const k of s.knights.values()) {
       if (k.flags & 4) continue;
       if (k.n === opts.me) { mine.push(k); continue; }
-      const p = at(pos(k, s.W, now));
+      const p = at(pos(s, k, now));
       knight(ctx, p.x, p.y, cam.tile, k, s.roster.get(k.n), t, { names: opts.names });
     }
     // De eigen ridder als laatste, bovenop de rest.
     for (const k of mine) {
-      const p = at(pos(k, s.W, now));
+      const p = at(pos(s, k, now));
       knight(ctx, p.x, p.y, cam.tile, k, s.roster.get(k.n), t, { names: opts.names, me: true });
     }
     Glow.vignette(ctx, view.x1, view.y1, .45);
   }
 
   // Een klein overzicht van het hele doolhof (voor de leerlingen).
+  let miniCache = null;
   function minimap(ctx, s, x, y, w, h, me) {
     const tile = Math.min(w / s.W, h / s.H);
     const ox = x + (w - s.W * tile) / 2, oy = y + (h - s.H * tile) / 2;
     ctx.save();
-    ctx.globalAlpha = .85;
-    ctx.fillStyle = 'rgba(3, 6, 13, .85)';
-    ctx.fillRect(ox - 3, oy - 3, s.W * tile + 6, s.H * tile + 6);
-    ctx.fillStyle = 'rgba(76, 201, 255, .45)';
-    for (let yy = 0; yy < s.H; yy++) for (let xx = 0; xx < s.W; xx++) if (s.maze[yy][xx] === '#') ctx.fillRect(ox + xx * tile, oy + yy * tile, tile + .3, tile + .3);
-    ctx.globalAlpha = 1;
+    // De muren van het overzicht één keer tekenen, niet elk beeld opnieuw honderden vakjes.
+    const key = `${s.mazeKey}|${tile}`;
+    if (!miniCache || miniCache.key !== key) {
+      const c = document.createElement('canvas');
+      c.width = Math.ceil(s.W * tile + 6);
+      c.height = Math.ceil(s.H * tile + 6);
+      const g = c.getContext('2d');
+      g.globalAlpha = .85;
+      g.fillStyle = 'rgba(3, 6, 13, .85)';
+      g.fillRect(0, 0, c.width, c.height);
+      g.fillStyle = 'rgba(76, 201, 255, .45)';
+      for (let yy = 0; yy < s.H; yy++) for (let xx = 0; xx < s.W; xx++) if (s.maze[yy][xx] === '#') g.fillRect(3 + xx * tile, 3 + yy * tile, tile + .3, tile + .3);
+      miniCache = { key, c };
+    }
+    ctx.drawImage(miniCache.c, ox - 3, oy - 3);
     const now = performance.now();
     for (const d of s.drones) {
       if (d.flags & 2) continue;
-      const p = pos(d, s.W, now);
+      const p = pos(s, d, now);
       ctx.fillStyle = d.flags & 1 ? '#3d8bff' : '#ff4d6d';
       ctx.beginPath(); ctx.arc(ox + (p.x + .5) * tile, oy + (p.y + .5) * tile, Math.max(2, tile * .6), 0, Math.PI * 2); ctx.fill();
     }
     const k = s.knights.get(me);
     if (k && !(k.flags & 4)) {
-      const p = pos(k, s.W, now);
+      const p = pos(s, k, now);
       ctx.fillStyle = '#ffc94a';
       ctx.beginPath(); ctx.arc(ox + (p.x + .5) * tile, oy + (p.y + .5) * tile, Math.max(2.5, tile * .8), 0, Math.PI * 2); ctx.fill();
     }
@@ -405,19 +453,28 @@ const PacDraw = (() => {
   // Een tick van de server verwerken in de scene.
   function apply(s, msg) {
     const now = performance.now();
+    clock(s, msg.t, now);
+    const t = typeof msg.t === 'number' ? msg.t : now - (s.off || 0);
     const seen = new Set();
     for (const [n, x, y, px, py, age, ms, flags, dir] of msg.k) {
       seen.add(n);
-      s.knights.set(n, { n, x, y, px, py, age, ms, flags, dir, recv: now });
+      const e = { n, x, y, px, py, ms, flags, dir, start: t - age };
+      settle(s, s.knights.get(n), e, now);
+      s.knights.set(n, e);
     }
     for (const n of [...s.knights.keys()]) if (!seen.has(n)) s.knights.delete(n);
-    s.drones = msg.d.map(([x, y, px, py, age, ms, flags, dir], i) => ({ i, x, y, px, py, age, ms, flags, dir, recv: now }));
+    const old = s.drones;
+    s.drones = msg.d.map(([x, y, px, py, age, ms, flags, dir], i) => {
+      const e = { i, x, y, px, py, ms, flags, dir, start: t - age };
+      settle(s, old[i], e, now);
+      return e;
+    });
     if (s.crystals) for (const [i, v] of msg.c) s.crystals[i] = v;
   }
 
   function fromState(st, old) {
     const key = st.maze ? st.maze.join('') : '';
-    const s = old && old.run === st.run && old.mazeKey === key ? old : { knights: new Map(), drones: [] };
+    const s = old && old.run === st.run && old.mazeKey === key ? old : { knights: new Map(), drones: [], meN: -1, want: null };
     s.run = st.run;
     s.mazeKey = key;
     s.W = st.W;

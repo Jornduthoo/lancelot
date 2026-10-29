@@ -361,7 +361,7 @@ class PacKnight {
         }
         let steps = 0;
         while (p.next <= now && steps++ < 3) {
-          this.stepKnight(p, now);
+          this.stepKnight(p, now, p.next);
           p.next += p.powerUntil ? POWER_KNIGHT_MS : KNIGHT_MS;
         }
         if (p.next < now - 500) p.next = now;
@@ -377,7 +377,7 @@ class PacKnight {
         }
         let steps = 0;
         while (d.next <= now && steps++ < 3) {
-          this.stepDrone(d, now);
+          this.stepDrone(d, now, d.next);
           d.next += d.scared ? SCARED_MS : DRONE_MS;
         }
       }
@@ -400,11 +400,13 @@ class PacKnight {
     this.send(now);
   }
 
-  stepKnight(p, now) {
+  // at: wanneer de stap gepland was. De tick loopt om de 40 ms, maar de stappen zelf liggen zo precies even ver uit elkaar,
+  // zodat de leerlingen de ridder zonder haperen kunnen tekenen.
+  stepKnight(p, now, at = now) {
     if (p.want !== null && this.open(p.x + DX[p.want], p.y + DY[p.want])) p.dir = p.want;
     p.px = p.x;
     p.py = p.y;
-    p.at = now;
+    p.at = at;
     if (p.dir === null || !this.open(p.x + DX[p.dir], p.y + DY[p.dir])) {
       p.dir = null;
       return;
@@ -428,7 +430,7 @@ class PacKnight {
     return !p.caughtUntil && !p.asking && now >= p.safeUntil && now >= this.startedAt;
   }
 
-  stepDrone(d, now) {
+  stepDrone(d, now, at = now) {
     const dist = (x, y, p) => {
       const dx = Math.abs(x - p.x);
       return Math.min(dx, this.W - dx) + Math.abs(y - p.y);
@@ -453,7 +455,7 @@ class PacKnight {
     if (!opts.length) opts = [back].filter(k => this.open(d.x + DX[k], d.y + DY[k]));
     d.px = d.x;
     d.py = d.y;
-    d.at = now;
+    d.at = at;
     if (!opts.length) return;
     const score = k => {
       const x = (d.x + DX[k] + this.W) % this.W, y = d.y + DY[k];
@@ -590,7 +592,7 @@ class PacKnight {
       | (p.powerUntil > now && p.powerUntil - now < 2000 ? 16 : 0);
     const k = [...this.players.values()].map(p => [p.n, p.x, p.y, p.px, p.py, now - p.at, p.powerUntil > now ? POWER_KNIGHT_MS : KNIGHT_MS, flags(p), p.dir === null ? -1 : p.dir]);
     const d = this.drones.map(x => [x.x, x.y, x.px, x.py, now - x.at, x.scared ? SCARED_MS : DRONE_MS, (x.scared ? 1 : 0) | (x.deadUntil ? 2 : 0), x.dir]);
-    const msg = { k, d, c: this.changes };
+    const msg = { t: now, k, d, c: this.changes };
     this.changes = [];
     if (this.feedChanged) {
       msg.feed = this.feed;
@@ -607,7 +609,7 @@ class PacKnight {
         p.dirty = false;
         this.io.to(p.socketId).emit('pk-tick', { ...msg, ranking: undefined, me: this.me(p, now, ranking || this.ranking()) });
       } else {
-        this.io.to(p.socketId).emit('pk-tick', { k, d, c: msg.c, feed: msg.feed });
+        this.io.to(p.socketId).emit('pk-tick', { t: now, k, d, c: msg.c, feed: msg.feed });
       }
     }
   }
