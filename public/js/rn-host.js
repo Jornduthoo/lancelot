@@ -166,15 +166,7 @@ $('rnh-thema-ai').addEventListener('click', () => {
 let aiPrompt = '';
 let gekopieerd = '';
 
-function kopieer(text) {
-  const t = el('textarea');
-  t.value = text;
-  document.body.appendChild(t);
-  t.select();
-  const ok = document.execCommand('copy');
-  t.remove();
-  if (!ok) navigator.clipboard?.writeText(text).catch(() => {});
-}
+const kopieer = text => Ui.kopieer(text);
 
 for (const b of document.querySelectorAll('.chatbot')) {
   b.addEventListener('click', () => {

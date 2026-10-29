@@ -506,8 +506,30 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', snelmenu);
   else snelmenu();
 
+  // Tekst naar het klembord, meteen bij de klik (vóór een window.open: daarna heeft de pagina de focus niet meer).
+  // Werkt ook op gewone http via het schoolnetwerk, waar navigator.clipboard vaak ontbreekt.
+  function kopieer(tekst) {
+    const actief = document.activeElement;
+    const t = document.createElement('textarea');
+    t.value = tekst;
+    t.setAttribute('readonly', '');
+    t.style.cssText = 'position:fixed;top:0;left:0;width:1px;height:1px;opacity:0';
+    // In een open venster (dialog) zelf: alles daarbuiten is onbereikbaar zolang het open staat.
+    (document.querySelector('dialog[open]') || document.body).appendChild(t);
+    t.select();
+    let ok = false;
+    try { ok = document.execCommand('copy'); } catch {}
+    t.remove();
+    if (actief && actief.focus) actief.focus({ preventScroll: true });
+    if (ok) return true;
+    if (!navigator.clipboard?.writeText) return false;
+    navigator.clipboard.writeText(tekst).catch(() => {});
+    return true;
+  }
+
   window.Ui = {
     tabs,
+    kopieer,
     vraag: (tekst, o = {}) => wachtrij(tekst, [
       { tekst: o.nee || 'Annuleren', klas: 'secondary', waarde: false },
       { tekst: o.ja || 'Ja', klas: o.gevaar ? 'danger' : '', waarde: true },

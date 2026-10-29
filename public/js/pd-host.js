@@ -284,14 +284,9 @@ $('pd-kopieer').addEventListener('click', () => {
   $('pd-tekst').showModal();
   $('pd-tekst-in').select();
 });
-$('pd-tekst-kopie').addEventListener('click', async () => {
+$('pd-tekst-kopie').addEventListener('click', () => {
   const t = $('pd-tekst-in');
-  try {
-    await navigator.clipboard.writeText(t.value);
-  } catch {
-    t.select();
-    document.execCommand('copy');
-  }
+  if (!Ui.kopieer(t.value)) return t.select();
   $('pd-tekst-kopie').textContent = '✓ Gekopieerd';
   setTimeout(() => { $('pd-tekst-kopie').textContent = '📋 Kopiëren'; }, 1500);
 });

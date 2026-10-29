@@ -252,17 +252,8 @@ function volgendeGroep() {
   return open.filter(l => l.map === open[0].map).slice(0, per);
 }
 
-async function kopieer(tekst) {
-  try {
-    await navigator.clipboard.writeText(tekst);
-  } catch {
-    const t = document.createElement('textarea');
-    t.value = tekst;
-    document.body.appendChild(t);
-    t.select();
-    document.execCommand('copy');
-    t.remove();
-  }
+function kopieer(tekst) {
+  Ui.kopieer(tekst);
   promptGekopieerd = true;
   laatsteKlembord = tekst;
 }
@@ -284,16 +275,16 @@ async function kopieerPakket() {
 }
 $('r-copy').addEventListener('click', kopieerPakket);
 for (const b of document.querySelectorAll('.chatbot')) {
-  b.addEventListener('click', async () => {
-    // Het venster meteen openen: na een await blokkeert de browser het soms.
+  b.addEventListener('click', () => {
+    // Eerst kopiëren (de pagina heeft dan nog de focus), dan meteen het venster openen.
     if (b.hasAttribute('data-plan')) {
-      window.open(b.dataset.url, '_blank', 'noopener');
       planGekopieerd = true;
-      return kopieer(planPrompt());
+      kopieer(planPrompt());
+      return window.open(b.dataset.url, '_blank', 'noopener');
     }
     if (!wil().length || !volgendeGroep().length) return kopieerPakket();
-    window.open(b.dataset.url, '_blank', 'noopener');
     kopieerPakket();
+    window.open(b.dataset.url, '_blank', 'noopener');
   });
 }
 

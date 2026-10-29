@@ -134,15 +134,7 @@ $('odh-wis').addEventListener('click', async () => {
 });
 
 // Zelf via een chatbot: prompt kopiëren, chatbot openen, en het antwoord bij terugkomst van het klembord halen.
-function kopieer(text) {
-  const t = el('textarea');
-  t.value = text;
-  document.body.appendChild(t);
-  t.select();
-  const ok = document.execCommand('copy');
-  t.remove();
-  if (!ok) navigator.clipboard?.writeText(text).catch(() => {});
-}
+const kopieer = text => Ui.kopieer(text);
 
 // De prompt vooraf klaarzetten: kopiëren moet meteen bij de klik gebeuren, anders houdt de browser het tegen.
 let promptVoor = '';
