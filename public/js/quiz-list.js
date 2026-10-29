@@ -580,7 +580,35 @@ const ItemList = (() => {
     });
   }
 
-  return { mount };
+  // "In map:" in de editor: wat je bewaart, komt meteen in die map.
+  // Een nieuw item start in de map die open stond in de lijst, een bestaand item in zijn eigen map.
+  // Zonder mappen blijft het veld verborgen.
+  function mapKeuze(sel, kind) {
+    const k = KINDS[kind];
+    let folders = [];
+    let items = [];
+    let wil = '';
+    const fill = () => {
+      sel.innerHTML = '<option value="">Hoofdmap</option>' + folders.map(f => `<option value="${esc(f)}">📁 ${esc(f.split('/').join(' › '))}</option>`).join('');
+      sel.value = folders.includes(wil) ? wil : '';
+      sel.closest('label').classList.toggle('hidden', !folders.length);
+    };
+    socket.on(k.folders, list => { folders = list || []; fill(); });
+    socket.on(k.list, list => { items = list || []; });
+    sel.addEventListener('change', () => { wil = sel.value; });
+    fill();
+    return {
+      zet(file) {
+        if (file) wil = (items.find(q => q.file === file) || {}).folder || '';
+        else try { wil = localStorage.getItem(`lancelot-map-hier-${kind}`) || ''; } catch { wil = ''; }
+        fill();
+      },
+      // undefined = niets aan de map veranderen (er zijn geen mappen).
+      waarde: () => (folders.length ? sel.value : undefined),
+    };
+  }
+
+  return { mount, mapKeuze };
 })();
 
 // Elke quizlijst kan een quiz verwijderen, in elk spel (een pagina mag een eigen remove meegeven).

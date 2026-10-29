@@ -453,6 +453,12 @@ const LIBS = {
   resultaat: { mod: { lib: results.lib, list: results.items }, list: 'res-lijst', folders: 'res-mappen' },
 };
 
+// "In map:" uit de editor: het bewaarde item meteen in die map zetten. Een verdwenen map: dan blijft het waar het was.
+function plaatsIn(kind, file, folder) {
+  if (typeof folder !== 'string') return;
+  try { LIBS[kind].mod.lib.move(file, folder); } catch {}
+}
+
 // Zonder target: naar alle docentenschermen, en daarna ook naar de lesmap (er werd iets bewaard, verplaatst of verwijderd).
 function sendLibrary(kind, target, fromSync = false) {
   const l = LIBS[kind];
@@ -1166,8 +1172,9 @@ io.on('connection', socket => {
     socket.on('lib-import', lib((l, { text, folder }) => l.importBundle(text, folder || '')));
     socket.on('parse', handle(text => ({ quiz: quizzes.parseAiText(text) })));
     socket.on('open-quiz', handle(file => ({ quiz: quizzes.load(file) })));
-    socket.on('save', handle(({ quiz, file } = {}) => {
+    socket.on('save', handle(({ quiz, file, folder } = {}) => {
       const saved = quizzes.save(quiz, file);
+      plaatsIn('quiz', saved, folder);
       refreshList();
       return { file: saved };
     }));
@@ -1542,8 +1549,9 @@ io.on('connection', socket => {
     socket.on('ob-parse', handle(text => ({ sheet: oefenbladen.parseAiText(text) })));
     socket.on('ob-check', handle(sheet => ({ sheet: oefenbladen.validate(sheet) })));
     socket.on('ob-open', handle(file => ({ sheet: oefenbladen.load(file) })));
-    socket.on('ob-save', handle(({ sheet, file } = {}) => {
+    socket.on('ob-save', handle(({ sheet, file, folder } = {}) => {
       const saved = oefenbladen.save(sheet, file);
+      plaatsIn('oefenblad', saved, folder);
       refreshSheets();
       return { file: saved };
     }));
@@ -1672,8 +1680,9 @@ io.on('connection', socket => {
     const refreshProeven = () => sendLibrary('proef');
     socket.on('pf-parse', handle(text => ({ toets: proeven.parseAiText(text) })));
     socket.on('pf-open', handle(file => ({ toets: proeven.load(file) })));
-    socket.on('pf-save', handle(({ toets, file } = {}) => {
+    socket.on('pf-save', handle(({ toets, file, folder } = {}) => {
       const saved = proeven.save(toets, file);
+      plaatsIn('proef', saved, folder);
       refreshProeven();
       return { file: saved };
     }));
