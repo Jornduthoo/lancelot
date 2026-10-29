@@ -12,7 +12,9 @@ function store(key, value) {
   }
 }
 
-const socket = io({ autoConnect: false });
+// Vanuit de beheerpagina kijkt de leerkracht zelf rond: geen naam kiezen, alles open, niets op het bord.
+const OD_LK = new URLSearchParams(location.search).get('leerkracht') === '1';
+const socket = io(OD_LK ? { autoConnect: false, query: { role: 'host', leerkracht: '1' } } : { autoConnect: false });
 document.addEventListener('DOMContentLoaded', () => socket.connect());
 const $ = id => document.getElementById(id);
 
@@ -20,7 +22,7 @@ const OD_STAP = 190; // ms per vakje
 const OD_RICHTING = [[0, -1], [1, 0], [0, 1], [-1, 0]];
 
 const od = {
-  naam: store('lancelot-name') || '',
+  naam: OD_LK ? 'Leerkracht' : store('lancelot-name') || '',
   stand: null,
   kaartId: 'woud',
   kaart: null,
@@ -44,7 +46,7 @@ function odToon(scherm) {
   $('od-join').classList.toggle('hidden', scherm !== 'join');
   $('od-slot').classList.toggle('hidden', scherm !== 'slot');
   $('od-game').classList.toggle('hidden', scherm !== 'spel');
-  $('od-switch').classList.toggle('hidden', scherm !== 'spel');
+  $('od-switch').classList.toggle('hidden', scherm !== 'spel' || OD_LK);
   if (scherm === 'spel') odMaat();
 }
 
@@ -56,7 +58,7 @@ function odLaad(naam = od.naam) {
       return odToon('join');
     }
     od.naam = res.naam;
-    store('lancelot-name', res.naam);
+    if (!res.leerkracht) store('lancelot-name', res.naam);
     for (const el of document.querySelectorAll('.od-wereldnaam')) el.textContent = res.wereld;
     document.title = `LANcelot · ${res.wereld}`;
     odStand(res);
@@ -89,7 +91,12 @@ $('od-join').addEventListener('submit', e => {
   od.naam = naam;
   odLaad(naam);
 });
-$('od-name').value = od.naam;
+$('od-name').value = OD_LK ? '' : od.naam;
+if (OD_LK) {
+  // Terug gaat naar de beheerpagina, en bovenaan staat dat je als leerkracht rondkijkt.
+  for (const a of document.querySelectorAll('a[href="/"]')) a.href = '/ontdek-beheer';
+  document.body.classList.add('od-lk');
+}
 $('od-switch').addEventListener('click', () => klasSwitch());
 $('od-switch-slot').addEventListener('click', () => klasSwitch());
 
@@ -151,7 +158,7 @@ function odScherm(x, y) {
 
 function odGebied() {
   if (od.kaartId === 'labo') return 'Het Labo';
-  return od.kaart.ruine(od.ik.x) ? 'De Neonruïnes' : 'Het Kristalwoud';
+  return (OD_LK ? 'Leerkracht · ' : '') + (od.kaart.ruine(od.ik.x) ? 'De Neonruïnes' : 'Het Kristalwoud');
 }
 
 // ---------- Tekenen ----------
