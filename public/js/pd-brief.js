@@ -58,6 +58,8 @@
       ${b.fotos.length ? `<div class="pd-fotos n${b.fotos.length}">${b.fotos.map(f => `<img src="${esc(f)}" alt="">`).join('')}</div>` : ''}</section>`;
   }
 
+  const enkelToetsen = b => b.toon.toetsen && !b.toon.doelen && !b.toon.oefenen && !b.toon.eer && !b.toon.nieuws;
+
   function blad(res, lid) {
     const b = res.brief;
     const l = res.leerlingen.find(x => x.id === lid);
@@ -66,7 +68,7 @@
     const klas = [res.klas.naam, res.klas.leerjaar ? `${res.klas.leerjaar}e leerjaar` : ''].filter(Boolean).join(' · ');
     const inhoud = [toetsenHtml(b, l), doelenHtml(b, l), klasHtml(b, l), nieuwsHtml(b)].join('');
     return `<article class="pd-blad">
-      <header class="pd-kop">${ZEGEL}<div><p class="pd-klein">${esc(klas)}${klas ? ' · ' : ''}${esc(periode(b))}</p><h1>Brief voor thuis</h1><p class="pd-naam">${esc(l.naam)}</p></div></header>
+      <header class="pd-kop">${ZEGEL}<div><p class="pd-klein">${esc(klas)}${klas ? ' · ' : ''}${esc(periode(b))}</p><h1>${enkelToetsen(b) ? 'Toetsen' : 'Brief voor thuis'}</h1><p class="pd-naam">${esc(l.naam)}</p></div></header>
       ${woordje ? `<section class="pd-woordje">${paras(woordje)}<p class="pd-afz">${esc(b.afzender || 'Je leerkracht')}</p></section>` : ''}
       ${inhoud || '<p class="pd-klein">Er is deze periode nog niets om te tonen.</p>'}
       ${b.toon.strookje ? `<footer class="pd-strook"><p>✂ Gelezen door de ouders van <strong>${esc(l.naam)}</strong></p><div><span>Handtekening:</span><i></i></div><div><span>Een berichtje voor de leerkracht:</span><i></i></div><div><i></i></div></footer>` : ''}

@@ -22,6 +22,11 @@ const TOON = [
   ['nieuws', '📣 Het klasnieuws'],
   ['strookje', '✂ Strookje om te tekenen'],
 ];
+// De twee soorten brieven: enkel de toetsen, of alles. "Zelf kiezen" zet de vinkjes apart.
+const SOORTEN = {
+  toetsen: { toetsen: true, verbeterd: true, gemiddelde: true, doelen: false, oefenen: false, eer: false, nieuws: false, strookje: true },
+  alles: { toetsen: true, verbeterd: true, gemiddelde: true, doelen: true, oefenen: true, eer: true, nieuws: true, strookje: true },
+};
 const ZINNEN = [
   '{naam} werkte heel goed mee. Proficiat!',
   '{naam} is een fijne klasgenoot die graag helpt.',
@@ -131,7 +136,20 @@ for (const k of ['van', 'tot']) {
   });
 }
 
+for (const knop of $('pd-soort').querySelectorAll('button')) {
+  knop.addEventListener('click', () => {
+    pd.data.brief.toon = { ...SOORTEN[knop.dataset.soort] };
+    tekenOpties();
+    bewaar();
+    voorbeeld();
+  });
+}
+
 function tekenOpties() {
+  const toon = pd.data.brief.toon;
+  const soort = Object.keys(SOORTEN).find(k => Object.entries(SOORTEN[k]).every(([x, v]) => toon[x] === v)) || '';
+  for (const knop of $('pd-soort').querySelectorAll('button')) knop.classList.toggle('on', knop.dataset.soort === soort);
+  $('pd-nieuws-blok').classList.toggle('hidden', !toon.nieuws);
   const box = $('pd-toon');
   box.replaceChildren();
   for (const [k, label] of TOON) {
@@ -139,7 +157,7 @@ function tekenOpties() {
     const c = el('input');
     c.type = 'checkbox';
     c.checked = !!pd.data.brief.toon[k];
-    c.addEventListener('change', () => { pd.data.brief.toon[k] = c.checked; bewaar(); voorbeeld(); });
+    c.addEventListener('change', () => { pd.data.brief.toon[k] = c.checked; tekenOpties(); bewaar(); voorbeeld(); });
     l.append(c, document.createTextNode(label));
     box.append(l);
   }

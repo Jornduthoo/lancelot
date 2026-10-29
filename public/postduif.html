@@ -50,12 +50,18 @@
     <div class="pd-werk">
       <!-- Links: wat in elke brief staat -->
       <div class="panel pd-opties">
+        <h3>✉️ Wat stuur je mee?</h3>
+        <div class="pd-soort" id="pd-soort">
+          <button type="button" data-soort="toetsen"><strong>📝 Enkel toetsen</strong><span>De punten en de verbeterde toets</span></button>
+          <button type="button" data-soort="alles"><strong>✉️ Alles</strong><span>Ook doelen, Eer en klasnieuws</span></button>
+        </div>
+        <details class="pd-zelf"><summary>Zelf kiezen</summary><div id="pd-toon"></div></details>
+        <div class="pd-nieuws-blok" id="pd-nieuws-blok">
         <h3>📣 Nieuws uit de klas</h3>
         <textarea id="pd-nieuws" rows="5" maxlength="2000" placeholder="bv. Deze week bezochten we het museum. Volgende vrijdag is het sportdag: breng sportkledij mee!"></textarea>
         <div class="pd-fotolijst" id="pd-fotos"></div>
         <label class="secondary small" style="align-self:flex-start;cursor:pointer" id="pd-foto-knop">📷 Foto toevoegen <input type="file" id="pd-foto" accept="image/*" hidden></label>
-        <h3>✅ Wat staat erin?</h3>
-        <div id="pd-toon"></div>
+        </div>
         <label class="pd-datum-in" style="font-size:.9rem">Ondertekend door <input id="pd-afzender" maxlength="60" placeholder="bv. Juf Sarah"></label>
       </div>
 
