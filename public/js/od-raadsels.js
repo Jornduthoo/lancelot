@@ -34,6 +34,12 @@ const OdRaadsels = (() => {
     route: 'Zoek de kortste vlucht tussen de wolken.',
     drijven: 'Wat drijft er, en wat zinkt?',
     thermo: 'Lees de thermometer af.',
+    tafels: 'Laat de mijnkar rijden met de tafels.',
+    lijn: 'Zet de getallen op het mijnspoor.',
+    patroon: 'Vul de edelsteenwand aan.',
+    eenheden: 'Reken de maten om in het maanlab.',
+    opp: 'Meet het grondplan van de maankoepel.',
+    sterren: 'Verbind de sterren in de juiste volgorde.',
   };
   let nu = null; // het open raadsel
   let bezig = false;
@@ -138,9 +144,13 @@ const OdRaadsels = (() => {
         ijsraket: '❄️ Genoeg kristallen voor de ijsraket! Ze staat in de Sterrenhaven.',
         duikboot: '🐠 Genoeg kristallen voor de duikboot! Ze ligt bij de vijver op de Drakenkust.',
         luchtballon: '🎈 Genoeg kristallen voor de luchtballon! Hij staat in het IJsrijk.',
+        mijnlift: '⛏️ Genoeg kristallen voor de mijnlift! Hij staat op de Vuurberg.',
+        maanraket: '🌙 Genoeg kristallen voor de maanraket! Ze staat in de Wolkenstad.',
+        kroonburcht: '🏰 Genoeg kristallen voor de Gouden Burcht! De banier staat in het woud.',
       };
       const wat = st && st.bouw && Object.keys(tips).find(k => !st.gebouwd.includes(k) && (!st.bouw[k].nodig || st.gebouwd.includes(st.bouw[k].nodig)) && st.kristallen >= st.bouw[k].kost);
       if (wat) b.appendChild(el('p', 'od-brug-tip', tips[wat]));
+      else if (st && (st.opdrachten || []).some(o => !o.gehaald && o.tel >= o.doel)) b.appendChild(el('p', 'od-brug-tip', '📜 Er is een opdracht klaar! Haal je kristallen op in je boek.'));
     } else {
       beloning.appendChild(el('span', 'muted', 'Goed geoefend! De kristallen van deze plek had je vandaag al.'));
     }
@@ -2143,7 +2153,358 @@ const OdRaadsels = (() => {
     body().appendChild(getalVeld(getalStuur));
   }
 
-  const TEKEN = { schuif, robot, licht, stroom, tandwiel, wip, woorden, code, weetje, weeg, reeks, pixel, sudoku, doolhof, toren, ijs, klok, spiegel, codeslot, lampen, hanoi, breuk, munten, coord, kubus, magisch, route, drijven, thermo };
+  // Een rij vragen na elkaar, elk met een getal als antwoord (komma mag). Pas op het einde kijkt de server alles na.
+  function vragenRij(r, opdracht, foutTekst) {
+    const pz = r.pz;
+    const antw = [];
+    const kop = el('p', 'od-opdracht', '');
+    body().appendChild(kop);
+    const vraag = el('p', 'od-vraag-groot od-som', '');
+    body().appendChild(vraag);
+    const f = el('form', 'od-typ od-getal');
+    const inp = el('input');
+    inp.inputMode = 'decimal';
+    inp.autocomplete = 'off';
+    inp.placeholder = '?';
+    f.appendChild(inp);
+    const b = el('button', 'gold', 'Volgende');
+    b.type = 'submit';
+    f.appendChild(b);
+    body().appendChild(f);
+    const balk = el('div', 'od-voortgang');
+    const vul = el('span', '');
+    balk.appendChild(vul);
+    body().appendChild(balk);
+    function toonVraag() {
+      const i = antw.length;
+      kop.textContent = `${opdracht} (${i + 1} van ${pz.vragen.length})`;
+      vraag.textContent = pz.vragen[i];
+      vul.style.width = `${(i / pz.vragen.length) * 100}%`;
+      b.textContent = i === pz.vragen.length - 1 ? 'Klaar!' : 'Volgende';
+      inp.value = '';
+      inp.focus();
+    }
+    f.addEventListener('submit', e => {
+      e.preventDefault();
+      const v = inp.value.trim().replace(',', '.');
+      if (v === '' || Number.isNaN(Number(v))) return melding('Typ een getal.', 'fout');
+      melding('');
+      sfx.tick();
+      antw.push(Number(v));
+      if (antw.length < pz.vragen.length) return toonVraag();
+      stuur(antw.slice(), res => {
+        if (res.klaar) return klaar(res);
+        sfx.bad();
+        antw.length = 0;
+        melding(foutTekst, 'fout');
+        toonVraag();
+      });
+    });
+    setTimeout(toonVraag, 50);
+  }
+
+  // ---------- Mijnen: de mijnkar (tafels) ----------
+
+  function tafels(r) {
+    vragenRij(r, 'Los alle sommen op, dan rijdt de mijnkar.', 'Er was een som fout. De mijnkar begint opnieuw!');
+  }
+
+  // ---------- Mijnen: het mijnspoor (getallenlijn) ----------
+
+  function lijn(r) {
+    const pz = r.pz;
+    const antw = [];
+    const vraag = el('p', 'od-vraag-groot', '');
+    body().appendChild(vraag);
+    body().appendChild(el('p', 'od-opdracht', 'Tik op de plaats waar het getal op het spoor hoort.'));
+    const c = el('canvas', 'od-bord');
+    const W = Math.min(body().clientWidth || 340, 560);
+    const H = 130;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    c.width = W * dpr;
+    c.height = H * dpr;
+    c.style.width = `${W}px`;
+    c.style.height = `${H}px`;
+    const g = c.getContext('2d');
+    g.scale(dpr, dpr);
+    body().appendChild(c);
+    const L = 30;
+    const R = W - 30;
+    const Y = 70;
+    const tekst = x => String(Math.round(x * 100) / 100).replace('.', ',');
+    function teken() {
+      const q = pz.vragen[Math.min(antw.length, pz.vragen.length - 1)];
+      const xVan = v => L + ((v - q.van) / (q.tot - q.van)) * (R - L);
+      g.fillStyle = '#1a1424';
+      g.fillRect(0, 0, W, H);
+      // het spoor met dwarsliggers
+      for (let x = L; x <= R; x += 12) {
+        g.fillStyle = '#5a4030';
+        g.fillRect(x - 3, Y - 8, 6, 16);
+      }
+      g.fillStyle = '#c8ccd8';
+      g.fillRect(L, Y - 6, R - L, 3);
+      g.fillRect(L, Y + 3, R - L, 3);
+      g.textAlign = 'center';
+      g.textBaseline = 'top';
+      g.font = 'bold 13px sans-serif';
+      const n = Math.round((q.tot - q.van) / q.stap);
+      for (let i = 0; i <= n; i++) {
+        const v = q.van + i * q.stap;
+        const x = xVan(v);
+        const groot = i === 0 || i === n || (n > 10 ? i % 5 === 0 : true);
+        g.fillStyle = '#ffe08a';
+        g.fillRect(x - 1, Y + 10, 2, groot ? 14 : 8);
+        if (groot && (n <= 10 || i % 5 === 0)) g.fillText(tekst(v), x, Y + 27);
+      }
+      vraag.textContent = antw.length < pz.vragen.length ? `${antw.length + 1}/${pz.vragen.length} · Waar staat ${tekst(q.doel)}?` : '';
+    }
+    c.addEventListener('click', e => {
+      if (antw.length >= pz.vragen.length) return;
+      const q = pz.vragen[antw.length];
+      const rc = c.getBoundingClientRect();
+      const px = Math.max(L, Math.min(R, e.clientX - rc.left));
+      let v = q.van + ((px - L) / (R - L)) * (q.tot - q.van);
+      // op de page-lijn tot 20 springt de kar naar het dichtste getal
+      if (q.stap === 1 && q.tot - q.van <= 20) v = Math.round(v);
+      if (Math.abs(v - q.doel) > OdPuzzels.lijnMarge(q)) {
+        sfx.bad();
+        melding('Net niet! Kijk goed naar de streepjes en probeer opnieuw.', 'fout');
+        return;
+      }
+      antw.push(Math.round(v * 1000) / 1000);
+      sfx.good();
+      melding('');
+      teken();
+      if (antw.length === pz.vragen.length) stuur(antw.slice());
+    });
+    teken();
+  }
+
+  // ---------- Mijnen: de edelsteenwand (patronen) ----------
+
+  const EDEL = ['#ff5a7a', '#4cc9ff', '#ffc94a', '#2ee6a6', '#c77dff'];
+  function patroon(r) {
+    const pz = r.pz;
+    const keuze = pz.gaten.map(() => -1);
+    let klaarGezet = false;
+    body().appendChild(el('p', 'od-opdracht', 'De edelstenen volgen een patroon. Tik op een gat om de juiste steen te kiezen.'));
+    const b = bord(pz.kol, pz.rij);
+    const { g, vak } = b;
+    function steen(x, y, kleur, leeg) {
+      const cx = (x + 0.5) * vak;
+      const cy = (y + 0.5) * vak;
+      const s = vak * 0.36;
+      if (leeg) {
+        g.strokeStyle = 'rgba(255,255,255,.5)';
+        g.setLineDash([4, 4]);
+        g.lineWidth = 2;
+        g.strokeRect(cx - s, cy - s, s * 2, s * 2);
+        g.setLineDash([]);
+        return;
+      }
+      g.fillStyle = BuArt.shade(kleur, -0.25);
+      g.beginPath();
+      g.moveTo(cx, cy - s);
+      g.lineTo(cx + s, cy);
+      g.lineTo(cx, cy + s);
+      g.lineTo(cx - s, cy);
+      g.closePath();
+      g.fill();
+      g.fillStyle = kleur;
+      g.beginPath();
+      g.moveTo(cx, cy - s);
+      g.lineTo(cx + s * 0.5, cy - s * 0.1);
+      g.lineTo(cx, cy + s * 0.3);
+      g.lineTo(cx - s * 0.5, cy - s * 0.1);
+      g.closePath();
+      g.fill();
+    }
+    function tekenWand() {
+      g.fillStyle = '#2a2236';
+      g.fillRect(0, 0, b.w, b.h);
+      for (let i = 0; i < pz.rij * pz.kol; i++) {
+        const x = i % pz.kol;
+        const y = Math.floor(i / pz.kol);
+        rrect(g, x * vak + 2, y * vak + 2, vak - 4, vak - 4, 6, '#3a3048');
+        const j = pz.gaten.indexOf(i);
+        if (j < 0) steen(x, y, EDEL[pz.v[i]]);
+        else if (keuze[j] < 0) steen(x, y, null, true);
+        else steen(x, y, EDEL[keuze[j]]);
+      }
+    }
+    b.c.addEventListener('click', e => {
+      if (klaarGezet) return;
+      const [x, y] = b.vakOp(e);
+      const j = pz.gaten.indexOf(y * pz.kol + x);
+      if (j < 0) return;
+      keuze[j] = (keuze[j] + 1) % pz.kleuren;
+      sfx.tick();
+      tekenWand();
+      if (keuze.every(k => k >= 0)) {
+        stuur(keuze.slice(), res => {
+          if (res.klaar) { klaarGezet = true; return klaar(res); }
+          melding('Nog niet. Kijk hoe het patroon in elke rij opschuift.', 'fout');
+        });
+      }
+    });
+    tekenWand();
+  }
+
+  // ---------- Maanbasis: het maanlab (maten) ----------
+
+  function eenheden(r) {
+    vragenRij(r, 'Reken om. Een kommagetal mag (bijvoorbeeld 2,5).', 'Er was een antwoord fout. Probeer de reeks opnieuw!');
+  }
+
+  // ---------- Maanbasis: de koepelbouw (oppervlakte en omtrek) ----------
+
+  function opp(r) {
+    const pz = r.pz;
+    if (pz.soort === 'L') {
+      body().appendChild(el('p', 'od-opdracht', 'Het grondplan van een nieuwe maankoepel (in meter).'));
+      const c = el('canvas', 'od-klok-bord');
+      const S = Math.min(300, Math.floor(window.innerHeight * 0.38));
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      c.width = S * dpr;
+      c.height = S * dpr;
+      c.style.width = `${S}px`;
+      c.style.height = `${S}px`;
+      const g = c.getContext('2d');
+      g.scale(dpr, dpr);
+      body().appendChild(c);
+      const u = (S - 70) / Math.max(pz.A, pz.B);
+      const ox = 40;
+      const oy = 30;
+      const P = (x, y) => [ox + x * u, oy + y * u];
+      // de L-vorm: rechthoek A op B zonder het hoekje a op b rechtsboven
+      const pts = [[0, 0], [pz.A - pz.a, 0], [pz.A - pz.a, pz.b], [pz.A, pz.b], [pz.A, pz.B], [0, pz.B]];
+      g.fillStyle = 'rgba(159,243,255,.25)';
+      g.strokeStyle = '#9ff3ff';
+      g.lineWidth = 3;
+      g.beginPath();
+      pts.forEach((p, i) => (i ? g.lineTo(...P(...p)) : g.moveTo(...P(...p))));
+      g.closePath();
+      g.fill();
+      g.stroke();
+      g.fillStyle = '#ffe08a';
+      g.font = 'bold 14px sans-serif';
+      g.textAlign = 'center';
+      g.textBaseline = 'middle';
+      const zet = (t, x, y) => g.fillText(`${t} m`, ...P(x, y));
+      zet(pz.A, pz.A / 2, pz.B + 0.9);
+      zet(pz.B, -1.1, pz.B / 2);
+      zet(pz.A - pz.a, (pz.A - pz.a) / 2, -0.8);
+      zet(pz.b, pz.A - pz.a - 1.1, pz.b / 2);
+      zet(pz.a, pz.A - pz.a / 2, pz.b - 0.8);
+      zet(pz.B - pz.b, pz.A + 1.2, (pz.b + pz.B) / 2);
+    } else {
+      body().appendChild(el('p', 'od-opdracht', 'Het grondplan van een nieuwe maankoepel. Elk vakje is 1 meter op 1 meter.'));
+      const b = bord(pz.W, pz.H);
+      const { g, vak } = b;
+      g.fillStyle = '#1b2236';
+      g.fillRect(0, 0, b.w, b.h);
+      const cel = new Set(pz.cellen);
+      for (let i = 0; i < pz.W * pz.H; i++) {
+        const x = i % pz.W;
+        const y = Math.floor(i / pz.W);
+        g.strokeStyle = 'rgba(159,243,255,.25)';
+        g.lineWidth = 1;
+        g.strokeRect(x * vak + 0.5, y * vak + 0.5, vak - 1, vak - 1);
+        if (cel.has(i)) {
+          g.fillStyle = 'rgba(159,243,255,.35)';
+          g.fillRect(x * vak + 1, y * vak + 1, vak - 2, vak - 2);
+        }
+      }
+      // de buitenrand dik
+      g.strokeStyle = '#9ff3ff';
+      g.lineWidth = 3;
+      for (const i of pz.cellen) {
+        const x = i % pz.W;
+        const y = Math.floor(i / pz.W);
+        const buur = (dx, dy) => cel.has((y + dy) * pz.W + x + dx) && x + dx >= 0 && x + dx < pz.W;
+        g.beginPath();
+        if (!buur(0, -1)) { g.moveTo(x * vak, y * vak); g.lineTo((x + 1) * vak, y * vak); }
+        if (!buur(0, 1)) { g.moveTo(x * vak, (y + 1) * vak); g.lineTo((x + 1) * vak, (y + 1) * vak); }
+        if (!buur(-1, 0)) { g.moveTo(x * vak, y * vak); g.lineTo(x * vak, (y + 1) * vak); }
+        if (!buur(1, 0)) { g.moveTo((x + 1) * vak, y * vak); g.lineTo((x + 1) * vak, (y + 1) * vak); }
+        g.stroke();
+      }
+    }
+    body().appendChild(el('p', 'od-vraag-groot', pz.vraag === 'opp' ? 'Hoeveel vierkante meter (m²) is de koepel groot?' : 'Hoeveel meter is de omtrek (de rand rondom)?'));
+    body().appendChild(getalVeld(getalStuur));
+  }
+
+  // ---------- Maanbasis: de sterrenkijker (verbind de sterren) ----------
+
+  function sterren(r) {
+    const pz = r.pz;
+    const pad = [];
+    let klaarGezet = false;
+    body().appendChild(el('p', 'od-opdracht', 'Verbind de sterren van het kleinste naar het grootste getal. Zo verschijnt een sterrenbeeld.'));
+    const b = bord(8, 6);
+    const { g } = b;
+    const pos = s => [s.x * b.w, s.y * b.h];
+    const volgende = () => {
+      const vrij = pz.sterren.map((s, i) => i).filter(i => !pad.includes(i));
+      return vrij.reduce((m, i) => (m < 0 || pz.sterren[i].g < pz.sterren[m].g ? i : m), -1);
+    };
+    function tekenSterren() {
+      g.fillStyle = '#0a0f24';
+      g.fillRect(0, 0, b.w, b.h);
+      for (let i = 0; i < 40; i++) {
+        g.fillStyle = 'rgba(255,255,255,.35)';
+        g.fillRect((i * 97) % b.w, (i * 53) % b.h, 1.5, 1.5);
+      }
+      g.strokeStyle = '#ffe08a';
+      g.lineWidth = 2.5;
+      g.beginPath();
+      pad.forEach((i, k) => (k ? g.lineTo(...pos(pz.sterren[i])) : g.moveTo(...pos(pz.sterren[i]))));
+      g.stroke();
+      g.textAlign = 'center';
+      g.textBaseline = 'middle';
+      g.font = 'bold 14px sans-serif';
+      pz.sterren.forEach((s, i) => {
+        const [x, y] = pos(s);
+        const aan = pad.includes(i);
+        g.fillStyle = aan ? '#ffe08a' : '#ffffff';
+        g.beginPath();
+        for (let k = 0; k < 10; k++) {
+          const a = (k / 10) * Math.PI * 2 - Math.PI / 2;
+          const rr = k % 2 ? 4 : 10;
+          g.lineTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr);
+        }
+        g.closePath();
+        g.fill();
+        g.fillStyle = aan ? '#ffe08a' : '#9ff3ff';
+        g.fillText(s.t, x, y + 20);
+      });
+    }
+    b.c.addEventListener('click', e => {
+      if (klaarGezet) return;
+      const rc = b.c.getBoundingClientRect();
+      const px = e.clientX - rc.left;
+      const py = e.clientY - rc.top;
+      const i = pz.sterren.findIndex(s => Math.hypot(pos(s)[0] - px, pos(s)[1] - py) < 22);
+      if (i < 0 || pad.includes(i)) return;
+      if (i !== volgende()) {
+        sfx.bad();
+        return melding(`${pz.sterren[i].t} is nog niet aan de beurt. Zoek het kleinste getal dat nog over is.`, 'fout');
+      }
+      melding('');
+      pad.push(i);
+      sfx.tick();
+      tekenSterren();
+      if (pad.length === pz.sterren.length) {
+        klaarGezet = true;
+        sfx.good();
+        setTimeout(() => stuur(pad.slice()), 500);
+      }
+    });
+    tekenSterren();
+  }
+
+  const TEKEN = { schuif, robot, licht, stroom, tandwiel, wip, woorden, code, weetje, weeg, reeks, pixel, sudoku, doolhof, toren, ijs, klok, spiegel, codeslot, lampen, hanoi, breuk, munten, coord, kubus, magisch, route, drijven, thermo, tafels, lijn, patroon, eenheden, opp, sterren };
 
   // ---------- Woordenboek en ontdekkersboek ----------
 
@@ -2165,7 +2526,37 @@ const OdRaadsels = (() => {
     $('odb-nf').textContent = boekData.weetjes.length;
     for (const k of document.querySelectorAll('[data-boek]')) k.classList.toggle('on', k.dataset.boek === boekTab);
     if (od.stand && od.stand.runenTotaal) b.appendChild(el('p', 'od-runen-tel', `🪨 Verborgen runenstenen gevonden: ${(od.stand.runen || []).length} van de ${od.stand.runenTotaal}`));
-    if (boekTab === 'woorden') {
+    const opdr = (od.stand && od.stand.opdrachten) || [];
+    $('odb-no').textContent = `${opdr.filter(o => o.gehaald).length}/${opdr.length}`;
+    if (boekTab === 'opdrachten') {
+      b.appendChild(el('p', 'muted', 'Grote doelen voor echte ontdekkers. Klaar? Haal dan zelf je kristallen op.'));
+      for (const o of opdr) {
+        const rij = el('div', `od-opdr${o.gehaald ? ' gehaald' : ''}`);
+        const tekst = el('div', 'od-opdr-tekst');
+        tekst.appendChild(el('b', '', o.tekst));
+        const balk = el('div', 'od-voortgang');
+        const vul = el('span', '');
+        vul.style.width = `${(o.tel / o.doel) * 100}%`;
+        balk.appendChild(vul);
+        tekst.appendChild(balk);
+        tekst.appendChild(el('small', 'muted', `${o.tel} van ${o.doel}`));
+        rij.appendChild(tekst);
+        if (o.gehaald) rij.appendChild(el('span', 'od-opdr-ok', '✓'));
+        else if (o.tel >= o.doel) {
+          rij.appendChild(knop(`+${o.kristallen} 💎`, 'gold klein', () => {
+            socket.emit('od-opdracht', { naam: od.naam, id: o.id }, res => {
+              if (!res || res.error) return odToast((res && res.error) || 'Dat lukte niet.');
+              odStand(res.stand);
+              sfx.fanfare();
+              confetti(1800);
+              odToast(`Opdracht gehaald! +${res.kristallen} kristallen.`, 3000);
+              tekenBoek();
+            });
+          }));
+        } else rij.appendChild(el('span', 'od-opdr-beloning', `${o.kristallen} 💎`));
+        b.appendChild(rij);
+      }
+    } else if (boekTab === 'woorden') {
       if (!boekData.woorden.length) b.appendChild(el('p', 'muted', 'Nog leeg. Bij de Woordenwachter en het Runenportaal vind je nieuwe woorden.'));
       for (const w of boekData.woorden) b.appendChild(woordKaart({ woord: w.w, b: w.b, z: w.z }, false));
     } else {

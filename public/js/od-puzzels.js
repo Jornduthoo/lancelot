@@ -1350,6 +1350,194 @@
   }
   const checkThermo = (pz, poging) => Number(poging) === pz.opl;
 
+  // ---------- Mijnen: de mijnkar (tafels) ----------
+  // Een rij sommen na elkaar. Pas als alles juist is, rijdt de mijnkar.
+
+  function maakTafels(n, r) {
+    const t = r.t || 0;
+    const aantal = 6 + (t >= 3 ? 2 : 0) + (t >= 8 ? 2 : 0);
+    const sommen = [];
+    const opl = [];
+    for (let i = 0; i < aantal; i++) {
+      let a;
+      let b;
+      if (n === 'page') {
+        a = r.pick([1, 2, 3, 4, 5, 10].concat(t >= 4 ? [6, 7, 8, 9] : []));
+        b = 1 + r.int(10);
+        sommen.push(`${a} × ${b}`);
+        opl.push(a * b);
+      } else if (n === 'schildknaap' || r() < 0.5) {
+        a = 2 + r.int(9);
+        b = 1 + r.int(10);
+        if (r() < 0.5) { sommen.push(`${a} × ${b}`); opl.push(a * b); } else { sommen.push(`${a * b} : ${a}`); opl.push(b); }
+      } else {
+        a = 2 + r.int(11);
+        b = 2 + r.int(9);
+        const nul = r.pick([10, 100]);
+        if (r() < 0.5) { sommen.push(`${a} × ${b * nul}`); opl.push(a * b * nul); } else { sommen.push(`${a * b * nul} : ${a}`); opl.push(b * nul); }
+      }
+    }
+    return { vragen: sommen.map(s => `${s} =`), opl };
+  }
+  const checkRij = (pz, poging) => Array.isArray(poging) && poging.length === pz.opl.length
+    && poging.every((x, i) => Math.abs(Number(String(x).replace(',', '.')) - pz.opl[i]) < 1e-9);
+
+  // ---------- Mijnen: het mijnspoor (getallenlijn) ----------
+
+  function maakLijn(n, r) {
+    const t = r.t || 0;
+    const vragen = [];
+    for (let i = 0; i < 3; i++) {
+      let van = 0;
+      let tot;
+      let stap;
+      let doel;
+      if (n === 'page') {
+        tot = t >= 4 ? 100 : 20;
+        stap = tot === 20 ? 1 : 10;
+        doel = 1 + r.int(tot - 1);
+      } else if (n === 'schildknaap') {
+        tot = r.pick(t >= 4 ? [1000, 10000] : [100, 1000]);
+        stap = tot / 10;
+        doel = (1 + r.int(99)) * (tot / 100);
+      } else if (r() < 0.5) {
+        van = -10;
+        tot = 10;
+        stap = 1;
+        doel = r.int(19) - 9;
+      } else {
+        tot = r.pick([1, 10]);
+        stap = tot / 10;
+        doel = tot === 1 ? (1 + r.int(99)) / 100 : (1 + r.int(99)) / 10;
+      }
+      vragen.push({ van, tot, stap, doel });
+    }
+    return { vragen };
+  }
+  // Je mag er een beetje naast tikken: 2 procent van de lijn (de page iets ruimer).
+  const lijnMarge = q => (q.tot - q.van) * (q.stap === 1 && q.tot <= 20 ? 0.03 : 0.02);
+  const checkLijn = (pz, poging) => Array.isArray(poging) && poging.length === pz.vragen.length
+    && poging.every((x, i) => Math.abs(Number(x) - pz.vragen[i].doel) <= lijnMarge(pz.vragen[i]) + 1e-9);
+
+  // ---------- Mijnen: de edelsteenwand (patronen) ----------
+  // De stenen volgen een vast patroon dat elke rij een stukje opschuift. Vul de gaten.
+
+  function maakPatroon(n, r) {
+    const t = r.t || 0;
+    const [rij, kol] = { page: [3, 6], schildknaap: [4, 7], ridder: [5, 8] }[n];
+    const p = { page: 2 + r.int(2), schildknaap: 3 + r.int(2), ridder: 4 + r.int(2) }[n] + (t >= 6 ? 1 : 0);
+    const kleuren = Math.min(p, { page: 3, schildknaap: 4, ridder: 5 }[n]);
+    const reeks = [];
+    for (let i = 0; i < p; i++) reeks.push(i < kleuren ? i : r.int(kleuren));
+    const rij0 = r.shuffle(reeks);
+    if (new Set(rij0).size < 2) rij0[0] = (rij0[1] + 1) % kleuren;
+    const schuif = n === 'page' ? 0 : 1 + r.int(p - 1);
+    const v = [];
+    for (let y = 0; y < rij; y++) for (let x = 0; x < kol; x++) v.push(rij0[(x + schuif * y) % p]);
+    const leeg = { page: 4, schildknaap: 6, ridder: 9 }[n] + Math.min(4, Math.floor(t / 2));
+    // nooit de hele eerste rij weg, anders zie je het patroon niet meer
+    const kan = [...v.keys()].filter(i => i >= Math.min(p, kol));
+    const gaten = r.shuffle(kan).slice(0, leeg).sort((a, b) => a - b);
+    return { rij, kol, kleuren, gaten, v: v.map((c, i) => (gaten.includes(i) ? null : c)), opl: gaten.map(i => v[i]) };
+  }
+  const checkPatroon = (pz, poging) => Array.isArray(poging) && poging.length === pz.opl.length && poging.every((c, i) => Number(c) === pz.opl[i]);
+
+  // ---------- Maanbasis: het maanlab (maten herleiden) ----------
+
+  function maakEenheden(n, r) {
+    const t = r.t || 0;
+    const aantal = 4 + (t >= 4 ? 2 : 0);
+    const vragen = [];
+    const opl = [];
+    const kom = x => String(Math.round(x * 1000) / 1000).replace('.', ',');
+    const PAAR = [['m', 'cm', 100], ['kg', 'g', 1000], ['l', 'ml', 1000], ['km', 'm', 1000], ['m', 'mm', 1000], ['l', 'cl', 100], ['cm', 'mm', 10], ['u', 'min', 60]];
+    for (let i = 0; i < aantal; i++) {
+      const [groot, klein, f] = r.pick(n === 'page' ? PAAR.slice(0, 4) : PAAR);
+      if (n === 'page') {
+        const a = 1 + r.int(9);
+        if (r() < 0.5) { vragen.push(`${a} ${groot} = ? ${klein}`); opl.push(a * f); } else { vragen.push(`${a * f} ${klein} = ? ${groot}`); opl.push(a); }
+      } else if (n === 'schildknaap') {
+        const a = f === 60 ? 1 + r.int(4) + r.pick([0, 0.5]) : (1 + r.int(40)) / (f >= 100 ? 4 : 2);
+        if (r() < 0.5) { vragen.push(`${kom(a)} ${groot} = ? ${klein}`); opl.push(Math.round(a * f * 1000) / 1000); } else { vragen.push(`${kom(a * f)} ${klein} = ? ${groot}`); opl.push(a); }
+      } else {
+        const a = 1 + r.int(9);
+        const b = 1 + r.int(f - 1);
+        if (f === 60 || r() < 0.5) { vragen.push(`${a} ${groot} ${b} ${klein} = ? ${klein}`); opl.push(a * f + b); }
+        else { vragen.push(`${kom(a * f + b)} ${klein} = ? ${groot}`); opl.push(Math.round(((a * f + b) / f) * 1000) / 1000); }
+      }
+    }
+    return { vragen, opl };
+  }
+
+  // ---------- Maanbasis: de koepelbouw (oppervlakte en omtrek) ----------
+
+  function maakOpp(n, r) {
+    const t = r.t || 0;
+    if (n === 'ridder') {
+      // een L-vorm met maten
+      const A = 6 + r.int(7 + t);
+      const B = 5 + r.int(6 + t);
+      const a = 2 + r.int(A - 3);
+      const b = 2 + r.int(B - 3);
+      const vraag = r() < 0.5 ? 'opp' : 'omtrek';
+      return { soort: 'L', A, B, a, b, vraag, opl: vraag === 'opp' ? A * B - a * b : 2 * (A + B) };
+    }
+    const W = 6;
+    const H = 5;
+    const groot = { page: 5, schildknaap: 6 }[n] + r.int(4) + Math.min(4, Math.floor(t / 2));
+    const cel = new Set([Math.floor(H / 2) * W + Math.floor(W / 2)]);
+    while (cel.size < groot) {
+      const c = r.pick([...cel]);
+      const x = c % W;
+      const y = Math.floor(c / W);
+      const d = r.int(4);
+      const nx = x + DX[d];
+      const ny = y + DY[d];
+      if (nx >= 0 && ny >= 0 && nx < W && ny < H) cel.add(ny * W + nx);
+    }
+    const lijst = [...cel].sort((a, b) => a - b);
+    const vraag = n === 'page' && t < 5 ? 'opp' : r() < 0.6 ? 'omtrek' : 'opp';
+    let omtrek = 0;
+    for (const c of lijst) for (let d = 0; d < 4; d++) {
+      const nx = (c % W) + DX[d];
+      const ny = Math.floor(c / W) + DY[d];
+      if (nx < 0 || ny < 0 || nx >= W || ny >= H || !cel.has(ny * W + nx)) omtrek++;
+    }
+    return { soort: 'raster', W, H, cellen: lijst, vraag, opl: vraag === 'opp' ? lijst.length : omtrek };
+  }
+
+  // ---------- Maanbasis: de sterrenkijker (verbind de sterren) ----------
+
+  function maakSterren(n, r) {
+    const t = r.t || 0;
+    const aantal = { page: 7, schildknaap: 9, ridder: 10 }[n] + Math.min(4, Math.floor(t / 2));
+    let start;
+    let stap;
+    if (n === 'page') { start = 1 + r.int(t >= 3 ? 30 : 10); stap = t >= 3 ? r.pick([1, 2, 10]) : 1; }
+    else if (n === 'schildknaap') { stap = 3 + r.int(7); start = stap; }
+    else if (r() < 0.5) { stap = r.pick([0.5, 0.25, 0.1]); start = 0; }
+    else { stap = r.pick([2, 3, 5]); start = -stap * (2 + r.int(3)); }
+    const getallen = Array.from({ length: aantal }, (_, i) => Math.round((start + i * stap) * 100) / 100);
+    const tekst = getallen.map(x => String(x).replace('.', ','));
+    // posities: willekeurig, maar niet te dicht bij elkaar
+    const pos = [];
+    for (let i = 0; i < aantal; i++) {
+      let p;
+      for (let k = 0; k < 200; k++) {
+        p = [0.08 + r() * 0.84, 0.1 + r() * 0.8];
+        if (pos.every(q => Math.hypot(q[0] - p[0], q[1] - p[1]) > 0.17)) break;
+      }
+      pos.push(p);
+    }
+    const volgorde = r.shuffle([...Array(aantal).keys()]); // volgorde[i] = welk getal ster i draagt
+    return { sterren: volgorde.map((g, i) => ({ x: pos[i][0], y: pos[i][1], t: tekst[g], g: getallen[g] })) };
+  }
+  // Tik de sterren aan van klein naar groot.
+  function checkSterren(pz, poging) {
+    if (!Array.isArray(poging) || poging.length !== pz.sterren.length || new Set(poging).size !== poging.length) return false;
+    return poging.every((i, k) => pz.sterren[i] && (!k || pz.sterren[i].g > pz.sterren[poging[k - 1]].g));
+  }
+
   // ---------- Samen ----------
 
   const SOORTEN = {
@@ -1379,6 +1567,12 @@
     route: { maak: maakRoute, check: checkRoute },
     drijven: { maak: maakDrijven, check: checkDrijven },
     thermo: { maak: maakThermo, check: checkThermo },
+    tafels: { maak: maakTafels, check: checkRij },
+    lijn: { maak: maakLijn, check: checkLijn },
+    patroon: { maak: maakPatroon, check: checkPatroon },
+    eenheden: { maak: maakEenheden, check: checkRij },
+    opp: { maak: maakOpp, check: (pz, poging) => Number(poging) === pz.opl },
+    sterren: { maak: maakSterren, check: checkSterren },
   };
 
   // trap: hoe vaak je deze plek al oploste (1, 2, 3...). Hoe hoger, hoe moeilijker.
@@ -1402,6 +1596,6 @@
 
   return {
     NIVEAUS, SOORTEN: Object.keys(SOORTEN), maak, check, rng,
-    schuifZet, schuifKlaar, robotLoop, doolhofLoop, lijnGetallen, WAREN, ijsGlij, ijsLoop, spiegelVeld, slotHint, lampenTik, hanoiLoop, routeLengte, minMunten, lichtPad, stroomBereik, stroomOk, draai, wipLinks, KAATS, DX, DY,
+    schuifZet, schuifKlaar, robotLoop, doolhofLoop, lijnGetallen, WAREN, ijsGlij, ijsLoop, spiegelVeld, slotHint, lampenTik, hanoiLoop, routeLengte, minMunten, lijnMarge, lichtPad, stroomBereik, stroomOk, draai, wipLinks, KAATS, DX, DY,
   };
 }));
