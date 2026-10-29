@@ -26,6 +26,7 @@ function laad() {
     if (!$('odh-leerjaar').dataset.gezet) {
       $('odh-leerjaar').value = res.eigen.leerjaar || String(res.leerjaar);
       if (!$('odh-leerjaar').value) $('odh-leerjaar').value = '6';
+      maakPrompt();
       $('odh-leerjaar').dataset.gezet = '1';
     }
   });
@@ -143,17 +144,33 @@ function kopieer(text) {
   if (!ok) navigator.clipboard?.writeText(text).catch(() => {});
 }
 
+// De prompt vooraf klaarzetten: kopiëren moet meteen bij de klik gebeuren, anders houdt de browser het tegen.
+let promptVoor = '';
+let promptTik = 0;
+function maakPrompt() {
+  clearTimeout(promptTik);
+  promptTik = setTimeout(() => {
+    const sleutel = $('odh-leerjaar').value + '|' + $('odh-onderwerp').value;
+    socket.emit('od-prompt', { leerjaar: $('odh-leerjaar').value, onderwerp: $('odh-onderwerp').value }, res => {
+      if (res && !res.error) { promptTekst = res.prompt; promptVoor = sleutel; }
+    });
+  }, 250);
+}
+$('odh-leerjaar').addEventListener('change', maakPrompt);
+$('odh-onderwerp').addEventListener('input', maakPrompt);
+socket.on('connect', maakPrompt);
+
 for (const b of document.querySelectorAll('.chatbot')) {
   b.addEventListener('click', () => {
-    socket.emit('od-prompt', { leerjaar: $('odh-leerjaar').value, onderwerp: $('odh-onderwerp').value }, res => {
-      if (!res || res.error) return;
-      promptTekst = res.prompt;
-      gekopieerd = promptTekst;
-      kopieer(promptTekst);
-      info('Prompt gekopieerd! Plak hem met Ctrl+V, kopieer het antwoord (kopieerknop van het codeblok) en kom hier terug.');
-    });
-    // Het tabblad meteen openen (anders houdt de browser het tegen).
+    if (promptVoor !== $('odh-leerjaar').value + '|' + $('odh-onderwerp').value || !promptTekst) {
+      maakPrompt();
+      return info('Even geduld, de prompt wordt klaargezet. Klik zo nog eens op de knop.');
+    }
+    gekopieerd = promptTekst;
+    // Eerst kopiëren (de pagina heeft dan nog de focus), dan het tabblad openen.
+    kopieer(promptTekst);
     window.open(b.dataset.url, '_blank', 'noopener');
+    info('Prompt gekopieerd! Plak hem met Ctrl+V, kopieer het antwoord (kopieerknop van het codeblok) en kom hier terug.');
   });
 }
 
