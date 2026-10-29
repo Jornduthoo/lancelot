@@ -62,6 +62,10 @@ function odLaad(naam = od.naam) {
     for (const el of document.querySelectorAll('.od-wereldnaam')) el.textContent = res.wereld;
     document.title = `LANcelot · ${res.wereld}`;
     odStand(res);
+    if (!res.leerkracht) socket.emit('hd-teken', res.naam, d => {
+      od.dier = d && d.fase ? d : null;
+      odSnuif();
+    });
     if (!res.toegang.mag) {
       $('od-slot-tekst').textContent = res.toegang.tekst;
       $('od-slot-taken').classList.toggle('hidden', res.toegang.reden !== 'taken');
@@ -87,6 +91,7 @@ function odStand(s) {
   $('od-opdracht-stip').classList.toggle('hidden', !(s.opdrachten || []).some(o => !o.gehaald && o.tel >= o.doel));
   $('od-boek-aantal').classList.toggle('leeg', !(s.woorden + s.weetjes));
   if (od.kaart && od.gebaktMet !== odSleutel()) odBak();
+  odSnuif();
 }
 
 const odSleutel = () => `${od.kaartId}|${(od.stand && od.stand.gebouwd || []).join(',')}|${(od.stand && od.stand.runen || []).length}`;
@@ -231,6 +236,57 @@ function odSpriteRidder() {
 }
 const odStandaardRidder = Avatar.random();
 
+// Je huisdier uit Mijn huisdier volgt je, een halve stap achter je. Ligt er een runensteen dichtbij, dan snuffelt het.
+function odDier(t) {
+  if (!od.dier) return null;
+  const ik = od.ik;
+  if (!od.dierPos || od.dierPos.kaart !== od.kaartId) od.dierPos = { kaart: od.kaartId, x: ik.vx, y: ik.vy };
+  const [dx, dy] = OD_RICHTING[ik.dir] || [0, 1];
+  const doel = { x: ik.vx - dx * 0.75 + 0.3, y: ik.vy - dy * 0.75 + 0.3 };
+  const p = od.dierPos;
+  p.x += (doel.x - p.x) * 0.08;
+  p.y += (doel.y - p.y) * 0.08;
+  return {
+    som: p.x + p.y,
+    teken() {
+      const g = odG;
+      const [sx, sy] = odScherm(p.x, p.y);
+      const s = HdArt.sprite(od.dier, Math.round(od.T * 0.5));
+      const hup = Math.abs(Math.sin(t / 160)) * (Math.hypot(doel.x - p.x, doel.y - p.y) > 0.1 ? od.T * 0.05 : 0);
+      g.drawImage(s, Math.round(sx - s.width / 2), Math.round(sy - s.height + od.T * 0.06 - hup));
+      if (od.snuif) {
+        const by = sy - s.height - od.T * 0.08 + Math.sin(t / 200) * od.T * 0.04;
+        g.fillStyle = 'rgba(10,16,32,.85)';
+        g.beginPath();
+        g.arc(sx, by, od.T * 0.14, 0, Math.PI * 2);
+        g.fill();
+        g.fillStyle = '#ffe14a';
+        g.font = `900 ${Math.round(od.T * 0.2)}px sans-serif`;
+        g.textAlign = 'center';
+        g.textBaseline = 'middle';
+        g.fillText('!', sx, by + 1);
+      }
+    },
+  };
+}
+
+// Ligt er een runensteen die je nog niet vond binnen 4 stappen? Dan snuffelt je huisdier.
+function odSnuif() {
+  od.snuif = false;
+  if (!od.dier || !od.kaart) return;
+  const ik = od.ik;
+  const gevonden = (od.stand && od.stand.runen) || [];
+  for (let y = ik.y - 4; y <= ik.y + 4; y++) {
+    for (let x = ik.x - 4; x <= ik.x + 4; x++) {
+      if (Math.abs(x - ik.x) + Math.abs(y - ik.y) > 4) continue;
+      if (OdWereld.teken(od.kaart, x, y) === 'J' && !gevonden.includes(`${od.kaartId}:${x},${y}`)) {
+        od.snuif = true;
+        return;
+      }
+    }
+  }
+}
+
 function odTeken(t) {
   const g = odG;
   const W = odCanvas.width;
@@ -297,8 +353,12 @@ function odTeken(t) {
     g.fill();
     g.drawImage(r, sx - w / 2, sy - h + od.T * 0.05 - stap, w, h);
   };
+  // Je huisdier loopt achter je aan (en snuffelt als er een runensteen in de buurt ligt).
+  const dier = odDier(t);
+  if (dier && dier.som <= ikSom) dier.teken();
   // De stukken zitten al in de gebakken vloer. Stukken die vóór de ridder staan en hem raken, nog eens over hem heen.
   tekenIk();
+  if (dier && dier.som > ikSom) dier.teken();
   const [ix, iy] = odScherm(ik.vx, ik.vy);
   for (const st of od.stukken) {
     if (st.x + st.y <= ikSom + 0.01) continue;
@@ -478,6 +538,7 @@ function odStap(t) {
 function odAangekomen() {
   const ik = od.ik;
   odBewaarPlek();
+  odSnuif();
   $('od-gebied').textContent = odGebied();
   const c = OdWereld.teken(od.kaart, ik.x, ik.y);
   if (c === 'D') return odDeur(od.kaart.binnenkaart || 'labo');

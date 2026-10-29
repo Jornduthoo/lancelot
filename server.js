@@ -100,6 +100,7 @@ const antigok = require('./src/antigok');
 const runen = require('./src/runen');
 const ontdek = require('./src/ontdek');
 const burchten = require('./src/burchten');
+const huisdieren = require('./src/huisdieren');
 const taken = require('./src/taken');
 const klastaken = require('./src/klastaken');
 const klasindeling = require('./src/klasindeling');
@@ -314,7 +315,7 @@ function oudeSpeler(name) {
 
 // Wie zit waar? Voor de knop "Namen" op elk docentenscherm. Een spel weet zijn spelers; op het Runenraadsel,
 // Mijn burcht, Mijn taken en het startscherm onthoudt de verbinding zelf welke naam erop staat.
-const ZONDER_SPEL = { runen: 'Runenraadsel', ontdek: ontdek.NAAM, burcht: 'Mijn burcht', taken: 'Mijn taken', solo: 'Taak in een spel', start: 'Wacht op een spel' };
+const ZONDER_SPEL = { runen: 'Runenraadsel', ontdek: ontdek.NAAM, burcht: 'Mijn burcht', huisdier: 'Mijn huisdier', taken: 'Mijn taken', solo: 'Taak in een spel', start: 'Wacht op een spel' };
 function hier(socket, naam, waar) {
   if (typeof naam !== 'string' || !naam.trim() || naam.length > 60 || !ZONDER_SPEL[waar]) return;
   socket.data.naam = naam.trim();
@@ -596,6 +597,11 @@ app.get('/burcht', (req, res) => {
   res.setHeader('Cache-Control', 'no-cache');
   res.sendFile(path.join(__dirname, 'public', 'burcht.html'));
 });
+// Mijn huisdier: een ei kiezen, verzorgen en zien groeien, op het eigen toestel.
+app.get('/huisdier', (req, res) => {
+  res.setHeader('Cache-Control', 'no-cache');
+  res.sendFile(path.join(__dirname, 'public', 'huisdier.html'));
+});
 beheer.routes(app, isLeerkracht);
 // De Kronieken: eigen bordboeken en handleidingen tonen en toevoegen (enkel de leerkracht).
 kronieken.routes(app, isLeerkracht, express, () => io.to('host').emit('kr-lijst', kronieken.lijst()));
@@ -826,6 +832,27 @@ io.on('connection', socket => {
     try { cb({ ok: true, ...burchten.view(naam) }); } catch (err) { cb({ error: err.message }); }
   });
   for (const [event, fn] of [['bu-zet', burchten.zet], ['bu-eilandje', burchten.eilandje], ['bu-stijl', burchten.stijl]]) {
+    socket.on(event, ({ naam, ...arg } = {}, cb) => {
+      if (typeof cb !== 'function') return;
+      try {
+        cb({ ok: true, ...fn(naam, arg) });
+        eilandSoon();
+      } catch (err) {
+        cb({ error: err.message });
+      }
+    });
+  }
+  // Mijn huisdier: kijken, een ei kiezen, naam/kleur/hoedje en verzorgen. Het Klaseiland toont het mee.
+  socket.on('hd-get', (naam, cb) => {
+    if (typeof cb !== 'function') return;
+    hier(socket, naam, 'huisdier');
+    try { cb({ ok: true, ...huisdieren.view(naam) }); } catch (err) { cb({ error: err.message }); }
+  });
+  socket.on('hd-teken', (naam, cb) => {
+    if (typeof cb !== 'function') return;
+    try { cb(huisdieren.tekenNaam(naam)); } catch { cb(null); }
+  });
+  for (const [event, fn] of [['hd-kies', huisdieren.kies], ['hd-stijl', huisdieren.stijl], ['hd-zorg', huisdieren.zorg]]) {
     socket.on(event, ({ naam, ...arg } = {}, cb) => {
       if (typeof cb !== 'function') return;
       try {

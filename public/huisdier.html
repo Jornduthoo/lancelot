@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#060a13">
+  <title>LANcelot · Mijn huisdier</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="apple-touch-icon" href="/img/icon-192.png">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/burcht.css">
+  <link rel="stylesheet" href="/huisdier.css">
+</head>
+<body class="player bu-page hd-page">
+<main>
+  <div class="bu-top">
+    <a class="terug-knop" href="/"><i class="ic ic-terug" aria-hidden="true"></i>Terug</a>
+    <canvas class="hd-logo" id="hd-logo" width="96" height="96" aria-hidden="true"></canvas>
+    <div class="bu-titel">
+      <div class="bu-naam-spel" id="hd-titel">Mijn huisdier</div>
+      <div class="bu-rang" id="hd-sub"></div>
+    </div>
+    <div class="bu-tellers hidden" id="hd-tellers">
+      <span class="bu-teller" title="Snoepjes om je huisdier te voeren. Elke 10 Eer: een snoepje."><b id="hd-snoep">0</b><i>🍬 snoep</i></span>
+    </div>
+  </div>
+
+  <div class="bu-spel-start hidden" id="hd-start-banner">
+    <span>⚔️ De leerkracht startte een spel!</span>
+    <a class="button gold" href="/">Ga meedoen</a>
+  </div>
+
+  <form id="hd-join" class="screen welcome hidden">
+    <p class="title">Mijn huisdier</p>
+    <p class="muted">Kies een ei, zorg ervoor en zie het groeien.</p>
+    <input id="hd-name" maxlength="20" autocomplete="off" placeholder="Je naam">
+    <p class="error" id="hd-join-error"></p>
+    <button type="submit" class="big">Naar mijn huisdier</button>
+  </form>
+
+  <!-- Een ei kiezen -->
+  <section id="hd-kies" class="hd-kies hidden">
+    <p class="hd-kop">Kies je ei</p>
+    <p class="muted">Je ei komt uit zodra je Eer verdient. Daarna groeit je huisdier mee.</p>
+    <div class="hd-soorten" id="hd-soorten"></div>
+    <div class="hd-kleuren" id="hd-kies-kleuren" aria-label="Kleur"></div>
+    <div class="hd-kies-rij">
+      <input id="hd-kies-naam" maxlength="16" placeholder="Naam van je huisdier (mag later ook)">
+      <button type="button" class="gold big" id="hd-kies-ok">🥚 Dit ei kiezen</button>
+    </div>
+    <button type="button" class="secondary hidden" id="hd-kies-terug">Annuleren</button>
+  </section>
+
+  <!-- Je huisdier -->
+  <section id="hd-spel" class="hidden">
+    <div class="bu-veld">
+      <div class="bu-links">
+        <div class="hd-podium" id="hd-podium">
+          <canvas id="hd-canvas"></canvas>
+          <p class="hd-ballon" id="hd-ballon" aria-live="polite"></p>
+          <div class="hd-spelbalk hidden" id="hd-spelbalk"><span id="hd-spel-tekst"></span><button type="button" class="secondary" id="hd-spel-stop">Stop</button></div>
+          <button type="button" class="gold big hd-wakker hidden" id="hd-wakker">☀️ Maak wakker</button>
+        </div>
+        <div class="hd-meters" id="hd-meters">
+          <div class="hd-meter"><span>🍖 Eten</span><div class="bu-balk"><span id="hd-m-voer"></span></div></div>
+          <div class="hd-meter"><span>⭐ Plezier</span><div class="bu-balk"><span id="hd-m-speel"></span></div></div>
+          <div class="hd-meter"><span>✨ Glans</span><div class="bu-balk"><span id="hd-m-poets"></span></div></div>
+        </div>
+        <div class="hd-acties" id="hd-acties">
+          <button type="button" class="hd-actie" data-doe="voer"><b>🍬</b>Voeren</button>
+          <button type="button" class="hd-actie" data-doe="poets"><b>🧽</b>Poetsen</button>
+          <button type="button" class="hd-actie" data-doe="speel"><b>⭐</b>Spelen</button>
+          <span class="hd-scheiding" aria-hidden="true"></span>
+          <span class="hd-trucs" id="hd-trucs"></span>
+        </div>
+        <p class="hd-ei-tekst hidden" id="hd-ei-tekst"></p>
+      </div>
+      <aside class="bu-zij">
+        <div class="bu-kaart">
+          <p class="bu-kaart-kop">Groeien</p>
+          <p class="bu-rang-naam" id="hd-fase"></p>
+          <div class="bu-balk"><span id="hd-groei-balk"></span></div>
+          <p class="muted small" id="hd-groei-tekst"></p>
+        </div>
+        <div class="bu-kaart">
+          <p class="bu-kaart-kop">Naam en kleur</p>
+          <input id="hd-naam-in" maxlength="16" placeholder="Geef je huisdier een naam">
+          <div class="hd-kleuren" id="hd-kleuren"></div>
+        </div>
+        <div class="bu-kaart">
+          <p class="bu-kaart-kop">Hoedjes</p>
+          <div class="hd-hoeden" id="hd-hoeden"></div>
+        </div>
+        <details class="bu-uitleg">
+          <summary>Hoe zorg ik voor mijn huisdier?</summary>
+          <p>Je huisdier groeit mee met elke Eer die je verdient, en een beetje extra als je ervoor zorgt.</p>
+          <p>🍬 Voeren kost een snoepje. Elke 10 Eer krijg je er een bij.</p>
+          <p>🧽 Poetsen: wrijf over je huisdier tot het glanst. ⭐ Spelen: vang zoveel mogelijk sterren.</p>
+          <p>Ben je een tijdje weg, dan valt je huisdier in slaap. Het wordt blij wakker als je terugkomt. Het verliest nooit iets.</p>
+          <p>Hoedjes verdien je met je wapenschilden in Mijn burcht. Elke fase leert je huisdier een nieuw trucje.</p>
+        </details>
+        <button type="button" class="secondary hidden" id="hd-ander-ei">🥚 Ander ei kiezen</button>
+        <button type="button" class="secondary klas-switch" id="hd-switch">Niet jij? Kies je naam</button>
+      </aside>
+    </div>
+  </section>
+</main>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/ui.js"></script>
+<script src="/js/fx.js"></script>
+<script src="/js/hd-art.js"></script>
+<script src="/js/hd-player.js"></script>
+<script src="/js/klas-kies.js"></script>
+</body>
+</html>

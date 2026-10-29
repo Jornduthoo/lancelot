@@ -68,7 +68,7 @@ function bouwWereld(e) {
   const ridders = new Map();
   for (const b of e.burchten) {
     const av = Avatar.byName(b.leerling);
-    if (av) b.ridder = Avatar.sprite(av, { k: 4 });
+    b.ridder = HdArt.metRidder(av ? Avatar.sprite(av, { k: 4 }) : null, b.dier);
   }
 
   // De rand van het eiland: een beetje grillig, met afgeronde hoeken.
@@ -522,7 +522,8 @@ function tourVolgende() {
   ke.tour.eilandje = (ke.eilandjes || []).find(e => e.b.id === p.b.id) || null;
   ke.tour.sinds = performance.now();
   $('ke-tour-wie').textContent = p.b.leerling;
-  $('ke-tour-burcht').textContent = p.b.naam || `De burcht van ${p.b.leerling}`;
+  const dier = p.b.dier && p.b.dier.fase && p.b.dier.naam ? ` · met ${p.b.dier.naam}` : '';
+  $('ke-tour-burcht').textContent = (p.b.naam || `De burcht van ${p.b.leerling}`) + dier;
   $('ke-tour').classList.remove('hidden');
   $('ke-tour').style.animation = 'none';
   void $('ke-tour').offsetWidth;
@@ -698,6 +699,12 @@ function boekTonen() {
       p.textContent = `🏰 ${l.burchtnaam}`;
       det.appendChild(p);
     }
+    if (l.diernaam) {
+      const p = document.createElement('div');
+      p.className = 'muted small';
+      p.textContent = `🐾 ${l.diernaam}`;
+      det.appendChild(p);
+    }
     const ul = document.createElement('ul');
     for (const p of l.posten) {
       const li = document.createElement('li');
@@ -721,10 +728,11 @@ function boekTonen() {
       boekTonen();
     }));
     acties.appendChild(terug);
-    if (l.burchtnaam) {
+    if (l.burchtnaam || l.diernaam) {
       const wis = document.createElement('button');
       wis.className = 'secondary mini';
-      wis.textContent = 'Burchtnaam wissen';
+      wis.textContent = 'Namen wissen';
+      wis.title = 'Wist de naam van de burcht en van het huisdier';
       wis.addEventListener('click', () => socket.emit('bu-wisnaam', l.id, res => {
         if (res && !res.error) {
           ke.boek = res.boek;
