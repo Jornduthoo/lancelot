@@ -273,23 +273,57 @@ body.tijd-om main { animation: tijd-om .5s ease-in-out 6; }
 #t-werklicht[data-licht="oranje"] .wl-titel { color: #ffb070; text-shadow: 0 0 30px rgb(255 140 66 / .7); }
 #t-werklicht[data-licht="groen"] .wl-titel { color: #6ff5c4; text-shadow: 0 0 30px rgb(46 230 166 / .7); }
 
-/* ---------- De Runensteen: dobbelstenen op een runentafel ---------- */
+/* ---------- De Runensteen: 3D-stenen in een houten dobbelbak ---------- */
 .rs-van-tot { display: flex; gap: 6px; }
 .rs-van-tot input { width: 90px; }
-.rs-tafel { position: relative; align-self: center; width: min(100%, 980px); min-height: 280px; display: grid; place-items: center; padding: 30px 40px; border-radius: 50%;
-  background: radial-gradient(ellipse at 50% 40%, #3a4258, #1a1f2e 70%); border: 8px solid #c9962e; box-shadow: 0 0 0 3px #1c1203, 0 20px 40px rgb(0 0 0 / .7), inset 0 0 50px rgb(0 0 0 / .7), inset 0 0 0 14px rgb(0 0 0 / .25); }
-.rs-tafel::before { content: ''; position: absolute; inset: 22px; border-radius: 50%; border: 2px dashed rgb(94 231 255 / .35); pointer-events: none; }
-.rs-stenen { display: flex; flex-wrap: wrap; justify-content: center; gap: 26px; cursor: pointer; }
-.rs-steen { width: 130px; height: 130px; display: grid; place-items: center; border-radius: 24px;
-  background: linear-gradient(145deg, #59607a, #232a3c 60%, #141a2b); border: 4px solid #e0a93a;
-  box-shadow: 0 0 0 2px #1c1203, inset 3px 3px 0 rgb(255 255 255 / .12), inset -4px -4px 10px rgb(0 0 0 / .5), 0 14px 22px rgb(0 0 0 / .65); animation: wk-pop .35s cubic-bezier(.2, 1.6, .4, 1); }
-.rs-steen.rol { animation: rs-rol .16s linear infinite; }
-@keyframes rs-rol { 50% { transform: rotate(14deg) translateY(-10px); } }
-.rs-steen b { font-family: var(--tech); font-size: 3.6rem; color: #c8f6ff; text-shadow: 0 0 18px rgb(94 231 255 / .9); }
-.rs-pips { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 86px; height: 86px; }
-.rs-pips i { border-radius: 50%; }
-.rs-pips i.aan { background: radial-gradient(circle at 40% 35%, #e9fbff, #5ee7ff 50%, #0d6a8a); box-shadow: 0 0 12px #5ee7ff; }
-.rs-som { align-self: center; text-align: center; min-height: 1.4em; font-family: var(--head); font-weight: 900; font-size: 2.4rem; color: #ffe08a; text-shadow: 0 0 22px rgb(255 201 74 / .7), 0 2px 0 #3a2504; }
+/* De bak: een eiken rand met gouden nagels in de hoeken, binnenin donker vilt met een runencirkel. */
+.rs-tafel { --rs-s: clamp(90px, 10vw, 150px); --rs-h: calc(var(--rs-s) / 2); align-self: center; width: min(100%, 1000px); padding: 22px; border-radius: 30px;
+  background:
+    radial-gradient(circle at 16px 16px, #ffe9a8 0 3px, #c9962e 4px 7px, #4a3008 8px, transparent 9px),
+    radial-gradient(circle at calc(100% - 16px) 16px, #ffe9a8 0 3px, #c9962e 4px 7px, #4a3008 8px, transparent 9px),
+    radial-gradient(circle at 16px calc(100% - 16px), #ffe9a8 0 3px, #c9962e 4px 7px, #4a3008 8px, transparent 9px),
+    radial-gradient(circle at calc(100% - 16px) calc(100% - 16px), #ffe9a8 0 3px, #c9962e 4px 7px, #4a3008 8px, transparent 9px),
+    repeating-linear-gradient(92deg, rgb(0 0 0 / 0) 0 14px, rgb(0 0 0 / .14) 15px 17px, rgb(0 0 0 / 0) 18px 31px, rgb(255 220 160 / .06) 32px 34px),
+    linear-gradient(180deg, #9a6438, #6e4223 40%, #4a2a14);
+  box-shadow: 0 0 0 3px #1c1203, inset 0 2px 0 rgb(255 220 160 / .35), inset 0 -3px 0 rgb(0 0 0 / .4), 0 24px 44px rgb(0 0 0 / .7); }
+.rs-vilt { position: relative; min-height: 300px; display: grid; place-items: center; padding: 40px 30px 54px; border-radius: 16px; overflow: hidden;
+  background: radial-gradient(ellipse at 50% 42%, #1d3a4a, #10202c 55%, #070e15);
+  box-shadow: inset 0 10px 22px rgb(0 0 0 / .8), inset 0 -4px 10px rgb(0 0 0 / .5), inset 0 0 0 2px rgb(0 0 0 / .5); }
+.rs-runen { position: absolute; left: 50%; top: 50%; height: 96%; aspect-ratio: 1; transform: translate(-50%, -50%); pointer-events: none;
+  fill: none; stroke: rgb(var(--k-cyan) / .28); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.rs-runen .dun { stroke-width: 1; stroke-dasharray: 4 7; }
+.rs-tafel.rolt .rs-runen { stroke: rgb(var(--k-cyan) / .55); transition: stroke .2s; }
+.rs-stenen { position: relative; display: flex; flex-wrap: wrap; justify-content: center; gap: 34px 40px; cursor: pointer; perspective: 1100px; }
+.rs-plek { position: relative; width: var(--rs-s); height: var(--rs-s); }
+.rs-schaduw { position: absolute; left: -8%; right: -8%; bottom: calc(var(--rs-s) * -.2); height: calc(var(--rs-s) * .34); border-radius: 50%;
+  background: radial-gradient(ellipse, rgb(0 0 0 / .75), rgb(0 0 0 / 0) 70%); }
+.rs-sprong, .rs-hoek, .rs-kubus { position: absolute; inset: 0; transform-style: preserve-3d; }
+/* Een beetje van boven en opzij bekeken: zo zie je dat het echte kubussen zijn. */
+.rs-hoek { transform: rotateX(-17deg) rotateY(19deg); }
+.rs-vlak { position: absolute; inset: 0; display: grid; place-items: center; border-radius: 16%; backface-visibility: hidden;
+  background: radial-gradient(circle at 30% 22%, #4d5772, #262d42 55%, #141927);
+  box-shadow: inset 0 0 0 3px rgb(var(--k-goud-d)), inset 0 0 0 5px rgb(0 0 0 / .45), inset 4px 5px 8px rgb(255 255 255 / .14), inset -6px -7px 12px rgb(0 0 0 / .55); }
+/* Binnenin drie donkere platen, zodat je door de afgeronde hoeken geen gaten ziet. */
+.rs-kern { position: absolute; inset: 4%; background: #141927; }
+.rs-kern.x { transform: rotateX(90deg); }
+.rs-kern.y { transform: rotateY(90deg); }
+/* Ogen: in de steen gegraveerd en van binnenuit oplichtend. */
+.rs-ogen { display: grid; grid-template-columns: repeat(3, 1fr); gap: 13%; width: 70%; height: 70%; }
+.rs-ogen i { border-radius: 50%; }
+.rs-ogen i.aan { background: radial-gradient(circle at 50% 60%, rgb(var(--k-cyan-l)), rgb(var(--k-cyan)) 45%, rgb(var(--k-op-cyan)) 95%);
+  box-shadow: inset 0 3px 3px rgb(0 0 0 / .7), 0 0 10px rgb(var(--k-cyan) / .75), 0 1px 0 rgb(255 255 255 / .15); }
+.rs-vlak b { font-family: var(--tech); font-weight: 800; font-size: calc(var(--rs-s) * .44); line-height: 1; color: rgb(var(--k-cyan-l));
+  text-shadow: 0 -2px 1px rgb(0 0 0 / .8), 0 0 16px rgb(var(--k-cyan) / .85); }
+.rs-vlak b.lang { font-size: calc(var(--rs-s) * .32); }
+.rs-som { align-self: center; min-height: 86px; display: grid; place-items: center; }
+/* De uitslag op een gouden plaat, zoals een gegraveerd schild. */
+.rs-plaat { display: inline-flex; align-items: baseline; gap: 14px; padding: 8px 34px 10px; border-radius: 14px; animation: wk-pop .45s cubic-bezier(.2, 1.6, .4, 1);
+  font-family: var(--head); font-weight: 900; color: rgb(var(--k-op-goud));
+  background: linear-gradient(180deg, rgb(var(--k-goud-l)), rgb(var(--k-goud)) 50%, rgb(var(--k-goud-d)));
+  box-shadow: 0 0 0 3px rgb(0 0 0 / .55), inset 0 2px 0 rgb(255 255 255 / .55), inset 0 -3px 0 rgb(0 0 0 / .25), 0 0 30px rgb(var(--k-goud) / .45), 0 10px 20px rgb(0 0 0 / .5); }
+.rs-plaat .rs-reeks { font-size: 1.8rem; opacity: .8; }
+.rs-plaat b { font-size: 3.4rem; line-height: 1; text-shadow: 0 1px 0 rgb(255 255 255 / .45); }
+@media (prefers-reduced-motion: reduce) { .rs-plaat { animation: none; } }
 
 /* ---------- De Heraut: een perkamentrol ---------- */
 .hr-maak { display: flex; flex-direction: column; gap: 12px; max-width: 900px; width: 100%; align-self: center; }
@@ -328,8 +362,9 @@ body.tijd-om main { animation: tijd-om .5s ease-in-out 6; }
   .wk-rek { padding: 8px 22px; }
   .wk-rek img { width: 40px; height: 40px; }
   .wk-rek a { font-size: .7rem; }
-  .rs-steen { width: 90px; height: 90px; }
-  .rs-pips { width: 60px; height: 60px; gap: 6px; }
-  .rs-steen b { font-size: 2.4rem; }
-  .rs-tafel { border-radius: 30px; padding: 24px 10px; }
+  .rs-tafel { --rs-s: 76px; padding: 14px; border-radius: 22px; }
+  .rs-vilt { min-height: 220px; padding: 30px 12px 40px; }
+  .rs-stenen { gap: 26px 24px; }
+  .rs-plaat .rs-reeks { font-size: 1.2rem; }
+  .rs-plaat b { font-size: 2.4rem; }
 }

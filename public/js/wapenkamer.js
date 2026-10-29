@@ -701,8 +701,22 @@ const Licht = (() => {
 })();
 
 // ---------- De Runensteen ----------
+// Echte 3D-stenen (CSS-kubussen) die over een houten dobbelbak tuimelen en stuiteren. Alleen transform/opacity
+// animeren, zodat het ook op een Chromebook en het digibord vloeiend blijft.
 (() => {
-  const PIPS = { 1: [4], 2: [0, 8], 3: [0, 4, 8], 4: [0, 2, 6, 8], 5: [0, 2, 4, 6, 8], 6: [0, 2, 3, 5, 6, 8] };
+  const PIPS = { 1: [4], 2: [2, 6], 3: [2, 4, 6], 4: [0, 2, 6, 8], 5: [0, 2, 4, 6, 8], 6: [0, 2, 3, 5, 6, 8] };
+  // Elke zijde van de kubus: het oog dat erop staat en hoe de kubus moet draaien om die zijde naar voren te brengen.
+  // Tegenover elkaar liggen samen altijd 7, zoals bij een echte steen.
+  const ZIJDEN = [
+    { oog: 1, zijde: '', x: 0, y: 0 },
+    { oog: 6, zijde: 'rotateY(180deg)', x: 0, y: 180 },
+    { oog: 3, zijde: 'rotateY(90deg)', x: 0, y: -90 },
+    { oog: 4, zijde: 'rotateY(-90deg)', x: 0, y: 90 },
+    { oog: 2, zijde: 'rotateX(90deg)', x: -90, y: 0 },
+    { oog: 5, zijde: 'rotateX(-90deg)', x: 90, y: 0 },
+  ];
+  const stenen = $('rs-stenen'), som = $('rs-som');
+  const vlak = matchMedia('(prefers-reduced-motion: reduce)').matches;
   let bezig = false;
   const bereik = () => {
     const s = $('rs-soort').value;
@@ -710,36 +724,74 @@ const Licht = (() => {
     const a = Math.round(+$('rs-van').value || 0), b = Math.round(+$('rs-tot').value || 0);
     return [Math.min(a, b), Math.max(a, b)];
   };
-  const steen = (w, rol) => {
+  const kans = (lo, hi) => lo + Math.floor(Math.random() * (hi - lo + 1));
+  const ogen = n => `<div class="rs-ogen">${Array.from({ length: 9 }, (_, i) => `<i class="${PIPS[n].includes(i) ? 'aan' : ''}"></i>`).join('')}</div>`;
+  const getal = w => `<b class="${String(w).length > 2 ? 'lang' : ''}">${w}</b>`;
+  // Bij een gewone steen staan de ogen vast; bij getallen komt de worp vooraan en de rest is willekeurig uit het bereik.
+  function kubus(w, zes, lo, hi) {
+    const voor = zes ? ZIJDEN.find(z => z.oog === w) : ZIJDEN[0];
+    const vlakken = ZIJDEN.map(z => `<div class="rs-vlak" style="transform:${z.zijde} translateZ(var(--rs-h))">${zes ? ogen(z.oog) : getal(z === voor ? w : kans(lo, hi))}</div>`).join('');
+    return { voor, html: `<div class="rs-plek"><div class="rs-schaduw"></div><div class="rs-sprong"><div class="rs-hoek"><div class="rs-kubus"><i class="rs-kern"></i><i class="rs-kern x"></i><i class="rs-kern y"></i>${vlakken}</div></div></div></div>` };
+  }
+  const draai = (z, x, y) => `rotateZ(${z}deg) rotateX(${x}deg) rotateY(${y}deg)`;
+  function leg(waarden, gooien) {
     const zes = $('rs-soort').value === '6';
-    const binnen = zes ? `<div class="rs-pips">${Array.from({ length: 9 }, (_, i) => `<i class="${PIPS[w].includes(i) ? 'aan' : ''}"></i>`).join('')}</div>` : `<b>${w}</b>`;
-    return `<div class="rs-steen ${zes ? 'zes' : ''} ${rol ? 'rol' : ''}">${binnen}</div>`;
-  };
+    const [lo, hi] = bereik();
+    const k = waarden.map(w => kubus(w, zes, lo, hi));
+    stenen.innerHTML = k.map(s => s.html).join('');
+    // Vanaf 4 stenen in twee nette rijen (2+2, 3+2, 3+3) in plaats van 5 en 1.
+    stenen.style.maxWidth = waarden.length >= 4 ? `calc(${Math.ceil(waarden.length / 2)} * (var(--rs-s) + 40px))` : '';
+    [...stenen.children].forEach((plek, i) => {
+      const { x, y } = k[i].voor, z = Math.round(Math.random() * 24 - 12);
+      const kub = plek.querySelector('.rs-kubus'), sprong = plek.querySelector('.rs-sprong'), schaduw = plek.querySelector('.rs-schaduw');
+      kub.style.transform = draai(z, x, y);
+      if (!gooien || vlak) return;
+      // Van linksboven de bak in gegooid, met een paar stuiters; elke steen een beetje anders.
+      const d = 1050 + Math.random() * 350, wacht = i * 70, dx = -380 - Math.random() * 220, dy = -140 - Math.random() * 120;
+      const spin = () => (Math.random() < .5 ? -1 : 1) * 360 * (2 + Math.floor(Math.random() * 2));
+      const opts = { duration: d, delay: wacht, fill: 'backwards' };
+      kub.animate([{ transform: draai(z + spin() / 2, x + spin(), y + spin()) }, { transform: draai(z, x, y) }], { ...opts, easing: 'cubic-bezier(.2,.65,.3,1)' });
+      sprong.animate([
+        { transform: `translate(${dx}px, ${dy}px)`, easing: 'cubic-bezier(.5,0,1,.6)' },
+        { transform: `translate(${dx * .32}px, 0)`, offset: .38, easing: 'cubic-bezier(0,.5,.5,1)' },
+        { transform: `translate(${dx * .14}px, -46px)`, offset: .55, easing: 'cubic-bezier(.5,0,1,.6)' },
+        { transform: `translate(${dx * .04}px, 0)`, offset: .72, easing: 'cubic-bezier(0,.5,.5,1)' },
+        { transform: `translate(${dx * .01}px, -12px)`, offset: .84, easing: 'cubic-bezier(.5,0,1,.6)' },
+        { transform: 'translate(0, 0)' },
+      ], opts);
+      schaduw.animate([
+        { transform: `translate(${dx}px, 0) scale(.4)`, opacity: .2 },
+        { transform: `translate(${dx * .32}px, 0) scale(1)`, opacity: 1, offset: .38 },
+        { transform: `translate(${dx * .14}px, 0) scale(.75)`, opacity: .6, offset: .55 },
+        { transform: `translate(${dx * .04}px, 0) scale(1)`, opacity: 1, offset: .72 },
+        { transform: 'translate(0, 0) scale(1)', opacity: 1 },
+      ], opts);
+      [.38, .72, .84].forEach((t, j) => setTimeout(() => sfx.dobbel(j), wacht + d * t));
+    });
+  }
+  function toonSom(w) {
+    som.innerHTML = w.length > 1
+      ? `<span class="rs-plaat"><span class="rs-reeks">${w.join(' + ')} =</span> <b>${w.reduce((a, b) => a + b, 0)}</b></span>`
+      : `<span class="rs-plaat"><b>${w[0]}</b></span>`;
+  }
   function gooi() {
     if (bezig) return;
     bezig = true;
     sfx.unlock();
-    const n = +$('rs-aantal').value;
+    sfx.swoosh();
     const [lo, hi] = bereik();
-    const worp = () => Array.from({ length: n }, () => lo + Math.floor(Math.random() * (hi - lo + 1)));
-    let k = 0;
-    $('rs-som').textContent = '';
-    const t = setInterval(() => {
-      const w = worp();
-      $('rs-stenen').innerHTML = w.map(x => steen(x, true)).join('');
-      sfx.tick(k % 2);
-      if (++k < 9) return;
-      clearInterval(t);
-      $('rs-stenen').innerHTML = w.map(x => steen(x, false)).join('');
-      $('rs-som').textContent = n > 1 ? `Samen: ${w.reduce((a, b) => a + b, 0)}` : '';
-      sfx.join();
-      bezig = false;
-    }, 80);
+    const w = Array.from({ length: +$('rs-aantal').value }, () => kans(lo, hi));
+    som.innerHTML = '';
+    stenen.closest('.rs-tafel').classList.add('rolt');
+    leg(w, true);
+    const klaar = vlak ? 0 : 1500 + w.length * 70;
+    setTimeout(() => { toonSom(w); sfx.join(); stenen.closest('.rs-tafel').classList.remove('rolt'); bezig = false; }, klaar);
   }
-  $('rs-soort').addEventListener('change', () => $('rs-eigen').classList.toggle('hidden', $('rs-soort').value !== 'eigen'));
+  $('rs-soort').addEventListener('change', () => { $('rs-eigen').classList.toggle('hidden', $('rs-soort').value !== 'eigen'); if (!bezig) { som.innerHTML = ''; leg(Array.from({ length: +$('rs-aantal').value }, () => kans(...bereik())), false); } });
+  $('rs-aantal').addEventListener('change', () => { if (!bezig) { som.innerHTML = ''; leg(Array.from({ length: +$('rs-aantal').value }, () => kans(...bereik())), false); } });
   $('rs-gooi').addEventListener('click', gooi);
-  $('rs-stenen').addEventListener('click', gooi);
-  $('rs-stenen').innerHTML = steen(6, false) + steen(3, false);
+  stenen.addEventListener('click', gooi);
+  leg([6, 3], false);
 })();
 
 // ---------- De Heraut ----------
