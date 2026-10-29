@@ -72,6 +72,7 @@ const oefenbladen = require('./src/oefenbladen');
 const reeks = require('./src/reeks');
 const kronieken = require('./src/kronieken');
 const zonnewijzer = require('./src/zonnewijzer');
+const zegelrol = require('./src/zegelrol');
 const { OefenbladLive } = require('./src/oefenblad-live');
 const proeven = require('./src/proeven');
 const { ProefLive } = require('./src/proef-live');
@@ -537,7 +538,7 @@ function ontdekSoon() {
 }
 
 // De docentenschermen, elk bij zijn adres.
-const PAGINAS = [['/host', 'host.html'], ['/rondetafel', 'rondetafel.html'], ['/toren', 'toren.html'], ['/schattenjacht', 'schattenjacht.html'], ['/laserslag', 'laserslag.html'], ['/ridderrace', 'ridderrace.html'], ['/kristalroof', 'kristalroof.html'], ['/verrader', 'verrader.html'], ['/burchtbouwers', 'burchtbouwers.html'], ['/duel', 'duel.html'], ['/packnight', 'packnight.html'], ['/strijdrossen', 'strijdrossen.html'], ['/gauntlet', 'gauntlet.html'], ['/ridder-royale', 'royale.html'], ['/sterrenvreter', 'sterrenvreter.html'], ['/ridderslang', 'ridderslang.html'], ['/burchtstorm', 'burchtstorm.html'], ['/poortwacht', 'poortwacht.html'], ['/neonvlucht', 'neonvlucht.html'], ['/diepboor', 'diepboor.html'], ['/pixelridder', 'pixelridder.html'], ['/robomol', 'robomol.html'], ['/kerker', 'kerker.html'], ['/hofschilder', 'hofschilder.html'], ['/robopaarden', 'robopaarden.html'], ['/neonduel', 'neonduel.html'], ['/leraarbaas', 'leraarbaas.html'], ['/cybergalaga', 'cybergalaga.html'], ['/bomberknight', 'bomberknight.html'], ['/rijk', 'rijk.html'], ['/oefenblad', 'oefenblad.html'], ['/proef', 'proef.html'], ['/proef-print', 'proef-print.html'], ['/reeks', 'reeks.html'], ['/wapenkamer', 'wapenkamer.html'], ['/kringgesprek', 'kringgesprek.html'], ['/kronieken', 'kronieken.html'], ['/zonnewijzer', 'zonnewijzer.html'], ['/oefenblad-print', 'oefenblad-print.html'], ['/klas', 'klas.html'], ['/zorg', 'zorg.html'], ['/taken', 'taken.html'], ['/zorg-fiche', 'zorg-fiche.html'], ['/runenraadsel', 'runenraadsel.html'], ['/ontdek-beheer', 'ontdek-beheer.html'], ['/klaseiland', 'klaseiland.html'], ['/netwerk', 'netwerk.html'], ['/welkom', 'welkom.html'], ['/privacy', 'privacy.html']];
+const PAGINAS = [['/host', 'host.html'], ['/rondetafel', 'rondetafel.html'], ['/toren', 'toren.html'], ['/schattenjacht', 'schattenjacht.html'], ['/laserslag', 'laserslag.html'], ['/ridderrace', 'ridderrace.html'], ['/kristalroof', 'kristalroof.html'], ['/verrader', 'verrader.html'], ['/burchtbouwers', 'burchtbouwers.html'], ['/duel', 'duel.html'], ['/packnight', 'packnight.html'], ['/strijdrossen', 'strijdrossen.html'], ['/gauntlet', 'gauntlet.html'], ['/ridder-royale', 'royale.html'], ['/sterrenvreter', 'sterrenvreter.html'], ['/ridderslang', 'ridderslang.html'], ['/burchtstorm', 'burchtstorm.html'], ['/poortwacht', 'poortwacht.html'], ['/neonvlucht', 'neonvlucht.html'], ['/diepboor', 'diepboor.html'], ['/pixelridder', 'pixelridder.html'], ['/robomol', 'robomol.html'], ['/kerker', 'kerker.html'], ['/hofschilder', 'hofschilder.html'], ['/robopaarden', 'robopaarden.html'], ['/neonduel', 'neonduel.html'], ['/leraarbaas', 'leraarbaas.html'], ['/cybergalaga', 'cybergalaga.html'], ['/bomberknight', 'bomberknight.html'], ['/rijk', 'rijk.html'], ['/oefenblad', 'oefenblad.html'], ['/proef', 'proef.html'], ['/proef-print', 'proef-print.html'], ['/reeks', 'reeks.html'], ['/wapenkamer', 'wapenkamer.html'], ['/kringgesprek', 'kringgesprek.html'], ['/kronieken', 'kronieken.html'], ['/zonnewijzer', 'zonnewijzer.html'], ['/zegelrol', 'zegelrol.html'], ['/zegelrol-print', 'zegelrol-print.html'], ['/oefenblad-print', 'oefenblad-print.html'], ['/klas', 'klas.html'], ['/zorg', 'zorg.html'], ['/taken', 'taken.html'], ['/zorg-fiche', 'zorg-fiche.html'], ['/runenraadsel', 'runenraadsel.html'], ['/ontdek-beheer', 'ontdek-beheer.html'], ['/klaseiland', 'klaseiland.html'], ['/netwerk', 'netwerk.html'], ['/welkom', 'welkom.html'], ['/privacy', 'privacy.html']];
 
 // Het docentenscherm werkt op de pc waar de server draait (meestal het digibord),
 // en op een tweede scherm dat de leerkracht met een koppelcode koppelde (de bureau-pc).
@@ -1684,6 +1685,30 @@ io.on('connection', socket => {
       io.to('host').emit('pf-afnames', proeven.afnames());
       return {};
     }));
+
+    // De Zegelrol: rapporten. De toetsen van De Proef komen er vanzelf in; alles blijft op deze pc (niet naar de lesmap).
+    const zrWijzig = fn => handle(arg => {
+      const res = fn(arg || {});
+      socket.broadcast.to('host').emit('zr-gewijzigd');
+      return res;
+    });
+    socket.on('zr-lijst', handle(() => ({ lijst: zegelrol.lijst(), opmaak: zegelrol.opmaak() })));
+    socket.on('zr-laad', handle(({ id } = {}) => ({ ...zegelrol.laad(String(id || '')), opmaak: zegelrol.opmaak() })));
+    socket.on('zr-nieuw', zrWijzig(arg => zegelrol.nieuw(arg)));
+    socket.on('zr-bewaar', zrWijzig(arg => zegelrol.bewaar(arg)));
+    socket.on('zr-weg', zrWijzig(({ id }) => { zegelrol.verwijder(String(id || '')); return {}; }));
+    socket.on('zr-opmaak', zrWijzig(arg => ({ opmaak: zegelrol.bewaarOpmaak(arg) })));
+    // Commentaar voorstellen: met een AI-sleutel meteen, anders een prompt voor een chatbot. Zonder naam van de leerling.
+    socket.on('zr-commentaar', (arg = {}, cb) => {
+      if (typeof cb !== 'function') return;
+      const prompt = zegelrol.commentaarPrompt({ ...arg, leerjaar: `${klas.read().leerjaar}e leerjaar` });
+      if (!settings.actief().key) return cb({ ok: true, prompt });
+      generateQuiz(prompt, [], text => zegelrol.leesCommentaar(aiJson.extract(text, 'commentaar')))
+        .then(res => cb({ ok: true, ...res }))
+        .catch(err => cb({ ok: true, prompt, fout: err.message }))
+        .finally(() => io.to('host').emit('settings', settings.publicView()));
+    });
+    socket.on('zr-commentaar-lees', handle(text => zegelrol.leesCommentaar(aiJson.extract(text, 'commentaar'))));
 
     // Zeker of twijfel vragen na elk antwoord in het Toernooi (en de Opwarmer). Staat standaard aan.
     socket.emit('zekerheid', settings.read().zekerheid !== false);

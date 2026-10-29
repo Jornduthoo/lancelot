@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LANcelot · Rapport afdrukken</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="stylesheet" href="/zegelrol-blad.css">
+  <style>
+    body { margin: 0; background: #dfe3ea; font: 14px system-ui, "Segoe UI", Arial, sans-serif; }
+    .knoppen { position: sticky; top: 0; z-index: 2; display: flex; gap: 8px; align-items: center; padding: 10px 16px; background: #1d2330; color: #fff; flex-wrap: wrap; }
+    .knoppen button { font: inherit; padding: 8px 14px; border-radius: 6px; border: 1px solid #889; background: #fff; cursor: pointer; }
+    .knoppen button.hoofd { background: #d4a017; border-color: #d4a017; color: #1d2330; font-weight: 700; }
+    .knoppen span { opacity: .8; }
+    .bladen { display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 16px; }
+    .bladen .zr-blad { box-shadow: 0 2px 14px rgba(0, 0, 0, .18); }
+    @media print {
+      @page { size: A4; margin: 0; }
+      body { background: #fff; }
+      .knoppen { display: none; }
+      .bladen { display: block; padding: 0; }
+    }
+  </style>
+</head>
+<body>
+<div class="knoppen">
+  <button class="hoofd" id="print">🖨️ Printen of bewaren als PDF</button>
+  <button id="sluit">Sluiten</button>
+  <span id="info">Laden…</span>
+</div>
+<div class="bladen" id="bladen"></div>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/zr-rapport.js"></script>
+<script>
+// Alle rapporten van de klas (of van één leerling) onder elkaar: elk op een eigen A4. Printen of bewaren als PDF.
+const socket = io({ query: { role: 'host' } });
+const params = new URLSearchParams(location.search);
+document.getElementById('print').addEventListener('click', () => window.print());
+document.getElementById('sluit').addEventListener('click', () => { if (history.length > 1) history.back(); else window.close(); });
+socket.emit('zr-laad', { id: params.get('id') }, res => {
+  if (res.error) { document.getElementById('info').textContent = res.error; return; }
+  const enkel = params.get('l');
+  const lijst = res.klas.leerlingen.filter(l => !enkel || l.id === enkel);
+  document.title = `${res.rapport.titel}${enkel && lijst[0] ? ` · ${lijst[0].naam}` : ''}`;
+  document.getElementById('bladen').innerHTML = lijst.map(l => Zegelrol.blad(res, res.opmaak, l.id)).join('');
+  document.getElementById('info').textContent = `${lijst.length} rapport${lijst.length === 1 ? '' : 'en'} · kies "Opslaan als PDF" als printer om ze te bewaren`;
+  if (params.get('auto')) setTimeout(() => window.print(), 300);
+});
+</script>
+</body>
+</html>

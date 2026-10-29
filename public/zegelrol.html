@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LANcelot · De Zegelrol</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/zegelrol-blad.css">
+  <link rel="stylesheet" href="/zegelrol.css">
+</head>
+<body class="zegelrol">
+<main>
+  <div class="topbar">
+    <div class="brand" id="brand" title="Naar het startscherm">
+      <img src="/img/mark.webp" alt="">
+      <div>
+        <div class="wordmark">LAN<span>celot</span></div>
+        <div class="subtitle">De Zegelrol</div>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="secondary" id="to-home">Terug</button>
+    </div>
+  </div>
+
+  <!-- Mijn rapporten: elk rapport is een periode. -->
+  <section id="zr-start">
+    <div class="zr-intro">
+      <img src="/img/icons/zegelrol.webp" alt="">
+      <div>
+        <h2>Mijn rapporten</h2>
+        <p class="muted">Kies een periode. De toetsen uit De Proef komen er vanzelf in, bij het juiste vak, met de punten. Jij zet er de rest bij.</p>
+      </div>
+    </div>
+    <div class="zr-rapporten" id="zr-rapporten"></div>
+  </section>
+
+  <!-- Eén rapport -->
+  <section id="zr-rapport" class="hidden">
+    <div class="panel zr-rbalk">
+      <button class="secondary icon" id="zr-terug" aria-label="Alle rapporten"><i class="ic ic-terug" aria-hidden="true"></i></button>
+      <input id="zr-titel" class="zr-titel-in" maxlength="60" aria-label="Naam van het rapport">
+      <label class="zr-datum-in">Van <input type="date" id="zr-van"></label>
+      <label class="zr-datum-in">Tot <input type="date" id="zr-tot"></label>
+      <label class="zr-datum-in">Rapportdatum <input type="date" id="zr-datum"></label>
+      <span class="muted small zr-bewaard" id="zr-bewaard"></span>
+      <button class="gold" id="zr-print-alles">🖨️ Afdrukken</button>
+    </div>
+
+    <nav class="tabbalk" id="zr-tabs" aria-label="Rapport">
+      <button data-tab="punten">📊 Punten</button>
+      <button data-tab="leerling">👤 Per leerling</button>
+      <button data-tab="opmaak">🎨 Opmaak</button>
+    </nav>
+
+    <!-- Punten: per vak een tabel. Rijen = leerlingen, kolommen = toetsen en eigen onderdelen. -->
+    <section data-tab="punten">
+      <p class="muted small zr-uitleg">⚡ = uit De Proef, vanzelf ingevuld. Tik een cijfer aan om het zelf te veranderen (A = afwezig, V = vrijgesteld). Tik een kolomkop om hem te bewerken of naar een ander vak te zetten.</p>
+      <div id="zr-vakken"></div>
+      <div class="actions zr-onder">
+        <button class="secondary" id="zr-vak-nieuw"><i class="ic ic-plus" aria-hidden="true"></i> Vak toevoegen</button>
+        <button class="secondary" id="zr-csv">⬇ Naar Excel</button>
+      </div>
+    </section>
+
+    <!-- Per leerling: symbolen, commentaar, hoe werk ik, afwezigheden. Rechts het rapport zoals het op papier komt. -->
+    <section data-tab="leerling" class="zr-perll">
+      <aside class="zr-namen" id="zr-namen" aria-label="Leerlingen"></aside>
+      <div class="zr-invul" id="zr-invul"></div>
+      <div class="zr-voorbeeld"><div class="zr-schaal" id="zr-voorbeeld-ll"></div></div>
+    </section>
+
+    <!-- Opmaak: hoe het rapport eruitziet. Geldt voor al je rapporten. -->
+    <section data-tab="opmaak" class="zr-opmaakvak">
+      <div class="zr-opties" id="zr-opties"></div>
+      <div class="zr-voorbeeld"><div class="zr-schaal" id="zr-voorbeeld-op"></div></div>
+    </section>
+  </section>
+</main>
+
+<!-- Een kolom (toets of eigen onderdeel) bewerken -->
+<dialog class="zr-dlg" id="zr-kolom">
+  <form method="dialog" id="zr-kolom-form">
+    <div class="zr-dlg-kop"><h2 id="zr-kolom-titel">Onderdeel</h2><button type="button" class="secondary icon" data-sluit aria-label="Sluiten"><i class="ic ic-kruis"></i></button></div>
+    <p class="notice hidden" id="zr-kolom-toets">⚡ Deze toets komt uit De Proef: de punten komen vanzelf mee, ook als je verder verbetert.</p>
+    <label>Naam <input id="zr-k-naam" maxlength="80" required></label>
+    <label>Korte inhoud <span class="muted small">(komt klein onder de naam op het rapport)</span><input id="zr-k-inhoud" maxlength="160"></label>
+    <div class="row">
+      <label>Op hoeveel <input id="zr-k-max" type="number" min="0.5" step="0.5" max="1000"></label>
+      <label>Vak <select id="zr-k-vak"></select></label>
+    </div>
+    <div class="actions zr-dlg-knoppen">
+      <button type="button" class="secondary danger-tekst" id="zr-k-weg">Van het rapport halen</button>
+      <button type="submit">Klaar</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- Een vak bewerken -->
+<dialog class="zr-dlg" id="zr-vakdlg">
+  <form method="dialog" id="zr-vak-form">
+    <div class="zr-dlg-kop"><h2>Vak</h2><button type="button" class="secondary icon" data-sluit aria-label="Sluiten"><i class="ic ic-kruis"></i></button></div>
+    <div class="row">
+      <label class="zr-smal">Icoon <input id="zr-v-icoon" maxlength="8"></label>
+      <label>Naam <input id="zr-v-naam" maxlength="40" required></label>
+    </div>
+    <div class="zr-iconen" id="zr-v-iconen"></div>
+    <label class="zr-check"><input type="checkbox" id="zr-v-punten"> Dit vak krijgt punten <span class="muted small">(anders enkel een symbool en commentaar, bv. LO of Muzo)</span></label>
+    <div class="actions zr-dlg-knoppen">
+      <button type="button" class="secondary" id="zr-v-op">▲ Hoger</button>
+      <button type="button" class="secondary" id="zr-v-neer">▼ Lager</button>
+      <button type="button" class="secondary danger-tekst" id="zr-v-weg">Vak verwijderen</button>
+      <button type="submit">Klaar</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- Nieuw rapport -->
+<dialog class="zr-dlg" id="zr-nieuw">
+  <form method="dialog" id="zr-nieuw-form">
+    <div class="zr-dlg-kop"><h2>Nieuw rapport</h2><button type="button" class="secondary icon" data-sluit aria-label="Sluiten"><i class="ic ic-kruis"></i></button></div>
+    <label>Naam <input id="zr-n-titel" maxlength="60" required placeholder="Rapport 1 · herfst"></label>
+    <div class="row">
+      <label>Van <input type="date" id="zr-n-van" required></label>
+      <label>Tot <input type="date" id="zr-n-tot" required></label>
+    </div>
+    <label>Vakken en "Hoe werk ik?" <select id="zr-n-kopie"></select></label>
+    <p class="error" id="zr-n-fout"></p>
+    <div class="actions zr-dlg-knoppen"><button type="submit">Maak het rapport</button></div>
+  </form>
+</dialog>
+
+<!-- Commentaar voorstellen zonder AI-sleutel: prompt kopiëren, antwoord plakken -->
+<dialog class="zr-dlg" id="zr-ai">
+  <div class="zr-dlg-kop"><h2>✨ Commentaar voorstellen</h2><button type="button" class="secondary icon" data-sluit aria-label="Sluiten"><i class="ic ic-kruis"></i></button></div>
+  <p class="muted small">1. Kopieer de vraag en plak ze in <span class="ai-naam">Gemini</span> of een andere chatbot. De naam van de leerling gaat niet mee. 2. Plak het antwoord hieronder.</p>
+  <button class="secondary" id="zr-ai-kopieer">📋 Kopieer de vraag</button>
+  <textarea id="zr-ai-plak" rows="5" placeholder="Plak hier het antwoord van de chatbot"></textarea>
+  <p class="error" id="zr-ai-fout"></p>
+  <div class="actions zr-dlg-knoppen"><button id="zr-ai-ok">Zet in het commentaar</button></div>
+</dialog>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/ui.js"></script>
+<script src="/js/zr-rapport.js"></script>
+<script src="/js/zr-host.js"></script>
+</body>
+</html>
