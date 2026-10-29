@@ -104,7 +104,7 @@ const OdWereld = (() => {
         '~~~:::::::::R:h::R::::::::~~~~',
         '~~~~::::f:::R:J::R:::f::::~~~~',
         '~~~~::::O:::RR::RR::::::::~~~~',
-        '~~~~~:::::::::::::::::::::~~~~',
+        '~~~~~:::::::::::::::*:::::~~~~',
         '~~~~~~:::::S:Q::::::::::~~~~~~',
         '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~',
       ],
@@ -279,7 +279,7 @@ const OdWereld = (() => {
         '~~~~.....=....%.....=..^..~~~~',
         '~~~~..J..=......$...====..~~~~',
         '~~~~~....=.............J.~~~~~',
-        '~~~~~~.S.Q...^......%..~~~~~~~',
+        '~~~~~~.S.Q..;^......%..~~~~~~~',
         '~~~~~~~...............~~~~~~~~',
         '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~',
       ],
@@ -288,11 +288,56 @@ const OdWereld = (() => {
       rots: ['#8a8a9c', '#5e5e72'],
       lip: ['#d0d0dc', '#b0b0c0'],
     },
+    cyber: {
+      naam: 'De Cyberstad',
+      rijen: [
+        '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~',
+        '~~~@.....@~~~~~~~~@......@~~~~',
+        '~~@...{....@~~~~~@...!.....~~~',
+        '~~.....!.....~~~~....@...}..~~',
+        '~~..@......=========.........~',
+        '~~~......==....@...==...@...~~',
+        '~~~..J..=..!........=.......~~',
+        '~~~~....=.....@.....=..J...~~~',
+        '~~~~..@.=...(.......====.@.~~~',
+        '~~~~~...=..............!..~~~~',
+        '~~~~~~.S.Q...@....J...@..~~~~~',
+        '~~~~~~~................~~~~~~~',
+        '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~',
+      ],
+      ruine: () => false,
+      terug: { kaart: 'sterren', bij: '*' },
+      rots: ['#2a3050', '#1a1e34'],
+      lip: ['#4cc9ff', '#2a8fe0'],
+    },
+    station: {
+      naam: 'Het Ruimtestation',
+      rijen: [
+        '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~',
+        '~~~~~~~~~..........~~~~~~~~~~~',
+        '~----~~~..|..]...|..~~~~----~~',
+        '~----.................J.----~~',
+        '~----..==============...----~~',
+        '~~~~...=..........=..~~~~~~~~~',
+        '~~~~~..=..)....X..=..~~~~~~~~~',
+        '~~~~~..=..........=..~~~~~~~~~',
+        '~----..=...J...[..====..----~~',
+        '~----..=..............J.----~~',
+        '~----..S.Q..........|...----~~',
+        '~~~~~~~...............~~~~~~~~',
+        '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~',
+      ],
+      ruine: () => false,
+      terug: { kaart: 'maan', bij: ';' },
+      rots: ['#6a7488', '#454e62'],
+      lip: ['#c8d0e0', '#a0a8b8'],
+    },
   };
   const STATION = {
     u: 'uil', s: 'schuif', r: 'robot', l: 'licht', c: 'code', o: 'steen', e: 'stroom', g: 'tandwiel', w: 'wip',
     m: 'smidse', i: 'nest', y: 'beeld', d: 'koepel', h: 'donjon', t: 'goudtoren',
     A: 'ijsmeer', C: 'klokkentoren', E: 'ijsbeeld', F: 'lavapoort', U: 'vuurkristal', V: 'vuurtoren',
+    '{': 'datatoren', '}': 'stroompoort', '(': 'lichtlab', ')': 'vrachtruim', '[': 'aftelling', ']': 'seinpost',
     '<': 'mijnkar', '>': 'mijnspoor', '+': 'edelsteenwand', '?': 'maanlab', '&': 'koepelbouw', $: 'sterrenkijker',
     1: 'parelschelp', 2: 'wrak', 3: 'schatkaart', 4: 'wolkentoren', 5: 'windorgel', 6: 'luchthaven', 7: 'drijfbak', 8: 'thermometer',
   };
@@ -301,16 +346,18 @@ const OdWereld = (() => {
     uil: 'holoridder', schuif: 'zwaardsteen', robot: 'mechridder', licht: 'baken', code: 'portaal', steen: 'radar', bord: 'banier',
     smidse: 'smidse', nest: 'draak', beeld: 'drakenbeeld', koepel: 'schildkoepel', donjon: 'donjon', goudtoren: 'goudtoren',
     ijsmeer: 'fontein', klokkentoren: 'wachttoren', ijsbeeld: 'ridderbeeld', lavapoort: 'poort', vuurkristal: 'kristal', vuurtoren: 'toren',
+    datatoren: 'baken', stroompoort: 'portaal', lichtlab: 'schildkoepel', vrachtruim: 'mechridder', aftelling: 'laserkanon', seinpost: 'radar',
     mijnspoor: 'poort', edelsteenwand: 'kristal', maanlab: 'schildkoepel', koepelbouw: 'baken', sterrenkijker: 'radar',
     schatkaart: 'wachttoren', wolkentoren: 'toren', windorgel: 'baken', luchthaven: 'radar',
   };
   // Eigen kleur voor sommige plekken (anders goud).
   const STUKKLEUR = { ijsmeer: '#9ff3ff', ijsbeeld: '#bfe6ff', lavapoort: '#ff7a3a', vuurkristal: '#ff7a3a', vuurtoren: '#ff5a5a', wolkentoren: '#c77dff', windorgel: '#ffe08a',
-    mijnspoor: '#a0703c', edelsteenwand: '#ff7aa8', maanlab: '#9ff3ff', koepelbouw: '#ffffff', sterrenkijker: '#c77dff' };
+    mijnspoor: '#a0703c', edelsteenwand: '#ff7aa8', maanlab: '#9ff3ff', koepelbouw: '#ffffff', sterrenkijker: '#c77dff',
+    datatoren: '#4cc9ff', stroompoort: '#2ee6a6', lichtlab: '#ff70c8', aftelling: '#ff5a5a', seinpost: '#4cc9ff' };
   // Plekken waar je iets bouwt met kristallen (en daarna mee reist).
-  const BOUWPLEK = { p: 'brug', L: 'luchtschip', P: 'sterrenpoort', N: 'drakenzadel', O: 'ijsraket', Z: 'duikboot', I: 'luchtballon', 9: 'mijnlift', '/': 'maanraket', 0: 'kroonburcht' };
-  const REIS = { luchtschip: 'draken', sterrenpoort: 'sterren', drakenzadel: 'vuur', ijsraket: 'ijs', duikboot: 'koraal', luchtballon: 'wolk', mijnlift: 'mijn', maanraket: 'maan' };
-  const BLOKKEERT = new Set('T~RHWxvkfaYKGMXLPNOBZInj90/#^%'.split('').concat(Object.keys(STATION), ['p']));
+  const BOUWPLEK = { p: 'brug', L: 'luchtschip', P: 'sterrenpoort', N: 'drakenzadel', O: 'ijsraket', Z: 'duikboot', I: 'luchtballon', 9: 'mijnlift', '/': 'maanraket', 0: 'kroonburcht', '*': 'hyperloop', ';': 'shuttle' };
+  const REIS = { luchtschip: 'draken', sterrenpoort: 'sterren', drakenzadel: 'vuur', ijsraket: 'ijs', duikboot: 'koraal', luchtballon: 'wolk', mijnlift: 'mijn', maanraket: 'maan', hyperloop: 'cyber', shuttle: 'station' };
+  const BLOKKEERT = new Set('T~RHWxvkfaYKGMXLPNOBZInj90/#^%*;@!-|'.split('').concat(Object.keys(STATION), ['p']));
 
   const hash = (x, y, k = 0) => BuArt.hash(x, y, k);
 
@@ -363,6 +410,14 @@ const OdWereld = (() => {
       if (c === '=' || c === 'S') return 'sneeuwpad';
       return hash(x, y, 3) < 0.3 ? 'sneeuw2' : 'sneeuw';
     }
+    if (k.id === 'cyber') {
+      if (c === '=' || c === 'S') return 'neonpad';
+      return hash(x, y, 3) < 0.3 ? 'cyber2' : 'cyber';
+    }
+    if (k.id === 'station') {
+      if (c === '=' || c === 'S') return 'dekpad';
+      return hash(x, y, 3) < 0.3 ? 'dek2' : 'dek';
+    }
     if (k.id === 'mijn') {
       if (c === '=' || c === 'S') return 'rails';
       return hash(x, y, 3) < 0.3 ? 'mijn2' : 'mijn';
@@ -404,7 +459,8 @@ const OdWereld = (() => {
     sneeuw: '#eef4fb', sneeuw2: '#dde8f4', sneeuwpad: '#b9c7dc', ijs: '#a6dcf2', ijswater: '#2f6fb0',
     as: '#5a4a46', as2: '#4c3e3b', basalt: '#3a3236', lava: '#ff6a1f',
     zand2: '#d9bd7e', strand: '#f0dcaa', lagune: '#2fc1c9', plank: '#a0754a', wolk: '#f5f2ff', wolk2: '#e7e2fb', goudpad: '#f0d27a',
-    mijn: '#4f4660', mijn2: '#443c55', rails: '#6a5a4a', maan: '#bdbdc9', maan2: '#acacbb', maanpad: '#8e8ea3' };
+    mijn: '#4f4660', mijn2: '#443c55', rails: '#6a5a4a', maan: '#bdbdc9', maan2: '#acacbb', maanpad: '#8e8ea3',
+    cyber: '#232a46', cyber2: '#1e2540', neonpad: '#2e3866', dek: '#a3adc0', dek2: '#97a1b6', dekpad: '#7a859c' };
   const LICHT = (() => { const l = [-0.55, -0.35, 1]; const n = Math.hypot(...l); return l.map(v => v / n); })();
 
   function driehoek(g, a, b, c, kleur) {
@@ -435,7 +491,7 @@ const OdWereld = (() => {
     const half = T / 2;
     const kwart = T / 4;
     const land = (x, y) => { const c = teken(k, x, y); return c !== '~' && c !== 'b'; };
-    const golvend = c => '.,TYzBnj#%^'.includes(c) && !(k.id === 'ijs' && c === 'z');
+    const golvend = c => '.,TYzBnj#%^'.includes(c) && k.id !== 'cyber' && k.id !== 'station' && !(k.id === 'ijs' && c === 'z');
     // Hoogte van elke hoek: golvend gras, maar vlak waar een pad, plek of gebouw aan raakt.
     const hoogte = (cx, cy) => {
       for (const [x, y] of [[cx - 1, cy - 1], [cx, cy - 1], [cx - 1, cy], [cx, cy]]) {
@@ -540,6 +596,42 @@ const OdWereld = (() => {
           g.lineTo(mx, my + (hash(x, y, 18) - 0.5) * kwart);
           g.lineTo(mx + half * 0.5, my - kwart * 0.3);
           g.stroke();
+        } else if (soort === 'cyber' || soort === 'cyber2' || soort === 'neonpad') {
+          // een gloeiend raster in de vloer van de stad
+          g.strokeStyle = soort === 'neonpad' ? 'rgba(255,112,200,.7)' : 'rgba(76,201,255,.35)';
+          g.lineWidth = Math.max(1, T / 50);
+          g.beginPath();
+          g.moveTo(mx - half, my);
+          g.lineTo(mx, my - kwart);
+          g.lineTo(mx + half, my);
+          g.stroke();
+          if (hash(x, y, 18) < 0.2) {
+            g.fillStyle = 'rgba(46,230,166,.8)';
+            g.fillRect(mx - T * 0.02, my - T * 0.02, T * 0.04, T * 0.04);
+          }
+        } else if (soort === 'dek' || soort === 'dek2' || soort === 'dekpad') {
+          // metalen platen met naden en klinknagels
+          g.strokeStyle = 'rgba(40,48,70,.35)';
+          g.lineWidth = Math.max(1, T / 60);
+          g.beginPath();
+          g.moveTo(mx - half * 0.5, my - kwart * 0.5);
+          g.lineTo(mx + half * 0.5, my + kwart * 0.5);
+          g.stroke();
+          if (soort === 'dekpad') {
+            g.fillStyle = 'rgba(255,201,74,.75)';
+            g.fillRect(mx - T * 0.1, my - T * 0.015, T * 0.2, T * 0.03);
+          }
+        } else if (soort === 'pad' && hash(x, y, 19) < 0.18) {
+          // een oud lichtcircuit in de stenen
+          g.strokeStyle = 'rgba(76,201,255,.6)';
+          g.lineWidth = Math.max(1, T / 60);
+          g.beginPath();
+          g.moveTo(mx - half * 0.4, my + kwart * 0.1);
+          g.lineTo(mx - half * 0.05, my - kwart * 0.25);
+          g.lineTo(mx + half * 0.35, my - kwart * 0.05);
+          g.stroke();
+          g.fillStyle = 'rgba(159,243,255,.9)';
+          g.fillRect(mx + half * 0.35 - 1.5, my - kwart * 0.05 - 1.5, 3, 3);
         } else if (soort === 'rails') {
           // dwarsliggers en twee rails
           for (let i = 0; i < 3; i++) {
@@ -985,6 +1077,96 @@ const OdWereld = (() => {
       g.fill();
       g.fillStyle = '#3a4160';
       for (let i = 0; i < 6; i++) g.fillRect(x + T * 0.05, y - T * 0.2 - i * T * 0.09, T * 0.04, T * 0.012);
+    } else if (id === 'lpneontoren') {
+      // een hoge toren met neonstrepen
+      const kl = ['#4cc9ff', '#ff70c8', '#2ee6a6'][variant % 3];
+      const h = 1.2 + variant * 0.25;
+      blok(g, T, -0.3, 0.3, -0.3, 0.3, 0, h, '#252c4a', '#38406a');
+      const P = (u, v, z) => [(u - v) * T / 2, (u + v) * T / 4 - z * T];
+      g.strokeStyle = kl;
+      g.lineWidth = Math.max(1.5, T / 30);
+      for (let i = 1; i < h * 4; i++) {
+        const z = i * 0.25;
+        g.beginPath();
+        g.moveTo(...P(-0.3, 0.3, z));
+        g.lineTo(...P(0.3, 0.3, z));
+        g.lineTo(...P(0.3, -0.3, z));
+        g.stroke();
+      }
+      g.fillStyle = kl;
+      g.beginPath();
+      g.arc(...P(0, 0, h + 0.08), T * 0.05, 0, Math.PI * 2);
+      g.fill();
+    } else if (id === 'holobord') {
+      // een zwevend hologrambord
+      const kl = ['76,201,255', '255,112,200', '46,230,166'][variant % 3];
+      schaduw(g, T * 0.2);
+      g.fillStyle = '#3a4160';
+      g.fillRect(-T * 0.03, -T * 0.5, T * 0.06, T * 0.5);
+      g.fillStyle = `rgba(${kl},.3)`;
+      g.strokeStyle = `rgba(${kl},.95)`;
+      g.lineWidth = Math.max(1, T / 50);
+      g.beginPath();
+      g.moveTo(-T * 0.35, -T * 0.55);
+      g.lineTo(T * 0.35, -T * 0.72);
+      g.lineTo(T * 0.35, -T * 1.12);
+      g.lineTo(-T * 0.35, -T * 0.95);
+      g.closePath();
+      g.fill();
+      g.stroke();
+      for (let i = 0; i < 3; i++) {
+        g.beginPath();
+        g.moveTo(-T * 0.25, -T * (0.68 + i * 0.1));
+        g.lineTo(T * (0.05 + i * 0.08), -T * (0.75 + i * 0.1));
+        g.stroke();
+      }
+    } else if (id === 'zonnepaneel') {
+      // een schuin zonnepaneel op een paaltje
+      g.fillStyle = '#5a6478';
+      g.fillRect(-T * 0.03, -T * 0.3, T * 0.06, T * 0.3);
+      const P = (u, v, z) => [(u - v) * T / 2, (u + v) * T / 4 - z * T];
+      g.fillStyle = '#1d3f8a';
+      g.strokeStyle = '#7fb8ff';
+      g.lineWidth = 1;
+      g.beginPath();
+      g.moveTo(...P(-0.45, -0.45, 0.45));
+      g.lineTo(...P(0.45, -0.45, 0.45));
+      g.lineTo(...P(0.45, 0.45, 0.25));
+      g.lineTo(...P(-0.45, 0.45, 0.25));
+      g.closePath();
+      g.fill();
+      g.stroke();
+      for (let i = 1; i < 3; i++) {
+        const f = -0.45 + i * 0.3;
+        g.beginPath();
+        g.moveTo(...P(f, -0.45, 0.45));
+        g.lineTo(...P(f, 0.45, 0.25));
+        g.moveTo(...P(-0.45, f, 0.45 - (f + 0.45) * 0.22));
+        g.lineTo(...P(0.45, f, 0.45 - (f + 0.45) * 0.22));
+        g.stroke();
+      }
+    } else if (id === 'lpantenne') {
+      // een hoge antenne met een schotel en een knipperlicht
+      schaduw(g, T * 0.2);
+      g.strokeStyle = '#c8d0e0';
+      g.lineWidth = Math.max(1.5, T / 30);
+      g.beginPath();
+      g.moveTo(-T * 0.15, 0);
+      g.lineTo(0, -T * 1.4);
+      g.lineTo(T * 0.15, 0);
+      g.moveTo(-T * 0.1, -T * 0.4);
+      g.lineTo(T * 0.1, -T * 0.4);
+      g.moveTo(-T * 0.06, -T * 0.85);
+      g.lineTo(T * 0.06, -T * 0.85);
+      g.stroke();
+      g.fillStyle = '#e8eef8';
+      g.beginPath();
+      g.ellipse(T * 0.1, -T * 1.0, T * 0.16, T * 0.08, -0.5, 0, Math.PI * 2);
+      g.fill();
+      g.fillStyle = '#ff4d6d';
+      g.beginPath();
+      g.arc(0, -T * 1.44, T * 0.04, 0, Math.PI * 2);
+      g.fill();
     } else if (id === 'mijnkar') {
       // een mijnkarretje vol kristallen
       schaduw(g, T * 0.34);
@@ -1171,6 +1353,12 @@ const OdWereld = (() => {
       else if (c === '/') st = { bu: 'ruimteschip', kleur: '#ff7aa8', plek: 'maanraket' };
       else if (c === '0') st = gebouwd.includes('kroonburcht') ? { bu: 'donjon', kleur: '#ffc94a', plek: 'kroonburcht' } : { bu: 'banier', kleur: '#ffc94a', plek: 'kroonburcht' };
       else if (c === '#') st = { eigen: 'mijnkar' };
+      else if (c === '*') st = { bu: 'ruimteschip', kleur: '#4cc9ff', plek: 'hyperloop' };
+      else if (c === ';') st = { bu: 'ruimteschip', kleur: '#ffffff', plek: 'shuttle' };
+      else if (c === '@') st = { eigen: 'lpneontoren', v: Math.floor(hash(x, y, 3) * 3) };
+      else if (c === '!') st = { eigen: 'holobord', v: Math.floor(hash(x, y, 3) * 3) };
+      else if (c === '-') st = { eigen: 'zonnepaneel' };
+      else if (c === '|') st = { eigen: 'lpantenne' };
       else if (c === '%') st = { eigen: 'krater', v: Math.floor(hash(x, y, 3) * 3) };
       else if (c === '^') st = { eigen: 'maankoepel' };
       else if (c === 'I') st = { eigen: 'lpballon', plek: 'luchtballon' };

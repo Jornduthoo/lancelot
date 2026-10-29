@@ -256,3 +256,27 @@ input.od-mst.leeg::-webkit-inner-spin-button { -webkit-appearance: none; }
 .od-opdr-tekst .od-voortgang { max-width: none; margin: 2px 0; }
 .od-opdr-ok { font-size: 1.4rem; color: rgb(var(--k-groen)); }
 .od-opdr-beloning { font-family: var(--tech); color: rgb(var(--k-muted)); white-space: nowrap; }
+
+/* Cyberstad en Ruimtestation */
+.od-bits { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
+.od-bit { display: flex; flex-direction: column; align-items: center; gap: 4px; width: 50px; padding: 8px 0; border-radius: 10px; clip-path: none; background: #141b33; border: 1px solid rgb(var(--k-cyan) / .4); color: rgb(var(--k-muted)); }
+.od-bit:disabled { opacity: 1; cursor: default; }
+.od-bit-lamp { width: 26px; height: 26px; border-radius: 50%; background: #2b3558; }
+.od-bit.aan .od-bit-lamp { background: radial-gradient(circle at 40% 35%, #fff, rgb(var(--k-cyan)) 60%); box-shadow: 0 0 14px rgb(var(--k-cyan)); }
+.od-bit small { font: 700 .85rem var(--tech); }
+.od-licht-vlakken { display: grid; grid-template-columns: auto 1fr; gap: 6px 10px; align-items: center; width: 100%; max-width: 360px; margin: 0 auto; }
+.od-licht-vlak { height: 56px; border-radius: 12px; border: 1px solid rgb(var(--k-cyan) / .4); background: #000; }
+.od-licht-label { font-weight: 700; text-align: right; }
+.od-licht-knoppen { display: flex; justify-content: center; gap: 8px; }
+.od-licht-knop { display: flex; flex-direction: column; align-items: center; min-width: 84px; padding: 10px 12px; border-radius: 12px; clip-path: none; color: #fff; font-weight: 800; border: 2px solid var(--kleur); background: color-mix(in srgb, var(--kleur) calc(var(--fel) * 85%), #141b33); }
+.od-licht-knop small { font-weight: 600; opacity: .85; }
+.od-kisten { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; max-width: 520px; margin: 0 auto; }
+.od-kist { min-width: 76px; padding: 14px 10px; border-radius: 8px; clip-path: none; background: linear-gradient(160deg, #6a7488, #454e62); border: 2px solid #9aa4b8; color: #fff; font: 700 1rem var(--tech); }
+.od-kist.on { background: linear-gradient(160deg, #ffc94a, #c79630); color: #2a1a00; border-color: #ffe08a; transform: translateY(-3px); }
+.od-aftel-scherm { min-height: 2.4rem; padding: 8px 14px; border-radius: 10px; background: #0c1226; border: 1px solid rgb(var(--k-cyan) / .5); color: rgb(var(--k-cyan-l)); }
+.od-aftel-scherm::after { content: attr(data-uitkomst); margin-left: 12px; color: rgb(var(--k-goud)); }
+.od-seinen { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.od-seinletter { padding: 6px 10px; border-radius: 8px; background: #0c1226; border: 1px solid rgb(var(--k-cyan) / .5); color: rgb(var(--k-cyan-l)); font-size: 1.1rem; letter-spacing: .12em; }
+.od-sleutel { display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 4px; width: 100%; max-width: 560px; margin: 0 auto; font-size: .85rem; }
+.od-sleutel-l { padding: 3px 6px; border-radius: 6px; background: rgb(var(--k-panel)); }
+.od-sleutel-l b { color: rgb(var(--k-goud)); }

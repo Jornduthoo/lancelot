@@ -1538,6 +1538,221 @@
     return poging.every((i, k) => pz.sterren[i] && (!k || pz.sterren[i].g > pz.sterren[poging[k - 1]].g));
   }
 
+  // ---------- Cyberstad: de datatoren (binaire lampjes) ----------
+  // Elk lampje is een getal waard (1, 2, 4, 8...). Zet de lampjes aan voor een getal, of lees het getal af.
+
+  function maakBinair(n, r) {
+    const t = r.t || 0;
+    const bits = { page: 4, schildknaap: 6, ridder: 8 }[n] + (t >= 6 && n !== 'ridder' ? 1 : 0);
+    const vragen = [];
+    for (let i = 0; i < 3; i++) {
+      const getal = 1 + r.int(2 ** bits - 1);
+      const lees = n !== 'page' && r() < 0.5;
+      vragen.push(lees ? { soort: 'lees', bits, lampen: binairLampen(getal, bits) } : { soort: 'zet', bits, getal });
+    }
+    return { vragen };
+  }
+  // De lampjes van links (groot) naar rechts (1).
+  const binairLampen = (getal, bits) => Array.from({ length: bits }, (_, i) => (getal >> (bits - 1 - i)) & 1);
+  const binairWaarde = lampen => lampen.reduce((a, b) => a * 2 + (b ? 1 : 0), 0);
+  // poging: per vraag de lampjes (zet) of het getal (lees)
+  function checkBinair(pz, poging) {
+    if (!Array.isArray(poging) || poging.length !== pz.vragen.length) return false;
+    return pz.vragen.every((q, i) => (q.soort === 'zet'
+      ? Array.isArray(poging[i]) && poging[i].length === q.bits && binairWaarde(poging[i]) === q.getal
+      : Number(poging[i]) === binairWaarde(q.lampen)));
+  }
+
+  // ---------- Cyberstad: de stroompoort (logische poorten) ----------
+  // Schakelaars, EN-, OF- en NIET-poorten en een lamp. Zet de schakelaars zo dat de lamp brandt.
+
+  function poortWaarde(k, aan) {
+    if (k.in !== undefined) return !!aan[k.in];
+    if (k.op === 'NIET') return !poortWaarde(k.a, aan);
+    const a = poortWaarde(k.a, aan);
+    const b = poortWaarde(k.b, aan);
+    return k.op === 'EN' ? a && b : a || b;
+  }
+  function maakPoorten(n, r) {
+    const t = r.t || 0;
+    const ingangen = { page: 2, schildknaap: 3, ridder: 4 }[n];
+    const poorten = { page: 1, schildknaap: 2, ridder: 3 }[n] + (t >= 5 ? 1 : 0);
+    for (let poging = 0; poging < 200; poging++) {
+      // een boom van poorten: elke ingang komt één keer voor
+      let delen = r.shuffle([...Array(ingangen).keys()]).map(i => ({ in: i }));
+      let gebruikt = 0;
+      while (delen.length > 1) {
+        const a = delen.shift();
+        const b = delen.shift();
+        let k = { op: r() < 0.5 ? 'EN' : 'OF', a, b };
+        gebruikt++;
+        if (n !== 'page' && gebruikt < poorten && r() < 0.35) { k = { op: 'NIET', a: k }; gebruikt++; }
+        delen.push(k);
+      }
+      let boom = delen[0];
+      if (n === 'ridder' && boom.op !== 'NIET' && r() < 0.3) boom = { op: 'NIET', a: boom };
+      // hoeveel standen laten de lamp branden? Niet alle, en minstens één.
+      let goed = 0;
+      for (let m = 0; m < 2 ** ingangen; m++) if (poortWaarde(boom, [...Array(ingangen).keys()].map(i => (m >> i) & 1))) goed++;
+      if (goed === 0 || goed === 2 ** ingangen) continue;
+      if (n !== 'page' && goed > 2 ** ingangen / 2) continue;
+      return { ingangen, boom };
+    }
+    return { ingangen: 2, boom: { op: 'EN', a: { in: 0 }, b: { in: 1 } } };
+  }
+  const checkPoorten = (pz, poging) => Array.isArray(poging) && poging.length === pz.ingangen && poortWaarde(pz.boom, poging);
+
+  // ---------- Cyberstad: het lichtlab (kleuren mengen met licht) ----------
+  // Rood, groen en blauw licht samen maken nieuwe kleuren. Page: aan of uit. Hoger: ook half of fel.
+
+  const LICHT_KLEUREN = [
+    ['geel', [1, 1, 0]], ['cyaan (lichtblauw)', [0, 1, 1]], ['magenta (roze-paars)', [1, 0, 1]], ['wit', [1, 1, 1]],
+    ['rood', [1, 0, 0]], ['groen', [0, 1, 0]], ['blauw', [0, 0, 1]],
+  ];
+  function maakLichtkleur(n, r) {
+    const t = r.t || 0;
+    const stappen = n === 'page' ? 1 : n === 'schildknaap' ? 2 : 3;
+    const vragen = [];
+    const keuze = r.shuffle(LICHT_KLEUREN.slice(0, t >= 3 ? 7 : 4));
+    for (let i = 0; i < 3; i++) {
+      if (stappen === 1) {
+        const [naam, rgb] = keuze[i];
+        vragen.push({ naam, rgb });
+      } else {
+        let rgb;
+        do { rgb = [r.int(stappen + 1), r.int(stappen + 1), r.int(stappen + 1)]; } while (rgb.every(x => x === rgb[0]) || rgb.filter(Boolean).length < 2);
+        vragen.push({ naam: '', rgb });
+      }
+    }
+    return { stappen, vragen };
+  }
+  const checkLichtkleur = (pz, poging) => Array.isArray(poging) && poging.length === pz.vragen.length
+    && poging.every((p, i) => Array.isArray(p) && p.length === 3 && p.every((x, k) => Number(x) === pz.vragen[i].rgb[k]));
+
+  // ---------- Ruimtestation: het vrachtruim (precies laden) ----------
+
+  function maakVracht(n, r) {
+    const t = r.t || 0;
+    const aantal = { page: 5, schildknaap: 7, ridder: 8 }[n] + Math.min(2, Math.floor(t / 4));
+    const max = { page: 10, schildknaap: 40, ridder: 90 }[n];
+    const half = n === 'ridder' && r() < 0.5;
+    for (let poging = 0; poging < 100; poging++) {
+      const kisten = Array.from({ length: aantal }, () => (1 + r.int(max)) * (half ? 0.5 : 1));
+      const kies = r.shuffle([...kisten.keys()]).slice(0, { page: 2, schildknaap: 3, ridder: 4 }[n] + (t >= 6 ? 1 : 0));
+      const doel = Math.round(kies.reduce((a, i) => a + kisten[i], 0) * 10) / 10;
+      // niet te makkelijk: geen enkele kist mag zelf al het doel zijn
+      if (kisten.some(k => k === doel)) continue;
+      return { kisten, doel };
+    }
+    return { kisten: [2, 3, 5, 7], doel: 10 };
+  }
+  function checkVracht(pz, poging) {
+    if (!Array.isArray(poging) || !poging.length || new Set(poging).size !== poging.length) return false;
+    if (!poging.every(i => Number.isInteger(i) && i >= 0 && i < pz.kisten.length)) return false;
+    return Math.abs(poging.reduce((a, i) => a + pz.kisten[i], 0) - pz.doel) < 1e-9;
+  }
+
+  // ---------- Ruimtestation: de aftelling (rekendoel) ----------
+  // Maak het doelgetal met de getallen en + − × :. Elk getal mag je maar één keer gebruiken.
+
+  function rekenUit(tekst) {
+    // een kleine, veilige rekenmachine: getallen, + - * / en haakjes, met breuken zodat delen exact blijft
+    const tok = String(tekst).replace(/×/g, '*').replace(/:/g, '/').replace(/−/g, '-').match(/\d+|[-+*/()]/g);
+    if (!tok || tok.join('') !== String(tekst).replace(/×/g, '*').replace(/:/g, '/').replace(/−/g, '-').replace(/\s+/g, '')) return null;
+    let p = 0;
+    const getallen = [];
+    const ggd = (a, b) => (b ? ggd(b, a % b) : Math.abs(a));
+    const br = (a, b) => { if (!b) throw new Error('nul'); const g = ggd(a, b) || 1; return b < 0 ? [-a / g, -b / g] : [a / g, b / g]; };
+    function factor() {
+      const x = tok[p++];
+      if (x === '(') { const v = som(); if (tok[p++] !== ')') throw new Error('haakje'); return v; }
+      if (/^\d+$/.test(x || '')) { getallen.push(Number(x)); return [Number(x), 1]; }
+      throw new Error('fout');
+    }
+    function term() {
+      let v = factor();
+      while (tok[p] === '*' || tok[p] === '/') {
+        const o = tok[p++];
+        const w = factor();
+        v = o === '*' ? br(v[0] * w[0], v[1] * w[1]) : br(v[0] * w[1], v[1] * w[0]);
+      }
+      return v;
+    }
+    function som() {
+      let v = term();
+      while (tok[p] === '+' || tok[p] === '-') {
+        const o = tok[p++];
+        const w = term();
+        v = br(o === '+' ? v[0] * w[1] + w[0] * v[1] : v[0] * w[1] - w[0] * v[1], v[1] * w[1]);
+      }
+      return v;
+    }
+    try {
+      const v = som();
+      if (p !== tok.length) return null;
+      return { waarde: v[1] === 1 ? v[0] : v[0] / v[1], geheel: v[1] === 1, getallen };
+    } catch {
+      return null;
+    }
+  }
+  function maakAftel(n, r) {
+    const t = r.t || 0;
+    const aantal = { page: 3, schildknaap: 4, ridder: 6 }[n];
+    const klein = () => 1 + r.int(n === 'page' ? 9 : 10);
+    for (let poging = 0; poging < 300; poging++) {
+      const getallen = Array.from({ length: aantal }, klein);
+      if (n === 'ridder') { getallen[0] = r.pick([25, 50, 75, 100]); if (t >= 4) getallen[1] = r.pick([25, 50, 75]); }
+      // bouw een som met een paar getallen, van links naar rechts
+      const kies = r.shuffle([...getallen.keys()]).slice(0, Math.min(aantal, (n === 'page' ? 2 : 3) + (t >= 3 ? 1 : 0)));
+      let tekst = String(getallen[kies[0]]);
+      let waarde = getallen[kies[0]];
+      let gebruikt = 1;
+      for (const i of kies.slice(1)) {
+        const x = getallen[i];
+        const ops = n === 'page' ? ['+', '-'] : ['+', '-', '*', '/'];
+        const o = r.pick(ops);
+        if (o === '-' && waarde - x < 0) continue;
+        if (o === '/' && (waarde % x || x === 1)) continue;
+        if (o === '*' && (x === 1 || waarde * x > (n === 'ridder' ? 999 : 100))) continue;
+        waarde = o === '+' ? waarde + x : o === '-' ? waarde - x : o === '*' ? waarde * x : waarde / x;
+        tekst = (o === '*' || o === '/') && /[+-]/.test(tekst) ? `(${tekst}) ${o} ${x}` : `${tekst} ${o} ${x}`;
+        gebruikt++;
+      }
+      const min = { page: 5, schildknaap: 10, ridder: 100 }[n];
+      if (waarde < min || getallen.includes(waarde) || gebruikt < (n === 'page' ? 2 : 3)) continue;
+      // opl: een mogelijke oplossing (blijft op de server)
+      return { getallen, doel: waarde, opl: tekst };
+    }
+    return { getallen: [2, 3, 4], doel: 9, opl: '2 + 3 + 4' };
+  }
+  function checkAftel(pz, poging) {
+    const u = rekenUit(poging);
+    if (!u || !u.geheel || u.waarde !== pz.doel) return false;
+    const over = pz.getallen.slice();
+    return u.getallen.every(g => { const i = over.indexOf(g); if (i < 0) return false; over.splice(i, 1); return true; });
+  }
+
+  // ---------- Ruimtestation: de seinpost (seinen ontcijferen) ----------
+
+  const SEIN = {
+    A: '.-', B: '-...', C: '-.-.', D: '-..', E: '.', F: '..-.', G: '--.', H: '....', I: '..', J: '.---', K: '-.-', L: '.-..', M: '--',
+    N: '-.', O: '---', P: '.--.', Q: '--.-', R: '.-.', S: '...', T: '-', U: '..-', V: '...-', W: '.--', X: '-..-', Y: '-.--', Z: '--..',
+  };
+  const SEIN_WOORDEN = {
+    page: ['ZON', 'MAAN', 'STER', 'MARS', 'BAAN', 'CODE', 'DATA', 'LAMP', 'ROOD', 'NEON'],
+    schildknaap: ['ROBOT', 'RAKET', 'LASER', 'DRONE', 'KOMEET', 'SATURN', 'BATTERIJ', 'SCHERM', 'ANTENNE', 'METEOOR'],
+    ridder: ['PLANEET', 'SIGNAAL', 'ASTRONAUT', 'TELESCOOP', 'MELKWEG', 'HOLOGRAM', 'COMPUTER', 'ZWAARTEKRACHT', 'SATELLIET', 'RUIMTEPAK'],
+  };
+  function maakSein(n, r) {
+    const woord = r.pick(SEIN_WOORDEN[n]);
+    const letters = [...new Set(woord)];
+    // de page krijgt alleen de nodige letters (en een paar extra), de rest het hele alfabet
+    const extra = r.shuffle(Object.keys(SEIN).filter(l => !letters.includes(l))).slice(0, 4);
+    const sleutel = n === 'page' ? r.shuffle(letters.concat(extra)).sort() : Object.keys(SEIN);
+    return { seinen: [...woord].map(l => SEIN[l]), sleutel: Object.fromEntries(sleutel.map(l => [l, SEIN[l]])), opl: woord };
+  }
+  const checkSein = (pz, poging) => String(poging || '').trim().toUpperCase() === pz.opl;
+
   // ---------- Samen ----------
 
   const SOORTEN = {
@@ -1573,6 +1788,12 @@
     eenheden: { maak: maakEenheden, check: checkRij },
     opp: { maak: maakOpp, check: (pz, poging) => Number(poging) === pz.opl },
     sterren: { maak: maakSterren, check: checkSterren },
+    binair: { maak: maakBinair, check: checkBinair },
+    poorten: { maak: maakPoorten, check: checkPoorten },
+    lichtkleur: { maak: maakLichtkleur, check: checkLichtkleur },
+    vracht: { maak: maakVracht, check: checkVracht },
+    aftel: { maak: maakAftel, check: checkAftel },
+    sein: { maak: maakSein, check: checkSein },
   };
 
   // trap: hoe vaak je deze plek al oploste (1, 2, 3...). Hoe hoger, hoe moeilijker.
@@ -1596,6 +1817,6 @@
 
   return {
     NIVEAUS, SOORTEN: Object.keys(SOORTEN), maak, check, rng,
-    schuifZet, schuifKlaar, robotLoop, doolhofLoop, lijnGetallen, WAREN, ijsGlij, ijsLoop, spiegelVeld, slotHint, lampenTik, hanoiLoop, routeLengte, minMunten, lijnMarge, lichtPad, stroomBereik, stroomOk, draai, wipLinks, KAATS, DX, DY,
+    schuifZet, schuifKlaar, robotLoop, doolhofLoop, lijnGetallen, WAREN, ijsGlij, ijsLoop, spiegelVeld, slotHint, lampenTik, hanoiLoop, routeLengte, minMunten, lijnMarge, binairLampen, binairWaarde, poortWaarde, rekenUit, lichtPad, stroomBereik, stroomOk, draai, wipLinks, KAATS, DX, DY,
   };
 }));

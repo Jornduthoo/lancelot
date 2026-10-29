@@ -63,6 +63,12 @@ const STATIONS = {
   maanlab: { soort: 'eenheden', naam: 'Het Maanlab', gebied: 'maan' },
   koepelbouw: { soort: 'opp', naam: 'De Koepelbouw', gebied: 'maan' },
   sterrenkijker: { soort: 'sterren', naam: 'De Sterrenkijker', gebied: 'maan' },
+  datatoren: { soort: 'binair', naam: 'De Datatoren', gebied: 'cyber' },
+  stroompoort: { soort: 'poorten', naam: 'De Stroompoort', gebied: 'cyber' },
+  lichtlab: { soort: 'lichtkleur', naam: 'Het Lichtlab', gebied: 'cyber' },
+  vrachtruim: { soort: 'vracht', naam: 'Het Vrachtruim', gebied: 'station' },
+  aftelling: { soort: 'aftel', naam: 'De Aftelling', gebied: 'station' },
+  seinpost: { soort: 'sein', naam: 'De Seinpost', gebied: 'station' },
 };
 // Bouwen met kristallen: zo wordt de wereld groter. nodig: wat er eerst moet staan.
 const BOUW = {
@@ -75,12 +81,14 @@ const BOUW = {
   luchtballon: { naam: 'de luchtballon naar de Wolkenstad', kost: 40, nodig: 'ijsraket' },
   mijnlift: { naam: 'de mijnlift naar De Mijnen', kost: 50, nodig: 'drakenzadel' },
   maanraket: { naam: 'de maanraket naar de Maanbasis', kost: 50, nodig: 'luchtballon' },
+  hyperloop: { naam: 'de hyperloop naar de Cyberstad', kost: 60, nodig: 'ijsraket' },
+  shuttle: { naam: 'de shuttle naar het Ruimtestation', kost: 60, nodig: 'maanraket' },
   kroonburcht: { naam: 'de Gouden Burcht in het woud', kost: 100, nodig: 'maanraket' },
 };
 // Welk gebied pas open is als er iets gebouwd is.
 const GEBIED_NODIG = { ruine: 'brug', draken: 'luchtschip', sterren: 'sterrenpoort', ijs: 'ijsraket', vuur: 'drakenzadel',
   koraal: 'duikboot', koraallab: 'duikboot', wolk: 'luchtballon', weerlab: 'luchtballon',
-  mijn: 'mijnlift', maan: 'maanraket' };
+  mijn: 'mijnlift', maan: 'maanraket', cyber: 'hyperloop', station: 'shuttle' };
 
 const RUNEN = W.runen(); // de verborgen runenstenen ("kaart:x,y")
 
