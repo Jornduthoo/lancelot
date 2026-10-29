@@ -109,6 +109,8 @@ const OdRaadsels = (() => {
     if (res.beloning) {
       beloning.innerHTML = '<span class="od-kristal-ic groot"></span>';
       beloning.appendChild(el('span', '', '+1 kristal en Eer voor je burcht'));
+      const st = res.stand;
+      if (st && st.bouw && !st.gebouwd.includes('brug') && st.kristallen >= st.bouw.brug.kost) b.appendChild(el('p', 'od-brug-tip', `🌉 Je hebt ${st.kristallen} kristallen: genoeg voor de brug! Loop naar de rand bij de banier om hem te bouwen.`));
     } else {
       beloning.appendChild(el('span', 'muted', 'Goed geoefend! Het kristal van deze plek had je vandaag al.'));
     }
