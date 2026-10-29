@@ -57,6 +57,9 @@
 .ki-stuk.schuin { transform: rotate(45deg); }
 .ki-stuk.schuin .ki-plaats { transform: translate(-50%, -50%) rotate(-45deg); }
 .ki-stuk.schuin .ki-plaats.doel { transform: translate(-50%, -50%) rotate(-45deg) scale(1.14); }
+.ki-greep { position: absolute; z-index: 12; right: -9px; bottom: -9px; width: 20px; height: 20px; border-radius: 50%; cursor: nwse-resize; touch-action: none;
+  background: radial-gradient(circle at 35% 35%, rgb(var(--k-goud-l)), rgb(var(--k-goud)) 55%, rgb(var(--k-goud-d))); box-shadow: 0 0 0 2px rgb(var(--k-op-goud)), 0 0 12px rgb(var(--k-goud) / .9); }
+.ki-greep::after { content: ''; position: absolute; inset: -10px; } /* groter raakvlak voor vingers */
 .ki-stuk.sleept { z-index: 9; cursor: grabbing; opacity: .9; }
 
 /* Naamkaartjes op de banken: altijd rechtop, wat de bank ook doet. */

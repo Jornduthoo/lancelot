@@ -167,12 +167,15 @@ const Indeling = (() => {
   const terug = [];
   const op = () => data && (data.opstellingen.find(o => o.id === data.actief) || data.opstellingen[0]);
   const nieuwId = p => p + Math.random().toString(36).slice(2, 9);
-  const maat = s => (s.r % 2 ? [STUK[s.s].h, STUK[s.s].w] : [STUK[s.s].w, STUK[s.s].h]);
+  // De grootte van een stuk in vakjes: zoals getekend, of uitgerekt (sw × sh, ongedraaid).
+  const basis = s => [s.sw || STUK[s.s].w, s.sh || STUK[s.s].h];
+  const maat = s => { const [w, h] = basis(s); return s.r % 2 ? [h, w] : [w, h]; };
 
   // De naamkaartjes van een stuk, in vakjes binnen het (gedraaide) stuk.
   function kaartjes(s) {
-    const d = STUK[s.s], w = d.w, h = d.h;
-    return (d.plaatsen || []).map(([x, y], i) => {
+    const d = STUK[s.s], [w, h] = basis(s), fx = w / d.w, fy = h / d.h;
+    return (d.plaatsen || []).map(([x0, y0], i) => {
+      const x = x0 * fx, y = y0 * fy;
       const [px, py] = [[x, y], [h - y, x], [w - x, h - y], [y, w - x]][s.r];
       // Schuin: het hele stuk staat 45° gedraaid rond zijn midden (de kaartjes blijven rechtop).
       let [ax, ay] = [px, py];
@@ -259,10 +262,10 @@ const Indeling = (() => {
     lok.classList.toggle('bouw', modus === 'bouw');
     const stukken = o.stukken.slice().sort((a, c) => (STUK[a.s].laag ?? 1) - (STUK[c.s].laag ?? 1));
     lok.innerHTML = stukken.map(s => {
-      const d = STUK[s.s], [w, h] = maat(s);
+      const d = STUK[s.s], [w, h] = maat(s), [bw, bh] = basis(s);
       const kaart = d.plaatsen ? kaartjes(s).map(p => kaartje(p, b, botsen)).join('') : '';
       return `<div class="ki-stuk${d.laag === 0 ? ' vloer' : ''}${d.muur ? ' muur' : ''}${s.d && !d.muur ? ' schuin' : ''}${s.id === gekozen ? ' gekozen' : ''}" data-id="${s.id}" style="--x:${s.x};--y:${s.y};--w:${w};--h:${h}">
-        <div class="ki-vorm" style="--bw:${d.w};--bh:${d.h};--r:${s.r}">${svg(s)}</div>${kaart}</div>`;
+        <div class="ki-vorm" style="--bw:${bw};--bh:${bh};--r:${s.r}">${svg(s)}</div>${kaart}${s.id === gekozen && modus === 'bouw' ? '<i class="ki-greep" title="Sleep om groter of kleiner te maken"></i>' : ''}</div>`;
     }).join('') + (o.stukken.length ? '' : '<p class="ki-leeg">Een leeg lokaal. Kies rechts een bank of een bord om te beginnen.</p>');
     // Het zijpaneel
     const plaatsen = allePlaatsen().filter(p => !p.dicht).length;
@@ -273,7 +276,7 @@ const Indeling = (() => {
       : `<span class="muted small">${klas.leerlingen.length ? 'Iedereen heeft een plaats.' : 'Je klaslijst is nog leeg.'}</span>`;
     $('ki-zonder').classList.toggle('vol', !b.zonder.length);
     $('ki-tip').textContent = modus === 'bouw'
-      ? 'Tik op een stuk rechts of sleep het in je lokaal. Tik op een stuk in het lokaal om het te draaien (ook schuin) of weg te doen.'
+      ? 'Tik op een stuk rechts of sleep het in je lokaal. Tik op een stuk in het lokaal om het te draaien (ook schuin) of weg te doen. Sleep het gouden hoekje om het groter te maken.'
       : 'Sleep een naam naar een andere plaats om te wisselen. Tik op een plaats om ze vast te zetten of dicht te doen.';
     for (const k of document.querySelectorAll('.ki-modus [data-modus]')) k.classList.toggle('on', k.dataset.modus === modus);
     $('ki-zij-zit').classList.toggle('hidden', modus !== 'zit');
@@ -412,6 +415,7 @@ const Indeling = (() => {
         <button class="secondary" data-doe="kopie">⧉ Nog een</button>
         ${d.plaatsen ? `<button class="secondary" data-doe="dicht">${dicht ? '✓ Plaatsen open' : '✕ Plaatsen dicht'}</button>` : ''}
         ${d.kleuren ? `<span class="ki-kleuren">${KLEUR.slice(0, d.kleuren).map((c, i) => `<button class="${(s.k || 0) === i ? 'on' : ''}" data-kleur="${i}" style="background:${c[0]}" aria-label="Kleur ${i + 1}"></button>`).join('')}</span>` : ''}
+        ${s.sw || s.sh ? '<button class="secondary" data-doe="maat0">↺ Gewone grootte</button>' : ''}
         <button class="secondary" data-doe="weg">🗑 Weg</button>`;
     } else {
       const p = allePlaatsen().find(x => x.k === menu.k);
@@ -457,6 +461,12 @@ const Indeling = (() => {
       else if (doe === 'kopie') wijzig(() => { const n = { ...s, id: nieuwId('s'), dicht: undefined }; zetVrij(n, s); o.stukken.push(n); gekozen = n.id; menu = { soort: 'stuk', id: n.id }; });
       else if (doe === 'dicht') wijzig(() => { const n = STUK[s.s].plaatsen.length; s.dicht = s.dicht && s.dicht.length === n ? [] : [...Array(n).keys()]; });
       else if (doe === 'weg') verwijder(s);
+      else if (doe === 'maat0') wijzig(() => {
+        delete s.sw; delete s.sh;
+        const [w, h] = maat(s);
+        s.x = Math.max(0, Math.min(o.w - w, s.x));
+        s.y = Math.max(0, Math.min(o.h - h, s.y));
+      });
     } else {
       const doe = knop.dataset.doe, k = menu.k;
       const [id, i] = k.split('.');
@@ -482,6 +492,20 @@ const Indeling = (() => {
       gekozen = null;
       menu = null;
     });
+  }
+
+  // Uitrekken: de rechteronderhoek volgt de muis. Een muurstuk wordt alleen langer.
+  function rek(s, vx, vy) {
+    const o = op(), d = STUK[s.s];
+    let w = Math.max(1, Math.min(o.w - s.x, Math.round(vx - s.x))), h = Math.max(1, Math.min(o.h - s.y, Math.round(vy - s.y)));
+    if (d.muur) [w, h] = s.r % 2 ? [1, h] : [w, 1];
+    let [sw, sh] = s.r % 2 ? [h, w] : [w, h];
+    if (d.muur) sh = d.h;
+    const [ow, oh] = basis(s);
+    if (sw === ow && sh === oh) return;
+    if (sw === d.w) delete s.sw; else s.sw = sw;
+    if (sh === d.h) delete s.sh; else s.sh = sh;
+    teken();
   }
 
   // Draaien: een kwartslag; een muurstuk gaat naar de volgende muur.
@@ -545,7 +569,9 @@ const Indeling = (() => {
     const stuk = e.target.closest('.ki-stuk');
     const kaart = e.target.closest('.ki-plaats');
     const naam = e.target.closest('.ki-naam');
-    if (modus === 'bouw' && tool) sleep = { soort: 'nieuw', s: tool.dataset.s, x0: e.clientX, y0: e.clientY, el: tool };
+    const greep = e.target.closest('.ki-greep');
+    if (modus === 'bouw' && greep) sleep = { soort: 'maat', s: op().stukken.find(x => x.id === greep.parentNode.dataset.id), x0: e.clientX, y0: e.clientY, start: JSON.stringify(data) };
+    else if (modus === 'bouw' && tool) sleep = { soort: 'nieuw', s: tool.dataset.s, x0: e.clientX, y0: e.clientY, el: tool };
     else if (modus === 'bouw' && stuk) {
       const s = op().stukken.find(x => x.id === stuk.dataset.id);
       const [vx, vy] = vakVan(e);
@@ -593,6 +619,7 @@ const Indeling = (() => {
       el.style.setProperty('--w', w); el.style.setProperty('--h', h);
       el.querySelector('.ki-vorm').style.setProperty('--r', s.r);
     }
+    if (sleep.soort === 'maat') rek(sleep.s, ...vakVan(e));
     if (sleep.soort === 'naam') {
       for (const x of document.querySelectorAll('.ki-plaats.doel, .ki-zonder.doel')) x.classList.remove('doel');
       const onder = waarOnder(e);
@@ -630,6 +657,14 @@ const Indeling = (() => {
         menu = { soort: 'stuk', id: n.id };
       });
       sfx.tick && sfx.tick();
+    } else if (s.soort === 'maat') {
+      if (!s.bezig) return;
+      terug.push(s.start);
+      if (terug.length > 40) terug.shift();
+      $('ki-terug').disabled = false;
+      menu = { soort: 'stuk', id: s.s.id };
+      teken();
+      bewaarSoon();
     } else if (s.soort === 'stuk') {
       if (!s.bezig) { gekozen = s.s.id; menu = { soort: 'stuk', id: s.s.id }; teken(); return; }
       // Het verschuiven is al gebeurd; zet de oude toestand op de terug-stapel en bewaar.

@@ -45,6 +45,9 @@ function schoonStuk(s, w, h) {
   if (s.k != null) stuk.k = getal(s.k, 0, 5, 0);
   // Schuin: nog een achtste draai erbij (45°).
   if (s.d) stuk.d = true;
+  // Uitgerekt: een eigen breedte en diepte (ongedraaid).
+  if (s.sw != null) stuk.sw = getal(s.sw, 1, 40, 1);
+  if (s.sh != null) stuk.sh = getal(s.sh, 1, 30, 1);
   return stuk;
 }
 
