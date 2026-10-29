@@ -13,7 +13,8 @@ const MAX_STUKKEN = 160;
 
 // Moet kloppen met STUK in public/js/wk-indeling.js.
 const SOORTEN = new Set(['bank', 'duo', 'trio', 'groep', 'zes', 'bureau', 'bord', 'deur', 'raam', 'kast', 'boeken', 'wasbak', 'kapstok', 'computer',
-  'tapijt', 'leeshoek', 'zitzak', 'plant', 'wereldbol', 'aquarium', 'prullenbak', 'schatkist', 'harnas', 'banier', 'lamp', 'kring']);
+  'tapijt', 'leeshoek', 'zitzak', 'plant', 'wereldbol', 'aquarium', 'prullenbak', 'schatkist', 'harnas', 'banier', 'lamp', 'kring',
+  'zitbank', 'langetafel', 'rond', 'ridderronde', 'poef', 'krijtbord', 'piano', 'laadkar', 'printer', 'troon', 'zwaard', 'kroonluchter', 'schild', 'haard', 'draak']);
 
 const lees = file => { try { return JSON.parse(fs.readFileSync(file, 'utf8')); } catch { return null; } };
 const tekst = (v, max) => String(v || '').trim().replace(/\s+/g, ' ').slice(0, max);
@@ -40,8 +41,10 @@ function schoonStuk(s, w, h) {
   if (!s || !SOORTEN.has(s.s)) return null;
   const stuk = { id: tekst(s.id, 16).replace(/[^\w-]/g, '') || null, s: s.s, x: getal(s.x, 0, w - 1, 0), y: getal(s.y, 0, h - 1, 0), r: getal(s.r, 0, 3, 0) };
   if (!stuk.id) return null;
-  if (Array.isArray(s.dicht)) stuk.dicht = [...new Set(s.dicht.map(i => getal(i, 0, 5, 0)))];
+  if (Array.isArray(s.dicht)) stuk.dicht = [...new Set(s.dicht.map(i => getal(i, 0, 7, 0)))];
   if (s.k != null) stuk.k = getal(s.k, 0, 5, 0);
+  // Schuin: nog een achtste draai erbij (45°).
+  if (s.d) stuk.d = true;
   return stuk;
 }
 
@@ -54,7 +57,7 @@ function schoonOpstelling(o, i) {
   const bron = o && o.plaatsen && typeof o.plaatsen === 'object' ? o.plaatsen : {};
   for (const [k, p] of Object.entries(bron)) {
     const [stuk, nr] = k.split('.');
-    if (!ids.has(stuk) || !/^[0-5]$/.test(nr) || !p || typeof p !== 'object') continue;
+    if (!ids.has(stuk) || !/^[0-7]$/.test(nr) || !p || typeof p !== 'object') continue;
     const naam = tekst(p.naam, 60);
     if (!naam) continue;
     plaatsen[k] = { id: tekst(p.id, 20), naam, ...(p.vast ? { vast: true } : {}) };
