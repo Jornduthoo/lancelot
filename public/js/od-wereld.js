@@ -64,7 +64,7 @@ const OdWereld = (() => {
         '~~~zzzzzzz~~~~~~~~~~zzzzzzz~~~~~',
         '~~zzYzzzzzzz~~~~~~zzzz.Kzzzz~~~~',
         '~zzz...T..zzz~~~~zz...KKK..zz~~~',
-        '~zz..,..T...zzzzzz...KGK....z~~~',
+        '~zz..,..T...zzzzzz...KGK.N..z~~~',
         '~z..T..i....=====..........Jzz~~',
         '~z.,....T...=...,..T....T....z~~',
         '~zz..T......=.......aaa......z~~',
@@ -100,7 +100,7 @@ const OdWereld = (() => {
         '~~~::J::::::R::::R::::X:::::~~',
         '~~~:::::::::R:h::R::::::::~~~~',
         '~~~~::::f:::R:J::R:::f::::~~~~',
-        '~~~~::::::::RR::RR::::::::~~~~',
+        '~~~~::::O:::RR::RR::::::::~~~~',
         '~~~~~:::::::::::::::::::::~~~~',
         '~~~~~~:::::S:Q::::::::::~~~~~~',
         '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~',
@@ -108,20 +108,74 @@ const OdWereld = (() => {
       ruine: () => true,
       terug: { kaart: 'woud', bij: 'P' },
     },
+    ijs: {
+      naam: 'Het IJsrijk',
+      rijen: [
+        '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~',
+        '~~~~~BBBBB~~~~~~~~BBBBBB~~~~~~',
+        '~~~BB.....BB~~~~BB......BB~~~~',
+        '~~B....k....B~~B....C.....B~~~',
+        '~~B..A...zzz.BBB..........B~~~',
+        '~~B.....zzzzz.....zz..k...B~~~',
+        '~~~B...zzaazz....zzzz....B~~~~',
+        '~~~B....zzzz..J...zz.....B~~~~',
+        '~~~~B.........=======....B~~~~',
+        '~~~~B..k..=====.....=...B~~~~~',
+        '~~~~~B....=.....E...=..B~~~~~~',
+        '~~~~~B..J.=.........=..B~~~~~~',
+        '~~~~~~B...=..k......=.B~~~~~~~',
+        '~~~~~~B...S.Q.......=.B~~~~~~~',
+        '~~~~~~~BB..........J.B~~~~~~~~',
+        '~~~~~~~~~BBBBBBBBBBBB~~~~~~~~~',
+        '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~',
+      ],
+      ruine: () => false,
+      terug: { kaart: 'sterren', bij: 'O' },
+      rots: ['#8597bd', '#5a6b94'],
+      lip: ['#f4f8ff', '#cfdcee'],
+    },
+    vuur: {
+      naam: 'De Vuurberg',
+      rijen: [
+        '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~',
+        '~~~~KKK~~~~~~~~~~~~~~KKKK~~~~~~',
+        '~~~K...KK~~~~~~~~~KK....K~~~~~~',
+        '~~K..F...K~~~~~~~K...aa..K~~~~~',
+        '~~K.......KKKKKKK...aaaa..K~~~~',
+        '~~K..f......f......aaaaa..K~~~~',
+        '~~~K....=========...aaa.U.K~~~~',
+        '~~~K.J..=...G...=.........K~~~~',
+        '~~~~K...=.......=....f...K~~~~~',
+        '~~~~K...=...J...=........K~~~~~',
+        '~~~~~K..=.......=..V....K~~~~~~',
+        '~~~~~K..S.Q.....=.....J.K~~~~~~',
+        '~~~~~~KK..........f....K~~~~~~~',
+        '~~~~~~~~KKKKKKKKKKKKKKK~~~~~~~~',
+        '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~',
+      ],
+      ruine: () => false,
+      terug: { kaart: 'draken', bij: 'N' },
+      rots: ['#5e3b35', '#3b2320'],
+      lip: ['#4a3834', '#352624'],
+    },
   };
   const STATION = {
     u: 'uil', s: 'schuif', r: 'robot', l: 'licht', c: 'code', o: 'steen', e: 'stroom', g: 'tandwiel', w: 'wip',
     m: 'smidse', i: 'nest', y: 'beeld', d: 'koepel', h: 'donjon', t: 'goudtoren',
+    A: 'ijsmeer', C: 'klokkentoren', E: 'ijsbeeld', F: 'lavapoort', U: 'vuurkristal', V: 'vuurtoren',
   };
   // Welk plaatje uit Mijn burcht bij welke plek hoort.
   const STUK = {
     uil: 'holoridder', schuif: 'zwaardsteen', robot: 'mechridder', licht: 'baken', code: 'portaal', steen: 'radar', bord: 'banier',
     smidse: 'smidse', nest: 'draak', beeld: 'drakenbeeld', koepel: 'schildkoepel', donjon: 'donjon', goudtoren: 'goudtoren',
+    ijsmeer: 'fontein', klokkentoren: 'wachttoren', ijsbeeld: 'ridderbeeld', lavapoort: 'poort', vuurkristal: 'kristal', vuurtoren: 'toren',
   };
+  // Eigen kleur voor sommige plekken (anders goud).
+  const STUKKLEUR = { ijsmeer: '#9ff3ff', ijsbeeld: '#bfe6ff', lavapoort: '#ff7a3a', vuurkristal: '#ff7a3a', vuurtoren: '#ff5a5a' };
   // Plekken waar je iets bouwt met kristallen (en daarna mee reist).
-  const BOUWPLEK = { p: 'brug', L: 'luchtschip', P: 'sterrenpoort' };
-  const REIS = { luchtschip: 'draken', sterrenpoort: 'sterren' };
-  const BLOKKEERT = new Set('T~RHWxvkfaYKGMXLP'.split('').concat(Object.keys(STATION), ['p']));
+  const BOUWPLEK = { p: 'brug', L: 'luchtschip', P: 'sterrenpoort', N: 'drakenzadel', O: 'ijsraket' };
+  const REIS = { luchtschip: 'draken', sterrenpoort: 'sterren', drakenzadel: 'vuur', ijsraket: 'ijs' };
+  const BLOKKEERT = new Set('T~RHWxvkfaYKGMXLPNOB'.split('').concat(Object.keys(STATION), ['p']));
 
   const hash = (x, y, k = 0) => BuArt.hash(x, y, k);
 
@@ -146,7 +200,7 @@ const OdWereld = (() => {
       const c = teken(k, x, y);
       if (STATION[c]) out.push({ id: STATION[c], x, y });
       if (c === 'p') out.push({ id: 'bord', bouw: 'brug', x, y });
-      if (c === 'L' || c === 'P') out.push({ id: BOUWPLEK[c], bouw: BOUWPLEK[c], reis: REIS[BOUWPLEK[c]], x, y });
+      if (c !== 'p' && BOUWPLEK[c]) out.push({ id: BOUWPLEK[c], bouw: BOUWPLEK[c], reis: REIS[BOUWPLEK[c]], x, y });
     }
     return out;
   }
@@ -168,6 +222,17 @@ const OdWereld = (() => {
   function vloerVan(k, x, y) {
     const c = teken(k, x, y);
     if (k.binnen) return 'neon';
+    if (k.id === 'ijs') {
+      if (c === 'z') return 'ijs';
+      if (c === 'a') return 'ijswater';
+      if (c === '=' || c === 'S') return 'sneeuwpad';
+      return hash(x, y, 3) < 0.3 ? 'sneeuw2' : 'sneeuw';
+    }
+    if (k.id === 'vuur') {
+      if (c === 'a') return 'lava';
+      if (c === '=' || c === 'S') return 'basalt';
+      return hash(x, y, 3) < 0.3 ? 'as2' : 'as';
+    }
     if (c === 'z' || c === 'Y' || c === 'Q') return 'zand';
     if (c === 'a') return 'water';
     if (c === '=' || c === 'S' || c === 'D') return 'pad';
@@ -182,7 +247,9 @@ const OdWereld = (() => {
   // De rotswanden eronder zijn grote, schuine rotsvlakken. Alles wordt één keer gebakken, dus het kost niets per beeld.
   const RGB = hex => [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16));
   const kleurStr = c => `rgb(${c.map(v => Math.max(0, Math.min(255, Math.round(v)))).join(',')})`;
-  const LP = { gras: '#66c24c', wild: '#57ad43', bloemen: '#6dc650', pad: '#9a9fb3', plein: '#8d93ad', neon: '#3b4563', water: '#3a8ee0', zand: '#e3c98c' };
+  const LP = { gras: '#66c24c', wild: '#57ad43', bloemen: '#6dc650', pad: '#9a9fb3', plein: '#8d93ad', neon: '#3b4563', water: '#3a8ee0', zand: '#e3c98c',
+    sneeuw: '#eef4fb', sneeuw2: '#dde8f4', sneeuwpad: '#b9c7dc', ijs: '#a6dcf2', ijswater: '#2f6fb0',
+    as: '#5a4a46', as2: '#4c3e3b', basalt: '#3a3236', lava: '#ff6a1f' };
   const LICHT = (() => { const l = [-0.55, -0.35, 1]; const n = Math.hypot(...l); return l.map(v => v / n); })();
 
   function driehoek(g, a, b, c, kleur) {
@@ -213,7 +280,7 @@ const OdWereld = (() => {
     const half = T / 2;
     const kwart = T / 4;
     const land = (x, y) => { const c = teken(k, x, y); return c !== '~' && c !== 'b'; };
-    const golvend = c => '.,TYz'.includes(c);
+    const golvend = c => '.,TYzB'.includes(c) && !(k.id === 'ijs' && c === 'z');
     // Hoogte van elke hoek: golvend gras, maar vlak waar een pad, plek of gebouw aan raakt.
     const hoogte = (cx, cy) => {
       for (const [x, y] of [[cx - 1, cy - 1], [cx, cy - 1], [cx - 1, cy], [cx, cy]]) {
@@ -233,7 +300,8 @@ const OdWereld = (() => {
       const rel = Math.min(1, Math.abs(cx - cy - (k.w - k.h) / 2) / breed);
       return T * (0.7 + 2.6 * (1 - rel) ** 1.4 + 0.9 * hash(cx, cy, 5));
     };
-    const ROTS = { l: RGB('#6c5a80'), r: RGB('#45395c') };
+    const ROTS = { l: RGB((k.rots || [])[0] || '#6c5a80'), r: RGB((k.rots || [])[1] || '#45395c') };
+    const LIP = k.lip || ['#4f9a3a', '#3e8030'];
 
     function wand(a, b, da, db, zij, seed) {
       const r = BuArt.rng(seed * 2654435761);
@@ -262,7 +330,7 @@ const OdWereld = (() => {
         const p = mid(i / 2);
         const q = mid((i + 1) / 2);
         const punt = mid((i + 0.5) / 2);
-        driehoek(g, p, q, [punt[0], punt[1] + lip * (0.8 + r() * 0.7)], zij === 'l' ? '#4f9a3a' : '#3e8030');
+        driehoek(g, p, q, [punt[0], punt[1] + lip * (0.8 + r() * 0.7)], zij === 'l' ? LIP[0] : LIP[1]);
       }
       // de neonrand van onze eilanden
       g.save();
@@ -308,7 +376,24 @@ const OdWereld = (() => {
         const c = scherm(x, y, 0);
         const mx = c[0];
         const my = c[1] + kwart;
-        if (soort === 'neon' && hash(x, y, 14) < 0.35) {
+        if (soort === 'lava') {
+          // gloeiende barsten in de lava
+          g.strokeStyle = 'rgba(255,230,120,.85)';
+          g.lineWidth = Math.max(1, T / 30);
+          g.beginPath();
+          g.moveTo(mx - half * 0.6, my + (hash(x, y, 17) - 0.5) * kwart);
+          g.lineTo(mx, my + (hash(x, y, 18) - 0.5) * kwart);
+          g.lineTo(mx + half * 0.5, my - kwart * 0.3);
+          g.stroke();
+        } else if (soort === 'ijs' && hash(x, y, 14) < 0.5) {
+          // een glimlijn over het ijs
+          g.strokeStyle = 'rgba(255,255,255,.7)';
+          g.lineWidth = Math.max(1, T / 40);
+          g.beginPath();
+          g.moveTo(mx - half * 0.4, my + kwart * 0.2);
+          g.lineTo(mx + half * 0.1, my - kwart * 0.35);
+          g.stroke();
+        } else if (soort === 'neon' && hash(x, y, 14) < 0.35) {
           // oude lichtlijnen in de vloer van de ruïne
           g.strokeStyle = 'rgba(76,201,255,.55)';
           g.lineWidth = Math.max(0.8, T / 50);
@@ -411,7 +496,7 @@ const OdWereld = (() => {
   }
 
   // Low-poly bomen: een den van gestapelde kegels en een loofboom als bol van vlakjes, licht van linksboven.
-  function lpBoom(g, T, den, variant) {
+  function lpBoom(g, T, den, variant, sneeuw = false) {
     const r = BuArt.rng(variant * 977 + (den ? 13 : 7));
     g.fillStyle = 'rgba(10,20,30,.28)';
     g.beginPath();
@@ -436,6 +521,12 @@ const OdWereld = (() => {
         driehoek(g, [0, voor], [w, b], [0, top], groen[1]);
         driehoek(g, [-w, b], [-w * 0.35, b - (b - top) * 0.25], [0, top], BuArt.shade(groen[0], 0.18));
         driehoek(g, [w, b], [w * 0.45, b - (b - top) * 0.2], [0, top], groen[2]);
+        if (sneeuw) {
+          // een sneeuwkapje op elke laag
+          const sb = top + (b - top) * 0.55;
+          driehoek(g, [-w * 0.5, sb], [0, sb + w * 0.15], [0, top], '#f6faff');
+          driehoek(g, [0, sb + w * 0.15], [w * 0.45, sb], [0, top], '#c9d8ea');
+        }
       }
     } else {
       const tint = [['#8bd65a', '#64b84a', '#46963c', '#33762f'], ['#a5d95a', '#7cbc45', '#5a9a38', '#41782c'], ['#7fce6a', '#58b056', '#3f9048', '#2f703a']][variant % 3];
@@ -499,7 +590,7 @@ const OdWereld = (() => {
   }
 
   // Een rotsblok van vlakjes.
-  function lpRots(g, T, variant) {
+  function lpRots(g, T, variant, rood = false) {
     const s = T * (0.32 + variant * 0.06);
     g.fillStyle = 'rgba(10,20,30,.28)';
     g.beginPath();
@@ -510,10 +601,21 @@ const OdWereld = (() => {
     const r = [s, -s * 0.15];
     const v = [s * 0.05, s * 0.25];
     const m = [-s * 0.15, -s * 0.55];
-    driehoek(g, l, m, top, '#8a7d9a');
-    driehoek(g, m, r, top, '#6c5f80');
-    driehoek(g, l, v, m, '#5e5272');
-    driehoek(g, m, v, r, '#463c5c');
+    const kl = rood ? ['#6e4a42', '#523530', '#452c28', '#33201d'] : ['#8a7d9a', '#6c5f80', '#5e5272', '#463c5c'];
+    driehoek(g, l, m, top, kl[0]);
+    driehoek(g, m, r, top, kl[1]);
+    driehoek(g, l, v, m, kl[2]);
+    driehoek(g, m, v, r, kl[3]);
+    if (rood) {
+      // een gloeiende ader in de rots
+      g.strokeStyle = '#ff7a3a';
+      g.lineWidth = Math.max(1, T / 40);
+      g.beginPath();
+      g.moveTo(m[0], m[1]);
+      g.lineTo((m[0] + v[0]) / 2 + s * 0.1, (m[1] + v[1]) / 2);
+      g.lineTo(v[0], v[1] - s * 0.1);
+      g.stroke();
+    }
   }
 
   // Een verborgen runensteen: klein, met een gloeiende rune.
@@ -555,12 +657,12 @@ const OdWereld = (() => {
       for (const [u, v] of [[-0.32, -0.32], [0.28, -0.32], [-0.32, 0.28], [0.28, 0.28]]) blok(g, T, u, u + 0.05, v, v + 0.05, 0, 0.3, '#3b2a1c');
       return blok(g, T, -0.36, 0.36, -0.36, 0.36, 0.3, 0.36, '#6b4a2c', '#8a6038');
     };
-    if (id === 'lpden' || id === 'lpboom') {
-      lpBoom(g, T, id === 'lpden', variant);
+    if (id === 'lpden' || id === 'lpboom' || id === 'lpsneeuw') {
+      lpBoom(g, T, id !== 'lpboom', variant, id === 'lpsneeuw');
     } else if (id === 'lppalm') {
       lpPalm(g, T, variant);
-    } else if (id === 'lprots') {
-      lpRots(g, T, variant);
+    } else if (id === 'lprots' || id === 'lprotsrood') {
+      lpRots(g, T, variant, id === 'lprotsrood');
     } else if (id === 'rune') {
       runeSteen(g, T);
     } else if (id === 'stroom') {
@@ -667,23 +769,26 @@ const OdWereld = (() => {
       let st = null;
       if (c === 'T') st = { eigen: hash(x, y, 1) < 0.5 ? 'lpboom' : 'lpden', v: Math.floor(hash(x, y, 3) * 3) };
       else if (c === 'k') st = { bu: 'kristal', kleur: '#4cc9ff' };
-      else if (c === 'f') st = { bu: 'fakkel', kleur: '#4cc9ff' };
+      else if (c === 'f') st = k.id === 'vuur' ? { bu: 'kampvuur', kleur: '#ff7a3a' } : { bu: 'fakkel', kleur: '#4cc9ff' };
       else if (c === 'R') st = { bu: 'muur', kleur: '#6b5bd6', muur: true };
       else if (c === 'p') st = { bu: 'banier', kleur: '#2ee6a6', plek: 'bord' };
       else if (c === 'x') st = { eigen: 'kast' };
       else if (c === 'v') st = { bu: 'lichtpaal', kleur: '#2ee6a6' };
       else if (c === 'W') st = { eigen: 'binnenmuur' };
       else if (c === 'Y') st = { eigen: 'lppalm', v: Math.floor(hash(x, y, 3) * 3) };
-      else if (c === 'K') st = { eigen: 'lprots', v: Math.floor(hash(x, y, 3) * 3) };
+      else if (c === 'K') st = { eigen: k.id === 'vuur' ? 'lprotsrood' : 'lprots', v: Math.floor(hash(x, y, 3) * 3) };
       else if (c === 'G') st = { bu: 'robodraak', kleur: '#ff5a5a' };
       else if (c === 'M') st = { bu: 'molen', kleur: '#ffc94a' };
       else if (c === 'X') st = { bu: 'ruimteschip', kleur: '#4cc9ff' };
       else if (c === 'L') st = { bu: 'ruimteschip', kleur: '#ffc94a', plek: 'luchtschip' };
       else if (c === 'P') st = { bu: 'portaal', kleur: '#c77dff', plek: 'sterrenpoort' };
+      else if (c === 'N') st = { bu: 'draak', kleur: '#ff5a5a', plek: 'drakenzadel' };
+      else if (c === 'O') st = { bu: 'ruimteschip', kleur: '#bff3ff', plek: 'ijsraket' };
+      else if (c === 'B') st = { eigen: 'lpsneeuw', v: Math.floor(hash(x, y, 3) * 3) };
       else if (c === 'J' && !gevonden.includes(`${k.id}:${x},${y}`)) st = { eigen: 'rune', rune: true };
       else if (STATION[c]) {
         const id = STATION[c];
-        st = STUK[id] ? { bu: STUK[id], kleur: '#ffc94a', plek: id } : { eigen: id, plek: id };
+        st = STUK[id] ? { bu: STUK[id], kleur: STUKKLEUR[id] || '#ffc94a', plek: id } : { eigen: id, plek: id };
       }
       if (st) out.push({ x, y, ...st });
     }

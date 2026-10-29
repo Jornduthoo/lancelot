@@ -821,6 +821,281 @@
     return true;
   }
 
+
+  // ---------- Het IJsmeer: glijden over het ijs ----------
+  // Je glijdt door tot je tegen een rots of de rand botst. Kom op het doel terecht (daar stop je ook).
+
+  function ijsGlij(pz, x, y, d) {
+    for (;;) {
+      const nx = x + DX[d];
+      const ny = y + DY[d];
+      if (nx < 0 || ny < 0 || nx >= pz.w || ny >= pz.h || pz.rotsen.includes(ny * pz.w + nx)) return { x, y };
+      x = nx;
+      y = ny;
+      if (x === pz.doel.x && y === pz.doel.y) return { x, y };
+    }
+  }
+
+  function ijsKortst(pz) {
+    const k = (x, y) => y * pz.w + x;
+    const afstand = new Map([[k(pz.start.x, pz.start.y), 0]]);
+    const rij = [pz.start];
+    while (rij.length) {
+      const p = rij.shift();
+      const a = afstand.get(k(p.x, p.y));
+      if (p.x === pz.doel.x && p.y === pz.doel.y) return a;
+      for (let d = 0; d < 4; d++) {
+        const q = ijsGlij(pz, p.x, p.y, d);
+        if (!afstand.has(k(q.x, q.y))) { afstand.set(k(q.x, q.y), a + 1); rij.push(q); }
+      }
+    }
+    return -1;
+  }
+
+  function maakIjs(n, r) {
+    const t = r.t || 0;
+    const w = { page: 6, schildknaap: 8, ridder: 10 }[n] + Math.min(3, Math.floor(t / 3));
+    const h = { page: 6, schildknaap: 7, ridder: 9 }[n] + Math.min(2, Math.floor(t / 4));
+    const [lo, hi] = { page: [2, 4], schildknaap: [4, 7], ridder: [6, 12] }[n];
+    const min = lo + Math.min(4, Math.floor(t / 3));
+    let beste = null;
+    for (let poging = 0; poging < 300; poging++) {
+      const rotsen = [];
+      const aantal = Math.round(w * h * (0.1 + r() * 0.08));
+      for (let i = 0; i < aantal; i++) rotsen.push(r.int(w * h));
+      const vrij = [...Array(w * h).keys()].filter(i => !rotsen.includes(i));
+      const a = r.pick(vrij);
+      const b = r.pick(vrij);
+      if (a === b) continue;
+      const pz = { w, h, rotsen: [...new Set(rotsen)], start: { x: a % w, y: Math.floor(a / w) }, doel: { x: b % w, y: Math.floor(b / w) } };
+      const k = ijsKortst(pz);
+      if (k < 0) continue;
+      if (k >= min && k <= hi + Math.floor(t / 2)) return { ...pz, zetten: k };
+      if (k > 0 && (!beste || Math.abs(k - min) < Math.abs(beste.zetten - min))) beste = { ...pz, zetten: k };
+    }
+    return beste || { w: 3, h: 3, rotsen: [], start: { x: 0, y: 0 }, doel: { x: 2, y: 0 }, zetten: 1 };
+  }
+
+  function ijsLoop(pz, stappen) {
+    let { x, y } = pz.start;
+    for (const s of stappen) {
+      const d = 'NOZW'.indexOf(s);
+      if (d < 0) return { x, y, fout: true };
+      ({ x, y } = ijsGlij(pz, x, y, d));
+    }
+    return { x, y, ok: x === pz.doel.x && y === pz.doel.y };
+  }
+  const checkIjs = (pz, poging) => typeof poging === 'string' && poging.length < 500 && ijsLoop(pz, poging).ok;
+
+  // ---------- De Klokkentoren: klok lezen ----------
+  // Een wijzerklok en vier antwoorden. Het juiste antwoord (opl) blijft op de server.
+
+  const uurTekst = (u, m) => `${u}:${String(m).padStart(2, '0')}`;
+
+  function eenKlok(n, r) {
+    const t = r.t || 0;
+    const stap = n === 'page' ? (t >= 4 ? 15 : 30) : n === 'schildknaap' ? (t >= 4 ? 5 : 15) : 5;
+    let u = 1 + r.int(12);
+    const m = stap * r.int(60 / stap);
+    let vraag;
+    let juist;
+    let fout = [];
+    if (n === 'page' || (n === 'schildknaap' && r() < 0.5)) {
+      vraag = 'Hoe laat is het?';
+      juist = uurTekst(u, m);
+      // fouten: uur en minuten verwisseld, een uur ernaast, de wijzers omgekeerd
+      fout = [uurTekst(u % 12 + 1, m), uurTekst(u === 1 ? 12 : u - 1, m), uurTekst(u, (m + 30) % 60), uurTekst(Math.max(1, Math.round(m / 5)) || 12, (u * 5) % 60)];
+    } else if (n === 'schildknaap') {
+      const erbij = [15, 30, 45, 20, 10][r.int(t >= 3 ? 5 : 3)];
+      const tm = (u * 60 + m + erbij) % 720;
+      vraag = `Hoe laat is het over ${erbij} minuten?`;
+      juist = uurTekst(Math.floor(tm / 60) || 12, tm % 60);
+      fout = [uurTekst(u, (m + erbij) % 60), uurTekst(Math.floor(((u * 60 + m - erbij + 720) % 720) / 60) || 12, (m - erbij + 60) % 60), uurTekst((Math.floor(tm / 60) % 12) + 1, tm % 60)];
+    } else {
+      // Ridder: hoeveel minuten tot een ander uur, of het uur 's avonds in 24 uur.
+      if (r() < 0.5) {
+        const tot = [u * 60 + m + 35 + 5 * r.int(10 + t)];
+        const d = tot[0] - (u * 60 + m);
+        const tu = Math.floor(tot[0] / 60);
+        vraag = `Hoeveel minuten duurt het tot ${uurTekst(tu > 12 ? tu - 12 : tu, tot[0] % 60)}?`;
+        juist = `${d} min`;
+        fout = [`${d + 10} min`, `${d - 5} min`, `${d + 60} min`, `${Math.max(5, d - 15)} min`];
+      } else {
+        if (u > 10) u -= 4; // 11 en 12 uur 's avonds zijn verwarrend
+        vraag = 'Het is avond. Hoe schrijf je dit uur met 24 uren?';
+        juist = uurTekst(u + 12, m);
+        fout = [uurTekst(u, m), uurTekst(u + 10, m), uurTekst(u + 2, m), uurTekst(u + 11, m)];
+      }
+    }
+    const uniek = [...new Set(fout)].filter(x => x !== juist).slice(0, 3);
+    // Altijd vier keuzes: vul aan met tijden een kwartier of een uur ernaast.
+    for (let k = 1; uniek.length < 3 && k < 40; k++) {
+      const tm = ((u * 60 + m + (k % 2 ? 1 : -1) * 15 * Math.ceil(k / 2)) % 720 + 720) % 720;
+      const x = juist.endsWith('min') ? `${parseInt(juist, 10) + 5 * k} min` : uurTekst(Math.floor(tm / 60) || 12, tm % 60);
+      if (x !== juist && !uniek.includes(x)) uniek.push(x);
+    }
+    const opties = r.shuffle([juist, ...uniek]);
+    return { uur: u, min: m, vraag, opties, opl: opties.indexOf(juist) };
+  }
+  // Een paar klokken na elkaar: pas alles juist is het raadsel opgelost (zo helpt gokken niet).
+  function maakKlok(n, r) {
+    const aantal = (n === 'ridder' ? 4 : 3) + ((r.t || 0) >= 4 ? 1 : 0);
+    const klokken = Array.from({ length: aantal }, () => eenKlok(n, r));
+    return { klokken: klokken.map(({ opl, ...k }) => k), opl: klokken.map(k => k.opl) };
+  }
+  const checkKlok = (pz, poging) => Array.isArray(poging) && poging.length === pz.opl.length && poging.every((x, i) => Number(x) === pz.opl[i]);
+
+  // ---------- Het IJsbeeld: symmetrie ----------
+  // Maak de tekening af in de spiegel. Ridder: spiegel naar rechts én naar onder.
+
+  function maakSpiegel(n, r) {
+    const t = r.t || 0;
+    const half = { page: 3, schildknaap: 4, ridder: 3 }[n] + Math.min(2, Math.floor(t / 3));
+    const h = { page: 5, schildknaap: 6, ridder: 3 }[n] + Math.min(2, Math.floor(t / 3));
+    const dubbel = n === 'ridder';
+    const vol = 0.45;
+    const kwart = Array.from({ length: h * half }, () => (r() < vol ? 1 : 0));
+    if (!kwart.some(Boolean)) kwart[0] = 1;
+    return { half, h, dubbel, kwart };
+  }
+
+  // Het volledige veld volgens de spiegel (breedte 2*half, hoogte h of 2*h).
+  function spiegelVeld(pz) {
+    const W = pz.half * 2;
+    const H = pz.dubbel ? pz.h * 2 : pz.h;
+    const v = [];
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+      const kx = x < pz.half ? x : W - 1 - x;
+      const ky = y < pz.h ? y : H - 1 - y;
+      v.push(pz.kwart[ky * pz.half + kx]);
+    }
+    return { W, H, v };
+  }
+  function checkSpiegel(pz, poging) {
+    const { v } = spiegelVeld(pz);
+    return Array.isArray(poging) && poging.length === v.length && poging.every((x, i) => (x ? 1 : 0) === v[i]);
+  }
+
+  // ---------- De Lavapoort: het codeslot ----------
+  // Aanwijzingen over gokjes ("1 cijfer juist en op de juiste plaats") leiden naar één code.
+
+  function slotHint(code, gok) {
+    let plek = 0;
+    let ander = 0;
+    const rest = { c: [], g: [] };
+    for (let i = 0; i < code.length; i++) {
+      if (code[i] === gok[i]) plek++;
+      else { rest.c.push(code[i]); rest.g.push(gok[i]); }
+    }
+    for (const x of rest.g) {
+      const j = rest.c.indexOf(x);
+      if (j >= 0) { ander++; rest.c.splice(j, 1); }
+    }
+    return [plek, ander];
+  }
+
+  function maakSlot(n, r) {
+    const t = r.t || 0;
+    const len = n === 'ridder' || (n === 'schildknaap' && t >= 6) ? 4 : 3;
+    const cijfers = n === 'page' ? 6 : 10; // page: alleen 1 tot 6
+    const van = n === 'page' ? 1 : 0;
+    const alle = [];
+    const maakAlle = (pre) => {
+      if (pre.length === len) return alle.push(pre);
+      for (let c = van; c < van + cijfers; c++) if (n === 'ridder' || !pre.includes(String(c))) maakAlle(pre + c);
+    };
+    maakAlle('');
+    for (let poging = 0; poging < 30; poging++) {
+      const code = r.pick(alle);
+      const hints = [];
+      let kand = alle.slice();
+      for (let i = 0; i < 12 && kand.length > 1; i++) {
+        // een gok die zoveel mogelijk codes uitsluit, met een beetje toeval
+        let best = null;
+        for (let k = 0; k < 25; k++) {
+          const gok = r.pick(alle);
+          const h = slotHint(code, gok);
+          if (h[0] === len) continue;
+          const over = kand.filter(c => { const x = slotHint(c, gok); return x[0] === h[0] && x[1] === h[1]; }).length;
+          if (!best || over < best.over) best = { gok, h, over };
+        }
+        if (!best) continue;
+        hints.push({ gok: best.gok, plek: best.h[0], ander: best.h[1] });
+        kand = kand.filter(c => { const x = slotHint(c, best.gok); return x[0] === best.h[0] && x[1] === best.h[1]; });
+      }
+      const max = { page: 5, schildknaap: 6, ridder: 7 }[n];
+      if (kand.length === 1 && hints.length <= max) return { len, van, tot: van + cijfers - 1, uniek: n !== 'ridder', hints };
+    }
+    return { len: 3, van: 1, tot: 6, uniek: true, hints: [{ gok: '123', plek: 3, ander: 0 }] };
+  }
+
+  function checkSlot(pz, poging) {
+    const p = String(poging || '');
+    if (p.length !== pz.len || !/^\d+$/.test(p)) return false;
+    return pz.hints.every(h => { const x = slotHint(p, h.gok); return x[0] === h.plek && x[1] === h.ander; });
+  }
+
+  // ---------- De Vuurkristallen: lampen aan ----------
+  // Tik op een kristal: hij en zijn buren wisselen (aan wordt uit, uit wordt aan). Zet ze allemaal aan.
+
+  function lampenTik(aan, size, i) {
+    const x = i % size;
+    const y = Math.floor(i / size);
+    const uit = aan.slice();
+    for (const [dx, dy] of [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]]) {
+      const nx = x + dx;
+      const ny = y + dy;
+      if (nx >= 0 && ny >= 0 && nx < size && ny < size) uit[ny * size + nx] = !uit[ny * size + nx];
+    }
+    return uit;
+  }
+
+  function maakLampen(n, r) {
+    const t = r.t || 0;
+    const size = { page: 3, schildknaap: 4, ridder: 5 }[n] + (t >= 6 && n !== 'ridder' ? 1 : 0);
+    const tikken = { page: 2, schildknaap: 4, ridder: 6 }[n] + Math.min(5, Math.floor(t / 2));
+    for (let poging = 0; poging < 50; poging++) {
+      let aan = Array(size * size).fill(true);
+      const gekozen = r.shuffle([...aan.keys()]).slice(0, Math.min(tikken, size * size - 1));
+      for (const i of gekozen) aan = lampenTik(aan, size, i);
+      if (aan.every(Boolean)) continue;
+      return { size, aan: aan.map(x => (x ? 1 : 0)), min: gekozen.length };
+    }
+    return { size: 3, aan: [1, 0, 1, 0, 0, 0, 1, 0, 1], min: 1 };
+  }
+  function checkLampen(pz, poging) {
+    if (!Array.isArray(poging) || poging.length > 400) return false;
+    let aan = pz.aan.map(Boolean);
+    for (const i of poging) {
+      const k = Number(i);
+      if (!Number.isInteger(k) || k < 0 || k >= aan.length) return false;
+      aan = lampenTik(aan, pz.size, k);
+    }
+    return aan.every(Boolean);
+  }
+
+  // ---------- De Vuurtoren: de torens van Hanoi ----------
+  // Verplaats de hele stapel naar de laatste paal. Nooit een grote schijf op een kleinere.
+
+  function maakHanoi(n, r) {
+    const t = r.t || 0;
+    const schijven = { page: 3, schildknaap: 4, ridder: 5 }[n] + (t >= 5 ? 1 : 0) + (t >= 12 ? 1 : 0);
+    return { schijven: Math.min(7, schijven), min: 2 ** Math.min(7, schijven) - 1, kleur: r.int(3) };
+  }
+
+  function hanoiLoop(pz, zetten) {
+    const palen = [[...Array(pz.schijven).keys()].map(i => pz.schijven - i), [], []];
+    for (const z of zetten) {
+      const [a, b] = Array.isArray(z) ? z.map(Number) : [-1, -1];
+      if (![0, 1, 2].includes(a) || ![0, 1, 2].includes(b) || a === b || !palen[a].length) return { palen, fout: true };
+      const s = palen[a][palen[a].length - 1];
+      if (palen[b].length && palen[b][palen[b].length - 1] < s) return { palen, fout: true };
+      palen[b].push(palen[a].pop());
+    }
+    return { palen, ok: palen[2].length === pz.schijven };
+  }
+  const checkHanoi = (pz, poging) => Array.isArray(poging) && poging.length < 2000 && hanoiLoop(pz, poging).ok;
+
   // ---------- Samen ----------
 
   const SOORTEN = {
@@ -836,6 +1111,12 @@
     sudoku: { maak: maakSudoku, check: checkSudoku },
     doolhof: { maak: maakDoolhof, check: checkDoolhof },
     toren: { maak: maakToren, check: checkToren },
+    ijs: { maak: maakIjs, check: checkIjs },
+    klok: { maak: maakKlok, check: checkKlok },
+    spiegel: { maak: maakSpiegel, check: checkSpiegel },
+    codeslot: { maak: maakSlot, check: checkSlot },
+    lampen: { maak: maakLampen, check: checkLampen },
+    hanoi: { maak: maakHanoi, check: checkHanoi },
   };
 
   // trap: hoe vaak je deze plek al oploste (1, 2, 3...). Hoe hoger, hoe moeilijker.
@@ -859,6 +1140,6 @@
 
   return {
     NIVEAUS, SOORTEN: Object.keys(SOORTEN), maak, check, rng,
-    schuifZet, schuifKlaar, robotLoop, doolhofLoop, lijnGetallen, WAREN, lichtPad, stroomBereik, stroomOk, draai, wipLinks, KAATS, DX, DY,
+    schuifZet, schuifKlaar, robotLoop, doolhofLoop, lijnGetallen, WAREN, ijsGlij, ijsLoop, spiegelVeld, slotHint, lampenTik, hanoiLoop, lichtPad, stroomBereik, stroomOk, draai, wipLinks, KAATS, DX, DY,
   };
 }));
