@@ -442,6 +442,24 @@
     return kies;
   }
 
+  // ---------- Spatiebalk ----------
+  // Op het bord drukt de spatiebalk de knop die nu de volgende stap zet (starten, antwoord tonen,
+  // volgende ronde). Zo'n knop krijgt data-spatie; is er geen zichtbaar, dan doet de spatie gewoon niets bijzonders.
+  function zichtbaar(el) { return !el.disabled && el.getClientRects().length > 0 && getComputedStyle(el).visibility !== 'hidden'; }
+  document.addEventListener('keydown', e => {
+    if (e.key !== ' ' || e.repeat || e.ctrlKey || e.altKey || e.metaKey) return;
+    const t = e.target;
+    if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;
+    if (document.querySelector('dialog[open], .pauze-scherm.aan')) return;
+    const knop = [...document.querySelectorAll('[data-spatie]')].find(zichtbaar);
+    if (!knop) return;
+    e.preventDefault();
+    knop.click();
+  });
+  document.addEventListener('DOMContentLoaded', () => {
+    for (const k of document.querySelectorAll('[data-spatie]')) if (!k.title) k.title = 'Of druk op de spatiebalk';
+  });
+
   window.Ui = {
     tabs,
     vraag: (tekst, o = {}) => wachtrij(tekst, [

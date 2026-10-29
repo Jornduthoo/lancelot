@@ -483,7 +483,7 @@
     <p class="muted small" id="ow-info"></p>
     <div class="bar">
       <button class="secondary" id="ow-nieuw">Andere vragen</button>
-      <button class="gold big" id="ow-start" disabled>Start de Opwarmer</button>
+      <button class="gold big" id="ow-start" data-spatie disabled>Start de Opwarmer</button>
     </div>
   </section>
 
@@ -750,7 +750,7 @@
     <div class="bar">
       <h2><span class="count" id="player-count">0</span> <span id="player-word">ridders</span> ingeschreven</h2>
       <label class="zk-toggle" title="Na elk antwoord tikt de leerling aan of hij zeker was of twijfelde. Het kost geen tijd en geen punten, maar je ziet in het Zorgoverzicht wie denkt het te kennen maar fout zit."><input type="checkbox" id="zekerheid" checked> 💪/🤔 Zeker of twijfel vragen</label>
-      <button class="gold big" id="start" disabled>Laat het toernooi beginnen!</button>
+      <button class="gold big" id="start" data-spatie disabled>Laat het toernooi beginnen!</button>
     </div>
     <p class="muted small">Klik op een naam om die speler te verwijderen.</p>
     <div class="names" id="names"></div>
@@ -775,9 +775,9 @@
     <div class="bar">
       <span></span>
       <div class="actions">
-        <button id="reveal" class="secondary">Toon antwoord</button>
+        <button id="reveal" class="secondary" data-spatie>Toon antwoord</button>
         <button id="to-board" class="hidden">Scorebord</button>
-        <button id="next" class="hidden">Volgende ronde</button>
+        <button id="next" class="hidden" data-spatie>Volgende ronde</button>
       </div>
     </div>
   </section>
@@ -787,7 +787,7 @@
     <ol class="ranking" id="top"></ol>
     <div class="bar">
       <span class="muted" id="board-progress"></span>
-      <button id="board-next">Volgende ronde</button>
+      <button id="board-next" data-spatie>Volgende ronde</button>
     </div>
   </section>
 
