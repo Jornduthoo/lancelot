@@ -10,6 +10,7 @@ const gegevens = require('./gegevens');
 const doelen = require('./doelen');
 const klas = require('./klas');
 const proeven = require('./proeven');
+const R = require('../public/js/zr-reken');
 
 const DIR = gegevens.pad('zegelrol');
 const OPMAAK = 'opmaak.json';
@@ -45,6 +46,7 @@ const bestand = id => {
 const TOON = {
   onderdelen: true, inhoud: true, totaal: true, procent: false, balkjes: true, gemiddelde: false, evolutie: false,
   symbool: true, commentaar: true, attitudes: true, algemeen: true, afwezig: true, niveau: false, handtekening: true, strookje: false, legenda: true, zegel: true,
+  domeinen: true, eindtotaal: true, grafiek: true, spinnenweb: false, verloop: false, klastoets: false, datums: true, notities: true, aanpassingen: true, inleiding: true,
 };
 const ZINNEN = [
   '{naam} werkt hard en dat zie je aan de resultaten. Hou zo vol!',
@@ -92,6 +94,21 @@ function bewaarOpmaak(o) {
 
 // ---------- Vakken en hoe een toets bij een vak komt ----------
 
+// De gewone domeinen per vak, zoals in een Vlaams puntenboek. Een toets komt vanzelf in het juiste domein (titel of leerplandoel).
+const DOMEINEN = {
+  wiskunde: [['Getallenkennis', /getal|breuk|kommagetal|procent|deelbaar|miljoen|miljard/i, ['Getallenkennis']], ['Bewerkingen', /bewerking|hoofdreken|cijferen|maaltafel|deling|optel|aftrek|vermenigvuldig/i, ['Bewerkingen']],
+    ['Meten en metend rekenen', /meten|maten|lengte|gewicht|inhoud|tijd|klok|geld|oppervlakte|omtrek|volume|schaal/i, ['Meten en metend rekenen']], ['Meetkunde', /meetkunde|hoek|figuur|driehoek|vierhoek|veelhoek|symmetr|kubus|balk/i, ['Meetkunde']],
+    ['Toepassingen', /vraagstuk|toepassing|grafiek|statistiek|kans|probleem/i, ['Vraagstukken en probleemoplossend denken', 'Kansrekenen en statistiek']]],
+  nederlands: [['Spelling', /spelling|dictee|werkwoordspelling/i, []], ['Taalbeschouwing', /taalbeschouwing|zinsontleding|ontleden|woordsoort|grammatica|zinsdeel/i, ['Taalsysteem en taalgebruik']],
+    ['Lezen', /lezen|lees|begrijpend|tekst/i, ['Lezen', 'Literatuur']], ['Luisteren en spreken', /luister|spreek|spreken|presentatie|spreekbeurt/i, ['Mondeling taalgebruik']], ['Schrijven', /schrijf|stel|brief/i, ['Schrijven']]],
+  frans: [['Woordenschat', /vocab|woordenschat|mots|lexique/i, []], ['Grammatica', /gramm|conjug|werkwoord|verbe|lidwoord/i, ['Taalsysteem en taalgebruik']], ['Lezen', /lezen|lecture|lire/i, ['Schriftelijke taalvaardigheid']],
+    ['Luisteren', /luister|écoute|ecoute/i, ['Mondelinge taalvaardigheid']], ['Spreken', /spreek|spreken|parler/i, []], ['Schrijven', /schrijf|écri|ecri/i, []]],
+  wo: [['Aardrijkskunde', /aardrijk|topo|kaart|klimaat|land|werelddeel/i, ['@Aardrijkskunde']], ['Geschiedenis', /geschied|tijdlijn|middeleeuw|romein|oorlog|eeuw/i, ['@Geschiedenis']],
+    ['Wetenschap en techniek', /wetenschap|techniek|natuur|lichaam|plant|dier|elektri|energie|proef/i, ['@Wetenschap en techniek']]],
+};
+const domeinId = naam => naam.toLowerCase().normalize('NFD').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 24);
+const standaardDomeinen = vak => (DOMEINEN[vak] || []).map(([naam]) => ({ id: domeinId(naam), naam, gewicht: 0 }));
+
 const STANDAARD = [
   ['wiskunde', 'Wiskunde', '🧮', true], ['nederlands', 'Nederlands', '📖', true], ['frans', 'Frans', '🥐', true], ['wo', 'Wereldoriëntatie', '🌍', true],
   ['muzo', 'Muzische vorming', '🎨', false], ['lo', 'Lichamelijke opvoeding', '⚽', false], ['godsdienst', 'Godsdienst', '🕊️', false],
@@ -111,6 +128,10 @@ function schoonVak(v) {
     naam,
     icoon: regel(v.icoon, 8),
     punten: v.punten !== false,
+    gewicht: Math.max(0, Math.min(100, Math.round(Number(v.gewicht) || 0))),
+    domeinen: (Array.isArray(v.domeinen) ? v.domeinen : []).slice(0, 16).map(d => (d && regel(d.naam, 40) ? {
+      id: /^[\w-]{1,24}$/.test(d.id || '') ? d.id : nieuwId(), naam: regel(d.naam, 40), gewicht: Math.max(0, Math.min(100, Math.round(Number(d.gewicht) || 0))),
+    } : null)).filter(Boolean),
     onderdelen: (Array.isArray(v.onderdelen) ? v.onderdelen : []).slice(0, MAX_ONDERDELEN).map(o => {
       if (!o || typeof o !== 'object') return null;
       const max = Math.max(0.5, Math.min(1000, half(Number(o.max) || 0) || 10));
@@ -121,11 +142,12 @@ function schoonVak(v) {
         max,
         toets: typeof o.toets === 'string' && /^[\w-]+\.json$/.test(o.toets) ? o.toets : '',
         datum: DATUM.test(o.datum || '') ? o.datum : '',
+        domein: /^[\w-]{1,24}$/.test(o.domein || '') ? o.domein : '',
       };
     }).filter(Boolean),
   };
 }
-const standaardVakken = () => STANDAARD.map(([id, naam, icoon, punten]) => ({ id, naam, icoon, punten, onderdelen: [] }));
+const standaardVakken = () => STANDAARD.map(([id, naam, icoon, punten]) => ({ id, naam, icoon, punten, gewicht: 0, domeinen: standaardDomeinen(id), onderdelen: [] }));
 
 function vakVanToets(toets, vakken) {
   const lijst = proeven.K.vragenVan(proeven.K.lijstVoor(toets, 'schildknaap'));
@@ -137,6 +159,20 @@ function vakVanToets(toets, vakken) {
   const hit = vakken.find(v => naam && v.naam.toLowerCase() === naam.toLowerCase())
     || vakken.find(v => TITELVAK.some(([re, t]) => t === id && re.test(v.naam)));
   return hit ? hit.id : '';
+}
+
+// Het domein binnen het vak: eerst de titel ("Mission 14 vocabulaire" = Woordenschat), dan de leerplandoelen.
+function domeinVanToets(toets, vak) {
+  if (!vak || !vak.domeinen.length) return '';
+  const regels = Object.values(DOMEINEN).flat();
+  const lijst = proeven.K.vragenVan(proeven.K.lijstVoor(toets, 'schildknaap'));
+  const docs = lijst.map(({ q }) => q.doel && doelen.find(q.doel)).filter(Boolean);
+  const tel = new Map();
+  for (const d of docs) for (const [naam, , bron] of regels) if (bron.includes(d.domein) || bron.includes(`@${d.vak}`)) tel.set(naam, (tel.get(naam) || 0) + 1);
+  const opNaam = naam => vak.domeinen.find(d => d.naam.toLowerCase() === naam.toLowerCase());
+  for (const [naam, re] of regels) if (re.test(toets.title || '') && opNaam(naam)) return opNaam(naam).id;
+  const best = [...tel.entries()].sort((a, b) => b[1] - a[1]).find(([naam]) => opNaam(naam));
+  return best ? opNaam(best[0]).id : '';
 }
 
 // Korte inhoud: de domeinen van de leerplandoelen ("Getallenkennis, Bewerkingen"), anders het begin van de inleiding.
@@ -161,7 +197,9 @@ function schoonLeerling(l = {}) {
   const com = {};
   for (const [k, v] of Object.entries(l.c || {})) if (/^[\w-]{1,24}$/.test(k) && tekst(v, 1200)) com[k] = tekst(v, 1200);
   const n = v => Math.max(0, Math.min(200, half(Number(v) || 0)));
-  return { p: getallen, s: sym, c: com, alg: tekst(l.alg, 2000), afw: { g: n(l.afw && l.afw.g), o: n(l.afw && l.afw.o) } };
+  const not = {};
+  for (const [k, v] of Object.entries(l.n || {})) if (/^[\w-]{1,24}$/.test(k) && regel(v, 200)) not[k] = regel(v, 200);
+  return { p: getallen, s: sym, c: com, n: not, alg: tekst(l.alg, 2000), ra: tekst(l.ra, 1000), afw: { g: n(l.afw && l.afw.g), o: n(l.afw && l.afw.o) } };
 }
 
 function schoonRapport(r, id) {
@@ -233,13 +271,15 @@ function haalToetsen(r) {
     if (!vak) {
       let andere = r.vakken.find(v => v.id === 'andere');
       if (!andere) {
-        andere = { id: 'andere', naam: 'Andere toetsen', icoon: '📝', punten: true, onderdelen: [] };
+        andere = { id: 'andere', naam: 'Andere toetsen', icoon: '📝', punten: true, gewicht: 0, domeinen: [], onderdelen: [] };
         r.vakken.push(andere);
       }
       vak = andere.id;
     }
+    const vakObj = r.vakken.find(v => v.id === vak);
+    const domein = domeinVanToets(rec.toets, vakObj);
     const max = proeven.K.totaal ? proeven.K.totaal(proeven.K.lijstVoor(rec.toets, 'schildknaap')) : 0;
-    r.vakken.find(v => v.id === vak).onderdelen.push({ id: nieuwId(), naam: regel(rec.title, 80), inhoud: inhoudVan(rec.toets), max: max || 10, toets: a.file, datum: dag });
+    r.vakken.find(v => v.id === vak).onderdelen.push({ id: nieuwId(), naam: regel(rec.title, 80), inhoud: inhoudVan(rec.toets), max: max || 10, toets: a.file, datum: dag, domein });
     nieuw++;
   }
   for (const v of r.vakken) v.onderdelen.sort((x, y) => (x.datum || '9').localeCompare(y.datum || '9'));
@@ -270,32 +310,21 @@ function laad(id) {
   return {
     rapport: r, auto,
     klas: { naam: k.naam, leerjaar: k.leerjaar, leerlingen: k.leerlingen.map(l => ({ id: l.id, naam: l.naam, niveau: l.niveau || 'schildknaap', vakNiveaus: l.vakNiveaus || {} })) },
-    vorige: vorigePercenten(r),
+    historie: historie(r),
+    domeinVoorstel: Object.fromEntries(Object.keys(DOMEINEN).map(k => [k, standaardDomeinen(k)])),
   };
 }
 
-// Voor "evolutie": het percent per vak en per leerling in het vorige rapport (het laatste dat eerder eindigde).
-function vorigePercenten(r) {
-  const vorig = lijst().filter(x => x.id !== r.id && x.tot && r.van && x.tot < r.van).sort((a, b) => b.tot.localeCompare(a.tot))[0];
-  if (!vorig) return null;
-  const v = schoonRapport(lees(bestand(vorig.id), {}), vorig.id);
-  const auto = {};
-  for (const vak of v.vakken) for (const o of vak.onderdelen) if (o.toets) auto[o.id] = toetsPunten(o.toets, o.max);
-  const per = {};
-  for (const lid of Object.keys({ ...v.leerlingen, ...Object.fromEntries(klas.read().leerlingen.map(l => [l.id, 1])) })) {
-    per[lid] = {};
-    for (const vak of v.vakken) {
-      let p = 0;
-      let m = 0;
-      for (const o of vak.onderdelen) {
-        const eigen = v.leerlingen[lid] && v.leerlingen[lid].p[o.id];
-        const w = eigen !== undefined ? eigen : auto[o.id] && auto[o.id].punten[lid] ? auto[o.id].punten[lid].p : undefined;
-        if (typeof w === 'number') { p += w; m += o.max; }
-      }
-      if (m) per[lid][vak.naam.toLowerCase()] = Math.round(p / m * 100);
-    }
-  }
-  return { titel: v.titel, per };
+// Voor de evolutie: de percenten per vak en per leerling in de vorige rapporten (die eerder eindigden), oud naar nieuw.
+function historie(r) {
+  const k = klas.read();
+  const leerlingen = k.leerlingen.map(l => ({ id: l.id, naam: l.naam }));
+  return lijst().filter(x => x.id !== r.id && x.tot && r.van && x.tot < r.van).sort((a, b) => a.tot.localeCompare(b.tot)).slice(-6).map(x => {
+    const v = schoonRapport(lees(bestand(x.id), {}), x.id);
+    const auto = {};
+    for (const vak of v.vakken) for (const o of vak.onderdelen) if (o.toets) auto[o.id] = toetsPunten(o.toets, o.max);
+    return { titel: v.titel, tot: v.tot, per: R.percenten({ rapport: v, auto, klas: { leerlingen } }) };
+  });
 }
 
 function bewaar(data) {
@@ -333,4 +362,4 @@ const leesCommentaar = data => {
   return { commentaar: c };
 };
 
-module.exports = { DIR, lijst, nieuw, laad, bewaar, verwijder, opmaak, bewaarOpmaak, commentaarPrompt, leesCommentaar, SYMBOLEN };
+module.exports = { standaardDomeinen, DIR, lijst, nieuw, laad, bewaar, verwijder, opmaak, bewaarOpmaak, commentaarPrompt, leesCommentaar, SYMBOLEN };

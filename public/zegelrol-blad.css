@@ -98,6 +98,36 @@
 .zr-compact .zr-tabel td { padding: 1px 3px; }
 .zr-compact .zr-sym { width: 17px; height: 17px; }
 
+
+/* Ronde 2: domeinen, datums, klas per toets, eindtotaal, grafieken, klasoverzicht */
+.zr-dom td { font-weight: 700; padding-top: 6px !important; border-bottom: 1px solid var(--lijn) !important; color: var(--zr); }
+.zr-dom small { font-weight: 400; color: var(--zacht); }
+.zr-d, .zr-k { white-space: nowrap; font-size: 10.5px; color: var(--zacht); text-align: right; width: 60px; }
+.zr-notitie { display: block; font-size: 10.5px; color: var(--zacht); font-style: italic; }
+.zr-eind { display: flex; align-items: baseline; gap: 12px; padding: 8px 12px; border-radius: 8px; background: color-mix(in srgb, var(--zr) 10%, #fff); border: 2px solid var(--zr); break-inside: avoid; }
+.zr-eind > span:first-child { font-weight: 700; margin-right: auto; }
+.zr-eind b { font-size: 20px; }
+.zr-eind small { font-weight: 400; color: var(--zacht); }
+.zr-grafieken { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: flex-start; }
+.zr-graf-deel { flex: 1 1 300px; min-width: 0; }
+.zr-graf-web { flex: 0 0 200px; }
+.zr-graf-breed { flex-basis: 100%; }
+.zr-graf-deel h3 { margin: 0 0 2px; font-size: 12px; color: var(--zacht); font-weight: 600; }
+.zr-grafiek { width: 100%; height: auto; display: block; }
+.zr-web { width: 200px; height: 200px; display: block; }
+.zr-lijnleg { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 10px; color: var(--zacht); justify-content: center; }
+.zr-lijnleg i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; vertical-align: -1px; }
+.zr-ra { border-left: 4px solid #8e44ad; }
+.zr-ra p { margin: 0; }
+.zr-klastabel td { font-size: 11px; }
+.zr-kopr td { font-weight: 700; color: var(--zacht); border-bottom: 2px solid var(--zr) !important; }
+.zr-rood { color: #c0392b; }
+.zr-oranje { color: #b9770e; }
+.zr-vet { font-weight: 800; }
+.zr-compact .zr-grafieken { gap: 4px 10px; }
+.zr-compact .zr-web { width: 160px; height: 160px; }
+.zr-compact .zr-graf-web { flex-basis: 160px; }
+
 @media print {
   .zr-blad { box-shadow: none; margin: 0; break-after: page; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .zr-perkament { box-shadow: inset 0 0 0 5mm #fbf5e6, inset 0 0 0 calc(5mm + 1.5px) color-mix(in srgb, var(--zr) 60%, #b08d57); }

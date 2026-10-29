@@ -108,7 +108,7 @@ function nieuwRapport() {
   const laatste = zr.lijst[0];
   $('zr-n-titel').value = `Rapport ${zr.lijst.length + 1}`;
   $('zr-n-van').value = laatste && laatste.tot ? plusDag(laatste.tot) : schooljaarStart();
-  $('zr-n-tot').value = vandaag();
+  $('zr-n-tot').value = $('zr-n-van').value > vandaag() ? $('zr-n-van').value : vandaag();
   const sel = $('zr-n-kopie');
   sel.replaceChildren(new Option('De gewone vakken (Wiskunde, Nederlands, Frans, WO, Muzo, LO, Godsdienst)', ''));
   for (const r of zr.lijst) sel.append(new Option(`Zoals in "${r.titel}" (eigen vakken en onderdelen mee)`, r.id));
@@ -163,173 +163,280 @@ for (const k of ['van', 'tot']) {
     socket.emit('zr-bewaar', zr.data.rapport, res => (res.error ? Ui.melding(res.error) : laad(zr.data.rapport.id)));
   });
 }
-$('zr-print-alles').addEventListener('click', () => window.open(`/zegelrol-print?id=${zr.data.rapport.id}`, '_blank'));
+$('zr-print-alles').addEventListener('click', () => kiesTab('druk'));
 
 function teken() {
   if (!zr.data) return;
   if (zr.tab === 'punten') tekenPunten();
   if (zr.tab === 'leerling') tekenLeerling();
+  if (zr.tab === 'klas') tekenKlas();
   if (zr.tab === 'opmaak') tekenOpmaak();
+  if (zr.tab === 'druk') tekenDruk();
 }
 
-// ---------- Punten ----------
+// ---------- Puntenboek ----------
 
+const R = window.ZrReken;
+const nieuwId = () => Math.random().toString(16).slice(2, 10);
 const ll = lid => {
   const r = zr.data.rapport;
-  if (!r.leerlingen[lid]) r.leerlingen[lid] = { p: {}, s: {}, c: {}, alg: '', afw: { g: 0, o: 0 } };
+  if (!r.leerlingen[lid]) r.leerlingen[lid] = { p: {}, s: {}, c: {}, n: {}, alg: '', ra: '', afw: { g: 0, o: 0 } };
+  if (!r.leerlingen[lid].n) r.leerlingen[lid].n = {};
   return r.leerlingen[lid];
 };
+const huidigVak = () => {
+  const r = zr.data.rapport;
+  let i = r.vakken.findIndex(v => v.id === zr.vakId);
+  if (i < 0) { i = Math.max(0, r.vakken.findIndex(v => v.punten)); zr.vakId = r.vakken[i] ? r.vakken[i].id : ''; zr.domein = null; }
+  return i;
+};
+
+// Links: de vakken met hun domeinen. Een vak of domein aantikken toont zijn toetsen.
+function tekenVaklijst() {
+  const box = $('zr-vaklijst');
+  box.replaceChildren();
+  const r = zr.data.rapport;
+  const vi = huidigVak();
+  r.vakken.forEach((v, i) => {
+    const b = el('button', `zr-vakknop${i === vi && zr.domein === null ? ' on' : ''}`);
+    const k = v.punten ? R.klasVak(zr.data, v) : null;
+    b.innerHTML = `<span class="zr-vk-i">${Z.esc(v.icoon || '📘')}</span><span class="zr-vk-n">${Z.esc(v.naam)}${v.gewicht ? ` <small>${v.gewicht}%</small>` : ''}</span><small>${v.punten ? `${v.onderdelen.length}${k !== null ? ` · ${k}%` : ''}` : '—'}</small>`;
+    b.title = v.punten ? `${v.onderdelen.length} toetsen${k !== null ? `, klasgemiddelde ${k}%` : ''}` : 'Zonder punten';
+    b.addEventListener('click', () => { zr.vakId = v.id; zr.domein = null; tekenPunten(); });
+    box.append(b);
+    if (i === vi && v.punten) {
+      for (const d of v.domeinen) {
+        const db = el('button', `zr-domknop${zr.domein === d.id ? ' on' : ''}`);
+        db.innerHTML = `<span>${Z.esc(d.naam)}</span><small>${R.vanDomein(v, d.id).length}</small>`;
+        db.addEventListener('click', () => { zr.domein = d.id; tekenPunten(); });
+        box.append(db);
+      }
+    }
+  });
+  const plus = el('button', 'secondary zr-vak-nieuw');
+  plus.innerHTML = `${Ui.ic('plus')} Vak toevoegen`;
+  plus.addEventListener('click', () => {
+    r.vakken.push({ id: nieuwId(), naam: 'Nieuw vak', icoon: '📘', punten: true, gewicht: 0, domeinen: [], onderdelen: [] });
+    zr.vakId = r.vakken[r.vakken.length - 1].id;
+    zr.domein = null;
+    bewaarRapport();
+    tekenPunten();
+    vakBewerk(r.vakken.length - 1);
+  });
+  box.append(plus);
+}
 
 function tekenPunten() {
-  const box = $('zr-vakken');
+  tekenVaklijst();
+  const box = $('zr-boek');
   box.replaceChildren();
   const { rapport: r, klas } = zr.data;
-  if (!klas.leerlingen.length) box.append(el('p', 'notice', 'Je klaslijst is nog leeg. Zet je leerlingen eerst bij Mijn klas.'));
-  r.vakken.forEach((v, vi) => {
-    const p = el('div', 'panel zr-vak-paneel');
-    const kop = el('div', 'zr-vak-kop2');
-    const naam = el('button', 'zr-vaknaam');
-    naam.innerHTML = `<span>${Z.esc(v.icoon || '📘')}</span> ${Z.esc(v.naam)} <i class="zr-pen">✎</i>`;
-    naam.title = 'Vak bewerken';
-    naam.addEventListener('click', () => vakBewerk(vi));
-    kop.append(naam);
-    if (v.punten) {
-      const plus = el('button', 'secondary');
-      plus.innerHTML = `${Ui.ic('plus')} Eigen punten`;
-      plus.title = 'Een onderdeel zonder toets, bv. een spreekbeurt, een werkstuk of punten van op papier';
-      plus.addEventListener('click', () => {
-        v.onderdelen.push({ id: Math.random().toString(16).slice(2, 10), naam: 'Nieuw onderdeel', inhoud: '', max: 10, toets: '', datum: '' });
-        bewaarRapport();
-        tekenPunten();
-        kolomBewerk(vi, v.onderdelen.length - 1);
+  const vi = huidigVak();
+  const v = r.vakken[vi];
+  if (!v) return;
+  const kop = el('div', 'zr-boek-kop');
+  const naam = el('button', 'zr-vaknaam');
+  const dom = zr.domein && v.domeinen.find(d => d.id === zr.domein);
+  naam.innerHTML = `<span>${Z.esc(v.icoon || '📘')}</span> ${Z.esc(v.naam)}${dom ? ` › ${Z.esc(dom.naam)}` : ''} <i class="zr-pen">✎</i>`;
+  naam.title = 'Vak bewerken: naam, domeinen, gewicht';
+  naam.addEventListener('click', () => vakBewerk(vi));
+  kop.append(naam);
+  if (v.punten) {
+    const plus = el('button', 'gold');
+    plus.innerHTML = `${Ui.ic('plus')} Toets toevoegen`;
+    plus.title = 'Een toets of opdracht met punten die niet uit De Proef komt (op papier, spreekbeurt, werkstuk...)';
+    plus.addEventListener('click', () => kolomBewerk(vi, -1));
+    kop.append(plus);
+  }
+  box.append(kop);
+  if (!klas.leerlingen.length) { box.append(el('p', 'notice', 'Je klaslijst is nog leeg. Zet je leerlingen eerst bij Mijn klas.')); return; }
+  if (!v.punten) { box.append(el('p', 'muted', 'Dit vak heeft geen punten: het symbool en het commentaar vul je in bij 👤 Per leerling. Wil je toch punten? Tik op de naam en zet "Dit vak krijgt punten" aan.')); return; }
+  const lijst = zr.domein ? R.vanDomein(v, zr.domein) : v.onderdelen;
+  if (!lijst.length) { box.append(el('p', 'muted', 'Nog geen toetsen hier. Een toets uit De Proef in deze periode komt vanzelf, of tik op Toets toevoegen.')); return; }
+  box.append(el('p', 'muted small zr-uitleg', '⚡ = uit De Proef, vanzelf ingevuld. Typ een cijfer om het zelf te zetten (A = afwezig, V = vrijgesteld, leeg = terug naar De Proef). 💬 = notitie bij dat punt. Enter = naar de volgende leerling.'));
+
+  const wrap = el('div', 'zr-tabel-scroll');
+  const t = el('table', 'zr-punten');
+  const thead = el('thead');
+  // Boven de toetsen: het domein (als er domeinen zijn en je het hele vak bekijkt).
+  const groepen = !zr.domein && v.domeinen.length ? [...v.domeinen.map(d => ({ d, lijst: R.vanDomein(v, d.id) })), { d: null, lijst: R.vanDomein(v, '') }].filter(g => g.lijst.length) : [{ d: null, lijst }];
+  const volgorde = groepen.flatMap(g => g.lijst);
+  if (groepen.length > 1 || groepen[0].d) {
+    const dr = el('tr', 'zr-domrij');
+    dr.append(el('th', 'zr-ln', ''));
+    for (const g of groepen) {
+      const th = el('th', '', g.d ? g.d.naam : 'Zonder domein');
+      th.colSpan = g.lijst.length;
+      dr.append(th);
+    }
+    dr.append(el('th', ''));
+    thead.append(dr);
+  }
+  const hr = el('tr');
+  hr.append(el('th', 'zr-ln', 'Leerling'));
+  for (const o of volgorde) {
+    const th = el('th');
+    const b = el('button', 'zr-kolom');
+    b.innerHTML = `${o.toets ? '<span class="zr-auto" title="Uit De Proef">⚡</span>' : ''}<strong>${Z.esc(o.naam)}</strong><span>${o.datum ? Z.kort(o.datum) : 'geen datum'}</span>`;
+    b.title = `${o.inhoud || o.naam} · tik om te bewerken`;
+    b.addEventListener('click', () => kolomBewerk(vi, v.onderdelen.indexOf(o)));
+    th.append(b);
+    hr.append(th);
+  }
+  hr.append(el('th', 'zr-tot-k', 'Totaal'));
+  const mr = el('tr', 'zr-maxrij');
+  mr.append(el('td', 'zr-ln', 'Maximum'));
+  for (const o of volgorde) mr.append(el('td', '', getal(o.max)));
+  mr.append(el('td', 'zr-tot-k', ''));
+  thead.append(hr, mr);
+
+  const tb = el('tbody');
+  for (const l of klas.leerlingen) {
+    const tr = el('tr');
+    tr.append(el('td', 'zr-ln', l.naam));
+    volgorde.forEach((o, oi) => {
+      const td = el('td', 'zr-celvak');
+      const inp = el('input', 'zr-cel');
+      inp.inputMode = 'decimal';
+      inp.dataset.o = oi;
+      vulCel(inp, l.id, o);
+      inp.addEventListener('change', () => { zetPunt(l.id, o, inp); totaalCel(tr.lastElementChild, l.id, v); gemRij(t, volgorde, v); });
+      inp.addEventListener('keydown', e => {
+        if (e.key !== 'Enter' && e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
+        e.preventDefault();
+        const rij = e.key === 'ArrowUp' ? tr.previousElementSibling : tr.nextElementSibling;
+        const volgende = rij && rij.querySelector(`input[data-o="${oi}"]`);
+        if (volgende) { volgende.focus(); volgende.select(); } else inp.blur();
       });
-      kop.append(plus);
-    }
-    p.append(kop);
-    if (!v.punten) {
-      p.append(el('p', 'muted small', 'Zonder punten: het symbool en het commentaar vul je in bij 👤 Per leerling.'));
-      box.append(p);
-      return;
-    }
-    if (!v.onderdelen.length) {
-      p.append(el('p', 'muted small', 'Nog geen toetsen in deze periode. Een toets uit De Proef komt hier vanzelf, of tik op Eigen punten.'));
-      box.append(p);
-      return;
-    }
-    const wrap = el('div', 'zr-tabel-scroll');
-    const t = el('table', 'zr-punten');
-    const hr = el('tr');
-    hr.append(el('th', 'zr-ln', 'Leerling'));
-    v.onderdelen.forEach((o, oi) => {
-      const th = el('th');
-      const b = el('button', 'zr-kolom');
-      b.innerHTML = `${o.toets ? '<span class="zr-auto" title="Uit De Proef">⚡</span>' : ''}<strong>${Z.esc(o.naam)}</strong><span>/${getal(o.max)}${o.datum ? ` · ${Z.kort(o.datum)}` : ''}</span>`;
-      b.title = o.inhoud || 'Tik om te bewerken';
-      b.addEventListener('click', () => kolomBewerk(vi, oi));
-      th.append(b);
-      hr.append(th);
+      const not = el('button', `zr-notknop${ll(l.id).n[o.id] ? ' heeft' : ''}`, '💬');
+      not.type = 'button';
+      not.tabIndex = -1;
+      not.title = ll(l.id).n[o.id] || 'Notitie bij dit punt';
+      not.addEventListener('click', () => notitie(l, o, not));
+      td.append(inp, not);
+      tr.append(td);
     });
-    hr.append(el('th', 'zr-tot-k', 'Totaal'));
-    const thead = el('thead');
-    thead.append(hr);
-    const tb = el('tbody');
-    for (const l of klas.leerlingen) {
-      const tr = el('tr');
-      tr.append(el('td', 'zr-ln', l.naam));
-      v.onderdelen.forEach((o, oi) => {
-        const td = el('td');
-        const w = Z.waarde(zr.data, l.id, o);
-        const inp = el('input', 'zr-cel');
-        inp.inputMode = 'decimal';
-        inp.dataset.v = vi;
-        inp.dataset.o = oi;
-        inp.value = w.w === null ? '' : typeof w.w === 'number' ? getal(w.w) : w.w;
-        if (w.auto) inp.classList.add('auto');
-        if (w.eigen && o.toets) inp.classList.add('eigen');
-        if (w.open) { inp.classList.add('open'); inp.title = 'Nog niet alles verbeterd in De Proef'; }
-        if (typeof w.w === 'number' && w.w > o.max) inp.classList.add('te-veel');
-        inp.addEventListener('change', () => zetPunt(l.id, o, inp, tr, v));
-        inp.addEventListener('keydown', e => {
-          if (e.key !== 'Enter' && e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
-          e.preventDefault();
-          const rij = e.key === 'ArrowUp' ? tr.previousElementSibling : tr.nextElementSibling;
-          const volgende = rij && rij.querySelector(`input[data-o="${oi}"]`);
-          if (volgende) { volgende.focus(); volgende.select(); } else inp.blur();
-        });
-        td.append(inp);
-        tr.append(td);
-      });
-      const tot = el('td', 'zr-tot-k');
-      tr.append(tot);
-      totaalCel(tot, l.id, v);
-      tb.append(tr);
-    }
-    t.append(thead, tb);
-    wrap.append(t);
-    p.append(wrap);
-    box.append(p);
-  });
+    const tot = el('td', 'zr-tot-k');
+    tr.append(tot);
+    totaalCel(tot, l.id, v);
+    tb.append(tr);
+  }
+  const tf = el('tfoot');
+  const gr = el('tr', 'zr-gemrij');
+  tf.append(gr);
+  t.append(thead, tb, tf);
+  gemRij(t, volgorde, v);
+  wrap.append(t);
+  box.append(wrap);
+}
+
+function vulCel(inp, lid, o) {
+  const w = R.waarde(zr.data, lid, o);
+  inp.value = w.w === null ? '' : typeof w.w === 'number' ? getal(w.w) : w.w;
+  inp.classList.toggle('auto', !!w.auto);
+  inp.classList.toggle('eigen', !!(w.eigen && o.toets));
+  inp.classList.toggle('open', !!w.open);
+  inp.title = w.open ? 'Nog niet alles verbeterd in De Proef' : '';
+  inp.classList.toggle('te-veel', typeof w.w === 'number' && w.w > o.max);
+}
+
+// Onderaan: het klasgemiddelde van elke toets en van het vak.
+function gemRij(t, volgorde, v) {
+  const gr = t.querySelector('.zr-gemrij');
+  gr.replaceChildren(el('td', 'zr-ln', 'Klasgemiddelde'));
+  for (const o of volgorde) {
+    const k = R.klasToets(zr.data, o);
+    const td = el('td', '', k ? getal(k.gem) : '—');
+    if (k) td.title = `laagste ${getal(k.min)}, hoogste ${getal(k.max)}, ${k.n} leerlingen`;
+    gr.append(td);
+  }
+  const k = R.klasVak(zr.data, v);
+  gr.append(el('td', 'zr-tot-k', k === null ? '—' : `${k}%`));
 }
 
 function totaalCel(td, lid, v) {
-  const t = Z.totaal(zr.data, lid, v);
+  const t = R.totaal(zr.data, lid, v);
   td.innerHTML = t.pct === null ? '—' : `${getal(t.p)}<small>/${getal(t.m)}</small> <span class="${t.pct < 50 ? 'zr-laag' : ''}">${t.pct}%</span>`;
 }
 
-function zetPunt(lid, o, inp, tr, v) {
+function zetPunt(lid, o, inp) {
   const ruw = inp.value.trim().toUpperCase().replace(',', '.');
   const l = ll(lid);
   const auto = o.toets && zr.data.auto[o.id] && zr.data.auto[o.id].punten[lid];
   if (ruw === '' || (auto && Number(ruw) === auto.p)) delete l.p[o.id];
   else if (ruw === 'A' || ruw === 'V') l.p[o.id] = ruw;
   else if (Number.isFinite(Number(ruw)) && Number(ruw) >= 0) l.p[o.id] = Math.round(Number(ruw) * 2) / 2;
-  else { Ui.melding('Typ een getal, A (afwezig) of V (vrijgesteld).'); inp.value = ''; return; }
-  const w = Z.waarde(zr.data, lid, o);
-  inp.value = w.w === null ? '' : typeof w.w === 'number' ? getal(w.w) : w.w;
-  inp.classList.toggle('auto', !!w.auto);
-  inp.classList.toggle('eigen', !!(w.eigen && o.toets));
-  inp.classList.toggle('te-veel', typeof w.w === 'number' && w.w > o.max);
-  totaalCel(tr.lastElementChild, lid, v);
+  else { Ui.melding('Typ een getal, A (afwezig) of V (vrijgesteld).'); }
+  vulCel(inp, lid, o);
   bewaarRapport();
 }
 
-// Een kolom bewerken: naam, korte inhoud, maximum en het vak.
+// Een notitie bij één punt.
+let notDoel = null;
+function notitie(l, o, knop) {
+  notDoel = { l, o, knop };
+  $('zr-not-titel').textContent = `${l.naam} · ${o.naam}`;
+  $('zr-not-tekst').value = ll(l.id).n[o.id] || '';
+  $('zr-notdlg').showModal();
+  $('zr-not-tekst').focus();
+}
+function zetNotitie(tekst) {
+  const { l, o, knop } = notDoel;
+  const n = ll(l.id).n;
+  if (tekst.trim()) n[o.id] = tekst.trim(); else delete n[o.id];
+  knop.classList.toggle('heeft', !!n[o.id]);
+  knop.title = n[o.id] || 'Notitie bij dit punt';
+  bewaarRapport();
+}
+$('zr-not-form').addEventListener('submit', e => { e.preventDefault(); zetNotitie($('zr-not-tekst').value); $('zr-notdlg').close(); });
+$('zr-not-weg').addEventListener('click', () => { zetNotitie(''); $('zr-notdlg').close(); });
+
+// Een toets toevoegen (oi = -1) of bewerken: naam, korte inhoud, maximum, datum, vak en domein.
+function vulDomeinen(vakId, gekozen) {
+  const v = zr.data.rapport.vakken.find(x => x.id === vakId);
+  const sel = $('zr-k-domein');
+  sel.replaceChildren(new Option('Geen domein', ''), ...(v ? v.domeinen : []).map(d => new Option(d.naam, d.id)));
+  sel.value = v && v.domeinen.some(d => d.id === gekozen) ? gekozen : '';
+  sel.closest('label').classList.toggle('hidden', !v || !v.domeinen.length);
+}
 function kolomBewerk(vi, oi) {
   const v = zr.data.rapport.vakken[vi];
-  const o = v.onderdelen[oi];
+  const o = oi >= 0 ? v.onderdelen[oi] : { naam: '', inhoud: '', max: 20, datum: vandaag(), domein: zr.domein || '', toets: '' };
   zr.kolom = { vi, oi };
-  $('zr-kolom-titel').textContent = o.toets ? 'Toets' : 'Eigen onderdeel';
+  $('zr-kolom-titel').textContent = oi < 0 ? 'Toets toevoegen' : o.toets ? 'Toets uit De Proef' : 'Toets';
   $('zr-kolom-toets').classList.toggle('hidden', !o.toets);
   $('zr-k-naam').value = o.naam;
   $('zr-k-inhoud').value = o.inhoud;
   $('zr-k-max').value = o.max;
+  $('zr-k-datum').value = o.datum || '';
   const sel = $('zr-k-vak');
   sel.replaceChildren(...zr.data.rapport.vakken.filter(x => x.punten).map(x => new Option(`${x.icoon || ''} ${x.naam}`, x.id)));
   sel.value = v.id;
+  vulDomeinen(v.id, o.domein);
+  $('zr-k-weg').classList.toggle('hidden', oi < 0);
   $('zr-kolom').showModal();
-  $('zr-k-naam').select();
+  $('zr-k-naam').focus();
 }
+$('zr-k-vak').addEventListener('change', () => vulDomeinen($('zr-k-vak').value, ''));
 $('zr-kolom-form').addEventListener('submit', e => {
   e.preventDefault();
   const { vi, oi } = zr.kolom;
   const v = zr.data.rapport.vakken[vi];
-  const o = v.onderdelen[oi];
-  o.naam = $('zr-k-naam').value.trim() || o.naam;
+  const o = oi >= 0 ? v.onderdelen[oi] : { id: nieuwId(), toets: '' };
+  o.naam = $('zr-k-naam').value.trim() || o.naam || 'Toets';
   o.inhoud = $('zr-k-inhoud').value.trim();
+  o.datum = $('zr-k-datum').value;
+  o.domein = $('zr-k-domein').value;
   const max = Math.round(Number(String($('zr-k-max').value).replace(',', '.')) * 2) / 2;
-  if (max > 0 && max !== o.max) {
-    // Punten uit De Proef rekent de server om naar het nieuwe maximum: opnieuw laden.
-    o.max = max;
-    zr.herlaad = !!o.toets;
-  }
-  const naar = zr.data.rapport.vakken.find(x => x.id === $('zr-k-vak').value);
-  if (naar && naar !== v) {
-    v.onderdelen.splice(oi, 1);
-    naar.onderdelen.push(o);
-  }
+  const herlaad = !!o.toets && max > 0 && max !== o.max;
+  if (max > 0) o.max = max;
+  const naar = zr.data.rapport.vakken.find(x => x.id === $('zr-k-vak').value) || v;
+  if (oi >= 0 && naar !== v) v.onderdelen.splice(oi, 1);
+  if (oi < 0 || naar !== v) naar.onderdelen.push(o);
+  naar.onderdelen.sort((x, y) => (x.datum || '9').localeCompare(y.datum || '9'));
   $('zr-kolom').close();
-  if (zr.herlaad) {
-    zr.herlaad = false;
+  if (herlaad) {
+    // Punten uit De Proef rekent de server om naar het nieuwe maximum: opnieuw laden.
     clearTimeout(rTimer);
     rTimer = null;
     socket.emit('zr-bewaar', zr.data.rapport, res => (res.error ? Ui.melding(res.error) : laad(zr.data.rapport.id)));
@@ -337,6 +444,11 @@ $('zr-kolom-form').addEventListener('submit', e => {
   }
   bewaarRapport();
   tekenPunten();
+  if (oi < 0) {
+    // Meteen de eerste leerling invullen.
+    const eerste = $('zr-boek').querySelector(`.zr-punten tbody input[data-o="${[...$('zr-boek').querySelectorAll('.zr-kolom')].findIndex(b => b.querySelector('strong').textContent === o.naam)}"]`);
+    if (eerste) eerste.focus();
+  }
 });
 $('zr-k-weg').addEventListener('click', async () => {
   const { vi, oi } = zr.kolom;
@@ -346,20 +458,53 @@ $('zr-k-weg').addEventListener('click', async () => {
   if (!await Ui.vraag(tekst, { ja: 'Weghalen', gevaar: true })) return;
   v.onderdelen.splice(oi, 1);
   if (o.toets) zr.data.rapport.weg.push(o.toets);
-  for (const l of Object.values(zr.data.rapport.leerlingen)) delete l.p[o.id];
+  for (const l of Object.values(zr.data.rapport.leerlingen)) { delete l.p[o.id]; if (l.n) delete l.n[o.id]; }
   $('zr-kolom').close();
   bewaarRapport();
   tekenPunten();
 });
 
-// Een vak bewerken of toevoegen.
+// Een vak bewerken: naam, icoon, punten of niet, gewicht en domeinen.
 const ICONEN = ['🧮', '📖', '✏️', '📚', '🥐', '🌍', '🔬', '🕰️', '🎨', '🎵', '⚽', '🕊️', '💻', '🧩', '💬', '🗣️', '🧠', '🌱'];
+let vakDomeinen = [];
+function tekenVakDomeinen() {
+  const box = $('zr-v-domeinen');
+  box.replaceChildren();
+  vakDomeinen.forEach((d, i) => {
+    const rij = el('div', 'zr-dom-rij');
+    const n = el('input');
+    n.maxLength = 40;
+    n.value = d.naam;
+    n.placeholder = 'Naam van het domein';
+    n.addEventListener('input', () => { d.naam = n.value; });
+    const g = el('input', 'zr-getal-in');
+    g.type = 'number';
+    g.min = 0;
+    g.max = 100;
+    g.placeholder = '%';
+    g.title = 'Gewicht in het vak (leeg = gewoon de punten samen)';
+    g.value = d.gewicht || '';
+    g.addEventListener('input', () => { d.gewicht = Math.max(0, Math.min(100, Math.round(Number(g.value) || 0))); });
+    const weg = el('button', 'secondary icon');
+    weg.type = 'button';
+    weg.innerHTML = Ui.ic('kruis');
+    weg.title = 'Domein weghalen (de toetsen blijven, zonder domein)';
+    weg.addEventListener('click', () => { vakDomeinen.splice(i, 1); tekenVakDomeinen(); });
+    rij.append(n, g, el('span', 'muted small', '%'), weg);
+    box.append(rij);
+  });
+}
 function vakBewerk(vi) {
   const v = zr.data.rapport.vakken[vi];
   zr.vak = vi;
   $('zr-v-naam').value = v.naam;
   $('zr-v-icoon').value = v.icoon;
   $('zr-v-punten').checked = v.punten;
+  $('zr-v-gewicht').value = v.gewicht || '';
+  vakDomeinen = v.domeinen.map(d => ({ ...d }));
+  tekenVakDomeinen();
+  const std = (zr.data.domeinVoorstel || {})[v.id];
+  $('zr-v-dom-std').classList.toggle('hidden', !std || !std.length);
   $('zr-v-iconen').replaceChildren(...ICONEN.map(i => {
     const b = el('button', 'secondary icon', i);
     b.type = 'button';
@@ -368,12 +513,22 @@ function vakBewerk(vi) {
   }));
   $('zr-vakdlg').showModal();
 }
+$('zr-v-dom-plus').addEventListener('click', () => { vakDomeinen.push({ id: nieuwId(), naam: '', gewicht: 0 }); tekenVakDomeinen(); $('zr-v-domeinen').lastElementChild.querySelector('input').focus(); });
+$('zr-v-dom-std').addEventListener('click', () => {
+  const v = zr.data.rapport.vakken[zr.vak];
+  for (const d of zr.data.domeinVoorstel[v.id] || []) if (!vakDomeinen.some(x => x.naam.toLowerCase() === d.naam.toLowerCase())) vakDomeinen.push({ ...d });
+  tekenVakDomeinen();
+});
 $('zr-vak-form').addEventListener('submit', e => {
   e.preventDefault();
   const v = zr.data.rapport.vakken[zr.vak];
   v.naam = $('zr-v-naam').value.trim() || v.naam;
   v.icoon = $('zr-v-icoon').value.trim();
   v.punten = $('zr-v-punten').checked;
+  v.gewicht = Math.max(0, Math.min(100, Math.round(Number($('zr-v-gewicht').value) || 0)));
+  v.domeinen = vakDomeinen.filter(d => d.naam.trim()).map(d => ({ ...d, naam: d.naam.trim() }));
+  for (const o of v.onderdelen) if (o.domein && !v.domeinen.some(d => d.id === o.domein)) o.domein = '';
+  if (zr.domein && !v.domeinen.some(d => d.id === zr.domein)) zr.domein = null;
   $('zr-vakdlg').close();
   bewaarRapport();
   teken();
@@ -398,12 +553,38 @@ $('zr-v-weg').addEventListener('click', async () => {
   bewaarRapport();
   teken();
 });
-$('zr-vak-nieuw').addEventListener('click', () => {
-  zr.data.rapport.vakken.push({ id: Math.random().toString(16).slice(2, 10), naam: 'Nieuw vak', icoon: '📘', punten: true, onderdelen: [] });
-  bewaarRapport();
-  tekenPunten();
-  vakBewerk(zr.data.rapport.vakken.length - 1);
-});
+
+// ---------- Klasoverzicht en afdrukken ----------
+
+function tekenKlas() {
+  const doel = $('zr-voorbeeld-klas');
+  doel.innerHTML = Z.klas(zr.data, zr.opmaak);
+  schaal(doel);
+}
+$('zr-klas-print').addEventListener('click', () => window.open(`/zegelrol-print?id=${zr.data.rapport.id}&klas=1`, '_blank'));
+
+function tekenDruk() {
+  const box = $('zr-druk');
+  box.replaceChildren();
+  const id = zr.data.rapport.id;
+  const rij = (naam, sub, url) => {
+    const r = el('div', 'zr-drukrij');
+    const t = el('div');
+    t.append(el('strong', '', naam));
+    if (sub) t.append(el('span', 'muted small', sub));
+    const b = el('button', 'secondary', '🖨️ Afdrukken of PDF');
+    b.addEventListener('click', () => window.open(url, '_blank'));
+    r.append(t, b);
+    box.append(r);
+  };
+  box.append(el('p', 'muted small', 'Elk opent een venster met het rapport. Kies daar je printer, of "Opslaan als PDF" om een PDF te bewaren.'));
+  rij('📜 Alle rapporten', `${zr.data.klas.leerlingen.length} leerlingen, elk op een eigen blad`, `/zegelrol-print?id=${id}`);
+  rij('📈 Klasoverzicht', 'Alle leerlingen en vakken, met klasgemiddelden', `/zegelrol-print?id=${id}&klas=1`);
+  for (const l of zr.data.klas.leerlingen) {
+    const e = R.eind(zr.data, l.id);
+    rij(l.naam, e === null ? '' : `totaal ${e}%`, `/zegelrol-print?id=${id}&l=${l.id}`);
+  }
+}
 
 // Alle punten naar Excel (puntkomma's, zoals Excel in België ze verwacht).
 $('zr-csv').addEventListener('click', () => {
@@ -424,8 +605,11 @@ $('zr-csv').addEventListener('click', () => {
       const t = Z.totaal(zr.data, l.id, v);
       rij.push(t.pct === null ? '' : `${getal(t.p)}/${getal(t.m)}`, t.pct === null ? '' : t.pct);
     }
+    const e = R.eind(zr.data, l.id);
+    rij.push(e === null ? '' : e);
     return rij;
   });
+  kop.push('Totaal %');
   const csv = '﻿' + [kop, ...rijen].map(rij => rij.map(cel).join(';')).join('\r\n');
   const a = el('a');
   a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
@@ -511,6 +695,16 @@ function tekenLeerling() {
     return p;
   };
 
+  // De inleiding geldt voor de hele klas (zoals een brief bovenaan elk rapport).
+  const inl = blok('📣 Inleiding voor de hele klas', 'Staat bovenaan elk rapport van dit rapport, bv. wat jullie deden en de datum van het oudercontact. {naam} wordt de voornaam.');
+  const ita = el('textarea', 'zr-alg-in');
+  ita.rows = 3;
+  ita.maxLength = 2000;
+  ita.placeholder = 'We zijn een dikke maand ver, en wat een start! ...';
+  ita.value = r.boodschap || '';
+  ita.addEventListener('input', () => { r.boodschap = ita.value; bewaarRapport(); voorbeeld(); });
+  inl.append(ita);
+
   const vb = blok('Vakken', 'Tik een symbool aan (nog eens tikken = weg). Het commentaar komt onder het vak. {naam} wordt de voornaam.');
   for (const v of r.vakken) {
     const rij = el('div', 'zr-vakrij');
@@ -558,6 +752,14 @@ function tekenLeerling() {
   ai.type = 'button';
   ai.addEventListener('click', () => commentaarVoorstel(lid, ta));
   alg.append(ta, chips, ai);
+
+  const ra = blok('Redelijke aanpassingen', 'Bv. extra tijd, voorlezen, rekenmachine. Komt op het rapport als je dat aanzet bij 🎨 Opmaak.');
+  const rta = el('textarea', 'zr-com-in');
+  rta.rows = 2;
+  rta.maxLength = 1000;
+  rta.value = data.ra || '';
+  rta.addEventListener('input', () => { data.ra = rta.value; wijzigLl(); });
+  ra.append(rta);
 
   const afw = blok('Afwezigheden', 'In halve dagen. Leeg of 0 = niets op het rapport.');
   const rij = el('div', 'row zr-afw-rij');
@@ -646,7 +848,7 @@ function schaal(doel) {
   doel.style.transform = `scale(${f})`;
   doel.style.height = `${blad.offsetHeight * f}px`;
 }
-window.addEventListener('resize', () => { if (zr.tab !== 'punten') voorbeeld(); });
+window.addEventListener('resize', () => { if (zr.tab === 'klas') tekenKlas(); else if (zr.tab !== 'punten') voorbeeld(); });
 
 // ---------- Opmaak ----------
 
@@ -659,12 +861,21 @@ const SJABLONEN = [
 const SETS = [['ridder', 'Kroon, duim, vinkje, plantje'], ['smileys', 'Smileys'], ['sterren', 'Sterren'], ['woorden', 'Woorden (zeer goed, goed...)']];
 const KLEUREN = ['#1f4e8c', '#0f766e', '#7c3aed', '#b91c1c', '#c2410c', '#a16207', '#15803d', '#334155'];
 const TOON = [
+  ['inleiding', '📣', 'Inleiding', 'De brief voor de hele klas bovenaan (bij 👤 Per leerling).'],
+  ['grafiek', '📊', 'Grafiek per vak', 'Staafjes per vak, met de klas ernaast als het klasgemiddelde aanstaat.'],
+  ['spinnenweb', '🕸️', 'Spinnenweb', 'Sterke en zwakke vakken in één figuur (vanaf 3 vakken).'],
+  ['verloop', '📈', 'Zo groei ik', 'Een lijn over alle rapporten van dit schooljaar.'],
   ['onderdelen', '📋', 'Elke toets apart', 'Per vak elke toets of elk onderdeel met de punten.'],
+  ['domeinen', '🗂️', 'Domeinen', 'De toetsen per domein, met een subtotaal (Getallenkennis, Woordenschat...).'],
+  ['datums', '📅', 'Datum van de toets', 'Naast elke toets de datum.'],
+  ['klastoets', '👥', 'Klas per toets', 'Naast elke toets het klasgemiddelde.'],
+  ['notities', '💬', 'Notities bij punten', 'Wat je bij een punt noteerde, bv. "mondeling afgenomen".'],
   ['inhoud', '🔎', 'Korte inhoud', 'Klein onder elke toets: waarover ging het?'],
   ['totaal', '➕', 'Totaal per vak', 'De som van alle punten van het vak.'],
   ['procent', '%', 'Procent', 'Naast het totaal ook het percent.'],
-  ['balkjes', '📊', 'Balkje', 'Een balkje per vak: in één oogopslag hoe goed het ging.'],
-  ['gemiddelde', '👥', 'Klasgemiddelde', 'Een streepje op het balkje: het gemiddelde van de klas.'],
+  ['balkjes', '➖', 'Balkje', 'Een balkje per vak: in één oogopslag hoe goed het ging.'],
+  ['gemiddelde', '👥', 'Klasgemiddelde', 'Het gemiddelde van de klas: op het balkje, in de grafiek en bij het totaal.'],
+  ['eindtotaal', '🏆', 'Totaal van alle vakken', 'Eén eindcijfer, met de gewichten van de vakken.'],
   ['evolutie', '📈', 'Evolutie', 'Een pijltje: beter ▲ of minder ▼ dan het vorige rapport.'],
   ['niveau', '🛡️', 'Niveau per vak', 'Page, Schildknaap of Ridder, zoals in Mijn klas.'],
   ['symbool', '👑', 'Symbool per vak', 'Kroon, duim, vinkje of plantje naast het vak.'],
@@ -672,6 +883,7 @@ const TOON = [
   ['attitudes', '🤝', 'Hoe werk ik?', 'De zinnen over houding en werkwijze, met een symbool.'],
   ['algemeen', '✍️', 'Woordje van de leerkracht', 'Het algemene commentaar.'],
   ['afwezig', '🗓️', 'Afwezigheden', 'Hoeveel halve dagen afwezig.'],
+  ['aanpassingen', '🧩', 'Redelijke aanpassingen', 'De aanpassingen die de leerling kreeg.'],
   ['legenda', '🔤', 'Uitleg van de symbolen', 'Onderaan: wat elk symbool betekent.'],
   ['handtekening', '🖊️', 'Handtekeningen', 'Vakjes voor leerkracht, directie en ouders.'],
   ['strookje', '✂️', 'Strookje terug naar school', 'Onderaan een strookje om af te knippen en te tekenen.'],
@@ -826,15 +1038,6 @@ function tekenOpmaak() {
   plus.innerHTML = `${Ui.ic('plus')} Zin toevoegen`;
   plus.addEventListener('click', () => { r.attitudes.push({ id: Math.random().toString(16).slice(2, 10), tekst: 'Ik ...' }); bewaarRapport(); tekenOpmaak(); });
   hw.append(att, plus);
-
-  // Boodschap
-  const bo = blok(`Boodschap voor alle ouders · ${r.titel}`, 'Komt op elk rapport, bv. de datum van het oudercontact.');
-  const bta = el('textarea');
-  bta.rows = 3;
-  bta.maxLength = 600;
-  bta.value = r.boodschap || '';
-  bta.addEventListener('input', () => { r.boodschap = bta.value; bewaarRapport(); voorbeeld(); });
-  bo.append(bta);
 
   // Zinnenbank
   const zb = blok('Zinnenbank', 'Eén zin per regel. Je tikt ze aan bij 👤 Per leerling. {naam} wordt de voornaam.');
