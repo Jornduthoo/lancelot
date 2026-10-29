@@ -43,7 +43,7 @@
         <small id="od-gebied">Het Kristalwoud</small>
       </div>
       <div class="od-teller" title="Jouw kristallen"><span class="od-kristal-ic" aria-hidden="true"></span><b id="od-kristallen">0</b></div>
-      <button type="button" class="od-knop" id="od-boek-knop" title="Woordenboek en ontdekkersboek">📖<span class="od-badge" id="od-boek-aantal">0</span></button>
+      <button type="button" class="od-knop" id="od-boek-knop" title="Woordenboek en ontdekkersboek">📖<span class="od-badge" id="od-boek-aantal">0</span><span class="od-badge od-stip hidden" id="od-opdracht-stip" title="Er is een opdracht klaar">📜</span></button>
     </div>
     <div class="od-spel-start hidden" id="od-start-banner">
       <span>⚔️ De leerkracht startte een spel!</span>
@@ -76,6 +76,7 @@
         <div class="od-tabs">
           <button type="button" class="on" data-boek="woorden">📖 Woordenboek <span id="odb-nw"></span></button>
           <button type="button" data-boek="weetjes">🔭 Ontdekkersboek <span id="odb-nf"></span></button>
+          <button type="button" data-boek="opdrachten">📜 Opdrachten <span id="odb-no"></span></button>
         </div>
         <button type="button" class="od-dicht" id="odb-dicht" aria-label="Sluiten">✕</button>
       </header>

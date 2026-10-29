@@ -72,7 +72,7 @@ function odLaad(naam = od.naam) {
     if (eerst) {
       // Terug waar je was, als dat gebied open is.
       const k = store('od-kaart');
-      const nodig = { draken: 'luchtschip', sterren: 'sterrenpoort', vuur: 'drakenzadel', ijs: 'ijsraket', koraal: 'duikboot', koraallab: 'duikboot', wolk: 'luchtballon', weerlab: 'luchtballon' };
+      const nodig = { draken: 'luchtschip', sterren: 'sterrenpoort', vuur: 'drakenzadel', ijs: 'ijsraket', koraal: 'duikboot', koraallab: 'duikboot', wolk: 'luchtballon', weerlab: 'luchtballon', mijn: 'mijnlift', maan: 'maanraket' };
       const open = k === 'labo' || (nodig[k] && res.gebouwd.includes(nodig[k]));
       odKaart(open ? k : 'woud', open || k === 'woud' ? odBewaardePlek() : null);
     }
@@ -84,6 +84,7 @@ function odStand(s) {
   od.stand = s;
   $('od-kristallen').textContent = s.kristallen;
   $('od-boek-aantal').textContent = s.woorden + s.weetjes;
+  $('od-opdracht-stip').classList.toggle('hidden', !(s.opdrachten || []).some(o => !o.gehaald && o.tel >= o.doel));
   $('od-boek-aantal').classList.toggle('leeg', !(s.woorden + s.weetjes));
   if (od.kaart && od.gebaktMet !== odSleutel()) odBak();
 }
@@ -154,6 +155,7 @@ function odNaast(p, binnen) {
 function odBak() {
   od.gebaktMet = odSleutel();
   od.grond = OdWereld.bak(od.kaart, od.T, od.stand.gebouwd, od.stand.runen || []);
+  od.stukken = OdWereld.stukken(od.kaart, od.stand.runen || [], od.stand.gebouwd);
   od.gloed = OdWereld.gloeiers(od.kaart, od.T, od.grond.ox, od.grond.oy);
 }
 
@@ -175,7 +177,7 @@ const odCanvas = $('od-canvas');
 const odG = odCanvas.getContext('2d');
 
 // De sterrenhemel, met een gloed in de kleur van het eiland (koud bij het ijs, rood bij de vulkaan).
-const OD_GLOED = { ijs: 'rgba(150,210,255,.22)', vuur: 'rgba(255,90,30,.22)', koraal: 'rgba(40,200,210,.2)', wolk: 'rgba(255,180,230,.22)' };
+const OD_GLOED = { ijs: 'rgba(150,210,255,.22)', vuur: 'rgba(255,90,30,.22)', koraal: 'rgba(40,200,210,.2)', wolk: 'rgba(255,180,230,.22)', mijn: 'rgba(120,60,200,.22)', maan: 'rgba(170,170,255,.18)' };
 function odHemel() {
   const hemel = $('od-hemel');
   hemel.width = odCanvas.width;
@@ -617,7 +619,7 @@ function odOpenPlek(p) {
     // Al gebouwd? Dan reis je ermee. Anders: bouwen.
     if (od.stand.gebouwd.includes(p.bouw)) {
       if (p.reis) return odReis(p.reis);
-      return odToast('De brug staat er al. Op naar de Neonruïnes!');
+      return odToast(p.bouw === 'kroonburcht' ? '🏰 Jouw Gouden Burcht! Je bent een echte ontdekker van het rijk.' : 'De brug staat er al. Op naar de Neonruïnes!');
     }
     return odBouw(p.bouw);
   }
@@ -700,6 +702,9 @@ async function odBouw(wat) {
       ijsraket: 'De ijsraket is klaar! Tik erop om naar het IJsrijk te gaan.',
       duikboot: 'De duikboot is klaar! Tik erop om naar het Koraalrif te varen.',
       luchtballon: 'De luchtballon is klaar! Tik erop om naar de Wolkenstad te zweven.',
+      mijnlift: 'De mijnlift werkt! Tik erop om af te dalen naar De Mijnen.',
+      maanraket: 'De maanraket staat klaar! Tik erop om naar de Maanbasis te vliegen.',
+      kroonburcht: '🏰 De Gouden Burcht staat in het woud! Iedereen kan zien dat jij het hele rijk ontdekte.',
     }[wat] || 'Gebouwd!', 4000);
   });
 }

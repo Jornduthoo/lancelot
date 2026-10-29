@@ -57,6 +57,12 @@ const STATIONS = {
   windorgel: { soort: 'magisch', naam: 'Het Windorgel', gebied: 'wolk' },
   luchthaven: { soort: 'route', naam: 'De Luchthaven', gebied: 'wolk' },
   thermometer: { soort: 'thermo', naam: 'De Thermometer', gebied: 'weerlab' },
+  mijnkar: { soort: 'tafels', naam: 'De Mijnkar', gebied: 'mijn' },
+  mijnspoor: { soort: 'lijn', naam: 'Het Mijnspoor', gebied: 'mijn' },
+  edelsteenwand: { soort: 'patroon', naam: 'De Edelsteenwand', gebied: 'mijn' },
+  maanlab: { soort: 'eenheden', naam: 'Het Maanlab', gebied: 'maan' },
+  koepelbouw: { soort: 'opp', naam: 'De Koepelbouw', gebied: 'maan' },
+  sterrenkijker: { soort: 'sterren', naam: 'De Sterrenkijker', gebied: 'maan' },
 };
 // Bouwen met kristallen: zo wordt de wereld groter. nodig: wat er eerst moet staan.
 const BOUW = {
@@ -67,12 +73,44 @@ const BOUW = {
   ijsraket: { naam: 'de ijsraket naar het IJsrijk', kost: 30, nodig: 'sterrenpoort' },
   duikboot: { naam: 'de duikboot naar het Koraalrif', kost: 40, nodig: 'drakenzadel' },
   luchtballon: { naam: 'de luchtballon naar de Wolkenstad', kost: 40, nodig: 'ijsraket' },
+  mijnlift: { naam: 'de mijnlift naar De Mijnen', kost: 50, nodig: 'drakenzadel' },
+  maanraket: { naam: 'de maanraket naar de Maanbasis', kost: 50, nodig: 'luchtballon' },
+  kroonburcht: { naam: 'de Gouden Burcht in het woud', kost: 100, nodig: 'maanraket' },
 };
 // Welk gebied pas open is als er iets gebouwd is.
 const GEBIED_NODIG = { ruine: 'brug', draken: 'luchtschip', sterren: 'sterrenpoort', ijs: 'ijsraket', vuur: 'drakenzadel',
-  koraal: 'duikboot', koraallab: 'duikboot', wolk: 'luchtballon', weerlab: 'luchtballon' };
-const KRISTAL_PER_PLEK = 3; // zoveel kristallen kan je per plek per dag verdienen
+  koraal: 'duikboot', koraallab: 'duikboot', wolk: 'luchtballon', weerlab: 'luchtballon',
+  mijn: 'mijnlift', maan: 'maanraket' };
+
 const RUNEN = W.runen(); // de verborgen runenstenen ("kaart:x,y")
+
+// Opdrachten: grote doelen die je over meerdere dagen haalt. Klaar? Dan haal je zelf je kristallen op.
+const opgelost = s => Object.keys(s.trap || {}).filter(id => STATIONS[id]);
+const LABO_PLEKKEN = Object.keys(STATIONS).filter(id => /lab$|^labo$/.test(STATIONS[id].gebied));
+const OPDRACHTEN = [
+  { id: 'plek5', tekst: 'Los 5 verschillende plekken op', doel: 5, kristallen: 3, tel: s => opgelost(s).length },
+  { id: 'rune5', tekst: 'Vind 5 runenstenen', doel: 5, kristallen: 3, tel: s => Object.keys(s.runen || {}).length },
+  { id: 'bouw3', tekst: 'Bouw 3 bouwwerken', doel: 3, kristallen: 3, tel: s => s.gebouwd.length },
+  { id: 'woord15', tekst: 'Verzamel 15 woorden in je woordenboek', doel: 15, kristallen: 3, tel: s => Object.keys(s.woorden).length },
+  { id: 'trap5', tekst: 'Klim tot trap 5 bij één plek', doel: 5, kristallen: 4, tel: s => Math.max(0, ...Object.values(s.trap || {})) },
+  { id: 'labo', tekst: `Doe alle ${LABO_PLEKKEN.length} labo-proeven`, doel: LABO_PLEKKEN.length, kristallen: 5, tel: s => LABO_PLEKKEN.filter(id => (s.trap || {})[id]).length },
+  { id: 'plek20', tekst: 'Los 20 verschillende plekken op', doel: 20, kristallen: 6, tel: s => opgelost(s).length },
+  { id: 'rune15', tekst: 'Vind 15 runenstenen', doel: 15, kristallen: 6, tel: s => Object.keys(s.runen || {}).length },
+  { id: 'bouw8', tekst: 'Bouw 8 bouwwerken', doel: 8, kristallen: 6, tel: s => s.gebouwd.length },
+  { id: 'trap10', tekst: 'Klim tot trap 10 bij één plek', doel: 10, kristallen: 8, tel: s => Math.max(0, ...Object.values(s.trap || {})) },
+  { id: 'woord50', tekst: 'Verzamel 50 woorden in je woordenboek', doel: 50, kristallen: 8, tel: s => Object.keys(s.woorden).length },
+  { id: 'plekalle', tekst: `Los alle ${Object.keys(STATIONS).length} plekken op`, doel: Object.keys(STATIONS).length, kristallen: 15, tel: s => opgelost(s).length },
+  { id: 'runealle', tekst: `Vind alle ${RUNEN.length} runenstenen`, doel: RUNEN.length, kristallen: 15, tel: s => Object.keys(s.runen || {}).length },
+];
+function opdrachtenView(s) {
+  return OPDRACHTEN.map(o => ({
+    id: o.id, tekst: o.tekst, doel: o.doel, kristallen: o.kristallen,
+    tel: s ? Math.min(o.doel, o.tel(s)) : 0,
+    gehaald: !!(s && s.opdrachten && s.opdrachten[o.id]),
+  }));
+}
+
+const KRISTAL_PER_PLEK = 3; // zoveel kristallen kan je per plek per dag verdienen
 const WOORDEN_PER_RONDE = 3;
 
 // ---------- Opslag ----------
@@ -319,12 +357,13 @@ function wie(naam) {
 }
 
 function speler(w) {
-  if (w.lk) return lkSpeler || (lkSpeler = { naam: w.naam, kristallen: 0, uitgegeven: 0, gebouwd: Object.keys(BOUW), woorden: {}, weetjes: {}, dagen: {}, open: {}, trap: {}, runen: {} });
+  if (w.lk) return lkSpeler || (lkSpeler = { naam: w.naam, kristallen: 0, uitgegeven: 0, gebouwd: Object.keys(BOUW), woorden: {}, weetjes: {}, dagen: {}, open: {}, trap: {}, runen: {}, opdrachten: {} });
   const j = jaar();
   const s = j.spelers[w.key] || (j.spelers[w.key] = { naam: w.naam, kristallen: 0, uitgegeven: 0, gebouwd: [], woorden: {}, weetjes: {}, dagen: {}, open: {} });
   s.naam = w.naam;
   s.trap = s.trap || {};
   s.runen = s.runen || {};
+  s.opdrachten = s.opdrachten || {};
   return s;
 }
 
@@ -361,6 +400,7 @@ function view(naam) {
     weetjes: s ? Object.keys(s.weetjes).length : 0,
     runen: s && s.runen ? Object.keys(s.runen) : [],
     runenTotaal: RUNEN.length,
+    opdrachten: opdrachtenView(s),
   };
 }
 
@@ -617,6 +657,22 @@ function bouw({ naam, wat } = {}) {
   return { stand: view(w.lk ? LK : w.naam) };
 }
 
+// ---------- Opdrachten ----------
+
+function opdracht({ naam, id } = {}) {
+  const w = wie(naam);
+  if (!w) throw new Error('Kies eerst je naam.');
+  const o = OPDRACHTEN.find(x => x.id === id);
+  if (!o) throw new Error('Deze opdracht bestaat niet.');
+  const s = speler(w);
+  if (s.opdrachten[id]) throw new Error('Deze beloning heb je al.');
+  if (o.tel(s) < o.doel) throw new Error('Deze opdracht is nog niet klaar.');
+  s.opdrachten[id] = dagVan();
+  s.kristallen += o.kristallen;
+  save();
+  return { kristallen: o.kristallen, stand: view(w.lk ? LK : w.naam) };
+}
+
 // ---------- Runenstenen ----------
 
 // Een verborgen runensteen opgeraapt: één keer per steen, en elke steen is een kristal waard.
@@ -682,6 +738,7 @@ function bord(binnen = []) {
 module.exports = {
   LK,
   vind,
+  opdracht,
   NAAM, SPEL, DIR, STATIONS, view, open, poging, bouw, boek, bord, zetToegang, toegangVoor,
   eigenView, zetWoorden, wisWeetje, wisAlles, aiMaak, aiPrompt, plak, flush, dagVan, versleutel,
 };

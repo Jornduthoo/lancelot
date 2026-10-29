@@ -26,6 +26,8 @@
 .od-kristal-ic.groot { width: 26px; height: 40px; }
 .od-badge { position: absolute; top: -6px; right: -6px; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 10px; background: rgb(var(--k-goud)); color: rgb(var(--k-op-goud)); font: 700 .72rem/20px var(--tech); text-align: center; }
 .od-badge.leeg { display: none; }
+.od-stip { right: auto; left: -8px; background: rgb(var(--k-cyan)); font-size: .7rem; animation: od-puls 1.6s ease-in-out infinite; }
+@keyframes od-puls { 50% { transform: scale(1.2); } }
 
 .od-spel-start { position: absolute; top: 70px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 12px; background: rgb(var(--k-panel) / .92); border: 1px solid rgb(var(--k-goud)); font-weight: 700; white-space: nowrap; }
 .od-spel-start .button { padding: 8px 16px; text-decoration: none; }
@@ -243,3 +245,14 @@ input.od-mst.leeg::-webkit-inner-spin-button { -webkit-appearance: none; }
 .od-drijf { display: flex; flex-direction: column; gap: 6px; width: 100%; max-width: 480px; margin: 0 auto; }
 .od-drijf-rij { display: flex; align-items: center; gap: 8px; }
 .od-drijf-naam { flex: 1; text-align: left; font-weight: 600; }
+
+/* Mijnen, Maanbasis en opdrachten */
+.od-som { font-family: var(--tech); font-size: 1.8rem; letter-spacing: .04em; }
+.od-voortgang { width: 100%; max-width: 360px; height: 8px; margin: 4px auto; border-radius: 4px; background: rgb(var(--k-panel)); border: 1px solid rgb(var(--k-cyan) / .3); overflow: hidden; }
+.od-voortgang span { display: block; height: 100%; background: linear-gradient(90deg, rgb(var(--k-cyan)), rgb(var(--k-goud))); transition: width .3s; }
+.od-opdr { display: flex; align-items: center; gap: 10px; padding: 8px 12px; margin: 6px 0; border-radius: 12px; background: rgb(var(--k-panel)); border: 1px solid rgb(var(--k-goud) / .35); text-align: left; }
+.od-opdr.gehaald { opacity: .65; }
+.od-opdr-tekst { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.od-opdr-tekst .od-voortgang { max-width: none; margin: 2px 0; }
+.od-opdr-ok { font-size: 1.4rem; color: rgb(var(--k-groen)); }
+.od-opdr-beloning { font-family: var(--tech); color: rgb(var(--k-muted)); white-space: nowrap; }
