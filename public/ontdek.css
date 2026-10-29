@@ -226,3 +226,20 @@ input.od-mst.leeg::-webkit-inner-spin-button { -webkit-appearance: none; }
 .od-gok b { display: grid; place-items: center; width: 30px; height: 36px; border-radius: 6px; background: #2c1a16; border: 1px solid #ff7a3a; color: #ffd0a0; font: 700 1.15rem var(--tech); }
 .od-hintuitleg { font-size: .9rem; }
 .od-code-in { font-family: var(--tech); font-size: 1.4rem; letter-spacing: .4em; text-align: center; max-width: 10ch; }
+
+/* Koraalrif en Wolkenstad */
+.od-breukje { display: inline-flex; flex-direction: column; align-items: center; vertical-align: middle; line-height: 1.05; margin: 0 4px; }
+.od-breukje b:first-child { border-bottom: 2px solid currentColor; padding: 0 4px; }
+.od-kas, .od-hand { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; width: 100%; max-width: 560px; margin: 0 auto; }
+.od-hand { min-height: 48px; align-items: center; padding: 8px; border-radius: 12px; border: 1px dashed rgb(var(--k-goud) / .5); }
+.od-munt { display: grid; place-items: center; width: 50px; height: 50px; padding: 0; border-radius: 50%; clip-path: none; background: radial-gradient(circle at 35% 30%, #f3b98a, #b8653a); color: #3a1a08; font: 700 .85rem var(--tech); border: 2px solid #8a4a22; }
+.od-munt.goud { background: radial-gradient(circle at 35% 30%, #fff0a8, #d9a520); border-color: #a07810; }
+.od-munt.euro { background: radial-gradient(circle at 35% 30%, #fff0a8 30%, #c8ccd6 32%, #9aa0ae); border-color: #6a7080; }
+.od-munt.briefje { width: 66px; height: 40px; border-radius: 6px; background: linear-gradient(135deg, #9fe0b8, #4fa878); border-color: #2f7a50; }
+.od-munt.klein { width: 40px; height: 40px; font-size: .75rem; }
+.od-munt.briefje.klein { width: 54px; height: 32px; }
+.od-magisch-veld { display: grid; grid-template-columns: repeat(3, 64px); gap: 6px; justify-content: center; }
+.od-magisch-veld .od-mst { width: 64px; height: 56px; }
+.od-drijf { display: flex; flex-direction: column; gap: 6px; width: 100%; max-width: 480px; margin: 0 auto; }
+.od-drijf-rij { display: flex; align-items: center; gap: 8px; }
+.od-drijf-naam { flex: 1; text-align: left; font-weight: 600; }

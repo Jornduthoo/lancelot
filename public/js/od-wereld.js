@@ -41,6 +41,7 @@ const OdWereld = (() => {
         '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~',
       ],
       ruine: x => x >= 25,
+      binnenkaart: 'labo',
     },
     labo: {
       naam: 'Het Labo',
@@ -56,6 +57,8 @@ const OdWereld = (() => {
       ],
       ruine: () => false,
       binnen: true,
+      buiten: 'woud',
+      welkom: 'Welkom in het Labo! Drie proeven wachten op je.',
     },
     draken: {
       naam: 'De Drakenkust',
@@ -70,7 +73,7 @@ const OdWereld = (() => {
         '~zz..T......=.......aaa......z~~',
         '~~z.........=..m...aaaaa.....z~~',
         '~~zz..T..====......aaaa.....zz~~',
-        '~~~z.....=......,..........zz~~~',
+        '~~~z.....=......,....Z.....zz~~~',
         '~~~z..J..=..T......T..y....z~~~~',
         '~~~zz....=.........M.......z~~~~',
         '~~~~z....=.....T.......,..zz~~~~',
@@ -124,7 +127,7 @@ const OdWereld = (() => {
         '~~~~~B....=.....E...=..B~~~~~~',
         '~~~~~B..J.=.........=..B~~~~~~',
         '~~~~~~B...=..k......=.B~~~~~~~',
-        '~~~~~~B...S.Q.......=.B~~~~~~~',
+        '~~~~~~B...S.Q...I...=.B~~~~~~~',
         '~~~~~~~BB..........J.B~~~~~~~~',
         '~~~~~~~~~BBBBBBBBBBBB~~~~~~~~~',
         '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~',
@@ -158,24 +161,107 @@ const OdWereld = (() => {
       rots: ['#5e3b35', '#3b2320'],
       lip: ['#4a3834', '#352624'],
     },
+    koraal: {
+      naam: 'Het Koraalrif',
+      rijen: [
+        '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~',
+        '~~~~zzzzzz~~~~~~~~~zzzzzzz~~~~',
+        '~~~zz.Y..zzz~~~~~zzz..n..zz~~~',
+        '~~zz..1....zz~~~zz...aa...zz~~',
+        '~~z..n...Y..zzzzz...aaaa.3.z~~',
+        '~~z...........=====.aaaaa..z~~',
+        '~~zz..HH....===...=..aaa...z~~',
+        '~~~z..HH...=..n...=......Jzz~~',
+        '~~~z...D...=.......=====..z~~~',
+        '~~~zz..====..Y..2......=..z~~~',
+        '~~~~z..=..n...........=.zz~~~~',
+        '~~~~z.J=.....aaa..n...=.z~~~~~',
+        '~~~~zz.=....aaaaa....J=.z~~~~~',
+        '~~~~~z.S.Q...aaa....Y..zz~~~~~',
+        '~~~~~zz..............zz~~~~~~~',
+        '~~~~~~zzzzzzzzzzzzzzzz~~~~~~~~',
+        '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~',
+      ],
+      ruine: () => false,
+      terug: { kaart: 'draken', bij: 'Z' },
+      binnenkaart: 'koraallab',
+      rots: ['#c9a46a', '#9c7a48'],
+      lip: ['#f6e6b8', '#dcc48e'],
+    },
+    koraallab: {
+      naam: 'Het Onderzeelab',
+      rijen: [
+        'WWWWWWWW',
+        'W___x__v',
+        'W_7_____',
+        'W______x',
+        'Wv____J_',
+        'W____q__',
+      ],
+      ruine: () => false,
+      binnen: true,
+      buiten: 'koraal',
+      welkom: 'Welkom in het Onderzeelab! Zinkt het, of drijft het?',
+    },
+    wolk: {
+      naam: 'De Wolkenstad',
+      rijen: [
+        '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~',
+        '~~~~.....~~~~~~~~~~.......~~~~',
+        '~~~..4.M..~~~~~~~...v...M..~~~',
+        '~~.........~~~~~~.....5.....~~',
+        '~~..v...j...=====..........~~~',
+        '~~~.....=====...=====..j...~~~',
+        '~~~..J..=...........=......~~~',
+        '~~~~...=...HH.......=..M..~~~~',
+        '~~~~...=...HH..j....=...J.~~~~',
+        '~~~~~..=....D.......=====~~~~~',
+        '~~~~~..=..........6.....~~~~~~',
+        '~~~~~~.S.Q..j.........~~~~~~~~',
+        '~~~~~~~...............~~~~~~~~',
+        '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~',
+      ],
+      ruine: () => false,
+      terug: { kaart: 'ijs', bij: 'I' },
+      binnenkaart: 'weerlab',
+      rots: ['#d4cef2', '#a39bd6'],
+      lip: ['#ffffff', '#ebe7fc'],
+    },
+    weerlab: {
+      naam: 'Het Weerstation',
+      rijen: [
+        'WWWWWWWW',
+        'W__x___v',
+        'W_____8_',
+        'Wx______',
+        'W__J___v',
+        'W____q__',
+      ],
+      ruine: () => false,
+      binnen: true,
+      buiten: 'wolk',
+      welkom: 'Welkom in het Weerstation! Lees de thermometers.',
+    },
   };
   const STATION = {
     u: 'uil', s: 'schuif', r: 'robot', l: 'licht', c: 'code', o: 'steen', e: 'stroom', g: 'tandwiel', w: 'wip',
     m: 'smidse', i: 'nest', y: 'beeld', d: 'koepel', h: 'donjon', t: 'goudtoren',
     A: 'ijsmeer', C: 'klokkentoren', E: 'ijsbeeld', F: 'lavapoort', U: 'vuurkristal', V: 'vuurtoren',
+    1: 'parelschelp', 2: 'wrak', 3: 'schatkaart', 4: 'wolkentoren', 5: 'windorgel', 6: 'luchthaven', 7: 'drijfbak', 8: 'thermometer',
   };
   // Welk plaatje uit Mijn burcht bij welke plek hoort.
   const STUK = {
     uil: 'holoridder', schuif: 'zwaardsteen', robot: 'mechridder', licht: 'baken', code: 'portaal', steen: 'radar', bord: 'banier',
     smidse: 'smidse', nest: 'draak', beeld: 'drakenbeeld', koepel: 'schildkoepel', donjon: 'donjon', goudtoren: 'goudtoren',
     ijsmeer: 'fontein', klokkentoren: 'wachttoren', ijsbeeld: 'ridderbeeld', lavapoort: 'poort', vuurkristal: 'kristal', vuurtoren: 'toren',
+    schatkaart: 'wachttoren', wolkentoren: 'toren', windorgel: 'baken', luchthaven: 'radar',
   };
   // Eigen kleur voor sommige plekken (anders goud).
-  const STUKKLEUR = { ijsmeer: '#9ff3ff', ijsbeeld: '#bfe6ff', lavapoort: '#ff7a3a', vuurkristal: '#ff7a3a', vuurtoren: '#ff5a5a' };
+  const STUKKLEUR = { ijsmeer: '#9ff3ff', ijsbeeld: '#bfe6ff', lavapoort: '#ff7a3a', vuurkristal: '#ff7a3a', vuurtoren: '#ff5a5a', wolkentoren: '#c77dff', windorgel: '#ffe08a' };
   // Plekken waar je iets bouwt met kristallen (en daarna mee reist).
-  const BOUWPLEK = { p: 'brug', L: 'luchtschip', P: 'sterrenpoort', N: 'drakenzadel', O: 'ijsraket' };
-  const REIS = { luchtschip: 'draken', sterrenpoort: 'sterren', drakenzadel: 'vuur', ijsraket: 'ijs' };
-  const BLOKKEERT = new Set('T~RHWxvkfaYKGMXLPNOB'.split('').concat(Object.keys(STATION), ['p']));
+  const BOUWPLEK = { p: 'brug', L: 'luchtschip', P: 'sterrenpoort', N: 'drakenzadel', O: 'ijsraket', Z: 'duikboot', I: 'luchtballon' };
+  const REIS = { luchtschip: 'draken', sterrenpoort: 'sterren', drakenzadel: 'vuur', ijsraket: 'ijs', duikboot: 'koraal', luchtballon: 'wolk' };
+  const BLOKKEERT = new Set('T~RHWxvkfaYKGMXLPNOBZInj'.split('').concat(Object.keys(STATION), ['p']));
 
   const hash = (x, y, k = 0) => BuArt.hash(x, y, k);
 
@@ -228,6 +314,16 @@ const OdWereld = (() => {
       if (c === '=' || c === 'S') return 'sneeuwpad';
       return hash(x, y, 3) < 0.3 ? 'sneeuw2' : 'sneeuw';
     }
+    if (k.id === 'koraal') {
+      if (c === 'a') return 'lagune';
+      if (c === 'z' || c === 'Q') return 'strand';
+      if (c === '=' || c === 'S' || c === 'D') return 'plank';
+      return hash(x, y, 3) < 0.3 ? 'zand2' : 'zand';
+    }
+    if (k.id === 'wolk') {
+      if (c === '=' || c === 'S' || c === 'D') return 'goudpad';
+      return hash(x, y, 3) < 0.3 ? 'wolk2' : 'wolk';
+    }
     if (k.id === 'vuur') {
       if (c === 'a') return 'lava';
       if (c === '=' || c === 'S') return 'basalt';
@@ -249,7 +345,8 @@ const OdWereld = (() => {
   const kleurStr = c => `rgb(${c.map(v => Math.max(0, Math.min(255, Math.round(v)))).join(',')})`;
   const LP = { gras: '#66c24c', wild: '#57ad43', bloemen: '#6dc650', pad: '#9a9fb3', plein: '#8d93ad', neon: '#3b4563', water: '#3a8ee0', zand: '#e3c98c',
     sneeuw: '#eef4fb', sneeuw2: '#dde8f4', sneeuwpad: '#b9c7dc', ijs: '#a6dcf2', ijswater: '#2f6fb0',
-    as: '#5a4a46', as2: '#4c3e3b', basalt: '#3a3236', lava: '#ff6a1f' };
+    as: '#5a4a46', as2: '#4c3e3b', basalt: '#3a3236', lava: '#ff6a1f',
+    zand2: '#d9bd7e', strand: '#f0dcaa', lagune: '#2fc1c9', plank: '#a0754a', wolk: '#f5f2ff', wolk2: '#e7e2fb', goudpad: '#f0d27a' };
   const LICHT = (() => { const l = [-0.55, -0.35, 1]; const n = Math.hypot(...l); return l.map(v => v / n); })();
 
   function driehoek(g, a, b, c, kleur) {
@@ -280,7 +377,7 @@ const OdWereld = (() => {
     const half = T / 2;
     const kwart = T / 4;
     const land = (x, y) => { const c = teken(k, x, y); return c !== '~' && c !== 'b'; };
-    const golvend = c => '.,TYzB'.includes(c) && !(k.id === 'ijs' && c === 'z');
+    const golvend = c => '.,TYzBnj'.includes(c) && !(k.id === 'ijs' && c === 'z');
     // Hoogte van elke hoek: golvend gras, maar vlak waar een pad, plek of gebouw aan raakt.
     const hoogte = (cx, cy) => {
       for (const [x, y] of [[cx - 1, cy - 1], [cx, cy - 1], [cx - 1, cy], [cx, cy]]) {
@@ -649,6 +746,19 @@ const OdWereld = (() => {
     const ax = c.width / 2;
     const ay = c.height - T * 0.35;
     g.translate(ax, ay);
+    const schaduw = (gg, r) => {
+      gg.fillStyle = 'rgba(10,20,30,.28)';
+      gg.beginPath();
+      gg.ellipse(0, 0, r, r * 0.42, 0, 0, Math.PI * 2);
+      gg.fill();
+    };
+    const rrect = (gg, x, y, w, h, r, kleur) => {
+      gg.fillStyle = kleur;
+      gg.beginPath();
+      if (gg.roundRect) gg.roundRect(x, y, w, h, r);
+      else gg.rect(x, y, w, h);
+      gg.fill();
+    };
     const tafel = () => {
       g.fillStyle = 'rgba(0,0,0,.3)';
       g.beginPath();
@@ -663,6 +773,143 @@ const OdWereld = (() => {
       lpPalm(g, T, variant);
     } else if (id === 'lprots' || id === 'lprotsrood') {
       lpRots(g, T, variant, id === 'lprotsrood');
+    } else if (id === 'koraal') {
+      // een koraaltak: een paar dikke takjes met ronde puntjes
+      const kl = [['#ff7aa8', '#d94f80'], ['#ff9a4a', '#d06a2a'], ['#c77dff', '#9050d0']][variant % 3];
+      schaduw(g, T * 0.26);
+      g.lineCap = 'round';
+      for (let i = 0; i < 5; i++) {
+        const a = -Math.PI / 2 + (i - 2) * 0.38;
+        const l = T * (0.32 + ((i * 37 + variant * 11) % 5) * 0.05);
+        const ex = Math.cos(a) * l;
+        const ey = Math.sin(a) * l;
+        g.strokeStyle = kl[i % 2];
+        g.lineWidth = T * 0.08;
+        g.beginPath();
+        g.moveTo(0, -T * 0.02);
+        g.quadraticCurveTo(ex * 0.3, ey * 0.6, ex, ey);
+        g.stroke();
+        g.fillStyle = BuArt.shade(kl[0], 0.25);
+        g.beginPath();
+        g.arc(ex, ey, T * 0.055, 0, Math.PI * 2);
+        g.fill();
+      }
+    } else if (id === 'parelschelp') {
+      // een grote schelp met een parel
+      schaduw(g, T * 0.36);
+      const R = T * 0.38;
+      for (let i = 0; i < 7; i++) {
+        const a0 = Math.PI + (i / 7) * Math.PI;
+        const a1 = Math.PI + ((i + 1) / 7) * Math.PI;
+        driehoek(g, [0, -T * 0.05], [Math.cos(a0) * R, -T * 0.05 + Math.sin(a0) * R * 0.9], [Math.cos(a1) * R, -T * 0.05 + Math.sin(a1) * R * 0.9], i % 2 ? '#ffb3cf' : '#ff8fb8');
+      }
+      g.fillStyle = '#f8f4ff';
+      g.beginPath();
+      g.arc(0, -T * 0.13, T * 0.09, 0, Math.PI * 2);
+      g.fill();
+      g.fillStyle = '#ffffff';
+      g.fillRect(-T * 0.04, -T * 0.18, T * 0.03, T * 0.03);
+    } else if (id === 'wrak') {
+      // een scheef gezakt schip met een kapotte mast
+      schaduw(g, T * 0.42);
+      driehoek(g, [-T * 0.45, -T * 0.2], [T * 0.4, -T * 0.05], [T * 0.25, T * 0.08], '#7a5028');
+      driehoek(g, [-T * 0.45, -T * 0.2], [T * 0.25, T * 0.08], [-T * 0.3, T * 0.02], '#5a3a1c');
+      driehoek(g, [-T * 0.45, -T * 0.2], [T * 0.4, -T * 0.05], [T * 0.3, -T * 0.2], '#9a6a3a');
+      g.strokeStyle = '#4a2e14';
+      g.lineWidth = T * 0.04;
+      g.beginPath();
+      g.moveTo(-T * 0.02, -T * 0.12);
+      g.lineTo(T * 0.1, -T * 0.85);
+      g.stroke();
+      driehoek(g, [T * 0.09, -T * 0.8], [T * 0.38, -T * 0.6], [T * 0.06, -T * 0.42], '#e8dcc0');
+      driehoek(g, [T * 0.06, -T * 0.42], [T * 0.38, -T * 0.6], [T * 0.26, -T * 0.4], '#cbbd9e');
+      g.fillStyle = '#ffc94a';
+      g.fillRect(-T * 0.22, -T * 0.22, T * 0.1, T * 0.07);
+    } else if (id === 'duikboot') {
+      // een gele duikboot met patrijspoorten
+      schaduw(g, T * 0.42);
+      g.fillStyle = '#e0a020';
+      g.beginPath();
+      g.ellipse(0, -T * 0.22, T * 0.45, T * 0.2, -0.25, 0, Math.PI * 2);
+      g.fill();
+      g.fillStyle = '#ffc94a';
+      g.beginPath();
+      g.ellipse(-T * 0.03, -T * 0.27, T * 0.4, T * 0.14, -0.25, 0, Math.PI * 2);
+      g.fill();
+      blok(g, T, -0.12, 0.08, -0.08, 0.08, 0.38, 0.62, '#ffc94a');
+      g.strokeStyle = '#3a4160';
+      g.lineWidth = T * 0.03;
+      g.beginPath();
+      g.moveTo(-T * 0.02, -T * 0.62);
+      g.lineTo(-T * 0.02, -T * 0.78);
+      g.lineTo(T * 0.08, -T * 0.78);
+      g.stroke();
+      for (let i = 0; i < 3; i++) {
+        g.fillStyle = '#3a4160';
+        g.beginPath();
+        g.arc(-T * 0.22 + i * T * 0.18, -T * 0.18 - i * T * 0.045, T * 0.06, 0, Math.PI * 2);
+        g.fill();
+        g.fillStyle = '#9ff3ff';
+        g.beginPath();
+        g.arc(-T * 0.22 + i * T * 0.18, -T * 0.18 - i * T * 0.045, T * 0.04, 0, Math.PI * 2);
+        g.fill();
+      }
+    } else if (id === 'lpballon') {
+      // een luchtballon met een mandje
+      schaduw(g, T * 0.3);
+      blok(g, T, -0.14, 0.14, -0.14, 0.14, 0, 0.22, '#8a5c2e', '#a0703c');
+      g.strokeStyle = '#5a3a1c';
+      g.lineWidth = T * 0.015;
+      g.beginPath();
+      g.moveTo(-T * 0.12, -T * 0.24);
+      g.lineTo(-T * 0.28, -T * 0.8);
+      g.moveTo(T * 0.12, -T * 0.24);
+      g.lineTo(T * 0.28, -T * 0.8);
+      g.stroke();
+      const cy = -T * 1.2;
+      const R = T * 0.48;
+      const kl = ['#ff5a5a', '#ffffff', '#ffc94a', '#ffffff', '#ff5a5a', '#4cc9ff'];
+      for (let i = 0; i < 6; i++) {
+        const a0 = -Math.PI / 2 - Math.PI / 2 + (i / 6) * Math.PI;
+        const a1 = a0 + Math.PI / 6;
+        g.fillStyle = kl[i];
+        g.beginPath();
+        g.moveTo(0, cy + R * 1.05);
+        g.lineTo(Math.cos(a0 - Math.PI / 2) * R, cy + Math.sin(a0 - Math.PI / 2) * R);
+        g.arc(0, cy, R, a0 - Math.PI / 2, a1 - Math.PI / 2);
+        g.closePath();
+        g.fill();
+      }
+      g.fillStyle = 'rgba(0,0,0,.12)';
+      g.beginPath();
+      g.arc(0, cy, R, -Math.PI / 2, Math.PI / 2);
+      g.lineTo(0, cy + R * 1.05);
+      g.fill();
+    } else if (id === 'drijfbak') {
+      // een bak water met een kurk die drijft en een steen op de bodem
+      tafel();
+      blok(g, T, -0.3, 0.3, -0.25, 0.25, 0.36, 0.66, '#2fa0d0', 'rgba(140,220,255,.85)');
+      const P = (u, v, z) => [(u - v) * T / 2, (u + v) * T / 4 - z * T];
+      const [kx, ky] = P(-0.1, 0, 0.68);
+      g.fillStyle = '#c08a50';
+      g.fillRect(kx - T * 0.05, ky - T * 0.05, T * 0.1, T * 0.06);
+      const [sx, sy] = P(0.15, 0.2, 0.42);
+      g.fillStyle = '#5e5272';
+      g.beginPath();
+      g.arc(sx, sy, T * 0.04, 0, Math.PI * 2);
+      g.fill();
+    } else if (id === 'thermometer') {
+      // een grote thermometer op een tafel
+      const P = tafel();
+      const [x, y] = P(0, 0, 0.36);
+      rrect(g, x - T * 0.05, y - T * 0.75, T * 0.1, T * 0.7, T * 0.05, '#e8eef8');
+      g.fillStyle = '#ff4d6d';
+      g.fillRect(x - T * 0.02, y - T * 0.5, T * 0.04, T * 0.42);
+      g.beginPath();
+      g.arc(x, y - T * 0.06, T * 0.075, 0, Math.PI * 2);
+      g.fill();
+      g.fillStyle = '#3a4160';
+      for (let i = 0; i < 6; i++) g.fillRect(x + T * 0.05, y - T * 0.2 - i * T * 0.09, T * 0.04, T * 0.012);
     } else if (id === 'rune') {
       runeSteen(g, T);
     } else if (id === 'stroom') {
@@ -785,6 +1032,10 @@ const OdWereld = (() => {
       else if (c === 'N') st = { bu: 'draak', kleur: '#ff5a5a', plek: 'drakenzadel' };
       else if (c === 'O') st = { bu: 'ruimteschip', kleur: '#bff3ff', plek: 'ijsraket' };
       else if (c === 'B') st = { eigen: 'lpsneeuw', v: Math.floor(hash(x, y, 3) * 3) };
+      else if (c === 'n') st = { eigen: 'koraal', v: Math.floor(hash(x, y, 3) * 3) };
+      else if (c === 'j') st = { bu: 'lichtpaal', kleur: '#ffe08a' };
+      else if (c === 'Z') st = { eigen: 'duikboot', plek: 'duikboot' };
+      else if (c === 'I') st = { eigen: 'lpballon', plek: 'luchtballon' };
       else if (c === 'J' && !gevonden.includes(`${k.id}:${x},${y}`)) st = { eigen: 'rune', rune: true };
       else if (STATION[c]) {
         const id = STATION[c];
@@ -794,7 +1045,7 @@ const OdWereld = (() => {
     }
     // Het labo: één groot gebouw op 2 op 2 vakjes, getekend vanaf het voorste vakje.
     const h = vind(k, 'H');
-    if (h) out.push({ x: h.x + 1, y: h.y + 1, groot: 'huisje', kleur: '#2ee6a6', labo: true, dx: -0.5, dy: -0.5 });
+    if (h) out.push({ x: h.x + 1, y: h.y + 1, groot: 'huisje', kleur: { koraal: '#4cc9ff', wolk: '#c77dff' }[k.id] || '#2ee6a6', labo: true, dx: -0.5, dy: -0.5 });
     out.sort((a, b) => a.x + a.y - (b.x + b.y) || a.x - b.x);
     return out;
   }

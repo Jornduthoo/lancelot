@@ -49,6 +49,14 @@ const STATIONS = {
   lavapoort: { soort: 'codeslot', naam: 'De Lavapoort', gebied: 'vuur' },
   vuurkristal: { soort: 'lampen', naam: 'Het Vuurkristal', gebied: 'vuur' },
   vuurtoren: { soort: 'hanoi', naam: 'De Vuurtoren', gebied: 'vuur' },
+  parelschelp: { soort: 'breuk', naam: 'De Parelschelp', gebied: 'koraal' },
+  wrak: { soort: 'munten', naam: 'Het Wrak', gebied: 'koraal' },
+  schatkaart: { soort: 'coord', naam: 'De Schatkaart', gebied: 'koraal' },
+  drijfbak: { soort: 'drijven', naam: 'Zinken of drijven', gebied: 'koraallab' },
+  wolkentoren: { soort: 'kubus', naam: 'De Wolkentoren', gebied: 'wolk' },
+  windorgel: { soort: 'magisch', naam: 'Het Windorgel', gebied: 'wolk' },
+  luchthaven: { soort: 'route', naam: 'De Luchthaven', gebied: 'wolk' },
+  thermometer: { soort: 'thermo', naam: 'De Thermometer', gebied: 'weerlab' },
 };
 // Bouwen met kristallen: zo wordt de wereld groter. nodig: wat er eerst moet staan.
 const BOUW = {
@@ -57,9 +65,12 @@ const BOUW = {
   sterrenpoort: { naam: 'de sterrenpoort naar de Sterrenhaven', kost: 20, nodig: 'brug' },
   drakenzadel: { naam: 'het drakenzadel naar de Vuurberg', kost: 30, nodig: 'luchtschip' },
   ijsraket: { naam: 'de ijsraket naar het IJsrijk', kost: 30, nodig: 'sterrenpoort' },
+  duikboot: { naam: 'de duikboot naar het Koraalrif', kost: 40, nodig: 'drakenzadel' },
+  luchtballon: { naam: 'de luchtballon naar de Wolkenstad', kost: 40, nodig: 'ijsraket' },
 };
 // Welk gebied pas open is als er iets gebouwd is.
-const GEBIED_NODIG = { ruine: 'brug', draken: 'luchtschip', sterren: 'sterrenpoort', ijs: 'ijsraket', vuur: 'drakenzadel' };
+const GEBIED_NODIG = { ruine: 'brug', draken: 'luchtschip', sterren: 'sterrenpoort', ijs: 'ijsraket', vuur: 'drakenzadel',
+  koraal: 'duikboot', koraallab: 'duikboot', wolk: 'luchtballon', weerlab: 'luchtballon' };
 const KRISTAL_PER_PLEK = 3; // zoveel kristallen kan je per plek per dag verdienen
 const RUNEN = W.runen(); // de verborgen runenstenen ("kaart:x,y")
 const WOORDEN_PER_RONDE = 3;
@@ -511,12 +522,13 @@ function beloon(w, s, id, niveau) {
   return { kristal: 1 };
 }
 
+const LABO_ONDERWERP = { drijven: 'Natuur', thermo: 'Weer' };
 function weetjeLabo(s, soort) {
   const lijst = inhoud.LABO[soort] || [];
   const i = lijst.findIndex((_, k) => !s.weetjes[`lab-${soort}-${k}`]);
   const k = i >= 0 ? i : Math.floor(Math.random() * lijst.length);
   s.weetjes[`lab-${soort}-${k}`] = dagVan();
-  return { o: 'Techniek', w: lijst[k] };
+  return { o: LABO_ONDERWERP[soort] || 'Techniek', w: lijst[k] };
 }
 
 function poging({ naam, station, poging: p } = {}) {
@@ -540,7 +552,7 @@ function poging({ naam, station, poging: p } = {}) {
 
   if (o.pz) {
     if (!P.check(st.soort, o.pz, p)) return { ok: false, tekst: 'Nog niet helemaal. Probeer het nog eens!' };
-    const extra = ['stroom', 'tandwiel', 'wip'].includes(st.soort) ? { weetje: weetjeLabo(s, st.soort) } : {};
+    const extra = ['stroom', 'tandwiel', 'wip', 'drijven', 'thermo'].includes(st.soort) ? { weetje: weetjeLabo(s, st.soort) } : {};
     return klaar(extra);
   }
 
@@ -638,7 +650,7 @@ function boek(naam) {
   const alle = [...inhoud.PAGE.map((x, i) => ({ ...x, id: `p${i}` })), ...inhoud.SCHILDKNAAP.map((x, i) => ({ ...x, id: `s${i}` })), ...inhoud.RIDDER.map((x, i) => ({ ...x, id: `r${i}` })), ...eigen().weetjes.map(x => ({ ...x, id: weetjeId(x) }))];
   const weetjes = Object.entries(s.weetjes).map(([id, dag]) => {
     const lab = /^lab-(\w+)-(\d+)$/.exec(id);
-    if (lab) return { o: 'Techniek', w: (inhoud.LABO[lab[1]] || [])[Number(lab[2])], dag };
+    if (lab) return { o: LABO_ONDERWERP[lab[1]] || 'Techniek', w: (inhoud.LABO[lab[1]] || [])[Number(lab[2])], dag };
     const x = alle.find(y => y.id === id);
     return x ? { o: x.o, v: x.v, a: x.a[x.j], w: x.w, dag } : null;
   }).filter(x => x && x.w).sort((a, b) => a.o.localeCompare(b.o, 'nl') || (a.dag < b.dag ? -1 : 1));

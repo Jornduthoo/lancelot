@@ -72,7 +72,7 @@ function odLaad(naam = od.naam) {
     if (eerst) {
       // Terug waar je was, als dat gebied open is.
       const k = store('od-kaart');
-      const nodig = { draken: 'luchtschip', sterren: 'sterrenpoort', vuur: 'drakenzadel', ijs: 'ijsraket' };
+      const nodig = { draken: 'luchtschip', sterren: 'sterrenpoort', vuur: 'drakenzadel', ijs: 'ijsraket', koraal: 'duikboot', koraallab: 'duikboot', wolk: 'luchtballon', weerlab: 'luchtballon' };
       const open = k === 'labo' || (nodig[k] && res.gebouwd.includes(nodig[k]));
       odKaart(open ? k : 'woud', open || k === 'woud' ? odBewaardePlek() : null);
     }
@@ -136,7 +136,7 @@ function odKaart(id, plek) {
   odBak();
   let p = plek;
   const gebouwd = od.stand.gebouwd;
-  if (!p || !OdWereld.loopbaar(od.kaart, p.x, p.y, gebouwd)) p = id === 'labo' ? odNaast(OdWereld.vind(od.kaart, 'q'), true) : OdWereld.vind(od.kaart, 'S');
+  if (!p || !OdWereld.loopbaar(od.kaart, p.x, p.y, gebouwd)) p = od.kaart.binnen ? odNaast(OdWereld.vind(od.kaart, 'q'), true) : OdWereld.vind(od.kaart, 'S');
   Object.assign(od.ik, { x: p.x, y: p.y, vx: p.x, vy: p.y, van: null, pad: [], doel: null });
   const [sx, sy] = odScherm(p.x, p.y);
   od.cam.x = sx;
@@ -164,7 +164,7 @@ function odScherm(x, y) {
 }
 
 function odGebied() {
-  if (od.kaartId === 'labo') return 'Het Labo';
+  if (od.kaart.binnen) return od.kaart.naam;
   const naam = od.kaartId === 'woud' ? (od.kaart.ruine(od.ik.x) ? 'De Neonruïnes' : 'Het Kristalwoud') : od.kaart.naam;
   return (OD_LK ? 'Leerkracht · ' : '') + naam;
 }
@@ -175,7 +175,7 @@ const odCanvas = $('od-canvas');
 const odG = odCanvas.getContext('2d');
 
 // De sterrenhemel, met een gloed in de kleur van het eiland (koud bij het ijs, rood bij de vulkaan).
-const OD_GLOED = { ijs: 'rgba(150,210,255,.22)', vuur: 'rgba(255,90,30,.22)' };
+const OD_GLOED = { ijs: 'rgba(150,210,255,.22)', vuur: 'rgba(255,90,30,.22)', koraal: 'rgba(40,200,210,.2)', wolk: 'rgba(255,180,230,.22)' };
 function odHemel() {
   const hemel = $('od-hemel');
   hemel.width = odCanvas.width;
@@ -265,7 +265,13 @@ function odTeken(t) {
       g.font = `bold ${od.T * 0.2}px sans-serif`;
       g.textAlign = 'center';
       g.textBaseline = 'middle';
-      g.fillText(d.c === 'q' ? '⇩ Naar buiten' : `⇩ Terug naar ${odTerugNaam()}`, dx, dy + od.T * 0.42);
+      const tekst = d.c === 'q' ? '⇩ Naar buiten' : `⇩ Terug naar ${odTerugNaam()}`;
+      // een donkere rand, zodat je het ook op sneeuw en wolken kan lezen
+      g.strokeStyle = 'rgba(10,16,32,.85)';
+      g.lineWidth = Math.max(2, od.T * 0.05);
+      g.lineJoin = 'round';
+      g.strokeText(tekst, dx, dy + od.T * 0.42);
+      g.fillText(tekst, dx, dy + od.T * 0.42);
     }
   }
 
@@ -472,8 +478,8 @@ function odAangekomen() {
   odBewaarPlek();
   $('od-gebied').textContent = odGebied();
   const c = OdWereld.teken(od.kaart, ik.x, ik.y);
-  if (c === 'D') return odDeur('labo');
-  if (c === 'q') return odDeur('woud');
+  if (c === 'D') return odDeur(od.kaart.binnenkaart || 'labo');
+  if (c === 'q') return odDeur(od.kaart.buiten || 'woud');
   if (c === 'Q') return odReis(od.kaart.terug.kaart, od.kaart.terug.bij);
   if (c === 'J') odRaapRune(ik.x, ik.y);
   if (!ik.pad.length) {
@@ -494,14 +500,15 @@ function odDeur(naar) {
   $('od-game').appendChild(sluier);
   sfx.tick();
   setTimeout(() => {
-    if (naar === 'labo') odKaart('labo', null);
+    const k = OdWereld.kaart(naar);
+    if (k.binnen) odKaart(naar, null);
     else {
-      const d = OdWereld.vind(OdWereld.kaart('woud'), 'D');
-      odKaart('woud', { x: d.x, y: d.y + 1 });
+      const d = OdWereld.vind(k, 'D');
+      odKaart(naar, { x: d.x, y: d.y + 1 });
     }
     sluier.classList.add('weg');
     setTimeout(() => sluier.remove(), 400);
-    if (naar === 'labo') odToastEens('labo', 'Welkom in het Labo! Drie proeven wachten op je.');
+    if (k.welkom) odToastEens(naar, k.welkom);
   }, 260);
 }
 
@@ -691,6 +698,8 @@ async function odBouw(wat) {
       sterrenpoort: 'De sterrenpoort gloeit! Tik erop om naar de Sterrenhaven te gaan.',
       drakenzadel: 'De draak is gezadeld! Tik erop om naar de Vuurberg te vliegen.',
       ijsraket: 'De ijsraket is klaar! Tik erop om naar het IJsrijk te gaan.',
+      duikboot: 'De duikboot is klaar! Tik erop om naar het Koraalrif te varen.',
+      luchtballon: 'De luchtballon is klaar! Tik erop om naar de Wolkenstad te zweven.',
     }[wat] || 'Gebouwd!', 4000);
   });
 }
