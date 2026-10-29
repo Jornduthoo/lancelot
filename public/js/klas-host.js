@@ -235,6 +235,10 @@ socket.on('connect', () => {
   loadDoelen();
   loadLogboek();
 });
+// De klaslijst kwam binnen via Mijn lesmap (bv. thuis aangepast): opnieuw tonen, behalve terwijl je hem aan het typen bent.
+socket.on('klas-gewijzigd', () => {
+  if (!['k-namen', 'k-naam'].includes(document.activeElement && document.activeElement.id)) loadKlas();
+});
 
 // --- Overzicht na elk spel ---
 let sessieOpen = null;
