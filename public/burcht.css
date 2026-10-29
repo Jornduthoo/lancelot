@@ -2,8 +2,6 @@
 
 .bu-page main { max-width: 1240px; gap: 10px; justify-content: flex-start; padding-top: 10px; }
 .bu-top { display: flex; align-items: center; gap: 12px; }
-.bu-back { font-size: 1.6rem; color: var(--muted); text-decoration: none; padding: 4px 8px; }
-.bu-back:hover { color: var(--cyan); }
 .bu-logo { width: 48px; height: 48px; border-radius: 12px; filter: drop-shadow(0 0 10px rgba(255, 201, 74, .45)); }
 .bu-titel { flex: 1; min-width: 0; }
 .bu-naam-spel { font-family: var(--head); font-weight: 900; font-size: 1.6rem; letter-spacing: .03em; background: linear-gradient(90deg, #ffe7a3, #ffc94a 45%, #7fe3ff); -webkit-background-clip: text; background-clip: text; color: transparent; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }

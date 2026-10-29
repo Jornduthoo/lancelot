@@ -11,12 +11,21 @@
     <p id="tks-tekst"></p>
     <div class="tk-solo-knoppen">
       <button type="button" class="gold big hidden" id="tks-opnieuw">Nog een ronde</button>
-      <a class="button secondary" href="/mijn-taken">Terug naar mijn taken</a>
+      <a class="button secondary" id="tks-terug" href="/mijn-taken"><i class="ic ic-taak" aria-hidden="true"></i>Terug naar mijn taken</a>
     </div>
   </div>`;
+  // Altijd linksboven: stoppen en terug naar Mijn taken. Wat je al juist had, blijft bewaard.
+  const stop = document.createElement('button');
+  stop.type = 'button';
+  stop.className = 'terug-knop tk-solo-stop';
+  stop.innerHTML = '<i class="ic ic-terug" aria-hidden="true"></i>Mijn taken';
+  stop.addEventListener('click', async () => {
+    if (box.classList.contains('weg') && !await Ui.vraag('Stoppen met spelen? Wat je al beantwoordde, blijft bewaard. Je kan later verder.')) return;
+    location.href = '/mijn-taken';
+  });
   const toast = document.createElement('div');
   toast.className = 'tk-solo-toast hidden';
-  document.body.append(box, toast);
+  document.body.append(box, stop, toast);
   let stand = { gedaan: 0, totaal: 0 };
   let begonnen = false;
 
@@ -24,6 +33,9 @@
     $('tks-titel').textContent = titel;
     $('tks-tekst').textContent = tekst;
     $('tks-opnieuw').classList.toggle('hidden', !opnieuw);
+    // Geen nieuwe ronde meer nodig: dan is terug naar Mijn taken de grote knop.
+    $('tks-terug').classList.toggle('secondary', opnieuw);
+    $('tks-terug').classList.toggle('gold', !opnieuw);
     box.classList.remove('weg');
   }
 
