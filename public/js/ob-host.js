@@ -127,7 +127,7 @@ function buildPrompt(forGemini = false) {
     ${types.map(t => FORMATS[t]).join(',\n    ')}
   ]`;
   return `Je bent een ervaren leerkracht in Vlaanderen. Maak een oefenblad (werkblad) voor leerlingen uit: ${level} (Belgisch onderwijs). Onderwerp: ${topic}.
-${DoelKies.prompt(codes, 'oefeningen')}${hasSources ? '\nBaseer alle oefeningen op de bijgevoegde lesstof. Vraag alleen naar dingen die daarin staan.\n' : ''}${extra ? `\nExtra wensen van de docent:\n${extra}\n` : ''}
+${DoelKies.prompt(codes, 'oefeningen')}${hasSources ? '\nBaseer alle oefeningen op de bijgevoegde lesstof. Vraag alleen naar dingen die daarin staan.\n' : ''}${extra ? `\nExtra wensen van de leerkracht:\n${extra}\n` : ''}
 Regels:
 - Maak ${count} oefeningen${three ? ' per niveau' : ''} in het Nederlands zoals in Vlaanderen, met ongeveer ${per} vragen of gaten per oefening.
 - Gebruik deze soorten oefeningen, afwisselend: ${kinds.join(', ')}.${withText ? '\n- Begin met een korte leestekst ("tekst") waarop de oefeningen voortbouwen.' : ''}

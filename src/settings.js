@@ -43,7 +43,7 @@ function actief() {
   return { dienst: s.aiDienst, naam: d.naam, key: s[d.key], model: s[d.model] };
 }
 
-// Wat het docentenscherm te zien krijgt: nooit de hele sleutel.
+// Wat het leerkrachtenscherm te zien krijgt: nooit de hele sleutel.
 function publicView() {
   const s = read();
   const diensten = {};

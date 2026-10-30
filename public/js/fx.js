@@ -1,4 +1,4 @@
-// Gedeelde effecten voor docent en leerling: iconen, geluiden en confetti. Alles lokaal, zonder externe bestanden.
+// Gedeelde effecten voor leerkracht en leerling: iconen, geluiden en confetti. Alles lokaal, zonder externe bestanden.
 
 // Vier wapens voor de vier antwoorden: zwaard, schild, kroon en toren.
 const ICONS = [

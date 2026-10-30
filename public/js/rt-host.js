@@ -1,4 +1,4 @@
-// De Ronde Tafel op het docentenscherm: sessies kiezen, maken en live tonen. Gebruikt sfx en confetti uit fx.js, ItemList uit quiz-list.js.
+// De Ronde Tafel op het leerkrachtenscherm: sessies kiezen, maken en live tonen. Gebruikt sfx en confetti uit fx.js, ItemList uit quiz-list.js.
 const socket = io({ query: { role: 'host' } });
 const $ = id => document.getElementById(id);
 let state = null;
@@ -341,7 +341,7 @@ Dit is een sessie om voorkennis te activeren bij de start van een les. Bouw ze z
 - sluit af met een open vraag ("open"): wat wil je nog te weten komen?
 ` : '';
   return `Je bent een ervaren leerkracht in Vlaanderen. Maak een reeks vragen voor een live klasgesprek met een stemsysteem (zoals Mentimeter). De leerlingen zitten in: ${level} (Belgisch onderwijs). Onderwerp: ${topic}. Doel: ${goal}.
-${extra ? `\nExtra wensen van de docent:\n${extra}\n` : ''}
+${extra ? `\nExtra wensen van de leerkracht:\n${extra}\n` : ''}
 Regels:
 - Maak precies ${count} vragen in het Nederlands zoals in Vlaanderen. Leerlingen antwoorden anoniem.
 - Gebruik een afwisselende mix van deze soorten:

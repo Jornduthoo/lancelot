@@ -52,7 +52,7 @@ function buildPrompt(forGemini = false) {
   const time = Math.min(120, Math.max(5, Number($('m-time').value) || 20));
   const extra = $('m-extra').value.trim();
   return `Je bent een ervaren leerkracht in Vlaanderen. Maak een quiz voor leerlingen uit: ${level} (Belgisch onderwijs). Onderwerp: ${topic}.
-${DoelKies.prompt(codes, 'vragen')}${hasSources ? '\nBaseer alle vragen op de bijgevoegde lesstof. Vraag alleen naar dingen die daarin staan.\n' : ''}${extra ? `\nExtra wensen van de docent:\n${extra}\n` : ''}
+${DoelKies.prompt(codes, 'vragen')}${hasSources ? '\nBaseer alle vragen op de bijgevoegde lesstof. Vraag alleen naar dingen die daarin staan.\n' : ''}${extra ? `\nExtra wensen van de leerkracht:\n${extra}\n` : ''}
 Regels:
 - Maak precies ${drie ? `${count} meerkeuzevragen per niveau, dus ${count * 3} vragen samen,` : `${count} meerkeuzevragen`} in het Nederlands zoals in Vlaanderen.
 - Elke vraag heeft 4 antwoorden (bij een waar/niet waar-vraag 2), met precies één goed antwoord.

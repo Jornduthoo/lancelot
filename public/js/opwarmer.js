@@ -1,4 +1,4 @@
-// De Opwarmer op het docentenscherm: LANcelot stelt herhaalvragen voor, de leerkracht kijkt ze na en start.
+// De Opwarmer op het leerkrachtenscherm: LANcelot stelt herhaalvragen voor, de leerkracht kijkt ze na en start.
 // Gebruikt socket, show en loadGame uit host.js en fx.js.
 (() => {
   let voorstel = null;

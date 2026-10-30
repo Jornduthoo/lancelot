@@ -1,4 +1,4 @@
-// De lijst met quizzen, oefenbladen of Ronde Tafel-sessies op elk docentenscherm, geordend in mappen.
+// De lijst met quizzen, oefenbladen of Ronde Tafel-sessies op elk leerkrachtenscherm, geordend in mappen.
 // Zoals de Verkenner: links de mappenboom, rechts de items van de open map met een kruimelpad erboven, en een
 // zoekbalk die in alle mappen zoekt. Items en mappen sleep je naar een map (links, in het kruimelpad of op een
 // mapje rechts), of je kiest de map met het mapje 📁 in de rij (ook op een touchscreen).

@@ -31,7 +31,7 @@
     if (spel !== html.hasAttribute('data-spel')) html.toggleAttribute('data-spel', spel);
   }, 400);
 
-  // Vult een leeg <div id="thema-kiezer"> met de keuzes (alleen op het docentenscherm).
+  // Vult een leeg <div id="thema-kiezer"> met de keuzes (alleen op het leerkrachtenscherm).
   function themaKiezer() {
     const vak = document.getElementById('thema-kiezer');
     if (!vak || vak.dataset.klaar) return;
@@ -274,7 +274,7 @@
     });
   }
 
-  // De knop "Namen" op elk docentenscherm (niet op de afdrukbladen).
+  // De knop "Namen" op elk leerkrachtenscherm (niet op de afdrukbladen).
   function namenKnop(socket) {
     if (window.Ui.hostSocket || /print|fiche/.test(location.pathname)) return;
     window.Ui.hostSocket = socket;
@@ -461,7 +461,7 @@
   });
 
   // ---------- Snel naar ----------
-  // Op elk docentenscherm naast het logo: Start en de vijf rijken. Zo ben je als leerkracht met één klik overal.
+  // Op elk leerkrachtenscherm naast het logo: Start en de vijf rijken. Zo ben je als leerkracht met één klik overal.
   // Het rijk waar je nu bent, licht op. Loopt er een spel, dan eerst even vragen (het spel loopt gewoon door).
   const RIJKEN = [['arena', 'Arena', 'arena'], ['tafel', 'Ronde Tafel', 'ronde-tafel'], ['smidse', 'Smidse', 'smidse'], ['wapenkamer', 'Wapenkamer', 'wapenkamer'], ['kronieken', 'Kronieken', 'kronieken']];
   const PAD_RIJK = {
@@ -475,7 +475,7 @@
     const pad = location.pathname.replace(/^\/+/, '') || 'host';
     if (pad === 'host') return location.hash.slice(1);
     for (const [r, paden] of Object.entries(PAD_RIJK)) if (paden.includes(pad)) return r === 'geen' ? '' : r;
-    return 'arena'; // alle andere docentenschermen met een topbalk zijn spellen
+    return 'arena'; // alle andere leerkrachtenschermen met een topbalk zijn spellen
   }
   let snelMarkeer = () => {};
   function snelmenu() {

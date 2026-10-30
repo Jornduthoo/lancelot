@@ -61,7 +61,7 @@ function bewaarOpmaak() {
     });
   }, 600);
 }
-// Een ander docentenscherm veranderde iets: opnieuw ophalen, tenzij hier nog iets moet bewaren.
+// Een ander leerkrachtenscherm veranderde iets: opnieuw ophalen, tenzij hier nog iets moet bewaren.
 socket.on('zr-gewijzigd', () => {
   if (rTimer || oTimer) return;
   if (zr.data) laad(zr.data.rapport.id, true); else start();
