@@ -50,7 +50,7 @@ const Lp3D = (() => {
       const z = pas(mat, mid);
       const zw = [(A[0] + B[0] + C[0]) / 3 - z[0], (A[1] + B[1] + C[1]) / 3 - z[1], (A[2] + B[2] + C[2]) / 3 - z[2]];
       const f = dot(n, zw) < 0 ? [basis + a, basis + c, basis + b] : [basis + a, basis + b, basis + c];
-      m.f.push({ i: f, kleur, neon, licht: o.licht || 0, glans: o.glans ?? 0.9, schaduw: o.schaduw ?? 0.7 });
+      m.f.push({ i: f, kleur, neon, licht: o.licht || 0, glans: o.glans ?? 0.9, schaduw: o.schaduw ?? 0.7, metaal: o.metaal ? 1 : 0, lijn: o.lijn ?? true });
     }
     if (o.gloed) m.gloed.push({ p: pas(mat, o.gloedOp || [0, 0, 0]), r: o.gloed, kleur: rgb(o.neon || o.kleur) });
   }
@@ -66,7 +66,7 @@ const Lp3D = (() => {
       const th = (i / R) * Math.PI;
       for (let j = 0; j < N; j++) {
         const ph = (j / N) * Math.PI * 2 + (i % 2) * (Math.PI / N);
-        const k = 1 + ruis(zaad + i, j) * (o.ruw ?? 0.12);
+        const k = 1 + ruis(zaad + i, j) * (o.ruw ?? 0.04);
         let y = Math.cos(th);
         if (o.ei) y += o.ei * Math.sin(th) * Math.sin(th) * 0;
         const breed = Math.sin(th) * (o.ei ? 1 - o.ei * Math.cos(th) : 1);
@@ -119,7 +119,7 @@ const Lp3D = (() => {
       const j = (i + 1) % n;
       vl.push([i, j, stap + j, mid], [i, stap + j, stap + i, mid]);
     }
-    voegToe(m, pts, vl, o);
+    voegToe(m, pts, vl, { lijn: false, ...o });
   }
 
   // Een buis langs punten (arm, been, staart, hoorn). o.r: [dikte begin, dikte eind], o.zijden: hoeveel kanten.
@@ -139,7 +139,7 @@ const Lp3D = (() => {
       const r = r0 + (r1 - r0) * (i / (pad.length - 1));
       for (let j = 0; j < N; j++) {
         const ph = (j / N) * Math.PI * 2;
-        const k = 1 + ruis(i * 3.3 + pad[i][0], j) * (o.ruw ?? 0.08);
+        const k = 1 + ruis(i * 3.3 + pad[i][0], j) * (o.ruw ?? 0.02);
         pts.push([0, 1, 2].map(x => pad[i][x] + (u[x] * Math.cos(ph) + w[x] * Math.sin(ph)) * r * k));
       }
     }
