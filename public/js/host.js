@@ -467,4 +467,4 @@ $('board-next').addEventListener('click', () => socket.emit('next'));
 $('restart').addEventListener('click', () => socket.emit('restart'));
 $('close').addEventListener('click', () => socket.emit('close'));
 // Na het podium: toernooi echt afsluiten (resultaten zijn al bewaard) en terug naar het startscherm.
-$('podium-stop').addEventListener('click', () => socket.emit('stop', null, () => { location.href = '/'; }));
+$('podium-stop').addEventListener('click', () => socket.emit('stop', null, () => { location.href = '/host'; }));
