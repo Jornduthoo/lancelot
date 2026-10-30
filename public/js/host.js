@@ -1,4 +1,4 @@
-// Docentenscherm. Gebruikt ICONS, sfx en confetti uit fx.js.
+// Leerkrachtenscherm. Gebruikt ICONS, sfx en confetti uit fx.js.
 const socket = io({ query: { role: 'host' } });
 const $ = id => document.getElementById(id);
 let state = null;
@@ -433,7 +433,7 @@ $('stop').addEventListener('click', async () => {
 socket.on('state', s => {
   prev = state;
   state = s;
-  $('status').textContent = s.title ? `Toernooi · ${s.title}` : 'Docentenscherm';
+  $('status').textContent = s.title ? `Toernooi · ${s.title}` : 'Leerkrachtenscherm';
   $('stop').classList.toggle('hidden', !['lobby', 'intro', 'question', 'reveal'].includes(s.phase));
   if (s.phase !== 'idle') $('stopped').classList.add('hidden');
 

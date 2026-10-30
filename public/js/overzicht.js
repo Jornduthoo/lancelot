@@ -1,5 +1,5 @@
 // Het overzicht na een spel: de moeilijkste vragen, wie extra uitleg kan gebruiken en hoe het per doel ging.
-// Op elk docentenscherm verschijnt na het spel een knop; in Mijn klas staan alle overzichten van dit schooljaar.
+// Op elk leerkrachtenscherm verschijnt na het spel een knop; in Mijn klas staan alle overzichten van dit schooljaar.
 const Overzicht = (() => {
   const css = document.createElement('link');
   css.rel = 'stylesheet';

@@ -223,7 +223,7 @@ class Game {
       .sort((a, b) => b.score - a.score);
   }
 
-  // Volledige status voor het docentenscherm.
+  // Volledige status voor het leerkrachtenscherm.
   hostState() {
     const q = this.question;
     const players = [...this.players.values()];

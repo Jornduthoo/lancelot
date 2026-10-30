@@ -1,4 +1,4 @@
-// Beheer op het docentenscherm: waar de gegevens staan, back-ups, bijwerken, eigen posters, de eerste-keer-wizard en de firewall.
+// Beheer op het leerkrachtenscherm: waar de gegevens staan, back-ups, bijwerken, eigen posters, de eerste-keer-wizard en de firewall.
 // Alles wat de bestanden echt omgooit (verhuizen, terugzetten, bijwerken), gebeurt pas bij de volgende start van LANcelot.
 const fs = require('fs');
 const path = require('path');

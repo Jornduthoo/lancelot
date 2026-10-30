@@ -11,7 +11,7 @@ De installer zelf is nog niet gebouwd. Alles wat de app ervoor nodig heeft, zit 
 | Gegevens apart | `installatie.json` naast de app: LANcelot bewaart klas, logboek, quizzen, posters en back-ups dan in `%LOCALAPPDATA%\LANcelot`. |
 | Verwijderen zonder gegevensverlies | De verwijderaar haalt alleen de app-map weg en nooit `%LOCALAPPDATA%\LANcelot`. Wie opnieuw installeert, vindt alles terug. |
 | Snelkoppelingen | Startmenu altijd, bureaublad als vinkje. In de zip-versie kan het ook met *Instellingen > Snelkoppeling op het bureaublad*. |
-| Poort 3000 bezet | Een tweede start opent gewoon het docentenscherm. Is 3000 bezet door een ander programma, dan neemt LANcelot 3001 tot 3010 en zegt dat in het venster. |
+| Poort 3000 bezet | Een tweede start opent gewoon het leerkrachtenscherm. Is 3000 bezet door een ander programma, dan neemt LANcelot 3001 tot 3010 en zegt dat in het venster. |
 | Bijwerken | Zolang de repo publiek is: van GitHub. Daarna: een eigen update-adres (zie hieronder), of *Bijwerken met een zip-bestand* (werkt altijd, ook zonder internet). |
 
 ## Bouwen (later)

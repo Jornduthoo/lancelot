@@ -1,5 +1,5 @@
 const fs = require('fs');
-// Draait LANcelot al (een tweede dubbelklik op de snelkoppeling)? Dan gewoon het docentenscherm openen.
+// Draait LANcelot al (een tweede dubbelklik op de snelkoppeling)? Dan gewoon het leerkrachtenscherm openen.
 // Dit gebeurt nog voor het bijwerken, zodat een tweede start nooit de bestanden onder een lopend spel vervangt.
 {
   const eerste = Number(process.env.PORT) || 3000;
@@ -7,7 +7,7 @@ const fs = require('fs');
   const r = require('child_process').spawnSync(process.execPath, ['-e', probe], { encoding: 'utf8', timeout: 3000 });
   const draait = r.status === 0 && Number(r.stdout.trim());
   if (draait) {
-    console.log(`\n  LANcelot draait al (poort ${draait}). Het docentenscherm wordt geopend.\n`);
+    console.log(`\n  LANcelot draait al (poort ${draait}). Het leerkrachtenscherm wordt geopend.\n`);
     if (process.platform === 'win32') require('child_process').spawnSync('cmd', ['/c', 'start', '', `http://localhost:${draait}/host`], { windowsHide: true });
     process.exit(0);
   }
@@ -117,7 +117,7 @@ const app = express();
 const server = http.createServer(app);
 // Ruim genoeg voor lesstof (screenshots en pdf's) die naar Gemini gaat.
 const io = new Server(server, { maxHttpBufferSize: 30e6 });
-// Na elk spel: de lijst met resultaten bijwerken, de sessie in het logboek afsluiten en het overzicht ervan naar het docentenscherm sturen.
+// Na elk spel: de lijst met resultaten bijwerken, de sessie in het logboek afsluiten en het overzicht ervan naar het leerkrachtenscherm sturen.
 function finished(file) {
   sendLibrary('resultaat');
   const id = logboek.endSession();
@@ -289,7 +289,7 @@ const proef = new ProefLive(io, rec => {
   return file;
 });
 
-// Elk spel met leerlingen, bij het adres van zijn docentenscherm. Een nieuw spel komt hier ook bij:
+// Elk spel met leerlingen, bij het adres van zijn leerkrachtenscherm. Een nieuw spel komt hier ook bij:
 // zo werken de grijze (bezette) namen bij het aanmelden en de knop "Namen" op het bord meteen mee.
 const SPELLEN = { '/host': game, '/toren': toren, '/schattenjacht': schat, '/laserslag': laserslag, '/ridderrace': race, '/kristalroof': roof, '/verrader': verrader, '/burchtbouwers': burcht, '/duel': duel, '/packnight': knight, '/strijdrossen': rossen, '/gauntlet': gauntlet, '/ridder-royale': royale, '/sterrenvreter': sterren, '/ridderslang': slang, '/burchtstorm': storm, '/poortwacht': poort, '/neonvlucht': vlucht, '/diepboor': diep, '/pixelridder': pixel, '/robomol': robomol, '/kerker': kerker, '/hofschilder': hof, '/robopaarden': paarden, '/neonduel': neon, '/leraarbaas': baas, '/cybergalaga': galaga, '/bomberknight': bomber, '/rijk': rijk, '/oefenblad': oefenblad, '/proef': proef };
 const online = socketId => !!(socketId && io.sockets.sockets.get(socketId));
@@ -314,7 +314,7 @@ function oudeSpeler(name) {
   return null;
 }
 
-// Wie zit waar? Voor de knop "Namen" op elk docentenscherm. Een spel weet zijn spelers; op het Runenraadsel,
+// Wie zit waar? Voor de knop "Namen" op elk leerkrachtenscherm. Een spel weet zijn spelers; op het Runenraadsel,
 // Mijn burcht, Mijn taken en het startscherm onthoudt de verbinding zelf welke naam erop staat.
 const ZONDER_SPEL = { runen: 'Runenraadsel', ontdek: ontdek.NAAM, burcht: 'Mijn burcht', huisdier: 'Mijn huisdier', taken: 'Mijn taken', solo: 'Taak in een spel', start: 'Wacht op een spel' };
 function hier(socket, naam, waar) {
@@ -459,7 +459,7 @@ function plaatsIn(kind, file, folder) {
   try { LIBS[kind].mod.lib.move(file, folder); } catch {}
 }
 
-// Zonder target: naar alle docentenschermen, en daarna ook naar de lesmap (er werd iets bewaard, verplaatst of verwijderd).
+// Zonder target: naar alle leerkrachtenschermen, en daarna ook naar de lesmap (er werd iets bewaard, verplaatst of verwijderd).
 function sendLibrary(kind, target, fromSync = false) {
   const l = LIBS[kind];
   const to = target || io.to('host');
@@ -538,7 +538,7 @@ function takenSoon() {
   }, 500);
 }
 
-// De ontdekwereld: wie wat oploste, hooguit om de twee seconden naar de docentenschermen.
+// De ontdekwereld: wie wat oploste, hooguit om de twee seconden naar de leerkrachtenschermen.
 let ontdekTimer = null;
 const ontdekBinnen = () => [...io.sockets.sockets.values()].filter(s => !s.data.host && s.data.waar === 'ontdek' && s.data.naam).map(s => s.data.naam);
 function ontdekSoon() {
@@ -549,10 +549,10 @@ function ontdekSoon() {
   }, 2000);
 }
 
-// De docentenschermen, elk bij zijn adres.
+// De leerkrachtenschermen, elk bij zijn adres.
 const PAGINAS = [['/host', 'host.html'], ['/rondetafel', 'rondetafel.html'], ['/toren', 'toren.html'], ['/schattenjacht', 'schattenjacht.html'], ['/laserslag', 'laserslag.html'], ['/ridderrace', 'ridderrace.html'], ['/kristalroof', 'kristalroof.html'], ['/verrader', 'verrader.html'], ['/burchtbouwers', 'burchtbouwers.html'], ['/duel', 'duel.html'], ['/packnight', 'packnight.html'], ['/strijdrossen', 'strijdrossen.html'], ['/gauntlet', 'gauntlet.html'], ['/ridder-royale', 'royale.html'], ['/sterrenvreter', 'sterrenvreter.html'], ['/ridderslang', 'ridderslang.html'], ['/burchtstorm', 'burchtstorm.html'], ['/poortwacht', 'poortwacht.html'], ['/neonvlucht', 'neonvlucht.html'], ['/diepboor', 'diepboor.html'], ['/pixelridder', 'pixelridder.html'], ['/robomol', 'robomol.html'], ['/kerker', 'kerker.html'], ['/hofschilder', 'hofschilder.html'], ['/robopaarden', 'robopaarden.html'], ['/neonduel', 'neonduel.html'], ['/leraarbaas', 'leraarbaas.html'], ['/cybergalaga', 'cybergalaga.html'], ['/bomberknight', 'bomberknight.html'], ['/rijk', 'rijk.html'], ['/oefenblad', 'oefenblad.html'], ['/proef', 'proef.html'], ['/proef-print', 'proef-print.html'], ['/reeks', 'reeks.html'], ['/wapenkamer', 'wapenkamer.html'], ['/kringgesprek', 'kringgesprek.html'], ['/kronieken', 'kronieken.html'], ['/zonnewijzer', 'zonnewijzer.html'], ['/zegelrol', 'zegelrol.html'], ['/zegelrol-print', 'zegelrol-print.html'], ['/postduif', 'postduif.html'], ['/postduif-print', 'postduif-print.html'], ['/oefenblad-print', 'oefenblad-print.html'], ['/klas', 'klas.html'], ['/zorg', 'zorg.html'], ['/taken', 'taken.html'], ['/zorg-fiche', 'zorg-fiche.html'], ['/runenraadsel', 'runenraadsel.html'], ['/ontdek-beheer', 'ontdek-beheer.html'], ['/klaseiland', 'klaseiland.html'], ['/netwerk', 'netwerk.html'], ['/welkom', 'welkom.html'], ['/privacy', 'privacy.html']];
 
-// Het docentenscherm werkt op de pc waar de server draait (meestal het digibord),
+// Het leerkrachtenscherm werkt op de pc waar de server draait (meestal het digibord),
 // en op een tweede scherm dat de leerkracht met een koppelcode koppelde (de bureau-pc).
 function isLocal(address) {
   return ['127.0.0.1', '::1', '::ffff:127.0.0.1'].includes(address);
@@ -761,7 +761,7 @@ function lanAddresses() {
   return lanInterfaces().map(i => i.address);
 }
 
-// Adressen met QR-code voor het docentenscherm. Het eerste is het grote adres op het bord.
+// Adressen met QR-code voor het leerkrachtenscherm. Het eerste is het grote adres op het bord.
 function sendAddresses(target) {
   const list = lanInterfaces();
   const preferred = settings.read().preferredAddress;
@@ -1048,7 +1048,7 @@ io.on('connection', socket => {
     const refreshList = () => sendLibrary('quiz');
     // Mijn klas: de klaslijst, de leerplandoelen en wat het logboek al weet.
     socket.on('klas-get', handle(() => ({ klas: klas.read(), vakgroepen: niveaus.VAKGROEPEN })));
-    // De Wapenkamer: de klastaken (Wachtlijst). Elke wijziging gaat naar alle docentenschermen.
+    // De Wapenkamer: de klastaken (Wachtlijst). Elke wijziging gaat naar alle leerkrachtenschermen.
     socket.on('wk-taken-get', handle(() => ({ data: klastaken.read() })));
     socket.on('wk-taken-zet', handle(arg => {
       const data = klastaken.write(arg || {});
@@ -1056,7 +1056,7 @@ io.on('connection', socket => {
       syncSoon();
       return { data };
     }));
-    // De Klasindeling: het lokaal en de plaatsen. Ook naar de andere docentenschermen.
+    // De Klasindeling: het lokaal en de plaatsen. Ook naar de andere leerkrachtenschermen.
     socket.on('wk-indeling-get', handle(() => ({ data: klasindeling.read() })));
     socket.on('wk-indeling-zet', handle(arg => {
       const data = klasindeling.write(arg || {});
@@ -1787,7 +1787,7 @@ io.on('connection', socket => {
     socket.on('next', () => game.next());
     socket.on('reveal', () => game.reveal());
     socket.on('kick', id => game.kick(id));
-    // De knop "Namen" op elk docentenscherm: wie is er binnen en waar, ook tijdens het spel een verkeerde naam wegklikken.
+    // De knop "Namen" op elk leerkrachtenscherm: wie is er binnen en waar, ook tijdens het spel een verkeerde naam wegklikken.
     socket.on('namen-lijst', (pad, cb) => {
       if (typeof cb !== 'function') return;
       const spel = SPELLEN[pad];
@@ -2211,12 +2211,12 @@ server.once('listening', () => {
   runSync();
   setInterval(runSync, 60 * 1000);
   console.log('\n  LANcelot draait!\n');
-  console.log(`  Docentenscherm:  http://localhost:${PORT}/host`);
+  console.log(`  Leerkrachtenscherm:  http://localhost:${PORT}/host`);
   if (gegevens.DATA !== gegevens.APP) console.log(`  Gegevens:        ${gegevens.DATA}`);
   for (const a of lanAddresses()) console.log(`  Leerlingen:      http://${a}:${PORT}`);
   if (PORT !== EERSTE_POORT) console.log(`\n  Let op: poort ${EERSTE_POORT} is bezet door een ander programma, daarom gebruikt LANcelot nu poort ${PORT}.\n  Leerlingen gebruiken gewoon het adres op het bord. Lukt het niet, druk dan in Instellingen nog eens op "Firewall goed zetten".`);
   console.log('\n  Sluit dit venster om te stoppen.\n');
-  // Start LANcelot.bat vraagt om het docentenscherm te openen zodra de server echt luistert, op de juiste poort.
+  // Start LANcelot.bat vraagt om het leerkrachtenscherm te openen zodra de server echt luistert, op de juiste poort.
   if (process.env.LANCELOT_OPEN && process.platform === 'win32') execFile('cmd', ['/c', 'start', '', `http://localhost:${PORT}/host`], { windowsHide: true });
 });
 function poortBezet(err) {

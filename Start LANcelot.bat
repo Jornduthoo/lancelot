@@ -28,7 +28,7 @@ if errorlevel 1 (
   )
 )
 
-rem LANcelot opent zelf het docentenscherm zodra de server draait, ook als poort 3000 bezet was.
+rem LANcelot opent zelf het leerkrachtenscherm zodra de server draait, ook als poort 3000 bezet was.
 set LANCELOT_OPEN=1
 node server.js
 if errorlevel 1 pause

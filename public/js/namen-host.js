@@ -1,6 +1,6 @@
-// De knop "Namen" op elk docentenscherm: wie is er binnen en waar zit die (welk spel, Runenraadsel, Mijn taken…),
+// De knop "Namen" op elk leerkrachtenscherm: wie is er binnen en waar zit die (welk spel, Runenraadsel, Mijn taken…),
 // wie ontbreekt nog, en een verkeerde naam wegklikken, ook tijdens het spel. De leerling krijgt dan weer het
-// aanmeldscherm en kiest zijn eigen naam. Wordt geladen door ui.js zodra een docentenscherm verbinding maakt.
+// aanmeldscherm en kiest zijn eigen naam. Wordt geladen door ui.js zodra een leerkrachtenscherm verbinding maakt.
 (() => {
   const socket = Ui.hostSocket;
   if (!socket) return;
