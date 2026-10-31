@@ -421,6 +421,29 @@ const WwDraw = (() => {
       g.strokeStyle = 'rgba(255,255,255,.7)'; g.lineWidth = 2;
       for (let i = 0; i < 5; i++) { const a = i * TAU / 5; g.beginPath(); g.moveTo(0, 0); g.lineTo(Math.cos(a) * R * .85, Math.sin(a) * R * .85); g.stroke(); }
       g.fillStyle = '#5ee7ff'; g.beginPath(); g.arc(0, 0, R * .2, 0, TAU); g.fill();
+    } else if (v.stone) {
+      // Stenen wiel: grijze schijf met barsten en een beetje mos
+      const grd = g.createRadialGradient(-R * .3, -R * .3, R * .1, 0, 0, R);
+      grd.addColorStop(0, '#a9abb8'); grd.addColorStop(1, '#5d6070');
+      g.fillStyle = grd;
+      g.beginPath();
+      for (let i = 0; i < 12; i++) { const a = i * TAU / 12, rr = R * (i % 3 ? 1 : .93); g.lineTo(Math.cos(a) * rr, Math.sin(a) * rr); }
+      g.closePath(); g.fill(); g.stroke();
+      g.strokeStyle = 'rgba(30,30,40,.55)'; g.lineWidth = Math.max(1.5, R * .05);
+      g.beginPath(); g.moveTo(-R * .7, -R * .2); g.lineTo(-R * .3, -R * .05); g.lineTo(-R * .2, R * .4); g.moveTo(R * .2, -R * .7); g.lineTo(R * .35, -R * .3); g.lineTo(R * .7, -R * .25); g.stroke();
+      g.fillStyle = '#5f8a4a'; g.beginPath(); g.arc(R * .45, R * .55, R * .16, 0, TAU); g.arc(R * .62, R * .4, R * .1, 0, TAU); g.fill();
+      g.strokeStyle = INK; g.lineWidth = Math.max(2, PX * .04);
+      g.fillStyle = '#3b3f5c'; g.beginPath(); g.arc(0, 0, R * .22, 0, TAU); g.fill(); g.stroke();
+      g.fillStyle = '#5ee7ff'; g.beginPath(); g.arc(0, 0, R * .12, 0, TAU); g.fill();
+    } else if (v.magnet) {
+      // Magneetwiel: rode ring met zilveren polen en een blauwe gloed
+      g.fillStyle = '#d63a4a'; g.beginPath(); g.arc(0, 0, R, 0, TAU); g.fill(); g.stroke();
+      g.fillStyle = '#d9dff0';
+      for (let i = 0; i < 6; i++) { g.save(); g.rotate(i * TAU / 6); g.beginPath(); g.rect(-R * .14, -R, R * .28, R * .26); g.fill(); g.stroke(); g.restore(); }
+      g.fillStyle = '#2a2f45'; g.beginPath(); g.arc(0, 0, R * .62, 0, TAU); g.fill(); g.stroke();
+      const gl = g.createRadialGradient(0, 0, 0, 0, 0, R * .55);
+      gl.addColorStop(0, '#e8fbff'); gl.addColorStop(.4, '#5ee7ff'); gl.addColorStop(1, 'rgba(94,231,255,0)');
+      g.fillStyle = gl; g.beginPath(); g.arc(0, 0, R * .55, 0, TAU); g.fill();
     } else if (v.id === 'reus') {
       g.fillStyle = '#1b1e2c'; g.beginPath(); g.arc(0, 0, R, 0, TAU); g.fill(); g.stroke();
       g.fillStyle = '#2c3048';
@@ -468,6 +491,26 @@ const WwDraw = (() => {
     part('#5a3a20', () => g.rect((L + .15) * u, (boxTop - 1.25) * u, .09 * u, 1.3 * u));
     part(color, () => { const x = (L + .24) * u, y = (boxTop - 1.2) * u; g.moveTo(x, y); g.quadraticCurveTo(x - .4 * u, y + .1 * u, x - .75 * u, y + .02 * u); g.lineTo(x - .6 * u, y + .25 * u); g.lineTo(x - .78 * u, y + .48 * u); g.quadraticCurveTo(x - .4 * u, y + .4 * u, x, y + .45 * u); g.closePath(); });
     part(gold, () => { g.arc((L + .195) * u, (boxTop - 1.3) * u, .08 * u, 0, TAU); });
+    // Drakenvleugels achter de ridder
+    if (v.glide) {
+      for (const [ox, sc, col] of [[-.25, 1.3, '#6a3fb5'], [.15, 1.1, '#8b5cf6']]) {
+        const bx = ox, by = boxTop + .1;
+        part(col, () => { g.moveTo(bx * u, by * u); g.quadraticCurveTo((bx - .4) * u, (by - 1.3 * sc) * u, (bx - 1.6 * sc) * u, (by - 1.5 * sc) * u); g.lineTo((bx - 1.35 * sc) * u, (by - .95 * sc) * u); g.lineTo((bx - 1.6 * sc) * u, (by - .6 * sc) * u); g.lineTo((bx - 1.2 * sc) * u, (by - .4 * sc) * u); g.lineTo((bx - 1.25 * sc) * u, (by - .1 * sc) * u); g.closePath(); });
+        g.strokeStyle = 'rgba(255,201,74,.8)'; g.lineWidth = u * .03;
+        g.beginPath(); g.moveTo(bx * u, by * u); g.lineTo((bx - 1.35 * sc) * u, (by - .95 * sc) * u); g.moveTo(bx * u, by * u); g.lineTo((bx - 1.2 * sc) * u, (by - .4 * sc) * u); g.stroke();
+      }
+    }
+    // Stenen toren waar de ridder bovenop zit
+    if (v.tower) {
+      const tx0 = -.55, tx1 = .45, tt = -hd + .8;
+      const tg = g.createLinearGradient(tx0 * u, 0, tx1 * u, 0);
+      tg.addColorStop(0, '#9a95b0'); tg.addColorStop(1, '#5b5470');
+      part(tg, () => g.rect(tx0 * u, tt * u, (tx1 - tx0) * u, (deck - tt) * u));
+      for (let x = tx0; x < tx1 - .05; x += .34) part(tg, () => g.rect(x * u, (tt - .2) * u, .2 * u, .2 * u));
+      g.strokeStyle = 'rgba(0,0,0,.3)'; g.lineWidth = u * .02;
+      for (let y = tt + .25, i = 0; y < deck; y += .25, i++) { g.beginPath(); g.moveTo(tx0 * u, y * u); g.lineTo(tx1 * u, y * u); for (let x = tx0 + (i % 2 ? .15 : .3); x < tx1; x += .3) { g.moveTo(x * u, y * u); g.lineTo(x * u, (y - .25) * u); } g.stroke(); }
+      g.fillStyle = '#5ee7ff'; g.fillRect(-.12 * u, (tt + .35) * u, .14 * u, .28 * u);
+    }
     // Veren tussen de as en de bak
     if (v.id === 'veer' || v.id === 'reus') {
       g.strokeStyle = v.id === 'veer' ? '#ff6bd6' : '#8d97b8'; g.lineWidth = u * .07;
@@ -479,7 +522,7 @@ const WwDraw = (() => {
     }
     // De ridder (achter de rand van de bak): romp, schouder, helm met vizier en een pluim in de kleur van de speler
     const kx = v.id === 'ros' ? 0 : -.1;
-    const seat = v.id === 'ros' ? -.55 : boxTop + .25;
+    const seat = v.id === 'ros' ? -.55 : v.tower ? -hd + .85 : boxTop + .25;
     part(steel(g, (kx - .3) * u, (kx + .3) * u), () => { g.moveTo((kx - .27) * u, seat * u); g.lineTo((kx + .27) * u, seat * u); g.lineTo((kx + .25) * u, (-hd + .35) * u); g.lineTo((kx - .25) * u, (-hd + .35) * u); g.closePath(); });
     part(color, () => g.rect((kx - .05) * u, (-hd + .45) * u, .22 * u, (seat + hd - .55) * u));
     part(steel(g, kx * u, (kx + .5) * u), () => g.rect((kx + .05) * u, (-hd + .55) * u, .45 * u, .14 * u));
@@ -513,7 +556,7 @@ const WwDraw = (() => {
       part('#2a2f45', () => g.rect((R - .4) * u, (boxTop + .15) * u, .9 * u, .16 * u));
     } else {
       // Houten kist met ijzerbeslag (zoals op het icoon); het ijs-, raket- en koetsmodel met een eigen versiering
-      const wood = v.ice ? '#8fc9e8' : v.id === 'raket' ? '#7a4e2a' : '#8a5a30';
+      const wood = v.ice ? '#8fc9e8' : v.mini ? '#c8323c' : v.stone ? '#7d7f90' : v.magnet ? '#4c5a8a' : v.id === 'raket' ? '#7a4e2a' : '#8a5a30';
       const grd = g.createLinearGradient(0, boxTop * u, 0, deck * u);
       grd.addColorStop(0, shade(wood, 1.25)); grd.addColorStop(1, shade(wood, .7));
       part(grd, () => { g.moveTo(L * u, boxTop * u); g.lineTo(R * u, boxTop * u); g.lineTo((R - .1) * u, deck * u); g.lineTo((L + .1) * u, deck * u); g.closePath(); });
@@ -526,6 +569,20 @@ const WwDraw = (() => {
       if (v.ice) {
         g.fillStyle = 'rgba(230,250,255,.9)';
         for (let x = L + .1; x < R - .1; x += .3) { g.beginPath(); g.moveTo(x * u, deck * u); g.lineTo((x + .07) * u, (deck + .22) * u); g.lineTo((x + .14) * u, deck * u); g.fill(); }
+      }
+      if (v.mini) {
+        // Paddenstoelstippen
+        g.fillStyle = '#fff4e0';
+        for (const [x, y, rr] of [[L + .3, boxTop + .3, .1], [(L + R) / 2 + .12, boxTop + .5, .08], [R - .35, boxTop + .28, .07]]) { g.beginPath(); g.arc(x * u, y * u, rr * u, 0, TAU); g.fill(); }
+      }
+      if (v.magnet) {
+        // Grote hoefijzermagneet vooraan
+        g.lineWidth = u * .2; g.lineCap = 'butt';
+        g.strokeStyle = INK; g.beginPath(); g.arc((R + .05) * u, (boxTop + .35) * u, .32 * u, -Math.PI / 2, Math.PI / 2); g.stroke();
+        g.lineWidth = u * .13; g.strokeStyle = '#d63a4a'; g.beginPath(); g.arc((R + .05) * u, (boxTop + .35) * u, .32 * u, -Math.PI / 2, Math.PI / 2); g.stroke();
+        g.lineCap = 'round';
+        part('#d9dff0', () => g.rect((R - .2) * u, (boxTop - .04) * u, .25 * u, .14 * u));
+        part('#d9dff0', () => g.rect((R - .2) * u, (boxTop + .6) * u, .25 * u, .14 * u));
       }
       if (v.id === 'koets') {
         // Drakenkop vooraan

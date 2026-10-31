@@ -229,7 +229,7 @@ Iedereen laat op zijn eigen scherm een **gloeiend zwaard** salto's maken door de
 Iedereen rijdt op zijn eigen scherm met een **ridderkar** door dezelfde wiebelbaan: schansen over lava, wiebelbruggen die doorzakken, wippen, ophaalbruggen die op en neer gaan, stekels, bulten, trappen en zwaaiende stekelballen. Elke drie vlaggen een nieuwe wereld (Burchtwallen, Kristalgrot, Sterrenbrug). De anderen zie je als schimmen; het bord volgt de koploper.
 
 - Raakt het hoofd van je ridder de grond, val je in een put of blijf je op je kop liggen, dan begin je opnieuw bij de laatste vlag (geen strafpunten, wel tijd kwijt).
-- **Elke vlag is een vraag én een andere kar**, elk met een eigen moeilijkheid: Ridderkar, Reuzenwielen, IJswielen, Motorros, Vierkante wielen, Springveren, Maanwagen, Burchttank, Lange koets en Raketkar. De baan past zich aan de kar aan (een tragere kar krijgt kortere sprongen).
+- **Elke vlag is een vraag én een andere kar**, elk met een eigen moeilijkheid: 15 karren: Ridderkar, Reuzenwielen, IJswielen, Kabouterkar, Motorros, Vierkante wielen, Stenen wielen, Springveren, Maanwagen, Drakenvleugels (zweven met gas), Burchttank, Torenkar, Lange koets, Magneetwielen (plakken aan de baan) en Raketkar. De baan past zich aan de kar aan (een tragere kar krijgt kortere sprongen).
 - Juist antwoord: ⚡ turbo. Fout: die vraag komt later terug.
 - Punten: 100 per vlag plus extra als je de etappe snel reed, 10 per munt, punten per juist antwoord.
 - Chromebook: → of ↑ gas, ← of ↓ rem (in de lucht kantel je de kar ermee), R = terug naar de vlag, 1-4 antwoorden. Gsm: twee grote pedalen. Elk antwoord komt in het logboek. Resultaten in `resultaten/`.
