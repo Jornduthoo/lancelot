@@ -141,6 +141,21 @@ class Splijtzwaard {
     return { ok: true, points };
   }
 
+  // De punt zit vast in hout op plek x: punten, maar alleen als je vooruit bent gegaan (niet ter plaatse blijven tikken).
+  stick(playerId, x) {
+    const p = this.players.get(playerId);
+    if (!p || this.phase !== 'play' || !Number.isFinite(x)) return {};
+    const now = Date.now();
+    if (x < (p.lastStick || 0) + 1 || x > (p.stage + 1) * World.L + 6 || now - (p.stickAt || 0) < 300) return {};
+    p.lastStick = x;
+    p.stickAt = now;
+    p.sticks = (p.sticks || 0) + 1;
+    const points = World.POINTS.vast * (now < p.goldUntil ? 2 : 1);
+    p.pts += points;
+    p.dirty = true;
+    return { ok: true, points };
+  }
+
   // Over de vlag van etappe k: punten, sneller = meer. Daarna komt de vraag.
   flag(playerId, k) {
     const p = this.players.get(playerId);
@@ -336,6 +351,7 @@ class Splijtzwaard {
     on('sz-pos', (id, m) => this.pos(id, m || {}));
     on('sz-fall', id => this.fall(id));
     on('sz-snij', (id, c) => this.slice(id, c));
+    on('sz-vast', (id, x) => this.stick(id, Number(x)));
     on('sz-flag', (id, k) => this.flag(id, Number(k)));
     on('sz-asking', (id, v) => this.asking(id, v));
     on('sz-question', id => guard.question(id));
