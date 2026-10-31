@@ -11,6 +11,83 @@ const WwDraw = (() => {
   function hexRgb(hex) { const n = parseInt(hex.slice(1), 16); return [n >> 16, (n >> 8) & 255, n & 255]; }
   function shade(hex, f) { const [r, g, b] = hexRgb(hex); const c = v => Math.max(0, Math.min(255, Math.round(v * f))); return `rgb(${c(r)},${c(g)},${c(b)})`; }
 
+  // ---------- Jorns geschilderde beelden (public/img/wankelwagen/) ----------
+  // Is een beeld er (nog) niet, dan tekenen we dat stuk zelf zoals vroeger.
+  const ART = {};
+  const ART_NAMEN = ['kar', 'ridder', 'toren', 'tank', 'koets', 'ros', 'raket', 'vleugel', 'plank', 'vlag', 'stekelbal', 'stekels', 'baansteen',
+    'wiel', 'wiel-reus', 'wiel-ijs', 'wiel-vierkant', 'wiel-steen', 'wiel-magneet', 'wiel-maan',
+    'lucht-burchtwallen', 'lucht-kristalgrot', 'lucht-sterrenbrug'];
+  if (typeof Image !== 'undefined') {
+    for (const n of ART_NAMEN) {
+      const img = new Image();
+      img.onload = () => {
+        ART[n] = img;
+        // Alles wat uit dit beeld gebakken werd, opnieuw bakken.
+        bodyCache.clear(); wheelCache.clear(); patCache.clear(); backCache.clear();
+      };
+      img.src = `/img/wankelwagen/${n}.webp`;
+    }
+  }
+  function rgbHsl(r, g, b) {
+    r /= 255; g /= 255; b /= 255;
+    const mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 2;
+    if (mx === mn) return [0, 0, l];
+    const d = mx - mn, s = l > .5 ? d / (2 - mx - mn) : d / (mx + mn);
+    const h = mx === r ? (g - b) / d + (g < b ? 6 : 0) : mx === g ? (b - r) / d + 2 : (r - g) / d + 4;
+    return [h * 60, s, l];
+  }
+  function hslRgb(h, s, l) {
+    const k = n => (n + h / 30) % 12, a = s * Math.min(l, 1 - l);
+    const f = n => l - a * Math.max(-1, Math.min(k(n) - 3, 9 - k(n), 1));
+    return [f(0) * 255, f(8) * 255, f(4) * 255];
+  }
+  // De blauwe delen (pluim, cape, vaantje) krijgen de kleur van de speler. Het cyaan vizier blijft cyaan.
+  function tint(c, color) {
+    const g = c.getContext('2d');
+    const data = g.getImageData(0, 0, c.width, c.height), p = data.data;
+    const [th, ts, tl] = rgbHsl(...hexRgb(color));
+    for (let i = 0; i < p.length; i += 4) {
+      if (p[i + 3] < 8) continue;
+      const [h, sat, l] = rgbHsl(p[i], p[i + 1], p[i + 2]);
+      if (h < 205 || h > 258 || sat < .38) continue;
+      const [r, gg, b] = hslRgb(th, Math.max(sat, ts * .85), Math.min(.85, l * (.75 + tl * .6)));
+      p[i] = r; p[i + 1] = gg; p[i + 2] = b;
+    }
+    g.putImageData(data, 0, 0);
+  }
+
+  // De achtergrond van een wereld: Jorns schilderij, één keer geschaald op de schermhoogte,
+  // en daarnaast gespiegeld, zodat hij naadloos eindeloos doorschuift.
+  const backCache = new Map();
+  const BACK = { Burchtwallen: 'lucht-burchtwallen', Kristalgrot: 'lucht-kristalgrot', Sterrenbrug: 'lucht-sterrenbrug' };
+  function backdrop(theme, h) {
+    const img = ART[BACK[theme.name]];
+    if (!img) return null;
+    const H = Math.min(1400, Math.round(h * 1.12));
+    const key = theme.name + ':' + H;
+    let b = backCache.get(key);
+    if (b) return b;
+    if (backCache.size > 4) backCache.clear();
+    const w = Math.round(img.width * H / img.height);
+    const c = mk(w * 2, H), g = c.getContext('2d');
+    g.drawImage(img, 0, 0, w, H);
+    g.save(); g.translate(w * 2, 0); g.scale(-1, 1); g.drawImage(img, 0, 0, w, H); g.restore();
+    // De kleur onderaan het schilderij vult alles daaronder.
+    const px = g.getImageData(w, H - 2, 1, 1).data;
+    b = { c, bottom: `rgb(${px[0]},${px[1]},${px[2]})` };
+    backCache.set(key, b);
+    return b;
+  }
+  function drawBack(ctx, b, w, h, v, S, alpha) {
+    ctx.globalAlpha = alpha;
+    const bw = b.c.width;
+    const off = -((v.cx * S * .08) % bw + bw) % bw;
+    const dy = Math.min(0, Math.round(Math.max(-h * .1, Math.min(h * .08, .1 * (W.BASE - 3 - v.cy) * S)) - h * .06));
+    ctx.fillStyle = b.bottom; ctx.fillRect(0, dy + b.c.height - 2, w, h);
+    for (let x = off; x < w; x += bw) ctx.drawImage(b.c, Math.round(x), dy);
+    ctx.globalAlpha = 1;
+  }
+
   // ---------- Lucht en verre lagen ----------
   const skyCache = new Map();
   function sky(theme, w, h) {
@@ -133,11 +210,20 @@ const WwDraw = (() => {
     let p = patCache.get(theme.name);
     if (p) return p;
     const hM = W.BOTTOM - PAT_TOP;
-    const c = mk(128, hM * 64);
+    const tex = ART.baansteen;
+    // Jorns geschilderde muur: één tegel is 5 meter breed, een beetje in de kleur van de wereld.
+    const TW = tex ? 320 : 128;
+    const c = mk(TW, hM * 64);
     const g = c.getContext('2d');
-    g.fillStyle = theme.earth; g.fillRect(0, 0, 128, c.height);
+    g.fillStyle = theme.earth; g.fillRect(0, 0, TW, c.height);
     const r = W.rng(theme.name.length * 7);
-    for (let row = 0; row < hM * 2; row++) {
+    if (tex) {
+      for (let y = 0; y < c.height; y += TW) g.drawImage(tex, 0, y, TW, TW);
+      g.globalCompositeOperation = 'color';
+      g.globalAlpha = theme.name === 'Sterrenbrug' ? .15 : .4;
+      g.fillStyle = theme.stone; g.fillRect(0, 0, TW, c.height);
+      g.globalCompositeOperation = 'source-over'; g.globalAlpha = 1;
+    } else for (let row = 0; row < hM * 2; row++) {
       for (let i = -1; i < 3; i++) {
         const x = i * 52 + (row % 2 ? 26 : 0) + r() * 4, y = row * 32;
         const f = .85 + r() * .35;
@@ -151,7 +237,7 @@ const WwDraw = (() => {
     const y0 = (W.BASE - 2.5 - PAT_TOP) * 64, y1 = (W.BASE + 6 - PAT_TOP) * 64;
     const dark = g.createLinearGradient(0, y0, 0, y1);
     dark.addColorStop(0, 'rgba(5,6,16,0)'); dark.addColorStop(.3, 'rgba(5,6,16,.25)'); dark.addColorStop(1, 'rgba(5,6,16,.92)');
-    g.fillStyle = dark; g.fillRect(0, y0, 128, c.height - y0);
+    g.fillStyle = dark; g.fillRect(0, y0, TW, c.height - y0);
     p = ctx.createPattern(c, 'repeat');
     if (p.setTransform && typeof DOMMatrix !== 'undefined') p.setTransform(new DOMMatrix().translate(0, PAT_TOP).scale(1 / 64));
     patCache.set(theme.name, p);
@@ -233,6 +319,7 @@ const WwDraw = (() => {
       ctx.translate(X((ax + bx) / 2), Y((ay + by) / 2));
       ctx.rotate(Math.atan2(by - ay, bx - ax));
       const pw = Math.hypot(bx - ax, by - ay) * S * .92, ph = S * .22;
+      if (ART.plank) { ctx.drawImage(ART.plank, -pw / 2, -ph * .2, pw, ph * 1.5); ctx.restore(); continue; }
       ctx.fillStyle = i % 2 ? '#a06a3a' : '#8a5a30';
       ctx.fillRect(-pw / 2, 0, pw, ph);
       ctx.fillStyle = 'rgba(255,220,160,.35)';
@@ -254,6 +341,13 @@ const WwDraw = (() => {
     ctx.translate(ax, ay);
     ctx.rotate(Math.atan2(by - ay, bx - ax));
     const len = Math.hypot(bx - ax, by - ay), th = S * .3;
+    if (ART.plank) {
+      // Jorns plank: per stuk van ongeveer 3 meter, zodat het hout niet uitrekt.
+      const n = Math.max(1, Math.round(len / (S * 3))), pw = len / n;
+      for (let i = 0; i < n; i++) ctx.drawImage(ART.plank, i * pw, -th * .15, pw + 1, th * 1.4);
+      ctx.restore();
+      return;
+    }
     ctx.fillStyle = color;
     ctx.fillRect(0, 0, len, th);
     ctx.fillStyle = 'rgba(255,220,160,.3)';
@@ -299,8 +393,17 @@ const WwDraw = (() => {
     ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(X(ex), Y(ey)); ctx.stroke();
     ctx.setLineDash([]);
     const R = hm.R * S, cx = X(ex), cy = Y(ey);
-    // Stekels rondom
     const a0 = W.hammerAngle(hm, t) * 2;
+    if (ART.stekelbal) {
+      glow(ctx, cx, cy, R * 1.8, '#ff6a2a', .25);
+      ctx.save(); ctx.translate(cx, cy); ctx.rotate(a0);
+      ctx.drawImage(ART.stekelbal, -R * 1.6, -R * 1.6, R * 3.2, R * 3.2);
+      ctx.restore();
+      ctx.fillStyle = '#ffc94a'; ctx.strokeStyle = INK; ctx.lineWidth = Math.max(1, S * .04);
+      ctx.beginPath(); ctx.arc(px, py, S * .16, 0, TAU); ctx.fill(); ctx.stroke();
+      return;
+    }
+    // Stekels rondom
     ctx.fillStyle = '#ffc94a'; ctx.strokeStyle = INK; ctx.lineWidth = Math.max(1, S * .04);
     for (let i = 0; i < 8; i++) {
       const a = a0 + i * TAU / 8;
@@ -330,6 +433,12 @@ const WwDraw = (() => {
   function spikes(ctx, s, X, Y, S) {
     const n = Math.max(1, Math.round(s.w / .45));
     const step = s.w * S / n, sx = X(s.x), sy = Y(s.y);
+    if (ART.stekels) {
+      // Eén rij geschilderde stekels per 2 meter.
+      const m = Math.max(1, Math.round(s.w / 2)), pw = s.w * S / m, ph = S * .8;
+      for (let i = 0; i < m; i++) ctx.drawImage(ART.stekels, sx + i * pw, sy - ph * .9, pw, ph);
+      return;
+    }
     for (let i = 0; i < n; i++) {
       const x = sx + i * step;
       const grd = ctx.createLinearGradient(x, 0, x + step, 0);
@@ -354,6 +463,23 @@ const WwDraw = (() => {
 
   function flag(ctx, k, sx, sy, S, t, passed) {
     const col = passed ? '#4ade80' : '#ffc94a';
+    if (ART.vlag) {
+      // Jorns vlag met runensteen; het nummer zweeft in een gouden (of groene) bol boven de paal.
+      const img = ART.vlag, hh = S * 3.9, ww = img.width * hh / img.height;
+      const px = sx - ww * .24;
+      glow(ctx, sx + ww * .45, sy - S * .7, S * 1.4, passed ? '#4ade80' : '#5ee7ff', passed ? .7 : .5);
+      const wave = 1 + Math.sin(t * 3.5 + k) * .03;
+      ctx.drawImage(img, px, sy - hh * wave, ww, hh * wave);
+      const bx = sx, by = sy - hh - S * .55;
+      glow(ctx, bx, by, S * .9, col, .7);
+      ctx.fillStyle = col; ctx.strokeStyle = INK; ctx.lineWidth = Math.max(1, S * .05);
+      ctx.beginPath(); ctx.arc(bx, by, S * .38, 0, TAU); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = '#1a1030';
+      ctx.font = `900 ${Math.round(S * .46)}px Orbitron, sans-serif`;
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(String(k), bx, by + S * .02);
+      return;
+    }
     glow(ctx, sx + S * .7, sy - S * 2.8, S * 2.2, col, passed ? .3 : .6);
     ctx.strokeStyle = INK; ctx.lineWidth = Math.max(1, S * .05);
     ctx.fillStyle = '#c9a54a';
@@ -400,6 +526,16 @@ const WwDraw = (() => {
     c = mk(R * 2 + 8, R * 2 + 8);
     const g = c.getContext('2d');
     g.translate(c.width / 2, c.height / 2);
+    const naam = v.square ? 'wiel-vierkant' : v.ice ? 'wiel-ijs' : v.stone ? 'wiel-steen' : v.magnet ? 'wiel-magneet' : v.id === 'reus' ? 'wiel-reus' : v.id === 'maan' ? 'wiel-maan' : 'wiel';
+    const img = ART[naam];
+    if (img) {
+      // Jorns geschilderde wielen. De schuin geschilderde (reuzenband, steen, maan) draaien niet mee, anders wiebelen ze.
+      const s = (v.square ? 1.84 : 2.04) * R / Math.max(img.width, img.height);
+      g.drawImage(img, -img.width * s / 2, -img.height * s / 2, img.width * s, img.height * s);
+      c.still = naam === 'wiel-reus' || naam === 'wiel-steen' || naam === 'wiel-maan';
+      wheelCache.set(v.id, c);
+      return c;
+    }
     g.lineWidth = Math.max(2, PX * .05); g.strokeStyle = INK;
     if (v.square) {
       const s = R * .92;
@@ -469,10 +605,67 @@ const WwDraw = (() => {
 
   // De bak met de ridder erin, in het assenstelsel van de kar: de as ligt op y = 0, x van -D/2 tot D/2, omhoog is -y.
   const bodyCache = new Map();
+  // Met Jorns beelden: de kar met de ridder erin, of een eigen bak (toren, tank, drakenboot, robotros) met de ridder erbij.
+  // Alles in meter, in hetzelfde assenstelsel als hieronder. De blauwe delen kleuren we daarna in de kleur van de speler.
+  function paintedBody(v, color) {
+    const u = PX;
+    const halfW = v.D / 2 + 2.4, top = v.head + 2, bottom = 1.3;
+    const c = mk(halfW * 2 * u, (top + bottom) * u);
+    c.ox = halfW * u; c.oy = top * u;
+    const g = c.getContext('2d');
+    g.translate(c.ox, c.oy);
+    const put = (img, x, y, w, h) => g.drawImage(img, x * u, y * u, w * u, h * u);
+    // De ridder (met vaantje) zo groot dat zijn helm `helm` meter breed is, helmmidden op (hx, hy).
+    const knight = (hx, hy, helm) => {
+      const r = ART.ridder; if (!r) return;
+      const m = 175 / helm;
+      put(r, hx - 312 / m, hy - 152.5 / m, r.width / m, r.height / m);
+    };
+    const deck = -(v.id === 'reus' || v.id === 'veer' ? .55 : .12), rail = deck + .12;
+    if (v.tower && ART.toren) {
+      if (ART.plank) put(ART.plank, -v.D / 2 - .45, -.3, v.D + .9, .42);
+      const t = ART.toren, m = 415 / (v.head - .15), w = t.width / m, h = t.height / m;
+      put(t, -w * .55, -.15 - h, w, h);
+    } else if (v.tracks && ART.tank) {
+      const t = ART.tank, w = v.D + .2, h = w * t.height / t.width;
+      knight(.25, v.r + .05 - h - .2, .55);
+      put(t, -w / 2, v.r + .05 - h, w, h);
+      c.ownWheels = true;
+    } else if (v.id === 'koets' && ART.koets) {
+      const t = ART.koets, w = v.D, h = w * t.height / t.width;
+      knight(-.2, -1.85, .7);
+      put(t, -w / 2 - .1, .2 - h, w, h);
+    } else if (v.id === 'ros' && ART.ros) {
+      const t = ART.ros, w = 2.4, h = w * t.height / t.width;
+      knight(-.15, -1.45, .58);
+      put(t, -w / 2, .3 - h, w, h);
+    } else {
+      // Op veren (reuzenwielen, springveren) staat de bak hoger: de ridder steekt dan wat boven zijn hoofdhoogte uit.
+      const k = ART.kar, m = 370 / Math.max(v.head + rail, v.head * .9), w = k.width / m, h = k.height / m;
+      if (v.glide && ART.vleugel) { const f = ART.vleugel; put(f, -2.1, -v.head - .3, 1.9, 1.9 * f.height / f.width); }
+      if (v.rocket && ART.raket) { const f = ART.raket, fw = 1.8; put(f, -v.D / 2 - 1.35, -.95, fw, fw * f.height / f.width); }
+      if (v.id === 'veer' || v.id === 'reus') {
+        g.strokeStyle = v.id === 'veer' ? '#ff6bd6' : '#8d97b8'; g.lineWidth = u * .07;
+        for (const ax of [-v.D / 2, v.D / 2]) {
+          g.beginPath();
+          for (let i = 0; i <= 8; i++) g.lineTo((ax + (i % 2 ? .14 : -.14)) * u, deck * u * i / 8);
+          g.stroke();
+        }
+      }
+      put(k, -422 / m, rail - 522.5 / m, w, h);
+    }
+    tint(c, color);
+    return c;
+  }
   function bodySprite(v, color) {
     const key = v.id + color;
     let c = bodyCache.get(key);
     if (c) return c;
+    if (ART.kar) {
+      c = paintedBody(v, color);
+      bodyCache.set(key, c);
+      return c;
+    }
     const u = PX;
     const halfW = v.D / 2 + 1.3, top = v.head + 1.6, bottom = .8;
     c = mk(halfW * 2 * u, (top + bottom) * u);
@@ -626,7 +819,7 @@ const WwDraw = (() => {
     // Rupsband om de wielen van de tank
     const ws = wheelSprite(v);
     const wr = ws.width / 2 * k;
-    if (v.tracks) {
+    if (v.tracks && !body.ownWheels) {
       ctx.fillStyle = '#1b1e2c'; ctx.strokeStyle = INK; ctx.lineWidth = Math.max(1, S * .05);
       const R = (v.r + .08) * S;
       ctx.beginPath();
@@ -639,10 +832,10 @@ const WwDraw = (() => {
       ctx.setLineDash([]);
       for (let i = 1; i < 3; i++) { ctx.save(); ctx.translate((-v.D / 2 + v.D * i / 3) * S, 0); ctx.rotate(o.rb || 0); ctx.drawImage(ws, -wr * .7, -wr * .7, wr * 1.4, wr * 1.4); ctx.restore(); }
     }
-    for (const [x, rot] of [[-v.D / 2, o.rb || 0], [v.D / 2, o.rf || 0]]) {
+    if (!body.ownWheels) for (const [x, rot] of [[-v.D / 2, o.rb || 0], [v.D / 2, o.rf || 0]]) {
       ctx.save();
       ctx.translate(x * S, 0);
-      ctx.rotate(rot);
+      if (!ws.still) ctx.rotate(rot);
       ctx.drawImage(ws, -wr, -wr, wr * 2, wr * 2);
       ctx.restore();
     }
@@ -676,15 +869,20 @@ const WwDraw = (() => {
     const Y = y => (y - v.cy) * S + h / 2;
     const kc = Math.max(0, Math.floor(v.cx / W.L));
     const theme = W.themeOf(kc);
-    ctx.drawImage(sky(theme, w, h), 0, 0);
     const nextTheme = W.themeOf(kc + 1);
     let fade = 0;
-    if (nextTheme !== theme) {
-      fade = Math.max(0, Math.min(1, (v.cx - (kc + 1) * W.L + 14) / 14));
+    if (nextTheme !== theme) fade = Math.max(0, Math.min(1, (v.cx - (kc + 1) * W.L + 14) / 14));
+    const th = fade > .5 ? nextTheme : theme;
+    const back = backdrop(theme, h), backNext = fade > 0 ? backdrop(nextTheme, h) : null;
+    if (back && (!fade || backNext)) {
+      // Jorns geschilderde wereld: geen getekende lucht of verre burchten meer nodig.
+      drawBack(ctx, back, w, h, v, S, 1);
+      if (fade > 0) drawBack(ctx, backNext, w, h, v, S, fade);
+    } else {
+      ctx.drawImage(sky(theme, w, h), 0, 0);
       if (fade > 0) { ctx.globalAlpha = fade; ctx.drawImage(sky(nextTheme, w, h), 0, 0); ctx.globalAlpha = 1; }
     }
-    const th = fade > .5 ? nextTheme : theme;
-    for (const depth of [0, 1]) {
+    if (!back) for (const depth of [0, 1]) {
       const img = layer(th, h, depth);
       const par = depth ? .3 : .1;
       const off = -((v.cx * S * par) % img.width + img.width) % img.width;
