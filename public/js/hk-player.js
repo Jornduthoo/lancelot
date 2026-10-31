@@ -20,7 +20,7 @@
     <p class="title" id="hk-lobby-name"></p>
     <p>Slinger met je <strong>plasmahaak</strong> van kristalanker naar kristalanker. <strong>Ingedrukt houden</strong> = de haak grijpt en je zwaait. <strong>Loslaten</strong> = je vliegt.</p>
     <p><strong>Elke vlag is een vraag.</strong> Juist: 🪝 gouden haak (verder grijpen en harder zwaaien). Salto's in de lucht en kristallen geven extra punten.</p>
-    <p class="muted small">Pas op voor de lasers en val niet in de afgrond. Val je, dan begin je opnieuw bij de laatste vlag.</p>
+    <p class="muted small">Val je in de afgrond, dan hang je meteen terug aan je laatste anker. Druk en slinger verder.</p>
     <p class="muted small ls-hint-touch">Tik en houd je vinger op het scherm.</p>
     <p class="muted small ls-hint-keys">Spatie ingedrukt houden (of klikken en vasthouden) · 1-4 antwoorden.</p>
     <div class="spinner"></div>
@@ -84,7 +84,15 @@
 
   function respawn(k) {
     const s = W.spawnOf(k);
-    Object.assign(g.pl, { x: s.x, y: s.y, vx: 0, vy: 0, ground: true, hook: null, len: 0, rot: 0, spin: 0, dead: 0, safe: 1.2 });
+    g.check = null;
+    Object.assign(g.pl, { x: s.x, y: s.y, vx: 0, vy: 0, ground: true, hook: null, len: 0, rot: 0, spin: 0, dead: 0, safe: 1.2, wait: false });
+    g.cam = null;
+  }
+  // Na een val: je hangt stil onder je laatste anker en slingert verder zodra je drukt.
+  function comeBack() {
+    const a = g.check;
+    if (!a) return respawn(g.stage);
+    Object.assign(g.pl, { x: a.x - 2.4, y: a.y + 3.6, vx: 0, vy: 0, ground: false, hook: null, len: 0, rot: 0, spin: 0, dead: 0, safe: 1.2, wait: true, regrab: 0, lastA: null });
     g.cam = null;
   }
 
@@ -99,6 +107,7 @@
       g.joined = false;
       g.me = null;
       g.pl = fresh();
+      g.check = null;
       g.stage = 0;
       g.stageT = 0;
       g.saltos = 0;
@@ -292,7 +301,7 @@
     clearTimeout(bannerTimer);
     bannerTimer = setTimeout(() => el.classList.remove('show'), 1700);
   }
-  const OUCH = { afgrond: 'In de afgrond! Terug naar de vlag.', laser: 'Geraakt door een laser! Terug naar de vlag.' };
+  const OUCH = { afgrond: 'Gevallen! Druk en slinger verder.' };
 
   // ---------- Elke frame ----------
   const canvas = $('hk-canvas');
@@ -321,7 +330,7 @@
     if (playing() && !quiz.open) {
       if (pl.dead > 0) {
         pl.dead -= dt;
-        if (pl.dead <= 0) respawn(g.stage);
+        if (pl.dead <= 0) comeBack();
       } else {
         g.stageT += dt;
         pl.gold = Math.max(0, pl.gold - dt);
@@ -338,6 +347,7 @@
           if (h && (pl.safe <= 0 || h === 'afgrond')) hit = h;
         }
         if (grabbed && pl.hook) {
+          if (!pl.hook.mv) g.check = { x: pl.hook.x, y: pl.hook.y };
           sfx.marker();
           buzz(15);
           if (++g.grabs >= 2) $('hk-tip').classList.add('weg');

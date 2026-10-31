@@ -1,6 +1,6 @@
 // Haakridder: iedereen slingert op zijn eigen scherm met een plasmahaak door dezelfde zwevende burcht.
-// Eén knop: ingedrukt = de haak grijpt het dichtste kristalanker en je zwaait, loslaten = je vliegt. Laserpoorten,
-// knipperlasers en stuiterkussens onderweg; onderaan wacht de afgrond. Val je, dan begin je opnieuw bij de laatste vlag.
+// Eén knop: ingedrukt = de haak grijpt het dichtste kristalanker en je zwaait, loslaten = je vliegt. Bewegende
+// ankers en stuiterkussens onderweg; onderaan wacht de afgrond. Val je, dan hang je terug aan je laatste anker.
 // Elke vlag is een vraag. Juist: 🪝 gouden haak (verder grijpen, harder zwaaien) en punten. Fout: even wachten, die vraag komt later terug.
 // Snel zijn loont: hoe sneller je een etappe vliegt, hoe meer punten de vlag geeft.
 // De leerling vliegt zelf (geen vertraging); de server controleert de vlaggen, de kristallen en de salto's en houdt de stand bij.

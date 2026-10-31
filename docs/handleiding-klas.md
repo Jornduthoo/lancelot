@@ -245,7 +245,7 @@ Tip: een klas die goed en vlot antwoordt, houdt de poort. Bij veel foute antwoor
 1. Kies **De Arena** en dan **Haakridder**, kies de speeltijd en klik op de quiz. Klik op **Slingeren maar!**
 2. Leerlingen houden spatie of hun vinger ingedrukt: de haak grijpt het anker met de ring en ze zwaaien. Loslaten = vliegen.
 3. Elke vlag is een vraag. Juist: een gouden haak die verder grijpt en harder zwaait.
-4. Wie valt, begint opnieuw bij de laatste vlag. Het bord volgt de koploper.
+4. Wie valt, hangt meteen terug aan zijn laatste anker en slingert verder. Het bord volgt de koploper.
 
 ## Tuimelridder
 

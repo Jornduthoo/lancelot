@@ -256,7 +256,7 @@ Elke leerling graaft op zijn eigen scherm door een **neonhooiberg** in een scifi
 Iedereen slingert op zijn eigen scherm met een **plasmahaak** door dezelfde zwevende burcht boven de afgrond. **Eén knop**: ingedrukt houden = de haak grijpt het dichtste kristalanker voor je (dat anker krijgt een ring) en je zwaait; loslaten = je vliegt verder. Op een vlageiland spring je eerst op.
 
 - **Elke vlag is een vraag.** Juist: 🪝 gouden haak (10 seconden verder grijpen en harder zwaaien). Fout: even wachten, die vraag komt later terug.
-- Onderweg: laserpoorten (laat los op het juiste moment en vlieg door het gat), knipperlasers, bewegende ankers en stuiterkussens. De haak gaat niet door een laser. Val je in de afgrond of raak je een laser, dan begin je opnieuw bij de laatste vlag.
+- Onderweg: bewegende ankers en stuiterkussens. Geen lasers: het spel is vergevingsgezind. Laat je te laat los, dan vlieg je toch vooruit; val je, dan grijpt de haak ook een anker net achter je. Val je in de afgrond, dan hang je meteen terug aan je laatste anker.
 - Punten: elke vlag (sneller = meer), 🤸 salto's in de lucht (5), kristallen (10) en juiste antwoorden. Elke drie vlaggen een andere wereld.
 - Het bord volgt de koploper, met bovenaan een strook met alle vlaggen en waar iedereen is.
 - Chromebook: spatie (of klikken) ingedrukt houden, 1-4 antwoorden. Gsm: vinger op het scherm houden. Elk antwoord komt in het logboek. Resultaten in `resultaten/`. Ook als taak (alleen in een spel).
