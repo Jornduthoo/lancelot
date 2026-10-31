@@ -377,7 +377,8 @@
         const hit = W.step(g.state.seed, c, keys, dt, time, g.turbo > 0);
         const P = W.pose(c);
         // Op je kop blijven liggen telt ook als crash.
-        if ((P.ny > .15 || Math.abs(P.a) > 1.1) && Math.abs(c.speed) < 2) g.upside += dt; else g.upside = 0;
+        // Op je kop of rechtop op de grond blijven staan: na even wachten terug naar de vlag.
+        if ((P.ny > .15 || Math.abs(P.a) > 1.1) && (c.cb || c.cf || Math.abs(c.speed) < 2)) g.upside += dt; else g.upside = 0;
         if (c.landed) {
           const p = toCss(P.x, P.y + c.veh.r);
           fx.smoke(p.x, p.y, { n: 6, size: 10, life: .45, speed: 60, color: 'rgba(220,210,190,.4)' });
