@@ -8,6 +8,7 @@ let prev = null;
 let offset = 0;
 let roster = new Map();
 const live = new Map(); // n -> { k, prog, shown, found, lvl, asking, flash }
+const bergen = new Map(); // n -> { hay, k, cs }: de hooiberg van elke leerling, scherp op ware grootte
 
 let view = 'setup';
 const VIEWS = ['setup', 'lobby', 'play', 'podium'];
@@ -48,7 +49,7 @@ socket.on('hb-state', s => {
   $('stop').classList.toggle('hidden', !on);
   $('join-mini').classList.toggle('hidden', s.phase !== 'play');
   $('status').textContent = on ? `Hooibergjacht · ${s.title}` : 'Hooibergjacht';
-  if (prev && prev.run !== s.run) live.clear();
+  if (prev && prev.run !== s.run) { live.clear(); bergen.clear(); }
   if (!on) return show('setup');
   if (s.phase === 'lobby') {
     renderLobby();
@@ -149,20 +150,39 @@ function frame(t) {
     const v = live.get(p.n) || { prog: 0, shown: 0, found: 0, lvl: 0, asking: 0, flash: -9 };
     v.shown = v.shown === undefined ? v.prog : v.shown + (v.prog - v.shown) * Math.min(1, dt * 3);
     const cx = (i % cols + .5) * cw, top = h * .06 + Math.floor(i / cols) * ch;
-    const mw = Math.min(cw * .8, ch * 1.15), mh = mw * .6;
+    const size = HbWorld.sizeOf(v.k || 0);
+    const cs = Math.max(2, Math.floor(Math.min(cw * .8, ch * 1.2, w * .4) / size.cols));
+    const mw = size.cols * cs, mh = size.rows * cs;
     const base = top + ch * .78;
     HbDraw.glow(ctx, cx, base, mw * .6, AK.rgba ? AK.rgba(p.color, .35) : 'rgba(94,231,255,.3)');
     ctx.fillStyle = p.color;
     ctx.fillRect(cx - mw * .5, base - 1, mw, 3);
-    HbDraw.mini(ctx, cx - mw / 2, base - mh, mw, mh, v.shown, sec);
+    let b = bergen.get(p.n);
+    if (!b || b.k !== (v.k || 0) || b.cs !== cs || b.gen !== HbDraw.Hay.gen) {
+      b = b || { hay: new HbDraw.Hay() };
+      Object.assign(b, { k: v.k || 0, cs, gen: HbDraw.Hay.gen });
+      b.hay.build(HbWorld.stack(state.seed, p.n, b.k), cs);
+      bergen.set(p.n, b);
+    }
+    // Hoe meer hooi weg is, hoe lager de berg.
+    const sy = Math.max(.04, 1 - v.shown / 100);
+    const comp = b.hay.comp, pad = b.hay.pad;
+    ctx.drawImage(comp, cx - mw / 2 - pad, base - (pad + mh) * sy, comp.width, comp.height * sy);
     // Net een naald gevonden: een grote fonkelende naald erboven
     const f = sec - v.flash;
     if (f >= 0 && f < 2.2) {
       const k = Math.min(1, f / .4) * Math.min(1, (2.2 - f) / .5);
-      HbDraw.needle(ctx, cx, base - mh - mh * .25 * k, mw * .45 * k, -.5 + Math.sin(sec * 3) * .2, sec, k);
-      HbDraw.sparkle(ctx, cx + mw * .2, base - mh * 1.1, mw * .08, k);
+      HbDraw.needle(ctx, cx, base - mh * sy - mh * .25 * k, Math.min(mw * .45, ch * .5) * k, -.5 + Math.sin(sec * 3) * .2, sec, k);
+      HbDraw.sparkle(ctx, cx + mw * .2, base - mh * sy - mh * .1, Math.min(mw, ch) * .08, k);
     }
+    // Een donker naambordje, zodat de naam leesbaar is op de schuur
     ctx.font = `800 ${fs}px Orbitron, sans-serif`;
+    const lw = Math.max(ctx.measureText(p.name).width, fs * 4) + fs * 1.2;
+    ctx.fillStyle = 'rgba(6,10,28,.72)';
+    AK.roundRect(ctx, cx - lw / 2, base + fs * .3, lw, fs * 2.5, fs * .5);
+    ctx.fill();
+    ctx.fillStyle = p.color;
+    ctx.fillRect(cx - lw / 2 + fs * .5, base + fs * .3, lw - fs, 2);
     ctx.fillStyle = '#e8f1ff';
     ctx.fillText(p.name, cx, base + fs * 1.05);
     ctx.font = `700 ${fs * .85}px sans-serif`;
