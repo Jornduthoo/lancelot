@@ -25,6 +25,7 @@ Het thema: middeleeuws met een scifi-kantje. Het startscherm heeft drie grote te
    - **Splijtzwaard**: één knop: tik en je gloeiend zwaard maakt een salto. Splijt kristallen, tonnen, pompoenen en robots en steek vast in hout. Elke runenpaal is een vraag: juist = gouden kling
    - **Wankelwagen**: rij met je ridderkar over schansen, wiebelbruggen, wippen en ophaalbruggen. Elke vlag is een vraag én een andere kar: reuzenwielen, ijswielen, vierkante wielen, een motorros...
    - **Hooibergjacht**: graaf door je eigen neonhooiberg tot je de kristallen naald vindt. Is je energie op, dan komt er een vraag: juist = beter werktuig en het kompas wijst waar de naald zit
+   - **Plasmapoort**: strafschoppen tegen 8 robotridders in het burchtstadion. Mik je plasmabal (richting, dan hoogte) en duik als keeper. Voor elke trap een vraag: juist = gouden bal en groot schild
    - **Diepboor**: graaf met je boorridder naar goud, kristal en neonkernen. Goede antwoorden geven brandstof; in de smidse koop je een betere boor
    - **Robomol**: robotmollen schieten uit negen burchtputten en elke leerling mept ze met een zwaard, in 3D vanuit de ogen van de ridder. Een juist antwoord laadt het zwaard op en geeft het Vuurzwaard
    - **Ontsnap uit de kerker**: de hele klas zit samen opgesloten en opent deur na deur: een sleuteldeur, een runenslot (de code ligt verspreid over de klas), een laserhek (iedereen moet helpen), een valhek en de Kerkermeester
@@ -246,6 +247,16 @@ Elke leerling graaft op zijn eigen scherm door een **neonhooiberg** in een scifi
 - Naald gevonden: 200 punten plus extra als je snel was, en meteen een nieuwe, grotere hooiberg. Tandwielen (10) en runenmunten (25) in het hooi geven extra punten.
 - Het bord toont alle hooibergen naast elkaar: hoe meer hooi weg is, hoe lager de berg. Wie een naald vindt, krijgt een fonkelende naald boven zijn berg.
 - Chromebook: klik en sleep, of wijs met de muis en houd spatie ingedrukt, 1-4 antwoorden. Gsm: veeg met je vinger door het hooi. Elk antwoord komt in het logboek. Resultaten in `resultaten/`. Ook als taak (alleen in een spel).
+
+## Plasmapoort
+
+Strafschoppen in het burchtstadion. Elke leerling speelt op zijn eigen scherm een **toernooi tegen 8 robotridders** (Roestbout, Koperkop, Stoomridder, Neonwachter, Kristalgolem, Donderdrone, Plasmaprins, De Gouden Mech), telkens 5 strafschoppen per kant, daarna sudden death. Om beurt schiet je en keep je. Win je, dan komt de volgende, sterkere robot; verlies je, dan probeer je opnieuw. Versla je alle 8, dan ben je kampioen en begint een moeilijker toernooi (⭐).
+
+- **Schieten**: tik (of spatie) om de richting vast te zetten, tik nog eens voor de hoogte. Boven de lat is over, net op de rand is de paal. In de hoeken scoor je het makkelijkst.
+- **Keepen**: de robot neemt aanloop en verraadt met een rood hologram waar hij mikt (hoe sterker de robot, hoe korter en vager). Duik met ← ↑ → of de drie knoppen. Te vroeg duiken = gefopt: hij schiet naar de andere kant.
+- **Voor elke trap een vraag**: juist = ✨ gouden bal (het vizier zwaait trager, de keeper duikt minder goed) en 🛡️ groot schild voor je volgende redding. Fout: die vraag komt later terug.
+- Punten: 100 per goal (+50 met de gouden bal), 120 per redding, 30 als de robot mist, een bonus per gewonnen wedstrijd (meer bij sterkere robots), 600 als kampioen, punten per juist antwoord.
+- Het bord speelt om beurt de trappen van de leerlingen na en toont bovenaan wie tegen welke robot speelt. De server beslist wat raak is. Elk antwoord komt in het logboek. Resultaten in `resultaten/`. Ook als taak (alleen in een spel).
 
 ## Robomol
 
