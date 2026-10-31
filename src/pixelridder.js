@@ -418,7 +418,11 @@ class Pixelridder {
     on('px-asking', (id, v) => this.asking(id, v));
     on('px-question', id => guard.question(id));
     on('px-answer', (id, choice) => guard.answer(id, choice));
-    socket.on('disconnect', () => { if (socket.data.pxId) this.asking(socket.data.pxId, false); });
+  }
+
+  // Wordt aangeroepen vanuit de ene centrale 'disconnect' in server.js (geen listener per spel).
+  weg(socket) {
+    if (socket.data.pxId) this.asking(socket.data.pxId, false);
   }
 }
 

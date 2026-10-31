@@ -322,7 +322,11 @@ class Hooibergjacht {
     on('hb-asking', (id, v) => this.asking(id, v));
     on('hb-question', id => guard.question(id));
     on('hb-answer', (id, choice) => guard.answer(id, choice));
-    socket.on('disconnect', () => { if (socket.data.hbId) this.asking(socket.data.hbId, false); });
+  }
+
+  // Wordt aangeroepen vanuit de ene centrale 'disconnect' in server.js (geen listener per spel).
+  weg(socket) {
+    if (socket.data.hbId) this.asking(socket.data.hbId, false);
   }
 }
 

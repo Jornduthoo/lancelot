@@ -350,7 +350,11 @@ class Zwermwacht {
     on('zm-asking', (id, why) => this.asking(id, why));
     on('zm-question', id => guard.question(id));
     on('zm-answer', (id, choice) => guard.answer(id, choice));
-    socket.on('disconnect', () => { if (socket.data.zmId) this.asking(socket.data.zmId, ''); });
+  }
+
+  // Wordt aangeroepen vanuit de ene centrale 'disconnect' in server.js (geen listener per spel).
+  weg(socket) {
+    if (socket.data.zmId) this.asking(socket.data.zmId, '');
   }
 }
 

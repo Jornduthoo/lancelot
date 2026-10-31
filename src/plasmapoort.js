@@ -428,7 +428,11 @@ class Plasmapoort {
     on('pp-asking', (id, v) => this.asking(id, v));
     on('pp-question', id => guard.question(id));
     on('pp-answer', (id, choice) => guard.answer(id, choice));
-    socket.on('disconnect', () => { if (socket.data.ppId) this.asking(socket.data.ppId, false); });
+  }
+
+  // Wordt aangeroepen vanuit de ene centrale 'disconnect' in server.js (geen listener per spel).
+  weg(socket) {
+    if (socket.data.ppId) this.asking(socket.data.ppId, false);
   }
 }
 

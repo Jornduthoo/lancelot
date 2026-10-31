@@ -562,7 +562,11 @@ class Banierveld {
     on('bv-asking', (id, v) => this.asking(id, v));
     on('bv-question', id => guard.question(id));
     on('bv-answer', (id, choice) => guard.answer(id, choice));
-    socket.on('disconnect', () => { if (socket.data.bvId) this.asking(socket.data.bvId, false); });
+  }
+
+  // Wordt aangeroepen vanuit de ene centrale 'disconnect' in server.js (geen listener per spel).
+  weg(socket) {
+    if (socket.data.bvId) this.asking(socket.data.bvId, false);
   }
 }
 

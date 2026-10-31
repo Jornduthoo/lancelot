@@ -353,7 +353,11 @@ class Haakridder {
     on('hk-asking', (id, v) => this.asking(id, v));
     on('hk-question', id => guard.question(id));
     on('hk-answer', (id, choice) => guard.answer(id, choice));
-    socket.on('disconnect', () => { if (socket.data.hkId) this.asking(socket.data.hkId, false); });
+  }
+
+  // Wordt aangeroepen vanuit de ene centrale 'disconnect' in server.js (geen listener per spel).
+  weg(socket) {
+    if (socket.data.hkId) this.asking(socket.data.hkId, false);
   }
 }
 

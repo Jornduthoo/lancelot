@@ -6,12 +6,16 @@
   "private": true,
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "test": "node --test"
   },
   "author": "",
   "dependencies": {
     "express": "^4.22.3",
     "qrcode": "^1.5.4",
     "socket.io": "^4.8.4"
+  },
+  "devDependencies": {
+    "socket.io-client": "^4.8.1"
   }
 }

@@ -539,7 +539,11 @@ class Ridderslang {
     on('rs-asking', (id, v) => this.asking(id, v));
     on('rs-question', id => guard.question(id));
     on('rs-answer', (id, choice) => guard.answer(id, choice));
-    socket.on('disconnect', () => { if (socket.data.rsId) this.asking(socket.data.rsId, false); });
+  }
+
+  // Wordt aangeroepen vanuit de ene centrale 'disconnect' in server.js (geen listener per spel).
+  weg(socket) {
+    if (socket.data.rsId) this.asking(socket.data.rsId, false);
   }
 }
 

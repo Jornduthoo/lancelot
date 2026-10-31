@@ -570,7 +570,11 @@ class Sterrenvreter {
     on('sv-asking', (id, v) => this.asking(id, v));
     on('sv-question', id => guard.question(id));
     on('sv-answer', (id, choice) => guard.answer(id, choice));
-    socket.on('disconnect', () => { if (socket.data.svId) this.asking(socket.data.svId, false); });
+  }
+
+  // Wordt aangeroepen vanuit de ene centrale 'disconnect' in server.js (geen listener per spel).
+  weg(socket) {
+    if (socket.data.svId) this.asking(socket.data.svId, false);
   }
 }
 

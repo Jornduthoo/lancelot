@@ -864,6 +864,8 @@ process.on('unhandledRejection', err => console.error('Onverwachte fout:', (err 
 
 pauze.opWijziging(stand => io.emit('pauze', stand));
 
+const SPELLEN_MET_WEG = [sterren, slang, raket, zwaard, wankel, plasma, tuimel, hooi, zwerm, banier, haak, storm, pixel];
+
 io.on('connection', socket => {
   safeHandlers(socket);
   // De namen op de klaslijst, om bij het aanmelden aan te tikken. Meteen meesturen, nog voor de stand van
@@ -2279,6 +2281,9 @@ io.on('connection', socket => {
     if (socket.data.pkId) knight.asking(socket.data.pkId, false);
     if (socket.data.srId) rossen.asking(socket.data.srId, false);
     if (socket.data.bkId) bomber.asking(socket.data.bkId, false);
+    // Eén listener voor alle spellen: anders krijgt elke socket 15+ 'disconnect'-listeners
+    // en toont Node een MaxListenersExceededWarning.
+    for (const spel of SPELLEN_MET_WEG) spel.weg(socket);
   });
 
   // De Ronde Tafel: anoniem, alleen een vaste id per browser.

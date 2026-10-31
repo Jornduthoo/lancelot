@@ -337,7 +337,11 @@ class Tuimelridder {
     on('tm-asking', (id, v) => this.asking(id, v));
     on('tm-question', id => guard.question(id));
     on('tm-answer', (id, choice) => guard.answer(id, choice));
-    socket.on('disconnect', () => { if (socket.data.tmId) this.asking(socket.data.tmId, false); });
+  }
+
+  // Wordt aangeroepen vanuit de ene centrale 'disconnect' in server.js (geen listener per spel).
+  weg(socket) {
+    if (socket.data.tmId) this.asking(socket.data.tmId, false);
   }
 }
 
