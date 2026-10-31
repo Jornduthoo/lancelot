@@ -222,7 +222,30 @@ const ctx = canvas.getContext('2d');
 const fx = new AK.Particles();
 const scene = { w: 0, h: 0, L: null, hall: null, stapAt: 0, hintAt: 0 };
 
+// Jorns geschilderde zaal (img/hofschilder/zaal.webp). Ontbreekt die, dan tekent de code de oude zaal.
+const zaal = new Image();
+zaal.onload = () => { scene.w = 0; }; // opnieuw bakken met het schilderij
+zaal.src = '/img/hofschilder/zaal.webp';
+const zaalKlaar = () => zaal.complete && zaal.naturalWidth > 0;
+// Plaatsen in het schilderij, als deel van breedte/hoogte: lege muur, fakkelvlammen, vloerlijn.
+const ZAAL = { muurX: .5, muurY: .43, muurB: .375, vloer: .795, fakkels: [[.289, .315], [.711, .315]] };
+
 function layout(w, h) {
+  if (zaalKlaar()) {
+    const s = Math.max(w / zaal.naturalWidth, h / zaal.naturalHeight);
+    const zw = zaal.naturalWidth * s, zh = zaal.naturalHeight * s;
+    const ox = (w - zw) / 2, oy = (h - zh) / 2;
+    let iw = Math.min(zw * ZAAL.muurB, w * .56), ih = iw * HsArt.H / HsArt.W;
+    if (ih > h * .56) { ih = h * .56; iw = ih * HsArt.W / HsArt.H; }
+    const t = Math.max(10, ih * .058);
+    const ix = ox + zw * ZAAL.muurX - iw / 2;
+    const iy = Math.max(h * .135 + t * 2, oy + zh * ZAAL.muurY - ih / 2);
+    const floorY = Math.max(iy + ih + t, oy + zh * ZAAL.vloer);
+    return {
+      w, h, iw, ih, ix, iy, t, floorY, fw: iw + 2 * t, side: ix - t, zaal: { ox, oy, zw, zh },
+      flames: ZAAL.fakkels.map(([fx, fy]) => [ox + zw * fx, oy + zh * fy]), torches: [],
+    };
+  }
   let ih = h * .56, iw = ih * HsArt.W / HsArt.H;
   if (iw > w * .56) { iw = w * .56; ih = iw * HsArt.H / HsArt.W; }
   const t = Math.max(10, ih * .058);
@@ -231,7 +254,7 @@ function layout(w, h) {
   const floorY = Math.max(iy + ih + t + h * .03, h * .84);
   const side = ix - t; // ruimte links en rechts van de lijst
   return {
-    w, h, iw, ih, ix, iy, t, floorY, fw: iw + 2 * t, side,
+    w, h, iw, ih, ix, iy, t, floorY, fw: iw + 2 * t, side, flames: [],
     windows: [side * .32, w - side * .32],
     banners: [[ix - t - Math.min(w * .055, h * .09) * .9, '#8c1830'], [ix + iw + t + Math.min(w * .055, h * .09) * .9, '#1d3f8f']],
     torches: [[ix - t - Math.min(w * .055, h * .09) * .9, floorY * .66], [ix + iw + t + Math.min(w * .055, h * .09) * .9, floorY * .66]],
@@ -241,12 +264,29 @@ function layout(w, h) {
 function bake(w, h) {
   const L = layout(w, h);
   scene.L = L;
-  scene.hall = HsArt.hall(w, h, L);
-  // De ezel staat vast in de zaal.
-  HsArt.easel(scene.hall.getContext('2d'), w / 2, L.iy + L.ih + L.t * .6, L.floorY + (h - L.floorY) * .45, L.fw);
+  let g;
+  if (L.zaal) {
+    scene.hall = document.createElement('canvas');
+    scene.hall.width = w; scene.hall.height = h;
+    g = scene.hall.getContext('2d');
+    g.drawImage(zaal, L.zaal.ox, L.zaal.oy, L.zaal.zw, L.zaal.zh);
+    // Zachte schaduw van de lijst op de muur, en wat cyaan licht van het doek op de vloer.
+    g.save();
+    g.shadowColor = 'rgba(0,0,0,.65)';
+    g.shadowBlur = L.t * 2.5;
+    g.shadowOffsetY = L.t * .6;
+    g.fillStyle = '#000';
+    g.fillRect(L.ix - L.t, L.iy - L.t, L.iw + 2 * L.t, L.ih + 2 * L.t);
+    g.restore();
+    Glow.glow(g, w / 2, L.floorY + (h - L.floorY) * .2, L.fw * .5, '#38e1ff', .12);
+  } else {
+    scene.hall = HsArt.hall(w, h, L);
+    g = scene.hall.getContext('2d');
+    // De ezel staat vast in de zaal.
+    HsArt.easel(g, w / 2, L.iy + L.ih + L.t * .6, L.floorY + (h - L.floorY) * .45, L.fw);
+  }
   // Ook het doek en de lijst: de inkt komt er elke frame bovenop, binnen de lijst.
   const fr = HsArt.frame(L.iw, L.ih, L.t);
-  const g = scene.hall.getContext('2d');
   g.drawImage(HsArt.slate(L.iw, L.ih), L.ix, L.iy);
   g.drawImage(fr.canvas, L.ix - fr.x, L.iy - fr.y);
 }
@@ -267,6 +307,8 @@ function frame(pt) {
 
   ctx.drawImage(scene.hall, 0, 0); // zaal, doek en lijst in één keer
   L.torches.forEach(([x, y], i) => HsArt.torch(ctx, x, y, h * .03, T, i * 2.3));
+  // De geschilderde fakkels flakkeren een beetje.
+  L.flames.forEach(([x, y], i) => Glow.glow(ctx, x, y, h * (.07 + .012 * Math.sin(T * 9 + i * 2.1) + .008 * Math.sin(T * 23 + i)), '#ff9a3c', .22));
   ink.draw(ctx, L.ix, L.iy, L.iw, L.ih);
 
   const painter = t.painter;

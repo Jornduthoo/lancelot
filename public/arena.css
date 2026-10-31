@@ -474,6 +474,9 @@ body[data-hs="1"] main > :not(#hofschilder) { display: none !important; }
 body:not([data-hs="1"]) #hofschilder { display: none !important; }
 #hofschilder { display: contents; }
 .hs-game { background: radial-gradient(ellipse at 50% 40%, rgb(var(--k-panel)) 0%, rgb(var(--k-bg)) 60%, rgb(var(--k-bg)) 100%); }
+/* Jorns geschilderde werkbank achter het doek (iets gedimd, zodat het doek rustig blijft). */
+body[data-hs="1"] .hs-game { background: linear-gradient(rgb(var(--k-bg) / .25), rgb(var(--k-bg) / .45)), url(/img/hofschilder/werkbank.webp) center / cover no-repeat, rgb(var(--k-bg)); }
+@media (orientation: portrait) { body[data-hs="1"] .hs-game { background-position: 0 0, 6% 70%, 0 0; } }
 .hs-body { flex: 1; min-height: 0; display: flex; flex-direction: column; padding: 8px 10px 10px; gap: 8px; }
 .hs-top { display: flex; justify-content: center; min-height: 40px; }
 .hs-runes { display: flex; gap: 4px; justify-content: center; align-items: center; flex-wrap: nowrap; max-width: 100%; }
