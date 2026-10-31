@@ -21,6 +21,7 @@ Het thema: middeleeuws met een scifi-kantje. Het startscherm heeft drie grote te
    - **Neon Duel**: een vechtspel. De klas speelt in twee teams, op het bord vechten twee grote ridders. Elk goed antwoord is een slag, snel juist een combo, drie op rij een supermove
    - **Poortwacht**: de klas verdedigt samen de burchtpoort tegen golven monsters en een draak. Goede antwoorden geven goud voor je eigen toren
    - **Neonvlucht**: rennen, springen en glijden door de neonburcht. Bij een vraagpoort loop je door het juiste antwoord voor turbo en een hogere vermenigvuldiger
+   - **Raketridder**: vlieg met je raketridder van vlag naar vlag door een hindernisbaan boven de lava. Elke vlag is een vraag: juist = turbo. Hoe sneller de etappe, hoe meer punten
    - **Diepboor**: graaf met je boorridder naar goud, kristal en neonkernen. Goede antwoorden geven brandstof; in de smidse koop je een betere boor
    - **Robomol**: robotmollen schieten uit negen burchtputten en elke leerling mept ze met een zwaard, in 3D vanuit de ogen van de ridder. Een juist antwoord laadt het zwaard op en geeft het Vuurzwaard
    - **Ontsnap uit de kerker**: de hele klas zit samen opgesloten en opent deur na deur: een sleuteldeur, een runenslot (de code ligt verspreid over de klas), een laserhek (iedereen moet helpen), een valhek en de Kerkermeester
@@ -201,6 +202,15 @@ Iedereen rent op zijn eigen scherm door dezelfde **neonburcht**: springen over r
 - **Vraagpoorten**: af en toe vertraagt alles en tonen de drie banen elk een antwoord. Loop door de juiste poort voor ⚡ turbo, een 🛡️ schild en een hogere vermenigvuldiger (tot ×5). Een foute poort: struikelen en terug naar ×1.
 - Punten: afstand × vermenigvuldiger, plus de munten. Met genoeg munten krijg je een lichtspoor en later vleugels.
 - Chromebook: ← → of A/D opzij, ↑ of spatie springen, ↓ glijden, 1-3 kiest de poort. Gsm: vegen, tik = springen. Elk antwoord komt in het logboek. Resultaten in `resultaten/`.
+
+## Raketridder
+
+Iedereen vliegt op zijn eigen scherm met een **raketridder** door dezelfde hindernisbaan in de lucht: zwevende platforms, torenmuren met een gat, stekels, knipperende lasers, draaiende vuurraderen en bewegende platforms, met onderaan lava. Elke drie vlaggen een nieuwe wereld (Wolkenburcht, Lavasmidse, Sterrenpoort). De anderen zie je als schimmen; het bord volgt de koploper en toont bovenaan waar iedereen zit.
+
+- De raket raakt leeg in de lucht; landen tankt bij. Wie valt of iets raakt, begint opnieuw bij de laatste vlag (geen strafpunten, wel tijd kwijt).
+- **Elke vlag is een vraag**: juist = ⚡ turbo (sneller en een raket die niet leeg raakt). Fout: even wachten, die vraag komt later terug.
+- Punten: 100 per vlag plus extra als je de etappe snel vloog, 10 per energiecel, punten per juist antwoord.
+- Chromebook: ← → of A/D vliegen, spatie of ↑ ingedrukt = raket aan, 1-4 antwoorden. Gsm: ◀ ▶ links, 🚀 rechts. Elk antwoord komt in het logboek. Resultaten in `resultaten/`.
 
 ## Robomol
 

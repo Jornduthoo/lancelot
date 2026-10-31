@@ -180,6 +180,7 @@ document.querySelector('[data-module="kerker"]').addEventListener('click', () =>
 document.querySelector('[data-module="hofschilder"]').addEventListener('click', () => { location.href = '/hofschilder'; });
 document.querySelector('[data-module="robopaarden"]').addEventListener('click', () => { location.href = '/robopaarden'; });
 document.querySelector('[data-module="diepboor"]').addEventListener('click', () => { location.href = '/diepboor'; });
+document.querySelector('[data-module="raketridder"]').addEventListener('click', () => { location.href = '/raketridder'; });
 document.querySelector('[data-module="ridderslang"]').addEventListener('click', () => { location.href = '/ridderslang'; });
 document.querySelector('[data-module="burchtstorm"]').addEventListener('click', () => { location.href = '/burchtstorm'; });
 document.querySelector('[data-module="pixelridder"]').addEventListener('click', () => { location.href = '/pixelridder'; });
