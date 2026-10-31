@@ -299,13 +299,26 @@
         }
       }
     }
-    // Ligt het zwaard plat stil? Dan mag je weer tikken.
+    // Valt het zwaard plat (of net naast de plek)? Dan springt het meteen rechtop, met de punt in het hout.
+    // Op staal blijft het gewoon liggen; tikken mag dan ook meteen.
     p.touch = contact ? .25 : Math.max(0, (p.touch || 0) - dt);
-    if (contact && Math.hypot(p.vx, p.vy) < 2.2) {
+    if (!(p.touch > 0)) p.floor = null;
+    if (p.touch > 0 && Math.hypot(p.vx, p.vy) < 3.5) {
       p.rest = (p.rest || 0) + dt;
-      p.w *= 1 - 6 * dt;
-      if (p.rest > .12) { p.stuck = true; p.air = 1; p.vx = p.vy = p.w = 0; out.vast = true; }
-    } else if (!contact) p.rest = Math.max(0, (p.rest || 0) - dt);
+      p.w *= 1 - 8 * dt;
+      if (p.rest > .06) {
+        const s = p.floor;
+        if (s && s.hout) {
+          const a = Math.PI / 2 + .22;
+          const tx = Math.max(s.x + .25, Math.min(s.x + s.w - .25, p.x));
+          p.a = a;
+          p.x = tx - Math.cos(a) * TIP;
+          p.y = s.y + DEPTH - Math.sin(a) * TIP;
+          out.recht = true;
+        }
+        p.stuck = true; p.air = 1; p.nx = 0; p.vx = p.vy = p.w = 0; p.floor = null; out.vast = true;
+      }
+    } else if (!(p.touch > 0)) p.rest = 0;
 
     // Gevaar en splijten.
     const [tx, ty] = tipOf(p);
@@ -351,9 +364,9 @@
       p.vx -= (1 + P.bounce) * vn * f.nx;
       p.vy -= (1 + P.bounce) * vn * f.ny;
     }
-    if (f.ny < 0) p.vx *= .8; // wrijving op de vloer
+    if (f.ny < 0) { p.vx *= .8; p.floor = s; } // wrijving op de vloer; onthouden waarop het zwaard ligt
     if (f.nx && p.vx * f.nx < 1.5) p.vx = f.nx * 2.4; // van een muur duidelijk terugbotsen
-    p.w = -p.w * .45 + (f.nx || 1) * .8;
+    p.w = -p.w * .45 + (Math.abs(vn) > 2.5 ? (f.nx || 1) * .8 : 0); // alleen bij een harde klap een draaitje erbij
     if (!s.hout) p.vy = Math.min(p.vy, -2);
   }
 
