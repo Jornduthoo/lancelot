@@ -32,26 +32,6 @@ document.addEventListener('click', () => sfx.unlock(), { once: true });
 $('mute').innerHTML = Ui.ic(sfx.muted ? 'stil' : 'geluid');
 $('mute').addEventListener('click', () => { $('mute').innerHTML = Ui.ic(sfx.toggle() ? 'stil' : 'geluid'); });
 
-// Het 3D-logo: speelt het filmpje van de ridder niet (oude browser) of wil de leerkracht geen beweging,
-// dan tonen we gewoon het vaste logo of het eerste beeld.
-(() => {
-  const vak = $('logo-3d');
-  const film = vak && vak.querySelector('video');
-  if (!film) return;
-  const plat = () => {
-    if (vak.classList.contains('plat')) return;
-    const img = document.createElement('img');
-    img.src = '/img/logo.webp';
-    img.alt = 'LANcelot';
-    img.className = 'oud';
-    vak.classList.add('plat');
-    vak.appendChild(img);
-  };
-  if (!film.canPlayType('video/webm; codecs="vp9"')) plat();
-  film.addEventListener('error', plat);
-  if (matchMedia('(prefers-reduced-motion: reduce)').matches) film.autoplay = false;
-})();
-
 // Het logo brengt je altijd terug naar het startscherm met de vijf rijken.
 $('brand').addEventListener('click', () => {
   if (!OWN_VIEWS.includes(view)) return;

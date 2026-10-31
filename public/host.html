@@ -45,11 +45,7 @@
   <section id="home">
     <div class="hero">
       <!-- Het logo in 3D: de originele letters en kabel vooraan, de ridder (filmpje met doorzichtige achtergrond) erachter. -->
-      <div class="logo-3d" id="logo-3d">
-        <img src="/img/logo-3d/achter.webp" alt="">
-        <video src="/img/logo-3d/ridder.webm" poster="/img/logo-3d/ridder-start.webp" preload="auto" autoplay loop muted playsinline disablepictureinpicture></video>
-        <img src="/img/logo-3d/voor.webp" alt="LANcelot">
-      </div>
+      <img src="/img/logo.webp" alt="LANcelot" data-logo-3d>
       <p>Alles voor je klas, op je eigen netwerk</p>
     </div>
     <p class="notice hidden" id="welkom-tip">👋 De eerste keer LANcelot? <a href="/welkom">Zet in vier stappen je klas, je leerjaar en het netwerk klaar.</a></p>
@@ -847,6 +843,7 @@
 </main>
 <script src="/socket.io/socket.io.js"></script>
 <script src="/js/ui.js"></script>
+<script src="/js/logo-3d.js"></script>
 <script src="/js/fx.js"></script>
 <script src="/js/avatar.js"></script>
 <script src="/js/niveau.js"></script>
