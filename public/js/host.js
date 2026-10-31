@@ -165,6 +165,7 @@ document.querySelector('[data-module="splijtzwaard"]').addEventListener('click',
 document.querySelector('[data-module="wankelwagen"]').addEventListener('click', () => { location.href = '/wankelwagen'; });
 document.querySelector('[data-module="plasmapoort"]').addEventListener('click', () => { location.href = '/plasmapoort'; });
 document.querySelector('[data-module="hooibergjacht"]').addEventListener('click', () => { location.href = '/hooibergjacht'; });
+document.querySelector('[data-module="banierveld"]').addEventListener('click', () => { location.href = '/banierveld'; });
 document.querySelector('[data-module="ridderslang"]').addEventListener('click', () => { location.href = '/ridderslang'; });
 document.querySelector('[data-module="burchtstorm"]').addEventListener('click', () => { location.href = '/burchtstorm'; });
 document.querySelector('[data-module="pixelridder"]').addEventListener('click', () => { location.href = '/pixelridder'; });
