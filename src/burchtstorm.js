@@ -413,7 +413,11 @@ class Burchtstorm {
     on('bs-asking', (id, v) => this.asking(id, v));
     on('bs-question', id => guard.question(id));
     on('bs-answer', (id, choice) => guard.answer(id, choice));
-    socket.on('disconnect', () => { if (socket.data.bsId) this.asking(socket.data.bsId, false); });
+  }
+
+  // Wordt aangeroepen vanuit de ene centrale 'disconnect' in server.js (geen listener per spel).
+  weg(socket) {
+    if (socket.data.bsId) this.asking(socket.data.bsId, false);
   }
 }
 

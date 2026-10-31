@@ -333,7 +333,11 @@ class Raketridder {
     on('jp-asking', (id, v) => this.asking(id, v));
     on('jp-question', id => guard.question(id));
     on('jp-answer', (id, choice) => guard.answer(id, choice));
-    socket.on('disconnect', () => { if (socket.data.jpId) this.asking(socket.data.jpId, false); });
+  }
+
+  // Wordt aangeroepen vanuit de ene centrale 'disconnect' in server.js (geen listener per spel).
+  weg(socket) {
+    if (socket.data.jpId) this.asking(socket.data.jpId, false);
   }
 }
 

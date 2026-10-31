@@ -369,7 +369,11 @@ class Splijtzwaard {
     on('sz-asking', (id, v) => this.asking(id, v));
     on('sz-question', id => guard.question(id));
     on('sz-answer', (id, choice) => guard.answer(id, choice));
-    socket.on('disconnect', () => { if (socket.data.szId) this.asking(socket.data.szId, false); });
+  }
+
+  // Wordt aangeroepen vanuit de ene centrale 'disconnect' in server.js (geen listener per spel).
+  weg(socket) {
+    if (socket.data.szId) this.asking(socket.data.szId, false);
   }
 }
 
