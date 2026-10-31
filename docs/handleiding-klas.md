@@ -254,6 +254,13 @@ Tip: een klas die goed en vlot antwoordt, houdt de poort. Bij veel foute antwoor
 3. Elke vlag is een vraag: juist = turbo. Aan elke finish sterren (geen val = 3 sterren) en een nieuwe rijmachine kiezen.
 4. Het bord volgt de koploper; bovenaan zie je waar iedereen in de 5 parcoursen zit.
 
+## Zwermwacht
+
+1. Kies **De Arena** en dan **Zwermwacht**, kies de speeltijd en klik op de quiz. Klik op **Verdedig de burcht!**
+2. Leerlingen sturen hun ridder met de pijltjes (Chromebook) of door te slepen (gsm). De wapens vuren vanzelf.
+3. Balk vol: een vraag. Juist = zelf een upgrade kiezen, fout = toch een kleine upgrade. Hartjes op: een vraag om weer recht te staan.
+4. Op het einde komt De IJzeren Kolos. Het bord toont alle ridders, het klasdoel en wie het langst overleeft.
+
 ## Plasmapoort
 
 1. Kies **De Arena** en dan **Plasmapoort**, kies de speeltijd en klik op de quiz. Klik op **Aftrap!**
@@ -394,7 +401,7 @@ Onder **Gegeven taken** zie je live per leerling: grijs = nog niet begonnen, gou
 
 Een quiz als taak gaat standaard vraag per vraag (zoals het Toernooi), met meteen de uitleg na een fout antwoord.
 
-Bij **Hoe spelen?** kan je een quiz ook **alleen in een spel** laten spelen: De prinses in de toren, Schattenjacht, Pixelridder, Diepboor, Neonvlucht, Raketridder, Splijtzwaard, Wankelwagen, Hooibergjacht, Plasmapoort, Tuimelridder, Haakridder of Robomol, met een speeltijd per ronde. Elke leerling speelt dan zijn eigen spel op zijn eigen toestel, los van wat er op het bord loopt (er hoeft geen spel te lopen). Hij krijgt de vragen van zijn niveau; de eerste poging op elke vraag telt voor de taak, een foute vraag komt in het spel later terug om te oefenen. Is de tijd om voor alle vragen beantwoord zijn, dan speelt hij gewoon nog een ronde met de vragen die overblijven. Alle antwoorden gaan in het logboek (spel "Taak"), dus ook in het zorgoverzicht, de doelenkaart en de Eer van het Klaseiland. De taken staan in de map `taken` bij je gegevens. Thuiswerk kan (nog) niet: Mijn taken werkt over het netwerk van de klas.
+Bij **Hoe spelen?** kan je een quiz ook **alleen in een spel** laten spelen: De prinses in de toren, Schattenjacht, Pixelridder, Diepboor, Neonvlucht, Raketridder, Splijtzwaard, Wankelwagen, Hooibergjacht, Zwermwacht, Plasmapoort, Tuimelridder, Haakridder of Robomol, met een speeltijd per ronde. Elke leerling speelt dan zijn eigen spel op zijn eigen toestel, los van wat er op het bord loopt (er hoeft geen spel te lopen). Hij krijgt de vragen van zijn niveau; de eerste poging op elke vraag telt voor de taak, een foute vraag komt in het spel later terug om te oefenen. Is de tijd om voor alle vragen beantwoord zijn, dan speelt hij gewoon nog een ronde met de vragen die overblijven. Alle antwoorden gaan in het logboek (spel "Taak"), dus ook in het zorgoverzicht, de doelenkaart en de Eer van het Klaseiland. De taken staan in de map `taken` bij je gegevens. Thuiswerk kan (nog) niet: Mijn taken werkt over het netwerk van de klas.
 
 **Thuis klaarzetten:** gebruik je **Mijn lesmap** (zie verder), dan gaat elke taak die je geeft mee naar de andere pc. Zet ze 's avonds thuis klaar, en 's morgens staan ze op het digibord, met "uit je lesmap" erbij. Op het digibord krijgt elke leerling zijn niveau uit de klaslijst van het digibord (of het vaste niveau dat je koos). Alleen de taak gaat mee, nooit wat leerlingen invulden: de voortgang zie je op het digibord. Wis je een taak thuis, dan verdwijnt ze ook op het digibord, maar alleen zolang nog geen enkele leerling eraan begon.
 

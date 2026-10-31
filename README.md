@@ -24,6 +24,7 @@ Het thema: middeleeuws met een scifi-kantje. Het startscherm heeft drie grote te
    - **Raketridder**: vlieg met je raketridder van vlag naar vlag door een hindernisbaan boven de lava. Elke vlag is een vraag: juist = turbo. Hoe sneller de etappe, hoe meer punten
    - **Splijtzwaard**: één knop: tik en je gloeiend zwaard maakt een salto. Splijt kristallen, tonnen, pompoenen en robots en steek vast in hout. Elke runenpaal is een vraag: juist = gouden kling
    - **Wankelwagen**: rij met je ridderkar over schansen, wiebelbruggen, wippen en ophaalbruggen. Elke vlag is een vraag én een andere kar: reuzenwielen, ijswielen, vierkante wielen, een motorros...
+   - **Zwermwacht**: hou je ridder heel tegen zwermen roestrobots; je wapens vuren vanzelf. Balk vol = een vraag: juist = kies zelf je upgrade
    - **Hooibergjacht**: graaf door je eigen neonhooiberg tot je de kristallen naald vindt. Is je energie op, dan komt er een vraag: juist = beter werktuig en het kompas wijst waar de naald zit
    - **Plasmapoort**: strafschoppen tegen 8 robotridders in het burchtstadion. Mik je plasmabal (richting, dan hoogte) en duik als keeper. Voor elke trap een vraag: juist = gouden bal en groot schild
    - **Haakridder**: slinger met je plasmahaak van kristalanker naar kristalanker door een zwevende burcht. Eén knop: ingedrukt = grijpen, loslaten = vliegen. Elke vlag is een vraag: juist = gouden haak
@@ -270,6 +271,16 @@ Een stuntparcours in 5 werelden (De Burcht, Het Neonmoeras, De IJsberg, Het Wolk
 - **Vragen**: elke vlag is een vraag. Juist = ⚡ turbo. Fout = gewoon verder, die vraag komt later terug.
 - **Sterren**: geen enkele val in een parcours = ⭐⭐⭐, tot 2 vallen = ⭐⭐, anders ⭐.
 - **Punten**: elke vlag (sneller = meer), de finish, sterren en juiste antwoorden. Na parcours 5 begint parcours 1 opnieuw, met snellere valstrikken.
+
+## Zwermwacht
+
+Elke leerling verdedigt op zijn eigen scherm een **ridder** tegen zwermen **roestrobots** (roestkevers, vonkbijen, slijmdroids, schildrobots en schedeldrones). De wapens vuren vanzelf: de leerling stuurt alleen waar hij loopt.
+
+- Verslagen robots laten **kristallen** vallen. **Is de balk vol, dan komt er een vraag.** Juist: kies zelf 1 van 3 upgrades (na 3 juist op rij is er een gouden die meteen 2 niveaus geeft). Fout: toch een kleine upgrade, de vraag komt later terug.
+- Wapens (tot niveau 5): plasmapijl, zwaardcirkel, schildpuls, bliksemrune, valkdrone. Hulpjes (tot niveau 3): snelle laarzen, kristalmagneet, hartgem, krachtrune, zandloper.
+- Hartjes op: een vraag en je staat weer recht (juist = alle hartjes vol). Niemand ligt eruit. Op 70 % van de speeltijd komt **De IJzeren Kolos**; verslagen = 300 punten, en later komt er een sterkere.
+- Het bord toont alle ridders met hun zwerm, niveau, hartjes en wapens, het **klasdoel** (samen zoveel robots) en wie het langst overleeft.
+- Chromebook: pijltjes of WASD (of klik en sleep), 1-4 antwoorden, 1-3 upgrade. Gsm: sleep met je vinger. Trage toestellen krijgen vanzelf minder robots tegelijk. Elk antwoord komt in het logboek. Resultaten in `resultaten/`. Ook als taak (alleen in een spel).
 
 ## Plasmapoort
 

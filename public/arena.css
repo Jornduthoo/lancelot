@@ -614,3 +614,40 @@ body:not([data-hs="1"]) #hofschilder { display: none !important; }
 .tm-pick-car small { color: rgb(var(--k-wit) / .75); font-size: .78rem; line-height: 1.25; }
 @media (max-width: 700px) { .tm-pick-list { grid-template-columns: repeat(2, 1fr); } .tm-pick-car small { display: none; } }
 @media (max-width: 520px), (max-height: 420px) { .tm-car { display: none; } }
+
+/* Zwermwacht: alleen het eigen scherm tonen als het spel loopt */
+body[data-zm="1"] main > :not(#zwerm) { display: none !important; }
+body:not([data-zm="1"]) #zwerm { display: none !important; }
+#zwerm { display: contents; }
+
+/* Zwermwacht */
+.zm-hud { gap: 10px; }
+.zm-hearts { font-size: 1.05rem; letter-spacing: -2px; white-space: nowrap; }
+.zm-xp { height: 10px; margin: 0 8px 4px; border-radius: 5px; background: rgb(var(--k-goud) / .15); box-shadow: inset 0 0 0 1px rgb(94 231 255 / .5); overflow: hidden; }
+.zm-xp i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #4c9dff, #5ee7ff); transition: width .15s linear; }
+.zm-xp.vol i { background: linear-gradient(90deg, rgb(var(--k-goud)), #fff2b0); animation: breathe .6s ease-in-out infinite; }
+.zm-stage { touch-action: none; user-select: none; -webkit-user-select: none; }
+.zm-weapons { position: absolute; left: 8px; bottom: 8px; display: flex; flex-wrap: wrap; gap: 4px; max-width: 60%; pointer-events: none; z-index: 2; }
+.zm-w { display: inline-flex; align-items: center; gap: 2px; padding: 2px 7px; border-radius: 999px; background: rgb(var(--k-bg) / .72); border: 1px solid rgb(94 231 255 / .55); font-size: .95rem; }
+.zm-w.zm-p { border-color: rgb(var(--k-goud) / .6); }
+.zm-w b { font-size: .75rem; color: var(--gold); }
+.zm-tip { position: absolute; left: 50%; top: 14%; transform: translateX(-50%); padding: 8px 16px; border-radius: 999px; background: rgb(var(--k-bg) / .7); border: 1px solid rgb(var(--k-goud) / .7); color: var(--gold); font-weight: 800; pointer-events: none; animation: breathe 1.4s ease-in-out infinite; z-index: 2; }
+.zm-tip.weg { display: none; }
+.zm-cards { position: absolute; inset: 0; z-index: 5; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 12px; background: rgb(var(--k-bg) / .72); }
+.zm-cards-title { font-family: Orbitron, sans-serif; font-weight: 900; font-size: 1.4rem; color: var(--gold); margin: 0; }
+.zm-card-row { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+.zm-card { position: relative; width: 170px; min-height: 190px; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 14px 10px; border-radius: 14px; background: linear-gradient(180deg, rgb(28 38 70), rgb(12 16 34)); border: 2px solid rgb(94 231 255 / .7); color: #e8f1ff; box-shadow: 0 0 18px rgb(94 231 255 / .3); animation: pop .3s ease-out both; }
+.zm-card:nth-child(2) { animation-delay: .06s; } .zm-card:nth-child(3) { animation-delay: .12s; }
+.zm-card:hover, .zm-card:focus-visible { transform: translateY(-4px); box-shadow: 0 0 26px rgb(94 231 255 / .6); }
+.zm-card.zm-goud { border-color: rgb(var(--k-goud)); box-shadow: 0 0 26px rgb(var(--k-goud) / .6); }
+.zm-card-icon { font-size: 2.6rem; line-height: 1; }
+.zm-card strong { font-size: 1.05rem; }
+.zm-card small { color: var(--gold); font-weight: 800; }
+.zm-card em { font-style: normal; font-size: .85rem; opacity: .85; }
+.zm-card-key { position: absolute; top: 6px; left: 8px; font-size: .75rem; opacity: .6; }
+@media (max-width: 600px) { .zm-card { width: 30%; min-width: 96px; min-height: 150px; padding: 10px 6px; } .zm-card-icon { font-size: 2rem; } .zm-card em { font-size: .72rem; } }
+.zm-doel { position: relative; display: inline-flex; align-items: center; min-width: 280px; height: 30px; padding: 0 12px; border-radius: 15px; overflow: hidden; background: rgb(var(--k-goud) / .12); box-shadow: inset 0 0 0 1px rgb(var(--k-goud) / .6); }
+.zm-doel i { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: linear-gradient(90deg, rgb(94 231 255 / .45), rgb(var(--k-goud) / .55)); transition: width .4s; }
+.zm-doel b { position: relative; }
+.zm-doel.vol { animation: breathe 1s ease-in-out infinite; }
+.zm-life { font-weight: 800; color: var(--gold); margin: 4px 0 0; }
