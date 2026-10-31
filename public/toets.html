@@ -11,14 +11,14 @@
 <body class="pf-leerling">
 <main class="player">
   <section id="pf-geen" class="screen welcome hidden">
-    <img src="/img/logo.webp" alt="LANcelot">
+    <img src="/img/logo.webp" alt="LANcelot" data-logo-3d>
     <p class="title">Toets</p>
     <p class="muted" id="pf-geen-tekst">Er is nu geen toets bezig.</p>
     <a class="button secondary" href="/">Terug naar LANcelot</a>
   </section>
 
   <form id="pf-join" class="screen welcome hidden">
-    <img src="/img/logo.webp" alt="LANcelot">
+    <img src="/img/logo.webp" alt="LANcelot" data-logo-3d>
     <p class="title" id="pf-join-title">Toets</p>
     <input id="pf-name" maxlength="20" autocomplete="off" placeholder="Je naam">
     <p class="error" id="pf-join-error"></p>
@@ -79,6 +79,7 @@
 </main>
 <script src="/socket.io/socket.io.js"></script>
 <script src="/js/ui.js"></script>
+<script src="/js/logo-3d.js"></script>
 <script src="/js/voorlees.js"></script>
 <script src="/js/niveau.js"></script>
 <script src="/js/pf-media.js"></script>
