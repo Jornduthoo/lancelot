@@ -150,15 +150,14 @@ const HbDraw = (() => {
   }
 
   // ---------- De hooiberg ----------
-  // Vier lagen, elk een eigen canvas: de holte (donker binnenste van de volle berg), de schaduw van het hooi,
-  // het hooi zelf (textuur door een zachte vorm, dieper = donkerder) en de vorm. Na graven werken we alleen het stukje
+  // Lagen, elk een eigen canvas: de vorm, het hooi (textuur door een zachte vorm, dieper = donkerder),
+  // de schaduw en alles samen. Na graven werken we alleen het stukje
   // rond de geraakte vakjes bij, zodat het op een Chromebook vlot blijft.
   class Hay {
     constructor() {
       this.mask = document.createElement('canvas');
       this.hay = document.createElement('canvas');
       this.shadow = document.createElement('canvas');
-      this.cave = document.createElement('canvas');
       this.comp = document.createElement('canvas');
       this.st = null;
       this.cs = 0;
@@ -171,26 +170,11 @@ const HbDraw = (() => {
       this.gen = Hay.gen;
       this.pad = Math.ceil(cs * 1.2);
       const w = Math.ceil(st.cols * cs + this.pad * 2), h = Math.ceil((st.rows * cs + this.pad * 2) * ky);
-      for (const c of [this.mask, this.hay, this.shadow, this.cave, this.comp]) { c.width = w; c.height = h; }
+      for (const c of [this.mask, this.hay, this.shadow, this.comp]) { c.width = w; c.height = h; }
       this.pat = this.hay.getContext('2d').createPattern(texture(), 'repeat');
-      // De holte: alleen diep in de berg (een gat dat je graaft), donker hooi met een warme gloed.
-      const inner = new Uint8Array(st.hp.length);
-      for (let y = 0; y < st.rows; y++) for (let c = 2; c < st.cols - 2; c++) if (st.hp[y * st.cols + c] && y - st.top[c] >= 3) inner[y * st.cols + c] = 1;
-      const g = this.cave.getContext('2d');
-      g.save();
-      g.scale(1, ky);
-      this.blobs(g, 0, st.rows - 1, 0, st.cols - 1, inner, 0, .95);
-      g.restore();
-      g.globalCompositeOperation = 'source-in';
-      g.fillStyle = this.pat;
-      g.fillRect(0, 0, w, h);
-      g.globalCompositeOperation = 'source-atop';
-      const gr = g.createRadialGradient(w / 2, h * .7, 0, w / 2, h * .7, w * .55);
-      gr.addColorStop(0, 'rgba(40,20,4,.72)');
-      gr.addColorStop(1, 'rgba(12,6,2,.9)');
-      g.fillStyle = gr;
-      g.fillRect(0, 0, w, h);
-      g.globalCompositeOperation = 'source-over';
+      // Strootjes even groot ten opzichte van de vakjes, ook als de berg klein getekend wordt (het bord).
+      const ts = Math.min(1, cs / 40);
+      if (ts < 1 && this.pat.setTransform) this.pat.setTransform(new DOMMatrix().scale(ts, ts));
       this.region(0, 0, st.cols - 1, st.rows - 1, true);
     }
     // Zachte bolletjes per vakje met hooi (hp in lijst, alleen waarden > min).
@@ -260,9 +244,8 @@ const HbDraw = (() => {
       sg.fillStyle = '#000';
       sg.fillRect(X0, Y0, X1 - X0, Y1 - Y0);
       sg.restore();
-      // Alles samen: holte, schaduw wat lager (zo krijgt een gat diepte) en het hooi.
+      // Alles samen: de schaduw wat lager (zo krijgt een rand diepte) en het hooi. Weggegraven hooi is echt weg.
       const cg = open(this.comp);
-      cg.drawImage(this.cave, 0, 0);
       cg.globalAlpha = .6;
       cg.drawImage(this.shadow, Math.round(cs * .12), Math.round(cs * .38 * ky));
       cg.globalAlpha = 1;
