@@ -23,6 +23,7 @@ Het thema: middeleeuws met een scifi-kantje. Het startscherm heeft drie grote te
    - **Neonvlucht**: rennen, springen en glijden door de neonburcht. Bij een vraagpoort loop je door het juiste antwoord voor turbo en een hogere vermenigvuldiger
    - **Raketridder**: vlieg met je raketridder van vlag naar vlag door een hindernisbaan boven de lava. Elke vlag is een vraag: juist = turbo. Hoe sneller de etappe, hoe meer punten
    - **Splijtzwaard**: één knop: tik en je gloeiend zwaard maakt een salto. Splijt kristallen, tonnen, pompoenen en robots en steek vast in hout. Elke runenpaal is een vraag: juist = gouden kling
+   - **Wankelwagen**: rij met je ridderkar over schansen, wiebelbruggen, wippen en ophaalbruggen. Elke vlag is een vraag én een andere kar: reuzenwielen, ijswielen, vierkante wielen, een motorros...
    - **Diepboor**: graaf met je boorridder naar goud, kristal en neonkernen. Goede antwoorden geven brandstof; in de smidse koop je een betere boor
    - **Robomol**: robotmollen schieten uit negen burchtputten en elke leerling mept ze met een zwaard, in 3D vanuit de ogen van de ridder. Een juist antwoord laadt het zwaard op en geeft het Vuurzwaard
    - **Ontsnap uit de kerker**: de hele klas zit samen opgesloten en opent deur na deur: een sleuteldeur, een runenslot (de code ligt verspreid over de klas), een laserhek (iedereen moet helpen), een valhek en de Kerkermeester
@@ -222,6 +223,16 @@ Iedereen laat op zijn eigen scherm een **gloeiend zwaard** salto's maken door de
 - Wie in de lava valt of een zaagblad of laser raakt, begint opnieuw bij de laatste runenpaal (geen strafpunten, wel tijd kwijt).
 - Punten: 100 per runenpaal plus extra als je de etappe snel deed, 10-20 per gespleten ding, punten per juist antwoord.
 - Chromebook: spatie, ↑ of klikken = salto, 1-4 antwoorden. Gsm: tik waar je wil. Elk antwoord komt in het logboek. Resultaten in `resultaten/`. Ook als taak (alleen in een spel).
+
+## Wankelwagen
+
+Iedereen rijdt op zijn eigen scherm met een **ridderkar** door dezelfde wiebelbaan: schansen over lava, wiebelbruggen die doorzakken, wippen, ophaalbruggen die op en neer gaan, stekels, bulten, trappen en zwaaiende stekelballen. Elke drie vlaggen een nieuwe wereld (Burchtwallen, Kristalgrot, Sterrenbrug). De anderen zie je als schimmen; het bord volgt de koploper.
+
+- Raakt het hoofd van je ridder de grond, val je in een put of blijf je op je kop liggen, dan begin je opnieuw bij de laatste vlag (geen strafpunten, wel tijd kwijt).
+- **Elke vlag is een vraag én een andere kar**, elk met een eigen moeilijkheid: Ridderkar, Reuzenwielen, IJswielen, Motorros, Vierkante wielen, Springveren, Maanwagen, Burchttank, Lange koets en Raketkar. De baan past zich aan de kar aan (een tragere kar krijgt kortere sprongen).
+- Juist antwoord: ⚡ turbo. Fout: die vraag komt later terug.
+- Punten: 100 per vlag plus extra als je de etappe snel reed, 10 per munt, punten per juist antwoord.
+- Chromebook: → of ↑ gas, ← of ↓ rem (in de lucht kantel je de kar ermee), R = terug naar de vlag, 1-4 antwoorden. Gsm: twee grote pedalen. Elk antwoord komt in het logboek. Resultaten in `resultaten/`.
 
 ## Robomol
 

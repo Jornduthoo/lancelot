@@ -28,7 +28,7 @@ const WRONG_MS = 3000;
 const SOLO = {
   toren: ['De prinses in de toren', 'toren'], schat: ['Schattenjacht', 'schattenjacht'], pixel: ['Pixelridder', 'pixelridder'],
   diep: ['Diepboor', 'diepboor'], vlucht: ['Neonvlucht', 'neonvlucht'], robomol: ['Robomol', 'robomol'],
-  raket: ['Raketridder', 'raketridder'], zwaard: ['Splijtzwaard', 'splijtzwaard'],
+  raket: ['Raketridder', 'raketridder'], zwaard: ['Splijtzwaard', 'splijtzwaard'], wankel: ['Wankelwagen', 'wankelwagen'],
 };
 const spelVan = t => (t.spel && SOLO[t.spel] ? { id: t.spel, naam: SOLO[t.spel][0], icoon: SOLO[t.spel][1], minuten: t.minuten } : null);
 const MINUTEN = [3, 5, 8, 10];
