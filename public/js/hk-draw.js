@@ -157,15 +157,32 @@ const HkDraw = (() => {
 
   // De geschilderde achtergrond, één keer geschaald naar de hoogte van het scherm.
   let bgCache = null;
+  // In stroken van 512 pixels (zonder doorzichtigheid), zodat elke frame alleen de zichtbare stroken getekend worden.
+  // Hoge schermen (gsm rechtop) bakken we op maximaal 900 pixels hoog en rekken we bij het tekenen.
   function painted(h) {
     const img = ART.achtergrond;
     if (!img) return null;
-    if (bgCache && bgCache.h === h && bgCache.v === artVersion) return bgCache.c;
-    const sc = h / img.height;
-    const c = mk(Math.min(3000, img.width * sc), h);
-    c.getContext('2d').drawImage(img, 0, 0, c.width, h);
-    bgCache = { h, v: artVersion, c };
-    return c;
+    if (bgCache && bgCache.h === h && bgCache.v === artVersion) return bgCache;
+    const bh = Math.min(h, 900);
+    const iw = Math.round(img.width * bh / img.height);
+    const total = iw * 2, CH = 512;
+    const chunks = [];
+    for (let x0 = 0; x0 < total; x0 += CH) {
+      const cw = Math.min(CH, total - x0);
+      const c = document.createElement('canvas');
+      c.width = cw; c.height = bh;
+      const g = c.getContext('2d', { alpha: false });
+      g.translate(-x0, 0);
+      // Twee keer naast elkaar, de tweede gespiegeld: zo sluiten de randen naadloos aan.
+      g.drawImage(img, 0, 0, iw, bh);
+      g.save(); g.translate(iw * 2, 0); g.scale(-1, 1); g.drawImage(img, 0, 0, iw, bh); g.restore();
+      // Iets donkerder, zodat de ankers, de ridders en de lasers vooraan beter opvallen.
+      g.fillStyle = 'rgba(6,6,24,.28)';
+      g.fillRect(x0, 0, cw, bh);
+      chunks.push({ x0, c });
+    }
+    bgCache = { h, v: artVersion, k: h / bh, width: total * h / bh, chunks };
+    return bgCache;
   }
 
   // ---------- De afgrond ----------
@@ -254,8 +271,9 @@ const HkDraw = (() => {
     glow(ctx, sx + S * .6, sy - S * 2.6, S * 2.4, col, passed ? .25 : .5);
     if (ART.banier) {
       const img = ART.banier;
-      const hh = S * 4.6, ww = hh * img.width / img.height;
-      ctx.drawImage(img, Math.round(sx - ww * .5), Math.round(sy - hh * .97), Math.round(ww), Math.round(hh));
+      // De paal staat onderaan op 30 % van de breedte.
+      const hh = S * 4.4, ww = hh * img.width / img.height;
+      ctx.drawImage(img, Math.round(sx - ww * .3), Math.round(sy - hh), Math.round(ww), Math.round(hh));
     } else {
       ctx.strokeStyle = INK;
       ctx.lineWidth = Math.max(1, S * .05);
@@ -275,7 +293,9 @@ const HkDraw = (() => {
       ctx.stroke();
     }
     // Het nummer van de vlag in een gouden schild.
-    const cx = sx + S * (ART.banier ? 0 : .92), cy = sy - S * (ART.banier ? 5.1 : 2.95);
+    // Op het schild van de geschilderde banier (54 % breed, 54 % hoog), of op de getekende.
+    const ah = S * 4.4, aw = ART.banier ? ah * ART.banier.width / ART.banier.height : 0;
+    const cx = ART.banier ? sx - aw * .3 + aw * .54 : sx + S * .92, cy = ART.banier ? sy - ah + ah * .54 : sy - S * 2.95;
     ctx.fillStyle = col;
     ctx.strokeStyle = INK;
     ctx.lineWidth = Math.max(1, S * .05);
@@ -295,11 +315,14 @@ const HkDraw = (() => {
     if (c) return c;
     if (anchorCache.size > 6) anchorCache.clear();
     const size = Math.ceil(S * 1.9);
-    c = mk(size, size);
+    c = mk(size, Math.ceil(size * 1.35)); // wat extra plaats onderaan voor de steentjes onder het anker
     const g = c.getContext('2d');
     const m = size / 2;
     if (ART.anker) {
-      g.drawImage(ART.anker, 0, 0, size, size);
+      // De ring vult de breedte; zijn midden ligt op 43 % van de hoogte.
+      const img = ART.anker, ww = size * .95, hh = ww * img.height / img.width;
+      glow(g, m, m, size * .5, '#5ee7ff', .35);
+      g.drawImage(img, m - ww / 2, m - hh * .43, ww, hh);
     } else {
       glow(g, m, m, size * .5, '#5ee7ff', .55);
       g.lineWidth = Math.max(1, S * .06);
@@ -336,7 +359,7 @@ const HkDraw = (() => {
       ctx.stroke();
       ctx.setLineDash([]);
     }
-    ctx.drawImage(spr, Math.round(sx - spr.width / 2), Math.round(sy - spr.height / 2 + bob));
+    ctx.drawImage(spr, Math.round(sx - spr.width / 2), Math.round(sy - spr.width / 2 + bob));
     if (aim) {
       // Dit anker grijpt je haak als je nu drukt.
       const p = .5 + Math.sin(t * 8) * .5;
@@ -487,7 +510,7 @@ const HkDraw = (() => {
     if (o.hook) {
       const ax = sx + (o.ax - o.x) * S, ay = sy + (o.ay - o.y) * S;
       const d = Math.hypot(ax - sx, ay - sy) || 1;
-      const hx = sx + (ax - sx) / d * S * .95, hy = sy + (ay - sy) / d * S * .95;
+      const hx = sx + (ax - sx) / d * S * 1.35, hy = sy + (ay - sy) / d * S * 1.35;
       const col = o.gold ? '#ffc94a' : '#5ee7ff';
       ctx.strokeStyle = col;
       ctx.globalAlpha *= .35;
@@ -505,7 +528,7 @@ const HkDraw = (() => {
     ctx.rotate(o.rot || 0);
     const art = tinted(o.hook ? 'zwaai' : 'vlieg', o.color);
     if (art) {
-      const hh = S * (o.hook ? 2.3 : 1.9), ww = hh * art.width / art.height;
+      const hh = S * (o.hook ? 3.2 : 2.5), ww = hh * art.width / art.height;
       ctx.drawImage(art, -ww / 2, -hh / 2, ww, hh);
     } else {
       const spr = drawnKnight(o.color, !o.hook && !o.ground);
@@ -539,7 +562,14 @@ const HkDraw = (() => {
     const bg = painted(h);
     if (bg) {
       const off = -((v.cx * S * .12) % bg.width + bg.width) % bg.width;
-      for (let x = off; x < w; x += bg.width) ctx.drawImage(bg, Math.round(x), 0);
+      for (let x = off; x < w; x += bg.width) {
+        for (const ch of bg.chunks) {
+          const dx = Math.round(x + ch.x0 * bg.k), dw = Math.ceil(ch.c.width * bg.k);
+          if (dx + dw <= 0 || dx >= w) continue;
+          if (bg.k === 1) ctx.drawImage(ch.c, dx, 0);
+          else ctx.drawImage(ch.c, dx, 0, dw + 1, h);
+        }
+      }
     } else {
       ctx.drawImage(sky(theme, w, h), 0, 0);
       const nextTheme = W.themeOf(kc + 1);
