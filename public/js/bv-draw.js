@@ -71,14 +71,21 @@ const BvDraw = (() => {
   // Een tegel van 4 x 4 vakjes: donkere stenen, mos, fijne lichtende circuitlijnen en hier en daar een kristalletje.
   let bgTile = null;
   const TILE_CELLS = 4, TILE_PX = 192;
+  // Jorns geschilderde grond is een naadloze tegel van 10 x 10 vakjes; de getekende grond een van 4 x 4.
+  let tileCells = TILE_CELLS;
   function tile() {
     if (bgTile) return bgTile;
-    const c = mk(TILE_PX, TILE_PX), g = c.getContext('2d');
     if (ART.veld) {
-      g.drawImage(ART.veld, 0, 0, TILE_PX, TILE_PX);
-      g.fillStyle = 'rgba(4,8,22,.35)';
-      g.fillRect(0, 0, TILE_PX, TILE_PX);
-    } else {
+      const v = ART.veld, c = mk(v.width, v.height), g = c.getContext('2d');
+      g.drawImage(v, 0, 0);
+      g.fillStyle = 'rgba(4,8,22,.3)';
+      g.fillRect(0, 0, c.width, c.height);
+      tileCells = 10;
+      bgTile = c;
+      return c;
+    }
+    const c = mk(TILE_PX, TILE_PX), g = c.getContext('2d');
+    {
       const r = rng(7), cs = TILE_PX / TILE_CELLS;
       g.fillStyle = '#0b1226';
       g.fillRect(0, 0, TILE_PX, TILE_PX);
@@ -272,9 +279,9 @@ const BvDraw = (() => {
   // ---------- Figuren ----------
   // Een burcht van bovenaf: vier torentjes, een kantelenmuur en een banier in de kleur van de ridder.
   function burcht(ctx, x, y, s, color, t) {
-    const img = tinted('burcht', color, s * 2.2);
+    const img = tinted('burcht', color, s * 2.4);
     if (img) {
-      const w = s * 2.2, h = w * img.height / img.width;
+      const w = s * 2.4, h = w * img.height / img.width;
       ctx.drawImage(img, x - w / 2, y - h / 2, w, h);
       return;
     }
@@ -325,10 +332,10 @@ const BvDraw = (() => {
     // Zweefgloed onder het ros
     glow(ctx, 0, 0, s * (1.25 + Math.sin(t * 6) * .05), color, .45);
     if (o.turbo) glow(ctx, -Math.cos(a) * s * .9, -Math.sin(a) * s * .9, s * .9, '#ffe17a', .55);
-    const img = tinted('ruiter', color, s * 2.4);
+    const img = tinted('ruiter', color, s * 3.4);
     ctx.rotate(a);
     if (img) {
-      const w = s * 2.4, h = w * img.height / img.width;
+      const w = s * 3.4, h = w * img.height / img.width;
       ctx.drawImage(img, -w / 2, -h / 2, w, h);
     } else {
       // Het ros: een gestroomlijnd zweefschip met stuwers achteraan
@@ -403,7 +410,7 @@ const BvDraw = (() => {
     ctx.fillRect(0, 0, w, h);
     if (!scene.land) return;
     // Grond op het veld
-    const tl = tile(), tw = TILE_CELLS * s;
+    const tl = tile(), tw = tileCells * s;
     const fx0 = Math.max(0, ox), fy0 = Math.max(0, oy), fx1 = Math.min(w, ox + G * s), fy1 = Math.min(h, oy + G * s);
     if (fx1 > fx0 && fy1 > fy0) {
       const i0 = Math.floor((fx0 - ox) / tw), j0 = Math.floor((fy0 - oy) / tw);
