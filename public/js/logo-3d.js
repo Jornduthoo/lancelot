@@ -1,19 +1,32 @@
-// Het bewegende 3D-logo: elk <img data-logo-3d> wordt drie lagen (kabel achter, de ridder als filmpje, letters vooraan).
-// Kan de browser het doorzichtige filmpje niet tonen (Safari op iPhone/iPad, oude browser), of wil iemand geen beweging,
-// dan blijft gewoon het vaste logo staan.
+// Het bewegende 3D-logo: elk <img data-logo-3d> wordt drie lagen (kabel achter, de ridder, letters vooraan).
+// - Chrome/Edge/Android: de ridder is een doorzichtig filmpje (webm), dat alleen speelt zolang het logo in beeld is.
+// - Safari/iPhone/iPad kennen dat filmpje niet: daar is de ridder een bewegende webp-afbeelding.
+// - Wie 'minder beweging' gevraagd heeft, houdt het vaste logo.
 (() => {
-  const proef = document.createElement('video');
-  const safari = /^((?!chrome|chromium|crios|android|edg).)*safari/i.test(navigator.userAgent) || /iPad|iPhone|iPod/.test(navigator.userAgent);
-  if (safari || !proef.canPlayType('video/webm; codecs="vp9"')) return;
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const ua = navigator.userAgent;
+  const apple = /iPad|iPhone|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1)
+    || /^((?!chrome|chromium|crios|android|edg).)*safari/i.test(ua);
+  const filmOk = !apple && !!document.createElement('video').canPlayType('video/webm; codecs="vp9"');
+  const kijker = filmOk && 'IntersectionObserver' in window ? new IntersectionObserver(items => {
+    for (const it of items) {
+      const v = it.target;
+      if (it.isIntersecting) { if (v.preload !== 'auto') v.preload = 'auto'; v.play().catch(() => {}); } else v.pause();
+    }
+  }) : null;
   for (const oud of document.querySelectorAll('img[data-logo-3d]')) {
     const vak = document.createElement('div');
     vak.className = 'logo-3d';
     if (oud.id) vak.id = oud.id;
-    vak.innerHTML = '<img src="/img/logo-3d/achter.webp" alt="">'
-      + '<video src="/img/logo-3d/ridder.webm" poster="/img/logo-3d/ridder-start.webp" preload="auto" autoplay loop muted playsinline disablepictureinpicture></video>'
-      + '<img src="/img/logo-3d/voor.webp" alt="LANcelot">';
-    vak.querySelector('video').addEventListener('error', () => vak.replaceWith(oud));
+    const midden = filmOk
+      ? '<video src="/img/logo-3d/ridder.webm" poster="/img/logo-3d/ridder-start.webp" preload="none" loop muted playsinline disablepictureinpicture></video>'
+      : '<img class="ridder" src="/img/logo-3d/ridder-ios.webp" alt="" loading="lazy">';
+    vak.innerHTML = '<img src="/img/logo-3d/achter.webp" alt="">' + midden + '<img src="/img/logo-3d/voor.webp" alt="LANcelot">';
+    const film = vak.querySelector('video');
+    if (film) {
+      film.addEventListener('error', () => vak.replaceWith(oud));
+      if (kijker) kijker.observe(film); else { film.preload = 'auto'; film.autoplay = true; }
+    }
     oud.replaceWith(vak);
   }
 })();
