@@ -660,7 +660,8 @@ const WwDraw = (() => {
       const p = paths(st);
       const tm = st.theme;
       ctx.save();
-      ctx.setTransform(S, 0, 0, S, w / 2 - v.cx * S, h / 2 - v.cy * S);
+      ctx.translate(w / 2 - v.cx * S, h / 2 - v.cy * S); // geen setTransform: het bord schuift alles al op onder de strook
+      ctx.scale(S, S);
       ctx.fillStyle = stonePattern(ctx, tm);
       ctx.fill(p.fill);
       ctx.lineJoin = 'round';
