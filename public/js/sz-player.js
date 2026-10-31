@@ -339,6 +339,15 @@
     return { x: ((x - c.x) * view.S + view.w / 2) / view.dpr, y: ((y - c.y) * view.S + view.h / 2) / view.dpr };
   }
 
+  // De hoek die we tekenen: meestal de echte, maar na rechtop wippen draait hij er snel naartoe.
+  function shownA(dt) {
+    if (!(g.rechtT > 0)) return g.pl.a;
+    g.rechtT -= dt;
+    const k = 1 - Math.max(0, g.rechtT) / .14;
+    const d = Math.atan2(Math.sin(g.pl.a - g.rechtVan), Math.cos(g.pl.a - g.rechtVan));
+    return g.rechtVan + d * (1 - (1 - k) * (1 - k));
+  }
+
   let last = performance.now();
   function frame(t) {
     requestAnimationFrame(frame);
@@ -367,7 +376,9 @@
         let hit = null;
         for (let i = 0; i < n && !hit; i++) {
           const tt = time - dt + dt * (i + 1) / n;
+          const voor = pl.a;
           const o = W.step(g.state.seed, pl, dt / n, tt);
+          if (o.recht) { g.rechtVan = voor; g.rechtT = .14; } // even laten zien hoe het zwaard rechtop wipt
           if (o.dood && (pl.safe <= 0 || o.dood === 'lava')) hit = o.dood;
           if (o.vast) {
             const p = toCss(...W.tipOf(pl));
@@ -455,7 +466,7 @@
     SzDraw.render(ctx, fit.w, fit.h, {
       seed: g.state.seed, t: time, now: t / 1000, cx: g.cam.x + (Math.random() - .5) * sh, cy: g.cam.y + (Math.random() - .5) * sh, S, ghosts, hide: g.hide, passed: g.stage,
       pieces: g.pieces, trail: g.trail,
-      me: pl.dead > 0 ? null : { x: pl.x, y: pl.y, a: pl.a, gold: pl.gold > 0, rust: pl.rust > 0, color: g.color, blink: pl.safe > 0 && !pl.stuck },
+      me: pl.dead > 0 ? null : { x: pl.x, y: pl.y, a: shownA(dt), gold: pl.gold > 0, rust: pl.rust > 0, color: g.color, blink: pl.safe > 0 && !pl.stuck },
     });
     fx.update(dt);
     ctx.save();
