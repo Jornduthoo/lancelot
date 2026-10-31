@@ -106,7 +106,7 @@ class Haakridder {
 
   // ---------- Wat de leerling doorstuurt ----------
 
-  // Positie (tien keer per seconde). f: 1 aan de haak, 4 gouden haak, 8 gevallen. ax, ay: het anker. rot: hoe je draait.
+  // Positie (tien keer per seconde). f: 1 aan de haak, 2 op het eiland, 4 gouden haak, 8 gevallen. ax, ay: het anker. rot: hoe je draait.
   pos(playerId, { x, y, f, ax, ay, rot } = {}) {
     const p = this.players.get(playerId);
     if (!p || this.phase !== 'play' || Date.now() < this.startedAt) return;
@@ -287,7 +287,7 @@ class Haakridder {
   }
 
   // Iedereen krijgt de plek van iedereen: [n, x, y, vlaggen, etappe, ankerx, ankery, draai].
-  // Vlaggen: 1 aan de haak, 4 gouden haak, 8 gevallen, 16 vraag.
+  // Vlaggen: 1 aan de haak, 2 op het eiland, 4 gouden haak, 8 gevallen, 16 vraag.
   send(now) {
     const r2 = v => Math.round(v * 100) / 100;
     const msg = { r: [...this.players.values()].map(p => [p.n, r2(p.x), r2(p.y), p.f | (p.asking ? 16 : 0), p.stage, r2(p.ax || 0), r2(p.ay || 0), Math.round((p.rot || 0) * 10) / 10]) };

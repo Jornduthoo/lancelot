@@ -383,7 +383,7 @@
         g.sentAt = t;
         const a = pl.hook ? W.at(pl.hook, time) : null;
         const r2 = v => Math.round(v * 100) / 100;
-        socket.emit('hk-pos', { x: r2(pl.x), y: r2(pl.y), f: (a ? 1 : 0) | (pl.gold > 0 ? 4 : 0) | (pl.dead > 0 ? 8 : 0), ax: a ? r2(a.x) : 0, ay: a ? r2(a.y) : 0, rot: Math.round((pl.rot || 0) % (Math.PI * 2) * 10) / 10 });
+        socket.emit('hk-pos', { x: r2(pl.x), y: r2(pl.y), f: (a ? 1 : 0) | (pl.ground ? 2 : 0) | (pl.gold > 0 ? 4 : 0) | (pl.dead > 0 ? 8 : 0), ax: a ? r2(a.x) : 0, ay: a ? r2(a.y) : 0, rot: Math.round((pl.rot || 0) % (Math.PI * 2) * 10) / 10 });
       }
     }
 
@@ -411,7 +411,7 @@
       if (!v || !r || (v[3] & 8)) continue;
       if (Math.abs(v[0] - pl.x) > viewW) continue;
       const near = Math.abs(v[0] - pl.x) < 2.5 && Math.abs(v[1] - pl.y) < 2;
-      ghosts.push({ x: v[0], y: v[1], rot: v[2], hook: Boolean(v[3] & 1), gold: Boolean(v[3] & 4), ax: v[5], ay: v[6], color: r.color, alpha: near ? .2 : .42, name: near ? '' : r.name, n });
+      ghosts.push({ x: v[0], y: v[1], rot: v[2], hook: Boolean(v[3] & 1), ground: Boolean(v[3] & 2), gold: Boolean(v[3] & 4), ax: v[5], ay: v[6], color: r.color, alpha: near ? .2 : .42, name: near ? '' : r.name, n });
     }
     // Welk anker zou je haak nu grijpen? Dat krijgt een ring.
     const aim = !pl.hook && pl.dead <= 0 ? W.target(g.state.seed, pl, time, pl.gold > 0) : null;
