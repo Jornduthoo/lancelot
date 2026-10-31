@@ -65,6 +65,7 @@ const { Wankelwagen } = require('./src/wankelwagen');
 const { Plasmapoort } = require('./src/plasmapoort');
 const { Tuimelridder } = require('./src/tuimelridder');
 const { Hooibergjacht } = require('./src/hooibergjacht');
+const { Zwermwacht } = require('./src/zwermwacht');
 const { Banierveld } = require('./src/banierveld');
 const { Haakridder } = require('./src/haakridder');
 const { Burchtstorm } = require('./src/burchtstorm');
@@ -262,6 +263,11 @@ const hooi = new Hooibergjacht(io, s => {
   return finished(file);
 });
 
+const zwerm = new Zwermwacht(io, s => {
+  const file = s.save();
+  return finished(file);
+});
+
 const banier = new Banierveld(io, s => {
   const file = s.save();
   return finished(file);
@@ -339,7 +345,7 @@ const proef = new ProefLive(io, rec => {
 
 // Elk spel met leerlingen, bij het adres van zijn leerkrachtenscherm. Een nieuw spel komt hier ook bij:
 // zo werken de grijze (bezette) namen bij het aanmelden en de knop "Namen" op het bord meteen mee.
-const SPELLEN = { '/host': game, '/toren': toren, '/schattenjacht': schat, '/laserslag': laserslag, '/ridderrace': race, '/kristalroof': roof, '/verrader': verrader, '/burchtbouwers': burcht, '/duel': duel, '/packnight': knight, '/strijdrossen': rossen, '/gauntlet': gauntlet, '/ridder-royale': royale, '/sterrenvreter': sterren, '/ridderslang': slang, '/burchtstorm': storm, '/poortwacht': poort, '/neonvlucht': vlucht, '/diepboor': diep, '/raketridder': raket, '/splijtzwaard': zwaard, '/wankelwagen': wankel, '/plasmapoort': plasma, '/tuimelridder': tuimel, '/hooibergjacht': hooi, '/haakridder': haak, '/banierveld': banier, '/pixelridder': pixel, '/robomol': robomol, '/kerker': kerker, '/hofschilder': hof, '/robopaarden': paarden, '/neonduel': neon, '/leraarbaas': baas, '/cybergalaga': galaga, '/bomberknight': bomber, '/rijk': rijk, '/oefenblad': oefenblad, '/proef': proef };
+const SPELLEN = { '/host': game, '/toren': toren, '/schattenjacht': schat, '/laserslag': laserslag, '/ridderrace': race, '/kristalroof': roof, '/verrader': verrader, '/burchtbouwers': burcht, '/duel': duel, '/packnight': knight, '/strijdrossen': rossen, '/gauntlet': gauntlet, '/ridder-royale': royale, '/sterrenvreter': sterren, '/ridderslang': slang, '/burchtstorm': storm, '/poortwacht': poort, '/neonvlucht': vlucht, '/diepboor': diep, '/raketridder': raket, '/splijtzwaard': zwaard, '/wankelwagen': wankel, '/plasmapoort': plasma, '/tuimelridder': tuimel, '/hooibergjacht': hooi, '/zwermwacht': zwerm, '/haakridder': haak, '/banierveld': banier, '/pixelridder': pixel, '/robomol': robomol, '/kerker': kerker, '/hofschilder': hof, '/robopaarden': paarden, '/neonduel': neon, '/leraarbaas': baas, '/cybergalaga': galaga, '/bomberknight': bomber, '/rijk': rijk, '/oefenblad': oefenblad, '/proef': proef };
 const online = socketId => !!(socketId && io.sockets.sockets.get(socketId));
 function* spelers() {
   for (const spel of Object.values(SPELLEN)) {
@@ -439,6 +445,7 @@ const guarded = {
   plasma: gok.guard(plasma, 'plasma', 'Plasmapoort', { own: true }),
   tuimel: gok.guard(tuimel, 'tuimel', 'Tuimelridder', { own: true }),
   hooi: gok.guard(hooi, 'hooi', 'Hooibergjacht', { own: true }),
+  zwerm: gok.guard(zwerm, 'zwerm', 'Zwermwacht', { own: true }),
   banier: gok.guard(banier, 'banier', 'Banierveld', { own: true }),
   haak: gok.guard(haak, 'haak', 'Haakridder', { own: true }),
   storm: gok.guard(storm, 'storm', 'Burchtstorm', { own: true }),
@@ -456,7 +463,7 @@ const busyError = message => Object.assign(new Error(message), { busy: true });
 
 // Alles stoppen wat nog loopt (behalve het spel dat je wil starten). De resultaten worden bewaard zoals bij Stop.
 function stopOthers(except) {
-  const all = { toernooi: game, rondetafel: rt, toren, schat, laserslag, race, roof, verrader, burcht, duel, knight, rossen, gauntlet, royale, sterren, slang, storm, poort, vlucht, diep, raket, zwaard, wankel, plasma, tuimel, hooi, banier, haak, pixel, robomol, kerker, hofschilder: hof, paarden, neon, baas, rijk, oefenblad, proef, galaga, bomber };
+  const all = { toernooi: game, rondetafel: rt, toren, schat, laserslag, race, roof, verrader, burcht, duel, knight, rossen, gauntlet, royale, sterren, slang, storm, poort, vlucht, diep, raket, zwaard, wankel, plasma, tuimel, hooi, zwerm, banier, haak, pixel, robomol, kerker, hofschilder: hof, paarden, neon, baas, rijk, oefenblad, proef, galaga, bomber };
   for (const [key, mod] of Object.entries(all)) {
     if (key === except) continue;
     if (key === 'toernooi' ? game.phase !== 'idle' : mod.active) mod.stop();
@@ -493,6 +500,7 @@ function busyWith(except) {
   if (except !== 'plasma' && plasma.active) return 'Plasmapoort loopt nog. Stop dat spel eerst.';
   if (except !== 'tuimel' && tuimel.active) return 'Tuimelridder loopt nog. Stop dat spel eerst.';
   if (except !== 'hooi' && hooi.active) return 'Hooibergjacht loopt nog. Stop dat spel eerst.';
+  if (except !== 'zwerm' && zwerm.active) return 'Zwermwacht loopt nog. Stop dat spel eerst.';
   if (except !== 'banier' && banier.active) return 'Banierveld loopt nog. Stop dat spel eerst.';
   if (except !== 'haak' && haak.active) return 'Haakridder loopt nog. Stop dat spel eerst.';
   if (except !== 'storm' && storm.active) return 'Burchtstorm loopt nog. Stop dat spel eerst.';
@@ -614,7 +622,7 @@ function ontdekSoon() {
 }
 
 // De leerkrachtenschermen, elk bij zijn adres.
-const PAGINAS = [['/host', 'host.html'], ['/rondetafel', 'rondetafel.html'], ['/toren', 'toren.html'], ['/schattenjacht', 'schattenjacht.html'], ['/laserslag', 'laserslag.html'], ['/ridderrace', 'ridderrace.html'], ['/kristalroof', 'kristalroof.html'], ['/verrader', 'verrader.html'], ['/burchtbouwers', 'burchtbouwers.html'], ['/duel', 'duel.html'], ['/packnight', 'packnight.html'], ['/strijdrossen', 'strijdrossen.html'], ['/gauntlet', 'gauntlet.html'], ['/ridder-royale', 'royale.html'], ['/sterrenvreter', 'sterrenvreter.html'], ['/ridderslang', 'ridderslang.html'], ['/burchtstorm', 'burchtstorm.html'], ['/poortwacht', 'poortwacht.html'], ['/neonvlucht', 'neonvlucht.html'], ['/diepboor', 'diepboor.html'], ['/raketridder', 'raketridder.html'], ['/splijtzwaard', 'splijtzwaard.html'], ['/wankelwagen', 'wankelwagen.html'], ['/plasmapoort', 'plasmapoort.html'], ['/tuimelridder', 'tuimelridder.html'], ['/hooibergjacht', 'hooibergjacht.html'], ['/haakridder', 'haakridder.html'], ['/banierveld', 'banierveld.html'], ['/pixelridder', 'pixelridder.html'], ['/robomol', 'robomol.html'], ['/kerker', 'kerker.html'], ['/hofschilder', 'hofschilder.html'], ['/robopaarden', 'robopaarden.html'], ['/neonduel', 'neonduel.html'], ['/leraarbaas', 'leraarbaas.html'], ['/cybergalaga', 'cybergalaga.html'], ['/bomberknight', 'bomberknight.html'], ['/rijk', 'rijk.html'], ['/oefenblad', 'oefenblad.html'], ['/proef', 'proef.html'], ['/proef-print', 'proef-print.html'], ['/reeks', 'reeks.html'], ['/wapenkamer', 'wapenkamer.html'], ['/kringgesprek', 'kringgesprek.html'], ['/kronieken', 'kronieken.html'], ['/zonnewijzer', 'zonnewijzer.html'], ['/zegelrol', 'zegelrol.html'], ['/zegelrol-print', 'zegelrol-print.html'], ['/postduif', 'postduif.html'], ['/postduif-print', 'postduif-print.html'], ['/oefenblad-print', 'oefenblad-print.html'], ['/klas', 'klas.html'], ['/zorg', 'zorg.html'], ['/taken', 'taken.html'], ['/zorg-fiche', 'zorg-fiche.html'], ['/runenraadsel', 'runenraadsel.html'], ['/ontdek-beheer', 'ontdek-beheer.html'], ['/klaseiland', 'klaseiland.html'], ['/netwerk', 'netwerk.html'], ['/welkom', 'welkom.html'], ['/privacy', 'privacy.html']];
+const PAGINAS = [['/host', 'host.html'], ['/rondetafel', 'rondetafel.html'], ['/toren', 'toren.html'], ['/schattenjacht', 'schattenjacht.html'], ['/laserslag', 'laserslag.html'], ['/ridderrace', 'ridderrace.html'], ['/kristalroof', 'kristalroof.html'], ['/verrader', 'verrader.html'], ['/burchtbouwers', 'burchtbouwers.html'], ['/duel', 'duel.html'], ['/packnight', 'packnight.html'], ['/strijdrossen', 'strijdrossen.html'], ['/gauntlet', 'gauntlet.html'], ['/ridder-royale', 'royale.html'], ['/sterrenvreter', 'sterrenvreter.html'], ['/ridderslang', 'ridderslang.html'], ['/burchtstorm', 'burchtstorm.html'], ['/poortwacht', 'poortwacht.html'], ['/neonvlucht', 'neonvlucht.html'], ['/diepboor', 'diepboor.html'], ['/raketridder', 'raketridder.html'], ['/splijtzwaard', 'splijtzwaard.html'], ['/wankelwagen', 'wankelwagen.html'], ['/plasmapoort', 'plasmapoort.html'], ['/tuimelridder', 'tuimelridder.html'], ['/hooibergjacht', 'hooibergjacht.html'], ['/zwermwacht', 'zwermwacht.html'], ['/haakridder', 'haakridder.html'], ['/banierveld', 'banierveld.html'], ['/pixelridder', 'pixelridder.html'], ['/robomol', 'robomol.html'], ['/kerker', 'kerker.html'], ['/hofschilder', 'hofschilder.html'], ['/robopaarden', 'robopaarden.html'], ['/neonduel', 'neonduel.html'], ['/leraarbaas', 'leraarbaas.html'], ['/cybergalaga', 'cybergalaga.html'], ['/bomberknight', 'bomberknight.html'], ['/rijk', 'rijk.html'], ['/oefenblad', 'oefenblad.html'], ['/proef', 'proef.html'], ['/proef-print', 'proef-print.html'], ['/reeks', 'reeks.html'], ['/wapenkamer', 'wapenkamer.html'], ['/kringgesprek', 'kringgesprek.html'], ['/kronieken', 'kronieken.html'], ['/zonnewijzer', 'zonnewijzer.html'], ['/zegelrol', 'zegelrol.html'], ['/zegelrol-print', 'zegelrol-print.html'], ['/postduif', 'postduif.html'], ['/postduif-print', 'postduif-print.html'], ['/oefenblad-print', 'oefenblad-print.html'], ['/klas', 'klas.html'], ['/zorg', 'zorg.html'], ['/taken', 'taken.html'], ['/zorg-fiche', 'zorg-fiche.html'], ['/runenraadsel', 'runenraadsel.html'], ['/ontdek-beheer', 'ontdek-beheer.html'], ['/klaseiland', 'klaseiland.html'], ['/netwerk', 'netwerk.html'], ['/welkom', 'welkom.html'], ['/privacy', 'privacy.html']];
 
 // Het leerkrachtenscherm werkt op de pc waar de server draait (meestal het digibord),
 // en op een tweede scherm dat de leerkracht met een koppelcode koppelde (de bureau-pc).
@@ -1539,6 +1547,7 @@ io.on('connection', socket => {
     plasma.attachHost(socket, handle, busyWith, busyError, quizzes);
     tuimel.attachHost(socket, handle, busyWith, busyError, quizzes);
     hooi.attachHost(socket, handle, busyWith, busyError, quizzes);
+    zwerm.attachHost(socket, handle, busyWith, busyError, quizzes);
     banier.attachHost(socket, handle, busyWith, busyError, quizzes);
     haak.attachHost(socket, handle, busyWith, busyError, quizzes);
     storm.attachHost(socket, handle, busyWith, busyError, quizzes);
@@ -2107,6 +2116,7 @@ io.on('connection', socket => {
   plasma.attachPlayer(socket, validId, guarded.plasma);
   tuimel.attachPlayer(socket, validId, guarded.tuimel);
   hooi.attachPlayer(socket, validId, guarded.hooi);
+  zwerm.attachPlayer(socket, validId, guarded.zwerm);
   banier.attachPlayer(socket, validId, guarded.banier);
   haak.attachPlayer(socket, validId, guarded.haak);
   storm.attachPlayer(socket, validId, guarded.storm);

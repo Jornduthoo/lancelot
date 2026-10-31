@@ -15,6 +15,7 @@ const { Wankelwagen } = require('./wankelwagen');
 const { Plasmapoort } = require('./plasmapoort');
 const { Tuimelridder } = require('./tuimelridder');
 const { Hooibergjacht } = require('./hooibergjacht');
+const { Zwermwacht } = require('./zwermwacht');
 const { Haakridder } = require('./haakridder');
 const { Robomol } = require('./robomol');
 
@@ -31,6 +32,7 @@ const SPELLEN = {
   plasma: { Klasse: Plasmapoort, eigen: true },
   tuimel: { Klasse: Tuimelridder, eigen: true },
   hooi: { Klasse: Hooibergjacht, eigen: true },
+  zwerm: { Klasse: Zwermwacht, eigen: true },
   haak: { Klasse: Haakridder, eigen: true },
   robomol: { Klasse: Robomol, eigen: true },
 };
