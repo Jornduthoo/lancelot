@@ -28,6 +28,7 @@ Het thema: middeleeuws met een scifi-kantje. Het startscherm heeft drie grote te
    - **Hooibergjacht**: graaf door je eigen neonhooiberg tot je de kristallen naald vindt. Is je energie op, dan komt er een vraag: juist = beter werktuig en het kompas wijst waar de naald zit
    - **Plasmapoort**: strafschoppen tegen 8 robotridders in het burchtstadion. Mik je plasmabal (richting, dan hoogte) en duik als keeper. Voor elke trap een vraag: juist = gouden bal en groot schild
    - **Haakridder**: slinger met je plasmahaak van kristalanker naar kristalanker door een zwevende burcht. Eén knop: ingedrukt = grijpen, loslaten = vliegen. Elke vlag is een vraag: juist = gouden haak
+   - **Kolkridder**: stuur je gloeiende plasmakolk door een sci-fi ridderstad (2,5D, schuin van boven) en slok alles op wat kleiner is: munten, karren, huizen, torens, de burcht. Hoe meer je slokt, hoe groter je wordt. Plasma op = vraag: juist = groeien + zuigkracht. Met duelmodus
    - **Tuimelridder**: stuntparcours met een ridder op een rare rijmachine (rakettroon, eenwieler, stoomton, zweeftroon): springplanken, hamers, laserpoorten en kanonnen. Raak je iets, dan tuimel je eraf. 5 parcoursen met sterren; elke vlag een vraag: juist = turbo
    - **Diepboor**: graaf met je boorridder naar goud, kristal en neonkernen. Goede antwoorden geven brandstof; in de smidse koop je een betere boor
    - **Robomol**: robotmollen schieten uit negen burchtputten en elke leerling mept ze met een zwaard, in 3D vanuit de ogen van de ridder. Een juist antwoord laadt het zwaard op en geeft het Vuurzwaard
@@ -261,6 +262,17 @@ Iedereen slingert op zijn eigen scherm met een **plasmahaak** door dezelfde zwev
 - Het bord volgt de koploper, met bovenaan een strook met alle vlaggen en waar iedereen is.
 - Chromebook: spatie (of klikken) ingedrukt houden, 1-4 antwoorden. Gsm: vinger op het scherm houden. Elk antwoord komt in het logboek. Resultaten in `resultaten/`. Ook als taak (alleen in een spel).
 - Geschilderde beelden: zet `achtergrond`, `zwaai`, `vlieg`, `anker` en `banier` als webp in `public/img/haakridder/`; zonder die beelden tekent het spel ze zelf.
+
+## Kolkridder
+
+Elke leerling stuurt een **plasmakolk** door dezelfde ridderstad, schuin van boven gezien. Alles wat kleiner is dan je kolk en erboven komt, valt erin: munten, tonnen, hooi, lantaarns, bomen, karren, robopaarden, kramen, beelden, fonteinen, huizen, torens en de burcht in het midden. **Hoe meer je slokt, hoe groter je wordt.** Niemand valt uit.
+
+- **Plasma op = vraag** (ongeveer elke 30 seconden). Juist: je kolk groeit meteen en krijgt 🌪 zuigkracht (8 s, slokt van verder). Fout: even wachten, een beetje plasma, die vraag komt later terug. Tijdens een vraag sta je stil en ben je beschermd.
+- **Duelmodus** (keuze van de leerkracht): een kolk die duidelijk groter is (15 %), slokt een kleinere op. Die verliest 40 % van zijn grootte en komt na 2 seconden ergens anders terug, 3 seconden beschermd.
+- Opgeslokte voorwerpen komen na 40 seconden terug, maar niet vlak bij een kolk. De stad wordt groter met meer leerlingen.
+- Het bord toont de hele stad met alle kolken en namen, rechts de stand (breedte van elke kolk).
+- Chromebook: de kolk volgt de muis, of pijltjes / WASD / ZQSD, 1-4 antwoorden. Gsm: duim op het scherm en schuiven. Elk antwoord komt in het logboek. Resultaten in `resultaten/`. Ook als taak (alleen in een spel).
+- Jorns geschilderde beelden staan in `public/img/kolkridder/` (één webp per voorwerp + `grond`); ontbreekt er een, dan tekent het spel een tijdelijk voorwerp.
 
 ## Tuimelridder
 

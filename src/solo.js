@@ -17,6 +17,7 @@ const { Tuimelridder } = require('./tuimelridder');
 const { Hooibergjacht } = require('./hooibergjacht');
 const { Zwermwacht } = require('./zwermwacht');
 const { Haakridder } = require('./haakridder');
+const { Kolkridder } = require('./kolkridder');
 const { Robomol } = require('./robomol');
 
 // Spellen met attachPlayer koppelen zichzelf; de toren en de schattenjacht hangen we hier zelf aan de verbinding.
@@ -34,6 +35,7 @@ const SPELLEN = {
   hooi: { Klasse: Hooibergjacht, eigen: true },
   zwerm: { Klasse: Zwermwacht, eigen: true },
   haak: { Klasse: Haakridder, eigen: true },
+  kolk: { Klasse: Kolkridder, eigen: true },
   robomol: { Klasse: Robomol, eigen: true },
 };
 const START_MS = 4000;      // even de uitleg in de wachtzaal lezen, dan start het vanzelf

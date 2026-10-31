@@ -247,6 +247,13 @@ Tip: een klas die goed en vlot antwoordt, houdt de poort. Bij veel foute antwoor
 3. Elke vlag is een vraag. Juist: een gouden haak die verder grijpt en harder zwaait.
 4. Wie valt, hangt meteen terug aan zijn laatste anker en slingert verder. Het bord volgt de koploper.
 
+## Kolkridder
+
+1. Kies **De Arena** en dan **Kolkridder**, kies de speeltijd en of de **duelmodus** aan staat, en klik op de quiz. Klik op **Kolken maar!**
+2. Leerlingen sturen hun kolk met de muis, de pijltjes of hun duim. Alles wat kleiner is, slokken ze op en zo groeien ze.
+3. Is de plasma op, dan komt er een vraag. Juist: de kolk groeit en krijgt zuigkracht.
+4. Duelmodus: een veel grotere kolk slokt een kleinere op. Die wordt kleiner en mag meteen verder.
+
 ## Tuimelridder
 
 1. Kies **De Arena** en dan **Tuimelridder**, kies de speeltijd en klik op de quiz. Klik op **Start!**
