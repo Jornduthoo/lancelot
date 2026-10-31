@@ -9,6 +9,7 @@ let offset = 0;
 const others = new AK.Interp(120);
 const stages = new Map(); // n -> etappe
 let leaderN = -1;
+let lastLeadBanner = 0;
 let roster = new Map();
 
 let view = 'setup';
@@ -50,7 +51,7 @@ socket.on('jp-state', s => {
   $('stop').classList.toggle('hidden', !live);
   $('join-mini').classList.toggle('hidden', s.phase !== 'play');
   $('status').textContent = live ? `Raketridder · ${s.title}` : 'Raketridder';
-  if (prev && prev.run !== s.run) { others.clear(); stages.clear(); leaderN = -1; }
+  if (prev && prev.run !== s.run) { others.clear(); stages.clear(); leaderN = -1; cam = null; lastLead = JpWorld.spawnOf(0).x + 8; }
   if (!live) return show('setup');
   if (s.phase === 'lobby') {
     renderLobby();
@@ -68,21 +69,28 @@ socket.on('jp-state', s => {
 socket.on('jp-tick', msg => {
   if (!state || state.phase !== 'play') return;
   const t = performance.now();
-  let best = null;
+  // De koploper wisselt alleen als iemand duidelijk voor ligt (3 m), en wie net gevallen is telt niet mee.
+  // Zo springt de camera niet heen en weer tussen ridders die even ver zijn.
+  let best = null, cur = null;
   for (const [n, x, y, f, st] of msg.r) {
     others.push(n, [x, y, 0, f, st], t);
     stages.set(n, st);
+    if (f & 8) continue;
+    if (n === leaderN) cur = { n, x, st };
     if (!best || x > best.x) best = { n, x, st };
   }
   others.prune(t, 1500);
-  if (best) {
-    if (best.n !== leaderN && leaderN >= 0 && roster.size > 1 && best.st >= 1) {
+  if (best && (!cur || best.x > cur.x + 3)) {
+    if (leaderN >= 0 && best.n !== leaderN && roster.size > 1 && best.st >= 1 && t - lastLeadBanner > 8000) {
       const who = roster.get(best.n);
-      if (who) { banner(`🚀 ${who.name} vliegt nu vooraan!`); sfx.whoosh(); }
+      if (who) { banner(`🚀 ${who.name} vliegt nu vooraan!`); sfx.whoosh(); lastLeadBanner = t; }
     }
     leaderN = best.n;
-    const who = roster.get(best.n);
-    $('p-alive').textContent = who ? `🚀 ${who.name} · 🏁 ${best.st}` : '';
+    cur = best;
+  }
+  if (cur) {
+    const who = roster.get(cur.n);
+    $('p-alive').textContent = who ? `🚀 ${who.name} · 🏁 ${cur.st}` : '';
   }
   if (msg.ranking) {
     state.ranking = msg.ranking;
@@ -137,6 +145,7 @@ function banner(text) {
 const canvas = $('p-canvas');
 const ctx = canvas.getContext('2d');
 let cam = null;
+let lastLead = JpWorld.spawnOf(0).x + 8;
 let last = performance.now();
 function frame(t) {
   requestAnimationFrame(frame);
@@ -157,9 +166,12 @@ function frame(t) {
     if (n === leaderN) lead = o;
     else ghosts.push(o);
   }
-  const wantX = lead ? lead.x + 4 : JpWorld.spawnOf(0).x + 8;
-  if (!cam) cam = wantX;
-  cam += (wantX - cam) * Math.min(1, dt * 2.5);
+  if (lead) lastLead = lead.x + 4;
+  const wantX = lastLead;
+  if (cam === null) cam = wantX;
+  // Rustig volgen: zacht bijsturen en nooit sneller dan 12 m per seconde schuiven.
+  const step = (wantX - cam) * Math.min(1, dt * 2);
+  cam += Math.max(-12 * dt, Math.min(12 * dt, step));
   ctx.save();
   ctx.translate(0, strip);
   JpDraw.render(ctx, w, h - strip, {
