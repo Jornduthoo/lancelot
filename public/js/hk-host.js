@@ -162,7 +162,7 @@ function frame(t) {
     const v = others.get(n);
     const who = roster.get(n);
     if (!v || !who || (v[3] & 8)) continue;
-    const o = { x: v[0], y: v[1], rot: v[2], hook: Boolean(v[3] & 1), gold: Boolean(v[3] & 4), ax: v[5], ay: v[6], color: who.color, name: who.name, alpha: .55, n };
+    const o = { x: v[0], y: v[1], rot: v[2], hook: Boolean(v[3] & 1), ground: Boolean(v[3] & 2), gold: Boolean(v[3] & 4), ax: v[5], ay: v[6], color: who.color, name: who.name, alpha: .55, n };
     if (n === leaderN) lead = o;
     else ghosts.push(o);
   }

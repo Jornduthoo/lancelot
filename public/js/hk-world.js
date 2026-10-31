@@ -85,8 +85,10 @@
       } else if (kind === 'poort') {
         // Een laserpoort tussen twee ankers: laat los op het juiste moment en vlieg door het gat.
         const lx = last.x + 6.8 + r() * .6;
-        const hole = 4.8 - d * .7;
-        const gy = 4.2 + r() * (10 - 4.2 - hole);
+        // Een ruim gat (6 tot 7 meter), gecentreerd rond de hoogte waar je na het loslaten meestal vliegt
+        // (4,5 m onder het vorige anker).
+        const hole = 7 - d * .9;
+        const gy = Math.max(1, last.y + 4.5 - hole / 2 + (r() - .5));
         st.lasers.push({ x: lx, y0: -6, y1: gy });
         st.lasers.push({ x: lx, y0: gy + hole, y1: H + 2 });
         cell(lx, gy + hole / 2);
@@ -277,7 +279,7 @@
         if (!laserOn(l, t)) continue;
         // Kruiste je de laser tijdens deze stap?
         const crossed = (ox - l.x) * (p.x - l.x) <= 0 || Math.abs(p.x - l.x) < R * .7;
-        if (crossed && p.y + R * .6 > l.y0 && p.y - R * .6 < l.y1) return 'laser';
+        if (crossed && p.y + R * .35 > l.y0 && p.y - R * .35 < l.y1) return 'laser';
       }
     }
     return null;

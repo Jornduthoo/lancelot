@@ -524,9 +524,11 @@ const HkDraw = (() => {
     }
     if (o.gold) glow(ctx, sx, sy, S * 1.4, '#ffc94a', .35 + Math.sin(t * 8) * .1);
     else if (o.rim) glow(ctx, sx, sy, S * 1.2, o.color, .25);
-    ctx.translate(sx, sy);
-    ctx.rotate(o.rot || 0);
-    const art = tinted(o.hook ? 'zwaai' : 'vlieg', o.color);
+    // Rechtop op het eiland: iets hoger, zodat de voeten op de stenen staan.
+    ctx.translate(sx, sy - (o.ground && !o.hook ? S * .6 : 0));
+    ctx.rotate(o.ground && !o.hook ? 0 : o.rot || 0);
+    // Aan de haak of rechtop op het eiland: de zwaaiende ridder. In de lucht: de salto.
+    const art = tinted(o.hook || o.ground ? 'zwaai' : 'vlieg', o.color);
     if (art) {
       const hh = S * (o.hook ? 3.2 : 2.5), ww = hh * art.width / art.height;
       ctx.drawImage(art, -ww / 2, -hh / 2, ww, hh);
