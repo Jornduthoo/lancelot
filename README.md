@@ -26,6 +26,7 @@ Het thema: middeleeuws met een scifi-kantje. Het startscherm heeft drie grote te
    - **Wankelwagen**: rij met je ridderkar over schansen, wiebelbruggen, wippen en ophaalbruggen. Elke vlag is een vraag én een andere kar: reuzenwielen, ijswielen, vierkante wielen, een motorros...
    - **Hooibergjacht**: graaf door je eigen neonhooiberg tot je de kristallen naald vindt. Is je energie op, dan komt er een vraag: juist = beter werktuig en het kompas wijst waar de naald zit
    - **Plasmapoort**: strafschoppen tegen 8 robotridders in het burchtstadion. Mik je plasmabal (richting, dan hoogte) en duik als keeper. Voor elke trap een vraag: juist = gouden bal en groot schild
+   - **Haakridder**: slinger met je plasmahaak van kristalanker naar kristalanker door een zwevende burcht. Eén knop: ingedrukt = grijpen, loslaten = vliegen. Elke vlag is een vraag: juist = gouden haak
    - **Diepboor**: graaf met je boorridder naar goud, kristal en neonkernen. Goede antwoorden geven brandstof; in de smidse koop je een betere boor
    - **Robomol**: robotmollen schieten uit negen burchtputten en elke leerling mept ze met een zwaard, in 3D vanuit de ogen van de ridder. Een juist antwoord laadt het zwaard op en geeft het Vuurzwaard
    - **Ontsnap uit de kerker**: de hele klas zit samen opgesloten en opent deur na deur: een sleuteldeur, een runenslot (de code ligt verspreid over de klas), een laserhek (iedereen moet helpen), een valhek en de Kerkermeester
@@ -247,6 +248,17 @@ Elke leerling graaft op zijn eigen scherm door een **neonhooiberg** in een scifi
 - Naald gevonden: 200 punten plus extra als je snel was, en meteen een nieuwe, grotere hooiberg. Tandwielen (10) en runenmunten (25) in het hooi geven extra punten.
 - Het bord toont alle hooibergen naast elkaar: hoe meer hooi weg is, hoe lager de berg. Wie een naald vindt, krijgt een fonkelende naald boven zijn berg.
 - Chromebook: klik en sleep, of wijs met de muis en houd spatie ingedrukt, 1-4 antwoorden. Gsm: veeg met je vinger door het hooi. Elk antwoord komt in het logboek. Resultaten in `resultaten/`. Ook als taak (alleen in een spel).
+
+## Haakridder
+
+Iedereen slingert op zijn eigen scherm met een **plasmahaak** door dezelfde zwevende burcht boven de afgrond. **Eén knop**: ingedrukt houden = de haak grijpt het dichtste kristalanker voor je (dat anker krijgt een ring) en je zwaait; loslaten = je vliegt verder. Op een vlageiland spring je eerst op.
+
+- **Elke vlag is een vraag.** Juist: 🪝 gouden haak (10 seconden verder grijpen en harder zwaaien). Fout: even wachten, die vraag komt later terug.
+- Onderweg: laserpoorten (laat los op het juiste moment en vlieg door het gat), knipperlasers, bewegende ankers en stuiterkussens. De haak gaat niet door een laser. Val je in de afgrond of raak je een laser, dan begin je opnieuw bij de laatste vlag.
+- Punten: elke vlag (sneller = meer), 🤸 salto's in de lucht (5), kristallen (10) en juiste antwoorden. Elke drie vlaggen een andere wereld.
+- Het bord volgt de koploper, met bovenaan een strook met alle vlaggen en waar iedereen is.
+- Chromebook: spatie (of klikken) ingedrukt houden, 1-4 antwoorden. Gsm: vinger op het scherm houden. Elk antwoord komt in het logboek. Resultaten in `resultaten/`. Ook als taak (alleen in een spel).
+- Geschilderde beelden: zet `achtergrond`, `zwaai`, `vlieg`, `anker` en `banier` als webp in `public/img/haakridder/`; zonder die beelden tekent het spel ze zelf.
 
 ## Plasmapoort
 
