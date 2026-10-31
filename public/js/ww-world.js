@@ -21,22 +21,28 @@
   // ---------- De karren: elke vlag een andere ----------
   // r: straal wiel, D: afstand tussen de wielen, head: hoogte van het hoofd boven de as, acc/vmax/brake: motor,
   // grip: hoe goed de wielen pakken (ijs = weinig), roll: rolweerstand, bounce: veren, g: zwaartekracht,
-  // spin: draaien in de lucht, lift: wheelie bij gas geven, square: vierkante wielen.
+  // spin: draaien in de lucht, lift: wheelie bij gas geven, square: vierkante wielen,
+  // glide: zweven met gas in de lucht, magnet: wielen trekken naar de baan.
   const VEHICLES = [
     { id: 'kar', name: 'Ridderkar', icon: '🛞', tip: 'Je eerste kar: rustig gas geven en recht landen.', r: .52, D: 2.1, head: 1.45, acc: 24, vmax: 12.5, brake: 30, grip: 1, roll: .12, bounce: .08, g: 1, spin: 10, lift: 1.6, wood: true },
     { id: 'reus', name: 'Reuzenwielen', icon: '🚙', tip: 'Enorme wielen: over alles heen, maar hij kantelt snel.', r: .95, D: 2.5, head: 1.55, acc: 24, vmax: 12.5, brake: 30, grip: 1.05, roll: .1, bounce: .2, g: 1, spin: 12, lift: 2.2 },
     { id: 'ijs', name: 'IJswielen', icon: '🧊', tip: 'Wielen van ijs: je glijdt! Geef zacht gas en rem op tijd.', r: .55, D: 2.1, head: 1.45, acc: 24, vmax: 12.5, brake: 30, grip: .42, roll: .015, bounce: .05, g: 1, spin: 10, lift: .6, ice: true },
+    { id: 'mini', name: 'Kabouterkar', icon: '🍄', tip: 'Een piepkleine kar: vlug en licht, maar hij kiepert snel om.', r: .34, D: 1.55, head: 1.25, acc: 28, vmax: 12, brake: 32, grip: 1, roll: .1, bounce: .1, g: 1, spin: 13, lift: 2.4, wood: true, mini: true },
     { id: 'ros', name: 'Motorros', icon: '🏍️', tip: 'Snel en wendbaar, maar hij gaat makkelijk op zijn achterwiel.', r: .5, D: 1.65, head: 1.6, acc: 30, vmax: 14.5, brake: 34, grip: 1.1, roll: .1, bounce: .1, g: 1, spin: 12, lift: 3.2 },
     { id: 'vierkant', name: 'Vierkante wielen', icon: '🟧', tip: 'Hobbel de bobbel! Vierkante wielen rollen niet zo goed.', r: .55, D: 2.2, head: 1.45, acc: 32, vmax: 11.5, brake: 30, grip: 1.1, roll: .1, bounce: 0, g: 1, spin: 10, lift: 1.2, square: true },
+    { id: 'steen', name: 'Stenen wielen', icon: '🪨', tip: 'Loodzware stenen wielen: je springt niet ver, neem veel vaart!', r: .62, D: 2.3, head: 1.45, acc: 28, vmax: 13, brake: 34, grip: 1.3, roll: .14, bounce: 0, g: 1.35, spin: 6, lift: .5, wood: true, stone: true },
     { id: 'veer', name: 'Springveren', icon: '🌀', tip: 'Wielen op veren: alles stuitert. Hou de kar recht!', r: .55, D: 2.1, head: 1.45, acc: 24, vmax: 12.5, brake: 30, grip: 1, roll: .1, bounce: .62, g: 1, spin: 10, lift: 1.4 },
     { id: 'maan', name: 'Maanwagen', icon: '🌙', tip: 'Bijna geen zwaartekracht: je zweeft ver. Pas op voor salto’s!', r: .55, D: 2.2, head: 1.45, acc: 18, vmax: 11, brake: 22, grip: .9, roll: .08, bounce: .12, g: .45, spin: 7, lift: 1.2 },
+    { id: 'vleugel', name: 'Drakenvleugels', icon: '🪽', tip: 'Hou gas in de lucht en je zweeft als een draak. Land wel recht!', r: .52, D: 2.1, head: 1.45, acc: 24, vmax: 12.5, brake: 30, grip: 1, roll: .1, bounce: .08, g: 1, spin: 7, lift: 1.2, wood: true, glide: true },
     { id: 'tank', name: 'Burchttank', icon: '🛡️', tip: 'Zwaar en traag, maar hij grijpt overal en valt niet snel om.', r: .5, D: 2.7, head: 1.15, acc: 20, vmax: 11, brake: 40, grip: 1.5, roll: .2, bounce: 0, g: 1.15, spin: 7, lift: .5, tracks: true },
+    { id: 'toren', name: 'Torenkar', icon: '🏰', tip: 'Je ridder zit hoog in een toren: hou hem recht of hij tuimelt!', r: .55, D: 2.0, head: 2.15, acc: 22, vmax: 12, brake: 30, grip: 1.05, roll: .1, bounce: .06, g: 1, spin: 8, lift: .9, tower: true },
     { id: 'koets', name: 'Lange koets', icon: '🐉', tip: 'Een heel lange koets: goed voor bruggen, lastig op bulten.', r: .55, D: 3.6, head: 1.4, acc: 24, vmax: 12.5, brake: 30, grip: 1, roll: .1, bounce: .08, g: 1, spin: 6.5, lift: .8, wood: true },
+    { id: 'magneet', name: 'Magneetwielen', icon: '🧲', tip: 'Magneetwielen plakken aan de baan: je valt niet snel om, maar springt minder ver.', r: .52, D: 2.2, head: 1.4, acc: 28, vmax: 13, brake: 32, grip: 1.2, roll: .1, bounce: 0, g: 1.1, spin: 8, lift: .8, magnet: true },
     { id: 'raket', name: 'Raketkar', icon: '🚀', tip: 'Supersnel! Maar remmen gaat traag, dus kijk vooruit.', r: .5, D: 2.2, head: 1.35, acc: 34, vmax: 16.5, brake: 14, grip: 1, roll: .06, bounce: .08, g: 1, spin: 11, lift: 1.4, rocket: true },
   ];
   const vehicleOf = k => VEHICLES[Math.max(0, k) % VEHICLES.length];
   // Hoe ver kan deze kar springen, vergeleken met de gewone kar? Daar passen we de putten op aan.
-  const reach = v => Math.max(.62, Math.min(1.45, (v.vmax * v.vmax / (G * v.g)) / (12.5 * 12.5 / G)));
+  const reach = v => Math.max(.62, Math.min(1.45, (v.vmax * v.vmax / (G * v.g * (v.glide ? .8 : 1) * (v.magnet ? 1.15 : 1))) / (12.5 * 12.5 / G)));
 
   // Elke drie etappes een andere wereld.
   const THEMES = [
@@ -64,7 +70,7 @@
     const veh = vehicleOf(k);
     const R = reach(veh);
     const x0 = k * L, x1 = x0 + L;
-    const d = Math.min(1, k / 9);
+    const d = Math.min(1, k / 13); // elke vlag een beetje moeilijker, tot alle 15 karren één keer geweest zijn
     st = { k, x0, x1, veh, theme: themeOf(k), grounds: [], segs: [], bridges: [], wips: [], draw: [], hammers: [], spikes: [], pits: [], coins: [], deco: [], parts: [] };
     let pts = [];
     let cur = BASE;
@@ -95,7 +101,7 @@
       let kinds = ['heuvels', 'schans', 'brug', 'bobbels', 'wip', 'trap', 'hamer', 'stekels', 'ophaal'];
       if (k < 1) kinds = ['heuvels', 'schans', 'brug', 'bobbels', 'wip'];
       if (veh.ice) kinds = kinds.filter(x => x !== 'trap');
-      if (veh.square) kinds = kinds.filter(x => x !== 'stekels');
+      if (veh.square || veh.magnet) kinds = kinds.filter(x => x !== 'stekels');
       // Niet twee keer na elkaar hetzelfde, en elk ding liefst één keer per etappe.
       kinds = kinds.filter(x => x !== used[used.length - 1] && (!used.includes(x) || r() < .25));
       const kind = kinds[Math.floor(r() * kinds.length)] || 'heuvels';
@@ -130,7 +136,7 @@
         pt(cx + 4 + r() * 2, cur);
         const ys = cur;
         ramp(5.5, 1.5 + r() * .6);
-        const gap = (2.6 + r() * 1.4 + d * 1.6) * R;
+        const gap = (2.6 + r() * 1.4 + d * 1.6) * R * (veh.square ? .85 : 1);
         const lx = cx + gap;
         const ly = Math.min(BASE + 1, ys + .3 + r() * .6);
         const top = cur;
@@ -182,7 +188,7 @@
         for (let i = 1; i <= 6; i++) { const u = i / 6; pt(xs + dl * u, ys + drop * (1 - Math.cos(Math.PI * u)) / 2); }
       } else if (kind === 'hamer' && room > 12) {
         // Een zwaaiende hamer boven de weg: wacht tot hij weg is en rij er snel onderdoor.
-        pt(cx + (veh.brake < 20 ? 7 : 4), cur);
+        pt(cx + (veh.brake < 20 || cx < k * L + 8 ? 7 : 4), cur); // aanloop: tijd om te kijken
         const per = (3.2 - d * .5) * (1 + Math.max(0, veh.D - 2.1) * .3) * (veh.square ? 1.6 : 1);
         const hx = cx + 2.5;
         const len = 4.6;
@@ -360,8 +366,9 @@
       }
       const onGround = p.cb || p.cf;
       // Motor en remmen, langs de grond onder elk wiel.
+      const gg = V.glide && !onGround && gas && (p.b.vy + p.f.vy) > 0 ? g * .3 : g; // drakenvleugels: zweven
       for (const [w, cn, nx, ny] of [[p.b, p.cb, p.nbx, p.nby], [p.f, p.cf, p.nfx, p.nfy]]) {
-        w.vy += g * h;
+        w.vy += gg * h;
         if (!cn) continue;
         const tx = -ny, ty = nx; // vooruit langs de grond
         const vt = w.vx * tx + w.vy * ty;
@@ -374,7 +381,7 @@
       }
       // Kantelen: in de lucht met gas achterover, met remmen voorover. Op de grond met gas een klein beetje wheelie.
       // De wheelie op de grond stopt bij een schuine kar, zodat je niet vanzelf achterover kiepert.
-      const spin = onGround ? (gas && P.a < .45 ? V.lift : rem && P.a > -.45 ? -V.lift * .5 : 0) : (gas - rem) * V.spin;
+      const spin = onGround ? (gas && P.a < .45 ? V.lift : rem && P.a > -.45 ? -V.lift * .5 : 0) : (gas * (V.glide ? .5 : 1) - rem) * V.spin;
       if (spin) {
         const rx = (p.f.x - p.b.x) / 2, ry = (p.f.y - p.b.y) / 2;
         const k = spin * h;
@@ -407,7 +414,7 @@
       const was = p.cb || p.cf;
       for (const which of ['b', 'f']) {
         const w = p[which];
-        let contact = false, nx = 0, ny = -1;
+        let contact = false, nx = 0, ny = -1, md = 9, mx = 0, my = 0;
         for (let pass = 0; pass < 2; pass++) {
           for (const list of [segs, dyn]) {
             for (const s of list) {
@@ -416,6 +423,7 @@
               const [qx, qy] = closest(w.x, w.y, s[0], s[1], s[2], s[3]);
               let dx = w.x - qx, dy = w.y - qy;
               const dist = Math.hypot(dx, dy);
+              if (V.magnet && dist < md) { md = dist; mx = dx / (dist || 1); my = dy / (dist || 1); }
               if (dist > V.r * 1.4 || dist < 1e-6) continue;
               dx /= dist; dy /= dist;
               const rr = V.square ? squareR(V.r, which === 'b' ? p.rb : p.rf, -dx, -dy) : V.r;
@@ -433,6 +441,8 @@
             }
           }
         }
+        // Magneetwielen: dicht bij de baan trekt het wiel ernaartoe.
+        if (V.magnet && !contact && md < V.r + .8) { w.vx -= mx * 26 * h; w.vy -= my * 26 * h; }
         if (which === 'b') { p.cb = contact; p.nbx = nx; p.nby = ny; } else { p.cf = contact; p.nfx = nx; p.nfy = ny; }
         const vt = w.vx * -ny + w.vy * nx;
         const rr = V.square ? V.r * 1.05 : V.r;

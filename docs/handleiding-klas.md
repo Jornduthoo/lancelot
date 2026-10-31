@@ -230,7 +230,7 @@ Tip: een klas die goed en vlot antwoordt, houdt de poort. Bij veel foute antwoor
 
 1. Kies **De Arena** en dan **Wankelwagen**, kies de speeltijd en klik op de quiz. Klik op **Rijden maar!**
 2. Leerlingen rijden meteen. Chromebook: → gas, ← rem; in de lucht kantel je de kar met dezelfde toetsen. Gsm: de twee pedalen.
-3. Elke vlag geeft een vraag en daarna een andere kar (ijswielen, vierkante wielen, een maanwagen...). Juist: turbo. Wie crasht, begint opnieuw bij de laatste vlag.
+3. Elke vlag geeft een vraag en daarna een andere kar (ijswielen, vierkante wielen, drakenvleugels, magneetwielen... 15 in totaal). Juist: turbo. Wie crasht, begint opnieuw bij de laatste vlag.
 4. Het bord volgt de koploper; bovenaan zie je hoe ver iedereen al is.
 
 ## Robomol
