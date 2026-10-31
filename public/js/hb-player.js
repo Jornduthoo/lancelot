@@ -16,7 +16,7 @@
   </form>
   <section id="hb-lobby" class="screen panel hidden">
     <p class="status">Hooibergjacht</p>
-    <canvas id="hb-lobby-art" width="220" height="90"></canvas>
+    <img class="lobby-icoon" src="/img/icons/hooibergjacht.webp" alt="">
     <p class="title" id="hb-lobby-name"></p>
     <p>Ergens in jouw <strong>neonhooiberg</strong> zit één <strong>kristallen naald</strong>. Veeg en graaf het hooi weg tot je hem vindt.</p>
     <p><strong>Graven kost energie.</strong> Is ze op, dan krijg je een vraag. Juist: ⚡ volle energie, een <strong>beter werktuig</strong> en het 🧭 kompas toont even waar de naald zit.</p>
@@ -135,7 +135,6 @@
     if (s.me && (!g.st || (Number.isInteger(s.k) && s.k !== g.k))) newStack(Number.isInteger(s.k) ? s.k : 0);
     if (s.phase === 'lobby') {
       $('hb-lobby-name').textContent = s.name;
-      drawLobby();
       show('hb-lobby');
     } else if (s.phase === 'play') {
       show('hb-game');
@@ -154,12 +153,6 @@
     }
   });
 
-  function drawLobby() {
-    const c = $('hb-lobby-art').getContext('2d');
-    c.clearRect(0, 0, 220, 90);
-    HbDraw.mini(c, 20, 8, 130, 80, 0, 0);
-    HbDraw.needle(c, 175, 45, 60, -.6, 0);
-  }
 
   socket.on('hb-kicked', () => {
     g.joined = false;
