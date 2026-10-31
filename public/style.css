@@ -447,8 +447,8 @@ span.play { padding: 13px 22px; display: flex; align-items: center; }
 .player .welcome .rn-knop img { width: 36px; height: 36px; border-radius: 8px; margin: 0; animation: none; filter: none; }
 .player .screen { display: flex; flex-direction: column; gap: 16px; text-align: center; align-items: stretch; }
 .player .title { font-family: var(--head); font-weight: 900; font-size: 2rem; }
-.player input#name { font-size: 1.3rem; padding: 14px; text-align: center; border: 1px solid var(--cyan); background: rgb(var(--k-bg2) / .9); color: var(--text); box-shadow: 0 0 18px var(--cyan-glow); }
-.player input#name::placeholder { color: var(--muted); }
+.player input#name, .player .welcome input:not([type]) { font-size: 1.3rem; padding: 14px; text-align: center; border: 1px solid var(--cyan); background: rgb(var(--k-bg2) / .9); color: var(--text); box-shadow: 0 0 18px var(--cyan-glow); }
+.player input#name::placeholder, .player .welcome input:not([type])::placeholder { color: var(--muted); }
 .player .answers { grid-template-columns: 1fr 1fr; flex: 1; }
 .player .answer { flex-direction: column; justify-content: center; text-align: center; min-height: 30vh; padding: 14px; }
 .player .answer svg { width: 64px; height: 64px; }
