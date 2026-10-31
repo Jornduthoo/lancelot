@@ -31,7 +31,7 @@ const PpDraw = (() => {
   // Zijn ze er, dan tekenen we die in plaats van de getekende figuren. De blauwe delen van de ridder kleuren we
   // naar de kleur van de leerling, de robot krijgt een tint per tegenstander. Elk gekleurd beeld bakken we één keer.
   const ART = {};
-  const ART_NAMES = ['keeper-robot', 'duik-robot', 'keeper-ridder', 'duik-ridder', 'schiet-ridder', 'schiet-robot'];
+  const ART_NAMES = ['keeper-robot', 'duik-robot', 'keeper-ridder', 'duik-ridder', 'schiet-ridder', 'schiet-robot', 'stadion'];
   if (typeof Image !== 'undefined') {
     for (const n of ART_NAMES) {
       const img = new Image();
@@ -92,7 +92,7 @@ const PpDraw = (() => {
   // ---------- Waar staat alles ----------
   // GW, GH: breedte en hoogte van de poort. gy: de doellijn. sy: de strafschopstip.
   // Waar staat de poort in het geschilderde stadion (delen van de beeldbreedte en -hoogte). Na een nieuw beeld opnieuw meten.
-  const GOAL_IMG = { l: .225, r: .775, top: .3, bot: .62, spot: .9 };
+  const GOAL_IMG = { l: .35, r: .653, top: .44, bot: .748, spot: .834 }; // gemeten op stadion.webp
   function layout(w, h) {
     const portrait = h > w * 1.05;
     const st = ART.stadion;
@@ -102,7 +102,7 @@ const PpDraw = (() => {
       const sc = portrait ? w * .96 / ((GOAL_IMG.r - GOAL_IMG.l) * iw) : Math.max(w / iw, h / ih);
       const dw = iw * sc, dh = ih * sc;
       const ox = w / 2 - (GOAL_IMG.l + GOAL_IMG.r) / 2 * dw;
-      const oy = portrait ? h * .5 - GOAL_IMG.bot * dh : (h - dh) / 2;
+      const oy = portrait ? h * .5 - GOAL_IMG.bot * dh : clamp(h * .86 - GOAL_IMG.spot * dh, h - dh, 0); // breed scherm: de stip blijft in beeld
       const GW = (GOAL_IMG.r - GOAL_IMG.l) * dw, GH = (GOAL_IMG.bot - GOAL_IMG.top) * dh;
       const gy = oy + GOAL_IMG.bot * dh;
       const sy = portrait ? Math.max(oy + GOAL_IMG.spot * dh, h * .74) : oy + GOAL_IMG.spot * dh;
@@ -589,7 +589,7 @@ const PpDraw = (() => {
     const k = ease(clamp(d.k, 0, 1));
     const home = toScreen(Lo, 0, 0);
     const tint = o.mech ? tinted('keeper-robot', o.color, 'blauw') : tinted('keeper-ridder', o.color, 'blauw');
-    const H = Lo.GH * .9;
+    const H = Math.min(Lo.GH * .9, Lo.GW * .42); // de stenen poort is hoger dan een gewone
     g.fillStyle = 'rgba(0,0,0,.4)';
     if (o.ring) glow(g, home.x, home.y, H * .5, o.color, .3, .25);
     const side = d.x === 0 ? 0 : Math.sign(d.x);
@@ -644,7 +644,7 @@ const PpDraw = (() => {
     const img = o.mech ? tinted('schiet-robot', o.color, 'blauw') : tinted('schiet-ridder', o.color, 'blauw');
     const spot = ground(Lo, 0, 1);
     const k = ease(clamp(o.run || 0, 0, 1));
-    const H = Lo.GH * .98 * lerp(1.2, 1, k);
+    const H = Math.min(Lo.GH * .98, Lo.GW * .45) * lerp(1.2, 1, k);
     const w = H * img.width / img.height;
     const fx = lerp(spot.x - Lo.GW * .5, spot.x - Lo.GW * .2, k);
     const fy = lerp(Lo.h + H * .2, spot.y + H * .05, k);
