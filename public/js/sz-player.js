@@ -20,6 +20,7 @@
     <p class="title" id="sz-lobby-name"></p>
     <p><strong>Tik</strong> en je zwaard maakt een salto. Met de <strong>kling</strong> splijt je kristallen, tonnen, pompoenen en robots. Komt de <strong>punt</strong> in het hout, dan blijft je zwaard steken. Het heft en staal botsen terug.</p>
     <p><strong>Elke runenpaal is een vraag.</strong> Juist: ✨ gouden kling (verder en hoger springen, zaagbladen en lasers doen niets en dubbele punten).</p>
+    <p><strong>🎯 Op elke runenpaal ligt een doelschijf.</strong> Steek je punt in het midden: alles wat je die etappe verdiende telt tot ×10.</p>
     <p class="muted small">Tik zo vaak je wil: in de lucht wordt elke salto wel een kleiner sprongetje. Punten krijg je voor vaststeken in hout en voor alles wat je splijt. Val je in de lava, dan begin je opnieuw bij de laatste runenpaal.</p>
     <p class="muted small ls-hint-touch">Tik waar je wil op het scherm = salto.</p>
     <p class="muted small ls-hint-keys">Spatie, ↑ of klikken = salto · 1-4 antwoorden.</p>
@@ -30,6 +31,7 @@
       <div class="sv-mass" id="sz-score">0</div>
       <div class="px-chip" id="sz-flags">🗿 0</div>
       <div class="px-chip" id="sz-sliced">⚔️ 0</div>
+      <div class="px-chip sz-buit" id="sz-buit" title="Buit van deze etappe: steek in het midden van de doelschijf voor tot ×10">🎯 0</div>
       <div class="sz-gold hidden" id="sz-gold"><i></i></div>
       <div class="ry-alive" id="sz-rank"></div>
       <div class="ls-clock" id="sz-clock"></div>
@@ -56,7 +58,7 @@
   const g = {
     state: null, joined: false, run: -1, offset: 0, me: null, roster: new Map(), name: '', color: '#4cc9ff',
     pl: fresh(), stage: 0, stageT: 0, hide: new Set(), flagBusy: false, sentAt: 0, others: new AK.Interp(110), cam: null,
-    pieces: [], trail: [], sliced: 0, combo: 0, comboT: 0, shake: 0,
+    pieces: [], trail: [], sliced: 0, combo: 0, comboT: 0, shake: 0, buit: 0, ring: 1, slow: 0, tier: 0,
   };
   const fx = new AK.Particles();
   const now = () => Date.now() + g.offset;
@@ -107,6 +109,8 @@
       g.trail = [];
       g.sliced = 0;
       g.lastStick = 0;
+      g.buit = 0;
+      g.tier = 0;
       quiz.close();
       delete $('sz-end').dataset.done;
     }
@@ -180,6 +184,18 @@
 
   function setMe(me) {
     g.me = me;
+    // Je zwaard groeit mee met je punten.
+    const tier = W.tierOf(me.score || 0);
+    if (tier > g.tier && g.state && g.state.phase === 'play') {
+      g.tier = tier;
+      const T = W.TIERS[tier];
+      banner(`NIEUW ZWAARD!`, T.name, 'gold');
+      sfx.fanfare();
+      const p = toCss(g.pl.x, g.pl.y);
+      fx.shock(p.x, p.y, 90, T.glow);
+      fx.burst(p.x, p.y, { n: 40, color: T.glow, speed: 420, life: 1, size: 4 });
+      g.slow = .4;
+    } else g.tier = Math.max(g.tier, tier);
     $('sz-score').textContent = me.score;
     $('sz-rank').textContent = me.rank ? `#${me.rank} van ${me.players}` : '';
   }
@@ -210,22 +226,30 @@
     },
   });
 
-  function reachFlag(k) {
+  function reachFlag(k, ring) {
     if (g.flagBusy) return;
     g.flagBusy = true;
     const secs = g.stageT;
-    socket.emit('sz-flag', k, res => {
+    socket.emit('sz-flag', { k, ring }, res => {
       g.flagBusy = false;
       if (!res || res.error) {
         if (res && Number.isInteger(res.stage) && res.stage > g.stage) g.stage = res.stage;
         return;
       }
       g.stage = res.stage;
+      g.buit = 0;
       sfx.go();
       buzz([30, 40, 30]);
       const tijd = (res.s || secs).toFixed(1).replace('.', ',');
-      banner(`RUNENPAAL ${res.stage}!`, `${tijd} s · +${res.points}${res.record ? ' · ⏱️ record!' : ''}`, 'gold');
-      const p = toCss(g.pl.x, g.pl.y);
+      const p = toCss(...W.tipOf(g.pl));
+      if (res.mult > 1) {
+        // De doelschijf: hoe dichter bij het midden, hoe groter de vermenigvuldiger op je buit.
+        const col = { 10: '#ffc94a', 5: '#c77dff', 3: '#4ade80', 2: '#4cc9ff' }[res.mult];
+        fx.pop(p.x, p.y - 60, res.mult === 10 ? 'ROOS! ×10' : `×${res.mult}`, col, res.mult === 10 ? 52 : 40, 1.6);
+        fx.shock(p.x, p.y, res.mult * 14 + 40, col);
+        if (res.mult >= 5) { g.slow = res.mult === 10 ? .7 : .35; sfx.fanfare(); if (res.mult === 10) confetti(2000); } else sfx.power();
+        banner(`RUNENPAAL ${res.stage} · ×${res.mult}`, `buit ×${res.mult} = +${res.buit} · ${tijd} s${res.record ? ' · ⏱️ record!' : ''}`, 'gold');
+      } else banner(`RUNENPAAL ${res.stage}!`, `${tijd} s · +${res.points} · mik op het midden van de schijf voor ×10`, 'gold');
       fx.burst(p.x, p.y, { n: 26, color: '#ffc94a', speed: 380, life: .8, size: 4 });
       if (res.stage % 3 === 0) setTimeout(() => toast(`Welkom in de ${W.themeOf(res.stage).name}!`), 400);
       if (g.state && g.state.phase === 'play' && now() < g.state.endsAt - 1500) {
@@ -307,7 +331,6 @@
   function split(th, t) {
     g.hide.add(th.id);
     g.sliced++;
-    socket.emit('sz-snij', th.id);
     const y = W.bob(th, t);
     const pl = g.pl;
     // Twee helften die uit elkaar vliegen, loodrecht op de snede.
@@ -319,15 +342,25 @@
     if (g.pieces.length > 24) g.pieces.splice(0, g.pieces.length - 24);
     g.combo = g.comboT > 0 ? g.combo + 1 : 1;
     g.comboT = .9;
-    const pts = (W.POINTS[th.kind] || 10) * (pl.gold > 0 ? 2 : 1);
+    const col = PIECE[th.kind] || '#fff';
     const p = toCss(th.x, y);
-    fx.sparks(p.x, p.y, { n: 12, color: PIECE[th.kind] || '#fff', speed: 380 });
-    fx.burst(p.x, p.y, { n: 8, color: PIECE[th.kind] || '#fff', speed: 200, life: .5, size: 3 });
-    fx.text(p.x, p.y - 14, `+${pts}`, pl.gold > 0 ? '#ffc94a' : '#e8f1ff', 20);
-    if (g.combo >= 3) fx.pop(p.x, p.y - 44, `${g.combo}× COMBO!`, '#ffc94a', 26, .9);
+    fx.sparks(p.x, p.y, { n: 14, color: col, speed: 420 });
+    // Wat eruit vliegt hangt af van wat je splijt.
+    if (th.kind === 'ton') fx.burst(p.x, p.y, { n: 10, color: '#8a5a33', speed: 260, life: .7, size: 4, glow: false, up: 120 });
+    else if (th.kind === 'robot') { fx.smoke(p.x, p.y, { n: 5, size: 12 }); fx.sparks(p.x, p.y, { n: 10, color: '#5ee7ff', speed: 300 }); }
+    else if (th.kind === 'pompoen') fx.burst(p.x, p.y, { n: 12, color: '#ffe28a', speed: 240, life: .6, size: 2.5, up: 100 });
+    else if (th.kind === 'kist') { fx.burst(p.x, p.y, { n: 30, color: '#ffc94a', speed: 420, life: 1, size: 4, up: 160 }); fx.shock(p.x, p.y, 70, '#ffc94a'); sfx.power(); }
+    else fx.burst(p.x, p.y, { n: 10, color: col, speed: 240, life: .55, size: 3 });
+    socket.emit('sz-snij', th.id, res => {
+      if (!res || !res.points) return;
+      g.buit += res.points;
+      fx.text(p.x, p.y - 14, `+${res.points}`, res.points >= 40 ? '#ffc94a' : pl.gold > 0 ? '#ffc94a' : '#e8f1ff', res.points >= 40 ? 26 : 20);
+      if (res.combo === 4 || res.combo === 8) { fx.pop(view.w / view.dpr / 2, view.h / view.dpr * .3, res.combo === 8 ? 'COMBO ×3!' : 'COMBO ×2!', '#ffc94a', 34, 1.1); sfx.power(); }
+    });
+    if (g.combo >= 3) g.slow = Math.max(g.slow, .08);
     sfx.snij(g.combo);
     buzz(15);
-    g.shake = Math.min(.2, g.shake + .06);
+    g.shake = Math.min(.25, g.shake + .07);
   }
 
   // ---------- Elke frame ----------
@@ -351,9 +384,11 @@
   let last = performance.now();
   function frame(t) {
     requestAnimationFrame(frame);
-    const dt = Math.min(.05, (t - last) / 1000);
+    let dt = Math.min(.05, (t - last) / 1000);
     last = t;
     if (!on() || !g.state || g.state.phase !== 'play' || $('sz-game').classList.contains('hidden')) return;
+    // Even vertraagd (een mooie snede, de roos): alles in het spel loopt dan trager.
+    if (g.slow > 0) { g.slow -= dt; dt *= .3; }
     const left = g.state.endsAt - now();
     $('sz-clock').textContent = AK.clock(left);
     $('sz-clock').classList.toggle('low', left < 30000);
@@ -387,10 +422,13 @@
             sfx.dobbel(0);
             buzz(20);
             g.shake = Math.max(g.shake, .08);
+            // Op de runenpaal: in welke ring van de doelschijf zit de punt?
+            const k1 = g.stage + 1;
+            g.ring = o.punt && o.op && o.op.paal && Math.abs(o.op.x + 4 - k1 * W.L) < 1 ? W.ringOf(W.tipOf(pl)[0] - W.targetX(k1)) : 1;
             // Punten voor vaststeken, alleen als je vooruit bent gekomen (zoals de server ook telt).
             if (o.punt && pl.x >= (g.lastStick || 0) + 1) {
               g.lastStick = pl.x;
-              socket.emit('sz-vast', Math.round(pl.x * 100) / 100);
+              socket.emit('sz-vast', Math.round(pl.x * 100) / 100, res => { if (res && res.points) g.buit += res.points; });
               fx.text(p.x, p.y - 18, `+${W.POINTS.vast * (pl.gold > 0 ? 2 : 1)}`, '#ffc94a', 18);
             }
           }
@@ -416,13 +454,13 @@
           toast(OUCH[hit], 'bad');
           g.shake = .3;
           socket.emit('sz-fall');
-        } else if (pl.x >= (g.stage + 1) * W.L && pl.stuck) reachFlag(g.stage + 1);
+        } else if (pl.stuck && pl.x >= (g.stage + 1) * W.L - 5) reachFlag(g.stage + 1, g.ring || 1);
       }
       if (t - g.sentAt > 100) {
         g.sentAt = t;
         socket.emit('sz-pos', {
           x: Math.round(pl.x * 100) / 100, y: Math.round(pl.y * 100) / 100, a: Math.round(pl.a * 100) / 100,
-          f: (pl.stuck ? 1 : 0) | (pl.gold > 0 ? 4 : 0) | (pl.dead > 0 ? 8 : 0) | (pl.rust > 0 ? 32 : 0),
+          f: (pl.stuck ? 1 : 0) | (pl.gold > 0 ? 4 : 0) | (pl.dead > 0 ? 8 : 0) | (pl.rust > 0 ? 32 : 0) | (g.tier << 6),
         });
       }
     }
@@ -439,6 +477,7 @@
     if (pl.gold > 0) gold.firstChild.style.width = `${Math.round(pl.gold / W.GOLD_S * 100)}%`;
     $('sz-flags').textContent = `🗿 ${g.stage}`;
     $('sz-sliced').textContent = `⚔️ ${g.sliced}`;
+    $('sz-buit').textContent = `🎯 ${g.buit}`;
 
     // Camera en tekenen
     const fit = AK.fit(canvas, 1.5);
@@ -461,12 +500,12 @@
       if (!v || !r || (v[3] & 8)) continue;
       if (Math.abs(v[0] - pl.x) > viewW) continue;
       const near = Math.abs(v[0] - pl.x) < 2 && Math.abs(v[1] - pl.y) < 2;
-      ghosts.push({ x: v[0], y: v[1], a: v[2], gold: v[3] & 4, rust: v[3] & 32, color: r.color, alpha: near ? .2 : .42, name: near ? '' : r.name });
+      ghosts.push({ tier: (v[3] >> 6) & 7, x: v[0], y: v[1], a: v[2], gold: v[3] & 4, rust: v[3] & 32, color: r.color, alpha: near ? .2 : .42, name: near ? '' : r.name });
     }
     SzDraw.render(ctx, fit.w, fit.h, {
       seed: g.state.seed, t: time, now: t / 1000, cx: g.cam.x + (Math.random() - .5) * sh, cy: g.cam.y + (Math.random() - .5) * sh, S, ghosts, hide: g.hide, passed: g.stage,
       pieces: g.pieces, trail: g.trail,
-      me: pl.dead > 0 ? null : { x: pl.x, y: pl.y, a: shownA(dt), gold: pl.gold > 0, rust: pl.rust > 0, color: g.color, blink: pl.safe > 0 && !pl.stuck },
+      me: pl.dead > 0 ? null : { tier: g.tier, x: pl.x, y: pl.y, a: shownA(dt), gold: pl.gold > 0, rust: pl.rust > 0, color: g.color, blink: pl.safe > 0 && !pl.stuck },
     });
     fx.update(dt);
     ctx.save();

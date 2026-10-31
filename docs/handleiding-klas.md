@@ -223,7 +223,7 @@ Tip: een klas die goed en vlot antwoordt, houdt de poort. Bij veel foute antwoor
 
 1. Kies **De Arena** en dan **Splijtzwaard**, kies de speeltijd en klik op de quiz. Klik op **Zwaarden los!**
 2. Leerlingen spelen met één knop: tikken (gsm) of spatie (Chromebook) = salto. De kling splijt, de punt blijft steken in hout.
-3. Elke runenpaal geeft een vraag. Juist: gouden kling. Wie in de lava valt, begint opnieuw bij de laatste runenpaal.
+3. Op elke runenpaal ligt een doelschijf: hoe dichter bij het midden de punt steekt, hoe meer de buit van die etappe telt (tot ×10). Daarna een vraag: juist = gouden kling. Wie in de lava valt, begint opnieuw bij de laatste runenpaal.
 4. Het bord volgt de koploper; bovenaan zie je hoe ver iedereen al is.
 
 ## Wankelwagen

@@ -352,13 +352,54 @@ const SzDraw = (() => {
     ctx.fillText(String(k), sx, cy + S * .03);
   }
 
+  // ---------- De doelschijf op de runenpaal (van boven bekeken, plat op de plank) ----------
+  const RING_COL = { 10: '#ffc94a', 5: '#c77dff', 3: '#4ade80', 2: '#4cc9ff' };
+  function target(ctx, sx, sy, S, t, passed) {
+    const k = passed ? .35 : 1;
+    ctx.save();
+    ctx.globalAlpha = k;
+    const ry = S * .5;
+    for (let i = W.RINGS.length - 1; i >= 0; i--) {
+      const [r, m] = W.RINGS[i];
+      ctx.fillStyle = RING_COL[m];
+      ctx.globalAlpha = k * (i % 2 ? .55 : .8);
+      ctx.beginPath(); ctx.ellipse(sx, sy, r * S, ry * (r / 2.8 + .3), 0, Math.PI, Math.PI * 2); ctx.fill();
+    }
+    ctx.globalAlpha = k;
+    if (!passed) {
+      glow(ctx, sx, sy - S * .1, S * 1.2, '#ffc94a', .6 + Math.sin(t * 5) * .2);
+      // Een gouden pijl die op en neer wipt boven het midden: hier mikken!
+      const ay = sy - S * (1.6 + Math.abs(Math.sin(t * 4)) * .5);
+      ctx.fillStyle = '#ffc94a';
+      ctx.strokeStyle = INK;
+      ctx.lineWidth = Math.max(1.5, S * .05);
+      ctx.beginPath(); ctx.moveTo(sx, ay + S * .55); ctx.lineTo(sx - S * .35, ay + S * .1); ctx.lineTo(sx - S * .12, ay + S * .1); ctx.lineTo(sx - S * .12, ay - S * .35); ctx.lineTo(sx + S * .12, ay - S * .35); ctx.lineTo(sx + S * .12, ay + S * .1); ctx.lineTo(sx + S * .35, ay + S * .1); ctx.closePath(); ctx.fill(); ctx.stroke();
+    }
+    // Labels boven elke ring
+    ctx.font = `900 ${Math.round(S * .36)}px Orbitron, sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'bottom';
+    ctx.lineWidth = Math.max(2, S * .08);
+    ctx.strokeStyle = 'rgba(5,6,15,.85)';
+    let prev = 0;
+    for (const [r, m] of W.RINGS) {
+      const x = sx + ((prev + r) / 2) * S;
+      const y = sy - S * (m === 10 ? .62 : .12);
+      ctx.strokeText(`×${m}`, m === 10 ? sx : x, y);
+      ctx.fillStyle = RING_COL[m];
+      ctx.fillText(`×${m}`, m === 10 ? sx : x, y);
+      prev = r;
+    }
+    ctx.restore();
+  }
+
   // ---------- Wat je kan splijten ----------
   const PXT = 96; // pixels per meter in de voorgebakken dingen
   const thingCache = new Map();
   function thingSprite(kind) {
     let c = thingCache.get(kind);
     if (c) return c;
-    const R = (kind === 'robot' ? .55 : kind === 'ton' ? .45 : .4) * PXT;
+    const R = (kind === 'robot' ? .55 : kind === 'ton' || kind === 'kist' ? .45 : .4) * PXT;
     const size = Math.ceil(R * 3);
     c = mk(size, size);
     const g = c.getContext('2d');
@@ -409,6 +450,23 @@ const SzDraw = (() => {
       g.beginPath(); g.moveTo(-R * .45, -R * .1); g.lineTo(-R * .2, -R * .1); g.lineTo(-R * .32, -R * .35); g.closePath(); g.fill();
       g.beginPath(); g.moveTo(R * .45, -R * .1); g.lineTo(R * .2, -R * .1); g.lineTo(R * .32, -R * .35); g.closePath(); g.fill();
       g.beginPath(); g.moveTo(-R * .5, R * .2); g.quadraticCurveTo(0, R * .75, R * .5, R * .2); g.lineTo(R * .3, R * .3); g.lineTo(R * .18, R * .2); g.lineTo(R * .05, R * .34); g.lineTo(-R * .1, R * .22); g.lineTo(-R * .25, R * .34); g.closePath(); g.fill();
+    } else if (kind === 'kist') {
+      // Schatkist: houten kist met gouden beslag, een slot en gouden gloed van binnen.
+      glow(g, 0, 0, R * 1.6, '#ffc94a', .6);
+      const w = R * 1.1, h = R * .8;
+      const grd = g.createLinearGradient(0, -h, 0, h);
+      grd.addColorStop(0, '#c98a4e'); grd.addColorStop(1, '#5a3418');
+      g.fillStyle = grd;
+      g.beginPath(); g.rect(-w, -h * .15, w * 2, h * 1.05); g.fill(); ink();
+      g.beginPath(); g.moveTo(-w, -h * .15); g.quadraticCurveTo(-w, -h * 1.05, 0, -h * 1.05); g.quadraticCurveTo(w, -h * 1.05, w, -h * .15); g.closePath(); g.fill(); ink();
+      g.fillStyle = '#ffc94a';
+      for (const x of [-w * .7, w * .55]) { g.beginPath(); g.rect(x, -h * 1.0, w * .15, h * 1.9); g.fill(); ink(); }
+      g.beginPath(); g.rect(-w, -h * .22, w * 2, h * .16); g.fill(); ink();
+      g.fillStyle = '#fff1b8';
+      g.beginPath(); g.rect(-w * .16, -h * .28, w * .32, h * .4); g.fill(); ink();
+      g.fillStyle = INK; g.fillRect(-w * .04, -h * .15, w * .08, h * .15);
+      g.fillStyle = 'rgba(255,255,255,.8)';
+      g.beginPath(); g.moveTo(-w * .5, -h * .8); g.lineTo(-w * .35, -h * .95); g.lineTo(-w * .3, -h * .7); g.closePath(); g.fill();
     } else {
       // Robotridder: een stalen bolletje met helmkam, rood vizier en antennes.
       glow(g, 0, 0, R * 1.3, '#ff4d6d', .25);
@@ -438,6 +496,7 @@ const SzDraw = (() => {
     ctx.restore();
   }
 
+  const CUT = { kristal: '#f0d6ff', ton: '#e7c08a', pompoen: '#ffd27a', robot: '#ff8c42', kist: '#ffe58a' };
   // Gespleten stukken: elk stuk is de helft van het beeld, afgesneden langs de snijlijn.
   // piece: { kind, x, y, vx, vy, rot, vr, cut (hoek van de snede), side (1 of -1), life }
   function pieces(ctx, list, X, Y, S) {
@@ -460,8 +519,11 @@ const SzDraw = (() => {
       // Een gloeiende snijrand
       ctx.rotate(p.cut);
       ctx.globalCompositeOperation = 'lighter';
+      // Het snijvlak in de kleur van wat je spleet, met een lichtende rand.
+      ctx.fillStyle = CUT[p.kind] || '#fff';
+      ctx.fillRect(-w * .32, -S * .05, w * .64, S * .1);
       ctx.fillStyle = p.gold ? 'rgba(255,220,120,.9)' : 'rgba(150,240,255,.85)';
-      ctx.fillRect(-w * .35, -S * .025, w * .7, S * .05);
+      ctx.fillRect(-w * .35, -S * .02, w * .7, S * .04);
       ctx.restore();
     }
   }
@@ -545,8 +607,9 @@ const SzDraw = (() => {
   // Gebakken met de punt naar rechts: knop (edelsteen in de kleur van de speler), greep, gouden kruisplaat, kling.
   const PXS = 128;
   const swordCache = new Map();
-  function swordSprite(color, gold, rust) {
-    const key = `${color}:${gold ? 1 : 0}:${rust ? 1 : 0}`;
+  function swordSprite(color, gold, rust, tier = 0) {
+    const T = W.TIERS[tier] || W.TIERS[0];
+    const key = `${color}:${gold ? 1 : 0}:${rust ? 1 : 0}:${tier}`;
     let c = swordCache.get(key);
     if (c) return c;
     const u = PXS;
@@ -563,13 +626,13 @@ const SzDraw = (() => {
     const tip = W.TIP * u, guard = W.GUARD * u, pom = -W.POMMEL * u;
     const bw = u * .085; // halve breedte van de kling
     // Gloed rond de kling
-    const gc = gold ? '#ffd76a' : rust ? '#ff8c42' : '#5ee7ff';
+    const gc = gold ? '#ffd76a' : rust ? '#ff8c42' : T.glow;
     for (let i = 0; i < 5; i++) glow(g, guard + (tip - guard) * (i + .5) / 5, 0, u * .32, gc, .4);
     // Kling
     const bg = g.createLinearGradient(0, -bw, 0, bw);
     if (rust) { bg.addColorStop(0, '#d9a27a'); bg.addColorStop(.45, '#9a5a32'); bg.addColorStop(.55, '#b97a4a'); bg.addColorStop(1, '#4a2410'); }
     else if (gold) { bg.addColorStop(0, '#fff6c8'); bg.addColorStop(.45, '#ffd24a'); bg.addColorStop(.55, '#ffe58a'); bg.addColorStop(1, '#b07a12'); }
-    else { bg.addColorStop(0, '#e9fbff'); bg.addColorStop(.45, '#7fd8f5'); bg.addColorStop(.55, '#b9efff'); bg.addColorStop(1, '#2b6c9a'); }
+    else { bg.addColorStop(0, T.blade[0]); bg.addColorStop(.45, T.blade[1]); bg.addColorStop(.55, T.blade[2]); bg.addColorStop(1, T.blade[3]); }
     g.fillStyle = bg;
     g.beginPath(); g.moveTo(guard, -bw); g.lineTo(tip - u * .2, -bw * .85); g.lineTo(tip, 0); g.lineTo(tip - u * .2, bw * .85); g.lineTo(guard, bw); g.closePath(); g.fill(); ink();
     // Middengroef en lichtende rand
@@ -605,7 +668,7 @@ const SzDraw = (() => {
 
   // o: { x, y, a, color, gold, rust, alpha, name, blink }
   function sword(ctx, o, sx, sy, S, t) {
-    const spr = swordSprite(o.color, o.gold, o.rust && !o.gold);
+    const spr = swordSprite(o.color, o.gold, o.rust && !o.gold, o.tier || 0);
     const k = S / PXS * 1.08;
     ctx.save();
     ctx.globalAlpha = o.alpha ?? 1;
@@ -722,11 +785,12 @@ const SzDraw = (() => {
     const k0 = Math.max(0, Math.floor((left - 6) / W.L)), k1 = Math.floor((right + 6) / W.L);
     for (let k = k0; k <= k1; k++) {
       const st = W.stage(v.seed, k);
-      if (k > 0 && st.x0 > left - 3 && st.x0 < right + 3) paal(ctx, k, X(st.x0 - 2.4), Y(W.BASE_Y), S, v.t, v.passed >= k);
+      if (k > 0 && st.x0 > left - 3 && st.x0 < right + 3) paal(ctx, k, X(st.x0 - 3.2), Y(W.BASE_Y), S, v.t, v.passed >= k);
       for (const s of st.saws) if (Math.abs(s.x - v.cx) < (right - left) / 2 + 2) saw(ctx, s, X, Y, S, v.t);
       for (const s of st.solids) {
         if (s.x > right + 1 || s.x + s.w < left - 1) continue;
         solid(ctx, s, X(s.x), Y(s.y), S, st.theme);
+        if (s.paal && k > 0) target(ctx, X(W.targetX(k)), Y(s.y), S, v.t, v.passed >= k);
       }
       for (const l of st.lasers) if (Math.abs(l.x - v.cx) < (right - left) / 2 + 1) laser(ctx, l, X(l.x), Y(l.y0), Y(l.y1), S, v.t);
       for (const o of st.things) {

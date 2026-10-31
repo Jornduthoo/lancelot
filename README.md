@@ -221,7 +221,10 @@ Iedereen laat op zijn eigen scherm een **gloeiend zwaard** salto's maken door de
 - Eén knop: tik = salto naar voren. Tik zo vaak je wil; in de lucht is elke salto een kleiner sprongetje. De **kling** splijt alles wat ze raakt (kristallen, tonnen, pompoenen, robotridders). Komt de **punt** in hout, dan blijft het zwaard steken; het heft en staal botsen terug.
 - **Elke runenpaal is een vraag**: juist = ✨ gouden kling (verder en hoger springen, zaagbladen en lasers doen niets, dubbele punten). Fout: de kling roest even (kortere sprongen), die vraag komt later terug.
 - Wie in de lava valt of een zaagblad of laser raakt, begint opnieuw bij de laatste runenpaal (geen strafpunten, wel tijd kwijt).
-- Punten: 100 per runenpaal plus extra als je de etappe snel deed, 5 per keer vaststeken in hout (alleen als je vooruit kwam), 10-20 per gespleten ding, punten per juist antwoord.
+- Overal valt iets te splijten: stapels tonnen, rijen pompoenen, kristalbogen op je sprongen, robotridders en één schatkist per etappe. Snel na elkaar splijten = combo (vanaf 4 ×2, vanaf 8 ×3).
+- **Doelschijf** op elke runenpaal: steek je punt in het midden en alles wat je die etappe verdiende (je buit, 🎯 in beeld) telt ×10; verder van het midden ×5, ×3 of ×2.
+- **Je zwaard groeit mee** met je punten: IJzeren zwaard, Kristalzwaard, Vuurzwaard, Smaragdzwaard, Sterrenzwaard (ook zichtbaar op het bord).
+- Punten: 100 per runenpaal plus extra als je de etappe snel deed, 5 per keer vaststeken in hout (alleen als je vooruit kwam), 10-40 per gespleten ding, de doelschijf, punten per juist antwoord.
 - Chromebook: spatie, ↑ of klikken = salto, 1-4 antwoorden. Gsm: tik waar je wil. Elk antwoord komt in het logboek. Resultaten in `resultaten/`. Ook als taak (alleen in een spel).
 
 ## Wankelwagen
