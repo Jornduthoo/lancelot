@@ -73,7 +73,7 @@ const Lessen = (() => {
     ['/kerker', 'Ontsnap uit de kerker', 'kerker'], ['/burchtbouwers', 'Burchtbouwers', 'burcht'], ['/poortwacht', 'Poortwacht', 'poortwacht'],
     ['/gauntlet', 'Gauntlet', 'gauntlet'], ['/cybergalaga', 'Cyber-Galaga', 'cybergalaga'], ['/leraarbaas', 'Leraar-baas', 'leraarbaas'],
     ['/verrader', 'De Verrader', 'verrader'], ['/ridderrace', 'Ridderrace', 'strijdros'], ['/robopaarden', 'Robopaarden', 'robopaarden'],
-    ['/toren', 'De prinses in de toren', 'toren'], ['/pixelridder', 'Pixelridder', 'pixelridder'], ['/neonvlucht', 'Neonvlucht', 'neonvlucht'], ['/raketridder', 'Raketridder', 'raketridder'], ['/splijtzwaard', 'Splijtzwaard', 'splijtzwaard'], ['/wankelwagen', 'Wankelwagen', 'wankelwagen'],
+    ['/toren', 'De prinses in de toren', 'toren'], ['/pixelridder', 'Pixelridder', 'pixelridder'], ['/neonvlucht', 'Neonvlucht', 'neonvlucht'], ['/raketridder', 'Raketridder', 'raketridder'], ['/splijtzwaard', 'Splijtzwaard', 'splijtzwaard'], ['/wankelwagen', 'Wankelwagen', 'wankelwagen'], ['/hooibergjacht', 'Hooibergjacht', 'hooibergjacht'],
     ['/diepboor', 'Diepboor', 'diepboor'], ['/schattenjacht', 'Schattenjacht', 'schattenjacht'], ['/kristalroof', 'Kristalroof', 'kristalroof'],
     ['/laserslag', 'Laserslag', 'laserslag'], ['/strijdrossen', 'Strijdrossen', 'strijdrossen'], ['/bomberknight', 'Bomber-Knight', 'bomberknight'],
     ['/neonduel', 'Neon Duel', 'neonduel'], ['/ridder-royale', 'Ridder-Royale', 'royale'], ['/sterrenvreter', 'Sterrenvreter', 'sterrenvreter'],

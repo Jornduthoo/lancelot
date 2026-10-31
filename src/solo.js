@@ -12,6 +12,7 @@ const { Neonvlucht } = require('./neonvlucht');
 const { Raketridder } = require('./raketridder');
 const { Splijtzwaard } = require('./splijtzwaard');
 const { Wankelwagen } = require('./wankelwagen');
+const { Hooibergjacht } = require('./hooibergjacht');
 const { Robomol } = require('./robomol');
 
 // Spellen met attachPlayer koppelen zichzelf; de toren en de schattenjacht hangen we hier zelf aan de verbinding.
@@ -24,6 +25,7 @@ const SPELLEN = {
   raket: { Klasse: Raketridder, eigen: true },
   zwaard: { Klasse: Splijtzwaard, eigen: true },
   wankel: { Klasse: Wankelwagen, eigen: true },
+  hooi: { Klasse: Hooibergjacht, eigen: true },
   robomol: { Klasse: Robomol, eigen: true },
 };
 const START_MS = 4000;      // even de uitleg in de wachtzaal lezen, dan start het vanzelf
