@@ -13,16 +13,16 @@
   const R = .5;           // straal van de ridder (voor botsingen)
   const PHYS = {
     g: 24, maxV: 26, drag: .04,
-    range: 9, goldRange: 12,          // zo ver reikt de haak
+    range: 11.5, goldRange: 14,          // zo ver reikt de haak
     push: 3.2, goldPush: 5.2,         // een zachte duw vooruit tijdens het zwaaien
     swing: 10, goldSwing: 12.5,       // zo snel zwaai je minstens als je haak vastklikt
-    release: 1.05, goldRelease: 1.12, // een beetje extra vaart bij het loslaten
+    release: 1.12, goldRelease: 1.2, // een beetje extra vaart bij het loslaten
     hopVx: 6.5, hopVy: -10,
     regrab: .3,                       // zo lang kan je hetzelfde anker niet meteen terug grijpen
   };
   const REEL = 6;
   const GOLD_S = 10;
-  const RESPAWN_S = .9;
+  const RESPAWN_S = .6;
   const MIN_STAGE_S = 3; // sneller kan een etappe niet (controle op de server)
   const COLORS = ['#ff4d6d', '#4cc9ff', '#ffc94a', '#4ade80', '#c77dff', '#ff8c42', '#2de2c8', '#ff6bd6', '#a3e635', '#7aa2ff', '#ffd6a5', '#f472b6'];
   // Elke drie etappes een andere wereld (andere kleuren voor de lucht en de afgrond).
@@ -54,7 +54,7 @@
     let ai = 0, ci = 0;
     const anchor = (x, y, mv) => { const a = { id: `${k}.${ai++}`, x, y }; if (mv) a.mv = mv; st.anchors.push(a); return a; };
     const cell = (x, y) => st.cells.push({ id: `${k}.${ci++}`, x, y });
-    const gap = () => 6 + r() * 1.4 + d * 2.2; // afstand tussen twee ankers
+    const gap = () => 4.8 + r() * 1.2 + d * 1.2; // afstand tussen twee ankers (dicht bij elkaar: je haalt het volgende bijna altijd)
     const hi = () => 2.6 + r() * 2.6;          // hoogte van een anker
     // Het eerste anker haal je vanop het platform.
     let last = anchor(x0 + 6.5, 4 + r());
@@ -62,9 +62,9 @@
     const used = new Set();
     while (last.x < end - 4) {
       let kinds = ['rij', 'rij', 'golf', 'kussen'];
-      if (k >= 1) kinds.push('poort');
-      if (k >= 2) kinds.push('bewegend', 'poort');
-      if (k >= 3) kinds.push('knipper', 'bewegend');
+      // Geen lasers meer (te moeilijk): de uitdaging zit in de kristallen, de salto's en de snelheid.
+      if (k >= 2) kinds.push('bewegend');
+      if (k >= 4) kinds.push('bewegend');
       kinds = kinds.filter(x => !used.has(x) || r() < .45);
       const kind = kinds[Math.floor(r() * kinds.length)] || 'rij';
       used.add(kind);
@@ -149,7 +149,9 @@
     let best = null, bd = range;
     for (const st of near(seed, p.x)) {
       for (const a0 of st.anchors) {
-        if (a0.x < p.x - .6 || (p.lastA === a0.id && p.regrab > 0)) continue;
+        // Val je, dan mag de haak ook een anker net achter je grijpen (een vangnet).
+        const back = p.vy > 4 ? 7 : .6;
+        if (a0.x < p.x - back || (p.lastA === a0.id && p.regrab > 0)) continue;
         const a = at(a0, t);
         if (a.y > p.y - .4) continue;
         const dd = Math.hypot(a.x - p.x, a.y - p.y);
@@ -164,6 +166,12 @@
   // Geeft 'afgrond' of 'laser' terug als het misloopt, anders null. p.salto telt op als je een volle salto maakt.
   function step(seed, p, hold, dt, t, gold) {
     const P = PHYS;
+    // Na een val hang je stil aan je laatste anker tot je weer drukt.
+    if (p.wait) {
+      if (!hold) { p.vx = 0; p.vy = 0; return null; }
+      p.wait = false;
+      p.lastA = null;
+    }
     p.regrab = Math.max(0, (p.regrab || 0) - dt);
     p.grabbed = false;
     p.released = false;
@@ -171,6 +179,8 @@
     if (p.hook && !hold) {
       const f = gold ? P.goldRelease : P.release;
       p.vx *= f; p.vy *= f;
+      // Laat je los terwijl je terugzwaait, dan vlieg je toch vooruit (zo is te laat loslaten geen ramp).
+      if (p.vx < 6) { if (p.vx < 2) p.vy = Math.min(p.vy, -4); p.vx = 6; }
       p.lastA = p.hook.id;
       p.regrab = P.regrab;
       p.hook = null;
