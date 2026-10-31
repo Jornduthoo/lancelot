@@ -209,10 +209,12 @@
 
     // Meedragen op een bewegend platform.
     const stages = near(seed, p.x);
-    if (p.on && p.on.mv) {
-      const a = at(p.on, t - dt), b = at(p.on, t);
-      p.x += b.x - a.x;
-      p.y += b.y - a.y;
+    // We onthouden waar het platform stond toen je erop landde of de vorige stap. Zo beweeg je mee, ook als er
+    // tussendoor tijd voorbij ging (een vraag aan de vlag, een haperend scherm) en het platform al verder geschoven is.
+    if (p.on && p.on.mv && p.onAt) {
+      const b = at(p.on, t);
+      p.x += b.x - p.onAt.x;
+      p.y = b.y;
     }
     const hw = SIZE.w / 2;
     const rects = [];
@@ -221,6 +223,8 @@
     p.x += p.vx * dt;
     for (const [, s] of rects) {
       if (p.x + hw > s.x && p.x - hw < s.x + s.w && p.y > s.y + .02 && p.y - SIZE.h < s.y + s.h) {
+        // Net onder de bovenrand (een platform dat omhoog komt, of een randje): niet opzij duwen, de stap hieronder zet je erop.
+        if (p.y < s.y + .45 && p.vy >= -2) continue;
         if (p.vx > 0 || p.x < s.x + s.w / 2) p.x = s.x - hw; else p.x = s.x + s.w + hw;
         p.vx = 0;
       }
@@ -229,16 +233,18 @@
     const wasGround = p.ground;
     p.ground = false;
     p.on = null;
+    p.onAt = null;
     const oy = p.y;
     p.y += p.vy * dt;
     for (const [orig, s] of rects) {
       if (p.x + hw <= s.x || p.x - hw >= s.x + s.w) continue;
       if (p.y > s.y && p.y - SIZE.h < s.y + s.h) {
-        if (p.vy >= 0 && oy <= s.y + .25 + (orig.mv ? .2 : 0)) {
+        if (p.vy >= 0 && oy <= s.y + .45) {
           p.y = s.y;
           p.vy = 0;
           p.ground = true;
           p.on = orig;
+          if (orig.mv) p.onAt = { x: s.x, y: s.y };
         } else if (p.vy < 0) {
           p.y = s.y + s.h + SIZE.h;
           p.vy = 0;
