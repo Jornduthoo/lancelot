@@ -170,7 +170,7 @@ function confetti(duration = 4000) {
 // Een spel starten. Loopt er nog een ander spel, dan vragen we of dat mag stoppen in plaats van een foutmelding te tonen.
 const GAME_OF_EVENT = {
   load: 'toernooi', 'rt-load': 'rondetafel', 'tw-load': 'toren', 'sj-load': 'schat', 'ls-load': 'laserslag', 'rr-load': 'race',
-  'bb-load': 'burcht', 'du-load': 'duel', 'pk-load': 'knight', 'sr-load': 'rossen', 'gt-load': 'gauntlet', 'ry-load': 'royale', 'sv-load': 'sterren', 'rs-load': 'slang', 'bs-load': 'storm', 'pw-load': 'poort', 'nv-load': 'vlucht', 'db-load': 'diep', 'jp-load': 'raket', 'sz-load': 'zwaard', 'ww-load': 'wankel', 'pp-load': 'plasma', 'hb-load': 'hooi', 'hk-load': 'haak', 'bv-load': 'banier', 'px-load': 'pixel', 'mo-load': 'robomol', 'kk-load': 'kerker', 'hs-load': 'hofschilder', 'rp-load': 'paarden', 'nd-load': 'neon', 'lb-load': 'baas', 'rk-load': 'rijk', 'kr-load': 'roof', 'vr-load': 'verrader', 'ob-load': 'oefenblad', 'pf-load': 'proef',
+  'bb-load': 'burcht', 'du-load': 'duel', 'pk-load': 'knight', 'sr-load': 'rossen', 'gt-load': 'gauntlet', 'ry-load': 'royale', 'sv-load': 'sterren', 'rs-load': 'slang', 'bs-load': 'storm', 'pw-load': 'poort', 'nv-load': 'vlucht', 'db-load': 'diep', 'jp-load': 'raket', 'sz-load': 'zwaard', 'ww-load': 'wankel', 'pp-load': 'plasma', 'tm-load': 'tuimel', 'hb-load': 'hooi', 'hk-load': 'haak', 'bv-load': 'banier', 'px-load': 'pixel', 'mo-load': 'robomol', 'kk-load': 'kerker', 'hs-load': 'hofschilder', 'rp-load': 'paarden', 'nd-load': 'neon', 'lb-load': 'baas', 'rk-load': 'rijk', 'kr-load': 'roof', 'vr-load': 'verrader', 'ob-load': 'oefenblad', 'pf-load': 'proef',
   'cg-load': 'galaga', 'bk-load': 'bomber', 'opwarmer-start': 'toernooi',
 };
 function loadGame(event, payload, cb) {

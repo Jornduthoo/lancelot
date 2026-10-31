@@ -27,6 +27,7 @@ Het thema: middeleeuws met een scifi-kantje. Het startscherm heeft drie grote te
    - **Hooibergjacht**: graaf door je eigen neonhooiberg tot je de kristallen naald vindt. Is je energie op, dan komt er een vraag: juist = beter werktuig en het kompas wijst waar de naald zit
    - **Plasmapoort**: strafschoppen tegen 8 robotridders in het burchtstadion. Mik je plasmabal (richting, dan hoogte) en duik als keeper. Voor elke trap een vraag: juist = gouden bal en groot schild
    - **Haakridder**: slinger met je plasmahaak van kristalanker naar kristalanker door een zwevende burcht. Eén knop: ingedrukt = grijpen, loslaten = vliegen. Elke vlag is een vraag: juist = gouden haak
+   - **Tuimelridder**: stuntparcours met een ridder op een rare rijmachine (rakettroon, eenwieler, stoomton, zweeftroon): springplanken, hamers, laserpoorten en kanonnen. Raak je iets, dan tuimel je eraf. 5 parcoursen met sterren; elke vlag een vraag: juist = turbo
    - **Diepboor**: graaf met je boorridder naar goud, kristal en neonkernen. Goede antwoorden geven brandstof; in de smidse koop je een betere boor
    - **Robomol**: robotmollen schieten uit negen burchtputten en elke leerling mept ze met een zwaard, in 3D vanuit de ogen van de ridder. Een juist antwoord laadt het zwaard op en geeft het Vuurzwaard
    - **Ontsnap uit de kerker**: de hele klas zit samen opgesloten en opent deur na deur: een sleuteldeur, een runenslot (de code ligt verspreid over de klas), een laserhek (iedereen moet helpen), een valhek en de Kerkermeester
@@ -259,6 +260,16 @@ Iedereen slingert op zijn eigen scherm met een **plasmahaak** door dezelfde zwev
 - Het bord volgt de koploper, met bovenaan een strook met alle vlaggen en waar iedereen is.
 - Chromebook: spatie (of klikken) ingedrukt houden, 1-4 antwoorden. Gsm: vinger op het scherm houden. Elk antwoord komt in het logboek. Resultaten in `resultaten/`. Ook als taak (alleen in een spel).
 - Geschilderde beelden: zet `achtergrond`, `zwaai`, `vlieg`, `anker` en `banier` als webp in `public/img/haakridder/`; zonder die beelden tekent het spel ze zelf.
+
+## Tuimelridder
+
+Een stuntparcours in 5 werelden (De Burcht, Het Neonmoeras, De IJsberg, Het Wolkenkasteel, De Lavasmidse), elk met 4 etappes en een finish. Elke leerling rijdt op zijn eigen scherm met een ridder op een rijmachine. Aan de start en aan elke finish kies je er een: **rakettroon** (snel), **eenwieler** (houdt zichzelf recht), **stoomton** (zwaar en stevig) of **zweeftroon** (zweeft over bulten en glijdt verder).
+
+- **Rijden**: → of ↑ gas, ← of ↓ remmen. In de lucht kantel je ermee. R = terug naar de vlag. Op een gsm twee pedalen.
+- **Valstrikken**: springplanken, zwaaiende hamers, laserpoorten die aan en uit knipperen, kanonnen die bollen over een put schieten, wippen en kristalstekels. Raakt de helm iets, of word je geraakt, dan tuimelt de ridder eraf als een ledenpop en begin je opnieuw bij de vlag.
+- **Vragen**: elke vlag is een vraag. Juist = ⚡ turbo. Fout = gewoon verder, die vraag komt later terug.
+- **Sterren**: geen enkele val in een parcours = ⭐⭐⭐, tot 2 vallen = ⭐⭐, anders ⭐.
+- **Punten**: elke vlag (sneller = meer), de finish, sterren en juiste antwoorden. Na parcours 5 begint parcours 1 opnieuw, met snellere valstrikken.
 
 ## Plasmapoort
 
