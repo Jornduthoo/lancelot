@@ -600,7 +600,7 @@ body:not([data-hs="1"]) #hofschilder { display: none !important; }
 .tm-hud { gap: 10px; }
 .tm-car { white-space: nowrap; }
 .tm-car.turbo { color: #ff6bd6; box-shadow: 0 0 14px rgba(255, 107, 214, .6); }
-#tm-lobby-art { display: block; margin: 6px auto 0; }
+#tm-lobby-art { display: block; margin: 6px auto 0; width: 220px; height: 150px; }
 #tm-game .ak-question { z-index: 6; }
 .tm-pick { position: absolute; inset: 0; z-index: 5; display: flex; align-items: center; justify-content: center; background: rgb(5 6 15 / .6); padding: 12px; }
 .tm-pick.hidden { display: none; }

@@ -20,12 +20,14 @@ const TmDraw = (() => {
     'kanon', 'stekels', 'veer', 'vlag', 'finish',
   ]);
   const imgs = new Map();
+  // Stilstaande tekeningen (zoals de keuze van je rijmachine) tekenen we opnieuw zodra een beeld binnen is.
+  const waiters = new Map();
   function img(name) {
     if (!HAS.has(name)) return null;
     let o = imgs.get(name);
     if (!o) {
       o = { el: new Image(), ok: false };
-      o.el.onload = () => { o.ok = o.el.naturalWidth > 0; };
+      o.el.onload = () => { o.ok = o.el.naturalWidth > 0; for (const f of waiters.values()) f(); };
       o.el.src = `/img/tuimelridder/${name}.webp`;
       imgs.set(name, o);
     }
@@ -52,6 +54,9 @@ const TmDraw = (() => {
     }
     ctx.drawImage(src, x, y, w, h);
   }
+
+  // De beelden van de ridder en de rijmachines meteen ophalen, zodat de keuzeschermen ze snel tonen.
+  if (typeof document !== 'undefined') for (const n of HAS) if (!n.startsWith('achtergrond')) img(n);
 
   // ---------- Lucht ----------
   const skyCache = new Map();
@@ -558,12 +563,19 @@ const TmDraw = (() => {
   }
   // Een rijmachine met ridder als plaatje (kiezen, wachtzaal).
   function preview(canvas, vi, color) {
+    // Scherp op een gsm: het canvas krijgt meer pixels, de grootte op het scherm blijft (CSS).
+    if (!canvas.dataset.w) {
+      const k = Math.min(3, Math.max(1, window.devicePixelRatio || 1));
+      canvas.dataset.w = canvas.width;
+      canvas.width = Math.round(canvas.width * k); canvas.height = Math.round(canvas.height * k);
+    }
     const g = canvas.getContext('2d');
     g.clearRect(0, 0, canvas.width, canvas.height);
     const S = Math.min(canvas.width / 3.6, canvas.height / 3.4);
     const V = W.vehicleOf(vi);
     const low = Math.max(...V.wheels.map(w => w[1] + w[2])) + (V.kind === 'zweef' ? .5 : 0);
     rider(g, { x: 0, y: 0, a: 0, vi, color, rot: .4 }, x => canvas.width / 2 + x * S, y => canvas.height - S * (low + .1) + y * S, S, 0);
+    waiters.set(canvas, () => preview(canvas, vi, color));
   }
 
   // ---------- Alles samen ----------
