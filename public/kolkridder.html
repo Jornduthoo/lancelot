@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LANcelot · Kolkridder</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/arena.css">
+</head>
+<body class="sj-host ak-wide">
+<main>
+  <div class="topbar">
+    <div class="brand" id="brand" title="Naar het startscherm">
+      <img src="/img/mark.webp" alt="">
+      <div>
+        <div class="wordmark">LAN<span>celot</span></div>
+        <div class="subtitle" id="status">Kolkridder</div>
+      </div>
+    </div>
+    <div class="actions">
+      <span class="join-mini hidden" id="join-mini"></span>
+      <button class="secondary icon" id="mute" title="Geluid aan/uit" aria-label="Geluid aan/uit"><i class="ic ic-geluid"></i></button>
+      <button class="secondary hidden" id="stop">Stop het spel</button>
+    </div>
+  </div>
+
+  <section id="setup">
+    <div class="bar">
+      <h2>Kolkridder</h2>
+      <div class="actions">
+        <button class="secondary" id="to-home">Terug</button>
+        <button class="secondary" data-make="leeg">Lege quiz</button>
+        <button data-make="ai">Nieuwe quiz met AI</button>
+      </div>
+    </div>
+    <div class="panel tw-intro">
+      <img class="game-logo" src="/img/icons/kolkridder.webp" alt="">
+      <div>
+        <p>Elke leerling stuurt een gloeiende <strong>plasmakolk</strong> door dezelfde ridderstad. Alles wat kleiner is dan je kolk, slok je op: munten, tonnen, karren, robopaarden, huizen, torens en uiteindelijk de burcht. <strong>Hoe meer je slokt, hoe groter je wordt.</strong></p>
+        <p>Je kolk draait op plasma. Is die op, dan komt er een vraag: juist = je kolk groeit meteen en krijgt 🌪 zuigkracht. Fout = even wachten, en die vraag komt later terug. Tijdens een vraag sta je stil en ben je beschermd. Niemand valt uit.</p>
+        <p class="muted">Sturen: muis, vinger of pijltjes. Wie de grootste kolk heeft als de tijd op is, wint. In duelmodus slokt een duidelijk grotere kolk een kleinere op: die wordt kleiner en komt meteen ergens anders terug. Elk antwoord komt in het logboek.</p>
+      </div>
+    </div>
+    <div class="panel form">
+      <label>Speeltijd
+        <select id="ko-minutes">
+          <option value="1">1 minuut</option>
+          <option value="2">2 minuten</option>
+          <option value="3">3 minuten</option>
+          <option value="4">4 minuten</option>
+          <option value="5" selected>5 minuten</option>
+          <option value="6">6 minuten</option>
+          <option value="8">8 minuten</option>
+          <option value="10">10 minuten</option>
+        </select>
+      </label>
+      <label>Tempo van de vragen
+        <select id="ko-tempo" class="tempo-select">
+          <option value="rustig">Rustig: meer groei per juist antwoord</option>
+          <option value="normaal" selected>Normaal</option>
+          <option value="intens">Intens: minder groei per juist antwoord</option>
+        </select>
+      </label>
+      <label>Duelmodus
+        <select id="ko-duel">
+          <option value="uit" selected>Uit: iedereen slokt alleen de stad op</option>
+          <option value="aan">Aan: grote kolken slokken kleinere kolken op</option>
+        </select>
+      </label>
+      <p class="muted small">Kies hieronder de quiz waaruit de vragen komen.</p>
+    </div>
+    <p class="notice hidden" id="stopped"></p>
+    <div class="quiz-list" id="quiz-list"></div>
+    <p class="error" id="load-error"></p>
+  </section>
+
+  <section id="lobby" class="hidden">
+    <div class="panel join">
+      <div class="qr" id="qr"></div>
+      <div class="join-text">
+        <p class="muted">Scan de QR-code of surf naar</p>
+        <div class="join-url" id="join-url"></div>
+        <p class="muted small" id="other-urls"></p>
+      </div>
+    </div>
+    <div class="bar">
+      <h2><span class="count" id="player-count">0</span> <span id="player-word">kolkridders</span> klaar</h2>
+      <button class="gold big" id="start" data-spatie disabled>Kolken maar!</button>
+    </div>
+    <p class="muted small">Klik op een naam om die speler te verwijderen. Wie later binnenkomt, start meteen.</p>
+    <div class="names" id="names"></div>
+  </section>
+
+  <section id="play" class="hidden">
+    <div class="hud">
+      <span class="round" id="p-title"></span>
+      <span class="ry-big"><b id="p-alive"></b></span>
+      <span class="tw-clock" id="p-clock"></span>
+      <button class="secondary" id="p-finish">Nu stoppen</button>
+    </div>
+    <div class="ak-board">
+      <div class="ak-stage"><canvas id="p-canvas"></canvas><div class="bb-banner hidden" id="p-banner"></div></div>
+      <div class="tw-side">
+        <div class="panel bb-builders"><p class="muted small">Stand · 🌀 breedte</p><ol id="p-top"></ol></div>
+        <ul class="tw-feed" id="p-feed"></ul>
+      </div>
+    </div>
+    <div class="sj-countdown hidden" id="p-countdown"></div>
+  </section>
+
+  <section id="podium" class="hidden">
+    <div class="center"><h2 id="w-title"></h2><p class="muted" id="w-why"></p></div>
+    <ol class="ranking" id="final"></ol>
+    <p class="center muted" id="results-saved"></p>
+    <div class="bar">
+      <button class="secondary" id="restart">Nog een keer</button>
+      <button id="close">Andere quiz kiezen</button>
+    </div>
+  </section>
+</main>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/ui.js"></script>
+<script src="/js/fx.js"></script>
+<script src="/js/avatar.js"></script>
+<script src="/js/quiz-links.js"></script>
+<script src="/js/quiz-list.js"></script>
+<script src="/js/arena-kit.js"></script>
+<script src="/js/ko-world.js"></script>
+<script src="/js/ko-draw.js"></script>
+<script src="/js/ko-host.js"></script>
+<script src="/js/address.js"></script>
+<script src="/js/overzicht.js"></script>
+</body>
+</html>

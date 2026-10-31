@@ -653,3 +653,13 @@ body:not([data-zm="1"]) #zwerm { display: none !important; }
 .zm-life { font-weight: 800; color: var(--gold); margin: 4px 0 0; }
 /* Wachtscherm: Jorns geschilderde spelicoon in plaats van een getekende figuur */
 .lobby-icoon { display: block; width: 132px; height: 132px; margin: 8px auto 2px; border-radius: 24px; box-shadow: 0 0 22px rgb(var(--k-goud) / .35); animation: float 5s ease-in-out infinite; }
+
+/* Kolkridder */
+body[data-ko="1"] main > :not(#kolk) { display: none !important; }
+body:not([data-ko="1"]) #kolk { display: none !important; }
+#kolk { display: contents; }
+.ko-hud { gap: 10px; }
+.ko-stage { touch-action: none; user-select: none; -webkit-user-select: none; cursor: crosshair; }
+#ko-game .ak-question { z-index: 6; }
+#ko-power { color: #ffe17a; box-shadow: 0 0 12px rgb(var(--k-goud) / .6); }
+.ko-plasma i { background: linear-gradient(90deg, #7b5cff, #5ae6ff); }

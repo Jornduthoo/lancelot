@@ -169,6 +169,7 @@ document.querySelector('[data-module="hooibergjacht"]').addEventListener('click'
 document.querySelector('[data-module="zwermwacht"]').addEventListener('click', () => { location.href = '/zwermwacht'; });
 document.querySelector('[data-module="banierveld"]').addEventListener('click', () => { location.href = '/banierveld'; });
 document.querySelector('[data-module="haakridder"]').addEventListener('click', () => { location.href = '/haakridder'; });
+document.querySelector('[data-module="kolkridder"]').addEventListener('click', () => { location.href = '/kolkridder'; });
 document.querySelector('[data-module="ridderslang"]').addEventListener('click', () => { location.href = '/ridderslang'; });
 document.querySelector('[data-module="burchtstorm"]').addEventListener('click', () => { location.href = '/burchtstorm'; });
 document.querySelector('[data-module="pixelridder"]').addEventListener('click', () => { location.href = '/pixelridder'; });
