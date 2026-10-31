@@ -395,7 +395,7 @@
     const room = floorY - fit.h * .1;
     const cs = Math.max(3, Math.floor(Math.min(fit.w * .94 / g.st.cols, room / g.st.rows) * 2) / 2);
     const ky = Math.max(1, Math.min(2, Math.floor(room / g.st.rows / cs * 10) / 10));
-    if (cs !== g.cs || ky !== g.ky || g.hay.st !== g.st) {
+    if (cs !== g.cs || ky !== g.ky || g.hay.st !== g.st || g.hay.gen !== HbDraw.Hay.gen) {
       g.cs = cs;
       g.ky = ky;
       g.hay.build(g.st, cs, ky);
@@ -417,14 +417,8 @@
     HbDraw.barn(ctx, fit.w, fit.h, sec);
     // Een lichtende ring op de vloer onder de berg
     HbDraw.glow(ctx, fit.w / 2, floorY, g.st.cols * cs * .55, 'rgba(94,231,255,.28)');
-    // Onder het hooi: schatten en de naald
-    for (const it of g.st.items) {
-      if (g.taken.has(it.id) && g.st.hp[it.cell] === 0) continue;
-      const p = pxOf(it.cell);
-      HbDraw.item(ctx, it.kind, p.x, p.y, cs * 1.1, sec);
-    }
+    // Het hooi (de naald en schatten zitten eronder: je ziet ze pas als hun vakje leeg is, en dan pakken we ze meteen)
     const np = pxOf(g.st.needle);
-    if (!g.win) HbDraw.needle(ctx, np.x, np.y, cs * 1.9, g.st.angle, sec);
     g.hay.draw(ctx, view.ox, view.oy);
     // Door dun hooi fonkelt de naald af en toe.
     if (!g.win && g.st.hp[g.st.needle] === 1) {

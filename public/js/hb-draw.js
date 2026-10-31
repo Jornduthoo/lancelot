@@ -23,6 +23,13 @@ const HbDraw = (() => {
     const c = document.createElement('canvas');
     c.width = w; c.height = h;
     const g = c.getContext('2d');
+    if (IMG.schuur) {
+      // Zo groot dat het hele scherm vol is (bijsnijden aan de randen).
+      const im = IMG.schuur, k = Math.max(w / im.width, h / im.height);
+      g.drawImage(im, (w - im.width * k) / 2, (h - im.height * k) / 2, im.width * k, im.height * k);
+      barnCache = c;
+      return c;
+    }
     const sky = g.createLinearGradient(0, 0, 0, h);
     sky.addColorStop(0, '#070a1f');
     sky.addColorStop(.6, '#141038');
@@ -85,8 +92,10 @@ const HbDraw = (() => {
   function barn(ctx, w, h, t) {
     ctx.drawImage(barnSprite(w, h), 0, 0);
     const p = .75 + .25 * Math.sin(t * 1.7);
-    glow(ctx, w * .12, h * .24, h * .32, 'rgba(255,201,74,.35)', p);
-    glow(ctx, w * .88, h * .24, h * .32, 'rgba(94,231,255,.32)', 1.6 - p);
+    if (!IMG.schuur) {
+      glow(ctx, w * .12, h * .24, h * .32, 'rgba(255,201,74,.35)', p);
+      glow(ctx, w * .88, h * .24, h * .32, 'rgba(94,231,255,.32)', 1.6 - p);
+    }
     ctx.fillStyle = 'rgba(255,230,160,.5)';
     for (let i = 0; i < 14; i++) {
       const x = ((i * 97.3 + t * (6 + i % 4) * 3) % w + w) % w;
@@ -95,12 +104,62 @@ const HbDraw = (() => {
     }
   }
 
+  // ---------- Beelden ----------
+  // Een geschilderde schuur en hooitextuur (public/img/hooiberg). Zolang ze laden (of als ze ontbreken) tekenen we zelf.
+  const IMG = {};
+  for (const [k, src] of [['schuur', '/img/hooiberg/schuur.webp'], ['hooi', '/img/hooiberg/hooi.webp']]) {
+    const im = new Image();
+    im.onload = () => { IMG[k] = im; barnCache = null; texCache = null; miniCache = null; Hay.gen++; };
+    im.src = src;
+  }
+
+  // De hooitextuur: een vierkant dat naadloos herhaalt.
+  let texCache = null;
+  function texture() {
+    if (texCache) return texCache;
+    const n = 512;
+    const c = document.createElement('canvas');
+    c.width = c.height = n;
+    const g = c.getContext('2d');
+    if (IMG.hooi) {
+      g.drawImage(IMG.hooi, 0, 0, n, n);
+    } else {
+      g.fillStyle = '#a8761f';
+      g.fillRect(0, 0, n, n);
+      g.lineCap = 'round';
+      let sd = 11;
+      const r = () => { sd = (sd * 1664525 + 1013904223) >>> 0; return sd / 4294967296; };
+      for (let i = 0; i < 9000; i++) {
+        const x = r() * n, y = r() * n, a = -.7 + r() * 1.4 + (r() < .5 ? 0 : Math.PI), l = 6 + r() * 16;
+        const k = i / 9000;
+        g.strokeStyle = r() < .015 ? '#7ff6ff' : STRO[Math.floor(r() * STRO.length)];
+        g.globalAlpha = .55 + k * .45;
+        g.lineWidth = 1.4 + r() * 1.6;
+        for (const ox of [-n, 0, n]) for (const oy of [-n, 0, n]) {
+          if (x + ox < -20 || x + ox > n + 20 || y + oy < -20 || y + oy > n + 20) continue;
+          g.beginPath();
+          g.moveTo(x + ox - Math.cos(a) * l, y + oy - Math.sin(a) * l);
+          g.lineTo(x + ox + Math.cos(a) * l, y + oy + Math.sin(a) * l);
+          g.stroke();
+        }
+      }
+      g.globalAlpha = 1;
+    }
+    texCache = c;
+    return c;
+  }
+
   // ---------- De hooiberg ----------
-  // Elk vakje tekenen we op een eigen canvas. Na graven tekenen we alleen het stukje rond de geraakte vakjes opnieuw.
+  // Vier lagen, elk een eigen canvas: de holte (donker binnenste van de volle berg), de schaduw van het hooi,
+  // het hooi zelf (textuur door een zachte vorm, dieper = donkerder) en de vorm. Na graven werken we alleen het stukje
+  // rond de geraakte vakjes bij, zodat het op een Chromebook vlot blijft.
   class Hay {
     constructor() {
-      this.c = document.createElement('canvas');
-      this.g = this.c.getContext('2d');
+      this.mask = document.createElement('canvas');
+      this.hay = document.createElement('canvas');
+      this.shadow = document.createElement('canvas');
+      this.cave = document.createElement('canvas');
+      this.comp = document.createElement('canvas');
       this.st = null;
       this.cs = 0;
     }
@@ -109,72 +168,106 @@ const HbDraw = (() => {
       this.st = st;
       this.cs = cs;
       this.ky = ky;
+      this.gen = Hay.gen;
       this.pad = Math.ceil(cs * 1.2);
-      this.c.width = Math.ceil(st.cols * cs + this.pad * 2);
-      this.c.height = Math.ceil((st.rows * cs + this.pad * 2) * ky);
+      const w = Math.ceil(st.cols * cs + this.pad * 2), h = Math.ceil((st.rows * cs + this.pad * 2) * ky);
+      for (const c of [this.mask, this.hay, this.shadow, this.cave, this.comp]) { c.width = w; c.height = h; }
+      this.pat = this.hay.getContext('2d').createPattern(texture(), 'repeat');
+      // De holte: alleen diep in de berg (een gat dat je graaft), donker hooi met een warme gloed.
+      const inner = new Uint8Array(st.hp.length);
+      for (let y = 0; y < st.rows; y++) for (let c = 2; c < st.cols - 2; c++) if (st.hp[y * st.cols + c] && y - st.top[c] >= 3) inner[y * st.cols + c] = 1;
+      const g = this.cave.getContext('2d');
+      g.save();
+      g.scale(1, ky);
+      this.blobs(g, 0, st.rows - 1, 0, st.cols - 1, inner, 0, .95);
+      g.restore();
+      g.globalCompositeOperation = 'source-in';
+      g.fillStyle = this.pat;
+      g.fillRect(0, 0, w, h);
+      g.globalCompositeOperation = 'source-atop';
+      const gr = g.createRadialGradient(w / 2, h * .7, 0, w / 2, h * .7, w * .55);
+      gr.addColorStop(0, 'rgba(40,20,4,.72)');
+      gr.addColorStop(1, 'rgba(12,6,2,.9)');
+      g.fillStyle = gr;
+      g.fillRect(0, 0, w, h);
+      g.globalCompositeOperation = 'source-over';
       this.region(0, 0, st.cols - 1, st.rows - 1, true);
     }
-    // Vakjes c0..c1, r0..r1 opnieuw tekenen (en wat er van de buren in uitsteekt).
-    region(c0, r0, c1, r1, all) {
-      const { st, cs, g, pad } = this;
-      const x0 = all ? 0 : pad + (c0 - 1) * cs, y0 = all ? 0 : pad + (r0 - 1) * cs;
-      const x1 = all ? this.c.width : pad + (c1 + 2) * cs, y1 = all ? this.c.height : pad + (r1 + 2) * cs;
-      g.save();
-      g.scale(1, this.ky);
+    // Zachte bolletjes per vakje met hooi (hp in lijst, alleen waarden > min).
+    blobs(g, r0, r1, c0, c1, hp, min, k = .82) {
+      const { st, cs, pad } = this;
+      g.fillStyle = '#fff';
       g.beginPath();
-      g.rect(x0, y0, x1 - x0, y1 - y0);
-      g.clip();
-      g.clearRect(x0, y0, x1 - x0, y1 - y0);
-      g.lineCap = 'round';
-      const a0 = all ? 0 : Math.max(0, r0 - 2), a1 = all ? st.rows - 1 : Math.min(st.rows - 1, r1 + 2);
-      const b0 = all ? 0 : Math.max(0, c0 - 2), b1 = all ? st.cols - 1 : Math.min(st.cols - 1, c1 + 2);
-      // Eerst een zachte onderlaag (dun hooi laat nog wat door), dan de strootjes erover.
-      const UNDER = [null, 'rgba(201,150,52,.5)', '#b5852c', '#8f621f'];
-      for (let h = 1; h <= 3; h++) {
-        g.fillStyle = UNDER[h];
+      for (let y = r0; y <= r1; y++) {
+        for (let c = c0; c <= c1; c++) {
+          if (hp[y * st.cols + c] <= min) continue;
+          const x = pad + (c + .5) * cs, yy = pad + (y + .5) * cs;
+          // Een beetje variatie in grootte, zodat de rand van een gat rafelig is.
+          const v = ((y * 73 + c * 151) % 7) / 7;
+          const rr = cs * (k + v * .14);
+          g.moveTo(x + rr, yy);
+          g.arc(x, yy, rr, 0, TAU);
+        }
+      }
+      g.fill();
+    }
+    // Vakjes c0..c1, r0..r1 opnieuw tekenen (en wat er van de buren in uitsteekt). Alles in hele pixels, anders zie je naden.
+    region(c0, r0, c1, r1, all) {
+      const { st, cs, pad, ky } = this;
+      const W = this.hay.width, H = this.hay.height;
+      const X0 = all ? 0 : Math.max(0, Math.floor(pad + (c0 - 1.4) * cs)), Y0 = all ? 0 : Math.max(0, Math.floor((pad + (r0 - 1.4) * cs) * ky));
+      const X1 = all ? W : Math.min(W, Math.ceil(pad + (c1 + 2.6) * cs)), Y1 = all ? H : Math.min(H, Math.ceil((pad + (r1 + 2.6) * cs) * ky));
+      const a0 = all ? 0 : Math.max(0, r0 - 3), a1 = all ? st.rows - 1 : Math.min(st.rows - 1, r1 + 3);
+      const b0 = all ? 0 : Math.max(0, c0 - 3), b1 = all ? st.cols - 1 : Math.min(st.cols - 1, c1 + 3);
+      const open = c => {
+        const g = c.getContext('2d');
+        g.save();
         g.beginPath();
-        for (let y = a0; y <= a1; y++) {
-          for (let c = b0; c <= b1; c++) {
-            if (st.hp[y * st.cols + c] !== h) continue;
-            const x = pad + (c + .5) * cs, yy = pad + (y + .5) * cs;
-            g.moveTo(x + cs * .8, yy);
-            g.arc(x, yy, cs * .8, 0, TAU);
-          }
-        }
-        g.fill();
-      }
-      for (let y = a0; y <= a1; y++) {
-        for (let c = b0; c <= b1; c++) {
-          const i = y * st.cols + c;
-          const h = st.hp[i];
-          if (!h) continue;
-          let s = (i * 2654435761 + st.k * 97) >>> 0;
-          const r = () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; };
-          const n = h === 1 ? 4 : 4 + h * 2;
-          g.lineWidth = Math.max(1, cs * .1);
-          for (let j = 0; j < n; j++) {
-            const cx = pad + (c + r()) * cs, cy = pad + (y + r()) * cs;
-            const a = -.9 + r() * 1.8 + (r() < .5 ? 0 : Math.PI);
-            const len = cs * (.3 + r() * .4);
-            g.strokeStyle = h === 1 ? 'rgba(247,223,143,.95)' : STRO[Math.floor(r() * (h === 3 ? STRO.length : 4))];
-            g.beginPath();
-            g.moveTo(cx - Math.cos(a) * len, cy - Math.sin(a) * len);
-            g.lineTo(cx + Math.cos(a) * len, cy + Math.sin(a) * len);
-            g.stroke();
-          }
-          // Hier en daar een neonstrootje: dit is geen gewone schuur.
-          if (h > 1 && r() < .07) {
-            g.strokeStyle = r() < .5 ? '#7ff6ff' : '#e9a8ff';
-            g.lineWidth = Math.max(1, cs * .1);
-            const cx = pad + (c + .5) * cs, cy = pad + (y + .5) * cs, a = r() * Math.PI;
-            g.beginPath();
-            g.moveTo(cx - Math.cos(a) * cs * .6, cy - Math.sin(a) * cs * .6);
-            g.lineTo(cx + Math.cos(a) * cs * .6, cy + Math.sin(a) * cs * .6);
-            g.stroke();
-          }
-        }
-      }
+        g.rect(X0, Y0, X1 - X0, Y1 - Y0);
+        g.clip();
+        g.clearRect(X0, Y0, X1 - X0, Y1 - Y0);
+        return g;
+      };
+      // De vorm
+      const m = open(this.mask);
+      m.scale(1, ky);
+      this.blobs(m, a0, a1, b0, b1, st.hp, 0);
+      m.restore();
+      // Het hooi: textuur door de vorm, dieper hooi wat donkerder.
+      const g = open(this.hay);
+      g.drawImage(this.mask, 0, 0);
+      g.globalCompositeOperation = 'source-in';
+      g.fillStyle = this.pat;
+      g.fillRect(X0, Y0, X1 - X0, Y1 - Y0);
+      g.globalCompositeOperation = 'source-atop';
+      // Licht van boven, schaduw onderaan
+      const top = this.pad * ky, bot = H - this.pad * ky;
+      const lg = g.createLinearGradient(0, top, 0, bot);
+      lg.addColorStop(0, 'rgba(255,236,170,.22)');
+      lg.addColorStop(.45, 'rgba(255,236,170,0)');
+      lg.addColorStop(1, 'rgba(40,18,0,.38)');
+      g.fillStyle = lg;
+      g.fillRect(X0, Y0, X1 - X0, Y1 - Y0);
+      g.globalAlpha = .2;
+      g.scale(1, ky);
+      this.blobs(g, a0, a1, b0, b1, st.hp, 1, .7);
+      this.blobs(g, a0, a1, b0, b1, st.hp, 2, .6);
       g.restore();
+      // De schaduw: dezelfde vorm in zwart.
+      const sg = open(this.shadow);
+      sg.drawImage(this.mask, 0, 0);
+      sg.globalCompositeOperation = 'source-in';
+      sg.fillStyle = '#000';
+      sg.fillRect(X0, Y0, X1 - X0, Y1 - Y0);
+      sg.restore();
+      // Alles samen: holte, schaduw wat lager (zo krijgt een gat diepte) en het hooi.
+      const cg = open(this.comp);
+      cg.drawImage(this.cave, 0, 0);
+      cg.globalAlpha = .6;
+      cg.drawImage(this.shadow, Math.round(cs * .12), Math.round(cs * .38 * ky));
+      cg.globalAlpha = 1;
+      cg.drawImage(this.hay, 0, 0);
+      cg.restore();
     }
     // Na graven: alleen het stuk rond deze vakjes.
     update(cells) {
@@ -189,9 +282,10 @@ const HbDraw = (() => {
       this.region(c0, r0, c1, r1, false);
     }
     draw(ctx, ox, oy) {
-      ctx.drawImage(this.c, ox - this.pad, oy - this.pad * this.ky);
+      ctx.drawImage(this.comp, ox - this.pad, oy - this.pad * this.ky);
     }
   }
+  Hay.gen = 0;
 
   // ---------- De naald, tandwielen en munten ----------
   function needle(ctx, x, y, len, a, t, alpha = 1) {
@@ -334,24 +428,20 @@ const HbDraw = (() => {
     const c = document.createElement('canvas');
     c.width = w; c.height = h;
     const g = c.getContext('2d');
-    g.fillStyle = '#b98a2e';
     g.beginPath();
     g.moveTo(4, h);
-    g.bezierCurveTo(10, 10, w - 10, 10, w - 4, h);
+    g.bezierCurveTo(8, 6, w - 8, 6, w - 4, h);
     g.closePath();
+    g.fillStyle = g.createPattern(texture(), 'repeat');
     g.fill();
-    g.save();
-    g.clip();
-    g.lineCap = 'round';
-    let s = 7;
-    const r = () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; };
-    for (let i = 0; i < 520; i++) {
-      const x = r() * w, y = r() * h, a = r() * Math.PI, l = 4 + r() * 7;
-      g.strokeStyle = r() < .04 ? '#7ff6ff' : STRO[Math.floor(r() * STRO.length)];
-      g.lineWidth = 1.6;
-      g.beginPath(); g.moveTo(x - Math.cos(a) * l, y - Math.sin(a) * l); g.lineTo(x + Math.cos(a) * l, y + Math.sin(a) * l); g.stroke();
-    }
-    g.restore();
+    // Licht van boven, donker onderaan
+    g.globalCompositeOperation = 'source-atop';
+    const gr = g.createLinearGradient(0, 0, 0, h);
+    gr.addColorStop(0, 'rgba(255,240,190,.25)');
+    gr.addColorStop(.6, 'rgba(0,0,0,0)');
+    gr.addColorStop(1, 'rgba(40,20,0,.45)');
+    g.fillStyle = gr;
+    g.fillRect(0, 0, w, h);
     miniCache = c;
     return c;
   }
