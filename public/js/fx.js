@@ -86,6 +86,8 @@ const sfx = (() => {
     hit() { noise(0, .25, .14); tone(220, 0, .5, { type: 'sawtooth', vol: .08, slide: .3 }); },
     laser() { tone(1400, 0, .12, { type: 'square', vol: .035, slide: .35 }); },
     marker() { tone(1800, 0, .05, { type: 'triangle', vol: .09 }); },
+    // Een kling die door iets heen snijdt; een reeks klinkt telkens wat hoger.
+    snij(combo = 1) { noise(0, .12, .07); tone(1500 + Math.min(8, combo) * 120, 0, .14, { type: 'triangle', vol: .08, slide: .5 }); },
     boom() { noise(0, .45, .2); tone(120, 0, .4, { type: 'sawtooth', vol: .1, slide: .4 }); },
     power() { [523, 784, 1046, 1568].forEach((f, i) => tone(f, i * .06, .2, { type: 'square', vol: .06 })); },
     // Een zoemende motor die meegaat met de snelheid (0 = stil, 1 = vol gas).
@@ -164,7 +166,7 @@ function confetti(duration = 4000) {
 // Een spel starten. Loopt er nog een ander spel, dan vragen we of dat mag stoppen in plaats van een foutmelding te tonen.
 const GAME_OF_EVENT = {
   load: 'toernooi', 'rt-load': 'rondetafel', 'tw-load': 'toren', 'sj-load': 'schat', 'ls-load': 'laserslag', 'rr-load': 'race',
-  'bb-load': 'burcht', 'du-load': 'duel', 'pk-load': 'knight', 'sr-load': 'rossen', 'gt-load': 'gauntlet', 'ry-load': 'royale', 'sv-load': 'sterren', 'rs-load': 'slang', 'bs-load': 'storm', 'pw-load': 'poort', 'nv-load': 'vlucht', 'db-load': 'diep', 'jp-load': 'raket', 'px-load': 'pixel', 'mo-load': 'robomol', 'kk-load': 'kerker', 'hs-load': 'hofschilder', 'rp-load': 'paarden', 'nd-load': 'neon', 'lb-load': 'baas', 'rk-load': 'rijk', 'kr-load': 'roof', 'vr-load': 'verrader', 'ob-load': 'oefenblad', 'pf-load': 'proef',
+  'bb-load': 'burcht', 'du-load': 'duel', 'pk-load': 'knight', 'sr-load': 'rossen', 'gt-load': 'gauntlet', 'ry-load': 'royale', 'sv-load': 'sterren', 'rs-load': 'slang', 'bs-load': 'storm', 'pw-load': 'poort', 'nv-load': 'vlucht', 'db-load': 'diep', 'jp-load': 'raket', 'sz-load': 'zwaard', 'px-load': 'pixel', 'mo-load': 'robomol', 'kk-load': 'kerker', 'hs-load': 'hofschilder', 'rp-load': 'paarden', 'nd-load': 'neon', 'lb-load': 'baas', 'rk-load': 'rijk', 'kr-load': 'roof', 'vr-load': 'verrader', 'ob-load': 'oefenblad', 'pf-load': 'proef',
   'cg-load': 'galaga', 'bk-load': 'bomber', 'opwarmer-start': 'toernooi',
 };
 function loadGame(event, payload, cb) {

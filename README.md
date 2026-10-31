@@ -22,6 +22,7 @@ Het thema: middeleeuws met een scifi-kantje. Het startscherm heeft drie grote te
    - **Poortwacht**: de klas verdedigt samen de burchtpoort tegen golven monsters en een draak. Goede antwoorden geven goud voor je eigen toren
    - **Neonvlucht**: rennen, springen en glijden door de neonburcht. Bij een vraagpoort loop je door het juiste antwoord voor turbo en een hogere vermenigvuldiger
    - **Raketridder**: vlieg met je raketridder van vlag naar vlag door een hindernisbaan boven de lava. Elke vlag is een vraag: juist = turbo. Hoe sneller de etappe, hoe meer punten
+   - **Splijtzwaard**: één knop: tik en je gloeiend zwaard maakt een salto. Splijt kristallen, tonnen, pompoenen en robots en steek vast in hout. Elke runenpaal is een vraag: juist = gouden kling
    - **Diepboor**: graaf met je boorridder naar goud, kristal en neonkernen. Goede antwoorden geven brandstof; in de smidse koop je een betere boor
    - **Robomol**: robotmollen schieten uit negen burchtputten en elke leerling mept ze met een zwaard, in 3D vanuit de ogen van de ridder. Een juist antwoord laadt het zwaard op en geeft het Vuurzwaard
    - **Ontsnap uit de kerker**: de hele klas zit samen opgesloten en opent deur na deur: een sleuteldeur, een runenslot (de code ligt verspreid over de klas), een laserhek (iedereen moet helpen), een valhek en de Kerkermeester
@@ -211,6 +212,16 @@ Iedereen vliegt op zijn eigen scherm met een **raketridder** door dezelfde hinde
 - **Elke vlag is een vraag**: juist = ⚡ turbo (sneller en een raket die niet leeg raakt). Fout: even wachten, die vraag komt later terug.
 - Punten: 100 per vlag plus extra als je de etappe snel vloog, 10 per energiecel, punten per juist antwoord.
 - Chromebook: ← → of A/D vliegen, spatie of ↑ ingedrukt = raket aan, 1-4 antwoorden. Gsm: ◀ ▶ links, 🚀 rechts. Elk antwoord komt in het logboek. Resultaten in `resultaten/`.
+
+## Splijtzwaard
+
+Iedereen laat op zijn eigen scherm een **gloeiend zwaard** salto's maken door dezelfde baan boven de lava: houten planken en palen, stalen blokken, zaagbladen die op en neer gaan en knipperende lasers. Elke drie runenpalen een nieuwe wereld (Smidse, Kristalmijn, Sterrenburcht). De anderen zie je als schimmen; het bord volgt de koploper en toont bovenaan waar iedereen zit.
+
+- Eén knop: tik = salto naar voren. In de lucht mag je één keer extra tikken. De **kling** splijt alles wat ze raakt (kristallen, tonnen, pompoenen, robotridders). Komt de **punt** in hout, dan blijft het zwaard steken; het heft en staal botsen terug.
+- **Elke runenpaal is een vraag**: juist = ✨ gouden kling (verder springen, onbeperkt salto's, zaagbladen en lasers doen niets, dubbele punten). Fout: de kling roest even (kortere sprongen), die vraag komt later terug.
+- Wie in de lava valt of een zaagblad of laser raakt, begint opnieuw bij de laatste runenpaal (geen strafpunten, wel tijd kwijt).
+- Punten: 100 per runenpaal plus extra als je de etappe snel deed, 10-20 per gespleten ding, punten per juist antwoord.
+- Chromebook: spatie, ↑ of klikken = salto, 1-4 antwoorden. Gsm: tik waar je wil. Elk antwoord komt in het logboek. Resultaten in `resultaten/`. Ook als taak (alleen in een spel).
 
 ## Robomol
 
