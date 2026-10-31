@@ -7,7 +7,7 @@
   root.id = 'gauntlet';
   root.innerHTML = `
   <form id="gt-join" class="screen welcome hidden">
-    <img src="/img/logo.webp" alt="LANcelot">
+    <img src="/img/logo.webp" alt="LANcelot" data-logo-3d>
     <p class="title">Gauntlet</p>
     <input id="gt-name" maxlength="20" autocomplete="off" placeholder="Je naam">
     <p class="error" id="gt-join-error"></p>

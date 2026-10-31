@@ -10,7 +10,7 @@
   const opt = (key, label) => `<div class="rp-opt" data-key="${key}"><span class="rp-opt-label">${label}</span><div class="rp-opt-pick"></div></div>`;
   root.innerHTML = `
   <form id="rp-join" class="screen welcome hidden">
-    <img src="/img/logo.webp" alt="LANcelot">
+    <img src="/img/logo.webp" alt="LANcelot" data-logo-3d>
     <p class="title">Robopaarden</p>
     <input id="rp-name" maxlength="20" autocomplete="off" placeholder="Je naam">
     <p class="error" id="rp-join-error"></p>

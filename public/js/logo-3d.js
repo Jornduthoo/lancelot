@@ -14,7 +14,8 @@
       if (it.isIntersecting) { if (v.preload !== 'auto') v.preload = 'auto'; v.play().catch(() => {}); } else v.pause();
     }
   }) : null;
-  for (const oud of document.querySelectorAll('img[data-logo-3d]')) {
+  // Pas als de hele pagina geladen is: zo krijgen ook de aanmeldschermen die de spellen zelf maken (xx-player.js) het logo.
+  const maak = () => { for (const oud of document.querySelectorAll('img[data-logo-3d]')) {
     const vak = document.createElement('div');
     vak.className = 'logo-3d';
     if (oud.id) vak.id = oud.id;
@@ -28,5 +29,6 @@
       if (kijker) kijker.observe(film); else { film.preload = 'auto'; film.autoplay = true; }
     }
     oud.replaceWith(vak);
-  }
+  } };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', maak); else maak();
 })();
