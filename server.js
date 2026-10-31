@@ -2310,6 +2310,7 @@ server.once('listening', () => {
   if (gegevens.DATA !== gegevens.APP) console.log(`  Gegevens:        ${gegevens.DATA}`);
   for (const a of lanAddresses()) console.log(`  Leerlingen:      http://${a}:${PORT}`);
   if (PORT !== EERSTE_POORT) console.log(`\n  Let op: poort ${EERSTE_POORT} is bezet door een ander programma, daarom gebruikt LANcelot nu poort ${PORT}.\n  Leerlingen gebruiken gewoon het adres op het bord. Lukt het niet, druk dan in Instellingen nog eens op "Firewall goed zetten".`);
+  if (PORT !== EERSTE_POORT) { const wie = require('./src/poortgebruiker').uitleg(EERSTE_POORT); if (wie) console.log(wie); }
   console.log('\n  Sluit dit venster om te stoppen.\n');
   // Start LANcelot.bat vraagt om het leerkrachtenscherm te openen zodra de server echt luistert, op de juiste poort.
   if (process.env.LANCELOT_OPEN && process.platform === 'win32') execFile('cmd', ['/c', 'start', '', `http://localhost:${PORT}/host`], { windowsHide: true });
@@ -2321,6 +2322,7 @@ function poortBezet(err) {
   }
   if (err.code === 'EADDRINUSE') {
     console.error(`\n  Poort ${PORT} is bezet door een ander programma, dus LANcelot kan niet starten.`);
+    const wie = require('./src/poortgebruiker').uitleg(PORT); if (wie) console.error(wie);
     console.error(VASTE_POORT ? '  Kies een andere poort met set PORT=... in Start LANcelot.bat, of sluit het andere programma.\n' : '  Sluit andere programma\'s (of herstart de pc) en probeer opnieuw.\n');
     process.exit(1);
   }
