@@ -45,7 +45,7 @@ body[data-lb="1"] main > div:not(#leraarbaas) { display: none !important; }
 .nd-myteam { padding: 14px; border-radius: 14px; font-family: var(--tech); font-weight: 800; font-size: 1.2rem; }
 .nd-myteam.t0 { background: rgba(63, 216, 255, .14); box-shadow: inset 0 0 0 2px var(--nd0), 0 0 26px rgba(63, 216, 255, .35); color: var(--nd0); }
 .nd-myteam.t1 { background: rgba(255, 61, 110, .14); box-shadow: inset 0 0 0 2px var(--nd1), 0 0 26px rgba(255, 61, 110, .35); color: var(--nd1); }
-#nd-game { --me: var(--nd0); --them: var(--nd1); position: fixed; inset: 0; z-index: 20; display: flex; flex-direction: column; overflow: auto; user-select: none; -webkit-user-select: none;
+#nd-game { --me: var(--nd0); --them: var(--nd1); position: fixed; inset: 0; z-index: 20; display: flex; flex-direction: column; overflow: auto; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent;
   background:
     radial-gradient(900px 500px at 50% -20%, color-mix(in srgb, var(--me) 30%, transparent), transparent 70%),
     linear-gradient(rgba(199, 125, 255, .07) 1px, transparent 1px) 0 0 / 36px 36px,
@@ -156,7 +156,7 @@ body[data-nd-team="1"] #nd-game { --me: var(--nd1); --them: var(--nd0); }
 /* ---------- Leraar-baas: leerling ---------- */
 .lb-mini { display: block; width: 100%; height: 170px; flex: none; }
 .lb-lobby-boss { height: 220px; border-radius: 14px; box-shadow: inset 0 0 0 1px var(--boss), 0 0 26px var(--boss-glow); }
-#lb-game { position: fixed; inset: 0; z-index: 20; display: flex; flex-direction: column; overflow: auto; user-select: none; -webkit-user-select: none;
+#lb-game { position: fixed; inset: 0; z-index: 20; display: flex; flex-direction: column; overflow: auto; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent;
   background: radial-gradient(900px 500px at 50% -10%, rgba(194, 60, 255, .3), transparent 70%), linear-gradient(180deg, #12031d, #05010c 70%); }
 #lb-game.hidden { display: none; }
 .lb-hud { padding: 8px 12px 10px; background: rgba(5, 1, 12, .85); border-bottom: 2px solid var(--boss); box-shadow: 0 2px 20px var(--boss-glow); font-family: var(--tech); font-weight: 800; }

@@ -5,7 +5,7 @@ body[data-cg="1"] main > div:not(#galaga), body[data-bk="1"] main > div:not(#bom
 body:not([data-cg="1"]) #galaga, body:not([data-bk="1"]) #bomber { display: none !important; }
 #galaga, #bomber { display: contents; }
 
-#cg-game, #bk-game { position: fixed; inset: 0; z-index: 20; display: flex; flex-direction: column; background: #05030f; user-select: none; -webkit-user-select: none; }
+#cg-game, #bk-game { position: fixed; inset: 0; z-index: 20; display: flex; flex-direction: column; background: #05030f; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; }
 #cg-game.hidden, #bk-game.hidden { display: none; }
 .cg-hud, .bk-hud { gap: 12px; }
 .cg-score { color: var(--cyan); font-size: 1.3rem; min-width: 4ch; text-shadow: 0 0 10px var(--cyan-glow); }
