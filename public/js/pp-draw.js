@@ -31,7 +31,7 @@ const PpDraw = (() => {
   // Zijn ze er, dan tekenen we die in plaats van de getekende figuren. De blauwe delen van de ridder kleuren we
   // naar de kleur van de leerling, de robot krijgt een tint per tegenstander. Elk gekleurd beeld bakken we één keer.
   const ART = {};
-  const ART_NAMES = ['stadion', 'keeper-robot', 'duik-robot', 'keeper-ridder', 'duik-ridder', 'schiet-ridder', 'schiet-robot'];
+  const ART_NAMES = ['keeper-robot', 'duik-robot', 'keeper-ridder', 'duik-ridder', 'schiet-ridder', 'schiet-robot'];
   if (typeof Image !== 'undefined') {
     for (const n of ART_NAMES) {
       const img = new Image();
@@ -54,7 +54,7 @@ const PpDraw = (() => {
     return [f(0) * 255, f(8) * 255, f(4) * 255];
   }
   const tintCache = new Map();
-  // mode 'blauw': blauwe delen krijgen de tint van color. mode 'staal': grijze delen krijgen een zachte tint van color.
+  // mode 'blauw': blauwe delen krijgen de tint van color. mode 'blauw': grijze delen krijgen een zachte tint van color.
   function tinted(name, color, mode) {
     const img = ART[name];
     if (!img) return null;
@@ -588,7 +588,7 @@ const PpDraw = (() => {
     const d = o.dive || { x: 0, y: 0, k: 0 };
     const k = ease(clamp(d.k, 0, 1));
     const home = toScreen(Lo, 0, 0);
-    const tint = o.mech ? tinted('keeper-robot', o.color, 'staal') : tinted('keeper-ridder', o.color, 'blauw');
+    const tint = o.mech ? tinted('keeper-robot', o.color, 'blauw') : tinted('keeper-ridder', o.color, 'blauw');
     const H = Lo.GH * .9;
     g.fillStyle = 'rgba(0,0,0,.4)';
     if (o.ring) glow(g, home.x, home.y, H * .5, o.color, .3, .25);
@@ -603,7 +603,7 @@ const PpDraw = (() => {
       g.drawImage(tint, home.x - w / 2 + sway, home.y - H - lift + (side ? k * H * .1 : 0), w, H);
       return;
     }
-    const img = o.mech ? tinted('duik-robot', o.color, 'staal') : tinted('duik-ridder', o.color, 'blauw');
+    const img = o.mech ? tinted('duik-robot', o.color, 'blauw') : tinted('duik-ridder', o.color, 'blauw');
     const T = toScreen(Lo, d.x, d.y);
     const DW = Lo.GW * .5, DH = DW * img.height / img.width;
     // midden van het lijf: van het midden van de poort naar de bal, de handen (rechterkant van het beeld) bij de bal
@@ -641,12 +641,12 @@ const PpDraw = (() => {
   }
 
   function shooterArt(g, Lo, o) {
-    const img = o.mech ? tinted('schiet-robot', o.color, 'staal') : tinted('schiet-ridder', o.color, 'blauw');
+    const img = o.mech ? tinted('schiet-robot', o.color, 'blauw') : tinted('schiet-ridder', o.color, 'blauw');
     const spot = ground(Lo, 0, 1);
     const k = ease(clamp(o.run || 0, 0, 1));
-    const H = Lo.GH * 1.15 * lerp(1.2, 1, k);
+    const H = Lo.GH * .98 * lerp(1.2, 1, k);
     const w = H * img.width / img.height;
-    const fx = lerp(spot.x - Lo.GW * .45, spot.x - Lo.GW * .1, k);
+    const fx = lerp(spot.x - Lo.GW * .5, spot.x - Lo.GW * .2, k);
     const fy = lerp(Lo.h + H * .2, spot.y + H * .05, k);
     const bob = k < 1 && o.run > 0 ? Math.abs(Math.sin(o.run * 9)) * H * .03 : 0;
     g.fillStyle = 'rgba(0,0,0,.4)';
@@ -816,6 +816,12 @@ const PpDraw = (() => {
 
   // Een klein portret van een robot (of ridder) voor de ladder en de wachtzaal.
   function portrait(g, x, y, size, o) {
+    const art = o.mech !== false ? tinted('keeper-robot', o.color, 'blauw') : tinted('keeper-ridder', o.color, 'blauw');
+    if (art) {
+      const H = size * 1.7, w = H * art.width / art.height;
+      g.drawImage(art, x - w / 2, y + size * .2 - H * .55, w, H);
+      return;
+    }
     g.save();
     g.translate(x, y + size * .2);
     figure(g, size * 1.6, { mech: o.mech !== false, color: o.color, eye: o.eye, t: o.t || 0, arms: .1, spread: .2 });
