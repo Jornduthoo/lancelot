@@ -10,7 +10,7 @@
 .od-slot .button { text-decoration: none; }
 
 /* ---------- De wereld ---------- */
-.od-game { position: fixed; inset: 0; overflow: hidden; background: #060a13; touch-action: none; user-select: none; }
+.od-game { position: fixed; inset: 0; overflow: hidden; background: #060a13; touch-action: none; user-select: none; -webkit-tap-highlight-color: transparent; }
 #od-hemel { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 #od-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: pointer; }
 .od-hud { position: absolute; top: max(10px, env(safe-area-inset-top)); left: 10px; right: 10px; display: flex; align-items: center; gap: 10px; pointer-events: none; }

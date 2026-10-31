@@ -5,7 +5,7 @@ body[data-gt="1"] main > :not(#gauntlet), body[data-ry="1"] main > :not(#royale)
 body:not([data-gt="1"]) #gauntlet, body:not([data-ry="1"]) #royale, body:not([data-sv="1"]) #sterren, body:not([data-rs="1"]) #slang, body:not([data-bs="1"]) #storm, body:not([data-px="1"]) #pixel { display: none !important; }
 #gauntlet, #royale, #sterren, #slang, #storm, #pixel { display: contents; }
 
-.ak-game { position: fixed; inset: 0; z-index: 20; display: flex; flex-direction: column; background: rgb(var(--k-bg)); user-select: none; -webkit-user-select: none; }
+.ak-game { position: fixed; inset: 0; z-index: 20; display: flex; flex-direction: column; background: rgb(var(--k-bg)); user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; }
 .ak-game.hidden { display: none; }
 .ak-game .ls-stage canvas { width: 100%; height: 100%; }
 .ak-game .ls-hud { border-bottom-color: var(--team, var(--line)); box-shadow: 0 2px 16px color-mix(in srgb, var(--team, rgb(var(--k-cyan))) 30%, transparent); }
