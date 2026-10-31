@@ -21,7 +21,21 @@
   const MIN_STAGE_S = 3.5;  // sneller kan een etappe niet (controle op de server)
   const STICK_COS = .3;    // hoe recht de punt in het hout moet wijzen (cos van de hoek)
   const COLORS = ['#ff4d6d', '#4cc9ff', '#ffc94a', '#4ade80', '#c77dff', '#ff8c42', '#2de2c8', '#ff6bd6', '#a3e635', '#7aa2ff', '#ffd6a5', '#f472b6'];
-  const POINTS = { kristal: 10, ton: 10, pompoen: 15, robot: 20, vast: 5 };
+  const POINTS = { kristal: 10, ton: 10, pompoen: 15, robot: 20, kist: 40, vast: 5 };
+  // De doelschijf op elke runenpaal: hoe dichter je punt bij het midden steekt, hoe groter de vermenigvuldiger
+  // voor alles wat je die etappe verdiende.
+  const RINGS = [[.4, 10], [1, 5], [1.8, 3], [2.8, 2]];
+  const ringOf = dx => { for (const [r, m] of RINGS) if (Math.abs(dx) < r) return m; return 1; };
+  const targetX = k => k * L + 1;
+  // Je zwaard groeit mee met je punten.
+  const TIERS = [
+    { name: 'IJzeren zwaard', min: 0, blade: ['#e9fbff', '#7fd8f5', '#b9efff', '#2b6c9a'], glow: '#5ee7ff' },
+    { name: 'Kristalzwaard', min: 300, blade: ['#f6e6ff', '#b46bff', '#dcb6ff', '#4b1d9e'], glow: '#c77dff' },
+    { name: 'Vuurzwaard', min: 800, blade: ['#fff1c2', '#ff7a1a', '#ffb347', '#8a1e08'], glow: '#ff8c42' },
+    { name: 'Smaragdzwaard', min: 1500, blade: ['#e6fff0', '#2ee08a', '#a7f5c9', '#0b6a3e'], glow: '#4ade80' },
+    { name: 'Sterrenzwaard', min: 2500, blade: ['#ffffff', '#ff6bd6', '#c9f6ff', '#3b2a9e'], glow: '#ff6bd6' },
+  ];
+  const tierOf = score => { let t = 0; TIERS.forEach((x, i) => { if (score >= x.min) t = i; }); return t; };
   // Elke drie etappes een andere wereld.
   const THEMES = [
     { name: 'Smidse', sky: ['#160707', '#3d120b', '#9a3a14'], lava: '#ff5a1f', lavaHi: '#ffc04a', wood: '#8a5a33', steel: '#5b6380', glow: '#ff9a3c', far: '#2a0d08', mid: '#3d160d' },
@@ -50,7 +64,7 @@
     const S = st.solids;
     let ti = 0;
     const thing = (kind, x, y, mv) => {
-      const t = { id: `${k}.${ti++}`, kind, x, y, r: kind === 'robot' ? .55 : kind === 'ton' ? .45 : .4 };
+      const t = { id: `${k}.${ti++}`, kind, x, y, r: kind === 'robot' ? .55 : kind === 'ton' || kind === 'kist' ? .45 : .4 };
       if (mv) Object.assign(t, mv);
       st.things.push(t);
       return t;
@@ -167,6 +181,42 @@
       const x = cx + (end + 1 - cx - w) / 2;
       S.push({ x, y: Math.max(7.5, Math.min(10.5, (y + BASE_Y) / 2)), w, h: .6, hout: true });
     }
+    // Veel meer om te splijten: stapels tonnen, rijen pompoenen en kristallen op de planken,
+    // en een boog kristallen op de sprong naar de volgende plank (zoals je zwaard vliegt).
+    const planks = S.filter(p => p.hout && !p.paal && !p.post && p.x > x0).sort((a, b) => a.x - b.x);
+    const near0 = (x, y) => st.things.some(o => Math.abs(o.x - x) < .8 && Math.abs(o.y - y) < .8) || st.saws.some(o => Math.abs(o.x - x) < 1.4);
+    planks.forEach((pl, i) => {
+      const roll = r();
+      const top = pl.y;
+      if (roll < .3 && pl.w > 2.4) {
+        const sx = pl.x + pl.w * (.35 + r() * .3);
+        const n = 2 + Math.floor(r() * 2);
+        for (let j = 0; j < n; j++) if (!near0(sx, top - .45 - j * .92)) thing('ton', sx, top - .45 - j * .92);
+      } else if (roll < .6) {
+        const n = Math.max(2, Math.floor(pl.w / 1.1));
+        const kind = r() < .5 ? 'pompoen' : 'kristal';
+        for (let j = 0; j < n; j++) { const x = pl.x + .6 + j * (pl.w - 1.2) / Math.max(1, n - 1); if (!near0(x, top - .42)) thing(kind, x, top - .42); }
+      } else if (roll < .8) {
+        const x = pl.x + pl.w / 2;
+        for (const [dx, dy] of [[-.45, -.42], [.45, -.42], [0, -1.25]]) if (!near0(x + dx, top + dy)) thing('kristal', x + dx, top + dy);
+      }
+      const nxt = planks[i + 1];
+      if (nxt && nxt.x - (pl.x + pl.w) > .8) {
+        // Boog van de rand van deze plank naar de volgende
+        const ax = pl.x + pl.w - .3, bx = nxt.x + .5, ay = top - 1, by = nxt.y - 1;
+        const n = 3 + Math.floor(r() * 2);
+        for (let j = 1; j <= n; j++) {
+          const f = j / (n + 1);
+          const x = ax + (bx - ax) * f, yy = ay + (by - ay) * f - Math.sin(f * Math.PI) * 2.2;
+          if (!near0(x, yy)) thing(r() < .15 ? 'pompoen' : 'kristal', x, yy);
+        }
+      }
+    });
+    // Eén schatkist per etappe, hoog en moeilijk.
+    if (planks.length) {
+      const pl = planks[Math.floor(r() * planks.length)];
+      thing('kist', pl.x + pl.w / 2, Math.max(1.5, pl.y - 4.4 - r()));
+    }
     if (cache.size > 60) cache.clear();
     cache.set(key, st);
     return st;
@@ -278,6 +328,7 @@
             p.nx = f.nx;
             out.vast = true;
             out.punt = true; // echt vastgestoken met de punt (niet plat blijven liggen)
+            out.op = s;
             return out;
           }
           bounce(p, f, s);
@@ -315,6 +366,7 @@
           p.x = tx - Math.cos(a) * TIP;
           p.y = s.y + DEPTH - Math.sin(a) * TIP;
           out.recht = true;
+          out.op = s;
         }
         p.stuck = true; p.air = 1; p.nx = 0; p.vx = p.vy = p.w = 0; p.floor = null; out.vast = true;
       }
@@ -370,5 +422,5 @@
     if (!s.hout) p.vy = Math.min(p.vy, -2);
   }
 
-  return { H, LAVA, L, BASE_Y, TIP, GUARD, POMMEL, PHYS, GOLD_S, RESPAWN_S, MIN_STAGE_S, COLORS, POINTS, THEMES, themeOf, rng, stage, bob, laserOn, laserSoon, near, spawnOf, tipOf, pommelOf, tap, step };
+  return { H, LAVA, L, BASE_Y, TIP, GUARD, POMMEL, PHYS, GOLD_S, RESPAWN_S, MIN_STAGE_S, COLORS, POINTS, RINGS, ringOf, targetX, TIERS, tierOf, THEMES, themeOf, rng, stage, bob, laserOn, laserSoon, near, spawnOf, tipOf, pommelOf, tap, step };
 });

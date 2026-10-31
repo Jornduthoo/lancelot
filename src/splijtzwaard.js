@@ -112,7 +112,7 @@ class Splijtzwaard {
     if (Number.isFinite(x)) p.x = Math.max(-6, Math.min((p.stage + 1) * World.L + 8, x));
     if (Number.isFinite(y)) p.y = Math.max(-3, Math.min(World.H + 2, y));
     if (Number.isFinite(a)) p.a = a % (Math.PI * 2);
-    p.f = Number(f) & 47;
+    p.f = Number(f) & 511; // 64-256: welk zwaard (0-4)
   }
 
   // Gevallen: alleen voor de stand (geen strafpunten, wel tijd kwijt).
@@ -134,11 +134,18 @@ class Splijtzwaard {
     if (!th) return {};
     p.cells.add(id);
     p.sliced++;
-    const points = (World.POINTS[th.kind] || 10) * (Date.now() < p.goldUntil ? 2 : 1);
+    // Snel na elkaar splijten = combo: vanaf 4 op rij dubbel, vanaf 8 driedubbel.
+    const now = Date.now();
+    p.combo = now - (p.sliceAt || 0) < 900 ? (p.combo || 0) + 1 : 1;
+    p.sliceAt = now;
+    const combo = p.combo >= 8 ? 3 : p.combo >= 4 ? 2 : 1;
+    const points = (World.POINTS[th.kind] || 10) * (now < p.goldUntil ? 2 : 1) * combo;
     p.pts += points;
+    p.stagePts = (p.stagePts || 0) + points;
+    if (th.kind === 'kist') this.addFeed(`💰 ${p.name} splijt een schatkist!`, false);
     p.dirty = true;
     if (p.sliced === 50 || p.sliced === 100) this.addFeed(`⚔️ ${p.name} spleet al ${p.sliced} dingen in twee`, false);
-    return { ok: true, points };
+    return { ok: true, points, combo: p.combo };
   }
 
   // De punt zit vast in hout op plek x: punten, maar alleen als je vooruit bent gegaan (niet ter plaatse blijven tikken).
@@ -152,22 +159,28 @@ class Splijtzwaard {
     p.sticks = (p.sticks || 0) + 1;
     const points = World.POINTS.vast * (now < p.goldUntil ? 2 : 1);
     p.pts += points;
+    p.stagePts = (p.stagePts || 0) + points;
     p.dirty = true;
     return { ok: true, points };
   }
 
   // Over de vlag van etappe k: punten, sneller = meer. Daarna komt de vraag.
-  flag(playerId, k) {
+  // ring: waar de punt in de doelschijf stak (de vermenigvuldiger: 1, 2, 3, 5 of 10) voor alles van deze etappe.
+  flag(playerId, k, ring) {
     const p = this.players.get(playerId);
     const now = Date.now();
     if (!p || this.phase !== 'play' || now < this.startedAt) return { error: 'Het spel loopt niet.' };
     if (k !== p.stage + 1) return { error: 'Verkeerde vlag.', stage: p.stage };
     const s = (now - p.stageAt) / 1000;
-    if (s < World.MIN_STAGE_S || p.x < k * World.L - 4) return { error: 'Te snel.', stage: p.stage };
+    if (s < World.MIN_STAGE_S || p.x < k * World.L - 5) return { error: 'Te snel.', stage: p.stage };
     p.stage = k;
     p.stageAt = now;
     const snel = Math.max(0, Math.round((SNEL_S - s) * POINTS.snel));
-    p.pts += POINTS.vlag + snel;
+    const mult = World.RINGS.some(([, m]) => m === ring) ? ring : 1;
+    const buit = Math.min(3000, Math.round((p.stagePts || 0) * (mult - 1)));
+    p.stagePts = 0;
+    p.pts += POINTS.vlag + snel + buit;
+    if (mult === 10) this.addFeed(`🎯 ${p.name} raakt de roos: ×10!`);
     p.dirty = true;
     const rec = this.records.get(k);
     const first = ![...this.players.values()].some(o => o !== p && o.stage >= k);
@@ -180,7 +193,7 @@ class Splijtzwaard {
       const theme = k % 3 === 0 ? ` en springt de ${World.themeOf(k).name} in` : '';
       this.addFeed(`🗿 ${p.name} haalt als eerste runenpaal ${k}${theme}!`);
     } else if (record) this.addFeed(`⏱️ Record: ${p.name} doet etappe ${k} in ${s.toFixed(1).replace('.', ',')} s`, false);
-    return { ok: true, stage: k, s, points: POINTS.vlag + snel, record };
+    return { ok: true, stage: k, s, points: POINTS.vlag + snel, mult, buit, record };
   }
 
   asking(playerId, on) {
@@ -352,7 +365,7 @@ class Splijtzwaard {
     on('sz-fall', id => this.fall(id));
     on('sz-snij', (id, c) => this.slice(id, c));
     on('sz-vast', (id, x) => this.stick(id, Number(x)));
-    on('sz-flag', (id, k) => this.flag(id, Number(k)));
+    on('sz-flag', (id, m) => (m && typeof m === 'object' ? this.flag(id, Number(m.k), Number(m.ring)) : this.flag(id, Number(m))));
     on('sz-asking', (id, v) => this.asking(id, v));
     on('sz-question', id => guard.question(id));
     on('sz-answer', (id, choice) => guard.answer(id, choice));
