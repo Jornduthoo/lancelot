@@ -25,7 +25,8 @@
     vak.innerHTML = '<img src="/img/logo-3d/achter.webp" alt="">' + midden + '<img src="/img/logo-3d/voor.webp" alt="LANcelot">';
     const film = vak.querySelector('video');
     if (film) {
-      film.addEventListener('error', () => vak.replaceWith(oud));
+      // Speelt het filmpje toch niet af, dan de bewegende webp, nooit het vaste logo.
+      film.addEventListener('error', () => { const r = document.createElement('img'); r.className = 'ridder'; r.src = '/img/logo-3d/ridder-ios.webp'; r.alt = ''; film.replaceWith(r); });
       if (kijker) kijker.observe(film); else { film.preload = 'auto'; film.autoplay = true; }
     }
     oud.replaceWith(vak);
