@@ -110,9 +110,9 @@ body:not([data-gt="1"]) #gauntlet, body:not([data-ry="1"]) #royale, body:not([da
 #rs-boost:not(.ready) { opacity: .5; }
 
 /* Poortwacht, Neonvlucht en Diepboor op het leerlingscherm: als een van deze spellen loopt, verdwijnt de rest. */
-body[data-pw="1"] main > :not(#poort), body[data-nv="1"] main > :not(#vlucht), body[data-db="1"] main > :not(#diep), body[data-mo="1"] main > :not(#robomol), body[data-rp="1"] main > :not(#paarden), body[data-kk="1"] main > :not(#kerker), body[data-jp="1"] main > :not(#raket), body[data-sz="1"] main > :not(#zwaard), body[data-ww="1"] main > :not(#wankel), body[data-hb="1"] main > :not(#hooi), body[data-pp="1"] main > :not(#plasma) { display: none !important; }
-body:not([data-pw="1"]) #poort, body:not([data-nv="1"]) #vlucht, body:not([data-db="1"]) #diep, body:not([data-mo="1"]) #robomol, body:not([data-rp="1"]) #paarden, body:not([data-kk="1"]) #kerker, body:not([data-jp="1"]) #raket, body:not([data-sz="1"]) #zwaard, body:not([data-ww="1"]) #wankel, body:not([data-hb="1"]) #hooi, body:not([data-pp="1"]) #plasma { display: none !important; }
-#poort, #vlucht, #diep, #robomol, #paarden, #kerker, #raket, #zwaard, #wankel, #hooi, #plasma { display: contents; }
+body[data-pw="1"] main > :not(#poort), body[data-nv="1"] main > :not(#vlucht), body[data-db="1"] main > :not(#diep), body[data-mo="1"] main > :not(#robomol), body[data-rp="1"] main > :not(#paarden), body[data-kk="1"] main > :not(#kerker), body[data-jp="1"] main > :not(#raket), body[data-sz="1"] main > :not(#zwaard), body[data-ww="1"] main > :not(#wankel), body[data-hb="1"] main > :not(#hooi), body[data-pp="1"] main > :not(#plasma), body[data-bv="1"] main > :not(#banier) { display: none !important; }
+body:not([data-pw="1"]) #poort, body:not([data-nv="1"]) #vlucht, body:not([data-db="1"]) #diep, body:not([data-mo="1"]) #robomol, body:not([data-rp="1"]) #paarden, body:not([data-kk="1"]) #kerker, body:not([data-jp="1"]) #raket, body:not([data-sz="1"]) #zwaard, body:not([data-ww="1"]) #wankel, body:not([data-hb="1"]) #hooi, body:not([data-pp="1"]) #plasma, body:not([data-bv="1"]) #banier { display: none !important; }
+#poort, #vlucht, #diep, #robomol, #paarden, #kerker, #raket, #zwaard, #wankel, #hooi, #plasma, #banier { display: contents; }
 
 /* Poortwacht: kaart en vragen naast elkaar (Chromebook) of onder elkaar (gsm rechtop). */
 .pw-gold { font-family: var(--tech, Orbitron, sans-serif); font-size: 1.1rem; font-weight: 800; color: var(--gold); text-shadow: 0 0 10px rgb(var(--k-goud) / .5); white-space: nowrap; }
@@ -252,6 +252,12 @@ body:not([data-pw="1"]) #poort, body:not([data-nv="1"]) #vlucht, body:not([data-
 #hb-lobby-art { display: block; margin: 6px auto 0; max-width: 100%; }
 #hb-game .ak-question { z-index: 6; }
 @media (max-width: 520px), (max-height: 420px) { .hb-energy { width: 64px; } }
+/* Banierveld */
+.bv-hud { gap: 10px; }
+.bv-stage { touch-action: none; user-select: none; -webkit-user-select: none; }
+#bv-lobby-art { display: block; margin: 6px auto 0; max-width: 100%; }
+#bv-game .ak-question { z-index: 6; }
+#bv-power { color: #ffe17a; box-shadow: 0 0 12px rgb(var(--k-goud) / .6); }
 /* Burchtstorm */
 .bs-runes { display: flex; gap: 6px; font-family: var(--tech, Orbitron, sans-serif); font-size: .85rem; }
 .bs-runes b { padding: 2px 7px; border-radius: 8px; border: 1px solid var(--line); opacity: .35; white-space: nowrap; }
