@@ -16,7 +16,7 @@
   </form>
   <section id="bv-lobby" class="screen panel hidden">
     <p class="status">Banierveld</p>
-    <canvas id="bv-lobby-art" width="220" height="90"></canvas>
+    <img class="lobby-icoon" src="/img/icons/banierveld.webp" alt="">
     <p class="title" id="bv-lobby-name"></p>
     <p>Rij buiten je land en je trekt een <strong>lichtspoor</strong>. Kom terug in je land en <strong>alles binnen je lus wordt van jou</strong>.</p>
     <p>Pas op: rijdt iemand door je spoor terwijl je buiten bent, dan flits je terug naar je burcht. Jouw land blijft van jou. Rijd jij door het spoor van een ander, dan flitst hij terug!</p>
@@ -116,7 +116,6 @@
     g.color = mine ? mine.color : '#4cc9ff';
     if (s.phase === 'lobby') {
       $('bv-lobby-name').textContent = s.name;
-      drawLobby();
       show('bv-lobby');
     } else if (s.phase === 'play') {
       show('bv-game');
@@ -136,18 +135,6 @@
     }
   });
 
-  function drawLobby() {
-    const c = $('bv-lobby-art').getContext('2d');
-    c.clearRect(0, 0, 220, 90);
-    BvDraw.burcht(c, 50, 45, 30, g.color || '#4cc9ff', 0);
-    c.strokeStyle = g.color || '#4cc9ff';
-    c.lineWidth = 6;
-    c.lineCap = 'round';
-    c.globalAlpha = .6;
-    c.beginPath(); c.moveTo(80, 45); c.lineTo(120, 45); c.lineTo(120, 20); c.lineTo(150, 20); c.stroke();
-    c.globalAlpha = 1;
-    BvDraw.ruiter(c, 168, 20, 0, 16, g.color || '#4cc9ff', 0);
-  }
 
   socket.on('bv-kicked', () => {
     g.joined = false;

@@ -16,7 +16,7 @@
   </form>
   <section id="zm-lobby" class="screen panel hidden">
     <p class="status">Zwermwacht</p>
-    <canvas id="zm-lobby-art" width="240" height="100"></canvas>
+    <img class="lobby-icoon" src="/img/icons/zwermwacht.webp" alt="">
     <p class="title" id="zm-lobby-name"></p>
     <p>Zwermen <strong>roestrobots</strong> komen op je af. Je wapens vuren <strong>vanzelf</strong>: jij bepaalt alleen waar je loopt.</p>
     <p>Raap de <strong>kristallen</strong> op. Is je balk vol, dan krijg je een vraag. Juist = kies zelf een upgrade. Fout = je krijgt toch een kleine.</p>
@@ -156,7 +156,6 @@
     }
     if (s.phase === 'lobby') {
       $('zm-lobby-name').textContent = s.name;
-      drawLobby();
       show('zm-lobby');
     } else if (s.phase === 'play') {
       show('zm-game');
@@ -177,16 +176,6 @@
     }
   });
 
-  function drawLobby() {
-    const c = $('zm-lobby-art').getContext('2d');
-    c.clearRect(0, 0, 240, 100);
-    const kn = ZmDraw.sprite('ridder', 62, { color: g.color });
-    c.drawImage(kn, 120 - kn.width / 2, 50 - kn.height / 2);
-    [['kever', 30, 60, 38], ['bij', 70, 22, 26], ['slijm', 200, 62, 42], ['drone', 176, 18, 30]].forEach(([k, x, y, s]) => {
-      const sp = ZmDraw.sprite(k, s, { flip: x > 120 });
-      c.drawImage(sp, x - sp.width / 2, y - sp.height / 2);
-    });
-  }
 
   socket.on('zm-kicked', () => {
     g.joined = false;

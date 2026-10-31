@@ -17,7 +17,7 @@
   </form>
   <section id="pp-lobby" class="screen panel hidden">
     <p class="status">Plasmapoort</p>
-    <canvas id="pp-lobby-art" width="240" height="130"></canvas>
+    <img class="lobby-icoon" src="/img/icons/plasmapoort.webp" alt="">
     <p class="title" id="pp-lobby-name"></p>
     <p>Neem strafschoppen tegen <strong>8 robotridders</strong>. Telkens 5 per kant: jij schiet, dan keep jij.</p>
     <p><strong>Schieten:</strong> tik voor de richting, tik nog eens voor de hoogte. Boven de lat is over!</p>
@@ -128,7 +128,6 @@
     chips();
     if (s.phase === 'lobby') {
       $('pp-lobby-name').textContent = s.name;
-      lobbyArt();
       show('pp-lobby');
     } else if (s.phase === 'play') {
       show('pp-game');
@@ -180,17 +179,6 @@
     $('pp-power').classList.toggle('hidden', !p.length);
   }
 
-  function lobbyArt() {
-    const c = $('pp-lobby-art'), x = c.getContext('2d');
-    x.clearRect(0, 0, c.width, c.height);
-    PpDraw.portrait(x, 70, 62, 50, { mech: false, color: g.color });
-    const R = W.ROBOTS[0];
-    PpDraw.portrait(x, 170, 62, 50, { color: R.color, eye: R.eye });
-    x.font = '900 22px Orbitron, sans-serif';
-    x.fillStyle = '#ffc94a';
-    x.textAlign = 'center';
-    x.fillText('VS', 120, 70);
-  }
 
   // ---------- Het verloop van een wedstrijd ----------
   function playing() {

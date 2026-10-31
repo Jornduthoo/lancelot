@@ -261,13 +261,11 @@ body:not([data-pw="1"]) #poort, body:not([data-nv="1"]) #vlucht, body:not([data-
 .hb-stage { touch-action: none; user-select: none; -webkit-user-select: none; cursor: crosshair; }
 .hb-tip { position: absolute; left: 50%; top: 12%; transform: translateX(-50%); padding: 8px 16px; border-radius: 999px; background: rgb(var(--k-bg) / .7); border: 1px solid rgb(var(--k-goud) / .7); color: var(--gold); font-weight: 800; pointer-events: none; animation: breathe 1.4s ease-in-out infinite; z-index: 2; }
 .hb-tip.weg { display: none; }
-#hb-lobby-art { display: block; margin: 6px auto 0; max-width: 100%; }
 #hb-game .ak-question { z-index: 6; }
 @media (max-width: 520px), (max-height: 420px) { .hb-energy { width: 64px; } }
 /* Banierveld */
 .bv-hud { gap: 10px; }
 .bv-stage { touch-action: none; user-select: none; -webkit-user-select: none; }
-#bv-lobby-art { display: block; margin: 6px auto 0; max-width: 100%; }
 #bv-game .ak-question { z-index: 6; }
 #bv-power { color: #ffe17a; box-shadow: 0 0 12px rgb(var(--k-goud) / .6); }
 /* Burchtstorm */
@@ -580,7 +578,6 @@ body:not([data-hs="1"]) #hofschilder { display: none !important; }
 .pp-hud { gap: 10px; }
 .pp-robot, .pp-power { white-space: nowrap; }
 .pp-power { color: #ffc94a; box-shadow: 0 0 14px rgb(var(--k-goud) / .45); }
-#pp-lobby-art { display: block; margin: 6px auto 0; }
 #pp-game .ak-question { z-index: 6; }
 #pp-stage { touch-action: manipulation; user-select: none; cursor: pointer; }
 .pp-dives { position: absolute; left: 0; right: 0; bottom: 0; display: flex; justify-content: center; gap: 14px; padding: 10px 12px calc(12px + env(safe-area-inset-bottom)); pointer-events: none; z-index: 3; }
@@ -651,3 +648,5 @@ body:not([data-zm="1"]) #zwerm { display: none !important; }
 .zm-doel b { position: relative; }
 .zm-doel.vol { animation: breathe 1s ease-in-out infinite; }
 .zm-life { font-weight: 800; color: var(--gold); margin: 4px 0 0; }
+/* Wachtscherm: Jorns geschilderde spelicoon in plaats van een getekende figuur */
+.lobby-icoon { display: block; width: 132px; height: 132px; margin: 8px auto 2px; border-radius: 24px; box-shadow: 0 0 22px rgb(var(--k-goud) / .35); animation: float 5s ease-in-out infinite; }
