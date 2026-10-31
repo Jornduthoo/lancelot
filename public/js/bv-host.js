@@ -147,7 +147,7 @@ function frame(t) {
   const G = scene.G || state.G;
   const s = Math.min(w, h) / (G + 3);
   const cam = { x: G / 2, y: G / 2, s, w, h };
-  BvDraw.render(ctx, scene, cam, { roster, t: sec, rs: Math.max(s * 1.05, 12 * dpr), fs: Math.max(9, Math.min(15, s * 1.1)) * dpr / 1.25 + 2 });
+  BvDraw.render(ctx, scene, cam, { roster, t: sec, rs: Math.max(s * 1.3, 15 * dpr), fs: Math.max(9, Math.min(15, s * 1.1)) * dpr / 1.25 + 2 });
   // Flitsen: een golf in de kleur van wie verovert, een witte flits waar een spoor doorgesneden werd
   const ox = w / 2 - cam.x * s, oy = h / 2 - cam.y * s;
   for (let i = flashes.length - 1; i >= 0; i--) {
