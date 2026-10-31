@@ -13,7 +13,12 @@ const TmDraw = (() => {
   // ---------- Geschilderde beelden ----------
   // Een beeld laadt pas als we het nodig hebben. Ontbreekt het, dan geeft img() null en tekenen we de vorm.
   // Alleen de beelden die al bestaan (zo vraagt de browser niet naar beelden die er nog niet zijn).
-  const HAS = new Set([]);
+  const HAS = new Set([
+    'achtergrond-burcht', 'achtergrond-moeras', 'achtergrond-ijs', 'achtergrond-wolken', 'achtergrond-lava',
+    'ridder-hoofd', 'ridder-romp', 'ridder-bovenarm', 'ridder-onderarm', 'ridder-bovenbeen', 'ridder-onderbeen',
+    'troon', 'troon-wiel', 'een', 'een-wiel', 'ton', 'ton-wiel', 'zweef', 'zweef-wiel', 'stoom', 'hamer', 'laserpaal',
+    'kanon', 'stekels', 'veer', 'vlag', 'finish',
+  ]);
   const imgs = new Map();
   function img(name) {
     if (!HAS.has(name)) return null;
@@ -25,6 +30,27 @@ const TmDraw = (() => {
       imgs.set(name, o);
     }
     return o.ok ? o.el : null;
+  }
+
+  // Een groot beeld klein tekenen kost veel rekenwerk (zeker op een Chromebook). Daarom maken we
+  // halve versies (1/2, 1/4, ...) en tekenen we telkens de kleinste die nog scherp genoeg is.
+  const mips = new Map();
+  function blit(ctx, im, x, y, w, h) {
+    const m = ctx.getTransform();
+    const px = Math.abs(w) * Math.hypot(m.a, m.b);
+    let src = im, lv = mips.get(im);
+    if (!lv) { lv = []; mips.set(im, lv); }
+    const size = c => [c.naturalWidth || c.width, c.naturalHeight || c.height];
+    for (let i = 0; size(src)[0] / 2 >= px * 1.2 && size(src)[0] > 16; i++) {
+      if (!lv[i]) {
+        const [sw, sh] = size(src);
+        const c = mk(sw / 2, sh / 2);
+        c.getContext('2d').drawImage(src, 0, 0, c.width, c.height);
+        lv[i] = c;
+      }
+      src = lv[i];
+    }
+    ctx.drawImage(src, x, y, w, h);
   }
 
   // ---------- Lucht ----------
@@ -159,7 +185,7 @@ const TmDraw = (() => {
   function sprite(ctx, im, x, y, bw, a = 0, ox = .5, oy = .5) {
     const bh = bw * im.naturalHeight / im.naturalWidth;
     ctx.save(); ctx.translate(x, y); if (a) ctx.rotate(a);
-    ctx.drawImage(im, -bw * ox, -bh * oy, bw, bh);
+    blit(ctx, im, -bw * ox, -bh * oy, bw, bh);
     ctx.restore();
   }
   function hammer(ctx, hm, t, X, Y, S) {
@@ -196,7 +222,7 @@ const TmDraw = (() => {
     const x = X(l.x), y = Y(l.y), top = Y(l.top);
     const im = img('laserpaal');
     // Bovenaan de zender op een paal achter de baan, onderaan een plaat in de grond.
-    if (im) sprite(ctx, im, x, top + S * .2, S * 1.1, Math.PI, .5, .15);
+    if (im) sprite(ctx, im, x, top + S * .2, S * 2.2, 0, .87, .9);
     else {
       ctx.fillStyle = '#3b3f5c'; ctx.strokeStyle = INK; ctx.lineWidth = Math.max(1, S * .05);
       ctx.beginPath(); ctx.rect(x - S * .45, top - S * .5, S * .9, S * .7); ctx.fill(); ctx.stroke();
@@ -214,7 +240,7 @@ const TmDraw = (() => {
   function cannon(ctx, c, t, X, Y, S) {
     const x = X(c.x), y = Y(c.y);
     const im = img('kanon');
-    if (im) sprite(ctx, im, x + S * .5, y, S * 1.8);
+    if (im) sprite(ctx, im, x + S * .6, y + S * .1, S * 2.4, 0, .5, 1);
     else {
       ctx.save(); ctx.translate(x + S * .4, y); ctx.rotate(.55);
       ctx.fillStyle = '#b5743a'; ctx.strokeStyle = INK; ctx.lineWidth = Math.max(1, S * .05);
@@ -329,13 +355,13 @@ const TmDraw = (() => {
     ctx.save(); ctx.translate(x, y);
     if (V.kind === 'zweef') {
       glow(ctx, 0, .1, .9, '#5ee7ff', .6 + Math.sin(t * 9 + x) * .15);
-      if (im) { ctx.drawImage(im, -r * 1.4, -r * .7, r * 2.8, r * 1.4); ctx.restore(); return; }
+      if (im) { blit(ctx, im, -r * 1.3, -r * .8, r * 2.6, r * 1.6); ctx.restore(); return; }
       ctx.fillStyle = '#5ee7ff'; ctx.strokeStyle = INK; ctx.lineWidth = .05;
       ctx.beginPath(); ctx.ellipse(0, 0, r * 1.4, r * .45, 0, 0, TAU); ctx.fill(); ctx.stroke();
       ctx.restore(); return;
     }
     ctx.rotate(rot);
-    if (im) { ctx.drawImage(im, -r, -r, r * 2, r * 2); ctx.restore(); return; }
+    if (im) { blit(ctx, im, -r, -r, r * 2, r * 2); ctx.restore(); return; }
     ctx.fillStyle = '#2a2f45'; ctx.strokeStyle = INK; ctx.lineWidth = .06;
     ctx.beginPath(); ctx.arc(0, 0, r, 0, TAU); ctx.fill(); ctx.stroke();
     ctx.strokeStyle = '#c9a54a'; ctx.lineWidth = r * .16;
@@ -347,12 +373,12 @@ const TmDraw = (() => {
   }
   // Het lichaam van de rijmachine, in lokale assen.
   // Een geschilderd beeld heeft een vaste plek en grootte per rijmachine (BODY): breedte in meter en het midden.
-  const BODY = { troon: [2.6, 0, -.25], een: [1.2, 0, .05], ton: [3.2, 0, -.15], zweef: [2.4, 0, -.15] };
+  const BODY = { troon: [2.55, -.23, -.39], een: [.62, .06, .165], ton: [2.1, -.05, .07], zweef: [1.5, -.6, .045] };
   function body(ctx, V, gas, turbo, t) {
     const im = img(V.id);
     if ((V.rocket || turbo) && gas) {
       const fl = .8 + Math.sin(t * 45) * .2;
-      const x0 = V.kind === 'een' ? -.4 : -1.25, y0 = V.kind === 'een' ? -.2 : -.05, len = (1 + .4 * fl) * (turbo ? 1.3 : 1);
+      const x0 = V.kind === 'een' ? -.4 : im && V.id === 'troon' ? -1.45 : -1.25, y0 = V.kind === 'een' ? -.2 : -.05, len = (1 + .4 * fl) * (turbo ? 1.3 : 1);
       const col = turbo ? '#ff6bd6' : '#5ee7ff';
       glow(ctx, x0 - len * .4, y0, .9, col, .9);
       const fg = ctx.createLinearGradient(x0, 0, x0 - len, 0);
@@ -362,8 +388,21 @@ const TmDraw = (() => {
     }
     if (im) {
       const [bw, bx, by] = BODY[V.id];
+      if (V.kind === 'zweef') {
+        // Een stalen balk tussen de twee zweefschijven, de zitpaal staat erop.
+        ctx.fillStyle = steel(ctx, .2, .42); ctx.strokeStyle = INK; ctx.lineWidth = .05;
+        ctx.beginPath(); ctx.rect(-.85, .22, 1.7, .2); ctx.fill(); ctx.stroke();
+      }
       const bh = bw * im.naturalHeight / im.naturalWidth;
-      ctx.drawImage(im, bx - bw / 2, by - bh / 2, bw, bh);
+      blit(ctx, im, bx - bw / 2, by - bh / 2, bw, bh);
+      const st = V.id === 'ton' && img('stoom');
+      if (st) {
+        // Een stoomwolkje uit de schoorsteen.
+        const f = t * .9 % 1;
+        ctx.save(); ctx.globalAlpha *= 1 - f;
+        blit(ctx, st, .3 - f * .3, -1.05 - f * .7, .5 + f * .3, (.5 + f * .3) * st.naturalHeight / st.naturalWidth);
+        ctx.restore();
+      }
       return;
     }
     ctx.strokeStyle = INK; ctx.lineWidth = .06; ctx.lineJoin = 'round';
@@ -418,7 +457,7 @@ const TmDraw = (() => {
       // Het beeld staat rechtop (van boven naar onder = van a naar b).
       ctx.save(); ctx.translate(a[0], a[1]); ctx.rotate(Math.atan2(dy, dx) - Math.PI / 2);
       const w = len * im.naturalWidth / im.naturalHeight * 1.25;
-      ctx.drawImage(im, -w / 2, -len * .12, w, len * 1.25);
+      blit(ctx, im, -w / 2, -len * .12, w, len * 1.25);
       ctx.restore();
       return;
     }
@@ -470,8 +509,10 @@ const TmDraw = (() => {
     if (o.turbo) glow(ctx, sx, sy - S * .6, S * 2.2, '#ff6bd6', .3 + Math.sin(t * 8) * .1);
     ctx.save();
     ctx.translate(sx, sy); ctx.rotate(o.a); ctx.scale(S, S);
-    body(ctx, V, o.gas, o.turbo, t);
+    // Bij de eenwieler staat de zitpaal vóór het wiel.
+    if (V.kind !== 'een') body(ctx, V, o.gas, o.turbo, t);
     for (const [lx, ly, r] of V.wheels) wheel(ctx, V, lx, ly, r, o.rot || 0, t);
+    if (V.kind === 'een') body(ctx, V, o.gas, o.turbo, t);
     ctx.restore();
     const p = { x: o.x, y: o.y, a: o.a, veh: V };
     const P = W.riderPose(p);
@@ -527,6 +568,19 @@ const TmDraw = (() => {
 
   // ---------- Alles samen ----------
   // v: { t, cx, cy, S, riders, dolls, wrecks, passed, wip, loadX, boing }
+  const stripCache = new Map();
+  function bgStrip(id, bg, bw, bh) {
+    const key = `${id}:${bw}x${bh}`;
+    let c = stripCache.get(key);
+    if (c) return c;
+    if (stripCache.size > 3) stripCache.clear();
+    c = mk(bw * 2, bh);
+    const g = c.getContext('2d');
+    g.drawImage(bg, 0, 0, bw, bh);
+    g.translate(bw * 2, 0); g.scale(-1, 1); g.drawImage(bg, 0, 0, bw, bh);
+    stripCache.set(key, c);
+    return c;
+  }
   function render(ctx, w, h, v) {
     const S = Math.round(v.S * 4) / 4;
     const left = v.cx - w / 2 / S, right = v.cx + w / 2 / S;
@@ -539,9 +593,11 @@ const TmDraw = (() => {
     if (bg) {
       // Het geschilderde beeld vult de hoogte boven de baan en schuift traag mee.
       const bh = h * 1.05, bw = bh * bg.naturalWidth / bg.naturalHeight;
-      const off = -((v.cx * S * .12) % bw + bw) % bw;
-      const dy = Math.round(.1 * (W.BASE - 3 - v.cy) * S) - h * .05;
-      for (let x = off; x < w; x += bw) ctx.drawImage(bg, Math.round(x), dy, bw + 1, bh);
+      // Eén keer op maat gebakken: het beeld en zijn spiegelbeeld naast elkaar, zo loopt het zonder naad door.
+      const strip = bgStrip(theme.id, bg, Math.round(bw), Math.round(bh));
+      const sx = v.cx * S * .12, sw = strip.width;
+      const dy = Math.round(.1 * (W.BASE - 3 - v.cy) * S - h * .05);
+      for (let x = -Math.round(((sx % sw) + sw) % sw); x < w; x += sw) ctx.drawImage(strip, x, dy);
     } else {
       const im = layer(theme, h);
       const off = -((v.cx * S * .15) % im.width + im.width) % im.width;
