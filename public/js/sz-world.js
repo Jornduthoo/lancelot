@@ -21,7 +21,7 @@
   const MIN_STAGE_S = 3.5;  // sneller kan een etappe niet (controle op de server)
   const STICK_COS = .3;    // hoe recht de punt in het hout moet wijzen (cos van de hoek)
   const COLORS = ['#ff4d6d', '#4cc9ff', '#ffc94a', '#4ade80', '#c77dff', '#ff8c42', '#2de2c8', '#ff6bd6', '#a3e635', '#7aa2ff', '#ffd6a5', '#f472b6'];
-  const POINTS = { kristal: 10, ton: 10, pompoen: 15, robot: 20 };
+  const POINTS = { kristal: 10, ton: 10, pompoen: 15, robot: 20, vast: 5 };
   // Elke drie etappes een andere wereld.
   const THEMES = [
     { name: 'Smidse', sky: ['#160707', '#3d120b', '#9a3a14'], lava: '#ff5a1f', lavaHi: '#ffc04a', wood: '#8a5a33', steel: '#5b6380', glow: '#ff9a3c', far: '#2a0d08', mid: '#3d160d' },
@@ -213,9 +213,10 @@
   }
 
   // ---------- Tikken: een salto naar voren ----------
-  // p: { x, y, a, vx, vy, w, stuck, air, gold, rust }. Geeft true als het lukte.
+  // p: { x, y, a, vx, vy, w, stuck, gold, rust }. Geeft true als het lukte.
   function tap(p) {
-    if (!p.stuck && p.air <= 0 && !p.gold) return false;
+    // Ligt of stuitert het zwaard op iets (plat op de kling of het heft), dan mag je ook meteen weer tikken.
+    const grond = !p.stuck && p.touch > 0;
     const P = PHYS;
     const f = (p.gold ? P.gold : 1) * (p.rust ? P.rust : 1);
     if (p.stuck) {
@@ -224,13 +225,19 @@
       p.y -= Math.sin(p.a) * (DEPTH + .14) + .12;
       p.air = 1;
       p.free = .12;
-    } else if (!p.gold) p.air--;
+    } else if (grond) {
+      p.y -= .12;
+      p.air = 1;
+      p.touch = 0;
+    }
+    // In de lucht mag je zoveel tikken als je wil, maar elke luchtsalto is een kleiner sprongetje (met de gouden kling niet).
+    const lucht = !p.stuck && !grond && !p.gold;
     const wand = p.stuck && p.nx < 0; // in een muur vóór je: omhoog klimmen in plaats van ertegen springen
     p.stuck = false;
     p.rest = 0;
     p.nx = 0;
-    p.vx = P.fwd * f * (wand ? .3 : 1);
-    p.vy = -P.jump * (p.rust ? .92 : 1) * (wand ? 1.2 : 1);
+    p.vx = P.fwd * f * (wand ? .3 : 1) * (lucht ? .8 : 1);
+    p.vy = -P.jump * (p.rust ? .92 : 1) * (wand ? 1.2 : 1) * (lucht ? .72 : 1);
     p.w = P.spin;
     return true;
   }
@@ -270,6 +277,7 @@
             p.rest = 0;
             p.nx = f.nx;
             out.vast = true;
+            out.punt = true; // echt vastgestoken met de punt (niet plat blijven liggen)
             return out;
           }
           bounce(p, f, s);
@@ -292,10 +300,11 @@
       }
     }
     // Ligt het zwaard plat stil? Dan mag je weer tikken.
-    if (contact && Math.hypot(p.vx, p.vy) < 1.6) {
+    p.touch = contact ? .25 : Math.max(0, (p.touch || 0) - dt);
+    if (contact && Math.hypot(p.vx, p.vy) < 2.2) {
       p.rest = (p.rest || 0) + dt;
       p.w *= 1 - 6 * dt;
-      if (p.rest > .3) { p.stuck = true; p.air = 1; p.vx = p.vy = p.w = 0; out.vast = true; }
+      if (p.rest > .12) { p.stuck = true; p.air = 1; p.vx = p.vy = p.w = 0; out.vast = true; }
     } else if (!contact) p.rest = Math.max(0, (p.rest || 0) - dt);
 
     // Gevaar en splijten.

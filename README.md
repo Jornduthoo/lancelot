@@ -217,10 +217,10 @@ Iedereen vliegt op zijn eigen scherm met een **raketridder** door dezelfde hinde
 
 Iedereen laat op zijn eigen scherm een **gloeiend zwaard** salto's maken door dezelfde baan boven de lava: houten planken en palen, stalen blokken, zaagbladen die op en neer gaan en knipperende lasers. Elke drie runenpalen een nieuwe wereld (Smidse, Kristalmijn, Sterrenburcht). De anderen zie je als schimmen; het bord volgt de koploper en toont bovenaan waar iedereen zit.
 
-- Eén knop: tik = salto naar voren. In de lucht mag je één keer extra tikken. De **kling** splijt alles wat ze raakt (kristallen, tonnen, pompoenen, robotridders). Komt de **punt** in hout, dan blijft het zwaard steken; het heft en staal botsen terug.
-- **Elke runenpaal is een vraag**: juist = ✨ gouden kling (verder springen, onbeperkt salto's, zaagbladen en lasers doen niets, dubbele punten). Fout: de kling roest even (kortere sprongen), die vraag komt later terug.
+- Eén knop: tik = salto naar voren. Tik zo vaak je wil; in de lucht is elke salto een kleiner sprongetje. De **kling** splijt alles wat ze raakt (kristallen, tonnen, pompoenen, robotridders). Komt de **punt** in hout, dan blijft het zwaard steken; het heft en staal botsen terug.
+- **Elke runenpaal is een vraag**: juist = ✨ gouden kling (verder en hoger springen, zaagbladen en lasers doen niets, dubbele punten). Fout: de kling roest even (kortere sprongen), die vraag komt later terug.
 - Wie in de lava valt of een zaagblad of laser raakt, begint opnieuw bij de laatste runenpaal (geen strafpunten, wel tijd kwijt).
-- Punten: 100 per runenpaal plus extra als je de etappe snel deed, 10-20 per gespleten ding, punten per juist antwoord.
+- Punten: 100 per runenpaal plus extra als je de etappe snel deed, 5 per keer vaststeken in hout (alleen als je vooruit kwam), 10-20 per gespleten ding, punten per juist antwoord.
 - Chromebook: spatie, ↑ of klikken = salto, 1-4 antwoorden. Gsm: tik waar je wil. Elk antwoord komt in het logboek. Resultaten in `resultaten/`. Ook als taak (alleen in een spel).
 
 ## Robomol

@@ -19,8 +19,8 @@
     <canvas id="sz-lobby-sword" width="200" height="70"></canvas>
     <p class="title" id="sz-lobby-name"></p>
     <p><strong>Tik</strong> en je zwaard maakt een salto. Met de <strong>kling</strong> splijt je kristallen, tonnen, pompoenen en robots. Komt de <strong>punt</strong> in het hout, dan blijft je zwaard steken. Het heft en staal botsen terug.</p>
-    <p><strong>Elke runenpaal is een vraag.</strong> Juist: ✨ gouden kling (verder springen, zoveel salto's als je wil, zaagbladen en lasers doen niets en dubbele punten).</p>
-    <p class="muted small">In de lucht mag je één keer extra tikken. Val je in de lava, dan begin je opnieuw bij de laatste runenpaal.</p>
+    <p><strong>Elke runenpaal is een vraag.</strong> Juist: ✨ gouden kling (verder en hoger springen, zaagbladen en lasers doen niets en dubbele punten).</p>
+    <p class="muted small">Tik zo vaak je wil: in de lucht wordt elke salto wel een kleiner sprongetje. Punten krijg je voor vaststeken in hout en voor alles wat je splijt. Val je in de lava, dan begin je opnieuw bij de laatste runenpaal.</p>
     <p class="muted small ls-hint-touch">Tik waar je wil op het scherm = salto.</p>
     <p class="muted small ls-hint-keys">Spatie, ↑ of klikken = salto · 1-4 antwoorden.</p>
     <div class="spinner"></div>
@@ -106,6 +106,7 @@
       g.pieces = [];
       g.trail = [];
       g.sliced = 0;
+      g.lastStick = 0;
       quiz.close();
       delete $('sz-end').dataset.done;
     }
@@ -198,7 +199,7 @@
       } else if (res && !res.error) g.pl.rust = 5;
       cb(res);
     }),
-    good: res => `Juist! ✨ Gouden kling: verder springen, salto's zoveel je wil en dubbele punten. +${res.points}`,
+    good: res => `Juist! ✨ Gouden kling: verder springen, zaag en laser doen niets en dubbele punten. +${res.points}`,
     bad: () => 'Helaas, je kling roest even. Kijk naar het juiste antwoord, die vraag komt later terug.',
     next: () => false,
     again: false,
@@ -375,6 +376,12 @@
             sfx.dobbel(0);
             buzz(20);
             g.shake = Math.max(g.shake, .08);
+            // Punten voor vaststeken, alleen als je vooruit bent gekomen (zoals de server ook telt).
+            if (o.punt && pl.x >= (g.lastStick || 0) + 1) {
+              g.lastStick = pl.x;
+              socket.emit('sz-vast', Math.round(pl.x * 100) / 100);
+              fx.text(p.x, p.y - 18, `+${W.POINTS.vast * (pl.gold > 0 ? 2 : 1)}`, '#ffc94a', 18);
+            }
           }
           if (o.heft || o.bots) {
             const p = toCss(pl.x, pl.y);
