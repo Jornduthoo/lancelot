@@ -7,7 +7,7 @@
   box.id = 'neonduel';
   box.innerHTML = `
   <form id="nd-join" class="screen welcome hidden">
-    <img src="/img/logo.webp" alt="LANcelot">
+    <img src="/img/logo.webp" alt="LANcelot" data-logo-3d>
     <p class="title">Neon Duel</p>
     <input id="nd-name" maxlength="20" autocomplete="off" placeholder="Je naam">
     <p class="error" id="nd-join-error"></p>

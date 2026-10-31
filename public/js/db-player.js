@@ -9,7 +9,7 @@
   root.id = 'diep';
   root.innerHTML = `
   <form id="db-join" class="screen welcome hidden">
-    <img src="/img/logo.webp" alt="LANcelot">
+    <img src="/img/logo.webp" alt="LANcelot" data-logo-3d>
     <p class="title">Diepboor</p>
     <input id="db-name" maxlength="20" autocomplete="off" placeholder="Je naam">
     <p class="error" id="db-join-error"></p>

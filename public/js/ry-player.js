@@ -7,7 +7,7 @@
   root.id = 'royale';
   root.innerHTML = `
   <form id="ry-join" class="screen welcome hidden">
-    <img src="/img/logo.webp" alt="LANcelot">
+    <img src="/img/logo.webp" alt="LANcelot" data-logo-3d>
     <p class="title">Ridder-Royale</p>
     <input id="ry-name" maxlength="20" autocomplete="off" placeholder="Je naam">
     <p class="error" id="ry-join-error"></p>

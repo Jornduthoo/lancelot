@@ -9,7 +9,7 @@
   root.id = 'vlucht';
   root.innerHTML = `
   <form id="nv-join" class="screen welcome hidden">
-    <img src="/img/logo.webp" alt="LANcelot">
+    <img src="/img/logo.webp" alt="LANcelot" data-logo-3d>
     <p class="title">Neonvlucht</p>
     <input id="nv-name" maxlength="20" autocomplete="off" placeholder="Je naam">
     <p class="error" id="nv-join-error"></p>

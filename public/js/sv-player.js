@@ -7,7 +7,7 @@
   root.id = 'sterren';
   root.innerHTML = `
   <form id="sv-join" class="screen welcome hidden">
-    <img src="/img/logo.webp" alt="LANcelot">
+    <img src="/img/logo.webp" alt="LANcelot" data-logo-3d>
     <p class="title">Sterrenvreter</p>
     <input id="sv-name" maxlength="20" autocomplete="off" placeholder="Je naam">
     <p class="error" id="sv-join-error"></p>

@@ -8,7 +8,7 @@
   root.id = 'tuimel';
   root.innerHTML = `
   <form id="tm-join" class="screen welcome hidden">
-    <img src="/img/logo.webp" alt="LANcelot">
+    <img src="/img/logo.webp" alt="LANcelot" data-logo-3d>
     <p class="title">Tuimelridder</p>
     <input id="tm-name" maxlength="20" autocomplete="off" placeholder="Je naam">
     <p class="error" id="tm-join-error"></p>

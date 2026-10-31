@@ -8,7 +8,7 @@
   root.id = 'zwerm';
   root.innerHTML = `
   <form id="zm-join" class="screen welcome hidden">
-    <img src="/img/logo.webp" alt="LANcelot">
+    <img src="/img/logo.webp" alt="LANcelot" data-logo-3d>
     <p class="title">Zwermwacht</p>
     <input id="zm-name" maxlength="20" autocomplete="off" placeholder="Je naam">
     <p class="error" id="zm-join-error"></p>
