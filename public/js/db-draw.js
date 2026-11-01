@@ -18,16 +18,87 @@ const DbDraw = (() => {
     return `#${x.map((v, i) => Math.round(v + (y[i] - v) * f).toString(16).padStart(2, '0')).join('')}`;
   };
 
-  // ---------- Vakjes ----------
+  // ---------- Geschilderde beelden ----------
+  // Grondtexturen per laag, schatten, gevaren, de hemel en de boorridder. Zonder beelden tekenen we alles zelf.
+  const ART = {};
   const tiles = new Map();
+  if (typeof Image !== 'undefined') {
+    for (const n of ['lucht', 'aarde', 'steen', 'kristalsteen', 'basalt', 'goud', 'diamant', 'robijn', 'lava', 'kei', 'gas', 'plaat', 'boorridder']) {
+      const img = new Image();
+      img.onload = () => { ART[n] = img; tiles.clear(); pods.clear(); skyCache = null; markCache.clear(); edgeCache.clear(); };
+      img.src = `/img/diepboor/${n}.webp`;
+    }
+  }
+  // Per laag: welke textuur, en een kleur om ze te verdonkeren (klei wordt roder).
+  const BAND_ART = [['aarde', 'rgba(20,10,4,.25)'], ['aarde', 'rgba(110,30,20,.38)'], ['steen', 'rgba(15,18,30,.45)'], ['kristalsteen', 'rgba(15,8,30,.42)'], ['basalt', 'rgba(20,4,4,.15)']];
+  // Erts: één beeld, met een filter voor de andere soorten.
+  const ORE_ART = {
+    10: ['goud', 'hue-rotate(-28deg) saturate(1.4) brightness(.9)'],
+    11: ['goud', 'grayscale(1) brightness(.85) contrast(1.1)'],
+    12: ['goud', 'grayscale(1) brightness(1.35)'],
+    13: ['goud', ''],
+    14: ['diamant', ''],
+    15: ['robijn', 'hue-rotate(-45deg) saturate(1.3) brightness(1.1)'],
+  };
+  const OBJ_ART = { 2: 'kei', 20: 'lava', 21: 'gas' };
+  // Een stuk van de textuur: de mijn deelt elke textuur in 4 x 4 vakjes, zodat de grond doorloopt.
+  function paintGround(g, bi, variant, px, darker) {
+    const [n, tint] = BAND_ART[bi] || BAND_ART[0];
+    const img = ART[n];
+    if (!img) return false;
+    const q = img.width / 4, vx = variant & 3, vy = (variant >> 2) & 3;
+    g.drawImage(img, vx * q, vy * q, q, q, 0, 0, px, px);
+    g.fillStyle = tint;
+    g.fillRect(0, 0, px, px);
+    if (darker) { g.fillStyle = `rgba(3,3,8,${darker})`; g.fillRect(0, 0, px, px); }
+    return true;
+  }
+  function paintItem(g, img, px, f, filter) {
+    const k = px * f / Math.max(img.width, img.height), iw = img.width * k, ih = img.height * k;
+    g.fillStyle = 'rgba(0,0,0,.35)';
+    g.beginPath(); g.ellipse(px / 2, px / 2 + ih * .42, iw * .42, ih * .12, 0, 0, 7); g.fill();
+    if (filter) g.filter = filter;
+    g.drawImage(img, (px - iw) / 2, (px - ih) / 2, iw, ih);
+    g.filter = 'none';
+  }
+  // De painted tegel, of null als de beelden er (nog) niet zijn.
+  function paintedTile(type, bi, variant, px) {
+    if (!ART[(BAND_ART[bi] || BAND_ART[0])[0]]) return null;
+    const c = mk(px, px), g = c.getContext('2d');
+    if (type === T.LEEG) { paintGround(g, bi, variant, px, .62); return c; }
+    if (type === T.ROTS) {
+      if (!ART.plaat) return null;
+      paintGround(g, bi, variant, px, .3);
+      g.drawImage(ART.plaat, px * .02, px * .02, px * .96, px * .96);
+      return c;
+    }
+    paintGround(g, bi, variant, px, 0);
+    const ore = ORE_ART[type], obj = OBJ_ART[type];
+    if (ore && ART[ore[0]]) {
+      const col = W.ORES[type].color;
+      const halo = g.createRadialGradient(px / 2, px / 2, 0, px / 2, px / 2, px * .5);
+      halo.addColorStop(0, rgba(col, type >= T.KRISTAL ? .5 : .28)); halo.addColorStop(1, rgba(col, 0));
+      g.fillStyle = halo;
+      g.fillRect(0, 0, px, px);
+      paintItem(g, ART[ore[0]], px, type >= T.GOUD ? .82 : .72, ore[1]);
+    } else if (obj && ART[obj]) {
+      if (type === T.LAVA) { g.fillStyle = 'rgba(255,90,30,.25)'; g.fillRect(0, 0, px, px); }
+      paintItem(g, ART[obj], px, type === T.STEEN ? .9 : .95, '');
+    } else if (type !== T.AARDE) return null;
+    return c;
+  }
+
+  // ---------- Vakjes ----------
   function tileSprite(type, bi, variant, px) {
     const key = `${type}|${bi}|${variant}|${px}`;
     let c = tiles.get(key);
     if (c) return c;
+    c = paintedTile(type, bi, variant, px);
+    if (c) { tiles.set(key, c); return c; }
     c = mk(px, px);
     const g = c.getContext('2d');
     const b = W.BANDS[bi];
-    const r = rng(type * 31 + bi * 7 + variant * 101 + 3);
+    const r = rng(type * 31 + bi * 7 + (variant % 3) * 101 + 3);
     // Grond zonder randjes: de vakjes lopen in elkaar over. Elke laag heeft zijn eigen sporen (wortels, lagen, barsten...).
     // Lijnen staan op een vaste hoogte per laag, zodat ze over de vakjes heen doorlopen.
     const ground = (base, dark) => {
@@ -409,7 +480,53 @@ const DbDraw = (() => {
     ctx.restore();
   }
 
+  // De geschilderde boorridder in de kleur van de speler (blauw wordt spelerkleur), één keer per kleur en grootte.
+  function podArt(color, s) {
+    const key = `art|${color}|${s}`;
+    let c = pods.get(key);
+    if (c) return c;
+    const img = ART.boorridder, size = Math.round(s * 1.45);
+    c = mk(size, size);
+    const g = c.getContext('2d');
+    g.drawImage(img, 0, 0, size, size);
+    const d = g.getImageData(0, 0, size, size), p = d.data;
+    const [tr, tg, tb] = [1, 3, 5].map(i => parseInt(color.slice(i, i + 2), 16));
+    for (let i = 0; i < p.length; i += 4) {
+      if (p[i + 3] < 10) continue;
+      const r = p[i] / 255, gg = p[i + 1] / 255, b = p[i + 2] / 255;
+      const mx = Math.max(r, gg, b), mn = Math.min(r, gg, b);
+      if (mx !== b || mx - mn < .01) continue;
+      const hue = 60 * (4 + (r - gg) / (mx - mn)), sat = (mx - mn) / mx;
+      if (hue < 205 || hue > 258 || sat < .38) continue;
+      const l = (r * .3 + gg * .59 + b * .11) * 2.4;
+      p[i] = Math.min(255, tr * l); p[i + 1] = Math.min(255, tg * l); p[i + 2] = Math.min(255, tb * l);
+    }
+    g.putImageData(d, 0, 0);
+    pods.set(key, c);
+    return c;
+  }
+
   function pod(ctx, x, y, s, color, o = {}) {
+    if (ART.boorridder) {
+      // De boor wijst in het beeld schuin naar links onder: draaien naar beneden, links of (gespiegeld) rechts.
+      const img = podArt(color, s), z = img.width;
+      ctx.save();
+      ctx.translate(x + (o.shake ? (Math.random() - .5) * s * .05 : 0), y);
+      if (o.flash) ctx.globalAlpha = .45 + .55 * Math.abs(Math.sin(o.t * 20));
+      if (o.flame) {
+        const f = .7 + Math.random() * .5;
+        const fl = ctx.createLinearGradient(0, s * .3, 0, s * (.3 + .4 * f));
+        fl.addColorStop(0, 'rgba(255,240,180,.95)'); fl.addColorStop(1, 'rgba(255,90,40,0)');
+        ctx.fillStyle = fl;
+        for (const dx of [-.22, .2]) { ctx.beginPath(); ctx.moveTo(s * (dx - .07), s * .3); ctx.lineTo(s * dx, s * (.3 + .4 * f)); ctx.lineTo(s * (dx + .07), s * .3); ctx.fill(); }
+      }
+      if (o.dir !== 'd' && o.face !== 'l') ctx.scale(-1, 1);
+      ctx.rotate(o.dir === 'd' ? -Math.PI / 4 : Math.PI / 7);
+      if (o.drilling) ctx.translate((Math.random() - .5) * s * .03, (Math.random() - .5) * s * .03);
+      ctx.drawImage(img, -z / 2, -z / 2);
+      ctx.restore();
+      return;
+    }
     const body = podBody(color, s);
     ctx.save();
     ctx.translate(x + (o.shake ? (Math.random() - .5) * s * .05 : 0), y);
@@ -436,6 +553,13 @@ const DbDraw = (() => {
     if (skyCache && skyCache.width === w && skyCache.height === h) return skyCache;
     const c = mk(w, h);
     const g = c.getContext('2d');
+    if (ART.lucht) {
+      // Het geschilderde dorp met de boortoren: onderkant op de grond, zo breed als het scherm.
+      const img = ART.lucht, iw = Math.max(w, h * img.width / img.height), ih = iw * img.height / img.width;
+      g.drawImage(img, (w - iw) / 2, h - ih, iw, ih);
+      skyCache = c;
+      return c;
+    }
     const grad = g.createLinearGradient(0, 0, 0, h);
     grad.addColorStop(0, '#060818'); grad.addColorStop(.6, '#1b1440'); grad.addColorStop(1, '#3a1d5c');
     g.fillStyle = grad;
@@ -679,13 +803,13 @@ const DbDraw = (() => {
     // Hemel boven de grond
     if (oy > 0) {
       ctx.drawImage(sky(w, Math.max(2, Math.min(h, oy))), 0, 0);
-      const s = surface(px);
-      ctx.drawImage(s, Math.round(ox * .5 - px * 8), oy - s.height);
-      const yd = yard(px);
-      ctx.drawImage(yd, ox, oy - yd.height);
+      const s = ART.lucht ? null : surface(px);
+      if (s) ctx.drawImage(s, Math.round(ox * .5 - px * 8), oy - s.height);
+      // Het geschilderde dorp heeft al een boortoren, mijnkar en lantaarns: dan geen getekend erf.
+      if (!ART.lucht) { const yd = yard(px); ctx.drawImage(yd, ox, oy - yd.height); }
       const f = forge(px);
       ctx.drawImage(f, ox + px * 14, oy - f.height);
-      for (const [tx, ty] of yardTorches) {
+      for (const [tx, ty] of ART.lucht ? [] : yardTorches) {
         const fx = ox + tx * px, fy = oy + ty * px;
         if (fx < -px * 2 || fx > w + px * 2 || fy < -px * 2) continue;
         const fl = .82 + Math.sin(v.t * 13 + tx) * .1 + Math.sin(v.t * 7.3 + tx * .37) * .08;
@@ -709,7 +833,7 @@ const DbDraw = (() => {
         if (x < 0 || x >= W.COLS) t = T.ROTS;
         else if (v.dug.has(y * W.COLS + x)) t = T.LEEG;
         else t = W.tile(v.seed, x, y);
-        const variant = (x * 7 + y * 13) % 3;
+        const variant = ART.aarde ? (x & 3) + (y & 3) * 4 : (x * 7 + y * 13) % 3;
         ctx.drawImage(tileSprite(t, bi, variant, px), ox + x * px, oy + y * px);
         if (t >= T.ZILVER && t <= T.NEON) sparkle.push(x, y, t);
       }
@@ -956,8 +1080,8 @@ const DbDraw = (() => {
       const c = mk(w, h);
       const g = c.getContext('2d');
       g.drawImage(sky(w, top), 0, 0);
-      const s = surface(Math.max(10, Math.round(top / 5)));
-      for (let x = 0; x < w; x += s.width) g.drawImage(s, x, top - s.height);
+      const s = ART.lucht ? null : surface(Math.max(10, Math.round(top / 5)));
+      if (s) for (let x = 0; x < w; x += s.width) g.drawImage(s, x, top - s.height);
       g.fillStyle = '#2e6b3a';
       g.fillRect(0, top - 3, w, 3);
       g.fillStyle = '#05060d';
