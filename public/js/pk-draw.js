@@ -12,6 +12,10 @@ const PacDraw = (() => {
       img.onload = () => { ART[n] = img; cache.clear(); };
       img.src = `/img/packnight/${n}.webp`;
     }
+    // De muren: geschilderde stenen (gedeeld met Laserslag).
+    const img = new Image();
+    img.onload = () => { ART.muur = img; cache.clear(); };
+    img.src = '/img/laserslag/muur.webp';
   }
   // Een beeld op een vaste grootte (langste zijde px), één keer geschaald. bang: grijsblauw voor bange drones.
   function sized(name, px, bang) {
@@ -102,12 +106,21 @@ const PacDraw = (() => {
     wg.addColorStop(1, '#1a1040');
     g.fillStyle = wg;
     for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (wall(x, y)) g.fillRect(x * tile, y * tile, tile + .5, tile + .5);
+    if (ART.muur) {
+      // Geschilderde stenen, met een blauwe waas zodat het doolhof neon blijft.
+      const pat = g.createPattern(ART.muur, 'repeat'), k = tile * 2 / ART.muur.width;
+      pat.setTransform(new DOMMatrix([k, 0, 0, k, 0, 0]));
+      g.fillStyle = pat;
+      for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (wall(x, y)) g.fillRect(x * tile, y * tile, tile + .5, tile + .5);
+      g.fillStyle = 'rgba(14, 26, 70, .38)';
+      for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (wall(x, y)) g.fillRect(x * tile, y * tile, tile + .5, tile + .5);
+    }
     // Gemetselde stenen op de muren: twee rijen per vakje, verspringend, elk blok een eigen tint.
     const lw = Math.max(1, tile * .035);
     for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
       if (!wall(x, y)) continue;
       const L = x * tile, T = y * tile;
-      for (let r = 0; r < 2; r++) {
+      for (let r = 0; r < (ART.muur ? 0 : 2); r++) {
         const off = (y * 2 + r) % 2 ? tile / 2 : 0;
         for (let i = -1; i < 2; i++) {
           const bx = Math.max(L, L + off + i * tile), ex = Math.min(L + tile, L + off + (i + 1) * tile);
@@ -131,7 +144,7 @@ const PacDraw = (() => {
     g.strokeStyle = 'rgba(120, 160, 255, .16)';
     g.lineWidth = Math.max(1, tile * .04);
     for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
-      if (!wall(x, y) || rnd() < .55) continue;
+      if (!wall(x, y) || rnd() < .55 || ART.muur) continue;
       const cx = (x + .5) * tile, cy = (y + .5) * tile;
       g.beginPath();
       if (wall(x + 1, y)) { g.moveTo(cx, cy); g.lineTo(cx + tile, cy); }
