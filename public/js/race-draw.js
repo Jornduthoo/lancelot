@@ -23,6 +23,8 @@ const RaceDraw = (() => {
       img.onload = () => {
         const c = document.createElement('canvas');
         ART[n] = c.getContext('2d').createPattern(img, 'repeat');
+        ART[n + 'Img'] = img;
+        boardCache = null;
       };
       img.src = `/img/ridderrace/${n}.webp`;
     }
@@ -924,11 +926,19 @@ const RaceDraw = (() => {
       g.closePath();
     };
     Glow.space(g, W, H, 0, 0);
-    // Een zwak zeshoekig raster als ondergrond.
+    // Geschilderd gras als ondergrond (wat donkerder), anders een zwak zeshoekig raster.
+    const gras = ART.grasImg, weg = ART.wegImg;
+    const pat = (img, tile) => { const p = g.createPattern(img, 'repeat'); const k = tile / img.width; p.setTransform(new DOMMatrix([k, 0, 0, k, 0, 0])); return p; };
+    if (gras) {
+      g.fillStyle = pat(gras, hw * 14);
+      g.fillRect(0, 0, W, H);
+      g.fillStyle = 'rgba(6, 10, 26, .45)';
+      g.fillRect(0, 0, W, H);
+    }
     g.strokeStyle = 'rgba(76, 201, 255, .05)';
     g.lineWidth = 1;
     const r = Math.max(18, W / 60);
-    for (let row = 0, yy = 0; yy < H + r; row++, yy += r * 1.5) {
+    for (let row = 0, yy = 0; yy < (gras ? -1 : H + r); row++, yy += r * 1.5) {
       for (let xx = (row % 2) * r * .866; xx < W + r; xx += r * 1.732) {
         g.beginPath();
         for (let k = 0; k < 6; k++) {
@@ -989,7 +999,7 @@ const RaceDraw = (() => {
       }
     }
     // Asfalt met een glans in het midden en witte randlijnen.
-    g.strokeStyle = '#1b2034';
+    g.strokeStyle = weg ? pat(weg, hw * 2) : '#1b2034';
     g.lineWidth = hw * 2.02;
     path();
     g.stroke();
