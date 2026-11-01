@@ -2194,6 +2194,8 @@ body.tk-solo .klaar-balk { display: none; }
 .snelmenu .ic { width: 26px; height: 26px; margin: 2px 0; }
 .snelmenu .snel-start { color: rgb(var(--k-tekst)); margin-right: 4px; box-shadow: inset -1px 0 0 rgb(var(--k-cyan) / .2); border-radius: 10px 4px 4px 10px; }
 /* Het startscherm heeft al veel knoppen bovenaan: daar staat het snelmenu als eigen balk eronder. */
+/* Op het startscherm en in de vijf rijken zelf staan de tegels al: daar geen snelmenu. */
+body:has(#home:not(.hidden)) .snelmenu { display: none; }
 .topbar:has(.taken-home) .snelmenu { order: 3; flex: 1 1 100%; margin-right: 0; justify-content: center; }
 .topbar:has(.taken-home) .snelmenu a { min-width: 110px; flex-direction: row; gap: 8px; font-size: .85rem; padding: 6px 12px; }
 @media (max-width: 1100px) { .snelmenu span { display: none; } .snelmenu a { min-width: 40px; } .topbar:has(.taken-home) .snelmenu span { display: inline; } .topbar:has(.taken-home) .snelmenu a { min-width: 0; } }
