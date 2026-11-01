@@ -140,7 +140,7 @@ function odKaart(id, plek) {
   if (odCanvas.width) odHemel();
   od.drones = odMaakDrones(od.kaart);
   od.deuren = ['D', 'q', 'Q'].map(c => OdWereld.vind(od.kaart, c) && { ...OdWereld.vind(od.kaart, c), c }).filter(Boolean);
-  odBak();
+  odLaadBeelden();
   let p = plek;
   const gebouwd = od.stand.gebouwd;
   if (!p || !OdWereld.loopbaar(od.kaart, p.x, p.y, gebouwd)) p = od.kaart.binnen ? odNaast(OdWereld.vind(od.kaart, 'q'), true) : OdWereld.vind(od.kaart, 'S');
@@ -189,8 +189,23 @@ function odHemel() {
   hemel.width = odCanvas.width;
   hemel.height = odCanvas.height;
   const g = hemel.getContext('2d');
-  g.drawImage(BuArt.hemel(odCanvas.width, odCanvas.height), 0, 0);
-  odNevel(g, hemel.width, hemel.height);
+  const geschilderd = OdArt.beeld('hemel');
+  if (geschilderd) {
+    // De geschilderde hemel, zo groot dat hij het hele scherm vult (en per eiland gespiegeld, voor wat afwisseling).
+    const W = hemel.width;
+    const H = hemel.height;
+    const s = Math.max(W / geschilderd.naturalWidth, H / geschilderd.naturalHeight);
+    const w = geschilderd.naturalWidth * s;
+    const h = geschilderd.naturalHeight * s;
+    const om = Object.keys(OdWereld.KAARTEN).indexOf(od.kaartId) % 2 === 1;
+    g.save();
+    if (om) g.setTransform(-1, 0, 0, 1, W, 0);
+    g.drawImage(geschilderd, (W - w) / 2, (H - h) / 2, w, h);
+    g.restore();
+  } else {
+    g.drawImage(BuArt.hemel(odCanvas.width, odCanvas.height), 0, 0);
+    odNevel(g, hemel.width, hemel.height);
+  }
   const gloed = OD_GLOED[od.kaartId];
   if (!gloed) return;
   const lg = g.createLinearGradient(0, 0, 0, hemel.height);
@@ -304,6 +319,22 @@ function odMaat() {
   }
 }
 window.addEventListener('resize', odMaat);
+// De geschilderde beelden van dit eiland laden en dan pas bakken (zo zie je nooit eerst de oude tekening).
+// Duurt het te lang (traag netwerk), dan eerst de code-versie en opnieuw bakken als ze toch binnenkomen.
+function odLaadBeelden() {
+  const id = od.kaartId;
+  const bak = () => {
+    if (od.kaartId !== id || !od.stand) return;
+    odBak();
+    odHemel();
+  };
+  const wacht = setTimeout(bak, 1500);
+  od.grond = null;
+  OdArt.laad(OdWereld.beelden(od.kaart, od.stand.gebouwd), () => {
+    clearTimeout(wacht);
+    bak();
+  });
+}
 
 function odSpriteRidder() {
   const av = Avatar.byName(od.naam) || Avatar.mine() || odStandaardRidder;

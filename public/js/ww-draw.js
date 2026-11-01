@@ -529,10 +529,9 @@ const WwDraw = (() => {
     const naam = v.square ? 'wiel-vierkant' : v.ice ? 'wiel-ijs' : v.stone ? 'wiel-steen' : v.magnet ? 'wiel-magneet' : v.id === 'reus' ? 'wiel-reus' : v.id === 'maan' ? 'wiel-maan' : 'wiel';
     const img = ART[naam];
     if (img) {
-      // Jorns geschilderde wielen. De schuin geschilderde (reuzenband, steen, maan) draaien niet mee, anders wiebelen ze.
+      // Jorns geschilderde wielen, allemaal recht van opzij geschilderd: ze draaien mee met de rit.
       const s = (v.square ? 1.84 : 2.04) * R / Math.max(img.width, img.height);
       g.drawImage(img, -img.width * s / 2, -img.height * s / 2, img.width * s, img.height * s);
-      c.still = naam === 'wiel-reus' || naam === 'wiel-steen' || naam === 'wiel-maan';
       wheelCache.set(v.id, c);
       return c;
     }
@@ -633,7 +632,7 @@ const WwDraw = (() => {
       c.ownWheels = true;
     } else if (v.id === 'koets' && ART.koets) {
       const t = ART.koets, w = v.D, h = w * t.height / t.width;
-      knight(-.2, -1.85, .7);
+      knight(-.3, -1.35, .7);
       put(t, -w / 2 - .1, .2 - h, w, h);
     } else if (v.id === 'ros' && ART.ros) {
       const t = ART.ros, w = 2.4, h = w * t.height / t.width;
@@ -835,7 +834,7 @@ const WwDraw = (() => {
     if (!body.ownWheels) for (const [x, rot] of [[-v.D / 2, o.rb || 0], [v.D / 2, o.rf || 0]]) {
       ctx.save();
       ctx.translate(x * S, 0);
-      if (!ws.still) ctx.rotate(rot);
+      ctx.rotate(rot);
       ctx.drawImage(ws, -wr, -wr, wr * 2, wr * 2);
       ctx.restore();
     }

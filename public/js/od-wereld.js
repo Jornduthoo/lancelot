@@ -110,6 +110,7 @@ const OdWereld = (() => {
       ],
       ruine: () => true,
       terug: { kaart: 'woud', bij: 'P' },
+      lip: ['#d4d8e4', '#aab0c4'],
     },
     ijs: {
       naam: 'Het IJsrijk',
@@ -360,6 +361,8 @@ const OdWereld = (() => {
   const BLOKKEERT = new Set('T~RHWxvkfaYKGMXLPNOBZInj90/#^%*;@!-|'.split('').concat(Object.keys(STATION), ['p']));
 
   const hash = (x, y, k = 0) => BuArt.hash(x, y, k);
+  // De geschilderde beelden (niet op de server).
+  const ART = typeof OdArt === 'undefined' ? null : OdArt;
 
   function kaart(id) {
     const k = KAARTEN[id];
@@ -450,6 +453,18 @@ const OdWereld = (() => {
     return hash(x, y, 3) < 0.25 ? 'wild' : 'gras';
   }
 
+  // Welke geschilderde textuur bij welke grondsoort hoort, en hoe licht (1 = zoals geschilderd).
+  const TEXTUUR = {
+    gras: ['gras', 1], wild: ['gras', 0.9], bloemen: ['gras', 1.03], pad: ['pad', 1], plein: k => (k.id === 'sterren' ? ['plein', 0.85] : ['pad', 0.82]),
+    neon: k => (k.id === 'sterren' ? ['plein', 1] : ['pad', 0.7]),
+    zand: ['zand', 1], zand2: ['zand', 0.95], strand: ['zand', 1.06], water: ['water', 0.95], lagune: ['water', 1.05], ijswater: ['water', 0.72],
+    sneeuw: ['sneeuw', 1], sneeuw2: ['sneeuw', 0.96], sneeuwpad: ['pad', 1.05], ijs: ['ijsvloer', 1],
+    as: ['as', 1], as2: ['as', 0.92], lava: ['lava', 1.05], basalt: ['basalt', 1], plank: ['plank', 1],
+    wolk: ['wolk', 1], wolk2: ['wolk', 0.96], goudpad: ['goudpad', 1], mijn: ['mijn', 1], mijn2: ['mijn', 0.92], rails: ['mijn', 0.85],
+    maan: ['maan', 1], maan2: ['maan', 0.95], maanpad: ['maan', 0.82], cyber: ['cyber', 1], cyber2: ['cyber', 0.92], neonpad: ['neonpad', 1],
+    dek: ['dek', 1], dek2: ['dek', 0.95], dekpad: ['dek', 0.82],
+  };
+
   // ---------- Low-poly grond ----------
   // Het eiland als vlakjes: elk vakje zijn twee driehoeken met een eigen tint, op een licht golvende grond.
   // De rotswanden eronder zijn grote, schuine rotsvlakken. Alles wordt één keer gebakken, dus het kost niets per beeld.
@@ -475,6 +490,17 @@ const OdWereld = (() => {
     g.strokeStyle = kleur;
     g.lineWidth = 0.6;
     g.stroke();
+  }
+
+  // Een driehoek zonder rand (voor halfdoorzichtig licht en schaduw: een rand zou dubbel tellen op de naden).
+  function vlak(g, [a, b, c], kleur) {
+    g.beginPath();
+    g.moveTo(a[0], a[1]);
+    g.lineTo(b[0], b[1]);
+    g.lineTo(c[0], c[1]);
+    g.closePath();
+    g.fillStyle = kleur;
+    g.fill();
   }
 
   // Hoe fel een vlak is: hoe meer het naar het licht kijkt, hoe lichter.
@@ -513,6 +539,33 @@ const OdWereld = (() => {
     };
     const ROTS = { l: RGB((k.rots || [])[0] || '#6c5a80'), r: RGB((k.rots || [])[1] || '#45395c') };
     const LIP = k.lip || ['#4f9a3a', '#3e8030'];
+    // Patronen uit de geschilderde texturen, schuin gelegd zoals de vakjes (één textuur dekt 4 op 4 vakjes).
+    const patronen = {};
+    const patroon = n => {
+      if (n in patronen) return patronen[n];
+      const c = ART && ART.tegel(n);
+      let pt = null;
+      if (c) {
+        pt = g.createPattern(c, 'repeat');
+        const s = 1 / (c.width / 8);
+        pt.setTransform(new DOMMatrix([half * s, kwart * s, -half * s, kwart * s, ox, oy - kwart]));
+      }
+      return (patronen[n] = pt);
+    };
+    const textuur = soort => {
+      // De Sterrenhaven is helemaal een marmeren plein.
+      let t = !k.binnen && (k.id === 'sterren' ? ['plein', soort === 'plein' ? 0.85 : 1] : TEXTUUR[soort]);
+      if (typeof t === 'function') t = t(k);
+      const pt = t && patroon(t[0]);
+      return pt ? { p: pt, tint: t[1] } : null;
+    };
+    const rotsPatroon = ART && ART.tegel('rots') ? (() => {
+      const c = ART.tegel('rots');
+      const pt = g.createPattern(c, 'repeat');
+      const s = (T * 5.5) / c.width;
+      pt.setTransform(new DOMMatrix([s, 0, 0, s, ox, oy]));
+      return pt;
+    })() : null;
 
     function wand(a, b, da, db, zij, seed) {
       const r = BuArt.rng(seed * 2654435761);
@@ -528,13 +581,20 @@ const OdWereld = (() => {
       const o0 = [a[0], a[1] + da];
       const o1 = [b[0], b[1] + db];
       const oc = [mm[0] + (r() - 0.5) * T * 0.1, mm[1] + Math.max(da, db) * (1.05 + r() * 0.25)];
-      driehoek(g, boven[0], boven[1], mc, tint(0, 0));
-      driehoek(g, boven[0], mc, m0, tint(0, 0.08));
-      driehoek(g, boven[1], m1, mc, tint(0, 0.12));
-      driehoek(g, m0, mc, o0, tint(0, 0.3));
-      driehoek(g, mc, oc, o0, tint(0, 0.42));
-      driehoek(g, mc, m1, o1, tint(0, 0.34));
-      driehoek(g, mc, o1, oc, tint(0, 0.48));
+      const vlakken = [[boven[0], boven[1], mc, 0], [boven[0], mc, m0, 0.08], [boven[1], m1, mc, 0.12], [m0, mc, o0, 0.3], [mc, oc, o0, 0.42], [mc, m1, o1, 0.34], [mc, o1, oc, 0.48]];
+      for (const [p0, p1, p2, donker] of vlakken) {
+        if (!rotsPatroon) { driehoek(g, p0, p1, p2, tint(0, donker)); continue; }
+        // geschilderde rots in de kleur van het eiland, rechts wat donkerder, en dieper naar onder toe
+        driehoek(g, p0, p1, p2, rotsPatroon);
+        if (k.rots) {
+          g.globalCompositeOperation = 'color';
+          g.globalAlpha = 0.55;
+          vlak(g, [p0, p1, p2], k.rots[0]);
+          g.globalCompositeOperation = 'source-over';
+          g.globalAlpha = 1;
+        }
+        vlak(g, [p0, p1, p2], `rgba(10,8,30,${Math.min(0.75, 0.12 + donker * 1.0 + (zij === 'r' ? 0.18 : 0.02) + (r() - 0.5) * 0.06)})`);
+      }
       // een kartelrand van gras over de rots
       const lip = T * 0.09;
       for (let i = 0; i < 2; i++) {
@@ -577,12 +637,18 @@ const OdWereld = (() => {
         const basis = RGB(LP[soort] || LP.gras);
         const hoeken = [[x, y], [x + 1, y], [x + 1, y + 1], [x, y + 1]];
         const tris = hash(x, y, 12) < 0.5 ? [[0, 1, 2], [0, 2, 3]] : [[0, 1, 3], [1, 2, 3]];
+        const tex = textuur(soort);
         tris.forEach((t, i) => {
           const pw = t.map(j => wereld(...hoeken[j]));
           const f = belicht(...pw);
           const jitter = (hash(x * 2 + i, y, 13) - 0.5) * (soort === 'neon' ? 0.1 : 0.16);
           const mul = 0.82 + f * 0.22 + jitter;
-          driehoek(g, ...t.map(j => scherm(...hoeken[j])), kleurStr(basis.map(v => v * mul)));
+          if (!tex) return driehoek(g, ...t.map(j => scherm(...hoeken[j])), kleurStr(basis.map(v => v * mul)));
+          // Geschilderde grond: de textuur, met het licht van de vlakjes er zacht over.
+          const pts = t.map(j => scherm(...hoeken[j]));
+          driehoek(g, ...pts, tex.p);
+          const m = mul * tex.tint;
+          if (Math.abs(m - 1) > 0.01) vlak(g, pts, m < 1 ? `rgba(8,14,30,${Math.min(0.5, (1 - m) * 0.9)})` : `rgba(255,250,225,${Math.min(0.3, (m - 1) * 0.6)})`);
         });
         const c = scherm(x, y, 0);
         const mx = c[0];
@@ -1367,7 +1433,7 @@ const OdWereld = (() => {
         const id = STATION[c];
         st = STUK[id] ? { bu: STUK[id], kleur: STUKKLEUR[id] || '#ffc94a', plek: id } : { eigen: id, plek: id };
       }
-      if (st) out.push({ x, y, ...st });
+      if (st) out.push({ x, y, c, ...st });
     }
     // Het labo: één groot gebouw op 2 op 2 vakjes, getekend vanaf het voorste vakje.
     const h = vind(k, 'H');
@@ -1376,7 +1442,83 @@ const OdWereld = (() => {
     return out;
   }
 
+  // Geschilderde versie van een stuk: [beeld, hoogte in tegels, opties], of null (dan tekent de code hem).
+  // Plekken met een raadsel heten zoals hun beeld; de rest gaat per teken.
+  const PLEKMAAT = {
+    smidse: [1.45, 1.5], nest: [0.9, 1.3], beeld: [1.5], koepel: [1.6, 1.4], goudtoren: [2.3], donjon: [1.9, 1.6],
+    klokkentoren: [2.1], ijsmeer: [1.3, 1.4], ijsbeeld: [1.6], lavapoort: [1.6, 1.4], vuurkristal: [1.4, 1.4], vuurtoren: [2.1],
+    parelschelp: [1.0, 1.4], wrak: [0.9, 1.6], schatkaart: [1.6, 1.4], wolkentoren: [2.3], windorgel: [1.6, 1.4], luchthaven: [1.9],
+    mijnkar: [1.0, 1.3], edelsteenwand: [1.5], mijnspoor: [1.6, 1.5], maanlab: [1.3, 1.6], koepelbouw: [1.6, 1.6], sterrenkijker: [1.5],
+    datatoren: [2.2], stroompoort: [1.7], lichtlab: [1.3, 1.6], vrachtruim: [1.4, 1.6], aftelling: [1.9], seinpost: [1.8],
+    stroom: [1.1, 1.3], tandwiel: [1.1, 1.3], wip: [0.8, 1.4], drijfbak: [1.1, 1.3], thermometer: [1.6],
+    uil: [1.5], schuif: [1.45], robot: [1.55], licht: [1.7], code: [1.6], steen: [1.5],
+  };
+  const PLEKBEELD = { lichtlab: 'maanlab' };
+  const REISBEELD = {
+    luchtschip: ['luchtschip', 1.6, 1.9], sterrenpoort: ['sterrenpoort', 1.7, 1.4], drakenzadel: ['draak', 1.4, 1.6], ijsraket: ['ijsraket', 2.0],
+    duikboot: ['duikboot', 1.0, 1.6], luchtballon: ['luchtballon', 2.0], mijnlift: ['mijnlift', 2.1], maanraket: ['maanraket', 1.9],
+    hyperloop: ['hyperloop', 1.1, 1.8], shuttle: ['shuttle', 1.8, 1.4],
+  };
+  function kunst(st, k) {
+    const c = st.c;
+    const v = n => 1 + Math.floor(hash(st.x, st.y, 7) * n);
+    const groei = (a, b) => a + hash(st.x, st.y, 9) * b;
+    if (st.labo) return ['labo', 2.0, { breed: 2.3, voet: 0.2 }];
+    if (st.plek === 'kroonburcht') return st.bu === 'donjon' ? ['burcht', 2.0, { breed: 1.7, voet: 0.15 }] : null;
+    if (st.plek && REISBEELD[st.plek]) { const [n, h, b] = REISBEELD[st.plek]; return [n, h, { breed: b || 1.3, voet: 0.15 }]; }
+    if (st.plek && PLEKMAAT[st.plek]) { const [h, b] = PLEKMAAT[st.plek]; return [PLEKBEELD[st.plek] || st.plek, h, { breed: b || 1.25, voet: 0.18 }]; }
+    if (st.plek) return null;
+    const spiegel = hash(st.x, st.y, 8) < 0.5;
+    switch (c) {
+      case 'T': return st.eigen === 'lpboom' ? [`eik${v(3)}`, groei(1.75, 0.35), { spiegel, breed: 1.7, voet: 0.1 }] : [`den${v(3)}`, groei(2.0, 0.4), { spiegel, breed: 1.5, voet: 0.1 }];
+      case 'B': return [`sneeuw${v(3)}`, groei(1.9, 0.4), { spiegel, breed: 1.5, voet: 0.1 }];
+      case 'Y': return [`palm${v(2)}`, groei(1.9, 0.3), { spiegel, breed: 1.6, voet: 0.1 }];
+      case 'n': return [`koraal${v(3)}`, groei(0.85, 0.2), { spiegel, voet: 0.12 }];
+      case 'k': return ['kristal', 0.95, { spiegel, voet: 0.12 }];
+      case 'f': return k.id === 'vuur' ? ['kampvuur', 0.8, { voet: 0.15 }] : ['fakkel', 1.05, { voet: 0.06 }];
+      case 'J': return ['rune', 0.9, { voet: 0.1 }];
+      case 'K': return k.id === 'vuur' ? [`lavarots${v(2)}`, groei(0.85, 0.3), { spiegel, voet: 0.15 }] : k.id === 'mijn' ? ['mijnrots', groei(0.85, 0.3), { spiegel, voet: 0.15 }] : ['rots-blok', 0.85, { spiegel, voet: 0.15 }];
+      case 'G': return ['robodraak', 1.3, { spiegel, breed: 1.5, voet: 0.15 }];
+      case 'M': return ['molen', 1.9, { voet: 0.15 }];
+      case 'X': return k.id === 'station' ? ['jager', 1.0, { breed: 1.6, voet: 0.2 }] : ['ruimteschip', 1.1, { breed: 1.6, voet: 0.2 }];
+      case 'j': return ['lantaarn', 1.3, { voet: 0.06 }];
+      case 'v': return k.binnen ? null : ['lichtpaal', 1.3, { voet: 0.06 }];
+      case 'x': return ['kast', 1.4, { voet: 0.15 }];
+      case '#': return ['kar', 0.8, { spiegel, voet: 0.15 }];
+      case '@': return [`neontoren${v(2)}`, groei(2.3, 0.8), { spiegel, breed: 1.2, voet: 0.12 }];
+      case '!': return ['holobord', 1.4, { spiegel, voet: 0.06 }];
+      case '-': return ['zonnepaneel', 0.95, { breed: 1.15, voet: 0.2 }];
+      case '|': return ['antenne', 2.1, { voet: 0.06 }];
+      case '%': return ['krater', 0.55, { spiegel, breed: 1.15, voet: 0.25 }];
+      case '^': return ['maankoepel', 1.1, { breed: 1.4, voet: 0.18 }];
+      default: return null;
+    }
+  }
+  function geschilderd(st, k, T) {
+    if (!ART) return null;
+    const kz = kunst(st, k);
+    if (!kz) return null;
+    // het labo staat op 2 op 2 vakjes: groter, met de voet op het midden ervan
+    return ART.sprite(kz[0], T, kz[1], kz[2]);
+  }
+
+  // Welke beelden een kaart nodig heeft (om ze te laden vóór het bakken).
+  function beelden(k, gebouwd = []) {
+    const uit = new Set(['hemel', 'rots']);
+    for (let y = 0; y < k.h; y++) for (let x = 0; x < k.w; x++) {
+      const t = k.id === 'sterren' ? ['plein'] : TEXTUUR[vloerVan(k, x, y)];
+      if (t && !k.binnen) uit.add(typeof t === 'function' ? t(k)[0] : t[0]);
+    }
+    for (const st of stukken(k, [], gebouwd.concat('kroonburcht'))) {
+      const kz = kunst(st, k);
+      if (kz) uit.add(kz[0]);
+    }
+    return [...uit];
+  }
+
   function sprite(st, k, T) {
+    const art = geschilderd(st, k, T);
+    if (art) return art;
     if (st.eigen) return eigenStuk(st.eigen, T, st.v || 0);
     if (st.groot) return BuArt.stuk(st.groot, st.kleur, T * 2, {}, 0);
     let n = {};
@@ -1409,6 +1551,6 @@ const OdWereld = (() => {
     return out;
   }
 
-  return { KAARTEN, STATION, STUK, BOUWPLEK, REIS, kaart, teken, loopbaar, plekken, vind, maat, bak, stukken, sprite, gloeiers, eigenStuk, runen };
+  return { KAARTEN, STATION, STUK, BOUWPLEK, REIS, beelden, kaart, teken, loopbaar, plekken, vind, maat, bak, stukken, sprite, gloeiers, eigenStuk, runen };
 })();
 if (typeof module === 'object' && module.exports) module.exports = OdWereld;

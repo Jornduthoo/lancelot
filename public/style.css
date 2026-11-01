@@ -102,12 +102,48 @@ code { font-family: var(--tech); font-size: .85em; color: var(--cyan); }
 
 /* ---------- Kop met logo ---------- */
 .topbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
-.brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: inherit; cursor: pointer; }
-.brand img { width: 58px; height: 58px; border-radius: 50%; filter: var(--logo-tint, none); box-shadow: 0 0 0 2px rgb(var(--k-cyan) / .55), 0 0 16px var(--cyan-glow); animation: mark-glow 3.5s ease-in-out infinite; }
+.brand { --ring: 72px; position: relative; display: flex; align-items: center; gap: 16px; padding-left: 7px; text-decoration: none; color: inherit; cursor: pointer; }
+.brand img { position: relative; width: 58px; height: 58px; border-radius: 50%; filter: var(--logo-tint, none); box-shadow: 0 0 0 2px rgb(var(--k-cyan) / .55), 0 0 16px var(--cyan-glow); animation: mark-glow 3.5s ease-in-out infinite; }
 @keyframes mark-glow { 50% { box-shadow: 0 0 0 2px rgb(var(--k-cyan) / .95), 0 0 26px rgb(var(--k-cyan) / .75); } }
-.wordmark { font-family: var(--head); font-weight: 900; font-size: 1.9rem; letter-spacing: .06em; }
+/* Draaiende runenring rond het logo: alleen een transform, dus licht voor Chromebooks. */
+.brand::before {
+  content: ''; position: absolute; left: 0; top: 50%; width: var(--ring); height: var(--ring); margin-top: calc(var(--ring) / -2);
+  border-radius: 50%; pointer-events: none;
+  background:
+    conic-gradient(from 0deg, transparent 0 2%, rgb(var(--k-cyan-l)) 16%, transparent 26% 50%, rgb(var(--k-goud)) 64%, transparent 74%),
+    repeating-conic-gradient(rgb(var(--k-cyan) / .6) 0 4deg, transparent 4deg 15deg);
+  -webkit-mask: radial-gradient(closest-side, transparent calc(100% - 4px), #000 calc(100% - 3.5px));
+  mask: radial-gradient(closest-side, transparent calc(100% - 4px), #000 calc(100% - 3.5px));
+  animation: brand-ring 9s linear infinite;
+}
+@keyframes brand-ring { to { transform: rotate(1turn); } }
+/* Woordmerk: geschilderd (img/wordmark.webp, 25 KB). De tekst blijft in de HTML voor schermlezers,
+   maar is onzichtbaar. Lichtflits bij laden en aanwijzen, gemaskeerd op de letters. */
+.wordmark { font-family: var(--head); font-weight: 900; font-size: 1.9rem; letter-spacing: .06em; line-height: 1.1; }
 .wordmark span { color: var(--cyan); text-shadow: 0 0 14px var(--cyan-glow); }
+.brand .wordmark, .player .mini .wordmark {
+  --wm-h: 50px; position: relative; height: var(--wm-h); aspect-ratio: 407 / 144;
+  font-size: 0; color: transparent; overflow: hidden;
+  background: url(/img/wordmark.webp) center / contain no-repeat;
+  filter: var(--wordmark-tint, var(--logo-tint, none)) drop-shadow(0 2px 5px rgb(0 0 0 / .55));
+}
+.player .mini .wordmark { --wm-h: 40px; }
+.brand .wordmark span, .player .mini .wordmark span { display: none; }
+.brand .wordmark::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(105deg, transparent 40%, rgb(255 255 255 / .85) 50%, transparent 60%) -200% 0 / 200% 100% no-repeat;
+  -webkit-mask: url(/img/wordmark.webp) center / contain no-repeat; mask: url(/img/wordmark.webp) center / contain no-repeat;
+  animation: brand-shine 1.6s .5s ease-out 1;
+}
+.brand:hover .wordmark::after { animation: brand-shine-hover 1.2s ease-out 1; }
+@keyframes brand-shine { from { background-position: -200% 0; } to { background-position: 300% 0; } }
+@keyframes brand-shine-hover { from { background-position: -200% 0; } to { background-position: 300% 0; } }
+html[data-thema="drakenvuur"] { --wordmark-tint: hue-rotate(195deg) saturate(1.2); }
 .subtitle { font-family: var(--tech); font-size: .7rem; letter-spacing: .3em; color: var(--muted); text-transform: uppercase; }
+.brand .subtitle { display: flex; align-items: center; gap: 8px; margin-top: 3px; color: rgb(var(--k-cyan-l) / .85); }
+.brand .subtitle::before { content: ''; width: 7px; height: 7px; flex: none; transform: rotate(45deg); background: rgb(var(--k-goud)); box-shadow: 0 0 8px rgb(var(--k-goud) / .7); }
+.brand .subtitle::after { content: ''; height: 1px; flex: 0 0 44px; background: linear-gradient(90deg, rgb(var(--k-cyan) / .8), transparent); }
+@media (prefers-reduced-motion: reduce) { .brand::before, .brand .wordmark::after { animation: none; } }
 
 /* ---------- Panelen: holografisch met afgesneden hoeken ---------- */
 .panel {
@@ -436,7 +472,6 @@ span.play { padding: 13px 22px; display: flex; align-items: center; }
 .player main { max-width: 560px; justify-content: center; gap: 16px; }
 .player .mini { display: flex; align-items: center; justify-content: center; gap: 10px; }
 .player .mini img { width: 44px; height: 44px; border-radius: 50%; box-shadow: 0 0 0 2px rgb(var(--k-cyan) / .55), 0 0 12px var(--cyan-glow); animation: mark-glow 3.5s ease-in-out infinite; }
-.player .mini .wordmark { font-size: 1.5rem; }
 .player .welcome img { width: min(300px, 72vw); display: block; margin: 0 auto; filter: var(--logo-tint, hue-rotate(0deg)) drop-shadow(0 0 22px var(--cyan-glow)); animation: float 6s ease-in-out infinite, logo-glow 3.5s ease-in-out infinite; }
 .player .rn-knop { display: flex; align-items: center; justify-content: center; gap: 10px; text-decoration: none; background: linear-gradient(90deg, rgb(var(--k-paars) / .35), rgb(var(--k-cyan) / .25)); border: 1px solid rgb(var(--k-paars)); box-shadow: 0 0 18px rgb(var(--k-paars) / .35); color: rgb(var(--k-wit)); font-weight: 800; }
 .player .bu-knop { background: linear-gradient(90deg, rgb(var(--k-goud) / .32), rgb(var(--k-cyan) / .2)); border-color: var(--gold); box-shadow: 0 0 18px rgb(var(--k-goud) / .3); }
@@ -469,8 +504,10 @@ span.play { padding: 13px 22px; display: flex; align-items: center; }
 @media (max-width: 640px) {
   .answers { grid-template-columns: 1fr; }
   .player .answers { grid-template-columns: 1fr 1fr; }
+  .brand { --ring: 56px; gap: 13px; padding-left: 6px; }
   .brand img { width: 44px; height: 44px; }
   .wordmark { font-size: 1.5rem; }
+  .brand .wordmark { --wm-h: 40px; }
   .ranking li { font-size: 1.05rem; grid-template-columns: 40px 1fr auto; }
   .ranking .gain { display: none; }
 }
@@ -2192,7 +2229,6 @@ body.tk-solo .klaar-balk { display: none; }
 .snelmenu a.on { background: rgb(var(--k-goud) / .16); color: rgb(var(--k-goud-l)); box-shadow: inset 0 0 0 1px rgb(var(--k-goud) / .55); }
 .snelmenu img { width: 30px; height: 30px; object-fit: contain; }
 .snelmenu .ic { width: 26px; height: 26px; margin: 2px 0; }
-.snelmenu .snel-start { color: rgb(var(--k-tekst)); margin-right: 4px; box-shadow: inset -1px 0 0 rgb(var(--k-cyan) / .2); border-radius: 10px 4px 4px 10px; }
 /* Het startscherm heeft al veel knoppen bovenaan: daar staat het snelmenu als eigen balk eronder. */
 /* Op het startscherm en in de vijf rijken zelf staan de tegels al: daar geen snelmenu. */
 body:has(#home:not(.hidden)) .snelmenu { display: none; }
