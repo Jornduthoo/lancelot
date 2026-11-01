@@ -1768,6 +1768,29 @@ body[data-du="1"] .sj-card { background: linear-gradient(180deg, rgba(36, 22, 40
 .realm.on { background: radial-gradient(circle at 50% 0%, rgb(var(--k-goud) / .22), transparent 65%), var(--panel); border-color: var(--gold); box-shadow: inset 0 0 0 1px var(--gold), 0 0 34px rgb(var(--k-goud) / .25); }
 .realm.on svg { color: var(--gold); filter: drop-shadow(0 0 12px rgb(var(--k-goud) / .6)); }
 .realm.on::after { content: ''; position: absolute; left: 50%; bottom: 6px; width: 46px; height: 4px; transform: translateX(-50%); border-radius: 2px; background: var(--gold); box-shadow: 0 0 10px var(--gold); }
+/* Startscherm: een geschilderde burchtzaal achter alles, zacht en donker zodat tekst leesbaar blijft. Kleurt mee met het thema. */
+body:has(#home:not(.hidden))::before { content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background: radial-gradient(ellipse 60% 55% at 50% 40%, rgb(var(--k-bg) / .55), rgb(var(--k-bg) / .2) 70%), linear-gradient(180deg, rgb(var(--k-bg) / .35), rgb(var(--k-bg) / .82) 75%), url('/img/startscherm.webp') center / cover no-repeat;
+  filter: var(--logo-tint, none); }
+body:has(#home.in-rijk)::before { background: linear-gradient(rgb(var(--k-bg) / .86), rgb(var(--k-bg) / .9)), url('/img/startscherm.webp') center / cover no-repeat; }
+body:has(#home:not(.hidden)) { background: transparent; }
+html[data-thema="daglicht"] body::before { display: none; }
+html[data-thema="daglicht"] body:has(#home:not(.hidden)) { background: var(--bg); }
+/* Levendige rijken: de tegels ademen zacht (om de beurt), het icoon zweeft, en bij aanwijzen schuift er een lichtstreep over. */
+.realm { background: radial-gradient(circle at 50% 0%, rgb(var(--k-cyan) / .2), transparent 65%), rgb(var(--k-panel) / .86); }
+.realm::before { content: ''; position: absolute; inset: 0; pointer-events: none; box-shadow: inset 0 0 0 1px rgb(var(--k-cyan) / .55), inset 0 0 26px rgb(var(--k-cyan) / .22); opacity: 0; animation: rijk-adem 5s ease-in-out infinite; }
+.realm:not(.on)::after { content: ''; position: absolute; top: 0; bottom: 0; left: -60%; width: 40%; pointer-events: none; background: linear-gradient(100deg, transparent, rgb(255 255 255 / .16), transparent); transform: skewX(-18deg); opacity: 0; }
+.realm:not(.on):hover::after { animation: rijk-glans .7s ease-out; }
+.realms .realm:nth-child(2)::before, .realms .realm:nth-child(2) .tile-icon { animation-delay: -1s; }
+.realms .realm:nth-child(3)::before, .realms .realm:nth-child(3) .tile-icon { animation-delay: -2s; }
+.realms .realm:nth-child(4)::before, .realms .realm:nth-child(4) .tile-icon { animation-delay: -3s; }
+.realms .realm:nth-child(5)::before, .realms .realm:nth-child(5) .tile-icon { animation-delay: -4s; }
+.realms .realm .tile-icon { animation: rijk-zweef 5s ease-in-out infinite; }
+.realms .realm:hover .tile-icon { animation-play-state: paused; }
+@keyframes rijk-adem { 50% { opacity: 1; } }
+@keyframes rijk-zweef { 50% { transform: translateY(-5px); } }
+@keyframes rijk-glans { 0% { left: -60%; opacity: 1; } 100% { left: 130%; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .realm::before, .realms .realm .tile-icon { animation: none; } }
 /* Een rijk open: de vijf tegels en het grote logo maken plaats voor de onderdelen van dat rijk. */
 #home.in-rijk .realms, #home.in-rijk .hero, #home.in-rijk #welkom-tip, #home.in-rijk .eiland-rij { display: none; }
 .eiland-rij { width: 100%; margin: 0 0 18px; }
