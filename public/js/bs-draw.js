@@ -29,6 +29,18 @@ const BsDraw = (() => {
     return c;
   }
 
+  // ---------- Geschilderde beelden ----------
+  // Achtergrond, de achterwand van de schacht en één steen die we per kleur inkleuren. Zonder beelden: zelf tekenen.
+  const ART = {};
+  let artVer = 0;
+  if (typeof Image !== 'undefined') {
+    for (const n of ['achtergrond', 'muur', 'steen']) {
+      const img = new Image();
+      img.onload = () => { ART[n] = img; artVer++; blocks.clear(); wells.clear(); };
+      img.src = `/img/burchtstorm/${n}.webp`;
+    }
+  }
+
   // ---------- Stenen ----------
   // Een steen is een paneel van neonglas met een schuine rand en een rune in het midden.
   const blocks = new Map();
@@ -57,6 +69,21 @@ const BsDraw = (() => {
         g.fillStyle = '#8a93a8';
         for (const [x, y] of [[.2, .2], [.8, .2], [.2, .8], [.8, .8]]) g.fillRect(s * x - 1, s * y - 1, 2, 2);
       }
+      blocks.set(key, c);
+      return c;
+    }
+    if (ART.steen && s >= 6) {
+      // De geschilderde steen, ingekleurd: vermenigvuldigen met de kleur, dan de vorm terug uitknippen, en wat glans erbij.
+      g.drawImage(ART.steen, 0, 0, s, s);
+      g.globalCompositeOperation = 'multiply';
+      g.fillStyle = col;
+      g.fillRect(0, 0, s, s);
+      g.globalCompositeOperation = 'screen';
+      g.fillStyle = shade(col, -.55);
+      g.fillRect(0, 0, s, s);
+      g.globalCompositeOperation = 'destination-in';
+      g.drawImage(ART.steen, 0, 0, s, s);
+      g.globalCompositeOperation = 'source-over';
       blocks.set(key, c);
       return c;
     }
@@ -195,6 +222,16 @@ const BsDraw = (() => {
     ig.addColorStop(1, '#0b1226');
     g.fillStyle = ig;
     g.fillRect(m, top, fw, fh);
+    if (ART.muur) {
+      // Geschilderde achterwand: ongeveer zes stenen per breedte van de textuur, wat verdonkerd zodat de stenen opvallen.
+      const pat = g.createPattern(ART.muur, 'repeat');
+      const k = cell * 6 / ART.muur.width;
+      pat.setTransform(new DOMMatrix([k, 0, 0, k, m, top]));
+      g.fillStyle = pat;
+      g.fillRect(m, top, fw, fh);
+      g.fillStyle = 'rgba(4, 6, 16, .45)';
+      g.fillRect(m, top, fw, fh);
+    }
     // gloed onderaan in de kleur van de ridder
     const bg = g.createLinearGradient(0, top + fh * .55, 0, top + fh);
     bg.addColorStop(0, 'rgba(0,0,0,0)');
@@ -202,7 +239,7 @@ const BsDraw = (() => {
     g.fillStyle = bg;
     g.fillRect(m, top, fw, fh);
     // vage stenen achterwand van de toren
-    if (cell >= 10) {
+    if (cell >= 10 && !ART.muur) {
       g.fillStyle = 'rgba(140,160,220,.045)';
       const bh = cell * .5;
       let row = 0;
@@ -265,10 +302,27 @@ const BsDraw = (() => {
   // De ruimte met een verre burcht van neon tegen de horizon, op een eigen canvas onder het spel.
   // Alleen opnieuw tekenen als de grootte verandert; zo kost hij per frame niets.
   function background(c, w, h) {
-    if (c.width === w && c.height === h && c.done) return;
+    if (c.width === w && c.height === h && c.done === artVer + 1) return;
     c.width = w;
     c.height = h;
-    c.done = true;
+    c.done = artVer + 1;
+    if (ART.achtergrond) {
+      // Geschilderde nachtlucht met toren en stad: zo hoog als het scherm, gespiegeld naast elkaar herhaald.
+      const g = c.getContext('2d'), img = ART.achtergrond;
+      const ih = Math.max(h, w * img.height / img.width * (w < h ? 1 : 0)), iw = ih * img.width / img.height;
+      const x0 = w / 2 - iw / 2 - Math.ceil((w / 2 - iw / 2) / iw) * iw;
+      for (let x = x0, i = 0; x < w; x += iw, i++) {
+        const flip = Math.abs(Math.round((x - (w / 2 - iw / 2)) / iw)) % 2 === 1;
+        g.save();
+        if (flip) { g.translate(x + iw, 0); g.scale(-1, 1); g.drawImage(img, 0, (h - ih) / 2, iw, ih); }
+        else g.drawImage(img, x, (h - ih) / 2, iw, ih);
+        g.restore();
+      }
+      g.fillStyle = 'rgba(3, 4, 12, .25)';
+      g.fillRect(0, 0, w, h);
+      Glow.vignette(g, w, h, .6);
+      return;
+    }
     {
       const g = c.getContext('2d');
       Glow.space(g, w, h, 0, 0);
