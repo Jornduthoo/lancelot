@@ -9,6 +9,16 @@ const SrDraw = (() => {
   // De arena één keer tekenen op een eigen canvas; daarna alleen nog kopiëren.
   // Met objects: false zonder kratten, pilaren en schansen (die tekent het 3D-zicht zelf), wel met hun schaduw.
   const cache = {};
+  // Geschilderde vloer, raket, mijn, stenen blok en ontploffing (public/img/strijdrossen/). Zonder beeld: zoals vroeger.
+  const ART = {};
+  let artVer = 0;
+  if (typeof Image !== 'undefined') {
+    for (const n of ['vloer', 'raket', 'mijn', 'blok', 'knal']) {
+      const img = new Image();
+      img.onload = () => { ART[n] = img; artVer++; for (const k of Object.keys(cache)) delete cache[k]; };
+      img.src = `/img/strijdrossen/${n}.webp`;
+    }
+  }
   function arenaImage(teams, objects = true, k = .5) {
     const key = `${teams ? 'teams' : 'ieder'}/${objects}/${k}`;
     if (cache[key]) return cache[key];
@@ -140,6 +150,17 @@ const SrDraw = (() => {
     g.fillRect(0, 0, Wd.W, Wd.H);
     const s = 70;
     const hh = s * Math.sqrt(3) / 2;
+    if (ART.vloer) {
+      const pat = g.createPattern(ART.vloer, 'repeat');
+      pat.setTransform(new DOMMatrix([.75, 0, 0, .75, 0, 0]));
+      g.fillStyle = pat;
+      g.fillRect(0, 0, Wd.W, Wd.H);
+      const dark = g.createRadialGradient(Wd.CX, Wd.CY, 100, Wd.CX, Wd.CY, Wd.RX);
+      dark.addColorStop(0, 'rgba(14,16,40,.15)');
+      dark.addColorStop(1, 'rgba(10,10,28,.55)');
+      g.fillStyle = dark;
+      g.fillRect(0, 0, Wd.W, Wd.H);
+    } else {
     g.lineWidth = 3;
     g.strokeStyle = 'rgba(120, 220, 255, .22)';
     for (let row = 0, y = 0; y < Wd.H + s; row++, y += hh) {
@@ -159,6 +180,7 @@ const SrDraw = (() => {
       const row = Math.floor(rnd() * (Wd.H / hh)), col = Math.floor(rnd() * (Wd.W / (s * 1.5)));
       const x = col * s * 1.5 + (row % 2 ? s * .75 : 0), y = row * hh;
       Glow.glow(g, x, y, s * .9, rnd() < .5 ? '#4cc9ff' : '#c77dff', .35);
+    }
     }
     // Het wapen van het toernooi in het midden
     Glow.glow(g, Wd.CX, Wd.CY, 520, '#ffd166', .16);
@@ -238,7 +260,7 @@ const SrDraw = (() => {
         }
         g.restore();
       }
-      for (const b of Wd.BOXES) {
+      for (const b of ART.blok ? [] : Wd.BOXES) {
         // Voorraadkist: metaal met gouden hoeken en een lichtend paars paneel
         const bg = g.createLinearGradient(b.x, b.y, b.x + b.w, b.y + b.d);
         bg.addColorStop(0, '#5d5f86');
@@ -255,6 +277,7 @@ const SrDraw = (() => {
         g.fillStyle = '#e3c2ff';
         g.fillRect(b.x + b.w * .3, b.y + b.d * .4, b.w * .4, b.d * .2);
       }
+      if (ART.blok) for (const b of Wd.BOXES) g.drawImage(ART.blok, b.x - b.w * .04, b.y - b.d * .06, b.w * 1.08, b.d * 1.12);
       for (const cy of Wd.CYLS) {
         const burcht = cy.kind === 'burcht';
         const grad = g.createRadialGradient(cy.x - cy.r * .3, cy.y - cy.r * .3, 4, cy.x, cy.y, cy.r);
@@ -459,6 +482,14 @@ const SrDraw = (() => {
     ctx.fillStyle = g;
     ctx.beginPath(); ctx.arc(-20 * s, 0, (18 + Math.sin(t * 40) * 4) * s, 0, Math.PI * 2); ctx.fill();
     Glow.glow(ctx, -24 * s, 0, 40 * s, '#ff7a1a', .6);
+    if (ART.raket) {
+      const img = ART.raket, len = 40 * s, wd = len * img.width / img.height;
+      Glow.glow(ctx, 0, 0, 22 * s, color, .55);
+      ctx.rotate(Math.PI / 2);
+      ctx.drawImage(img, -wd / 2, -len * .62, wd, len);
+      ctx.restore();
+      return;
+    }
     ctx.fillStyle = '#e8eff8';
     ctx.beginPath();
     ctx.moveTo(18 * s, 0); ctx.lineTo(4 * s, -7 * s); ctx.lineTo(-14 * s, -7 * s); ctx.lineTo(-14 * s, 7 * s); ctx.lineTo(4 * s, 7 * s);
@@ -475,6 +506,15 @@ const SrDraw = (() => {
     const pulse = armed ? .5 + .5 * Math.sin(t * 8) : 0;
     ctx.fillStyle = 'rgba(0, 0, 0, .45)';
     ctx.beginPath(); ctx.arc(3 * s, 4 * s, 17 * s, 0, Math.PI * 2); ctx.fill();
+    if (ART.mijn) {
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 3 * s;
+      ctx.beginPath(); ctx.arc(0, 0, 18 * s, 0, Math.PI * 2); ctx.stroke();
+      ctx.drawImage(ART.mijn, -17 * s, -17 * s, 34 * s, 34 * s);
+      if (armed) Glow.glow(ctx, 0, 0, 16 * s, '#ff4d6d', .3 + pulse * .6);
+      ctx.restore();
+      return;
+    }
     ctx.fillStyle = '#2a3150';
     ctx.beginPath(); ctx.arc(0, 0, 16 * s, 0, Math.PI * 2); ctx.fill();
     ctx.strokeStyle = color;
@@ -533,6 +573,7 @@ const SrDraw = (() => {
         g.addColorStop(1, 'rgba(255, 60, 0, 0)');
         ctx.fillStyle = g;
         ctx.beginPath(); ctx.arc(sx, sy, r, 0, Math.PI * 2); ctx.fill();
+        if (ART.knal) ctx.drawImage(ART.knal, sx - r * .8, sy - r * .8, r * 1.6, r * 1.6);
       } else if (p.ring) {
         ctx.strokeStyle = p.color;
         ctx.lineWidth = 5 * cam.scale;
@@ -688,5 +729,5 @@ const SrDraw = (() => {
     return mh;
   }
 
-  return { TEAM, COLORS, colorOf, arena, arenaImage, steed, tag, laser, rocket, mine, burst, ring, boom, effects, addLaser, moveLasers, scene, minimap, sync, glide, flyRockets };
+  return { ART, artVer: () => artVer, TEAM, COLORS, colorOf, arena, arenaImage, steed, tag, laser, rocket, mine, burst, ring, boom, effects, addLaser, moveLasers, scene, minimap, sync, glide, flyRockets };
 })();
