@@ -762,3 +762,6 @@ $('ke-boek-knop').addEventListener('click', () => {
   paneel('ke-boek');
   boekLaden(boekTonen);
 });
+
+// De geschilderde bouwstukken zijn binnen: het eiland opnieuw bakken.
+BuArt.opKlaar(() => bak());

@@ -1419,7 +1419,85 @@ const BuArt = (() => {
   const MUURACHTIG = new Set(['muur', 'poort', 'toren', 'wachttoren', 'goudtoren', 'donjon']);
 
   // Het plaatje van een stuk, T pixels per tegel. Het ankerpunt (midden van de tegel) ligt op (ax, ay).
+  // ---------- Geschilderde stukken ----------
+  // Jorns stijl: elk bouwstuk is een geschilderd plaatje (img/burcht/<id>.webp). Koningsblauwe delen krijgen
+  // de kleur van je burcht. Muur en poort sluiten op elkaar aan en blijven daarom getekend; zolang een plaatje
+  // nog laadt (of ontbreekt) tekenen we het oude stuk.
+  // Breedte van elk stuk in tegels (zo staan kleine dingen klein en een donjon breed op zijn vakje).
+  const BREED = {
+    boom: 0.92, den: 0.7, fakkel: 0.34, lichtpaal: 0.44, banier: 0.42, huisje: 1.02, toren: 0.72, smidse: 1, molen: 0.98,
+    wachttoren: 0.74, robopaard: 0.96, zwaardsteen: 0.8, fontein: 0.98, ridderbeeld: 0.5, donjon: 1.08, holoridder: 0.62,
+    radar: 0.66, kristal: 0.86, baken: 0.56, drakenbeeld: 0.82, rondetafel: 1.02, schildkoepel: 1.02, portaal: 0.92,
+    goudtoren: 0.5, laserkanon: 0.92, mechridder: 0.82, draak: 1.08, ruimteschip: 1.08, robodraak: 1.12,
+  };
+  const ART = {};
+  const opKlaar = [];
+  let wacht = 0;
+  if (typeof Image !== 'undefined') {
+    for (const id of Object.keys(BREED)) {
+      const img = new Image();
+      wacht++;
+      img.onload = () => { ART[id] = img; if (--wacht === 0) { cache.clear(); opKlaar.forEach(f => f()); } };
+      img.onerror = () => { if (--wacht === 0) { cache.clear(); opKlaar.forEach(f => f()); } };
+      img.src = `/img/burcht/${id}.webp`;
+    }
+  }
+  function hexHsl(hex) {
+    let [r, g, b] = rgb(hex).map(v => v / 255);
+    const mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 2;
+    if (mx === mn) return [0, 0, l];
+    const d = mx - mn, sat = l > 0.5 ? d / (2 - mx - mn) : d / (mx + mn);
+    const h = mx === r ? (g - b) / d + (g < b ? 6 : 0) : mx === g ? (b - r) / d + 2 : (r - g) / d + 4;
+    return [h * 60, sat, l];
+  }
+  function hslRgb(h, sat, l) {
+    const q = l < 0.5 ? l * (1 + sat) : l + sat - l * sat, p = 2 * l - q;
+    const f = t => { t = (t + 360) % 360 / 360; return t < 1 / 6 ? p + (q - p) * 6 * t : t < 0.5 ? q : t < 2 / 3 ? p + (q - p) * (2 / 3 - t) * 6 : p; };
+    return [f(h + 120), f(h), f(h - 120)].map(v => Math.round(v * 255));
+  }
+  // Koningsblauw (tint 205-258) wordt de burchtkleur; cyaan gloed blijft cyaan.
+  function kleurIn(c, kleur) {
+    if (!kleur || !/^#[0-9a-f]{6}$/i.test(kleur)) return;
+    const [th, ts, tl] = hexHsl(kleur);
+    if (th >= 205 && th <= 258 && ts > 0.5 && tl < 0.65) return;
+    const g = c.getContext('2d');
+    const data = g.getImageData(0, 0, c.width, c.height), px = data.data;
+    for (let i = 0; i < px.length; i += 4) {
+      if (px[i + 3] < 8) continue;
+      const [h, sat, l] = hexHsl('#' + ((1 << 24) | (px[i] << 16) | (px[i + 1] << 8) | px[i + 2]).toString(16).slice(1));
+      if (h < 205 || h > 258 || sat < 0.38) continue;
+      const [r, gg, b] = ts < 0.15 ? hslRgb(0, 0, Math.min(0.92, l * 1.35)) : hslRgb(th, Math.max(sat * 0.9, ts * 0.85), Math.min(0.85, l * (0.75 + tl * 0.6)));
+      px[i] = r; px[i + 1] = gg; px[i + 2] = b;
+    }
+    g.putImageData(data, 0, 0);
+  }
+  function geschilderd(id, kleur, T) {
+    const img = ART[id];
+    const w = BREED[id] * T * 1.02;
+    const h = w * img.height / img.width;
+    const voet = T / 4 * Math.min(1, BREED[id]) * 0.86;
+    const c = canvas(w + 2, h + 2);
+    const g = c.getContext('2d');
+    g.imageSmoothingQuality = 'high';
+    g.drawImage(img, 1, 1, w, h);
+    kleurIn(c, kleur);
+    // een zachte schaduw onder het stuk, achter het plaatje
+    g.globalCompositeOperation = 'destination-over';
+    g.fillStyle = 'rgba(8,12,22,.32)';
+    g.beginPath();
+    g.ellipse(c.width / 2, h + 1 - voet, w * 0.4, w * 0.17, 0, 0, Math.PI * 2);
+    g.fill();
+    g.globalCompositeOperation = 'source-over';
+    return { c, ax: c.width / 2, ay: h + 1 - voet };
+  }
+
   function stuk(id, kleur, T, n = {}, variant = 0) {
+    if (ART[id]) {
+      const key = `p|${id}|${kleur}|${T}`;
+      let hit = cache.get(key);
+      if (!hit) cache.set(key, (hit = geschilderd(id, kleur, T)));
+      return hit;
+    }
     const mask = id === 'muur' || id === 'poort' ? `${n.xp ? 1 : 0}${n.xm ? 1 : 0}${n.yp ? 1 : 0}${n.ym ? 1 : 0}` : '';
     const key = `s|${id}|${kleur}|${T}|${mask}|${variant}`;
     let hit = cache.get(key);
@@ -2239,5 +2317,5 @@ const BuArt = (() => {
     return { T, ox: w / 2 - ((kaart.w - kaart.h) * T) / 4, oy: Math.round((h - hoog * T) / 2 + T * 1.55) };
   }
 
-  return { stuk, tegel, teken, gloeiers, gloei, hemel, wolk, vakjeOp, icoon, perceelKaart, eilandjeKaart, draai, pas, inhoud, hash, rng, shade };
+  return { opKlaar: f => (wacht ? opKlaar.push(f) : 0), ART, stuk, tegel, teken, gloeiers, gloei, hemel, wolk, vakjeOp, icoon, perceelKaart, eilandjeKaart, draai, pas, inhoud, hash, rng, shade };
 })();
