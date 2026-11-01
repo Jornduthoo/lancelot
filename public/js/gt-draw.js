@@ -4,6 +4,29 @@ const GtDraw = (() => {
   const { T, R, CLASSES, MONSTERS, POORT } = GtWorld;
   const SHOT_COLORS = { bol: '#d59cff', pijl: '#7dffb0', plasma: '#6fe3ff', vijand: '#ff4d6d' };
 
+  // ---------- Geschilderde beelden ----------
+  // Vloer en muren als textuur, monsters, het monsteraltaar, kist, eten, de uitgang en fakkels. Zonder beelden: zelf tekenen.
+  const ART = {};
+  if (typeof Image !== 'undefined') {
+    for (const n of ['vloer', 'muur', 'skelet', 'goblin', 'duivel', 'spin', 'altaar', 'kist', 'kip', 'trap', 'fakkel']) {
+      const img = new Image();
+      img.onload = () => { ART[n] = img; if (n === 'vloer' || n === 'muur' || n === 'fakkel') baked.clear(); };
+      img.src = `/img/gauntlet/${n}.webp`;
+    }
+  }
+  const MON_ART = { bot: 'skelet', vonk: 'duivel', kanon: 'goblin', kolos: 'spin' };
+  // Een beeld gecentreerd tekenen met de langste zijde = size
+  function art(ctx, img, x, y, size) {
+    const k = size / Math.max(img.width, img.height);
+    ctx.drawImage(img, x - img.width * k / 2, y - img.height * k / 2, img.width * k, img.height * k);
+  }
+  const texture = (ctx, img, tiles) => {
+    const pat = ctx.createPattern(img, 'repeat');
+    const k = T * tiles / img.width;
+    pat.setTransform(new DOMMatrix([k, 0, 0, k, 0, 0]));
+    return pat;
+  };
+
   // ---------- De kerker vooraf tekenen ----------
   function bake(d) {
     const max = 4096;
@@ -18,7 +41,14 @@ const GtDraw = (() => {
     // Vloer: donkere stalen platen met naden, wat slijtage en hier en daar een lichtende rune.
     ctx.fillStyle = '#0a0f1c';
     ctx.fillRect(0, 0, d.W * T, d.H * T);
-    for (let y = 0; y < d.H; y++) {
+    const floorPat = ART.vloer && texture(ctx, ART.vloer, 4), wallPat = ART.muur && texture(ctx, ART.muur, 3);
+    if (floorPat) {
+      ctx.fillStyle = floorPat;
+      for (let y = 0; y < d.H; y++) for (let x = 0; x < d.W; x++) if (g[y][x] !== 1) ctx.fillRect(x * T, y * T, T, T);
+      ctx.fillStyle = 'rgba(6, 9, 18, .25)';
+      ctx.fillRect(0, 0, d.W * T, d.H * T);
+    }
+    for (let y = 0; y < d.H && !floorPat; y++) {
       for (let x = 0; x < d.W; x++) {
         if (g[y][x] === 1) continue;
         const X = x * T, Y = y * T;
@@ -166,10 +196,10 @@ const GtDraw = (() => {
           continue;
         }
         const v = 40 + Math.floor(rnd() * 12);
-        ctx.fillStyle = `rgb(${v - 8},${v - 2},${v + 14})`;
+        ctx.fillStyle = wallPat || `rgb(${v - 8},${v - 2},${v + 14})`;
         ctx.fillRect(X, Y, T, T);
         // Stenen
-        ctx.strokeStyle = 'rgba(0,0,0,.45)';
+        ctx.strokeStyle = wallPat ? 'rgba(0,0,0,0)' : 'rgba(0,0,0,.45)';
         ctx.lineWidth = 2;
         const off = (y % 2) * (T / 2);
         ctx.beginPath();
@@ -188,8 +218,8 @@ const GtDraw = (() => {
         // Voorkant van de muur (naar de vloer eronder): donkerder, met een neonrand.
         if (floorAt(x, y + 1)) {
           const fg = ctx.createLinearGradient(0, Y + T * .55, 0, Y + T);
-          fg.addColorStop(0, `rgb(${v - 18},${v - 14},${v})`);
-          fg.addColorStop(1, `rgb(${v - 30},${v - 26},${v - 10})`);
+          fg.addColorStop(0, wallPat ? 'rgba(8,10,20,.35)' : `rgb(${v - 18},${v - 14},${v})`);
+          fg.addColorStop(1, wallPat ? 'rgba(4,5,12,.75)' : `rgb(${v - 30},${v - 26},${v - 10})`);
           ctx.fillStyle = fg;
           ctx.fillRect(X, Y + T * .55, T, T * .45);
           ctx.fillStyle = 'rgba(76,201,255,.25)';
@@ -252,6 +282,7 @@ const GtDraw = (() => {
     }
     // Fakkelhouders
     for (const [x, y] of d.torches) {
+      if (ART.fakkel) { art(ctx, ART.fakkel, x * T + T / 2, y * T + T * .55, T * 1.05); continue; }
       ctx.fillStyle = '#3b2a1a';
       ctx.fillRect(x * T + T / 2 - 3, y * T + T * .55, 6, T * .4);
       ctx.fillStyle = '#7a5a2a';
@@ -422,6 +453,17 @@ const GtDraw = (() => {
     ctx.beginPath();
     ctx.ellipse(2, r * .6, r, r * .5, 0, 0, Math.PI * 2);
     ctx.fill();
+    const img = ART[MON_ART[kind]];
+    if (img) {
+      // Geschilderd: niet draaien, wel spiegelen naar de kant waar hij heen loopt, en wat wiebelen.
+      if (Math.cos(a) < -.2) ctx.scale(-1, 1);
+      ctx.rotate(Math.sin(t * (kind === 'vonk' ? 14 : 8)) * .08);
+      if (kind === 'vonk') AK.glow(ctx, 0, 0, r * 2, '#ff8c3a', .45);
+      art(ctx, img, 0, -r * .35, r * (kind === 'kolos' ? 3 : 2.9));
+      ctx.restore();
+      if (hp < 100) AK.bar(ctx, x, y - r * 1.8 - 6, r * 1.8, hp / 100, '#ff4d6d');
+      return;
+    }
     ctx.rotate(a);
     if (kind === 'bot') {
       // Skeletbot: botwitte schedel met rode ogen en ribben.
@@ -521,6 +563,11 @@ const GtDraw = (() => {
       return;
     }
     AK.glow(ctx, x, y, POORT.r * 3, '#ff2d55', .55 + Math.sin(t * 4) * .15);
+    if (ART.altaar) {
+      art(ctx, ART.altaar, x, y - POORT.r * .3, POORT.r * 3);
+      if (hp < 100) AK.bar(ctx, x, y - POORT.r * 2 - 8, POORT.r * 2.4, hp / 100, '#ffc94a');
+      return;
+    }
     ctx.save();
     ctx.translate(x, y);
     const r = POORT.r;
@@ -561,6 +608,7 @@ const GtDraw = (() => {
 
   function exitPortal(ctx, x, y, t, k) {
     AK.glow(ctx, x, y, T * 3.2, '#ffc94a', .35);
+    if (ART.trap) art(ctx, ART.trap, x, y, T * 2.3);
     // Lichtdeeltjes die naar het midden worden gezogen
     for (let i = 0; i < 14; i++) {
       const age = (t * .6 + i / 14) % 1;
@@ -570,6 +618,7 @@ const GtDraw = (() => {
     ctx.save();
     ctx.translate(x, y);
     const r = T * 1.15;
+    if (ART.trap) ctx.globalAlpha = .55;
     const g = ctx.createRadialGradient(0, 0, 4, 0, 0, r * 1.6);
     g.addColorStop(0, 'rgba(255,240,180,.9)');
     g.addColorStop(.4, 'rgba(255,201,74,.45)');
@@ -603,7 +652,11 @@ const GtDraw = (() => {
     ctx.beginPath();
     ctx.ellipse(0, 12 - bob, 11, 4, 0, 0, Math.PI * 2);
     ctx.fill();
-    if (it.kind === 'cel') {
+    const pimg = it.kind === 'cel' ? ART.kip : it.kind === 'kist' ? ART.kist : null;
+    if (pimg) {
+      AK.glow(ctx, 0, 0, 28, it.kind === 'cel' ? '#4ade80' : '#ffc94a', .6);
+      art(ctx, pimg, 0, -2, it.kind === 'kist' ? 36 : 32);
+    } else if (it.kind === 'cel') {
       AK.glow(ctx, 0, 0, 30, '#4ade80', .7);
       ctx.fillStyle = '#123a22';
       AK.roundRect(ctx, -8, -12, 16, 22, 4);
@@ -679,6 +732,7 @@ const GtDraw = (() => {
     // Zichtbaar stuk van de wereld
     const vx0 = -ox / z, vy0 = -oy / z, vx1 = vx0 + w / z, vy1 = vy0 + h / z;
     const vis = (x, y, m = 60) => x > vx0 - m && x < vx1 + m && y > vy0 - m && y < vy1 + m;
+    if (s.baked && s.d) s.baked = bakeOnce(s.d); // na het laden van de beelden opnieuw gebakken
     if (s.baked) {
       const q = s.baked.q;
       const ax = Math.max(0, vx0), ay = Math.max(0, vy0);
