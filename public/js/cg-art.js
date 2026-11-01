@@ -12,6 +12,22 @@ const CgArt = (() => {
   ];
   const cache = new Map();
 
+  // Geschilderde draken, klasbaas en sterrenhemel (public/img/cybergalaga/). Ontbreekt een beeld, dan tekenen we zoals vroeger.
+  const ART = {};
+  if (typeof Image !== 'undefined') {
+    for (const n of ['draak-1', 'draak-2', 'draak-3', 'draak-4', 'baas', 'hemel']) {
+      const img = new Image();
+      img.onload = () => { ART[n] = img; cache.clear(); };
+      img.src = `/img/cybergalaga/${n}.webp`;
+    }
+  }
+  // Het beeld passend in een vak van bw x bh rond (0, 0); frame 1 = vleugels iets anders (een beetje platter).
+  function paintFit(g, img, bw, bh, frame) {
+    const f = Math.min(bw / img.width, bh / img.height);
+    const w = img.width * f, h = img.height * f * (frame ? .92 : 1);
+    g.drawImage(img, -w / 2, -h / 2, w, h);
+  }
+
   function canvas(w, h) {
     const c = document.createElement('canvas');
     c.width = Math.max(1, Math.ceil(w));
@@ -166,7 +182,11 @@ const CgArt = (() => {
       const g = c.getContext('2d');
       g.scale(s, s);
       g.translate(size / 2, size / 2);
-      drawDragon(g, type, frame);
+      const img = ART['draak-' + (type + 1)];
+      // Het pantserdraak-schilderij is goud; paars kleuren zodat hij niet op de zeldzame gouden draak lijkt.
+      if (img && type === 2) g.filter = 'hue-rotate(225deg) saturate(1.3)';
+      if (img) paintFit(g, img, size * .98, size * .98, frame); else drawDragon(g, type, frame);
+      g.filter = 'none';
       if (hit) {
         g.globalCompositeOperation = 'source-atop';
         g.fillStyle = 'rgba(255,255,255,.85)';
@@ -319,7 +339,11 @@ const CgArt = (() => {
       const g = c.getContext('2d');
       g.scale(s, s);
       g.translate(160, 100);
-      drawBoss(g, frame, hurt);
+      if (ART.baas) {
+        g.translate(0, 10);
+        paintFit(g, ART.baas, 300, 220, frame);
+        if (hurt) { g.globalCompositeOperation = 'source-atop'; g.fillStyle = 'rgba(255,60,80,.35)'; g.fillRect(-160, -110, 320, 230); }
+      } else drawBoss(g, frame, hurt);
       return c;
     });
   }
@@ -387,6 +411,13 @@ const CgArt = (() => {
     return cached(`n${w}x${h}`, () => {
       const c = canvas(w, h);
       const g = c.getContext('2d');
+      if (ART.hemel) {
+        const img = ART.hemel, f = Math.max(w / img.width, h / img.height);
+        g.drawImage(img, (w - img.width * f) / 2, (h - img.height * f) / 2, img.width * f, img.height * f);
+        g.fillStyle = 'rgba(5,3,15,.35)';
+        g.fillRect(0, 0, w, h);
+        return c;
+      }
       const bg = g.createLinearGradient(0, 0, 0, h);
       bg.addColorStop(0, '#05030f');
       bg.addColorStop(.55, '#0a0820');
