@@ -229,7 +229,7 @@ const SvDraw = (() => {
   // Geschilderde beelden: ruimte, zwart gat, ruïnes en de schildtorens op de muur. Zonder beelden: zelf tekenen.
   const ART = {};
   if (typeof Image !== 'undefined') {
-    for (const n of ['ruimte', 'gat', 'ruine', 'torenstuk', 'asteroide', 'schildtoren']) {
+    for (const n of ['ruimte', 'gat', 'ruine', 'torenstuk', 'asteroide', 'schildtoren', 'dek']) {
       const img = new Image();
       img.onload = () => { ART[n] = img; baked = null; };
       img.src = `/img/sterrenvreter/${n}.webp`;
@@ -247,6 +247,7 @@ const SvDraw = (() => {
     };
   }
 
+  let dekPat = null;
   // De vloer: een dek van zeshoekige stalen platen met lichtvoegen, sommige met een lamp of een sterrune.
   // Eén vooraf getekende tegel bevat 4 x 4 zeshoeken; vier varianten wisselen elkaar af.
   // Zeshoeken op de rand van een tegel zijn in elke variant gelijk, zodat de naden kloppen.
@@ -332,6 +333,14 @@ const SvDraw = (() => {
   // Platen in het stuk { x0, x1, y0, y1 }, alleen binnen de muur.
   function floorPlates(ctx, R, v) {
     const x0 = Math.max(-R, v.x0), x1 = Math.min(R, v.x1), y0 = Math.max(-R, v.y0), y1 = Math.min(R, v.y1);
+    if (ART.dek) {
+      // Het geschilderde dek als patroon: 8 zeshoeken per tegelbreedte, net zo groot als de getekende.
+      const img = ART.dek, k = HW * 8 / img.width;
+      if (!dekPat || dekPat.ctx !== ctx) { dekPat = { ctx, p: ctx.createPattern(img, 'repeat') }; dekPat.p.setTransform(new DOMMatrix([k, 0, 0, k, 0, 0])); }
+      ctx.fillStyle = dekPat.p;
+      ctx.fillRect(x0, y0, x1 - x0, y1 - y0);
+      return;
+    }
     for (let ix = Math.floor(x0 / MW); ix * MW < x1; ix++) {
       for (let iy = Math.floor(y0 / MH); iy * MH < y1; iy++) {
         const nx = Math.max(ix * MW, Math.min(0, (ix + 1) * MW)), ny = Math.max(iy * MH, Math.min(0, (iy + 1) * MH));
