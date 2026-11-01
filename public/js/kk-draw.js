@@ -28,6 +28,67 @@ const KkDraw = (() => {
     const pa = hex(a), pb = hex(b);
     return '#' + pa.map((v, i) => Math.round(v * (1 - k) + pb[i] * k).toString(16).padStart(2, '0')).join('');
   };
+
+  // Geschilderde beelden (public/img/kerker/): de gang, de deuren, de Kerkermeester en de sleutel.
+  // De ridders van achteren delen we met Laserslag. Zonder beeld tekenen we alles zoals vroeger.
+  const ART = {};
+  let artVer = 0;
+  const SRC = { gang: 'kerker/gang', deur: 'kerker/deur', poort: 'kerker/poort', meester: 'kerker/meester', sleutel: 'kerker/sleutel', ridder: 'laserslag/ridder-achter' };
+  if (typeof Image !== 'undefined') {
+    for (const [n, src] of Object.entries(SRC)) {
+      const img = new Image();
+      img.onload = () => { ART[n] = img; artVer++; knightCache.clear(); };
+      img.src = `/img/${src}.webp`;
+    }
+  }
+  // Waar de boog in het geschilderde gangbeeld zit (pixels in gang.webp, 1376 x 768): links, rechts, top, onderkant.
+  const GANG = { w: 1376, h: 768, x0: 594, x1: 781, y0: 244, y1: 533, torches: [[318, 268, 1], [1058, 268, 1], [476, 330, .7], [902, 330, .7]] };
+  const hexRgb = hx => { const n = parseInt(hx.slice(1), 16); return [n >> 16 & 255, n >> 8 & 255, n & 255]; };
+  function rgbHsl(r, g, b) {
+    r /= 255; g /= 255; b /= 255;
+    const mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 2;
+    if (mx === mn) return [0, 0, l];
+    const d = mx - mn, sat = l > .5 ? d / (2 - mx - mn) : d / (mx + mn);
+    const h = mx === r ? (g - b) / d + (g < b ? 6 : 0) : mx === g ? (b - r) / d + 2 : (r - g) / d + 4;
+    return [h * 60, sat, l];
+  }
+  function hslRgb(h, s, l) {
+    const k = n => (n + h / 30) % 12, a = s * Math.min(l, 1 - l);
+    const f = n => l - a * Math.max(-1, Math.min(k(n) - 3, 9 - k(n), 1));
+    return [f(0) * 255, f(8) * 255, f(4) * 255];
+  }
+  // De geschilderde ridder in de kleur van de speler: het blauw wordt zijn kleur, het cyaan blijft cyaan.
+  function paintedKnight(color) {
+    const img = ART.ridder;
+    const c = document.createElement('canvas');
+    c.height = 200; c.width = Math.round(200 * img.width / img.height);
+    const g = c.getContext('2d');
+    g.drawImage(img, 0, 0, c.width, c.height);
+    const data = g.getImageData(0, 0, c.width, c.height), p = data.data;
+    const [th, ts, tl] = rgbHsl(...hexRgb(color));
+    for (let i = 0; i < p.length; i += 4) {
+      if (p[i + 3] < 8) continue;
+      const [hh, sat, l] = rgbHsl(p[i], p[i + 1], p[i + 2]);
+      if (hh < 205 || hh > 258 || sat < .38) continue;
+      const [r, gg, b] = hslRgb(th, Math.max(sat, ts * .85), Math.min(.85, l * (.75 + tl * .6)));
+      p[i] = r; p[i + 1] = gg; p[i + 2] = b;
+    }
+    g.putImageData(data, 0, 0);
+    return c;
+  }
+  // De geschilderde sleutel ligt schuin; voor het vliegen leggen we hem plat (ring links), op 120 x 60.
+  let paintedKey = null;
+  function keyImage(fallback) {
+    if (!ART.sleutel) return fallback;
+    if (paintedKey) return paintedKey;
+    const c = document.createElement('canvas');
+    c.width = 120; c.height = 60;
+    const g = c.getContext('2d'), img = ART.sleutel;
+    const len = Math.hypot(img.width, img.height), k = 124 / len;
+    g.translate(60, 30); g.rotate(Math.PI / 4); g.scale(k, k);
+    g.drawImage(img, -img.width / 2, -img.height / 2);
+    return (paintedKey = c);
+  }
   const scale = (c, f) => '#' + hex(c).map(v => Math.max(0, Math.min(255, Math.round(v * f))).toString(16).padStart(2, '0')).join('');
   function poly(g, pts, fill, stroke, lw = 1) {
     g.beginPath();
@@ -85,6 +146,7 @@ const KkDraw = (() => {
   function knightSprite(color) {
     let c = knightCache.get(color);
     if (c) return c;
+    if (ART.ridder) { c = paintedKnight(color); knightCache.set(color, c); return c; }
     c = document.createElement('canvas');
     c.width = 120; c.height = 150;
     const g = c.getContext('2d');
@@ -208,6 +270,22 @@ const KkDraw = (() => {
     return c;
   }
 
+  // De geschilderde Kerkermeester, en een witte flits-versie voor als hij geraakt wordt.
+  function paintedGuard() {
+    const img = ART.meester;
+    const n = document.createElement('canvas');
+    n.height = 520; n.width = Math.round(520 * img.width / img.height);
+    n.getContext('2d').drawImage(img, 0, 0, n.width, n.height);
+    const f = document.createElement('canvas');
+    f.width = n.width; f.height = n.height;
+    const g = f.getContext('2d');
+    g.drawImage(n, 0, 0);
+    g.globalCompositeOperation = 'source-atop';
+    g.fillStyle = 'rgba(255,240,230,.75)';
+    g.fillRect(0, 0, f.width, f.height);
+    return { n, f, art: artVer, glow: [.12, .32] };
+  }
+
   // ---------- De gang ----------
   class Scene {
     constructor({ board = false } = {}) {
@@ -238,10 +316,20 @@ const KkDraw = (() => {
       const [x0, y0] = this.project(-DHW, DTOP, DOOR_Z);
       this.door = { x: x0, y: y0, w: DHW * 2 * this.s, h: DTOP * this.s };
       this.lock = this.project(0, LOCK_Y, DOOR_Z);
+      this.art = artVer;
+      this.paint = null;
+      if (ART.gang) {
+        // Het geschilderde beeld zo groot dat zijn boog even hoog is als de deur, met de onderkant op dezelfde plek.
+        const d = this.door, k = d.h / (GANG.y1 - GANG.y0);
+        const ox = this.cx - (GANG.x0 + GANG.x1) / 2 * k, oy = d.y + d.h - GANG.y1 * k;
+        this.paint = { k, ox, oy };
+        const dw = (GANG.x1 - GANG.x0) * k;
+        this.door = { x: this.cx - dw / 2, y: d.y, w: dw, h: d.h };
+      }
     }
 
     resize(w, h) {
-      if (w === this.w && h === this.h) return false;
+      if (w === this.w && h === this.h && this.art === artVer) return false;
       this.w = w; this.h = h;
       this.layout(w, h);
       this.doorCache.clear();
@@ -251,8 +339,8 @@ const KkDraw = (() => {
 
     // De boog van de deur als pad op het scherm.
     archPath(g, grow = 0) {
-      const s = this.s, [cx, sy] = this.project(0, SPRING, DOOR_Z), [, fy] = this.project(0, 0, DOOR_Z);
-      const r = (DHW + grow) * s;
+      const d = this.door, cx = d.x + d.w / 2, fy = d.y + d.h, r0 = d.w / 2, sy = d.y + r0;
+      const r = r0 + grow * this.s;
       g.beginPath();
       g.moveTo(cx - r, fy);
       g.lineTo(cx - r, sy);
@@ -272,6 +360,7 @@ const KkDraw = (() => {
       g.fillRect(0, 0, w, h);
       this.flames = [];
       this.eyes = [];
+      if (this.paint) { this.paintedBake(g); this.bg = c; return; }
       this.endWall(g);
       this.ceiling(g);
       for (const side of [-1, 1]) this.wall(g, side);
@@ -281,6 +370,33 @@ const KkDraw = (() => {
       this.beam(g);
       Glow.vignette(g, w, h, .55);
       this.bg = c;
+    }
+
+    // De geschilderde gang. Valt het beeld boven of onder het scherm te kort, dan vullen we aan met een gespiegelde strook.
+    paintedBake(g) {
+      const { w, h } = this, { k, ox, oy } = this.paint, img = ART.gang;
+      const iw = GANG.w * k, ih = GANG.h * k;
+      g.drawImage(img, ox, oy, iw, ih);
+      if (oy + ih < h) {
+        g.save(); g.translate(0, (oy + ih) * 2); g.scale(1, -1);
+        g.drawImage(img, ox, oy, iw, ih);
+        g.restore();
+        const gr = g.createLinearGradient(0, oy + ih, 0, h);
+        gr.addColorStop(0, 'rgba(6,10,20,.25)'); gr.addColorStop(1, 'rgba(6,10,20,.8)');
+        g.fillStyle = gr; g.fillRect(0, oy + ih, w, h - oy - ih);
+      }
+      if (oy > 0) {
+        g.save(); g.translate(0, oy * 2); g.scale(1, -1);
+        g.drawImage(img, ox, oy, iw, ih);
+        g.restore();
+        g.fillStyle = 'rgba(6,10,20,.55)'; g.fillRect(0, 0, w, oy);
+      }
+      if (ox > 0) { g.fillStyle = FOG; g.fillRect(0, 0, ox, h); g.fillRect(ox + iw, 0, w, h); }
+      Glow.vignette(g, w, h, .4);
+      // Fakkels flakkeren (alleen hun gloed) en het nummer komt op de sluitsteen boven de boog.
+      this.torchGlow = GANG.torches.map(([x, y, r]) => ({ x: ox + x * k, y: oy + y * k, r: r * k * 60, ph: Math.random() * 10 }));
+      const d = this.door;
+      this.plaque = [d.x + d.w / 2, d.y - this.s * .16];
     }
 
     // Een vierhoek tussen vier punten in de wereld.
@@ -556,6 +672,19 @@ const KkDraw = (() => {
       c.width = Math.max(1, Math.ceil(this.door.w)); c.height = Math.max(1, Math.ceil(this.door.h));
       const g = c.getContext('2d');
       g.lineJoin = 'round';
+      const pic = type === 'bewaker' ? ART.poort : ART.deur;
+      if (pic) {
+        // De geschilderde deur, zonder zijn eigen stenen rand (die zit al in de gang).
+        const cw = c.width, ch = c.height, sx = pic.width * .085, sy = pic.height * .07;
+        g.beginPath(); g.moveTo(0, ch); g.lineTo(0, cw / 2); g.arc(cw / 2, cw / 2, cw / 2, Math.PI, 0); g.lineTo(cw, ch); g.closePath();
+        g.clip();
+        g.drawImage(pic, sx, sy, pic.width - sx * 2, pic.height - sy, 0, 0, cw, ch);
+        const sh = g.createLinearGradient(0, 0, 0, ch);
+        sh.addColorStop(0, 'rgba(0,0,0,.25)'); sh.addColorStop(.3, 'rgba(0,0,0,0)'); sh.addColorStop(1, 'rgba(0,0,0,.2)');
+        g.fillStyle = sh; g.fillRect(0, 0, cw, ch);
+        this.doorCache.set(key, c);
+        return c;
+      }
       g.scale(s, s);
       const X = x => x + DHW, Y = y => DTOP - y; // wereld naar plaatje (meters)
       const lw = 1 / s;
@@ -656,6 +785,11 @@ const KkDraw = (() => {
       ctx.drawImage(this.bg, 0, 0);
       // Vlammen en lichtflakkering
       for (const fl of this.flames) this.flame(ctx, fl, t);
+      if (this.paint) for (const tg of this.torchGlow) {
+        const fk = .8 + Math.sin(t * 9 + tg.ph) * .12 + Math.sin(t * 21 + tg.ph * 2) * .08;
+        glow(ctx, tg.x, tg.y, tg.r * 2.2 * fk, '#3d8bff', .28 * fk);
+        glow(ctx, tg.x, tg.y, tg.r * fk, '#9ff6ff', .3 * fk);
+      }
       for (const e of this.eyes) {
         const blink = Math.sin(t * .9 + e.phase) > .96 ? .1 : 1;
         glow(ctx, e.x, e.y, e.r * 6, e.color, .55 * blink);
@@ -1015,11 +1149,11 @@ const KkDraw = (() => {
 
     // De Kerkermeester staat voor de poort, met een levensbalk boven zijn hoofd.
     guardian(ctx, door, t, v, leaving) {
-      if (!this.guard) this.guard = { n: guardSprite(false), f: guardSprite(true) };
+      if (!this.guard || this.guard.art !== artVer) this.guard = ART.meester ? paintedGuard() : { n: guardSprite(false), f: guardSprite(true) };
       const s = this.s, d = this.door;
       const k = door.hp / Math.max(1, door.maxHp);
       const gz = 9.4;
-      const gh = 3.9 * this.f / gz, gw = gh * 400 / 520;
+      const gh = 3.9 * this.f / gz, gw = gh * this.guard.n.width / this.guard.n.height;
       const [gx, gy] = this.project(0, 0, gz);
       const bob = Math.sin(t * 2) * gh * .008;
       const since = performance.now() - this.hitAt;
@@ -1036,8 +1170,9 @@ const KkDraw = (() => {
       ctx.drawImage(since < 120 ? this.guard.f : this.guard.n, -gw / 2, -gh + bob, gw, gh);
       // Het vizier en de kern gloeien op en neer
       const pulse = .55 + .45 * Math.sin(t * 3.2);
-      glow(ctx, 0, -gh + bob + gh * 100 / 520, gw * .32, '#ff3a2a', .5 + pulse * .4, .45);
-      glow(ctx, 0, -gh + bob + gh * 226 / 520, gw * .2, '#ff8c42', .3 + pulse * .4);
+      const [vy, cy] = this.guard.glow || [100 / 520, 226 / 520];
+      glow(ctx, 0, -gh + bob + gh * vy, gw * .32, '#ff3a2a', .5 + pulse * .4, .45);
+      glow(ctx, 0, -gh + bob + gh * cy, gw * .2, '#ff8c42', .3 + pulse * .4);
       // Barsten en vonken als hij zwak wordt
       if (k < .5) {
         ctx.strokeStyle = 'rgba(255,120,60,.85)'; ctx.lineWidth = Math.max(1.5, gw * .008);
@@ -1082,7 +1217,7 @@ const KkDraw = (() => {
       let idx = 0;
       for (let row = rows - 1; row >= 0; row--) {
         const k = 1 - row * .18;
-        const kh = base * k, kw = kh * 120 / 150;
+        const kh = base * k * (ART.ridder ? 1.2 : 1), kw = kh * (ART.ridder ? ART.ridder.width / ART.ridder.height : 120 / 150);
         const count = Math.min(perRow, list.length - row * perRow);
         if (count <= 0) continue;
         const items = list.slice(row * perRow, row * perRow + count);
@@ -1149,7 +1284,7 @@ const KkDraw = (() => {
           const sz = this.s * (.5 - .2 * k) * (a.n > 1 ? 1.3 : 1);
           glow(ctx, x, y, sz * 1.4, a.n > 1 ? '#ffc94a' : '#5ee7ff', .8);
           ctx.save(); ctx.translate(x, y); ctx.rotate(k * Math.PI * 3);
-          ctx.drawImage(this.key, -sz, -sz / 2, sz * 2, sz);
+          ctx.drawImage(keyImage(this.key), -sz, -sz / 2, sz * 2, sz);
           ctx.restore();
           if (Math.random() < .6) this.fx.burst(x, y, { n: 1, color: '#ffe08a', speed: 30, life: .4, size: 2 });
         } else if (a.kind === 'hit') {
@@ -1185,5 +1320,5 @@ const KkDraw = (() => {
     }
   }
 
-  return { Scene, keySprite };
+  return { Scene, keySprite, ART, artVer: () => artVer };
 })();
