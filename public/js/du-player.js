@@ -221,10 +221,13 @@ function duBg() {
   c.width = w;
   c.height = h;
   const g = c.getContext('2d');
-  const art = DuArt.colosseum(w, h, 15);
-  g.drawImage(art.c, 0, 0);
-  art.torches.forEach(([x, y, u], i) => DuArt.torch(g, x, y, u, i, i));
-  g.fillStyle = 'rgba(4, 3, 10, .45)';
+  const painted = Glow.phoneBg(g, w, h, '/img/quizspellen/duel.webp', () => { c.width = 0; duBg(); });
+  if (!painted) {
+    const art = DuArt.colosseum(w, h, 15);
+    g.drawImage(art.c, 0, 0);
+    art.torches.forEach(([x, y, u], i) => DuArt.torch(g, x, y, u, i, i));
+  }
+  g.fillStyle = painted ? 'rgba(4, 3, 10, .25)' : 'rgba(4, 3, 10, .45)';
   g.fillRect(0, 0, w, h);
   Glow.vignette(g, w, h, .7);
 }

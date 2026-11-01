@@ -2197,3 +2197,9 @@ body.tk-solo .klaar-balk { display: none; }
 .topbar:has(.taken-home) .snelmenu { order: 3; flex: 1 1 100%; margin-right: 0; justify-content: center; }
 .topbar:has(.taken-home) .snelmenu a { min-width: 110px; flex-direction: row; gap: 8px; font-size: .85rem; padding: 6px 12px; }
 @media (max-width: 1100px) { .snelmenu span { display: none; } .snelmenu a { min-width: 40px; } .topbar:has(.taken-home) .snelmenu span { display: inline; } .topbar:has(.taken-home) .snelmenu a { min-width: 0; } }
+/* Laserslag en Ridder Royale op de gsm: een geschilderde achtergrond achter de wacht- en vraagschermen. */
+body[data-ls="1"] { --quiz-bg: url('/img/quizspellen/laserslag.webp'); }
+body[data-ry="1"] { --quiz-bg: url('/img/quizspellen/ridderroyale.webp'); }
+body[data-ls="1"]::before, body[data-ry="1"]::before { content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none; background: linear-gradient(rgba(4, 4, 12, .35), rgba(4, 4, 12, .6)), var(--quiz-bg) center / cover no-repeat; }
+body[data-ls="1"], body[data-ry="1"] { background: transparent; }
+html[data-thema="daglicht"] body[data-ls="1"], html[data-thema="daglicht"] body[data-ry="1"] { background: var(--bg); }

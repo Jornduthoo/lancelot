@@ -381,5 +381,40 @@ const Glow = (() => {
     for (let x = px - 1024; x < w; x += 1024) for (let y = py - 1024; y < h; y += 1024) ctx.drawImage(spaceTile, x, y);
   }
 
-  return { rgba, glowSprite, glow, vignette, lightning, space };
+  // Een geschilderde gsm-achtergrond (staand beeld). Op een liggend scherm: het beeld in het midden, wazig erachter.
+  // Geeft false zolang het beeld nog laadt; redraw wordt dan opgeroepen zodra het er is.
+  const phoneArt = {};
+  function phoneBg(g, w, h, src, redraw) {
+    let e = phoneArt[src];
+    if (!e) {
+      e = phoneArt[src] = { img: new Image(), ok: false, wait: [] };
+      e.img.onload = () => { e.ok = true; e.wait.splice(0).forEach(f => f()); };
+      e.img.src = src;
+    }
+    if (!e.ok) { if (redraw && !e.wait.includes(redraw)) e.wait.push(redraw); return false; }
+    const img = e.img;
+    if (w / h <= img.width / img.height * 1.35) {
+      const s = Math.max(w / img.width, h / img.height);
+      g.drawImage(img, (w - img.width * s) / 2, (h - img.height * s) / 2, img.width * s, img.height * s);
+      return true;
+    }
+    // Liggend: wazig en donker over de hele breedte, het scherpe beeld in het midden met zachte randen.
+    const cs = w / img.width;
+    g.filter = 'blur(14px) brightness(.55)';
+    g.drawImage(img, 0, (h - img.height * cs) / 2, w, img.height * cs);
+    g.filter = 'none';
+    const iw = h * img.width / img.height, x0 = (w - iw) / 2;
+    g.drawImage(img, x0, 0, iw, h);
+    const fade = iw * .12;
+    for (const [xa, xb] of [[x0, x0 + fade], [x0 + iw, x0 + iw - fade]]) {
+      const gr = g.createLinearGradient(xa, 0, xb, 0);
+      gr.addColorStop(0, 'rgba(3,3,10,.75)');
+      gr.addColorStop(1, 'rgba(3,3,10,0)');
+      g.fillStyle = gr;
+      g.fillRect(Math.min(xa, xb), 0, fade, h);
+    }
+    return true;
+  }
+
+  return { rgba, glowSprite, glow, vignette, lightning, space, phoneBg };
 })();
