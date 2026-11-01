@@ -606,3 +606,10 @@ socket.onAny((event, s) => {
   buSpellen[event] = !['idle', 'einde', 'end', 'podium'].includes(s.phase);
   $('bu-start-banner').classList.toggle('hidden', !Object.values(buSpellen).some(Boolean));
 });
+
+// De geschilderde bouwstukken zijn binnen: winkel en burcht opnieuw tekenen.
+BuArt.opKlaar(() => {
+  if (!bu.stand) return;
+  buItems(Burcht.KLEUREN[bu.stand.burcht.kleur]);
+  buBak();
+});

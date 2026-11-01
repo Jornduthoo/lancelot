@@ -940,3 +940,6 @@ socket.onAny((event, s) => {
   odSpellen[event] = !['idle', 'einde', 'end', 'podium'].includes(s.phase);
   $('od-start-banner').classList.toggle('hidden', !Object.values(odSpellen).some(Boolean));
 });
+
+// De geschilderde bouwstukken (BuArt) zijn binnen: de wereld opnieuw bakken.
+if (typeof BuArt !== 'undefined') BuArt.opKlaar(() => { if (od.stand && od.kaart && od.grond) odBak(); });
