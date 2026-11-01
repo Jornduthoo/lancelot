@@ -184,6 +184,8 @@ button.big { font-size: 1.25rem; padding: 18px 34px; }
 button.icon { padding: 10px 14px; }
 
 input, select, textarea { font: inherit; font-family: var(--body); color: rgb(var(--k-bg2)); }
+/* iPhone: een invulveld in een spel met user-select: none zou anders geen tekst aannemen. */
+input, textarea { -webkit-user-select: text; user-select: text; }
 
 .error { color: rgb(var(--k-rood-l)); margin: 0; }
 .error:empty { display: none; }
@@ -578,7 +580,7 @@ body:has(#home.hidden) .pauze-home, body:has(#home.hidden) .qr-home, body:has(#h
 
 /* ---------- Getal typen (ui.js) ---------- */
 .ui-getal { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; align-items: center; width: 100%; }
-.ui-getal input { flex: 1 1 160px; max-width: 280px; font-size: 1.6rem; text-align: center; padding: 12px; color: var(--text); background: rgb(var(--k-bg) / .85); border: 1px solid var(--cyan); }
+.ui-getal input { -webkit-user-select: text; user-select: text; flex: 1 1 160px; max-width: 280px; font-size: 1.6rem; text-align: center; padding: 12px; color: var(--text); background: rgb(var(--k-bg) / .85); border: 1px solid var(--cyan); }
 .ui-getal button { font-size: 1.2rem; padding: 12px 22px; }
 .ui-getal.goed input { box-shadow: inset 0 0 0 2px var(--good); color: var(--good); }
 .ui-getal.fout input { box-shadow: inset 0 0 0 2px var(--bad); color: var(--bad); text-decoration: line-through; }
@@ -815,6 +817,13 @@ body:not([data-rt="1"]) #rondetafel, body:not([data-tw="1"]) #toren { display: n
 .tw-btn.tw-ask { font-size: 1rem; color: var(--gold); box-shadow: inset 0 0 0 1px rgb(var(--k-goud) / .5); }
 #tw-game.low .tw-btn.tw-ask { background: rgb(var(--k-goud) / .25); animation: breathe .8s ease-in-out infinite; }
 .tw-question { position: absolute; inset: 0; z-index: 6; display: flex; align-items: center; justify-content: center; padding: 14px; background: rgb(var(--k-bg) / .75); backdrop-filter: blur(4px); }
+/* Met het schermtoetsenbord open: een compact venster net boven het toetsenbord. */
+.tw-question.ak-kb { align-items: flex-end; padding: 6px; overflow: auto; }
+.tw-question.ak-kb .panel { gap: 6px; padding: 10px 12px; }
+.tw-question.ak-kb .status { display: none; }
+.tw-question.ak-kb .tw-q-text { font-size: 1rem; margin: 0; }
+.tw-question.ak-kb .ui-getal input { font-size: 1.2rem; padding: 6px; }
+.tw-question.ak-kb .ui-getal button, .tw-question.ak-kb .ls-q-actions button { padding: 6px 14px; font-size: 1rem; }
 .tw-question .panel { width: 100%; max-width: 560px; display: flex; flex-direction: column; gap: 12px; text-align: center; }
 .tw-q-text { font-weight: 800; font-size: 1.35rem; margin: 0; }
 .tw-question .answers { grid-template-columns: 1fr 1fr; gap: 8px; }
