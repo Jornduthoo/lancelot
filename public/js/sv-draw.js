@@ -226,6 +226,17 @@ const SvDraw = (() => {
   })();
 
   // Vaste toevalsgetallen, zodat elke plaat en elke steen altijd hetzelfde blijft.
+  // Geschilderde beelden: ruimte, zwart gat, ruïnes en de schildtorens op de muur. Zonder beelden: zelf tekenen.
+  const ART = {};
+  if (typeof Image !== 'undefined') {
+    for (const n of ['ruimte', 'gat', 'ruine', 'torenstuk', 'asteroide', 'schildtoren']) {
+      const img = new Image();
+      img.onload = () => { ART[n] = img; baked = null; };
+      img.src = `/img/sterrenvreter/${n}.webp`;
+    }
+  }
+  const ROCK_ART = ['ruine', 'torenstuk', 'asteroide'];
+
   function rng(seed) {
     let a = seed >>> 0;
     return () => {
@@ -475,7 +486,12 @@ const SvDraw = (() => {
       const a = ((i + .5) / n) * TAU, d = R + 320 + (i * 61) % 170;
       const x = Math.cos(a) * d, y = Math.sin(a) * d, rs = 200 * (.8 + (i % 3) * .2);
       if (!inView(x, y, rs)) continue;
-      ctx.drawImage(rocks[i % 3], x - rs / 2, y - rs / 2 + Math.sin(ts * .7 + i) * 6, rs, rs);
+      const ra = ART[ROCK_ART[i % 3]];
+      if (ra) {
+        const k = rs * .9 / Math.max(ra.width, ra.height);
+        glow(ctx, x, y, rs * .55, '#4cc9ff', .12);
+        ctx.drawImage(ra, x - ra.width * k / 2, y - ra.height * k / 2 + Math.sin(ts * .7 + i) * 6, ra.width * k, ra.height * k);
+      } else ctx.drawImage(rocks[i % 3], x - rs / 2, y - rs / 2 + Math.sin(ts * .7 + i) * 6, rs, rs);
     }
   }
 
@@ -602,7 +618,14 @@ const SvDraw = (() => {
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.globalAlpha = 1;
     ctx.globalCompositeOperation = 'source-over';
-    Glow.space(ctx, w, h, -cam.x * zoom * .18, -cam.y * zoom * .18);
+    if (ART.ruimte) {
+      // Geschilderde ruimte, als tegels met wat parallax (een handvol beelden: licht voor een Chromebook).
+      const img = ART.ruimte, ts2 = 900;
+      const px = (((-cam.x * zoom * .18) % ts2) + ts2) % ts2 - ts2, py = (((-cam.y * zoom * .18) % ts2) + ts2) % ts2 - ts2;
+      for (let x = px; x < w; x += ts2) for (let y = py; y < h; y += ts2) ctx.drawImage(img, x, y, ts2 + 1, ts2 + 1);
+      ctx.fillStyle = 'rgba(3, 4, 12, .5)';
+      ctx.fillRect(0, 0, w, h);
+    } else Glow.space(ctx, w, h, -cam.x * zoom * .18, -cam.y * zoom * .18);
     const sx = x => (x - cam.x) * zoom + w / 2;
     const sy = y => (y - cam.y) * zoom + h / 2;
     const view = { x0: cam.x - w / 2 / zoom - 40, x1: cam.x + w / 2 / zoom + 40, y0: cam.y - h / 2 / zoom - 40, y1: cam.y + h / 2 / zoom + 40 };
@@ -662,7 +685,10 @@ const SvDraw = (() => {
       const a = (i / towers) * TAU;
       const x = Math.cos(a) * (R + 40), y = Math.sin(a) * (R + 40);
       if (!inView(x, y, 80)) continue;
-      ctx.drawImage(tower, x - 66, y - 66, 132, 132);
+      if (ART.schildtoren) {
+        const im = ART.schildtoren, k = 150 / im.height;
+        ctx.drawImage(im, x - im.width * k / 2, y - 95, im.width * k, 150);
+      } else ctx.drawImage(tower, x - 66, y - 66, 132, 132);
     }
     // Het zwarte gat
     const bh = s.bhShown;
@@ -672,11 +698,22 @@ const SvDraw = (() => {
       ctx.save();
       ctx.globalCompositeOperation = 'lighter';
       const ds = bh * 3.4;
-      ctx.rotate(ts * .6);
-      ctx.drawImage(disk, -ds, -ds, ds * 2, ds * 2);
-      ctx.rotate(-ts * 1.5);
-      ctx.globalAlpha = .55;
-      ctx.drawImage(disk, -ds * .8, -ds * .8, ds * 1.6, ds * 1.6);
+      if (ART.gat) {
+        // Geschilderde draaikolk: draait langzaam, met een tweede laag die sneller draait.
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.rotate(-ts * .5);
+        ctx.drawImage(ART.gat, -ds * .95, -ds * .95, ds * 1.9, ds * 1.9);
+        ctx.globalCompositeOperation = 'lighter';
+        ctx.rotate(-ts * .7);
+        ctx.globalAlpha = .3;
+        ctx.drawImage(ART.gat, -ds * .7, -ds * .7, ds * 1.4, ds * 1.4);
+      } else {
+        ctx.rotate(ts * .6);
+        ctx.drawImage(disk, -ds, -ds, ds * 2, ds * 2);
+        ctx.rotate(-ts * 1.5);
+        ctx.globalAlpha = .55;
+        ctx.drawImage(disk, -ds * .8, -ds * .8, ds * 1.6, ds * 1.6);
+      }
       ctx.restore();
       // Sterren die naar binnen spiralen
       ctx.save();
