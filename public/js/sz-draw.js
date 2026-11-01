@@ -9,6 +9,49 @@ const SzDraw = (() => {
   const TAU = Math.PI * 2;
   const INK = '#05060f';
 
+  // ---------- Geschilderde beelden (public/img/splijtzwaard/) ----------
+  // Is een beeld er (nog) niet, dan tekenen we dat stuk zelf zoals vroeger.
+  const ART = {};
+  const ART_NAMEN = ['hout', 'kristal', 'ton', 'pompoen', 'robot', 'kist', 'zaag', 'laser', 'zwaard-1', 'zwaard-2', 'zwaard-3', 'zwaard-5',
+    'lucht-smidse', 'lucht-kristalmijn', 'lucht-sterrenburcht'];
+  const onArt = [];
+  if (typeof Image !== 'undefined') {
+    for (const n of ART_NAMEN) {
+      const img = new Image();
+      img.onload = () => { ART[n] = img; for (const f of onArt) f(); };
+      img.src = `/img/splijtzwaard/${n}.webp`;
+    }
+  }
+  // Achtergrond: het schilderij op schermhoogte, en daarnaast gespiegeld zodat het eindeloos doorschuift.
+  const backCache = new Map();
+  onArt.push(() => backCache.clear());
+  function backdrop(theme, h) {
+    const img = ART['lucht-' + theme.name.toLowerCase()];
+    if (!img) return null;
+    const H = Math.min(1400, Math.round(h * 1.1));
+    const key = theme.name + ':' + H;
+    let b = backCache.get(key);
+    if (b) return b;
+    if (backCache.size > 4) backCache.clear();
+    const w = Math.round(img.width * H / img.height);
+    const c = mk(w * 2, H), g = c.getContext('2d');
+    g.drawImage(img, 0, 0, w, H);
+    g.save(); g.translate(w * 2, 0); g.scale(-1, 1); g.drawImage(img, 0, 0, w, H); g.restore();
+    const px = g.getImageData(w, H - 2, 1, 1).data;
+    b = { c, bottom: `rgb(${px[0]},${px[1]},${px[2]})` };
+    backCache.set(key, b);
+    return b;
+  }
+  function drawBack(ctx, b, w, h, v, S, alpha) {
+    ctx.globalAlpha = alpha;
+    const bw = b.c.width;
+    const off = -((v.cx * S * .1) % bw + bw) % bw;
+    const dy = Math.round(Math.max(-h * .1, Math.min(0, .08 * (W.H / 2 - v.cy) * S - h * .05)));
+    ctx.fillStyle = b.bottom; ctx.fillRect(0, dy + b.c.height - 2, w, h);
+    for (let x = off; x < w; x += bw) ctx.drawImage(b.c, Math.round(x), dy);
+    ctx.globalAlpha = 1;
+  }
+
   function hexRgb(hex) {
     const n = parseInt(hex.slice(1), 16);
     return [n >> 16, (n >> 8) & 255, n & 255];
@@ -218,6 +261,17 @@ const SzDraw = (() => {
   // ---------- Planken, palen en stalen blokken (gebakken per stuk en per zoom) ----------
   const solidCache = new Map();
   let solidS = 0;
+  onArt.push(() => { solidCache.clear(); thingCache.clear(); sawCache.clear(); swordCache.clear(); });
+  // Houtnerf uit het geschilderde blok: één tegel is 3 meter breed. Voor palen draaien we de nerf rechtop.
+  function woodFill(g, w, h, S, upright) {
+    const img = ART.hout;
+    g.save();
+    g.beginPath(); g.rect(0, 0, w, h); g.clip();
+    if (upright) { g.translate(w, 0); g.rotate(Math.PI / 2); [w, h] = [h, w]; }
+    const tw = S * 3, th = tw * img.height / img.width;
+    for (let y = 0; y < h; y += th) for (let x = 0; x < w; x += tw) g.drawImage(img, x, y, tw, th);
+    g.restore();
+  }
   function bakeSolid(s, theme, S) {
     const pad = Math.ceil(S * .3);
     const vis = Math.min(s.h, W.H + 2 - s.y);
@@ -256,9 +310,10 @@ const SzDraw = (() => {
       grd.addColorStop(0, shade(wood, .55)); grd.addColorStop(.35, shade(wood, 1.25)); grd.addColorStop(.7, shade(wood, .95)); grd.addColorStop(1, shade(wood, .5));
       g.fillStyle = grd;
       g.fillRect(0, 0, w, h);
+      if (ART.hout) { woodFill(g, w, h, S, true); g.fillStyle = grd; g.globalAlpha = .25; g.fillRect(0, 0, w, h); g.globalAlpha = 1; }
       g.strokeStyle = 'rgba(30,14,6,.45)';
       g.lineWidth = Math.max(1, S * .025);
-      for (let i = 0; i < 4; i++) { const x = w * (.15 + r() * .7); g.beginPath(); g.moveTo(x, 0); g.bezierCurveTo(x + (r() - .5) * S * .3, h * .3, x + (r() - .5) * S * .3, h * .6, x, h); g.stroke(); }
+      if (!ART.hout) for (let i = 0; i < 4; i++) { const x = w * (.15 + r() * .7); g.beginPath(); g.moveTo(x, 0); g.bezierCurveTo(x + (r() - .5) * S * .3, h * .3, x + (r() - .5) * S * .3, h * .6, x, h); g.stroke(); }
       for (let y = S * .5; y < h; y += S * 2.2) {
         g.fillStyle = '#3a3f58'; g.fillRect(-S * .05, y, w + S * .1, S * .2);
         g.fillStyle = '#ffc94a'; g.fillRect(-S * .05, y, w + S * .1, Math.max(1, S * .04));
@@ -275,15 +330,16 @@ const SzDraw = (() => {
     grd.addColorStop(0, shade(wood, 1.45)); grd.addColorStop(.25, shade(wood, 1.05)); grd.addColorStop(1, shade(wood, .55));
     g.fillStyle = grd;
     g.fillRect(0, 0, w, h);
+    if (ART.hout) { woodFill(g, w, h, S, false); g.fillStyle = grd; g.globalAlpha = .25; g.fillRect(0, 0, w, h); g.globalAlpha = 1; }
     g.strokeStyle = 'rgba(30,14,6,.45)';
     g.lineWidth = Math.max(1, S * .025);
-    for (let i = 0; i < 3; i++) {
+    if (!ART.hout) for (let i = 0; i < 3; i++) {
       const y = h * (.3 + i * .22);
       g.beginPath(); g.moveTo(0, y);
       for (let x = 0; x <= w; x += S * .5) g.lineTo(x, y + Math.sin(x / S * 1.7 + i * 2 + r() * .4) * S * .03);
       g.stroke();
     }
-    for (let i = 0; i < Math.round(s.w / 2.5); i++) { // kwasten in het hout
+    if (!ART.hout) for (let i = 0; i < Math.round(s.w / 2.5); i++) { // kwasten in het hout
       g.beginPath(); g.ellipse(w * r(), h * (.4 + r() * .3), S * .14, S * .05, 0, 0, TAU); g.stroke();
     }
     // Planken-naden
@@ -407,7 +463,13 @@ const SzDraw = (() => {
     g.lineJoin = 'round';
     const lw = PXT * .035;
     const ink = () => { g.lineWidth = lw; g.strokeStyle = INK; g.stroke(); };
-    if (kind === 'kristal') {
+    if (ART[kind]) {
+      // Het geschilderde ding, passend in een vak van 2,3 x de straal.
+      const img = ART[kind], f = R * 2.3 / Math.max(img.width, img.height);
+      if (kind === 'kristal') glow(g, 0, 0, R * 1.45, '#c77dff', .45);
+      if (kind === 'kist') glow(g, 0, 0, R * 1.5, '#ffc94a', .45);
+      g.drawImage(img, -img.width * f / 2, -img.height * f / 2, img.width * f, img.height * f);
+    } else if (kind === 'kristal') {
       glow(g, 0, 0, R * 1.45, '#c77dff', .55);
       const pts = [[0, -1.15], [.62, -.45], [.55, .55], [0, 1.1], [-.55, .55], [-.62, -.45]].map(([x, y]) => [x * R, y * R]);
       const grd = g.createLinearGradient(-R, -R, R, R);
@@ -539,6 +601,12 @@ const SzDraw = (() => {
     const g = c.getContext('2d');
     g.translate(size / 2, size / 2);
     glow(g, 0, 0, R * 1.2, '#ff4d6d', .45);
+    if (ART.zaag) {
+      // Het geschilderde zaagblad staat schuin; we trekken het rond.
+      g.drawImage(ART.zaag, -R * 1.08, -R * 1.08, R * 2.16, R * 2.16);
+      sawCache.set(r, c);
+      return c;
+    }
     g.beginPath();
     const n = 16;
     for (let i = 0; i < n * 2; i++) {
@@ -595,6 +663,12 @@ const SzDraw = (() => {
       ctx.fillRect(sx - 1, sy0, 2, sy1 - sy0);
     }
     const lit = on ? '#ff4d6d' : soon ? '#ffc94a' : '#5a1a28';
+    if (ART.laser) {
+      const img = ART.laser, ew = S * 1.0, eh = ew * img.height / img.width;
+      ctx.drawImage(img, sx - ew * .62, sy1 - eh, ew, eh);
+      if (on || soon) glow(ctx, sx, sy1 - eh * .55, S * .5, lit, .9);
+      return;
+    }
     ctx.fillStyle = '#2b3150';
     ctx.strokeStyle = INK;
     ctx.lineWidth = Math.max(1, S * .05);
@@ -624,6 +698,20 @@ const SzDraw = (() => {
     const lw = u * .03;
     const ink = () => { g.lineWidth = lw; g.strokeStyle = INK; g.stroke(); };
     const tip = W.TIP * u, guard = W.GUARD * u, pom = -W.POMMEL * u;
+    const paint = !gold && !rust && (ART['zwaard-' + (tier + 1)] || (tier === 3 && ART['zwaard-1']));
+    if (paint) {
+      // Het geschilderde zwaard van knop tot punt. Het smaragdzwaard is het ijzeren zwaard, groen gekleurd.
+      const len = tip - pom, ph = len * paint.height / paint.width;
+      for (let i = 0; i < 4; i++) glow(g, guard + (tip - guard) * (i + .5) / 4, 0, u * .28, T.glow, .3);
+      if (tier === 3 && !ART['zwaard-4']) g.filter = 'hue-rotate(-55deg) saturate(1.3)';
+      g.drawImage(paint, pom, -ph / 2, len, ph);
+      g.filter = 'none';
+      // Een edelsteen in de kleur van de speler op de knop.
+      g.fillStyle = color;
+      g.beginPath(); g.arc(pom + u * .07, 0, u * .06, 0, TAU); g.fill(); ink();
+      swordCache.set(key, c);
+      return c;
+    }
     const bw = u * .085; // halve breedte van de kling
     // Gloed rond de kling
     const gc = gold ? '#ffd76a' : rust ? '#ff8c42' : T.glow;
@@ -766,15 +854,17 @@ const SzDraw = (() => {
     const Y = y => Math.round((y - v.cy) * S + h / 2);
     const kc = Math.max(0, Math.floor(v.cx / W.L));
     const theme = W.themeOf(kc);
-    ctx.drawImage(sky(theme, w, h), 0, 0);
     const nextTheme = W.themeOf(kc + 1);
     let fade = 0;
-    if (nextTheme !== theme) {
-      fade = Math.max(0, Math.min(1, (v.cx - (kc + 1) * W.L + 12) / 12));
-      if (fade > 0) { ctx.globalAlpha = fade; ctx.drawImage(sky(nextTheme, w, h), 0, 0); ctx.globalAlpha = 1; }
-    }
+    if (nextTheme !== theme) fade = Math.max(0, Math.min(1, (v.cx - (kc + 1) * W.L + 12) / 12));
     const th = fade > .5 ? nextTheme : theme;
-    for (const depth of [0, 1]) {
+    const bA = backdrop(theme, h), bB = fade > 0 ? backdrop(nextTheme, h) : null;
+    if (bA) drawBack(ctx, bA, w, h, v, S, 1); else ctx.drawImage(sky(theme, w, h), 0, 0);
+    if (fade > 0) {
+      if (bB) drawBack(ctx, bB, w, h, v, S, fade);
+      else { ctx.globalAlpha = fade; ctx.drawImage(sky(nextTheme, w, h), 0, 0); ctx.globalAlpha = 1; }
+    }
+    for (const depth of (bA ? [] : [0, 1])) {
       const img = layer(th, h, depth);
       const par = depth ? .35 : .12;
       const off = -((v.cx * S * par) % img.width + img.width) % img.width;
