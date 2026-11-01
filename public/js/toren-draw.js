@@ -3,6 +3,19 @@ const TorenDraw = (() => {
   // Kleuren van de capes, per speler.
   const COLORS = ['#ff4d6d', '#3d8bff', '#ffb703', '#22c993', '#a66bff', '#ff8c42', '#ff5fd2', '#4cc9ff'];
 
+  // Geschilderde beelden (public/img/toren/). Is een beeld er (nog) niet, dan tekenen we dat stuk zelf zoals vroeger.
+  const ART = {};
+  const ART_NAMEN = ['steen', 'zweef', 'ijs', 'veer', 'stekels', 'fakkel', 'banier', 'prinses',
+    'muur-kerker', 'muur-storm', 'muur-neon', 'muur-hemel', 'lucht-kerker', 'lucht-storm', 'lucht-neon', 'lucht-hemel'];
+  const onArt = [];
+  if (typeof Image !== 'undefined') {
+    for (const n of ART_NAMEN) {
+      const img = new Image();
+      img.onload = () => { ART[n] = img; for (const f of onArt) f(); };
+      img.src = `/img/toren/${n}.webp`;
+    }
+  }
+
   // Ridder, kijkt naar rechts. C = cape (kleur van de speler), V = vizier.
   const KNIGHT = [
     '....CC......',
@@ -88,6 +101,11 @@ const TorenDraw = (() => {
   }
 
   function princess(ctx, x, y, w, t) {
+    if (ART.prinses) {
+      const img = ART.prinses, pw = w * 1.7, ph = pw * img.height / img.width;
+      ctx.drawImage(img, x + w / 2 - pw / 2, y - ph + Math.sin(t * 3) * w * .02, pw, ph);
+      return;
+    }
     const px = w / 12;
     const bob = Math.sin(t * 3) * px * .6;
     pixels(ctx, PRINCESS, x, y - px * 16 + bob, px, {}, false);
@@ -149,6 +167,8 @@ const TorenDraw = (() => {
 
   // ---------- Lucht: één keer per zone en schermgrootte getekend ----------
   const skies = new Map();
+  let artVer = 0;
+  onArt.push(() => { skies.clear(); tiles.clear(); chunks.clear(); artVer++; });
   function skyCanvas(key, w, h) {
     const id = `${key}:${w}x${h}`;
     if (skies.has(id)) return skies.get(id);
@@ -159,6 +179,14 @@ const TorenDraw = (() => {
     c.width = w;
     c.height = H;
     const g = c.getContext('2d');
+    const paint = ART['lucht-' + key];
+    if (paint) {
+      // Het schilderij vult de hele lucht (bijsnijden waar nodig).
+      const f = Math.max(w / paint.width, H / paint.height);
+      g.drawImage(paint, (w - paint.width * f) / 2, (H - paint.height * f) / 2, paint.width * f, paint.height * f);
+      skies.set(id, c);
+      return c;
+    }
     const r = seeded(key.length * 7919 + 3);
     const u = Math.min(w, h);
     const gr = g.createLinearGradient(0, 0, 0, H);
@@ -373,6 +401,13 @@ const TorenDraw = (() => {
   const TILE = { w: 208, h: 104 };
   function wallPattern(ctx, key, scale) {
     const id = `${key}:${Math.round(scale * 100)}`;
+    if (!tiles.has(id) && ART['muur-' + key]) {
+      if (tiles.size > 12) tiles.clear();
+      const c = document.createElement('canvas');
+      c.width = c.height = Math.max(8, Math.round(TILE.w * 1.25 * scale));
+      c.getContext('2d').drawImage(ART['muur-' + key], 0, 0, c.width, c.height);
+      tiles.set(id, ctx.createPattern(c, 'repeat'));
+    }
     if (!tiles.has(id)) {
       if (tiles.size > 12) tiles.clear();
       const L = LOOK[key];
@@ -482,6 +517,13 @@ const TorenDraw = (() => {
   }
 
   function torch(ctx, x, y, s, L, t, k) {
+    if (ART.fakkel) {
+      const f = 1 + Math.sin(t * 13 + k * 3) * .12 + Math.sin(t * 7.3 + k) * .08;
+      glow(ctx, x, y - 14 * s, 42 * s * f, L.flame[0], .5);
+      const img = ART.fakkel, th = 44 * s, tw = th * img.width / img.height;
+      ctx.drawImage(img, x - tw / 2, y - th * .55, tw, th);
+      return;
+    }
     ctx.fillStyle = '#2a2230';
     ctx.fillRect(x - 3 * s, y, 6 * s, 18 * s);
     ctx.fillStyle = '#6b6b7a';
@@ -503,6 +545,11 @@ const TorenDraw = (() => {
   }
 
   function banner(ctx, x, y, s, color) {
+    if (ART.banier) {
+      const img = ART.banier, bh = 74 * s, bw = bh * img.width / img.height;
+      ctx.drawImage(img, x - bw / 2, y - 3 * s, bw, bh);
+      return;
+    }
     ctx.fillStyle = '#8a6a2a';
     ctx.fillRect(x - 20 * s, y - 2 * s, 40 * s, 4 * s);
     ctx.fillStyle = color;
@@ -573,6 +620,10 @@ const TorenDraw = (() => {
         ctx.fill();
       }
       ctx.restore();
+      if (ART.zweef) {
+        const img = ART.zweef, ph = w * .42 * img.height / img.width;
+        ctx.drawImage(img, x - 3 * s, y - 4 * s, w + 6 * s, Math.min(ph, 34 * s));
+      } else {
       ctx.fillStyle = '#3a4a6c';
       ctx.beginPath();
       ctx.moveTo(x + 8 * s, y);
@@ -586,6 +637,7 @@ const TorenDraw = (() => {
       ctx.fillRect(x + 6 * s, y, w - 12 * s, 3 * s);
       ctx.fillStyle = L.glow;
       ctx.fillRect(x + 12 * s, y + h / 2 - 1 * s, w - 24 * s, 2 * s);
+      }
       // Pijltjes: op en neer of heen en weer.
       ctx.fillStyle = '#ffffff';
       ctx.globalAlpha = .85;
@@ -602,6 +654,11 @@ const TorenDraw = (() => {
       }
       ctx.fill();
       ctx.globalAlpha = 1;
+      return;
+    }
+    if (kind === 'ice' && ART.ijs) {
+      glow(ctx, x + w / 2, y + 6 * s, w * .5, '#8fe3ff', .25);
+      ctx.drawImage(ART.ijs, x - 2 * s, y - 3 * s, w + 4 * s, 20 * s);
       return;
     }
     if (kind === 'ice') {
@@ -628,6 +685,12 @@ const TorenDraw = (() => {
     }
     // Steen (ook de vloer en het bovenste platform).
     const th = (p.floor === 0 ? 40 : 18) * s;
+    if (ART.steen && p.floor !== 0 && !top) {
+      ctx.fillStyle = 'rgba(0,0,0,.35)';
+      ctx.fillRect(x + 5 * s, y + th, w - 5 * s, 7 * s);
+      ctx.drawImage(ART.steen, x - 2 * s, y - 2 * s, w + 4 * s, th + 6 * s);
+      return;
+    }
     ctx.fillStyle = 'rgba(0,0,0,.35)';
     ctx.fillRect(x + 5 * s, y + th, w - 5 * s, 7 * s);
     ctx.fillStyle = top ? '#6a5320' : '#34324a';
@@ -656,6 +719,11 @@ const TorenDraw = (() => {
   function springPad(ctx, x, y, s, t) {
     const pulse = .7 + Math.sin(t * 6) * .3;
     glow(ctx, x, y - 8 * s, 40 * s * pulse, '#ff5fd2', .8);
+    if (ART.veer) {
+      const sq = 1 - Math.max(0, Math.sin(t * 6)) * .12, ph = 26 * s * sq;
+      ctx.drawImage(ART.veer, x - 13 * s, y - ph, 26 * s, ph);
+      return;
+    }
     ctx.fillStyle = '#ff5fd2';
     ctx.beginPath();
     ctx.moveTo(x - 12 * s, y);
@@ -682,6 +750,11 @@ const TorenDraw = (() => {
 
   function spikes(ctx, x, y, w, s) {
     glow(ctx, x + w / 2, y - 6 * s, w * .8, '#ff3d5a', .35);
+    if (ART.stekels) {
+      const img = ART.stekels, n = Math.max(1, Math.round(w / (40 * s))), sw = w / n, sh = sw * img.height / img.width;
+      for (let i = 0; i < n; i++) ctx.drawImage(img, x + i * sw, y - sh + 1 * s, sw, sh);
+      return;
+    }
     const n = Math.max(3, Math.round(w / (9 * s)));
     const sw = w / n;
     for (let i = 0; i < n; i++) {
@@ -720,7 +793,7 @@ const TorenDraw = (() => {
     const h = canvas.height;
     const cssH = canvas.clientHeight || h;
     const paint = (el, k) => {
-      const id = `${k}:${w}x${h}`;
+      const id = `${k}:${w}x${h}:${artVer}`;
       if (el._id === id) return;
       el._id = id;
       const sky = skyCanvas(k, w, h);
