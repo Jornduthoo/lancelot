@@ -12,6 +12,43 @@ const MoDraw = (() => {
   const MOLE_W = 1.85; // breedte van het molplaatje in de wereld
   const SP_W = 260, SP_H = 300, SP_BASE = 232, SP_K = 1.4; // molplaatje en waar de put zit
 
+  // Geschilderde mollen, bom en zwaard (public/img/robomol/). Is een beeld er (nog) niet, dan tekenen we zoals vroeger.
+  const ART = {};
+  let artVer = 0;
+  if (typeof Image !== 'undefined') {
+    for (const n of ['mol', 'goud', 'bom', 'zwaard']) {
+      const img = new Image();
+      img.onload = () => { ART[n] = img; artVer++; };
+      img.src = `/img/robomol/${n}.webp`;
+    }
+  }
+  function paintedMole(type, state) {
+    const img = ART[type === 'bom' ? 'bom' : type === 'goud' ? 'goud' : 'mol'];
+    const c = document.createElement('canvas');
+    c.width = Math.round(SP_W * SP_K); c.height = Math.round(SP_H * SP_K);
+    const g = c.getContext('2d');
+    g.scale(SP_K, SP_K);
+    const mw = type === 'bom' ? 190 : 225, mh = mw * img.height / img.width, bottom = type === 'bom' ? 262 : 280;
+    if (type === 'bom') glow(g, SP_W / 2, bottom - mh * .45, 120, '#ff3355', state === 'hit' ? .25 : .6);
+    if (state === 'hit') g.filter = 'brightness(.7) sepia(.6) hue-rotate(-30deg) saturate(2.5)';
+    if (state === 'dent') g.filter = 'brightness(.85)';
+    g.drawImage(img, SP_W / 2 - mw / 2, bottom - mh, mw, mh);
+    g.filter = 'none';
+    return c;
+  }
+  function paintedSword(fire) {
+    const img = ART.zwaard, sh = 530, sw = sh * img.width / img.height;
+    const c = document.createElement('canvas');
+    c.width = Math.ceil(sw + 20); c.height = SW_H;
+    const g = c.getContext('2d');
+    // Het schilderij wijst naar beneden: omdraaien, punt bovenaan.
+    g.translate(c.width / 2, 4 + sh / 2);
+    g.rotate(Math.PI);
+    if (fire) g.filter = 'hue-rotate(170deg) saturate(1.6)';
+    g.drawImage(img, -sw / 2, -sh / 2, sw, sh);
+    return c;
+  }
+
   function rand(seed) {
     let s = seed % 2147483647 || 1;
     return () => (s = (s * 16807) % 2147483647) / 2147483647;
@@ -146,6 +183,7 @@ const MoDraw = (() => {
   }
 
   function moleSprite(type, state) {
+    if (ART[type === 'bom' ? 'bom' : type === 'goud' ? 'goud' : 'mol']) return paintedMole(type, state);
     const c = document.createElement('canvas');
     c.width = Math.round(SP_W * SP_K); c.height = Math.round(SP_H * SP_K);
     const g = c.getContext('2d');
@@ -212,6 +250,7 @@ const MoDraw = (() => {
   // Een kristallen kling met lichtende randen, een gouden pareerstang met blauwe steen. Punt bovenaan, hand op y = 440.
   const SW_W = 130, SW_H = 540, SW_HAND = 452;
   function swordSprite(fire) {
+    if (ART.zwaard) return paintedSword(fire);
     const c = document.createElement('canvas');
     c.width = SW_W; c.height = SW_H;
     const g = c.getContext('2d');
@@ -275,7 +314,14 @@ const MoDraw = (() => {
       if (w === this.w && h === this.h) return false;
       this.w = w; this.h = h;
       this.layout(w, h);
-      if (!this.sprites) {
+      if (!this.sprites) this.makeSprites();
+      this.bake();
+      return true;
+    }
+
+    makeSprites() {
+      this._av = artVer;
+      {
         this.sprites = {
           mol: moleSprite('mol', ''), molHit: moleSprite('mol', 'hit'),
           goud: moleSprite('goud', ''), goudDent: moleSprite('goud', 'dent'), goudHit: moleSprite('goud', 'hit'),
@@ -283,8 +329,6 @@ const MoDraw = (() => {
           sword: swordSprite(false), fire: swordSprite(true),
         };
       }
-      this.bake();
-      return true;
     }
 
     // ---------- Vooraf tekenen ----------
@@ -583,6 +627,7 @@ const MoDraw = (() => {
     // ---------- Elke frame ----------
     // moles: [{ m, r (0-1 uit de put), state: ''|'hit'|'dent', squash, color, name }]
     draw(ctx, t, moles, extra) {
+      if (this._av !== artVer) this.makeSprites();
       const sp = this.sprites;
       ctx.drawImage(this.bg, 0, 0);
       // Vlammen van de fakkels
@@ -763,7 +808,7 @@ const MoDraw = (() => {
       ctx.translate(p.px, p.py);
       ctx.rotate(p.a);
       ctx.scale(scale, scale);
-      ctx.drawImage(img, -SW_W / 2, -SW_HAND);
+      ctx.drawImage(img, -img.width / 2, -SW_HAND);
       ctx.restore();
       if (fire) glow(ctx, tipX, tipY, p.len * .12, '#ff8c42', .6 + .2 * Math.sin(t * 20));
       return { tipX, tipY, k: p.k || 0 };
