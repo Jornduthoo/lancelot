@@ -418,3 +418,31 @@ const Glow = (() => {
 
   return { rgba, glowSprite, glow, vignette, lightning, space, phoneBg };
 })();
+
+// Het wachtscherm (QR-code en namen) op het bord krijgt het geschilderde decor van het spel, wazig en donker erachter.
+(() => {
+  if (typeof document === 'undefined') return;
+  const Q = '/img/quizspellen/', START = '/img/startscherm.webp';
+  const DECOR = {
+    '/host': START, '/toren': '/img/toren/lucht-neon.webp', '/schattenjacht': Q + 'schattenjacht.webp', '/laserslag': Q + 'laserslag.webp',
+    '/ridderrace': '/img/ridderrace/hemel.webp', '/kristalroof': Q + 'kristalroof.webp', '/verrader': Q + 'verrader.webp', '/burchtbouwers': '/img/burchtbouwers/landschap.webp',
+    '/duel': Q + 'duel.webp', '/packnight': START, '/strijdrossen': '/img/ridderrace/hemel.webp', '/gauntlet': START, '/ridder-royale': Q + 'ridderroyale.webp',
+    '/sterrenvreter': '/img/sterrenvreter/ruimte.webp', '/ridderslang': START, '/burchtstorm': '/img/burchtstorm/achtergrond.webp', '/poortwacht': '/img/poortwacht/kaart.webp',
+    '/neonvlucht': '/img/neonvlucht/achtergrond.webp', '/diepboor': '/img/diepboor/lucht.webp', '/raketridder': '/img/raketridder/lucht-wolkenburcht.webp',
+    '/splijtzwaard': '/img/splijtzwaard/lucht-sterrenburcht.webp', '/wankelwagen': '/img/wankelwagen/lucht-burchtwallen.webp', '/plasmapoort': '/img/plasmapoort/stadion.webp',
+    '/tuimelridder': '/img/tuimelridder/achtergrond-burcht.webp', '/hooibergjacht': '/img/hooiberg/schuur.webp', '/zwermwacht': '/img/zwermwacht/arena.webp',
+    '/haakridder': '/img/haakridder/achtergrond.webp', '/kolkridder': START, '/banierveld': '/img/banierveld/veld.webp', '/pixelridder': '/img/pixelridder/burcht.webp',
+    '/robomol': '/img/robomol/plein.webp', '/kerker': '/img/kerker/gang.webp', '/hofschilder': '/img/hofschilder/zaal.webp', '/robopaarden': START,
+    '/neonduel': '/img/neonduel/arena.webp', '/leraarbaas': '/img/leraarbaas/troonzaal.webp', '/cybergalaga': '/img/cybergalaga/hemel.webp', '/bomberknight': START,
+  };
+  const start = () => {
+    const src = DECOR[location.pathname.replace(/\/+$/, '')];
+    const lobby = document.getElementById('lobby');
+    if (!src || !lobby) return;
+    document.body.style.setProperty('--wacht-bg', `url('${src}')`);
+    const show = () => { if (lobby.classList.contains('hidden')) delete document.body.dataset.wacht; else document.body.dataset.wacht = '1'; };
+    new MutationObserver(show).observe(lobby, { attributes: true, attributeFilter: ['class'] });
+    show();
+  };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
+})();
