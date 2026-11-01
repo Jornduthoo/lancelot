@@ -13,6 +13,50 @@ const RaceDraw = (() => {
   const bg = { sky: 0, hills: 0 };
   const STARS = Array.from({ length: 90 }, (_, i) => [((i * 7919) % 1000) / 1000, ((i * 104729) % 1000) / 1000, (i % 3) + 1]);
 
+  // Geschilderd gras en een weg van steen met neonvoegen (public/img/ridderrace/). Zonder beeld: effen kleuren zoals vroeger.
+  const ART = {};
+  const TEX = 512;              // grootte van de textuur in pixels
+  const TPS = T.SEG / T.ROAD * TEX; // textuurpixels per segment: twee tegels over de breedte van de weg
+  if (typeof Image !== 'undefined') {
+    for (const n of ['gras', 'weg']) {
+      const img = new Image();
+      img.onload = () => {
+        const c = document.createElement('canvas');
+        ART[n] = c.getContext('2d').createPattern(img, 'repeat');
+      };
+      img.src = `/img/ridderrace/${n}.webp`;
+    }
+  }
+  // Vult het gras (hele breedte) of de weg met de textuur, in perspectief. Grote segmenten vooraan knippen we in
+  // dunne reepjes, anders zie je trapjes in de stenen.
+  function texFill(ctx, pat, s, P, maxy, W, road) {
+    const H = P.y1 - P.y2;
+    // Ver weg is een segment maar een paar pixels hoog: dan volstaat de gemiddelde kleur van het beeld.
+    if (H < 2.5) {
+      ctx.fillStyle = road ? '#2d484f' : '#0b392f';
+      const y1 = Math.min(P.y1, maxy);
+      if (road) poly(ctx, [P.x1 - P.w1, y1, P.x1 + P.w1, y1, P.x2 + P.w2, P.y2, P.x2 - P.w2, P.y2], ctx.fillStyle);
+      else ctx.fillRect(0, P.y2, W, y1 - P.y2 + 1);
+      return;
+    }
+    const k = road ? Math.min(10, Math.max(1, Math.ceil(H / 8))) : Math.min(3, Math.max(1, Math.ceil(H / 30)));
+    const v0 = (s.i * TPS) % TEX;
+    for (let j = 0; j < k; j++) {
+      const a = j / k, b = (j + 1) / k;
+      let ya = P.y1 - H * a;
+      const yb = P.y1 - H * b;
+      if (yb >= maxy) continue;
+      const xa = P.x1 + (P.x2 - P.x1) * a, wa = P.w1 + (P.w2 - P.w1) * a;
+      const xb = P.x1 + (P.x2 - P.x1) * b, wb = P.w1 + (P.w2 - P.w1) * b;
+      const kx = wa / TEX, ky = (ya - yb) / (TPS / k);
+      pat.setTransform(new DOMMatrix([kx, 0, 0, -ky, xa - wa, ya + (v0 + a * TPS) * ky]));
+      ctx.fillStyle = pat;
+      if (ya > maxy) ya = maxy;
+      if (road) poly(ctx, [xa - wa, ya, xa + wa, ya, xb + wb, yb, xb - wb, yb], pat);
+      else ctx.fillRect(0, yb, W, ya - yb + .6);
+    }
+  }
+
   function poly(ctx, pts, fill) {
     ctx.fillStyle = fill;
     ctx.beginPath();
@@ -158,10 +202,18 @@ const RaceDraw = (() => {
       y1 = maxy;
     }
     const alt = Math.floor(s.i / 3) % 2;
-    ctx.fillStyle = alt ? '#0a1a2c' : '#0d2136';
-    ctx.fillRect(0, y2, W, y1 - y2 + 1);
+    const painted = ART.gras && ART.weg && P.y1 - P.y2 > .05;
+    if (painted) {
+      texFill(ctx, ART.gras, s, P, maxy, W, false);
+      // Om de drie segmenten iets donkerder: zo voel je de snelheid.
+      ctx.fillStyle = alt ? 'rgba(4,10,24,.4)' : 'rgba(4,10,24,.3)';
+      ctx.fillRect(0, y2, W, y1 - y2 + 1);
+    } else {
+      ctx.fillStyle = alt ? '#0a1a2c' : '#0d2136';
+      ctx.fillRect(0, y2, W, y1 - y2 + 1);
+    }
     // Neonlijnen op het gras, zoals een raster.
-    if (s.i % 6 === 0) {
+    if (!painted && s.i % 6 === 0) {
       ctx.fillStyle = 'rgba(76, 201, 255, .16)';
       ctx.fillRect(0, y2, W, Math.max(1, (y1 - y2) * .25));
     }
@@ -170,7 +222,10 @@ const RaceDraw = (() => {
     const rumble = alt ? '#4cc9ff' : '#1b4f7a';
     poly(ctx, [x1 - r1, y1, x1 - w1, y1, x2 - w2, y2, x2 - r2, y2], rumble);
     poly(ctx, [x1 + r1, y1, x1 + w1, y1, x2 + w2, y2, x2 + r2, y2], alt ? '#ff3fa4' : '#6a1d5a');
-    poly(ctx, [x1 - w1, y1, x1 + w1, y1, x2 + w2, y2, x2 - w2, y2], alt ? '#1b1f33' : '#1f243b');
+    if (painted) {
+      texFill(ctx, ART.weg, s, P, maxy, W, true);
+      poly(ctx, [x1 - w1, y1, x1 + w1, y1, x2 + w2, y2, x2 - w2, y2], alt ? 'rgba(10,12,24,.4)' : 'rgba(10,12,24,.32)');
+    } else poly(ctx, [x1 - w1, y1, x1 + w1, y1, x2 + w2, y2, x2 - w2, y2], alt ? '#1b1f33' : '#1f243b');
     if (alt) {
       for (const l of [-1 / 3, 1 / 3]) {
         const a = w1 * .018;
