@@ -1818,7 +1818,20 @@ body[data-du="1"] .sj-card { background: linear-gradient(180deg, rgba(36, 22, 40
 body:has(#home:not(.hidden))::before { content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none;
   background: radial-gradient(ellipse 60% 55% at 50% 40%, rgb(var(--k-bg) / .55), rgb(var(--k-bg) / .2) 70%), linear-gradient(180deg, rgb(var(--k-bg) / .35), rgb(var(--k-bg) / .82) 75%), url('/img/startscherm.webp') center / cover no-repeat;
   filter: var(--logo-tint, none); }
-body:has(#home.in-rijk)::before { background: linear-gradient(rgb(var(--k-bg) / .86), rgb(var(--k-bg) / .9)), url('/img/startscherm.webp') center / cover no-repeat; }
+body:has(#home.in-rijk)::before { background: linear-gradient(rgb(var(--k-bg) / .7), rgb(var(--k-bg) / .86)), var(--achter, url('/img/startscherm.webp')) center / cover no-repeat; }
+/* Elk rijk zijn eigen geschilderde zaal (ui.js zet html[data-achter]). Donker overschilderd zodat tekst leesbaar blijft; niet bij de lichte thema's. */
+html[data-achter="arena"] { --achter: url('/img/rijken/arena.webp'); }
+html[data-achter="tafel"] { --achter: url('/img/rijken/tafel.webp'); }
+html[data-achter="smidse"] { --achter: url('/img/rijken/smidse.webp'); }
+html[data-achter="kronieken"] { --achter: url('/img/rijken/kronieken.webp'); }
+html[data-achter="wapenkamer"] { --achter: url('/img/wapenkamer/zaal.webp'); }
+html[data-achter="start"] { --achter: url('/img/startscherm.webp'); }
+html[data-achter="leerling"] { --achter: url('/img/rijken/leerling.webp'); }
+html[data-achter]:not([data-achter="leerling"]):not([data-thema="daglicht"]):not([data-thema="ijspaleis"]):not([data-thema="contrast"]) body:not([data-wacht]):not(:has(#home:not(.hidden))) {
+  background: linear-gradient(rgb(var(--k-bg) / .74), rgb(var(--k-bg) / .9)), var(--achter) center / cover no-repeat fixed; }
+html[data-achter="leerling"]:not([data-thema="daglicht"]):not([data-thema="ijspaleis"]):not([data-thema="contrast"]) body:not([data-wacht]) {
+  background: linear-gradient(rgb(var(--k-bg) / .55), rgb(var(--k-bg) / .62) 55%, rgb(var(--k-bg) / .5)), var(--achter) center bottom / cover no-repeat fixed; }
+@media (orientation: landscape) { html[data-achter="leerling"] body:not([data-wacht]) { background-position: 0 0, center 62% !important; } }
 body:has(#home:not(.hidden)) { background: transparent; }
 html[data-thema="daglicht"] body::before { display: none; }
 html[data-thema="daglicht"] body:has(#home:not(.hidden)) { background: var(--bg); }

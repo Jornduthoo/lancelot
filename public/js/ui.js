@@ -513,6 +513,23 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', snelmenu);
   else snelmenu();
 
+  // ---------- Geschilderd decor ----------
+  // Elk rijk heeft zijn eigen geschilderde zaal achter de schermen (style.css, html[data-achter]).
+  // Spelpagina's hebben hun eigen decor, dus daar niets. Leerlingenschermen krijgen de sterrenpoort.
+  function zetAchter() {
+    const pad = location.pathname.replace(/^\/+/, '');
+    const b = document.body;
+    let a = '';
+    if (b && (b.classList.contains('player') || b.classList.contains('pf-leerling'))) a = 'leerling';
+    else if (pad === 'host') a = location.hash.slice(1) || 'start';
+    else for (const [r, paden] of Object.entries(PAD_RIJK)) if (paden.includes(pad)) a = r === 'geen' ? 'start' : r;
+    if (a) document.documentElement.dataset.achter = a;
+    else delete document.documentElement.dataset.achter;
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', zetAchter);
+  else zetAchter();
+  addEventListener('hashchange', zetAchter);
+
   // Tekst naar het klembord, meteen bij de klik (vóór een window.open: daarna heeft de pagina de focus niet meer).
   // Werkt ook op gewone http via het schoolnetwerk, waar navigator.clipboard vaak ontbreekt.
   function kopieer(tekst) {
@@ -548,7 +565,7 @@
     // Een klein icoon uit style.css (.ic-…) voor in een knop.
     ic: naam => `<i class="ic ic-${naam}" aria-hidden="true"></i>`,
     // Het snelmenu opnieuw laten oplichten als een pagina zelf het adres verandert (host.js, rijk openen).
-    snelMarkeer: () => snelMarkeer(),
+    snelMarkeer: () => { snelMarkeer(); zetAchter(); },
     pauze: Pauze,
     themas: THEMAS,
     get thema() { return thema; },
