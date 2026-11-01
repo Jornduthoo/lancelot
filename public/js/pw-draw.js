@@ -7,6 +7,17 @@ const PwDraw = (() => {
   const TAU = Math.PI * 2;
   const MCOL = { kruiper: '#ff4d6d', renner: '#ffc94a', pantser: '#c77dff', draak: '#ff3df0' };
 
+  // Geschilderde beelden (kaart, pad, poort, torens, monsters). Zolang ze niet geladen zijn tekenen we alles zelf.
+  const ART = {};
+  const ART_NAMEN = ['kaart', 'pad', 'poort', 'toren-laser', 'toren-kanon', 'toren-magie', 'slijm', 'goblin', 'imp', 'vleermuis', 'golem', 'kever'];
+  if (typeof Image !== 'undefined') {
+    for (const n of ART_NAMEN) {
+      const img = new Image();
+      img.onload = () => { ART[n] = img; baked = null; frameCache = null; towerCache.clear(); artCache.clear(); };
+      img.src = `/img/poortwacht/${n}.webp`;
+    }
+  }
+
   function rnd(seed) {
     let s = seed;
     return () => (s = (s * 16807) % 2147483647) / 2147483647;
@@ -23,10 +34,17 @@ const PwDraw = (() => {
     g.scale(k, k);
     const r = rnd(4242);
     // Grond: donker gras met vlekken, aarde, grassprietjes, bloemetjes en lichtgevende paddenstoelen.
+    const painted = !!ART.kaart;
+    if (painted) {
+      g.drawImage(ART.kaart, 0, 0, W, H);
+      g.fillStyle = 'rgba(4, 10, 14, .18)';
+      g.fillRect(0, 0, W, H);
+    }
     const bg = g.createLinearGradient(0, 0, W, H);
     bg.addColorStop(0, '#0f2321');
     bg.addColorStop(.5, '#0c1c1c');
     bg.addColorStop(1, '#101a26');
+    if (!painted) {
     g.fillStyle = bg;
     g.fillRect(0, 0, W, H);
     for (let i = 0; i < 40; i++) glow(g, r() * W, r() * H, 80 + r() * 160, ['#1d4a3a', '#1b2f5a', '#3a1f55'][i % 3], .22);
@@ -53,6 +71,7 @@ const PwDraw = (() => {
         g.globalAlpha = 1;
       } else rock(g, x, y, 2 + r() * 4, r);
     }
+    }
     // Het pad: donkere berm, kasseien dicht naast elkaar, wielsporen, stoepranden en een dun neonlijntje.
     const path = () => { g.beginPath(); PwWorld.PTS.forEach((p, i) => g[i ? 'lineTo' : 'moveTo'](p[0], p[1])); };
     g.lineCap = g.lineJoin = 'round';
@@ -63,8 +82,14 @@ const PwDraw = (() => {
     path();
     g.strokeStyle = '#2a2a33';
     g.lineWidth = PwWorld.ROAD * 2;
+    if (ART.pad) {
+      const pat = g.createPattern(ART.pad, 'repeat');
+      pat.setTransform(new DOMMatrix().scale(.42));
+      g.strokeStyle = pat;
+    }
     g.stroke();
-    for (let d = 0; d < PwWorld.LENGTH; d += 9) {
+    if (ART.pad) { g.strokeStyle = 'rgba(8, 10, 18, .38)'; g.stroke(); } // wat donkerder, zodat de monsters opvallen
+    if (!ART.pad) for (let d = 0; d < PwWorld.LENGTH; d += 9) {
       const p = PwWorld.pos(d), nx = -Math.sin(p.a), ny = Math.cos(p.a);
       for (let o = -PwWorld.ROAD + 6; o < PwWorld.ROAD - 4; o += 9) {
         const x = p.x + nx * (o + (r() - .5) * 3), y = p.y + ny * (o + (r() - .5) * 3);
@@ -131,7 +156,7 @@ const PwDraw = (() => {
     // Bomen, dennen, struiken, ruïnes en kristallen (niet op het pad en niet op torenplaatsen)
     const free = (x, y, m) => PwWorld.distToPath(x, y) > PwWorld.ROAD + m && !PwWorld.SLOTS.some(s => Math.hypot(s.x - x, s.y - y) < 38 + m) && x < 1440 && Math.hypot(x - PwWorld.PORTAL.x, y - PwWorld.PORTAL.y) > 110;
     const props = [];
-    for (let i = 0; i < 220; i++) {
+    for (let i = 0; i < (painted ? 0 : 220); i++) {
       const x = 20 + r() * (W - 40), y = 20 + r() * (H - 40);
       if (!free(x, y, 18)) continue;
       props.push([x, y, r()]);
@@ -161,6 +186,13 @@ const PwDraw = (() => {
       glow(g, x, y - 8, 12, '#c77dff', .35);
     }
     castle(g);
+    if (ART.poort) {
+      // Het geschilderde poortgebouw over de getekende poort
+      const P2 = PwWorld.GATE, ih = 190, iw = ih * ART.poort.width / ART.poort.height;
+      g.fillStyle = 'rgba(0,0,0,.45)';
+      g.beginPath(); g.ellipse(P2.x + 10, P2.y + 70, iw * .45, 22, 0, 0, TAU); g.fill();
+      g.drawImage(ART.poort, P2.x + 14 - iw / 2, P2.y - ih * .55, iw, ih);
+    }
     // Portaalring (de draaiende kolk tekenen we live)
     const P = PwWorld.PORTAL;
     g.fillStyle = '#05060c';
@@ -463,6 +495,24 @@ const PwDraw = (() => {
     }
   }
 
+  // Geschilderde toren: schaduw, het beeld (groter per niveau), een gouden ring vanaf niveau 3 en de sterretjes.
+  const TOWER_ART = { laser: 'toren-laser', katapult: 'toren-kanon', ijs: 'toren-magie' };
+  function paintedTower(g, x, y, type, lvl, img) {
+    const s = 1 + (lvl - 1) * .07;
+    const col = PwWorld.TOWERS[type].color;
+    g.fillStyle = 'rgba(0,0,0,.45)';
+    g.beginPath(); g.ellipse(x + 3, y + 8, 22 * s, 10 * s, 0, 0, TAU); g.fill();
+    if (lvl >= 3) {
+      g.strokeStyle = lvl >= 5 ? '#ffe08a' : 'rgba(255, 201, 74, .7)';
+      g.lineWidth = lvl >= 4 ? 3 : 2;
+      g.beginPath(); g.ellipse(x, y + 6, 23 * s, 10 * s, 0, 0, TAU); g.stroke();
+    }
+    const h = 72 * s, w = h * img.width / img.height;
+    g.drawImage(img, x - w / 2, y + 12 - h, w, h);
+    glow(g, x, y + 12 - h * .82, 16 * s, col, .45);
+    pips(g, x, y, s, lvl);
+  }
+
   // Elke toren één keer tekenen per soort, niveau en schaal; daarna is het één drawImage per toren.
   // Alleen de draaiende loop van de katapult en een zachte gloed tekenen we elke frame.
   const towerCache = new Map();
@@ -476,7 +526,9 @@ const PwDraw = (() => {
     c.height = Math.ceil(100 * sc);
     const g = c.getContext('2d');
     g.scale(sc, sc);
-    towerDraw(g, 45, 62, type, lvl, '#fff', 0, 0, 'base');
+    const img = ART[TOWER_ART[type]];
+    if (img) paintedTower(g, 45, 62, type, lvl, img);
+    else towerDraw(g, 45, 62, type, lvl, '#fff', 0, 0, 'base');
     c.ox = 45;
     c.oy = 62;
     towerCache.set(key, c);
@@ -589,7 +641,27 @@ const PwDraw = (() => {
     return c;
   }
 
+  // Geschilderde monsters: per soort een paar varianten, zodat een golf er niet als een rij klonen uitziet.
+  const MON_ART = { kruiper: ['slijm', 'goblin', 'imp'], renner: ['vleermuis'], pantser: ['golem', 'kever'] };
+  const MON_H = { kruiper: 3.9, renner: 3.8, pantser: 3.9 };
+  const artCache = new Map();
+  function artSprite(name, hgt, sc) {
+    const key = name + '@' + Math.round(hgt * sc);
+    let c = artCache.get(key);
+    if (c) return c;
+    if (artCache.size > 60) artCache.clear();
+    const img = ART[name];
+    c = document.createElement('canvas');
+    c.height = Math.max(4, Math.round(hgt * sc));
+    c.width = Math.max(4, Math.round(c.height * img.width / img.height));
+    c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+    artCache.set(key, c);
+    return c;
+  }
+
   function monster(ctx, type, x, y, a, t, slow, hp, id, sc = 1) {
+    const list = MON_ART[type], name = list && list[Math.abs(id | 0) % list.length];
+    if (name && ART[name]) return paintedMonster(ctx, type, name, x, y, a, t, slow, hp, id, sc);
     const speed = type === 'renner' ? 18 : type === 'pantser' ? 7 : type === 'draak' ? 5 : 12;
     const f = Math.floor(((t * speed + id) / TAU * FRAMES) % FRAMES + FRAMES) % FRAMES;
     const sp = monsterSprite(type, f, sc);
@@ -610,6 +682,34 @@ const PwDraw = (() => {
       ctx.fillRect(x - w / 2, y - PwWorld.MONSTERS[type].r - 9, w, 4);
       ctx.fillStyle = hp > 50 ? '#4ade80' : hp > 25 ? '#ffc94a' : '#ff4d6d';
       ctx.fillRect(x - w / 2, y - PwWorld.MONSTERS[type].r - 9, w * hp / 100, 4);
+    }
+  }
+
+  function paintedMonster(ctx, type, name, x, y, a, t, slow, hp, id, sc) {
+    const R = PwWorld.MONSTERS[type].r, hgt = R * MON_H[type];
+    const sp = artSprite(name, hgt, sc);
+    const w = hgt * sp.width / sp.height;
+    const fast = type === 'renner' ? 16 : type === 'pantser' ? 7 : 11;
+    const ph = t * fast + id * 1.7;
+    const hop = type === 'renner' ? Math.sin(ph) * 3 - 6 : -Math.abs(Math.sin(ph)) * 2.5;
+    ctx.fillStyle = 'rgba(0,0,0,.4)';
+    ctx.beginPath(); ctx.ellipse(x + 2, y + R * .55, R * 1.05, R * .45, 0, 0, TAU); ctx.fill();
+    ctx.save();
+    ctx.translate(x, y + R * .6 + hop);
+    if (Math.cos(a) < -.2) ctx.scale(-1, 1);
+    ctx.rotate(Math.sin(ph) * .06);
+    ctx.drawImage(sp, -w / 2, -hgt, w, hgt);
+    ctx.restore();
+    if (slow) {
+      ctx.fillStyle = 'rgba(155, 231, 255, .3)';
+      ctx.beginPath(); ctx.arc(x, y - R * .4, R + 4, 0, TAU); ctx.fill();
+    }
+    if (hp < 100) {
+      const bw = R * 2, by = y + R * .6 - hgt - 7;
+      ctx.fillStyle = 'rgba(0,0,0,.6)';
+      ctx.fillRect(x - bw / 2, by, bw, 4);
+      ctx.fillStyle = hp > 50 ? '#4ade80' : hp > 25 ? '#ffc94a' : '#ff4d6d';
+      ctx.fillRect(x - bw / 2, by, bw * hp / 100, 4);
     }
   }
 
@@ -909,7 +1009,7 @@ const PwDraw = (() => {
       ctx.scale(big / sc, big / sc);
       ctx.drawImage(sp, -sp.ox * sc, -sp.oy * sc);
       ctx.restore();
-      if (tw.type === 'katapult') {
+      if (tw.type === 'katapult' && !ART['toren-kanon']) {
         ctx.save();
         ctx.translate(s.x, s.y);
         ctx.scale(big, big);
