@@ -410,7 +410,7 @@
     }
     JpDraw.render(ctx, fit.w, fit.h, {
       seed: g.state.seed, t: time, cx: g.cam.x, cy: g.cam.y, S, ghosts, hide: g.hide, passed: g.stage,
-      me: pl.dead > 0 ? null : { x: pl.x, y: pl.y, face: pl.face, jet: pl.jet, turbo: pl.turbo > 0, color: g.color, blink: pl.safe > 0, rim: true },
+      me: pl.dead > 0 ? null : { x: pl.x, y: pl.y, face: pl.face, jet: pl.jet, turbo: pl.turbo > 0, color: g.color, blink: pl.safe > 0, rim: true, fuel: pl.turbo > 0 ? 1 : pl.fuel },
     });
     fx.update(dt);
     ctx.save();

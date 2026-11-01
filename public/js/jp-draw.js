@@ -726,6 +726,23 @@ const JpDraw = (() => {
     }
     ctx.drawImage(spr, -spr.fx * k, -spr.height * k, spr.width * k, spr.height * k);
     ctx.restore();
+    // Brandstofbalkje boven de eigen ridder: zo zie je meteen hoeveel je nog hebt.
+    if (o.fuel != null) {
+      const bw = Math.max(44, S * 1.2), bh = Math.max(8, S * .2);
+      const bx = sx - bw / 2, by = sy - S * 2.25 - bh;
+      const f = Math.max(0, Math.min(1, o.fuel));
+      const low = !o.turbo && f < .25;
+      ctx.save();
+      if (low && Math.floor(t * 6) % 2) ctx.globalAlpha = .55;
+      ctx.fillStyle = 'rgba(5,8,20,.75)';
+      ctx.fillRect(bx - 2, by - 2, bw + 4, bh + 4);
+      ctx.fillStyle = o.turbo ? '#ff6bd6' : low ? '#ff4d6d' : f < .5 ? '#ffc94a' : '#5ee7ff';
+      ctx.fillRect(bx, by, bw * f, bh);
+      ctx.strokeStyle = 'rgba(242,245,255,.8)';
+      ctx.lineWidth = Math.max(1, bh * .18);
+      ctx.strokeRect(bx - 1, by - 1, bw + 2, bh + 2);
+      ctx.restore();
+    }
     if (o.name) {
       ctx.font = `800 ${Math.max(11, Math.round(S * .34))}px Orbitron, sans-serif`;
       ctx.textAlign = 'center';
