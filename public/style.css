@@ -2250,3 +2250,6 @@ body[data-ry="1"] { --quiz-bg: url('/img/quizspellen/ridderroyale.webp'); }
 body[data-ls="1"]::before, body[data-ry="1"]::before { content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none; background: linear-gradient(rgba(4, 4, 12, .35), rgba(4, 4, 12, .6)), var(--quiz-bg) center / cover no-repeat; }
 body[data-ls="1"], body[data-ry="1"] { background: transparent; }
 html[data-thema="daglicht"] body[data-ls="1"], html[data-thema="daglicht"] body[data-ry="1"] { background: var(--bg); }
+
+/* Wachtscherm op het bord: het geschilderde decor van het spel, donker achter de QR-code (fx.js zet --wacht-bg). */
+body[data-wacht] { background: linear-gradient(rgba(4, 6, 14, .55), rgba(4, 6, 14, .8)), var(--wacht-bg) center / cover no-repeat fixed; }
