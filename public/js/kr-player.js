@@ -366,10 +366,13 @@ function krBg() {
   c.width = w;
   c.height = h;
   const g = c.getContext('2d');
-  const art = KrArt.cave(w, h, 13);
-  g.drawImage(art.c, 0, 0);
-  art.lamps.forEach(([x, y]) => Glow.glow(g, x, y, 60 * dpr, '#7fdcff', .6));
-  g.fillStyle = 'rgba(4, 3, 14, .4)';
+  const painted = Glow.phoneBg(g, w, h, '/img/quizspellen/kristalroof.webp', () => { c.width = 0; krBg(); });
+  if (!painted) {
+    const art = KrArt.cave(w, h, 13);
+    g.drawImage(art.c, 0, 0);
+    art.lamps.forEach(([x, y]) => Glow.glow(g, x, y, 60 * dpr, '#7fdcff', .6));
+  }
+  g.fillStyle = painted ? 'rgba(4, 3, 14, .25)' : 'rgba(4, 3, 14, .4)';
   g.fillRect(0, 0, w, h);
   Glow.vignette(g, w, h, .7);
 }

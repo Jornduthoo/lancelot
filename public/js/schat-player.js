@@ -189,10 +189,13 @@ function sjBg() {
   c.width = w;
   c.height = h;
   const g = c.getContext('2d');
-  const art = SjArt.vault(w, h, 11);
-  g.drawImage(art.c, 0, 0);
-  art.torches.forEach(([x, y, pw], i) => SjArt.torch(g, x, y, pw * .9, i, i));
-  g.fillStyle = 'rgba(5, 3, 12, .45)';
+  const painted = Glow.phoneBg(g, w, h, '/img/quizspellen/schattenjacht.webp', () => { c.width = 0; sjBg(); });
+  if (!painted) {
+    const art = SjArt.vault(w, h, 11);
+    g.drawImage(art.c, 0, 0);
+    art.torches.forEach(([x, y, pw], i) => SjArt.torch(g, x, y, pw * .9, i, i));
+  }
+  g.fillStyle = painted ? 'rgba(5, 3, 12, .25)' : 'rgba(5, 3, 12, .45)';
   g.fillRect(0, 0, w, h);
   Glow.vignette(g, w, h, .7);
 }

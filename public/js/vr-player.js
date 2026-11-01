@@ -356,10 +356,13 @@ function vrBg() {
   c.width = w;
   c.height = h;
   const g = c.getContext('2d');
-  const art = VrArt.hall(w, h, 17);
-  g.drawImage(art.c, 0, 0);
-  art.torches.forEach(([x, y, u], i) => VrArt.torch(g, x, y, u, i, i));
-  g.fillStyle = 'rgba(5, 4, 12, .4)';
+  const painted = Glow.phoneBg(g, w, h, '/img/quizspellen/verrader.webp', () => { c.width = 0; vrBg(); });
+  if (!painted) {
+    const art = VrArt.hall(w, h, 17);
+    g.drawImage(art.c, 0, 0);
+    art.torches.forEach(([x, y, u], i) => VrArt.torch(g, x, y, u, i, i));
+  }
+  g.fillStyle = painted ? 'rgba(5, 4, 12, .25)' : 'rgba(5, 4, 12, .4)';
   g.fillRect(0, 0, w, h);
   Glow.vignette(g, w, h, .7);
 }
