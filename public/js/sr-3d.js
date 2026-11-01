@@ -217,7 +217,7 @@ const Sr3D = (() => {
 
   // De vloer van bovenaf (zonder kratten en schansen) als pixels om uit te lezen.
   function floorData(teams) {
-    const key = teams ? 'teams' : 'ieder';
+    const key = (teams ? 'teams' : 'ieder') + SrDraw.artVer();
     if (floor && floor.key === key) return floor;
     // Grove vloer is genoeg voor het lage 3D-beeld en spaart geheugen op een Chromebook.
     const c = SrDraw.arenaImage(teams, false, .25);
@@ -596,6 +596,15 @@ const Sr3D = (() => {
         if (!p) continue;
         const r = Math.max(2, 18 * p.k);
         const pulse = o.armed ? .5 + .5 * Math.sin(scene.t * 8) : 0;
+        if (SrDraw.ART.mijn) {
+          // Plat op de grond: het beeld van bovenaf, platgedrukt.
+          ctx.strokeStyle = o.color;
+          ctx.lineWidth = Math.max(1, r * .2);
+          ctx.beginPath(); ctx.ellipse(p.x, p.y, r * 1.35, r * .55, 0, 0, Math.PI * 2); ctx.stroke();
+          ctx.drawImage(SrDraw.ART.mijn, p.x - r * 1.25, p.y - r * .5, r * 2.5, r * 1.0);
+          if (o.armed) Glow.glow(ctx, p.x, p.y - r * .2, r * 1.2, '#ff4d6d', .3 + pulse * .6);
+          continue;
+        }
         ctx.fillStyle = '#2a3150';
         ctx.beginPath(); ctx.ellipse(p.x, p.y, r * 1.2, r * .45, 0, 0, Math.PI * 2); ctx.fill();
         ctx.strokeStyle = o.color;
@@ -650,6 +659,7 @@ const Sr3D = (() => {
         gl.addColorStop(1, 'rgba(255, 60, 0, 0)');
         ctx.fillStyle = gl;
         ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, Math.PI * 2); ctx.fill();
+        if (SrDraw.ART.knal) ctx.drawImage(SrDraw.ART.knal, p.x - r * .8, p.y - r * .8, r * 1.6, r * 1.6);
         ctx.globalAlpha = 1;
       } else if (th.kind === 'spark') {
         const p = place(o.x, o.y, 34);
