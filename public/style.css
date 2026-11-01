@@ -2229,7 +2229,6 @@ body.tk-solo .klaar-balk { display: none; }
 .snelmenu a.on { background: rgb(var(--k-goud) / .16); color: rgb(var(--k-goud-l)); box-shadow: inset 0 0 0 1px rgb(var(--k-goud) / .55); }
 .snelmenu img { width: 30px; height: 30px; object-fit: contain; }
 .snelmenu .ic { width: 26px; height: 26px; margin: 2px 0; }
-.snelmenu .snel-start { color: rgb(var(--k-tekst)); margin-right: 4px; box-shadow: inset -1px 0 0 rgb(var(--k-cyan) / .2); border-radius: 10px 4px 4px 10px; }
 /* Het startscherm heeft al veel knoppen bovenaan: daar staat het snelmenu als eigen balk eronder. */
 /* Op het startscherm en in de vijf rijken zelf staan de tegels al: daar geen snelmenu. */
 body:has(#home:not(.hidden)) .snelmenu { display: none; }
