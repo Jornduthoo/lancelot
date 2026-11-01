@@ -23,9 +23,9 @@ const DbDraw = (() => {
   const ART = {};
   const tiles = new Map();
   if (typeof Image !== 'undefined') {
-    for (const n of ['lucht', 'aarde', 'steen', 'kristalsteen', 'basalt', 'goud', 'diamant', 'robijn', 'lava', 'kei', 'gas', 'plaat', 'boorridder']) {
+    for (const n of ['lucht', 'aarde', 'steen', 'kristalsteen', 'basalt', 'goud', 'diamant', 'robijn', 'lava', 'kei', 'gas', 'plaat', 'boorridder', 'smidse']) {
       const img = new Image();
-      img.onload = () => { ART[n] = img; tiles.clear(); pods.clear(); skyCache = null; markCache.clear(); edgeCache.clear(); };
+      img.onload = () => { ART[n] = img; tiles.clear(); pods.clear(); skyCache = null; markCache.clear(); edgeCache.clear(); forgeCache.clear(); };
       img.src = `/img/diepboor/${n}.webp`;
     }
   }
@@ -731,6 +731,20 @@ const DbDraw = (() => {
   function forge(px) {
     let c = forgeCache.get(px);
     if (c) return c;
+    if (ART.smidse) {
+      // Geschilderde smidse; het naambord schrijven we zelf.
+      const img = ART.smidse, hh = px * 3.7, ww = hh * img.width / img.height;
+      c = mk(Math.round(ww), Math.round(hh));
+      const g = c.getContext('2d');
+      g.drawImage(img, 0, 0, ww, hh);
+      g.fillStyle = '#3a2210';
+      g.font = `900 ${Math.round(hh * .062)}px Orbitron, sans-serif`;
+      g.textAlign = 'center';
+      g.textBaseline = 'middle';
+      g.fillText('SMIDSE', ww * .473, hh * .482);
+      forgeCache.set(px, c);
+      return c;
+    }
     c = mk(px * 4, px * 3);
     const g = c.getContext('2d');
     // Stenen smidse met een gloeiende oven en een neonbord.
