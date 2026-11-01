@@ -301,8 +301,33 @@ const PxDraw = (() => {
   // ---------- Achtergronden (drie lagen die met een andere snelheid meeschuiven) ----------
   const BG_W = 512;
   const bgs = new Map();
+  // Geschilderde pixelachtergronden per wereld (weide, grot, sterren). Zonder beeld: de getekende lagen.
+  const ART = {};
+  if (typeof Image !== 'undefined') {
+    for (const n of ['weide', 'grot', 'sterren']) {
+      const img = new Image();
+      img.onload = () => { ART[n] = img; bgs.clear(); };
+      img.src = `/img/pixelridder/${n}.webp`;
+    }
+  }
+  function paintedBackground(img) {
+    // Op schermhoogte, en gespiegeld ernaast zodat de rand altijd aansluit.
+    const H = W.H, w = Math.round(H * img.width / img.height);
+    const c = canvas(w * 2, H), g = c.getContext('2d');
+    g.imageSmoothingEnabled = false;
+    g.drawImage(img, 0, 0, w, H);
+    g.translate(w * 2, 0);
+    g.scale(-1, 1);
+    g.drawImage(img, 0, 0, w, H);
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.fillStyle = 'rgba(4, 4, 16, .22)'; // iets donkerder: de platformen en vijanden springen er beter uit
+    g.fillRect(0, 0, c.width, H);
+    return { layers: [c], speed: [.15] };
+  }
   function background(theme) {
     if (bgs.has(theme)) return bgs.get(theme);
+    const art = ART[W.THEMES[theme].key];
+    if (art) { const out = paintedBackground(art); bgs.set(theme, out); return out; }
     const P = PAL[theme];
     const key = W.THEMES[theme].key;
     const H = W.H;
@@ -687,8 +712,8 @@ const PxDraw = (() => {
     const camX = Math.round(o.camX);
     // achtergrond
     bg.layers.forEach((layer, i) => {
-      const off = -Math.floor(camX * bg.speed[i]) % BG_W;
-      for (let x = off; x < vw; x += BG_W) g.drawImage(layer, x, 0);
+      const off = -Math.floor(camX * bg.speed[i]) % layer.width;
+      for (let x = off; x < vw; x += layer.width) g.drawImage(layer, x, 0);
     });
     g.save();
     g.translate(-camX, 0);
