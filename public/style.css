@@ -1113,6 +1113,10 @@ body:not([data-ob="1"]) #oefenblad { display: none !important; }
 
 /* Het papier zelf: licht en rustig, zodat lezen en schrijven makkelijk gaat. */
 .ob-paper { --ink: #1d2433; --rule: #c9bfa6; background: linear-gradient(180deg, #fbf7ec, #f4ecd8); color: var(--ink); padding: 28px 26px 34px; box-shadow: 0 0 0 1px rgba(255, 201, 74, .35), 0 20px 50px rgba(0, 0, 0, .45); font-family: var(--body); font-size: 1.08rem; line-height: 1.6; }
+/* Op het scherm: geschilderd perkament met een gouden rand. Afgedrukte bladen blijven wit. */
+@media screen { body:not(:has(#p-papers)) .ob-paper {
+  background: linear-gradient(180deg, rgb(255 252 240 / .5), rgb(240 226 192 / .35)), url('/img/perkament.webp') 0 0 / 384px, #f7efdb;
+  box-shadow: inset 0 0 0 1px rgb(196 154 58 / .55), inset 0 0 0 5px rgb(247 239 219 / .9), inset 0 0 0 6px rgb(196 154 58 / .35), inset 0 0 60px rgb(150 105 30 / .16), 0 0 0 1px rgb(255 201 74 / .45), 0 20px 50px rgb(0 0 0 / .5); } }
 .ob-head h1 { margin: 0 0 14px; font-family: var(--head); font-size: 1.8rem; color: #2a3350; letter-spacing: .02em; border-bottom: 3px double #c49a3a; padding-bottom: 8px; }
 .ob-meta { display: flex; gap: 22px; flex-wrap: wrap; margin-bottom: 8px; font-weight: 700; }
 .ob-meta i { display: inline-block; width: 220px; border-bottom: 1.5px solid var(--ink); }
@@ -1830,7 +1834,9 @@ html[data-achter="leerling"] { --achter: url('/img/zalen/leerling.webp'); }
 html[data-achter]:not([data-achter="leerling"]):not([data-thema="daglicht"]):not([data-thema="ijspaleis"]):not([data-thema="contrast"]) body:not([data-wacht]):not(:has(#home:not(.hidden))) {
   background: linear-gradient(rgb(var(--k-bg) / .74), rgb(var(--k-bg) / .9)), var(--achter) center / cover no-repeat fixed; }
 html[data-achter="leerling"]:not([data-thema="daglicht"]):not([data-thema="ijspaleis"]):not([data-thema="contrast"]) body:not([data-wacht]) {
-  background: linear-gradient(rgb(var(--k-bg) / .55), rgb(var(--k-bg) / .62) 55%, rgb(var(--k-bg) / .5)), var(--achter) center bottom / cover no-repeat fixed; }
+  background: linear-gradient(rgb(var(--k-bg) / var(--dim, .55)), rgb(var(--k-bg) / var(--dim, .62)) 55%, rgb(var(--k-bg) / var(--dim, .5))), var(--achter) center bottom / cover no-repeat fixed; }
+/* Tijdens een oefenblad of toets: de poort dimt, zodat alle aandacht naar het blad gaat. */
+body:has(#ob-work:not(.hidden)), body:has(#pf-werk:not(.hidden)), body:has(#pf-intro:not(.hidden)), body.tk-page:has(.ob-paper) { --dim: .86; }
 @media (orientation: landscape) { html[data-achter="leerling"] body:not([data-wacht]) { background-position: 0 0, center 62% !important; } }
 body:has(#home:not(.hidden)) { background: transparent; }
 html[data-thema="daglicht"] body::before { display: none; }
