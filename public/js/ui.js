@@ -461,7 +461,7 @@
   });
 
   // ---------- Snel naar ----------
-  // Op elk leerkrachtenscherm naast het logo: Start en de vijf rijken. Zo ben je als leerkracht met één klik overal.
+  // Op elk leerkrachtenscherm naast het logo: de vijf rijken (het logo zelf is Start). Zo ben je als leerkracht met één klik overal.
   // Het rijk waar je nu bent, licht op. Loopt er een spel, dan eerst even vragen (het spel loopt gewoon door).
   const RIJKEN = [['arena', 'Arena', 'arena'], ['tafel', 'Ronde Tafel', 'ronde-tafel'], ['smidse', 'Smidse', 'smidse'], ['wapenkamer', 'Wapenkamer', 'wapenkamer'], ['kronieken', 'Kronieken', 'kronieken']];
   const PAD_RIJK = {
@@ -484,24 +484,31 @@
     const nav = document.createElement('nav');
     nav.className = 'snelmenu';
     nav.setAttribute('aria-label', 'Snel naar');
-    nav.innerHTML = `<a class="snel-start" href="/host" title="Naar het startscherm"><i class="ic ic-huis" aria-hidden="true"></i><span>Start</span></a>${
+    nav.innerHTML = `${
       RIJKEN.map(([id, naam, ic]) => `<a href="/host#${id}" data-rijk="${id}" title="Naar De ${naam}"><img src="/img/icons/${ic}.webp" alt=""><span>${naam}</span></a>`).join('')}`;
     brand.after(nav);
     snelMarkeer = () => { const r = rijkHier(); for (const a of nav.querySelectorAll('[data-rijk]')) a.classList.toggle('on', a.dataset.rijk === r); };
     snelMarkeer();
     addEventListener('hashchange', () => snelMarkeer());
-    nav.addEventListener('click', async e => {
+    // Het logo brengt je naar het startscherm (daarom geen aparte Start-knop). Op /host regelt host.js dat zelf.
+    if (location.pathname !== '/host') {
+      brand.style.cursor = 'pointer';
+      brand.addEventListener('click', e => { e.preventDefault(); e.stopImmediatePropagation(); ga('/host'); }, true);
+    }
+    nav.addEventListener('click', e => {
       const a = e.target.closest('a');
       if (!a) return;
       e.preventDefault();
-      const doel = a.getAttribute('href');
+      ga(a.getAttribute('href'));
+    });
+    async function ga(doel) {
       // Op het startscherm zelf: geen nieuwe pagina, gewoon het rijk openen (host.js).
       if (location.pathname === '/host' && window.snelNaar) return window.snelNaar(doel.split('#')[1] || '');
       const stop = document.getElementById('stop');
       const spel = stop && !stop.classList.contains('hidden') && stop.getClientRects().length;
       if (spel && !await window.Ui.vraag('Er loopt nog een spel. Het blijft gewoon lopen en je vindt het terug in De Arena. Toch weggaan?')) return;
       location.href = doel;
-    });
+    }
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', snelmenu);
   else snelmenu();
