@@ -7,6 +7,22 @@ const BomberDraw = (() => {
   const PICKUPS = { 1: { icon: '💎', color: '#4cc9ff' }, 2: { icon: '🔥', color: '#ff8c42' }, 3: { icon: '🛡️', color: '#2ee6a6' }, 4: { icon: '⚡', color: '#ffc94a' } };
   const sprites = new Map();
 
+  // Geschilderde beelden: vloer, pilaar, krat, mijn, knal en de bonussen. Zonder beelden tekenen we zelf.
+  const ART = {};
+  let artVer = 0;
+  if (typeof Image !== 'undefined') {
+    for (const n of ['vloer', 'pilaar', 'krat', 'mijn', 'knal', 'vuur', 'extra', 'punten']) {
+      const img = new Image();
+      img.onload = () => { ART[n] = img; artVer++; sprites.clear(); };
+      img.src = `/img/bomberknight/${n}.webp`;
+    }
+  }
+  const PICK_ART = { 1: 'punten', 2: 'vuur', 4: 'extra' };
+  function fit(g, img, t, f) {
+    const k = t * f / Math.max(img.width, img.height);
+    g.drawImage(img, (t - img.width * k) / 2, (t - img.height * k) / 2, img.width * k, img.height * k);
+  }
+
   function canvas(w, h) {
     const c = document.createElement('canvas');
     c.width = Math.max(1, Math.ceil(w));
@@ -47,6 +63,16 @@ const BomberDraw = (() => {
   // Vloer: plavuizen in verschillende tinten, barstjes, gruis, een plek mos en hier en daar een lichtende rune.
   // n en w: staat er een muur of pilaar boven of links, dan valt er schaduw op dit vakje.
   function floorTile(g, x, y, t, cx, cy, n, w) {
+    if (ART.vloer) {
+      // Eén vakje van de geschilderde vloer (8 x 8 plavuizen per beeld), wat donkerder, met schaduw onder muren.
+      const q = ART.vloer.width / 8;
+      g.drawImage(ART.vloer, (cx & 7) * q, (cy & 7) * q, q, q, x, y, t, t);
+      g.fillStyle = 'rgba(14, 12, 30, .38)';
+      g.fillRect(x, y, t, t);
+      if (n) { const s = g.createLinearGradient(0, y, 0, y + t * .45); s.addColorStop(0, 'rgba(0,0,0,.5)'); s.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = s; g.fillRect(x, y, t, t * .45); }
+      if (w) { const s = g.createLinearGradient(x, 0, x + t * .3, 0); s.addColorStop(0, 'rgba(0,0,0,.35)'); s.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = s; g.fillRect(x, y, t * .3, t); }
+      return;
+    }
     const h = hash(cx, cy), v = hash(cx, cy, 1);
     const tone = (k) => {
       const l = 22 + Math.round(k * 9);
@@ -140,6 +166,7 @@ const BomberDraw = (() => {
   // Een stenen torentje met kantelen en een gloeiend kristal: de pilaren.
   function pillar(t, v) {
     return sprite(`p${t}|${v}`, t, t, g => {
+      if (ART.pilaar) { g.fillStyle = 'rgba(0,0,0,.4)'; g.fillRect(t * .12, t * .14, t * .9, t * .9); fit(g, ART.pilaar, t, 1); return; }
       g.fillStyle = 'rgba(0, 0, 0, .4)';
       g.fillRect(t * .14, t * .16, t * .9, t * .86);
       bricks(g, t * .06, t * .34, t * .88, t * .62, 4, t, 90 + v, '#4a5474', '#353d58');
@@ -255,6 +282,7 @@ const BomberDraw = (() => {
   // Een krat: planken hout met nerven, stalen hoeken en een gloeiende rune. Drie soorten.
   function crate(t, v) {
     return sprite(`c${t}|${v}`, t, t, g => {
+      if (ART.krat) { g.fillStyle = 'rgba(0,0,0,.35)'; g.fillRect(t * .14, t * .16, t * .84, t * .84); fit(g, ART.krat, t, .94); return; }
       const p = t * .08;
       g.fillStyle = 'rgba(0, 0, 0, .4)';
       g.fillRect(p + t * .06, p + t * .07, t - p * 2, t - p * 2);
@@ -333,6 +361,8 @@ const BomberDraw = (() => {
       grad.addColorStop(1, 'rgba(0,0,0,0)');
       g.fillStyle = grad;
       g.fillRect(0, 0, t, t);
+      const img = ART[PICK_ART[k]];
+      if (img) { fit(g, img, t, .72); return; }
       g.textAlign = 'center';
       g.textBaseline = 'middle';
       g.font = `${Math.round(t * .5)}px system-ui, sans-serif`;
@@ -344,6 +374,14 @@ const BomberDraw = (() => {
   function mineSprite(t, color) {
     return sprite(`m${t}${color}`, t, t, g => {
       const c = t / 2, r = t * .26;
+      if (ART.mijn) {
+        // Geschilderde mijn met een ring in de kleur van wie hem legde
+        g.strokeStyle = color;
+        g.lineWidth = Math.max(2, t * .07);
+        g.beginPath(); g.ellipse(c, t * .8, t * .34, t * .12, 0, 0, Math.PI * 2); g.stroke();
+        fit(g, ART.mijn, t, .9);
+        return;
+      }
       g.strokeStyle = '#7d89a8';
       g.lineWidth = Math.max(2, t * .07);
       for (let i = 0; i < 8; i++) {
@@ -447,7 +485,8 @@ const BomberDraw = (() => {
       floorTile(g, L, T, t, x, y, solid(x, y - 1), solid(x - 1, y));
       if (sc.crates[y * sc.W + x]) g.drawImage(crate(t, v), L, T);
     };
-    if (!sc.layer || sc.layerTile !== t) {
+    if (!sc.layer || sc.layerTile !== t || sc.layerArt !== artVer) {
+      sc.layerArt = artVer;
       sc.layer = canvas(sc.W * t, sc.H * t);
       sc.layerTile = t;
       const g = sc.layer.getContext('2d');
@@ -596,6 +635,15 @@ const BomberDraw = (() => {
       const c = at(f.x, f.y);
       const r = t * (1.1 * k + .3);
       ctx.drawImage(glow('#ffffff', r), c.x - r, c.y - r, r * 2, r * 2);
+      if (ART.knal) {
+        const z = t * (1.2 + (1 - k) * .9);
+        ctx.save();
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.translate(c.x, c.y);
+        ctx.rotate(f.start % 6);
+        ctx.drawImage(ART.knal, -z / 2, -z / 2, z, z);
+        ctx.restore();
+      }
       // Schokgolf
       ctx.strokeStyle = `rgba(255, 210, 120, ${k})`;
       ctx.lineWidth = t * .12 * k + 1;
