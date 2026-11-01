@@ -18,6 +18,47 @@ const RsDraw = (() => {
     return c;
   }
 
+  // ---------- Geschilderde beelden ----------
+  // Vloer, lichtbollen en de slangenkop. Zonder beelden tekenen we alles zelf.
+  const ART = {};
+  if (typeof Image !== 'undefined') {
+    for (const n of ['vloer', 'bol-cyaan', 'bol-goud', 'bol-ster', 'kop']) {
+      const img = new Image();
+      img.onload = () => {
+        ART[n] = img;
+        headCache.clear(); dustArt.clear(); floorQuads = null; baked = null;
+      };
+      img.src = `/img/ridderslang/${n}.webp`;
+    }
+  }
+  // Lichtbol per kleur van het stof: cyaan, roze, goud, groen, paars (groen en paars door een filter).
+  const dustArt = new Map();
+  const DUST_ART = [['bol-cyaan', ''], ['bol-ster', ''], ['bol-goud', ''], ['bol-cyaan', 'hue-rotate(-60deg)'], ['bol-ster', 'hue-rotate(-50deg)']];
+  function dustImage(ci, big) {
+    const key = big ? 'big' : ci;
+    if (dustArt.has(key)) return dustArt.get(key);
+    const [n, f] = big ? ['bol-ster', ''] : DUST_ART[ci] || DUST_ART[0];
+    const img = ART[n];
+    if (!img) return null;
+    const c = canvas(48), g = c.getContext('2d'), k = 48 / Math.max(img.width, img.height);
+    if (f) g.filter = f;
+    g.drawImage(img, (48 - img.width * k) / 2, (48 - img.height * k) / 2, img.width * k, img.height * k);
+    dustArt.set(key, c);
+    return c;
+  }
+  let floorQuads = null;
+  function paintedTile(ix, iy) {
+    if (!ART.vloer) return null;
+    if (!floorQuads) floorQuads = [0, 1, 2, 3].map(q => {
+      const c = canvas(TILE), g = c.getContext('2d'), h = ART.vloer.width / 2;
+      g.drawImage(ART.vloer, (q & 1) * h, (q >> 1) * h, h, h, 0, 0, TILE, TILE);
+      g.fillStyle = 'rgba(8,6,20,.25)';
+      g.fillRect(0, 0, TILE, TILE);
+      return c;
+    });
+    return floorQuads[(ix & 1) + (iy & 1) * 2];
+  }
+
   // ---------- Vooraf getekend ----------
   // De kop van boven gezien, naar rechts kijkend: een lans vooruit, een ridderhelm met kam en een lichtend vizier.
   const HEAD_R = 40, HX = 52, HY = 64;
@@ -27,6 +68,31 @@ const RsDraw = (() => {
     if (c) return c;
     c = canvas(200, 128);
     const g = c.getContext('2d');
+    if (ART.kop) {
+      // Geschilderde helmkop: in het beeld wijst de lans naar beneden, dus een kwartslag draaien naar rechts.
+      // De blauwe kam krijgt de kleur van de speler.
+      const img = ART.kop, len = 132, wid = len * img.width / img.height;
+      const t = canvas(Math.ceil(wid), len), tg = t.getContext('2d');
+      tg.drawImage(img, 0, 0, t.width, t.height);
+      const d = tg.getImageData(0, 0, t.width, t.height), p = d.data;
+      const [tr, tgc, tb] = [1, 3, 5].map(i => parseInt(color.slice(i, i + 2), 16));
+      for (let i = 0; i < p.length; i += 4) {
+        if (p[i + 3] < 10) continue;
+        const r = p[i] / 255, gg = p[i + 1] / 255, b = p[i + 2] / 255, mx = Math.max(r, gg, b), mn = Math.min(r, gg, b);
+        if (mx !== b || mx - mn < .01) continue;
+        const hue = 60 * (4 + (r - gg) / (mx - mn)), sat = (mx - mn) / mx;
+        if (hue < 205 || hue > 258 || sat < .38) continue;
+        const l = (r * .3 + gg * .59 + b * .11) * 2.4;
+        p[i] = Math.min(255, tr * l); p[i + 1] = Math.min(255, tgc * l); p[i + 2] = Math.min(255, tb * l);
+      }
+      tg.putImageData(d, 0, 0);
+      glow(g, HX + 40, HY, 46, color, .45);
+      g.translate(HX + 22, HY);
+      g.rotate(-Math.PI / 2);
+      g.drawImage(t, -wid / 2, -len / 2);
+      headCache.set(color, c);
+      return c;
+    }
     // Lans
     glow(g, 150, HY, 40, color, .5);
     const lance = g.createLinearGradient(80, 0, 198, 0);
@@ -259,7 +325,7 @@ const RsDraw = (() => {
       for (let iy = Math.floor(y0 / TILE); iy * TILE < y1; iy++) {
         const nx = Math.max(ix * TILE, Math.min(0, (ix + 1) * TILE)), ny = Math.max(iy * TILE, Math.min(0, (iy + 1) * TILE));
         if (nx * nx + ny * ny > R * R) continue;
-        ctx.drawImage(tileAt(ix, iy), ix * TILE, iy * TILE, TILE + .5, TILE + .5);
+        ctx.drawImage(paintedTile(ix, iy) || tileAt(ix, iy), ix * TILE, iy * TILE, TILE + .5, TILE + .5);
       }
     }
   }
@@ -711,6 +777,8 @@ const RsDraw = (() => {
       const size = (d[2] > 1 ? 14 + Math.min(12, d[2] * 1.5) : 11) * (.8 + .2 * Math.sin(ts * 4 + id)) * (opts.board ? Math.max(1, .6 / zoom) : 1);
       ctx.globalAlpha = Math.min(1, (t - d[4]) / 400);
       ctx.drawImage(dustSprites[d[3]] || dustSprites[0], d[0] - size, d[1] - size, size * 2, size * 2);
+      const di = dustImage(d[3], d[2] > 1);
+      if (di) ctx.drawImage(di, d[0] - size * .62, d[1] - size * .62, size * 1.24, size * 1.24);
     }
     ctx.globalAlpha = 1;
     // Slangen: eerst de lijst met wat we tekenen (de eigen slang komt van de gsm zelf).
