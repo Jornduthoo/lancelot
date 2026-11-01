@@ -16,7 +16,7 @@ const MoDraw = (() => {
   const ART = {};
   let artVer = 0;
   if (typeof Image !== 'undefined') {
-    for (const n of ['mol', 'goud', 'bom', 'zwaard']) {
+    for (const n of ['mol', 'goud', 'bom', 'zwaard', 'plein']) {
       const img = new Image();
       img.onload = () => { ART[n] = img; artVer++; };
       img.src = `/img/robomol/${n}.webp`;
@@ -338,11 +338,14 @@ const MoDraw = (() => {
       c.width = w; c.height = h;
       const g = c.getContext('2d');
       g.lineJoin = 'round';
-      this.sky(g);
-      this.walls(g);
-      this.ground(g);
       this.torchSpots = [];
-      for (const [x, z] of [[-11.2, 9], [11.2, 9], [-11.2, 17], [11.2, 17], [-2.7, 23.3], [2.7, 23.3]]) this.brazier(g, x, z);
+      if (ART.plein) this.paintedYard(g);
+      else {
+        this.sky(g);
+        this.walls(g);
+        this.ground(g);
+        for (const [x, z] of [[-11.2, 9], [11.2, 9], [-11.2, 17], [11.2, 17], [-2.7, 23.3], [2.7, 23.3]]) this.brazier(g, x, z);
+      }
       // De putten: achterste helft en het donkere gat in de achtergrond, de voorste rand per rij apart.
       this.lips = [];
       for (let row = 0; row < 3; row++) {
@@ -368,6 +371,29 @@ const MoDraw = (() => {
       }
       Glow.vignette(g, w, h, .5);
       this.bg = c;
+    }
+
+    // Het geschilderde plein: de vloerlijn van het beeld net boven de achterste rij putten, zodat de putten op de kasseien staan.
+    paintedYard(g) {
+      const { w, h } = this, img = ART.plein;
+      const FLOOR = .565; // waar de achtermuur de vloer raakt, als deel van de beeldhoogte
+      let yF = Infinity;
+      for (const o of this.holes) if (o.row === 0) yF = Math.min(yF, o.sy - o.ry * 2.2 - this.f / HZ[0] * 1.1);
+      yF = Math.max(h * .12, yF);
+      const s = Math.max(w / img.width, (h - yF) / ((1 - FLOOR) * img.height), yF / (FLOOR * img.height));
+      const dw = img.width * s, dh = img.height * s;
+      const x0 = (w - dw) / 2, y0 = yF - FLOOR * dh;
+      g.drawImage(img, x0, y0, dw, dh);
+      // Iets donkerder naar voren toe, dan springen de mollen er beter uit.
+      const shade = g.createLinearGradient(0, yF, 0, h);
+      shade.addColorStop(0, 'rgba(6,10,24,0)');
+      shade.addColorStop(1, 'rgba(6,10,24,.35)');
+      g.fillStyle = shade;
+      g.fillRect(0, yF, w, h - yF);
+      // De fakkels op het beeld laten we flakkeren.
+      for (const [fx, fy, fs] of [[.138, .36, 1], [.273, .4, .7], [.385, .42, .55], [.616, .42, .55], [.716, .4, .7], [.855, .36, 1]]) {
+        this.torchSpots.push({ x: x0 + fx * dw, y: y0 + fy * dh, s: fs * dh * .07, glowOnly: true });
+      }
     }
 
     sky(g) {
@@ -627,7 +653,7 @@ const MoDraw = (() => {
     // ---------- Elke frame ----------
     // moles: [{ m, r (0-1 uit de put), state: ''|'hit'|'dent', squash, color, name }]
     draw(ctx, t, moles, extra) {
-      if (this._av !== artVer) this.makeSprites();
+      if (this._av !== artVer) { this.makeSprites(); this.bake(); }
       const sp = this.sprites;
       ctx.drawImage(this.bg, 0, 0);
       // Vlammen van de fakkels
@@ -645,6 +671,7 @@ const MoDraw = (() => {
     flame(ctx, f, t) {
       const k = Math.sin(t * 13 + f.x) * .5 + Math.sin(t * 7.3 + f.y) * .5;
       const s = f.s;
+      if (f.glowOnly) { glow(ctx, f.x, f.y, s * (1.6 + k * .2), '#ff9a3c', .32 + k * .06); return; }
       glow(ctx, f.x, f.y - s * .3, s * (1.3 + k * .12), '#ff9a3c', .7);
       ctx.fillStyle = '#ff8a2a';
       ctx.beginPath();
