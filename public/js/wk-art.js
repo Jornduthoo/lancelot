@@ -5,6 +5,19 @@
 const WkArt = (() => {
   const { glow } = Glow;
 
+  // Geschilderde beelden (public/img/wapenkamer/): de zaal, het schild rond het rad en het zwaard als wijzer.
+  // Is een beeld er (nog) niet, dan tekenen we zoals vroeger. klaar(fn) laat weten wanneer er een beeld bijkomt.
+  const ART = {};
+  const wachters = [];
+  if (typeof Image !== 'undefined') {
+    for (const n of ['zaal', 'schild', 'wijzer']) {
+      const img = new Image();
+      img.onload = () => { ART[n] = img; for (const f of wachters) f(n); };
+      img.src = `/img/wapenkamer/${n}.webp`;
+    }
+  }
+  const klaar = fn => wachters.push(fn);
+
   function rand(seed) {
     let s = seed % 2147483647 || 1;
     return () => (s = (s * 16807) % 2147483647) / 2147483647;
@@ -296,6 +309,18 @@ const WkArt = (() => {
     const c = document.createElement('canvas');
     c.width = w; c.height = h;
     const g = c.getContext('2d');
+    if (ART.zaal) {
+      // Het schilderij vult de zaal; het midden iets donkerder zodat de tools goed leesbaar blijven.
+      const img = ART.zaal, f = Math.max(w / img.width, h / img.height);
+      g.drawImage(img, (w - img.width * f) / 2, (h - img.height * f) / 2, img.width * f, img.height * f);
+      const vg = g.createRadialGradient(w / 2, h * .5, Math.min(w, h) * .1, w / 2, h * .5, Math.hypot(w, h) * .6);
+      vg.addColorStop(0, 'rgba(2,3,10,.45)');
+      vg.addColorStop(.6, 'rgba(2,3,10,.15)');
+      vg.addColorStop(1, 'rgba(2,3,10,.5)');
+      g.fillStyle = vg;
+      g.fillRect(0, 0, w, h);
+      return { canvas: c, fakkels: [] };
+    }
     const r = rand(4711);
     const floorY = h * .84;
     muur(g, w, floorY, h, r);
@@ -361,5 +386,5 @@ const WkArt = (() => {
     return { canvas: c, fakkels: fakkels.map(([x, y]) => [x / w, y / h]) };
   }
 
-  return { zaal };
+  return { zaal, klaar, art: ART };
 })();

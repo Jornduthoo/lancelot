@@ -255,6 +255,16 @@ const Lot = (() => {
     ijzerRing(R_HOUT, R_BAND, 36);
     // Ijzeren ring rond de naaf
     ijzerRing(R * .27, R * .33, 12);
+    const schild = WkArt.art.schild;
+    if (schild) {
+      // Jorns schildrand over de velg: alleen de ring buiten de vakken tonen.
+      ctx.save();
+      ctx.beginPath(); ctx.arc(0, 0, H, 0, Math.PI * 2); ctx.arc(0, 0, R + 1, 0, Math.PI * 2, true); ctx.clip();
+      ctx.clearRect(-H, -H, W, W);
+      const d = H * 2 * 1.0;
+      ctx.drawImage(schild, -d / 2, -d / 2, d, d);
+      ctx.restore();
+    }
     ctx.restore();
     const totaal = aanwezigen().length;
     $('lot-tel').textContent = !totaal ? '' : pot.length === totaal ? `${totaal} namen in het rad` : `Nog ${pot.length} van ${totaal} in het rad`;
@@ -314,6 +324,17 @@ const Lot = (() => {
   addEventListener('keydown', e => { if (huidig === 'lot' && (e.code === 'Space' || e.code === 'Enter') && e.target === document.body) { e.preventDefault(); draai(); } });
   // De namen staan in Cinzel: opnieuw tekenen zodra die letter geladen is.
   if (document.fonts) document.fonts.load('700 30px Cinzel').then(() => { if (!bezig) teken(); }, () => {});
+  WkArt.klaar(n => { if (n === 'schild' && !bezig) teken(); });
+  // Het geschilderde zwaard als wijzer.
+  WkArt.klaar(n => {
+    const svg = document.querySelector('.lot-wijzer');
+    if (n !== 'wijzer' || !svg) return;
+    const img = document.createElement('img');
+    img.className = 'lot-wijzer lot-wijzer-beeld';
+    img.src = WkArt.art.wijzer.src;
+    img.alt = '';
+    svg.replaceWith(img);
+  });
   return { klasNieuw: () => { if (!bezig) teken(); } };
 })();
 
@@ -835,6 +856,7 @@ const Licht = (() => {
     $('wk-vlammen').innerHTML = fakkels.map(([x, y], i) => `<i style="left:${x * 100}%;top:${y * 100}%;animation-delay:-${i * .37}s"></i>`).join('');
   }
   addEventListener('resize', () => { clearTimeout(wacht); wacht = setTimeout(teken, 200); });
+  WkArt.klaar(n => { if (n === 'zaal') teken(); });
   teken();
 })();
 

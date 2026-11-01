@@ -110,6 +110,7 @@
 /* Het zwaard als wijzer, met de punt in het rad */
 .lot-wijzer { position: absolute; left: 50%; top: -16%; width: 12%; transform: translateX(-50%); z-index: 2; overflow: visible;
   filter: drop-shadow(0 5px 5px rgb(0 0 0 / .75)) drop-shadow(0 0 8px rgb(94 231 255 / .45)); }
+.lot-wijzer-beeld { width: 9%; top: -18%; }
 /* De naaf: een ijzeren schildknop met gouden rand */
 .lot-knop { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 22%; aspect-ratio: 1; padding: 0; border-radius: 50%; clip-path: none; z-index: 2;
   background: radial-gradient(circle at 38% 32%, #c4cad6, #6c7383 40%, #262a34 75%); color: #ffe9a8; border: 5px solid #d9a632;
