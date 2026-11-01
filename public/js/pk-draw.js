@@ -4,6 +4,30 @@ const PacDraw = (() => {
   const COLORS = ['#ff4d6d', '#3d8bff', '#ffb703', '#22c993', '#a66bff', '#ff8c42', '#ff5fd2', '#4cc9ff', '#9be15d', '#f2f2f2'];
   const cache = new Map();
 
+  // Geschilderde beelden: vloer, kristallen en vier drones. Zonder beelden tekenen we zelf.
+  const ART = {};
+  if (typeof Image !== 'undefined') {
+    for (const n of ['vloer', 'kristal', 'kracht', 'drone-1', 'drone-2', 'drone-3', 'drone-4']) {
+      const img = new Image();
+      img.onload = () => { ART[n] = img; cache.clear(); };
+      img.src = `/img/packnight/${n}.webp`;
+    }
+  }
+  // Een beeld op een vaste grootte (langste zijde px), één keer geschaald. bang: grijsblauw voor bange drones.
+  function sized(name, px, bang) {
+    px = Math.max(4, Math.round(px));
+    const key = `art|${name}|${px}|${bang ? 1 : 0}`;
+    if (cache.has(key)) return cache.get(key);
+    const img = ART[name], k = px / Math.max(img.width, img.height);
+    const c = document.createElement('canvas');
+    c.width = Math.ceil(img.width * k); c.height = Math.ceil(img.height * k);
+    const g = c.getContext('2d');
+    if (bang) g.filter = 'grayscale(1) sepia(1) hue-rotate(185deg) saturate(2.2) brightness(1.15)';
+    g.drawImage(img, 0, 0, c.width, c.height);
+    cache.set(key, c);
+    return c;
+  }
+
   // De muren één keer tekenen, op de grootte van een vakje. Daarna is het één drawImage per beeld.
   function mazeCanvas(maze, W, H, tile, id) {
     const key = `${id}|${tile}`;
@@ -19,7 +43,14 @@ const PacDraw = (() => {
     // Een paarse en blauwe nevel onder de vloer, en een fijn raster in de gangen
     let seed = W * 31 + H;
     const rnd = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
-    for (let i = 0; i < 14; i++) Glow.glow(g, rnd() * c.width, rnd() * c.height, tile * (3 + rnd() * 5), ['#3c1a78', '#123a7a', '#5a1050'][i % 3], .5);
+    if (ART.vloer) {
+      const pat = g.createPattern(ART.vloer, 'repeat');
+      const k = tile * 4 / ART.vloer.width;
+      pat.setTransform(new DOMMatrix([k, 0, 0, k, 0, 0]));
+      g.fillStyle = pat;
+      g.fillRect(0, 0, c.width, c.height);
+    }
+    for (let i = 0; i < 14; i++) Glow.glow(g, rnd() * c.width, rnd() * c.height, tile * (3 + rnd() * 5), ['#3c1a78', '#123a7a', '#5a1050'][i % 3], ART.vloer ? .3 : .5);
     // Gangen: donkere plavuizen in iets verschillende tinten, met gruis en schaduw onder de muren.
     const hash = (x, y, k) => { const v = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return v - Math.floor(v); };
     const m = Math.max(1, tile * .04);
@@ -174,8 +205,8 @@ const PacDraw = (() => {
 
   function crystals(ctx, s, cam, view, t) {
     const { tile, ox, oy } = cam;
-    const small = gem(Math.max(2.5, tile * .13), ['#d8f6ff', '#4cc9ff'], '#4cc9ff');
-    const big = gem(Math.max(5, tile * .3), ['#fff3b0', '#ffb703'], '#ffc94a');
+    const small = ART.kristal ? sized('kristal', tile * .34) : gem(Math.max(2.5, tile * .13), ['#d8f6ff', '#4cc9ff'], '#4cc9ff');
+    const big = ART.kracht ? sized('kracht', tile * .85) : gem(Math.max(5, tile * .3), ['#fff3b0', '#ffb703'], '#ffc94a');
     const x0 = Math.max(0, Math.floor((view.x0 - ox) / tile)), x1 = Math.min(s.W - 1, Math.ceil((view.x1 - ox) / tile));
     const y0 = Math.max(0, Math.floor((view.y0 - oy) / tile)), y1 = Math.min(s.H - 1, Math.ceil((view.y1 - oy) / tile));
     const pulse = 1 + Math.sin(t / 220) * .12;
@@ -187,8 +218,9 @@ const PacDraw = (() => {
         if (c === 1) {
           ctx.drawImage(small, cx - small.width / 2, cy - small.height / 2);
         } else {
-          const w = big.width * pulse;
-          ctx.drawImage(big, cx - w / 2, cy - w / 2, w, w);
+          const w = big.width * pulse, hh = big.height * pulse;
+          if (ART.kracht) Glow.glow(ctx, cx, cy, tile * .7 * pulse, '#4cc9ff', .45);
+          ctx.drawImage(big, cx - w / 2, cy - hh / 2, w, hh);
         }
       }
     }
@@ -326,6 +358,20 @@ const PacDraw = (() => {
     const r = tile * .36;
     const hover = Math.sin(t / 160 + d.i) * tile * .05;
     const y = cy + hover;
+    const art = ART['drone-' + (((d.i | 0) % 4) + 1)];
+    if (art) {
+      // Geschilderde drone: elke drone een eigen kleur; bang = grijsblauw en knipperend.
+      const sp = sized('drone-' + (((d.i | 0) % 4) + 1), tile * 1.05, scared);
+      Glow.glow(ctx, cx, cy + tile * .38, r * 1.6, color, .3, .35);
+      ctx.save();
+      if (scared && Math.floor(t / 200) % 2) ctx.globalAlpha = .6;
+      ctx.translate(cx, y);
+      if (d.dir === 3) ctx.scale(-1, 1);
+      ctx.rotate(Math.sin(t / 300 + d.i) * .06);
+      ctx.drawImage(sp, -sp.width / 2, -sp.height / 2);
+      ctx.restore();
+      return;
+    }
     ctx.save();
     // Rotoren.
     ctx.strokeStyle = scared ? 'rgba(160, 200, 255, .8)' : 'rgba(255, 180, 190, .8)';
