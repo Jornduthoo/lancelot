@@ -301,10 +301,10 @@ const PxDraw = (() => {
   // ---------- Achtergronden (drie lagen die met een andere snelheid meeschuiven) ----------
   const BG_W = 512;
   const bgs = new Map();
-  // Geschilderde pixelachtergronden per wereld (weide, grot, sterren). Zonder beeld: de getekende lagen.
+  // Geschilderde pixelachtergronden per wereld (weide, grot, sterren, burcht). Zonder beeld: de getekende lagen.
   const ART = {};
   if (typeof Image !== 'undefined') {
-    for (const n of ['weide', 'grot', 'sterren']) {
+    for (const n of ['weide', 'grot', 'sterren', 'burcht']) {
       const img = new Image();
       img.onload = () => { ART[n] = img; bgs.clear(); };
       img.src = `/img/pixelridder/${n}.webp`;
