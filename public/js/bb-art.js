@@ -1,6 +1,15 @@
 // Burchtbouwers tekenen: het landschap bij nacht, stenen met de kleur van wie ze legde, torens met daken,
 // een poort met valhek, de donjon met baniere, en een echte draak met vuur. Gebruikt Glow (fx.js).
 const BbArt = (() => {
+  // Geschilderde beelden (public/img/burchtbouwers/). Is een beeld er (nog) niet, dan tekenen we dat stuk zelf zoals vroeger.
+  const ART = {};
+  if (typeof Image !== 'undefined') {
+    for (const n of ['landschap', 'steen', 'draak', 'dak-toren', 'dak-donjon']) {
+      const img = new Image();
+      img.onload = () => { ART[n] = img; sceneCache = null; blockCache = null; roofCache.clear(); };
+      img.src = `/img/burchtbouwers/${n}.webp`;
+    }
+  }
   function rng(seed) {
     let s = seed;
     return () => { s = (s * 16807) % 2147483647; return s / 2147483647; };
@@ -15,6 +24,14 @@ const BbArt = (() => {
     c.width = w;
     c.height = h;
     const g = c.getContext('2d');
+    if (ART.landschap) {
+      // Het schilderij vult het hele bord; de onderkant blijft op de grond staan.
+      const img = ART.landschap, f = Math.max(w / img.width, h / img.height);
+      g.drawImage(img, (w - img.width * f) / 2, h - img.height * f, img.width * f, img.height * f);
+      if (dark) { g.fillStyle = 'rgba(3, 4, 12, .45)'; g.fillRect(0, 0, w, h); }
+      sceneCache = { key, c };
+      return c;
+    }
     const rnd = rng(21);
     const sky = g.createLinearGradient(0, 0, 0, ground);
     sky.addColorStop(0, '#030611');
@@ -115,6 +132,13 @@ const BbArt = (() => {
       g.fillRect(0, 0, c.width, c.height);
       g.fillStyle = sg;
       g.fillRect(1, 1, c.width - 2, c.height - 2);
+      if (ART.steen) {
+        // Een stukje van Jorns steentegel, voor elke variant een ander stuk.
+        const img = ART.steen, cw = img.width / 4, ch = cw * c.height / c.width;
+        g.globalAlpha = .9;
+        g.drawImage(img, v * cw, (v * 97) % Math.max(1, img.height - ch), cw, ch, 1, 1, c.width - 2, c.height - 2);
+        g.globalAlpha = 1;
+      }
       // Spikkels en een barstje.
       for (let i = 0; i < 6; i++) {
         g.fillStyle = `rgba(${rnd() < .5 ? '255,255,255' : '0,0,0'}, ${.06 + rnd() * .08})`;
@@ -131,7 +155,38 @@ const BbArt = (() => {
   }
 
   // Een kegeldak met dakpannen en een vlaggetje.
+  // Geschilderde daken, per kleur één keer bijgekleurd (de blauwe pannen krijgen de kleur van het dak).
+  const roofCache = new Map();
+  function paintedRoof(name, color) {
+    const key = name + color;
+    if (roofCache.has(key)) return roofCache.get(key);
+    const img = ART[name];
+    const c = document.createElement('canvas');
+    c.width = img.width; c.height = img.height;
+    const g = c.getContext('2d');
+    g.drawImage(img, 0, 0);
+    if (color.toLowerCase() !== '#3d6bff') {
+      const n = parseInt(color.slice(1), 16), tr = n >> 16, tg = (n >> 8) & 255, tb = n & 255;
+      const d = g.getImageData(0, 0, c.width, c.height), p = d.data;
+      for (let i = 0; i < p.length; i += 4) {
+        const r = p[i], gg = p[i + 1], b = p[i + 2];
+        if (p[i + 3] < 8 || b < r + 25 || b < gg + 10) continue; // alleen blauw
+        const l = (r + gg + b) / 3 / 140;
+        p[i] = Math.min(255, tr * l); p[i + 1] = Math.min(255, tg * l); p[i + 2] = Math.min(255, tb * l);
+      }
+      g.putImageData(d, 0, 0);
+    }
+    roofCache.set(key, c);
+    return c;
+  }
   function roof(g, cx, base, w, hgt, color, t) {
+    const name = color === '#ff4d6d' ? 'dak-donjon' : 'dak-toren';
+    if (ART[name]) {
+      const img = paintedRoof(name, color), rw = w * .92, rh = rw * img.height / img.width;
+      g.drawImage(img, cx - rw / 2, base - rh * .94, rw, rh);
+      flag(g, cx, base - rh * .9, hgt * .4, color, t);
+      return;
+    }
     const rg = g.createLinearGradient(cx - w / 2, 0, cx + w / 2, 0);
     rg.addColorStop(0, color);
     rg.addColorStop(.45, color);
@@ -170,6 +225,15 @@ const BbArt = (() => {
 
   // De draak: lijf, nek, kop met hoorns, fladderende vleugels en een staart. Kijkt naar links.
   function dragon(g, x, y, s, t, breath) {
+    if (ART.draak) {
+      const img = ART.draak, dw = s * 2.35, dh = dw * img.height / img.width;
+      g.save();
+      g.translate(x, y + Math.sin(t * 3) * s * .05);
+      Glow.glow(g, 0, 0, s * 1.4, '#ff3a1a', .2);
+      g.drawImage(img, -s * .98, -dh * .62, dw, dh);
+      g.restore();
+      return;
+    }
     const flap = Math.sin(t * 7);
     g.save();
     g.translate(x, y);
