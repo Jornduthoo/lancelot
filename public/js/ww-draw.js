@@ -632,7 +632,7 @@ const WwDraw = (() => {
       c.ownWheels = true;
     } else if (v.id === 'koets' && ART.koets) {
       const t = ART.koets, w = v.D, h = w * t.height / t.width;
-      knight(-.2, -1.85, .7);
+      knight(-.3, -1.35, .7);
       put(t, -w / 2 - .1, .2 - h, w, h);
     } else if (v.id === 'ros' && ART.ros) {
       const t = ART.ros, w = 2.4, h = w * t.height / t.width;
