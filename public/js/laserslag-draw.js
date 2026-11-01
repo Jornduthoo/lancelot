@@ -6,6 +6,67 @@ const SlagDraw = (() => {
   // Net na het herverbinden kent de gsm zijn eigen kleur soms nog niet: dan even de eerste kleur.
   const colorOf = (team, color) => TEAM[team] || COLORS[((color % 8) + 8) % 8] || COLORS[0];
 
+  // Geschilderde beelden (public/img/laserslag/): vloer, stenen, ridders, kristal, hemel en wapen. Zonder beeld: getekend.
+  const ART = {};
+  let artVer = 0;
+  if (typeof Image !== 'undefined') {
+    for (const n of ['vloer', 'muur', 'ridder-boven', 'ridder-voor', 'ridder-achter', 'kristal', 'hemel', 'wapen']) {
+      const img = new Image();
+      img.onload = () => { ART[n] = img; artVer++; tints.clear(); };
+      img.src = `/img/laserslag/${n}.webp`;
+    }
+  }
+  // Een beeld waarvan het blauw de kleur van de speler krijgt, op hoogte h (in pixels). Het cyaan blijft cyaan.
+  const tints = new Map();
+  const hexRgb = hx => { const n = parseInt(hx.slice(1), 16); return [n >> 16 & 255, n >> 8 & 255, n & 255]; };
+  function rgbHsl(r, g, b) {
+    r /= 255; g /= 255; b /= 255;
+    const mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 2;
+    if (mx === mn) return [0, 0, l];
+    const d = mx - mn, sat = l > .5 ? d / (2 - mx - mn) : d / (mx + mn);
+    const h = mx === r ? (g - b) / d + (g < b ? 6 : 0) : mx === g ? (b - r) / d + 2 : (r - g) / d + 4;
+    return [h * 60, sat, l];
+  }
+  function hslRgb(h, s, l) {
+    const k = n => (n + h / 30) % 12, a = s * Math.min(l, 1 - l);
+    const f = n => l - a * Math.max(-1, Math.min(k(n) - 3, 9 - k(n), 1));
+    return [f(0) * 255, f(8) * 255, f(4) * 255];
+  }
+  function tinted(name, color, h) {
+    const img = ART[name];
+    if (!img) return null;
+    h = Math.max(8, Math.round(h));
+    const key = `${name}/${color}/${h}`;
+    if (tints.has(key)) return tints.get(key);
+    if (tints.size > 60) tints.clear();
+    const c = document.createElement('canvas');
+    c.height = h;
+    c.width = Math.max(1, Math.round(h * img.width / img.height));
+    const g = c.getContext('2d');
+    g.drawImage(img, 0, 0, c.width, c.height);
+    const data = g.getImageData(0, 0, c.width, c.height), p = data.data;
+    const [th, ts, tl] = rgbHsl(...hexRgb(color));
+    for (let i = 0; i < p.length; i += 4) {
+      if (p[i + 3] < 8) continue;
+      const [hh, sat, l] = rgbHsl(p[i], p[i + 1], p[i + 2]);
+      if (hh < 205 || hh > 258 || sat < .38) continue;
+      const [r, gg, b] = hslRgb(th, Math.max(sat, ts * .85), Math.min(.85, l * (.75 + tl * .6)));
+      p[i] = r; p[i + 1] = gg; p[i + 2] = b;
+    }
+    g.putImageData(data, 0, 0);
+    tints.set(key, c);
+    return c;
+  }
+  // Geschilderde steen als patroon, met blokken van ongeveer bw breed; base kleurt hem een beetje.
+  function stonePattern(g, x, y, w, h, bw, base) {
+    const pat = g.createPattern(ART.muur, 'repeat');
+    const k = bw / 52;
+    pat.setTransform(new DOMMatrix([k, 0, 0, k, x, y]));
+    g.fillStyle = pat;
+    g.fillRect(x, y, w, h);
+    if (base) { g.globalAlpha = .28; g.fillStyle = base; g.fillRect(x, y, w, h); g.globalAlpha = 1; }
+  }
+
   // De burchtmuur rond de arena. Bovenaan is ze dieper: daar zie je de voorkant, met posters en fakkels.
   const EDGE = { n: 230, s: 80, w: 80, e: 80 };
   const GATE = 220; // lengte van de poort achter elk kamp, langs de muur
@@ -79,6 +140,7 @@ const SlagDraw = (() => {
 
   // Stenen blokken in een rechthoek, met voegen.
   function stones(g, x, y, w, h, bw, bh, base, r) {
+    if (ART.muur) { stonePattern(g, x, y, w, h, bw, base); return; }
     g.fillStyle = base;
     g.fillRect(x, y, w, h);
     g.save();
@@ -109,7 +171,18 @@ const SlagDraw = (() => {
     g.fillStyle = bg;
     g.fillRect(0, 0, W, H);
     const P = 100;
-    for (let x = 0; x < W; x += P) {
+    if (ART.vloer) {
+      // Geschilderde vloerplaten, met de kleur van de kampen er zacht overheen.
+      const pat = g.createPattern(ART.vloer, 'repeat');
+      pat.setTransform(new DOMMatrix([.45, 0, 0, .45, 0, 0]));
+      g.fillStyle = pat;
+      g.fillRect(0, 0, W, H);
+      g.globalAlpha = .42;
+      g.fillStyle = bg;
+      g.fillRect(0, 0, W, H);
+      g.globalAlpha = 1;
+    }
+    for (let x = 0; x < (ART.vloer ? 0 : W); x += P) {
       for (let y = 0; y < H; y += P) {
         const v = r();
         const pw = Math.min(P, W - x), ph = Math.min(P, H - y);
@@ -604,7 +677,7 @@ const SlagDraw = (() => {
     const fullW = W + (walls ? EDGE.w + EDGE.e : 0), fullH = H + (walls ? EDGE.n + EDGE.s : 0);
     // Niet groter dan nodig: een grote arena wordt iets grover getekend, zodat een Chromebook het aankan.
     const k = opts.k || Math.min(1.5, 3000 / fullW);
-    const key = `${Arena.tier}/${walls}/${k}/${typeof Posters !== 'undefined' ? Posters.version : 0}`;
+    const key = `${Arena.tier}/${walls}/${k}/${typeof Posters !== 'undefined' ? Posters.version : 0}/${artVer}`;
     if (caches.has(key)) return caches.get(key);
     for (const old of [...caches.keys()]) if (old.split('/')[1] === String(walls)) caches.delete(old);
     const c = document.createElement('canvas');
@@ -740,6 +813,15 @@ const SlagDraw = (() => {
     ctx.lineWidth = 1.5 * s;
     ctx.beginPath(); ctx.arc(0, 0, R * 1.35, performance.now() / 500, performance.now() / 500 + 4.4); ctx.stroke();
     ctx.rotate(a);
+    const art = tinted('ridder-boven', color, Math.min(192, Math.ceil(R * 3.2 / 8) * 8));
+    if (art) {
+      // Geschilderde ridder: kijkt naar rechts, net als de hoek a = 0.
+      const hh = R * 3.2, ww = hh * art.width / art.height;
+      ctx.drawImage(art, -ww * .42, -hh / 2, ww, hh);
+      ctx.restore();
+      knightShields(ctx, sx, sy, R, s, opts);
+      return;
+    }
     // Cape achteraan, met een lichtere zoom.
     const wave = Math.sin(performance.now() / 110) * R * .12;
     const cg = ctx.createLinearGradient(0, 0, -R * 2, 0);
@@ -789,6 +871,9 @@ const SlagDraw = (() => {
     ctx.fillStyle = color;
     ctx.fillRect(-R * .35, -R * .1, R * .5, R * .2);
     ctx.restore();
+    knightShields(ctx, sx, sy, R, s, opts);
+  }
+  function knightShields(ctx, sx, sy, R, s, opts) {
     // Schild (vraag of net teruggekomen).
     if (opts.bubble) {
       ctx.save();
@@ -861,6 +946,12 @@ const SlagDraw = (() => {
     glow.addColorStop(1, 'rgba(255, 201, 74, 0)');
     ctx.fillStyle = glow;
     ctx.fillRect(-46 * s, -46 * s, 92 * s, 92 * s);
+    if (ART.kristal) {
+      const hh = 58 * s, ww = hh * ART.kristal.width / ART.kristal.height;
+      ctx.drawImage(ART.kristal, -ww / 2, -hh * .6, ww, hh);
+      ctx.restore();
+      return;
+    }
     ctx.rotate(Math.sin(t * 1.5) * .2);
     ctx.fillStyle = '#ffc94a';
     ctx.beginPath();
@@ -934,5 +1025,5 @@ const SlagDraw = (() => {
     });
   }
 
-  return { TEAM, COLORS, EDGE, colorOf, arena, arenaImage, knight, tag, bullet, crystal, burst, ring, effects, moveBullets, addBullet };
+  return { ART, artVer: () => artVer, tinted, TEAM, COLORS, EDGE, colorOf, arena, arenaImage, knight, tag, bullet, crystal, burst, ring, effects, moveBullets, addBullet };
 })();

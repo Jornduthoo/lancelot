@@ -43,6 +43,19 @@ const Slag3D = (() => {
 
   // Gekapte stenen: elk blok een eigen tint, voegen, een lichte bovenrand, hier en daar een barst of wat mos.
   function blocks(g, x, y, w, h, bw, bh, base, r, moss = 0) {
+    if (SlagDraw.ART.muur) {
+      // Geschilderde steen, licht gekleurd naar dit stuk muur.
+      const pat = g.createPattern(SlagDraw.ART.muur, 'repeat');
+      const k = bw / 52;
+      pat.setTransform(new DOMMatrix([k, 0, 0, k, x, y]));
+      g.fillStyle = pat;
+      g.fillRect(x, y, w, h);
+      g.globalAlpha = .25;
+      g.fillStyle = `rgb(${base[0]}, ${base[1]}, ${base[2]})`;
+      g.fillRect(x, y, w, h);
+      g.globalAlpha = 1;
+      return;
+    }
     g.save();
     g.beginPath(); g.rect(x, y, w, h); g.clip();
     g.fillStyle = '#100d1c';
@@ -121,7 +134,7 @@ const Slag3D = (() => {
   }
 
   // De burchtmuur: kantelen, mezekouwen, grote stenen, regensporen, een schietgat en een sokkel met mos.
-  const rampTex = paint(128, OUT_H, (g, w, h) => {
+  const makeRamp = () => paint(128, OUT_H, (g, w, h) => {
     const r = rand(5);
     blocks(g, 0, 40, w, h - 40, 32, 18, [58, 52, 78], r, .08);
     blocks(g, 0, h - 36, w, 36, 42, 18, [44, 40, 60], r, .55);
@@ -138,6 +151,17 @@ const Slag3D = (() => {
     slit(g, 96, 66, 46, 'rgba(255, 150, 70, .55)');
     neonFoot(g, w, h, '#4cc9ff');
   }, 26);
+  let rampTex = makeRamp();
+  // Zodra de geschilderde steen er is: alle muurtexturen opnieuw.
+  let texVer = 0;
+  function freshTextures() {
+    const v = SlagDraw.artVer();
+    if (v === texVer) return;
+    texVer = v;
+    for (const c of [towerCache, gateCache, texCache]) for (const k of Object.keys(c)) delete c[k];
+    rampTex = makeRamp();
+    lay = null;
+  }
 
   // Een hoektoren: hoger, met grotere kantelen, een verlicht boograam en een band in de kleur van het team.
   const towerCache = {};
@@ -344,6 +368,7 @@ const Slag3D = (() => {
   // met de posters, vaandels en fakkels die eraan hangen.
   let lay = null;
   function layout() {
+    freshTextures();
     const key = `${Arena.tier}/${typeof Posters !== 'undefined' ? Posters.version : 0}`;
     if (lay && lay.key === key) return lay;
     const W = Arena.W, H = Arena.H;
@@ -487,6 +512,8 @@ const Slag3D = (() => {
   function sprite(color, back) {
     const key = back ? `${color}/achter` : color;
     if (sprites.has(key)) return sprites.get(key);
+    const art = SlagDraw.tinted(back ? 'ridder-achter' : 'ridder-voor', color, 120);
+    if (art) { sprites.set(key, art); return art; }
     const rows = back ? BACK : FRONT;
     const k = 4;
     const c = document.createElement('canvas');
@@ -600,6 +627,23 @@ const Slag3D = (() => {
     g.fillStyle = '#0b0918';
     g.fillRect(0, H * .82, W, H);
   })();
+  // De geschilderde hemel rondom: het beeld en daarnaast gespiegeld, zodat de naad nooit opvalt.
+  let skyArt = null;
+  function paintedSky() {
+    const img = SlagDraw.ART.hemel;
+    if (!img) return null;
+    if (skyArt && skyArt.img === img) return skyArt.c;
+    const h = 220, w = Math.round(img.width * h / img.height);
+    const c = document.createElement('canvas');
+    c.width = w * 2; c.height = h;
+    const g = c.getContext('2d');
+    g.drawImage(img, 0, 0, w, h);
+    g.translate(w * 2, 0); g.scale(-1, 1);
+    g.drawImage(img, 0, 0, w, h);
+    skyArt = { img, c };
+    return c;
+  }
+
   // Zit er een muur tussen twee punten?
   function visible(ax, ay, bx, by) {
     const d = Math.hypot(bx - ax, by - ay);
@@ -712,8 +756,9 @@ const Slag3D = (() => {
       g.fillRect(0, hz, resW, resH - hz);
     }
     // Sterren en het verre landschap, meedraaiend met de kijkrichting.
+    const sky = paintedSky();
     g.fillStyle = '#d9ecff';
-    for (const s of STARS) {
+    for (const s of sky ? [] : STARS) {
       let rel = s.az - a;
       while (rel > Math.PI) rel -= Math.PI * 2;
       while (rel < -Math.PI) rel += Math.PI * 2;
@@ -723,13 +768,14 @@ const Slag3D = (() => {
     }
     g.globalAlpha = 1;
     {
-      const span = pano.width;
+      const src = sky || pano;
+      const span = src.width;
       const perRad = span / (Math.PI * 2);
-      const ph = horizon * .7;
+      const ph = sky ? horizon + 2 : horizon * .7;
       const width = FOV * perRad;
       for (let start = ((((a - FOV / 2) * perRad) % span) + span) % span, x = 0, rest = width; rest > 0;) {
         const take = Math.min(rest, span - start);
-        g.drawImage(pano, start, 0, take, pano.height, x, horizon - ph, (take / width) * resW, ph);
+        g.drawImage(src, start, 0, take, src.height, x, horizon - ph, (take / width) * resW, ph);
         x += (take / width) * resW;
         rest -= take;
         start = 0;
@@ -859,6 +905,11 @@ const Slag3D = (() => {
         const s = 18 * k;
         g.fillStyle = 'rgba(255, 201, 74, .25)';
         g.beginPath(); g.arc(sx, y, s * 1.8, 0, Math.PI * 2); g.fill();
+        if (SlagDraw.ART.kristal) {
+          const ci = SlagDraw.ART.kristal, ch = s * 2.8, cw = ch * ci.width / ci.height;
+          g.drawImage(ci, sx - cw / 2, y - ch * .55, cw, ch);
+          continue;
+        }
         g.fillStyle = '#ffc94a';
         g.beginPath(); g.moveTo(sx, y - s); g.lineTo(sx + s * .65, y - s * .2); g.lineTo(sx, y + s); g.lineTo(sx - s * .65, y - s * .2); g.closePath(); g.fill();
       } else if (th.kind === 'torch') {
@@ -917,6 +968,20 @@ const Slag3D = (() => {
     const s = Math.min(w, h * 1.4) / 1500;
     const bx = w * .62 + Math.sin(walk) * 8 * s;
     const by = h + Math.abs(Math.cos(walk)) * 8 * s + recoil * 40 * s;
+    const art = SlagDraw.ART.wapen;
+    if (art) {
+      // Geschilderde lans in je handen, rechtsonder; de punt zit linksboven in het beeld.
+      const ww = Math.min(w * .62, h * 1.0), hh = ww * art.height / art.width;
+      const x0 = w - ww * .92 + Math.sin(walk) * 8 * s, y0 = h - hh * .95 + Math.abs(Math.cos(walk)) * 8 * s + recoil * 40 * s;
+      ctx.drawImage(art, x0, y0, ww, hh);
+      const tx = x0 + ww * .03, ty = y0 + hh * .03;
+      Glow.glow(ctx, tx, ty, 60 * s + recoil * 220 * s, color, .55 + recoil * .4);
+      if (recoil > .5) {
+        ctx.fillStyle = '#fff';
+        ctx.beginPath(); ctx.arc(tx, ty, 34 * s * recoil, 0, Math.PI * 2); ctx.fill();
+      }
+      return;
+    }
     ctx.save();
     ctx.translate(bx, by);
     ctx.rotate(-.42);
