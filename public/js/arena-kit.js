@@ -648,6 +648,16 @@ const AK = (() => {
     const q = { open: false, cur: null, timer: null };
     $s('.ls-q-actions button').addEventListener('click', () => q.close());
 
+    // Het schermtoetsenbord van een gsm (getalvraag) mag het invulveld niet bedekken: het venster schuift erboven.
+    const vv = window.visualViewport;
+    function keyboard() {
+      if (!vv) return;
+      const under = q.open ? Math.max(0, Math.round(innerHeight - vv.height - vv.offsetTop)) : 0;
+      box.style.bottom = under > 60 ? `${under}px` : '';
+      box.classList.toggle('ak-kb', under > 60);
+    }
+    if (vv) { vv.addEventListener('resize', keyboard); vv.addEventListener('scroll', keyboard); }
+
     function wait(ms, then) {
       clearInterval(q.timer);
       const end = performance.now() + ms;
@@ -746,6 +756,7 @@ const AK = (() => {
       q.open = false;
       q.cur = null;
       box.classList.add('hidden');
+      keyboard();
       if (was && opts.close) opts.close();
     };
     q.key = e => {
