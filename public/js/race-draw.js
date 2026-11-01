@@ -26,6 +26,88 @@ const RaceDraw = (() => {
       };
       img.src = `/img/ridderrace/${n}.webp`;
     }
+    // De ridder op zijn zweefslee (van achteren, van voren en opzij) en de hemel.
+    for (const n of ['kar-achter', 'kar-voor', 'kar-zij', 'hemel']) {
+      const img = new Image();
+      img.onload = () => { ART[n] = img; tints.clear(); skyCache = null; };
+      img.src = `/img/ridderrace/${n}.webp`;
+    }
+  }
+  // Het blauw van de geschilderde slee wordt de kleur van de speler; één keer per kleur, op volle grootte.
+  const tints = new Map();
+  let skyCache = null;
+  const hexRgb = hx => { const n = parseInt(hx.slice(1), 16); return [n >> 16 & 255, n >> 8 & 255, n & 255]; };
+  function rgbHsl(r, g, b) {
+    r /= 255; g /= 255; b /= 255;
+    const mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 2;
+    if (mx === mn) return [0, 0, l];
+    const d = mx - mn, sat = l > .5 ? d / (2 - mx - mn) : d / (mx + mn);
+    const h = mx === r ? (g - b) / d + (g < b ? 6 : 0) : mx === g ? (b - r) / d + 2 : (r - g) / d + 4;
+    return [h * 60, sat, l];
+  }
+  function hslRgb(h, s, l) {
+    const k = n => (n + h / 30) % 12, a = s * Math.min(l, 1 - l);
+    const f = n => l - a * Math.max(-1, Math.min(k(n) - 3, 9 - k(n), 1));
+    return [f(0) * 255, f(8) * 255, f(4) * 255];
+  }
+  function tinted(name, color) {
+    const img = ART[name];
+    if (!img || !/^#[0-9a-f]{6}$/i.test(color)) return img || null;
+    const key = name + color;
+    if (tints.has(key)) return tints.get(key);
+    const c = document.createElement('canvas');
+    c.width = img.width; c.height = img.height;
+    const g = c.getContext('2d');
+    g.drawImage(img, 0, 0);
+    const data = g.getImageData(0, 0, c.width, c.height), p = data.data;
+    const [th, ts, tl] = rgbHsl(...hexRgb(color));
+    for (let i = 0; i < p.length; i += 4) {
+      if (p[i + 3] < 8) continue;
+      const [hh, sat, l] = rgbHsl(p[i], p[i + 1], p[i + 2]);
+      if (hh < 205 || hh > 258 || sat < .38) continue;
+      const [r, gg, b] = hslRgb(th, Math.max(sat, ts * .85), Math.min(.85, l * (.75 + tl * .6)));
+      p[i] = r; p[i + 1] = gg; p[i + 2] = b;
+    }
+    g.putImageData(data, 0, 0);
+    tints.set(key, c);
+    return c;
+  }
+  // De geschilderde slee in één van drie standen. Onderkant op (x, y); w is de breedte van de slee zoals vroeger.
+  // Geeft de hoogte terug, of false als het beeld er (nog) niet is.
+  const VIEW = { back: ['kar-achter', 1.1, [[.36, .88], [.64, .88]]], front: ['kar-voor', 1.0, []], side: ['kar-zij', 1.75, [[.04, .62]]] };
+  function paintedSteed(ctx, x, y, w, color, view = 'back', o = {}, dir = 1) {
+    const [name, wk, engines] = VIEW[view];
+    const art = tinted(name, color);
+    if (!art) return false;
+    const iw = w * wk, ih = iw * art.height / art.width;
+    const t = o.t || 0, seed = o.seed || 0;
+    const hover = Math.sin(t * 7 + seed) * .025 * ih;
+    Glow.glow(ctx, x, y, iw * .7, color, o.turbo ? .8 : .45, .22);
+    ctx.save();
+    ctx.translate(x, y - ih * .04 + hover);
+    if (dir < 0) ctx.scale(-1, 1);
+    ctx.rotate((o.tilt || 0) * .08);
+    ctx.drawImage(art, -iw / 2, -ih, iw, ih);
+    const flame = o.turbo ? 1.9 + .4 * Math.sin(t * 40) : 1 + .08 * Math.sin(t * 30 + seed);
+    for (const [ex, ey] of engines) Glow.glow(ctx, (ex - .5) * iw, (ey - 1) * ih, iw * .2 * flame, o.turbo ? '#ffd166' : color, .9);
+    if (o.brake && view === 'back') for (const ex of [.2, .8]) Glow.glow(ctx, (ex - .5) * iw, -ih * .2, iw * .12, '#ff2d4d', .9);
+    if (o.av && typeof Avatar !== 'undefined' && view !== 'side') {
+      // Het hoofd van de eigen ridder over de geschilderde helm.
+      const hw = iw * (view === 'back' ? .26 : .3);
+      const img = Avatar.sprite(o.av, { back: view === 'back', k: Avatar.kFor(hw / 12) });
+      const hh = hw * (8 / 12);
+      const hy = view === 'back' ? .2 : .26;
+      ctx.drawImage(img, 0, 0, img.width, img.height * (8 / 17), -hw / 2 + (view === 'back' ? -.02 : .03) * iw, -ih * (1 - hy) - hh * .55, hw, hh);
+    }
+    if (o.pit) {
+      Glow.glow(ctx, 0, -ih * 1.05, .35 * iw, '#ffd166', .7);
+      ctx.fillStyle = '#ffd166';
+      ctx.font = `${Math.max(10, iw * .3)}px system-ui, sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.fillText('⚡', 0, -ih * 1.02);
+    }
+    ctx.restore();
+    return ih;
   }
   // Vult het gras (hele breedte) of de weg met de textuur, in perspectief. Grote segmenten vooraan knippen we in
   // dunne reepjes, anders zie je trapjes in de stenen.
@@ -134,7 +216,48 @@ const RaceDraw = (() => {
     }
   }
 
+  // Dezelfde hemel als rondom-panorama (voor het 3D-zicht van Strijdrossen), op vaste hoogte.
+  let panoCache = null;
+  function skyPano() {
+    const img = ART.hemel;
+    if (!img) return null;
+    if (panoCache && panoCache.img === img) return panoCache.c;
+    const hh = 260, w = Math.round(img.width * hh / img.height);
+    const c = document.createElement('canvas');
+    c.width = w * 2; c.height = hh;
+    const g = c.getContext('2d');
+    g.drawImage(img, 0, 0, w, hh);
+    g.translate(w * 2, 0); g.scale(-1, 1);
+    g.drawImage(img, 0, 0, w, hh);
+    panoCache = { img, c };
+    return c;
+  }
+
+  function paintedSky(ctx, W, H, horizon) {
+    const img = ART.hemel;
+    if (!img) return false;
+    // Wat groter dan de hemel hoog is (de bovenkant valt weg): zo zie je maar één planeet tegelijk.
+    const hh = Math.round((horizon + 4) * 1.45);
+    if (!skyCache || skyCache.height !== hh) {
+      const w = Math.round(img.width * hh / img.height);
+      const c = document.createElement('canvas');
+      c.width = w * 2; c.height = hh;
+      const g = c.getContext('2d');
+      g.drawImage(img, 0, 0, w, hh);
+      g.translate(w * 2, 0); g.scale(-1, 1);
+      g.drawImage(img, 0, 0, w, hh);
+      skyCache = c;
+    }
+    const span = skyCache.width;
+    let x0 = -(((bg.sky * .5 * W) % span) + span) % span;
+    for (; x0 < W; x0 += span) ctx.drawImage(skyCache, Math.round(x0), Math.round(horizon + 4 - hh));
+    ctx.fillStyle = '#081627';
+    ctx.fillRect(0, horizon, W, H - horizon);
+    return true;
+  }
+
   function background(ctx, W, H, horizon, t) {
+    if (paintedSky(ctx, W, H, horizon)) return;
     const sky = ctx.createLinearGradient(0, 0, 0, horizon);
     sky.addColorStop(0, '#02040d');
     sky.addColorStop(.55, '#0c0a2a');
@@ -381,6 +504,8 @@ const RaceDraw = (() => {
     const w = 520 * k;
     const h = 460 * k;
     if (w < 3) return;
+    const ih = paintedSteed(ctx, x, y, w, color, 'back', o);
+    if (ih) { nameTag(ctx, x, y - ih * 1.08, w, color, o.name); return; }
     const t = o.t || 0;
     const seed = o.seed || 0;
     const lw = Math.max(1, 10 * k);
@@ -529,17 +654,19 @@ const RaceDraw = (() => {
       ctx.fillText('⚡', 0, -1.25 * h);
     }
     ctx.restore();
-    if (o.name && w > 34) {
+    nameTag(ctx, x, y - 1.42 * h, w, color, o.name);
+  }
+  function nameTag(ctx, x, ty, w, color, name) {
+    if (name && w > 34) {
       const size = Math.max(10, Math.min(18, w * .16));
       ctx.font = `700 ${size}px system-ui, sans-serif`;
       ctx.textAlign = 'center';
-      const tw = ctx.measureText(o.name).width + size;
-      const ty = y - 1.42 * h;
+      const tw = ctx.measureText(name).width + size;
       ctx.fillStyle = 'rgba(5, 8, 20, .8)';
       ctx.fillRect(x - tw / 2, ty - size, tw, size * 1.4);
       ctx.fillStyle = color;
       ctx.fillRect(x - tw / 2, ty + size * .4 - 2, tw, 2);
-      ctx.fillText(o.name, x, ty);
+      ctx.fillText(name, x, ty);
     }
   }
 
@@ -1063,5 +1190,5 @@ const RaceDraw = (() => {
     Glow.vignette(ctx, W, H, .5);
   }
 
-  return { render, map, board, steed, colorOf, COLORS, PLAYER_Z };
+  return { render, map, board, steed, paintedSteed, skyPano, colorOf, COLORS, PLAYER_Z };
 })();
