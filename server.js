@@ -569,10 +569,15 @@ lesmap.init([
   { kind: 'klasindeling', dir: klasindeling.DIR, remote: 'klasindeling', validate: klasindeling.geldig },
   // De klaslijst (alleen namen en niveaus), zodat je thuis taken per kind klaarzet. Twee lijsten worden samengevoegd.
   { kind: 'klas', dir: klas.LESMAP, remote: 'klas', validate: klas.lesmapGeldig, merge: klas.lesmapSamen },
+  // Het Klaseiland en het ridderboek: de pc waar de klas speelt zet een kopie klaar, thuis kan je die bekijken.
+  { kind: 'burchten', dir: burchten.LESMAP, remote: 'klaseiland', validate: burchten.kopieGeldig },
 ]);
 let syncTimer = null;
 function runSync() {
   try { klas.naarLesmap(); } catch (err) { console.error('Klaslijst voor de lesmap bewaren mislukt:', err.message); }
+  if (settings.read().lesmap) {
+    try { burchten.naarLesmap(); } catch (err) { console.error('Klaseiland voor de lesmap bewaren mislukt:', err.message); }
+  }
   return lesmap.sync().then(changed => {
     // Eerst de klaslijst: taken uit de lesmap gaan alleen naar wie op de klaslijst staat.
     if (changed.includes('klas') && klas.uitLesmap()) {
@@ -585,6 +590,7 @@ function runSync() {
       else if (kind === 'kronieken') io.to('host').emit('kr-lijst', kronieken.lijst());
       else if (kind === 'klastaken') io.to('host').emit('wk-taken', klastaken.read());
       else if (kind === 'klasindeling') io.to('host').emit('wk-indeling', klasindeling.read());
+      else if (kind === 'burchten') io.to('host').emit('bu-eiland', burchten.eiland());
     }
     if (taken.uitLesmap()) {
       io.to('host').emit('tk-lijst', taken.lijst());

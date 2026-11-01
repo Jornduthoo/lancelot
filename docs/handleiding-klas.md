@@ -492,7 +492,7 @@ Een beloningssysteem per leerling dat inzet en groei beloont, niet alleen de bes
    - **📖 Ridderboek**: Eer, rang en wat er recent bijkwam per leerling. Dat staat op het bord, dus open het niet als de klas meekijkt. Een burchtnaam of huisdiernaam die niet door de beugel kan, wis je hier.
 5. **Mijn huisdier**: leerlingen tikken op **Mijn huisdier** (of `/huisdier`) en kiezen een ei: een draakje, lichtvos, sterrenuil, griffioen of robodiertje, in een kleur naar keuze. Het ei komt uit zodra ze Eer verdienen. Daarna groeit het mee met hun Eer: baby, jong (150), groot (500) en ridder (1200). Verzorgen geeft een beetje extra groei: **voeren** met snoepjes (elke 10 Eer een snoepje), **poetsen** (over het huisdier wrijven) en **spelen** (20 seconden sterren vangen). Elke fase leert het huisdier een trucje, en hoedjes verdienen ze met hun wapenschilden. Er is nooit straf: wie een tijdje weg was, vindt zijn huisdier slapend terug en maakt het blij wakker. Het huisdier staat naast de ridder op het Klaseiland en in Mijn burcht, en loopt mee in Het rijk van Lancelot (het snuffelt als er een runensteen in de buurt ligt).
 
-De burchten en huisdieren staan in de map `burchten` bij je gegevens, alleen op deze pc.
+De burchten en huisdieren staan in de map `burchten` bij je gegevens. Gebruik je **Mijn lesmap**, dan zet het digibord er een kopie van het Klaseiland en het ridderboek in (Eer, rang en saldo per leerling, zonder wat ze precies speelden). Thuis open je dan het Klaseiland en zie je dezelfde burchten, met "Kopie van het digibord" erbij. Bouwen, Eer geven en het klasdoel aanpassen doe je op het digibord.
 
 ## Lukt verbinden niet?
 
