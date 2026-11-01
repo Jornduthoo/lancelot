@@ -22,6 +22,78 @@ const JpDraw = (() => {
     return `rgb(${x.map((v, i) => Math.round(v + (y[i] - v) * k)).join(',')})`;
   }
 
+  // ---------- Jorns geschilderde beelden (public/img/raketridder/) ----------
+  // Is een beeld er (nog) niet, dan tekenen we dat stuk zelf zoals vroeger.
+  const ART = {};
+  const ART_NAMEN = ['ridder', 'steen', 'platform', 'stekels', 'laser', 'vuurwiel', 'cel', 'vlag',
+    'lucht-wolkenburcht', 'lucht-lavasmidse', 'lucht-sterrenpoort'];
+  const onArt = [];
+  if (typeof Image !== 'undefined') {
+    for (const n of ART_NAMEN) {
+      const img = new Image();
+      img.onload = () => { ART[n] = img; for (const f of onArt) f(); };
+      img.src = `/img/raketridder/${n}.webp`;
+    }
+  }
+  function rgbHsl(r, g, b) {
+    r /= 255; g /= 255; b /= 255;
+    const mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 2;
+    if (mx === mn) return [0, 0, l];
+    const d = mx - mn, s = l > .5 ? d / (2 - mx - mn) : d / (mx + mn);
+    const h = mx === r ? (g - b) / d + (g < b ? 6 : 0) : mx === g ? (b - r) / d + 2 : (r - g) / d + 4;
+    return [h * 60, s, l];
+  }
+  function hslRgb(h, s, l) {
+    const k = n => (n + h / 30) % 12, a = s * Math.min(l, 1 - l);
+    const f = n => l - a * Math.max(-1, Math.min(k(n) - 3, 9 - k(n), 1));
+    return [f(0) * 255, f(8) * 255, f(4) * 255];
+  }
+  // De blauwe delen (pluim, cape, strepen op de raket) krijgen de kleur van de speler. Het cyaan vizier blijft cyaan.
+  function tint(c, color) {
+    const g = c.getContext('2d');
+    const data = g.getImageData(0, 0, c.width, c.height), p = data.data;
+    const [th, ts, tl] = rgbHsl(...hexRgb(color));
+    for (let i = 0; i < p.length; i += 4) {
+      if (p[i + 3] < 8) continue;
+      const [h, sat, l] = rgbHsl(p[i], p[i + 1], p[i + 2]);
+      if (h < 205 || h > 258 || sat < .38) continue;
+      const [r, gg, b] = hslRgb(th, Math.max(sat, ts * .85), Math.min(.85, l * (.75 + tl * .6)));
+      p[i] = r; p[i + 1] = gg; p[i + 2] = b;
+    }
+    g.putImageData(data, 0, 0);
+  }
+
+  // De achtergrond van een wereld: Jorns schilderij, één keer geschaald op de schermhoogte,
+  // en daarnaast gespiegeld, zodat hij naadloos eindeloos doorschuift.
+  const backCache = new Map();
+  onArt.push(() => backCache.clear());
+  function backdrop(theme, h) {
+    const img = ART['lucht-' + theme.name.toLowerCase()];
+    if (!img) return null;
+    const H = Math.min(1400, Math.round(h * 1.1));
+    const key = theme.name + ':' + H;
+    let b = backCache.get(key);
+    if (b) return b;
+    if (backCache.size > 4) backCache.clear();
+    const w = Math.round(img.width * H / img.height);
+    const c = mk(w * 2, H), g = c.getContext('2d');
+    g.drawImage(img, 0, 0, w, H);
+    g.save(); g.translate(w * 2, 0); g.scale(-1, 1); g.drawImage(img, 0, 0, w, H); g.restore();
+    const px = g.getImageData(w, H - 2, 1, 1).data;
+    b = { c, bottom: `rgb(${px[0]},${px[1]},${px[2]})` };
+    backCache.set(key, b);
+    return b;
+  }
+  function drawBack(ctx, b, w, h, v, S, alpha) {
+    ctx.globalAlpha = alpha;
+    const bw = b.c.width;
+    const off = -((v.cx * S * .1) % bw + bw) % bw;
+    const dy = Math.round(Math.max(-h * .1, Math.min(0, .08 * (W.H / 2 - v.cy) * S - h * .05)));
+    ctx.fillStyle = b.bottom; ctx.fillRect(0, dy + b.c.height - 2, w, h);
+    for (let x = off; x < w; x += bw) ctx.drawImage(b.c, Math.round(x), dy);
+    ctx.globalAlpha = 1;
+  }
+
   // ---------- Lucht en verre lagen (per wereld, per schermgrootte) ----------
   const skyCache = new Map();
   function circuits(g, w, h, color, alpha, r) {
@@ -176,6 +248,23 @@ const JpDraw = (() => {
   // ---------- Stenen platforms en torenmuren (gebakken per stuk en per zoom) ----------
   const solidCache = new Map();
   let solidS = 0;
+  onArt.push(() => { solidCache.clear(); knightCache.clear(); });
+  // Jorns steentegel als vulling: één tegel = 2,6 meter.
+  const tileCache = new Map();
+  function stoneFill(g, theme, S) {
+    const key = theme.name + S;
+    let t = tileCache.get(key);
+    if (t) return g.createPattern(t, 'repeat');
+    if (tileCache.size > 6) tileCache.clear();
+    const img = ART.steen;
+    t = mk(Math.round(S * 2.6), Math.round(S * 2.6));
+    const tg = t.getContext('2d');
+    tg.drawImage(img, 0, 0, t.width, t.height);
+    if (theme.name === 'Lavasmidse') { tg.globalCompositeOperation = 'multiply'; tg.fillStyle = '#c27a5c'; tg.fillRect(0, 0, t.width, t.height); }
+    else if (theme.name === 'Sterrenpoort') { tg.globalCompositeOperation = 'color'; tg.fillStyle = 'rgba(80,60,170,.35)'; tg.fillRect(0, 0, t.width, t.height); }
+    tileCache.set(key, t);
+    return g.createPattern(t, 'repeat');
+  }
   function bakeSolid(s, theme, S) {
     const pad = Math.ceil(S * .5);
     const under = s.wall || s.mv ? 0 : Math.min(2.2, .6 + s.w * .25);
@@ -203,9 +292,19 @@ const JpDraw = (() => {
       for (const fx of [.22, .78]) g.fillRect(w * fx - S * .22, h - S * .02, S * .44, S * .22);
       return { c, pad };
     }
-    // Blokken: rijen stenen met een eigen tint, een lichte bovenkant, een zwarte omlijning.
+    // Jorns steen als vulling, anders blokken: rijen stenen met een eigen tint, een lichte bovenkant, een zwarte omlijning.
     const bh = s.wall ? S * .9 : Math.min(h, S * .9);
-    const rows = Math.max(1, Math.ceil(h / bh));
+    const rows = ART.steen ? 0 : Math.max(1, Math.ceil(h / bh));
+    if (ART.steen) {
+      g.save();
+      g.fillStyle = stoneFill(g, theme, S);
+      g.translate(-(s.x * S) % (S * 2.6), -(s.y * S) % (S * 2.6));
+      g.fillRect((s.x * S) % (S * 2.6), (s.y * S) % (S * 2.6), w, h);
+      g.restore();
+      const sh = g.createLinearGradient(0, 0, 0, h);
+      sh.addColorStop(0, 'rgba(255,255,255,.08)'); sh.addColorStop(1, 'rgba(0,0,0,.3)');
+      g.fillStyle = sh; g.fillRect(0, 0, w, h);
+    }
     for (let row = 0; row < rows; row++) {
       const y0 = oy + row * bh;
       const bhh = Math.min(bh, h - row * bh);
@@ -248,6 +347,12 @@ const JpDraw = (() => {
       g.strokeRect(0, 0, w, h);
       // De rotspunt eronder: het platform zweeft.
       const uh = under * S;
+      if (ART.platform) {
+        // Jorns zwevende rots, zonder zijn bovenste plaat, uitgerekt onder het platform.
+        const img = ART.platform, cut = img.height * .1;
+        g.drawImage(img, 0, cut, img.width, img.height - cut, -S * .15, h - S * .05, w + S * .3, uh + pad * .85);
+        return { c, pad };
+      }
       g.beginPath();
       g.moveTo(0, h);
       const n = Math.max(3, Math.round(s.w * 1.4));
@@ -322,6 +427,11 @@ const JpDraw = (() => {
 
   // Stalen kegels op een gouden voet.
   function spikes(ctx, s, sx, sy, S) {
+    if (ART.stekels) {
+      const img = ART.stekels, n = Math.max(1, Math.round(s.w / 1.1)), sw = s.w * S / n, sh = sw * img.height / img.width;
+      for (let i = 0; i < n; i++) ctx.drawImage(img, sx + i * sw, sy - sh + S * .04, sw, sh);
+      return;
+    }
     const n = Math.max(1, Math.round(s.w / .55));
     const step = s.w * S / n;
     for (let i = 0; i < n; i++) {
@@ -345,6 +455,16 @@ const JpDraw = (() => {
   }
 
   function emitter(ctx, x, y, S, dir, lit) {
+    if (ART.laser) {
+      const img = ART.laser, ew = S * 1.0, eh = ew * img.height / img.width;
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.scale(1, dir);
+      ctx.drawImage(img, -ew / 2, -eh, ew, eh);
+      ctx.restore();
+      if (lit !== '#5a1a28') glow(ctx, x + ew * .06, y - dir * eh * .5, S * .55, lit, .9);
+      return;
+    }
     ctx.save();
     ctx.translate(x, y);
     ctx.scale(1, dir);
@@ -399,6 +519,13 @@ const JpDraw = (() => {
       ctx.fillStyle = '#fff1c2';
       ctx.beginPath(); ctx.arc(x - S * .05, y - S * .05, S * .1, 0, TAU); ctx.fill();
     }
+    if (ART.vuurwiel) {
+      const d = S * 1.15;
+      ctx.save(); ctx.translate(sx, sy); ctx.rotate(a);
+      ctx.drawImage(ART.vuurwiel, -d / 2, -d / 2, d, d);
+      ctx.restore();
+      return;
+    }
     ctx.fillStyle = '#2b3150';
     ctx.strokeStyle = '#05060f';
     ctx.lineWidth = Math.max(1, S * .05);
@@ -410,6 +537,23 @@ const JpDraw = (() => {
   // De vlag: een gouden paal met een blauwe banier en een gouden ruit, zoals op het icoon.
   function flag(ctx, k, sx, sy, S, t, passed) {
     const col = passed ? '#4ade80' : '#ffc94a';
+    if (ART.vlag) {
+      // Jorns vlag op een runensteen; de paal staat op 42% van de breedte.
+      const img = ART.vlag, fh = S * 3.9, fw = fh * img.width / img.height, x0 = sx - fw * .42;
+      glow(ctx, sx + S * .5, sy - fh * .78, S * 2, col, passed ? .35 : .55);
+      ctx.drawImage(img, x0, sy - fh, fw, fh);
+      const cx = x0 + fw * .72 + Math.sin(t * 3.5 + k) * S * .04, cy = sy - fh * .8;
+      ctx.fillStyle = col;
+      ctx.strokeStyle = '#05060f';
+      ctx.lineWidth = Math.max(1, S * .05);
+      ctx.beginPath(); ctx.moveTo(cx, cy - S * .42); ctx.lineTo(cx + S * .32, cy); ctx.lineTo(cx, cy + S * .42); ctx.lineTo(cx - S * .32, cy); ctx.closePath(); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = '#1a1030';
+      ctx.font = `900 ${Math.round(S * .36)}px Orbitron, sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(String(k), cx, cy + S * .03);
+      return;
+    }
     glow(ctx, sx + S * .7, sy - S * 2.8, S * 2.2, col, passed ? .3 : .6);
     ctx.strokeStyle = '#05060f';
     ctx.lineWidth = Math.max(1, S * .05);
@@ -451,6 +595,11 @@ const JpDraw = (() => {
     const bob = Math.sin(t * 3 + x * .01) * S * .12;
     const yy = y + bob;
     glow(ctx, x, yy, S * 1, '#5ee7ff', .75);
+    if (ART.cel) {
+      const ch = S * .9, cw = ch * ART.cel.width / ART.cel.height;
+      ctx.drawImage(ART.cel, x - cw / 2, yy - ch / 2, cw, ch);
+      return;
+    }
     ctx.strokeStyle = '#05060f';
     ctx.lineWidth = Math.max(1, S * .04);
     ctx.fillStyle = '#9ff4ff';
@@ -466,10 +615,24 @@ const JpDraw = (() => {
   const PX = 64; // pixels per meter in het voorgebakken beeld
   const BOX = { w: 2.0, h: 2.1, fx: 1.0 }; // grootte van het beeld in meter, fx = plek van de voeten
   const knightCache = new Map();
+  // Jorns geschilderde ridder: 2,05 m hoog, voeten op 215 px van links (van 343), straalpijpen gemeten op het beeld.
+  const PAINT = { h: 2.05, fx: 215 / 343, noz: [[117 / 343, 235 / 400], [155 / 343, 245 / 400]] };
+  function paintedKnight(color) {
+    const img = ART.ridder, ppm = 100;
+    const c = mk(ppm * PAINT.h * img.width / img.height, ppm * PAINT.h);
+    c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+    tint(c, color);
+    c.ppm = ppm;
+    c.fx = c.width * PAINT.fx;
+    c.noz = PAINT.noz.map(([nx, ny]) => [(nx * c.width - c.fx) / ppm, (ny - 1) * PAINT.h]);
+    return c;
+  }
   function knightSprite(color) {
     let c = knightCache.get(color);
     if (c) return c;
+    if (ART.ridder) { c = paintedKnight(color); knightCache.set(color, c); return c; }
     c = mk(PX * BOX.w, PX * BOX.h);
+    c.ppm = PX; c.fx = BOX.fx * PX; c.noz = [[-.54, -.5], [-.32, -.5]];
     const g = c.getContext('2d');
     const u = PX;
     g.translate(BOX.fx * u, c.height - u * .04);
@@ -534,7 +697,7 @@ const JpDraw = (() => {
   // sx, sy = voeten in pixels; S = pixels per meter.
   function knight(ctx, o, sx, sy, S, t) {
     const spr = knightSprite(o.color);
-    const k = S / PX * 1.02;
+    const k = S / spr.ppm * 1.02;
     const face = o.face < 0 ? -1 : 1;
     ctx.save();
     ctx.globalAlpha = o.alpha ?? 1;
@@ -547,8 +710,8 @@ const JpDraw = (() => {
     if (o.jet) {
       const fl = .8 + Math.sin(t * 45 + (o.n || 0) * 3) * .2;
       const outer = o.turbo ? '#ff6bd6' : '#5ee7ff';
-      for (const ox of [-.54 * 1.02, -.32 * 1.02]) {
-        const x = ox * S, y0 = -S * .5;
+      for (const [ox, oy] of spr.noz) {
+        const x = ox * 1.02 * S, y0 = oy * 1.02 * S;
         const len = S * (.75 + .25 * fl) * (o.turbo ? 1.3 : 1);
         glow(ctx, x, y0 + len * .45, S * .55, outer, .9, 1.7);
         const fg = ctx.createLinearGradient(0, y0, 0, y0 + len);
@@ -561,14 +724,14 @@ const JpDraw = (() => {
         ctx.fill();
       }
     }
-    ctx.drawImage(spr, -BOX.fx * PX * k, -spr.height * k, spr.width * k, spr.height * k);
+    ctx.drawImage(spr, -spr.fx * k, -spr.height * k, spr.width * k, spr.height * k);
     ctx.restore();
     if (o.name) {
       ctx.font = `800 ${Math.max(11, Math.round(S * .34))}px Orbitron, sans-serif`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'bottom';
       const tw = ctx.measureText(o.name).width;
-      const ty = sy - S * 2.0;
+      const ty = sy - S * 2.15;
       ctx.fillStyle = 'rgba(5,8,20,.7)';
       ctx.fillRect(sx - tw / 2 - 5, ty - S * .42, tw + 10, S * .46);
       ctx.fillStyle = o.color;
@@ -634,15 +797,17 @@ const JpDraw = (() => {
     const Y = y => Math.round((y - v.cy) * S + h / 2);
     const kc = Math.max(0, Math.floor(v.cx / W.L));
     const theme = W.themeOf(kc);
-    ctx.drawImage(sky(theme, w, h), 0, 0);
     const nextTheme = W.themeOf(kc + 1);
     let fade = 0;
-    if (nextTheme !== theme) {
-      fade = Math.max(0, Math.min(1, (v.cx - (kc + 1) * W.L + 14) / 14));
-      if (fade > 0) { ctx.globalAlpha = fade; ctx.drawImage(sky(nextTheme, w, h), 0, 0); ctx.globalAlpha = 1; }
-    }
+    if (nextTheme !== theme) fade = Math.max(0, Math.min(1, (v.cx - (kc + 1) * W.L + 14) / 14));
     const th = fade > .5 ? nextTheme : theme;
-    for (const depth of [0, 1]) {
+    const bA = backdrop(theme, h), bB = fade > 0 ? backdrop(nextTheme, h) : null;
+    if (bA) drawBack(ctx, bA, w, h, v, S, 1); else ctx.drawImage(sky(theme, w, h), 0, 0);
+    if (fade > 0) {
+      if (bB) drawBack(ctx, bB, w, h, v, S, fade);
+      else { ctx.globalAlpha = fade; ctx.drawImage(sky(nextTheme, w, h), 0, 0); ctx.globalAlpha = 1; }
+    }
+    for (const depth of (bA ? [] : [0, 1])) {
       const img = layer(th, h, depth);
       const par = depth ? .35 : .12;
       const off = -((v.cx * S * par) % img.width + img.width) % img.width;
