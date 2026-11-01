@@ -28,6 +28,21 @@ const BossDraw = (() => {
     naam: 'De leerkracht',
     titel: 'de Onverslaanbare',
   };
+  // De geschilderde troonzaal (public/img/leraarbaas/troonzaal.webp), in het paars. Een andere aura draait de kleur mee.
+  const ART = {};
+  const artWait = [];
+  if (typeof Image !== 'undefined') {
+    const img = new Image();
+    img.onload = () => { ART.zaal = img; artWait.forEach(f => f()); };
+    img.src = '/img/leraarbaas/troonzaal.webp';
+  }
+  function hueOf(hex) {
+    const n = parseInt(hex.slice(1), 16), r = (n >> 16 & 255) / 255, g = (n >> 8 & 255) / 255, b = (n & 255) / 255;
+    const mx = Math.max(r, g, b), d = mx - Math.min(r, g, b);
+    if (!d) return 0;
+    const h = mx === r ? (g - b) / d + (g < b ? 6 : 0) : mx === g ? (b - r) / d + 2 : (r - g) / d + 4;
+    return h * 60;
+  }
   const ease = t => 1 - Math.pow(1 - Math.min(1, Math.max(0, t)), 3);
   const rand = (a, b) => a + Math.random() * (b - a);
 
@@ -522,12 +537,24 @@ const BossDraw = (() => {
     }
     // Posters komen na het laden binnen: dan de zaal opnieuw tekenen.
     if (typeof Posters !== 'undefined') Posters.onChange(() => { S.bg = null; });
+    artWait.push(() => { S.bg = null; });
 
     function paintHall(W, H, aura) {
       const c = document.createElement('canvas');
       c.width = W;
       c.height = H;
       const g = c.getContext('2d');
+      if (ART.zaal) {
+        const img = ART.zaal, k = Math.max(W / img.width, H / img.height);
+        g.filter = `hue-rotate(${Math.round(hueOf(aura.c) - hueOf(AURAS[0].c))}deg)`;
+        g.drawImage(img, (W - img.width * k) / 2, (H - img.height * k) / 2, img.width * k, img.height * k);
+        g.filter = 'none';
+        // Wat donkerder, zodat de baas en de ridders de blikvangers blijven.
+        g.fillStyle = 'rgba(8,3,16,.22)';
+        g.fillRect(0, 0, W, H);
+        posters(g, W, H, aura);
+        return c;
+      }
       const bg = g.createLinearGradient(0, 0, 0, H);
       bg.addColorStop(0, '#05010c');
       bg.addColorStop(.6, '#160622');
@@ -594,7 +621,13 @@ const BossDraw = (() => {
           g.stroke();
         }
       }
-      // Posters tussen de pilaren, aan twee kettingen (eigen foto's of de grappige).
+      posters(g, W, H, aura);
+      floorTiles(g, W, H, aura);
+      return c;
+    }
+
+    // Posters tussen de pilaren, aan twee kettingen (eigen foto's of de grappige).
+    function posters(g, W, H, aura) {
       if (typeof Posters !== 'undefined' && Posters.list.length) {
         let n = 0;
         for (const side of [-1, 1]) {
@@ -618,7 +651,10 @@ const BossDraw = (() => {
           }
         }
       }
-      // De vloer met tegels die in de verte verdwijnen.
+    }
+
+    // De vloer met tegels die in de verte verdwijnen.
+    function floorTiles(g, W, H, aura) {
       const fy = H * .66;
       const floor = g.createLinearGradient(0, fy, 0, H);
       floor.addColorStop(0, '#1d0c2b');
@@ -649,7 +685,6 @@ const BossDraw = (() => {
       g.lineTo(W * .3, H);
       g.closePath();
       g.fill();
-      return c;
     }
 
     // ---------- Ridders van de klas ----------
