@@ -3,6 +3,65 @@
 const RyDraw = (() => {
   const { R } = RyWorld;
 
+  // ---------- Geschilderde beelden ----------
+  // Eigen beelden in public/img/ridderroyale/ (grond, rots, kristalzuil, struik, krat); de stenen, de ruimte
+  // en de ridder van bovenaf delen we met Laserslag en Sterrenvreter. Zonder beeld tekenen we alles zoals vroeger.
+  const ART = {};
+  let artVer = 0;
+  const SRC = { grond: 'ridderroyale/grond', rots: 'ridderroyale/rots', zuil: 'ridderroyale/zuil', struik: 'ridderroyale/struik', krat: 'ridderroyale/krat', muur: 'laserslag/muur', ridder: 'laserslag/ridder-boven', ruimte: 'sterrenvreter/ruimte' };
+  if (typeof Image !== 'undefined') {
+    for (const [n, src] of Object.entries(SRC)) {
+      const img = new Image();
+      img.onload = () => { ART[n] = img; artVer++; tints.clear(); };
+      img.src = `/img/${src}.webp`;
+    }
+  }
+  const tints = new Map();
+  const hexRgb = hx => { const n = parseInt(hx.slice(1), 16); return [n >> 16 & 255, n >> 8 & 255, n & 255]; };
+  function rgbHsl(r, g, b) {
+    r /= 255; g /= 255; b /= 255;
+    const mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 2;
+    if (mx === mn) return [0, 0, l];
+    const d = mx - mn, sat = l > .5 ? d / (2 - mx - mn) : d / (mx + mn);
+    const h = mx === r ? (g - b) / d + (g < b ? 6 : 0) : mx === g ? (b - r) / d + 2 : (r - g) / d + 4;
+    return [h * 60, sat, l];
+  }
+  function hslRgb(h, s, l) {
+    const k = n => (n + h / 30) % 12, a = s * Math.min(l, 1 - l);
+    const f = n => l - a * Math.max(-1, Math.min(k(n) - 3, 9 - k(n), 1));
+    return [f(0) * 255, f(8) * 255, f(4) * 255];
+  }
+  // De geschilderde ridder van bovenaf in de kleur van de speler (het blauw wordt zijn kleur, het cyaan blijft).
+  function paintedKnight(color) {
+    if (!ART.ridder) return null;
+    let c = tints.get(color);
+    if (c) return c;
+    const img = ART.ridder;
+    c = document.createElement('canvas');
+    c.width = img.width; c.height = img.height;
+    const g = c.getContext('2d');
+    g.drawImage(img, 0, 0);
+    const data = g.getImageData(0, 0, c.width, c.height), p = data.data;
+    const [th, ts, tl] = rgbHsl(...hexRgb(color));
+    for (let i = 0; i < p.length; i += 4) {
+      if (p[i + 3] < 8) continue;
+      const [hh, sat, l] = rgbHsl(p[i], p[i + 1], p[i + 2]);
+      if (hh < 205 || hh > 258 || sat < .38) continue;
+      const [r, gg, b] = hslRgb(th, Math.max(sat, ts * .85), Math.min(.85, l * (.75 + tl * .6)));
+      p[i] = r; p[i + 1] = gg; p[i + 2] = b;
+    }
+    g.putImageData(data, 0, 0);
+    tints.set(color, c);
+    return c;
+  }
+  // Een patroon uit een beeld, met zijn tegel zo groot als tile wereld-eenheden.
+  function pattern(ctx, img, tile) {
+    const p = ctx.createPattern(img, 'repeat');
+    const k = tile / img.width;
+    p.setTransform(new DOMMatrix([k, 0, 0, k, 0, 0]));
+    return p;
+  }
+
   // ---------- De arena vooraf tekenen ----------
   // Vuurschalen: bij de hoeken van het burchtplein en aan de uiteinden van de ruïnes. Alleen voor het beeld.
   function lights(ar) {
@@ -39,7 +98,16 @@ const RyDraw = (() => {
     bg.addColorStop(1, '#0a1314');
     ctx.fillStyle = bg;
     ctx.fillRect(-S, -S, S * 2, S * 2);
-    for (let i = 0; i < ar.size * 1.2; i++) {
+    const painted = !!ART.grond;
+    if (painted) {
+      ctx.fillStyle = pattern(ctx, ART.grond, 360);
+      ctx.fillRect(-S, -S, S * 2, S * 2);
+      const edge = ctx.createRadialGradient(0, 0, ar.size * .5, 0, 0, ar.size);
+      edge.addColorStop(0, 'rgba(0,0,0,0)'); edge.addColorStop(1, 'rgba(0,0,0,.45)');
+      ctx.fillStyle = edge;
+      ctx.fillRect(-S, -S, S * 2, S * 2);
+    }
+    for (let i = 0; i < (painted ? 0 : ar.size * 1.2); i++) {
       const a = rnd() * Math.PI * 2, d = Math.sqrt(rnd()) * ar.size;
       const v = rnd();
       ctx.fillStyle = v < .4 ? 'rgba(70,130,90,.13)' : v < .55 ? 'rgba(40,90,110,.12)' : 'rgba(0,0,0,.16)';
@@ -49,7 +117,7 @@ const RyDraw = (() => {
     }
     // Grassprieten en hier en daar lichtende bloemetjes
     ctx.lineWidth = 1.5;
-    for (let i = 0; i < ar.size * 3.5; i++) {
+    for (let i = 0; i < (painted ? 0 : ar.size * 3.5); i++) {
       const a = rnd() * Math.PI * 2, d = Math.sqrt(rnd()) * ar.size;
       const x = Math.cos(a) * d, y = Math.sin(a) * d;
       ctx.strokeStyle = rnd() < .5 ? 'rgba(120,200,140,.18)' : 'rgba(60,120,90,.25)';
@@ -58,7 +126,7 @@ const RyDraw = (() => {
       ctx.lineTo(x + (rnd() - .5) * 6, y - 5 - rnd() * 7);
       ctx.stroke();
     }
-    for (let i = 0; i < ar.size * .12; i++) {
+    for (let i = 0; i < (painted ? 0 : ar.size * .12); i++) {
       const a = rnd() * Math.PI * 2, d = Math.sqrt(rnd()) * ar.size;
       AK.glow(ctx, Math.cos(a) * d, Math.sin(a) * d, 7, rnd() < .5 ? '#7fffd4' : '#c77dff', .5);
     }
@@ -136,7 +204,7 @@ const RyDraw = (() => {
     for (let x = -150; x < 150; x += 50) {
       for (let y = -150; y < 150; y += 50) {
         const v = 66 + Math.floor(rnd() * 14);
-        ctx.fillStyle = `rgb(${v - 8},${v - 4},${v + 10})`;
+        ctx.fillStyle = ART.muur ? pattern(ctx, ART.muur, 100) : `rgb(${v - 8},${v - 4},${v + 10})`;
         ctx.fillRect(x + 1.5, y + 1.5, 47, 47);
         ctx.fillStyle = 'rgba(255,255,255,.07)';
         ctx.fillRect(x + 1.5, y + 1.5, 47, 4);
@@ -215,20 +283,20 @@ const RyDraw = (() => {
       const g = ctx.createLinearGradient(w.x, w.y, w.x + w.w * .3, w.y + w.h);
       g.addColorStop(0, '#727e96');
       g.addColorStop(1, '#3d4558');
-      ctx.fillStyle = g;
+      ctx.fillStyle = ART.muur ? pattern(ctx, ART.muur, 104) : g;
       ctx.fillRect(w.x, w.y, w.w, w.h);
       ctx.strokeStyle = 'rgba(0,0,0,.45)';
       ctx.lineWidth = 2;
       const horiz = w.w > w.h;
       const len = horiz ? w.w : w.h;
-      for (let s = 26; s < len; s += 26) {
+      for (let s = 26; s < (ART.muur ? 0 : len); s += 26) {
         ctx.beginPath();
         if (horiz) { ctx.moveTo(w.x + s, w.y); ctx.lineTo(w.x + s, w.y + w.h); } else { ctx.moveTo(w.x, w.y + s); ctx.lineTo(w.x + w.w, w.y + s); }
         ctx.stroke();
       }
       // Kantelen
       ctx.fillStyle = '#8d99b0';
-      for (let s = 4; s < len - 8; s += 20) {
+      for (let s = 4; s < (ART.muur ? 0 : len - 8); s += 20) {
         if (horiz) ctx.fillRect(w.x + s, w.y + 3, 10, 7); else ctx.fillRect(w.x + 3, w.y + s, 7, 10);
       }
       const neon = rnd() < .5 ? '#ffc94a' : '#4cc9ff';
@@ -240,6 +308,17 @@ const RyDraw = (() => {
       ctx.strokeRect(w.x + 1, w.y + 1, w.w - 2, w.h - 2);
     }
     for (const o of ar.rocks) {
+      const pic = ART[o.kind === 'zuil' ? 'zuil' : 'rots'];
+      if (pic) {
+        if (o.kind === 'zuil') AK.glow(ctx, o.x, o.y, o.r * 2.6, '#c77dff', .6);
+        const d = o.r * 2.25;
+        ctx.save();
+        ctx.translate(o.x, o.y);
+        ctx.rotate(rnd() * Math.PI * 2);
+        ctx.drawImage(pic, -d / 2, -d / 2, d, d);
+        ctx.restore();
+        continue;
+      }
       if (o.kind === 'zuil') {
         // Kristalzuil: stenen voet met een lichtend paars kristal
         const g = ctx.createRadialGradient(o.x - o.r * .3, o.y - o.r * .3, 2, o.x, o.y, o.r);
@@ -346,12 +425,18 @@ const RyDraw = (() => {
   // Struiken komen bovenop de ridders: daarom apart, met lichtende blaadjes.
   function bakeBushes(ar) {
     return ar.bushes.map(b => {
-      const s = Math.ceil(b.r * 2 + 16);
+      const s = Math.ceil(b.r * 2.2 + 16);
       const c = document.createElement('canvas');
       c.width = c.height = s;
       const ctx = c.getContext('2d');
       const rnd = RyWorld.rng(Math.round(b.x * 7 + b.y));
       ctx.translate(s / 2, s / 2);
+      if (ART.struik) {
+        const d = b.r * 2.2;
+        ctx.rotate(rnd() * Math.PI * 2);
+        ctx.drawImage(ART.struik, -d / 2, -d / 2, d, d);
+        return { canvas: c, s };
+      }
       for (let i = 0; i < 14; i++) {
         const a = rnd() * Math.PI * 2, d = rnd() * b.r * .55, r = b.r * (.35 + rnd() * .3);
         const g = ctx.createRadialGradient(Math.cos(a) * d - r * .3, Math.sin(a) * d - r * .3, 1, Math.cos(a) * d, Math.sin(a) * d, r);
@@ -539,6 +624,14 @@ const RyDraw = (() => {
     AK.glow(ctx, x, y + 8, 38, '#4cc9ff', .35 + pulse * .2, .6);
     ctx.save();
     ctx.translate(x, y + bob);
+    if (ART.krat) {
+      ctx.fillStyle = 'rgba(0,0,0,.45)';
+      ctx.fillRect(-15, -12, 34, 34);
+      ctx.drawImage(ART.krat, -19, -19, 38, 38);
+      AK.glow(ctx, 0, 0, 16, '#4cc9ff', .4 + pulse * .3);
+      ctx.restore();
+      return;
+    }
     ctx.fillStyle = 'rgba(0,0,0,.45)';
     ctx.fillRect(-14, 10, 32, 10);
     // Voorkant (hoogte)
@@ -635,8 +728,14 @@ const RyDraw = (() => {
     if (!s.ar) { ctx.fillStyle = '#05040c'; ctx.fillRect(0, 0, w, h); return; }
     const ar = s.ar;
     const z = cam.zoom;
+    if (s.art !== artVer) { s.art = artVer; s.baked = bake(ar); s.bushes = bakeBushes(ar); }
     // Ruimte op de achtergrond, die trager meeschuift dan de arena (diepte).
-    Glow.space(ctx, w, h, -cam.x * z * .25, -cam.y * z * .25);
+    if (ART.ruimte) {
+      const p = ctx.createPattern(ART.ruimte, 'repeat');
+      p.setTransform(new DOMMatrix([1, 0, 0, 1, -cam.x * z * .25, -cam.y * z * .25]));
+      ctx.fillStyle = p;
+      ctx.fillRect(0, 0, w, h);
+    } else Glow.space(ctx, w, h, -cam.x * z * .25, -cam.y * z * .25);
     const sx = s.shake ? (Math.random() - .5) * s.shake : 0, sy = s.shake ? (Math.random() - .5) * s.shake : 0;
     const ox = w / 2 - cam.x * z + sx, oy = h / 2 - cam.y * z + sy;
     ctx.setTransform(z, 0, 0, z, ox, oy);
@@ -692,12 +791,26 @@ const RyDraw = (() => {
       ctx.save();
       ctx.translate(k[0], k[1]);
       ctx.scale(big, big);
+      const art = paintedKnight(info.color || '#4cc9ff');
+      if (art) {
+        const glowC = hurt ? 'rgba(255,77,109,.7)' : (k[4] & 2) ? 'rgba(76,201,255,.45)' : (k[4] & 4) ? 'rgba(120,200,255,.35)' : null;
+        if (glowC) { ctx.fillStyle = glowC; ctx.beginPath(); ctx.arc(0, 0, R * 1.5, 0, Math.PI * 2); ctx.fill(); }
+        ctx.globalAlpha = inBush ? .55 : 1;
+        ctx.fillStyle = 'rgba(0,0,0,.35)';
+        ctx.beginPath(); ctx.ellipse(3, 5, R * 1.1, R * .9, 0, 0, Math.PI * 2); ctx.fill();
+        // Geschilderde ridder: kijkt naar rechts, net als hoek 0.
+        ctx.rotate(k[2]);
+        const hh = R * 3.2, ww = hh * art.width / art.height;
+        ctx.drawImage(art, -ww * .42, -hh / 2, ww, hh);
+        ctx.restore();
+      } else {
       AK.knight(ctx, 0, 0, k[2], {
         r: R, color: info.color || '#4cc9ff', kind: 'royale', t: t + id * .7, moving: true,
         glow: hurt ? 'rgba(255,77,109,.7)' : (k[4] & 2) ? 'rgba(76,201,255,.45)' : (k[4] & 4) ? 'rgba(120,200,255,.35)' : null,
         alpha: inBush ? .55 : 1,
       });
       ctx.restore();
+      }
       if (k[4] & 8) {
         // Schild: een zeshoekig energieveld dat ronddraait
         const rr = (R + 9) * big;
