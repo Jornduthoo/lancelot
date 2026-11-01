@@ -7,6 +7,43 @@ const NvDraw = (() => {
   const WALL = 3.9, WALL_H = 4.6, ROAD = 3.4, FAR = 115;
   const GATE_COL = ['#ff4d6d', '#3d8bff', '#ffc94a'];
 
+  // Geschilderde beelden. Zolang ze niet geladen zijn (of als er een ontbreekt) tekenen we zelf.
+  const ART = {};
+  const tintCache = new Map();
+  if (typeof Image !== 'undefined') {
+    for (const n of ['achtergrond', 'muur', 'hek', 'zuil', 'laser', 'kisten', 'rol', 'munt', 'poort', 'ridder']) {
+      const img = new Image();
+      img.onload = () => { ART[n] = img; sky = null; tintCache.clear(); };
+      img.src = `/img/neonvlucht/${n}.webp`;
+    }
+  }
+  // De ridder in de kleur van de speler: blauwe pluim en cape krijgen de spelerkleur (één keer per kleur).
+  function tinted(color) {
+    let c = tintCache.get(color);
+    if (c) return c;
+    const img = ART.ridder;
+    c = document.createElement('canvas');
+    c.width = img.width; c.height = img.height;
+    const g = c.getContext('2d');
+    g.drawImage(img, 0, 0);
+    const d = g.getImageData(0, 0, c.width, c.height), px = d.data;
+    const [tr, tg, tb] = [1, 3, 5].map(i => parseInt(color.slice(i, i + 2), 16));
+    for (let i = 0; i < px.length; i += 4) {
+      if (px[i + 3] < 10) continue;
+      const r = px[i] / 255, gg = px[i + 1] / 255, b = px[i + 2] / 255;
+      const mx = Math.max(r, gg, b), mn = Math.min(r, gg, b);
+      if (mx - mn < .001 || mx !== b) continue;
+      const sat = (mx - mn) / mx;
+      let hue = 60 * (4 + (r - gg) / (mx - mn));
+      if (hue < 205 || hue > 258 || sat < .38) continue;
+      const l = (r * .3 + gg * .59 + b * .11) * 2.4;
+      px[i] = Math.min(255, tr * l); px[i + 1] = Math.min(255, tg * l); px[i + 2] = Math.min(255, tb * l);
+    }
+    g.putImageData(d, 0, 0);
+    tintCache.set(color, c);
+    return c;
+  }
+
   // ---------- De lucht boven de gang, één keer per schermgrootte ----------
   let sky = null;
   function bakeSky(w, hy) {
@@ -14,6 +51,12 @@ const NvDraw = (() => {
     c.width = w;
     c.height = Math.ceil(hy + 4);
     const g = c.getContext('2d');
+    if (ART.achtergrond) {
+      // Het verdwijnpunt van het schilderij (midden) op de horizon van de gang
+      const img = ART.achtergrond, iw = Math.max(w, hy * 2.2 * img.width / img.height), ih = iw * img.height / img.width;
+      g.drawImage(img, (w - iw) / 2, hy - ih * .5, iw, ih);
+      return c;
+    }
     const grad = g.createLinearGradient(0, 0, 0, hy);
     grad.addColorStop(0, '#04030f');
     grad.addColorStop(.6, '#160b33');
@@ -97,6 +140,7 @@ const NvDraw = (() => {
       ctx.fillStyle = grad;
       quad(ctx, P(c, x, 0, z0), P(c, x, WALL_H, z0), P(c, x, WALL_H, z1), P(c, x, 0, z1));
       ctx.fill();
+      if (ART.muur) wallStrips(ctx, c, x, z0, Math.min(z1, c.z + 48));
       // Strook tussen vloer en muur
       ctx.fillStyle = '#06070d';
       quad(ctx, P(c, ROAD * side, 0, z0), P(c, x, 0, z0), P(c, x, 0, z1), P(c, ROAD * side, 0, z1));
@@ -157,9 +201,60 @@ const NvDraw = (() => {
     ctx.restore();
   }
 
+  // De geschilderde muur in smalle stroken (elke strook is bijna een parallellogram), van ver naar dichtbij donkerder in de verte.
+  function wallStrips(ctx, c, x, z0, z1) {
+    const img = ART.muur, TW = WALL_H, n = 4, dz = TW / n, cw = img.width / n;
+    ctx.save();
+    for (let z = Math.floor(z0 / dz) * dz; z < z1; z += dz) {
+      const a = P(c, x, WALL_H, Math.max(z, z0)), b = P(c, x, WALL_H, z + dz), a0 = P(c, x, 0, Math.max(z, z0));
+      const k = Math.round(((z / dz) % n + n) % n);
+      const fog = Math.min(1, (z - c.z) / 48);
+      ctx.globalAlpha = 1 - fog * .85;
+      ctx.setTransform((b.x - a.x) / cw, (b.y - a.y) / cw, 0, (a0.y - a.y) / img.height, a.x, a.y);
+      ctx.drawImage(img, k * cw, 0, cw + .6, img.height, 0, 0, cw + .6, img.height);
+    }
+    ctx.restore();
+  }
+
+  // Een geschilderd voorwerp rechtop op de baan: breedte wd en hoogte ht in meter, onderaan op hoogte y0.
+  function sprite(ctx, c, img, lx, y0, z, wd, ht) {
+    const a = P(c, lx - wd / 2, y0 + ht, z), b = P(c, lx + wd / 2, y0, z);
+    ctx.drawImage(img, a.x, a.y, b.x - a.x, b.y - a.y);
+  }
+  const pick = (o, list) => list[Math.abs(Math.round(o.z * 7 + o.lane * 3)) % list.length];
+
   // ---------- Hindernissen ----------
   function obstacle(ctx, c, o, t) {
     const lx = NvWorld.LANE_X[o.lane];
+    if (o.type === 'munt' && ART.munt) {
+      const p = P(c, lx, o.y + .35, o.z);
+      const r = p.s * .36, sx = Math.abs(Math.cos(t * 4 + o.z));
+      glow(ctx, p.x, p.y, r * 2.4, '#ffc94a', .45);
+      ctx.drawImage(ART.munt, p.x - r * Math.max(.12, sx), p.y - r, r * 2 * Math.max(.12, sx), r * 2);
+      return;
+    }
+    const shade = (img, wd, ht, y0 = 0) => {
+      const g0 = P(c, lx, 0, o.z);
+      ctx.fillStyle = 'rgba(0,0,0,.45)';
+      ctx.beginPath(); ctx.ellipse(g0.x, g0.y, g0.s * wd * .5, g0.s * .14, 0, 0, TAU); ctx.fill();
+      sprite(ctx, c, img, lx, y0, o.z, wd, ht);
+    };
+    if (o.type === 'blok') {
+      const name = pick(o, ['zuil', 'kisten']), img = ART[name];
+      if (img) { const ht = name === 'zuil' ? 2.3 : 1.9; return shade(img, ht * img.width / img.height, ht); }
+    } else if (o.type === 'laag') {
+      const name = pick(o, ['hek', 'rol']), img = ART[name];
+      if (img) { const wd = 2.1; return shade(img, wd, wd * img.height / img.width * (name === 'rol' ? .95 : .55)); }
+    } else if (o.type === 'hoog' && ART.laser) {
+      // Een laserstraal tussen twee palen: hoog genoeg om onder door te glijden
+      shade(ART.laser, 2.1, 1.85);
+      const q = P(c, lx, 1.62, o.z);
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      glow(ctx, q.x, q.y, q.s * .9, '#ff3355', .35 + Math.sin(t * 14 + o.z) * .1);
+      ctx.restore();
+      return;
+    }
     if (o.type === 'munt') {
       const p = P(c, lx, o.y + .35, o.z);
       const r = p.s * .32, sx = Math.abs(Math.cos(t * 4 + o.z));
@@ -229,6 +324,27 @@ const NvDraw = (() => {
   // ---------- Vraagpoort ----------
   function gate(ctx, c, g, t) {
     const lanes = g.answers.length === 2 ? [0, 2] : [0, 1, 2];
+    if (ART.poort) {
+      const img = ART.poort, wd = 7.4, ht = wd * img.height / img.width;
+      const a = P(c, -wd / 2, ht, g.z), b = P(c, wd / 2, 0, g.z);
+      lanes.forEach((lane, i) => {
+        const lx = NvWorld.LANE_X[lane];
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        ctx.fillStyle = rgba(GATE_COL[i], g.picked === i ? .5 : .2);
+        quad(ctx, P(c, lx - .9, 0, g.z), P(c, lx + .9, 0, g.z), P(c, lx + .9, 3.4, g.z), P(c, lx - .9, 3.4, g.z));
+        ctx.fill();
+        ctx.restore();
+      });
+      ctx.drawImage(img, a.x, a.y, b.x - a.x, b.y - a.y);
+      if (g.answers.length === 2) obstacle(ctx, c, { lane: 1, type: 'blok', z: g.z - .1 }, t);
+      lanes.forEach((lane, i) => {
+        const lx = NvWorld.LANE_X[lane], col = GATE_COL[i];
+        const p0 = P(c, lx - .95, 3.15, g.z - .05), p1 = P(c, lx + .95, 2.4, g.z - .05);
+        board(ctx, p0, p1, col, `${'ABC'[i]}  ${g.answers[i]}`);
+      });
+      return;
+    }
     if (g.answers.length === 2) obstacle(ctx, c, { lane: 1, type: 'blok', z: g.z }, t);
     lanes.forEach((lane, i) => {
       const lx = NvWorld.LANE_X[lane], col = GATE_COL[i];
@@ -265,6 +381,28 @@ const NvDraw = (() => {
     });
   }
 
+  function board(ctx, p0, p1, col, label) {
+    ctx.fillStyle = 'rgba(6, 10, 19, .88)';
+    ctx.fillRect(p0.x, p0.y, p1.x - p0.x, p1.y - p0.y);
+    ctx.fillStyle = col;
+    ctx.fillRect(p0.x, p0.y, p1.x - p0.x, Math.max(2, (p1.y - p0.y) * .12));
+    ctx.strokeStyle = col;
+    ctx.lineWidth = Math.max(1, (p1.y - p0.y) * .05);
+    ctx.strokeRect(p0.x, p0.y, p1.x - p0.x, p1.y - p0.y);
+    const fs = (p1.y - p0.y) * .42;
+    if (fs > 5) {
+      ctx.fillStyle = '#fff';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      let text = label;
+      ctx.font = `800 ${Math.round(fs)}px Rajdhani, Orbitron, sans-serif`;
+      const maxW = (p1.x - p0.x) * .92;
+      while (ctx.measureText(text).width > maxW && text.length > 4) text = text.slice(0, -2) + '…';
+      ctx.fillText(text, (p0.x + p1.x) / 2, (p0.y + p1.y) / 2 + fs * .1);
+      ctx.textBaseline = 'alphabetic';
+    }
+  }
+
   // ---------- De ridder, van achteren ----------
   // o: { color, alpha, jump (hoogte), slide (0-1), stride, turbo, shield, trail, name }
   function runner(ctx, c, x, y, z, o, t) {
@@ -290,6 +428,18 @@ const NvDraw = (() => {
     }
     const cx = p.x, by = p.y;
     const slide = o.slide || 0;
+    if (ART.ridder) {
+      // Geschilderde ridder: bij elke pas spiegelen we hem even, zo lijkt hij te lopen.
+      const img = tinted(o.color), st = o.stride || 0, air = y > .05;
+      const hgt = 2.05 * s * (1 - slide * .45), wd = hgt / (1 - slide * .45) * img.width / img.height;
+      const bob = air ? 0 : Math.abs(Math.sin(st)) * s * .06;
+      ctx.translate(cx, by - bob);
+      if (!air && Math.sin(st) < 0) ctx.scale(-1, 1);
+      ctx.rotate(air ? 0 : Math.sin(st) * .05);
+      ctx.drawImage(img, -wd / 2, -hgt, wd, hgt);
+      ctx.restore();
+      return runnerExtras(ctx, o, cx, by, s, t, tr);
+    }
     ctx.translate(cx, by);
     ctx.scale(s / 100, s / 100);
     if (slide > 0) ctx.scale(1, 1 - slide * .5);
@@ -367,6 +517,11 @@ const NvDraw = (() => {
     ctx.fillStyle = o.color;
     ctx.beginPath(); ctx.moveTo(-4, -191); ctx.quadraticCurveTo(-2 - wave * .5, -214, 20, -206 - wave * .4); ctx.quadraticCurveTo(8, -200, 6, -188); ctx.closePath(); ctx.fill();
     ctx.restore();
+    runnerExtras(ctx, o, cx, by, s, t, tr);
+  }
+
+  // Schild, bliksemvleugels en naam boven de ridder
+  function runnerExtras(ctx, o, cx, by, s, t, tr) {
     if (o.shield) {
       ctx.save();
       ctx.globalCompositeOperation = 'lighter';
