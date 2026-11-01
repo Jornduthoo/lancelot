@@ -116,6 +116,7 @@ const Sr3D = (() => {
 
   // Van voren: koplampen, de punt van de slee en de lans die naar je wijst. Zelfde maat als RaceDraw.steed.
   function steedFront(ctx, x, y, k, color, o = {}) {
+    if (RaceDraw.paintedSteed(ctx, x, y, 520 * k, color, 'front', o)) return;
     const w = 520 * k;
     const h = 460 * k;
     if (w < 3) return;
@@ -157,6 +158,7 @@ const Sr3D = (() => {
 
   // Opzij: een lange slee met de neus naar links (dir -1) of rechts (dir 1).
   function steedSide(ctx, x, y, k, color, o = {}, dir = 1) {
+    if (RaceDraw.paintedSteed(ctx, x, y, 520 * k, color, 'side', o, dir)) return;
     const w = 520 * k;
     const h = 460 * k;
     if (w < 3) return;
@@ -290,9 +292,10 @@ const Sr3D = (() => {
       ctx.fillRect(0, hz, w, h - hz);
     }
 
-    // Sterren en het panorama, meedraaiend met de kijkrichting.
+    // Sterren en het panorama, meedraaiend met de kijkrichting. Met de geschilderde hemel: alleen die.
+    const sky = RaceDraw.skyPano();
     ctx.fillStyle = '#d9ecff';
-    for (const s of STARS) {
+    for (const s of sky ? [] : STARS) {
       let rel = s.az - a;
       while (rel > Math.PI) rel -= Math.PI * 2;
       while (rel < -Math.PI) rel += Math.PI * 2;
@@ -302,14 +305,15 @@ const Sr3D = (() => {
     }
     ctx.globalAlpha = 1;
     {
-      const span = pano.width;
+      const src = sky || pano;
+      const span = src.width;
       const perRad = span / (Math.PI * 2);
-      const ph = hz * .55;
+      const ph = sky ? hz + 2 : hz * .55;
       const left = ((a - fov / 2) * perRad) % span;
       const width = fov * perRad;
       for (let start = ((left % span) + span) % span, x = 0, rest = width; rest > 0;) {
         const take = Math.min(rest, span - start);
-        ctx.drawImage(pano, start, 0, take, pano.height, x, hz - ph + 2, (take / width) * w, ph);
+        ctx.drawImage(src, start, 0, take, src.height, x, hz - ph + 2, (take / width) * w, ph);
         x += (take / width) * w;
         rest -= take;
         start = 0;
