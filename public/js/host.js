@@ -65,10 +65,10 @@ window.snelNaar = id => {
 };
 $('rijk-terug').addEventListener('click', () => { openRealm(''); sfx.tick(); });
 addEventListener('hashchange', () => openRealm(location.hash.slice(1)));
-// Elke rij tegels vol: de eerste tegels worden breed tot de laatste rij gevuld is. De Arena heeft per groep een eigen raster.
+// Elke rij tegels vol, zo gelijk mogelijk verdeeld. De Arena heeft per groep een eigen raster.
 function fillRows() {
-  // Alle tegels even groot (geen enkele lijkt belangrijker), zo gelijk mogelijk over de rijen verdeeld;
-  // is de laatste rij één tegel korter, dan staat ze mooi in het midden.
+  // Tegels zo gelijk mogelijk over de rijen verdeeld (geen enkele lijkt belangrijker), elke rij vol;
+  // een rij met één tegel minder heeft net iets bredere tegels.
   for (const grid of document.querySelectorAll('.realm-panel:not(.hidden) .modules')) {
     // Een brede balk (zoals het Klaseiland) neemt een hele rij: die telt niet mee.
     const tiles = [...grid.children].filter(t => !t.classList.contains('balk'));
@@ -82,12 +82,12 @@ function fillRows() {
     const rijen = Math.ceil(n / max);
     const basis = Math.floor(n / rijen), extra = n % rijen;
     const cols = basis + (extra ? 1 : 0);
-    // Dubbel zoveel smalle kolommen, elke tegel neemt er twee: zo kan de laatste rij een halve tegel opschuiven.
-    grid.style.gridTemplateColumns = `repeat(${cols * 2}, minmax(0, 1fr))`;
-    for (const t of tiles) t.style.gridColumn = 'span 2';
+    // De kortere rijen (onderaan) vullen ook de hele breedte: hun tegels zijn net iets breder.
+    // Daarvoor cols × basis smalle kolommen: een volle rij neemt er per tegel basis, een kortere rij cols.
+    const kort = extra ? basis : cols;
+    grid.style.gridTemplateColumns = `repeat(${cols * kort}, minmax(0, 1fr))`;
+    tiles.forEach((t, i) => { t.style.gridColumn = `span ${i < extra * cols || !extra ? kort : cols}`; });
     for (const b of grid.querySelectorAll(':scope > .balk')) b.style.gridColumn = '1 / -1';
-    // De kortere rijen (onderaan) schuiven een halve tegel op: mooi in het midden.
-    if (extra) for (let i = extra * cols; i < n; i += basis) tiles[i].style.gridColumn = '2 / span 2';
   }
 }
 addEventListener('resize', fillRows);
