@@ -10,7 +10,7 @@ const SlagDraw = (() => {
   const ART = {};
   let artVer = 0;
   if (typeof Image !== 'undefined') {
-    for (const n of ['vloer', 'muur', 'ridder-boven', 'ridder-voor', 'ridder-achter', 'kristal', 'hemel', 'wapen']) {
+    for (const n of ['vloer', 'muur', 'muur-3d', 'vloer-3d', 'ridder-boven', 'ridder-voor', 'ridder-achter', 'kristal', 'hemel', 'wapen']) {
       const img = new Image();
       img.onload = () => { ART[n] = img; artVer++; tints.clear(); };
       img.src = `/img/laserslag/${n}.webp`;
@@ -171,13 +171,16 @@ const SlagDraw = (() => {
     g.fillStyle = bg;
     g.fillRect(0, 0, W, H);
     const P = 100;
-    if (ART.vloer) {
+    // In 3D (inner) een eigen, fijnere vloer: die zie je van dichtbij.
+    const fl = (inner && ART['vloer-3d']) || ART.vloer;
+    if (fl) {
       // Geschilderde vloerplaten, met de kleur van de kampen er zacht overheen.
-      const pat = g.createPattern(ART.vloer, 'repeat');
-      pat.setTransform(new DOMMatrix([.45, 0, 0, .45, 0, 0]));
+      const pat = g.createPattern(fl, 'repeat');
+      const pk = fl === ART.vloer ? .45 : .7;
+      pat.setTransform(new DOMMatrix([pk, 0, 0, pk, 0, 0]));
       g.fillStyle = pat;
       g.fillRect(0, 0, W, H);
-      g.globalAlpha = .42;
+      g.globalAlpha = fl === ART.vloer ? .42 : .3;
       g.fillStyle = bg;
       g.fillRect(0, 0, W, H);
       g.globalAlpha = 1;
