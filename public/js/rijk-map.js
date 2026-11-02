@@ -9,6 +9,54 @@ const RijkMap = (() => {
   const SQ3 = Math.sqrt(3);
   const DIRS = [0, 1, 2, 3, 4, 5].map(k => [Math.cos(k * Math.PI / 3), Math.sin(k * Math.PI / 3)]);
 
+  // Jorns geschilderde kaart: landschap per soort, de zee, de burcht (koningsblauw wordt de teamkleur) en de kaartenkamer.
+  // Zolang een beeld laadt of ontbreekt, tekenen we het zoals vroeger.
+  const ART = {};
+  const opKlaar = [];
+  let artVer = 0;
+  for (const n of ['gras', 'bos', 'heuvel', 'berg', 'akker', 'zee', 'burcht', 'kamer']) {
+    const img = new Image();
+    img.onload = () => { ART[n] = img; artVer++; castleCache.clear(); opKlaar.forEach(f => f()); };
+    img.src = `/img/rijkkaart/${n}.webp`;
+  }
+  function hsl(r, g, b) {
+    r /= 255; g /= 255; b /= 255;
+    const mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 2;
+    if (mx === mn) return [0, 0, l];
+    const d = mx - mn, sat = l > .5 ? d / (2 - mx - mn) : d / (mx + mn);
+    const h = mx === r ? (g - b) / d + (g < b ? 6 : 0) : mx === g ? (b - r) / d + 2 : (r - g) / d + 4;
+    return [h * 60, sat, l];
+  }
+  function rgbOf(h, sat, l) {
+    const q = l < .5 ? l * (1 + sat) : l + sat - l * sat, p = 2 * l - q;
+    const f = t => { t = (t + 360) % 360 / 360; return t < 1 / 6 ? p + (q - p) * 6 * t : t < .5 ? q : t < 2 / 3 ? p + (q - p) * (2 / 3 - t) * 6 : p; };
+    return [f(h + 120), f(h), f(h - 120)].map(v => Math.round(v * 255));
+  }
+  // Koningsblauw (tint 205-258) wordt de teamkleur.
+  function teamKleur(c, color) {
+    const m = /^#([0-9a-f]{6})$/i.exec(color || '');
+    if (!m) return;
+    const n = parseInt(m[1], 16);
+    const [th, ts, tl] = hsl((n >> 16) & 255, (n >> 8) & 255, n & 255);
+    const g = c.getContext('2d');
+    const data = g.getImageData(0, 0, c.width, c.height), px = data.data;
+    for (let i = 0; i < px.length; i += 4) {
+      if (px[i + 3] < 8) continue;
+      const [h, sat, l] = hsl(px[i], px[i + 1], px[i + 2]);
+      if (h < 205 || h > 258 || sat < .38) continue;
+      const [r, gg, b] = ts < .15 ? rgbOf(0, 0, Math.min(.92, l * 1.35)) : rgbOf(th, Math.max(sat * .9, ts * .85), Math.min(.85, l * (.75 + tl * .6)));
+      px[i] = r; px[i + 1] = gg; px[i + 2] = b;
+    }
+    g.putImageData(data, 0, 0);
+  }
+  // Iets met een plaatje bedekken, zoals CSS 'cover'. Geeft de schaal en verschuiving terug.
+  function cover(g, img, w, h) {
+    const sc = Math.max(w / img.width, h / img.height);
+    const ox = (w - img.width * sc) / 2, oy = (h - img.height * sc) / 2;
+    g.drawImage(img, ox, oy, img.width * sc, img.height * sc);
+    return { sc, ox, oy };
+  }
+
   function rng(seed) {
     let s = seed % 2147483647 || 1;
     return () => { s = (s * 16807) % 2147483647; return s / 2147483647; };
@@ -164,9 +212,23 @@ const RijkMap = (() => {
     g.fillStyle = sea;
     g.fillRect(0, 0, w, h);
     const rnd = rng(1234);
+    if (ART.zee) {
+      // geschilderde zee als patroon, met donkere randen
+      const T = Math.max(64, Math.round(size * 4));
+      const tc = document.createElement('canvas');
+      tc.width = tc.height = T;
+      tc.getContext('2d').drawImage(ART.zee, 0, 0, T, T);
+      g.fillStyle = g.createPattern(tc, 'repeat');
+      g.fillRect(0, 0, w, h);
+      const v = g.createRadialGradient(w / 2, h * .45, 0, w / 2, h / 2, Math.max(w, h) * .75);
+      v.addColorStop(0, 'rgba(4, 17, 31, .05)');
+      v.addColorStop(1, 'rgba(4, 17, 31, .7)');
+      g.fillStyle = v;
+      g.fillRect(0, 0, w, h);
+    }
     g.strokeStyle = 'rgba(140, 210, 255, .12)';
     g.lineWidth = Math.max(1, dpr);
-    for (let k = 0; k < Math.round(w * h / (size * size * 1.2)); k++) {
+    for (let k = 0; !ART.zee && k < Math.round(w * h / (size * size * 1.2)); k++) {
       const x = rnd() * w, y = rnd() * h, r = size * (.12 + rnd() * .12);
       g.beginPath(); g.arc(x, y, r, Math.PI * 1.15, Math.PI * 1.85); g.stroke();
     }
@@ -196,14 +258,25 @@ const RijkMap = (() => {
     for (const i of land) {
       const { x, y } = centers[i];
       const kind = terrain(map.cells[i], i);
-      const [c0, c1] = TOP[kind];
-      const top = g.createLinearGradient(x - s * .6, y - s, x + s * .4, y + s);
-      top.addColorStop(0, c0);
-      top.addColorStop(1, c1);
-      hexPath(g, x, y, s);
-      g.fillStyle = top;
-      g.fill();
-      decorate(g, kind, x, y, s, rng(i * 977 + 31));
+      if (ART[kind]) {
+        // een stuk van het geschilderde landschap, elk gebied een ander stukje
+        const r = rng(i * 977 + 31);
+        const S = s * 2.7;
+        g.save();
+        hexPath(g, x, y, s);
+        g.clip();
+        g.drawImage(ART[kind], x - S / 2 + (r() - .5) * s * .5, y - S / 2 + (r() - .5) * s * .5, S, S);
+        g.restore();
+      } else {
+        const [c0, c1] = TOP[kind];
+        const top = g.createLinearGradient(x - s * .6, y - s, x + s * .4, y + s);
+        top.addColorStop(0, c0);
+        top.addColorStop(1, c1);
+        hexPath(g, x, y, s);
+        g.fillStyle = top;
+        g.fill();
+        decorate(g, kind, x, y, s, rng(i * 977 + 31));
+      }
       // Licht van linksboven, schaduw rechtsonder.
       g.lineWidth = Math.max(1, size * .04);
       g.strokeStyle = 'rgba(255, 255, 230, .28)';
@@ -290,6 +363,18 @@ const RijkMap = (() => {
     const cx = W / 2, by = H * .92;
     g.fillStyle = 'rgba(0, 0, 0, .4)';
     g.beginPath(); g.ellipse(cx, by, s * .7, s * .14, 0, 0, Math.PI * 2); g.fill();
+    if (ART.burcht) {
+      const img = ART.burcht;
+      const ih = H * .94, iw = Math.min(W, ih * img.width / img.height);
+      const t = document.createElement('canvas');
+      t.width = Math.ceil(iw);
+      t.height = Math.ceil(iw * img.height / img.width);
+      t.getContext('2d').drawImage(img, 0, 0, t.width, t.height);
+      teamKleur(t, color);
+      g.drawImage(t, cx - t.width / 2, by + s * .05 - t.height);
+      castleCache.set(key, c);
+      return c;
+    }
     const stone = (x, y, w, h) => {
       const sg = g.createLinearGradient(x, 0, x + w, 0);
       sg.addColorStop(0, '#d9d2c3');
@@ -481,8 +566,8 @@ const RijkMap = (() => {
     // Het landschap en de stand worden gebakken; alleen als er iets verandert, wordt opnieuw getekend.
     const landKey = map.cells.map(c => c.land ? 1 : 0).join('');
     const memo = canvas._rk || (canvas._rk = {});
-    if (memo.key !== L.key || memo.land !== landKey) Object.assign(memo, { key: L.key, land: landKey, base: base(L, map), state: null });
-    const stateKey = JSON.stringify([map.cells.map(c => [c.owner, c.power, c.quiz, c.siege]), targets, opts.lessonOf, !!opts.names, map.teams.map(tm => tm.color)]);
+    if (memo.key !== L.key || memo.land !== landKey || memo.art !== artVer) Object.assign(memo, { key: L.key, land: landKey, art: artVer, base: base(L, map), state: null });
+    const stateKey = artVer + JSON.stringify([map.cells.map(c => [c.owner, c.power, c.quiz, c.siege]), targets, opts.lessonOf, !!opts.names, map.teams.map(tm => tm.color)]);
     if (memo.stateKey !== stateKey || !memo.state) {
       const c = memo.state || document.createElement('canvas');
       c.width = L.w;
@@ -568,6 +653,12 @@ const RijkMap = (() => {
     const g = c.getContext('2d');
     const u = Math.min(w, h) / 100;
     const rnd = rng(77);
+    if (ART.kamer) {
+      // geschilderde kaartenkamer; de kaarsen op het schilderij flakkeren mee
+      const { sc, ox, oy } = cover(g, ART.kamer, w, h);
+      const at = (fx, fy) => [ox + fx * ART.kamer.width * sc, oy + fy * ART.kamer.height * sc + u * 2];
+      return { c, candles: [at(.236, .07), at(.3, .095), at(.874, .38)], u, ver: artVer };
+    }
     g.fillStyle = '#2a170c';
     g.fillRect(0, 0, w, h);
     const plank = u * 9;
@@ -639,7 +730,7 @@ const RijkMap = (() => {
       g.fillStyle = '#efe4c8';
       g.fillRect(x - u * .7, y - u * 2.5, u * 1.4, u * 3);
     }
-    return { c, candles, u };
+    return { c, candles, u, ver: artVer };
   }
 
   function candle(g, x, y, u, t, i = 0) {
@@ -648,5 +739,5 @@ const RijkMap = (() => {
     Glow.glow(g, x, y - u * 3, u * 1.6, '#fff4c0', .95);
   }
 
-  return { draw, hit, room, candle };
+  return { draw, hit, room, candle, opKlaar: f => opKlaar.push(f), artVer: () => artVer };
 })();
