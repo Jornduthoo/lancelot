@@ -1434,7 +1434,7 @@ const BuArt = (() => {
   const opKlaar = [];
   let wacht = 0;
   if (typeof Image !== 'undefined') {
-    for (const id of Object.keys(BREED)) {
+    for (const id of [...Object.keys(BREED), 'hemel']) {
       const img = new Image();
       wacht++;
       img.onload = () => { ART[id] = img; if (--wacht === 0) { cache.clear(); opKlaar.forEach(f => f()); } };
@@ -2064,6 +2064,15 @@ const BuArt = (() => {
     if (c) return c;
     c = canvas(w, h);
     const g = c.getContext('2d');
+    // Jorns geschilderde sterrenhemel (met eigen planeet), zo groot dat hij alles bedekt.
+    const img = ART.hemel;
+    if (img) {
+      const sc = Math.max(w / img.width, h / img.height);
+      g.imageSmoothingQuality = 'high';
+      g.drawImage(img, (w - img.width * sc) / 2, (h - img.height * sc) / 2, img.width * sc, img.height * sc);
+      cache.set(key, c);
+      return c;
+    }
     const bg = g.createLinearGradient(0, 0, 0, h);
     bg.addColorStop(0, '#060a13');
     bg.addColorStop(0.55, '#0c1630');
