@@ -165,7 +165,7 @@ const Scene = (() => {
     for (const c of [back, front]) {
       if (c.width !== w || c.height !== h) { c.width = w; c.height = h; }
     }
-    if (!art || art.c.width !== w || art.c.height !== h) art = SjArt.vault(w, h);
+    if (!art || art.c.width !== w || art.c.height !== h || art.ver !== SjArt.ver()) art = SjArt.vault(w, h);
     const cw = Math.round(chestCv.clientWidth * dpr);
     const ch = Math.round(chestCv.clientHeight * dpr);
     if (cw && (chestCv.width !== cw || chestCv.height !== ch)) { chestCv.width = cw; chestCv.height = ch; }

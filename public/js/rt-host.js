@@ -106,7 +106,7 @@ const RtScene = (() => {
     const t = now / 1000;
     const w = Math.round(innerWidth * dpr), h = Math.round(innerHeight * dpr);
     if (back.width !== w || back.height !== h) { back.width = w; back.height = h; }
-    if (!art || art.c.width !== w || art.c.height !== h) {
+    if (!art || art.c.width !== w || art.c.height !== h || art.ver !== VrArt.ver()) {
       art = VrArt.hall(w, h, 11);
       const ag = art.c.getContext('2d');
       ag.fillStyle = 'rgba(4, 3, 12, .5)';

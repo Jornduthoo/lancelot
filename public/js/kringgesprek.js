@@ -379,3 +379,6 @@ document.addEventListener('keydown', e => {
 });
 
 toon();
+
+// De geschilderde raadzaal is binnen: de zaal opnieuw tekenen.
+KgTafel.opKlaar(() => schik());

@@ -1,6 +1,20 @@
 // De Verrader tekenen: de burchtzaal bij nacht, de gebarsten kristalkern die heelt, en de Ronde Tafel.
 // Alles met canvas; de zaal wordt één keer per schermgrootte gebakken. Gebruikt Glow (fx.js) en KrArt (kristal).
 const VrArt = (() => {
+  // Jorns geschilderde zaal; zolang die laadt (of ontbreekt) tekenen we de oude.
+  let zaalImg = null, ver = 0;
+  const opKlaar = [];
+  if (typeof Image !== 'undefined') {
+    const img = new Image();
+    img.onload = () => { zaalImg = img; ver++; opKlaar.forEach(f => f()); };
+    img.src = '/img/zalen/verraderzaal.webp';
+  }
+  function cover(g, img, w, h) {
+    const sc = Math.max(w / img.width, h / img.height);
+    const ox = (w - img.width * sc) / 2, oy = (h - img.height * sc) / 2;
+    g.drawImage(img, ox, oy, img.width * sc, img.height * sc);
+    return (fx, fy) => [ox + fx * img.width * sc, oy + fy * img.height * sc];
+  }
   function rng(seed) {
     let s = seed;
     return () => { s = (s * 16807) % 2147483647; return s / 2147483647; };
@@ -86,6 +100,10 @@ const VrArt = (() => {
     const rnd = rng(seed);
     const u = Math.min(w, h) / 100;
     const floorY = h * .7;
+    if (zaalImg) {
+      cover(g, zaalImg, w, h);
+      return { c, torches: [], windows: [], ver };
+    }
     const bg = g.createLinearGradient(0, 0, 0, floorY);
     bg.addColorStop(0, '#07060f');
     bg.addColorStop(1, '#1a1428');
@@ -166,7 +184,7 @@ const VrArt = (() => {
     mist.addColorStop(1, 'rgba(20, 10, 40, .4)');
     g.fillStyle = mist;
     g.fillRect(0, floorY - u * 6, w, h - floorY + u * 6);
-    return { c, torches, windows };
+    return { c, torches, windows, ver };
   }
 
   // Een fakkel die flakkert.
@@ -291,5 +309,5 @@ const VrArt = (() => {
     ctx.restore();
   }
 
-  return { hall, torch, core, table };
+  return { ver: () => ver, opKlaar: f => opKlaar.push(f), hall, torch, core, table };
 })();
