@@ -221,7 +221,7 @@ requestAnimationFrame(frame);
     last = now;
     const w = Math.round(innerWidth * dpr), h = Math.round(innerHeight * dpr);
     if (back.width !== w || back.height !== h) { back.width = w; back.height = h; }
-    if (!art || art.c.width !== w || art.c.height !== h) {
+    if (!art || art.c.width !== w || art.c.height !== h || art.ver !== RijkMap.artVer()) {
       art = RijkMap.room(w, h);
       const ag = art.c.getContext('2d');
       ag.fillStyle = 'rgba(6, 4, 10, .35)';
@@ -291,3 +291,6 @@ window.addEventListener('resize', () => {
   if (view === 'podium' && state) RijkMap.draw($('w-canvas'), state, { lessonOf: lessonOf(), names: true });
   drawPreview();
 });
+
+// Jorns geschilderde kaart is binnen: de voorvertoning opnieuw tekenen (het bord tekent elke beeldje zelf).
+RijkMap.opKlaar(() => drawPreview());

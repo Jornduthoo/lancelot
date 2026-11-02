@@ -267,7 +267,8 @@ function rkBg() {
   const dpr = Math.min(1.5, window.devicePixelRatio || 1);
   const w = Math.round(innerWidth * dpr);
   const h = Math.round(innerHeight * dpr);
-  if (c.width === w && c.height === h) return;
+  if (c.width === w && c.height === h && c._ver === RijkMap.artVer()) return;
+  c._ver = RijkMap.artVer();
   c.width = w;
   c.height = h;
   const g = c.getContext('2d');
@@ -279,3 +280,6 @@ function rkBg() {
   Glow.vignette(g, w, h, .7);
 }
 window.addEventListener('resize', () => { if (document.body.dataset.rk === '1') rkBg(); });
+
+// Jorns geschilderde kaart is binnen: achtergrond en kaart opnieuw.
+RijkMap.opKlaar(() => { if (document.body.dataset.rk !== '1') return; rkBg(); if (rk.state && rk.state.targets && rk.layout) rkDraw(); });
