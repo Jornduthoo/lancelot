@@ -152,4 +152,5 @@ function rtBg() {
 window.addEventListener('resize', () => { if (document.body.dataset.rt === '1') rtBg(); });
 
 // De geschilderde zaal is binnen: de achtergrond opnieuw.
-VrArt.opKlaar(() => { const c = $('rt-bg'); if (c && c.width) rtBg(); });
+// vr-art.js staat op de leerlingpagina pas na dit script: daarom wachten tot alles geladen is.
+addEventListener('DOMContentLoaded', () => VrArt.opKlaar(() => { const c = $('rt-bg'); if (c && c.width) rtBg(); }));
