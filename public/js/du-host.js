@@ -162,7 +162,7 @@ const DuScene = (() => {
     if (view !== 'play') return;
     const w = Math.round(innerWidth * dpr), h = Math.round(innerHeight * dpr);
     if (back.width !== w || back.height !== h) { back.width = w; back.height = h; }
-    if (!art || art.c.width !== w || art.c.height !== h) art = DuArt.colosseum(w, h);
+    if (!art || art.c.width !== w || art.c.height !== h || art.ver !== DuArt.ver()) art = DuArt.colosseum(w, h);
     const t = now / 1000;
     g.drawImage(art.c, 0, 0);
     art.torches.forEach(([x, y, u], i) => DuArt.torch(g, x, y, u, t, i * 2.3));
