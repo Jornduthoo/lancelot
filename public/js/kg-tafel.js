@@ -2,6 +2,20 @@
 // schermgrootte of als er stoelen bijkomen), zodat er tijdens het gesprek niets hertekend moet worden.
 // De gouden rand en de runen nemen de themakleuren (--k-goud, --k-cyan) over.
 const KgTafel = (() => {
+  // Jorns geschilderde zaal; zolang die laadt (of ontbreekt) tekenen we de oude.
+  let zaalImg = null, ver = 0;
+  const opKlaar = [];
+  if (typeof Image !== 'undefined') {
+    const img = new Image();
+    img.onload = () => { zaalImg = img; ver++; opKlaar.forEach(f => f()); };
+    img.src = '/img/zalen/raadzaal.webp';
+  }
+  function cover(g, img, w, h) {
+    const sc = Math.max(w / img.width, h / img.height);
+    const ox = (w - img.width * sc) / 2, oy = (h - img.height * sc) / 2;
+    g.drawImage(img, ox, oy, img.width * sc, img.height * sc);
+    return (fx, fy) => [ox + fx * img.width * sc, oy + fy * img.height * sc];
+  }
   const kleur = (naam, alfa = 1) => {
     const v = getComputedStyle(document.documentElement).getPropertyValue(naam).trim() || '255 255 255';
     return `rgb(${v} / ${alfa})`;
@@ -26,6 +40,18 @@ const KgTafel = (() => {
   // vier zuilen met een vuurschaal in de hoeken. Geeft de plaats van de vuurschalen terug (voor de CSS-vlammen).
   function vloer(g, w, h, m) {
     const r = rand(1215);
+    if (zaalImg) {
+      // het schilderij over de hele zaal (het ronde tapijt wordt mee ovaal), wat gedempt zodat de tafel opvalt
+      g.drawImage(zaalImg, 0, 0, w, h);
+      g.fillStyle = 'rgb(10 8 18 / .38)';
+      g.fillRect(0, 0, w, h);
+      const rand2 = g.createRadialGradient(m.cx, m.cy, Math.min(w, h) * .45, m.cx, m.cy, Math.hypot(w, h) * .6);
+      rand2.addColorStop(0, 'rgb(0 0 0 / 0)'); rand2.addColorStop(1, 'rgb(0 0 0 / .45)');
+      g.fillStyle = rand2;
+      g.fillRect(0, 0, w, h);
+      const zs = Math.max(22, Math.min(w, h) * .05);
+      return [[.093, .128], [.897, .128], [.093, .846], [.9, .846]].map(([fx, fy]) => [fx * w, fy * h, zs]);
+    }
     g.fillStyle = '#1b1820';
     g.fillRect(0, 0, w, h);
     // Vloerplaten in rijen, elk met een eigen tint en een donkere voeg.
@@ -263,5 +289,5 @@ const KgTafel = (() => {
     return m;
   }
 
-  return { teken, maten };
+  return { teken, maten, opKlaar: f => opKlaar.push(f) };
 })();
