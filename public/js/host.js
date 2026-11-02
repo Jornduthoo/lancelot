@@ -67,15 +67,26 @@ $('rijk-terug').addEventListener('click', () => { openRealm(''); sfx.tick(); });
 addEventListener('hashchange', () => openRealm(location.hash.slice(1)));
 // Elke rij tegels vol: de eerste tegels worden breed tot de laatste rij gevuld is. De Arena heeft per groep een eigen raster.
 function fillRows() {
+  // Alle tegels even groot (geen enkele lijkt belangrijker). We kiezen per groep het aantal kolommen zo dat
+  // de rijen vol zijn; lukt dat niet, dan staat de laatste rij mooi in het midden.
   for (const grid of document.querySelectorAll('.realm-panel:not(.hidden) .modules')) {
     // Een brede balk (zoals het Klaseiland) neemt een hele rij: die telt niet mee.
     const tiles = [...grid.children].filter(t => !t.classList.contains('balk'));
     for (const t of tiles) t.style.gridColumn = '';
-    if (!tiles.length) continue;
+    grid.style.gridTemplateColumns = '';
+    const n = tiles.length;
+    if (!n) continue;
     const gap = parseFloat(getComputedStyle(grid).columnGap) || 0;
-    const cols = Math.min(tiles.length, Math.floor((grid.clientWidth + gap) / (240 + gap)));
-    const extra = cols > 1 ? (cols - tiles.length % cols) % cols : 0;
-    for (const t of tiles.slice(0, extra)) t.style.gridColumn = 'span 2';
+    const max = Math.max(1, Math.min(n, Math.floor((grid.clientWidth + gap) / (200 + gap))));
+    const kandidaten = [max, max - 1].filter(c => c >= 1);
+    const leeg = c => (c - n % c) % c;
+    const cols = kandidaten.find(c => leeg(c) === 0) || kandidaten.sort((a, b) => leeg(a) - leeg(b) || b - a)[0];
+    // Dubbel zoveel smalle kolommen, elke tegel neemt er twee: zo kan de laatste rij een halve tegel opschuiven.
+    grid.style.gridTemplateColumns = `repeat(${cols * 2}, minmax(0, 1fr))`;
+    for (const t of tiles) t.style.gridColumn = 'span 2';
+    for (const b of grid.querySelectorAll(':scope > .balk')) b.style.gridColumn = '1 / -1';
+    const rest = n % cols;
+    if (rest) tiles[n - rest].style.gridColumn = `${cols - rest + 1} / span 2`;
   }
 }
 addEventListener('resize', fillRows);
