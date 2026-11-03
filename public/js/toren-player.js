@@ -99,7 +99,7 @@ socket.on('tw-state', s => {
     twCloseQuestion();
     const medals = ['🥇', '🥈', '🥉'];
     $('tw-end-medal').textContent = s.rescued ? '👑' : medals[s.rank - 1] || '🛡️';
-    $('tw-end-title').textContent = s.rank === 1 ? 'Jij wint de toren!' : `Plek ${s.rank} van ${s.players}`;
+    $('tw-end-title').textContent = s.rank === 1 && (s.floor > 0 || s.rescued) ? 'Jij wint de toren!' : `Plek ${s.rank} van ${s.players}`;
     $('tw-end-floor').textContent = s.rescued ? 'Prinses gered!' : `Verdieping ${s.floor}`;
     $('tw-end-extra').textContent = 'Kijk naar het bord voor de eindstand.';
     if (!$('tw-end').dataset.done && s.rank <= 3) confetti(4000);
@@ -470,6 +470,17 @@ function render(t, dt) {
   // De andere ridders, doorschijnend, met hun naam erboven. Buiten beeld: een pijltje aan de rand.
   const above = [];
   const below = [];
+  // Staan er veel ridders op dezelfde plek (zoals bij de start), dan schuiven de namen boven elkaar in plaats van door elkaar.
+  const vrij = [];
+  const naam = (text, x, y) => {
+    ctx.font = `700 ${11 * scale}px 'Exo 2', sans-serif`;
+    const bw = ctx.measureText(text).width / 2 + 3, bh = 12 * scale;
+    for (let k = 0; k < 4; k++, y -= bh) {
+      if (vrij.some(r => Math.abs(r.x - x) < r.w + bw && Math.abs(r.y - y) < bh)) continue;
+      vrij.push({ x, y, w: bw });
+      return label(text, x, y, 'rgba(234, 244, 255, .8)', scale);
+    }
+  };
   for (const o of tw.others.values()) {
     o.x += (o.tx - o.x) * Math.min(1, dt * 12);
     o.y += (o.ty - o.y) * Math.min(1, dt * 12);
@@ -477,7 +488,7 @@ function render(t, dt) {
     if (o.y > topY) { above.push(o); continue; }
     if (o.y + ph < cam.y) { below.push(o); continue; }
     TorenDraw.knight(ctx, ox + o.x * scale, sy(o.y), pw * scale, ph * scale, color, o.face, o.act, t, .5, Avatar.byName(o.name));
-    label(o.name, ox + (o.x + pw / 2) * scale, sy(o.y + ph + 6), 'rgba(234, 244, 255, .8)', scale);
+    naam(o.name, ox + (o.x + pw / 2) * scale, sy(o.y + ph + 6));
   }
   const edge = (list, y, arrow) => list.slice(0, 6).forEach((o, i) => {
     const x = Math.max(40, Math.min(view.w - 40, ox + (o.x + pw / 2) * scale));

@@ -137,7 +137,7 @@
       const medals = ['🥇', '🥈', '🥉'];
       const me = s.me || {};
       $('px-end-medal').textContent = medals[me.rank - 1] || '🎮';
-      $('px-end-title').textContent = me.rank === 1 ? 'Jij bent de grootste Pixelridder!' : `Plek ${me.rank} van ${me.players}`;
+      $('px-end-title').textContent = me.rank === 1 && (me.score ?? 1) > 0 ? 'Jij bent de grootste Pixelridder!' : `Plek ${me.rank} van ${me.players}`;
       $('px-end-score').textContent = `${me.score || 0} punten`;
       $('px-end-stats').textContent = `${me.worlds || 0} ${me.worlds === 1 ? 'wereld' : 'werelden'} gehaald · ${me.coins || 0} munten · ${me.kills || 0} vijanden verslagen · ${s.right} ${s.right === 1 ? 'vraag' : 'vragen'} juist`;
       if (!$('px-end').dataset.done && me.rank && me.rank <= 3) confetti(4000);
@@ -787,7 +787,9 @@
     lay = { cw: r.width, ch: r.height };
     let vw = Math.round(H * r.width / Math.max(1, r.height));
     let cssH = r.height;
-    if (vw < 224) { vw = 224; cssH = r.width * H / 224; }
+    // Gsm rechtop: iets dichter op de ridder (11 tegels breed), zodat het spel niet als een smalle strook tussen zwarte balken staat.
+    const MIN_W = r.width < r.height ? 176 : 224;
+    if (vw < MIN_W) { vw = MIN_W; cssH = r.width * H / MIN_W; }
     vw = Math.min(vw, 520);
     g.viewW = vw;
     canvas.width = vw;

@@ -82,7 +82,7 @@ socket.on('bk-state', s => {
     const medals = ['🥇', '🥈', '🥉'];
     const me = s.me || {};
     $('bk-end-medal').textContent = medals[me.rank - 1] || '💣';
-    $('bk-end-title').textContent = me.rank === 1 ? 'Jij bent de beste Bomber-Knight!' : `Plek ${me.rank} van ${me.players}`;
+    $('bk-end-title').textContent = me.rank === 1 && (me.score ?? 1) > 0 ? 'Jij bent de beste Bomber-Knight!' : `Plek ${me.rank} van ${me.players}`;
     $('bk-end-score').textContent = `${me.crystals || 0} 💎`;
     $('bk-end-stats').textContent = `${s.right} ${s.right === 1 ? 'vraag' : 'vragen'} juist · ${me.kos || 0} ${me.kos === 1 ? 'ridder' : 'ridders'} uitgeschakeld`;
     if (!$('bk-end').dataset.done && me.rank && me.rank <= 3) confetti(4000);

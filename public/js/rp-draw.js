@@ -6,6 +6,18 @@ const RpDraw = (() => {
   const BW = 200, BH = 170; // tekenvak van een paard; de hoeven staan op y = 160
   const FRAMES = 4;
 
+  // ---------- Geschilderde plaatjes voor de kaart van het bord ----------
+  // Zolang ze laden, tekent de kaart zich met code; onArt meldt wanneer opnieuw bakken mooier wordt.
+  const ART = {};
+  const onArt = [];
+  if (typeof Image !== 'undefined') {
+    for (const n of ['gras', 'kroon-1', 'kroon-2', 'kroon-3', 'burcht']) {
+      const img = new Image();
+      img.onload = () => { ART[n] = img; for (const f of onArt) f(n); };
+      img.src = `/img/robopaarden/${n}.webp`;
+    }
+  }
+
   // ---------- Kleuren ----------
   function rgb(hex) {
     const n = parseInt(hex.slice(1), 16);
@@ -547,7 +559,19 @@ const RpDraw = (() => {
     bg.addColorStop(1, '#0f2a2a');
     g.fillStyle = bg;
     g.fillRect(0, 0, c.width, c.height);
-    for (let i = 0; i < 900; i++) {
+    if (ART.gras) {
+      // Geschilderd gras als tegelpatroon, met de verloop er licht overheen voor diepte.
+      const pat = g.createPattern(ART.gras, 'repeat');
+      const t = (1400 * k) / ART.gras.width;
+      if (pat.setTransform) pat.setTransform(new DOMMatrix().scale(t));
+      g.fillStyle = pat;
+      g.fillRect(0, 0, c.width, c.height);
+      g.globalAlpha = .35;
+      g.fillStyle = bg;
+      g.fillRect(0, 0, c.width, c.height);
+      g.globalAlpha = 1;
+    }
+    for (let i = 0; i < (ART.gras ? 0 : 900); i++) {
       g.fillStyle = rand() < .5 ? 'rgba(40, 90, 60, .22)' : 'rgba(8, 20, 24, .25)';
       g.beginPath(); g.arc(rand() * c.width, rand() * c.height, (20 + rand() * 120) * k * 2, 0, Math.PI * 2); g.fill();
     }
@@ -568,6 +592,18 @@ const RpDraw = (() => {
     }
     lake(4900, 3350, 520, 330, '#3d5a3a');
     lake(4900, 3350, 430, 260, '#596a76');
+    // De bomen van bovenaf, op dezelfde plekken als in 3D.
+    if (opts.trees && ART['kroon-1']) {
+      for (const t of opts.trees) {
+        const img = ART[t.v === 0 ? 'kroon-1' : 'kroon-2'] || ART['kroon-1'];
+        const d = t.h * .85 * k;
+        g.drawImage(img, t.x * k - d / 2, t.y * k - d / 2, d, d);
+      }
+    }
+    if (ART.burcht) {
+      const bw = 620 * k, bh = bw * (ART.burcht.height / ART.burcht.width);
+      g.drawImage(ART.burcht, 4900 * k - bw / 2, 3350 * k - bh / 2, bw, bh);
+    }
     // Zijwegen en hoofdbaan: eerst de bermen, dan de wegen, dan de lijnen.
     const order = [...Wd.PATHS].sort((a, b) => (a.key === 'hoofd' ? 1 : 0) - (b.key === 'hoofd' ? 1 : 0));
     g.lineJoin = 'round';
@@ -793,5 +829,5 @@ const RpDraw = (() => {
     ctx.restore();
   }
 
-  return { horse, sprite, live, mapImage, marker, colors, shade, rgba, dot, glowLine, onMain, EDGE, FRAMES, BW, BH };
+  return { ART, onArt, horse, sprite, live, mapImage, marker, colors, shade, rgba, dot, glowLine, onMain, EDGE, FRAMES, BW, BH };
 })();

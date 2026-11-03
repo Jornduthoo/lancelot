@@ -65,17 +65,29 @@ window.snelNaar = id => {
 };
 $('rijk-terug').addEventListener('click', () => { openRealm(''); sfx.tick(); });
 addEventListener('hashchange', () => openRealm(location.hash.slice(1)));
-// Elke rij tegels vol: de eerste tegels worden breed tot de laatste rij gevuld is. De Arena heeft per groep een eigen raster.
+// Elke rij tegels vol, zo gelijk mogelijk verdeeld. De Arena heeft per groep een eigen raster.
 function fillRows() {
+  // Tegels zo gelijk mogelijk over de rijen verdeeld (geen enkele lijkt belangrijker), elke rij vol;
+  // een rij met één tegel minder heeft net iets bredere tegels.
   for (const grid of document.querySelectorAll('.realm-panel:not(.hidden) .modules')) {
     // Een brede balk (zoals het Klaseiland) neemt een hele rij: die telt niet mee.
     const tiles = [...grid.children].filter(t => !t.classList.contains('balk'));
     for (const t of tiles) t.style.gridColumn = '';
-    if (!tiles.length) continue;
+    grid.style.gridTemplateColumns = '';
+    const n = tiles.length;
+    if (!n) continue;
     const gap = parseFloat(getComputedStyle(grid).columnGap) || 0;
-    const cols = Math.min(tiles.length, Math.floor((grid.clientWidth + gap) / (240 + gap)));
-    const extra = cols > 1 ? (cols - tiles.length % cols) % cols : 0;
-    for (const t of tiles.slice(0, extra)) t.style.gridColumn = 'span 2';
+    const max = Math.max(1, Math.min(n, Math.floor((grid.clientWidth + gap) / (200 + gap))));
+    // Gelijk verdeeld over de rijen: 8 tegels worden 4 + 4, 18 worden 5 + 5 + 4 + 4. Hoogstens één tegel verschil.
+    const rijen = Math.ceil(n / max);
+    const basis = Math.floor(n / rijen), extra = n % rijen;
+    const cols = basis + (extra ? 1 : 0);
+    // De kortere rijen (onderaan) vullen ook de hele breedte: hun tegels zijn net iets breder.
+    // Daarvoor cols × basis smalle kolommen: een volle rij neemt er per tegel basis, een kortere rij cols.
+    const kort = extra ? basis : cols;
+    grid.style.gridTemplateColumns = `repeat(${cols * kort}, minmax(0, 1fr))`;
+    tiles.forEach((t, i) => { t.style.gridColumn = `span ${i < extra * cols || !extra ? kort : cols}`; });
+    for (const b of grid.querySelectorAll(':scope > .balk')) b.style.gridColumn = '1 / -1';
   }
 }
 addEventListener('resize', fillRows);
@@ -170,6 +182,8 @@ document.querySelector('[data-module="zwermwacht"]').addEventListener('click', (
 document.querySelector('[data-module="banierveld"]').addEventListener('click', () => { location.href = '/banierveld'; });
 document.querySelector('[data-module="haakridder"]').addEventListener('click', () => { location.href = '/haakridder'; });
 document.querySelector('[data-module="kolkridder"]').addEventListener('click', () => { location.href = '/kolkridder'; });
+document.querySelector('[data-module="neoncamelot"]').addEventListener('click', () => { location.href = '/neoncamelot'; });
+document.querySelector('[data-module="titanenstrijd"]').addEventListener('click', () => { location.href = '/titanenstrijd'; });
 document.querySelector('[data-module="ridderslang"]').addEventListener('click', () => { location.href = '/ridderslang'; });
 document.querySelector('[data-module="burchtstorm"]').addEventListener('click', () => { location.href = '/burchtstorm'; });
 document.querySelector('[data-module="pixelridder"]').addEventListener('click', () => { location.href = '/pixelridder'; });

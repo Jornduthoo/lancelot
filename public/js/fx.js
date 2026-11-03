@@ -82,6 +82,8 @@ const sfx = (() => {
     // Een steen die op het hout tikt; elke stuiter wat zachter.
     dobbel(stuiter = 0) { const v = [.16, .1, .06][stuiter] || .05; noise(0, .05, v); tone(210 + stuiter * 40, 0, .05, { type: 'square', vol: v / 3 }); },
     jump() { tone(300, 0, .16, { type: 'square', vol: .05, slide: 2.2 }); },
+    // Een vrolijke toeter (twee tonen tegelijk).
+    toet() { tone(392, 0, .18, { type: 'square', vol: .05 }); tone(494, 0, .18, { type: 'square', vol: .04 }); tone(392, .22, .14, { type: 'square', vol: .05 }); tone(494, .22, .14, { type: 'square', vol: .04 }); },
     empty() { tone(140, 0, .25, { type: 'square', vol: .06 }); tone(110, .12, .3, { type: 'square', vol: .06 }); },
     hit() { noise(0, .25, .14); tone(220, 0, .5, { type: 'sawtooth', vol: .08, slide: .3 }); },
     laser() { tone(1400, 0, .12, { type: 'square', vol: .035, slide: .35 }); },
@@ -170,7 +172,7 @@ function confetti(duration = 4000) {
 // Een spel starten. Loopt er nog een ander spel, dan vragen we of dat mag stoppen in plaats van een foutmelding te tonen.
 const GAME_OF_EVENT = {
   load: 'toernooi', 'rt-load': 'rondetafel', 'tw-load': 'toren', 'sj-load': 'schat', 'ls-load': 'laserslag', 'rr-load': 'race',
-  'bb-load': 'burcht', 'du-load': 'duel', 'pk-load': 'knight', 'sr-load': 'rossen', 'gt-load': 'gauntlet', 'ry-load': 'royale', 'sv-load': 'sterren', 'rs-load': 'slang', 'bs-load': 'storm', 'pw-load': 'poort', 'nv-load': 'vlucht', 'db-load': 'diep', 'jp-load': 'raket', 'sz-load': 'zwaard', 'ww-load': 'wankel', 'pp-load': 'plasma', 'tm-load': 'tuimel', 'ko-load': 'kolk', 'hb-load': 'hooi', 'zm-load': 'zwerm', 'hk-load': 'haak', 'bv-load': 'banier', 'px-load': 'pixel', 'mo-load': 'robomol', 'kk-load': 'kerker', 'hs-load': 'hofschilder', 'rp-load': 'paarden', 'nd-load': 'neon', 'lb-load': 'baas', 'rk-load': 'rijk', 'kr-load': 'roof', 'vr-load': 'verrader', 'ob-load': 'oefenblad', 'pf-load': 'proef',
+  'bb-load': 'burcht', 'du-load': 'duel', 'pk-load': 'knight', 'sr-load': 'rossen', 'gt-load': 'gauntlet', 'ry-load': 'royale', 'sv-load': 'sterren', 'rs-load': 'slang', 'bs-load': 'storm', 'pw-load': 'poort', 'nv-load': 'vlucht', 'db-load': 'diep', 'jp-load': 'raket', 'sz-load': 'zwaard', 'ww-load': 'wankel', 'pp-load': 'plasma', 'tm-load': 'tuimel', 'ko-load': 'kolk', 'nc-load': 'camelot', 'ti-load': 'titan', 'hb-load': 'hooi', 'zm-load': 'zwerm', 'hk-load': 'haak', 'bv-load': 'banier', 'px-load': 'pixel', 'mo-load': 'robomol', 'kk-load': 'kerker', 'hs-load': 'hofschilder', 'rp-load': 'paarden', 'nd-load': 'neon', 'lb-load': 'baas', 'rk-load': 'rijk', 'kr-load': 'roof', 'vr-load': 'verrader', 'ob-load': 'oefenblad', 'pf-load': 'proef',
   'cg-load': 'galaga', 'bk-load': 'bomber', 'opwarmer-start': 'toernooi',
 };
 function loadGame(event, payload, cb) {
@@ -417,4 +419,32 @@ const Glow = (() => {
   }
 
   return { rgba, glowSprite, glow, vignette, lightning, space, phoneBg };
+})();
+
+// Het wachtscherm (QR-code en namen) op het bord krijgt het geschilderde decor van het spel, wazig en donker erachter.
+(() => {
+  if (typeof document === 'undefined') return;
+  const Q = '/img/quizspellen/', START = '/img/startscherm.webp';
+  const DECOR = {
+    '/host': START, '/toren': '/img/toren/lucht-neon.webp', '/schattenjacht': Q + 'schattenjacht.webp', '/laserslag': Q + 'laserslag.webp',
+    '/ridderrace': '/img/ridderrace/hemel.webp', '/kristalroof': Q + 'kristalroof.webp', '/verrader': Q + 'verrader.webp', '/burchtbouwers': '/img/burchtbouwers/landschap.webp',
+    '/duel': Q + 'duel.webp', '/packnight': START, '/strijdrossen': '/img/ridderrace/hemel.webp', '/gauntlet': START, '/ridder-royale': Q + 'ridderroyale.webp',
+    '/sterrenvreter': '/img/sterrenvreter/ruimte.webp', '/ridderslang': START, '/burchtstorm': '/img/burchtstorm/achtergrond.webp', '/poortwacht': '/img/poortwacht/kaart.webp',
+    '/neonvlucht': '/img/neonvlucht/achtergrond.webp', '/diepboor': '/img/diepboor/lucht.webp', '/raketridder': '/img/raketridder/lucht-wolkenburcht.webp',
+    '/splijtzwaard': '/img/splijtzwaard/lucht-sterrenburcht.webp', '/wankelwagen': '/img/wankelwagen/lucht-burchtwallen.webp', '/plasmapoort': '/img/plasmapoort/stadion.webp',
+    '/tuimelridder': '/img/tuimelridder/achtergrond-burcht.webp', '/hooibergjacht': '/img/hooiberg/schuur.webp', '/zwermwacht': '/img/zwermwacht/arena.webp',
+    '/haakridder': '/img/haakridder/achtergrond.webp', '/kolkridder': START, '/neoncamelot': '/img/neoncamelot/stad.webp', '/titanenstrijd': '/img/titanenstrijd/arena.webp', '/banierveld': '/img/banierveld/veld.webp', '/pixelridder': '/img/pixelridder/burcht.webp',
+    '/robomol': '/img/robomol/plein.webp', '/kerker': '/img/kerker/gang.webp', '/hofschilder': '/img/hofschilder/zaal.webp', '/robopaarden': START,
+    '/neonduel': '/img/neonduel/arena.webp', '/leraarbaas': '/img/leraarbaas/troonzaal.webp', '/cybergalaga': '/img/cybergalaga/hemel.webp', '/bomberknight': START,
+  };
+  const start = () => {
+    const src = DECOR[location.pathname.replace(/\/+$/, '')];
+    const lobby = document.getElementById('lobby');
+    if (!src || !lobby) return;
+    document.body.style.setProperty('--wacht-bg', `url('${src}')`);
+    const show = () => { if (lobby.classList.contains('hidden')) delete document.body.dataset.wacht; else document.body.dataset.wacht = '1'; };
+    new MutationObserver(show).observe(lobby, { attributes: true, attributeFilter: ['class'] });
+    show();
+  };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
 })();

@@ -29,7 +29,22 @@
   pauze.innerHTML = '<img src="/img/icons/pauze-klein.webp" alt=""> Pauze';
   pauze.title = 'Alle schermen op slot en het spel even stilzetten';
   pauze.addEventListener('click', () => Ui.pauze.start());
-  rij.append(pauze, maakKnop());
+  // Vragenstorm: elke leerling in het spel krijgt meteen een paar vragen na elkaar (src/vragenstorm.js).
+  const storm = document.createElement('button');
+  storm.className = 'secondary storm-knop hidden';
+  storm.title = 'Iedereen krijgt meteen 3 vragen. Elk juist antwoord geeft een bonus in het spel.';
+  let stormAan = false;
+  const stormTekst = st => {
+    stormAan = !!(st && st.aan && st.pad === pad);
+    storm.textContent = stormAan ? `⚡ Storm ${st.klaar}/${st.totaal} klaar · Stop` : '⚡ Vragenstorm';
+  };
+  stormTekst(null);
+  storm.addEventListener('click', () => {
+    if (stormAan) return socket.emit('storm-stop');
+    socket.emit('storm-start', pad, res => { if (res && res.error) Ui.melding(res.error); else stormTekst(res); });
+  });
+  socket.on('storm-stand', stormTekst);
+  rij.append(pauze, storm, maakKnop());
 
   const modal = document.createElement('div');
   modal.className = 'ob-modal hidden';
@@ -46,6 +61,7 @@
       if (!res) return;
       const actief = !!res.actief;
       pauze.classList.toggle('hidden', !actief);
+      storm.classList.toggle('hidden', !res.storm && !stormAan);
       rij.classList.toggle('hidden', !actief && kop.isConnected);
       kop.classList.toggle('hidden', actief);
       const binnen = (res.spelers || []).filter(p => p.online).length;

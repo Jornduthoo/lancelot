@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <script src="/taal.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LANcelot · Titanenstrijd</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/arena.css">
+</head>
+<body class="sj-host ak-wide">
+<main>
+  <div class="topbar">
+    <div class="brand" id="brand" title="Naar het startscherm">
+      <img src="/img/mark.webp" alt="">
+      <div>
+        <div class="wordmark">LAN<span>celot</span></div>
+        <div class="subtitle" id="status">Titanenstrijd</div>
+      </div>
+    </div>
+    <div class="actions">
+      <span class="join-mini hidden" id="join-mini"></span>
+      <button class="secondary icon" id="mute" title="Geluid aan/uit" aria-label="Geluid aan/uit"><i class="ic ic-geluid"></i></button>
+      <button class="secondary hidden" id="stop">Stop het spel</button>
+    </div>
+  </div>
+
+  <section id="setup">
+    <div class="bar">
+      <h2>Titanenstrijd</h2>
+      <div class="actions">
+        <button class="secondary" id="to-home">Terug</button>
+        <button class="secondary" data-make="leeg">Lege quiz</button>
+        <button data-make="ai">Nieuwe quiz met AI</button>
+      </div>
+    </div>
+    <div class="panel tw-intro">
+      <img class="game-logo" src="/img/icons/titanenstrijd.webp" alt="">
+      <div>
+        <p>Twee tot vier ploegen besturen elk een <strong>reuzentitan</strong>. Elke leerling zit in één deel: ⚔️ zwaardarm, 🛡️ schildarm, 💠 kern, 💥 schouderkanon of 🦿 benen. <strong>Een juist antwoord laadt je deel op.</strong> Vol? Druk op je knop.</p>
+        <p>Het zwaard en het kanon vallen een andere titan aan. Het schild blokt een zwaardslag, de benen ontwijken een kanonschot, de kern herstelt. Hebben alle delen van een titan binnen 10 seconden een juist antwoord, dan volgt een ⚡ <strong>Titanenslag</strong>.</p>
+        <p class="muted">Niemand valt af: een kapot deel herstel je met een vraag, een gevallen titan staat na 12 seconden weer op. De ploegen worden verdeeld bij de start, met een eerlijke mix van niveaus uit Mijn klas. De ploeg met de meeste punten wint. Elk antwoord komt in het logboek.</p>
+      </div>
+    </div>
+    <div class="panel form">
+      <label>Ploegen
+        <select id="ti-ploegen">
+          <option value="2" selected>2 titans</option>
+          <option value="3">3 titans</option>
+          <option value="4">4 titans</option>
+        </select>
+      </label>
+      <label>Speeltijd
+        <select id="ti-minutes">
+          <option value="3">3 minuten</option>
+          <option value="5">5 minuten</option>
+          <option value="8" selected>8 minuten</option>
+          <option value="10">10 minuten</option>
+          <option value="12">12 minuten</option>
+        </select>
+      </label>
+      <label>Tempo van de vragen
+        <select id="ti-tempo" class="tempo-select">
+          <option value="rustig">Rustig: 1 juist antwoord laadt je deel op</option>
+          <option value="normaal" selected>Normaal: 2 juiste antwoorden</option>
+          <option value="intens">Intens: 3 juiste antwoorden</option>
+          <option value="veel">Veel vragen: 5 juiste antwoorden</option>
+        </select>
+      </label>
+      <p class="muted small">Kies hieronder de quiz waaruit de vragen komen.</p>
+    </div>
+    <p class="notice hidden" id="stopped"></p>
+    <div class="quiz-list" id="quiz-list"></div>
+    <p class="error" id="load-error"></p>
+  </section>
+
+  <section id="lobby" class="hidden">
+    <div class="panel join">
+      <div class="qr" id="qr"></div>
+      <div class="join-text">
+        <p class="muted">Scan de QR-code of surf naar</p>
+        <div class="join-url" id="join-url"></div>
+        <p class="muted small" id="other-urls"></p>
+      </div>
+    </div>
+    <div class="bar">
+      <h2><span class="count" id="player-count">0</span> <span id="player-word">piloten</span> klaar</h2>
+      <button class="gold big" id="start" data-spatie disabled>Titans, ontwaak!</button>
+    </div>
+    <p class="muted small">De ploegen en de delen worden verdeeld als het spel begint. Klik op een naam om die speler te verwijderen. Wie later binnenkomt, gaat naar de kleinste ploeg.</p>
+    <div class="names" id="names"></div>
+  </section>
+
+  <section id="play" class="hidden">
+    <div class="hud">
+      <span class="round" id="p-title"></span>
+      <span class="ry-big"><b id="p-lead"></b></span>
+      <span class="tw-clock" id="p-clock"></span>
+      <button class="secondary" id="p-finish">Nu stoppen</button>
+    </div>
+    <div class="ak-board">
+      <div class="ak-stage"><canvas id="p-canvas"></canvas><div class="bb-banner hidden" id="p-banner"></div></div>
+      <div class="tw-side">
+        <div id="p-teams" class="ti-teams"></div>
+        <ul class="tw-feed" id="p-feed"></ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="podium" class="hidden">
+    <div class="center"><h2 id="w-title"></h2><p class="muted" id="w-why"></p></div>
+    <ol class="ranking" id="final-teams"></ol>
+    <div class="ti-best" id="best"></div>
+    <ol class="ranking" id="final"></ol>
+    <p class="center muted" id="results-saved"></p>
+    <div class="bar">
+      <button class="secondary" id="restart">Nog een keer</button>
+      <button id="close">Andere quiz kiezen</button>
+    </div>
+  </section>
+</main>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/ui.js"></script>
+<script src="/js/fx.js"></script>
+<script src="/js/avatar.js"></script>
+<script src="/js/quiz-links.js"></script>
+<script src="/js/quiz-list.js"></script>
+<script src="/js/arena-kit.js"></script>
+<script src="/js/ti-draw.js"></script>
+<script src="/js/ti-host.js"></script>
+<script src="/js/address.js"></script>
+<script src="/js/overzicht.js"></script>
+</body>
+</html>

@@ -6,11 +6,33 @@ const DuArt = (() => {
     return () => { s = (s * 16807) % 2147483647; return s / 2147483647; };
   }
 
+  // Jorns geschilderde colosseum (public/img/quizspellen/duel-colosseum.webp); tot het geladen is, tekenen we zelf.
+  // Pas laden bij de eerste keer tekenen: leerlingen die geen duel spelen, halen het niet op.
+  let beeld = null, ver = 0, laden = false;
+  function laad() {
+    if (laden || typeof Image === 'undefined') return;
+    laden = true;
+    const img = new Image();
+    img.onload = () => { beeld = img; ver++; };
+    img.src = '/img/quizspellen/duel-colosseum.webp';
+  }
+
   function colosseum(w, h, seed = 9) {
     const c = document.createElement('canvas');
     c.width = w;
     c.height = h;
     const g = c.getContext('2d');
+    laad();
+    if (beeld) {
+      // Vullend, onderaan afgesneden als het scherm hoger is: de tribunes blijven in beeld.
+      const k = Math.max(w / beeld.width, h / beeld.height);
+      const iw = beeld.width * k, ih = beeld.height * k;
+      g.drawImage(beeld, (w - iw) / 2, Math.min(0, (h - ih) * .3), iw, ih);
+      // Wat donkerder, zodat de duelkaartjes erboven goed leesbaar zijn.
+      g.fillStyle = 'rgba(6, 4, 16, .3)';
+      g.fillRect(0, 0, w, h);
+      return { c, torches: [], crowd: [], floorY: h * .62, ver };
+    }
     const rnd = rng(seed);
     const u = Math.min(w, h) / 100;
     const cx = w / 2;
@@ -124,7 +146,7 @@ const DuArt = (() => {
     g.lineWidth = u * 1.2;
     g.beginPath(); g.arc(0, 0, w * .2, 0, Math.PI * 2); g.stroke();
     g.restore();
-    return { c, torches, crowd, floorY };
+    return { c, torches, crowd, floorY, ver };
   }
 
   function torch(ctx, x, y, u, t, i = 0) {
@@ -133,5 +155,5 @@ const DuArt = (() => {
     Glow.glow(ctx, x, y, u * 2, '#fff2b0', .9);
   }
 
-  return { colosseum, torch };
+  return { colosseum, torch, ver: () => ver };
 })();

@@ -224,6 +224,27 @@ const Rp3D = (() => {
     CYLS.push({ x: Wd.X[g.i] - Wd.TY[g.i] * off, y: Wd.Y[g.i] + Wd.TX[g.i] * off, r: 70, h: 330, roof: 150, kind: 'toren' });
   }
 
+  // ---------- Geschilderde plaatjes (vallen terug op de getekende zolang ze laden) ----------
+  const ART = {};
+  for (const n of ['lucht', 'boom-1', 'boom-2', 'boom-3', 'kist']) {
+    const img = new Image();
+    img.onload = () => {
+      if (n === 'lucht') {
+        // Twee keer naast elkaar, de tweede gespiegeld: zo loopt de horizon naadloos rond.
+        const c = document.createElement('canvas');
+        c.width = img.width * 2;
+        c.height = img.height;
+        const g = c.getContext('2d');
+        g.drawImage(img, 0, 0);
+        g.translate(c.width, 0);
+        g.scale(-1, 1);
+        g.drawImage(img, 0, 0);
+        ART.lucht = c;
+      } else ART[n] = img;
+    };
+    img.src = `/img/robopaarden/${n}.webp`;
+  }
+
   // ---------- Gebakken plaatjes ----------
   const PINE_IMG = [0, 1, 2].map(v => {
     const c = document.createElement('canvas');
@@ -356,7 +377,33 @@ const Rp3D = (() => {
       ctx.fillStyle = grass;
       ctx.fillRect(0, hz, w, h - hz);
     }
+    // De geschilderde lucht: het onderste deel van het schilderij (bergen en burchten) rust op de horizon, meedraaiend.
+    if (ART.lucht) {
+      const L = ART.lucht;
+      const show = L.height * (w > h ? .5 : .64);
+      const k = Math.max(.2, (hz + 2) / show);
+      // Een heel aantal schilderijparen rond de cirkel, zodat de naad nooit verspringt.
+      const pairs = Math.max(1, Math.round((Math.PI * 2 * f) / k / L.width));
+      const perRad = (pairs * L.width) / (Math.PI * 2);
+      const span = L.width;
+      const width = fov * perRad;
+      const sy = L.height - show;
+      const topY = hz + 2 - show * (w / width);
+      if (topY > 0) {
+        ctx.fillStyle = 'rgb(58, 22, 88)';
+        ctx.fillRect(0, 0, w, topY + 1);
+      }
+      for (let start = ((((a - fov / 2) * perRad) % span) + span) % span, x = 0, rest = width; rest > 0;) {
+        const take = Math.min(rest, span - start);
+        const dw = (take / width) * w;
+        ctx.drawImage(L, start, sy, take, show, x, topY, dw + .5, hz + 2 - topY);
+        x += dw;
+        rest -= take;
+        start = 0;
+      }
+    }
     // Sterren, de zon en het panorama, meedraaiend.
+    if (!ART.lucht) {
     ctx.fillStyle = '#ffe9f6';
     for (const s of STARS) {
       let rel = s.az - a;
@@ -399,6 +446,7 @@ const Rp3D = (() => {
       glow.addColorStop(1, 'rgba(255, 140, 120, .35)');
       ctx.fillStyle = glow;
       ctx.fillRect(0, hz - 34, w, 44);
+    }
     }
 
     // ---------- 3D-vormen ----------
@@ -763,7 +811,7 @@ const Rp3D = (() => {
           if (hgt < 2) break;
           if (o.soft && scene.self && th.d < 700) ctx.globalAlpha = .5;
           const fog = Math.min(.8, th.d / FAR);
-          ctx.drawImage(PINE_IMG[fog > .45 ? 2 : o.v], p.x - wdt / 2, p.y - hgt, wdt, hgt);
+          ctx.drawImage(ART['boom-' + ((fog > .45 ? 2 : o.v) + 1)] || PINE_IMG[fog > .45 ? 2 : o.v], p.x - wdt / 2, p.y - hgt, wdt, hgt);
           break;
         }
         case 'lamp': {
@@ -782,7 +830,13 @@ const Rp3D = (() => {
           if (!p) break;
           const s = Math.max(4, 120 * p.k);
           if (scene.boxRest) ctx.globalAlpha = .28;
-          ctx.drawImage(BOX_IMG, p.x - s / 2, p.y - s / 2, s, s);
+          if (ART.kist) {
+            // De geschilderde runenkist met een gouden gloed eronder.
+            const gs = s * 1.5;
+            ctx.drawImage(GLOW['#ffd34f'], p.x - gs / 2, p.y - gs / 2, gs, gs);
+            const kw = s * .9, kh = kw * (ART.kist.height / ART.kist.width);
+            ctx.drawImage(ART.kist, p.x - kw / 2, p.y - kh / 2, kw, kh);
+          } else ctx.drawImage(BOX_IMG, p.x - s / 2, p.y - s / 2, s, s);
           ctx.globalAlpha = 1;
           break;
         }
@@ -934,5 +988,5 @@ const Rp3D = (() => {
     return { cam, place, selfAt };
   }
 
-  return { render, boom, spark };
+  return { render, boom, spark, PINES };
 })();

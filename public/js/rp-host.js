@@ -14,6 +14,10 @@ let shots = [];
 let traps = [];
 let order = [];
 const rings = [];
+// Komen de geschilderde plaatjes binnen, dan de kaart opnieuw bakken.
+RpDraw.onArt.push(() => { map = null; mapBg = null; });
+const KIST = new Image();
+KIST.src = '/img/robopaarden/kist.webp';
 
 let view = 'setup';
 const VIEWS = ['setup', 'lobby', 'play', 'podium'];
@@ -21,6 +25,7 @@ function show(name) {
   if (view !== name) window.scrollTo(0, 0);
   view = name;
   for (const s of VIEWS) $(s).classList.toggle('hidden', s !== name);
+  document.body.classList.toggle('rp-stal', name === 'lobby');
 }
 
 document.addEventListener('click', () => sfx.unlock(), { once: true });
@@ -237,7 +242,7 @@ function frame(pt) {
 requestAnimationFrame(frame);
 
 function drawMap(w, h, pt, horses) {
-  if (!map) map = RpDraw.mapImage(.2, { hideSecret: true });
+  if (!map) map = RpDraw.mapImage(.2, { hideSecret: true, trees: Rp3D.PINES });
   const k = Math.min(w / Wd.W, h / Wd.H);
   const ox = (w - Wd.W * k) / 2, oy = (h - Wd.H * k) / 2;
   // De kaart één keer op schermgrootte zetten: elke frame verkleinen kost te veel op een zwak bord.
@@ -252,10 +257,15 @@ function drawMap(w, h, pt, horses) {
   }
   ctx.drawImage(mapBg, 0, 0);
   const X = x => ox + x * k, Y = y => oy + y * k;
-  // Runenkisten: kleine gouden blokjes.
+  // Runenkisten: de geschilderde kist (of kleine gouden blokjes zolang die laadt).
   ctx.fillStyle = 'rgba(255, 211, 79, .85)';
   const bs = Math.max(3, 34 * k);
-  for (const b of Wd.BOXES) ctx.fillRect(X(b.x) - bs / 2, Y(b.y) - bs / 2 + Math.sin(pt / 300 + b.id) * bs * .15, bs, bs);
+  const kist = KIST.complete && KIST.naturalWidth ? KIST : null;
+  for (const b of Wd.BOXES) {
+    const by = Y(b.y) + Math.sin(pt / 300 + b.id) * bs * .15;
+    if (kist) { const ks = Math.max(18, 120 * k); ctx.drawImage(kist, X(b.x) - ks / 2, by - ks * .46, ks, ks * .92); }
+    else ctx.fillRect(X(b.x) - bs / 2, by - bs / 2, bs, bs);
+  }
   for (const t of traps) {
     ctx.fillStyle = '#c9d2e6';
     ctx.beginPath(); ctx.arc(X(t.x), Y(t.y), Math.max(3, 30 * k), 0, Math.PI * 2); ctx.fill();

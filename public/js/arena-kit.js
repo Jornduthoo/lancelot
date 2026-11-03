@@ -338,6 +338,17 @@ const AK = (() => {
     ctx.fill();
     // Aura of schild
     if (o.glow) glow(ctx, 0, 0, r * 2.4, o.glow, 1);
+    if (o.sprite) {
+      // Geschilderde held (kijkt naar rechts): niet draaien maar spiegelen als hij naar links kijkt, licht deinend.
+      const img = o.sprite, size = r * 3.3 * (1 + (o.moving ? Math.sin(t * 9) * .025 : 0));
+      const k = size / Math.max(img.width, img.height);
+      if (Math.cos(a) < -.1) ctx.scale(-1, 1);
+      ctx.drawImage(img, -img.width * k / 2, -img.height * k / 2, img.width * k, img.height * k);
+      ctx.restore();
+      if (o.hp !== undefined && o.hp < 100) bar(ctx, x, y - r - 12, r * 2.2, o.hp / 100, o.hpColor);
+      if (o.name) label(ctx, o.name, x, y - r - (o.hp !== undefined && o.hp < 100 ? 20 : 12), o.me ? '#ffc94a' : '#e8f1ff');
+      return;
+    }
     ctx.rotate(a);
     // Cape die achter je aan wappert, met een lichtende zoom
     const wave = Math.sin(t * 9) * (o.moving ? 3 : 1);
@@ -632,7 +643,7 @@ const AK = (() => {
 
   // ---------- Vragenvenster ----------
   // Eén venster per spel. opts: { root, status(res), ask(cb), answer(i, cb), close(), good(res), bad(res), next(res) }
-  // next(res) geeft true als er meteen een volgende vraag mag komen.
+  // next(res) geeft true als er meteen een volgende vraag mag komen. res.more (tempo "Veel vragen") doet hetzelfde.
   function quiz(opts) {
     const box = document.createElement('div');
     box.className = 'tw-question ak-question hidden';
@@ -647,6 +658,16 @@ const AK = (() => {
     const $s = sel => box.querySelector(sel);
     const q = { open: false, cur: null, timer: null };
     $s('.ls-q-actions button').addEventListener('click', () => q.close());
+
+    // Het schermtoetsenbord van een gsm (getalvraag) mag het invulveld niet bedekken: het venster schuift erboven.
+    const vv = window.visualViewport;
+    function keyboard() {
+      if (!vv) return;
+      const under = q.open ? Math.max(0, Math.round(innerHeight - vv.height - vv.offsetTop)) : 0;
+      box.style.bottom = under > 60 ? `${under}px` : '';
+      box.classList.toggle('ak-kb', under > 60);
+    }
+    if (vv) { vv.addEventListener('resize', keyboard); vv.addEventListener('scroll', keyboard); }
 
     function wait(ms, then) {
       clearInterval(q.timer);
@@ -722,12 +743,12 @@ const AK = (() => {
         const result = $s('.tw-q-result');
         result.className = `tw-q-result ${res.correct ? 'good' : 'bad'}`;
         if (res.correct) {
-          result.textContent = opts.good(res);
+          result.textContent = opts.good(res) + (res.more ? ' Nog een vraag!' : '');
           sfx.good();
           if (typeof buzz === 'function') buzz([30, 40, 30]);
           setTimeout(() => {
             if (!q.open || !q.cur || !q.cur.done) return;
-            if (opts.next(res)) load();
+            if (opts.next(res) || res.more) load();
             else q.close();
           }, 850);
         } else {
@@ -736,7 +757,7 @@ const AK = (() => {
           result.textContent = opts.bad(res);
           sfx.bad();
           if (typeof buzz === 'function') buzz(200);
-          wait(res.wait || 3000, () => { if (!q.open) return; if (opts.again === false) q.close(); else load(); });
+          wait(res.wait || 3000, () => { if (!q.open) return; if (opts.again === false && !res.more) q.close(); else load(); });
         }
       });
     };
@@ -746,6 +767,7 @@ const AK = (() => {
       q.open = false;
       q.cur = null;
       box.classList.add('hidden');
+      keyboard();
       if (was && opts.close) opts.close();
     };
     q.key = e => {

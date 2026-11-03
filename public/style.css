@@ -102,6 +102,12 @@ code { font-family: var(--tech); font-size: .85em; color: var(--cyan); }
 
 /* ---------- Kop met logo ---------- */
 .topbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+/* Op een breed scherm altijd één rij: een lange ondertitel loopt dan door op twee regels, in plaats van de knoppen naar onder te duwen. */
+@media (min-width: 1000px) {
+  .topbar:not(:has(.taken-home)) { flex-wrap: nowrap; }
+  .topbar > .brand, .topbar > .brand > div { min-width: 0; flex: 0 1 auto; }
+  .topbar > .actions, .topbar > .snelmenu { flex: none; }
+}
 .brand { --ring: 72px; position: relative; display: flex; align-items: center; gap: 16px; padding-left: 7px; text-decoration: none; color: inherit; cursor: pointer; }
 .brand img { position: relative; width: 58px; height: 58px; border-radius: 50%; filter: var(--logo-tint, none); box-shadow: 0 0 0 2px rgb(var(--k-cyan) / .55), 0 0 16px var(--cyan-glow); animation: mark-glow 3.5s ease-in-out infinite; }
 @keyframes mark-glow { 50% { box-shadow: 0 0 0 2px rgb(var(--k-cyan) / .95), 0 0 26px rgb(var(--k-cyan) / .75); } }
@@ -184,6 +190,8 @@ button.big { font-size: 1.25rem; padding: 18px 34px; }
 button.icon { padding: 10px 14px; }
 
 input, select, textarea { font: inherit; font-family: var(--body); color: rgb(var(--k-bg2)); }
+/* iPhone: een invulveld in een spel met user-select: none zou anders geen tekst aannemen. */
+input, textarea { -webkit-user-select: text; user-select: text; }
 
 .error { color: rgb(var(--k-rood-l)); margin: 0; }
 .error:empty { display: none; }
@@ -220,7 +228,9 @@ input, select, textarea { font: inherit; font-family: var(--body); color: rgb(va
   font-weight: 400;
 }
 .module svg { width: 46px; height: 46px; color: var(--cyan); filter: drop-shadow(0 0 10px var(--cyan-glow)); }
-.module strong { font-family: var(--head); font-size: 1.35rem; letter-spacing: .04em; }
+/* Lange namen (Burchtbouwers, Hooibergjacht) passen altijd op de tegel: de letter krimpt mee met de breedte van de tegel. */
+.module { container-type: inline-size; }
+.module strong { font-family: var(--head); font-size: min(1.35rem, 9.4cqi); letter-spacing: .04em; max-width: 100%; overflow-wrap: anywhere; }
 .module span { color: var(--muted); font-size: .95rem; }
 .module .tag { margin-top: auto; font-family: var(--tech); font-size: .7rem; letter-spacing: .2em; text-transform: uppercase; color: var(--cyan); }
 /* Een tegel als volle balk bovenaan (het Klaseiland): icoon links, tekst ernaast. */
@@ -258,9 +268,14 @@ span.play { padding: 13px 22px; display: flex; align-items: center; }
 .qr svg { width: 100%; height: 100%; display: block; }
 .join-url { font-family: var(--tech); font-weight: 800; font-size: clamp(1.4rem, 4vw, 2.6rem); color: var(--cyan); text-shadow: 0 0 18px var(--cyan-glow); word-break: break-all; }
 .count { font-family: var(--tech); font-weight: 800; }
+/* In de koptekst van de wachtzaal: het techlettertype tekent een 7 als een haakje. Zelfde letter als de kop, in cyaan. */
+.bar h2 .count { font-family: inherit; color: var(--cyan); text-shadow: 0 0 14px var(--cyan-glow); }
 .names { display: flex; flex-wrap: wrap; gap: 10px; }
+/* Op het bord groot genoeg om je naam van achter in de klas te vinden; elk naamkaartje even hoog. */
+.names { gap: 12px; }
 .names .name {
-  font-weight: 800; padding: 9px 16px; cursor: pointer;
+  display: inline-flex; align-items: center; min-height: 56px; font-size: 1.15rem;
+  font-weight: 800; padding: 9px 18px; cursor: pointer;
   background: linear-gradient(180deg, rgb(var(--k-cyan) / .25), rgb(var(--k-cyan) / .08));
   box-shadow: inset 0 0 0 1px var(--line);
   clip-path: polygon(0 0, 100% 0, 100% 75%, 50% 100%, 0 75%);
@@ -275,14 +290,14 @@ span.play { padding: 13px 22px; display: flex; align-items: center; }
 /* ---------- Vraag ---------- */
 .hud { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
 .hud .round { font-family: var(--tech); font-weight: 800; letter-spacing: .15em; color: var(--cyan); }
-.hud .answered { font-family: var(--tech); font-weight: 600; color: var(--muted); }
+.hud .answered { font-family: var(--body); font-weight: 600; font-size: 1.1rem; color: var(--muted); }
 .question-text {
   font-family: var(--body); font-weight: 800; font-size: clamp(1.6rem, 3.6vw, 2.8rem);
   text-align: center; padding: 34px 28px; line-height: 1.2;
 }
 /* Op het bord: de vraag op een banier met gouden hoeken en een zachte gloed. */
 #question .question-text {
-  position: relative; padding: 40px 48px;
+  position: relative; padding: clamp(18px, 4.5vh, 40px) 48px;
   background:
     linear-gradient(90deg, transparent, rgb(var(--k-goud) / .10), transparent) top / 100% 2px no-repeat,
     radial-gradient(ellipse at 50% 0, rgb(var(--k-cyan) / .18), transparent 70%),
@@ -296,7 +311,8 @@ span.play { padding: 13px 22px; display: flex; align-items: center; }
 }
 #question .question-text::before { left: 8px; border-right: 0; border-bottom: 0; }
 #question .question-text::after { right: 8px; border-left: 0; border-bottom: 0; }
-#question .answers .answer { min-height: 130px; font-size: 1.7rem; }
+/* Lager scherm (digibord met browserbalk): kleinere vakken, zodat Toon antwoord en Volgende ronde in beeld blijven. */
+#question .answers .answer { min-height: clamp(84px, 15vh, 130px); font-size: 1.7rem; }
 #question .answers .answer svg { width: 48px; height: 48px; }
 .intro-bar { height: 6px; background: rgb(var(--k-cyan) / .15); overflow: hidden; }
 .intro-bar div { height: 100%; background: var(--cyan); box-shadow: 0 0 14px var(--cyan); transform-origin: left; }
@@ -377,13 +393,16 @@ span.play { padding: 13px 22px; display: flex; align-items: center; }
 .answer.enter { animation: tile-in .45s cubic-bezier(.2, 1.3, .4, 1) both; }
 .answer.dim { opacity: .28; filter: grayscale(.6); transform: scale(.97); }
 .answer.right { animation: right-pulse 1.2s ease-in-out infinite; }
+/* Na het antwoord: het juiste blok is altijd het helderste, met een groene rand en een vinkje (ook als de knop al uit staat). */
+.answer.right, .answer.right:disabled { opacity: 1; filter: none; transform: none; box-shadow: inset 0 0 0 4px var(--good), inset 0 0 28px rgb(var(--k-groen) / .45), inset 0 -30px 50px rgb(var(--k-zwart) / .3); }
+.answer.right::after { content: '✓'; position: absolute; right: 12px; top: 6px; z-index: 2; font-size: 1.5rem; font-weight: 900; color: var(--good); text-shadow: 0 0 10px rgb(var(--k-groen) / .9), 0 1px 2px rgb(var(--k-zwart)); }
 .answer .count { margin-left: auto; font-family: var(--tech); font-size: 1.6rem; position: relative; z-index: 1; }
 .answer .fillbar { position: absolute; inset: auto 0 0 0; height: 6px; background: var(--c); box-shadow: 0 0 12px var(--c); transform-origin: left; transform: scaleX(0); transition: transform .9s ease-out; }
 .answer > *:not(.fillbar) { position: relative; z-index: 1; }
 .q-small { margin: 0 0 12px; padding: 10px 14px; font-weight: 700; font-size: 1.05rem; line-height: 1.35; text-align: center; color: var(--text); background: rgb(var(--k-bg) / .6); box-shadow: inset 0 0 0 1px rgb(var(--k-goud) / .35); }
 .q-small:empty { display: none; }
 @keyframes tile-in { from { transform: translateY(24px) scale(.92); opacity: 0; } }
-@keyframes right-pulse { 50% { filter: brightness(1.18); box-shadow: inset 0 0 0 3px rgb(var(--k-wit)), 0 0 30px rgb(var(--k-wit) / .5); } }
+@keyframes right-pulse { 50% { filter: brightness(1.2); } }
 
 /* ---------- Scorebord ---------- */
 .ranking { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; position: relative; }
@@ -394,7 +413,7 @@ span.play { padding: 13px 22px; display: flex; align-items: center; }
   clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
 }
 .ranking li:first-child { box-shadow: inset 0 0 0 1px var(--gold), 0 0 24px rgb(var(--k-goud) / .25); }
-.ranking .pos { font-family: var(--tech); color: var(--cyan); text-align: center; }
+.ranking .pos { font-family: 'Exo 2', sans-serif; font-weight: 800; color: var(--cyan); text-align: center; }
 .ranking li:first-child .pos { color: var(--gold); }
 .ranking .gain { font-family: var(--tech); font-size: .95rem; color: var(--good); }
 .ranking .pts { font-family: var(--tech); }
@@ -562,6 +581,28 @@ body:has(#home.hidden) .pauze-home, body:has(#home.hidden) .qr-home, body:has(#h
 .pauze-form input { width: min(320px, 70vw); }
 .pauze-verder { margin-top: 6px; font-size: 1.15rem; padding: 14px 34px; }
 @keyframes pauze-zweef { 50% { transform: translateY(-10px); } }
+/* Vragenstorm: een paar vragen na elkaar, het spel staat even stil (net onder de pauzeknop). */
+.storm-scherm { position: fixed; inset: 0; z-index: 2147482000; display: flex; align-items: center; justify-content: center; padding: 16px; overflow: auto;
+  background: radial-gradient(ellipse at 50% 40%, rgb(var(--k-goud) / .18), transparent 55%), rgb(var(--k-bg) / .9); animation: ui-in .25s ease-out; }
+.storm-scherm.hidden { display: none; }
+.storm-paneel { width: min(680px, 100%); display: grid; gap: 12px; padding: 20px; text-align: center; background: var(--panel-solid);
+  border: 2px solid rgb(var(--k-goud) / .7); border-radius: 16px; box-shadow: 0 0 34px rgb(var(--k-goud) / .3); }
+.storm-kop { margin: 0; font-family: var(--head); font-size: clamp(1.5rem, 5vw, 2.2rem); color: var(--gold); letter-spacing: .05em; }
+.storm-stap { margin: 0; font-family: var(--tech); color: var(--cyan); }
+.storm-stap:empty { display: none; }
+.storm-vraag { margin: 0; font-size: clamp(1.15rem, 3.6vw, 1.6rem); font-weight: 700; color: rgb(var(--k-tekst)); overflow-wrap: anywhere; }
+.storm-antwoorden { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.storm-a { display: flex; align-items: center; gap: 10px; min-height: 56px; padding: 10px 14px; text-align: left; font-size: 1.05rem; overflow-wrap: anywhere; }
+.storm-a b { flex: none; display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: rgb(var(--k-zwart) / .3); }
+.storm-a.juist { background: rgb(var(--k-groen)); color: rgb(var(--k-zwart)); }
+.storm-a.fout { background: rgb(var(--k-rood)); }
+.storm-a.dim { opacity: .45; }
+.storm-uitslag { margin: 0; min-height: 1.4em; font-weight: 700; }
+.storm-uitslag.goed { color: rgb(var(--k-groen)); }
+.storm-uitslag.slecht { color: rgb(var(--k-rood-l)); }
+@media (max-width: 520px) { .storm-antwoorden { grid-template-columns: 1fr; } .storm-a { min-height: 48px; } }
+.storm-knop { color: var(--gold); }
+
 @media (prefers-reduced-motion: reduce) { .pauze-slot { animation: none; } }
 
 /* ---------- Uitleg na een fout antwoord (ui.js) ---------- */
@@ -575,10 +616,11 @@ body:has(#home.hidden) .pauze-home, body:has(#home.hidden) .qr-home, body:has(#h
 .ui-uitleg b { color: var(--gold, rgb(var(--k-goud))); font-size: .8rem; letter-spacing: .08em; text-transform: uppercase; }
 .ui-uitleg small { color: var(--muted, rgb(var(--k-muted))); }
 .ui-uitleg.hidden { display: none; }
+@media (max-width: 520px), (max-height: 420px) { .ui-uitleg { font-size: .92rem; line-height: 1.32; padding: 9px 14px 9px 12px; } }
 
 /* ---------- Getal typen (ui.js) ---------- */
 .ui-getal { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; align-items: center; width: 100%; }
-.ui-getal input { flex: 1 1 160px; max-width: 280px; font-size: 1.6rem; text-align: center; padding: 12px; color: var(--text); background: rgb(var(--k-bg) / .85); border: 1px solid var(--cyan); }
+.ui-getal input { -webkit-user-select: text; user-select: text; flex: 1 1 160px; max-width: 280px; font-size: 1.6rem; text-align: center; padding: 12px; color: var(--text); background: rgb(var(--k-bg) / .85); border: 1px solid var(--cyan); }
 .ui-getal button { font-size: 1.2rem; padding: 12px 22px; }
 .ui-getal.goed input { box-shadow: inset 0 0 0 2px var(--good); color: var(--good); }
 .ui-getal.fout input { box-shadow: inset 0 0 0 2px var(--bad); color: var(--bad); text-decoration: line-through; }
@@ -815,6 +857,13 @@ body:not([data-rt="1"]) #rondetafel, body:not([data-tw="1"]) #toren { display: n
 .tw-btn.tw-ask { font-size: 1rem; color: var(--gold); box-shadow: inset 0 0 0 1px rgb(var(--k-goud) / .5); }
 #tw-game.low .tw-btn.tw-ask { background: rgb(var(--k-goud) / .25); animation: breathe .8s ease-in-out infinite; }
 .tw-question { position: absolute; inset: 0; z-index: 6; display: flex; align-items: center; justify-content: center; padding: 14px; background: rgb(var(--k-bg) / .75); backdrop-filter: blur(4px); }
+/* Met het schermtoetsenbord open: een compact venster net boven het toetsenbord. */
+.tw-question.ak-kb { align-items: flex-end; padding: 6px; overflow: auto; }
+.tw-question.ak-kb .panel { gap: 6px; padding: 10px 12px; }
+.tw-question.ak-kb .status { display: none; }
+.tw-question.ak-kb .tw-q-text { font-size: 1rem; margin: 0; }
+.tw-question.ak-kb .ui-getal input { font-size: 1.2rem; padding: 6px; }
+.tw-question.ak-kb .ui-getal button, .tw-question.ak-kb .ls-q-actions button { padding: 6px 14px; font-size: 1rem; }
 .tw-question .panel { width: 100%; max-width: 560px; display: flex; flex-direction: column; gap: 12px; text-align: center; }
 .tw-q-text { font-weight: 800; font-size: 1.35rem; margin: 0; }
 .tw-question .answers { grid-template-columns: 1fr 1fr; gap: 8px; }
@@ -824,6 +873,8 @@ body:not([data-rt="1"]) #rondetafel, body:not([data-tw="1"]) #toren { display: n
 .tw-q-result { margin: 0; font-family: var(--tech); font-weight: 800; font-size: 1.4rem; }
 .tw-q-result.good { color: var(--good); animation: pop .35s ease-out; }
 .tw-q-result.bad { color: var(--bad); }
+/* Op een gsm past de uitleg onder de antwoorden zo nog in beeld (anders viel ze onderaan weg). */
+@media (max-width: 520px), (max-height: 520px) { .tw-q-result { font-size: 1.02rem; line-height: 1.25; } .tw-q-result small { font-size: .85rem !important; } }
 
 /* Bord van de toren */
 .tw-intro { display: flex; gap: 20px; align-items: center; }
@@ -844,7 +895,7 @@ body:not([data-rt="1"]) #rondetafel, body:not([data-tw="1"]) #toren { display: n
 .tw-rank li:first-child { box-shadow: inset 0 0 0 1px var(--gold); }
 .tw-rank li.rescued { background: rgb(var(--k-goud) / .12); }
 .tw-rank li.more { display: block; text-align: center; color: var(--muted); font-weight: 600; }
-.tw-rank .pos { font-family: var(--tech); color: var(--cyan); text-align: center; }
+.tw-rank .pos { font-family: 'Exo 2', sans-serif; font-weight: 800; color: var(--cyan); text-align: center; }
 .tw-rank .dot { width: 12px; height: 12px; border-radius: 50%; box-shadow: 0 0 0 2px rgb(var(--k-wit)); }
 .tw-rank .who { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .tw-rank .fl { font-family: var(--tech); color: var(--text); }
@@ -892,11 +943,13 @@ body[data-sj="1"] .sj-item-icon { width: 52px; height: 52px; display: grid; plac
 .sj-flash { position: fixed; inset: 0; z-index: 20; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; pointer-events: none; animation: pop .3s ease-out; }
 .sj-flash.good { background: radial-gradient(circle, rgb(var(--k-groen) / .35), rgb(var(--k-bg) / .7) 70%); }
 .sj-flash.bad { background: radial-gradient(circle, rgb(var(--k-rood) / .35), rgb(var(--k-bg) / .7) 70%); }
+.sj-flash.meh { background: radial-gradient(circle, rgb(var(--k-bg) / .6), rgb(var(--k-bg) / .85) 70%); }
 .sj-flash.hidden { display: none; }
 .sj-flash-mark { font-size: 4rem; font-weight: 900; }
 .sj-flash-gold { font-family: var(--tech); font-weight: 800; font-size: 3.4rem; color: var(--gold); text-shadow: 0 0 24px rgb(var(--k-goud) / .7); }
 .sj-flash.bad .sj-flash-gold { color: rgb(var(--k-rood-l)); text-shadow: none; }
-.sj-flash-text { font-weight: 800; font-size: 1.2rem; }
+.sj-flash-text { font-weight: 800; font-size: 1.2rem; max-width: 90vw; text-align: center; padding: 6px 16px; border-radius: 12px; background: rgb(var(--k-bg) / .88); box-shadow: inset 0 0 0 1px rgb(var(--k-wit) / .14); }
+.sj-flash-text:empty { display: none; }
 .sj-countdown { position: fixed; inset: 0; z-index: 20; display: flex; align-items: center; justify-content: center; background: rgb(var(--k-bg) / .85); font-family: var(--tech); font-weight: 800; font-size: 7rem; color: var(--gold); text-shadow: 0 0 30px rgb(var(--k-goud) / .6); }
 .sj-countdown.hidden { display: none; }
 .sj-shop { position: fixed; inset: 0; z-index: 15; overflow-y: auto; padding: 16px; background: rgb(var(--k-bg) / .96); display: flex; flex-direction: column; gap: 12px; max-width: 560px; margin: 0 auto; }
@@ -920,7 +973,7 @@ body[data-sj="1"] .sj-item-icon { width: 52px; height: 52px; display: grid; plac
 .sj-race li .bar { position: absolute; inset: 0 auto 0 0; width: 100%; transform-origin: left; background: linear-gradient(90deg, rgb(var(--k-goud) / .28), rgb(var(--k-goud) / .05)); transition: transform .8s cubic-bezier(.2, 1, .3, 1); }
 .sj-race li > *:not(.bar) { position: relative; }
 .sj-race li:first-child { box-shadow: inset 0 0 0 2px var(--gold), 0 0 24px rgb(var(--k-goud) / .25); }
-.sj-race .pos { font-family: var(--tech); color: var(--cyan); text-align: center; }
+.sj-race .pos { font-family: 'Exo 2', sans-serif; font-weight: 800; color: var(--cyan); text-align: center; }
 .sj-race li:first-child .pos { color: var(--gold); }
 .sj-race .name small { display: block; font-size: .75rem; color: var(--muted); font-weight: 600; }
 .sj-race .gold { font-family: var(--tech); color: var(--gold); display: flex; align-items: center; gap: 8px; }
@@ -1104,6 +1157,10 @@ body:not([data-ob="1"]) #oefenblad { display: none !important; }
 
 /* Het papier zelf: licht en rustig, zodat lezen en schrijven makkelijk gaat. */
 .ob-paper { --ink: #1d2433; --rule: #c9bfa6; background: linear-gradient(180deg, #fbf7ec, #f4ecd8); color: var(--ink); padding: 28px 26px 34px; box-shadow: 0 0 0 1px rgba(255, 201, 74, .35), 0 20px 50px rgba(0, 0, 0, .45); font-family: var(--body); font-size: 1.08rem; line-height: 1.6; }
+/* Op het scherm: geschilderd perkament met een gouden rand. Afgedrukte bladen blijven wit. */
+@media screen { body:not(:has(#p-papers)) .ob-paper {
+  background: linear-gradient(180deg, rgb(255 252 240 / .5), rgb(240 226 192 / .35)), url('/img/perkament.webp') 0 0 / 384px, #f7efdb;
+  box-shadow: inset 0 0 0 1px rgb(196 154 58 / .55), inset 0 0 0 5px rgb(247 239 219 / .9), inset 0 0 0 6px rgb(196 154 58 / .35), inset 0 0 60px rgb(150 105 30 / .16), 0 0 0 1px rgb(255 201 74 / .45), 0 20px 50px rgb(0 0 0 / .5); } }
 .ob-head h1 { margin: 0 0 14px; font-family: var(--head); font-size: 1.8rem; color: #2a3350; letter-spacing: .02em; border-bottom: 3px double #c49a3a; padding-bottom: 8px; }
 .ob-meta { display: flex; gap: 22px; flex-wrap: wrap; margin-bottom: 8px; font-weight: 700; }
 .ob-meta i { display: inline-block; width: 220px; border-bottom: 1.5px solid var(--ink); }
@@ -1166,6 +1223,8 @@ select.ob-wacht { opacity: .55; }
 .ob-types strong { width: 100%; }
 /* Bewerken: groot over het hele scherm, het blad in het midden en de gereedschapskist rechts (zoals de bladeditor). */
 body.breed main { max-width: none; padding-left: 20px; padding-right: 20px; }
+/* Spelborden op het digibord: de hele breedte gebruiken. */
+.ak-wide main { max-width: 1840px; }
 .ob-editor { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 280px; grid-template-areas: "edit prev tools"; gap: 18px; align-items: start; }
 .ob-edit-col { grid-area: edit; }
 .ob-preview-col { grid-area: prev; }
@@ -1696,7 +1755,13 @@ body[data-rk="1"] { background: transparent; }
 
 /* ---------- Eigen ridders ---------- */
 .av-chip { width: 22px; height: auto; margin-right: 6px; vertical-align: middle; flex: none; filter: drop-shadow(0 1px 2px rgb(var(--k-zwart) / .6)); }
-.names .name .av-chip { width: 34px; margin: -6px 8px -6px 0; }
+.names .name .av-chip { width: 40px; margin: -6px 10px -6px 0; }
+/* Nog geen eigen ridder: een zilveren schildje op dezelfde plek, zodat de rij rustig oogt. */
+.names .name:not(:has(.av-chip))::before {
+  content: ''; width: 30px; height: 36px; margin: -4px 12px -4px 2px; flex: none; opacity: .55;
+  background: linear-gradient(180deg, rgb(var(--k-cyan) / .55), rgb(var(--k-cyan) / .15));
+  clip-path: polygon(0 0, 100% 0, 100% 55%, 50% 100%, 0 55%);
+}
 .pillar .who .av-chip { display: block; width: 56px; margin: 0 auto 4px; filter: drop-shadow(0 4px 8px rgb(var(--k-zwart) / .5)); }
 .du-pair .av-chip { width: 38px; }
 .du-champ .av-chip { width: 80px; margin: 0 auto 6px; display: block; }
@@ -1809,7 +1874,22 @@ body[data-du="1"] .sj-card { background: linear-gradient(180deg, rgba(36, 22, 40
 body:has(#home:not(.hidden))::before { content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none;
   background: radial-gradient(ellipse 60% 55% at 50% 40%, rgb(var(--k-bg) / .55), rgb(var(--k-bg) / .2) 70%), linear-gradient(180deg, rgb(var(--k-bg) / .35), rgb(var(--k-bg) / .82) 75%), url('/img/startscherm.webp') center / cover no-repeat;
   filter: var(--logo-tint, none); }
-body:has(#home.in-rijk)::before { background: linear-gradient(rgb(var(--k-bg) / .86), rgb(var(--k-bg) / .9)), url('/img/startscherm.webp') center / cover no-repeat; }
+body:has(#home.in-rijk)::before { background: linear-gradient(rgb(var(--k-bg) / .7), rgb(var(--k-bg) / .86)), var(--achter, url('/img/startscherm.webp')) center / cover no-repeat; }
+/* Elk rijk zijn eigen geschilderde zaal (ui.js zet html[data-achter]). Donker overschilderd zodat tekst leesbaar blijft; niet bij de lichte thema's. */
+html[data-achter="arena"] { --achter: url('/img/zalen/arena.webp'); }
+html[data-achter="tafel"] { --achter: url('/img/zalen/tafel.webp'); }
+html[data-achter="smidse"] { --achter: url('/img/zalen/smidse.webp'); }
+html[data-achter="kronieken"] { --achter: url('/img/zalen/kronieken.webp'); }
+html[data-achter="wapenkamer"] { --achter: url('/img/wapenkamer/zaal.webp'); }
+html[data-achter="start"] { --achter: url('/img/startscherm.webp'); }
+html[data-achter="leerling"] { --achter: url('/img/zalen/leerling.webp'); }
+html[data-achter]:not([data-achter="leerling"]):not([data-thema="daglicht"]):not([data-thema="ijspaleis"]):not([data-thema="contrast"]) body:not([data-wacht]):not(:has(#home:not(.hidden))) {
+  background: linear-gradient(rgb(var(--k-bg) / .74), rgb(var(--k-bg) / .9)), var(--achter) center / cover no-repeat fixed; }
+html[data-achter="leerling"]:not([data-thema="daglicht"]):not([data-thema="ijspaleis"]):not([data-thema="contrast"]) body:not([data-wacht]) {
+  background: linear-gradient(rgb(var(--k-bg) / var(--dim, .55)), rgb(var(--k-bg) / var(--dim, .62)) 55%, rgb(var(--k-bg) / var(--dim, .5))), var(--achter) center bottom / cover no-repeat fixed; }
+/* Tijdens een oefenblad of toets: de poort dimt, zodat alle aandacht naar het blad gaat. */
+body:has(#ob-work:not(.hidden)), body:has(#pf-werk:not(.hidden)), body:has(#pf-intro:not(.hidden)), body.tk-page:has(.ob-paper) { --dim: .86; }
+@media (orientation: landscape) { html[data-achter="leerling"] body:not([data-wacht]) { background-position: 0 0, center 62% !important; } }
 body:has(#home:not(.hidden)) { background: transparent; }
 html[data-thema="daglicht"] body::before { display: none; }
 html[data-thema="daglicht"] body:has(#home:not(.hidden)) { background: var(--bg); }
@@ -2049,6 +2129,10 @@ button .ic + *, .button .ic { margin-right: .1em; }
 /* De knop "Namen" op elk leerkrachtenscherm (namen-host.js): wie is er binnen en waar. Linksonder op een spelbord,
    samen met de pauzeknop, zolang er een spel loopt. */
 .bord-knoppen { position: fixed; left: 18px; bottom: 18px; z-index: 25; display: flex; gap: 8px; }
+/* Wachtzaal, instellingen en eindstand: onderaan ruimte vrijlaten, zodat Pauze en Namen geen naamkaartjes bedekken. */
+body:has(.bord-knoppen) #lobby, body:has(.bord-knoppen) #setup, body:has(.bord-knoppen) #podium { padding-bottom: 72px; }
+/* Eindstand: beide knoppen samen rechts, zodat Pauze en Namen linksonder "Nog een keer" niet bedekken. */
+#podium > .bar { justify-content: flex-end; }
 .bord-knoppen button { opacity: .75; }
 .bord-knoppen button:hover { opacity: 1; }
 /* Op het startscherm loopt nog geen spel: daar zouden de knoppen over de tegels liggen. */
@@ -2141,6 +2225,10 @@ html[data-spel][data-thema="daglicht"], html[data-spel][data-thema="ijspaleis"] 
 .thema-staal { display: flex; height: 34px; border-radius: 6px; overflow: hidden; border: 1px solid rgb(var(--k-wit) / .2); }
 .thema-staal i { flex: 1; }
 .thema-keuze small { color: var(--muted); font-weight: 400; }
+.taal-raster { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+.taal-keuze { display: flex; align-items: center; gap: 10px; padding: 10px 16px; }
+.taal-keuze[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--gold), 0 0 14px rgb(var(--k-goud) / .45); }
+.taal-vlag svg { display: block; width: 36px; height: 24px; border-radius: 3px; }
 
 
 /* ---------- Tabbladen (Instellingen, Mijn klas) ---------- */
@@ -2233,6 +2321,13 @@ body.tk-solo .klaar-balk { display: none; }
 /* Op het startscherm en in de vijf rijken zelf staan de tegels al: daar geen snelmenu. */
 body:has(#home:not(.hidden)) .snelmenu { display: none; }
 .topbar:has(.taken-home) .snelmenu { order: 3; flex: 1 1 100%; margin-right: 0; justify-content: center; }
+/* Tijdens het toernooi (startscherm weg): het snelmenu in dezelfde rij als bij de spellen, dat spaart een hele rij. */
+@media (min-width: 1000px) {
+  body:has(#home.hidden) .topbar:has(.taken-home) { flex-wrap: nowrap; }
+  body:has(#home.hidden) .topbar:has(.taken-home) .snelmenu { order: 1; flex: none; margin-right: auto; justify-content: flex-start; }
+  body:has(#home.hidden) .topbar:has(.taken-home) .actions { order: 2; }
+  body:has(#home.hidden) .topbar:has(.taken-home) .snelmenu a { min-width: 62px; flex-direction: column; gap: 2px; font-size: .72rem; padding: 4px 6px; }
+}
 .topbar:has(.taken-home) .snelmenu a { min-width: 110px; flex-direction: row; gap: 8px; font-size: .85rem; padding: 6px 12px; }
 @media (max-width: 1100px) { .snelmenu span { display: none; } .snelmenu a { min-width: 40px; } .topbar:has(.taken-home) .snelmenu span { display: inline; } .topbar:has(.taken-home) .snelmenu a { min-width: 0; } }
 /* Laserslag en Ridder Royale op de gsm: een geschilderde achtergrond achter de wacht- en vraagschermen. */
@@ -2241,3 +2336,12 @@ body[data-ry="1"] { --quiz-bg: url('/img/quizspellen/ridderroyale.webp'); }
 body[data-ls="1"]::before, body[data-ry="1"]::before { content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none; background: linear-gradient(rgba(4, 4, 12, .35), rgba(4, 4, 12, .6)), var(--quiz-bg) center / cover no-repeat; }
 body[data-ls="1"], body[data-ry="1"] { background: transparent; }
 html[data-thema="daglicht"] body[data-ls="1"], html[data-thema="daglicht"] body[data-ry="1"] { background: var(--bg); }
+
+/* Wachtscherm op het bord: het geschilderde decor van het spel, donker achter de QR-code (fx.js zet --wacht-bg). */
+body[data-wacht] { background: linear-gradient(rgba(4, 6, 14, .55), rgba(4, 6, 14, .8)), var(--wacht-bg) center / cover no-repeat fixed; }
+/* Duel op het digibord: grotere namen in het schema, zodat je ze van achter in de klas leest. */
+@media (min-width: 1400px) {
+  .du-host .du-match { font-size: 1.2rem; }
+  .du-host .du-match .du-side { padding: 10px 14px; }
+  .du-host .du-col h3 { font-size: 1.05rem; }
+}

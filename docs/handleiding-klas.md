@@ -247,12 +247,28 @@ Tip: een klas die goed en vlot antwoordt, houdt de poort. Bij veel foute antwoor
 3. Elke vlag is een vraag. Juist: een gouden haak die verder grijpt en harder zwaait.
 4. Wie valt, hangt meteen terug aan zijn laatste anker en slingert verder. Het bord volgt de koploper.
 
+## Titanenstrijd
+
+1. Kies **De Arena** en dan **Titanenstrijd**, kies 2, 3 of 4 titans en de speeltijd, en klik op de quiz. Klik op **Titans, ontwaak!**
+2. LANcelot verdeelt de ploegen zelf, met een eerlijke mix van niveaus. Elke leerling krijgt één deel van de titan: zwaard, schild, kern, kanon of benen.
+3. Juiste antwoorden laden je deel op. Vol? Druk op je grote knop. Het schild blokt een zwaard, de benen ontwijken een kanon, de kern herstelt.
+4. Antwoorden alle delen van een titan samen juist binnen 10 seconden, dan volgt een Titanenslag. De ploeg met de meeste punten wint.
+
 ## Kolkridder
 
 1. Kies **De Arena** en dan **Kolkridder**, kies de speeltijd en of de **duelmodus** aan staat, en klik op de quiz. Klik op **Kolken maar!**
 2. Leerlingen sturen hun kolk met de muis, de pijltjes of hun duim. Alles wat kleiner is, slokken ze op en zo groeien ze.
 3. Is de plasma op, dan komt er een vraag. Juist: de kolk groeit en krijgt zuigkracht.
 4. Duelmodus: een veel grotere kolk slokt een kleinere op. Die wordt kleiner en mag meteen verder.
+
+## Neon-Camelot
+
+1. Kies **De Arena** en dan **Neon-Camelot**, kies de speeltijd en klik op de quiz. Klik op **De stad in!**
+2. Leerlingen rijden vrij door de stad met de muis, de pijltjes of hun duim.
+3. Bij een ⭐ verschijnt de knop **Koerier** of **Race**. Een juist antwoord start de missie: volg de gouden pijl of rij door de ringen.
+4. Is de energie op, dan komt er een vraag. Brandt er een huis, rij erheen en tik op **Blussen**.
+5. Met kristallen krijgen ze een hoverboard, een raketkar en een griffioen. Op het bord zie je de hele stad en het stadslicht van de klas.
+6. De stad leeft: verkeer, wandelende bewoners, schansen om over te springen, turboplaten en elke 4 minuten een nacht met neonlicht.
 
 ## Tuimelridder
 

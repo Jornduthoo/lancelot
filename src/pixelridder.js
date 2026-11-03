@@ -7,7 +7,7 @@
 const { Date, setTimeout, setInterval, clearTimeout, clearInterval } = require('./pauze').klok; // stil tijdens de pauzeknop
 const World = require('../public/js/px-world');
 const { Vragen, saveCsv, pct } = require('./vragen');
-const { tempoOf, factor } = require('./tempo');
+const { tempoOf, factor, reeks } = require('./tempo');
 
 const SEND_MS = 100;
 const COLORS = ['#ff4d6d', '#4cc9ff', '#ffd166', '#39ffb0', '#c77dff', '#ff8c42', '#ff5fd2', '#9be15d', '#5ee7ff', '#f4f1de'];
@@ -72,6 +72,7 @@ class Pixelridder {
     this.minutes = [1, 2, 3, 4, 5, 6, 8, 10].includes(minutes) ? minutes : 5;
     this.tempo = tempoOf(tempo);
     this.vragen = new Vragen(quiz, 'Pixelridder', this.tempo);
+    this.vragen.reeks = reeks(this.tempo); // Veel vragen: twee vragen per vlag
     this.seed = Math.floor(Math.random() * 2e9);
     this.phase = 'lobby';
     this.broadcast();

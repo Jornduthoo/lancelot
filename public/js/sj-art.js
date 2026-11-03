@@ -3,6 +3,20 @@
 // Gebruikt Glow uit fx.js.
 const SjArt = (() => {
   const { glow } = Glow;
+  // Jorns geschilderde zaal; zolang die laadt (of ontbreekt) tekenen we de oude.
+  let zaalImg = null, ver = 0;
+  const opKlaar = [];
+  if (typeof Image !== 'undefined') {
+    const img = new Image();
+    img.onload = () => { zaalImg = img; ver++; opKlaar.forEach(f => f()); };
+    img.src = '/img/zalen/schatkamer.webp';
+  }
+  function cover(g, img, w, h) {
+    const sc = Math.max(w / img.width, h / img.height);
+    const ox = (w - img.width * sc) / 2, oy = (h - img.height * sc) / 2;
+    g.drawImage(img, ox, oy, img.width * sc, img.height * sc);
+    return (fx, fy) => [ox + fx * img.width * sc, oy + fy * img.height * sc];
+  }
 
   function rng(seed) {
     let s = seed;
@@ -54,6 +68,19 @@ const SjArt = (() => {
     c.height = h;
     const g = c.getContext('2d');
     const rnd = rng(seed);
+    if (zaalImg) {
+      const at = cover(g, zaalImg, w, h);
+      const pw = Math.min(w, h) * .05;
+      const torches = [[.143, .23], [.339, .37], [.69, .37], [.857, .23]].map(([fx, fy]) => [...at(fx, fy), pw]);
+      const sparkles = [];
+      for (let i = 0; i < Math.max(6, w / 120); i++) sparkles.push([rnd() * w, h * (.84 + rnd() * .12)]);
+      const top = g.createLinearGradient(0, 0, 0, h * .4);
+      top.addColorStop(0, 'rgba(4, 3, 10, .7)');
+      top.addColorStop(1, 'rgba(4, 3, 10, 0)');
+      g.fillStyle = top;
+      g.fillRect(0, 0, w, h * .4);
+      return { c, torches, sparkles, ver };
+    }
     const bg = g.createLinearGradient(0, 0, 0, h);
     bg.addColorStop(0, '#07050f');
     bg.addColorStop(.6, '#140d22');
@@ -156,7 +183,7 @@ const SjArt = (() => {
     top.addColorStop(1, 'rgba(4, 3, 10, 0)');
     g.fillStyle = top;
     g.fillRect(0, 0, w, h * .35);
-    return { c, torches, sparkles };
+    return { c, torches, sparkles, ver };
   }
 
   // Fakkel met flakkerende vlam en een lichtkring op de muur.
@@ -280,5 +307,5 @@ const SjArt = (() => {
     }
   }
 
-  return { vault, torch, sparkle, coin, chest, heap, gem };
+  return { ver: () => ver, opKlaar: f => opKlaar.push(f), vault, torch, sparkle, coin, chest, heap, gem };
 })();

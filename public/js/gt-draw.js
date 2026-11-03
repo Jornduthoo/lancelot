@@ -13,6 +13,14 @@ const GtDraw = (() => {
       img.onload = () => { ART[n] = img; if (n === 'vloer' || n === 'muur' || n === 'fakkel') baked.clear(); };
       img.src = `/img/gauntlet/${n}.webp`;
     }
+    // De vier klassen: van bovenaf in het spel (held-*) en als portret op de keuzekaart (kaart-*).
+    for (const id of Object.keys(CLASSES)) {
+      for (const n of [`held-${id}`, `kaart-${id}`]) {
+        const img = new Image();
+        img.onload = () => { ART[n] = img; };
+        img.src = `/img/gauntlet/klassen/${n}.webp`;
+      }
+    }
   }
   const MON_ART = { bot: 'skelet', vonk: 'duivel', kanon: 'goblin', kolos: 'spin' };
   // Een beeld gecentreerd tekenen met de langste zijde = size
@@ -772,7 +780,7 @@ const GtDraw = (() => {
         // Geveld: een grafsteen-geest die zacht zweeft.
         ctx.save();
         ctx.globalAlpha = .55 + Math.sin(t * 3) * .15;
-        AK.knight(ctx, k[0], k[1] - 6 + Math.sin(t * 2) * 3, -Math.PI / 2, { color: '#7a8aa6', kind: cls, t, visor: '#ff4d6d' });
+        AK.knight(ctx, k[0], k[1] - 6 + Math.sin(t * 2) * 3, -Math.PI / 2, { r: R, color: '#7a8aa6', kind: cls, t, visor: '#ff4d6d', sprite: ART[`held-${cls}`] });
         ctx.restore();
         if (opts.names !== false) AK.label(ctx, `${info.name || ''} 💀`, k[0], k[1] - 30, '#ff8fa3');
         continue;
@@ -790,7 +798,7 @@ const GtDraw = (() => {
       }
       const c = CLASSES[cls];
       AK.knight(ctx, k[0], k[1], k[2], {
-        r: R, color: c.color, kind: cls, t, moving: true, swing,
+        r: R, color: c.color, kind: cls, t, moving: true, swing, sprite: ART[`held-${cls}`],
         glow: shield ? 'rgba(255,201,74,.55)' : asking ? 'rgba(76,201,255,.45)' : hurt ? 'rgba(255,77,109,.6)' : null,
         hp: k[3], name: opts.names === false ? null : (asking ? `${info.name || ''} ⚡` : info.name), me,
       });
@@ -908,5 +916,5 @@ const GtDraw = (() => {
     ctx.restore();
   }
 
-  return { Scene, render, minimap, bake, SHOT_COLORS };
+  return { Scene, render, minimap, bake, SHOT_COLORS, ART };
 })();

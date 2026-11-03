@@ -7,6 +7,14 @@ const NeonDraw = (() => {
     { name: 'Team Vuur', icon: '🔥', c: '#ff3d6e', glow: 'rgba(255,61,110,', dark: '#4a0a20', armor: '#ff4d6d' },
   ];
   const PRIO = { slag: 1, combo: 2, super: 3, overdrive: 4 };
+  // Het geschilderde stadion (public/img/neonduel/arena.webp). Zonder beeld tekenen we het zoals vroeger.
+  const ART = {};
+  const artWait = [];
+  if (typeof Image !== 'undefined') {
+    const img = new Image();
+    img.onload = () => { ART.arena = img; artWait.forEach(f => f()); };
+    img.src = '/img/neonduel/arena.webp';
+  }
 
   // Een ridder die bij de naam hoort: de eigen ridder van de leerling, anders altijd dezelfde willekeurige.
   function hash(text) {
@@ -53,6 +61,7 @@ const NeonDraw = (() => {
     }
     // Posters komen na het laden binnen: dan de achtergrond met de megaschermen opnieuw tekenen.
     if (typeof Posters !== 'undefined') Posters.onChange(() => { if (S.W) S.bg = paintBackground(S.W, S.H); });
+    artWait.push(() => { if (S.W) S.bg = paintBackground(S.W, S.H); });
 
     // Twee megaschermen boven de burcht waarop om de beurt een poster komt (eigen foto's of de grappige).
     const hasScreens = () => typeof Posters !== 'undefined' && Posters.list.length > 0;
@@ -69,6 +78,13 @@ const NeonDraw = (() => {
       c.width = W;
       c.height = H;
       const g = c.getContext('2d');
+      if (ART.arena) {
+        // Het beeld vult het scherm; de vloer begint net als bij de getekende versie op ongeveer 72%.
+        const img = ART.arena, k = Math.max(W / img.width, H / img.height);
+        g.drawImage(img, (W - img.width * k) / 2, Math.min(0, H * .72 - img.height * k * .723), img.width * k, img.height * k);
+        screens(g, W, H);
+        return c;
+      }
       const sky = g.createLinearGradient(0, 0, 0, H * .72);
       sky.addColorStop(0, '#05021a');
       sky.addColorStop(.55, '#150a3a');
@@ -179,7 +195,24 @@ const NeonDraw = (() => {
         }
       }
       g.restore();
-      // Megaschermen: kabels, een stalen kader en een neonrand.
+      screens(g, W, H);
+      // De vloer: donker met een vervaagde horizon.
+      const floor = g.createLinearGradient(0, H * .7, 0, H);
+      floor.addColorStop(0, '#12062c');
+      floor.addColorStop(1, '#030108');
+      g.fillStyle = floor;
+      g.fillRect(0, H * .7, W, H * .3);
+      const fog = g.createLinearGradient(0, H * .62, 0, H * .78);
+      fog.addColorStop(0, 'rgba(199,125,255,0)');
+      fog.addColorStop(.5, 'rgba(199,125,255,.22)');
+      fog.addColorStop(1, 'rgba(199,125,255,0)');
+      g.fillStyle = fog;
+      g.fillRect(0, H * .6, W, H * .2);
+      return c;
+    }
+
+    // Megaschermen: kabels, een stalen kader en een neonrand.
+    function screens(g, W, H) {
       if (hasScreens()) {
         for (let i = 0; i < 2; i++) {
           const r = screenRect(i), m = H * .012;
@@ -199,19 +232,6 @@ const NeonDraw = (() => {
           g.strokeRect(r.x - m * .5, r.y - m * .5, r.w + m, r.h + m);
         }
       }
-      // De vloer: donker met een vervaagde horizon.
-      const floor = g.createLinearGradient(0, H * .7, 0, H);
-      floor.addColorStop(0, '#12062c');
-      floor.addColorStop(1, '#030108');
-      g.fillStyle = floor;
-      g.fillRect(0, H * .7, W, H * .3);
-      const fog = g.createLinearGradient(0, H * .62, 0, H * .78);
-      fog.addColorStop(0, 'rgba(199,125,255,0)');
-      fog.addColorStop(.5, 'rgba(199,125,255,.22)');
-      fog.addColorStop(1, 'rgba(199,125,255,0)');
-      g.fillStyle = fog;
-      g.fillRect(0, H * .6, W, H * .2);
-      return c;
     }
 
     // ---------- Bewegende achtergrond ----------
@@ -231,6 +251,7 @@ const NeonDraw = (() => {
       }
       // Twinkelende sterren.
       for (const s of S.stars) {
+        if (ART.arena && s.y > .3) continue;
         const a = .35 + .65 * Math.abs(Math.sin(t / 900 + s.p));
         ctx.fillStyle = `rgba(255,255,255,${a})`;
         ctx.fillRect(s.x * W, s.y * H, s.r * H / 500, s.r * H / 500);
@@ -258,6 +279,8 @@ const NeonDraw = (() => {
         ctx.restore();
       }
       ctx.restore();
+      // Het geschilderde stadion heeft zijn eigen vlaggen, publiek en raster.
+      if (ART.arena) return;
       // Hologramvlaggen van de teams.
       for (let i = 0; i < 2; i++) {
         const fx = i ? W * .935 : W * .065;

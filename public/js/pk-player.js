@@ -82,7 +82,7 @@ socket.on('pk-state', s => {
     const medals = ['🥇', '🥈', '🥉'];
     const me = s.me || {};
     $('pk-end-medal').textContent = medals[me.rank - 1] || '💎';
-    $('pk-end-title').textContent = me.rank === 1 ? 'Jij bent de beste Pac-Knight!' : `Plek ${me.rank} van ${me.players}`;
+    $('pk-end-title').textContent = me.rank === 1 && (me.score ?? 1) > 0 ? 'Jij bent de beste Pac-Knight!' : `Plek ${me.rank} van ${me.players}`;
     $('pk-end-score').textContent = `${me.crystals || 0} 💎`;
     $('pk-end-stats').textContent = `${s.right} ${s.right === 1 ? 'vraag' : 'vragen'} juist · ${me.drones || 0} ${me.drones === 1 ? 'drone' : 'drones'} uitgeschakeld`;
     if (!$('pk-end').dataset.done && me.rank && me.rank <= 3) confetti(4000);
@@ -398,7 +398,9 @@ function pkCamera(s) {
     if (n * tile <= size) return Math.round((size - n * tile) / 2);
     return Math.round(Math.max(size - n * tile, Math.min(0, size / 2 - focus * tile)));
   };
-  return { tile, ox: axis(fx, w, s.W), oy: axis(fy, h, s.H) };
+  // Op een gsm of tablet liggen de knoppen onderaan over het doolhof: dat stuk telt niet mee, zo verdwijnt je ridder nooit onder je duim.
+  const knoppen = matchMedia('(pointer: coarse)').matches ? Math.min(h * .2, 150 * dpr) : 0;
+  return { tile, ox: axis(fx, w, s.W), oy: axis(fy, h - knoppen, s.H) };
 }
 
 function pkFrame() {

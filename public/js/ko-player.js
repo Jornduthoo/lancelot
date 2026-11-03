@@ -126,7 +126,7 @@
       const me = s.me || {};
       const medals = ['🥇', '🥈', '🥉'];
       $('ko-end-medal').textContent = medals[me.rank - 1] || '🌀';
-      $('ko-end-title').textContent = me.rank === 1 ? 'Jij hebt de grootste kolk!' : `Plek ${me.rank} van ${me.players}`;
+      $('ko-end-title').textContent = me.rank === 1 && (me.score ?? 1) > 0 ? 'Jij hebt de grootste kolk!' : `Plek ${me.rank} van ${me.players}`;
       $('ko-end-score').textContent = `🌀 ${mText(me.r || 1)} breed`;
       const parts = [`${s.right} ${s.right === 1 ? 'vraag' : 'vragen'} juist`, `${me.eaten || 0} voorwerpen opgeslokt`, `${me.big || 0} ${me.big === 1 ? 'gebouw' : 'gebouwen'}`];
       if (s.duel) parts.push(`${me.slok || 0} ${me.slok === 1 ? 'kolk' : 'kolken'} opgeslokt`);
@@ -388,7 +388,9 @@
       g.cam.y += (hole[1] - g.cam.y) * k;
     }
     if (!g.cam) g.cam = { x: scene.L / 2, y: scene.L / 2 };
-    const cam = { x: g.cam.x, y: g.cam.y, S, w, h };
+    // Niet voorbij de rand van de stad kijken: anders zie je aan de kant een zwarte leegte.
+    const binnen = (v, half) => (half * 2 >= scene.L + 3 ? scene.L / 2 : Math.max(half - 1.5, Math.min(scene.L + 1.5 - half, v)));
+    const cam = { x: binnen(g.cam.x, w / 2 / S), y: binnen(g.cam.y, h / 2 / (S * W.TILT)), S, w, h };
     KoDraw.render(ctx, scene, cam, { roster: g.roster, t: sec, me: g.me.n, fs: Math.max(9, 13 * dpr), fmax: 20 * dpr });
     fx.update(dt);
     fx.draw(ctx);

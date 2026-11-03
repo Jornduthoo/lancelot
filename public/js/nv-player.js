@@ -118,7 +118,7 @@
       const me = s.me || {};
       const medals = ['🥇', '🥈', '🥉'];
       $('nv-end-medal').textContent = medals[me.rank - 1] || '⚡';
-      $('nv-end-title').textContent = me.rank === 1 ? 'Jij wint de Neonvlucht!' : `Plek ${me.rank} van ${me.players}`;
+      $('nv-end-title').textContent = me.rank === 1 && (me.score ?? 1) > 0 ? 'Jij wint de Neonvlucht!' : `Plek ${me.rank} van ${me.players}`;
       $('nv-end-score').textContent = `${me.score || 0} punten · ${me.dist || 0} meter`;
       $('nv-end-stats').textContent = `${s.right} ${s.right === 1 ? 'poort' : 'poorten'} juist · ${me.coins || 0} munten`;
       if (!$('nv-end').dataset.done && me.rank && me.rank <= 3) confetti(4000);
@@ -225,13 +225,13 @@
         buzz([30, 40, 30]);
         banner(`JUIST! ×${res.mult}`, `+${res.bonus * res.mult} · ⚡ turbo · 🛡️ schild`, 'gold');
         fx.burst(innerWidth / 2, innerHeight * .6, { n: 30, color: '#ffc94a', speed: 420, life: .8, size: 4 });
-        r.nextQ = r.z + base * 6.5;
+        r.nextQ = r.z + base * 6.5 * (res.gap || 1);
       } else {
         r.stumble = W.STUMBLE.s;
         sfx.bad();
         buzz(220);
         banner('FOUTE POORT', `Het juiste antwoord was ${'ABC'[res.right]}: ${gt.answers[res.right]}`, 'bad');
-        r.nextQ = r.z + base * (5.5 + (res.wait || 0) / 1000);
+        r.nextQ = r.z + base * (5.5 * (res.gap || 1) + (res.wait || 0) / 1000);
       }
       g.me && Object.assign(g.me, { mult: res.mult });
       hud();

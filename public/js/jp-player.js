@@ -148,7 +148,7 @@
       const me = s.me || {};
       const medals = ['🥇', '🥈', '🥉'];
       $('jp-end-medal').textContent = medals[me.rank - 1] || '🚀';
-      $('jp-end-title').textContent = me.rank === 1 ? 'Jij bent de snelste Raketridder!' : `Plek ${me.rank} van ${me.players}`;
+      $('jp-end-title').textContent = me.rank === 1 && (me.score ?? 1) > 0 ? 'Jij bent de snelste Raketridder!' : `Plek ${me.rank} van ${me.players}`;
       $('jp-end-score').textContent = `${me.score || 0} punten`;
       $('jp-end-stats').textContent = `${me.stage || 0} ${me.stage === 1 ? 'vlag' : 'vlaggen'} · ${me.cells || 0} energiecellen · ${s.right} ${s.right === 1 ? 'vraag' : 'vragen'} juist`;
       if (!$('jp-end').dataset.done && me.rank && me.rank <= 3) confetti(4000);
@@ -388,7 +388,8 @@
 
     // Camera en tekenen
     const fit = AK.fit(canvas, 1.5);
-    const S = Math.min(fit.h / 14.5, fit.w / 12);
+    // Gsm rechtop: dichter op je ridder, anders is hij een klein figuurtje in een grote wereld.
+    const S = Math.min(fit.h / 14.5, fit.w / (fit.w < fit.h ? 8.5 : 12));
     view = { w: fit.w, h: fit.h, S, dpr: fit.dpr };
     const viewH = fit.h / S, viewW = fit.w / S;
     const wantX = pl.x + pl.face * Math.min(4, viewW * .15) + pl.vx * .25;
@@ -410,7 +411,7 @@
     }
     JpDraw.render(ctx, fit.w, fit.h, {
       seed: g.state.seed, t: time, cx: g.cam.x, cy: g.cam.y, S, ghosts, hide: g.hide, passed: g.stage,
-      me: pl.dead > 0 ? null : { x: pl.x, y: pl.y, face: pl.face, jet: pl.jet, turbo: pl.turbo > 0, color: g.color, blink: pl.safe > 0, rim: true },
+      me: pl.dead > 0 ? null : { x: pl.x, y: pl.y, face: pl.face, jet: pl.jet, turbo: pl.turbo > 0, color: g.color, blink: pl.safe > 0, rim: true, fuel: pl.turbo > 0 ? 1 : pl.fuel },
     });
     fx.update(dt);
     ctx.save();

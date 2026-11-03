@@ -152,7 +152,7 @@
       const me = s.me || {};
       const medals = ['🥇', '🥈', '🥉'];
       $('sz-end-medal').textContent = medals[me.rank - 1] || '⚔️';
-      $('sz-end-title').textContent = me.rank === 1 ? 'Jij bent de beste zwaardmeester!' : `Plek ${me.rank} van ${me.players}`;
+      $('sz-end-title').textContent = me.rank === 1 && (me.score ?? 1) > 0 ? 'Jij bent de beste zwaardmeester!' : `Plek ${me.rank} van ${me.players}`;
       $('sz-end-score').textContent = `${me.score || 0} punten`;
       $('sz-end-stats').textContent = `${me.stage || 0} ${me.stage === 1 ? 'runenpaal' : 'runenpalen'} · ${me.cells || 0} gespleten · ${s.right} ${s.right === 1 ? 'vraag' : 'vragen'} juist`;
       if (!$('sz-end').dataset.done && me.rank && me.rank <= 3) confetti(4000);
@@ -481,7 +481,8 @@
 
     // Camera en tekenen
     const fit = AK.fit(canvas, 1.5);
-    const S = Math.min(fit.h / 11.5, fit.w / 12);
+    // Gsm rechtop: dichter op je ridder, anders is hij een klein figuurtje in een grote wereld.
+    const S = Math.min(fit.h / 11.5, fit.w / (fit.w < fit.h ? 8 : 12));
     view = { w: fit.w, h: fit.h, S, dpr: fit.dpr };
     const viewH = fit.h / S, viewW = fit.w / S;
     const wantX = pl.x + Math.min(3.5, viewW * .18);

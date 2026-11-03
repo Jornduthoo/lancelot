@@ -200,7 +200,7 @@
       const me = s.me || {};
       const medals = ['🥇', '🥈', '🥉'];
       $('tm-end-medal').textContent = medals[me.rank - 1] || '🛡️';
-      $('tm-end-title').textContent = me.rank === 1 ? 'Jij bent de beste Tuimelridder!' : `Plek ${me.rank} van ${me.players}`;
+      $('tm-end-title').textContent = me.rank === 1 && (me.score ?? 1) > 0 ? 'Jij bent de beste Tuimelridder!' : `Plek ${me.rank} van ${me.players}`;
       $('tm-end-score').textContent = `${me.score || 0} punten`;
       $('tm-end-stats').textContent = `${me.stage || 0} ${me.stage === 1 ? 'vlag' : 'vlaggen'} · ⭐ ${me.stars || 0} · ${s.right} ${s.right === 1 ? 'vraag' : 'vragen'} juist`;
       if (!$('tm-end').dataset.done && me.rank && me.rank <= 3) confetti(4000);

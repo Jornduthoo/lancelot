@@ -81,8 +81,8 @@ button.link { background: none; box-shadow: none; clip-path: none; color: var(--
 .pf-keuze.on b { color: #ffd98a; }
 .pf-keuze:disabled { opacity: 1; cursor: default; }
 .pf-gaten { margin: 0; line-height: 2.2; }
-.pf-kort { display: flex; align-items: center; gap: 8px; margin: 4px 0 0; }
-.pf-kort input { flex: 0 1 240px; min-width: 0; width: auto; }
+p.pf-kort { display: flex; align-items: center; gap: 8px; margin: 4px 0 0; }
+p.pf-kort input { flex: 0 1 240px; min-width: 0; width: auto; }
 .pf-eenheid { flex: none; font-weight: 700; color: #2a3350; }
 .pf-paper .pf-werk { display: flex; flex-direction: column; gap: 4px; font-size: .92rem; color: #4a4030; }
 .pf-paper textarea.ob-field, .pf-paper input.ob-field { font-family: inherit; }
@@ -103,7 +103,7 @@ button.link { background: none; box-shadow: none; clip-path: none; color: var(--
 .pf-zone { position: absolute; aspect-ratio: 1; transform: translate(-50%, -50%); border-radius: 50%; border: 3px solid #1a9e6e; background: rgba(46, 230, 166, .25); }
 .pf-kaart.edit .pf-zone { cursor: pointer; }
 .pf-pin { position: absolute; width: 26px; height: 26px; transform: translate(-50%, -50%); border-radius: 50%; border: 3px solid #fff; background: #d6334f; box-shadow: 0 0 0 2px #d6334f, 0 2px 8px rgba(0, 0, 0, .5); pointer-events: none; }
-.pf-papier { margin: 4px 0 0; padding: 10px 14px; background: #efe6cf; border-left: 4px solid #c49a3a; }
+p.pf-papier { margin: 4px 0 0; padding: 10px 14px; background: #efe6cf; border-left: 4px solid #c49a3a; }
 .pf-sleutel { margin: 6px 0 0; color: #c8102e; font-weight: 700; font-size: .92rem; }
 /* Smal papier (de voorbeeldkolom in de editor, een gsm): de bron boven de vragen, alles wat compacter. */
 .pf-paper { container-type: inline-size; }

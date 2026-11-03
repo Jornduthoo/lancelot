@@ -56,6 +56,33 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', themaKiezer);
   else themaKiezer();
 
+  // ---------- Taal ----------
+  // Vult een leeg <div id="taal-kiezer"> met de talen (alleen op het leerkrachtenscherm). De taal geldt voor alle schermen.
+  const TALEN = [{ id: 'nl', naam: 'Nederlands', vlag: '<svg viewBox="0 0 3 2"><path fill="#000" d="M0 0h1v2H0z"/><path fill="#fdda24" d="M1 0h1v2H1z"/><path fill="#ef3340" d="M2 0h1v2H2z"/></svg>' }, { id: 'en', naam: 'English', vlag: '<svg viewBox="0 0 60 30"><clipPath id="vlag-uk"><path d="M30,15h30v15zv15h-30zh-30v-15zv-15h30z"/></clipPath><path d="M0,0v30h60v-30z" fill="#012169"/><path d="M0,0L60,30M60,0L0,30" stroke="#fff" stroke-width="6"/><path d="M0,0L60,30M60,0L0,30" clip-path="url(#vlag-uk)" stroke="#c8102e" stroke-width="4"/><path d="M30,0v30M0,15h60" stroke="#fff" stroke-width="10"/><path d="M30,0v30M0,15h60" stroke="#c8102e" stroke-width="6"/></svg>' }];
+  const taalNu = window.LANCELOT_TAAL || 'nl';
+  function taalKiezer() {
+    const vak = document.getElementById('taal-kiezer');
+    if (!vak || vak.dataset.klaar) return;
+    vak.dataset.klaar = '1';
+    vak.classList.add('panel', 'form');
+    vak.innerHTML = '<h3>Taal · Language</h3><p class="muted small">De taal van LANcelot, voor het bord en voor de schermen van de leerlingen. · The language of LANcelot, for the board and for the students\' screens.</p><div class="taal-raster" data-geen-vertaling></div>';
+    const raster = vak.querySelector('.taal-raster');
+    for (const t of TALEN) {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'secondary taal-keuze';
+      b.setAttribute('aria-pressed', String(t.id === taalNu));
+      b.innerHTML = `<span class="taal-vlag" aria-hidden="true">${t.vlag}</span><strong>${t.naam}</strong>`;
+      b.addEventListener('click', () => {
+        if (t.id === taalNu || !window.Ui.hostSocket) return;
+        window.Ui.hostSocket.emit('taal-zet', t.id);
+      });
+      raster.appendChild(b);
+    }
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', taalKiezer);
+  else taalKiezer();
+
   // ---------- Pauzeknop ----------
   // De leerkracht zet de klas stil. Dan staat op dit scherm de klok stil: Date.now, performance.now,
   // requestAnimationFrame en de timers wachten tot de pauze voorbij is. Zo bevriest elk spel vanzelf,
@@ -79,7 +106,11 @@
     const geluid = [];
     let volgnr = 0;
 
-    Date.now = () => echt.now() - stil - (sinds ? echt.perf() - sinds : 0);
+    // De klokdatum (Date.now) volgt de server. Bij de pauzeknop staat ook de server stil; bij de Vragenstorm
+    // niet: dan loopt de datum gewoon door (datumMee) en staan alleen beelden, timers en spelklok hier stil.
+    let stilDatum = 0;
+    let datumMee = false;
+    Date.now = () => echt.now() - stilDatum - (sinds && !datumMee ? echt.perf() - sinds : 0);
     performance.now = () => (sinds || echt.perf()) - stil;
 
     // Beelden: een frame dat tijdens de pauze valt, wacht tot erna.
@@ -147,7 +178,7 @@
     });
 
     window.addEventListener('keydown', e => {
-      if (sinds && !(scherm && scherm.contains(e.target))) { e.stopImmediatePropagation(); e.preventDefault(); }
+      if (sinds && !(binnen && binnen.contains(e.target))) { e.stopImmediatePropagation(); e.preventDefault(); }
     }, true);
 
     function bouw() {
@@ -178,6 +209,41 @@
       document.body.appendChild(scherm);
     }
 
+    // De klok op dit scherm stilzetten of weer laten lopen. binnen: het venster dat toetsen wel mag krijgen.
+    let binnen = null;
+    let storm = false; // de Vragenstorm zet alleen dit scherm stil, de pauzeknop de hele klas
+    // Een stuk stilstand afsluiten en meteen een nieuw beginnen (de pauzeknop tijdens een Vragenstorm of omgekeerd).
+    function wissel(mee) {
+      if (!sinds || datumMee === mee) return;
+      const d = echt.perf() - sinds;
+      stil += d;
+      if (!datumMee) stilDatum += d;
+      sinds = echt.perf();
+      datumMee = mee;
+    }
+    function vries(aan, venster, mee = false) {
+      if (aan) {
+        binnen = venster;
+        if (sinds) return wissel(mee);
+        datumMee = mee;
+        sinds = echt.perf();
+        for (const a of geluid) if (a.state === 'running') a.suspend();
+        if (document.activeElement && !(venster && venster.contains(document.activeElement))) document.activeElement.blur();
+        if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+      } else if (sinds) {
+        const d = echt.perf() - sinds;
+        stil += d;
+        if (!datumMee) stilDatum += d;
+        sinds = 0;
+        datumMee = false;
+        for (const a of geluid) if (a.state === 'suspended') a.resume();
+        for (const id of [...frames.keys()]) if (!frames.get(id).echt) beeld(id);
+        const lijst = [...wacht];
+        wacht.clear();
+        for (const id of lijst) if (timers.has(id)) plan(id);
+      }
+    }
+
     function zet(st) {
       const aan = !!(st && st.aan);
       const tekst = (st && st.tekst) || '';
@@ -185,22 +251,12 @@
         if (!scherm) bouw();
         scherm.querySelector('.pauze-tekst').textContent = tekst || (host ? '' : 'Kijk naar de leerkracht.');
         scherm.classList.add('aan');
-        if (!sinds) {
-          sinds = echt.perf();
-          for (const a of geluid) if (a.state === 'running') a.suspend();
-          if (document.activeElement && !scherm.contains(document.activeElement)) document.activeElement.blur();
-          if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
-        }
-      } else if (sinds) {
-        stil += echt.perf() - sinds;
-        sinds = 0;
+        vries(true, scherm);
+      } else if (scherm && scherm.classList.contains('aan')) {
         scherm.classList.remove('aan');
         if (tekstVeld) tekstVeld.value = '';
-        for (const a of geluid) if (a.state === 'suspended') a.resume();
-        for (const id of [...frames.keys()]) if (!frames.get(id).echt) beeld(id);
-        const lijst = [...wacht];
-        wacht.clear();
-        for (const id of lijst) if (timers.has(id)) plan(id);
+        if (storm) { binnen = storm; wissel(true); }
+        else vries(false);
       }
     }
 
@@ -215,6 +271,13 @@
       },
       // Voor de knop op het bord.
       start: () => stuur(true, ''),
+      // Vragenstorm: alleen dit scherm stil, met het vragenvenster erboven (de pauzeknop gaat voor).
+      storm(aan, venster) {
+        storm = aan ? venster : false;
+        const pauzeAan = scherm && scherm.classList.contains('aan');
+        if (aan) vries(true, pauzeAan ? scherm : venster, !pauzeAan);
+        else if (!(scherm && scherm.classList.contains('aan'))) vries(false);
+      },
       get aan() { return !!sinds; },
     };
   })();
@@ -274,6 +337,16 @@
     });
   }
 
+  function vragenstorm(socket, st) {
+    window.Ui.stormSocket = socket;
+    if (window.Vragenstorm) return window.Vragenstorm(st);
+    window.Ui.stormStart = st;
+    if (document.querySelector('script[src="/js/vragenstorm.js"]')) return;
+    const s = document.createElement('script');
+    s.src = '/js/vragenstorm.js';
+    document.body.appendChild(s);
+  }
+
   // De knop "Namen" op elk leerkrachtenscherm (niet op de afdrukbladen).
   function namenKnop(socket) {
     if (window.Ui.hostSocket || /print|fiche/.test(location.pathname)) return;
@@ -301,12 +374,18 @@
       Pauze.volg(socket, isHost);
       socket.on('uitleg', u => u && toonUitleg(u));
       socket.on('thema', zetThema);
+      // Een andere taal gekozen: dit scherm opnieuw laden, dan komt het woordenboek mee.
+      socket.on('taal', id => { if (id && id !== taalNu) location.reload(); });
       if (isHost) { namenKnop(socket); schermInfo(socket); }
-      // De leerkracht klikte deze naam weg (buiten een spel): opnieuw kiezen wie je bent.
-      else socket.on('naam-weg', () => {
-        try { localStorage.removeItem('lancelot-name'); } catch { /* geen opslag */ }
-        location.reload();
-      });
+      // Vragenstorm: de leerkracht drukt op het bord, en elke leerling in het spel krijgt meteen een paar vragen.
+      else {
+        socket.on('storm', st => vragenstorm(socket, st));
+        // De leerkracht klikte deze naam weg (buiten een spel): opnieuw kiezen wie je bent.
+        socket.on('naam-weg', () => {
+          try { localStorage.removeItem('lancelot-name'); } catch { /* geen opslag */ }
+          location.reload();
+        });
+      }
       return socket;
     }, io);
   }
@@ -325,6 +404,7 @@
     uitleg.children[1].textContent = tekst;
     uitleg.children[2].textContent = juist ? `Juist antwoord: ${juist}` : '';
     if (!uitleg.isConnected) document.body.appendChild(uitleg);
+    uitleg.style.top = onderHud() + 'px';
     uitleg.classList.remove('hidden');
     // Opnieuw laten inschuiven, ook als er al een uitleg stond.
     uitleg.style.animation = 'none';
@@ -332,6 +412,17 @@
     uitleg.style.animation = '';
     clearTimeout(uitlegWeg);
     uitlegWeg = setTimeout(() => uitleg.classList.add('hidden'), Math.min(11000, 4500 + 55 * tekst.length));
+  }
+
+  // In een spel staat bovenaan de balk met score, klok of harten: de uitleg komt daar net onder, niet erover.
+  function onderHud() {
+    let top = 12;
+    for (const h of document.querySelectorAll('.ls-hud, .ak-hud, .sj-top, .du-versus, [class$="-hud"]')) {
+      if (!h.getClientRects().length) continue;
+      const r = h.getBoundingClientRect();
+      if (r.height && r.top < 140 && r.bottom < innerHeight / 3) top = Math.max(top, Math.round(r.bottom) + 8);
+    }
+    return top;
   }
 
   // ---------- Getal typen ----------
@@ -513,9 +604,28 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', snelmenu);
   else snelmenu();
 
+  // ---------- Geschilderd decor ----------
+  // Elk rijk heeft zijn eigen geschilderde zaal achter de schermen (style.css, html[data-achter]).
+  // Spelpagina's hebben hun eigen decor, dus daar niets. Leerlingenschermen krijgen de sterrenpoort.
+  function zetAchter() {
+    const pad = location.pathname.replace(/^\/+/, '');
+    const b = document.body;
+    let a = '';
+    if (b && (b.classList.contains('player') || b.classList.contains('pf-leerling'))) a = 'leerling';
+    else if (pad === 'host') a = location.hash.slice(1) || 'start';
+    else for (const [r, paden] of Object.entries(PAD_RIJK)) if (paden.includes(pad)) a = r === 'geen' ? 'start' : r;
+    if (a) document.documentElement.dataset.achter = a;
+    else delete document.documentElement.dataset.achter;
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', zetAchter);
+  else zetAchter();
+  addEventListener('hashchange', zetAchter);
+
   // Tekst naar het klembord, meteen bij de klik (vóór een window.open: daarna heeft de pagina de focus niet meer).
   // Werkt ook op gewone http via het schoolnetwerk, waar navigator.clipboard vaak ontbreekt.
   function kopieer(tekst) {
+    // Een AI-prompt krijgt in een andere taal dan Nederlands de taalopdracht vooraan (zie i18n.js).
+    if (window.I18n && I18n.aiPrompt) tekst = I18n.aiPrompt(tekst);
     const actief = document.activeElement;
     const t = document.createElement('textarea');
     t.value = tekst;
@@ -548,8 +658,10 @@
     // Een klein icoon uit style.css (.ic-…) voor in een knop.
     ic: naam => `<i class="ic ic-${naam}" aria-hidden="true"></i>`,
     // Het snelmenu opnieuw laten oplichten als een pagina zelf het adres verandert (host.js, rijk openen).
-    snelMarkeer: () => snelMarkeer(),
+    snelMarkeer: () => { snelMarkeer(); zetAchter(); },
     pauze: Pauze,
+    // De echte klok en timers, die doorlopen als het scherm stilstaat (Vragenstorm).
+    echt,
     themas: THEMAS,
     get thema() { return thema; },
     // De AI die de leerkracht bij Instellingen koos (Gemini, Claude of ChatGPT), voor knoppen en teksten.

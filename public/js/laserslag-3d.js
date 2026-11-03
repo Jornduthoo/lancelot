@@ -26,27 +26,31 @@ const Slag3D = (() => {
 
   // Een textuur één keer tekenen. cren: hoe hoog de kantelen bovenaan zijn; open[u] zegt of kolom u daar een gat heeft,
   // zodat de mist verre muren donkerder maakt zonder de hemel tussen de kantelen mee te kleuren.
+  // Getekend op dubbele grootte (TS): scherpere stenen als je vlak voor een muur staat. Alles erna rekent in pixels van het canvas.
+  const TS = 2;
   function paint(w, h, fn, cren = 0) {
     const c = document.createElement('canvas');
-    c.width = w;
-    c.height = h;
+    c.width = w * TS;
+    c.height = h * TS;
     const g = c.getContext('2d');
+    g.scale(TS, TS);
     fn(g, w, h);
-    c.cren = cren;
-    c.open = new Uint8Array(w);
+    c.cren = cren * TS;
+    c.open = new Uint8Array(c.width);
     if (cren) {
-      const row = g.getImageData(0, Math.floor(cren / 2), w, 1).data;
-      for (let u = 0; u < w; u++) c.open[u] = row[u * 4 + 3] < 128 ? 1 : 0;
+      const row = g.getImageData(0, Math.floor(c.cren / 2), c.width, 1).data;
+      for (let u = 0; u < c.width; u++) c.open[u] = row[u * 4 + 3] < 128 ? 1 : 0;
     }
     return c;
   }
 
   // Gekapte stenen: elk blok een eigen tint, voegen, een lichte bovenrand, hier en daar een barst of wat mos.
   function blocks(g, x, y, w, h, bw, bh, base, r, moss = 0) {
-    if (SlagDraw.ART.muur) {
+    const art = SlagDraw.ART['muur-3d'] || SlagDraw.ART.muur;
+    if (art) {
       // Geschilderde steen, licht gekleurd naar dit stuk muur.
-      const pat = g.createPattern(SlagDraw.ART.muur, 'repeat');
-      const k = bw / 52;
+      const pat = g.createPattern(art, 'repeat');
+      const k = bw / (art === SlagDraw.ART.muur ? 52 : 128);
       pat.setTransform(new DOMMatrix([k, 0, 0, k, x, y]));
       g.fillStyle = pat;
       g.fillRect(x, y, w, h);
@@ -561,7 +565,7 @@ const Slag3D = (() => {
   // De vloer van bovenaf als pixels, om in 3D uit te lezen (grof genoeg voor het lage beeld).
   let floor = null;
   function floorData() {
-    const img = SlagDraw.arenaImage({ walls: false, k: .5 });
+    const img = SlagDraw.arenaImage({ walls: false, k: Math.min(1, Math.sqrt(3.2e6 / (Arena.W * Arena.H))) });
     if (floor && floor.key === img.key) return floor;
     const g = img.c.getContext('2d');
     floor = { key: img.key, k: img.k, w: img.c.width, h: img.c.height, px: new Uint32Array(g.getImageData(0, 0, img.c.width, img.c.height).data.buffer) };
@@ -691,7 +695,14 @@ const Slag3D = (() => {
     return { x, y };
   }
 
+  // Zacht vergroten kost wat: haalt een toestel minder dan ~22 beelden per seconde, dan scherpe pixels zoals vroeger.
+  let zacht = true, lastT = 0, avgDt = 16;
   function render(ctx, w, h, scene) {
+    const now = performance.now();
+    if (lastT && now - lastT < 250) avgDt = avgDt * .95 + (now - lastT) * .05;
+    lastT = now;
+    if (avgDt > 45) zacht = false;
+    else if (avgDt < 30) zacht = true;
     const resW = Math.max(240, Math.min(520, Math.round(w / 2.4)));
     const resH = Math.round(resW * h / w);
     if (low.width !== resW || low.height !== resH) {
@@ -784,6 +795,8 @@ const Slag3D = (() => {
 
     // Muren, kolom per kolom: eerst de burchtmuur errond, dan een muur binnenin als die dichterbij staat.
     const L = layout();
+    // Muren zacht uitgerekt: dichtbij geen grote blokken.
+    g.imageSmoothingEnabled = zacht;
     const yAt = (z, perp) => horizon + ((EYE - z) * proj) / perp;
     // cut: waar een muur ervoor begint (onder de kantelen); wat daaronder zit, tekenen we niet voor niets.
     const column = (x, hit, ra, dx, dy, cut = Infinity) => {
@@ -796,8 +809,12 @@ const Slag3D = (() => {
       const face = hit.side ? (dy > 0 ? 'N' : 'S') : (dx > 0 ? 'W' : 'E');
       // Op de smalle zijkant van wat uit de muur springt: gewone steen.
       const tw = r.tex.width;
-      const tu = !r.main || r.main === face ? Math.floor((((hit.u + (r.uo || 0)) % tw) + tw) % tw) : r.sideU + (Math.floor(hit.u) & 7);
-      g.drawImage(r.tex, tu, 0, 1, r.tex.height * (end - top) / (bottom - top), x, top, 1, end - top);
+      const along = !r.main || r.main === face;
+      const tf = along ? ((((hit.u + (r.uo || 0)) * TS) % tw) + tw) % tw : r.sideU * TS + (Math.floor(hit.u * TS) & (8 * TS - 1));
+      const tu = Math.floor(tf);
+      // Tussen twee texels in (vlak voor een muur): zacht overvloeien in plaats van brede blokken.
+      const sx = along && zacht ? Math.min(tw - 1, Math.max(0, tf - .5)) : tu;
+      g.drawImage(r.tex, sx, 0, 1, r.tex.height * (end - top) / (bottom - top), x, top, 1, end - top);
       if (r.deco.length) {
         for (const d of r.deco) {
           if (d.face !== face || hit.u < d.u0 || hit.u >= d.u1) continue;
@@ -947,7 +964,8 @@ const Slag3D = (() => {
       }
     }
 
-    ctx.imageSmoothingEnabled = false;
+    // Zacht vergroot: geschilderd, geen blokjes.
+    ctx.imageSmoothingEnabled = zacht;
     ctx.drawImage(low, 0, 0, w, h);
     ctx.imageSmoothingEnabled = true;
     const sxF = w / resW, syF = h / resH;

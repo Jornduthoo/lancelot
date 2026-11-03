@@ -28,7 +28,7 @@ const MOVES = {
 const WEAK_MS = 8000;
 
 // De eindbaas zoals de leerkracht hem samenstelt: een ridder (zoals die van de leerlingen) met extra's.
-const EXTRAS = { harnas: 2, kroon: 2, mantel: 2, ogen: 2, troon: 2, ogenkleur: 4, aura: 4 };
+const EXTRAS = { reus: 2, harnas: 2, kroon: 2, mantel: 2, ogen: 2, troon: 2, ogenkleur: 4, aura: 4 };
 function cleanBoss(boss) {
   if (!boss || typeof boss !== 'object') return null;
   const av = avatars.clean(boss.av || {});

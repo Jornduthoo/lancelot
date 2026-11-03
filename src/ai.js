@@ -3,6 +3,7 @@
 const settings = require('./settings');
 const quizzes = require('./quizzes');
 const gemini = require('./gemini');
+const taal = require('./taal');
 
 const MAX_FILE_BYTES = 20 * 1024 * 1024;
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
@@ -88,6 +89,7 @@ async function openai(prompt, files, key, model) {
 // max: hoe lang de prompt mag zijn (een toets bijsturen stuurt de hele toets mee).
 async function generateQuiz(prompt, files = [], parse = quizzes.parseAiText, { max = 20000 } = {}) {
   const { dienst, naam, key, model } = settings.actief();
+  prompt = taal.aiPrompt(prompt);
   if (dienst === 'gemini') return gemini.generateQuiz(prompt, files, parse, { max });
   if (!key) throw new Error(`Er is nog geen ${naam}-sleutel ingesteld. Kies Instellingen op het startscherm.`);
   if (typeof prompt !== 'string' || !prompt.trim()) throw new Error('De prompt is leeg.');

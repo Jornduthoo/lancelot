@@ -204,7 +204,7 @@ const VrScene = (() => {
     const t = now / 1000;
     const w = Math.round(innerWidth * dpr), h = Math.round(innerHeight * dpr);
     if (back.width !== w || back.height !== h) { back.width = w; back.height = h; }
-    if (!art || art.c.width !== w || art.c.height !== h) art = VrArt.hall(w, h);
+    if (!art || art.c.width !== w || art.c.height !== h || art.ver !== VrArt.ver()) art = VrArt.hall(w, h);
     bctx.drawImage(art.c, 0, 0);
     art.torches.forEach(([x, y, u], i) => VrArt.torch(bctx, x, y, u, t, i * 2.7));
     // Een betovering: paarse bliksem en een donkere flits.

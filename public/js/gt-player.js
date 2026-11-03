@@ -105,6 +105,14 @@
       ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.clearRect(0, 0, 120, 120);
       const cls = b.dataset.cls;
+      const kaart = GtDraw.ART[`kaart-${cls}`];
+      if (kaart) {
+        // Geschilderd portret dat zacht ademt.
+        const k = 116 / Math.max(kaart.width, kaart.height) * (1 + Math.sin(t * 2 + cls.length) * .02);
+        const w = kaart.width * k, h = kaart.height * k;
+        ctx.drawImage(kaart, 60 - w / 2, 118 - h, w, h);
+        continue;
+      }
       AK.knight(ctx, 60, 64, -Math.PI / 2 + Math.sin(t * 1.5 + cls.length) * .4, { r: 30, color: CLASSES[cls].color, kind: cls, t, moving: true });
     }
   }

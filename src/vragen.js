@@ -7,6 +7,8 @@ const path = require('path');
 const logboek = require('./logboek');
 const results = require('./results');
 const { factor } = require('./tempo');
+
+const REEKS_MS = 30000; // een reeks vragen hoort bij één vlag; wie langer wegblijft, begint een nieuwe reeks
 const quizzes = require('./quizzes');
 
 const WRONG_WAIT_MS = 3000;
@@ -18,6 +20,7 @@ class Vragen {
     this.tempo = tempo;
     this.log = [];
     this.lastFlush = Date.now();
+    this.reeks = 1; // spellen met één vraag per vlag of poort zetten dit op reeks(tempo): zoveel vragen na elkaar
   }
 
   // Na een fout antwoord: bij rustig tempo iets langer wachten, bij intens iets korter.
@@ -40,7 +43,8 @@ class Vragen {
     return { question: q.question, answers: q.answers };
   }
 
-  // Geeft { correct, right, wait } terug, of null als er geen vraag openstond.
+  // Geeft { correct, right, wait, more } terug, of null als er geen vraag openstond.
+  // more: bij "Veel vragen" volgt er meteen nog een vraag van dezelfde reeks.
   answer(p, choice) {
     if (p.question === null || p.question === undefined) return null;
     const q = this.quiz.questions[p.question];
@@ -61,8 +65,16 @@ class Vragen {
       p.order.splice(Math.min(2, p.order.length), 0, p.question);
     }
     p.question = null;
+    let more = false;
+    if (this.reeks > 1) {
+      const now = Date.now();
+      p.inReeks = (now - (p.reeksAt || 0) < REEKS_MS ? p.inReeks || 0 : 0) + 1;
+      p.reeksAt = now;
+      more = p.inReeks < this.reeks;
+      if (!more) p.inReeks = 0;
+    }
     if (Date.now() - this.lastFlush > 5000) this.flush();
-    return { correct, right: q.correct, wait };
+    return { correct, right: q.correct, wait, more };
   }
 
   flush() {

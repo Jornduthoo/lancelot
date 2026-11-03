@@ -137,7 +137,8 @@ function rtBg() {
   const dpr = Math.min(1.5, window.devicePixelRatio || 1);
   const w = Math.round(innerWidth * dpr);
   const h = Math.round(innerHeight * dpr);
-  if (c.width === w && c.height === h) return;
+  if (c.width === w && c.height === h && c._ver === VrArt.ver()) return;
+  c._ver = VrArt.ver();
   c.width = w;
   c.height = h;
   const g = c.getContext('2d');
@@ -149,3 +150,7 @@ function rtBg() {
   Glow.vignette(g, w, h, .7);
 }
 window.addEventListener('resize', () => { if (document.body.dataset.rt === '1') rtBg(); });
+
+// De geschilderde zaal is binnen: de achtergrond opnieuw.
+// vr-art.js staat op de leerlingpagina pas na dit script: daarom wachten tot alles geladen is.
+addEventListener('DOMContentLoaded', () => VrArt.opKlaar(() => { const c = $('rt-bg'); if (c && c.width) rtBg(); }));

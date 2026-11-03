@@ -30,7 +30,7 @@
   const OPEN_MS = 3600; // zo lang duurt het openen van een deur (de volgende telt al mee)
   const FIXED_MIN = .45; // runenslot en laserhek nemen ongeveer zoveel minuten, los van de klasgrootte
   const WEIGHT = { sleutel: 1, lier: 1, bewaker: 1.5 };
-  const tempoScale = { rustig: .8, normaal: 1, intens: 1.25 };
+  const tempoScale = { rustig: .8, normaal: 1, intens: 1.25, veel: 1.5 };
 
   // Hoeveel juiste antwoorden een deur vraagt, berekend op het moment dat ze aan de beurt is (met de spelers van dat moment).
   // Een doorsnee klas haalt zo de uitgang met nog wat tijd over; wie traag is, raakt er niet helemaal uit.
