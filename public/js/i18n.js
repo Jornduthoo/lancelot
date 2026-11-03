@@ -8,7 +8,7 @@
   const W = window.LANCELOT_WOORDEN;
   if (!W || window.I18n) return;
   const taal = window.LANCELOT_TAAL || 'en';
-  const LOCALE = { en: 'en-GB' }[taal] || taal;
+  const LOCALE = { en: 'en-GB', fr: 'fr-FR', es: 'es-ES' }[taal] || taal;
 
   const exact = new Map();
   const patronen = []; // { re, uit }
@@ -185,6 +185,8 @@
   // zodat de chatbot alles in deze taal maakt. Dezelfde tekst staat in src/taal.js (AI_TAAL) voor de server.
   const AI_TAAL = {
     en: 'LANGUAGE: The teacher uses LANcelot in English. Write everything you create (titles, questions, answers, explanations, words, meanings, sentences, feedback) in English with British spelling, even where the instructions below ask for Dutch or Belgian Dutch. Keep JSON keys and fixed values (such as page, schildknaap, ridder) exactly as written below.\n\n',
+    fr: 'LANGUE : LANcelot est utilisé en français. Write everything you create (titles, questions, answers, explanations, words, meanings, sentences, feedback) in French, even where the instructions below ask for Dutch or Belgian Dutch. Keep JSON keys and fixed values (such as page, schildknaap, ridder) exactly as written below.\n\n',
+    es: 'IDIOMA: El docente usa LANcelot en español. Write everything you create (titles, questions, answers, explanations, words, meanings, sentences, feedback) in Spanish (Spain), even where the instructions below ask for Dutch or Belgian Dutch. Keep JSON keys and fixed values (such as page, schildknaap, ridder) exactly as written below.\n\n',
   };
   function aiPrompt(s) {
     const voor = AI_TAAL[taal];

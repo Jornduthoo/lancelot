@@ -638,7 +638,7 @@ class Hofschilder {
         let title = 'Woorden van de week';
         if (items.length < 3) {
           // Nog geen eigen woorden van de week: de ingebouwde woordenschat van het Runenraadsel.
-          const { PAGE, SCHILDKNAAP, RIDDER } = require(require('./taal').huidig() === 'en' ? './runen-woorden-en' : './runen-woorden');
+          const { PAGE, SCHILDKNAAP, RIDDER } = require('./taal').inhoud('runen-woorden');
           items = [...PAGE, ...SCHILDKNAAP, ...RIDDER].map(([w, b]) => ({ w, uitleg: b, doel: '' }));
           title = 'Woordenschat van het Runenraadsel';
         }
