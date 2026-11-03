@@ -63,3 +63,9 @@ test('i18n.js vertaalt vaste tekst en patronen', () => {
   ctx.CanvasRenderingContext2D.prototype.fillText.call({}, 'Ronde 1 van 2');
   assert.deepEqual(geschreven, ['Round 1 of 2']);
 });
+
+test('de taalopdracht voor AI-prompts is op server en scherm dezelfde', () => {
+  const { AI_TAAL } = require('../src/taal');
+  const bron = fs.readFileSync(path.join(ROOT, 'public/js/i18n.js'), 'utf8');
+  for (const [id, tekst] of Object.entries(AI_TAAL)) assert.ok(bron.includes(`${id}: ${JSON.stringify(tekst).replace(/"/g, "'")}`), id);
+});

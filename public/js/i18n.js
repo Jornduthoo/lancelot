@@ -171,5 +171,19 @@
     }
   }
 
-  window.I18n = { taal, locale: LOCALE, t };
+  // ---------- AI-prompts ----------
+  // De prompts zijn Nederlands; een prompt die de leerkracht kopieert (Ui.kopieer) krijgt deze opdracht vooraan,
+  // zodat de chatbot alles in deze taal maakt. Dezelfde tekst staat in src/taal.js (AI_TAAL) voor de server.
+  const AI_TAAL = {
+    en: 'LANGUAGE: The teacher uses LANcelot in English. Write everything you create (titles, questions, answers, explanations, words, meanings, sentences, feedback) in English with British spelling, even where the instructions below ask for Dutch or Belgian Dutch. Keep JSON keys and fixed values (such as page, schildknaap, ridder) exactly as written below.\n\n',
+  };
+  function aiPrompt(s) {
+    const voor = AI_TAAL[taal];
+    if (!voor || typeof s !== 'string' || s.length < 150 || s.startsWith(voor)) return s;
+    // Alleen echte prompts: lange tekst die over de leerkracht, leerlingen of JSON gaat.
+    if (!/\b(leerkracht|leerlingen|leerjaar|JSON|codeblok)\b/i.test(s)) return s;
+    return voor + s;
+  }
+
+  window.I18n = { taal, locale: LOCALE, t, aiPrompt };
 })();

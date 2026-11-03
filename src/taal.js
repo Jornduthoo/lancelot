@@ -18,6 +18,18 @@ function huidig() {
   const t = settings.read().taal;
   return TALEN.some(x => x.id === t) ? t : 'nl';
 }
+// De AI-prompts zijn in het Nederlands geschreven. In een andere taal zetten we er een korte opdracht voor,
+// zodat alles wat de AI maakt (vragen, antwoorden, uitleg, woorden) in die taal komt. De JSON-sleutels blijven.
+// Dezelfde tekst staat in public/js/i18n.js voor prompts die de leerkracht kopieert.
+const AI_TAAL = {
+  en: 'LANGUAGE: The teacher uses LANcelot in English. Write everything you create (titles, questions, answers, explanations, words, meanings, sentences, feedback) in English with British spelling, even where the instructions below ask for Dutch or Belgian Dutch. Keep JSON keys and fixed values (such as page, schildknaap, ridder) exactly as written below.\n\n',
+};
+function aiPrompt(prompt) {
+  const voor = AI_TAAL[huidig()];
+  if (!voor || typeof prompt !== 'string' || !prompt.trim() || prompt.startsWith(voor)) return prompt;
+  return voor + prompt;
+}
+
 function zet(id) {
   if (!TALEN.some(x => x.id === id)) throw new Error('Onbekende taal');
   settings.write({ taal: id });
@@ -68,4 +80,4 @@ function route(app) {
   });
 }
 
-module.exports = { TALEN, huidig, zet, woorden, route };
+module.exports = { TALEN, huidig, zet, woorden, route, aiPrompt, AI_TAAL };
