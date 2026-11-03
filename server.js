@@ -108,6 +108,7 @@ const schermen = require('./src/schermen');
 const { execFile } = require('child_process');
 const { generateQuiz } = require('./src/ai');
 const antigok = require('./src/antigok');
+const vragenstorm = require('./src/vragenstorm');
 const runen = require('./src/runen');
 const ontdek = require('./src/ontdek');
 const burchten = require('./src/burchten');
@@ -464,6 +465,9 @@ const guarded = {
 
 // Taken die een leerling alleen speelt, elk in een eigen spel (los van het spel op het bord).
 const solo = soloSpel.create(io, gok, () => takenSoon());
+
+// Vragenstorm: de leerkracht drukt op het bord, elke leerling in het spel krijgt meteen een paar vragen.
+const vstorm = vragenstorm.create(io, SPELLEN, guarded);
 
 // Er loopt altijd hooguit één spel tegelijk.
 const busyError = message => Object.assign(new Error(message), { busy: true });
@@ -1100,6 +1104,9 @@ io.on('connection', socket => {
     socket.emit('pf-state', proef.hostState());
 
     socket.on('pauze-zet', ({ aan, tekst } = {}) => pauze.zet(aan, tekst));
+    socket.emit('storm-stand', vstorm.stand());
+    socket.on('storm-start', (pad, cb) => { const res = vstorm.start(String(pad || '')); if (typeof cb === 'function') cb(res); });
+    socket.on('storm-stop', () => vstorm.stop());
     socket.on('thema-zet', id => {
       if (!THEMAS.includes(id)) return;
       settings.write({ thema: id });
@@ -1883,7 +1890,7 @@ io.on('connection', socket => {
     socket.on('namen-lijst', (pad, cb) => {
       if (typeof cb !== 'function') return;
       const spel = SPELLEN[pad];
-      cb({ actief: !!(spel && spel.players instanceof Map && spel.phase !== 'idle'), ...namenOveral() });
+      cb({ actief: !!(spel && spel.players instanceof Map && spel.phase !== 'idle'), storm: vstorm.kan(pad), ...namenOveral() });
     });
     socket.on('namen-weg', ({ pad, id, sock } = {}) => {
       const spel = SPELLEN[pad];
@@ -1937,6 +1944,10 @@ io.on('connection', socket => {
       gok.judge('toernooi', id, { correct: p.answer === q.correct, ms: p.answeredAt, limit: antigok.fastMs(q.question, q.answers), name: p.name, socketId: socket.id, spel: 'Toernooi' });
     }
   });
+
+  // Vragenstorm (src/vragenstorm.js): de vragen van de leerling, langs het spel waarin hij zit.
+  socket.on('storm-vraag', (_, cb) => typeof cb === 'function' && cb(vstorm.vraag(socket)));
+  socket.on('storm-antwoord', (choice, cb) => typeof cb === 'function' && cb(vstorm.antwoord(socket, choice)));
 
   // De prinses in de toren
   socket.emit('tw-state', toren.base());

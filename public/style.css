@@ -579,6 +579,28 @@ body:has(#home.hidden) .pauze-home, body:has(#home.hidden) .qr-home, body:has(#h
 .pauze-form input { width: min(320px, 70vw); }
 .pauze-verder { margin-top: 6px; font-size: 1.15rem; padding: 14px 34px; }
 @keyframes pauze-zweef { 50% { transform: translateY(-10px); } }
+/* Vragenstorm: een paar vragen na elkaar, het spel staat even stil (net onder de pauzeknop). */
+.storm-scherm { position: fixed; inset: 0; z-index: 2147482000; display: flex; align-items: center; justify-content: center; padding: 16px; overflow: auto;
+  background: radial-gradient(ellipse at 50% 40%, rgb(var(--k-goud) / .18), transparent 55%), rgb(var(--k-bg) / .9); animation: ui-in .25s ease-out; }
+.storm-scherm.hidden { display: none; }
+.storm-paneel { width: min(680px, 100%); display: grid; gap: 12px; padding: 20px; text-align: center; background: var(--panel-solid);
+  border: 2px solid rgb(var(--k-goud) / .7); border-radius: 16px; box-shadow: 0 0 34px rgb(var(--k-goud) / .3); }
+.storm-kop { margin: 0; font-family: var(--head); font-size: clamp(1.5rem, 5vw, 2.2rem); color: var(--gold); letter-spacing: .05em; }
+.storm-stap { margin: 0; font-family: var(--tech); color: var(--cyan); }
+.storm-stap:empty { display: none; }
+.storm-vraag { margin: 0; font-size: clamp(1.15rem, 3.6vw, 1.6rem); font-weight: 700; color: rgb(var(--k-tekst)); overflow-wrap: anywhere; }
+.storm-antwoorden { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.storm-a { display: flex; align-items: center; gap: 10px; min-height: 56px; padding: 10px 14px; text-align: left; font-size: 1.05rem; overflow-wrap: anywhere; }
+.storm-a b { flex: none; display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: rgb(var(--k-zwart) / .3); }
+.storm-a.juist { background: rgb(var(--k-groen)); color: rgb(var(--k-zwart)); }
+.storm-a.fout { background: rgb(var(--k-rood)); }
+.storm-a.dim { opacity: .45; }
+.storm-uitslag { margin: 0; min-height: 1.4em; font-weight: 700; }
+.storm-uitslag.goed { color: rgb(var(--k-groen)); }
+.storm-uitslag.slecht { color: rgb(var(--k-rood-l)); }
+@media (max-width: 520px) { .storm-antwoorden { grid-template-columns: 1fr; } .storm-a { min-height: 48px; } }
+.storm-knop { color: var(--gold); }
+
 @media (prefers-reduced-motion: reduce) { .pauze-slot { animation: none; } }
 
 /* ---------- Uitleg na een fout antwoord (ui.js) ---------- */
