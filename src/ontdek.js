@@ -13,9 +13,13 @@ const logboek = require('./logboek');
 const niveaus = require('./niveaus');
 const taken = require('./taken');
 const runen = require('./runen');
-const runenWoorden = require('./runen-woorden');
-const inhoud = require('./ontdek-inhoud');
+const taal = require('./taal');
+// De ingebouwde woorden en weetjes volgen de taal van LANcelot (Instellingen > Uiterlijk > Taal).
+const engels = () => taal.huidig() === 'en';
+const runenWoordenVoor = () => require(engels() ? './runen-woorden-en' : './runen-woorden');
+const inhoudVoor = () => require(engels() ? './ontdek-inhoud-en' : './ontdek-inhoud');
 const P = require('../public/js/od-puzzels');
+P.zetTaal(() => taal.huidig());
 const W = require('../public/js/od-wereld');
 
 const NAAM = 'Het rijk van Lancelot';
@@ -418,6 +422,7 @@ function view(naam) {
 function woordenBank(niveau) {
   const eigenW = eigen().woorden.filter(x => !x.niveau || x.niveau === niveau);
   const week = runen.lijstView().woorden.filter(x => x.b).map(x => ({ w: x.w, b: x.b, z: x.z }));
+  const runenWoorden = runenWoordenVoor();
   const ingebouwd = { page: runenWoorden.PAGE, schildknaap: runenWoorden.SCHILDKNAAP, ridder: runenWoorden.RIDDER }[niveau]
     .map(([w, b, z]) => ({ w, b, z }));
   const gezien = new Set();
@@ -444,7 +449,7 @@ const weetjeId = x => x.id || `e:${x.v.slice(0, 60)}`;
 
 function weetjesBank(niveau) {
   const eigenW = eigen().weetjes.filter(x => !x.niveau || x.niveau === niveau).map(x => ({ ...x, bron: 'eigen' }));
-  const ingebouwd = { page: inhoud.PAGE, schildknaap: inhoud.SCHILDKNAAP, ridder: inhoud.RIDDER }[niveau].map((x, i) => ({ ...x, id: `${niveau[0]}${i}`, bron: '' }));
+  const ingebouwd = { page: inhoudVoor().PAGE, schildknaap: inhoudVoor().SCHILDKNAAP, ridder: inhoudVoor().RIDDER }[niveau].map((x, i) => ({ ...x, id: `${niveau[0]}${i}`, bron: '' }));
   return [...eigenW, ...ingebouwd];
 }
 
@@ -572,7 +577,7 @@ function beloon(w, s, id, niveau) {
 
 const LABO_ONDERWERP = { drijven: 'Natuur', thermo: 'Weer' };
 function weetjeLabo(s, soort) {
-  const lijst = inhoud.LABO[soort] || [];
+  const lijst = inhoudVoor().LABO[soort] || [];
   const i = lijst.findIndex((_, k) => !s.weetjes[`lab-${soort}-${k}`]);
   const k = i >= 0 ? i : Math.floor(Math.random() * lijst.length);
   s.weetjes[`lab-${soort}-${k}`] = dagVan();
@@ -711,10 +716,10 @@ function boek(naam) {
   if (!s) return { woorden: [], weetjes: [] };
   const woorden = Object.entries(s.woorden).map(([x, dag]) => ({ ...woordInfo(x, 'schildknaap'), dag, bron: undefined }))
     .sort((a, b) => a.w.localeCompare(b.w, 'nl'));
-  const alle = [...inhoud.PAGE.map((x, i) => ({ ...x, id: `p${i}` })), ...inhoud.SCHILDKNAAP.map((x, i) => ({ ...x, id: `s${i}` })), ...inhoud.RIDDER.map((x, i) => ({ ...x, id: `r${i}` })), ...eigen().weetjes.map(x => ({ ...x, id: weetjeId(x) }))];
+  const alle = [...inhoudVoor().PAGE.map((x, i) => ({ ...x, id: `p${i}` })), ...inhoudVoor().SCHILDKNAAP.map((x, i) => ({ ...x, id: `s${i}` })), ...inhoudVoor().RIDDER.map((x, i) => ({ ...x, id: `r${i}` })), ...eigen().weetjes.map(x => ({ ...x, id: weetjeId(x) }))];
   const weetjes = Object.entries(s.weetjes).map(([id, dag]) => {
     const lab = /^lab-(\w+)-(\d+)$/.exec(id);
-    if (lab) return { o: LABO_ONDERWERP[lab[1]] || 'Techniek', w: (inhoud.LABO[lab[1]] || [])[Number(lab[2])], dag };
+    if (lab) return { o: LABO_ONDERWERP[lab[1]] || 'Techniek', w: (inhoudVoor().LABO[lab[1]] || [])[Number(lab[2])], dag };
     const x = alle.find(y => y.id === id);
     return x ? { o: x.o, v: x.v, a: x.a[x.j], w: x.w, dag } : null;
   }).filter(x => x && x.w).sort((a, b) => a.o.localeCompare(b.o, 'nl') || (a.dag < b.dag ? -1 : 1));

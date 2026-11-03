@@ -8,6 +8,11 @@
   else root.OdPuzzels = factory();
 }(typeof self !== 'undefined' ? self : this, () => {
   const NIVEAUS = ['page', 'schildknaap', 'ridder'];
+  // De taal van LANcelot: op de gsm uit /taal.js, op de server zet src/ontdek.js ze met zetTaal.
+  // Server en gsm moeten dezelfde puzzel maken, dus ook dezelfde woorden en schrijfwijze.
+  let taalVan = () => (typeof self !== 'undefined' && self.I18n && self.I18n.taal) || 'nl';
+  const zetTaal = f => { taalVan = f; };
+  const engels = () => taalVan() === 'en';
 
   // Een vaste toevalsreeks uit een tekst: dezelfde seed geeft dezelfde puzzel.
   function rng(seed) {
@@ -1449,8 +1454,8 @@
     const aantal = 4 + (t >= 4 ? 2 : 0);
     const vragen = [];
     const opl = [];
-    const kom = x => String(Math.round(x * 1000) / 1000).replace('.', ',');
-    const PAAR = [['m', 'cm', 100], ['kg', 'g', 1000], ['l', 'ml', 1000], ['km', 'm', 1000], ['m', 'mm', 1000], ['l', 'cl', 100], ['cm', 'mm', 10], ['u', 'min', 60]];
+    const kom = x => String(Math.round(x * 1000) / 1000).replace('.', engels() ? '.' : ',');
+    const PAAR = [['m', 'cm', 100], ['kg', 'g', 1000], ['l', 'ml', 1000], ['km', 'm', 1000], ['m', 'mm', 1000], ['l', 'cl', 100], ['cm', 'mm', 10], [engels() ? 'h' : 'u', 'min', 60]];
     for (let i = 0; i < aantal; i++) {
       const [groot, klein, f] = r.pick(n === 'page' ? PAAR.slice(0, 4) : PAAR);
       if (n === 'page') {
@@ -1738,13 +1743,18 @@
     A: '.-', B: '-...', C: '-.-.', D: '-..', E: '.', F: '..-.', G: '--.', H: '....', I: '..', J: '.---', K: '-.-', L: '.-..', M: '--',
     N: '-.', O: '---', P: '.--.', Q: '--.-', R: '.-.', S: '...', T: '-', U: '..-', V: '...-', W: '.--', X: '-..-', Y: '-.--', Z: '--..',
   };
+  const SEIN_WOORDEN_EN = {
+    page: ['SUN', 'MOON', 'STAR', 'MARS', 'BEAM', 'CODE', 'DATA', 'LAMP', 'RED', 'NEON'],
+    schildknaap: ['ROBOT', 'ROCKET', 'LASER', 'DRONE', 'COMET', 'SATURN', 'BATTERY', 'SCREEN', 'ANTENNA', 'METEOR'],
+    ridder: ['PLANET', 'SIGNAL', 'ASTRONAUT', 'TELESCOPE', 'GALAXY', 'HOLOGRAM', 'COMPUTER', 'GRAVITY', 'SATELLITE', 'SPACESUIT'],
+  };
   const SEIN_WOORDEN = {
     page: ['ZON', 'MAAN', 'STER', 'MARS', 'BAAN', 'CODE', 'DATA', 'LAMP', 'ROOD', 'NEON'],
     schildknaap: ['ROBOT', 'RAKET', 'LASER', 'DRONE', 'KOMEET', 'SATURN', 'BATTERIJ', 'SCHERM', 'ANTENNE', 'METEOOR'],
     ridder: ['PLANEET', 'SIGNAAL', 'ASTRONAUT', 'TELESCOOP', 'MELKWEG', 'HOLOGRAM', 'COMPUTER', 'ZWAARTEKRACHT', 'SATELLIET', 'RUIMTEPAK'],
   };
   function maakSein(n, r) {
-    const woord = r.pick(SEIN_WOORDEN[n]);
+    const woord = r.pick((engels() ? SEIN_WOORDEN_EN : SEIN_WOORDEN)[n]);
     const letters = [...new Set(woord)];
     // de page krijgt alleen de nodige letters (en een paar extra), de rest het hele alfabet
     const extra = r.shuffle(Object.keys(SEIN).filter(l => !letters.includes(l))).slice(0, 4);
@@ -1816,7 +1826,7 @@
   }
 
   return {
-    NIVEAUS, SOORTEN: Object.keys(SOORTEN), maak, check, rng,
+    NIVEAUS, SOORTEN: Object.keys(SOORTEN), maak, check, rng, zetTaal,
     schuifZet, schuifKlaar, robotLoop, doolhofLoop, lijnGetallen, WAREN, ijsGlij, ijsLoop, spiegelVeld, slotHint, lampenTik, hanoiLoop, routeLengte, minMunten, lijnMarge, binairLampen, binairWaarde, poortWaarde, rekenUit, lichtPad, stroomBereik, stroomOk, draai, wipLinks, KAATS, DX, DY,
   };
 }));
