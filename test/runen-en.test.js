@@ -1,10 +1,10 @@
-// De Engelse, Franse en Spaanse woorden van het Runenraadsel en de ontdekwereld: juiste lengte, in de woordenlijst, zelfde vorm als het Nederlands.
+// De Engelse, Franse, Spaanse en Duitse woorden van het Runenraadsel en de ontdekwereld: juiste lengte, in de woordenlijst, zelfde vorm als het Nederlands.
 const test = require('node:test');
 const assert = require('node:assert');
 const fs = require('fs');
 const path = require('path');
 
-for (const id of ['en', 'fr', 'es']) {
+for (const id of ['en', 'fr', 'es', 'de']) {
   test(`${id}: runenwoorden hebben de juiste lengte en staan in de woordenlijst`, () => {
     const w = require(`../src/runen-woorden-${id}`);
     const lijst = new Set(fs.readFileSync(path.join(__dirname, `../src/woordenlijst-${id}.txt`), 'utf8').split('\n'));

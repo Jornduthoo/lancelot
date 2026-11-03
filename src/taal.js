@@ -14,6 +14,7 @@ const TALEN = [
   { id: 'en', naam: 'English', vlag: 'GB' },
   { id: 'fr', naam: 'Français', vlag: 'FR' },
   { id: 'es', naam: 'Español', vlag: 'ES' },
+  { id: 'de', naam: 'Deutsch', vlag: 'DE' },
 ];
 // Scheidingsteken in een CSV voor Excel: Engelstalige landen gebruiken een komma, de rest een puntkomma.
 const CSV_SEP = { en: ',' };
@@ -29,6 +30,7 @@ const AI_TAAL = {
   en: 'LANGUAGE: The teacher uses LANcelot in English. Write everything you create (titles, questions, answers, explanations, words, meanings, sentences, feedback) in English with British spelling, even where the instructions below ask for Dutch or Belgian Dutch. Keep JSON keys and fixed values (such as page, schildknaap, ridder) exactly as written below.\n\n',
   fr: 'LANGUE : LANcelot est utilisé en français. Write everything you create (titles, questions, answers, explanations, words, meanings, sentences, feedback) in French, even where the instructions below ask for Dutch or Belgian Dutch. Keep JSON keys and fixed values (such as page, schildknaap, ridder) exactly as written below.\n\n',
   es: 'IDIOMA: El docente usa LANcelot en español. Write everything you create (titles, questions, answers, explanations, words, meanings, sentences, feedback) in Spanish (Spain), even where the instructions below ask for Dutch or Belgian Dutch. Keep JSON keys and fixed values (such as page, schildknaap, ridder) exactly as written below.\n\n',
+  de: 'SPRACHE: Die Lehrkraft benutzt LANcelot auf Deutsch. Write everything you create (titles, questions, answers, explanations, words, meanings, sentences, feedback) in German (Germany), even where the instructions below ask for Dutch or Belgian Dutch. Keep JSON keys and fixed values (such as page, schildknaap, ridder) exactly as written below.\n\n',
 };
 function aiPrompt(prompt) {
   const voor = AI_TAAL[huidig()];
@@ -50,8 +52,8 @@ function zet(id) {
   return id;
 }
 
-// Alle woorden van één taal, samengevoegd uit de bestanden in lang/<taal>/. Ontbreekt een tekst in het Frans of
-// Spaans (nieuwe tekst die nog niet vertaald is), dan liever Engels dan Nederlands.
+// Alle woorden van één taal, samengevoegd uit de bestanden in lang/<taal>/. Ontbreekt een tekst in het Frans, Spaans of
+// Duits (nieuwe tekst die nog niet vertaald is), dan liever Engels dan Nederlands.
 function woorden(id) {
   const uit = id !== 'en' && id !== 'nl' ? woorden('en') : {};
   const dir = path.join(LANG, id);

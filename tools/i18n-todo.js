@@ -1,7 +1,7 @@
 // Welke teksten hebben nog geen vertaling? Gebruik:
 //   node tools/i18n-todo.js                 telt per bronbestand wat er nog ontbreekt
 //   node tools/i18n-todo.js public/host.html src/kerker.js   toont de ontbrekende teksten als json, klaar om te vertalen
-//   TAAL=fr node tools/i18n-todo.js ...      hetzelfde voor het Frans (es: Spaans)
+//   TAAL=fr node tools/i18n-todo.js ...      hetzelfde voor het Frans (es: Spaans, de: Duits)
 // Een vertaling hoort in lang/en/<naam>.json: { "Nederlandse tekst": "English text" }, en ook in lang/fr en lang/es.
 // null betekent: deze tekst bewust niet vertalen (een naam, code, of een AI-opdracht die apart geregeld is).
 'use strict';
