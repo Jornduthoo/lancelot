@@ -388,7 +388,9 @@
       g.cam.y += (hole[1] - g.cam.y) * k;
     }
     if (!g.cam) g.cam = { x: scene.L / 2, y: scene.L / 2 };
-    const cam = { x: g.cam.x, y: g.cam.y, S, w, h };
+    // Niet voorbij de rand van de stad kijken: anders zie je aan de kant een zwarte leegte.
+    const binnen = (v, half) => (half * 2 >= scene.L + 3 ? scene.L / 2 : Math.max(half - 1.5, Math.min(scene.L + 1.5 - half, v)));
+    const cam = { x: binnen(g.cam.x, w / 2 / S), y: binnen(g.cam.y, h / 2 / (S * W.TILT)), S, w, h };
     KoDraw.render(ctx, scene, cam, { roster: g.roster, t: sec, me: g.me.n, fs: Math.max(9, 13 * dpr), fmax: 20 * dpr });
     fx.update(dt);
     fx.draw(ctx);

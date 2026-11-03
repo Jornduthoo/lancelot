@@ -325,6 +325,7 @@
     uitleg.children[1].textContent = tekst;
     uitleg.children[2].textContent = juist ? `Juist antwoord: ${juist}` : '';
     if (!uitleg.isConnected) document.body.appendChild(uitleg);
+    uitleg.style.top = onderHud() + 'px';
     uitleg.classList.remove('hidden');
     // Opnieuw laten inschuiven, ook als er al een uitleg stond.
     uitleg.style.animation = 'none';
@@ -332,6 +333,17 @@
     uitleg.style.animation = '';
     clearTimeout(uitlegWeg);
     uitlegWeg = setTimeout(() => uitleg.classList.add('hidden'), Math.min(11000, 4500 + 55 * tekst.length));
+  }
+
+  // In een spel staat bovenaan de balk met score, klok of harten: de uitleg komt daar net onder, niet erover.
+  function onderHud() {
+    let top = 12;
+    for (const h of document.querySelectorAll('.ls-hud, .ak-hud, .sj-top, .du-versus, [class$="-hud"]')) {
+      if (!h.getClientRects().length) continue;
+      const r = h.getBoundingClientRect();
+      if (r.height && r.top < 140 && r.bottom < innerHeight / 3) top = Math.max(top, Math.round(r.bottom) + 8);
+    }
+    return top;
   }
 
   // ---------- Getal typen ----------

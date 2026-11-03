@@ -156,7 +156,7 @@ function duRender(s) {
     if (du.picked !== null && du.picked !== m.hit.right) tiles[du.picked].classList.add('wrong');
     const flash = $('du-flash');
     const mine = m.hit.by === 'ik';
-    flash.className = `sj-flash ${mine ? 'good' : m.hit.by ? 'bad' : ''}`;
+    flash.className = `sj-flash ${mine ? 'good' : m.hit.by ? 'bad' : 'meh'}`;
     $('du-flash-mark').textContent = mine ? '⚔️' : m.hit.by ? '💥' : '⌛';
     $('du-flash-text').textContent = mine ? `Raak! ${m.opponent} verliest een hart.` : m.hit.by ? `${m.opponent} was sneller! Je verliest een hart.` : 'Niemand had het juist.';
     if (mine) sfx.good(); else if (m.hit.by) sfx.hit(); else sfx.bad();

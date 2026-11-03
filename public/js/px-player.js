@@ -787,7 +787,9 @@
     lay = { cw: r.width, ch: r.height };
     let vw = Math.round(H * r.width / Math.max(1, r.height));
     let cssH = r.height;
-    if (vw < 224) { vw = 224; cssH = r.width * H / 224; }
+    // Gsm rechtop: iets dichter op de ridder (11 tegels breed), zodat het spel niet als een smalle strook tussen zwarte balken staat.
+    const MIN_W = r.width < r.height ? 176 : 224;
+    if (vw < MIN_W) { vw = MIN_W; cssH = r.width * H / MIN_W; }
     vw = Math.min(vw, 520);
     g.viewW = vw;
     canvas.width = vw;
