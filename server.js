@@ -1248,6 +1248,7 @@ io.on('connection', socket => {
     socket.on('tk-bronnen', handle(() => ({ quizzen: quizzes.list(), bladen: oefenbladen.list(), klas: klas.names() })));
     socket.on('tk-lijst', handle(() => ({ taken: taken.lijst() })));
     socket.on('tk-voorbeeld', handle(arg => taken.voorbeeld(arg || {})));
+    socket.on('tk-les', handle(arg => ({ les: taken.lesVan(arg) })));
     socket.on('tk-detail', handle(arg => taken.detail(arg || {})));
     socket.on('tk-inhoud', handle(arg => taken.inhoud(arg || {})));
     socket.on('tk-maak', taak(arg => ({ id: taken.maak(arg).id })));

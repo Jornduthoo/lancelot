@@ -86,10 +86,11 @@ const Lessen = (() => {
   };
   const SOORTEN = { quiz: 'Quiz', oefenblad: 'Oefenblad', proef: 'Toets' };
   const vorm = o => (VORMEN[o.soort] || []).find(v => v.id === o.vorm) || (VORMEN[o.soort] || [])[0];
-  function oefenLink(o) {
+  // les = { week, slot } uit De Zonnewijzer: een taak krijgt dan het doel en de succescriteria van die les mee.
+  function oefenLink(o, les) {
     const f = encodeURIComponent(o.file);
     const v = vorm(o).id;
-    if (v === 'taak') return `/taken?soort=${o.soort}&file=${f}`;
+    if (v === 'taak') return `/taken?soort=${o.soort}&file=${f}${les ? `&week=${encodeURIComponent(les.week)}&slot=${encodeURIComponent(les.slot)}` : ''}`;
     if (o.soort === 'quiz') return `${v}?quiz=${f}`;
     if (o.soort === 'proef') return v === 'print' ? `/proef-print?file=${f}` : `/proef?afnemen=${f}`;
     return v === 'print' ? `/oefenblad-print?file=${f}` : `/oefenblad?live=${f}`;

@@ -27,6 +27,7 @@ function tkToon(scherm) {
   $('tk-back').href = scherm === 'blad' || scherm === 'quiz' ? '#' : '/';
   if (scherm !== 'blad') Voorlees.stop();
   if (scherm === 'lijst' || scherm === 'join') {
+    $('tk-doel').classList.add('hidden');
     $('tk-kop-titel').textContent = 'Mijn taken';
     $('tk-logo').src = '/img/icons/oefenblad.webp';
     $('tk-kop-sub').textContent = scherm === 'lijst' ? tk.naam : '';
@@ -73,6 +74,7 @@ function tkTekenLijst(taken) {
     const pct = t.totaal ? Math.round((t.gedaan / t.totaal) * 100) : 0;
     b.innerHTML = `<img src="/img/icons/${t.spel ? t.spel.icoon : t.soort === 'quiz' ? 'toernooi' : 'oefenblad'}.webp" alt="">
       <span class="tk-kaart-tekst"><strong></strong><small>${t.spel ? `Quiz in ${tkEsc(t.spel.naam)}` : t.soort === 'quiz' ? 'Quiz' : 'Oefenblad'}${t.vak ? ` · ${tkEsc(t.vak)}` : ''}${t.niveau ? ` · ${Niveau.label(t.niveau)}` : ''}</small>
+      ${t.les && t.les.doel ? `<span class="tk-kaart-doel">🎯 ${tkEsc(t.les.doel)}</span>` : ''}
       <span class="tk-balk"><i style="width:${t.status === 'klaar' ? 100 : pct}%"></i></span><em>${tkStatus(t)}</em></span>
       <span class="tk-pijl">${t.status === 'klaar' ? '👁' : '▶'}</span>`;
     b.querySelector('strong').textContent = t.titel;
@@ -93,6 +95,21 @@ $('tk-quiz-terug').addEventListener('click', () => tkLijst());
 
 // ---------- Een taak openen ----------
 
+// Komt de taak uit een les, dan staat het doel van die les erboven: waarom oefen ik dit?
+function tkDoel(les) {
+  $('tk-doel').classList.toggle('hidden', !les);
+  if (!les) return;
+  $('tk-doel-tekst').textContent = les.doel || '';
+  const ul = $('tk-doel-crit');
+  ul.textContent = '';
+  for (const c of les.criteria || []) {
+    const li = document.createElement('li');
+    li.textContent = c;
+    ul.appendChild(li);
+  }
+  $('tk-doel-crit-blok').classList.toggle('hidden', !ul.children.length);
+}
+
 function tkOpen(id) {
   socket.emit('tk-open', { id, naam: tk.naam }, res => {
     if (!res || res.error) return Ui.melding((res && res.error) || 'Die taak kon niet open.');
@@ -102,6 +119,7 @@ function tkOpen(id) {
     $('tk-logo').src = `/img/icons/${res.spel ? res.spel.icoon : res.soort === 'quiz' ? 'toernooi' : 'oefenblad'}.webp`;
     $('tk-kop-titel').textContent = res.titel;
     $('tk-kop-sub').textContent = res.niveau ? Niveau.label(res.niveau) : tk.naam;
+    tkDoel(res.les);
     if (res.soort === 'quiz') tkQuiz(res);
     else tkBlad(res);
     window.scrollTo({ top: 0 });

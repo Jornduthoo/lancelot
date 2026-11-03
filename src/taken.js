@@ -14,6 +14,7 @@ const doelen = require('./doelen');
 const logboek = require('./logboek');
 const sheets = require('./oefenbladen');
 const quizzes = require('./quizzes');
+const zonnewijzer = require('./zonnewijzer');
 const { NAMES } = require('./niveaus');
 
 const DIR = gegevens.pad('taken');
@@ -163,7 +164,30 @@ function inhoud({ soort, file, id, niveau } = {}) {
   return { ...base, view: sheets.studentView(s, shuffles), solutions: sheets.solutions(s, shuffles) };
 }
 
-function maak({ soort, file, namen, feedback, spel, minuten, niveau } = {}) {
+// Komt de taak uit een les van De Zonnewijzer, dan krijgt ze het doel en de succescriteria van die les mee:
+// de leerling ziet dan bij de taak waarom hij oefent, en de les toont hoeveel leerlingen klaar zijn.
+// Een kopie, zoals de inhoud: de les later aanpassen of doorschuiven breekt de taak niet.
+const WEEK = /^\d{4}-W\d{2}$/;
+const SLOT = /^[1-5]-\d{1,2}$/;
+const kort = (v, max) => String(v == null ? '' : v).replace(/[\x00-\x1f]/g, ' ').trim().slice(0, max);
+function lesVan(les) {
+  if (!les || !WEEK.test(String(les.week)) || !SLOT.test(String(les.slot))) return null;
+  const l = zonnewijzer.week(les.week).lessen[les.slot];
+  if (!l) return null;
+  return schoonLes({ week: les.week, slot: les.slot, titel: l.titel, vak: l.vak, doel: l.doel, criteria: l.criteria });
+}
+function schoonLes(l) {
+  if (!l || !WEEK.test(String(l.week)) || !SLOT.test(String(l.slot))) return null;
+  const les = {
+    week: l.week, slot: l.slot, titel: kort(l.titel, 120), vak: kort(l.vak, 30), doel: kort(l.doel, 300),
+    criteria: (Array.isArray(l.criteria) ? l.criteria : []).map(c => kort(c, 160)).filter(Boolean).slice(0, 8),
+  };
+  return les.titel || les.doel || les.criteria.length ? les : null;
+}
+// Voor de leerling: alleen het doel en de criteria.
+const lesVoorLeerling = t => (t.les && (t.les.doel || t.les.criteria.length) ? { doel: t.les.doel, criteria: t.les.criteria } : null);
+
+function maak({ soort, file, namen, feedback, spel, minuten, niveau, les } = {}) {
   const inhoud = laad(soort, file);
   const lijst = [...new Set((Array.isArray(namen) ? namen : []).map(clean).filter(Boolean))];
   if (!lijst.length) throw new Error('Kies minstens één leerling.');
@@ -173,6 +197,8 @@ function maak({ soort, file, namen, feedback, spel, minuten, niveau } = {}) {
     feedback: feedback === 'inleveren' ? 'inleveren' : 'direct', gemaakt: new Date().toISOString(), dicht: false, inhoud, werk: {},
   };
   if (soort === 'quiz' && SOLO[spel]) Object.assign(t, { spel, minuten: MINUTEN.includes(Number(minuten)) ? Number(minuten) : 5 });
+  const uitLes = lesVan(les);
+  if (uitLes) t.les = uitLes;
   // De leerkracht kan iedereen op één niveau zetten (bv. de hele klas eens Page), anders elk zijn eigen niveau.
   if (niveausVan(soort, inhoud).length > 1 && niveausVan(soort, inhoud).includes(niveau)) t.niveau = niveau;
   for (const naam of lijst) t.werk[key(naam)] = nieuwWerk(t, naam, startNiveau(t, naam));
@@ -200,7 +226,7 @@ function planBewaar(t) {
     fs.mkdirSync(PLAN, { recursive: true });
     const plan = {
       id: t.id, soort: t.soort, file: t.file, titel: t.titel, vak: t.vak, feedback: t.feedback, gemaakt: t.gemaakt,
-      spel: t.spel || null, minuten: t.minuten || null, niveau: t.niveau || null,
+      spel: t.spel || null, minuten: t.minuten || null, niveau: t.niveau || null, les: t.les || null,
       namen: Object.values(t.werk).map(w => w.naam), inhoud: t.inhoud,
     };
     fs.writeFileSync(path.join(PLAN, `${t.id}.json`), JSON.stringify(plan) + '\n');
@@ -241,6 +267,8 @@ function uitLesmap() {
       };
       if (p.soort === 'quiz' && SOLO[p.spel]) Object.assign(t, { spel: p.spel, minuten: MINUTEN.includes(p.minuten) ? p.minuten : 5 });
       if (niveausVan(t.soort, t.inhoud).includes(p.niveau) && niveausVan(t.soort, t.inhoud).length > 1) t.niveau = p.niveau;
+      const les = schoonLes(p.les);
+      if (les) t.les = les;
       bewaarNieuw(t);
       veranderd = true;
     }
@@ -343,7 +371,7 @@ function voortgang(t, w) {
 function lijst() {
   return all().map(t => ({
     id: t.id, soort: t.soort, titel: t.titel, vak: t.vak, feedback: t.feedback, gemaakt: t.gemaakt, dicht: t.dicht, spel: spelVan(t), uitLesmap: !!t.uitLesmap,
-    niveaus: niveausVan(t.soort, t.inhoud), niveau: t.niveau || null,
+    niveaus: niveausVan(t.soort, t.inhoud), niveau: t.niveau || null, les: t.les || null,
     leerlingen: Object.values(t.werk).map(w => ({ naam: w.naam, niveau: w.niveau, status: w.status, klaar: w.klaar, ...voortgang(t, w) }))
       .sort((a, b) => a.naam.localeCompare(b.naam, 'nl')),
   }));
@@ -388,7 +416,7 @@ function mijn(naam) {
   }).map(t => {
     const w = t.werk[k];
     const open = !t.dicht && w.status !== 'klaar';
-    return { id: t.id, soort: t.soort, titel: t.titel, vak: t.vak, gemaakt: t.gemaakt, spel: spelVan(t), niveau: niveausVan(t.soort, t.inhoud).length > 1 ? w.niveau : null, status: open ? w.status : 'klaar', ...voortgang(t, w) };
+    return { id: t.id, soort: t.soort, titel: t.titel, vak: t.vak, gemaakt: t.gemaakt, spel: spelVan(t), niveau: niveausVan(t.soort, t.inhoud).length > 1 ? w.niveau : null, status: open ? w.status : 'klaar', les: lesVoorLeerling(t), ...voortgang(t, w) };
   });
   lijst.sort((a, b) => (a.status === 'klaar') - (b.status === 'klaar') || (a.gemaakt < b.gemaakt ? 1 : -1));
   const l = klas.match(naam);
@@ -411,7 +439,7 @@ function begin(t, w) {
 function open({ id, naam } = {}) {
   const { t, w } = werkVan(id, naam);
   const klaar = t.dicht || w.status === 'klaar';
-  const base = { id, soort: t.soort, titel: t.titel, spel: spelVan(t), niveau: niveausVan(t.soort, t.inhoud).length > 1 ? w.niveau : null, klaar, dicht: t.dicht, ...voortgang(t, w) };
+  const base = { id, soort: t.soort, titel: t.titel, spel: spelVan(t), niveau: niveausVan(t.soort, t.inhoud).length > 1 ? w.niveau : null, klaar, dicht: t.dicht, les: lesVoorLeerling(t), ...voortgang(t, w) };
   if (t.soort === 'quiz') return { ...base, vraag: klaar ? null : vraagVoor(t, w), terug: klaar ? terugblik(t, w) : null };
   const b = blad(t, w.niveau);
   return {
@@ -549,4 +577,4 @@ function soloAntwoord({ id, naam, i, keuze, juist } = {}) {
   return { klaar, ...voortgang(t, w) };
 }
 
-module.exports = { PLAN, planGeldig, uitLesmap, SOLO, MINUTEN, soloRonde, soloAntwoord, voorbeeld, inhoud, maak, voegToe, haalWeg, zetNiveau, sluit, heropen, wis, lijst, detail, mijn, aantal, open, antwoord, inleveren, quizAntwoord, flush, DIR };
+module.exports = { lesVan, PLAN, planGeldig, uitLesmap, SOLO, MINUTEN, soloRonde, soloAntwoord, voorbeeld, inhoud, maak, voegToe, haalWeg, zetNiveau, sluit, heropen, wis, lijst, detail, mijn, aantal, open, antwoord, inleveren, quizAntwoord, flush, DIR };

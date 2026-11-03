@@ -130,3 +130,16 @@
 .tk-vb #vb-acties { justify-content: flex-end; margin-top: 12px; }
 .tk-vb #vb-acties.hidden { display: none; }
 @media (max-width: 560px) { .tk-vb-vraag .answers { grid-template-columns: 1fr; } }
+
+/* ---------- Het doel van de les (uit De Zonnewijzer) ---------- */
+.tk-les { display: flex; align-items: center; gap: 12px; margin: 4px 0 10px; padding: 10px 14px; border-radius: 12px;
+  background: rgb(var(--k-bg2) / .6); box-shadow: inset 0 0 0 1px var(--gold); }
+.tk-les-tekst { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.tk-taak-les { display: block; color: var(--gold); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tk-kaart-doel { color: var(--gold); font-size: .9rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tk-doel { margin: 10px 0; padding: 10px 14px; border-radius: 12px; background: rgb(var(--k-bg2) / .7); box-shadow: inset 0 0 0 1px var(--gold); }
+.tk-doel summary { cursor: pointer; font-weight: 700; line-height: 1.35; }
+.tk-doel-label { color: var(--gold); font-weight: 700; }
+.tk-doel-crit { margin-top: 8px; }
+.tk-doel-crit ul { margin: 4px 0 0; padding-left: 22px; }
+.tk-doel-crit li { margin: 3px 0; }

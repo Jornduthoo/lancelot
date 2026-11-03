@@ -813,5 +813,14 @@
  "Zelfinschatting (zeker of twijfel)": "Self-assessment (sure or unsure)",
  "Terecht zeker: {0}× · getwijfeld maar juist: {1}× · zeker maar fout: {2}× · getwijfeld en fout: {3}×": "Rightly sure: {0}× · unsure but correct: {1}× · sure but wrong: {2}× · unsure and wrong: {3}×",
  "Snel gegokt (drie keer snel en fout na elkaar): {0}×.": "Guessed fast (three times fast and wrong in a row): {0}×.",
- "Geen notities.": "No notes."
+ "Geen notities.": "No notes.",
+ "Opvolgen bij Taken": "Follow up in Tasks",
+ "🎯 Voor de les: {0}": "🎯 For the lesson: {0}",
+ "Niet aan de les koppelen": "Don't link to the lesson",
+ "De leerlingen zien dit doel en de succescriteria bij hun taak.": "Students see this goal and the success criteria with their task.",
+ "🎯 Ons doel": "🎯 Our goal",
+ "⭐ Dit lukt me als …": "⭐ I can do this when …",
+ "📋 Taken uit deze les": "📋 Tasks from this lesson",
+ "Taken uit deze les": "Tasks from this lesson",
+ "{0}/{1} klaar": "{0}/{1} done"
 }
