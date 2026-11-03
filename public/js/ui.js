@@ -624,6 +624,8 @@
   // Tekst naar het klembord, meteen bij de klik (vóór een window.open: daarna heeft de pagina de focus niet meer).
   // Werkt ook op gewone http via het schoolnetwerk, waar navigator.clipboard vaak ontbreekt.
   function kopieer(tekst) {
+    // Een AI-prompt krijgt in een andere taal dan Nederlands de taalopdracht vooraan (zie i18n.js).
+    if (window.I18n && I18n.aiPrompt) tekst = I18n.aiPrompt(tekst);
     const actief = document.activeElement;
     const t = document.createElement('textarea');
     t.value = tekst;

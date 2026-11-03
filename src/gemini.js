@@ -3,6 +3,7 @@
 // en kiezen we automatisch het beste "flash"-model, tenzij de leerkracht zelf een model invult.
 const settings = require('./settings');
 const quizzes = require('./quizzes');
+const taal = require('./taal');
 
 const MAX_FILE_BYTES = 20 * 1024 * 1024;
 const AUTO = 'auto';
@@ -73,6 +74,7 @@ const BUSY = new Set([429, 500, 503, 504]);
 // parse zet de tekst van Gemini om in een quiz of een andere vorm (standaard een Toernooi-quiz).
 async function generateQuiz(prompt, files = [], parse = quizzes.parseAiText, { max = 20000 } = {}) {
   const { geminiKey, geminiModel, geminiAutoModel } = settings.read();
+  prompt = taal.aiPrompt(prompt);
   if (!geminiKey) throw new Error('Er is nog geen Gemini-sleutel ingesteld. Kies Instellingen op het startscherm.');
   if (typeof prompt !== 'string' || !prompt.trim()) throw new Error('De prompt is leeg.');
 
