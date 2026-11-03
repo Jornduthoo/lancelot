@@ -144,7 +144,7 @@
       const me = s.me || {};
       const medals = ['🥇', '🥈', '🥉'];
       $('hb-end-medal').textContent = medals[me.rank - 1] || '📍';
-      $('hb-end-title').textContent = me.rank === 1 ? 'Jij bent de beste naaldzoeker!' : `Plek ${me.rank} van ${me.players}`;
+      $('hb-end-title').textContent = me.rank === 1 && (me.score ?? 1) > 0 ? 'Jij bent de beste naaldzoeker!' : `Plek ${me.rank} van ${me.players}`;
       $('hb-end-score').textContent = `${me.score || 0} punten`;
       $('hb-end-stats').textContent = `${me.found || 0} ${me.found === 1 ? 'naald' : 'naalden'} · ${me.loot || 0} schatten · ${s.right} ${s.right === 1 ? 'vraag' : 'vragen'} juist`;
       if (!$('hb-end').dataset.done && me.rank && me.rank <= 3) confetti(4000);

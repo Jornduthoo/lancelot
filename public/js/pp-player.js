@@ -138,7 +138,7 @@
       const me = s.me || {};
       const medals = ['🥇', '🥈', '🥉'];
       $('pp-end-medal').textContent = medals[me.rank - 1] || '⚡';
-      $('pp-end-title').textContent = me.rank === 1 ? 'Jij bent de held van Plasmapoort!' : `Plek ${me.rank} van ${me.players}`;
+      $('pp-end-title').textContent = me.rank === 1 && (me.score ?? 1) > 0 ? 'Jij bent de held van Plasmapoort!' : `Plek ${me.rank} van ${me.players}`;
       $('pp-end-score').textContent = `${me.score || 0} punten`;
       $('pp-end-stats').textContent = `${me.wins || 0} ${me.wins === 1 ? 'robot' : 'robots'} verslagen · ${me.goals || 0} goals · ${me.saves || 0} reddingen · ${s.right} ${s.right === 1 ? 'vraag' : 'vragen'} juist`;
       if (!$('pp-end').dataset.done && me.rank && me.rank <= 3) confetti(4000);

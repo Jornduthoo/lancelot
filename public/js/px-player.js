@@ -137,7 +137,7 @@
       const medals = ['🥇', '🥈', '🥉'];
       const me = s.me || {};
       $('px-end-medal').textContent = medals[me.rank - 1] || '🎮';
-      $('px-end-title').textContent = me.rank === 1 ? 'Jij bent de grootste Pixelridder!' : `Plek ${me.rank} van ${me.players}`;
+      $('px-end-title').textContent = me.rank === 1 && (me.score ?? 1) > 0 ? 'Jij bent de grootste Pixelridder!' : `Plek ${me.rank} van ${me.players}`;
       $('px-end-score').textContent = `${me.score || 0} punten`;
       $('px-end-stats').textContent = `${me.worlds || 0} ${me.worlds === 1 ? 'wereld' : 'werelden'} gehaald · ${me.coins || 0} munten · ${me.kills || 0} vijanden verslagen · ${s.right} ${s.right === 1 ? 'vraag' : 'vragen'} juist`;
       if (!$('px-end').dataset.done && me.rank && me.rank <= 3) confetti(4000);

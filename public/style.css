@@ -924,7 +924,8 @@ body[data-sj="1"] .sj-item-icon { width: 52px; height: 52px; display: grid; plac
 .sj-flash-mark { font-size: 4rem; font-weight: 900; }
 .sj-flash-gold { font-family: var(--tech); font-weight: 800; font-size: 3.4rem; color: var(--gold); text-shadow: 0 0 24px rgb(var(--k-goud) / .7); }
 .sj-flash.bad .sj-flash-gold { color: rgb(var(--k-rood-l)); text-shadow: none; }
-.sj-flash-text { font-weight: 800; font-size: 1.2rem; }
+.sj-flash-text { font-weight: 800; font-size: 1.2rem; max-width: 90vw; text-align: center; padding: 6px 16px; border-radius: 12px; background: rgb(var(--k-bg) / .88); box-shadow: inset 0 0 0 1px rgb(var(--k-wit) / .14); }
+.sj-flash-text:empty { display: none; }
 .sj-countdown { position: fixed; inset: 0; z-index: 20; display: flex; align-items: center; justify-content: center; background: rgb(var(--k-bg) / .85); font-family: var(--tech); font-weight: 800; font-size: 7rem; color: var(--gold); text-shadow: 0 0 30px rgb(var(--k-goud) / .6); }
 .sj-countdown.hidden { display: none; }
 .sj-shop { position: fixed; inset: 0; z-index: 15; overflow-y: auto; padding: 16px; background: rgb(var(--k-bg) / .96); display: flex; flex-direction: column; gap: 12px; max-width: 560px; margin: 0 auto; }
@@ -1198,6 +1199,8 @@ select.ob-wacht { opacity: .55; }
 .ob-types strong { width: 100%; }
 /* Bewerken: groot over het hele scherm, het blad in het midden en de gereedschapskist rechts (zoals de bladeditor). */
 body.breed main { max-width: none; padding-left: 20px; padding-right: 20px; }
+/* Spelborden op het digibord: de hele breedte gebruiken. */
+.ak-wide main { max-width: 1840px; }
 .ob-editor { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 280px; grid-template-areas: "edit prev tools"; gap: 18px; align-items: start; }
 .ob-edit-col { grid-area: edit; }
 .ob-preview-col { grid-area: prev; }
@@ -2308,3 +2311,9 @@ html[data-thema="daglicht"] body[data-ls="1"], html[data-thema="daglicht"] body[
 
 /* Wachtscherm op het bord: het geschilderde decor van het spel, donker achter de QR-code (fx.js zet --wacht-bg). */
 body[data-wacht] { background: linear-gradient(rgba(4, 6, 14, .55), rgba(4, 6, 14, .8)), var(--wacht-bg) center / cover no-repeat fixed; }
+/* Duel op het digibord: grotere namen in het schema, zodat je ze van achter in de klas leest. */
+@media (min-width: 1400px) {
+  .du-host .du-match { font-size: 1.2rem; }
+  .du-host .du-match .du-side { padding: 10px 14px; }
+  .du-host .du-col h3 { font-size: 1.05rem; }
+}
