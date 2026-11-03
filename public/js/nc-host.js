@@ -148,7 +148,7 @@ function frame(t) {
   // De hele stad in beeld; torens steken boven de bovenrand uit.
   const S = Math.min(w / (W.L + 4), h / ((W.L + 4) * W.TILT + 22));
   const cam = { x: W.L / 2, y: W.L / 2 - 11 / W.TILT, S, w, h, bake: true };
-  NcDraw.render(ctx, scene, cam, { roster, t: sec, fs: Math.max(11, 12 * dpr / 1.25) });
+  NcDraw.render(ctx, scene, cam, { tt: state && state.startedAt ? (Date.now() + offset - state.startedAt) / 1000 : 0, nacht: $('p-nacht'), roster, t: sec, fs: Math.max(11, 12 * dpr / 1.25) });
   if (flits) {
     const k = (sec - flits.t) / 1.2;
     if (k >= 1) flits = null;

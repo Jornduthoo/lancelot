@@ -9,7 +9,8 @@ const NcDraw = (() => {
   let gen = 0;
   const mk = (w, h) => { const c = document.createElement('canvas'); c.width = Math.max(1, Math.ceil(w)); c.height = Math.max(1, Math.ceil(h)); return c; };
   const BEELDEN = [...W.SOORTEN.map(s => s[0]), 'gnoom', 'vuur', 'marker', 'ring', 'waterdraak', 'pakket', 'zeppelin',
-    'v-paard', 'v-board', 'v-kar', 'v-griffioen', 't-gras', 't-plein', 't-water', 't-weg'];
+    'v-paard', 'v-board', 'v-kar', 'v-griffioen', 't-gras', 't-plein', 't-water', 't-weg',
+    ...W.AUTOS.map(a => a[0]), ...W.BEWONERS, 'schans', 'turbo-v'];
   let geladen = false;
   function laad(klaar) {
     if (geladen) return;
@@ -130,6 +131,18 @@ const NcDraw = (() => {
       if (vy && ty % W.BLOK === 11) for (const d of [.4, 2.4]) g.fillRect(tx * TI + d, ty * TI + TI - .1, 1.2, .2);
     }
     g.restore();
+    // Turboplaten en schansen liggen op de straat: mee in de grond gebakken.
+    const bx0 = cx * CH, by0 = cy * CH;
+    for (const tp of W.TURBO) {
+      const img = IMG['turbo-v'];
+      if (!img || Math.abs(tp.x - bx0 - CH / 2) > CH / 2 + 4 || Math.abs(tp.y - by0 - CH / 2) > CH / 2 + 5) continue;
+      const tw = 5 * S, th = 6.6 * Sy;
+      g.drawImage(img, Math.round((tp.x - bx0) * S - tw / 2), Math.round((tp.y - by0) * Sy - th / 2), Math.round(tw), Math.round(th));
+    }
+    for (const sc of W.SCHANSEN) {
+      if (Math.abs(sc.x - bx0 - CH / 2) > CH / 2 + 5 || Math.abs(sc.y - by0 - CH / 2) > CH / 2 + 8) continue;
+      zet(g, 'schans', (sc.x - bx0) * S, (sc.y - by0) * Sy + 1.4 * Sy, 5.2 * S, 0, sc.r < 0);
+    }
     if (voorwerpen) {
       const bx = cx * CH, by = cy * CH;
       for (const o of W.STAD.objs) {
@@ -202,10 +215,19 @@ const NcDraw = (() => {
       this.onEvent = null;
       this.spuit = []; // {n, t}
       this.vangst = []; // {x, y, t}
+      this.lucht = new Map(); // n -> wanneer de sprong begon (s)
+      this.spoor = new Map(); // n -> laatste plekken, voor het snelheidsspoor
     }
     apply(msg) {
       const t = performance.now();
-      for (const p of msg.p) this.spelers.push(p[0], [p[1] / 10, p[2] / 10, 0, p[3], p[4], p[5]], t);
+      for (const p of msg.p) {
+        this.spelers.push(p[0], [p[1] / 10, p[2] / 10, 0, p[3], p[4], p[5]], t);
+        if (p[4] & 16) { if (!this.lucht.has(p[0])) this.lucht.set(p[0], t / 1000); } else this.lucht.delete(p[0]);
+        let sp = this.spoor.get(p[0]);
+        if (!sp) this.spoor.set(p[0], sp = []);
+        sp.push([p[1] / 10, p[2] / 10]);
+        if (sp.length > 7) sp.shift();
+      }
       this.spelers.prune(t, 1500);
       for (const g of msg.g) this.gnomen.push(g[0], [g[1] / 10, g[2] / 10, 0], t);
       this.gnomen.prune(t, 300);
@@ -229,9 +251,9 @@ const NcDraw = (() => {
   const VBEELD = ['v-paard', 'v-board', 'v-kar', 'v-griffioen'];
   const VBREED = [4.2, 3.6, 4, 5.6];
   const rgba = (hex, a) => { const n = parseInt(hex.slice(1), 16); return `rgba(${n >> 16},${(n >> 8) & 255},${n & 255},${a})`; };
-  function rijder(ctx, x, y, S, veh, flags, dir, kleur, t, n, groot) {
+  function rijder(ctx, x, y, S, veh, flags, dir, kleur, t, n, groot, sprong = 0) {
     const vlieg = W.VOERTUIGEN[veh].vliegt;
-    const hoog = vlieg ? (3.2 + Math.sin(t * 2.4 + n) * .35) * S : veh === 1 ? (.35 + Math.sin(t * 5 + n) * .12) * S : 0;
+    const hoog = (vlieg ? (3.2 + Math.sin(t * 2.4 + n) * .35) * S : veh === 1 ? (.35 + Math.sin(t * 5 + n) * .12) * S : 0) + sprong * S;
     // Schaduw en ring in de kleur van de leerling
     ctx.fillStyle = 'rgba(0,0,0,.32)';
     ctx.beginPath(); ctx.ellipse(x, y, 1.6 * S * (vlieg ? .8 : 1), 1.6 * S * T * (vlieg ? .8 : 1), 0, 0, Math.PI * 2); ctx.fill();
@@ -264,6 +286,7 @@ const NcDraw = (() => {
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(text, x, y - h / 2 + 1);
+    return [x - w / 2 - 2, y - h - 2, w + 4, h + 4];
   }
 
   // ---------- Effecten ----------
@@ -297,7 +320,7 @@ const NcDraw = (() => {
     const px = P.ox + tx * P.S, py = P.oy + ty * P.Sy;
     fs *= 1.5;
     const m = fs * 2.2;
-    if (px > m && px < w - m && py > m * 1.4 && py < h - m) return;
+    if (px > m && px < w - m && py > m * 1.4 && py < h - m) return null;
     const a = Math.atan2(py - h / 2, px - w / 2);
     const k = Math.min((w / 2 - m) / Math.max(1e-3, Math.abs(Math.cos(a))), (h / 2 - m * 1.2) / Math.max(1e-3, Math.abs(Math.sin(a))));
     const x = w / 2 + Math.cos(a) * k, y = h / 2 + Math.sin(a) * k;
@@ -309,6 +332,7 @@ const NcDraw = (() => {
     ctx.beginPath(); ctx.moveTo(fs * 1.3, 0); ctx.lineTo(-fs * .6, -fs * .85); ctx.lineTo(-fs * .25, 0); ctx.lineTo(-fs * .6, fs * .85); ctx.closePath(); ctx.fill();
     ctx.restore();
     if (tekst) label(ctx, tekst, x - Math.cos(a) * fs * 2.2, y - Math.sin(a) * fs * 1.6 + fs * .7, kleur, fs * .8);
+    return [x - fs * 3.5, y - fs * 2.5, fs * 7, fs * 5];
   }
 
   // ---------- Alles tekenen ----------
@@ -336,12 +360,23 @@ const NcDraw = (() => {
     if (wereld.regen) for (const s of wereld.regen.stukjes) if (s[1] > x0 && s[1] < x1) lijst.push([s[2], 2, s]);
     // Gnomen
     for (const i of scene.gnomen.ids()) { const g = scene.gnomen.get(i, now); if (g) lijst.push([g[1], 3, g, i]); }
+    // Verkeer en bewoners (uit de dienstregeling, op elk scherm hetzelfde)
+    const tt = opts.tt || 0;
+    for (const c of W.VERKEER) {
+      const a = W.autoOp(c, tt);
+      if (a.x > x0 - 6 && a.x < x1 + 6 && a.y > y0 && a.y < y1) lijst.push([a.y, 5, a, c]);
+    }
+    for (const b of W.VOLK) {
+      const a = W.bewonerOp(b, tt);
+      if (a.x > x0 && a.x < x1 && a.y > y0 && a.y < y1) lijst.push([a.y, 6, a, b]);
+    }
     // Spelers
     for (const n of scene.spelers.ids()) { const p = scene.spelers.get(n, now); if (p && p[0] > x0 && p[0] < x1) lijst.push([p[1] + (W.VOERTUIGEN[p[3]].vliegt ? 20 : 0), 4, p, n]); }
     if (!cam.bake) {
       for (const it of lijst) {
-        const ex = it[1] === 2 ? it[2][1] : it[1] === 1 ? it[2].x : it[2][0], ey = it[0] - (it[1] === 4 && W.VOERTUIGEN[it[2][3]].vliegt ? 20 : 0);
-        const X = sx(ex), Y = sy(ey), r0 = X - S * 3.2, r1 = X + S * 3.2, t0 = Y - S * (it[1] === 4 && W.VOERTUIGEN[it[2][3]].vliegt ? 9 : 6.5);
+        const ex = it[1] === 2 ? it[2][1] : it[1] === 1 || it[1] >= 5 ? it[2].x : it[2][0], ey = it[0] - (it[1] === 4 && W.VOERTUIGEN[it[2][3]].vliegt ? 20 : 0);
+        const breed = it[1] === 5 ? W.AUTOS[it[3].a][1] / 2 + .5 : 3.2;
+        const X = sx(ex), Y = sy(ey), r0 = X - S * breed, r1 = X + S * breed, t0 = Y - S * (it[1] === 4 && W.VOERTUIGEN[it[2][3]].vliegt ? 9 : 6.5);
         const cx = Math.floor(ex / W.CHUNK);
         for (let cy = Math.max(0, Math.floor(ey / W.CHUNK)); cy <= Math.min(W.NC - 1, Math.floor((ey + 34) / W.CHUNK)); cy++) {
           for (let c = Math.max(0, cx - 1); c <= Math.min(W.NC - 1, cx + 1); c++) {
@@ -398,12 +433,53 @@ const NcDraw = (() => {
         const vorige = scene.gnomen.get(it[3], now - 120);
         const flip = vorige ? g[0] < vorige[0] : false;
         zet(ctx, 'gnoom', x, y - hop, S * (cam.bake ? 3.2 : 2), .02, flip);
+      } else if (soort === 5) {
+        const a = it[2], c = it[3], A = W.AUTOS[c.a];
+        const x = sx(a.x), y = sy(a.y);
+        const zweef = (.55 + Math.sin(t * 3 + c.fase) * .12) * S;
+        ctx.fillStyle = 'rgba(0,0,0,.3)';
+        ctx.beginPath(); ctx.ellipse(x, y, A[1] * .45 * S, A[1] * .2 * S, 0, 0, Math.PI * 2); ctx.fill();
+        const rechts = a.dx > 0 || (a.dy !== 0 && c.i % 2 === 0);
+        zet(ctx, A[0], x, y - zweef, A[1] * S * (cam.bake ? 1.15 : 1), .05, rechts === A[4]);
+      } else if (soort === 6) {
+        const a = it[2], b = it[3];
+        // Rijdt er een ridder vlakbij? Dan springt de bewoner opzij.
+        let schrik = 0;
+        for (const n of scene.spelers.ids()) {
+          const p = scene.spelers.get(n, now);
+          if (p && Math.abs(p[0] - a.x) < 3.5 && Math.abs(p[1] - a.y) < 2.5) { schrik = 1; break; }
+        }
+        const x = sx(a.x), y = sy(a.y);
+        const hop = schrik ? Math.abs(Math.sin(t * 11 + b.fase)) * S * .9 : Math.abs(Math.sin(t * 6 + b.fase)) * S * .12;
+        ctx.fillStyle = 'rgba(0,0,0,.28)';
+        ctx.beginPath(); ctx.ellipse(x, y, S * .7, S * .7 * T, 0, 0, Math.PI * 2); ctx.fill();
+        const img = IMG[W.BEWONERS[b.beeld]];
+        if (img) zet(ctx, W.BEWONERS[b.beeld], x, y - hop, 2.4 * S * (cam.bake ? 1.4 : 1) * img.width / img.height, .03, a.dir < 0);
+        if (schrik && !cam.bake) { ctx.font = `900 ${Math.round(S * 1.1)}px "Exo 2", sans-serif`; ctx.fillStyle = '#ffc94a'; ctx.textAlign = 'center'; ctx.fillText('!', x, y - S * 3.2 - hop); }
       } else {
         const [px, py, , veh, flags, dir] = it[2], n = it[3];
         const who = opts.roster && opts.roster.get(n);
         const kleur = (who && who.color) || '#4cc9ff';
         const x = sx(px), y = sy(py);
-        const top = rijder(ctx, x, y, S, veh, flags, dir, kleur, t, n, cam.bake ? 1.6 : 1);
+        // Snelheidsspoor in je eigen kleur (turbo: fel en breed)
+        const spoor = scene.spoor.get(n);
+        if (spoor && spoor.length > 2 && !W.VOERTUIGEN[veh].vliegt) {
+          const [ax, ay] = spoor[0];
+          if (Math.hypot(px - ax, py - ay) > 2.5) {
+            const turbo = flags & 32;
+            ctx.strokeStyle = turbo ? 'rgba(120,245,255,.55)' : rgba(kleur, .32);
+            ctx.lineWidth = S * (turbo ? 1.1 : .6);
+            ctx.lineCap = 'round';
+            ctx.beginPath(); ctx.moveTo(sx(ax), sy(ay));
+            for (let i = 1; i < spoor.length; i++) ctx.lineTo(sx(spoor[i][0]), sy(spoor[i][1]));
+            ctx.lineTo(x, y);
+            ctx.stroke();
+            ctx.lineCap = 'butt';
+          }
+        }
+        const l0 = scene.lucht.get(n);
+        const sprong = l0 !== undefined ? Math.sin(Math.min(1, (now / 1000 - l0) / W.SPRONG_S) * Math.PI) * W.SPRONG_H : 0;
+        const top = rijder(ctx, x, y, S, veh, flags, dir, kleur, t, n, cam.bake ? 1.6 : 1, sprong);
         if (flags & 4) zet(ctx, 'pakket', x - dir * S * .6, top + S * 1.4, S * 1.5);
         // Blussen: de waterdraak vliegt even mee en spuit naar de brand
         const sp = scene.spuit.find(s => s.n === n && t - s.t < 1.4);
@@ -435,6 +511,7 @@ const NcDraw = (() => {
       ctx.globalAlpha = 1;
     }
     for (let i = scene.spuit.length - 1; i >= 0; i--) if (t - scene.spuit[i].t > 1.5) scene.spuit.splice(i, 1);
+    const gaten = []; // wat niet donker mag worden 's nachts: namen en pijlen
     // Mijn missie: ringen of het baken, en een pijl als het buiten beeld is
     if (mijnMissie) {
       if (mijnMissie.soort === 'race') {
@@ -445,26 +522,113 @@ const NcDraw = (() => {
           zet(ctx, 'ring', sx(rx), sy(ry) + S * .4, S * 5.2 * pulse, 0, false, volgende ? 1 : .35);
         });
         const [rx, ry] = mijnMissie.ringen[mijnMissie.ri] || [0, 0];
-        pijl(ctx, cam, P, rx, ry, '#5ae6ff', `🏁 ${mijnMissie.ri + 1}/${mijnMissie.ringen.length}`, fs);
+        gaten.push(pijl(ctx, cam, P, rx, ry, '#5ae6ff', `🏁 ${mijnMissie.ri + 1}/${mijnMissie.ringen.length}`, fs));
       } else {
         baken(ctx, sx(mijnMissie.tx), sy(mijnMissie.ty), S, '#ffc94a', t);
-        pijl(ctx, cam, P, mijnMissie.tx, mijnMissie.ty, '#ffc94a', '📦', fs);
+        gaten.push(pijl(ctx, cam, P, mijnMissie.tx, mijnMissie.ty, '#ffc94a', '📦', fs));
       }
     }
-    if (wereld.brand && !cam.bake) pijl(ctx, cam, P, wereld.brand.x, wereld.brand.y, '#ff7a3d', '🔥', fs);
+    if (wereld.brand && !cam.bake) gaten.push(pijl(ctx, cam, P, wereld.brand.x, wereld.brand.y, '#ff7a3d', '🔥', fs));
     // Namen bovenaan
     for (const [text, x, y, kleur, f, ik, flags] of namen) {
-      label(ctx, (flags & 1) ? `❓ ${text}` : (flags & 2) ? `⚡ ${text}` : text, x, y, kleur, f, ik);
+      gaten.push(label(ctx, (flags & 1) ? `❓ ${text}` : (flags & 2) ? `⚡ ${text}` : text, x, y, kleur, f, ik));
     }
     // Mijn ridder achter een gebouw: een schim erover, zodat je jezelf nooit kwijt bent
     if (opts.me !== undefined && !cam.bake) {
       const p = scene.spelers.get(opts.me, now);
       if (p) {
         ctx.globalAlpha = .35;
-        rijder(ctx, sx(p[0]), sy(p[1]), S, p[3], p[4], p[5], '#ffffff', t, opts.me);
+        const l0 = scene.lucht.get(opts.me);
+        const sprong = l0 !== undefined ? Math.sin(Math.min(1, (now / 1000 - l0) / W.SPRONG_S) * Math.PI) * W.SPRONG_H : 0;
+        rijder(ctx, sx(p[0]), sy(p[1]), S, p[3], p[4], p[5], '#ffffff', t, opts.me, 1, sprong);
         ctx.globalAlpha = 1;
       }
     }
+    if (opts.nacht) nachtLaag(opts.nacht, cam, P, opts, scene, lijst, [...gaten.filter(Boolean), ...(opts.gat ? [opts.gat] : [])]);
+  }
+
+  // ---------- Dag en nacht ----------
+  // 's Nachts wordt de stad donkerblauw en gaan de lantaarns, de neon, de koplampen en de ridders gloeien.
+  const gloed = new Map();
+  function gloedBeeld(kleur) {
+    let c = gloed.get(kleur);
+    if (c) return c;
+    c = mk(64, 64);
+    const g = c.getContext('2d'), gr = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+    gr.addColorStop(0, rgba(kleur, .9)); gr.addColorStop(.35, rgba(kleur, .35)); gr.addColorStop(1, rgba(kleur, 0));
+    g.fillStyle = gr; g.fillRect(0, 0, 64, 64);
+    gloed.set(kleur, c);
+    return c;
+  }
+  const NEONKL = ['#ff4fd8', '#4cf0ff', '#b46bff', '#ff8a3d'];
+  // Alles gebeurt op een klein doek (een kwart van het scherm): donker, met gaten waar licht is, en wat kleur rond elk licht.
+  // Dat kleine doek gaat in één keer vergroot over het beeld. Zo blijft de nacht snel op een Chromebook.
+  function nachtLaag(doek, cam, P, opts, scene, lijst, gaten) {
+    const n = W.nacht(opts.tt || 0);
+    const g = doek.getContext('2d');
+    if (n < .02) {
+      if (!doek.leeg) { g.clearRect(0, 0, doek.width, doek.height); doek.leeg = true; }
+      return;
+    }
+    doek.leeg = false;
+    const { w, h } = cam, S = P.S, Sy = P.Sy, K = 4;
+    const lw = Math.ceil(w / K), lh = Math.ceil(h / K);
+    if (doek.width !== lw || doek.height !== lh) { doek.width = lw; doek.height = lh; }
+    g.globalCompositeOperation = 'source-over';
+    g.clearRect(0, 0, lw, lh);
+    g.fillStyle = `rgba(8,10,40,${(.72 * n).toFixed(3)})`;
+    g.fillRect(0, 0, lw, lh);
+    const lichten = [];
+    const licht = (x, y, r, kleur, plat = 1, sterk = 1) => {
+      const X = (P.ox + x * S) / K, Y = (P.oy + y * Sy) / K, R = r * S / K;
+      if (X < -R || X > lw + R || Y < -R * 2 || Y > lh + R) return;
+      lichten.push([X - R, Y - R * plat, R * 2, R * 2 * plat, kleur, sterk]);
+    };
+    // Vaste lichten: lantaarns warm, neonhuizen in hun kleur
+    const c0 = Math.max(0, Math.floor(-P.ox / S / W.CHUNK) - 1), c1 = Math.min(W.NC - 1, Math.floor((w - P.ox) / S / W.CHUNK) + 1);
+    const r0 = Math.max(0, Math.floor(-P.oy / Sy / W.CHUNK)), r1 = Math.min(W.NC - 1, Math.floor((h - P.oy) / Sy / W.CHUNK) + 1);
+    for (let cy = r0; cy <= r1; cy++) for (let cx = c0; cx <= c1; cx++) for (const o of W.PER_STUK[cy * W.NC + cx]) {
+      const naam = W.SOORTEN[o.k][0], f = W.front(o);
+      if (naam === 'lantaarn') licht(o.x, f - 1.5, 5, '#ffc66b', .8);
+      else if (naam.startsWith('neon')) licht(o.x, f - 5, 9, NEONKL[o.i % 4]);
+      else if (naam === 'burcht') licht(o.x, f - 9, 17, '#7fd8ff');
+      else if (naam === 'vuurtoren' || naam === 'magetoren') licht(o.x, f - 8, 7, naam === 'vuurtoren' ? '#ffe08a' : '#c08bff');
+      else if (naam === 'fontein') licht(o.x, f - 1, 4.5, '#6fe9ff');
+      else if (naam.startsWith('huis')) licht(o.x, f - 3, 4.5, '#ffcf7a', 1, .55);
+      else if (naam === 'kraam') licht(o.x, f - 1, 4, '#ffb347', 1, .7);
+    }
+    // Wat beweegt: koplampen van het verkeer en licht rond elke ridder
+    for (const it of lijst) {
+      if (it[1] === 5) {
+        const a = it[2], A = W.AUTOS[it[3].a];
+        licht(a.x + a.dx * (A[1] * .5 + 3), a.y + a.dy * 4, 4.5, '#fff1b8', .7);
+        licht(a.x, a.y, A[1] * .55, '#5fe7ff', .6);
+      } else if (it[1] === 4) {
+        const [px, py, , , , dir] = it[2];
+        const kleur = ((opts.roster && opts.roster.get(it[3])) || {}).color || '#4cc9ff';
+        licht(px, py - 1.5, 6, kleur);
+        licht(px + dir * 6, py, 6, '#fff1b8', .7);
+      } else if (it[1] === 2) licht(it[2][1], it[2][2] - 1, 3, '#7ff3ff');
+    }
+    if (scene.wereld && scene.wereld.brand) licht(scene.wereld.brand.x, scene.wereld.brand.y - 4, 14, '#ff8a3d');
+    // Missieplekken en je eigen doel blijven goed te zien
+    for (const m of W.STAD.markers) licht(m.x, m.y - 2, 6, '#ffc94a');
+    const mi = opts.missie;
+    if (mi) {
+      const [tx, ty] = mi.soort === 'race' ? (mi.ringen[mi.ri] || [0, 0]) : [mi.tx, mi.ty];
+      licht(tx, ty - 3, 7, mi.soort === 'race' ? '#5ae6ff' : '#ffc94a');
+    }
+    // Gaten in het donker, dan een zachte kleur rond elk licht
+    g.globalCompositeOperation = 'destination-out';
+    const wit = gloedBeeld('#ffffff');
+    for (const l of lichten) { g.globalAlpha = l[5]; g.drawImage(wit, l[0], l[1], l[2], l[3]); }
+    g.globalAlpha = 1;
+    g.fillStyle = '#000';
+    for (const r of gaten) g.fillRect(r[0] / K, r[1] / K, r[2] / K, r[3] / K);
+    g.globalCompositeOperation = 'source-over';
+    g.globalAlpha = .38 * n;
+    for (const l of lichten) g.drawImage(gloedBeeld(l[4]), l[0], l[1], l[2], l[3]);
+    g.globalAlpha = 1;
   }
 
   function brand(ctx, x, y, s, S, t, b) {
@@ -557,5 +721,19 @@ const NcDraw = (() => {
     dpr(max) { return Math.min(max, window.devicePixelRatio || 1) * this.scale; }
   }
 
-  return { Scene, render, minimap, laad, Res, IMG, klaar: () => gen };
+  // Turbo: witte streepjes die langs de randen van het scherm voorbij flitsen.
+  function snelheidslijnen(ctx, w, h, t, dir) {
+    ctx.strokeStyle = 'rgba(210,250,255,.5)';
+    ctx.lineWidth = Math.max(1.5, h / 300);
+    ctx.beginPath();
+    for (let i = 0; i < 14; i++) {
+      const y = ((i * 97.3 + Math.floor(t * 9 + i) * 41) % 100) / 100 * h;
+      if (Math.abs(y - h / 2) < h * .18) continue;
+      const len = w * (.08 + (i % 4) * .04), x = ((i * 0.137 - t * 2.6 * dir) % 1 + 1) % 1 * (w + len) - len / 2;
+      ctx.moveTo(x, y); ctx.lineTo(x + len * -dir, y);
+    }
+    ctx.stroke();
+  }
+
+  return { snelheidslijnen, Scene, render, minimap, laad, Res, IMG, klaar: () => gen };
 })();

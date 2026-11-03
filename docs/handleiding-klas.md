@@ -268,6 +268,7 @@ Tip: een klas die goed en vlot antwoordt, houdt de poort. Bij veel foute antwoor
 3. Bij een ⭐ verschijnt de knop **Koerier** of **Race**. Een juist antwoord start de missie: volg de gouden pijl of rij door de ringen.
 4. Is de energie op, dan komt er een vraag. Brandt er een huis, rij erheen en tik op **Blussen**.
 5. Met kristallen krijgen ze een hoverboard, een raketkar en een griffioen. Op het bord zie je de hele stad en het stadslicht van de klas.
+6. De stad leeft: verkeer, wandelende bewoners, schansen om over te springen, turboplaten en elke 4 minuten een nacht met neonlicht.
 
 ## Tuimelridder
 
