@@ -1,5 +1,5 @@
 // De vertaling (Instellingen > Uiterlijk > Taal). Elke tekst die op een scherm kan komen, moet een vertaling
-// hebben in lang/en, lang/fr en lang/es (*.json). Voeg je tekst toe? Kijk met `TAAL=fr node tools/i18n-todo.js <bestand>`
+// hebben in lang/en, lang/fr, lang/es en lang/de (*.json). Voeg je tekst toe? Kijk met `TAAL=fr node tools/i18n-todo.js <bestand>`
 // wat er ontbreekt en zet de vertaling in lang/<taal>/<naam>.json ("Nederlandse tekst": "vertaling", of null om niet te vertalen).
 const test = require('node:test');
 const assert = require('node:assert');
@@ -43,7 +43,7 @@ for (const id of ANDERE) {
   });
 }
 
-test('Frans en Spaans hebben dezelfde bestanden en teksten als het Engels', () => {
+test('Frans, Spaans en Duits hebben dezelfde bestanden en teksten als het Engels', () => {
   const en = bekend('en');
   for (const id of ANDERE.filter(x => x !== 'en')) {
     const w = bekend(id);

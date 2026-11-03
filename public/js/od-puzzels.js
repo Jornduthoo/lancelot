@@ -1758,13 +1758,18 @@
     schildknaap: ['ROBOT', 'COHETE', 'LASER', 'DRON', 'COMETA', 'SATURNO', 'BATERIA', 'PANTALLA', 'ANTENA', 'METEORO'],
     ridder: ['PLANETA', 'ESTRELLA', 'ASTRONAUTA', 'TELESCOPIO', 'GALAXIA', 'HOLOGRAMA', 'ORDENADOR', 'GRAVEDAD', 'SATELITE', 'ESCAFANDRA'],
   };
+  const SEIN_WOORDEN_DE = {
+    page: ['MOND', 'MARS', 'CODE', 'NEON', 'STERN', 'LICHT', 'ROT', 'DATEN', 'LAMPE', 'WELLE'],
+    schildknaap: ['ROBOTER', 'RAKETE', 'LASER', 'DROHNE', 'KOMET', 'SATURN', 'BATTERIE', 'ANTENNE', 'METEOR', 'FUNK'],
+    ridder: ['PLANET', 'SIGNAL', 'ASTRONAUT', 'TELESKOP', 'GALAXIE', 'HOLOGRAMM', 'COMPUTER', 'SATELLIT', 'RAUMANZUG', 'SCHWERKRAFT'],
+  };
   const SEIN_WOORDEN = {
     page: ['ZON', 'MAAN', 'STER', 'MARS', 'BAAN', 'CODE', 'DATA', 'LAMP', 'ROOD', 'NEON'],
     schildknaap: ['ROBOT', 'RAKET', 'LASER', 'DRONE', 'KOMEET', 'SATURN', 'BATTERIJ', 'SCHERM', 'ANTENNE', 'METEOOR'],
     ridder: ['PLANEET', 'SIGNAAL', 'ASTRONAUT', 'TELESCOOP', 'MELKWEG', 'HOLOGRAM', 'COMPUTER', 'ZWAARTEKRACHT', 'SATELLIET', 'RUIMTEPAK'],
   };
   function maakSein(n, r) {
-    const woord = r.pick(({ en: SEIN_WOORDEN_EN, fr: SEIN_WOORDEN_FR, es: SEIN_WOORDEN_ES }[taalVan()] || SEIN_WOORDEN)[n]);
+    const woord = r.pick(({ en: SEIN_WOORDEN_EN, fr: SEIN_WOORDEN_FR, es: SEIN_WOORDEN_ES, de: SEIN_WOORDEN_DE }[taalVan()] || SEIN_WOORDEN)[n]);
     const letters = [...new Set(woord)];
     // de page krijgt alleen de nodige letters (en een paar extra), de rest het hele alfabet
     const extra = r.shuffle(Object.keys(SEIN).filter(l => !letters.includes(l))).slice(0, 4);
