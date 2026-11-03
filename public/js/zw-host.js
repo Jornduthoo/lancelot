@@ -250,7 +250,9 @@ function tekenNu(r) {
     if (info.blad) knop('📝 Oefenblad', Lessen.link.blad(info.blad), 'Het oefenblad live starten');
     if (info.xl) knop('📝 XL', Lessen.link.blad(info.xl), 'Het lange oefenblad live starten');
   }
-  if ((les.oefen || []).length) kaart.append(oefenKnoppen(les.oefen));
+  if ((les.oefen || []).length) kaart.append(oefenKnoppen(les.oefen, { week: zw.week, slot }));
+  const taken = takenVan(zw.week, slot);
+  if (taken.length) kaart.append(takenBlok(taken));
   if (knoppen.children.length) kaart.append(knoppen);
   if (les.notitie) {
     const n = el('details', 'zw-notitie');
@@ -269,17 +271,44 @@ function oefenTegel(o, tag = 'a') {
   t.append(tekst);
   return t;
 }
-function oefenKnoppen(lijst) {
+function oefenKnoppen(lijst, les) {
   const box = el('div', 'zw-oefenknoppen');
   for (const o of lijst) {
     const a = oefenTegel(o);
-    a.href = Lessen.link.oefen(o);
+    a.href = Lessen.link.oefen(o, les);
     a.title = 'Meteen starten';
     if (Lessen.vorm(o).id === 'print') a.target = '_blank';
     box.append(a);
   }
   return box;
 }
+
+// Taken die uit deze les gegeven werden: hoeveel leerlingen zijn klaar? Live bijgewerkt.
+zw.taken = [];
+const takenVan = (week, slot) => zw.taken.filter(t => t.les && t.les.week === week && t.les.slot === slot);
+function takenBlok(taken) {
+  const box = el('div', 'zw-taken');
+  box.append(el('div', 'zw-doel-label', '📋 Taken uit deze les'));
+  for (const t of taken) {
+    const klaar = t.leerlingen.filter(l => l.status === 'klaar').length;
+    const a = el('a', 'zw-taak');
+    a.href = '/taken';
+    a.title = 'Opvolgen bij Taken';
+    const balk = el('span', 'zw-taak-balk');
+    const i = el('i');
+    i.style.width = `${t.leerlingen.length ? Math.round((klaar / t.leerlingen.length) * 100) : 0}%`;
+    balk.append(i);
+    a.append(el('strong', '', t.titel), balk, el('span', 'zw-taak-tel', `${klaar}/${t.leerlingen.length} klaar`));
+    box.append(a);
+  }
+  return box;
+}
+function zetTaken(lijst) {
+  zw.taken = Array.isArray(lijst) ? lijst : [];
+  if (zw.gekozen && rooster()) tekenNu(rooster());
+}
+socket.on('tk-lijst', zetTaken);
+socket.on('connect', () => socket.emit('tk-lijst', null, res => res && !res.error && zetTaken(res.taken)));
 
 $('zw-dag-vorige').addEventListener('click', () => naarDag(-1));
 $('zw-dag-volgende').addEventListener('click', () => naarDag(1));

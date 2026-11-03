@@ -813,5 +813,14 @@
  "Zelfinschatting (zeker of twijfel)": "Autoevaluación (seguro o no seguro)",
  "Terecht zeker: {0}× · getwijfeld maar juist: {1}× · zeker maar fout: {2}× · getwijfeld en fout: {3}×": "Seguro y con razón: {0}× · no seguro pero bien: {1}× · seguro pero mal: {2}× · no seguro y mal: {3}×",
  "Snel gegokt (drie keer snel en fout na elkaar): {0}×.": "Adivinó rápido (tres veces rápido y mal seguidas): {0}×.",
- "Geen notities.": "Sin notas."
+ "Geen notities.": "Sin notas.",
+ "Opvolgen bij Taken": "Seguir en Tareas",
+ "🎯 Voor de les: {0}": "🎯 Para la lección: {0}",
+ "Niet aan de les koppelen": "No vincular a la lección",
+ "De leerlingen zien dit doel en de succescriteria bij hun taak.": "Los alumnos ven este objetivo y los criterios de éxito junto a su tarea.",
+ "🎯 Ons doel": "🎯 Nuestro objetivo",
+ "⭐ Dit lukt me als …": "⭐ Lo consigo cuando …",
+ "📋 Taken uit deze les": "📋 Tareas de esta lección",
+ "Taken uit deze les": "Tareas de esta lección",
+ "{0}/{1} klaar": "{0}/{1} hecho"
 }

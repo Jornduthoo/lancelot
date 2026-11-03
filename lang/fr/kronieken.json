@@ -813,5 +813,14 @@
  "Zelfinschatting (zeker of twijfel)": "Auto-évaluation (sûr ou pas sûr)",
  "Terecht zeker: {0}× · getwijfeld maar juist: {1}× · zeker maar fout: {2}× · getwijfeld en fout: {3}×": "Sûr à raison : {0}× · pas sûr mais juste : {1}× · sûr mais faux : {2}× · pas sûr et faux : {3}×",
  "Snel gegokt (drie keer snel en fout na elkaar): {0}×.": "A deviné vite (trois fois vite et faux d’affilée) : {0}×.",
- "Geen notities.": "Aucune note."
+ "Geen notities.": "Aucune note.",
+ "Opvolgen bij Taken": "Suivre dans Tâches",
+ "🎯 Voor de les: {0}": "🎯 Pour la leçon : {0}",
+ "Niet aan de les koppelen": "Ne pas lier à la leçon",
+ "De leerlingen zien dit doel en de succescriteria bij hun taak.": "Les élèves voient cet objectif et les critères de réussite avec leur tâche.",
+ "🎯 Ons doel": "🎯 Notre objectif",
+ "⭐ Dit lukt me als …": "⭐ Je réussis quand …",
+ "📋 Taken uit deze les": "📋 Tâches de cette leçon",
+ "Taken uit deze les": "Tâches de cette leçon",
+ "{0}/{1} klaar": "{0}/{1} terminé"
 }

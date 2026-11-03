@@ -18,6 +18,20 @@ const vraag = new URLSearchParams(location.search);
 if (vraag.get('soort') === 'quiz') tk.soort = 'quiz';
 for (const n of (vraag.get('namen') || '').split('|').filter(Boolean)) tk.gekozen.add(n);
 
+// Uit een les in De Zonnewijzer (?week=…&slot=…): de taak krijgt het doel en de succescriteria van die les mee.
+tk.les = null;
+function zetLes(les) {
+  tk.les = les || null;
+  $('tk-les').classList.toggle('hidden', !tk.les);
+  if (!tk.les) return;
+  $('tk-les-titel').textContent = `🎯 Voor de les: ${[tk.les.vak, tk.les.titel].filter(Boolean).join(' · ')}`;
+  $('tk-les-doel').textContent = tk.les.doel || tk.les.criteria.join(' · ');
+}
+if (vraag.get('week') && vraag.get('slot')) {
+  socket.emit('tk-les', { week: vraag.get('week'), slot: vraag.get('slot') }, res => zetLes(res && res.les));
+}
+$('tk-les-weg').addEventListener('click', () => zetLes(null));
+
 $('brand').addEventListener('click', () => { location.href = '/host'; });
 // Terug gaat naar waar je vandaan kwam (De Kronieken, Mijn quizzen…), anders naar het startscherm.
 $('to-home').addEventListener('click', () => {
@@ -207,7 +221,7 @@ $('tk-geef').addEventListener('click', () => {
   const namen = [...tk.gekozen];
   const b = $('tk-geef');
   b.disabled = true;
-  socket.emit('tk-maak', { soort: tk.soort, file: $('tk-bron').value, namen, feedback: $('tk-feedback').value, spel: $('tk-spel').value, minuten: Number($('tk-minuten').value), niveau: $('tk-niveau').value }, res => {
+  socket.emit('tk-maak', { soort: tk.soort, file: $('tk-bron').value, namen, feedback: $('tk-feedback').value, spel: $('tk-spel').value, minuten: Number($('tk-minuten').value), niveau: $('tk-niveau').value, les: tk.les && { week: tk.les.week, slot: tk.les.slot } }, res => {
     knop();
     if (res.error) return ($('tk-fout').textContent = res.error);
     $('tk-fout').textContent = '';
@@ -242,6 +256,8 @@ function kaart(t) {
   const tel = s => t.leerlingen.filter(l => l.status === s).length;
   const titel = el('div', 'tk-taak-titel');
   titel.append(el('strong', '', t.titel), el('small', 'muted', `${t.soort === 'quiz' ? 'Quiz' : 'Oefenblad'}${t.spel ? ` in ${t.spel.naam}` : ''}${t.vak ? ` · ${t.vak}` : ''}${t.niveau ? ` · iedereen ${Niveau.NAMES[t.niveau]}` : ''}${t.uitLesmap ? ' · uit je lesmap' : ''} · ${datum(t.gemaakt)}${t.dicht ? ' · afgesloten' : ''}`));
+  // Uit een les in De Zonnewijzer: het doel van die les.
+  if (t.les) titel.append(el('small', 'tk-taak-les', `🎯 ${t.les.doel || t.les.titel}`));
   const telling = el('div', 'tk-telling');
   telling.append(el('span', 'klaar', `${tel('klaar')} klaar`), el('span', 'bezig', `${tel('bezig')} bezig`), el('span', 'nieuw', `${tel('nieuw')} nog niet`));
   const acties = el('div', 'actions');
