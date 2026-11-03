@@ -7,7 +7,7 @@
 const { Date, setTimeout, setInterval, clearTimeout, clearInterval } = require('./pauze').klok; // stil tijdens de pauzeknop
 const World = require('../public/js/hk-world');
 const { Vragen, saveCsv, pct } = require('./vragen');
-const { tempoOf, factor } = require('./tempo');
+const { tempoOf, factor, reeks } = require('./tempo');
 
 const SEND_MS = 100;
 const POINTS = { vlag: 100, snel: 6, cel: 10, salto: 5, vraag: 60 };
@@ -56,6 +56,7 @@ class Haakridder {
     this.tempo = tempoOf(tempo);
     this.seed = 1 + Math.floor(Math.random() * 90000);
     this.vragen = new Vragen(quiz, 'Haakridder', this.tempo);
+    this.vragen.reeks = reeks(this.tempo); // Veel vragen: twee vragen per vlag
     this.phase = 'lobby';
     this.broadcast();
   }

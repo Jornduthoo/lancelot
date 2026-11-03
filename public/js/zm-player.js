@@ -4,6 +4,8 @@
 // Gebruikt socket, $, playerId, store en buzz uit player.js, sfx en confetti uit fx.js, AK, ZmWorld en ZmDraw.
 (() => {
   const W = ZmWorld;
+  // Veel vragen: de balk is sneller vol, dus vaker een vraag.
+  const need = lvl => Math.max(3, Math.round(W.need(lvl) * (g.tempo === 'veel' ? .6 : 1)));
   const root = document.createElement('div');
   root.id = 'zwerm';
   root.innerHTML = `
@@ -139,6 +141,7 @@
     }
     g.joined = true;
     g.name = s.name;
+    g.tempo = s.tempo;
     const mine = s.roster.find(r => r.name === s.name);
     g.color = mine ? mine.color : '#4cc9ff';
     if (s.me) setMe(s.me);
@@ -673,7 +676,7 @@
     }
     if (got && w.rand() < .3) sfx.marker();
     w.gems = w.gems.filter(gm => !gm.done);
-    while (w.xp >= W.need(w.lvl + w.pending)) { w.xp -= W.need(w.lvl + w.pending); w.pending++; }
+    while (w.xp >= need(w.lvl + w.pending)) { w.xp -= need(w.lvl + w.pending); w.pending++; }
 
     // Beelden die vervagen
     for (const p of w.pulses) p.t += dt;
@@ -903,7 +906,7 @@
     setText('zm-lvl', `⭐ ${w.lvl + 1}`);
     setText('zm-kills', `🤖 ${w.kills}`);
     setText('zm-hearts', '❤️'.repeat(Math.max(0, w.pl.hp)) + '🖤'.repeat(Math.max(0, w.pl.maxHp - w.pl.hp)));
-    const xk = Math.min(1, w.pending ? 1 : w.xp / W.need(w.lvl));
+    const xk = Math.min(1, w.pending ? 1 : w.xp / need(w.lvl));
     const xs = `${Math.round(xk * 100)}%`;
     if (shown.xp !== xs) { shown.xp = xs; $('zm-xp').firstChild.style.width = xs; $('zm-xp').classList.toggle('vol', xk >= 1); }
   }
