@@ -19,7 +19,7 @@
     <p class="status">Neon-Camelot</p>
     <img class="lobby-icoon" src="/img/icons/neoncamelot.webp" alt="">
     <p class="title" id="nc-lobby-name"></p>
-    <p>Rij vrij door de stad op je <strong>robopaard</strong>. Rij naar een ⭐ en doe een <strong>missie</strong>: een pakket brengen of een race door de ringen. Vang 🧙 gnomen, blus 🔥 branden en raap 💎 kristallen.</p>
+    <p>Rij vrij door de stad op je <strong>robopaard</strong>. Rij naar een ⭐ en doe een <strong>missie</strong>: een pakket brengen of een race door de ringen. Vang 🧙 gnomen, blus 🔥 branden, spring over schansen en raap 💎 kristallen.</p>
     <p class="muted small">Een missie start met een vraag. Is je energie op, dan krijg je ook een vraag. Met kristallen krijg je een hoverboard, een raketkar en een griffioen!</p>
     <p class="muted small ls-hint-touch">Duim op het scherm en schuiven. De knop rechts onder doet de actie.</p>
     <p class="muted small ls-hint-keys">Je ridder volgt de muis, of pijltjes · spatie = actie · V = voertuig · 1-4 antwoorden.</p>
@@ -35,9 +35,11 @@
     </div>
     <div class="ls-stage nc-stage" id="nc-stage">
       <canvas id="nc-canvas"></canvas>
+      <canvas id="nc-nacht" class="nc-nacht"></canvas>
       <div class="ak-stick hidden" id="nc-stick"><i></i></div>
       <div class="ls-feed" id="nc-feed"></div>
       <div class="ls-banner" id="nc-banner"></div>
+      <div class="nc-wijk" id="nc-wijk"></div>
       <div class="tw-toast" id="nc-toast"></div>
       <div class="tw-countdown hidden" id="nc-countdown"></div>
       <div class="hb-tip" id="nc-tip"><span class="ls-hint-touch">Duim op het scherm en schuiven</span><span class="ls-hint-keys">Je ridder volgt de muis</span></div>
@@ -125,7 +127,7 @@
       $('nc-end-medal').textContent = medals[me.rank - 1] || '🏰';
       $('nc-end-title').textContent = me.rank === 1 && me.kr > 0 ? 'Jij hebt de meeste kristallen!' : `Plek ${me.rank} van ${me.players}`;
       $('nc-end-score').textContent = `💎 ${me.kr || 0} kristallen`;
-      $('nc-end-stats').textContent = [`${s.right} ${s.right === 1 ? 'vraag' : 'vragen'} juist`, `${me.missies || 0} ${me.missies === 1 ? 'missie' : 'missies'}`, `${me.gnomen || 0} gnomen`, `${me.geblust || 0} branden geblust`].join(' · ');
+      $('nc-end-stats').textContent = [`${s.right} ${s.right === 1 ? 'vraag' : 'vragen'} juist`, `${me.missies || 0} ${me.missies === 1 ? 'missie' : 'missies'}`, `${me.gnomen || 0} gnomen`, `${me.geblust || 0} branden geblust`, `${me.stunts || 0} sprongen`].join(' · ');
       if (!$('nc-end').dataset.done && me.rank && me.rank <= 3) confetti(4000);
       $('nc-end').dataset.done = '1';
       show('nc-end');
@@ -197,8 +199,22 @@
       banner('✨ DE STAD LICHT OP!', 'Samen verdienden jullie genoeg kristallen', 'gold');
     } else if (e[0] === 'g' && g.wasBij) {
       toast('💧 De brand is uit!', 'good');
-    } else if (e[0] === 'k' && !ik) {
-      // stil
+    } else if (e[0] === 's' && ik) {
+      sfx.jump();
+      buzz(30);
+      g.landAt = performance.now() + W.SPRONG_S * 1000;
+      toast(performance.now() - (g.stuntAt || 0) > 6000 ? '🛹 STUNTSPRONG! +1 💎' : '🛹 Wat een sprong!', 'good');
+      g.stuntAt = performance.now();
+    } else if (e[0] === 't' && ik) {
+      sfx.whoosh();
+      buzz(20);
+      g.turboAt = performance.now();
+      toast('⚡ TURBO!', 'good');
+    } else if (e[0] === 'h' && ik) {
+      sfx.toet ? sfx.toet() : sfx.tick();
+      buzz(40);
+      g.schud = performance.now();
+      if (performance.now() - (g.toetTip || 0) > 20000) { g.toetTip = performance.now(); toast('🚋 Toet toet! Kijk uit voor het verkeer.'); }
     }
   }
 
@@ -436,24 +452,49 @@
     const p = scene.speler(g.me.n, t);
     const vliegt = p && W.VOERTUIGEN[p[3]].vliegt;
     // Zoom: ongeveer 60 m breed op een Chromebook, iets verder uit met de griffioen.
-    const want = Math.min(Math.sqrt(w * h) / (vliegt ? 52 : 44), w / (vliegt ? 46 : 40));
+    const snel = p ? (p[4] & 48 ? .86 : 1) : 1; // turbo of sprong: iets verder uit, voelt sneller
+    const want = Math.min(Math.sqrt(w * h) / (vliegt ? 52 : 44), w / (vliegt ? 46 : 40)) * snel;
     g.S = g.S ? g.S + (want - g.S) * Math.min(1, dt * 2) : want;
     const S = Math.round(g.S * 4) / 4;
     if (p) {
-      if (!g.cam) g.cam = { x: p[0], y: p[1] };
+      if (!g.cam) g.cam = { x: p[0], y: p[1], vx: 0, vy: 0 };
+      // De camera kijkt een stukje vooruit in de richting waarin je rijdt.
+      const q = scene.speler(g.me.n, t - 250);
+      if (q) {
+        const kv = Math.min(1, dt * 3);
+        g.cam.vx += ((p[0] - q[0]) * 4 - g.cam.vx) * kv;
+        g.cam.vy += ((p[1] - q[1]) * 4 - g.cam.vy) * kv;
+      }
       const k = Math.min(1, dt * 7);
-      g.cam.x += (p[0] - g.cam.x) * k;
-      g.cam.y += (p[1] - g.cam.y) * k;
+      g.cam.x += (p[0] + g.cam.vx * .55 - g.cam.x) * k;
+      g.cam.y += (p[1] + g.cam.vy * .45 - g.cam.y) * k;
+      // Wijknaam in beeld als je een nieuwe wijk in rijdt
+      const wijk = W.wijkOp(p[0], p[1]);
+      if (wijk !== g.wijk) {
+        g.wijk = wijk;
+        const el = $('nc-wijk');
+        el.textContent = W.WIJK[wijk].replace(/^\w/, c => c.toUpperCase());
+        el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
+      }
     }
-    if (!g.cam) g.cam = { x: W.L / 2, y: W.L / 2 };
+    if (!g.cam) g.cam = { x: W.L / 2, y: W.L / 2, vx: 0, vy: 0 };
     const halfW = w / 2 / S, halfH = h / 2 / (S * W.TILT);
-    const cam = { x: Math.max(halfW - 4, Math.min(W.L + 4 - halfW, g.cam.x)), y: Math.max(halfH - 12, Math.min(W.L + 2 - halfH, g.cam.y)), S, w, h };
+    // Schudden bij een landing of een toet
+    let shx = 0, shy = 0;
+    const land = g.landAt && t > g.landAt && t - g.landAt < 260;
+    const toet = g.schud && t - g.schud < 200;
+    if (land || toet) { const a = (land ? .45 : .25); shx = (Math.random() - .5) * a; shy = (Math.random() - .5) * a; }
+    if (g.landAt && t > g.landAt && !g.landed) { g.landed = true; sfx.dobbel(0); fx.burst(w / 2, h / 2 + S * .5, { n: 14, color: '#d8c8a8', speed: 160 * dpr, life: .45, size: 3 * dpr, glow: false }); }
+    if (g.landAt && t < g.landAt) g.landed = false;
+    const cam = { x: Math.max(halfW - 4, Math.min(W.L + 4 - halfW, g.cam.x)) + shx, y: Math.max(halfH - 12, Math.min(W.L + 2 - halfH, g.cam.y)) + shy, S, w, h };
     const t0 = performance.now();
-    NcDraw.render(ctx, scene, cam, { roster: g.roster, t: sec, me: g.me.n, missie: g.me.missie, cool: (g.coolEnd || 0) - t, fs: Math.max(10, 12 * dpr) });
+    const tt = (now() - g.state.startedAt) / 1000 + (window.__ncTijd || 0); // __ncTijd: alleen voor de tests (dag of nacht)
+    const ms = Math.min(w * .2, h * .3, 130 * dpr);
+    NcDraw.render(ctx, scene, cam, { tt, nacht: $('nc-nacht'), gat: [w - ms - 12 * dpr, 8 * dpr, ms + 4 * dpr, ms + 4 * dpr], roster: g.roster, t: sec, me: g.me.n, missie: g.me.missie, cool: (g.coolEnd || 0) - t, fs: Math.max(10, 12 * dpr) });
     window.__ncMs = (window.__ncMs || 0) * .9 + (performance.now() - t0) * .1;
+    if (p && (p[4] & 32)) NcDraw.snelheidslijnen(ctx, w, h, sec, p[5]);
     fx.update(dt);
     fx.draw(ctx);
-    const ms = Math.min(w * .2, h * .3, 130 * dpr);
     NcDraw.minimap(ctx, scene, w - ms - 10 * dpr, 10 * dpr, ms, { roster: g.roster, me: g.me.n, missie: g.me.missie, t: sec });
     if (p) {
       // Actieknop

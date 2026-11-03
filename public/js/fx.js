@@ -82,6 +82,8 @@ const sfx = (() => {
     // Een steen die op het hout tikt; elke stuiter wat zachter.
     dobbel(stuiter = 0) { const v = [.16, .1, .06][stuiter] || .05; noise(0, .05, v); tone(210 + stuiter * 40, 0, .05, { type: 'square', vol: v / 3 }); },
     jump() { tone(300, 0, .16, { type: 'square', vol: .05, slide: 2.2 }); },
+    // Een vrolijke toeter (twee tonen tegelijk).
+    toet() { tone(392, 0, .18, { type: 'square', vol: .05 }); tone(494, 0, .18, { type: 'square', vol: .04 }); tone(392, .22, .14, { type: 'square', vol: .05 }); tone(494, .22, .14, { type: 'square', vol: .04 }); },
     empty() { tone(140, 0, .25, { type: 'square', vol: .06 }); tone(110, .12, .3, { type: 'square', vol: .06 }); },
     hit() { noise(0, .25, .14); tone(220, 0, .5, { type: 'sawtooth', vol: .08, slide: .3 }); },
     laser() { tone(1400, 0, .12, { type: 'square', vol: .035, slide: .35 }); },

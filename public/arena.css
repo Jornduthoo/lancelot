@@ -697,6 +697,13 @@ body:not([data-nc="1"]) #camelot { display: none !important; }
   .nc-missie { font-size: .78rem; padding: 2px 8px; }
 }
 .nc-energie { flex: 0 0 auto; min-width: 70px; }
+.nc-nacht { pointer-events: none; }
+.nc-wijk { position: absolute; left: 50%; bottom: 120px; z-index: 2; transform: translateX(-50%); pointer-events: none; opacity: 0; white-space: nowrap;
+  font: italic 900 clamp(1.4rem, 4.2vw, 2.6rem) "Exo 2", sans-serif; letter-spacing: .02em; color: #fff3c4;
+  text-shadow: 0 0 2px #000, 2px 2px 0 #1a1030, -1px -1px 0 #1a1030, 0 0 18px rgb(var(--k-goud) / .8); }
+.nc-wijk.show { animation: nc-wijk 2.8s ease-out forwards; }
+@keyframes nc-wijk { 0% { opacity: 0; transform: translateX(-50%) translateY(10px) scale(.96); } 12%, 75% { opacity: 1; transform: translateX(-50%); } 100% { opacity: 0; transform: translateX(-50%) translateY(-6px); } }
+@media (max-width: 520px), (max-height: 420px) { .nc-wijk { bottom: 104px; } }
 
 
 /* ---------- Titanenstrijd ---------- */

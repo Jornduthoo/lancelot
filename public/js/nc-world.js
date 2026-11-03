@@ -24,7 +24,7 @@
   ];
 
   // Wat je verdient (kristallen)
-  const BELONING = { vraag: 1, koerier: 4, snel: 2, race: 5, gnoom: 2, blus: 1, geblust: 3, regen: 1 };
+  const BELONING = { stunt: 1, vraag: 1, koerier: 4, snel: 2, race: 5, gnoom: 2, blus: 1, geblust: 3, regen: 1 };
   // Samen de stad laten oplichten: bij deze totalen gaat een nieuw stuk van de stad aan.
   const LICHT = [20, 50, 100, 170, 260, 380, 520, 700, 900, 1200];
 
@@ -225,6 +225,68 @@
     return ringen.map(([x, y]) => [Math.round(x * 10) / 10, Math.round(y * 10) / 10]);
   }
 
+
+  // ---------- De levende stad ----------
+  // Verkeer en bewoners volgen een vaste dienstregeling: iedereen (server, leerlingen, bord) rekent ze uit de speeltijd,
+  // zonder dat er iets over het netwerk moet. tt = seconden sinds de start.
+  const LUS = L + 40;
+  const pmod = (a, m) => ((a % m) + m) % m;
+  // [beeld, breedte op het beeld (m), lengte voor botsen (m), snelheid (m/s), kijkt het beeld naar links?]
+  const AUTOS = [['n-koets', 5.6, 4.4, 6.5, false], ['n-tram', 8.6, 7.4, 5, false], ['n-vracht', 6.2, 5.2, 5.5, false], ['n-taxi', 4.2, 3.4, 8, true]];
+  const VERKEER = [];
+  {
+    const R = rng(77);
+    for (let i = 0; i < 5; i++) for (const as of ['h', 'v']) for (const r of [1, -1]) {
+      const n = 1 + (R() < .55 ? 1 : 0);
+      for (let k = 0; k < n; k++) {
+        const a = Math.floor(R() * AUTOS.length);
+        VERKEER.push({ as, i, r, a, fase: (k / n) * LUS + R() * 60, v: AUTOS[a][3] * (.9 + R() * .2) });
+      }
+    }
+  }
+  // Waar rijdt auto c op tijd tt? Rechts rijden: wie naar rechts gaat, rijdt onder; wie naar beneden gaat, links.
+  function autoOp(c, tt) {
+    const s = pmod(c.fase + c.v * tt, LUS) - 20;
+    const pos = c.r > 0 ? s : L - s;
+    const baan = kruis(c.i) + (c.as === 'h' ? 1.9 * c.r : -1.9 * c.r);
+    return c.as === 'h' ? { x: pos, y: baan, dx: c.r, dy: 0 } : { x: baan, y: pos, dx: 0, dy: c.r };
+  }
+  // Bewoners wandelen heen en weer langs de rand van een straat, tussen twee kruispunten.
+  const BEWONERS = ['b-markt', 'b-tovenaar', 'b-robot', 'b-bakker', 'b-oude', 'b-hond'];
+  const VOLK = [];
+  {
+    const R = rng(91);
+    for (let i = 0; i < 5; i++) for (let j = 0; j < 5; j++) for (const as of ['h', 'v']) {
+      if (R() < .35) continue;
+      const a = j === 0 ? 8 : kruis(j - 1) + 6, b = kruis(j) - 6;
+      VOLK.push({ as, i, a, b, kant: R() < .5 ? -1 : 1, beeld: Math.floor(R() * BEWONERS.length), fase: R() * 100, v: .9 + R() * .6 });
+    }
+  }
+  function bewonerOp(b, tt) {
+    const len = b.b - b.a;
+    const s = pmod(b.fase + b.v * tt, len * 2);
+    const heen = s < len;
+    const pos = b.a + (heen ? s : len * 2 - s);
+    const baan = kruis(b.i) + 3.3 * b.kant;
+    return b.as === 'h' ? { x: pos, y: baan, dir: heen ? 1 : -1 } : { x: baan, y: pos, dir: b.kant };
+  }
+  // Schansen op de straten van links naar rechts (twee per stuk straat: één per rijrichting) en turboplaten op de straten van boven naar onder.
+  // Ze liggen op de stukken straat zonder missieplek.
+  const SCHANSEN = [], TURBO = [];
+  for (let by = 0; by < 5; by++) for (let bx = 1; bx < 5; bx++) {
+    if ((bx + by) % 2 === 0) continue;
+    const x = (bx * BLOK + 5.5) * TILE;
+    SCHANSEN.push({ x: x - 3, y: kruis(by) + 1.9, r: 1 }, { x: x + 3, y: kruis(by) - 1.9, r: -1 });
+  }
+  for (let bx = 0; bx < 5; bx++) for (let by = 1; by < 5; by++) if ((bx + by) % 2 === 0) TURBO.push({ x: kruis(bx), y: (by * BLOK + 5.5) * TILE });
+  const SPRONG_S = 1.1;      // zo lang ben je in de lucht
+  const SPRONG_H = 4.5;      // zo hoog (m)
+  const TURBO_S = 2.5;       // zo lang duurt de turbo
+  const TURBO_X = 1.6;       // zoveel sneller
+  // Dag en nacht: een dag duurt 4 minuten, het spel begint op klaarlichte dag. 0 = dag, 1 = diepe nacht.
+  const DAG_S = 240;
+  const nacht = tt => Math.max(0, Math.min(1, (1 - Math.cos(tt / DAG_S * Math.PI * 2)) / 2 * 1.7 - .5));
+
   // Raster om snel de voorwerpen per stuk stad te vinden (stukken van CHUNK meter).
   const CHUNK = 32;
   const NC = Math.ceil(L / CHUNK);
@@ -236,6 +298,6 @@
 
   return {
     TILT, TILE, N, L, BLOK, G, ENERGIE_S, WRONG_S, COLORS, VOERTUIGEN, BELONING, LICHT, PLAN, WIJK, SOORTEN, K, HUIZEN,
-    STAD, CHUNK, NC, PER_STUK, rng, isWeg, kruis, front, tegel, grondOp, kan, snelheid, wijkOp, vrijePlek, startPlek, parcours,
+    STAD, CHUNK, NC, PER_STUK, AUTOS, VERKEER, autoOp, BEWONERS, VOLK, bewonerOp, SCHANSEN, TURBO, SPRONG_S, SPRONG_H, TURBO_S, TURBO_X, DAG_S, nacht, rng, isWeg, kruis, front, tegel, grondOp, kan, snelheid, wijkOp, vrijePlek, startPlek, parcours,
   };
 });
