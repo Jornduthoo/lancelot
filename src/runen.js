@@ -13,8 +13,7 @@ const niveaus = require('./niveaus');
 const taal = require('./taal');
 
 // De ingebouwde woorden en de woordenlijst hangen af van de taal van LANcelot (Instellingen > Uiterlijk > Taal).
-const engels = () => taal.huidig() === 'en';
-const ingebouwdVoor = () => (engels() ? require('./runen-woorden-en') : require('./runen-woorden'));
+const ingebouwdVoor = () => taal.inhoud('runen-woorden');
 
 const DIR = gegevens.pad('runen');
 const LIJST = path.join(DIR, 'weeklijst.json');
@@ -41,11 +40,11 @@ const DOEL_6 = '1.5.GL6.3';
 
 const woordenlijsten = {};
 function bestaat(w) {
-  const id = engels() ? 'en' : 'nl';
+  const id = taal.huidig();
   let set = woordenlijsten[id];
   if (!set) {
     try {
-      set = new Set(fs.readFileSync(path.join(__dirname, id === 'en' ? 'woordenlijst-en.txt' : 'woordenlijst.txt'), 'utf8').split('\n'));
+      set = new Set(fs.readFileSync(taal.woordenlijstPad(id), 'utf8').split('\n'));
     } catch {
       set = new Set();
     }
@@ -269,7 +268,7 @@ function dagRecord(dag) {
 
 function woordVan(dag, niveau) {
   const rec = dagRecord(dag);
-  const id = engels() ? 'en' : 'nl';
+  const id = taal.huidig();
   // Een ingebouwd woord van de dag hoort bij een taal; koos de leerkracht vandaag een andere taal, dan een nieuw woord.
   const oud = rec.woorden[niveau];
   if (oud && (oud.eigen || (oud.taal || 'nl') === id)) return oud;

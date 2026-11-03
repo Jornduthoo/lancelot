@@ -590,7 +590,7 @@ function tekenDruk() {
 $('zr-csv').addEventListener('click', () => {
   const { rapport: r, klas } = zr.data;
   const cel = s => `"${String(s).replace(/"/g, '""')}"`;
-  // In een andere taal: kolomkoppen vertaald en komma's als scheidingsteken (Excel buiten België).
+  // In een andere taal: kolomkoppen vertaald; in het Engels komma's als scheidingsteken (Excel daar).
   const T = s => (window.I18n ? I18n.t(s) : s);
   const kop = [T('Leerling')];
   for (const v of r.vakken.filter(x => x.punten)) {
@@ -612,7 +612,7 @@ $('zr-csv').addEventListener('click', () => {
     return rij;
   });
   kop.push(T('Totaal %'));
-  const sep = window.I18n && I18n.taal !== 'nl' ? ',' : ';';
+  const sep = window.I18n && I18n.taal === 'en' ? ',' : ';';
   const csv = '﻿' + [kop, ...rijen].map(rij => rij.map(cel).join(sep)).join('\r\n');
   const a = el('a');
   a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));

@@ -1,6 +1,6 @@
-// De vertaling (Instellingen > Uiterlijk > Taal). Elke tekst die op een scherm kan komen, moet een Engelse
-// vertaling hebben in lang/en/*.json. Voeg je tekst toe? Kijk met `node tools/i18n-todo.js <bestand>` wat er
-// ontbreekt en zet de vertaling in lang/en/<naam>.json ("Nederlandse tekst": "English text", of null om niet te vertalen).
+// De vertaling (Instellingen > Uiterlijk > Taal). Elke tekst die op een scherm kan komen, moet een vertaling
+// hebben in lang/en, lang/fr en lang/es (*.json). Voeg je tekst toe? Kijk met `TAAL=fr node tools/i18n-todo.js <bestand>`
+// wat er ontbreekt en zet de vertaling in lang/<taal>/<naam>.json ("Nederlandse tekst": "vertaling", of null om niet te vertalen).
 const test = require('node:test');
 const assert = require('node:assert');
 const fs = require('fs');
@@ -19,9 +19,11 @@ test('elke pagina laadt /taal.js als eerste script', () => {
   }
 });
 
+const ANDERE = require('../src/taal').TALEN.map(t => t.id).filter(id => id !== 'nl');
+
 test('de taalbestanden zijn geldig en houden de {0}-plekken', () => {
-  const dir = path.join(ROOT, 'lang', 'en');
-  for (const f of fs.readdirSync(dir).filter(x => x.endsWith('.json'))) {
+  for (const id of ANDERE) for (const f of fs.readdirSync(path.join(ROOT, 'lang', id)).filter(x => x.endsWith('.json'))) {
+    const dir = path.join(ROOT, 'lang', id);
     const w = JSON.parse(fs.readFileSync(path.join(dir, f), 'utf8'));
     for (const [nl, en] of Object.entries(w)) {
       assert.ok(en === null || typeof en === 'string', `${f}: "${nl}" moet tekst of null zijn`);
@@ -32,11 +34,21 @@ test('de taalbestanden zijn geldig en houden de {0}-plekken', () => {
   }
 });
 
-test('elke schermtekst heeft een Engelse vertaling', () => {
-  const mis = ontbrekend(verzamel(), bekend('en'));
-  const fout = Object.entries(mis);
-  assert.deepEqual(fout.map(([f, l]) => `${f}: ${l.slice(0, 5).map(s => JSON.stringify(s)).join(', ')}${l.length > 5 ? ` (+${l.length - 5})` : ''}`), [],
-    'Nieuwe tekst zonder vertaling. Zet ze in lang/en/<naam>.json (zie node tools/i18n-todo.js <bestand>).');
+for (const id of ANDERE) {
+  test(`elke schermtekst heeft een vertaling (${id})`, () => {
+    const mis = ontbrekend(verzamel(), bekend(id));
+    const fout = Object.entries(mis);
+    assert.deepEqual(fout.map(([f, l]) => `${f}: ${l.slice(0, 5).map(s => JSON.stringify(s)).join(', ')}${l.length > 5 ? ` (+${l.length - 5})` : ''}`), [],
+      `Nieuwe tekst zonder vertaling. Zet ze in lang/${id}/<naam>.json (zie TAAL=${id} node tools/i18n-todo.js <bestand>).`);
+  });
+}
+
+test('Frans en Spaans hebben dezelfde bestanden en teksten als het Engels', () => {
+  const en = bekend('en');
+  for (const id of ANDERE.filter(x => x !== 'en')) {
+    const w = bekend(id);
+    assert.deepEqual(Object.keys(en).filter(k => !(k in w)).slice(0, 5), [], `${id}: deze teksten ontbreken`);
+  }
 });
 
 test('i18n.js vertaalt vaste tekst en patronen', () => {
@@ -75,5 +87,6 @@ test('een CSV voor Excel wordt in het Engels vertaald, met komma\'s', () => {
   const uit = taal.csv('﻿Naam;Score;Aantal goed\r\nAn;"3;4";niet gespeeld\r\n', 'en');
   assert.strictEqual(uit, '﻿Name,Score,Number correct\r\nAn,3;4,not played\r\n');
   assert.strictEqual(taal.csv('a;b\r\n', 'nl'), 'a;b\r\n');
+  assert.strictEqual(taal.csv('Naam;Score\r\n', 'fr'), 'Nom;Score\r\n');
   assert.strictEqual(taal.t('Vraag 3 heeft geen antwoorden.', 'en'), 'Question 3 has no answers.');
 });

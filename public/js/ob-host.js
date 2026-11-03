@@ -340,7 +340,7 @@ function textToBlock(type, instruction, title, body) {
       }),
     };
   }
-  if (type === 'juistfout') return { type, instruction, items: lines.map(l => { const [statement, c] = split(l, '|'); return { statement, correct: /^j/i.test(c) }; }) };
+  if (type === 'juistfout') return { type, instruction, items: lines.map(l => { const [statement, c] = split(l, '|'); return { statement, correct: /^[jtwvy]/i.test(c) }; }) };
   if (type === 'verbinden') return { type, instruction, pairs: lines.map(l => { const [left, right] = split(l, '='); return { left, right }; }) };
   if (type === 'woorden') return { type, instruction, items: lines.map(l => { const [prompt, answer] = split(l, '='); return { prompt, answer }; }) };
   if (type === 'overschrijven') return { type, instruction, lines };

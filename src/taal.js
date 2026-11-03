@@ -12,7 +12,11 @@ const I18N = path.join(__dirname, '..', 'public', 'js', 'i18n.js');
 const TALEN = [
   { id: 'nl', naam: 'Nederlands', vlag: 'BE' },
   { id: 'en', naam: 'English', vlag: 'GB' },
+  { id: 'fr', naam: 'Français', vlag: 'FR' },
+  { id: 'es', naam: 'Español', vlag: 'ES' },
 ];
+// Scheidingsteken in een CSV voor Excel: Engelstalige landen gebruiken een komma, de rest een puntkomma.
+const CSV_SEP = { en: ',' };
 
 function huidig() {
   const t = settings.read().taal;
@@ -23,11 +27,21 @@ function huidig() {
 // Dezelfde tekst staat in public/js/i18n.js voor prompts die de leerkracht kopieert.
 const AI_TAAL = {
   en: 'LANGUAGE: The teacher uses LANcelot in English. Write everything you create (titles, questions, answers, explanations, words, meanings, sentences, feedback) in English with British spelling, even where the instructions below ask for Dutch or Belgian Dutch. Keep JSON keys and fixed values (such as page, schildknaap, ridder) exactly as written below.\n\n',
+  fr: 'LANGUE : LANcelot est utilisé en français. Write everything you create (titles, questions, answers, explanations, words, meanings, sentences, feedback) in French, even where the instructions below ask for Dutch or Belgian Dutch. Keep JSON keys and fixed values (such as page, schildknaap, ridder) exactly as written below.\n\n',
+  es: 'IDIOMA: El docente usa LANcelot en español. Write everything you create (titles, questions, answers, explanations, words, meanings, sentences, feedback) in Spanish (Spain), even where the instructions below ask for Dutch or Belgian Dutch. Keep JSON keys and fixed values (such as page, schildknaap, ridder) exactly as written below.\n\n',
 };
 function aiPrompt(prompt) {
   const voor = AI_TAAL[huidig()];
   if (!voor || typeof prompt !== 'string' || !prompt.trim() || prompt.startsWith(voor)) return prompt;
   return voor + prompt;
+}
+
+// Inhoud met een eigen bestand per taal: runen-woorden.js (Nederlands), runen-woorden-en.js, runen-woorden-fr.js...
+function inhoud(basis, id = huidig()) {
+  return require(id === 'nl' ? `./${basis}` : `./${basis}-${id}`);
+}
+function woordenlijstPad(id = huidig()) {
+  return path.join(__dirname, id === 'nl' ? 'woordenlijst.txt' : `woordenlijst-${id}.txt`);
 }
 
 function zet(id) {
@@ -36,16 +50,20 @@ function zet(id) {
   return id;
 }
 
-// Alle woorden van één taal, samengevoegd uit de bestanden in lang/<taal>/.
+// Alle woorden van één taal, samengevoegd uit de bestanden in lang/<taal>/. Ontbreekt een tekst in het Frans of
+// Spaans (nieuwe tekst die nog niet vertaald is), dan liever Engels dan Nederlands.
 function woorden(id) {
+  const uit = id !== 'en' && id !== 'nl' ? woorden('en') : {};
   const dir = path.join(LANG, id);
-  const uit = {};
   let files = [];
   try { files = fs.readdirSync(dir).filter(f => f.endsWith('.json')).sort(); } catch { return uit; }
   for (const f of files) {
     try {
       const w = JSON.parse(fs.readFileSync(path.join(dir, f), 'utf8'));
-      for (const [k, v] of Object.entries(w)) if (typeof v === 'string' && v !== k) uit[k] = v;
+      for (const [k, v] of Object.entries(w)) {
+        if (typeof v === 'string' && v !== k) uit[k] = v;
+        else delete uit[k];
+      }
     } catch (err) { console.error(`Taalbestand ${id}/${f}: ${err.message}`); }
   }
   return uit;
@@ -96,7 +114,7 @@ function t(s, id = huidig()) {
   return id === 'nl' ? s : vertaalFunctie(id)(s);
 }
 
-// Een CSV van LANcelot (puntkomma's, zoals Excel in België) in de gekozen taal: elke cel vertaald en
+// Een CSV van LANcelot (puntkomma's, zoals Excel in België) in de gekozen taal: elke cel vertaald. In het Engels
 // komma's als scheidingsteken, zoals Excel in Engelstalige landen verwacht. In het Nederlands verandert er niets.
 function csv(tekst, id = huidig()) {
   if (id === 'nl' || typeof tekst !== 'string') return tekst;
@@ -115,11 +133,12 @@ function csv(tekst, id = huidig()) {
   }
   if (cel || rij.length) { rij.push(cel); regels.push(rij); }
   const f = vertaalFunctie(id);
+  const sep = CSV_SEP[id] || ';';
   const zet = v => {
     const x = f(v);
-    return /[,"\n\r]/.test(x) ? `"${x.replace(/"/g, '""')}"` : x;
+    return x.includes(sep) || /["\n\r]/.test(x) ? `"${x.replace(/"/g, '""')}"` : x;
   };
-  return bom + regels.map(r => r.map(zet).join(',')).join('\r\n') + '\r\n';
+  return bom + regels.map(r => r.map(zet).join(sep)).join('\r\n') + '\r\n';
 }
 
 // Een kleine cache: het script wordt opnieuw gemaakt als een taalbestand of i18n.js verandert.
@@ -127,7 +146,9 @@ let cache = null;
 function stempel(id) {
   const dir = path.join(LANG, id);
   let s = '';
-  try { for (const f of fs.readdirSync(dir).sort()) s += f + fs.statSync(path.join(dir, f)).mtimeMs; } catch { /* geen map */ }
+  for (const d of id === 'nl' || id === 'en' ? [dir] : [path.join(LANG, 'en'), dir]) {
+    try { for (const f of fs.readdirSync(d).sort()) s += f + fs.statSync(path.join(d, f)).mtimeMs; } catch { /* geen map */ }
+  }
   try { s += fs.statSync(I18N).mtimeMs; } catch { /* geen bestand */ }
   return s;
 }
@@ -151,4 +172,4 @@ function route(app) {
   });
 }
 
-module.exports = { TALEN, huidig, zet, woorden, route, aiPrompt, AI_TAAL, t, csv };
+module.exports = { TALEN, CSV_SEP, huidig, zet, woorden, route, aiPrompt, AI_TAAL, t, csv, inhoud, woordenlijstPad };

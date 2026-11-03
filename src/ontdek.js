@@ -15,9 +15,8 @@ const taken = require('./taken');
 const runen = require('./runen');
 const taal = require('./taal');
 // De ingebouwde woorden en weetjes volgen de taal van LANcelot (Instellingen > Uiterlijk > Taal).
-const engels = () => taal.huidig() === 'en';
-const runenWoordenVoor = () => require(engels() ? './runen-woorden-en' : './runen-woorden');
-const inhoudVoor = () => require(engels() ? './ontdek-inhoud-en' : './ontdek-inhoud');
+const runenWoordenVoor = () => taal.inhoud('runen-woorden');
+const inhoudVoor = () => taal.inhoud('ontdek-inhoud');
 const P = require('../public/js/od-puzzels');
 P.zetTaal(() => taal.huidig());
 const W = require('../public/js/od-wereld');
