@@ -276,5 +276,6 @@
  "betaal": "pay",
  "tel": "count",
  "lees": "read",
- "terug": "back"
+ "terug": "back",
+ "totaal": "total"
 }

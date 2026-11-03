@@ -1230,8 +1230,10 @@ $('zw-ics').addEventListener('click', () => {
     for (const u of dag.uren) {
       if (!u.van || !u.tot) continue;
       const l = u.plan;
-      const vak = (l && l.vak) || u.vak || 'Les';
-      const tekst = l ? [l.doel && `Doel: ${l.doel}`, ...l.criteria.map(c => `- ${c}`), l.notitie && `Notitie: ${l.notitie}`].filter(Boolean).join('\n') : '';
+      // Een agendabestand gaat niet via het scherm: de vaste woorden hier zelf vertalen.
+      const T = s => (window.I18n ? I18n.t(s) : s);
+      const vak = T((l && l.vak) || u.vak || 'Les');
+      const tekst = l ? [l.doel && `${T('Doel')}: ${l.doel}`, ...l.criteria.map(c => `- ${c}`), l.notitie && `${T('Notitie')}: ${l.notitie}`].filter(Boolean).join('\n') : '';
       regels.push('BEGIN:VEVENT', `UID:${zw.week}-${dag.d}-${u.les}@lancelot`, `DTSTAMP:${nu}`, `DTSTART:${stip(dag.datum, u.van)}`, `DTEND:${stip(dag.datum, u.tot)}`,
         `SUMMARY:${esc(l && l.titel ? `${vak}: ${l.titel}` : vak)}`);
       if (tekst) regels.push(`DESCRIPTION:${esc(tekst)}`);

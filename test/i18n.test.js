@@ -69,3 +69,11 @@ test('de taalopdracht voor AI-prompts is op server en scherm dezelfde', () => {
   const bron = fs.readFileSync(path.join(ROOT, 'public/js/i18n.js'), 'utf8');
   for (const [id, tekst] of Object.entries(AI_TAAL)) assert.ok(bron.includes(`${id}: ${JSON.stringify(tekst).replace(/"/g, "'")}`), id);
 });
+
+test('een CSV voor Excel wordt in het Engels vertaald, met komma\'s', () => {
+  const taal = require('../src/taal');
+  const uit = taal.csv('﻿Naam;Score;Aantal goed\r\nAn;"3;4";niet gespeeld\r\n', 'en');
+  assert.strictEqual(uit, '﻿Name,Score,Number correct\r\nAn,3;4,not played\r\n');
+  assert.strictEqual(taal.csv('a;b\r\n', 'nl'), 'a;b\r\n');
+  assert.strictEqual(taal.t('Vraag 3 heeft geen antwoorden.', 'en'), 'Question 3 has no answers.');
+});

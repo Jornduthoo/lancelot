@@ -51,6 +51,77 @@ function woorden(id) {
   return uit;
 }
 
+// ---------- Vertalen op de server ----------
+// Voor wat niet via een scherm gaat, zoals een CSV-bestand voor Excel. Zelfde regels als public/js/i18n.js:
+// eerst de tekst zelf, dan patronen met {0}. Onbekende tekst blijft zoals hij is.
+let vertaler = null;
+function maakVertaler(id) {
+  const exact = new Map();
+  const patronen = [];
+  const esc = x => x.replace(/[.*+?^$()|[\]\\{}]/g, '\\$&');
+  for (const [nl, uit] of Object.entries(woorden(id))) {
+    if (!/\{\d+\}/.test(nl)) { exact.set(nl, uit); continue; }
+    const volgorde = [];
+    const bron = '^' + nl.split(/(\{\d+\})/).map(stuk => {
+      const m = /^\{(\d+)\}$/.exec(stuk);
+      if (m) { volgorde.push(+m[1]); return '([\\s\\S]+?)'; }
+      return esc(stuk);
+    }).join('') + '$';
+    try { patronen.push({ re: new RegExp(bron), volgorde, uit, lit: nl.replace(/\{\d+\}/g, '').length }); } catch { /* ongeldig */ }
+  }
+  patronen.sort((a, b) => b.lit - a.lit);
+  return s => {
+    if (typeof s !== 'string' || s.length < 2 || !/[A-Za-zÀ-ÿ]/.test(s)) return s;
+    const kern = s.trim();
+    let uit = exact.get(kern);
+    if (uit === undefined) {
+      for (const p of patronen) {
+        const m = p.re.exec(kern);
+        if (!m) continue;
+        const w = {};
+        p.volgorde.forEach((nr, i) => { const v = m[i + 1]; w[nr] = exact.has(v.trim()) ? exact.get(v.trim()) : v; });
+        uit = p.uit.replace(/\{(\d+)\}/g, (_, nr) => (w[nr] !== undefined ? w[nr] : ''));
+        break;
+      }
+    }
+    return uit === undefined ? s : s.replace(kern, uit);
+  };
+}
+function vertaalFunctie(id) {
+  const st = stempel(id);
+  if (!vertaler || vertaler.id !== id || vertaler.st !== st) vertaler = { id, st, f: maakVertaler(id) };
+  return vertaler.f;
+}
+function t(s, id = huidig()) {
+  return id === 'nl' ? s : vertaalFunctie(id)(s);
+}
+
+// Een CSV van LANcelot (puntkomma's, zoals Excel in België) in de gekozen taal: elke cel vertaald en
+// komma's als scheidingsteken, zoals Excel in Engelstalige landen verwacht. In het Nederlands verandert er niets.
+function csv(tekst, id = huidig()) {
+  if (id === 'nl' || typeof tekst !== 'string') return tekst;
+  const bom = tekst.startsWith('\ufeff') ? '\ufeff' : '';
+  const regels = [];
+  let rij = [];
+  let cel = '';
+  let inQuote = false;
+  const body = tekst.slice(bom.length);
+  for (let i = 0; i < body.length; i++) {
+    const c = body[i];
+    if (inQuote) {
+      if (c === '"' && body[i + 1] === '"') { cel += '"'; i++; } else if (c === '"') inQuote = false; else cel += c;
+    } else if (c === '"') inQuote = true;
+    else if (c === ';') { rij.push(cel); cel = ''; } else if (c === '\r') { /* overslaan */ } else if (c === '\n') { rij.push(cel); regels.push(rij); rij = []; cel = ''; } else cel += c;
+  }
+  if (cel || rij.length) { rij.push(cel); regels.push(rij); }
+  const f = vertaalFunctie(id);
+  const zet = v => {
+    const x = f(v);
+    return /[,"\n\r]/.test(x) ? `"${x.replace(/"/g, '""')}"` : x;
+  };
+  return bom + regels.map(r => r.map(zet).join(',')).join('\r\n') + '\r\n';
+}
+
 // Een kleine cache: het script wordt opnieuw gemaakt als een taalbestand of i18n.js verandert.
 let cache = null;
 function stempel(id) {
@@ -80,4 +151,4 @@ function route(app) {
   });
 }
 
-module.exports = { TALEN, huidig, zet, woorden, route, aiPrompt, AI_TAAL };
+module.exports = { TALEN, huidig, zet, woorden, route, aiPrompt, AI_TAAL, t, csv };
