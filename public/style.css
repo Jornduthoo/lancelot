@@ -228,7 +228,9 @@ input, textarea { -webkit-user-select: text; user-select: text; }
   font-weight: 400;
 }
 .module svg { width: 46px; height: 46px; color: var(--cyan); filter: drop-shadow(0 0 10px var(--cyan-glow)); }
-.module strong { font-family: var(--head); font-size: 1.35rem; letter-spacing: .04em; }
+/* Lange namen (Burchtbouwers, Hooibergjacht) passen altijd op de tegel: de letter krimpt mee met de breedte van de tegel. */
+.module { container-type: inline-size; }
+.module strong { font-family: var(--head); font-size: min(1.35rem, 9.4cqi); letter-spacing: .04em; max-width: 100%; overflow-wrap: anywhere; }
 .module span { color: var(--muted); font-size: .95rem; }
 .module .tag { margin-top: auto; font-family: var(--tech); font-size: .7rem; letter-spacing: .2em; text-transform: uppercase; color: var(--cyan); }
 /* Een tegel als volle balk bovenaan (het Klaseiland): icoon links, tekst ernaast. */
