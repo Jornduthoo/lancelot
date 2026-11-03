@@ -47,7 +47,12 @@ function list(value, max) {
 // Gaten in een invultekst: [antwoord] of [antwoord|ander antwoord].
 const GAP = /\[([^\[\]]+)\]/g;
 
+// Soorten die alleen De Proef kent (kort, rekenen, tabel, getallenas ...): de AI schrijft ze zoals in De Proef,
+// hier worden ze een blok 'vraag'.
+const PROEF_SOORTEN = Object.keys(K.NAMES).filter(t => !TYPES.includes(t) && t !== 'bron');
+
 function cleanBlock(b, n) {
+  if (b && typeof b === 'object' && PROEF_SOORTEN.includes(b.type)) b = { type: 'vraag', q: b, doel: b.doel };
   if (!b || typeof b !== 'object' || !TYPES.includes(b.type)) throw new Error(`Oefening ${n} heeft een onbekende soort.`);
   const type = b.type;
   const instruction = text(b.instruction, 200) || DEFAULT_INSTRUCTION[type] || '';
