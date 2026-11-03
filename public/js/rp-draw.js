@@ -5,15 +5,20 @@ const RpDraw = (() => {
   const Wd = RpWorld;
   const BW = 200, BH = 170; // tekenvak van een paard; de hoeven staan op y = 160
   const FRAMES = 4;
+  const TOP = 90; // ruimte boven het vak voor de ruiter, vleugels en hoorn
 
   // ---------- Geschilderde plaatjes voor de kaart van het bord ----------
   // Zolang ze laden, tekent de kaart zich met code; onArt meldt wanneer opnieuw bakken mooier wordt.
   const ART = {};
   const onArt = [];
+  // De geschilderde robotpaarden: één per extra (zelfde volgorde als RpWorld.LOOK.extra), in drie kijkrichtingen.
+  const EXTRAS = ['niets', 'hoorn', 'vleugels', 'antennes', 'raketten'];
   if (typeof Image !== 'undefined') {
-    for (const n of ['gras', 'kroon-1', 'kroon-2', 'kroon-3', 'burcht']) {
+    const paarden = [];
+    for (const e of EXTRAS) for (const v of ['side', 'back', 'front']) paarden.push(`paard-${e}-${v}`);
+    for (const n of ['gras', 'kroon-1', 'kroon-2', 'kroon-3', 'burcht', ...paarden]) {
       const img = new Image();
-      img.onload = () => { ART[n] = img; for (const f of onArt) f(n); };
+      img.onload = () => { ART[n] = img; if (n.startsWith('paard-')) { cache.clear(); cacheCount = 0; } for (const f of onArt) f(n); };
       img.src = `/img/robopaarden/${n}.webp`;
     }
   }
@@ -475,6 +480,65 @@ const RpDraw = (() => {
 
   const VIEWS = { side, back, front };
 
+  // ---------- Het geschilderde paard ----------
+  // Grijze platen krijgen de rompkleur, de cyaan lichtjes de neonkleur. Eén keer per paard en kijkrichting.
+  const tinted = new Map();
+  function paintedImg(look, view) {
+    const img = ART[`paard-${EXTRAS[look.extra] || 'niets'}-${view}`];
+    if (!img) return null;
+    const key = `${look.extra}.${look.romp}.${look.neon}.${view}`;
+    let c = tinted.get(key);
+    if (c) return c;
+    if (tinted.size > 160) tinted.clear();
+    c = document.createElement('canvas');
+    c.width = img.width;
+    c.height = img.height;
+    const g = c.getContext('2d', { willReadFrequently: true });
+    g.drawImage(img, 0, 0);
+    const d = g.getImageData(0, 0, c.width, c.height);
+    const px = d.data;
+    const body = rgb(Wd.LOOK.romp[look.romp].c), neon = rgb(Wd.LOOK.neon[look.neon].c);
+    const keepBody = look.romp === 0, keepNeon = look.neon === 0;
+    for (let i = 0; i < px.length; i += 4) {
+      if (!px[i + 3]) continue;
+      const r = px[i], gg = px[i + 1], b = px[i + 2];
+      const mx = Math.max(r, gg, b), mn = Math.min(r, gg, b);
+      const sat = mx ? (mx - mn) / mx : 0;
+      const v = mx / 255;
+      // Cyaan: groen en blauw hoog, rood laag.
+      if (sat > .35 && b > r + 30 && gg > r + 30) {
+        if (keepNeon) continue;
+        const l = Math.min(1, (r + gg + b) / 600 + .25);
+        const wit = Math.max(0, (r - 60) / 195);
+        for (let k = 0; k < 3; k++) px[i + k] = Math.min(255, neon[k] * l + 255 * wit * .6);
+      } else if (sat < .32 && !keepBody) {
+        // Grijs metaal: de kleur, met de lichte glans en donkere lijnen behouden.
+        for (let k = 0; k < 3; k++) px[i + k] = Math.min(255, body[k] * (.28 + .95 * v) + 70 * v * v * v);
+      }
+    }
+    g.putImageData(d, 0, 0);
+    tinted.set(key, c);
+    return c;
+  }
+  // Teken het geschilderde paard in hetzelfde vak als de getekende (hoeven op y = 160, midden x = BW / 2).
+  // p = galopfase: het paard wiegt en veert mee.
+  function painted(ctx, look, view, p) {
+    const img = paintedImg(look, view);
+    if (!img) return false;
+    const s = view === 'side' ? .76 : .86;
+    const w = img.width * s, h = img.height * s;
+    const bob = Math.abs(Math.sin(p * Math.PI * 2)) * 6;
+    ctx.save();
+    ctx.translate(BW / 2, 160 - bob);
+    if (view === 'side') ctx.rotate(Math.sin(p * Math.PI * 2) * .035);
+    else ctx.rotate(Math.sin(p * Math.PI * 2) * .02);
+    // Opzij staat het paard met de staart links; het midden van de romp ligt iets rechts van het midden van het plaatje.
+    const ax = view === 'side' ? 128 * s : w / 2;
+    ctx.drawImage(img, -ax, -h, w, h);
+    ctx.restore();
+    return true;
+  }
+
   // ---------- Gebakken plaatjes ----------
   // Een paard per kijkrichting en galopbeeld, in twee maten (groot voor je eigen paard en dichtbij).
   const cache = new Map();
@@ -495,11 +559,11 @@ const RpDraw = (() => {
     const scale = big ? 1.5 : .8;
     c = document.createElement('canvas');
     c.width = Math.round(BW * scale);
-    c.height = Math.round(BH * scale + 30 * scale);
+    c.height = Math.round(BH * scale + TOP * scale);
     const g = c.getContext('2d');
     g.scale(scale, scale);
-    g.translate(0, 30);
-    VIEWS[view](g, look, frame / FRAMES, frame * .35, av);
+    g.translate(0, TOP);
+    if (!painted(g, look, view, frame / FRAMES)) VIEWS[view](g, look, frame / FRAMES, frame * .35, av);
     cache.set(key, c);
     cacheCount++;
     return c;
@@ -508,7 +572,7 @@ const RpDraw = (() => {
   function horse(ctx, x, y, w, look, av, view, frame, dir = 1, big = false) {
     const img = sprite(look, av, view, frame % FRAMES, big);
     const h = (w * img.height) / img.width;
-    const foot = (190 / 200) * h; // de hoeven staan op y = 160 + 30 van 200
+    const foot = ((160 + TOP) / (BH + TOP)) * h; // de hoeven staan op y = 160 (+ de ruimte erboven)
     if (dir < 0) {
       ctx.save();
       ctx.translate(x, y);
@@ -522,7 +586,7 @@ const RpDraw = (() => {
     ctx.save();
     ctx.translate(x - (BW / 2) * scale, y - 160 * scale);
     ctx.scale(scale, scale);
-    VIEWS[view](ctx, look, p, t, av);
+    if (!painted(ctx, look, view, p)) VIEWS[view](ctx, look, p, t, av);
     ctx.restore();
   }
 
