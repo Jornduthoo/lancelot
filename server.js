@@ -91,6 +91,7 @@ const proeven = require('./src/proeven');
 const { ProefLive } = require('./src/proef-live');
 const niveaus = require('./src/niveaus');
 const settings = require('./src/settings');
+const taal = require('./src/taal');
 const klas = require('./src/klas');
 const doelen = require('./src/doelen');
 const logboek = require('./src/logboek');
@@ -660,7 +661,7 @@ function isLocal(address) {
 function isLeerkracht(req) {
   return isLocal(req.socket.remoteAddress) || !!schermen.uitCookie(req.headers.cookie);
 }
-const GEEN_TOEGANG = '<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>LANcelot</title>'
+const GEEN_TOEGANG = '<!doctype html><meta charset="utf-8"><script src="/taal.js"></script><meta name="viewport" content="width=device-width, initial-scale=1"><title>LANcelot</title>'
   + '<body style="font-family:system-ui,sans-serif;background:#0f1424;color:#e8ecf6;display:grid;place-items:center;min-height:90vh;text-align:center;padding:16px">'
   + '<div><h2>Dit is het scherm van de leerkracht</h2><p>Leerlingen spelen via het adres op het bord.</p>'
   + '<p style="opacity:.75">Ben jij de leerkracht op je bureau-pc? <a style="color:#7fc8ff" href="/koppel">Koppel deze pc met een code van het digibord</a>.</p></div>';
@@ -709,6 +710,8 @@ app.get('/huisdier', (req, res) => {
   res.setHeader('Cache-Control', 'no-cache');
   res.sendFile(path.join(__dirname, 'public', 'huisdier.html'));
 });
+// De taal van alle schermen: /taal.js zet het woordenboek klaar (Nederlands: niets te doen).
+taal.route(app);
 beheer.routes(app, isLeerkracht);
 // De Kronieken: eigen bordboeken en handleidingen tonen en toevoegen (enkel de leerkracht).
 kronieken.routes(app, isLeerkracht, express, () => io.to('host').emit('kr-lijst', kronieken.lijst()));
@@ -1127,6 +1130,10 @@ io.on('connection', socket => {
       if (!THEMAS.includes(id)) return;
       settings.write({ thema: id });
       io.emit('thema', id);
+    });
+    // De taal kiezen: elk scherm (ook bij de leerlingen) laadt zich dan opnieuw in de nieuwe taal.
+    socket.on('taal-zet', id => {
+      try { io.emit('taal', taal.zet(String(id || ''))); } catch { /* onbekende taal */ }
     });
     socket.on('stop-others', (except, cb) => {
       stopOthers(String(except || ''));
