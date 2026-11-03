@@ -264,11 +264,11 @@ Tip: een klas die goed en vlot antwoordt, houdt de poort. Bij veel foute antwoor
 ## Neon-Camelot
 
 1. Kies **De Arena** en dan **Neon-Camelot**, kies de speeltijd en klik op de quiz. Klik op **De stad in!**
-2. Leerlingen rijden vrij door de stad met de muis, de pijltjes of hun duim.
-3. Bij een ⭐ verschijnt de knop **Koerier** of **Race**. Een juist antwoord start de missie: volg de gouden pijl of rij door de ringen.
-4. Is de energie op, dan komt er een vraag. Brandt er een huis, rij erheen en tik op **Blussen**.
-5. Met kristallen krijgen ze een hoverboard, een raketkar en een griffioen. Op het bord zie je de hele stad en het stadslicht van de klas.
-6. De stad leeft: verkeer, wandelende bewoners, schansen om over te springen, turboplaten en elke 4 minuten een nacht met neonlicht.
+2. Leerlingen rijden met hun hoverkart door de stad met de muis, de pijltjes of hun duim. Shift = driften, de knop 🔥 (of N) = nitro.
+3. Bij een ⭐ verschijnt de knop **Dief**, **Race** of **Koerier**. Een juist antwoord start de missie: blijf vlak bij de glitchdief tot de balk vol is, rij door de ringen of volg de gouden pijl.
+4. Is de batterij op, dan komt er een vraag: juist = vol en een extra nitro. Brandt er een huis, rij erheen en tik op **Blussen**.
+5. Met kristallen krijgen ze een zweefmotor, een raketkar en een griffioen. Op het bord zie je de hele stad en het stadslicht van de klas.
+6. De stad leeft: verkeer, schansen om over te springen, turboplaten en elke 4 minuten een nacht met neonlicht.
 
 ## Tuimelridder
 

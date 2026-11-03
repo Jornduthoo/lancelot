@@ -1,9 +1,9 @@
 // Neon-Camelot: een open sci-fi ridderstad waar de hele klas tegelijk rondrijdt.
-// Iedereen rijdt vrij door dezelfde stad op een robopaard, hoverboard, raketkar of griffioen.
-// Vragen sturen alles: is je energie op, dan komt er een vraag. Een missie (koerier of race) start pas na een juist antwoord,
-// en een brand blus je met juiste antwoorden. Onderweg vang je ondeugende glitchgnomen en raap je kristallen.
+// Iedereen rijdt vrij door dezelfde stad (van bovenaf) in een hoverkart, zweefmotor, raketkar of op een griffioen.
+// Vragen sturen alles: is je batterij op, dan komt er een vraag (juist = vol + een nitro). Een missie (glitchdief vangen, race, koerier)
+// start pas na een juist antwoord, en een brand blus je met juiste antwoorden. Onderweg vang je glitchgnomen en raap je kristallen.
 // Met kristallen krijg je nieuwe voertuigen. Samen laat de klas de stad oplichten. Niemand valt uit, niemand kan een ander iets doen.
-// De server beweegt iedereen en beslist alles.
+// Elke leerling rekent zijn eigen kart uit (geen vertraging bij het sturen); de server controleert de plek en beslist de rest.
 const { Date, setTimeout, setInterval, clearTimeout, clearInterval } = require('./pauze').klok; // stil tijdens de pauzeknop
 const W = require('../public/js/nc-world');
 const { Vragen, saveCsv, pct } = require('./vragen');
@@ -13,7 +13,9 @@ const TICK_MS = 33;
 const SEND_MS = 50;
 const BIJ_MARKER = 6;        // zo dicht moet je bij een missieplek staan
 const BIJ_BRAND = 11;        // en zo dicht bij een brand om te blussen
-const GNOOM_V = 6.2;
+const GNOOM_V = 6.5;
+const DIEF_MS = 50000;      // zo lang heb je om de glitchdief te vangen
+const VANG_S = 2;           // zo lang moet je vlak bij de dief blijven
 const EVENT_MS = 65000;      // om de zoveel tijd gebeurt er iets in de stad
 
 const leeg = (p, now) => now >= p.energieAt;
@@ -91,8 +93,8 @@ class NeonCamelot {
     const plek = W.startPlek(this.R);
     const p = {
       n: this.nextN++, name: clean, socketId, color: W.COLORS[this.players.size % W.COLORS.length],
-      x: plek.x, y: plek.y, dx: 0, dy: 0, dir: 1, veh: 0, energieAt: 0,
-      kr: 0, missies: 0, gnomen: 0, geblust: 0, rapen: 0, stunts: 0, sprong: null, turboTot: 0, stuntAt: 0, toetAt: 0, missie: null, doel: null, mcool: 0, spuit: 0,
+      x: plek.x, y: plek.y, a: plek.a, z: 0, veh: 0, energieAt: 0, moveAt: 0, nitro: 1, nitroTot: 0,
+      kr: 0, missies: 0, gnomen: 0, geblust: 0, rapen: 0, stunts: 0, dieven: 0, stuntAt: 0, missie: null, dief: null, doel: null, mcool: 0, spuit: 0,
       right: 0, wrong: 0, streak: 0, bestStreak: 0, asking: false, question: null, order: [], last: null, waitUntil: 0, dirty: true,
     };
     this.players.set(playerId, p);
@@ -126,7 +128,7 @@ class NeonCamelot {
     this.endsAt = this.startedAt + this.minutes * 60000;
     for (const p of this.players.values()) {
       const plek = W.startPlek(this.R);
-      Object.assign(p, plek);
+      Object.assign(p, plek, { z: 0, moveAt: 0, fix: true });
       p.energieAt = this.startedAt + this.energieMs();
       p.dirty = true;
     }
@@ -151,15 +153,41 @@ class NeonCamelot {
 
   // ---------- Besturing ----------
 
-  steer(playerId, v) {
+  // De leerling stuurt zijn plek. Klopt die niet (te ver in één keer, of in een muur), dan zetten we hem terug.
+  move(playerId, m) {
     const p = this.players.get(playerId);
-    if (!p || !Array.isArray(v)) return;
-    let dx = Number(v[0]), dy = Number(v[1]);
-    if (!Number.isFinite(dx) || !Number.isFinite(dy)) return;
-    const l = Math.hypot(dx, dy);
-    if (l > 1) { dx /= l; dy /= l; }
-    p.dx = dx;
-    p.dy = dy;
+    if (!p || !m || this.phase !== 'play') return;
+    const x = Number(m.x), y = Number(m.y), a = Number(m.a), z = Number(m.z) || 0;
+    if (![x, y, a, z].every(Number.isFinite)) return;
+    const now = Date.now();
+    const dt = Math.min(1, Math.max(.05, (now - (p.moveAt || now)) / 1000));
+    p.moveAt = now;
+    const V = W.VOERTUIGEN[p.veh];
+    const ver = Math.hypot(x - p.x, y - p.y);
+    const binnen = V.vliegt ? x > 0 && y > 0 && x < W.L && y < W.L : W.kan(p.veh, x, y);
+    if (p.asking || now < this.startedAt || ver > V.max * 1.6 * dt + 4 || !binnen) {
+      if (ver > .5) this.io.to(p.socketId).emit('nc-fix', { x: p.x, y: p.y, a: p.a, veh: p.veh });
+      return;
+    }
+    p.x = x; p.y = y; p.a = a; p.z = Math.max(0, Math.min(8, z));
+    // Over een schans gesprongen: een stuntkristal (hoogstens om de 6 seconden)
+    if (m.j && now - p.stuntAt > 6000 && W.SCHANSEN.some(s => Math.abs(s.x - x) < 14 && Math.abs(s.y - y) < 4)) {
+      p.stuntAt = now;
+      p.stunts++;
+      this.geef(p, W.BELONING.stunt);
+      if (p.stunts % 5 === 0) this.addFeed(`🛹 ${p.name} sprong al ${p.stunts} keer over een schans`, false);
+    }
+  }
+
+  // Nitro: verdiend met juiste antwoorden, een paar seconden supersnel.
+  nitro(playerId) {
+    const p = this.players.get(playerId);
+    if (!p || this.phase !== 'play' || p.asking) return { error: 'Nu niet.' };
+    if (p.nitro <= 0) return { error: 'Geen nitro meer. Een juist antwoord geeft nitro.' };
+    p.nitro--;
+    p.nitroTot = Date.now() + W.NITRO_S * 1000;
+    p.dirty = true;
+    return { ok: true, nitro: p.nitro };
   }
 
   asking(playerId, on) {
@@ -179,7 +207,7 @@ class NeonCamelot {
     v = Number(v);
     if (!p || !Number.isInteger(v) || v < 0 || v >= W.VOERTUIGEN.length) return { error: 'Dat voertuig bestaat niet.' };
     if (p.kr < W.VOERTUIGEN[v].nodig) return { error: `Nog ${W.VOERTUIGEN[v].nodig - p.kr} kristallen voor de ${W.VOERTUIGEN[v].naam}.` };
-    if (!W.kan(v, p.x, p.y)) return { error: 'Hier kan dat niet. Ga eerst naar de straat.' };
+    if (!W.VOERTUIGEN[v].vliegt && !W.kan(v, p.x, p.y)) return { error: 'Hier kan je niet landen. Vlieg eerst naar de straat.' };
     p.veh = v;
     p.dirty = true;
     return { ok: true };
@@ -251,6 +279,8 @@ class NeonCamelot {
     } else if (res.correct) {
       p.energieAt = now + this.energieMs();
       out.kr = this.geef(p, W.BELONING.vraag);
+      p.nitro = Math.min(W.NITRO_MAX, p.nitro + 1);
+      out.nitro = p.nitro;
     } else p.energieAt = Math.max(p.energieAt, now + W.WRONG_S * 1000);
     if (res.correct && (p.streak === 5 || p.streak === 10)) this.addFeed(`🧠 ${p.name} heeft ${p.streak} antwoorden op rij goed`, false);
     p.dirty = true;
@@ -281,7 +311,15 @@ class NeonCamelot {
   }
 
   startMissie(p, m, now) {
-    if (m.soort === 'race') {
+    if (m.soort === 'dief') {
+      // De dief springt tevoorschijn en rijdt weg naar het volgende kruispunt.
+      const j = Math.max(0, Math.min(4, Math.round((m.y / W.TILE - 12) / W.BLOK)));
+      let ti = Math.floor((m.x / W.TILE - 12) / W.BLOK) + 1, ri = 1;
+      if (ti > 4) { ti = 4; ri = -1; }
+      if (ti < 0) ti = 0;
+      p.dief = { x: m.x + 10 * ri, y: W.kruis(j), a: ri > 0 ? 0 : Math.PI, ti, tj: j, ri, rj: 0, vangst: 0, wacht: 2 };
+      p.missie = { soort: 'dief', ends: now + DIEF_MS, duur: DIEF_MS };
+    } else if (m.soort === 'race') {
       const ringen = W.parcours(this.R, m);
       let len = 0, px = p.x, py = p.y;
       for (const [x, y] of ringen) { len += Math.hypot(x - px, y - py); px = x; py = y; }
@@ -299,11 +337,13 @@ class NeonCamelot {
 
   missieKlaar(p, now) {
     const m = p.missie;
-    let n = m.soort === 'race' ? W.BELONING.race : W.BELONING.koerier;
+    let n = m.soort === 'race' ? W.BELONING.race : m.soort === 'dief' ? W.BELONING.dief : W.BELONING.koerier;
+    if (m.soort === 'dief') { p.dieven++; p.dief = null; }
     if (m.soort === 'koerier' && m.ends - now > m.duur / 2) n += W.BELONING.snel;
     this.geef(p, n);
     p.missies++;
-    this.ev.push(['m', p.n, m.soort === 'race' ? 1 : 0, n]);
+    this.ev.push(['m', p.n, m.soort === 'race' ? 1 : m.soort === 'dief' ? 2 : 0, n]);
+    if (m.soort === 'dief' && p.dieven % 2 === 1) this.addFeed(`🦹 ${p.name} ving een glitchdief!`, false);
     if (p.missies % 3 === 0) this.addFeed(`⭐ ${p.name} heeft al ${p.missies} missies gedaan`, false);
     p.missie = null;
     p.mcool = now + 1500;
@@ -326,10 +366,10 @@ class NeonCamelot {
   event(now) {
     this.eventNr++;
     if (this.eventNr % 2 === 1) {
-      const huizen = W.STAD.objs.filter(o => W.HUIZEN.includes(o.k));
+      const huizen = W.STAD.gebouwen.filter(o => o.soort === 'huis');
       const o = huizen[Math.floor(this.R() * huizen.length)];
       const max = 2 + Math.ceil(this.players.size / 5);
-      this.brand = { o: o.i, x: o.x, y: o.y + 2, hp: max, max, until: now + 75000, helpers: new Set(), wijk: W.WIJK[W.wijkOp(o.x, o.y)] };
+      this.brand = { o: o.i, x: o.x, y: o.y, hp: max, max, until: now + 75000, helpers: new Set(), wijk: W.WIJK[W.wijkOp(o.x, o.y)] };
       this.addFeed(`🔥 Brand in ${this.brand.wijk}! Rij erheen en blus met juiste antwoorden.`);
     } else {
       const blokken = [];
@@ -349,7 +389,7 @@ class NeonCamelot {
     const dt = Math.min(.1, (now - this.lastTick) / 1000);
     this.lastTick = now;
     if (now >= this.startedAt) {
-      for (const p of this.players.values()) this.beweeg(p, dt, now);
+      for (const p of this.players.values()) this.volg(p, dt, now);
       this.gnomenTick(dt, now);
       if (this.brand && now > this.brand.until) {
         this.addFeed(`🚒 De stadswacht bluste de brand in ${this.brand.wijk}.`, false);
@@ -366,92 +406,45 @@ class NeonCamelot {
     }
   }
 
-  beweeg(p, dt, now) {
+  // Wat er gebeurt waar je rijdt: missies, de dief, kristallen.
+  volg(p, dt, now) {
     if (p.missie && now > p.missie.ends) {
-      this.ev.push(['x', p.n]);
+      this.ev.push(['x', p.n, p.missie.soort]);
       p.missie = null;
+      p.dief = null;
       p.dirty = true;
     }
-    // In de lucht na een schans: rechtdoor vliegen tot de landing.
-    if (p.sprong) {
-      if (now - p.sprong.t >= W.SPRONG_S * 1000) p.sprong = null;
-      else {
-        const nx = p.x + p.sprong.r * p.sprong.v * dt;
-        if (W.kan(3, nx, p.y)) p.x = nx;
-        return;
-      }
-    }
-    if (p.asking || (!p.dx && !p.dy)) return;
-    const leeg = now >= p.energieAt;
-    const turbo = now < p.turboTot ? W.TURBO_X : 1;
-    const v = W.snelheid(p.veh, p.x, p.y) * (leeg ? .4 : 1) * turbo * dt;
-    const nx = p.x + p.dx * v, ny = p.y + p.dy * v;
-    // Glijden langs muren: eerst de x, dan de y apart proberen.
-    if (W.kan(p.veh, nx, ny)) { p.x = nx; p.y = ny; }
-    else if (W.kan(p.veh, nx, p.y)) p.x = nx;
-    else if (W.kan(p.veh, p.x, ny)) p.y = ny;
-    if (Math.abs(p.dx) > .15) p.dir = p.dx > 0 ? 1 : -1;
-    if (!W.VOERTUIGEN[p.veh].vliegt) this.straat(p, now, v / dt);
-    // Missie onderweg
     const m = p.missie;
-    if (m && m.soort === 'race') {
+    if (m && m.soort === 'dief' && p.dief && !p.asking) {
+      const d = p.dief;
+      if (d.wacht > 0) d.wacht -= dt; // even stilstaan: zo zie je hem eerst (vangen kan dan nog niet)
+      else {
+        W.diefStap(d, p, dt, this.R);
+        const ver = Math.hypot(d.x - p.x, d.y - p.y);
+        if (ver < 7) d.vangst += dt / VANG_S;
+        else if (ver > 14) d.vangst = Math.max(0, d.vangst - dt * .12);
+        if (d.vangst >= 1) this.missieKlaar(p, now);
+      }
+    } else if (m && m.soort === 'race') {
       const [rx, ry] = m.ringen[m.ri];
-      if (Math.hypot(rx - p.x, ry - p.y) < 4.2) {
+      if (Math.hypot(rx - p.x, ry - p.y) < 4.6) {
         m.ri++;
         this.ev.push(['r', p.n, m.ri]);
         p.dirty = true;
         if (m.ri >= m.ringen.length) this.missieKlaar(p, now);
       }
-    } else if (m && Math.hypot(m.tx - p.x, m.ty - p.y) < 4.5) this.missieKlaar(p, now);
+    } else if (m && Math.hypot(m.tx - p.x, m.ty - p.y) < 5) this.missieKlaar(p, now);
     // Kristallen rapen
     if (this.regen) {
       const s = this.regen.stukjes;
       for (let i = s.length - 1; i >= 0; i--) {
-        if (Math.abs(s[i][1] - p.x) < 2 && Math.abs(s[i][2] - p.y) < 2) {
+        if (Math.abs(s[i][1] - p.x) < 2.4 && Math.abs(s[i][2] - p.y) < 2.4) {
           this.ev.push(['c', s[i][0], p.n]);
           s.splice(i, 1);
           p.rapen++;
           this.geef(p, W.BELONING.regen);
         }
       }
-    }
-  }
-
-  // Schansen, turboplaten en het verkeer. Een auto duwt je opzij (toet!), meer niet.
-  straat(p, now, snel) {
-    if (!leeg(p, now) && Math.abs(p.dx) > .5) {
-      for (const s of W.SCHANSEN) {
-        if (Math.sign(p.dx) !== s.r || Math.abs(p.y - s.y) > 2.2 || Math.abs(p.x - s.x) > 1.4) continue;
-        p.sprong = { t: now, r: s.r, v: Math.max(12, snel * 1.25) };
-        p.dir = s.r;
-        this.ev.push(['s', p.n]);
-        if (now - p.stuntAt > 6000) {
-          p.stuntAt = now;
-          p.stunts++;
-          this.geef(p, W.BELONING.stunt);
-          if (p.stunts % 5 === 0) this.addFeed(`🛹 ${p.name} sprong al ${p.stunts} keer over een schans`, false);
-        }
-        return;
-      }
-    }
-    for (const t of W.TURBO) {
-      if (Math.abs(p.x - t.x) > 2.6 || Math.abs(p.y - t.y) > 2.6) continue;
-      if (now > p.turboTot) this.ev.push(['t', p.n]);
-      p.turboTot = now + W.TURBO_S * 1000;
-      p.dirty = true;
-    }
-    const tt = (now - this.startedAt) / 1000;
-    for (const c of W.VERKEER) {
-      const a = W.autoOp(c, tt), half = W.AUTOS[c.a][2] / 2;
-      const h = c.as === 'h';
-      const langs = h ? p.x - a.x : p.y - a.y, dwars = h ? p.y - a.y : p.x - a.x;
-      if (Math.abs(langs) > half + .7 || Math.abs(dwars) > 1.4) continue;
-      // Opzij naar de kant waar je al zat, anders vooruit voor de auto uit.
-      const kant = Math.sign(dwars) || -c.r;
-      const zij = h ? [p.x, a.y + kant * 2.5] : [a.x + kant * 2.5, p.y];
-      const voor = h ? [a.x + c.r * (half + 1.6), p.y] : [p.x, a.y + c.r * (half + 1.6)];
-      for (const [x, y] of [zij, voor]) if (W.kan(p.veh, x, y)) { p.x = x; p.y = y; break; }
-      if (now - p.toetAt > 1500) { p.toetAt = now; this.ev.push(['h', p.n]); }
     }
   }
 
@@ -468,7 +461,7 @@ class NeonCamelot {
         const d = Math.hypot(p.x - g.x, p.y - g.y);
         if (d < nd) { nd = d; near = p; }
       }
-      if (near && nd < 2.3) {
+      if (near && nd < 2.6) {
         g.weg = true;
         g.terugAt = now + 9000;
         near.gnomen++;
@@ -559,7 +552,8 @@ class NeonCamelot {
   me(p, now, ranking) {
     const m = p.missie;
     return {
-      n: p.n, kr: p.kr, veh: p.veh, open: this.open(p), missies: p.missies, gnomen: p.gnomen, geblust: p.geblust, stunts: p.stunts,
+      n: p.n, kr: p.kr, veh: p.veh, open: this.open(p), missies: p.missies, gnomen: p.gnomen, geblust: p.geblust, stunts: p.stunts, dieven: p.dieven,
+      nitro: p.nitro, fix: p.fix ? { x: p.x, y: p.y, a: p.a } : null,
       energie: Math.max(0, p.energieAt - Math.max(now, this.startedAt)), energieMax: this.energieMs(),
       missie: m ? { soort: m.soort, left: Math.max(0, m.ends - now), duur: m.duur, tx: m.tx, ty: m.ty, naar: m.naar, ringen: m.ringen, ri: m.ri } : null,
       cool: Math.max(0, p.mcool - now), rank: ranking.findIndex(r => r.n === p.n) + 1, players: this.players.size,
@@ -583,11 +577,14 @@ class NeonCamelot {
     };
   }
 
-  // Compact: spelers [n, x*10, y*10, voertuig, vlaggen, richting]. Vlaggen: 1 vraag, 2 energie op, 4 koerier, 8 race, 16 in de lucht, 32 turbo. Gnomen [i, x*10, y*10].
+  // Compact: spelers [n, x*10, y*10, hoek*100, voertuig, vlaggen, hoogte*10]. Vlaggen: 1 vraag, 2 energie op, 4 koerier, 8 race, 16 dief, 32 nitro.
+  // Gnomen [i, x*10, y*10]. Dieven [n van de jager, x*10, y*10, hoek*100, gevangen*100].
   send(now) {
-    const flags = p => (p.asking ? 1 : 0) | (now >= p.energieAt && now >= this.startedAt ? 2 : 0) | (p.missie && p.missie.soort === 'koerier' ? 4 : 0) | (p.missie && p.missie.soort === 'race' ? 8 : 0) | (p.sprong ? 16 : 0) | (now < p.turboTot ? 32 : 0);
+    const flags = p => (p.asking ? 1 : 0) | (now >= p.energieAt && now >= this.startedAt ? 2 : 0) | (p.missie && p.missie.soort === 'koerier' ? 4 : 0) | (p.missie && p.missie.soort === 'race' ? 8 : 0) | (p.dief ? 16 : 0) | (now < p.nitroTot ? 32 : 0);
+    const spelers = [...this.players.values()];
     const msg = {
-      p: [...this.players.values()].map(p => [p.n, Math.round(p.x * 10), Math.round(p.y * 10), p.veh, flags(p), p.dir]),
+      p: spelers.map(p => [p.n, Math.round(p.x * 10), Math.round(p.y * 10), Math.round(p.a * 100), p.veh, flags(p), Math.round(p.z * 10)]),
+      d: spelers.filter(p => p.dief).map(p => [p.n, Math.round(p.dief.x * 10), Math.round(p.dief.y * 10), Math.round(p.dief.a * 100), Math.round(p.dief.vangst * 100)]),
       g: this.gnomen.filter(g => !g.weg).map(g => [g.i, Math.round(g.x * 10), Math.round(g.y * 10)]),
       ev: this.ev,
     };
@@ -604,6 +601,7 @@ class NeonCamelot {
       if (p.dirty || ranking) {
         p.dirty = false;
         this.io.to(p.socketId).emit('nc-tick', { ...msg, me: this.me(p, now, ranking || this.ranking()) });
+        p.fix = false;
       } else this.io.to(p.socketId).emit('nc-tick', msg);
     }
   }
@@ -647,7 +645,8 @@ class NeonCamelot {
       const out = socket.data.ncId ? fn(socket.data.ncId, arg) : { error: 'Meld je eerst aan.' };
       if (typeof cb === 'function') cb(out || {});
     });
-    on('nc-steer', (id, v) => this.steer(id, v));
+    socket.on('nc-move', m => { if (socket.data.ncId) this.move(socket.data.ncId, m); });
+    on('nc-nitro', id => this.nitro(id));
     on('nc-asking', (id, v) => this.asking(id, v));
     on('nc-doel', (id, d) => this.doel(id, d));
     on('nc-voertuig', (id, v) => this.voertuig(id, v));
@@ -659,7 +658,6 @@ class NeonCamelot {
   weg(socket) {
     if (socket.data.ncId) {
       this.asking(socket.data.ncId, false);
-      this.steer(socket.data.ncId, [0, 0]);
     }
   }
 }

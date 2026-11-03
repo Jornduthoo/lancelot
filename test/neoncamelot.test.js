@@ -57,12 +57,38 @@ test('de stad: startplekken zijn vrij en elke missieplek is bereikbaar', () => {
   const R = W.rng(3);
   for (let i = 0; i < 100; i++) { const p = W.startPlek(R); assert.ok(W.kan(0, p.x, p.y), 'startplek zit vast'); }
   assert.ok(W.STAD.markers.length >= 10);
+  assert.ok(W.STAD.markers.some(m => m.soort === 'dief') && W.STAD.markers.some(m => m.soort === 'race') && W.STAD.markers.some(m => m.soort === 'koerier'));
   const start = W.startPlek(R);
   for (const m of W.STAD.markers) {
-    assert.ok(W.kan(0, m.x, m.y), `missieplek ${m.wijk} ligt niet op de straat`);
+    assert.ok(W.kan(0, m.x, m.y), `missieplek ${m.wijk} ligt niet vrij`);
     assert.ok(bereikbaar(start, m), `missieplek in ${m.wijk} is niet te bereiken`);
   }
   for (const r of W.parcours(R, W.STAD.markers[0])) assert.ok(W.kan(0, r[0], r[1]), 'racering ligt in een gebouw');
+  for (const s of [...W.SCHANSEN, ...W.TURBO]) assert.equal(W.grondOp(s.x, s.y), W.G.weg, 'schans of turbo naast de straat');
+  assert.equal(W.nacht(0), 0, 'het spel begint overdag');
+  assert.ok(W.nacht(W.DAG_S / 2) > .9, 'halfweg de dag is het nacht');
+});
+
+test('rijden: gas geven, draaien, niet door muren, schansen en verkeer', () => {
+  const s = { x: 110, y: W.kruis(2) + 1.9, a: 0, vx: 0, vy: 0, z: 0, vz: 0, veh: 0, boost: 0 };
+  for (let i = 0; i < 120; i++) W.drive(s, { gas: 1, turn: 0 }, 1 / 60);
+  assert.ok(Math.hypot(s.vx, s.vy) > 10, 'trekt niet op');
+  // Recht op een gebouw af: je komt er nooit in
+  const h = W.STAD.gebouwen.find(o => o.soort === 'huis');
+  const t = { x: h.x, y: h.y1 + 3, a: -Math.PI / 2, vx: 0, vy: 0, z: 0, vz: 0, veh: 0, boost: 0 };
+  for (let i = 0; i < 180; i++) { W.drive(t, { gas: 1, turn: 0 }, 1 / 60); assert.ok(t.y > h.y1, 'door een muur gereden'); }
+  // Over een schans: de lucht in
+  const sc = W.SCHANSEN[0];
+  const u = { x: sc.x - 6 * sc.r, y: sc.y, a: sc.r > 0 ? 0 : Math.PI, vx: 14 * sc.r, vy: 0, z: 0, vz: 0, veh: 0, boost: 0 };
+  let sprong = false;
+  for (let i = 0; i < 60; i++) if (W.drive(u, { gas: 1, turn: 0 }, 1 / 60).jump) sprong = true;
+  assert.ok(sprong, 'geen sprong');
+  // Een auto duwt je opzij
+  const c = W.VERKEER.find(c => c.as === 'h' && c.i === 2);
+  const a = W.autoOp(c, 30);
+  const v = { x: a.x, y: a.y, a: 0, vx: 0, vy: 0, z: 0, vz: 0, veh: 0, boost: 0 };
+  assert.ok(W.drive(v, { gas: 0, turn: 0 }, 1 / 60, { tt: 30 }).toet, 'geen toet');
+  assert.ok(Math.abs(v.y - a.y) > 1 || Math.abs(v.x - a.x) > 1, 'niet opzij geduwd');
 });
 
 test('missie: pas na een juist antwoord, en bezorgen geeft kristallen', () => {
@@ -75,11 +101,30 @@ test('missie: pas na een juist antwoord, en bezorgen geeft kristallen', () => {
   assert.equal(r.doel, 'missie');
   assert.ok(p.missie && p.missie.soort === 'koerier');
   const voor = p.kr;
-  Object.assign(p, { x: p.missie.tx, y: p.missie.ty, dx: .1, dy: 0 });
-  s.beweeg(p, .03, Date.now());
+  Object.assign(p, { x: p.missie.tx, y: p.missie.ty });
+  s.volg(p, .03, Date.now());
   assert.equal(p.missie, null);
   assert.ok(p.kr >= voor + W.BELONING.koerier);
   assert.equal(p.missies, 1);
+});
+
+test('glitchdief: hij vlucht, en wie vlak bij hem blijft vangt hem', () => {
+  const { s, p } = spel();
+  const i = W.STAD.markers.findIndex(m => m.soort === 'dief');
+  Object.assign(p, { x: W.STAD.markers[i].x, y: W.STAD.markers[i].y });
+  s.doel('a', { soort: 'missie', m: i });
+  juist(s, p);
+  assert.ok(p.dief, 'geen dief');
+  const x0 = p.dief.x, y0 = p.dief.y;
+  let t = Date.now();
+  for (let k = 0; k < 100; k++) { t += 33; s.volg(p, .033, t); } // eerst wacht hij 2 s, dan rijdt hij weg
+  assert.ok(Math.hypot(p.dief.x - x0, p.dief.y - y0) > 2, 'de dief rijdt niet');
+  for (const d of [p.dief.x, p.dief.y]) assert.ok(Number.isFinite(d));
+  const voor = p.kr;
+  for (let k = 0; k < 200 && p.dief; k++) { Object.assign(p, { x: p.dief.x + 1, y: p.dief.y }); t += 33; s.volg(p, .033, t); }
+  assert.equal(p.dief, null, 'niet gevangen');
+  assert.equal(p.dieven, 1);
+  assert.ok(p.kr >= voor + W.BELONING.dief);
 });
 
 test('fout antwoord op een missie: geen missie, even wachten', () => {
@@ -100,7 +145,7 @@ test('brand blussen met juiste antwoorden, helpers krijgen kristallen', () => {
   const b = s.brand;
   assert.ok(b);
   b.hp = 1;
-  Object.assign(p, { x: b.x, y: b.y + 3 });
+  Object.assign(p, { x: b.x, y: b.y + 8 });
   assert.ok(s.doel('a', { soort: 'blus' }).ok);
   juist(s, p);
   assert.equal(s.brand, null);
@@ -108,11 +153,15 @@ test('brand blussen met juiste antwoorden, helpers krijgen kristallen', () => {
   assert.ok(p.kr >= W.BELONING.blus + W.BELONING.geblust);
 });
 
-test('energievraag, gnoom vangen en een nieuw voertuig', () => {
+test('energievraag geeft nitro, gnoom vangen, nieuw voertuig en de plek controleren', () => {
   const { s, p } = spel();
+  const n0 = p.nitro;
   const r = juist(s, p);
   assert.equal(r.doel, 'energie');
   assert.equal(p.kr, W.BELONING.vraag);
+  assert.equal(p.nitro, n0 + 1);
+  assert.ok(s.nitro('a').ok);
+  assert.equal(p.nitro, n0);
   const g = s.gnomen[0];
   Object.assign(g, { x: p.x + 1, y: p.y });
   s.gnomenTick(.03, Date.now());
@@ -121,50 +170,17 @@ test('energievraag, gnoom vangen en een nieuw voertuig', () => {
   s.geef(p, 40);
   assert.equal(s.open(p), 4);
   assert.ok(s.voertuig('a', 3).ok);
-  assert.ok(W.kan(3, 50, 50) && !W.kan(0, 2, 2) && W.kan(1, 2, 120), 'griffioen vliegt, hoverboard rijdt over water');
-});
-
-test('de levende stad: schansen, turbo, verkeer en bewoners liggen op de straat', () => {
-  for (const s of [...W.SCHANSEN, ...W.TURBO]) assert.equal(W.grondOp(s.x, s.y), W.G.weg, 'schans of turbo naast de straat');
-  for (let t = 0; t < 300; t += 5) {
-    for (const c of W.VERKEER) {
-      const a = W.autoOp(c, t);
-      if (a.x > 44 && a.x < W.L - 2 && a.y > 2 && a.y < W.L - 2) assert.equal(W.grondOp(a.x, a.y), W.G.weg, 'auto naast de straat');
-    }
-    for (const b of W.VOLK) { const a = W.bewonerOp(b, t); if (a.x > 44) assert.equal(W.grondOp(a.x, a.y), W.G.weg, 'bewoner naast de straat'); }
-  }
-  assert.equal(W.nacht(0), 0, 'het spel begint overdag');
-  assert.ok(W.nacht(W.DAG_S / 2) > .9, 'halfweg de dag is het nacht');
-});
-
-test('schans: je springt, landt veilig en krijgt een stuntkristal', () => {
-  const { s, p } = spel();
-  const sc = W.SCHANSEN[0];
-  const t0 = Date.now();
-  Object.assign(p, { x: sc.x - .5 * sc.r, y: sc.y, dx: sc.r, dy: 0 });
-  s.beweeg(p, .03, t0);
-  assert.ok(p.sprong, 'geen sprong');
-  assert.equal(p.stunts, 1);
-  assert.equal(p.kr, W.BELONING.stunt);
-  let t = t0;
-  while (p.sprong) { t += 33; s.beweeg(p, .033, t); }
-  assert.ok(Math.abs(p.x - sc.x) > 8, 'niet ver gesprongen');
-  assert.ok(W.kan(0, p.x, p.y), 'geland in een muur');
-});
-
-test('turbo en verkeer: sneller over de plaat, een auto duwt je opzij', () => {
-  const { s, p } = spel();
-  const tp = W.TURBO[0];
-  const t0 = Date.now();
-  Object.assign(p, { x: tp.x, y: tp.y, dx: 0, dy: 1 });
-  s.beweeg(p, .03, t0);
-  assert.ok(p.turboTot > t0);
-  const c = W.VERKEER.find(c => c.as === 'h' && c.i === 2);
-  const tt = (t0 - s.startedAt) / 1000;
-  const a = W.autoOp(c, tt);
-  Object.assign(p, { x: a.x, y: a.y, dx: 0, dy: 0, turboTot: 0 });
-  s.straat(p, t0, 0);
-  const na = W.autoOp(c, tt);
-  assert.ok(Math.abs(p.y - na.y) > 1.4 || Math.abs(p.x - na.x) > W.AUTOS[c.a][2] / 2, 'niet opzij geduwd');
-  assert.ok(W.kan(0, p.x, p.y));
+  // Een sprong van 100 m in één keer, of in een huis: terug naar de oude plek
+  s.voertuig('a', 0);
+  const x = p.x, y = p.y;
+  p.moveAt = Date.now() - 50;
+  s.move('a', { x: x + 100, y, a: 0 });
+  assert.equal(p.x, x);
+  const h = W.STAD.gebouwen.find(o => o.soort === 'huis');
+  p.moveAt = Date.now() - 1000;
+  s.move('a', { x: h.x, y: h.y, a: 0 });
+  assert.equal(p.x, x);
+  p.moveAt = Date.now() - 100;
+  s.move('a', { x: x + 1, y, a: .5 });
+  assert.equal(p.x, x + 1);
 });

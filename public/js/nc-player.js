@@ -1,7 +1,7 @@
-// Neon-Camelot op de Chromebook of gsm: rij vrij door de stad, doe missies, blus branden en vang gnomen.
-// De server beweegt je ridder; wij sturen alleen de richting en tekenen alles vloeiend.
-// Chromebook: de ridder volgt de muis, of pijltjes / WASD / ZQSD. Spatie of E = actie, V = ander voertuig, 1-4 antwoorden.
-// Gsm: duim op het scherm en schuiven, knoppen rechts onder.
+// Neon-Camelot op de Chromebook of gsm: rij vrij door de stad, vang de glitchdief, race, blus branden en vang gnomen.
+// Je eigen kart rekenen we hier uit (NcWorld.drive), elke frame: zo stuurt hij meteen. De server krijgt je plek en controleert die.
+// Sturen: wijs de richting aan (pijltjes / WASD / ZQSD, de muis, of je duim op de gsm) en de kart draait en rijdt die kant op.
+// Shift = driften, N of X = nitro, spatie of E = actie, V = ander voertuig, 1-4 antwoorden.
 // Gebruikt socket, $, playerId, store en buzz uit player.js, sfx en confetti uit fx.js, AK, NcWorld en NcDraw.
 (() => {
   const W = NcWorld;
@@ -19,10 +19,10 @@
     <p class="status">Neon-Camelot</p>
     <img class="lobby-icoon" src="/img/icons/neoncamelot.webp" alt="">
     <p class="title" id="nc-lobby-name"></p>
-    <p>Rij vrij door de stad op je <strong>robopaard</strong>. Rij naar een ⭐ en doe een <strong>missie</strong>: een pakket brengen of een race door de ringen. Vang 🧙 gnomen, blus 🔥 branden, spring over schansen en raap 💎 kristallen.</p>
-    <p class="muted small">Een missie start met een vraag. Is je energie op, dan krijg je ook een vraag. Met kristallen krijg je een hoverboard, een raketkar en een griffioen!</p>
-    <p class="muted small ls-hint-touch">Duim op het scherm en schuiven. De knop rechts onder doet de actie.</p>
-    <p class="muted small ls-hint-keys">Je ridder volgt de muis, of pijltjes · spatie = actie · V = voertuig · 1-4 antwoorden.</p>
+    <p>Scheur door de stad in je <strong>hoverkart</strong>. Rij naar een ⭐ voor een <strong>missie</strong>: vang de 🦹 glitchdief, race door de ringen of breng een pakket. Spring over schansen, vang 🧙 gnomen en blus 🔥 branden.</p>
+    <p class="muted small">Een missie start met een vraag. Is je batterij op, dan krijg je ook een vraag: juist = vol en een 🔥 nitro. Met kristallen krijg je een zweefmotor, een raketkar en een griffioen!</p>
+    <p class="muted small ls-hint-touch">Duim op het scherm en wijs de richting aan. Knoppen rechts onder: nitro en actie.</p>
+    <p class="muted small ls-hint-keys">Pijltjes of muis = richting · Shift = driften · N = nitro · spatie = actie · V = voertuig</p>
     <div class="spinner"></div>
   </section>
   <section id="nc-game" class="ak-game hidden">
@@ -42,8 +42,9 @@
       <div class="nc-wijk" id="nc-wijk"></div>
       <div class="tw-toast" id="nc-toast"></div>
       <div class="tw-countdown hidden" id="nc-countdown"></div>
-      <div class="hb-tip" id="nc-tip"><span class="ls-hint-touch">Duim op het scherm en schuiven</span><span class="ls-hint-keys">Je ridder volgt de muis</span></div>
-      <button class="ls-btn nc-voertuig" id="nc-voertuig" type="button" title="Ander voertuig (V)">🐴<small>Robopaard</small></button>
+      <div class="hb-tip" id="nc-tip"><span class="ls-hint-touch">Duim op het scherm en wijs de richting aan</span><span class="ls-hint-keys">Pijltjes of de muis: de kart rijdt die kant op</span></div>
+      <button class="ls-btn nc-voertuig" id="nc-voertuig" type="button" title="Ander voertuig (V)">🏎️<small>Hoverkart</small></button>
+      <button class="ls-btn nc-nitro" id="nc-nitro" type="button" title="Nitro (N)">🔥<small>Nitro</small><b id="nc-nitro-n">1</b></button>
       <button class="ls-btn nc-actie hidden" id="nc-actie" type="button">⭐<small>Missie</small></button>
     </div>
   </section>
@@ -56,7 +57,9 @@
   </section>`;
   document.querySelector('main').appendChild(root);
 
-  const g = { state: null, joined: false, run: -1, offset: 0, me: null, roster: new Map(), cam: null, energieEnd: 0, energieMax: 1, missieEnd: 0, actie: null };
+  const g = { state: null, joined: false, run: -1, offset: 0, me: null, roster: new Map(), cam: null, energieEnd: 0, energieMax: 1, missieEnd: 0, actie: null, ik: null };
+  // Mijn kart, hier uitgerekend
+  const zet = (x, y, a, veh) => { g.ik = { x, y, a: a || 0, vx: 0, vy: 0, z: 0, vz: 0, boost: 0, veh: veh || 0 }; };
   let scene = new NcDraw.Scene();
   const fx = new AK.Particles();
   const res = new NcDraw.Res(.6);
@@ -93,6 +96,7 @@
       g.joined = false;
       g.me = null;
       g.cam = null;
+      g.ik = null;
       scene = new NcDraw.Scene();
       scene.onEvent = onEvent;
       quiz.close();
@@ -127,7 +131,7 @@
       $('nc-end-medal').textContent = medals[me.rank - 1] || '🏰';
       $('nc-end-title').textContent = me.rank === 1 && me.kr > 0 ? 'Jij hebt de meeste kristallen!' : `Plek ${me.rank} van ${me.players}`;
       $('nc-end-score').textContent = `💎 ${me.kr || 0} kristallen`;
-      $('nc-end-stats').textContent = [`${s.right} ${s.right === 1 ? 'vraag' : 'vragen'} juist`, `${me.missies || 0} ${me.missies === 1 ? 'missie' : 'missies'}`, `${me.gnomen || 0} gnomen`, `${me.geblust || 0} branden geblust`, `${me.stunts || 0} sprongen`].join(' · ');
+      $('nc-end-stats').textContent = [`${s.right} ${s.right === 1 ? 'vraag' : 'vragen'} juist`, `${me.missies || 0} ${me.missies === 1 ? 'missie' : 'missies'}`, `${me.gnomen || 0} gnomen`, `${me.dieven || 0} dieven`, `${me.geblust || 0} branden`, `${me.stunts || 0} sprongen`].join(' · ');
       if (!$('nc-end').dataset.done && me.rank && me.rank <= 3) confetti(4000);
       $('nc-end').dataset.done = '1';
       show('nc-end');
@@ -146,7 +150,10 @@
     if (!g.state || g.state.phase !== 'play') return;
     scene.apply(msg);
     if (msg.me) setMe(msg.me);
+    if (!g.ik && g.me) { const p = msg.p.find(q => q[0] === g.me.n); if (p) zet(p[1] / 10, p[2] / 10, p[3] / 100, p[4]); }
   });
+  // De server zet ons terug (bijvoorbeeld bij het begin, of als we door een muur gingen).
+  socket.on('nc-fix', f => { if (g.ik) { g.ik.x = f.x; g.ik.y = f.y; g.ik.vx = g.ik.vy = 0; } });
 
   function setMe(me) {
     const old = g.me;
@@ -156,6 +163,8 @@
     g.energieMax = me.energieMax || W.ENERGIE_S * 1000;
     g.missieEnd = me.missie ? t + me.missie.left : 0;
     g.coolEnd = t + (me.cool || 0);
+    if (me.fix) zet(me.fix.x, me.fix.y, me.fix.a, me.veh);
+    if (g.ik) g.ik.veh = me.veh;
     if (old && me.kr > old.kr) { $('nc-kr').classList.remove('pop'); void $('nc-kr').offsetWidth; $('nc-kr').classList.add('pop'); }
     hud();
   }
@@ -165,6 +174,8 @@
     if (!me) return;
     $('nc-kr').textContent = `💎 ${me.kr}`;
     $('nc-rank').textContent = me.rank ? `#${me.rank} van ${me.players}` : '';
+    $('nc-nitro-n').textContent = me.nitro;
+    $('nc-nitro').classList.toggle('leeg', !me.nitro);
     const v = W.VOERTUIGEN[me.veh];
     const knop = $('nc-voertuig');
     knop.innerHTML = `${v.icoon}<small>${v.naam}</small>`;
@@ -178,10 +189,11 @@
     if (e[0] === 'm' && ik) {
       sfx.fanfare ? sfx.fanfare() : sfx.power();
       buzz([40, 30, 80]);
-      banner(e[2] ? '🏁 RACE GEWONNEN!' : '📦 PAKKET BEZORGD!', `+${e[3]} 💎`, 'gold');
+      banner(['📦 PAKKET BEZORGD!', '🏁 RACE GEWONNEN!', '🦹 DIEF GEVANGEN!'][e[2]] || 'GELUKT!', `+${e[3]} 💎`, 'gold');
+      if (e[2] === 2) confetti(1500);
     } else if (e[0] === 'x' && ik) {
       sfx.bad();
-      toast('⏰ Te laat. Rij naar een nieuwe ⭐.', 'bad');
+      toast(e[2] === 'dief' ? '💨 De dief is ontsnapt. Probeer een nieuwe ⭐.' : '⏰ Te laat. Rij naar een nieuwe ⭐.', 'bad');
     } else if (e[0] === 'r' && ik) {
       sfx.marker();
       buzz(25);
@@ -199,22 +211,6 @@
       banner('✨ DE STAD LICHT OP!', 'Samen verdienden jullie genoeg kristallen', 'gold');
     } else if (e[0] === 'g' && g.wasBij) {
       toast('💧 De brand is uit!', 'good');
-    } else if (e[0] === 's' && ik) {
-      sfx.jump();
-      buzz(30);
-      g.landAt = performance.now() + W.SPRONG_S * 1000;
-      toast(performance.now() - (g.stuntAt || 0) > 6000 ? '🛹 STUNTSPRONG! +1 💎' : '🛹 Wat een sprong!', 'good');
-      g.stuntAt = performance.now();
-    } else if (e[0] === 't' && ik) {
-      sfx.whoosh();
-      buzz(20);
-      g.turboAt = performance.now();
-      toast('⚡ TURBO!', 'good');
-    } else if (e[0] === 'h' && ik) {
-      sfx.toet ? sfx.toet() : sfx.tick();
-      buzz(40);
-      g.schud = performance.now();
-      if (performance.now() - (g.toetTip || 0) > 20000) { g.toetTip = performance.now(); toast('🚋 Toet toet! Kijk uit voor het verkeer.'); }
     }
   }
 
@@ -244,7 +240,7 @@
   let soortVraag = 'energie';
   let lastRes = null;
   const STATUS = {
-    energie: 'Energie op · juist = volle energie + 1 💎 · je staat stil en bent veilig',
+    energie: 'Batterij op · juist = vol + 1 💎 + 🔥 nitro · je staat stil en bent veilig',
     missie: 'Missie starten · juist = de missie begint',
     blus: 'Brand blussen · juist = je waterdraak spuit + 1 💎',
   };
@@ -259,13 +255,13 @@
       if (r && r.correct) sfx.power();
       cb(r);
     }),
-    good: r => r.doel === 'missie' ? (r.missie === 'race' ? 'Juist! Rij door alle ringen 🏁' : 'Juist! Breng het pakket weg 📦') : r.doel === 'blus' ? 'Juist! Je waterdraak spuit 💧 +1 💎' : 'Juist! Volle energie en +1 💎',
+    good: r => r.doel === 'missie' ? ({ race: 'Juist! Rij door alle ringen 🏁', dief: 'Juist! Vang de glitchdief 🦹', koerier: 'Juist! Breng het pakket weg 📦' })[r.missie] : r.doel === 'blus' ? 'Juist! Je waterdraak spuit 💧 +1 💎' : 'Juist! Volle batterij, +1 💎 en een 🔥 nitro',
     bad: r => r.doel === 'missie' ? 'Helaas. Kijk naar het juiste antwoord. Probeer zo opnieuw.' : r.doel === 'blus' ? 'Helaas. Probeer opnieuw.' : 'Helaas. Kijk naar het juiste antwoord, die vraag komt later terug. Je krijgt een beetje energie.',
     next: r => r.doel === 'blus' && r.correct && scene.wereld && scene.wereld.brand ? false : false,
     again: false,
     close: () => {
       socket.emit('nc-asking', false);
-      if (lastRes && lastRes.correct && lastRes.doel === 'missie') banner(lastRes.missie === 'race' ? '🏁 RACE!' : '📦 KOERIER!', lastRes.missie === 'race' ? 'Rij door de ringen, volg de pijl' : 'Volg de gouden pijl', 'gold');
+      if (lastRes && lastRes.correct && lastRes.doel === 'missie') banner(...({ race: ['🏁 RACE!', 'Rij door de ringen, volg de pijl'], dief: ['🦹 ACHTERNA!', 'Blijf vlak bij de dief tot de balk vol is'], koerier: ['📦 KOERIER!', 'Volg de gouden pijl'] })[lastRes.missie], 'gold');
       lastRes = null;
       soortVraag = 'energie';
       hud();
@@ -298,7 +294,7 @@
       W.STAD.markers.forEach((m, i) => { const d = Math.hypot(m.x - p[0], m.y - p[1]); if (d < bd) { bd = d; best = i; } });
       if (best >= 0) {
         const m = W.STAD.markers[best];
-        return { soort: 'missie', m: best, tekst: m.soort === 'race' ? 'Race' : 'Koerier', icoon: m.soort === 'race' ? '🏁' : '📦' };
+        return { soort: 'missie', m: best, tekst: { race: 'Race', dief: 'Dief', koerier: 'Koerier' }[m.soort], icoon: { race: '🏁', dief: '🦹', koerier: '📦' }[m.soort] };
       }
     }
     return null;
@@ -316,7 +312,7 @@
     g.gezien = Math.max(g.gezien || 1, me.open);
     const volgende = W.VOERTUIGEN[me.open];
     if (me.open <= 1) {
-      toast(`🔒 Hoverboard vanaf ${volgende.nodig} 💎`);
+      toast(`🔒 Zweefmotor vanaf ${volgende.nodig} 💎`);
       return;
     }
     const v = (me.veh + 1) % me.open;
@@ -326,6 +322,16 @@
     });
   }
   $('nc-voertuig').addEventListener('click', wissel);
+  function nitro() {
+    if (!g.me || quiz.open || !g.ik) return;
+    socket.emit('nc-nitro', null, r => {
+      if (r && r.error) { toast(r.error); sfx.empty && sfx.empty(); return; }
+      g.ik.boost = W.NITRO_S;
+      g.nitroAt = performance.now();
+      sfx.whoosh(); buzz(30);
+    });
+  }
+  $('nc-nitro').addEventListener('click', nitro);
 
   // ---------- Besturing ----------
   const stage = $('nc-stage');
@@ -337,8 +343,11 @@
     if (quiz.key(e)) { e.preventDefault(); return; }
     if (e.key === ' ' || e.key.toLowerCase() === 'e') { e.preventDefault(); doeActie(); return; }
     if (e.key.toLowerCase() === 'v') { e.preventDefault(); wissel(); return; }
+    if (e.key.toLowerCase() === 'n' || e.key.toLowerCase() === 'x') { e.preventDefault(); nitro(); return; }
+    if (e.key === 'Shift') ctl.drift = true;
     if (AK.isMoveKey(e.key)) { e.preventDefault(); ctl.mouse = null; }
   });
+  document.addEventListener('keyup', e => { if (e.key === 'Shift') ctl.drift = false; });
   stage.addEventListener('pointermove', e => {
     if (e.pointerType !== 'mouse') return;
     const r = stage.getBoundingClientRect();
@@ -386,32 +395,67 @@
   stage.addEventListener('pointerup', endTouch);
   stage.addEventListener('pointercancel', endTouch);
 
+  // Welke richting wijst de leerling aan? [dx, dy, kracht]
   function direction(px, py) {
-    if (ctl.touch) return [ctl.touch.x, ctl.touch.y / T0];
+    if (ctl.touch) { const m = Math.hypot(ctl.touch.x, ctl.touch.y); return [ctl.touch.x, ctl.touch.y, m]; }
     const k = AK.keyVector();
-    if (k.x || k.y) return [k.x, k.y];
+    if (k.x || k.y) return [k.x, k.y, 1];
     if (ctl.mouse) {
-      const dx = ctl.mouse.x - px, dy = (ctl.mouse.y - py) / W.TILT;
+      const dx = ctl.mouse.x - px, dy = ctl.mouse.y - py;
       const l = Math.hypot(dx, dy);
-      if (l < 28) return [0, 0];
-      const p = Math.min(1, l / 160);
-      return [(dx / l) * p, (dy / l) * p];
+      if (l < 30) return [0, 0, 0];
+      return [dx / l, dy / l, Math.min(1, (l - 20) / 140)];
     }
-    return [0, 0];
+    return [0, 0, 0];
   }
-  const T0 = 1; // de duim stuurt zoals je kijkt
-  function steer(v) {
-    if (quiz.open) v = [0, 0];
-    const l = Math.hypot(v[0], v[1]);
-    if (l > 1) v = [v[0] / l, v[1] / l];
-    const t = performance.now();
-    const changed = Math.abs(v[0] - ctl.sent[0]) + Math.abs(v[1] - ctl.sent[1]) > .06;
-    if ((changed && t - ctl.sentAt > 45) || t - ctl.sentAt > 1000) {
-      ctl.sent = [Math.round(v[0] * 100) / 100, Math.round(v[1] * 100) / 100];
-      ctl.sentAt = t;
-      socket.emit('nc-steer', ctl.sent);
-      if (v[0] || v[1]) $('nc-tip').classList.add('weg');
+  // Mijn plek naar de server, 20 keer per seconde
+  let sprong = false;
+  function stuur(t) {
+    const ik = g.ik;
+    if (!ik || t - (ctl.sentAt || 0) < 50) return;
+    ctl.sentAt = t;
+    socket.volatile.emit('nc-move', { x: Math.round(ik.x * 100) / 100, y: Math.round(ik.y * 100) / 100, a: Math.round(ik.a * 1000) / 1000, z: Math.round(ik.z * 10) / 10, j: sprong ? 1 : 0 });
+    sprong = false;
+  }
+  // Mijn kart een stukje verder rijden, in vaste stapjes van 1/60 s
+  let rest = 0;
+  function rij(dt, t, px, py) {
+    const ik = g.ik;
+    if (!ik) return;
+    if (quiz.open || now() < g.state.startedAt) { ik.vx = ik.vy = 0; sfx.engine(0); return; }
+    const [dx, dy, kracht] = direction(px, py);
+    if (kracht > .05) $('nc-tip').classList.add('weg');
+    const inp = W.stuurNaar(ik, dx, dy, kracht);
+    if (ctl.drift) inp.drift = true;
+    const leeg = performance.now() > g.energieEnd;
+    const tt = (now() - g.state.startedAt) / 1000;
+    rest += dt;
+    while (rest >= 1 / 60) {
+      rest -= 1 / 60;
+      const bx = ik.x, by = ik.y;
+      const out = W.drive(ik, inp, 1 / 60, { leeg, tt });
+      // Remsporen als je glijdt
+      if (out.slip > 3.2 && ik.z < .1 && !W.VOERTUIGEN[ik.veh].vliegt) {
+        const ca = Math.cos(ik.a), sa = Math.sin(ik.a);
+        for (const z of [-.7, .7]) scene.spoor(bx - ca * 1.2 - sa * z, by - sa * 1.2 + ca * z, ik.x - ca * 1.2 - sa * z, ik.y - sa * 1.2 + ca * z);
+      }
+      if (out.jump) {
+        sprong = true;
+        sfx.jump(); buzz(25);
+        if (performance.now() - (g.stuntAt || 0) > 6000) { g.stuntAt = performance.now(); toast('🛹 STUNTSPRONG! +1 💎', 'good'); }
+      }
+      if (out.land) { g.schud = performance.now(); sfx.dobbel(0); g.stof = true; }
+      if (out.turbo) { sfx.whoosh(); toast('⚡ TURBO!', 'good'); }
+      if (out.bump > 5) { g.schud = performance.now(); sfx.hit(); buzz(30); g.vonk = true; }
+      if (out.toet && performance.now() - (g.toetAt || 0) > 1500) {
+        g.toetAt = performance.now();
+        sfx.toet ? sfx.toet() : sfx.tick();
+        g.schud = performance.now();
+        if (performance.now() - (g.toetTip || 0) > 20000) { g.toetTip = performance.now(); toast('🚋 Toet toet! Kijk uit voor het verkeer.'); }
+      }
     }
+    const v = Math.hypot(ik.vx, ik.vy);
+    if (t - (g.motorAt || 0) > 100) { g.motorAt = t; sfx.engine(Math.min(1, v / 20) * .8 + (v > .5 ? .1 : 0)); }
   }
 
   // ---------- Elke frame ----------
@@ -437,7 +481,8 @@
     const chip = $('nc-missie');
     chip.classList.toggle('hidden', !m);
     if (m) {
-      const tekst = m.soort === 'race' ? `🏁 Ring ${Math.min(m.ri + 1, m.ringen.length)}/${m.ringen.length}` : `📦 Naar ${m.naar}`;
+      const d = m.soort === 'dief' ? scene.dieven.get(g.me.n) : null;
+      const tekst = m.soort === 'race' ? `🏁 Ring ${Math.min(m.ri + 1, m.ringen.length)}/${m.ringen.length}` : m.soort === 'dief' ? `🦹 Gevangen ${Math.round((d ? d[3] : 0) * 100)}%` : `📦 Naar ${m.naar}`;
       const ms = g.missieEnd - t;
       chip.textContent = `${tekst} · ${tijd(ms)}`;
       chip.classList.toggle('low', ms < 8000);
@@ -445,30 +490,25 @@
     maybeAsk();
 
     // Tijdens een vraag ligt het vragenvenster over de stad: niet tekenen spaart de Chromebook.
-    if (quiz.open) return;
+    if (quiz.open) { if (g.ik) g.ik.vx = g.ik.vy = 0; if (!g.stil) { g.stil = true; sfx.engine(0); } return; }
+    g.stil = false;
     const sec = t / 1000;
     res.frame(dt);
     const { w, h, dpr } = AK.fit(canvas, res.dpr(1.5));
-    const p = scene.speler(g.me.n, t);
-    const vliegt = p && W.VOERTUIGEN[p[3]].vliegt;
-    // Zoom: ongeveer 60 m breed op een Chromebook, iets verder uit met de griffioen.
-    const snel = p ? (p[4] & 48 ? .86 : 1) : 1; // turbo of sprong: iets verder uit, voelt sneller
-    const want = Math.min(Math.sqrt(w * h) / (vliegt ? 52 : 44), w / (vliegt ? 46 : 40)) * snel;
-    g.S = g.S ? g.S + (want - g.S) * Math.min(1, dt * 2) : want;
+    const ik = g.ik;
+    const p = ik ? [ik.x, ik.y] : null;
+    const V = W.VOERTUIGEN[ik ? ik.veh : 0];
+    const v = ik ? Math.hypot(ik.vx, ik.vy) : 0;
+    // Zoom: ongeveer 65 m breed op een Chromebook, verder uit als je vliegt. (Niet zoomen met de snelheid: dan moet de grond telkens opnieuw gebakken worden.)
+    const want = Math.min(Math.sqrt(w * h) / 56, w / 50) * (V.vliegt ? .82 : 1);
+    g.S = g.S ? g.S + (want - g.S) * Math.min(1, dt * 1.5) : want;
     const S = Math.round(g.S * 4) / 4;
     if (p) {
-      if (!g.cam) g.cam = { x: p[0], y: p[1], vx: 0, vy: 0 };
-      // De camera kijkt een stukje vooruit in de richting waarin je rijdt.
-      const q = scene.speler(g.me.n, t - 250);
-      if (q) {
-        const kv = Math.min(1, dt * 3);
-        g.cam.vx += ((p[0] - q[0]) * 4 - g.cam.vx) * kv;
-        g.cam.vy += ((p[1] - q[1]) * 4 - g.cam.vy) * kv;
-      }
-      const k = Math.min(1, dt * 7);
-      g.cam.x += (p[0] + g.cam.vx * .55 - g.cam.x) * k;
-      g.cam.y += (p[1] + g.cam.vy * .45 - g.cam.y) * k;
-      // Wijknaam in beeld als je een nieuwe wijk in rijdt
+      if (!g.cam) g.cam = { x: p[0], y: p[1] };
+      // De camera kijkt vooruit in de richting waarin je rijdt.
+      const k = Math.min(1, dt * 5);
+      g.cam.x += (p[0] + ik.vx * .55 - g.cam.x) * k;
+      g.cam.y += (p[1] + ik.vy * .55 - g.cam.y) * k;
       const wijk = W.wijkOp(p[0], p[1]);
       if (wijk !== g.wijk) {
         g.wijk = wijk;
@@ -477,25 +517,28 @@
         el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
       }
     }
-    if (!g.cam) g.cam = { x: W.L / 2, y: W.L / 2, vx: 0, vy: 0 };
-    const halfW = w / 2 / S, halfH = h / 2 / (S * W.TILT);
-    // Schudden bij een landing of een toet
+    if (!g.cam) g.cam = { x: W.L / 2, y: W.L / 2 };
+    const halfW = w / 2 / S, halfH = h / 2 / S;
     let shx = 0, shy = 0;
-    const land = g.landAt && t > g.landAt && t - g.landAt < 260;
-    const toet = g.schud && t - g.schud < 200;
-    if (land || toet) { const a = (land ? .45 : .25); shx = (Math.random() - .5) * a; shy = (Math.random() - .5) * a; }
-    if (g.landAt && t > g.landAt && !g.landed) { g.landed = true; sfx.dobbel(0); fx.burst(w / 2, h / 2 + S * .5, { n: 14, color: '#d8c8a8', speed: 160 * dpr, life: .45, size: 3 * dpr, glow: false }); }
-    if (g.landAt && t < g.landAt) g.landed = false;
-    const cam = { x: Math.max(halfW - 4, Math.min(W.L + 4 - halfW, g.cam.x)) + shx, y: Math.max(halfH - 12, Math.min(W.L + 2 - halfH, g.cam.y)) + shy, S, w, h };
+    if (g.schud && t - g.schud < 220) { shx = (Math.random() - .5) * .5; shy = (Math.random() - .5) * .5; }
+    const cam = { x: Math.max(halfW - 6, Math.min(W.L + 6 - halfW, g.cam.x)) + shx, y: Math.max(halfH - 6, Math.min(W.L + 6 - halfH, g.cam.y)) + shy, S, w, h };
+    const P = { S: Math.round(S * 32) / 32 };
+    const px = (w / 2 + (ik ? ik.x - cam.x : 0) * P.S) / dpr, py = (h / 2 + (ik ? ik.y - cam.y : 0) * P.S) / dpr;
+    rij(dt, t, px, py);
+    if (wait <= 0) stuur(t);
     const t0 = performance.now();
     const tt = (now() - g.state.startedAt) / 1000 + (window.__ncTijd || 0); // __ncTijd: alleen voor de tests (dag of nacht)
     const ms = Math.min(w * .2, h * .3, 130 * dpr);
-    NcDraw.render(ctx, scene, cam, { tt, nacht: $('nc-nacht'), gat: [w - ms - 12 * dpr, 8 * dpr, ms + 4 * dpr, ms + 4 * dpr], roster: g.roster, t: sec, me: g.me.n, missie: g.me.missie, cool: (g.coolEnd || 0) - t, fs: Math.max(10, 12 * dpr) });
+    const vl = ik && performance.now() - (g.nitroAt || 0) < W.NITRO_S * 1000 ? 32 : 0;
+    const ikT = ik ? { x: ik.x, y: ik.y, a: ik.a, z: ik.z, veh: ik.veh, flags: vl | (g.me.missie && g.me.missie.soort === 'koerier' ? 4 : 0) } : null;
+    NcDraw.render(ctx, scene, cam, { tt, ik: ikT, nacht: $('nc-nacht'), gat: [w - ms - 12 * dpr, 8 * dpr, ms + 4 * dpr, ms + 4 * dpr], roster: g.roster, t: sec, me: g.me.n, missie: g.me.missie, cool: (g.coolEnd || 0) - t, fs: Math.max(10, 12 * dpr) });
+    if (g.stof && ik) { g.stof = false; fx.burst(w / 2 + (ik.x - cam.x) * P.S, h / 2 + (ik.y - cam.y) * P.S, { n: 14, color: '#d8c8a8', speed: 160 * dpr, life: .45, size: 3 * dpr, glow: false }); }
+    if (g.vonk && ik) { g.vonk = false; fx.sparks(w / 2 + (ik.x - cam.x) * P.S, h / 2 + (ik.y - cam.y) * P.S, { n: 10, color: '#7ff3ff' }); }
     window.__ncMs = (window.__ncMs || 0) * .9 + (performance.now() - t0) * .1;
-    if (p && (p[4] & 32)) NcDraw.snelheidslijnen(ctx, w, h, sec, p[5]);
+    if (ik && (ik.boost > 0)) NcDraw.snelheidslijnen(ctx, w, h, sec, Math.atan2(ik.vy, ik.vx));
     fx.update(dt);
     fx.draw(ctx);
-    NcDraw.minimap(ctx, scene, w - ms - 10 * dpr, 10 * dpr, ms, { roster: g.roster, me: g.me.n, missie: g.me.missie, t: sec });
+    NcDraw.minimap(ctx, scene, w - ms - 10 * dpr, 10 * dpr, ms, { roster: g.roster, me: g.me.n, ik, missie: g.me.missie, t: sec });
     if (p) {
       // Actieknop
       const a = bepaalActie(p);
@@ -508,14 +551,11 @@
         if (a) { knop.innerHTML = `${a.icoon}<small>${a.tekst}</small>`; knop.dataset.soort = a.soort; sfx.tick(); }
       }
       g.wasBij = a && a.soort === 'blus' ? true : g.wasBij && scene.wereld && scene.wereld.brand;
-      if (wait <= 0) {
-        const px = (w / 2 + (p[0] - cam.x) * S) / dpr, py = (h / 2 + (p[1] - cam.y) * S * W.TILT) / dpr;
-        steer(direction(px, py));
-      }
     }
   }
   scene.onEvent = onEvent;
   requestAnimationFrame(frame);
   // Voor de automatische tests: waar sta ik?
-  window.__ncPos = () => (g.me ? scene.speler(g.me.n) : null);
+  window.__ncPos = () => (g.ik ? [g.ik.x, g.ik.y, g.ik.a, g.ik.veh, 0, Math.hypot(g.ik.vx, g.ik.vy)] : null);
+  window.__ncDief = () => (g.me && scene.dieven.get(g.me.n)) || null;
 })();
