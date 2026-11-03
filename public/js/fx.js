@@ -170,7 +170,7 @@ function confetti(duration = 4000) {
 // Een spel starten. Loopt er nog een ander spel, dan vragen we of dat mag stoppen in plaats van een foutmelding te tonen.
 const GAME_OF_EVENT = {
   load: 'toernooi', 'rt-load': 'rondetafel', 'tw-load': 'toren', 'sj-load': 'schat', 'ls-load': 'laserslag', 'rr-load': 'race',
-  'bb-load': 'burcht', 'du-load': 'duel', 'pk-load': 'knight', 'sr-load': 'rossen', 'gt-load': 'gauntlet', 'ry-load': 'royale', 'sv-load': 'sterren', 'rs-load': 'slang', 'bs-load': 'storm', 'pw-load': 'poort', 'nv-load': 'vlucht', 'db-load': 'diep', 'jp-load': 'raket', 'sz-load': 'zwaard', 'ww-load': 'wankel', 'pp-load': 'plasma', 'tm-load': 'tuimel', 'ko-load': 'kolk', 'hb-load': 'hooi', 'zm-load': 'zwerm', 'hk-load': 'haak', 'bv-load': 'banier', 'px-load': 'pixel', 'mo-load': 'robomol', 'kk-load': 'kerker', 'hs-load': 'hofschilder', 'rp-load': 'paarden', 'nd-load': 'neon', 'lb-load': 'baas', 'rk-load': 'rijk', 'kr-load': 'roof', 'vr-load': 'verrader', 'ob-load': 'oefenblad', 'pf-load': 'proef',
+  'bb-load': 'burcht', 'du-load': 'duel', 'pk-load': 'knight', 'sr-load': 'rossen', 'gt-load': 'gauntlet', 'ry-load': 'royale', 'sv-load': 'sterren', 'rs-load': 'slang', 'bs-load': 'storm', 'pw-load': 'poort', 'nv-load': 'vlucht', 'db-load': 'diep', 'jp-load': 'raket', 'sz-load': 'zwaard', 'ww-load': 'wankel', 'pp-load': 'plasma', 'tm-load': 'tuimel', 'ko-load': 'kolk', 'ti-load': 'titan', 'hb-load': 'hooi', 'zm-load': 'zwerm', 'hk-load': 'haak', 'bv-load': 'banier', 'px-load': 'pixel', 'mo-load': 'robomol', 'kk-load': 'kerker', 'hs-load': 'hofschilder', 'rp-load': 'paarden', 'nd-load': 'neon', 'lb-load': 'baas', 'rk-load': 'rijk', 'kr-load': 'roof', 'vr-load': 'verrader', 'ob-load': 'oefenblad', 'pf-load': 'proef',
   'cg-load': 'galaga', 'bk-load': 'bomber', 'opwarmer-start': 'toernooi',
 };
 function loadGame(event, payload, cb) {
@@ -431,7 +431,7 @@ const Glow = (() => {
     '/neonvlucht': '/img/neonvlucht/achtergrond.webp', '/diepboor': '/img/diepboor/lucht.webp', '/raketridder': '/img/raketridder/lucht-wolkenburcht.webp',
     '/splijtzwaard': '/img/splijtzwaard/lucht-sterrenburcht.webp', '/wankelwagen': '/img/wankelwagen/lucht-burchtwallen.webp', '/plasmapoort': '/img/plasmapoort/stadion.webp',
     '/tuimelridder': '/img/tuimelridder/achtergrond-burcht.webp', '/hooibergjacht': '/img/hooiberg/schuur.webp', '/zwermwacht': '/img/zwermwacht/arena.webp',
-    '/haakridder': '/img/haakridder/achtergrond.webp', '/kolkridder': START, '/banierveld': '/img/banierveld/veld.webp', '/pixelridder': '/img/pixelridder/burcht.webp',
+    '/haakridder': '/img/haakridder/achtergrond.webp', '/kolkridder': START, '/titanenstrijd': '/img/titanenstrijd/arena.webp', '/banierveld': '/img/banierveld/veld.webp', '/pixelridder': '/img/pixelridder/burcht.webp',
     '/robomol': '/img/robomol/plein.webp', '/kerker': '/img/kerker/gang.webp', '/hofschilder': '/img/hofschilder/zaal.webp', '/robopaarden': START,
     '/neonduel': '/img/neonduel/arena.webp', '/leraarbaas': '/img/leraarbaas/troonzaal.webp', '/cybergalaga': '/img/cybergalaga/hemel.webp', '/bomberknight': START,
   };

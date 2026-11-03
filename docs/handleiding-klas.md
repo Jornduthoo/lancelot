@@ -247,6 +247,13 @@ Tip: een klas die goed en vlot antwoordt, houdt de poort. Bij veel foute antwoor
 3. Elke vlag is een vraag. Juist: een gouden haak die verder grijpt en harder zwaait.
 4. Wie valt, hangt meteen terug aan zijn laatste anker en slingert verder. Het bord volgt de koploper.
 
+## Titanenstrijd
+
+1. Kies **De Arena** en dan **Titanenstrijd**, kies 2, 3 of 4 titans en de speeltijd, en klik op de quiz. Klik op **Titans, ontwaak!**
+2. LANcelot verdeelt de ploegen zelf, met een eerlijke mix van niveaus. Elke leerling krijgt één deel van de titan: zwaard, schild, kern, kanon of benen.
+3. Juiste antwoorden laden je deel op. Vol? Druk op je grote knop. Het schild blokt een zwaard, de benen ontwijken een kanon, de kern herstelt.
+4. Antwoorden alle delen van een titan samen juist binnen 10 seconden, dan volgt een Titanenslag. De ploeg met de meeste punten wint.
+
 ## Kolkridder
 
 1. Kies **De Arena** en dan **Kolkridder**, kies de speeltijd en of de **duelmodus** aan staat, en klik op de quiz. Klik op **Kolken maar!**

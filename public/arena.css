@@ -666,3 +666,53 @@ body:not([data-ko="1"]) #kolk { display: none !important; }
 #ko-power { color: #ffe17a; box-shadow: 0 0 12px rgb(var(--k-goud) / .6); }
 .ko-plasma i { background: linear-gradient(90deg, #7b5cff, #5ae6ff); }
 @media (max-width: 520px) { #ry-game .ry-alive { display: none; } }
+
+/* ---------- Titanenstrijd ---------- */
+body[data-ti="1"] main > :not(#titan) { display: none !important; }
+body:not([data-ti="1"]) #titan { display: none !important; }
+#titan { display: contents; }
+.ti-game { --team: #4ca6ff; background: radial-gradient(ellipse at 50% 30%, color-mix(in srgb, var(--team) 22%, transparent), transparent 70%), url(/img/titanenstrijd/arena.webp) center / cover, rgb(var(--k-bg)); }
+.ti-game::before { content: ''; position: absolute; inset: 0; background: rgb(var(--k-bg) / .72); pointer-events: none; }
+.ti-game > * { position: relative; }
+.ti-game .ak-question { position: absolute; z-index: 6; }
+.ti-kop { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-bottom: 3px solid var(--team); background: rgb(var(--k-bg) / .8); }
+.ti-ploeg { font-family: var(--tech); font-weight: 900; color: var(--team); font-size: 1.15rem; letter-spacing: .04em; }
+.ti-punten { font-weight: 800; color: var(--gold); }
+.ti-kop .ls-clock { margin-left: auto; position: static; }
+.ti-deel { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 16px; text-align: center; }
+.ti-deel img { width: min(34vw, 30vh, 190px); height: auto; filter: drop-shadow(0 0 18px color-mix(in srgb, var(--team) 60%, transparent)); transition: transform .2s; }
+.ti-vol .ti-deel img { animation: beat 1s ease-in-out infinite; filter: drop-shadow(0 0 26px rgb(var(--k-goud) / .9)); }
+.ti-deelnaam { margin: 0; font-family: var(--tech); font-weight: 900; font-size: 1.5rem; color: rgb(var(--k-wit)); }
+.ti-zin { margin: 0; color: var(--muted); max-width: 30em; }
+.ti-lading { display: flex; gap: 6px; }
+.ti-lading i { width: 34px; height: 14px; border-radius: 7px; background: rgb(var(--k-wit) / .12); border: 1px solid rgb(var(--k-wit) / .25); }
+.ti-lading i.aan { background: var(--team); box-shadow: 0 0 12px var(--team); }
+.ti-knoppen { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; width: 100%; max-width: 640px; }
+.ti-knop { --kl: #4ca6ff; flex: 1 1 200px; min-height: 76px; font-size: 1.4rem; font-weight: 900; border-radius: 18px; border: 3px solid rgb(var(--k-wit) / .7); color: #fff; text-shadow: 0 2px 3px rgb(0 0 0 / .6);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--kl) 85%, white), color-mix(in srgb, var(--kl) 70%, black)); box-shadow: 0 0 24px color-mix(in srgb, var(--kl) 70%, transparent), 0 6px 0 rgb(0 0 0 / .35); animation: pop .3s ease-out; }
+.ti-knop:active { transform: translateY(3px); box-shadow: 0 0 18px color-mix(in srgb, var(--kl) 60%, transparent), 0 2px 0 rgb(0 0 0 / .35); }
+.ti-knop.flits { animation: ti-flits .45s ease-in-out infinite alternate; }
+@keyframes ti-flits { to { box-shadow: 0 0 44px rgb(var(--k-goud)), 0 6px 0 rgb(0 0 0 / .35); transform: scale(1.04); } }
+.ti-melding { margin: 0; min-height: 1.4em; font-weight: 700; color: var(--gold); }
+.ls-banner.rood strong { color: #ff8a8a; }
+.ti-game .ls-banner { z-index: 8; }
+@media (max-height: 520px) { .ti-deel { gap: 6px; padding: 8px; } .ti-deel img { width: min(22vw, 24vh, 120px); } .ti-knop { min-height: 58px; font-size: 1.15rem; } .ti-zin { font-size: .9rem; } }
+/* Bord: per ploeg de punten en de bemanning */
+.ti-teams { display: flex; flex-direction: column; gap: 8px; }
+.ti-team { --team: #4ca6ff; padding: 8px 10px; border-left: 5px solid var(--team); }
+.ti-team-kop { display: flex; justify-content: space-between; align-items: baseline; font-family: var(--tech); }
+.ti-team-kop b { color: var(--team); font-size: 1.05rem; }
+.ti-team-kop span { color: var(--gold); font-weight: 900; }
+.ti-team ul { list-style: none; margin: 4px 0 0; padding: 0; display: grid; gap: 2px; }
+.ti-team li { display: grid; grid-template-columns: 1.4em 1fr 54px; align-items: center; gap: 6px; font-size: .9rem; }
+.ti-team li.kapot { opacity: .5; }
+.ti-team li.vol .ti-nm { color: var(--gold); font-weight: 800; }
+.ti-nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ti-bar { height: 7px; border-radius: 4px; background: rgb(var(--k-wit) / .12); overflow: hidden; }
+.ti-bar b { display: block; height: 100%; background: var(--team); transition: width .3s; }
+.ti-team li.vol .ti-bar b { background: var(--gold); box-shadow: 0 0 8px var(--gold); }
+.ti-best { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 12px 0; }
+.ti-best-kaart { --team: #4ca6ff; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 10px 14px; min-width: 130px; border-radius: 14px; background: rgb(var(--k-bg) / .7); border: 2px solid var(--team); }
+.ti-best-kaart img { width: 54px; height: 54px; }
+.ti-best-kaart small { color: var(--muted); }
+.ti-best-kaart b { color: var(--team); }
