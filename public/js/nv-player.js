@@ -225,13 +225,13 @@
         buzz([30, 40, 30]);
         banner(`JUIST! ×${res.mult}`, `+${res.bonus * res.mult} · ⚡ turbo · 🛡️ schild`, 'gold');
         fx.burst(innerWidth / 2, innerHeight * .6, { n: 30, color: '#ffc94a', speed: 420, life: .8, size: 4 });
-        r.nextQ = r.z + base * 6.5;
+        r.nextQ = r.z + base * 6.5 * (res.gap || 1);
       } else {
         r.stumble = W.STUMBLE.s;
         sfx.bad();
         buzz(220);
         banner('FOUTE POORT', `Het juiste antwoord was ${'ABC'[res.right]}: ${gt.answers[res.right]}`, 'bad');
-        r.nextQ = r.z + base * (5.5 + (res.wait || 0) / 1000);
+        r.nextQ = r.z + base * (5.5 * (res.gap || 1) + (res.wait || 0) / 1000);
       }
       g.me && Object.assign(g.me, { mult: res.mult });
       hud();

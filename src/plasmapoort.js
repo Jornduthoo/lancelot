@@ -7,7 +7,7 @@
 const { Date, setTimeout, setInterval, clearTimeout, clearInterval } = require('./pauze').klok; // stil tijdens de pauzeknop
 const World = require('../public/js/pp-world');
 const { Vragen, saveCsv, pct } = require('./vragen');
-const { tempoOf, factor } = require('./tempo');
+const { tempoOf, factor, reeks } = require('./tempo');
 
 const SEND_MS = 500;
 const GAP_MS = 1400; // zo lang duurt een trap minstens (de animatie): sneller kan de server niets aannemen
@@ -56,6 +56,7 @@ class Plasmapoort {
     this.minutes = [1, 2, 3, 4, 5, 6, 8, 10].includes(minutes) ? minutes : 5;
     this.tempo = tempoOf(tempo);
     this.vragen = new Vragen(quiz, 'Plasmapoort', this.tempo);
+    this.vragen.reeks = reeks(this.tempo); // Veel vragen: twee vragen per vlag
     this.phase = 'lobby';
     this.broadcast();
   }
