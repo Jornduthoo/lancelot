@@ -3,8 +3,10 @@
 // een herhaalquiz uitspelen, dagen na elkaar meedoen. Gokken levert niets op. Page, Schildknaap en Ridder verdienen evenveel.
 // De Eer komt uit het logboek (dus uit elk spel, zonder dat een spel er iets voor moet doen), plus de Eer die de leerkracht geeft.
 // Met Eer bouwt een leerling zijn eigen burcht. Alle burchten samen vormen het Klaseiland op het bord.
-// Bewaard in burchten/burchten.json bij de gegevens (staat in .gitignore), alleen op deze pc.
+// Bewaard in burchten/burchten.json bij de gegevens (staat in .gitignore).
+// Met Mijn lesmap zet de pc waar de klas speelt een kopie in de lesmap: thuis bekijk je zo het Klaseiland en het ridderboek.
 const fs = require('fs');
+const os = require('os');
 const path = require('path');
 const gegevens = require('./gegevens');
 const klas = require('./klas');
@@ -14,6 +16,9 @@ const huisdieren = require('./huisdieren');
 
 const DIR = gegevens.pad('burchten');
 const FILE = path.join(DIR, 'burchten.json');
+// De kopie voor Mijn lesmap: één bestand per pc, alleen om te bekijken.
+const LESMAP = path.join(DIR, 'lesmap');
+const EIGEN = `${String(os.hostname() || 'pc').replace(/[^\w-]+/g, '-').replace(/^[-_]+/, '').slice(0, 40) || 'pc'}.json`;
 
 const SESSIE_MAX = 40; // zo levert een spel met heel veel vragen niet oneindig veel Eer op
 const MEEGESTREDEN = 5; // een spel uitspelen (minstens 5 vragen)
@@ -322,11 +327,13 @@ function stijl(naam, { burchtnaam, kleur } = {}) {
 // ---------- De leerkracht ----------
 
 function setKasteeltijd(aan) {
+  if (aan) alleenBekijken();
   kasteeltijd = !!aan;
 }
 
 // Eer geven aan één of meer leerlingen, voor inzet, gedrag, een mooie taak...
 function geef({ leerlingen, n, reden } = {}) {
+  alleenBekijken();
   const ids = new Set(klas.read().leerlingen.map(l => l.id));
   const lijst = (Array.isArray(leerlingen) ? leerlingen : []).filter(id => ids.has(id));
   if (!lijst.length) throw new Error('Kies eerst een of meer leerlingen.');
@@ -342,6 +349,7 @@ function geef({ leerlingen, n, reden } = {}) {
 
 // De laatste gift aan een leerling terugnemen (een vergissing).
 function neemTerug(leerling) {
+  alleenBekijken();
   const d = load();
   for (let i = d.giften.length - 1; i >= 0; i--) {
     if (d.giften[i].leerling === leerling) {
@@ -356,6 +364,7 @@ function neemTerug(leerling) {
 
 // Een burchtnaam die niet door de beugel kan, wissen.
 function wisNaam(leerling) {
+  alleenBekijken();
   const d = load();
   if (d.burchten[leerling]) d.burchten[leerling].naam = '';
   huisdieren.wisNaam(leerling);
@@ -365,6 +374,7 @@ function wisNaam(leerling) {
 
 // Het klasdoel: samen zoveel Eer verdienen vanaf nu. De burcht in het midden van het eiland groeit mee.
 function setKlasdoel({ tekst, doel } = {}) {
+  alleenBekijken();
   const n = Math.round(Number(doel));
   if (!Number.isFinite(n) || n < 50 || n > 100000) throw new Error('Kies een doel tussen 50 en 100 000 Eer.');
   const d = load();
@@ -382,7 +392,9 @@ function klasdoelView(per) {
 }
 
 // Het Klaseiland op het bord: elke burcht met naam, kleur en ridder. Geen Eer of rangen: geen ranglijst in de klas.
-function eiland() {
+function eiland(hier) {
+  const k = !hier && kopie();
+  if (k) return { ...k.eiland, kasteeltijd: false, kopie: kopieInfo(k) };
   const per = telling();
   const burchten = klas.read().leerlingen.map(l => {
     const st = stand(l);
@@ -393,7 +405,9 @@ function eiland() {
 }
 
 // Het ridderboek voor de leerkracht: Eer, rang en wat er recent bijkwam, per leerling.
-function ridderboek() {
+function ridderboek(hier) {
+  const k = !hier && kopie();
+  if (k) return k.boek;
   return klas.read().leerlingen.map(l => {
     const s = stand(l);
     return { id: l.id, naam: l.naam, eer: s.eer, saldo: s.saldo, rang: s.rang, reeks: s.reeks, schilden: s.schilden, posten: s.posten.slice(0, 12), burchtnaam: s.burcht.naam, diernaam: huisdieren.naamVan(l.id) };
@@ -421,4 +435,57 @@ function periode(id, van, tot) {
   };
 }
 
-module.exports = { periode, view, zet, eilandje, stijl, setKasteeltijd, kasteeltijd: () => kasteeltijd, geef, neemTerug, wisNaam, setKlasdoel, eiland, ridderboek, DIR };
+// ---------- Mijn lesmap: een kopie om thuis te bekijken ----------
+
+// Hoeveel antwoorden van leerlingen er op deze pc in het logboek staan: zo weten we waar de klas echt speelt.
+const antwoordenHier = () => logboek.read().filter(e => e.leerling && !e.leeg).length;
+
+function kopieGeldig(d) {
+  if (!d || typeof d !== 'object' || !d.eiland || !Array.isArray(d.eiland.burchten) || !Array.isArray(d.boek)) throw new Error('Ongeldige kopie van het Klaseiland.');
+}
+
+// Voor het synchroniseren: de stand van deze pc in de lesmap zetten (alleen als hier leerlingen spelen of bouwen).
+function naarLesmap() {
+  const d = load();
+  const antwoorden = antwoordenHier();
+  if (!antwoorden && !Object.keys(d.burchten).length && !d.giften.length) return;
+  // Zonder de lijst met wat elke leerling verdiende (die komt uit het logboek, en dat blijft op deze pc).
+  const inhoud = { eiland: { ...eiland(true), kasteeltijd: false }, boek: ridderboek(true).map(l => ({ ...l, posten: [] })) };
+  const file = path.join(LESMAP, EIGEN);
+  try {
+    const oud = JSON.parse(fs.readFileSync(file, 'utf8'));
+    if (JSON.stringify({ eiland: oud.eiland, boek: oud.boek }) === JSON.stringify(inhoud) && oud.antwoorden === antwoorden) return;
+  } catch {}
+  fs.mkdirSync(LESMAP, { recursive: true });
+  fs.writeFileSync(file + '.tmp', JSON.stringify({ pc: os.hostname(), at: new Date().toISOString(), antwoorden, ...inhoud }));
+  fs.renameSync(file + '.tmp', file);
+}
+
+// De kopie van een andere pc (het digibord) waar meer gespeeld werd dan hier. Anders null: dan tonen we wat hier staat.
+let kopieCache = { key: '', val: null };
+function kopie() {
+  let names = [];
+  try { names = fs.readdirSync(LESMAP).filter(n => n !== EIGEN && /^[^_.][^\\/]*\.json$/.test(n)); } catch { return null; }
+  if (!names.length) return null;
+  const key = names.map(n => { try { return `${n}:${fs.statSync(path.join(LESMAP, n)).mtimeMs}`; } catch { return n; } }).join('|') + `|${logboek.read().length}`;
+  if (kopieCache.key === key) return kopieCache.val;
+  const hier = antwoordenHier();
+  let beste = null;
+  for (const n of names) {
+    try {
+      const k = JSON.parse(fs.readFileSync(path.join(LESMAP, n), 'utf8'));
+      kopieGeldig(k);
+      const a = Number(k.antwoorden) || 0;
+      if (a > hier && (!beste || a > beste.antwoorden)) beste = { ...k, antwoorden: a };
+    } catch {}
+  }
+  kopieCache = { key, val: beste };
+  return beste;
+}
+
+const kopieInfo = k => ({ pc: String(k.pc || ''), at: String(k.at || '') });
+function alleenBekijken() {
+  if (kopie()) throw new Error('Dit is een kopie van het digibord: hier kan je alleen kijken. Aanpassen doe je op het digibord.');
+}
+
+module.exports = { naarLesmap, kopieGeldig, LESMAP, periode, view, zet, eilandje, stijl, setKasteeltijd, kasteeltijd: () => kasteeltijd, geef, neemTerug, wisNaam, setKlasdoel, eiland, ridderboek, DIR };

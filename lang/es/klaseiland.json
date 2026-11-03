@@ -23,7 +23,7 @@
  "Quizzen en oefenbladen maken met AI.": "Crear cuestionarios y fichas con IA.",
  "Het onderwerp, je extra wensen en de lesstof die je toevoegt (screenshot, pdf) gaan naar de AI die je bij Instellingen koos (Google Gemini, Anthropic Claude of OpenAI ChatGPT), of naar de chatbot waar je de prompt zelf plakt. Namen of resultaten van leerlingen gaan daar niet mee. Voeg dus geen lesstof toe waar namen van leerlingen op staan.": "El tema, tus deseos extra y el material de clase que añades (captura, PDF) van a la IA elegida en Ajustes (Google Gemini, Anthropic Claude u OpenAI ChatGPT), o al chatbot donde pegas tú el prompt. Los nombres o resultados de los alumnos no se envían. Así que no añadas material de clase con nombres de alumnos.",
  "Mijn lesmap": "Mi carpeta de clase",
- "(als je die koppelt): je quizzen, oefenbladen, Ronde Tafels en taken gaan naar je OneDrive of Google Drive, en van de klaslijst alleen de namen en niveaus (om thuis taken per leerling klaar te zetten). Het logboek, de resultaten, notities en het werk van de leerlingen nooit.": "(si la vinculas): tus cuestionarios, fichas, Mesas Redondas y tareas van a tu OneDrive o Google Drive, y de la lista de clase solo los nombres y niveles (para asignar tareas por alumno desde casa). El registro, los resultados, las notas y el trabajo de los alumnos, nunca.",
+ "(als je die koppelt): je quizzen, oefenbladen, Ronde Tafels en taken gaan naar je OneDrive of Google Drive, en van de klaslijst alleen de namen en niveaus (om thuis taken per leerling klaar te zetten). Ook een kopie van het Klaseiland: de burchten en per leerling de Eer, rang en schilden, om thuis te bekijken. Het logboek, de resultaten, notities en het werk van de leerlingen nooit.": "(si la vinculas): tus cuestionarios, fichas, Mesas Redondas y tareas van a tu OneDrive o Google Drive, y de la lista de clase solo los nombres y niveles (para asignar tareas por alumno desde casa). También una copia de la Isla de la clase: los castillos y, por alumno, el Honor, el rango y los escudos, para verla en casa. El registro, los resultados, las notas y el trabajo de los alumnos, nunca.",
  "Bijwerken:": "Actualizar:",
  "LANcelot vraagt aan GitHub of er een nieuwe versie is, alleen als jij op de knop drukt.": "LANcelot pregunta a GitHub si hay una versión nueva, solo cuando pulsas el botón.",
  "Voorlezen": "La lectura en voz alta",
@@ -386,5 +386,10 @@
  "Fout! De kluis van {0} blijft dicht.": "¡Incorrecto! La cámara de {0} sigue cerrada.",
  "🔥 {0} op rij": "🔥 {0} seguidas",
  "🛡️ Schild {0} s": "🛡️ Escudo {0} s",
- "#{0} van {1}": "n.º {0} de {1}"
+ "#{0} van {1}": "n.º {0} de {1}",
+ "👁 Kopie van het digibord ({0}) · alleen bekijken": "👁 Copia de la pizarra de clase ({0}) · solo ver",
+ "Een klasdoel kies je op het digibord.": "El objetivo de clase se elige en la pizarra de clase.",
+ "Wat er verdiend werd, zie je op het digibord.": "Lo ganado se ve en la pizarra de clase.",
+ "Ongeldige kopie van het Klaseiland.": "Copia no válida de la Isla de la clase.",
+ "Dit is een kopie van het digibord: hier kan je alleen kijken. Aanpassen doe je op het digibord.": "Esto es una copia de la pizarra de clase: aquí solo puedes mirar. Los cambios se hacen en la pizarra de clase."
 }

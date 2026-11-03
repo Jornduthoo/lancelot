@@ -121,6 +121,7 @@ body.ke-host { overflow: hidden; background: #060a13; }
 .ke-doel p { margin: 0; }
 .ke-doel .kop { font-family: var(--head); font-weight: 900; font-size: 1.2rem; color: #ffe7a3; }
 .ke-doel.gehaald { border-color: var(--good); box-shadow: 0 0 40px rgba(46, 230, 166, .35); }
+.ke-kopie .ke-doel { cursor: default; }
 
 .ke-join { position: absolute; right: 16px; bottom: 18px; display: flex; gap: 10px; align-items: center; padding: 10px 12px; border-radius: 14px; background: rgba(6, 10, 19, .78); border: 1px solid var(--line); }
 .ke-join .qr { width: 92px; height: 92px; background: #fff; border-radius: 8px; padding: 4px; }

@@ -23,7 +23,7 @@
  "Quizzen en oefenbladen maken met AI.": "Créer des quiz et des fiches avec l’IA.",
  "Het onderwerp, je extra wensen en de lesstof die je toevoegt (screenshot, pdf) gaan naar de AI die je bij Instellingen koos (Google Gemini, Anthropic Claude of OpenAI ChatGPT), of naar de chatbot waar je de prompt zelf plakt. Namen of resultaten van leerlingen gaan daar niet mee. Voeg dus geen lesstof toe waar namen van leerlingen op staan.": "Le sujet, tes souhaits supplémentaires et le matériel de leçon que tu ajoutes (capture d’écran, PDF) vont à l’IA choisie dans les Paramètres (Google Gemini, Anthropic Claude ou OpenAI ChatGPT), ou au chatbot où tu colles toi-même le prompt. Les noms ou résultats des élèves ne sont pas envoyés. N’ajoute donc pas de matériel de leçon avec des noms d’élèves.",
  "Mijn lesmap": "Mon dossier de cours",
- "(als je die koppelt): je quizzen, oefenbladen, Ronde Tafels en taken gaan naar je OneDrive of Google Drive, en van de klaslijst alleen de namen en niveaus (om thuis taken per leerling klaar te zetten). Het logboek, de resultaten, notities en het werk van de leerlingen nooit.": "(si tu le lies) : tes quiz, fiches, Tables rondes et tâches vont sur ton OneDrive ou Google Drive, et de la liste de classe seulement les noms et niveaux (pour donner des tâches par élève depuis la maison). Le journal, les résultats, les notes et le travail des élèves, jamais.",
+ "(als je die koppelt): je quizzen, oefenbladen, Ronde Tafels en taken gaan naar je OneDrive of Google Drive, en van de klaslijst alleen de namen en niveaus (om thuis taken per leerling klaar te zetten). Ook een kopie van het Klaseiland: de burchten en per leerling de Eer, rang en schilden, om thuis te bekijken. Het logboek, de resultaten, notities en het werk van de leerlingen nooit.": "(si tu le lies) : tes quiz, fiches, Tables rondes et tâches vont sur ton OneDrive ou Google Drive, et de la liste de classe seulement les noms et niveaux (pour donner des tâches par élève depuis la maison). Aussi une copie de l’Île de la classe : les châteaux et, par élève, l’Honneur, le rang et les blasons, à voir à la maison. Le journal, les résultats, les notes et le travail des élèves, jamais.",
  "Bijwerken:": "Mise à jour :",
  "LANcelot vraagt aan GitHub of er een nieuwe versie is, alleen als jij op de knop drukt.": "LANcelot demande à GitHub s’il existe une nouvelle version, seulement quand tu appuies sur le bouton.",
  "Voorlezen": "La lecture à voix haute",
@@ -386,5 +386,10 @@
  "Fout! De kluis van {0} blijft dicht.": "Faux ! Le coffre de {0} reste fermé.",
  "🔥 {0} op rij": "🔥 {0} d’affilée",
  "🛡️ Schild {0} s": "🛡️ Bouclier {0} s",
- "#{0} van {1}": "n° {0} sur {1}"
+ "#{0} van {1}": "n° {0} sur {1}",
+ "👁 Kopie van het digibord ({0}) · alleen bekijken": "👁 Copie du tableau de la classe ({0}) · lecture seule",
+ "Een klasdoel kies je op het digibord.": "Tu choisis un objectif de classe sur le tableau de la classe.",
+ "Wat er verdiend werd, zie je op het digibord.": "Ce qui a été gagné se voit sur le tableau de la classe.",
+ "Ongeldige kopie van het Klaseiland.": "Copie invalide de l’Île de la classe.",
+ "Dit is een kopie van het digibord: hier kan je alleen kijken. Aanpassen doe je op het digibord.": "C’est une copie du tableau de la classe : ici, tu peux seulement regarder. Les modifications se font sur le tableau de la classe."
 }
