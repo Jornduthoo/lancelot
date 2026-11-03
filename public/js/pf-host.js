@@ -597,7 +597,7 @@ function openEditor(t, file) {
 const ADD_GROEPEN = [
   ['Kiezen', [['meerkeuze', 'Eén of meer juiste keuzes'], ['juistfout', 'Juist of fout'], ['verbinden', 'Wat hoort bij elkaar?'], ['ordenen', 'In de juiste volgorde']]],
   ['Typen', [['invullen', 'Gaten of keuzelijstjes in een tekst'], ['kort', 'Een woord of getal'], ['rekenen', 'Bewerking en uitkomst'], ['tabel', 'Cellen in een tabel']]],
-  ['Aanduiden', [['aanduiden', 'Een plek op een afbeelding'], ['getallenas', 'Een getal op de getallenas'], ['markeren', 'Woorden in een tekst']]],
+  ['Aanduiden', [['aanduiden', 'Een plek of namen op een afbeelding'], ['getallenas', 'Een getal op de getallenas'], ['markeren', 'Woorden in een tekst']]],
   ['Maken', [['tekenen', 'Tekenen, op een afbeelding of leeg'], ['spreken', 'Een antwoord inspreken'], ['open', 'Een open vraag'], ['papier', 'Een opdracht op papier']]],
   ['Meer', [['bron', 'Een tekst of prent met deelvragen']]],
 ];
@@ -988,7 +988,7 @@ function antwoordKort(q, a) {
   if (q.type === 'invullen' || q.type === 'tabel') return a.map(x => x || '…').join(' · ');
   if (q.type === 'verbinden') return q.paren.map((p, k) => `${p[0]} = ${a[k] === null || a[k] === undefined ? '…' : q.paren[a[k]][1]}`).join(' · ');
   if (q.type === 'ordenen') return a.map(i => q.items[i]).join(' → ');
-  if (q.type === 'aanduiden') return 'een plek op de afbeelding';
+  if (q.type === 'aanduiden') return PfKern.metNamen(q) ? 'namen op de afbeelding' : 'een plek op de afbeelding';
   if (q.type === 'getallenas') return PfKern.asTekst(Number(a), q.breuk);
   if (q.type === 'markeren') { const w = PfKern.woordenVan(q.tekst); return a.map(i => (w.find(x => x.w === i) || {}).t || '?').join(' · '); }
   if (q.type === 'tekenen') return 'een tekening';

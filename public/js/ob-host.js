@@ -509,7 +509,7 @@ const ADD_GROEPEN = [
     ['juistfout', 'Zinnen: juist of fout?', TYPE_ICONS.juistfout, 'Juist of fout'], ['verbinden', 'Wat hoort bij elkaar?', TYPE_ICONS.verbinden, 'Verbinden'], ['ordenen', 'In de juiste volgorde']]],
   ['Typen', [['invullen', 'Woorden in een tekst invullen', TYPE_ICONS.invullen, 'Invullen'], ['woorden', 'Een woord typen bij elke opgave', TYPE_ICONS.woorden, 'Woordjes'],
     ['overschrijven', 'Zinnen foutloos overschrijven', TYPE_ICONS.overschrijven, 'Overschrijven'], ['kort', 'Een woord of getal, ook als breuk'], ['rekenen', 'Bewerking en uitkomst'], ['tabel', 'Cellen in een tabel']]],
-  ['Aanduiden', [['aanduiden', 'Een plek op een afbeelding'], ['getallenas', 'Een getal op de getallenas'], ['markeren', 'Woorden in een tekst']]],
+  ['Aanduiden', [['aanduiden', 'Een plek of namen op een afbeelding'], ['getallenas', 'Een getal op de getallenas'], ['markeren', 'Woorden in een tekst']]],
   ['Maken', [['tekenen', 'Tekenen, op een afbeelding of leeg'], ['spreken', 'Een antwoord inspreken'], ['open', 'Open vragen, jij leest ze na', TYPE_ICONS.open, 'Open vragen']]],
 ];
 PfEdit.config({ preview: () => preview(), ai: () => null, niveau: () => '' });

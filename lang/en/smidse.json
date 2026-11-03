@@ -1067,5 +1067,13 @@
  "Vloerpatrouille": "Floor patrol",
  "Rijenleider": "Line leader",
  "Dat spel bestaat niet meer.": "That game no longer exists.",
- "Het spel loopt nog.": "The game is still running."
+ "Het spel loopt nog.": "The game is still running.",
+ "Schrijf elke naam op de juiste plek.": "Write each name in the right place.",
+ "Tik op een naam en dan op de juiste plek op de afbeelding.": "Tap a name, then tap the right place on the image.",
+ "Kies een afbeelding en klik waar het juiste antwoord ligt. Klik op een cirkel om hem weg te halen. Geef je de plekken een naam (bv. de provincies op een kaart), dan zet de leerling elke naam op de juiste plek.": "Choose an image and click where the correct answer is. Click a circle to remove it. If you give the places a name (e.g. the provinces on a map), the pupil puts each name in the right place.",
+ "Naam per plek (mag leeg: dan tikt de leerling één plek aan)": "Name per place (may be empty: then the pupil taps one place)",
+ "bijv. Antwerpen": "e.g. London",
+ "{0}vraag {1}: geef elke plek een naam": "{0}question {1}: give every place a name",
+ "Een plek of namen op een afbeelding": "A place or names on an image",
+ "namen op de afbeelding": "names on the image"
 }

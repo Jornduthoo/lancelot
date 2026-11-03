@@ -66,7 +66,7 @@ const PfEdit = (() => {
     verbinden: 'Eén paar per regel: links = rechts. De rechterkant komt door elkaar.',
     ordenen: 'Eén ding per regel, in de juiste volgorde. De leerling krijgt ze door elkaar.',
     tabel: 'Eén rij per regel, cellen gescheiden door |. De eerste regel is de kop. Zet wat de leerling invult tussen [ ], bv. 2 | [2000]. Een keuzelijstje in een cel: {groter|kleiner|gelijk}, het eerste is het juiste.',
-    aanduiden: 'Kies een afbeelding en klik waar het juiste antwoord ligt. Klik op een cirkel om hem weg te halen.',
+    aanduiden: 'Kies een afbeelding en klik waar het juiste antwoord ligt. Klik op een cirkel om hem weg te halen. Geef je de plekken een naam (bv. de provincies op een kaart), dan zet de leerling elke naam op de juiste plek.',
     open: 'Jij verbetert deze vraag na de toets. Het modelantwoord helpt je (en de AI) snel verbeteren.',
     papier: 'De leerling maakt deze opdracht op papier. Na de toets geef jij de punten.',
     bron: 'Een leestekst, tabel of prent links, met de deelvragen a, b, c rechts ervan.',
@@ -254,8 +254,13 @@ const PfEdit = (() => {
         const tekenZones = () => {
           const b = card.pfBeeld;
           kaart.innerHTML = b && !b.startsWith('#')
-            ? `<div class="pf-kaart edit"><img src="${b}" alt="" draggable="false">${card.pfZones.map((z, i) => `<i class="pf-zone" data-i="${i}" style="left:${z.x}%;top:${z.y}%;width:${z.r * 2}%"></i>`).join('')}</div>`
+            ? `<div class="pf-kaart edit"><img src="${b}" alt="" draggable="false">${card.pfZones.map((z, i) => `<i class="pf-zone" data-i="${i}" style="left:${z.x}%;top:${z.y}%;width:${z.r * 2}%"><span class="pf-zone-nr">${i + 1}</span></i>`).join('')}</div>
+              ${card.pfZones.length ? `<div class="pf-zone-lijst"><span class="muted small">Naam per plek (mag leeg: dan tikt de leerling één plek aan)</span>${card.pfZones.map((z, i) => `<label><b>${i + 1}</b><input class="e-zone-naam" data-i="${i}" maxlength="40" placeholder="bijv. Antwerpen"></label>`).join('')}</div>` : ''}`
             : '<p class="muted small">Kies eerst de afbeelding (knippen uit de pdf of een eigen afbeelding).</p>';
+          for (const inp of kaart.querySelectorAll('.e-zone-naam')) {
+            inp.value = card.pfZones[Number(inp.dataset.i)].naam || '';
+            inp.addEventListener('input', () => { card.pfZones[Number(inp.dataset.i)].naam = inp.value.trim(); cfg.preview(); });
+          }
           const k = kaart.querySelector('.pf-kaart');
           if (!k) return;
           const img = k.querySelector('img');

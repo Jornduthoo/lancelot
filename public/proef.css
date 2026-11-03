@@ -102,6 +102,21 @@ p.pf-kort input { flex: 0 1 240px; min-width: 0; width: auto; }
 .pf-kaart.live { cursor: crosshair; touch-action: manipulation; }
 .pf-zone { position: absolute; aspect-ratio: 1; transform: translate(-50%, -50%); border-radius: 50%; border: 3px solid #1a9e6e; background: rgba(46, 230, 166, .25); }
 .pf-kaart.edit .pf-zone { cursor: pointer; }
+.pf-zone-naam { position: absolute; left: 50%; top: 100%; transform: translate(-50%, 2px); white-space: nowrap; font: 700 .72rem/1.2 system-ui, sans-serif; color: #0d5c40; background: rgba(255, 255, 255, .9); padding: 0 4px; border-radius: 3px; }
+.pf-zone-nr { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); font: 800 .8rem/1 system-ui, sans-serif; color: #0d5c40; }
+/* Namen op de kaart: de leerling tikt een naam aan en dan de plek. */
+.pf-namen { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 8px; }
+.pf-naam { font: 600 .95rem/1.2 system-ui, sans-serif; padding: 7px 12px; min-height: 36px; border-radius: 18px; border: 2px solid #b9ab88; background: #fffaf0; color: #2b2418; cursor: pointer; }
+span.pf-naam { min-height: 0; padding: 2px 10px; }
+.pf-naam.gezet { opacity: .55; text-decoration: line-through; }
+.pf-naam.on { opacity: 1; text-decoration: none; border-color: #d6334f; background: #ffe3e8; box-shadow: 0 0 0 2px #d6334f; }
+.pf-naam:disabled { cursor: default; }
+.pf-speld { position: absolute; transform: translate(-50%, -100%); margin-top: -10px; white-space: nowrap; font: 700 .8rem/1.2 system-ui, sans-serif; color: #fff; background: #d6334f; padding: 3px 8px; border-radius: 10px; box-shadow: 0 2px 6px rgba(0, 0, 0, .45); cursor: pointer; z-index: 2; }
+.pf-speld::after { content: ''; position: absolute; left: 50%; bottom: -16px; width: 8px; height: 8px; box-sizing: content-box; transform: translateX(-50%); border-radius: 50%; background: #d6334f; border: 2px solid #fff; }
+.pf-zone-lijst { display: flex; flex-direction: column; gap: 4px; max-width: 520px; }
+.pf-zone-lijst label { display: flex; flex-direction: row; align-items: center; gap: 8px; margin: 0; }
+.pf-zone-lijst input { flex: 1; max-width: 280px; }
+.pf-zone-lijst b { min-width: 1.6em; text-align: center; }
 .pf-pin { position: absolute; width: 26px; height: 26px; transform: translate(-50%, -50%); border-radius: 50%; border: 3px solid #fff; background: #d6334f; box-shadow: 0 0 0 2px #d6334f, 0 2px 8px rgba(0, 0, 0, .5); pointer-events: none; }
 p.pf-papier { margin: 4px 0 0; padding: 10px 14px; background: #efe6cf; border-left: 4px solid #c49a3a; }
 .pf-sleutel { margin: 6px 0 0; color: #c8102e; font-weight: 700; font-size: .92rem; }

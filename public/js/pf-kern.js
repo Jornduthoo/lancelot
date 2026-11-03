@@ -15,6 +15,8 @@
 //   tabel       rijen: [[cel, cel]], de eerste rij is de kop; een cel "[12]" vult de leerling in, "{groter|kleiner}" is een keuzelijstje
 //   kort/rekenen met breuk: true: de leerling typt in een breukvak (geheel, teller, noemer); vereenvoudigd: true = alleen de vereenvoudigde breuk is juist
 //   aanduiden   beeld, zones: [{ x, y, r }] in procent van de breedte; verhouding = hoogte / breedte van het beeld
+//               zonder namen tikt de leerling één plek aan (elke zone is goed); met namen ({ x, y, r, naam }, bv. de provincies
+//               op een kaart) zet de leerling elke naam op zijn plek: het antwoord is dan [{ x, y } of null] per zone, één punt per naam
 //   open        model (het modelantwoord voor de leerkracht), regels
 //   papier      een opdracht op papier (bv. tekenen met passer); de leerkracht geeft de punten
 //   bron        titel, tekst, beeld en vragen (deelvragen a, b, c): de bron staat links, de vragen rechts
@@ -53,6 +55,9 @@
   const MAX_VRAGEN = 80;
   const MAX_DEEL = 15;
   const MAX_VELDEN = 80;
+  // Aanduiden: hoeveel plekken (met namen: bv. alle provincies of hoofdsteden op een kaart).
+  const MAX_ZONES = 20;
+  const metNamen = q => q.zones.some(z => z.naam);
   const SOORTEN = ['tekst', 'kruis', 'kies', 'open', 'teken', 'luister', 'breuk', 'sleep', 'vlak', 'notitie', 'plek', 'lijn'];
   // Vakjes zonder antwoord: ze staan alleen op het blad.
   const GEEN_ANTWOORD = new Set(['luister', 'vlak', 'notitie']);
@@ -238,13 +243,19 @@
       if (!n) throw new Error(`${naam}: zet de cellen die de leerling invult tussen [ en ], bv. [12].`);
       max = n;
     } else if (type === 'aanduiden') {
-      out.zones = list(q.zones, 10).map(z => ({
-        x: Math.min(100, Math.max(0, Number(z && z.x) || 0)),
-        y: Math.min(100, Math.max(0, Number(z && z.y) || 0)),
-        r: Math.min(50, Math.max(1, Number(z && z.r) || 6)),
-      }));
+      out.zones = list(q.zones, MAX_ZONES).map(z => {
+        const zone = {
+          x: Math.min(100, Math.max(0, Number(z && z.x) || 0)),
+          y: Math.min(100, Math.max(0, Number(z && z.y) || 0)),
+          r: Math.min(50, Math.max(1, Number(z && z.r) || 6)),
+        };
+        const naam = text(z && (z.naam || z.name || z.label), 40);
+        if (naam) zone.naam = naam;
+        return zone;
+      });
       const v = Number(q.verhouding);
       out.verhouding = v > 0.05 && v < 20 ? Math.round(v * 1000) / 1000 : 0.75;
+      if (metNamen(out)) max = out.zones.length;
     } else if (type === 'open') {
       const model = text(pick(q, 'model', 'modelantwoord'), 2000);
       if (model) out.model = model;
@@ -384,6 +395,7 @@
           if (v.beeldNodig || v.beeldPagina) out.push(`${tag}vraag ${nr} wacht op een afbeelding${v.beeldPagina ? ` (pagina ${v.beeldPagina})` : ''}${v.beeldNodig ? `: ${v.beeldNodig}` : ''}`);
           if (v.type === 'aanduiden' && !v.beeld) out.push(`${tag}vraag ${nr}: kies de afbeelding waarop de leerling aanduidt`);
           else if (v.type === 'aanduiden' && !v.zones.length) out.push(`${tag}vraag ${nr}: klik op de afbeelding waar het juiste antwoord ligt`);
+          else if (v.type === 'aanduiden' && metNamen(v) && v.zones.some(z => !z.naam)) out.push(`${tag}vraag ${nr}: geef elke plek een naam`);
           if (typeof v.beeld === 'string' && v.beeld.startsWith('#')) out.push(`${tag}vraag ${nr}: de afbeelding ontbreekt`);
           if (v.type === 'getallenas') {
             const min = getal(v.min); const stap = getal(v.stap); const a = getal(v.antwoord);
@@ -476,7 +488,11 @@
         if (m && m.opties) return { gap: g++, opties: m.opties };
         return m ? { gap: g++, size: Math.min(14, Math.max(3, Math.max(...alts(m.goed).map(s => s.length)) + 1)) } : c;
       }));
-    } else if (q.type === 'aanduiden' || q.type === 'tekenen') v.verhouding = q.verhouding;
+    } else if (q.type === 'aanduiden' || q.type === 'tekenen') {
+      v.verhouding = q.verhouding;
+      // Met namen: de namen alfabetisch (de volgorde verraadt de plekken niet); n = het nummer van de zone.
+      if (q.type === 'aanduiden' && metNamen(q)) v.namen = q.zones.map((z, n) => ({ n, t: z.naam || '?' })).sort((a, b) => a.t.localeCompare(b.t, 'nl', { numeric: true }));
+    }
     else if (q.type === 'getallenas') {
       Object.assign(v, { min: getal(q.min), max: getal(q.max), stap: getal(q.stap), getallen: q.getallen });
       if (q.breuk) v.breuk = true;
@@ -667,6 +683,15 @@
       for (const w of gekozen) if (doelen.has(w)) goed++; else fout++;
       return half((p * Math.max(0, goed - fout)) / doelen.size);
     }
+    if (q.type === 'aanduiden' && metNamen(q)) {
+      // Een naam is goed als hij in een plek met diezelfde naam staat (zo mag "rivier" twee keer voorkomen).
+      const b = Array.isArray(a) ? a : [];
+      const goed = q.zones.filter((z, n) => {
+        const pt = b[n];
+        return pt && typeof pt === 'object' && q.zones.some(y => y.naam === z.naam && Math.hypot(Number(pt.x) - y.x, (Number(pt.y) - y.y) * q.verhouding) <= y.r);
+      }).length;
+      return half((p * goed) / q.zones.length);
+    }
     if (q.type === 'aanduiden') {
       if (!a || typeof a !== 'object') return 0;
       const x = Number(a.x);
@@ -690,7 +715,9 @@
     if (q.type === 'markeren') return [...new Set(list(a, 400).map(Number).filter(n => Number.isInteger(n) && n >= 0))].sort((x, y) => x - y);
     if (q.type === 'tekenen') return tekeningOf(a);
     if (q.type === 'spreken') return opnameOf(a);
-    if (q.type === 'aanduiden') return a && typeof a === 'object' && Number.isFinite(Number(a.x)) && Number.isFinite(Number(a.y)) ? { x: Math.round(Number(a.x) * 10) / 10, y: Math.round(Number(a.y) * 10) / 10 } : null;
+    const pt = v => (v && typeof v === 'object' && Number.isFinite(Number(v.x)) && Number.isFinite(Number(v.y)) ? { x: Math.round(Number(v.x) * 10) / 10, y: Math.round(Number(v.y) * 10) / 10 } : null);
+    if (q.type === 'aanduiden' && metNamen(q)) return list(a, q.zones.length).map(pt);
+    if (q.type === 'aanduiden') return pt(Array.isArray(a) ? null : a);
     return str(a);
   }
 
@@ -742,6 +769,6 @@
   return {
     TYPES, NAMES, MANUEEL, NIVEAUS, MAX_BEELD, validate, problemen, vragenVan, niveausVan, lijstVoor,
     maxVan, autoPunten, handPunten, totaal, viewOf, studentView, partsOf, getal, zelfde, canoniek, auto, schoon, oplossing, schud, alts, gapsOf,
-    waarschuwingen, veldSleutel, vakGoed, lijnGoed, metEenheid, volgorde, SOORTEN, HAND_VELD, woordenVan, doelenVan, asTekst, MAX_AUDIO, celGat, vereenvoudigd, GEEN_ANTWOORD, AUTO_VELD, KLEUREN,
+    waarschuwingen, metNamen, MAX_ZONES, veldSleutel, vakGoed, lijnGoed, metEenheid, volgorde, SOORTEN, HAND_VELD, woordenVan, doelenVan, asTekst, MAX_AUDIO, celGat, vereenvoudigd, GEEN_ANTWOORD, AUTO_VELD, KLEUREN,
   };
 });
