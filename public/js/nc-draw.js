@@ -159,6 +159,7 @@ const NcDraw = (() => {
     return { S, Sy, ox: Math.floor(cam.w / 2 - cam.x * S), oy: Math.floor(cam.h / 2 - cam.y * Sy) };
   }
   function grond(ctx, cam, P) {
+    grond.wacht = grond.wacht || 0;
     const { w, h } = cam;
     const { S, Sy, ox, oy } = P;
     const key = `${S}|${Sy}|${gen}`;
@@ -182,7 +183,8 @@ const NcDraw = (() => {
       }
     }
     // Rustig moment: alvast een stuk ernaast bakken, dan hapert het niet als je verder rijdt.
-    if (!gebakken) {
+    // Niet elk beeld: zo blijft het vloeiend terwijl je rijdt.
+    if (!gebakken && ++grond.wacht % 6 === 0) {
       for (let cy = r0 - 1; cy <= r1 + 1 && !gebakken; cy++) for (let cx = c0 - 1; cx <= c1 + 1 && !gebakken; cx++) {
         if (cx < 0 || cy < -1 || cx >= W.NC || cy >= W.NC) continue;
         const k = cy * W.NC + cx;
