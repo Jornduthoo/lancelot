@@ -22,7 +22,7 @@
     <div class="rp-builder">
       <div class="rp-preview"><canvas id="rp-preview" width="420" height="300"></canvas><button type="button" class="secondary rp-turn" id="rp-turn" title="Draai je paard">↻</button></div>
       <div class="rp-opts">
-        ${opt('romp', 'Romp')}${opt('neon', 'Neon')}${opt('manen', 'Manen')}${opt('ogen', 'Ogen')}${opt('extra', 'Extra')}${opt('patroon', 'Patroon')}
+        ${opt('romp', 'Romp')}${opt('neon', 'Neon')}${opt('extra', 'Extra')}
         <button type="button" class="secondary rp-dice" id="rp-dice">🎲 Verras me</button>
       </div>
     </div>
