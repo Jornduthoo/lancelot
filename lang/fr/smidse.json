@@ -1067,5 +1067,13 @@
  "Vloerpatrouille": "Patrouille du sol",
  "Rijenleider": "Chef de rang",
  "Dat spel bestaat niet meer.": "Ce jeu n’existe plus.",
- "Het spel loopt nog.": "Le jeu tourne encore."
+ "Het spel loopt nog.": "Le jeu tourne encore.",
+ "Schrijf elke naam op de juiste plek.": "Écris chaque nom au bon endroit.",
+ "Tik op een naam en dan op de juiste plek op de afbeelding.": "Touche un nom, puis le bon endroit sur l'image.",
+ "Kies een afbeelding en klik waar het juiste antwoord ligt. Klik op een cirkel om hem weg te halen. Geef je de plekken een naam (bv. de provincies op een kaart), dan zet de leerling elke naam op de juiste plek.": "Choisis une image et clique là où se trouve la bonne réponse. Clique sur un cercle pour l'enlever. Si tu donnes un nom aux endroits (p. ex. les provinces sur une carte), l'élève place chaque nom au bon endroit.",
+ "Naam per plek (mag leeg: dan tikt de leerling één plek aan)": "Nom par endroit (peut rester vide : l'élève touche alors un seul endroit)",
+ "bijv. Antwerpen": "p. ex. Namur",
+ "{0}vraag {1}: geef elke plek een naam": "{0}question {1} : donne un nom à chaque endroit",
+ "Een plek of namen op een afbeelding": "Un endroit ou des noms sur une image",
+ "namen op de afbeelding": "des noms sur l'image"
 }

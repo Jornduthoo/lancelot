@@ -83,12 +83,25 @@ const PfPaper = (() => {
         return `<td><input class="ob-field pf-in" data-k="${c.gap}" size="${c.size}" autocomplete="off" spellcheck="false" value="${esc((a || [])[c.gap] ?? '')}"${ro}></td>`;
       }).join('')}</tr>`).join('')}</table></div>`;
     } else if (q.type === 'aanduiden') {
-      const zones = (o.zones && o.zones[q.id]) || [];
-      const pt = a && typeof a === 'object' ? a : null;
-      h += `${print ? '<p class="pf-tip">Zet een kruisje op de juiste plek.</p>' : '<p class="pf-tip">Tik op de juiste plek op de afbeelding.</p>'}
-        <div class="pf-kaart${live ? ' live' : ''}" style="aspect-ratio:${1 / (q.verhouding || 0.75)}">${q.beeld ? `<img src="${esc(q.beeld)}" alt="" draggable="false">` : '<span class="muted">Nog geen afbeelding</span>'}
-        ${zones.map(z => `<i class="pf-zone" style="left:${z.x}%;top:${z.y}%;width:${z.r * 2}%;"></i>`).join('')}
-        ${pt ? `<i class="pf-pin" style="left:${pt.x}%;top:${pt.y}%"></i>` : ''}</div>`;
+      // De juiste plekken: bij de toets apart meegegeven (zones), bij een oefenblad als sleutel.
+      const sl = o.sleutel && o.sleutel[q.id];
+      const zones = (o.zones && o.zones[q.id]) || (Array.isArray(sl) ? sl : []);
+      const beeld = q.beeld ? `<img src="${esc(q.beeld)}" alt="" draggable="false">` : '<span class="muted">Nog geen afbeelding</span>';
+      const zoneHtml = zones.map(z => `<i class="pf-zone" style="left:${z.x}%;top:${z.y}%;width:${z.r * 2}%;">${z.naam ? `<b class="pf-zone-naam">${esc(z.naam)}</b>` : ''}</i>`).join('');
+      if (q.namen) {
+        // Namen op de kaart: tik een naam aan en dan de plek. Elke naam heeft zijn eigen speld.
+        const b = Array.isArray(a) ? a : [];
+        const tip = print ? 'Schrijf elke naam op de juiste plek.' : live ? 'Tik op een naam en dan op de juiste plek op de afbeelding.' : '';
+        h += `${tip ? `<p class="pf-tip">${tip}</p>` : ''}
+          <div class="pf-namen">${q.namen.map(x => (print ? `<span class="pf-naam">${esc(x.t)}</span>` : `<button type="button" class="pf-naam${b[x.n] ? ' gezet' : ''}" data-n="${x.n}"${live ? '' : ' disabled'}>${esc(x.t)}</button>`)).join('')}</div>
+          <div class="pf-kaart${live ? ' live' : ''}" style="aspect-ratio:${1 / (q.verhouding || 0.75)}">${beeld}${zoneHtml}
+          ${print ? '' : q.namen.map(x => (b[x.n] ? `<span class="pf-speld" data-n="${x.n}" style="left:${b[x.n].x}%;top:${b[x.n].y}%">${esc(x.t)}</span>` : '')).join('')}</div>`;
+      } else {
+        const pt = a && typeof a === 'object' && !Array.isArray(a) ? a : null;
+        h += `${print ? '<p class="pf-tip">Zet een kruisje op de juiste plek.</p>' : '<p class="pf-tip">Tik op de juiste plek op de afbeelding.</p>'}
+          <div class="pf-kaart${live ? ' live' : ''}" style="aspect-ratio:${1 / (q.verhouding || 0.75)}">${beeld}${zoneHtml}
+          ${pt ? `<i class="pf-pin" style="left:${pt.x}%;top:${pt.y}%"></i>` : ''}</div>`;
+      }
     } else if (q.type === 'getallenas') {
       h += `<p class="pf-tip">${print ? 'Zet een pijltje op de juiste plek.' : 'Tik op de getallenas waar het getal ligt.'}</p>${asHtml(q, a, live)}`;
     } else if (q.type === 'markeren') {
@@ -109,7 +122,7 @@ const PfPaper = (() => {
     } else if (q.type === 'papier') {
       h += print ? '<div class="pf-werkvak groot"></div>' : '<p class="pf-papier">📝 Maak deze opdracht op je blad. Je leerkracht verbetert ze.</p>';
     }
-    if (o.sleutel && String(o.sleutel[q.id] || '').trim()) h += `<p class="pf-sleutel">✔ ${esc(o.sleutel[q.id]).replace(/\n/g, '<br>')}</p>`;
+    if (o.sleutel && !Array.isArray(o.sleutel[q.id]) && String(o.sleutel[q.id] || '').trim()) h += `<p class="pf-sleutel">✔ ${esc(o.sleutel[q.id]).replace(/\n/g, '<br>')}</p>`;
     return `${h}</div>`;
   }
 
@@ -354,7 +367,7 @@ const PfPaper = (() => {
     if (type === 'rekenen') { const b = el.querySelector('.pf-breuk'); return { werk: el.querySelector('.pf-werkveld').value, uitkomst: b ? breukWaarde(b) : el.querySelector('.pf-uitkomst').value }; }
     if (type === 'verbinden') return [...el.querySelectorAll('.pf-sel')].map(s => (s.value === '' ? null : Number(s.value)));
     if (type === 'ordenen') return [...el.querySelectorAll('.pf-orden li')].map(li => Number(li.dataset.i));
-    if (type === 'aanduiden') return el.pfPunt || null;
+    if (type === 'aanduiden') return el.querySelector('.pf-namen') ? el.pfPunten || [] : el.pfPunt || null;
     if (type === 'open') return el.querySelector('.pf-open').value;
     if (type === 'getallenas') { const as = el.querySelector('.pf-as'); return as.dataset.waarde !== undefined ? Number(as.dataset.waarde) : null; }
     if (type === 'markeren') return [...el.querySelectorAll('.pf-woord.on')].map(w => Number(w.dataset.w));
@@ -548,7 +561,40 @@ const PfPaper = (() => {
         });
       }
       const kaart = el.querySelector('.pf-kaart.live');
-      if (kaart) {
+      const namen = el.querySelector('.pf-namen');
+      if (kaart && namen) {
+        // Namen op de kaart: de gekozen naam (of de eerste die nog niet staat) komt op de aangetikte plek.
+        const knoppen = [...namen.querySelectorAll('.pf-naam')];
+        const kies = n => { for (const k of knoppen) k.classList.toggle('on', n !== null && k.dataset.n === String(n)); };
+        const volgende = () => { const k = knoppen.find(x => !x.classList.contains('gezet')); kies(k ? k.dataset.n : null); };
+        for (const k of knoppen) k.addEventListener('click', () => kies(k.classList.contains('on') ? null : k.dataset.n));
+        kaart.addEventListener('click', e => {
+          const speld = e.target.closest('.pf-speld');
+          if (speld) { kies(speld.dataset.n); return; }
+          const k = knoppen.find(x => x.classList.contains('on'));
+          if (!k) return;
+          const r = kaart.getBoundingClientRect();
+          const x = Math.round(((e.clientX - r.left) / r.width) * 1000) / 10;
+          const y = Math.round(((e.clientY - r.top) / r.height) * 1000) / 10;
+          const n = Number(k.dataset.n);
+          el.pfPunten = el.pfPunten || [];
+          el.pfPunten[n] = { x, y };
+          let s = kaart.querySelector(`.pf-speld[data-n="${n}"]`);
+          if (!s) {
+            s = document.createElement('span');
+            s.className = 'pf-speld';
+            s.dataset.n = n;
+            s.textContent = k.textContent;
+            kaart.appendChild(s);
+          }
+          s.style.left = `${x}%`;
+          s.style.top = `${y}%`;
+          k.classList.add('gezet');
+          volgende();
+          send(el);
+        });
+        volgende();
+      } else if (kaart) {
         kaart.addEventListener('click', e => {
           const r = kaart.getBoundingClientRect();
           const x = Math.round(((e.clientX - r.left) / r.width) * 1000) / 10;
@@ -576,6 +622,11 @@ const PfPaper = (() => {
     for (const el of box.querySelectorAll('.pf-q[data-type="aanduiden"]')) {
       const pin = el.querySelector('.pf-pin');
       if (pin) el.pfPunt = { x: parseFloat(pin.style.left), y: parseFloat(pin.style.top) };
+      const spelden = el.querySelectorAll('.pf-speld');
+      if (spelden.length) {
+        el.pfPunten = [];
+        for (const s of spelden) el.pfPunten[Number(s.dataset.n)] = { x: parseFloat(s.style.left), y: parseFloat(s.style.top) };
+      }
     }
   }
 

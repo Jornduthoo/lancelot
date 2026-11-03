@@ -271,7 +271,8 @@ function solutions(sheet, shuffles) {
     else if (f.kind === 'paar') out[f.id] = shuffles[f.block].indexOf(f.pair);
     else if (f.kind === 'keuze') out[f.id] = f.answer;
     // Bij een blad een sleutel per vakje, anders het antwoord als tekst.
-    else if (f.q) out[f.id] = f.q.type === 'blad' ? K.veldSleutel(f.q) : K.oplossing(f.q);
+    // Bij aanduiden de juiste plekken (met hun namen): die tekent het blad als cirkels op de afbeelding.
+    else if (f.q) out[f.id] = f.q.type === 'blad' ? K.veldSleutel(f.q) : f.q.type === 'aanduiden' ? f.q.zones : K.oplossing(f.q);
   }
   return out;
 }
