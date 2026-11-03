@@ -32,13 +32,14 @@
       <div class="actions">
         <button class="secondary" id="to-home">Terug</button>
         <button class="secondary" id="new-empty">Leeg oefenblad</button>
+        <label class="button secondary" title="Elke pagina wordt een blad met vakjes, zoals in De Proef">📄 Blad uit een pdf<input id="new-pdf-file" type="file" accept="application/pdf,image/*" hidden></label>
         <button id="new-ai">Nieuw oefenblad met AI</button>
       </div>
     </div>
     <div class="panel tw-intro">
       <img class="game-logo" src="/img/icons/oefenblad.webp" alt="">
       <div>
-        <p><strong>Live oefenbladen:</strong> de leerlingen vullen het blad in op hun Chromebook of gsm. Invullen, meerkeuze, juist of fout, verbinden, woordjes, overschrijven en open vragen. Het blad verbetert zichzelf en jij ziet op het bord live hoe ver iedereen staat en waar het misloopt.</p>
+        <p><strong>Live oefenbladen:</strong> de leerlingen vullen het blad in op hun Chromebook of gsm. Invullen, meerkeuze, verbinden, woordjes en ook alle vragen uit De Proef: tabellen, getallenas, breuken, tekenen of je eigen pdf met vakjes. Het blad verbetert zichzelf en jij ziet op het bord live hoe ver iedereen staat en waar het misloopt.</p>
         <p class="muted">Elk blad kan je ook printen, met een apart verbeterblad. Maak een blad zelf of laat een AI het maken, ook op basis van een screenshot van het bordboek.</p>
       </div>
     </div>
@@ -68,6 +69,7 @@
       <p class="muted small">Tijdens het werken kan je een leerling nog op een ander niveau zetten: klik op de naam.</p>
     </div>
     <p class="notice hidden" id="stopped"></p>
+    <p class="muted center" id="pdf-busy"></p>
     <div class="quiz-list" id="sheet-list"></div>
     <p class="error" id="list-error"></p>
   </section>
@@ -113,6 +115,13 @@
         <label class="inline check"><input type="checkbox" value="overschrijven"> Overschrijven</label>
         <label class="inline check"><input type="checkbox" value="open"> Open vragen</label>
         <label class="inline check"><input type="checkbox" value="tekst"> Leestekst vooraan</label>
+        <label class="inline check"><input type="checkbox" value="kort"> Kort antwoord (ook breuken)</label>
+        <label class="inline check"><input type="checkbox" value="rekenen"> Rekenvraag</label>
+        <label class="inline check"><input type="checkbox" value="ordenen"> Ordenen</label>
+        <label class="inline check"><input type="checkbox" value="tabel"> Tabel invullen</label>
+        <label class="inline check"><input type="checkbox" value="getallenas"> Getallenas</label>
+        <label class="inline check"><input type="checkbox" value="markeren"> Woorden aanduiden</label>
+        <label class="inline check"><input type="checkbox" value="tekenen"> Tekenen</label>
       </div>
       <label class="inline check"><input type="checkbox" id="a-niveaus" checked> Op drie niveaus: 🪶 Page (met hulp), 🛡️ Schildknaap (het doel) en ⚔️ Ridder (uitdaging)</label>
       <label>Extra wensen (mag leeg)<textarea id="a-extra" rows="2" placeholder="bijv. woordjes Frans van les 3, of: alleen de d/t-regel"></textarea></label>

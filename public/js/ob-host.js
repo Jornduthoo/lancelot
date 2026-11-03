@@ -92,7 +92,18 @@ const FORMATS = {
   woorden: '{ "type": "woorden", "instruction": "Schrijf het juiste woord.", "items": [ { "prompt": "de opgave, bijv. een vertaling of omschrijving", "answer": "het woord" } ] }',
   overschrijven: '{ "type": "overschrijven", "instruction": "Schrijf de zinnen foutloos over.", "lines": ["een zin om over te schrijven"] }',
   open: '{ "type": "open", "instruction": "Beantwoord de vragen.", "items": [ { "question": "een open vraag", "lines": 3 } ] }',
+  // Soorten zoals in De Proef: telkens één vraag.
+  kort: '{ "type": "kort", "vraag": "de vraag", "antwoord": "het antwoord|andere goede schrijfwijze", "eenheid": "" }',
+  breuk: '{ "type": "kort", "vraag": "Vereenvoudig 6/8.", "antwoord": "3/4", "breuk": true, "vereenvoudigd": true }',
+  rekenen: '{ "type": "rekenen", "vraag": "een vraagstuk", "antwoord": "36", "eenheid": "cm" }',
+  ordenen: '{ "type": "ordenen", "vraag": "Zet in de juiste volgorde.", "items": ["eerste", "tweede", "derde"] }',
+  tabel: '{ "type": "tabel", "vraag": "Vul de tabel aan.", "rijen": [["kg", "g"], ["2", "[2000]"], ["[0,5]", "500"]] }',
+  getallenas: '{ "type": "getallenas", "vraag": "Duid 3/4 aan op de getallenas.", "min": "0", "max": "2", "stap": "1/4", "antwoord": "3/4", "getallen": "rand", "breuk": true }',
+  markeren: '{ "type": "markeren", "vraag": "Duid alle werkwoorden aan.", "tekst": "De hond [blaft] en de kat [slaapt] in de zon." }',
+  tekenen: '{ "type": "tekenen", "vraag": "Teken een rechthoek met een omtrek van 12 cm.", "model": "waar de leerkracht op let" }',
 };
+// Deze soorten zijn telkens één vraag, zoals in De Proef.
+const LOSSE_VRAAG = ['kort', 'rekenen', 'ordenen', 'tabel', 'getallenas', 'markeren', 'tekenen'];
 
 function chosenTypes() {
   return [...$('a-types').querySelectorAll('input:checked')].map(i => i.value);
@@ -123,9 +134,12 @@ function buildPrompt(forGemini = false) {
   const withText = types.includes('tekst');
   const kinds = types.filter(t => t !== 'tekst');
   const three = $('a-niveaus').checked;
+  const los = kinds.filter(t => LOSSE_VRAAG.includes(t));
   const blocks = `[
-    ${types.map(t => FORMATS[t]).join(',\n    ')}
+    ${[...types, ...(los.includes('kort') || los.includes('rekenen') ? ['breuk'] : [])].map(t => FORMATS[t]).join(',\n    ')}
   ]`;
+  const losRegels = los.length ? `
+- De soorten ${los.join(', ')} zijn telkens één vraag (met "vraag" in plaats van "instruction"). Zet er gerust een paar na elkaar.${los.includes('kort') || los.includes('rekenen') ? '\n- Is het antwoord een breuk, zet dan bij kort of rekenen "breuk": true; moet de breuk vereenvoudigd zijn, ook "vereenvoudigd": true. Meerdere goede schrijfwijzen in "antwoord" scheid je met |.' : ''}${los.includes('tabel') ? '\n- Bij een tabel staat een in te vullen cel tussen [ ], een keuzelijstje in een cel als {juist|fout}.' : ''}${los.includes('markeren') ? '\n- Bij markeren staan de woorden die de leerling moet aanduiden tussen [ ].' : ''}${los.includes('getallenas') ? '\n- Bij een getallenas ligt het juiste getal op een streepje (een veelvoud van de stap vanaf het begin).' : ''}${los.includes('tekenen') ? '\n- Bij tekenen zet je in "model" waar de leerkracht op let.' : ''}` : '';
   return `Je bent een ervaren leerkracht in Vlaanderen. Maak een oefenblad (werkblad) voor leerlingen uit: ${level} (Belgisch onderwijs). Onderwerp: ${topic}.
 ${DoelKies.prompt(codes, 'oefeningen')}${hasSources ? '\nBaseer alle oefeningen op de bijgevoegde lesstof. Vraag alleen naar dingen die daarin staan.\n' : ''}${extra ? `\nExtra wensen van de leerkracht:\n${extra}\n` : ''}
 Regels:
@@ -134,7 +148,7 @@ Regels:
 - Elke oefening krijgt een korte, duidelijke opdrachtzin ("instruction") voor de leerling.
 - Bij invullen staat elk in te vullen woord tussen [vierkante haken]. Kies woorden die eenduidig zijn, zodat de computer kan verbeteren.
 - Bij woordjes is "answer" het woord dat de leerling typt; geef andere goede schrijfwijzen gescheiden door |.
-- Bij verbinden: 4 tot 8 paren, elk woord maar één keer.
+- Bij verbinden: 4 tot 8 paren, elk woord maar één keer.${losRegels}
 - Bij meerkeuze is "correct" het nummer van het goede antwoord, geteld vanaf 0. Zet het goede antwoord niet steeds op dezelfde plek.
 - Bij meerkeuze en juist/fout: de foute keuzes zijn typische fouten of misvattingen van leerlingen, geen onzin.
 - Bouw op van kennis (begrippen en feiten) naar begrip en toepassen in een korte, herkenbare situatie.
@@ -510,9 +524,55 @@ const ADD_GROEPEN = [
   ['Typen', [['invullen', 'Woorden in een tekst invullen', TYPE_ICONS.invullen, 'Invullen'], ['woorden', 'Een woord typen bij elke opgave', TYPE_ICONS.woorden, 'Woordjes'],
     ['overschrijven', 'Zinnen foutloos overschrijven', TYPE_ICONS.overschrijven, 'Overschrijven'], ['kort', 'Een woord of getal, ook als breuk'], ['rekenen', 'Bewerking en uitkomst'], ['tabel', 'Cellen in een tabel']]],
   ['Aanduiden', [['aanduiden', 'Een plek of namen op een afbeelding'], ['getallenas', 'Een getal op de getallenas'], ['markeren', 'Woorden in een tekst']]],
-  ['Maken', [['tekenen', 'Tekenen, op een afbeelding of leeg'], ['spreken', 'Een antwoord inspreken'], ['open', 'Open vragen, jij leest ze na', TYPE_ICONS.open, 'Open vragen']]],
+  ['Maken', [['tekenen', 'Tekenen, op een afbeelding of leeg'], ['spreken', 'Een antwoord inspreken'], ['open', 'Open vragen, jij leest ze na', TYPE_ICONS.open, 'Open vragen'], ['papier', 'Een opdracht op papier']]],
 ];
-PfEdit.config({ preview: () => preview(), ai: () => null, niveau: () => '' });
+PfEdit.config({ preview: () => preview(), ai: () => (hasKey ? aiSleutel : null), niveau: () => $('a-level').value });
+
+// De AI zoekt de antwoorden voor de vakjes op bladen uit een pdf (met de eigen sleutel), net als in De Proef. Per 8 bladen één vraag.
+async function aiSleutel(bladen) {
+  const alles = [];
+  for (let i = 0; i < bladen.length; i += 8) {
+    const deel = bladen.slice(i, i + 8);
+    const start = 1 + bladen.slice(0, i).reduce((s, b) => s + b.velden.length, 0);
+    let nr = start;
+    const files = [];
+    for (const b of deel) {
+      const g = await PfBlad.genummerd(b, nr);
+      files.push({ mimeType: g.mimeType, data: g.data });
+      nr += b.velden.length;
+    }
+    const res = await new Promise(resolve => socket.emit('pf-sleutel', { prompt: PfBlad.aiPrompt(deel, start, $('a-level').value), files }, resolve));
+    if (res.error) throw new Error(res.error);
+    alles.push(...res.velden);
+  }
+  return alles;
+}
+
+// Mijn blad uit een pdf: elke pagina wordt een blad met vakjes. Met een AI-sleutel staan de antwoorden er meteen in.
+$('new-pdf-file').addEventListener('change', async e => {
+  const file = e.target.files[0];
+  e.target.value = '';
+  if (!file) return;
+  const busy = t => { $('pdf-busy').textContent = t; };
+  $('list-error').textContent = '';
+  try {
+    const bladen = await PfEdit.bladenUit([await PfEdit.alsBron(file)], busy);
+    const n = bladen.reduce((s, b) => s + b.velden.length, 0);
+    if (hasKey && n) {
+      busy(`${Ui.ai} zoekt de antwoorden voor ${n} vakjes… dit duurt meestal 20 tot 60 seconden.`);
+      try {
+        PfBlad.zetSleutel(bladen, await aiSleutel(bladen));
+      } catch (err) {
+        Ui.melding(`De bladen staan klaar, maar de antwoorden zoeken lukte niet: ${err.message} Vul ze zelf in, of probeer het opnieuw per blad.`);
+      }
+    }
+    const titel = file.name.replace(/\.[a-z]+$/i, '').replace(/[_-]+/g, ' ').slice(0, 100);
+    openEditor({ title: titel, blocks: bladen.map(q => ({ type: 'vraag', q })) }, null);
+  } catch (err) {
+    if (!/geen pagina/.test(err.message)) $('list-error').textContent = err.message;
+  }
+  busy('');
+});
 PfEdit.palet($('e-add'), ADD_GROEPEN, {
   onKies: t => {
     const card = EDIT_HELP[t] ? blockCard({ type: t }) : PfEdit.kaart(PfEdit.nieuw(t));
