@@ -255,6 +255,6 @@ function renderEnd() {
   const right = s.ranking.reduce((a, t) => a + t.players.reduce((b, p) => b + p.right, 0), 0);
   const kills = s.ranking.reduce((a, t) => a + t.kills, 0);
   $('w-why').textContent = `Samen ${right} vragen juist en ${kills} monsters verslagen.`;
-  $('final').innerHTML = s.ranking.map((t, i) => `<li><span class="pos">${i + 1}</span><span><i class="bb-dot" style="background:${t.color}"></i>${AK.esc(t.name)} <small class="muted">${t.players.map(p => `${CLASSES[p.cls].icon} ${AK.esc(p.name)}`).join(' · ')}</small></span><span class="muted">niveau ${t.cleared} gehaald</span><span class="pts">${t.gold} 💰</span></li>`).join('');
+  $('final').innerHTML = s.ranking.map((t, i) => `<li><span class="pos">${i + 1}</span><span><i class="bb-dot" style="background:${t.color}"></i>${AK.esc(t.name)} <small class="muted">${t.players.map(p => `${CLASSES[p.cls].icon} ${AK.esc(p.name)}`).join(' · ')}</small></span><span class="muted">${t.cleared === 1 ? "1 niveau" : `${t.cleared} niveaus`} gehaald</span><span class="pts">${t.gold} 💰</span></li>`).join('');
   if (top) { sfx.fanfare(); confetti(5000); }
 }

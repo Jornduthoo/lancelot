@@ -348,7 +348,9 @@
       g.cam.y += (hd[1] - g.cam.y) * k;
     }
     if (!g.cam) g.cam = { x: scene.G / 2, y: scene.G / 2 };
-    const cam = { x: g.cam.x + .5, y: g.cam.y + .5, s, w, h };
+    // Niet voorbij de rand van het veld kijken (anders een zwarte strook bovenaan of opzij).
+    const binnen = (v, half) => (half * 2 >= scene.G + 2 ? scene.G / 2 : Math.max(half - 1, Math.min(scene.G + 1 - half, v)));
+    const cam = { x: binnen(g.cam.x + .5, w / 2 / s), y: binnen(g.cam.y + .5, h / 2 / s), s, w, h };
     BvDraw.render(ctx, scene, cam, { roster: g.roster, t: sec, me: g.me.n, fs: Math.max(11, Math.min(16, s * .4)) });
     // Net veroverd: een golf over je nieuwe land
     if (g.pop) {

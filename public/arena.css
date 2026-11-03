@@ -665,3 +665,4 @@ body:not([data-ko="1"]) #kolk { display: none !important; }
 #ko-game .ak-question { z-index: 6; }
 #ko-power { color: #ffe17a; box-shadow: 0 0 12px rgb(var(--k-goud) / .6); }
 .ko-plasma i { background: linear-gradient(90deg, #7b5cff, #5ae6ff); }
+@media (max-width: 520px) { #ry-game .ry-alive { display: none; } }

@@ -398,7 +398,9 @@ function pkCamera(s) {
     if (n * tile <= size) return Math.round((size - n * tile) / 2);
     return Math.round(Math.max(size - n * tile, Math.min(0, size / 2 - focus * tile)));
   };
-  return { tile, ox: axis(fx, w, s.W), oy: axis(fy, h, s.H) };
+  // Op een gsm of tablet liggen de knoppen onderaan over het doolhof: dat stuk telt niet mee, zo verdwijnt je ridder nooit onder je duim.
+  const knoppen = matchMedia('(pointer: coarse)').matches ? Math.min(h * .2, 150 * dpr) : 0;
+  return { tile, ox: axis(fx, w, s.W), oy: axis(fy, h - knoppen, s.H) };
 }
 
 function pkFrame() {

@@ -391,13 +391,16 @@ span.play { padding: 13px 22px; display: flex; align-items: center; }
 .answer.enter { animation: tile-in .45s cubic-bezier(.2, 1.3, .4, 1) both; }
 .answer.dim { opacity: .28; filter: grayscale(.6); transform: scale(.97); }
 .answer.right { animation: right-pulse 1.2s ease-in-out infinite; }
+/* Na het antwoord: het juiste blok is altijd het helderste, met een groene rand en een vinkje (ook als de knop al uit staat). */
+.answer.right, .answer.right:disabled { opacity: 1; filter: none; transform: none; box-shadow: inset 0 0 0 4px var(--good), inset 0 0 28px rgb(var(--k-groen) / .45), inset 0 -30px 50px rgb(var(--k-zwart) / .3); }
+.answer.right::after { content: '✓'; position: absolute; right: 12px; top: 6px; z-index: 2; font-size: 1.5rem; font-weight: 900; color: var(--good); text-shadow: 0 0 10px rgb(var(--k-groen) / .9), 0 1px 2px rgb(var(--k-zwart)); }
 .answer .count { margin-left: auto; font-family: var(--tech); font-size: 1.6rem; position: relative; z-index: 1; }
 .answer .fillbar { position: absolute; inset: auto 0 0 0; height: 6px; background: var(--c); box-shadow: 0 0 12px var(--c); transform-origin: left; transform: scaleX(0); transition: transform .9s ease-out; }
 .answer > *:not(.fillbar) { position: relative; z-index: 1; }
 .q-small { margin: 0 0 12px; padding: 10px 14px; font-weight: 700; font-size: 1.05rem; line-height: 1.35; text-align: center; color: var(--text); background: rgb(var(--k-bg) / .6); box-shadow: inset 0 0 0 1px rgb(var(--k-goud) / .35); }
 .q-small:empty { display: none; }
 @keyframes tile-in { from { transform: translateY(24px) scale(.92); opacity: 0; } }
-@keyframes right-pulse { 50% { filter: brightness(1.18); box-shadow: inset 0 0 0 3px rgb(var(--k-wit)), 0 0 30px rgb(var(--k-wit) / .5); } }
+@keyframes right-pulse { 50% { filter: brightness(1.2); } }
 
 /* ---------- Scorebord ---------- */
 .ranking { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; position: relative; }
@@ -589,6 +592,7 @@ body:has(#home.hidden) .pauze-home, body:has(#home.hidden) .qr-home, body:has(#h
 .ui-uitleg b { color: var(--gold, rgb(var(--k-goud))); font-size: .8rem; letter-spacing: .08em; text-transform: uppercase; }
 .ui-uitleg small { color: var(--muted, rgb(var(--k-muted))); }
 .ui-uitleg.hidden { display: none; }
+@media (max-width: 520px), (max-height: 420px) { .ui-uitleg { font-size: .92rem; line-height: 1.32; padding: 9px 14px 9px 12px; } }
 
 /* ---------- Getal typen (ui.js) ---------- */
 .ui-getal { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; align-items: center; width: 100%; }
@@ -845,6 +849,8 @@ body:not([data-rt="1"]) #rondetafel, body:not([data-tw="1"]) #toren { display: n
 .tw-q-result { margin: 0; font-family: var(--tech); font-weight: 800; font-size: 1.4rem; }
 .tw-q-result.good { color: var(--good); animation: pop .35s ease-out; }
 .tw-q-result.bad { color: var(--bad); }
+/* Op een gsm past de uitleg onder de antwoorden zo nog in beeld (anders viel ze onderaan weg). */
+@media (max-width: 520px), (max-height: 520px) { .tw-q-result { font-size: 1.02rem; line-height: 1.25; } .tw-q-result small { font-size: .85rem !important; } }
 
 /* Bord van de toren */
 .tw-intro { display: flex; gap: 20px; align-items: center; }
@@ -913,6 +919,7 @@ body[data-sj="1"] .sj-item-icon { width: 52px; height: 52px; display: grid; plac
 .sj-flash { position: fixed; inset: 0; z-index: 20; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; pointer-events: none; animation: pop .3s ease-out; }
 .sj-flash.good { background: radial-gradient(circle, rgb(var(--k-groen) / .35), rgb(var(--k-bg) / .7) 70%); }
 .sj-flash.bad { background: radial-gradient(circle, rgb(var(--k-rood) / .35), rgb(var(--k-bg) / .7) 70%); }
+.sj-flash.meh { background: radial-gradient(circle, rgb(var(--k-bg) / .6), rgb(var(--k-bg) / .85) 70%); }
 .sj-flash.hidden { display: none; }
 .sj-flash-mark { font-size: 4rem; font-weight: 900; }
 .sj-flash-gold { font-family: var(--tech); font-weight: 800; font-size: 3.4rem; color: var(--gold); text-shadow: 0 0 24px rgb(var(--k-goud) / .7); }
