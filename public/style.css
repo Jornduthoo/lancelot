@@ -2223,6 +2223,10 @@ html[data-spel][data-thema="daglicht"], html[data-spel][data-thema="ijspaleis"] 
 .thema-staal { display: flex; height: 34px; border-radius: 6px; overflow: hidden; border: 1px solid rgb(var(--k-wit) / .2); }
 .thema-staal i { flex: 1; }
 .thema-keuze small { color: var(--muted); font-weight: 400; }
+.taal-raster { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+.taal-keuze { display: flex; align-items: center; gap: 10px; padding: 10px 16px; }
+.taal-keuze[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--gold), 0 0 14px rgb(var(--k-goud) / .45); }
+.taal-vlag svg { display: block; width: 36px; height: 24px; border-radius: 3px; }
 
 
 /* ---------- Tabbladen (Instellingen, Mijn klas) ---------- */

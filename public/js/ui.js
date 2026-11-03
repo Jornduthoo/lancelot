@@ -56,6 +56,33 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', themaKiezer);
   else themaKiezer();
 
+  // ---------- Taal ----------
+  // Vult een leeg <div id="taal-kiezer"> met de talen (alleen op het leerkrachtenscherm). De taal geldt voor alle schermen.
+  const TALEN = [{ id: 'nl', naam: 'Nederlands', vlag: '<svg viewBox="0 0 3 2"><path fill="#000" d="M0 0h1v2H0z"/><path fill="#fdda24" d="M1 0h1v2H1z"/><path fill="#ef3340" d="M2 0h1v2H2z"/></svg>' }, { id: 'en', naam: 'English', vlag: '<svg viewBox="0 0 60 30"><clipPath id="vlag-uk"><path d="M30,15h30v15zv15h-30zh-30v-15zv-15h30z"/></clipPath><path d="M0,0v30h60v-30z" fill="#012169"/><path d="M0,0L60,30M60,0L0,30" stroke="#fff" stroke-width="6"/><path d="M0,0L60,30M60,0L0,30" clip-path="url(#vlag-uk)" stroke="#c8102e" stroke-width="4"/><path d="M30,0v30M0,15h60" stroke="#fff" stroke-width="10"/><path d="M30,0v30M0,15h60" stroke="#c8102e" stroke-width="6"/></svg>' }];
+  const taalNu = window.LANCELOT_TAAL || 'nl';
+  function taalKiezer() {
+    const vak = document.getElementById('taal-kiezer');
+    if (!vak || vak.dataset.klaar) return;
+    vak.dataset.klaar = '1';
+    vak.classList.add('panel', 'form');
+    vak.innerHTML = '<h3>Taal · Language</h3><p class="muted small">De taal van LANcelot, voor het bord en voor de schermen van de leerlingen. · The language of LANcelot, for the board and for the students\' screens.</p><div class="taal-raster" data-geen-vertaling></div>';
+    const raster = vak.querySelector('.taal-raster');
+    for (const t of TALEN) {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'secondary taal-keuze';
+      b.setAttribute('aria-pressed', String(t.id === taalNu));
+      b.innerHTML = `<span class="taal-vlag" aria-hidden="true">${t.vlag}</span><strong>${t.naam}</strong>`;
+      b.addEventListener('click', () => {
+        if (t.id === taalNu || !window.Ui.hostSocket) return;
+        window.Ui.hostSocket.emit('taal-zet', t.id);
+      });
+      raster.appendChild(b);
+    }
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', taalKiezer);
+  else taalKiezer();
+
   // ---------- Pauzeknop ----------
   // De leerkracht zet de klas stil. Dan staat op dit scherm de klok stil: Date.now, performance.now,
   // requestAnimationFrame en de timers wachten tot de pauze voorbij is. Zo bevriest elk spel vanzelf,
@@ -347,6 +374,8 @@
       Pauze.volg(socket, isHost);
       socket.on('uitleg', u => u && toonUitleg(u));
       socket.on('thema', zetThema);
+      // Een andere taal gekozen: dit scherm opnieuw laden, dan komt het woordenboek mee.
+      socket.on('taal', id => { if (id && id !== taalNu) location.reload(); });
       if (isHost) { namenKnop(socket); schermInfo(socket); }
       // Vragenstorm: de leerkracht drukt op het bord, en elke leerling in het spel krijgt meteen een paar vragen.
       else {
