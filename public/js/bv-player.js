@@ -126,7 +126,7 @@
       const me = s.me || {};
       const medals = ['🥇', '🥈', '🥉'];
       $('bv-end-medal').textContent = medals[me.rank - 1] || '🏴';
-      $('bv-end-title').textContent = me.rank === 1 ? 'Jij verovert het meeste land!' : `Plek ${me.rank} van ${me.players}`;
+      $('bv-end-title').textContent = me.rank === 1 && (me.score ?? 1) > 0 ? 'Jij verovert het meeste land!' : `Plek ${me.rank} van ${me.players}`;
       $('bv-end-score').textContent = `🏴 ${pctText(me.land || 0)} van het veld`;
       $('bv-end-stats').textContent = `${s.right} ${s.right === 1 ? 'vraag' : 'vragen'} juist · ${me.cuts || 0} ${me.cuts === 1 ? 'spoor' : 'sporen'} doorgesneden · meeste land ${pctText(me.peak || 0)}`;
       if (!$('bv-end').dataset.done && me.rank && me.rank <= 3) confetti(4000);

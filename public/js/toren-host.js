@@ -208,12 +208,23 @@ function drawMain(t, dt) {
   TorenDraw.scene(mctx, world, { y: camY, scale, H, ox }, Math.max(0, t));
   const { w: pw, h: ph } = world.PLAYER;
   const sy = wy => H - (wy - camY) * scale;
+  // Staan veel ridders op dezelfde plek (bij de start), dan komen de namen boven elkaar in plaats van door elkaar.
+  const bezet = [];
+  const naam = (text, x, y) => {
+    mctx.font = `700 ${12 * scale}px 'Exo 2', sans-serif`;
+    const bw = mctx.measureText(text).width / 2 + 4, bh = 14 * scale;
+    for (let i = 0; i < 6; i++, y -= bh) {
+      if (bezet.some(r => Math.abs(r.x - x) < r.w + bw && Math.abs(r.y - y) < bh)) continue;
+      bezet.push({ x, y, w: bw });
+      return label(mctx, text, x, y, '#eaf4ff', 12 * scale);
+    }
+  };
   for (const k of knights.values()) {
     k.x += (k.tx - k.x) * Math.min(1, dt * 10);
     k.y += (k.ty - k.y) * Math.min(1, dt * 10);
     if (k.y > camY + H / scale + 40 || k.y + ph < camY - 40) continue;
     TorenDraw.knight(mctx, ox + k.x * scale, sy(k.y), pw * scale, ph * scale, TorenDraw.COLORS[k.color % 8], k.face, k.act, t, 1, Avatar.byName(k.name));
-    label(mctx, k.name, ox + (k.x + pw / 2) * scale, sy(k.y + ph + 6), '#eaf4ff', 12 * scale);
+    naam(k.name, ox + (k.x + pw / 2) * scale, sy(k.y + ph + 6));
   }
   $('p-follow').textContent = target ? `🎥 ${target.name} · verdieping ${Toren.floorAt(world, target.y)} · ${world.zones[Toren.zoneAt(world, target.y)].name}` : '';
 }

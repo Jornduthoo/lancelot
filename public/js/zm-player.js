@@ -170,7 +170,7 @@
       const me = s.me || {};
       const medals = ['🥇', '🥈', '🥉'];
       $('zm-end-medal').textContent = medals[me.rank - 1] || '🛡️';
-      $('zm-end-title').textContent = me.rank === 1 ? 'Jij bent de beste zwermwachter!' : `Plek ${me.rank} van ${me.players}`;
+      $('zm-end-title').textContent = me.rank === 1 && (me.score ?? 1) > 0 ? 'Jij bent de beste zwermwachter!' : `Plek ${me.rank} van ${me.players}`;
       $('zm-end-score').textContent = `${me.score || 0} punten`;
       $('zm-end-stats').textContent = `${me.kills || 0} robots · niveau ${(me.lvl || 0) + 1}${me.bosses ? ` · 👑 ${me.bosses}× de Kolos` : ''} · ${s.right} ${s.right === 1 ? 'vraag' : 'vragen'} juist`;
       if (!$('zm-end').dataset.done && me.rank && me.rank <= 3) confetti(4000);

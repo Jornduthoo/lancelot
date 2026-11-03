@@ -126,7 +126,7 @@
       const me = s.me || {};
       const medals = ['🥇', '🥈', '🥉'];
       $('ko-end-medal').textContent = medals[me.rank - 1] || '🌀';
-      $('ko-end-title').textContent = me.rank === 1 ? 'Jij hebt de grootste kolk!' : `Plek ${me.rank} van ${me.players}`;
+      $('ko-end-title').textContent = me.rank === 1 && (me.score ?? 1) > 0 ? 'Jij hebt de grootste kolk!' : `Plek ${me.rank} van ${me.players}`;
       $('ko-end-score').textContent = `🌀 ${mText(me.r || 1)} breed`;
       const parts = [`${s.right} ${s.right === 1 ? 'vraag' : 'vragen'} juist`, `${me.eaten || 0} voorwerpen opgeslokt`, `${me.big || 0} ${me.big === 1 ? 'gebouw' : 'gebouwen'}`];
       if (s.duel) parts.push(`${me.slok || 0} ${me.slok === 1 ? 'kolk' : 'kolken'} opgeslokt`);

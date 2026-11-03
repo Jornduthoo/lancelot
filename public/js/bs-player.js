@@ -132,7 +132,7 @@
       const medals = ['🥇', '🥈', '🥉'];
       const me = s.me || {};
       $('bs-end-medal').textContent = medals[me.rank - 1] || '🏰';
-      $('bs-end-title').textContent = me.rank === 1 ? 'Jij bent de Heer van de Burchtstorm!' : `Plek ${me.rank} van ${me.players}`;
+      $('bs-end-title').textContent = me.rank === 1 && (me.score ?? 1) > 0 ? 'Jij bent de Heer van de Burchtstorm!' : `Plek ${me.rank} van ${me.players}`;
       $('bs-end-score').textContent = `${me.score || 0} punten`;
       $('bs-end-stats').textContent = `${me.lines || 0} rijen opgeruimd · ${me.sent || 0} rijen gestuurd · ${me.kos || 0} burchten neergehaald · ${s.right} ${s.right === 1 ? 'vraag' : 'vragen'} juist`;
       if (!$('bs-end').dataset.done && me.rank && me.rank <= 3) confetti(4000);

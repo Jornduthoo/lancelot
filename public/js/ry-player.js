@@ -125,7 +125,7 @@
       const medals = ['🥇', '🥈', '🥉'];
       const me = s.me || {};
       $('ry-end-medal').textContent = medals[me.rank - 1] || '👑';
-      $('ry-end-title').textContent = me.rank === 1 ? 'Jij bent de koning van de arena!' : `Plek ${me.rank} van ${me.players}`;
+      $('ry-end-title').textContent = me.rank === 1 && (me.score ?? 1) > 0 ? 'Jij bent de koning van de arena!' : `Plek ${me.rank} van ${me.players}`;
       $('ry-end-score').textContent = `${me.crowns || 0} 👑 · ${me.score || 0} punten`;
       $('ry-end-stats').textContent = `${s.right} ${s.right === 1 ? 'vraag' : 'vragen'} juist · ${me.elims || 0} ridders uitgeschakeld`;
       if (!$('ry-end').dataset.done && me.rank && me.rank <= 3) confetti(4000);

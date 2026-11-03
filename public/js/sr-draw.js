@@ -216,14 +216,18 @@ const SrDraw = (() => {
     g.lineWidth = 50;
     oval(6);
     g.stroke();
-    g.strokeStyle = '#4cc9ff';
-    g.lineWidth = 16;
-    oval(6);
-    g.stroke();
-    g.strokeStyle = '#d6f5ff';
-    g.lineWidth = 4;
-    oval(6);
-    g.stroke();
+    // In het 3D-beeld (zonder objecten) staan de glazen wandjes al op de rand: daar geen felle lijn op de vloer,
+    // die werd vlak voor de camera een gekartelde blauwe balk.
+    if (objects) {
+      g.strokeStyle = '#4cc9ff';
+      g.lineWidth = 16;
+      oval(6);
+      g.stroke();
+      g.strokeStyle = '#d6f5ff';
+      g.lineWidth = 4;
+      oval(6);
+      g.stroke();
+    }
     // Turbostroken met pijlen.
     for (const p of Wd.PADS) {
       Glow.glow(g, p.x + p.w / 2, p.y + p.h / 2, Math.max(p.w, p.h) * 1.1, '#ff9f1c', .5);

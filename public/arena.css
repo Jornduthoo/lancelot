@@ -427,7 +427,7 @@ body.rp-stal { background: linear-gradient(rgb(var(--k-bg) / .5), rgb(var(--k-bg
 .kk-prog i { position: absolute; left: 0; top: 0; bottom: 0; width: 0; transition: width .35s ease-out; box-shadow: 0 0 14px currentColor; opacity: .85; }
 .kk-prog span { position: relative; display: block; text-align: center; font-size: .8rem; line-height: 22px; color: rgb(var(--k-wit)); text-shadow: 0 1px 3px rgb(var(--k-zwart)); }
 .kk-help { font-family: var(--tech); font-weight: 800; color: #9be8b4; white-space: nowrap; }
-.kk-ask { position: absolute; left: 50%; bottom: 18px; transform: translateX(-50%); z-index: 3; white-space: nowrap; padding: 14px 34px; font-size: 1.25rem; border-radius: 16px; box-shadow: 0 0 26px rgb(var(--k-goud) / .55); animation: breathe 1.6s ease-in-out infinite; }
+.kk-ask { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; bottom: 18px; transform: none; z-index: 3; white-space: nowrap; padding: 14px 34px; font-size: 1.25rem; border-radius: 16px; box-shadow: 0 0 26px rgb(var(--k-goud) / .55); animation: breathe 1.6s ease-in-out infinite; }
 #kk-game .kk-how { top: 10px; left: 50%; transform: translateX(-50%); max-width: min(520px, 92%); text-align: center; }
 #kk-game .kk-how.weg { transform: translate(-50%, -8px); }
 #kk-game .ls-stage canvas { cursor: default; }

@@ -131,7 +131,7 @@
       const me = s.me || {};
       const medals = ['🥇', '🥈', '🥉'];
       $('hs-end-medal').textContent = medals[me.rank - 1] || '🎨';
-      $('hs-end-title').textContent = me.rank === 1 ? 'Jij bent de beste ridder van het hof!' : `Plek ${me.rank} van ${me.players}`;
+      $('hs-end-title').textContent = me.rank === 1 && (me.score ?? 1) > 0 ? 'Jij bent de beste ridder van het hof!' : `Plek ${me.rank} van ${me.players}`;
       $('hs-end-score').textContent = `${me.score || 0} punten`;
       $('hs-end-stats').textContent = `${me.geraden || 0}× juist geraden · ${me.getekend || 0}× getekend${me.gevonden ? ` · ${me.gevonden} ${me.gevonden === 1 ? 'ridder raadde' : 'ridders raadden'} jouw tekening` : ''}`;
       if (!$('hs-end').dataset.done && me.rank && me.rank <= 3) confetti(4000);
