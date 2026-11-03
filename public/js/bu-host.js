@@ -550,12 +550,17 @@ function toonEiland(e) {
   $('ke-tijd').textContent = `🏗️ Kasteeltijd: ${e.kasteeltijd ? 'aan' : 'uit'}`;
   $('ke-tijd').classList.toggle('aan', e.kasteeltijd);
   $('ke-sub').textContent = e.kasteeltijd ? 'Kasteeltijd! Iedereen bouwt aan zijn burcht' : `${e.burchten.length} burchten · bouwen kan tijdens Kasteeltijd`;
+  // Thuis: een kopie van het digibord via Mijn lesmap. Alleen kijken, aanpassen doe je op het bord.
+  const kopie = !!e.kopie;
+  if (kopie) $('ke-sub').textContent = `👁 Kopie van het digibord (${new Date(e.kopie.at).toLocaleString('nl-BE', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}) · alleen bekijken`;
+  for (const id of ['ke-tijd', 'ke-geef-knop', 'ke-doel-knop', 'ke-join']) $(id).classList.toggle('hidden', kopie);
+  document.body.classList.toggle('ke-kopie', kopie);
   const d = e.klasdoel;
   $('ke-doel').classList.toggle('gehaald', !!(d && d.gehaald));
   if (!d) {
     $('ke-doel-kop').textContent = '🎯 Nog geen klasdoel';
     $('ke-doel-balk').style.width = '0%';
-    $('ke-doel-tekst').textContent = 'Klik hier en kies samen een beloning. De burcht in het midden groeit mee.';
+    $('ke-doel-tekst').textContent = kopie ? 'Een klasdoel kies je op het digibord.' : 'Klik hier en kies samen een beloning. De burcht in het midden groeit mee.';
   } else {
     $('ke-doel-kop').textContent = d.gehaald ? `🎉 Gehaald: ${d.tekst || 'het klasdoel'}!` : `🎯 ${d.tekst || 'Klasdoel'}`;
     $('ke-doel-balk').style.width = `${Math.min(100, (d.samen / d.doel) * 100)}%`;
@@ -666,6 +671,7 @@ $('ke-geef-ok').addEventListener('click', () => {
 $('ke-doel-knop').addEventListener('click', openDoel);
 $('ke-doel').addEventListener('click', openDoel);
 function openDoel() {
+  if (ke.eiland && ke.eiland.kopie) return;
   paneel('ke-doelpaneel');
   const d = ke.eiland && ke.eiland.klasdoel;
   const n = (ke.eiland && ke.eiland.burchten.length) || 20;
@@ -713,7 +719,7 @@ function boekTonen() {
     }
     if (!l.posten.length) {
       const li = document.createElement('li');
-      li.textContent = 'Nog niets verdiend.';
+      li.textContent = ke.eiland && ke.eiland.kopie ? 'Wat er verdiend werd, zie je op het digibord.' : 'Nog niets verdiend.';
       ul.appendChild(li);
     }
     det.appendChild(ul);
@@ -741,7 +747,7 @@ function boekTonen() {
       }));
       acties.appendChild(wis);
     }
-    det.appendChild(acties);
+    if (!(ke.eiland && ke.eiland.kopie)) det.appendChild(acties);
     naam.appendChild(det);
     const cel = (txt, cls) => {
       const td = document.createElement('td');
