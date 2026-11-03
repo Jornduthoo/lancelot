@@ -45,7 +45,8 @@ function htmlTeksten(html, out) {
       out.push(v);
     }
   }
-  for (const stuk of html.split(/<[^>]*>/)) out.push(stuk);
+  // tekst tussen tags: ook één woord in kleine letters is hier schermtekst (\u0002 = uit html)
+  for (const stuk of html.split(/<[^>]*>/)) out.push(/^\s*[a-zà-ÿ]/.test(stuk) ? '\u0002' + stuk : stuk);
 }
 function decode(s) {
   return s.replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;|&apos;/g, "'").replace(/&middot;/g, '·').replace(/&hellip;/g, '…').replace(/&#(\d+);/g, (_, n) => String.fromCodePoint(+n));
@@ -117,9 +118,11 @@ function verzamel() {
   const neem = (bestand, lijst) => {
     const set = new Set();
     for (const r of lijst) {
-      const t = normaliseer(r);
+      const uitHtml = r.startsWith('\u0002');
+      const t = normaliseer(uitHtml ? r.slice(1) : r);
       const rest = t.replace(/\{\d+\}/g, '').trim();
-      if (!isTekst(rest) && !(rest !== t && /^[a-zà-ÿ]{3,}( [a-zà-ÿ]{2,})*[.!?…:]?$/.test(rest))) continue;
+      const woorden = /^[a-zà-ÿ]{3,}( [a-zà-ÿ]{2,})*[.!?…:]?$/.test(rest) && /[aeiouy]/.test(rest);
+      if (!isTekst(rest) && !((rest !== t || uitHtml) && woorden)) continue;
       if (/^\{\d+\}$/.test(t)) continue;
       set.add(t);
     }
