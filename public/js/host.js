@@ -183,6 +183,7 @@ document.querySelector('[data-module="banierveld"]').addEventListener('click', (
 document.querySelector('[data-module="haakridder"]').addEventListener('click', () => { location.href = '/haakridder'; });
 document.querySelector('[data-module="kolkridder"]').addEventListener('click', () => { location.href = '/kolkridder'; });
 document.querySelector('[data-module="neoncamelot"]').addEventListener('click', () => { location.href = '/neoncamelot'; });
+document.querySelector('[data-module="titanenstrijd"]').addEventListener('click', () => { location.href = '/titanenstrijd'; });
 document.querySelector('[data-module="ridderslang"]').addEventListener('click', () => { location.href = '/ridderslang'; });
 document.querySelector('[data-module="burchtstorm"]').addEventListener('click', () => { location.href = '/burchtstorm'; });
 document.querySelector('[data-module="pixelridder"]').addEventListener('click', () => { location.href = '/pixelridder'; });

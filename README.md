@@ -30,6 +30,7 @@ Het thema: middeleeuws met een scifi-kantje. Het startscherm heeft drie grote te
    - **Haakridder**: slinger met je plasmahaak van kristalanker naar kristalanker door een zwevende burcht. Eén knop: ingedrukt = grijpen, loslaten = vliegen. Elke vlag is een vraag: juist = gouden haak
    - **Kolkridder**: stuur je gloeiende plasmakolk door een sci-fi ridderstad (2,5D, schuin van boven) en slok alles op wat kleiner is: munten, karren, huizen, torens, de burcht. Hoe meer je slokt, hoe groter je wordt. Plasma op = vraag: juist = groeien + zuigkracht. Met duelmodus
    - **Neon-Camelot**: een grote open sci-fi ridderstad (2,5D, geschilderd) waar de hele klas tegelijk rondrijdt op robopaard, hoverboard, raketkar of griffioen. Missies (pakket bezorgen, race door ringen) starten met een vraag, branden blus je samen met juiste antwoorden, onderweg vang je glitchgnomen en raap je kristallen
+   - **Titanenstrijd**: twee tot vier ploegen besturen elk een geschilderde reuzentitan op het bord. Elke leerling is één deel (zwaardarm, schildarm, kern, schouderkanon of benen). Juiste antwoorden laden je deel op; vol = je knop: slaan, vuren, blokken, ontwijken of herstellen. Alle delen samen juist binnen 10 seconden = Titanenslag. Ploegen eerlijk verdeeld op niveau.
    - **Tuimelridder**: stuntparcours met een ridder op een rare rijmachine (rakettroon, eenwieler, stoomton, zweeftroon): springplanken, hamers, laserpoorten en kanonnen. Raak je iets, dan tuimel je eraf. 5 parcoursen met sterren; elke vlag een vraag: juist = turbo
    - **Diepboor**: graaf met je boorridder naar goud, kristal en neonkernen. Goede antwoorden geven brandstof; in de smidse koop je een betere boor
    - **Robomol**: robotmollen schieten uit negen burchtputten en elke leerling mept ze met een zwaard, in 3D vanuit de ogen van de ridder. Een juist antwoord laadt het zwaard op en geeft het Vuurzwaard
@@ -263,6 +264,18 @@ Iedereen slingert op zijn eigen scherm met een **plasmahaak** door dezelfde zwev
 - Het bord volgt de koploper, met bovenaan een strook met alle vlaggen en waar iedereen is.
 - Chromebook: spatie (of klikken) ingedrukt houden, 1-4 antwoorden. Gsm: vinger op het scherm houden. Elk antwoord komt in het logboek. Resultaten in `resultaten/`. Ook als taak (alleen in een spel).
 - Geschilderde beelden: zet `achtergrond`, `zwaai`, `vlieg`, `anker` en `banier` als webp in `public/img/haakridder/`; zonder die beelden tekent het spel ze zelf.
+
+## Titanenstrijd
+
+Twee tot vier ploegen (Rood, Blauw, Groen, Goud) besturen elk een **reuzentitan** in een zwevende arena. Bij de start verdeelt LANcelot de leerlingen in ploegen met een eerlijke mix van niveaus (Mijn klas, voor het vak van de quiz) en geeft elke leerling één deel: ⚔️ zwaardarm, 🛡️ schildarm, 💠 kern, 💥 schouderkanon of 🦿 benen (een kleine ploeg krijgt eerst zwaard, schild en kern).
+
+- **Juist antwoord = je deel laadt op** (rustig 1, normaal 2, intens 3, veel vragen 5 juiste antwoorden). Vol? Dan staat er een grote knop op je toestel.
+- Zwaard en kanon vallen een andere titan aan; eerst halen ze 2 seconden uit, zodat de verdedigers een seintje krijgen. Het **schild blokt een zwaardslag**, de **benen ontwijken een kanonschot** (4,5 s klaar). De **kern** herstelt de titan en maakt een kapot deel.
+- Een treffer kan een deel kapotmaken: dat deel doet niets tot zijn leerling één vraag juist heeft.
+- **Titanenslag**: hebben alle delen die meespelen binnen 10 seconden een juist antwoord, dan slaat de titan alle andere titans (om de 25 s).
+- Een titan die valt, staat na 12 seconden weer op met 60 % leven. Niemand valt af. Grote en kleine ploegen slaan even hard. De ploeg met de meeste punten wint; het slotscherm toont ook de beste per deel.
+- Het bord toont de arena met de titans, hun levensbalk en welke delen net juist antwoordden; rechts de bemanning per ploeg. Elk antwoord komt in het logboek, resultaten in `resultaten/`.
+- Beelden in `public/img/titanenstrijd/`: de titan in vijf losse delen (de code kleurt ze per ploeg en beweegt ze), effecten, knop-iconen en de arena.
 
 ## Kolkridder
 
