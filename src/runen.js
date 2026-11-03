@@ -10,15 +10,19 @@ const klas = require('./klas');
 const logboek = require('./logboek');
 const doelen = require('./doelen');
 const niveaus = require('./niveaus');
-const ingebouwd = require('./runen-woorden');
+const taal = require('./taal');
+
+// De ingebouwde woorden en de woordenlijst hangen af van de taal van LANcelot (Instellingen > Uiterlijk > Taal).
+const engels = () => taal.huidig() === 'en';
+const ingebouwdVoor = () => (engels() ? require('./runen-woorden-en') : require('./runen-woorden'));
 
 const DIR = gegevens.pad('runen');
 const LIJST = path.join(DIR, 'weeklijst.json');
 const POGINGEN = 6;
 const LEVELS = {
-  page: { lens: [4], woorden: ingebouwd.PAGE },
-  schildknaap: { lens: [5], woorden: ingebouwd.SCHILDKNAAP },
-  ridder: { lens: [6, 7], woorden: ingebouwd.RIDDER },
+  page: { lens: [4], get woorden() { return ingebouwdVoor().PAGE; } },
+  schildknaap: { lens: [5], get woorden() { return ingebouwdVoor().SCHILDKNAAP; } },
+  ridder: { lens: [6, 7], get woorden() { return ingebouwdVoor().RIDDER; } },
 };
 const NIVEAUS = Object.keys(LEVELS);
 // Schildknaap krijgt de betekenis als hulp na 4 foute pogingen; Page vanaf het begin; Ridder nooit.
@@ -35,17 +39,20 @@ const DOEL_6 = '1.5.GL6.3';
 
 // ---------- Woordenlijst (om te controleren of een poging een bestaand woord is) ----------
 
-let woordenlijst = null;
+const woordenlijsten = {};
 function bestaat(w) {
-  if (!woordenlijst) {
+  const id = engels() ? 'en' : 'nl';
+  let set = woordenlijsten[id];
+  if (!set) {
     try {
-      woordenlijst = new Set(fs.readFileSync(path.join(__dirname, 'woordenlijst.txt'), 'utf8').split('\n'));
+      set = new Set(fs.readFileSync(path.join(__dirname, id === 'en' ? 'woordenlijst-en.txt' : 'woordenlijst.txt'), 'utf8').split('\n'));
     } catch {
-      woordenlijst = new Set();
+      set = new Set();
     }
-    for (const l of Object.values(LEVELS)) for (const [w] of l.woorden) woordenlijst.add(w);
+    for (const l of Object.values(LEVELS)) for (const [x] of l.woorden) set.add(x);
+    woordenlijsten[id] = set;
   }
-  return woordenlijst.has(w) || lijst().woorden.some(x => x.w === w);
+  return set.has(w) || lijst().woorden.some(x => x.w === w);
 }
 
 // Hoofdletters, accenten en spaties eruit: "Ruïne" wordt "ruine".
@@ -262,7 +269,10 @@ function dagRecord(dag) {
 
 function woordVan(dag, niveau) {
   const rec = dagRecord(dag);
-  if (rec.woorden[niveau]) return rec.woorden[niveau];
+  const id = engels() ? 'en' : 'nl';
+  // Een ingebouwd woord van de dag hoort bij een taal; koos de leerkracht vandaag een andere taal, dan een nieuw woord.
+  const oud = rec.woorden[niveau];
+  if (oud && (oud.eigen || (oud.taal || 'nl') === id)) return oud;
   const lens = LEVELS[niveau].lens;
   const gebruikt = gebruikteWoorden();
   // Eerst de woorden van de week, in de volgorde van de leerkracht.
@@ -277,11 +287,11 @@ function woordVan(dag, niveau) {
     const start = Math.floor(Date.parse(dag) / 864e5) % lijstje.length;
     for (let i = 0; i < lijstje.length && !keuze; i++) {
       const [w, b, z] = lijstje[(start + i) % lijstje.length];
-      if (!recent.has(w)) keuze = { w, b, z };
+      if (!recent.has(w)) keuze = { w, b, z, taal: id };
     }
     if (!keuze) {
       const [w, b, z] = lijstje[start];
-      keuze = { w, b, z };
+      keuze = { w, b, z, taal: id };
     }
   }
   rec.woorden[niveau] = keuze;

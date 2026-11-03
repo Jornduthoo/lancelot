@@ -10,7 +10,6 @@ const { verzamel } = require('../tools/i18n-extract');
 const { bekend, ontbrekend } = require('../tools/i18n-todo');
 
 const ROOT = path.join(__dirname, '..');
-const NOG = new Set(require('../tools/i18n-nog.json'));
 
 test('elke pagina laadt /taal.js als eerste script', () => {
   for (const f of fs.readdirSync(path.join(ROOT, 'public')).filter(x => x.endsWith('.html'))) {
@@ -35,7 +34,7 @@ test('de taalbestanden zijn geldig en houden de {0}-plekken', () => {
 
 test('elke schermtekst heeft een Engelse vertaling', () => {
   const mis = ontbrekend(verzamel(), bekend('en'));
-  const fout = Object.entries(mis).filter(([f]) => !NOG.has(f));
+  const fout = Object.entries(mis);
   assert.deepEqual(fout.map(([f, l]) => `${f}: ${l.slice(0, 5).map(s => JSON.stringify(s)).join(', ')}${l.length > 5 ? ` (+${l.length - 5})` : ''}`), [],
     'Nieuwe tekst zonder vertaling. Zet ze in lang/en/<naam>.json (zie node tools/i18n-todo.js <bestand>).');
 });

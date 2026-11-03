@@ -110,7 +110,8 @@ function lijstBestanden() {
 }
 
 // Overslaan: hele bestanden die geen schermtekst bevatten of eigen inhoud (woordenlijsten) zijn.
-const OVERSLAAN = new Set(['public/js/i18n.js', 'public/js/logo-3d.js']);
+// De ingebouwde woorden en weetjes hebben per taal een eigen bestand (runen-woorden-en.js, ontdek-inhoud-en.js).
+const OVERSLAAN = new Set(['public/js/i18n.js', 'public/js/logo-3d.js', 'src/runen-woorden.js', 'src/runen-woorden-en.js', 'src/ontdek-inhoud.js', 'src/ontdek-inhoud-en.js']);
 
 function verzamel() {
   const { html, js } = lijstBestanden();
