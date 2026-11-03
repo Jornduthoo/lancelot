@@ -189,11 +189,13 @@
     } else if (s.phase === 'einde') {
       quiz.close();
       const medals = ['🥇', '🥈', '🥉'];
-      $('rp-end-medal').textContent = medals[s.rank - 1] || '🏁';
-      $('rp-end-title').textContent = s.rank === 1 ? 'Jij wint de race!' : `Plek ${s.rank} van ${s.players}`;
+      // Niemand reed een ronde? Dan is er ook geen winnaar met medaille.
+      const raced = s.laps > 0;
+      $('rp-end-medal').textContent = raced ? medals[s.rank - 1] || '🏁' : '🏁';
+      $('rp-end-title').textContent = s.rank === 1 && raced ? 'Jij wint de race!' : `Plek ${s.rank} van ${s.players}`;
       const best = s.bestLap ? ` · snelste ronde ${(s.bestLap / 1000).toFixed(1).replace('.', ',')} s` : '';
       $('rp-end-stats').textContent = `${s.laps} ${s.laps === 1 ? 'ronde' : 'ronden'}${best} · 💥 ${s.hits} raak · ✔ ${s.right} ${s.right === 1 ? 'vraag' : 'vragen'} juist`;
-      if (!$('rp-end').dataset.done && s.rank && s.rank <= 3) confetti(4000);
+      if (!$('rp-end').dataset.done && raced && s.rank && s.rank <= 3) confetti(4000);
       $('rp-end').dataset.done = '1';
       show('rp-end');
     }

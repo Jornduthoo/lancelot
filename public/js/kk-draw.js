@@ -1221,7 +1221,8 @@ const KkDraw = (() => {
         const count = Math.min(perRow, list.length - row * perRow);
         if (count <= 0) continue;
         const items = list.slice(row * perRow, row * perRow + count);
-        const y = h - kh * .62 - row * kh * .38;
+        // Op het bord staan de ridders helemaal in beeld (ze vielen half onder de rand en de namen botsten).
+        const y = h - kh * (this.board ? .9 : .62) - row * kh * (this.board ? .45 : .38);
         const gap = Math.min(kw * 1.05, (w * .92) / count);
         items.forEach((p, i) => {
           const x = w / 2 + (i - (count - 1) / 2) * gap + (row % 2 ? gap * .5 : 0);

@@ -85,7 +85,7 @@ socket.on('cg-state', s => {
     const me = s.me || {};
     const b = s.boss || {};
     $('cg-end-medal').textContent = b.down ? '🏆' : medals[me.rank - 1] || '🚀';
-    $('cg-end-title').textContent = me.rank === 1 ? 'Jij bent de beste piloot!' : `Plek ${me.rank} van ${me.players}`;
+    $('cg-end-title').textContent = me.rank === 1 && (me.score ?? 1) > 0 ? 'Jij bent de beste piloot!' : `Plek ${me.rank} van ${me.players}`;
     $('cg-end-boss').textContent = b.down ? 'De klas heeft de klasbaas verslagen!' : b.escaped ? 'De klasbaas is ontsnapt. Volgende keer!' : '';
     $('cg-end-score').textContent = `${G.score} punten`;
     $('cg-end-stats').textContent = `${me.right || 0} ${me.right === 1 ? 'vraag' : 'vragen'} juist · ${G.dragons} draken · golf ${G.wave}${me.bossDmg ? ` · ${me.bossDmg} schade aan de baas` : ''}`;

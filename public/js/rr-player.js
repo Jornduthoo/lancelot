@@ -91,12 +91,13 @@ socket.on('rr-state', s => {
   } else if (s.phase === 'einde') {
     rrCloseQuestion();
     const medals = ['🥇', '🥈', '🥉'];
-    $('rr-end-medal').textContent = medals[s.rank - 1] || '🏁';
-    $('rr-end-title').textContent = s.rank === 1 ? 'Jij wint de Ridderrace!' : `Plek ${s.rank} van ${s.players}`;
+    const raced = s.progress >= .1;
+    $('rr-end-medal').textContent = raced ? medals[s.rank - 1] || '🏁' : '🏁';
+    $('rr-end-title').textContent = s.rank === 1 && raced ? 'Jij wint de Ridderrace!' : `Plek ${s.rank} van ${s.players}`;
     $('rr-end-score').textContent = `${s.progress.toFixed(1).replace('.', ',')} ronden`;
     const best = s.bestLap ? ` · snelste ronde ${(s.bestLap / 1000).toFixed(1).replace('.', ',')} s` : '';
     $('rr-end-stats').textContent = `${s.right} vragen juist${best} · plek ${s.rank} van ${s.players}`;
-    if (!$('rr-end').dataset.done && s.rank <= 3) confetti(4000);
+    if (!$('rr-end').dataset.done && raced && s.rank <= 3) confetti(4000);
     $('rr-end').dataset.done = '1';
     rrShow('rr-end');
   }

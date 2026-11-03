@@ -154,7 +154,7 @@
       const me = s.me || {};
       const medals = ['🥇', '🥈', '🥉'];
       $('ww-end-medal').textContent = medals[me.rank - 1] || '🛞';
-      $('ww-end-title').textContent = me.rank === 1 ? 'Jij bent de beste Wankelwagenrijder!' : `Plek ${me.rank} van ${me.players}`;
+      $('ww-end-title').textContent = me.rank === 1 && (me.score ?? 1) > 0 ? 'Jij bent de beste Wankelwagenrijder!' : `Plek ${me.rank} van ${me.players}`;
       $('ww-end-score').textContent = `${me.score || 0} punten`;
       $('ww-end-stats').textContent = `${me.stage || 0} ${me.stage === 1 ? 'vlag' : 'vlaggen'} · ${me.cells || 0} munten · ${s.right} ${s.right === 1 ? 'vraag' : 'vragen'} juist`;
       if (!$('ww-end').dataset.done && me.rank && me.rank <= 3) confetti(4000);
@@ -423,7 +423,8 @@
 
     // Camera: een beetje vooruit kijken, en de kar iets onder het midden.
     const fit = AK.fit(canvas, 1.5);
-    const S = Math.min(fit.h / 12.5, fit.w / (fit.w > fit.h ? 21 : 10.5));
+    // Gsm rechtop: dichter op je ridder, anders is hij een klein figuurtje in een grote wereld.
+    const S = Math.min(fit.h / 12.5, fit.w / (fit.w > fit.h ? 21 : 7.5));
     view = { w: fit.w, h: fit.h, S, dpr: fit.dpr };
     const viewW = fit.w / S, viewH = fit.h / S;
     const P = W.pose(c);

@@ -7,7 +7,7 @@
 const { Date, setTimeout, setInterval, clearTimeout, clearInterval } = require('./pauze').klok; // stil tijdens de pauzeknop
 const World = require('../public/js/tm-world');
 const { Vragen, saveCsv, pct } = require('./vragen');
-const { tempoOf, factor } = require('./tempo');
+const { tempoOf, factor, reeks } = require('./tempo');
 
 const SEND_MS = 100;
 const POINTS = { vlag: 100, snel: 5, finish: 150, ster: 50, vraag: 60 };
@@ -53,6 +53,7 @@ class Tuimelridder {
     this.minutes = [1, 2, 3, 4, 5, 6, 8, 10].includes(minutes) ? minutes : 5;
     this.tempo = tempoOf(tempo);
     this.vragen = new Vragen(quiz, 'Tuimelridder', this.tempo);
+    this.vragen.reeks = reeks(this.tempo); // Veel vragen: twee vragen per vlag
     this.phase = 'lobby';
     this.broadcast();
   }

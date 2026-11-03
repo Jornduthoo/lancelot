@@ -6,7 +6,7 @@
 const { Date, setTimeout, setInterval, clearTimeout, clearInterval } = require('./pauze').klok; // stil tijdens de pauzeknop
 const World = require('../public/js/hb-world');
 const { Vragen, saveCsv, pct } = require('./vragen');
-const { tempoOf, factor } = require('./tempo');
+const { tempoOf, factor, reeks } = require('./tempo');
 
 const SEND_MS = 500;
 const POINTS_VRAAG = 60;
@@ -52,6 +52,7 @@ class Hooibergjacht {
     this.tempo = tempoOf(tempo);
     this.seed = 1 + Math.floor(Math.random() * 90000);
     this.vragen = new Vragen(quiz, 'Hooibergjacht', this.tempo);
+    this.vragen.reeks = reeks(this.tempo); // Veel vragen: twee vragen per vlag
     this.phase = 'lobby';
     this.broadcast();
   }

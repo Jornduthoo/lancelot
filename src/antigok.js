@@ -61,6 +61,7 @@ function create(io) {
   // own: het spel wacht en herhaalt zelf al; dan voegen we alleen de gokcontrole toe.
   function guard(game, key, spel, { own = false } = {}) {
     return {
+      game, // voor de Vragenstorm: welk spel dit is
       question(id) {
         const s = get(key, id);
         const now = Date.now();

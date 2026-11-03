@@ -643,7 +643,7 @@ const AK = (() => {
 
   // ---------- Vragenvenster ----------
   // Eén venster per spel. opts: { root, status(res), ask(cb), answer(i, cb), close(), good(res), bad(res), next(res) }
-  // next(res) geeft true als er meteen een volgende vraag mag komen.
+  // next(res) geeft true als er meteen een volgende vraag mag komen. res.more (tempo "Veel vragen") doet hetzelfde.
   function quiz(opts) {
     const box = document.createElement('div');
     box.className = 'tw-question ak-question hidden';
@@ -743,12 +743,12 @@ const AK = (() => {
         const result = $s('.tw-q-result');
         result.className = `tw-q-result ${res.correct ? 'good' : 'bad'}`;
         if (res.correct) {
-          result.textContent = opts.good(res);
+          result.textContent = opts.good(res) + (res.more ? ' Nog een vraag!' : '');
           sfx.good();
           if (typeof buzz === 'function') buzz([30, 40, 30]);
           setTimeout(() => {
             if (!q.open || !q.cur || !q.cur.done) return;
-            if (opts.next(res)) load();
+            if (opts.next(res) || res.more) load();
             else q.close();
           }, 850);
         } else {
@@ -757,7 +757,7 @@ const AK = (() => {
           result.textContent = opts.bad(res);
           sfx.bad();
           if (typeof buzz === 'function') buzz(200);
-          wait(res.wait || 3000, () => { if (!q.open) return; if (opts.again === false) q.close(); else load(); });
+          wait(res.wait || 3000, () => { if (!q.open) return; if (opts.again === false && !res.more) q.close(); else load(); });
         }
       });
     };

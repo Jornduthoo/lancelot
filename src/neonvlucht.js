@@ -153,7 +153,8 @@ class Neonvlucht {
       if (p.streak === 8) this.addFeed(`🧠 ${p.name} heeft 8 poorten op rij juist`, false);
     }
     p.dirty = true;
-    return { correct: res.correct, right: shown.indexOf(res.right), wait: res.wait, mult: this.mult(p), streak: p.streak, bonus };
+    // gap: bij "Veel vragen" komt de volgende vraagpoort sneller.
+    return { correct: res.correct, right: shown.indexOf(res.right), wait: res.wait, mult: this.mult(p), streak: p.streak, bonus, gap: tempoOf(this.tempo) === 'veel' ? .6 : 1 };
   }
 
   finish() {

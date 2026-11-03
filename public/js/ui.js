@@ -79,7 +79,11 @@
     const geluid = [];
     let volgnr = 0;
 
-    Date.now = () => echt.now() - stil - (sinds ? echt.perf() - sinds : 0);
+    // De klokdatum (Date.now) volgt de server. Bij de pauzeknop staat ook de server stil; bij de Vragenstorm
+    // niet: dan loopt de datum gewoon door (datumMee) en staan alleen beelden, timers en spelklok hier stil.
+    let stilDatum = 0;
+    let datumMee = false;
+    Date.now = () => echt.now() - stilDatum - (sinds && !datumMee ? echt.perf() - sinds : 0);
     performance.now = () => (sinds || echt.perf()) - stil;
 
     // Beelden: een frame dat tijdens de pauze valt, wacht tot erna.
@@ -147,7 +151,7 @@
     });
 
     window.addEventListener('keydown', e => {
-      if (sinds && !(scherm && scherm.contains(e.target))) { e.stopImmediatePropagation(); e.preventDefault(); }
+      if (sinds && !(binnen && binnen.contains(e.target))) { e.stopImmediatePropagation(); e.preventDefault(); }
     }, true);
 
     function bouw() {
@@ -178,6 +182,41 @@
       document.body.appendChild(scherm);
     }
 
+    // De klok op dit scherm stilzetten of weer laten lopen. binnen: het venster dat toetsen wel mag krijgen.
+    let binnen = null;
+    let storm = false; // de Vragenstorm zet alleen dit scherm stil, de pauzeknop de hele klas
+    // Een stuk stilstand afsluiten en meteen een nieuw beginnen (de pauzeknop tijdens een Vragenstorm of omgekeerd).
+    function wissel(mee) {
+      if (!sinds || datumMee === mee) return;
+      const d = echt.perf() - sinds;
+      stil += d;
+      if (!datumMee) stilDatum += d;
+      sinds = echt.perf();
+      datumMee = mee;
+    }
+    function vries(aan, venster, mee = false) {
+      if (aan) {
+        binnen = venster;
+        if (sinds) return wissel(mee);
+        datumMee = mee;
+        sinds = echt.perf();
+        for (const a of geluid) if (a.state === 'running') a.suspend();
+        if (document.activeElement && !(venster && venster.contains(document.activeElement))) document.activeElement.blur();
+        if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+      } else if (sinds) {
+        const d = echt.perf() - sinds;
+        stil += d;
+        if (!datumMee) stilDatum += d;
+        sinds = 0;
+        datumMee = false;
+        for (const a of geluid) if (a.state === 'suspended') a.resume();
+        for (const id of [...frames.keys()]) if (!frames.get(id).echt) beeld(id);
+        const lijst = [...wacht];
+        wacht.clear();
+        for (const id of lijst) if (timers.has(id)) plan(id);
+      }
+    }
+
     function zet(st) {
       const aan = !!(st && st.aan);
       const tekst = (st && st.tekst) || '';
@@ -185,22 +224,12 @@
         if (!scherm) bouw();
         scherm.querySelector('.pauze-tekst').textContent = tekst || (host ? '' : 'Kijk naar de leerkracht.');
         scherm.classList.add('aan');
-        if (!sinds) {
-          sinds = echt.perf();
-          for (const a of geluid) if (a.state === 'running') a.suspend();
-          if (document.activeElement && !scherm.contains(document.activeElement)) document.activeElement.blur();
-          if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
-        }
-      } else if (sinds) {
-        stil += echt.perf() - sinds;
-        sinds = 0;
+        vries(true, scherm);
+      } else if (scherm && scherm.classList.contains('aan')) {
         scherm.classList.remove('aan');
         if (tekstVeld) tekstVeld.value = '';
-        for (const a of geluid) if (a.state === 'suspended') a.resume();
-        for (const id of [...frames.keys()]) if (!frames.get(id).echt) beeld(id);
-        const lijst = [...wacht];
-        wacht.clear();
-        for (const id of lijst) if (timers.has(id)) plan(id);
+        if (storm) { binnen = storm; wissel(true); }
+        else vries(false);
       }
     }
 
@@ -215,6 +244,13 @@
       },
       // Voor de knop op het bord.
       start: () => stuur(true, ''),
+      // Vragenstorm: alleen dit scherm stil, met het vragenvenster erboven (de pauzeknop gaat voor).
+      storm(aan, venster) {
+        storm = aan ? venster : false;
+        const pauzeAan = scherm && scherm.classList.contains('aan');
+        if (aan) vries(true, pauzeAan ? scherm : venster, !pauzeAan);
+        else if (!(scherm && scherm.classList.contains('aan'))) vries(false);
+      },
       get aan() { return !!sinds; },
     };
   })();
@@ -274,6 +310,16 @@
     });
   }
 
+  function vragenstorm(socket, st) {
+    window.Ui.stormSocket = socket;
+    if (window.Vragenstorm) return window.Vragenstorm(st);
+    window.Ui.stormStart = st;
+    if (document.querySelector('script[src="/js/vragenstorm.js"]')) return;
+    const s = document.createElement('script');
+    s.src = '/js/vragenstorm.js';
+    document.body.appendChild(s);
+  }
+
   // De knop "Namen" op elk leerkrachtenscherm (niet op de afdrukbladen).
   function namenKnop(socket) {
     if (window.Ui.hostSocket || /print|fiche/.test(location.pathname)) return;
@@ -302,11 +348,15 @@
       socket.on('uitleg', u => u && toonUitleg(u));
       socket.on('thema', zetThema);
       if (isHost) { namenKnop(socket); schermInfo(socket); }
-      // De leerkracht klikte deze naam weg (buiten een spel): opnieuw kiezen wie je bent.
-      else socket.on('naam-weg', () => {
-        try { localStorage.removeItem('lancelot-name'); } catch { /* geen opslag */ }
-        location.reload();
-      });
+      // Vragenstorm: de leerkracht drukt op het bord, en elke leerling in het spel krijgt meteen een paar vragen.
+      else {
+        socket.on('storm', st => vragenstorm(socket, st));
+        // De leerkracht klikte deze naam weg (buiten een spel): opnieuw kiezen wie je bent.
+        socket.on('naam-weg', () => {
+          try { localStorage.removeItem('lancelot-name'); } catch { /* geen opslag */ }
+          location.reload();
+        });
+      }
       return socket;
     }, io);
   }
@@ -579,6 +629,8 @@
     // Het snelmenu opnieuw laten oplichten als een pagina zelf het adres verandert (host.js, rijk openen).
     snelMarkeer: () => { snelMarkeer(); zetAchter(); },
     pauze: Pauze,
+    // De echte klok en timers, die doorlopen als het scherm stilstaat (Vragenstorm).
+    echt,
     themas: THEMAS,
     get thema() { return thema; },
     // De AI die de leerkracht bij Instellingen koos (Gemini, Claude of ChatGPT), voor knoppen en teksten.

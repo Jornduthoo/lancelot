@@ -16,6 +16,7 @@ const BossDraw = (() => {
     { name: 'Goud', c: '#ffd84a' },
   ];
   const EXTRAS = [
+    { key: 'reus', name: 'Geschilderde reus', icon: '🎨' },
     { key: 'harnas', name: 'Reuzenharnas', icon: '🛡️' },
     { key: 'kroon', name: 'Duistere kroon', icon: '👑' },
     { key: 'mantel', name: 'Drakenmantel', icon: '🐉' },
@@ -24,7 +25,7 @@ const BossDraw = (() => {
   ];
   const DEFAULT = {
     av: { helm: 6, accent: 2, kleur: 4, vizier: 1, patroon: 3, schild: 4, wapen: 3, huid: 1, type: 0, haar: 0, haarkleur: 2, harnas: 3, rug: 3, arm: 1 },
-    extra: { harnas: 1, kroon: 1, mantel: 1, ogen: 1, troon: 1, ogenkleur: 0, aura: 0 },
+    extra: { reus: 1, harnas: 1, kroon: 1, mantel: 1, ogen: 1, troon: 1, ogenkleur: 0, aura: 0 },
     naam: 'De leerkracht',
     titel: 'de Onverslaanbare',
   };
@@ -35,6 +36,23 @@ const BossDraw = (() => {
     const img = new Image();
     img.onload = () => { ART.zaal = img; artWait.forEach(f => f()); };
     img.src = '/img/leraarbaas/troonzaal.webp';
+    // De geschilderde reus (paars). Een andere aura draait de kleur mee, zoals bij de zaal.
+    const reus = new Image();
+    reus.onload = () => { ART.reus = reus; artWait.forEach(f => f()); };
+    reus.src = '/img/leraarbaas/baas.webp';
+  }
+  const REUS_HUE = [0, 75, -150, 115];
+  const reusCache = {};
+  function reusVoor(aura) {
+    const i = Math.max(0, AURAS.indexOf(aura));
+    if (!i) return ART.reus;
+    if (reusCache[i]) return reusCache[i];
+    const c = document.createElement('canvas');
+    c.width = ART.reus.width; c.height = ART.reus.height;
+    const g = c.getContext('2d');
+    if ('filter' in g) g.filter = `hue-rotate(${REUS_HUE[i]}deg)`;
+    g.drawImage(ART.reus, 0, 0);
+    return (reusCache[i] = c);
   }
   function hueOf(hex) {
     const n = parseInt(hex.slice(1), 16), r = (n >> 16 & 255) / 255, g = (n >> 8 & 255) / 255, b = (n & 255) / 255;
@@ -103,6 +121,22 @@ const BossDraw = (() => {
     const ox = x - 6 * s, oy = gy - 17 * s - lift + breathe;
     const U = (ux, uy) => [ox + ux * s, oy + uy * s];
     if (ex.troon) drawThroneBack(g, U, s, aura, t);
+    // Geschilderde reus: één beeld met vleugels, kroon en gloeiende ogen in plaats van de getekende ridder.
+    if ((ex.reus ?? 1) && ART.reus) {
+      const im = reusVoor(aura);
+      const H = 17 * s * 1.32, W = H * im.width / im.height;
+      g.save();
+      g.translate(x, oy + 17 * s);
+      g.rotate(-(fx.raise || 0) * .05);
+      if (fx.flash && 'filter' in g) g.filter = 'brightness(2.6) saturate(.3)';
+      g.drawImage(im, -W / 2, -H, W, H);
+      g.restore();
+      if (ex.troon) drawThroneFront(g, U, s, aura, t);
+      if (fx.shield) drawShield(g, x, gy - (17 * s + lift) * .5, (17 * s + lift) * .72, aura, t, fx.shield);
+      if (fx.weak) drawDizzy(g, U, s, t);
+      g.restore();
+      return { head: [x, oy + 17 * s - H * .8], chest: [x, oy + 17 * s - H * .6], top: [x, oy + 17 * s - H * .97], s, lift };
+    }
     if (ex.mantel) drawWings(g, U, s, aura, t, fx);
     // De ridder zelf (met wat meer massa als reuzenharnas).
     const img = Avatar.sprite(b.av, { k: Math.max(4, Math.min(16, Math.round(s))) });

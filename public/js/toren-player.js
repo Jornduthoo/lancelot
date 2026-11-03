@@ -99,7 +99,7 @@ socket.on('tw-state', s => {
     twCloseQuestion();
     const medals = ['🥇', '🥈', '🥉'];
     $('tw-end-medal').textContent = s.rescued ? '👑' : medals[s.rank - 1] || '🛡️';
-    $('tw-end-title').textContent = s.rank === 1 ? 'Jij wint de toren!' : `Plek ${s.rank} van ${s.players}`;
+    $('tw-end-title').textContent = s.rank === 1 && (s.floor > 0 || s.rescued) ? 'Jij wint de toren!' : `Plek ${s.rank} van ${s.players}`;
     $('tw-end-floor').textContent = s.rescued ? 'Prinses gered!' : `Verdieping ${s.floor}`;
     $('tw-end-extra').textContent = 'Kijk naar het bord voor de eindstand.';
     if (!$('tw-end').dataset.done && s.rank <= 3) confetti(4000);
