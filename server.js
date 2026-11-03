@@ -751,7 +751,11 @@ app.get('/lancelot-ping', (req, res) => res.json({ lancelot: true }));
 app.get('/resultaten/:file', (req, res) => {
   if (!isLeerkracht(req)) return res.status(403).end();
   try {
-    res.download(results.filePath(req.params.file));
+    const file = results.filePath(req.params.file);
+    // Het bestand blijft in het Nederlands bewaard; in een andere taal vertalen we bij het downloaden.
+    if (taal.huidig() === 'nl') return res.download(file);
+    res.attachment(req.params.file);
+    res.type('text/csv; charset=utf-8').send(taal.csv(fs.readFileSync(file, 'utf8')));
   } catch {
     res.status(404).end();
   }
@@ -765,7 +769,7 @@ app.get('/logboek/:what', (req, res) => {
       : what === 'doelenkaart' ? overzicht.kaartCsv() : null;
   if (!out) return res.status(404).type('text/plain; charset=utf-8').send('Niets gevonden in het logboek.');
   res.attachment(out.name);
-  res.type('text/csv; charset=utf-8').send(out.text);
+  res.type('text/csv; charset=utf-8').send(taal.csv(out.text));
 });
 // Exporteren: één item (?file=), een map (?folder=) of alles, als bestand om op een andere pc te importeren.
 app.get('/export/:kind', (req, res) => {

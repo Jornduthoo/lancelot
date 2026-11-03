@@ -27,6 +27,15 @@
       try { patronen.push({ re: new RegExp(bron), volgorde, uit: en, lit: nl.replace(/\{\d+\}/g, '').length }); } catch { /* ongeldig patroon */ }
     } else exact.set(nl, en);
   }
+  // `${Ui.ic('namen')} Namen` staat in het woordenboek als "{0} Namen", maar op het scherm is de tekst na het
+  // icoon een eigen tekstknoop: " Namen". Daarom ook de tekst zonder het icoon vooraan.
+  for (const [nl, en] of Object.entries(W)) {
+    if (typeof en !== 'string') continue;
+    const a = /^\{(\d+)\}\s+([^{}]+)$/.exec(nl);
+    const b = a && new RegExp(`^\\{${a[1]}\\}\\s+([^{}]+)$`).exec(en);
+    if (b && !exact.has(a[2].trim())) exact.set(a[2].trim(), b[1].trim());
+  }
+
   // Langste vaste tekst eerst: "Ronde {0} van {1}" gaat voor "{0} van {1}".
   patronen.sort((a, b) => b.lit - a.lit);
 
