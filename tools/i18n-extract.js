@@ -16,7 +16,7 @@ function isTekst(s) {
   if (/^[\w.-]+\.(js|css|html|png|webp|jpe?g|svg|json|mp3|wav|ogg|webm|mp4|gif|txt|csv|pdf|zip)(\?.*)?$/i.test(t)) return false;
   if (/^[a-z][\w-]*$/.test(t)) return false; // één woord in kleine letters: meestal een id of event
   if (/^[a-z0-9_-]+$/.test(t) && /[-_]/.test(t)) return false; // id-met-streepjes
-  if (/^[.#]?[a-z][\w-]*([ .#>:[][\w\-="'\]():.#> ]*)?$/.test(t) && !/[A-Z]/.test(t) && !/\b(de|het|een|en|is|van|je|niet|op|in|met|naar)\b/.test(t)) return false; // css-selector of klassen
+  if (/^[.#]?[a-z][\w-]*([ .#>:[][\w\-="'\]():.#> ]*)?$/.test(t) && !/[A-Z]/.test(t) && !/\b(de|het|een|en|is|van|je|niet|op|in|met|naar|tegen|door|voor|om|aan|bij|uit|over|te|nog|geen|als|of|maar|zijn|wordt|gaat|naast|tot|af|er|dan|ook|al|wat|wie|hoe|jij|jouw|we|wij|ze|zij|hij|klaar|juist|fout)\b/.test(t)) return false; // css-selector of klassen
   if (/^[\d\s.,:%+\-*/()px]*$/.test(t)) return false;
   if (/^(rgba?|hsla?|url|var|calc|translate|rotate|scale|linear-gradient|radial-gradient)\(/.test(t)) return false;
   if (/^(bold |italic |\d+px |\d+ )/.test(t) && /px|em|rem/.test(t) && /(sans|serif|mono|system|font|Cinzel|Arial|Inter|ui-)/i.test(t)) return false; // canvas-lettertype
@@ -26,7 +26,7 @@ function isTekst(s) {
   if (!/\s/.test(t) && /^[^aeiouyAEIOUY]*$/.test(t)) return false; // geen klinker: afkorting of code
   if ((t.match(/[A-Za-zÀ-ÿ]/g) || []).length < t.length * 0.4 && !/\{\d+\}/.test(t)) return false; // vooral tekens
   if (/^(application|text|image|audio|video)\//.test(t)) return false;
-  if (/^[A-Za-z]+[A-Z][a-z]+[A-Za-z]*$/.test(t) && !/\s/.test(t)) return false; // camelCase
+  if (/^[A-Za-z]+[A-Z][a-z]+[A-Za-z]*$/.test(t) && !/\s/.test(t) && !/^IJ[a-z]/.test(t)) return false; // camelCase
   return true;
 }
 
