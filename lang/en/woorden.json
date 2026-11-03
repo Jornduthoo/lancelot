@@ -26,7 +26,7 @@
  "reeksen": "series",
  "spel": "game",
  "spellen": "games",
- "ronde": "round",
+ "ronde": "lap",
  "rondes": "rounds",
  "juist": "correct",
  "fout": "wrong",
@@ -206,5 +206,10 @@
  "mollen": "moles",
  "munten": "coins",
  "sterren": "stars",
- "vlaggen": "flags"
+ "vlaggen": "flags",
+ "raadt": "guesses",
+ "raden": "guess",
+ "ronden": "laps",
+ "rijders": "riders",
+ "rijder": "rider"
 }
