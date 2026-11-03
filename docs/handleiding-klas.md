@@ -261,6 +261,14 @@ Tip: een klas die goed en vlot antwoordt, houdt de poort. Bij veel foute antwoor
 3. Is de plasma op, dan komt er een vraag. Juist: de kolk groeit en krijgt zuigkracht.
 4. Duelmodus: een veel grotere kolk slokt een kleinere op. Die wordt kleiner en mag meteen verder.
 
+## Neon-Camelot
+
+1. Kies **De Arena** en dan **Neon-Camelot**, kies de speeltijd en klik op de quiz. Klik op **De stad in!**
+2. Leerlingen rijden vrij door de stad met de muis, de pijltjes of hun duim.
+3. Bij een ⭐ verschijnt de knop **Koerier** of **Race**. Een juist antwoord start de missie: volg de gouden pijl of rij door de ringen.
+4. Is de energie op, dan komt er een vraag. Brandt er een huis, rij erheen en tik op **Blussen**.
+5. Met kristallen krijgen ze een hoverboard, een raketkar en een griffioen. Op het bord zie je de hele stad en het stadslicht van de klas.
+
 ## Tuimelridder
 
 1. Kies **De Arena** en dan **Tuimelridder**, kies de speeltijd en klik op de quiz. Klik op **Start!**

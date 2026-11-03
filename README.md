@@ -29,6 +29,7 @@ Het thema: middeleeuws met een scifi-kantje. Het startscherm heeft drie grote te
    - **Plasmapoort**: strafschoppen tegen 8 robotridders in het burchtstadion. Mik je plasmabal (richting, dan hoogte) en duik als keeper. Voor elke trap een vraag: juist = gouden bal en groot schild
    - **Haakridder**: slinger met je plasmahaak van kristalanker naar kristalanker door een zwevende burcht. Eén knop: ingedrukt = grijpen, loslaten = vliegen. Elke vlag is een vraag: juist = gouden haak
    - **Kolkridder**: stuur je gloeiende plasmakolk door een sci-fi ridderstad (2,5D, schuin van boven) en slok alles op wat kleiner is: munten, karren, huizen, torens, de burcht. Hoe meer je slokt, hoe groter je wordt. Plasma op = vraag: juist = groeien + zuigkracht. Met duelmodus
+   - **Neon-Camelot**: een grote open sci-fi ridderstad (2,5D, geschilderd) waar de hele klas tegelijk rondrijdt op robopaard, hoverboard, raketkar of griffioen. Missies (pakket bezorgen, race door ringen) starten met een vraag, branden blus je samen met juiste antwoorden, onderweg vang je glitchgnomen en raap je kristallen
    - **Titanenstrijd**: twee tot vier ploegen besturen elk een geschilderde reuzentitan op het bord. Elke leerling is één deel (zwaardarm, schildarm, kern, schouderkanon of benen). Juiste antwoorden laden je deel op; vol = je knop: slaan, vuren, blokken, ontwijken of herstellen. Alle delen samen juist binnen 10 seconden = Titanenslag. Ploegen eerlijk verdeeld op niveau.
    - **Tuimelridder**: stuntparcours met een ridder op een rare rijmachine (rakettroon, eenwieler, stoomton, zweeftroon): springplanken, hamers, laserpoorten en kanonnen. Raak je iets, dan tuimel je eraf. 5 parcoursen met sterren; elke vlag een vraag: juist = turbo
    - **Diepboor**: graaf met je boorridder naar goud, kristal en neonkernen. Goede antwoorden geven brandstof; in de smidse koop je een betere boor
@@ -286,6 +287,19 @@ Elke leerling stuurt een **plasmakolk** door dezelfde ridderstad, schuin van bov
 - Het bord toont de hele stad met alle kolken en namen, rechts de stand (breedte van elke kolk).
 - Chromebook: de kolk volgt de muis, of pijltjes / WASD / ZQSD, 1-4 antwoorden. Gsm: duim op het scherm en schuiven. Elk antwoord komt in het logboek. Resultaten in `resultaten/`. Ook als taak (alleen in een spel).
 - Jorns geschilderde beelden staan in `public/img/kolkridder/` (één webp per voorwerp + `grond`); ontbreekt er een, dan tekent het spel een tijdelijk voorwerp.
+
+## Neon-Camelot
+
+Een grote open stad, schuin van boven gezien: een haven, een bos, een berg met een ruimtehaven, woonwijken, een markt, een neonwijk en een burcht in het midden. De hele klas rijdt er tegelijk vrij rond. Niemand valt uit en niemand kan een ander iets afnemen.
+
+- **Voertuigen**: iedereen begint op een robopaard. Met kristallen krijg je een hoverboard (6, rijdt over water), een raketkar (15, heel snel op de weg) en een griffioen (30, vliegt over alles). Wisselen met de knop links onder of V.
+- **Missies** (⭐ aan de straat, 13 plekken): een pakket bezorgen in een andere wijk of een race door de ringen. Een missie start pas na een juist antwoord; fout = even wachten. Op tijd = kristallen, snel bezorgd = extra.
+- **Energie op = vraag** (ongeveer elke 40 seconden): juist = volle energie en 1 kristal. Fout = een beetje energie, die vraag komt later terug. Tijdens een vraag sta je stil.
+- **De stad leeft**: om de zoveel tijd brandt er een huis (rij erheen en blus met juiste antwoorden, de waterdraak spuit; iedereen die hielp krijgt kristallen) of valt er een kristalregen in een wijk. Glitchgnomen lopen weg van wie dichtbij komt: raak er een en je hebt hem.
+- **Stadslicht**: alle kristallen van de klas samen laten de stad in 10 stappen oplichten.
+- Het bord toont de hele stad met alle ridders, rechts de stand (kristallen), het stadslicht en wat er gebeurt.
+- Chromebook: de ridder volgt de muis, of pijltjes / WASD / ZQSD, spatie = actie, V = voertuig, 1-4 antwoorden. Gsm: duim op het scherm en schuiven, knoppen onderaan. Elk antwoord komt in het logboek. Resultaten in `resultaten/`.
+- Geschilderde beelden in `public/img/neoncamelot/` (gebouwen, voertuigen, gnoom, vuur, grondtegels `t-*`). De grond en de gebouwen worden per stuk van 32 m één keer gebakken, zo blijft het vlot op een Chromebook.
 
 ## Tuimelridder
 

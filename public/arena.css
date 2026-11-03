@@ -666,6 +666,38 @@ body:not([data-ko="1"]) #kolk { display: none !important; }
 #ko-power { color: #ffe17a; box-shadow: 0 0 12px rgb(var(--k-goud) / .6); }
 .ko-plasma i { background: linear-gradient(90deg, #7b5cff, #5ae6ff); }
 @media (max-width: 520px) { #ry-game .ry-alive { display: none; } }
+/* Neon-Camelot */
+body[data-nc="1"] main > :not(#camelot) { display: none !important; }
+body:not([data-nc="1"]) #camelot { display: none !important; }
+#camelot { display: contents; }
+.nc-hud { gap: 10px; }
+.nc-stage { touch-action: none; user-select: none; -webkit-user-select: none; cursor: crosshair; }
+#nc-game .ak-question { z-index: 6; }
+#nc-kr { transition: transform .15s; }
+#nc-kr.pop { animation: nc-pop .4s ease-out; }
+@keyframes nc-pop { 40% { transform: scale(1.35); } }
+@keyframes nc-puls { 50% { transform: scale(1.07); } }
+.nc-energie i { background: linear-gradient(90deg, #4ade80, #5ae6ff); }
+.nc-missie { color: rgb(var(--k-goud)); padding: 3px 10px; border-radius: 999px; background: rgb(var(--k-goud) / .12); box-shadow: inset 0 0 0 1px rgb(var(--k-goud) / .5); }
+.nc-missie.low { color: #ffb3c0; animation: breathe .8s ease-in-out infinite; }
+.nc-stage .ls-btn { position: absolute; bottom: 16px; z-index: 3; }
+.nc-voertuig { left: 14px; width: 78px; height: 78px; font-size: 1.9rem; background: rgb(var(--k-cyan) / .16); box-shadow: inset 0 0 0 2px rgb(var(--k-cyan) / .7); }
+.nc-voertuig.nieuw { background: radial-gradient(circle at 40% 35%, #fff6c9, rgb(var(--k-goud))); box-shadow: 0 0 22px rgb(var(--k-goud) / .8); animation: breathe 1.2s ease-in-out infinite; }
+.nc-actie { right: 16px; width: 112px; height: 112px; font-size: 2.6rem; background: radial-gradient(circle at 40% 35%, #fff6c9, rgb(var(--k-goud))); box-shadow: 0 0 26px rgb(var(--k-goud) / .75); color: #2a1a00; animation: nc-puls 1.1s ease-in-out infinite; }
+.nc-actie[data-soort="blus"] { background: radial-gradient(circle at 40% 35%, #e6fbff, #3bb8ff); box-shadow: 0 0 26px rgba(59, 184, 255, .8); }
+.nc-actie small { color: inherit; }
+.nc-licht { padding: 10px 12px; }
+.nc-licht p { margin: 0 0 6px; }
+.nc-lichtbalk { width: 100%; height: 12px; }
+.nc-lichtbalk i { background: linear-gradient(90deg, #ffe17a, #ff9be6, #5ae6ff); }
+@media (max-width: 520px), (max-height: 420px) {
+  .nc-actie { width: 92px; height: 92px; font-size: 2.1rem; }
+  .nc-voertuig { width: 64px; height: 64px; font-size: 1.5rem; }
+  #nc-game .ry-alive { display: none; }
+  .nc-missie { font-size: .78rem; padding: 2px 8px; }
+}
+.nc-energie { flex: 0 0 auto; min-width: 70px; }
+
 
 /* ---------- Titanenstrijd ---------- */
 body[data-ti="1"] main > :not(#titan) { display: none !important; }
