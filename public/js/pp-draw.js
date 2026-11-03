@@ -31,7 +31,7 @@ const PpDraw = (() => {
   // Zijn ze er, dan tekenen we die in plaats van de getekende figuren. De blauwe delen van de ridder kleuren we
   // naar de kleur van de leerling, de robot krijgt een tint per tegenstander. Elk gekleurd beeld bakken we één keer.
   const ART = {};
-  const ART_NAMES = ['keeper-robot', 'duik-robot', 'keeper-ridder', 'duik-ridder', 'schiet-ridder', 'schiet-robot', 'stadion'];
+  const ART_NAMES = ['keeper-robot', 'duik-robot', 'keeper-ridder', 'duik-ridder', 'schiet-ridder', 'schiet-robot', 'schiet-ridder-staan', 'schiet-robot-staan', 'stadion'];
   if (typeof Image !== 'undefined') {
     for (const n of ART_NAMES) {
       const img = new Image();
@@ -641,7 +641,10 @@ const PpDraw = (() => {
   }
 
   function shooterArt(g, Lo, o) {
-    const img = o.mech ? tinted('schiet-robot', o.color, 'blauw') : tinted('schiet-ridder', o.color, 'blauw');
+    // Staan (beide voeten op de grond) tot de trap; alleen tijdens de trap het beeld met het been omhoog.
+    const base = o.mech ? 'schiet-robot' : 'schiet-ridder';
+    const pose = (o.kick || 0) > .05 || !has(base + '-staan') ? base : base + '-staan';
+    const img = tinted(pose, o.color, 'blauw');
     const spot = ground(Lo, 0, 1);
     const k = ease(clamp(o.run || 0, 0, 1));
     const H = Math.min(Lo.GH * .98, Lo.GW * .45) * lerp(1.2, 1, k);
