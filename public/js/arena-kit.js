@@ -338,6 +338,17 @@ const AK = (() => {
     ctx.fill();
     // Aura of schild
     if (o.glow) glow(ctx, 0, 0, r * 2.4, o.glow, 1);
+    if (o.sprite) {
+      // Geschilderde held (kijkt naar rechts): niet draaien maar spiegelen als hij naar links kijkt, licht deinend.
+      const img = o.sprite, size = r * 3.3 * (1 + (o.moving ? Math.sin(t * 9) * .025 : 0));
+      const k = size / Math.max(img.width, img.height);
+      if (Math.cos(a) < -.1) ctx.scale(-1, 1);
+      ctx.drawImage(img, -img.width * k / 2, -img.height * k / 2, img.width * k, img.height * k);
+      ctx.restore();
+      if (o.hp !== undefined && o.hp < 100) bar(ctx, x, y - r - 12, r * 2.2, o.hp / 100, o.hpColor);
+      if (o.name) label(ctx, o.name, x, y - r - (o.hp !== undefined && o.hp < 100 ? 20 : 12), o.me ? '#ffc94a' : '#e8f1ff');
+      return;
+    }
     ctx.rotate(a);
     // Cape die achter je aan wappert, met een lichtende zoom
     const wave = Math.sin(t * 9) * (o.moving ? 3 : 1);
