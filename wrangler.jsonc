@@ -1,0 +1,9 @@
+// Cloudflare: de website van LANcelot (website/site) als statische site. De app zelf draait nooit bij Cloudflare.
+{
+  "name": "lancelot",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./website/site",
+    "not_found_handling": "none"
+  }
+}
