@@ -50,6 +50,11 @@
       }
     ]
   },
+  "video": {
+    "titel": "LANcelot in Aktion",
+    "knop": "Video abspielen",
+    "noot": "Das Video liegt auf YouTube. Dein Browser verbindet sich erst mit YouTube, wenn du auf Abspielen klickst."
+  },
   "schermen": {
     "titel": "Echte Bildschirme aus LANcelot",
     "bord": "Die Tafel: alles beginnt in fünf Hallen",
@@ -96,6 +101,29 @@
       "Gevecht in de arena": "Kampf in der Arena"
     }
   },
+  "spel": {
+    "terug": "Alle Spiele",
+    "meer": "Spiel ansehen",
+    "schermen": "So sieht es aus",
+    "bord": "An der Tafel",
+    "chromebook": "Auf dem Chromebook",
+    "gsm": "Auf dem Handy",
+    "vorm": "So wird gespielt",
+    "juist": "Richtige Antwort",
+    "quiz": "Lernstoff",
+    "quizTekst": "Mit jedem Quiz aus der Schmiede: selbst gemacht oder mit KI.",
+    "toestellen": "Die Kinder spielen auf",
+    "toestellenTekst": "Chromebook, Laptop, Tablet oder Handy, im Browser",
+    "vorige": "Vorheriges Spiel",
+    "volgende": "Nächstes Spiel",
+    "vormen": {
+      "ieder": "Jeder für sich",
+      "ploegen": "In Teams",
+      "samen": "Die ganze Klasse zusammen",
+      "duel": "Eins gegen eins",
+      "leerkracht": "Klasse gegen Lehrkraft"
+    }
+  },
   "ai": {
     "titel": "Unterrichtsmaterial in Sekunden, mit KI",
     "tekst": "Gib ein Thema und die Klassenstufe an oder ziehe ein Foto deines Lehrbuchs hinein. Die KI erstellt ein Quiz, ein Arbeitsblatt oder eine ganze Reihe pro Stunde, auf drei Niveaus.",
@@ -121,6 +149,32 @@
       {
         "naam": "Ritter",
         "tekst": "Eine Herausforderung für alle, die weiter können"
+      }
+    ]
+  },
+  "opvolgen": {
+    "titel": "Begleiten, Förderung und Zeugnisse",
+    "tekst": "Jede Antwort landet im Logbuch, verknüpft mit den Lehrplanzielen. So siehst du sofort, wer Hilfe braucht, und dein Zeugnis füllt sich fast von selbst.",
+    "lijst": [
+      {
+        "id": "zorg",
+        "naam": "Förderübersicht",
+        "tekst": "Wer am meisten Aufmerksamkeit braucht, steht oben. Du siehst, welche Ziele die ganze Klasse wiederholen sollte, wer an den Fördertisch kommt und welche Denkfehler oft vorkommen."
+      },
+      {
+        "id": "taken",
+        "naam": "Aufgaben pro Kind",
+        "tekst": "Gib ein Quiz oder Arbeitsblatt an ein Kind oder eine kleine Gruppe, jedes auf seinem Niveau. Auch von zu Hause vorzubereiten."
+      },
+      {
+        "id": "zegelrol",
+        "naam": "Die Siegelrolle: dein Zeugnis",
+        "tekst": "Die Tests kommen pro Fach von selbst hinein. Du ergänzt Symbole, Kommentare und das Logo deiner Schule."
+      },
+      {
+        "id": "postduif",
+        "naam": "Die Brieftaube: ein Brief nach Hause",
+        "tekst": "Pro Kind ein Brief mit dem korrigierten Test, was schon klappt, was noch zu üben ist und Neuigkeiten aus der Klasse."
       }
     ]
   },

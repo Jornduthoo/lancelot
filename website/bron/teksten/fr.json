@@ -50,6 +50,11 @@
       }
     ]
   },
+  "video": {
+    "titel": "Découvre LANcelot en action",
+    "knop": "Lancer la vidéo",
+    "noot": "La vidéo est sur YouTube. Ton navigateur ne se connecte à YouTube que quand tu cliques sur lecture."
+  },
   "schermen": {
     "titel": "De vrais écrans de LANcelot",
     "bord": "Le tableau : tout part de cinq salles",
@@ -96,6 +101,29 @@
       "Gevecht in de arena": "Combat dans l’arène"
     }
   },
+  "spel": {
+    "terug": "Tous les jeux",
+    "meer": "Voir le jeu",
+    "schermen": "À quoi ça ressemble",
+    "bord": "Au tableau",
+    "chromebook": "Sur Chromebook",
+    "gsm": "Sur téléphone",
+    "vorm": "Comment on joue",
+    "juist": "Bonne réponse",
+    "quiz": "Matière",
+    "quizTekst": "Avec chaque quiz de la Forge : le tien ou créé par l’IA.",
+    "toestellen": "Les élèves jouent sur",
+    "toestellenTekst": "Chromebook, portable, tablette ou téléphone, dans le navigateur",
+    "vorige": "Jeu précédent",
+    "volgende": "Jeu suivant",
+    "vormen": {
+      "ieder": "Chacun pour soi",
+      "ploegen": "En équipes",
+      "samen": "Toute la classe ensemble",
+      "duel": "Un contre un",
+      "leerkracht": "La classe contre l’enseignant"
+    }
+  },
   "ai": {
     "titel": "Du matériel de cours en quelques secondes, avec l’IA",
     "tekst": "Donne un sujet et l’année, ou ajoute une photo de ton manuel. L’IA crée un quiz, une fiche ou toute une série par leçon, sur trois niveaux.",
@@ -121,6 +149,32 @@
       {
         "naam": "Chevalier",
         "tekst": "Un défi pour ceux qui peuvent aller plus loin"
+      }
+    ]
+  },
+  "opvolgen": {
+    "titel": "Suivi, accompagnement et bulletins",
+    "tekst": "Chaque réponse va dans le journal, liée aux objectifs du programme. Tu vois tout de suite qui a besoin d’aide, et ton bulletin se remplit presque tout seul.",
+    "lijst": [
+      {
+        "id": "zorg",
+        "naam": "Vue d’accompagnement",
+        "tekst": "Les élèves qui demandent le plus d’attention sont en haut. Tu vois quels objectifs revoir avec toute la classe, qui doit venir à la table d’instruction et quelles erreurs reviennent souvent."
+      },
+      {
+        "id": "taken",
+        "naam": "Tâches par élève",
+        "tekst": "Prépare un quiz ou une fiche pour un élève ou un petit groupe, chacun à son niveau. Aussi depuis la maison."
+      },
+      {
+        "id": "zegelrol",
+        "naam": "Le Rouleau scellé : ton bulletin",
+        "tekst": "Les tests y arrivent tout seuls, par matière. Tu ajoutes les symboles, les commentaires et le logo de ton école."
+      },
+      {
+        "id": "postduif",
+        "naam": "Le Pigeon voyageur : une lettre pour la maison",
+        "tekst": "Par élève, une lettre avec le test corrigé, ce qui va déjà bien, ce qu’il faut encore exercer et des nouvelles de la classe."
       }
     ]
   },
