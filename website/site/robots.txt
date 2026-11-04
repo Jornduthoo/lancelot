@@ -1,3 +1,3 @@
 User-agent: *
 Allow: /
-Sitemap: https://lancelot.pages.dev/sitemap.xml
+Sitemap: https://lancelot.network/sitemap.xml

@@ -121,6 +121,7 @@ ${main}
   <footer class="voet">
     <img src="${root}img/mark.webp" alt="" width="48" height="48" loading="lazy">
     <p>${esc(t.voet.door)}</p>
+    ${CONFIG.email ? `<p class="contact">${esc(t.voet.contact)} <a href="mailto:${esc(CONFIG.email)}">${esc(CONFIG.email)}</a></p>` : ''}
     <nav class="voet-talen" aria-label="${esc(t.voet.taal)}">${talenLinks}</nav>
     <p class="klein">${esc(t.voet.rechten)}</p>
   </footer>
@@ -275,6 +276,7 @@ ${(CONFIG.videos || {})[taal] ? `    <section class="blok" id="video">
       <p class="intro">${esc(t.download.tekst)}</p>
       <p class="binnenkort">${esc(t.nav.download)}</p>
       <p class="noot">${esc(t.download.noot)}</p>
+      ${CONFIG.email ? `<p class="contact">${esc(t.voet.contact)} <a href="mailto:${esc(CONFIG.email)}">${esc(CONFIG.email)}</a></p>` : ''}
     </section>
 
     <section class="blok" id="faq">
