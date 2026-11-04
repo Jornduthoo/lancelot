@@ -1,0 +1,221 @@
+{
+  "taalNaam": "Français",
+  "taalWenk": "Cette page existe aussi en français →",
+  "titel": "LANcelot · Quiz, sondages et jeux de classe sur ton propre réseau de classe",
+  "omschrijving": "Application de classe gratuite pour les enseignants : quiz en direct, sondages, {n} jeux et fiches d’exercices par IA. Elle tourne sur le PC de ta classe, les élèves jouent dans leur navigateur.",
+  "nav": {
+    "hallen": "Ce qu’il contient",
+    "spellen": "Jeux",
+    "ai": "IA",
+    "privacy": "Vie privée",
+    "faq": "Questions",
+    "download": "Bientôt"
+  },
+  "hero": {
+    "kicker": "Créé par un enseignant, pour la classe",
+    "titel": "Quiz, sondages et {n} jeux. Sur ton propre réseau de classe.",
+    "tekst": "LANcelot tourne sur le PC de ta classe. Les élèves scannent le code QR au tableau et jouent sur leur Chromebook, leur tablette ou leur téléphone. Sans compte, sans abonnement, sans limite d’élèves ni de questions.",
+    "knop": "Bientôt disponible",
+    "knop2": "Voir les jeux",
+    "noot": "Gratuit pour les enseignants · Bientôt disponible · Les élèves jouent dans le navigateur"
+  },
+  "punten": [
+    {
+      "titel": "Gratuit",
+      "tekst": "Pas d’essai, pas de mur payant. Tout est inclus."
+    },
+    {
+      "titel": "Local",
+      "tekst": "Le jeu passe par le réseau de l’école. Rapide, même avec 30 appareils en même temps."
+    },
+    {
+      "titel": "Privé",
+      "tekst": "Les noms et les résultats restent sur le PC de ta classe."
+    }
+  ],
+  "stappen": {
+    "titel": "Comment ça marche",
+    "lijst": [
+      {
+        "titel": "Lance LANcelot",
+        "tekst": "Un double-clic sur le PC de la classe. L’écran de l’enseignant s’ouvre au tableau."
+      },
+      {
+        "titel": "Les élèves scannent",
+        "tekst": "Ils scannent le code QR ou tapent l’adresse. Un prénom et c’est parti."
+      },
+      {
+        "titel": "Jouer et apprendre",
+        "tekst": "Tu choisis le quiz et le jeu. La classe joue, tu suis tout en direct."
+      }
+    ]
+  },
+  "schermen": {
+    "titel": "De vrais écrans de LANcelot",
+    "bord": "Le tableau : tout part de cinq salles",
+    "gsm": "L’écran de l’élève"
+  },
+  "hallen": {
+    "titel": "Cinq salles, une seule façon de travailler",
+    "tekst": "Chaque partie a une icône et une phrase d’explication. Qui connaît une salle les connaît toutes.",
+    "lijst": [
+      {
+        "id": "arena",
+        "naam": "L’Arène",
+        "tekst": "S’exercer en jouant avec tes propres quiz : quiz rapides, duels, jeux d’équipe et aventures."
+      },
+      {
+        "id": "ronde-tafel",
+        "naam": "La Table ronde",
+        "tekst": "Interroger toute la classe : sondages, affirmations, nuages de mots, questions ouvertes et cercles de parole."
+      },
+      {
+        "id": "smidse",
+        "naam": "La Forge",
+        "tekst": "Crée des quiz, des fiches et des tests, avec l’IA ou toi-même. En direct ou sur papier avec corrigé."
+      },
+      {
+        "id": "wapenkamer",
+        "naam": "L’Armurerie",
+        "tekst": "Des outils de classe au tableau : tirage au sort, groupes, minuteur, sonomètre, dés et responsabilités."
+      },
+      {
+        "id": "kronieken",
+        "naam": "Les Chroniques",
+        "tekst": "Tes manuels, ta planification et ta classe : enseigner, suivre et rendre compte."
+      }
+    ]
+  },
+  "spellen": {
+    "titel": "{n} jeux pour ta propre matière",
+    "tekst": "Chaque jeu fonctionne avec chaque quiz. Les bonnes réponses donnent du carburant, des munitions, de l’énergie ou un pouvoir. Qui répond juste va plus loin.",
+    "groepen": {
+      "Quiz en duel": "Quiz et duel",
+      "Samen spelen": "Jouer ensemble",
+      "Race en avontuur": "Course et aventure",
+      "Gevecht in de arena": "Combat dans l’arène"
+    }
+  },
+  "ai": {
+    "titel": "Du matériel de cours en quelques secondes, avec l’IA",
+    "tekst": "Donne un sujet et l’année, ou ajoute une photo de ton manuel. L’IA crée un quiz, une fiche ou toute une série par leçon, sur trois niveaux.",
+    "lijst": [
+      "Gratuit avec Gemini, ChatGPT ou Claude : LANcelot copie la consigne, tu recolles la réponse.",
+      "Ou entre ta propre clé et tout se fait en un clic.",
+      "Les fiches se jouent en direct en classe ou s’impriment avec corrigé.",
+      "Seule la création avec l’IA a besoin d’internet. Le jeu passe par le réseau de la classe."
+    ]
+  },
+  "niveaus": {
+    "titel": "Chaque élève à son niveau",
+    "tekst": "Par matière, tu choisis un niveau pour chaque élève. Les quiz, fiches et tâches s’adaptent.",
+    "lijst": [
+      {
+        "naam": "Page",
+        "tekst": "Plus de soutien et des questions plus simples"
+      },
+      {
+        "naam": "Écuyer",
+        "tekst": "La matière habituelle"
+      },
+      {
+        "naam": "Chevalier",
+        "tekst": "Un défi pour ceux qui peuvent aller plus loin"
+      }
+    ]
+  },
+  "motivatie": {
+    "titel": "Pourquoi les élèves l’attendent chaque jour",
+    "lijst": [
+      {
+        "id": "ridder",
+        "naam": "Leur propre chevalier",
+        "tekst": "Casque, armure, arme et bouclier au choix. Le chevalier joue dans chaque jeu."
+      },
+      {
+        "id": "klaseiland",
+        "naam": "L’Île de la classe",
+        "tekst": "Avec l’Honneur gagné par l’effort et les progrès, chaque élève bâtit son château. Sans classement."
+      },
+      {
+        "id": "huisdier",
+        "naam": "Mon compagnon",
+        "tekst": "Un œuf qui éclôt et grandit. Aucune punition."
+      },
+      {
+        "id": "runenraadsel",
+        "naam": "L’Énigme des runes",
+        "tekst": "Chaque jour un mot secret à deviner, sur trois niveaux."
+      }
+    ]
+  },
+  "privacy": {
+    "titel": "Les données des élèves restent dans ta classe",
+    "lijst": [
+      "LANcelot tourne sur ton propre PC. Pas de cloud, pas de compte élève.",
+      "Les noms, réponses et résultats sont dans un dossier sur ce PC. C’est toi qui décides.",
+      "Pas de publicité, pas de pistage, pas de frais cachés.",
+      "Si tu utilises l’IA, seule ta consigne (sujet ou matériel de cours) part vers l’IA que tu choisis. Aucun nom d’élève."
+    ]
+  },
+  "toestellen": {
+    "titel": "Fonctionne avec ce que ta classe possède déjà",
+    "lijst": [
+      {
+        "naam": "Tableau interactif ou écran",
+        "tekst": "L’écran de l’enseignant et le jeu"
+      },
+      {
+        "naam": "Chromebooks et portables",
+        "tekst": "Simplement dans le navigateur"
+      },
+      {
+        "naam": "Tablettes et téléphones",
+        "tekst": "Scanne le code QR et joue"
+      }
+    ]
+  },
+  "talen": {
+    "titel": "En cinq langues",
+    "tekst": "Néerlandais, anglais, français, espagnol et allemand. Choisis la langue dans les réglages et chaque écran change, aussi chez les élèves."
+  },
+  "download": {
+    "titel": "Fais entrer LANcelot dans ta classe",
+    "tekst": "LANcelot sera bientôt disponible. Gratuit pour les enseignants et les écoles.",
+    "noot": "Il te faut seulement un PC Windows en classe. Les élèves jouent dans leur navigateur."
+  },
+  "faq": {
+    "titel": "Questions fréquentes",
+    "lijst": [
+      {
+        "v": "LANcelot est-il vraiment gratuit ?",
+        "a": "Oui. Les enseignants et les écoles utilisent LANcelot gratuitement dans leurs propres cours. Il n’existe pas de version payante avec plus de jeux."
+      },
+      {
+        "v": "Ai-je besoin d’internet ?",
+        "a": "Le jeu passe par le réseau local de l’école : le PC et les appareils des élèves doivent être sur le même réseau. Seule la création de matériel avec l’IA a besoin d’internet."
+      },
+      {
+        "v": "Les élèves doivent-ils créer un compte ?",
+        "a": "Non. Ils tapent leur prénom et jouent. LANcelot garde leur chevalier et leurs résultats sur le PC de la classe."
+      },
+      {
+        "v": "Combien d’élèves peuvent jouer ?",
+        "a": "Il n’y a pas de limite. Une classe de trente joue sans souci, sur Chromebooks, tablettes et téléphones mélangés."
+      },
+      {
+        "v": "De quoi ai-je besoin ?",
+        "a": "Un PC Windows (souvent celui du tableau), le réseau de l’école et des appareils avec un navigateur pour les élèves."
+      },
+      {
+        "v": "Puis-je utiliser ma propre matière ?",
+        "a": "Bien sûr. Crée tes quiz toi-même, laisse l’IA les faire à partir de ton manuel ou d’un PDF, et range tout dans des dossiers par matière et par leçon."
+      }
+    ]
+  },
+  "voet": {
+    "door": "LANcelot est créé par Jorn Duthoo, enseignant en primaire en Belgique.",
+    "rechten": "© 2026 Jorn Duthoo. Tous droits réservés.",
+    "taal": "Langue"
+  }
+}

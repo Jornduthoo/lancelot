@@ -1,0 +1,221 @@
+{
+  "taalNaam": "Deutsch",
+  "taalWenk": "Diese Seite gibt es auch auf Deutsch →",
+  "titel": "LANcelot · Quiz, Umfragen und Klassenspiele im eigenen Klassennetz",
+  "omschrijving": "Kostenlose Klassen-App für Lehrkräfte: Live-Quiz, Umfragen, {n} Spiele und Arbeitsblätter mit KI. Läuft auf dem PC in deiner Klasse, die Kinder spielen im Browser mit.",
+  "nav": {
+    "hallen": "Was drin ist",
+    "spellen": "Spiele",
+    "ai": "KI",
+    "privacy": "Datenschutz",
+    "faq": "Fragen",
+    "download": "Bald"
+  },
+  "hero": {
+    "kicker": "Von einer Lehrkraft gemacht, für die Klasse",
+    "titel": "Quiz, Umfragen und {n} Spiele. Im eigenen Klassennetz.",
+    "tekst": "LANcelot läuft auf dem PC in deiner Klasse. Die Kinder scannen den QR-Code an der Tafel und spielen auf Chromebook, Tablet oder Handy mit. Keine Konten, kein Abo, keine Grenze bei Kindern oder Fragen.",
+    "knop": "Bald verfügbar",
+    "knop2": "Spiele ansehen",
+    "noot": "Kostenlos für Lehrkräfte · Bald verfügbar · Die Kinder spielen im Browser"
+  },
+  "punten": [
+    {
+      "titel": "Kostenlos",
+      "tekst": "Keine Testphase, keine Bezahlschranke. Alles ist dabei."
+    },
+    {
+      "titel": "Lokal",
+      "tekst": "Gespielt wird über das Schulnetz. Schnell, auch mit 30 Geräten gleichzeitig."
+    },
+    {
+      "titel": "Privat",
+      "tekst": "Namen und Ergebnisse bleiben auf dem PC in deiner Klasse."
+    }
+  ],
+  "stappen": {
+    "titel": "So funktioniert es",
+    "lijst": [
+      {
+        "titel": "LANcelot starten",
+        "tekst": "Doppelklick auf dem Klassen-PC. Der Lehrerbildschirm öffnet sich an der Tafel."
+      },
+      {
+        "titel": "Die Kinder scannen",
+        "tekst": "Sie scannen den QR-Code oder tippen die Adresse ein. Namen eingeben, fertig."
+      },
+      {
+        "titel": "Spielen und lernen",
+        "tekst": "Du wählst Quiz und Spiel. Die Klasse spielt mit, du verfolgst alles live."
+      }
+    ]
+  },
+  "schermen": {
+    "titel": "Echte Bildschirme aus LANcelot",
+    "bord": "Die Tafel: alles beginnt in fünf Hallen",
+    "gsm": "Der Bildschirm der Kinder"
+  },
+  "hallen": {
+    "titel": "Fünf Hallen, eine Arbeitsweise",
+    "tekst": "Jeder Teil hat ein Symbol und einen Satz Erklärung. Wer eine Halle kennt, kennt alle.",
+    "lijst": [
+      {
+        "id": "arena",
+        "naam": "Die Arena",
+        "tekst": "Spielend üben mit deinen eigenen Quiz: schnelle Quiz, Duelle, Teamspiele und Abenteuer."
+      },
+      {
+        "id": "ronde-tafel",
+        "naam": "Die Tafelrunde",
+        "tekst": "Die ganze Klasse befragen: Umfragen, Aussagen, Wortwolken, offene Fragen und Gesprächskreise."
+      },
+      {
+        "id": "smidse",
+        "naam": "Die Schmiede",
+        "tekst": "Erstelle Quiz, Arbeitsblätter und Tests, mit KI oder selbst. Live spielen oder auf Papier mit Lösungsblatt."
+      },
+      {
+        "id": "wapenkamer",
+        "naam": "Die Waffenkammer",
+        "tekst": "Klassenwerkzeuge an der Tafel: Losrad, Gruppen, Timer, Lautstärkemesser, Würfel und Klassendienste."
+      },
+      {
+        "id": "kronieken",
+        "naam": "Die Chroniken",
+        "tekst": "Deine Lehrbücher, deine Planung und deine Klasse: unterrichten, begleiten und berichten."
+      }
+    ]
+  },
+  "spellen": {
+    "titel": "{n} Spiele für deinen eigenen Stoff",
+    "tekst": "Jedes Spiel läuft mit jedem Quiz. Richtige Antworten geben Treibstoff, Munition, Energie oder eine Kraft. Wer richtig antwortet, kommt weiter.",
+    "groepen": {
+      "Quiz en duel": "Quiz und Duell",
+      "Samen spelen": "Zusammen spielen",
+      "Race en avontuur": "Rennen und Abenteuer",
+      "Gevecht in de arena": "Kampf in der Arena"
+    }
+  },
+  "ai": {
+    "titel": "Unterrichtsmaterial in Sekunden, mit KI",
+    "tekst": "Gib ein Thema und die Klassenstufe an oder ziehe ein Foto deines Lehrbuchs hinein. Die KI erstellt ein Quiz, ein Arbeitsblatt oder eine ganze Reihe pro Stunde, auf drei Niveaus.",
+    "lijst": [
+      "Kostenlos mit Gemini, ChatGPT oder Claude: LANcelot kopiert den Auftrag, du fügst die Antwort wieder ein.",
+      "Oder gib deinen eigenen Schlüssel ein und alles geht mit einem Klick.",
+      "Arbeitsblätter spielst du live in der Klasse oder druckst sie mit Lösungsblatt.",
+      "Nur das Erstellen mit KI braucht Internet. Gespielt wird über das Klassennetz."
+    ]
+  },
+  "niveaus": {
+    "titel": "Jedes Kind auf seinem Niveau",
+    "tekst": "Pro Fach wählst du für jedes Kind ein Niveau. Quiz, Arbeitsblätter und Aufgaben passen sich an.",
+    "lijst": [
+      {
+        "naam": "Page",
+        "tekst": "Mehr Unterstützung und leichtere Fragen"
+      },
+      {
+        "naam": "Knappe",
+        "tekst": "Der normale Stoff"
+      },
+      {
+        "naam": "Ritter",
+        "tekst": "Eine Herausforderung für alle, die weiter können"
+      }
+    ]
+  },
+  "motivatie": {
+    "titel": "Warum sich die Kinder jeden Tag darauf freuen",
+    "lijst": [
+      {
+        "id": "ridder",
+        "naam": "Ihr eigener Ritter",
+        "tekst": "Helm, Rüstung, Waffe und Schild selbst gewählt. Der Ritter spielt in jedem Spiel mit."
+      },
+      {
+        "id": "klaseiland",
+        "naam": "Klasseninsel",
+        "tekst": "Mit Ehre für Einsatz und Fortschritt baut jedes Kind eine eigene Burg. Ohne Rangliste."
+      },
+      {
+        "id": "huisdier",
+        "naam": "Mein Haustier",
+        "tekst": "Ein Ei, das schlüpft und mitwächst. Strafen gibt es nicht."
+      },
+      {
+        "id": "runenraadsel",
+        "naam": "Das Runenrätsel",
+        "tekst": "Jeden Tag ein geheimes Wort zum Knacken, auf drei Niveaus."
+      }
+    ]
+  },
+  "privacy": {
+    "titel": "Die Daten der Kinder bleiben in deiner Klasse",
+    "lijst": [
+      "LANcelot läuft auf deinem eigenen PC. Keine Cloud und keine Konten für Kinder.",
+      "Namen, Antworten und Ergebnisse liegen in einem Ordner auf diesem PC. Du entscheidest, was damit passiert.",
+      "Keine Werbung, kein Tracking, keine versteckten Kosten.",
+      "Nutzt du KI, geht nur dein Auftrag (Thema oder Unterrichtsmaterial) an die KI deiner Wahl. Keine Namen der Kinder."
+    ]
+  },
+  "toestellen": {
+    "titel": "Läuft auf dem, was deine Klasse schon hat",
+    "lijst": [
+      {
+        "naam": "Digitale Tafel oder Bildschirm",
+        "tekst": "Der Lehrerbildschirm und das Spiel"
+      },
+      {
+        "naam": "Chromebooks und Laptops",
+        "tekst": "Einfach im Browser"
+      },
+      {
+        "naam": "Tablets und Handys",
+        "tekst": "QR-Code scannen und spielen"
+      }
+    ]
+  },
+  "talen": {
+    "titel": "In fünf Sprachen",
+    "tekst": "Niederländisch, Englisch, Französisch, Spanisch und Deutsch. Wähle die Sprache in den Einstellungen und jeder Bildschirm wechselt mit, auch bei den Kindern."
+  },
+  "download": {
+    "titel": "Hol LANcelot in deine Klasse",
+    "tekst": "LANcelot ist bald verfügbar. Kostenlos für Lehrkräfte und Schulen.",
+    "noot": "Du brauchst nur einen Windows-PC in der Klasse. Die Kinder spielen im Browser mit."
+  },
+  "faq": {
+    "titel": "Häufige Fragen",
+    "lijst": [
+      {
+        "v": "Ist LANcelot wirklich kostenlos?",
+        "a": "Ja. Lehrkräfte und Schulen nutzen LANcelot kostenlos im eigenen Unterricht. Es gibt keine Bezahlversion mit mehr Spielen."
+      },
+      {
+        "v": "Brauche ich Internet?",
+        "a": "Gespielt wird über das lokale Schulnetz: der PC und die Geräte der Kinder müssen im selben Netz sein. Nur das Erstellen von Material mit KI braucht Internet."
+      },
+      {
+        "v": "Brauchen die Kinder ein Konto?",
+        "a": "Nein. Sie tippen ihren Namen ein und spielen. LANcelot merkt sich ihren Ritter und ihre Ergebnisse auf dem Klassen-PC."
+      },
+      {
+        "v": "Wie viele Kinder können mitspielen?",
+        "a": "Es gibt keine Grenze. Eine ganze Klasse mit dreißig Kindern spielt flüssig, auf Chromebooks, Tablets und Handys gemischt."
+      },
+      {
+        "v": "Was brauche ich?",
+        "a": "Einen Windows-PC (meist den an der Tafel), das Schulnetz und Geräte mit Browser für die Kinder."
+      },
+      {
+        "v": "Kann ich meinen eigenen Stoff nutzen?",
+        "a": "Natürlich. Erstelle Quiz selbst, lass die KI sie aus deinem Lehrbuch oder einer PDF machen und ordne alles in Ordnern nach Fach und Stunde."
+      }
+    ]
+  },
+  "voet": {
+    "door": "LANcelot wurde von Jorn Duthoo gemacht, Grundschullehrer in Belgien.",
+    "rechten": "© 2026 Jorn Duthoo. Alle Rechte vorbehalten.",
+    "taal": "Sprache"
+  }
+}

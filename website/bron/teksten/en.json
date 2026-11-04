@@ -1,0 +1,221 @@
+{
+  "taalNaam": "English",
+  "taalWenk": "This page is also available in English →",
+  "titel": "LANcelot · Quizzes, polls and class games on your own classroom network",
+  "omschrijving": "Free classroom app for teachers: live quizzes, polls, {n} games and AI worksheets. Runs on the PC in your classroom, students join in their browser.",
+  "nav": {
+    "hallen": "What's inside",
+    "spellen": "Games",
+    "ai": "AI",
+    "privacy": "Privacy",
+    "faq": "FAQ",
+    "download": "Coming soon"
+  },
+  "hero": {
+    "kicker": "Made by a teacher, for the classroom",
+    "titel": "Quizzes, polls and {n} games. On your own classroom network.",
+    "tekst": "LANcelot runs on the PC in your classroom. Students scan the QR code on the board and play along on their Chromebook, tablet or phone. No accounts, no subscription, no limit on students or questions.",
+    "knop": "Coming soon",
+    "knop2": "See the games",
+    "noot": "Free for teachers · Coming soon · Students join in the browser"
+  },
+  "punten": [
+    {
+      "titel": "Free",
+      "tekst": "No trial, no paywall. Everything is included."
+    },
+    {
+      "titel": "Local",
+      "tekst": "Play runs over the school network. Fast, even with 30 devices at once."
+    },
+    {
+      "titel": "Private",
+      "tekst": "Names and results stay on the PC in your classroom."
+    }
+  ],
+  "stappen": {
+    "titel": "How it works",
+    "lijst": [
+      {
+        "titel": "Start LANcelot",
+        "tekst": "Double-click on the classroom PC. The teacher screen opens on the board."
+      },
+      {
+        "titel": "Students scan",
+        "tekst": "They scan the QR code or type the address. Enter a name and done."
+      },
+      {
+        "titel": "Play and learn",
+        "tekst": "You pick the quiz and the game. The class plays along, you follow everything live."
+      }
+    ]
+  },
+  "schermen": {
+    "titel": "Real screens from LANcelot",
+    "bord": "The board: everything starts from five halls",
+    "gsm": "The student screen"
+  },
+  "hallen": {
+    "titel": "Five halls, one way of working",
+    "tekst": "Every part has an icon and one sentence of explanation. Know one hall and you know them all.",
+    "lijst": [
+      {
+        "id": "arena",
+        "naam": "The Arena",
+        "tekst": "Practise through play with your own quizzes: quick quizzes, duels, team games and adventures."
+      },
+      {
+        "id": "ronde-tafel",
+        "naam": "The Round Table",
+        "tekst": "Ask the whole class: polls, statements, word clouds, open questions and circle time."
+      },
+      {
+        "id": "smidse",
+        "naam": "The Forge",
+        "tekst": "Make quizzes, worksheets and tests, with AI or by hand. Play them live or print them with an answer key."
+      },
+      {
+        "id": "wapenkamer",
+        "naam": "The Armoury",
+        "tekst": "Classroom tools on the board: picker, groups, timer, noise meter, dice and class jobs."
+      },
+      {
+        "id": "kronieken",
+        "naam": "The Chronicles",
+        "tekst": "Your textbooks, planning and class: teach, follow up and report."
+      }
+    ]
+  },
+  "spellen": {
+    "titel": "{n} games for your own lessons",
+    "tekst": "Every game plays with every quiz. Right answers give fuel, ammo, energy or a power. Answer well and you get further.",
+    "groepen": {
+      "Quiz en duel": "Quiz and duel",
+      "Samen spelen": "Play together",
+      "Race en avontuur": "Race and adventure",
+      "Gevecht in de arena": "Battle in the arena"
+    }
+  },
+  "ai": {
+    "titel": "Lesson material in seconds, with AI",
+    "tekst": "Give a topic and the grade, or drop in a photo of your textbook. The AI makes a quiz, a worksheet or a full set per lesson, on three levels.",
+    "lijst": [
+      "Works for free with Gemini, ChatGPT or Claude: LANcelot copies the prompt, you paste the answer back.",
+      "Or enter your own key and everything happens in one click.",
+      "Play worksheets live in class or print them with an answer key.",
+      "Only creating with AI needs the internet. Play runs over the classroom network."
+    ]
+  },
+  "niveaus": {
+    "titel": "Every student at their own level",
+    "tekst": "Per subject you choose a level for each student. Quizzes, worksheets and tasks adapt.",
+    "lijst": [
+      {
+        "naam": "Page",
+        "tekst": "Extra support and easier questions"
+      },
+      {
+        "naam": "Squire",
+        "tekst": "The regular content"
+      },
+      {
+        "naam": "Knight",
+        "tekst": "A challenge for those who can go further"
+      }
+    ]
+  },
+  "motivatie": {
+    "titel": "Why students look forward to it every day",
+    "lijst": [
+      {
+        "id": "ridder",
+        "naam": "Their own knight",
+        "tekst": "Helmet, armour, weapon and shield of their choice. The knight plays along in every game."
+      },
+      {
+        "id": "klaseiland",
+        "naam": "Class Island",
+        "tekst": "With Honour for effort and growth, every student builds their own castle. No leaderboard."
+      },
+      {
+        "id": "huisdier",
+        "naam": "My pet",
+        "tekst": "An egg that hatches and grows along. There is no punishment."
+      },
+      {
+        "id": "runenraadsel",
+        "naam": "The Rune Riddle",
+        "tekst": "A secret word to crack every day, on three levels."
+      }
+    ]
+  },
+  "privacy": {
+    "titel": "Student data stays in your classroom",
+    "lijst": [
+      "LANcelot runs on your own PC. No cloud and no student accounts.",
+      "Names, answers and results live in a folder on that PC. You decide what happens to them.",
+      "No ads, no tracking, no hidden costs.",
+      "If you use AI, only your prompt (topic or lesson material) goes to the AI you choose. No student names."
+    ]
+  },
+  "toestellen": {
+    "titel": "Works on what your class already has",
+    "lijst": [
+      {
+        "naam": "Whiteboard or screen",
+        "tekst": "The teacher screen and the game"
+      },
+      {
+        "naam": "Chromebooks and laptops",
+        "tekst": "Simply in the browser"
+      },
+      {
+        "naam": "Tablets and phones",
+        "tekst": "Scan the QR code and play"
+      }
+    ]
+  },
+  "talen": {
+    "titel": "In five languages",
+    "tekst": "Dutch, English, French, Spanish and German. Pick the language in the settings and every screen switches, students' screens too."
+  },
+  "download": {
+    "titel": "Bring LANcelot to your classroom",
+    "tekst": "LANcelot will be available soon. Free for teachers and schools.",
+    "noot": "All you need is a Windows PC in the classroom. Students join in their browser."
+  },
+  "faq": {
+    "titel": "Frequently asked questions",
+    "lijst": [
+      {
+        "v": "Is LANcelot really free?",
+        "a": "Yes. Teachers and schools use LANcelot for free in their own lessons. There is no paid version with extra games."
+      },
+      {
+        "v": "Do I need the internet?",
+        "a": "Play runs over the school's local network: the PC and the students' devices must be on the same network. Only creating lesson material with AI needs the internet."
+      },
+      {
+        "v": "Do students need an account?",
+        "a": "No. They type their name and play. LANcelot remembers their knight and results on the classroom PC."
+      },
+      {
+        "v": "How many students can play?",
+        "a": "There is no limit. A whole class of thirty plays smoothly, on Chromebooks, tablets and phones mixed."
+      },
+      {
+        "v": "What do I need?",
+        "a": "A Windows PC (usually the one connected to the board), the school network and devices with a browser for the students."
+      },
+      {
+        "v": "Can I use my own lesson content?",
+        "a": "Of course. Write quizzes yourself, let the AI make them from your own textbook or PDF, and sort everything into folders per subject and lesson."
+      }
+    ]
+  },
+  "voet": {
+    "door": "LANcelot is made by Jorn Duthoo, a primary school teacher in Belgium.",
+    "rechten": "© 2026 Jorn Duthoo. All rights reserved.",
+    "taal": "Language"
+  }
+}
