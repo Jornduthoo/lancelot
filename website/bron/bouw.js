@@ -53,9 +53,10 @@ const SVG = {
   schild: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.8l7.5 3v5.6c0 4.6-3.2 8.3-7.5 9.8-4.3-1.5-7.5-5.2-7.5-9.8V5.8z"/></svg>',
   slot: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="1.5"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></svg>',
   bliksem: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 2.5L5 13.5h6l-1 8 8.5-11h-6z"/></svg>',
+  tegels: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1"/><rect x="13.5" y="3.5" width="7" height="7" rx="1"/><rect x="3.5" y="13.5" width="7" height="7" rx="1"/><rect x="13.5" y="13.5" width="7" height="7" rx="1"/></svg>',
   munt: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 6.5v11M15 9c-.6-1-1.7-1.5-3-1.5-1.8 0-3 .9-3 2.2 0 3 6 1.6 6 4.6 0 1.3-1.3 2.2-3 2.2-1.4 0-2.6-.6-3.1-1.6"/></svg>'
 };
-const PUNT_ICOON = ['munt', 'bliksem', 'slot'];
+const PUNT_ICOON = ['tegels', 'bliksem', 'slot'];
 const MOTIVATIE_ICOON = { ridder: 'toernooi', klaseiland: 'klaseiland', huisdier: 'huisdier', runenraadsel: 'runenraadsel' };
 
 function pad(taal) { return taal === 'nl' ? '/' : `/${taal}/`; }
@@ -75,7 +76,7 @@ function pagina(taal, t, w, data, alle) {
   const spelTegels = data.groepen.map(g => `
       <h3 class="groep">${esc(t.spellen.groepen[g.naam] || tr(g.naam))}</h3>
       <ul class="spellen">${g.spellen.map(s => `
-        <li class="spel"><img src="${rel}img/spellen/${s.icoon}" alt="" width="64" height="64" loading="lazy" decoding="async"><div><strong>${esc(tr(s.naam))}</strong><span>${esc(tr(s.uitleg))}</span></div></li>`).join('')}
+        <li class="spel" title="${esc(tr(s.uitleg))}"><img src="${rel}img/spellen/${s.icoon}" alt="" width="64" height="64" loading="lazy" decoding="async"><div><strong>${esc(tr(s.naam))}</strong><span>${esc(tr(s.uitleg))}</span></div></li>`).join('')}
       </ul>`).join('');
 
   return `<!doctype html>
@@ -102,6 +103,7 @@ function pagina(taal, t, w, data, alle) {
   <header class="kop">
     <a class="merk" href="${rel || './'}" aria-label="LANcelot"><img src="${rel}img/mark.webp" alt="" width="40" height="40"><img class="woord" src="${rel}img/wordmark.webp" alt="LANcelot" width="113" height="40"></a>
     <nav class="menu" aria-label="Menu">
+      <a href="#werkt">${esc(t.stappen.titel)}</a>
       <a href="#hallen">${esc(t.nav.hallen)}</a>
       <a href="#spellen">${esc(t.nav.spellen)}</a>
       <a href="#ai">${esc(t.nav.ai)}</a>

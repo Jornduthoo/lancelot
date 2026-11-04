@@ -2,7 +2,7 @@
   "taalNaam": "Deutsch",
   "taalWenk": "Diese Seite gibt es auch auf Deutsch →",
   "titel": "LANcelot · Quiz, Umfragen und Klassenspiele im eigenen Klassennetz",
-  "omschrijving": "Kostenlose Klassen-App für Lehrkräfte: Live-Quiz, Umfragen, {n} Spiele und Arbeitsblätter mit KI. Läuft auf dem PC in deiner Klasse, die Kinder spielen im Browser mit.",
+  "omschrijving": "Klassen-App für Lehrkräfte: Live-Quiz, Umfragen, {n} Spiele und Arbeitsblätter mit KI. Läuft auf dem PC in deiner Klasse, die Kinder spielen im Browser mit.",
   "nav": {
     "hallen": "Was drin ist",
     "spellen": "Spiele",
@@ -14,15 +14,15 @@
   "hero": {
     "kicker": "Von einer Lehrkraft gemacht, für die Klasse",
     "titel": "Quiz, Umfragen und {n} Spiele. Im eigenen Klassennetz.",
-    "tekst": "LANcelot läuft auf dem PC in deiner Klasse. Die Kinder scannen den QR-Code an der Tafel und spielen auf Chromebook, Tablet oder Handy mit. Keine Konten, kein Abo, keine Grenze bei Kindern oder Fragen.",
+    "tekst": "LANcelot läuft auf dem PC in deiner Klasse. Die Kinder scannen den QR-Code an der Tafel und spielen auf Chromebook, Tablet oder Handy mit. Keine Konten für Kinder, keine Grenze bei Kindern oder Fragen.",
     "knop": "Bald verfügbar",
     "knop2": "Spiele ansehen",
-    "noot": "Kostenlos für Lehrkräfte · Bald verfügbar · Die Kinder spielen im Browser"
+    "noot": "Bald verfügbar · Windows-PC · Die Kinder spielen im Browser"
   },
   "punten": [
     {
-      "titel": "Kostenlos",
-      "tekst": "Keine Testphase, keine Bezahlschranke. Alles ist dabei."
+      "titel": "Alles in einem",
+      "tekst": "Quiz, Umfragen, Spiele, Arbeitsblätter und Klassenwerkzeuge in einer App."
     },
     {
       "titel": "Lokal",
@@ -100,7 +100,7 @@
     "titel": "Unterrichtsmaterial in Sekunden, mit KI",
     "tekst": "Gib ein Thema und die Klassenstufe an oder ziehe ein Foto deines Lehrbuchs hinein. Die KI erstellt ein Quiz, ein Arbeitsblatt oder eine ganze Reihe pro Stunde, auf drei Niveaus.",
     "lijst": [
-      "Kostenlos mit Gemini, ChatGPT oder Claude: LANcelot kopiert den Auftrag, du fügst die Antwort wieder ein.",
+      "Funktioniert mit Gemini, ChatGPT oder Claude: LANcelot kopiert den Auftrag, du fügst die Antwort wieder ein.",
       "Oder gib deinen eigenen Schlüssel ein und alles geht mit einem Klick.",
       "Arbeitsblätter spielst du live in der Klasse oder druckst sie mit Lösungsblatt.",
       "Nur das Erstellen mit KI braucht Internet. Gespielt wird über das Klassennetz."
@@ -154,7 +154,7 @@
     "lijst": [
       "LANcelot läuft auf deinem eigenen PC. Keine Cloud und keine Konten für Kinder.",
       "Namen, Antworten und Ergebnisse liegen in einem Ordner auf diesem PC. Du entscheidest, was damit passiert.",
-      "Keine Werbung, kein Tracking, keine versteckten Kosten.",
+      "Keine Werbung und kein Tracking.",
       "Nutzt du KI, geht nur dein Auftrag (Thema oder Unterrichtsmaterial) an die KI deiner Wahl. Keine Namen der Kinder."
     ]
   },
@@ -181,15 +181,15 @@
   },
   "download": {
     "titel": "Hol LANcelot in deine Klasse",
-    "tekst": "LANcelot ist bald verfügbar. Kostenlos für Lehrkräfte und Schulen.",
+    "tekst": "LANcelot ist bald für Lehrkräfte und Schulen verfügbar.",
     "noot": "Du brauchst nur einen Windows-PC in der Klasse. Die Kinder spielen im Browser mit."
   },
   "faq": {
     "titel": "Häufige Fragen",
     "lijst": [
       {
-        "v": "Ist LANcelot wirklich kostenlos?",
-        "a": "Ja. Lehrkräfte und Schulen nutzen LANcelot kostenlos im eigenen Unterricht. Es gibt keine Bezahlversion mit mehr Spielen."
+        "v": "Wann kann ich LANcelot nutzen?",
+        "a": "LANcelot ist bald verfügbar. Auf dieser Website erfährst du es zuerst."
       },
       {
         "v": "Brauche ich Internet?",

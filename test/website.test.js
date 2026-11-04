@@ -41,7 +41,8 @@ test('website: is up-to-date met de bron (node website/bron/bouw.js)', () => {
 });
 
 test('website: noemt geen bestaande spellen of merken', () => {
-  const verboden = /kahoot|gimkit|mentimeter|quizizz|galaga|pac-?man|pac-knight|gauntlet|bomberman|bomber-knight|fortnite|mario/i;
+  // LANcelot wordt niet gratis (Jorn, 2026-11-04).
+  const verboden = /\bgratis\b|\bfree\b|gratuit|kostenlos|kahoot|gimkit|mentimeter|quizizz|galaga|pac-?man|pac-knight|gauntlet|bomberman|bomber-knight|fortnite|mario/i;
   for (const t of TALEN) {
     const html = fs.readFileSync(path.join(SITE, t === 'nl' ? 'index.html' : `${t}/index.html`), 'utf8');
     const m = html.match(verboden);
