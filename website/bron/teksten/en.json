@@ -2,7 +2,7 @@
   "taalNaam": "English",
   "taalWenk": "This page is also available in English →",
   "titel": "LANcelot · Quizzes, polls and class games on your own classroom network",
-  "omschrijving": "Free classroom app for teachers: live quizzes, polls, {n} games and AI worksheets. Runs on the PC in your classroom, students join in their browser.",
+  "omschrijving": "Classroom app for teachers: live quizzes, polls, {n} games and AI worksheets. Runs on the PC in your classroom, students join in their browser.",
   "nav": {
     "hallen": "What's inside",
     "spellen": "Games",
@@ -14,15 +14,15 @@
   "hero": {
     "kicker": "Made by a teacher, for the classroom",
     "titel": "Quizzes, polls and {n} games. On your own classroom network.",
-    "tekst": "LANcelot runs on the PC in your classroom. Students scan the QR code on the board and play along on their Chromebook, tablet or phone. No accounts, no subscription, no limit on students or questions.",
+    "tekst": "LANcelot runs on the PC in your classroom. Students scan the QR code on the board and play along on their Chromebook, tablet or phone. No student accounts, no limit on students or questions.",
     "knop": "Coming soon",
     "knop2": "See the games",
-    "noot": "Free for teachers · Coming soon · Students join in the browser"
+    "noot": "Coming soon · Windows PC · Students join in the browser"
   },
   "punten": [
     {
-      "titel": "Free",
-      "tekst": "No trial, no paywall. Everything is included."
+      "titel": "All-in-one",
+      "tekst": "Quizzes, polls, games, worksheets and classroom tools in one app."
     },
     {
       "titel": "Local",
@@ -100,7 +100,7 @@
     "titel": "Lesson material in seconds, with AI",
     "tekst": "Give a topic and the grade, or drop in a photo of your textbook. The AI makes a quiz, a worksheet or a full set per lesson, on three levels.",
     "lijst": [
-      "Works for free with Gemini, ChatGPT or Claude: LANcelot copies the prompt, you paste the answer back.",
+      "Works with Gemini, ChatGPT or Claude: LANcelot copies the prompt, you paste the answer back.",
       "Or enter your own key and everything happens in one click.",
       "Play worksheets live in class or print them with an answer key.",
       "Only creating with AI needs the internet. Play runs over the classroom network."
@@ -154,7 +154,7 @@
     "lijst": [
       "LANcelot runs on your own PC. No cloud and no student accounts.",
       "Names, answers and results live in a folder on that PC. You decide what happens to them.",
-      "No ads, no tracking, no hidden costs.",
+      "No ads and no tracking.",
       "If you use AI, only your prompt (topic or lesson material) goes to the AI you choose. No student names."
     ]
   },
@@ -181,15 +181,15 @@
   },
   "download": {
     "titel": "Bring LANcelot to your classroom",
-    "tekst": "LANcelot will be available soon. Free for teachers and schools.",
+    "tekst": "LANcelot will soon be available for teachers and schools.",
     "noot": "All you need is a Windows PC in the classroom. Students join in their browser."
   },
   "faq": {
     "titel": "Frequently asked questions",
     "lijst": [
       {
-        "v": "Is LANcelot really free?",
-        "a": "Yes. Teachers and schools use LANcelot for free in their own lessons. There is no paid version with extra games."
+        "v": "When can I use LANcelot?",
+        "a": "LANcelot will be available soon. This website will be the first place to tell you when."
       },
       {
         "v": "Do I need the internet?",

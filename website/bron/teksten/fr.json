@@ -2,7 +2,7 @@
   "taalNaam": "Français",
   "taalWenk": "Cette page existe aussi en français →",
   "titel": "LANcelot · Quiz, sondages et jeux de classe sur ton propre réseau de classe",
-  "omschrijving": "Application de classe gratuite pour les enseignants : quiz en direct, sondages, {n} jeux et fiches d’exercices par IA. Elle tourne sur le PC de ta classe, les élèves jouent dans leur navigateur.",
+  "omschrijving": "Application de classe pour les enseignants : quiz en direct, sondages, {n} jeux et fiches d’exercices par IA. Elle tourne sur le PC de ta classe, les élèves jouent dans leur navigateur.",
   "nav": {
     "hallen": "Ce qu’il contient",
     "spellen": "Jeux",
@@ -14,15 +14,15 @@
   "hero": {
     "kicker": "Créé par un enseignant, pour la classe",
     "titel": "Quiz, sondages et {n} jeux. Sur ton propre réseau de classe.",
-    "tekst": "LANcelot tourne sur le PC de ta classe. Les élèves scannent le code QR au tableau et jouent sur leur Chromebook, leur tablette ou leur téléphone. Sans compte, sans abonnement, sans limite d’élèves ni de questions.",
+    "tekst": "LANcelot tourne sur le PC de ta classe. Les élèves scannent le code QR au tableau et jouent sur leur Chromebook, leur tablette ou leur téléphone. Pas de compte élève, pas de limite d’élèves ni de questions.",
     "knop": "Bientôt disponible",
     "knop2": "Voir les jeux",
-    "noot": "Gratuit pour les enseignants · Bientôt disponible · Les élèves jouent dans le navigateur"
+    "noot": "Bientôt disponible · PC Windows · Les élèves jouent dans le navigateur"
   },
   "punten": [
     {
-      "titel": "Gratuit",
-      "tekst": "Pas d’essai, pas de mur payant. Tout est inclus."
+      "titel": "Tout-en-un",
+      "tekst": "Quiz, sondages, jeux, fiches et outils de classe dans une seule application."
     },
     {
       "titel": "Local",
@@ -100,7 +100,7 @@
     "titel": "Du matériel de cours en quelques secondes, avec l’IA",
     "tekst": "Donne un sujet et l’année, ou ajoute une photo de ton manuel. L’IA crée un quiz, une fiche ou toute une série par leçon, sur trois niveaux.",
     "lijst": [
-      "Gratuit avec Gemini, ChatGPT ou Claude : LANcelot copie la consigne, tu recolles la réponse.",
+      "Fonctionne avec Gemini, ChatGPT ou Claude : LANcelot copie la consigne, tu recolles la réponse.",
       "Ou entre ta propre clé et tout se fait en un clic.",
       "Les fiches se jouent en direct en classe ou s’impriment avec corrigé.",
       "Seule la création avec l’IA a besoin d’internet. Le jeu passe par le réseau de la classe."
@@ -154,7 +154,7 @@
     "lijst": [
       "LANcelot tourne sur ton propre PC. Pas de cloud, pas de compte élève.",
       "Les noms, réponses et résultats sont dans un dossier sur ce PC. C’est toi qui décides.",
-      "Pas de publicité, pas de pistage, pas de frais cachés.",
+      "Pas de publicité et pas de pistage.",
       "Si tu utilises l’IA, seule ta consigne (sujet ou matériel de cours) part vers l’IA que tu choisis. Aucun nom d’élève."
     ]
   },
@@ -181,15 +181,15 @@
   },
   "download": {
     "titel": "Fais entrer LANcelot dans ta classe",
-    "tekst": "LANcelot sera bientôt disponible. Gratuit pour les enseignants et les écoles.",
+    "tekst": "LANcelot sera bientôt disponible pour les enseignants et les écoles.",
     "noot": "Il te faut seulement un PC Windows en classe. Les élèves jouent dans leur navigateur."
   },
   "faq": {
     "titel": "Questions fréquentes",
     "lijst": [
       {
-        "v": "LANcelot est-il vraiment gratuit ?",
-        "a": "Oui. Les enseignants et les écoles utilisent LANcelot gratuitement dans leurs propres cours. Il n’existe pas de version payante avec plus de jeux."
+        "v": "Quand pourrai-je utiliser LANcelot ?",
+        "a": "LANcelot sera bientôt disponible. Ce site sera le premier à te le dire."
       },
       {
         "v": "Ai-je besoin d’internet ?",

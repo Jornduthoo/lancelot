@@ -168,7 +168,7 @@ figcaption { color: rgb(var(--k-muted)); font-size: 14px; margin-top: 10px; text
 .spel { display: flex; gap: 14px; align-items: flex-start; padding: 12px; background: rgb(var(--k-panel) / .55); border: 1px solid rgb(var(--k-rand) / .8); border-radius: 8px; }
 .spel img { width: 64px; height: 64px; border-radius: 10px; flex: none; }
 .spel strong { display: block; font-family: var(--kop); font-size: 16px; line-height: 1.25; margin-bottom: 2px; }
-.spel span { display: block; color: rgb(var(--k-muted)); font-size: 14px; line-height: 1.45; }
+.spel span { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; color: rgb(var(--k-muted)); font-size: 14px; line-height: 1.45; }
 
 .duo { display: grid; grid-template-columns: 1fr 1fr; gap: 44px; align-items: center; }
 .duo#privacy { align-items: start; }
@@ -216,9 +216,12 @@ figcaption { color: rgb(var(--k-muted)); font-size: 14px; margin-top: 10px; text
 .voet-talen a[aria-current] { color: rgb(var(--k-goud)); text-decoration: none; }
 .voet .klein { font-size: 13px; }
 
-/* Chromebook en kleiner */
+/* Chromebook en kleiner: het menu wordt een rij onder de kopbalk die je kan schuiven */
 @media (max-width: 1080px) {
-  .menu { display: none; }
+  .kop { flex-wrap: wrap; row-gap: 6px; }
+  .menu { order: 5; width: 100%; gap: 8px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+  .menu::-webkit-scrollbar { display: none; }
+  .menu a { flex: none; padding: 6px 12px; border: 1px solid rgb(var(--k-rand)); border-radius: 999px; font-size: 14px; }
   .hallen { grid-template-columns: repeat(3, 1fr); }
   .hallen.vier { grid-template-columns: repeat(2, 1fr); }
 }
@@ -229,17 +232,39 @@ figcaption { color: rgb(var(--k-muted)); font-size: 14px; margin-top: 10px; text
   .schermen { padding-right: 0; }
   .scherm-gsm { position: static; width: 60%; max-width: 260px; margin: 28px auto 0; }
 }
-/* Gsm */
+/* Gsm: korter en rustiger. Spellen als tegels met icoon en naam, de rest in één oogopslag. */
 @media (max-width: 520px) {
   body { font-size: 16px; }
-  .kop { gap: 10px; }
+  .kop { gap: 10px; padding-top: 8px; padding-bottom: 8px; }
   .merk .woord { display: none; }
-  .held { padding: 24px 16px 100px; }
-  .blok { padding-top: 64px; }
-  .hallen, .hallen.vier { grid-template-columns: 1fr; }
-  .hal { display: grid; grid-template-columns: 64px 1fr; gap: 4px 14px; text-align: left; align-items: start; }
-  .hal img { width: 64px; height: 64px; margin: 0; grid-row: span 2; }
-  .spellen { grid-template-columns: 1fr; }
-  .download { padding: 40px 16px; }
+  .held { padding: 16px 16px 92px; }
+  .held-in { gap: 12px; }
+  .held .logo { width: 52vw; }
+  .held h1 { font-size: 28px; }
+  .lead { font-size: 16px; }
+  .kicker { font-size: 11px; letter-spacing: .16em; }
+  .punten { gap: 10px; margin-top: -70px; }
+  .punt { display: grid; grid-template-columns: 30px 1fr; gap: 0 14px; padding: 16px; }
+  .punt svg { grid-row: span 2; margin: 2px 0 0; }
+  .punt h2 { font-size: 19px; }
+  .blok { padding-top: 56px; }
+  .titel { font-size: 25px; }
+  .intro { font-size: 16px; margin-bottom: 20px; }
+  .stappen li { padding: 16px 16px 16px 66px; }
+  .stappen li::before { left: 14px; top: 16px; width: 36px; height: 36px; font-size: 16px; }
+  .hallen, .hallen.vier { grid-template-columns: 1fr; gap: 10px; }
+  .hal { display: grid; grid-template-columns: 56px 1fr; gap: 2px 14px; text-align: left; align-items: start; padding: 14px; }
+  .hal img { width: 56px; height: 56px; margin: 0; grid-row: span 2; }
+  .hal h3 { font-size: 17px; margin: 0; }
+  .breed { display: none; }
+  .groep { font-size: 17px; margin: 22px 0 10px; }
+  .spellen { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .spel { flex-direction: column; align-items: center; text-align: center; gap: 6px; padding: 10px 6px; }
+  .spel img { width: 56px; height: 56px; }
+  .spel strong { font-size: 12.5px; margin: 0; }
+  .spel span { display: none; }
+  .niveau { padding: 16px; }
+  .download { padding: 36px 16px; }
   .knoppen .knop { width: 100%; }
+  .faq summary { padding: 14px; }
 }
