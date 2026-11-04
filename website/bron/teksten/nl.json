@@ -50,6 +50,11 @@
       }
     ]
   },
+  "video": {
+    "titel": "Bekijk LANcelot in actie",
+    "knop": "Speel de video",
+    "noot": "De video staat op YouTube. Pas als je op afspelen klikt, maakt je browser verbinding met YouTube."
+  },
   "schermen": {
     "titel": "Echte schermen uit LANcelot",
     "bord": "Het bord: alles start vanuit vijf zalen",
@@ -96,6 +101,29 @@
       "Gevecht in de arena": "Gevecht in de arena"
     }
   },
+  "spel": {
+    "terug": "Alle spellen",
+    "meer": "Bekijk het spel",
+    "schermen": "Zo ziet het eruit",
+    "bord": "Op het bord",
+    "chromebook": "Op de Chromebook",
+    "gsm": "Op de gsm",
+    "vorm": "Zo speel je",
+    "juist": "Goed antwoord",
+    "quiz": "Lesstof",
+    "quizTekst": "Met elke quiz uit de Smidse: zelf gemaakt of met AI.",
+    "toestellen": "Leerlingen spelen op",
+    "toestellenTekst": "Chromebook, laptop, tablet of gsm, in de browser",
+    "vorige": "Vorig spel",
+    "volgende": "Volgend spel",
+    "vormen": {
+      "ieder": "Ieder voor zich",
+      "ploegen": "In ploegen",
+      "samen": "Hele klas samen",
+      "duel": "Eén tegen één",
+      "leerkracht": "Klas tegen leerkracht"
+    }
+  },
   "ai": {
     "titel": "Lesmateriaal in seconden, met AI",
     "tekst": "Geef een onderwerp en het leerjaar, of sleep een foto van je bordboek erbij. De AI maakt een quiz, een oefenblad of een hele reeks per les, op drie niveaus.",
@@ -121,6 +149,32 @@
       {
         "naam": "Ridder",
         "tekst": "Uitdaging voor wie verder kan"
+      }
+    ]
+  },
+  "opvolgen": {
+    "titel": "Opvolgen, zorg en rapporten",
+    "tekst": "Elk antwoord komt in het logboek, gekoppeld aan de leerplandoelen. Zo zie je meteen wie extra hulp nodig heeft, en je rapport vult zich bijna vanzelf.",
+    "lijst": [
+      {
+        "id": "zorg",
+        "naam": "Zorgoverzicht",
+        "tekst": "Wie het meest aandacht vraagt, staat bovenaan. Je ziet welke doelen de hele klas opnieuw moet zien, wie naar de instructietafel moet en welke denkfouten vaak terugkomen."
+      },
+      {
+        "id": "taken",
+        "naam": "Taken per leerling",
+        "tekst": "Zet een quiz of oefenblad klaar voor één leerling of een groepje, elk op zijn niveau. Ook thuis voor te bereiden."
+      },
+      {
+        "id": "zegelrol",
+        "naam": "De Zegelrol: je rapport",
+        "tekst": "De toetsen komen er per vak vanzelf in. Jij zet er symbolen, commentaar en het logo van je school bij."
+      },
+      {
+        "id": "postduif",
+        "naam": "De Postduif: brief voor thuis",
+        "tekst": "Per leerling een brief met de verbeterde toets, wat al lukt, wat nog oefenen en nieuws uit de klas."
       }
     ]
   },

@@ -27,3 +27,10 @@ een bezoeker laadt per taal zo'n 1,5 MB, de beelden pas als hij ernaar scrolt).
 5. Eigen domein (optioneel): in het project **Custom domains** > **Set up a custom domain**.
 
 Is het adres anders dan `https://lancelot.pages.dev`? Zet het juiste adres in `bron/site.json` en bouw opnieuw.
+
+## Spelpagina's
+
+Elk spel heeft een eigen pagina (`site/spellen/<id>.html`, `site/<taal>/spellen/<id>.html`) met de uitleg uit de app,
+extra info uit `bron/spellen.json` (spelvorm en wat een goed antwoord geeft, in elke taal) en drie schermafbeeldingen
+per taal in `site/beelden/<taal>/<id>-bord|cb|gsm.webp` (960×540, 800×450, 270×585). Voeg je een spel toe, zet het dan
+ook in `bron/spellen.json`, anders faalt `npm test`. Zonder beelden toont de pagina enkel de tekst.

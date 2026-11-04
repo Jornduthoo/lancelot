@@ -50,6 +50,11 @@
       }
     ]
   },
+  "video": {
+    "titel": "See LANcelot in action",
+    "knop": "Play the video",
+    "noot": "The video is hosted on YouTube. Your browser only connects to YouTube once you press play."
+  },
   "schermen": {
     "titel": "Real screens from LANcelot",
     "bord": "The board: everything starts from five halls",
@@ -96,6 +101,29 @@
       "Gevecht in de arena": "Battle in the arena"
     }
   },
+  "spel": {
+    "terug": "All games",
+    "meer": "See the game",
+    "schermen": "What it looks like",
+    "bord": "On the board",
+    "chromebook": "On a Chromebook",
+    "gsm": "On a phone",
+    "vorm": "How you play",
+    "juist": "Right answer",
+    "quiz": "Lesson content",
+    "quizTekst": "With any quiz from the Forge: your own or made with AI.",
+    "toestellen": "Students play on",
+    "toestellenTekst": "Chromebook, laptop, tablet or phone, in the browser",
+    "vorige": "Previous game",
+    "volgende": "Next game",
+    "vormen": {
+      "ieder": "Every player for themselves",
+      "ploegen": "In teams",
+      "samen": "Whole class together",
+      "duel": "One against one",
+      "leerkracht": "Class against teacher"
+    }
+  },
   "ai": {
     "titel": "Lesson material in seconds, with AI",
     "tekst": "Give a topic and the grade, or drop in a photo of your textbook. The AI makes a quiz, a worksheet or a full set per lesson, on three levels.",
@@ -121,6 +149,32 @@
       {
         "naam": "Knight",
         "tekst": "A challenge for those who can go further"
+      }
+    ]
+  },
+  "opvolgen": {
+    "titel": "Follow-up, support and reports",
+    "tekst": "Every answer goes into the log, linked to the curriculum goals. You see straight away who needs extra help, and your report almost fills itself.",
+    "lijst": [
+      {
+        "id": "zorg",
+        "naam": "Support overview",
+        "tekst": "Students who need the most attention are at the top. See which goals the whole class should revisit, who needs small-group instruction and which mistakes keep coming back."
+      },
+      {
+        "id": "taken",
+        "naam": "Tasks per student",
+        "tekst": "Assign a quiz or worksheet to one student or a small group, each at their own level. You can prepare it at home too."
+      },
+      {
+        "id": "zegelrol",
+        "naam": "The Seal Roll: your report",
+        "tekst": "Tests flow into it per subject automatically. You add symbols, comments and your school logo."
+      },
+      {
+        "id": "postduif",
+        "naam": "The Carrier Pigeon: a letter home",
+        "tekst": "A letter per student with the marked test, what already works, what to practise and news from the class."
       }
     ]
   },

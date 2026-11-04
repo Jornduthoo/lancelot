@@ -49,3 +49,22 @@ test('website: noemt geen bestaande spellen of merken', () => {
     assert.ok(!m, `${t}: "${m && m[0]}" hoort niet op de website`);
   }
 });
+
+test('website: elk spel heeft een eigen pagina in elke taal, met extra info', () => {
+  const { spellen } = require('../website/bron/bouw.js');
+  const info = JSON.parse(fs.readFileSync(path.join(BRON, 'spellen.json'), 'utf8'));
+  const verboden = /\bgratis\b|\bfree\b|gratuit|kostenlos|galaga|pac-?man|gauntlet|bomberman/i;
+  for (const g of spellen().groepen) for (const s of g.spellen) {
+    assert.ok(info[s.id], `Spel ${s.naam} mist extra info in website/bron/spellen.json`);
+    for (const t of TALEN) {
+      assert.ok(info[s.id].juist[t], `${s.id}: 'juist' mist in het ${t} (website/bron/spellen.json)`);
+      const f = path.join(SITE, t === 'nl' ? '' : t, 'spellen', `${s.id}.html`);
+      assert.ok(fs.existsSync(f), `${t}: pagina voor ${s.naam} ontbreekt: node website/bron/bouw.js`);
+      const html = fs.readFileSync(f, 'utf8');
+      assert.ok(!verboden.test(html), `${t}/${s.id}: verboden woord`);
+      for (const m of html.matchAll(/(?:src|href)="((?:\.\.\/)+(?:img|beelden|fonts)\/[^"]+)"/g)) {
+        assert.ok(fs.existsSync(path.join(path.dirname(f), m[1])), `${t}/${s.id}: ${m[1]} ontbreekt`);
+      }
+    }
+  }
+});

@@ -165,7 +165,9 @@ figcaption { color: rgb(var(--k-muted)); font-size: 14px; margin-top: 10px; text
 
 .groep { font-size: 20px; color: rgb(var(--k-cyan-l)); margin: 30px 0 12px; }
 .spellen { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 10px; }
-.spel { display: flex; gap: 14px; align-items: flex-start; padding: 12px; background: rgb(var(--k-panel) / .55); border: 1px solid rgb(var(--k-rand) / .8); border-radius: 8px; }
+.spel a { display: flex; gap: 14px; align-items: flex-start; height: 100%; padding: 12px; color: inherit; text-decoration: none; background: rgb(var(--k-panel) / .55); border: 1px solid rgb(var(--k-rand) / .8); border-radius: 8px; transition: border-color .15s, background .15s, transform .15s; }
+.spel a:hover { border-color: rgb(var(--k-cyan) / .8); background: rgb(var(--k-panel) / .9); transform: translateY(-2px); }
+@media (prefers-reduced-motion: reduce) { .spel a:hover { transform: none; } }
 .spel img { width: 64px; height: 64px; border-radius: 10px; flex: none; }
 .spel strong { display: block; font-family: var(--kop); font-size: 16px; line-height: 1.25; margin-bottom: 2px; }
 .spel span { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; color: rgb(var(--k-muted)); font-size: 14px; line-height: 1.45; }
@@ -259,7 +261,7 @@ figcaption { color: rgb(var(--k-muted)); font-size: 14px; margin-top: 10px; text
   .breed { display: none; }
   .groep { font-size: 17px; margin: 22px 0 10px; }
   .spellen { grid-template-columns: repeat(3, 1fr); gap: 8px; }
-  .spel { flex-direction: column; align-items: center; text-align: center; gap: 6px; padding: 10px 6px; }
+  .spel a { flex-direction: column; align-items: center; text-align: center; gap: 6px; padding: 10px 6px; }
   .spel img { width: 56px; height: 56px; }
   .spel strong { font-size: 12.5px; margin: 0; }
   .spel span { display: none; }
@@ -268,3 +270,50 @@ figcaption { color: rgb(var(--k-muted)); font-size: 14px; margin-top: 10px; text
   .knoppen .knop { width: 100%; }
   .faq summary { padding: 14px; }
 }
+
+/* Pagina per spel */
+.spelpagina { padding-top: 32px; }
+.terug { display: inline-block; margin-bottom: 22px; font-weight: 600; text-decoration: none; }
+.terug:hover { text-decoration: underline; }
+.spelkop { display: flex; gap: 24px; align-items: center; margin-bottom: 28px; }
+.spelkop img { width: 112px; height: 112px; border-radius: 18px; flex: none; box-shadow: 0 0 0 1px rgb(var(--k-rand)), 0 10px 30px rgb(0 0 0 / .45); }
+.spelkop h1 { font-size: clamp(30px, 4.6vw, 48px); margin: 6px 0 10px; }
+.feiten { list-style: none; padding: 0; margin: 0 0 8px; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; }
+.feiten li { display: flex; gap: 12px; align-items: flex-start; padding: 14px; background: rgb(var(--k-bg2)); border: 1px solid rgb(var(--k-rand)); border-radius: 8px; }
+.feiten svg { width: 26px; height: 26px; color: rgb(var(--k-goud)); margin-top: 2px; }
+.feiten strong { display: block; font-family: var(--kop); font-size: 15px; margin-bottom: 2px; }
+.feiten span { color: rgb(var(--k-muted)); font-size: 15px; line-height: 1.45; }
+.titel.klein { font-size: clamp(22px, 2.8vw, 30px); margin-top: 44px; }
+.spelbeelden { display: grid; grid-template-columns: 2fr .52fr; grid-template-areas: "bord bord" "cb gsm"; gap: 18px 14px; align-items: start; max-width: 980px; }
+.spelbeelden figure { margin: 0; }
+.spelbeelden img { width: 100%; border-radius: 8px; border: 1px solid rgb(var(--k-rand)); background: rgb(var(--k-bg2)); }
+.sb-bord { grid-area: bord; } .sb-cb { grid-area: cb; } .sb-gsm { grid-area: gsm; }
+.sb-gsm img { border-radius: 18px; border: 5px solid rgb(var(--k-rand)); }
+.spelbeelden figcaption { display: flex; gap: 8px; align-items: center; margin-top: 8px; color: rgb(var(--k-muted)); font-size: 14px; }
+.spelbeelden figcaption svg { width: 20px; height: 20px; color: rgb(var(--k-cyan)); }
+.spelnav { display: flex; justify-content: space-between; gap: 12px; margin-top: 44px; padding-top: 22px; border-top: 1px solid rgb(var(--k-rand) / .7); }
+.spelnav a { display: flex; gap: 10px; align-items: center; text-decoration: none; color: rgb(var(--k-tekst)); font-family: var(--kop); font-weight: 700; padding: 8px 12px; border-radius: 8px; border: 1px solid transparent; }
+.spelnav a:hover { border-color: rgb(var(--k-rand)); background: rgb(var(--k-panel) / .5); }
+.spelnav img { width: 40px; height: 40px; border-radius: 8px; }
+.spelnav small { display: block; font: 600 11px var(--tech); letter-spacing: .12em; text-transform: uppercase; color: rgb(var(--k-cyan-l)); }
+.spelnav .volgende { flex-direction: row-reverse; text-align: right; margin-left: auto; }
+@media (max-width: 820px) {
+}
+@media (max-width: 520px) {
+  .spelpagina { padding-top: 20px; }
+  .spelkop { flex-direction: column; align-items: flex-start; gap: 14px; }
+  .spelkop img { width: 84px; height: 84px; }
+  .spelbeelden { grid-template-columns: 1fr; grid-template-areas: "bord" "gsm" "cb"; }
+  .sb-gsm { max-width: 240px; }
+  .spelnav a { font-size: 14px; padding: 6px; }
+}
+
+/* Video (YouTube pas na een klik) */
+.video { position: relative; aspect-ratio: 16 / 9; max-width: 960px; border-radius: 10px; overflow: hidden; border: 1px solid rgb(var(--k-rand)); background: #000; }
+.video iframe, .video-start { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.video-start { padding: 0; cursor: pointer; background: #000; }
+.video-start img { width: 100%; height: 100%; object-fit: cover; opacity: .85; transition: opacity .2s; }
+.video-start:hover img { opacity: 1; }
+.video-knop { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); display: flex; gap: 10px; align-items: center; padding: 14px 22px; border-radius: 999px; background: rgb(var(--k-goud)); color: rgb(var(--k-op-goud)); font: 800 17px var(--body); box-shadow: 0 8px 30px rgb(0 0 0 / .5); }
+.video-knop svg { fill: currentColor; stroke: none; width: 22px; height: 22px; }
+.video-noot { margin-top: 10px; font-size: 14px; color: rgb(var(--k-muted)); }

@@ -38,7 +38,7 @@ function spellen() {
     if (m[1]) { groepen.push({ naam: m[1], spellen: [] }); continue; }
     totaal++;
     if (NIET_OP_SITE.has(m[2])) continue;
-    groepen[groepen.length - 1].spellen.push({ id: m[2], icoon: m[3], naam: m[4].trim(), uitleg: m[5].trim() });
+    groepen[groepen.length - 1].spellen.push({ id: m[2], icoon: m[3], naam: m[4].trim(), uitleg: m[5].trim(), groep: groepen[groepen.length - 1].naam });
   }
   return { groepen, totaal };
 }
@@ -57,9 +57,105 @@ const SVG = {
   munt: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 6.5v11M15 9c-.6-1-1.7-1.5-3-1.5-1.8 0-3 .9-3 2.2 0 3 6 1.6 6 4.6 0 1.3-1.3 2.2-3 2.2-1.4 0-2.6-.6-3.1-1.6"/></svg>'
 };
 const PUNT_ICOON = ['tegels', 'bliksem', 'slot'];
+const OPVOLGEN_ICOON = { zorg: 'burcht', taken: 'oefenblad', zegelrol: 'zegelrol', postduif: 'postduif' };
 const MOTIVATIE_ICOON = { ridder: 'toernooi', klaseiland: 'klaseiland', huisdier: 'huisdier', runenraadsel: 'runenraadsel' };
 
 function pad(taal) { return taal === 'nl' ? '/' : `/${taal}/`; }
+const BASIS = CONFIG.adres.replace(/\/$/, '');
+const INFO = JSON.parse(fs.readFileSync(path.join(BRON, 'spellen.json'), 'utf8'));
+// Schermafbeeldingen per spel (website/site/beelden/<taal>/<id>-bord|cb|gsm.webp), gemaakt met bron/spelbeelden.js.
+const BEELDEN = ['bord', 'cb', 'gsm'];
+const spelPad = (taal, id) => `${taal === 'nl' ? '' : taal + '/'}spellen/${id}.html`;
+const beeldPad = (taal, id) => `beelden/${taal}/${(INFO[id] && INFO[id].beeld) || id}`;
+const heeftBeelden = (taal, id) => BEELDEN.every(b => fs.existsSync(path.join(SITE, `${beeldPad(taal, id)}-${b}.webp`)));
+
+// Kop, menu, voet en taalwenk: dezelfde op elke pagina. root = weg naar de hoofdmap, thuis = weg naar de startpagina
+// van deze taal, links = per taal de weg naar dezelfde pagina in die taal, adressen = per taal het volledige adres.
+function omhulsel({ taal, t, alle, root, thuis, links, adressen, titel, omschrijving, beeld, main, extraCss = '' }) {
+  const talenLinks = TALEN.map(x => `<a href="${links[x]}" hreflang="${x}" lang="${x}"${x === taal ? ' aria-current="page"' : ''}>${esc(alle[x].taalNaam)}</a>`).join('');
+  const alternatieven = TALEN.map(x => `<link rel="alternate" hreflang="${x}" href="${adressen[x]}">`).join('\n  ')
+    + `\n  <link rel="alternate" hreflang="x-default" href="${adressen.nl}">`;
+  return `<!doctype html>
+<html lang="${taal}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>${esc(titel)}</title>
+  <meta name="description" content="${esc(omschrijving)}">
+  <link rel="canonical" href="${adressen[taal]}">
+  ${alternatieven}
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="${esc(titel)}">
+  <meta property="og:description" content="${esc(omschrijving)}">
+  <meta property="og:url" content="${adressen[taal]}">
+  <meta property="og:image" content="${beeld}">
+  <meta name="theme-color" content="#060a13">
+  <link rel="icon" href="${root}img/favicon.png">
+  <link rel="preload" href="${root}fonts/cinzel-latin-900-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="${root}site.css">${extraCss}
+</head>
+<body>
+  <a class="skip" href="#inhoud">${esc(t.nav.hallen)}</a>
+  <header class="kop">
+    <a class="merk" href="${thuis || './'}" aria-label="LANcelot"><img src="${root}img/mark.webp" alt="" width="40" height="40"><img class="woord" src="${root}img/wordmark.webp" alt="LANcelot" width="113" height="40"></a>
+    <nav class="menu" aria-label="Menu">
+      <a href="${thuis}#werkt">${esc(t.stappen.titel)}</a>
+      <a href="${thuis}#hallen">${esc(t.nav.hallen)}</a>
+      <a href="${thuis}#spellen">${esc(t.nav.spellen)}</a>
+      <a href="${thuis}#ai">${esc(t.nav.ai)}</a>
+      <a href="${thuis}#privacy">${esc(t.nav.privacy)}</a>
+      <a href="${thuis}#faq">${esc(t.nav.faq)}</a>
+    </nav>
+    <details class="talen">
+      <summary aria-label="${esc(t.voet.taal)}">${SVG.wereld}<span>${taal.toUpperCase()}</span></summary>
+      <div class="talen-lijst">${talenLinks}</div>
+    </details>
+    <a class="knop klein" href="${thuis}#download">${esc(t.nav.download)}</a>
+  </header>
+  <p class="taalwenk" id="taalwenk" hidden></p>
+
+  <main id="inhoud">
+${main}
+  </main>
+
+  <footer class="voet">
+    <img src="${root}img/mark.webp" alt="" width="48" height="48" loading="lazy">
+    <p>${esc(t.voet.door)}</p>
+    <nav class="voet-talen" aria-label="${esc(t.voet.taal)}">${talenLinks}</nav>
+    <p class="klein">${esc(t.voet.rechten)}</p>
+  </footer>
+  <script>
+  // Spreekt de browser een andere taal die de site heeft? Dan een klein wenkje, nooit een automatische sprong.
+  (function () {
+    var talen = ${JSON.stringify(Object.fromEntries(TALEN.map(x => [x, { naar: links[x], zin: alle[x].taalWenk }])))};
+    var huidig = ${JSON.stringify(taal)};
+    try { if (localStorage.getItem('lancelot-taal')) return; } catch (e) {}
+    var b = (navigator.language || '').slice(0, 2).toLowerCase();
+    if (!talen[b] || b === huidig) return;
+    var p = document.getElementById('taalwenk');
+    var a = document.createElement('a');
+    a.href = talen[b].naar; a.lang = b; a.textContent = talen[b].zin;
+    var x = document.createElement('button'); x.type = 'button'; x.setAttribute('aria-label', '×'); x.textContent = '×';
+    x.onclick = function () { p.hidden = true; try { localStorage.setItem('lancelot-taal', huidig); } catch (e) {} };
+    p.appendChild(a); p.appendChild(x); p.hidden = false;
+  })();
+  // Video: YouTube laadt pas na een klik (privacyvriendelijk, youtube-nocookie).
+  document.querySelectorAll('.video[data-yt]').forEach(function (v) {
+    v.querySelector('button').addEventListener('click', function () {
+      var f = document.createElement('iframe');
+      f.src = 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(v.getAttribute('data-yt')) + '?autoplay=1&rel=0';
+      f.title = 'LANcelot'; f.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen'; f.allowFullscreen = true;
+      v.innerHTML = ''; v.appendChild(f);
+    });
+  });
+  document.querySelectorAll('.talen-lijst a, .voet-talen a').forEach(function (a) {
+    a.addEventListener('click', function () { try { localStorage.setItem('lancelot-taal', a.lang); } catch (e) {} });
+  });
+  </script>
+</body>
+</html>
+`;
+}
 
 function pagina(taal, t, w, data, alle) {
   const n = CONFIG.aantalSpellen || `${Math.floor(data.totaal / 10) * 10}+`;
@@ -67,59 +163,14 @@ function pagina(taal, t, w, data, alle) {
   const tr = s => (w[s] && typeof w[s] === 'string' ? w[s] : s);
   const rel = taal === 'nl' ? '' : '../';
   const shot = naam => `${rel}shots/${taal}-${naam}.webp`;
-  const url = CONFIG.adres.replace(/\/$/, '') + pad(taal);
-
-  const talenLinks = TALEN.map(x => `<a href="${rel}${x === 'nl' ? '' : x + '/'}" hreflang="${x}" lang="${x}"${x === taal ? ' aria-current="page"' : ''}>${esc(alle[x].taalNaam)}</a>`).join('');
-  const alternatieven = TALEN.map(x => `<link rel="alternate" hreflang="${x}" href="${CONFIG.adres.replace(/\/$/, '')}${pad(x)}">`).join('\n  ')
-    + `\n  <link rel="alternate" hreflang="x-default" href="${CONFIG.adres.replace(/\/$/, '')}/">`;
 
   const spelTegels = data.groepen.map(g => `
       <h3 class="groep">${esc(t.spellen.groepen[g.naam] || tr(g.naam))}</h3>
       <ul class="spellen">${g.spellen.map(s => `
-        <li class="spel" title="${esc(tr(s.uitleg))}"><img src="${rel}img/spellen/${s.icoon}" alt="" width="64" height="64" loading="lazy" decoding="async"><div><strong>${esc(tr(s.naam))}</strong><span>${esc(tr(s.uitleg))}</span></div></li>`).join('')}
+        <li class="spel"><a href="spellen/${s.id}.html" title="${esc(tr(s.uitleg))}"><img src="${rel}img/spellen/${s.icoon}" alt="" width="64" height="64" loading="lazy" decoding="async"><div><strong>${esc(tr(s.naam))}</strong><span>${esc(tr(s.uitleg))}</span></div></a></li>`).join('')}
       </ul>`).join('');
 
-  return `<!doctype html>
-<html lang="${taal}">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>${esc(vul(t.titel))}</title>
-  <meta name="description" content="${esc(vul(t.omschrijving))}">
-  <link rel="canonical" href="${url}">
-  ${alternatieven}
-  <meta property="og:type" content="website">
-  <meta property="og:title" content="${esc(vul(t.titel))}">
-  <meta property="og:description" content="${esc(vul(t.omschrijving))}">
-  <meta property="og:url" content="${url}">
-  <meta property="og:image" content="${CONFIG.adres.replace(/\/$/, '')}/shots/${taal}-host.webp">
-  <meta name="theme-color" content="#060a13">
-  <link rel="icon" href="${rel}img/favicon.png">
-  <link rel="preload" href="${rel}fonts/cinzel-latin-900-normal.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="${rel}site.css">
-</head>
-<body>
-  <a class="skip" href="#inhoud">${esc(t.nav.hallen)}</a>
-  <header class="kop">
-    <a class="merk" href="${rel || './'}" aria-label="LANcelot"><img src="${rel}img/mark.webp" alt="" width="40" height="40"><img class="woord" src="${rel}img/wordmark.webp" alt="LANcelot" width="113" height="40"></a>
-    <nav class="menu" aria-label="Menu">
-      <a href="#werkt">${esc(t.stappen.titel)}</a>
-      <a href="#hallen">${esc(t.nav.hallen)}</a>
-      <a href="#spellen">${esc(t.nav.spellen)}</a>
-      <a href="#ai">${esc(t.nav.ai)}</a>
-      <a href="#privacy">${esc(t.nav.privacy)}</a>
-      <a href="#faq">${esc(t.nav.faq)}</a>
-    </nav>
-    <details class="talen">
-      <summary aria-label="${esc(t.voet.taal)}">${SVG.wereld}<span>${taal.toUpperCase()}</span></summary>
-      <div class="talen-lijst">${talenLinks}</div>
-    </details>
-    <a class="knop klein" href="#download">${esc(t.nav.download)}</a>
-  </header>
-  <p class="taalwenk" id="taalwenk" hidden></p>
-
-  <main id="inhoud">
-    <section class="held">
+  const main = `    <section class="held">
       <div class="held-in">
         <img class="logo" src="${rel}img/logo.webp" alt="LANcelot" width="440" height="400" fetchpriority="high">
         <p class="kicker">${esc(t.hero.kicker)}</p>
@@ -137,7 +188,18 @@ function pagina(taal, t, w, data, alle) {
       ${t.punten.map((p, i) => `<div class="punt">${SVG[PUNT_ICOON[i]]}<h2>${esc(p.titel)}</h2><p>${esc(p.tekst)}</p></div>`).join('\n      ')}
     </section>
 
-    <section class="blok" id="werkt">
+${(CONFIG.videos || {})[taal] ? `    <section class="blok" id="video">
+      <h2 class="titel">${esc(t.video.titel)}</h2>
+      <div class="video" data-yt="${esc(CONFIG.videos[taal])}">
+        <button type="button" class="video-start" aria-label="${esc(t.video.knop)}">
+          <img src="${rel}video/${taal}.webp" alt="" width="960" height="540" loading="lazy" decoding="async">
+          <span class="video-knop"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg>${esc(t.video.knop)}</span>
+        </button>
+      </div>
+      <p class="noot video-noot">${esc(t.video.noot)}</p>
+    </section>
+
+` : ''}    <section class="blok" id="werkt">
       <h2 class="titel">${esc(t.stappen.titel)}</h2>
       <ol class="stappen">
         ${t.stappen.lijst.map(s => `<li><h3>${esc(s.titel)}</h3><p>${esc(s.tekst)}</p></li>`).join('\n        ')}
@@ -180,6 +242,14 @@ function pagina(taal, t, w, data, alle) {
       </ol>
     </section>
 
+    <section class="blok" id="opvolgen">
+      <h2 class="titel">${esc(t.opvolgen.titel)}</h2>
+      <p class="intro">${esc(t.opvolgen.tekst)}</p>
+      <ul class="hallen vier">
+        ${t.opvolgen.lijst.map(x => `<li class="hal"><img src="${rel}img/spellen/${OPVOLGEN_ICOON[x.id]}.webp" alt="" width="96" height="96" loading="lazy" decoding="async"><h3>${esc(x.naam)}</h3><p>${esc(x.tekst)}</p></li>`).join('\n        ')}
+      </ul>
+    </section>
+
     <section class="blok" id="motivatie">
       <h2 class="titel">${esc(t.motivatie.titel)}</h2>
       <ul class="hallen vier">
@@ -212,37 +282,64 @@ function pagina(taal, t, w, data, alle) {
       <div class="faq">
         ${t.faq.lijst.map(x => `<details><summary>${esc(x.v)}</summary><p>${esc(x.a)}</p></details>`).join('\n        ')}
       </div>
-    </section>
-  </main>
+    </section>`;
 
-  <footer class="voet">
-    <img src="${rel}img/mark.webp" alt="" width="48" height="48" loading="lazy">
-    <p>${esc(t.voet.door)}</p>
-    <nav class="voet-talen" aria-label="${esc(t.voet.taal)}">${talenLinks}</nav>
-    <p class="klein">${esc(t.voet.rechten)}</p>
-  </footer>
-  <script>
-  // Spreekt de browser een andere taal die de site heeft? Dan een klein wenkje, nooit een automatische sprong.
-  (function () {
-    var talen = ${JSON.stringify(Object.fromEntries(TALEN.map(x => [x, { naar: x === 'nl' ? '' : x + '/', zin: alle[x].taalWenk }])))};
-    var huidig = ${JSON.stringify(taal)};
-    try { if (localStorage.getItem('lancelot-taal')) return; } catch (e) {}
-    var b = (navigator.language || '').slice(0, 2).toLowerCase();
-    if (!talen[b] || b === huidig) return;
-    var p = document.getElementById('taalwenk');
-    var a = document.createElement('a');
-    a.href = ${JSON.stringify(rel)} + talen[b].naar; a.lang = b; a.textContent = talen[b].zin;
-    var x = document.createElement('button'); x.type = 'button'; x.setAttribute('aria-label', '×'); x.textContent = '×';
-    x.onclick = function () { p.hidden = true; try { localStorage.setItem('lancelot-taal', huidig); } catch (e) {} };
-    p.appendChild(a); p.appendChild(x); p.hidden = false;
-  })();
-  document.querySelectorAll('.talen-lijst a, .voet-talen a').forEach(function (a) {
-    a.addEventListener('click', function () { try { localStorage.setItem('lancelot-taal', a.lang); } catch (e) {} });
+  return omhulsel({
+    taal, t, alle, root: rel, thuis: '',
+    links: Object.fromEntries(TALEN.map(x => [x, `${rel}${x === 'nl' ? '' : x + '/'}`])),
+    adressen: Object.fromEntries(TALEN.map(x => [x, BASIS + pad(x)])),
+    titel: vul(t.titel), omschrijving: vul(t.omschrijving), beeld: `${BASIS}/shots/${taal}-host.webp`, main,
   });
-  </script>
-</body>
-</html>
-`;
+}
+
+// Een pagina per spel: uitleg, hoe je speelt, wat een goed antwoord geeft en beelden van het bord en de leerlingschermen.
+function spelPagina(taal, t, w, data, alle, s, vorige, volgende) {
+  const tr = x => (w[x] && typeof w[x] === 'string' ? w[x] : x);
+  const root = taal === 'nl' ? '../' : '../../';
+  const info = INFO[s.id] || { vorm: [], juist: {} };
+  const p = t.spel;
+  const naam = tr(s.naam), uitleg = tr(s.uitleg);
+  const b = beeldPad(taal, s.id);
+  const beelden = heeftBeelden(taal, s.id) ? `
+      <h2 class="titel klein">${esc(p.schermen)}</h2>
+      <div class="spelbeelden">
+        <figure class="sb-bord"><img src="${root}${b}-bord.webp" alt="${esc(`${naam}: ${p.bord}`)}" width="960" height="540" decoding="async"><figcaption>${SVG.bord}${esc(p.bord)}</figcaption></figure>
+        <figure class="sb-cb"><img src="${root}${b}-cb.webp" alt="${esc(`${naam}: ${p.chromebook}`)}" width="800" height="450" loading="lazy" decoding="async"><figcaption>${SVG.laptop}${esc(p.chromebook)}</figcaption></figure>
+        <figure class="sb-gsm"><img src="${root}${b}-gsm.webp" alt="${esc(`${naam}: ${p.gsm}`)}" width="270" height="585" loading="lazy" decoding="async"><figcaption>${SVG.gsm}${esc(p.gsm)}</figcaption></figure>
+      </div>` : '';
+  const feit = (ic, kop, tekst) => `<li>${SVG[ic]}<div><strong>${esc(kop)}</strong><span>${esc(tekst)}</span></div></li>`;
+  const feiten = [
+    info.vorm.length ? feit('tegels', p.vorm, info.vorm.map(v => p.vormen[v]).join(' · ')) : '',
+    info.juist[taal] ? feit('vink', p.juist, info.juist[taal]) : '',
+    feit('bliksem', p.quiz, p.quizTekst),
+    feit('gsm', p.toestellen, p.toestellenTekst),
+  ].filter(Boolean).join('\n          ');
+  const nav = (x, kl, label) => `<a class="${kl}" href="${x.id}.html"><img src="${root}img/spellen/${x.icoon}" alt="" width="40" height="40" loading="lazy"><span><small>${esc(label)}</small>${esc(tr(x.naam))}</span></a>`;
+  const main = `    <section class="blok spelpagina">
+      <a class="terug" href="../#spellen">← ${esc(p.terug)}</a>
+      <div class="spelkop">
+        <img src="${root}img/spellen/${s.icoon}" alt="" width="112" height="112">
+        <div>
+          <p class="kicker">${esc(t.spellen.groepen[s.groep] || tr(s.groep))}</p>
+          <h1>${esc(naam)}</h1>
+          <p class="lead">${esc(uitleg)}</p>
+        </div>
+      </div>
+      <ul class="feiten">
+          ${feiten}
+      </ul>${beelden}
+      <nav class="spelnav" aria-label="${esc(t.nav.spellen)}">
+        ${nav(vorige, 'vorige', p.vorige)}
+        ${nav(volgende, 'volgende', p.volgende)}
+      </nav>
+    </section>`;
+  return omhulsel({
+    taal, t, alle, root, thuis: '../',
+    links: Object.fromEntries(TALEN.map(x => [x, root + spelPad(x, s.id)])),
+    adressen: Object.fromEntries(TALEN.map(x => [x, `${BASIS}/${spelPad(x, s.id)}`])),
+    titel: `${naam} · LANcelot`, omschrijving: uitleg,
+    beeld: heeftBeelden(taal, s.id) ? `${BASIS}/${b}-bord.webp` : `${BASIS}/shots/${taal}-arena.webp`, main,
+  });
 }
 
 function kopieer(van, naar) {
@@ -254,7 +351,7 @@ function bouw() {
   const data = spellen();
   const alle = Object.fromEntries(TALEN.map(x => [x, JSON.parse(fs.readFileSync(path.join(BRON, 'teksten', `${x}.json`), 'utf8'))]));
   // Beelden uit de app: iconen van spellen en zalen, het merk en de lettertypes.
-  const iconen = new Set(['arena', 'ronde-tafel', 'smidse', 'wapenkamer', 'kronieken', ...Object.values(MOTIVATIE_ICOON)].map(x => x + '.webp'));
+  const iconen = new Set(['arena', 'ronde-tafel', 'smidse', 'wapenkamer', 'kronieken', ...Object.values(MOTIVATIE_ICOON), ...Object.values(OPVOLGEN_ICOON)].map(x => x + '.webp'));
   for (const g of data.groepen) for (const s of g.spellen) iconen.add(s.icoon);
   fs.rmSync(path.join(SITE, 'img', 'spellen'), { recursive: true, force: true });
   for (const f of iconen) kopieer(path.join(ROOT, 'public', 'img', 'icons', f), path.join(SITE, 'img', 'spellen', f));
@@ -272,11 +369,19 @@ function bouw() {
     const doel = taal === 'nl' ? path.join(SITE, 'index.html') : path.join(SITE, taal, 'index.html');
     fs.mkdirSync(path.dirname(doel), { recursive: true });
     fs.writeFileSync(doel, html);
+    // Een pagina per spel.
+    const lijst = data.groepen.flatMap(g => g.spellen);
+    const map = path.join(SITE, taal === 'nl' ? '' : taal, 'spellen');
+    fs.mkdirSync(map, { recursive: true });
+    for (const f of fs.readdirSync(map)) if (f.endsWith('.html')) fs.rmSync(path.join(map, f));
+    lijst.forEach((s, i) => fs.writeFileSync(path.join(map, `${s.id}.html`),
+      spelPagina(taal, alle[taal], appWoorden(taal), data, alle, s, lijst[(i - 1 + lijst.length) % lijst.length], lijst[(i + 1) % lijst.length])));
   }
   const basis = CONFIG.adres.replace(/\/$/, '');
   fs.writeFileSync(path.join(SITE, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${TALEN.map(x => `  <url><loc>${basis}${pad(x)}</loc></url>`).join('\n')}
+${TALEN.flatMap(x => data.groepen.flatMap(g => g.spellen).map(sp => `  <url><loc>${basis}/${spelPad(x, sp.id)}</loc></url>`)).join('\n')}
 </urlset>
 `);
   fs.writeFileSync(path.join(SITE, 'robots.txt'), `User-agent: *\nAllow: /\nSitemap: ${basis}/sitemap.xml\n`);
