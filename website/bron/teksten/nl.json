@@ -9,15 +9,15 @@
     "ai": "AI",
     "privacy": "Privacy",
     "faq": "Vragen",
-    "download": "Downloaden"
+    "download": "Binnenkort"
   },
   "hero": {
     "kicker": "Gemaakt door een leerkracht, voor de klas",
     "titel": "Quizzen, peilingen en {n} spellen. Op je eigen klasnetwerk.",
     "tekst": "LANcelot draait op de pc in je klas. Leerlingen scannen de QR-code op het bord en spelen mee op hun Chromebook, tablet of gsm. Geen accounts, geen abonnement, geen limiet op leerlingen of vragen.",
-    "knop": "Gratis downloaden",
+    "knop": "Binnenkort beschikbaar",
     "knop2": "Bekijk de spellen",
-    "noot": "Gratis voor leerkrachten · Windows-pc · Leerlingen via de browser"
+    "noot": "Gratis voor leerkrachten · Binnenkort beschikbaar · Leerlingen via de browser"
   },
   "punten": [
     {
@@ -181,15 +181,8 @@
   },
   "download": {
     "titel": "Haal LANcelot in je klas",
-    "tekst": "Gratis voor leerkrachten en scholen.",
-    "stappen": [
-      "Installeer eenmalig Node.js (de LTS-versie) op de Windows-pc van de klas.",
-      "Download LANcelot en pak de zip uit, bijvoorbeeld op het bureaublad.",
-      "Dubbelklik op Start LANcelot.bat. Het leerkrachtenscherm opent vanzelf."
-    ],
-    "knop": "LANcelot downloaden",
-    "node": "Node.js downloaden",
-    "noot": "Een nieuwe versie haal je binnen vanuit de app. Je quizzen en klasgegevens blijven bewaard."
+    "tekst": "LANcelot komt binnenkort beschikbaar. Gratis voor leerkrachten en scholen.",
+    "noot": "Je hebt enkel een Windows-pc in de klas nodig. Leerlingen spelen mee in de browser."
   },
   "faq": {
     "titel": "Veelgestelde vragen",

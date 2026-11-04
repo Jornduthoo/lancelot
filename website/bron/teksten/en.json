@@ -9,15 +9,15 @@
     "ai": "AI",
     "privacy": "Privacy",
     "faq": "FAQ",
-    "download": "Download"
+    "download": "Coming soon"
   },
   "hero": {
     "kicker": "Made by a teacher, for the classroom",
     "titel": "Quizzes, polls and {n} games. On your own classroom network.",
     "tekst": "LANcelot runs on the PC in your classroom. Students scan the QR code on the board and play along on their Chromebook, tablet or phone. No accounts, no subscription, no limit on students or questions.",
-    "knop": "Download for free",
+    "knop": "Coming soon",
     "knop2": "See the games",
-    "noot": "Free for teachers · Windows PC · Students join in the browser"
+    "noot": "Free for teachers · Coming soon · Students join in the browser"
   },
   "punten": [
     {
@@ -181,15 +181,8 @@
   },
   "download": {
     "titel": "Bring LANcelot to your classroom",
-    "tekst": "Free for teachers and schools.",
-    "stappen": [
-      "Install Node.js (the LTS version) once on the classroom Windows PC.",
-      "Download LANcelot and unzip it, for example on the desktop.",
-      "Double-click Start LANcelot.bat. The teacher screen opens by itself."
-    ],
-    "knop": "Download LANcelot",
-    "node": "Download Node.js",
-    "noot": "Get new versions from inside the app. Your quizzes and class data are kept."
+    "tekst": "LANcelot will be available soon. Free for teachers and schools.",
+    "noot": "All you need is a Windows PC in the classroom. Students join in their browser."
   },
   "faq": {
     "titel": "Frequently asked questions",

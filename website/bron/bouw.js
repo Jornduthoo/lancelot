@@ -124,7 +124,7 @@ function pagina(taal, t, w, data, alle) {
         <h1>${esc(vul(t.hero.titel))}</h1>
         <p class="lead">${esc(t.hero.tekst)}</p>
         <div class="knoppen">
-          <a class="knop" href="#download">${SVG.pijl}${esc(t.hero.knop)}</a>
+          <a class="knop" href="#download">${esc(t.hero.knop)}</a>
           <a class="knop tweede" href="#spellen">${esc(t.hero.knop2)}</a>
         </div>
         <p class="noot">${esc(t.hero.noot)}</p>
@@ -201,13 +201,7 @@ function pagina(taal, t, w, data, alle) {
     <section class="blok download" id="download">
       <h2 class="titel">${esc(t.download.titel)}</h2>
       <p class="intro">${esc(t.download.tekst)}</p>
-      <ol class="stappen klein">
-        ${t.download.stappen.map(s => `<li><p>${esc(s)}</p></li>`).join('\n        ')}
-      </ol>
-      <div class="knoppen">
-        <a class="knop" href="${esc(CONFIG.download)}">${SVG.pijl}${esc(t.download.knop)}</a>
-        <a class="knop tweede" href="https://nodejs.org/" rel="noopener">${esc(t.download.node)}</a>
-      </div>
+      <p class="binnenkort">${esc(t.nav.download)}</p>
       <p class="noot">${esc(t.download.noot)}</p>
     </section>
 

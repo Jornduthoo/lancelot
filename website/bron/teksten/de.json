@@ -9,15 +9,15 @@
     "ai": "KI",
     "privacy": "Datenschutz",
     "faq": "Fragen",
-    "download": "Herunterladen"
+    "download": "Bald"
   },
   "hero": {
     "kicker": "Von einer Lehrkraft gemacht, für die Klasse",
     "titel": "Quiz, Umfragen und {n} Spiele. Im eigenen Klassennetz.",
     "tekst": "LANcelot läuft auf dem PC in deiner Klasse. Die Kinder scannen den QR-Code an der Tafel und spielen auf Chromebook, Tablet oder Handy mit. Keine Konten, kein Abo, keine Grenze bei Kindern oder Fragen.",
-    "knop": "Kostenlos herunterladen",
+    "knop": "Bald verfügbar",
     "knop2": "Spiele ansehen",
-    "noot": "Kostenlos für Lehrkräfte · Windows-PC · Die Kinder spielen im Browser"
+    "noot": "Kostenlos für Lehrkräfte · Bald verfügbar · Die Kinder spielen im Browser"
   },
   "punten": [
     {
@@ -181,15 +181,8 @@
   },
   "download": {
     "titel": "Hol LANcelot in deine Klasse",
-    "tekst": "Kostenlos für Lehrkräfte und Schulen.",
-    "stappen": [
-      "Installiere einmalig Node.js (die LTS-Version) auf dem Windows-PC der Klasse.",
-      "Lade LANcelot herunter und entpacke die Zip-Datei, zum Beispiel auf dem Desktop.",
-      "Doppelklicke auf Start LANcelot.bat. Der Lehrerbildschirm öffnet sich von selbst."
-    ],
-    "knop": "LANcelot herunterladen",
-    "node": "Node.js herunterladen",
-    "noot": "Neue Versionen holst du direkt in der App. Deine Quiz und Klassendaten bleiben erhalten."
+    "tekst": "LANcelot ist bald verfügbar. Kostenlos für Lehrkräfte und Schulen.",
+    "noot": "Du brauchst nur einen Windows-PC in der Klasse. Die Kinder spielen im Browser mit."
   },
   "faq": {
     "titel": "Häufige Fragen",

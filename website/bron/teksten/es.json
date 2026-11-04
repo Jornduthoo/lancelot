@@ -9,15 +9,15 @@
     "ai": "IA",
     "privacy": "Privacidad",
     "faq": "Preguntas",
-    "download": "Descargar"
+    "download": "Próximamente"
   },
   "hero": {
     "kicker": "Hecho por un profesor, para el aula",
     "titel": "Cuestionarios, encuestas y {n} juegos. En tu propia red del aula.",
     "tekst": "LANcelot funciona en el PC de tu aula. Los alumnos escanean el código QR de la pizarra y juegan en su Chromebook, tableta o móvil. Sin cuentas, sin suscripción, sin límite de alumnos ni de preguntas.",
-    "knop": "Descargar gratis",
+    "knop": "Próximamente",
     "knop2": "Ver los juegos",
-    "noot": "Gratis para profesores · PC con Windows · Los alumnos juegan en el navegador"
+    "noot": "Gratis para profesores · Próximamente · Los alumnos juegan en el navegador"
   },
   "punten": [
     {
@@ -181,15 +181,8 @@
   },
   "download": {
     "titel": "Lleva LANcelot a tu aula",
-    "tekst": "Gratis para profesores y colegios.",
-    "stappen": [
-      "Instala una vez Node.js (la versión LTS) en el PC con Windows del aula.",
-      "Descarga LANcelot y descomprime el zip, por ejemplo en el escritorio.",
-      "Haz doble clic en Start LANcelot.bat. La pantalla del profesor se abre sola."
-    ],
-    "knop": "Descargar LANcelot",
-    "node": "Descargar Node.js",
-    "noot": "Las nuevas versiones se instalan desde la app. Tus cuestionarios y los datos de tu clase se conservan."
+    "tekst": "LANcelot estará disponible muy pronto. Gratis para profesores y colegios.",
+    "noot": "Solo necesitas un PC con Windows en el aula. Los alumnos juegan desde el navegador."
   },
   "faq": {
     "titel": "Preguntas frecuentes",

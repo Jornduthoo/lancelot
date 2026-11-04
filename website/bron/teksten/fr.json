@@ -9,15 +9,15 @@
     "ai": "IA",
     "privacy": "Vie privée",
     "faq": "Questions",
-    "download": "Télécharger"
+    "download": "Bientôt"
   },
   "hero": {
     "kicker": "Créé par un enseignant, pour la classe",
     "titel": "Quiz, sondages et {n} jeux. Sur ton propre réseau de classe.",
     "tekst": "LANcelot tourne sur le PC de ta classe. Les élèves scannent le code QR au tableau et jouent sur leur Chromebook, leur tablette ou leur téléphone. Sans compte, sans abonnement, sans limite d’élèves ni de questions.",
-    "knop": "Télécharger gratuitement",
+    "knop": "Bientôt disponible",
     "knop2": "Voir les jeux",
-    "noot": "Gratuit pour les enseignants · PC Windows · Les élèves jouent dans le navigateur"
+    "noot": "Gratuit pour les enseignants · Bientôt disponible · Les élèves jouent dans le navigateur"
   },
   "punten": [
     {
@@ -181,15 +181,8 @@
   },
   "download": {
     "titel": "Fais entrer LANcelot dans ta classe",
-    "tekst": "Gratuit pour les enseignants et les écoles.",
-    "stappen": [
-      "Installe une fois Node.js (la version LTS) sur le PC Windows de la classe.",
-      "Télécharge LANcelot et décompresse le zip, par exemple sur le bureau.",
-      "Double-clique sur Start LANcelot.bat. L’écran de l’enseignant s’ouvre tout seul."
-    ],
-    "knop": "Télécharger LANcelot",
-    "node": "Télécharger Node.js",
-    "noot": "Les nouvelles versions s’installent depuis l’application. Tes quiz et les données de ta classe sont conservés."
+    "tekst": "LANcelot sera bientôt disponible. Gratuit pour les enseignants et les écoles.",
+    "noot": "Il te faut seulement un PC Windows en classe. Les élèves jouent dans leur navigateur."
   },
   "faq": {
     "titel": "Questions fréquentes",
