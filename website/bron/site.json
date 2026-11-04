@@ -1,5 +1,5 @@
 {
-  "adres": "https://lancelot.pages.dev",
+  "adres": "https://lancelot.network",
   "nietOpSite": [
     "gauntlet",
     "cybergalaga",
@@ -8,5 +8,6 @@
   ],
   "videos": {
     "nl": "7-tjP3Ux3ic"
-  }
+  },
+  "email": "hello@lancelot.network"
 }
