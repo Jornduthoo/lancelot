@@ -14,7 +14,11 @@ een bezoeker laadt per taal zo'n 1,5 MB, de beelden pas als hij ernaar scrolt).
 
 `npm test` controleert dat elke taal alle teksten heeft en dat de site geen bestaande spellen of merken noemt.
 
-## Online zetten met Cloudflare Pages
+## Online zetten met Cloudflare (Workers)
+
+`wrangler.jsonc` in de hoofdmap zegt Cloudflare dat enkel `website/site` online moet. In Workers & Pages: Create > Import a repository > lancelot, build command leeg, deploy command `npx wrangler deploy`. Elke merge op main zet de site vanzelf bij (adres `https://lancelot.<account>.workers.dev`).
+
+## Of met Cloudflare Pages
 
 1. Log in op dash.cloudflare.com, kies **Workers & Pages** > **Create** > **Pages** > **Connect to Git**.
 2. Kies GitHub en de repository **lancelot**.
