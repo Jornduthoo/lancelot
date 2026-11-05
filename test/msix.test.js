@@ -54,3 +54,11 @@ test('elk blok in de blockmap klopt en is apart te lezen', () => {
   assert.match(kaart, /<File Name="Assets\\beeld.png" Size="7" LfhSize="\d+"><Block Hash="[^"]+"\/><\/File>/);
   assert.match(lees('[Content_Types].xml').toString(), /PartName="\/AppxManifest.xml" ContentType="application\/vnd.ms-appx.manifest\+xml"/);
 });
+
+test('de manifest zet pakket-extensies op het niveau van het pakket', () => {
+  const m = fs.readFileSync(path.join(__dirname, '..', 'installer', 'store', 'AppxManifest.xml'), 'utf8');
+  const apps = m.slice(m.indexOf('<Applications>'), m.indexOf('</Applications>'));
+  // windows.firewallRules hoort in Package/Extensions; onder Application weigert de Store het pakket (APPX_E_INVALID_MANIFEST).
+  assert.ok(!apps.includes('windows.firewallRules'));
+  assert.match(m.slice(m.indexOf('</Applications>')), /<Extensions>[\s\S]*windows\.firewallRules/);
+});
