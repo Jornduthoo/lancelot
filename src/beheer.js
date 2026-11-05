@@ -6,6 +6,7 @@ const express = require('express');
 const { execFile } = require('child_process');
 const gegevens = require('./gegevens');
 const bijwerken = require('./bijwerken');
+const store = require('./store');
 const settings = require('./settings');
 const klas = require('./klas');
 
@@ -135,6 +136,15 @@ function host(socket, { port, extern }) {
     Promise.resolve().then(() => fn(arg)).then(r => cb && cb({ ok: true, ...(r || {}) }), err => cb && cb({ error: err.message }));
   };
   socket.emit('welkom-nodig', welkomNodig());
+  // De Store-versie: proefmaand of gekocht, opnieuw controleren na een aankoop, en afsluiten (er is daar geen venster om te sluiten).
+  socket.emit('store', store.view());
+  socket.on('store-controleer', handle(() => store.controleer()));
+  socket.on('store-afsluiten', (_, cb) => {
+    if (!store.ACTIEF) return cb && cb({ error: 'Sluit het venster van LANcelot om te stoppen.' });
+    if (extern) return cb && cb(opBord);
+    cb && cb({ ok: true });
+    setTimeout(() => process.exit(0), 500);
+  });
   socket.on('welkom-klaar', handle(() => { settings.write({ welkom: true }); }));
   socket.on('gegevens-get', handle(() => gegevens.view()));
   socket.on('gegevens-kies', handle(map => { gegevens.kiesMap(map); return gegevens.view(); }));

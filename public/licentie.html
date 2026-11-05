@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <script src="/taal.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LANcelot · Licentie</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body class="klas-host netwerk-hulp">
+<main>
+  <div class="topbar">
+    <div class="brand">
+      <img src="/img/mark.webp" alt="">
+      <div>
+        <div class="wordmark">LAN<span>celot</span></div>
+        <div class="subtitle">Licentie</div>
+      </div>
+    </div>
+  </div>
+
+  <section>
+    <div class="panel form">
+      <h3 id="l-titel">Je proefmaand is voorbij</h3>
+      <p id="l-tekst">Bedankt om LANcelot een maand te proberen! Koop LANcelot in de Microsoft Store om verder te spelen. Je klas, quizzen, logboek en resultaten blijven gewoon bewaard.</p>
+      <p class="error" id="l-error"></p>
+      <div class="actions">
+        <a class="button" id="l-koop" href="#">Koop LANcelot in de Microsoft Store</a>
+        <button class="secondary" id="l-opnieuw">Ik heb gekocht: opnieuw controleren</button>
+      </div>
+    </div>
+    <div class="panel form">
+      <h3>Je gegevens</h3>
+      <p class="muted small">Je gegevens blijven altijd van jou. Een back-up downloaden kan altijd, ook zonder licentie.</p>
+      <div class="actions">
+        <a class="button secondary" href="/back-up">Download een back-up</a>
+        <a class="button secondary" href="/privacy">Privacy</a>
+      </div>
+    </div>
+  </section>
+</main>
+<script>
+  const $ = id => document.getElementById(id);
+  function toon(v) {
+    if (!v) return;
+    $('l-koop').href = v.koop;
+    if (v.soort !== 'verlopen') location.href = '/host';
+  }
+  fetch('/licentie/stand').then(r => r.json()).then(toon).catch(() => {});
+  $('l-opnieuw').addEventListener('click', () => {
+    $('l-error').textContent = '';
+    $('l-opnieuw').disabled = true;
+    fetch('/licentie/stand?opnieuw=1').then(r => r.json()).then(v => {
+      $('l-opnieuw').disabled = false;
+      toon(v);
+      if (v.soort === 'verlopen') $('l-error').textContent = 'De Microsoft Store meldt nog geen aankoop. Probeer het over een minuutje opnieuw.';
+    }).catch(() => { $('l-opnieuw').disabled = false; });
+  });
+</script>
+</body>
+</html>

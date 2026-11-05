@@ -107,6 +107,7 @@ const herhaal = require('./src/herhaal');
 const results = require('./src/results');
 const lesmap = require('./src/lesmap');
 const beheer = require('./src/beheer');
+const store = require('./src/store');
 const schermen = require('./src/schermen');
 const { execFile } = require('child_process');
 const { generateQuiz } = require('./src/ai');
@@ -675,10 +676,22 @@ const GEEN_TOEGANG = '<!doctype html><meta charset="utf-8"><script src="/taal.js
 for (const [route, page] of PAGINAS) {
   app.get(route, (req, res) => {
     if (!isLeerkracht(req)) return res.status(403).send(GEEN_TOEGANG);
+    // Store-versie na de proefmaand zonder aankoop: eerst kopen. Privacy blijft altijd leesbaar.
+    if (route !== '/privacy' && store.geblokkeerd()) return res.redirect('/licentie');
     res.setHeader('Cache-Control', 'no-cache');
     res.sendFile(path.join(__dirname, 'public', page));
   });
 }
+// De licentie van de Store-versie: proefmaand, kopen, opnieuw controleren (zie src/store.js).
+app.get('/licentie', (req, res) => {
+  if (!isLeerkracht(req)) return res.status(403).send(GEEN_TOEGANG);
+  res.setHeader('Cache-Control', 'no-cache');
+  res.sendFile(path.join(__dirname, 'public', 'licentie.html'));
+});
+app.get('/licentie/stand', (req, res) => {
+  if (!isLeerkracht(req)) return res.status(403).end();
+  (req.query.opnieuw ? store.controleer() : Promise.resolve(store.view())).then(v => res.json(v));
+});
 // Het Runenraadsel voor leerlingen: elke dag te spelen op hun eigen toestel, ook als er geen spel loopt.
 app.get('/runen', (req, res) => {
   res.setHeader('Cache-Control', 'no-cache');
@@ -2370,9 +2383,9 @@ server.once('listening', () => {
   for (const a of lanAddresses()) console.log(`  Leerlingen:      http://${a}:${PORT}`);
   if (PORT !== EERSTE_POORT) console.log(`\n  Let op: poort ${EERSTE_POORT} is bezet door een ander programma, daarom gebruikt LANcelot nu poort ${PORT}.\n  Leerlingen gebruiken gewoon het adres op het bord. Lukt het niet, druk dan in Instellingen nog eens op "Firewall goed zetten".`);
   if (PORT !== EERSTE_POORT) { const wie = require('./src/poortgebruiker').uitleg(EERSTE_POORT); if (wie) console.log(wie); }
-  console.log('\n  Sluit dit venster om te stoppen.\n');
+  if (!store.ACTIEF) console.log('\n  Sluit dit venster om te stoppen.\n');
   // Start LANcelot.bat vraagt om het leerkrachtenscherm te openen zodra de server echt luistert, op de juiste poort.
-  if (process.env.LANCELOT_OPEN && process.platform === 'win32') execFile('cmd', ['/c', 'start', '', `http://localhost:${PORT}/host`], { windowsHide: true });
+  if ((process.env.LANCELOT_OPEN || store.ACTIEF) && process.platform === 'win32') execFile('cmd', ['/c', 'start', '', `http://localhost:${PORT}/host`], { windowsHide: true });
 });
 function poortBezet(err) {
   if (err.code === 'EADDRINUSE' && !VASTE_POORT && PORT < EERSTE_POORT + 10) {

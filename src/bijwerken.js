@@ -10,6 +10,7 @@ const path = require('path');
 const zip = require('./zip');
 const gegevens = require('./gegevens');
 const settings = require('./settings');
+const store = require('./store');
 
 const REPO = 'Jornduthoo/lancelot';
 const TAK = 'main';
@@ -36,7 +37,14 @@ function eigenBron() {
   return /^https?:\/\//i.test(url) ? url : '';
 }
 
+// De versie uit de Microsoft Store wordt door de Store bijgewerkt (de map van de app is daar ook alleen-lezen).
+const VIA_STORE = 'Deze versie komt uit de Microsoft Store en wordt daar vanzelf bijgewerkt.';
+function nietInStore() {
+  if (store.ACTIEF) throw new Error(VIA_STORE);
+}
+
 function kiesBron(url) {
+  nietInStore();
   const clean = String(url || '').trim();
   if (clean && !/^https?:\/\/\S+$/i.test(clean)) throw new Error('Een update-adres begint met https://');
   settings.write({ updateBron: clean });
@@ -45,6 +53,7 @@ function kiesBron(url) {
 }
 
 function view() {
+  if (store.ACTIEF) return { store: true, melding: VIA_STORE };
   return { ...status, bron: eigenBron(), github: !eigenBron(), huidig: leesJson(VERSIE), klaar: fs.existsSync(KLAAR) ? leesJson(KLAAR_INFO) : null, melding: laatsteMelding || (process.env.LANCELOT_BIJGEWERKT ? 'LANcelot is bijgewerkt naar de nieuwste versie.' : '') };
 }
 
@@ -62,6 +71,7 @@ async function haal(url) {
 
 // Welke versie staat er nu op GitHub?
 async function zoek() {
+  nietInStore();
   status = { ...status, bezig: true, fout: '' };
   try {
     const bron = eigenBron();
@@ -84,6 +94,7 @@ async function zoek() {
 
 // De nieuwste versie downloaden en klaarzetten. Installeren gebeurt bij de volgende start.
 async function download() {
+  nietInStore();
   if (!status.nieuwste) await zoek();
   if (!status.nieuwste) return view();
   const { sha, datum, bericht } = status.nieuwste;
@@ -124,6 +135,7 @@ function zetKlaar(buf, info) {
 
 // Bijwerken met een zip van LANcelot (bv. de schoolzip op een usb-stick): zonder internet en zonder GitHub.
 function uitBestand(buf, naam) {
+  nietInStore();
   if (status.bezig) throw new Error('Er loopt al een update. Wacht even.');
   zetKlaar(Buffer.isBuffer(buf) ? buf : Buffer.from(buf || []), { sha: '', datum: new Date().toISOString(), bericht: `uit ${String(naam || 'een zip-bestand').replace(/[^\w .()-]/g, '').slice(0, 80)}`, bestand: true });
   return view();
@@ -141,6 +153,7 @@ let laatsteMelding = '';
 // Bij het opstarten, nog voor de server: een klaargezette update installeren.
 // Geeft { npm } terug als er geïnstalleerd werd (npm: de onderdelen moeten opnieuw geïnstalleerd worden), anders null.
 function pasToe() {
+  if (store.ACTIEF) return null;
   if (!fs.existsSync(KLAAR)) return null;
   const info = leesJson(KLAAR_INFO) || {};
   const nieuw = path.join(DIR, 'nieuw');
