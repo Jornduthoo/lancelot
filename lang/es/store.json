@@ -25,5 +25,6 @@
  "Deze versie komt uit de Microsoft Store en wordt daar vanzelf bijgewerkt.": "Esta versión viene de Microsoft Store y se actualiza allí automáticamente.",
  "In de versie uit de Microsoft Store blijven je gegevens in de vaste map.": "En la versión de Microsoft Store tus datos permanecen en la carpeta fija.",
  "Sluit het venster van LANcelot om te stoppen.": "Cierra la ventana de LANcelot para detenerlo.",
- "Bypass": null
+ "Bypass": null,
+ "{0} / {1} geantwoord": "{0} / {1} han respondido"
 }
