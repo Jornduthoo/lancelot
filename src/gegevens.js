@@ -207,6 +207,7 @@ function zetTerug() {
 
 // De nieuwe map wordt onthouden; de verhuis zelf gebeurt bij de volgende start.
 function kiesMap(map) {
+  if (require('./store').ACTIEF) throw new Error('In de versie uit de Microsoft Store blijven je gegevens in de vaste map.');
   if (process.env.LANCELOT_DATA) throw new Error('De gegevensmap is vastgezet met LANCELOT_DATA.');
   const clean = String(map || '').trim().replace(/^"|"$/g, '');
   if (!clean) {
@@ -232,7 +233,7 @@ function view() {
     apart: DATA !== APP,
     volgende: map !== DATA ? map : '',
     standaard: standaardMap(),
-    vast: !!process.env.LANCELOT_DATA,
+    vast: !!process.env.LANCELOT_DATA || require('./store').ACTIEF,
     melding,
     terugzetten: terugzettenKlaar(),
     backups: lijst().slice(0, 12),

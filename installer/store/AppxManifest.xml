@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- LANcelot voor de Microsoft Store. maak-pakket.js vult de versie in. Identity en Publisher komen uit Partner Center
+     (Apps en games > Lancelot > Productidentiteit): ze moeten daar exact mee overeenkomen. -->
+<Package
+  xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+  xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+  xmlns:desktop2="http://schemas.microsoft.com/appx/manifest/desktop/windows10/2"
+  xmlns:desktop6="http://schemas.microsoft.com/appx/manifest/desktop/windows10/6"
+  xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
+  IgnorableNamespaces="uap desktop2 desktop6 rescap">
+  <Identity Name="Jorn.Lancelot" Publisher="CN=DC7B1AA4-00BE-4CE3-B851-048D44DCE9AC" Version="{VERSIE}" ProcessorArchitecture="x64" />
+  <Properties>
+    <DisplayName>LANcelot</DisplayName>
+    <PublisherDisplayName>Jorn</PublisherDisplayName>
+    <Logo>Assets\StoreLogo.png</Logo>
+    <!-- De gegevens van de klas staan in %LOCALAPPDATA%\LANcelot, niet in de verborgen map van het pakket:
+         zo blijven ze bewaard als iemand LANcelot verwijdert en opnieuw installeert. -->
+    <desktop6:FileSystemWriteVirtualization>disabled</desktop6:FileSystemWriteVirtualization>
+  </Properties>
+  <Dependencies>
+    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.19041.0" MaxVersionTested="10.0.26100.0" />
+  </Dependencies>
+  <Resources>
+    <Resource Language="nl" />
+    <Resource Language="en" />
+    <Resource Language="fr" />
+    <Resource Language="es" />
+    <Resource Language="de" />
+  </Resources>
+  <Capabilities>
+    <Capability Name="internetClient" />
+    <Capability Name="privateNetworkClientServer" />
+    <rescap:Capability Name="runFullTrust" />
+    <rescap:Capability Name="unvirtualizedResources" />
+  </Capabilities>
+  <Applications>
+    <Application Id="LANcelot" Executable="LANcelot.exe" EntryPoint="Windows.FullTrustApplication">
+      <uap:VisualElements DisplayName="LANcelot" Description="LANcelot" BackgroundColor="transparent"
+        Square150x150Logo="Assets\Square150x150Logo.png" Square44x44Logo="Assets\Square44x44Logo.png">
+        <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png" Square71x71Logo="Assets\Square71x71Logo.png" Square310x310Logo="Assets\Square310x310Logo.png" ShortName="LANcelot" />
+      </uap:VisualElements>
+      <Extensions>
+        <!-- Leerlingen verbinden met de server op deze pc: de firewall gaat bij de installatie open voor poort 3000-3010. -->
+        <desktop2:Extension Category="windows.firewallRules">
+          <desktop2:FirewallRules Executable="node\node.exe">
+            <desktop2:Rule Direction="in" IPProtocol="TCP" Profile="all" LocalPortMin="3000" LocalPortMax="3010" />
+          </desktop2:FirewallRules>
+        </desktop2:Extension>
+      </Extensions>
+    </Application>
+  </Applications>
+</Package>

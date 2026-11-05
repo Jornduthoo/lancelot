@@ -125,6 +125,7 @@
 
   // --- Bijwerken ---
   function toonUpdate(v) {
+    if (v.store) return;
     if (v.error) return void ($('up-error').textContent = v.error);
     $('up-error').textContent = v.fout || '';
     const nieuwst = v.nieuwste;
@@ -159,6 +160,43 @@
     } catch (err) {
       toonUpdate({ error: err.message });
     }
+  });
+
+  // --- Store-versie: proefmaand, kopen, afsluiten ---
+  function toonStore(v) {
+    if (!v || !v.store) return;
+    $('update-panel').classList.add('hidden');
+    $('store-panel').classList.remove('hidden');
+    $('sk-zet').classList.add('hidden');
+    $('st-koop').href = $('store-tip-koop').href = v.koop;
+    const proef = v.soort === 'proef';
+    const tekst = proef
+      ? (v.dagen ? (v.dagen === 1 ? 'Je proefmaand: nog 1 dag. Alles werkt volledig.' : `Je proefmaand: nog ${v.dagen} dagen. Alles werkt volledig.`) : 'Je proefmaand loopt. Alles werkt volledig.')
+      : v.soort === 'volledig' ? '✓ LANcelot is gekocht. Bedankt!'
+        : v.soort === 'verlopen' ? 'Je proefmaand is voorbij. Koop LANcelot om verder te spelen.'
+          : '';
+    $('st-stand').textContent = tekst;
+    $('st-koop').classList.toggle('hidden', v.soort === 'volledig');
+    // Op het startscherm: alleen in de laatste week van de proefmaand.
+    const tip = proef && v.dagen && v.dagen <= 7;
+    $('store-tip-tekst').textContent = tip ? tekst : '';
+    $('store-tip').classList.toggle('hidden', !tip);
+  }
+  socket.on('store', toonStore);
+  $('st-controleer').addEventListener('click', async () => {
+    $('st-error').textContent = '';
+    $('st-controleer').disabled = true;
+    const res = await ask('store-controleer');
+    $('st-controleer').disabled = false;
+    if (res.error) return void ($('st-error').textContent = res.error);
+    toonStore(res);
+    if (res.soort === 'verlopen') location.href = '/licentie';
+  });
+  $('st-uit').addEventListener('click', async () => {
+    if (!await Ui.vraag('LANcelot afsluiten? Leerlingen kunnen dan niet meer spelen tot je LANcelot opnieuw start.', { ja: 'Afsluiten', nee: 'Annuleren' })) return;
+    const res = await ask('store-afsluiten');
+    if (res.error) return void ($('st-error').textContent = res.error);
+    document.body.innerHTML = '<p style="padding:24px;font-size:1.2rem">LANcelot is afgesloten. Je mag dit venster sluiten.</p>';
   });
 
   // --- Firewall ---

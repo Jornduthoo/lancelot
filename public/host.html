@@ -49,6 +49,7 @@
       <img src="/img/logo.webp" alt="LANcelot" data-logo-3d>
       <p>Alles voor je klas, op je eigen netwerk</p>
     </div>
+    <p class="notice hidden" id="store-tip"><span id="store-tip-tekst"></span> <a id="store-tip-koop" href="#">Koop LANcelot in de Microsoft Store</a></p>
     <p class="notice hidden" id="welkom-tip">👋 De eerste keer LANcelot? <a href="/welkom">Zet in vier stappen je klas, je leerjaar en het netwerk klaar.</a></p>
     <!-- Het startscherm toont enkel de vijf rijken. Een klik opent het rijk; het logo of "Alle rijken" brengt je terug. -->
     <div class="realms">
@@ -695,6 +696,17 @@
         <label>Update-adres<input id="up-bron" autocomplete="off" placeholder="https://…"></label>
         <div class="actions"><button class="secondary" id="up-bron-zet">Bewaren</button></div>
       </details>
+    </div>
+    <div class="panel form hidden" id="store-panel" data-tab="bijwerken">
+      <h3>LANcelot uit de Microsoft Store</h3>
+      <p class="muted small">Deze versie wordt vanzelf bijgewerkt via de Microsoft Store. Je gegevens blijven altijd staan.</p>
+      <p id="st-stand"></p>
+      <p class="error" id="st-error"></p>
+      <div class="actions">
+        <a class="button hidden" id="st-koop" href="#">Koop LANcelot</a>
+        <button class="secondary" id="st-controleer">Opnieuw controleren</button>
+        <button class="secondary" id="st-uit">LANcelot afsluiten</button>
+      </div>
     </div>
     <div class="panel form" data-tab="netwerk">
       <h3>Eerste keer en netwerk<details class="hulp"><summary aria-label="Uitleg">?</summary><p>De leerlingen moeten op hetzelfde wifi-netwerk zitten als deze pc. Lukt het niet? Kijk bij "Netwerk werkt niet?": daar staat stap voor stap wat je kan nakijken.</p></details></h3>
