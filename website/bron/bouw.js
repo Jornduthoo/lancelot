@@ -63,6 +63,9 @@ const MOTIVATIE_ICOON = { ridder: 'toernooi', klaseiland: 'klaseiland', huisdier
 function pad(taal) { return taal === 'nl' ? '/' : `/${taal}/`; }
 const BASIS = CONFIG.adres.replace(/\/$/, '');
 const INFO = JSON.parse(fs.readFileSync(path.join(BRON, 'spellen.json'), 'utf8'));
+// Het privacybeleid (ook het adres dat in de Microsoft Store staat): bron/privacy.json, een pagina per taal.
+const PRIVACY = JSON.parse(fs.readFileSync(path.join(BRON, 'privacy.json'), 'utf8'));
+const privacyPad = taal => `${taal === 'nl' ? '' : taal + '/'}privacy.html`;
 // Schermafbeeldingen per spel (website/site/beelden/<taal>/<id>-bord|cb|gsm.webp), gemaakt met bron/spelbeelden.js.
 const BEELDEN = ['bord', 'cb', 'gsm'];
 const spelPad = (taal, id) => `${taal === 'nl' ? '' : taal + '/'}spellen/${id}.html`;
@@ -123,6 +126,7 @@ ${main}
     <p>${esc(t.voet.door)}</p>
     ${CONFIG.email ? `<p class="contact">${esc(t.voet.contact)} <a href="mailto:${esc(CONFIG.email)}">${esc(CONFIG.email)}</a></p>` : ''}
     <nav class="voet-talen" aria-label="${esc(t.voet.taal)}">${talenLinks}</nav>
+    <p class="klein"><a href="${root}${privacyPad(taal)}">${esc(PRIVACY[taal].link)}</a></p>
     <p class="klein">${esc(t.voet.rechten)}</p>
   </footer>
   <script>
@@ -344,6 +348,25 @@ function spelPagina(taal, t, w, data, alle, s, vorige, volgende) {
   });
 }
 
+// Het privacybeleid: kort en volledig, in elke taal.
+function privacyPagina(taal, t, alle) {
+  const p = PRIVACY[taal];
+  const root = taal === 'nl' ? '' : '../';
+  const main = `    <section class="blok privacybeleid">
+      <h1 class="titel">${esc(p.titel)}</h1>
+      <p class="klein">${esc(p.bijgewerkt)}</p>
+${p.secties.map(([kop, alineas]) => `      <h2>${esc(kop)}</h2>\n${alineas.map(a => `      <p>${esc(a)}</p>`).join('\n')}`).join('\n')}
+    </section>`;
+  return omhulsel({
+    taal, t, alle, root, thuis: './',
+    links: Object.fromEntries(TALEN.map(x => [x, root + privacyPad(x)])),
+    adressen: Object.fromEntries(TALEN.map(x => [x, `${BASIS}/${privacyPad(x)}`])),
+    titel: `${p.titel} · LANcelot`, omschrijving: p.omschrijving,
+    beeld: `${BASIS}/shots/${taal}-arena.webp`, main,
+    extraCss: '\n  <style>.privacybeleid{max-width:760px;margin:0 auto}.privacybeleid h2{margin:1.6em 0 .4em;font-size:1.25rem}.privacybeleid p{line-height:1.6;margin:.6em 0}</style>',
+  });
+}
+
 function kopieer(van, naar) {
   fs.mkdirSync(path.dirname(naar), { recursive: true });
   fs.copyFileSync(van, naar);
@@ -371,6 +394,7 @@ function bouw() {
     const doel = taal === 'nl' ? path.join(SITE, 'index.html') : path.join(SITE, taal, 'index.html');
     fs.mkdirSync(path.dirname(doel), { recursive: true });
     fs.writeFileSync(doel, html);
+    fs.writeFileSync(path.join(SITE, privacyPad(taal)), privacyPagina(taal, alle[taal], alle));
     // Een pagina per spel.
     const lijst = data.groepen.flatMap(g => g.spellen);
     const map = path.join(SITE, taal === 'nl' ? '' : taal, 'spellen');
@@ -383,6 +407,7 @@ function bouw() {
   fs.writeFileSync(path.join(SITE, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${TALEN.map(x => `  <url><loc>${basis}${pad(x)}</loc></url>`).join('\n')}
+${TALEN.map(x => `  <url><loc>${basis}/${privacyPad(x)}</loc></url>`).join('\n')}
 ${TALEN.flatMap(x => data.groepen.flatMap(g => g.spellen).map(sp => `  <url><loc>${basis}/${spelPad(x, sp.id)}</loc></url>`)).join('\n')}
 </urlset>
 `);
