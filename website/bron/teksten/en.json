@@ -234,7 +234,7 @@
   },
   "download": {
     "titel": "Bring LANcelot to your classroom",
-    "tekst": "LANcelot is coming soon to the Microsoft Store. For the first month you can try everything in full.",
+    "tekst": "LANcelot is coming soon to the Microsoft Store. For the first month you try everything in full, without paying. After that, it is a one-time payment of €29.99.",
     "noot": "All you need is a Windows PC in the classroom. Students join in their browser."
   },
   "faq": {
@@ -243,6 +243,10 @@
       {
         "v": "When can I use LANcelot?",
         "a": "LANcelot is coming soon to the Microsoft Store, with a trial month in which everything works. This website is the first place to hear when it is ready."
+      },
+      {
+        "v": "What does LANcelot cost?",
+        "a": "A one-time €29.99, yours to keep. First you try everything for a month without paying. No subscription and no cost per pupil."
       },
       {
         "v": "Does LANcelot work with my country's goals?",

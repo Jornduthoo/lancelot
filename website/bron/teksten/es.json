@@ -234,7 +234,7 @@
   },
   "download": {
     "titel": "Lleva LANcelot a tu aula",
-    "tekst": "LANcelot llegará pronto a Microsoft Store. Durante el primer mes lo pruebas todo completo.",
+    "tekst": "LANcelot llegará pronto a Microsoft Store. Durante el primer mes lo pruebas todo completo, sin pagar. Después pagas una sola vez 29,99 €.",
     "noot": "Solo necesitas un PC con Windows en el aula. Los alumnos juegan desde el navegador."
   },
   "faq": {
@@ -243,6 +243,10 @@
       {
         "v": "¿Cuándo podré usar LANcelot?",
         "a": "LANcelot llegará pronto a Microsoft Store, con un mes de prueba en el que todo funciona. En esta web te enterarás primero."
+      },
+      {
+        "v": "¿Cuánto cuesta LANcelot?",
+        "a": "Un único pago de 29,99 €, para siempre. Primero lo pruebas todo durante un mes sin pagar. Sin suscripción y sin coste por alumno."
       },
       {
         "v": "¿Funciona LANcelot con los objetivos de mi país?",
