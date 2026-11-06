@@ -1,0 +1,9 @@
+LANcelot in de Microsoft Store
+
+1 Pakket      -> Partner Center > Pakketten: sleep het .msix-bestand erin.
+2 Teksten     -> open Store-teksten.html in Chrome: kopieerknop per tekst, per taal, plus de stappen.
+3 Logo's      -> Store-vermeldingen > Store-logo's (vierkant 1080x1080, poster 720x1080, tegel 300x300, hero 1920x1080).
+4 Screenshots -> Store-vermeldingen per taal: 8 schermafbeeldingen, in volgorde 1 tot 8.
+5 Trailers    -> Store-vermeldingen per taal: 2 trailers met hun miniatuur (thumbnail).
+
+Prijs: 29,99 eenmalig, gratis proefversie 30 dagen.
