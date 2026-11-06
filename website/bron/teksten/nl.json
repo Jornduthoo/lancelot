@@ -234,7 +234,7 @@
   },
   "download": {
     "titel": "Haal LANcelot in je klas",
-    "tekst": "LANcelot komt binnenkort in de Microsoft Store. De eerste maand probeer je alles volledig uit.",
+    "tekst": "LANcelot komt binnenkort in de Microsoft Store. De eerste maand probeer je alles volledig uit, zonder te betalen. Daarna betaal je één keer € 29,99.",
     "noot": "Je hebt enkel een Windows-pc in de klas nodig. Leerlingen spelen mee in de browser."
   },
   "faq": {
@@ -243,6 +243,10 @@
       {
         "v": "Wanneer kan ik LANcelot gebruiken?",
         "a": "LANcelot komt binnenkort in de Microsoft Store, met een proefmaand waarin alles werkt. Op deze website lees je als eerste wanneer het zover is."
+      },
+      {
+        "v": "Wat kost LANcelot?",
+        "a": "Eén keer € 29,99, voor altijd. Eerst probeer je een maand lang alles uit zonder te betalen. Geen abonnement en geen kosten per leerling."
       },
       {
         "v": "Werkt LANcelot met de doelen van mijn land?",
