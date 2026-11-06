@@ -2,7 +2,7 @@
   "taalNaam": "Deutsch",
   "taalWenk": "Diese Seite gibt es auch auf Deutsch →",
   "titel": "LANcelot · Quiz, Umfragen und Klassenspiele im eigenen Klassennetz",
-  "omschrijving": "Klassen-App für Lehrkräfte: Live-Quiz, Umfragen, {n} Spiele und Arbeitsblätter mit KI. Läuft auf dem PC in deiner Klasse, die Kinder spielen im Browser mit.",
+  "omschrijving": "Klassen-App für Lehrkräfte: Live-Quiz, Umfragen, {n} Spiele, Arbeitsblätter mit KI und Tests. Läuft auf dem PC in deiner Klasse, die Kinder spielen im Browser mit.",
   "nav": {
     "hallen": "Was drin ist",
     "spellen": "Spiele",
@@ -22,7 +22,7 @@
   "punten": [
     {
       "titel": "Alles in einem",
-      "tekst": "Quiz, Umfragen, Spiele, Arbeitsblätter und Klassenwerkzeuge in einer App."
+      "tekst": "Quiz, Umfragen, Spiele, Arbeitsblätter, Tests und Klassenwerkzeuge in einer App."
     },
     {
       "titel": "Lokal",
@@ -52,8 +52,7 @@
   },
   "video": {
     "titel": "LANcelot in Aktion",
-    "knop": "Video abspielen",
-    "noot": "Das Video liegt auf YouTube. Dein Browser verbindet sich erst mit YouTube, wenn du auf Abspielen klickst."
+    "knop": "Video abspielen"
   },
   "schermen": {
     "titel": "Echte Bildschirme aus LANcelot",

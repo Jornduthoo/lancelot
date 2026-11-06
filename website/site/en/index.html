@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>LANcelot · Quizzes, polls and class games on your own classroom network</title>
-  <meta name="description" content="Classroom app for teachers: live quizzes, polls, 40+ games and AI worksheets. Runs on the PC in your classroom, students join in their browser.">
+  <meta name="description" content="Classroom app for teachers: live quizzes, polls, 40+ games, AI worksheets and tests. Runs on the PC in your classroom, students join in their browser.">
   <link rel="canonical" href="https://lancelot.network/en/">
   <link rel="alternate" hreflang="nl" href="https://lancelot.network/">
   <link rel="alternate" hreflang="en" href="https://lancelot.network/en/">
@@ -14,7 +14,7 @@
   <link rel="alternate" hreflang="x-default" href="https://lancelot.network/">
   <meta property="og:type" content="website">
   <meta property="og:title" content="LANcelot · Quizzes, polls and class games on your own classroom network">
-  <meta property="og:description" content="Classroom app for teachers: live quizzes, polls, 40+ games and AI worksheets. Runs on the PC in your classroom, students join in their browser.">
+  <meta property="og:description" content="Classroom app for teachers: live quizzes, polls, 40+ games, AI worksheets and tests. Runs on the PC in your classroom, students join in their browser.">
   <meta property="og:url" content="https://lancelot.network/en/">
   <meta property="og:image" content="https://lancelot.network/shots/en-host.webp">
   <meta name="theme-color" content="#060a13">
@@ -58,20 +58,19 @@
     </section>
 
     <section class="punten" aria-label="LANcelot">
-      <div class="punt"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1"/><rect x="13.5" y="3.5" width="7" height="7" rx="1"/><rect x="3.5" y="13.5" width="7" height="7" rx="1"/><rect x="13.5" y="13.5" width="7" height="7" rx="1"/></svg><h2>All-in-one</h2><p>Quizzes, polls, games, worksheets and classroom tools in one app.</p></div>
+      <div class="punt"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1"/><rect x="13.5" y="3.5" width="7" height="7" rx="1"/><rect x="3.5" y="13.5" width="7" height="7" rx="1"/><rect x="13.5" y="13.5" width="7" height="7" rx="1"/></svg><h2>All-in-one</h2><p>Quizzes, polls, games, worksheets, tests and classroom tools in one app.</p></div>
       <div class="punt"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 2.5L5 13.5h6l-1 8 8.5-11h-6z"/></svg><h2>Local</h2><p>Play runs over the school network. Fast, even with 30 devices at once.</p></div>
       <div class="punt"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="1.5"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></svg><h2>Private</h2><p>Names and results stay on the PC in your classroom.</p></div>
     </section>
 
     <section class="blok" id="video">
       <h2 class="titel">See LANcelot in action</h2>
-      <div class="video" data-yt="dLZQQ11hRuM">
+      <div class="video" data-src="../video/en.mp4">
         <button type="button" class="video-start" aria-label="Play the video">
           <img src="../video/en.webp" alt="" width="960" height="540" loading="lazy" decoding="async">
           <span class="video-knop"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg>Play the video</span>
         </button>
       </div>
-      <p class="noot video-noot">The video is hosted on YouTube. Your browser only connects to YouTube once you press play.</p>
     </section>
 
     <section class="blok" id="werkt">
@@ -102,7 +101,12 @@
     <section class="blok" id="spellen">
       <h2 class="titel">40+ games for your own lessons</h2>
       <p class="intro">Every game plays with every quiz. Right answers give fuel, ammo, energy or a power. Answer well and you get further.</p>
-      <figure class="breed"><img src="../shots/en-arena.webp" alt="The Arena" width="1200" height="467" loading="lazy" decoding="async"></figure>
+      <div class="video" data-src="../video/spellen-en.mp4">
+        <button type="button" class="video-start" aria-label="Play the video">
+          <img src="../video/spellen-en.webp" alt="" width="960" height="540" loading="lazy" decoding="async">
+          <span class="video-knop"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg>Play the video</span>
+        </button>
+      </div>
       
       <h3 class="groep">Quiz and duel</h3>
       <ul class="spellen">
@@ -254,12 +258,12 @@
     x.onclick = function () { p.hidden = true; try { localStorage.setItem('lancelot-taal', huidig); } catch (e) {} };
     p.appendChild(a); p.appendChild(x); p.hidden = false;
   })();
-  // Video: YouTube laadt pas na een klik (privacyvriendelijk, youtube-nocookie).
-  document.querySelectorAll('.video[data-yt]').forEach(function (v) {
+  // Video: staat op de site zelf en laadt pas na een klik (geen diensten van anderen, geen onnodige megabytes).
+  document.querySelectorAll('.video[data-src]').forEach(function (v) {
     v.querySelector('button').addEventListener('click', function () {
-      var f = document.createElement('iframe');
-      f.src = 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(v.getAttribute('data-yt')) + '?autoplay=1&rel=0';
-      f.title = 'LANcelot'; f.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen'; f.allowFullscreen = true;
+      var f = document.createElement('video');
+      f.src = v.getAttribute('data-src'); f.controls = true; f.autoplay = true; f.playsInline = true;
+      f.poster = v.querySelector('img').src;
       v.innerHTML = ''; v.appendChild(f);
     });
   });

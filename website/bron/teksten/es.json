@@ -2,7 +2,7 @@
   "taalNaam": "Español",
   "taalWenk": "Esta página también está en español →",
   "titel": "LANcelot · Cuestionarios, encuestas y juegos de clase en tu propia red del aula",
-  "omschrijving": "App de clase para profesores: cuestionarios en directo, encuestas, {n} juegos y fichas con IA. Funciona en el PC de tu aula y los alumnos juegan desde el navegador.",
+  "omschrijving": "App de clase para profesores: cuestionarios en directo, encuestas, {n} juegos, fichas con IA y exámenes. Funciona en el PC de tu aula y los alumnos juegan desde el navegador.",
   "nav": {
     "hallen": "Qué incluye",
     "spellen": "Juegos",
@@ -22,7 +22,7 @@
   "punten": [
     {
       "titel": "Todo en uno",
-      "tekst": "Cuestionarios, encuestas, juegos, fichas y herramientas de aula en una sola app."
+      "tekst": "Cuestionarios, encuestas, juegos, fichas, exámenes y herramientas de aula en una sola app."
     },
     {
       "titel": "Local",
@@ -52,8 +52,7 @@
   },
   "video": {
     "titel": "Mira LANcelot en acción",
-    "knop": "Ver el vídeo",
-    "noot": "El vídeo está en YouTube. Tu navegador solo se conecta a YouTube cuando pulsas reproducir."
+    "knop": "Ver el vídeo"
   },
   "schermen": {
     "titel": "Pantallas reales de LANcelot",

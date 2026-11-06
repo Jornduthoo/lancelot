@@ -65,7 +65,7 @@
       <h2>Keeping and deleting</h2>
       <p>Data stays on the PC until the teacher deletes it. Removing LANcelot deliberately keeps the data folder (so nothing is lost when reinstalling); delete that folder to erase everything. Parents and pupils can ask the school what is stored.</p>
       <h2>This website</h2>
-      <p>lancelot.network uses no cookies and no tracking. A YouTube video only loads when you click it (youtube-nocookie.com). The website is hosted by Cloudflare, which keeps technical logs to run the site securely.</p>
+      <p>lancelot.network uses no cookies and no tracking. The videos are hosted on this website itself, with no third-party services. The website is hosted by Cloudflare, which keeps technical logs to run the site securely.</p>
       <h2>Contact</h2>
       <p>Questions about privacy? Email hello@lancelot.network. If this policy changes, the new date is shown at the top.</p>
     </section>
@@ -94,12 +94,12 @@
     x.onclick = function () { p.hidden = true; try { localStorage.setItem('lancelot-taal', huidig); } catch (e) {} };
     p.appendChild(a); p.appendChild(x); p.hidden = false;
   })();
-  // Video: YouTube laadt pas na een klik (privacyvriendelijk, youtube-nocookie).
-  document.querySelectorAll('.video[data-yt]').forEach(function (v) {
+  // Video: staat op de site zelf en laadt pas na een klik (geen diensten van anderen, geen onnodige megabytes).
+  document.querySelectorAll('.video[data-src]').forEach(function (v) {
     v.querySelector('button').addEventListener('click', function () {
-      var f = document.createElement('iframe');
-      f.src = 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(v.getAttribute('data-yt')) + '?autoplay=1&rel=0';
-      f.title = 'LANcelot'; f.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen'; f.allowFullscreen = true;
+      var f = document.createElement('video');
+      f.src = v.getAttribute('data-src'); f.controls = true; f.autoplay = true; f.playsInline = true;
+      f.poster = v.querySelector('img').src;
       v.innerHTML = ''; v.appendChild(f);
     });
   });

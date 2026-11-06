@@ -2,7 +2,7 @@
   "taalNaam": "Français",
   "taalWenk": "Cette page existe aussi en français →",
   "titel": "LANcelot · Quiz, sondages et jeux de classe sur ton propre réseau de classe",
-  "omschrijving": "Application de classe pour les enseignants : quiz en direct, sondages, {n} jeux et fiches d’exercices par IA. Elle tourne sur le PC de ta classe, les élèves jouent dans leur navigateur.",
+  "omschrijving": "Application de classe pour les enseignants : quiz en direct, sondages, {n} jeux, fiches d’exercices par IA et évaluations. Elle tourne sur le PC de ta classe, les élèves jouent dans leur navigateur.",
   "nav": {
     "hallen": "Ce qu’il contient",
     "spellen": "Jeux",
@@ -22,7 +22,7 @@
   "punten": [
     {
       "titel": "Tout-en-un",
-      "tekst": "Quiz, sondages, jeux, fiches et outils de classe dans une seule application."
+      "tekst": "Quiz, sondages, jeux, fiches, évaluations et outils de classe dans une seule application."
     },
     {
       "titel": "Local",
@@ -52,8 +52,7 @@
   },
   "video": {
     "titel": "Découvre LANcelot en action",
-    "knop": "Lancer la vidéo",
-    "noot": "La vidéo est sur YouTube. Ton navigateur ne se connecte à YouTube que quand tu cliques sur lecture."
+    "knop": "Lancer la vidéo"
   },
   "schermen": {
     "titel": "De vrais écrans de LANcelot",

@@ -2,7 +2,7 @@
   "taalNaam": "Nederlands",
   "taalWenk": "Deze pagina bestaat ook in het Nederlands →",
   "titel": "LANcelot · Quizzen, peilingen en klasgames op je eigen klasnetwerk",
-  "omschrijving": "Klas-app voor leerkrachten: live quizzen, peilingen, {n} spellen en AI-oefenbladen. Draait op de pc in je klas, leerlingen spelen mee via de browser.",
+  "omschrijving": "Klas-app voor leerkrachten: live quizzen, peilingen, {n} spellen, AI-oefenbladen en toetsen. Draait op de pc in je klas, leerlingen spelen mee via de browser.",
   "nav": {
     "hallen": "Wat zit erin",
     "spellen": "Spellen",
@@ -22,7 +22,7 @@
   "punten": [
     {
       "titel": "Alles-in-één",
-      "tekst": "Quizzen, peilingen, spellen, oefenbladen en klastools in één app."
+      "tekst": "Quizzen, peilingen, spellen, oefenbladen, toetsen en klastools in één app."
     },
     {
       "titel": "Lokaal",
@@ -52,8 +52,7 @@
   },
   "video": {
     "titel": "Bekijk LANcelot in actie",
-    "knop": "Speel de video",
-    "noot": "De video staat op YouTube. Pas als je op afspelen klikt, maakt je browser verbinding met YouTube."
+    "knop": "Speel de video"
   },
   "schermen": {
     "titel": "Echte schermen uit LANcelot",

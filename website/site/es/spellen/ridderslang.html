@@ -95,12 +95,12 @@
     x.onclick = function () { p.hidden = true; try { localStorage.setItem('lancelot-taal', huidig); } catch (e) {} };
     p.appendChild(a); p.appendChild(x); p.hidden = false;
   })();
-  // Video: YouTube laadt pas na een klik (privacyvriendelijk, youtube-nocookie).
-  document.querySelectorAll('.video[data-yt]').forEach(function (v) {
+  // Video: staat op de site zelf en laadt pas na een klik (geen diensten van anderen, geen onnodige megabytes).
+  document.querySelectorAll('.video[data-src]').forEach(function (v) {
     v.querySelector('button').addEventListener('click', function () {
-      var f = document.createElement('iframe');
-      f.src = 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(v.getAttribute('data-yt')) + '?autoplay=1&rel=0';
-      f.title = 'LANcelot'; f.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen'; f.allowFullscreen = true;
+      var f = document.createElement('video');
+      f.src = v.getAttribute('data-src'); f.controls = true; f.autoplay = true; f.playsInline = true;
+      f.poster = v.querySelector('img').src;
       v.innerHTML = ''; v.appendChild(f);
     });
   });
