@@ -1,0 +1,93 @@
+{
+ "title": "Sample quiz: the world around us",
+ "questions": [
+  {
+   "question": "How many legs does a spider have?",
+   "answers": [
+    "6",
+    "8",
+    "10",
+    "4"
+   ],
+   "correct": 1,
+   "time": 20
+  },
+  {
+   "question": "Which planet is closest to the Sun?",
+   "answers": [
+    "Venus",
+    "Earth",
+    "Mercury",
+    "Mars"
+   ],
+   "correct": 2,
+   "time": 20
+  },
+  {
+   "question": "What is 7 × 8?",
+   "answers": [
+    "54",
+    "56",
+    "64",
+    "48"
+   ],
+   "correct": 1,
+   "time": 20
+  },
+  {
+   "question": "Which animal is a mammal?",
+   "answers": [
+    "Shark",
+    "Frog",
+    "Dolphin",
+    "Penguin"
+   ],
+   "correct": 2,
+   "time": 20
+  },
+  {
+   "question": "What do plants need to make their food?",
+   "answers": [
+    "Sunlight",
+    "Darkness",
+    "Salt",
+    "Sand"
+   ],
+   "correct": 0,
+   "time": 20
+  },
+  {
+   "question": "How many sides does a hexagon have?",
+   "answers": [
+    "5",
+    "6",
+    "7",
+    "8"
+   ],
+   "correct": 1,
+   "time": 20
+  },
+  {
+   "question": "At what temperature does water freeze?",
+   "answers": [
+    "0 °C",
+    "10 °C",
+    "-10 °C",
+    "100 °C"
+   ],
+   "correct": 0,
+   "time": 20
+  },
+  {
+   "question": "Which of these is a vowel?",
+   "answers": [
+    "B",
+    "T",
+    "E",
+    "K"
+   ],
+   "correct": 2,
+   "time": 20
+  }
+ ]
+}

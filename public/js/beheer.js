@@ -165,6 +165,10 @@
   // --- Store-versie: proefmaand, kopen, afsluiten ---
   function toonStore(v) {
     if (!v || !v.store) return;
+    // De Store-versie is kleiner: zonder De Kronieken (methodes, Zonnewijzer, Zegelrol, Postduif) en zonder het Vlaamse startpakket.
+    // Het vijfde blok heet er "Mijn klas": klaslijst, doelen, taken en resultaten.
+    document.body.classList.add('store-versie');
+    window.storeBlok?.();
     $('update-panel').classList.add('hidden');
     $('store-panel').classList.remove('hidden');
     $('sk-zet').classList.add('hidden');

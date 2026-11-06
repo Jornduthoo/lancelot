@@ -1,0 +1,486 @@
+{
+ "bron": "Kerndoelen funderend onderwijs, primair onderwijs (SLO, definitieve conceptversie), data: github.com/slonl/curriculum-fo",
+ "vak": "Mens en natuur",
+ "doelen": [
+  {
+   "code": "NL.MEN.29A.1",
+   "vak": "Mens en natuur",
+   "leerjaar": 0,
+   "domein": "Natuurwetenschappen en technologie",
+   "cluster": "Kerndoel 29: De leerling verkent de wereld vanuit een natuurwetenschappelijk en technologisch perspectief.",
+   "tekst": "De leerling verkent de leefomgeving en onderzoekt vraagstukken uit de leefomgeving: ervaringen in de leefomgeving opdoen met het waarnemen en waarderen van natuur en technologie."
+  },
+  {
+   "code": "NL.MEN.29A.2",
+   "vak": "Mens en natuur",
+   "leerjaar": 0,
+   "domein": "Natuurwetenschappen en technologie",
+   "cluster": "Kerndoel 29: De leerling verkent de wereld vanuit een natuurwetenschappelijk en technologisch perspectief.",
+   "tekst": "De leerling verkent de leefomgeving en onderzoekt vraagstukken uit de leefomgeving: onderzoeken van vraagstukken over natuurwetenschappelijke verschijnselen, technische systemen, gezondheid, natuurbeheer, veiligheid, duurzaamheid en ruimtelijke inrichting."
+  },
+  {
+   "code": "NL.MEN.29A.3",
+   "vak": "Mens en natuur",
+   "leerjaar": 0,
+   "domein": "Natuurwetenschappen en technologie",
+   "cluster": "Kerndoel 29: De leerling verkent de wereld vanuit een natuurwetenschappelijk en technologisch perspectief.",
+   "tekst": "De leerling verkent de leefomgeving en onderzoekt vraagstukken uit de leefomgeving: onderscheiden van verschillende perspectieven op en mogelijke oplossingen van een vraagstuk."
+  },
+  {
+   "code": "NL.MEN.29A.4",
+   "vak": "Mens en natuur",
+   "leerjaar": 0,
+   "domein": "Natuurwetenschappen en technologie",
+   "cluster": "Kerndoel 29: De leerling verkent de wereld vanuit een natuurwetenschappelijk en technologisch perspectief.",
+   "tekst": "De leerling verkent de leefomgeving en onderzoekt vraagstukken uit de leefomgeving: verwoorden wat het vraagstuk en mogelijke oplossingen met je doen."
+  },
+  {
+   "code": "NL.MEN.29A.5",
+   "vak": "Mens en natuur",
+   "leerjaar": 0,
+   "domein": "Natuurwetenschappen en technologie",
+   "cluster": "Kerndoel 29: De leerling verkent de wereld vanuit een natuurwetenschappelijk en technologisch perspectief.",
+   "tekst": "De leerling verkent de leefomgeving en onderzoekt vraagstukken uit de leefomgeving: oriënteren op beroepsbeelden en rolmodellen vanuit eigen interesses, ambities en capaciteiten."
+  },
+  {
+   "code": "NL.MEN.29B.1",
+   "vak": "Mens en natuur",
+   "leerjaar": 0,
+   "domein": "Natuurwetenschappen en technologie",
+   "cluster": "Kerndoel 29: De leerling verkent de wereld vanuit een natuurwetenschappelijk en technologisch perspectief.",
+   "tekst": "De leerling gebruikt natuurwetenschappelijke en technologische denkwijzen bij het ontdekken en verklaren van de wereld: redeneren met patronen en oorzaak-gevolgrelaties."
+  },
+  {
+   "code": "NL.MEN.29B.2",
+   "vak": "Mens en natuur",
+   "leerjaar": 0,
+   "domein": "Natuurwetenschappen en technologie",
+   "cluster": "Kerndoel 29: De leerling verkent de wereld vanuit een natuurwetenschappelijk en technologisch perspectief.",
+   "tekst": "De leerling gebruikt natuurwetenschappelijke en technologische denkwijzen bij het ontdekken en verklaren van de wereld: redeneren met structuur, vorm, eigenschap en functie."
+  },
+  {
+   "code": "NL.MEN.29B.3",
+   "vak": "Mens en natuur",
+   "leerjaar": 0,
+   "domein": "Natuurwetenschappen en technologie",
+   "cluster": "Kerndoel 29: De leerling verkent de wereld vanuit een natuurwetenschappelijk en technologisch perspectief.",
+   "tekst": "De leerling gebruikt natuurwetenschappelijke en technologische denkwijzen bij het ontdekken en verklaren van de wereld: redeneren met schaal, verhoudingen en hoeveelheden."
+  },
+  {
+   "code": "NL.MEN.29B.4",
+   "vak": "Mens en natuur",
+   "leerjaar": 0,
+   "domein": "Natuurwetenschappen en technologie",
+   "cluster": "Kerndoel 29: De leerling verkent de wereld vanuit een natuurwetenschappelijk en technologisch perspectief.",
+   "tekst": "De leerling gebruikt natuurwetenschappelijke en technologische denkwijzen bij het ontdekken en verklaren van de wereld: redeneren met systemen en modellen."
+  },
+  {
+   "code": "NL.MEN.29B.5",
+   "vak": "Mens en natuur",
+   "leerjaar": 0,
+   "domein": "Natuurwetenschappen en technologie",
+   "cluster": "Kerndoel 29: De leerling verkent de wereld vanuit een natuurwetenschappelijk en technologisch perspectief.",
+   "tekst": "De leerling gebruikt natuurwetenschappelijke en technologische denkwijzen bij het ontdekken en verklaren van de wereld: redeneren met kringlopen."
+  },
+  {
+   "code": "NL.MEN.29C.1",
+   "vak": "Mens en natuur",
+   "leerjaar": 0,
+   "domein": "Natuurwetenschappen en technologie",
+   "cluster": "Kerndoel 29: De leerling verkent de wereld vanuit een natuurwetenschappelijk en technologisch perspectief.",
+   "tekst": "De leerling gebruikt natuurwetenschappelijke en technologische werkwijzen bij het ontdekken en begrijpen van de wereld: oriënteren op verschillende manieren om tot oplossingen en antwoorden te komen."
+  },
+  {
+   "code": "NL.MEN.29C.2",
+   "vak": "Mens en natuur",
+   "leerjaar": 0,
+   "domein": "Natuurwetenschappen en technologie",
+   "cluster": "Kerndoel 29: De leerling verkent de wereld vanuit een natuurwetenschappelijk en technologisch perspectief.",
+   "tekst": "De leerling gebruikt natuurwetenschappelijke en technologische werkwijzen bij het ontdekken en begrijpen van de wereld: toepassen van onderzoeks- en ontwerpstappen op een systematische en iteratieve wijze."
+  },
+  {
+   "code": "NL.MEN.29C.3",
+   "vak": "Mens en natuur",
+   "leerjaar": 0,
+   "domein": "Natuurwetenschappen en technologie",
+   "cluster": "Kerndoel 29: De leerling verkent de wereld vanuit een natuurwetenschappelijk en technologisch perspectief.",
+   "tekst": "De leerling gebruikt natuurwetenschappelijke en technologische werkwijzen bij het ontdekken en begrijpen van de wereld: gebruiken van instrumenten, gereedschappen en materialen op doelmatige, veilige en duurzame wijze."
+  },
+  {
+   "code": "NL.MEN.29C.4",
+   "vak": "Mens en natuur",
+   "leerjaar": 0,
+   "domein": "Natuurwetenschappen en technologie",
+   "cluster": "Kerndoel 29: De leerling verkent de wereld vanuit een natuurwetenschappelijk en technologisch perspectief.",
+   "tekst": "De leerling gebruikt natuurwetenschappelijke en technologische werkwijzen bij het ontdekken en begrijpen van de wereld: interpreteren van kwalitatieve en kwantitatieve metingen en waarnemingen."
+  },
+  {
+   "code": "NL.MEN.29C.5",
+   "vak": "Mens en natuur",
+   "leerjaar": 0,
+   "domein": "Natuurwetenschappen en technologie",
+   "cluster": "Kerndoel 29: De leerling verkent de wereld vanuit een natuurwetenschappelijk en technologisch perspectief.",
+   "tekst": "De leerling gebruikt natuurwetenschappelijke en technologische werkwijzen bij het ontdekken en begrijpen van de wereld: onderbouwen van conclusies met gebruik van vaktaal."
+  },
+  {
+   "code": "NL.MEN.29D.1",
+   "vak": "Mens en natuur",
+   "leerjaar": 0,
+   "domein": "Natuurwetenschappen en technologie",
+   "cluster": "Kerndoel 29: De leerling verkent de wereld vanuit een natuurwetenschappelijk en technologisch perspectief.",
+   "tekst": "De leerling verkent de aard van natuurwetenschappen en technologie: ervaring opdoen met werkzaamheden van wetenschappers en technologen en hun motieven."
+  },
+  {
+   "code": "NL.MEN.29D.2",
+   "vak": "Mens en natuur",
+   "leerjaar": 0,
+   "domein": "Natuurwetenschappen en technologie",
+   "cluster": "Kerndoel 29: De leerling verkent de wereld vanuit een natuurwetenschappelijk en technologisch perspectief.",
+   "tekst": "De leerling verkent de aard van natuurwetenschappen en technologie: verkennen hoe wetenschappers en technologen eerlijk, verantwoordelijk en zorgvuldig werken."
+  },
+  {
+   "code": "NL.MEN.29D.3",
+   "vak": "Mens en natuur",
+   "leerjaar": 0,
+   "domein": "Natuurwetenschappen en technologie",
+   "cluster": "Kerndoel 29: De leerling verkent de wereld vanuit een natuurwetenschappelijk en technologisch perspectief.",
+   "tekst": "De leerling verkent de aard van natuurwetenschappen en technologie: afwegen of alles mag wat kan: maakbaarheid en ethische grenzen."
+  },
+  {
+   "code": "NL.MEN.29D.4",
+   "vak": "Mens en natuur",
+   "leerjaar": 0,
+   "domein": "Natuurwetenschappen en technologie",
+   "cluster": "Kerndoel 29: De leerling verkent de wereld vanuit een natuurwetenschappelijk en technologisch perspectief.",
+   "tekst": "De leerling verkent de aard van natuurwetenschappen en technologie: verwoorden van het verschil tussen een mening en een feit volgens de natuurwetenschappen."
+  },
+  {
+   "code": "NL.MEN.29D.5",
+   "vak": "Mens en natuur",
+   "leerjaar": 0,
+   "domein": "Natuurwetenschappen en technologie",
+   "cluster": "Kerndoel 29: De leerling verkent de wereld vanuit een natuurwetenschappelijk en technologisch perspectief.",
+   "tekst": "De leerling verkent de aard van natuurwetenschappen en technologie: verkennen waarom wetenschappers en technologen niet alles weten."
+  },
+  {
+   "code": "NL.MEN.30A.1",
+   "vak": "Mens en natuur",
+   "leerjaar": 0,
+   "domein": "Natuurkundige en scheikundige verschijnselen en technische systemen",
+   "cluster": "Kerndoel 30: De leerling toont inzicht in en experimenteert met natuurverschijnselen en technische systemen.",
+   "tekst": "De leerling toont inzicht in en experimenteert met voorwerpen en technische systemen uit de leefomgeving: communicatie-, meet-, regel-, productie- en transportsystemen."
+  },
+  {
+   "code": "NL.MEN.30A.2",
+   "vak": "Mens en natuur",
+   "leerjaar": 0,
+   "domein": "Natuurkundige en scheikundige verschijnselen en technische systemen",
+   "cluster": "Kerndoel 30: De leerling toont inzicht in en experimenteert met natuurverschijnselen en technische systemen.",
+   "tekst": "De leerling toont inzicht in en experimenteert met voorwerpen en technische systemen uit de leefomgeving: verkennen hoe een voorwerp werkt, geconstrueerd is en welke materialen zijn gebruikt."
+  },
+  {
+   "code": "NL.MEN.30A.3",
+   "vak": "Mens en natuur",
+   "leerjaar": 0,
+   "domein": "Natuurkundige en scheikundige verschijnselen en technische systemen",
+   "cluster": "Kerndoel 30: De leerling toont inzicht in en experimenteert met natuurverschijnselen en technische systemen.",
+   "tekst": "De leerling toont inzicht in en experimenteert met voorwerpen en technische systemen uit de leefomgeving: beschrijven hoe onderdelen bijdragen aan het functioneren van het voorwerp of systeem."
+  },
+  {
+   "code": "NL.MEN.30A.4",
+   "vak": "Mens en natuur",
+   "leerjaar": 0,
+   "domein": "Natuurkundige en scheikundige verschijnselen en technische systemen",
+   "cluster": "Kerndoel 30: De leerling toont inzicht in en experimenteert met natuurverschijnselen en technische systemen.",
+   "tekst": "De leerling toont inzicht in en experimenteert met voorwerpen en technische systemen uit de leefomgeving: experimenteren met overbrengingsprincipes van beweging en energie, verbindingsprincipes, constructies en profielen."
+  },
+  {
+   "code": "NL.MEN.30A.5",
+   "vak": "Mens en natuur",
+   "leerjaar": 0,
+   "domein": "Natuurkundige en scheikundige verschijnselen en technische systemen",
+   "cluster": "Kerndoel 30: De leerling toont inzicht in en experimenteert met natuurverschijnselen en technische systemen.",
+   "tekst": "De leerling toont inzicht in en experimenteert met voorwerpen en technische systemen uit de leefomgeving: experimenteren met ontwerpen, maken en repareren."
+  },
+  {
+   "code": "NL.MEN.30B.1",
+   "vak": "Mens en natuur",
+   "leerjaar": 0,
+   "domein": "Natuurkundige en scheikundige verschijnselen en technische systemen",
+   "cluster": "Kerndoel 30: De leerling toont inzicht in en experimenteert met natuurverschijnselen en technische systemen.",
+   "tekst": "De leerling toont inzicht in en experimenteert met stoffen en veranderingen die stoffen kunnen ondergaan: benoemen van waarneembare eigenschappen van een stof bij een bepaalde temperatuur."
+  },
+  {
+   "code": "NL.MEN.30B.2",
+   "vak": "Mens en natuur",
+   "leerjaar": 0,
+   "domein": "Natuurkundige en scheikundige verschijnselen en technische systemen",
+   "cluster": "Kerndoel 30: De leerling toont inzicht in en experimenteert met natuurverschijnselen en technische systemen.",
+   "tekst": "De leerling toont inzicht in en experimenteert met stoffen en veranderingen die stoffen kunnen ondergaan: benoemen van veel voorkomende stoffen en hun onderscheidende eigenschappen en gevaren."
+  },
+  {
+   "code": "NL.MEN.30B.3",
+   "vak": "Mens en natuur",
+   "leerjaar": 0,
+   "domein": "Natuurkundige en scheikundige verschijnselen en technische systemen",
+   "cluster": "Kerndoel 30: De leerling toont inzicht in en experimenteert met natuurverschijnselen en technische systemen.",
+   "tekst": "De leerling toont inzicht in en experimenteert met stoffen en veranderingen die stoffen kunnen ondergaan: ordenen van stoffen gebaseerd op verschillen in eigenschappen."
+  },
+  {
+   "code": "NL.MEN.30B.4",
+   "vak": "Mens en natuur",
+   "leerjaar": 0,
+   "domein": "Natuurkundige en scheikundige verschijnselen en technische systemen",
+   "cluster": "Kerndoel 30: De leerling toont inzicht in en experimenteert met natuurverschijnselen en technische systemen.",
+   "tekst": "De leerling toont inzicht in en experimenteert met stoffen en veranderingen die stoffen kunnen ondergaan: experimenteren met natuurkundige veranderingen van stoffen."
+  },
+  {
+   "code": "NL.MEN.30B.5",
+   "vak": "Mens en natuur",
+   "leerjaar": 0,
+   "domein": "Natuurkundige en scheikundige verschijnselen en technische systemen",
+   "cluster": "Kerndoel 30: De leerling toont inzicht in en experimenteert met natuurverschijnselen en technische systemen.",
+   "tekst": "De leerling toont inzicht in en experimenteert met stoffen en veranderingen die stoffen kunnen ondergaan: experimenteren met scheikundige veranderingen van stoffen, waarneembaar door een verandering in stofeigenschappen."
+  },
+  {
+   "code": "NL.MEN.30C.1",
+   "vak": "Mens en natuur",
+   "leerjaar": 0,
+   "domein": "Natuurkundige en scheikundige verschijnselen en technische systemen",
+   "cluster": "Kerndoel 30: De leerling toont inzicht in en experimenteert met natuurverschijnselen en technische systemen.",
+   "tekst": "De leerling toont inzicht in en experimenteert met licht, geluid, energie, krachten: begrip tonen van kenmerken van licht en geluid: bron, richting, voortplanting en sterkte."
+  },
+  {
+   "code": "NL.MEN.30C.2",
+   "vak": "Mens en natuur",
+   "leerjaar": 0,
+   "domein": "Natuurkundige en scheikundige verschijnselen en technische systemen",
+   "cluster": "Kerndoel 30: De leerling toont inzicht in en experimenteert met natuurverschijnselen en technische systemen.",
+   "tekst": "De leerling toont inzicht in en experimenteert met licht, geluid, energie, krachten: beschrijven van verschillende soorten energiebronnen en manieren van opslaan en transporteren van energie."
+  },
+  {
+   "code": "NL.MEN.30C.3",
+   "vak": "Mens en natuur",
+   "leerjaar": 0,
+   "domein": "Natuurkundige en scheikundige verschijnselen en technische systemen",
+   "cluster": "Kerndoel 30: De leerling toont inzicht in en experimenteert met natuurverschijnselen en technische systemen.",
+   "tekst": "De leerling toont inzicht in en experimenteert met licht, geluid, energie, krachten: verbanden leggen tussen krachten en verandering in beweging."
+  },
+  {
+   "code": "NL.MEN.30C.4",
+   "vak": "Mens en natuur",
+   "leerjaar": 0,
+   "domein": "Natuurkundige en scheikundige verschijnselen en technische systemen",
+   "cluster": "Kerndoel 30: De leerling toont inzicht in en experimenteert met natuurverschijnselen en technische systemen.",
+   "tekst": "De leerling toont inzicht in en experimenteert met licht, geluid, energie, krachten: benoemen van gevaren rond statische elektriciteit en elektrische stroom, geluid, onweer en zonlicht."
+  },
+  {
+   "code": "NL.MEN.30C.5",
+   "vak": "Mens en natuur",
+   "leerjaar": 0,
+   "domein": "Natuurkundige en scheikundige verschijnselen en technische systemen",
+   "cluster": "Kerndoel 30: De leerling toont inzicht in en experimenteert met natuurverschijnselen en technische systemen.",
+   "tekst": "De leerling toont inzicht in en experimenteert met licht, geluid, energie, krachten: experimenteren met de kracht van magnetisme, lucht en vloeistof."
+  },
+  {
+   "code": "NL.MEN.31A.1",
+   "vak": "Mens en natuur",
+   "leerjaar": 0,
+   "domein": "Organismen en gezondheid",
+   "cluster": "Kerndoel 31: De leerling toont inzicht in organismen en hun gezondheid.",
+   "tekst": "De leerling toont inzicht in organismen: beschrijven van de levenscyclus van bacteriën, schimmels, planten en dieren."
+  },
+  {
+   "code": "NL.MEN.31A.2",
+   "vak": "Mens en natuur",
+   "leerjaar": 0,
+   "domein": "Organismen en gezondheid",
+   "cluster": "Kerndoel 31: De leerling toont inzicht in organismen en hun gezondheid.",
+   "tekst": "De leerling toont inzicht in organismen: verbanden leggen tussen de bouw van planten en mensen en hun vorm en functie."
+  },
+  {
+   "code": "NL.MEN.31A.3",
+   "vak": "Mens en natuur",
+   "leerjaar": 0,
+   "domein": "Organismen en gezondheid",
+   "cluster": "Kerndoel 31: De leerling toont inzicht in organismen en hun gezondheid.",
+   "tekst": "De leerling toont inzicht in organismen: beschrijven van verschillen en overeenkomsten tussen lichamen; verloop van de menselijke voortplanting; de menstruatiecyclus en de lichamelijke en mentale veranderingen bij de mens: bij het opgroeien, in de puberteit en de invloed van hormonen hierop."
+  },
+  {
+   "code": "NL.MEN.31A.4",
+   "vak": "Mens en natuur",
+   "leerjaar": 0,
+   "domein": "Organismen en gezondheid",
+   "cluster": "Kerndoel 31: De leerling toont inzicht in organismen en hun gezondheid.",
+   "tekst": "De leerling toont inzicht in organismen: beschrijven van de verzorging van planten en dieren."
+  },
+  {
+   "code": "NL.MEN.31A.5",
+   "vak": "Mens en natuur",
+   "leerjaar": 0,
+   "domein": "Organismen en gezondheid",
+   "cluster": "Kerndoel 31: De leerling toont inzicht in organismen en hun gezondheid.",
+   "tekst": "De leerling toont inzicht in organismen: verkennen van rollen van organismen bij voedselproductie."
+  },
+  {
+   "code": "NL.MEN.31B.1",
+   "vak": "Mens en natuur",
+   "leerjaar": 0,
+   "domein": "Organismen en gezondheid",
+   "cluster": "Kerndoel 31: De leerling toont inzicht in organismen en hun gezondheid.",
+   "tekst": "De leerling toont inzicht in leefstijl, gezondheid en ziekte en verkent keuzes hierin: oriënteren op de invloed van hygiëne, voeding, slaap, natuur, relaties, seksualiteit en beweging op lichamelijke en mentale gezondheid."
+  },
+  {
+   "code": "NL.MEN.31B.2",
+   "vak": "Mens en natuur",
+   "leerjaar": 0,
+   "domein": "Organismen en gezondheid",
+   "cluster": "Kerndoel 31: De leerling toont inzicht in organismen en hun gezondheid.",
+   "tekst": "De leerling toont inzicht in leefstijl, gezondheid en ziekte en verkent keuzes hierin: beschrijven hoe bacteriën, schimmels en virussen het functioneren van mensen positief en negatief kunnen beïnvloeden."
+  },
+  {
+   "code": "NL.MEN.31B.3",
+   "vak": "Mens en natuur",
+   "leerjaar": 0,
+   "domein": "Organismen en gezondheid",
+   "cluster": "Kerndoel 31: De leerling toont inzicht in organismen en hun gezondheid.",
+   "tekst": "De leerling toont inzicht in leefstijl, gezondheid en ziekte en verkent keuzes hierin: verklaren hoe ziektes ontstaan en hoe ze voorkómen en behandeld kunnen worden."
+  },
+  {
+   "code": "NL.MEN.31B.4",
+   "vak": "Mens en natuur",
+   "leerjaar": 0,
+   "domein": "Organismen en gezondheid",
+   "cluster": "Kerndoel 31: De leerling toont inzicht in organismen en hun gezondheid.",
+   "tekst": "De leerling toont inzicht in leefstijl, gezondheid en ziekte en verkent keuzes hierin: beschrijven hoe onbedoelde zwangerschappen voorkomen kunnen worden."
+  },
+  {
+   "code": "NL.MEN.31B.5",
+   "vak": "Mens en natuur",
+   "leerjaar": 0,
+   "domein": "Organismen en gezondheid",
+   "cluster": "Kerndoel 31: De leerling toont inzicht in organismen en hun gezondheid.",
+   "tekst": "De leerling toont inzicht in leefstijl, gezondheid en ziekte en verkent keuzes hierin: benoemen van verschillende gezondheids- en welzijnsorganisaties voor hulp, mentale steun en preventie voor jezelf en anderen."
+  },
+  {
+   "code": "NL.MEN.32A.1",
+   "vak": "Mens en natuur",
+   "leerjaar": 0,
+   "domein": "Systeem aarde",
+   "cluster": "Kerndoel 32: De leerling toont inzicht in en verkent systeem aarde.",
+   "tekst": "De leerling toont inzicht in en verkent veranderingen aan het aardoppervlak door natuurverschijnselen en menselijk handelen: evalueren hoe planeten in ons zonnestelsel voldoen aan voorwaarden voor leven."
+  },
+  {
+   "code": "NL.MEN.32A.2",
+   "vak": "Mens en natuur",
+   "leerjaar": 0,
+   "domein": "Systeem aarde",
+   "cluster": "Kerndoel 32: De leerling toont inzicht in en verkent systeem aarde.",
+   "tekst": "De leerling toont inzicht in en verkent veranderingen aan het aardoppervlak door natuurverschijnselen en menselijk handelen: verklaren hoe de beweging en positie van hemellichamen leiden tot dag-nacht, seizoenen, jaren en getijden."
+  },
+  {
+   "code": "NL.MEN.32A.3",
+   "vak": "Mens en natuur",
+   "leerjaar": 0,
+   "domein": "Systeem aarde",
+   "cluster": "Kerndoel 32: De leerling toont inzicht in en verkent systeem aarde.",
+   "tekst": "De leerling toont inzicht in en verkent veranderingen aan het aardoppervlak door natuurverschijnselen en menselijk handelen: beschrijven van kenmerken van landschappen in Nederland, Europa en de wereld: reliëf, vulkanen, rivieren, kusten en vegetatie."
+  },
+  {
+   "code": "NL.MEN.32A.4",
+   "vak": "Mens en natuur",
+   "leerjaar": 0,
+   "domein": "Systeem aarde",
+   "cluster": "Kerndoel 32: De leerling toont inzicht in en verkent systeem aarde.",
+   "tekst": "De leerling toont inzicht in en verkent veranderingen aan het aardoppervlak door natuurverschijnselen en menselijk handelen: beredeneren hoe processen in de aarde leiden tot verschuivende continenten, gebergtevorming en vulkanisme."
+  },
+  {
+   "code": "NL.MEN.32A.5",
+   "vak": "Mens en natuur",
+   "leerjaar": 0,
+   "domein": "Systeem aarde",
+   "cluster": "Kerndoel 32: De leerling toont inzicht in en verkent systeem aarde.",
+   "tekst": "De leerling toont inzicht in en verkent veranderingen aan het aardoppervlak door natuurverschijnselen en menselijk handelen: verklaren van de ontstaanswijze van berg-, kust- en rivierlandschappen door natuurlijke processen en menselijk handelen."
+  },
+  {
+   "code": "NL.MEN.32B.1",
+   "vak": "Mens en natuur",
+   "leerjaar": 0,
+   "domein": "Systeem aarde",
+   "cluster": "Kerndoel 32: De leerling toont inzicht in en verkent systeem aarde.",
+   "tekst": "De leerling toont inzicht in waterkringloop, weer en klimaat en verkent deze in de eigen leefomgeving: beschrijven van de kenmerken en spreiding van klimaten op aarde."
+  },
+  {
+   "code": "NL.MEN.32B.2",
+   "vak": "Mens en natuur",
+   "leerjaar": 0,
+   "domein": "Systeem aarde",
+   "cluster": "Kerndoel 32: De leerling toont inzicht in en verkent systeem aarde.",
+   "tekst": "De leerling toont inzicht in waterkringloop, weer en klimaat en verkent deze in de eigen leefomgeving: beschrijven hoe de waterkringloop in elkaar zit."
+  },
+  {
+   "code": "NL.MEN.32B.3",
+   "vak": "Mens en natuur",
+   "leerjaar": 0,
+   "domein": "Systeem aarde",
+   "cluster": "Kerndoel 32: De leerling toont inzicht in en verkent systeem aarde.",
+   "tekst": "De leerling toont inzicht in waterkringloop, weer en klimaat en verkent deze in de eigen leefomgeving: analyseren van het weer aan de hand van temperatuur, luchtdruk, bewolking, neerslag, luchtvochtigheid en wind."
+  },
+  {
+   "code": "NL.MEN.32B.4",
+   "vak": "Mens en natuur",
+   "leerjaar": 0,
+   "domein": "Systeem aarde",
+   "cluster": "Kerndoel 32: De leerling toont inzicht in en verkent systeem aarde.",
+   "tekst": "De leerling toont inzicht in waterkringloop, weer en klimaat en verkent deze in de eigen leefomgeving: beschrijven van frequentie en duur van extreem weer in gebieden: orkanen, windhozen, langdurige droogte, hittegolf en zware neerslag."
+  },
+  {
+   "code": "NL.MEN.32B.5",
+   "vak": "Mens en natuur",
+   "leerjaar": 0,
+   "domein": "Systeem aarde",
+   "cluster": "Kerndoel 32: De leerling toont inzicht in en verkent systeem aarde.",
+   "tekst": "De leerling toont inzicht in waterkringloop, weer en klimaat en verkent deze in de eigen leefomgeving: verbanden leggen tussen klimaatverandering en natuurlijke processen en menselijk handelen."
+  },
+  {
+   "code": "NL.MEN.32C.1",
+   "vak": "Mens en natuur",
+   "leerjaar": 0,
+   "domein": "Systeem aarde",
+   "cluster": "Kerndoel 32: De leerling toont inzicht in en verkent systeem aarde.",
+   "tekst": "De leerling verkent verschillende ecosystemen en verklaart interacties binnen het systeem: verkennen op welke plek in een biotoop planten, dieren en schimmels zich bevinden."
+  },
+  {
+   "code": "NL.MEN.32C.2",
+   "vak": "Mens en natuur",
+   "leerjaar": 0,
+   "domein": "Systeem aarde",
+   "cluster": "Kerndoel 32: De leerling toont inzicht in en verkent systeem aarde.",
+   "tekst": "De leerling verkent verschillende ecosystemen en verklaart interacties binnen het systeem: benoemen van soortnamen van planten en dieren in verschillende soorten ecosystemen en deze planten en dieren indelen in een taxonomie."
+  },
+  {
+   "code": "NL.MEN.32C.3",
+   "vak": "Mens en natuur",
+   "leerjaar": 0,
+   "domein": "Systeem aarde",
+   "cluster": "Kerndoel 32: De leerling toont inzicht in en verkent systeem aarde.",
+   "tekst": "De leerling verkent verschillende ecosystemen en verklaart interacties binnen het systeem: weergeven van voedselrelaties in een ecosysteem."
+  },
+  {
+   "code": "NL.MEN.32C.4",
+   "vak": "Mens en natuur",
+   "leerjaar": 0,
+   "domein": "Systeem aarde",
+   "cluster": "Kerndoel 32: De leerling toont inzicht in en verkent systeem aarde.",
+   "tekst": "De leerling verkent verschillende ecosystemen en verklaart interacties binnen het systeem: beredeneerd hoe biotische en abiotische onderdelen van een ecosysteem met elkaar samenhangen."
+  },
+  {
+   "code": "NL.MEN.32C.5",
+   "vak": "Mens en natuur",
+   "leerjaar": 0,
+   "domein": "Systeem aarde",
+   "cluster": "Kerndoel 32: De leerling toont inzicht in en verkent systeem aarde.",
+   "tekst": "De leerling verkent verschillende ecosystemen en verklaart interacties binnen het systeem: beschrijven hoe de mens afhankelijk is van ecosystemen en wat de invloed van de mens is op de biodiversiteit."
+  }
+ ]
+}

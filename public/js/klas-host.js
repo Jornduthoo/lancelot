@@ -6,6 +6,9 @@ let doelen = [];
 let leerjaar = 6; // het leerjaar van de klas
 let leerjaren = [];
 const same = (a, b) => String(a) === String(b);
+// Hoort een doel bij dit leerjaar? Een doel kan voor meerdere leerjaren gelden (leerjaren) of voor alle (leerjaar 0).
+const inJaar = (d, lj) => (Array.isArray(d.leerjaren) && d.leerjaren.length ? d.leerjaren : [d.leerjaar]).some(j => !Number(j) || same(j, lj));
+let alleJaren = [];
 const ljNaam = lj => (leerjaren.find(l => same(l.id, lj)) || { naam: `${lj}e leerjaar` }).naam;
 let perDoel = {};
 
@@ -118,7 +121,15 @@ function loadDoelen() {
     const before = leerjaar;
     leerjaar = res.leerjaar;
     doelen = res.doelen;
-    leerjaren = (res.leerjaren || []).filter(l => doelen.some(d => same(d.leerjaar, l.id)));
+    alleJaren = res.leerjaren || [];
+    leerjaren = alleJaren.filter(l => doelen.some(d => inJaar(d, l.id)));
+    // Het leerjaar van de klas: met de namen van het gekozen land (Year 4, groep 6, CE1 ...).
+    const kl = $('k-leerjaar');
+    const was = kl.value || String(leerjaar);
+    kl.innerHTML = '';
+    for (const l of alleJaren) kl.add(new Option(l.naam, String(l.id)));
+    if (!alleJaren.some(l => same(l.id, leerjaar))) kl.add(new Option(`${leerjaar}e leerjaar`, String(leerjaar)));
+    kl.value = alleJaren.some(l => same(l.id, was)) ? was : String(leerjaar);
     // Het leerjaar in de keuzelijst: dat van de klas, tenzij de leerkracht al een ander koos.
     const sel = $('d-leerjaar');
     const keep = sel.value && !same(sel.value, before) ? sel.value : String(leerjaar);
@@ -138,7 +149,7 @@ function fillVakken() {
   const sel = $('d-vak');
   const keep = sel.value;
   const lj = gekozenLeerjaar();
-  const vakken = [...new Set(doelen.filter(d => same(d.leerjaar, lj)).map(d => d.vak))].sort((a, b) => a.localeCompare(b, 'nl'));
+  const vakken = [...new Set(doelen.filter(d => inJaar(d, lj)).map(d => d.vak))].sort((a, b) => a.localeCompare(b, 'nl'));
   sel.innerHTML = '<option value="">Alle vakken</option>';
   for (const v of vakken) sel.add(new Option(v, v));
   sel.value = vakken.includes(keep) ? keep : '';
@@ -157,13 +168,18 @@ function renderDoelen() {
   box.innerHTML = '';
   const q = $('d-zoek').value.trim().toLowerCase();
   const lj = gekozenLeerjaar();
-  const mine = doelen.filter(d => same(d.leerjaar, lj));
+  const mine = doelen.filter(d => inJaar(d, lj));
+  $('d-bron').textContent = '';
+  if (!doelen.length) {
+    box.textContent = 'Je werkt zonder leerplandoelen. Kies hierboven de doelen van je land of zet je eigen doelen.';
+    return;
+  }
   if (!mine.length) {
-    box.textContent = `Er zijn nog geen leerplandoelen voor het ${ljNaam(lj)} ingeladen.`;
+    box.textContent = `Er zijn geen leerplandoelen voor ${ljNaam(lj)}. Kies een ander leerjaar.`;
     return;
   }
   const vakKeuze = $('d-vak').value;
-  const shown = mine.filter(d => !vakKeuze || d.vak === vakKeuze).filter(d => !q || d.code.toLowerCase().includes(q) || d.tekst.toLowerCase().includes(q) || d.cluster.toLowerCase().includes(q));
+  const shown = mine.filter(d => !vakKeuze || d.vak === vakKeuze).filter(d => !q || d.code.toLowerCase().includes(q) || d.tekst.toLowerCase().includes(q) || String(d.cluster || '').toLowerCase().includes(q));
   // Per vak een inklapbaar blok: zo blijft de pagina kort. Bij zoeken of één vak staat alles open.
   const open = Boolean(q || vakKeuze);
   let vak = '';
@@ -189,21 +205,23 @@ function renderDoelen() {
       vak = d.vak;
       domein = '';
     }
-    if (d.domein !== domein) {
+    if ((d.domein || '') !== domein) {
       const h = document.createElement('h3');
       h.className = 'doel-domein';
-      h.textContent = d.domein;
-      groep.appendChild(h);
-      domein = d.domein;
+      h.textContent = d.domein || '';
+      if (d.domein) groep.appendChild(h);
+      domein = d.domein || '';
       cluster = '';
     }
     teller.dataset.n = Number(teller.dataset.n) + 1;
     teller.textContent = `${teller.dataset.n} doelen`;
-    if (d.cluster !== cluster) {
-      const h = document.createElement('h4');
-      h.textContent = d.cluster;
-      groep.appendChild(h);
-      cluster = d.cluster;
+    if ((d.cluster || '') !== cluster) {
+      cluster = d.cluster || '';
+      if (cluster) {
+        const h = document.createElement('h4');
+        h.textContent = cluster;
+        groep.appendChild(h);
+      }
     }
     const row = document.createElement('div');
     row.className = 'doel-rij';
@@ -217,14 +235,59 @@ function renderDoelen() {
     if (d.score === false) tags.appendChild(tag('Ronde Tafel, geen score'));
     if (d.kennis) tags.appendChild(tag({ F: 'feitenkennis', I: 'inzicht', 'I/F': 'inzicht en feiten' }[d.kennis] || d.kennis));
     if (d.herhaling) tags.appendChild(tag(`herhaling ${d.herhaling}`));
+    if (d.eigen) tags.appendChild(tag('eigen doel'));
+    if (Array.isArray(d.leerjaren) && d.leerjaren.length > 1) tags.appendChild(tag(`${ljNaam(d.leerjaren[0])} - ${ljNaam(d.leerjaren[d.leerjaren.length - 1])}`));
     const log = perDoel[d.code];
     if (log) tags.appendChild(tag(`${log.antwoorden} antw. · ${Math.round((log.juist / log.antwoorden) * 100)}% juist`, 'log'));
     row.append(code, text, tags);
     groep.appendChild(row);
   }
   if (!shown.length) box.textContent = 'Geen doelen gevonden.';
-  $('d-bron').textContent = `${shown.length} doelen. Bron: Op.stap (Katholiek Onderwijs Vlaanderen), leerplanversie V1.3. De officiële versie staat in de Op.stap-leerplantool.`;
+  $('d-bron').textContent = keuzeInfo.bron ? `${shown.length} doelen. Bron: ${keuzeInfo.bron}.` : `${shown.length} doelen.`;
 }
+
+// Welke doelen: het land, de eigen doelen en de AI-prompt.
+let keuzeInfo = {};
+function toonKeuze(k) {
+  if (!k || k.error) return;
+  keuzeInfo = k;
+  const sel = $('dk-land');
+  sel.innerHTML = '';
+  for (const l of k.landen) if (l.aantal) sel.add(new Option(l.naam, l.id));
+  sel.add(new Option('Geen lijst (alleen eigen doelen of geen doelen)', 'geen'));
+  sel.value = k.land;
+  $('dk-land-bron').textContent = k.bron ? `Bron: ${k.bron}.` : '';
+  $('dk-eigen-aantal').textContent = k.eigen.length ? `(${k.eigen.length})` : '';
+  if (document.activeElement !== $('dk-eigen-tekst')) $('dk-eigen-tekst').value = k.tekst || '';
+  if (k.land === 'geen' && !k.eigen.length) $('dk-eigen').open = true;
+}
+function laadKeuze() {
+  socket.emit('doelen-keuze', null, toonKeuze);
+}
+$('dk-land').addEventListener('change', () => {
+  socket.emit('doelen-land', { land: $('dk-land').value }, res => {
+    if (res.error) return Ui.melding(res.error);
+    toonKeuze(res);
+  });
+});
+$('dk-eigen-bewaar').addEventListener('click', () => {
+  $('dk-error').textContent = '';
+  socket.emit('doelen-eigen', { tekst: $('dk-eigen-tekst').value }, res => {
+    if (res.error) return void ($('dk-error').textContent = res.error);
+    toonKeuze(res);
+    $('dk-eigen-tekst').value = res.tekst || '';
+    Ui.melding(`${res.eigen.length} eigen doelen bewaard.`);
+  });
+});
+$('dk-ai').addEventListener('click', () => {
+  const lj = ljNaam($('k-leerjaar').value || leerjaar);
+  const land = (keuzeInfo.landen || []).find(l => l.id === keuzeInfo.land);
+  socket.emit('doelen-prompt', { leerjaar: lj, land: land ? land.naam : '' }, res => {
+    if (res.error) return Ui.melding(res.error);
+    Ui.kopieer(res.prompt);
+  });
+});
+socket.on('doelen-gewijzigd', () => loadDoelen());
 
 $('d-zoek').addEventListener('input', renderDoelen);
 $('d-vak').addEventListener('change', renderDoelen);
@@ -233,6 +296,7 @@ $('d-leerjaar').addEventListener('change', fillVakken);
 socket.on('connect', () => {
   loadKlas();
   loadDoelen();
+  laadKeuze();
   loadLogboek();
 });
 // De klaslijst kwam binnen via Mijn lesmap (bv. thuis aangepast): opnieuw tonen, behalve terwijl je hem aan het typen bent.
@@ -313,7 +377,7 @@ function doelCell(d, tag = 'td') {
   const code = document.createElement('code');
   code.textContent = d.code;
   const text = document.createElement('small');
-  text.textContent = d.tekst || 'Dit doel staat niet in de lijst van Op.stap.';
+  text.textContent = d.tekst || 'Dit doel staat niet in de gekozen doelen.';
   cell.append(code, text);
   return cell;
 }

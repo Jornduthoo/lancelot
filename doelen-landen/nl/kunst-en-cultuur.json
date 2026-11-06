@@ -1,0 +1,262 @@
+{
+ "bron": "Kerndoelen funderend onderwijs, primair onderwijs (SLO, definitieve conceptversie), data: github.com/slonl/curriculum-fo",
+ "vak": "Kunst en cultuur",
+ "doelen": [
+  {
+   "code": "NL.KUN.35A.1",
+   "vak": "Kunst en cultuur",
+   "leerjaar": 0,
+   "domein": "Artistiek creatief vermogen",
+   "cluster": "Kerndoel 35: De leerling ontwikkelt artistiek creatief vermogen.",
+   "tekst": "De leerling gebruikt creatieve maak- en denkstrategieën in een iteratief kunstzinnig proces: omgaan met speelruimte: experimenteren, improviseren en spelen met materialen, technieken, beweging, klank en instrumenten."
+  },
+  {
+   "code": "NL.KUN.35A.2",
+   "vak": "Kunst en cultuur",
+   "leerjaar": 0,
+   "domein": "Artistiek creatief vermogen",
+   "cluster": "Kerndoel 35: De leerling ontwikkelt artistiek creatief vermogen.",
+   "tekst": "De leerling gebruikt creatieve maak- en denkstrategieën in een iteratief kunstzinnig proces: verkennen van eigen en gezamenlijke ideeën bij het maakproces."
+  },
+  {
+   "code": "NL.KUN.35A.3",
+   "vak": "Kunst en cultuur",
+   "leerjaar": 0,
+   "domein": "Artistiek creatief vermogen",
+   "cluster": "Kerndoel 35: De leerling ontwikkelt artistiek creatief vermogen.",
+   "tekst": "De leerling gebruikt creatieve maak- en denkstrategieën in een iteratief kunstzinnig proces: gebruiken van ideeën van andere makers als inspiratie voor eigen en gezamenlijke kunstzinnige uitingen."
+  },
+  {
+   "code": "NL.KUN.35A.4",
+   "vak": "Kunst en cultuur",
+   "leerjaar": 0,
+   "domein": "Artistiek creatief vermogen",
+   "cluster": "Kerndoel 35: De leerling ontwikkelt artistiek creatief vermogen.",
+   "tekst": "De leerling gebruikt creatieve maak- en denkstrategieën in een iteratief kunstzinnig proces: gebruiken van uitingen van kunst en cultuur als inspiratie voor eigen en gezamenlijke kunstzinnige uitingen."
+  },
+  {
+   "code": "NL.KUN.35A.5",
+   "vak": "Kunst en cultuur",
+   "leerjaar": 0,
+   "domein": "Artistiek creatief vermogen",
+   "cluster": "Kerndoel 35: De leerling ontwikkelt artistiek creatief vermogen.",
+   "tekst": "De leerling gebruikt creatieve maak- en denkstrategieën in een iteratief kunstzinnig proces: bijstellen van eigen en gezamenlijke kunstzinnige uitingen."
+  },
+  {
+   "code": "NL.KUN.35B.1",
+   "vak": "Kunst en cultuur",
+   "leerjaar": 0,
+   "domein": "Artistiek creatief vermogen",
+   "cluster": "Kerndoel 35: De leerling ontwikkelt artistiek creatief vermogen.",
+   "tekst": "De leerling onderzoekt het eigen artistiek creatief vermogen: oriënteren op diverse technieken, materialen, middelen, vormen en processen."
+  },
+  {
+   "code": "NL.KUN.35B.2",
+   "vak": "Kunst en cultuur",
+   "leerjaar": 0,
+   "domein": "Artistiek creatief vermogen",
+   "cluster": "Kerndoel 35: De leerling ontwikkelt artistiek creatief vermogen.",
+   "tekst": "De leerling onderzoekt het eigen artistiek creatief vermogen: bespreken van getoonde eigen of gezamenlijke kunstzinnige uitingen."
+  },
+  {
+   "code": "NL.KUN.35B.3",
+   "vak": "Kunst en cultuur",
+   "leerjaar": 0,
+   "domein": "Artistiek creatief vermogen",
+   "cluster": "Kerndoel 35: De leerling ontwikkelt artistiek creatief vermogen.",
+   "tekst": "De leerling onderzoekt het eigen artistiek creatief vermogen: kijken en luiseren naar uitingen van kunst en cultuur."
+  },
+  {
+   "code": "NL.KUN.35B.4",
+   "vak": "Kunst en cultuur",
+   "leerjaar": 0,
+   "domein": "Artistiek creatief vermogen",
+   "cluster": "Kerndoel 35: De leerling ontwikkelt artistiek creatief vermogen.",
+   "tekst": "De leerling onderzoekt het eigen artistiek creatief vermogen: verwoorden van eigen artistieke voorkeuren en vermogens tijdens het maakproces."
+  },
+  {
+   "code": "NL.KUN.35C.1",
+   "vak": "Kunst en cultuur",
+   "leerjaar": 0,
+   "domein": "Artistiek creatief vermogen",
+   "cluster": "Kerndoel 35: De leerling ontwikkelt artistiek creatief vermogen.",
+   "tekst": "De leerling onderzoekt betekenissen van kunst en cultuur tijdens het maken en meemaken: bespreken van betekenissen van eigen kunstzinnig werk en dat van medeleerlingen."
+  },
+  {
+   "code": "NL.KUN.35C.2",
+   "vak": "Kunst en cultuur",
+   "leerjaar": 0,
+   "domein": "Artistiek creatief vermogen",
+   "cluster": "Kerndoel 35: De leerling ontwikkelt artistiek creatief vermogen.",
+   "tekst": "De leerling onderzoekt betekenissen van kunst en cultuur tijdens het maken en meemaken: beschouwen en beschrijven van uitingen van kunst en cultuur van uiteenlopende makers."
+  },
+  {
+   "code": "NL.KUN.35C.3",
+   "vak": "Kunst en cultuur",
+   "leerjaar": 0,
+   "domein": "Artistiek creatief vermogen",
+   "cluster": "Kerndoel 35: De leerling ontwikkelt artistiek creatief vermogen.",
+   "tekst": "De leerling onderzoekt betekenissen van kunst en cultuur tijdens het maken en meemaken: gebruiken van vaktaal."
+  },
+  {
+   "code": "NL.KUN.35C.4",
+   "vak": "Kunst en cultuur",
+   "leerjaar": 0,
+   "domein": "Artistiek creatief vermogen",
+   "cluster": "Kerndoel 35: De leerling ontwikkelt artistiek creatief vermogen.",
+   "tekst": "De leerling onderzoekt betekenissen van kunst en cultuur tijdens het maken en meemaken: vragen stellen over de betekenissen van uitingen van kunst en cultuur."
+  },
+  {
+   "code": "NL.KUN.35C.5",
+   "vak": "Kunst en cultuur",
+   "leerjaar": 0,
+   "domein": "Artistiek creatief vermogen",
+   "cluster": "Kerndoel 35: De leerling ontwikkelt artistiek creatief vermogen.",
+   "tekst": "De leerling onderzoekt betekenissen van kunst en cultuur tijdens het maken en meemaken: verwoorden van een mening over uitingen van kunst en cultuur."
+  },
+  {
+   "code": "NL.KUN.36A.1",
+   "vak": "Kunst en cultuur",
+   "leerjaar": 0,
+   "domein": "Maken en betekenis geven",
+   "cluster": "Kerndoel 36: De leerling maakt kunstzinnige uitingen.",
+   "tekst": "De leerling drukt zich individueel en samen met anderen uit in vormen van kunst: gebruiken van verbeeldende elementen uit beeldende kunst en muziek, alsmede van dans, of film, of theater bij het maken van eigen werk."
+  },
+  {
+   "code": "NL.KUN.36A.2",
+   "vak": "Kunst en cultuur",
+   "leerjaar": 0,
+   "domein": "Maken en betekenis geven",
+   "cluster": "Kerndoel 36: De leerling maakt kunstzinnige uitingen.",
+   "tekst": "De leerling drukt zich individueel en samen met anderen uit in vormen van kunst: verbeelden van verhalen, ideeën, gedachten, ervaringen, gevoelens."
+  },
+  {
+   "code": "NL.KUN.36A.3",
+   "vak": "Kunst en cultuur",
+   "leerjaar": 0,
+   "domein": "Maken en betekenis geven",
+   "cluster": "Kerndoel 36: De leerling maakt kunstzinnige uitingen.",
+   "tekst": "De leerling drukt zich individueel en samen met anderen uit in vormen van kunst: maken van een kunstzinnige uitingen als reactie op maatschappelijke vraagstukken en gebeurtenissen."
+  },
+  {
+   "code": "NL.KUN.36A.4",
+   "vak": "Kunst en cultuur",
+   "leerjaar": 0,
+   "domein": "Maken en betekenis geven",
+   "cluster": "Kerndoel 36: De leerling maakt kunstzinnige uitingen.",
+   "tekst": "De leerling drukt zich individueel en samen met anderen uit in vormen van kunst: ontwerpen en realiseren van toegepast vormen van kunst."
+  },
+  {
+   "code": "NL.KUN.36A.5",
+   "vak": "Kunst en cultuur",
+   "leerjaar": 0,
+   "domein": "Maken en betekenis geven",
+   "cluster": "Kerndoel 36: De leerling maakt kunstzinnige uitingen.",
+   "tekst": "De leerling drukt zich individueel en samen met anderen uit in vormen van kunst: herinterpreteren van bestaand werk."
+  },
+  {
+   "code": "NL.KUN.36B.1",
+   "vak": "Kunst en cultuur",
+   "leerjaar": 0,
+   "domein": "Maken en betekenis geven",
+   "cluster": "Kerndoel 36: De leerling maakt kunstzinnige uitingen.",
+   "tekst": "De leerling gebruikt technieken en vaardigheden bij het maken van individueel en gezamenlijk werk: beeldende materialen, technieken en gereedschappen."
+  },
+  {
+   "code": "NL.KUN.36B.2",
+   "vak": "Kunst en cultuur",
+   "leerjaar": 0,
+   "domein": "Maken en betekenis geven",
+   "cluster": "Kerndoel 36: De leerling maakt kunstzinnige uitingen.",
+   "tekst": "De leerling gebruikt technieken en vaardigheden bij het maken van individueel en gezamenlijk werk: muzikale technieken en instrumenten."
+  },
+  {
+   "code": "NL.KUN.36B.3",
+   "vak": "Kunst en cultuur",
+   "leerjaar": 0,
+   "domein": "Maken en betekenis geven",
+   "cluster": "Kerndoel 36: De leerling maakt kunstzinnige uitingen.",
+   "tekst": "De leerling gebruikt technieken en vaardigheden bij het maken van individueel en gezamenlijk werk: fotografische en filmische technieken of."
+  },
+  {
+   "code": "NL.KUN.36B.4",
+   "vak": "Kunst en cultuur",
+   "leerjaar": 0,
+   "domein": "Maken en betekenis geven",
+   "cluster": "Kerndoel 36: De leerling maakt kunstzinnige uitingen.",
+   "tekst": "De leerling gebruikt technieken en vaardigheden bij het maken van individueel en gezamenlijk werk: dansante technieken of."
+  },
+  {
+   "code": "NL.KUN.36B.5",
+   "vak": "Kunst en cultuur",
+   "leerjaar": 0,
+   "domein": "Maken en betekenis geven",
+   "cluster": "Kerndoel 36: De leerling maakt kunstzinnige uitingen.",
+   "tekst": "De leerling gebruikt technieken en vaardigheden bij het maken van individueel en gezamenlijk werk: spel- en acteertechnieken."
+  },
+  {
+   "code": "NL.KUN.37A.1",
+   "vak": "Kunst en cultuur",
+   "leerjaar": 0,
+   "domein": "Meemaken en betekenis geven",
+   "cluster": "Kerndoel 37: De leerling maakt kunst en cultuur mee.",
+   "tekst": "De leerling neemt deel aan diverse kunstzinnige en culturele activiteiten en reflecteert op eigen ervaringen en die van anderen: omgaan met de gebruiken en gewoonten bij het actief meemaken van kunst en cultuur in uiteenlopende contexten."
+  },
+  {
+   "code": "NL.KUN.37A.2",
+   "vak": "Kunst en cultuur",
+   "leerjaar": 0,
+   "domein": "Meemaken en betekenis geven",
+   "cluster": "Kerndoel 37: De leerling maakt kunst en cultuur mee.",
+   "tekst": "De leerling neemt deel aan diverse kunstzinnige en culturele activiteiten en reflecteert op eigen ervaringen en die van anderen: uitwisselen van ervaringen in interactie met professionele makers."
+  },
+  {
+   "code": "NL.KUN.37A.3",
+   "vak": "Kunst en cultuur",
+   "leerjaar": 0,
+   "domein": "Meemaken en betekenis geven",
+   "cluster": "Kerndoel 37: De leerling maakt kunst en cultuur mee.",
+   "tekst": "De leerling neemt deel aan diverse kunstzinnige en culturele activiteiten en reflecteert op eigen ervaringen en die van anderen: omgaan met uiteenlopende opvattingen en belevingen van anderen."
+  },
+  {
+   "code": "NL.KUN.37A.4",
+   "vak": "Kunst en cultuur",
+   "leerjaar": 0,
+   "domein": "Meemaken en betekenis geven",
+   "cluster": "Kerndoel 37: De leerling maakt kunst en cultuur mee.",
+   "tekst": "De leerling neemt deel aan diverse kunstzinnige en culturele activiteiten en reflecteert op eigen ervaringen en die van anderen: vergelijken van eigen interesses en voorkeuren voor kunstzinnige uitingsvormen met die van anderen."
+  },
+  {
+   "code": "NL.KUN.37A.5",
+   "vak": "Kunst en cultuur",
+   "leerjaar": 0,
+   "domein": "Meemaken en betekenis geven",
+   "cluster": "Kerndoel 37: De leerling maakt kunst en cultuur mee.",
+   "tekst": "De leerling neemt deel aan diverse kunstzinnige en culturele activiteiten en reflecteert op eigen ervaringen en die van anderen: maken van een kunstzinnige uiting als verwerking van een culturele en kunstzinnige ervaring."
+  },
+  {
+   "code": "NL.KUN.37B.1",
+   "vak": "Kunst en cultuur",
+   "leerjaar": 0,
+   "domein": "Meemaken en betekenis geven",
+   "cluster": "Kerndoel 37: De leerling maakt kunst en cultuur mee.",
+   "tekst": "De leerling verkent het ontstaan van kunstzinnige en cultuurhistorische uitingen: verkennen van kunstzinnige uitingen, kunststromingen en erfgoed in cultuur."
+  },
+  {
+   "code": "NL.KUN.37B.2",
+   "vak": "Kunst en cultuur",
+   "leerjaar": 0,
+   "domein": "Meemaken en betekenis geven",
+   "cluster": "Kerndoel 37: De leerling maakt kunst en cultuur mee.",
+   "tekst": "De leerling verkent het ontstaan van kunstzinnige en cultuurhistorische uitingen: verkennen van de invloed van tijd en plaats op het werk van makers."
+  },
+  {
+   "code": "NL.KUN.37B.3",
+   "vak": "Kunst en cultuur",
+   "leerjaar": 0,
+   "domein": "Meemaken en betekenis geven",
+   "cluster": "Kerndoel 37: De leerling maakt kunst en cultuur mee.",
+   "tekst": "De leerling verkent het ontstaan van kunstzinnige en cultuurhistorische uitingen: verkennen van de functie en waarde van uitingen van kunst en cultuur voor zichzelf en de samenleving."
+  }
+ ]
+}

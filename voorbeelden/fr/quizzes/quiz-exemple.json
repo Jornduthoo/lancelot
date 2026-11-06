@@ -1,0 +1,93 @@
+{
+ "title": "Quiz exemple : le monde qui nous entoure",
+ "questions": [
+  {
+   "question": "Combien de pattes a une araignée ?",
+   "answers": [
+    "6",
+    "8",
+    "10",
+    "4"
+   ],
+   "correct": 1,
+   "time": 20
+  },
+  {
+   "question": "Quelle planète est la plus proche du Soleil ?",
+   "answers": [
+    "Vénus",
+    "La Terre",
+    "Mercure",
+    "Mars"
+   ],
+   "correct": 2,
+   "time": 20
+  },
+  {
+   "question": "Combien font 7 × 8 ?",
+   "answers": [
+    "54",
+    "56",
+    "64",
+    "48"
+   ],
+   "correct": 1,
+   "time": 20
+  },
+  {
+   "question": "Lequel de ces animaux est un mammifère ?",
+   "answers": [
+    "Le requin",
+    "La grenouille",
+    "Le dauphin",
+    "Le manchot"
+   ],
+   "correct": 2,
+   "time": 20
+  },
+  {
+   "question": "De quoi les plantes ont-elles besoin pour fabriquer leur nourriture ?",
+   "answers": [
+    "De lumière",
+    "D’obscurité",
+    "De sel",
+    "De sable"
+   ],
+   "correct": 0,
+   "time": 20
+  },
+  {
+   "question": "Combien de côtés a un hexagone ?",
+   "answers": [
+    "5",
+    "6",
+    "7",
+    "8"
+   ],
+   "correct": 1,
+   "time": 20
+  },
+  {
+   "question": "À quelle température l’eau gèle-t-elle ?",
+   "answers": [
+    "0 °C",
+    "10 °C",
+    "-10 °C",
+    "100 °C"
+   ],
+   "correct": 0,
+   "time": 20
+  },
+  {
+   "question": "Laquelle de ces lettres est une voyelle ?",
+   "answers": [
+    "B",
+    "T",
+    "E",
+    "K"
+   ],
+   "correct": 2,
+   "time": 20
+  }
+ ]
+}

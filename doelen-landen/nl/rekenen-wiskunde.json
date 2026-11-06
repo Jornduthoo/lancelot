@@ -1,0 +1,534 @@
+{
+ "bron": "Kerndoelen funderend onderwijs, primair onderwijs (SLO, definitieve conceptversie), data: github.com/slonl/curriculum-fo",
+ "vak": "Rekenen-wiskunde",
+ "doelen": [
+  {
+   "code": "NL.REK.10A.1",
+   "vak": "Rekenen-wiskunde",
+   "leerjaar": 0,
+   "domein": "Wiskundige concepten",
+   "cluster": "Kerndoel 10: De leerling redeneert en rekent met getallen en verhoudingen.",
+   "tekst": "De leerling redeneert en rekent met gehele en decimale getallen: de bewerkingen: vergelijken, ordenen, optellen, aftrekken, vermenigvuldigen en delen."
+  },
+  {
+   "code": "NL.REK.10A.2",
+   "vak": "Rekenen-wiskunde",
+   "leerjaar": 0,
+   "domein": "Wiskundige concepten",
+   "cluster": "Kerndoel 10: De leerling redeneert en rekent met getallen en verhoudingen.",
+   "tekst": "De leerling redeneert en rekent met gehele en decimale getallen: memoriseren van getalrelaties, splitsingen van getallen tot 20 en de tafels van vermenigvuldiging, en deze kennis vlot en wendbaar toepassen."
+  },
+  {
+   "code": "NL.REK.10A.3",
+   "vak": "Rekenen-wiskunde",
+   "leerjaar": 0,
+   "domein": "Wiskundige concepten",
+   "cluster": "Kerndoel 10: De leerling redeneert en rekent met getallen en verhoudingen.",
+   "tekst": "De leerling redeneert en rekent met gehele en decimale getallen: beredeneerd kiezen van een rekenvorm en rekenwijze en reflecteren op keuze en uitvoering hiervan."
+  },
+  {
+   "code": "NL.REK.10A.4",
+   "vak": "Rekenen-wiskunde",
+   "leerjaar": 0,
+   "domein": "Wiskundige concepten",
+   "cluster": "Kerndoel 10: De leerling redeneert en rekent met getallen en verhoudingen.",
+   "tekst": "De leerling redeneert en rekent met gehele en decimale getallen: rekenvormen: hoofdrekenen, schattend rekenen, schriftelijk rekenen en rekenen met de rekenmachine."
+  },
+  {
+   "code": "NL.REK.10A.5",
+   "vak": "Rekenen-wiskunde",
+   "leerjaar": 0,
+   "domein": "Wiskundige concepten",
+   "cluster": "Kerndoel 10: De leerling redeneert en rekent met getallen en verhoudingen.",
+   "tekst": "De leerling redeneert en rekent met gehele en decimale getallen: rekenwijzen: rekenen met eigenschappen van getallen en bewerkingen, en met standaardprocedures."
+  },
+  {
+   "code": "NL.REK.10B.1",
+   "vak": "Rekenen-wiskunde",
+   "leerjaar": 0,
+   "domein": "Wiskundige concepten",
+   "cluster": "Kerndoel 10: De leerling redeneert en rekent met getallen en verhoudingen.",
+   "tekst": "De leerling redeneert en rekent met breuken als getal, verhouding en deling: stambreuken (1/3) echte breuken (2/5), gemengde getallen (1 1/2) en onechte breuken (12/4)."
+  },
+  {
+   "code": "NL.REK.10B.2",
+   "vak": "Rekenen-wiskunde",
+   "leerjaar": 0,
+   "domein": "Wiskundige concepten",
+   "cluster": "Kerndoel 10: De leerling redeneert en rekent met getallen en verhoudingen.",
+   "tekst": "De leerling redeneert en rekent met breuken als getal, verhouding en deling: relaties leggen tussen breuken en delingen."
+  },
+  {
+   "code": "NL.REK.10B.3",
+   "vak": "Rekenen-wiskunde",
+   "leerjaar": 0,
+   "domein": "Wiskundige concepten",
+   "cluster": "Kerndoel 10: De leerling redeneert en rekent met getallen en verhoudingen.",
+   "tekst": "De leerling redeneert en rekent met breuken als getal, verhouding en deling: beredeneerd ordenen, vereenvoudigen en vergelijken van breuken."
+  },
+  {
+   "code": "NL.REK.10B.4",
+   "vak": "Rekenen-wiskunde",
+   "leerjaar": 0,
+   "domein": "Wiskundige concepten",
+   "cluster": "Kerndoel 10: De leerling redeneert en rekent met getallen en verhoudingen.",
+   "tekst": "De leerling redeneert en rekent met breuken als getal, verhouding en deling: relaties leggen tussen breuken, decimale getallen, verhoudingen en procenten."
+  },
+  {
+   "code": "NL.REK.10B.5",
+   "vak": "Rekenen-wiskunde",
+   "leerjaar": 0,
+   "domein": "Wiskundige concepten",
+   "cluster": "Kerndoel 10: De leerling redeneert en rekent met getallen en verhoudingen.",
+   "tekst": "De leerling redeneert en rekent met breuken als getal, verhouding en deling: rekenen met breuken in concrete situaties, ondersteund met een model of met behulp van getalrelaties."
+  },
+  {
+   "code": "NL.REK.10C.1",
+   "vak": "Rekenen-wiskunde",
+   "leerjaar": 0,
+   "domein": "Wiskundige concepten",
+   "cluster": "Kerndoel 10: De leerling redeneert en rekent met getallen en verhoudingen.",
+   "tekst": "De leerling redeneert en rekent met verhoudingen: kwalitatieve en kwantitatieve verhoudingen, procenten, schaal en samengestelde grootheden."
+  },
+  {
+   "code": "NL.REK.10C.2",
+   "vak": "Rekenen-wiskunde",
+   "leerjaar": 0,
+   "domein": "Wiskundige concepten",
+   "cluster": "Kerndoel 10: De leerling redeneert en rekent met getallen en verhoudingen.",
+   "tekst": "De leerling redeneert en rekent met verhoudingen: relaties leggen tussen verhoudingen, procenten en breuken."
+  },
+  {
+   "code": "NL.REK.10C.3",
+   "vak": "Rekenen-wiskunde",
+   "leerjaar": 0,
+   "domein": "Wiskundige concepten",
+   "cluster": "Kerndoel 10: De leerling redeneert en rekent met getallen en verhoudingen.",
+   "tekst": "De leerling redeneert en rekent met verhoudingen: herkennen van verhoudingen in concrete situaties."
+  },
+  {
+   "code": "NL.REK.10C.4",
+   "vak": "Rekenen-wiskunde",
+   "leerjaar": 0,
+   "domein": "Wiskundige concepten",
+   "cluster": "Kerndoel 10: De leerling redeneert en rekent met getallen en verhoudingen.",
+   "tekst": "De leerling redeneert en rekent met verhoudingen: beredeneerd vergelijken van verhoudingen."
+  },
+  {
+   "code": "NL.REK.10C.5",
+   "vak": "Rekenen-wiskunde",
+   "leerjaar": 0,
+   "domein": "Wiskundige concepten",
+   "cluster": "Kerndoel 10: De leerling redeneert en rekent met getallen en verhoudingen.",
+   "tekst": "De leerling redeneert en rekent met verhoudingen: oplossen van verhoudingsproblemen."
+  },
+  {
+   "code": "NL.REK.11A.1",
+   "vak": "Rekenen-wiskunde",
+   "leerjaar": 0,
+   "domein": "Wiskundige concepten",
+   "cluster": "Kerndoel 11: De leerling toont inzicht bij het handelen met grootheden en eenheden.",
+   "tekst": "De leerling meet, redeneert en rekent met grootheden en bijpassende eenheden: lengte, oppervlakte, inhoud, gewicht (massa), snelheid, tijd, geld, temperatuur en geheugenomvang."
+  },
+  {
+   "code": "NL.REK.11A.2",
+   "vak": "Rekenen-wiskunde",
+   "leerjaar": 0,
+   "domein": "Wiskundige concepten",
+   "cluster": "Kerndoel 11: De leerling toont inzicht bij het handelen met grootheden en eenheden.",
+   "tekst": "De leerling meet, redeneert en rekent met grootheden en bijpassende eenheden: meten met passende meetinstrumenten."
+  },
+  {
+   "code": "NL.REK.11A.3",
+   "vak": "Rekenen-wiskunde",
+   "leerjaar": 0,
+   "domein": "Wiskundige concepten",
+   "cluster": "Kerndoel 11: De leerling toont inzicht bij het handelen met grootheden en eenheden.",
+   "tekst": "De leerling meet, redeneert en rekent met grootheden en bijpassende eenheden: bepalen van omtrek, oppervlakte en inhoud van rechthoekige figuren."
+  },
+  {
+   "code": "NL.REK.11A.4",
+   "vak": "Rekenen-wiskunde",
+   "leerjaar": 0,
+   "domein": "Wiskundige concepten",
+   "cluster": "Kerndoel 11: De leerling toont inzicht bij het handelen met grootheden en eenheden.",
+   "tekst": "De leerling meet, redeneert en rekent met grootheden en bijpassende eenheden: schatten en controleren met referentiematen en meetreferenties."
+  },
+  {
+   "code": "NL.REK.11A.5",
+   "vak": "Rekenen-wiskunde",
+   "leerjaar": 0,
+   "domein": "Wiskundige concepten",
+   "cluster": "Kerndoel 11: De leerling toont inzicht bij het handelen met grootheden en eenheden.",
+   "tekst": "De leerling meet, redeneert en rekent met grootheden en bijpassende eenheden: relaties leggen tussen grootheden en eenheden, tussen grootheden onderling en tussen eenheden onderling."
+  },
+  {
+   "code": "NL.REK.12A.1",
+   "vak": "Rekenen-wiskunde",
+   "leerjaar": 0,
+   "domein": "Wiskundige concepten",
+   "cluster": "Kerndoel 12: De leerling interpreteert data.",
+   "tekst": "De leerling interpreteert en representeert data: invullen van tabellen bij data."
+  },
+  {
+   "code": "NL.REK.12A.2",
+   "vak": "Rekenen-wiskunde",
+   "leerjaar": 0,
+   "domein": "Wiskundige concepten",
+   "cluster": "Kerndoel 12: De leerling interpreteert data.",
+   "tekst": "De leerling interpreteert en representeert data: berekenen en interpreteren van een gemiddelde."
+  },
+  {
+   "code": "NL.REK.12A.3",
+   "vak": "Rekenen-wiskunde",
+   "leerjaar": 0,
+   "domein": "Wiskundige concepten",
+   "cluster": "Kerndoel 12: De leerling interpreteert data.",
+   "tekst": "De leerling interpreteert en representeert data: maken van grafische representaties van data en daaruit conclusies trekken."
+  },
+  {
+   "code": "NL.REK.12A.4",
+   "vak": "Rekenen-wiskunde",
+   "leerjaar": 0,
+   "domein": "Wiskundige concepten",
+   "cluster": "Kerndoel 12: De leerling interpreteert data.",
+   "tekst": "De leerling interpreteert en representeert data: grafische representaties: diagrammen, grafieken en infographics."
+  },
+  {
+   "code": "NL.REK.12A.5",
+   "vak": "Rekenen-wiskunde",
+   "leerjaar": 0,
+   "domein": "Wiskundige concepten",
+   "cluster": "Kerndoel 12: De leerling interpreteert data.",
+   "tekst": "De leerling interpreteert en representeert data: interpreteren van grafische representaties en beredeneren of daarbij gepresenteerde conclusies wel, niet of deels kloppen."
+  },
+  {
+   "code": "NL.REK.13A.1",
+   "vak": "Rekenen-wiskunde",
+   "leerjaar": 0,
+   "domein": "Wiskundige concepten",
+   "cluster": "Kerndoel 13: De leerling toont inzicht in patronen en verbanden.",
+   "tekst": "De leerling redeneert over patronen en verbanden: herkennen, beschrijven en voortzetten van patronen in een rijen getallen of figuren."
+  },
+  {
+   "code": "NL.REK.13A.2",
+   "vak": "Rekenen-wiskunde",
+   "leerjaar": 0,
+   "domein": "Wiskundige concepten",
+   "cluster": "Kerndoel 13: De leerling toont inzicht in patronen en verbanden.",
+   "tekst": "De leerling redeneert over patronen en verbanden: herkennen en beschrijven van patronen en verbanden in datasets."
+  },
+  {
+   "code": "NL.REK.13A.3",
+   "vak": "Rekenen-wiskunde",
+   "leerjaar": 0,
+   "domein": "Wiskundige concepten",
+   "cluster": "Kerndoel 13: De leerling toont inzicht in patronen en verbanden.",
+   "tekst": "De leerling redeneert over patronen en verbanden: weergeven van patronen en verbanden in een beschrijving, tabel en grafiek, en deze weergaven in elkaar omzetten."
+  },
+  {
+   "code": "NL.REK.14A.1",
+   "vak": "Rekenen-wiskunde",
+   "leerjaar": 0,
+   "domein": "Wiskundige concepten",
+   "cluster": "Kerndoel 14: De leerling toont inzicht bij meetkundig handelen.",
+   "tekst": "De leerling redeneert over meetkundige figuren en plaatsbepalingen en voert meetkundige transformaties uit: redeneren met en over eigenschappen van meetkundige figuren en begrippen."
+  },
+  {
+   "code": "NL.REK.14A.2",
+   "vak": "Rekenen-wiskunde",
+   "leerjaar": 0,
+   "domein": "Wiskundige concepten",
+   "cluster": "Kerndoel 14: De leerling toont inzicht bij meetkundig handelen.",
+   "tekst": "De leerling redeneert over meetkundige figuren en plaatsbepalingen en voert meetkundige transformaties uit: redeneren met kijklijnen."
+  },
+  {
+   "code": "NL.REK.14A.3",
+   "vak": "Rekenen-wiskunde",
+   "leerjaar": 0,
+   "domein": "Wiskundige concepten",
+   "cluster": "Kerndoel 14: De leerling toont inzicht bij meetkundig handelen.",
+   "tekst": "De leerling redeneert over meetkundige figuren en plaatsbepalingen en voert meetkundige transformaties uit: construeren en interpreteren van plattegronden, routebeschrijvingen en wegwijzers."
+  },
+  {
+   "code": "NL.REK.14A.4",
+   "vak": "Rekenen-wiskunde",
+   "leerjaar": 0,
+   "domein": "Wiskundige concepten",
+   "cluster": "Kerndoel 14: De leerling toont inzicht bij meetkundig handelen.",
+   "tekst": "De leerling redeneert over meetkundige figuren en plaatsbepalingen en voert meetkundige transformaties uit: construeren en interpreteren van tweedimensionale representaties van driedimensionale figuren en relaties leggen tussen twee- en driedimensionale representaties van figuren."
+  },
+  {
+   "code": "NL.REK.14A.5",
+   "vak": "Rekenen-wiskunde",
+   "leerjaar": 0,
+   "domein": "Wiskundige concepten",
+   "cluster": "Kerndoel 14: De leerling toont inzicht bij meetkundig handelen.",
+   "tekst": "De leerling redeneert over meetkundige figuren en plaatsbepalingen en voert meetkundige transformaties uit: meetkundige transformaties: draaien, spiegelen, vergroten en verkleinen van figuren."
+  },
+  {
+   "code": "NL.REK.15A.1",
+   "vak": "Rekenen-wiskunde",
+   "leerjaar": 0,
+   "domein": "Wiskundige denk-werkwijzen",
+   "cluster": "Kerndoel 15: De leerling gebruikt wiskundige denk-werkwijzen.",
+   "tekst": "De leerling lost wiskundige problemen en toepassingsproblemen op: bedenken en uitvoeren van een aanpak voor een niet-routinematig oplosbaar probleem."
+  },
+  {
+   "code": "NL.REK.15A.2",
+   "vak": "Rekenen-wiskunde",
+   "leerjaar": 0,
+   "domein": "Wiskundige denk-werkwijzen",
+   "cluster": "Kerndoel 15: De leerling gebruikt wiskundige denk-werkwijzen.",
+   "tekst": "De leerling lost wiskundige problemen en toepassingsproblemen op: gebruiken van heuristieken."
+  },
+  {
+   "code": "NL.REK.15A.3",
+   "vak": "Rekenen-wiskunde",
+   "leerjaar": 0,
+   "domein": "Wiskundige denk-werkwijzen",
+   "cluster": "Kerndoel 15: De leerling gebruikt wiskundige denk-werkwijzen.",
+   "tekst": "De leerling lost wiskundige problemen en toepassingsproblemen op: bewerken van de uitkomsten van berekeningen tot een oplossing van een probleem."
+  },
+  {
+   "code": "NL.REK.15A.4",
+   "vak": "Rekenen-wiskunde",
+   "leerjaar": 0,
+   "domein": "Wiskundige denk-werkwijzen",
+   "cluster": "Kerndoel 15: De leerling gebruikt wiskundige denk-werkwijzen.",
+   "tekst": "De leerling lost wiskundige problemen en toepassingsproblemen op: reflecteren op aanpak, uitvoering en oplossing."
+  },
+  {
+   "code": "NL.REK.15B.1",
+   "vak": "Rekenen-wiskunde",
+   "leerjaar": 0,
+   "domein": "Wiskundige denk-werkwijzen",
+   "cluster": "Kerndoel 15: De leerling gebruikt wiskundige denk-werkwijzen.",
+   "tekst": "De leerling maakt en gebruikt wiskundige modellen: schematisch weergeven van een situatie."
+  },
+  {
+   "code": "NL.REK.15B.2",
+   "vak": "Rekenen-wiskunde",
+   "leerjaar": 0,
+   "domein": "Wiskundige denk-werkwijzen",
+   "cluster": "Kerndoel 15: De leerling gebruikt wiskundige denk-werkwijzen.",
+   "tekst": "De leerling maakt en gebruikt wiskundige modellen: weergeven van een situatie in wiskundetaal."
+  },
+  {
+   "code": "NL.REK.15B.3",
+   "vak": "Rekenen-wiskunde",
+   "leerjaar": 0,
+   "domein": "Wiskundige denk-werkwijzen",
+   "cluster": "Kerndoel 15: De leerling gebruikt wiskundige denk-werkwijzen.",
+   "tekst": "De leerling maakt en gebruikt wiskundige modellen: selecteren van relevante kenmerken en weglaten van niet relevante kenmerken."
+  },
+  {
+   "code": "NL.REK.15B.4",
+   "vak": "Rekenen-wiskunde",
+   "leerjaar": 0,
+   "domein": "Wiskundige denk-werkwijzen",
+   "cluster": "Kerndoel 15: De leerling gebruikt wiskundige denk-werkwijzen.",
+   "tekst": "De leerling maakt en gebruikt wiskundige modellen: gebruiken van abstracte modellen om rekenaanpakken te laten zien, situaties te interpreteren en problemen op te lossen."
+  },
+  {
+   "code": "NL.REK.15C.1",
+   "vak": "Rekenen-wiskunde",
+   "leerjaar": 0,
+   "domein": "Wiskundige denk-werkwijzen",
+   "cluster": "Kerndoel 15: De leerling gebruikt wiskundige denk-werkwijzen.",
+   "tekst": "De leerling bedenkt en beschrijft algoritmen: algoritmes met een beperkt aantal stappen."
+  },
+  {
+   "code": "NL.REK.15C.2",
+   "vak": "Rekenen-wiskunde",
+   "leerjaar": 0,
+   "domein": "Wiskundige denk-werkwijzen",
+   "cluster": "Kerndoel 15: De leerling gebruikt wiskundige denk-werkwijzen.",
+   "tekst": "De leerling bedenkt en beschrijft algoritmen: beschrijven hoe een algoritme tot een vast resultaat leidt."
+  },
+  {
+   "code": "NL.REK.15C.3",
+   "vak": "Rekenen-wiskunde",
+   "leerjaar": 0,
+   "domein": "Wiskundige denk-werkwijzen",
+   "cluster": "Kerndoel 15: De leerling gebruikt wiskundige denk-werkwijzen.",
+   "tekst": "De leerling bedenkt en beschrijft algoritmen: beoordelen van het resultaat van een doorlopen algoritme."
+  },
+  {
+   "code": "NL.REK.15C.4",
+   "vak": "Rekenen-wiskunde",
+   "leerjaar": 0,
+   "domein": "Wiskundige denk-werkwijzen",
+   "cluster": "Kerndoel 15: De leerling gebruikt wiskundige denk-werkwijzen.",
+   "tekst": "De leerling bedenkt en beschrijft algoritmen: bedenken van een algoritme."
+  },
+  {
+   "code": "NL.REK.16A.1",
+   "vak": "Rekenen-wiskunde",
+   "leerjaar": 0,
+   "domein": "Wiskundige denk-werkwijzen",
+   "cluster": "Kerndoel 16: De leerling gebruikt wiskundetaal en wiskundig gereedschap.",
+   "tekst": "De leerling gebruikt wiskundetaal en wiskundige representaties: gebruiken van wiskundige symbolen, notaties en begrippen."
+  },
+  {
+   "code": "NL.REK.16A.2",
+   "vak": "Rekenen-wiskunde",
+   "leerjaar": 0,
+   "domein": "Wiskundige denk-werkwijzen",
+   "cluster": "Kerndoel 16: De leerling gebruikt wiskundetaal en wiskundig gereedschap.",
+   "tekst": "De leerling gebruikt wiskundetaal en wiskundige representaties: leesbaar weergeven van berekeningen en probleemaanpakken."
+  },
+  {
+   "code": "NL.REK.16A.3",
+   "vak": "Rekenen-wiskunde",
+   "leerjaar": 0,
+   "domein": "Wiskundige denk-werkwijzen",
+   "cluster": "Kerndoel 16: De leerling gebruikt wiskundetaal en wiskundig gereedschap.",
+   "tekst": "De leerling gebruikt wiskundetaal en wiskundige representaties: kiezen en bedenken van representaties om berekeningen en wiskundige redeneringen weer te geven en uit te wisselen."
+  },
+  {
+   "code": "NL.REK.16A.4",
+   "vak": "Rekenen-wiskunde",
+   "leerjaar": 0,
+   "domein": "Wiskundige denk-werkwijzen",
+   "cluster": "Kerndoel 16: De leerling gebruikt wiskundetaal en wiskundig gereedschap.",
+   "tekst": "De leerling gebruikt wiskundetaal en wiskundige representaties: kritisch beoordelen van een representatie."
+  },
+  {
+   "code": "NL.REK.16A.5",
+   "vak": "Rekenen-wiskunde",
+   "leerjaar": 0,
+   "domein": "Wiskundige denk-werkwijzen",
+   "cluster": "Kerndoel 16: De leerling gebruikt wiskundetaal en wiskundig gereedschap.",
+   "tekst": "De leerling gebruikt wiskundetaal en wiskundige representaties: relaties leggen tussen verschillende representaties van een wiskundig concept."
+  },
+  {
+   "code": "NL.REK.16A.6",
+   "vak": "Rekenen-wiskunde",
+   "leerjaar": 0,
+   "domein": "Wiskundige denk-werkwijzen",
+   "cluster": "Kerndoel 16: De leerling gebruikt wiskundetaal en wiskundig gereedschap.",
+   "tekst": "De leerling gebruikt meetinstrumenten en andere wiskundige instrumenten: beredeneerd kiezen voor gebruik van een instrument op basis van de mogelijkheden, beperkingen en meetnauwkeurigheid."
+  },
+  {
+   "code": "NL.REK.16A.7",
+   "vak": "Rekenen-wiskunde",
+   "leerjaar": 0,
+   "domein": "Wiskundige denk-werkwijzen",
+   "cluster": "Kerndoel 16: De leerling gebruikt wiskundetaal en wiskundig gereedschap.",
+   "tekst": "De leerling gebruikt meetinstrumenten en andere wiskundige instrumenten: vooraf schatten van meetresultaten en uitkomsten."
+  },
+  {
+   "code": "NL.REK.16A.8",
+   "vak": "Rekenen-wiskunde",
+   "leerjaar": 0,
+   "domein": "Wiskundige denk-werkwijzen",
+   "cluster": "Kerndoel 16: De leerling gebruikt wiskundetaal en wiskundig gereedschap.",
+   "tekst": "De leerling gebruikt meetinstrumenten en andere wiskundige instrumenten: gebruiken van een instrument en de bijbehorende wiskundetaal."
+  },
+  {
+   "code": "NL.REK.16A.9",
+   "vak": "Rekenen-wiskunde",
+   "leerjaar": 0,
+   "domein": "Wiskundige denk-werkwijzen",
+   "cluster": "Kerndoel 16: De leerling gebruikt wiskundetaal en wiskundig gereedschap.",
+   "tekst": "De leerling gebruikt meetinstrumenten en andere wiskundige instrumenten: bepalen, interpreteren en beoordelen van het resultaat."
+  },
+  {
+   "code": "NL.REK.17A.1",
+   "vak": "Rekenen-wiskunde",
+   "leerjaar": 0,
+   "domein": "Wiskunde en de wereld",
+   "cluster": "Kerndoel 17: De leerling ontwikkelt een wiskundige attitude.",
+   "tekst": "De school stimuleert de ontwikkeling van een wiskundige attitude bij leerlingen: laten zien van het nut en de kracht van wiskunde in uiteenlopende toepassingen."
+  },
+  {
+   "code": "NL.REK.17A.2",
+   "vak": "Rekenen-wiskunde",
+   "leerjaar": 0,
+   "domein": "Wiskunde en de wereld",
+   "cluster": "Kerndoel 17: De leerling ontwikkelt een wiskundige attitude.",
+   "tekst": "De school stimuleert de ontwikkeling van een wiskundige attitude bij leerlingen: stimuleren van een onderzoekende en kritische houding ten aanzien van getallen en andere wiskundige informatie."
+  },
+  {
+   "code": "NL.REK.17A.3",
+   "vak": "Rekenen-wiskunde",
+   "leerjaar": 0,
+   "domein": "Wiskunde en de wereld",
+   "cluster": "Kerndoel 17: De leerling ontwikkelt een wiskundige attitude.",
+   "tekst": "De school stimuleert de ontwikkeling van een wiskundige attitude bij leerlingen: laten reflecteren op eigen en andermans rekenwijze en overig wiskundig handelen."
+  },
+  {
+   "code": "NL.REK.18A.1",
+   "vak": "Rekenen-wiskunde",
+   "leerjaar": 0,
+   "domein": "Wiskunde en de wereld",
+   "cluster": "Kerndoel 18: De leerling past wiskunde toe in bekende en nieuwe situaties.",
+   "tekst": "De leerling herkent en gebruikt wiskunde in alledaagse en maatschappelijke situaties: gebruiken van getallen en andere wiskundige concepten in concrete, voor de leerling relevante situaties."
+  },
+  {
+   "code": "NL.REK.18A.2",
+   "vak": "Rekenen-wiskunde",
+   "leerjaar": 0,
+   "domein": "Wiskunde en de wereld",
+   "cluster": "Kerndoel 18: De leerling past wiskunde toe in bekende en nieuwe situaties.",
+   "tekst": "De leerling herkent en gebruikt wiskunde in alledaagse en maatschappelijke situaties: gebruiken van wiskundige instrumenten bij meten en andere praktische handelingen."
+  },
+  {
+   "code": "NL.REK.18A.3",
+   "vak": "Rekenen-wiskunde",
+   "leerjaar": 0,
+   "domein": "Wiskunde en de wereld",
+   "cluster": "Kerndoel 18: De leerling past wiskunde toe in bekende en nieuwe situaties.",
+   "tekst": "De leerling herkent en gebruikt wiskunde in alledaagse en maatschappelijke situaties: wiskunde gebruiken bij het nemen van beslissingen en het oplossen van problemen."
+  },
+  {
+   "code": "NL.REK.18A.4",
+   "vak": "Rekenen-wiskunde",
+   "leerjaar": 0,
+   "domein": "Wiskunde en de wereld",
+   "cluster": "Kerndoel 18: De leerling past wiskunde toe in bekende en nieuwe situaties.",
+   "tekst": "De leerling herkent en gebruikt wiskunde in alledaagse en maatschappelijke situaties: om herkennen en beschrijven dat met grafische representaties een bepaalde boodschap wordt overgebracht of benadrukt."
+  },
+  {
+   "code": "NL.REK.18A.5",
+   "vak": "Rekenen-wiskunde",
+   "leerjaar": 0,
+   "domein": "Wiskunde en de wereld",
+   "cluster": "Kerndoel 18: De leerling past wiskunde toe in bekende en nieuwe situaties.",
+   "tekst": "De leerling herkent en gebruikt wiskunde in alledaagse en maatschappelijke situaties: gebruiken en beoordelen van wiskundige informatie uit de samenleving en de media bij het vormen van een mening."
+  },
+  {
+   "code": "NL.REK.18B.1",
+   "vak": "Rekenen-wiskunde",
+   "leerjaar": 0,
+   "domein": "Wiskunde en de wereld",
+   "cluster": "Kerndoel 18: De leerling past wiskunde toe in bekende en nieuwe situaties.",
+   "tekst": "De school ondersteunt het gebruik van wiskunde in verschillende leergebieden: aanbieden van wiskundige concepten en denk- werkwijzen in onderlinge samenhang."
+  },
+  {
+   "code": "NL.REK.18B.2",
+   "vak": "Rekenen-wiskunde",
+   "leerjaar": 0,
+   "domein": "Wiskunde en de wereld",
+   "cluster": "Kerndoel 18: De leerling past wiskunde toe in bekende en nieuwe situaties.",
+   "tekst": "De school ondersteunt het gebruik van wiskunde in verschillende leergebieden: laten zien hoe verschillende leergebieden wiskundetaal en wiskundige representaties gebruiken."
+  },
+  {
+   "code": "NL.REK.18B.3",
+   "vak": "Rekenen-wiskunde",
+   "leerjaar": 0,
+   "domein": "Wiskunde en de wereld",
+   "cluster": "Kerndoel 18: De leerling past wiskunde toe in bekende en nieuwe situaties.",
+   "tekst": "De school ondersteunt het gebruik van wiskunde in verschillende leergebieden: afstemmen hoe rekenaanpakken en andere wiskundige aanpakken bij verschillende leergebieden worden uitgevoerd."
+  },
+  {
+   "code": "NL.REK.18B.4",
+   "vak": "Rekenen-wiskunde",
+   "leerjaar": 0,
+   "domein": "Wiskunde en de wereld",
+   "cluster": "Kerndoel 18: De leerling past wiskunde toe in bekende en nieuwe situaties.",
+   "tekst": "De school ondersteunt het gebruik van wiskunde in verschillende leergebieden: laten gebruiken van wiskundige modellen, wiskundige instrumenten en algoritmes in verschillende leergebieden."
+  }
+ ]
+}

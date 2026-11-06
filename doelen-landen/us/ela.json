@@ -1,0 +1,3364 @@
+{
+ "bron": "Common Core State Standards. © Copyright 2010. National Governors Association Center for Best Practices and Council of Chief State School Officers. All rights reserved.",
+ "vak": "English Language Arts",
+ "doelen": [
+  {
+   "code": "US.RL.1.1",
+   "vak": "English Language Arts",
+   "leerjaar": 1,
+   "domein": "Reading: Literature",
+   "tekst": "Ask and answer questions about key details in a text."
+  },
+  {
+   "code": "US.RL.1.2",
+   "vak": "English Language Arts",
+   "leerjaar": 1,
+   "domein": "Reading: Literature",
+   "tekst": "Retell stories, including key details, and demonstrate understanding of their central message or lesson."
+  },
+  {
+   "code": "US.RL.1.3",
+   "vak": "English Language Arts",
+   "leerjaar": 1,
+   "domein": "Reading: Literature",
+   "tekst": "Describe characters, settings, and major events in a story, using key details."
+  },
+  {
+   "code": "US.RL.1.4",
+   "vak": "English Language Arts",
+   "leerjaar": 1,
+   "domein": "Reading: Literature",
+   "tekst": "Identify words and phrases in stories or poems that suggest feelings or appeal to the senses."
+  },
+  {
+   "code": "US.RL.1.5",
+   "vak": "English Language Arts",
+   "leerjaar": 1,
+   "domein": "Reading: Literature",
+   "tekst": "Explain major differences between books that tell stories and books that give information, drawing on a wide reading of a range of text types."
+  },
+  {
+   "code": "US.RL.1.6",
+   "vak": "English Language Arts",
+   "leerjaar": 1,
+   "domein": "Reading: Literature",
+   "tekst": "Identify who is telling the story at various points in a text."
+  },
+  {
+   "code": "US.RL.1.7",
+   "vak": "English Language Arts",
+   "leerjaar": 1,
+   "domein": "Reading: Literature",
+   "tekst": "Use illustrations and details in a story to describe its characters, setting, or events."
+  },
+  {
+   "code": "US.RL.1.8",
+   "vak": "English Language Arts",
+   "leerjaar": 1,
+   "domein": "Reading: Literature",
+   "tekst": "(RL.1.8 not applicable to literature)"
+  },
+  {
+   "code": "US.RL.1.9",
+   "vak": "English Language Arts",
+   "leerjaar": 1,
+   "domein": "Reading: Literature",
+   "tekst": "Compare and contrast the adventures and experiences of characters in stories."
+  },
+  {
+   "code": "US.RL.1.10",
+   "vak": "English Language Arts",
+   "leerjaar": 1,
+   "domein": "Reading: Literature",
+   "tekst": "With prompting and support, read prose and poetry of appropriate complexity for grade 1."
+  },
+  {
+   "code": "US.RL.2.1",
+   "vak": "English Language Arts",
+   "leerjaar": 2,
+   "domein": "Reading: Literature",
+   "tekst": "Ask and answer such questions as who, what, where, when, why, and how to demonstrate understanding of key details in a text."
+  },
+  {
+   "code": "US.RL.2.2",
+   "vak": "English Language Arts",
+   "leerjaar": 2,
+   "domein": "Reading: Literature",
+   "tekst": "Recount stories, including fables and folktales from diverse cultures, and determine their central message, lesson, or moral."
+  },
+  {
+   "code": "US.RL.2.3",
+   "vak": "English Language Arts",
+   "leerjaar": 2,
+   "domein": "Reading: Literature",
+   "tekst": "Describe how characters in a story respond to major events and challenges."
+  },
+  {
+   "code": "US.RL.2.4",
+   "vak": "English Language Arts",
+   "leerjaar": 2,
+   "domein": "Reading: Literature",
+   "tekst": "Describe how words and phrases (e.g., regular beats, alliteration, rhymes, repeated lines) supply rhythm and meaning in a story, poem, or song."
+  },
+  {
+   "code": "US.RL.2.5",
+   "vak": "English Language Arts",
+   "leerjaar": 2,
+   "domein": "Reading: Literature",
+   "tekst": "Describe the overall structure of a story, including describing how the beginning introduces the story and the ending concludes the action."
+  },
+  {
+   "code": "US.RL.2.6",
+   "vak": "English Language Arts",
+   "leerjaar": 2,
+   "domein": "Reading: Literature",
+   "tekst": "Acknowledge differences in the points of view of characters, including by speaking in a different voice for each character when reading dialogue aloud."
+  },
+  {
+   "code": "US.RL.2.7",
+   "vak": "English Language Arts",
+   "leerjaar": 2,
+   "domein": "Reading: Literature",
+   "tekst": "Use information gained from the illustrations and words in a print or digital text to demonstrate understanding of its characters, setting, or plot."
+  },
+  {
+   "code": "US.RL.2.8",
+   "vak": "English Language Arts",
+   "leerjaar": 2,
+   "domein": "Reading: Literature",
+   "tekst": "(RL.2.8 not applicable to literature)"
+  },
+  {
+   "code": "US.RL.2.9",
+   "vak": "English Language Arts",
+   "leerjaar": 2,
+   "domein": "Reading: Literature",
+   "tekst": "Compare and contrast two or more versions of the same story (e.g., Cinderella stories) by different authors or from different cultures."
+  },
+  {
+   "code": "US.RL.2.10",
+   "vak": "English Language Arts",
+   "leerjaar": 2,
+   "domein": "Reading: Literature",
+   "tekst": "By the end of the year, read and comprehend literature, including stories and poetry, in the grades 2-3 text complexity band proficiently, with scaffolding as needed at the high end of the range."
+  },
+  {
+   "code": "US.RL.3.1",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Reading: Literature",
+   "tekst": "Ask and answer questions to demonstrate understanding of a text, referring explicitly to the text as the basis for the answers."
+  },
+  {
+   "code": "US.RL.3.2",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Reading: Literature",
+   "tekst": "Recount stories, including fables, folktales, and myths from diverse cultures; determine the central message, lesson, or moral and explain how it is conveyed through key details in the text."
+  },
+  {
+   "code": "US.RL.3.3",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Reading: Literature",
+   "tekst": "Describe characters in a story (e.g., their traits, motivations, or feelings) and explain how their actions contribute to the sequence of events."
+  },
+  {
+   "code": "US.RL.3.4",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Reading: Literature",
+   "tekst": "Determine the meaning of words and phrases as they are used in a text, distinguishing literal from nonliteral language."
+  },
+  {
+   "code": "US.RL.3.5",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Reading: Literature",
+   "tekst": "Refer to parts of stories, dramas, and poems when writing or speaking about a text, using terms such as chapter, scene, and stanza; describe how each successive part builds on earlier sections."
+  },
+  {
+   "code": "US.RL.3.6",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Reading: Literature",
+   "tekst": "Distinguish their own point of view from that of the narrator or those of the characters."
+  },
+  {
+   "code": "US.RL.3.7",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Reading: Literature",
+   "tekst": "Explain how specific aspects of a text's illustrations contribute to what is conveyed by the words in a story (e.g., create mood, emphasize aspects of a character or setting)"
+  },
+  {
+   "code": "US.RL.3.8",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Reading: Literature",
+   "tekst": "(RL.3.8 not applicable to literature)"
+  },
+  {
+   "code": "US.RL.3.9",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Reading: Literature",
+   "tekst": "Compare and contrast the themes, settings, and plots of stories written by the same author about the same or similar characters (e.g., in books from a series)"
+  },
+  {
+   "code": "US.RL.3.10",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Reading: Literature",
+   "tekst": "By the end of the year, read and comprehend literature, including stories, dramas, and poetry, at the high end of the grades 2-3 text complexity band independently and proficiently."
+  },
+  {
+   "code": "US.RL.4.1",
+   "vak": "English Language Arts",
+   "leerjaar": 4,
+   "domein": "Reading: Literature",
+   "tekst": "Refer to details and examples in a text when explaining what the text says explicitly and when drawing inferences from the text."
+  },
+  {
+   "code": "US.RL.4.2",
+   "vak": "English Language Arts",
+   "leerjaar": 4,
+   "domein": "Reading: Literature",
+   "tekst": "Determine a theme of a story, drama, or poem from details in the text; summarize the text."
+  },
+  {
+   "code": "US.RL.4.3",
+   "vak": "English Language Arts",
+   "leerjaar": 4,
+   "domein": "Reading: Literature",
+   "tekst": "Describe in depth a character, setting, or event in a story or drama, drawing on specific details in the text (e.g., a character's thoughts, words, or actions)."
+  },
+  {
+   "code": "US.RL.4.4",
+   "vak": "English Language Arts",
+   "leerjaar": 4,
+   "domein": "Reading: Literature",
+   "tekst": "Determine the meaning of words and phrases as they are used in a text, including those that allude to significant characters found in mythology (e.g., Herculean)."
+  },
+  {
+   "code": "US.RL.4.5",
+   "vak": "English Language Arts",
+   "leerjaar": 4,
+   "domein": "Reading: Literature",
+   "tekst": "Explain major differences between poems, drama, and prose, and refer to the structural elements of poems (e.g., verse, rhythm, meter) and drama (e.g., casts of characters, settings, descriptions, dialogue, stage directions) when writing or speaking about a text."
+  },
+  {
+   "code": "US.RL.4.6",
+   "vak": "English Language Arts",
+   "leerjaar": 4,
+   "domein": "Reading: Literature",
+   "tekst": "Compare and contrast the point of view from which different stories are narrated, including the difference between first- and third-person narrations."
+  },
+  {
+   "code": "US.RL.4.7",
+   "vak": "English Language Arts",
+   "leerjaar": 4,
+   "domein": "Reading: Literature",
+   "tekst": "Make connections between the text of a story or drama and a visual or oral presentation of the text, identifying where each version reflects specific descriptions and directions in the text."
+  },
+  {
+   "code": "US.RL.4.8",
+   "vak": "English Language Arts",
+   "leerjaar": 4,
+   "domein": "Reading: Literature",
+   "tekst": "(RL.4.8 not applicable to literature)"
+  },
+  {
+   "code": "US.RL.4.9",
+   "vak": "English Language Arts",
+   "leerjaar": 4,
+   "domein": "Reading: Literature",
+   "tekst": "Compare and contrast the treatment of similar themes and topics (e.g., opposition of good and evil) and patterns of events (e.g., the quest) in stories, myths, and traditional literature from different cultures."
+  },
+  {
+   "code": "US.RL.4.10",
+   "vak": "English Language Arts",
+   "leerjaar": 4,
+   "domein": "Reading: Literature",
+   "tekst": "By the end of the year, read and comprehend literature, including stories, dramas, and poetry, in the grades 4-5 text complexity band proficiently, with scaffolding as needed at the high end of the range."
+  },
+  {
+   "code": "US.RL.5.1",
+   "vak": "English Language Arts",
+   "leerjaar": 5,
+   "domein": "Reading: Literature",
+   "tekst": "Quote accurately from a text when explaining what the text says explicitly and when drawing inferences from the text."
+  },
+  {
+   "code": "US.RL.5.2",
+   "vak": "English Language Arts",
+   "leerjaar": 5,
+   "domein": "Reading: Literature",
+   "tekst": "Determine a theme of a story, drama, or poem from details in the text, including how characters in a story or drama respond to challenges or how the speaker in a poem reflects upon a topic; summarize the text."
+  },
+  {
+   "code": "US.RL.5.3",
+   "vak": "English Language Arts",
+   "leerjaar": 5,
+   "domein": "Reading: Literature",
+   "tekst": "Compare and contrast two or more characters, settings, or events in a story or drama, drawing on specific details in the text (e.g., how characters interact)."
+  },
+  {
+   "code": "US.RL.5.4",
+   "vak": "English Language Arts",
+   "leerjaar": 5,
+   "domein": "Reading: Literature",
+   "tekst": "Determine the meaning of words and phrases as they are used in a text, including figurative language such as metaphors and similes."
+  },
+  {
+   "code": "US.RL.5.5",
+   "vak": "English Language Arts",
+   "leerjaar": 5,
+   "domein": "Reading: Literature",
+   "tekst": "Explain how a series of chapters, scenes, or stanzas fits together to provide the overall structure of a particular story, drama, or poem."
+  },
+  {
+   "code": "US.RL.5.6",
+   "vak": "English Language Arts",
+   "leerjaar": 5,
+   "domein": "Reading: Literature",
+   "tekst": "Describe how a narrator's or speaker's point of view influences how events are described."
+  },
+  {
+   "code": "US.RL.5.7",
+   "vak": "English Language Arts",
+   "leerjaar": 5,
+   "domein": "Reading: Literature",
+   "tekst": "Analyze how visual and multimedia elements contribute to the meaning, tone, or beauty of a text (e.g., graphic novel, multimedia presentation of fiction, folktale, myth, poem)."
+  },
+  {
+   "code": "US.RL.5.8",
+   "vak": "English Language Arts",
+   "leerjaar": 5,
+   "domein": "Reading: Literature",
+   "tekst": "(RL.5.8 not applicable to literature)"
+  },
+  {
+   "code": "US.RL.5.9",
+   "vak": "English Language Arts",
+   "leerjaar": 5,
+   "domein": "Reading: Literature",
+   "tekst": "Compare and contrast stories in the same genre (e.g., mysteries and adventure stories) on their approaches to similar themes and topics."
+  },
+  {
+   "code": "US.RL.5.10",
+   "vak": "English Language Arts",
+   "leerjaar": 5,
+   "domein": "Reading: Literature",
+   "tekst": "By the end of the year, read and comprehend literature, including stories, dramas, and poetry, at the high end of the grades 4-5 text complexity band independently and proficiently."
+  },
+  {
+   "code": "US.RL.6.1",
+   "vak": "English Language Arts",
+   "leerjaar": 6,
+   "domein": "Reading: Literature",
+   "tekst": "Cite textual evidence to support analysis of what the text says explicitly as well as inferences drawn from the text."
+  },
+  {
+   "code": "US.RL.6.2",
+   "vak": "English Language Arts",
+   "leerjaar": 6,
+   "domein": "Reading: Literature",
+   "tekst": "Determine a theme or central idea of a text and how it is conveyed through particular details; provide a summary of the text distinct from personal opinions or judgments."
+  },
+  {
+   "code": "US.RL.6.3",
+   "vak": "English Language Arts",
+   "leerjaar": 6,
+   "domein": "Reading: Literature",
+   "tekst": "Describe how a particular story's or drama's plot unfolds in a series of episodes as well as how the characters respond or change as the plot moves toward a resolution."
+  },
+  {
+   "code": "US.RL.6.4",
+   "vak": "English Language Arts",
+   "leerjaar": 6,
+   "domein": "Reading: Literature",
+   "tekst": "Determine the meaning of words and phrases as they are used in a text, including figurative and connotative meanings; analyze the impact of a specific word choice on meaning and tone."
+  },
+  {
+   "code": "US.RL.6.5",
+   "vak": "English Language Arts",
+   "leerjaar": 6,
+   "domein": "Reading: Literature",
+   "tekst": "Analyze how a particular sentence, chapter, scene, or stanza fits into the overall structure of a text and contributes to the development of the theme, setting, or plot."
+  },
+  {
+   "code": "US.RL.6.6",
+   "vak": "English Language Arts",
+   "leerjaar": 6,
+   "domein": "Reading: Literature",
+   "tekst": "Explain how an author develops the point of view of the narrator or speaker in a text."
+  },
+  {
+   "code": "US.RL.6.7",
+   "vak": "English Language Arts",
+   "leerjaar": 6,
+   "domein": "Reading: Literature",
+   "tekst": "Compare and contrast the experience of reading a story, drama, or poem to listening to or viewing an audio, video, or live version of the text, including contrasting what they \"see\" and \"hear\" when reading the text to what they perceive when they listen or watch."
+  },
+  {
+   "code": "US.RL.6.8",
+   "vak": "English Language Arts",
+   "leerjaar": 6,
+   "domein": "Reading: Literature",
+   "tekst": "(RL.6.8 not applicable to literature)"
+  },
+  {
+   "code": "US.RL.6.9",
+   "vak": "English Language Arts",
+   "leerjaar": 6,
+   "domein": "Reading: Literature",
+   "tekst": "Compare and contrast texts in different forms or genres (e.g., stories and poems; historical novels and fantasy stories) in terms of their approaches to similar themes and topics."
+  },
+  {
+   "code": "US.RL.6.10",
+   "vak": "English Language Arts",
+   "leerjaar": 6,
+   "domein": "Reading: Literature",
+   "tekst": "By the end of the year, read and comprehend literature, including stories, dramas, and poems, in the grades 6-8 text complexity band proficiently, with scaffolding as needed at the high end of the range."
+  },
+  {
+   "code": "US.RI.1.1",
+   "vak": "English Language Arts",
+   "leerjaar": 1,
+   "domein": "Reading: Informational Text",
+   "tekst": "Ask and answer questions about key details in a text."
+  },
+  {
+   "code": "US.RI.1.2",
+   "vak": "English Language Arts",
+   "leerjaar": 1,
+   "domein": "Reading: Informational Text",
+   "tekst": "Identify the main topic and retell key details of a text."
+  },
+  {
+   "code": "US.RI.1.3",
+   "vak": "English Language Arts",
+   "leerjaar": 1,
+   "domein": "Reading: Informational Text",
+   "tekst": "Describe the connection between two individuals, events, ideas, or pieces of information in a text."
+  },
+  {
+   "code": "US.RI.1.4",
+   "vak": "English Language Arts",
+   "leerjaar": 1,
+   "domein": "Reading: Informational Text",
+   "tekst": "Ask and answer questions to help determine or clarify the meaning of words and phrases in a text."
+  },
+  {
+   "code": "US.RI.1.5",
+   "vak": "English Language Arts",
+   "leerjaar": 1,
+   "domein": "Reading: Informational Text",
+   "tekst": "Know and use various text features (e.g., headings, tables of contents, glossaries, electronic menus, icons) to locate key facts or information in a text."
+  },
+  {
+   "code": "US.RI.1.6",
+   "vak": "English Language Arts",
+   "leerjaar": 1,
+   "domein": "Reading: Informational Text",
+   "tekst": "Distinguish between information provided by pictures or other illustrations and information provided by the words in a text."
+  },
+  {
+   "code": "US.RI.1.7",
+   "vak": "English Language Arts",
+   "leerjaar": 1,
+   "domein": "Reading: Informational Text",
+   "tekst": "Use the illustrations and details in a text to describe its key ideas."
+  },
+  {
+   "code": "US.RI.1.8",
+   "vak": "English Language Arts",
+   "leerjaar": 1,
+   "domein": "Reading: Informational Text",
+   "tekst": "Identify the reasons an author gives to support points in a text."
+  },
+  {
+   "code": "US.RI.1.9",
+   "vak": "English Language Arts",
+   "leerjaar": 1,
+   "domein": "Reading: Informational Text",
+   "tekst": "Identify basic similarities in and differences between two texts on the same topic (e.g., in illustrations, descriptions, or procedures)."
+  },
+  {
+   "code": "US.RI.1.10",
+   "vak": "English Language Arts",
+   "leerjaar": 1,
+   "domein": "Reading: Informational Text",
+   "tekst": "With prompting and support, read informational texts appropriately complex for grade 1."
+  },
+  {
+   "code": "US.RI.2.1",
+   "vak": "English Language Arts",
+   "leerjaar": 2,
+   "domein": "Reading: Informational Text",
+   "tekst": "Ask and answer such questions as who, what, where, when, why, and how to demonstrate understanding of key details in a text."
+  },
+  {
+   "code": "US.RI.2.2",
+   "vak": "English Language Arts",
+   "leerjaar": 2,
+   "domein": "Reading: Informational Text",
+   "tekst": "Identify the main topic of a multiparagraph text as well as the focus of specific paragraphs within the text."
+  },
+  {
+   "code": "US.RI.2.3",
+   "vak": "English Language Arts",
+   "leerjaar": 2,
+   "domein": "Reading: Informational Text",
+   "tekst": "Describe the connection between a series of historical events, scientific ideas or concepts, or steps in technical procedures in a text."
+  },
+  {
+   "code": "US.RI.2.4",
+   "vak": "English Language Arts",
+   "leerjaar": 2,
+   "domein": "Reading: Informational Text",
+   "tekst": "Determine the meaning of words and phrases in a text relevant to a grade 2 topic or subject area."
+  },
+  {
+   "code": "US.RI.2.5",
+   "vak": "English Language Arts",
+   "leerjaar": 2,
+   "domein": "Reading: Informational Text",
+   "tekst": "Know and use various text features (e.g., captions, bold print, subheadings, glossaries, indexes, electronic menus, icons) to locate key facts or information in a text efficiently."
+  },
+  {
+   "code": "US.RI.2.6",
+   "vak": "English Language Arts",
+   "leerjaar": 2,
+   "domein": "Reading: Informational Text",
+   "tekst": "Identify the main purpose of a text, including what the author wants to answer, explain, or describe."
+  },
+  {
+   "code": "US.RI.2.7",
+   "vak": "English Language Arts",
+   "leerjaar": 2,
+   "domein": "Reading: Informational Text",
+   "tekst": "Explain how specific images (e.g., a diagram showing how a machine works) contribute to and clarify a text."
+  },
+  {
+   "code": "US.RI.2.8",
+   "vak": "English Language Arts",
+   "leerjaar": 2,
+   "domein": "Reading: Informational Text",
+   "tekst": "Describe how reasons support specific points the author makes in a text."
+  },
+  {
+   "code": "US.RI.2.9",
+   "vak": "English Language Arts",
+   "leerjaar": 2,
+   "domein": "Reading: Informational Text",
+   "tekst": "Compare and contrast the most important points presented by two texts on the same topic."
+  },
+  {
+   "code": "US.RI.2.10",
+   "vak": "English Language Arts",
+   "leerjaar": 2,
+   "domein": "Reading: Informational Text",
+   "tekst": "By the end of year, read and comprehend informational texts, including history/social studies, science, and technical texts, in the grades 2-3 text complexity band proficiently, with scaffolding as needed at the high end of the range."
+  },
+  {
+   "code": "US.RI.3.1",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Reading: Informational Text",
+   "tekst": "Ask and answer questions to demonstrate understanding of a text, referring explicitly to the text as the basis for the answers."
+  },
+  {
+   "code": "US.RI.3.2",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Reading: Informational Text",
+   "tekst": "Determine the main idea of a text; recount the key details and explain how they support the main idea."
+  },
+  {
+   "code": "US.RI.3.3",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Reading: Informational Text",
+   "tekst": "Describe the relationship between a series of historical events, scientific ideas or concepts, or steps in technical procedures in a text, using language that pertains to time, sequence, and cause/effect."
+  },
+  {
+   "code": "US.RI.3.4",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Reading: Informational Text",
+   "tekst": "Determine the meaning of general academic and domain-specific words and phrases in a text relevant to a grade 3 topic or subject area."
+  },
+  {
+   "code": "US.RI.3.5",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Reading: Informational Text",
+   "tekst": "Use text features and search tools (e.g., key words, sidebars, hyperlinks) to locate information relevant to a given topic efficiently."
+  },
+  {
+   "code": "US.RI.3.6",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Reading: Informational Text",
+   "tekst": "Distinguish their own point of view from that of the author of a text."
+  },
+  {
+   "code": "US.RI.3.7",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Reading: Informational Text",
+   "tekst": "Use information gained from illustrations (e.g., maps, photographs) and the words in a text to demonstrate understanding of the text (e.g., where, when, why, and how key events occur)."
+  },
+  {
+   "code": "US.RI.3.8",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Reading: Informational Text",
+   "tekst": "Describe the logical connection between particular sentences and paragraphs in a text (e.g., comparison, cause/effect, first/second/third in a sequence)."
+  },
+  {
+   "code": "US.RI.3.9",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Reading: Informational Text",
+   "tekst": "Compare and contrast the most important points and key details presented in two texts on the same topic."
+  },
+  {
+   "code": "US.RI.3.10",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Reading: Informational Text",
+   "tekst": "By the end of the year, read and comprehend informational texts, including history/social studies, science, and technical texts, at the high end of the grades 2-3 text complexity band independently and proficiently."
+  },
+  {
+   "code": "US.RI.4.1",
+   "vak": "English Language Arts",
+   "leerjaar": 4,
+   "domein": "Reading: Informational Text",
+   "tekst": "Refer to details and examples in a text when explaining what the text says explicitly and when drawing inferences from the text."
+  },
+  {
+   "code": "US.RI.4.2",
+   "vak": "English Language Arts",
+   "leerjaar": 4,
+   "domein": "Reading: Informational Text",
+   "tekst": "Determine the main idea of a text and explain how it is supported by key details; summarize the text."
+  },
+  {
+   "code": "US.RI.4.3",
+   "vak": "English Language Arts",
+   "leerjaar": 4,
+   "domein": "Reading: Informational Text",
+   "tekst": "Explain events, procedures, ideas, or concepts in a historical, scientific, or technical text, including what happened and why, based on specific information in the text."
+  },
+  {
+   "code": "US.RI.4.4",
+   "vak": "English Language Arts",
+   "leerjaar": 4,
+   "domein": "Reading: Informational Text",
+   "tekst": "Determine the meaning of general academic and domain-specific words or phrases in a text relevant to a grade 4 topic or subject area."
+  },
+  {
+   "code": "US.RI.4.5",
+   "vak": "English Language Arts",
+   "leerjaar": 4,
+   "domein": "Reading: Informational Text",
+   "tekst": "Describe the overall structure (e.g., chronology, comparison, cause/effect, problem/solution) of events, ideas, concepts, or information in a text or part of a text."
+  },
+  {
+   "code": "US.RI.4.6",
+   "vak": "English Language Arts",
+   "leerjaar": 4,
+   "domein": "Reading: Informational Text",
+   "tekst": "Compare and contrast a firsthand and secondhand account of the same event or topic; describe the differences in focus and the information provided."
+  },
+  {
+   "code": "US.RI.4.7",
+   "vak": "English Language Arts",
+   "leerjaar": 4,
+   "domein": "Reading: Informational Text",
+   "tekst": "Interpret information presented visually, orally, or quantitatively (e.g., in charts, graphs, diagrams, time lines, animations, or interactive elements on Web pages) and explain how the information contributes to an understanding of the text in which it appears."
+  },
+  {
+   "code": "US.RI.4.8",
+   "vak": "English Language Arts",
+   "leerjaar": 4,
+   "domein": "Reading: Informational Text",
+   "tekst": "Explain how an author uses reasons and evidence to support particular points in a text."
+  },
+  {
+   "code": "US.RI.4.9",
+   "vak": "English Language Arts",
+   "leerjaar": 4,
+   "domein": "Reading: Informational Text",
+   "tekst": "Integrate information from two texts on the same topic in order to write or speak about the subject knowledgeably."
+  },
+  {
+   "code": "US.RI.4.10",
+   "vak": "English Language Arts",
+   "leerjaar": 4,
+   "domein": "Reading: Informational Text",
+   "tekst": "By the end of year, read and comprehend informational texts, including history/social studies, science, and technical texts, in the grades 4-5 text complexity band proficiently, with scaffolding as needed at the high end of the range."
+  },
+  {
+   "code": "US.RI.5.1",
+   "vak": "English Language Arts",
+   "leerjaar": 5,
+   "domein": "Reading: Informational Text",
+   "tekst": "Quote accurately from a text when explaining what the text says explicitly and when drawing inferences from the text."
+  },
+  {
+   "code": "US.RI.5.2",
+   "vak": "English Language Arts",
+   "leerjaar": 5,
+   "domein": "Reading: Informational Text",
+   "tekst": "Determine two or more main ideas of a text and explain how they are supported by key details; summarize the text."
+  },
+  {
+   "code": "US.RI.5.3",
+   "vak": "English Language Arts",
+   "leerjaar": 5,
+   "domein": "Reading: Informational Text",
+   "tekst": "Explain the relationships or interactions between two or more individuals, events, ideas, or concepts in a historical, scientific, or technical text based on specific information in the text."
+  },
+  {
+   "code": "US.RI.5.4",
+   "vak": "English Language Arts",
+   "leerjaar": 5,
+   "domein": "Reading: Informational Text",
+   "tekst": "Determine the meaning of general academic and domain-specific words and phrases in a text relevant to a grade 5 topic or subject area."
+  },
+  {
+   "code": "US.RI.5.5",
+   "vak": "English Language Arts",
+   "leerjaar": 5,
+   "domein": "Reading: Informational Text",
+   "tekst": "Compare and contrast the overall structure (e.g., chronology, comparison, cause/effect, problem/solution) of events, ideas, concepts, or information in two or more texts."
+  },
+  {
+   "code": "US.RI.5.6",
+   "vak": "English Language Arts",
+   "leerjaar": 5,
+   "domein": "Reading: Informational Text",
+   "tekst": "Analyze multiple accounts of the same event or topic, noting important similarities and differences in the point of view they represent."
+  },
+  {
+   "code": "US.RI.5.7",
+   "vak": "English Language Arts",
+   "leerjaar": 5,
+   "domein": "Reading: Informational Text",
+   "tekst": "Draw on information from multiple print or digital sources, demonstrating the ability to locate an answer to a question quickly or to solve a problem efficiently."
+  },
+  {
+   "code": "US.RI.5.8",
+   "vak": "English Language Arts",
+   "leerjaar": 5,
+   "domein": "Reading: Informational Text",
+   "tekst": "Explain how an author uses reasons and evidence to support particular points in a text, identifying which reasons and evidence support which point(s)."
+  },
+  {
+   "code": "US.RI.5.9",
+   "vak": "English Language Arts",
+   "leerjaar": 5,
+   "domein": "Reading: Informational Text",
+   "tekst": "Integrate information from several texts on the same topic in order to write or speak about the subject knowledgeably."
+  },
+  {
+   "code": "US.RI.5.10",
+   "vak": "English Language Arts",
+   "leerjaar": 5,
+   "domein": "Reading: Informational Text",
+   "tekst": "By the end of the year, read and comprehend informational texts, including history/social studies, science, and technical texts, at the high end of the grades 4-5 text complexity band independently and proficiently."
+  },
+  {
+   "code": "US.RI.6.1",
+   "vak": "English Language Arts",
+   "leerjaar": 6,
+   "domein": "Reading: Informational Text",
+   "tekst": "Cite textual evidence to support analysis of what the text says explicitly as well as inferences drawn from the text."
+  },
+  {
+   "code": "US.RI.6.2",
+   "vak": "English Language Arts",
+   "leerjaar": 6,
+   "domein": "Reading: Informational Text",
+   "tekst": "Determine a central idea of a text and how it is conveyed through particular details; provide a summary of the text distinct from personal opinions or judgments."
+  },
+  {
+   "code": "US.RI.6.3",
+   "vak": "English Language Arts",
+   "leerjaar": 6,
+   "domein": "Reading: Informational Text",
+   "tekst": "Analyze in detail how a key individual, event, or idea is introduced, illustrated, and elaborated in a text (e.g., through examples or anecdotes)."
+  },
+  {
+   "code": "US.RI.6.4",
+   "vak": "English Language Arts",
+   "leerjaar": 6,
+   "domein": "Reading: Informational Text",
+   "tekst": "Determine the meaning of words and phrases as they are used in a text, including figurative, connotative, and technical meanings."
+  },
+  {
+   "code": "US.RI.6.5",
+   "vak": "English Language Arts",
+   "leerjaar": 6,
+   "domein": "Reading: Informational Text",
+   "tekst": "Analyze how a particular sentence, paragraph, chapter, or section fits into the overall structure of a text and contributes to the development of the ideas."
+  },
+  {
+   "code": "US.RI.6.6",
+   "vak": "English Language Arts",
+   "leerjaar": 6,
+   "domein": "Reading: Informational Text",
+   "tekst": "Determine an author's point of view or purpose in a text and explain how it is conveyed in the text."
+  },
+  {
+   "code": "US.RI.6.7",
+   "vak": "English Language Arts",
+   "leerjaar": 6,
+   "domein": "Reading: Informational Text",
+   "tekst": "Integrate information presented in different media or formats (e.g., visually, quantitatively) as well as in words to develop a coherent understanding of a topic or issue."
+  },
+  {
+   "code": "US.RI.6.8",
+   "vak": "English Language Arts",
+   "leerjaar": 6,
+   "domein": "Reading: Informational Text",
+   "tekst": "Trace and evaluate the argument and specific claims in a text, distinguishing claims that are supported by reasons and evidence from claims that are not."
+  },
+  {
+   "code": "US.RI.6.9",
+   "vak": "English Language Arts",
+   "leerjaar": 6,
+   "domein": "Reading: Informational Text",
+   "tekst": "Compare and contrast one author's presentation of events with that of another (e.g., a memoir written by and a biography on the same person)."
+  },
+  {
+   "code": "US.RI.6.10",
+   "vak": "English Language Arts",
+   "leerjaar": 6,
+   "domein": "Reading: Informational Text",
+   "tekst": "By the end of the year, read and comprehend literary nonfiction in the grades 6-8 text complexity band proficiently, with scaffolding as needed at the high end of the range."
+  },
+  {
+   "code": "US.RF.1.1.a",
+   "vak": "English Language Arts",
+   "leerjaar": 1,
+   "domein": "Reading: Foundational Skills",
+   "cluster": "Demonstrate understanding of the organization and basic features of print.",
+   "tekst": "Recognize the distinguishing features of a sentence (e.g., first word, capitalization, ending punctuation)."
+  },
+  {
+   "code": "US.RF.1.2.a",
+   "vak": "English Language Arts",
+   "leerjaar": 1,
+   "domein": "Reading: Foundational Skills",
+   "cluster": "Demonstrate understanding of spoken words, syllables, and sounds (phonemes).",
+   "tekst": "Distinguish long from short vowel sounds in spoken single-syllable words."
+  },
+  {
+   "code": "US.RF.1.2.b",
+   "vak": "English Language Arts",
+   "leerjaar": 1,
+   "domein": "Reading: Foundational Skills",
+   "cluster": "Demonstrate understanding of spoken words, syllables, and sounds (phonemes).",
+   "tekst": "Orally produce single-syllable words by blending sounds (phonemes), including consonant blends."
+  },
+  {
+   "code": "US.RF.1.2.c",
+   "vak": "English Language Arts",
+   "leerjaar": 1,
+   "domein": "Reading: Foundational Skills",
+   "cluster": "Demonstrate understanding of spoken words, syllables, and sounds (phonemes).",
+   "tekst": "Isolate and pronounce initial, medial vowel, and final sounds (phonemes) in spoken single-syllable words."
+  },
+  {
+   "code": "US.RF.1.2.d",
+   "vak": "English Language Arts",
+   "leerjaar": 1,
+   "domein": "Reading: Foundational Skills",
+   "cluster": "Demonstrate understanding of spoken words, syllables, and sounds (phonemes).",
+   "tekst": "Segment spoken single-syllable words into their complete sequence of individual sounds (phonemes)."
+  },
+  {
+   "code": "US.RF.1.3.a",
+   "vak": "English Language Arts",
+   "leerjaar": 1,
+   "domein": "Reading: Foundational Skills",
+   "cluster": "Know and apply grade-level phonics and word analysis skills in decoding words.",
+   "tekst": "Know the spelling-sound correspondences for common consonant digraphs."
+  },
+  {
+   "code": "US.RF.1.3.b",
+   "vak": "English Language Arts",
+   "leerjaar": 1,
+   "domein": "Reading: Foundational Skills",
+   "cluster": "Know and apply grade-level phonics and word analysis skills in decoding words.",
+   "tekst": "Decode regularly spelled one-syllable words."
+  },
+  {
+   "code": "US.RF.1.3.c",
+   "vak": "English Language Arts",
+   "leerjaar": 1,
+   "domein": "Reading: Foundational Skills",
+   "cluster": "Know and apply grade-level phonics and word analysis skills in decoding words.",
+   "tekst": "Know final -e and common vowel team conventions for representing long vowel sounds."
+  },
+  {
+   "code": "US.RF.1.3.d",
+   "vak": "English Language Arts",
+   "leerjaar": 1,
+   "domein": "Reading: Foundational Skills",
+   "cluster": "Know and apply grade-level phonics and word analysis skills in decoding words.",
+   "tekst": "Use knowledge that every syllable must have a vowel sound to determine the number of syllables in a printed word."
+  },
+  {
+   "code": "US.RF.1.3.e",
+   "vak": "English Language Arts",
+   "leerjaar": 1,
+   "domein": "Reading: Foundational Skills",
+   "cluster": "Know and apply grade-level phonics and word analysis skills in decoding words.",
+   "tekst": "Decode two-syllable words following basic patterns by breaking the words into syllables."
+  },
+  {
+   "code": "US.RF.1.3.f",
+   "vak": "English Language Arts",
+   "leerjaar": 1,
+   "domein": "Reading: Foundational Skills",
+   "cluster": "Know and apply grade-level phonics and word analysis skills in decoding words.",
+   "tekst": "Read words with inflectional endings."
+  },
+  {
+   "code": "US.RF.1.3.g",
+   "vak": "English Language Arts",
+   "leerjaar": 1,
+   "domein": "Reading: Foundational Skills",
+   "cluster": "Know and apply grade-level phonics and word analysis skills in decoding words.",
+   "tekst": "Recognize and read grade-appropriate irregularly spelled words."
+  },
+  {
+   "code": "US.RF.1.4.a",
+   "vak": "English Language Arts",
+   "leerjaar": 1,
+   "domein": "Reading: Foundational Skills",
+   "cluster": "Read with sufficient accuracy and fluency to support comprehension.",
+   "tekst": "Read grade-level text with purpose and understanding."
+  },
+  {
+   "code": "US.RF.1.4.b",
+   "vak": "English Language Arts",
+   "leerjaar": 1,
+   "domein": "Reading: Foundational Skills",
+   "cluster": "Read with sufficient accuracy and fluency to support comprehension.",
+   "tekst": "Read grade-level text orally with accuracy, appropriate rate, and expression on successive readings."
+  },
+  {
+   "code": "US.RF.1.4.c",
+   "vak": "English Language Arts",
+   "leerjaar": 1,
+   "domein": "Reading: Foundational Skills",
+   "cluster": "Read with sufficient accuracy and fluency to support comprehension.",
+   "tekst": "Use context to confirm or self-correct word recognition and understanding, rereading as necessary."
+  },
+  {
+   "code": "US.RF.2.3.a",
+   "vak": "English Language Arts",
+   "leerjaar": 2,
+   "domein": "Reading: Foundational Skills",
+   "cluster": "Know and apply grade-level phonics and word analysis skills in decoding words.",
+   "tekst": "Distinguish long and short vowels when reading regularly spelled one-syllable words."
+  },
+  {
+   "code": "US.RF.2.3.b",
+   "vak": "English Language Arts",
+   "leerjaar": 2,
+   "domein": "Reading: Foundational Skills",
+   "cluster": "Know and apply grade-level phonics and word analysis skills in decoding words.",
+   "tekst": "Know spelling-sound correspondences for additional common vowel teams."
+  },
+  {
+   "code": "US.RF.2.3.c",
+   "vak": "English Language Arts",
+   "leerjaar": 2,
+   "domein": "Reading: Foundational Skills",
+   "cluster": "Know and apply grade-level phonics and word analysis skills in decoding words.",
+   "tekst": "Decode regularly spelled two-syllable words with long vowels."
+  },
+  {
+   "code": "US.RF.2.3.d",
+   "vak": "English Language Arts",
+   "leerjaar": 2,
+   "domein": "Reading: Foundational Skills",
+   "cluster": "Know and apply grade-level phonics and word analysis skills in decoding words.",
+   "tekst": "Decode words with common prefixes and suffixes."
+  },
+  {
+   "code": "US.RF.2.3.e",
+   "vak": "English Language Arts",
+   "leerjaar": 2,
+   "domein": "Reading: Foundational Skills",
+   "cluster": "Know and apply grade-level phonics and word analysis skills in decoding words.",
+   "tekst": "Identify words with inconsistent but common spelling-sound correspondences."
+  },
+  {
+   "code": "US.RF.2.3.f",
+   "vak": "English Language Arts",
+   "leerjaar": 2,
+   "domein": "Reading: Foundational Skills",
+   "cluster": "Know and apply grade-level phonics and word analysis skills in decoding words.",
+   "tekst": "Recognize and read grade-appropriate irregularly spelled words."
+  },
+  {
+   "code": "US.RF.2.4.a",
+   "vak": "English Language Arts",
+   "leerjaar": 2,
+   "domein": "Reading: Foundational Skills",
+   "cluster": "Read with sufficient accuracy and fluency to support comprehension.",
+   "tekst": "Read grade-level text with purpose and understanding."
+  },
+  {
+   "code": "US.RF.2.4.b",
+   "vak": "English Language Arts",
+   "leerjaar": 2,
+   "domein": "Reading: Foundational Skills",
+   "cluster": "Read with sufficient accuracy and fluency to support comprehension.",
+   "tekst": "Read grade-level text orally with accuracy, appropriate rate, and expression on successive readings."
+  },
+  {
+   "code": "US.RF.2.4.c",
+   "vak": "English Language Arts",
+   "leerjaar": 2,
+   "domein": "Reading: Foundational Skills",
+   "cluster": "Read with sufficient accuracy and fluency to support comprehension.",
+   "tekst": "Use context to confirm or self-correct word recognition and understanding, rereading as necessary."
+  },
+  {
+   "code": "US.RF.3.3.a",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Reading: Foundational Skills",
+   "cluster": "Know and apply grade-level phonics and word analysis skills in decoding words.",
+   "tekst": "Identify and know the meaning of the most common prefixes and derivational suffixes."
+  },
+  {
+   "code": "US.RF.3.3.b",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Reading: Foundational Skills",
+   "cluster": "Know and apply grade-level phonics and word analysis skills in decoding words.",
+   "tekst": "Decode words with common Latin suffixes."
+  },
+  {
+   "code": "US.RF.3.3.c",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Reading: Foundational Skills",
+   "cluster": "Know and apply grade-level phonics and word analysis skills in decoding words.",
+   "tekst": "Decode multisyllable words."
+  },
+  {
+   "code": "US.RF.3.3.d",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Reading: Foundational Skills",
+   "cluster": "Know and apply grade-level phonics and word analysis skills in decoding words.",
+   "tekst": "Read grade-appropriate irregularly spelled words."
+  },
+  {
+   "code": "US.RF.3.4.a",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Reading: Foundational Skills",
+   "cluster": "Read with sufficient accuracy and fluency to support comprehension.",
+   "tekst": "Read grade-level text with purpose and understanding."
+  },
+  {
+   "code": "US.RF.3.4.b",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Reading: Foundational Skills",
+   "cluster": "Read with sufficient accuracy and fluency to support comprehension.",
+   "tekst": "Read grade-level prose and poetry orally with accuracy, appropriate rate, and expression on successive readings."
+  },
+  {
+   "code": "US.RF.3.4.c",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Reading: Foundational Skills",
+   "cluster": "Read with sufficient accuracy and fluency to support comprehension.",
+   "tekst": "Use context to confirm or self-correct word recognition and understanding, rereading as necessary."
+  },
+  {
+   "code": "US.RF.4.3.a",
+   "vak": "English Language Arts",
+   "leerjaar": 4,
+   "domein": "Reading: Foundational Skills",
+   "cluster": "Know and apply grade-level phonics and word analysis skills in decoding words.",
+   "tekst": "Use combined knowledge of all letter-sound correspondences, syllabication patterns, and morphology (e.g., roots and affixes) to read accurately unfamiliar multisyllabic words in context and out of context."
+  },
+  {
+   "code": "US.RF.4.4.a",
+   "vak": "English Language Arts",
+   "leerjaar": 4,
+   "domein": "Reading: Foundational Skills",
+   "cluster": "Read with sufficient accuracy and fluency to support comprehension.",
+   "tekst": "Read grade-level text with purpose and understanding."
+  },
+  {
+   "code": "US.RF.4.4.b",
+   "vak": "English Language Arts",
+   "leerjaar": 4,
+   "domein": "Reading: Foundational Skills",
+   "cluster": "Read with sufficient accuracy and fluency to support comprehension.",
+   "tekst": "Read grade-level prose and poetry orally with accuracy, appropriate rate, and expression on successive readings."
+  },
+  {
+   "code": "US.RF.4.4.c",
+   "vak": "English Language Arts",
+   "leerjaar": 4,
+   "domein": "Reading: Foundational Skills",
+   "cluster": "Read with sufficient accuracy and fluency to support comprehension.",
+   "tekst": "Use context to confirm or self-correct word recognition and understanding, rereading as necessary."
+  },
+  {
+   "code": "US.RF.5.3.a",
+   "vak": "English Language Arts",
+   "leerjaar": 5,
+   "domein": "Reading: Foundational Skills",
+   "cluster": "Know and apply grade-level phonics and word analysis skills in decoding words.",
+   "tekst": "Use combined knowledge of all letter-sound correspondences, syllabication patterns, and morphology (e.g., roots and affixes) to read accurately unfamiliar multisyllabic words in context and out of context."
+  },
+  {
+   "code": "US.RF.5.4.a",
+   "vak": "English Language Arts",
+   "leerjaar": 5,
+   "domein": "Reading: Foundational Skills",
+   "cluster": "Read with sufficient accuracy and fluency to support comprehension.",
+   "tekst": "Read grade-level text with purpose and understanding."
+  },
+  {
+   "code": "US.RF.5.4.b",
+   "vak": "English Language Arts",
+   "leerjaar": 5,
+   "domein": "Reading: Foundational Skills",
+   "cluster": "Read with sufficient accuracy and fluency to support comprehension.",
+   "tekst": "Read grade-level prose and poetry orally with accuracy, appropriate rate, and expression on successive readings."
+  },
+  {
+   "code": "US.RF.5.4.c",
+   "vak": "English Language Arts",
+   "leerjaar": 5,
+   "domein": "Reading: Foundational Skills",
+   "cluster": "Read with sufficient accuracy and fluency to support comprehension.",
+   "tekst": "Use context to confirm or self-correct word recognition and understanding, rereading as necessary."
+  },
+  {
+   "code": "US.W.1.1",
+   "vak": "English Language Arts",
+   "leerjaar": 1,
+   "domein": "Writing",
+   "tekst": "Write opinion pieces in which they introduce the topic or name the book they are writing about, state an opinion, supply a reason for the opinion, and provide some sense of closure."
+  },
+  {
+   "code": "US.W.1.2",
+   "vak": "English Language Arts",
+   "leerjaar": 1,
+   "domein": "Writing",
+   "tekst": "Write informative/explanatory texts in which they name a topic, supply some facts about the topic, and provide some sense of closure."
+  },
+  {
+   "code": "US.W.1.3",
+   "vak": "English Language Arts",
+   "leerjaar": 1,
+   "domein": "Writing",
+   "tekst": "Write narratives in which they recount two or more appropriately sequenced events, include some details regarding what happened, use temporal words to signal event order, and provide some sense of closure."
+  },
+  {
+   "code": "US.W.1.4",
+   "vak": "English Language Arts",
+   "leerjaar": 1,
+   "domein": "Writing",
+   "tekst": "(W.1.4 begins in grade 3)"
+  },
+  {
+   "code": "US.W.1.5",
+   "vak": "English Language Arts",
+   "leerjaar": 1,
+   "domein": "Writing",
+   "tekst": "With guidance and support from adults, focus on a topic, respond to questions and suggestions from peers, and add details to strengthen writing as needed."
+  },
+  {
+   "code": "US.W.1.6",
+   "vak": "English Language Arts",
+   "leerjaar": 1,
+   "domein": "Writing",
+   "tekst": "With guidance and support from adults, use a variety of digital tools to produce and publish writing, including in collaboration with peers."
+  },
+  {
+   "code": "US.W.1.7",
+   "vak": "English Language Arts",
+   "leerjaar": 1,
+   "domein": "Writing",
+   "tekst": "Participate in shared research and writing projects (e.g., explore a number of \"how-to\" books on a given topic and use them to write a sequence of instructions)."
+  },
+  {
+   "code": "US.W.1.8",
+   "vak": "English Language Arts",
+   "leerjaar": 1,
+   "domein": "Writing",
+   "tekst": "With guidance and support from adults, recall information from experiences or gather information from provided sources to answer a question."
+  },
+  {
+   "code": "US.W.1.9",
+   "vak": "English Language Arts",
+   "leerjaar": 1,
+   "domein": "Writing",
+   "tekst": "(W.1.9 begins in grade 4)"
+  },
+  {
+   "code": "US.W.1.10",
+   "vak": "English Language Arts",
+   "leerjaar": 1,
+   "domein": "Writing",
+   "tekst": "(W.1.10 begins in grade 3)"
+  },
+  {
+   "code": "US.W.2.1",
+   "vak": "English Language Arts",
+   "leerjaar": 2,
+   "domein": "Writing",
+   "tekst": "Write opinion pieces in which they introduce the topic or book they are writing about, state an opinion, supply reasons that support the opinion, use linking words (e.g., because, and, also) to connect opinion and reasons, and provide a concluding statement or section."
+  },
+  {
+   "code": "US.W.2.2",
+   "vak": "English Language Arts",
+   "leerjaar": 2,
+   "domein": "Writing",
+   "tekst": "Write informative/explanatory texts in which they introduce a topic, use facts and definitions to develop points, and provide a concluding statement or section."
+  },
+  {
+   "code": "US.W.2.3",
+   "vak": "English Language Arts",
+   "leerjaar": 2,
+   "domein": "Writing",
+   "tekst": "Write narratives in which they recount a well-elaborated event or short sequence of events, include details to describe actions, thoughts, and feelings, use temporal words to signal event order, and provide a sense of closure."
+  },
+  {
+   "code": "US.W.2.4",
+   "vak": "English Language Arts",
+   "leerjaar": 2,
+   "domein": "Writing",
+   "tekst": "(W.2.4 begins in grade 3)"
+  },
+  {
+   "code": "US.W.2.5",
+   "vak": "English Language Arts",
+   "leerjaar": 2,
+   "domein": "Writing",
+   "tekst": "With guidance and support from adults and peers, focus on a topic and strengthen writing as needed by revising and editing."
+  },
+  {
+   "code": "US.W.2.6",
+   "vak": "English Language Arts",
+   "leerjaar": 2,
+   "domein": "Writing",
+   "tekst": "With guidance and support from adults, use a variety of digital tools to produce and publish writing, including in collaboration with peers."
+  },
+  {
+   "code": "US.W.2.7",
+   "vak": "English Language Arts",
+   "leerjaar": 2,
+   "domein": "Writing",
+   "tekst": "Participate in shared research and writing projects (e.g., read a number of books on a single topic to produce a report; record science observations)."
+  },
+  {
+   "code": "US.W.2.8",
+   "vak": "English Language Arts",
+   "leerjaar": 2,
+   "domein": "Writing",
+   "tekst": "Recall information from experiences or gather information from provided sources to answer a question."
+  },
+  {
+   "code": "US.W.2.9",
+   "vak": "English Language Arts",
+   "leerjaar": 2,
+   "domein": "Writing",
+   "tekst": "(W.2.9 begins in grade 4)"
+  },
+  {
+   "code": "US.W.2.10",
+   "vak": "English Language Arts",
+   "leerjaar": 2,
+   "domein": "Writing",
+   "tekst": "(W.2.10 begins in grade 3)"
+  },
+  {
+   "code": "US.W.3.1.a",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Writing",
+   "cluster": "Write opinion pieces on topics or texts, supporting a point of view with reasons.",
+   "tekst": "Introduce the topic or text they are writing about, state an opinion, and create an organizational structure that lists reasons."
+  },
+  {
+   "code": "US.W.3.1.b",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Writing",
+   "cluster": "Write opinion pieces on topics or texts, supporting a point of view with reasons.",
+   "tekst": "Provide reasons that support the opinion."
+  },
+  {
+   "code": "US.W.3.1.c",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Writing",
+   "cluster": "Write opinion pieces on topics or texts, supporting a point of view with reasons.",
+   "tekst": "Use linking words and phrases (e.g., because, therefore, since, for example) to connect opinion and reasons."
+  },
+  {
+   "code": "US.W.3.1.d",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Writing",
+   "cluster": "Write opinion pieces on topics or texts, supporting a point of view with reasons.",
+   "tekst": "Provide a concluding statement or section."
+  },
+  {
+   "code": "US.W.3.2.a",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Writing",
+   "cluster": "Write informative/explanatory texts to examine a topic and convey ideas and information clearly.",
+   "tekst": "Introduce a topic and group related information together; include illustrations when useful to aiding comprehension."
+  },
+  {
+   "code": "US.W.3.2.b",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Writing",
+   "cluster": "Write informative/explanatory texts to examine a topic and convey ideas and information clearly.",
+   "tekst": "Develop the topic with facts, definitions, and details."
+  },
+  {
+   "code": "US.W.3.2.c",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Writing",
+   "cluster": "Write informative/explanatory texts to examine a topic and convey ideas and information clearly.",
+   "tekst": "Use linking words and phrases (e.g., also, another, and, more, but) to connect ideas within categories of information."
+  },
+  {
+   "code": "US.W.3.2.d",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Writing",
+   "cluster": "Write informative/explanatory texts to examine a topic and convey ideas and information clearly.",
+   "tekst": "Provide a concluding statement or section."
+  },
+  {
+   "code": "US.W.3.3.a",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Writing",
+   "cluster": "Write narratives to develop real or imagined experiences or events using effective technique, descriptive details, and clear event sequences.",
+   "tekst": "Establish a situation and introduce a narrator and/or characters; organize an event sequence that unfolds naturally."
+  },
+  {
+   "code": "US.W.3.3.b",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Writing",
+   "cluster": "Write narratives to develop real or imagined experiences or events using effective technique, descriptive details, and clear event sequences.",
+   "tekst": "Use dialogue and descriptions of actions, thoughts, and feelings to develop experiences and events or show the response of characters to situations."
+  },
+  {
+   "code": "US.W.3.3.c",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Writing",
+   "cluster": "Write narratives to develop real or imagined experiences or events using effective technique, descriptive details, and clear event sequences.",
+   "tekst": "Use temporal words and phrases to signal event order."
+  },
+  {
+   "code": "US.W.3.3.d",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Writing",
+   "cluster": "Write narratives to develop real or imagined experiences or events using effective technique, descriptive details, and clear event sequences.",
+   "tekst": "Provide a sense of closure."
+  },
+  {
+   "code": "US.W.3.4",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Writing",
+   "tekst": "With guidance and support from adults, produce writing in which the development and organization are appropriate to task and purpose. (Grade-specific expectations for writing types are defined in standards 1-3 above.)"
+  },
+  {
+   "code": "US.W.3.5",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Writing",
+   "tekst": "With guidance and support from peers and adults, develop and strengthen writing as needed by planning, revising, and editing. (Editing for conventions should demonstrate command of Language standards 1-3 up to and including grade 3 here.)"
+  },
+  {
+   "code": "US.W.3.6",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Writing",
+   "tekst": "With guidance and support from adults, use technology to produce and publish writing (using keyboarding skills) as well as to interact and collaborate with others."
+  },
+  {
+   "code": "US.W.3.7",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Writing",
+   "tekst": "Conduct short research projects that build knowledge about a topic."
+  },
+  {
+   "code": "US.W.3.8",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Writing",
+   "tekst": "Recall information from experiences or gather information from print and digital sources; take brief notes on sources and sort evidence into provided categories."
+  },
+  {
+   "code": "US.W.3.9",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Writing",
+   "tekst": "(W.3.9 begins in grade 4)"
+  },
+  {
+   "code": "US.W.3.10",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Writing",
+   "tekst": "Write routinely over extended time frames (time for research, reflection, and revision) and shorter time frames (a single sitting or a day or two) for a range of discipline-specific tasks, purposes, and audiences."
+  },
+  {
+   "code": "US.W.4.1.a",
+   "vak": "English Language Arts",
+   "leerjaar": 4,
+   "domein": "Writing",
+   "cluster": "Write opinion pieces on topics or texts, supporting a point of view with reasons and information.",
+   "tekst": "Introduce a topic or text clearly, state an opinion, and create an organizational structure in which related ideas are grouped to support the writer's purpose."
+  },
+  {
+   "code": "US.W.4.1.b",
+   "vak": "English Language Arts",
+   "leerjaar": 4,
+   "domein": "Writing",
+   "cluster": "Write opinion pieces on topics or texts, supporting a point of view with reasons and information.",
+   "tekst": "Provide reasons that are supported by facts and details."
+  },
+  {
+   "code": "US.W.4.1.c",
+   "vak": "English Language Arts",
+   "leerjaar": 4,
+   "domein": "Writing",
+   "cluster": "Write opinion pieces on topics or texts, supporting a point of view with reasons and information.",
+   "tekst": "Link opinion and reasons using words and phrases (e.g., for instance, in order to, in addition)."
+  },
+  {
+   "code": "US.W.4.1.d",
+   "vak": "English Language Arts",
+   "leerjaar": 4,
+   "domein": "Writing",
+   "cluster": "Write opinion pieces on topics or texts, supporting a point of view with reasons and information.",
+   "tekst": "Provide a concluding statement or section related to the opinion presented."
+  },
+  {
+   "code": "US.W.4.2.a",
+   "vak": "English Language Arts",
+   "leerjaar": 4,
+   "domein": "Writing",
+   "cluster": "Write informative/explanatory texts to examine a topic and convey ideas and information clearly.",
+   "tekst": "Introduce a topic clearly and group related information in paragraphs and sections; include formatting (e.g., headings), illustrations, and multimedia when useful to aiding comprehension."
+  },
+  {
+   "code": "US.W.4.2.b",
+   "vak": "English Language Arts",
+   "leerjaar": 4,
+   "domein": "Writing",
+   "cluster": "Write informative/explanatory texts to examine a topic and convey ideas and information clearly.",
+   "tekst": "Develop the topic with facts, definitions, concrete details, quotations, or other information and examples related to the topic."
+  },
+  {
+   "code": "US.W.4.2.c",
+   "vak": "English Language Arts",
+   "leerjaar": 4,
+   "domein": "Writing",
+   "cluster": "Write informative/explanatory texts to examine a topic and convey ideas and information clearly.",
+   "tekst": "Link ideas within categories of information using words and phrases (e.g., another, for example, also, because)."
+  },
+  {
+   "code": "US.W.4.2.d",
+   "vak": "English Language Arts",
+   "leerjaar": 4,
+   "domein": "Writing",
+   "cluster": "Write informative/explanatory texts to examine a topic and convey ideas and information clearly.",
+   "tekst": "Use precise language and domain-specific vocabulary to inform about or explain the topic."
+  },
+  {
+   "code": "US.W.4.2.e",
+   "vak": "English Language Arts",
+   "leerjaar": 4,
+   "domein": "Writing",
+   "cluster": "Write informative/explanatory texts to examine a topic and convey ideas and information clearly.",
+   "tekst": "Provide a concluding statement or section related to the information or explanation presented."
+  },
+  {
+   "code": "US.W.4.3.a",
+   "vak": "English Language Arts",
+   "leerjaar": 4,
+   "domein": "Writing",
+   "cluster": "Write narratives to develop real or imagined experiences or events using effective technique, descriptive details, and clear event sequences.",
+   "tekst": "Orient the reader by establishing a situation and introducing a narrator and/or characters; organize an event sequence that unfolds naturally."
+  },
+  {
+   "code": "US.W.4.3.b",
+   "vak": "English Language Arts",
+   "leerjaar": 4,
+   "domein": "Writing",
+   "cluster": "Write narratives to develop real or imagined experiences or events using effective technique, descriptive details, and clear event sequences.",
+   "tekst": "Use dialogue and description to develop experiences and events or show the responses of characters to situations."
+  },
+  {
+   "code": "US.W.4.3.c",
+   "vak": "English Language Arts",
+   "leerjaar": 4,
+   "domein": "Writing",
+   "cluster": "Write narratives to develop real or imagined experiences or events using effective technique, descriptive details, and clear event sequences.",
+   "tekst": "Use a variety of transitional words and phrases to manage the sequence of events."
+  },
+  {
+   "code": "US.W.4.3.d",
+   "vak": "English Language Arts",
+   "leerjaar": 4,
+   "domein": "Writing",
+   "cluster": "Write narratives to develop real or imagined experiences or events using effective technique, descriptive details, and clear event sequences.",
+   "tekst": "Use concrete words and phrases and sensory details to convey experiences and events precisely."
+  },
+  {
+   "code": "US.W.4.3.e",
+   "vak": "English Language Arts",
+   "leerjaar": 4,
+   "domein": "Writing",
+   "cluster": "Write narratives to develop real or imagined experiences or events using effective technique, descriptive details, and clear event sequences.",
+   "tekst": "Provide a conclusion that follows from the narrated experiences or events."
+  },
+  {
+   "code": "US.W.4.4",
+   "vak": "English Language Arts",
+   "leerjaar": 4,
+   "domein": "Writing",
+   "tekst": "Produce clear and coherent writing in which the development and organization are appropriate to task, purpose, and audience. (Grade-specific expectations for writing types are defined in standards 1-3 above.)"
+  },
+  {
+   "code": "US.W.4.5",
+   "vak": "English Language Arts",
+   "leerjaar": 4,
+   "domein": "Writing",
+   "tekst": "With guidance and support from peers and adults, develop and strengthen writing as needed by planning, revising, and editing. (Editing for conventions should demonstrate command of Language standards 1-3 up to and including grade 4 here.)"
+  },
+  {
+   "code": "US.W.4.6",
+   "vak": "English Language Arts",
+   "leerjaar": 4,
+   "domein": "Writing",
+   "tekst": "With some guidance and support from adults, use technology, including the Internet, to produce and publish writing as well as to interact and collaborate with others; demonstrate sufficient command of keyboarding skills to type a minimum of one page in a single sitting."
+  },
+  {
+   "code": "US.W.4.7",
+   "vak": "English Language Arts",
+   "leerjaar": 4,
+   "domein": "Writing",
+   "tekst": "Conduct short research projects that build knowledge through investigation of different aspects of a topic."
+  },
+  {
+   "code": "US.W.4.8",
+   "vak": "English Language Arts",
+   "leerjaar": 4,
+   "domein": "Writing",
+   "tekst": "Recall relevant information from experiences or gather relevant information from print and digital sources; take notes and categorize information, and provide a list of sources."
+  },
+  {
+   "code": "US.W.4.9.a",
+   "vak": "English Language Arts",
+   "leerjaar": 4,
+   "domein": "Writing",
+   "cluster": "Draw evidence from literary or informational texts to support analysis, reflection, and research.",
+   "tekst": "Apply grade 4 Reading standards to literature (e.g., \"Describe in depth a character, setting, or event in a story or drama, drawing on specific details in the text [e.g., a character's thoughts, words, or actions].\")."
+  },
+  {
+   "code": "US.W.4.9.b",
+   "vak": "English Language Arts",
+   "leerjaar": 4,
+   "domein": "Writing",
+   "cluster": "Draw evidence from literary or informational texts to support analysis, reflection, and research.",
+   "tekst": "Apply grade 4 Reading standards to informational texts (e.g., \"Explain how an author uses reasons and evidence to support particular points in a text\")."
+  },
+  {
+   "code": "US.W.4.10",
+   "vak": "English Language Arts",
+   "leerjaar": 4,
+   "domein": "Writing",
+   "tekst": "Write routinely over extended time frames (time for research, reflection, and revision) and shorter time frames (a single sitting or a day or two) for a range of discipline-specific tasks, purposes, and audiences."
+  },
+  {
+   "code": "US.W.5.1.a",
+   "vak": "English Language Arts",
+   "leerjaar": 5,
+   "domein": "Writing",
+   "cluster": "Write opinion pieces on topics or texts, supporting a point of view with reasons and information.",
+   "tekst": "Introduce a topic or text clearly, state an opinion, and create an organizational structure in which ideas are logically grouped to support the writer's purpose."
+  },
+  {
+   "code": "US.W.5.1.b",
+   "vak": "English Language Arts",
+   "leerjaar": 5,
+   "domein": "Writing",
+   "cluster": "Write opinion pieces on topics or texts, supporting a point of view with reasons and information.",
+   "tekst": "Provide logically ordered reasons that are supported by facts and details."
+  },
+  {
+   "code": "US.W.5.1.c",
+   "vak": "English Language Arts",
+   "leerjaar": 5,
+   "domein": "Writing",
+   "cluster": "Write opinion pieces on topics or texts, supporting a point of view with reasons and information.",
+   "tekst": "Link opinion and reasons using words, phrases, and clauses (e.g., consequently, specifically)."
+  },
+  {
+   "code": "US.W.5.1.d",
+   "vak": "English Language Arts",
+   "leerjaar": 5,
+   "domein": "Writing",
+   "cluster": "Write opinion pieces on topics or texts, supporting a point of view with reasons and information.",
+   "tekst": "Provide a concluding statement or section related to the opinion presented."
+  },
+  {
+   "code": "US.W.5.2.a",
+   "vak": "English Language Arts",
+   "leerjaar": 5,
+   "domein": "Writing",
+   "cluster": "Write informative/explanatory texts to examine a topic and convey ideas and information clearly.",
+   "tekst": "Introduce a topic clearly, provide a general observation and focus, and group related information logically; include formatting (e.g., headings), illustrations, and multimedia when useful to aiding comprehension."
+  },
+  {
+   "code": "US.W.5.2.b",
+   "vak": "English Language Arts",
+   "leerjaar": 5,
+   "domein": "Writing",
+   "cluster": "Write informative/explanatory texts to examine a topic and convey ideas and information clearly.",
+   "tekst": "Develop the topic with facts, definitions, concrete details, quotations, or other information and examples related to the topic."
+  },
+  {
+   "code": "US.W.5.2.c",
+   "vak": "English Language Arts",
+   "leerjaar": 5,
+   "domein": "Writing",
+   "cluster": "Write informative/explanatory texts to examine a topic and convey ideas and information clearly.",
+   "tekst": "Link ideas within and across categories of information using words, phrases, and clauses (e.g., in contrast, especially)."
+  },
+  {
+   "code": "US.W.5.2.d",
+   "vak": "English Language Arts",
+   "leerjaar": 5,
+   "domein": "Writing",
+   "cluster": "Write informative/explanatory texts to examine a topic and convey ideas and information clearly.",
+   "tekst": "Use precise language and domain-specific vocabulary to inform about or explain the topic."
+  },
+  {
+   "code": "US.W.5.2.e",
+   "vak": "English Language Arts",
+   "leerjaar": 5,
+   "domein": "Writing",
+   "cluster": "Write informative/explanatory texts to examine a topic and convey ideas and information clearly.",
+   "tekst": "Provide a concluding statement or section related to the information or explanation presented."
+  },
+  {
+   "code": "US.W.5.3.a",
+   "vak": "English Language Arts",
+   "leerjaar": 5,
+   "domein": "Writing",
+   "cluster": "Write narratives to develop real or imagined experiences or events using effective technique, descriptive details, and clear event sequences.",
+   "tekst": "Orient the reader by establishing a situation and introducing a narrator and/or characters; organize an event sequence that unfolds naturally."
+  },
+  {
+   "code": "US.W.5.3.b",
+   "vak": "English Language Arts",
+   "leerjaar": 5,
+   "domein": "Writing",
+   "cluster": "Write narratives to develop real or imagined experiences or events using effective technique, descriptive details, and clear event sequences.",
+   "tekst": "Use narrative techniques, such as dialogue, description, and pacing, to develop experiences and events or show the responses of characters to situations."
+  },
+  {
+   "code": "US.W.5.3.c",
+   "vak": "English Language Arts",
+   "leerjaar": 5,
+   "domein": "Writing",
+   "cluster": "Write narratives to develop real or imagined experiences or events using effective technique, descriptive details, and clear event sequences.",
+   "tekst": "Use a variety of transitional words, phrases, and clauses to manage the sequence of events."
+  },
+  {
+   "code": "US.W.5.3.d",
+   "vak": "English Language Arts",
+   "leerjaar": 5,
+   "domein": "Writing",
+   "cluster": "Write narratives to develop real or imagined experiences or events using effective technique, descriptive details, and clear event sequences.",
+   "tekst": "Use concrete words and phrases and sensory details to convey experiences and events precisely."
+  },
+  {
+   "code": "US.W.5.3.e",
+   "vak": "English Language Arts",
+   "leerjaar": 5,
+   "domein": "Writing",
+   "cluster": "Write narratives to develop real or imagined experiences or events using effective technique, descriptive details, and clear event sequences.",
+   "tekst": "Provide a conclusion that follows from the narrated experiences or events."
+  },
+  {
+   "code": "US.W.5.4",
+   "vak": "English Language Arts",
+   "leerjaar": 5,
+   "domein": "Writing",
+   "tekst": "Produce clear and coherent writing in which the development and organization are appropriate to task, purpose, and audience. (Grade-specific expectations for writing types are defined in standards 1-3 above.)"
+  },
+  {
+   "code": "US.W.5.5",
+   "vak": "English Language Arts",
+   "leerjaar": 5,
+   "domein": "Writing",
+   "tekst": "With guidance and support from peers and adults, develop and strengthen writing as needed by planning, revising, editing, rewriting, or trying a new approach. (Editing for conventions should demonstrate command of Language standards 1-3 up to and including grade 5 here.)"
+  },
+  {
+   "code": "US.W.5.6",
+   "vak": "English Language Arts",
+   "leerjaar": 5,
+   "domein": "Writing",
+   "tekst": "With some guidance and support from adults, use technology, including the Internet, to produce and publish writing as well as to interact and collaborate with others; demonstrate sufficient command of keyboarding skills to type a minimum of two pages in a single sitting."
+  },
+  {
+   "code": "US.W.5.7",
+   "vak": "English Language Arts",
+   "leerjaar": 5,
+   "domein": "Writing",
+   "tekst": "Conduct short research projects that use several sources to build knowledge through investigation of different aspects of a topic."
+  },
+  {
+   "code": "US.W.5.8",
+   "vak": "English Language Arts",
+   "leerjaar": 5,
+   "domein": "Writing",
+   "tekst": "Recall relevant information from experiences or gather relevant information from print and digital sources; summarize or paraphrase information in notes and finished work, and provide a list of sources."
+  },
+  {
+   "code": "US.W.5.9.a",
+   "vak": "English Language Arts",
+   "leerjaar": 5,
+   "domein": "Writing",
+   "cluster": "Draw evidence from literary or informational texts to support analysis, reflection, and research.",
+   "tekst": "Apply grade 5 Reading standards to literature (e.g., \"Compare and contrast two or more characters, settings, or events in a story or a drama, drawing on specific details in the text [e.g., how characters interact]\")."
+  },
+  {
+   "code": "US.W.5.9.b",
+   "vak": "English Language Arts",
+   "leerjaar": 5,
+   "domein": "Writing",
+   "cluster": "Draw evidence from literary or informational texts to support analysis, reflection, and research.",
+   "tekst": "Apply grade 5 Reading standards to informational texts (e.g., \"Explain how an author uses reasons and evidence to support particular points in a text, identifying which reasons and evidence support which point[s]\"\")."
+  },
+  {
+   "code": "US.W.5.10",
+   "vak": "English Language Arts",
+   "leerjaar": 5,
+   "domein": "Writing",
+   "tekst": "Write routinely over extended time frames (time for research, reflection, and revision) and shorter time frames (a single sitting or a day or two) for a range of discipline-specific tasks, purposes, and audiences."
+  },
+  {
+   "code": "US.W.6.1.a",
+   "vak": "English Language Arts",
+   "leerjaar": 6,
+   "domein": "Writing",
+   "cluster": "Write arguments to support claims with clear reasons and relevant evidence.",
+   "tekst": "Introduce claim(s) and organize the reasons and evidence clearly."
+  },
+  {
+   "code": "US.W.6.1.b",
+   "vak": "English Language Arts",
+   "leerjaar": 6,
+   "domein": "Writing",
+   "cluster": "Write arguments to support claims with clear reasons and relevant evidence.",
+   "tekst": "Support claim(s) with clear reasons and relevant evidence, using credible sources and demonstrating an understanding of the topic or text."
+  },
+  {
+   "code": "US.W.6.1.c",
+   "vak": "English Language Arts",
+   "leerjaar": 6,
+   "domein": "Writing",
+   "cluster": "Write arguments to support claims with clear reasons and relevant evidence.",
+   "tekst": "Use words, phrases, and clauses to clarify the relationships among claim(s) and reasons."
+  },
+  {
+   "code": "US.W.6.1.d",
+   "vak": "English Language Arts",
+   "leerjaar": 6,
+   "domein": "Writing",
+   "cluster": "Write arguments to support claims with clear reasons and relevant evidence.",
+   "tekst": "Establish and maintain a formal style."
+  },
+  {
+   "code": "US.W.6.1.e",
+   "vak": "English Language Arts",
+   "leerjaar": 6,
+   "domein": "Writing",
+   "cluster": "Write arguments to support claims with clear reasons and relevant evidence.",
+   "tekst": "Provide a concluding statement or section that follows from the argument presented."
+  },
+  {
+   "code": "US.W.6.2.a",
+   "vak": "English Language Arts",
+   "leerjaar": 6,
+   "domein": "Writing",
+   "cluster": "Write informative/explanatory texts to examine a topic and convey ideas, concepts, and information through the selection, organization, and analysis of relevant content.",
+   "tekst": "Introduce a topic; organize ideas, concepts, and information, using strategies such as definition, classification, comparison/contrast, and cause/effect; include formatting (e.g., headings), graphics (e.g., charts, tables), and multimedia when useful to aiding comprehension."
+  },
+  {
+   "code": "US.W.6.2.b",
+   "vak": "English Language Arts",
+   "leerjaar": 6,
+   "domein": "Writing",
+   "cluster": "Write informative/explanatory texts to examine a topic and convey ideas, concepts, and information through the selection, organization, and analysis of relevant content.",
+   "tekst": "Develop the topic with relevant facts, definitions, concrete details, quotations, or other information and examples."
+  },
+  {
+   "code": "US.W.6.2.c",
+   "vak": "English Language Arts",
+   "leerjaar": 6,
+   "domein": "Writing",
+   "cluster": "Write informative/explanatory texts to examine a topic and convey ideas, concepts, and information through the selection, organization, and analysis of relevant content.",
+   "tekst": "Use appropriate transitions to clarify the relationships among ideas and concepts."
+  },
+  {
+   "code": "US.W.6.2.d",
+   "vak": "English Language Arts",
+   "leerjaar": 6,
+   "domein": "Writing",
+   "cluster": "Write informative/explanatory texts to examine a topic and convey ideas, concepts, and information through the selection, organization, and analysis of relevant content.",
+   "tekst": "Use precise language and domain-specific vocabulary to inform about or explain the topic."
+  },
+  {
+   "code": "US.W.6.2.e",
+   "vak": "English Language Arts",
+   "leerjaar": 6,
+   "domein": "Writing",
+   "cluster": "Write informative/explanatory texts to examine a topic and convey ideas, concepts, and information through the selection, organization, and analysis of relevant content.",
+   "tekst": "Establish and maintain a formal style."
+  },
+  {
+   "code": "US.W.6.2.f",
+   "vak": "English Language Arts",
+   "leerjaar": 6,
+   "domein": "Writing",
+   "cluster": "Write informative/explanatory texts to examine a topic and convey ideas, concepts, and information through the selection, organization, and analysis of relevant content.",
+   "tekst": "Provide a concluding statement or section that follows from the information or explanation presented."
+  },
+  {
+   "code": "US.W.6.3.a",
+   "vak": "English Language Arts",
+   "leerjaar": 6,
+   "domein": "Writing",
+   "cluster": "Write narratives to develop real or imagined experiences or events using effective technique, relevant descriptive details, and well-structured event sequences.",
+   "tekst": "Engage and orient the reader by establishing a context and introducing a narrator and/or characters; organize an event sequence that unfolds naturally and logically."
+  },
+  {
+   "code": "US.W.6.3.b",
+   "vak": "English Language Arts",
+   "leerjaar": 6,
+   "domein": "Writing",
+   "cluster": "Write narratives to develop real or imagined experiences or events using effective technique, relevant descriptive details, and well-structured event sequences.",
+   "tekst": "Use narrative techniques, such as dialogue, pacing, and description, to develop experiences, events, and/or characters."
+  },
+  {
+   "code": "US.W.6.3.c",
+   "vak": "English Language Arts",
+   "leerjaar": 6,
+   "domein": "Writing",
+   "cluster": "Write narratives to develop real or imagined experiences or events using effective technique, relevant descriptive details, and well-structured event sequences.",
+   "tekst": "Use a variety of transition words, phrases, and clauses to convey sequence and signal shifts from one time frame or setting to another."
+  },
+  {
+   "code": "US.W.6.3.d",
+   "vak": "English Language Arts",
+   "leerjaar": 6,
+   "domein": "Writing",
+   "cluster": "Write narratives to develop real or imagined experiences or events using effective technique, relevant descriptive details, and well-structured event sequences.",
+   "tekst": "Use precise words and phrases, relevant descriptive details, and sensory language to convey experiences and events."
+  },
+  {
+   "code": "US.W.6.3.e",
+   "vak": "English Language Arts",
+   "leerjaar": 6,
+   "domein": "Writing",
+   "cluster": "Write narratives to develop real or imagined experiences or events using effective technique, relevant descriptive details, and well-structured event sequences.",
+   "tekst": "Provide a conclusion that follows from the narrated experiences or events."
+  },
+  {
+   "code": "US.W.6.4",
+   "vak": "English Language Arts",
+   "leerjaar": 6,
+   "domein": "Writing",
+   "tekst": "Produce clear and coherent writing in which the development, organization, and style are appropriate to task, purpose, and audience. (Grade-specific expectations for writing types are defined in standards 1-3 above.)"
+  },
+  {
+   "code": "US.W.6.5",
+   "vak": "English Language Arts",
+   "leerjaar": 6,
+   "domein": "Writing",
+   "tekst": "With some guidance and support from peers and adults, develop and strengthen writing as needed by planning, revising, editing, rewriting, or trying a new approach. (Editing for conventions should demonstrate command of Language standards 1-3 up to and including grade 6 here.)"
+  },
+  {
+   "code": "US.W.6.6",
+   "vak": "English Language Arts",
+   "leerjaar": 6,
+   "domein": "Writing",
+   "tekst": "Use technology, including the Internet, to produce and publish writing as well as to interact and collaborate with others; demonstrate sufficient command of keyboarding skills to type a minimum of three pages in a single sitting."
+  },
+  {
+   "code": "US.W.6.7",
+   "vak": "English Language Arts",
+   "leerjaar": 6,
+   "domein": "Writing",
+   "tekst": "Conduct short research projects to answer a question, drawing on several sources and refocusing the inquiry when appropriate."
+  },
+  {
+   "code": "US.W.6.8",
+   "vak": "English Language Arts",
+   "leerjaar": 6,
+   "domein": "Writing",
+   "tekst": "Gather relevant information from multiple print and digital sources; assess the credibility of each source; and quote or paraphrase the data and conclusions of others while avoiding plagiarism and providing basic bibliographic information for sources."
+  },
+  {
+   "code": "US.W.6.9.a",
+   "vak": "English Language Arts",
+   "leerjaar": 6,
+   "domein": "Writing",
+   "cluster": "Draw evidence from literary or informational texts to support analysis, reflection, and research.",
+   "tekst": "Apply grade 6 Reading standards to literature (e.g., \"Compare and contrast texts in different forms or genres [e.g., stories and poems; historical novels and fantasy stories] in terms of their approaches to similar themes and topics\")."
+  },
+  {
+   "code": "US.W.6.9.b",
+   "vak": "English Language Arts",
+   "leerjaar": 6,
+   "domein": "Writing",
+   "cluster": "Draw evidence from literary or informational texts to support analysis, reflection, and research.",
+   "tekst": "Apply grade 6 Reading standards to literary nonfiction (e.g., \"Trace and evaluate the argument and specific claims in a text, distinguishing claims that are supported by reasons and evidence from claims that are not\")."
+  },
+  {
+   "code": "US.W.6.10",
+   "vak": "English Language Arts",
+   "leerjaar": 6,
+   "domein": "Writing",
+   "tekst": "Write routinely over extended time frames (time for research, reflection, and revision) and shorter time frames (a single sitting or a day or two) for a range of discipline-specific tasks, purposes, and audiences."
+  },
+  {
+   "code": "US.SL.1.1.a",
+   "vak": "English Language Arts",
+   "leerjaar": 1,
+   "domein": "Speaking & Listening",
+   "cluster": "Participate in collaborative conversations with diverse partners about grade 1 topics and texts with peers and adults in small and larger groups.",
+   "tekst": "Follow agreed-upon rules for discussions (e.g., listening to others with care, speaking one at a time about the topics and texts under discussion)."
+  },
+  {
+   "code": "US.SL.1.1.b",
+   "vak": "English Language Arts",
+   "leerjaar": 1,
+   "domein": "Speaking & Listening",
+   "cluster": "Participate in collaborative conversations with diverse partners about grade 1 topics and texts with peers and adults in small and larger groups.",
+   "tekst": "Build on others' talk in conversations by responding to the comments of others through multiple exchanges."
+  },
+  {
+   "code": "US.SL.1.1.c",
+   "vak": "English Language Arts",
+   "leerjaar": 1,
+   "domein": "Speaking & Listening",
+   "cluster": "Participate in collaborative conversations with diverse partners about grade 1 topics and texts with peers and adults in small and larger groups.",
+   "tekst": "Ask questions to clear up any confusion about the topics and texts under discussion."
+  },
+  {
+   "code": "US.SL.1.2",
+   "vak": "English Language Arts",
+   "leerjaar": 1,
+   "domein": "Speaking & Listening",
+   "tekst": "Ask and answer questions about key details in a text read aloud or information presented orally or through other media."
+  },
+  {
+   "code": "US.SL.1.3",
+   "vak": "English Language Arts",
+   "leerjaar": 1,
+   "domein": "Speaking & Listening",
+   "tekst": "Ask and answer questions about what a speaker says in order to gather additional information or clarify something that is not understood."
+  },
+  {
+   "code": "US.SL.1.4",
+   "vak": "English Language Arts",
+   "leerjaar": 1,
+   "domein": "Speaking & Listening",
+   "tekst": "Describe people, places, things, and events with relevant details, expressing ideas and feelings clearly."
+  },
+  {
+   "code": "US.SL.1.5",
+   "vak": "English Language Arts",
+   "leerjaar": 1,
+   "domein": "Speaking & Listening",
+   "tekst": "Add drawings or other visual displays to descriptions when appropriate to clarify ideas, thoughts, and feelings."
+  },
+  {
+   "code": "US.SL.1.6",
+   "vak": "English Language Arts",
+   "leerjaar": 1,
+   "domein": "Speaking & Listening",
+   "tekst": "Produce complete sentences when appropriate to task and situation. (See grade 1 Language standards 1 and 3 here for specific expectations.)"
+  },
+  {
+   "code": "US.SL.2.1.a",
+   "vak": "English Language Arts",
+   "leerjaar": 2,
+   "domein": "Speaking & Listening",
+   "cluster": "Participate in collaborative conversations with diverse partners about grade 2 topics and texts with peers and adults in small and larger groups.",
+   "tekst": "Follow agreed-upon rules for discussions (e.g., gaining the floor in respectful ways, listening to others with care, speaking one at a time about the topics and texts under discussion)."
+  },
+  {
+   "code": "US.SL.2.1.b",
+   "vak": "English Language Arts",
+   "leerjaar": 2,
+   "domein": "Speaking & Listening",
+   "cluster": "Participate in collaborative conversations with diverse partners about grade 2 topics and texts with peers and adults in small and larger groups.",
+   "tekst": "Build on others' talk in conversations by linking their comments to the remarks of others."
+  },
+  {
+   "code": "US.SL.2.1.c",
+   "vak": "English Language Arts",
+   "leerjaar": 2,
+   "domein": "Speaking & Listening",
+   "cluster": "Participate in collaborative conversations with diverse partners about grade 2 topics and texts with peers and adults in small and larger groups.",
+   "tekst": "Ask for clarification and further explanation as needed about the topics and texts under discussion."
+  },
+  {
+   "code": "US.SL.2.2",
+   "vak": "English Language Arts",
+   "leerjaar": 2,
+   "domein": "Speaking & Listening",
+   "tekst": "Recount or describe key ideas or details from a text read aloud or information presented orally or through other media."
+  },
+  {
+   "code": "US.SL.2.3",
+   "vak": "English Language Arts",
+   "leerjaar": 2,
+   "domein": "Speaking & Listening",
+   "tekst": "Ask and answer questions about what a speaker says in order to clarify comprehension, gather additional information, or deepen understanding of a topic or issue."
+  },
+  {
+   "code": "US.SL.2.4",
+   "vak": "English Language Arts",
+   "leerjaar": 2,
+   "domein": "Speaking & Listening",
+   "tekst": "Tell a story or recount an experience with appropriate facts and relevant, descriptive details, speaking audibly in coherent sentences."
+  },
+  {
+   "code": "US.SL.2.5",
+   "vak": "English Language Arts",
+   "leerjaar": 2,
+   "domein": "Speaking & Listening",
+   "tekst": "Create audio recordings of stories or poems; add drawings or other visual displays to stories or recounts of experiences when appropriate to clarify ideas, thoughts, and feelings."
+  },
+  {
+   "code": "US.SL.2.6",
+   "vak": "English Language Arts",
+   "leerjaar": 2,
+   "domein": "Speaking & Listening",
+   "tekst": "Produce complete sentences when appropriate to task and situation in order to provide requested detail or clarification. (See grade 2 Language standards 1 and 3 here for specific expectations.)"
+  },
+  {
+   "code": "US.SL.3.1.a",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Speaking & Listening",
+   "cluster": "Engage effectively in a range of collaborative discussions (one-on-one, in groups, and teacher-led) with diverse partners on grade 3 topics and texts, building on others' ideas and expressing their own clearly.",
+   "tekst": "Come to discussions prepared, having read or studied required material; explicitly draw on that preparation and other information known about the topic to explore ideas under discussion."
+  },
+  {
+   "code": "US.SL.3.1.b",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Speaking & Listening",
+   "cluster": "Engage effectively in a range of collaborative discussions (one-on-one, in groups, and teacher-led) with diverse partners on grade 3 topics and texts, building on others' ideas and expressing their own clearly.",
+   "tekst": "Follow agreed-upon rules for discussions (e.g., gaining the floor in respectful ways, listening to others with care, speaking one at a time about the topics and texts under discussion)."
+  },
+  {
+   "code": "US.SL.3.1.c",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Speaking & Listening",
+   "cluster": "Engage effectively in a range of collaborative discussions (one-on-one, in groups, and teacher-led) with diverse partners on grade 3 topics and texts, building on others' ideas and expressing their own clearly.",
+   "tekst": "Ask questions to check understanding of information presented, stay on topic, and link their comments to the remarks of others."
+  },
+  {
+   "code": "US.SL.3.1.d",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Speaking & Listening",
+   "cluster": "Engage effectively in a range of collaborative discussions (one-on-one, in groups, and teacher-led) with diverse partners on grade 3 topics and texts, building on others' ideas and expressing their own clearly.",
+   "tekst": "Explain their own ideas and understanding in light of the discussion."
+  },
+  {
+   "code": "US.SL.3.2",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Speaking & Listening",
+   "tekst": "Determine the main ideas and supporting details of a text read aloud or information presented in diverse media and formats, including visually, quantitatively, and orally."
+  },
+  {
+   "code": "US.SL.3.3",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Speaking & Listening",
+   "tekst": "Ask and answer questions about information from a speaker, offering appropriate elaboration and detail."
+  },
+  {
+   "code": "US.SL.3.4",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Speaking & Listening",
+   "tekst": "Report on a topic or text, tell a story, or recount an experience with appropriate facts and relevant, descriptive details, speaking clearly at an understandable pace."
+  },
+  {
+   "code": "US.SL.3.5",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Speaking & Listening",
+   "tekst": "Create engaging audio recordings of stories or poems that demonstrate fluid reading at an understandable pace; add visual displays when appropriate to emphasize or enhance certain facts or details."
+  },
+  {
+   "code": "US.SL.3.6",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Speaking & Listening",
+   "tekst": "Speak in complete sentences when appropriate to task and situation in order to provide requested detail or clarification. (See grade 3 Language standards 1 and 3 here for specific expectations.)"
+  },
+  {
+   "code": "US.SL.4.1.a",
+   "vak": "English Language Arts",
+   "leerjaar": 4,
+   "domein": "Speaking & Listening",
+   "cluster": "Engage effectively in a range of collaborative discussions (one-on-one, in groups, and teacher-led) with diverse partners on grade 4 topics and texts, building on others' ideas and expressing their own clearly.",
+   "tekst": "Come to discussions prepared, having read or studied required material; explicitly draw on that preparation and other information known about the topic to explore ideas under discussion."
+  },
+  {
+   "code": "US.SL.4.1.b",
+   "vak": "English Language Arts",
+   "leerjaar": 4,
+   "domein": "Speaking & Listening",
+   "cluster": "Engage effectively in a range of collaborative discussions (one-on-one, in groups, and teacher-led) with diverse partners on grade 4 topics and texts, building on others' ideas and expressing their own clearly.",
+   "tekst": "Follow agreed-upon rules for discussions and carry out assigned roles."
+  },
+  {
+   "code": "US.SL.4.1.c",
+   "vak": "English Language Arts",
+   "leerjaar": 4,
+   "domein": "Speaking & Listening",
+   "cluster": "Engage effectively in a range of collaborative discussions (one-on-one, in groups, and teacher-led) with diverse partners on grade 4 topics and texts, building on others' ideas and expressing their own clearly.",
+   "tekst": "Pose and respond to specific questions to clarify or follow up on information, and make comments that contribute to the discussion and link to the remarks of others."
+  },
+  {
+   "code": "US.SL.4.1.d",
+   "vak": "English Language Arts",
+   "leerjaar": 4,
+   "domein": "Speaking & Listening",
+   "cluster": "Engage effectively in a range of collaborative discussions (one-on-one, in groups, and teacher-led) with diverse partners on grade 4 topics and texts, building on others' ideas and expressing their own clearly.",
+   "tekst": "Review the key ideas expressed and explain their own ideas and understanding in light of the discussion."
+  },
+  {
+   "code": "US.SL.4.2",
+   "vak": "English Language Arts",
+   "leerjaar": 4,
+   "domein": "Speaking & Listening",
+   "tekst": "Paraphrase portions of a text read aloud or information presented in diverse media and formats, including visually, quantitatively, and orally."
+  },
+  {
+   "code": "US.SL.4.3",
+   "vak": "English Language Arts",
+   "leerjaar": 4,
+   "domein": "Speaking & Listening",
+   "tekst": "Identify the reasons and evidence a speaker provides to support particular points."
+  },
+  {
+   "code": "US.SL.4.4",
+   "vak": "English Language Arts",
+   "leerjaar": 4,
+   "domein": "Speaking & Listening",
+   "tekst": "Report on a topic or text, tell a story, or recount an experience in an organized manner, using appropriate facts and relevant, descriptive details to support main ideas or themes; speak clearly at an understandable pace."
+  },
+  {
+   "code": "US.SL.4.5",
+   "vak": "English Language Arts",
+   "leerjaar": 4,
+   "domein": "Speaking & Listening",
+   "tekst": "Add audio recordings and visual displays to presentations when appropriate to enhance the development of main ideas or themes."
+  },
+  {
+   "code": "US.SL.4.6",
+   "vak": "English Language Arts",
+   "leerjaar": 4,
+   "domein": "Speaking & Listening",
+   "tekst": "Differentiate between contexts that call for formal English (e.g., presenting ideas) and situations where informal discourse is appropriate (e.g., small-group discussion); use formal English when appropriate to task and situation. (See grade 4 Language standards 1 here for specific expectations.)"
+  },
+  {
+   "code": "US.SL.5.1.a",
+   "vak": "English Language Arts",
+   "leerjaar": 5,
+   "domein": "Speaking & Listening",
+   "cluster": "Engage effectively in a range of collaborative discussions (one-on-one, in groups, and teacher-led) with diverse partners on grade 5 topics and texts, building on others' ideas and expressing their own clearly.",
+   "tekst": "Come to discussions prepared, having read or studied required material; explicitly draw on that preparation and other information known about the topic to explore ideas under discussion."
+  },
+  {
+   "code": "US.SL.5.1.b",
+   "vak": "English Language Arts",
+   "leerjaar": 5,
+   "domein": "Speaking & Listening",
+   "cluster": "Engage effectively in a range of collaborative discussions (one-on-one, in groups, and teacher-led) with diverse partners on grade 5 topics and texts, building on others' ideas and expressing their own clearly.",
+   "tekst": "Follow agreed-upon rules for discussions and carry out assigned roles."
+  },
+  {
+   "code": "US.SL.5.1.c",
+   "vak": "English Language Arts",
+   "leerjaar": 5,
+   "domein": "Speaking & Listening",
+   "cluster": "Engage effectively in a range of collaborative discussions (one-on-one, in groups, and teacher-led) with diverse partners on grade 5 topics and texts, building on others' ideas and expressing their own clearly.",
+   "tekst": "Pose and respond to specific questions by making comments that contribute to the discussion and elaborate on the remarks of others."
+  },
+  {
+   "code": "US.SL.5.1.d",
+   "vak": "English Language Arts",
+   "leerjaar": 5,
+   "domein": "Speaking & Listening",
+   "cluster": "Engage effectively in a range of collaborative discussions (one-on-one, in groups, and teacher-led) with diverse partners on grade 5 topics and texts, building on others' ideas and expressing their own clearly.",
+   "tekst": "Review the key ideas expressed and draw conclusions in light of information and knowledge gained from the discussions."
+  },
+  {
+   "code": "US.SL.5.2",
+   "vak": "English Language Arts",
+   "leerjaar": 5,
+   "domein": "Speaking & Listening",
+   "tekst": "Summarize a written text read aloud or information presented in diverse media and formats, including visually, quantitatively, and orally."
+  },
+  {
+   "code": "US.SL.5.3",
+   "vak": "English Language Arts",
+   "leerjaar": 5,
+   "domein": "Speaking & Listening",
+   "tekst": "Summarize the points a speaker makes and explain how each claim is supported by reasons and evidence."
+  },
+  {
+   "code": "US.SL.5.4",
+   "vak": "English Language Arts",
+   "leerjaar": 5,
+   "domein": "Speaking & Listening",
+   "tekst": "Report on a topic or text or present an opinion, sequencing ideas logically and using appropriate facts and relevant, descriptive details to support main ideas or themes; speak clearly at an understandable pace."
+  },
+  {
+   "code": "US.SL.5.5",
+   "vak": "English Language Arts",
+   "leerjaar": 5,
+   "domein": "Speaking & Listening",
+   "tekst": "Include multimedia components (e.g., graphics, sound) and visual displays in presentations when appropriate to enhance the development of main ideas or themes."
+  },
+  {
+   "code": "US.SL.5.6",
+   "vak": "English Language Arts",
+   "leerjaar": 5,
+   "domein": "Speaking & Listening",
+   "tekst": "Adapt speech to a variety of contexts and tasks, using formal English when appropriate to task and situation. (See grade 5 Language standards 1 and 3 here for specific expectations.)"
+  },
+  {
+   "code": "US.SL.6.1.a",
+   "vak": "English Language Arts",
+   "leerjaar": 6,
+   "domein": "Speaking & Listening",
+   "cluster": "Engage effectively in a range of collaborative discussions (one-on-one, in groups, and teacher-led) with diverse partners on grade 6 topics, texts, and issues, building on others' ideas and expressing their own clearly.",
+   "tekst": "Come to discussions prepared, having read or studied required material; explicitly draw on that preparation by referring to evidence on the topic, text, or issue to probe and reflect on ideas under discussion."
+  },
+  {
+   "code": "US.SL.6.1.b",
+   "vak": "English Language Arts",
+   "leerjaar": 6,
+   "domein": "Speaking & Listening",
+   "cluster": "Engage effectively in a range of collaborative discussions (one-on-one, in groups, and teacher-led) with diverse partners on grade 6 topics, texts, and issues, building on others' ideas and expressing their own clearly.",
+   "tekst": "Follow rules for collegial discussions, set specific goals and deadlines, and define individual roles as needed."
+  },
+  {
+   "code": "US.SL.6.1.c",
+   "vak": "English Language Arts",
+   "leerjaar": 6,
+   "domein": "Speaking & Listening",
+   "cluster": "Engage effectively in a range of collaborative discussions (one-on-one, in groups, and teacher-led) with diverse partners on grade 6 topics, texts, and issues, building on others' ideas and expressing their own clearly.",
+   "tekst": "Pose and respond to specific questions with elaboration and detail by making comments that contribute to the topic, text, or issue under discussion."
+  },
+  {
+   "code": "US.SL.6.1.d",
+   "vak": "English Language Arts",
+   "leerjaar": 6,
+   "domein": "Speaking & Listening",
+   "cluster": "Engage effectively in a range of collaborative discussions (one-on-one, in groups, and teacher-led) with diverse partners on grade 6 topics, texts, and issues, building on others' ideas and expressing their own clearly.",
+   "tekst": "Review the key ideas expressed and demonstrate understanding of multiple perspectives through reflection and paraphrasing."
+  },
+  {
+   "code": "US.SL.6.2",
+   "vak": "English Language Arts",
+   "leerjaar": 6,
+   "domein": "Speaking & Listening",
+   "tekst": "Interpret information presented in diverse media and formats (e.g., visually, quantitatively, orally) and explain how it contributes to a topic, text, or issue under study."
+  },
+  {
+   "code": "US.SL.6.3",
+   "vak": "English Language Arts",
+   "leerjaar": 6,
+   "domein": "Speaking & Listening",
+   "tekst": "Delineate a speaker's argument and specific claims, distinguishing claims that are supported by reasons and evidence from claims that are not."
+  },
+  {
+   "code": "US.SL.6.4",
+   "vak": "English Language Arts",
+   "leerjaar": 6,
+   "domein": "Speaking & Listening",
+   "tekst": "Present claims and findings, sequencing ideas logically and using pertinent descriptions, facts, and details to accentuate main ideas or themes; use appropriate eye contact, adequate volume, and clear pronunciation."
+  },
+  {
+   "code": "US.SL.6.5",
+   "vak": "English Language Arts",
+   "leerjaar": 6,
+   "domein": "Speaking & Listening",
+   "tekst": "Include multimedia components (e.g., graphics, images, music, sound) and visual displays in presentations to clarify information."
+  },
+  {
+   "code": "US.SL.6.6",
+   "vak": "English Language Arts",
+   "leerjaar": 6,
+   "domein": "Speaking & Listening",
+   "tekst": "Adapt speech to a variety of contexts and tasks, demonstrating command of formal English when indicated or appropriate. (See grade 6 Language standards 1 and 3 for specific expectations.)"
+  },
+  {
+   "code": "US.L.1.1.a",
+   "vak": "English Language Arts",
+   "leerjaar": 1,
+   "domein": "Language",
+   "cluster": "Demonstrate command of the conventions of standard English grammar and usage when writing or speaking.",
+   "tekst": "Print all upper- and lowercase letters."
+  },
+  {
+   "code": "US.L.1.1.b",
+   "vak": "English Language Arts",
+   "leerjaar": 1,
+   "domein": "Language",
+   "cluster": "Demonstrate command of the conventions of standard English grammar and usage when writing or speaking.",
+   "tekst": "Use common, proper, and possessive nouns."
+  },
+  {
+   "code": "US.L.1.1.c",
+   "vak": "English Language Arts",
+   "leerjaar": 1,
+   "domein": "Language",
+   "cluster": "Demonstrate command of the conventions of standard English grammar and usage when writing or speaking.",
+   "tekst": "Use singular and plural nouns with matching verbs in basic sentences (e.g., He hops; We hop)."
+  },
+  {
+   "code": "US.L.1.1.d",
+   "vak": "English Language Arts",
+   "leerjaar": 1,
+   "domein": "Language",
+   "cluster": "Demonstrate command of the conventions of standard English grammar and usage when writing or speaking.",
+   "tekst": "Use personal, possessive, and indefinite pronouns (e.g., I, me, my; they, them, their, anyone, everything)."
+  },
+  {
+   "code": "US.L.1.1.e",
+   "vak": "English Language Arts",
+   "leerjaar": 1,
+   "domein": "Language",
+   "cluster": "Demonstrate command of the conventions of standard English grammar and usage when writing or speaking.",
+   "tekst": "Use verbs to convey a sense of past, present, and future (e.g., Yesterday I walked home; Today I walk home; Tomorrow I will walk home)."
+  },
+  {
+   "code": "US.L.1.1.f",
+   "vak": "English Language Arts",
+   "leerjaar": 1,
+   "domein": "Language",
+   "cluster": "Demonstrate command of the conventions of standard English grammar and usage when writing or speaking.",
+   "tekst": "Use frequently occurring adjectives."
+  },
+  {
+   "code": "US.L.1.1.g",
+   "vak": "English Language Arts",
+   "leerjaar": 1,
+   "domein": "Language",
+   "cluster": "Demonstrate command of the conventions of standard English grammar and usage when writing or speaking.",
+   "tekst": "Use frequently occurring conjunctions (e.g., and, but, or, so, because)."
+  },
+  {
+   "code": "US.L.1.1.h",
+   "vak": "English Language Arts",
+   "leerjaar": 1,
+   "domein": "Language",
+   "cluster": "Demonstrate command of the conventions of standard English grammar and usage when writing or speaking.",
+   "tekst": "Use determiners (e.g., articles, demonstratives)."
+  },
+  {
+   "code": "US.L.1.1.i",
+   "vak": "English Language Arts",
+   "leerjaar": 1,
+   "domein": "Language",
+   "cluster": "Demonstrate command of the conventions of standard English grammar and usage when writing or speaking.",
+   "tekst": "Use frequently occurring prepositions (e.g., during, beyond, toward)."
+  },
+  {
+   "code": "US.L.1.1.j",
+   "vak": "English Language Arts",
+   "leerjaar": 1,
+   "domein": "Language",
+   "cluster": "Demonstrate command of the conventions of standard English grammar and usage when writing or speaking.",
+   "tekst": "Produce and expand complete simple and compound declarative, interrogative, imperative, and exclamatory sentences in response to prompts."
+  },
+  {
+   "code": "US.L.1.2.a",
+   "vak": "English Language Arts",
+   "leerjaar": 1,
+   "domein": "Language",
+   "cluster": "Demonstrate command of the conventions of standard English capitalization, punctuation, and spelling when writing.",
+   "tekst": "Capitalize dates and names of people."
+  },
+  {
+   "code": "US.L.1.2.b",
+   "vak": "English Language Arts",
+   "leerjaar": 1,
+   "domein": "Language",
+   "cluster": "Demonstrate command of the conventions of standard English capitalization, punctuation, and spelling when writing.",
+   "tekst": "Use end punctuation for sentences."
+  },
+  {
+   "code": "US.L.1.2.c",
+   "vak": "English Language Arts",
+   "leerjaar": 1,
+   "domein": "Language",
+   "cluster": "Demonstrate command of the conventions of standard English capitalization, punctuation, and spelling when writing.",
+   "tekst": "Use commas in dates and to separate single words in a series."
+  },
+  {
+   "code": "US.L.1.2.d",
+   "vak": "English Language Arts",
+   "leerjaar": 1,
+   "domein": "Language",
+   "cluster": "Demonstrate command of the conventions of standard English capitalization, punctuation, and spelling when writing.",
+   "tekst": "Use conventional spelling for words with common spelling patterns and for frequently occurring irregular words."
+  },
+  {
+   "code": "US.L.1.2.e",
+   "vak": "English Language Arts",
+   "leerjaar": 1,
+   "domein": "Language",
+   "cluster": "Demonstrate command of the conventions of standard English capitalization, punctuation, and spelling when writing.",
+   "tekst": "Spell untaught words phonetically, drawing on phonemic awareness and spelling conventions."
+  },
+  {
+   "code": "US.L.1.3",
+   "vak": "English Language Arts",
+   "leerjaar": 1,
+   "domein": "Language",
+   "tekst": "(L.1.3 begins in grade 2)"
+  },
+  {
+   "code": "US.L.1.4.a",
+   "vak": "English Language Arts",
+   "leerjaar": 1,
+   "domein": "Language",
+   "cluster": "Determine or clarify the meaning of unknown and multiple-meaning words and phrases based on grade 1 reading and content, choosing flexibly from an array of strategies.",
+   "tekst": "Use sentence-level context as a clue to the meaning of a word or phrase."
+  },
+  {
+   "code": "US.L.1.4.b",
+   "vak": "English Language Arts",
+   "leerjaar": 1,
+   "domein": "Language",
+   "cluster": "Determine or clarify the meaning of unknown and multiple-meaning words and phrases based on grade 1 reading and content, choosing flexibly from an array of strategies.",
+   "tekst": "Use frequently occurring affixes as a clue to the meaning of a word."
+  },
+  {
+   "code": "US.L.1.4.c",
+   "vak": "English Language Arts",
+   "leerjaar": 1,
+   "domein": "Language",
+   "cluster": "Determine or clarify the meaning of unknown and multiple-meaning words and phrases based on grade 1 reading and content, choosing flexibly from an array of strategies.",
+   "tekst": "Identify frequently occurring root words (e.g., look) and their inflectional forms (e.g., looks, looked, looking)."
+  },
+  {
+   "code": "US.L.1.5.a",
+   "vak": "English Language Arts",
+   "leerjaar": 1,
+   "domein": "Language",
+   "cluster": "With guidance and support from adults, demonstrate understanding of word relationships and nuances in word meanings.",
+   "tekst": "Sort words into categories (e.g., colors, clothing) to gain a sense of the concepts the categories represent."
+  },
+  {
+   "code": "US.L.1.5.b",
+   "vak": "English Language Arts",
+   "leerjaar": 1,
+   "domein": "Language",
+   "cluster": "With guidance and support from adults, demonstrate understanding of word relationships and nuances in word meanings.",
+   "tekst": "Define words by category and by one or more key attributes (e.g., a duck is a bird that swims; a tiger is a large cat with stripes)."
+  },
+  {
+   "code": "US.L.1.5.c",
+   "vak": "English Language Arts",
+   "leerjaar": 1,
+   "domein": "Language",
+   "cluster": "With guidance and support from adults, demonstrate understanding of word relationships and nuances in word meanings.",
+   "tekst": "Identify real-life connections between words and their use (e.g., note places at home that are cozy)."
+  },
+  {
+   "code": "US.L.1.5.d",
+   "vak": "English Language Arts",
+   "leerjaar": 1,
+   "domein": "Language",
+   "cluster": "With guidance and support from adults, demonstrate understanding of word relationships and nuances in word meanings.",
+   "tekst": "Distinguish shades of meaning among verbs differing in manner (e.g., look, peek, glance, stare, glare, scowl) and adjectives differing in intensity (e.g., large, gigantic) by defining or choosing them or by acting out the meanings."
+  },
+  {
+   "code": "US.L.1.6",
+   "vak": "English Language Arts",
+   "leerjaar": 1,
+   "domein": "Language",
+   "tekst": "Use words and phrases acquired through conversations, reading and being read to, and responding to texts, including using frequently occurring conjunctions to signal simple relationships (e.g., because)."
+  },
+  {
+   "code": "US.L.2.1.a",
+   "vak": "English Language Arts",
+   "leerjaar": 2,
+   "domein": "Language",
+   "cluster": "Demonstrate command of the conventions of standard English grammar and usage when writing or speaking.",
+   "tekst": "Use collective nouns (e.g., group)."
+  },
+  {
+   "code": "US.L.2.1.b",
+   "vak": "English Language Arts",
+   "leerjaar": 2,
+   "domein": "Language",
+   "cluster": "Demonstrate command of the conventions of standard English grammar and usage when writing or speaking.",
+   "tekst": "Form and use frequently occurring irregular plural nouns (e.g., feet, children, teeth, mice, fish)."
+  },
+  {
+   "code": "US.L.2.1.c",
+   "vak": "English Language Arts",
+   "leerjaar": 2,
+   "domein": "Language",
+   "cluster": "Demonstrate command of the conventions of standard English grammar and usage when writing or speaking.",
+   "tekst": "Use reflexive pronouns (e.g., myself, ourselves)."
+  },
+  {
+   "code": "US.L.2.1.d",
+   "vak": "English Language Arts",
+   "leerjaar": 2,
+   "domein": "Language",
+   "cluster": "Demonstrate command of the conventions of standard English grammar and usage when writing or speaking.",
+   "tekst": "Form and use the past tense of frequently occurring irregular verbs (e.g., sat, hid, told)."
+  },
+  {
+   "code": "US.L.2.1.e",
+   "vak": "English Language Arts",
+   "leerjaar": 2,
+   "domein": "Language",
+   "cluster": "Demonstrate command of the conventions of standard English grammar and usage when writing or speaking.",
+   "tekst": "Use adjectives and adverbs, and choose between them depending on what is to be modified."
+  },
+  {
+   "code": "US.L.2.1.f",
+   "vak": "English Language Arts",
+   "leerjaar": 2,
+   "domein": "Language",
+   "cluster": "Demonstrate command of the conventions of standard English grammar and usage when writing or speaking.",
+   "tekst": "Produce, expand, and rearrange complete simple and compound sentences (e.g., The boy watched the movie; The little boy watched the movie; The action movie was watched by the little boy)."
+  },
+  {
+   "code": "US.L.2.2.a",
+   "vak": "English Language Arts",
+   "leerjaar": 2,
+   "domein": "Language",
+   "cluster": "Demonstrate command of the conventions of standard English capitalization, punctuation, and spelling when writing.",
+   "tekst": "Capitalize holidays, product names, and geographic names."
+  },
+  {
+   "code": "US.L.2.2.b",
+   "vak": "English Language Arts",
+   "leerjaar": 2,
+   "domein": "Language",
+   "cluster": "Demonstrate command of the conventions of standard English capitalization, punctuation, and spelling when writing.",
+   "tekst": "Use commas in greetings and closings of letters."
+  },
+  {
+   "code": "US.L.2.2.c",
+   "vak": "English Language Arts",
+   "leerjaar": 2,
+   "domein": "Language",
+   "cluster": "Demonstrate command of the conventions of standard English capitalization, punctuation, and spelling when writing.",
+   "tekst": "Use an apostrophe to form contractions and frequently occurring possessives."
+  },
+  {
+   "code": "US.L.2.2.d",
+   "vak": "English Language Arts",
+   "leerjaar": 2,
+   "domein": "Language",
+   "cluster": "Demonstrate command of the conventions of standard English capitalization, punctuation, and spelling when writing.",
+   "tekst": "Generalize learned spelling patterns when writing words (e.g., cage → badge; boy → boil)."
+  },
+  {
+   "code": "US.L.2.2.e",
+   "vak": "English Language Arts",
+   "leerjaar": 2,
+   "domein": "Language",
+   "cluster": "Demonstrate command of the conventions of standard English capitalization, punctuation, and spelling when writing.",
+   "tekst": "Consult reference materials, including beginning dictionaries, as needed to check and correct spellings."
+  },
+  {
+   "code": "US.L.2.3.a",
+   "vak": "English Language Arts",
+   "leerjaar": 2,
+   "domein": "Language",
+   "cluster": "Use knowledge of language and its conventions when writing, speaking, reading, or listening.",
+   "tekst": "Compare formal and informal uses of English."
+  },
+  {
+   "code": "US.L.2.4.a",
+   "vak": "English Language Arts",
+   "leerjaar": 2,
+   "domein": "Language",
+   "cluster": "Determine or clarify the meaning of unknown and multiple-meaning words and phrases based on grade 2 reading and content, choosing flexibly from an array of strategies.",
+   "tekst": "Use sentence-level context as a clue to the meaning of a word or phrase."
+  },
+  {
+   "code": "US.L.2.4.b",
+   "vak": "English Language Arts",
+   "leerjaar": 2,
+   "domein": "Language",
+   "cluster": "Determine or clarify the meaning of unknown and multiple-meaning words and phrases based on grade 2 reading and content, choosing flexibly from an array of strategies.",
+   "tekst": "Determine the meaning of the new word formed when a known prefix is added to a known word (e.g., happy/unhappy, tell/retell)."
+  },
+  {
+   "code": "US.L.2.4.c",
+   "vak": "English Language Arts",
+   "leerjaar": 2,
+   "domein": "Language",
+   "cluster": "Determine or clarify the meaning of unknown and multiple-meaning words and phrases based on grade 2 reading and content, choosing flexibly from an array of strategies.",
+   "tekst": "Use a known root word as a clue to the meaning of an unknown word with the same root (e.g., addition, additional)."
+  },
+  {
+   "code": "US.L.2.4.d",
+   "vak": "English Language Arts",
+   "leerjaar": 2,
+   "domein": "Language",
+   "cluster": "Determine or clarify the meaning of unknown and multiple-meaning words and phrases based on grade 2 reading and content, choosing flexibly from an array of strategies.",
+   "tekst": "Use knowledge of the meaning of individual words to predict the meaning of compound words (e.g., birdhouse, lighthouse, housefly; bookshelf, notebook, bookmark)."
+  },
+  {
+   "code": "US.L.2.4.e",
+   "vak": "English Language Arts",
+   "leerjaar": 2,
+   "domein": "Language",
+   "cluster": "Determine or clarify the meaning of unknown and multiple-meaning words and phrases based on grade 2 reading and content, choosing flexibly from an array of strategies.",
+   "tekst": "Use glossaries and beginning dictionaries, both print and digital, to determine or clarify the meaning of words and phrases."
+  },
+  {
+   "code": "US.L.2.5.a",
+   "vak": "English Language Arts",
+   "leerjaar": 2,
+   "domein": "Language",
+   "cluster": "Demonstrate understanding of word relationships and nuances in word meanings.",
+   "tekst": "Identify real-life connections between words and their use (e.g., describe foods that are spicy or juicy)."
+  },
+  {
+   "code": "US.L.2.5.b",
+   "vak": "English Language Arts",
+   "leerjaar": 2,
+   "domein": "Language",
+   "cluster": "Demonstrate understanding of word relationships and nuances in word meanings.",
+   "tekst": "Distinguish shades of meaning among closely related verbs (e.g., toss, throw, hurl) and closely related adjectives (e.g., thin, slender, skinny, scrawny)."
+  },
+  {
+   "code": "US.L.2.6",
+   "vak": "English Language Arts",
+   "leerjaar": 2,
+   "domein": "Language",
+   "tekst": "Use words and phrases acquired through conversations, reading and being read to, and responding to texts, including using adjectives and adverbs to describe (e.g., When other kids are happy that makes me happy)."
+  },
+  {
+   "code": "US.L.3.1.a",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Language",
+   "cluster": "Demonstrate command of the conventions of standard English grammar and usage when writing or speaking.",
+   "tekst": "Explain the function of nouns, pronouns, verbs, adjectives, and adverbs in general and their functions in particular sentences."
+  },
+  {
+   "code": "US.L.3.1.b",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Language",
+   "cluster": "Demonstrate command of the conventions of standard English grammar and usage when writing or speaking.",
+   "tekst": "Form and use regular and irregular plural nouns."
+  },
+  {
+   "code": "US.L.3.1.c",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Language",
+   "cluster": "Demonstrate command of the conventions of standard English grammar and usage when writing or speaking.",
+   "tekst": "Use abstract nouns (e.g., childhood)."
+  },
+  {
+   "code": "US.L.3.1.d",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Language",
+   "cluster": "Demonstrate command of the conventions of standard English grammar and usage when writing or speaking.",
+   "tekst": "Form and use regular and irregular verbs."
+  },
+  {
+   "code": "US.L.3.1.e",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Language",
+   "cluster": "Demonstrate command of the conventions of standard English grammar and usage when writing or speaking.",
+   "tekst": "Form and use the simple (e.g., I walked; I walk; I will walk) verb tenses."
+  },
+  {
+   "code": "US.L.3.1.f",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Language",
+   "cluster": "Demonstrate command of the conventions of standard English grammar and usage when writing or speaking.",
+   "tekst": "Ensure subject-verb and pronoun-antecedent agreement.*."
+  },
+  {
+   "code": "US.L.3.1.g",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Language",
+   "cluster": "Demonstrate command of the conventions of standard English grammar and usage when writing or speaking.",
+   "tekst": "Form and use comparative and superlative adjectives and adverbs, and choose between them depending on what is to be modified."
+  },
+  {
+   "code": "US.L.3.1.h",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Language",
+   "cluster": "Demonstrate command of the conventions of standard English grammar and usage when writing or speaking.",
+   "tekst": "Use coordinating and subordinating conjunctions."
+  },
+  {
+   "code": "US.L.3.1.i",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Language",
+   "cluster": "Demonstrate command of the conventions of standard English grammar and usage when writing or speaking.",
+   "tekst": "Produce simple, compound, and complex sentences."
+  },
+  {
+   "code": "US.L.3.2.a",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Language",
+   "cluster": "Demonstrate command of the conventions of standard English capitalization, punctuation, and spelling when writing.",
+   "tekst": "Capitalize appropriate words in titles."
+  },
+  {
+   "code": "US.L.3.2.b",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Language",
+   "cluster": "Demonstrate command of the conventions of standard English capitalization, punctuation, and spelling when writing.",
+   "tekst": "Use commas in addresses."
+  },
+  {
+   "code": "US.L.3.2.c",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Language",
+   "cluster": "Demonstrate command of the conventions of standard English capitalization, punctuation, and spelling when writing.",
+   "tekst": "Use commas and quotation marks in dialogue."
+  },
+  {
+   "code": "US.L.3.2.d",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Language",
+   "cluster": "Demonstrate command of the conventions of standard English capitalization, punctuation, and spelling when writing.",
+   "tekst": "Form and use possessives."
+  },
+  {
+   "code": "US.L.3.2.e",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Language",
+   "cluster": "Demonstrate command of the conventions of standard English capitalization, punctuation, and spelling when writing.",
+   "tekst": "Use conventional spelling for high-frequency and other studied words and for adding suffixes to base words (e.g., sitting, smiled, cries, happiness)."
+  },
+  {
+   "code": "US.L.3.2.f",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Language",
+   "cluster": "Demonstrate command of the conventions of standard English capitalization, punctuation, and spelling when writing.",
+   "tekst": "Use spelling patterns and generalizations (e.g., word families, position-based spellings, syllable patterns, ending rules, meaningful word parts) in writing words."
+  },
+  {
+   "code": "US.L.3.2.g",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Language",
+   "cluster": "Demonstrate command of the conventions of standard English capitalization, punctuation, and spelling when writing.",
+   "tekst": "Consult reference materials, including beginning dictionaries, as needed to check and correct spellings."
+  },
+  {
+   "code": "US.L.3.3.a",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Language",
+   "cluster": "Use knowledge of language and its conventions when writing, speaking, reading, or listening.",
+   "tekst": "Choose words and phrases for effect.*."
+  },
+  {
+   "code": "US.L.3.3.b",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Language",
+   "cluster": "Use knowledge of language and its conventions when writing, speaking, reading, or listening.",
+   "tekst": "Recognize and observe differences between the conventions of spoken and written standard English."
+  },
+  {
+   "code": "US.L.3.4.a",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Language",
+   "cluster": "Determine or clarify the meaning of unknown and multiple-meaning word and phrases based on grade 3 reading and content, choosing flexibly from a range of strategies.",
+   "tekst": "Use sentence-level context as a clue to the meaning of a word or phrase."
+  },
+  {
+   "code": "US.L.3.4.b",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Language",
+   "cluster": "Determine or clarify the meaning of unknown and multiple-meaning word and phrases based on grade 3 reading and content, choosing flexibly from a range of strategies.",
+   "tekst": "Determine the meaning of the new word formed when a known affix is added to a known word (e.g., agreeable/disagreeable, comfortable/uncomfortable, care/careless, heat/preheat)."
+  },
+  {
+   "code": "US.L.3.4.c",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Language",
+   "cluster": "Determine or clarify the meaning of unknown and multiple-meaning word and phrases based on grade 3 reading and content, choosing flexibly from a range of strategies.",
+   "tekst": "Use a known root word as a clue to the meaning of an unknown word with the same root (e.g., company, companion)."
+  },
+  {
+   "code": "US.L.3.4.d",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Language",
+   "cluster": "Determine or clarify the meaning of unknown and multiple-meaning word and phrases based on grade 3 reading and content, choosing flexibly from a range of strategies.",
+   "tekst": "Use glossaries or beginning dictionaries, both print and digital, to determine or clarify the precise meaning of key words and phrases."
+  },
+  {
+   "code": "US.L.3.5.a",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Language",
+   "cluster": "Demonstrate understanding of figurative language, word relationships and nuances in word meanings.",
+   "tekst": "Distinguish the literal and nonliteral meanings of words and phrases in context (e.g., take steps)."
+  },
+  {
+   "code": "US.L.3.5.b",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Language",
+   "cluster": "Demonstrate understanding of figurative language, word relationships and nuances in word meanings.",
+   "tekst": "Identify real-life connections between words and their use (e.g., describe people who are friendly or helpful)."
+  },
+  {
+   "code": "US.L.3.5.c",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Language",
+   "cluster": "Demonstrate understanding of figurative language, word relationships and nuances in word meanings.",
+   "tekst": "Distinguish shades of meaning among related words that describe states of mind or degrees of certainty (e.g., knew, believed, suspected, heard, wondered)."
+  },
+  {
+   "code": "US.L.3.6",
+   "vak": "English Language Arts",
+   "leerjaar": 3,
+   "domein": "Language",
+   "tekst": "Acquire and use accurately grade-appropriate conversational, general academic, and domain-specific words and phrases, including those that signal spatial and temporal relationships (e.g., After dinner that night we went looking for them)."
+  },
+  {
+   "code": "US.L.4.1.a",
+   "vak": "English Language Arts",
+   "leerjaar": 4,
+   "domein": "Language",
+   "cluster": "Demonstrate command of the conventions of standard English grammar and usage when writing or speaking.",
+   "tekst": "Use relative pronouns (who, whose, whom, which, that) and relative adverbs (where, when, why)."
+  },
+  {
+   "code": "US.L.4.1.b",
+   "vak": "English Language Arts",
+   "leerjaar": 4,
+   "domein": "Language",
+   "cluster": "Demonstrate command of the conventions of standard English grammar and usage when writing or speaking.",
+   "tekst": "Form and use the progressive (e.g., I was walking; I am walking; I will be walking) verb tenses."
+  },
+  {
+   "code": "US.L.4.1.c",
+   "vak": "English Language Arts",
+   "leerjaar": 4,
+   "domein": "Language",
+   "cluster": "Demonstrate command of the conventions of standard English grammar and usage when writing or speaking.",
+   "tekst": "Use modal auxiliaries (e.g., can, may, must) to convey various conditions."
+  },
+  {
+   "code": "US.L.4.1.d",
+   "vak": "English Language Arts",
+   "leerjaar": 4,
+   "domein": "Language",
+   "cluster": "Demonstrate command of the conventions of standard English grammar and usage when writing or speaking.",
+   "tekst": "Order adjectives within sentences according to conventional patterns (e.g., a small red bag rather than a red small bag)."
+  },
+  {
+   "code": "US.L.4.1.e",
+   "vak": "English Language Arts",
+   "leerjaar": 4,
+   "domein": "Language",
+   "cluster": "Demonstrate command of the conventions of standard English grammar and usage when writing or speaking.",
+   "tekst": "Form and use prepositional phrases."
+  },
+  {
+   "code": "US.L.4.1.f",
+   "vak": "English Language Arts",
+   "leerjaar": 4,
+   "domein": "Language",
+   "cluster": "Demonstrate command of the conventions of standard English grammar and usage when writing or speaking.",
+   "tekst": "Produce complete sentences, recognizing and correcting inappropriate fragments and run-ons.*."
+  },
+  {
+   "code": "US.L.4.1.g",
+   "vak": "English Language Arts",
+   "leerjaar": 4,
+   "domein": "Language",
+   "cluster": "Demonstrate command of the conventions of standard English grammar and usage when writing or speaking.",
+   "tekst": "Correctly use frequently confused words (e.g., to, too, two; there, their).*."
+  },
+  {
+   "code": "US.L.4.2.a",
+   "vak": "English Language Arts",
+   "leerjaar": 4,
+   "domein": "Language",
+   "cluster": "Demonstrate command of the conventions of standard English capitalization, punctuation, and spelling when writing.",
+   "tekst": "Use correct capitalization."
+  },
+  {
+   "code": "US.L.4.2.b",
+   "vak": "English Language Arts",
+   "leerjaar": 4,
+   "domein": "Language",
+   "cluster": "Demonstrate command of the conventions of standard English capitalization, punctuation, and spelling when writing.",
+   "tekst": "Use commas and quotation marks to mark direct speech and quotations from a text."
+  },
+  {
+   "code": "US.L.4.2.c",
+   "vak": "English Language Arts",
+   "leerjaar": 4,
+   "domein": "Language",
+   "cluster": "Demonstrate command of the conventions of standard English capitalization, punctuation, and spelling when writing.",
+   "tekst": "Use a comma before a coordinating conjunction in a compound sentence."
+  },
+  {
+   "code": "US.L.4.2.d",
+   "vak": "English Language Arts",
+   "leerjaar": 4,
+   "domein": "Language",
+   "cluster": "Demonstrate command of the conventions of standard English capitalization, punctuation, and spelling when writing.",
+   "tekst": "Spell grade-appropriate words correctly, consulting references as needed."
+  },
+  {
+   "code": "US.L.4.3.a",
+   "vak": "English Language Arts",
+   "leerjaar": 4,
+   "domein": "Language",
+   "cluster": "Use knowledge of language and its conventions when writing, speaking, reading, or listening.",
+   "tekst": "Choose words and phrases to convey ideas precisely.*."
+  },
+  {
+   "code": "US.L.4.3.b",
+   "vak": "English Language Arts",
+   "leerjaar": 4,
+   "domein": "Language",
+   "cluster": "Use knowledge of language and its conventions when writing, speaking, reading, or listening.",
+   "tekst": "Choose punctuation for effect.*."
+  },
+  {
+   "code": "US.L.4.3.c",
+   "vak": "English Language Arts",
+   "leerjaar": 4,
+   "domein": "Language",
+   "cluster": "Use knowledge of language and its conventions when writing, speaking, reading, or listening.",
+   "tekst": "Differentiate between contexts that call for formal English (e.g., presenting ideas) and situations where informal discourse is appropriate (e.g., small-group discussion)."
+  },
+  {
+   "code": "US.L.4.4.a",
+   "vak": "English Language Arts",
+   "leerjaar": 4,
+   "domein": "Language",
+   "cluster": "Determine or clarify the meaning of unknown and multiple-meaning words and phrases based on grade 4 reading and content, choosing flexibly from a range of strategies.",
+   "tekst": "Use context (e.g., definitions, examples, or restatements in text) as a clue to the meaning of a word or phrase."
+  },
+  {
+   "code": "US.L.4.4.b",
+   "vak": "English Language Arts",
+   "leerjaar": 4,
+   "domein": "Language",
+   "cluster": "Determine or clarify the meaning of unknown and multiple-meaning words and phrases based on grade 4 reading and content, choosing flexibly from a range of strategies.",
+   "tekst": "Use common, grade-appropriate Greek and Latin affixes and roots as clues to the meaning of a word (e.g., telegraph, photograph, autograph)."
+  },
+  {
+   "code": "US.L.4.4.c",
+   "vak": "English Language Arts",
+   "leerjaar": 4,
+   "domein": "Language",
+   "cluster": "Determine or clarify the meaning of unknown and multiple-meaning words and phrases based on grade 4 reading and content, choosing flexibly from a range of strategies.",
+   "tekst": "Consult reference materials (e.g., dictionaries, glossaries, thesauruses), both print and digital, to find the pronunciation and determine or clarify the precise meaning of key words and phrases."
+  },
+  {
+   "code": "US.L.4.5.a",
+   "vak": "English Language Arts",
+   "leerjaar": 4,
+   "domein": "Language",
+   "cluster": "Demonstrate understanding of figurative language, word relationships, and nuances in word meanings.",
+   "tekst": "Explain the meaning of simple similes and metaphors (e.g., as pretty as a picture) in context."
+  },
+  {
+   "code": "US.L.4.5.b",
+   "vak": "English Language Arts",
+   "leerjaar": 4,
+   "domein": "Language",
+   "cluster": "Demonstrate understanding of figurative language, word relationships, and nuances in word meanings.",
+   "tekst": "Recognize and explain the meaning of common idioms, adages, and proverbs."
+  },
+  {
+   "code": "US.L.4.5.c",
+   "vak": "English Language Arts",
+   "leerjaar": 4,
+   "domein": "Language",
+   "cluster": "Demonstrate understanding of figurative language, word relationships, and nuances in word meanings.",
+   "tekst": "Demonstrate understanding of words by relating them to their opposites (antonyms) and to words with similar but not identical meanings (synonyms)."
+  },
+  {
+   "code": "US.L.4.6",
+   "vak": "English Language Arts",
+   "leerjaar": 4,
+   "domein": "Language",
+   "tekst": "Acquire and use accurately grade-appropriate general academic and domain-specific words and phrases, including those that signal precise actions, emotions, or states of being (e.g., quizzed, whined, stammered) and that are basic to a particular topic (e.g., wildlife, conservation, and endangered when discussing animal preservation)."
+  },
+  {
+   "code": "US.L.5.1.a",
+   "vak": "English Language Arts",
+   "leerjaar": 5,
+   "domein": "Language",
+   "cluster": "Demonstrate command of the conventions of standard English grammar and usage when writing or speaking.",
+   "tekst": "Explain the function of conjunctions, prepositions, and interjections in general and their function in particular sentences."
+  },
+  {
+   "code": "US.L.5.1.b",
+   "vak": "English Language Arts",
+   "leerjaar": 5,
+   "domein": "Language",
+   "cluster": "Demonstrate command of the conventions of standard English grammar and usage when writing or speaking.",
+   "tekst": "Form and use the perfect (e.g., I had walked; I have walked; I will have walked) verb tenses."
+  },
+  {
+   "code": "US.L.5.1.c",
+   "vak": "English Language Arts",
+   "leerjaar": 5,
+   "domein": "Language",
+   "cluster": "Demonstrate command of the conventions of standard English grammar and usage when writing or speaking.",
+   "tekst": "Use verb tense to convey various times, sequences, states, and conditions."
+  },
+  {
+   "code": "US.L.5.1.d",
+   "vak": "English Language Arts",
+   "leerjaar": 5,
+   "domein": "Language",
+   "cluster": "Demonstrate command of the conventions of standard English grammar and usage when writing or speaking.",
+   "tekst": "Recognize and correct inappropriate shifts in verb tense.*."
+  },
+  {
+   "code": "US.L.5.1.e",
+   "vak": "English Language Arts",
+   "leerjaar": 5,
+   "domein": "Language",
+   "cluster": "Demonstrate command of the conventions of standard English grammar and usage when writing or speaking.",
+   "tekst": "Use correlative conjunctions (e.g., either/or, neither/nor)."
+  },
+  {
+   "code": "US.L.5.2.a",
+   "vak": "English Language Arts",
+   "leerjaar": 5,
+   "domein": "Language",
+   "cluster": "Demonstrate command of the conventions of standard English capitalization, punctuation, and spelling when writing.",
+   "tekst": "Use punctuation to separate items in a series.*."
+  },
+  {
+   "code": "US.L.5.2.b",
+   "vak": "English Language Arts",
+   "leerjaar": 5,
+   "domein": "Language",
+   "cluster": "Demonstrate command of the conventions of standard English capitalization, punctuation, and spelling when writing.",
+   "tekst": "Use a comma to separate an introductory element from the rest of the sentence."
+  },
+  {
+   "code": "US.L.5.2.c",
+   "vak": "English Language Arts",
+   "leerjaar": 5,
+   "domein": "Language",
+   "cluster": "Demonstrate command of the conventions of standard English capitalization, punctuation, and spelling when writing.",
+   "tekst": "Use a comma to set off the words yes and no (e.g., Yes, thank you), to set off a tag question from the rest of the sentence (e.g., It's true, isn't it?), and to indicate direct address (e.g., Is that you, Steve?)."
+  },
+  {
+   "code": "US.L.5.2.d",
+   "vak": "English Language Arts",
+   "leerjaar": 5,
+   "domein": "Language",
+   "cluster": "Demonstrate command of the conventions of standard English capitalization, punctuation, and spelling when writing.",
+   "tekst": "Use underlining, quotation marks, or italics to indicate titles of works."
+  },
+  {
+   "code": "US.L.5.2.e",
+   "vak": "English Language Arts",
+   "leerjaar": 5,
+   "domein": "Language",
+   "cluster": "Demonstrate command of the conventions of standard English capitalization, punctuation, and spelling when writing.",
+   "tekst": "Spell grade-appropriate words correctly, consulting references as needed."
+  },
+  {
+   "code": "US.L.5.3.a",
+   "vak": "English Language Arts",
+   "leerjaar": 5,
+   "domein": "Language",
+   "cluster": "Use knowledge of language and its conventions when writing, speaking, reading, or listening.",
+   "tekst": "Expand, combine, and reduce sentences for meaning, reader/listener interest, and style."
+  },
+  {
+   "code": "US.L.5.3.b",
+   "vak": "English Language Arts",
+   "leerjaar": 5,
+   "domein": "Language",
+   "cluster": "Use knowledge of language and its conventions when writing, speaking, reading, or listening.",
+   "tekst": "Compare and contrast the varieties of English (e.g., dialects, registers) used in stories, dramas, or poems."
+  },
+  {
+   "code": "US.L.5.4.a",
+   "vak": "English Language Arts",
+   "leerjaar": 5,
+   "domein": "Language",
+   "cluster": "Determine or clarify the meaning of unknown and multiple-meaning words and phrases based on grade 5 reading and content, choosing flexibly from a range of strategies.",
+   "tekst": "Use context (e.g., cause/effect relationships and comparisons in text) as a clue to the meaning of a word or phrase."
+  },
+  {
+   "code": "US.L.5.4.b",
+   "vak": "English Language Arts",
+   "leerjaar": 5,
+   "domein": "Language",
+   "cluster": "Determine or clarify the meaning of unknown and multiple-meaning words and phrases based on grade 5 reading and content, choosing flexibly from a range of strategies.",
+   "tekst": "Use common, grade-appropriate Greek and Latin affixes and roots as clues to the meaning of a word (e.g., photograph, photosynthesis)."
+  },
+  {
+   "code": "US.L.5.4.c",
+   "vak": "English Language Arts",
+   "leerjaar": 5,
+   "domein": "Language",
+   "cluster": "Determine or clarify the meaning of unknown and multiple-meaning words and phrases based on grade 5 reading and content, choosing flexibly from a range of strategies.",
+   "tekst": "Consult reference materials (e.g., dictionaries, glossaries, thesauruses), both print and digital, to find the pronunciation and determine or clarify the precise meaning of key words and phrases."
+  },
+  {
+   "code": "US.L.5.5.a",
+   "vak": "English Language Arts",
+   "leerjaar": 5,
+   "domein": "Language",
+   "cluster": "Demonstrate understanding of figurative language, word relationships, and nuances in word meanings.",
+   "tekst": "Interpret figurative language, including similes and metaphors, in context."
+  },
+  {
+   "code": "US.L.5.5.b",
+   "vak": "English Language Arts",
+   "leerjaar": 5,
+   "domein": "Language",
+   "cluster": "Demonstrate understanding of figurative language, word relationships, and nuances in word meanings.",
+   "tekst": "Recognize and explain the meaning of common idioms, adages, and proverbs."
+  },
+  {
+   "code": "US.L.5.5.c",
+   "vak": "English Language Arts",
+   "leerjaar": 5,
+   "domein": "Language",
+   "cluster": "Demonstrate understanding of figurative language, word relationships, and nuances in word meanings.",
+   "tekst": "Use the relationship between particular words (e.g., synonyms, antonyms, homographs) to better understand each of the words."
+  },
+  {
+   "code": "US.L.5.6",
+   "vak": "English Language Arts",
+   "leerjaar": 5,
+   "domein": "Language",
+   "tekst": "Acquire and use accurately grade-appropriate general academic and domain-specific words and phrases, including those that signal contrast, addition, and other logical relationships (e.g., however, although, nevertheless, similarly, moreover, in addition)."
+  },
+  {
+   "code": "US.L.6.1.a",
+   "vak": "English Language Arts",
+   "leerjaar": 6,
+   "domein": "Language",
+   "cluster": "Demonstrate command of the conventions of standard English grammar and usage when writing or speaking.",
+   "tekst": "Ensure that pronouns are in the proper case (subjective, objective, possessive)."
+  },
+  {
+   "code": "US.L.6.1.b",
+   "vak": "English Language Arts",
+   "leerjaar": 6,
+   "domein": "Language",
+   "cluster": "Demonstrate command of the conventions of standard English grammar and usage when writing or speaking.",
+   "tekst": "Use intensive pronouns (e.g., myself, ourselves)."
+  },
+  {
+   "code": "US.L.6.1.c",
+   "vak": "English Language Arts",
+   "leerjaar": 6,
+   "domein": "Language",
+   "cluster": "Demonstrate command of the conventions of standard English grammar and usage when writing or speaking.",
+   "tekst": "Recognize and correct inappropriate shifts in pronoun number and person.*."
+  },
+  {
+   "code": "US.L.6.1.d",
+   "vak": "English Language Arts",
+   "leerjaar": 6,
+   "domein": "Language",
+   "cluster": "Demonstrate command of the conventions of standard English grammar and usage when writing or speaking.",
+   "tekst": "Recognize and correct vague pronouns (i.e., ones with unclear or ambiguous antecedents).*."
+  },
+  {
+   "code": "US.L.6.1.e",
+   "vak": "English Language Arts",
+   "leerjaar": 6,
+   "domein": "Language",
+   "cluster": "Demonstrate command of the conventions of standard English grammar and usage when writing or speaking.",
+   "tekst": "Recognize variations from standard English in their own and others' writing and speaking, and identify and use strategies to improve expression in conventional language.*."
+  },
+  {
+   "code": "US.L.6.2.a",
+   "vak": "English Language Arts",
+   "leerjaar": 6,
+   "domein": "Language",
+   "cluster": "Demonstrate command of the conventions of standard English capitalization, punctuation, and spelling when writing.",
+   "tekst": "Use punctuation (commas, parentheses, dashes) to set off nonrestrictive/parenthetical elements.*."
+  },
+  {
+   "code": "US.L.6.2.b",
+   "vak": "English Language Arts",
+   "leerjaar": 6,
+   "domein": "Language",
+   "cluster": "Demonstrate command of the conventions of standard English capitalization, punctuation, and spelling when writing.",
+   "tekst": "Spell correctly."
+  },
+  {
+   "code": "US.L.6.3.a",
+   "vak": "English Language Arts",
+   "leerjaar": 6,
+   "domein": "Language",
+   "cluster": "Use knowledge of language and its conventions when writing, speaking, reading, or listening.",
+   "tekst": "Vary sentence patterns for meaning, reader/listener interest, and style.*."
+  },
+  {
+   "code": "US.L.6.3.b",
+   "vak": "English Language Arts",
+   "leerjaar": 6,
+   "domein": "Language",
+   "cluster": "Use knowledge of language and its conventions when writing, speaking, reading, or listening.",
+   "tekst": "Maintain consistency in style and tone.*."
+  },
+  {
+   "code": "US.L.6.4.a",
+   "vak": "English Language Arts",
+   "leerjaar": 6,
+   "domein": "Language",
+   "cluster": "Determine or clarify the meaning of unknown and multiple-meaning words and phrases based on grade 6 reading and content, choosing flexibly from a range of strategies.",
+   "tekst": "Use context (e.g., the overall meaning of a sentence or paragraph; a word's position or function in a sentence) as a clue to the meaning of a word or phrase."
+  },
+  {
+   "code": "US.L.6.4.b",
+   "vak": "English Language Arts",
+   "leerjaar": 6,
+   "domein": "Language",
+   "cluster": "Determine or clarify the meaning of unknown and multiple-meaning words and phrases based on grade 6 reading and content, choosing flexibly from a range of strategies.",
+   "tekst": "Use common, grade-appropriate Greek or Latin affixes and roots as clues to the meaning of a word (e.g., audience, auditory, audible)."
+  },
+  {
+   "code": "US.L.6.4.c",
+   "vak": "English Language Arts",
+   "leerjaar": 6,
+   "domein": "Language",
+   "cluster": "Determine or clarify the meaning of unknown and multiple-meaning words and phrases based on grade 6 reading and content, choosing flexibly from a range of strategies.",
+   "tekst": "Consult reference materials (e.g., dictionaries, glossaries, thesauruses), both print and digital, to find the pronunciation of a word or determine or clarify its precise meaning or its part of speech."
+  },
+  {
+   "code": "US.L.6.4.d",
+   "vak": "English Language Arts",
+   "leerjaar": 6,
+   "domein": "Language",
+   "cluster": "Determine or clarify the meaning of unknown and multiple-meaning words and phrases based on grade 6 reading and content, choosing flexibly from a range of strategies.",
+   "tekst": "Verify the preliminary determination of the meaning of a word or phrase (e.g., by checking the inferred meaning in context or in a dictionary)."
+  },
+  {
+   "code": "US.L.6.5.a",
+   "vak": "English Language Arts",
+   "leerjaar": 6,
+   "domein": "Language",
+   "cluster": "Demonstrate understanding of figurative language, word relationships, and nuances in word meanings.",
+   "tekst": "Interpret figures of speech (e.g., personification) in context."
+  },
+  {
+   "code": "US.L.6.5.b",
+   "vak": "English Language Arts",
+   "leerjaar": 6,
+   "domein": "Language",
+   "cluster": "Demonstrate understanding of figurative language, word relationships, and nuances in word meanings.",
+   "tekst": "Use the relationship between particular words (e.g., cause/effect, part/whole, item/category) to better understand each of the words."
+  },
+  {
+   "code": "US.L.6.5.c",
+   "vak": "English Language Arts",
+   "leerjaar": 6,
+   "domein": "Language",
+   "cluster": "Demonstrate understanding of figurative language, word relationships, and nuances in word meanings.",
+   "tekst": "Distinguish among the connotations (associations) of words with similar denotations (definitions) (e.g., stingy, scrimping, economical, unwasteful, thrifty)."
+  },
+  {
+   "code": "US.L.6.6",
+   "vak": "English Language Arts",
+   "leerjaar": 6,
+   "domein": "Language",
+   "tekst": "Acquire and use accurately grade-appropriate general academic and domain-specific words and phrases; gather vocabulary knowledge when considering a word or phrase important to comprehension or expression."
+  }
+ ]
+}

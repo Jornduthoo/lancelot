@@ -18,7 +18,7 @@ const ROOT = path.resolve(HIER, '..', '..');
 const NODE_LIJN = 'latest-v24.x';
 const STORE_ID = '9P1CLC6W364H';
 // Wat van de repository in de app hoort.
-const MEE = ['public/', 'src/', 'lang/', 'doelen/', 'startpakket/', 'quizzes/', 'oefenbladen/', 'rondetafel/', 'docs/', 'server.js', 'package.json', 'package-lock.json', 'LICENSE', 'README.md'];
+const MEE = ['public/', 'src/', 'lang/', 'doelen/', 'doelen-landen/', 'voorbeelden/', 'startpakket/', 'quizzes/', 'oefenbladen/', 'rondetafel/', 'docs/', 'server.js', 'package.json', 'package-lock.json', 'LICENSE', 'README.md'];
 
 function arg(naam, standaard) {
   const i = process.argv.indexOf(`--${naam}`);

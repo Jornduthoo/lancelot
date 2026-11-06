@@ -1,0 +1,230 @@
+{
+ "bron": "Kerndoelen funderend onderwijs, primair onderwijs (SLO, definitieve conceptversie), data: github.com/slonl/curriculum-fo",
+ "vak": "Bewegen en sport",
+ "doelen": [
+  {
+   "code": "NL.BEW.38A.1",
+   "vak": "Bewegen en sport",
+   "leerjaar": 0,
+   "domein": "Leren bewegen",
+   "cluster": "Kerndoel 38: De leerling ontwikkelt zich in het bewegen.",
+   "tekst": "De leerling neemt deel aan beweegactiviteiten in uiteenlopende beweegthema's: balanceren, bewegen op muziek, doelspelen, draaien, hardlopen, intensief bewegen, jongleren, klimmen, springen, stoeien en treffen, terugslagspelen, tikspelen, wegspelen en mikken, zwaaien."
+  },
+  {
+   "code": "NL.BEW.38B.1",
+   "vak": "Bewegen en sport",
+   "leerjaar": 0,
+   "domein": "Leren bewegen",
+   "cluster": "Kerndoel 38: De leerling ontwikkelt zich in het bewegen.",
+   "tekst": "De leerling verbetert de beweegvaardigheid: aangaan van beweeguitdagingen."
+  },
+  {
+   "code": "NL.BEW.38B.2",
+   "vak": "Bewegen en sport",
+   "leerjaar": 0,
+   "domein": "Leren bewegen",
+   "cluster": "Kerndoel 38: De leerling ontwikkelt zich in het bewegen.",
+   "tekst": "De leerling verbetert de beweegvaardigheid: zoeken naar oplossingen wanneer het bewegen niet regelmatig lukt."
+  },
+  {
+   "code": "NL.BEW.38B.3",
+   "vak": "Bewegen en sport",
+   "leerjaar": 0,
+   "domein": "Leren bewegen",
+   "cluster": "Kerndoel 38: De leerling ontwikkelt zich in het bewegen.",
+   "tekst": "De leerling verbetert de beweegvaardigheid: controle houden wanneer het bewegen regelmatig lukt."
+  },
+  {
+   "code": "NL.BEW.38B.4",
+   "vak": "Bewegen en sport",
+   "leerjaar": 0,
+   "domein": "Leren bewegen",
+   "cluster": "Kerndoel 38: De leerling ontwikkelt zich in het bewegen.",
+   "tekst": "De leerling verbetert de beweegvaardigheid: experimenteren met complexere beweegactiviteiten."
+  },
+  {
+   "code": "NL.BEW.38B.5",
+   "vak": "Bewegen en sport",
+   "leerjaar": 0,
+   "domein": "Leren bewegen",
+   "cluster": "Kerndoel 38: De leerling ontwikkelt zich in het bewegen.",
+   "tekst": "De leerling verbetert de beweegvaardigheid: inzicht tonen in de bedoeling en uitvoering van beweegactiviteiten."
+  },
+  {
+   "code": "NL.BEW.38C.1",
+   "vak": "Bewegen en sport",
+   "leerjaar": 0,
+   "domein": "Leren bewegen",
+   "cluster": "Kerndoel 38: De leerling ontwikkelt zich in het bewegen.",
+   "tekst": "De leerling stemt beweegactiviteiten af op de eigen mogelijkheden: inschatten van de eigen mogelijkheden in relatie tot de complexiteit van de beweegactiviteit."
+  },
+  {
+   "code": "NL.BEW.38C.2",
+   "vak": "Bewegen en sport",
+   "leerjaar": 0,
+   "domein": "Leren bewegen",
+   "cluster": "Kerndoel 38: De leerling ontwikkelt zich in het bewegen.",
+   "tekst": "De leerling stemt beweegactiviteiten af op de eigen mogelijkheden: meebeslissen over de inrichting van de beweegactiviteit."
+  },
+  {
+   "code": "NL.BEW.38C.3",
+   "vak": "Bewegen en sport",
+   "leerjaar": 0,
+   "domein": "Leren bewegen",
+   "cluster": "Kerndoel 38: De leerling ontwikkelt zich in het bewegen.",
+   "tekst": "De leerling stemt beweegactiviteiten af op de eigen mogelijkheden: kiezen voor gepaste complexiteit van de opdracht binnen de beweegactiviteit."
+  },
+  {
+   "code": "NL.BEW.38C.4",
+   "vak": "Bewegen en sport",
+   "leerjaar": 0,
+   "domein": "Leren bewegen",
+   "cluster": "Kerndoel 38: De leerling ontwikkelt zich in het bewegen.",
+   "tekst": "De leerling stemt beweegactiviteiten af op de eigen mogelijkheden: aanpassen van de beweegactiviteit met betrekking tot ruimte, materiaal, regels en leerhulp."
+  },
+  {
+   "code": "NL.BEW.39A.1",
+   "vak": "Bewegen en sport",
+   "leerjaar": 0,
+   "domein": "Samen bewegen",
+   "cluster": "Kerndoel 39: De leerling beweegt samen met anderen.",
+   "tekst": "De leerling neemt verantwoordelijkheid voor het samen deelnemen aan beweegactiviteiten: bijdragen aan een sociaal en fysieke veilige leeromgeving."
+  },
+  {
+   "code": "NL.BEW.39A.2",
+   "vak": "Bewegen en sport",
+   "leerjaar": 0,
+   "domein": "Samen bewegen",
+   "cluster": "Kerndoel 39: De leerling beweegt samen met anderen.",
+   "tekst": "De leerling neemt verantwoordelijkheid voor het samen deelnemen aan beweegactiviteiten: constructief bijdragen aan sociale interacties in een groep of team."
+  },
+  {
+   "code": "NL.BEW.39A.3",
+   "vak": "Bewegen en sport",
+   "leerjaar": 0,
+   "domein": "Samen bewegen",
+   "cluster": "Kerndoel 39: De leerling beweegt samen met anderen.",
+   "tekst": "De leerling neemt verantwoordelijkheid voor het samen deelnemen aan beweegactiviteiten: omgaan met mogelijkheden, gedrag, opvattingen en beleving van de ander."
+  },
+  {
+   "code": "NL.BEW.39A.4",
+   "vak": "Bewegen en sport",
+   "leerjaar": 0,
+   "domein": "Samen bewegen",
+   "cluster": "Kerndoel 39: De leerling beweegt samen met anderen.",
+   "tekst": "De leerling neemt verantwoordelijkheid voor het samen deelnemen aan beweegactiviteiten: afstemmen van het eigen handelen op de beweegcontext."
+  },
+  {
+   "code": "NL.BEW.39A.5",
+   "vak": "Bewegen en sport",
+   "leerjaar": 0,
+   "domein": "Samen bewegen",
+   "cluster": "Kerndoel 39: De leerling beweegt samen met anderen.",
+   "tekst": "De leerling neemt verantwoordelijkheid voor het samen deelnemen aan beweegactiviteiten: accepteren van regels en uitkomsten."
+  },
+  {
+   "code": "NL.BEW.39B.1",
+   "vak": "Bewegen en sport",
+   "leerjaar": 0,
+   "domein": "Samen bewegen",
+   "cluster": "Kerndoel 39: De leerling beweegt samen met anderen.",
+   "tekst": "De leerling regelt beweegactiviteiten: arrangeren van de beweegomgeving: op- en afbouwen, herstellen en aanpassen."
+  },
+  {
+   "code": "NL.BEW.39B.2",
+   "vak": "Bewegen en sport",
+   "leerjaar": 0,
+   "domein": "Samen bewegen",
+   "cluster": "Kerndoel 39: De leerling beweegt samen met anderen.",
+   "tekst": "De leerling regelt beweegactiviteiten: assisteren bij beweegactiviteiten: verzorgen, beveiligen en coachen."
+  },
+  {
+   "code": "NL.BEW.39B.3",
+   "vak": "Bewegen en sport",
+   "leerjaar": 0,
+   "domein": "Samen bewegen",
+   "cluster": "Kerndoel 39: De leerling beweegt samen met anderen.",
+   "tekst": "De leerling regelt beweegactiviteiten: afspreken van regels: uitleggen, controleren en afstemmen."
+  },
+  {
+   "code": "NL.BEW.40A.1",
+   "vak": "Bewegen en sport",
+   "leerjaar": 0,
+   "domein": "Betrokken bewegen",
+   "cluster": "Kerndoel 40: De leerling geeft betekenis aan bewegen.",
+   "tekst": "De leerling oriënteert zich op beweegcontexten: herkennen van verschillende beweegactiviteiten."
+  },
+  {
+   "code": "NL.BEW.40A.2",
+   "vak": "Bewegen en sport",
+   "leerjaar": 0,
+   "domein": "Betrokken bewegen",
+   "cluster": "Kerndoel 40: De leerling geeft betekenis aan bewegen.",
+   "tekst": "De leerling oriënteert zich op beweegcontexten: verkennen van diverse beweegomgevingen en organisatievormen."
+  },
+  {
+   "code": "NL.BEW.40A.3",
+   "vak": "Bewegen en sport",
+   "leerjaar": 0,
+   "domein": "Betrokken bewegen",
+   "cluster": "Kerndoel 40: De leerling geeft betekenis aan bewegen.",
+   "tekst": "De leerling oriënteert zich op beweegcontexten: onderscheiden van verschillende doelgroepen aan beweegactiviteiten."
+  },
+  {
+   "code": "NL.BEW.40A.4",
+   "vak": "Bewegen en sport",
+   "leerjaar": 0,
+   "domein": "Betrokken bewegen",
+   "cluster": "Kerndoel 40: De leerling geeft betekenis aan bewegen.",
+   "tekst": "De leerling oriënteert zich op beweegcontexten: herkennen van verschillende motieven en doelen om deel te nemen aan bewegen en sporten."
+  },
+  {
+   "code": "NL.BEW.40A.5",
+   "vak": "Bewegen en sport",
+   "leerjaar": 0,
+   "domein": "Betrokken bewegen",
+   "cluster": "Kerndoel 40: De leerling geeft betekenis aan bewegen.",
+   "tekst": "De leerling oriënteert zich op beweegcontexten: verkennen van de relatie tussen bewegen en welbevinden."
+  },
+  {
+   "code": "NL.BEW.40.1",
+   "vak": "Bewegen en sport",
+   "leerjaar": 0,
+   "domein": "Betrokken bewegen",
+   "cluster": "Kerndoel 40: De leerling geeft betekenis aan bewegen.",
+   "tekst": "De leerling onderzoekt welke vormen van bewegen passen bij eigen voorkeuren: verwoorden welke ervaringen en welke beleving bewegen oproept."
+  },
+  {
+   "code": "NL.BEW.40.2",
+   "vak": "Bewegen en sport",
+   "leerjaar": 0,
+   "domein": "Betrokken bewegen",
+   "cluster": "Kerndoel 40: De leerling geeft betekenis aan bewegen.",
+   "tekst": "De leerling onderzoekt welke vormen van bewegen passen bij eigen voorkeuren: vergelijken van eigen interesses, kwaliteiten en motieven met die van de anderen."
+  },
+  {
+   "code": "NL.BEW.40.3",
+   "vak": "Bewegen en sport",
+   "leerjaar": 0,
+   "domein": "Betrokken bewegen",
+   "cluster": "Kerndoel 40: De leerling geeft betekenis aan bewegen.",
+   "tekst": "De leerling onderzoekt welke vormen van bewegen passen bij eigen voorkeuren: uitleggen hoe ervaringen worden beïnvloed door de beweegcontext."
+  },
+  {
+   "code": "NL.BEW.40.4",
+   "vak": "Bewegen en sport",
+   "leerjaar": 0,
+   "domein": "Betrokken bewegen",
+   "cluster": "Kerndoel 40: De leerling geeft betekenis aan bewegen.",
+   "tekst": "De leerling onderzoekt welke vormen van bewegen passen bij eigen voorkeuren: reflecteren op de eigen ontwikkeling in het bewegen."
+  },
+  {
+   "code": "NL.BEW.40.5",
+   "vak": "Bewegen en sport",
+   "leerjaar": 0,
+   "domein": "Betrokken bewegen",
+   "cluster": "Kerndoel 40: De leerling geeft betekenis aan bewegen.",
+   "tekst": "De leerling onderzoekt welke vormen van bewegen passen bij eigen voorkeuren: kiezen van beweegactiviteiten in verschillende contexten."
+  }
+ ]
+}

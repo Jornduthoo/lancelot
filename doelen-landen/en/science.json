@@ -1,0 +1,888 @@
+{
+ "bron": "National curriculum in England: programmes of study, key stages 1 and 2 (Department for Education). Contains public sector information licensed under the Open Government Licence v3.0.",
+ "vak": "Science",
+ "doelen": [
+  {
+   "code": "EN.SC.1-2.1",
+   "vak": "Science",
+   "leerjaar": 1,
+   "domein": "Working scientifically",
+   "tekst": "Asking simple questions and recognising that they can be answered in different ways.",
+   "leerjaren": [
+    1,
+    2
+   ]
+  },
+  {
+   "code": "EN.SC.1-2.2",
+   "vak": "Science",
+   "leerjaar": 1,
+   "domein": "Working scientifically",
+   "tekst": "Observing closely, using simple equipment.",
+   "leerjaren": [
+    1,
+    2
+   ]
+  },
+  {
+   "code": "EN.SC.1-2.3",
+   "vak": "Science",
+   "leerjaar": 1,
+   "domein": "Working scientifically",
+   "tekst": "Performing simple tests.",
+   "leerjaren": [
+    1,
+    2
+   ]
+  },
+  {
+   "code": "EN.SC.1-2.4",
+   "vak": "Science",
+   "leerjaar": 1,
+   "domein": "Working scientifically",
+   "tekst": "Identifying and classifying.",
+   "leerjaren": [
+    1,
+    2
+   ]
+  },
+  {
+   "code": "EN.SC.1-2.5",
+   "vak": "Science",
+   "leerjaar": 1,
+   "domein": "Working scientifically",
+   "tekst": "Using their observations and ideas to suggest answers to questions.",
+   "leerjaren": [
+    1,
+    2
+   ]
+  },
+  {
+   "code": "EN.SC.1-2.6",
+   "vak": "Science",
+   "leerjaar": 1,
+   "domein": "Working scientifically",
+   "tekst": "Gathering and recording data to help in answering questions.",
+   "leerjaren": [
+    1,
+    2
+   ]
+  },
+  {
+   "code": "EN.SC.1.1",
+   "vak": "Science",
+   "leerjaar": 1,
+   "domein": "Plants",
+   "tekst": "Identify and name a variety of common wild and garden plants, including deciduous and evergreen trees."
+  },
+  {
+   "code": "EN.SC.1.2",
+   "vak": "Science",
+   "leerjaar": 1,
+   "domein": "Plants",
+   "tekst": "Identify and describe the basic structure of a variety of common flowering plants, including trees."
+  },
+  {
+   "code": "EN.SC.1.3",
+   "vak": "Science",
+   "leerjaar": 1,
+   "domein": "Animals, including humans",
+   "tekst": "Identify and name a variety of common animals including fish, amphibians, reptiles, birds and mammals."
+  },
+  {
+   "code": "EN.SC.1.4",
+   "vak": "Science",
+   "leerjaar": 1,
+   "domein": "Animals, including humans",
+   "tekst": "Identify and name a variety of common animals that are carnivores, herbivores and omnivores."
+  },
+  {
+   "code": "EN.SC.1.5",
+   "vak": "Science",
+   "leerjaar": 1,
+   "domein": "Animals, including humans",
+   "tekst": "Describe and compare the structure of a variety of common animals (fish, amphibians, reptiles, birds and mammals including pets)"
+  },
+  {
+   "code": "EN.SC.1.6",
+   "vak": "Science",
+   "leerjaar": 1,
+   "domein": "Animals, including humans",
+   "tekst": "Identify, name, draw and label the basic parts of the human body and say which part of the body is associated with each sense."
+  },
+  {
+   "code": "EN.SC.1.7",
+   "vak": "Science",
+   "leerjaar": 1,
+   "domein": "Everyday materials",
+   "tekst": "Distinguish between an object and the material from which it is made."
+  },
+  {
+   "code": "EN.SC.1.8",
+   "vak": "Science",
+   "leerjaar": 1,
+   "domein": "Everyday materials",
+   "tekst": "Identify and name a variety of everyday materials, including wood, plastic, glass, metal, water, and rock."
+  },
+  {
+   "code": "EN.SC.1.9",
+   "vak": "Science",
+   "leerjaar": 1,
+   "domein": "Everyday materials",
+   "tekst": "Describe the simple physical properties of a variety of everyday materials."
+  },
+  {
+   "code": "EN.SC.1.10",
+   "vak": "Science",
+   "leerjaar": 1,
+   "domein": "Everyday materials",
+   "tekst": "Compare and group together a variety of everyday materials on the basis of their simple physical properties."
+  },
+  {
+   "code": "EN.SC.1.11",
+   "vak": "Science",
+   "leerjaar": 1,
+   "domein": "Seasonal changes",
+   "tekst": "Observe changes across the 4 seasons."
+  },
+  {
+   "code": "EN.SC.1.12",
+   "vak": "Science",
+   "leerjaar": 1,
+   "domein": "Seasonal changes",
+   "tekst": "Observe and describe weather associated with the seasons and how day length varies."
+  },
+  {
+   "code": "EN.SC.2.1",
+   "vak": "Science",
+   "leerjaar": 2,
+   "domein": "Living things and their habitats",
+   "tekst": "Explore and compare the differences between things that are living, dead, and things that have never been alive."
+  },
+  {
+   "code": "EN.SC.2.2",
+   "vak": "Science",
+   "leerjaar": 2,
+   "domein": "Living things and their habitats",
+   "tekst": "Identify that most living things live in habitats to which they are suited and describe how different habitats provide for the basic needs of different kinds of animals and plants, and how they depend on each other."
+  },
+  {
+   "code": "EN.SC.2.3",
+   "vak": "Science",
+   "leerjaar": 2,
+   "domein": "Living things and their habitats",
+   "tekst": "Identify and name a variety of plants and animals in their habitats, including microhabitats."
+  },
+  {
+   "code": "EN.SC.2.4",
+   "vak": "Science",
+   "leerjaar": 2,
+   "domein": "Living things and their habitats",
+   "tekst": "Describe how animals obtain their food from plants and other animals, using the idea of a simple food chain, and identify and name different sources of food."
+  },
+  {
+   "code": "EN.SC.2.5",
+   "vak": "Science",
+   "leerjaar": 2,
+   "domein": "Plants",
+   "tekst": "Observe and describe how seeds and bulbs grow into mature plants."
+  },
+  {
+   "code": "EN.SC.2.6",
+   "vak": "Science",
+   "leerjaar": 2,
+   "domein": "Plants",
+   "tekst": "Find out and describe how plants need water, light and a suitable temperature to grow and stay healthy."
+  },
+  {
+   "code": "EN.SC.2.7",
+   "vak": "Science",
+   "leerjaar": 2,
+   "domein": "Animals, including humans",
+   "tekst": "Notice that animals, including humans, have offspring which grow into adults."
+  },
+  {
+   "code": "EN.SC.2.8",
+   "vak": "Science",
+   "leerjaar": 2,
+   "domein": "Animals, including humans",
+   "tekst": "Find out about and describe the basic needs of animals, including humans, for survival (water, food and air)"
+  },
+  {
+   "code": "EN.SC.2.9",
+   "vak": "Science",
+   "leerjaar": 2,
+   "domein": "Animals, including humans",
+   "tekst": "Describe the importance for humans of exercise, eating the right amounts of different types of food, and hygiene."
+  },
+  {
+   "code": "EN.SC.2.10",
+   "vak": "Science",
+   "leerjaar": 2,
+   "domein": "Uses of everyday materials",
+   "tekst": "Identify and compare the suitability of a variety of everyday materials, including wood, metal, plastic, glass, brick, rock, paper and cardboard for particular uses."
+  },
+  {
+   "code": "EN.SC.2.11",
+   "vak": "Science",
+   "leerjaar": 2,
+   "domein": "Uses of everyday materials",
+   "tekst": "Find out how the shapes of solid objects made from some materials can be changed by squashing, bending, twisting and stretching."
+  },
+  {
+   "code": "EN.SC.3-4.1",
+   "vak": "Science",
+   "leerjaar": 3,
+   "domein": "Working scientifically",
+   "tekst": "Asking relevant questions and using different types of scientific enquiries to answer them.",
+   "leerjaren": [
+    3,
+    4
+   ]
+  },
+  {
+   "code": "EN.SC.3-4.2",
+   "vak": "Science",
+   "leerjaar": 3,
+   "domein": "Working scientifically",
+   "tekst": "Setting up simple practical enquiries, comparative and fair tests.",
+   "leerjaren": [
+    3,
+    4
+   ]
+  },
+  {
+   "code": "EN.SC.3-4.3",
+   "vak": "Science",
+   "leerjaar": 3,
+   "domein": "Working scientifically",
+   "tekst": "Making systematic and careful observations and, where appropriate, taking accurate measurements using standard units, using a range of equipment, including thermometers and data loggers.",
+   "leerjaren": [
+    3,
+    4
+   ]
+  },
+  {
+   "code": "EN.SC.3-4.4",
+   "vak": "Science",
+   "leerjaar": 3,
+   "domein": "Working scientifically",
+   "tekst": "Gathering, recording, classifying and presenting data in a variety of ways to help in answering questions.",
+   "leerjaren": [
+    3,
+    4
+   ]
+  },
+  {
+   "code": "EN.SC.3-4.5",
+   "vak": "Science",
+   "leerjaar": 3,
+   "domein": "Working scientifically",
+   "tekst": "Recording findings using simple scientific language, drawings, labelled diagrams, keys, bar charts, and tables.",
+   "leerjaren": [
+    3,
+    4
+   ]
+  },
+  {
+   "code": "EN.SC.3-4.6",
+   "vak": "Science",
+   "leerjaar": 3,
+   "domein": "Working scientifically",
+   "tekst": "Reporting on findings from enquiries, including oral and written explanations, displays or presentations of results and conclusions.",
+   "leerjaren": [
+    3,
+    4
+   ]
+  },
+  {
+   "code": "EN.SC.3-4.7",
+   "vak": "Science",
+   "leerjaar": 3,
+   "domein": "Working scientifically",
+   "tekst": "Using results to draw simple conclusions, make predictions for new values, suggest improvements and raise further questions.",
+   "leerjaren": [
+    3,
+    4
+   ]
+  },
+  {
+   "code": "EN.SC.3-4.8",
+   "vak": "Science",
+   "leerjaar": 3,
+   "domein": "Working scientifically",
+   "tekst": "Identifying differences, similarities or changes related to simple scientific ideas and processes.",
+   "leerjaren": [
+    3,
+    4
+   ]
+  },
+  {
+   "code": "EN.SC.3-4.9",
+   "vak": "Science",
+   "leerjaar": 3,
+   "domein": "Working scientifically",
+   "tekst": "Using straightforward scientific evidence to answer questions or to support their findings.",
+   "leerjaren": [
+    3,
+    4
+   ]
+  },
+  {
+   "code": "EN.SC.3.1",
+   "vak": "Science",
+   "leerjaar": 3,
+   "domein": "Plants",
+   "tekst": "Identify and describe the functions of different parts of flowering plants: roots, stem/trunk, leaves and flowers."
+  },
+  {
+   "code": "EN.SC.3.2",
+   "vak": "Science",
+   "leerjaar": 3,
+   "domein": "Plants",
+   "tekst": "Explore the requirements of plants for life and growth (air, light, water, nutrients from soil, and room to grow) and how they vary from plant to plant."
+  },
+  {
+   "code": "EN.SC.3.3",
+   "vak": "Science",
+   "leerjaar": 3,
+   "domein": "Plants",
+   "tekst": "Investigate the way in which water is transported within plants."
+  },
+  {
+   "code": "EN.SC.3.4",
+   "vak": "Science",
+   "leerjaar": 3,
+   "domein": "Plants",
+   "tekst": "Explore the part that flowers play in the life cycle of flowering plants, including pollination, seed formation and seed dispersal."
+  },
+  {
+   "code": "EN.SC.3.5",
+   "vak": "Science",
+   "leerjaar": 3,
+   "domein": "Animals, including humans",
+   "tekst": "Identify that animals, including humans, need the right types and amount of nutrition, and that they cannot make their own food; they get nutrition from what they eat."
+  },
+  {
+   "code": "EN.SC.3.6",
+   "vak": "Science",
+   "leerjaar": 3,
+   "domein": "Animals, including humans",
+   "tekst": "Identify that humans and some other animals have skeletons and muscles for support, protection and movement."
+  },
+  {
+   "code": "EN.SC.3.7",
+   "vak": "Science",
+   "leerjaar": 3,
+   "domein": "Rocks",
+   "tekst": "Compare and group together different kinds of rocks on the basis of their appearance and simple physical properties."
+  },
+  {
+   "code": "EN.SC.3.8",
+   "vak": "Science",
+   "leerjaar": 3,
+   "domein": "Rocks",
+   "tekst": "Describe in simple terms how fossils are formed when things that have lived are trapped within rock."
+  },
+  {
+   "code": "EN.SC.3.9",
+   "vak": "Science",
+   "leerjaar": 3,
+   "domein": "Rocks",
+   "tekst": "Recognise that soils are made from rocks and organic matter."
+  },
+  {
+   "code": "EN.SC.3.10",
+   "vak": "Science",
+   "leerjaar": 3,
+   "domein": "Light",
+   "tekst": "Recognise that they need light in order to see things and that dark is the absence of light."
+  },
+  {
+   "code": "EN.SC.3.11",
+   "vak": "Science",
+   "leerjaar": 3,
+   "domein": "Light",
+   "tekst": "Notice that light is reflected from surfaces."
+  },
+  {
+   "code": "EN.SC.3.12",
+   "vak": "Science",
+   "leerjaar": 3,
+   "domein": "Light",
+   "tekst": "Recognise that light from the sun can be dangerous and that there are ways to protect their eyes."
+  },
+  {
+   "code": "EN.SC.3.13",
+   "vak": "Science",
+   "leerjaar": 3,
+   "domein": "Light",
+   "tekst": "Recognise that shadows are formed when the light from a light source is blocked by an opaque object."
+  },
+  {
+   "code": "EN.SC.3.14",
+   "vak": "Science",
+   "leerjaar": 3,
+   "domein": "Light",
+   "tekst": "Find patterns in the way that the size of shadows change."
+  },
+  {
+   "code": "EN.SC.3.15",
+   "vak": "Science",
+   "leerjaar": 3,
+   "domein": "Forces and magnets",
+   "tekst": "Compare how things move on different surfaces."
+  },
+  {
+   "code": "EN.SC.3.16",
+   "vak": "Science",
+   "leerjaar": 3,
+   "domein": "Forces and magnets",
+   "tekst": "Notice that some forces need contact between 2 objects, but magnetic forces can act at a distance."
+  },
+  {
+   "code": "EN.SC.3.17",
+   "vak": "Science",
+   "leerjaar": 3,
+   "domein": "Forces and magnets",
+   "tekst": "Observe how magnets attract or repel each other and attract some materials and not others."
+  },
+  {
+   "code": "EN.SC.3.18",
+   "vak": "Science",
+   "leerjaar": 3,
+   "domein": "Forces and magnets",
+   "tekst": "Compare and group together a variety of everyday materials on the basis of whether they are attracted to a magnet, and identify some magnetic materials."
+  },
+  {
+   "code": "EN.SC.3.19",
+   "vak": "Science",
+   "leerjaar": 3,
+   "domein": "Forces and magnets",
+   "tekst": "Describe magnets as having 2 poles."
+  },
+  {
+   "code": "EN.SC.3.20",
+   "vak": "Science",
+   "leerjaar": 3,
+   "domein": "Forces and magnets",
+   "tekst": "Predict whether 2 magnets will attract or repel each other, depending on which poles are facing."
+  },
+  {
+   "code": "EN.SC.4.1",
+   "vak": "Science",
+   "leerjaar": 4,
+   "domein": "Living things and their habitats",
+   "tekst": "Recognise that living things can be grouped in a variety of ways."
+  },
+  {
+   "code": "EN.SC.4.2",
+   "vak": "Science",
+   "leerjaar": 4,
+   "domein": "Living things and their habitats",
+   "tekst": "Explore and use classification keys to help group, identify and name a variety of living things in their local and wider environment."
+  },
+  {
+   "code": "EN.SC.4.3",
+   "vak": "Science",
+   "leerjaar": 4,
+   "domein": "Living things and their habitats",
+   "tekst": "Recognise that environments can change and that this can sometimes pose dangers to living things."
+  },
+  {
+   "code": "EN.SC.4.4",
+   "vak": "Science",
+   "leerjaar": 4,
+   "domein": "Animals, including humans",
+   "tekst": "Describe the simple functions of the basic parts of the digestive system in humans."
+  },
+  {
+   "code": "EN.SC.4.5",
+   "vak": "Science",
+   "leerjaar": 4,
+   "domein": "Animals, including humans",
+   "tekst": "Identify the different types of teeth in humans and their simple functions."
+  },
+  {
+   "code": "EN.SC.4.6",
+   "vak": "Science",
+   "leerjaar": 4,
+   "domein": "Animals, including humans",
+   "tekst": "Construct and interpret a variety of food chains, identifying producers, predators and prey."
+  },
+  {
+   "code": "EN.SC.4.7",
+   "vak": "Science",
+   "leerjaar": 4,
+   "domein": "States of matter",
+   "tekst": "Compare and group materials together, according to whether they are solids, liquids or gases."
+  },
+  {
+   "code": "EN.SC.4.8",
+   "vak": "Science",
+   "leerjaar": 4,
+   "domein": "States of matter",
+   "tekst": "Observe that some materials change state when they are heated or cooled, and measure or research the temperature at which this happens in degrees Celsius (°C)"
+  },
+  {
+   "code": "EN.SC.4.9",
+   "vak": "Science",
+   "leerjaar": 4,
+   "domein": "States of matter",
+   "tekst": "Identify the part played by evaporation and condensation in the water cycle and associate the rate of evaporation with temperature."
+  },
+  {
+   "code": "EN.SC.4.10",
+   "vak": "Science",
+   "leerjaar": 4,
+   "domein": "Sound",
+   "tekst": "Identify how sounds are made, associating some of them with something vibrating."
+  },
+  {
+   "code": "EN.SC.4.11",
+   "vak": "Science",
+   "leerjaar": 4,
+   "domein": "Sound",
+   "tekst": "Recognise that vibrations from sounds travel through a medium to the ear."
+  },
+  {
+   "code": "EN.SC.4.12",
+   "vak": "Science",
+   "leerjaar": 4,
+   "domein": "Sound",
+   "tekst": "Find patterns between the pitch of a sound and features of the object that produced it."
+  },
+  {
+   "code": "EN.SC.4.13",
+   "vak": "Science",
+   "leerjaar": 4,
+   "domein": "Sound",
+   "tekst": "Find patterns between the volume of a sound and the strength of the vibrations that produced it."
+  },
+  {
+   "code": "EN.SC.4.14",
+   "vak": "Science",
+   "leerjaar": 4,
+   "domein": "Sound",
+   "tekst": "Recognise that sounds get fainter as the distance from the sound source increases."
+  },
+  {
+   "code": "EN.SC.4.15",
+   "vak": "Science",
+   "leerjaar": 4,
+   "domein": "Electricity",
+   "tekst": "Identify common appliances that run on electricity."
+  },
+  {
+   "code": "EN.SC.4.16",
+   "vak": "Science",
+   "leerjaar": 4,
+   "domein": "Electricity",
+   "tekst": "Construct a simple series electrical circuit, identifying and naming its basic parts, including cells, wires, bulbs, switches and buzzers."
+  },
+  {
+   "code": "EN.SC.4.17",
+   "vak": "Science",
+   "leerjaar": 4,
+   "domein": "Electricity",
+   "tekst": "Identify whether or not a lamp will light in a simple series circuit, based on whether or not the lamp is part of a complete loop with a battery."
+  },
+  {
+   "code": "EN.SC.4.18",
+   "vak": "Science",
+   "leerjaar": 4,
+   "domein": "Electricity",
+   "tekst": "Recognise that a switch opens and closes a circuit and associate this with whether or not a lamp lights in a simple series circuit."
+  },
+  {
+   "code": "EN.SC.4.19",
+   "vak": "Science",
+   "leerjaar": 4,
+   "domein": "Electricity",
+   "tekst": "Recognise some common conductors and insulators, and associate metals with being good conductors."
+  },
+  {
+   "code": "EN.SC.5-6.1",
+   "vak": "Science",
+   "leerjaar": 5,
+   "domein": "Working scientifically",
+   "tekst": "Planning different types of scientific enquiries to answer questions, including recognising and controlling variables where necessary.",
+   "leerjaren": [
+    5,
+    6
+   ]
+  },
+  {
+   "code": "EN.SC.5-6.2",
+   "vak": "Science",
+   "leerjaar": 5,
+   "domein": "Working scientifically",
+   "tekst": "Taking measurements, using a range of scientific equipment, with increasing accuracy and precision, taking repeat readings when appropriate.",
+   "leerjaren": [
+    5,
+    6
+   ]
+  },
+  {
+   "code": "EN.SC.5-6.3",
+   "vak": "Science",
+   "leerjaar": 5,
+   "domein": "Working scientifically",
+   "tekst": "Recording data and results of increasing complexity using scientific diagrams and labels, classification keys, tables, scatter graphs, bar and line graphs.",
+   "leerjaren": [
+    5,
+    6
+   ]
+  },
+  {
+   "code": "EN.SC.5-6.4",
+   "vak": "Science",
+   "leerjaar": 5,
+   "domein": "Working scientifically",
+   "tekst": "Using test results to make predictions to set up further comparative and fair tests.",
+   "leerjaren": [
+    5,
+    6
+   ]
+  },
+  {
+   "code": "EN.SC.5-6.5",
+   "vak": "Science",
+   "leerjaar": 5,
+   "domein": "Working scientifically",
+   "tekst": "Reporting and presenting findings from enquiries, including conclusions, causal relationships and explanations of and a degree of trust in results, in oral and written forms such as displays and other presentations.",
+   "leerjaren": [
+    5,
+    6
+   ]
+  },
+  {
+   "code": "EN.SC.5-6.6",
+   "vak": "Science",
+   "leerjaar": 5,
+   "domein": "Working scientifically",
+   "tekst": "Identifying scientific evidence that has been used to support or refute ideas or arguments.",
+   "leerjaren": [
+    5,
+    6
+   ]
+  },
+  {
+   "code": "EN.SC.5.1",
+   "vak": "Science",
+   "leerjaar": 5,
+   "domein": "Living things and their habitats",
+   "tekst": "Describe the differences in the life cycles of a mammal, an amphibian, an insect and a bird."
+  },
+  {
+   "code": "EN.SC.5.2",
+   "vak": "Science",
+   "leerjaar": 5,
+   "domein": "Living things and their habitats",
+   "tekst": "Describe the life process of reproduction in some plants and animals."
+  },
+  {
+   "code": "EN.SC.5.3",
+   "vak": "Science",
+   "leerjaar": 5,
+   "domein": "Animals, including humans",
+   "tekst": "Describe the changes as humans develop to old age."
+  },
+  {
+   "code": "EN.SC.5.4",
+   "vak": "Science",
+   "leerjaar": 5,
+   "domein": "Properties and changes of materials",
+   "tekst": "Compare and group together everyday materials on the basis of their properties, including their hardness, solubility, transparency, conductivity (electrical and thermal), and response to magnets."
+  },
+  {
+   "code": "EN.SC.5.5",
+   "vak": "Science",
+   "leerjaar": 5,
+   "domein": "Properties and changes of materials",
+   "tekst": "Know that some materials will dissolve in liquid to form a solution, and describe how to recover a substance from a solution."
+  },
+  {
+   "code": "EN.SC.5.6",
+   "vak": "Science",
+   "leerjaar": 5,
+   "domein": "Properties and changes of materials",
+   "tekst": "Use knowledge of solids, liquids and gases to decide how mixtures might be separated, including through filtering, sieving and evaporating."
+  },
+  {
+   "code": "EN.SC.5.7",
+   "vak": "Science",
+   "leerjaar": 5,
+   "domein": "Properties and changes of materials",
+   "tekst": "Give reasons, based on evidence from comparative and fair tests, for the particular uses of everyday materials, including metals, wood and plastic."
+  },
+  {
+   "code": "EN.SC.5.8",
+   "vak": "Science",
+   "leerjaar": 5,
+   "domein": "Properties and changes of materials",
+   "tekst": "Demonstrate that dissolving, mixing and changes of state are reversible changes."
+  },
+  {
+   "code": "EN.SC.5.9",
+   "vak": "Science",
+   "leerjaar": 5,
+   "domein": "Properties and changes of materials",
+   "tekst": "Explain that some changes result in the formation of new materials, and that this kind of change is not usually reversible, including changes associated with burning and the action of acid on bicarbonate of soda."
+  },
+  {
+   "code": "EN.SC.5.10",
+   "vak": "Science",
+   "leerjaar": 5,
+   "domein": "Earth and space",
+   "tekst": "Describe the movement of the Earth and other planets relative to the sun in the solar system."
+  },
+  {
+   "code": "EN.SC.5.11",
+   "vak": "Science",
+   "leerjaar": 5,
+   "domein": "Earth and space",
+   "tekst": "Describe the movement of the moon relative to the Earth."
+  },
+  {
+   "code": "EN.SC.5.12",
+   "vak": "Science",
+   "leerjaar": 5,
+   "domein": "Earth and space",
+   "tekst": "Describe the sun, Earth and moon as approximately spherical bodies."
+  },
+  {
+   "code": "EN.SC.5.13",
+   "vak": "Science",
+   "leerjaar": 5,
+   "domein": "Earth and space",
+   "tekst": "Use the idea of the Earth’s rotation to explain day and night and the apparent movement of the sun across the sky."
+  },
+  {
+   "code": "EN.SC.5.14",
+   "vak": "Science",
+   "leerjaar": 5,
+   "domein": "Forces",
+   "tekst": "Explain that unsupported objects fall towards the Earth because of the force of gravity acting between the Earth and the falling object."
+  },
+  {
+   "code": "EN.SC.5.15",
+   "vak": "Science",
+   "leerjaar": 5,
+   "domein": "Forces",
+   "tekst": "Identify the effects of air resistance, water resistance and friction, that act between moving surfaces."
+  },
+  {
+   "code": "EN.SC.5.16",
+   "vak": "Science",
+   "leerjaar": 5,
+   "domein": "Forces",
+   "tekst": "Recognise that some mechanisms including levers, pulleys and gears allow a smaller force to have a greater effect."
+  },
+  {
+   "code": "EN.SC.6.1",
+   "vak": "Science",
+   "leerjaar": 6,
+   "domein": "Living things and their habitats",
+   "tekst": "Describe how living things are classified into broad groups according to common observable characteristics and based on similarities and differences, including micro-organisms, plants and animals."
+  },
+  {
+   "code": "EN.SC.6.2",
+   "vak": "Science",
+   "leerjaar": 6,
+   "domein": "Living things and their habitats",
+   "tekst": "Give reasons for classifying plants and animals based on specific characteristics."
+  },
+  {
+   "code": "EN.SC.6.3",
+   "vak": "Science",
+   "leerjaar": 6,
+   "domein": "Animals, including humans",
+   "tekst": "Identify and name the main parts of the human circulatory system, and describe the functions of the heart, blood vessels and blood."
+  },
+  {
+   "code": "EN.SC.6.4",
+   "vak": "Science",
+   "leerjaar": 6,
+   "domein": "Animals, including humans",
+   "tekst": "Recognise the impact of diet, exercise, drugs and lifestyle on the way their bodies function."
+  },
+  {
+   "code": "EN.SC.6.5",
+   "vak": "Science",
+   "leerjaar": 6,
+   "domein": "Animals, including humans",
+   "tekst": "Describe the ways in which nutrients and water are transported within animals, including humans."
+  },
+  {
+   "code": "EN.SC.6.6",
+   "vak": "Science",
+   "leerjaar": 6,
+   "domein": "Evolution and inheritance",
+   "tekst": "Recognise that living things have changed over time and that fossils provide information about living things that inhabited the Earth millions of years ago."
+  },
+  {
+   "code": "EN.SC.6.7",
+   "vak": "Science",
+   "leerjaar": 6,
+   "domein": "Evolution and inheritance",
+   "tekst": "Recognise that living things produce offspring of the same kind, but normally offspring vary and are not identical to their parents."
+  },
+  {
+   "code": "EN.SC.6.8",
+   "vak": "Science",
+   "leerjaar": 6,
+   "domein": "Evolution and inheritance",
+   "tekst": "Identify how animals and plants are adapted to suit their environment in different ways and that adaptation may lead to evolution."
+  },
+  {
+   "code": "EN.SC.6.9",
+   "vak": "Science",
+   "leerjaar": 6,
+   "domein": "Light",
+   "tekst": "Recognise that light appears to travel in straight lines."
+  },
+  {
+   "code": "EN.SC.6.10",
+   "vak": "Science",
+   "leerjaar": 6,
+   "domein": "Light",
+   "tekst": "Use the idea that light travels in straight lines to explain that objects are seen because they give out or reflect light into the eye."
+  },
+  {
+   "code": "EN.SC.6.11",
+   "vak": "Science",
+   "leerjaar": 6,
+   "domein": "Light",
+   "tekst": "Explain that we see things because light travels from light sources to our eyes or from light sources to objects and then to our eyes."
+  },
+  {
+   "code": "EN.SC.6.12",
+   "vak": "Science",
+   "leerjaar": 6,
+   "domein": "Light",
+   "tekst": "Use the idea that light travels in straight lines to explain why shadows have the same shape as the objects that cast them."
+  },
+  {
+   "code": "EN.SC.6.13",
+   "vak": "Science",
+   "leerjaar": 6,
+   "domein": "Electricity",
+   "tekst": "Associate the brightness of a lamp or the volume of a buzzer with the number and voltage of cells used in the circuit."
+  },
+  {
+   "code": "EN.SC.6.14",
+   "vak": "Science",
+   "leerjaar": 6,
+   "domein": "Electricity",
+   "tekst": "Compare and give reasons for variations in how components function, including the brightness of bulbs, the loudness of buzzers and the on/off position of switches."
+  },
+  {
+   "code": "EN.SC.6.15",
+   "vak": "Science",
+   "leerjaar": 6,
+   "domein": "Electricity",
+   "tekst": "Use recognised symbols when representing a simple circuit in a diagram."
+  }
+ ]
+}

@@ -1,0 +1,897 @@
+{
+ "bron": "Bildungsstandards im Fach Mathematik für den Primarbereich (Beschluss der Kultusministerkonferenz vom 23.06.2022), maschinenlesbar veröffentlicht vom IQB (MIT-Lizenz).",
+ "vak": "Mathematik",
+ "doelen": [
+  {
+   "code": "DE.M.1.1.1",
+   "vak": "Mathematik",
+   "leerjaar": 1,
+   "leerjaren": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "domein": "Leitidee Zahl und Operation",
+   "cluster": "Zahldarstellungen und Zahlbeziehungen verstehen",
+   "tekst": "Die Kinder erkennen, erklären und nutzen den Aufbau des dezimalen Stellenwertsystems (z. B. Bündelungsprinzip, Stellenwertprinzip)."
+  },
+  {
+   "code": "DE.M.1.1.2",
+   "vak": "Mathematik",
+   "leerjaar": 1,
+   "leerjaren": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "domein": "Leitidee Zahl und Operation",
+   "cluster": "Zahldarstellungen und Zahlbeziehungen verstehen",
+   "tekst": "Die Kinder stellen Zahlen bis 1 000 000 auf verschiedene Weise dar (z. B. Anschauungsmittel, Stufenschrift, Stellenwerttabelle, Zifferndarstellung) und setzen diese zueinander in Beziehung."
+  },
+  {
+   "code": "DE.M.1.1.3",
+   "vak": "Mathematik",
+   "leerjaar": 1,
+   "leerjaren": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "domein": "Leitidee Zahl und Operation",
+   "cluster": "Zahldarstellungen und Zahlbeziehungen verstehen",
+   "tekst": "Die Kinder orientieren sich im Zahlenraum bis 1 000 000 (z. B. Zahlen der Größe nach ordnen, Nachbarzahlen bestimmen)."
+  },
+  {
+   "code": "DE.M.1.2.1",
+   "vak": "Mathematik",
+   "leerjaar": 1,
+   "leerjaren": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "domein": "Leitidee Zahl und Operation",
+   "cluster": "Rechenoperationen verstehen und beherrschen",
+   "tekst": "Die Kinder verfügen über ein Operationsverständnis zu den vier Grundrechenarten und erkennen und nutzen die Zusammenhänge zwischen den Operationen."
+  },
+  {
+   "code": "DE.M.1.2.2",
+   "vak": "Mathematik",
+   "leerjaar": 1,
+   "leerjaren": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "domein": "Leitidee Zahl und Operation",
+   "cluster": "Rechenoperationen verstehen und beherrschen",
+   "tekst": "Die Kinder beherrschen die Grundaufgaben des Kopfrechnens (u. a. Zahlzerlegungen, Eins-pluseins, Einmaleins) gedächtnismäßig und leiten deren Umkehrungen sicher ab."
+  },
+  {
+   "code": "DE.M.1.2.3",
+   "vak": "Mathematik",
+   "leerjaar": 1,
+   "leerjaren": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "domein": "Leitidee Zahl und Operation",
+   "cluster": "Rechenoperationen verstehen und beherrschen",
+   "tekst": "Die Kinder übertragen die Grundaufgaben des Kopfrechnens auf analoge Aufgaben im Zahlenraum bis zur Million."
+  },
+  {
+   "code": "DE.M.1.2.4",
+   "vak": "Mathematik",
+   "leerjaar": 1,
+   "leerjaren": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "domein": "Leitidee Zahl und Operation",
+   "cluster": "Rechenoperationen verstehen und beherrschen",
+   "tekst": "Die Kinder verstehen mündliche und halbschriftliche Rechenstrategien zu den vier Grundrechenarten und setzen diese flexibel ein."
+  },
+  {
+   "code": "DE.M.1.2.5",
+   "vak": "Mathematik",
+   "leerjaar": 1,
+   "leerjaren": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "domein": "Leitidee Zahl und Operation",
+   "cluster": "Rechenoperationen verstehen und beherrschen",
+   "tekst": "Die Kinder beschreiben, vergleichen und bewerten verschiedene Rechenwege; finden, erklären und berichtigen Rechenfehler."
+  },
+  {
+   "code": "DE.M.1.2.6",
+   "vak": "Mathematik",
+   "leerjaar": 1,
+   "leerjaren": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "domein": "Leitidee Zahl und Operation",
+   "cluster": "Rechenoperationen verstehen und beherrschen",
+   "tekst": "Die Kinder erkennen, erklären und nutzen Rechengesetze (z. B. Kommutativgesetz: Tauschaufgaben)."
+  },
+  {
+   "code": "DE.M.1.2.7",
+   "vak": "Mathematik",
+   "leerjaar": 1,
+   "leerjaren": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "domein": "Leitidee Zahl und Operation",
+   "cluster": "Rechenoperationen verstehen und beherrschen",
+   "tekst": "Die Kinder verstehen schriftliche Verfahren der Addition, Subtraktion und Multiplikation, beschreiben den Algorithmus, führen diesen geläufig aus und wenden ihn bei geeigneten Aufgaben an."
+  },
+  {
+   "code": "DE.M.1.2.8",
+   "vak": "Mathematik",
+   "leerjaar": 1,
+   "leerjaren": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "domein": "Leitidee Zahl und Operation",
+   "cluster": "Rechenoperationen verstehen und beherrschen",
+   "tekst": "Die Kinder kontrollieren Lösungen durch geeignete Vorgehensweisen (z. B. Überschlagsrechnung, Umkehroperation)."
+  },
+  {
+   "code": "DE.M.1.3.1",
+   "vak": "Mathematik",
+   "leerjaar": 1,
+   "leerjaren": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "domein": "Leitidee Zahl und Operation",
+   "cluster": "Rechenoperationen in Kontexten anwenden",
+   "tekst": "Die Kinder wenden bei Sachaufgaben Rechenoperationen an und beschreiben die Beziehungen zwischen der Sache und den einzelnen Lösungsschritten."
+  },
+  {
+   "code": "DE.M.1.3.2",
+   "vak": "Mathematik",
+   "leerjaar": 1,
+   "leerjaren": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "domein": "Leitidee Zahl und Operation",
+   "cluster": "Rechenoperationen in Kontexten anwenden",
+   "tekst": "Die Kinder runden und überschlagen sachadäquat."
+  },
+  {
+   "code": "DE.M.2.1.1",
+   "vak": "Mathematik",
+   "leerjaar": 1,
+   "leerjaren": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "domein": "Leitidee Größen und Messen",
+   "cluster": "Über Größenvorstellungen verfügen",
+   "tekst": "Die Kinder vergleichen und ordnen Größen (Geldwerte, Längen, Zeitspannen, Massen, Flächeninhalte und Volumina)."
+  },
+  {
+   "code": "DE.M.2.1.2",
+   "vak": "Mathematik",
+   "leerjaar": 1,
+   "leerjaren": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "domein": "Leitidee Größen und Messen",
+   "cluster": "Über Größenvorstellungen verfügen",
+   "tekst": "Die Kinder kennen Standardeinheiten (zu Geldwerten, Längen, Zeitspannen, Hohlmaßen und zur Masse) und setzen diese im jeweiligen Größenbereich zueinander in Beziehung."
+  },
+  {
+   "code": "DE.M.2.1.3",
+   "vak": "Mathematik",
+   "leerjaar": 1,
+   "leerjaren": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "domein": "Leitidee Größen und Messen",
+   "cluster": "Über Größenvorstellungen verfügen",
+   "tekst": "Die Kinder entwickeln und nutzen Vorstellungen über Repräsentanten für Standardeinheiten und im Alltag bedeutsame Größen (z. B. Höhe der Tür, Dauer der Schulstunde)."
+  },
+  {
+   "code": "DE.M.2.1.4",
+   "vak": "Mathematik",
+   "leerjaar": 1,
+   "leerjaren": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "domein": "Leitidee Größen und Messen",
+   "cluster": "Über Größenvorstellungen verfügen",
+   "tekst": "Die Kinder kennen und verstehen im Alltag gebräuchliche einfache Brüche im Zusammenhang mit Größen (z. B. 1/2 m, Dreiviertelstunde, 1/4 l)."
+  },
+  {
+   "code": "DE.M.2.2.1",
+   "vak": "Mathematik",
+   "leerjaar": 1,
+   "leerjaren": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "domein": "Leitidee Größen und Messen",
+   "cluster": "Größen messen und Maßangaben bestimmen",
+   "tekst": "Die Kinder verstehen und nutzen (u. a. Flächeninhalte durch Auslegen mit Einheitsquadraten, Rauminhalte durch Messen mit Einheitswürfeln) das Grundprinzip des Messens (nicht-standardisierte und standardisierte Einheitsmaße auswählen, wiederholt nutzen und ggf. in Beziehung zu Untereinheiten setzen)."
+  },
+  {
+   "code": "DE.M.2.2.2",
+   "vak": "Mathematik",
+   "leerjaar": 1,
+   "leerjaren": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "domein": "Leitidee Größen und Messen",
+   "cluster": "Größen messen und Maßangaben bestimmen",
+   "tekst": "Die Kinder messen Längen, Zeitspannen, Massen und Hohlmaße mit geeigneten Einheiten und unterschiedlichen Messgeräten sachgerecht."
+  },
+  {
+   "code": "DE.M.2.2.3",
+   "vak": "Mathematik",
+   "leerjaar": 1,
+   "leerjaren": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "domein": "Leitidee Größen und Messen",
+   "cluster": "Größen messen und Maßangaben bestimmen",
+   "tekst": "Die Kinder benennen Größenangaben mit verschiedenen Einheiten und stellen diese in unterschiedlichen Schreibweisen (z. B. 2,5 km | 2500 m | 2 km 500 m) dar."
+  },
+  {
+   "code": "DE.M.2.3.1",
+   "vak": "Mathematik",
+   "leerjaar": 1,
+   "leerjaren": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "domein": "Leitidee Größen und Messen",
+   "cluster": "Mit Größen in Kontexten umgehen",
+   "tekst": "Die Kinder schätzen Größen sachadäquat und mit Bezug zu geeigneten Repräsentanten."
+  },
+  {
+   "code": "DE.M.2.3.2",
+   "vak": "Mathematik",
+   "leerjaar": 1,
+   "leerjaren": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "domein": "Leitidee Größen und Messen",
+   "cluster": "Mit Größen in Kontexten umgehen",
+   "tekst": "Die Kinder rechnen in Sachsituationen angemessen mit Näherungswerten und prüfen Ergebnisse auf Plausibilität."
+  },
+  {
+   "code": "DE.M.2.3.3",
+   "vak": "Mathematik",
+   "leerjaar": 1,
+   "leerjaren": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "domein": "Leitidee Größen und Messen",
+   "cluster": "Mit Größen in Kontexten umgehen",
+   "tekst": "Die Kinder lösen Sachaufgaben mit Größen."
+  },
+  {
+   "code": "DE.M.3.1.1",
+   "vak": "Mathematik",
+   "leerjaar": 1,
+   "leerjaren": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "domein": "Leitidee Muster, Strukturen und funktionaler Zusammenhang",
+   "cluster": "Gesetzmäßigkeiten erkennen, beschreiben und darstellen",
+   "tekst": "Die Kinder verstehen und nutzen Strukturen in arithmetischen und geometrischen Darstellungen (z. B. in Zahldarstellungen, Anschauungsmitteln) verstehen und nutzen."
+  },
+  {
+   "code": "DE.M.3.1.2",
+   "vak": "Mathematik",
+   "leerjaar": 1,
+   "leerjaren": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "domein": "Leitidee Muster, Strukturen und funktionaler Zusammenhang",
+   "cluster": "Gesetzmäßigkeiten erkennen, beschreiben und darstellen",
+   "tekst": "Die Kinder erkennen und beschreiben Strukturen in geometrischen und arithmetischen Mustern (z. B. Zahlenfolgen, Pentominos) und nutzen diese in mathematischen Kontexten (z. B. Verschlüsselungen)."
+  },
+  {
+   "code": "DE.M.3.1.3",
+   "vak": "Mathematik",
+   "leerjaar": 1,
+   "leerjaren": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "domein": "Leitidee Muster, Strukturen und funktionaler Zusammenhang",
+   "cluster": "Gesetzmäßigkeiten erkennen, beschreiben und darstellen",
+   "tekst": "Die Kinder erkennen, stellen Gleichheit von mathematischen Ausdrücken dar und nutzen diese (z. B. Zahlen durch verschiedene Terme ausdrücken, Terme vergleichen)."
+  },
+  {
+   "code": "DE.M.3.2.1",
+   "vak": "Mathematik",
+   "leerjaar": 1,
+   "leerjaren": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "domein": "Leitidee Muster, Strukturen und funktionaler Zusammenhang",
+   "cluster": "Funktionale Beziehungen erkennen, beschreiben und darstellen",
+   "tekst": "Die Kinder erkennen und beschreiben funktionale Beziehungen in Sachsituationen (z. B. Menge - Preis)."
+  },
+  {
+   "code": "DE.M.3.2.2",
+   "vak": "Mathematik",
+   "leerjaar": 1,
+   "leerjaren": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "domein": "Leitidee Muster, Strukturen und funktionaler Zusammenhang",
+   "cluster": "Funktionale Beziehungen erkennen, beschreiben und darstellen",
+   "tekst": "Die Kinder erkennen, beschreiben und stellen funktionale Beziehungen in Tabellen dar."
+  },
+  {
+   "code": "DE.M.3.2.3",
+   "vak": "Mathematik",
+   "leerjaar": 1,
+   "leerjaren": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "domein": "Leitidee Muster, Strukturen und funktionaler Zusammenhang",
+   "cluster": "Funktionale Beziehungen erkennen, beschreiben und darstellen",
+   "tekst": "Die Kinder lösen Sachaufgaben zu funktionalen Zusammenhängen (z. B. Proportionalität)."
+  },
+  {
+   "code": "DE.M.4.1.1",
+   "vak": "Mathematik",
+   "leerjaar": 1,
+   "leerjaren": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "domein": "Leitidee Raum und Form",
+   "cluster": "Über räumliches Vorstellungsvermögen verfügen",
+   "tekst": "Die Kinder orientieren sich im Raum (z. B. Wege, Pläne, Ansichten)."
+  },
+  {
+   "code": "DE.M.4.1.2",
+   "vak": "Mathematik",
+   "leerjaar": 1,
+   "leerjaren": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "domein": "Leitidee Raum und Form",
+   "cluster": "Über räumliches Vorstellungsvermögen verfügen",
+   "tekst": "Die Kinder erkennen, beschreiben und nutzen (z. B. zwei- und dreidimensionale Darstellungen zueinander in Beziehung setzen, wie Bauplan und Bauwerk, Körper und Netz) räumliche Beziehungen."
+  },
+  {
+   "code": "DE.M.4.1.3",
+   "vak": "Mathematik",
+   "leerjaar": 1,
+   "leerjaren": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "domein": "Leitidee Raum und Form",
+   "cluster": "Über räumliches Vorstellungsvermögen verfügen",
+   "tekst": "Die Kinder operieren (z. B. zerlegen, falten, drehen, spiegeln, bauen) mit geometrischen Objekten gedanklich."
+  },
+  {
+   "code": "DE.M.4.2.1",
+   "vak": "Mathematik",
+   "leerjaar": 1,
+   "leerjaren": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "domein": "Leitidee Raum und Form",
+   "cluster": "Geometrische Figuren erkennen, benennen und darstellen",
+   "tekst": "Die Kinder klassifizieren Körper und ebene Figuren nach Eigenschaften, ordnen Fachbegriffe zu und beschreiben Beziehungen zwischen geometrischen Figuren (z. B. Quadrat und Rechteck)."
+  },
+  {
+   "code": "DE.M.4.2.2",
+   "vak": "Mathematik",
+   "leerjaar": 1,
+   "leerjaren": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "domein": "Leitidee Raum und Form",
+   "cluster": "Geometrische Figuren erkennen, benennen und darstellen",
+   "tekst": "Die Kinder erkennen Körper und ebene Figuren in der Umwelt wieder."
+  },
+  {
+   "code": "DE.M.4.2.3",
+   "vak": "Mathematik",
+   "leerjaar": 1,
+   "leerjaren": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "domein": "Leitidee Raum und Form",
+   "cluster": "Geometrische Figuren erkennen, benennen und darstellen",
+   "tekst": "Die Kinder stellen Modelle von Körpern (Vollmodelle, Flächenmodelle, Kantenmodelle) und ebenen Figuren her und untersuchen (z. B. bauen, legen, zerlegen, zusammenfügen, ausschneiden, falten) diese, auch unter Nutzung digitaler Werkzeuge."
+  },
+  {
+   "code": "DE.M.4.2.4",
+   "vak": "Mathematik",
+   "leerjaar": 1,
+   "leerjaren": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "domein": "Leitidee Raum und Form",
+   "cluster": "Geometrische Figuren erkennen, benennen und darstellen",
+   "tekst": "Die Kinder untersuchen und vergleichen ebene Figuren und Körper untersuchen und vergleichen (ebene Figuren auch hinsichtlich des Umfangs und Flächeninhalts, Körper auch hinsichtlich des Rauminhalts)."
+  },
+  {
+   "code": "DE.M.4.2.5",
+   "vak": "Mathematik",
+   "leerjaar": 1,
+   "leerjaren": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "domein": "Leitidee Raum und Form",
+   "cluster": "Geometrische Figuren erkennen, benennen und darstellen",
+   "tekst": "Die Kinder fertigen Zeichnungen geometrischer Figuren mit und ohne Hilfsmittel an, auch unter Nutzung digitaler Werkzeuge."
+  },
+  {
+   "code": "DE.M.4.3.1",
+   "vak": "Mathematik",
+   "leerjaar": 1,
+   "leerjaren": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "domein": "Leitidee Raum und Form",
+   "cluster": "Geometrische Abbildungen erkennen, benennen und darstellen",
+   "tekst": "Die Kinder bilden ebene Figuren geometrisch ab (verkleinern, vergrößern und spiegeln)."
+  },
+  {
+   "code": "DE.M.4.3.2",
+   "vak": "Mathematik",
+   "leerjaar": 1,
+   "leerjaren": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "domein": "Leitidee Raum und Form",
+   "cluster": "Geometrische Abbildungen erkennen, benennen und darstellen",
+   "tekst": "Die Kinder erkennen und beschreiben Eigenschaften der Achsensymmetrie und setzen diese mit der Achsenspiegelung in Beziehung."
+  },
+  {
+   "code": "DE.M.4.3.3",
+   "vak": "Mathematik",
+   "leerjaar": 1,
+   "leerjaren": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "domein": "Leitidee Raum und Form",
+   "cluster": "Geometrische Abbildungen erkennen, benennen und darstellen",
+   "tekst": "Die Kinder erkennen und beschreiben geometrische Abbildungen in der Umwelt oder in Mustern (z. B. in Bandornamenten)."
+  },
+  {
+   "code": "DE.M.5.1.1",
+   "vak": "Mathematik",
+   "leerjaar": 1,
+   "leerjaren": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "domein": "Leitidee Daten und Zufall",
+   "cluster": "Mit Daten umgehen",
+   "tekst": "Die Kinder planen einfache Befragungen und erfassen und strukturieren bei Beobachtungen, Untersuchungen und einfachen Experimenten Daten."
+  },
+  {
+   "code": "DE.M.5.1.2",
+   "vak": "Mathematik",
+   "leerjaar": 1,
+   "leerjaren": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "domein": "Leitidee Daten und Zufall",
+   "cluster": "Mit Daten umgehen",
+   "tekst": "Die Kinder stellen Daten in Tabellen, Schaubildern und Diagrammen dar, auch unter Nutzung digitaler Werkzeuge, und entnehmen Informationen aus Tabellen, Schaubildern und Diagrammen."
+  },
+  {
+   "code": "DE.M.5.1.3",
+   "vak": "Mathematik",
+   "leerjaar": 1,
+   "leerjaren": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "domein": "Leitidee Daten und Zufall",
+   "cluster": "Mit Daten umgehen",
+   "tekst": "Die Kinder interpretieren Darstellungen von Daten und reflektieren diese kritisch."
+  },
+  {
+   "code": "DE.M.5.1.4",
+   "vak": "Mathematik",
+   "leerjaar": 1,
+   "leerjaren": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "domein": "Leitidee Daten und Zufall",
+   "cluster": "Mit Daten umgehen",
+   "tekst": "Die Kinder lösen einfache kombinatorische Fragestellungen durch systematisches Vorgehen (z. B. systematisches Probieren) oder mit Hilfe von heuristischen Hilfsmitteln (z. B. Skizze, Baumdiagramm, Tabelle)."
+  },
+  {
+   "code": "DE.M.5.2.1",
+   "vak": "Mathematik",
+   "leerjaar": 1,
+   "leerjaren": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "domein": "Leitidee Daten und Zufall",
+   "cluster": "Ereignisse bei Zufallsexperimenten untersuchen",
+   "tekst": "Die Kinder kennen und nutzen Grundbegriffe zur Beschreibung von Zufallsereignissen (sicher, möglich, unmöglich)."
+  },
+  {
+   "code": "DE.M.5.2.2",
+   "vak": "Mathematik",
+   "leerjaar": 1,
+   "leerjaren": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "domein": "Leitidee Daten und Zufall",
+   "cluster": "Ereignisse bei Zufallsexperimenten untersuchen",
+   "tekst": "Die Kinder schätzen Chancen für das Eintreten von Ereignissen bei alltäglichen Phänomenen oder einfachen Zufallsexperimenten ein und vergleichen (z. B. ist wahrscheinlicher als, hat größere Chancen als) diese datenbasiert."
+  },
+  {
+   "code": "DE.M.P1.1",
+   "vak": "Mathematik",
+   "leerjaar": 1,
+   "leerjaren": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "domein": "Mathematisch argumentieren",
+   "tekst": "Die Kinder hinterfragen mathematische Aussagen und prüfen diese auf Korrektheit."
+  },
+  {
+   "code": "DE.M.P1.2",
+   "vak": "Mathematik",
+   "leerjaar": 1,
+   "leerjaren": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "domein": "Mathematisch argumentieren",
+   "tekst": "Die Kinder stellen Vermutungen zu mathematischen Zusammenhängen auf."
+  },
+  {
+   "code": "DE.M.P1.3",
+   "vak": "Mathematik",
+   "leerjaar": 1,
+   "leerjaren": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "domein": "Mathematisch argumentieren",
+   "tekst": "Die Kinder formulieren Begründungen und vollziehen Begründungen anderer nach."
+  },
+  {
+   "code": "DE.M.P2.1",
+   "vak": "Mathematik",
+   "leerjaar": 1,
+   "leerjaren": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "domein": "Mathematisch kommunizieren ",
+   "tekst": "Die Kinder beschreiben und erklären (auch unter Nutzung geeigneter Medien) Überlegungen zu mathematischen Sachverhalten, Lösungswege und Ergebnisse adressatengerecht."
+  },
+  {
+   "code": "DE.M.P2.2",
+   "vak": "Mathematik",
+   "leerjaar": 1,
+   "leerjaren": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "domein": "Mathematisch kommunizieren ",
+   "tekst": "Die Kinder erläutern mathematische Zusammenhänge."
+  },
+  {
+   "code": "DE.M.P2.3",
+   "vak": "Mathematik",
+   "leerjaar": 1,
+   "leerjaren": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "domein": "Mathematisch kommunizieren ",
+   "tekst": "Die Kinder vollziehen Lösungen und Lösungswege anderer nach, hinterfragen und entwickeln diese gemeinsam weiter."
+  },
+  {
+   "code": "DE.M.P3.1",
+   "vak": "Mathematik",
+   "leerjaar": 1,
+   "leerjaren": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "domein": "Probleme mathematisch lösen ",
+   "tekst": "Die Kinder entwickeln Lösungsideen zu Aufgaben, zu denen bislang keine Lösungsroutinen bekannt sind."
+  },
+  {
+   "code": "DE.M.P3.2",
+   "vak": "Mathematik",
+   "leerjaar": 1,
+   "leerjaren": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "domein": "Probleme mathematisch lösen ",
+   "tekst": "Die Kinder entwickeln Lösungsstrategien (z. B. systematisches Probieren, Analogien nutzen), wählen heuristische Hilfsmittel aus und nutzen diese (z. B. Tabellen)."
+  },
+  {
+   "code": "DE.M.P3.3",
+   "vak": "Mathematik",
+   "leerjaar": 1,
+   "leerjaren": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "domein": "Probleme mathematisch lösen ",
+   "tekst": "Die Kinder überdenken Vorgehensweisen und passen diese gegebenenfalls an."
+  },
+  {
+   "code": "DE.M.P4.1",
+   "vak": "Mathematik",
+   "leerjaar": 1,
+   "leerjaren": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "domein": "Mathematisch modellieren",
+   "tekst": "Die Kinder entnehmen die für die mathematische Bearbeitung einer Fragestellung relevanten Informationen u. a. aus Texten, Darstellungen, der Lebenswirklichkeit."
+  },
+  {
+   "code": "DE.M.P4.2",
+   "vak": "Mathematik",
+   "leerjaar": 1,
+   "leerjaren": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "domein": "Mathematisch modellieren",
+   "tekst": "Die Kinder übersetzen Sachprobleme in die Sprache der Mathematik und prüfen und interpretieren die mathematische Lösung in Bezug auf die Ausgangssituation."
+  },
+  {
+   "code": "DE.M.P4.3",
+   "vak": "Mathematik",
+   "leerjaar": 1,
+   "leerjaren": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "domein": "Mathematisch modellieren",
+   "tekst": "Die Kinder formulieren zu Termen, Gleichungen und bildlichen Darstellungen Sachaufgaben."
+  },
+  {
+   "code": "DE.M.P5.1",
+   "vak": "Mathematik",
+   "leerjaar": 1,
+   "leerjaren": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "domein": "Mathematisch darstellen ",
+   "tekst": "Die Kinder wählen geeignete Darstellungsformen für das Bearbeiten mathematischer Fragestellungen aus und nutzen und entwickeln diese."
+  },
+  {
+   "code": "DE.M.P5.2",
+   "vak": "Mathematik",
+   "leerjaar": 1,
+   "leerjaren": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "domein": "Mathematisch darstellen ",
+   "tekst": "Die Kinder übertragen eine Darstellungsform in eine andere."
+  },
+  {
+   "code": "DE.M.P5.3",
+   "vak": "Mathematik",
+   "leerjaar": 1,
+   "leerjaren": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "domein": "Mathematisch darstellen ",
+   "tekst": "Die Kinder vergleichen Darstellungsformen miteinander und bewerten diese."
+  },
+  {
+   "code": "DE.M.P6.1",
+   "vak": "Mathematik",
+   "leerjaar": 1,
+   "leerjaren": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "domein": "Mit mathematischen Objekten und Werkzeugen arbeiten",
+   "tekst": "Die Kinder übersetzen symbolische und formale Sprache in Alltagssprache und umgekehrt."
+  },
+  {
+   "code": "DE.M.P6.2",
+   "vak": "Mathematik",
+   "leerjaar": 1,
+   "leerjaren": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "domein": "Mit mathematischen Objekten und Werkzeugen arbeiten",
+   "tekst": "Die Kinder verwenden mathematische Fachbegriffe und Zeichen sachgerecht."
+  },
+  {
+   "code": "DE.M.P6.3",
+   "vak": "Mathematik",
+   "leerjaar": 1,
+   "leerjaren": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "domein": "Mit mathematischen Objekten und Werkzeugen arbeiten",
+   "tekst": "Die Kinder verwenden mathematische Objekte (z. B. Zahldarstellungen, Terme, Ecken, Kanten, Tabellen, Diagramme) bei der Bearbeitung mathematischer Aufgaben- und Problemstellungen sicher und flexibel."
+  },
+  {
+   "code": "DE.M.P6.4",
+   "vak": "Mathematik",
+   "leerjaar": 1,
+   "leerjaren": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "domein": "Mit mathematischen Objekten und Werkzeugen arbeiten",
+   "tekst": "Die Kinder setzen mathematische Werkzeuge (z. B. Zeichenwerkzeuge, digitale Werkzeuge) sachgerecht ein."
+  }
+ ]
+}

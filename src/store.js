@@ -20,6 +20,17 @@ const STORE_ID = (INFO && INFO.storeId) || '9P1CLC6W364H';
 const KOOP = `ms-windows-store://pdp/?productid=${STORE_ID}`;
 const WEB = `https://apps.microsoft.com/detail/${STORE_ID}`;
 const DAG = 24 * 60 * 60 * 1000;
+
+// De taal van Windows (nl, en, fr, es, de), voor de eerste start van de Store-versie. Een andere taal: Engels.
+let systeemTaal = null;
+function taalVanSysteem() {
+  if (systeemTaal) return systeemTaal;
+  let t = '';
+  try { t = Intl.DateTimeFormat().resolvedOptions().locale; } catch {}
+  t = String(t || process.env.LANG || '').slice(0, 2).toLowerCase();
+  systeemTaal = ['nl', 'en', 'fr', 'es', 'de'].includes(t) ? t : 'en';
+  return systeemTaal;
+}
 const OPNIEUW = 60 * 60 * 1000;
 
 // Wat de licentie van de Store betekent. l = { active, trial, expires } zoals store-licentie.ps1 ze geeft.
@@ -105,4 +116,4 @@ if (ACTIEF) {
   setInterval(opDatum, 5 * 60 * 1000).unref();
 }
 
-module.exports = { ACTIEF, STORE_ID, KOOP, WEB, beoordeel, controleer, geblokkeerd, view };
+module.exports = { ACTIEF, taalVanSysteem, STORE_ID, KOOP, WEB, beoordeel, controleer, geblokkeerd, view };

@@ -170,7 +170,7 @@ function buildPrompt(metBestanden) {
     ${types.map(t => FORMATS[t]).join(',\n    ')}
   ]`;
   const taak = over
-    ? `Ik geef je mijn eigen toets in ${bijlage}. Zet hem om in een digitale toets voor LANcelot, voor leerlingen uit: ${level} (Belgisch onderwijs).${topic ? ` Titel of onderwerp: ${topic}.` : ''}
+    ? `Ik geef je mijn eigen toets in ${bijlage}. Zet hem om in een digitale toets voor LANcelot, voor leerlingen uit: ${Ui.aiKader().niveau(level)} (${Ui.aiKader().onderwijs}).${topic ? ` Titel of onderwerp: ${topic}.` : ''}
 Regels:
 - Neem elke vraag van de toets over, in dezelfde volgorde en met dezelfde punten als op de toets. Staan er geen punten bij, geef dan 1 punt per antwoord.
 - Verander de inhoud niet. Kies per vraag de soort die het best past. Een vraag met deelvragen a, b, c over een tekst, tabel of prent wordt een "bron".
@@ -178,15 +178,15 @@ Regels:
 - Een opdracht om iets te tekenen of te schetsen wordt "tekenen" (met "beeldPagina" en "beeldNodig" als er op een figuur getekend wordt). Wat digitaal niet goed kan (construeren met passer of geodriehoek, meten met een lat) wordt "papier".
 - Een getal aanduiden op een getallenas wordt "getallenas"; woorden onderstrepen of omcirkelen in een zin of tekst wordt "markeren"; een woord omcirkelen uit een paar keuzes in een zin wordt een keuzelijstje bij invullen.
 - Geef bij elke vraag het juiste antwoord. Staat er geen verbetersleutel bij, los de vraag dan zelf op en controleer je antwoord twee keer.`
-    : `Maak een nieuwe toets voor leerlingen uit: ${level} (Belgisch onderwijs)${topic ? ` over: ${topic}` : ''}.${metBestanden || $('a-files').dataset.heeft ? `\nBaseer alle vragen op ${bijlage}. Vraag alleen naar wat daarin staat.` : ''}
+    : `Maak een nieuwe toets voor leerlingen uit: ${Ui.aiKader().niveau(level)} (${Ui.aiKader().onderwijs})${topic ? ` over: ${topic}` : ''}.${metBestanden || $('a-files').dataset.heeft ? `\nBaseer alle vragen op ${bijlage}. Vraag alleen naar wat daarin staat.` : ''}
 Regels:
-- Maak ongeveer ${count} vragen${drie ? ' per niveau' : ''}, in het Nederlands zoals in Vlaanderen.
+- Maak ongeveer ${count} vragen${drie ? ' per niveau' : ''}, in ${Ui.aiKader().taal}.
 - Gebruik deze soorten, afwisselend: ${types.filter(t => t !== 'papier' && t !== 'breuk').join(', ')}.
 - Bouw op van kennis (begrippen, feiten) naar begrip en toepassen in een herkenbare situatie.
 - Bij meerkeuze en juist/fout zijn de foute keuzes typische fouten of misvattingen, geen onzin. Zet het juiste antwoord niet steeds op dezelfde plek.
 - Heeft een vraag een afbeelding uit de lesstof nodig, zet dan "beeldPagina" (het paginanummer in de pdf) en "beeldNodig" (een korte omschrijving).
 - Geef elke vraag punten: 1 punt voor een eenvoudige vraag, meer voor een vraag met meerdere antwoorden of denkstappen.`;
-  return `Je bent een ervaren leerkracht in Vlaanderen. ${taak}
+  return `Je bent een ervaren leerkracht in ${Ui.aiKader().waar}. ${taak}
 ${DoelKies.prompt(codes, 'vragen')}${extra ? `\nExtra wensen van de leerkracht:\n${extra}\n` : ''}
 Over de soorten vragen:
 - "juist" bij meerkeuze is het nummer van het juiste antwoord, geteld vanaf 0. Zijn er meerdere juiste antwoorden, geef dan een lijst: "juist": [0, 2].
@@ -196,7 +196,7 @@ Over de soorten vragen:
 - Bij een rekenvraag is "punten" voor de uitkomst en "werkPunten" voor de bewerking (die verbetert de leerkracht).
 - Bij markeren staan de woorden die de leerling moet aanduiden tussen [ ]. Bij een getallenas ligt het juiste getal op een streepje (een veelvoud van de stap vanaf het begin).
 - Bij open vragen, tekenen, inspreken en vragen op papier zet je in "model" wat een goed antwoord is, zodat de leerkracht snel kan verbeteren.
-- Gebruik de Belgische schrijfwijze en context: komma als decimaalteken, euro, Belgische namen en plaatsen.
+- ${Ui.aiKader().context}
 ${drie ? `\n${Niveau.prompt(level, 'vragen')}\n` : ''}
 Belangrijk: maak GEEN interactieve quiz, app, webpagina of canvas en schrijf geen code. Ik heb enkel de gegevens nodig als tekst.
 Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uitleg ervoor of erna, precies in dit formaat:
@@ -219,7 +219,7 @@ Het voorbeeld toont elke soort één keer; gebruik in je toets de soorten die pa
 makerDoel = DoelKies.multi({
   onChange: codes => {
     const doel = DoelKies.find(codes[0]);
-    if (doel) $('a-level').value = DoelKies.naam(doel.leerjaar);
+    if (doel) DoelKies.zetNiveau($('a-level'), doel.leerjaar);
     updatePrompt();
   },
 });
@@ -245,7 +245,7 @@ $('new-ai').addEventListener('click', () => {
   $('a-key-error').textContent = '';
   DoelKies.leerjaar(lj => {
     if (!makerDoel.codes().length) {
-      $('a-level').value = DoelKies.naam(lj);
+      DoelKies.zetNiveau($('a-level'), lj);
       updatePrompt();
     }
   });
@@ -680,7 +680,7 @@ function bijstuurPrompt() {
   let t;
   try { t = PfKern.validate(readEditor()); } catch (err) { throw new Error(`Los eerst dit op: ${err.message}`); }
   const json = JSON.stringify(zonderBeelden(t), null, 1);
-  return `Je bent een ervaren leerkracht in Vlaanderen. Hieronder staat een toets in JSON (de vorm die LANcelot gebruikt). Pas hem aan volgens deze opdracht van de leerkracht:
+  return `Je bent een ervaren leerkracht in ${Ui.aiKader().waar}. Hieronder staat een toets in JSON (de vorm die LANcelot gebruikt). Pas hem aan volgens deze opdracht van de leerkracht:
 "${opdracht}"
 
 Regels:
@@ -688,7 +688,7 @@ Regels:
 - Waarden zoals "#beeld1" zijn afbeeldingen: laat ze ongewijzigd bij de vraag waar ze horen.
 - Gebruik dezelfde vorm en soorten vragen (meerkeuze, juistfout, invullen, kort, rekenen, verbinden, ordenen, tabel, aanduiden, open, papier, bron). "juist" bij meerkeuze telt vanaf 0.
 - Vraagt de opdracht om drie niveaus, zet dan de vragen in "vragen" (Schildknaap, het doel), "page" (met hulp) en "ridder" (uitdaging).
-- Gebruik de Belgische schrijfwijze: komma als decimaalteken.
+- ${Ui.aiKader().context}
 - Maak GEEN app of interactieve quiz en schrijf geen code. Geef de volledige aangepaste toets als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uitleg.
 
 De toets:

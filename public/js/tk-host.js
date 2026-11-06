@@ -75,12 +75,11 @@ function vulBron() {
 
 // De gekozen quiz of het gekozen oefenblad staat op de knop; klik erop om een ander te kiezen.
 function zetBron(x) {
-  const wat = tk.soort === 'quiz' ? 'een quiz' : 'een oefenblad';
   $('tk-bron').value = x ? x.file : '';
   const b = $('tk-kies');
   b.innerHTML = '';
   if (x) b.append(el('strong', '', x.title), el('span', 'muted', [x.folder ? `📁 ${x.folder.split('/').join(' › ')}` : '', (x.niveaus || []).length > 1 ? '3 niveaus' : ''].filter(Boolean).join(' · ')), el('span', 'tk-kies-ander', 'Ander kiezen'));
-  else b.textContent = `📂 Kies ${wat}…`;
+  else b.textContent = tk.soort === 'quiz' ? '📂 Kies een quiz…' : '📂 Kies een oefenblad…';
   kiesBron();
 }
 

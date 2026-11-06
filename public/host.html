@@ -83,6 +83,7 @@
         <span>Je methodes, je planning en je klas: lesgeven en opvolgen.</span>
         <em class="tag">Lesgeven</em>
       </button>
+      <!-- In de Store-versie staat hier "Mijn klas" in plaats van De Kronieken (zie beheer.js, toonStore). -->
     </div>
     <!-- Onder de vijf rijken: altijd zichtbaar het Klaseiland, het rijk van Lancelot en het Runenraadsel. -->
     <div class="modules eiland-rij">
@@ -463,6 +464,7 @@
     <!-- De Kronieken: je eigen methodes per les. De boeken blijven op deze pc. -->
     <!-- De Kronieken: lesgeven en opvolgen. De boeken blijven op deze pc. -->
     <div class="realm-panel hidden" id="realm-kronieken">
+      <div class="niet-in-store">
       <div class="groep-kop"><h3>Lesgeven</h3><p class="muted small">Je methodes en je planning, meteen op het bord.</p></div>
       <div class="modules">
       <button class="module" data-module="kronieken">
@@ -478,6 +480,7 @@
         <em class="tag nieuw">Nieuw</em>
       </button>
       </div>
+      </div>
       <div class="groep-kop"><h3>Opvolgen</h3><p class="muted small">Hoe gaat het met je klas?</p></div>
       <div class="modules">
       <button class="module" id="open-klas" title="Klaslijst, doelen, zorgoverzicht, taken en logboek">
@@ -492,13 +495,13 @@
         <span>Geef een quiz of oefenblad aan een of meer leerlingen, elk op zijn niveau. Eerst bekijken zoals de leerling het krijgt.</span>
         <em class="tag">Open</em>
       </button>
-      <button class="module" data-module="zegelrol">
+      <button class="module niet-in-store" data-module="zegelrol">
         <img class="tile-icon" src="/img/icons/zegelrol.webp" alt="">
         <strong>De Zegelrol</strong>
         <span>Je rapporten: de toetsen komen er vanzelf in per vak, jij zet er symbolen, commentaar en je logo bij.</span>
         <em class="tag nieuw">Nieuw</em>
       </button>
-      <button class="module" data-module="postduif">
+      <button class="module niet-in-store" data-module="postduif">
         <img class="tile-icon" src="/img/icons/postduif.webp" alt="">
         <strong>De Postduif</strong>
         <span>Een brief voor thuis per leerling: de toetsen met de verbeterde toets, wat lukt, wat nog oefenen en nieuws uit de klas.</span>
@@ -523,7 +526,7 @@
         <button id="new-ai">Nieuwe quiz met AI</button>
       </div>
     </div>
-    <div class="notice startpakket hidden" id="startpakket">
+    <div class="notice startpakket hidden niet-in-store" id="startpakket">
       <span><strong>Startpakket 6e leerjaar.</strong> <span id="sp-tekst"></span></span>
       <button class="secondary" id="sp-knop">Zet erbij</button>
     </div>

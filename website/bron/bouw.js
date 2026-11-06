@@ -57,7 +57,7 @@ const SVG = {
   munt: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 6.5v11M15 9c-.6-1-1.7-1.5-3-1.5-1.8 0-3 .9-3 2.2 0 3 6 1.6 6 4.6 0 1.3-1.3 2.2-3 2.2-1.4 0-2.6-.6-3.1-1.6"/></svg>'
 };
 const PUNT_ICOON = ['tegels', 'bliksem', 'slot'];
-const OPVOLGEN_ICOON = { zorg: 'burcht', taken: 'oefenblad', zegelrol: 'zegelrol', postduif: 'postduif' };
+const OPVOLGEN_ICOON = { zorg: 'toren', taken: 'oefenblad', doelen: 'rijk', proef: 'proef' };
 const MOTIVATIE_ICOON = { ridder: 'toernooi', klaseiland: 'klaseiland', huisdier: 'huisdier', runenraadsel: 'runenraadsel' };
 
 function pad(taal) { return taal === 'nl' ? '/' : `/${taal}/`; }
@@ -376,7 +376,7 @@ function bouw() {
   const data = spellen();
   const alle = Object.fromEntries(TALEN.map(x => [x, JSON.parse(fs.readFileSync(path.join(BRON, 'teksten', `${x}.json`), 'utf8'))]));
   // Beelden uit de app: iconen van spellen en zalen, het merk en de lettertypes.
-  const iconen = new Set(['arena', 'ronde-tafel', 'smidse', 'wapenkamer', 'kronieken', ...Object.values(MOTIVATIE_ICOON), ...Object.values(OPVOLGEN_ICOON)].map(x => x + '.webp'));
+  const iconen = new Set(['arena', 'ronde-tafel', 'smidse', 'wapenkamer', 'burcht', ...Object.values(MOTIVATIE_ICOON), ...Object.values(OPVOLGEN_ICOON)].map(x => x + '.webp'));
   for (const g of data.groepen) for (const s of g.spellen) iconen.add(s.icoon);
   fs.rmSync(path.join(SITE, 'img', 'spellen'), { recursive: true, force: true });
   for (const f of iconen) kopieer(path.join(ROOT, 'public', 'img', 'icons', f), path.join(SITE, 'img', 'spellen', f));

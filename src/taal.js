@@ -19,9 +19,14 @@ const TALEN = [
 // Scheidingsteken in een CSV voor Excel: Engelstalige landen gebruiken een komma, de rest een puntkomma.
 const CSV_SEP = { en: ',' };
 
+// Nog geen taal gekozen? In de Store-versie de taal van Windows (store.js), anders Nederlands zoals altijd.
+function standaardTaal() {
+  const store = require('./store');
+  return store.ACTIEF ? store.taalVanSysteem() : 'nl';
+}
 function huidig() {
   const t = settings.read().taal;
-  return TALEN.some(x => x.id === t) ? t : 'nl';
+  return TALEN.some(x => x.id === t) ? t : standaardTaal();
 }
 // De AI-prompts zijn in het Nederlands geschreven. In een andere taal zetten we er een korte opdracht voor,
 // zodat alles wat de AI maakt (vragen, antwoorden, uitleg, woorden) in die taal komt. De JSON-sleutels blijven.
@@ -164,9 +169,22 @@ function script(id) {
   return cache;
 }
 
+let metKop = null; // /taal.js met de kop (Store, doelenland), bewaard zolang taal en kop gelijk blijven
 function route(app) {
   app.get('/taal.js', (req, res) => {
-    const s = script(huidig());
+    let s = script(huidig());
+    // De Store-versie: elk scherm weet het meteen (html.store-versie verbergt wat er niet in zit, zie style.css en ui.js).
+    // En de gekozen leerplandoelen (Mijn klas > Doelen): AI-opdrachten gebruiken het land ervan (Ui.aiKader in ui.js).
+    const store = require('./store').ACTIEF;
+    let land = 'be';
+    try { land = require('./doelen').land(); } catch {}
+    const voor = `${store ? 'window.LANCELOT_STORE=true;document.documentElement.classList.add("store-versie");' : ''}window.LANCELOT_DOELLAND=${JSON.stringify(land)};\n`;
+    const tag = s.tag.replace(/"$/, `${store ? '-s' : ''}-${land}"`);
+    if (!metKop || metKop.tag !== tag) {
+      const body = Buffer.concat([Buffer.from(voor), s.body]);
+      metKop = { body, gz: zlib.gzipSync(body), tag };
+    }
+    s = metKop;
     res.set({ 'Cache-Control': 'no-cache', ETag: s.tag, Vary: 'Accept-Encoding' }).type('application/javascript');
     if (req.headers['if-none-match'] === s.tag) return res.status(304).end();
     if (s.gz && /\bgzip\b/.test(req.headers['accept-encoding'] || '')) return res.set('Content-Encoding', 'gzip').send(s.gz);

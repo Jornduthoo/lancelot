@@ -1,0 +1,518 @@
+{
+ "bron": "Kerndoelen funderend onderwijs, primair onderwijs (SLO, definitieve conceptversie), data: github.com/slonl/curriculum-fo",
+ "vak": "Mens en maatschappij",
+ "doelen": [
+  {
+   "code": "NL.MEN.25A.1",
+   "vak": "Mens en maatschappij",
+   "leerjaar": 0,
+   "domein": "Vraagstukken en perspectieven",
+   "cluster": "Kerndoel 25: De leerling onderzoekt vraagstukken over mens en samenleving",
+   "tekst": "De leerling analyseert maatschappelijke verschijnselen en ontwikkelingen en benoemt waarden en belangen: analyseren aan de hand van overeenkomsten en verschillen, continuïteit en verandering, en oorzaken en gevolgen."
+  },
+  {
+   "code": "NL.MEN.25A.2",
+   "vak": "Mens en maatschappij",
+   "leerjaar": 0,
+   "domein": "Vraagstukken en perspectieven",
+   "cluster": "Kerndoel 25: De leerling onderzoekt vraagstukken over mens en samenleving",
+   "tekst": "De leerling analyseert maatschappelijke verschijnselen en ontwikkelingen en benoemt waarden en belangen: benoemen van de schaalniveaus waarop verschijnselen zich voordoen."
+  },
+  {
+   "code": "NL.MEN.25A.3",
+   "vak": "Mens en maatschappij",
+   "leerjaar": 0,
+   "domein": "Vraagstukken en perspectieven",
+   "cluster": "Kerndoel 25: De leerling onderzoekt vraagstukken over mens en samenleving",
+   "tekst": "De leerling analyseert maatschappelijke verschijnselen en ontwikkelingen en benoemt waarden en belangen: onderscheiden van perspectieven van personen en groepen en van geografische, historische en economische invalshoeken."
+  },
+  {
+   "code": "NL.MEN.25A.4",
+   "vak": "Mens en maatschappij",
+   "leerjaar": 0,
+   "domein": "Vraagstukken en perspectieven",
+   "cluster": "Kerndoel 25: De leerling onderzoekt vraagstukken over mens en samenleving",
+   "tekst": "De leerling analyseert maatschappelijke verschijnselen en ontwikkelingen en benoemt waarden en belangen: benoemen van waarden en belangen van mensen en groepen."
+  },
+  {
+   "code": "NL.MEN.25A.5",
+   "vak": "Mens en maatschappij",
+   "leerjaar": 0,
+   "domein": "Vraagstukken en perspectieven",
+   "cluster": "Kerndoel 25: De leerling onderzoekt vraagstukken over mens en samenleving",
+   "tekst": "De leerling analyseert maatschappelijke verschijnselen en ontwikkelingen en benoemt waarden en belangen: redeneren over de samenleving in de toekomst."
+  },
+  {
+   "code": "NL.MEN.25B.1",
+   "vak": "Mens en maatschappij",
+   "leerjaar": 0,
+   "domein": "Vraagstukken en perspectieven",
+   "cluster": "Kerndoel 25: De leerling onderzoekt vraagstukken over mens en samenleving",
+   "tekst": "De leerling onderzoekt maatschappelijke vraagstukken: vraagstukken: duurzame ontwikkeling; historische herinnering; rechtvaardige verdeling; en participatie en inclusie."
+  },
+  {
+   "code": "NL.MEN.25B.2",
+   "vak": "Mens en maatschappij",
+   "leerjaar": 0,
+   "domein": "Vraagstukken en perspectieven",
+   "cluster": "Kerndoel 25: De leerling onderzoekt vraagstukken over mens en samenleving",
+   "tekst": "De leerling onderzoekt maatschappelijke vraagstukken: verkennen van vraagstukken vanuit geografische, historische en economische invalshoeken en perspectieven van belanghebbenden."
+  },
+  {
+   "code": "NL.MEN.25B.3",
+   "vak": "Mens en maatschappij",
+   "leerjaar": 0,
+   "domein": "Vraagstukken en perspectieven",
+   "cluster": "Kerndoel 25: De leerling onderzoekt vraagstukken over mens en samenleving",
+   "tekst": "De leerling onderzoekt maatschappelijke vraagstukken: gebruiken van relevante bronnen: kaart- en beeldmateriaal, teksten, tabellen en grafieken."
+  },
+  {
+   "code": "NL.MEN.25B.4",
+   "vak": "Mens en maatschappij",
+   "leerjaar": 0,
+   "domein": "Vraagstukken en perspectieven",
+   "cluster": "Kerndoel 25: De leerling onderzoekt vraagstukken over mens en samenleving",
+   "tekst": "De leerling onderzoekt maatschappelijke vraagstukken: verbanden leggen tussen mogelijke oplossingen en hun gevolgen voor de samenleving."
+  },
+  {
+   "code": "NL.MEN.25B.5",
+   "vak": "Mens en maatschappij",
+   "leerjaar": 0,
+   "domein": "Vraagstukken en perspectieven",
+   "cluster": "Kerndoel 25: De leerling onderzoekt vraagstukken over mens en samenleving",
+   "tekst": "De leerling onderzoekt maatschappelijke vraagstukken: presenteren van mogelijke oplossingen, met gebruik van vaktaal."
+  },
+  {
+   "code": "NL.MEN.25C.1",
+   "vak": "Mens en maatschappij",
+   "leerjaar": 0,
+   "domein": "Vraagstukken en perspectieven",
+   "cluster": "Kerndoel 25: De leerling onderzoekt vraagstukken over mens en samenleving",
+   "tekst": "De leerling verkent de omgeving van de school vanuit geografische, historische, economische en sociale invalshoeken: inventariseren van ruimtegebruik en weergeven in een kaart."
+  },
+  {
+   "code": "NL.MEN.25C.2",
+   "vak": "Mens en maatschappij",
+   "leerjaar": 0,
+   "domein": "Vraagstukken en perspectieven",
+   "cluster": "Kerndoel 25: De leerling onderzoekt vraagstukken over mens en samenleving",
+   "tekst": "De leerling verkent de omgeving van de school vanuit geografische, historische, economische en sociale invalshoeken: herkennen en benoemen van erfgoed in de omgeving van de school."
+  },
+  {
+   "code": "NL.MEN.25C.3",
+   "vak": "Mens en maatschappij",
+   "leerjaar": 0,
+   "domein": "Vraagstukken en perspectieven",
+   "cluster": "Kerndoel 25: De leerling onderzoekt vraagstukken over mens en samenleving",
+   "tekst": "De leerling verkent de omgeving van de school vanuit geografische, historische, economische en sociale invalshoeken: inventariseren van economische activiteiten, werkgelegeheid en sociale voorzieningen."
+  },
+  {
+   "code": "NL.MEN.25C.4",
+   "vak": "Mens en maatschappij",
+   "leerjaar": 0,
+   "domein": "Vraagstukken en perspectieven",
+   "cluster": "Kerndoel 25: De leerling onderzoekt vraagstukken over mens en samenleving",
+   "tekst": "De leerling verkent de omgeving van de school vanuit geografische, historische, economische en sociale invalshoeken: verkennen welke aspecten van diversiteit zichtbaar zijn."
+  },
+  {
+   "code": "NL.MEN.25C.5",
+   "vak": "Mens en maatschappij",
+   "leerjaar": 0,
+   "domein": "Vraagstukken en perspectieven",
+   "cluster": "Kerndoel 25: De leerling onderzoekt vraagstukken over mens en samenleving",
+   "tekst": "De leerling verkent de omgeving van de school vanuit geografische, historische, economische en sociale invalshoeken: verkennen hoe digitale technologie de omgeving van de school vergroot."
+  },
+  {
+   "code": "NL.MEN.26A.1",
+   "vak": "Mens en maatschappij",
+   "leerjaar": 0,
+   "domein": "Mens en ruimte",
+   "cluster": "Kerndoel 26: De leerling verkent geografische verschijnselen.",
+   "tekst": "De leerling analyseert de wereld met geografische bronnen en verkent haar vanuit persoonlijk perspectief: aanwijzen van de ligging van continenten, oceanen, gebergten, rivieren, landen en steden op topografische kaarten."
+  },
+  {
+   "code": "NL.MEN.26A.2",
+   "vak": "Mens en maatschappij",
+   "leerjaar": 0,
+   "domein": "Mens en ruimte",
+   "cluster": "Kerndoel 26: De leerling verkent geografische verschijnselen.",
+   "tekst": "De leerling analyseert de wereld met geografische bronnen en verkent haar vanuit persoonlijk perspectief: uitleggen dat Nederland deel uitmaakt van de Europese Unie en dat Nederland inclusief Caribisch Nederland, samen met Aruba, Curaçao en Sint-Maarten het Koninkrijk der Nederlanden vormen."
+  },
+  {
+   "code": "NL.MEN.26A.3",
+   "vak": "Mens en maatschappij",
+   "leerjaar": 0,
+   "domein": "Mens en ruimte",
+   "cluster": "Kerndoel 26: De leerling verkent geografische verschijnselen.",
+   "tekst": "De leerling analyseert de wereld met geografische bronnen en verkent haar vanuit persoonlijk perspectief: onderscheiden van verschillende landschappen en geografische indelingen en grenzen met gebruik van topografische, overzichts- en thematische kaarten."
+  },
+  {
+   "code": "NL.MEN.26A.4",
+   "vak": "Mens en maatschappij",
+   "leerjaar": 0,
+   "domein": "Mens en ruimte",
+   "cluster": "Kerndoel 26: De leerling verkent geografische verschijnselen.",
+   "tekst": "De leerling analyseert de wereld met geografische bronnen en verkent haar vanuit persoonlijk perspectief: beschrijven van bevolkings- en cultuurkenmerken van gebieden."
+  },
+  {
+   "code": "NL.MEN.26A.5",
+   "vak": "Mens en maatschappij",
+   "leerjaar": 0,
+   "domein": "Mens en ruimte",
+   "cluster": "Kerndoel 26: De leerling verkent geografische verschijnselen.",
+   "tekst": "De leerling analyseert de wereld met geografische bronnen en verkent haar vanuit persoonlijk perspectief: verkennen van betekenissen die je aan plaatsen kunt geven."
+  },
+  {
+   "code": "NL.MEN.26B.1",
+   "vak": "Mens en maatschappij",
+   "leerjaar": 0,
+   "domein": "Mens en ruimte",
+   "cluster": "Kerndoel 26: De leerling verkent geografische verschijnselen.",
+   "tekst": "De leerling beschrijft hoe menselijk handelen en de leefomgeving elkaar beïnvloeden: verbanden leggen tussen geografische kenmerken en de inrichting van de leefomgeving voor wonen, voedselvoorziening, werk, infrastructuur en recreatie."
+  },
+  {
+   "code": "NL.MEN.26B.2",
+   "vak": "Mens en maatschappij",
+   "leerjaar": 0,
+   "domein": "Mens en ruimte",
+   "cluster": "Kerndoel 26: De leerling verkent geografische verschijnselen.",
+   "tekst": "De leerling beschrijft hoe menselijk handelen en de leefomgeving elkaar beïnvloeden: beschrijven hoe natuurlijke omstandigheden van invloed zijn op de inrichting van gebieden: water, bodem en klimaat."
+  },
+  {
+   "code": "NL.MEN.26B.3",
+   "vak": "Mens en maatschappij",
+   "leerjaar": 0,
+   "domein": "Mens en ruimte",
+   "cluster": "Kerndoel 26: De leerling verkent geografische verschijnselen.",
+   "tekst": "De leerling beschrijft hoe menselijk handelen en de leefomgeving elkaar beïnvloeden: beschrijven van maatregelen waarmee inwoners van Nederland nu en in de toekomst kunnen omgaan met de gevolgen van klimaatverandering."
+  },
+  {
+   "code": "NL.MEN.26B.4",
+   "vak": "Mens en maatschappij",
+   "leerjaar": 0,
+   "domein": "Mens en ruimte",
+   "cluster": "Kerndoel 26: De leerling verkent geografische verschijnselen.",
+   "tekst": "De leerling beschrijft hoe menselijk handelen en de leefomgeving elkaar beïnvloeden: beschrijven hoe het gebruik van natuurlijke grondstoffen leidt tot veranderingen in de natuur: productie, consumptie, afval en transport."
+  },
+  {
+   "code": "NL.MEN.27A.1",
+   "vak": "Mens en maatschappij",
+   "leerjaar": 0,
+   "domein": "Mens en tijd",
+   "cluster": "Kerndoel 27: De leerling verkent historische verschijnselen.",
+   "tekst": "De leerling beschrijft historische ontwikkelingen aan de hand van gebeurtenissen, personen en voorwerpen: ontwikkelingen uit de tijd van jagers en boeren: het ontstaan van landbouw en landbouwsamenlevingen."
+  },
+  {
+   "code": "NL.MEN.27A.2",
+   "vak": "Mens en maatschappij",
+   "leerjaar": 0,
+   "domein": "Mens en tijd",
+   "cluster": "Kerndoel 27: De leerling verkent historische verschijnselen.",
+   "tekst": "De leerling beschrijft historische ontwikkelingen aan de hand van gebeurtenissen, personen en voorwerpen: ontwikkelingen uit de tijd van de oude rijken: verspreiding van de Grieks-Romeinse cultuur, verspreiding van de monotheïstische godsdiensten: jodendom, christendom en islam."
+  },
+  {
+   "code": "NL.MEN.27A.3",
+   "vak": "Mens en maatschappij",
+   "leerjaar": 0,
+   "domein": "Mens en tijd",
+   "cluster": "Kerndoel 27: De leerling verkent historische verschijnselen.",
+   "tekst": "De leerling beschrijft historische ontwikkelingen aan de hand van gebeurtenissen, personen en voorwerpen: ontwikkelingen uit de tijd van standen en steden: ontstaan van een standensamenleving, groei van handelsnetwerken en opkomst van steden."
+  },
+  {
+   "code": "NL.MEN.27A.4",
+   "vak": "Mens en maatschappij",
+   "leerjaar": 0,
+   "domein": "Mens en tijd",
+   "cluster": "Kerndoel 27: De leerling verkent historische verschijnselen.",
+   "tekst": "De leerling beschrijft historische ontwikkelingen aan de hand van gebeurtenissen, personen en voorwerpen: ontwikkelingen uit de tijd van pakhuizen en plantages: de Nederlandse Opstand en het ontstaan van de Republiek, kolonisatie en het ontstaan van mensenhandel tussen werelddelen, verstedelijking en culturele bloei in de Republiek, groeiende belangstelling voor wetenschap en uitvinding van nieuwe technieken."
+  },
+  {
+   "code": "NL.MEN.27A.5",
+   "vak": "Mens en maatschappij",
+   "leerjaar": 0,
+   "domein": "Mens en tijd",
+   "cluster": "Kerndoel 27: De leerling verkent historische verschijnselen.",
+   "tekst": "De leerling beschrijft historische ontwikkelingen aan de hand van gebeurtenissen, personen en voorwerpen: ontwikkelingen uit de tijd van burgers en stoommachines: industriële revolutie, streven naar vrijheid en gelijkheid en het ontstaan van een parlementaire democratie."
+  },
+  {
+   "code": "NL.MEN.27A.6",
+   "vak": "Mens en maatschappij",
+   "leerjaar": 0,
+   "domein": "Mens en tijd",
+   "cluster": "Kerndoel 27: De leerling verkent historische verschijnselen.",
+   "tekst": "De leerling beschrijft historische ontwikkelingen aan de hand van gebeurtenissen, personen en voorwerpen: ontwikkelingen uit de tijd van wereldoorlogen en mensenrechten: Tweede Wereldoorlog en Holocaust, dekolonisatie, verdergaande samenwerking rond wereldproblemen, groeiende welvaart en diversiteit, ontstaan van een informatiesamenleving."
+  },
+  {
+   "code": "NL.MEN.27B.1",
+   "vak": "Mens en maatschappij",
+   "leerjaar": 0,
+   "domein": "Mens en tijd",
+   "cluster": "Kerndoel 27: De leerling verkent historische verschijnselen.",
+   "tekst": "De leerling redeneert over historische ontwikkelingen met gebruik van tijdsaanduidingen en bronnen: ordenen in de tijd met tijdsaanduidingen en een tijdlijn."
+  },
+  {
+   "code": "NL.MEN.27B.2",
+   "vak": "Mens en maatschappij",
+   "leerjaar": 0,
+   "domein": "Mens en tijd",
+   "cluster": "Kerndoel 27: De leerling verkent historische verschijnselen.",
+   "tekst": "De leerling redeneert over historische ontwikkelingen met gebruik van tijdsaanduidingen en bronnen: rekenen met en redeneren over tijd en tijdsduur."
+  },
+  {
+   "code": "NL.MEN.27B.3",
+   "vak": "Mens en maatschappij",
+   "leerjaar": 0,
+   "domein": "Mens en tijd",
+   "cluster": "Kerndoel 27: De leerling verkent historische verschijnselen.",
+   "tekst": "De leerling redeneert over historische ontwikkelingen met gebruik van tijdsaanduidingen en bronnen: redeneren over de maker van een bron en diens perspectief."
+  },
+  {
+   "code": "NL.MEN.27B.4",
+   "vak": "Mens en maatschappij",
+   "leerjaar": 0,
+   "domein": "Mens en tijd",
+   "cluster": "Kerndoel 27: De leerling verkent historische verschijnselen.",
+   "tekst": "De leerling redeneert over historische ontwikkelingen met gebruik van tijdsaanduidingen en bronnen: combineren van informatie tot een consistent verhaal over een historische gebeurtenis."
+  },
+  {
+   "code": "NL.MEN.27C.1",
+   "vak": "Mens en maatschappij",
+   "leerjaar": 0,
+   "domein": "Mens en tijd",
+   "cluster": "Kerndoel 27: De leerling verkent historische verschijnselen.",
+   "tekst": "De leerling legt verbanden tussen historische ontwikkelingen en gebeurtenissen in het heden en verkent betekenissen die mensen geven aan het verleden: uitleggen hoe slavernijverleden, koloniale verhoudingen, Tweede Wereldoorlog, Holocaust en migratie doorwerken in het heden."
+  },
+  {
+   "code": "NL.MEN.27C.2",
+   "vak": "Mens en maatschappij",
+   "leerjaar": 0,
+   "domein": "Mens en tijd",
+   "cluster": "Kerndoel 27: De leerling verkent historische verschijnselen.",
+   "tekst": "De leerling legt verbanden tussen historische ontwikkelingen en gebeurtenissen in het heden en verkent betekenissen die mensen geven aan het verleden: uitleggen dat de wording van het Koninkrijk der Nederlanden zichtbaar is in de vormgeving van de parlementaire democratie."
+  },
+  {
+   "code": "NL.MEN.27C.3",
+   "vak": "Mens en maatschappij",
+   "leerjaar": 0,
+   "domein": "Mens en tijd",
+   "cluster": "Kerndoel 27: De leerling verkent historische verschijnselen.",
+   "tekst": "De leerling legt verbanden tussen historische ontwikkelingen en gebeurtenissen in het heden en verkent betekenissen die mensen geven aan het verleden: verkennen van verschillende betekenissen die mensen kunnen geven aan erfgoed."
+  },
+  {
+   "code": "NL.MEN.27C.4",
+   "vak": "Mens en maatschappij",
+   "leerjaar": 0,
+   "domein": "Mens en tijd",
+   "cluster": "Kerndoel 27: De leerling verkent historische verschijnselen.",
+   "tekst": "De leerling legt verbanden tussen historische ontwikkelingen en gebeurtenissen in het heden en verkent betekenissen die mensen geven aan het verleden: verkennen van verschillende opvattingen over wat bewaard en wat herdacht moet worden."
+  },
+  {
+   "code": "NL.MEN.27C.5",
+   "vak": "Mens en maatschappij",
+   "leerjaar": 0,
+   "domein": "Mens en tijd",
+   "cluster": "Kerndoel 27: De leerling verkent historische verschijnselen.",
+   "tekst": "De leerling legt verbanden tussen historische ontwikkelingen en gebeurtenissen in het heden en verkent betekenissen die mensen geven aan het verleden: verwoorden van de invloed van het verleden op het eigen leven."
+  },
+  {
+   "code": "NL.MEN.28A.1",
+   "vak": "Mens en maatschappij",
+   "leerjaar": 0,
+   "domein": "Mens en samenleving",
+   "cluster": "Kerndoel 28: De leerling verkent hoe mensen met elkaar samenleven.",
+   "tekst": "De leerling verkent economische keuzes van mensen en mogelijke gevolgen: verkennen hoe mensen met werk en inkomen in hun levensonderhoud voorzien."
+  },
+  {
+   "code": "NL.MEN.28A.2",
+   "vak": "Mens en maatschappij",
+   "leerjaar": 0,
+   "domein": "Mens en samenleving",
+   "cluster": "Kerndoel 28: De leerling verkent hoe mensen met elkaar samenleven.",
+   "tekst": "De leerling verkent economische keuzes van mensen en mogelijke gevolgen: verkennen hoe samenwerking invloed heeft op welzijn en welvaart."
+  },
+  {
+   "code": "NL.MEN.28A.3",
+   "vak": "Mens en maatschappij",
+   "leerjaar": 0,
+   "domein": "Mens en samenleving",
+   "cluster": "Kerndoel 28: De leerling verkent hoe mensen met elkaar samenleven.",
+   "tekst": "De leerling verkent economische keuzes van mensen en mogelijke gevolgen: verkennen hoe keuzes worden beïnvloed door beschikbare middelen en door andere mensen."
+  },
+  {
+   "code": "NL.MEN.28A.4",
+   "vak": "Mens en maatschappij",
+   "leerjaar": 0,
+   "domein": "Mens en samenleving",
+   "cluster": "Kerndoel 28: De leerling verkent hoe mensen met elkaar samenleven.",
+   "tekst": "De leerling verkent economische keuzes van mensen en mogelijke gevolgen: verkennen van keuzes en hun gevolgen ten aanzien van ontvangsten, uitgaven, sparen, lenen en risico’s in de eigen omgeving."
+  },
+  {
+   "code": "NL.MEN.28A.5",
+   "vak": "Mens en maatschappij",
+   "leerjaar": 0,
+   "domein": "Mens en samenleving",
+   "cluster": "Kerndoel 28: De leerling verkent hoe mensen met elkaar samenleven.",
+   "tekst": "De leerling verkent economische keuzes van mensen en mogelijke gevolgen: beschrijven van mogelijke gevolgen van consumptie voor jezelf, voor anderen en voor de leefomgeving."
+  },
+  {
+   "code": "NL.MEN.28B.1",
+   "vak": "Mens en maatschappij",
+   "leerjaar": 0,
+   "domein": "Mens en samenleving",
+   "cluster": "Kerndoel 28: De leerling verkent hoe mensen met elkaar samenleven.",
+   "tekst": "De leerling verkent invloed en macht in de samenleving: verkennen hoe macht binnen verschillende staatsvormen wordt uitgeoefend."
+  },
+  {
+   "code": "NL.MEN.28B.2",
+   "vak": "Mens en maatschappij",
+   "leerjaar": 0,
+   "domein": "Mens en samenleving",
+   "cluster": "Kerndoel 28: De leerling verkent hoe mensen met elkaar samenleven.",
+   "tekst": "De leerling verkent invloed en macht in de samenleving: verkennen van de rol van overheden op lokaal, provinciaal en nationaal schaalniveau."
+  },
+  {
+   "code": "NL.MEN.28B.3",
+   "vak": "Mens en maatschappij",
+   "leerjaar": 0,
+   "domein": "Mens en samenleving",
+   "cluster": "Kerndoel 28: De leerling verkent hoe mensen met elkaar samenleven.",
+   "tekst": "De leerling verkent invloed en macht in de samenleving: benoemen hoe justitie en politie uitvoering geven aan rechtspraak en handhaving."
+  },
+  {
+   "code": "NL.MEN.28B.4",
+   "vak": "Mens en maatschappij",
+   "leerjaar": 0,
+   "domein": "Mens en samenleving",
+   "cluster": "Kerndoel 28: De leerling verkent hoe mensen met elkaar samenleven.",
+   "tekst": "De leerling verkent invloed en macht in de samenleving: verkennen van de invloed van (sociale) media en bedrijven op meningen en gedrag van mensen."
+  },
+  {
+   "code": "NL.MEN.28B.5",
+   "vak": "Mens en maatschappij",
+   "leerjaar": 0,
+   "domein": "Mens en samenleving",
+   "cluster": "Kerndoel 28: De leerling verkent hoe mensen met elkaar samenleven.",
+   "tekst": "De leerling verkent invloed en macht in de samenleving: verkennen op welke manieren mensen elkaar kunnen beïnvloeden."
+  },
+  {
+   "code": "NL.MEN.28C.1",
+   "vak": "Mens en maatschappij",
+   "leerjaar": 0,
+   "domein": "Mens en samenleving",
+   "cluster": "Kerndoel 28: De leerling verkent hoe mensen met elkaar samenleven.",
+   "tekst": "De leerling beschrijft hoe mensen omgaan met diversiteit in de samenleving: uitleggen dat er verschillen bestaan tussen mensen op het gebied van godsdienst, levensovertuiging, politieke gezindheid, afkomst, geslacht, handicap en seksuele gerichtheid."
+  },
+  {
+   "code": "NL.MEN.28C.2",
+   "vak": "Mens en maatschappij",
+   "leerjaar": 0,
+   "domein": "Mens en samenleving",
+   "cluster": "Kerndoel 28: De leerling verkent hoe mensen met elkaar samenleven.",
+   "tekst": "De leerling beschrijft hoe mensen omgaan met diversiteit in de samenleving: uitleggen dat er verschillen bestaan tussen mensen op het gebied van lichamelijke en cognitieve mogelijkheden, cultuur en taal."
+  },
+  {
+   "code": "NL.MEN.28C.3",
+   "vak": "Mens en maatschappij",
+   "leerjaar": 0,
+   "domein": "Mens en samenleving",
+   "cluster": "Kerndoel 28: De leerling verkent hoe mensen met elkaar samenleven.",
+   "tekst": "De leerling beschrijft hoe mensen omgaan met diversiteit in de samenleving: beschrijven hoe waarden en gebruiken tussen mensen van elkaar kunnen verschillen."
+  },
+  {
+   "code": "NL.MEN.28C.4",
+   "vak": "Mens en maatschappij",
+   "leerjaar": 0,
+   "domein": "Mens en samenleving",
+   "cluster": "Kerndoel 28: De leerling verkent hoe mensen met elkaar samenleven.",
+   "tekst": "De leerling beschrijft hoe mensen omgaan met diversiteit in de samenleving: beschrijven van diversiteit op het gebied van godsdienst en levensovertuiging: jodendom, christendom, islam, hindoeïsme, boeddhisme en humanisme."
+  },
+  {
+   "code": "NL.MEN.28C.5",
+   "vak": "Mens en maatschappij",
+   "leerjaar": 0,
+   "domein": "Mens en samenleving",
+   "cluster": "Kerndoel 28: De leerling verkent hoe mensen met elkaar samenleven.",
+   "tekst": "De leerling beschrijft hoe mensen omgaan met diversiteit in de samenleving: beschrijven hoe mensen met stereotypering, vooroordelen, racisme en discriminatie andere mensen uitsluiten."
+  },
+  {
+   "code": "NL.MEN.28C.6",
+   "vak": "Mens en maatschappij",
+   "leerjaar": 0,
+   "domein": "Mens en samenleving",
+   "cluster": "Kerndoel 28: De leerling verkent hoe mensen met elkaar samenleven.",
+   "tekst": "De leerling beschrijft hoe mensen omgaan met diversiteit in de samenleving: benoemen hoe mensen inclusie vormgeven."
+  },
+  {
+   "code": "NL.MEN.28D.1",
+   "vak": "Mens en maatschappij",
+   "leerjaar": 0,
+   "domein": "Mens en samenleving",
+   "cluster": "Kerndoel 28: De leerling verkent hoe mensen met elkaar samenleven.",
+   "tekst": "De school draagt bij aan de sociale en emotionele ontwikkeling van leerlingen en bevordert respectvolle omgang met anderen: aandacht schenken aan emoties en het omgaan met emoties."
+  },
+  {
+   "code": "NL.MEN.28D.2",
+   "vak": "Mens en maatschappij",
+   "leerjaar": 0,
+   "domein": "Mens en samenleving",
+   "cluster": "Kerndoel 28: De leerling verkent hoe mensen met elkaar samenleven.",
+   "tekst": "De school draagt bij aan de sociale en emotionele ontwikkeling van leerlingen en bevordert respectvolle omgang met anderen: bespreekbaar maken van wensen, grenzen, mogelijkheden en beperkingen."
+  },
+  {
+   "code": "NL.MEN.28D.3",
+   "vak": "Mens en maatschappij",
+   "leerjaar": 0,
+   "domein": "Mens en samenleving",
+   "cluster": "Kerndoel 28: De leerling verkent hoe mensen met elkaar samenleven.",
+   "tekst": "De school draagt bij aan de sociale en emotionele ontwikkeling van leerlingen en bevordert respectvolle omgang met anderen: stimuleren van veilige sociale omgang, weerbaarheid, samenwerking en conflicthantering."
+  },
+  {
+   "code": "NL.MEN.28D.4",
+   "vak": "Mens en maatschappij",
+   "leerjaar": 0,
+   "domein": "Mens en samenleving",
+   "cluster": "Kerndoel 28: De leerling verkent hoe mensen met elkaar samenleven.",
+   "tekst": "De school draagt bij aan de sociale en emotionele ontwikkeling van leerlingen en bevordert respectvolle omgang met anderen: aandacht schenken aan relationele en seksuele ontwikkeling."
+  },
+  {
+   "code": "NL.MEN.28D.5",
+   "vak": "Mens en maatschappij",
+   "leerjaar": 0,
+   "domein": "Mens en samenleving",
+   "cluster": "Kerndoel 28: De leerling verkent hoe mensen met elkaar samenleven.",
+   "tekst": "De school draagt bij aan de sociale en emotionele ontwikkeling van leerlingen en bevordert respectvolle omgang met anderen: bevorderen van respectvolle omgang met seksualiteit en seksuele diversiteit."
+  },
+  {
+   "code": "NL.MEN.28E.1",
+   "vak": "Mens en maatschappij",
+   "leerjaar": 0,
+   "domein": "Mens en samenleving",
+   "cluster": "Kerndoel 28: De leerling verkent hoe mensen met elkaar samenleven.",
+   "tekst": "De leerling neemt op veilige en verantwoorde wijze deel aan het verkeer: benoemen en toepassen van de verkeersregels die gelden voor voetgangers, fietsers en passagiers."
+  },
+  {
+   "code": "NL.MEN.28E.2",
+   "vak": "Mens en maatschappij",
+   "leerjaar": 0,
+   "domein": "Mens en samenleving",
+   "cluster": "Kerndoel 28: De leerling verkent hoe mensen met elkaar samenleven.",
+   "tekst": "De leerling neemt op veilige en verantwoorde wijze deel aan het verkeer: kiezen van veilige routes en vermijden van gevaarlijke situaties."
+  },
+  {
+   "code": "NL.MEN.28E.3",
+   "vak": "Mens en maatschappij",
+   "leerjaar": 0,
+   "domein": "Mens en samenleving",
+   "cluster": "Kerndoel 28: De leerling verkent hoe mensen met elkaar samenleven.",
+   "tekst": "De leerling neemt op veilige en verantwoorde wijze deel aan het verkeer: veilig handelen in verkeerssituaties in de omgeving van de school."
+  },
+  {
+   "code": "NL.MEN.28E.4",
+   "vak": "Mens en maatschappij",
+   "leerjaar": 0,
+   "domein": "Mens en samenleving",
+   "cluster": "Kerndoel 28: De leerling verkent hoe mensen met elkaar samenleven.",
+   "tekst": "De leerling neemt op veilige en verantwoorde wijze deel aan het verkeer: rekening houden met andere verkeersdeelnemers."
+  }
+ ]
+}

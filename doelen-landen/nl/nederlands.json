@@ -1,0 +1,694 @@
+{
+ "bron": "Kerndoelen funderend onderwijs, primair onderwijs (SLO, definitieve conceptversie), data: github.com/slonl/curriculum-fo",
+ "vak": "Nederlands",
+ "doelen": [
+  {
+   "code": "NL.NED.1A.1",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Overkoepelend",
+   "cluster": "Kerndoel 1: De school stimuleert de taalcompetentie van leerlingen.",
+   "tekst": "De school zorgt voor een rijke taal- en leesomgeving: aanbieden van taalactiviteiten in betekenisvolle contexten."
+  },
+  {
+   "code": "NL.NED.1A.2",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Overkoepelend",
+   "cluster": "Kerndoel 1: De school stimuleert de taalcompetentie van leerlingen.",
+   "tekst": "De school zorgt voor een rijke taal- en leesomgeving: aanbieden van een veelzijdig en actueel aanbod van jeugdliteratuur binnen een vaste leesroutine."
+  },
+  {
+   "code": "NL.NED.1A.3",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Overkoepelend",
+   "cluster": "Kerndoel 1: De school stimuleert de taalcompetentie van leerlingen.",
+   "tekst": "De school zorgt voor een rijke taal- en leesomgeving: aanbieden van kennis en vaardigheden uit het leergebied Nederlands in onderlinge samenhang."
+  },
+  {
+   "code": "NL.NED.1A.4",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Overkoepelend",
+   "cluster": "Kerndoel 1: De school stimuleert de taalcompetentie van leerlingen.",
+   "tekst": "De school zorgt voor een rijke taal- en leesomgeving: stimuleren van de leesmotivatie en de durf om te spreken en te schrijven."
+  },
+  {
+   "code": "NL.NED.1A.5",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Overkoepelend",
+   "cluster": "Kerndoel 1: De school stimuleert de taalcompetentie van leerlingen.",
+   "tekst": "De school zorgt voor een rijke taal- en leesomgeving: ruimte bieden aan verschillende talen en taalvariëteiten van leerlingen."
+  },
+  {
+   "code": "NL.NED.1B.1",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Overkoepelend",
+   "cluster": "Kerndoel 1: De school stimuleert de taalcompetentie van leerlingen.",
+   "tekst": "De school stimuleert de taalontwikkeling van de leerling in alle leergebieden: stimuleren van betekenisvolle activiteiten waarin school- en vaktaal en vakspecifieke taalvaardigheden verworven kunnen worden."
+  },
+  {
+   "code": "NL.NED.1B.2",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Overkoepelend",
+   "cluster": "Kerndoel 1: De school stimuleert de taalcompetentie van leerlingen.",
+   "tekst": "De school stimuleert de taalontwikkeling van de leerling in alle leergebieden: stimuleren van het gebruiken van rijke teksten over inhoudelijke thema's in alle leergebieden."
+  },
+  {
+   "code": "NL.NED.1B.3",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Overkoepelend",
+   "cluster": "Kerndoel 1: De school stimuleert de taalcompetentie van leerlingen.",
+   "tekst": "De school stimuleert de taalontwikkeling van de leerling in alle leergebieden: stimuleren van taalproductie en interactie in alle leergebieden."
+  },
+  {
+   "code": "NL.NED.1B.4",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Overkoepelend",
+   "cluster": "Kerndoel 1: De school stimuleert de taalcompetentie van leerlingen.",
+   "tekst": "De school stimuleert de taalontwikkeling van de leerling in alle leergebieden: stimuleren van aandacht voor taalverzorging en taalgebruik in alle leergebieden."
+  },
+  {
+   "code": "NL.NED.1B.5",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Overkoepelend",
+   "cluster": "Kerndoel 1: De school stimuleert de taalcompetentie van leerlingen.",
+   "tekst": "De school stimuleert de taalontwikkeling van de leerling in alle leergebieden: aanbieden van een schoolbrede set van aanpakken en flexibel inzetbare strategieën bij het ondersteunen van taalactiviteiten in de andere leergebieden."
+  },
+  {
+   "code": "NL.NED.2A.1",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Communicatie",
+   "cluster": "Kerndoel 2: De leerling begrijpt teksten.",
+   "tekst": "De leerling toont begrip van zakelijke en literaire teksten: aandachtig luisteren, kijken of aandachtig vloeiend lezen."
+  },
+  {
+   "code": "NL.NED.2A.2",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Communicatie",
+   "cluster": "Kerndoel 2: De leerling begrijpt teksten.",
+   "tekst": "De leerling toont begrip van zakelijke en literaire teksten: inzetten en uitbreiden van woordenschat, kennis over taal en kennis van de wereld."
+  },
+  {
+   "code": "NL.NED.2A.3",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Communicatie",
+   "cluster": "Kerndoel 2: De leerling begrijpt teksten.",
+   "tekst": "De leerling toont begrip van zakelijke en literaire teksten: inzetten en uitbreiden van kennis over de vorm van teksten: tekstsoorten, tekststructuren, literaire genres, verteltechnieken."
+  },
+  {
+   "code": "NL.NED.2A.4",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Communicatie",
+   "cluster": "Kerndoel 2: De leerling begrijpt teksten.",
+   "tekst": "De leerling toont begrip van zakelijke en literaire teksten: beschrijven van perspectieven, communicatieve doelen, publiek, context."
+  },
+  {
+   "code": "NL.NED.2A.5",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Communicatie",
+   "cluster": "Kerndoel 2: De leerling begrijpt teksten.",
+   "tekst": "De leerling toont begrip van zakelijke en literaire teksten: in eigen woorden weergeven van de hoofd- en bijzaken, de hoofdgedachte en betekenis van een tekst, passend bij het lees- of luisterdoel."
+  },
+  {
+   "code": "NL.NED.2A.6",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Communicatie",
+   "cluster": "Kerndoel 2: De leerling begrijpt teksten.",
+   "tekst": "De leerling toont begrip van zakelijke en literaire teksten: flexibel toepassen van verschillende aanpakken en begripsverhogende strategieën."
+  },
+  {
+   "code": "NL.NED.2B.1",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Communicatie",
+   "cluster": "Kerndoel 2: De leerling begrijpt teksten.",
+   "tekst": "De leerling evalueert en reflecteert op zakelijke en literaire teksten: benoemen van inhoudelijke relaties binnen en tussen verschillende teksten."
+  },
+  {
+   "code": "NL.NED.2B.2",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Communicatie",
+   "cluster": "Kerndoel 2: De leerling begrijpt teksten.",
+   "tekst": "De leerling evalueert en reflecteert op zakelijke en literaire teksten: benoemen van verschillen en overeenkomsten in feiten, meningen en perspectieven."
+  },
+  {
+   "code": "NL.NED.2B.3",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Communicatie",
+   "cluster": "Kerndoel 2: De leerling begrijpt teksten.",
+   "tekst": "De leerling evalueert en reflecteert op zakelijke en literaire teksten: benoemen van tegenstrijdige en overeenkomstige inhoud binnen en tussen teksten."
+  },
+  {
+   "code": "NL.NED.2B.4",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Communicatie",
+   "cluster": "Kerndoel 2: De leerling begrijpt teksten.",
+   "tekst": "De leerling evalueert en reflecteert op zakelijke en literaire teksten: evalueren van bruikbaarheid van teksten."
+  },
+  {
+   "code": "NL.NED.2B.5",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Communicatie",
+   "cluster": "Kerndoel 2: De leerling begrijpt teksten.",
+   "tekst": "De leerling evalueert en reflecteert op zakelijke en literaire teksten: reflecteren op de waarde, inhoud en vorm van teksten."
+  },
+  {
+   "code": "NL.NED.2C.1",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Communicatie",
+   "cluster": "Kerndoel 2: De leerling begrijpt teksten.",
+   "tekst": "De leerling verkent de betrouwbaarheid van verschillende bronnen: oriënteren op kenmerken van aangereikte bronnen: maker, tekstsoort en verschijningsdatum."
+  },
+  {
+   "code": "NL.NED.2C.2",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Communicatie",
+   "cluster": "Kerndoel 2: De leerling begrijpt teksten.",
+   "tekst": "De leerling verkent de betrouwbaarheid van verschillende bronnen: benoemen van inhouds- en vormelementen die misleidend zijn of vragen oproepen."
+  },
+  {
+   "code": "NL.NED.2C.3",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Communicatie",
+   "cluster": "Kerndoel 2: De leerling begrijpt teksten.",
+   "tekst": "De leerling verkent de betrouwbaarheid van verschillende bronnen: vergelijkend beoordelen van bronnen op basis van hun betrouwbaarheid."
+  },
+  {
+   "code": "NL.NED.3A.1",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Communicatie",
+   "cluster": "Kerndoel 3: De leerling produceert teksten.",
+   "tekst": "De leerling spreekt en schrijft afgestemd op doel, publiek en context: hanteren van een passende aanpak."
+  },
+  {
+   "code": "NL.NED.3A.2",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Communicatie",
+   "cluster": "Kerndoel 3: De leerling produceert teksten.",
+   "tekst": "De leerling spreekt en schrijft afgestemd op doel, publiek en context: in eigen woorden verwerken van informatie uit verschillende bronnen tot een gestructureerde tekst met bronvermelding."
+  },
+  {
+   "code": "NL.NED.3A.3",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Communicatie",
+   "cluster": "Kerndoel 3: De leerling produceert teksten.",
+   "tekst": "De leerling spreekt en schrijft afgestemd op doel, publiek en context: inzetten en uitbreiden van kennis over de vorm van teksten: tekstsoorten, tekststructuren, verteltechnieken."
+  },
+  {
+   "code": "NL.NED.3A.4",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Communicatie",
+   "cluster": "Kerndoel 3: De leerling produceert teksten.",
+   "tekst": "De leerling spreekt en schrijft afgestemd op doel, publiek en context: schrijven op letter-, schrift- en tekstniveau met een leesbaar handschrift en typschrift, en verstaanbaar spreken."
+  },
+  {
+   "code": "NL.NED.3A.5",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Communicatie",
+   "cluster": "Kerndoel 3: De leerling produceert teksten.",
+   "tekst": "De leerling spreekt en schrijft afgestemd op doel, publiek en context: reviseren van de tekst met het oog op doelgerichte communicatie: taalgebruik en taalverzorging."
+  },
+  {
+   "code": "NL.NED.3B.1",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Communicatie",
+   "cluster": "Kerndoel 3: De leerling produceert teksten.",
+   "tekst": "De leerling gebruikt taal op een creatieve manier: verkennen van creatief taalgebruik van anderen in literaire en zakelijke teksten."
+  },
+  {
+   "code": "NL.NED.3B.2",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Communicatie",
+   "cluster": "Kerndoel 3: De leerling produceert teksten.",
+   "tekst": "De leerling gebruikt taal op een creatieve manier: verwoorden van eigen ideeën, gedachten, ervaringen, gevoelens en fantasieën."
+  },
+  {
+   "code": "NL.NED.3B.3",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Communicatie",
+   "cluster": "Kerndoel 3: De leerling produceert teksten.",
+   "tekst": "De leerling gebruikt taal op een creatieve manier: experimenteren met klanken, woorden, zinnen, literaire genres, taalregels, taalconventies en visuele vormen."
+  },
+  {
+   "code": "NL.NED.3B.4",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Communicatie",
+   "cluster": "Kerndoel 3: De leerling produceert teksten.",
+   "tekst": "De leerling gebruikt taal op een creatieve manier: waarderen van creatief taalgebruik."
+  },
+  {
+   "code": "NL.NED.3C.1",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Communicatie",
+   "cluster": "Kerndoel 3: De leerling produceert teksten.",
+   "tekst": "De leerling schrijft om tot kennisopbouw of begrip te komen: weergeven van hoofd- en bijzaken, indrukken en vragen bij gelezen, bekeken of beluisterde inhoud."
+  },
+  {
+   "code": "NL.NED.3C.2",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Communicatie",
+   "cluster": "Kerndoel 3: De leerling produceert teksten.",
+   "tekst": "De leerling schrijft om tot kennisopbouw of begrip te komen: samenvatten van gelezen inhoud."
+  },
+  {
+   "code": "NL.NED.3C.3",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Communicatie",
+   "cluster": "Kerndoel 3: De leerling produceert teksten.",
+   "tekst": "De leerling schrijft om tot kennisopbouw of begrip te komen: verwoorden, onderbouwen en ordenen van gedachten, verworven inzichten en kennis in een tekst of schema."
+  },
+  {
+   "code": "NL.NED.3C.4",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Communicatie",
+   "cluster": "Kerndoel 3: De leerling produceert teksten.",
+   "tekst": "De leerling schrijft om tot kennisopbouw of begrip te komen: inzetten en uitbreiden van school- en vaktaal."
+  },
+  {
+   "code": "NL.NED.3C.5",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Communicatie",
+   "cluster": "Kerndoel 3: De leerling produceert teksten.",
+   "tekst": "De leerling schrijft om tot kennisopbouw of begrip te komen: schrijven op letter-, schrift- en tekstniveau met een leesbaar handschrift en typschrift."
+  },
+  {
+   "code": "NL.NED.4A.1",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Communicatie",
+   "cluster": "Kerndoel 4: De leerling voert gesprekken.",
+   "tekst": "De leerling voert gesprekken afgestemd op doel, gesprekspartner(s) en context: inzetten en uitbreiden van vaardigheden om gesprekken constructief te laten verlopen: luisteren, herkennen van signalen en passend reageren op de gesprekspartner(s)."
+  },
+  {
+   "code": "NL.NED.4A.2",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Communicatie",
+   "cluster": "Kerndoel 4: De leerling voert gesprekken.",
+   "tekst": "De leerling voert gesprekken afgestemd op doel, gesprekspartner(s) en context: actief deelnemen aan gesprekken."
+  },
+  {
+   "code": "NL.NED.4A.3",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Communicatie",
+   "cluster": "Kerndoel 4: De leerling voert gesprekken.",
+   "tekst": "De leerling voert gesprekken afgestemd op doel, gesprekspartner(s) en context: afstemmen van taalgebruik, stemgebruik en non-verbale communicatie op communicatief doel en context."
+  },
+  {
+   "code": "NL.NED.4A.4",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Communicatie",
+   "cluster": "Kerndoel 4: De leerling voert gesprekken.",
+   "tekst": "De leerling voert gesprekken afgestemd op doel, gesprekspartner(s) en context: verwerven en inzetten van informatie afgestemd op kennis, achtergrond, standpunt en perspectief van de gesprekspartner(s)."
+  },
+  {
+   "code": "NL.NED.4A.5",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Communicatie",
+   "cluster": "Kerndoel 4: De leerling voert gesprekken.",
+   "tekst": "De leerling voert gesprekken afgestemd op doel, gesprekspartner(s) en context: toepassen van gespreks- en taalconventies, passend bij de gespreksvorm."
+  },
+  {
+   "code": "NL.NED.4B.1",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Communicatie",
+   "cluster": "Kerndoel 4: De leerling voert gesprekken.",
+   "tekst": "De leerling voert gesprekken om tot kennisopbouw, begrip of een aanpak te komen: verwoorden van kennis, ideeën en standpunten met onderbouwing."
+  },
+  {
+   "code": "NL.NED.4B.2",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Communicatie",
+   "cluster": "Kerndoel 4: De leerling voert gesprekken.",
+   "tekst": "De leerling voert gesprekken om tot kennisopbouw, begrip of een aanpak te komen: vragen om toelichting, verklaring of bevestiging."
+  },
+  {
+   "code": "NL.NED.4B.3",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Communicatie",
+   "cluster": "Kerndoel 4: De leerling voert gesprekken.",
+   "tekst": "De leerling voert gesprekken om tot kennisopbouw, begrip of een aanpak te komen: accepteren of verwerpen van andermans ideeën met argumenten."
+  },
+  {
+   "code": "NL.NED.4B.4",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Communicatie",
+   "cluster": "Kerndoel 4: De leerling voert gesprekken.",
+   "tekst": "De leerling voert gesprekken om tot kennisopbouw, begrip of een aanpak te komen: luisteren naar, doorvragen op en ter discussie stellen van de ideeën en perspectieven van gesprekspartner."
+  },
+  {
+   "code": "NL.NED.4B.5",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Communicatie",
+   "cluster": "Kerndoel 4: De leerling voert gesprekken.",
+   "tekst": "De leerling voert gesprekken om tot kennisopbouw, begrip of een aanpak te komen: samenvatten van inzichten, verwoorden van oplossingen of trekken van conclusies."
+  },
+  {
+   "code": "NL.NED.5A.1",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Communicatie",
+   "cluster": "Kerndoel 5: De leerling ontwikkelt zich als bewuste taalgebruiker.",
+   "tekst": "De leerling reflecteert op het proces en evalueert het product van een taalactiviteit: ontvangen en geven van feedback."
+  },
+  {
+   "code": "NL.NED.5A.2",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Communicatie",
+   "cluster": "Kerndoel 5: De leerling ontwikkelt zich als bewuste taalgebruiker.",
+   "tekst": "De leerling reflecteert op het proces en evalueert het product van een taalactiviteit: verwoorden van het proces: de gemaakte keuzes in aanpak en strategieën tijdens en na de uitvoering van een taalactiviteit."
+  },
+  {
+   "code": "NL.NED.5A.3",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Communicatie",
+   "cluster": "Kerndoel 5: De leerling ontwikkelt zich als bewuste taalgebruiker.",
+   "tekst": "De leerling reflecteert op het proces en evalueert het product van een taalactiviteit: beoordelen van het product van de taalactiviteit aan de hand van aangereikte criteria."
+  },
+  {
+   "code": "NL.NED.5A.4",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Communicatie",
+   "cluster": "Kerndoel 5: De leerling ontwikkelt zich als bewuste taalgebruiker.",
+   "tekst": "De leerling reflecteert op het proces en evalueert het product van een taalactiviteit: formuleren van leerdoelen voor proces en product bij toekomstige taalactiviteiten."
+  },
+  {
+   "code": "NL.NED.6A.1",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Taal",
+   "cluster": "Kerndoel 6: De leerling toont inzicht in taal als systeem.",
+   "tekst": "De leerling beschouwt de relatie tussen vorm en betekenis van taal: verkennen hoe letterklanken, klemtoon, intonatie en ritme samenhangen met de betekenis van taal."
+  },
+  {
+   "code": "NL.NED.6A.2",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Taal",
+   "cluster": "Kerndoel 6: De leerling toont inzicht in taal als systeem.",
+   "tekst": "De leerling beschouwt de relatie tussen vorm en betekenis van taal: inzicht tonen in de opbouw van basale woorden om de betekenis af te leiden."
+  },
+  {
+   "code": "NL.NED.6A.3",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Taal",
+   "cluster": "Kerndoel 6: De leerling toont inzicht in taal als systeem.",
+   "tekst": "De leerling beschouwt de relatie tussen vorm en betekenis van taal: verkennen hoe woordvolgorde en zinsdelen de betekenis van een zin bepalen."
+  },
+  {
+   "code": "NL.NED.6A.4",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Taal",
+   "cluster": "Kerndoel 6: De leerling toont inzicht in taal als systeem.",
+   "tekst": "De leerling beschouwt de relatie tussen vorm en betekenis van taal: verkennen hoe woordgebruik, stijlmiddelen en opbouw van teksten de betekenis beïnvloeden."
+  },
+  {
+   "code": "NL.NED.6A.5",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Taal",
+   "cluster": "Kerndoel 6: De leerling toont inzicht in taal als systeem.",
+   "tekst": "De leerling beschouwt de relatie tussen vorm en betekenis van taal: functioneel gebruiken van taalkundige begrippen en taalbeschouwingsstrategieën bij het denken en praten over spelling en grammatica."
+  },
+  {
+   "code": "NL.NED.6B.1",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Taal",
+   "cluster": "Kerndoel 6: De leerling toont inzicht in taal als systeem.",
+   "tekst": "De leerling toont inzicht in regels en procedures voor spelling, formulering en interpuntie: correct formuleren op woord-, zins- en tekstniveau."
+  },
+  {
+   "code": "NL.NED.6B.2",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Taal",
+   "cluster": "Kerndoel 6: De leerling toont inzicht in taal als systeem.",
+   "tekst": "De leerling toont inzicht in regels en procedures voor spelling, formulering en interpuntie: verbinden van vorm en betekenis om de correcte spelling te achterhalen."
+  },
+  {
+   "code": "NL.NED.6B.3",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Taal",
+   "cluster": "Kerndoel 6: De leerling toont inzicht in taal als systeem.",
+   "tekst": "De leerling toont inzicht in regels en procedures voor spelling, formulering en interpuntie: ontwikkelen van spellingbewustzijn en spellinggeweten."
+  },
+  {
+   "code": "NL.NED.6B.4",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Taal",
+   "cluster": "Kerndoel 6: De leerling toont inzicht in taal als systeem.",
+   "tekst": "De leerling toont inzicht in regels en procedures voor spelling, formulering en interpuntie: recflecteren op gemaakte keuzes in woorden en zinnen."
+  },
+  {
+   "code": "NL.NED.6B.5",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Taal",
+   "cluster": "Kerndoel 6: De leerling toont inzicht in taal als systeem.",
+   "tekst": "De leerling toont inzicht in regels en procedures voor spelling, formulering en interpuntie: inzetten van hulpmiddelen en bronnen om regels en procedures correct toe te passen en teksten te redigeren."
+  },
+  {
+   "code": "NL.NED.7A.1",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Taal",
+   "cluster": "Kerndoel 7: De leerling verkent het gebruik van taal.",
+   "tekst": "De leerling verkent hoe je met taal uiting geeft aan identiteit: verkennen van het eigen talige repertoire in relatie tot hoe je wilt overkomen en tot welke groepen je wilt behoren: talen en taalvariëteiten, gebaren, lichaamstaal."
+  },
+  {
+   "code": "NL.NED.7A.2",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Taal",
+   "cluster": "Kerndoel 7: De leerling verkent het gebruik van taal.",
+   "tekst": "De leerling verkent hoe je met taal uiting geeft aan identiteit: verkennen van het eigen talige repertoire in relatie tot publiek, doel en context."
+  },
+  {
+   "code": "NL.NED.7A.3",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Taal",
+   "cluster": "Kerndoel 7: De leerling verkent het gebruik van taal.",
+   "tekst": "De leerling verkent hoe je met taal uiting geeft aan identiteit: reflecteren op hoe je overkomt op anderen op basis van keuzes in het eigen talige repertoire."
+  },
+  {
+   "code": "NL.NED.7A.4",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Taal",
+   "cluster": "Kerndoel 7: De leerling verkent het gebruik van taal.",
+   "tekst": "De leerling verkent hoe je met taal uiting geeft aan identiteit: waarderen van het eigen talige repertoire."
+  },
+  {
+   "code": "NL.NED.7B.1",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Taal",
+   "cluster": "Kerndoel 7: De leerling verkent het gebruik van taal.",
+   "tekst": "De leerling verkent taalvariatie en taalverandering in het Nederlandse taalgebied: verkennen van verschillende taalvariëteiten van het Nederlands: school- en vaktaal, groeps- en streektalen."
+  },
+  {
+   "code": "NL.NED.7B.2",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Taal",
+   "cluster": "Kerndoel 7: De leerling verkent het gebruik van taal.",
+   "tekst": "De leerling verkent taalvariatie en taalverandering in het Nederlandse taalgebied: vergelijken van de contexten waarin verschillende talen en taalvariëteiten worden gebruikt."
+  },
+  {
+   "code": "NL.NED.7B.3",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Taal",
+   "cluster": "Kerndoel 7: De leerling verkent het gebruik van taal.",
+   "tekst": "De leerling verkent taalvariatie en taalverandering in het Nederlandse taalgebied: benoemen van overeenkomsten en verschillen tussen het Nederlands en andere talen en taalvariëteiten op klank-, woord- en zinsniveau."
+  },
+  {
+   "code": "NL.NED.7B.4",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Taal",
+   "cluster": "Kerndoel 7: De leerling verkent het gebruik van taal.",
+   "tekst": "De leerling verkent taalvariatie en taalverandering in het Nederlandse taalgebied: verkennen van overtuigingen over verschillende talen en taalvariëteiten."
+  },
+  {
+   "code": "NL.NED.7B.5",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Taal",
+   "cluster": "Kerndoel 7: De leerling verkent het gebruik van taal.",
+   "tekst": "De leerling verkent taalvariatie en taalverandering in het Nederlandse taalgebied: verkennen van veranderingen in taalgebruik onder invloed van tijd, media en maatschappelijke ontwikkelingen."
+  },
+  {
+   "code": "NL.NED.8A.1",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Literatuur",
+   "cluster": "Kerndoel 8: De leerling doet ervaring op met literatuur.",
+   "tekst": "De leerling ontwikkelt een eigen leesvoorkeur: lezen en beluisteren van boeken en teksten, van verschillende schrijvers en literaire genres."
+  },
+  {
+   "code": "NL.NED.8A.2",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Literatuur",
+   "cluster": "Kerndoel 8: De leerling doet ervaring op met literatuur.",
+   "tekst": "De leerling ontwikkelt een eigen leesvoorkeur: geven van een waardeoordeel over gelezen of beluisterde boeken en teksten op basis van literaire genres, eigen interesse en belevingswereld."
+  },
+  {
+   "code": "NL.NED.8A.3",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Literatuur",
+   "cluster": "Kerndoel 8: De leerling doet ervaring op met literatuur.",
+   "tekst": "De leerling ontwikkelt een eigen leesvoorkeur: aangaan van nieuwe leesuitdagingen op basis van eerdere lees-, luister- en kijkervaringen."
+  },
+  {
+   "code": "NL.NED.8A.4",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Literatuur",
+   "cluster": "Kerndoel 8: De leerling doet ervaring op met literatuur.",
+   "tekst": "De leerling ontwikkelt een eigen leesvoorkeur: verwoorden van persoonlijke voorkeur op basis van reflectie op ervaringen met literatuur."
+  },
+  {
+   "code": "NL.NED.8B.1",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Literatuur",
+   "cluster": "Kerndoel 8: De leerling doet ervaring op met literatuur.",
+   "tekst": "De leerling verkent de waarde van literatuur: verwoorden van persoonlijke leeservaring en -beleving na het lezen van literatuur."
+  },
+  {
+   "code": "NL.NED.8B.2",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Literatuur",
+   "cluster": "Kerndoel 8: De leerling doet ervaring op met literatuur.",
+   "tekst": "De leerling verkent de waarde van literatuur: verwoorden van opgedane inzichten en kennis over zichzelf op basis van literatuur."
+  },
+  {
+   "code": "NL.NED.8B.3",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Literatuur",
+   "cluster": "Kerndoel 8: De leerling doet ervaring op met literatuur.",
+   "tekst": "De leerling verkent de waarde van literatuur: verwoorden van opgedane inzichten en kennis over anderen op basis van literatuur."
+  },
+  {
+   "code": "NL.NED.8B.4",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Literatuur",
+   "cluster": "Kerndoel 8: De leerling doet ervaring op met literatuur.",
+   "tekst": "De leerling verkent de waarde van literatuur: verwoorden van opgedane inzichten en kennis over de wereld en culturen op basis van literatuur."
+  },
+  {
+   "code": "NL.NED.9A.1",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Literatuur",
+   "cluster": "Kerndoel 9: De leerling toont inzicht in literatuur.",
+   "tekst": "De leerling toont inzicht in verhalende teksten: beschrijven welk probleem of welke wens van een hoofdpersoon de motor van het verhaal is en hoe het verhaal zich ontwikkelt."
+  },
+  {
+   "code": "NL.NED.9A.2",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Literatuur",
+   "cluster": "Kerndoel 9: De leerling toont inzicht in literatuur.",
+   "tekst": "De leerling toont inzicht in verhalende teksten: beschrijven van verschillende hoofd- en bijfiguren, helpers en tegenspelers en hun karaktereigenschappen."
+  },
+  {
+   "code": "NL.NED.9A.3",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Literatuur",
+   "cluster": "Kerndoel 9: De leerling toont inzicht in literatuur.",
+   "tekst": "De leerling toont inzicht in verhalende teksten: benoemen van verteltechnieken die een schrijver gebruikt om spanning op te bouwen."
+  },
+  {
+   "code": "NL.NED.9A.4",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Literatuur",
+   "cluster": "Kerndoel 9: De leerling toont inzicht in literatuur.",
+   "tekst": "De leerling toont inzicht in verhalende teksten: beschrijven waar, wanneer en onder welke omstandigheden een verhaal zich afspeelt."
+  },
+  {
+   "code": "NL.NED.9B.1",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Literatuur",
+   "cluster": "Kerndoel 9: De leerling toont inzicht in literatuur.",
+   "tekst": "De leerling toont inzicht in genremerken van literatuur: onderscheiden van poëzie-, proza- en dramateksten op basis van eenvoudige genrekenmerken."
+  },
+  {
+   "code": "NL.NED.9B.2",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Literatuur",
+   "cluster": "Kerndoel 9: De leerling toont inzicht in literatuur.",
+   "tekst": "De leerling toont inzicht in genremerken van literatuur: benoemen van kenmerkend taalgebruik in literaire genres: figuurlijk taalgebruik, rijm en ritme."
+  },
+  {
+   "code": "NL.NED.9B.3",
+   "vak": "Nederlands",
+   "leerjaar": 0,
+   "domein": "Literatuur",
+   "cluster": "Kerndoel 9: De leerling toont inzicht in literatuur.",
+   "tekst": "De leerling toont inzicht in genremerken van literatuur: benoemen van kenmerkende visuele elementen in literaire genres: illustraties, vormgeving."
+  }
+ ]
+}
