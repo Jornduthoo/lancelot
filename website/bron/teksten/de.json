@@ -2,7 +2,7 @@
   "taalNaam": "Deutsch",
   "taalWenk": "Diese Seite gibt es auch auf Deutsch →",
   "titel": "LANcelot · Quiz, Umfragen und Klassenspiele im eigenen Klassennetz",
-  "omschrijving": "Klassen-App für Lehrkräfte: Live-Quiz, Umfragen, {n} Spiele und Arbeitsblätter mit KI. Läuft auf dem PC in deiner Klasse, die Kinder spielen im Browser mit.",
+  "omschrijving": "Klassen-App für Lehrkräfte: Live-Quiz, Umfragen, {n} Spiele, Arbeitsblätter mit KI und Tests. Läuft auf dem PC in deiner Klasse, die Kinder spielen im Browser mit.",
   "nav": {
     "hallen": "Was drin ist",
     "spellen": "Spiele",
@@ -22,7 +22,7 @@
   "punten": [
     {
       "titel": "Alles in einem",
-      "tekst": "Quiz, Umfragen, Spiele, Arbeitsblätter und Klassenwerkzeuge in einer App."
+      "tekst": "Quiz, Umfragen, Spiele, Arbeitsblätter, Tests und Klassenwerkzeuge in einer App."
     },
     {
       "titel": "Lokal",
@@ -52,8 +52,7 @@
   },
   "video": {
     "titel": "LANcelot in Aktion",
-    "knop": "Video abspielen",
-    "noot": "Das Video liegt auf YouTube. Dein Browser verbindet sich erst mit YouTube, wenn du auf Abspielen klickst."
+    "knop": "Video abspielen"
   },
   "schermen": {
     "titel": "Echte Bildschirme aus LANcelot",
@@ -85,9 +84,9 @@
         "tekst": "Klassenwerkzeuge an der Tafel: Losrad, Gruppen, Timer, Lautstärkemesser, Würfel und Klassendienste."
       },
       {
-        "id": "kronieken",
-        "naam": "Die Chroniken",
-        "tekst": "Deine Lehrbücher, deine Planung und deine Klasse: unterrichten, begleiten und berichten."
+        "id": "burcht",
+        "naam": "Meine Klasse",
+        "tekst": "Deine Klassenliste, die Lehrplanziele deines Landes oder eigene Ziele, Aufgaben pro Kind und die Ergebnisse."
       }
     ]
   },
@@ -154,7 +153,7 @@
   },
   "opvolgen": {
     "titel": "Begleiten, Förderung und Zeugnisse",
-    "tekst": "Jede Antwort landet im Logbuch, verknüpft mit den Lehrplanzielen. So siehst du sofort, wer Hilfe braucht, und dein Zeugnis füllt sich fast von selbst.",
+    "tekst": "Jede Antwort landet im Logbuch, verknüpft mit den Zielen, die du wählst. So siehst du sofort, wer mehr Hilfe braucht.",
     "lijst": [
       {
         "id": "zorg",
@@ -167,14 +166,14 @@
         "tekst": "Gib ein Quiz oder Arbeitsblatt an ein Kind oder eine kleine Gruppe, jedes auf seinem Niveau. Auch von zu Hause vorzubereiten."
       },
       {
-        "id": "zegelrol",
-        "naam": "Die Siegelrolle: dein Zeugnis",
-        "tekst": "Die Tests kommen pro Fach von selbst hinein. Du ergänzt Symbole, Kommentare und das Logo deiner Schule."
+        "id": "doelen",
+        "naam": "Ziele deines Landes",
+        "tekst": "Wähle die Ziele von England, den USA, den Niederlanden, Deutschland (KMK-Bildungsstandards), Frankreich oder Flandern, oder lege eigene an. Eine KI schlägt sie gern vor. Ohne Ziele geht es auch."
       },
       {
-        "id": "postduif",
-        "naam": "Die Brieftaube: ein Brief nach Hause",
-        "tekst": "Pro Kind ein Brief mit dem korrigierten Test, was schon klappt, was noch zu üben ist und Neuigkeiten aus der Klasse."
+        "id": "proef",
+        "naam": "Tests mit Lösungsblatt",
+        "tekst": "Erstelle einen Test in der Schmiede, lass ihn online schreiben oder drucke ihn. Die Punkte landen von selbst in deiner Übersicht."
       }
     ]
   },
@@ -235,7 +234,7 @@
   },
   "download": {
     "titel": "Hol LANcelot in deine Klasse",
-    "tekst": "LANcelot ist bald für Lehrkräfte und Schulen verfügbar.",
+    "tekst": "LANcelot kommt bald in den Microsoft Store. Im ersten Monat testest du alles in vollem Umfang.",
     "noot": "Du brauchst nur einen Windows-PC in der Klasse. Die Kinder spielen im Browser mit."
   },
   "faq": {
@@ -243,7 +242,11 @@
     "lijst": [
       {
         "v": "Wann kann ich LANcelot nutzen?",
-        "a": "LANcelot ist bald verfügbar. Auf dieser Website erfährst du es zuerst."
+        "a": "LANcelot kommt bald in den Microsoft Store, mit einem Probemonat, in dem alles funktioniert. Auf dieser Website erfährst du es zuerst."
+      },
+      {
+        "v": "Funktioniert LANcelot mit den Zielen meines Landes?",
+        "a": "Ja. Wähle unter Meine Klasse die Lehrplanziele deines Landes, lege eigene an oder arbeite ohne Ziele. Jede Antwort steht dann beim richtigen Ziel in deiner Übersicht."
       },
       {
         "v": "Brauche ich Internet?",

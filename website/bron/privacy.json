@@ -11,7 +11,7 @@
       ["Op de toestellen van leerlingen", ["De browser van een leerling bewaart alleen een willekeurige spelerscode, de gekozen naam, de ridder en kleine voorkeuren (zoals geluid aan of uit), om na herladen verder te spelen. Er zijn geen cookies van derden en geen tracking."]],
       ["Kinderen", ["LANcelot is gemaakt voor gebruik in de klas, onder leiding van de leerkracht. Leerlingen maken geen account aan, zien geen reclame en kunnen niets kopen."]],
       ["Bewaren en wissen", ["Gegevens blijven op de pc tot de leerkracht ze wist. Wie LANcelot verwijdert, behoudt bewust de gegevensmap (zo gaat er niets verloren bij herinstalleren); verwijder die map om alles te wissen. Ouders en leerlingen kunnen bij de school vragen wat er bewaard wordt."]],
-      ["Deze website", ["lancelot.network gebruikt geen cookies en geen tracking. Een video van YouTube laadt pas als je erop klikt (youtube-nocookie.com). De website wordt gehost door Cloudflare, dat technische logboeken bijhoudt om de site veilig te laten werken."]],
+      ["Deze website", ["lancelot.network gebruikt geen cookies en geen tracking. De video's staan op de website zelf, zonder diensten van anderen. De website wordt gehost door Cloudflare, dat technische logboeken bijhoudt om de site veilig te laten werken."]],
       ["Contact", ["Vragen over privacy? Mail naar hello@lancelot.network. Wijzigt dit beleid, dan staat de nieuwe datum bovenaan."]]
     ]
   },
@@ -27,7 +27,7 @@
       ["On pupils' devices", ["A pupil's browser only stores a random player code, the chosen name, their knight and small preferences (such as sound on or off), to continue after a reload. There are no third-party cookies and no tracking."]],
       ["Children", ["LANcelot is made for use in the classroom, led by the teacher. Pupils do not create accounts, see no advertising and cannot buy anything."]],
       ["Keeping and deleting", ["Data stays on the PC until the teacher deletes it. Removing LANcelot deliberately keeps the data folder (so nothing is lost when reinstalling); delete that folder to erase everything. Parents and pupils can ask the school what is stored."]],
-      ["This website", ["lancelot.network uses no cookies and no tracking. A YouTube video only loads when you click it (youtube-nocookie.com). The website is hosted by Cloudflare, which keeps technical logs to run the site securely."]],
+      ["This website", ["lancelot.network uses no cookies and no tracking. The videos are hosted on this website itself, with no third-party services. The website is hosted by Cloudflare, which keeps technical logs to run the site securely."]],
       ["Contact", ["Questions about privacy? Email hello@lancelot.network. If this policy changes, the new date is shown at the top."]]
     ]
   },
@@ -43,7 +43,7 @@
       ["Sur les appareils des élèves", ["Le navigateur d'un élève conserve seulement un code de joueur aléatoire, le nom choisi, son chevalier et de petites préférences (comme le son activé ou non), pour reprendre après un rechargement. Pas de cookies tiers, pas de suivi."]],
       ["Enfants", ["LANcelot est conçu pour la classe, sous la conduite de l'enseignant. Les élèves ne créent pas de compte, ne voient pas de publicité et ne peuvent rien acheter."]],
       ["Conservation et suppression", ["Les données restent sur le PC jusqu'à ce que l'enseignant les efface. La désinstallation de LANcelot conserve volontairement le dossier de données (rien n'est perdu en cas de réinstallation) ; supprime ce dossier pour tout effacer. Les parents et les élèves peuvent demander à l'école ce qui est conservé."]],
-      ["Ce site web", ["lancelot.network n'utilise ni cookies ni suivi. Une vidéo YouTube ne se charge que lorsque tu cliques dessus (youtube-nocookie.com). Le site est hébergé par Cloudflare, qui conserve des journaux techniques pour faire fonctionner le site en toute sécurité."]],
+      ["Ce site web", ["lancelot.network n'utilise ni cookies ni suivi. Les vidéos sont hébergées sur ce site même, sans service tiers. Le site est hébergé par Cloudflare, qui conserve des journaux techniques pour faire fonctionner le site en toute sécurité."]],
       ["Contact", ["Des questions sur la confidentialité ? Écris à hello@lancelot.network. Si cette politique change, la nouvelle date figure en haut."]]
     ]
   },
@@ -59,7 +59,7 @@
       ["En los dispositivos del alumnado", ["El navegador de un alumno solo guarda un código de jugador aleatorio, el nombre elegido, su caballero y pequeñas preferencias (como el sonido activado o no), para seguir tras recargar. No hay cookies de terceros ni seguimiento."]],
       ["Menores", ["LANcelot está hecho para usarse en el aula, bajo la dirección del docente. El alumnado no crea cuentas, no ve publicidad y no puede comprar nada."]],
       ["Conservación y borrado", ["Los datos permanecen en el PC hasta que el docente los borra. Al desinstalar LANcelot se conserva a propósito la carpeta de datos (así no se pierde nada al reinstalar); borra esa carpeta para eliminarlo todo. Las familias y el alumnado pueden preguntar al centro qué se guarda."]],
-      ["Este sitio web", ["lancelot.network no usa cookies ni seguimiento. Un vídeo de YouTube solo se carga cuando haces clic (youtube-nocookie.com). El sitio está alojado en Cloudflare, que guarda registros técnicos para que el sitio funcione de forma segura."]],
+      ["Este sitio web", ["lancelot.network no usa cookies ni seguimiento. Los vídeos están alojados en este mismo sitio, sin servicios de terceros. El sitio está alojado en Cloudflare, que guarda registros técnicos para que el sitio funcione de forma segura."]],
       ["Contacto", ["¿Preguntas sobre privacidad? Escribe a hello@lancelot.network. Si esta política cambia, la nueva fecha aparece arriba."]]
     ]
   },
@@ -75,7 +75,7 @@
       ["Auf den Geräten der Kinder", ["Der Browser eines Kindes speichert nur einen zufälligen Spielercode, den gewählten Namen, den Ritter und kleine Einstellungen (zum Beispiel Ton an oder aus), um nach dem Neuladen weiterzuspielen. Keine Cookies von Dritten, kein Tracking."]],
       ["Kinder", ["LANcelot ist für den Unterricht gemacht, unter Leitung der Lehrkraft. Kinder legen kein Konto an, sehen keine Werbung und können nichts kaufen."]],
       ["Aufbewahren und Löschen", ["Die Daten bleiben auf dem PC, bis die Lehrkraft sie löscht. Beim Deinstallieren bleibt der Datenordner absichtlich erhalten (so geht bei einer Neuinstallation nichts verloren); lösche diesen Ordner, um alles zu entfernen. Eltern und Kinder können bei der Schule erfragen, was gespeichert ist."]],
-      ["Diese Website", ["lancelot.network verwendet keine Cookies und kein Tracking. Ein YouTube-Video lädt erst, wenn du darauf klickst (youtube-nocookie.com). Die Website wird von Cloudflare gehostet, das technische Protokolle führt, um die Seite sicher zu betreiben."]],
+      ["Diese Website", ["lancelot.network verwendet keine Cookies und kein Tracking. Die Videos liegen auf dieser Website selbst, ohne Dienste Dritter. Die Website wird von Cloudflare gehostet, das technische Protokolle führt, um die Seite sicher zu betreiben."]],
       ["Kontakt", ["Fragen zum Datenschutz? Schreib an hello@lancelot.network. Ändert sich diese Erklärung, steht das neue Datum oben."]]
     ]
   }

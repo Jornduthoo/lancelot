@@ -1,0 +1,93 @@
+{
+ "title": "Beispielquiz: die Welt um uns herum",
+ "questions": [
+  {
+   "question": "Wie viele Beine hat eine Spinne?",
+   "answers": [
+    "6",
+    "8",
+    "10",
+    "4"
+   ],
+   "correct": 1,
+   "time": 20
+  },
+  {
+   "question": "Welcher Planet ist der Sonne am nächsten?",
+   "answers": [
+    "Venus",
+    "Erde",
+    "Merkur",
+    "Mars"
+   ],
+   "correct": 2,
+   "time": 20
+  },
+  {
+   "question": "Wie viel ist 7 · 8?",
+   "answers": [
+    "54",
+    "56",
+    "64",
+    "48"
+   ],
+   "correct": 1,
+   "time": 20
+  },
+  {
+   "question": "Welches Tier ist ein Säugetier?",
+   "answers": [
+    "Hai",
+    "Frosch",
+    "Delfin",
+    "Pinguin"
+   ],
+   "correct": 2,
+   "time": 20
+  },
+  {
+   "question": "Was brauchen Pflanzen, um ihre Nahrung herzustellen?",
+   "answers": [
+    "Sonnenlicht",
+    "Dunkelheit",
+    "Salz",
+    "Sand"
+   ],
+   "correct": 0,
+   "time": 20
+  },
+  {
+   "question": "Wie viele Seiten hat ein Sechseck?",
+   "answers": [
+    "5",
+    "6",
+    "7",
+    "8"
+   ],
+   "correct": 1,
+   "time": 20
+  },
+  {
+   "question": "Bei welcher Temperatur gefriert Wasser?",
+   "answers": [
+    "0 °C",
+    "10 °C",
+    "-10 °C",
+    "100 °C"
+   ],
+   "correct": 0,
+   "time": 20
+  },
+  {
+   "question": "Welcher Buchstabe ist ein Vokal?",
+   "answers": [
+    "B",
+    "T",
+    "E",
+    "K"
+   ],
+   "correct": 2,
+   "time": 20
+  }
+ ]
+}

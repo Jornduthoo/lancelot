@@ -1,0 +1,678 @@
+{
+ "bron": "Programme de mathématiques du cycle 2, BO n° 41 du 31 octobre 2024 (ministère de l’Éducation nationale). Partie nombres et calcul.",
+ "vak": "Mathématiques",
+ "doelen": [
+  {
+   "code": "FR.CP.M1",
+   "vak": "Mathématiques",
+   "leerjaar": 1,
+   "domein": "Nombres entiers",
+   "tekst": "Comparer et dénombrer des collections en les organisant."
+  },
+  {
+   "code": "FR.CP.M2",
+   "vak": "Mathématiques",
+   "leerjaar": 1,
+   "domein": "Nombres entiers",
+   "tekst": "Construire des collections de cardinal donné."
+  },
+  {
+   "code": "FR.CP.M3",
+   "vak": "Mathématiques",
+   "leerjaar": 1,
+   "domein": "Nombres entiers",
+   "tekst": "Connaitre la suite écrite et la suite orale des nombres jusqu'à cent."
+  },
+  {
+   "code": "FR.CP.M4",
+   "vak": "Mathématiques",
+   "leerjaar": 1,
+   "domein": "Nombres entiers",
+   "tekst": "Connaitre et utiliser diverses représentations d'un nombre et passer de l'une à l'autre."
+  },
+  {
+   "code": "FR.CP.M5",
+   "vak": "Mathématiques",
+   "leerjaar": 1,
+   "domein": "Nombres entiers",
+   "tekst": "Connaitre la valeur des chiffres en fonction de leur position (unités, dizaines)."
+  },
+  {
+   "code": "FR.CP.M6",
+   "vak": "Mathématiques",
+   "leerjaar": 1,
+   "domein": "Nombres entiers",
+   "tekst": "Comparer, encadrer, intercaler des nombres entiers en utilisant les symboles =, < et >."
+  },
+  {
+   "code": "FR.CP.M7",
+   "vak": "Mathématiques",
+   "leerjaar": 1,
+   "domein": "Nombres entiers",
+   "tekst": "Ordonner des nombres dans l'ordre croissant ou décroissant."
+  },
+  {
+   "code": "FR.CP.M8",
+   "vak": "Mathématiques",
+   "leerjaar": 1,
+   "domein": "Nombres entiers",
+   "tekst": "Savoir placer des nombres sur une demi-droite graduée de un en un."
+  },
+  {
+   "code": "FR.CP.M9",
+   "vak": "Mathématiques",
+   "leerjaar": 1,
+   "domein": "Nombres entiers",
+   "tekst": "Connaitre les nombres ordinaux jusqu'à « vingtième »."
+  },
+  {
+   "code": "FR.CP.M10",
+   "vak": "Mathématiques",
+   "leerjaar": 1,
+   "domein": "Nombres entiers",
+   "tekst": "Comprendre et utiliser les nombres ordinaux."
+  },
+  {
+   "code": "FR.CP.M11",
+   "vak": "Mathématiques",
+   "leerjaar": 1,
+   "domein": "Nombres entiers",
+   "tekst": "Repérer un rang ou une position dans une file orientée ou dans une liste d'objets ou de personnes."
+  },
+  {
+   "code": "FR.CP.M12",
+   "vak": "Mathématiques",
+   "leerjaar": 1,
+   "domein": "Nombres entiers",
+   "tekst": "Faire le lien entre le rang d'un objet dans une liste et le nombre d'éléments qui le précèdent."
+  },
+  {
+   "code": "FR.CP.M13",
+   "vak": "Mathématiques",
+   "leerjaar": 1,
+   "domein": "Nombres entiers",
+   "tekst": "Utiliser les nombres ordinaux dans le cadre de l'étude de suites de symboles, de formes, de lettres ou de nombres."
+  },
+  {
+   "code": "FR.CP.M14",
+   "vak": "Mathématiques",
+   "leerjaar": 1,
+   "domein": "Les quatre opérations",
+   "tekst": "Comprendre le sens de l'addition et de la soustraction."
+  },
+  {
+   "code": "FR.CP.M15",
+   "vak": "Mathématiques",
+   "leerjaar": 1,
+   "domein": "Les quatre opérations",
+   "tekst": "Comprendre et utiliser les symboles « + », « - » et « = »."
+  },
+  {
+   "code": "FR.CP.M16",
+   "vak": "Mathématiques",
+   "leerjaar": 1,
+   "domein": "Les quatre opérations",
+   "tekst": "Poser et effectuer des additions en colonnes."
+  },
+  {
+   "code": "FR.CP.M17",
+   "vak": "Mathématiques",
+   "leerjaar": 1,
+   "domein": "Les quatre opérations",
+   "tekst": "Comprendre le sens de la multiplication."
+  },
+  {
+   "code": "FR.CP.M18",
+   "vak": "Mathématiques",
+   "leerjaar": 1,
+   "domein": "Calcul mental",
+   "tekst": "Connaitre dans les deux sens les tables d'addition."
+  },
+  {
+   "code": "FR.CP.M19",
+   "vak": "Mathématiques",
+   "leerjaar": 1,
+   "domein": "Calcul mental",
+   "tekst": "Connaitre les doubles et les moitiés de nombres usuels."
+  },
+  {
+   "code": "FR.CP.M20",
+   "vak": "Mathématiques",
+   "leerjaar": 1,
+   "domein": "Calcul mental",
+   "tekst": "Ajouter ou soustraire 1 ou 2 à un nombre."
+  },
+  {
+   "code": "FR.CP.M21",
+   "vak": "Mathématiques",
+   "leerjaar": 1,
+   "domein": "Calcul mental",
+   "tekst": "Ajouter ou soustraire 10 à un nombre."
+  },
+  {
+   "code": "FR.CP.M22",
+   "vak": "Mathématiques",
+   "leerjaar": 1,
+   "domein": "Calcul mental",
+   "tekst": "Ajouter ou soustraire 20, 30, 40, 50, 60, 70, 80 ou 90 à un nombre."
+  },
+  {
+   "code": "FR.CP.M23",
+   "vak": "Mathématiques",
+   "leerjaar": 1,
+   "domein": "Calcul mental",
+   "tekst": "Trouver le complément d'un nombre à la dizaine supérieure."
+  },
+  {
+   "code": "FR.CP.M24",
+   "vak": "Mathématiques",
+   "leerjaar": 1,
+   "domein": "Calcul mental",
+   "tekst": "Ajouter un nombre inférieur à 9 à un nombre."
+  },
+  {
+   "code": "FR.CP.M25",
+   "vak": "Mathématiques",
+   "leerjaar": 1,
+   "domein": "Calcul mental",
+   "tekst": "Ajouter 9 à un nombre."
+  },
+  {
+   "code": "FR.CP.M26",
+   "vak": "Mathématiques",
+   "leerjaar": 1,
+   "domein": "Calcul mental",
+   "tekst": "Ajouter deux nombres inférieurs à 100."
+  },
+  {
+   "code": "FR.CP.M27",
+   "vak": "Mathématiques",
+   "leerjaar": 1,
+   "domein": "Calcul mental",
+   "tekst": "Déterminer la moitié d'un nombre pair."
+  },
+  {
+   "code": "FR.CP.M28",
+   "vak": "Mathématiques",
+   "leerjaar": 1,
+   "domein": "Calcul mental",
+   "tekst": "Soustraire un nombre inférieur à 10 à un nombre entier de dizaines."
+  },
+  {
+   "code": "FR.CP.M29",
+   "vak": "Mathématiques",
+   "leerjaar": 1,
+   "domein": "Résolution de problèmes",
+   "tekst": "Résoudre des problèmes additifs en une étape du type parties-tout."
+  },
+  {
+   "code": "FR.CP.M30",
+   "vak": "Mathématiques",
+   "leerjaar": 1,
+   "domein": "Résolution de problèmes",
+   "tekst": "Résoudre des problèmes additifs en deux étapes (champ numérique inférieur ou égal à 30)."
+  },
+  {
+   "code": "FR.CP.M31",
+   "vak": "Mathématiques",
+   "leerjaar": 1,
+   "domein": "Résolution de problèmes",
+   "tekst": "Résoudre des problèmes multiplicatifs en une étape (champ numérique inférieur ou égal à 30)."
+  },
+  {
+   "code": "FR.CE1.M1",
+   "vak": "Mathématiques",
+   "leerjaar": 2,
+   "domein": "Nombres entiers",
+   "tekst": "Dénombrer des collections en les organisant."
+  },
+  {
+   "code": "FR.CE1.M2",
+   "vak": "Mathématiques",
+   "leerjaar": 2,
+   "domein": "Nombres entiers",
+   "tekst": "Construire des collections de cardinal donné."
+  },
+  {
+   "code": "FR.CE1.M3",
+   "vak": "Mathématiques",
+   "leerjaar": 2,
+   "domein": "Nombres entiers",
+   "tekst": "Connaitre et utiliser la relation entre unités et dizaines, entre dizaines et centaines, entre unités et centaines."
+  },
+  {
+   "code": "FR.CE1.M4",
+   "vak": "Mathématiques",
+   "leerjaar": 2,
+   "domein": "Nombres entiers",
+   "tekst": "Connaitre la suite écrite et la suite orale des nombres jusqu'à mille."
+  },
+  {
+   "code": "FR.CE1.M5",
+   "vak": "Mathématiques",
+   "leerjaar": 2,
+   "domein": "Nombres entiers",
+   "tekst": "Connaitre et utiliser diverses représentations d'un nombre et passer de l'une à l'autre."
+  },
+  {
+   "code": "FR.CE1.M6",
+   "vak": "Mathématiques",
+   "leerjaar": 2,
+   "domein": "Nombres entiers",
+   "tekst": "Connaitre la valeur des chiffres en fonction de leur position dans un nombre."
+  },
+  {
+   "code": "FR.CE1.M7",
+   "vak": "Mathématiques",
+   "leerjaar": 2,
+   "domein": "Nombres entiers",
+   "tekst": "Comparer, encadrer, intercaler des nombres entiers en utilisant les symboles (=, <, >)."
+  },
+  {
+   "code": "FR.CE1.M8",
+   "vak": "Mathématiques",
+   "leerjaar": 2,
+   "domein": "Nombres entiers",
+   "tekst": "Ordonner des nombres dans l'ordre croissant ou décroissant."
+  },
+  {
+   "code": "FR.CE1.M9",
+   "vak": "Mathématiques",
+   "leerjaar": 2,
+   "domein": "Nombres entiers",
+   "tekst": "Comprendre et savoir utiliser les expressions « égal à », « supérieur à », « inférieur à », « compris entre … et … »."
+  },
+  {
+   "code": "FR.CE1.M10",
+   "vak": "Mathématiques",
+   "leerjaar": 2,
+   "domein": "Nombres entiers",
+   "tekst": "Savoir placer des nombres sur une demi-droite graduée."
+  },
+  {
+   "code": "FR.CE1.M11",
+   "vak": "Mathématiques",
+   "leerjaar": 2,
+   "domein": "Nombres entiers",
+   "tekst": "Connaitre les nombres ordinaux jusqu'à cent."
+  },
+  {
+   "code": "FR.CE1.M12",
+   "vak": "Mathématiques",
+   "leerjaar": 2,
+   "domein": "Nombres entiers",
+   "tekst": "Comprendre et utiliser les nombres ordinaux."
+  },
+  {
+   "code": "FR.CE1.M13",
+   "vak": "Mathématiques",
+   "leerjaar": 2,
+   "domein": "Nombres entiers",
+   "tekst": "Repérer un rang ou une position dans une file orientée ou dans une liste d'objets ou de personnes."
+  },
+  {
+   "code": "FR.CE1.M14",
+   "vak": "Mathématiques",
+   "leerjaar": 2,
+   "domein": "Nombres entiers",
+   "tekst": "Faire le lien entre le rang d'un objet dans une liste et le nombre d'éléments qui le précèdent."
+  },
+  {
+   "code": "FR.CE1.M15",
+   "vak": "Mathématiques",
+   "leerjaar": 2,
+   "domein": "Nombres entiers",
+   "tekst": "Utiliser les nombres ordinaux dans le cadre de suite de symboles, de lettres ou de nombres."
+  },
+  {
+   "code": "FR.CE1.M16",
+   "vak": "Mathématiques",
+   "leerjaar": 2,
+   "domein": "Les fractions",
+   "tekst": "Savoir interpréter, représenter, écrire et lire les fractions 1/2, 1/3, 1/4, 1/5, 1/6, 1/8 et 1/10."
+  },
+  {
+   "code": "FR.CE1.M17",
+   "vak": "Mathématiques",
+   "leerjaar": 2,
+   "domein": "Les fractions",
+   "tekst": "Savoir interpréter, représenter, écrire et lire des fractions inférieures ou égales à 1."
+  },
+  {
+   "code": "FR.CE1.M18",
+   "vak": "Mathématiques",
+   "leerjaar": 2,
+   "domein": "Les fractions",
+   "tekst": "Connaitre et utiliser les mots « dénominateur » et « numérateur »."
+  },
+  {
+   "code": "FR.CE1.M19",
+   "vak": "Mathématiques",
+   "leerjaar": 2,
+   "domein": "Les fractions",
+   "tekst": "Comparer des fractions ayant le même dénominateur."
+  },
+  {
+   "code": "FR.CE1.M20",
+   "vak": "Mathématiques",
+   "leerjaar": 2,
+   "domein": "Les fractions",
+   "tekst": "Comparer des fractions dont le numérateur est 1."
+  },
+  {
+   "code": "FR.CE1.M21",
+   "vak": "Mathématiques",
+   "leerjaar": 2,
+   "domein": "Les fractions",
+   "tekst": "Additionner et soustraire des fractions de même dénominateur."
+  },
+  {
+   "code": "FR.CE1.M22",
+   "vak": "Mathématiques",
+   "leerjaar": 2,
+   "domein": "Les quatre opérations",
+   "tekst": "Poser et effectuer des additions et des soustractions en colonnes."
+  },
+  {
+   "code": "FR.CE1.M23",
+   "vak": "Mathématiques",
+   "leerjaar": 2,
+   "domein": "Les quatre opérations",
+   "tekst": "Comprendre et utiliser le symbole « × »."
+  },
+  {
+   "code": "FR.CE1.M24",
+   "vak": "Mathématiques",
+   "leerjaar": 2,
+   "domein": "Les quatre opérations",
+   "tekst": "Comprendre et savoir que la multiplication est commutative."
+  },
+  {
+   "code": "FR.CE1.M25",
+   "vak": "Mathématiques",
+   "leerjaar": 2,
+   "domein": "Les quatre opérations",
+   "tekst": "Connaitre la notion de parité d'un nombre."
+  },
+  {
+   "code": "FR.CE1.M26",
+   "vak": "Mathématiques",
+   "leerjaar": 2,
+   "domein": "Calcul mental",
+   "tekst": "Connaitre dans les deux sens les tables d'addition."
+  },
+  {
+   "code": "FR.CE1.M27",
+   "vak": "Mathématiques",
+   "leerjaar": 2,
+   "domein": "Calcul mental",
+   "tekst": "Connaitre dans les deux sens les tables de multiplication."
+  },
+  {
+   "code": "FR.CE1.M28",
+   "vak": "Mathématiques",
+   "leerjaar": 2,
+   "domein": "Calcul mental",
+   "tekst": "Connaitre des faits multiplicatifs usuels."
+  },
+  {
+   "code": "FR.CE1.M29",
+   "vak": "Mathématiques",
+   "leerjaar": 2,
+   "domein": "Calcul mental",
+   "tekst": "Ajouter ou soustraire un nombre entier de dizaines à un nombre. Ajouter ou soustraire un nombre entier de centaines à un nombre."
+  },
+  {
+   "code": "FR.CE1.M30",
+   "vak": "Mathématiques",
+   "leerjaar": 2,
+   "domein": "Calcul mental",
+   "tekst": "Multiplier par 10 un nombre inférieur à 100."
+  },
+  {
+   "code": "FR.CE1.M31",
+   "vak": "Mathématiques",
+   "leerjaar": 2,
+   "domein": "Calcul mental",
+   "tekst": "Ajouter 9, 19 ou 29 à un nombre."
+  },
+  {
+   "code": "FR.CE1.M32",
+   "vak": "Mathématiques",
+   "leerjaar": 2,
+   "domein": "Calcul mental",
+   "tekst": "Soustraire 9 à un nombre."
+  },
+  {
+   "code": "FR.CE1.M33",
+   "vak": "Mathématiques",
+   "leerjaar": 2,
+   "domein": "Calcul mental",
+   "tekst": "Soustraire un nombre inférieur à 9 à un nombre."
+  },
+  {
+   "code": "FR.CE1.M34",
+   "vak": "Mathématiques",
+   "leerjaar": 2,
+   "domein": "Calcul mental",
+   "tekst": "Déterminer la moitié d'un nombre pair."
+  },
+  {
+   "code": "FR.CE1.M35",
+   "vak": "Mathématiques",
+   "leerjaar": 2,
+   "domein": "Calcul mental",
+   "tekst": "Calculer le produit d'un nombre compris entre 11 et 19 par un nombre inférieur à 10 en décomposant le plus grand des deux facteurs en la somme de deux nombres (propriété de distributivité de la multiplication par rapport à l'addition)."
+  },
+  {
+   "code": "FR.CE1.M36",
+   "vak": "Mathématiques",
+   "leerjaar": 2,
+   "domein": "Résolution de problèmes",
+   "tekst": "Résoudre des problèmes additifs en une étape de type parties-tout."
+  },
+  {
+   "code": "FR.CE1.M37",
+   "vak": "Mathématiques",
+   "leerjaar": 2,
+   "domein": "Résolution de problèmes",
+   "tekst": "Résoudre des problèmes additifs de comparaison en une étape."
+  },
+  {
+   "code": "FR.CE1.M38",
+   "vak": "Mathématiques",
+   "leerjaar": 2,
+   "domein": "Résolution de problèmes",
+   "tekst": "Résoudre des problèmes additifs en deux étapes."
+  },
+  {
+   "code": "FR.CE1.M39",
+   "vak": "Mathématiques",
+   "leerjaar": 2,
+   "domein": "Résolution de problèmes",
+   "tekst": "Résoudre des problèmes multiplicatifs en une étape."
+  },
+  {
+   "code": "FR.CE1.M40",
+   "vak": "Mathématiques",
+   "leerjaar": 2,
+   "domein": "Résolution de problèmes",
+   "tekst": "Résoudre des problèmes mixtes en deux étapes (une étape additive et une étape multiplicative)."
+  },
+  {
+   "code": "FR.CE2.M1",
+   "vak": "Mathématiques",
+   "leerjaar": 3,
+   "domein": "Nombres entiers",
+   "tekst": "Dénombrer des collections."
+  },
+  {
+   "code": "FR.CE2.M2",
+   "vak": "Mathématiques",
+   "leerjaar": 3,
+   "domein": "Nombres entiers",
+   "tekst": "Construire des collections de cardinal donné."
+  },
+  {
+   "code": "FR.CE2.M3",
+   "vak": "Mathématiques",
+   "leerjaar": 3,
+   "domein": "Nombres entiers",
+   "tekst": "Connaitre et utiliser les relations entre les unités de numération."
+  },
+  {
+   "code": "FR.CE2.M4",
+   "vak": "Mathématiques",
+   "leerjaar": 3,
+   "domein": "Nombres entiers",
+   "tekst": "Connaitre la suite écrite et la suite orale des nombres jusqu'à dix-mille."
+  },
+  {
+   "code": "FR.CE2.M5",
+   "vak": "Mathématiques",
+   "leerjaar": 3,
+   "domein": "Nombres entiers",
+   "tekst": "Connaitre et utiliser diverses représentations d'un nombre et passer de l'une à l'autre."
+  },
+  {
+   "code": "FR.CE2.M6",
+   "vak": "Mathématiques",
+   "leerjaar": 3,
+   "domein": "Nombres entiers",
+   "tekst": "Connaitre la valeur des chiffres en fonction de leur position dans un nombre."
+  },
+  {
+   "code": "FR.CE2.M7",
+   "vak": "Mathématiques",
+   "leerjaar": 3,
+   "domein": "Nombres entiers",
+   "tekst": "Comparer, encadrer, intercaler des nombres entiers en utilisant les symboles (=, <, >)."
+  },
+  {
+   "code": "FR.CE2.M8",
+   "vak": "Mathématiques",
+   "leerjaar": 3,
+   "domein": "Nombres entiers",
+   "tekst": "Ordonner des nombres dans l'ordre croissant ou décroissant."
+  },
+  {
+   "code": "FR.CE2.M9",
+   "vak": "Mathématiques",
+   "leerjaar": 3,
+   "domein": "Nombres entiers",
+   "tekst": "Comprendre et savoir utiliser les expressions « égal à », « supérieur à », « inférieur à », « compris entre … et … »."
+  },
+  {
+   "code": "FR.CE2.M10",
+   "vak": "Mathématiques",
+   "leerjaar": 3,
+   "domein": "Nombres entiers",
+   "tekst": "Savoir placer des nombres sur une demi-droite graduée."
+  },
+  {
+   "code": "FR.CE2.M11",
+   "vak": "Mathématiques",
+   "leerjaar": 3,
+   "domein": "Les fractions",
+   "tekst": "Savoir établir des égalités de fractions inférieures ou égales à 1."
+  },
+  {
+   "code": "FR.CE2.M12",
+   "vak": "Mathématiques",
+   "leerjaar": 3,
+   "domein": "Les fractions",
+   "tekst": "Partager une unité de longueur en fractions d'unité et mesurer des longueurs non entières par rapport à cette unité."
+  },
+  {
+   "code": "FR.CE2.M13",
+   "vak": "Mathématiques",
+   "leerjaar": 3,
+   "domein": "Les fractions",
+   "tekst": "Comparer des fractions inférieures à 1."
+  },
+  {
+   "code": "FR.CE2.M14",
+   "vak": "Mathématiques",
+   "leerjaar": 3,
+   "domein": "Les fractions",
+   "tekst": "Additionner et soustraire des fractions."
+  },
+  {
+   "code": "FR.CE2.M15",
+   "vak": "Mathématiques",
+   "leerjaar": 3,
+   "domein": "Les quatre opérations",
+   "tekst": "Comprendre et utiliser les mots « terme », « somme » et « différence »."
+  },
+  {
+   "code": "FR.CE2.M16",
+   "vak": "Mathématiques",
+   "leerjaar": 3,
+   "domein": "Les quatre opérations",
+   "tekst": "Poser et effectuer des additions et des soustractions en colonnes."
+  },
+  {
+   "code": "FR.CE2.M17",
+   "vak": "Mathématiques",
+   "leerjaar": 3,
+   "domein": "Les quatre opérations",
+   "tekst": "Comprendre et utiliser les mots « facteur », « produit » et « multiple »."
+  },
+  {
+   "code": "FR.CE2.M18",
+   "vak": "Mathématiques",
+   "leerjaar": 3,
+   "domein": "Les quatre opérations",
+   "tekst": "Comprendre le sens de la division et utiliser le symbole « ÷ »."
+  },
+  {
+   "code": "FR.CE2.M19",
+   "vak": "Mathématiques",
+   "leerjaar": 3,
+   "domein": "Les quatre opérations",
+   "tekst": "Poser et effectuer des multiplications d'un nombre à deux ou trois chiffres par un nombre à un ou deux chiffres."
+  },
+  {
+   "code": "FR.CE2.M20",
+   "vak": "Mathématiques",
+   "leerjaar": 3,
+   "domein": "Calcul mental",
+   "tekst": "Connaitre dans les deux sens les tables d'addition."
+  },
+  {
+   "code": "FR.CE2.M21",
+   "vak": "Mathématiques",
+   "leerjaar": 3,
+   "domein": "Calcul mental",
+   "tekst": "Connaitre dans les deux sens les tables de multiplication."
+  },
+  {
+   "code": "FR.CE2.M22",
+   "vak": "Mathématiques",
+   "leerjaar": 3,
+   "domein": "Calcul mental",
+   "tekst": "Connaitre des faits multiplicatifs usuels."
+  },
+  {
+   "code": "FR.CE2.M23",
+   "vak": "Mathématiques",
+   "leerjaar": 3,
+   "domein": "Calcul mental",
+   "tekst": "Multiplier un nombre entier par 10 ou 100."
+  },
+  {
+   "code": "FR.CE2.M24",
+   "vak": "Mathématiques",
+   "leerjaar": 3,
+   "domein": "Calcul mental",
+   "tekst": "Ajouter 8, 9, 18, 19, 28, 29, 38 ou 39 à un nombre."
+  },
+  {
+   "code": "FR.CE2.M25",
+   "vak": "Mathématiques",
+   "leerjaar": 3,
+   "domein": "Calcul mental",
+   "tekst": "Soustraire 9, 19, 29 ou 39 à un nombre."
+  }
+ ]
+}

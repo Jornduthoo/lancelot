@@ -1,0 +1,1700 @@
+{
+ "bron": "National curriculum in England: programmes of study, key stages 1 and 2 (Department for Education). Contains public sector information licensed under the Open Government Licence v3.0.",
+ "vak": "Mathematics",
+ "doelen": [
+  {
+   "code": "EN.MA.1.1",
+   "vak": "Mathematics",
+   "leerjaar": 1,
+   "domein": "Number - number and place value",
+   "tekst": "Count to and across 100, forwards and backwards, beginning with 0 or 1, or from any given number."
+  },
+  {
+   "code": "EN.MA.1.2",
+   "vak": "Mathematics",
+   "leerjaar": 1,
+   "domein": "Number - number and place value",
+   "tekst": "Count, read and write numbers to 100 in numerals; count in multiples of 2s, 5s and 10s."
+  },
+  {
+   "code": "EN.MA.1.3",
+   "vak": "Mathematics",
+   "leerjaar": 1,
+   "domein": "Number - number and place value",
+   "tekst": "Given a number, identify 1 more and 1 less."
+  },
+  {
+   "code": "EN.MA.1.4",
+   "vak": "Mathematics",
+   "leerjaar": 1,
+   "domein": "Number - number and place value",
+   "tekst": "Identify and represent numbers using objects and pictorial representations including the number line, and use the language of: equal to, more than, less than (fewer), most, least."
+  },
+  {
+   "code": "EN.MA.1.5",
+   "vak": "Mathematics",
+   "leerjaar": 1,
+   "domein": "Number - number and place value",
+   "tekst": "Read and write numbers from 1 to 20 in numerals and words."
+  },
+  {
+   "code": "EN.MA.1.6",
+   "vak": "Mathematics",
+   "leerjaar": 1,
+   "domein": "Number - addition and subtraction",
+   "tekst": "Read, write and interpret mathematical statements involving addition (+), subtraction (−) and equals (=) signs."
+  },
+  {
+   "code": "EN.MA.1.7",
+   "vak": "Mathematics",
+   "leerjaar": 1,
+   "domein": "Number - addition and subtraction",
+   "tekst": "Represent and use number bonds and related subtraction facts within 20."
+  },
+  {
+   "code": "EN.MA.1.8",
+   "vak": "Mathematics",
+   "leerjaar": 1,
+   "domein": "Number - addition and subtraction",
+   "tekst": "Add and subtract one-digit and two-digit numbers to 20, including 0."
+  },
+  {
+   "code": "EN.MA.1.9",
+   "vak": "Mathematics",
+   "leerjaar": 1,
+   "domein": "Number - addition and subtraction",
+   "tekst": "Solve one-step problems that involve addition and subtraction, using concrete objects and pictorial representations, and missing number problems such as 7 = ? − 9."
+  },
+  {
+   "code": "EN.MA.1.10",
+   "vak": "Mathematics",
+   "leerjaar": 1,
+   "domein": "Number - multiplication and division",
+   "tekst": "Solve one-step problems involving multiplication and division, by calculating the answer using concrete objects, pictorial representations and arrays with the support of the teacher."
+  },
+  {
+   "code": "EN.MA.1.11",
+   "vak": "Mathematics",
+   "leerjaar": 1,
+   "domein": "Number - fractions",
+   "tekst": "Recognise, find and name a half as 1 of 2 equal parts of an object, shape or quantity."
+  },
+  {
+   "code": "EN.MA.1.12",
+   "vak": "Mathematics",
+   "leerjaar": 1,
+   "domein": "Number - fractions",
+   "tekst": "Recognise, find and name a quarter as 1 of 4 equal parts of an object, shape or quantity."
+  },
+  {
+   "code": "EN.MA.1.13",
+   "vak": "Mathematics",
+   "leerjaar": 1,
+   "domein": "Measurement",
+   "tekst": "Compare, describe and solve practical problems for: lengths and heights [for example, long/short, longer/shorter, tall/short, double/half]"
+  },
+  {
+   "code": "EN.MA.1.14",
+   "vak": "Mathematics",
+   "leerjaar": 1,
+   "domein": "Measurement",
+   "tekst": "Compare, describe and solve practical problems for: mass/weight [for example, heavy/light, heavier than, lighter than]"
+  },
+  {
+   "code": "EN.MA.1.15",
+   "vak": "Mathematics",
+   "leerjaar": 1,
+   "domein": "Measurement",
+   "tekst": "Compare, describe and solve practical problems for: capacity and volume [for example, full/empty, more than, less than, half, half full, quarter]"
+  },
+  {
+   "code": "EN.MA.1.16",
+   "vak": "Mathematics",
+   "leerjaar": 1,
+   "domein": "Measurement",
+   "tekst": "Compare, describe and solve practical problems for: time [for example, quicker, slower, earlier, later]"
+  },
+  {
+   "code": "EN.MA.1.17",
+   "vak": "Mathematics",
+   "leerjaar": 1,
+   "domein": "Measurement",
+   "tekst": "Measure and begin to record the following: lengths and heights."
+  },
+  {
+   "code": "EN.MA.1.18",
+   "vak": "Mathematics",
+   "leerjaar": 1,
+   "domein": "Measurement",
+   "tekst": "Measure and begin to record the following: mass/weight."
+  },
+  {
+   "code": "EN.MA.1.19",
+   "vak": "Mathematics",
+   "leerjaar": 1,
+   "domein": "Measurement",
+   "tekst": "Measure and begin to record the following: capacity and volume."
+  },
+  {
+   "code": "EN.MA.1.20",
+   "vak": "Mathematics",
+   "leerjaar": 1,
+   "domein": "Measurement",
+   "tekst": "Measure and begin to record the following: time (hours, minutes, seconds)"
+  },
+  {
+   "code": "EN.MA.1.21",
+   "vak": "Mathematics",
+   "leerjaar": 1,
+   "domein": "Measurement",
+   "tekst": "Measure and begin to record the following: recognise and know the value of different denominations of coins and notes."
+  },
+  {
+   "code": "EN.MA.1.22",
+   "vak": "Mathematics",
+   "leerjaar": 1,
+   "domein": "Measurement",
+   "tekst": "Measure and begin to record the following: sequence events in chronological order using language [for example, before and after, next, first, today, yesterday, tomorrow, morning, afternoon and evening]"
+  },
+  {
+   "code": "EN.MA.1.23",
+   "vak": "Mathematics",
+   "leerjaar": 1,
+   "domein": "Measurement",
+   "tekst": "Recognise and use language relating to dates, including days of the week, weeks, months and years."
+  },
+  {
+   "code": "EN.MA.1.24",
+   "vak": "Mathematics",
+   "leerjaar": 1,
+   "domein": "Measurement",
+   "tekst": "Tell the time to the hour and half past the hour and draw the hands on a clock face to show these times."
+  },
+  {
+   "code": "EN.MA.1.25",
+   "vak": "Mathematics",
+   "leerjaar": 1,
+   "domein": "Geometry - properties of shapes",
+   "tekst": "Recognise and name common 2-D and 3-D shapes, including: 2-D shapes [for example, rectangles (including squares), circles and triangles]"
+  },
+  {
+   "code": "EN.MA.1.26",
+   "vak": "Mathematics",
+   "leerjaar": 1,
+   "domein": "Geometry - properties of shapes",
+   "tekst": "Recognise and name common 2-D and 3-D shapes, including: 3-D shapes [for example, cuboids (including cubes), pyramids and spheres]"
+  },
+  {
+   "code": "EN.MA.1.27",
+   "vak": "Mathematics",
+   "leerjaar": 1,
+   "domein": "Geometry - position and direction",
+   "tekst": "Describe position, direction and movement, including whole, half, quarter and three-quarter turns."
+  },
+  {
+   "code": "EN.MA.2.1",
+   "vak": "Mathematics",
+   "leerjaar": 2,
+   "domein": "Number - number and place value",
+   "tekst": "Count in steps of 2, 3, and 5 from 0, and in 10s from any number, forward and backward."
+  },
+  {
+   "code": "EN.MA.2.2",
+   "vak": "Mathematics",
+   "leerjaar": 2,
+   "domein": "Number - number and place value",
+   "tekst": "Recognise the place value of each digit in a two-digit number (10s, 1s)"
+  },
+  {
+   "code": "EN.MA.2.3",
+   "vak": "Mathematics",
+   "leerjaar": 2,
+   "domein": "Number - number and place value",
+   "tekst": "Identify, represent and estimate numbers using different representations, including the number line."
+  },
+  {
+   "code": "EN.MA.2.4",
+   "vak": "Mathematics",
+   "leerjaar": 2,
+   "domein": "Number - number and place value",
+   "tekst": "Compare and order numbers from 0 up to 100; use <, > and = signs."
+  },
+  {
+   "code": "EN.MA.2.5",
+   "vak": "Mathematics",
+   "leerjaar": 2,
+   "domein": "Number - number and place value",
+   "tekst": "Read and write numbers to at least 100 in numerals and in words."
+  },
+  {
+   "code": "EN.MA.2.6",
+   "vak": "Mathematics",
+   "leerjaar": 2,
+   "domein": "Number - number and place value",
+   "tekst": "Use place value and number facts to solve problems."
+  },
+  {
+   "code": "EN.MA.2.7",
+   "vak": "Mathematics",
+   "leerjaar": 2,
+   "domein": "Number - addition and subtraction",
+   "tekst": "Solve problems with addition and subtraction: using concrete objects and pictorial representations, including those involving numbers, quantities and measures."
+  },
+  {
+   "code": "EN.MA.2.8",
+   "vak": "Mathematics",
+   "leerjaar": 2,
+   "domein": "Number - addition and subtraction",
+   "tekst": "Solve problems with addition and subtraction: applying their increasing knowledge of mental and written methods."
+  },
+  {
+   "code": "EN.MA.2.9",
+   "vak": "Mathematics",
+   "leerjaar": 2,
+   "domein": "Number - addition and subtraction",
+   "tekst": "Recall and use addition and subtraction facts to 20 fluently, and derive and use related facts up to 100."
+  },
+  {
+   "code": "EN.MA.2.10",
+   "vak": "Mathematics",
+   "leerjaar": 2,
+   "domein": "Number - addition and subtraction",
+   "tekst": "Add and subtract numbers using concrete objects, pictorial representations, and mentally, including: a two-digit number and 1s."
+  },
+  {
+   "code": "EN.MA.2.11",
+   "vak": "Mathematics",
+   "leerjaar": 2,
+   "domein": "Number - addition and subtraction",
+   "tekst": "Add and subtract numbers using concrete objects, pictorial representations, and mentally, including: a two-digit number and 10s."
+  },
+  {
+   "code": "EN.MA.2.12",
+   "vak": "Mathematics",
+   "leerjaar": 2,
+   "domein": "Number - addition and subtraction",
+   "tekst": "Add and subtract numbers using concrete objects, pictorial representations, and mentally, including: 2 two-digit numbers."
+  },
+  {
+   "code": "EN.MA.2.13",
+   "vak": "Mathematics",
+   "leerjaar": 2,
+   "domein": "Number - addition and subtraction",
+   "tekst": "Add and subtract numbers using concrete objects, pictorial representations, and mentally, including: adding 3 one-digit numbers."
+  },
+  {
+   "code": "EN.MA.2.14",
+   "vak": "Mathematics",
+   "leerjaar": 2,
+   "domein": "Number - addition and subtraction",
+   "tekst": "Show that addition of 2 numbers can be done in any order (commutative) and subtraction of 1 number from another cannot."
+  },
+  {
+   "code": "EN.MA.2.15",
+   "vak": "Mathematics",
+   "leerjaar": 2,
+   "domein": "Number - addition and subtraction",
+   "tekst": "Recognise and use the inverse relationship between addition and subtraction and use this to check calculations and solve missing number problems."
+  },
+  {
+   "code": "EN.MA.2.16",
+   "vak": "Mathematics",
+   "leerjaar": 2,
+   "domein": "Number - multiplication and division",
+   "tekst": "Recall and use multiplication and division facts for the 2, 5 and 10 multiplication tables, including recognising odd and even numbers."
+  },
+  {
+   "code": "EN.MA.2.17",
+   "vak": "Mathematics",
+   "leerjaar": 2,
+   "domein": "Number - multiplication and division",
+   "tekst": "Calculate mathematical statements for multiplication and division within the multiplication tables and write them using the multiplication (×), division (÷) and equals (=) signs."
+  },
+  {
+   "code": "EN.MA.2.18",
+   "vak": "Mathematics",
+   "leerjaar": 2,
+   "domein": "Number - multiplication and division",
+   "tekst": "Show that multiplication of 2 numbers can be done in any order (commutative) and division of 1 number by another cannot."
+  },
+  {
+   "code": "EN.MA.2.19",
+   "vak": "Mathematics",
+   "leerjaar": 2,
+   "domein": "Number - multiplication and division",
+   "tekst": "Solve problems involving multiplication and division, using materials, arrays, repeated addition, mental methods, and multiplication and division facts, including problems in contexts."
+  },
+  {
+   "code": "EN.MA.2.20",
+   "vak": "Mathematics",
+   "leerjaar": 2,
+   "domein": "Number - fractions",
+   "tekst": "Recognise, find, name and write fractions 1/3, 1/4, 2/4 and 3/4 of a length, shape, set of objects or quantity."
+  },
+  {
+   "code": "EN.MA.2.21",
+   "vak": "Mathematics",
+   "leerjaar": 2,
+   "domein": "Number - fractions",
+   "tekst": "Write simple fractions, for example 1/2 of 6 = 3 and recognise the equivalence of 2/4 and 1/2."
+  },
+  {
+   "code": "EN.MA.2.22",
+   "vak": "Mathematics",
+   "leerjaar": 2,
+   "domein": "Measurement",
+   "tekst": "Choose and use appropriate standard units to estimate and measure length/height in any direction (m/cm); mass (kg/g); temperature (°C); capacity (litres/ml) to the nearest appropriate unit, using rulers, scales, thermometers and measuring vessels."
+  },
+  {
+   "code": "EN.MA.2.23",
+   "vak": "Mathematics",
+   "leerjaar": 2,
+   "domein": "Measurement",
+   "tekst": "Compare and order lengths, mass, volume/capacity and record the results using >, < and =."
+  },
+  {
+   "code": "EN.MA.2.24",
+   "vak": "Mathematics",
+   "leerjaar": 2,
+   "domein": "Measurement",
+   "tekst": "Recognise and use symbols for pounds (£) and pence (p); combine amounts to make a particular value."
+  },
+  {
+   "code": "EN.MA.2.25",
+   "vak": "Mathematics",
+   "leerjaar": 2,
+   "domein": "Measurement",
+   "tekst": "Find different combinations of coins that equal the same amounts of money."
+  },
+  {
+   "code": "EN.MA.2.26",
+   "vak": "Mathematics",
+   "leerjaar": 2,
+   "domein": "Measurement",
+   "tekst": "Solve simple problems in a practical context involving addition and subtraction of money of the same unit, including giving change."
+  },
+  {
+   "code": "EN.MA.2.27",
+   "vak": "Mathematics",
+   "leerjaar": 2,
+   "domein": "Measurement",
+   "tekst": "Compare and sequence intervals of time."
+  },
+  {
+   "code": "EN.MA.2.28",
+   "vak": "Mathematics",
+   "leerjaar": 2,
+   "domein": "Measurement",
+   "tekst": "Tell and write the time to five minutes, including quarter past/to the hour and draw the hands on a clock face to show these times."
+  },
+  {
+   "code": "EN.MA.2.29",
+   "vak": "Mathematics",
+   "leerjaar": 2,
+   "domein": "Measurement",
+   "tekst": "Know the number of minutes in an hour and the number of hours in a day."
+  },
+  {
+   "code": "EN.MA.2.30",
+   "vak": "Mathematics",
+   "leerjaar": 2,
+   "domein": "Geometry - properties of shapes",
+   "tekst": "Identify and describe the properties of 2-D shapes, including the number of sides, and line symmetry in a vertical line."
+  },
+  {
+   "code": "EN.MA.2.31",
+   "vak": "Mathematics",
+   "leerjaar": 2,
+   "domein": "Geometry - properties of shapes",
+   "tekst": "Identify and describe the properties of 3-D shapes, including the number of edges, vertices and faces."
+  },
+  {
+   "code": "EN.MA.2.32",
+   "vak": "Mathematics",
+   "leerjaar": 2,
+   "domein": "Geometry - properties of shapes",
+   "tekst": "Identify 2-D shapes on the surface of 3-D shapes, [for example, a circle on a cylinder and a triangle on a pyramid]"
+  },
+  {
+   "code": "EN.MA.2.33",
+   "vak": "Mathematics",
+   "leerjaar": 2,
+   "domein": "Geometry - properties of shapes",
+   "tekst": "Compare and sort common 2-D and 3-D shapes and everyday objects."
+  },
+  {
+   "code": "EN.MA.2.34",
+   "vak": "Mathematics",
+   "leerjaar": 2,
+   "domein": "Geometry - position and direction",
+   "tekst": "Order and arrange combinations of mathematical objects in patterns and sequences."
+  },
+  {
+   "code": "EN.MA.2.35",
+   "vak": "Mathematics",
+   "leerjaar": 2,
+   "domein": "Geometry - position and direction",
+   "tekst": "Use mathematical vocabulary to describe position, direction and movement, including movement in a straight line and distinguishing between rotation as a turn and in terms of right angles for quarter, half and three-quarter turns (clockwise and anti-clockwise)"
+  },
+  {
+   "code": "EN.MA.2.36",
+   "vak": "Mathematics",
+   "leerjaar": 2,
+   "domein": "Statistics",
+   "tekst": "Interpret and construct simple pictograms, tally charts, block diagrams and tables."
+  },
+  {
+   "code": "EN.MA.2.37",
+   "vak": "Mathematics",
+   "leerjaar": 2,
+   "domein": "Statistics",
+   "tekst": "Ask and answer simple questions by counting the number of objects in each category and sorting the categories by quantity."
+  },
+  {
+   "code": "EN.MA.2.38",
+   "vak": "Mathematics",
+   "leerjaar": 2,
+   "domein": "Statistics",
+   "tekst": "Ask-and-answer questions about totalling and comparing categorical data."
+  },
+  {
+   "code": "EN.MA.3.1",
+   "vak": "Mathematics",
+   "leerjaar": 3,
+   "domein": "Number - number and place value",
+   "tekst": "Count from 0 in multiples of 4, 8, 50 and 100; find 10 or 100 more or less than a given number."
+  },
+  {
+   "code": "EN.MA.3.2",
+   "vak": "Mathematics",
+   "leerjaar": 3,
+   "domein": "Number - number and place value",
+   "tekst": "Recognise the place value of each digit in a 3-digit number (100s, 10s, 1s)"
+  },
+  {
+   "code": "EN.MA.3.3",
+   "vak": "Mathematics",
+   "leerjaar": 3,
+   "domein": "Number - number and place value",
+   "tekst": "Compare and order numbers up to 1,000."
+  },
+  {
+   "code": "EN.MA.3.4",
+   "vak": "Mathematics",
+   "leerjaar": 3,
+   "domein": "Number - number and place value",
+   "tekst": "Identify, represent and estimate numbers using different representations."
+  },
+  {
+   "code": "EN.MA.3.5",
+   "vak": "Mathematics",
+   "leerjaar": 3,
+   "domein": "Number - number and place value",
+   "tekst": "Read and write numbers up to 1,000 in numerals and in words."
+  },
+  {
+   "code": "EN.MA.3.6",
+   "vak": "Mathematics",
+   "leerjaar": 3,
+   "domein": "Number - number and place value",
+   "tekst": "Solve number problems and practical problems involving these ideas."
+  },
+  {
+   "code": "EN.MA.3.7",
+   "vak": "Mathematics",
+   "leerjaar": 3,
+   "domein": "Number - addition and subtraction",
+   "tekst": "Add and subtract numbers mentally, including: a three-digit number and 1s."
+  },
+  {
+   "code": "EN.MA.3.8",
+   "vak": "Mathematics",
+   "leerjaar": 3,
+   "domein": "Number - addition and subtraction",
+   "tekst": "Add and subtract numbers mentally, including: a three-digit number and 10s."
+  },
+  {
+   "code": "EN.MA.3.9",
+   "vak": "Mathematics",
+   "leerjaar": 3,
+   "domein": "Number - addition and subtraction",
+   "tekst": "Add and subtract numbers mentally, including: a three-digit number and 100s."
+  },
+  {
+   "code": "EN.MA.3.10",
+   "vak": "Mathematics",
+   "leerjaar": 3,
+   "domein": "Number - addition and subtraction",
+   "tekst": "Add and subtract numbers with up to 3 digits, using formal written methods of columnar addition and subtraction."
+  },
+  {
+   "code": "EN.MA.3.11",
+   "vak": "Mathematics",
+   "leerjaar": 3,
+   "domein": "Number - addition and subtraction",
+   "tekst": "Estimate the answer to a calculation and use inverse operations to check answers."
+  },
+  {
+   "code": "EN.MA.3.12",
+   "vak": "Mathematics",
+   "leerjaar": 3,
+   "domein": "Number - addition and subtraction",
+   "tekst": "Solve problems, including missing number problems, using number facts, place value, and more complex addition and subtraction."
+  },
+  {
+   "code": "EN.MA.3.13",
+   "vak": "Mathematics",
+   "leerjaar": 3,
+   "domein": "Number - multiplication and division",
+   "tekst": "Recall and use multiplication and division facts for the 3, 4 and 8 multiplication tables."
+  },
+  {
+   "code": "EN.MA.3.14",
+   "vak": "Mathematics",
+   "leerjaar": 3,
+   "domein": "Number - multiplication and division",
+   "tekst": "Write and calculate mathematical statements for multiplication and division using the multiplication tables that they know, including for two-digit numbers times one-digit numbers, using mental and progressing to formal written methods."
+  },
+  {
+   "code": "EN.MA.3.15",
+   "vak": "Mathematics",
+   "leerjaar": 3,
+   "domein": "Number - multiplication and division",
+   "tekst": "Solve problems, including missing number problems, involving multiplication and division, including positive integer scaling problems and correspondence problems in which n objects are connected to m objects."
+  },
+  {
+   "code": "EN.MA.3.16",
+   "vak": "Mathematics",
+   "leerjaar": 3,
+   "domein": "Number - fractions",
+   "tekst": "Count up and down in tenths; recognise that tenths arise from dividing an object into 10 equal parts and in dividing one-digit numbers or quantities by 10."
+  },
+  {
+   "code": "EN.MA.3.17",
+   "vak": "Mathematics",
+   "leerjaar": 3,
+   "domein": "Number - fractions",
+   "tekst": "Recognise, find and write fractions of a discrete set of objects: unit fractions and non-unit fractions with small denominators."
+  },
+  {
+   "code": "EN.MA.3.18",
+   "vak": "Mathematics",
+   "leerjaar": 3,
+   "domein": "Number - fractions",
+   "tekst": "Recognise and use fractions as numbers: unit fractions and non-unit fractions with small denominators."
+  },
+  {
+   "code": "EN.MA.3.19",
+   "vak": "Mathematics",
+   "leerjaar": 3,
+   "domein": "Number - fractions",
+   "tekst": "Recognise and show, using diagrams, equivalent fractions with small denominators."
+  },
+  {
+   "code": "EN.MA.3.20",
+   "vak": "Mathematics",
+   "leerjaar": 3,
+   "domein": "Number - fractions",
+   "tekst": "Add and subtract fractions with the same denominator within one whole [for example, 5/7+1/7 = 6/7]"
+  },
+  {
+   "code": "EN.MA.3.21",
+   "vak": "Mathematics",
+   "leerjaar": 3,
+   "domein": "Number - fractions",
+   "tekst": "Compare and order unit fractions, and fractions with the same denominators."
+  },
+  {
+   "code": "EN.MA.3.22",
+   "vak": "Mathematics",
+   "leerjaar": 3,
+   "domein": "Number - fractions",
+   "tekst": "Solve problems that involve all of the above."
+  },
+  {
+   "code": "EN.MA.3.23",
+   "vak": "Mathematics",
+   "leerjaar": 3,
+   "domein": "Measurement",
+   "tekst": "Measure, compare, add and subtract: lengths (m/cm/mm); mass (kg/g); volume/capacity (l/ml)"
+  },
+  {
+   "code": "EN.MA.3.24",
+   "vak": "Mathematics",
+   "leerjaar": 3,
+   "domein": "Measurement",
+   "tekst": "Measure the perimeter of simple 2-D shapes."
+  },
+  {
+   "code": "EN.MA.3.25",
+   "vak": "Mathematics",
+   "leerjaar": 3,
+   "domein": "Measurement",
+   "tekst": "Add and subtract amounts of money to give change, using both £ and p in practical contexts."
+  },
+  {
+   "code": "EN.MA.3.26",
+   "vak": "Mathematics",
+   "leerjaar": 3,
+   "domein": "Measurement",
+   "tekst": "Tell and write the time from an analogue clock, including using Roman numerals from I to XII, and 12-hour and 24-hour clocks."
+  },
+  {
+   "code": "EN.MA.3.27",
+   "vak": "Mathematics",
+   "leerjaar": 3,
+   "domein": "Measurement",
+   "tekst": "Estimate and read time with increasing accuracy to the nearest minute; record and compare time in terms of seconds, minutes and hours; use vocabulary such as o'clock, am/pm, morning, afternoon, noon and midnight."
+  },
+  {
+   "code": "EN.MA.3.28",
+   "vak": "Mathematics",
+   "leerjaar": 3,
+   "domein": "Measurement",
+   "tekst": "Know the number of seconds in a minute and the number of days in each month, year and leap year."
+  },
+  {
+   "code": "EN.MA.3.29",
+   "vak": "Mathematics",
+   "leerjaar": 3,
+   "domein": "Measurement",
+   "tekst": "Compare durations of events [for example, to calculate the time taken by particular events or tasks]"
+  },
+  {
+   "code": "EN.MA.3.30",
+   "vak": "Mathematics",
+   "leerjaar": 3,
+   "domein": "Geometry - properties of shapes",
+   "tekst": "Draw 2-D shapes and make 3-D shapes using modelling materials; recognise 3-D shapes in different orientations and describe them."
+  },
+  {
+   "code": "EN.MA.3.31",
+   "vak": "Mathematics",
+   "leerjaar": 3,
+   "domein": "Geometry - properties of shapes",
+   "tekst": "Recognise angles as a property of shape or a description of a turn."
+  },
+  {
+   "code": "EN.MA.3.32",
+   "vak": "Mathematics",
+   "leerjaar": 3,
+   "domein": "Geometry - properties of shapes",
+   "tekst": "Identify right angles, recognise that 2 right angles make a half-turn, 3 make three-quarters of a turn and 4 a complete turn; identify whether angles are greater than or less than a right angle."
+  },
+  {
+   "code": "EN.MA.3.33",
+   "vak": "Mathematics",
+   "leerjaar": 3,
+   "domein": "Geometry - properties of shapes",
+   "tekst": "Identify horizontal and vertical lines and pairs of perpendicular and parallel lines."
+  },
+  {
+   "code": "EN.MA.3.34",
+   "vak": "Mathematics",
+   "leerjaar": 3,
+   "domein": "Statistics",
+   "tekst": "Interpret and present data using bar charts, pictograms and tables."
+  },
+  {
+   "code": "EN.MA.3.35",
+   "vak": "Mathematics",
+   "leerjaar": 3,
+   "domein": "Statistics",
+   "tekst": "Solve one-step and two-step questions [for example 'How many more?' and 'How many fewer?'] using information presented in scaled bar charts and pictograms and tables."
+  },
+  {
+   "code": "EN.MA.4.1",
+   "vak": "Mathematics",
+   "leerjaar": 4,
+   "domein": "Number - number and place value",
+   "tekst": "Count in multiples of 6, 7, 9, 25 and 1,000."
+  },
+  {
+   "code": "EN.MA.4.2",
+   "vak": "Mathematics",
+   "leerjaar": 4,
+   "domein": "Number - number and place value",
+   "tekst": "Find 1,000 more or less than a given number."
+  },
+  {
+   "code": "EN.MA.4.3",
+   "vak": "Mathematics",
+   "leerjaar": 4,
+   "domein": "Number - number and place value",
+   "tekst": "Count backwards through 0 to include negative numbers."
+  },
+  {
+   "code": "EN.MA.4.4",
+   "vak": "Mathematics",
+   "leerjaar": 4,
+   "domein": "Number - number and place value",
+   "tekst": "Recognise the place value of each digit in a four-digit number (1,000s, 100s, 10s, and 1s)"
+  },
+  {
+   "code": "EN.MA.4.5",
+   "vak": "Mathematics",
+   "leerjaar": 4,
+   "domein": "Number - number and place value",
+   "tekst": "Order and compare numbers beyond 1,000."
+  },
+  {
+   "code": "EN.MA.4.6",
+   "vak": "Mathematics",
+   "leerjaar": 4,
+   "domein": "Number - number and place value",
+   "tekst": "Identify, represent and estimate numbers using different representations."
+  },
+  {
+   "code": "EN.MA.4.7",
+   "vak": "Mathematics",
+   "leerjaar": 4,
+   "domein": "Number - number and place value",
+   "tekst": "Round any number to the nearest 10, 100 or 1,000."
+  },
+  {
+   "code": "EN.MA.4.8",
+   "vak": "Mathematics",
+   "leerjaar": 4,
+   "domein": "Number - number and place value",
+   "tekst": "Solve number and practical problems that involve all of the above and with increasingly large positive numbers."
+  },
+  {
+   "code": "EN.MA.4.9",
+   "vak": "Mathematics",
+   "leerjaar": 4,
+   "domein": "Number - number and place value",
+   "tekst": "Read Roman numerals to 100 (I to C) and know that over time, the numeral system changed to include the concept of 0 and place value."
+  },
+  {
+   "code": "EN.MA.4.10",
+   "vak": "Mathematics",
+   "leerjaar": 4,
+   "domein": "Number - addition and subtraction",
+   "tekst": "Add and subtract numbers with up to 4 digits using the formal written methods of columnar addition and subtraction where appropriate."
+  },
+  {
+   "code": "EN.MA.4.11",
+   "vak": "Mathematics",
+   "leerjaar": 4,
+   "domein": "Number - addition and subtraction",
+   "tekst": "Estimate and use inverse operations to check answers to a calculation."
+  },
+  {
+   "code": "EN.MA.4.12",
+   "vak": "Mathematics",
+   "leerjaar": 4,
+   "domein": "Number - addition and subtraction",
+   "tekst": "Solve addition and subtraction two-step problems in contexts, deciding which operations and methods to use and why."
+  },
+  {
+   "code": "EN.MA.4.13",
+   "vak": "Mathematics",
+   "leerjaar": 4,
+   "domein": "Number - multiplication and division",
+   "tekst": "Recall multiplication and division facts for multiplication tables up to 12 × 12."
+  },
+  {
+   "code": "EN.MA.4.14",
+   "vak": "Mathematics",
+   "leerjaar": 4,
+   "domein": "Number - multiplication and division",
+   "tekst": "Use place value, known and derived facts to multiply and divide mentally, including: multiplying by 0 and 1; dividing by 1; multiplying together 3 numbers."
+  },
+  {
+   "code": "EN.MA.4.15",
+   "vak": "Mathematics",
+   "leerjaar": 4,
+   "domein": "Number - multiplication and division",
+   "tekst": "Recognise and use factor pairs and commutativity in mental calculations."
+  },
+  {
+   "code": "EN.MA.4.16",
+   "vak": "Mathematics",
+   "leerjaar": 4,
+   "domein": "Number - multiplication and division",
+   "tekst": "Multiply two-digit and three-digit numbers by a one-digit number using formal written layout."
+  },
+  {
+   "code": "EN.MA.4.17",
+   "vak": "Mathematics",
+   "leerjaar": 4,
+   "domein": "Number - multiplication and division",
+   "tekst": "Solve problems involving multiplying and adding, including using the distributive law to multiply two-digit numbers by 1 digit, integer scaling problems and harder correspondence problems such as n objects are connected to m objects."
+  },
+  {
+   "code": "EN.MA.4.18",
+   "vak": "Mathematics",
+   "leerjaar": 4,
+   "domein": "Number - fractions (including decimals)",
+   "tekst": "Recognise and show, using diagrams, families of common equivalent fractions."
+  },
+  {
+   "code": "EN.MA.4.19",
+   "vak": "Mathematics",
+   "leerjaar": 4,
+   "domein": "Number - fractions (including decimals)",
+   "tekst": "Count up and down in hundredths; recognise that hundredths arise when dividing an object by 100 and dividing tenths by 10."
+  },
+  {
+   "code": "EN.MA.4.20",
+   "vak": "Mathematics",
+   "leerjaar": 4,
+   "domein": "Number - fractions (including decimals)",
+   "tekst": "Solve problems involving increasingly harder fractions to calculate quantities, and fractions to divide quantities, including non-unit fractions where the answer is a whole number."
+  },
+  {
+   "code": "EN.MA.4.21",
+   "vak": "Mathematics",
+   "leerjaar": 4,
+   "domein": "Number - fractions (including decimals)",
+   "tekst": "Add and subtract fractions with the same denominator."
+  },
+  {
+   "code": "EN.MA.4.22",
+   "vak": "Mathematics",
+   "leerjaar": 4,
+   "domein": "Number - fractions (including decimals)",
+   "tekst": "Recognise and write decimal equivalents of any number of tenths or hundreds."
+  },
+  {
+   "code": "EN.MA.4.23",
+   "vak": "Mathematics",
+   "leerjaar": 4,
+   "domein": "Number - fractions (including decimals)",
+   "tekst": "Recognise and write decimal equivalents to 1/4, 1/2, 3/4."
+  },
+  {
+   "code": "EN.MA.4.24",
+   "vak": "Mathematics",
+   "leerjaar": 4,
+   "domein": "Number - fractions (including decimals)",
+   "tekst": "Find the effect of dividing a one- or two-digit number by 10 and 100, identifying the value of the digits in the answer as ones, tenths and hundredths."
+  },
+  {
+   "code": "EN.MA.4.25",
+   "vak": "Mathematics",
+   "leerjaar": 4,
+   "domein": "Number - fractions (including decimals)",
+   "tekst": "Round decimals with 1 decimal place to the nearest whole number."
+  },
+  {
+   "code": "EN.MA.4.26",
+   "vak": "Mathematics",
+   "leerjaar": 4,
+   "domein": "Number - fractions (including decimals)",
+   "tekst": "Compare numbers with the same number of decimal places up to 2 decimal places."
+  },
+  {
+   "code": "EN.MA.4.27",
+   "vak": "Mathematics",
+   "leerjaar": 4,
+   "domein": "Number - fractions (including decimals)",
+   "tekst": "Solve simple measure and money problems involving fractions and decimals to 2 decimal places."
+  },
+  {
+   "code": "EN.MA.4.28",
+   "vak": "Mathematics",
+   "leerjaar": 4,
+   "domein": "Measurement",
+   "tekst": "Convert between different units of measure [for example, kilometre to metre; hour to minute]"
+  },
+  {
+   "code": "EN.MA.4.29",
+   "vak": "Mathematics",
+   "leerjaar": 4,
+   "domein": "Measurement",
+   "tekst": "Measure and calculate the perimeter of a rectilinear figure (including squares) in centimetres and metres."
+  },
+  {
+   "code": "EN.MA.4.30",
+   "vak": "Mathematics",
+   "leerjaar": 4,
+   "domein": "Measurement",
+   "tekst": "Find the area of rectilinear shapes by counting squares."
+  },
+  {
+   "code": "EN.MA.4.31",
+   "vak": "Mathematics",
+   "leerjaar": 4,
+   "domein": "Measurement",
+   "tekst": "Estimate, compare and calculate different measures, including money in pounds and pence."
+  },
+  {
+   "code": "EN.MA.4.32",
+   "vak": "Mathematics",
+   "leerjaar": 4,
+   "domein": "Measurement",
+   "tekst": "Read, write and convert time between analogue and digital 12- and 24-hour clocks."
+  },
+  {
+   "code": "EN.MA.4.33",
+   "vak": "Mathematics",
+   "leerjaar": 4,
+   "domein": "Measurement",
+   "tekst": "Solve problems involving converting from hours to minutes, minutes to seconds, years to months, weeks to days."
+  },
+  {
+   "code": "EN.MA.4.34",
+   "vak": "Mathematics",
+   "leerjaar": 4,
+   "domein": "Geometry - properties of shapes",
+   "tekst": "Compare and classify geometric shapes, including quadrilaterals and triangles, based on their properties and sizes."
+  },
+  {
+   "code": "EN.MA.4.35",
+   "vak": "Mathematics",
+   "leerjaar": 4,
+   "domein": "Geometry - properties of shapes",
+   "tekst": "Identify acute and obtuse angles and compare and order angles up to 2 right angles by size."
+  },
+  {
+   "code": "EN.MA.4.36",
+   "vak": "Mathematics",
+   "leerjaar": 4,
+   "domein": "Geometry - properties of shapes",
+   "tekst": "Identify lines of symmetry in 2-D shapes presented in different orientations."
+  },
+  {
+   "code": "EN.MA.4.37",
+   "vak": "Mathematics",
+   "leerjaar": 4,
+   "domein": "Geometry - properties of shapes",
+   "tekst": "Complete a simple symmetric figure with respect to a specific line of symmetry."
+  },
+  {
+   "code": "EN.MA.4.38",
+   "vak": "Mathematics",
+   "leerjaar": 4,
+   "domein": "Geometry - position and direction",
+   "tekst": "Describe positions on a 2-D grid as coordinates in the first quadrant."
+  },
+  {
+   "code": "EN.MA.4.39",
+   "vak": "Mathematics",
+   "leerjaar": 4,
+   "domein": "Geometry - position and direction",
+   "tekst": "Describe movements between positions as translations of a given unit to the left/right and up/down."
+  },
+  {
+   "code": "EN.MA.4.40",
+   "vak": "Mathematics",
+   "leerjaar": 4,
+   "domein": "Geometry - position and direction",
+   "tekst": "Plot specified points and draw sides to complete a given polygon."
+  },
+  {
+   "code": "EN.MA.4.41",
+   "vak": "Mathematics",
+   "leerjaar": 4,
+   "domein": "Statistics",
+   "tekst": "Interpret and present discrete and continuous data using appropriate graphical methods, including bar charts and time graphs."
+  },
+  {
+   "code": "EN.MA.4.42",
+   "vak": "Mathematics",
+   "leerjaar": 4,
+   "domein": "Statistics",
+   "tekst": "Solve comparison, sum and difference problems using information presented in bar charts, pictograms, tables and other graphs."
+  },
+  {
+   "code": "EN.MA.5.1",
+   "vak": "Mathematics",
+   "leerjaar": 5,
+   "domein": "Number - number and place value",
+   "tekst": "Read, write, order and compare numbers to at least 1,000,000 and determine the value of each digit."
+  },
+  {
+   "code": "EN.MA.5.2",
+   "vak": "Mathematics",
+   "leerjaar": 5,
+   "domein": "Number - number and place value",
+   "tekst": "Count forwards or backwards in steps of powers of 10 for any given number up to 1,000,000."
+  },
+  {
+   "code": "EN.MA.5.3",
+   "vak": "Mathematics",
+   "leerjaar": 5,
+   "domein": "Number - number and place value",
+   "tekst": "Interpret negative numbers in context, count forwards and backwards with positive and negative whole numbers, including through 0."
+  },
+  {
+   "code": "EN.MA.5.4",
+   "vak": "Mathematics",
+   "leerjaar": 5,
+   "domein": "Number - number and place value",
+   "tekst": "Round any number up to 1,000,000 to the nearest 10, 100, 1,000, 10,000 and 100,000."
+  },
+  {
+   "code": "EN.MA.5.5",
+   "vak": "Mathematics",
+   "leerjaar": 5,
+   "domein": "Number - number and place value",
+   "tekst": "Solve number problems and practical problems that involve all of the above."
+  },
+  {
+   "code": "EN.MA.5.6",
+   "vak": "Mathematics",
+   "leerjaar": 5,
+   "domein": "Number - number and place value",
+   "tekst": "Read Roman numerals to 1,000 (M) and recognise years written in Roman numerals."
+  },
+  {
+   "code": "EN.MA.5.7",
+   "vak": "Mathematics",
+   "leerjaar": 5,
+   "domein": "Number - addition and subtraction",
+   "tekst": "Add and subtract whole numbers with more than 4 digits, including using formal written methods (columnar addition and subtraction)"
+  },
+  {
+   "code": "EN.MA.5.8",
+   "vak": "Mathematics",
+   "leerjaar": 5,
+   "domein": "Number - addition and subtraction",
+   "tekst": "Add and subtract numbers mentally with increasingly large numbers."
+  },
+  {
+   "code": "EN.MA.5.9",
+   "vak": "Mathematics",
+   "leerjaar": 5,
+   "domein": "Number - addition and subtraction",
+   "tekst": "Use rounding to check answers to calculations and determine, in the context of a problem, levels of accuracy."
+  },
+  {
+   "code": "EN.MA.5.10",
+   "vak": "Mathematics",
+   "leerjaar": 5,
+   "domein": "Number - addition and subtraction",
+   "tekst": "Solve addition and subtraction multi-step problems in contexts, deciding which operations and methods to use and why."
+  },
+  {
+   "code": "EN.MA.5.11",
+   "vak": "Mathematics",
+   "leerjaar": 5,
+   "domein": "Number - multiplication and division",
+   "tekst": "Identify multiples and factors, including finding all factor pairs of a number, and common factors of 2 numbers."
+  },
+  {
+   "code": "EN.MA.5.12",
+   "vak": "Mathematics",
+   "leerjaar": 5,
+   "domein": "Number - multiplication and division",
+   "tekst": "Know and use the vocabulary of prime numbers, prime factors and composite (non-prime) numbers."
+  },
+  {
+   "code": "EN.MA.5.13",
+   "vak": "Mathematics",
+   "leerjaar": 5,
+   "domein": "Number - multiplication and division",
+   "tekst": "Establish whether a number up to 100 is prime and recall prime numbers up to 19."
+  },
+  {
+   "code": "EN.MA.5.14",
+   "vak": "Mathematics",
+   "leerjaar": 5,
+   "domein": "Number - multiplication and division",
+   "tekst": "Multiply numbers up to 4 digits by a one- or two-digit number using a formal written method, including long multiplication for two-digit numbers."
+  },
+  {
+   "code": "EN.MA.5.15",
+   "vak": "Mathematics",
+   "leerjaar": 5,
+   "domein": "Number - multiplication and division",
+   "tekst": "Multiply and divide numbers mentally, drawing upon known facts."
+  },
+  {
+   "code": "EN.MA.5.16",
+   "vak": "Mathematics",
+   "leerjaar": 5,
+   "domein": "Number - multiplication and division",
+   "tekst": "Divide numbers up to 4 digits by a one-digit number using the formal written method of short division and interpret remainders appropriately for the context."
+  },
+  {
+   "code": "EN.MA.5.17",
+   "vak": "Mathematics",
+   "leerjaar": 5,
+   "domein": "Number - multiplication and division",
+   "tekst": "Multiply and divide whole numbers and those involving decimals by 10, 100 and 1,000."
+  },
+  {
+   "code": "EN.MA.5.18",
+   "vak": "Mathematics",
+   "leerjaar": 5,
+   "domein": "Number - multiplication and division",
+   "tekst": "Recognise and use square numbers and cube numbers, and the notation for squared (²) and cubed (³)"
+  },
+  {
+   "code": "EN.MA.5.19",
+   "vak": "Mathematics",
+   "leerjaar": 5,
+   "domein": "Number - multiplication and division",
+   "tekst": "Solve problems involving multiplication and division, including using their knowledge of factors and multiples, squares and cubes."
+  },
+  {
+   "code": "EN.MA.5.20",
+   "vak": "Mathematics",
+   "leerjaar": 5,
+   "domein": "Number - multiplication and division",
+   "tekst": "Solve problems involving addition, subtraction, multiplication and division and a combination of these, including understanding the meaning of the equals sign."
+  },
+  {
+   "code": "EN.MA.5.21",
+   "vak": "Mathematics",
+   "leerjaar": 5,
+   "domein": "Number - multiplication and division",
+   "tekst": "Solve problems involving multiplication and division, including scaling by simple fractions and problems involving simple rates."
+  },
+  {
+   "code": "EN.MA.5.22",
+   "vak": "Mathematics",
+   "leerjaar": 5,
+   "domein": "Number - fractions (including decimals and percentages)",
+   "tekst": "Compare and order fractions whose denominators are all multiples of the same number."
+  },
+  {
+   "code": "EN.MA.5.23",
+   "vak": "Mathematics",
+   "leerjaar": 5,
+   "domein": "Number - fractions (including decimals and percentages)",
+   "tekst": "Identify, name and write equivalent fractions of a given fraction, represented visually, including tenths and hundredths."
+  },
+  {
+   "code": "EN.MA.5.24",
+   "vak": "Mathematics",
+   "leerjaar": 5,
+   "domein": "Number - fractions (including decimals and percentages)",
+   "tekst": "Recognise mixed numbers and improper fractions and convert from one form to the other and write mathematical statements > 1 as a mixed number [for example, 2/5+4/5 = 6/5 = 1 1/5]"
+  },
+  {
+   "code": "EN.MA.5.25",
+   "vak": "Mathematics",
+   "leerjaar": 5,
+   "domein": "Number - fractions (including decimals and percentages)",
+   "tekst": "Add and subtract fractions with the same denominator, and denominators that are multiples of the same number."
+  },
+  {
+   "code": "EN.MA.5.26",
+   "vak": "Mathematics",
+   "leerjaar": 5,
+   "domein": "Number - fractions (including decimals and percentages)",
+   "tekst": "Multiply proper fractions and mixed numbers by whole numbers, supported by materials and diagrams."
+  },
+  {
+   "code": "EN.MA.5.27",
+   "vak": "Mathematics",
+   "leerjaar": 5,
+   "domein": "Number - fractions (including decimals and percentages)",
+   "tekst": "Read and write decimal numbers as fractions [for example, 0.71 = 71/100]"
+  },
+  {
+   "code": "EN.MA.5.28",
+   "vak": "Mathematics",
+   "leerjaar": 5,
+   "domein": "Number - fractions (including decimals and percentages)",
+   "tekst": "Recognise and use thousandths and relate them to tenths, hundredths and decimal equivalents."
+  },
+  {
+   "code": "EN.MA.5.29",
+   "vak": "Mathematics",
+   "leerjaar": 5,
+   "domein": "Number - fractions (including decimals and percentages)",
+   "tekst": "Round decimals with 2 decimal places to the nearest whole number and to 1 decimal place."
+  },
+  {
+   "code": "EN.MA.5.30",
+   "vak": "Mathematics",
+   "leerjaar": 5,
+   "domein": "Number - fractions (including decimals and percentages)",
+   "tekst": "Read, write, order and compare numbers with up to 3 decimal places."
+  },
+  {
+   "code": "EN.MA.5.31",
+   "vak": "Mathematics",
+   "leerjaar": 5,
+   "domein": "Number - fractions (including decimals and percentages)",
+   "tekst": "Solve problems involving number up to 3 decimal places."
+  },
+  {
+   "code": "EN.MA.5.32",
+   "vak": "Mathematics",
+   "leerjaar": 5,
+   "domein": "Number - fractions (including decimals and percentages)",
+   "tekst": "Recognise the per cent symbol (%) and understand that per cent relates to 'number of parts per 100', and write percentages as a fraction with denominator 100, and as a decimal fraction."
+  },
+  {
+   "code": "EN.MA.5.33",
+   "vak": "Mathematics",
+   "leerjaar": 5,
+   "domein": "Number - fractions (including decimals and percentages)",
+   "tekst": "Solve problems which require knowing percentage and decimal equivalents of 1/2, 1/4, 1/5, 2/5, 4/5 and those fractions with a denominator of a multiple of 10 or 25."
+  },
+  {
+   "code": "EN.MA.5.34",
+   "vak": "Mathematics",
+   "leerjaar": 5,
+   "domein": "Measurement",
+   "tekst": "Convert between different units of metric measure [for example, kilometre and metre; centimetre and metre; centimetre and millimetre; gram and kilogram; litre and millilitre]"
+  },
+  {
+   "code": "EN.MA.5.35",
+   "vak": "Mathematics",
+   "leerjaar": 5,
+   "domein": "Measurement",
+   "tekst": "Understand and use approximate equivalences between metric units and common imperial units such as inches, pounds and pints."
+  },
+  {
+   "code": "EN.MA.5.36",
+   "vak": "Mathematics",
+   "leerjaar": 5,
+   "domein": "Measurement",
+   "tekst": "Measure and calculate the perimeter of composite rectilinear shapes in centimetres and metres."
+  },
+  {
+   "code": "EN.MA.5.37",
+   "vak": "Mathematics",
+   "leerjaar": 5,
+   "domein": "Measurement",
+   "tekst": "Calculate and compare the area of rectangles (including squares), including using standard units, square centimetres (cm²) and square metres (m²), and estimate the area of irregular shapes."
+  },
+  {
+   "code": "EN.MA.5.38",
+   "vak": "Mathematics",
+   "leerjaar": 5,
+   "domein": "Measurement",
+   "tekst": "Estimate volume [for example, using 1 cm³ blocks to build cuboids (including cubes)] and capacity [for example, using water]"
+  },
+  {
+   "code": "EN.MA.5.39",
+   "vak": "Mathematics",
+   "leerjaar": 5,
+   "domein": "Measurement",
+   "tekst": "Solve problems involving converting between units of time."
+  },
+  {
+   "code": "EN.MA.5.40",
+   "vak": "Mathematics",
+   "leerjaar": 5,
+   "domein": "Measurement",
+   "tekst": "Use all four operations to solve problems involving measure [for example, length, mass, volume, money] using decimal notation, including scaling."
+  },
+  {
+   "code": "EN.MA.5.41",
+   "vak": "Mathematics",
+   "leerjaar": 5,
+   "domein": "Geometry - properties of shapes",
+   "tekst": "Identify 3-D shapes, including cubes and other cuboids, from 2-D representations."
+  },
+  {
+   "code": "EN.MA.5.42",
+   "vak": "Mathematics",
+   "leerjaar": 5,
+   "domein": "Geometry - properties of shapes",
+   "tekst": "Know angles are measured in degrees: estimate and compare acute, obtuse and reflex angles."
+  },
+  {
+   "code": "EN.MA.5.43",
+   "vak": "Mathematics",
+   "leerjaar": 5,
+   "domein": "Geometry - properties of shapes",
+   "tekst": "Draw given angles, and measure them in degrees (°)"
+  },
+  {
+   "code": "EN.MA.5.44",
+   "vak": "Mathematics",
+   "leerjaar": 5,
+   "domein": "Geometry - properties of shapes",
+   "tekst": "Identify: angles at a point and 1 whole turn (total 360°)"
+  },
+  {
+   "code": "EN.MA.5.45",
+   "vak": "Mathematics",
+   "leerjaar": 5,
+   "domein": "Geometry - properties of shapes",
+   "tekst": "Identify: angles at a point on a straight line and half a turn (total 180°)"
+  },
+  {
+   "code": "EN.MA.5.46",
+   "vak": "Mathematics",
+   "leerjaar": 5,
+   "domein": "Geometry - properties of shapes",
+   "tekst": "Identify: other multiples of 90°."
+  },
+  {
+   "code": "EN.MA.5.47",
+   "vak": "Mathematics",
+   "leerjaar": 5,
+   "domein": "Geometry - properties of shapes",
+   "tekst": "Identify: use the properties of rectangles to deduce related facts and find missing lengths and angles."
+  },
+  {
+   "code": "EN.MA.5.48",
+   "vak": "Mathematics",
+   "leerjaar": 5,
+   "domein": "Geometry - properties of shapes",
+   "tekst": "Identify: distinguish between regular and irregular polygons based on reasoning about equal sides and angles."
+  },
+  {
+   "code": "EN.MA.5.49",
+   "vak": "Mathematics",
+   "leerjaar": 5,
+   "domein": "Geometry - position and direction",
+   "tekst": "Identify, describe and represent the position of a shape following a reflection or translation, using the appropriate language, and know that the shape has not changed."
+  },
+  {
+   "code": "EN.MA.5.50",
+   "vak": "Mathematics",
+   "leerjaar": 5,
+   "domein": "Statistics",
+   "tekst": "Solve comparison, sum and difference problems using information presented in a line graph."
+  },
+  {
+   "code": "EN.MA.5.51",
+   "vak": "Mathematics",
+   "leerjaar": 5,
+   "domein": "Statistics",
+   "tekst": "Complete, read and interpret information in tables, including timetables."
+  },
+  {
+   "code": "EN.MA.6.1",
+   "vak": "Mathematics",
+   "leerjaar": 6,
+   "domein": "Number - number and place value",
+   "tekst": "Read, write, order and compare numbers up to 10,000,000 and determine the value of each digit."
+  },
+  {
+   "code": "EN.MA.6.2",
+   "vak": "Mathematics",
+   "leerjaar": 6,
+   "domein": "Number - number and place value",
+   "tekst": "Round any whole number to a required degree of accuracy."
+  },
+  {
+   "code": "EN.MA.6.3",
+   "vak": "Mathematics",
+   "leerjaar": 6,
+   "domein": "Number - number and place value",
+   "tekst": "Use negative numbers in context, and calculate intervals across 0."
+  },
+  {
+   "code": "EN.MA.6.4",
+   "vak": "Mathematics",
+   "leerjaar": 6,
+   "domein": "Number - number and place value",
+   "tekst": "Solve number and practical problems that involve all of the above."
+  },
+  {
+   "code": "EN.MA.6.5",
+   "vak": "Mathematics",
+   "leerjaar": 6,
+   "domein": "Number - addition, subtraction, multiplication and division",
+   "tekst": "Multiply multi-digit numbers up to 4 digits by a two-digit whole number using the formal written method of long multiplication."
+  },
+  {
+   "code": "EN.MA.6.6",
+   "vak": "Mathematics",
+   "leerjaar": 6,
+   "domein": "Number - addition, subtraction, multiplication and division",
+   "tekst": "Divide numbers up to 4 digits by a two-digit whole number using the formal written method of long division, and interpret remainders as whole number remainders, fractions, or by rounding, as appropriate for the context."
+  },
+  {
+   "code": "EN.MA.6.7",
+   "vak": "Mathematics",
+   "leerjaar": 6,
+   "domein": "Number - addition, subtraction, multiplication and division",
+   "tekst": "Divide numbers up to 4 digits by a two-digit number using the formal written method of short division where appropriate, interpreting remainders according to the context."
+  },
+  {
+   "code": "EN.MA.6.8",
+   "vak": "Mathematics",
+   "leerjaar": 6,
+   "domein": "Number - addition, subtraction, multiplication and division",
+   "tekst": "Perform mental calculations, including with mixed operations and large numbers."
+  },
+  {
+   "code": "EN.MA.6.9",
+   "vak": "Mathematics",
+   "leerjaar": 6,
+   "domein": "Number - addition, subtraction, multiplication and division",
+   "tekst": "Identify common factors, common multiples and prime numbers."
+  },
+  {
+   "code": "EN.MA.6.10",
+   "vak": "Mathematics",
+   "leerjaar": 6,
+   "domein": "Number - addition, subtraction, multiplication and division",
+   "tekst": "Use their knowledge of the order of operations to carry out calculations involving the 4 operations."
+  },
+  {
+   "code": "EN.MA.6.11",
+   "vak": "Mathematics",
+   "leerjaar": 6,
+   "domein": "Number - addition, subtraction, multiplication and division",
+   "tekst": "Solve addition and subtraction multi-step problems in contexts, deciding which operations and methods to use and why."
+  },
+  {
+   "code": "EN.MA.6.12",
+   "vak": "Mathematics",
+   "leerjaar": 6,
+   "domein": "Number - addition, subtraction, multiplication and division",
+   "tekst": "Solve problems involving addition, subtraction, multiplication and division."
+  },
+  {
+   "code": "EN.MA.6.13",
+   "vak": "Mathematics",
+   "leerjaar": 6,
+   "domein": "Number - addition, subtraction, multiplication and division",
+   "tekst": "Use estimation to check answers to calculations and determine, in the context of a problem, an appropriate degree of accuracy."
+  },
+  {
+   "code": "EN.MA.6.14",
+   "vak": "Mathematics",
+   "leerjaar": 6,
+   "domein": "Number - Fractions (including decimals and percentages)",
+   "tekst": "Use common factors to simplify fractions; use common multiples to express fractions in the same denomination."
+  },
+  {
+   "code": "EN.MA.6.15",
+   "vak": "Mathematics",
+   "leerjaar": 6,
+   "domein": "Number - Fractions (including decimals and percentages)",
+   "tekst": "Compare and order fractions, including fractions >1."
+  },
+  {
+   "code": "EN.MA.6.16",
+   "vak": "Mathematics",
+   "leerjaar": 6,
+   "domein": "Number - Fractions (including decimals and percentages)",
+   "tekst": "Add and subtract fractions with different denominators and mixed numbers, using the concept of equivalent fractions."
+  },
+  {
+   "code": "EN.MA.6.17",
+   "vak": "Mathematics",
+   "leerjaar": 6,
+   "domein": "Number - Fractions (including decimals and percentages)",
+   "tekst": "Multiply simple pairs of proper fractions, writing the answer in its simplest form [for example, 1/4 × 1/2 = 1/8]"
+  },
+  {
+   "code": "EN.MA.6.18",
+   "vak": "Mathematics",
+   "leerjaar": 6,
+   "domein": "Number - Fractions (including decimals and percentages)",
+   "tekst": "Divide proper fractions by whole numbers [for example, 1/3 ÷ 2 = 1/6]"
+  },
+  {
+   "code": "EN.MA.6.19",
+   "vak": "Mathematics",
+   "leerjaar": 6,
+   "domein": "Number - Fractions (including decimals and percentages)",
+   "tekst": "Associate a fraction with division and calculate decimal fraction equivalents [for example, 0.375] for a simple fraction [for example, 3/8]"
+  },
+  {
+   "code": "EN.MA.6.20",
+   "vak": "Mathematics",
+   "leerjaar": 6,
+   "domein": "Number - Fractions (including decimals and percentages)",
+   "tekst": "Identify the value of each digit in numbers given to 3 decimal places and multiply and divide numbers by 10, 100 and 1,000 giving answers up to 3 decimal places."
+  },
+  {
+   "code": "EN.MA.6.21",
+   "vak": "Mathematics",
+   "leerjaar": 6,
+   "domein": "Number - Fractions (including decimals and percentages)",
+   "tekst": "Multiply one-digit numbers with up to 2 decimal places by whole numbers."
+  },
+  {
+   "code": "EN.MA.6.22",
+   "vak": "Mathematics",
+   "leerjaar": 6,
+   "domein": "Number - Fractions (including decimals and percentages)",
+   "tekst": "Use written division methods in cases where the answer has up to 2 decimal places."
+  },
+  {
+   "code": "EN.MA.6.23",
+   "vak": "Mathematics",
+   "leerjaar": 6,
+   "domein": "Number - Fractions (including decimals and percentages)",
+   "tekst": "Solve problems which require answers to be rounded to specified degrees of accuracy."
+  },
+  {
+   "code": "EN.MA.6.24",
+   "vak": "Mathematics",
+   "leerjaar": 6,
+   "domein": "Number - Fractions (including decimals and percentages)",
+   "tekst": "Recall and use equivalences between simple fractions, decimals and percentages, including in different contexts."
+  },
+  {
+   "code": "EN.MA.6.25",
+   "vak": "Mathematics",
+   "leerjaar": 6,
+   "domein": "Ratio and proportion",
+   "tekst": "Solve problems involving the relative sizes of 2 quantities where missing values can be found by using integer multiplication and division facts."
+  },
+  {
+   "code": "EN.MA.6.26",
+   "vak": "Mathematics",
+   "leerjaar": 6,
+   "domein": "Ratio and proportion",
+   "tekst": "Solve problems involving the calculation of percentages [for example, of measures and such as 15% of 360] and the use of percentages for comparison."
+  },
+  {
+   "code": "EN.MA.6.27",
+   "vak": "Mathematics",
+   "leerjaar": 6,
+   "domein": "Ratio and proportion",
+   "tekst": "Solve problems involving similar shapes where the scale factor is known or can be found."
+  },
+  {
+   "code": "EN.MA.6.28",
+   "vak": "Mathematics",
+   "leerjaar": 6,
+   "domein": "Ratio and proportion",
+   "tekst": "Solve problems involving unequal sharing and grouping using knowledge of fractions and multiples."
+  },
+  {
+   "code": "EN.MA.6.29",
+   "vak": "Mathematics",
+   "leerjaar": 6,
+   "domein": "Algebra",
+   "tekst": "Use simple formulae."
+  },
+  {
+   "code": "EN.MA.6.30",
+   "vak": "Mathematics",
+   "leerjaar": 6,
+   "domein": "Algebra",
+   "tekst": "Generate and describe linear number sequences."
+  },
+  {
+   "code": "EN.MA.6.31",
+   "vak": "Mathematics",
+   "leerjaar": 6,
+   "domein": "Algebra",
+   "tekst": "Express missing number problems algebraically."
+  },
+  {
+   "code": "EN.MA.6.32",
+   "vak": "Mathematics",
+   "leerjaar": 6,
+   "domein": "Algebra",
+   "tekst": "Find pairs of numbers that satisfy an equation with 2 unknowns."
+  },
+  {
+   "code": "EN.MA.6.33",
+   "vak": "Mathematics",
+   "leerjaar": 6,
+   "domein": "Algebra",
+   "tekst": "Enumerate possibilities of combinations of 2 variables."
+  },
+  {
+   "code": "EN.MA.6.34",
+   "vak": "Mathematics",
+   "leerjaar": 6,
+   "domein": "Measurement",
+   "tekst": "Solve problems involving the calculation and conversion of units of measure, using decimal notation up to 3 decimal places where appropriate."
+  },
+  {
+   "code": "EN.MA.6.35",
+   "vak": "Mathematics",
+   "leerjaar": 6,
+   "domein": "Measurement",
+   "tekst": "Use, read, write and convert between standard units, converting measurements of length, mass, volume and time from a smaller unit of measure to a larger unit, and vice versa, using decimal notation to up to 3 decimal places."
+  },
+  {
+   "code": "EN.MA.6.36",
+   "vak": "Mathematics",
+   "leerjaar": 6,
+   "domein": "Measurement",
+   "tekst": "Convert between miles and kilometres."
+  },
+  {
+   "code": "EN.MA.6.37",
+   "vak": "Mathematics",
+   "leerjaar": 6,
+   "domein": "Measurement",
+   "tekst": "Recognise that shapes with the same areas can have different perimeters and vice versa."
+  },
+  {
+   "code": "EN.MA.6.38",
+   "vak": "Mathematics",
+   "leerjaar": 6,
+   "domein": "Measurement",
+   "tekst": "Recognise when it is possible to use formulae for area and volume of shapes."
+  },
+  {
+   "code": "EN.MA.6.39",
+   "vak": "Mathematics",
+   "leerjaar": 6,
+   "domein": "Measurement",
+   "tekst": "Calculate the area of parallelograms and triangles."
+  },
+  {
+   "code": "EN.MA.6.40",
+   "vak": "Mathematics",
+   "leerjaar": 6,
+   "domein": "Measurement",
+   "tekst": "Calculate, estimate and compare volume of cubes and cuboids using standard units, including cubic centimetres (cm³) and cubic metres (m³), and extending to other units [for example, mm³ and km³]"
+  },
+  {
+   "code": "EN.MA.6.41",
+   "vak": "Mathematics",
+   "leerjaar": 6,
+   "domein": "Geometry - properties of shapes",
+   "tekst": "Draw 2-D shapes using given dimensions and angles."
+  },
+  {
+   "code": "EN.MA.6.42",
+   "vak": "Mathematics",
+   "leerjaar": 6,
+   "domein": "Geometry - properties of shapes",
+   "tekst": "Recognise, describe and build simple 3-D shapes, including making nets."
+  },
+  {
+   "code": "EN.MA.6.43",
+   "vak": "Mathematics",
+   "leerjaar": 6,
+   "domein": "Geometry - properties of shapes",
+   "tekst": "Compare and classify geometric shapes based on their properties and sizes and find unknown angles in any triangles, quadrilaterals, and regular polygons."
+  },
+  {
+   "code": "EN.MA.6.44",
+   "vak": "Mathematics",
+   "leerjaar": 6,
+   "domein": "Geometry - properties of shapes",
+   "tekst": "Illustrate and name parts of circles, including radius, diameter and circumference and know that the diameter is twice the radius."
+  },
+  {
+   "code": "EN.MA.6.45",
+   "vak": "Mathematics",
+   "leerjaar": 6,
+   "domein": "Geometry - properties of shapes",
+   "tekst": "Recognise angles where they meet at a point, are on a straight line, or are vertically opposite, and find missing angles."
+  },
+  {
+   "code": "EN.MA.6.46",
+   "vak": "Mathematics",
+   "leerjaar": 6,
+   "domein": "Geometry - position and direction",
+   "tekst": "Describe positions on the full coordinate grid (all 4 quadrants)"
+  },
+  {
+   "code": "EN.MA.6.47",
+   "vak": "Mathematics",
+   "leerjaar": 6,
+   "domein": "Geometry - position and direction",
+   "tekst": "Draw and translate simple shapes on the coordinate plane, and reflect them in the axes."
+  },
+  {
+   "code": "EN.MA.6.48",
+   "vak": "Mathematics",
+   "leerjaar": 6,
+   "domein": "Statistics",
+   "tekst": "Interpret and construct pie charts and line graphs and use these to solve problems."
+  },
+  {
+   "code": "EN.MA.6.49",
+   "vak": "Mathematics",
+   "leerjaar": 6,
+   "domein": "Statistics",
+   "tekst": "Calculate and interpret the mean as an average."
+  }
+ ]
+}

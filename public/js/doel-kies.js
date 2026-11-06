@@ -1,4 +1,4 @@
-// Een leerplandoel (Op.stap) kiezen bij een quizvraag of een oefening.
+// Een leerplandoel kiezen (Op.stap, de doelen van een ander land of eigen doelen, zie Mijn klas > Doelen) bij een quizvraag of een oefening.
 // Typ een code (2.2.GL6.12) of woorden uit het doel (breuk, deler): eronder verschijnen de passende doelen.
 // Standaard de doelen van het leerjaar van de klas; boven de zoekbalk kies je een ander leerjaar (of alle).
 // Gebruikt socket uit host.js of ob-host.js.
@@ -20,20 +20,27 @@ const DoelKies = (() => {
   }
 
   const same = (a, b) => String(a) === String(b);
+  // Hoort een doel bij dit leerjaar? Een doel kan voor meerdere leerjaren gelden (leerjaren) of voor alle (leerjaar 0).
+  const inJaar = (d, lj) => (Array.isArray(d.leerjaren) && d.leerjaren.length ? d.leerjaren : [d.leerjaar]).some(j => !Number(j) || same(j, lj));
 
   // "6e leerjaar", "2e leerjaar" ...
   function naam(lj) {
     const l = leerjaren.find(x => same(x.id, lj));
-    return l ? l.naam : `${lj}e leerjaar`;
+    return l ? l.naam : Number(lj) ? `${lj}e leerjaar` : '';
+  }
+  function jarenNaam(d) {
+    const j = Array.isArray(d.leerjaren) && d.leerjaren.length ? d.leerjaren : [d.leerjaar];
+    if (!Number(j[0])) return '';
+    return j.length > 1 ? `${naam(j[0])} - ${naam(j[j.length - 1])}` : naam(j[0]);
   }
 
   function describe(d) {
-    const lj = same(d.leerjaar, klasLeerjaar) ? '' : ` · ${naam(d.leerjaar)}`;
-    return `${d.vak}${lj} · ${d.domein} · ${d.tekst}${d.soort === 'plus' ? ' (plusdoel)' : ''}${d.score === false ? ' (voor de Ronde Tafel, geen score)' : ''}`;
+    const lj = inJaar(d, klasLeerjaar) || !jarenNaam(d) ? '' : ` · ${jarenNaam(d)}`;
+    return `${d.vak}${lj}${d.domein ? ` · ${d.domein}` : ''} · ${d.tekst}${d.soort === 'plus' ? ' (plusdoel)' : ''}${d.score === false ? ' (voor de Ronde Tafel, geen score)' : ''}`;
   }
 
   function filter() {
-    doelen = gekozen === 'alle' ? alle : alle.filter(d => same(d.leerjaar, gekozen));
+    doelen = gekozen === 'alle' ? alle : alle.filter(d => inJaar(d, gekozen));
   }
 
   // Een ander leerjaar kiezen: alle zoekvelden en keuzelijsten volgen.
@@ -42,6 +49,16 @@ const DoelKies = (() => {
     filter();
     for (const sel of keuzes) sel.value = String(gekozen);
     for (const el of fields) el.refresh();
+  }
+
+  // Koos de leerkracht andere doelen (Mijn klas > Doelen)? Dan opnieuw laden.
+  if (typeof socket !== 'undefined' && socket.on) {
+    socket.on('doelen-gewijzigd', () => {
+      if (!asked) return;
+      asked = false;
+      status = 'laden';
+      load();
+    });
   }
 
   function load() {
@@ -59,12 +76,15 @@ const DoelKies = (() => {
         status = 'fout';
       } else {
         alle = res.doelen;
-        leerjaren = (res.leerjaren || []).filter(l => alle.some(d => same(d.leerjaar, l.id)));
+        if (res.land) window.LANCELOT_DOELLAND = res.land;
+        leerjaren = (res.leerjaren || []).filter(l => alle.some(d => inJaar(d, l.id)));
         klasLeerjaar = res.leerjaar;
         // Standaard de doelen van het leerjaar van de klas; zijn er daarvoor geen, dan alles.
         gekozen = leerjaren.some(l => same(l.id, klasLeerjaar)) ? klasLeerjaar : 'alle';
         filter();
         status = alle.length ? 'klaar' : 'leeg';
+        // Zonder doelen (bv. de Store-versie zonder gekozen land) verdwijnen de doelvelden: alles werkt ook zonder.
+        for (const el of fields) el.toonOfNiet();
         for (const sel of keuzes) fillKeuze(sel);
         for (const fn of wachten) fn(klasLeerjaar);
         wachten = [];
@@ -148,12 +168,16 @@ const DoelKies = (() => {
       box.classList.toggle('hidden', !hits.length);
     }
 
+    el.toonOfNiet = () => {
+      const blok = el.closest('.doel-multi') || el;
+      blok.hidden = status === 'leeg';
+    };
     el.refresh = () => {
       const code = codeOf(input.value);
       const d = find(code);
       let note = '';
       if (status === 'fout') note = 'De leerplandoelen konden niet geladen worden. Sluit het zwarte LANcelot-venster en start LANcelot opnieuw.';
-      else if (status === 'leeg') note = 'Er staan nog geen leerplandoelen op deze pc (map doelen).';
+      else if (status === 'leeg') note = 'Je werkt zonder leerplandoelen. Kies doelen in Mijn klas > Doelen.';
       else if (status === 'laden' && code) note = 'De leerplandoelen worden geladen…';
       else if (d) note = describe(d);
       else if (code && !search(input.value).length) note = 'Geen doel gevonden. Probeer een ander woord.';
@@ -185,13 +209,14 @@ const DoelKies = (() => {
     });
     fields.add(el);
     el.refresh();
+    if (status !== 'laden') setTimeout(el.toonOfNiet);
     return el;
   }
 
   // De gekozen doelcode, of leeg als het veld leeg is of het doel niet bestaat.
   function read(el) {
     const code = codeOf(el.querySelector('input').value);
-    return find(code) || (!alle.length && /^\d/.test(code)) ? code : '';
+    return find(code) || (!alle.length && /^(\d|[A-Z]{2,5}\.)/.test(code)) ? code : '';
   }
 
   function fillKeuze(sel) {
@@ -268,11 +293,21 @@ const DoelKies = (() => {
     else wachten.push(fn);
   }
 
+  // Het niveau-keuzelijstje van een maker op een leerjaar zetten. Een jaarnaam van een ander land (Year 6, groep 8) komt er zo nodig bij.
+  function zetNiveau(sel, lj) {
+    const n = naam(lj);
+    if (!sel || !n) return;
+    if (![...sel.options].some(o => o.value === n || o.text === n)) sel.add(new Option(n, n), 0);
+    sel.value = n;
+  }
+
+  const BRONNEN = { be: 'het Vlaamse leerplan Op.stap', nl: 'de Nederlandse kerndoelen', en: 'the National Curriculum in England', us: 'the Common Core State Standards', fr: 'les programmes de l’école élémentaire (France)', de: 'den Bildungsstandards der KMK' };
   // Het stuk van de AI-prompt over de gekozen doelen. wat = 'vragen' of 'oefeningen'.
   function prompt(codes, wat) {
     const list = codes.map(find).filter(Boolean);
     if (!list.length) return '';
-    const bron = `het Vlaamse leerplan Op.stap (${[...new Set(list.map(d => d.vak))].join(', ')}, ${[...new Set(list.map(d => naam(d.leerjaar)))].join(', ')})`;
+    const jaren = [...new Set(list.map(jarenNaam).filter(Boolean))].join(', ');
+    const bron = `${BRONNEN[list[0].land] || 'mijn eigen leerplan'} (${[...new Set(list.map(d => d.vak))].join(', ')}${jaren ? `, ${jaren}` : ''})`;
     if (list.length === 1) return `\nDe ${wat} oefenen dit leerplandoel uit ${bron}: "${list[0].tekst}" Maak alleen ${wat} die precies dit doel oefenen.\n`;
     return `\nDe ${wat} oefenen deze leerplandoelen uit ${bron}:\n${list.map(d => `- ${d.code}: ${d.tekst}`).join('\n')}\nVerdeel de ${wat} evenwichtig over deze doelen. Zet bij elk${wat === 'vragen' ? 'e vraag' : 'e oefening'} in "doel" de code van het doel dat ze oefent, bijvoorbeeld "doel": "${list[0].code}".\n`;
   }
@@ -285,5 +320,5 @@ const DoelKies = (() => {
     }
   }
 
-  return { field, multi, prompt, apply, read, find, describe, load, leerjaar, naam, leerjaarKeuze };
+  return { field, multi, prompt, apply, read, find, describe, load, leerjaar, naam, zetNiveau, leerjaarKeuze, inJaar };
 })();

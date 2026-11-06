@@ -1,0 +1,93 @@
+{
+ "title": "Cuestionario de ejemplo: el mundo que nos rodea",
+ "questions": [
+  {
+   "question": "¿Cuántas patas tiene una araña?",
+   "answers": [
+    "6",
+    "8",
+    "10",
+    "4"
+   ],
+   "correct": 1,
+   "time": 20
+  },
+  {
+   "question": "¿Qué planeta está más cerca del Sol?",
+   "answers": [
+    "Venus",
+    "La Tierra",
+    "Mercurio",
+    "Marte"
+   ],
+   "correct": 2,
+   "time": 20
+  },
+  {
+   "question": "¿Cuánto es 7 × 8?",
+   "answers": [
+    "54",
+    "56",
+    "64",
+    "48"
+   ],
+   "correct": 1,
+   "time": 20
+  },
+  {
+   "question": "¿Cuál de estos animales es un mamífero?",
+   "answers": [
+    "El tiburón",
+    "La rana",
+    "El delfín",
+    "El pingüino"
+   ],
+   "correct": 2,
+   "time": 20
+  },
+  {
+   "question": "¿Qué necesitan las plantas para fabricar su alimento?",
+   "answers": [
+    "Luz del sol",
+    "Oscuridad",
+    "Sal",
+    "Arena"
+   ],
+   "correct": 0,
+   "time": 20
+  },
+  {
+   "question": "¿Cuántos lados tiene un hexágono?",
+   "answers": [
+    "5",
+    "6",
+    "7",
+    "8"
+   ],
+   "correct": 1,
+   "time": 20
+  },
+  {
+   "question": "¿A qué temperatura se congela el agua?",
+   "answers": [
+    "0 °C",
+    "10 °C",
+    "-10 °C",
+    "100 °C"
+   ],
+   "correct": 0,
+   "time": 20
+  },
+  {
+   "question": "¿Cuál de estas letras es una vocal?",
+   "answers": [
+    "B",
+    "T",
+    "E",
+    "K"
+   ],
+   "correct": 2,
+   "time": 20
+  }
+ ]
+}

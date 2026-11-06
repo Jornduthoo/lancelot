@@ -97,6 +97,9 @@ main > section { display: flex; flex-direction: column; gap: 16px; }
 .muted { color: var(--muted); }
 .small { font-size: .9rem; }
 .hidden { display: none !important; }
+/* De Store-versie toont De Kronieken (methodes, Zonnewijzer, Zegelrol, Postduif) en het Vlaamse startpakket niet. */
+.store-versie .niet-in-store { display: none !important; }
+.doel-multi[hidden], .doel-veld[hidden] { display: none !important; }
 a { color: var(--cyan); }
 code { font-family: var(--tech); font-size: .85em; color: var(--cyan); }
 

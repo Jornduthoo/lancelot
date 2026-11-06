@@ -71,6 +71,26 @@
       <div id="o-detail"></div>
     </div>
 
+    <div class="panel form" data-tab="doelen" id="doelkeuze">
+      <h3>Welke doelen?</h3>
+      <p class="muted">Kies de leerplandoelen van je land, of zet je eigen doelen. Zonder doelen werkt LANcelot ook: dan kies je bij quizzen en oefenbladen gewoon geen doel.</p>
+      <div class="row">
+        <label>Doelen van<select id="dk-land"></select></label>
+      </div>
+      <p class="muted small" id="dk-land-bron"></p>
+      <details class="doel-eigen" id="dk-eigen">
+        <summary>Eigen doelen <span class="muted small" id="dk-eigen-aantal"></span></summary>
+        <p class="muted small">Eén doel per regel. Zet het vak ervoor met een dubbelpunt, bijvoorbeeld "Wiskunde: Ik kan breuken vergelijken." Met een leerjaar erbij: "Wiskunde | 4 | Ik kan breuken vergelijken." Eigen doelen komen bovenop de doelen van je land.</p>
+        <textarea id="dk-eigen-tekst" rows="8" placeholder="Wiskunde: Ik kan breuken vergelijken.&#10;Taal | 4 | Ik herken het onderwerp in een zin."></textarea>
+        <div class="row">
+          <button type="button" id="dk-eigen-bewaar">Bewaar mijn doelen</button>
+          <button type="button" class="secondary" id="dk-ai">Laat een AI doelen voorstellen</button>
+        </div>
+        <p class="muted small">De AI-knop kopieert een vraag: plak ze in een chatbot, en plak het antwoord hierboven.</p>
+        <p class="error" id="dk-error"></p>
+      </details>
+    </div>
+
     <div class="panel form" id="doelenkaart" data-tab="doelen">
       <h3>Doelenkaart</h3>
       <p class="muted">Welke leerplandoelen beheerst elke leerling? We kijken naar de laatste <span id="dk-recent">10</span> antwoorden per doel: minstens 80% juist is beheerst, minstens 50% is bijna. Alleen vragen met een leerplandoel tellen mee.</p>
@@ -91,11 +111,11 @@
 
     <div class="panel form" data-tab="doelen">
       <h3>Leerplandoelen</h3>
-      <p class="muted">De doelen uit Op.stap, standaard die van jouw leerjaar. Kies gerust een ander leerjaar, bijvoorbeeld om doelen van vorig jaar te herhalen. Koppel ze aan een quizvraag of een oefening in de quizmaker of de oefenbladmaker. Groen gemarkeerd: zoveel antwoorden staan er al in het logboek.</p>
+      <p class="muted">De gekozen doelen, standaard die van jouw leerjaar. Kies gerust een ander leerjaar, bijvoorbeeld om doelen van vorig jaar te herhalen. Koppel ze aan een quizvraag of een oefening in de quizmaker of de oefenbladmaker. Groen gemarkeerd: zoveel antwoorden staan er al in het logboek.</p>
       <div class="row">
         <label>Leerjaar<select id="d-leerjaar"></select></label>
         <label>Vak<select id="d-vak"><option value="">Alle vakken</option></select></label>
-        <label>Zoeken<input id="d-zoek" placeholder="bijv. breuk, spelling, verkeer of 2.2.GL6"></label>
+        <label>Zoeken<input id="d-zoek" placeholder="bijv. breuk, spelling of verkeer"></label>
       </div>
       <p class="muted small" id="d-bron"></p>
       <div class="doel-lijst" id="d-lijst"></div>

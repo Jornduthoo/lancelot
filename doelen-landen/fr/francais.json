@@ -1,0 +1,1280 @@
+{
+ "bron": "Programme de français du cycle 2, BO n° 41 du 31 octobre 2024 (ministère de l’Éducation nationale)",
+ "vak": "Français",
+ "doelen": [
+  {
+   "code": "FR.CP.F1",
+   "vak": "Français",
+   "leerjaar": 1,
+   "domein": "Lecture",
+   "tekst": "Décoder et encoder 12 à 15 correspondances graphophonémiques (CGP) régulières, fréquentes et aisément prononçables."
+  },
+  {
+   "code": "FR.CP.F2",
+   "vak": "Français",
+   "leerjaar": 1,
+   "domein": "Lecture",
+   "tekst": "Déchiffrer des syllabes, des mots puis des phrases en fonction de la progression de l’apprentissage des CGP."
+  },
+  {
+   "code": "FR.CP.F3",
+   "vak": "Français",
+   "leerjaar": 1,
+   "domein": "Lecture",
+   "tekst": "Décoder et encoder de 25 à 30 CGP."
+  },
+  {
+   "code": "FR.CP.F4",
+   "vak": "Français",
+   "leerjaar": 1,
+   "domein": "Lecture",
+   "tekst": "Avoir pris conscience de la présence de lettres finales muettes et s’appuyer sur le sens des mots pour les déchiffrer correctement."
+  },
+  {
+   "code": "FR.CP.F5",
+   "vak": "Français",
+   "leerjaar": 1,
+   "domein": "Lecture",
+   "tekst": "Mémoriser les mots fréquents et réguliers."
+  },
+  {
+   "code": "FR.CP.F6",
+   "vak": "Français",
+   "leerjaar": 1,
+   "domein": "Lecture",
+   "tekst": "Déchiffrer entre 15 et 30 mots par minute."
+  },
+  {
+   "code": "FR.CP.F7",
+   "vak": "Français",
+   "leerjaar": 1,
+   "domein": "Lecture",
+   "tekst": "Décoder 30 mots par minute au minimum fin CP, sans préparation, 50 après préparation."
+  },
+  {
+   "code": "FR.CP.F8",
+   "vak": "Français",
+   "leerjaar": 1,
+   "domein": "Lecture",
+   "tekst": "Oraliser les syllabes déchiffrées et encodées, puis les mots."
+  },
+  {
+   "code": "FR.CP.F9",
+   "vak": "Français",
+   "leerjaar": 1,
+   "domein": "Lecture",
+   "tekst": "Oraliser régulièrement les mots et phrases déchiffrés et encodés."
+  },
+  {
+   "code": "FR.CP.F10",
+   "vak": "Français",
+   "leerjaar": 1,
+   "domein": "Lecture",
+   "tekst": "S’entrainer à lire des textes déchiffrables de manière à automatiser sa lecture."
+  },
+  {
+   "code": "FR.CP.F11",
+   "vak": "Français",
+   "leerjaar": 1,
+   "domein": "Lecture",
+   "tekst": "Lire après préparation un texte adapté à son niveau de lecture avec une vitesse de 30 mots par minute au minimum sans préparation, 50 après préparation."
+  },
+  {
+   "code": "FR.CP.F12",
+   "vak": "Français",
+   "leerjaar": 1,
+   "domein": "Lecture",
+   "tekst": "Identifier les marques de ponctuation et les prendre en compte sur un texte préparé."
+  },
+  {
+   "code": "FR.CP.F13",
+   "vak": "Français",
+   "leerjaar": 1,
+   "domein": "Lecture",
+   "tekst": "Amorcer une lecture expressive."
+  },
+  {
+   "code": "FR.CP.F14",
+   "vak": "Français",
+   "leerjaar": 1,
+   "domein": "Lecture",
+   "tekst": "Dégager le sens global d’un texte entendu ou lu de façon autonome."
+  },
+  {
+   "code": "FR.CP.F15",
+   "vak": "Français",
+   "leerjaar": 1,
+   "domein": "Lecture",
+   "tekst": "Identifier les mots inconnus dans un texte et chercher à leur donner un sens."
+  },
+  {
+   "code": "FR.CP.F16",
+   "vak": "Français",
+   "leerjaar": 1,
+   "domein": "Lecture",
+   "tekst": "Se repérer dans la chaine anaphorique (qui relie un nom à sa ou ses reprise(s) pronominale(s) ou à d’autres noms de sens équivalent)."
+  },
+  {
+   "code": "FR.CP.F17",
+   "vak": "Français",
+   "leerjaar": 1,
+   "domein": "Lecture",
+   "tekst": "Comprendre ce qui est implicite (inférences simples)."
+  },
+  {
+   "code": "FR.CP.F18",
+   "vak": "Français",
+   "leerjaar": 1,
+   "domein": "Lecture",
+   "tekst": "Justifier ses réponses par un retour au texte."
+  },
+  {
+   "code": "FR.CP.F19",
+   "vak": "Français",
+   "leerjaar": 1,
+   "domein": "Lecture",
+   "tekst": "Lire et comprendre en autonomie un texte narratif, informatif ou prescriptif d’une dizaine de lignes."
+  },
+  {
+   "code": "FR.CP.F20",
+   "vak": "Français",
+   "leerjaar": 1,
+   "domein": "Lecture",
+   "tekst": "Lire 5 à 10 œuvres complètes et variées issues du patrimoine et de la littérature de jeunesse (albums, romans, contes, fables, poèmes, pièces de théâtre et documentaires)."
+  },
+  {
+   "code": "FR.CP.F21",
+   "vak": "Français",
+   "leerjaar": 1,
+   "domein": "Lecture",
+   "tekst": "Repérer et reconnaitre des types de personnages."
+  },
+  {
+   "code": "FR.CP.F22",
+   "vak": "Français",
+   "leerjaar": 1,
+   "domein": "Lecture",
+   "tekst": "Aller vers les livres et être capable d’en choisir à titre personnel."
+  },
+  {
+   "code": "FR.CP.F23",
+   "vak": "Français",
+   "leerjaar": 1,
+   "domein": "Lecture",
+   "tekst": "Relier ses lectures à son expérience personnelle, être en mesure d’établir des liens entre ses différentes lectures (mise en réseau)."
+  },
+  {
+   "code": "FR.CP.F24",
+   "vak": "Français",
+   "leerjaar": 1,
+   "domein": "Lecture",
+   "tekst": "Fréquenter régulièrement des lieux de lecture et se familiariser avec eux, rencontrer des acteurs du livre."
+  },
+  {
+   "code": "FR.CP.F25",
+   "vak": "Français",
+   "leerjaar": 1,
+   "domein": "Écriture",
+   "tekst": "Apprendre à écrire en écriture cursive tous les graphèmes étudiés selon la progression en décodage."
+  },
+  {
+   "code": "FR.CP.F26",
+   "vak": "Français",
+   "leerjaar": 1,
+   "domein": "Écriture",
+   "tekst": "Apprendre à les enchainer, avec fluidité, avec d’autres lettres dans des syllabes, mots, phrases."
+  },
+  {
+   "code": "FR.CP.F27",
+   "vak": "Français",
+   "leerjaar": 1,
+   "domein": "Écriture",
+   "tekst": "Encoder des syllabes simples puis des mots selon la progression des CGP."
+  },
+  {
+   "code": "FR.CP.F28",
+   "vak": "Français",
+   "leerjaar": 1,
+   "domein": "Écriture",
+   "tekst": "Écrire des mots dictés avec des lettres muettes apprises (mettre en relation des morphogrammes lexicaux et grammaticaux)."
+  },
+  {
+   "code": "FR.CP.F29",
+   "vak": "Français",
+   "leerjaar": 1,
+   "domein": "Écriture",
+   "tekst": "Écrire sous la dictée des mots et des phrases."
+  },
+  {
+   "code": "FR.CP.F30",
+   "vak": "Français",
+   "leerjaar": 1,
+   "domein": "Écriture",
+   "tekst": "Copier des syllabes simples puis des mots avec lettres muettes."
+  },
+  {
+   "code": "FR.CP.F31",
+   "vak": "Français",
+   "leerjaar": 1,
+   "domein": "Écriture",
+   "tekst": "Copier une phrase en lien avec les 12/15 correspondances graphophonémiques étudiées."
+  },
+  {
+   "code": "FR.CP.F32",
+   "vak": "Français",
+   "leerjaar": 1,
+   "domein": "Écriture",
+   "tekst": "Commencer à verbaliser et à utiliser des stratégies de copie pour dépasser la copie lettre à lettre: prise d’indices, mémorisation de mots ou groupes de mots."
+  },
+  {
+   "code": "FR.CP.F33",
+   "vak": "Français",
+   "leerjaar": 1,
+   "domein": "Écriture",
+   "tekst": "Commencer à savoir se relire après copie."
+  },
+  {
+   "code": "FR.CP.F34",
+   "vak": "Français",
+   "leerjaar": 1,
+   "domein": "Écriture",
+   "tekst": "Copier trois ou quatre phrases sans erreur et de façon lisible."
+  },
+  {
+   "code": "FR.CP.F35",
+   "vak": "Français",
+   "leerjaar": 1,
+   "domein": "Écriture",
+   "tekst": "Écrire des graphèmes, des syllabes, des mots puis quelques phrases avec l’aide du professeur à partir des mots connus et déchiffrés. Les activités de dictées à l’adulte sont poursuivies."
+  },
+  {
+   "code": "FR.CP.F36",
+   "vak": "Français",
+   "leerjaar": 1,
+   "domein": "Écriture",
+   "tekst": "Produire des écrits courts porteurs de sens, d’une à cinq lignes, en articulation avec l’apprentissage de la lecture."
+  },
+  {
+   "code": "FR.CP.F37",
+   "vak": "Français",
+   "leerjaar": 1,
+   "domein": "Écriture",
+   "tekst": "S’appuyer sur les textes de lecture pour les transformer sur quelques points seulement (écrire à la façon de, ajouter un épisode, etc.)."
+  },
+  {
+   "code": "FR.CP.F38",
+   "vak": "Français",
+   "leerjaar": 1,
+   "domein": "Écriture",
+   "tekst": "Produire des écrits courts porteurs de sens d’une à cinq lignes en articulation avec l’apprentissage de la lecture."
+  },
+  {
+   "code": "FR.CP.F39",
+   "vak": "Français",
+   "leerjaar": 1,
+   "domein": "Écriture",
+   "tekst": "Commencer à acquérir une méthodologie de production écrite: planification, mise en mots avec vigilance orthographique, relectures et révisions."
+  },
+  {
+   "code": "FR.CP.F40",
+   "vak": "Français",
+   "leerjaar": 1,
+   "domein": "Écriture",
+   "tekst": "Repérer les dysfonctionnements de son texte par la relecture à voix haute du professeur ou grâce à des outils d’aide construits à cet effet."
+  },
+  {
+   "code": "FR.CP.F41",
+   "vak": "Français",
+   "leerjaar": 1,
+   "domein": "Oral",
+   "tekst": "Comprendre un message entendu de quelques minutes et mémoriser quelques informations importantes."
+  },
+  {
+   "code": "FR.CP.F42",
+   "vak": "Français",
+   "leerjaar": 1,
+   "domein": "Oral",
+   "tekst": "Mener une brève production orale pour rapporter, raconter, décrire ou expliquer, en utilisant quelques organisateurs du discours et en mobilisant le lexique appris."
+  },
+  {
+   "code": "FR.CP.F43",
+   "vak": "Français",
+   "leerjaar": 1,
+   "domein": "Oral",
+   "tekst": "S’écouter pour progresser et proposer des reformulations."
+  },
+  {
+   "code": "FR.CP.F44",
+   "vak": "Français",
+   "leerjaar": 1,
+   "domein": "Oral",
+   "tekst": "Oraliser un texte mémorisé ou préparé en tenant compte de son auditoire."
+  },
+  {
+   "code": "FR.CP.F45",
+   "vak": "Français",
+   "leerjaar": 1,
+   "domein": "Oral",
+   "tekst": "Participer aux échanges en respectant les règles, en écoutant les autres et en donnant son avis."
+  },
+  {
+   "code": "FR.CP.F46",
+   "vak": "Français",
+   "leerjaar": 1,
+   "domein": "Oral",
+   "tekst": "Prendre conscience des écarts de niveau de langue selon les situations de communication."
+  },
+  {
+   "code": "FR.CP.F47",
+   "vak": "Français",
+   "leerjaar": 1,
+   "domein": "Vocabulaire",
+   "tekst": "Enrichir en contexte le vocabulaire appris au cycle 1."
+  },
+  {
+   "code": "FR.CP.F48",
+   "vak": "Français",
+   "leerjaar": 1,
+   "domein": "Vocabulaire",
+   "tekst": "Être sensible, sans en apprendre les concepts, à la polysémie et à la différence entre sens propre et sens figuré."
+  },
+  {
+   "code": "FR.CP.F49",
+   "vak": "Français",
+   "leerjaar": 1,
+   "domein": "Vocabulaire",
+   "tekst": "Commencer à mobiliser l’ordre alphabétique pour utiliser un dictionnaire adapté (papier ou numérique)."
+  },
+  {
+   "code": "FR.CP.F50",
+   "vak": "Français",
+   "leerjaar": 1,
+   "domein": "Vocabulaire",
+   "tekst": "Constituer des répertoires de mots par thème, par classe grammaticale, par famille de mots, par analogies morphologiques."
+  },
+  {
+   "code": "FR.CP.F51",
+   "vak": "Français",
+   "leerjaar": 1,
+   "domein": "Vocabulaire",
+   "tekst": "Savoir proposer et justifier une catégorisation du corpus de mots étudié."
+  },
+  {
+   "code": "FR.CP.F52",
+   "vak": "Français",
+   "leerjaar": 1,
+   "domein": "Vocabulaire",
+   "tekst": "Savoir trouver des synonymes et des antonymes."
+  },
+  {
+   "code": "FR.CP.F53",
+   "vak": "Français",
+   "leerjaar": 1,
+   "domein": "Vocabulaire",
+   "tekst": "Réemployer et mémoriser le vocabulaire appris en maternelle."
+  },
+  {
+   "code": "FR.CP.F54",
+   "vak": "Français",
+   "leerjaar": 1,
+   "domein": "Vocabulaire",
+   "tekst": "Réemployer et mémoriser les expressions et les mots appris en fonction de contraintes de production orale ou écrite."
+  },
+  {
+   "code": "FR.CP.F55",
+   "vak": "Français",
+   "leerjaar": 1,
+   "domein": "Vocabulaire",
+   "tekst": "Percevoir la différence entre deux niveaux de langue et choisir le plus adapté à la situation."
+  },
+  {
+   "code": "FR.CP.F56",
+   "vak": "Français",
+   "leerjaar": 1,
+   "domein": "Vocabulaire",
+   "tekst": "Mémoriser l’orthographe des mots réguliers fréquemment rencontrés et du lexique le plus couramment employé et pouvoir les écrire sous la dictée, en lien avec les correspondances graphophonémiques (CGP) étudiées."
+  },
+  {
+   "code": "FR.CP.F57",
+   "vak": "Français",
+   "leerjaar": 1,
+   "domein": "Vocabulaire",
+   "tekst": "Identifier et nommer les accents."
+  },
+  {
+   "code": "FR.CP.F58",
+   "vak": "Français",
+   "leerjaar": 1,
+   "domein": "Vocabulaire",
+   "tekst": "Connaitre la valeur sonore de certaines lettres (s – c – g) et la composition de certains graphèmes selon la lettre qui suit (an/am, en/em, on/om, in/im), en fonction du contexte et dans des mots fréquemment rencontrés."
+  },
+  {
+   "code": "FR.CP.F59",
+   "vak": "Français",
+   "leerjaar": 1,
+   "domein": "Vocabulaire",
+   "tekst": "Être capable de comprendre la présence d’une lettre muette finale à l’aide d’un mot de la même famille: chat/chaton, gros/grossir, etc."
+  },
+  {
+   "code": "FR.CP.F60",
+   "vak": "Français",
+   "leerjaar": 1,
+   "domein": "Grammaire et orthographe",
+   "tekst": "S’approprier progressivement la notion de phrase simple et ses trois marqueurs essentiels: majuscule initiale, ponctuation finale forte et sens."
+  },
+  {
+   "code": "FR.CP.F61",
+   "vak": "Français",
+   "leerjaar": 1,
+   "domein": "Grammaire et orthographe",
+   "tekst": "Comprendre que certains éléments (sujet/verbe et déterminants/noms/adjectifs) fonctionnent ensemble et constituent un système."
+  },
+  {
+   "code": "FR.CP.F62",
+   "vak": "Français",
+   "leerjaar": 1,
+   "domein": "Grammaire et orthographe",
+   "tekst": "S’appuyer sur la ponctuation pour reconnaitre les trois types de phrases (déclarative, interrogative et impérative)."
+  },
+  {
+   "code": "FR.CP.F63",
+   "vak": "Français",
+   "leerjaar": 1,
+   "domein": "Grammaire et orthographe",
+   "tekst": "Reconnaitre les formes négative et exclamative."
+  },
+  {
+   "code": "FR.CP.F64",
+   "vak": "Français",
+   "leerjaar": 1,
+   "domein": "Grammaire et orthographe",
+   "tekst": "Constituer des corpus par classe de mots: noms, verbes, déterminants, adjectifs, pronoms personnels."
+  },
+  {
+   "code": "FR.CP.F65",
+   "vak": "Français",
+   "leerjaar": 1,
+   "domein": "Grammaire et orthographe",
+   "tekst": "Comprendre les notions de masculin et de féminin."
+  },
+  {
+   "code": "FR.CP.F66",
+   "vak": "Français",
+   "leerjaar": 1,
+   "domein": "Grammaire et orthographe",
+   "tekst": "Comprendre les notions de singulier et de pluriel (plusieurs, plus qu’un)."
+  },
+  {
+   "code": "FR.CP.F67",
+   "vak": "Français",
+   "leerjaar": 1,
+   "domein": "Grammaire et orthographe",
+   "tekst": "Se familiariser avec la notion de « chaine d’accords » (déterminant/nom/adjectif) en repérant et en identifiant les régularités des marques de genre et de nombre."
+  },
+  {
+   "code": "FR.CP.F68",
+   "vak": "Français",
+   "leerjaar": 1,
+   "domein": "Grammaire et orthographe",
+   "tekst": "S’initier à l’identification de la relation sujet-verbe à partir du sens et de l’observation des effets des transformations liées aux temps et aux personnes."
+  },
+  {
+   "code": "FR.CP.F69",
+   "vak": "Français",
+   "leerjaar": 1,
+   "domein": "Grammaire et orthographe",
+   "tekst": "Observer les différentes formes verbales fréquentes et régulières."
+  },
+  {
+   "code": "FR.CP.F70",
+   "vak": "Français",
+   "leerjaar": 1,
+   "domein": "Grammaire et orthographe",
+   "tekst": "Apprendre à conjuguer être et avoir au présent de l’indicatif et commencer à les mobiliser à l’écrit."
+  },
+  {
+   "code": "FR.CE1.F1",
+   "vak": "Français",
+   "leerjaar": 2,
+   "domein": "Lecture",
+   "tekst": "Automatiser le décodage des correspondances graphophonémiques (CGP) apprises au CP."
+  },
+  {
+   "code": "FR.CE1.F2",
+   "vak": "Français",
+   "leerjaar": 2,
+   "domein": "Lecture",
+   "tekst": "Décoder toutes les CGP y compris les plus complexes."
+  },
+  {
+   "code": "FR.CE1.F3",
+   "vak": "Français",
+   "leerjaar": 2,
+   "domein": "Lecture",
+   "tekst": "Avoir mémorisé l’ensemble des CGP dans tous les types d’écriture, en particulier celles des sons proches (en encodage et décodage)."
+  },
+  {
+   "code": "FR.CE1.F4",
+   "vak": "Français",
+   "leerjaar": 2,
+   "domein": "Lecture",
+   "tekst": "Identifier directement l’ensemble des mots courants et déchiffrer avec exactitude les mots nouveaux dont le décodage n’a pas encore été automatisé."
+  },
+  {
+   "code": "FR.CE1.F5",
+   "vak": "Français",
+   "leerjaar": 2,
+   "domein": "Lecture",
+   "tekst": "Lire un texte adapté à son niveau de lecture avec une vitesse de 70 mots par minute."
+  },
+  {
+   "code": "FR.CE1.F6",
+   "vak": "Français",
+   "leerjaar": 2,
+   "domein": "Lecture",
+   "tekst": "Lire des textes narratifs, documentaires et prescriptifs en respectant tous les signes de ponctuation et les groupes de souffle."
+  },
+  {
+   "code": "FR.CE1.F7",
+   "vak": "Français",
+   "leerjaar": 2,
+   "domein": "Lecture",
+   "tekst": "Lire de manière expressive."
+  },
+  {
+   "code": "FR.CE1.F8",
+   "vak": "Français",
+   "leerjaar": 2,
+   "domein": "Lecture",
+   "tekst": "Dégager le sens global d’un texte lu, de façon autonome, à la suite d’une séance dédiée à la compréhension."
+  },
+  {
+   "code": "FR.CE1.F9",
+   "vak": "Français",
+   "leerjaar": 2,
+   "domein": "Lecture",
+   "tekst": "Développer des stratégies pour élucider le sens des mots et des expressions inconnus."
+  },
+  {
+   "code": "FR.CE1.F10",
+   "vak": "Français",
+   "leerjaar": 2,
+   "domein": "Lecture",
+   "tekst": "Se repérer dans la chaine anaphorique (qui relie un nom à sa ou ses reprise(s) pronominale(s) ou à d’autres noms de sens équivalent) et s’appuyer sur le sens du texte pour résoudre des ambigüités."
+  },
+  {
+   "code": "FR.CE1.F11",
+   "vak": "Français",
+   "leerjaar": 2,
+   "domein": "Lecture",
+   "tekst": "Comprendre ce qui est implicite dans le texte (inférences) dans des cas simples."
+  },
+  {
+   "code": "FR.CE1.F12",
+   "vak": "Français",
+   "leerjaar": 2,
+   "domein": "Lecture",
+   "tekst": "Justifier ses réponses par un retour au texte."
+  },
+  {
+   "code": "FR.CE1.F13",
+   "vak": "Français",
+   "leerjaar": 2,
+   "domein": "Lecture",
+   "tekst": "Lire et comprendre en autonomie un texte narratif, informatif ou prescriptif d’une quinzaine de lignes."
+  },
+  {
+   "code": "FR.CE1.F14",
+   "vak": "Français",
+   "leerjaar": 2,
+   "domein": "Lecture",
+   "tekst": "Lire 5 à 10 œuvres complètes et variées issues du patrimoine et de la littérature de jeunesse (albums, romans, contes, fables, poèmes, pièces de théâtre et documentaires)."
+  },
+  {
+   "code": "FR.CE1.F15",
+   "vak": "Français",
+   "leerjaar": 2,
+   "domein": "Lecture",
+   "tekst": "Se familiariser aux différents genres et types de textes."
+  },
+  {
+   "code": "FR.CE1.F16",
+   "vak": "Français",
+   "leerjaar": 2,
+   "domein": "Lecture",
+   "tekst": "Faire preuve d’initiative dans ses lectures personnelles en empruntant des livres en fonction de ses gouts."
+  },
+  {
+   "code": "FR.CE1.F17",
+   "vak": "Français",
+   "leerjaar": 2,
+   "domein": "Lecture",
+   "tekst": "Relier ses lectures à son expérience personnelle, être en mesure d’établir des liens entre ses différentes lectures (mise en réseau)."
+  },
+  {
+   "code": "FR.CE1.F18",
+   "vak": "Français",
+   "leerjaar": 2,
+   "domein": "Écriture",
+   "tekst": "Mémoriser le tracé normé et la transcription de toutes les lettres minuscules scriptes en lettres minuscules cursives."
+  },
+  {
+   "code": "FR.CE1.F19",
+   "vak": "Français",
+   "leerjaar": 2,
+   "domein": "Écriture",
+   "tekst": "Reconnaitre les lettres dans les quatre écritures: minuscules (scripte et cursive), majuscules (scripte ou cursive)."
+  },
+  {
+   "code": "FR.CE1.F20",
+   "vak": "Français",
+   "leerjaar": 2,
+   "domein": "Écriture",
+   "tekst": "Apprendre le tracé normé des lettres majuscules cursives par familles de gestes."
+  },
+  {
+   "code": "FR.CE1.F21",
+   "vak": "Français",
+   "leerjaar": 2,
+   "domein": "Écriture",
+   "tekst": "Orthographier correctement les mots fréquents, réguliers puis irréguliers."
+  },
+  {
+   "code": "FR.CE1.F22",
+   "vak": "Français",
+   "leerjaar": 2,
+   "domein": "Écriture",
+   "tekst": "Réaliser des accords en genre et en nombre dans le groupe nominal (article, nom, adjectif) et dans le groupe verbal (marque de pluriel des verbes = nt)."
+  },
+  {
+   "code": "FR.CE1.F23",
+   "vak": "Français",
+   "leerjaar": 2,
+   "domein": "Écriture",
+   "tekst": "Automatiser le geste d’écriture cursive par la copie de textes en temps limité."
+  },
+  {
+   "code": "FR.CE1.F24",
+   "vak": "Français",
+   "leerjaar": 2,
+   "domein": "Écriture",
+   "tekst": "Acquérir des stratégies de copie et en mesurer l’efficacité."
+  },
+  {
+   "code": "FR.CE1.F25",
+   "vak": "Français",
+   "leerjaar": 2,
+   "domein": "Écriture",
+   "tekst": "Copier quatre à cinq phrases courtes."
+  },
+  {
+   "code": "FR.CE1.F26",
+   "vak": "Français",
+   "leerjaar": 2,
+   "domein": "Écriture",
+   "tekst": "Copier cinq ou six lignes sans erreur."
+  },
+  {
+   "code": "FR.CE1.F27",
+   "vak": "Français",
+   "leerjaar": 2,
+   "domein": "Écriture",
+   "tekst": "Recopier sans effort une dizaine de lignes en respectant la ponctuation et la mise en page."
+  },
+  {
+   "code": "FR.CE1.F28",
+   "vak": "Français",
+   "leerjaar": 2,
+   "domein": "Écriture",
+   "tekst": "Rédiger une phrase simple à partir d’une phrase prototypique, en changeant un puis plusieurs mots."
+  },
+  {
+   "code": "FR.CE1.F29",
+   "vak": "Français",
+   "leerjaar": 2,
+   "domein": "Écriture",
+   "tekst": "Écrire un texte court de une à trois phrases."
+  },
+  {
+   "code": "FR.CE1.F30",
+   "vak": "Français",
+   "leerjaar": 2,
+   "domein": "Écriture",
+   "tekst": "Insérer des connecteurs pour rendre cohérent l’enchainement de plusieurs phrases."
+  },
+  {
+   "code": "FR.CE1.F31",
+   "vak": "Français",
+   "leerjaar": 2,
+   "domein": "Écriture",
+   "tekst": "Retravailler un texte (issu de lecture et/ou d’écriture) en fonction d’une ou deux contraintes d’écriture."
+  },
+  {
+   "code": "FR.CE1.F32",
+   "vak": "Français",
+   "leerjaar": 2,
+   "domein": "Écriture",
+   "tekst": "Continuer à acquérir une méthodologie de production écrite: planification, mise en mots avec vigilance orthographique, révision après retours immédiats du professeur."
+  },
+  {
+   "code": "FR.CE1.F33",
+   "vak": "Français",
+   "leerjaar": 2,
+   "domein": "Écriture",
+   "tekst": "Écrire un texte de six ou sept phrases maximum en assurant la cohérence syntaxique et logique du texte produit."
+  },
+  {
+   "code": "FR.CE1.F34",
+   "vak": "Français",
+   "leerjaar": 2,
+   "domein": "Oral",
+   "tekst": "Maintenir une attention active pendant quelques minutes pour repérer, mémoriser, classer ou ordonner les informations importantes entendues à l’oral."
+  },
+  {
+   "code": "FR.CE1.F35",
+   "vak": "Français",
+   "leerjaar": 2,
+   "domein": "Oral",
+   "tekst": "Utiliser à l’oral l’ensemble des temps verbaux pour raconter, décrire, expliquer, comparer ou exposer."
+  },
+  {
+   "code": "FR.CE1.F36",
+   "vak": "Français",
+   "leerjaar": 2,
+   "domein": "Oral",
+   "tekst": "Utiliser les critères définis pour évaluer sa prestation ou celle des autres et progresser dans la production de différents types de discours."
+  },
+  {
+   "code": "FR.CE1.F37",
+   "vak": "Français",
+   "leerjaar": 2,
+   "domein": "Oral",
+   "tekst": "Respecter le propos au cours des échanges au sein d’un groupe."
+  },
+  {
+   "code": "FR.CE1.F38",
+   "vak": "Français",
+   "leerjaar": 2,
+   "domein": "Oral",
+   "tekst": "Adapter le registre de langue utilisé (familier, courant, soutenu) à la situation de communication proposée: conversation entre pairs, dialogue avec un adulte connu, une personnalité inconnue, etc."
+  },
+  {
+   "code": "FR.CE1.F39",
+   "vak": "Français",
+   "leerjaar": 2,
+   "domein": "Vocabulaire",
+   "tekst": "Enrichir les répertoires constitués au CP en y ajoutant notamment des expressions ou locutions."
+  },
+  {
+   "code": "FR.CE1.F40",
+   "vak": "Français",
+   "leerjaar": 2,
+   "domein": "Vocabulaire",
+   "tekst": "Automatiser l’utilisation de différentes formulations, associées à un même réseau, en contexte."
+  },
+  {
+   "code": "FR.CE1.F41",
+   "vak": "Français",
+   "leerjaar": 2,
+   "domein": "Vocabulaire",
+   "tekst": "S’appuyer sur la morphologie des mots pour en trouver le sens."
+  },
+  {
+   "code": "FR.CE1.F42",
+   "vak": "Français",
+   "leerjaar": 2,
+   "domein": "Vocabulaire",
+   "tekst": "Prendre l’habitude de consulter des articles de dictionnaire adapté."
+  },
+  {
+   "code": "FR.CE1.F43",
+   "vak": "Français",
+   "leerjaar": 2,
+   "domein": "Vocabulaire",
+   "tekst": "Percevoir de grandes catégories et hiérarchiser les termes génériques, de base et spécifiques."
+  },
+  {
+   "code": "FR.CE1.F44",
+   "vak": "Français",
+   "leerjaar": 2,
+   "domein": "Vocabulaire",
+   "tekst": "Percevoir les niveaux de langue familier, courant et soutenu."
+  },
+  {
+   "code": "FR.CE1.F45",
+   "vak": "Français",
+   "leerjaar": 2,
+   "domein": "Vocabulaire",
+   "tekst": "Comprendre la différence entre sens propre/sens figuré."
+  },
+  {
+   "code": "FR.CE1.F46",
+   "vak": "Français",
+   "leerjaar": 2,
+   "domein": "Vocabulaire",
+   "tekst": "Trier et apparier les mots et leurs dérivés en fonction des préfixes et suffixes identifiés."
+  },
+  {
+   "code": "FR.CE1.F47",
+   "vak": "Français",
+   "leerjaar": 2,
+   "domein": "Vocabulaire",
+   "tekst": "Mobiliser les mots rencontrés en contexte en fonction des lectures et des activités conduites pour mieux parler, mieux comprendre et mieux écrire."
+  },
+  {
+   "code": "FR.CE1.F48",
+   "vak": "Français",
+   "leerjaar": 2,
+   "domein": "Vocabulaire",
+   "tekst": "Utiliser les relations établies entre les mots depuis le cycle 1 (champ lexical, classe grammaticale, morphologie, niveau de langue) pour varier et adapter son expression."
+  },
+  {
+   "code": "FR.CE1.F49",
+   "vak": "Français",
+   "leerjaar": 2,
+   "domein": "Vocabulaire",
+   "tekst": "Mémoriser l’orthographe des mots réguliers et irréguliers fréquemment rencontrés et du lexique le plus couramment employé."
+  },
+  {
+   "code": "FR.CE1.F50",
+   "vak": "Français",
+   "leerjaar": 2,
+   "domein": "Vocabulaire",
+   "tekst": "Tenir compte des accents."
+  },
+  {
+   "code": "FR.CE1.F51",
+   "vak": "Français",
+   "leerjaar": 2,
+   "domein": "Vocabulaire",
+   "tekst": "Classer par analogie et mémoriser les mots les plus fréquents comportant des graphèmes à prononciation variable: s prononcé –ss ou –z, c prononcé –ss ou –k, g prononcé –j ou –g."
+  },
+  {
+   "code": "FR.CE1.F52",
+   "vak": "Français",
+   "leerjaar": 2,
+   "domein": "Vocabulaire",
+   "tekst": "Être capable d’anticiper une lettre muette finale à l’aide d’un mot de la même famille: blanc/blanche, sang/sanguin, etc."
+  },
+  {
+   "code": "FR.CE1.F53",
+   "vak": "Français",
+   "leerjaar": 2,
+   "domein": "Grammaire et orthographe",
+   "tekst": "Identifier la phrase simple, en distinguer les principaux constituants et les nommer: groupe sujet (GS), verbe et compléments sans distinguer ces derniers entre eux."
+  },
+  {
+   "code": "FR.CE1.F54",
+   "vak": "Français",
+   "leerjaar": 2,
+   "domein": "Grammaire et orthographe",
+   "tekst": "Reconnaitre et utiliser les trois types de phrases, en lien avec la ponctuation: déclarative, interrogative et impérative."
+  },
+  {
+   "code": "FR.CE1.F55",
+   "vak": "Français",
+   "leerjaar": 2,
+   "domein": "Grammaire et orthographe",
+   "tekst": "Reconnaitre les formes négatives et exclamatives et savoir effectuer des transformations."
+  },
+  {
+   "code": "FR.CE1.F56",
+   "vak": "Français",
+   "leerjaar": 2,
+   "domein": "Grammaire et orthographe",
+   "tekst": "Différencier et nommer les principales classes de mots: le déterminant, le nom commun, le nom propre, l’adjectif, le verbe, le pronom personnel sujet."
+  },
+  {
+   "code": "FR.CE1.F57",
+   "vak": "Français",
+   "leerjaar": 2,
+   "domein": "Grammaire et orthographe",
+   "tekst": "Reconnaitre le GN (déterminant/nom/adjectif) et, en écoutant des transformations de phrases à l’oral puis en les observant à l’écrit, comprendre le lien entre le déterminant, le nom et l’adjectif dans la « chaine d’accords »."
+  },
+  {
+   "code": "FR.CE1.F58",
+   "vak": "Français",
+   "leerjaar": 2,
+   "domein": "Grammaire et orthographe",
+   "tekst": "Identifier la relation sujet-verbe à partir de l’observation des effets des transformations liées au changement de temps et de personne dans des situations simples (groupe sujet + verbe)."
+  },
+  {
+   "code": "FR.CE1.F59",
+   "vak": "Français",
+   "leerjaar": 2,
+   "domein": "Grammaire et orthographe",
+   "tekst": "Identifier le radical et la terminaison d’un verbe du premier groupe conjugué et trouver son infinitif."
+  },
+  {
+   "code": "FR.CE1.F60",
+   "vak": "Français",
+   "leerjaar": 2,
+   "domein": "Grammaire et orthographe",
+   "tekst": "Apprendre à conjuguer au présent, à l’imparfait, au futur puis au passé composé de l’indicatif être et avoir et les verbes du premier groupe."
+  },
+  {
+   "code": "FR.CE2.F1",
+   "vak": "Français",
+   "leerjaar": 3,
+   "domein": "Lecture",
+   "tekst": "Avoir automatisé toutes les correspondances graphophonémiques (CGP)."
+  },
+  {
+   "code": "FR.CE2.F2",
+   "vak": "Français",
+   "leerjaar": 3,
+   "domein": "Lecture",
+   "tekst": "Lire un texte nouveau en s’appuyant sur un décodage rapide."
+  },
+  {
+   "code": "FR.CE2.F3",
+   "vak": "Français",
+   "leerjaar": 3,
+   "domein": "Lecture",
+   "tekst": "Automatiser la lecture des mots."
+  },
+  {
+   "code": "FR.CE2.F4",
+   "vak": "Français",
+   "leerjaar": 3,
+   "domein": "Lecture",
+   "tekst": "Repérer les lettres muettes et décoder les mots inconnus en conservant une vitesse de lecture correspondant aux objectifs de fin d’année."
+  },
+  {
+   "code": "FR.CE2.F5",
+   "vak": "Français",
+   "leerjaar": 3,
+   "domein": "Lecture",
+   "tekst": "Lire un texte adapté à son niveau de lecture avec une vitesse de 90 mots par minute."
+  },
+  {
+   "code": "FR.CE2.F6",
+   "vak": "Français",
+   "leerjaar": 3,
+   "domein": "Lecture",
+   "tekst": "Lire un texte en respectant l’ensemble des marques de ponctuation et les liaisons."
+  },
+  {
+   "code": "FR.CE2.F7",
+   "vak": "Français",
+   "leerjaar": 3,
+   "domein": "Lecture",
+   "tekst": "Manifester sa compréhension par une lecture expressive qui respecte la structure du texte, de la phrase et le sens."
+  },
+  {
+   "code": "FR.CE2.F8",
+   "vak": "Français",
+   "leerjaar": 3,
+   "domein": "Lecture",
+   "tekst": "Lire et dégager le sens d’un texte narratif, poétique, documentaire ou théâtral, lu en autonomie ou lu par un adulte en s’appuyant sur les caractéristiques de ces textes."
+  },
+  {
+   "code": "FR.CE2.F9",
+   "vak": "Français",
+   "leerjaar": 3,
+   "domein": "Lecture",
+   "tekst": "Adopter une posture active par rapport au vocabulaire inconnu."
+  },
+  {
+   "code": "FR.CE2.F10",
+   "vak": "Français",
+   "leerjaar": 3,
+   "domein": "Lecture",
+   "tekst": "Se repérer dans la chaine anaphorique (qui relie un nom à sa ou ses reprise(s) pronominale(s) ou à d’autres noms de sens équivalent) et s’appuyer sur le sens du texte pour résoudre des ambigüités."
+  },
+  {
+   "code": "FR.CE2.F11",
+   "vak": "Français",
+   "leerjaar": 3,
+   "domein": "Lecture",
+   "tekst": "Différencier le type narratif du type informatif et prescriptif."
+  },
+  {
+   "code": "FR.CE2.F12",
+   "vak": "Français",
+   "leerjaar": 3,
+   "domein": "Lecture",
+   "tekst": "Comprendre ce qui est implicite (inférences) en s’appuyant sur des indices explicites et sur ses propres connaissances."
+  },
+  {
+   "code": "FR.CE2.F13",
+   "vak": "Français",
+   "leerjaar": 3,
+   "domein": "Lecture",
+   "tekst": "Revenir au texte pour identifier et comprendre les éléments complexes."
+  },
+  {
+   "code": "FR.CE2.F14",
+   "vak": "Français",
+   "leerjaar": 3,
+   "domein": "Lecture",
+   "tekst": "Lire et comprendre en autonomie un texte narratif, informatif ou prescriptif d’une vingtaine de lignes."
+  },
+  {
+   "code": "FR.CE2.F15",
+   "vak": "Français",
+   "leerjaar": 3,
+   "domein": "Lecture",
+   "tekst": "Lire de manière autonome 5 à 10 œuvres complètes et variées issues du patrimoine et de la littérature de jeunesse (albums, romans, contes, fables, poèmes, pièces de théâtre et documentaires)."
+  },
+  {
+   "code": "FR.CE2.F16",
+   "vak": "Français",
+   "leerjaar": 3,
+   "domein": "Lecture",
+   "tekst": "Relier ses lectures à son expérience personnelle, être en mesure d’établir des liens entre ses différentes lectures (mise en réseau)."
+  },
+  {
+   "code": "FR.CE2.F17",
+   "vak": "Français",
+   "leerjaar": 3,
+   "domein": "Lecture",
+   "tekst": "Fréquenter des lieux de lecture régulièrement et rencontrer des acteurs du livre."
+  },
+  {
+   "code": "FR.CE2.F18",
+   "vak": "Français",
+   "leerjaar": 3,
+   "domein": "Écriture",
+   "tekst": "Automatiser l’écriture de toutes les lettres minuscules et majuscules en cursive."
+  },
+  {
+   "code": "FR.CE2.F19",
+   "vak": "Français",
+   "leerjaar": 3,
+   "domein": "Écriture",
+   "tekst": "Orthographier correctement les mots fréquents, réguliers et irréguliers et des phrases selon les accords étudiés dans le cadre de dictées."
+  },
+  {
+   "code": "FR.CE2.F20",
+   "vak": "Français",
+   "leerjaar": 3,
+   "domein": "Écriture",
+   "tekst": "Copier une dizaine de lignes sans erreur en conjuguant vitesse et exactitude et en respectant les mises en page complexes."
+  },
+  {
+   "code": "FR.CE2.F21",
+   "vak": "Français",
+   "leerjaar": 3,
+   "domein": "Écriture",
+   "tekst": "Développer tout au long de l’année les compétences qui lui permettront en fin d’année: d’écrire pour transmettre un message, une émotion, une information, etc., à un destinataire; de rédiger quelques phrases qui permettent d’entrainer les automatismes appris en grammaire et orthographe; d’écrire un texte d’une dizaine de lignes de différents types et relevant des différents enseignements: respecter la syntaxe, les règles orthographiques étudiées, réemployer un lexique précis et prendre en compte des contraintes d’écriture; de relire son texte méthodiquement."
+  },
+  {
+   "code": "FR.CE2.F22",
+   "vak": "Français",
+   "leerjaar": 3,
+   "domein": "Oral",
+   "tekst": "Repérer, mémoriser et relier entre elles plusieurs informations importantes pour construire la cohérence d’un message entendu de plus en plus long et complexe (5 minutes maximum), en évaluant son degré de compréhension."
+  },
+  {
+   "code": "FR.CE2.F23",
+   "vak": "Français",
+   "leerjaar": 3,
+   "domein": "Oral",
+   "tekst": "Mener une production orale de plus en plus longue et structurée pour raconter, expliquer, argumenter, justifier."
+  },
+  {
+   "code": "FR.CE2.F24",
+   "vak": "Français",
+   "leerjaar": 3,
+   "domein": "Oral",
+   "tekst": "Maintenir l’intérêt de son auditoire lors des différentes prestations orales."
+  },
+  {
+   "code": "FR.CE2.F25",
+   "vak": "Français",
+   "leerjaar": 3,
+   "domein": "Oral",
+   "tekst": "Tenir compte de ce qui a déjà été dit lors des interventions au sein d’un groupe."
+  },
+  {
+   "code": "FR.CE2.F26",
+   "vak": "Français",
+   "leerjaar": 3,
+   "domein": "Oral",
+   "tekst": "Utiliser un registre de langue et adopter des postures adaptées aux situations proposées (jeux de rôles)."
+  },
+  {
+   "code": "FR.CE2.F27",
+   "vak": "Français",
+   "leerjaar": 3,
+   "domein": "Vocabulaire",
+   "tekst": "Enrichir les répertoires constitués au CP et au CE1 en y ajoutant notamment des expressions ou des locutions."
+  },
+  {
+   "code": "FR.CE2.F28",
+   "vak": "Français",
+   "leerjaar": 3,
+   "domein": "Vocabulaire",
+   "tekst": "Automatiser l’utilisation de différentes formulations, associées à un réseau, en contexte."
+  },
+  {
+   "code": "FR.CE2.F29",
+   "vak": "Français",
+   "leerjaar": 3,
+   "domein": "Vocabulaire",
+   "tekst": "Comprendre le lien sémantique entre sens propre et sens figuré dans les cas les plus fréquents."
+  },
+  {
+   "code": "FR.CE2.F30",
+   "vak": "Français",
+   "leerjaar": 3,
+   "domein": "Vocabulaire",
+   "tekst": "S’appuyer sur la morphologie des mots pour en trouver le sens."
+  },
+  {
+   "code": "FR.CE2.F31",
+   "vak": "Français",
+   "leerjaar": 3,
+   "domein": "Vocabulaire",
+   "tekst": "Consulter avec aisance des articles de dictionnaire adapté pour y vérifier le sens supposé de mots rencontrés."
+  },
+  {
+   "code": "FR.CE2.F32",
+   "vak": "Français",
+   "leerjaar": 3,
+   "domein": "Vocabulaire",
+   "tekst": "Enrichir les collections constituées au début du cycle avec des mots, des expressions et des associations fréquentes."
+  },
+  {
+   "code": "FR.CE2.F33",
+   "vak": "Français",
+   "leerjaar": 3,
+   "domein": "Vocabulaire",
+   "tekst": "Percevoir de grandes catégories et hiérarchiser les termes génériques de base et spécifiques."
+  },
+  {
+   "code": "FR.CE2.F34",
+   "vak": "Français",
+   "leerjaar": 3,
+   "domein": "Vocabulaire",
+   "tekst": "Savoir utiliser les niveaux de langue (familier, courant et soutenu) en fonction des situations et des interlocuteurs."
+  },
+  {
+   "code": "FR.CE2.F35",
+   "vak": "Français",
+   "leerjaar": 3,
+   "domein": "Vocabulaire",
+   "tekst": "Se constituer un répertoire lexical personnel qui pourra forger l’autonomie visée au cycle 3."
+  },
+  {
+   "code": "FR.CE2.F36",
+   "vak": "Français",
+   "leerjaar": 3,
+   "domein": "Vocabulaire",
+   "tekst": "Trier et apparier des mots et leurs dérivés en fonction des préfixes et suffixes identifiés."
+  },
+  {
+   "code": "FR.CE2.F37",
+   "vak": "Français",
+   "leerjaar": 3,
+   "domein": "Vocabulaire",
+   "tekst": "Employer à bon escient et rigoureusement les mots étudiés, en référence à leur contexte d’emploi et leur éventuelle polysémie."
+  },
+  {
+   "code": "FR.CE2.F38",
+   "vak": "Français",
+   "leerjaar": 3,
+   "domein": "Vocabulaire",
+   "tekst": "Comprendre la différence entre sens propre/sens figuré."
+  },
+  {
+   "code": "FR.CE2.F39",
+   "vak": "Français",
+   "leerjaar": 3,
+   "domein": "Vocabulaire",
+   "tekst": "Changer de niveau de langue selon les situations."
+  },
+  {
+   "code": "FR.CE2.F40",
+   "vak": "Français",
+   "leerjaar": 3,
+   "domein": "Vocabulaire",
+   "tekst": "Automatiser la restitution des mots d’un corpus étudié (fluence verbale)."
+  },
+  {
+   "code": "FR.CE2.F41",
+   "vak": "Français",
+   "leerjaar": 3,
+   "domein": "Vocabulaire",
+   "tekst": "Écrire correctement sous la dictée les mots réguliers et irréguliers fréquemment rencontrés."
+  },
+  {
+   "code": "FR.CE2.F42",
+   "vak": "Français",
+   "leerjaar": 3,
+   "domein": "Vocabulaire",
+   "tekst": "Tenir compte des accents."
+  },
+  {
+   "code": "FR.CE2.F43",
+   "vak": "Français",
+   "leerjaar": 3,
+   "domein": "Vocabulaire",
+   "tekst": "S’appuyer sur des critères morphologiques (radical, préfixe et suffixe) et analogiques pour orthographier correctement les mots."
+  },
+  {
+   "code": "FR.CE2.F44",
+   "vak": "Français",
+   "leerjaar": 3,
+   "domein": "Grammaire et orthographe",
+   "tekst": "Identifier la phrase simple et reconnaitre ses principaux constituants: le groupe sujet, le verbe et les compléments sans distinguer ces derniers entre eux."
+  },
+  {
+   "code": "FR.CE2.F45",
+   "vak": "Français",
+   "leerjaar": 3,
+   "domein": "Grammaire et orthographe",
+   "tekst": "Reconnaitre et produire les trois types de phrases: déclarative, interrogative et impérative."
+  },
+  {
+   "code": "FR.CE2.F46",
+   "vak": "Français",
+   "leerjaar": 3,
+   "domein": "Grammaire et orthographe",
+   "tekst": "Reconnaitre et produire les formes négative et exclamative."
+  },
+  {
+   "code": "FR.CE2.F47",
+   "vak": "Français",
+   "leerjaar": 3,
+   "domein": "Grammaire et orthographe",
+   "tekst": "Différencier et nommer les principales classes de mots: le déterminant, le nom commun, le nom propre, l’adjectif, le verbe, le pronom personnel sujet et l’adverbe."
+  },
+  {
+   "code": "FR.CE2.F48",
+   "vak": "Français",
+   "leerjaar": 3,
+   "domein": "Grammaire et orthographe",
+   "tekst": "Utiliser la ponctuation de fin de phrase (. ! ?) et reconnaitre les marques du discours rapporté (« … »)."
+  },
+  {
+   "code": "FR.CE2.F49",
+   "vak": "Français",
+   "leerjaar": 3,
+   "domein": "Grammaire et orthographe",
+   "tekst": "Repérer, comprendre et mettre en œuvre les marques d’accord au sein du groupe nominal."
+  },
+  {
+   "code": "FR.CE2.F50",
+   "vak": "Français",
+   "leerjaar": 3,
+   "domein": "Grammaire et orthographe",
+   "tekst": "Identifier, dans des situations simples, la relation sujet-verbe."
+  },
+  {
+   "code": "FR.CE2.F51",
+   "vak": "Français",
+   "leerjaar": 3,
+   "domein": "Grammaire et orthographe",
+   "tekst": "Apprendre à conjuguer au présent, à l’imparfait, au futur et au passé composé de l’indicatif être et avoir, les verbes du premier groupe et les verbes irréguliers du 3e groupe (faire, aller, dire, venir, pouvoir, voir, vouloir, prendre)."
+  },
+  {
+   "code": "FR.CE2.F52",
+   "vak": "Français",
+   "leerjaar": 3,
+   "domein": "Grammaire et orthographe",
+   "tekst": "Identifier le radical et la terminaison d’un verbe conjugué au programme et trouver son infinitif."
+  }
+ ]
+}

@@ -2,7 +2,7 @@
   "taalNaam": "English",
   "taalWenk": "This page is also available in English →",
   "titel": "LANcelot · Quizzes, polls and class games on your own classroom network",
-  "omschrijving": "Classroom app for teachers: live quizzes, polls, {n} games and AI worksheets. Runs on the PC in your classroom, students join in their browser.",
+  "omschrijving": "Classroom app for teachers: live quizzes, polls, {n} games, AI worksheets and tests. Runs on the PC in your classroom, students join in their browser.",
   "nav": {
     "hallen": "What's inside",
     "spellen": "Games",
@@ -22,7 +22,7 @@
   "punten": [
     {
       "titel": "All-in-one",
-      "tekst": "Quizzes, polls, games, worksheets and classroom tools in one app."
+      "tekst": "Quizzes, polls, games, worksheets, tests and classroom tools in one app."
     },
     {
       "titel": "Local",
@@ -52,8 +52,7 @@
   },
   "video": {
     "titel": "See LANcelot in action",
-    "knop": "Play the video",
-    "noot": "The video is hosted on YouTube. Your browser only connects to YouTube once you press play."
+    "knop": "Play the video"
   },
   "schermen": {
     "titel": "Real screens from LANcelot",
@@ -85,9 +84,9 @@
         "tekst": "Classroom tools on the board: picker, groups, timer, noise meter, dice and class jobs."
       },
       {
-        "id": "kronieken",
-        "naam": "The Chronicles",
-        "tekst": "Your textbooks, planning and class: teach, follow up and report."
+        "id": "burcht",
+        "naam": "My class",
+        "tekst": "Your class list, your country's curriculum goals or your own, tasks per pupil and the results."
       }
     ]
   },
@@ -154,7 +153,7 @@
   },
   "opvolgen": {
     "titel": "Follow-up, support and reports",
-    "tekst": "Every answer goes into the log, linked to the curriculum goals. You see straight away who needs extra help, and your report almost fills itself.",
+    "tekst": "Every answer goes into the log, linked to the goals you choose. You see at once who needs extra help.",
     "lijst": [
       {
         "id": "zorg",
@@ -167,14 +166,14 @@
         "tekst": "Assign a quiz or worksheet to one student or a small group, each at their own level. You can prepare it at home too."
       },
       {
-        "id": "zegelrol",
-        "naam": "The Seal Roll: your report",
-        "tekst": "Tests flow into it per subject automatically. You add symbols, comments and your school logo."
+        "id": "doelen",
+        "naam": "Goals for your country",
+        "tekst": "Choose the curriculum goals of England, the US, the Netherlands, Germany, France or Flanders, or add your own. An AI can suggest them. Working without goals is fine too."
       },
       {
-        "id": "postduif",
-        "naam": "The Carrier Pigeon: a letter home",
-        "tekst": "A letter per student with the marked test, what already works, what to practise and news from the class."
+        "id": "proef",
+        "naam": "Tests with answer sheet",
+        "tekst": "Make a test in the Forge, let pupils take it online or print it. The scores go straight into your overview."
       }
     ]
   },
@@ -235,7 +234,7 @@
   },
   "download": {
     "titel": "Bring LANcelot to your classroom",
-    "tekst": "LANcelot will soon be available for teachers and schools.",
+    "tekst": "LANcelot is coming soon to the Microsoft Store. For the first month you can try everything in full.",
     "noot": "All you need is a Windows PC in the classroom. Students join in their browser."
   },
   "faq": {
@@ -243,7 +242,11 @@
     "lijst": [
       {
         "v": "When can I use LANcelot?",
-        "a": "LANcelot will be available soon. This website will be the first place to tell you when."
+        "a": "LANcelot is coming soon to the Microsoft Store, with a trial month in which everything works. This website is the first place to hear when it is ready."
+      },
+      {
+        "v": "Does LANcelot work with my country's goals?",
+        "a": "Yes. In My class, choose your country's curriculum goals, add your own, or work without goals. Every answer then lands under the right goal in your overview."
       },
       {
         "v": "Do I need the internet?",

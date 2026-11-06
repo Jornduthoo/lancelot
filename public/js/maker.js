@@ -16,7 +16,7 @@ const makerDoel = DoelKies.multi({
   // Het niveau volgt het leerjaar van de doelen.
   onChange: codes => {
     const doel = DoelKies.find(codes[0]);
-    if (doel) $('m-level').value = DoelKies.naam(doel.leerjaar);
+    if (doel) DoelKies.zetNiveau($('m-level'), doel.leerjaar);
     updatePrompt();
   },
 });
@@ -51,17 +51,17 @@ function buildPrompt(forGemini = false) {
   const count = Math.min(drie ? 30 : 40, Math.max(3, Number($('m-count').value) || 10));
   const time = Math.min(120, Math.max(5, Number($('m-time').value) || 20));
   const extra = $('m-extra').value.trim();
-  return `Je bent een ervaren leerkracht in Vlaanderen. Maak een quiz voor leerlingen uit: ${level} (Belgisch onderwijs). Onderwerp: ${topic}.
+  return `Je bent een ervaren leerkracht in ${Ui.aiKader().waar}. Maak een quiz voor leerlingen uit: ${Ui.aiKader().niveau(level)} (${Ui.aiKader().onderwijs}). Onderwerp: ${topic}.
 ${DoelKies.prompt(codes, 'vragen')}${hasSources ? '\nBaseer alle vragen op de bijgevoegde lesstof. Vraag alleen naar dingen die daarin staan.\n' : ''}${extra ? `\nExtra wensen van de leerkracht:\n${extra}\n` : ''}
 Regels:
-- Maak precies ${drie ? `${count} meerkeuzevragen per niveau, dus ${count * 3} vragen samen,` : `${count} meerkeuzevragen`} in het Nederlands zoals in Vlaanderen.
+- Maak precies ${drie ? `${count} meerkeuzevragen per niveau, dus ${count * 3} vragen samen,` : `${count} meerkeuzevragen`} in ${Ui.aiKader().taal}.
 - Elke vraag heeft 4 antwoorden (bij een waar/niet waar-vraag 2), met precies één goed antwoord.
 - Zet het goede antwoord niet steeds op dezelfde plek.
 - De foute antwoorden zijn typische fouten of misvattingen van leerlingen (bijvoorbeeld een rekenfout die vaak gemaakt wordt, of een begrip dat ze vaak verwarren). Zo zie ik achteraf welke denkfout er zit. Geen onzinantwoorden, en duidelijk fout voor wie de stof kent.
 - Wissel af: kennis (feiten en begrippen die ze moeten kennen), begrip (waarom of hoe) en toepassen in een korte, herkenbare situatie.
 - Geef elke vraag een korte uitleg ("uitleg", hooguit 200 tekens) die de leerling ziet na een fout antwoord: leg de regel of de redenering uit, niet enkel het antwoord herhalen.
 - Bij een rekenvraag waarvan het antwoord één getal is (zoals 3,75 of 12 cm of 3/4): zet "typ": "getal". De leerling typt dan zelf het getal. Zet het juiste getal ook bij de antwoorden, en als foute antwoorden de getallen die je krijgt bij typische rekenfouten. Bij andere vragen laat je "typ" weg.
-- Gebruik de Belgische schrijfwijze en context: komma als decimaalteken, euro, Belgische namen en plaatsen, Vlaamse woorden.
+- ${Ui.aiKader().context}
 - Houd vragen kort (hooguit 120 tekens) en antwoorden heel kort (hooguit 60 tekens).
 - Pas de moeilijkheid en het taalgebruik aan het niveau ${level} aan.
 - Controleer op het einde elke vraag: reken het antwoord opnieuw na, kijk of precies één antwoord juist is en of "correct" naar dat antwoord wijst.
@@ -149,7 +149,7 @@ function openMaker() {
   // Het niveau staat meteen op het leerjaar van de klas; de leerkracht kan het nog veranderen.
   DoelKies.leerjaar(lj => {
     if (!makerDoel.codes().length) {
-      $('m-level').value = DoelKies.naam(lj);
+      DoelKies.zetNiveau($('m-level'), lj);
       updatePrompt();
     }
   });

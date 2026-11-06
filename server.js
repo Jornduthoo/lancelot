@@ -1222,7 +1222,20 @@ io.on('connection', socket => {
       syncSoon();
       return { klas: saved };
     }));
-    socket.on('doelen-get', handle(() => ({ doelen: doelen.all(), leerjaar: klas.read().leerjaar, leerjaren: doelen.LEERJAREN })));
+    socket.on('doelen-get', handle(() => ({ doelen: doelen.all(), leerjaar: klas.read().leerjaar, leerjaren: doelen.leerjaren(), land: doelen.land() })));
+    // Welke doelen: een land kiezen, eigen doelen plakken, of een prompt om ze door een AI te laten voorstellen.
+    socket.on('doelen-keuze', handle(() => ({ ...doelen.keuze(), tekst: doelen.eigenTekst() })));
+    socket.on('doelen-land', handle(({ land } = {}) => {
+      const k = doelen.kiesLand(String(land || ''));
+      io.emit('doelen-gewijzigd');
+      return { ...k, tekst: doelen.eigenTekst() };
+    }));
+    socket.on('doelen-eigen', handle(({ tekst } = {}) => {
+      const k = doelen.zetEigen(String(tekst || '').slice(0, 100000));
+      io.emit('doelen-gewijzigd');
+      return { ...k, tekst: doelen.eigenTekst() };
+    }));
+    socket.on('doelen-prompt', handle(arg => ({ prompt: doelen.aiPrompt(arg || {}) })));
     socket.on('logboek-get', handle(() => ({ logboek: logboek.summary() })));
     // De Opwarmer: herhaalvragen uit vorige lessen, gespeeld als Toernooi.
     socket.on('opwarmer-maak', handle(opts => opwarmer.make(opts || {})));
@@ -1385,7 +1398,7 @@ io.on('connection', socket => {
         .catch(err => cb && cb({ error: err.message }));
     });
     socket.on('rn-onthul', handle(() => runen.onthul()));
-    socket.on('rn-lijst-get', handle(() => ({ lijst: runen.lijstView(), prompt: runen.chatPrompt(), doelen: doelen.all().filter(d => d.vak === 'Nederlands' && String(d.leerjaar) === String(klas.read().leerjaar)) })));
+    socket.on('rn-lijst-get', handle(() => ({ lijst: runen.lijstView(), prompt: runen.chatPrompt(), doelen: doelen.all().filter(d => d.vak === 'Nederlands' && doelen.inJaar(d, klas.read().leerjaar)) })));
     socket.on('rn-lijst-save', handle(arg => {
       const lijst = runen.bewaarLijst(arg || {});
       io.to('host').emit('rn-bord', runen.bord());

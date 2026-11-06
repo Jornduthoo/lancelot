@@ -65,7 +65,7 @@
       <h2>Conservación y borrado</h2>
       <p>Los datos permanecen en el PC hasta que el docente los borra. Al desinstalar LANcelot se conserva a propósito la carpeta de datos (así no se pierde nada al reinstalar); borra esa carpeta para eliminarlo todo. Las familias y el alumnado pueden preguntar al centro qué se guarda.</p>
       <h2>Este sitio web</h2>
-      <p>lancelot.network no usa cookies ni seguimiento. Un vídeo de YouTube solo se carga cuando haces clic (youtube-nocookie.com). El sitio está alojado en Cloudflare, que guarda registros técnicos para que el sitio funcione de forma segura.</p>
+      <p>lancelot.network no usa cookies ni seguimiento. Los vídeos están alojados en este mismo sitio, sin servicios de terceros. El sitio está alojado en Cloudflare, que guarda registros técnicos para que el sitio funcione de forma segura.</p>
       <h2>Contacto</h2>
       <p>¿Preguntas sobre privacidad? Escribe a hello@lancelot.network. Si esta política cambia, la nueva fecha aparece arriba.</p>
     </section>
@@ -94,12 +94,12 @@
     x.onclick = function () { p.hidden = true; try { localStorage.setItem('lancelot-taal', huidig); } catch (e) {} };
     p.appendChild(a); p.appendChild(x); p.hidden = false;
   })();
-  // Video: YouTube laadt pas na een klik (privacyvriendelijk, youtube-nocookie).
-  document.querySelectorAll('.video[data-yt]').forEach(function (v) {
+  // Video: staat op de site zelf en laadt pas na een klik (geen diensten van anderen, geen onnodige megabytes).
+  document.querySelectorAll('.video[data-src]').forEach(function (v) {
     v.querySelector('button').addEventListener('click', function () {
-      var f = document.createElement('iframe');
-      f.src = 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(v.getAttribute('data-yt')) + '?autoplay=1&rel=0';
-      f.title = 'LANcelot'; f.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen'; f.allowFullscreen = true;
+      var f = document.createElement('video');
+      f.src = v.getAttribute('data-src'); f.controls = true; f.autoplay = true; f.playsInline = true;
+      f.poster = v.querySelector('img').src;
       v.innerHTML = ''; v.appendChild(f);
     });
   });

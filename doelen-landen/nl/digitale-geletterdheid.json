@@ -1,0 +1,350 @@
+{
+ "bron": "Kerndoelen funderend onderwijs, primair onderwijs (SLO, definitieve conceptversie), data: github.com/slonl/curriculum-fo",
+ "vak": "Digitale geletterdheid",
+ "doelen": [
+  {
+   "code": "NL.DIG.22A.1",
+   "vak": "Digitale geletterdheid",
+   "leerjaar": 0,
+   "domein": "Praktische kennis en vaardigheden",
+   "cluster": "Kerndoel 22: De leerling zet digitale technologie en digitale media kundig in.",
+   "tekst": "De leerling zet digitale systemen functioneel in: beschrijven van de onderdelen en de werking van digitale systemen in termen van invoer-verwerking-uitvoer."
+  },
+  {
+   "code": "NL.DIG.22A.2",
+   "vak": "Digitale geletterdheid",
+   "leerjaar": 0,
+   "domein": "Praktische kennis en vaardigheden",
+   "cluster": "Kerndoel 22: De leerling zet digitale technologie en digitale media kundig in.",
+   "tekst": "De leerling zet digitale systemen functioneel in: gebruiken van de basale mogelijkheden van software voor communicatie, samenwerken, tekenen, rekenen, tekstverwerken, presenteren en beeld-, geluid- en videobewerken."
+  },
+  {
+   "code": "NL.DIG.22A.3",
+   "vak": "Digitale geletterdheid",
+   "leerjaar": 0,
+   "domein": "Praktische kennis en vaardigheden",
+   "cluster": "Kerndoel 22: De leerling zet digitale technologie en digitale media kundig in.",
+   "tekst": "De leerling zet digitale systemen functioneel in: beheren van bestanden in digitale omgevingen: gestructureerd ordenen, opslaan en opvragen."
+  },
+  {
+   "code": "NL.DIG.22A.4",
+   "vak": "Digitale geletterdheid",
+   "leerjaar": 0,
+   "domein": "Praktische kennis en vaardigheden",
+   "cluster": "Kerndoel 22: De leerling zet digitale technologie en digitale media kundig in.",
+   "tekst": "De leerling zet digitale systemen functioneel in: herkennen van digitale systemen in de eigen omgeving."
+  },
+  {
+   "code": "NL.DIG.22A.5",
+   "vak": "Digitale geletterdheid",
+   "leerjaar": 0,
+   "domein": "Praktische kennis en vaardigheden",
+   "cluster": "Kerndoel 22: De leerling zet digitale technologie en digitale media kundig in.",
+   "tekst": "De leerling zet digitale systemen functioneel in: onderhouden en aanpassen van digitale systemen en het oplossen van problemen daarmee."
+  },
+  {
+   "code": "NL.DIG.22B.1",
+   "vak": "Digitale geletterdheid",
+   "leerjaar": 0,
+   "domein": "Praktische kennis en vaardigheden",
+   "cluster": "Kerndoel 22: De leerling zet digitale technologie en digitale media kundig in.",
+   "tekst": "De leerling navigeert doelgericht in het digitale media- en informatielandschap voor het verwerven en verwerken van informatie: in kaart brengen van diverse media en bronnen, hun betrouwbaarheid en bruikbaarheid."
+  },
+  {
+   "code": "NL.DIG.22B.2",
+   "vak": "Digitale geletterdheid",
+   "leerjaar": 0,
+   "domein": "Praktische kennis en vaardigheden",
+   "cluster": "Kerndoel 22: De leerling zet digitale technologie en digitale media kundig in.",
+   "tekst": "De leerling navigeert doelgericht in het digitale media- en informatielandschap voor het verwerven en verwerken van informatie: hanteren van een geschikte zoekstrategie, zoekhulpmiddel en zoekopdracht."
+  },
+  {
+   "code": "NL.DIG.22B.3",
+   "vak": "Digitale geletterdheid",
+   "leerjaar": 0,
+   "domein": "Praktische kennis en vaardigheden",
+   "cluster": "Kerndoel 22: De leerling zet digitale technologie en digitale media kundig in.",
+   "tekst": "De leerling navigeert doelgericht in het digitale media- en informatielandschap voor het verwerven en verwerken van informatie: beoordelen van aangeboden en gevonden informatie op betrouwbaarheid en bruikbaarheid."
+  },
+  {
+   "code": "NL.DIG.22B.4",
+   "vak": "Digitale geletterdheid",
+   "leerjaar": 0,
+   "domein": "Praktische kennis en vaardigheden",
+   "cluster": "Kerndoel 22: De leerling zet digitale technologie en digitale media kundig in.",
+   "tekst": "De leerling navigeert doelgericht in het digitale media- en informatielandschap voor het verwerven en verwerken van informatie: beschrijven hoe makers van digitale media de aandacht van gebruikers trekken, vasthouden en beïnvloeden met kleurende en sturende technieken."
+  },
+  {
+   "code": "NL.DIG.22B.5",
+   "vak": "Digitale geletterdheid",
+   "leerjaar": 0,
+   "domein": "Praktische kennis en vaardigheden",
+   "cluster": "Kerndoel 22: De leerling zet digitale technologie en digitale media kundig in.",
+   "tekst": "De leerling navigeert doelgericht in het digitale media- en informatielandschap voor het verwerven en verwerken van informatie: benoemen van factoren die het aanbod en de zichtbaarheid van zoekresultaten beïnvloeden."
+  },
+  {
+   "code": "NL.DIG.22C.1",
+   "vak": "Digitale geletterdheid",
+   "leerjaar": 0,
+   "domein": "Praktische kennis en vaardigheden",
+   "cluster": "Kerndoel 22: De leerling zet digitale technologie en digitale media kundig in.",
+   "tekst": "De leerling verkent het gebruik van data en dataverwerking: beschrijven hoe uit data informatie gehaald wordt door doelgericht te verzamelen, structureren en verwerken van data."
+  },
+  {
+   "code": "NL.DIG.22C.2",
+   "vak": "Digitale geletterdheid",
+   "leerjaar": 0,
+   "domein": "Praktische kennis en vaardigheden",
+   "cluster": "Kerndoel 22: De leerling zet digitale technologie en digitale media kundig in.",
+   "tekst": "De leerling verkent het gebruik van data en dataverwerking: begrip tonen hoe de resultaten van dataverwerking afhankelijk zijn van de herkomst, juistheid en volledigheid van de gebruikte dataset."
+  },
+  {
+   "code": "NL.DIG.22C.3",
+   "vak": "Digitale geletterdheid",
+   "leerjaar": 0,
+   "domein": "Praktische kennis en vaardigheden",
+   "cluster": "Kerndoel 22: De leerling zet digitale technologie en digitale media kundig in.",
+   "tekst": "De leerling verkent het gebruik van data en dataverwerking: beantwoorden van een vraag met behulp van een dataset."
+  },
+  {
+   "code": "NL.DIG.22C.4",
+   "vak": "Digitale geletterdheid",
+   "leerjaar": 0,
+   "domein": "Praktische kennis en vaardigheden",
+   "cluster": "Kerndoel 22: De leerling zet digitale technologie en digitale media kundig in.",
+   "tekst": "De leerling verkent het gebruik van data en dataverwerking: beschrijven van het gebruik van data in de eigen omgeving."
+  },
+  {
+   "code": "NL.DIG.22C.5",
+   "vak": "Digitale geletterdheid",
+   "leerjaar": 0,
+   "domein": "Praktische kennis en vaardigheden",
+   "cluster": "Kerndoel 22: De leerling zet digitale technologie en digitale media kundig in.",
+   "tekst": "De leerling verkent het gebruik van data en dataverwerking: reflecteren op het feit dat de gebruiker van digitale technologie bewust en onbewust data achterlaat en dat die door anderen gebruikt kunnen worden."
+  },
+  {
+   "code": "NL.DIG.22D.1",
+   "vak": "Digitale geletterdheid",
+   "leerjaar": 0,
+   "domein": "Praktische kennis en vaardigheden",
+   "cluster": "Kerndoel 22: De leerling zet digitale technologie en digitale media kundig in.",
+   "tekst": "De leerling verkent AI: beschrijven van elementen van een AI-systeem."
+  },
+  {
+   "code": "NL.DIG.22D.2",
+   "vak": "Digitale geletterdheid",
+   "leerjaar": 0,
+   "domein": "Praktische kennis en vaardigheden",
+   "cluster": "Kerndoel 22: De leerling zet digitale technologie en digitale media kundig in.",
+   "tekst": "De leerling verkent AI: beschrijven hoe het gedrag van AI-systemen lijkt op menselijk gedrag."
+  },
+  {
+   "code": "NL.DIG.22D.3",
+   "vak": "Digitale geletterdheid",
+   "leerjaar": 0,
+   "domein": "Praktische kennis en vaardigheden",
+   "cluster": "Kerndoel 22: De leerling zet digitale technologie en digitale media kundig in.",
+   "tekst": "De leerling verkent AI: herkennen van veelvoorkomende AI-systemen en hun toepassingen in de eigen omgeving."
+  },
+  {
+   "code": "NL.DIG.22D.4",
+   "vak": "Digitale geletterdheid",
+   "leerjaar": 0,
+   "domein": "Praktische kennis en vaardigheden",
+   "cluster": "Kerndoel 22: De leerling zet digitale technologie en digitale media kundig in.",
+   "tekst": "De leerling verkent AI: verantwoord interacteren met een AI-systeem."
+  },
+  {
+   "code": "NL.DIG.23A.1",
+   "vak": "Digitale geletterdheid",
+   "leerjaar": 0,
+   "domein": "Ontwerpen en maken",
+   "cluster": "Kerndoel 23: De leerling creëert digitale producten.",
+   "tekst": "De leerling gebruikt passende werkwijzen bij het creëren en gebruiken van verschillende typen digitale producten: experimenteren met digitale middelen om gedachten, ideeën of gevoelens uit te drukken."
+  },
+  {
+   "code": "NL.DIG.23A.2",
+   "vak": "Digitale geletterdheid",
+   "leerjaar": 0,
+   "domein": "Ontwerpen en maken",
+   "cluster": "Kerndoel 23: De leerling creëert digitale producten.",
+   "tekst": "De leerling gebruikt passende werkwijzen bij het creëren en gebruiken van verschillende typen digitale producten: delen van informatie en overbrengen van een boodschap."
+  },
+  {
+   "code": "NL.DIG.23A.3",
+   "vak": "Digitale geletterdheid",
+   "leerjaar": 0,
+   "domein": "Ontwerpen en maken",
+   "cluster": "Kerndoel 23: De leerling creëert digitale producten.",
+   "tekst": "De leerling gebruikt passende werkwijzen bij het creëren en gebruiken van verschillende typen digitale producten: gebruiken van computationele denkstrategieën bij het ontwerpen van een digitaal product."
+  },
+  {
+   "code": "NL.DIG.23A.4",
+   "vak": "Digitale geletterdheid",
+   "leerjaar": 0,
+   "domein": "Ontwerpen en maken",
+   "cluster": "Kerndoel 23: De leerling creëert digitale producten.",
+   "tekst": "De leerling gebruikt passende werkwijzen bij het creëren en gebruiken van verschillende typen digitale producten: ontwerpen van een digitaal product aan de hand van de ontwerpeisen in een iteratief proces."
+  },
+  {
+   "code": "NL.DIG.23A.5",
+   "vak": "Digitale geletterdheid",
+   "leerjaar": 0,
+   "domein": "Ontwerpen en maken",
+   "cluster": "Kerndoel 23: De leerling creëert digitale producten.",
+   "tekst": "De leerling gebruikt passende werkwijzen bij het creëren en gebruiken van verschillende typen digitale producten: rekening houden met auteursrechten, licenties en bron- en naamsvermelding bij het creëren van digitale producten."
+  },
+  {
+   "code": "NL.DIG.23B.1",
+   "vak": "Digitale geletterdheid",
+   "leerjaar": 0,
+   "domein": "Ontwerpen en maken",
+   "cluster": "Kerndoel 23: De leerling creëert digitale producten.",
+   "tekst": "De leerling programmeert een computerprogramma met behulp van computationele denkstrategieën: experimenteren met code."
+  },
+  {
+   "code": "NL.DIG.23B.2",
+   "vak": "Digitale geletterdheid",
+   "leerjaar": 0,
+   "domein": "Ontwerpen en maken",
+   "cluster": "Kerndoel 23: De leerling creëert digitale producten.",
+   "tekst": "De leerling programmeert een computerprogramma met behulp van computationele denkstrategieën: beschrijven van de taak en doel van een computerprogramma."
+  },
+  {
+   "code": "NL.DIG.23B.3",
+   "vak": "Digitale geletterdheid",
+   "leerjaar": 0,
+   "domein": "Ontwerpen en maken",
+   "cluster": "Kerndoel 23: De leerling creëert digitale producten.",
+   "tekst": "De leerling programmeert een computerprogramma met behulp van computationele denkstrategieën: ontwerpen en schematisch weergeven van het algoritme behorende bij een taak."
+  },
+  {
+   "code": "NL.DIG.23B.4",
+   "vak": "Digitale geletterdheid",
+   "leerjaar": 0,
+   "domein": "Ontwerpen en maken",
+   "cluster": "Kerndoel 23: De leerling creëert digitale producten.",
+   "tekst": "De leerling programmeert een computerprogramma met behulp van computationele denkstrategieën: gebruikmaken van programmeerconcepten: invoer en uitvoer, variabelen, operatoren, herhaling en controlestructuren."
+  },
+  {
+   "code": "NL.DIG.23B.5",
+   "vak": "Digitale geletterdheid",
+   "leerjaar": 0,
+   "domein": "Ontwerpen en maken",
+   "cluster": "Kerndoel 23: De leerling creëert digitale producten.",
+   "tekst": "De leerling programmeert een computerprogramma met behulp van computationele denkstrategieën: testen en bijstellen van een eigen computerprogramma of een computerprogramma van anderen."
+  },
+  {
+   "code": "NL.DIG.24A.1",
+   "vak": "Digitale geletterdheid",
+   "leerjaar": 0,
+   "domein": "De gedigitaliseerde wereld",
+   "cluster": "Kerndoel 24: De leerling participeert in de gedigitaliseerde wereld.",
+   "tekst": "De leerling gaat veilig om met digitale systemen, data en de privacy van zichzelf en anderen: herkennen van veiligheidsrisico's bij het gebruik van digitale systemen en data."
+  },
+  {
+   "code": "NL.DIG.24A.2",
+   "vak": "Digitale geletterdheid",
+   "leerjaar": 0,
+   "domein": "De gedigitaliseerde wereld",
+   "cluster": "Kerndoel 24: De leerling participeert in de gedigitaliseerde wereld.",
+   "tekst": "De leerling gaat veilig om met digitale systemen, data en de privacy van zichzelf en anderen: veilig gebruiken van digitale systemen, data en informatie."
+  },
+  {
+   "code": "NL.DIG.24A.3",
+   "vak": "Digitale geletterdheid",
+   "leerjaar": 0,
+   "domein": "De gedigitaliseerde wereld",
+   "cluster": "Kerndoel 24: De leerling participeert in de gedigitaliseerde wereld.",
+   "tekst": "De leerling gaat veilig om met digitale systemen, data en de privacy van zichzelf en anderen: nemen van passende technische maatregelen om digitale systemen, data en informatie te beschermen."
+  },
+  {
+   "code": "NL.DIG.24A.4",
+   "vak": "Digitale geletterdheid",
+   "leerjaar": 0,
+   "domein": "De gedigitaliseerde wereld",
+   "cluster": "Kerndoel 24: De leerling participeert in de gedigitaliseerde wereld.",
+   "tekst": "De leerling gaat veilig om met digitale systemen, data en de privacy van zichzelf en anderen: wegen van dilemma's bij het delen van zowel eigen persoonsgegevens, data, informatie en digitale content als die van anderen."
+  },
+  {
+   "code": "NL.DIG.24A.5",
+   "vak": "Digitale geletterdheid",
+   "leerjaar": 0,
+   "domein": "De gedigitaliseerde wereld",
+   "cluster": "Kerndoel 24: De leerling participeert in de gedigitaliseerde wereld.",
+   "tekst": "De leerling gaat veilig om met digitale systemen, data en de privacy van zichzelf en anderen: adequaat omgaan met ongepaste content, ongepast gedrag en veiligheidsrisico's in digitale omgevingen."
+  },
+  {
+   "code": "NL.DIG.24B.1",
+   "vak": "Digitale geletterdheid",
+   "leerjaar": 0,
+   "domein": "De gedigitaliseerde wereld",
+   "cluster": "Kerndoel 24: De leerling participeert in de gedigitaliseerde wereld.",
+   "tekst": "De leerling maakt weloverwogen keuzes bij het gebruik van digitale technologie en digitale media: online communiceren en handelen op respectvolle en verantwoorde wijze."
+  },
+  {
+   "code": "NL.DIG.24B.2",
+   "vak": "Digitale geletterdheid",
+   "leerjaar": 0,
+   "domein": "De gedigitaliseerde wereld",
+   "cluster": "Kerndoel 24: De leerling participeert in de gedigitaliseerde wereld.",
+   "tekst": "De leerling maakt weloverwogen keuzes bij het gebruik van digitale technologie en digitale media: reflecteren op de invloed van digitale technologie en digitale media op eigen denken, eigen gedrag en de interactie met anderen."
+  },
+  {
+   "code": "NL.DIG.24B.3",
+   "vak": "Digitale geletterdheid",
+   "leerjaar": 0,
+   "domein": "De gedigitaliseerde wereld",
+   "cluster": "Kerndoel 24: De leerling participeert in de gedigitaliseerde wereld.",
+   "tekst": "De leerling maakt weloverwogen keuzes bij het gebruik van digitale technologie en digitale media: rekening houden met eigen fysieke en mentale gezondheid in relatie tot het gebruik van digitale technologie en digitale media."
+  },
+  {
+   "code": "NL.DIG.24B.4",
+   "vak": "Digitale geletterdheid",
+   "leerjaar": 0,
+   "domein": "De gedigitaliseerde wereld",
+   "cluster": "Kerndoel 24: De leerling participeert in de gedigitaliseerde wereld.",
+   "tekst": "De leerling maakt weloverwogen keuzes bij het gebruik van digitale technologie en digitale media: reflecteren op de eigen online identiteit en hoe die tot stand komt."
+  },
+  {
+   "code": "NL.DIG.24B.5",
+   "vak": "Digitale geletterdheid",
+   "leerjaar": 0,
+   "domein": "De gedigitaliseerde wereld",
+   "cluster": "Kerndoel 24: De leerling participeert in de gedigitaliseerde wereld.",
+   "tekst": "De leerling maakt weloverwogen keuzes bij het gebruik van digitale technologie en digitale media: verkennen van de eigen interesse in de ontwikkeling van digitale technologie en digitale media."
+  },
+  {
+   "code": "NL.DIG.24C.1",
+   "vak": "Digitale geletterdheid",
+   "leerjaar": 0,
+   "domein": "De gedigitaliseerde wereld",
+   "cluster": "Kerndoel 24: De leerling participeert in de gedigitaliseerde wereld.",
+   "tekst": "De leerling verkent hoe digitale technologie, digitale media en de samenleving elkaar wederzijds beïnvloeden: verkennen van de invloed van de mens op de ontwikkeling van digitale technologie en digitale media en andersom."
+  },
+  {
+   "code": "NL.DIG.24C.2",
+   "vak": "Digitale geletterdheid",
+   "leerjaar": 0,
+   "domein": "De gedigitaliseerde wereld",
+   "cluster": "Kerndoel 24: De leerling participeert in de gedigitaliseerde wereld.",
+   "tekst": "De leerling verkent hoe digitale technologie, digitale media en de samenleving elkaar wederzijds beïnvloeden: verkennen hoe digitale technologie en media sociaal welzijn en sociale inclusie beinvloeden."
+  },
+  {
+   "code": "NL.DIG.24C.3",
+   "vak": "Digitale geletterdheid",
+   "leerjaar": 0,
+   "domein": "De gedigitaliseerde wereld",
+   "cluster": "Kerndoel 24: De leerling participeert in de gedigitaliseerde wereld.",
+   "tekst": "De leerling verkent hoe digitale technologie, digitale media en de samenleving elkaar wederzijds beïnvloeden: redeneren over de kansen en risico's van het gebruik van digitale technologie in de nabije omgeving."
+  },
+  {
+   "code": "NL.DIG.24C.4",
+   "vak": "Digitale geletterdheid",
+   "leerjaar": 0,
+   "domein": "De gedigitaliseerde wereld",
+   "cluster": "Kerndoel 24: De leerling participeert in de gedigitaliseerde wereld.",
+   "tekst": "De leerling verkent hoe digitale technologie, digitale media en de samenleving elkaar wederzijds beïnvloeden: verkennen wat de effecten zijn van digitale technologie op de ecologie."
+  }
+ ]
+}

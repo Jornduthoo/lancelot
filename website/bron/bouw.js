@@ -57,8 +57,19 @@ const SVG = {
   munt: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 6.5v11M15 9c-.6-1-1.7-1.5-3-1.5-1.8 0-3 .9-3 2.2 0 3 6 1.6 6 4.6 0 1.3-1.3 2.2-3 2.2-1.4 0-2.6-.6-3.1-1.6"/></svg>'
 };
 const PUNT_ICOON = ['tegels', 'bliksem', 'slot'];
-const OPVOLGEN_ICOON = { zorg: 'burcht', taken: 'oefenblad', zegelrol: 'zegelrol', postduif: 'postduif' };
+const OPVOLGEN_ICOON = { zorg: 'toren', taken: 'oefenblad', doelen: 'rijk', proef: 'proef' };
 const MOTIVATIE_ICOON = { ridder: 'toernooi', klaseiland: 'klaseiland', huisdier: 'huisdier', runenraadsel: 'runenraadsel' };
+
+// De video's staan in site/video/: <taal>.mp4 (de trailer) en spellen-<taal>.mp4 (de spellen kort na elkaar), met een poster in webp.
+const heeftVideo = (naam) => fs.existsSync(path.join(SITE, 'video', `${naam}.mp4`));
+function videoBlok(rel, naam, poster, t) {
+  return `      <div class="video" data-src="${rel}video/${naam}.mp4">
+        <button type="button" class="video-start" aria-label="${esc(t.video.knop)}">
+          <img src="${rel}video/${poster}.webp" alt="" width="960" height="540" loading="lazy" decoding="async">
+          <span class="video-knop"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg>${esc(t.video.knop)}</span>
+        </button>
+      </div>`;
+}
 
 function pad(taal) { return taal === 'nl' ? '/' : `/${taal}/`; }
 const BASIS = CONFIG.adres.replace(/\/$/, '');
@@ -144,12 +155,12 @@ ${main}
     x.onclick = function () { p.hidden = true; try { localStorage.setItem('lancelot-taal', huidig); } catch (e) {} };
     p.appendChild(a); p.appendChild(x); p.hidden = false;
   })();
-  // Video: YouTube laadt pas na een klik (privacyvriendelijk, youtube-nocookie).
-  document.querySelectorAll('.video[data-yt]').forEach(function (v) {
+  // Video: staat op de site zelf en laadt pas na een klik (geen diensten van anderen, geen onnodige megabytes).
+  document.querySelectorAll('.video[data-src]').forEach(function (v) {
     v.querySelector('button').addEventListener('click', function () {
-      var f = document.createElement('iframe');
-      f.src = 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(v.getAttribute('data-yt')) + '?autoplay=1&rel=0';
-      f.title = 'LANcelot'; f.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen'; f.allowFullscreen = true;
+      var f = document.createElement('video');
+      f.src = v.getAttribute('data-src'); f.controls = true; f.autoplay = true; f.playsInline = true;
+      f.poster = v.querySelector('img').src;
       v.innerHTML = ''; v.appendChild(f);
     });
   });
@@ -193,15 +204,9 @@ function pagina(taal, t, w, data, alle) {
       ${t.punten.map((p, i) => `<div class="punt">${SVG[PUNT_ICOON[i]]}<h2>${esc(p.titel)}</h2><p>${esc(p.tekst)}</p></div>`).join('\n      ')}
     </section>
 
-${(CONFIG.videos || {})[taal] ? `    <section class="blok" id="video">
+${heeftVideo(taal) ? `    <section class="blok" id="video">
       <h2 class="titel">${esc(t.video.titel)}</h2>
-      <div class="video" data-yt="${esc(CONFIG.videos[taal])}">
-        <button type="button" class="video-start" aria-label="${esc(t.video.knop)}">
-          <img src="${rel}video/${taal}.webp" alt="" width="960" height="540" loading="lazy" decoding="async">
-          <span class="video-knop"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg>${esc(t.video.knop)}</span>
-        </button>
-      </div>
-      <p class="noot video-noot">${esc(t.video.noot)}</p>
+${videoBlok(rel, taal, taal, t)}
     </section>
 
 ` : ''}    <section class="blok" id="werkt">
@@ -226,7 +231,7 @@ ${(CONFIG.videos || {})[taal] ? `    <section class="blok" id="video">
     <section class="blok" id="spellen">
       <h2 class="titel">${esc(vul(t.spellen.titel))}</h2>
       <p class="intro">${esc(t.spellen.tekst)}</p>
-      <figure class="breed"><img src="${shot('arena')}" alt="${esc(t.hallen.lijst[0].naam)}" width="1200" height="467" loading="lazy" decoding="async"></figure>
+${heeftVideo(`spellen-${taal}`) ? videoBlok(rel, `spellen-${taal}`, `spellen-${taal}`, t) : `      <figure class="breed"><img src="${shot('arena')}" alt="${esc(t.hallen.lijst[0].naam)}" width="1200" height="467" loading="lazy" decoding="async"></figure>`}
       ${spelTegels}
     </section>
 
@@ -376,7 +381,7 @@ function bouw() {
   const data = spellen();
   const alle = Object.fromEntries(TALEN.map(x => [x, JSON.parse(fs.readFileSync(path.join(BRON, 'teksten', `${x}.json`), 'utf8'))]));
   // Beelden uit de app: iconen van spellen en zalen, het merk en de lettertypes.
-  const iconen = new Set(['arena', 'ronde-tafel', 'smidse', 'wapenkamer', 'kronieken', ...Object.values(MOTIVATIE_ICOON), ...Object.values(OPVOLGEN_ICOON)].map(x => x + '.webp'));
+  const iconen = new Set(['arena', 'ronde-tafel', 'smidse', 'wapenkamer', 'burcht', ...Object.values(MOTIVATIE_ICOON), ...Object.values(OPVOLGEN_ICOON)].map(x => x + '.webp'));
   for (const g of data.groepen) for (const s of g.spellen) iconen.add(s.icoon);
   fs.rmSync(path.join(SITE, 'img', 'spellen'), { recursive: true, force: true });
   for (const f of iconen) kopieer(path.join(ROOT, 'public', 'img', 'icons', f), path.join(SITE, 'img', 'spellen', f));

@@ -140,10 +140,10 @@ function buildPrompt(forGemini = false) {
   ]`;
   const losRegels = los.length ? `
 - De soorten ${los.join(', ')} zijn telkens één vraag (met "vraag" in plaats van "instruction"). Zet er gerust een paar na elkaar.${los.includes('kort') || los.includes('rekenen') ? '\n- Is het antwoord een breuk, zet dan bij kort of rekenen "breuk": true; moet de breuk vereenvoudigd zijn, ook "vereenvoudigd": true. Meerdere goede schrijfwijzen in "antwoord" scheid je met |.' : ''}${los.includes('tabel') ? '\n- Bij een tabel staat een in te vullen cel tussen [ ], een keuzelijstje in een cel als {juist|fout}.' : ''}${los.includes('markeren') ? '\n- Bij markeren staan de woorden die de leerling moet aanduiden tussen [ ].' : ''}${los.includes('getallenas') ? '\n- Bij een getallenas ligt het juiste getal op een streepje (een veelvoud van de stap vanaf het begin).' : ''}${los.includes('tekenen') ? '\n- Bij tekenen zet je in "model" waar de leerkracht op let.' : ''}` : '';
-  return `Je bent een ervaren leerkracht in Vlaanderen. Maak een oefenblad (werkblad) voor leerlingen uit: ${level} (Belgisch onderwijs). Onderwerp: ${topic}.
+  return `Je bent een ervaren leerkracht in ${Ui.aiKader().waar}. Maak een oefenblad (werkblad) voor leerlingen uit: ${Ui.aiKader().niveau(level)} (${Ui.aiKader().onderwijs}). Onderwerp: ${topic}.
 ${DoelKies.prompt(codes, 'oefeningen')}${hasSources ? '\nBaseer alle oefeningen op de bijgevoegde lesstof. Vraag alleen naar dingen die daarin staan.\n' : ''}${extra ? `\nExtra wensen van de leerkracht:\n${extra}\n` : ''}
 Regels:
-- Maak ${count} oefeningen${three ? ' per niveau' : ''} in het Nederlands zoals in Vlaanderen, met ongeveer ${per} vragen of gaten per oefening.
+- Maak ${count} oefeningen${three ? ' per niveau' : ''} in ${Ui.aiKader().taal}, met ongeveer ${per} vragen of gaten per oefening.
 - Gebruik deze soorten oefeningen, afwisselend: ${kinds.join(', ')}.${withText ? '\n- Begin met een korte leestekst ("tekst") waarop de oefeningen voortbouwen.' : ''}
 - Elke oefening krijgt een korte, duidelijke opdrachtzin ("instruction") voor de leerling.
 - Bij invullen staat elk in te vullen woord tussen [vierkante haken]. Kies woorden die eenduidig zijn, zodat de computer kan verbeteren.
@@ -152,7 +152,7 @@ Regels:
 - Bij meerkeuze is "correct" het nummer van het goede antwoord, geteld vanaf 0. Zet het goede antwoord niet steeds op dezelfde plek.
 - Bij meerkeuze en juist/fout: de foute keuzes zijn typische fouten of misvattingen van leerlingen, geen onzin.
 - Bouw op van kennis (begrippen en feiten) naar begrip en toepassen in een korte, herkenbare situatie.
-- Gebruik de Belgische schrijfwijze en context: komma als decimaalteken, euro, Belgische namen en plaatsen, Vlaamse woorden.
+- ${Ui.aiKader().context}
 - Pas moeilijkheid en taalgebruik aan het niveau ${level} aan.
 - Controleer op het einde elke oefening: reken elk antwoord opnieuw na en kijk of de computer het eenduidig kan verbeteren.
 ${three ? `\n${Niveau.prompt(level, 'oefeningen')}\n` : ''}
@@ -175,7 +175,7 @@ makerDoel = DoelKies.multi({
   // Het niveau volgt het leerjaar van de doelen.
   onChange: codes => {
     const doel = DoelKies.find(codes[0]);
-    if (doel) $('a-level').value = DoelKies.naam(doel.leerjaar);
+    if (doel) DoelKies.zetNiveau($('a-level'), doel.leerjaar);
     updatePrompt();
   },
 });
@@ -198,7 +198,7 @@ $('new-ai').addEventListener('click', () => {
   // Het niveau staat meteen op het leerjaar van de klas; de leerkracht kan het nog veranderen.
   DoelKies.leerjaar(lj => {
     if (!makerDoel.codes().length) {
-      $('a-level').value = DoelKies.naam(lj);
+      DoelKies.zetNiveau($('a-level'), lj);
       updatePrompt();
     }
   });

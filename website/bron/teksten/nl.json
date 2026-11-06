@@ -2,7 +2,7 @@
   "taalNaam": "Nederlands",
   "taalWenk": "Deze pagina bestaat ook in het Nederlands →",
   "titel": "LANcelot · Quizzen, peilingen en klasgames op je eigen klasnetwerk",
-  "omschrijving": "Klas-app voor leerkrachten: live quizzen, peilingen, {n} spellen en AI-oefenbladen. Draait op de pc in je klas, leerlingen spelen mee via de browser.",
+  "omschrijving": "Klas-app voor leerkrachten: live quizzen, peilingen, {n} spellen, AI-oefenbladen en toetsen. Draait op de pc in je klas, leerlingen spelen mee via de browser.",
   "nav": {
     "hallen": "Wat zit erin",
     "spellen": "Spellen",
@@ -22,7 +22,7 @@
   "punten": [
     {
       "titel": "Alles-in-één",
-      "tekst": "Quizzen, peilingen, spellen, oefenbladen en klastools in één app."
+      "tekst": "Quizzen, peilingen, spellen, oefenbladen, toetsen en klastools in één app."
     },
     {
       "titel": "Lokaal",
@@ -52,8 +52,7 @@
   },
   "video": {
     "titel": "Bekijk LANcelot in actie",
-    "knop": "Speel de video",
-    "noot": "De video staat op YouTube. Pas als je op afspelen klikt, maakt je browser verbinding met YouTube."
+    "knop": "Speel de video"
   },
   "schermen": {
     "titel": "Echte schermen uit LANcelot",
@@ -85,9 +84,9 @@
         "tekst": "Klastools op het bord: lot, groepjes, timer, geluidsmeter, dobbelstenen en klastaken."
       },
       {
-        "id": "kronieken",
-        "naam": "De Kronieken",
-        "tekst": "Je bordboeken, planning en klas: lesgeven, opvolgen en rapporteren."
+        "id": "burcht",
+        "naam": "Mijn klas",
+        "tekst": "Je klaslijst, de leerplandoelen van je land of je eigen doelen, taken per leerling en de resultaten."
       }
     ]
   },
@@ -154,7 +153,7 @@
   },
   "opvolgen": {
     "titel": "Opvolgen, zorg en rapporten",
-    "tekst": "Elk antwoord komt in het logboek, gekoppeld aan de leerplandoelen. Zo zie je meteen wie extra hulp nodig heeft, en je rapport vult zich bijna vanzelf.",
+    "tekst": "Elk antwoord komt in het logboek, gekoppeld aan de doelen die jij kiest. Zo zie je meteen wie extra hulp nodig heeft.",
     "lijst": [
       {
         "id": "zorg",
@@ -167,14 +166,14 @@
         "tekst": "Zet een quiz of oefenblad klaar voor één leerling of een groepje, elk op zijn niveau. Ook thuis voor te bereiden."
       },
       {
-        "id": "zegelrol",
-        "naam": "De Zegelrol: je rapport",
-        "tekst": "De toetsen komen er per vak vanzelf in. Jij zet er symbolen, commentaar en het logo van je school bij."
+        "id": "doelen",
+        "naam": "Doelen van je land",
+        "tekst": "Kies de leerplandoelen van Engeland, de VS, Nederland, Duitsland, Frankrijk of Vlaanderen, of zet je eigen doelen. Een AI stelt ze voor als je wil. Zonder doelen werken mag ook."
       },
       {
-        "id": "postduif",
-        "naam": "De Postduif: brief voor thuis",
-        "tekst": "Per leerling een brief met de verbeterde toets, wat al lukt, wat nog oefenen en nieuws uit de klas."
+        "id": "proef",
+        "naam": "Toetsen met verbeterblad",
+        "tekst": "Maak een toets in de Smidse, laat hem online maken of print hem. De punten komen vanzelf in je overzicht."
       }
     ]
   },
@@ -235,7 +234,7 @@
   },
   "download": {
     "titel": "Haal LANcelot in je klas",
-    "tekst": "LANcelot komt binnenkort beschikbaar voor leerkrachten en scholen.",
+    "tekst": "LANcelot komt binnenkort in de Microsoft Store. De eerste maand probeer je alles volledig uit.",
     "noot": "Je hebt enkel een Windows-pc in de klas nodig. Leerlingen spelen mee in de browser."
   },
   "faq": {
@@ -243,7 +242,11 @@
     "lijst": [
       {
         "v": "Wanneer kan ik LANcelot gebruiken?",
-        "a": "LANcelot komt binnenkort beschikbaar. Op deze website lees je als eerste wanneer het zover is."
+        "a": "LANcelot komt binnenkort in de Microsoft Store, met een proefmaand waarin alles werkt. Op deze website lees je als eerste wanneer het zover is."
+      },
+      {
+        "v": "Werkt LANcelot met de doelen van mijn land?",
+        "a": "Ja. Kies in Mijn klas de leerplandoelen van je land, zet je eigen doelen, of werk zonder doelen. Elk antwoord komt dan bij het juiste doel in je overzicht."
       },
       {
         "v": "Heb ik internet nodig?",

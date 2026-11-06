@@ -11,7 +11,7 @@ const zip = require('./zip');
 
 const APP = path.resolve(__dirname, '..');
 // Alles wat van de leerkracht en de klas is. De rest (public, src, doelen...) hoort bij de app.
-const ITEMS = ['klas', 'logboek', 'runen', 'ontdek', 'burchten', 'taken', 'rijken', 'resultaten', 'posters', 'quizzes', 'oefenbladen', 'rondetafel', 'proeven', 'kronieken', 'kronieken-links', 'zonnewijzer', 'zegelrol', 'postduif', 'avatars.json', 'settings.json', 'lesmap-sync.json'];
+const ITEMS = ['klas', 'logboek', 'runen', 'ontdek', 'burchten', 'taken', 'rijken', 'resultaten', 'posters', 'quizzes', 'oefenbladen', 'rondetafel', 'proeven', 'kronieken', 'kronieken-links', 'zonnewijzer', 'zegelrol', 'postduif', 'avatars.json', 'settings.json', 'lesmap-sync.json', 'doelen-eigen.json'];
 // Bordboeken en handleidingen zijn te groot voor de dagelijkse back-up-zip. Ze verhuizen wel mee en een update laat ze staan.
 const NIET_IN_BACKUP = new Set(['kronieken']);
 const POINTER = path.join(APP, 'gegevensmap.json');
@@ -26,7 +26,8 @@ function standaardMap() {
 }
 
 function gekozen() {
-  if (process.env.LANCELOT_DATA) return { map: path.resolve(process.env.LANCELOT_DATA), van: APP };
+  // Een vaste map (een test, of "Test Store-versie.bat"): een lege start met enkel de voorbeelden, nooit de klas van de app-map.
+  if (process.env.LANCELOT_DATA) return { map: path.resolve(process.env.LANCELOT_DATA), van: APP, leeg: true };
   try {
     const p = JSON.parse(fs.readFileSync(POINTER, 'utf8'));
     if (p.map && path.isAbsolute(p.map)) return { map: path.resolve(p.map), van: p.van && path.isAbsolute(p.van) ? path.resolve(p.van) : APP };
@@ -36,21 +37,26 @@ function gekozen() {
 }
 
 // Kopieert de gegevens naar de nieuwe map. Nooit iets overschrijven en nooit iets wissen: de oude map blijft zoals ze was.
-function verhuis(van, naar) {
+const VOORBEELDEN = ['quizzes', 'oefenbladen', 'rondetafel'];
+function verhuis(van, naar, leeg = false) {
   fs.mkdirSync(naar, { recursive: true });
   let n = 0;
   if (path.resolve(van) !== path.resolve(naar)) {
     // Ook de back-ups en een back-up die nog teruggezet moet worden, verhuizen mee.
-    for (const item of [...ITEMS, BACKUPS, RESTORE]) {
-      const src = path.join(van, item);
+    // De Store-versie in een andere taal dan Nederlands: de voorbeelden in die taal (voorbeelden/<taal>/), niet de Vlaamse.
+    const store = require('./store');
+    const taal = store.ACTIEF && van === APP ? store.taalVanSysteem() : 'nl';
+    const anders = taal !== 'nl' && fs.existsSync(path.join(APP, 'voorbeelden', taal));
+    for (const item of leeg ? VOORBEELDEN : [...ITEMS, BACKUPS, RESTORE]) {
+      const src = anders && VOORBEELDEN.includes(item) ? path.join(APP, 'voorbeelden', taal, item) : path.join(van, item);
       if (!fs.existsSync(src)) continue;
       fs.cpSync(src, path.join(naar, item), { recursive: true, force: false, errorOnExist: false });
       n++;
     }
-    try { fs.unlinkSync(path.join(van, RESTORE)); } catch {}
+    if (!leeg) try { fs.unlinkSync(path.join(van, RESTORE)); } catch {}
   }
   fs.writeFileSync(path.join(naar, MARKER), JSON.stringify({ van, op: new Date().toISOString() }, null, 2) + '\n');
-  if (n && van === APP) {
+  if (n && van === APP && !leeg) {
     try {
       fs.writeFileSync(path.join(APP, 'GEGEVENS-STAAN-NU-ELDERS.txt'), `Je klaslijst, logboek, quizzen en andere gegevens staan sinds ${new Date().toLocaleDateString('nl-BE')} in:\r\n${naar}\r\n\r\nDe mappen hier naast de app zijn een oude kopie. LANcelot gebruikt ze niet meer.\r\n`);
     } catch {}
@@ -61,14 +67,14 @@ function verhuis(van, naar) {
 let DATA = APP;
 let melding = '';
 {
-  const { map, van } = gekozen();
+  const { map, van, leeg } = gekozen();
   if (map === APP) DATA = APP;
   else if (fs.existsSync(path.join(map, MARKER))) DATA = map;
   else {
     try {
-      const n = verhuis(van, map);
+      const n = verhuis(van, map, leeg);
       DATA = map;
-      melding = n ? `Je gegevens zijn verhuisd naar ${map}.` : '';
+      melding = n && !leeg ? `Je gegevens zijn verhuisd naar ${map}.` : '';
       console.log(`  Gegevensmap: ${map}${n ? ' (gegevens gekopieerd)' : ''}`);
     } catch (err) {
       // Liever verder in de oude map dan half verhuisd.

@@ -340,10 +340,10 @@ Dit is een sessie om voorkennis te activeren bij de start van een les. Bouw ze z
 - een schaal ("schaal") hoe goed de leerlingen het onderwerp al kennen;
 - sluit af met een open vraag ("open"): wat wil je nog te weten komen?
 ` : '';
-  return `Je bent een ervaren leerkracht in Vlaanderen. Maak een reeks vragen voor een live klasgesprek met een stemsysteem (zoals Mentimeter). De leerlingen zitten in: ${level} (Belgisch onderwijs). Onderwerp: ${topic}. Doel: ${goal}.
+  return `Je bent een ervaren leerkracht in ${Ui.aiKader().waar}. Maak een reeks vragen voor een live klasgesprek met een stemsysteem (zoals Mentimeter). De leerlingen zitten in: ${Ui.aiKader().niveau(level)} (${Ui.aiKader().onderwijs}). Onderwerp: ${topic}. Doel: ${goal}.
 ${extra ? `\nExtra wensen van de leerkracht:\n${extra}\n` : ''}
 Regels:
-- Maak precies ${count} vragen in het Nederlands zoals in Vlaanderen. Leerlingen antwoorden anoniem.
+- Maak precies ${count} vragen in ${Ui.aiKader().taal}. Leerlingen antwoorden anoniem.
 - Gebruik een afwisselende mix van deze soorten:
   - "keuze": meerkeuze of stelling, met 2 tot 6 korte keuzes (bij een stelling bijvoorbeeld "Eens", "Twijfel", "Oneens"). Er is geen goed of fout antwoord.
   - "woorden": een woordwolk; leerlingen geven een tot drie losse woorden.

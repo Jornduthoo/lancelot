@@ -39,7 +39,8 @@
           </select>
         </label>
       </div>
-      <p class="muted small">Het leerjaar bepaalt welke leerplandoelen LANcelot eerst toont.</p>
+      <label>Leerplandoelen<select id="w-land"></select></label>
+      <p class="muted small">Kies de doelen van je land, of werk zonder doelen. Eigen doelen zet je later in <em>Mijn klas</em> &gt; <em>Doelen</em>. Het leerjaar bepaalt welke doelen LANcelot eerst toont.</p>
     </div>
 
     <div class="panel form w-step hidden" data-step="2">
@@ -107,6 +108,15 @@
     $('w-namen').value = res.klas.leerlingen.map(l => l.naam).join('\n');
     telling();
   });
+  // De leerplandoelen: een land of geen (in de Store-versie staat er standaard geen).
+  ask('doelen-keuze').then(k => {
+    if (!k || k.error) return;
+    const sel = $('w-land');
+    for (const l of k.landen) if (l.aantal) sel.add(new Option(l.naam, l.id));
+    sel.add(new Option('Geen leerplandoelen', 'geen'));
+    sel.value = k.land;
+  });
+  $('w-land').addEventListener('change', () => ask('doelen-land', { land: $('w-land').value }));
   socket.on('settings', s => { $('w-key-status').textContent = s.hasKey ? `Er is al een sleutel ingesteld (${s.keyHint}).` : ''; });
   $('w-namen').addEventListener('input', telling);
 

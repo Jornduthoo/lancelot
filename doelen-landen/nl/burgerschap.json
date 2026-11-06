@@ -1,0 +1,190 @@
+{
+ "bron": "Kerndoelen funderend onderwijs, primair onderwijs (SLO, definitieve conceptversie), data: github.com/slonl/curriculum-fo",
+ "vak": "Burgerschap",
+ "doelen": [
+  {
+   "code": "NL.BUR.19A.1",
+   "vak": "Burgerschap",
+   "leerjaar": 0,
+   "domein": "Democratische oefenplaats",
+   "cluster": "Kerndoel 19: De school geeft vorm aan de democratische oefenplaats.",
+   "tekst": "De school stimuleert sociale en maatschappelijke competenties van leerlingen: aanbieden van kennis en vaardigheden ten aanzien van basiswaarden van de democratische rechtsstaat en de diverse samenleving, gericht op respectvolle omgang."
+  },
+  {
+   "code": "NL.BUR.19A.2",
+   "vak": "Burgerschap",
+   "leerjaar": 0,
+   "domein": "Democratische oefenplaats",
+   "cluster": "Kerndoel 19: De school geeft vorm aan de democratische oefenplaats.",
+   "tekst": "De school stimuleert sociale en maatschappelijke competenties van leerlingen: stimuleren van sociale vaardigheden en kritische denkvaardigheden."
+  },
+  {
+   "code": "NL.BUR.19A.3",
+   "vak": "Burgerschap",
+   "leerjaar": 0,
+   "domein": "Democratische oefenplaats",
+   "cluster": "Kerndoel 19: De school geeft vorm aan de democratische oefenplaats.",
+   "tekst": "De school stimuleert sociale en maatschappelijke competenties van leerlingen: stimuleren van respectvolle communicatie, offline en online."
+  },
+  {
+   "code": "NL.BUR.19A.4",
+   "vak": "Burgerschap",
+   "leerjaar": 0,
+   "domein": "Democratische oefenplaats",
+   "cluster": "Kerndoel 19: De school geeft vorm aan de democratische oefenplaats.",
+   "tekst": "De school stimuleert sociale en maatschappelijke competenties van leerlingen: aanbieden van activiteiten die sociale cohesie en actief burgerschap stimuleren."
+  },
+  {
+   "code": "NL.BUR.20A.1",
+   "vak": "Burgerschap",
+   "leerjaar": 0,
+   "domein": "Samenleven in een democratische rechtsstaat",
+   "cluster": "Kerndoel 20: De leerling leert over samenleven in een democratische rechtsstaat.",
+   "tekst": "De leerling redeneert over het belang van basiswaarden van de democratische rechtsstaat: beschrijven van de betekenis van basiswaarden van de democratische rechtsstaat: vrijheid, gelijkwaardigheid en solidariteit."
+  },
+  {
+   "code": "NL.BUR.20A.2",
+   "vak": "Burgerschap",
+   "leerjaar": 0,
+   "domein": "Samenleven in een democratische rechtsstaat",
+   "cluster": "Kerndoel 20: De leerling leert over samenleven in een democratische rechtsstaat.",
+   "tekst": "De leerling redeneert over het belang van basiswaarden van de democratische rechtsstaat: beschrijven hoe de Grondwet, kinder- en mensenrechten basiswaarden van de democratische rechtsstaat mogelijk maken."
+  },
+  {
+   "code": "NL.BUR.20A.3",
+   "vak": "Burgerschap",
+   "leerjaar": 0,
+   "domein": "Samenleven in een democratische rechtsstaat",
+   "cluster": "Kerndoel 20: De leerling leert over samenleven in een democratische rechtsstaat.",
+   "tekst": "De leerling redeneert over het belang van basiswaarden van de democratische rechtsstaat: redeneren over hoe vrijheid, gelijkwaardigheid en solidariteit met elkaar op gespannen voet kunnen staan."
+  },
+  {
+   "code": "NL.BUR.20A.4",
+   "vak": "Burgerschap",
+   "leerjaar": 0,
+   "domein": "Samenleven in een democratische rechtsstaat",
+   "cluster": "Kerndoel 20: De leerling leert over samenleven in een democratische rechtsstaat.",
+   "tekst": "De leerling redeneert over het belang van basiswaarden van de democratische rechtsstaat: ervaringen opdoen met het voeren van dialogen, omgaan met conflicten en gelijkwaardige behandeling."
+  },
+  {
+   "code": "NL.BUR.20A.5",
+   "vak": "Burgerschap",
+   "leerjaar": 0,
+   "domein": "Samenleven in een democratische rechtsstaat",
+   "cluster": "Kerndoel 20: De leerling leert over samenleven in een democratische rechtsstaat.",
+   "tekst": "De leerling redeneert over het belang van basiswaarden van de democratische rechtsstaat: herkennen en benoemen hoe basiswaarden van de democratische rechtsstaat een rol spelen in de samenleving en het eigen leven."
+  },
+  {
+   "code": "NL.BUR.20B.1",
+   "vak": "Burgerschap",
+   "leerjaar": 0,
+   "domein": "Samenleven in een democratische rechtsstaat",
+   "cluster": "Kerndoel 20: De leerling leert over samenleven in een democratische rechtsstaat.",
+   "tekst": "De leerling verkent hoe die kan omgaan met diversiteit in de samenleving: beschrijven van aspecten van diversiteit: godsdienst, levensovertuiging, politieke gezindheid, afkomst, geslacht, handicap en seksuele gerichtheid."
+  },
+  {
+   "code": "NL.BUR.20B.2",
+   "vak": "Burgerschap",
+   "leerjaar": 0,
+   "domein": "Samenleven in een democratische rechtsstaat",
+   "cluster": "Kerndoel 20: De leerling leert over samenleven in een democratische rechtsstaat.",
+   "tekst": "De leerling verkent hoe die kan omgaan met diversiteit in de samenleving: verkennen van de eigen identiteit ten aanzien van aspecten van diversiteit."
+  },
+  {
+   "code": "NL.BUR.20B.3",
+   "vak": "Burgerschap",
+   "leerjaar": 0,
+   "domein": "Samenleven in een democratische rechtsstaat",
+   "cluster": "Kerndoel 20: De leerling leert over samenleven in een democratische rechtsstaat.",
+   "tekst": "De leerling verkent hoe die kan omgaan met diversiteit in de samenleving: herkennen en benoemen van stereotypering, discriminatie en uitsluiting."
+  },
+  {
+   "code": "NL.BUR.20B.4",
+   "vak": "Burgerschap",
+   "leerjaar": 0,
+   "domein": "Samenleven in een democratische rechtsstaat",
+   "cluster": "Kerndoel 20: De leerling leert over samenleven in een democratische rechtsstaat.",
+   "tekst": "De leerling verkent hoe die kan omgaan met diversiteit in de samenleving: benoemen van het belang dat mensen elkaar gelijkwaardig behandelen."
+  },
+  {
+   "code": "NL.BUR.20B.5",
+   "vak": "Burgerschap",
+   "leerjaar": 0,
+   "domein": "Samenleven in een democratische rechtsstaat",
+   "cluster": "Kerndoel 20: De leerling leert over samenleven in een democratische rechtsstaat.",
+   "tekst": "De leerling verkent hoe die kan omgaan met diversiteit in de samenleving: ervaringen opdoen met het omgaan met verschillende perspectieven en ervaringen van anderen, overeenkomsten en verschillen, oordeel uitstellen, omgaan met mogelijkheden en gedrag van anderen."
+  },
+  {
+   "code": "NL.BUR.21A.1",
+   "vak": "Burgerschap",
+   "leerjaar": 0,
+   "domein": "Vormgeven aan democratische en maatschappelijke betrokkenheid",
+   "cluster": "Kerndoel 21: De leerling doet ervaringen op met democratische en maatschappelijke betrokkenheid.",
+   "tekst": "De leerling verkent mogelijkheden om democratisch te handelen: beschrijven hoe je door middel van inspraak, verkiezingen en vertegenwoordiging invloed kunt uitoefenen."
+  },
+  {
+   "code": "NL.BUR.21A.2",
+   "vak": "Burgerschap",
+   "leerjaar": 0,
+   "domein": "Vormgeven aan democratische en maatschappelijke betrokkenheid",
+   "cluster": "Kerndoel 21: De leerling doet ervaringen op met democratische en maatschappelijke betrokkenheid.",
+   "tekst": "De leerling verkent mogelijkheden om democratisch te handelen: ervaringen opdoen met inspraak en besluitvorming."
+  },
+  {
+   "code": "NL.BUR.21A.3",
+   "vak": "Burgerschap",
+   "leerjaar": 0,
+   "domein": "Vormgeven aan democratische en maatschappelijke betrokkenheid",
+   "cluster": "Kerndoel 21: De leerling doet ervaringen op met democratische en maatschappelijke betrokkenheid.",
+   "tekst": "De leerling verkent mogelijkheden om democratisch te handelen: ervaringen opdoen met het uitdrukken van eigen standpunten, luisteren naar argumenten van anderen, compromissen sluiten en omgaan met de uitkomsten van besluitvormingsprocessen."
+  },
+  {
+   "code": "NL.BUR.21A.4",
+   "vak": "Burgerschap",
+   "leerjaar": 0,
+   "domein": "Vormgeven aan democratische en maatschappelijke betrokkenheid",
+   "cluster": "Kerndoel 21: De leerling doet ervaringen op met democratische en maatschappelijke betrokkenheid.",
+   "tekst": "De leerling verkent mogelijkheden om democratisch te handelen: benoemen welke bijdrage de leerling zelf levert aan democratisch handelen."
+  },
+  {
+   "code": "NL.BUR.21B.1",
+   "vak": "Burgerschap",
+   "leerjaar": 0,
+   "domein": "Vormgeven aan democratische en maatschappelijke betrokkenheid",
+   "cluster": "Kerndoel 21: De leerling doet ervaringen op met democratische en maatschappelijke betrokkenheid.",
+   "tekst": "De leerling verkent mogelijkheden om bij te dragen aan de samenleving: benoemen van taken, rollen, rechten en plichten van jezelf en anderen in de samenleving."
+  },
+  {
+   "code": "NL.BUR.21B.2",
+   "vak": "Burgerschap",
+   "leerjaar": 0,
+   "domein": "Vormgeven aan democratische en maatschappelijke betrokkenheid",
+   "cluster": "Kerndoel 21: De leerling doet ervaringen op met democratische en maatschappelijke betrokkenheid.",
+   "tekst": "De leerling verkent mogelijkheden om bij te dragen aan de samenleving: onderzoeken van maatschappelijke initiatieven, bewegingen en organisaties en de middelen die zij aanwenden om bij te dragen aan de samenleving of veranderingen in de samenleving teweeg te brengen."
+  },
+  {
+   "code": "NL.BUR.21B.3",
+   "vak": "Burgerschap",
+   "leerjaar": 0,
+   "domein": "Vormgeven aan democratische en maatschappelijke betrokkenheid",
+   "cluster": "Kerndoel 21: De leerling doet ervaringen op met democratische en maatschappelijke betrokkenheid.",
+   "tekst": "De leerling verkent mogelijkheden om bij te dragen aan de samenleving: verkennen van actuele, maatschappelijke en duurzaamheidsvraagstukken."
+  },
+  {
+   "code": "NL.BUR.21B.4",
+   "vak": "Burgerschap",
+   "leerjaar": 0,
+   "domein": "Vormgeven aan democratische en maatschappelijke betrokkenheid",
+   "cluster": "Kerndoel 21: De leerling doet ervaringen op met democratische en maatschappelijke betrokkenheid.",
+   "tekst": "De leerling verkent mogelijkheden om bij te dragen aan de samenleving: ervaringen opdoen met verantwoordelijkheid nemen voor en bijdragen aan het welzijn van anderen."
+  },
+  {
+   "code": "NL.BUR.21B.5",
+   "vak": "Burgerschap",
+   "leerjaar": 0,
+   "domein": "Vormgeven aan democratische en maatschappelijke betrokkenheid",
+   "cluster": "Kerndoel 21: De leerling doet ervaringen op met democratische en maatschappelijke betrokkenheid.",
+   "tekst": "De leerling verkent mogelijkheden om bij te dragen aan de samenleving: verkennen van mogelijkheden om vanuit eigen idealen bij te dragen aan de samenleving, nu en in de toekomst."
+  }
+ ]
+}

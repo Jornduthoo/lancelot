@@ -96,7 +96,7 @@ function pakketPrompt(groep, metBijlage) {
   const quiz = groep.some(l => nodig(l).includes('quiz'));
   const blad = groep.some(l => nodig(l).includes('oefenblad'));
   const blocks = `[\n          ${BLAD_FORMATS.join(',\n          ')}\n        ]`;
-  return `Je bent een ervaren leerkracht in Vlaanderen. Ik maak lesmateriaal voor ${vak}, ${level} (Belgisch onderwijs).
+  return `Je bent een ervaren leerkracht in ${Ui.aiKader().waar}. Ik maak lesmateriaal voor ${vak}, ${Ui.aiKader().niveau(level)} (${Ui.aiKader().onderwijs}).
 ${metBijlage ? 'Gebruik de handleiding of lesstof uit dit gesprek als die er is, zodat het materiaal past bij wat in de les aan bod komt. Schrijf alles in je eigen woorden: neem geen teksten of oefeningen letterlijk over.\n' : ''}${extra ? `\nExtra wensen van de leerkracht:\n${extra}\n` : ''}
 Maak materiaal voor ${groep.length === 1 ? 'deze les' : `deze ${groep.length} lessen`}:
 ${welke}
@@ -117,7 +117,7 @@ Regels voor het oefenblad:
 - Bij meerkeuze is "correct" het nummer van het goede antwoord, geteld vanaf 0.
 ` : ''}
 Voor alles:
-- Nederlands zoals in Vlaanderen, Belgische context: komma als decimaalteken, euro, Belgische namen en plaatsen.
+- Schrijf in ${Ui.aiKader().taal}. ${Ui.aiKader().context}
 - Moeilijkheid en taalgebruik passen bij ${level}. Bouw op van kennis naar begrip en toepassen.
 - Controleer op het einde alles: reken elk antwoord opnieuw na en kijk of precies één antwoord juist is.
 ${drie ? `\n${Niveau.prompt(level, 'vragen en oefeningen')}\n` : ''}
@@ -141,7 +141,7 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
 function planPrompt() {
   const vak = $('r-vak').value.trim();
   const level = $('r-level').value;
-  return `Je bent een ervaren leerkracht in Vlaanderen. In de bijgevoegde handleiding (of het jaarplan) staan de lessen${vak ? ` voor ${vak}` : ''}, ${level}. Maak er een lessenlijst van.
+  return `Je bent een ervaren leerkracht in ${Ui.aiKader().waar}. In de bijgevoegde handleiding (of het jaarplan) staan de lessen${vak ? ` voor ${vak}` : ''}, ${level}. Maak er een lessenlijst van.
 - Neem de lessen met leerstof of inoefening. Sla toetsen, evaluaties, differentiatie, remediëring, projecten en vrije lessen over.
 - Geef elke les een korte titel (hooguit 60 tekens) die begint met het lesnummer, zoals "Les 3 - Breuken vergelijken".
 - Schrijf per les in je eigen woorden wat erin aan bod komt (hooguit 300 tekens): de leerstof, de doelen en wat leerlingen vaak moeilijk vinden. Neem geen teksten letterlijk over.

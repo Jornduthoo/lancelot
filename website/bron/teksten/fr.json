@@ -2,7 +2,7 @@
   "taalNaam": "Français",
   "taalWenk": "Cette page existe aussi en français →",
   "titel": "LANcelot · Quiz, sondages et jeux de classe sur ton propre réseau de classe",
-  "omschrijving": "Application de classe pour les enseignants : quiz en direct, sondages, {n} jeux et fiches d’exercices par IA. Elle tourne sur le PC de ta classe, les élèves jouent dans leur navigateur.",
+  "omschrijving": "Application de classe pour les enseignants : quiz en direct, sondages, {n} jeux, fiches d’exercices par IA et évaluations. Elle tourne sur le PC de ta classe, les élèves jouent dans leur navigateur.",
   "nav": {
     "hallen": "Ce qu’il contient",
     "spellen": "Jeux",
@@ -22,7 +22,7 @@
   "punten": [
     {
       "titel": "Tout-en-un",
-      "tekst": "Quiz, sondages, jeux, fiches et outils de classe dans une seule application."
+      "tekst": "Quiz, sondages, jeux, fiches, évaluations et outils de classe dans une seule application."
     },
     {
       "titel": "Local",
@@ -52,8 +52,7 @@
   },
   "video": {
     "titel": "Découvre LANcelot en action",
-    "knop": "Lancer la vidéo",
-    "noot": "La vidéo est sur YouTube. Ton navigateur ne se connecte à YouTube que quand tu cliques sur lecture."
+    "knop": "Lancer la vidéo"
   },
   "schermen": {
     "titel": "De vrais écrans de LANcelot",
@@ -85,9 +84,9 @@
         "tekst": "Des outils de classe au tableau : tirage au sort, groupes, minuteur, sonomètre, dés et responsabilités."
       },
       {
-        "id": "kronieken",
-        "naam": "Les Chroniques",
-        "tekst": "Tes manuels, ta planification et ta classe : enseigner, suivre et rendre compte."
+        "id": "burcht",
+        "naam": "Ma classe",
+        "tekst": "Ta liste de classe, les objectifs du programme de ton pays ou les tiens, les tâches par élève et les résultats."
       }
     ]
   },
@@ -154,7 +153,7 @@
   },
   "opvolgen": {
     "titel": "Suivi, accompagnement et bulletins",
-    "tekst": "Chaque réponse va dans le journal, liée aux objectifs du programme. Tu vois tout de suite qui a besoin d’aide, et ton bulletin se remplit presque tout seul.",
+    "tekst": "Chaque réponse va dans le journal, liée aux objectifs que tu choisis. Tu vois tout de suite qui a besoin d'aide.",
     "lijst": [
       {
         "id": "zorg",
@@ -167,14 +166,14 @@
         "tekst": "Prépare un quiz ou une fiche pour un élève ou un petit groupe, chacun à son niveau. Aussi depuis la maison."
       },
       {
-        "id": "zegelrol",
-        "naam": "Le Rouleau scellé : ton bulletin",
-        "tekst": "Les tests y arrivent tout seuls, par matière. Tu ajoutes les symboles, les commentaires et le logo de ton école."
+        "id": "doelen",
+        "naam": "Les objectifs de ton pays",
+        "tekst": "Choisis les objectifs de l'Angleterre, des États-Unis, des Pays-Bas, de l'Allemagne, de la France ou de la Flandre, ou ajoute les tiens. Une IA peut les proposer. Travailler sans objectifs, c'est possible aussi."
       },
       {
-        "id": "postduif",
-        "naam": "Le Pigeon voyageur : une lettre pour la maison",
-        "tekst": "Par élève, une lettre avec le test corrigé, ce qui va déjà bien, ce qu’il faut encore exercer et des nouvelles de la classe."
+        "id": "proef",
+        "naam": "Évaluations avec corrigé",
+        "tekst": "Crée une évaluation dans la Forge, fais-la passer en ligne ou imprime-la. Les points arrivent tout seuls dans ton aperçu."
       }
     ]
   },
@@ -235,7 +234,7 @@
   },
   "download": {
     "titel": "Fais entrer LANcelot dans ta classe",
-    "tekst": "LANcelot sera bientôt disponible pour les enseignants et les écoles.",
+    "tekst": "LANcelot arrive bientôt sur le Microsoft Store. Le premier mois, tu essaies tout en version complète.",
     "noot": "Il te faut seulement un PC Windows en classe. Les élèves jouent dans leur navigateur."
   },
   "faq": {
@@ -243,7 +242,11 @@
     "lijst": [
       {
         "v": "Quand pourrai-je utiliser LANcelot ?",
-        "a": "LANcelot sera bientôt disponible. Ce site sera le premier à te le dire."
+        "a": "LANcelot arrive bientôt sur le Microsoft Store, avec un mois d'essai où tout fonctionne. Ce site te dira en premier quand ce sera prêt."
+      },
+      {
+        "v": "LANcelot fonctionne-t-il avec les objectifs de mon pays ?",
+        "a": "Oui. Dans Ma classe, choisis les objectifs de ton pays, ajoute les tiens ou travaille sans objectifs. Chaque réponse se range alors sous le bon objectif dans ton aperçu."
       },
       {
         "v": "Ai-je besoin d’internet ?",

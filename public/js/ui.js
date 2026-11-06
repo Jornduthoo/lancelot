@@ -554,13 +554,15 @@
   // ---------- Snel naar ----------
   // Op elk leerkrachtenscherm naast het logo: de vijf rijken (het logo zelf is Start). Zo ben je als leerkracht met één klik overal.
   // Het rijk waar je nu bent, licht op. Loopt er een spel, dan eerst even vragen (het spel loopt gewoon door).
-  const RIJKEN = [['arena', 'Arena', 'arena'], ['tafel', 'Ronde Tafel', 'ronde-tafel'], ['smidse', 'Smidse', 'smidse'], ['wapenkamer', 'Wapenkamer', 'wapenkamer'], ['kronieken', 'Kronieken', 'kronieken']];
+  // In de Store-versie heet het vijfde rijk "Mijn klas" (zonder De Kronieken).
+  const RIJKEN = [['arena', 'Arena', 'arena'], ['tafel', 'Ronde Tafel', 'ronde-tafel'], ['smidse', 'Smidse', 'smidse'], ['wapenkamer', 'Wapenkamer', 'wapenkamer'],
+    window.LANCELOT_STORE ? ['kronieken', 'Mijn klas', 'burcht'] : ['kronieken', 'Kronieken', 'kronieken']];
   const PAD_RIJK = {
     tafel: ['rondetafel', 'kringgesprek', 'ontdek-beheer', 'runenraadsel'],
     smidse: ['oefenblad', 'proef', 'reeks'],
     wapenkamer: ['wapenkamer'],
-    kronieken: ['kronieken', 'zonnewijzer', 'zegelrol', 'postduif'],
-    geen: ['host', 'klas', 'zorg', 'taken', 'netwerk', 'welkom', 'privacy', 'koppel'],
+    kronieken: ['kronieken', 'zonnewijzer', 'zegelrol', 'postduif', ...(window.LANCELOT_STORE ? ['klas', 'zorg', 'taken'] : [])],
+    geen: ['host', 'netwerk', 'welkom', 'privacy', 'koppel', ...(window.LANCELOT_STORE ? [] : ['klas', 'zorg', 'taken'])],
   };
   function rijkHier() {
     const pad = location.pathname.replace(/^\/+/, '') || 'host';
@@ -576,7 +578,7 @@
     nav.className = 'snelmenu';
     nav.setAttribute('aria-label', 'Snel naar');
     nav.innerHTML = `${
-      RIJKEN.map(([id, naam, ic]) => `<a href="/host#${id}" data-rijk="${id}" title="Naar De ${naam}"><img src="/img/icons/${ic}.webp" alt=""><span>${naam}</span></a>`).join('')}`;
+      RIJKEN.map(([id, naam, ic]) => `<a href="/host#${id}" data-rijk="${id}" title="${id === 'kronieken' && window.LANCELOT_STORE ? naam : `Naar De ${naam}`}"><img src="/img/icons/${ic}.webp" alt=""><span>${naam}</span></a>`).join('')}`;
     brand.after(nav);
     snelMarkeer = () => { const r = rijkHier(); for (const a of nav.querySelectorAll('[data-rijk]')) a.classList.toggle('on', a.dataset.rijk === r); };
     snelMarkeer();
@@ -623,6 +625,29 @@
 
   // Tekst naar het klembord, meteen bij de klik (vóór een window.open: daarna heeft de pagina de focus niet meer).
   // Werkt ook op gewone http via het schoolnetwerk, waar navigator.clipboard vaak ontbreekt.
+  // Het kader van elke AI-opdracht: waar de leerkracht lesgeeft, in welke taal de AI schrijft en welke context ze gebruikt.
+  // De taal van het scherm bepaalt de taal van de inhoud; de gekozen leerplandoelen (Mijn klas > Doelen) het land, als ze bij die taal passen.
+  // In het Nederlands met Vlaamse of geen doelen blijft alles zoals altijd: Vlaanderen, Belgisch onderwijs.
+  // De taalopdracht bovenaan ("Write everything in English") zet I18n.aiPrompt (i18n.js) of taal.aiPrompt (server) erbij.
+  const AI_LAND = {
+    be: ['Vlaanderen', 'Belgisch onderwijs', 'het Nederlands zoals in Vlaanderen', 'Gebruik de Belgische schrijfwijze en context: komma als decimaalteken, euro, Belgische namen en plaatsen, Vlaamse woorden.', n => `${n}e leerjaar`],
+    nl: ['Nederland', 'Nederlands basisonderwijs', 'het Nederlands zoals in Nederland', 'Gebruik de Nederlandse schrijfwijze en context: komma als decimaalteken, euro, Nederlandse namen en plaatsen.', n => `groep ${n + 2}`],
+    en: ['Engeland', 'Engels primair onderwijs', 'Brits Engels', 'Gebruik Britse spelling en context: punt als decimaalteken, pond, Britse namen en plaatsen.', n => `Year ${n + 1}`],
+    us: ['de Verenigde Staten', 'Amerikaans basisonderwijs', 'Amerikaans Engels', 'Gebruik Amerikaanse spelling en context: punt als decimaalteken, dollar, Amerikaanse namen en plaatsen.', n => `Grade ${n}`],
+    fr: ['Frankrijk', 'Frans basisonderwijs', 'het Frans', 'Gebruik de Franse schrijfwijze en context: komma als decimaalteken, euro, Franse namen en plaatsen.', n => ['CP', 'CE1', 'CE2', 'CM1', 'CM2', '6e'][n - 1]],
+    de: ['Duitsland', 'Duitse Grundschule', 'het Duits', 'Gebruik de Duitse schrijfwijze en context: komma als decimaalteken, euro, Duitse namen en plaatsen.', n => `Klasse ${n}`],
+    es: ['Spanje', 'Spaans basisonderwijs', 'het Spaans', 'Gebruik de Spaanse schrijfwijze en context: komma als decimaalteken, euro, Spaanse namen en plaatsen.', n => `${n}.º de Primaria`],
+  };
+  const AI_PAST = { nl: ['be', 'nl'], en: ['en', 'us'], fr: ['fr'], es: ['es'], de: ['de'] };
+  function aiKader() {
+    const taal = AI_PAST[window.LANCELOT_TAAL] ? window.LANCELOT_TAAL : 'nl';
+    const land = AI_PAST[taal].includes(window.LANCELOT_DOELLAND) ? window.LANCELOT_DOELLAND : AI_PAST[taal][0];
+    const [waar, onderwijs, schrijftaal, context, jaar] = AI_LAND[land];
+    // "5e leerjaar" (de keuzelijst van de makers) wordt de jaarnaam van dat land; andere niveaus blijven zoals ze zijn.
+    const niveau = level => { const m = /^([1-6])e leerjaar$/.exec(String(level || '').trim()); return m ? jaar(Number(m[1])) : level; };
+    return { waar, onderwijs, taal: schrijftaal, context, niveau };
+  }
+
   function kopieer(tekst) {
     // Een AI-prompt krijgt in een andere taal dan Nederlands de taalopdracht vooraan (zie i18n.js).
     if (window.I18n && I18n.aiPrompt) tekst = I18n.aiPrompt(tekst);
@@ -647,6 +672,7 @@
   window.Ui = {
     tabs,
     kopieer,
+    aiKader,
     vraag: (tekst, o = {}) => wachtrij(tekst, [
       { tekst: o.nee || 'Annuleren', klas: 'secondary', waarde: false },
       { tekst: o.ja || 'Ja', klas: o.gevaar ? 'danger' : '', waarde: true },

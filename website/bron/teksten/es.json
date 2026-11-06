@@ -2,7 +2,7 @@
   "taalNaam": "Español",
   "taalWenk": "Esta página también está en español →",
   "titel": "LANcelot · Cuestionarios, encuestas y juegos de clase en tu propia red del aula",
-  "omschrijving": "App de clase para profesores: cuestionarios en directo, encuestas, {n} juegos y fichas con IA. Funciona en el PC de tu aula y los alumnos juegan desde el navegador.",
+  "omschrijving": "App de clase para profesores: cuestionarios en directo, encuestas, {n} juegos, fichas con IA y exámenes. Funciona en el PC de tu aula y los alumnos juegan desde el navegador.",
   "nav": {
     "hallen": "Qué incluye",
     "spellen": "Juegos",
@@ -22,7 +22,7 @@
   "punten": [
     {
       "titel": "Todo en uno",
-      "tekst": "Cuestionarios, encuestas, juegos, fichas y herramientas de aula en una sola app."
+      "tekst": "Cuestionarios, encuestas, juegos, fichas, exámenes y herramientas de aula en una sola app."
     },
     {
       "titel": "Local",
@@ -52,8 +52,7 @@
   },
   "video": {
     "titel": "Mira LANcelot en acción",
-    "knop": "Ver el vídeo",
-    "noot": "El vídeo está en YouTube. Tu navegador solo se conecta a YouTube cuando pulsas reproducir."
+    "knop": "Ver el vídeo"
   },
   "schermen": {
     "titel": "Pantallas reales de LANcelot",
@@ -85,9 +84,9 @@
         "tekst": "Herramientas de aula en la pizarra: sorteo, grupos, temporizador, medidor de ruido, dados y tareas de clase."
       },
       {
-        "id": "kronieken",
-        "naam": "Las Crónicas",
-        "tekst": "Tus libros, tu planificación y tu clase: enseñar, hacer seguimiento e informar."
+        "id": "burcht",
+        "naam": "Mi clase",
+        "tekst": "Tu lista de clase, los objetivos curriculares de tu país o los tuyos, tareas por alumno y los resultados."
       }
     ]
   },
@@ -154,7 +153,7 @@
   },
   "opvolgen": {
     "titel": "Seguimiento, apoyo e informes",
-    "tekst": "Cada respuesta va al registro, vinculada a los objetivos del currículo. Ves enseguida quién necesita ayuda y tu informe casi se rellena solo.",
+    "tekst": "Cada respuesta va al registro, vinculada a los objetivos que elijas. Ves enseguida quién necesita ayuda extra.",
     "lijst": [
       {
         "id": "zorg",
@@ -167,14 +166,14 @@
         "tekst": "Asigna un cuestionario o una ficha a un alumno o a un grupo pequeño, cada uno a su nivel. También desde casa."
       },
       {
-        "id": "zegelrol",
-        "naam": "El Rollo sellado: tu informe",
-        "tekst": "Los exámenes entran solos, por asignatura. Tú añades los símbolos, los comentarios y el logo de tu colegio."
+        "id": "doelen",
+        "naam": "Objetivos de tu país",
+        "tekst": "Elige los objetivos de Inglaterra, EE. UU., Países Bajos, Alemania, Francia o Flandes, o añade los tuyos. Una IA puede proponerlos. También puedes trabajar sin objetivos."
       },
       {
-        "id": "postduif",
-        "naam": "La Paloma mensajera: una carta para casa",
-        "tekst": "Por alumno, una carta con el examen corregido, lo que ya sale bien, lo que hay que practicar y noticias de la clase."
+        "id": "proef",
+        "naam": "Exámenes con hoja de corrección",
+        "tekst": "Crea un examen en la Forja, hazlo en línea o imprímelo. Las notas llegan solas a tu resumen."
       }
     ]
   },
@@ -235,7 +234,7 @@
   },
   "download": {
     "titel": "Lleva LANcelot a tu aula",
-    "tekst": "LANcelot estará disponible muy pronto para profesores y colegios.",
+    "tekst": "LANcelot llegará pronto a Microsoft Store. Durante el primer mes lo pruebas todo completo.",
     "noot": "Solo necesitas un PC con Windows en el aula. Los alumnos juegan desde el navegador."
   },
   "faq": {
@@ -243,7 +242,11 @@
     "lijst": [
       {
         "v": "¿Cuándo podré usar LANcelot?",
-        "a": "LANcelot estará disponible muy pronto. Esta web será la primera en anunciarlo."
+        "a": "LANcelot llegará pronto a Microsoft Store, con un mes de prueba en el que todo funciona. En esta web te enterarás primero."
+      },
+      {
+        "v": "¿Funciona LANcelot con los objetivos de mi país?",
+        "a": "Sí. En Mi clase eliges los objetivos curriculares de tu país, añades los tuyos o trabajas sin objetivos. Cada respuesta queda bajo el objetivo correcto en tu resumen. Para España, de momento usa tus propios objetivos o la IA."
       },
       {
         "v": "¿Necesito internet?",

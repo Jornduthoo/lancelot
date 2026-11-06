@@ -40,6 +40,19 @@ $('brand').addEventListener('click', () => {
 });
 // Startscherm: enkel de vijf rijken. Een klik opent het rijk in hun plaats, met bovenaan "Alle rijken" om terug te gaan.
 // Een rijk staat ook in het adres (/host#arena), zodat Terug in de browser en herladen gewoon werken.
+// Store-versie: het vijfde blok heet "Mijn klas" (klaslijst, doelen, taken, resultaten) in plaats van De Kronieken.
+// Meteen bij het laden, zodat ook /host#kronieken de juiste kop toont.
+window.storeBlok = () => {
+  const blok = document.querySelector('.realm[data-realm="kronieken"]');
+  if (!blok || blok.dataset.store) return;
+  blok.dataset.store = '1';
+  blok.querySelector('img').src = '/img/icons/burcht.webp';
+  blok.querySelector('strong').textContent = 'Mijn klas';
+  blok.querySelector('span').textContent = 'Je klaslijst, je doelen, taken per leerling en de resultaten.';
+  blok.querySelector('em').textContent = 'Opvolgen';
+  if (location.hash === '#kronieken') { $('rijk-kop-icoon').src = blok.querySelector('.tile-icon').src; $('rijk-kop-naam').textContent = 'Mijn klas'; }
+};
+if (window.LANCELOT_STORE) window.storeBlok();
 function openRealm(id, scroll) {
   const tegel = id && document.querySelector(`.realm[data-realm="${id}"]`);
   if (!tegel) id = '';

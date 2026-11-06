@@ -16,6 +16,16 @@ Elke nieuwe indiening heeft een hogere versie nodig; standaard komt die uit datu
   Lukt het opvragen niet, dan blokkeert LANcelot niets.
 - Bijwerken doet de Store; de eigen updateknop en de keuze van de gegevensmap verdwijnen.
 - De gegevens staan in `%LOCALAPPDATA%\LANcelot` (zie `installatie.json`) en blijven bij een update staan.
+- Kleiner dan de gewone versie: geen De Kronieken (bordboeken, Zonnewijzer, Zegelrol, Postduif) en geen Vlaams startpakket.
+  Het vijfde blok heet "Mijn klas" (klaslijst, doelen, taken, resultaten). Wat verdwijnt, heeft de klasse `niet-in-store`.
+- Geen leerplandoelen tot de leerkracht er kiest in Mijn klas > Doelen (een land, eigen doelen of geen). Zie `doelen-landen/`.
+- Start in de taal van Windows, met de voorbeelden uit `voorbeelden/<taal>/`.
+
+## Testen naast je gewone LANcelot
+
+Dubbelklik `Test Store-versie.bat` in de map van de app. Die start de Store-versie op poort 3020 met een eigen, lege map
+(`Documenten\LANcelot Store-test`) en een nagebootste licentie naar keuze (proefmaand, laatste week, gekocht, verlopen).
+Je gewone LANcelot en zijn gegevens blijven onaangeroerd.
 
 ## In Partner Center
 

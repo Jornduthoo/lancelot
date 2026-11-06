@@ -1,0 +1,150 @@
+{
+ "bron": "Kerndoelen funderend onderwijs, primair onderwijs (SLO, definitieve conceptversie), data: github.com/slonl/curriculum-fo",
+ "vak": "Engels",
+ "doelen": [
+  {
+   "code": "NL.ENG.33A.1",
+   "vak": "Engels",
+   "leerjaar": 0,
+   "domein": "Communicatie",
+   "cluster": "Kerndoel 33: De leerling communiceert in het Engels.",
+   "tekst": "De leerling toont begrip van beluisterde, bekeken en gelezen Engelstalige teksten: eenvoudige, geïllustreerde fictie-en non-fictie teksten over vertrouwde en alledaagse zaken in eenvoudige standaardtaal."
+  },
+  {
+   "code": "NL.ENG.33A.2",
+   "vak": "Engels",
+   "leerjaar": 0,
+   "domein": "Communicatie",
+   "cluster": "Kerndoel 33: De leerling communiceert in het Engels.",
+   "tekst": "De leerling toont begrip van beluisterde, bekeken en gelezen Engelstalige teksten: onderscheiden van de klanken van het Engels in langzaam en zorgvuldig uitgesproken teksten."
+  },
+  {
+   "code": "NL.ENG.33A.3",
+   "vak": "Engels",
+   "leerjaar": 0,
+   "domein": "Communicatie",
+   "cluster": "Kerndoel 33: De leerling communiceert in het Engels.",
+   "tekst": "De leerling toont begrip van beluisterde, bekeken en gelezen Engelstalige teksten: inzetten en uitbreiden van woordenschat, kennis over taal en kennis van de wereld."
+  },
+  {
+   "code": "NL.ENG.33A.4",
+   "vak": "Engels",
+   "leerjaar": 0,
+   "domein": "Communicatie",
+   "cluster": "Kerndoel 33: De leerling communiceert in het Engels.",
+   "tekst": "De leerling toont begrip van beluisterde, bekeken en gelezen Engelstalige teksten: onderscheiden van relevante informatie uit teksten."
+  },
+  {
+   "code": "NL.ENG.33A.5",
+   "vak": "Engels",
+   "leerjaar": 0,
+   "domein": "Communicatie",
+   "cluster": "Kerndoel 33: De leerling communiceert in het Engels.",
+   "tekst": "De leerling toont begrip van beluisterde, bekeken en gelezen Engelstalige teksten: gebruiken van passende lees- en luisterstrategieën."
+  },
+  {
+   "code": "NL.ENG.33B.1",
+   "vak": "Engels",
+   "leerjaar": 0,
+   "domein": "Communicatie",
+   "cluster": "Kerndoel 33: De leerling communiceert in het Engels.",
+   "tekst": "De leerling spreekt en voert gesprekken in de Engelse taal, afgestemd op doel, publiek en context: overbrengen van vertrouwde en alledaagse informatie, gevoelens en interesses."
+  },
+  {
+   "code": "NL.ENG.33B.2",
+   "vak": "Engels",
+   "leerjaar": 0,
+   "domein": "Communicatie",
+   "cluster": "Kerndoel 33: De leerling communiceert in het Engels.",
+   "tekst": "De leerling spreekt en voert gesprekken in de Engelse taal, afgestemd op doel, publiek en context: actief deelnemen aan eenvoudige gesprekken over vertrouwde en alledaagse onderwerpen."
+  },
+  {
+   "code": "NL.ENG.33B.3",
+   "vak": "Engels",
+   "leerjaar": 0,
+   "domein": "Communicatie",
+   "cluster": "Kerndoel 33: De leerling communiceert in het Engels.",
+   "tekst": "De leerling spreekt en voert gesprekken in de Engelse taal, afgestemd op doel, publiek en context: gebruiken van eenvoudige, vertrouwde woorden, woordcombinaties, uitdrukkingen en zinnen."
+  },
+  {
+   "code": "NL.ENG.33B.4",
+   "vak": "Engels",
+   "leerjaar": 0,
+   "domein": "Communicatie",
+   "cluster": "Kerndoel 33: De leerling communiceert in het Engels.",
+   "tekst": "De leerling spreekt en voert gesprekken in de Engelse taal, afgestemd op doel, publiek en context: gebruiken van passende preek- en gespreksbevorderende strategieën."
+  },
+  {
+   "code": "NL.ENG.33C.1",
+   "vak": "Engels",
+   "leerjaar": 0,
+   "domein": "Communicatie",
+   "cluster": "Kerndoel 33: De leerling communiceert in het Engels.",
+   "tekst": "De leerling schrijft in het Engels, afgestemd op doel, publiek en context: zeer eenvoudige teksten over vertrouwde en alledaagse informatie, gevoelens en interesses."
+  },
+  {
+   "code": "NL.ENG.33C.2",
+   "vak": "Engels",
+   "leerjaar": 0,
+   "domein": "Communicatie",
+   "cluster": "Kerndoel 33: De leerling communiceert in het Engels.",
+   "tekst": "De leerling schrijft in het Engels, afgestemd op doel, publiek en context: deelnemen aan zeer eenvoudige schriftelijke interacties."
+  },
+  {
+   "code": "NL.ENG.33C.3",
+   "vak": "Engels",
+   "leerjaar": 0,
+   "domein": "Communicatie",
+   "cluster": "Kerndoel 33: De leerling communiceert in het Engels.",
+   "tekst": "De leerling schrijft in het Engels, afgestemd op doel, publiek en context: gebruiken van zeer eenvoudige woorden, woordcombinaties, uitdrukkingen en zinnen."
+  },
+  {
+   "code": "NL.ENG.33C.4",
+   "vak": "Engels",
+   "leerjaar": 0,
+   "domein": "Communicatie",
+   "cluster": "Kerndoel 33: De leerling communiceert in het Engels.",
+   "tekst": "De leerling schrijft in het Engels, afgestemd op doel, publiek en context: gebruiken van passende schrijfstrategieën."
+  },
+  {
+   "code": "NL.ENG.34A.1",
+   "vak": "Engels",
+   "leerjaar": 0,
+   "domein": "Taal- en cultuurbewustzijn",
+   "cluster": "Kerndoel 34: De leerling ontwikkelt zich als taal- en cultuurbewuste gebruiker van de Engelse taal.",
+   "tekst": "De leerling verkent passende aanpakken voor het leren van Engels: kennismaken met het leren van en het communiceren in het Engels als vreemde taal."
+  },
+  {
+   "code": "NL.ENG.34A.2",
+   "vak": "Engels",
+   "leerjaar": 0,
+   "domein": "Taal- en cultuurbewustzijn",
+   "cluster": "Kerndoel 34: De leerling ontwikkelt zich als taal- en cultuurbewuste gebruiker van de Engelse taal.",
+   "tekst": "De leerling verkent passende aanpakken voor het leren van Engels: inzetten van digitale hulpmiddelen bij het leren van Engels."
+  },
+  {
+   "code": "NL.ENG.34A.3",
+   "vak": "Engels",
+   "leerjaar": 0,
+   "domein": "Taal- en cultuurbewustzijn",
+   "cluster": "Kerndoel 34: De leerling ontwikkelt zich als taal- en cultuurbewuste gebruiker van de Engelse taal.",
+   "tekst": "De leerling verkent passende aanpakken voor het leren van Engels: inzetten van het eigen meertalige repertoire om Engels te leren: actieve en passieve beheersing van talen, taalvariëteiten, woorden en uitdrukkingen."
+  },
+  {
+   "code": "NL.ENG.34B.1",
+   "vak": "Engels",
+   "leerjaar": 0,
+   "domein": "Taal- en cultuurbewustzijn",
+   "cluster": "Kerndoel 34: De leerling ontwikkelt zich als taal- en cultuurbewuste gebruiker van de Engelse taal.",
+   "tekst": "De leerling verkent culturen van mensen die Engels spreken en van gebieden waar Engels wordt gesproken: verkennen waar, door wie en in welke contexten Engels wordt gebruikt."
+  },
+  {
+   "code": "NL.ENG.34B.2",
+   "vak": "Engels",
+   "leerjaar": 0,
+   "domein": "Taal- en cultuurbewustzijn",
+   "cluster": "Kerndoel 34: De leerling ontwikkelt zich als taal- en cultuurbewuste gebruiker van de Engelse taal.",
+   "tekst": "De leerling verkent culturen van mensen die Engels spreken en van gebieden waar Engels wordt gesproken: vergelijken van de eigen leefwereld met culturele aspecten van mensen die Engels spreken en van gebieden waar Engels wordt gesproken."
+  }
+ ]
+}
