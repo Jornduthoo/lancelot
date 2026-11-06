@@ -113,6 +113,7 @@ svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width:
 .kicker { font: 600 13px var(--tech); letter-spacing: .22em; text-transform: uppercase; color: rgb(var(--k-cyan-l)); }
 .held h1 { font-size: clamp(32px, 5.2vw, 58px); text-shadow: 0 2px 20px rgb(0 0 0 / .6); }
 .lead { font-size: clamp(17px, 2vw, 20px); color: rgb(var(--k-tekst) / .92); max-width: 720px; }
+.wereld { margin: 4px auto 14px; padding: 10px 14px; max-width: 720px; border-left: 3px solid rgb(var(--k-cyan)); background: linear-gradient(90deg, rgb(var(--k-cyan) / .12), transparent); font-family: var(--head); font-weight: 700; font-size: clamp(16px, 1.8vw, 19px); color: rgb(var(--k-goud-l, 255 214 120)); }
 .noot { color: rgb(var(--k-muted)); font-size: 14px; }
 
 /* Drie punten */
