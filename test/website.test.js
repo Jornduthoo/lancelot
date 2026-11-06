@@ -24,7 +24,7 @@ test('website: elke taal heeft een pagina met zijn schermafbeeldingen', () => {
   for (const t of TALEN) {
     const html = fs.readFileSync(path.join(SITE, t === 'nl' ? 'index.html' : `${t}/index.html`), 'utf8');
     assert.match(html, new RegExp(`<html lang="${t}">`));
-    for (const m of html.matchAll(/(?:src|href)="((?:\.\.\/)?(?:img|shots|fonts)\/[^"]+)"/g)) {
+    for (const m of html.matchAll(/(?:src|href)="((?:\.\.\/)?(?:img|shots|fonts)\/[^"?]+)(?:\?v=\w+)?"/g)) {
       const bestand = path.join(t === 'nl' ? SITE : path.join(SITE, t), m[1]);
       assert.ok(fs.existsSync(bestand), `${t}: ${m[1]} ontbreekt`);
     }
@@ -62,7 +62,7 @@ test('website: elk spel heeft een eigen pagina in elke taal, met extra info', ()
       assert.ok(fs.existsSync(f), `${t}: pagina voor ${s.naam} ontbreekt: node website/bron/bouw.js`);
       const html = fs.readFileSync(f, 'utf8');
       assert.ok(!verboden.test(html), `${t}/${s.id}: verboden woord`);
-      for (const m of html.matchAll(/(?:src|href)="((?:\.\.\/)+(?:img|beelden|fonts)\/[^"]+)"/g)) {
+      for (const m of html.matchAll(/(?:src|href)="((?:\.\.\/)+(?:img|beelden|fonts)\/[^"?]+)(?:\?v=\w+)?"/g)) {
         assert.ok(fs.existsSync(path.join(path.dirname(f), m[1])), `${t}/${s.id}: ${m[1]} ontbreekt`);
       }
     }
