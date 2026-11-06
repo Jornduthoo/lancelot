@@ -16,6 +16,18 @@ const NIET_OP_SITE = new Set(CONFIG.nietOpSite || []);
 
 const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
+// Zet ?v=<inhoud> achter eigen beelden, video's en css: een nieuw beeld onder dezelfde naam komt dan meteen door, ook al bewaart de browser ze een week.
+const versieCache = new Map();
+function metVersie(html, doel) {
+  return html.replace(/(=")((?:\.\.\/|[a-z0-9_-]+\/)*[a-z0-9_.-]+\.(?:webp|mp4|png|jpg|css))"/gi, (m, a, rel) => {
+    if (/^(https?:|\/)/.test(rel)) return m;
+    const bestand = path.resolve(path.dirname(doel), rel);
+    if (!versieCache.has(bestand)) versieCache.set(bestand, fs.existsSync(bestand) ? require('crypto').createHash('md5').update(fs.readFileSync(bestand)).digest('hex').slice(0, 8) : '');
+    const v = versieCache.get(bestand);
+    return v ? `${a}${rel}?v=${v}"` : m;
+  });
+}
+
 function appWoorden(taal) {
   if (taal === 'nl') return {};
   const dir = path.join(ROOT, 'lang', taal);
@@ -398,15 +410,15 @@ function bouw() {
     const html = pagina(taal, alle[taal], appWoorden(taal), data, alle);
     const doel = taal === 'nl' ? path.join(SITE, 'index.html') : path.join(SITE, taal, 'index.html');
     fs.mkdirSync(path.dirname(doel), { recursive: true });
-    fs.writeFileSync(doel, html);
-    fs.writeFileSync(path.join(SITE, privacyPad(taal)), privacyPagina(taal, alle[taal], alle));
+    fs.writeFileSync(doel, metVersie(html, doel));
+    { const pp = path.join(SITE, privacyPad(taal)); fs.writeFileSync(pp, metVersie(privacyPagina(taal, alle[taal], alle), pp)); }
     // Een pagina per spel.
     const lijst = data.groepen.flatMap(g => g.spellen);
     const map = path.join(SITE, taal === 'nl' ? '' : taal, 'spellen');
     fs.mkdirSync(map, { recursive: true });
     for (const f of fs.readdirSync(map)) if (f.endsWith('.html')) fs.rmSync(path.join(map, f));
-    lijst.forEach((s, i) => fs.writeFileSync(path.join(map, `${s.id}.html`),
-      spelPagina(taal, alle[taal], appWoorden(taal), data, alle, s, lijst[(i - 1 + lijst.length) % lijst.length], lijst[(i + 1) % lijst.length])));
+    lijst.forEach((s, i) => { const sp = path.join(map, `${s.id}.html`); fs.writeFileSync(sp,
+      metVersie(spelPagina(taal, alle[taal], appWoorden(taal), data, alle, s, lijst[(i - 1 + lijst.length) % lijst.length], lijst[(i + 1) % lijst.length]), sp)); });
   }
   const basis = CONFIG.adres.replace(/\/$/, '');
   fs.writeFileSync(path.join(SITE, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>
