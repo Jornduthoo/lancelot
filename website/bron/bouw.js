@@ -203,6 +203,7 @@ function pagina(taal, t, w, data, alle) {
         <img class="logo" src="${rel}img/logo.webp" alt="LANcelot" width="440" height="400" fetchpriority="high">
         <p class="kicker">${esc(t.hero.kicker)}</p>
         <h1>${esc(vul(t.hero.titel))}</h1>
+        <p class="wereld">${esc(t.hero.wereld)}</p>
         <p class="lead">${esc(t.hero.tekst)}</p>
         <div class="knoppen">
           <a class="knop" href="#download">${esc(t.hero.knop)}</a>
