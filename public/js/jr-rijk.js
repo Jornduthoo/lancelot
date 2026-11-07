@@ -34,7 +34,7 @@
   const opKaart = k => plekken().filter(p => (p.kaart || 1) === k);
   const img = (id, i) => `/img/junior/rijk/${id}/${i + 1}.webp`;
   const sleutel = (id, i) => `${id}:${i}`;
-  const ruim = () => { spel = null; if (wacht) { clearTimeout(wacht); wacht = null; } };
+  const ruim = () => { spel = null; if (wacht) { clearTimeout(wacht); wacht = null; } try { JrRijkSpel.stop(); } catch {} };
 
   function nieuweMand() {
     const p = schud(plekken()).slice(0, 3);
@@ -69,6 +69,7 @@
     ruim();
     const p = plekken().find(x => x.id === id);
     if (!p) return kaart();
+    const doe = window.JrRijkSpel && JrRijkSpel.van(id);
     vak.innerHTML = `<div class="jr-rijk jr-rijk-plaats" style="--bg:url(/img/junior/rijk/${id}/bg.webp);--bg-klein:url(/img/junior/rijk/${id}/bg-klein.webp)">
       <div class="jr-rijk-balk"><button type="button" class="jr-rijk-terug jr-eigen" aria-label="Kaart">🗺️</button><b>${esc(p.naam)}</b>
         <span class="jr-rijk-sterren" data-geen-vertaling></span>
@@ -76,8 +77,10 @@
       ${p.woorden.map((w, i) => { const [x, b, br] = SPOT[i]; return `<button type="button" class="jr-rijk-ding jr-eigen" data-ding="${i}" style="left:${x - br / 2}%;width:${br}%;bottom:${100 - b}%;z-index:${b}"><img src="${img(id, i)}" alt=""><img class="jr-rijk-struik hidden" src="${STRUIK}" alt=""></button>`; }).join('')}
       <p class="jr-rijk-vraag hidden" data-geen-vertaling></p>
       <div class="jr-rijk-paneel hidden" data-geen-vertaling></div>
+      ${doe ? `<button type="button" class="jr-eigen jr-rijk-doe" aria-label="${esc(p.naam)}"><span>${doe.icoon}</span></button>` : ''}
       ${mandHtml()}
     </div>`;
+    if (doe) vak.querySelector('.jr-rijk-doe').addEventListener('click', () => doeStart(p));
     vak.querySelector('.jr-rijk-terug').addEventListener('click', () => kaart(p.kaart || 1));
     vak.querySelectorAll('[data-spel]').forEach(b => b.addEventListener('click', () => ({ zoek: zoekStart, verstop: verstopStart, niet: nietStart, volg: volgStart, memo: memoStart, tel: telStart, schaduw: schaduwStart, weg: wegStart })[b.dataset.spel](p)));
     vak.querySelectorAll('[data-ding]').forEach(b => b.addEventListener('click', () => tik(p, +b.dataset.ding, b)));
@@ -97,6 +100,7 @@
   }
 
   function tik(p, i, b) {
+    if (window.JrRijkSpel && JrRijkSpel.tik(i, b)) return;
     if (!spel) {
       wiebel(b, 'wiebel'); fx('marker');
       const k = sleutel(p.id, i);
@@ -147,6 +151,7 @@
   // ---------- Verstoppertje: kijk goed, alles gaat achter een struik. Waar zat de koe? ----------
   function herstel(p) {
     paneel('');
+    const pd = vak.querySelector('.jr-rijk-plaats'); if (pd) pd.classList.remove('doe-aan');
     const pl = vak.querySelector('.jr-rijk-plaats'); if (pl) pl.classList.remove('memo-aan');
     vak.querySelectorAll('.jr-rijk-ding').forEach(b => { b.classList.remove('weg', 'open', 'vreemd', 'kwijt'); b.querySelector('img').src = img(p.id, +b.dataset.ding); b.querySelector('.jr-rijk-struik').classList.add('hidden'); });
   }
@@ -287,6 +292,17 @@
       if (spel !== mijn) return;
       if (spel.nr >= 3) { const v = vak.querySelector('.jr-rijk-hoort'); if (v) v.classList.add('hidden'); return klaar(); }
       hoortRonde();
+    });
+  }
+
+  // ---------- De doe-opdracht van deze plek (jr-rijk-spel.js): de grote knop rechtsonder. ----------
+  function doeStart(p) {
+    ruim(); herstel(p); ster(0); vraag('');
+    const plaats = vak.querySelector('.jr-rijk-plaats');
+    plaats.classList.add('doe-aan');
+    JrRijkSpel.start({
+      p, plaats, Z, zeg, fx, img, ster, esc, woord,
+      klaar: () => { plaats.classList.remove('doe-aan'); klaar(); },
     });
   }
 

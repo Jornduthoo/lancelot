@@ -1292,3 +1292,86 @@ button.jr-mini-draak:hover { transform: translateY(-2px); }
   .jr-rijk .jr-rijk-memo button { width: 10cqw; height: 10cqw; }
 }
 .jr-map-lijst button { color: #3b2a14; background: #fff4d6; border: 2px solid #e8c77a; font-weight: 700; }
+
+/* ---------- Toverdorp: de doe-opdracht van elke plek (jr-rijk-spel.js) ---------- */
+.jr-rijk .jr-rijk-doe { position: absolute; right: 1.6cqw; bottom: 1.6cqw; z-index: 205; width: max(64px, 10cqw); height: max(64px, 10cqw); min-height: 0; padding: 0; border-radius: 50%; border: max(3px, .5cqw) solid #fff; clip-path: none; background: radial-gradient(circle at 35% 30%, #fff3bf, #ffd43b 45%, #f08c00); box-shadow: 0 .6cqw 0 #d9480f, 0 0 2.4cqw rgb(255 212 59 / .9); font-size: max(30px, 5cqw); animation: jr-doe-puls 1.6s ease-in-out infinite; }
+.jr-rijk-doe span { display: block; line-height: 1; filter: drop-shadow(0 2px 2px rgb(0 0 0 / .3)); }
+@keyframes jr-doe-puls { 0%, 100% { transform: scale(1) rotate(0); } 50% { transform: scale(1.1) rotate(-6deg); } }
+.jr-rijk-plaats.doe-aan .jr-rijk-doe { display: none; }
+.jr-rijk-plaats.doe-aan > .jr-rijk-vraag, .jr-rijk-plaats.doe-aan > .jr-rijk-paneel { display: none; }
+.jr-rijk-plaats.doe-weg .jr-rijk-ding { visibility: hidden; }
+.jr-doe { position: absolute; inset: 0; z-index: 170; touch-action: none; user-select: none; -webkit-user-select: none; }
+.jr-doe img { -webkit-user-drag: none; user-select: none; pointer-events: none; }
+.jr-doe.vorm-zaklamp { pointer-events: none; }
+.jr-doe-vraag { position: absolute; left: 50%; top: 13%; transform: translateX(-50%); margin: 0; display: flex; align-items: center; gap: 1cqw; background: rgb(255 250 235 / .96); color: #2b1d0c; border-radius: 22px; padding: .4cqw 1.6cqw .4cqw .6cqw; font-size: max(16px, 3.2cqw); font-weight: 800; box-shadow: 0 4px 14px rgb(0 0 0 / .25); white-space: nowrap; z-index: 30; pointer-events: none; }
+.jr-doe-vraag img { width: max(40px, 7cqw); height: max(40px, 7cqw); object-fit: contain; }
+.jr-doe-vraag.hidden { display: none; }
+@container (max-width: 720px) { .jr-doe-vraag { top: 25%; font-size: max(14px, 3cqw); } }
+/* krassen */
+.jr-doe-kras { position: absolute; left: 50%; top: 58%; transform: translate(-50%, -50%); width: 40cqw; aspect-ratio: 4 / 3; border-radius: 3cqw; overflow: hidden; background: rgb(255 255 255 / .85); box-shadow: 0 1cqw 3cqw rgb(0 0 0 / .35), inset 0 0 0 .5cqw #fff; }
+.jr-doe-kras img { position: absolute; inset: 10%; width: 80%; height: 80%; object-fit: contain; }
+.jr-doe-kras canvas { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; cursor: grab; transition: opacity .6s; }
+.jr-doe-kras canvas.weg { opacity: 0; pointer-events: none; }
+.jr-doe-kras.ja img { animation: jr-rijk-ja .8s; }
+/* bellen en ballonnen */
+.jr .jr-doe-bel, .jr-lk .jr-doe-bel { position: absolute; width: 12cqw; height: 12cqw; min-height: 0; padding: 0; transform: translate(-50%, -50%); border-radius: 50%; border: .3cqw solid rgb(255 255 255 / .9); clip-path: none; background: radial-gradient(circle at 30% 28%, rgb(255 255 255 / .95) 0 7%, rgb(255 255 255 / .15) 14%, rgb(160 220 255 / .25) 60%, rgb(120 200 255 / .5)); box-shadow: inset 0 0 1.4cqw rgb(255 255 255 / .6), 0 .4cqw 1cqw rgb(0 0 0 / .15); cursor: pointer; }
+.jr-doe-bel img { width: 70%; height: 70%; object-fit: contain; }
+.jr .jr-doe-bel.ballon, .jr-lk .jr-doe-bel.ballon { border-radius: 50% 50% 46% 46% / 55% 55% 45% 45%; height: 14cqw; background: radial-gradient(circle at 32% 28%, rgb(255 255 255 / .7) 0 6%, transparent 16%), var(--kl); border-color: rgb(255 255 255 / .6); }
+.jr-doe-bel.ballon::after { content: ''; position: absolute; left: 50%; top: 100%; width: 2px; height: 7cqw; background: rgb(60 40 20 / .6); }
+.jr-doe-bel.ballon img { width: 62%; height: 62%; background: rgb(255 255 255 / .85); border-radius: 50%; padding: 6%; }
+.jr-doe-bel.plop { animation: jr-doe-plop .35s forwards; }
+@keyframes jr-doe-plop { to { transform: translate(-50%, -50%) scale(1.6); opacity: 0; } }
+/* zaklamp */
+.jr-doe-donker { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(circle at var(--x, 50%) var(--y, 60%), rgb(255 250 200 / .12) 0, transparent 11cqw, rgb(4 6 22 / .94) 15cqw); }
+.jr-rijk-plaats.doe-donker .jr-rijk-ding.gevonden { z-index: 300 !important; filter: drop-shadow(0 0 2cqw #ffe066); }
+/* slepen */
+.jr-doe-ding { position: absolute; width: 12cqw; transform: translate(-50%, -50%); touch-action: none; cursor: grab; transition: transform .2s; }
+.jr-doe-ding img { width: 100%; height: auto; display: block; filter: drop-shadow(0 .5cqw .5cqw rgb(0 0 0 / .3)); }
+.jr-doe-ding.sleept { transform: translate(-50%, -50%) scale(1.15); z-index: 20; cursor: grabbing; transition: none; }
+.jr-doe-ding.terug { transition: left .3s ease, top .3s ease; }
+.jr-doe-ding.in-mand { transform: translate(-50%, -20%) scale(.2); opacity: 0; transition: transform .4s, opacity .4s; }
+.jr-doe-lijstje { position: absolute; left: 2cqw; top: 22%; display: flex; flex-direction: column; gap: 1cqw; background: #fffdf5; border-radius: 1.4cqw; padding: 1.4cqw; box-shadow: 0 .6cqw 1.6cqw rgb(0 0 0 / .3); transform: rotate(-3deg); background-image: repeating-linear-gradient(#fffdf5 0 3.6cqw, #cfe3ff 3.6cqw 3.8cqw); }
+.jr-doe-lijstje span { position: relative; width: 9cqw; height: 9cqw; display: grid; place-items: center; }
+.jr-doe-lijstje span img { width: 100%; height: 100%; object-fit: contain; }
+.jr-doe-lijstje span.vink::after { content: '✔'; position: absolute; inset: 0; display: grid; place-items: center; color: #2f9e44; font-size: 7cqw; font-weight: 900; text-shadow: 0 0 .6cqw #fff; animation: jr-ster-in .5s cubic-bezier(.2,1.6,.4,1); }
+.jr-doe-mand { position: absolute; right: 4cqw; bottom: 3cqw; width: 20cqw; }
+.jr-doe-mand img { width: 100%; display: block; filter: drop-shadow(0 .6cqw .6cqw rgb(0 0 0 / .35)); }
+.jr-doe-mand.ja img { animation: jr-rijk-ja .6s; }
+.jr-doe-vangmand { right: auto; bottom: 2cqw; width: 17cqw; transform: translateX(-50%); }
+/* toren */
+.jr-doe-bak { position: absolute; right: 2cqw; top: 22%; bottom: 4%; display: flex; flex-direction: column; justify-content: space-around; align-items: center; background: rgb(255 250 235 / .7); border-radius: 2cqw; padding: 1cqw; width: 15cqw; }
+.jr-doe-bak .jr-doe-ding { position: relative; left: auto; top: auto; transform: none; }
+.jr-doe-bak .jr-doe-ding.sleept { transform: scale(1.15); }
+.jr-doe-ding.staat { transition: top .3s ease; cursor: default; }
+.jr-doe-ding.staat.ja img { animation: jr-rijk-ja .5s; }
+.jr-doe-ding.valt { animation: jr-doe-val .7s ease-in forwards; }
+@keyframes jr-doe-val { to { transform: translate(-50%, 200%) rotate(80deg); opacity: 0; } }
+/* voeren */
+.jr-doe-dier { position: absolute; left: 62%; top: 50%; width: 30cqw; transform: translate(-50%, -50%); }
+.jr-doe-dier img { width: 100%; display: block; filter: drop-shadow(0 1cqw 1cqw rgb(0 0 0 / .3)); }
+.jr-doe-dier.smul img { animation: jr-doe-smul .8s; }
+.jr-doe-dier.nee img { animation: jr-nee .4s; }
+@keyframes jr-doe-smul { 20% { transform: scale(1.1, .9); } 40% { transform: scale(.95, 1.08); } 60% { transform: scale(1.08, .94); } }
+.jr-doe-ding.opgegeten { transform: translate(-50%, -50%) scale(0); transition: transform .45s; }
+/* puzzel */
+.jr-doe-kader { position: absolute; background-size: 100% 100%; border-radius: 1cqw; outline: .5cqw dashed rgb(255 255 255 / .9); box-shadow: 0 0 0 100vmax rgb(0 0 0 / .15) inset; opacity: .9; filter: grayscale(1) brightness(1.4) opacity(.45); transition: filter .6s; }
+.jr-doe-kader.heel { filter: none; }
+.jr-doe-stuk { position: absolute; transform: translate(-50%, -50%) rotate(var(--d, 0deg)); border: .3cqw solid #fff; border-radius: .6cqw; box-shadow: 0 .6cqw 1.4cqw rgb(0 0 0 / .35); touch-action: none; cursor: grab; }
+.jr-doe-stuk.sleept { transform: translate(-50%, -50%) scale(1.06); z-index: 20; cursor: grabbing; }
+.jr-doe-stuk.terug { transition: left .3s ease, top .3s ease; }
+.jr-doe-stuk.vast { transform: translate(-50%, -50%); border-color: transparent; border-radius: 0; box-shadow: none; transition: transform .2s; }
+/* vangen */
+.jr-doe-val { position: absolute; width: 9cqw; transform: translate(-50%, -50%) rotate(var(--d, 0deg)); pointer-events: none; }
+.jr-doe-val img { width: 100%; display: block; filter: drop-shadow(0 .5cqw .5cqw rgb(0 0 0 / .3)); }
+.jr-doe-val.gevangen { transform: translate(-50%, -50%) scale(0); transition: transform .3s; }
+/* muziek */
+.jr-doe-muziek { position: absolute; left: 50%; top: 58%; transform: translate(-50%, -50%); display: flex; gap: 2.4cqw; }
+.jr .jr-doe-muziek button, .jr-lk .jr-doe-muziek button { width: 17cqw; height: 17cqw; min-height: 0; padding: 1.4cqw; border-radius: 3cqw; border: .8cqw solid var(--kl); clip-path: none; background: #fffdf5; box-shadow: 0 .8cqw 0 rgb(0 0 0 / .2); cursor: pointer; }
+.jr-doe-muziek img { width: 100%; height: 100%; object-fit: contain; }
+.jr-doe-muziek button.licht { animation: jr-doe-licht .55s; }
+@keyframes jr-doe-licht { 30% { transform: scale(1.14) translateY(-1cqw); background: var(--kl); box-shadow: 0 0 3cqw var(--kl); } }
+@container (max-width: 720px) {
+  .jr-doe-vraag { top: 27%; left: 40%; max-width: 56cqw; white-space: normal; text-align: left; line-height: 1.15; }
+  .jr-doe-bak { top: 34%; }
+  .jr-doe-lijstje { top: 30%; }
+}
