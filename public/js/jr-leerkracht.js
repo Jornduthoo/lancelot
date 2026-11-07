@@ -290,7 +290,7 @@ function klas() {
     const d = document.createElement('div');
     d.className = 'jr-klas-kind';
     d.innerHTML = `<button type="button" class="jr-klas-beeld" title="${k.eigen ? 'Eigen symbool' : 'Tik om een ander dier te geven'}"><img src="${k.beeld}" alt=""></button><span>${Junior.esc(k.naam)}</span><em>${k.stickers ? `🏅 ${k.stickers}` : ''}</em>`
-      + `<span class="jr-klas-knoppen"><button type="button" class="jr-sym" title="Eigen symbooltje opladen (zoals aan de kapstok)">📷</button><button type="button" class="jr-jarig-knop ${k.jarig ? 'aan' : ''}" title="Verjaardag">🎂${k.jarig ? `<small data-geen-vertaling>${+k.jarig.slice(3)}/${+k.jarig.slice(0, 2)}</small>` : ''}</button>${k.eigen ? '<button type="button" class="jr-sym-weg" title="Terug naar een dier">✕</button>' : ''}</span>`;
+      + `<span class="jr-klas-knoppen"><button type="button" class="jr-sym jr-eigen" title="Eigen symbooltje opladen (zoals aan de kapstok)">📷</button><button type="button" class="jr-jarig-knop jr-eigen ${k.jarig ? 'aan' : ''}" title="Verjaardag">🎂${k.jarig ? `<small data-geen-vertaling>${+k.jarig.slice(3)}/${+k.jarig.slice(0, 2)}</small>` : ''}</button>${k.eigen ? '<button type="button" class="jr-sym-weg jr-eigen" title="Terug naar een dier">✕</button>' : ''}</span>`;
     d.querySelector('.jr-klas-beeld').addEventListener('click', () => {
       if (k.eigen) return;
       socket.emit('jr-dier', { id: k.id }, res => { if (res && res.kinderen) { kinderen = res.kinderen; klas(); } });
