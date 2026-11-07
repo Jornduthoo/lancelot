@@ -316,6 +316,7 @@
       const v = r.kies(set.vragen);
       return {
         soort: 'kies', zeg: [v.s ? { url: `/junior/stem/${v.s}` } : v.vraag], kop: `<span class="jr-vraagkaart">${esc(v.vraag)}</span>`, eigen: true,
+        scene: v.f ? `<img class="jr-foto jr-vraag-foto" src="/junior/foto/${esc(v.f)}" alt="">` : '',
         opties: v.opties.map((o, i) => ({ html: `${o.f ? `<img class="jr-foto" src="/junior/foto/${esc(o.f)}" alt="">` : o.e ? emoji(esc(o.e), 'jr-emoji-groot') : ''}${o.w ? `<span class="jr-optie-woord">${esc(o.w)}</span>` : ''}`, juist: i === v.juist })),
       };
     },

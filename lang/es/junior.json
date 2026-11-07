@@ -484,5 +484,8 @@
  "Een werkblad op papier met vragen uit dit spel": "Una ficha en papel con preguntas de este juego",
  "Werkblad": "Ficha",
  "Naar de startpagina": "A la página de inicio",
- "De prompt staat klaar. Plak hem in een chatbot (Gemini, ChatGPT of Claude) en plak het antwoord hieronder: het wordt meteen ingelezen.": "El prompt está listo. Pégalo en un chatbot (Gemini, ChatGPT o Claude) y pega la respuesta abajo: se lee enseguida."
+ "De prompt staat klaar. Plak hem in een chatbot (Gemini, ChatGPT of Claude) en plak het antwoord hieronder: het wordt meteen ingelezen.": "El prompt está listo. Pégalo en un chatbot (Gemini, ChatGPT o Claude) y pega la respuesta abajo: se lee enseguida.",
+ "Prent bij de vraag weg": "Quitar la imagen de la pregunta",
+ "Een prent bij de vraag": "Una imagen con la pregunta",
+ "🔍 Zoek een reeks": "🔍 Buscar una serie"
 }

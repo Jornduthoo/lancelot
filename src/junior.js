@@ -522,6 +522,7 @@ function schoonSet(set = {}) {
     const juist = Math.max(0, Math.min(opties.length - 1, Number(v && v.juist) || 0));
     const x = { vraag: kort(v && v.vraag, 160), opties, juist };
     if (v && STEM.test(String(v.s))) x.s = v.s; // eigen stem van de leerkracht
+    if (v && FOTO.test(String(v.f))) { x.f = v.f; x.fb = kort(v.fb, 120); } // een prent bij de vraag zelf
     return x;
   }).filter(v => v.vraag && v.opties.length >= 2).slice(0, MAX_VRAGEN);
   if (!vragen.length) throw new Error('Zet minstens één vraag met twee antwoorden in de reeks.');
