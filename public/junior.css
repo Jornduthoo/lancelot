@@ -1183,7 +1183,7 @@ button.jr-mini-draak:hover { transform: translateY(-2px); }
 .jr-rijk .jr-rijk-plek.wiebel, .jr-rijk .jr-rijk-plek.ja { animation: jr-rijk-ja .7s; }
 .jr-rijk .jr-rijk-plek.nee { animation: jr-nee .4s; }
 .jr-rijk-balk-kaart { left: auto; }
-.jr-rijk-vraag.jr-rijk-hoort { top: 42%; transform: translate(-50%, -50%); display: flex; align-items: center; gap: 1cqw; padding: .6cqw 1.6cqw .6cqw .6cqw; z-index: 220; pointer-events: none; animation: jr-ster-in .5s cubic-bezier(.2,1.6,.4,1); }
+.jr-rijk-vraag.jr-rijk-hoort { top: 48%; transform: translate(-50%, -50%); display: flex; align-items: center; gap: 1cqw; padding: .6cqw 1.6cqw .6cqw .6cqw; z-index: 220; pointer-events: none; animation: jr-ster-in .5s cubic-bezier(.2,1.6,.4,1); }
 .jr-rijk-vraag.jr-rijk-hoort.hidden { display: none; }
 .jr-rijk-hoort img { width: max(56px, 11cqw); height: max(56px, 11cqw); object-fit: contain; filter: drop-shadow(0 4px 6px rgb(0 0 0 / .3)); }
 .jr-rijk-hoort span { font-size: max(16px, 2.8cqw); }
