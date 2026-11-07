@@ -495,7 +495,7 @@ function burchtTeken() {
     const b = document.createElement('button');
     b.type = 'button';
     const stuk = d.plek[i];
-    b.className = `jr-plek ${stuk ? 'vol' : 'leeg'} ${burcht.plek === i ? 'aan' : ''}`;
+    b.className = `jr-plek ${stuk ? 'vol' : 'jr-leeg'} ${burcht.plek === i ? 'aan' : ''}`;
     b.style.left = x + '%';
     b.style.top = y + '%';
     b.style.zIndex = Math.round(y);
