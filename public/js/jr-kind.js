@@ -4,7 +4,7 @@
 const socket = io();
 const $ = id => document.getElementById(id);
 const J = () => window.JR || { zin: {}, dieren: [] };
-const SCHERMEN = ['jr-wacht', 'jr-kies', 'jr-spel', 'jr-beloning', 'jr-naar-bord', 'jr-kring', 'jr-apart'];
+const SCHERMEN = ['jr-wacht', 'jr-kies', 'jr-spel', 'jr-beloning', 'jr-naar-bord', 'jr-kring', 'jr-apart', 'jr-burcht'];
 
 let stand = { actief: false };
 let kinderen = [];
@@ -19,6 +19,8 @@ let kringVraag = -1;
 let apart = null;
 // Met twee op een tablet, maar er is maar één kind: dan speelt het alleen (knop 'Ik speel alleen').
 let alleen = false;
+// Mijn burcht: { van: 'wacht' of 'beloning', wie: kind-id, data, plek }. Van het beginscherm: eerst je dier aantikken.
+let burcht = null;
 try { apart = JSON.parse(sessionStorage.getItem('jr-apart') || 'null'); } catch { apart = null; }
 const S = () => (apart ? { ...stand, actief: true, spel: apart.spel, niveau: apart.niveau, seed: apart.seed, manier: 'beurt', perRonde: apart.raadsel ? 3 : 5 } : stand);
 
@@ -71,7 +73,7 @@ function afmelden() {
   route();
 }
 
-function nodig() { return S().manier === 'duo' && S().spel !== 'kring' && !alleen ? 2 : 1; }
+function nodig() { return !burcht && S().manier === 'duo' && S().spel !== 'kring' && !alleen ? 2 : 1; }
 
 function kiesScherm() {
   toon('jr-kies');
@@ -244,6 +246,12 @@ function route() {
   balk();
   $('jr-apart-stop').classList.toggle('hidden', !apart || !!apart.raadsel);
   $('jr-raadsel-stop').classList.toggle('hidden', !(apart && apart.raadsel));
+  if (burcht) {
+    if (burcht.van === 'wacht') ik = ik.filter(id => kind(id)).slice(0, 1);
+    if (!ik.length) { kiesScherm(); return; }
+    burchtScherm();
+    return;
+  }
   if (apart) {
     ik = ik.filter(id => kind(id)).slice(0, 1);
     if (!ik.length) { kiesScherm(); return; }
@@ -372,6 +380,7 @@ socket.on('jr-stand', s => {
   stand = s;
   if (nieuw) {
     alleen = false;
+    if (burcht && stand.actief) { if (burcht.van === 'wacht') { ik = []; bewaarIk(); } burcht = null; }
     if (huidig) huidig.stop();
     huidig = null;
     ronde = null;
@@ -395,3 +404,97 @@ socket.on('jr-weg', () => afmelden());
 Junior.schaal($('jr-vak'));
 route();
 socket.on('jr-sets', lijst => { if (window.JR && Array.isArray(lijst)) JR.sets = lijst; });
+
+// ---------- Mijn burcht ----------
+// Het burchtplein met 9 plekjes (achteraan kleiner). Tik op een plekje, kies een gebouw: het kost stenen.
+const PLEKKEN = [[30, 45, 0.75], [50, 43, 0.75], [70, 45, 0.75], [18, 61, 0.88], [38, 60, 0.88], [62, 58, 0.88], [82, 61, 0.88], [27, 77, 1], [73, 77, 1]];
+function burchtOpen(van) {
+  try { sfx.unlock(); } catch {}
+  if (huidig) huidig.stop();
+  huidig = null;
+  burcht = { van, wie: van === 'wacht' ? null : ik[0], data: null, plek: -1 };
+  if (van === 'wacht') { ik = []; gekozen = []; }
+  route();
+}
+function burchtScherm() {
+  if (!burcht.wie || !ik.includes(burcht.wie)) burcht.wie = ik[0];
+  toon('jr-burcht');
+  $('jr-burcht-lade').classList.add('hidden');
+  const wie = ik.map(kind).filter(Boolean);
+  // Met twee: tik op het andere dier om de burcht van je maatje te zien.
+  $('jr-burcht-wie').innerHTML = '';
+  for (const k of wie.length > 1 ? wie : []) {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = `jr-burcht-kind ${k.id === burcht.wie ? 'aan' : ''}`;
+    b.innerHTML = `${dierImg(k)}<b>${Junior.esc(k.naam)}</b>`;
+    b.addEventListener('click', () => { burcht.wie = k.id; burcht.data = null; burchtScherm(); });
+    $('jr-burcht-wie').appendChild(b);
+  }
+  if (burcht.data) { burchtTeken(); return; }
+  socket.emit('jr-burcht', { id: burcht.wie }, res => {
+    if (!burcht || !res || res.error) return;
+    const eerste = !burcht.data;
+    burcht.data = res;
+    burchtTeken();
+    if (eerste) Junior.Stem.zeg([J().zin.burchtUitleg]);
+  });
+}
+function burchtTeken() {
+  const d = burcht.data;
+  $('jr-burcht-stenen').textContent = d.stenen;
+  const plein = $('jr-burcht-plein');
+  plein.innerHTML = '';
+  PLEKKEN.forEach(([x, y, sc], i) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    const stuk = d.plek[i];
+    b.className = `jr-plek ${stuk ? 'vol' : 'leeg'} ${burcht.plek === i ? 'aan' : ''}`;
+    b.style.left = x + '%';
+    b.style.top = y + '%';
+    b.style.zIndex = Math.round(y);
+    b.style.setProperty('--sc', sc);
+    b.innerHTML = stuk ? `<img src="/img/junior/burcht/${stuk}.webp" alt="">` : '<span>+</span>';
+    b.addEventListener('click', () => burchtLade(i));
+    plein.appendChild(b);
+  });
+}
+function burchtLade(i) {
+  burcht.plek = i;
+  burchtTeken();
+  const d = burcht.data;
+  const box = $('jr-burcht-stukken');
+  box.innerHTML = '';
+  for (const s of d.stukken) {
+    const b = document.createElement('button');
+    b.type = 'button';
+    const kan = d.stenen >= s.prijs || d.plek[i] === s.id;
+    b.className = `jr-stuk ${kan ? '' : 'te-duur'} ${d.plek[i] === s.id ? 'aan' : ''}`;
+    b.innerHTML = `<img src="/img/junior/burcht/${s.id}.webp" alt=""><span><img src="/img/junior/burcht/steen.webp" alt="">${s.prijs}</span>`;
+    b.addEventListener('click', () => {
+      if (!kan) { Junior.Stem.even(); Junior.Stem.zeg([J().zin.burchtTeWeinig]); try { sfx.empty(); } catch {} return; }
+      socket.emit('jr-burcht-bouw', { id: burcht.wie, plek: i, stuk: s.id }, res => {
+        if (!burcht || !res || res.error) return;
+        burcht.data = res;
+        burcht.plek = -1;
+        $('jr-burcht-lade').classList.add('hidden');
+        burchtTeken();
+        const nieuw = $('jr-burcht-plein').children[i];
+        if (nieuw) nieuw.classList.add('jr-gebouwd');
+        try { sfx.power(); } catch {}
+        Junior.Stem.zeg([(J().zin.goed || [''])[Math.floor(Math.random() * (J().zin.goed || ['']).length)]]);
+      });
+    });
+    box.appendChild(b);
+  }
+  $('jr-burcht-lade').classList.remove('hidden');
+}
+$('jr-burcht-lade-dicht').addEventListener('click', () => { burcht.plek = -1; $('jr-burcht-lade').classList.add('hidden'); burchtTeken(); });
+$('jr-burcht-knop').addEventListener('click', () => burchtOpen('wacht'));
+$('jr-bouwen').addEventListener('click', () => burchtOpen('beloning'));
+$('jr-burcht-klaar').addEventListener('click', () => {
+  const van = burcht && burcht.van;
+  burcht = null;
+  if (van === 'wacht') { ik = []; gekozen = []; bewaarIk(); socket.emit('jr-login', { ids: [] }); route(); return; }
+  toon('jr-beloning');
+});

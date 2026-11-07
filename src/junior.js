@@ -106,6 +106,7 @@ function load() {
   if (!data.voortgang || typeof data.voortgang !== 'object') data.voortgang = {};
   if (!Array.isArray(data.sets)) data.sets = [];
   if (!data.instellingen || typeof data.instellingen !== 'object') data.instellingen = {};
+  if (!data.burcht || typeof data.burcht !== 'object') data.burcht = {};
   return data;
 }
 function save() {
@@ -326,7 +327,8 @@ function antwoord(id, { vraag, juist, apart } = {}) {
     if (juist) c.g++;
     c.t = new Date().toISOString().slice(0, 10);
   }
-  const gegroeid = juist ? voer(1) : false;
+  burchtVan(id).stenen += juist ? 2 : 1;
+  const gegroeid = juist ? voer(1) : (save(), false);
   const avontuur = juist && !eigen && les.avontuur ? avontuurStap(kind) : null;
   let sticker = null;
   // Het raadsel van vandaag: na de derde opdracht een sticker, maar maar één keer per dag.
@@ -344,7 +346,45 @@ function antwoord(id, { vraag, juist, apart } = {}) {
     if (d.stickers[id].length > 500) d.stickers[id] = d.stickers[id].slice(-500);
     save();
   }
-  return { sticker, gegroeid, draak: draak(), team: kind.team, avontuur };
+  return { sticker, gegroeid, draak: draak(), team: kind.team, avontuur, stenen: burchtVan(id).stenen };
+}
+
+// ---------- Mijn burcht: elk kind bouwt zelf ----------
+// Elke opdracht levert bouwstenen op (2 als het meteen goed is, anders 1). Op de tablet kiest het kind een plekje
+// op het burchtplein en zet daar een gebouw. Een ander gebouw op dezelfde plek kost opnieuw stenen.
+// Prenten: public/img/junior/burcht/<stuk>.webp (1-15) en steen.webp; het plein is bg/burcht.webp.
+const BURCHT_PLEKKEN = 9;
+const BURCHT_STUKKEN = [
+  { id: 13, prijs: 2 }, { id: 11, prijs: 2 }, { id: 14, prijs: 3 }, { id: 10, prijs: 3 }, { id: 9, prijs: 4 },
+  { id: 15, prijs: 4 }, { id: 12, prijs: 5 }, { id: 2, prijs: 5 }, { id: 8, prijs: 5 }, { id: 5, prijs: 6 },
+  { id: 6, prijs: 6 }, { id: 3, prijs: 6 }, { id: 4, prijs: 7 }, { id: 1, prijs: 8 }, { id: 7, prijs: 10 },
+];
+function burchtVan(id) {
+  const d = load();
+  const b = d.burcht[id] || (d.burcht[id] = { stenen: 0, plek: [] });
+  if (!Number.isFinite(b.stenen)) b.stenen = 0;
+  if (!Array.isArray(b.plek)) b.plek = [];
+  b.plek = Array.from({ length: BURCHT_PLEKKEN }, (_, i) => (BURCHT_STUKKEN.some(x => x.id === b.plek[i]) ? b.plek[i] : 0));
+  return b;
+}
+function burcht(id) {
+  if (!kinderen().some(k => k.id === id)) throw new Error('Tik op je dier.');
+  const b = burchtVan(id);
+  return { stenen: b.stenen, plek: b.plek, stukken: BURCHT_STUKKEN };
+}
+function burchtBouw(id, plek, stuk) {
+  if (!kinderen().some(k => k.id === id)) throw new Error('Tik op je dier.');
+  const p = Number(plek);
+  if (!(Number.isInteger(p) && p >= 0 && p < BURCHT_PLEKKEN)) throw new Error('Dat plekje bestaat niet.');
+  const s = BURCHT_STUKKEN.find(x => x.id === Number(stuk));
+  if (!s) throw new Error('Dat gebouw bestaat niet.');
+  const b = burchtVan(id);
+  if (b.plek[p] === s.id) return burcht(id);
+  if (b.stenen < s.prijs) throw new Error('Nog niet genoeg stenen.');
+  b.stenen -= s.prijs;
+  b.plek[p] = s.id;
+  save();
+  return burcht(id);
 }
 
 // Op het bord: een team antwoordde goed.
@@ -460,6 +500,7 @@ module.exports = {
   SPELLEN, AVONTUREN, FASEN, PER_RONDE, RONDES, DIEREN, instellingen, zetInstellingen, STICKERS, DIER_GROEI, dierFase,
   kinderen, wisselDier, zetSymbool, symboolBestand, draak, noemDraak, start, stop, stand, overzicht, antwoord, teamGoed, klasBeloning, stickers,
   kringKies, kringStand, kringVolgende, inhoud, fase, niveausVan,
+  burcht, burchtBouw, BURCHT_PLEKKEN, BURCHT_STUKKEN,
   voortgang, sets, bewaarSet, wisSet, eigenPrompt, leesEigen,
   get actief() { return !!les; },
 };

@@ -26,7 +26,10 @@
     <img class="jr-draak-groot" id="jr-wacht-draak" src="/img/junior/draak/1.webp" alt="">
     <p class="jr-titel">Kijk naar de leerkracht.</p>
     <p class="jr-klein">Het spel begint zo.</p>
-    <button class="jr-knop jr-knop-goud jr-raadsel-knop" id="jr-raadsel-knop" type="button">🧩 Raadsel van vandaag</button>
+    <div class="jr-knoppen">
+      <button class="jr-knop jr-knop-goud jr-raadsel-knop" id="jr-raadsel-knop" type="button">🧩 Raadsel van vandaag</button>
+      <button class="jr-knop jr-burcht-knop" id="jr-burcht-knop" type="button"><img src="/img/junior/burcht/1.webp" alt=""> Mijn burcht</button>
+    </div>
     <div class="jr-voor-leerkracht">
       <button class="jr-apart-knop" id="jr-apart-knop" type="button">🧑‍🏫 Apart oefenen met één kind</button>
       <a class="jr-link" href="/">Naar LANcelot</a>
@@ -52,6 +55,7 @@
       <button class="jr-knop" id="jr-nog" type="button">🔁 Nog een keer</button>
       <button class="jr-knop jr-knop-goud" id="jr-volgende" type="button">👋 Volgende kind</button>
       <button class="jr-knop jr-knop-goud hidden" id="jr-klaar" type="button">✅ Klaar</button>
+      <button class="jr-knop jr-burcht-knop" id="jr-bouwen" type="button"><img src="/img/junior/burcht/1.webp" alt=""> Bouwen</button>
     </div>
   </section>
 
@@ -64,6 +68,19 @@
     <p class="jr-titel" id="jr-kring-vraag" data-geen-vertaling></p>
     <div class="jr-kring-opties" id="jr-kring-opties" data-geen-vertaling></div>
     <p class="jr-klein" id="jr-kring-wie" data-geen-vertaling></p>
+  </section>
+  <!-- Mijn burcht: elk kind bouwt zelf met de stenen die het verdiende. -->
+  <section class="jr-scherm hidden" id="jr-burcht">
+    <div class="jr-burcht-kop">
+      <div class="jr-burcht-wie" id="jr-burcht-wie" data-geen-vertaling></div>
+      <div class="jr-burcht-stenen"><img src="/img/junior/burcht/steen.webp" alt=""><b id="jr-burcht-stenen">0</b></div>
+      <button class="jr-knop jr-knop-goud" id="jr-burcht-klaar" type="button">✅ Klaar</button>
+    </div>
+    <div class="jr-burcht-plein" id="jr-burcht-plein"></div>
+    <div class="jr-burcht-lade hidden" id="jr-burcht-lade">
+      <div class="jr-burcht-stukken" id="jr-burcht-stukken"></div>
+      <button class="jr-knop" id="jr-burcht-lade-dicht" type="button">✕</button>
+    </div>
   </section>
   <section class="jr-scherm hidden" id="jr-apart">
     <div class="jr-apart-paneel">

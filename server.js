@@ -1043,6 +1043,21 @@ io.on('connection', socket => {
       typeof cb === 'function' && cb({ error: err.message });
     }
   });
+  // Mijn burcht (Junior): alleen voor een kind dat op deze tablet is aangemeld.
+  socket.on('jr-burcht', ({ id } = {}, cb) => {
+    if (typeof cb !== 'function') return;
+    try {
+      if (!(socket.data.jr || []).includes(id)) throw new Error('Tik op je dier.');
+      cb({ ok: true, ...junior.burcht(id) });
+    } catch (err) { cb({ error: err.message }); }
+  });
+  socket.on('jr-burcht-bouw', ({ id, plek, stuk } = {}, cb) => {
+    if (typeof cb !== 'function') return;
+    try {
+      if (!(socket.data.jr || []).includes(id)) throw new Error('Tik op je dier.');
+      cb({ ok: true, ...junior.burchtBouw(id, plek, stuk) });
+    } catch (err) { cb({ error: err.message }); }
+  });
   socket.on('jr-stickers', ({ id } = {}, cb) => typeof cb === 'function' && cb({ stickers: (socket.data.jr || []).includes(id) ? junior.stickers(id) : [] }));
   socket.on('jr-kring-kies', ({ id, keuze } = {}, cb) => {
     try {
