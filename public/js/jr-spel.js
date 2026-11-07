@@ -121,24 +121,70 @@
   const KLEUREN = ['#ff6b6b', '#4dabf7', '#ffd43b', '#51cf66', '#cc5de8', '#ff922b'];
   const vorm = (soort, kl, cls = '') => `<span class="jr-vorm ${cls}">${VORMEN[soort](kl)}</span>`;
 
+
+  // De bakjes van een eierdoos (public/img/junior/nest/doos.webp), in procent van het veld, in de volgorde van het tienveld:
+  // eerst de bovenste rij van links naar rechts, dan de onderste rij, dan de volgende doos eronder.
+  const DOOS_X = [11.5, 30.8, 50, 69.2, 88.5];
+  const DOOS_Y = [25.3, 61.9];
+  function doosPlekken(dozen) {
+    const uit = [];
+    for (let d = 0; d < dozen; d++) for (const y of DOOS_Y) for (const x of DOOS_X) uit.push({ x, y: (d * 100 + y) / dozen });
+    return uit;
+  }
+  // Losse eieren op een strobed: willekeurig verspreid, niet op elkaar, elk een beetje scheef.
+  function stroPlekken(r, n) {
+    const uit = [];
+    for (let i = 0; i < n; i++) {
+      let p;
+      for (let poging = 0; poging < 60; poging++) {
+        const hoek = r() * Math.PI * 2;
+        const straal = Math.sqrt(r());
+        p = { x: 50 + Math.cos(hoek) * straal * 34, y: 52 + Math.sin(hoek) * straal * 26, d: Math.round((r() - 0.5) * 50) };
+        if (uit.every(q => Math.hypot((q.x - p.x) * 1.5, q.y - p.y) > 17)) break;
+      }
+      uit.push(p);
+    }
+    return uit.sort((a, b) => a.y - b.y);
+  }
+
   // ---------- De vragen ----------
   // Elke maker geeft een vraag: { soort, zeg, ... }. soort: kies, tikAlle, tikAantal, sleepAantal, volgorde, sorteer.
   const MAKERS = {
     eieren(r, niv) {
+      // Tot 5 (kleuters): echte nesten, de eieren liggen los door elkaar, zoals in een echt nest.
+      // Tot 10 en 20: eierdozen van 10 = het tienveld, gevuld zoals in de klas (eerst de bovenste rij van 5, dan onder).
       const max = [5, 10, 20][niv] || 5;
       const n = r.int(1, max);
       if (r() < 0.5) {
         const extra = r.int(1, Math.min(4, max + 3 - n));
+        const totaal = n + extra;
+        if (niv === 0) {
+          const plekken = stroPlekken(r, totaal);
+          return {
+            soort: 'tikAantal', aantal: n, zeg: [J().zin.eiTik, n],
+            kop: `<span class="jr-groot-getal">${n}</span>`,
+            items: plekken.map(p => ({ html: beeld('stuk/1', 'jr-ei'), stijl: `left:${p.x}%;top:${p.y}%;--draai:${p.d}deg` })),
+            vak: 'jr-stroveld',
+          };
+        }
+        const dozen = Math.ceil(totaal / 10);
+        const plekken = doosPlekken(dozen);
         return {
           soort: 'tikAantal', aantal: n, zeg: [J().zin.eiTik, n],
           kop: `<span class="jr-groot-getal">${n}</span>`,
-          items: Array.from({ length: n + extra }, () => ({ html: beeld('stuk/1', 'jr-ei') })),
-          vak: 'jr-nest',
+          items: Array.from({ length: totaal }, (_, i) => ({ html: beeld('stuk/1', 'jr-ei'), stijl: `left:${plekken[i].x}%;top:${plekken[i].y}%` })),
+          vak: `jr-doosveld jr-dozen-${dozen}`,
         };
       }
+      let scene;
+      if (niv === 0) scene = `<img class="jr-nestprent" src="/img/junior/nest/${n}.webp" alt="">`;
+      else {
+        const dozen = Math.ceil(n / 10);
+        const plekken = doosPlekken(dozen);
+        scene = `<div class="jr-doosveld jr-dozen-${dozen}">${plekken.slice(0, n).map(p => `<span class="jr-doosei" style="left:${p.x}%;top:${p.y}%">${beeld('stuk/1', 'jr-ei')}</span>`).join('')}</div>`;
+      }
       return {
-        soort: 'kies', zeg: [J().zin.eiHoeveel],
-        scene: `<div class="jr-nest jr-nest-vol">${Array.from({ length: n }, () => beeld('stuk/1', 'jr-ei')).join('')}</div>`,
+        soort: 'kies', zeg: [J().zin.eiHoeveel], scene,
         opties: buren(r, n, 1, 1).map(x => ({ html: `<span class="jr-getal">${x}</span>`, juist: x === n })),
       };
     },
@@ -380,6 +426,7 @@
         const k = el('button', 'jr-tik', it.html);
         k.type = 'button';
         if (it.maat) k.style.setProperty('--m', it.maat);
+        if (it.stijl) k.style.cssText += it.stijl;
         k.addEventListener('click', () => {
           if (af) return;
           if (v.soort === 'tikAantal') {

@@ -26,6 +26,8 @@ const bewaarIk = () => { try { sessionStorage.setItem('jr-ik', JSON.stringify(ik
 function toon(id) {
   for (const s of SCHERMEN) $(s).classList.toggle('hidden', s !== id);
   document.body.dataset.scherm = id;
+  // Elk spel heeft zijn eigen geschilderde achtergrond.
+  document.body.dataset.spel = ['jr-spel', 'jr-beloning'].includes(id) && S().actief ? S().spel || '' : '';
 }
 const dierImg = (k, cls = '') => `<img class="${cls}" src="${k.beeld || `/img/junior/dier/${k.dier}.webp`}" alt="">`;
 // Met een eigen symbooltje zegt het draakje de naam van het kind, anders het dier.

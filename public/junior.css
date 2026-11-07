@@ -40,6 +40,8 @@
 .jr-klein { color: #fff; text-shadow: 0 1px 4px rgb(0 0 0 / .6); font-size: 1.1rem; margin: 0; }
 .jr-link { color: #fff; opacity: .8; font-size: .95rem; margin-top: 18px; }
 .jr-draak-groot { width: min(46vw, 260px); height: auto; filter: drop-shadow(0 8px 16px rgb(0 0 0 / .35)); animation: jr-zweef 3.2s ease-in-out infinite; }
+.jr-logo-groot { width: min(52vw, 300px); height: auto; filter: drop-shadow(0 6px 14px rgb(0 0 0 / .35)); }
+#jr-wacht .jr-draak-groot { width: min(30vw, 160px); }
 @keyframes jr-zweef { 50% { transform: translateY(-10px); } }
 
 .jr-dieren { display: grid; grid-template-columns: repeat(auto-fill, minmax(clamp(96px, 17vw, 140px), 1fr)); gap: 12px; width: 100%; max-width: 1100px; padding: 6px; }
@@ -76,7 +78,7 @@
 .jr-mini { width: 32px; height: 32px; vertical-align: middle; }
 
 /* ---------- Het speelveld (tablet en bord) ---------- */
-.jr-vak { position: relative; flex: 1; width: 100%; min-height: 0; display: flex; align-items: stretch; justify-content: center; border-radius: 1.4em; background: rgb(255 248 231 / .62); box-shadow: 0 .3em 1.4em rgb(0 0 0 / .2); padding: .6em; overflow: hidden; }
+.jr-vak { position: relative; flex: 1; width: 100%; min-height: 0; display: flex; align-items: stretch; justify-content: center; border-radius: 1.4em; background: transparent; padding: .6em; overflow: hidden; }
 .jr-kind .jr-vak { min-height: 62vh; }
 .jr-vraag { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: space-evenly; gap: .5em; min-width: 0; }
 .jr-vak.jr-gelukt { animation: jr-gloed .9s ease; }
@@ -88,7 +90,7 @@
 .jr-emoji-reus { font-size: 5em; filter: drop-shadow(0 .08em .12em rgb(0 0 0 / .25)); }
 .jr-groot-getal, .jr-som, .jr-leeswoord { font-family: var(--jr-schrift); font-weight: 800; color: var(--jr-inkt); }
 .jr-groot-getal { font-size: 3.4em; line-height: 1; background: #fff; border-radius: .3em; padding: .05em .35em; box-shadow: 0 .06em 0 #d8c9a3; }
-.jr-som { font-size: 3.2em; letter-spacing: .03em; }
+.jr-som { font-size: 3.2em; letter-spacing: .03em; background: #fff8e7; border-radius: .35em; padding: .05em .45em; box-shadow: 0 .08em 0 #d8c9a3, 0 .15em .4em rgb(0 0 0 / .2); }
 .jr-leeswoord { font-size: 4.4em; background: #fff; border-radius: .25em; padding: .05em .5em; box-shadow: 0 .08em 0 #d8c9a3; letter-spacing: .04em; }
 .jr-luister { font-size: 4em; animation: jr-zweef 1.6s ease-in-out infinite; }
 .jr-getal, .jr-letter { font-family: var(--jr-schrift); font-weight: 800; font-size: 2.8em; line-height: 1; color: var(--jr-inkt); }
@@ -117,16 +119,6 @@
 .jr-op-steen { position: relative; color: #fff; text-shadow: 0 .05em 0 #233, 0 0 .2em #233; }
 .jr-stenen { background: linear-gradient(transparent 15%, rgb(95 225 255 / .35) 40%, rgb(77 171 247 / .45) 70%, transparent 95%); border-radius: 1em; padding: .6em 1em; }
 
-.jr .jr-nest { position: relative; display: flex; flex-wrap: wrap; justify-content: center; align-content: flex-end; gap: .15em; width: 18em; max-width: none; padding: 0 3.2em 3.9em; min-height: 11em;
-  background: url(/img/junior/stuk/2.webp) center bottom / 18em auto no-repeat; }
-/* De voorste rand van het nest ligt over de eieren: zo liggen ze echt in het nest. */
-.jr-nest::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 13.2em; background: url(/img/junior/stuk/2.webp) center bottom / 18em auto no-repeat;
-  clip-path: polygon(0 58%, 20% 64%, 50% 67%, 80% 64%, 100% 58%, 100% 100%, 0 100%); pointer-events: none; z-index: 2; }
-.jr .jr-nest > * { position: relative; z-index: 1; }
-.jr .jr-nest.jr-veel-eieren .jr-ei { width: 1.8em; }
-.jr-nest .jr-ei { width: 2.2em; display: block; }
-.jr .jr-nest .jr-tik { padding: 0; }
-.jr .jr-nest .jr-tik .jr-ei { width: 2.2em; }
 .jr-tikveld { display: flex; flex-wrap: wrap; gap: .5em; justify-content: center; align-items: center; max-width: 24em; }
 .jr-tikveld.jr-veld { max-width: 26em; gap: .8em; }
 .jr .jr-tik { border: 0; background: transparent; padding: .15em; border-radius: 50%; transition: transform .12s ease; }
@@ -213,7 +205,7 @@
 .jr-lk { min-height: 100vh; display: flex; flex-direction: column; color: var(--text); }
 .jr-lk .topbar { background: rgb(18 40 26 / .82); backdrop-filter: blur(6px); }
 .jr-brand { display: flex; align-items: center; gap: 10px; }
-.jr-brand img { width: 52px; height: 52px; object-fit: contain; }
+.jr-brand img { width: 60px; height: 60px; object-fit: contain; }
 .jr-junior { font-style: normal; color: #9be7c4; font-family: var(--jr-schrift); font-weight: 800; margin-left: 4px; }
 .jr-wissel img { width: 22px; height: 22px; vertical-align: middle; margin: -4px 4px -4px -2px; }
 .jr-lk main.jr-lk-hoofd { max-width: 1400px; }
@@ -347,3 +339,43 @@
   .jr-pool-breed > :nth-child(10n+6) { margin-left: 0; }
   .jr-kamer { padding: .25em; }
 }
+
+/* Een eigen geschilderde achtergrond per spel (public/img/junior/bg). */
+.jr[data-spel="eieren"] { background-image: url(/img/junior/bg/eieren.webp); }
+.jr[data-spel="splits"] { background-image: url(/img/junior/bg/splits.webp); }
+.jr[data-spel="rivier"] { background-image: url(/img/junior/bg/rivier.webp); }
+.jr[data-spel="groot"] { background-image: url(/img/junior/bg/groot.webp); }
+.jr[data-spel="dagboog"] { background-image: url(/img/junior/bg/dagboog.webp); }
+.jr[data-spel="vormen"] { background-image: url(/img/junior/bg/vormen.webp); }
+.jr[data-spel="waar"] { background-image: url(/img/junior/bg/waar.webp); }
+.jr[data-spel="geluiden"] { background-image: url(/img/junior/bg/geluiden.webp); }
+.jr[data-spel="trein"] { background-image: url(/img/junior/bg/trein.webp); }
+.jr[data-spel="woordbrug"] { background-image: url(/img/junior/bg/woordbrug.webp); }
+.jr[data-spel="dans"] { background-image: url(/img/junior/bg/dans.webp); }
+.jr[data-spel="kring"] { background-image: url(/img/junior/bg/kring.webp); }
+@media (max-width: 800px) {
+  .jr[data-spel="eieren"] { background-image: url(/img/junior/bg/eieren-klein.webp); }
+  .jr[data-spel="splits"] { background-image: url(/img/junior/bg/splits-klein.webp); }
+  .jr[data-spel="rivier"] { background-image: url(/img/junior/bg/rivier-klein.webp); }
+  .jr[data-spel="groot"] { background-image: url(/img/junior/bg/groot-klein.webp); }
+  .jr[data-spel="dagboog"] { background-image: url(/img/junior/bg/dagboog-klein.webp); }
+  .jr[data-spel="vormen"] { background-image: url(/img/junior/bg/vormen-klein.webp); }
+  .jr[data-spel="waar"] { background-image: url(/img/junior/bg/waar-klein.webp); }
+  .jr[data-spel="geluiden"] { background-image: url(/img/junior/bg/geluiden-klein.webp); }
+  .jr[data-spel="trein"] { background-image: url(/img/junior/bg/trein-klein.webp); }
+  .jr[data-spel="woordbrug"] { background-image: url(/img/junior/bg/woordbrug-klein.webp); }
+  .jr[data-spel="dans"] { background-image: url(/img/junior/bg/dans-klein.webp); }
+  .jr[data-spel="kring"] { background-image: url(/img/junior/bg/kring-klein.webp); }
+}
+
+/* Eieren: een echt nest (tot 5), losse eieren op stro, of eierdozen van 10 (het tienveld). */
+.jr-nestprent { width: 15em; max-width: 80vw; display: block; filter: drop-shadow(0 .3em .5em rgb(0 0 0 / .3)); }
+.jr .jr-stroveld { position: relative; display: block; width: 19em; max-width: none; aspect-ratio: 900 / 607; background: url(/img/junior/nest/stro.webp) center / contain no-repeat; filter: drop-shadow(0 .3em .5em rgb(0 0 0 / .25)); }
+.jr .jr-stroveld .jr-tik { position: absolute; width: 3.1em; padding: .1em; transform: translate(-50%, -60%) rotate(var(--draai, 0deg)); }
+.jr .jr-stroveld .jr-tik.jr-aan { transform: translate(-50%, -60%) rotate(var(--draai, 0deg)) scale(1.1); }
+.jr .jr-stroveld .jr-tik .jr-ei, .jr .jr-doosveld .jr-ei { width: 100%; }
+.jr .jr-doosveld { position: relative; display: block; width: 16em; max-width: none; gap: 0; background: url(/img/junior/nest/doos.webp) top center / 100% auto repeat-y; filter: drop-shadow(0 .3em .5em rgb(0 0 0 / .25)); }
+.jr .jr-doosveld.jr-dozen-1 { aspect-ratio: 700 / 368; }
+.jr .jr-doosveld.jr-dozen-2 { aspect-ratio: 700 / 736; width: 13em; }
+.jr .jr-doosveld .jr-tik, .jr-doosveld .jr-doosei { position: absolute; width: 14%; padding: 0; transform: translate(-50%, -58%); display: block; }
+.jr .jr-doosveld .jr-tik.jr-aan { transform: translate(-50%, -58%) scale(1.08); }

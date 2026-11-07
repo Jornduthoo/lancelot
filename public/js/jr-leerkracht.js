@@ -278,6 +278,7 @@ function toon() {
   $('jr-start').classList.toggle('hidden', loopt);
   $('jr-loopt').classList.toggle('hidden', !loopt);
   $('jr-status').textContent = loopt ? stand.naam : 'Het klasdraakje';
+  document.body.dataset.spel = loopt ? stand.spel : '';
   if (!loopt) {
     if (bord && bord.huidig) bord.huidig.stop();
     bord = null;
