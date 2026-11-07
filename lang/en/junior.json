@@ -154,5 +154,7 @@
  "Junior · {0}": null,
  "LANcelot Junior": null,
  "Junior": null,
- "Naar LANcelot Junior (dezelfde klas)": "To LANcelot Junior (same class)"
+ "Naar LANcelot Junior (dezelfde klas)": "To LANcelot Junior (same class)",
+ "left:{0}%;top:{1}%;--draai:{2}deg": null,
+ "left:{0}%;top:{1}%": null
 }
