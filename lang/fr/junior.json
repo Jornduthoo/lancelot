@@ -529,7 +529,7 @@
  "Voor de kleuterklas tot het 2e leerjaar: spelletjes met prenten en een draakje dat voorleest.": "De la maternelle à la 2e année : jeux en images et un petit dragon qui lit à voix haute.",
  "Je kan later altijd wisselen met de knop bovenaan.": "Tu peux toujours changer plus tard avec le bouton en haut.",
  "Naam van een kind (of plak meerdere namen)": "Le prénom d'un enfant (ou colle plusieurs prénoms)",
- "Elk kind heeft een vast dier. Tik op een dier om het te wisselen, of laad met 📷 het eigen symbooltje van het kind op (zoals aan de kapstok). Met ✏️ verander je een naam, met 🗑️ haal je een kind uit de klas.": "Chaque enfant a son propre animal. Touche un animal pour le changer, ou charge le symbole de l'enfant avec 📷 (comme au portemanteau). Avec ✏️ tu changes un prénom, avec 🗑️ tu retires un enfant de la classe.",
+ "Elk kind heeft een vast dier. Tik op een dier om het te wisselen, of laad met 📷 het eigen symbooltje van het kind op (zoals aan de kapstok). Met ✏️ verander je een naam, met 🗑️ haal je een kind uit de klas. Met 🎚️ speelt een kind op maat: makkelijker, moeilijker of met minder prenten.": "Chaque enfant a son propre animal. Touche un animal pour le changer, ou charge le symbole de l'enfant avec 📷 (comme au portemanteau). Avec ✏️ tu changes un prénom, avec 🗑️ tu retires un enfant de la classe. Avec 🎚️, un enfant joue sur mesure : plus facile, plus difficile ou avec moins d'images.",
  "➕ Toevoegen": "➕ Ajouter",
  "Er staat nog niemand in de klas. Typ hierboven de namen van de kinderen.": "Il n'y a encore personne dans la classe. Tape les prénoms des enfants ci-dessus.",
  "Per kind en per spel: 🌟 gaat goed, 🙂 lukt meestal, 🌱 nog oefenen. Het getal is hoeveel opdrachten het kind deed.": "Par enfant et par jeu : 🌟 ça va bien, 🙂 ça marche souvent, 🌱 encore s'exercer. Le nombre indique combien d'exercices l'enfant a faits.",
@@ -562,5 +562,17 @@
  "stuk/26": null,
  "stuk/27": null,
  "stuk/28": null,
- "stuk/29": null
+ "stuk/29": null,
+ "🎚️ Op maat voor": "🎚️ Sur mesure pour",
+ "Dit kind speelt hetzelfde spel als de klas, maar een niveau makkelijker of moeilijker.": "Cet enfant joue au même jeu que la classe, mais un niveau plus facile ou plus difficile.",
+ "Makkelijker": "Plus facile",
+ "Zoals de klas": "Comme la classe",
+ "Prenten om uit te kiezen": "Images au choix",
+ "Minder: het kind kiest tussen 2 prenten in plaats van 3 of 4.": "Moins : l'enfant choisit entre 2 images au lieu de 3 ou 4.",
+ "Gewoon": "Normal",
+ "Minder": "Moins",
+ "🌙 Rustig": "🌙 Calme",
+ "Voor kinderen die snel overprikkeld raken: niets beweegt, geen confetti, geen geluidjes of muziek, zachte kleuren en een tragere stem.": "Pour les enfants vite surstimulés : rien ne bouge, pas de confettis, pas de sons ni de musique, des couleurs douces et une voix plus lente.",
+ "Op maat: niveau en aantal prenten voor dit kind": "Sur mesure : niveau et nombre d'images pour cet enfant",
+ "Minder prenten": "Moins d'images"
 }

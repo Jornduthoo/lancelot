@@ -138,7 +138,7 @@
       </div>
       <div class="panel jr-klas" id="jr-klas">
         <p class="title">🐾 De dieren van de klas</p>
-        <p class="muted small">Elk kind heeft een vast dier. Tik op een dier om het te wisselen, of laad met 📷 het eigen symbooltje van het kind op (zoals aan de kapstok). Met ✏️ verander je een naam, met 🗑️ haal je een kind uit de klas.</p>
+        <p class="muted small">Elk kind heeft een vast dier. Tik op een dier om het te wisselen, of laad met 📷 het eigen symbooltje van het kind op (zoals aan de kapstok). Met ✏️ verander je een naam, met 🗑️ haal je een kind uit de klas. Met 🎚️ speelt een kind op maat: makkelijker, moeilijker of met minder prenten.</p>
         <form class="jr-klas-erbij" id="jr-klas-erbij"><input id="jr-klas-nieuw" maxlength="600" autocomplete="off" placeholder="Naam van een kind (of plak meerdere namen)"><button type="submit" class="jr-eigen jr-klas-plus">➕ Toevoegen</button></form>
         <div class="jr-klas-rooster" id="jr-klas-rooster" data-geen-vertaling></div>
         <div class="actions"><button class="secondary" id="jr-print">🖨️ Kaartjes printen</button><button class="secondary" id="jr-diplomas">📜 Diploma's printen</button></div>
@@ -321,6 +321,20 @@
   <p class="jr-foto-klein">Op die dag staat het kind in de kijker op het bord, met een kroon op het dier.</p>
   <div class="actions"><button class="secondary" id="jr-jarig-wis" type="button">Wissen</button><button class="secondary" id="jr-jarig-dicht" type="button">Annuleren</button><button class="gold" id="jr-jarig-bewaar" type="button">Bewaren</button></div>
 </dialog>
+<dialog class="jr-foto-venster jr-maat-venster" id="jr-maat-venster">
+  <h2>🎚️ Op maat voor <span id="jr-maat-naam" data-geen-vertaling></span></h2>
+  <p class="jr-kv-label">Niveau</p>
+  <p class="jr-foto-klein">Dit kind speelt hetzelfde spel als de klas, maar een niveau makkelijker of moeilijker.</p>
+  <div class="jr-kv-keuzes" id="jr-maat-stap">
+    <button type="button" data-w="-1">Makkelijker</button><button type="button" data-w="0">Zoals de klas</button><button type="button" data-w="1">Moeilijker</button>
+  </div>
+  <p class="jr-kv-label">Prenten om uit te kiezen</p>
+  <p class="jr-foto-klein">Minder: het kind kiest tussen 2 prenten in plaats van 3 of 4.</p>
+  <div class="jr-kv-keuzes" id="jr-maat-minder">
+    <button type="button" data-w="0">Gewoon</button><button type="button" data-w="1">Minder</button>
+  </div>
+  <div class="actions"><button class="gold" id="jr-maat-dicht" type="button">Klaar</button></div>
+</dialog>
 <dialog class="jr-foto-venster" id="jr-foto-venster">
   <h2>📷 Echte foto zoeken</h2>
   <div class="jr-foto-rij"><input id="jr-foto-woord" maxlength="60" placeholder="bijvoorbeeld: koe"><button class="gold" id="jr-foto-zoek" type="button">Zoeken</button></div>
@@ -345,6 +359,11 @@
   <p class="jr-kv-label">Voorlezen op de tablets</p>
   <p class="jr-inst-uitleg">Uit: het draakje leest alleen voor als een kind op 🔊 tikt.</p>
   <div class="jr-kv-keuzes" id="jr-inst-voorlezen">
+    <button type="button" data-w="1">Aan</button><button type="button" data-w="0">Uit</button>
+  </div>
+  <p class="jr-kv-label">🌙 Rustig</p>
+  <p class="jr-inst-uitleg">Voor kinderen die snel overprikkeld raken: niets beweegt, geen confetti, geen geluidjes of muziek, zachte kleuren en een tragere stem.</p>
+  <div class="jr-kv-keuzes" id="jr-inst-rustig">
     <button type="button" data-w="1">Aan</button><button type="button" data-w="0">Uit</button>
   </div>
   <p class="jr-kv-label">Dieren groeien mee</p>

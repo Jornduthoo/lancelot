@@ -5,6 +5,35 @@
 // Alle tekst en alles wat gezegd wordt, komt uit window.JR (src/junior-inhoud*.js via /junior/inhoud.js).
 (() => {
   const J = () => window.JR || { zin: {}, stemmen: [] };
+  // Rustig (buitengewoon onderwijs, kinderen die snel overprikkeld raken): de leerkracht zet het aan bij ⚙️.
+  // Geen bewegende prentjes, geen confetti, geen geluidjes of muziek, zachtere kleuren en een tragere stem.
+  let rustig = false;
+  const stil = new Map(); // object -> { naam: echte functie } zolang Rustig aan staat
+  function dempen(obj, aan) {
+    if (!obj) return;
+    if (aan && !stil.has(obj)) {
+      const echt = {};
+      for (const [k, d] of Object.entries(Object.getOwnPropertyDescriptors(obj))) {
+        if (typeof d.value === 'function' && k !== 'stop' && k !== 'toggle') { echt[k] = d.value; obj[k] = () => {}; }
+      }
+      stil.set(obj, echt);
+    } else if (!aan && stil.has(obj)) {
+      Object.assign(obj, stil.get(obj));
+      stil.delete(obj);
+    }
+  }
+  let echteConfetti = null;
+  function zetRustig(v) {
+    v = !!v;
+    if (v === rustig) return;
+    rustig = v;
+    document.documentElement.classList.toggle('jr-rustig', rustig);
+    if (rustig && window.JrMuziek) window.JrMuziek.stop();
+    dempen(typeof sfx !== 'undefined' ? sfx : null, rustig);
+    dempen(window.JrMuziek, rustig);
+    if (rustig && typeof window.confetti === 'function') { echteConfetti = window.confetti; window.confetti = () => {}; }
+    else if (!rustig && echteConfetti) { window.confetti = echteConfetti; echteConfetti = null; }
+  }
 
   // ---------- De stem ----------
   // Eerst de ingesproken bestanden (Vlaams voor het Nederlands), anders de stem van de browser in de juiste taal.
@@ -41,6 +70,7 @@
         if (mijn !== beurt) return klaar();
         const a = new Audio(url || `/img/junior/stem/${taal()}/${file}`);
         audio = a;
+        if (rustig) a.playbackRate = 0.85;
         const af = () => { clearTimeout(t); klaar(); };
         const t = setTimeout(af, 15000);
         a.onended = af;
@@ -55,7 +85,7 @@
         const v = stem();
         if (v) u.voice = v;
         u.lang = v ? v.lang : (J().stemmen || ['nl-BE'])[0];
-        u.rate = 0.9;
+        u.rate = rustig ? 0.75 : 0.9;
         u.pitch = 1.1;
         const af = () => { clearTimeout(t); klaar(); };
         const t = setTimeout(af, 4000 + tekst.length * 120);
@@ -707,6 +737,21 @@
     },
   };
 
+  // Op maat: minder prenten om uit te kiezen. Bij één juiste prent blijven die en één andere over (in dezelfde volgorde).
+  function minder(v) {
+    if (!v || v.soort !== 'kies' || !Array.isArray(v.opties) || v.opties.length <= 2) return v;
+    if (v.opties.filter(o => o.juist).length !== 1) return v;
+    const fout = v.opties.find(o => !o.juist);
+    return { ...v, opties: v.opties.filter(o => o.juist || o === fout) };
+  }
+  // Het niveau dat dit kind speelt: dat van de klas, met de stap van Op maat (zelfde regel als src/junior.js niveauVoor).
+  function niveauVoor(wie, spel, basis) {
+    const sp = (J().spellen || []).find(x => x.id === spel);
+    const stap = wie && wie.maat ? Number(wie.maat.stap) || 0 : 0;
+    if (!sp || sp.id === 'eigen' || !stap || !Array.isArray(sp.niveaus)) return basis;
+    return Math.max(0, Math.min(sp.niveaus.length - 1, basis + stap));
+  }
+
   // wie: { naam } van het kind dat aan de beurt is (voor het spel Mijn naam).
   function vraag(spel, niveau, r, wie) {
     const m = MAKERS[spel];
@@ -1034,5 +1079,5 @@
     else addEventListener('resize', pas);
   }
 
-  window.Junior = { Stem, toeval, vraag, speel, schaal, beeld, emoji, esc, MAKERS };
+  window.Junior = { Stem, toeval, vraag, speel, schaal, beeld, emoji, esc, MAKERS, minder, niveauVoor, get rustig() { return rustig; }, set rustig(v) { zetRustig(v); } };
 })();

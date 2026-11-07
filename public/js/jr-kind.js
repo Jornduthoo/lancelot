@@ -71,6 +71,7 @@ function zetSets() {
 function zetDraak() {
   zetSets();
   Junior.Stem.stil = stand.voorlezen === false;
+  Junior.rustig = stand.rustig === true;
   for (const id of ['jr-balk-draak', 'jr-wacht-draak']) $(id).src = draakImg();
 }
 
@@ -195,8 +196,11 @@ async function volgendeVraag() {
   } else banner.classList.add('hidden');
   // Intussen een ander spel gestart: deze vraag niet meer tonen.
   if (ronde !== deze) return;
-  const v = Junior.vraag(S().spel, S().niveau, ronde.r, wie);
+  // Op maat (leerkracht, klaslijst): dit kind speelt een niveau makkelijker of moeilijker, of met minder prenten. Niet bij apart oefenen.
+  const niv = apart ? S().niveau : Junior.niveauVoor(wie, S().spel, S().niveau);
+  let v = Junior.vraag(S().spel, niv, ronde.r, wie);
   if (!v) return;
+  if (!apart && wie && wie.maat && wie.maat.minder) v = Junior.minder(v);
   const mijnSeed = ronde.seed;
   huidig = Junior.speel($('jr-vak'), v, {
     klaar: juist => {
