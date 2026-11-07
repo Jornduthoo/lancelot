@@ -40,8 +40,8 @@
 .jr-klein { color: #fff; text-shadow: 0 1px 4px rgb(0 0 0 / .6); font-size: 1.1rem; margin: 0; }
 .jr-link { color: #fff; opacity: .8; font-size: .95rem; margin-top: 18px; }
 .jr-draak-groot { width: min(46vw, 260px); height: auto; filter: drop-shadow(0 8px 16px rgb(0 0 0 / .35)); animation: jr-zweef 3.2s ease-in-out infinite; }
-.jr-logo-groot { width: min(52vw, 300px); height: auto; filter: drop-shadow(0 6px 14px rgb(0 0 0 / .35)); }
-#jr-wacht .jr-draak-groot { width: min(30vw, 160px); }
+.jr-logo-groot { width: min(40vw, 240px); max-height: 32vh; object-fit: contain; height: auto; filter: drop-shadow(0 6px 14px rgb(0 0 0 / .35)); }
+#jr-wacht .jr-draak-groot { width: min(22vw, 110px); max-height: 16vh; object-fit: contain; }
 @keyframes jr-zweef { 50% { transform: translateY(-10px); } }
 
 .jr-dieren { display: grid; grid-template-columns: repeat(auto-fill, minmax(clamp(96px, 17vw, 140px), 1fr)); gap: 12px; width: 100%; max-width: 1100px; padding: 6px; }

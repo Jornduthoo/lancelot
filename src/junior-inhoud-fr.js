@@ -48,6 +48,7 @@ module.exports = {
     dans: 'Danse avec le dragon !',
     keer: 'fois ! Compte avec moi.',
     kringKies: 'Touche ton image.',
+    nietBij: 'Lequel n\'est pas comme les autres ?',
     dankje: 'Merci !',
   },
   dieren: ['Renard', 'Hibou', 'Lapin', 'Ours', 'Grenouille', 'Chat', 'Hérisson', 'Licorne', 'Tortue', 'Lion', 'Pingouin', 'Écureuil', 'Éléphant', 'Girafe', 'Panda',

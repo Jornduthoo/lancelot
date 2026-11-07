@@ -47,7 +47,11 @@ const SPELLEN = [
     niveaus: ['Tellen tot 5', 'Tellen tot 10'] },
   { id: 'kring', naam: 'Kringvragen', zin: 'Een vraag op het bord, elk kind kiest een prent.', groep: 'samen', jaar: 'Iedereen', beeld: 'sticker/8', geenFout: true,
     niveaus: ['Hoe voel je je?', 'Wat vind jij leuk?'] },
+  // Geen tegel voor de leerkracht: kinderen starten dit zelf op de tablet, één keer per dag een sticker.
+  { id: 'raadsel', naam: 'Raadsel van vandaag', zin: 'Drie korte raadsels, elke dag nieuw.', groep: 'raadsel', jaar: 'Iedereen', beeld: 'sticker/1', verborgen: true,
+    niveaus: ['Vandaag'] },
 ];
+const RAADSEL_VRAGEN = 3;
 const SPEL = Object.fromEntries(SPELLEN.map(s => [s.id, s]));
 
 let data = null;
@@ -57,6 +61,7 @@ function load() {
   if (!data.dieren || typeof data.dieren !== 'object') data.dieren = {};
   if (!data.stickers || typeof data.stickers !== 'object') data.stickers = {};
   if (!data.symbolen || typeof data.symbolen !== 'object') data.symbolen = {};
+  if (!data.raadsel || typeof data.raadsel !== 'object') data.raadsel = {};
   if (!Number.isFinite(data.eten)) data.eten = 0;
   if (typeof data.draakNaam !== 'string') data.draakNaam = '';
   return data;
@@ -73,6 +78,13 @@ function save() {
 
 // Elk kind van de klaslijst krijgt een vast dier. Nieuwe kinderen krijgen het eerste vrije dier.
 // Zijn er meer dan 30 kinderen, dan krijgen er twee hetzelfde dier (hun naam staat eronder).
+// Het dier van elk kind groeit mee met de stickers: eerst gewoon, dan schildknaap (blauwe kap), dan ridder (helm met pluim).
+const DIER_GROEI = [0, 10, 30]; // public/img/junior/dier, dier2, dier3
+function dierFase(stickers) {
+  let f = 1;
+  while (f < DIER_GROEI.length && stickers >= DIER_GROEI[f]) f++;
+  return f;
+}
 function kinderen() {
   const d = load();
   const lijst = klas.read().leerlingen;
@@ -89,7 +101,10 @@ function kinderen() {
       veranderd = true;
     }
     const sym = d.symbolen[l.id];
-    return { id: l.id, naam: l.naam, dier, eigen: !!sym, beeld: sym ? `/junior/symbool/${l.id}?v=${sym.v}` : `/img/junior/dier/${dier}.webp`, stickers: (d.stickers[l.id] || []).length };
+    const stickers = (d.stickers[l.id] || []).length;
+    const groei = dierFase(stickers);
+    const map = groei === 1 ? 'dier' : `dier${groei}`;
+    return { id: l.id, naam: l.naam, dier, groei, eigen: !!sym, beeld: sym ? `/junior/symbool/${l.id}?v=${sym.v}` : `/img/junior/${map}/${dier}.webp`, stickers };
   });
   if (veranderd) save();
   return uit;
@@ -203,7 +218,7 @@ function antwoord(id, { vraag, juist, apart } = {}) {
   const kind = kinderen().find(k => k.id === id);
   if (!kind) throw new Error('Tik op je dier.');
   const p = eigen
-    ? (apartTel.get(id) || apartTel.set(id, { gedaan: 0, goed: 0, rondes: 0 }).get(id))
+    ? (apartTel.get(`${id}:${eigen.spel}`) || apartTel.set(`${id}:${eigen.spel}`, { gedaan: 0, goed: 0, rondes: 0 }).get(`${id}:${eigen.spel}`))
     : (les.kinderen[id] || (les.kinderen[id] = { gedaan: 0, goed: 0, rondes: 0 }));
   p.gedaan++;
   if (juist) p.goed++;
@@ -212,7 +227,14 @@ function antwoord(id, { vraag, juist, apart } = {}) {
   if (!s.geenFout) logboek.answer(`Junior · ${s.naam}`, `LANcelot Junior · ${s.niveaus[niveau]}${eigen ? ' · apart' : ''}`, kind.naam, { question: String(vraag || s.naam).slice(0, 160), doel: '' }, !!juist);
   const gegroeid = juist ? voer(1) : false;
   let sticker = null;
-  if (p.gedaan % PER_RONDE === 0) {
+  // Het raadsel van vandaag: na de derde opdracht een sticker, maar maar één keer per dag.
+  const vandaag = new Date().toISOString().slice(0, 10);
+  const raadsel = eigen && eigen.spel === 'raadsel';
+  const verdiend = raadsel
+    ? p.gedaan % RAADSEL_VRAGEN === 0 && load().raadsel[id] !== vandaag
+    : p.gedaan % PER_RONDE === 0;
+  if (raadsel && verdiend) load().raadsel[id] = vandaag;
+  if (verdiend) {
     p.rondes++;
     sticker = 1 + Math.floor(Math.random() * STICKERS);
     const d = load();
@@ -266,7 +288,7 @@ function inhoud(taalId) {
 }
 
 module.exports = {
-  SPELLEN, FASEN, PER_RONDE, DIEREN, STICKERS,
+  SPELLEN, FASEN, PER_RONDE, DIEREN, STICKERS, DIER_GROEI, dierFase,
   kinderen, wisselDier, zetSymbool, symboolBestand, draak, noemDraak, start, stop, stand, overzicht, antwoord, teamGoed, klasBeloning, stickers,
   kringKies, kringStand, kringVolgende, inhoud, fase,
   get actief() { return !!les; },

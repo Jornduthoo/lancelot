@@ -48,6 +48,7 @@ module.exports = {
     dans: 'Dance along with the dragon!',
     keer: 'times! Count with me.',
     kringKies: 'Tap your picture.',
+    nietBij: 'Which one does not belong?',
     dankje: 'Thank you!',
   },
   dieren: ['Fox', 'Owl', 'Rabbit', 'Bear', 'Frog', 'Cat', 'Hedgehog', 'Unicorn', 'Turtle', 'Lion', 'Penguin', 'Squirrel', 'Elephant', 'Giraffe', 'Panda',

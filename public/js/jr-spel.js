@@ -273,6 +273,22 @@
       const doel = r.kies(plekken);
       return { soort: 'waar', zeg: [J().zin.waar[doel]], plekken: plekken.map(p => ({ id: p, juist: p === doel })), naastKant: r() < 0.5 ? 'links' : 'rechts' };
     },
+    // Raadsel van vandaag: elke dag drie korte, makkelijke opdrachten, voor iedereen dezelfde (zaadje = de datum).
+    nietBij(r) {
+      const groepen = [['🐶', '🐱', '🐰', '🐻', '🐸', '🐷', '🐮', '🐵'], ['🍎', '🍌', '🍐', '🍇', '🍓', '🍒', '🍊'], ['🚗', '🚌', '🚲', '🚂', '🚀', '🚜', '✈️'],
+        ['👕', '👖', '🧦', '👗', '🧢', '👟'], ['⚽', '🏀', '🎾', '🏈'], ['🌷', '🌻', '🌹', '🌼']];
+      const [a, b] = r.schud(groepen.map((g, i) => i)).slice(0, 2);
+      const drie = r.schud(groepen[a]).slice(0, 3);
+      const vreemd = r.kies(groepen[b]);
+      return {
+        soort: 'kies', zeg: [J().zin.nietBij],
+        opties: r.schud([...drie, vreemd]).map(e => ({ html: emoji(e, 'jr-emoji-groot'), juist: e === vreemd })),
+      };
+    },
+    raadsel(r) {
+      const soort = r.kies(['nietBij', 'nietBij', 'eieren', 'groot', 'vormen', 'waar', 'geluiden']);
+      return MAKERS[soort](r, 0);
+    },
     geluiden(r, niv) {
       const pool = (J().geluiden || []).filter(g => niv === 1 || g.soort === 'dier');
       const doel = r.kies(pool);

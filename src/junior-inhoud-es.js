@@ -48,6 +48,7 @@ module.exports = {
     dans: '¡Baila con el dragón!',
     keer: 'veces. ¡Cuenta conmigo!',
     kringKies: 'Toca tu dibujo.',
+    nietBij: '¿Cuál no es del grupo?',
     dankje: '¡Gracias!',
   },
   dieren: ['Zorro', 'Búho', 'Conejo', 'Oso', 'Rana', 'Gato', 'Erizo', 'Unicornio', 'Tortuga', 'León', 'Pingüino', 'Ardilla', 'Elefante', 'Jirafa', 'Panda',

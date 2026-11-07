@@ -48,6 +48,7 @@ module.exports = {
     dans: 'Tanz mit dem Drachen!',
     keer: 'mal! Zähl mit.',
     kringKies: 'Tippe auf dein Bild.',
+    nietBij: 'Was passt nicht dazu?',
     dankje: 'Danke schön!',
   },
   dieren: ['Fuchs', 'Eule', 'Hase', 'Bär', 'Frosch', 'Katze', 'Igel', 'Einhorn', 'Schildkröte', 'Löwe', 'Pinguin', 'Eichhörnchen', 'Elefant', 'Giraffe', 'Panda',

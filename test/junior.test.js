@@ -49,3 +49,12 @@ test('de leerkracht wordt nergens "juf" genoemd', () => {
   const bestanden = ['public/junior.html', 'public/junior-leerkracht.html', 'src/junior-inhoud.js', 'public/js/jr-kind.js', 'public/js/jr-leerkracht.js'];
   for (const f of bestanden) assert.doesNotMatch(fs.readFileSync(path.join(__dirname, '..', f), 'utf8'), /\bjuf\b/i, f);
 });
+
+test('het dier groeit mee met de stickers en elk groeibeeld bestaat', () => {
+  assert.strictEqual(junior.dierFase(0), 1);
+  assert.strictEqual(junior.dierFase(junior.DIER_GROEI[1]), 2);
+  assert.strictEqual(junior.dierFase(junior.DIER_GROEI[2] + 5), 3);
+  for (const map of ['dier', 'dier2', 'dier3']) {
+    for (let i = 1; i <= junior.DIEREN; i++) assert.ok(fs.existsSync(path.join(__dirname, '..', 'public', 'img', 'junior', map, `${i}.webp`)), `${map}/${i}.webp`);
+  }
+});

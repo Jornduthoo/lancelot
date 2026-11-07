@@ -18,7 +18,7 @@ let kringVraag = -1;
 // Apart oefenen: een ondersteuner (of de leerkracht) oefent met één kind, los van wat de klas doet. { spel, niveau, seed }
 let apart = null;
 try { apart = JSON.parse(sessionStorage.getItem('jr-apart') || 'null'); } catch { apart = null; }
-const S = () => (apart ? { ...stand, actief: true, spel: apart.spel, niveau: apart.niveau, seed: apart.seed, manier: 'beurt', perRonde: stand.perRonde || 5 } : stand);
+const S = () => (apart ? { ...stand, actief: true, spel: apart.spel, niveau: apart.niveau, seed: apart.seed, manier: 'beurt', perRonde: apart.raadsel ? 3 : stand.perRonde || 5 } : stand);
 
 try { ik = JSON.parse(sessionStorage.getItem('jr-ik') || '[]'); } catch { ik = []; }
 const bewaarIk = () => { try { sessionStorage.setItem('jr-ik', JSON.stringify(ik)); } catch {} };
@@ -102,7 +102,9 @@ function meldAan(ids) {
 
 // ---------- Een ronde spelen ----------
 function nieuweRonde() {
-  ronde = { seed: S().seed, r: Junior.toeval((S().seed ^ Math.floor(Math.random() * 1e9)) >>> 0), nr: 0, totaal: (S().perRonde || 5) * ik.length, nieuw: {}, groei: false };
+  // Het raadsel van vandaag is voor iedereen hetzelfde; gewone rondes krijgen elk een eigen reeks.
+  const zaad = apart && apart.raadsel ? S().seed : (S().seed ^ Math.floor(Math.random() * 1e9)) >>> 0;
+  ronde = { seed: S().seed, r: Junior.toeval(zaad), nr: 0, totaal: (S().perRonde || 5) * ik.length, nieuw: {}, groei: false };
 }
 
 function stappen() {
@@ -158,6 +160,7 @@ function beloning() {
     $('jr-boek').innerHTML = lijst.slice(-30).map(s => `<img src="/img/junior/sticker/${s}.webp" alt="">`).join('');
   });
   $('jr-volgende').classList.toggle('hidden', S().manier !== 'beurt');
+  $('jr-nog').classList.toggle('hidden', !!(apart && apart.raadsel));
   try { confetti(2500); } catch {}
   Junior.Stem.zeg([J().zin.sticker, ...(ronde && ronde.groei ? [J().zin.groei] : [])]);
   ronde = null;
@@ -203,6 +206,12 @@ function kringScherm(k) {
 
 // ---------- Waar ben ik ----------
 function route() {
+  // Start de leerkracht een spel terwijl iemand het raadsel doet: dan gaat de klas voor.
+  if (apart && apart.raadsel && stand.actief) {
+    apart = null;
+    try { sessionStorage.removeItem('jr-apart'); } catch {}
+    ronde = null;
+  }
   zetDraak();
   balk();
   $('jr-apart-stop').classList.toggle('hidden', !apart);
@@ -247,7 +256,7 @@ function apartScherm() {
   toon('jr-apart');
   const box = $('jr-apart-spellen');
   box.innerHTML = '';
-  for (const sp of (J().spellen || []).filter(x => !x.bordAlleen && x.id !== 'kring')) {
+  for (const sp of (J().spellen || []).filter(x => !x.bordAlleen && !x.verborgen && x.id !== 'kring')) {
     const b = document.createElement('button');
     b.type = 'button';
     b.className = `jr-apart-spel ${apartKeuze.spel === sp.id ? 'jr-aan' : ''}`;
@@ -288,6 +297,16 @@ function stopApart() {
 $('jr-apart-terug').addEventListener('click', stopApart);
 $('jr-apart-stop').addEventListener('click', stopApart);
 $('jr-apart-knop').addEventListener('click', apartScherm);
+// Raadsel van vandaag: drie korte opdrachten, elke dag andere, voor iedereen dezelfde. Eén sticker per dag.
+$('jr-raadsel-knop').addEventListener('click', () => {
+  try { sfx.unlock(); } catch {}
+  const d = new Date();
+  apart = { spel: 'raadsel', niveau: 0, seed: d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate(), raadsel: true };
+  try { sessionStorage.setItem('jr-apart', JSON.stringify(apart)); } catch {}
+  ik = [];
+  ronde = null;
+  route();
+});
 {
   let t = null;
   const draak = $('jr-balk-draak');

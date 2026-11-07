@@ -51,6 +51,7 @@ module.exports = {
     dans: 'Doe mee met het draakje!',
     keer: 'keer! Tel mee.',
     kringKies: 'Tik op jouw prent.',
+    nietBij: 'Welke hoort er niet bij?',
     dankje: 'Dank je wel!',
   },
   dieren: ['Vos', 'Uil', 'Konijn', 'Beer', 'Kikker', 'Kat', 'Egel', 'Eenhoorn', 'Schildpad', 'Leeuw', 'Pinguïn', 'Eekhoorn', 'Olifant', 'Giraf', 'Panda',
