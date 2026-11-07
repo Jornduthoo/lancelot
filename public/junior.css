@@ -637,15 +637,15 @@
 .jr-burcht-plein { position: relative; width: min(100%, 1100px, (100vh - 190px) * 1376 / 768); aspect-ratio: 1376 / 768; border-radius: 24px; overflow: hidden;
   background: url('/img/junior/bg/burcht.webp') center / 100% 100% no-repeat; container-type: inline-size; box-shadow: 0 10px 28px rgb(0 0 0 / .35); }
 /* Een plekje: de onderkant van het gebouw staat op het punt (left, top). */
-.jr-plek { position: absolute; width: calc(21cqw * var(--sc)); height: calc(21cqw * var(--sc)); min-height: 0; max-width: none; transform: translate(-50%, -88%); border: 0; background: none; padding: 0; cursor: pointer; }
-.jr-plek img { position: absolute; left: 0; right: 0; bottom: 0; margin: 0 auto; width: auto; height: auto; max-width: 100%; max-height: 100%; filter: drop-shadow(0 6px 5px rgb(0 0 0 / .3)); transition: transform .2s ease; }
-.jr-plek.vol:hover img, .jr-plek.vol.aan img { transform: scale(1.06); filter: drop-shadow(0 0 10px #fff) drop-shadow(0 6px 5px rgb(0 0 0 / .3)); }
-.jr-plek.jr-leeg span { position: absolute; left: 50%; bottom: 4%; transform: translateX(-50%); width: 40%; aspect-ratio: 1.6; border-radius: 50%; display: grid; place-items: center;
+.jr-burcht-plein .jr-plek { position: absolute; width: calc(21cqw * var(--sc)); height: calc(21cqw * var(--sc)); min-height: 0; max-width: none; transform: translate(-50%, -88%); border: 0; background: none; padding: 0; cursor: pointer; }
+.jr-burcht-plein .jr-plek img { position: absolute; left: 0; right: 0; bottom: 0; margin: 0 auto; width: auto; height: auto; max-width: 100%; max-height: 100%; filter: drop-shadow(0 6px 5px rgb(0 0 0 / .3)); transition: transform .2s ease; }
+.jr-burcht-plein .jr-plek.vol:hover img, .jr-burcht-plein .jr-plek.vol.aan img { transform: scale(1.06); filter: drop-shadow(0 0 10px #fff) drop-shadow(0 6px 5px rgb(0 0 0 / .3)); }
+.jr-burcht-plein .jr-plek.jr-leeg span { position: absolute; left: 50%; bottom: 4%; transform: translateX(-50%); width: 40%; aspect-ratio: 1.6; border-radius: 50%; display: grid; place-items: center;
   font-size: clamp(1.2rem, 3vw, 2.4rem); font-weight: 800; color: #fff; background: rgb(76 201 255 / .35); border: 3px dashed #fff; text-shadow: 0 2px 3px rgb(0 0 0 / .4);
   box-shadow: 0 0 16px rgb(76 201 255 / .8); animation: jr-plek-gloei 1.8s ease-in-out infinite; }
-.jr-plek.jr-leeg.aan span { background: rgb(255 201 74 / .6); border-style: solid; }
+.jr-burcht-plein .jr-plek.jr-leeg.aan span { background: rgb(255 201 74 / .6); border-style: solid; }
 @keyframes jr-plek-gloei { 50% { box-shadow: 0 0 30px rgb(76 201 255 / 1); transform: translateX(-50%) scale(1.08); } }
-.jr-plek.jr-gebouwd img { animation: jr-bouw .7s cubic-bezier(.3, 1.6, .5, 1); }
+.jr-burcht-plein .jr-plek.jr-gebouwd img { animation: jr-bouw .7s cubic-bezier(.3, 1.6, .5, 1); }
 @keyframes jr-bouw { from { transform: translateY(-40%) scale(.3); opacity: 0; } to { transform: none; opacity: 1; } }
 .jr-burcht-lade { position: fixed; left: 0; right: 0; bottom: 0; z-index: 300; background: rgb(255 248 230 / .97); border-radius: 26px 26px 0 0; padding: 12px 64px 14px 14px;
   box-shadow: 0 -10px 30px rgb(0 0 0 / .3); animation: jr-lade-op .25s ease-out; }
@@ -660,8 +660,8 @@
 .jr-stuk.te-duur span { color: #b04a3a; }
 #jr-burcht-lade-dicht { position: absolute; right: 10px; top: 10px; min-height: 0; padding: 8px 14px; font-size: 1.2rem; }
 /* Alleen het gebouw zelf of het plusje is aantikbaar, niet het lege vak eromheen (zo blokkeert vooraan niets achteraan). */
-.jr-plek { pointer-events: none; }
-.jr-plek img, .jr-plek span { pointer-events: auto; }
+.jr-burcht-plein .jr-plek { pointer-events: none; }
+.jr-burcht-plein .jr-plek img, .jr-burcht-plein .jr-plek span { pointer-events: auto; }
 
 .jr-baan-leden { position: absolute; left: 10px; top: 48%; width: 18%; display: flex; flex-wrap: wrap; gap: 1px; }
 .jr-baan-leden img { width: clamp(20px, 4vh, 34px); height: clamp(20px, 4vh, 34px); object-fit: contain; filter: drop-shadow(0 1px 1px rgb(0 0 0 / .4)); }
@@ -784,7 +784,7 @@ button.jr-mini-draak:hover { transform: translateY(-2px); }
 .jr-weer-knop img { width: 100%; height: 100%; object-fit: contain; }
 .jr-lk main button.jr-weer-knop.aan { background: #fff3bf; box-shadow: 0 0 0 6px #ffd43b, 0 10px 26px rgb(0 0 0 / .25); transform: scale(1.08); }
 .jr-weer-knop.aan img { animation: jr-dag-hop 1.4s ease-in-out infinite; }
-.jr-wie { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 10px; width: 100%; }
+.jr-wie-rooster { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 10px; width: 100%; }
 .jr-lk main button.jr-wie-kind { display: flex; flex-direction: column; align-items: center; gap: 2px; border-radius: 18px; border: 3px solid #fff; background: rgb(255 250 235 / .9); font: inherit; font-weight: 800; color: #3b2a14; cursor: pointer; padding: 6px; transition: all .25s; }
 .jr-lk main button.jr-wie-kind { height: auto; }
 .jr-wie-kind img { width: 84px; height: 84px; object-fit: contain; }
@@ -834,7 +834,6 @@ button.jr-mini-draak:hover { transform: translateY(-2px); }
 .jr-rijk-balk { position: absolute; left: 1.2cqw; right: 1.2cqw; top: 1.2cqw; display: flex; align-items: center; gap: 1cqw; z-index: 200; }
 .jr-rijk-balk b { background: rgb(255 250 235 / .95); color: #3b2a14; border-radius: 999px; padding: .25em 1em; font-size: max(15px, 2.4cqw); }
 .jr-rijk .jr-rijk-balk button { width: max(44px, 6cqw); height: max(44px, 6cqw); min-height: 0; border-radius: 50%; border: 3px solid #fff; background: #fff8e6; font-size: max(20px, 3cqw); padding: 0; clip-path: none; box-shadow: 0 3px 0 rgb(0 0 0 / .2); color: inherit; }
-.jr-rijk .jr-rijk-balk .jr-rijk-zoek { margin-left: auto; background: #ffd43b; }
 .jr-rijk-sterren { display: flex; gap: 2px; }
 .jr-rijk-sterren img { width: max(24px, 3.2cqw); animation: jr-ster-in .6s cubic-bezier(.2,1.6,.4,1); }
 .jr-rijk .jr-rijk-ding { position: absolute; border: 0; background: none; padding: 0; height: auto; min-height: 0; max-width: none; clip-path: none; box-shadow: none; }
@@ -1006,7 +1005,7 @@ button.jr-mini-draak:hover { transform: translateY(-2px); }
   .jr-stappen i { width: 12px; height: 12px; }
   .jr-wie { flex: 1; min-width: 0; }
 }
-.jr-draai-tip { position: fixed; left: 50%; bottom: 18px; z-index: 50; margin-left: max(-45vw, -170px); width: min(90vw, 340px); padding: 12px 16px; border: 0; border-radius: 999px;
+.jr-draai-tip { position: fixed; left: 50%; top: 92px; z-index: 50; margin-left: max(-45vw, -170px); width: min(90vw, 340px); padding: 12px 16px; border: 0; border-radius: 999px;
   background: rgb(43 35 64 / .9); color: #fff; font: 700 1rem/1.25 var(--jr-schrift, inherit); box-shadow: 0 6px 20px rgb(0 0 0 / .3); animation: jr-draai-in .4s ease-out; }
 .jr-draai-tip { display: flex; align-items: center; justify-content: center; gap: 10px; }
 .jr-draai-tip.hidden { display: none; }
@@ -1048,3 +1047,48 @@ button.jr-mini-draak:hover { transform: translateY(-2px); }
 .jr-kt-eigen-kaart img { border-radius: 12px; }
 .jr-lk main button.jr-kt-wis { position: absolute; top: -6px; right: -6px; width: 32px; height: 32px; border-radius: 50%; padding: 0; background: #e5484d; color: #fff; font-weight: 800; border: 3px solid #fff; }
 .jr-lk main label.jr-kt-foto { display: inline-flex; align-items: center; padding: 10px 18px; border-radius: 999px; background: #fff; color: var(--jr-inkt); font-size: 1.1rem; font-weight: 800; border: 3px solid var(--jr-goud); }
+
+/* Bordmodus: wie zit in welk team, en wie mag naar het bord komen */
+.jr-team-leden { display: flex; flex-wrap: wrap; gap: 2px; margin-top: 2px; }
+.jr-team-roep { display: flex; align-items: center; gap: 6px; background: #fff; color: var(--jr-inkt); text-shadow: none; border-radius: 999px; padding: 2px 12px 2px 2px; font-size: 1.15rem; margin: 3px 0; width: fit-content; animation: jr-ster-in .6s cubic-bezier(.2,1.6,.4,1); }
+.jr-team-roep img { width: 40px; height: 40px; object-fit: contain; }
+.jr-lk main button.jr-team-lid { width: 30px; height: 30px; min-height: 0; padding: 1px; border: 0; border-radius: 50%; background: rgb(255 255 255 / .85); cursor: pointer; box-shadow: none; }
+.jr-team-lid img { width: 100%; height: 100%; object-fit: contain; }
+.jr-lk main button.jr-team-lid.nu { outline: 3px solid #fff; }
+.jr-lk main button.jr-team-lid.weg { opacity: .35; filter: grayscale(1); }
+/* Gsm liggend: een lagere kop, zodat het spel meer plaats krijgt. */
+@media (orientation: landscape) and (max-height: 500px) {
+  .jr-balk { padding: 3px 10px; gap: 8px; }
+  .jr-balk-draak { width: 34px; height: 34px; }
+  .jr-wie { padding: 1px 10px 1px 2px; border-width: 2px; }
+  .jr-wie img { width: 30px; height: 30px; }
+  .jr-balk .jr-rond { width: 40px; height: 40px; font-size: 20px; }
+  .jr-stappen i { width: 12px; height: 12px; }
+}
+/* Toverdorp: tweede kaart, wegwijzer, mand en de drie spelletjes per plek */
+.jr-rijk-kaart2 { background-image: url(/img/junior/rijk/kaart2.webp); }
+@media (max-width: 800px) { .jr-rijk-kaart2 { background-image: url(/img/junior/rijk/kaart2-klein.webp); } }
+.jr-rijk-kaart2 .jr-rijk-plek { width: 19cqw; height: 19cqw; margin: -9.5cqw 0 0 -9.5cqw; }
+.jr-rijk .jr-rijk-brug { position: absolute; width: 10cqw; height: auto; min-height: 0; margin: -6cqw 0 0 -5cqw; padding: 0; border: 0; background: none; box-shadow: none; clip-path: none; animation: jr-rijk-puls 1.6s ease-in-out infinite; z-index: 5; }
+.jr-rijk-brug img { width: 100%; display: block; filter: drop-shadow(0 4px 6px rgb(0 0 0 / .4)) drop-shadow(0 0 10px rgb(255 224 102 / .9)); }
+.jr-rijk .jr-rijk-plek.mand-hier::after { content: '🧺'; position: absolute; top: 8%; right: 14%; font-size: max(18px, 3cqw); animation: jr-team-hop 1.2s ease-in-out infinite; }
+.jr-rijk-mand { position: absolute; left: 1.2cqw; bottom: 1.2cqw; z-index: 210; display: flex; align-items: center; gap: .6cqw; background: rgb(255 250 235 / .94); border-radius: 999px; padding: .4cqw 1.2cqw .4cqw .4cqw; box-shadow: 0 4px 12px rgb(0 0 0 / .25); cursor: pointer; }
+.jr-rijk-mand-img { width: max(36px, 6cqw); }
+.jr-rijk-mand span { width: max(30px, 5cqw); height: max(30px, 5cqw); border-radius: 50%; background: #fff; display: grid; place-items: center; box-shadow: inset 0 0 0 2px #e2d4ae; }
+.jr-rijk-mand span img { width: 85%; height: 85%; object-fit: contain; filter: grayscale(1) brightness(.35) opacity(.45); }
+.jr-rijk-mand span.vol { box-shadow: inset 0 0 0 3px #51cf66; }
+.jr-rijk-mand span.vol img { filter: none; animation: jr-ster-in .6s cubic-bezier(.2,1.6,.4,1); }
+.jr-rijk-spellen { margin-left: auto; display: flex; gap: 1cqw; }
+.jr-rijk .jr-rijk-balk .jr-rijk-spellen button { background: #ffd43b; }
+.jr-rijk-ding { position: absolute; }
+.jr-rijk-ding .jr-rijk-struik { position: absolute; left: -10%; bottom: -6%; width: 120%; height: auto; transition: transform .3s ease, opacity .3s ease; }
+.jr-rijk-ding.weg > img:first-child { visibility: hidden; }
+.jr-rijk-ding.weg.open > img:first-child { visibility: visible; }
+.jr-rijk-ding.weg.open .jr-rijk-struik { transform: translateY(40%) scale(.8); opacity: .3; }
+/* Toverdorp op een gsm liggend: het dorp zo groot mogelijk, de Klaar-knop klein ernaast. */
+@media (orientation: landscape) and (max-height: 500px) {
+  #jr-rijk { flex-direction: row; gap: 8px; padding: 6px; }
+  #jr-rijk-scherm { width: min(100% - 90px, (100vh - 70px) * 16 / 9); }
+  #jr-rijk .jr-knoppen { flex-direction: column; }
+  #jr-rijk-klaar { padding: 10px 12px; font-size: 1rem; min-height: 0; }
+}
