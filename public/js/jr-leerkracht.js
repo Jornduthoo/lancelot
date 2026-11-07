@@ -393,7 +393,7 @@ async function bordVraag() {
   const wie = teamKind(bord.team);
   await Junior.Stem.zeg(wie ? [(J().zin.teams || [])[bord.team], wie.naam, J().zin.teamKom] : [(J().zin.teams || [])[bord.team], J().zin.teamBeurt]);
   if (mijn !== bord) return;
-  const v = Junior.vraag(stand.spel, stand.niveau, bord.r);
+  const v = Junior.vraag(stand.spel, stand.niveau, bord.r, teamKind(bord.team) || {});
   bord.huidig = Junior.speel($('jr-bord-vak'), v, {
     klaar: () => {
       if (mijn !== bord) return;
