@@ -10,8 +10,10 @@ const schud = lijst => { const a = lijst.slice(); for (let i = a.length - 1; i >
 const mmss = s => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
 const vandaag = () => new Date().toISOString().slice(0, 10);
 
-$('brand').addEventListener('click', () => { location.href = '/host'; });
-$('to-home').addEventListener('click', () => { location.href = '/host'; });
+// Geopend vanuit LANcelot Junior? Dan brengt Terug je daar weer naartoe.
+const thuis = new URLSearchParams(location.search).get('van') === 'junior' ? '/junior-leerkracht#klastools' : '/host';
+$('brand').addEventListener('click', () => { location.href = thuis; });
+$('to-home').addEventListener('click', () => { location.href = thuis; });
 $('mute').innerHTML = Ui.ic(sfx.muted ? 'stil' : 'geluid');
 $('mute').addEventListener('click', () => { $('mute').innerHTML = Ui.ic(sfx.toggle() ? 'stil' : 'geluid'); });
 $('groot').addEventListener('click', () => {

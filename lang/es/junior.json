@@ -390,5 +390,13 @@
  "private, max-age=604800, immutable": null,
  "Foto's zoeken lukt niet. Is er internet op deze pc?": "La búsqueda de fotos no funciona. ¿Tiene internet este PC?",
  "De foto ophalen lukt niet. Is er internet op deze pc?": "No se puede descargar la foto. ¿Tiene internet este PC?",
- "Die foto lukt niet. Kies een andere.": "Esa foto no funciona. Elige otra."
+ "Die foto lukt niet. Kies een andere.": "Esa foto no funciona. Elige otra.",
+ "Een draaiend rad kiest wie aan de beurt is.": "Una rueda que gira elige a quién le toca.",
+ "Groepjes maken in één klik.": "Haz grupos con un clic.",
+ "Wordt de klas te luid, dan kleurt de banier rood.": "Si la clase hace demasiado ruido, el estandarte se pone rojo.",
+ "Grote dobbelstenen op het bord.": "Dados grandes en la pizarra.",
+ "Een opdracht in grote letters op het bord, met de tijd erbij.": "Una tarea en letras grandes en la pizarra, con el tiempo.",
+ "De klastaken van de week, die elke maandag doorschuiven.": "Las tareas de la semana, que rotan cada lunes.",
+ "Bouw je lokaal na: de banken krijgen vanzelf een kind.": "Reconstruye tu aula: cada pupitre recibe un niño.",
+ "Schermvullend op het bord, met de namen van je klas. Met Terug kom je weer hier.": "A pantalla completa en la pizarra, con los nombres de tu clase. Volver te trae aquí."
 }

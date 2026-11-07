@@ -43,6 +43,7 @@
       <button type="button" class="jr-ochtend-knop jr-eigen" data-ga="ochtend"><img src="/img/junior/weer/1.webp" alt=""> Goeiemorgen! Het ochtendmoment</button>
       <button type="button" class="jr-ochtend-knop jr-eiland-knop jr-eigen" data-ga="eiland"><img src="/img/junior/burcht/1.webp" alt=""> Ons klaseiland</button>
       <button type="button" class="jr-ochtend-knop jr-rijk-knop jr-eigen" data-ga="rijk"><img src="/img/junior/rijk/boerderij/1.webp" alt=""> Het Toverdorp</button>
+      <button type="button" class="jr-ochtend-knop jr-tools-knop jr-eigen" data-ga="klastools"><img src="/img/icons/wk-zandloper.webp" alt=""> Klastools</button>
       <button type="button" class="panel jr-mini-draak jr-eigen" data-ga="draakje">
         <img id="jr-mini-draak" src="/img/junior/draak/1.webp" alt="">
         <div><b id="jr-mini-naam">Het klasdraakje</b><div class="jr-groeibalk"><span id="jr-mini-groei"></span></div></div>
@@ -96,6 +97,23 @@
     </div>
 
     <!-- Het Toverdorp: zes plekken om samen te ontdekken (woordenschat), met een zoekspel. -->
+    <!-- De klastools van LANcelot (Wapenkamer), met de namen van deze klas. Terug brengt je naar Junior. -->
+    <div class="jr-view hidden" id="jr-v-klastools">
+      <div class="jr-view-kop"><button class="terug-knop" type="button" data-ga="thuis"><i class="ic ic-terug" aria-hidden="true"></i>Terug</button><h2><img src="/img/icons/wk-zandloper.webp" alt=""> Klastools</h2></div>
+      <div class="jr-blokken jr-tools">
+        <button type="button" class="jr-blok jr-tool" data-wk="lot"><img src="/img/icons/wk-lot.webp" alt=""><b>Het Lot</b><span>Een draaiend rad kiest wie aan de beurt is.</span></button>
+        <button type="button" class="jr-blok jr-tool" data-wk="banieren"><img src="/img/icons/wk-banieren.webp" alt=""><b>De Banieren</b><span>Groepjes maken in één klik.</span></button>
+        <button type="button" class="jr-blok jr-tool" data-wk="zandloper"><img src="/img/icons/wk-zandloper.webp" alt=""><b>De Zandloper</b><span>Een grote zandloper op het bord, met een gong op het einde.</span></button>
+        <button type="button" class="jr-blok jr-tool" data-wk="stilte"><img src="/img/icons/wk-stilte.webp" alt=""><b>De Stilte-banier</b><span>Wordt de klas te luid, dan kleurt de banier rood.</span></button>
+        <button type="button" class="jr-blok jr-tool" data-wk="werklicht"><img src="/img/icons/wk-werklicht.webp" alt=""><b>Het Werklicht</b><span>Rood, oranje of groen: stil werken, fluisteren of samenwerken.</span></button>
+        <button type="button" class="jr-blok jr-tool" data-wk="runensteen"><img src="/img/icons/wk-runensteen.webp" alt=""><b>De Runensteen</b><span>Grote dobbelstenen op het bord.</span></button>
+        <button type="button" class="jr-blok jr-tool" data-wk="heraut"><img src="/img/icons/wk-heraut.webp" alt=""><b>De Heraut</b><span>Een opdracht in grote letters op het bord, met de tijd erbij.</span></button>
+        <button type="button" class="jr-blok jr-tool" data-wk="wachtlijst"><img src="/img/icons/wk-wachtlijst.webp" alt=""><b>De Wachtlijst</b><span>De klastaken van de week, die elke maandag doorschuiven.</span></button>
+        <button type="button" class="jr-blok jr-tool" data-wk="indeling"><img src="/img/icons/wk-indeling.webp" alt=""><b>De Klasindeling</b><span>Bouw je lokaal na: de banken krijgen vanzelf een kind.</span></button>
+      </div>
+      <p class="jr-view-uitleg">Schermvullend op het bord, met de namen van je klas. Met Terug kom je weer hier.</p>
+    </div>
+
     <div class="jr-view hidden" id="jr-v-rijk">
       <div class="jr-view-kop"><button class="terug-knop" type="button" data-ga="thuis"><i class="ic ic-terug" aria-hidden="true"></i>Terug</button><h2><img src="/img/junior/rijk/boerderij/1.webp" alt=""> Het Toverdorp</h2></div>
       <div id="jr-rijk-bord"></div>
