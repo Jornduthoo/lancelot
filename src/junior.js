@@ -460,16 +460,21 @@ function voortgang() {
 }
 
 // ---------- Eigen vragen (blok Maken) ----------
-// Een reeks: { id, naam, vragen: [{ vraag, opties: [{ e: emoji, w: woord }], juist }] }. Elke vraag heeft 2 tot 4 opties.
+// Een reeks: { id, naam, vragen: [{ vraag, opties: [{ e: emoji, w: woord, f: foto, fb: bron van de foto }], juist }] }. Elke vraag heeft 2 tot 4 opties.
 const MAX_SETS = 40;
 const MAX_VRAGEN = 30;
+const FOTO = /^[a-f0-9]{16}\.(jpg|png)$/; // een echte foto uit src/jr-foto.js
 const kort = (x, n) => String(x == null ? '' : x).replace(/\s+/g, ' ').trim().slice(0, n);
 function schoonSet(set = {}) {
   const naam = kort(set.naam, 40);
   if (!naam) throw new Error('Geef de reeks een naam.');
   const vragen = (Array.isArray(set.vragen) ? set.vragen : []).map(v => {
-    const opties = (Array.isArray(v && v.opties) ? v.opties : []).map(o => ({ e: kort(o && (o.e || o.emoji), 16), w: kort(o && (o.w || o.woord), 30) }))
-      .filter(o => o.e || o.w).slice(0, 4);
+    const opties = (Array.isArray(v && v.opties) ? v.opties : []).map(o => {
+      const x = { e: kort(o && (o.e || o.emoji), 16), w: kort(o && (o.w || o.woord), 30) };
+      if (o && FOTO.test(String(o.f))) { x.f = o.f; x.fb = kort(o.fb, 120); }
+      return x;
+    })
+      .filter(o => o.e || o.w || o.f).slice(0, 4);
     const juist = Math.max(0, Math.min(opties.length - 1, Number(v && v.juist) || 0));
     return { vraag: kort(v && v.vraag, 160), opties, juist };
   }).filter(v => v.vraag && v.opties.length >= 2).slice(0, MAX_VRAGEN);

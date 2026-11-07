@@ -299,14 +299,14 @@
         opties: r.schud([...drie, vreemd]).map(e => ({ html: emoji(e, 'jr-emoji-groot'), juist: e === vreemd })),
       };
     },
-    // De eigen vragen van de leerkracht: een prentje (emoji) met een woord eronder, en de vraag wordt voorgelezen.
+    // De eigen vragen van de leerkracht: een echte foto of een prentje (emoji) met een woord eronder, en de vraag wordt voorgelezen.
     eigen(r, niv) {
       const set = (J().sets || [])[niv];
       if (!set || !set.vragen || !set.vragen.length) return null;
       const v = r.kies(set.vragen);
       return {
         soort: 'kies', zeg: [v.vraag], kop: `<span class="jr-vraagkaart">${esc(v.vraag)}</span>`, eigen: true,
-        opties: v.opties.map((o, i) => ({ html: `${o.e ? emoji(esc(o.e), 'jr-emoji-groot') : ''}${o.w ? `<span class="jr-optie-woord">${esc(o.w)}</span>` : ''}`, juist: i === v.juist })),
+        opties: v.opties.map((o, i) => ({ html: `${o.f ? `<img class="jr-foto" src="/junior/foto/${esc(o.f)}" alt="">` : o.e ? emoji(esc(o.e), 'jr-emoji-groot') : ''}${o.w ? `<span class="jr-optie-woord">${esc(o.w)}</span>` : ''}`, juist: i === v.juist })),
       };
     },
     // ---------- Fase 2 ----------

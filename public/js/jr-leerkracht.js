@@ -814,7 +814,7 @@ function vragenLijst() {
     const d = document.createElement('div');
     d.className = 'jr-bw-vraag';
     d.innerHTML = `<div class="jr-bw-rij"><b>${vi + 1}</b><input class="jr-bw-tekst" maxlength="160" placeholder="De vraag, zoals je ze zegt"><button type="button" class="secondary jr-bw-zeg" title="Voorlezen">🔊</button><button type="button" class="secondary jr-bw-weg" title="Vraag wissen">🗑️</button></div>`
-      + `<div class="jr-bw-opties">${v.opties.map((o, oi) => `<label class="jr-bw-optie ${oi === v.juist ? 'juist' : ''}"><input type="radio" name="jr-juist-${vi}" ${oi === v.juist ? 'checked' : ''} title="Dit is het juiste antwoord"><input class="jr-bw-e" maxlength="16" placeholder="🙂"><input class="jr-bw-w" maxlength="30" placeholder="woord"></label>`).join('')}</div>`;
+      + `<div class="jr-bw-opties">${v.opties.map((o, oi) => `<label class="jr-bw-optie ${oi === v.juist ? 'juist' : ''}"><input type="radio" name="jr-juist-${vi}" ${oi === v.juist ? 'checked' : ''} title="Dit is het juiste antwoord">${o.f ? `<img class="jr-bw-foto" src="/junior/foto/${o.f}" alt="" title="${Junior.esc(o.fb || '')}">` : '<input class="jr-bw-e" maxlength="16" placeholder="🙂">'}<input class="jr-bw-w" maxlength="30" placeholder="woord"><button type="button" class="secondary jr-bw-fk" title="${o.f ? 'Foto weg' : 'Echte foto zoeken'}">${o.f ? '✕' : '📷'}</button></label>`).join('')}</div>`;
     const tekst = d.querySelector('.jr-bw-tekst');
     tekst.value = v.vraag;
     tekst.addEventListener('input', () => { v.vraag = tekst.value; });
@@ -822,16 +822,63 @@ function vragenLijst() {
     d.querySelector('.jr-bw-weg').addEventListener('click', () => { bezig.vragen.splice(vi, 1); vragenLijst(); });
     d.querySelectorAll('.jr-bw-optie').forEach((lab, oi) => {
       const o = v.opties[oi];
-      const [r, e, w] = lab.querySelectorAll('input');
-      e.value = o.e;
+      const r = lab.querySelector('input[type=radio]'), e = lab.querySelector('.jr-bw-e'), w = lab.querySelector('.jr-bw-w');
+      if (e) { e.value = o.e; e.addEventListener('input', () => { o.e = e.value; }); }
       w.value = o.w;
-      e.addEventListener('input', () => { o.e = e.value; });
+      lab.querySelector('.jr-bw-fk').addEventListener('click', ev => {
+        ev.preventDefault();
+        if (o.f) { delete o.f; delete o.fb; vragenLijst(); } else fotoKies(o);
+      });
       w.addEventListener('input', () => { o.w = w.value; });
       r.addEventListener('change', () => { v.juist = oi; d.querySelectorAll('.jr-bw-optie').forEach((x, i) => x.classList.toggle('juist', i === oi)); });
     });
     box.appendChild(d);
   });
 }
+// Echte foto's van Wikimedia Commons (vrije licenties): zoeken met het woord, kiezen, en de pc bewaart de foto voor de klas.
+function fotoKies(o) {
+  const v = $('jr-foto-venster');
+  $('jr-foto-woord').value = o.w || '';
+  $('jr-foto-lijst').innerHTML = '';
+  $('jr-foto-tip').textContent = '';
+  v.showModal();
+  v.dataset.bezig = '';
+  v._optie = o;
+  if (o.w) fotoZoek();
+  else $('jr-foto-woord').focus();
+}
+function fotoZoek() {
+  const lijst = $('jr-foto-lijst');
+  lijst.innerHTML = '';
+  $('jr-foto-tip').textContent = 'Even zoeken...';
+  socket.emit('jr-foto-zoek', { woord: $('jr-foto-woord').value }, res => {
+    if (!res || res.error) { $('jr-foto-tip').textContent = (res && res.error) || 'Zoeken lukte niet.'; return; }
+    $('jr-foto-tip').textContent = res.fotos.length ? 'Tik op een foto.' : 'Niets gevonden. Probeer een ander woord, of in het Engels.';
+    for (const f of res.fotos) {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'jr-foto-keuze jr-eigen';
+      b.title = f.bron;
+      b.innerHTML = `<img src="${Junior.esc(f.thumb)}" alt="" loading="lazy">`;
+      b.addEventListener('click', () => {
+        $('jr-foto-tip').textContent = 'De foto wordt bewaard...';
+        socket.emit('jr-foto-neem', { thumb: f.thumb }, r => {
+          if (!r || r.error) { $('jr-foto-tip').textContent = (r && r.error) || 'Die foto lukt niet.'; return; }
+          const o = $('jr-foto-venster')._optie;
+          o.f = r.f;
+          o.fb = [f.bron, 'Wikimedia Commons'].filter(Boolean).join(', ');
+          if (!o.w) o.w = $('jr-foto-woord').value.trim().slice(0, 30);
+          $('jr-foto-venster').close();
+          vragenLijst();
+        });
+      });
+      lijst.appendChild(b);
+    }
+  });
+}
+$('jr-foto-zoek').addEventListener('click', fotoZoek);
+$('jr-foto-woord').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); fotoZoek(); } });
+$('jr-foto-dicht').addEventListener('click', () => $('jr-foto-venster').close());
 $('jr-bw-erbij').addEventListener('click', () => { bezig.vragen.push(legeVraag()); vragenLijst(); });
 $('jr-bw-annuleer').addEventListener('click', () => { bezig = null; $('jr-bewerk').classList.add('hidden'); });
 $('jr-bw-bewaar').addEventListener('click', () => {

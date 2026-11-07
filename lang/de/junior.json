@@ -374,5 +374,21 @@
  "Diploma": "Urkunde",
  "heeft al {0} stickers verzameld!": "hat schon {0} Sticker gesammelt!",
  "Zachte muziek op het bord aan of uit": "Leise Musik an der Tafel an oder aus",
- "Muziek aan of uit": "Musik an oder aus"
+ "Muziek aan of uit": "Musik an oder aus",
+ "Foto weg": "Foto entfernen",
+ "Echte foto zoeken": "Echtes Foto suchen",
+ "Even zoeken...": "Suche läuft...",
+ "Zoeken lukte niet.": "Die Suche hat nicht geklappt.",
+ "Tik op een foto.": "Tippe auf ein Foto.",
+ "Niets gevonden. Probeer een ander woord, of in het Engels.": "Nichts gefunden. Versuche ein anderes Wort, oder auf Englisch.",
+ "De foto wordt bewaard...": "Das Foto wird gespeichert...",
+ "Die foto lukt niet.": "Dieses Foto klappt nicht.",
+ "Wikimedia Commons": "Wikimedia Commons",
+ "📷 Echte foto zoeken": "📷 Echtes Foto suchen",
+ "Vrije foto's van Wikimedia Commons. De maker en de licentie staan bij elke foto (wijs ze aan).": "Freie Fotos von Wikimedia Commons. Urheber und Lizenz stehen bei jedem Foto (zeig darauf).",
+ "LANcelot/1.0 (klasapp; https://lancelot.network)": null,
+ "private, max-age=604800, immutable": null,
+ "Foto's zoeken lukt niet. Is er internet op deze pc?": "Die Fotosuche klappt nicht. Hat dieser PC Internet?",
+ "De foto ophalen lukt niet. Is er internet op deze pc?": "Das Foto lässt sich nicht laden. Hat dieser PC Internet?",
+ "Die foto lukt niet. Kies een andere.": "Dieses Foto klappt nicht. Wähle ein anderes."
 }
