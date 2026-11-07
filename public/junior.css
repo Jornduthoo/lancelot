@@ -664,3 +664,46 @@
 .jr-ts-dier { position: absolute; left: 14px; top: 14px; width: 30%; background: #fff; border-radius: 50%; padding: 4px; }
 .jr-ts-een p { margin: 6px 0 0; font-size: 1.3rem; font-weight: 700; text-shadow: 0 2px 3px rgb(0 0 0 / .35); }
 .jr-ts-een b { display: block; font-family: var(--jr-schrift); font-size: clamp(2rem, 6vw, 3rem); }
+
+/* ---------- Leerkrachtschermen in de Junior-stijl: licht, rond en groot (geen donkere LANcelot-panelen) ---------- */
+.jr-lk .panel { background: rgb(255 248 231 / .96); color: var(--jr-inkt); border: 0; border-radius: 26px; clip-path: none; padding: 22px 24px;
+  box-shadow: 0 6px 0 #d8c9a3, 0 14px 34px rgb(0 0 0 / .28); backdrop-filter: none; }
+.jr-lk .panel .title { font-family: var(--jr-schrift); font-size: 1.45rem; font-weight: 800; color: var(--jr-inkt); text-transform: none; letter-spacing: 0; margin: 0 0 4px; }
+.jr-lk .panel .muted, .jr-lk .panel .small { color: #5b5170; }
+.jr-lk .panel .small { font-size: .98rem; }
+.jr-lk .panel label { display: grid; gap: 6px; font-weight: 800; color: var(--jr-inkt); margin-top: 12px; font-size: 1.02rem; }
+.jr-lk .panel input, .jr-lk .panel select, .jr-lk .panel textarea { background: #fff; color: var(--jr-inkt); border: 3px solid #eadfc4; border-radius: 14px; padding: 10px 14px; font-size: 1.05rem; outline: none; box-shadow: none; }
+.jr-lk .panel input:focus, .jr-lk .panel select:focus, .jr-lk .panel textarea:focus { border-color: var(--jr-goud); }
+.jr-lk main button:not(.jr-tegel):not(.jr-blok):not(.jr-klas-beeld):not(.jr-kb-optie), .jr-lk main a.button, .jr-lk dialog button { border-radius: 999px; clip-path: none; }
+.jr-lk main button.secondary, .jr-lk main a.button.secondary { background: #fff; color: var(--jr-inkt); box-shadow: 0 3px 0 #d8c9a3; border: 2px solid #eadfc4; }
+.jr-lk main .jr-loopt-kop button.secondary { background: rgb(255 255 255 / .16); color: #fff; border: 0; box-shadow: none; }
+.jr-lk main button.gold, .jr-lk main a.button.gold { background: var(--jr-goud); color: var(--jr-inkt); box-shadow: 0 3px 0 #d69e1a; }
+.jr-lk main button.danger { border-radius: 999px; }
+.jr-lk main button:not(.secondary):not(.gold):not(.danger):not(.jr-tegel):not(.jr-blok):not(.jr-klas-beeld):not(.jr-kb-optie):not(.terug-knop):not([class*='jr-klas-knop']) { background: #51cf66; color: #fff; box-shadow: 0 3px 0 #2f9e44; }
+/* De balk bovenaan: ronde knoppen, zoals de rest van Junior. */
+.jr-lk .topbar .actions > button, .jr-lk .topbar .actions > a.button { border-radius: 999px; clip-path: none; background: rgb(255 255 255 / .14); color: #fff; box-shadow: none; }
+.jr-lk .topbar .actions > a.jr-wissel { background: #fff; color: var(--jr-inkt); }
+.jr-lk .jr-loopt-kop { background: rgb(255 248 231 / .96); color: var(--jr-inkt); box-shadow: 0 4px 0 #d8c9a3, 0 10px 24px rgb(0 0 0 / .2); border-radius: 22px; }
+.jr-lk .jr-loopt-kop .title { color: var(--jr-inkt); font-family: var(--jr-schrift); font-size: 1.35rem; text-transform: none; letter-spacing: 0; }
+.jr-lk .jr-loopt-kop .muted { color: #5b5170; }
+.jr-lk main .jr-loopt-kop button.secondary { background: #fff; color: var(--jr-inkt); border: 2px solid #eadfc4; box-shadow: 0 3px 0 #d8c9a3; }
+.jr-lk .jr-groep { background: rgb(255 248 231 / .22); backdrop-filter: blur(6px); box-shadow: inset 0 0 0 2px rgb(255 255 255 / .35); }
+.jr-lk .jr-view-kop h2 { font-family: var(--jr-schrift); text-transform: none; letter-spacing: 0; color: #fff; text-shadow: 0 2px 8px rgb(0 0 0 / .55); font-size: 2rem; }
+.jr-lk .jr-view-kop .terug-knop { background: #fff; color: var(--jr-inkt); box-shadow: 0 3px 0 #d8c9a3; }
+.jr-lk .jr-groeibalk { background: #efe6cc; }
+.jr-lk .panel a { color: #1c7ed6; }
+
+/* ---------- Het bord als de kinderen op tablets spelen: een levend klasbeeld, groot genoeg voor achteraan in de klas ---------- */
+.jr-lk .jr-tablets { grid-template-columns: minmax(240px, 300px) 1fr; min-height: calc(100vh - 200px); }
+.jr-lk .jr-join { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+.jr-lk .jr-join .jr-url { font-size: 1.05rem; word-break: break-all; }
+.jr-lk .jr-volg { display: flex; flex-direction: column; }
+.jr-lk .jr-volg .title { font-size: 1.8rem; }
+.jr-lk .jr-volg-rooster { grid-template-columns: repeat(auto-fill, minmax(clamp(110px, 10vw, 170px), 1fr)); gap: 14px; align-content: start; flex: 1; }
+.jr-lk .jr-volg-kind { background: #fff; padding: 10px 8px 8px; border-radius: 22px; box-shadow: 0 4px 0 #e2d4ae; font-size: clamp(.95rem, 1.1vw, 1.25rem); opacity: .55; filter: saturate(.6); transition: all .4s ease; position: relative; }
+.jr-lk .jr-volg-kind img { width: clamp(64px, 7vw, 120px); height: clamp(64px, 7vw, 120px); }
+.jr-lk .jr-volg-kind em { font-size: clamp(.8rem, .9vw, 1.05rem); }
+.jr-lk .jr-volg-kind.klaar { opacity: 1; filter: none; box-shadow: 0 4px 0 #a3d9a5, inset 0 0 0 3px #a3d9a5; }
+.jr-lk .jr-volg-kind.klaar::after { content: '✓'; position: absolute; right: 8px; top: 6px; width: 28px; height: 28px; border-radius: 50%; background: #51cf66; color: #fff; font-weight: 800; display: grid; place-items: center; }
+.jr-lk .jr-volg-kind.bezig { opacity: 1; filter: none; box-shadow: 0 4px 0 #2f9e44, 0 0 0 4px #51cf66, 0 0 26px #51cf66; }
+.jr-lk .jr-volg-kind.bezig img { animation: jr-ren .6s ease-in-out infinite alternate; }

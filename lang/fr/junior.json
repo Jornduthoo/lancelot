@@ -331,5 +331,11 @@
  "Rekenen tot 100, de tafels van 2, 5 en 10, de klok (uur en half), korte zinnen lezen, spelling van eenvoudige woorden.": null,
  "Je maakt vragen voor kinderen uit {0}. Niveau: {1} Onderwerp: {2} Taal van de vragen: {3} Maak {4} korte vragen. Elke vraag wordt voorgelezen, dus schrijf ze zoals een leerkracht ze zegt: kort, eenvoudig en vriendelijk. Elke vraag heeft 3 antwoorden. Elk antwoord is één duidelijke emoji en één kort woord (de emoji moet het woord tonen, kinderen kiezen op de prent). Precies één antwoord is juist. Wissel de plaats van het juiste antwoord af. Geen strikvragen, geen negatieve vragen. Geef ALLEEN deze JSON, zonder uitleg en zonder codeblok: {\"naam\": \"korte titel van de reeks\", \"vragen\": [{\"vraag\": \"Welk dier zegt miauw?\", \"opties\": [{\"emoji\": \"🐶\", \"woord\": \"hond\"}, {\"emoji\": \"🐱\", \"woord\": \"kat\"}, {\"emoji\": \"🐮\", \"woord\": \"koe\"}], \"juist\": 1}]} \"juist\" is de plaats van het juiste antwoord (0, 1 of 2).": null,
  "Elk op een eigen tablet": "Chacun sur sa tablette",
- "Elk kind meldt zich één keer aan en blijft spelen.": "Chaque enfant se connecte une fois et continue à jouer."
+ "Elk kind meldt zich één keer aan en blijft spelen.": "Chaque enfant se connecte une fois et continue à jouer.",
+ "Alle tafels, van 1 tot 10.": "Toutes les tables, de 1 à 10.",
+ "Tafels van 2, 5 en 10": "Tables de 2, 5 et 10",
+ "Tafels van 3 en 4": "Tables de 3 et 4",
+ "Tafels van 6 en 7": "Tables de 6 et 7",
+ "Tafels van 8 en 9": "Tables de 8 et 9",
+ "Alle tafels": "Toutes les tables"
 }
