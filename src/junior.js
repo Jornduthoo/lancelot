@@ -141,6 +141,8 @@ function load() {
   if (typeof data.hol.hoed !== 'number') data.hol.hoed = 0;
   // Verjaardagen: { kind-id: 'MM-DD' }.
   if (!data.jarig || typeof data.jarig !== 'object') data.jarig = {};
+  // Op maat per kind (buitengewoon onderwijs, zorg): { kind-id: { stap: -1 | 0 | 1, minder: true } }.
+  if (!data.opMaat || typeof data.opMaat !== 'object') data.opMaat = {};
   return data;
 }
 function save() {
@@ -162,7 +164,7 @@ const DIER_GROEI = [0, 10, 30]; // public/img/junior/dier, dier2, dier3
 const THEMAS = ['herfst', 'halloween', 'sint', 'kerst', 'winter', 'valentijn', 'carnaval', 'lente', 'pasen', 'moederdag', 'vaderdag', 'zomer', 'school'];
 function instellingen() {
   const i = load().instellingen;
-  return { perRonde: RONDES.includes(i.perRonde) ? i.perRonde : PER_RONDE, voorlezen: i.voorlezen !== false, groei: i.groei !== false, thema: ['auto', 'geen', ...THEMAS].includes(i.thema) ? i.thema : 'auto' };
+  return { perRonde: RONDES.includes(i.perRonde) ? i.perRonde : PER_RONDE, voorlezen: i.voorlezen !== false, groei: i.groei !== false, thema: ['auto', 'geen', ...THEMAS].includes(i.thema) ? i.thema : 'auto', rustig: i.rustig === true };
 }
 // Paaszondag (Gauss/Meeus), voor de datum van carnaval.
 function pasen(j) {
@@ -205,6 +207,7 @@ function zetInstellingen(nieuw = {}) {
   if (RONDES.includes(Number(nieuw.perRonde))) i.perRonde = Number(nieuw.perRonde);
   if (typeof nieuw.voorlezen === 'boolean') i.voorlezen = nieuw.voorlezen;
   if (typeof nieuw.groei === 'boolean') i.groei = nieuw.groei;
+  if (typeof nieuw.rustig === 'boolean') i.rustig = nieuw.rustig;
   if (['auto', 'geen', ...THEMAS].includes(nieuw.thema)) i.thema = nieuw.thema;
   save();
   return instellingen();
@@ -235,7 +238,9 @@ function kinderen() {
     const groei = groeit ? dierFase(stickers) : 1;
     const map = groei === 1 ? 'dier' : `dier${groei}`;
     const jarig = d.jarig[l.id] || '';
-    return { id: l.id, naam: l.naam, team: lijst.indexOf(l) % 4, dier, groei, eigen: !!sym, beeld: sym ? `/junior/symbool/${l.id}?v=${sym.v}` : `/img/junior/${map}/${dier}.webp`, stickers, jarig, feest: !!jarig && jarig === maandDag() };
+    const m = d.opMaat[l.id] || {};
+    const maat = { stap: [-1, 1].includes(m.stap) ? m.stap : 0, minder: m.minder === true };
+    return { id: l.id, maat, naam: l.naam, team: lijst.indexOf(l) % 4, dier, groei, eigen: !!sym, beeld: sym ? `/junior/symbool/${l.id}?v=${sym.v}` : `/img/junior/${map}/${dier}.webp`, stickers, jarig, feest: !!jarig && jarig === maandDag() };
   });
   if (veranderd) save();
   return uit;
@@ -251,6 +256,23 @@ function zetJarig(id, datum) {
   if (m && +m[1] >= 1 && +m[1] <= 12 && +m[2] >= 1 && +m[2] <= 31) d.jarig[id] = datum; else delete d.jarig[id];
   save();
   return kinderen();
+}
+
+// Op maat: dit kind speelt een niveau makkelijker of moeilijker dan de klas, en/of met minder prenten om uit te kiezen.
+function zetMaat(id, { stap, minder } = {}) {
+  if (!klas.read().leerlingen.some(l => l.id === id)) throw new Error('Dat kind staat niet meer op de klaslijst.');
+  const d = load();
+  const oud = d.opMaat[id] || {};
+  const m = { stap: [-1, 0, 1].includes(Number(stap)) ? Number(stap) : (oud.stap || 0), minder: typeof minder === 'boolean' ? minder : oud.minder === true };
+  if (!m.stap && !m.minder) delete d.opMaat[id]; else d.opMaat[id] = m;
+  save();
+  return kinderen();
+}
+// Het niveau dat een kind echt speelt: dat van de klas, met de stap van Op maat (niet bij eigen vragen: dat zijn reeksen, geen niveaus).
+function niveauVoor(kind, spel, basis) {
+  const s = SPEL[spel];
+  if (!s || s.id === 'eigen' || !kind || !kind.maat || !kind.maat.stap) return basis;
+  return Math.max(0, Math.min(niveausVan(s).length - 1, basis + kind.maat.stap));
 }
 
 // De leerkracht tikt op het dier van een kind: het volgende vrije dier.
@@ -376,12 +398,14 @@ function stop() {
   les = null;
 }
 function stand() {
-  if (!les) return { actief: false, draak: draak(), voorlezen: instellingen().voorlezen, thema: themaNu() };
+  // Rustig: geen versiering aan de randen.
+  const thema = instellingen().rustig ? '' : themaNu();
+  if (!les) return { actief: false, draak: draak(), voorlezen: instellingen().voorlezen, rustig: instellingen().rustig, thema };
   const s = SPEL[les.spel];
   return {
     actief: true, spel: les.spel, naam: s.naam, niveau: les.niveau, niveauNaam: niveausVan(s)[les.niveau], manier: les.manier, seed: les.seed,
     eigen: les.spel === 'eigen' ? load().sets[les.niveau] || null : undefined,
-    perRonde: instellingen().perRonde, voorlezen: instellingen().voorlezen, teams: les.teams, avontuur: avontuurStand(), kring: { vraag: les.kring.vraag }, draak: draak(), thema: themaNu(),
+    perRonde: instellingen().perRonde, voorlezen: instellingen().voorlezen, teams: les.teams, avontuur: avontuurStand(), kring: { vraag: les.kring.vraag }, draak: draak(), rustig: instellingen().rustig, thema,
   };
 }
 // Hoe ver elk team is (0 tot 1). Een team met meer kinderen moet ook meer stappen zetten: zo blijft het eerlijk.
@@ -442,7 +466,7 @@ function antwoord(id, { vraag, juist, apart } = {}) {
   p.gedaan++;
   if (juist) p.goed++;
   const s = SPEL[eigen ? eigen.spel : les.spel];
-  const niveau = eigen ? eigen.niveau : les.niveau;
+  const niveau = eigen ? eigen.niveau : niveauVoor(kind, les.spel, les.niveau);
   if (!s.geenFout) logboek.answer(`Junior · ${s.naam}`, `LANcelot Junior · ${niveausVan(s)[niveau]}${eigen ? ' · apart' : ''}`, kind.naam, { question: String(vraag || s.naam).slice(0, 160), doel: '' }, !!juist);
   // De opvolging: per kind en per spel hoeveel opdrachten, hoeveel meteen goed, en wanneer het laatst.
   if (!s.geenFout && s.id !== 'raadsel') {
@@ -694,7 +718,7 @@ module.exports = {
   zetJarig, themaNu, pasen, THEMAS,
   SPELLEN, AVONTUREN, FASEN, PER_RONDE, RONDES, DIEREN, instellingen, zetInstellingen, STICKERS, nieuweSticker, DIER_GROEI, dierFase,
   kinderen, wisselDier, zetSymbool, symboolBestand, draak, noemDraak, holKoop, holZet, HOL_SPUL, eiland, start, stop, stand, overzicht, antwoord, teamGoed, klasBeloning, stickers,
-  kringKies, kringStand, kringVolgende, inhoud, fase, niveausVan,
+  kringKies, kringStand, kringVolgende, inhoud, fase, niveausVan, zetMaat, niveauVoor,
   burcht, burchtBouw, BURCHT_PLEKKEN, BURCHT_STUKKEN,
   voortgang, sets, bewaarSet, wisSet, mappen, nieuweMap, hernoemMap, wisMap, zetMap, eigenPrompt, leesEigen,
   get actief() { return !!les; },

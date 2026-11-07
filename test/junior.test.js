@@ -58,3 +58,39 @@ test('het dier groeit mee met de stickers en elk groeibeeld bestaat', () => {
     for (let i = 1; i <= junior.DIEREN; i++) assert.ok(fs.existsSync(path.join(__dirname, '..', 'public', 'img', 'junior', map, `${i}.webp`)), `${map}/${i}.webp`);
   }
 });
+
+test('op maat: een niveau makkelijker of moeilijker, nooit buiten de niveaus, en bord en tablet rekenen hetzelfde', () => {
+  const J = laad('nl');
+  for (const s of junior.SPELLEN.filter(x => x.id !== 'eigen' && x.niveaus.length)) {
+    const laatste = s.niveaus.length - 1;
+    for (let basis = 0; basis <= laatste; basis++) {
+      for (const stap of [-1, 0, 1]) {
+        const kind = { maat: { stap } };
+        const verwacht = Math.max(0, Math.min(laatste, basis + stap));
+        assert.strictEqual(junior.niveauVoor(kind, s.id, basis), verwacht, `${s.id} ${basis}${stap}`);
+        assert.strictEqual(J.niveauVoor(kind, s.id, basis), verwacht, `tablet ${s.id} ${basis}${stap}`);
+      }
+    }
+  }
+  assert.strictEqual(junior.niveauVoor({ maat: { stap: 1 } }, 'eigen', 0), 0, 'eigen vragen zijn reeksen, geen niveaus');
+  assert.strictEqual(J.niveauVoor({}, 'tel', 1), 1, 'zonder op maat: het niveau van de klas');
+});
+
+test('op maat: minder prenten houdt de juiste prent en precies één andere', () => {
+  const J = laad('nl');
+  let getest = 0;
+  for (const s of junior.SPELLEN) {
+    if (!J.MAKERS[s.id]) continue;
+    for (let n = 0; n < s.niveaus.length; n++) {
+      for (let seed = 1; seed <= 10; seed++) {
+        const v = J.vraag(s.id, n, J.toeval(seed));
+        const m = J.minder(v);
+        if (!v || v.soort !== 'kies' || v.opties.length <= 2 || v.opties.filter(o => o.juist).length !== 1) { assert.strictEqual(m, v); continue; }
+        getest++;
+        assert.strictEqual(m.opties.length, 2, `${s.id} ${n}`);
+        assert.strictEqual(m.opties.filter(o => o.juist).length, 1, `${s.id} ${n}: de juiste prent blijft`);
+      }
+    }
+  }
+  assert.ok(getest > 50, 'er zijn genoeg kies-vragen getest');
+});
