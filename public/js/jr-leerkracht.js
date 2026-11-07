@@ -398,11 +398,19 @@ function toon() {
   $('jr-race').classList.toggle('hidden', !isRace);
   $('jr-tablets').classList.toggle('hidden', isRace || opBord || isDans || (isKring && stand.manier === 'bord'));
   if (isRace) raceToon(stand.avontuur);
+  // Een ander spel (of opnieuw gestart): het oude spel op het bord eerst helemaal stoppen.
+  if (bord && (bord.seed !== stand.seed || !opBord)) {
+    if (bord.huidig) bord.huidig.stop();
+    $('jr-bord-vak').innerHTML = '';
+    bord = null;
+  }
   if (opBord && (!bord || bord.seed !== stand.seed)) {
     bord = { seed: stand.seed, r: Junior.toeval(stand.seed), team: 0, huidig: null };
     Junior.schaal($('jr-bord-vak'));
     bordVraag();
   }
+  if (!isDans && dans) { dans = null; Junior.Stem.stop(); }
+  if (!isKring) kring = null;
   if (isDans && (!dans || dans.seed !== stand.seed)) {
     const r = Junior.toeval(stand.seed);
     dans = { seed: stand.seed, r, nr: 0, volgorde: r.schud((J().dans || []).map((_, i) => i)), pauze: false };
