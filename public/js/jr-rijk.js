@@ -1,6 +1,6 @@
-// LANcelot Junior · Het Toverdorp: twee geschilderde kaarten (over de brug) met elk zes plekken. Op elke plek:
+// LANcelot Junior · Het Toverdorp: drie geschilderde kaarten (over de brug) met elk zes plekken. Op elke plek:
 // tik op wat je ziet (het draakje zegt het woord), het zoekspel ("Waar is de koe?"), verstoppertje (onthoud waar alles stond)
-// en "wat hoort hier niet?". Op de kaart vraagt het draakje om drie dingen uit het hele dorp in je mand te stoppen.
+// "wat hoort hier niet?" en "draakje zegt" (tik in de goede volgorde). Op de kaart: "waar hoort dit?" en vraagt het draakje om drie dingen uit het hele dorp in je mand te stoppen.
 // Zelfde onderdeel op de tablet en op het bord. JrRijk.maak(vak) tekent alles in vak; JrRijk.stop() stopt de spelletjes.
 (function () {
   const J = () => window.JR || {};
@@ -10,9 +10,10 @@
   const KAART = {
     boerderij: [14, 24], bos: [47, 17], vijver: [85, 22], markt: [15, 74], kasteel: [50, 74], tuin: [85, 72],
     strand: [35, 22], speeltuin: [58, 21], station: [85, 30], bakkerij: [29, 63], dierentuin: [58, 66], sneeuw: [87, 74],
+    brandweer: [27, 25], dokter: [57, 24], haven: [84, 26], circus: [23, 67], school: [53, 67], ruimte: [84, 65],
   };
-  // De wegwijzer naar de andere kaart.
-  const BRUG = { 1: [94, 47, 5], 2: [8, 51, 6] };
+  // De wegwijzers naar de andere kaarten: [links, boven, prent, naar kaart].
+  const BRUG = { 1: [[94, 47, 5, 2]], 2: [[8, 51, 6, 1], [93, 44, 5, 3]], 3: [[9, 46, 6, 2]] };
   // Waar de zes prenten op een plek staan: midden (%), onderkant (%), breedte (%).
   const SPOT = [[17, 80, 18], [39, 92, 17], [62, 90, 17], [84, 80, 18], [28, 58, 13], [72, 56, 13]];
   const STRUIK = '/img/junior/rijk/extra/1.webp';
@@ -42,14 +43,19 @@
     ruim();
     welkeKaart = k;
     if (!mand) nieuweMand();
-    const [bx, by, bi] = BRUG[k];
-    vak.innerHTML = `<div class="jr-rijk jr-rijk-kaart ${k === 2 ? 'jr-rijk-kaart2' : ''}">
+    vak.innerHTML = `<div class="jr-rijk jr-rijk-kaart ${k > 1 ? `jr-rijk-kaart${k}` : ''}">
+      <div class="jr-rijk-balk jr-rijk-balk-kaart"><span class="jr-rijk-sterren" data-geen-vertaling></span><span class="jr-rijk-spellen"><button type="button" class="jr-eigen" data-kaartspel="hoort">🧭</button></span></div>
+      <p class="jr-rijk-vraag jr-rijk-hoort hidden" data-geen-vertaling></p>
       ${opKaart(k).map(p => { const [x, y] = KAART[p.id] || [50, 50]; const hier = mand.dingen.some(d => d.plek === p.id && !mand.gevonden.has(sleutel(d.plek, d.i))); return `<button type="button" class="jr-rijk-plek jr-eigen ${hier ? 'mand-hier' : ''}" data-plek="${p.id}" style="left:${x}%;top:${y}%"><span>${esc(p.naam)}</span></button>`; }).join('')}
-      <button type="button" class="jr-rijk-brug jr-eigen" style="left:${bx}%;top:${by}%" aria-label="${esc(Z().rijkBrug || '')}"><img src="/img/junior/rijk/extra/${bi}.webp" alt=""></button>
+      ${BRUG[k].map(([bx, by, bi, naar]) => `<button type="button" class="jr-rijk-brug jr-eigen" data-naar="${naar}" style="left:${bx}%;top:${by}%" aria-label="${esc(Z().rijkBrug || '')}"><img src="/img/junior/rijk/extra/${bi}.webp" alt=""></button>`).join('')}
       ${mandHtml()}
     </div>`;
-    vak.querySelectorAll('[data-plek]').forEach(b => b.addEventListener('click', () => { fx('jump'); plek(b.dataset.plek); }));
-    vak.querySelector('.jr-rijk-brug').addEventListener('click', () => { fx('jump'); kaart(k === 1 ? 2 : 1, false); zeg([Z().rijkBrug]); });
+    vak.querySelectorAll('[data-plek]').forEach(b => b.addEventListener('click', () => {
+      if (spel && spel.soort === 'hoort') return hoortTik(b);
+      fx('jump'); plek(b.dataset.plek);
+    }));
+    vak.querySelectorAll('.jr-rijk-brug').forEach(b => b.addEventListener('click', () => { fx('jump'); kaart(+b.dataset.naar, false); zeg([Z().rijkBrug]); }));
+    vak.querySelector('[data-kaartspel]').addEventListener('click', () => hoortStart(k));
     vak.querySelector('.jr-rijk-mand').addEventListener('click', () => zeg([Z().rijkMand, ...mand.dingen.filter(d => !mand.gevonden.has(sleutel(d.plek, d.i))).map(d => woord(d.plek, d.i))]));
     if (praat) zeg([Z().rijkKaart]);
   }
@@ -61,13 +67,13 @@
     vak.innerHTML = `<div class="jr-rijk jr-rijk-plaats" style="--bg:url(/img/junior/rijk/${id}/bg.webp);--bg-klein:url(/img/junior/rijk/${id}/bg-klein.webp)">
       <div class="jr-rijk-balk"><button type="button" class="jr-rijk-terug jr-eigen" aria-label="Kaart">🗺️</button><b>${esc(p.naam)}</b>
         <span class="jr-rijk-sterren" data-geen-vertaling></span>
-        <span class="jr-rijk-spellen"><button type="button" class="jr-eigen" data-spel="zoek">🔍</button><button type="button" class="jr-eigen" data-spel="verstop">🙈</button><button type="button" class="jr-eigen" data-spel="niet">❓</button></span></div>
+        <span class="jr-rijk-spellen"><button type="button" class="jr-eigen" data-spel="zoek">🔍</button><button type="button" class="jr-eigen" data-spel="verstop">🙈</button><button type="button" class="jr-eigen" data-spel="niet">❓</button><button type="button" class="jr-eigen" data-spel="volg">👂</button></span></div>
       ${p.woorden.map((w, i) => { const [x, b, br] = SPOT[i]; return `<button type="button" class="jr-rijk-ding jr-eigen" data-ding="${i}" style="left:${x - br / 2}%;width:${br}%;bottom:${100 - b}%;z-index:${b}"><img src="${img(id, i)}" alt=""><img class="jr-rijk-struik hidden" src="${STRUIK}" alt=""></button>`; }).join('')}
       <p class="jr-rijk-vraag hidden" data-geen-vertaling></p>
       ${mandHtml()}
     </div>`;
     vak.querySelector('.jr-rijk-terug').addEventListener('click', () => kaart(p.kaart || 1));
-    vak.querySelectorAll('[data-spel]').forEach(b => b.addEventListener('click', () => ({ zoek: zoekStart, verstop: verstopStart, niet: nietStart })[b.dataset.spel](p)));
+    vak.querySelectorAll('[data-spel]').forEach(b => b.addEventListener('click', () => ({ zoek: zoekStart, verstop: verstopStart, niet: nietStart, volg: volgStart })[b.dataset.spel](p)));
     vak.querySelectorAll('[data-ding]').forEach(b => b.addEventListener('click', () => tik(p, +b.dataset.ding, b)));
     const m = vak.querySelector('.jr-rijk-mand'); if (m) m.addEventListener('click', () => kaart(p.kaart || 1));
     zeg([p.naam, Z().rijkPlek]);
@@ -107,6 +113,7 @@
     if (spel.soort === 'zoek') return zoekTik(p, i, b);
     if (spel.soort === 'verstop') return verstopTik(p, i, b);
     if (spel.soort === 'niet') return nietTik(p, i, b);
+    if (spel.soort === 'volg') return volgTik(p, i, b);
   }
 
   // ---------- Zoekspel: "Waar is de koe?" ----------
@@ -199,6 +206,70 @@
       if (spel !== mijn) return;
       if (spel.nr >= 3) { herstel(p); return klaar(); }
       nietRonde(p);
+    });
+  }
+
+  // ---------- Draakje zegt: tik de dingen in de volgorde waarin het draakje ze noemt (2, 3 en dan 3 dingen). ----------
+  const LENGTES = [2, 3, 3];
+  function volgStart(p) {
+    ruim(); herstel(p); ster(0);
+    spel = { soort: 'volg', plek: p.id, nr: 0 };
+    volgRonde(p);
+  }
+  function volgRonde(p) {
+    spel.rij = schud(p.woorden.map((_, i) => i)).slice(0, LENGTES[spel.nr]);
+    spel.stap = 0;
+    volgZeg(p);
+  }
+  function volgZeg(p) {
+    const w = spel.rij.map(i => p.woorden[i]);
+    vraag(w.join(' → '));
+    zeg([Z().rijkVolgorde, ...w]);
+  }
+  function volgTik(p, i, b) {
+    if (i !== spel.rij[spel.stap]) {
+      wiebel(b, 'nee'); fx('bad');
+      spel.stap = 0;
+      const mijn = spel;
+      setTimeout(() => { if (spel === mijn) volgZeg(p); }, 700);
+      return;
+    }
+    wiebel(b, 'ja'); fx('marker');
+    spel.stap++;
+    if (spel.stap < spel.rij.length) return;
+    fx('good');
+    spel.nr++; ster(spel.nr);
+    if (spel.nr >= LENGTES.length) return klaar();
+    const mijn = spel;
+    zeg([Z().rijkGevonden]).then(() => { if (spel === mijn) volgRonde(p); });
+  }
+
+  // ---------- Op de kaart: waar hoort dit? Het draakje toont een prent, tik op de plek waar die thuishoort. Drie keer. ----------
+  function hoortStart(k) {
+    ruim(); ster(0);
+    spel = { soort: 'hoort', kaart: k, nr: 0 };
+    hoortRonde();
+  }
+  function hoortRonde() {
+    const p = schud(opKaart(spel.kaart).filter(x => !spel.vorige || x.id !== spel.vorige))[0];
+    if (!p) return;
+    const i = Math.floor(Math.random() * p.woorden.length);
+    spel.doel = p.id; spel.vorige = p.id; spel.woord = p.woorden[i];
+    const v = vak.querySelector('.jr-rijk-hoort');
+    v.innerHTML = `<img src="${img(p.id, i)}" alt=""><span>${esc(Z().rijkWaarHoort || '')}</span>`;
+    v.classList.remove('hidden');
+    zeg([Z().rijkWaarHoort, spel.woord]);
+  }
+  function hoortTik(b) {
+    const p = plekken().find(x => x.id === b.dataset.plek);
+    if (b.dataset.plek !== spel.doel) { wiebel(b, 'nee'); fx('bad'); zeg([p ? p.naam : '']); return; }
+    wiebel(b, 'ja'); fx('good');
+    spel.nr++; ster(spel.nr);
+    const mijn = spel;
+    zeg([Z().rijkGoedePlek, p ? p.naam : '']).then(() => {
+      if (spel !== mijn) return;
+      if (spel.nr >= 3) { const v = vak.querySelector('.jr-rijk-hoort'); if (v) v.classList.add('hidden'); return klaar(); }
+      hoortRonde();
     });
   }
 
