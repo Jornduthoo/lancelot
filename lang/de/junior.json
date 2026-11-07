@@ -483,5 +483,6 @@
  "Dit spel heeft nog geen werkblad. Kies een ander spel.": "Für dieses Spiel gibt es noch kein Arbeitsblatt. Wähle ein anderes Spiel.",
  "Een werkblad op papier met vragen uit dit spel": "Ein Arbeitsblatt auf Papier mit Fragen aus diesem Spiel",
  "Werkblad": "Arbeitsblatt",
- "Naar de startpagina": "Zur Startseite"
+ "Naar de startpagina": "Zur Startseite",
+ "De prompt staat klaar. Plak hem in een chatbot (Gemini, ChatGPT of Claude) en plak het antwoord hieronder: het wordt meteen ingelezen.": "Der Prompt ist bereit. Füge ihn in einen Chatbot (Gemini, ChatGPT oder Claude) ein und füge die Antwort unten ein: Sie wird sofort eingelesen."
 }

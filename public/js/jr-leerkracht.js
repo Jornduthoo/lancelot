@@ -1122,17 +1122,22 @@ $('jr-maak-kopieer').addEventListener('click', () => {
     if (!res || res.error) return Ui.melding((res && res.error) || 'Dat lukte niet.');
     Ui.kopieer(res.prompt);
     $('jr-maak-plak-blok').classList.remove('hidden');
-    $('jr-maak-ai-tip').textContent = 'De prompt staat klaar. Plak hem in een chatbot (Gemini, ChatGPT of Claude) en plak het antwoord hieronder.';
+    $('jr-maak-ai-tip').textContent = 'De prompt staat klaar. Plak hem in een chatbot (Gemini, ChatGPT of Claude) en plak het antwoord hieronder: het wordt meteen ingelezen.';
   });
 });
-$('jr-maak-lees').addEventListener('click', () => {
-  socket.emit('jr-set-lees', $('jr-maak-plak').value, res => {
-    if (!res || res.error) return Ui.melding((res && res.error) || 'Dat lukte niet.');
+function leesPlak(stil) {
+  const tekst = $('jr-maak-plak').value;
+  if (!tekst.trim()) return;
+  socket.emit('jr-set-lees', tekst, res => {
+    if (!res || res.error) { if (!stil) Ui.melding((res && res.error) || 'Dat lukte niet.'); return; }
     $('jr-maak-plak').value = '';
     $('jr-maak-plak-blok').classList.add('hidden');
     bewerk(res.set);
   });
-});
+}
+$('jr-maak-lees').addEventListener('click', () => leesPlak(false));
+// Plakken is genoeg: het antwoord van de chatbot wordt meteen ingelezen (lukt het niet, dan blijft de knop Inlezen).
+$('jr-maak-plak').addEventListener('paste', () => setTimeout(() => leesPlak(true), 50));
 socket.on('jr-sets', lijst => zetSets(lijst));
 // Kant-en-klare themareeksen (herfst, Sinterklaas, kerst, carnaval) uit de inhoud van de taal.
 function themaSets() {
