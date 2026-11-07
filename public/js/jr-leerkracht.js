@@ -296,8 +296,15 @@ function volg(lijst) {
 }
 
 // ---------- Op het bord: 4 kleurteams ----------
-function teams() {
-  $('jr-teams').innerHTML = TEAMKLEUR.map((kl, i) => `<div class="jr-team jr-team-${kl} ${bord && bord.team === i ? 'aan' : ''}"><b>${(J().zin.teams || [])[i] || ''}</b><span>${'⭐'.repeat(Math.min(10, stand.teams ? stand.teams[i] : 0))}</span></div>`).join('');
+// Elk team heeft zijn eigen geschilderde draakje en een rij sterren. Het team dat aan de beurt is, springt.
+function teams(nieuw = -1) {
+  $('jr-teams').innerHTML = TEAMKLEUR.map((kl, i) => {
+    const n = stand.teams ? stand.teams[i] : 0;
+    const sterren = Array.from({ length: Math.min(10, n) }, (_, j) => `<img class="${i === nieuw && j === Math.min(10, n) - 1 ? 'nieuw' : ''}" src="/img/junior/race/ster.webp" alt="">`).join('');
+    return `<div class="jr-team jr-team-${kl} ${bord && bord.team === i ? 'aan' : ''}">
+      <img class="jr-team-draak" src="/img/junior/race/draak${i + 1}.webp" alt="">
+      <div class="jr-team-info"><b>${(J().zin.teams || [])[i] || ''}</b><span class="jr-team-sterren">${sterren}${n > 10 ? `<em>${n}</em>` : ''}</span></div></div>`;
+  }).join('');
 }
 async function bordVraag() {
   if (!bord) return;
@@ -312,10 +319,12 @@ async function bordVraag() {
       socket.emit('jr-team-goed', { team: bord.team }, res => {
         if (mijn !== bord) return;
         if (res && res.teams) stand.teams = res.teams;
+        teams(bord.team);
+        try { sfx.naald(); } catch {}
         if (res && res.draak) toonDraak(res.draak);
         if (res && res.gegroeid) { try { confetti(3000); } catch {} Junior.Stem.zeg([J().zin.groei]); }
         bord.team = (bord.team + 1) % 4;
-        setTimeout(bordVraag, res && res.gegroeid ? 2600 : 300);
+        setTimeout(bordVraag, res && res.gegroeid ? 2600 : 900);
       });
     },
   });
