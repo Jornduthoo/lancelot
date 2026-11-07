@@ -254,6 +254,13 @@ document.addEventListener('keydown', e => {
   if (buttons[e.key - 1]) buttons[e.key - 1].click();
 });
 
+// LANcelot Junior: start de leerkracht een Junior-spel, dan gaat een toestel dat nog wacht naar de Junior-pagina.
+const naarJunior = s => {
+  if (s && s.actief && !soloTaak && document.querySelector('#idle:not(.hidden), #join:not(.hidden)')) location.href = '/junior';
+};
+socket.on('jr-stand', naarJunior);
+socket.on('connect', () => socket.emit('jr-get', null, res => res && naarJunior(res.stand)));
+
 // De Proef: staat er een toets klaar, dan gaat de leerling naar de toetspagina (licht, en apart van de spellen).
 socket.on('pf-state', s => {
   if (s && s.active && s.phase === 'open' && !soloTaak) location.href = '/toets';

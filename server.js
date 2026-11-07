@@ -118,6 +118,7 @@ const ontdek = require('./src/ontdek');
 const burchten = require('./src/burchten');
 const huisdieren = require('./src/huisdieren');
 const taken = require('./src/taken');
+const junior = require('./src/junior');
 const klastaken = require('./src/klastaken');
 const klasindeling = require('./src/klasindeling');
 const soloSpel = require('./src/solo');
@@ -391,7 +392,7 @@ function oudeSpeler(name) {
 
 // Wie zit waar? Voor de knop "Namen" op elk leerkrachtenscherm. Een spel weet zijn spelers; op het Runenraadsel,
 // Mijn burcht, Mijn taken en het startscherm onthoudt de verbinding zelf welke naam erop staat.
-const ZONDER_SPEL = { runen: 'Runenraadsel', ontdek: ontdek.NAAM, burcht: 'Mijn burcht', huisdier: 'Mijn huisdier', taken: 'Mijn taken', solo: 'Taak in een spel', start: 'Wacht op een spel' };
+const ZONDER_SPEL = { runen: 'Runenraadsel', ontdek: ontdek.NAAM, burcht: 'Mijn burcht', huisdier: 'Mijn huisdier', taken: 'Mijn taken', junior: 'LANcelot Junior', solo: 'Taak in een spel', start: 'Wacht op een spel' };
 function hier(socket, naam, waar) {
   if (typeof naam !== 'string' || !naam.trim() || naam.length > 60 || !ZONDER_SPEL[waar]) return;
   socket.data.naam = naam.trim();
@@ -657,6 +658,23 @@ function ontdekSoon() {
   }, 2000);
 }
 
+// LANcelot Junior: welke kinderen nu op een tablet ingelogd zijn, en het overzicht voor de leerkracht (hooguit om de halve seconde).
+function juniorBezet() {
+  const ids = new Set();
+  for (const s of io.sockets.sockets.values()) for (const id of s.data.jr || []) ids.add(id);
+  return ids;
+}
+let juniorTimer = null;
+function juniorSoon() {
+  if (juniorTimer) return;
+  juniorTimer = setTimeout(() => {
+    juniorTimer = null;
+    const bezet = juniorBezet();
+    io.to('host').emit('jr-overzicht', junior.overzicht(bezet));
+    io.emit('jr-kinderen', { kinderen: junior.kinderen().map(({ id, naam, dier, eigen, beeld }) => ({ id, naam, dier, eigen, beeld })), bezet: [...bezet] });
+  }, 500);
+}
+
 // De leerkrachtenschermen, elk bij zijn adres.
 const PAGINAS = [['/host', 'host.html'], ['/rondetafel', 'rondetafel.html'], ['/toren', 'toren.html'], ['/schattenjacht', 'schattenjacht.html'], ['/laserslag', 'laserslag.html'], ['/ridderrace', 'ridderrace.html'], ['/kristalroof', 'kristalroof.html'], ['/verrader', 'verrader.html'], ['/burchtbouwers', 'burchtbouwers.html'], ['/duel', 'duel.html'], ['/packnight', 'packnight.html'], ['/strijdrossen', 'strijdrossen.html'], ['/gauntlet', 'gauntlet.html'], ['/ridder-royale', 'royale.html'], ['/sterrenvreter', 'sterrenvreter.html'], ['/ridderslang', 'ridderslang.html'], ['/burchtstorm', 'burchtstorm.html'], ['/poortwacht', 'poortwacht.html'], ['/neonvlucht', 'neonvlucht.html'], ['/diepboor', 'diepboor.html'], ['/raketridder', 'raketridder.html'], ['/splijtzwaard', 'splijtzwaard.html'], ['/wankelwagen', 'wankelwagen.html'], ['/plasmapoort', 'plasmapoort.html'], ['/tuimelridder', 'tuimelridder.html'], ['/hooibergjacht', 'hooibergjacht.html'], ['/zwermwacht', 'zwermwacht.html'], ['/haakridder', 'haakridder.html'], ['/kolkridder', 'kolkridder.html'], ['/neoncamelot', 'neoncamelot.html'], ['/titanenstrijd', 'titanenstrijd.html'], ['/banierveld', 'banierveld.html'], ['/pixelridder', 'pixelridder.html'], ['/robomol', 'robomol.html'], ['/kerker', 'kerker.html'], ['/hofschilder', 'hofschilder.html'], ['/robopaarden', 'robopaarden.html'], ['/neonduel', 'neonduel.html'], ['/leraarbaas', 'leraarbaas.html'], ['/cybergalaga', 'cybergalaga.html'], ['/bomberknight', 'bomberknight.html'], ['/rijk', 'rijk.html'], ['/oefenblad', 'oefenblad.html'], ['/proef', 'proef.html'], ['/proef-print', 'proef-print.html'], ['/reeks', 'reeks.html'], ['/wapenkamer', 'wapenkamer.html'], ['/kringgesprek', 'kringgesprek.html'], ['/kronieken', 'kronieken.html'], ['/zonnewijzer', 'zonnewijzer.html'], ['/zegelrol', 'zegelrol.html'], ['/zegelrol-print', 'zegelrol-print.html'], ['/postduif', 'postduif.html'], ['/postduif-print', 'postduif-print.html'], ['/oefenblad-print', 'oefenblad-print.html'], ['/klas', 'klas.html'], ['/zorg', 'zorg.html'], ['/taken', 'taken.html'], ['/zorg-fiche', 'zorg-fiche.html'], ['/runenraadsel', 'runenraadsel.html'], ['/ontdek-beheer', 'ontdek-beheer.html'], ['/klaseiland', 'klaseiland.html'], ['/netwerk', 'netwerk.html'], ['/welkom', 'welkom.html'], ['/privacy', 'privacy.html']];
 
@@ -723,6 +741,44 @@ app.get('/mijn-taken', (req, res) => {
 app.get('/burcht', (req, res) => {
   res.setHeader('Cache-Control', 'no-cache');
   res.sendFile(path.join(__dirname, 'public', 'burcht.html'));
+});
+// LANcelot Junior (3e kleuterklas tot 3e leerjaar), in dezelfde app. In de Store-versie nog niet, tot het getest is in de klas
+// (of met juniorInStore: true in settings.json).
+const juniorAan = () => !store.ACTIEF || settings.read().juniorInStore === true;
+app.get('/junior-leerkracht', (req, res) => {
+  if (!isLeerkracht(req)) return res.status(403).send(GEEN_TOEGANG);
+  if (!juniorAan()) return res.redirect('/host');
+  if (store.geblokkeerd()) return res.redirect('/licentie');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.sendFile(path.join(__dirname, 'public', 'junior-leerkracht.html'));
+});
+app.get('/junior', (req, res) => {
+  if (!juniorAan()) return res.redirect('/');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.sendFile(path.join(__dirname, 'public', 'junior.html'));
+});
+// De eigen symbooltjes van de klas (Junior > De dieren van de klas): opladen en wissen door de leerkracht, tonen aan iedereen.
+app.get('/junior/symbool/:id', (req, res) => {
+  const b = junior.symboolBestand(String(req.params.id));
+  if (!b) return res.status(404).end();
+  res.setHeader('Cache-Control', 'private, max-age=86400');
+  res.sendFile(b.file, err => err && !res.headersSent && res.status(404).end());
+});
+app.post('/junior/symbool/:id', express.json({ limit: '700kb' }), (req, res) => {
+  if (!isLeerkracht(req)) return res.status(403).end();
+  try {
+    res.json({ ok: true, kinderen: junior.zetSymbool(String(req.params.id), (req.body || {}).data || '') });
+    juniorSoon();
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+// Wat het draakje zegt en toont, in de taal van LANcelot, plus de spelletjes (namen voor de leerkracht).
+app.get('/junior/inhoud.js', (req, res) => {
+  const inh = junior.inhoud(taal.huidig());
+  const spellen = junior.SPELLEN.map(({ id, naam, zin, groep, jaar, beeld, niveaus: n, bordAlleen }) => ({ id, naam, zin, groep, jaar, beeld, niveaus: n, bordAlleen: !!bordAlleen }));
+  res.setHeader('Cache-Control', 'no-cache');
+  res.type('application/javascript').send(`window.JR=${JSON.stringify({ ...inh, spellen })};`);
 });
 // Mijn huisdier: een ei kiezen, verzorgen en zien groeien, op het eigen toestel.
 app.get('/huisdier', (req, res) => {
@@ -960,6 +1016,42 @@ io.on('connection', socket => {
     if (typeof cb !== 'function') return;
     try { cb({ ok: true, ...runen.view(naam) }); } catch (err) { cb({ error: err.message }); }
   });
+  // LANcelot Junior: de tablet van een kind (of twee). Wie ingelogd is, staat in socket.data.jr.
+  socket.on('jr-get', (_, cb) => {
+    if (typeof cb !== 'function') return;
+    if (!juniorAan()) return cb({ stand: { actief: false }, kinderen: [], bezet: [] });
+    cb({ stand: junior.stand(), kinderen: junior.kinderen().map(({ id, naam, dier, eigen, beeld }) => ({ id, naam, dier, eigen, beeld })), bezet: [...juniorBezet()] });
+  });
+  socket.on('jr-login', ({ ids } = {}, cb) => {
+    const geldig = new Set(junior.kinderen().map(k => k.id));
+    const lijst = (Array.isArray(ids) ? ids : []).filter(id => typeof id === 'string' && geldig.has(id)).slice(0, 2);
+    socket.data.jr = lijst;
+    const namen = junior.kinderen().filter(k => lijst.includes(k.id)).map(k => k.naam);
+    if (namen.length) hier(socket, namen.join(' & '), 'junior');
+    else if (socket.data.waar === 'junior') { socket.data.naam = ''; socket.data.waar = ''; }
+    juniorSoon();
+    typeof cb === 'function' && cb({ ok: true });
+  });
+  socket.on('jr-antwoord', ({ id, vraag, juist, apart } = {}, cb) => {
+    try {
+      if (!(socket.data.jr || []).includes(id)) throw new Error('Tik op je dier.');
+      const res = junior.antwoord(id, { vraag, juist, apart });
+      juniorSoon();
+      typeof cb === 'function' && cb({ ok: true, ...res });
+    } catch (err) {
+      typeof cb === 'function' && cb({ error: err.message });
+    }
+  });
+  socket.on('jr-stickers', ({ id } = {}, cb) => typeof cb === 'function' && cb({ stickers: (socket.data.jr || []).includes(id) ? junior.stickers(id) : [] }));
+  socket.on('jr-kring-kies', ({ id, keuze } = {}, cb) => {
+    try {
+      if (!(socket.data.jr || []).includes(id)) throw new Error('Tik op je dier.');
+      io.emit('jr-kring', junior.kringKies(id, keuze));
+      typeof cb === 'function' && cb({ ok: true });
+    } catch (err) {
+      typeof cb === 'function' && cb({ error: err.message });
+    }
+  });
   // Mijn burcht: je Eer, je rang en je burcht. Bouwen kan alleen tijdens Kasteeltijd.
   socket.on('bu-get', (naam, cb) => {
     if (typeof cb !== 'function') return;
@@ -1183,6 +1275,52 @@ io.on('connection', socket => {
     const refreshList = () => sendLibrary('quiz');
     // Mijn klas: de klaslijst, de leerplandoelen en wat het logboek al weet.
     socket.on('klas-get', handle(() => ({ klas: klas.read(), vakgroepen: niveaus.VAKGROEPEN })));
+    // LANcelot Junior voor de leerkracht: een spel starten en volgen, het klasdraakje, de dieren van de klas.
+    socket.on('jr-lk-get', handle(() => ({ stand: junior.stand(), kinderen: junior.kinderen(), overzicht: junior.overzicht(juniorBezet()) })));
+    socket.on('jr-start', handle(arg => {
+      if (!juniorAan()) throw new Error('LANcelot Junior staat niet aan.');
+      const st = junior.start(arg || {});
+      io.emit('jr-stand', st);
+      juniorSoon();
+      return { stand: st };
+    }));
+    socket.on('jr-stop', () => {
+      junior.stop();
+      io.emit('jr-stand', junior.stand());
+      juniorSoon();
+    });
+    socket.on('jr-team-goed', handle(({ team } = {}) => {
+      const res = junior.teamGoed(team);
+      io.to('host').emit('jr-draak', res.draak);
+      return res;
+    }));
+    socket.on('jr-beloning', handle(({ n } = {}) => {
+      const res = junior.klasBeloning(Math.min(10, Number(n) || 0));
+      io.emit('jr-stand', junior.stand());
+      return res;
+    }));
+    let bordTel = 0;
+    socket.on('jr-kring-tel', handle(({ keuze } = {}) => {
+      const k = junior.kringKies(`bord-${socket.id}-${bordTel++}`, keuze);
+      io.emit('jr-kring', k);
+      return {};
+    }));
+    socket.on('jr-kring-volgende', handle(({ stap } = {}) => {
+      const k = junior.kringVolgende(stap);
+      io.emit('jr-kring', k);
+      return {};
+    }));
+    socket.on('jr-kring-stand', (_, cb) => typeof cb === 'function' && cb(junior.kringStand()));
+    socket.on('jr-dier', handle(({ id } = {}) => {
+      const lijst = junior.wisselDier(String(id || ''));
+      juniorSoon();
+      return { kinderen: lijst };
+    }));
+    socket.on('jr-draaknaam', handle(({ naam } = {}) => {
+      const d = junior.noemDraak(naam);
+      io.to('host').emit('jr-draak', d);
+      return { draak: d };
+    }));
     // De Wapenkamer: de klastaken (Wachtlijst). Elke wijziging gaat naar alle leerkrachtenschermen.
     socket.on('wk-taken-get', handle(() => ({ data: klastaken.read() })));
     socket.on('wk-taken-zet', handle(arg => {
@@ -1219,6 +1357,7 @@ io.on('connection', socket => {
     socket.on('klas-save', handle(data => {
       const saved = klas.write(data);
       io.emit('klas-namen', klas.names());
+      juniorSoon();
       syncSoon();
       return { klas: saved };
     }));
@@ -1962,6 +2101,7 @@ io.on('connection', socket => {
       if (s && !s.data.host) {
         s.data.naam = null;
         s.emit('naam-weg');
+        if (s.data.jr && s.data.jr.length) { s.data.jr = []; s.emit('jr-weg'); juniorSoon(); }
       }
     });
     socket.on('restart', () => game.quiz && game.load(game.quiz));
@@ -2369,6 +2509,7 @@ io.on('connection', socket => {
     // Eén listener voor alle spellen: anders krijgt elke socket 15+ 'disconnect'-listeners
     // en toont Node een MaxListenersExceededWarning.
     for (const spel of SPELLEN_MET_WEG) spel.weg(socket);
+    if (socket.data.jr && socket.data.jr.length) juniorSoon();
   });
 
   // De Ronde Tafel: anoniem, alleen een vaste id per browser.

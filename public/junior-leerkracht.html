@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <script src="/taal.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LANcelot Junior</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/junior.css">
+</head>
+<body class="jr jr-lk">
+<div class="topbar jr-topbar">
+  <div class="jr-brand" title="LANcelot Junior">
+    <img src="/img/icons/junior.webp" alt="">
+    <div>
+      <div class="wordmark">LAN<span>celot</span> <em class="jr-junior">Junior</em></div>
+      <div class="subtitle" id="jr-status">Van de 3e kleuterklas tot het 3e leerjaar</div>
+    </div>
+  </div>
+  <div class="actions">
+    <button class="secondary pauze-knop" data-pauze title="Alle tablets op slot om de aandacht te vragen"><img src="/img/icons/pauze-klein.webp" alt=""> Pauze</button>
+    <button class="secondary" id="jr-qr-knop" title="De QR-code waarmee de tablets verbinden"><i class="ic ic-qr"></i> QR-code</button>
+    <button class="secondary icon" id="jr-stem-knop" title="Voorlezen op het bord aan of uit" aria-label="Voorlezen aan of uit">🔊</button>
+    <a class="button jr-wissel" id="jr-wissel" href="/host" title="Naar LANcelot (dezelfde klas, dezelfde gegevens)"><img src="/img/mark.webp" alt=""> LANcelot</a>
+  </div>
+</div>
+
+<main class="jr-lk-hoofd">
+  <section id="jr-start">
+    <div class="jr-boven">
+      <div class="panel jr-draak-paneel">
+        <img class="jr-draak-foto" id="jr-draak-foto" src="/img/junior/draak/1.webp" alt="">
+        <div class="jr-draak-info">
+          <p class="title">Het klasdraakje</p>
+          <p class="muted small">Het groeit als de klas samen oefent: elk goed antwoord is een hapje.</p>
+          <label class="jr-draak-naam">Naam
+            <input id="jr-draak-naam" maxlength="20" placeholder="Bijvoorbeeld Vonkje">
+          </label>
+          <div class="jr-groeibalk"><span id="jr-groei"></span></div>
+          <p class="muted small" id="jr-groei-tekst"></p>
+        </div>
+      </div>
+      <div class="panel jr-hoe">
+        <p class="title">Zo werkt het</p>
+        <ol>
+          <li><b>Kies een spel</b> hieronder en het niveau.</li>
+          <li><b>Kies hoe je speelt:</b> op het bord met 4 teams, met twee op een tablet, of om de beurt in een hoek.</li>
+          <li><b>De kinderen tikken hun dier aan</b> op de tablet. Alles wordt voorgelezen.</li>
+        </ol>
+        <p class="muted small">Tablets verbinden met de QR-code, net zoals in LANcelot. Wat de kinderen doen, komt in het logboek van Mijn klas.</p>
+      </div>
+    </div>
+    <div id="jr-groepen"></div>
+    <details class="panel jr-klas" id="jr-klas">
+      <summary>🐾 De dieren van de klas</summary>
+      <p class="muted small">Elk kind heeft een vast dier. Tik op een dier om het te wisselen, of laad met 📷 het eigen symbooltje van het kind op (zoals aan de kapstok). De namen komen uit <a href="/klas">Mijn klas</a>.</p>
+      <div class="jr-klas-rooster" id="jr-klas-rooster" data-geen-vertaling></div>
+      <div class="actions"><button class="secondary" id="jr-print">🖨️ Kaartjes printen</button></div>
+      <p class="muted small hidden" id="jr-klas-leeg">Er staat nog niemand op de klaslijst. Zet de namen in <a href="/klas">Mijn klas</a>.</p>
+    </details>
+  </section>
+
+  <section id="jr-loopt" class="hidden">
+    <div class="jr-loopt-kop">
+      <img id="jr-loopt-icoon" class="jr-loopt-icoon" src="/img/icons/junior.webp" alt="">
+      <div>
+        <p class="title" id="jr-loopt-naam"></p>
+        <p class="muted small" id="jr-loopt-sub"></p>
+      </div>
+      <div class="actions">
+        <button class="secondary" id="jr-herhaal" title="Nog eens voorlezen">🔊 Nog eens</button>
+        <button class="danger" id="jr-stop" data-spatie-niet>Stop</button>
+      </div>
+    </div>
+
+    <!-- Kringvragen: de vraag en hoeveel kinderen elke prent kozen. -->
+    <div class="jr-kring-bord hidden" id="jr-kring-bord">
+      <p class="jr-kring-vraag" id="jr-kb-vraag" data-geen-vertaling></p>
+      <div class="jr-kb-opties" id="jr-kb-opties" data-geen-vertaling></div>
+      <p class="muted small" id="jr-kb-tel"></p>
+      <div class="actions">
+        <button class="secondary" id="jr-kb-terug">← Vorige vraag</button>
+        <button id="jr-kb-volgende" data-spatie>Volgende vraag →</button>
+      </div>
+      <p class="muted small">Zonder tablets? Tik zelf op een prent voor elk kind dat ze kiest.</p>
+    </div>
+
+    <!-- Op het bord: 4 teams en het spel groot. -->
+    <div class="jr-bord hidden" id="jr-bord">
+      <div class="jr-teams" id="jr-teams"></div>
+      <div class="jr-vak jr-bord-vak" id="jr-bord-vak"></div>
+    </div>
+
+    <!-- Met tablets: de QR-code en wie er al geweest is. -->
+    <div class="jr-tablets hidden" id="jr-tablets">
+      <div class="panel jr-join">
+        <div class="jr-qr" id="jr-qr"></div>
+        <p class="jr-url" id="jr-url"></p>
+        <p class="muted small">Scan de QR-code. De kinderen tikken hun dier aan.</p>
+        <img class="jr-draak-foto" id="jr-loopt-draak" src="/img/junior/draak/1.webp" alt="">
+      </div>
+      <div class="panel jr-volg">
+        <p class="title">Wie speelt er?</p>
+        <p class="muted small"><span class="jr-stip jr-stip-bezig"></span> speelt nu · <span class="jr-stip jr-stip-klaar"></span> al geweest · ⭐ = een ronde af</p>
+        <div class="jr-volg-rooster" id="jr-volg" data-geen-vertaling></div>
+      </div>
+    </div>
+
+    <!-- De bewegingsdans: groot op het bord. -->
+    <div class="jr-dans hidden" id="jr-dans">
+      <div class="jr-dans-kaart" id="jr-dans-kaart" data-geen-vertaling></div>
+      <div class="actions">
+        <button class="secondary" id="jr-dans-pauze">⏸ Even stil</button>
+        <button id="jr-dans-volgende" data-spatie>Volgende beweging →</button>
+      </div>
+    </div>
+  </section>
+</main>
+<div class="jr-printblad" id="jr-printblad" data-geen-vertaling></div>
+
+<dialog class="jr-kies-venster" id="jr-kies-venster">
+  <div class="jr-kies-kop">
+    <img id="jr-kv-icoon" src="/img/icons/junior.webp" alt="">
+    <div>
+      <h2 id="jr-kv-naam"></h2>
+      <p class="muted" id="jr-kv-zin"></p>
+    </div>
+  </div>
+  <p class="jr-kv-label">Niveau</p>
+  <div class="jr-kv-niveaus" id="jr-kv-niveaus"></div>
+  <div id="jr-kv-manier-blok">
+    <p class="jr-kv-label">Hoe speel je?</p>
+    <div class="jr-kv-manieren" id="jr-kv-manieren">
+      <button type="button" data-manier="bord"><span class="jr-kv-ic">🖥️</span><b>Op het bord</b><span>De klas speelt in 4 kleurteams. Een kind komt naar het bord.</span></button>
+      <button type="button" data-manier="duo"><span class="jr-kv-ic">👫</span><b>Met twee op een tablet</b><span>Twee kinderen spelen om de beurt op één tablet.</span></button>
+      <button type="button" data-manier="beurt"><span class="jr-kv-ic">🔄</span><b>Om de beurt</b><span>Elk kind speelt een ronde en geeft de tablet door. Goed voor hoekenwerk.</span></button>
+    </div>
+  </div>
+  <div class="actions">
+    <button class="secondary" id="jr-kv-annuleer">Annuleren</button>
+    <button class="gold" id="jr-kv-start">Start</button>
+  </div>
+</dialog>
+
+<dialog class="qr-venster" id="jr-qr-venster">
+  <div class="qr-venster-kop">
+    <h2>Verbinden met LANcelot Junior</h2>
+    <button class="secondary icon" id="jr-qr-dicht" title="Sluiten" aria-label="Sluiten"><i class="ic ic-kruis"></i></button>
+  </div>
+  <div class="qr-groot">
+    <div class="qr" id="jr-qr-groot"></div>
+    <div class="join-url" id="jr-qr-url"></div>
+  </div>
+</dialog>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/ui.js"></script>
+<script src="/js/fx.js"></script>
+<script src="/junior/inhoud.js"></script>
+<script src="/js/jr-spel.js"></script>
+<script src="/js/jr-leerkracht.js"></script>
+</body>
+</html>

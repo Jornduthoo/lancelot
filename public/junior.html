@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <script src="/taal.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#2f5d3a">
+  <title>LANcelot Junior</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/junior.css">
+</head>
+<body class="jr jr-kind">
+<header class="jr-balk">
+  <img class="jr-balk-draak" id="jr-balk-draak" src="/img/junior/draak/1.webp" alt="">
+  <button class="jr-wie hidden" id="jr-wie" type="button" title="Een ander dier kiezen"></button>
+  <div class="jr-stappen" id="jr-stappen"></div>
+  <button class="jr-apart-stop hidden" id="jr-apart-stop" type="button" title="Stoppen met apart oefenen">✕ Apart</button>
+  <button class="jr-rond" id="jr-luister" type="button" title="Nog eens voorlezen" aria-label="Nog eens voorlezen">🔊</button>
+</header>
+
+<main class="jr-hoofd">
+  <section class="jr-scherm" id="jr-wacht">
+    <img class="jr-draak-groot" id="jr-wacht-draak" src="/img/junior/draak/1.webp" alt="">
+    <p class="jr-titel">Kijk naar de leerkracht.</p>
+    <p class="jr-klein">Het spel begint zo.</p>
+    <button class="jr-knop jr-apart-knop" id="jr-apart-knop" type="button">🧑‍🏫 Apart oefenen met één kind</button>
+    <a class="jr-link" href="/">Naar LANcelot</a>
+  </section>
+
+  <section class="jr-scherm hidden" id="jr-kies">
+    <p class="jr-titel" id="jr-kies-titel">Tik op jouw dier.</p>
+    <div class="jr-dieren" id="jr-dieren" data-geen-vertaling></div>
+    <p class="jr-klein hidden" id="jr-geen-klas">Er staat nog niemand op de klaslijst. Vraag het aan de leerkracht.</p>
+  </section>
+
+  <section class="jr-scherm hidden" id="jr-spel">
+    <div class="jr-beurt hidden" id="jr-beurt" data-geen-vertaling></div>
+    <div class="jr-vak" id="jr-vak"></div>
+  </section>
+
+  <section class="jr-scherm hidden" id="jr-beloning">
+    <div class="jr-nieuw" id="jr-nieuw" data-geen-vertaling></div>
+    <div class="jr-boek" id="jr-boek"></div>
+    <div class="jr-knoppen">
+      <button class="jr-knop" id="jr-nog" type="button">🔁 Nog een keer</button>
+      <button class="jr-knop jr-knop-goud" id="jr-volgende" type="button">👋 Volgende kind</button>
+    </div>
+  </section>
+
+  <section class="jr-scherm hidden" id="jr-naar-bord">
+    <img class="jr-draak-groot" id="jr-bord-draak" src="/img/junior/draak/3.webp" alt="">
+    <p class="jr-titel">Kijk naar het bord en doe mee!</p>
+  </section>
+
+  <section class="jr-scherm hidden" id="jr-kring">
+    <p class="jr-titel" id="jr-kring-vraag" data-geen-vertaling></p>
+    <div class="jr-kring-opties" id="jr-kring-opties" data-geen-vertaling></div>
+    <p class="jr-klein" id="jr-kring-wie" data-geen-vertaling></p>
+  </section>
+  <section class="jr-scherm hidden" id="jr-apart">
+    <div class="jr-apart-paneel">
+      <p class="jr-apart-titel">Apart oefenen</p>
+      <p class="jr-apart-uitleg">Voor de leerkracht of een ondersteuner: kies een spel en een niveau. Dit kind oefent los van de klas, en alles komt in het logboek.</p>
+      <div class="jr-apart-spellen" id="jr-apart-spellen"></div>
+      <div class="jr-apart-niveaus" id="jr-apart-niveaus"></div>
+      <div class="jr-knoppen">
+        <button class="jr-knop" id="jr-apart-terug" type="button">Terug</button>
+        <button class="jr-knop jr-knop-goud" id="jr-apart-start" type="button" disabled>Start</button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/ui.js"></script>
+<script src="/js/fx.js"></script>
+<script src="/junior/inhoud.js"></script>
+<script src="/js/jr-spel.js"></script>
+<script src="/js/jr-kind.js"></script>
+</body>
+</html>

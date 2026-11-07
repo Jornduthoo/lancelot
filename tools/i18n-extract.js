@@ -111,7 +111,7 @@ function lijstBestanden() {
 
 // Overslaan: hele bestanden die geen schermtekst bevatten of eigen inhoud (woordenlijsten) zijn.
 // De ingebouwde woorden en weetjes hebben per taal een eigen bestand (runen-woorden-en.js, ontdek-inhoud-fr.js, ...).
-const OVERSLAAN = new Set(['public/js/i18n.js', 'public/js/logo-3d.js', 'src/runen-woorden.js', 'src/runen-woorden-en.js', 'src/ontdek-inhoud.js', 'src/ontdek-inhoud-en.js', 'src/runen-woorden-fr.js', 'src/ontdek-inhoud-fr.js', 'src/runen-woorden-es.js', 'src/ontdek-inhoud-es.js', 'src/runen-woorden-de.js', 'src/ontdek-inhoud-de.js']);
+const OVERSLAAN = new Set(['public/js/i18n.js', 'public/js/logo-3d.js', 'src/runen-woorden.js', 'src/runen-woorden-en.js', 'src/ontdek-inhoud.js', 'src/ontdek-inhoud-en.js', 'src/runen-woorden-fr.js', 'src/ontdek-inhoud-fr.js', 'src/runen-woorden-es.js', 'src/ontdek-inhoud-es.js', 'src/runen-woorden-de.js', 'src/ontdek-inhoud-de.js', 'src/junior-inhoud.js', 'src/junior-inhoud-en.js', 'src/junior-inhoud-fr.js', 'src/junior-inhoud-es.js', 'src/junior-inhoud-de.js']);
 
 function verzamel() {
   const { html, js } = lijstBestanden();
