@@ -43,7 +43,7 @@ function tegels() {
       const t = document.createElement('button');
       t.type = 'button';
       t.className = 'jr-tegel';
-      t.innerHTML = `<img src="${beeldPad(s)}" alt=""><b>${s.naam}</b><span>${s.zin}</span><em>${s.jaar}</em>`;
+      t.innerHTML = `<img src="${beeldPad(s)}" alt=""><b>${s.naam}</b><span>${s.zin}</span>`;
       t.addEventListener('click', () => kies(s));
       blok.querySelector('.jr-tegels').appendChild(t);
     }
@@ -277,7 +277,7 @@ function toon() {
   const loopt = !!stand.actief;
   $('jr-start').classList.toggle('hidden', loopt);
   $('jr-loopt').classList.toggle('hidden', !loopt);
-  $('jr-status').textContent = loopt ? stand.naam : 'Van de 3e kleuterklas tot het 3e leerjaar';
+  $('jr-status').textContent = loopt ? stand.naam : 'Het klasdraakje';
   if (!loopt) {
     if (bord && bord.huidig) bord.huidig.stop();
     bord = null;

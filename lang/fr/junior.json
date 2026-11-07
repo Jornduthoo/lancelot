@@ -72,7 +72,6 @@
  "Naar LANcelot (dezelfde klas, dezelfde gegevens)": "Vers LANcelot (même classe, mêmes données)",
  "Bijvoorbeeld Vonkje": "Par exemple Étincelle",
  "Nog eens voorlezen": "Relire à voix haute",
- "Van de 3e kleuterklas tot het 3e leerjaar": "De la 3e maternelle à la 3e primaire",
  "Het klasdraakje": "Le petit dragon de la classe",
  "Het groeit als de klas samen oefent: elk goed antwoord is een hapje.": "Il grandit quand la classe s'entraîne ensemble : chaque bonne réponse est une bouchée.",
  "Kies een spel": "Choisis un jeu",
@@ -135,9 +134,7 @@
  "Apart oefenen": "Exercice individuel",
  "Voor de leerkracht of een ondersteuner: kies een spel en een niveau. Dit kind oefent los van de klas, en alles komt in het logboek.": "Pour l'enseignant ou un accompagnant : choisis un jeu et un niveau. Cet enfant s'exerce à part, et tout va dans le journal.",
  "LANcelot Junior staat niet aan.": "LANcelot Junior n'est pas activé.",
- "Naar LANcelot Junior, voor de 3e kleuterklas tot het 3e leerjaar (dezelfde klas)": "Vers LANcelot Junior, de la 3e maternelle à la 3e primaire (même classe)",
  "Tik op jullie twee dieren.": "Touchez vos deux animaux.",
- "Naar LANcelot Junior, voor de 3e kleuterklas tot het 3e leerjaar": "Vers LANcelot Junior, de la 3e maternelle à la 3e primaire",
  "stuk/1": null,
  "stuk/3": null,
  "stuk/6": null,
@@ -156,5 +153,6 @@
  "private, max-age=86400": null,
  "Junior · {0}": null,
  "LANcelot Junior": null,
- "Junior": null
+ "Junior": null,
+ "Naar LANcelot Junior (dezelfde klas)": "Vers LANcelot Junior (même classe)"
 }

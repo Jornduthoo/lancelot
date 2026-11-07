@@ -72,7 +72,6 @@
  "Naar LANcelot (dezelfde klas, dezelfde gegevens)": "To LANcelot (same class, same data)",
  "Bijvoorbeeld Vonkje": "For example Sparky",
  "Nog eens voorlezen": "Read aloud again",
- "Van de 3e kleuterklas tot het 3e leerjaar": "From age 5 to grade 3",
  "Het klasdraakje": "The class dragon",
  "Het groeit als de klas samen oefent: elk goed antwoord is een hapje.": "It grows when the class practises together: every right answer is a snack.",
  "Kies een spel": "Choose a game",
@@ -135,9 +134,7 @@
  "Apart oefenen": "One-to-one practice",
  "Voor de leerkracht of een ondersteuner: kies een spel en een niveau. Dit kind oefent los van de klas, en alles komt in het logboek.": "For the teacher or a support teacher: choose a game and a level. This child practises separately from the class, and everything goes into the log.",
  "LANcelot Junior staat niet aan.": "LANcelot Junior is not switched on.",
- "Naar LANcelot Junior, voor de 3e kleuterklas tot het 3e leerjaar (dezelfde klas)": "To LANcelot Junior, from age 5 to grade 3 (same class)",
  "Tik op jullie twee dieren.": "Tap your two animals.",
- "Naar LANcelot Junior, voor de 3e kleuterklas tot het 3e leerjaar": "To LANcelot Junior, from age 5 to grade 3",
  "stuk/1": null,
  "stuk/3": null,
  "stuk/6": null,
@@ -156,5 +153,6 @@
  "private, max-age=86400": null,
  "Junior · {0}": null,
  "LANcelot Junior": null,
- "Junior": null
+ "Junior": null,
+ "Naar LANcelot Junior (dezelfde klas)": "To LANcelot Junior (same class)"
 }
