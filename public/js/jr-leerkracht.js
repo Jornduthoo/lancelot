@@ -5,7 +5,7 @@ const socket = io({ query: { role: 'host' } });
 const $ = id => document.getElementById(id);
 const J = () => window.JR || { zin: {}, spellen: [] };
 const GROEPEN = [['getallen', '🔢 Getallen en rekenen'], ['meten', '📏 Meten en tijd'], ['meetkunde', '🔷 Vormen en ruimte'], ['taal', '🔤 Taal en klanken'], ['wereld', '🌍 De wereld'], ['samen', '💃 Samen en gevoel'], ['eigen', '✨ Mijn eigen vragen']];
-const VIEWS = ['thuis', 'spelen', 'klas', 'opvolgen', 'maken', 'draakje'];
+const VIEWS = ['thuis', 'spelen', 'klas', 'opvolgen', 'maken', 'draakje', 'ochtend'];
 let sets = (window.JR && JR.sets) || [];
 const TEAMKLEUR = ['rood', 'blauw', 'geel', 'groen'];
 
@@ -515,7 +515,85 @@ function toonView(v) {
   window.scrollTo(0, 0);
   if (v === 'opvolgen') socket.emit('jr-voortgang', null, res => res && !res.error && opvolg(res));
   if (v === 'maken') toonSets();
+  if (v === 'ochtend') ochtend('dag');
 }
+
+// ---------- Het ochtendmoment: welke dag is het, wat voor weer, wie is er? ----------
+const vandaag = () => new Date().toISOString().slice(0, 10);
+let ochtendWeer = 0;
+let afwezig = new Set();
+try {
+  const o = JSON.parse(localStorage.getItem('jr-ochtend') || '{}');
+  if (o.dag === vandaag()) { ochtendWeer = o.weer || 0; afwezig = new Set(o.afwezig || []); }
+} catch {}
+const bewaarOchtend = () => { try { localStorage.setItem('jr-ochtend', JSON.stringify({ dag: vandaag(), weer: ochtendWeer, afwezig: [...afwezig] })); } catch {} };
+const taalCode = () => (J().stemmen || ['nl-BE'])[0];
+function dagNaam(d) { return new Intl.DateTimeFormat(taalCode(), { weekday: 'long' }).format(d); }
+function ochtend(stap) {
+  for (const b of document.querySelectorAll('[data-ostap]')) b.classList.toggle('aan', b.dataset.ostap === stap);
+  const vak = $('jr-ochtend-vak');
+  const z = J().zin;
+  vak.dataset.stap = stap;
+  if (stap === 'dag') {
+    const nu = new Date();
+    const maandag = new Date(nu); maandag.setDate(nu.getDate() - ((nu.getDay() + 6) % 7));
+    const dagen = Array.from({ length: 7 }, (_, i) => { const d = new Date(maandag); d.setDate(maandag.getDate() + i); return d; });
+    const datum = new Intl.DateTimeFormat(taalCode(), { day: 'numeric', month: 'long' }).format(nu);
+    vak.innerHTML = `<p class="jr-ochtend-zin">${Junior.esc(z.ochtendDag)} <b>${Junior.esc(dagNaam(nu))} ${Junior.esc(datum)}</b></p>
+      <div class="jr-dagen">${dagen.map((d, i) => {
+        const verschil = i - ((nu.getDay() + 6) % 7);
+        const wat = verschil === 0 ? 'vandaag' : verschil === -1 ? 'gisteren' : verschil === 1 ? 'morgen' : '';
+        return `<button type="button" class="jr-dag jr-eigen jr-dag-${i} ${wat}" data-dag="${i}" data-wat="${wat}"><b>${Junior.esc(dagNaam(d))}</b><span>${d.getDate()}</span></button>`;
+      }).join('')}</div>`;
+    vak.querySelectorAll('[data-dag]').forEach(b => b.addEventListener('click', () => {
+      const d = dagen[+b.dataset.dag];
+      const zin = b.dataset.wat === 'gisteren' ? z.ochtendGisteren : b.dataset.wat === 'morgen' ? z.ochtendMorgen : b.dataset.wat === 'vandaag' ? z.ochtendDag : '';
+      b.classList.remove('tik'); void b.offsetWidth; b.classList.add('tik');
+      Junior.Stem.zeg(zin ? [zin, dagNaam(d)] : [dagNaam(d)]);
+    }));
+    Junior.Stem.zeg([z.ochtendWelkeDag, z.ochtendDag, dagNaam(nu), datum]);
+  } else if (stap === 'weer') {
+    const zinnen = z.weer || [];
+    vak.innerHTML = `<p class="jr-ochtend-zin">${Junior.esc(ochtendWeer ? zinnen[ochtendWeer - 1] || '' : z.ochtendWelkWeer)}</p>
+      <div class="jr-weer">${zinnen.map((_, i) => `<button type="button" class="jr-weer-knop jr-eigen ${ochtendWeer === i + 1 ? 'aan' : ''}" data-weer="${i + 1}"><img src="/img/junior/weer/${i + 1}.webp" alt=""></button>`).join('')}</div>`;
+    vak.querySelectorAll('[data-weer]').forEach(b => b.addEventListener('click', () => {
+      ochtendWeer = +b.dataset.weer;
+      bewaarOchtend();
+      try { sfx.good(); } catch {}
+      ochtend('weer');
+      Junior.Stem.zeg([zinnen[ochtendWeer - 1]]);
+    }));
+    if (!ochtendWeer) Junior.Stem.zeg([z.ochtendWelkWeer]);
+  } else if (stap === 'wie') {
+    const er = kinderen.filter(k => !afwezig.has(k.id));
+    vak.innerHTML = `<p class="jr-ochtend-zin">${Junior.esc(z.ochtendWie)}</p>
+      <div class="jr-wie">${kinderen.map(k => `<button type="button" class="jr-wie-kind jr-eigen ${afwezig.has(k.id) ? 'weg' : ''}" data-wie="${k.id}"><img src="${k.beeld}" alt=""><span>${Junior.esc(k.naam)}</span></button>`).join('')}</div>
+      <div class="jr-wie-tel"><span class="jr-wie-getal">${er.length}</span><span class="jr-wie-bolletjes">${er.map(() => '<i></i>').join('')}</span></div>`;
+    vak.querySelectorAll('[data-wie]').forEach(b => b.addEventListener('click', () => {
+      const id = b.dataset.wie;
+      if (afwezig.has(id)) afwezig.delete(id); else afwezig.add(id);
+      bewaarOchtend();
+      ochtend('wie');
+      Junior.Stem.zeg([kinderen.filter(k => !afwezig.has(k.id)).length, z.ochtendTel]);
+    }));
+    Junior.Stem.zeg([z.ochtendWie]);
+  } else {
+    vak.innerHTML = `<div class="jr-ochtend-klaar"><img class="jr-ochtend-draak" src="${draakImg()}" alt=""><p class="jr-ochtend-zin">${Junior.esc(z.ochtendKlaar)}</p></div>`;
+    try { confetti(3000); sfx.fanfare(); } catch {}
+    Junior.Stem.zeg([z.ochtendKlaar]);
+    // Eén keer per dag krijgt het klasdraakje een beloning voor het ochtendmoment.
+    let al = '';
+    try { al = localStorage.getItem('jr-ochtend-beloning') || ''; } catch {}
+    if (al !== vandaag()) {
+      try { localStorage.setItem('jr-ochtend-beloning', vandaag()); } catch {}
+      socket.emit('jr-beloning', { n: 3 }, res => res && res.draak && toonDraak(res.draak));
+    }
+  }
+}
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-ostap]');
+  if (b) ochtend(b.dataset.ostap);
+});
 document.addEventListener('click', e => {
   const b = e.target.closest('[data-ga]');
   if (b) ga(b.dataset.ga);
