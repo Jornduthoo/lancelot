@@ -16,6 +16,7 @@
   <button class="jr-wie hidden" id="jr-wie" type="button" title="Een ander dier kiezen"></button>
   <div class="jr-stappen" id="jr-stappen"></div>
   <button class="jr-apart-stop hidden" id="jr-apart-stop" type="button" title="Stoppen met apart oefenen">✕ Apart</button>
+  <button class="jr-apart-stop hidden" id="jr-raadsel-stop" type="button" title="Stoppen met het raadsel">✕ Stoppen</button>
   <button class="jr-rond" id="jr-luister" type="button" title="Nog eens voorlezen" aria-label="Nog eens voorlezen">🔊</button>
 </header>
 
@@ -26,13 +27,16 @@
     <p class="jr-titel">Kijk naar de leerkracht.</p>
     <p class="jr-klein">Het spel begint zo.</p>
     <button class="jr-knop jr-knop-goud jr-raadsel-knop" id="jr-raadsel-knop" type="button">🧩 Raadsel van vandaag</button>
-    <button class="jr-knop jr-apart-knop" id="jr-apart-knop" type="button">🧑‍🏫 Apart oefenen met één kind</button>
-    <a class="jr-link" href="/">Naar LANcelot</a>
+    <div class="jr-voor-leerkracht">
+      <button class="jr-apart-knop" id="jr-apart-knop" type="button">🧑‍🏫 Apart oefenen met één kind</button>
+      <a class="jr-link" href="/">Naar LANcelot</a>
+    </div>
   </section>
 
   <section class="jr-scherm hidden" id="jr-kies">
     <p class="jr-titel" id="jr-kies-titel">Tik op jouw dier.</p>
     <div class="jr-dieren" id="jr-dieren" data-geen-vertaling></div>
+    <button class="jr-knop jr-knop-goud hidden" id="jr-alleen" type="button" data-geen-vertaling></button>
     <p class="jr-klein hidden" id="jr-geen-klas">Er staat nog niemand op de klaslijst. Vraag het aan de leerkracht.</p>
   </section>
 
@@ -47,6 +51,7 @@
     <div class="jr-knoppen">
       <button class="jr-knop" id="jr-nog" type="button">🔁 Nog een keer</button>
       <button class="jr-knop jr-knop-goud" id="jr-volgende" type="button">👋 Volgende kind</button>
+      <button class="jr-knop jr-knop-goud hidden" id="jr-klaar" type="button">✅ Klaar</button>
     </div>
   </section>
 

@@ -17,8 +17,10 @@ let kringGekozen = {};
 let kringVraag = -1;
 // Apart oefenen: een ondersteuner (of de leerkracht) oefent met één kind, los van wat de klas doet. { spel, niveau, seed }
 let apart = null;
+// Met twee op een tablet, maar er is maar één kind: dan speelt het alleen (knop 'Ik speel alleen').
+let alleen = false;
 try { apart = JSON.parse(sessionStorage.getItem('jr-apart') || 'null'); } catch { apart = null; }
-const S = () => (apart ? { ...stand, actief: true, spel: apart.spel, niveau: apart.niveau, seed: apart.seed, manier: 'beurt', perRonde: apart.raadsel ? 3 : stand.perRonde || 5 } : stand);
+const S = () => (apart ? { ...stand, actief: true, spel: apart.spel, niveau: apart.niveau, seed: apart.seed, manier: 'beurt', perRonde: apart.raadsel ? 3 : 5 } : stand);
 
 try { ik = JSON.parse(sessionStorage.getItem('jr-ik') || '[]'); } catch { ik = []; }
 const bewaarIk = () => { try { sessionStorage.setItem('jr-ik', JSON.stringify(ik)); } catch {} };
@@ -36,6 +38,7 @@ const kind = id => kinderen.find(k => k.id === id);
 const draakImg = () => `/img/junior/draak/${(stand.draak && stand.draak.fase) || 1}.webp`;
 
 function zetDraak() {
+  Junior.Stem.stil = stand.voorlezen === false;
   for (const id of ['jr-balk-draak', 'jr-wacht-draak']) $(id).src = draakImg();
 }
 
@@ -55,17 +58,22 @@ function afmelden() {
   ronde = null;
   ik = [];
   gekozen = [];
+  alleen = false;
   bewaarIk();
   socket.emit('jr-login', { ids: [] });
   route();
 }
 
-function nodig() { return S().manier === 'duo' && S().spel !== 'kring' ? 2 : 1; }
+function nodig() { return S().manier === 'duo' && S().spel !== 'kring' && !alleen ? 2 : 1; }
 
 function kiesScherm() {
   toon('jr-kies');
   const n = nodig();
-  $('jr-kies-titel').textContent = n === 2 ? J().zin.kiesDuo || 'Tik op jullie twee dieren.' : J().zin.kiesDier || 'Tik op jouw dier.';
+  // Bij twee kinderen: na het eerste dier zegt het scherm dat het maatje nu kiest, en wie alleen is kan meteen beginnen.
+  const tweede = n === 2 && gekozen.length === 1;
+  $('jr-kies-titel').textContent = tweede ? J().zin.kiesTweede || 'Tik nu op het dier van je maatje.' : n === 2 ? J().zin.kiesDuo || 'Tik op jullie twee dieren.' : J().zin.kiesDier || 'Tik op jouw dier.';
+  $('jr-alleen').textContent = `▶ ${J().zin.alleen || 'Ik speel alleen'}`;
+  $('jr-alleen').classList.toggle('hidden', !tweede);
   const box = $('jr-dieren');
   box.innerHTML = '';
   $('jr-geen-klas').classList.toggle('hidden', kinderen.length > 0);
@@ -80,14 +88,23 @@ function kiesScherm() {
       try { sfx.unlock(); } catch {}
       if (gekozen.includes(k.id)) gekozen = gekozen.filter(x => x !== k.id);
       else gekozen.push(k.id);
-      Junior.Stem.zeg([dierNaam(k)]);
+      if (!(n === 2 && gekozen.length === 1)) Junior.Stem.zeg([dierNaam(k)]);
       if (gekozen.length >= n) meldAan(gekozen.slice(0, n));
-      else kiesScherm();
+      else {
+        kiesScherm();
+        if (n === 2 && gekozen.length === 1) Junior.Stem.zeg([dierNaam(k), $('jr-kies-titel').textContent]);
+      }
     });
     box.appendChild(b);
   }
   balk();
 }
+
+$('jr-alleen').addEventListener('click', () => {
+  if (gekozen.length !== 1) return;
+  alleen = true;
+  meldAan(gekozen.slice(0, 1));
+});
 
 function meldAan(ids) {
   socket.emit('jr-login', { ids }, res => {
@@ -159,8 +176,11 @@ function beloning() {
     const lijst = (res && res.stickers) || [];
     $('jr-boek').innerHTML = lijst.slice(-30).map(s => `<img src="/img/junior/sticker/${s}.webp" alt="">`).join('');
   });
-  $('jr-volgende').classList.toggle('hidden', S().manier !== 'beurt');
-  $('jr-nog').classList.toggle('hidden', !!(apart && apart.raadsel));
+  // Het raadsel is één keer per dag: daarna alleen 'Klaar' (terug naar het begin). Anders: nog een keer of het volgende kind.
+  const raadsel = !!(apart && apart.raadsel);
+  $('jr-volgende').classList.toggle('hidden', raadsel || S().manier !== 'beurt');
+  $('jr-nog').classList.toggle('hidden', raadsel);
+  $('jr-klaar').classList.toggle('hidden', !raadsel);
   try { confetti(2500); } catch {}
   Junior.Stem.zeg([J().zin.sticker, ...(ronde && ronde.groei ? [J().zin.groei] : [])]);
   ronde = null;
@@ -168,6 +188,7 @@ function beloning() {
 $('jr-nog').addEventListener('click', () => { ronde = null; if (apart) apart.seed = Math.floor(Math.random() * 1e9); volgendeVraag(); });
 $('jr-volgende').addEventListener('click', () => { afmelden(); Junior.Stem.zeg([J().zin.volgende]); });
 $('jr-luister').addEventListener('click', () => {
+  Junior.Stem.even();
   if (huidig) huidig.herhaal();
   else if (document.body.dataset.scherm === 'jr-kies') Junior.Stem.zeg([$('jr-kies-titel').textContent]);
   else if (document.body.dataset.scherm === 'jr-kring') Junior.Stem.zeg([$('jr-kring-vraag').textContent]);
@@ -214,7 +235,8 @@ function route() {
   }
   zetDraak();
   balk();
-  $('jr-apart-stop').classList.toggle('hidden', !apart);
+  $('jr-apart-stop').classList.toggle('hidden', !apart || !!apart.raadsel);
+  $('jr-raadsel-stop').classList.toggle('hidden', !(apart && apart.raadsel));
   if (apart) {
     ik = ik.filter(id => kind(id)).slice(0, 1);
     if (!ik.length) { kiesScherm(); return; }
@@ -296,6 +318,16 @@ function stopApart() {
 }
 $('jr-apart-terug').addEventListener('click', stopApart);
 $('jr-apart-stop').addEventListener('click', stopApart);
+// Raadsel klaar of gestopt: afmelden en terug naar het beginscherm.
+function raadselKlaar() {
+  ik = [];
+  gekozen = [];
+  bewaarIk();
+  socket.emit('jr-login', { ids: [] });
+  stopApart();
+}
+$('jr-klaar').addEventListener('click', raadselKlaar);
+$('jr-raadsel-stop').addEventListener('click', raadselKlaar);
 $('jr-apart-knop').addEventListener('click', apartScherm);
 // Raadsel van vandaag: drie korte opdrachten, elke dag andere, voor iedereen dezelfde. Eén sticker per dag.
 $('jr-raadsel-knop').addEventListener('click', () => {
@@ -332,6 +364,7 @@ socket.on('jr-stand', s => {
   const nieuw = s.seed !== stand.seed || s.manier !== stand.manier;
   stand = s;
   if (nieuw) {
+    alleen = false;
     if (huidig) huidig.stop();
     huidig = null;
     ronde = null;

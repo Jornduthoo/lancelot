@@ -9,6 +9,8 @@ module.exports = {
   zin: {
     kiesDier: 'Tik op jouw dier.',
     kiesDuo: 'Tik op jullie twee dieren.',
+    kiesTweede: 'Tik nu op het dier van je maatje.',
+    alleen: 'Ik speel alleen',
     goed: ['Goed zo!', 'Super!', 'Knap gedaan!', 'Ja, dat is juist!', 'Prima!', 'Hoera!'],
     fout: ['Bijna! Probeer nog eens.', 'Kijk nog eens goed.', 'Oei, probeer nog een keer.'],
     sticker: 'Hoera! Je krijgt een sticker!',

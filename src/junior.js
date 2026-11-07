@@ -15,7 +15,8 @@ const SYMBOLEN = path.join(gegevens.pad('klas'), 'junior-symbolen');
 const SOORTEN = { 'image/png': 'png', 'image/jpeg': 'jpg', 'image/webp': 'webp' };
 const DIEREN = 30; // public/img/junior/dier/1..30.webp
 const STICKERS = 16; // public/img/junior/sticker/1..16.webp
-const PER_RONDE = 5; // zoveel opdrachten, en dan een sticker
+const PER_RONDE = 5; // zoveel opdrachten, en dan een sticker (de leerkracht kan 3, 5 of 8 kiezen)
+const RONDES = [3, 5, 8];
 // Hoeveel eten het klasdraakje nodig heeft voor elke fase: ei, ei dat openbreekt, baby, jong draakje, ridderdraak.
 const FASEN = [0, 15, 50, 120, 250];
 const MANIEREN = ['bord', 'duo', 'beurt'];
@@ -64,6 +65,7 @@ function load() {
   if (!data.raadsel || typeof data.raadsel !== 'object') data.raadsel = {};
   if (!Number.isFinite(data.eten)) data.eten = 0;
   if (typeof data.draakNaam !== 'string') data.draakNaam = '';
+  if (!data.instellingen || typeof data.instellingen !== 'object') data.instellingen = {};
   return data;
 }
 function save() {
@@ -80,6 +82,19 @@ function save() {
 // Zijn er meer dan 30 kinderen, dan krijgen er twee hetzelfde dier (hun naam staat eronder).
 // Het dier van elk kind groeit mee met de stickers: eerst gewoon, dan schildknaap (blauwe kap), dan ridder (helm met pluim).
 const DIER_GROEI = [0, 10, 30]; // public/img/junior/dier, dier2, dier3
+// De instellingen van de leerkracht (knop ⚙️): opdrachten per ronde, voorlezen op de tablets, dieren die meegroeien.
+function instellingen() {
+  const i = load().instellingen;
+  return { perRonde: RONDES.includes(i.perRonde) ? i.perRonde : PER_RONDE, voorlezen: i.voorlezen !== false, groei: i.groei !== false };
+}
+function zetInstellingen(nieuw = {}) {
+  const i = load().instellingen;
+  if (RONDES.includes(Number(nieuw.perRonde))) i.perRonde = Number(nieuw.perRonde);
+  if (typeof nieuw.voorlezen === 'boolean') i.voorlezen = nieuw.voorlezen;
+  if (typeof nieuw.groei === 'boolean') i.groei = nieuw.groei;
+  save();
+  return instellingen();
+}
 function dierFase(stickers) {
   let f = 1;
   while (f < DIER_GROEI.length && stickers >= DIER_GROEI[f]) f++;
@@ -88,6 +103,7 @@ function dierFase(stickers) {
 function kinderen() {
   const d = load();
   const lijst = klas.read().leerlingen;
+  const groeit = instellingen().groei;
   const bezet = new Set(lijst.map(l => d.dieren[l.id]).filter(Boolean));
   let veranderd = false;
   const uit = lijst.map(l => {
@@ -102,7 +118,7 @@ function kinderen() {
     }
     const sym = d.symbolen[l.id];
     const stickers = (d.stickers[l.id] || []).length;
-    const groei = dierFase(stickers);
+    const groei = groeit ? dierFase(stickers) : 1;
     const map = groei === 1 ? 'dier' : `dier${groei}`;
     return { id: l.id, naam: l.naam, dier, groei, eigen: !!sym, beeld: sym ? `/junior/symbool/${l.id}?v=${sym.v}` : `/img/junior/${map}/${dier}.webp`, stickers };
   });
@@ -194,11 +210,11 @@ function stop() {
   les = null;
 }
 function stand() {
-  if (!les) return { actief: false, draak: draak() };
+  if (!les) return { actief: false, draak: draak(), voorlezen: instellingen().voorlezen };
   const s = SPEL[les.spel];
   return {
     actief: true, spel: les.spel, naam: s.naam, niveau: les.niveau, niveauNaam: s.niveaus[les.niveau], manier: les.manier, seed: les.seed,
-    perRonde: PER_RONDE, teams: les.teams, kring: { vraag: les.kring.vraag }, draak: draak(),
+    perRonde: instellingen().perRonde, voorlezen: instellingen().voorlezen, teams: les.teams, kring: { vraag: les.kring.vraag }, draak: draak(),
   };
 }
 // Voor de leerkracht: per kind hoe het gaat. Bezig = nu op een tablet ingelogd.
@@ -232,7 +248,7 @@ function antwoord(id, { vraag, juist, apart } = {}) {
   const raadsel = eigen && eigen.spel === 'raadsel';
   const verdiend = raadsel
     ? p.gedaan % RAADSEL_VRAGEN === 0 && load().raadsel[id] !== vandaag
-    : p.gedaan % PER_RONDE === 0;
+    : p.gedaan % (eigen ? PER_RONDE : instellingen().perRonde) === 0;
   if (raadsel && verdiend) load().raadsel[id] = vandaag;
   if (verdiend) {
     p.rondes++;
@@ -288,7 +304,7 @@ function inhoud(taalId) {
 }
 
 module.exports = {
-  SPELLEN, FASEN, PER_RONDE, DIEREN, STICKERS, DIER_GROEI, dierFase,
+  SPELLEN, FASEN, PER_RONDE, RONDES, DIEREN, instellingen, zetInstellingen, STICKERS, DIER_GROEI, dierFase,
   kinderen, wisselDier, zetSymbool, symboolBestand, draak, noemDraak, start, stop, stand, overzicht, antwoord, teamGoed, klasBeloning, stickers,
   kringKies, kringStand, kringVolgende, inhoud, fase,
   get actief() { return !!les; },

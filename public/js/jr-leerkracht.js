@@ -99,6 +99,30 @@ $('jr-herhaal').addEventListener('click', () => {
   else if (dans && dans.zeg) Junior.Stem.zeg(dans.zeg);
   else if (kring && kring.q) Junior.Stem.zeg([kring.q.vraag]);
 });
+// ---------- Instellingen (knop ⚙️): elke tik wordt meteen bewaard ----------
+function toonInstellingen(i) {
+  const zet = (box, w) => { for (const b of $(box).children) b.classList.toggle('aan', b.dataset.w === String(w)); };
+  zet('jr-inst-ronde', i.perRonde);
+  zet('jr-inst-voorlezen', i.voorlezen ? 1 : 0);
+  zet('jr-inst-groei', i.groei ? 1 : 0);
+}
+function bewaarInstelling(nieuw) {
+  socket.emit('jr-instellingen', nieuw, res => {
+    if (res && res.error) return Ui.melding(res.error);
+    if (res) toonInstellingen(res.instellingen);
+  });
+}
+for (const b of $('jr-inst-ronde').children) b.addEventListener('click', () => bewaarInstelling({ perRonde: Number(b.dataset.w) }));
+for (const b of $('jr-inst-voorlezen').children) b.addEventListener('click', () => bewaarInstelling({ voorlezen: b.dataset.w === '1' }));
+for (const b of $('jr-inst-groei').children) b.addEventListener('click', () => bewaarInstelling({ groei: b.dataset.w === '1' }));
+$('jr-inst-knop').addEventListener('click', () => {
+  socket.emit('jr-instellingen', null, res => {
+    if (res && res.error) return Ui.melding(res.error);
+    toonInstellingen(res.instellingen);
+    $('jr-inst-venster').showModal();
+  });
+});
+$('jr-inst-dicht').addEventListener('click', () => $('jr-inst-venster').close());
 const stemKnop = () => { $('jr-stem-knop').textContent = Junior.Stem.uit ? '🔇' : '🔊'; };
 $('jr-stem-knop').addEventListener('click', () => { Junior.Stem.uit = !Junior.Stem.uit; stemKnop(); });
 stemKnop();

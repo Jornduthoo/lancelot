@@ -206,6 +206,8 @@
 .jr-lk .topbar { background: rgb(18 40 26 / .82); backdrop-filter: blur(6px); }
 .jr-brand { display: flex; align-items: center; gap: 10px; }
 .jr-brand img { width: 60px; height: 60px; object-fit: contain; }
+.jr-brand .subtitle { font-family: var(--jr-schrift); text-transform: none; letter-spacing: 0; font-size: 1rem; color: #fff; font-weight: 700; }
+.jr-brand img.jr-woordmerk { width: auto; height: 58px; display: block; filter: drop-shadow(0 2px 3px rgb(0 0 0 / .25)); }
 .jr-junior { font-style: normal; color: #9be7c4; font-family: var(--jr-schrift); font-weight: 800; margin-left: 4px; }
 .jr-wissel img { width: 22px; height: 22px; vertical-align: middle; margin: -4px 4px -4px -2px; }
 .jr-lk main.jr-lk-hoofd { max-width: 1400px; }
@@ -280,20 +282,31 @@
 .jr-dans-tel { font-size: clamp(4rem, 12vh, 8rem); font-weight: 900; color: #e8590c; min-height: 1.1em; line-height: 1; }
 .jr-pop { animation: jr-hop .4s ease; }
 
-.jr-kies-venster { max-width: 760px; width: calc(100% - 32px); }
+/* Het keuzevenster en de instellingen: zacht en rond zoals de rest van Junior, nooit grijs of uitgevaagd. */
+.jr-kies-venster, .jr-inst-venster { max-width: 760px; width: calc(100% - 32px); background: var(--jr-room); color: var(--jr-inkt); border: 0; border-radius: 26px; padding: 22px 24px; box-shadow: 0 0 0 4px var(--jr-goud), 0 20px 60px rgb(0 0 0 / .45); clip-path: none; }
+.jr-kies-venster::backdrop, .jr-inst-venster::backdrop { background: rgb(18 40 26 / .55); backdrop-filter: blur(4px); }
+.jr-kies-venster h2, .jr-inst-venster h2 { margin: 0; color: var(--jr-inkt); font-family: var(--jr-schrift); font-size: 1.7rem; }
+.jr-kies-venster .muted { color: #5b5170; margin: 2px 0 0; }
 .jr-kies-kop { display: flex; gap: 14px; align-items: center; margin-bottom: 10px; }
 .jr-kies-kop img { width: 72px; height: 72px; object-fit: contain; }
-.jr-kv-label { font-weight: 800; margin: 14px 0 6px; }
-.jr-kv-niveaus { display: flex; flex-wrap: wrap; gap: 8px; }
-.jr-kv-niveaus button { border-radius: 999px; }
-.jr-kv-niveaus button:not(.aan), .jr-kv-manieren button:not(.aan) { opacity: .6; filter: saturate(.5); }
-.jr-kv-niveaus button.aan, .jr-kv-manieren button.aan { box-shadow: 0 0 0 3px var(--jr-goud); }
+.jr-kv-label { font-weight: 800; margin: 16px 0 8px; color: var(--jr-inkt); }
+.jr-kv-niveaus, .jr-kv-keuzes { display: flex; flex-wrap: wrap; gap: 8px; }
+.jr-kies-venster .jr-kv-niveaus button, .jr-kies-venster .jr-kv-manieren button, .jr-inst-venster .jr-kv-keuzes button {
+  background: #fff; color: var(--jr-inkt); border: 3px solid #eadfc4; box-shadow: 0 3px 0 #e2d4ae; clip-path: none; text-transform: none; letter-spacing: 0; font-weight: 700; }
+.jr-kv-niveaus button, .jr-kv-keuzes button { border-radius: 999px; padding: 8px 18px; }
+.jr-kies-venster .jr-kv-niveaus button:hover, .jr-kies-venster .jr-kv-manieren button:hover, .jr-inst-venster .jr-kv-keuzes button:hover { border-color: var(--jr-goud); }
+.jr-kies-venster .jr-kv-niveaus button.aan, .jr-kies-venster .jr-kv-manieren button.aan, .jr-inst-venster .jr-kv-keuzes button.aan {
+  background: #fff1c7; border-color: #f0a500; box-shadow: 0 3px 0 #d69e1a, 0 0 0 3px rgb(255 201 74 / .45); }
 .jr-kv-manieren { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
 @media (max-width: 640px) { .jr-kv-manieren { grid-template-columns: 1fr; } }
-.jr-kv-manieren button { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 12px; text-align: center; white-space: normal; height: auto; }
-.jr-kv-manieren span { font-size: .85rem; font-weight: 400; }
+.jr-kies-venster .jr-kv-manieren button { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 14px 12px; text-align: center; white-space: normal; height: auto; border-radius: 18px; }
+.jr-kv-manieren span { font-size: .85rem; font-weight: 400; color: #5b5170; }
 .jr-kv-ic { font-size: 2rem !important; }
-.jr-kies-venster .actions { margin-top: 16px; justify-content: flex-end; }
+.jr-kies-venster .actions, .jr-inst-venster .actions { margin-top: 18px; justify-content: flex-end; display: flex; gap: 10px; }
+.jr-kies-venster .actions button, .jr-inst-venster .actions button { border-radius: 999px; clip-path: none; padding: 10px 26px; font-weight: 800; }
+.jr-kies-venster .actions .secondary, .jr-inst-venster .actions .secondary { background: #fff; color: var(--jr-inkt); border: 3px solid #d8c9a3; }
+.jr-kies-venster .actions .gold, .jr-inst-venster .actions .gold { background: var(--jr-goud); color: var(--jr-inkt); border: 0; box-shadow: 0 3px 0 #d69e1a; }
+.jr-inst-uitleg { color: #5b5170; margin: 2px 0 0; font-size: .9rem; }
 
 @media (prefers-reduced-motion: reduce) {
   .jr *, .jr *::before { animation: none !important; transition: none !important; }
@@ -320,7 +333,10 @@
 .jr-vraag { overflow-y: auto; }
 
 /* Apart oefenen (ondersteuner met één kind) */
-.jr-apart-knop { font-size: 1rem; padding: 10px 18px; min-height: 0; margin-top: 10px; }
+/* Onderaan het wachtscherm, klein: alleen voor volwassenen. De kinderen zien vooral het raadsel. */
+.jr-voor-leerkracht { display: flex; gap: 18px; align-items: center; margin-top: 22px; flex-wrap: wrap; justify-content: center; }
+.jr-voor-leerkracht .jr-link { margin-top: 0; }
+.jr-apart-knop { background: rgb(0 0 0 / .25); color: #fff; border: 0; border-radius: 999px; font-size: .95rem; padding: 8px 16px; cursor: pointer; opacity: .85; }
 .jr-apart-stop { border: 0; border-radius: 999px; background: #ffe3e3; color: #c92a2a; font-weight: 800; padding: 8px 14px; cursor: pointer; }
 .jr-apart-paneel { background: rgb(255 248 231 / .95); border-radius: 24px; padding: 18px; max-width: 980px; width: 100%; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 8px 24px rgb(0 0 0 / .25); }
 .jr-apart-titel { font-size: 1.6rem; font-weight: 800; margin: 0; }

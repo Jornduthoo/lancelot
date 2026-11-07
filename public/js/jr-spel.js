@@ -13,6 +13,9 @@
     let beurt = 0;
     let audio = null;
     let uit = false;
+    // Stil: de leerkracht zette voorlezen op de tablets uit. Dan spreekt het alleen na een tik op 🔊 (even()).
+    let stil = false;
+    let open = 0;
     try { uit = localStorage.getItem('jr-stem-uit') === '1'; } catch {}
     const taal = () => J().taal || 'nl';
     fetch(`/img/junior/stem/${taal()}/index.json`).then(r => (r.ok ? r.json() : null)).then(m => { lijst = m; }).catch(() => {});
@@ -64,7 +67,7 @@
       stop();
       const mijn = beurt;
       const stukken = (Array.isArray(delen) ? delen : [delen]).filter(d => d !== '' && d != null).map(String);
-      if (uit || !stukken.length) return;
+      if (uit || (stil && Date.now() > open) || !stukken.length) return;
       if (lijst && stukken.every(d => lijst[d])) {
         for (const d of stukken) {
           if (mijn !== beurt) return;
@@ -76,6 +79,9 @@
     }
     return {
       zeg, stop,
+      even() { open = Date.now() + 300; },
+      get stil() { return stil; },
+      set stil(v) { stil = !!v; if (stil) stop(); },
       get uit() { return uit; },
       set uit(v) { uit = !!v; try { localStorage.setItem('jr-stem-uit', uit ? '1' : '0'); } catch {} if (uit) stop(); },
     };

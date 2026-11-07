@@ -12,16 +12,14 @@
 <body class="jr jr-lk">
 <div class="topbar jr-topbar">
   <div class="jr-brand" title="LANcelot Junior">
-    <img src="/img/junior/logo-klein.webp" alt="">
-    <div>
-      <div class="wordmark">LAN<span>celot</span> <em class="jr-junior">Junior</em></div>
-      <div class="subtitle" id="jr-status">Het klasdraakje</div>
-    </div>
+    <img class="jr-woordmerk" src="/img/junior/woordmerk.webp" alt="LANcelot Junior">
+    <div class="subtitle" id="jr-status">Het klasdraakje</div>
   </div>
   <div class="actions">
     <button class="secondary pauze-knop" data-pauze title="Alle tablets op slot om de aandacht te vragen"><img src="/img/icons/pauze-klein.webp" alt=""> Pauze</button>
     <button class="secondary" id="jr-qr-knop" title="De QR-code waarmee de tablets verbinden"><i class="ic ic-qr"></i> QR-code</button>
     <button class="secondary icon" id="jr-stem-knop" title="Voorlezen op het bord aan of uit" aria-label="Voorlezen aan of uit">🔊</button>
+    <button class="secondary" id="jr-inst-knop" title="Instellingen van LANcelot Junior">⚙️ Instellingen</button>
     <a class="button jr-wissel" id="jr-wissel" href="/host" title="Naar LANcelot (dezelfde klas, dezelfde gegevens)"><img src="/img/mark.webp" alt=""> LANcelot</a>
   </div>
 </div>
@@ -140,6 +138,28 @@
   <div class="actions">
     <button class="secondary" id="jr-kv-annuleer">Annuleren</button>
     <button class="gold" id="jr-kv-start">Start</button>
+  </div>
+</dialog>
+
+<dialog class="jr-inst-venster" id="jr-inst-venster">
+  <h2>⚙️ Instellingen</h2>
+  <p class="jr-kv-label">Opdrachten per ronde</p>
+  <p class="jr-inst-uitleg">Na elke ronde krijgt het kind een sticker.</p>
+  <div class="jr-kv-keuzes" id="jr-inst-ronde">
+    <button type="button" data-w="3">3</button><button type="button" data-w="5">5</button><button type="button" data-w="8">8</button>
+  </div>
+  <p class="jr-kv-label">Voorlezen op de tablets</p>
+  <p class="jr-inst-uitleg">Uit: het draakje leest alleen voor als een kind op 🔊 tikt.</p>
+  <div class="jr-kv-keuzes" id="jr-inst-voorlezen">
+    <button type="button" data-w="1">Aan</button><button type="button" data-w="0">Uit</button>
+  </div>
+  <p class="jr-kv-label">Dieren groeien mee</p>
+  <p class="jr-inst-uitleg">Met meer stickers wordt het dier schildknaap en daarna ridder.</p>
+  <div class="jr-kv-keuzes" id="jr-inst-groei">
+    <button type="button" data-w="1">Aan</button><button type="button" data-w="0">Uit</button>
+  </div>
+  <div class="actions">
+    <button class="gold" id="jr-inst-dicht">Klaar</button>
   </div>
 </dialog>
 
