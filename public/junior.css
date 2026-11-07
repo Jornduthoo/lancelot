@@ -552,3 +552,10 @@
 .jr-meet-poten span { font-size: 1.6em; width: calc(2.2em / 1.6); }
 .jr-lk .jr-groep .jr-tegel b { font-size: .98rem; hyphens: auto; -webkit-hyphens: auto; overflow-wrap: anywhere; line-height: 1.15; }
 .jr-lk .jr-groep .jr-tegel span { font-size: .82rem; }
+
+/* Het bewegende 3D-logo van Junior (logo-3d.js): eigen verhouding, geen blauwe gloed rond de letters. */
+.logo-3d.logo-3d-junior { aspect-ratio: 640 / 542; height: auto; }
+.logo-3d.logo-3d-junior > img:last-of-type { filter: none; }
+.logo-3d.logo-3d-junior video, .logo-3d.logo-3d-junior .ridder { -webkit-mask-image: none; mask-image: none; }
+.logo-3d.jr-logo-groot { width: min(40vw, 240px, 32vh * 640 / 542); }
+.logo-3d.jr-held-logo { width: min(46vw, 300px, 30vh * 640 / 542); max-height: none; }

@@ -2,6 +2,7 @@
 // - Chrome/Edge/Android: de ridder is een doorzichtig filmpje (webm), dat alleen speelt zolang het logo in beeld is.
 // - Safari/iPhone/iPad kennen dat filmpje niet: daar is de ridder een bewegende webp-afbeelding.
 // - Wie 'minder beweging' gevraagd heeft, houdt het vaste logo.
+// - data-logo-3d="junior" neemt de lagen van LANcelot Junior (/img/junior/logo-3d/).
 (() => {
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   const ua = navigator.userAgent;
@@ -17,16 +18,18 @@
   // Pas als de hele pagina geladen is: zo krijgen ook de aanmeldschermen die de spellen zelf maken (xx-player.js) het logo.
   const maak = () => { for (const oud of document.querySelectorAll('img[data-logo-3d]')) {
     const vak = document.createElement('div');
-    vak.className = 'logo-3d';
+    const junior = oud.getAttribute('data-logo-3d') === 'junior';
+    const map = junior ? '/img/junior/logo-3d/' : '/img/logo-3d/';
+    vak.className = 'logo-3d' + (junior ? ' logo-3d-junior ' + oud.className : '');
     if (oud.id) vak.id = oud.id;
     const midden = filmOk
-      ? '<video src="/img/logo-3d/ridder.webm" poster="/img/logo-3d/ridder-start.webp" preload="none" loop muted playsinline disablepictureinpicture></video>'
-      : '<img class="ridder" src="/img/logo-3d/ridder-ios.webp" alt="" loading="lazy">';
-    vak.innerHTML = '<img src="/img/logo-3d/achter.webp" alt="">' + midden + '<img src="/img/logo-3d/voor.webp" alt="LANcelot">';
+      ? '<video src="' + map + 'ridder.webm" poster="' + map + 'ridder-start.webp" preload="none" loop muted playsinline disablepictureinpicture></video>'
+      : '<img class="ridder" src="' + map + 'ridder-ios.webp" alt="" loading="lazy">';
+    vak.innerHTML = '<img src="' + map + 'achter.webp" alt="">' + midden + '<img src="' + map + 'voor.webp" alt="' + (oud.alt || 'LANcelot') + '">';
     const film = vak.querySelector('video');
     if (film) {
       // Speelt het filmpje toch niet af, dan de bewegende webp, nooit het vaste logo.
-      film.addEventListener('error', () => { const r = document.createElement('img'); r.className = 'ridder'; r.src = '/img/logo-3d/ridder-ios.webp'; r.alt = ''; film.replaceWith(r); });
+      film.addEventListener('error', () => { const r = document.createElement('img'); r.className = 'ridder'; r.src = map + 'ridder-ios.webp'; r.alt = ''; film.replaceWith(r); });
       if (kijker) kijker.observe(film); else { film.preload = 'auto'; film.autoplay = true; }
     }
     oud.replaceWith(vak);
