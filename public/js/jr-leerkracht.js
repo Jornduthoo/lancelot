@@ -5,7 +5,7 @@ const socket = io({ query: { role: 'host' } });
 const $ = id => document.getElementById(id);
 const J = () => window.JR || { zin: {}, spellen: [] };
 const GROEPEN = [['getallen', '🔢 Getallen en rekenen'], ['meten', '📏 Meten en tijd'], ['meetkunde', '🔷 Vormen en ruimte'], ['taal', '🔤 Taal en klanken'], ['wereld', '🌍 De wereld'], ['samen', '💃 Samen en gevoel'], ['eigen', '✨ Mijn eigen vragen']];
-const VIEWS = ['thuis', 'spelen', 'klas', 'opvolgen', 'maken'];
+const VIEWS = ['thuis', 'spelen', 'klas', 'opvolgen', 'maken', 'draakje'];
 let sets = (window.JR && JR.sets) || [];
 const TEAMKLEUR = ['rood', 'blauw', 'geel', 'groen'];
 
@@ -30,7 +30,78 @@ function toonDraak(d) {
   $('jr-mini-naam').textContent = d.naam || 'Het klasdraakje';
   $('jr-groei-tekst').textContent = d.fase >= d.fasen ? `${d.eten} hapjes. Het draakje is een echte ridderdraak!` : `Fase ${d.fase} van ${d.fasen}. Nog ${100 - d.tot}% tot de volgende fase.`;
   if (document.activeElement !== $('jr-draak-naam')) $('jr-draak-naam').value = d.naam || '';
+  $('jr-mini-sterren').textContent = d.sterren || 0;
+  hol();
 }
+
+// ---------- Het hol: het klasdraakje bekijken en samen extra's kopen ----------
+// Waar het hoedje komt, per fase (deel van de prent): midden, bovenkant van het hoofd, breedte.
+const HOED_PLEK = { 1: [0.5, 0.06, 0.56], 2: [0.5, 0.05, 0.5], 3: [0.52, 0.08, 0.52], 4: [0.58, 0.09, 0.44], 5: [0.49, 0.04, 0.42] };
+// Waar elk ding in het hol staat: midden (%), onderkant (%), breedte (%).
+const HOL_PLEK = { 7: [29, 92, 15], 8: [84, 74, 11], 9: [68, 97, 6], 10: [17, 95, 9], 11: [7, 74, 8], 12: [91, 64, 12], 13: [15, 66, 5.5], 14: [81, 98, 12], 15: [94, 92, 7], 16: [41, 99, 10] };
+const HOL_NAAM = { 1: 'Kroon', 2: 'Tovenaarshoed', 3: 'Feesthoedje', 4: 'Bloemenkrans', 5: 'Strik', 6: 'Hoge hoed', 7: 'Mand om te slapen', 8: 'Schatkist', 9: 'Bal', 10: 'Teddybeer', 11: 'Plant', 12: 'Boekenkast', 13: 'Lamp', 14: 'Hobbelpaard', 15: 'Raket', 16: 'Taart' };
+const HOL_PRIJS = { 1: 60, 2: 40, 3: 20, 4: 25, 5: 15, 6: 35, 7: 30, 8: 80, 9: 10, 10: 20, 11: 15, 12: 50, 13: 25, 14: 45, 15: 70, 16: 40 };
+function hol() {
+  const d = stand.draak;
+  if (!d) return;
+  const gekocht = d.gekocht || [], uit = d.uit || [];
+  $('jr-hol-sterren').textContent = d.sterren || 0;
+  $('jr-hol-naam').textContent = d.naam || 'Ons klasdraakje';
+  $('jr-hol-kop-draak').src = draakImg();
+  $('jr-hol-draak-img').src = draakImg();
+  $('jr-hol-draak').dataset.fase = d.fase;
+  $('jr-hol-groei').style.width = `${d.tot}%`;
+  const hoed = $('jr-hol-hoed');
+  hoed.classList.toggle('hidden', !d.hoed);
+  if (d.hoed) {
+    const [x, y, w] = HOED_PLEK[d.fase] || HOED_PLEK[3];
+    hoed.src = `/img/junior/hol/${d.hoed}.webp`;
+    hoed.style.left = `${(x - w / 2) * 100}%`;
+    hoed.style.width = `${w * 100}%`;
+    hoed.style.bottom = `${(1 - y) * 100}%`;
+  }
+  $('jr-hol-spul').innerHTML = gekocht.filter(id => HOL_PLEK[id] && !uit.includes(id)).map(id => {
+    const [x, b, w] = HOL_PLEK[id];
+    return `<img class="jr-hol-ding" src="/img/junior/hol/${id}.webp" alt="" style="left:${x - w / 2}%;width:${w}%;top:${b}%">`;
+  }).join('');
+  $('jr-winkel').innerHTML = Object.keys(HOL_PRIJS).map(Number).map(id => {
+    const heb = gekocht.includes(id);
+    const aan = heb && (HOL_PLEK[id] ? !uit.includes(id) : d.hoed === id);
+    const kan = !heb && (d.sterren || 0) >= HOL_PRIJS[id];
+    return `<button type="button" class="jr-winkel-ding jr-eigen${heb ? ' heb' : ''}${aan ? ' aan' : ''}${kan ? ' kan' : ''}" data-hol="${id}">
+      <img src="/img/junior/hol/${id}.webp" alt=""><b>${Junior.esc(HOL_NAAM[id])}</b>
+      <span>${heb ? (aan ? '✓' : '') : `⭐ ${HOL_PRIJS[id]}`}</span></button>`;
+  }).join('');
+}
+$('jr-winkel').addEventListener('click', e => {
+  const b = e.target.closest('[data-hol]');
+  if (!b) return;
+  const id = Number(b.dataset.hol);
+  const d = stand.draak || {};
+  if ((d.gekocht || []).includes(id)) { socket.emit('jr-hol-zet', { id }, res => res && res.draak && toonDraak(res.draak)); return; }
+  if ((d.sterren || 0) < HOL_PRIJS[id]) {
+    b.classList.remove('nee'); void b.offsetWidth; b.classList.add('nee');
+    Junior.Stem.zeg([J().zin.holTeWeinig]);
+    return;
+  }
+  socket.emit('jr-hol-koop', { id }, res => {
+    if (!res || res.error) { if (res && res.error) Ui.melding(res.error); return; }
+    toonDraak(res.draak);
+    try { confetti(2500); sfx.fanfare(); } catch {}
+    hopDraak();
+    Junior.Stem.zeg([J().zin.holKoop]);
+  });
+});
+function hopDraak() {
+  const dr = $('jr-hol-draak');
+  dr.classList.remove('hop'); void dr.offsetWidth; dr.classList.add('hop');
+}
+$('jr-hol-draak').addEventListener('click', () => {
+  hopDraak();
+  try { sfx.jump(); } catch {}
+  const z = J().zin.holHallo || [];
+  Junior.Stem.zeg([z[Math.floor(Math.random() * z.length)]]);
+});
 $('jr-draak-naam').addEventListener('change', () => socket.emit('jr-draaknaam', { naam: $('jr-draak-naam').value }, res => res && res.draak && toonDraak(res.draak)));
 
 // ---------- Spellen kiezen ----------

@@ -674,12 +674,12 @@
 .jr-lk .panel label { display: grid; gap: 6px; font-weight: 800; color: var(--jr-inkt); margin-top: 12px; font-size: 1.02rem; }
 .jr-lk .panel input, .jr-lk .panel select, .jr-lk .panel textarea { background: #fff; color: var(--jr-inkt); border: 3px solid #eadfc4; border-radius: 14px; padding: 10px 14px; font-size: 1.05rem; outline: none; box-shadow: none; }
 .jr-lk .panel input:focus, .jr-lk .panel select:focus, .jr-lk .panel textarea:focus { border-color: var(--jr-goud); }
-.jr-lk main button:not(.jr-tegel):not(.jr-blok):not(.jr-klas-beeld):not(.jr-kb-optie), .jr-lk main a.button, .jr-lk dialog button { border-radius: 999px; clip-path: none; }
+.jr-lk main button:not(.jr-eigen):not(.jr-tegel):not(.jr-blok):not(.jr-klas-beeld):not(.jr-kb-optie), .jr-lk main a.button, .jr-lk dialog button { border-radius: 999px; clip-path: none; }
 .jr-lk main button.secondary, .jr-lk main a.button.secondary { background: #fff; color: var(--jr-inkt); box-shadow: 0 3px 0 #d8c9a3; border: 2px solid #eadfc4; }
 .jr-lk main .jr-loopt-kop button.secondary { background: rgb(255 255 255 / .16); color: #fff; border: 0; box-shadow: none; }
 .jr-lk main button.gold, .jr-lk main a.button.gold { background: var(--jr-goud); color: var(--jr-inkt); box-shadow: 0 3px 0 #d69e1a; }
 .jr-lk main button.danger { border-radius: 999px; }
-.jr-lk main button:not(.secondary):not(.gold):not(.danger):not(.jr-tegel):not(.jr-blok):not(.jr-klas-beeld):not(.jr-kb-optie):not(.terug-knop):not([class*='jr-klas-knop']) { background: #51cf66; color: #fff; box-shadow: 0 3px 0 #2f9e44; }
+.jr-lk main button:not(.jr-eigen):not(.secondary):not(.gold):not(.danger):not(.jr-tegel):not(.jr-blok):not(.jr-klas-beeld):not(.jr-kb-optie):not(.terug-knop):not([class*='jr-klas-knop']) { background: #51cf66; color: #fff; box-shadow: 0 3px 0 #2f9e44; }
 /* De balk bovenaan: ronde knoppen, zoals de rest van Junior. */
 .jr-lk .topbar .actions > button, .jr-lk .topbar .actions > a.button { border-radius: 999px; clip-path: none; background: rgb(255 255 255 / .14); color: #fff; box-shadow: none; }
 .jr-lk .topbar .actions > a.jr-wissel { background: #fff; color: var(--jr-inkt); }
@@ -707,3 +707,37 @@
 .jr-lk .jr-volg-kind.klaar::after { content: '✓'; position: absolute; right: 8px; top: 6px; width: 28px; height: 28px; border-radius: 50%; background: #51cf66; color: #fff; font-weight: 800; display: grid; place-items: center; }
 .jr-lk .jr-volg-kind.bezig { opacity: 1; filter: none; box-shadow: 0 4px 0 #2f9e44, 0 0 0 4px #51cf66, 0 0 26px #51cf66; }
 .jr-lk .jr-volg-kind.bezig img { animation: jr-ren .6s ease-in-out infinite alternate; }
+
+/* ---------- Het hol van het klasdraakje ---------- */
+button.jr-mini-draak { border: 0; cursor: pointer; text-align: left; font: inherit; color: inherit; display: flex; align-items: center; gap: 14px; }
+button.jr-mini-draak:hover { transform: translateY(-2px); }
+.jr-mini-sterren { margin-left: auto; font-size: 1.3rem; white-space: nowrap; }
+.jr-view-kop .jr-hol-sterren { margin-left: auto; background: #fff6d6; border: 3px solid #f4c430; border-radius: 999px; padding: 6px 18px; font-size: 1.6rem; color: #6b4a00; white-space: nowrap; }
+.jr-hol-sterren small { font-size: .9rem; }
+#jr-hol-kop-draak { height: 1.4em; vertical-align: middle; }
+.jr-hol { position: relative; width: 100%; max-width: 1200px; margin: 0 auto; aspect-ratio: 16 / 9; border-radius: 22px; overflow: hidden;
+  background: url(/img/junior/bg/hol.webp) center / cover; box-shadow: 0 8px 26px rgba(0,0,0,.25); }
+@media (max-width: 800px) { .jr-hol { background-image: url(/img/junior/bg/hol-klein.webp); } }
+.jr-hol-ding { position: absolute; transform: translateY(-100%); filter: drop-shadow(0 6px 6px rgba(0,0,0,.3)); pointer-events: none; }
+.jr-hol-draak { position: absolute; left: 50%; bottom: 10%; height: 50%; aspect-ratio: 292 / 325; transform: translateX(-50%); border: 0; padding: 0; background: none; cursor: pointer; z-index: 2; }
+.jr-hol-draak > img:first-child { width: 100%; height: 100%; object-fit: contain; object-position: bottom; filter: drop-shadow(0 10px 10px rgba(0,0,0,.3)); animation: jr-hol-adem 3s ease-in-out infinite; transform-origin: bottom; }
+.jr-hol-hoed { position: absolute; transform: translateY(30%); pointer-events: none; animation: jr-hol-adem 3s ease-in-out infinite; transform-origin: bottom; }
+@keyframes jr-hol-adem { 0%, 100% { scale: 1 1; } 50% { scale: 1.02 .98; } }
+.jr-hol-draak.hop { animation: jr-hol-hop .6s ease-out; }
+@keyframes jr-hol-hop { 0%, 100% { translate: 0 0; } 40% { translate: 0 -14%; } 70% { translate: 0 2%; } }
+.jr-hol-groei { position: absolute; left: 50%; bottom: 3%; width: 30%; transform: translateX(-50%); z-index: 3; }
+.jr-winkel { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; max-width: 1200px; margin: 0 auto 30px; }
+.jr-winkel-ding { position: relative; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px 8px 12px; border-radius: 18px; border: 3px solid #e7dcc0;
+  background: #fffaf0; font: inherit; color: #3b2a14; cursor: pointer; opacity: .55; transition: transform .15s; }
+.jr-winkel-ding img { height: 74px; width: 100%; object-fit: contain; }
+.jr-winkel-ding b { font-size: 1rem; }
+.jr-winkel-ding span { font-weight: 800; font-size: 1.1rem; min-height: 1.3em; }
+.jr-winkel-ding.kan, .jr-winkel-ding.heb { opacity: 1; }
+.jr-winkel-ding.kan { border-color: #f4c430; box-shadow: 0 0 0 4px rgba(244,196,48,.25); }
+.jr-winkel-ding.kan:hover, .jr-winkel-ding.heb:hover { transform: translateY(-3px); }
+.jr-winkel-ding.heb { background: #eef8ee; border-color: #b9dcb9; }
+.jr-winkel-ding.aan { border-color: #3cb371; }
+.jr-winkel-ding.aan span { color: #2e8b57; }
+.jr-winkel-ding.nee { animation: jr-nee .4s; }
+@keyframes jr-nee { 25% { translate: -6px 0; } 75% { translate: 6px 0; } }
+.jr-lk main button.jr-eigen { clip-path: none; overflow: visible; min-height: 0; }

@@ -107,6 +107,12 @@ function load() {
   if (!Array.isArray(data.sets)) data.sets = [];
   if (!data.instellingen || typeof data.instellingen !== 'object') data.instellingen = {};
   if (!data.burcht || typeof data.burcht !== 'object') data.burcht = {};
+  // Het hol van het klasdraakje: de sterren van de klas, wat ze samen kochten, het hoedje en wat er in het hol staat.
+  if (!data.hol || typeof data.hol !== 'object') data.hol = {};
+  if (!Number.isFinite(data.hol.sterren)) data.hol.sterren = 0;
+  if (!Array.isArray(data.hol.gekocht)) data.hol.gekocht = [];
+  if (!Array.isArray(data.hol.uit)) data.hol.uit = [];
+  if (typeof data.hol.hoed !== 'number') data.hol.hoed = 0;
   return data;
 }
 function save() {
@@ -217,7 +223,38 @@ function draak() {
   const d = load();
   const f = fase(d.eten);
   const van = FASEN[f], tot = FASEN[f + 1];
-  return { naam: d.draakNaam, eten: d.eten, fase: f + 1, fasen: FASEN.length, tot: tot ? Math.round(((d.eten - van) / (tot - van)) * 100) : 100 };
+  const h = d.hol;
+  return { naam: d.draakNaam, eten: d.eten, fase: f + 1, fasen: FASEN.length, tot: tot ? Math.round(((d.eten - van) / (tot - van)) * 100) : 100,
+    sterren: h.sterren, gekocht: h.gekocht, uit: h.uit, hoed: h.hoed };
+}
+// De winkel van het hol: 1-6 zijn hoedjes (er past er één op het draakje), 7-16 komen in het hol.
+const HOL_SPUL = [
+  { id: 1, prijs: 60, hoed: true }, { id: 2, prijs: 40, hoed: true }, { id: 3, prijs: 20, hoed: true },
+  { id: 4, prijs: 25, hoed: true }, { id: 5, prijs: 15, hoed: true }, { id: 6, prijs: 35, hoed: true },
+  { id: 7, prijs: 30 }, { id: 8, prijs: 80 }, { id: 9, prijs: 10 }, { id: 10, prijs: 20 }, { id: 11, prijs: 15 },
+  { id: 12, prijs: 50 }, { id: 13, prijs: 25 }, { id: 14, prijs: 45 }, { id: 15, prijs: 70 }, { id: 16, prijs: 40 },
+];
+function holKoop(id) {
+  const h = load().hol;
+  const stuk = HOL_SPUL.find(x => x.id === Number(id));
+  if (!stuk) throw new Error('Dat bestaat niet.');
+  if (h.gekocht.includes(stuk.id)) return draak();
+  if (h.sterren < stuk.prijs) throw new Error('Nog niet genoeg sterren.');
+  h.sterren -= stuk.prijs;
+  h.gekocht.push(stuk.id);
+  if (stuk.hoed) h.hoed = stuk.id;
+  save();
+  return draak();
+}
+// Een hoedje opzetten of afzetten, of iets uit het hol halen en terugzetten.
+function holZet(id) {
+  const h = load().hol;
+  const stuk = HOL_SPUL.find(x => x.id === Number(id));
+  if (!stuk || !h.gekocht.includes(stuk.id)) throw new Error('Dat bestaat niet.');
+  if (stuk.hoed) h.hoed = h.hoed === stuk.id ? 0 : stuk.id;
+  else h.uit = h.uit.includes(stuk.id) ? h.uit.filter(x => x !== stuk.id) : [...h.uit, stuk.id];
+  save();
+  return draak();
 }
 function noemDraak(naam) {
   load().draakNaam = String(naam || '').replace(/\s+/g, ' ').trim().slice(0, 20);
@@ -228,7 +265,9 @@ function noemDraak(naam) {
 function voer(n = 1) {
   const d = load();
   const voor = fase(d.eten);
-  d.eten += Math.max(0, Math.min(20, Math.round(n) || 0));
+  const bij = Math.max(0, Math.min(20, Math.round(n) || 0));
+  d.eten += bij;
+  d.hol.sterren += bij;
   save();
   return fase(d.eten) > voor;
 }
@@ -508,7 +547,7 @@ function inhoud(taalId) {
 
 module.exports = {
   SPELLEN, AVONTUREN, FASEN, PER_RONDE, RONDES, DIEREN, instellingen, zetInstellingen, STICKERS, DIER_GROEI, dierFase,
-  kinderen, wisselDier, zetSymbool, symboolBestand, draak, noemDraak, start, stop, stand, overzicht, antwoord, teamGoed, klasBeloning, stickers,
+  kinderen, wisselDier, zetSymbool, symboolBestand, draak, noemDraak, holKoop, holZet, HOL_SPUL, start, stop, stand, overzicht, antwoord, teamGoed, klasBeloning, stickers,
   kringKies, kringStand, kringVolgende, inhoud, fase, niveausVan,
   burcht, burchtBouw, BURCHT_PLEKKEN, BURCHT_STUKKEN,
   voortgang, sets, bewaarSet, wisSet, eigenPrompt, leesEigen,

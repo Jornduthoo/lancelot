@@ -1382,6 +1382,17 @@ io.on('connection', socket => {
       io.to('host').emit('jr-draak', d);
       return { draak: d };
     }));
+    // Het hol van het klasdraakje: samen iets kopen met de sterren van de klas, een hoedje opzetten.
+    socket.on('jr-hol-koop', handle(({ id } = {}) => {
+      const d = junior.holKoop(id);
+      io.to('host').emit('jr-draak', d);
+      return { draak: d };
+    }));
+    socket.on('jr-hol-zet', handle(({ id } = {}) => {
+      const d = junior.holZet(id);
+      io.to('host').emit('jr-draak', d);
+      return { draak: d };
+    }));
     // De Wapenkamer: de klastaken (Wachtlijst). Elke wijziging gaat naar alle leerkrachtenschermen.
     socket.on('wk-taken-get', handle(() => ({ data: klastaken.read() })));
     socket.on('wk-taken-zet', handle(arg => {

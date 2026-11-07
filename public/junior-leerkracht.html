@@ -38,10 +38,27 @@
         <button type="button" class="jr-blok" data-ga="opvolgen"><img src="/img/junior/blok/opvolgen.webp" alt=""><b>Opvolgen</b><span>Wat elk kind al oefende, en wat nog moeilijk is.</span><em>Per kind</em></button>
         <button type="button" class="jr-blok" data-ga="maken"><img src="/img/junior/blok/maken.webp" alt=""><b>Maken</b><span>Je eigen vragen met prentjes, met of zonder AI.</span><em id="jr-tel-maken"></em></button>
       </div>
-      <div class="panel jr-mini-draak">
+      <button type="button" class="panel jr-mini-draak jr-eigen" data-ga="draakje">
         <img id="jr-mini-draak" src="/img/junior/draak/1.webp" alt="">
         <div><b id="jr-mini-naam">Het klasdraakje</b><div class="jr-groeibalk"><span id="jr-mini-groei"></span></div></div>
+        <span class="jr-mini-sterren">⭐ <b id="jr-mini-sterren">0</b></span>
+      </button>
+    </div>
+
+    <!-- Het hol van het klasdraakje: kijken, en samen extra's kopen met de sterren van de klas. -->
+    <div class="jr-view hidden" id="jr-v-draakje">
+      <div class="jr-view-kop"><button class="terug-knop" type="button" data-ga="thuis"><i class="ic ic-terug" aria-hidden="true"></i>Terug</button><h2><img id="jr-hol-kop-draak" src="/img/junior/draak/1.webp" alt=""> <span id="jr-hol-naam">Ons klasdraakje</span></h2>
+        <span class="jr-hol-sterren">⭐ <b id="jr-hol-sterren">0</b> <small>sterren</small></span></div>
+      <div class="jr-hol" id="jr-hol">
+        <div class="jr-hol-spul" id="jr-hol-spul" data-geen-vertaling></div>
+        <button type="button" class="jr-hol-draak jr-eigen" id="jr-hol-draak" aria-label="Het klasdraakje">
+          <img id="jr-hol-draak-img" src="/img/junior/draak/1.webp" alt="">
+          <img class="jr-hol-hoed hidden" id="jr-hol-hoed" src="/img/junior/hol/1.webp" alt="">
+        </button>
+        <div class="jr-hol-groei"><div class="jr-groeibalk"><span id="jr-hol-groei"></span></div></div>
       </div>
+      <p class="jr-view-uitleg">Elk goed antwoord van de klas is een ster. Kies samen wat jullie kopen. Tik op iets dat je al hebt om het op te zetten of weg te zetten.</p>
+      <div class="jr-winkel" id="jr-winkel" data-geen-vertaling></div>
     </div>
 
     <div class="jr-view hidden" id="jr-v-spelen">
