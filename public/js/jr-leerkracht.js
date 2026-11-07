@@ -5,7 +5,7 @@ const socket = io({ query: { role: 'host' } });
 const $ = id => document.getElementById(id);
 const J = () => window.JR || { zin: {}, spellen: [] };
 const GROEPEN = [['getallen', '🔢 Getallen en rekenen'], ['meten', '📏 Meten en tijd'], ['meetkunde', '🔷 Vormen en ruimte'], ['taal', '🔤 Taal en klanken'], ['wereld', '🌍 De wereld'], ['samen', '💃 Samen en gevoel'], ['eigen', '✨ Mijn eigen vragen']];
-const VIEWS = ['thuis', 'spelen', 'klas', 'opvolgen', 'maken', 'draakje', 'ochtend', 'eiland'];
+const VIEWS = ['thuis', 'spelen', 'klas', 'opvolgen', 'maken', 'draakje', 'ochtend', 'eiland', 'rijk'];
 let sets = (window.JR && JR.sets) || [];
 const TEAMKLEUR = ['rood', 'blauw', 'geel', 'groen'];
 
@@ -517,6 +517,7 @@ function toonView(v) {
   if (v === 'maken') toonSets();
   if (v === 'ochtend') ochtend('dag');
   if (v !== 'eiland') eilandTourStop();
+  if (v === 'rijk') JrRijk.maak($('jr-rijk-bord')); else if (window.JrRijk) JrRijk.stop();
   if (v === 'eiland') socket.emit('jr-eiland', null, res => res && res.eiland && eiland(res.eiland));
 }
 

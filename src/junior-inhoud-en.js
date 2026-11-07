@@ -19,6 +19,12 @@ module.exports = {
     jijTeam: 'You are in the',
     burchtUitleg: 'This is your castle. Tap a spot and choose what to build.',
     burchtTeWeinig: 'Not enough stones yet. Play a bit more to earn some!',
+    rijkKaart: "Where shall we go? Tap a place.",
+    rijkPlek: "Tap what you see.",
+    rijkZoek: "Where is",
+    rijkVraagteken: "?",
+    rijkGevonden: "Yes, you found it!",
+    rijkAllesGevonden: "Super! You found everything.",
     ochtendWelkeDag: "What day is it today?",
     ochtendDag: "Today is",
     ochtendGisteren: "Yesterday was",
@@ -155,4 +161,6 @@ module.exports = {
       { vraag: 'What do you like doing?', opties: [{ e: '⚽', t: 'Sport' }, { e: '🎨', t: 'Drawing' }, { e: '📚', t: 'Reading' }, { e: '🎵', t: 'Singing' }, { e: '🧱', t: 'Building' }] },
     ],
   ],
+  // Het Toverdorp: zes plekken om te ontdekken, met zes woorden elk (de prenten staan in public/img/junior/rijk).
+  rijk: [{"id": "boerderij", "naam": "The farm", "woorden": ["the cow", "the pig", "the hen", "the sheep", "the horse", "the tractor"]}, {"id": "bos", "naam": "The forest", "woorden": ["the hedgehog", "the owl", "the squirrel", "the mushroom", "the fox", "the deer"]}, {"id": "vijver", "naam": "The pond", "woorden": ["the duck", "the frog", "the fish", "the swan", "the boat", "the water lily"]}, {"id": "markt", "naam": "The market", "woorden": ["the apple", "the bread", "the cheese", "the carrot", "the banana", "the flowers"]}, {"id": "kasteel", "naam": "The castle", "woorden": ["the knight", "the crown", "the shield", "the throne", "the treasure chest", "the carriage"]}, {"id": "tuin", "naam": "The garden", "woorden": ["the flower", "the butterfly", "the bee", "the snail", "the ladybird", "the worm"]}],
 };

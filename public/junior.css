@@ -820,3 +820,31 @@ button.jr-mini-draak:hover { transform: translateY(-2px); }
 .jr-eiland-groot-kop img { width: 72px; height: 72px; object-fit: contain; }
 .jr-eiland-groot-kop span { font-size: 1.4rem; background: rgb(255 255 255 / .2); border-radius: 999px; padding: 4px 14px; }
 .jr-eiland-plein { position: relative; width: 100%; aspect-ratio: 1376 / 768; border-radius: 24px; overflow: hidden; container-type: inline-size; background: url(/img/junior/bg/burcht.webp) center / cover; }
+
+/* ---------- Het Toverdorp ---------- */
+.jr-rijk { position: relative; width: 100%; aspect-ratio: 16 / 9; border-radius: 22px; overflow: hidden; box-shadow: 0 8px 26px rgb(0 0 0 / .25); container-type: inline-size; }
+.jr-rijk-kaart { background: url(/img/junior/rijk/kaart.webp) center / cover; }
+.jr-rijk-plaats { background: var(--bg) center / cover; }
+@media (max-width: 800px) { .jr-rijk-kaart { background-image: url(/img/junior/rijk/kaart-klein.webp); } .jr-rijk-plaats { background-image: var(--bg-klein); } }
+.jr-rijk button { font: inherit; cursor: pointer; }
+.jr-rijk .jr-rijk-plek { position: absolute; width: 22cqw; height: 22cqw; max-height: none; min-height: 0; margin: -11cqw 0 0 -11cqw; transform: none; border-radius: 50%; border: 0; background: radial-gradient(circle, rgb(255 255 255 / 0) 55%, rgb(255 255 255 / .35) 70%, rgb(255 255 255 / 0) 72%); padding: 0; clip-path: none; box-shadow: none; animation: jr-rijk-puls 2.2s ease-in-out infinite; }
+.jr-rijk .jr-rijk-plek span { position: absolute; left: 50%; bottom: 2%; transform: translateX(-50%); background: rgb(255 250 235 / .95); color: #3b2a14; border-radius: 999px; padding: .2em .8em; font-weight: 800; font-size: max(13px, 2.1cqw); white-space: nowrap; box-shadow: 0 3px 8px rgb(0 0 0 / .25); }
+.jr-rijk .jr-rijk-plek:hover span { background: #ffe066; }
+@keyframes jr-rijk-puls { 0%, 100% { scale: 1; } 50% { scale: 1.06; } }
+.jr-rijk-balk { position: absolute; left: 1.2cqw; right: 1.2cqw; top: 1.2cqw; display: flex; align-items: center; gap: 1cqw; z-index: 200; }
+.jr-rijk-balk b { background: rgb(255 250 235 / .95); color: #3b2a14; border-radius: 999px; padding: .25em 1em; font-size: max(15px, 2.4cqw); }
+.jr-rijk .jr-rijk-balk button { width: max(44px, 6cqw); height: max(44px, 6cqw); min-height: 0; border-radius: 50%; border: 3px solid #fff; background: #fff8e6; font-size: max(20px, 3cqw); padding: 0; clip-path: none; box-shadow: 0 3px 0 rgb(0 0 0 / .2); color: inherit; }
+.jr-rijk .jr-rijk-balk .jr-rijk-zoek { margin-left: auto; background: #ffd43b; }
+.jr-rijk-sterren { display: flex; gap: 2px; }
+.jr-rijk-sterren img { width: max(24px, 3.2cqw); animation: jr-ster-in .6s cubic-bezier(.2,1.6,.4,1); }
+.jr-rijk .jr-rijk-ding { position: absolute; border: 0; background: none; padding: 0; height: auto; min-height: 0; max-width: none; clip-path: none; box-shadow: none; }
+.jr-rijk-ding img { width: 100%; height: auto; display: block; filter: drop-shadow(0 6px 6px rgb(0 0 0 / .3)); }
+.jr-rijk-ding.wiebel img { animation: jr-rijk-wiebel .6s; }
+.jr-rijk-ding.ja img { animation: jr-rijk-ja .7s; }
+.jr-rijk-ding.nee img { animation: jr-nee .4s; }
+@keyframes jr-rijk-wiebel { 25% { transform: rotate(-8deg) scale(1.08); } 50% { transform: rotate(6deg) scale(1.1); } 75% { transform: rotate(-3deg); } }
+@keyframes jr-rijk-ja { 40% { transform: translateY(-18%) scale(1.15); filter: drop-shadow(0 0 14px #ffe066); } }
+.jr-rijk-vraag { position: absolute; left: 50%; top: 13%; transform: translateX(-50%); margin: 0; background: rgb(255 250 235 / .96); color: #2b1d0c; border-radius: 22px; padding: .3em 1.1em; font-size: max(18px, 3.6cqw); font-weight: 800; box-shadow: 0 4px 14px rgb(0 0 0 / .2); z-index: 150; white-space: nowrap; }
+#jr-rijk-scherm, #jr-rijk-bord { width: min(100%, (100vh - 200px) * 16 / 9); margin: 0 auto; }
+.jr-rijk-knop { background: linear-gradient(180deg, #d3f9d8, #69db7c); color: #14532d; box-shadow: 0 5px 0 #2f9e44, 0 8px 22px rgb(0 0 0 / .2); }
+.jr-rijk-knop img { animation: none; }

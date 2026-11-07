@@ -4,7 +4,7 @@
 const socket = io();
 const $ = id => document.getElementById(id);
 const J = () => window.JR || { zin: {}, dieren: [] };
-const SCHERMEN = ['jr-wacht', 'jr-kies', 'jr-spel', 'jr-beloning', 'jr-naar-bord', 'jr-kring', 'jr-apart', 'jr-burcht'];
+const SCHERMEN = ['jr-wacht', 'jr-kies', 'jr-spel', 'jr-beloning', 'jr-naar-bord', 'jr-kring', 'jr-apart', 'jr-burcht', 'jr-rijk'];
 
 let stand = { actief: false };
 let kinderen = [];
@@ -21,6 +21,7 @@ let apart = null;
 let alleen = false;
 // Mijn burcht: { van: 'wacht' of 'beloning', wie: kind-id, data, plek }. Van het beginscherm: eerst je dier aantikken.
 let burcht = null;
+let rijkOpen = false; // Het Toverdorp staat open op de tablet.
 try { apart = JSON.parse(sessionStorage.getItem('jr-apart') || 'null'); } catch { apart = null; }
 const S = () => (apart ? { ...stand, actief: true, spel: apart.spel, niveau: apart.niveau, seed: apart.seed, manier: 'beurt', perRonde: apart.raadsel ? 3 : 5 } : stand);
 
@@ -265,6 +266,11 @@ function route() {
   balk();
   $('jr-apart-stop').classList.toggle('hidden', !apart || !!apart.raadsel);
   $('jr-raadsel-stop').classList.toggle('hidden', !(apart && apart.raadsel));
+  // Het Toverdorp: vrij ontdekken op de tablet tot de leerkracht een spel start.
+  if (rijkOpen) {
+    if (stand.actief && !apart) { rijkOpen = false; JrRijk.stop(); }
+    else { if (document.body.dataset.scherm !== 'jr-rijk') { toon('jr-rijk'); JrRijk.maak($('jr-rijk-scherm')); } return; }
+  }
   if (burcht) {
     if (burcht.van === 'wacht') ik = ik.filter(id => kind(id)).slice(0, 1);
     if (!ik.length) { kiesScherm(); return; }
@@ -508,6 +514,8 @@ function burchtLade(i) {
 }
 $('jr-burcht-lade-dicht').addEventListener('click', () => { burcht.plek = -1; $('jr-burcht-lade').classList.add('hidden'); burchtTeken(); });
 $('jr-burcht-knop').addEventListener('click', () => burchtOpen('wacht'));
+$('jr-rijk-knop').addEventListener('click', () => { try { sfx.unlock(); } catch {} rijkOpen = true; route(); });
+$('jr-rijk-klaar').addEventListener('click', () => { rijkOpen = false; JrRijk.stop(); route(); });
 $('jr-bouwen').addEventListener('click', () => burchtOpen('beloning'));
 $('jr-burcht-klaar').addEventListener('click', () => {
   const van = burcht && burcht.van;
