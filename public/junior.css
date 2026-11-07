@@ -117,9 +117,16 @@
 .jr-op-steen { position: relative; color: #fff; text-shadow: 0 .05em 0 #233, 0 0 .2em #233; }
 .jr-stenen { background: linear-gradient(transparent 15%, rgb(95 225 255 / .35) 40%, rgb(77 171 247 / .45) 70%, transparent 95%); border-radius: 1em; padding: .6em 1em; }
 
-.jr-nest { display: flex; flex-wrap: wrap; justify-content: center; align-content: center; gap: .2em; max-width: 16em; padding: 1em 1.4em 1.6em; background: url(/img/junior/stuk/2.webp) center bottom / 100% auto no-repeat; min-height: 6em; }
-.jr-nest .jr-ei { width: 2.2em; }
-.jr-nest-vol .jr-ei { width: 2em; }
+.jr .jr-nest { position: relative; display: flex; flex-wrap: wrap; justify-content: center; align-content: flex-end; gap: .15em; width: 18em; max-width: none; padding: 0 3.2em 3.9em; min-height: 11em;
+  background: url(/img/junior/stuk/2.webp) center bottom / 18em auto no-repeat; }
+/* De voorste rand van het nest ligt over de eieren: zo liggen ze echt in het nest. */
+.jr-nest::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 13.2em; background: url(/img/junior/stuk/2.webp) center bottom / 18em auto no-repeat;
+  clip-path: polygon(0 58%, 20% 64%, 50% 67%, 80% 64%, 100% 58%, 100% 100%, 0 100%); pointer-events: none; z-index: 2; }
+.jr .jr-nest > * { position: relative; z-index: 1; }
+.jr .jr-nest.jr-veel-eieren .jr-ei { width: 1.8em; }
+.jr-nest .jr-ei { width: 2.2em; display: block; }
+.jr .jr-nest .jr-tik { padding: 0; }
+.jr .jr-nest .jr-tik .jr-ei { width: 2.2em; }
 .jr-tikveld { display: flex; flex-wrap: wrap; gap: .5em; justify-content: center; align-items: center; max-width: 24em; }
 .jr-tikveld.jr-veld { max-width: 26em; gap: .8em; }
 .jr .jr-tik { border: 0; background: transparent; padding: .15em; border-radius: 50%; transition: transform .12s ease; }
