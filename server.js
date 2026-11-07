@@ -1316,6 +1316,11 @@ io.on('connection', socket => {
       juniorSoon();
       return { kinderen: lijst };
     }));
+    socket.on('jr-instellingen', handle(arg => {
+      const inst = arg ? junior.zetInstellingen(arg) : junior.instellingen();
+      if (arg) { io.emit('jr-stand', junior.stand()); juniorSoon(); }
+      return { instellingen: inst };
+    }));
     socket.on('jr-draaknaam', handle(({ naam } = {}) => {
       const d = junior.noemDraak(naam);
       io.to('host').emit('jr-draak', d);

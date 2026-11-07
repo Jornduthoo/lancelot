@@ -6,6 +6,8 @@ module.exports = {
   zin: {
     kiesDier: 'Toca tu animal.',
     kiesDuo: 'Tocad vuestros dos animales.',
+    kiesTweede: 'Ahora toca el animal de tu compañero.',
+    alleen: 'Juego solo',
     goed: ['¡Muy bien!', '¡Genial!', '¡Estupendo!', '¡Sí, es correcto!', '¡Fenomenal!', '¡Hurra!'],
     fout: ['¡Casi! Inténtalo otra vez.', 'Mira otra vez con atención.', 'Uy, prueba una vez más.'],
     sticker: '¡Hurra! ¡Ganas una pegatina!',
