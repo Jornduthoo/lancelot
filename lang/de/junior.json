@@ -398,5 +398,7 @@
  "Een opdracht in grote letters op het bord, met de tijd erbij.": "Eine Aufgabe in großen Buchstaben an der Tafel, mit der Zeit.",
  "De klastaken van de week, die elke maandag doorschuiven.": "Die Klassendienste der Woche, die jeden Montag weiterrücken.",
  "Bouw je lokaal na: de banken krijgen vanzelf een kind.": "Baue deinen Raum nach: jeder Tisch bekommt automatisch ein Kind.",
- "Schermvullend op het bord, met de namen van je klas. Met Terug kom je weer hier.": "Vollbild an der Tafel, mit den Namen deiner Klasse. Mit Zurück kommst du wieder hierher."
+ "Schermvullend op het bord, met de namen van je klas. Met Terug kom je weer hier.": "Vollbild an der Tafel, mit den Namen deiner Klasse. Mit Zurück kommst du wieder hierher.",
+ "Draai je telefoon: dan is het spel groter.": "Dreh dein Handy: dann wird das Spiel größer.",
+ "(orientation: portrait) and (max-width: 600px)": null
 }

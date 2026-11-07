@@ -398,5 +398,7 @@
  "Een opdracht in grote letters op het bord, met de tijd erbij.": "A task in big letters on the board, with the time.",
  "De klastaken van de week, die elke maandag doorschuiven.": "The class jobs of the week, rotating every Monday.",
  "Bouw je lokaal na: de banken krijgen vanzelf een kind.": "Rebuild your classroom: each desk gets a child automatically.",
- "Schermvullend op het bord, met de namen van je klas. Met Terug kom je weer hier.": "Full screen on the board, with your class names. Back brings you here again."
+ "Schermvullend op het bord, met de namen van je klas. Met Terug kom je weer hier.": "Full screen on the board, with your class names. Back brings you here again.",
+ "Draai je telefoon: dan is het spel groter.": "Turn your phone: the game gets bigger.",
+ "(orientation: portrait) and (max-width: 600px)": null
 }
