@@ -55,7 +55,7 @@ function balk() {
   const wie = ik.map(kind).filter(Boolean);
   $('jr-wie').classList.toggle('hidden', !wie.length);
   // Bij een avontuur op het bord: de kleur van het team rond het dier (rood, blauw, geel, groen).
-  const kleur = k => (!apart && stand.avontuur && k.team >= 0 ? ` jr-tk-${['rood', 'blauw', 'geel', 'groen'][k.team]}` : '');
+  const kleur = k => (!apart && stand.avontuur && !stand.avontuur.samen && k.team >= 0 ? ` jr-tk-${['rood', 'blauw', 'geel', 'groen'][k.team]}` : '');
   $('jr-wie').innerHTML = wie.map(k => `<span class="jr-wie-een${kleur(k)}">${dierImg(k)}<b>${Junior.esc(k.naam)}</b></span>`).join('');
 }
 $('jr-wie').addEventListener('click', () => {
@@ -156,7 +156,7 @@ async function volgendeVraag() {
   toon('jr-spel');
   stappen();
   // Bij de Drakenrace: eerst groot tonen (en zeggen) in welk team je speelt.
-  if (!apart && stand.avontuur && ronde.nr === 0 && !ronde.teamGetoond) {
+  if (!apart && stand.avontuur && !stand.avontuur.samen && ronde.nr === 0 && !ronde.teamGetoond) {
     ronde.teamGetoond = true;
     await teamSplash();
     if (ronde !== deze) return;

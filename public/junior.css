@@ -848,3 +848,32 @@ button.jr-mini-draak:hover { transform: translateY(-2px); }
 #jr-rijk-scherm, #jr-rijk-bord { width: min(100%, (100vh - 200px) * 16 / 9); margin: 0 auto; }
 .jr-rijk-knop { background: linear-gradient(180deg, #d3f9d8, #69db7c); color: #14532d; box-shadow: 0 5px 0 #2f9e44, 0 8px 22px rgb(0 0 0 / .2); }
 .jr-rijk-knop img { animation: none; }
+
+/* ---------- Ballonnenfeest en Burchtbouwers ---------- */
+.jr-race[data-avontuur="ballon"] { background-image: url('/img/junior/avontuur/lucht.webp'); }
+.jr-race[data-avontuur="bouw"] { background-image: url('/img/junior/avontuur/bouw.webp'); }
+@media (max-width: 800px) { .jr-race[data-avontuur="ballon"] { background-image: url('/img/junior/avontuur/lucht-klein.webp'); } .jr-race[data-avontuur="bouw"] { background-image: url('/img/junior/avontuur/bouw-klein.webp'); } }
+.jr-race[data-avontuur="ballon"] .jr-race-banen, .jr-race[data-avontuur="bouw"] .jr-race-banen { top: 0; bottom: 0; left: 0; right: 0; display: grid; grid-template-rows: none; grid-template-columns: repeat(4, 1fr); gap: 0; }
+.jr-race[data-avontuur="bouw"] .jr-race-banen { grid-template-columns: 1fr; }
+.jr-race-banen .jr-lucht { position: relative; background: none; box-shadow: none; border: 0; border-right: 2px dashed rgb(255 255 255 / .35); border-radius: 0; }
+.jr-race-banen .jr-lucht:last-child { border-right: 0; }
+.jr-lucht .jr-baan-naam { top: auto; bottom: 3%; left: 50%; transform: translateX(-50%); border-radius: 999px; padding: 4px 16px; white-space: nowrap; }
+.jr-lucht.jr-baan-rood .jr-baan-naam { background: #e03131; } .jr-lucht.jr-baan-blauw .jr-baan-naam { background: #1c7ed6; }
+.jr-lucht.jr-baan-geel .jr-baan-naam { background: #f2b200; } .jr-lucht.jr-baan-groen .jr-baan-naam { background: #2f9e44; }
+.jr-lucht .jr-baan-leden { top: auto; bottom: 10%; left: 50%; transform: translateX(-50%); width: 90%; justify-content: center; }
+.jr-lucht .jr-baan-winst { top: 22%; right: 6%; transform: none; flex-direction: column; }
+.jr-lucht .jr-baan-winst img { height: clamp(24px, 5vh, 40px); }
+.jr-lucht .jr-ballon { left: 50%; top: auto; bottom: calc(16% + var(--ver) * 44%); height: auto; width: min(55%, 18vh); aspect-ratio: auto; transform: translateX(-50%); transition: bottom .8s cubic-bezier(.3,1.4,.5,1); }
+.jr-ballon-img { width: 100%; display: block; filter: drop-shadow(0 10px 12px rgb(0 0 0 / .25)); animation: jr-ballon-zweef 3.5s ease-in-out infinite; }
+@keyframes jr-ballon-zweef { 0%, 100% { translate: 0 0; rotate: -2deg; } 50% { translate: 0 -6px; rotate: 2deg; } }
+.jr-ballon.jr-hop .jr-ballon-img { animation: jr-hop .6s ease-out; }
+.jr-ballon .jr-baan-kind { bottom: 10%; width: 34%; }
+.jr-bouw { position: absolute; left: 50%; bottom: 8%; height: 72%; aspect-ratio: 700 / 610; transform: translateX(-50%); }
+.jr-bouw > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+.jr-bouw-schets { opacity: .22; filter: grayscale(1) brightness(1.6); }
+.jr-bouw-burcht { clip-path: inset(calc((1 - var(--ver)) * 100%) 0 0 0); transition: clip-path .8s ease; filter: drop-shadow(0 10px 14px rgb(0 0 0 / .3)); }
+.jr-bouw-kinderen { position: absolute; left: 0; right: 0; bottom: 0; height: 100%; pointer-events: none; }
+.jr-bouw-kinderen .jr-baan-kind { width: 14%; bottom: 20%; }
+.jr-bouw-winst { position: absolute; right: 3%; top: 20%; flex-direction: column; transform: none; }
+.jr-bouw-winst img { height: clamp(30px, 7vh, 56px); }
+.jr-race-feest-samen p { background: #7048e8; font-size: clamp(1.2rem, 3vw, 2.4rem); text-align: center; max-width: 90%; }
