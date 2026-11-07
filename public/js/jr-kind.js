@@ -418,12 +418,14 @@ socket.on('connect', () => {
     bezet = res.bezet || [];
     const oud = stand.seed;
     stand = res.stand || { actief: false };
+    try { JrThema.zet(stand.thema); } catch {}
     if (ik.length) socket.emit('jr-login', { ids: ik });
     if (oud !== stand.seed) oudWeg();
     route();
   });
 });
 socket.on('jr-stand', s => {
+  try { JrThema.zet(s && s.thema); } catch {}
   if (apart) { stand = s; zetDraak(); return; }
   const nieuw = s.seed !== stand.seed || s.manier !== stand.manier;
   stand = s;

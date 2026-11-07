@@ -457,5 +457,15 @@
  "stuk/25": null,
  "Rustmoment": "Moment calme",
  "▶ Start": "▶ Démarrer",
- "■ Stop": "■ Arrêter"
+ "■ Stop": "■ Arrêter",
+ "{0}: {1} vragen staan nu bij je reeksen.": "{0} : {1} questions sont maintenant dans tes séries.",
+ "🎁 Kant-en-klare reeksen": "🎁 Séries toutes prêtes",
+ "Eén tik en de reeks staat bij je reeksen. Daarna kun je ze aanpassen.": "Un toucher et la série est ajoutée. Tu peux la modifier ensuite.",
+ "Versiering op het bord en de tablets. Automatisch volgt de kalender.": "Décoration au tableau et sur les tablettes. Automatique suit le calendrier.",
+ "📅 Automatisch": "📅 Automatique",
+ "🍂 Herfst": "🍂 Automne",
+ "🎁 Sinterklaas": "🎁 Saint-Nicolas",
+ "🎄 Kerst": "🎄 Noël",
+ "🎭 Carnaval": "🎭 Carnaval",
+ "Thema": "Thème"
 }

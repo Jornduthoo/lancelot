@@ -136,15 +136,40 @@ function save() {
 // Het dier van elk kind groeit mee met de stickers: eerst gewoon, dan schildknaap (blauwe kap), dan ridder (helm met pluim).
 const DIER_GROEI = [0, 10, 30]; // public/img/junior/dier, dier2, dier3
 // De instellingen van de leerkracht (knop ⚙️): opdrachten per ronde, voorlezen op de tablets, dieren die meegroeien.
+// Thema's: versiering op het bord en de tablets. 'auto' kiest volgens de datum.
+const THEMAS = ['herfst', 'sint', 'kerst', 'carnaval'];
 function instellingen() {
   const i = load().instellingen;
-  return { perRonde: RONDES.includes(i.perRonde) ? i.perRonde : PER_RONDE, voorlezen: i.voorlezen !== false, groei: i.groei !== false };
+  return { perRonde: RONDES.includes(i.perRonde) ? i.perRonde : PER_RONDE, voorlezen: i.voorlezen !== false, groei: i.groei !== false, thema: ['auto', 'geen', ...THEMAS].includes(i.thema) ? i.thema : 'auto' };
+}
+// Paaszondag (Gauss/Meeus), voor de datum van carnaval.
+function pasen(j) {
+  const a = j % 19, b = Math.floor(j / 100), c = j % 100, d = Math.floor(b / 4), e = b % 4, f = Math.floor((b + 8) / 25), g = Math.floor((b - f + 1) / 3);
+  const h = (19 * a + b - d - g + 15) % 30, i = Math.floor(c / 4), k = c % 4, l = (32 + 2 * e + 2 * i - h - k) % 7, m = Math.floor((a + 11 * h + 22 * l) / 451);
+  const maand = Math.floor((h + l - 7 * m + 114) / 31), dag = ((h + l - 7 * m + 114) % 31) + 1;
+  return new Date(j, maand - 1, dag);
+}
+// Welk thema er nu is. Sinterklaas alleen in het Nederlands (Vlaanderen en Nederland).
+function themaNu(nu = new Date()) {
+  const t = instellingen().thema;
+  if (t !== 'auto') return t === 'geen' ? '' : t;
+  const md = (nu.getMonth() + 1) * 100 + nu.getDate();
+  let nl = true;
+  try { nl = !['en', 'fr', 'es', 'de'].includes(require('./taal').huidig()); } catch {}
+  if (nl && md >= 1115 && md <= 1206) return 'sint';
+  if (md >= (nl ? 1207 : 1201) || md <= 106) return 'kerst';
+  if (md >= 922 && md <= 1114) return 'herfst';
+  if (!nl && md >= 1115 && md <= 1130) return 'herfst';
+  const p = pasen(nu.getFullYear()).getTime(), dag = 864e5;
+  if (nu.getTime() >= p - 60 * dag && nu.getTime() <= p - 46 * dag) return 'carnaval';
+  return '';
 }
 function zetInstellingen(nieuw = {}) {
   const i = load().instellingen;
   if (RONDES.includes(Number(nieuw.perRonde))) i.perRonde = Number(nieuw.perRonde);
   if (typeof nieuw.voorlezen === 'boolean') i.voorlezen = nieuw.voorlezen;
   if (typeof nieuw.groei === 'boolean') i.groei = nieuw.groei;
+  if (['auto', 'geen', ...THEMAS].includes(nieuw.thema)) i.thema = nieuw.thema;
   save();
   return instellingen();
 }
@@ -315,12 +340,12 @@ function stop() {
   les = null;
 }
 function stand() {
-  if (!les) return { actief: false, draak: draak(), voorlezen: instellingen().voorlezen };
+  if (!les) return { actief: false, draak: draak(), voorlezen: instellingen().voorlezen, thema: themaNu() };
   const s = SPEL[les.spel];
   return {
     actief: true, spel: les.spel, naam: s.naam, niveau: les.niveau, niveauNaam: niveausVan(s)[les.niveau], manier: les.manier, seed: les.seed,
     eigen: les.spel === 'eigen' ? load().sets[les.niveau] || null : undefined,
-    perRonde: instellingen().perRonde, voorlezen: instellingen().voorlezen, teams: les.teams, avontuur: avontuurStand(), kring: { vraag: les.kring.vraag }, draak: draak(),
+    perRonde: instellingen().perRonde, voorlezen: instellingen().voorlezen, teams: les.teams, avontuur: avontuurStand(), kring: { vraag: les.kring.vraag }, draak: draak(), thema: themaNu(),
   };
 }
 // Hoe ver elk team is (0 tot 1). Een team met meer kinderen moet ook meer stappen zetten: zo blijft het eerlijk.
@@ -581,7 +606,7 @@ function inhoud(taalId) {
 }
 
 module.exports = {
-  zetJarig,
+  zetJarig, themaNu, pasen, THEMAS,
   SPELLEN, AVONTUREN, FASEN, PER_RONDE, RONDES, DIEREN, instellingen, zetInstellingen, STICKERS, DIER_GROEI, dierFase,
   kinderen, wisselDier, zetSymbool, symboolBestand, draak, noemDraak, holKoop, holZet, HOL_SPUL, eiland, start, stop, stand, overzicht, antwoord, teamGoed, klasBeloning, stickers,
   kringKies, kringStand, kringVolgende, inhoud, fase, niveausVan,
