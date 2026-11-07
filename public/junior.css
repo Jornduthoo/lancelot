@@ -395,3 +395,75 @@
 .jr .jr-doosveld.jr-dozen-2 { aspect-ratio: 700 / 736; width: 13em; }
 .jr .jr-doosveld .jr-tik, .jr-doosveld .jr-doosei { position: absolute; width: 14%; padding: 0; transform: translate(-50%, -58%); display: block; }
 .jr .jr-doosveld .jr-tik.jr-aan { transform: translate(-50%, -58%) scale(1.08); }
+
+/* ---------- Beginscherm van de leerkracht: grote blokken zoals in LANcelot ---------- */
+.jr-view { display: flex; flex-direction: column; gap: 16px; }
+.jr-held { display: flex; flex-direction: column; align-items: center; gap: 6px; margin-top: 4px; }
+.jr-held-logo { width: auto; max-width: min(46vw, 300px); max-height: 30vh; height: auto; filter: drop-shadow(0 8px 18px rgb(0 0 0 / .45)); }
+.jr-held-zin { color: #fff; font-family: var(--jr-schrift); font-weight: 700; font-size: 1.2rem; text-shadow: 0 2px 8px rgb(0 0 0 / .7); margin: 0; text-align: center; }
+.jr-blokken { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+@media (max-width: 1000px) { .jr-blokken { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 520px) { .jr-blokken { grid-template-columns: 1fr; } }
+.jr-lk .jr-blok { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px; padding: 16px 14px 14px; border: 0; border-radius: 24px;
+  background: rgb(255 248 231 / .95); color: var(--jr-inkt); box-shadow: 0 5px 0 #d8c9a3, 0 12px 26px rgb(0 0 0 / .3); cursor: pointer; font-family: inherit; clip-path: none; height: auto; white-space: normal; transition: transform .15s; }
+.jr-lk .jr-blok:hover { transform: translateY(-3px); }
+.jr-blok img { width: 128px; height: 128px; object-fit: contain; }
+.jr-blok b { font-family: var(--jr-schrift); font-size: 1.45rem; }
+.jr-blok span { font-size: .92rem; color: #4b4560; font-weight: 400; }
+.jr-blok em { font-style: normal; font-size: .8rem; font-weight: 800; color: #2f7d4a; background: #e6f6ea; padding: 3px 10px; border-radius: 999px; min-height: 1em; }
+.jr-blok em:empty { display: none; }
+.jr-mini-draak { display: flex; align-items: center; gap: 12px; align-self: center; padding: 8px 18px; border-radius: 999px; }
+.jr-mini-draak img { width: 48px; height: 48px; object-fit: contain; }
+.jr-mini-draak .jr-groeibalk { width: 180px; margin-top: 4px; }
+.jr-view-kop { display: flex; align-items: center; gap: 14px; }
+.jr-view-kop h2 { margin: 0; display: flex; align-items: center; gap: 10px; color: #fff; font-family: var(--jr-schrift); font-size: 1.8rem; text-shadow: 0 2px 8px rgb(0 0 0 / .6); }
+.jr-view-kop h2 img { width: 52px; height: 52px; object-fit: contain; }
+.jr-view-uitleg { color: #fff; margin: 0; text-shadow: 0 1px 6px rgb(0 0 0 / .8); max-width: 900px; }
+.jr-view-uitleg a { color: var(--jr-goud); }
+
+/* Opvolgen: kinderen in rijen, spelletjes in kolommen */
+.jr-opvolg-wrap { overflow-x: auto; padding: 10px; align-self: flex-start; max-width: 100%; }
+.jr-opvolg { border-collapse: separate; border-spacing: 3px; font-size: .9rem; }
+.jr-opvolg thead th { vertical-align: bottom; font-weight: 700; font-size: .75rem; max-width: 74px; }
+.jr-opvolg thead th img { display: block; width: 40px; height: 40px; object-fit: contain; margin: 0 auto 2px; }
+.jr-opvolg thead th span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.jr-opvolg tbody th { text-align: left; padding-right: 8px; }
+.jr-opvolg-kind { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+.jr-opvolg tbody th img { width: 30px; height: 30px; object-fit: contain; }
+.jr-opvolg td { text-align: center; min-width: 52px; padding: 4px; border-radius: 10px; background: rgb(255 255 255 / .06); font-size: 1.15rem; }
+.jr-opvolg td small { display: block; font-size: .68rem; opacity: .75; }
+.jr-opvolg td.goed { background: rgb(255 201 74 / .22); }
+.jr-opvolg td.midden { background: rgb(81 207 102 / .18); }
+.jr-opvolg td.oefen { background: rgb(255 107 107 / .2); }
+.jr-opvolg td.leeg { opacity: .35; }
+
+/* Maken: eigen vragen */
+.jr-maken { display: grid; grid-template-columns: 1.2fr 1fr; gap: 16px; }
+@media (max-width: 900px) { .jr-maken { grid-template-columns: 1fr; } }
+.jr-maak-ai label, .jr-bewerk label { display: flex; flex-direction: column; gap: 4px; margin-top: 10px; font-weight: 700; }
+.jr-maak-ai .actions { margin-top: 12px; flex-wrap: wrap; }
+.jr-set { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 12px; border-radius: 14px; background: rgb(255 255 255 / .06); margin-top: 8px; }
+.jr-set b { display: block; }
+.jr-set span { font-size: .85rem; opacity: .85; }
+.jr-set-knoppen { display: flex; gap: 6px; flex: none; }
+.jr-set-knoppen button { padding: 6px 12px; min-height: 0; }
+.jr-bw-vraag { padding: 10px; border-radius: 14px; background: rgb(255 255 255 / .05); margin-top: 10px; }
+.jr-bw-rij { display: flex; gap: 8px; align-items: center; }
+.jr-bw-rij b { width: 1.6em; text-align: center; }
+.jr-bw-rij .jr-bw-tekst { flex: 1; }
+.jr-bw-rij button { padding: 6px 10px; min-height: 0; }
+.jr-bw-opties { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 8px; padding-left: 2em; }
+@media (max-width: 700px) { .jr-bw-opties { grid-template-columns: 1fr; } }
+.jr-bewerk .jr-bw-optie { flex-direction: row; align-items: center; gap: 6px; margin: 0; padding: 6px; border-radius: 12px; border: 2px solid transparent; font-weight: 400; }
+.jr-bw-optie.juist { border-color: var(--jr-goud); background: rgb(255 201 74 / .12); }
+.jr-bw-optie .jr-bw-e { width: 3.2em; text-align: center; font-size: 1.3rem; padding: 4px; }
+.jr-bw-optie .jr-bw-w { flex: 1; min-width: 0; }
+.jr-optie-woord { display: block; font-size: .42em; font-weight: 800; margin-top: .1em; color: var(--jr-inkt); font-family: var(--jr-schrift); }
+.jr-vak[data-soort="kies"] .jr-optie:has(.jr-optie-woord) { flex-direction: column; padding: .4em .9em .3em; }
+.jr-vraagkaart { display: inline-block; background: rgb(255 248 231 / .95); color: var(--jr-inkt); font-family: var(--jr-schrift); font-weight: 800; font-size: .8em; padding: .35em .9em; border-radius: .8em; box-shadow: 0 .2em .8em rgb(0 0 0 / .2); max-width: 22em; text-align: center; }
+
+/* Spelen: elk domein een eigen kaart, naast elkaar zodat alles op één scherm past */
+#jr-groepen { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 430px), 1fr)); gap: 14px; align-items: start; }
+.jr-lk .jr-groep { background: rgb(18 40 26 / .72); backdrop-filter: blur(4px); border-radius: 22px; padding: 12px 14px 14px; }
+.jr-lk .jr-groep h3 { margin: 0; font-family: var(--jr-schrift); font-size: 1.15rem; text-transform: none; letter-spacing: 0; }
+.jr-lk .jr-groep .jr-tegels { grid-template-columns: repeat(auto-fill, minmax(124px, 1fr)); }

@@ -26,7 +26,32 @@
 
 <main class="jr-lk-hoofd">
   <section id="jr-start">
-    <div class="jr-boven">
+    <!-- Het beginscherm: zoals LANcelot een paar grote blokken. Elk blok opent een eigen pagina met Terug. -->
+    <div class="jr-view" id="jr-v-thuis">
+      <div class="jr-held">
+        <img class="jr-held-logo" src="/img/junior/logo.webp" alt="LANcelot Junior">
+        <p class="jr-held-zin">Spelen en oefenen met de hele klas. Alles wordt voorgelezen.</p>
+      </div>
+      <div class="jr-blokken">
+        <button type="button" class="jr-blok" data-ga="spelen"><img src="/img/junior/blok/spelen.webp" alt=""><b>Spelen</b><span>Kies een spel en een niveau. Op het bord, met twee of om de beurt.</span><em id="jr-tel-spelen"></em></button>
+        <button type="button" class="jr-blok" data-ga="klas"><img src="/img/junior/blok/klas.webp" alt=""><b>Onze klas</b><span>Het klasdraakje en het dier van elk kind.</span><em id="jr-tel-klas"></em></button>
+        <button type="button" class="jr-blok" data-ga="opvolgen"><img src="/img/junior/blok/opvolgen.webp" alt=""><b>Opvolgen</b><span>Wat elk kind al oefende, en wat nog moeilijk is.</span><em>Per kind</em></button>
+        <button type="button" class="jr-blok" data-ga="maken"><img src="/img/junior/blok/maken.webp" alt=""><b>Maken</b><span>Je eigen vragen met prentjes, met of zonder AI.</span><em id="jr-tel-maken"></em></button>
+      </div>
+      <div class="panel jr-mini-draak">
+        <img id="jr-mini-draak" src="/img/junior/draak/1.webp" alt="">
+        <div><b id="jr-mini-naam">Het klasdraakje</b><div class="jr-groeibalk"><span id="jr-mini-groei"></span></div></div>
+      </div>
+    </div>
+
+    <div class="jr-view hidden" id="jr-v-spelen">
+      <div class="jr-view-kop"><button class="terug-knop" type="button" data-ga="thuis"><i class="ic ic-terug" aria-hidden="true"></i>Terug</button><h2><img src="/img/junior/blok/spelen.webp" alt=""> Spelen</h2></div>
+      <p class="jr-view-uitleg">Tik op een spel. Daarna kies je het niveau en hoe de klas speelt. De kinderen tikken hun dier aan op de tablet.</p>
+      <div id="jr-groepen"></div>
+    </div>
+
+    <div class="jr-view hidden" id="jr-v-klas">
+      <div class="jr-view-kop"><button class="terug-knop" type="button" data-ga="thuis"><i class="ic ic-terug" aria-hidden="true"></i>Terug</button><h2><img src="/img/junior/blok/klas.webp" alt=""> Onze klas</h2></div>
       <div class="panel jr-draak-paneel">
         <img class="jr-draak-foto" id="jr-draak-foto" src="/img/junior/draak/1.webp" alt="">
         <div class="jr-draak-info">
@@ -39,24 +64,62 @@
           <p class="muted small" id="jr-groei-tekst"></p>
         </div>
       </div>
-      <div class="panel jr-hoe">
-        <p class="title">Zo werkt het</p>
-        <ol>
-          <li><b>Kies een spel</b> hieronder en het niveau.</li>
-          <li><b>Kies hoe je speelt:</b> op het bord met 4 teams, met twee op een tablet, of om de beurt in een hoek.</li>
-          <li><b>De kinderen tikken hun dier aan</b> op de tablet. Alles wordt voorgelezen.</li>
-        </ol>
-        <p class="muted small">Tablets verbinden met de QR-code, net zoals in LANcelot. Wat de kinderen doen, komt in het logboek van Mijn klas.</p>
+      <div class="panel jr-klas" id="jr-klas">
+        <p class="title">🐾 De dieren van de klas</p>
+        <p class="muted small">Elk kind heeft een vast dier. Tik op een dier om het te wisselen, of laad met 📷 het eigen symbooltje van het kind op (zoals aan de kapstok). De namen komen uit <a href="/klas">Mijn klas</a>.</p>
+        <div class="jr-klas-rooster" id="jr-klas-rooster" data-geen-vertaling></div>
+        <div class="actions"><button class="secondary" id="jr-print">🖨️ Kaartjes printen</button></div>
+        <p class="muted small hidden" id="jr-klas-leeg">Er staat nog niemand op de klaslijst. Zet de namen in <a href="/klas">Mijn klas</a>.</p>
       </div>
     </div>
-    <div id="jr-groepen"></div>
-    <details class="panel jr-klas" id="jr-klas">
-      <summary>🐾 De dieren van de klas</summary>
-      <p class="muted small">Elk kind heeft een vast dier. Tik op een dier om het te wisselen, of laad met 📷 het eigen symbooltje van het kind op (zoals aan de kapstok). De namen komen uit <a href="/klas">Mijn klas</a>.</p>
-      <div class="jr-klas-rooster" id="jr-klas-rooster" data-geen-vertaling></div>
-      <div class="actions"><button class="secondary" id="jr-print">🖨️ Kaartjes printen</button></div>
-      <p class="muted small hidden" id="jr-klas-leeg">Er staat nog niemand op de klaslijst. Zet de namen in <a href="/klas">Mijn klas</a>.</p>
-    </details>
+
+    <div class="jr-view hidden" id="jr-v-opvolgen">
+      <div class="jr-view-kop"><button class="terug-knop" type="button" data-ga="thuis"><i class="ic ic-terug" aria-hidden="true"></i>Terug</button><h2><img src="/img/junior/blok/opvolgen.webp" alt=""> Opvolgen</h2></div>
+      <p class="jr-view-uitleg">Per kind en per spel: 🌟 gaat goed, 🙂 lukt meestal, 🌱 nog oefenen. Het getal is hoeveel opdrachten het kind deed. Alles staat ook in het logboek van <a href="/klas">Mijn klas</a>.</p>
+      <div class="panel jr-opvolg-wrap"><table class="jr-opvolg" id="jr-opvolg" data-geen-vertaling></table></div>
+      <p class="muted small hidden" id="jr-opvolg-leeg">Nog niets gespeeld. Start een spel bij Spelen.</p>
+    </div>
+
+    <div class="jr-view hidden" id="jr-v-maken">
+      <div class="jr-view-kop"><button class="terug-knop" type="button" data-ga="thuis"><i class="ic ic-terug" aria-hidden="true"></i>Terug</button><h2><img src="/img/junior/blok/maken.webp" alt=""> Maken</h2></div>
+      <div class="jr-maken">
+        <div class="panel jr-maak-ai">
+          <p class="title">✨ Nieuwe vragen</p>
+          <p class="muted small">Typ een onderwerp. Je krijgt korte vragen met drie prentjes, die op de tablet voorgelezen worden.</p>
+          <label>Onderwerp<input id="jr-maak-onderwerp" maxlength="200" placeholder="Bijvoorbeeld: de herfst, dieren op de boerderij, getallen tot 10"></label>
+          <label>Aantal vragen
+            <select id="jr-maak-aantal"><option>5</option><option selected>8</option><option>12</option><option>20</option></select>
+          </label>
+          <div class="actions">
+            <button class="gold" id="jr-maak-ai" type="button">✨ Maak met AI</button>
+            <button class="secondary" id="jr-maak-kopieer" type="button">📋 Kopieer de prompt</button>
+            <button class="secondary" id="jr-maak-leeg" type="button">✏️ Zelf typen</button>
+          </div>
+          <p class="muted small" id="jr-maak-ai-tip"></p>
+          <div class="hidden" id="jr-maak-plak-blok">
+            <label>Plak hier het antwoord van de chatbot<textarea id="jr-maak-plak" rows="4"></textarea></label>
+            <div class="actions"><button class="secondary" id="jr-maak-lees" type="button">Inlezen</button></div>
+          </div>
+        </div>
+        <div class="panel jr-maak-lijst">
+          <p class="title">📚 Mijn reeksen</p>
+          <p class="muted small">Speel een reeks bij Spelen, onder Mijn vragen.</p>
+          <div id="jr-sets" data-geen-vertaling></div>
+          <p class="muted small hidden" id="jr-sets-leeg">Nog geen reeksen.</p>
+        </div>
+      </div>
+      <div class="panel jr-bewerk hidden" id="jr-bewerk">
+        <div class="jr-bewerk-kop">
+          <label>Naam van de reeks<input id="jr-bw-naam" maxlength="40"></label>
+        </div>
+        <div id="jr-bw-vragen" data-geen-vertaling></div>
+        <div class="actions">
+          <button class="secondary" id="jr-bw-erbij" type="button">＋ Vraag erbij</button>
+          <button class="secondary" id="jr-bw-annuleer" type="button">Annuleren</button>
+          <button class="gold" id="jr-bw-bewaar" type="button">Bewaren</button>
+        </div>
+      </div>
+    </div>
   </section>
 
   <section id="jr-loopt" class="hidden">

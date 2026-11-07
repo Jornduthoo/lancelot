@@ -37,7 +37,12 @@ const dierNaam = k => (k.eigen ? k.naam : (J().dieren || [])[k.dier - 1]) || k.n
 const kind = id => kinderen.find(k => k.id === id);
 const draakImg = () => `/img/junior/draak/${(stand.draak && stand.draak.fase) || 1}.webp`;
 
+// De eigen vragen die nu gespeeld worden, komen mee met de stand (de tablet laadde de lijst misschien al eerder).
+function zetSets() {
+  if (stand.eigen && window.JR) { (JR.sets = JR.sets || [])[stand.niveau] = stand.eigen; }
+}
 function zetDraak() {
+  zetSets();
   Junior.Stem.stil = stand.voorlezen === false;
   for (const id of ['jr-balk-draak', 'jr-wacht-draak']) $(id).src = draakImg();
 }
@@ -387,3 +392,4 @@ socket.on('jr-kring', k => {
 socket.on('jr-weg', () => afmelden());
 Junior.schaal($('jr-vak'));
 route();
+socket.on('jr-sets', lijst => { if (window.JR && Array.isArray(lijst)) JR.sets = lijst; });

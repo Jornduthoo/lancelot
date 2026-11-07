@@ -4,7 +4,9 @@
 const socket = io({ query: { role: 'host' } });
 const $ = id => document.getElementById(id);
 const J = () => window.JR || { zin: {}, spellen: [] };
-const GROEPEN = [['getallen', '🔢 Getallen en rekenen'], ['meten', '📏 Meten en tijd'], ['meetkunde', '🔷 Vormen en ruimte'], ['taal', '🔤 Taal en klanken'], ['samen', '💃 Samen en bewegen']];
+const GROEPEN = [['getallen', '🔢 Getallen en rekenen'], ['meten', '📏 Meten en tijd'], ['meetkunde', '🔷 Vormen en ruimte'], ['taal', '🔤 Taal en klanken'], ['samen', '💃 Samen en bewegen'], ['eigen', '✨ Mijn eigen vragen']];
+const VIEWS = ['thuis', 'spelen', 'klas', 'opvolgen', 'maken'];
+let sets = (window.JR && JR.sets) || [];
 const TEAMKLEUR = ['rood', 'blauw', 'geel', 'groen'];
 
 let stand = { actief: false };
@@ -22,8 +24,10 @@ const draakImg = () => `/img/junior/draak/${(stand.draak && stand.draak.fase) ||
 function toonDraak(d) {
   if (!d) return;
   stand.draak = d;
-  for (const id of ['jr-draak-foto', 'jr-loopt-draak']) $(id).src = draakImg();
+  for (const id of ['jr-draak-foto', 'jr-loopt-draak', 'jr-mini-draak']) $(id).src = draakImg();
   $('jr-groei').style.width = `${d.tot}%`;
+  $('jr-mini-groei').style.width = `${d.tot}%`;
+  $('jr-mini-naam').textContent = d.naam || 'Het klasdraakje';
   $('jr-groei-tekst').textContent = d.fase >= d.fasen ? `${d.eten} hapjes. Het draakje is een echte ridderdraak!` : `Fase ${d.fase} van ${d.fasen}. Nog ${100 - d.tot}% tot de volgende fase.`;
   if (document.activeElement !== $('jr-draak-naam')) $('jr-draak-naam').value = d.naam || '';
 }
@@ -33,8 +37,9 @@ $('jr-draak-naam').addEventListener('change', () => socket.emit('jr-draaknaam', 
 function tegels() {
   const box = $('jr-groepen');
   box.innerHTML = '';
+  $('jr-tel-spelen').textContent = `${(J().spellen || []).filter(s => !s.verborgen && s.id !== 'eigen').length} spelletjes`;
   for (const [groep, kop] of GROEPEN) {
-    const lijst = (J().spellen || []).filter(s => s.groep === groep);
+    const lijst = (J().spellen || []).filter(s => s.groep === groep && !s.verborgen);
     if (!lijst.length) continue;
     const blok = document.createElement('div');
     blok.className = 'jr-groep';
@@ -43,7 +48,8 @@ function tegels() {
       const t = document.createElement('button');
       t.type = 'button';
       t.className = 'jr-tegel';
-      t.innerHTML = `<img src="${beeldPad(s)}" alt=""><b>${s.naam}</b><span>${s.zin}</span>`;
+      const extra = s.id === 'eigen' ? `<em>${sets.length ? `${sets.length} ${sets.length === 1 ? 'reeks' : 'reeksen'}` : 'Maak eerst een reeks'}</em>` : '';
+      t.innerHTML = `<img src="${beeldPad(s)}" alt=""><b>${s.naam}</b><span>${s.zin}</span>${extra}`;
       t.addEventListener('click', () => kies(s));
       blok.querySelector('.jr-tegels').appendChild(t);
     }
@@ -52,6 +58,7 @@ function tegels() {
 }
 
 function kies(s) {
+  if (s.id === 'eigen' && !sets.length) { ga('maken'); return; }
   let manier = 'beurt';
   try { manier = localStorage.getItem('jr-manier') || 'beurt'; } catch {}
   gekozen = { spel: s.id, niveau: 0, manier: s.bordAlleen ? 'bord' : manier };
@@ -60,7 +67,7 @@ function kies(s) {
   $('jr-kv-zin').textContent = s.zin;
   const niv = $('jr-kv-niveaus');
   niv.innerHTML = '';
-  s.niveaus.forEach((n, i) => {
+  (s.id === 'eigen' ? sets.map(x => x.naam) : s.niveaus).forEach((n, i) => {
     const b = document.createElement('button');
     b.type = 'button';
     b.textContent = n;
@@ -129,6 +136,7 @@ stemKnop();
 
 // ---------- De klas en hun dieren ----------
 function klas() {
+  $('jr-tel-klas').textContent = `${kinderen.length} kinderen`;
   const box = $('jr-klas-rooster');
   box.innerHTML = '';
   $('jr-klas-leeg').classList.toggle('hidden', kinderen.length > 0);
@@ -315,7 +323,7 @@ function toon() {
   $('jr-loopt-icoon').src = beeldPad(s);
   $('jr-loopt-naam').textContent = s.naam || '';
   const MANIER = { bord: 'Op het bord, 4 teams', duo: 'Met twee op een tablet', beurt: 'Om de beurt' };
-  $('jr-loopt-sub').textContent = `${s.niveaus ? s.niveaus[stand.niveau] : ''} · ${MANIER[stand.manier] || ''}`;
+  $('jr-loopt-sub').textContent = `${stand.niveauNaam || ''} · ${MANIER[stand.manier] || ''}`;
   const isDans = stand.spel === 'dans';
   const isKring = stand.spel === 'kring';
   const opBord = stand.manier === 'bord' && !isDans && !isKring;
@@ -337,7 +345,162 @@ function toon() {
   teams();
 }
 
+// ---------- De blokken: elk blok is een eigen pagina (met #spelen, #klas... in het adres, zodat Terug in de browser werkt) ----------
+function ga(v) {
+  if (!VIEWS.includes(v)) v = 'thuis';
+  if (location.hash.slice(1) !== (v === 'thuis' ? '' : v)) history.pushState(null, '', v === 'thuis' ? location.pathname : `#${v}`);
+  toonView(v);
+}
+function toonView(v) {
+  for (const x of VIEWS) $(`jr-v-${x}`).classList.toggle('hidden', x !== v);
+  window.scrollTo(0, 0);
+  if (v === 'opvolgen') socket.emit('jr-voortgang', null, res => res && !res.error && opvolg(res));
+  if (v === 'maken') toonSets();
+}
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-ga]');
+  if (b) ga(b.dataset.ga);
+});
+window.addEventListener('popstate', () => toonView(location.hash.slice(1) || 'thuis'));
+
+// ---------- Opvolgen: een rooster met de kinderen en de spelletjes ----------
+function opvolg({ kinderen: lijst = [], spellen = [], cellen = {} }) {
+  const gespeeld = spellen.filter(s => lijst.some(k => cellen[k.id] && cellen[k.id][s.id]));
+  $('jr-opvolg-leeg').classList.toggle('hidden', gespeeld.length > 0);
+  $('jr-opvolg').classList.toggle('hidden', !gespeeld.length);
+  if (!gespeeld.length) return;
+  const kop = `<thead><tr><th></th>${gespeeld.map(s => `<th title="${Junior.esc(s.naam)}"><img src="/img/junior/${s.beeld}.webp" alt=""><span>${Junior.esc(s.naam)}</span></th>`).join('')}</tr></thead>`;
+  const rijen = lijst.map(k => {
+    const cel = s => {
+      const c = cellen[k.id] && cellen[k.id][s.id];
+      if (!c || !c.n) return '<td class="leeg">·</td>';
+      const p = c.g / c.n;
+      const [ic, cls] = c.n < 3 ? ['…', 'weinig'] : p >= 0.8 ? ['🌟', 'goed'] : p >= 0.5 ? ['🙂', 'midden'] : ['🌱', 'oefen'];
+      return `<td class="${cls}" title="${c.g} van de ${c.n} meteen goed · ${c.t}">${ic}<small>${c.n}</small></td>`;
+    };
+    return `<tr><th><div class="jr-opvolg-kind"><img src="${k.beeld}" alt=""><span>${Junior.esc(k.naam)}</span></div></th>${gespeeld.map(cel).join('')}</tr>`;
+  }).join('');
+  $('jr-opvolg').innerHTML = kop + `<tbody>${rijen}</tbody>`;
+}
+
+// ---------- Maken: eigen vragen met prentjes (emoji), met de AI of zelf getypt ----------
+function zetSets(lijst) {
+  sets = Array.isArray(lijst) ? lijst : [];
+  if (window.JR) JR.sets = sets;
+  $('jr-tel-maken').textContent = sets.length ? `${sets.length} ${sets.length === 1 ? 'reeks' : 'reeksen'}` : 'Met of zonder AI';
+  tegels();
+  toonSets();
+}
+function toonSets() {
+  const box = $('jr-sets');
+  $('jr-sets-leeg').classList.toggle('hidden', sets.length > 0);
+  box.innerHTML = '';
+  for (const set of sets) {
+    const d = document.createElement('div');
+    d.className = 'jr-set';
+    const voorbeeld = set.vragen.slice(0, 1).flatMap(v => v.opties.map(o => o.e)).join(' ');
+    d.innerHTML = `<div><b>${Junior.esc(set.naam)}</b><span>${set.vragen.length} vragen · ${Junior.esc(voorbeeld)}</span></div>`
+      + '<span class="jr-set-knoppen"><button type="button" class="gold jr-set-speel">▶ Spelen</button><button type="button" class="secondary jr-set-bw">✏️</button><button type="button" class="secondary jr-set-wis">🗑️</button></span>';
+    d.querySelector('.jr-set-speel').addEventListener('click', () => {
+      const s = spelVan('eigen');
+      kies(s);
+      gekozen.niveau = sets.indexOf(set);
+      for (const [i, x] of [...$('jr-kv-niveaus').children].entries()) x.classList.toggle('aan', i === gekozen.niveau);
+    });
+    d.querySelector('.jr-set-bw').addEventListener('click', () => bewerk(set));
+    d.querySelector('.jr-set-wis').addEventListener('click', async () => {
+      if (!(await Ui.vraag(`De reeks "${set.naam}" wissen?`))) return;
+      socket.emit('jr-set-wis', { id: set.id }, res => (res && res.error ? Ui.melding(res.error) : zetSets(res.sets)));
+    });
+    box.appendChild(d);
+  }
+}
+let bezig = null; // de reeks die nu bewerkt wordt
+function bewerk(set) {
+  bezig = JSON.parse(JSON.stringify(set));
+  if (!bezig.vragen.length) bezig.vragen.push(legeVraag());
+  $('jr-bw-naam').value = bezig.naam || '';
+  vragenLijst();
+  $('jr-bewerk').classList.remove('hidden');
+  $('jr-bewerk').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+const legeVraag = () => ({ vraag: '', opties: [{ e: '', w: '' }, { e: '', w: '' }, { e: '', w: '' }], juist: 0 });
+function vragenLijst() {
+  const box = $('jr-bw-vragen');
+  box.innerHTML = '';
+  bezig.vragen.forEach((v, vi) => {
+    const d = document.createElement('div');
+    d.className = 'jr-bw-vraag';
+    d.innerHTML = `<div class="jr-bw-rij"><b>${vi + 1}</b><input class="jr-bw-tekst" maxlength="160" placeholder="De vraag, zoals je ze zegt"><button type="button" class="secondary jr-bw-zeg" title="Voorlezen">🔊</button><button type="button" class="secondary jr-bw-weg" title="Vraag wissen">🗑️</button></div>`
+      + `<div class="jr-bw-opties">${v.opties.map((o, oi) => `<label class="jr-bw-optie ${oi === v.juist ? 'juist' : ''}"><input type="radio" name="jr-juist-${vi}" ${oi === v.juist ? 'checked' : ''} title="Dit is het juiste antwoord"><input class="jr-bw-e" maxlength="16" placeholder="🙂"><input class="jr-bw-w" maxlength="30" placeholder="woord"></label>`).join('')}</div>`;
+    const tekst = d.querySelector('.jr-bw-tekst');
+    tekst.value = v.vraag;
+    tekst.addEventListener('input', () => { v.vraag = tekst.value; });
+    d.querySelector('.jr-bw-zeg').addEventListener('click', () => Junior.Stem.zeg([v.vraag]));
+    d.querySelector('.jr-bw-weg').addEventListener('click', () => { bezig.vragen.splice(vi, 1); vragenLijst(); });
+    d.querySelectorAll('.jr-bw-optie').forEach((lab, oi) => {
+      const o = v.opties[oi];
+      const [r, e, w] = lab.querySelectorAll('input');
+      e.value = o.e;
+      w.value = o.w;
+      e.addEventListener('input', () => { o.e = e.value; });
+      w.addEventListener('input', () => { o.w = w.value; });
+      r.addEventListener('change', () => { v.juist = oi; d.querySelectorAll('.jr-bw-optie').forEach((x, i) => x.classList.toggle('juist', i === oi)); });
+    });
+    box.appendChild(d);
+  });
+}
+$('jr-bw-erbij').addEventListener('click', () => { bezig.vragen.push(legeVraag()); vragenLijst(); });
+$('jr-bw-annuleer').addEventListener('click', () => { bezig = null; $('jr-bewerk').classList.add('hidden'); });
+$('jr-bw-bewaar').addEventListener('click', () => {
+  bezig.naam = $('jr-bw-naam').value;
+  socket.emit('jr-set-bewaar', bezig, res => {
+    if (!res || res.error) return Ui.melding((res && res.error) || 'Bewaren lukte niet.');
+    bezig = null;
+    $('jr-bewerk').classList.add('hidden');
+    zetSets(res.sets);
+  });
+});
+const maakArg = () => ({ onderwerp: $('jr-maak-onderwerp').value, aantal: Number($('jr-maak-aantal').value) });
+$('jr-maak-leeg').addEventListener('click', () => bewerk({ naam: $('jr-maak-onderwerp').value.slice(0, 40), vragen: [] }));
+$('jr-maak-ai').addEventListener('click', () => {
+  const knop = $('jr-maak-ai');
+  knop.disabled = true;
+  $('jr-maak-ai-tip').textContent = 'De AI maakt je vragen. Even geduld...';
+  socket.emit('jr-set-ai', maakArg(), res => {
+    knop.disabled = false;
+    $('jr-maak-ai-tip').textContent = '';
+    if (!res || res.error) {
+      Ui.melding((res && res.error) || 'Dat lukte niet.');
+      return;
+    }
+    bewerk(res.set);
+  });
+});
+$('jr-maak-kopieer').addEventListener('click', () => {
+  socket.emit('jr-set-prompt', maakArg(), res => {
+    if (!res || res.error) return Ui.melding((res && res.error) || 'Dat lukte niet.');
+    Ui.kopieer(res.prompt);
+    $('jr-maak-plak-blok').classList.remove('hidden');
+    $('jr-maak-ai-tip').textContent = 'De prompt staat klaar. Plak hem in een chatbot (Gemini, ChatGPT of Claude) en plak het antwoord hieronder.';
+  });
+});
+$('jr-maak-lees').addEventListener('click', () => {
+  socket.emit('jr-set-lees', $('jr-maak-plak').value, res => {
+    if (!res || res.error) return Ui.melding((res && res.error) || 'Dat lukte niet.');
+    $('jr-maak-plak').value = '';
+    $('jr-maak-plak-blok').classList.add('hidden');
+    bewerk(res.set);
+  });
+});
+socket.on('jr-sets', lijst => zetSets(lijst));
+
 socket.on('connect', () => {
+  socket.emit('jr-sets', null, res => {
+    if (!res || res.error) return;
+    zetSets(res.sets);
+    $('jr-maak-ai-tip').textContent = res.ai ? '' : 'Nog geen AI-sleutel? Kopieer de prompt en plak het antwoord van een chatbot hieronder. Een sleutel zet je bij Instellingen in LANcelot.';
+  });
   socket.emit('jr-lk-get', null, res => {
     if (!res) return;
     stand = res.stand;
@@ -366,3 +529,4 @@ socket.on('addresses', list => {
 $('jr-qr-knop').addEventListener('click', () => $('jr-qr-venster').showModal());
 $('jr-qr-dicht').addEventListener('click', () => $('jr-qr-venster').close());
 tegels();
+toonView(location.hash.slice(1) || 'thuis');
