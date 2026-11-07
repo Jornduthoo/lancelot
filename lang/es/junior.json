@@ -473,5 +473,14 @@
  "Opnemen lukt niet in deze browser.": "No se puede grabar en este navegador.",
  "De micro werkt niet. Geef de browser toestemming voor de micro.": "El micrófono no funciona. Permite que el navegador use el micrófono.",
  "Opnemen lukte niet. Probeer opnieuw.": "No se pudo grabar. Inténtalo de nuevo.",
- "De opname is te lang. Hou het kort (maximaal 10 seconden).": "La grabación es demasiado larga. Hazla corta (máximo 10 segundos)."
+ "De opname is te lang. Hou het kort (maximaal 10 seconden).": "La grabación es demasiado larga. Hazla corta (máximo 10 segundos).",
+ "Kleur het juiste antwoord.": "Colorea la respuesta correcta.",
+ "Kleur alles wat past.": "Colorea todo lo que corresponde.",
+ "Kleur er zoveel als gevraagd.": "Colorea tantos como se pide.",
+ "Schrijf 1, 2, 3 ... in de goede volgorde.": "Escribe 1, 2, 3 ... en el orden correcto.",
+ "Teken wat er nog bij moet en schrijf het getal.": "Dibuja lo que falta y escribe el número.",
+ "Trek een lijn naar de goede mand.": "Traza una línea a la cesta correcta.",
+ "Dit spel heeft nog geen werkblad. Kies een ander spel.": "Este juego aún no tiene ficha. Elige otro juego.",
+ "Een werkblad op papier met vragen uit dit spel": "Una ficha en papel con preguntas de este juego",
+ "Werkblad": "Ficha"
 }

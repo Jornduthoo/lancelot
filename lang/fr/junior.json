@@ -473,5 +473,14 @@
  "Opnemen lukt niet in deze browser.": "L'enregistrement ne fonctionne pas dans ce navigateur.",
  "De micro werkt niet. Geef de browser toestemming voor de micro.": "Le micro ne fonctionne pas. Autorise le navigateur à utiliser le micro.",
  "Opnemen lukte niet. Probeer opnieuw.": "L'enregistrement a échoué. Réessaie.",
- "De opname is te lang. Hou het kort (maximaal 10 seconden).": "L'enregistrement est trop long. Fais court (10 secondes maximum)."
+ "De opname is te lang. Hou het kort (maximaal 10 seconden).": "L'enregistrement est trop long. Fais court (10 secondes maximum).",
+ "Kleur het juiste antwoord.": "Colorie la bonne réponse.",
+ "Kleur alles wat past.": "Colorie tout ce qui convient.",
+ "Kleur er zoveel als gevraagd.": "Colorie-en autant que demandé.",
+ "Schrijf 1, 2, 3 ... in de goede volgorde.": "Écris 1, 2, 3 ... dans le bon ordre.",
+ "Teken wat er nog bij moet en schrijf het getal.": "Dessine ce qui manque et écris le nombre.",
+ "Trek een lijn naar de goede mand.": "Trace un trait vers le bon panier.",
+ "Dit spel heeft nog geen werkblad. Kies een ander spel.": "Ce jeu n'a pas encore de fiche. Choisis un autre jeu.",
+ "Een werkblad op papier met vragen uit dit spel": "Une fiche papier avec des questions de ce jeu",
+ "Werkblad": "Fiche"
 }

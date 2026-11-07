@@ -473,5 +473,14 @@
  "Opnemen lukt niet in deze browser.": "Recording does not work in this browser.",
  "De micro werkt niet. Geef de browser toestemming voor de micro.": "The microphone does not work. Allow the browser to use the microphone.",
  "Opnemen lukte niet. Probeer opnieuw.": "Recording failed. Try again.",
- "De opname is te lang. Hou het kort (maximaal 10 seconden).": "The recording is too long. Keep it short (10 seconds at most)."
+ "De opname is te lang. Hou het kort (maximaal 10 seconden).": "The recording is too long. Keep it short (10 seconds at most).",
+ "Kleur het juiste antwoord.": "Colour the right answer.",
+ "Kleur alles wat past.": "Colour everything that fits.",
+ "Kleur er zoveel als gevraagd.": "Colour as many as asked.",
+ "Schrijf 1, 2, 3 ... in de goede volgorde.": "Write 1, 2, 3 ... in the right order.",
+ "Teken wat er nog bij moet en schrijf het getal.": "Draw what is still missing and write the number.",
+ "Trek een lijn naar de goede mand.": "Draw a line to the right basket.",
+ "Dit spel heeft nog geen werkblad. Kies een ander spel.": "This game has no worksheet yet. Choose another game.",
+ "Een werkblad op papier met vragen uit dit spel": "A paper worksheet with questions from this game",
+ "Werkblad": "Worksheet"
 }
