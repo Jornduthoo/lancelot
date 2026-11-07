@@ -1388,6 +1388,7 @@ io.on('connection', socket => {
       io.to('host').emit('jr-draak', d);
       return { draak: d };
     }));
+    socket.on('jr-eiland', handle(() => ({ eiland: junior.eiland() })));
     socket.on('jr-hol-zet', handle(({ id } = {}) => {
       const d = junior.holZet(id);
       io.to('host').emit('jr-draak', d);

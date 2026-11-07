@@ -40,6 +40,7 @@
       </div>
       <div class="jr-thuis-onder">
       <button type="button" class="jr-ochtend-knop jr-eigen" data-ga="ochtend"><img src="/img/junior/weer/1.webp" alt=""> Goeiemorgen! Het ochtendmoment</button>
+      <button type="button" class="jr-ochtend-knop jr-eiland-knop jr-eigen" data-ga="eiland"><img src="/img/junior/burcht/1.webp" alt=""> Ons klaseiland</button>
       <button type="button" class="panel jr-mini-draak jr-eigen" data-ga="draakje">
         <img id="jr-mini-draak" src="/img/junior/draak/1.webp" alt="">
         <div><b id="jr-mini-naam">Het klasdraakje</b><div class="jr-groeibalk"><span id="jr-mini-groei"></span></div></div>
@@ -75,6 +76,20 @@
           <button type="button" class="jr-ostap jr-eigen" data-ostap="klaar">🐉 Klaar!</button>
         </div>
         <div class="jr-ochtend-vak" id="jr-ochtend-vak" data-geen-vertaling></div>
+      </div>
+    </div>
+
+    <!-- Het klaseiland: de burcht van elk kind samen op één eiland. -->
+    <div class="jr-view hidden" id="jr-v-eiland">
+      <div class="jr-view-kop"><button class="terug-knop" type="button" data-ga="thuis"><i class="ic ic-terug" aria-hidden="true"></i>Terug</button><h2><img src="/img/junior/burcht/1.webp" alt=""> Ons klaseiland</h2>
+        <button type="button" class="jr-ochtend-knop jr-eigen jr-eiland-tour" id="jr-eiland-tour">🔭 Rondleiding</button></div>
+      <div class="jr-eiland" id="jr-eiland" data-geen-vertaling></div>
+      <p class="jr-view-uitleg">Elk kind bouwt zijn eigen burcht met de stenen die het verdient bij het spelen (knop Mijn burcht op de tablet). Tik op een burcht om ze groot te zien.</p>
+      <div class="jr-eiland-groot hidden" id="jr-eiland-groot">
+        <div class="jr-eiland-groot-kaart">
+          <div class="jr-eiland-groot-kop" id="jr-eiland-groot-kop" data-geen-vertaling></div>
+          <div class="jr-eiland-plein" id="jr-eiland-plein"></div>
+        </div>
       </div>
     </div>
 

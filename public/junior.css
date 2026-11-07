@@ -797,3 +797,26 @@ button.jr-mini-draak:hover { transform: translateY(-2px); }
 .jr-ochtend-klaar { display: flex; flex-direction: column; align-items: center; gap: 16px; }
 .jr-ochtend-draak { height: min(40vh, 340px); animation: jr-dag-hop 1.2s ease-in-out infinite; filter: drop-shadow(0 10px 14px rgb(0 0 0 / .3)); }
 @media (max-width: 760px) { .jr-dagen { grid-template-columns: repeat(4, 1fr); } .jr-weer { grid-template-columns: repeat(4, 1fr); } }
+
+/* ---------- Het klaseiland ---------- */
+.jr-eiland-knop { background: linear-gradient(180deg, #a5f3fc, #38bdf8); color: #063b55; box-shadow: 0 5px 0 #0284c7, 0 8px 22px rgb(0 0 0 / .2); }
+.jr-eiland-knop img { animation: none; }
+.jr-view-kop .jr-eiland-tour { margin: 0 0 0 auto; font-size: 1.1rem; padding: 8px 20px; }
+.jr-eiland { position: relative; width: 100%; max-width: 1300px; margin: 0 auto; aspect-ratio: 16 / 9; border-radius: 22px; overflow: hidden;
+  background: url(/img/junior/bg/eiland.webp) center / cover; box-shadow: 0 8px 26px rgb(0 0 0 / .25); }
+@media (max-width: 800px) { .jr-eiland { background-image: url(/img/junior/bg/eiland-klein.webp); } }
+.jr-lk main button.jr-eb { position: absolute; width: calc(var(--st) * 100%); height: auto; transform: translate(-50%, -85%); border: 0; background: none; padding: 0; cursor: pointer; display: flex; flex-direction: column; align-items: center; }
+.jr-eb-burcht { position: relative; display: block; width: 100%; aspect-ratio: 1; transition: transform .2s; }
+.jr-eb-burcht > img { position: absolute; height: auto; filter: drop-shadow(0 3px 3px rgb(0 0 0 / .35)); }
+.jr-eb-plek, .jr-eiland-plein .jr-eb-plek { position: absolute; width: calc(21cqw * var(--sc)); height: calc(21cqw * var(--sc)); transform: translate(-50%, -88%); }
+.jr-eb-plek img { position: absolute; left: 0; right: 0; bottom: 0; margin: 0 auto; max-width: 100%; max-height: 100%; filter: drop-shadow(0 3px 3px rgb(0 0 0 / .3)); }
+.jr-eb-burcht > img.jr-eb-tent { left: 30%; width: 40%; bottom: 0; opacity: .75; }
+.jr-eb-naam { display: inline-flex; align-items: center; gap: 3px; margin-top: 2px; background: rgb(255 250 235 / .92); border-radius: 999px; padding: 1px 8px 1px 2px; font-weight: 800; font-size: clamp(.6rem, 1vw, .9rem); color: #3b2a14; white-space: nowrap; box-shadow: 0 2px 4px rgb(0 0 0 / .2); }
+.jr-eb-naam img { width: 1.6em; height: 1.6em; object-fit: contain; }
+.jr-eb:hover .jr-eb-burcht { transform: scale(1.08); }
+.jr-eiland-groot { position: fixed; inset: 0; z-index: 300; background: rgb(0 0 0 / .55); display: flex; align-items: center; justify-content: center; padding: 20px; cursor: pointer; }
+.jr-eiland-groot-kaart { width: min(100%, 1100px, (100vh - 140px) * 1376 / 768); animation: jr-ster-in .5s ease-out; }
+.jr-eiland-groot-kop { display: flex; align-items: center; gap: 12px; justify-content: center; margin-bottom: 10px; color: #fff; font-size: 2rem; font-weight: 800; text-shadow: 0 2px 4px rgb(0 0 0 / .5); }
+.jr-eiland-groot-kop img { width: 72px; height: 72px; object-fit: contain; }
+.jr-eiland-groot-kop span { font-size: 1.4rem; background: rgb(255 255 255 / .2); border-radius: 999px; padding: 4px 14px; }
+.jr-eiland-plein { position: relative; width: 100%; aspect-ratio: 1376 / 768; border-radius: 24px; overflow: hidden; container-type: inline-size; background: url(/img/junior/bg/burcht.webp) center / cover; }

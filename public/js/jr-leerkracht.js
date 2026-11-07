@@ -5,7 +5,7 @@ const socket = io({ query: { role: 'host' } });
 const $ = id => document.getElementById(id);
 const J = () => window.JR || { zin: {}, spellen: [] };
 const GROEPEN = [['getallen', '🔢 Getallen en rekenen'], ['meten', '📏 Meten en tijd'], ['meetkunde', '🔷 Vormen en ruimte'], ['taal', '🔤 Taal en klanken'], ['wereld', '🌍 De wereld'], ['samen', '💃 Samen en gevoel'], ['eigen', '✨ Mijn eigen vragen']];
-const VIEWS = ['thuis', 'spelen', 'klas', 'opvolgen', 'maken', 'draakje', 'ochtend'];
+const VIEWS = ['thuis', 'spelen', 'klas', 'opvolgen', 'maken', 'draakje', 'ochtend', 'eiland'];
 let sets = (window.JR && JR.sets) || [];
 const TEAMKLEUR = ['rood', 'blauw', 'geel', 'groen'];
 
@@ -516,7 +516,84 @@ function toonView(v) {
   if (v === 'opvolgen') socket.emit('jr-voortgang', null, res => res && !res.error && opvolg(res));
   if (v === 'maken') toonSets();
   if (v === 'ochtend') ochtend('dag');
+  if (v !== 'eiland') eilandTourStop();
+  if (v === 'eiland') socket.emit('jr-eiland', null, res => res && res.eiland && eiland(res.eiland));
 }
+
+// ---------- Het klaseiland: elke burcht van de klas op één eiland ----------
+// Zelfde plekjes als op de tablet: midden (%), onderkant (%), grootte.
+const BURCHT_PLEK = [[30, 45, 0.75], [50, 43, 0.75], [70, 45, 0.75], [18, 61, 0.88], [38, 60, 0.88], [62, 58, 0.88], [82, 61, 0.88], [27, 77, 1], [73, 77, 1]];
+let eilandData = [];
+let eilandTour = null;
+// Plekjes op het gras van het eiland (een ovaal), dichter bij elkaar als er meer kinderen zijn.
+function eilandPlekken(n) {
+  for (let st = 0.2; st > 0.04; st -= 0.01) {
+    const p = [];
+    for (let rij = 0, y = 0.4; y <= 0.88; y += st * 1.7, rij++) {
+      for (let x = 0.14 + (rij % 2) * st / 2; x <= 0.84; x += st) {
+        const dx = (x - 0.47) / 0.34, dy = (y - 0.63) / 0.27;
+        if (dx * dx + dy * dy <= 1) p.push([x, y]);
+      }
+    }
+    if (p.length >= n) return { p: p.sort((a, b) => a[1] - b[1] || a[0] - b[0]), st };
+  }
+  return { p: [], st: 0.05 };
+}
+const burchtHtml = plek => BURCHT_PLEK.map(([x, y, sc], i) => (plek[i]
+  ? `<span class="jr-eb-plek" style="left:${x}%;top:${y}%;z-index:${Math.round(y)};--sc:${sc}"><img src="/img/junior/burcht/${plek[i]}.webp" alt=""></span>` : '')).join('');
+// Op het eiland: een klein groepje met de vier grootste gebouwen van het kind (de duurste vooraan in het midden).
+const BURCHT_PRIJS = { 13: 2, 11: 2, 14: 3, 10: 3, 9: 4, 15: 4, 12: 5, 2: 5, 8: 5, 5: 6, 6: 6, 3: 6, 4: 7, 1: 8, 7: 10 };
+const MINI = [[50, 100, 58], [22, 86, 42], [78, 86, 42], [50, 70, 40]];
+function miniBurcht(plek) {
+  const top = plek.filter(Boolean).sort((a, b) => (BURCHT_PRIJS[b] || 0) - (BURCHT_PRIJS[a] || 0)).slice(0, 4);
+  return top.map((id, i) => [id, i]).reverse().map(([id, i]) => {
+    const [x, b, w] = MINI[i];
+    return `<img src="/img/junior/burcht/${id}.webp" alt="" style="left:${x - w / 2}%;width:${w}%;bottom:${100 - b}%">`;
+  }).join('');
+}
+function eiland(lijst) {
+  eilandData = lijst;
+  const box = $('jr-eiland');
+  const { p, st } = eilandPlekken(kinderen.length);
+  box.style.setProperty('--st', st);
+  box.innerHTML = kinderen.map((k, i) => {
+    const b = lijst.find(x => x.id === k.id) || { plek: [] };
+    const [x, y] = p[i] || [0.5, 0.5];
+    const leeg = !b.plek.some(Boolean);
+    return `<button type="button" class="jr-eb jr-eigen ${leeg ? 'leeg' : ''}" data-eb="${k.id}" style="left:${x * 100}%;top:${y * 100}%;z-index:${Math.round(y * 100)}">
+      <span class="jr-eb-burcht">${leeg ? '<img class="jr-eb-tent" src="/img/junior/burcht/14.webp" alt="">' : miniBurcht(b.plek)}</span>
+      <span class="jr-eb-naam"><img src="${k.beeld}" alt="">${Junior.esc(k.naam)}</span></button>`;
+  }).join('');
+}
+function eilandGroot(id) {
+  const k = kinderen.find(x => x.id === id);
+  const b = eilandData.find(x => x.id === id);
+  if (!k || !b) return;
+  $('jr-eiland-groot-kop').innerHTML = `<img src="${k.beeld}" alt=""><b>${Junior.esc(k.naam)}</b><span>🧱 ${b.stenen}</span>`;
+  $('jr-eiland-plein').innerHTML = burchtHtml(b.plek);
+  $('jr-eiland-groot').classList.remove('hidden');
+  Junior.Stem.zeg([k.eigen ? k.naam : (J().dieren || [])[k.dier - 1] || k.naam]);
+}
+$('jr-eiland').addEventListener('click', e => {
+  const b = e.target.closest('[data-eb]');
+  if (b) { eilandTourStop(); eilandGroot(b.dataset.eb); }
+});
+$('jr-eiland-groot').addEventListener('click', () => { eilandTourStop(); $('jr-eiland-groot').classList.add('hidden'); });
+function eilandTourStop() {
+  if (eilandTour) clearTimeout(eilandTour);
+  eilandTour = null;
+}
+$('jr-eiland-tour').addEventListener('click', () => {
+  eilandTourStop();
+  const ids = eilandData.filter(b => b.plek.some(Boolean)).map(b => b.id).filter(id => kinderen.some(k => k.id === id));
+  let i = 0;
+  const volgende = () => {
+    if (i >= ids.length) { $('jr-eiland-groot').classList.add('hidden'); eilandTour = null; return; }
+    eilandGroot(ids[i++]);
+    eilandTour = setTimeout(volgende, 5000);
+  };
+  volgende();
+});
 
 // ---------- Het ochtendmoment: welke dag is het, wat voor weer, wie is er? ----------
 const vandaag = () => new Date().toISOString().slice(0, 10);

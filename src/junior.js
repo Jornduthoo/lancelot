@@ -411,6 +411,10 @@ function burcht(id) {
   const b = burchtVan(id);
   return { stenen: b.stenen, plek: b.plek, stukken: BURCHT_STUKKEN };
 }
+// Het klaseiland: de burcht van elk kind van de klas, voor op het bord.
+function eiland() {
+  return kinderen().map(k => { const b = burchtVan(k.id); return { id: k.id, stenen: b.stenen, plek: b.plek }; });
+}
 function burchtBouw(id, plek, stuk) {
   if (!kinderen().some(k => k.id === id)) throw new Error('Tik op je dier.');
   const p = Number(plek);
@@ -547,7 +551,7 @@ function inhoud(taalId) {
 
 module.exports = {
   SPELLEN, AVONTUREN, FASEN, PER_RONDE, RONDES, DIEREN, instellingen, zetInstellingen, STICKERS, DIER_GROEI, dierFase,
-  kinderen, wisselDier, zetSymbool, symboolBestand, draak, noemDraak, holKoop, holZet, HOL_SPUL, start, stop, stand, overzicht, antwoord, teamGoed, klasBeloning, stickers,
+  kinderen, wisselDier, zetSymbool, symboolBestand, draak, noemDraak, holKoop, holZet, HOL_SPUL, eiland, start, stop, stand, overzicht, antwoord, teamGoed, klasBeloning, stickers,
   kringKies, kringStand, kringVolgende, inhoud, fase, niveausVan,
   burcht, burchtBouw, BURCHT_PLEKKEN, BURCHT_STUKKEN,
   voortgang, sets, bewaarSet, wisSet, eigenPrompt, leesEigen,
