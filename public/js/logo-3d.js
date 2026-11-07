@@ -25,7 +25,9 @@
     const midden = filmOk
       ? '<video src="' + map + 'ridder.webm" poster="' + map + 'ridder-start.webp" preload="none" loop muted playsinline disablepictureinpicture></video>'
       : '<img class="ridder" src="' + map + 'ridder-ios.webp" alt="" loading="lazy">';
-    vak.innerHTML = '<img src="' + map + 'achter.webp" alt="">' + midden + '<img src="' + map + 'voor.webp" alt="' + (oud.alt || 'LANcelot') + '">';
+    // Junior: enkel de ridder met het draakje, zonder kabel en zonder letters.
+    vak.innerHTML = junior ? midden : '<img src="' + map + 'achter.webp" alt="">' + midden + '<img src="' + map + 'voor.webp" alt="' + (oud.alt || 'LANcelot') + '">';
+    if (junior) { vak.setAttribute('role', 'img'); vak.setAttribute('aria-label', oud.alt || 'LANcelot Junior'); }
     const film = vak.querySelector('video');
     if (film) {
       // Speelt het filmpje toch niet af, dan de bewegende webp, nooit het vaste logo.
