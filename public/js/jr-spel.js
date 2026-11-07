@@ -159,14 +159,17 @@
   function stroPlekken(r, n) {
     const uit = [];
     for (let i = 0; i < n; i++) {
-      let p;
-      for (let poging = 0; poging < 60; poging++) {
+      // De plek die het verst van de andere eieren ligt, zodat geen ei een ander bedekt (een kleuter tikt er anders naast).
+      let best = null, bestAfstand = -1;
+      for (let poging = 0; poging < 120; poging++) {
         const hoek = r() * Math.PI * 2;
         const straal = Math.sqrt(r());
-        p = { x: 50 + Math.cos(hoek) * straal * 34, y: 52 + Math.sin(hoek) * straal * 26, d: Math.round((r() - 0.5) * 50) };
-        if (uit.every(q => Math.hypot((q.x - p.x) * 1.5, q.y - p.y) > 17)) break;
+        const p = { x: 50 + Math.cos(hoek) * straal * 36, y: 52 + Math.sin(hoek) * straal * 27, d: Math.round((r() - 0.5) * 50) };
+        const afstand = Math.min(99, ...uit.map(q => Math.hypot((q.x - p.x) * 1.5, q.y - p.y)));
+        if (afstand > bestAfstand) { best = p; bestAfstand = afstand; }
+        if (afstand > 24) break;
       }
-      uit.push(p);
+      uit.push(best);
     }
     return uit.sort((a, b) => a.y - b.y);
   }
@@ -289,6 +292,8 @@
       const lijst = r.schud([...Array(aantal).fill(doel), ...Array.from({ length: rest }, () => r.kies(soorten.filter(s => s !== doel)))]);
       return {
         soort: 'tikAlle', zeg: [J().zin.vormTik[doel]], vak: 'jr-veld',
+        // Wie niet hoort wat het draakje zegt, ziet de vorm die je zoekt (als lijntekening).
+        kop: `<span class="jr-vorm-doel">${vorm(doel, 'none', 'jr-vorm-lijn')}</span>`,
         items: lijst.map(s => ({ html: vorm(s, r.kies(KLEUREN), niv === 1 ? `jr-draai-${r.int(0, 3)}` : ''), doel: s === doel, hint: J().zin.vormIs[s], maat: niv === 1 ? r.kies([0.7, 1, 1.25]) : 1 })),
       };
     },
@@ -673,6 +678,8 @@
   const el = (tag, cls, html) => {
     const e = document.createElement(tag);
     if (cls) e.className = cls;
+    // Spelknoppen houden hun eigen stijl, ook op het bord (waar de groene knopstijl van de leerkracht geldt).
+    if (tag === 'button') e.classList.add('jr-eigen');
     if (html !== undefined) e.innerHTML = html;
     return e;
   };
@@ -846,7 +853,9 @@
         if (k2.querySelectorAll('.jr-token').length === v.doel) gelukt(); else fout(knop);
       });
     } else if (v.soort === 'volgorde') {
-      const vakken = el('div', `jr-vakken ${v.trein ? 'jr-trein' : ''}`);
+      // Woorden in een zin: lagere, smallere vakjes, zodat een lange zin op één scherm past.
+      const woorden = !v.trein && v.kaarten.some(k => /jr-woordkaart/.test(k.html)) ? ' jr-woorden' : '';
+      const vakken = el('div', `jr-vakken ${v.trein ? 'jr-trein' : ''}${woorden}`);
       if (v.trein) vakken.insertAdjacentHTML('beforeend', beeld('stuk/4', 'jr-loc'));
       const juist = v.kaarten.filter(k => k.plek >= 0).sort((a, b) => a.plek - b.plek);
       const plekken = juist.map(() => {
@@ -866,7 +875,7 @@
         geluid('tick');
       };
       for (let i = 0; i < (v.vast || 0); i++) leg(juist[i], el('i'));
-      const stapel = el('div', 'jr-stapel');
+      const stapel = el('div', 'jr-stapel' + woorden);
       veld.appendChild(stapel);
       const rr = toeval(Math.floor(Math.random() * 1e9));
       for (const kaart of rr.schud(v.kaarten.filter(k => k.plek >= volgende || k.plek < 0))) {
@@ -944,6 +953,10 @@
       veld.appendChild(sc);
     }
     Stem.zeg(v.zeg);
+    if (vak._pas) {
+      vak._pas();
+      for (const img of veld.querySelectorAll('img')) if (!img.complete) img.addEventListener('load', vak._pas, { once: true });
+    }
     return {
       herhaal: () => Stem.zeg(v.zeg),
       stop: () => { af = true; Stem.stop(); },
@@ -951,14 +964,35 @@
   }
 
   // Het vak zo groot als het mag: alles in het spel is in em, dus één lettergrootte schaalt het hele speelveld.
+  // Daarna past de grootte zich aan de vraag aan: weinig op het scherm (op een gsm) wordt groter, te veel wordt kleiner.
   function schaal(vak) {
-    const zet = () => {
+    const pas = () => {
       const r = vak.getBoundingClientRect();
-      vak.style.fontSize = `${Math.max(9, Math.min(r.width / (r.width < 640 ? 21 : 30), r.height / 23))}px`;
+      if (!r.width || !r.height) return;
+      const basis = Math.max(9, Math.min(r.width / (r.width < 640 ? 21 : 30), r.height / 23));
+      let fs = basis;
+      vak.style.fontSize = fs + 'px';
+      const veld = vak.querySelector(':scope > .jr-vraag');
+      if (!veld || !veld.children.length) return;
+      const cs = getComputedStyle(vak);
+      const hoog = r.height - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+      const breed = r.width - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+      for (let i = 0; i < 3; i++) {
+        const kids = [...veld.children];
+        const gap = parseFloat(getComputedStyle(veld).rowGap) || 0;
+        const h = kids.reduce((t, k) => t + k.getBoundingClientRect().height, 0) + gap * (kids.length - 1);
+        const w = Math.max(...kids.map(k => Math.max(k.scrollWidth, k.getBoundingClientRect().width)));
+        if (!h || !w) return;
+        const nieuw = Math.max(9, Math.min(fs * Math.min((hoog * 0.9) / h, (breed * 0.96) / w), basis * 1.6));
+        if (Math.abs(nieuw - fs) < 0.5) return;
+        fs = nieuw;
+        vak.style.fontSize = fs + 'px';
+      }
     };
-    zet();
-    if ('ResizeObserver' in window) new ResizeObserver(zet).observe(vak);
-    else addEventListener('resize', zet);
+    vak._pas = pas;
+    pas();
+    if ('ResizeObserver' in window) new ResizeObserver(() => pas()).observe(vak);
+    else addEventListener('resize', pas);
   }
 
   window.Junior = { Stem, toeval, vraag, speel, schaal, beeld, emoji, esc, MAKERS };
