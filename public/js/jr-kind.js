@@ -32,9 +32,24 @@ const bewaarIk = () => { try { sessionStorage.setItem('jr-ik', JSON.stringify(ik
 function toon(id) {
   for (const s of SCHERMEN) $(s).classList.toggle('hidden', s !== id);
   document.body.dataset.scherm = id;
+  if (typeof draaiTip === 'function') draaiTip(id);
   // Elk spel heeft zijn eigen geschilderde achtergrond.
   document.body.dataset.spel = ['jr-spel', 'jr-beloning'].includes(id) && S().actief ? S().spel || '' : '';
 }
+// Een telefoon rechtop: bij het eerste spel één keer de tip om te draaien. Tik erop of draai, en hij is weg.
+const rechtop = window.matchMedia('(orientation: portrait) and (max-width: 600px)');
+let draaiGezien = false;
+try { draaiGezien = sessionStorage.getItem('jr-draai') === '1'; } catch {}
+function draaiTip(id) {
+  const tip = $('jr-draai-tip');
+  if (id !== 'jr-spel' || draaiGezien || !rechtop.matches) return tip.classList.add('hidden');
+  draaiGezien = true;
+  try { sessionStorage.setItem('jr-draai', '1'); } catch {}
+  tip.classList.remove('hidden');
+  setTimeout(() => tip.classList.add('hidden'), 6000);
+}
+$('jr-draai-tip').addEventListener('click', () => $('jr-draai-tip').classList.add('hidden'));
+rechtop.addEventListener('change', () => { if (!rechtop.matches) $('jr-draai-tip').classList.add('hidden'); });
 const dierImg = (k, cls = '') => `<img class="${cls}" src="${k.beeld || `/img/junior/dier/${k.dier}.webp`}" alt="">`;
 // Met een eigen symbooltje zegt het draakje de naam van het kind, anders het dier.
 const dierNaam = k => (k.eigen ? k.naam : (J().dieren || [])[k.dier - 1]) || k.naam;

@@ -398,5 +398,7 @@
  "Een opdracht in grote letters op het bord, met de tijd erbij.": "Une consigne en grandes lettres au tableau, avec le temps.",
  "De klastaken van de week, die elke maandag doorschuiven.": "Les tâches de la semaine, qui tournent chaque lundi.",
  "Bouw je lokaal na: de banken krijgen vanzelf een kind.": "Reconstruis ta classe : chaque banc reçoit un enfant.",
- "Schermvullend op het bord, met de namen van je klas. Met Terug kom je weer hier.": "En plein écran au tableau, avec les noms de ta classe. Retour te ramène ici."
+ "Schermvullend op het bord, met de namen van je klas. Met Terug kom je weer hier.": "En plein écran au tableau, avec les noms de ta classe. Retour te ramène ici.",
+ "Draai je telefoon: dan is het spel groter.": "Tourne ton téléphone : le jeu sera plus grand.",
+ "(orientation: portrait) and (max-width: 600px)": null
 }
