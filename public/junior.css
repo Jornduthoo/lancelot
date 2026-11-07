@@ -877,3 +877,27 @@ button.jr-mini-draak:hover { transform: translateY(-2px); }
 .jr-bouw-winst { position: absolute; right: 3%; top: 20%; flex-direction: column; transform: none; }
 .jr-bouw-winst img { height: clamp(30px, 7vh, 56px); }
 .jr-race-feest-samen p { background: #7048e8; font-size: clamp(1.2rem, 3vw, 2.4rem); text-align: center; max-width: 90%; }
+
+/* ---------- Stickerboek en diploma ---------- */
+.jr-boek { flex-direction: column; align-items: center; gap: 6px; background: #fff8e6; border: 4px solid #e9c46a; box-shadow: 0 6px 0 #c9a227, 0 10px 24px rgb(0 0 0 / .2); }
+.jr-boek-kop { font-weight: 800; font-size: 1.1rem; color: #7a5300; }
+.jr-boek-blad { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
+.jr-boek-plek { width: 54px; height: 54px; border-radius: 14px; border: 3px dashed #e3cf9c; display: flex; align-items: center; justify-content: center; background: #fffdf6; }
+.jr-boek-plek.vol { border-style: solid; border-color: #ffd43b; background: #fff3bf; }
+.jr-boek .jr-boek-plek img { width: 44px; height: 44px; }
+.jr-boek-plek.nieuw { animation: jr-ster-in .9s cubic-bezier(.2,1.6,.4,1); box-shadow: 0 0 0 4px #ffd43b, 0 0 18px #ffd43b; }
+.jr-boek-diploma { display: flex; align-items: center; gap: 8px; font-size: 2.4rem; animation: jr-dag-hop 1.2s ease-in-out infinite; }
+.jr-boek-diploma img { height: 56px; }
+@media (max-width: 520px) { .jr-boek-blad { grid-template-columns: repeat(4, 1fr); } }
+@page diploma { size: A4 landscape; margin: 0; }
+@media print {
+  .jr-printblad.diploma { display: block; padding: 0; }
+  .jr-diploma { page: diploma; width: 297mm; height: 209mm; break-after: page; background: url(/img/junior/diploma.webp) center / 100% 100% no-repeat; -webkit-print-color-adjust: exact; print-color-adjust: exact; display: flex; align-items: center; justify-content: center; }
+  .jr-diploma-in { width: 62%; height: 62%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3mm; text-align: center; font-family: 'Exo 2', sans-serif; color: #3b2a14; }
+  .jr-diploma h1 { margin: 0; font-size: 38pt; color: #c2410c; letter-spacing: 2pt; }
+  .jr-diploma-dier { width: 46mm; height: 46mm; object-fit: contain; }
+  .jr-diploma-naam { font-size: 30pt; }
+  .jr-diploma p { margin: 0; font-size: 16pt; }
+  .jr-diploma-onder { display: flex; align-items: center; gap: 6mm; font-size: 12pt; }
+  .jr-diploma-onder img { width: 22mm; height: 22mm; object-fit: contain; }
+}

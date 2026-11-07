@@ -22,6 +22,7 @@ let alleen = false;
 // Mijn burcht: { van: 'wacht' of 'beloning', wie: kind-id, data, plek }. Van het beginscherm: eerst je dier aantikken.
 let burcht = null;
 let rijkOpen = false; // Het Toverdorp staat open op de tablet.
+const PER_BLAD = 12; // zoveel stickers op een bladzijde van het stickerboek; een volle bladzijde = een diploma
 try { apart = JSON.parse(sessionStorage.getItem('jr-apart') || 'null'); } catch { apart = null; }
 const S = () => (apart ? { ...stand, actief: true, spel: apart.spel, niveau: apart.niveau, seed: apart.seed, manier: 'beurt', perRonde: apart.raadsel ? 3 : 5 } : stand);
 
@@ -200,10 +201,17 @@ function beloning() {
     const s = ronde && ronde.nieuw[k.id];
     return `<div class="jr-nieuw-een">${dierImg(k, 'jr-nieuw-dier')}${s ? `<img class="jr-nieuw-sticker" src="/img/junior/sticker/${s}.webp" alt="">` : ''}</div>`;
   }).join('') + `<img class="jr-nieuw-draak" src="${draakImg()}" alt="">`;
-  // Het stickerboek van het (eerste) kind: alles wat het al verdiende.
+  // Het stickerboek van het (eerste) kind: een bladzijde met 12 plekjes. Is de bladzijde vol, dan is er een diploma.
+  const nieuwSticker = !!(ronde && ronde.nieuw[ik[0]]);
   socket.emit('jr-stickers', { id: ik[0] }, res => {
     const lijst = (res && res.stickers) || [];
-    $('jr-boek').innerHTML = lijst.slice(-30).map(s => `<img src="/img/junior/sticker/${s}.webp" alt="">`).join('');
+    const blad = Math.max(0, Math.floor((lijst.length - 1) / PER_BLAD));
+    const op = lijst.slice(blad * PER_BLAD, blad * PER_BLAD + PER_BLAD);
+    const vol = nieuwSticker && lijst.length > 0 && lijst.length % PER_BLAD === 0;
+    $('jr-boek').innerHTML = `<div class="jr-boek-kop">📖 ${blad + 1}</div><div class="jr-boek-blad">${Array.from({ length: PER_BLAD }, (_, i) => (op[i]
+      ? `<span class="jr-boek-plek vol ${nieuwSticker && i === op.length - 1 ? 'nieuw' : ''}"><img src="/img/junior/sticker/${op[i]}.webp" alt=""></span>`
+      : '<span class="jr-boek-plek"></span>')).join('')}</div>${vol ? '<div class="jr-boek-diploma"><img src="/img/junior/avontuur/burcht.webp" alt="">📜</div>' : ''}`;
+    if (vol) Junior.Stem.zeg([J().zin.boekVol]);
   });
   // Het raadsel is één keer per dag: daarna alleen 'Klaar' (terug naar het begin). Anders: nog een keer of het volgende kind.
   const raadsel = !!(apart && apart.raadsel);
