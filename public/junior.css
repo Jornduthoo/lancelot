@@ -917,11 +917,86 @@ button.jr-mini-draak:hover { transform: translateY(-2px); }
 .jr-lk main .jr-bw-optie button.jr-bw-fk { width: auto; padding: 4px 8px; min-height: 0; flex: none; margin: 0; }
 .jr-foto { width: 4.2em; height: 4.2em; object-fit: cover; border-radius: .35em; display: block; margin: 0 auto; box-shadow: 0 .08em .2em rgb(0 0 0 / .25); }
 
-/* Klastools (de Wapenkamer van LANcelot) */
-.jr-tools { grid-template-columns: repeat(3, 1fr); }
-@media (max-width: 760px) { .jr-tools { grid-template-columns: repeat(2, 1fr); } }
-.jr-tools .jr-blok img { width: 96px; height: 96px; }
-.jr-view-kop h2 img[src*="wk-"], .jr-tools-knop img { animation: none; }
+/* Klastools voor de kleuterklas (jr-tools.js) */
+.jr-tools-knop img { animation: none; }
+.jr-kt { display: flex; flex-direction: column; gap: 14px; }
+.jr-kt-rij { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.jr-lk main button.jr-kt-tool { display: flex; flex-direction: column; align-items: center; gap: 2px; width: 118px; padding: 8px 6px; border-radius: 20px; background: rgb(255 248 231 / .92); color: var(--jr-inkt); box-shadow: 0 4px 0 #d8c9a3; border: 3px solid transparent; }
+.jr-kt-tool img { width: 64px; height: 64px; object-fit: contain; }
+.jr-kt-tool b { font-size: .85rem; line-height: 1.1; text-align: center; }
+.jr-lk main button.jr-kt-tool.aan { border-color: var(--jr-goud); background: #fff; transform: translateY(-3px); }
+.jr-kt-podium { min-height: 60vh; background: rgb(255 248 231 / .9); border-radius: 28px; padding: 22px; box-shadow: 0 8px 30px rgb(0 0 0 / .18); display: flex; flex-direction: column; align-items: center; gap: 18px; color: var(--jr-inkt); }
+.jr-kt-knoppen { display: flex; gap: 12px; align-items: center; justify-content: center; flex-wrap: wrap; }
+.jr-lk main button.jr-kt-groot { padding: 14px 34px; border-radius: 999px; background: var(--jr-goud); color: var(--jr-inkt); font-size: 1.5rem; font-weight: 900; box-shadow: 0 5px 0 #d69e1a; border: 0; }
+.jr-lk main button.jr-kt-klein { padding: 10px 18px; border-radius: 999px; background: #fff; color: var(--jr-inkt); font-size: 1.1rem; font-weight: 800; border: 3px solid #d8c9a3; }
+.jr-lk main button.jr-kt-klein.aan { border-color: var(--jr-goud); background: rgb(255 201 74 / .25); }
+.jr-lk main button:disabled.jr-kt-groot { opacity: .5; }
+.jr-kt-tip { margin: 0; text-align: center; opacity: .8; }
+.jr-kt-dier { display: inline-flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px; border-radius: 16px; background: #fff; box-shadow: 0 3px 0 #d8c9a3; cursor: pointer; transition: transform .12s, opacity .3s; }
+.jr-kt-dier img { width: 64px; height: 64px; object-fit: contain; }
+.jr-kt-dier b { font-size: .85rem; max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.jr-kt-dier.geweest { opacity: .35; }
+.jr-kt-dier.licht { outline: 5px solid var(--jr-cyaan); transform: scale(1.12); opacity: 1; }
+.jr-kt-dier.gekozen { outline-color: var(--jr-goud); transform: scale(1.5); z-index: 2; position: relative; }
+.jr-kt-dieren { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; max-width: 1100px; }
+.jr-kt-draakje { width: 110px; }
+/* Wachtklok */
+.jr-kt-klokvak { display: flex; gap: 40px; align-items: center; justify-content: center; flex-wrap: wrap; }
+.jr-kt-schijf { --f: 1; width: min(52vh, 80vw); aspect-ratio: 1; border-radius: 50%; display: grid; place-items: center; box-shadow: 0 0 0 10px #fff, 0 12px 40px rgb(0 0 0 / .25);
+  background: conic-gradient(from 0deg, #ff6b6b calc(var(--f) * 360deg), #f1e7cf 0); transition: background .2s; }
+.jr-kt-schijf img { width: 34%; filter: drop-shadow(0 4px 8px rgb(0 0 0 / .25)); }
+.jr-kt-schijf.klaar { animation: jr-kt-schud .5s 4; }
+@keyframes jr-kt-schud { 25% { rotate: -4deg; } 75% { rotate: 4deg; } }
+.jr-kt-klokzij { display: flex; flex-direction: column; gap: 16px; align-items: center; }
+.jr-kt-tijd { font: 900 4.5rem/1 var(--jr-schrift, inherit); }
+.jr-kt-minuten { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+/* Stil-draakje */
+.jr-kt-stilvak { display: flex; flex-direction: column; align-items: center; gap: 18px; width: 100%; }
+.jr-kt-stildraak { height: 44vh; object-fit: contain; transition: transform .3s; }
+.jr-kt-stildraak.boos { animation: jr-kt-schud .4s infinite; }
+.jr-kt-meter { position: relative; width: min(700px, 90%); height: 28px; border-radius: 999px; background: linear-gradient(90deg, #8ce99a, #ffd43b 60%, #ff6b6b); box-shadow: inset 0 0 0 3px rgb(0 0 0 / .1); overflow: visible; }
+.jr-kt-meter span { position: absolute; inset: 0 auto 0 0; width: 0; border-radius: 999px; background: rgb(255 255 255 / .0); box-shadow: 0 0 0 4px #2b2340; transition: width .1s; }
+.jr-kt-meter i { position: absolute; top: -8px; bottom: -8px; width: 5px; margin-left: -2px; background: #2b2340; border-radius: 3px; }
+.jr-kt-schuif { display: flex; align-items: center; gap: 8px; font-weight: 800; }
+.jr-lk .panel label.jr-kt-schuif, .jr-kt-schuif { display: flex; margin: 0; }
+/* Hoekenbord en dagritme */
+.jr-kt-hoekbord { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; width: 100%; }
+.jr-kt-hoek { background: #fff; border-radius: 22px; padding: 10px; box-shadow: 0 4px 0 #d8c9a3; cursor: pointer; display: flex; flex-direction: column; gap: 8px; }
+.jr-kt-hoek-kop { display: flex; align-items: center; gap: 10px; font-size: 1.15rem; }
+.jr-kt-hoek-kop img { width: 72px; height: 72px; object-fit: contain; }
+.jr-kt-hoek-dieren { display: flex; flex-wrap: wrap; gap: 6px; }
+.jr-kt-hoek-dieren .jr-kt-dier img { width: 46px; height: 46px; }
+.jr-kt-hoek-dieren .jr-kt-dier b { font-size: .75rem; }
+.jr-kt-zonder { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; padding: 10px; border: 3px dashed #d8c9a3; border-radius: 18px; }
+.jr-kt-hoekkies { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; width: 100%; }
+.jr-lk main button.jr-kt-hoek-kaart { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px; border-radius: 18px; background: #fff; color: var(--jr-inkt); border: 4px solid transparent; opacity: .55; }
+.jr-lk main button.jr-kt-hoek-kaart.aan, .jr-kt-dagrij + .jr-kt-hoekkies .jr-kt-hoek-kaart { opacity: 1; }
+.jr-lk main button.jr-kt-hoek-kaart.aan { border-color: var(--jr-goud); }
+.jr-kt-hoek-kaart img { width: 80px; height: 80px; object-fit: contain; }
+.jr-kt-hoek-kaart b { font-size: .85rem; }
+.jr-kt-dagrij { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; padding-top: 70px; }
+.jr-kt-dagrij.klein { padding-top: 0; min-height: 90px; }
+.jr-lk main button.jr-kt-dagkaart { position: relative; display: flex; flex-direction: column; align-items: center; gap: 4px; width: 140px; padding: 10px 6px; border-radius: 20px; background: #fff; color: var(--jr-inkt); box-shadow: 0 4px 0 #d8c9a3; border: 4px solid transparent; overflow: visible; }
+.jr-kt-dagkaart img { width: 100px; height: 100px; object-fit: contain; }
+.jr-kt-dagrij.klein .jr-kt-dagkaart { width: 96px; }
+.jr-kt-dagrij.klein .jr-kt-dagkaart img { width: 60px; height: 60px; }
+.jr-kt-dagkaart b { font-size: .95rem; line-height: 1.1; }
+.jr-lk main button.jr-kt-dagkaart.voorbij { opacity: .4; }
+.jr-lk main button.jr-kt-dagkaart.nu { border-color: var(--jr-goud); transform: scale(1.12); }
+.jr-kt-dagkaart img.jr-kt-wijs { position: absolute; top: -78px; left: 50%; margin-left: -40px; width: 80px; height: 80px; }
+/* Dobbelsteen */
+.jr-kt-stenen { display: flex; gap: 40px; justify-content: center; padding: 20px; }
+.jr-kt-steen { width: min(36vh, 40vw); aspect-ratio: 1; background: #fff; border-radius: 22%; box-shadow: 0 10px 0 #d8c9a3, 0 16px 40px rgb(0 0 0 / .2); display: grid; grid-template-columns: repeat(3, 1fr); padding: 12%; gap: 6%; }
+.jr-kt-steen i { border-radius: 50%; }
+.jr-kt-steen i.oog { background: radial-gradient(circle at 35% 35%, #ff8787, #e03131); box-shadow: inset 0 -3px 0 rgb(0 0 0 / .15); }
+.jr-kt-steen.rol { animation: jr-kt-rol .12s linear; }
+@keyframes jr-kt-rol { 50% { rotate: 12deg; scale: .94; } }
+/* Groepjes */
+.jr-kt-groepen { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; width: 100%; }
+.jr-kt-groep { border-radius: 22px; padding: 10px; background: #fff; box-shadow: 0 4px 0 #d8c9a3; border-top: 14px solid var(--g); cursor: pointer; }
+.jr-kt-groep-kop { font-weight: 900; font-size: 1.2rem; margin-bottom: 6px; text-transform: capitalize; }
+.kleur-0 { --g: #ff6b6b; } .kleur-1 { --g: #4dabf7; } .kleur-2 { --g: #ffd43b; } .kleur-3 { --g: #51cf66; } .kleur-4 { --g: #b197fc; } .kleur-5 { --g: #ff922b; }
+@media (max-width: 700px) { .jr-lk main button.jr-kt-tool { width: 92px; } .jr-kt-tool img { width: 48px; height: 48px; } }
 
 /* Telefoon rechtop: de bolletjes op een eigen rij onder de naam, en een kleine draai-tip. */
 .jr-rond { flex: none; }
@@ -937,3 +1012,5 @@ button.jr-mini-draak:hover { transform: translateY(-2px); }
 .jr-draai-tip.hidden { display: none; }
 .jr-draai-tip span { font-size: 1.3em; white-space: nowrap; }
 @keyframes jr-draai-in { from { opacity: 0; bottom: -40px; } }
+.jr-kt-dieren .jr-kt-dier img { width: 104px; height: 104px; }
+.jr-kt-dieren .jr-kt-dier b { font-size: 1.05rem; max-width: 120px; }
