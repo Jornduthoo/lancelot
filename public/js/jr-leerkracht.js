@@ -140,6 +140,8 @@ function kies(s) {
   $('jr-kv-icoon').src = beeldPad(s);
   $('jr-kv-naam').textContent = s.naam;
   $('jr-kv-zin').textContent = s.zin;
+  // Spellen zonder papieren versie (bewegen, kring, waar is het draakje, de eigen naam): geen werkbladknop.
+  $('jr-kv-print').classList.toggle('hidden', ['naam', 'dans', 'kring', 'waar'].includes(s.id));
   const niv = $('jr-kv-niveaus');
   niv.innerHTML = '';
   (s.id === 'eigen' ? sets.map(x => x.naam) : s.niveaus).forEach((n, i) => {
@@ -178,6 +180,52 @@ for (const b of $('jr-kv-manieren').children) {
   });
 }
 $('jr-kv-annuleer').addEventListener('click', () => $('jr-kies-venster').close());
+// ---------- Werkblad: vragen uit het gekozen spel op papier (A4) ----------
+const WB = {
+  kies: v => ({ doe: 'Kleur het juiste antwoord.', html: `<div class="wb-rij">${v.opties.map(o => `<span class="wb-ding">${o.html}</span>`).join('')}</div>` }),
+  tikAlle: v => ({ doe: 'Kleur alles wat past.', html: `<div class="wb-rij wb-veel">${v.items.map(i => `<span class="wb-ding">${i.html}</span>`).join('')}</div>` }),
+  tikAantal: v => ({ doe: 'Kleur er zoveel als gevraagd.', html: `<div class="wb-rij wb-veel">${v.items.map(i => `<span class="wb-ding">${i.html}</span>`).join('')}</div>` }),
+  volgorde: (v, i) => {
+    const r = Junior.toeval(v.kaarten.length * 31 + 7 + i * 101);
+    return { doe: 'Schrijf 1, 2, 3 ... in de goede volgorde.', html: `<div class="wb-rij">${r.schud(v.kaarten).map(k => `<span class="wb-ding wb-kaart">${k.html}<i class="wb-hokje"></i></span>`).join('')}</div>` };
+  },
+  // Het splitshuis: het getal op het dak, links de draakjes die er al zijn, rechts tekenen en schrijven.
+  sleepAantal: v => ({ doe: 'Teken wat er nog bij moet en schrijf het getal.', html: `<div class="wb-huis"><b class="wb-dak">${v.totaal}</b><div class="wb-kamers"><span>${'●'.repeat(v.vast).replace(/(●{5})/g, '$1 ')}<b>${v.vast}</b></span><span><i class="wb-hokje"></i></span></div></div>` }),
+  sorteer: v => ({ doe: 'Trek een lijn naar de goede mand.', html: `<div class="wb-sorteer"><div class="wb-kolom">${v.items.map(i => `<span class="wb-ding">${i.html}<i class="wb-punt"></i></span>`).join('')}</div><div class="wb-kolom wb-manden">${v.manden.map(m => `<span class="wb-ding wb-mand"><i class="wb-punt"></i>${m.html}</span>`).join('')}</div></div>` }),
+};
+function werkblad() {
+  const s = J().spellen.find(x => x.id === gekozen.spel);
+  // Mijn naam gaat over de naam van elk kind: dat kan niet op één blad voor de hele klas.
+  if (!s || s.id === 'naam') return Ui.melding('Dit spel heeft nog geen werkblad. Kies een ander spel.');
+  const vragen = [];
+  const gezien = new Set();
+  const start = Math.floor(Math.random() * 1e6);
+  // Eerst zes verschillende vragen; zijn er maar weinig (een korte reeks), dan mogen ze terugkomen.
+  for (let i = 0; i < 400 && vragen.length < 6; i++) {
+    let v = null;
+    try { v = Junior.vraag(gekozen.spel, gekozen.niveau, Junior.toeval(start + i * 7919)); } catch { v = null; }
+    if (!v || !WB[v.soort]) continue;
+    const zeg = (v.zeg || []).filter(z => typeof z === 'string').join(' ');
+    const sleutel = (v.kop || '') + zeg + JSON.stringify(v.opties || v.items || v.kaarten || '');
+    if (gezien.has(sleutel) && (i < 200 || gezien.size >= 3)) continue;
+    gezien.add(sleutel);
+    vragen.push({ v, zeg, ...WB[v.soort](v, i) });
+  }
+  if (!vragen.length) return Ui.melding('Dit spel heeft nog geen werkblad. Kies een ander spel.');
+  const niv = s.id === 'eigen' ? ((sets[gekozen.niveau] || {}).naam || '') : (s.niveaus || [])[gekozen.niveau] || '';
+  // Het printblad vertaalt zichzelf niet (de inhoud is al in de taal van Junior): de vaste woorden hier wel.
+  const t = x => (window.I18n ? I18n.t(x) : x);
+  const blad = $('jr-printblad');
+  blad.classList.remove('diploma');
+  blad.classList.add('werkblad');
+  blad.innerHTML = `<div class="wb-blad"><header class="wb-kop"><img src="${draakImg()}" alt=""><div><h1>${Junior.esc(s.naam)}</h1><p>${Junior.esc(niv)}</p></div><span class="wb-naam">${t('Naam:')} <i></i></span></header>
+    <div class="wb-vragen">${vragen.map((q, i) => `<section class="wb-vraag"><p class="wb-doe"><b>${i + 1}</b> <span>${t(q.doe)}</span></p><p class="wb-zeg">🔊 ${Junior.esc(q.zeg)}</p><div class="wb-inhoud">${q.v.kop ? `<div class="wb-vk">${q.v.kop}</div>` : ''}${q.v.scene ? `<div class="wb-scene">${q.v.scene}</div>` : ''}${q.html}</div></section>`).join('')}</div>
+    <footer class="wb-voet">LANcelot Junior</footer></div>`;
+  $('jr-kies-venster').close();
+  // Even wachten tot de prenten geladen zijn.
+  Promise.all([...blad.querySelectorAll('img')].map(im => (im.complete ? 0 : new Promise(r => { im.onload = im.onerror = r; })))).then(() => setTimeout(() => window.print(), 100));
+}
+$('jr-kv-print').addEventListener('click', werkblad);
 $('jr-kv-start').addEventListener('click', () => {
   try { sfx.unlock(); } catch {}
   socket.emit('jr-start', { ...gekozen, avontuur: gekozen.manier === 'bord' ? '' : gekozen.avontuur }, res => {
@@ -323,6 +371,7 @@ $('jr-diplomas').addEventListener('click', () => {
   if (!wie.length) { Ui.melding('Nog niemand heeft een volle bladzijde van 12 stickers.'); return; }
   const blad = $('jr-printblad');
   const datum = new Intl.DateTimeFormat((J().stemmen || ['nl-BE'])[0], { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date());
+  blad.classList.remove('werkblad');
   blad.classList.add('diploma');
   blad.innerHTML = wie.map(k => `<div class="jr-diploma"><div class="jr-diploma-in">
     <h1>${'Diploma'}</h1>
@@ -336,7 +385,7 @@ $('jr-diplomas').addEventListener('click', () => {
 });
 $('jr-print').addEventListener('click', () => {
   const blad = $('jr-printblad');
-  blad.classList.remove('diploma');
+  blad.classList.remove('diploma', 'werkblad');
   blad.innerHTML = kinderen.map(k => `<div class="jr-printkaart"><img src="${k.beeld}" alt=""><b>${Junior.esc(k.naam)}</b></div>`).join('');
   const imgs = [...blad.querySelectorAll('img')];
   Promise.all(imgs.map(i => (i.complete ? null : new Promise(r => { i.onload = r; i.onerror = r; })))).then(() => print());
