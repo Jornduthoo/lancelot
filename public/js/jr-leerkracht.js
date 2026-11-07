@@ -116,6 +116,9 @@ function tegels() {
     if (!lijst.length) continue;
     const blok = document.createElement('div');
     blok.className = 'jr-groep';
+    // Elk blok krijgt zoveel breedte als het tegels heeft: zo staan alle tegels van een blok op één rij
+    // en vullen de blokken samen elke rij helemaal (geen lege vakken).
+    blok.style.setProperty('--n', lijst.length);
     blok.innerHTML = `<h3>${kop}</h3><div class="jr-tegels"></div>`;
     for (const s of lijst) {
       const t = document.createElement('button');

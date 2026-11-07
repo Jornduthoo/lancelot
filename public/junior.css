@@ -1375,3 +1375,7 @@ button.jr-mini-draak:hover { transform: translateY(-2px); }
   .jr-doe-bak { top: 34%; }
   .jr-doe-lijstje { top: 30%; }
 }
+/* Spelen: de blokken vullen elke rij helemaal. Een blok is zo breed als zijn tegels (--n), samen rekken ze uit tot de rij vol is. */
+.jr-lk #jr-groepen { display: flex; flex-wrap: wrap; align-items: stretch; gap: 14px; }
+.jr-lk #jr-groepen .jr-groep { flex: var(--n, 1) 1 calc(var(--n, 1) * 136px + 28px); min-width: min(100%, 164px); }
+.jr-lk #jr-groepen .jr-groep .jr-tegels { grid-template-columns: repeat(auto-fit, minmax(124px, 1fr)); flex: 1; align-items: stretch; }
