@@ -18,7 +18,8 @@ const STICKERS = 16; // public/img/junior/sticker/1..16.webp
 const PER_RONDE = 5; // zoveel opdrachten, en dan een sticker (de leerkracht kan 3, 5 of 8 kiezen)
 const RONDES = [3, 5, 8];
 // Hoeveel eten het klasdraakje nodig heeft voor elke fase: ei, ei dat openbreekt, baby, jong draakje, ridderdraak.
-const FASEN = [0, 15, 50, 120, 250];
+// Traag genoeg om er een heel schooljaar mee te doen (Jorn: na bijna niets was het al fase 2).
+const FASEN = [0, 200, 800, 2000, 4000];
 const MANIEREN = ['bord', 'duo', 'beurt', 'alleen']; // alleen: elk kind op een eigen tablet, zonder doorgeven
 // Avonturen op het bord: de kinderen oefenen op de tablet (met twee of om de beurt), en elk juist antwoord
 // laat op het bord iets gebeuren voor hun kleurteam. Het team van een kind volgt de klaslijst (rood, blauw, geel, groen...).

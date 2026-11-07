@@ -327,8 +327,8 @@
 /* Eigen symbooltjes en de kaartjes om te printen */
 .jr-klas-kind { position: relative; cursor: default !important; }
 .jr-lk .jr-klas-beeld { border: 0; background: transparent; padding: 0; cursor: pointer; }
-.jr-klas-knoppen { display: flex; gap: 4px; }
-.jr-lk .jr-klas-knoppen button { border: 0; background: #efe6cc; border-radius: 8px; padding: 2px 7px; font-size: .85rem; cursor: pointer; min-height: 0; }
+.jr-klas-kind .jr-klas-knoppen { display: flex; gap: 4px; overflow: visible; white-space: normal; flex-wrap: wrap; justify-content: center; }
+.jr-lk .jr-klas-knoppen button { border: 0; background: #efe6cc; color: var(--jr-inkt); border-radius: 8px; padding: 3px 8px; font-size: .9rem; line-height: 1.2; cursor: pointer; min-height: 0; height: auto; box-shadow: none; clip-path: none; }
 .jr-printblad { display: none; }
 @media print {
   .jr-lk > *:not(.jr-printblad) { display: none !important; }
@@ -1175,3 +1175,18 @@ button.jr-mini-draak:hover { transform: translateY(-2px); }
 .jr-printblad.werkblad .wb-mand .wb-punt { right: auto; left: -2.5mm; }
 .jr-printblad.werkblad .wb-mand { min-width: 18mm; min-height: 18mm; }
 .jr-printblad.werkblad .wb-voet { margin-top: 3mm; text-align: right; font-size: 8pt; color: #888; }
+
+/* Toverdorp: derde kaart, "waar hoort dit?" op de kaart en "draakje zegt" op een plek. */
+.jr-rijk-kaart3 { background-image: url(/img/junior/rijk/kaart3.webp); }
+@media (max-width: 800px) { .jr-rijk-kaart3 { background-image: url(/img/junior/rijk/kaart3-klein.webp); } }
+.jr-rijk-kaart3 .jr-rijk-plek { width: 19cqw; height: 19cqw; margin: -9.5cqw 0 0 -9.5cqw; }
+.jr-rijk .jr-rijk-plek.wiebel, .jr-rijk .jr-rijk-plek.ja { animation: jr-rijk-ja .7s; }
+.jr-rijk .jr-rijk-plek.nee { animation: jr-nee .4s; }
+.jr-rijk-balk-kaart { left: auto; }
+.jr-rijk-vraag.jr-rijk-hoort { top: 42%; transform: translate(-50%, -50%); display: flex; align-items: center; gap: 1cqw; padding: .6cqw 1.6cqw .6cqw .6cqw; z-index: 220; pointer-events: none; animation: jr-ster-in .5s cubic-bezier(.2,1.6,.4,1); }
+.jr-rijk-vraag.jr-rijk-hoort.hidden { display: none; }
+.jr-rijk-hoort img { width: max(56px, 11cqw); height: max(56px, 11cqw); object-fit: contain; filter: drop-shadow(0 4px 6px rgb(0 0 0 / .3)); }
+.jr-rijk-hoort span { font-size: max(16px, 2.8cqw); }
+/* Vooraan het gewone LANcelot-logo (Jorn: de ridder met draak was te griezelig voor kleuters). */
+.jr-scherm > .logo-3d { width: min(40vw, 240px, 32vh * 720 / 654); }
+.jr-held > .logo-3d { width: min(46vw, 300px, 30vh * 720 / 654); }
