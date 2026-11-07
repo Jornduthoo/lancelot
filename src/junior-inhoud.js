@@ -21,6 +21,7 @@ module.exports = {
     teamKom: "kom maar naar het bord!",
     raceWint: 'wint de race!',
     boekVol: "Hoera! Je bladzijde is vol. Je krijgt een diploma!",
+    boekLeeg: "Je stickerboek is nog leeg. Speel mee en verdien stickers!",
     ballonWint: "is als eerste bij de wolken!",
     bouwKlaar: "Hoera! Samen hebben we de burcht gebouwd!",
     jijTeam: 'Jij speelt in',

@@ -18,6 +18,7 @@ module.exports = {
     teamKom: "viens au tableau !",
     raceWint: 'gagne la course !',
     boekVol: "Hourra ! Ta page est pleine. Tu reçois un diplôme !",
+    boekLeeg: "Ton album est encore vide. Joue et gagne des autocollants !",
     ballonWint: "arrive le premier aux nuages !",
     bouwKlaar: "Hourra ! Ensemble, nous avons construit le château !",
     jijTeam: 'Ton équipe :',

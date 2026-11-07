@@ -881,25 +881,27 @@ button.jr-mini-draak:hover { transform: translateY(-2px); }
 /* ---------- Stickerboek en diploma ---------- */
 .jr-boek { flex-direction: column; align-items: center; gap: 6px; background: #fff8e6; border: 4px solid #e9c46a; box-shadow: 0 6px 0 #c9a227, 0 10px 24px rgb(0 0 0 / .2); }
 .jr-boek-kop { font-weight: 800; font-size: 1.1rem; color: #7a5300; }
-.jr-boek-blad { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
-.jr-boek-plek { width: 54px; height: 54px; border-radius: 14px; border: 3px dashed #e3cf9c; display: flex; align-items: center; justify-content: center; background: #fffdf6; }
-.jr-boek-plek.vol { border-style: solid; border-color: #ffd43b; background: #fff3bf; }
-.jr-boek .jr-boek-plek img { width: 44px; height: 44px; }
+.jr-boek-blad { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px 10px; padding: 14px 22px; border-radius: 14px; background: var(--blad, #fffdf6) center / cover; box-shadow: inset 0 0 0 3px rgb(255 255 255 / .6); }
+.jr-boek-plek { width: 54px; height: 54px; border-radius: 50%; border: 3px dashed rgb(255 255 255 / .9); display: flex; align-items: center; justify-content: center; background: rgb(255 255 255 / .45); }
+.jr-boek-plek.vol { border: 0; background: none; }
+.jr-boek .jr-boek-plek img { width: 54px; height: 54px; filter: drop-shadow(0 2px 3px rgb(0 0 0 / .3)); }
 .jr-boek-plek.nieuw { animation: jr-ster-in .9s cubic-bezier(.2,1.6,.4,1); box-shadow: 0 0 0 4px #ffd43b, 0 0 18px #ffd43b; }
 .jr-boek-diploma { display: flex; align-items: center; gap: 8px; font-size: 2.4rem; animation: jr-dag-hop 1.2s ease-in-out infinite; }
-.jr-boek-diploma img { height: 56px; }
-@media (max-width: 520px) { .jr-boek-blad { grid-template-columns: repeat(4, 1fr); } }
+.jr-boek-diploma img { height: 70px; border-radius: 6px; box-shadow: 0 3px 8px rgb(0 0 0 / .25); }
+
 @page diploma { size: A4 landscape; margin: 0; }
 @media print {
   .jr-printblad.diploma { display: block; padding: 0; }
-  .jr-diploma { page: diploma; width: 297mm; height: 209mm; break-after: page; background: url(/img/junior/diploma.webp) center / 100% 100% no-repeat; -webkit-print-color-adjust: exact; print-color-adjust: exact; display: flex; align-items: center; justify-content: center; }
-  .jr-diploma-in { width: 62%; height: 62%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3mm; text-align: center; font-family: 'Exo 2', sans-serif; color: #3b2a14; }
-  .jr-diploma h1 { margin: 0; font-size: 38pt; color: #c2410c; letter-spacing: 2pt; }
-  .jr-diploma-dier { width: 46mm; height: 46mm; object-fit: contain; }
-  .jr-diploma-naam { font-size: 30pt; }
-  .jr-diploma p { margin: 0; font-size: 16pt; }
-  .jr-diploma-onder { display: flex; align-items: center; gap: 6mm; font-size: 12pt; }
-  .jr-diploma-onder img { width: 22mm; height: 22mm; object-fit: contain; }
+  /* Het geschilderde diploma: titel op het lint bovenaan, de rest op het perkament rechts van het draakje. */
+  .jr-diploma { page: diploma; position: relative; width: 297mm; height: 209mm; break-after: page; background: url(/img/junior/diploma.webp) center / 100% 100% no-repeat; -webkit-print-color-adjust: exact; print-color-adjust: exact; font-family: 'Exo 2', sans-serif; color: #3b2a14; }
+  .jr-diploma-titel { position: absolute; left: 33%; width: 34%; top: 7.5%; margin: 0; text-align: center; font-size: 30pt; color: #7a3d00; letter-spacing: 2pt; font-family: 'Chewy', 'Exo 2', sans-serif; }
+  .jr-diploma-in { position: absolute; left: 34%; width: 42%; top: 22%; height: 58%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3mm; text-align: center; }
+  .jr-diploma-dier { width: 48mm; height: 48mm; object-fit: contain; filter: drop-shadow(0 2mm 2mm rgb(0 0 0 / .2)); }
+  .jr-diploma-naam { font-size: 34pt; color: #1f4f8a; }
+  .jr-diploma p { margin: 0; font-size: 17pt; }
+  .jr-diploma-onder { display: flex; align-items: flex-end; justify-content: center; gap: 14mm; width: 100%; margin-top: 4mm; font-size: 12pt; }
+  .jr-diploma-teken { display: flex; flex-direction: column; align-items: center; gap: 1mm; }
+  .jr-diploma-teken i { order: -1; display: block; width: 45mm; height: 10mm; border-bottom: .5mm solid #3b2a14; }
 }
 
 /* Echte foto's bij de eigen vragen (Maken) */
@@ -1198,3 +1200,16 @@ button.jr-mini-draak:hover { transform: translateY(-2px); }
 /* Kies een spel > Mijn vragen met veel reeksen: zoeken en schuiven. */
 .jr-kv-niveaus.jr-kv-veel { max-height: 7.6em; overflow-y: auto; padding: 4px; border-radius: 14px; background: rgb(0 0 0 / .03); }
 .jr-kv-zoek { width: min(100%, 320px); margin-bottom: 8px; border-radius: 999px; padding: 8px 14px; border: 2px solid #eadfc4; font: inherit; }
+
+/* Mijn stickerboek: groot, met bladeren. */
+.jr-sb-wie { display: flex; align-items: center; gap: 8px; background: rgb(255 248 231 / .92); border-radius: 999px; padding: 4px 16px 4px 4px; font-size: 1.2rem; }
+.jr-sb-wie img { width: 48px; height: 48px; object-fit: contain; }
+.jr-sb-boek { display: flex; align-items: center; justify-content: center; gap: 12px; width: 100%; }
+.jr-sb-blad.jr-boek { max-width: none; padding: 10px; }
+.jr-sb-blad .jr-boek-blad { width: min(76vw, (100vh - 230px) * 4 / 3); aspect-ratio: 4 / 3; box-sizing: border-box; padding: 7% 11%; gap: 4% 6%; align-content: center; }
+.jr-sb-blad .jr-boek-plek { width: auto; height: auto; aspect-ratio: 1; }
+.jr-sb-blad .jr-boek-plek img { width: 100%; height: 100%; }
+.jr-sb-pijl { flex: none; font-size: 1.8rem; }
+.jr-sb-pijl:disabled { opacity: .3; }
+.jr-sb-nr { margin: 6px 0 0; font-weight: 800; color: #fff; text-shadow: 0 2px 4px rgb(0 0 0 / .5); font-size: 1.2rem; }
+@media (orientation: landscape) and (max-height: 500px) { .jr-sb-blad .jr-boek-blad { width: min(70vw, (100vh - 150px) * 4 / 3); } }
