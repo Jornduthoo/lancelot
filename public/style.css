@@ -2329,6 +2329,11 @@ body:has(#home:not(.hidden)) .snelmenu { display: none; }
 }
 .topbar:has(.taken-home) .snelmenu a { min-width: 110px; flex-direction: row; gap: 8px; font-size: .85rem; padding: 6px 12px; }
 @media (max-width: 1100px) { .snelmenu span { display: none; } .snelmenu a { min-width: 40px; } .topbar:has(.taken-home) .snelmenu span { display: inline; } .topbar:has(.taken-home) .snelmenu a { min-width: 0; } }
+/* Startscherm leerkracht: logo en knoppen op één rij (sinds de knop Junior erbij kwam, paste het net niet meer). */
+@media (min-width: 1000px) {
+  .topbar:has(.taken-home) .actions { gap: 6px; flex-wrap: nowrap; }
+  .topbar:has(.taken-home) .actions > .secondary:not(.icon) { padding-left: 14px; padding-right: 14px; }
+}
 /* Laserslag en Ridder Royale op de gsm: een geschilderde achtergrond achter de wacht- en vraagschermen. */
 body[data-ls="1"] { --quiz-bg: url('/img/quizspellen/laserslag.webp'); }
 body[data-ry="1"] { --quiz-bg: url('/img/quizspellen/ridderroyale.webp'); }
