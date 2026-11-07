@@ -405,6 +405,7 @@ function toon() {
   if (bord && (bord.seed !== stand.seed || !opBord)) {
     if (bord.huidig) bord.huidig.stop();
     $('jr-bord-vak').innerHTML = '';
+    Junior.Stem.stop();
     bord = null;
   }
   if (opBord && (!bord || bord.seed !== stand.seed)) {

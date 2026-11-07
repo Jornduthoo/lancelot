@@ -341,12 +341,14 @@
         opties: buren(r, elk, 1, 1).map(x => ({ html: `<span class="jr-getal">${x}</span>`, juist: x === elk })),
       };
     },
-    // Tafeltoren: de tafels van 2, 5 en 10. Op het eerste niveau zie je de groepjes.
+    // Tafeltoren: eerst de tafels van 2, 5 en 10, daarna 3 en 4, 6 en 7, 8 en 9, en alle tafels door elkaar.
+    // Bij de makkelijke niveaus zie je de groepjes.
     tafel(r, niv) {
-      const tafel = niv === 0 ? 2 : niv === 1 ? r.kies([5, 10]) : r.kies([2, 5, 10]);
+      const TAFELS = [[2], [5, 10], [2, 5, 10], [3, 4], [6, 7], [8, 9], [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]];
+      const tafel = r.kies(TAFELS[niv] || TAFELS[2]);
       const a = r.int(1, 10);
       const uit = a * tafel;
-      const groepjes = niv < 2 && tafel <= 5 && a <= 6
+      const groepjes = [0, 1, 3].includes(niv) && tafel <= 5 && a <= 6
         ? `<div class="jr-groepjes">${Array.from({ length: a }, () => `<span class="jr-groepje">${'<i></i>'.repeat(tafel)}</span>`).join('')}</div>` : '';
       return {
         soort: 'kies', zeg: [J().zin.hoeveelIs, a, J().zin.maal, tafel],

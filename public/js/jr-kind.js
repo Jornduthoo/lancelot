@@ -126,6 +126,16 @@ function meldAan(ids) {
   });
 }
 
+// Een ander spel: het oude spel meteen van het scherm halen (en stil maken), zodat het niet blijft staan tot het nieuwe laadt.
+function oudWeg() {
+  if (huidig) huidig.stop();
+  huidig = null;
+  ronde = null;
+  Junior.Stem.stop();
+  $('jr-vak').innerHTML = '';
+  $('jr-beurt').classList.add('hidden');
+}
+
 // ---------- Een ronde spelen ----------
 function nieuweRonde() {
   // Het raadsel van vandaag is voor iedereen hetzelfde; gewone rondes krijgen elk een eigen reeks.
@@ -141,12 +151,14 @@ function stappen() {
 
 async function volgendeVraag() {
   if (!ronde || ronde.seed !== S().seed) nieuweRonde();
+  const deze = ronde;
   toon('jr-spel');
   stappen();
   // Bij de Drakenrace: eerst groot tonen (en zeggen) in welk team je speelt.
   if (!apart && stand.avontuur && ronde.nr === 0 && !ronde.teamGetoond) {
     ronde.teamGetoond = true;
     await teamSplash();
+    if (ronde !== deze) return;
   }
   const wie = kind(ik[ronde.nr % ik.length]);
   const banner = $('jr-beurt');
@@ -155,6 +167,8 @@ async function volgendeVraag() {
     banner.classList.remove('hidden');
     await Junior.Stem.zeg([dierNaam(wie), J().zin.beurt]);
   } else banner.classList.add('hidden');
+  // Intussen een ander spel gestart: deze vraag niet meer tonen.
+  if (ronde !== deze) return;
   const v = Junior.vraag(S().spel, S().niveau, ronde.r);
   if (!v) return;
   const mijnSeed = ronde.seed;
@@ -375,7 +389,7 @@ socket.on('connect', () => {
     const oud = stand.seed;
     stand = res.stand || { actief: false };
     if (ik.length) socket.emit('jr-login', { ids: ik });
-    if (oud !== stand.seed) ronde = null;
+    if (oud !== stand.seed) oudWeg();
     route();
   });
 });
@@ -386,9 +400,7 @@ socket.on('jr-stand', s => {
   if (nieuw) {
     alleen = false;
     if (burcht && stand.actief) { if (burcht.van === 'wacht') { ik = []; bewaarIk(); } burcht = null; }
-    if (huidig) huidig.stop();
-    huidig = null;
-    ronde = null;
+    oudWeg();
     kringVraag = -1;
   }
   if (!nieuw && document.body.dataset.scherm === 'jr-spel') { zetDraak(); return; }
