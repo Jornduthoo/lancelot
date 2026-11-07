@@ -114,6 +114,22 @@
       mel.forEach((m, i) => { if (m) noot(hz(m), t + i * 0.26, 0.5, 0.55, 'triangle'); });
       [48, 55, 53, 55, 48, 53, 55, 48].forEach((m, i) => noot(hz(m), t + i * 0.9, 1.2, 0.35));
     },
+    // Een zachte klank die aanzwelt (inademen) of wegebt (uitademen), voor het rustmoment.
+    adem(inademen, sec = 4) {
+      if (!aan || !audio()) return;
+      const t = ctx.currentTime + 0.05;
+      for (const m of inademen ? [55, 62, 67] : [55, 60, 64]) {
+        const o = ctx.createOscillator(), g = ctx.createGain();
+        o.type = 'sine';
+        o.frequency.setValueAtTime(hz(m), t);
+        if (inademen) o.frequency.linearRampToValueAtTime(hz(m + 2), t + sec);
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.exponentialRampToValueAtTime(0.35, t + (inademen ? sec * 0.9 : 0.4));
+        g.gain.exponentialRampToValueAtTime(0.0001, t + sec);
+        o.connect(g); g.connect(meester); g.connect(echo);
+        o.start(t); o.stop(t + sec + 0.1);
+      }
+    },
     get aan() { return aan; },
     set aan(v) {
       aan = !!v;

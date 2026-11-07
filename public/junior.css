@@ -1098,3 +1098,18 @@ button.jr-mini-draak:hover { transform: translateY(-2px); }
 @media (max-width: 800px) { .jr[data-spel="naam"] { background-image: url(/img/junior/bg/naam-klein.webp); } }
 .jr-naam-groot { display: inline-flex; gap: .08em; background: #fff; border-radius: .4em; padding: .1em .45em; box-shadow: 0 .12em 0 #d8c9a3; font-family: var(--jr-schrift); font-weight: 800; font-size: 3.2em; line-height: 1.1; color: var(--jr-inkt); }
 .jr-naam-groot .jr-naam-eerste { color: #e8590c; }
+
+/* Klastools: rustmoment */
+.jr-kt-podium.jr-kt-rust { background: url(/img/junior/rust/bg.webp) center / cover; }
+@media (max-width: 800px) { .jr-kt-podium.jr-kt-rust { background-image: url(/img/junior/rust/bg-klein.webp); } }
+.jr-kt-rustvak { position: relative; flex: 1; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; min-height: 46vh; }
+.jr-kt-adem { position: absolute; left: 50%; top: 44%; width: 34vh; height: 34vh; margin: -17vh 0 0 -17vh; border-radius: 50%; background: radial-gradient(circle, rgb(200 245 255 / .75), rgb(140 233 255 / .35) 60%, rgb(140 233 255 / .1) 70%); box-shadow: 0 0 0 5px rgb(255 255 255 / .55), 0 0 40px rgb(140 233 255 / .8); transform: scale(.7); transition: transform 4s ease-in-out; }
+.jr-kt-adem.in { transform: scale(1.45); }
+.jr-kt-adem.uit { transform: scale(.7); transition-duration: 5s; }
+.jr-kt-adem.klaar { transform: scale(1); background: radial-gradient(circle, rgb(255 224 102 / .5), transparent 70%); }
+.jr-kt-rustdraak { position: relative; height: 36vh; object-fit: contain; filter: drop-shadow(0 8px 14px rgb(0 0 0 / .3)); }
+.jr-kt-rusttekst { position: relative; margin: 0; min-height: 1.3em; background: rgb(255 250 235 / .92); border-radius: 999px; padding: .15em .9em; font-size: clamp(1.6rem, 3.4vw, 3rem); font-weight: 800; color: var(--jr-inkt); }
+.jr-kt-rusttekst:empty { visibility: hidden; }
+.jr-kt-rustbollen { position: relative; display: flex; gap: 10px; }
+.jr-kt-rustbollen i { width: 22px; height: 22px; border-radius: 50%; background: rgb(255 255 255 / .7); box-shadow: inset 0 0 0 3px #8ce9ff; }
+.jr-kt-rustbollen i.af { background: #8ce9ff; }
