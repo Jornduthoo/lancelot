@@ -387,7 +387,7 @@ function toon() {
   $('jr-loopt-icoon').src = beeldPad(s);
   $('jr-loopt-naam').textContent = s.naam || '';
   const MANIER = { bord: 'Op het bord, 4 teams', duo: 'Met twee op een tablet', beurt: 'Om de beurt' };
-  $('jr-loopt-sub').textContent = `${stand.niveauNaam || ''} · ${MANIER[stand.manier] || ''}${stand.avontuur ? ' · Drakenrace' : ''}`;
+  $('jr-loopt-sub').textContent = `${stand.niveauNaam || ''} · ${MANIER[stand.manier] || ''}${stand.avontuur ? ` · ${'Drakenrace'}` : ''}`;
   const isDans = stand.spel === 'dans';
   const isKring = stand.spel === 'kring';
   const opBord = stand.manier === 'bord' && !isDans && !isKring;
