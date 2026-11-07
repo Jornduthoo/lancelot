@@ -559,3 +559,54 @@
 .logo-3d.logo-3d-junior video, .logo-3d.logo-3d-junior .ridder { -webkit-mask-image: none; mask-image: none; }
 .logo-3d.jr-logo-groot { width: min(40vw, 240px, 32vh * 640 / 542); }
 .logo-3d.jr-held-logo { width: min(46vw, 300px, 30vh * 640 / 542); max-height: none; }
+
+/* ---------- Avonturen op het bord ---------- */
+.jr-kies-venster { max-height: calc(100vh - 32px); overflow-y: auto; }
+.jr-kv-avonturen { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; }
+.jr-kies-venster .jr-kv-avonturen button { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px 12px 14px; text-align: center; white-space: normal; height: auto; border-radius: 18px;
+  background: #fff; color: var(--jr-inkt); border: 3px solid #eadfc4; box-shadow: 0 3px 0 #e2d4ae; clip-path: none; text-transform: none; letter-spacing: 0; font-weight: 700; }
+.jr-kies-venster .jr-kv-avonturen button:hover { border-color: var(--jr-goud); }
+.jr-kies-venster .jr-kv-avonturen button.aan { background: #fff1c7; border-color: #f0a500; box-shadow: 0 3px 0 #d69e1a, 0 0 0 3px rgb(255 201 74 / .45); }
+.jr-kv-avonturen img { width: 64px; height: 64px; object-fit: contain; }
+.jr-kv-avonturen span { font-size: .85rem; font-weight: 400; color: #5b5170; }
+
+/* Drakenrace: het geschilderde veld met 4 banen, elk draakje rent naar de vlag. */
+.jr-race { position: relative; border-radius: 22px; overflow: hidden; background: #8fcf6a url('/img/junior/bg/race.webp') center / cover no-repeat;
+  height: calc(100vh - 190px); min-height: 360px; box-shadow: 0 10px 30px rgb(0 0 0 / .35); }
+.jr-race-banen { position: absolute; left: 2%; right: 2%; top: 30%; bottom: 7%; display: grid; grid-template-rows: repeat(4, 1fr); gap: 2%; }
+.jr-baan { position: relative; border-radius: 999px; border: 3px solid rgb(255 255 255 / .75); box-shadow: inset 0 0 0 999px rgb(255 255 255 / .12); }
+.jr-baan-rood { background: rgb(224 49 49 / .38); }
+.jr-baan-blauw { background: rgb(28 126 214 / .38); }
+.jr-baan-geel { background: rgb(242 178 0 / .42); }
+.jr-baan-groen { background: rgb(47 158 68 / .38); }
+.jr-baan-naam { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #fff; font-weight: 800; font-size: clamp(.8rem, 1.6vw, 1.15rem);
+  text-shadow: 0 2px 3px rgb(0 0 0 / .55); white-space: nowrap; }
+.jr-baan-winst { position: absolute; right: 9%; top: 50%; transform: translateY(-50%); display: flex; gap: 2px; }
+.jr-baan-winst img { height: clamp(30px, 7vh, 56px); filter: drop-shadow(0 2px 3px rgb(0 0 0 / .35)); }
+.jr-baan-vlag { position: absolute; right: 2%; bottom: 8%; height: 125%; filter: drop-shadow(0 3px 4px rgb(0 0 0 / .35)); }
+/* --ver loopt van 0 (start) tot 1 (vlag). */
+.jr-baan-loper { position: absolute; top: 50%; left: calc(19% + var(--ver) * 64%); height: 150%; aspect-ratio: 1; transform: translate(-50%, -58%);
+  transition: left .9s cubic-bezier(.3, 1.4, .5, 1); z-index: 2; }
+.jr-baan-draak { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 5px 5px rgb(0 0 0 / .35)); animation: jr-ren .5s ease-in-out infinite alternate; }
+@keyframes jr-ren { from { transform: translateY(0) rotate(-2deg); } to { transform: translateY(-5%) rotate(2deg); } }
+.jr-baan-loper.jr-hop .jr-baan-draak { animation: jr-hop .6s ease-out; }
+@keyframes jr-hop { 30% { transform: translateY(-28%) scale(1.12); } 100% { transform: none; } }
+.jr-baan-kind { position: absolute; left: 50%; bottom: 80%; width: 70%; transform: translateX(-50%); background: #fff; border-radius: 50%; padding: 4px;
+  box-shadow: 0 0 0 4px var(--jr-goud), 0 6px 12px rgb(0 0 0 / .35); animation: jr-kind-op 1.8s ease-out forwards; }
+@keyframes jr-kind-op { 0% { opacity: 0; transform: translate(-50%, 30%) scale(.4); } 18% { opacity: 1; transform: translate(-50%, 0) scale(1.1); } 75% { opacity: 1; transform: translate(-50%, -10%) scale(1); } 100% { opacity: 0; transform: translate(-50%, -40%) scale(.9); } }
+.jr-race-uitleg { position: absolute; left: 50%; top: 3%; transform: translateX(-50%); margin: 0; background: rgb(255 248 230 / .92); color: var(--jr-inkt);
+  border-radius: 999px; padding: 6px 18px; font-weight: 700; font-size: clamp(.8rem, 1.5vw, 1.05rem); box-shadow: 0 4px 10px rgb(0 0 0 / .2); text-align: center; max-width: 90%; }
+.jr-race-feest { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; background: rgb(255 248 230 / .55); backdrop-filter: blur(3px); z-index: 5; }
+.jr-race-feest img { height: 45%; animation: jr-hop 1s ease-out infinite; filter: drop-shadow(0 10px 20px rgb(0 0 0 / .35)); }
+.jr-race-feest p { margin: 0; font-family: var(--jr-schrift); font-size: clamp(1.6rem, 4.5vw, 3.4rem); font-weight: 800; color: #fff; padding: 8px 30px; border-radius: 999px; text-shadow: 0 2px 4px rgb(0 0 0 / .4); }
+.jr-race-feest-rood p { background: #e03131; }
+.jr-race-feest-blauw p { background: #1c7ed6; }
+.jr-race-feest-geel p { background: #f2b200; }
+.jr-race-feest-groen p { background: #2f9e44; }
+
+/* Op de tablet: de kleur van je team rond je dier. */
+.jr-wie-een[class*='jr-tk-'] img { border-radius: 50%; box-shadow: 0 0 0 4px var(--tk); }
+.jr-wie-een.jr-tk-rood { --tk: #e03131; }
+.jr-wie-een.jr-tk-blauw { --tk: #1c7ed6; }
+.jr-wie-een.jr-tk-geel { --tk: #f2b200; }
+.jr-wie-een.jr-tk-groen { --tk: #2f9e44; }

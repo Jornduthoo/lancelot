@@ -15,6 +15,7 @@ module.exports = {
     beurt: 'du bist dran.',
     teams: ['Team Rot', 'Team Blau', 'Team Gelb', 'Team Grün'],
     teamBeurt: 'ihr seid dran.',
+    raceWint: 'gewinnt das Rennen!',
     wacht: 'Schau zu deiner Lehrkraft. Gleich geht es los.',
     bord: 'Schau zur Tafel und mach mit!',
     volgende: 'Wer ist jetzt dran? Tippe auf dein Tier.',

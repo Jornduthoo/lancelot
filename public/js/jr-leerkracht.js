@@ -61,7 +61,9 @@ function kies(s) {
   if (s.id === 'eigen' && !sets.length) { ga('maken'); return; }
   let manier = 'beurt';
   try { manier = localStorage.getItem('jr-manier') || 'beurt'; } catch {}
-  gekozen = { spel: s.id, niveau: 0, manier: s.bordAlleen ? 'bord' : manier };
+  let avontuur = '';
+  try { avontuur = localStorage.getItem('jr-avontuur') || ''; } catch {}
+  gekozen = { spel: s.id, niveau: 0, manier: s.bordAlleen ? 'bord' : manier, avontuur, kanAvontuur: !s.bordAlleen && !s.geenFout };
   $('jr-kv-icoon').src = beeldPad(s);
   $('jr-kv-naam').textContent = s.naam;
   $('jr-kv-zin').textContent = s.zin;
@@ -84,6 +86,16 @@ function kies(s) {
 }
 function zetManier() {
   for (const b of $('jr-kv-manieren').children) b.classList.toggle('aan', b.dataset.manier === gekozen.manier);
+  // Een avontuur op het bord kan alleen als de kinderen op de tablets spelen.
+  $('jr-kv-avontuur-blok').classList.toggle('hidden', !gekozen.kanAvontuur || gekozen.manier === 'bord');
+  for (const b of $('jr-kv-avonturen').children) b.classList.toggle('aan', b.dataset.avontuur === (gekozen.avontuur || ''));
+}
+for (const b of $('jr-kv-avonturen').children) {
+  b.addEventListener('click', () => {
+    gekozen.avontuur = b.dataset.avontuur;
+    try { localStorage.setItem('jr-avontuur', gekozen.avontuur); } catch {}
+    zetManier();
+  });
 }
 for (const b of $('jr-kv-manieren').children) {
   b.addEventListener('click', () => {
@@ -95,7 +107,7 @@ for (const b of $('jr-kv-manieren').children) {
 $('jr-kv-annuleer').addEventListener('click', () => $('jr-kies-venster').close());
 $('jr-kv-start').addEventListener('click', () => {
   try { sfx.unlock(); } catch {}
-  socket.emit('jr-start', gekozen, res => {
+  socket.emit('jr-start', { ...gekozen, avontuur: gekozen.manier === 'bord' ? '' : gekozen.avontuur }, res => {
     if (res && res.error) return Ui.melding(res.error);
     $('jr-kies-venster').close();
   });
@@ -238,6 +250,58 @@ async function bordVraag() {
   });
 }
 
+// ---------- Drakenrace: 4 banen, het draakje van elk team rent vooruit bij elk juist antwoord op de tablets ----------
+let race = null; // { ronde, feest }
+function raceBouw() {
+  const box = $('jr-race-banen');
+  if (box.children.length) return;
+  box.innerHTML = TEAMKLEUR.map((kl, i) => `<div class="jr-baan jr-baan-${kl}" data-team="${i}">
+    <span class="jr-baan-naam">${Junior.esc((J().zin.teams || [])[i] || '')}</span>
+    <span class="jr-baan-winst"></span>
+    <img class="jr-baan-vlag" src="/img/junior/race/vlag.webp" alt="">
+    <div class="jr-baan-loper" style="--ver:0"><img class="jr-baan-draak" src="/img/junior/race/draak${i + 1}.webp" alt=""></div>
+  </div>`).join('');
+}
+function raceToon(a, opnieuw) {
+  raceBouw();
+  if (!race || opnieuw) race = { ronde: a.ronde, feest: false };
+  if (race.feest) return;
+  for (const baan of $('jr-race-banen').children) {
+    const t = +baan.dataset.team;
+    baan.querySelector('.jr-baan-loper').style.setProperty('--ver', a.ver[t]);
+    baan.querySelector('.jr-baan-winst').innerHTML = '<img src="/img/junior/race/beker.webp" alt="">'.repeat(Math.min(5, a.winst[t]));
+  }
+}
+socket.on('jr-avontuur', async a => {
+  if (!stand.avontuur || a.id !== 'race') return;
+  raceBouw();
+  const baan = $('jr-race-banen').children[a.team];
+  if (!baan) return;
+  const loper = baan.querySelector('.jr-baan-loper');
+  // Het dier van het kind springt even op boven het draakje van zijn team.
+  const bel = document.createElement('img');
+  bel.className = 'jr-baan-kind';
+  bel.src = a.kind.beeld;
+  bel.alt = '';
+  loper.appendChild(bel);
+  setTimeout(() => bel.remove(), 1800);
+  loper.classList.remove('jr-hop'); void loper.offsetWidth; loper.classList.add('jr-hop');
+  try { sfx.jump(); } catch {}
+  stand.avontuur = a.winnaar === null ? a : a.na;
+  if (a.winnaar === null) { raceToon(a); return; }
+  // Een team is aan de finish: de beker, confetti, en dan een nieuwe ronde.
+  loper.style.setProperty('--ver', 1);
+  race.feest = true;
+  await wacht(900);
+  $('jr-race-winnaar').textContent = `${(J().zin.teams || [])[a.winnaar] || ''} ${J().zin.raceWint || ''}`;
+  $('jr-race-feest').className = `jr-race-feest jr-race-feest-${TEAMKLEUR[a.winnaar]}`;
+  try { confetti(4000); sfx.fanfare(); } catch {}
+  Junior.Stem.zeg([(J().zin.teams || [])[a.winnaar], J().zin.raceWint]);
+  await wacht(5000);
+  $('jr-race-feest').classList.add('hidden');
+  raceToon(stand.avontuur, true);
+});
+
 // ---------- De bewegingsdans ----------
 const wacht = ms => new Promise(r => setTimeout(r, ms));
 async function dansStap() {
@@ -323,14 +387,17 @@ function toon() {
   $('jr-loopt-icoon').src = beeldPad(s);
   $('jr-loopt-naam').textContent = s.naam || '';
   const MANIER = { bord: 'Op het bord, 4 teams', duo: 'Met twee op een tablet', beurt: 'Om de beurt' };
-  $('jr-loopt-sub').textContent = `${stand.niveauNaam || ''} · ${MANIER[stand.manier] || ''}`;
+  $('jr-loopt-sub').textContent = `${stand.niveauNaam || ''} · ${MANIER[stand.manier] || ''}${stand.avontuur ? ` · ${'Drakenrace'}` : ''}`;
   const isDans = stand.spel === 'dans';
   const isKring = stand.spel === 'kring';
   const opBord = stand.manier === 'bord' && !isDans && !isKring;
   $('jr-dans').classList.toggle('hidden', !isDans);
   $('jr-kring-bord').classList.toggle('hidden', !isKring);
   $('jr-bord').classList.toggle('hidden', !opBord);
-  $('jr-tablets').classList.toggle('hidden', opBord || isDans || (isKring && stand.manier === 'bord'));
+  const isRace = !!(stand.avontuur && stand.avontuur.id === 'race');
+  $('jr-race').classList.toggle('hidden', !isRace);
+  $('jr-tablets').classList.toggle('hidden', isRace || opBord || isDans || (isKring && stand.manier === 'bord'));
+  if (isRace) raceToon(stand.avontuur);
   if (opBord && (!bord || bord.seed !== stand.seed)) {
     bord = { seed: stand.seed, r: Junior.toeval(stand.seed), team: 0, huidig: null };
     Junior.schaal($('jr-bord-vak'));

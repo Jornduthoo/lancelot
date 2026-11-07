@@ -20,6 +20,10 @@ const RONDES = [3, 5, 8];
 // Hoeveel eten het klasdraakje nodig heeft voor elke fase: ei, ei dat openbreekt, baby, jong draakje, ridderdraak.
 const FASEN = [0, 15, 50, 120, 250];
 const MANIEREN = ['bord', 'duo', 'beurt'];
+// Avonturen op het bord: de kinderen oefenen op de tablet (met twee of om de beurt), en elk juist antwoord
+// laat op het bord iets gebeuren voor hun kleurteam. Het team van een kind volgt de klaslijst (rood, blauw, geel, groen...).
+const AVONTUREN = ['race'];
+const STAPPEN_PER_KIND = 3; // de race is gedaan als elk kind van het team ongeveer 3 keer juist antwoordde
 
 // De spelletjes van fase 1. Elk spel heeft niveaus; de leerkracht kiest er één. Alles wat gezegd wordt, staat per taal
 // in junior-inhoud(-en/-fr/-es/-de).js; hier staan alleen de namen voor de leerkracht (vertaald via lang/*/junior.json).
@@ -156,7 +160,7 @@ function kinderen() {
     const stickers = (d.stickers[l.id] || []).length;
     const groei = groeit ? dierFase(stickers) : 1;
     const map = groei === 1 ? 'dier' : `dier${groei}`;
-    return { id: l.id, naam: l.naam, dier, groei, eigen: !!sym, beeld: sym ? `/junior/symbool/${l.id}?v=${sym.v}` : `/img/junior/${map}/${dier}.webp`, stickers };
+    return { id: l.id, naam: l.naam, team: lijst.indexOf(l) % 4, dier, groei, eigen: !!sym, beeld: sym ? `/junior/symbool/${l.id}?v=${sym.v}` : `/img/junior/${map}/${dier}.webp`, stickers };
   });
   if (veranderd) save();
   return uit;
@@ -236,13 +240,15 @@ function nieuweKring() { return { vraag: 0, keuzes: {} }; }
 function niveausVan(s) {
   return s.id === 'eigen' ? load().sets.map(x => x.naam) : s.niveaus;
 }
-function start({ spel, niveau, manier } = {}) {
+function start({ spel, niveau, manier, avontuur } = {}) {
   const s = SPEL[spel];
   if (!s) throw new Error('Kies een spel.');
   if (s.id === 'eigen' && !load().sets.length) throw new Error('Maak eerst een reeks vragen bij Maken.');
   const n = Math.max(0, Math.min(niveausVan(s).length - 1, Number(niveau) || 0));
   const m = s.bordAlleen ? 'bord' : MANIEREN.includes(manier) ? manier : 'beurt';
   les = { spel: s.id, niveau: n, manier: m, seed: Math.floor(Math.random() * 1e9), sinds: Date.now(), kinderen: {}, teams: [0, 0, 0, 0], kring: nieuweKring() };
+  const kan = m !== 'bord' && !s.bordAlleen && !s.geenFout && s.id !== 'raadsel';
+  if (kan && AVONTUREN.includes(avontuur)) les.avontuur = { id: avontuur, stap: [0, 0, 0, 0], winst: [0, 0, 0, 0], ronde: 1 };
   return stand();
 }
 function stop() {
@@ -255,9 +261,38 @@ function stand() {
   return {
     actief: true, spel: les.spel, naam: s.naam, niveau: les.niveau, niveauNaam: niveausVan(s)[les.niveau], manier: les.manier, seed: les.seed,
     eigen: les.spel === 'eigen' ? load().sets[les.niveau] || null : undefined,
-    perRonde: instellingen().perRonde, voorlezen: instellingen().voorlezen, teams: les.teams, kring: { vraag: les.kring.vraag }, draak: draak(),
+    perRonde: instellingen().perRonde, voorlezen: instellingen().voorlezen, teams: les.teams, avontuur: avontuurStand(), kring: { vraag: les.kring.vraag }, draak: draak(),
   };
 }
+// Hoe ver elk team is (0 tot 1). Een team met meer kinderen moet ook meer stappen zetten: zo blijft het eerlijk.
+function teamGrootte() {
+  const n = [0, 0, 0, 0];
+  for (const k of kinderen()) n[k.team]++;
+  return n.map(x => Math.max(1, x));
+}
+function avontuurStand() {
+  const a = les && les.avontuur;
+  if (!a) return null;
+  const g = teamGrootte();
+  return { id: a.id, ver: a.stap.map((x, i) => Math.min(1, x / (g[i] * STAPPEN_PER_KIND))), winst: a.winst, ronde: a.ronde };
+}
+// Een kind antwoordde juist: zijn team zet een stap. Is het team aan de finish, dan wint het en begint een nieuwe ronde.
+function avontuurStap(kind) {
+  const a = les.avontuur;
+  a.stap[kind.team]++;
+  const g = teamGrootte();
+  let winnaar = null;
+  if (a.stap[kind.team] >= g[kind.team] * STAPPEN_PER_KIND) {
+    winnaar = kind.team;
+    a.winst[kind.team]++;
+    const uit = avontuurStand();
+    a.stap = [0, 0, 0, 0];
+    a.ronde++;
+    return { team: kind.team, kind: { naam: kind.naam, beeld: kind.beeld }, winnaar, ...uit, na: avontuurStand() };
+  }
+  return { team: kind.team, kind: { naam: kind.naam, beeld: kind.beeld }, winnaar, ...avontuurStand() };
+}
+
 // Voor de leerkracht: per kind hoe het gaat. Bezig = nu op een tablet ingelogd.
 function overzicht(bezig = new Set()) {
   return kinderen().map(k => {
@@ -292,6 +327,7 @@ function antwoord(id, { vraag, juist, apart } = {}) {
     c.t = new Date().toISOString().slice(0, 10);
   }
   const gegroeid = juist ? voer(1) : false;
+  const avontuur = juist && !eigen && les.avontuur ? avontuurStap(kind) : null;
   let sticker = null;
   // Het raadsel van vandaag: na de derde opdracht een sticker, maar maar één keer per dag.
   const vandaag = new Date().toISOString().slice(0, 10);
@@ -308,7 +344,7 @@ function antwoord(id, { vraag, juist, apart } = {}) {
     if (d.stickers[id].length > 500) d.stickers[id] = d.stickers[id].slice(-500);
     save();
   }
-  return { sticker, gegroeid, draak: draak() };
+  return { sticker, gegroeid, draak: draak(), team: kind.team, avontuur };
 }
 
 // Op het bord: een team antwoordde goed.
@@ -421,7 +457,7 @@ function inhoud(taalId) {
 }
 
 module.exports = {
-  SPELLEN, FASEN, PER_RONDE, RONDES, DIEREN, instellingen, zetInstellingen, STICKERS, DIER_GROEI, dierFase,
+  SPELLEN, AVONTUREN, FASEN, PER_RONDE, RONDES, DIEREN, instellingen, zetInstellingen, STICKERS, DIER_GROEI, dierFase,
   kinderen, wisselDier, zetSymbool, symboolBestand, draak, noemDraak, start, stop, stand, overzicht, antwoord, teamGoed, klasBeloning, stickers,
   kringKies, kringStand, kringVolgende, inhoud, fase, niveausVan,
   voortgang, sets, bewaarSet, wisSet, eigenPrompt, leesEigen,

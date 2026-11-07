@@ -18,6 +18,7 @@ module.exports = {
     beurt: 'jij bent aan de beurt.',
     teams: ['Team rood', 'Team blauw', 'Team geel', 'Team groen'],
     teamBeurt: 'jullie zijn aan de beurt.',
+    raceWint: 'wint de race!',
     wacht: 'Kijk naar je leerkracht. We beginnen zo.',
     bord: 'Kijk naar het bord en doe mee!',
     volgende: 'Wie is er nu aan de beurt? Tik op jouw dier.',
