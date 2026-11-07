@@ -1123,3 +1123,8 @@ button.jr-mini-draak:hover { transform: translateY(-2px); }
 .jr-inst-thema { flex-wrap: wrap; }
 .jr-thema-titel { margin-top: 18px; }
 .jr-thema-sets { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+
+/* Maken: eigen stem */
+.jr-bw-mic.heeft { background: #d3f9d8; }
+.jr-bw-mic.neemt { background: #ff6b6b; color: #fff; animation: jr-puls 1s ease-in-out infinite; }
+.jr-lk .jr-thema { z-index: 0; } .jr-lk main, .jr-lk .topbar { position: relative; z-index: 1; }

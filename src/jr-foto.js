@@ -58,4 +58,21 @@ async function neem(thumb) {
 
 const bestand = naam => (NAAM.test(String(naam)) ? path.join(MAP, naam) : null);
 
-module.exports = { zoek, neem, bestand, NAAM };
+// De eigen stem van de leerkracht bij een vraag (Maken > 🎤): een kort geluidsbestand uit de browser, in de klasmap.
+const STEM_MAP = path.join(gegevens.pad('klas'), 'junior-stem');
+const STEM_NAAM = /^[a-f0-9]{16}\.(webm|ogg|m4a)$/;
+const STEM_MAX = 700 * 1024;
+function stemBewaar(data, soort) {
+  const buf = Buffer.isBuffer(data) ? data : data instanceof ArrayBuffer ? Buffer.from(data) : data && data.buffer ? Buffer.from(data.buffer) : null;
+  const ext = /webm/.test(soort) ? 'webm' : /ogg/.test(soort) ? 'ogg' : /mp4|aac|m4a/.test(soort) ? 'm4a' : null;
+  if (!buf || !buf.length || !ext) throw new Error('Opnemen lukte niet. Probeer opnieuw.');
+  if (buf.length > STEM_MAX) throw new Error('De opname is te lang. Hou het kort (maximaal 10 seconden).');
+  const naam = `${crypto.createHash('sha1').update(buf).digest('hex').slice(0, 16)}.${ext}`;
+  fs.mkdirSync(STEM_MAP, { recursive: true });
+  const f = path.join(STEM_MAP, naam);
+  if (!fs.existsSync(f)) fs.writeFileSync(f, buf);
+  return naam;
+}
+const stemBestand = naam => (STEM_NAAM.test(String(naam)) ? path.join(STEM_MAP, naam) : null);
+
+module.exports = { zoek, neem, bestand, NAAM, stemBewaar, stemBestand, STEM_NAAM };

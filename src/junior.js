@@ -506,6 +506,7 @@ function voortgang() {
 const MAX_SETS = 40;
 const MAX_VRAGEN = 30;
 const FOTO = /^[a-f0-9]{16}\.(jpg|png)$/; // een echte foto uit src/jr-foto.js
+const STEM = /^[a-f0-9]{16}\.(webm|ogg|m4a)$/; // een eigen opname uit src/jr-foto.js
 const kort = (x, n) => String(x == null ? '' : x).replace(/\s+/g, ' ').trim().slice(0, n);
 function schoonSet(set = {}) {
   const naam = kort(set.naam, 40);
@@ -518,7 +519,9 @@ function schoonSet(set = {}) {
     })
       .filter(o => o.e || o.w || o.f).slice(0, 4);
     const juist = Math.max(0, Math.min(opties.length - 1, Number(v && v.juist) || 0));
-    return { vraag: kort(v && v.vraag, 160), opties, juist };
+    const x = { vraag: kort(v && v.vraag, 160), opties, juist };
+    if (v && STEM.test(String(v.s))) x.s = v.s; // eigen stem van de leerkracht
+    return x;
   }).filter(v => v.vraag && v.opties.length >= 2).slice(0, MAX_VRAGEN);
   if (!vragen.length) throw new Error('Zet minstens één vraag met twee antwoorden in de reeks.');
   return { id: kort(set.id, 20) || Date.now().toString(36), naam, vragen };

@@ -36,10 +36,10 @@
       if (audio) { audio.pause(); audio = null; }
       if ('speechSynthesis' in window) speechSynthesis.cancel();
     }
-    function clip(file, mijn) {
+    function clip(file, mijn, url) {
       return new Promise(klaar => {
         if (mijn !== beurt) return klaar();
-        const a = new Audio(`/img/junior/stem/${taal()}/${file}`);
+        const a = new Audio(url || `/img/junior/stem/${taal()}/${file}`);
         audio = a;
         const af = () => { clearTimeout(t); klaar(); };
         const t = setTimeout(af, 15000);
@@ -68,10 +68,20 @@
     async function zeg(delen) {
       stop();
       const mijn = beurt;
-      const stukken = (Array.isArray(delen) ? delen : [delen]).filter(d => d !== '' && d != null).map(String);
+      const lijstDelen = (Array.isArray(delen) ? delen : [delen]).filter(d => d !== '' && d != null);
+      const stukken = lijstDelen.map(d => (d && d.url ? d : String(d)));
       if (uit || (stil && Date.now() > open) || !stukken.length) return;
       praat = true;
       try {
+        // Een eigen opname van de leerkracht ({ url }): die eerst, de rest met de gewone stem.
+        if (stukken.some(d => d.url)) {
+          for (const d of stukken) {
+            if (mijn !== beurt) return;
+            if (d.url) await clip(null, mijn, d.url);
+            else await spreek(d, mijn);
+          }
+          return;
+        }
         if (lijst && stukken.every(d => lijst[d])) {
           for (const d of stukken) {
             if (mijn !== beurt) return;
@@ -305,7 +315,7 @@
       if (!set || !set.vragen || !set.vragen.length) return null;
       const v = r.kies(set.vragen);
       return {
-        soort: 'kies', zeg: [v.vraag], kop: `<span class="jr-vraagkaart">${esc(v.vraag)}</span>`, eigen: true,
+        soort: 'kies', zeg: [v.s ? { url: `/junior/stem/${v.s}` } : v.vraag], kop: `<span class="jr-vraagkaart">${esc(v.vraag)}</span>`, eigen: true,
         opties: v.opties.map((o, i) => ({ html: `${o.f ? `<img class="jr-foto" src="/junior/foto/${esc(o.f)}" alt="">` : o.e ? emoji(esc(o.e), 'jr-emoji-groot') : ''}${o.w ? `<span class="jr-optie-woord">${esc(o.w)}</span>` : ''}`, juist: i === v.juist })),
       };
     },
