@@ -386,7 +386,7 @@ function toon() {
   const s = spelVan(stand.spel) || {};
   $('jr-loopt-icoon').src = beeldPad(s);
   $('jr-loopt-naam').textContent = s.naam || '';
-  const MANIER = { bord: 'Op het bord, 4 teams', duo: 'Met twee op een tablet', beurt: 'Om de beurt' };
+  const MANIER = { bord: 'Op het bord, 4 teams', duo: 'Met twee op een tablet', beurt: 'Om de beurt', alleen: 'Elk op een eigen tablet' };
   $('jr-loopt-sub').textContent = `${stand.niveauNaam || ''} · ${MANIER[stand.manier] || ''}${stand.avontuur ? ` · ${'Drakenrace'}` : ''}`;
   const isDans = stand.spel === 'dans';
   const isKring = stand.spel === 'kring';
@@ -528,7 +528,10 @@ $('jr-bw-bewaar').addEventListener('click', () => {
     zetSets(res.sets);
   });
 });
-const maakArg = () => ({ onderwerp: $('jr-maak-onderwerp').value, aantal: Number($('jr-maak-aantal').value) });
+const maakArg = () => ({ onderwerp: $('jr-maak-onderwerp').value, aantal: Number($('jr-maak-aantal').value), klas: $('jr-maak-klas').value });
+// De gekozen klas onthouden: de meeste leerkrachten maken altijd vragen voor dezelfde klas.
+try { const k = localStorage.getItem('jr-maak-klas'); if (k && $('jr-maak-klas').querySelector(`option[value="${k}"]`)) $('jr-maak-klas').value = k; } catch {}
+$('jr-maak-klas').addEventListener('change', () => { try { localStorage.setItem('jr-maak-klas', $('jr-maak-klas').value); } catch {} });
 $('jr-maak-leeg').addEventListener('click', () => bewerk({ naam: $('jr-maak-onderwerp').value.slice(0, 40), vragen: [] }));
 $('jr-maak-ai').addEventListener('click', () => {
   const knop = $('jr-maak-ai');
@@ -590,8 +593,9 @@ socket.on('jr-draak', d => toonDraak(d));
 socket.on('jr-kring', k => stand.spel === 'kring' && kringToon(k));
 socket.on('addresses', list => {
   if (!list || !list.length) return;
-  for (const id of ['jr-qr', 'jr-qr-groot']) $(id).innerHTML = list[0].qr;
-  for (const id of ['jr-url', 'jr-qr-url']) $(id).textContent = list[0].url;
+  // De QR-code van Junior: rechtstreeks naar /junior (anders komen de kinderen op het gewone LANcelot).
+  for (const id of ['jr-qr', 'jr-qr-groot']) $(id).innerHTML = list[0].jrQr || list[0].qr;
+  for (const id of ['jr-url', 'jr-qr-url']) $(id).textContent = `${list[0].url}/junior`;
 });
 $('jr-qr-knop').addEventListener('click', () => $('jr-qr-venster').showModal());
 $('jr-qr-dicht').addEventListener('click', () => $('jr-qr-venster').close());
