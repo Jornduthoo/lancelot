@@ -484,5 +484,8 @@
  "Een werkblad op papier met vragen uit dit spel": "A paper worksheet with questions from this game",
  "Werkblad": "Worksheet",
  "Naar de startpagina": "To the start page",
- "De prompt staat klaar. Plak hem in een chatbot (Gemini, ChatGPT of Claude) en plak het antwoord hieronder: het wordt meteen ingelezen.": "The prompt is ready. Paste it into a chatbot (Gemini, ChatGPT or Claude) and paste the answer below: it is read in straight away."
+ "De prompt staat klaar. Plak hem in een chatbot (Gemini, ChatGPT of Claude) en plak het antwoord hieronder: het wordt meteen ingelezen.": "The prompt is ready. Paste it into a chatbot (Gemini, ChatGPT or Claude) and paste the answer below: it is read in straight away.",
+ "Prent bij de vraag weg": "Remove the picture from the question",
+ "Een prent bij de vraag": "A picture with the question",
+ "🔍 Zoek een reeks": "🔍 Find a set"
 }

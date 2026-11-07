@@ -151,14 +151,23 @@ function kies(s) {
     b.className = i === 0 ? 'aan' : '';
     b.addEventListener('click', () => {
       gekozen.niveau = i;
-      for (const x of niv.children) x.classList.toggle('aan', x === b);
+      for (const x of niv.querySelectorAll('button')) x.classList.toggle('aan', x === b);
     });
     niv.appendChild(b);
   });
+  // Veel eigen reeksen: een zoekvakje erboven en de lijst schuift (zo blijft het venster even groot).
+  const veel = s.id === 'eigen' && sets.length > 6;
+  niv.classList.toggle('jr-kv-veel', veel);
+  $('jr-kv-zoek').classList.toggle('hidden', !veel);
+  $('jr-kv-zoek').value = '';
   $('jr-kv-manier-blok').classList.toggle('hidden', !!s.bordAlleen);
   zetManier();
   $('jr-kies-venster').showModal();
 }
+$('jr-kv-zoek').addEventListener('input', () => {
+  const q = $('jr-kv-zoek').value.trim().toLowerCase();
+  for (const b of $('jr-kv-niveaus').querySelectorAll('button')) b.classList.toggle('hidden', !!q && !b.textContent.toLowerCase().includes(q));
+});
 function zetManier() {
   for (const b of $('jr-kv-manieren').children) b.classList.toggle('aan', b.dataset.manier === gekozen.manier);
   // Een avontuur op het bord kan alleen als de kinderen op de tablets spelen.
@@ -989,7 +998,7 @@ function vragenLijst() {
   bezig.vragen.forEach((v, vi) => {
     const d = document.createElement('div');
     d.className = 'jr-bw-vraag';
-    d.innerHTML = `<div class="jr-bw-rij"><b>${vi + 1}</b><input class="jr-bw-tekst" maxlength="160" placeholder="De vraag, zoals je ze zegt"><button type="button" class="secondary jr-bw-zeg" title="Voorlezen">🔊</button><button type="button" class="secondary jr-bw-mic ${v.s ? 'heeft' : ''}" title="${v.s ? 'Je eigen stem wissen' : 'Zelf inspreken'}">${v.s ? '🎤✕' : '🎤'}</button><button type="button" class="secondary jr-bw-weg" title="Vraag wissen">🗑️</button></div>`
+    d.innerHTML = `<div class="jr-bw-rij"><b>${vi + 1}</b><input class="jr-bw-tekst" maxlength="160" placeholder="De vraag, zoals je ze zegt">${v.f ? `<img class="jr-bw-foto jr-bw-vfoto" src="/junior/foto/${v.f}" alt="" title="${Junior.esc(v.fb || '')}">` : ''}<button type="button" class="secondary jr-bw-vf" title="${v.f ? 'Prent bij de vraag weg' : 'Een prent bij de vraag'}">${v.f ? '🖼️✕' : '🖼️'}</button><button type="button" class="secondary jr-bw-zeg" title="Voorlezen">🔊</button><button type="button" class="secondary jr-bw-mic ${v.s ? 'heeft' : ''}" title="${v.s ? 'Je eigen stem wissen' : 'Zelf inspreken'}">${v.s ? '🎤✕' : '🎤'}</button><button type="button" class="secondary jr-bw-weg" title="Vraag wissen">🗑️</button></div>`
       + `<div class="jr-bw-opties">${v.opties.map((o, oi) => `<label class="jr-bw-optie ${oi === v.juist ? 'juist' : ''}"><input type="radio" name="jr-juist-${vi}" ${oi === v.juist ? 'checked' : ''} title="Dit is het juiste antwoord">${o.f ? `<img class="jr-bw-foto" src="/junior/foto/${o.f}" alt="" title="${Junior.esc(o.fb || '')}">` : '<input class="jr-bw-e" maxlength="16" placeholder="🙂">'}<input class="jr-bw-w" maxlength="30" placeholder="woord"><button type="button" class="secondary jr-bw-fk" title="${o.f ? 'Foto weg' : 'Echte foto zoeken'}">${o.f ? '✕' : '📷'}</button></label>`).join('')}</div>`;
     const tekst = d.querySelector('.jr-bw-tekst');
     tekst.value = v.vraag;
@@ -997,6 +1006,8 @@ function vragenLijst() {
     d.querySelector('.jr-bw-zeg').addEventListener('click', () => Junior.Stem.zeg([v.s ? { url: `/junior/stem/${v.s}` } : v.vraag]));
     d.querySelector('.jr-bw-mic').addEventListener('click', e => (v.s ? (delete v.s, vragenLijst()) : neemOp(v, e.currentTarget)));
     d.querySelector('.jr-bw-weg').addEventListener('click', () => { bezig.vragen.splice(vi, 1); vragenLijst(); });
+    // Een prent bij de vraag zelf (bijvoorbeeld een foto met kamelen om te tellen): zelfde foto's zoeken als bij de antwoorden.
+    d.querySelector('.jr-bw-vf').addEventListener('click', () => { if (v.f) { delete v.f; delete v.fb; vragenLijst(); } else fotoKies(v, true); });
     d.querySelectorAll('.jr-bw-optie').forEach((lab, oi) => {
       const o = v.opties[oi];
       const r = lab.querySelector('input[type=radio]'), e = lab.querySelector('.jr-bw-e'), w = lab.querySelector('.jr-bw-w');
@@ -1044,9 +1055,10 @@ async function neemOp(v, knop) {
   knop.textContent = '⏹';
 }
 // Echte foto's van Wikimedia Commons (vrije licenties): zoeken met het woord, kiezen, en de pc bewaart de foto voor de klas.
-function fotoKies(o) {
+function fotoKies(o, isVraag) {
   const v = $('jr-foto-venster');
-  $('jr-foto-woord').value = o.w || '';
+  $('jr-foto-woord').value = isVraag ? '' : o.w || '';
+  v._isVraag = !!isVraag;
   $('jr-foto-lijst').innerHTML = '';
   $('jr-foto-tip').textContent = '';
   v.showModal();
@@ -1075,7 +1087,7 @@ function fotoZoek() {
           const o = $('jr-foto-venster')._optie;
           o.f = r.f;
           o.fb = [f.bron, 'Wikimedia Commons'].filter(Boolean).join(', ');
-          if (!o.w) o.w = $('jr-foto-woord').value.trim().slice(0, 30);
+          if (!o.w && !$('jr-foto-venster')._isVraag) o.w = $('jr-foto-woord').value.trim().slice(0, 30);
           $('jr-foto-venster').close();
           vragenLijst();
         });
