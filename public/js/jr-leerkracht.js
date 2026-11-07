@@ -4,7 +4,7 @@
 const socket = io({ query: { role: 'host' } });
 const $ = id => document.getElementById(id);
 const J = () => window.JR || { zin: {}, spellen: [] };
-const GROEPEN = [['getallen', '🔢 Getallen en rekenen'], ['meten', '📏 Meten en tijd'], ['meetkunde', '🔷 Vormen en ruimte'], ['taal', '🔤 Taal en klanken'], ['samen', '💃 Samen en bewegen'], ['eigen', '✨ Mijn eigen vragen']];
+const GROEPEN = [['getallen', '🔢 Getallen en rekenen'], ['meten', '📏 Meten en tijd'], ['meetkunde', '🔷 Vormen en ruimte'], ['taal', '🔤 Taal en klanken'], ['wereld', '🌍 De wereld'], ['samen', '💃 Samen en gevoel'], ['eigen', '✨ Mijn eigen vragen']];
 const VIEWS = ['thuis', 'spelen', 'klas', 'opvolgen', 'maken'];
 let sets = (window.JR && JR.sets) || [];
 const TEAMKLEUR = ['rood', 'blauw', 'geel', 'groen'];

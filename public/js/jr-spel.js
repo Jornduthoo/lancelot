@@ -301,6 +301,262 @@
         opties: v.opties.map((o, i) => ({ html: `${o.e ? emoji(esc(o.e), 'jr-emoji-groot') : ''}${o.w ? `<span class="jr-optie-woord">${esc(o.w)}</span>` : ''}`, juist: i === v.juist })),
       };
     },
+    // ---------- Fase 2 ----------
+    // Getallenlijn: het draakje staat op een streepje, welk getal is dat? Tot 100 met streepjes per 10.
+    lijn(r, niv) {
+      const max = [10, 20, 100][niv];
+      const stap = niv === 2 ? 10 : 1;
+      const doel = niv === 2 ? r.int(1, 9) * 10 : r.int(1, max - 1);
+      const n = max / stap;
+      const streep = Array.from({ length: n + 1 }, (_, i) => {
+        const g = i * stap;
+        const toon = g === 0 || g === max || (niv === 1 && g === 10) || (niv === 2 && g === 50);
+        return `<span class="jr-lijn-streep${toon ? ' groot' : ''}" style="--xf:${i / n}">${toon ? `<b>${g}</b>` : ''}</span>`;
+      }).join('');
+      return {
+        soort: 'kies', zeg: [J().zin.lijnWaar],
+        scene: `<div class="jr-lijn"><div class="jr-lijn-balk"></div>${streep}<span class="jr-lijn-draak" style="--xf:${doel / max}">${beeld('draak/3')}</span></div>`,
+        opties: buren(r, doel, stap, 0).map(x => ({ html: `<span class="jr-getal">${x}</span>`, juist: x === doel })),
+      };
+    },
+    // Eerlijk delen: snoepjes over 2, 3 of 4 draakjes. Niveau 3: welke taart is in 2 of 4 gelijke stukken verdeeld?
+    delen(r, niv) {
+      if (niv === 2) {
+        const kwart = r() < 0.5;
+        const taart = (stukken, gelijk) => {
+          const hoeken = gelijk ? Array.from({ length: stukken }, (_, i) => (i * 360) / stukken) : stukken === 2 ? [0, 140] : [0, 60, 200, 250];
+          const lijnen = hoeken.map(h => { const a = ((h - 90) * Math.PI) / 180; return `<line x1="50" y1="50" x2="${50 + 44 * Math.cos(a)}" y2="${50 + 44 * Math.sin(a)}"/>`; }).join('');
+          return `<svg class="jr-taart" viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" fill="#ffc078" stroke="#8a4b16" stroke-width="4"/><circle cx="50" cy="50" r="34" fill="#ff8fab" opacity=".55"/><g stroke="#5c2e0a" stroke-width="4" stroke-linecap="round">${stukken === 2 && gelijk ? '<line x1="50" y1="6" x2="50" y2="94"/>' : lijnen}</g></svg>`;
+        };
+        const n = kwart ? 4 : 2;
+        const opties = r.schud([{ html: taart(n, true), juist: true }, { html: taart(n, false), juist: false }, { html: taart(kwart ? 2 : 4, true), juist: false }]);
+        return { soort: 'kies', zeg: [kwart ? J().zin.kwartVraag : J().zin.helftVraag], opties };
+      }
+      const draken = niv === 0 ? 2 : r.int(2, 4);
+      const elk = r.int(1, niv === 0 ? 4 : 5);
+      const snoep = r.kies(['🍬', '🍪', '🍓', '🧁', '🍎']);
+      return {
+        soort: 'kies', zeg: [J().zin.delenVraag],
+        scene: `<div class="jr-delen"><div class="jr-delen-snoep">${emoji(snoep).repeat(draken * elk)}</div><div class="jr-delen-draken">${beeld('draak/3', 'jr-delen-draak').repeat(draken)}</div></div>`,
+        opties: buren(r, elk, 1, 1).map(x => ({ html: `<span class="jr-getal">${x}</span>`, juist: x === elk })),
+      };
+    },
+    // Tafeltoren: de tafels van 2, 5 en 10. Op het eerste niveau zie je de groepjes.
+    tafel(r, niv) {
+      const tafel = niv === 0 ? 2 : niv === 1 ? r.kies([5, 10]) : r.kies([2, 5, 10]);
+      const a = r.int(1, 10);
+      const uit = a * tafel;
+      const groepjes = niv < 2 && tafel <= 5 && a <= 6
+        ? `<div class="jr-groepjes">${Array.from({ length: a }, () => `<span class="jr-groepje">${'<i></i>'.repeat(tafel)}</span>`).join('')}</div>` : '';
+      return {
+        soort: 'kies', zeg: [J().zin.hoeveelIs, a, J().zin.maal, tafel],
+        kop: `<span class="jr-som">${a} × ${tafel} = ?</span>`, scene: groepjes || undefined,
+        opties: buren(r, uit, tafel, 0).map(x => ({ html: `${beeld('stuk/6', 'jr-steen')}<span class="jr-getal jr-op-steen">${x}</span>`, juist: x === uit })),
+        stenen: true,
+      };
+    },
+    // Klokkentoren: hoe laat is het? Hele uren, halve uren, kwartieren. De tijd wordt gezegd zoals in die taal.
+    klok(r, niv) {
+      const kl = J().klok || {};
+      const tekst = (u, m) => {
+        const v = (u % 12) + 1;
+        const sleutel = m === 0 ? 'uur' : m === 30 ? 'half' : m === 15 ? 'kwartOver' : 'kwartVoor';
+        // Sommige talen zeggen 1 uur anders (une heure, la una): die staan apart met een 1 achter de naam.
+        const getal = String(kl[sleutel] || '').includes('{v}') ? v : u;
+        const t = (getal === 1 && kl[`${sleutel}1`]) || kl[sleutel];
+        return String(t || '{u}:{m}').replace('{u}', u).replace('{v}', v).replace('{m}', String(m).padStart(2, '0'));
+      };
+      const minuten = niv === 0 ? [0] : niv === 1 ? [0, 30] : [0, 15, 30, 45];
+      const u = r.int(1, 12);
+      const m = r.kies(minuten);
+      const juist = tekst(u, m);
+      const set = new Map([[juist, true]]);
+      for (let i = 0; set.size < 3 && i < 30; i++) {
+        const u2 = r() < 0.5 ? u : ((u + r.int(1, 10)) % 12) + 1;
+        const m2 = r.kies(niv === 0 ? [0] : minuten);
+        const t = tekst(u2, m2);
+        if (!set.has(t)) set.set(t, false);
+      }
+      const uurHoek = ((u % 12) + m / 60) * 30;
+      const minHoek = m * 6;
+      const cijfers = Array.from({ length: 12 }, (_, i) => { const a = ((i + 1) * 30 - 90) * Math.PI / 180; return `<text x="${50 + 36 * Math.cos(a)}" y="${50 + 36 * Math.sin(a) + 4}">${i + 1}</text>`; }).join('');
+      const streepjes = Array.from({ length: 60 }, (_, i) => `<line x1="50" y1="5" x2="50" y2="${i % 5 ? 8 : 10}" transform="rotate(${i * 6} 50 50)"/>`).join('');
+      return {
+        soort: 'kies', zeg: [J().zin.klokVraag],
+        scene: `<svg class="jr-klok" viewBox="0 0 100 100"><circle cx="50" cy="50" r="47" fill="#fff8e7" stroke="#2b2340" stroke-width="3"/><g stroke="#2b2340" stroke-width="1">${streepjes}</g><g class="jr-klok-cijfers">${cijfers}</g>`
+          + `<line x1="50" y1="50" x2="50" y2="27" stroke="#e8590c" stroke-width="5" stroke-linecap="round" transform="rotate(${uurHoek} 50 50)"/>`
+          + `<line x1="50" y1="50" x2="50" y2="13" stroke="#1c7ed6" stroke-width="3" stroke-linecap="round" transform="rotate(${minHoek} 50 50)"/><circle cx="50" cy="50" r="3.5" fill="#2b2340"/></svg>`,
+        opties: r.schud([...set]).map(([t, ok]) => ({ html: `<span class="jr-woordkaart">${esc(t)}</span>`, juist: ok })),
+        na: [juist],
+      };
+    },
+    // Geldmarkt: hoeveel geld is dit? Munten en briefjes in euro.
+    geld(r, niv) {
+      const soorten = niv === 0 ? [1, 2, 5] : niv === 1 ? [1, 2, 5, 10] : [5, 10, 20, 50];
+      const max = [10, 20, 100][niv];
+      const stukken = [];
+      let som = 0;
+      const aantal = r.int(2, niv === 2 ? 5 : 4);
+      for (let i = 0; i < aantal; i++) {
+        const opties = soorten.filter(s => som + s <= max);
+        if (!opties.length) break;
+        const s = r.kies(opties);
+        stukken.push(s);
+        som += s;
+      }
+      stukken.sort((a, b) => b - a);
+      return {
+        soort: 'kies', zeg: [J().zin.geldVraag],
+        scene: `<div class="jr-geld">${stukken.map(s => beeld(`geld/${s}`, s >= 5 ? 'jr-briefje' : 'jr-munt')).join('')}</div>`,
+        opties: buren(r, som, niv === 2 ? 5 : 1, 1).map(x => ({ html: `<span class="jr-getal">€ ${x}</span>`, juist: x === som })),
+        na: [som, J().zin.euro],
+      };
+    },
+    // Sorteermand: op soort (dieren, fruit, voertuigen...) of op kleur.
+    sorteer(r, niv) {
+      if (niv === 1) {
+        const KL = { rood: ['🍎', '🍓', '🚒', '🍒', '🌹', '🐞'], groen: ['🐸', '🥦', '🍏', '🥒', '🌲', '🐢'], geel: ['🍌', '🌻', '🐥', '🧀', '🌽', '⭐'], blauw: ['🐳', '🫐', '💙', '🧢', '👖', '🦋'] };
+        const kleuren = r.schud(Object.keys(KL)).slice(0, 3);
+        const items = r.schud(kleuren.flatMap(k => r.schud(KL[k]).slice(0, 2).map(e => ({ html: emoji(e), mand: k }))));
+        const VERF = { rood: '#ff6b6b', groen: '#51cf66', geel: '#ffd43b', blauw: '#4dabf7' };
+        return { soort: 'sorteer', zeg: [J().zin.sorteerKleur], items, manden: kleuren.map(k => ({ id: k, html: vorm('cirkel', VERF[k]) })) };
+      }
+      const SOORT = { dier: ['🐶', '🐱', '🐰', '🐻', '🐸', '🐷', '🐮', '🦁'], fruit: ['🍎', '🍌', '🍐', '🍇', '🍓', '🍒', '🍊'], voertuig: ['🚗', '🚌', '🚲', '🚂', '🚜', '✈️', '🚀'],
+        kleding: ['👕', '👖', '🧦', '👗', '🧢', '👟'], bal: ['⚽', '🏀', '🎾', '🏈', '🏐'] };
+      const n = niv === 0 ? 2 : 3;
+      const groepen = r.schud(Object.keys(SOORT)).slice(0, n);
+      const items = r.schud(groepen.flatMap(g => r.schud(SOORT[g]).slice(1, niv === 0 ? 4 : 3).map(e => ({ html: emoji(e), mand: g }))));
+      return { soort: 'sorteer', zeg: [J().zin.sorteerSoort], items, manden: groepen.map(g => ({ id: g, html: emoji(SOORT[g][0]) })) };
+    },
+    // Patronenpad: maak het patroon af. AB, dan ABC of AAB, dan AABB of ABB.
+    patroon(r, niv) {
+      const sets = [['🔴', '🔵', '🟡', '🟢'], ['🍎', '🍌', '🍇', '🍐'], ['⭐', '🌙', '☀️', '☁️'], ['🐶', '🐱', '🐭', '🐰'], ['🟥', '🟦', '🟨', '🟩']];
+      const set = r.schud(r.kies(sets));
+      const vormen = niv === 0 ? ['AB'] : niv === 1 ? ['ABC', 'AAB'] : ['AABB', 'ABB', 'ABAC'];
+      const vormp = r.kies(vormen);
+      const kern = [...vormp].map(c => set[c.charCodeAt(0) - 65]);
+      const lengte = Math.max(5, kern.length * 2 + r.int(0, kern.length - 1));
+      const rij = Array.from({ length: lengte + 1 }, (_, i) => kern[i % kern.length]);
+      const doel = rij.pop();
+      const andere = r.schud([...new Set(set.slice(0, Math.max(3, new Set(kern).size)))].filter(e => e !== doel)).slice(0, 2);
+      return {
+        soort: 'kies', zeg: [J().zin.patroonVraag],
+        kop: `<span class="jr-patroon">${rij.map(e => emoji(e)).join('')}<span class="jr-patroon-vraag">?</span></span>`,
+        opties: r.schud([doel, ...andere]).map(e => ({ html: emoji(e, 'jr-emoji-groot'), juist: e === doel })),
+      };
+    },
+    // Codeerdraakje: welke pijlen brengen het draakje naar de schat? Een raster van 4 bij 4.
+    code(r, niv) {
+      const PIJL = { b: ['⬆️', 0, -1], o: ['⬇️', 0, 1], l: ['⬅️', -1, 0], r: ['➡️', 1, 0] };
+      const stappen = niv === 0 ? 1 : niv === 1 ? 2 : r.int(3, 4);
+      let x = r.int(0, 3), y = r.int(0, 3);
+      const start = [x, y];
+      const pad = [];
+      for (let i = 0; i < stappen; i++) {
+        const kan = Object.keys(PIJL).filter(k => { const nx = x + PIJL[k][1], ny = y + PIJL[k][2]; return nx >= 0 && nx < 4 && ny >= 0 && ny < 4 && !(nx === start[0] && ny === start[1]); });
+        const k = r.kies(kan);
+        x += PIJL[k][1]; y += PIJL[k][2];
+        pad.push(k);
+      }
+      if (x === start[0] && y === start[1]) return MAKERS.code(r, niv);
+      const toon = p => p.map(k => PIJL[k][0]).join('');
+      const doel = toon(pad);
+      const set = new Set([doel]);
+      for (let i = 0; set.size < 3 && i < 40; i++) {
+        const p = pad.slice();
+        const j = r.int(0, p.length - 1);
+        p[j] = r.kies(Object.keys(PIJL).filter(k => k !== p[j]));
+        if (stappen > 1 && r() < 0.4) p.reverse();
+        set.add(toon(p));
+      }
+      const cellen = [];
+      for (let cy = 0; cy < 4; cy++) for (let cx = 0; cx < 4; cx++) {
+        const inh = cx === start[0] && cy === start[1] ? beeld('draak/3') : cx === x && cy === y ? beeld('stuk/7') : '';
+        cellen.push(`<span class="jr-code-cel">${inh}</span>`);
+      }
+      return {
+        soort: 'kies', zeg: [stappen === 1 ? J().zin.codeEen : J().zin.codeVraag],
+        scene: `<div class="jr-code">${cellen.join('')}</div>`,
+        opties: r.schud([...set]).map(t => ({ html: `<span class="jr-pijlen">${t}</span>`, juist: t === doel })),
+      };
+    },
+    // Rijmkikker: wat rijmt op dit woord?
+    rijm(r, niv) {
+      const groepen = (J().rijm || []).filter(g => g.length >= 2);
+      const [a, b, c] = r.schud(groepen.map((g, i) => i)).slice(0, 3);
+      const [woord, rijmt] = r.schud(groepen[a]).slice(0, 2);
+      const anders = [r.kies(groepen[b]), r.kies(groepen[c])];
+      const kaart = w => `${emoji(w.e, 'jr-emoji-groot')}${niv === 1 ? `<span class="jr-optie-woord">${esc(w.w)}</span>` : ''}`;
+      return {
+        soort: 'kies', zeg: [J().zin.rijmVraag, woord.w], herhaal: [J().zin.rijmVraag, woord.w], na: [woord.w, rijmt.w],
+        kop: `<span class="jr-rijm-kop">${beeld('stuk/17', 'jr-rijm-kikker')}${emoji(woord.e, 'jr-emoji-reus')}</span>`,
+        opties: r.schud([rijmt, ...anders]).map(w => ({ html: kaart(w), juist: w === rijmt, zeg: w.w })),
+      };
+    },
+    // Klapdraak: hoeveel klappen (lettergrepen) heeft het woord?
+    klap(r, niv) {
+      const pool = (J().klap || []).filter(w => (niv === 0 ? w.n <= 3 : true));
+      const w = r.kies(pool);
+      const max = niv === 0 ? 3 : 4;
+      return {
+        soort: 'kies', zeg: [J().zin.klapVraag, w.w], herhaal: [w.w], na: [w.g || w.w],
+        kop: `<span class="jr-klap-kop">${emoji(w.e, 'jr-emoji-reus')}${niv === 1 ? `<span class="jr-optie-woord">${esc(w.w)}</span>` : ''}</span>`,
+        opties: Array.from({ length: max }, (_, i) => i + 1).map(n => ({ html: `<span class="jr-klappen">${'👏'.repeat(n)}</span><span class="jr-optie-woord">${n}</span>`, juist: n === w.n })),
+      };
+    },
+    // Zinnenslinger: zet de woorden in de juiste volgorde. De zin wordt eerst voorgelezen.
+    zinnen(r, niv) {
+      const pool = (J().zinnen || []).filter(z => z.n === niv + 1);
+      const z = r.kies(pool.length ? pool : J().zinnen);
+      const woorden = z.z.split(' ');
+      return {
+        soort: 'volgorde', zeg: [J().zin.zinVraag, z.z], herhaal: [z.z], na: [z.z],
+        kop: z.e ? emoji(z.e, 'jr-emoji-reus') : undefined,
+        kaarten: woorden.map((w, i) => ({ html: `<span class="jr-woordkaart">${esc(w)}</span>`, plek: i })),
+      };
+    },
+    // Dictee-draakje: het draakje zegt een woord, het kind legt de letters. Zonder prent, met wat extra letters.
+    dictee(r, niv) {
+      const pool = (J().woorden || []).filter(x => x.n === niv + 1);
+      const woord = r.kies(pool);
+      const extra = r.schud((J().letters || ['m']).filter(l => !woord.k.includes(l))).slice(0, niv === 0 ? 1 : 2);
+      return {
+        soort: 'volgorde', zeg: [J().zin.dicteeVraag, woord.w], herhaal: [woord.w], na: [woord.w],
+        kop: '<span class="jr-luister">👂</span>',
+        kaarten: [...woord.k.map((k, i) => ({ html: `<span class="jr-letter">${esc(k)}</span>`, plek: i })), ...extra.map(l => ({ html: `<span class="jr-letter">${esc(l)}</span>`, plek: -1 }))],
+      };
+    },
+    // Seizoenenboom: sleep elk prentje naar het juiste seizoen.
+    seizoen(r, niv) {
+      const S = { winter: ['⛄', '🧤', '🛷', '❄️', '🎿', '🧣'], lente: ['🌷', '🐣', '🌸', '🐝', '🌱', '🐑'], zomer: ['🏖️', '🍦', '🩱', '🌞', '🍉', '⛱️'], herfst: ['🍂', '🍄', '🌰', '🎃', '☔', '🍁'] };
+      const teken = { winter: '❄️', lente: '🌷', zomer: '☀️', herfst: '🍂' };
+      const seizoenen = niv === 0 ? r.schud(Object.keys(S)).slice(0, 2) : ['lente', 'zomer', 'herfst', 'winter'];
+      const items = r.schud(seizoenen.flatMap(s => r.schud(S[s].filter(e => e !== teken[s])).slice(0, niv === 0 ? 3 : 2).map(e => ({ html: emoji(e), mand: s, hint: J().zin.seizoenNaam && J().zin.seizoenNaam[s] }))));
+      return { soort: 'sorteer', zeg: [J().zin.seizoenVraag], items, manden: seizoenen.map(s => ({ id: s, html: `${emoji(teken[s])}<span class="jr-mand-naam">${esc((J().zin.seizoenNaam || {})[s] || s)}</span>` })) };
+    },
+    // Gevoelensspiegel: hoe voelt het draakje? Kies het juiste gezicht.
+    gevoel(r, niv) {
+      const G = J().gevoelens || {};
+      const pool = (J().situaties || []).filter(s => niv === 1 || ['blij', 'verdrietig', 'boos', 'bang'].includes(s.g));
+      const s = r.kies(pool);
+      const namen = Object.keys(G).filter(g => niv === 1 || ['blij', 'verdrietig', 'boos', 'bang'].includes(g));
+      const andere = r.schud(namen.filter(g => g !== s.g)).slice(0, niv === 0 ? 2 : 3);
+      return {
+        soort: 'kies', zeg: [s.z, J().zin.gevoelVraag], herhaal: [s.z, J().zin.gevoelVraag], na: [G[s.g].w],
+        kop: `<span class="jr-situatie">${beeld('draak/3', 'jr-situatie-draak')}${emoji(s.e, 'jr-emoji-reus')}</span>`,
+        opties: r.schud([s.g, ...andere]).map(g => ({ html: `${emoji(G[g].e, 'jr-emoji-groot')}<span class="jr-optie-woord">${esc(G[g].w)}</span>`, juist: g === s.g })),
+      };
+    },
+    // Drakenstappen: hoeveel pootjes lang is de brug? Meten met een natuurlijke maat.
+    stappen(r, niv) {
+      const n = niv === 0 ? r.int(2, 5) : r.int(4, 10);
+      const ding = r.kies(['plank', 'slang', 'tak']);
+      return {
+        soort: 'kies', zeg: [J().zin.stappenVraag[ding]],
+        scene: `<div class="jr-meet" style="--n:${n}"><div class="jr-meet-ding jr-meet-${ding}"></div><div class="jr-meet-poten">${'<span>🐾</span>'.repeat(n)}</div></div>`,
+        opties: buren(r, n, 1, 1).map(x => ({ html: `<span class="jr-getal">${x}</span>`, juist: x === n })),
+      };
+    },
     raadsel(r) {
       const soort = r.kies(['nietBij', 'nietBij', 'eieren', 'groot', 'vormen', 'waar', 'geluiden']);
       return MAKERS[soort](r, 0);
@@ -585,7 +841,7 @@
       let over = v.items.length;
       const leg = (it, knop, mand) => {
         if (af || knop.classList.contains('jr-weg')) return;
-        if (mand.dataset.id !== it.mand) { fout(knop, J().zin.vormIs && J().zin.vormIs[it.mand]); return; }
+        if (mand.dataset.id !== it.mand) { fout(knop, it.hint || (J().zin.vormIs && J().zin.vormIs[it.mand])); return; }
         knop.classList.add('jr-weg');
         mand.querySelector('.jr-mand-in').insertAdjacentHTML('beforeend', it.html);
         pop(mand, 'jr-hop');
