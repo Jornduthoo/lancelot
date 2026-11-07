@@ -203,11 +203,11 @@
 
 /* ---------- Het scherm van de leerkracht ---------- */
 .jr-lk { min-height: 100vh; display: flex; flex-direction: column; color: var(--text); }
-.jr-lk .topbar { background: rgb(18 40 26 / .82); backdrop-filter: blur(6px); }
+.jr-lk .topbar { background: rgb(255 248 231 / .88); box-shadow: 0 2px 12px rgb(0 0 0 / .18); backdrop-filter: blur(6px); }
 .jr-brand { display: flex; align-items: center; gap: 10px; }
 #jr-brand { cursor: pointer; }
 .jr-brand img { width: 60px; height: 60px; object-fit: contain; }
-.jr-brand .subtitle { font-family: var(--jr-schrift); text-transform: none; letter-spacing: 0; font-size: 1rem; color: #fff; font-weight: 700; }
+.jr-brand .subtitle { font-family: var(--jr-schrift); text-transform: none; letter-spacing: 0; font-size: 1rem; color: var(--jr-inkt); font-weight: 700; }
 .jr-brand img.jr-woordmerk { width: auto; height: 58px; display: block; filter: drop-shadow(0 2px 3px rgb(0 0 0 / .25)); }
 .jr-junior { font-style: normal; color: #9be7c4; font-family: var(--jr-schrift); font-weight: 800; margin-left: 4px; }
 .jr-wissel img { width: 22px; height: 22px; vertical-align: middle; margin: -4px 4px -4px -2px; }
@@ -692,8 +692,8 @@
 .jr-lk main button.danger { border-radius: 999px; }
 .jr-lk main button:not(.jr-eigen):not(.secondary):not(.gold):not(.danger):not(.jr-tegel):not(.jr-blok):not(.jr-klas-beeld):not(.jr-kb-optie):not(.terug-knop):not([class*='jr-klas-knop']) { background: #51cf66; color: #fff; box-shadow: 0 3px 0 #2f9e44; }
 /* De balk bovenaan: ronde knoppen, zoals de rest van Junior. */
-.jr-lk .topbar .actions > button, .jr-lk .topbar .actions > a.button { border-radius: 999px; clip-path: none; background: rgb(255 255 255 / .14); color: #fff; box-shadow: none; }
-.jr-lk .topbar .actions > a.jr-wissel { background: #fff; color: var(--jr-inkt); }
+.jr-lk .topbar .actions > button, .jr-lk .topbar .actions > a.button { border-radius: 999px; clip-path: none; background: #fff; color: var(--jr-inkt); border: 2px solid #eadfc4; box-shadow: 0 3px 0 #d8c9a3; }
+.jr-lk .topbar .actions > a.jr-wissel { background: var(--jr-goud); border-color: #f0b429; box-shadow: 0 3px 0 #d69e1a; color: var(--jr-inkt); }
 .jr-lk .jr-loopt-kop { background: rgb(255 248 231 / .96); color: var(--jr-inkt); box-shadow: 0 4px 0 #d8c9a3, 0 10px 24px rgb(0 0 0 / .2); border-radius: 22px; }
 .jr-lk .jr-loopt-kop .title { color: var(--jr-inkt); font-family: var(--jr-schrift); font-size: 1.35rem; text-transform: none; letter-spacing: 0; }
 .jr-lk .jr-loopt-kop .muted { color: #5b5170; }
