@@ -16,6 +16,7 @@
     // Stil: de leerkracht zette voorlezen op de tablets uit. Dan spreekt het alleen na een tik op 🔊 (even()).
     let stil = false;
     let open = 0;
+    let praat = false; // spreekt het draakje nu? (de muziek gaat dan even zachter)
     try { uit = localStorage.getItem('jr-stem-uit') === '1'; } catch {}
     const taal = () => J().taal || 'nl';
     fetch(`/img/junior/stem/${taal()}/index.json`).then(r => (r.ok ? r.json() : null)).then(m => { lijst = m; }).catch(() => {});
@@ -31,6 +32,7 @@
     if ('speechSynthesis' in window) speechSynthesis.onvoiceschanged = () => {};
     function stop() {
       beurt++;
+      praat = false;
       if (audio) { audio.pause(); audio = null; }
       if ('speechSynthesis' in window) speechSynthesis.cancel();
     }
@@ -68,17 +70,23 @@
       const mijn = beurt;
       const stukken = (Array.isArray(delen) ? delen : [delen]).filter(d => d !== '' && d != null).map(String);
       if (uit || (stil && Date.now() > open) || !stukken.length) return;
-      if (lijst && stukken.every(d => lijst[d])) {
-        for (const d of stukken) {
-          if (mijn !== beurt) return;
-          await clip(lijst[d], mijn);
+      praat = true;
+      try {
+        if (lijst && stukken.every(d => lijst[d])) {
+          for (const d of stukken) {
+            if (mijn !== beurt) return;
+            await clip(lijst[d], mijn);
+          }
+          return;
         }
-        return;
+        await spreek(stukken.join(' '), mijn);
+      } finally {
+        if (mijn === beurt) praat = false;
       }
-      await spreek(stukken.join(' '), mijn);
     }
     return {
       zeg, stop,
+      get praat() { return praat; },
       even() { open = Date.now() + 300; },
       get stil() { return stil; },
       set stil(v) { stil = !!v; if (stil) stop(); },

@@ -23,6 +23,7 @@ const draakImg = () => `/img/junior/draak/${(stand.draak && stand.draak.fase) ||
 // ---------- Het klasdraakje ----------
 function toonDraak(d) {
   if (!d) return;
+  if (stand.draak && d.fase > stand.draak.fase) { try { confetti(3000); } catch {} JrMuziek.liedje(); }
   stand.draak = d;
   for (const id of ['jr-draak-foto', 'jr-loopt-draak', 'jr-mini-draak']) $(id).src = draakImg();
   $('jr-groei').style.width = `${d.tot}%`;
@@ -88,6 +89,7 @@ $('jr-winkel').addEventListener('click', e => {
     if (!res || res.error) { if (res && res.error) Ui.melding(res.error); return; }
     toonDraak(res.draak);
     try { confetti(2500); sfx.fanfare(); } catch {}
+    JrMuziek.liedje();
     hopDraak();
     Junior.Stem.zeg([J().zin.holKoop]);
   });
@@ -216,6 +218,16 @@ $('jr-inst-dicht').addEventListener('click', () => $('jr-inst-venster').close())
 const stemKnop = () => { $('jr-stem-knop').textContent = Junior.Stem.uit ? '🔇' : '🔊'; };
 $('jr-stem-knop').addEventListener('click', () => { Junior.Stem.uit = !Junior.Stem.uit; stemKnop(); });
 stemKnop();
+// Zachte muziek op het bord: tijdens een spel, en in het hol, op het klaseiland en in het Toverdorp.
+const muziekKnop = () => { $('jr-muziek-knop').classList.toggle('uit', !JrMuziek.aan); $('jr-muziek-knop').style.opacity = JrMuziek.aan ? '' : '.45'; };
+function muziek() {
+  const v = location.hash.slice(1) || 'thuis';
+  if (stand.actief && stand.spel !== 'dans') JrMuziek.speel(stand.spel);
+  else if (!stand.actief && ['draakje', 'eiland', 'rijk'].includes(v)) JrMuziek.speel(v);
+  else JrMuziek.stop();
+}
+$('jr-muziek-knop').addEventListener('click', () => { JrMuziek.aan = !JrMuziek.aan; muziekKnop(); muziek(); });
+muziekKnop();
 
 // ---------- De klas en hun dieren ----------
 function klas() {
@@ -340,7 +352,7 @@ async function bordVraag() {
         teams(bord.team);
         try { sfx.naald(); } catch {}
         if (res && res.draak) toonDraak(res.draak);
-        if (res && res.gegroeid) { try { confetti(3000); } catch {} Junior.Stem.zeg([J().zin.groei]); }
+        if (res && res.gegroeid) Junior.Stem.zeg([J().zin.groei]);
         bord.team = (bord.team + 1) % 4;
         setTimeout(bordVraag, res && res.gegroeid ? 2600 : 900);
       });
@@ -507,6 +519,7 @@ $('jr-kb-terug').addEventListener('click', () => socket.emit('jr-kring-volgende'
 // ---------- Wat er nu loopt ----------
 function toon() {
   const loopt = !!stand.actief;
+  muziek();
   $('jr-start').classList.toggle('hidden', loopt);
   $('jr-loopt').classList.toggle('hidden', !loopt);
   $('jr-status').textContent = loopt ? stand.naam : 'Het klasdraakje';
@@ -569,6 +582,7 @@ function toonView(v) {
   if (v === 'opvolgen') socket.emit('jr-voortgang', null, res => res && !res.error && opvolg(res));
   if (v === 'maken') toonSets();
   if (v === 'ochtend') ochtend('dag');
+  muziek();
   if (v !== 'eiland') eilandTourStop();
   if (v === 'rijk') JrRijk.maak($('jr-rijk-bord')); else if (window.JrRijk) JrRijk.stop();
   if (v === 'eiland') socket.emit('jr-eiland', null, res => res && res.eiland && eiland(res.eiland));
