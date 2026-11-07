@@ -404,31 +404,52 @@
         });
       }
     } else if (v.soort === 'sleepAantal') {
-      const dak = el('div', 'jr-dak', `<span class="jr-groot-getal">${v.totaal}</span>`);
-      veld.appendChild(dak);
-      const huizen = el('div', 'jr-huizen');
-      const h1 = el('div', 'jr-huis', `${beeld('stuk/3', 'jr-huis-img')}<div class="jr-bewoners"></div>`);
-      const h2 = el('div', 'jr-huis jr-doel', `${beeld('stuk/3', 'jr-huis-img')}<div class="jr-bewoners"></div>`);
-      huizen.append(h1, h2);
-      veld.appendChild(huizen);
-      for (let i = 0; i < v.vast; i++) h1.querySelector('.jr-bewoners').insertAdjacentHTML('beforeend', `<span class="jr-token jr-vast">${v.token}</span>`);
+      // Het splitshuis zoals in de klas: het getal op het dak, eronder twee kamers. In elke kamer staan de draakjes
+      // in vijfstructuur (rijen van 5, zoals een tienveld), zodat kinderen het aantal zien zonder te tellen.
+      const plaatsen = Math.ceil(v.totaal / 5) * 5;
+      const kamer = doel => {
+        const k = el('div', `jr-kamer${doel ? ' jr-doel' : ''}`);
+        const raster = el('div', 'jr-raster');
+        for (let i = 0; i < plaatsen; i++) raster.appendChild(el('span', 'jr-cel'));
+        k.appendChild(raster);
+        return k;
+      };
+      const huis = el('div', 'jr-splitshuis');
+      huis.appendChild(el('div', 'jr-splitsdak', `<span class="jr-groot-getal">${v.totaal}</span>`));
+      const kamers = el('div', 'jr-kamers');
+      const k1 = kamer(false);
+      const k2 = kamer(true);
+      kamers.append(k1, k2);
+      huis.appendChild(kamers);
+      veld.appendChild(huis);
       if (v.totaal > 10) veld.classList.add('jr-veel');
-      const pool = el('div', 'jr-pool');
+      const vrij = k => [...k.querySelectorAll('.jr-cel')].find(c => !c.firstChild);
+      for (let i = 0; i < v.vast; i++) vrij(k1).insertAdjacentHTML('beforeend', `<span class="jr-token jr-vast">${v.token}</span>`);
+      const pool = el('div', `jr-pool${v.totaal > 10 ? ' jr-pool-breed' : ''}`);
       veld.appendChild(pool);
-      const zet = (tok, naar) => { naar.appendChild(tok); geluid('tick'); };
+      // Draakjes schuiven altijd aan in de volgende vrije plaats, en de voorraad blijft in rijen van 5 staan.
+      const opschuiven = k => {
+        const toks = [...k.querySelectorAll('.jr-token')];
+        k.querySelectorAll('.jr-cel').forEach((c, i) => { if (toks[i]) c.appendChild(toks[i]); });
+      };
+      const zet = (tok, naarKamer) => {
+        if (naarKamer) { const c = vrij(k2); if (!c) return; c.appendChild(tok); } else pool.appendChild(tok);
+        opschuiven(k2);
+        geluid('tick');
+      };
       for (let i = 0; i < v.pool; i++) {
         const tok = el('button', 'jr-token', v.token);
         tok.type = 'button';
         sleepbaar(tok, {
-          tik: () => !af && zet(tok, tok.parentNode === pool ? h2.querySelector('.jr-bewoners') : pool),
-          los: doel => !af && zet(tok, doel === h2 ? h2.querySelector('.jr-bewoners') : pool),
-          doelen: () => [h2, pool],
+          tik: () => !af && zet(tok, tok.parentNode === pool),
+          los: doel => !af && zet(tok, doel === k2),
+          doelen: () => [k2, pool],
         });
         pool.appendChild(tok);
       }
       vinkje(knop => {
         if (af) return;
-        if (h2.querySelectorAll('.jr-token').length === v.doel) gelukt(); else fout(knop);
+        if (k2.querySelectorAll('.jr-token').length === v.doel) gelukt(); else fout(knop);
       });
     } else if (v.soort === 'volgorde') {
       const vakken = el('div', `jr-vakken ${v.trein ? 'jr-trein' : ''}`);
