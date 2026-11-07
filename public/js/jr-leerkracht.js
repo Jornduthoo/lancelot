@@ -5,7 +5,7 @@ const socket = io({ query: { role: 'host' } });
 const $ = id => document.getElementById(id);
 const J = () => window.JR || { zin: {}, spellen: [] };
 const GROEPEN = [['getallen', '🔢 Getallen en rekenen'], ['meten', '📏 Meten en tijd'], ['meetkunde', '🔷 Vormen en ruimte'], ['taal', '🔤 Taal en klanken'], ['wereld', '🌍 De wereld'], ['samen', '💃 Samen en gevoel'], ['eigen', '✨ Mijn eigen vragen']];
-const VIEWS = ['thuis', 'spelen', 'klas', 'opvolgen', 'maken', 'draakje', 'ochtend', 'eiland', 'rijk'];
+const VIEWS = ['thuis', 'spelen', 'klas', 'opvolgen', 'maken', 'draakje', 'ochtend', 'eiland', 'rijk', 'klastools'];
 let sets = (window.JR && JR.sets) || [];
 const TEAMKLEUR = ['rood', 'blauw', 'geel', 'groen'];
 
@@ -587,6 +587,9 @@ function toonView(v) {
   if (v === 'rijk') JrRijk.maak($('jr-rijk-bord')); else if (window.JrRijk) JrRijk.stop();
   if (v === 'eiland') socket.emit('jr-eiland', null, res => res && res.eiland && eiland(res.eiland));
 }
+
+// De klastools van LANcelot openen; de Wapenkamer brengt je met Terug weer naar Junior.
+document.querySelectorAll('[data-wk]').forEach(b => b.addEventListener('click', () => { location.href = `/wapenkamer?van=junior#${b.dataset.wk}`; }));
 
 // ---------- Het klaseiland: elke burcht van de klas op één eiland ----------
 // Zelfde plekjes als op de tablet: midden (%), onderkant (%), grootte.

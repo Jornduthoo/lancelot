@@ -916,3 +916,9 @@ button.jr-mini-draak:hover { transform: translateY(-2px); }
 .jr-bw-optie .jr-bw-w { width: auto; margin: 0; }
 .jr-lk main .jr-bw-optie button.jr-bw-fk { width: auto; padding: 4px 8px; min-height: 0; flex: none; margin: 0; }
 .jr-foto { width: 4.2em; height: 4.2em; object-fit: cover; border-radius: .35em; display: block; margin: 0 auto; box-shadow: 0 .08em .2em rgb(0 0 0 / .25); }
+
+/* Klastools (de Wapenkamer van LANcelot) */
+.jr-tools { grid-template-columns: repeat(3, 1fr); }
+@media (max-width: 760px) { .jr-tools { grid-template-columns: repeat(2, 1fr); } }
+.jr-tools .jr-blok img { width: 96px; height: 96px; }
+.jr-view-kop h2 img[src*="wk-"], .jr-tools-knop img { animation: none; }
