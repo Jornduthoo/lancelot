@@ -16,6 +16,8 @@ module.exports = {
     teams: ['Equipo rojo', 'Equipo azul', 'Equipo amarillo', 'Equipo verde'],
     teamBeurt: 'os toca a vosotros.',
     raceWint: 'gana la carrera.',
+    burchtUitleg: 'Este es tu castillo. Toca un sitio y elige qué construir.',
+    burchtTeWeinig: 'Todavía no tienes suficientes piedras. ¡Juega un poco más para ganar más!',
     wacht: 'Mira a tu profe. Empezamos enseguida.',
     bord: '¡Mira la pizarra y participa!',
     volgende: '¿A quién le toca ahora? Toca tu animal.',

@@ -16,6 +16,8 @@ module.exports = {
     teams: ['Red team', 'Blue team', 'Yellow team', 'Green team'],
     teamBeurt: 'it is your turn.',
     raceWint: 'wins the race!',
+    burchtUitleg: 'This is your castle. Tap a spot and choose what to build.',
+    burchtTeWeinig: 'Not enough stones yet. Play a bit more to earn some!',
     wacht: 'Look at your teacher. We will start soon.',
     bord: 'Look at the board and join in!',
     volgende: 'Whose turn is it now? Tap your animal.',
