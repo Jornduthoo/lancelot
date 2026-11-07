@@ -467,5 +467,11 @@
  "🎁 Sinterklaas": "🎁 Saint Nicholas",
  "🎄 Kerst": "🎄 Christmas",
  "🎭 Carnaval": "🎭 Carnival",
- "Thema": "Theme"
+ "Thema": "Theme",
+ "Zelf inspreken": "Record it yourself",
+ "Je eigen stem wissen": "Delete your own voice",
+ "Opnemen lukt niet in deze browser.": "Recording does not work in this browser.",
+ "De micro werkt niet. Geef de browser toestemming voor de micro.": "The microphone does not work. Allow the browser to use the microphone.",
+ "Opnemen lukte niet. Probeer opnieuw.": "Recording failed. Try again.",
+ "De opname is te lang. Hou het kort (maximaal 10 seconden).": "The recording is too long. Keep it short (10 seconds at most)."
 }

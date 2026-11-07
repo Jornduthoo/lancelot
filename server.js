@@ -793,6 +793,13 @@ app.get('/junior/foto/:naam', (req, res) => {
   res.setHeader('Cache-Control', 'private, max-age=604800, immutable');
   res.sendFile(f, err => err && !res.headersSent && res.status(404).end());
 });
+// De eigen stem van de leerkracht bij een vraag (Junior > Maken > 🎤).
+app.get('/junior/stem/:naam', (req, res) => {
+  const f = jrFoto.stemBestand(req.params.naam);
+  if (!f) return res.status(404).end();
+  res.setHeader('Cache-Control', 'private, max-age=604800, immutable');
+  res.sendFile(f, err => err && !res.headersSent && res.status(404).end());
+});
 // Wat het draakje zegt en toont, in de taal van LANcelot, plus de spelletjes (namen voor de leerkracht).
 app.get('/junior/inhoud.js', (req, res) => {
   const inh = junior.inhoud(taal.huidig());
@@ -1385,6 +1392,7 @@ io.on('connection', socket => {
       if (typeof cb !== 'function') return;
       jrFoto.zoek(woord).then(fotos => cb({ fotos })).catch(err => cb({ error: err.message }));
     });
+    socket.on('jr-stem-neem', handle(({ data, soort } = {}) => ({ s: jrFoto.stemBewaar(data, String(soort || '')) })));
     socket.on('jr-foto-neem', ({ thumb } = {}, cb) => {
       if (typeof cb !== 'function') return;
       jrFoto.neem(thumb).then(f => cb({ f })).catch(err => cb({ error: err.message }));

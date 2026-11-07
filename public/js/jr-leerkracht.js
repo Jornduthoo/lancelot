@@ -937,12 +937,13 @@ function vragenLijst() {
   bezig.vragen.forEach((v, vi) => {
     const d = document.createElement('div');
     d.className = 'jr-bw-vraag';
-    d.innerHTML = `<div class="jr-bw-rij"><b>${vi + 1}</b><input class="jr-bw-tekst" maxlength="160" placeholder="De vraag, zoals je ze zegt"><button type="button" class="secondary jr-bw-zeg" title="Voorlezen">🔊</button><button type="button" class="secondary jr-bw-weg" title="Vraag wissen">🗑️</button></div>`
+    d.innerHTML = `<div class="jr-bw-rij"><b>${vi + 1}</b><input class="jr-bw-tekst" maxlength="160" placeholder="De vraag, zoals je ze zegt"><button type="button" class="secondary jr-bw-zeg" title="Voorlezen">🔊</button><button type="button" class="secondary jr-bw-mic ${v.s ? 'heeft' : ''}" title="${v.s ? 'Je eigen stem wissen' : 'Zelf inspreken'}">${v.s ? '🎤✕' : '🎤'}</button><button type="button" class="secondary jr-bw-weg" title="Vraag wissen">🗑️</button></div>`
       + `<div class="jr-bw-opties">${v.opties.map((o, oi) => `<label class="jr-bw-optie ${oi === v.juist ? 'juist' : ''}"><input type="radio" name="jr-juist-${vi}" ${oi === v.juist ? 'checked' : ''} title="Dit is het juiste antwoord">${o.f ? `<img class="jr-bw-foto" src="/junior/foto/${o.f}" alt="" title="${Junior.esc(o.fb || '')}">` : '<input class="jr-bw-e" maxlength="16" placeholder="🙂">'}<input class="jr-bw-w" maxlength="30" placeholder="woord"><button type="button" class="secondary jr-bw-fk" title="${o.f ? 'Foto weg' : 'Echte foto zoeken'}">${o.f ? '✕' : '📷'}</button></label>`).join('')}</div>`;
     const tekst = d.querySelector('.jr-bw-tekst');
     tekst.value = v.vraag;
     tekst.addEventListener('input', () => { v.vraag = tekst.value; });
-    d.querySelector('.jr-bw-zeg').addEventListener('click', () => Junior.Stem.zeg([v.vraag]));
+    d.querySelector('.jr-bw-zeg').addEventListener('click', () => Junior.Stem.zeg([v.s ? { url: `/junior/stem/${v.s}` } : v.vraag]));
+    d.querySelector('.jr-bw-mic').addEventListener('click', e => (v.s ? (delete v.s, vragenLijst()) : neemOp(v, e.currentTarget)));
     d.querySelector('.jr-bw-weg').addEventListener('click', () => { bezig.vragen.splice(vi, 1); vragenLijst(); });
     d.querySelectorAll('.jr-bw-optie').forEach((lab, oi) => {
       const o = v.opties[oi];
@@ -958,6 +959,37 @@ function vragenLijst() {
     });
     box.appendChild(d);
   });
+}
+// Zelf inspreken: tik op 🎤, spreek de vraag in, tik opnieuw (of na 10 seconden stopt het vanzelf).
+let opname = null;
+async function neemOp(v, knop) {
+  if (opname) { opname.stop(); return; }
+  if (!window.MediaRecorder || !navigator.mediaDevices) return Ui.melding('Opnemen lukt niet in deze browser.');
+  let stroom;
+  try { stroom = await navigator.mediaDevices.getUserMedia({ audio: true }); } catch { return Ui.melding('De micro werkt niet. Geef de browser toestemming voor de micro.'); }
+  const soort = ['audio/webm;codecs=opus', 'audio/ogg;codecs=opus', 'audio/mp4'].find(t => MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(t)) || '';
+  const rec = new MediaRecorder(stroom, soort ? { mimeType: soort } : undefined);
+  const delen = [];
+  rec.ondataavailable = e => { if (e.data && e.data.size) delen.push(e.data); };
+  const tijd = setTimeout(() => rec.state === 'recording' && rec.stop(), 10000);
+  rec.onstop = async () => {
+    clearTimeout(tijd);
+    stroom.getTracks().forEach(t => t.stop());
+    opname = null;
+    knop.classList.remove('neemt');
+    const blob = new Blob(delen, { type: rec.mimeType || soort || 'audio/webm' });
+    const data = await blob.arrayBuffer();
+    socket.emit('jr-stem-neem', { data, soort: blob.type }, res => {
+      if (!res || res.error) return Ui.melding((res && res.error) || 'Opnemen lukte niet. Probeer opnieuw.');
+      v.s = res.s;
+      vragenLijst();
+      Junior.Stem.zeg([{ url: `/junior/stem/${res.s}` }]);
+    });
+  };
+  opname = rec;
+  rec.start();
+  knop.classList.add('neemt');
+  knop.textContent = '⏹';
 }
 // Echte foto's van Wikimedia Commons (vrije licenties): zoeken met het woord, kiezen, en de pc bewaart de foto voor de klas.
 function fotoKies(o) {

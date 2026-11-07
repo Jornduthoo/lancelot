@@ -467,5 +467,11 @@
  "🎁 Sinterklaas": "🎁 San Nicolás",
  "🎄 Kerst": "🎄 Navidad",
  "🎭 Carnaval": "🎭 Carnaval",
- "Thema": "Tema"
+ "Thema": "Tema",
+ "Zelf inspreken": "Grabarlo yo",
+ "Je eigen stem wissen": "Borrar mi voz",
+ "Opnemen lukt niet in deze browser.": "No se puede grabar en este navegador.",
+ "De micro werkt niet. Geef de browser toestemming voor de micro.": "El micrófono no funciona. Permite que el navegador use el micrófono.",
+ "Opnemen lukte niet. Probeer opnieuw.": "No se pudo grabar. Inténtalo de nuevo.",
+ "De opname is te lang. Hou het kort (maximaal 10 seconden).": "La grabación es demasiado larga. Hazla corta (máximo 10 segundos)."
 }
