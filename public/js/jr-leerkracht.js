@@ -679,6 +679,9 @@ function ga(v) {
   if (location.hash.slice(1) !== (v === 'thuis' ? '' : v)) history.pushState(null, '', v === 'thuis' ? location.pathname : `#${v}`);
   toonView(v);
 }
+// Linksboven (het woordmerk) brengt je altijd terug naar de startpagina van Junior.
+$('jr-brand').addEventListener('click', () => ga('thuis'));
+$('jr-brand').addEventListener('keydown', e => e.key === 'Enter' && ga('thuis'));
 function toonView(v) {
   for (const x of VIEWS) $(`jr-v-${x}`).classList.toggle('hidden', x !== v);
   window.scrollTo(0, 0);

@@ -205,6 +205,7 @@
 .jr-lk { min-height: 100vh; display: flex; flex-direction: column; color: var(--text); }
 .jr-lk .topbar { background: rgb(18 40 26 / .82); backdrop-filter: blur(6px); }
 .jr-brand { display: flex; align-items: center; gap: 10px; }
+#jr-brand { cursor: pointer; }
 .jr-brand img { width: 60px; height: 60px; object-fit: contain; }
 .jr-brand .subtitle { font-family: var(--jr-schrift); text-transform: none; letter-spacing: 0; font-size: 1rem; color: #fff; font-weight: 700; }
 .jr-brand img.jr-woordmerk { width: auto; height: 58px; display: block; filter: drop-shadow(0 2px 3px rgb(0 0 0 / .25)); }
