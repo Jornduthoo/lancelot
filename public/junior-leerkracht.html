@@ -30,7 +30,7 @@
     <!-- Het beginscherm: zoals LANcelot een paar grote blokken. Elk blok opent een eigen pagina met Terug. -->
     <div class="jr-view" id="jr-v-thuis">
       <div class="jr-held">
-        <img class="jr-held-logo" data-logo-3d src="/img/logo.webp" alt="LANcelot">
+        <img class="jr-held-logo" src="/img/junior/logo.webp" alt="LANcelot Junior">
         <p class="jr-held-zin">Spelen en oefenen met de hele klas. Alles wordt voorgelezen.</p>
       </div>
       <div class="jr-blokken">
@@ -185,7 +185,8 @@
         </div>
         <div class="panel jr-maak-lijst">
           <p class="title">📚 Mijn reeksen</p>
-          <p class="muted small">Speel een reeks bij Spelen, onder Mijn vragen.</p>
+          <p class="muted small">Speel een reeks bij Spelen, onder Mijn vragen. Steek je reeksen in mapjes: sleep ze erin of tik op 📁.</p>
+          <div class="jr-verkenner" id="jr-verkenner"></div>
           <div id="jr-sets" data-geen-vertaling></div>
           <p class="muted small hidden" id="jr-sets-leeg">Nog geen reeksen.</p>
           <p class="title jr-thema-titel">🎁 Kant-en-klare reeksen</p>
@@ -284,6 +285,7 @@
     </div>
   </div>
   <p class="jr-kv-label">Niveau</p>
+  <div class="jr-kv-mappen hidden" id="jr-kv-mappen" data-geen-vertaling></div>
   <input class="jr-kv-zoek hidden" id="jr-kv-zoek" type="search" placeholder="🔍 Zoek een reeks">
   <div class="jr-kv-niveaus" id="jr-kv-niveaus"></div>
   <div id="jr-kv-manier-blok">
@@ -326,6 +328,12 @@
   <p class="jr-foto-klein">Vrije foto's van Wikimedia Commons. De maker en de licentie staan bij elke foto (wijs ze aan).</p>
   <div class="actions"><button class="secondary" id="jr-foto-dicht" type="button">Sluiten</button></div>
 </dialog>
+<dialog class="jr-foto-venster jr-map-venster" id="jr-map-venster">
+  <h2 id="jr-map-titel">📁 In welke map?</h2>
+  <div class="jr-map-lijst" id="jr-map-lijst" data-geen-vertaling></div>
+  <div class="jr-foto-rij"><input id="jr-map-naam" maxlength="30" placeholder="Naam van een nieuwe map"><button class="gold jr-eigen" id="jr-map-ok" type="button">Maak de map</button></div>
+  <div class="actions"><button class="secondary" id="jr-map-dicht" type="button">Sluiten</button></div>
+</dialog>
 <dialog class="jr-inst-venster" id="jr-inst-venster">
   <h2>⚙️ Instellingen</h2>
   <p class="jr-kv-label">Opdrachten per ronde</p>
@@ -346,7 +354,7 @@
   <p class="jr-kv-label">Thema</p>
   <p class="jr-inst-uitleg">Versiering op het bord en de tablets. Automatisch volgt de kalender.</p>
   <div class="jr-kv-keuzes jr-inst-thema" id="jr-inst-thema">
-    <button type="button" data-w="auto">📅 Automatisch</button><button type="button" data-w="herfst">🍂 Herfst</button><button type="button" data-w="sint">🎁 Sinterklaas</button><button type="button" data-w="kerst">🎄 Kerst</button><button type="button" data-w="carnaval">🎭 Carnaval</button><button type="button" data-w="geen">Geen</button>
+    <button type="button" data-w="auto">📅 Automatisch</button><button type="button" data-w="herfst">🍂 Herfst</button><button type="button" data-w="sint">🎁 Sinterklaas</button><button type="button" data-w="kerst">🎄 Kerst</button><button type="button" data-w="carnaval">🎭 Carnaval</button><button type="button" data-w="halloween">🎃 Halloween</button><button type="button" data-w="winter">⛄ Winter</button><button type="button" data-w="valentijn">💗 Valentijn</button><button type="button" data-w="lente">🌷 Lente</button><button type="button" data-w="pasen">🐣 Pasen</button><button type="button" data-w="moederdag">💐 Moederdag</button><button type="button" data-w="vaderdag">👔 Vaderdag</button><button type="button" data-w="zomer">☀️ Zomer</button><button type="button" data-w="school">🎒 Schoolstart</button><button type="button" data-w="geen">Geen</button>
   </div>
   <div class="actions">
     <button class="gold" id="jr-inst-dicht">Klaar</button>

@@ -1213,3 +1213,82 @@ button.jr-mini-draak:hover { transform: translateY(-2px); }
 .jr-sb-pijl:disabled { opacity: .3; }
 .jr-sb-nr { margin: 6px 0 0; font-weight: 800; color: #fff; text-shadow: 0 2px 4px rgb(0 0 0 / .5); font-size: 1.2rem; }
 @media (orientation: landscape) and (max-height: 500px) { .jr-sb-blad .jr-boek-blad { width: min(70vw, (100vh - 150px) * 4 / 3); } }
+
+/* Toverdorp kaart 4, 5 en 6 */
+.jr-rijk-kaart4 { background-image: url(/img/junior/rijk/kaart4.webp); }
+.jr-rijk-kaart5 { background-image: url(/img/junior/rijk/kaart5.webp); }
+.jr-rijk-kaart6 { background-image: url(/img/junior/rijk/kaart6.webp); }
+@media (max-width: 800px) {
+  .jr-rijk-kaart4 { background-image: url(/img/junior/rijk/kaart4-klein.webp); }
+  .jr-rijk-kaart5 { background-image: url(/img/junior/rijk/kaart5-klein.webp); }
+  .jr-rijk-kaart6 { background-image: url(/img/junior/rijk/kaart6-klein.webp); }
+}
+.jr-rijk-kaart4 .jr-rijk-plek, .jr-rijk-kaart5 .jr-rijk-plek, .jr-rijk-kaart6 .jr-rijk-plek { width: 19cqw; height: 19cqw; margin: -9.5cqw 0 0 -9.5cqw; }
+/* Acht spelletjes op een plek: de knoppen lopen over twee rijen rechts. */
+.jr-rijk-plaats .jr-rijk-spellen { flex-wrap: wrap; justify-content: flex-end; max-width: 50cqw; }
+.jr-rijk .jr-rijk-balk .jr-rijk-spellen button { width: max(40px, 5.4cqw); height: max(40px, 5.4cqw); font-size: max(18px, 2.7cqw); }
+.jr-rijk-balk { align-items: flex-start; }
+/* Paneel midden op de plek */
+.jr-rijk-paneel { position: absolute; left: 50%; top: 56%; transform: translate(-50%, -50%); z-index: 180; }
+.jr-rijk-paneel.hidden { display: none; }
+.jr-rijk-paneel.onder { top: auto; bottom: 2cqw; transform: translateX(-50%); }
+.jr-rijk-plaats.memo-aan .jr-rijk-ding { visibility: hidden; }
+.jr-rijk-memo { display: grid; grid-template-columns: repeat(6, 11cqw); gap: 1.2cqw; }
+.jr-rijk .jr-rijk-memo button { width: 11cqw; height: 11cqw; min-height: 0; padding: 0; border: 0.5cqw solid #fff; border-radius: 1.6cqw; clip-path: none; box-shadow: 0 0.6cqw 0 rgb(0 0 0 / .2); background: linear-gradient(135deg, #4dabf7, #845ef7); position: relative; transition: transform .3s; }
+.jr-rijk .jr-rijk-memo button::after { content: '✨'; position: absolute; inset: 0; display: grid; place-items: center; font-size: 4cqw; }
+.jr-rijk-memo img { width: 86%; height: 86%; object-fit: contain; visibility: hidden; }
+.jr-rijk .jr-rijk-memo button.om, .jr-rijk .jr-rijk-memo button.paar { background: #fff8e6; transform: rotateY(180deg) scaleX(-1); }
+.jr-rijk-memo button.om::after, .jr-rijk-memo button.paar::after { content: none; }
+.jr-rijk-memo button.om img, .jr-rijk-memo button.paar img { visibility: visible; }
+.jr-rijk .jr-rijk-memo button.paar { border-color: #51cf66; animation: jr-rijk-ja .7s; }
+.jr-rijk-tel { display: flex; flex-direction: column; align-items: center; gap: 1.6cqw; background: rgb(255 250 235 / .94); border-radius: 2.4cqw; padding: 1.6cqw 2.4cqw; box-shadow: 0 6px 18px rgb(0 0 0 / .25); }
+.jr-rijk-tel-rij { display: flex; gap: 1cqw; min-height: 11cqw; align-items: center; }
+.jr-rijk-tel-rij img { width: 11cqw; height: 11cqw; object-fit: contain; animation: jr-ster-in .5s cubic-bezier(.2,1.6,.4,1) both; filter: drop-shadow(0 4px 5px rgb(0 0 0 / .3)); }
+.jr-rijk-tel-knoppen { display: flex; gap: 1.2cqw; }
+.jr-rijk .jr-rijk-tel-knoppen button { min-height: 0; width: 9cqw; padding: .8cqw; border: 0.4cqw solid #fff; border-radius: 1.6cqw; clip-path: none; background: #ffd43b; box-shadow: 0 0.6cqw 0 #e67700; display: flex; flex-direction: column; align-items: center; gap: .4cqw; color: #3b2a14; }
+.jr-rijk-tel-knoppen b { font-size: max(16px, 2.6cqw); line-height: 1; }
+.jr-rijk-steen { display: grid; grid-template-columns: repeat(3, 1fr); gap: .3cqw; width: 5.4cqw; aspect-ratio: 1; background: #fff; border-radius: .8cqw; padding: .5cqw; }
+.jr-rijk-steen i { border-radius: 50%; }
+.jr-rijk-steen i.aan { background: #3b2a14; }
+.jr-rijk-tel-knoppen button.nee { animation: jr-nee .4s; }
+.jr-rijk-tel-knoppen button.ja, .jr-rijk-keuzes button.ja { animation: jr-rijk-ja .7s; }
+.jr-rijk-vraag.met-prent { display: flex; align-items: center; gap: 1cqw; padding: .5cqw 1.6cqw .5cqw .5cqw; }
+.jr-rijk-vraag.met-prent.hidden { display: none; }
+.jr-rijk-schaduw { width: max(48px, 9cqw); height: max(48px, 9cqw); object-fit: contain; filter: brightness(0) opacity(.85); transition: filter .5s; }
+.jr-rijk-schaduw.licht { filter: none; }
+.jr-rijk-ding.kwijt { visibility: hidden; }
+.jr-rijk-keuzes { display: flex; gap: 1.6cqw; background: rgb(255 250 235 / .94); border-radius: 2.4cqw; padding: 1cqw 1.6cqw; box-shadow: 0 6px 18px rgb(0 0 0 / .25); }
+.jr-rijk .jr-rijk-keuzes button { width: 12cqw; height: 12cqw; min-height: 0; padding: .6cqw; border: 0.4cqw solid #ffd43b; border-radius: 1.6cqw; clip-path: none; background: #fff; box-shadow: 0 0.5cqw 0 rgb(0 0 0 / .15); }
+.jr-rijk-keuzes img { width: 100%; height: 100%; object-fit: contain; }
+.jr-rijk-keuzes button.nee { animation: jr-nee .4s; }
+
+/* Verkenner van de eigen reeksen: mapjes */
+.jr-verkenner { margin-top: 8px; }
+.jr-vk-mappen { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 8px; }
+.jr-lk main button.jr-vk-map { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 10px 6px; min-height: 0; border-radius: 14px; border: 2px solid transparent; background: #fff4d6; color: #5c3d0a; box-shadow: 0 3px 0 #e8c77a; font-weight: 700; }
+.jr-vk-map .jr-vk-ic { font-size: 2rem; line-height: 1.1; }
+.jr-vk-map b { font-size: .9rem; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.jr-vk-map small { font-size: .75rem; opacity: .75; }
+.jr-lk main button.jr-vk-nieuw { background: #eef7ee; color: #2b6a2f; box-shadow: 0 3px 0 #a9d8a9; }
+.jr-lk main button.jr-vk-map.drop, .jr-vk-terug.drop { border-color: #51cf66; transform: scale(1.05); }
+.jr-vk-pad { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.jr-vk-pad b { font-size: 1.05rem; }
+.jr-vk-acties { margin-left: auto; display: flex; gap: 6px; }
+.jr-vk-pad button { padding: 6px 12px; min-height: 0; }
+.jr-set[draggable="true"] { cursor: grab; }
+.jr-set.sleep { opacity: .5; }
+.jr-map-lijst { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 12px; }
+.jr-map-lijst button { min-height: 0; padding: 8px 14px; }
+.jr-map-lijst button.aan { outline: 3px solid #51cf66; }
+.jr-kv-mappen { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 8px; }
+.jr-kv-mappen.hidden { display: none; }
+.jr-kv-mappen button { min-height: 0; padding: 5px 12px; border-radius: 999px; font-size: .9rem; background: #fff4d6; color: #5c3d0a; border: 2px solid transparent; }
+.jr-kv-mappen button.aan { border-color: #f59f00; background: #ffe8a3; }
+/* Kleine schermen (gsm): de spelknoppen staan op twee rijen, dus de vraag en het paneel schuiven wat lager. */
+@container (max-width: 720px) {
+  .jr-rijk-plaats .jr-rijk-vraag { top: 25%; font-size: max(15px, 3.2cqw); }
+  .jr-rijk-plaats .jr-rijk-paneel:not(.onder) { top: 64%; }
+  .jr-rijk-memo { grid-template-columns: repeat(6, 10cqw); gap: 1cqw; }
+  .jr-rijk .jr-rijk-memo button { width: 10cqw; height: 10cqw; }
+}
+.jr-map-lijst button { color: #3b2a14; background: #fff4d6; border: 2px solid #e8c77a; font-weight: 700; }

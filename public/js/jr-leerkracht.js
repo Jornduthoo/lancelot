@@ -148,6 +148,7 @@ function kies(s) {
     const b = document.createElement('button');
     b.type = 'button';
     b.textContent = n;
+    if (s.id === 'eigen') b.dataset.map = sets[i].map || '';
     b.className = i === 0 ? 'aan' : '';
     b.addEventListener('click', () => {
       gekozen.niveau = i;
@@ -160,14 +161,27 @@ function kies(s) {
   niv.classList.toggle('jr-kv-veel', veel);
   $('jr-kv-zoek').classList.toggle('hidden', !veel);
   $('jr-kv-zoek').value = '';
+  // Mapjes van de verkenner: tik op een map en je ziet alleen de reeksen daarin.
+  const mb = $('jr-kv-mappen');
+  const metMap = s.id === 'eigen' ? mappen.filter(m => sets.some(x => x.map === m)) : [];
+  kvMap = null;
+  mb.classList.toggle('hidden', !metMap.length);
+  mb.innerHTML = metMap.length ? [['', '📚 Alles'], ...metMap.map(m => [m, `📁 ${m}`])].map(([m, t], i) => `<button type="button" class="jr-eigen ${i ? '' : 'aan'}" data-kvmap="${Junior.esc(m)}">${Junior.esc(t)}</button>`).join('') : '';
+  mb.querySelectorAll('[data-kvmap]').forEach(b => b.addEventListener('click', () => {
+    kvMap = b.dataset.kvmap || null;
+    for (const x of mb.children) x.classList.toggle('aan', x === b);
+    kvFilter();
+  }));
   $('jr-kv-manier-blok').classList.toggle('hidden', !!s.bordAlleen);
   zetManier();
   $('jr-kies-venster').showModal();
 }
-$('jr-kv-zoek').addEventListener('input', () => {
+let kvMap = null;
+function kvFilter() {
   const q = $('jr-kv-zoek').value.trim().toLowerCase();
-  for (const b of $('jr-kv-niveaus').querySelectorAll('button')) b.classList.toggle('hidden', !!q && !b.textContent.toLowerCase().includes(q));
-});
+  for (const b of $('jr-kv-niveaus').querySelectorAll('button')) b.classList.toggle('hidden', (!!q && !b.textContent.toLowerCase().includes(q)) || (kvMap !== null && b.dataset.map !== kvMap));
+}
+$('jr-kv-zoek').addEventListener('input', kvFilter);
 function zetManier() {
   for (const b of $('jr-kv-manieren').children) b.classList.toggle('aan', b.dataset.manier === gekozen.manier);
   // Een avontuur op het bord kan alleen als de kinderen op de tablets spelen.
@@ -952,23 +966,98 @@ function opvolg({ kinderen: lijst = [], spellen = [], cellen = {} }) {
 }
 
 // ---------- Maken: eigen vragen met prentjes (emoji), met de AI of zelf getypt ----------
+// De verkenner: mapjes voor de eigen reeksen. inMap = de map die open staat (null = alle mappen).
+let mappen = [];
+let inMap = null;
+function zetMappen(m) {
+  mappen = Array.isArray(m) ? m : [];
+  if (inMap && !mappen.includes(inMap)) inMap = null;
+}
 function zetSets(lijst) {
   sets = Array.isArray(lijst) ? lijst : [];
+  for (const s of sets) if (s.map && !mappen.includes(s.map)) mappen.push(s.map);
   if (window.JR) JR.sets = sets;
   $('jr-tel-maken').textContent = sets.length ? `${sets.length} ${sets.length === 1 ? 'reeks' : 'reeksen'}` : 'Met of zonder AI';
   tegels();
   toonSets();
 }
+const mapActie = (arg, klaar) => socket.emit('jr-map', arg, res => {
+  if (!res || res.error) return Ui.melding((res && res.error) || 'Dat lukte niet.');
+  zetMappen(res.mappen); zetSets(res.sets);
+  if (klaar) klaar();
+});
+function verkenner() {
+  const box = $('jr-verkenner');
+  const tel = m => sets.filter(s => s.map === m).length;
+  if (inMap) {
+    box.innerHTML = `<div class="jr-vk-pad"><button type="button" class="secondary jr-eigen jr-vk-terug" data-drop="">⬅ Alle reeksen</button><b>📂 ${Junior.esc(inMap)}</b>
+      <span class="jr-vk-acties"><button type="button" class="secondary jr-eigen" id="jr-vk-hernoem" title="Andere naam">✏️</button><button type="button" class="secondary jr-eigen" id="jr-vk-wis" title="Map wissen">🗑️</button></span></div>`;
+    box.querySelector('.jr-vk-terug').addEventListener('click', () => { inMap = null; toonSets(); });
+    $('jr-vk-hernoem').addEventListener('click', () => mapVenster({ hernoem: inMap }));
+    $('jr-vk-wis').addEventListener('click', async () => {
+      if (!(await Ui.vraag(`De map "${inMap}" wissen? De reeksen erin blijven bewaard.`))) return;
+      const m = inMap; inMap = null;
+      mapActie({ actie: 'wis', naam: m });
+    });
+  } else {
+    box.innerHTML = `<div class="jr-vk-mappen">${mappen.map(m => `<button type="button" class="jr-eigen jr-vk-map" data-map="${Junior.esc(m)}" data-drop="${Junior.esc(m)}"><span class="jr-vk-ic">📁</span><b>${Junior.esc(m)}</b><small>${tel(m)}</small></button>`).join('')}
+      <button type="button" class="jr-eigen jr-vk-map jr-vk-nieuw" id="jr-vk-nieuw"><span class="jr-vk-ic">➕</span><b>Nieuwe map</b></button></div>`;
+    box.querySelectorAll('[data-map]').forEach(b => b.addEventListener('click', () => { inMap = b.dataset.map; toonSets(); }));
+    $('jr-vk-nieuw').addEventListener('click', () => mapVenster({}));
+  }
+  // Slepen: een reeks op een map loslaten (of op "Alle reeksen" om ze uit de map te halen).
+  box.querySelectorAll('[data-drop]').forEach(b => {
+    b.addEventListener('dragover', e => { e.preventDefault(); b.classList.add('drop'); });
+    b.addEventListener('dragleave', () => b.classList.remove('drop'));
+    b.addEventListener('drop', e => {
+      e.preventDefault(); b.classList.remove('drop');
+      const id = e.dataTransfer.getData('text/jr-set');
+      if (id) mapActie({ actie: 'zet', id, naam: b.dataset.drop });
+    });
+  });
+}
+// Het venster: een reeks in een map steken (zet), een nieuwe map maken, of een map een andere naam geven.
+let mapDoel = {};
+function mapVenster(doel) {
+  mapDoel = doel;
+  const set = doel.set;
+  $('jr-map-titel').textContent = set ? `📁 ${set.naam}: in welke map?` : doel.hernoem ? '✏️ Andere naam voor de map' : '📁 Nieuwe map';
+  const lijst = $('jr-map-lijst');
+  lijst.innerHTML = set ? [['', '📚 Geen map'], ...mappen.map(m => [m, `📁 ${m}`])].map(([m, t]) => `<button type="button" class="secondary jr-eigen ${(set.map || '') === m ? 'aan' : ''}" data-naar="${Junior.esc(m)}">${Junior.esc(t)}</button>`).join('') : '';
+  lijst.querySelectorAll('[data-naar]').forEach(b => b.addEventListener('click', () => mapActie({ actie: 'zet', id: set.id, naam: b.dataset.naar }, () => $('jr-map-venster').close())));
+  $('jr-map-naam').value = doel.hernoem || '';
+  $('jr-map-ok').textContent = doel.hernoem ? 'Bewaar' : set ? 'Maak de map en steek de reeks erin' : 'Maak de map';
+  $('jr-map-venster').showModal();
+  if (!set) $('jr-map-naam').focus();
+}
+function mapOk() {
+  const naam = $('jr-map-naam').value.trim();
+  if (!naam) return $('jr-map-naam').focus();
+  const dicht = () => $('jr-map-venster').close();
+  if (mapDoel.hernoem) return mapActie({ actie: 'hernoem', naam: mapDoel.hernoem, nieuw: naam }, () => { inMap = naam; dicht(); toonSets(); });
+  if (mapDoel.set) return mapActie({ actie: 'zet', id: mapDoel.set.id, naam }, dicht);
+  mapActie({ actie: 'nieuw', naam }, () => { inMap = naam; dicht(); toonSets(); });
+}
+$('jr-map-ok').addEventListener('click', mapOk);
+$('jr-map-naam').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); mapOk(); } });
+$('jr-map-dicht').addEventListener('click', () => $('jr-map-venster').close());
+socket.on('jr-mappen', res => { if (res) { zetMappen(res.mappen); zetSets(res.sets); } });
 function toonSets() {
+  verkenner();
   const box = $('jr-sets');
-  $('jr-sets-leeg').classList.toggle('hidden', sets.length > 0);
+  const hier = sets.filter(s => (inMap ? s.map === inMap : !s.map));
+  $('jr-sets-leeg').classList.toggle('hidden', hier.length > 0);
+  $('jr-sets-leeg').textContent = inMap ? 'Nog niets in deze map. Sleep een reeks hierheen of tik bij een reeks op 📁.' : sets.length ? 'Alle reeksen zitten in een map.' : 'Nog geen reeksen.';
   box.innerHTML = '';
-  for (const set of sets) {
+  for (const set of hier) {
     const d = document.createElement('div');
     d.className = 'jr-set';
+    d.draggable = true;
+    d.addEventListener('dragstart', e => { e.dataTransfer.setData('text/jr-set', set.id); d.classList.add('sleep'); });
+    d.addEventListener('dragend', () => d.classList.remove('sleep'));
     const voorbeeld = set.vragen.slice(0, 1).flatMap(v => v.opties.map(o => o.e)).join(' ');
     d.innerHTML = `<div><b>${Junior.esc(set.naam)}</b><span>${set.vragen.length} vragen · ${Junior.esc(voorbeeld)}</span></div>`
-      + '<span class="jr-set-knoppen"><button type="button" class="gold jr-set-speel">▶ Spelen</button><button type="button" class="secondary jr-set-bw">✏️</button><button type="button" class="secondary jr-set-wis">🗑️</button></span>';
+      + '<span class="jr-set-knoppen"><button type="button" class="gold jr-set-speel">▶ Spelen</button><button type="button" class="secondary jr-set-map" title="In een map steken">📁</button><button type="button" class="secondary jr-set-bw">✏️</button><button type="button" class="secondary jr-set-wis">🗑️</button></span>';
     d.querySelector('.jr-set-speel').addEventListener('click', () => {
       const s = spelVan('eigen');
       kies(s);
@@ -976,6 +1065,7 @@ function toonSets() {
       for (const [i, x] of [...$('jr-kv-niveaus').children].entries()) x.classList.toggle('aan', i === gekozen.niveau);
     });
     d.querySelector('.jr-set-bw').addEventListener('click', () => bewerk(set));
+    d.querySelector('.jr-set-map').addEventListener('click', () => mapVenster({ set }));
     d.querySelector('.jr-set-wis').addEventListener('click', async () => {
       if (!(await Ui.vraag(`De reeks "${set.naam}" wissen?`))) return;
       socket.emit('jr-set-wis', { id: set.id }, res => (res && res.error ? Ui.melding(res.error) : zetSets(res.sets)));
@@ -986,6 +1076,8 @@ function toonSets() {
 let bezig = null; // de reeks die nu bewerkt wordt
 function bewerk(set) {
   bezig = JSON.parse(JSON.stringify(set));
+  // Een nieuwe reeks komt in de map die openstaat.
+  if (!bezig.id && inMap && !bezig.map) bezig.map = inMap;
   if (!bezig.vragen.length) bezig.vragen.push(legeVraag());
   $('jr-bw-naam').value = bezig.naam || '';
   vragenLijst();
@@ -1171,6 +1263,7 @@ themaSets();
 socket.on('connect', () => {
   socket.emit('jr-sets', null, res => {
     if (!res || res.error) return;
+    zetMappen(res.mappen);
     zetSets(res.sets);
     $('jr-maak-ai-tip').textContent = res.ai ? '' : 'Nog geen AI-sleutel? Kopieer de prompt en plak het antwoord van een chatbot hieronder. Een sleutel zet je bij Instellingen in LANcelot.';
   });

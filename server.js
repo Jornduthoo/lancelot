@@ -1364,7 +1364,19 @@ io.on('connection', socket => {
     }));
     // Opvolging per kind en per spel, en de eigen vragen (blok Maken).
     socket.on('jr-voortgang', handle(() => junior.voortgang()));
-    socket.on('jr-sets', handle(() => ({ sets: junior.sets(), ai: !!settings.actief().key })));
+    socket.on('jr-sets', handle(() => ({ sets: junior.sets(), mappen: junior.mappen(), ai: !!settings.actief().key })));
+    // De verkenner van de eigen reeksen: { actie: 'nieuw' | 'hernoem' | 'wis' | 'zet', naam, nieuw, id }.
+    socket.on('jr-map', handle((arg = {}) => {
+      const a = arg.actie;
+      if (a === 'nieuw') junior.nieuweMap(arg.naam);
+      else if (a === 'hernoem') junior.hernoemMap(arg.naam, arg.nieuw);
+      else if (a === 'wis') junior.wisMap(arg.naam);
+      else if (a === 'zet') junior.zetMap(String(arg.id || ''), arg.naam);
+      else throw new Error('Onbekende actie.');
+      const uit = { sets: junior.sets(), mappen: junior.mappen() };
+      io.emit('jr-mappen', uit);
+      return uit;
+    }));
     socket.on('jr-set-bewaar', handle(set => {
       const lijst = junior.bewaarSet(set || {});
       io.emit('jr-sets', lijst);

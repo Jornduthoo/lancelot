@@ -122,6 +122,7 @@ function load() {
   if (typeof data.draakNaam !== 'string') data.draakNaam = '';
   if (!data.voortgang || typeof data.voortgang !== 'object') data.voortgang = {};
   if (!Array.isArray(data.sets)) data.sets = [];
+  if (!Array.isArray(data.mappen)) data.mappen = []; // mapjes voor de eigen reeksen (ook lege)
   if (!data.instellingen || typeof data.instellingen !== 'object') data.instellingen = {};
   if (!data.burcht || typeof data.burcht !== 'object') data.burcht = {};
   // Het hol van het klasdraakje: de sterren van de klas, wat ze samen kochten, het hoedje en wat er in het hol staat.
@@ -150,7 +151,7 @@ function save() {
 const DIER_GROEI = [0, 10, 30]; // public/img/junior/dier, dier2, dier3
 // De instellingen van de leerkracht (knop ⚙️): opdrachten per ronde, voorlezen op de tablets, dieren die meegroeien.
 // Thema's: versiering op het bord en de tablets. 'auto' kiest volgens de datum.
-const THEMAS = ['herfst', 'sint', 'kerst', 'carnaval'];
+const THEMAS = ['herfst', 'halloween', 'sint', 'kerst', 'winter', 'valentijn', 'carnaval', 'lente', 'pasen', 'moederdag', 'vaderdag', 'zomer', 'school'];
 function instellingen() {
   const i = load().instellingen;
   return { perRonde: RONDES.includes(i.perRonde) ? i.perRonde : PER_RONDE, voorlezen: i.voorlezen !== false, groei: i.groei !== false, thema: ['auto', 'geen', ...THEMAS].includes(i.thema) ? i.thema : 'auto' };
@@ -169,12 +170,26 @@ function themaNu(nu = new Date()) {
   const md = (nu.getMonth() + 1) * 100 + nu.getDate();
   let nl = true;
   try { nl = !['en', 'fr', 'es', 'de'].includes(require('./taal').huidig()); } catch {}
+  const j = nu.getFullYear(), dag = 864e5, t0 = new Date(j, nu.getMonth(), nu.getDate()).getTime();
+  // De zoveelste zondag van een maand, en de week ervoor (zondag zelf telt mee).
+  const zondag = (maand, n) => { const d = new Date(j, maand - 1, 1); d.setDate(1 + ((7 - d.getDay()) % 7) + (n - 1) * 7); return d.getTime(); };
+  const weekVoor = z => t0 >= z - 6 * dag && t0 <= z;
+  if (md >= 1025 && md <= 1031) return 'halloween';
   if (nl && md >= 1115 && md <= 1206) return 'sint';
   if (md >= (nl ? 1207 : 1201) || md <= 106) return 'kerst';
   if (md >= 922 && md <= 1114) return 'herfst';
   if (!nl && md >= 1115 && md <= 1130) return 'herfst';
-  const p = pasen(nu.getFullYear()).getTime(), dag = 864e5;
-  if (nu.getTime() >= p - 60 * dag && nu.getTime() <= p - 46 * dag) return 'carnaval';
+  const p = pasen(j).getTime();
+  if (t0 >= p - 60 * dag && t0 <= p - 46 * dag) return 'carnaval';
+  if (md >= 210 && md <= 214) return 'valentijn';
+  if (t0 >= p - 14 * dag && t0 <= p + 7 * dag) return 'pasen';
+  if (weekVoor(zondag(5, 2))) return 'moederdag';
+  // Vaderdag: in Vlaanderen de tweede zondag van juni, in veel andere landen de derde.
+  if (weekVoor(zondag(6, nl ? 2 : 3))) return 'vaderdag';
+  if (md >= 901 && md <= 921) return 'school';
+  if (md <= 320) return 'winter';
+  if (md <= 531) return 'lente';
+  if (md <= 831) return 'zomer';
   return '';
 }
 function zetInstellingen(nieuw = {}) {
@@ -538,7 +553,10 @@ function schoonSet(set = {}) {
     return x;
   }).filter(v => v.vraag && v.opties.length >= 2).slice(0, MAX_VRAGEN);
   if (!vragen.length) throw new Error('Zet minstens één vraag met twee antwoorden in de reeks.');
-  return { id: kort(set.id, 20) || Date.now().toString(36), naam, vragen };
+  const uit = { id: kort(set.id, 20) || Date.now().toString(36), naam, vragen };
+  const map = kort(set.map, 30);
+  if (map) uit.map = map;
+  return uit;
 }
 function sets() { return load().sets; }
 function bewaarSet(set) {
@@ -550,6 +568,48 @@ function bewaarSet(set) {
     if (d.sets.length >= MAX_SETS) throw new Error(`Je hebt al ${MAX_SETS} reeksen. Wis er eerst een.`);
     d.sets.push(s);
   }
+  save();
+  return d.sets;
+}
+// De verkenner van de eigen reeksen: mapjes. Een map bestaat zolang hij in de lijst staat of er een reeks in zit.
+const MAX_MAPPEN = 30;
+function mappen() {
+  const d = load();
+  return [...new Set([...d.mappen, ...d.sets.map(x => x.map).filter(Boolean)])].sort((a, b) => a.localeCompare(b, 'nl'));
+}
+function nieuweMap(naam) {
+  const n = kort(naam, 30);
+  if (!n) throw new Error('Geef de map een naam.');
+  const d = load();
+  if (!mappen().includes(n)) {
+    if (mappen().length >= MAX_MAPPEN) throw new Error(`Je hebt al ${MAX_MAPPEN} mappen.`);
+    d.mappen.push(n);
+    save();
+  }
+  return n;
+}
+function hernoemMap(oud, nieuw) {
+  const o = kort(oud, 30), n = kort(nieuw, 30);
+  if (!n) throw new Error('Geef de map een naam.');
+  const d = load();
+  d.mappen = [...new Set(d.mappen.map(x => (x === o ? n : x)))];
+  for (const s of d.sets) if (s.map === o) s.map = n;
+  save();
+}
+// Een map wissen: de reeksen erin blijven, ze staan dan gewoon bij Mijn reeksen.
+function wisMap(naam) {
+  const o = kort(naam, 30);
+  const d = load();
+  d.mappen = d.mappen.filter(x => x !== o);
+  for (const s of d.sets) if (s.map === o) delete s.map;
+  save();
+}
+function zetMap(id, naam) {
+  const d = load();
+  const s = d.sets.find(x => x.id === id);
+  if (!s) throw new Error('Die reeks bestaat niet meer.');
+  const n = kort(naam, 30);
+  if (n) { s.map = n; if (!d.mappen.includes(n)) d.mappen.push(n); } else delete s.map;
   save();
   return d.sets;
 }
@@ -628,6 +688,6 @@ module.exports = {
   kinderen, wisselDier, zetSymbool, symboolBestand, draak, noemDraak, holKoop, holZet, HOL_SPUL, eiland, start, stop, stand, overzicht, antwoord, teamGoed, klasBeloning, stickers,
   kringKies, kringStand, kringVolgende, inhoud, fase, niveausVan,
   burcht, burchtBouw, BURCHT_PLEKKEN, BURCHT_STUKKEN,
-  voortgang, sets, bewaarSet, wisSet, eigenPrompt, leesEigen,
+  voortgang, sets, bewaarSet, wisSet, mappen, nieuweMap, hernoemMap, wisMap, zetMap, eigenPrompt, leesEigen,
   get actief() { return !!les; },
 };
