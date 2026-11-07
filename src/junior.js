@@ -48,6 +48,9 @@ const SPELLEN = [
     niveaus: ['Tellen tot 5', 'Tellen tot 10'] },
   { id: 'kring', naam: 'Kringvragen', zin: 'Een vraag op het bord, elk kind kiest een prent.', groep: 'samen', jaar: 'Iedereen', beeld: 'sticker/8', geenFout: true,
     niveaus: ['Hoe voel je je?', 'Wat vind jij leuk?'] },
+  // De eigen vragen van de leerkracht (blok Maken, met of zonder AI). Elk niveau is één reeks vragen.
+  { id: 'eigen', naam: 'Mijn vragen', zin: 'Je eigen vragen met prentjes, voorgelezen.', groep: 'eigen', jaar: 'Iedereen', beeld: 'stuk/7',
+    niveaus: [] },
   // Geen tegel voor de leerkracht: kinderen starten dit zelf op de tablet, één keer per dag een sticker.
   { id: 'raadsel', naam: 'Raadsel van vandaag', zin: 'Drie korte raadsels, elke dag nieuw.', groep: 'raadsel', jaar: 'Iedereen', beeld: 'sticker/1', verborgen: true,
     niveaus: ['Vandaag'] },
@@ -65,6 +68,8 @@ function load() {
   if (!data.raadsel || typeof data.raadsel !== 'object') data.raadsel = {};
   if (!Number.isFinite(data.eten)) data.eten = 0;
   if (typeof data.draakNaam !== 'string') data.draakNaam = '';
+  if (!data.voortgang || typeof data.voortgang !== 'object') data.voortgang = {};
+  if (!Array.isArray(data.sets)) data.sets = [];
   if (!data.instellingen || typeof data.instellingen !== 'object') data.instellingen = {};
   return data;
 }
@@ -197,10 +202,14 @@ function voer(n = 1) {
 let les = null;
 function nieuweKring() { return { vraag: 0, keuzes: {} }; }
 
+function niveausVan(s) {
+  return s.id === 'eigen' ? load().sets.map(x => x.naam) : s.niveaus;
+}
 function start({ spel, niveau, manier } = {}) {
   const s = SPEL[spel];
   if (!s) throw new Error('Kies een spel.');
-  const n = Math.max(0, Math.min(s.niveaus.length - 1, Number(niveau) || 0));
+  if (s.id === 'eigen' && !load().sets.length) throw new Error('Maak eerst een reeks vragen bij Maken.');
+  const n = Math.max(0, Math.min(niveausVan(s).length - 1, Number(niveau) || 0));
   const m = s.bordAlleen ? 'bord' : MANIEREN.includes(manier) ? manier : 'beurt';
   les = { spel: s.id, niveau: n, manier: m, seed: Math.floor(Math.random() * 1e9), sinds: Date.now(), kinderen: {}, teams: [0, 0, 0, 0], kring: nieuweKring() };
   return stand();
@@ -213,7 +222,8 @@ function stand() {
   if (!les) return { actief: false, draak: draak(), voorlezen: instellingen().voorlezen };
   const s = SPEL[les.spel];
   return {
-    actief: true, spel: les.spel, naam: s.naam, niveau: les.niveau, niveauNaam: s.niveaus[les.niveau], manier: les.manier, seed: les.seed,
+    actief: true, spel: les.spel, naam: s.naam, niveau: les.niveau, niveauNaam: niveausVan(s)[les.niveau], manier: les.manier, seed: les.seed,
+    eigen: les.spel === 'eigen' ? load().sets[les.niveau] || null : undefined,
     perRonde: instellingen().perRonde, voorlezen: instellingen().voorlezen, teams: les.teams, kring: { vraag: les.kring.vraag }, draak: draak(),
   };
 }
@@ -229,7 +239,7 @@ function overzicht(bezig = new Set()) {
 // Apart oefenen (een ondersteuner met één kind, los van de klas): het spel en niveau komen van de tablet.
 const apartTel = new Map();
 function antwoord(id, { vraag, juist, apart } = {}) {
-  const eigen = apart && SPEL[apart.spel] ? { spel: apart.spel, niveau: Math.max(0, Math.min(SPEL[apart.spel].niveaus.length - 1, Number(apart.niveau) || 0)) } : null;
+  const eigen = apart && SPEL[apart.spel] ? { spel: apart.spel, niveau: Math.max(0, Math.min(niveausVan(SPEL[apart.spel]).length - 1, Number(apart.niveau) || 0)) } : null;
   if (!les && !eigen) throw new Error('Er loopt geen spel.');
   const kind = kinderen().find(k => k.id === id);
   if (!kind) throw new Error('Tik op je dier.');
@@ -240,7 +250,16 @@ function antwoord(id, { vraag, juist, apart } = {}) {
   if (juist) p.goed++;
   const s = SPEL[eigen ? eigen.spel : les.spel];
   const niveau = eigen ? eigen.niveau : les.niveau;
-  if (!s.geenFout) logboek.answer(`Junior · ${s.naam}`, `LANcelot Junior · ${s.niveaus[niveau]}${eigen ? ' · apart' : ''}`, kind.naam, { question: String(vraag || s.naam).slice(0, 160), doel: '' }, !!juist);
+  if (!s.geenFout) logboek.answer(`Junior · ${s.naam}`, `LANcelot Junior · ${niveausVan(s)[niveau]}${eigen ? ' · apart' : ''}`, kind.naam, { question: String(vraag || s.naam).slice(0, 160), doel: '' }, !!juist);
+  // De opvolging: per kind en per spel hoeveel opdrachten, hoeveel meteen goed, en wanneer het laatst.
+  if (!s.geenFout && s.id !== 'raadsel') {
+    const v = load().voortgang;
+    const rij = v[id] || (v[id] = {});
+    const c = rij[s.id] || (rij[s.id] = { n: 0, g: 0, t: '' });
+    c.n++;
+    if (juist) c.g++;
+    c.t = new Date().toISOString().slice(0, 10);
+  }
   const gegroeid = juist ? voer(1) : false;
   let sticker = null;
   // Het raadsel van vandaag: na de derde opdracht een sticker, maar maar één keer per dag.
@@ -272,6 +291,73 @@ function teamGoed(team) {
 // Na de bewegingsdans of een kringgesprek krijgt het draakje een beloning voor de hele klas.
 function klasBeloning(n) {
   return { gegroeid: voer(n), draak: draak() };
+}
+
+// Opvolging voor de leerkracht: elk kind, elk spel (zonder de samen-spelletjes en het raadsel).
+function voortgang() {
+  const d = load();
+  const spellen = SPELLEN.filter(s => !s.geenFout && !s.bordAlleen && !s.verborgen).map(({ id, naam, beeld, groep }) => ({ id, naam, beeld, groep }));
+  return { kinderen: kinderen().map(({ id, naam, beeld, stickers: st }) => ({ id, naam, beeld, stickers: st })), spellen, cellen: d.voortgang };
+}
+
+// ---------- Eigen vragen (blok Maken) ----------
+// Een reeks: { id, naam, vragen: [{ vraag, opties: [{ e: emoji, w: woord }], juist }] }. Elke vraag heeft 2 tot 4 opties.
+const MAX_SETS = 40;
+const MAX_VRAGEN = 30;
+const kort = (x, n) => String(x == null ? '' : x).replace(/\s+/g, ' ').trim().slice(0, n);
+function schoonSet(set = {}) {
+  const naam = kort(set.naam, 40);
+  if (!naam) throw new Error('Geef de reeks een naam.');
+  const vragen = (Array.isArray(set.vragen) ? set.vragen : []).map(v => {
+    const opties = (Array.isArray(v && v.opties) ? v.opties : []).map(o => ({ e: kort(o && (o.e || o.emoji), 16), w: kort(o && (o.w || o.woord), 30) }))
+      .filter(o => o.e || o.w).slice(0, 4);
+    const juist = Math.max(0, Math.min(opties.length - 1, Number(v && v.juist) || 0));
+    return { vraag: kort(v && v.vraag, 160), opties, juist };
+  }).filter(v => v.vraag && v.opties.length >= 2).slice(0, MAX_VRAGEN);
+  if (!vragen.length) throw new Error('Zet minstens één vraag met twee antwoorden in de reeks.');
+  return { id: kort(set.id, 20) || Date.now().toString(36), naam, vragen };
+}
+function sets() { return load().sets; }
+function bewaarSet(set) {
+  const s = schoonSet(set);
+  const d = load();
+  const i = d.sets.findIndex(x => x.id === s.id);
+  if (i >= 0) d.sets[i] = s;
+  else {
+    if (d.sets.length >= MAX_SETS) throw new Error(`Je hebt al ${MAX_SETS} reeksen. Wis er eerst een.`);
+    d.sets.push(s);
+  }
+  save();
+  return d.sets;
+}
+function wisSet(id) {
+  const d = load();
+  if (les && les.spel === 'eigen') throw new Error('Stop eerst het spel dat nu loopt.');
+  d.sets = d.sets.filter(x => x.id !== id);
+  save();
+  return d.sets;
+}
+const TAALNAAM = { nl: 'Nederlands (Vlaams)', en: 'English', fr: 'français', es: 'español', de: 'Deutsch' };
+function eigenPrompt({ onderwerp, aantal, taal: t } = {}) {
+  const ond = kort(onderwerp, 200);
+  if (!ond) throw new Error('Typ eerst een onderwerp, bijvoorbeeld: de herfst.');
+  const n = Math.max(3, Math.min(MAX_VRAGEN, Number(aantal) || 8));
+  return `Je maakt vragen voor jonge kinderen van 5 tot 8 jaar (kleuterklas tot 2e leerjaar) die nog niet of nauwelijks lezen.
+Onderwerp: ${ond}
+Taal van de vragen: ${TAALNAAM[t] || TAALNAAM.nl}
+
+Maak ${n} korte vragen. Elke vraag wordt voorgelezen, dus schrijf ze zoals een leerkracht ze zegt: kort, eenvoudig en vriendelijk.
+Elke vraag heeft 3 antwoorden. Elk antwoord is één duidelijke emoji en één kort woord (de emoji moet het woord tonen, kinderen kiezen op de prent).
+Precies één antwoord is juist. Wissel de plaats van het juiste antwoord af. Geen strikvragen, geen negatieve vragen.
+
+Geef ALLEEN deze JSON, zonder uitleg en zonder codeblok:
+{"naam": "korte titel van de reeks", "vragen": [{"vraag": "Welk dier zegt miauw?", "opties": [{"emoji": "🐶", "woord": "hond"}, {"emoji": "🐱", "woord": "kat"}, {"emoji": "🐮", "woord": "koe"}], "juist": 1}]}
+"juist" is de plaats van het juiste antwoord (0, 1 of 2).`;
+}
+function leesEigen(data) {
+  const s = schoonSet({ naam: data && data.naam, vragen: data && data.vragen });
+  delete s.id;
+  return s;
 }
 
 function stickers(id) {
@@ -306,6 +392,7 @@ function inhoud(taalId) {
 module.exports = {
   SPELLEN, FASEN, PER_RONDE, RONDES, DIEREN, instellingen, zetInstellingen, STICKERS, DIER_GROEI, dierFase,
   kinderen, wisselDier, zetSymbool, symboolBestand, draak, noemDraak, start, stop, stand, overzicht, antwoord, teamGoed, klasBeloning, stickers,
-  kringKies, kringStand, kringVolgende, inhoud, fase,
+  kringKies, kringStand, kringVolgende, inhoud, fase, niveausVan,
+  voortgang, sets, bewaarSet, wisSet, eigenPrompt, leesEigen,
   get actief() { return !!les; },
 };

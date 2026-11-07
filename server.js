@@ -776,9 +776,9 @@ app.post('/junior/symbool/:id', express.json({ limit: '700kb' }), (req, res) => 
 // Wat het draakje zegt en toont, in de taal van LANcelot, plus de spelletjes (namen voor de leerkracht).
 app.get('/junior/inhoud.js', (req, res) => {
   const inh = junior.inhoud(taal.huidig());
-  const spellen = junior.SPELLEN.map(({ id, naam, zin, groep, jaar, beeld, niveaus: n, bordAlleen }) => ({ id, naam, zin, groep, jaar, beeld, niveaus: n, bordAlleen: !!bordAlleen }));
+  const spellen = junior.SPELLEN.map(s => ({ id: s.id, naam: s.naam, zin: s.zin, groep: s.groep, beeld: s.beeld, niveaus: junior.niveausVan(s), bordAlleen: !!s.bordAlleen, verborgen: !!s.verborgen }));
   res.setHeader('Cache-Control', 'no-cache');
-  res.type('application/javascript').send(`window.JR=${JSON.stringify({ ...inh, spellen })};`);
+  res.type('application/javascript').send(`window.JR=${JSON.stringify({ ...inh, spellen, sets: junior.sets() })};`);
 });
 // Mijn huisdier: een ei kiezen, verzorgen en zien groeien, op het eigen toestel.
 app.get('/huisdier', (req, res) => {
@@ -1316,6 +1316,31 @@ io.on('connection', socket => {
       juniorSoon();
       return { kinderen: lijst };
     }));
+    // Opvolging per kind en per spel, en de eigen vragen (blok Maken).
+    socket.on('jr-voortgang', handle(() => junior.voortgang()));
+    socket.on('jr-sets', handle(() => ({ sets: junior.sets(), ai: !!settings.actief().key })));
+    socket.on('jr-set-bewaar', handle(set => {
+      const lijst = junior.bewaarSet(set || {});
+      io.emit('jr-sets', lijst);
+      return { sets: lijst };
+    }));
+    socket.on('jr-set-wis', handle(({ id } = {}) => {
+      const lijst = junior.wisSet(String(id || ''));
+      io.emit('jr-sets', lijst);
+      return { sets: lijst };
+    }));
+    socket.on('jr-set-prompt', handle((arg = {}) => ({ prompt: junior.eigenPrompt({ ...arg, taal: taal.huidig() }) })));
+    socket.on('jr-set-lees', handle(text => ({ set: junior.leesEigen(aiJson.extract(text, 'vragenreeks', d => Array.isArray(d.vragen))) })));
+    socket.on('jr-set-ai', (arg = {}, cb) => {
+      if (typeof cb !== 'function') return;
+      let prompt;
+      try { prompt = junior.eigenPrompt({ ...arg, taal: taal.huidig() }); } catch (err) { return cb({ error: err.message }); }
+      if (!settings.actief().key) return cb({ error: 'Er is nog geen AI-sleutel. Kopieer de prompt en plak het antwoord.' });
+      generateQuiz(prompt, [], text => junior.leesEigen(aiJson.extract(text, 'vragenreeks', d => Array.isArray(d.vragen))))
+        .then(set => cb({ set }))
+        .catch(err => cb({ error: err.message }))
+        .finally(() => io.to('host').emit('settings', settings.publicView()));
+    });
     socket.on('jr-instellingen', handle(arg => {
       const inst = arg ? junior.zetInstellingen(arg) : junior.instellingen();
       if (arg) { io.emit('jr-stand', junior.stand()); juniorSoon(); }
