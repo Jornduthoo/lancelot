@@ -16,6 +16,7 @@ module.exports = {
     teams: ['Team Rot', 'Team Blau', 'Team Gelb', 'Team Grün'],
     teamBeurt: 'ihr seid dran.',
     raceWint: 'gewinnt das Rennen!',
+    jijTeam: 'Du spielst im',
     burchtUitleg: 'Das ist deine Burg. Tippe auf einen Platz und wähle, was du baust.',
     burchtTeWeinig: 'Noch nicht genug Steine. Spiel noch ein bisschen, dann bekommst du mehr!',
     wacht: 'Schau zu deiner Lehrkraft. Gleich geht es los.',

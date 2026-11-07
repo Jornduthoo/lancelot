@@ -694,6 +694,7 @@ const GEEN_TOEGANG = '<!doctype html><meta charset="utf-8"><script src="/taal.js
 for (const [route, page] of PAGINAS) {
   app.get(route, (req, res) => {
     if (!isLeerkracht(req)) return res.status(403).send(GEEN_TOEGANG);
+    if (route === '/host') zetJuniorModus(false);
     // Store-versie na de proefmaand zonder aankoop: eerst kopen. Privacy blijft altijd leesbaar.
     if (route !== '/privacy' && store.geblokkeerd()) return res.redirect('/licentie');
     res.setHeader('Cache-Control', 'no-cache');
@@ -745,15 +746,26 @@ app.get('/burcht', (req, res) => {
 // LANcelot Junior (3e kleuterklas tot 3e leerjaar), in dezelfde app. In de Store-versie nog niet, tot het getest is in de klas
 // (of met juniorInStore: true in settings.json).
 const juniorAan = () => !store.ACTIEF || settings.read().juniorInStore === true;
+// De leerlingen volgen de leerkracht: staat het leerkrachtenscherm op Junior, dan gaat het leerlingadres naar Junior,
+// anders naar het gewone LANcelot (ook wie /junior intikt). Onthouden in settings.json (juniorModus).
+function zetJuniorModus(aan) {
+  if ((settings.read().juniorModus === true) === aan) return;
+  settings.write({ juniorModus: aan });
+  io.emit('jr-modus', { junior: aan });
+}
+const juniorModus = () => juniorAan() && settings.read().juniorModus === true;
 app.get('/junior-leerkracht', (req, res) => {
   if (!isLeerkracht(req)) return res.status(403).send(GEEN_TOEGANG);
   if (!juniorAan()) return res.redirect('/host');
+  zetJuniorModus(true);
   if (store.geblokkeerd()) return res.redirect('/licentie');
   res.setHeader('Cache-Control', 'no-cache');
   res.sendFile(path.join(__dirname, 'public', 'junior-leerkracht.html'));
 });
 app.get('/junior', (req, res) => {
   if (!juniorAan()) return res.redirect('/');
+  // Het leerkrachtenscherm staat op LANcelot en er loopt geen Junior-spel: dan hoort de leerling op LANcelot.
+  if (!juniorModus() && !junior.actief) return res.redirect('/');
   res.setHeader('Cache-Control', 'no-cache');
   res.sendFile(path.join(__dirname, 'public', 'junior.html'));
 });
@@ -874,6 +886,8 @@ app.use('/posters', express.static(POSTERS, { setHeaders: res => res.setHeader('
 // (1,9 MB wordt ongeveer 0,5 MB). Elk bestand wordt één keer gezipt en bewaard tot het verandert.
 const PUBLIC = path.join(__dirname, 'public');
 const gzipped = new Map();
+// Het leerlingadres (/) brengt de kinderen naar Junior zolang het leerkrachtenscherm op Junior staat.
+app.get(['/', '/index.html'], (req, res, next) => (juniorModus() ? res.redirect('/junior') : next()));
 app.get(/^\/(?:[\w./-]*\.(?:js|css|html))?$/, (req, res, next) => {
   if (!/\bgzip\b/.test(req.headers['accept-encoding'] || '')) return next();
   const file = path.join(PUBLIC, req.path === '/' ? 'index.html' : req.path);

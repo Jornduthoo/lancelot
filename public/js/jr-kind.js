@@ -143,6 +143,11 @@ async function volgendeVraag() {
   if (!ronde || ronde.seed !== S().seed) nieuweRonde();
   toon('jr-spel');
   stappen();
+  // Bij de Drakenrace: eerst groot tonen (en zeggen) in welk team je speelt.
+  if (!apart && stand.avontuur && ronde.nr === 0 && !ronde.teamGetoond) {
+    ronde.teamGetoond = true;
+    await teamSplash();
+  }
   const wie = kind(ik[ronde.nr % ik.length]);
   const banner = $('jr-beurt');
   if (ik.length > 1 && wie) {
@@ -498,3 +503,23 @@ $('jr-burcht-klaar').addEventListener('click', () => {
   if (van === 'wacht') { ik = []; gekozen = []; bewaarIk(); socket.emit('jr-login', { ids: [] }); route(); return; }
   toon('jr-beloning');
 });
+
+// De leerkracht ging terug naar LANcelot (en er loopt geen Junior-spel): de tablet volgt.
+socket.on('jr-modus', m => { if (m && m.junior === false && !stand.actief) location.href = '/'; });
+
+// ---------- In welk team speel ik? (Drakenrace) ----------
+const TEAMKLEUR = ['rood', 'blauw', 'geel', 'groen'];
+async function teamSplash() {
+  const wie = ik.map(kind).filter(k => k && k.team >= 0);
+  if (!wie.length) return;
+  const box = $('jr-team-splash');
+  box.innerHTML = wie.map(k => `<div class="jr-ts-een jr-ts-${TEAMKLEUR[k.team]}">
+    <img class="jr-ts-draak" src="/img/junior/race/draak${k.team + 1}.webp" alt="">
+    ${dierImg(k, 'jr-ts-dier')}
+    <p>${Junior.esc(k.naam)}<b>${Junior.esc((J().zin.teams || [])[k.team] || '')}</b></p>
+  </div>`).join('');
+  box.classList.remove('hidden');
+  try { sfx.go(); } catch {}
+  for (const k of wie) await Promise.all([Junior.Stem.zeg([J().zin.jijTeam, (J().zin.teams || [])[k.team]]), new Promise(r => setTimeout(r, 1800))]);
+  box.classList.add('hidden');
+}
