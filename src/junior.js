@@ -22,7 +22,9 @@ const FASEN = [0, 15, 50, 120, 250];
 const MANIEREN = ['bord', 'duo', 'beurt', 'alleen']; // alleen: elk kind op een eigen tablet, zonder doorgeven
 // Avonturen op het bord: de kinderen oefenen op de tablet (met twee of om de beurt), en elk juist antwoord
 // laat op het bord iets gebeuren voor hun kleurteam. Het team van een kind volgt de klaslijst (rood, blauw, geel, groen...).
-const AVONTUREN = ['race'];
+// race en ballon: vier kleurteams tegen elkaar; bouw: de hele klas bouwt samen één burcht.
+const AVONTUREN = ['race', 'ballon', 'bouw'];
+const SAMEN = ['bouw'];
 const STAPPEN_PER_KIND = 3; // de race is gedaan als elk kind van het team ongeveer 3 keer juist antwoordde
 
 // De spelletjes van fase 1. Elk spel heeft niveaus; de leerkracht kiest er één. Alles wat gezegd wordt, staat per taal
@@ -313,18 +315,25 @@ function teamGrootte() {
 function avontuurStand() {
   const a = les && les.avontuur;
   if (!a) return null;
+  if (SAMEN.includes(a.id)) {
+    const doel = Math.max(4, kinderen().length * STAPPEN_PER_KIND);
+    return { id: a.id, samen: true, ver: [Math.min(1, a.stap[0] / doel), 0, 0, 0], winst: a.winst, ronde: a.ronde };
+  }
   const g = teamGrootte();
   return { id: a.id, ver: a.stap.map((x, i) => Math.min(1, x / (g[i] * STAPPEN_PER_KIND))), winst: a.winst, ronde: a.ronde };
 }
 // Een kind antwoordde juist: zijn team zet een stap. Is het team aan de finish, dan wint het en begint een nieuwe ronde.
 function avontuurStap(kind) {
   const a = les.avontuur;
-  a.stap[kind.team]++;
+  const samen = SAMEN.includes(a.id);
+  const t = samen ? 0 : kind.team;
+  a.stap[t]++;
   const g = teamGrootte();
+  const doel = samen ? Math.max(4, kinderen().length * STAPPEN_PER_KIND) : g[t] * STAPPEN_PER_KIND;
   let winnaar = null;
-  if (a.stap[kind.team] >= g[kind.team] * STAPPEN_PER_KIND) {
-    winnaar = kind.team;
-    a.winst[kind.team]++;
+  if (a.stap[t] >= doel) {
+    winnaar = t;
+    a.winst[t]++;
     const uit = avontuurStand();
     a.stap = [0, 0, 0, 0];
     a.ronde++;
