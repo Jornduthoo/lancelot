@@ -15,6 +15,7 @@ module.exports = {
     beurt: 'it is your turn.',
     teams: ['Red team', 'Blue team', 'Yellow team', 'Green team'],
     teamBeurt: 'it is your turn.',
+    raceWint: 'wins the race!',
     wacht: 'Look at your teacher. We will start soon.',
     bord: 'Look at the board and join in!',
     volgende: 'Whose turn is it now? Tap your animal.',

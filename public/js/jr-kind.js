@@ -51,7 +51,9 @@ function zetDraak() {
 function balk() {
   const wie = ik.map(kind).filter(Boolean);
   $('jr-wie').classList.toggle('hidden', !wie.length);
-  $('jr-wie').innerHTML = wie.map(k => `<span class="jr-wie-een">${dierImg(k)}<b>${Junior.esc(k.naam)}</b></span>`).join('');
+  // Bij een avontuur op het bord: de kleur van het team rond het dier (rood, blauw, geel, groen).
+  const kleur = k => (!apart && stand.avontuur && k.team >= 0 ? ` jr-tk-${['rood', 'blauw', 'geel', 'groen'][k.team]}` : '');
+  $('jr-wie').innerHTML = wie.map(k => `<span class="jr-wie-een${kleur(k)}">${dierImg(k)}<b>${Junior.esc(k.naam)}</b></span>`).join('');
 }
 $('jr-wie').addEventListener('click', () => {
   if (!ik.length) return;

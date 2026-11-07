@@ -15,6 +15,7 @@ module.exports = {
     beurt: 'c\'est ton tour.',
     teams: ['Équipe rouge', 'Équipe bleue', 'Équipe jaune', 'Équipe verte'],
     teamBeurt: 'c\'est votre tour.',
+    raceWint: 'gagne la course !',
     wacht: 'Regarde ton enseignant ou ton enseignante. On commence bientôt.',
     bord: 'Regarde le tableau et fais comme nous !',
     volgende: 'À qui le tour ? Touche ton animal.',
