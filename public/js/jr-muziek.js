@@ -105,6 +105,15 @@
       [72, 76, 79, 84, 88, 91, 96].forEach((m, i) => noot(hz(m), t + i * 0.09, 0.6, 0.6, 'triangle'));
       noot(hz(60), t, 1.2, 0.4);
     },
+    // Een eigen vrolijk feestdeuntje voor een verjaardag (geen bestaand liedje).
+    feest() {
+      if (!aan || !audio()) return;
+      this.stop();
+      const t = ctx.currentTime + 0.1;
+      const mel = [67, 67, 69, 67, 72, 71, null, 67, 67, 69, 67, 74, 72, null, 67, 79, 76, 72, 71, 69, null, 77, 77, 76, 72, 74, 72];
+      mel.forEach((m, i) => { if (m) noot(hz(m), t + i * 0.26, 0.5, 0.55, 'triangle'); });
+      [48, 55, 53, 55, 48, 53, 55, 48].forEach((m, i) => noot(hz(m), t + i * 0.9, 1.2, 0.35));
+    },
     get aan() { return aan; },
     set aan(v) {
       aan = !!v;

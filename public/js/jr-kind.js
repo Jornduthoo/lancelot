@@ -72,7 +72,8 @@ function balk() {
   $('jr-wie').classList.toggle('hidden', !wie.length);
   // Bij een avontuur op het bord: de kleur van het team rond het dier (rood, blauw, geel, groen).
   const kleur = k => (!apart && stand.avontuur && !stand.avontuur.samen && k.team >= 0 ? ` jr-tk-${['rood', 'blauw', 'geel', 'groen'][k.team]}` : '');
-  $('jr-wie').innerHTML = wie.map(k => `<span class="jr-wie-een${kleur(k)}">${dierImg(k)}<b>${Junior.esc(k.naam)}</b></span>`).join('');
+  // Jarig vandaag? Dan een kroontje op het dier.
+  $('jr-wie').innerHTML = wie.map(k => `<span class="jr-wie-een${kleur(k)}${k.feest ? ' jr-jarig' : ''}">${k.feest ? '<img class="jr-kroontje" src="/img/junior/hol/1.webp" alt="">' : ''}${dierImg(k)}<b>${Junior.esc(k.naam)}</b></span>`).join('');
 }
 $('jr-wie').addEventListener('click', () => {
   if (!ik.length) return;

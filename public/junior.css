@@ -1014,3 +1014,27 @@ button.jr-mini-draak:hover { transform: translateY(-2px); }
 @keyframes jr-draai-in { from { opacity: 0; bottom: -40px; } }
 .jr-kt-dieren .jr-kt-dier img { width: 104px; height: 104px; }
 .jr-kt-dieren .jr-kt-dier b { font-size: 1.05rem; max-width: 120px; }
+
+/* Verjaardag */
+.jr-wie-een.jr-jarig { position: relative; }
+.jr-kroontje { position: absolute; left: 6px; top: -14px; width: 30px !important; height: 30px !important; rotate: -12deg; }
+.jr-lk-hoofd .jr-feest-knop { background: linear-gradient(90deg, #ff8787, #ffd43b); color: var(--jr-inkt); animation: jr-feest-puls 1.6s ease-in-out infinite; }
+@keyframes jr-feest-puls { 50% { box-shadow: 0 0 0 8px rgb(255 212 59 / .35); } }
+#jr-v-feest { background: url(/img/junior/feest/bg.webp) center / cover; border-radius: 28px; padding: 16px; min-height: 80vh; }
+.jr-feest { display: flex; align-items: flex-end; justify-content: center; gap: 6vw; min-height: 58vh; }
+.jr-feest-kind { position: relative; display: flex; flex-direction: column; align-items: center; }
+.jr-feest-dier { width: min(34vh, 30vw); filter: drop-shadow(0 10px 20px rgb(0 0 0 / .3)); animation: jr-feest-hup 1.2s ease-in-out infinite; }
+.jr-feest-kroon { position: absolute; top: -9%; width: 45%; z-index: 2; rotate: -8deg; animation: jr-feest-hup 1.2s ease-in-out infinite; }
+.jr-feest-kind b { font: 900 3rem/1 var(--jr-schrift, inherit); color: #fff; text-shadow: 0 3px 0 #2b2340, 0 0 20px rgb(0 0 0 / .4); margin-top: 8px; }
+@keyframes jr-feest-hup { 50% { translate: 0 -12px; } }
+.jr-feest-taart { position: relative; }
+.jr-feest-taart > img { width: min(40vh, 34vw); filter: drop-shadow(0 10px 20px rgb(0 0 0 / .3)); }
+.jr-kaarsjes { position: absolute; left: 24%; right: 24%; bottom: 66%; display: flex; justify-content: center; align-items: flex-end; gap: 3%; }
+.jr-feest-draak { width: min(26vh, 20vw); align-self: flex-end; filter: drop-shadow(0 10px 20px rgb(0 0 0 / .3)); }
+.jr-kaarsjes i { width: 18px; height: 80px; box-shadow: 0 0 0 2px #2b2340; border-radius: 4px; background: repeating-linear-gradient(45deg, #fff 0 6px, #ff8787 6px 12px); position: relative; }
+.jr-kaarsjes i::before { content: ''; position: absolute; left: 50%; top: -34px; width: 22px; height: 30px; margin-left: -11px; border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; background: radial-gradient(circle at 50% 70%, #fff3bf, #ffd43b 40%, #ff922b 75%); box-shadow: 0 0 14px #ffd43b; animation: jr-vlam .3s ease-in-out infinite alternate; }
+.jr-kaarsjes i.uit::before { background: none; box-shadow: none; width: 4px; height: 14px; margin-left: -2px; border-radius: 2px; background: rgb(120 120 120 / .5); animation: jr-rook 1.5s ease-out forwards; }
+@keyframes jr-vlam { to { scale: 1.08 .92; } }
+@keyframes jr-rook { to { translate: 0 -30px; opacity: 0; } }
+.jr-feest-knoppen { background: rgb(255 248 231 / .9); border-radius: 999px; padding: 10px 18px; width: fit-content; margin: 10px auto 0; }
+.jr-feest-vraag { font-weight: 900; font-size: 1.2rem; color: var(--jr-inkt); }

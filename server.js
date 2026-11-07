@@ -672,7 +672,7 @@ function juniorSoon() {
     juniorTimer = null;
     const bezet = juniorBezet();
     io.to('host').emit('jr-overzicht', junior.overzicht(bezet));
-    io.emit('jr-kinderen', { kinderen: junior.kinderen().map(({ id, naam, team, dier, eigen, beeld }) => ({ id, naam, team, dier, eigen, beeld })), bezet: [...bezet] });
+    io.emit('jr-kinderen', { kinderen: junior.kinderen().map(({ id, naam, team, dier, eigen, beeld, feest }) => ({ id, naam, team, dier, eigen, beeld, feest })), bezet: [...bezet] });
   }, 500);
 }
 
@@ -1043,7 +1043,7 @@ io.on('connection', socket => {
   socket.on('jr-get', (_, cb) => {
     if (typeof cb !== 'function') return;
     if (!juniorAan()) return cb({ stand: { actief: false }, kinderen: [], bezet: [] });
-    cb({ stand: junior.stand(), kinderen: junior.kinderen().map(({ id, naam, team, dier, eigen, beeld }) => ({ id, naam, team, dier, eigen, beeld })), bezet: [...juniorBezet()] });
+    cb({ stand: junior.stand(), kinderen: junior.kinderen().map(({ id, naam, team, dier, eigen, beeld, feest }) => ({ id, naam, team, dier, eigen, beeld, feest })), bezet: [...juniorBezet()] });
   });
   socket.on('jr-login', ({ ids } = {}, cb) => {
     const geldig = new Set(junior.kinderen().map(k => k.id));
@@ -1400,6 +1400,11 @@ io.on('connection', socket => {
       return { draak: d };
     }));
     // Het hol van het klasdraakje: samen iets kopen met de sterren van de klas, een hoedje opzetten.
+    socket.on('jr-jarig', handle(({ id, datum } = {}) => {
+      const lijst = junior.zetJarig(String(id || ''), String(datum || ''));
+      juniorSoon();
+      return { kinderen: lijst };
+    }));
     socket.on('jr-hol-koop', handle(({ id } = {}) => {
       const d = junior.holKoop(id);
       io.to('host').emit('jr-draak', d);

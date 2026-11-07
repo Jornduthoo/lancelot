@@ -5,7 +5,7 @@ const socket = io({ query: { role: 'host' } });
 const $ = id => document.getElementById(id);
 const J = () => window.JR || { zin: {}, spellen: [] };
 const GROEPEN = [['getallen', '🔢 Getallen en rekenen'], ['meten', '📏 Meten en tijd'], ['meetkunde', '🔷 Vormen en ruimte'], ['taal', '🔤 Taal en klanken'], ['wereld', '🌍 De wereld'], ['samen', '💃 Samen en gevoel'], ['eigen', '✨ Mijn eigen vragen']];
-const VIEWS = ['thuis', 'spelen', 'klas', 'opvolgen', 'maken', 'draakje', 'ochtend', 'eiland', 'rijk', 'klastools'];
+const VIEWS = ['thuis', 'spelen', 'klas', 'opvolgen', 'maken', 'draakje', 'ochtend', 'eiland', 'rijk', 'klastools', 'feest'];
 let sets = (window.JR && JR.sets) || [];
 const TEAMKLEUR = ['rood', 'blauw', 'geel', 'groen'];
 
@@ -232,6 +232,7 @@ muziekKnop();
 // ---------- De klas en hun dieren ----------
 function klas() {
   $('jr-tel-klas').textContent = `${kinderen.length} kinderen`;
+  feestKnop();
   const box = $('jr-klas-rooster');
   box.innerHTML = '';
   $('jr-klas-leeg').classList.toggle('hidden', kinderen.length > 0);
@@ -239,17 +240,44 @@ function klas() {
     const d = document.createElement('div');
     d.className = 'jr-klas-kind';
     d.innerHTML = `<button type="button" class="jr-klas-beeld" title="${k.eigen ? 'Eigen symbool' : 'Tik om een ander dier te geven'}"><img src="${k.beeld}" alt=""></button><span>${Junior.esc(k.naam)}</span><em>${k.stickers ? `🏅 ${k.stickers}` : ''}</em>`
-      + `<span class="jr-klas-knoppen"><button type="button" class="jr-sym" title="Eigen symbooltje opladen (zoals aan de kapstok)">📷</button>${k.eigen ? '<button type="button" class="jr-sym-weg" title="Terug naar een dier">✕</button>' : ''}</span>`;
+      + `<span class="jr-klas-knoppen"><button type="button" class="jr-sym" title="Eigen symbooltje opladen (zoals aan de kapstok)">📷</button><button type="button" class="jr-jarig-knop ${k.jarig ? 'aan' : ''}" title="Verjaardag">🎂${k.jarig ? `<small data-geen-vertaling>${+k.jarig.slice(3)}/${+k.jarig.slice(0, 2)}</small>` : ''}</button>${k.eigen ? '<button type="button" class="jr-sym-weg" title="Terug naar een dier">✕</button>' : ''}</span>`;
     d.querySelector('.jr-klas-beeld').addEventListener('click', () => {
       if (k.eigen) return;
       socket.emit('jr-dier', { id: k.id }, res => { if (res && res.kinderen) { kinderen = res.kinderen; klas(); } });
     });
     d.querySelector('.jr-sym').addEventListener('click', () => kiesSymbool(k));
+    d.querySelector('.jr-jarig-knop').addEventListener('click', () => kiesJarig(k));
     const weg = d.querySelector('.jr-sym-weg');
     if (weg) weg.addEventListener('click', () => stuurSymbool(k, ''));
     box.appendChild(d);
   }
 }
+// De verjaardag van een kind: dag en maand (het jaar is niet nodig).
+function kiesJarig(k) {
+  const v = $('jr-jarig-venster');
+  $('jr-jarig-naam').textContent = k.naam;
+  $('jr-jarig-dag').value = k.jarig ? String(+k.jarig.slice(3)) : '';
+  $('jr-jarig-maand').value = k.jarig ? String(+k.jarig.slice(0, 2)) : '';
+  v._kind = k;
+  v.showModal();
+}
+function stuurJarig(datum) {
+  const v = $('jr-jarig-venster');
+  socket.emit('jr-jarig', { id: v._kind.id, datum }, res => {
+    if (!res || res.error) return Ui.melding((res && res.error) || 'Bewaren lukte niet.');
+    kinderen = res.kinderen;
+    klas();
+    v.close();
+  });
+}
+$('jr-jarig-bewaar').addEventListener('click', () => {
+  const d = +$('jr-jarig-dag').value, m = +$('jr-jarig-maand').value;
+  if (!d || !m) return stuurJarig('');
+  stuurJarig(`${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`);
+});
+$('jr-jarig-wis').addEventListener('click', () => stuurJarig(''));
+$('jr-jarig-dicht').addEventListener('click', () => $('jr-jarig-venster').close());
+
 // Een eigen symbool: een foto of scan, hier al verkleind tot 256 pixels zodat de tablets ze snel laden.
 function kiesSymbool(k) {
   const inp = document.createElement('input');
@@ -522,7 +550,7 @@ function toon() {
   muziek();
   $('jr-start').classList.toggle('hidden', loopt);
   $('jr-loopt').classList.toggle('hidden', !loopt);
-  $('jr-status').textContent = loopt ? stand.naam : 'Het klasdraakje';
+  $('jr-status').textContent = loopt ? stand.naam : '';
   document.body.dataset.spel = loopt ? stand.spel : '';
   if (!loopt) {
     if (bord && bord.huidig) bord.huidig.stop();
@@ -585,10 +613,78 @@ function toonView(v) {
   muziek();
   if (v !== 'eiland') eilandTourStop();
   if (v === 'rijk') JrRijk.maak($('jr-rijk-bord')); else if (window.JrRijk) JrRijk.stop();
+  if (v === 'feest') feest(); else if (feestStop) feestStop();
   if (v === 'klastools') JrTools.maak($('jr-tools-bord'), { kinderen: () => kinderen.filter(k => !afwezig.has(k.id)) }); else if (window.JrTools) JrTools.stop();
   if (v === 'eiland') socket.emit('jr-eiland', null, res => res && res.eiland && eiland(res.eiland));
 }
 
+
+// ---------- Verjaardag: het dier van het jarige kind met een kroon, het draakje met een taart en kaarsjes uitblazen. ----------
+const jarigen = () => kinderen.filter(k => k.feest);
+function feestKnop() {
+  const j = jarigen();
+  $('jr-feest-knop').classList.toggle('hidden', !j.length);
+  $('jr-feest-namen').textContent = j.map(k => k.naam).join(' & ');
+}
+let feestStop = null;
+function feest(i = 0) {
+  if (feestStop) feestStop();
+  const j = jarigen();
+  const k = j[i % Math.max(1, j.length)];
+  const box = $('jr-feest-bord');
+  if (!k) { box.innerHTML = ''; return; }
+  let jaar = 0, uit = false;
+  box.innerHTML = `<div class="jr-feest">
+    <div class="jr-feest-kind"><img class="jr-feest-kroon" src="/img/junior/hol/1.webp" alt=""><img class="jr-feest-dier" src="${k.beeld}" alt=""><b>${Junior.esc(k.naam)}</b></div>
+    <div class="jr-feest-taart"><img src="/img/junior/feest/taart.webp" alt=""><div class="jr-kaarsjes" id="jr-kaarsjes"></div></div><img class="jr-feest-draak" src="/img/junior/draakpose/2.webp" alt="">
+  </div>
+  <div class="jr-kt-knoppen jr-feest-knoppen"><span class="jr-feest-vraag">Hoeveel kaarsjes?</span>${[3, 4, 5, 6, 7, 8].map(n => `<button type="button" class="jr-kt-klein jr-eigen" data-jaar="${n}">${n}</button>`).join('')}
+    <button type="button" class="jr-kt-groot jr-eigen hidden" id="jr-blaas">🌬️ Blaas!</button>${j.length > 1 ? '<button type="button" class="jr-kt-klein jr-eigen" id="jr-feest-volgend">▶</button>' : ''}</div>`;
+  try { confetti(3000); } catch {}
+  try { JrMuziek.feest(); } catch {}
+  Junior.Stem.zeg([k.naam, J().zin.jarig]);
+  const kaarsjes = () => { $('jr-kaarsjes').innerHTML = Array.from({ length: jaar }, () => `<i class="${uit ? 'uit' : ''}"></i>`).join(''); };
+  box.querySelectorAll('[data-jaar]').forEach(b => b.addEventListener('click', () => {
+    jaar = +b.dataset.jaar; uit = false; kaarsjes();
+    box.querySelectorAll('[data-jaar]').forEach(x => x.classList.toggle('aan', x === b));
+    $('jr-blaas').classList.remove('hidden');
+    Junior.Stem.zeg([jaar, J().zin.jarigBlaas]);
+    luister();
+  }));
+  const blaas = () => {
+    if (uit || !jaar) return;
+    uit = true; kaarsjes();
+    try { confetti(4000); } catch {}
+    try { sfx.fanfare(); } catch {}
+    try { JrMuziek.liedje(); } catch {}
+    Junior.Stem.zeg([J().zin.jarigUit, k.naam]);
+    stopMicro();
+  };
+  $('jr-blaas').addEventListener('click', blaas);
+  const volg = $('jr-feest-volgend');
+  if (volg) volg.addEventListener('click', () => feest(i + 1));
+  // Blazen in de micro van het bord blaast de kaarsjes uit (lukt de micro niet, dan tikt de leerkracht op Blaas).
+  let stroom = null, ctx = null, raf = 0;
+  const stopMicro = () => { cancelAnimationFrame(raf); if (stroom) stroom.getTracks().forEach(t => t.stop()); if (ctx) ctx.close().catch(() => {}); stroom = null; ctx = null; };
+  async function luister() {
+    if (stroom || !navigator.mediaDevices) return;
+    try { stroom = await navigator.mediaDevices.getUserMedia({ audio: true }); } catch { return; }
+    ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const an = ctx.createAnalyser(); an.fftSize = 1024;
+    ctx.createMediaStreamSource(stroom).connect(an);
+    const buf = new Float32Array(an.fftSize);
+    let hard = 0;
+    const lus = () => {
+      an.getFloatTimeDomainData(buf);
+      let som = 0; for (const x of buf) som += x * x;
+      hard = Math.sqrt(som / buf.length) > 0.12 ? hard + 1 : 0;
+      if (hard > 12) return blaas();
+      raf = requestAnimationFrame(lus);
+    };
+    setTimeout(lus, 1500);
+  }
+  feestStop = () => { stopMicro(); feestStop = null; };
+}
 
 // ---------- Het klaseiland: elke burcht van de klas op één eiland ----------
 // Zelfde plekjes als op de tablet: midden (%), onderkant (%), grootte.
@@ -952,7 +1048,8 @@ socket.on('jr-stand', s => {
   if (oud !== s.seed || !s.actief) toon();
 });
 socket.on('jr-overzicht', lijst => volg(lijst));
-socket.on('jr-kinderen', res => { kinderen = res.kinderen || []; klas(); });
+// De lijst voor iedereen is kort (geen verjaardagen of stickers): wat de leerkracht al wist, blijft.
+socket.on('jr-kinderen', res => { const oud = new Map(kinderen.map(k => [k.id, k])); kinderen = (res.kinderen || []).map(k => ({ ...(oud.get(k.id) || {}), ...k })); klas(); });
 socket.on('jr-draak', d => toonDraak(d));
 socket.on('jr-kring', k => stand.spel === 'kring' && kringToon(k));
 socket.on('addresses', list => {
