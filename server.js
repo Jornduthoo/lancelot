@@ -119,6 +119,7 @@ const burchten = require('./src/burchten');
 const huisdieren = require('./src/huisdieren');
 const taken = require('./src/taken');
 const junior = require('./src/junior');
+const jrFoto = require('./src/jr-foto');
 const klastaken = require('./src/klastaken');
 const klasindeling = require('./src/klasindeling');
 const soloSpel = require('./src/solo');
@@ -785,6 +786,13 @@ app.post('/junior/symbool/:id', express.json({ limit: '700kb' }), (req, res) => 
     res.status(400).json({ error: err.message });
   }
 });
+// De echte foto's bij de eigen vragen (Junior > Maken), bewaard in de klasmap: voor iedereen in de klas.
+app.get('/junior/foto/:naam', (req, res) => {
+  const f = jrFoto.bestand(req.params.naam);
+  if (!f) return res.status(404).end();
+  res.setHeader('Cache-Control', 'private, max-age=604800, immutable');
+  res.sendFile(f, err => err && !res.headersSent && res.status(404).end());
+});
 // Wat het draakje zegt en toont, in de taal van LANcelot, plus de spelletjes (namen voor de leerkracht).
 app.get('/junior/inhoud.js', (req, res) => {
   const inh = junior.inhoud(taal.huidig());
@@ -1371,6 +1379,15 @@ io.on('connection', socket => {
         .then(set => cb({ set }))
         .catch(err => cb({ error: err.message }))
         .finally(() => io.to('host').emit('settings', settings.publicView()));
+    });
+    // Echte foto's bij de eigen vragen: zoeken op Wikimedia Commons en één foto bewaren in de klasmap.
+    socket.on('jr-foto-zoek', ({ woord } = {}, cb) => {
+      if (typeof cb !== 'function') return;
+      jrFoto.zoek(woord).then(fotos => cb({ fotos })).catch(err => cb({ error: err.message }));
+    });
+    socket.on('jr-foto-neem', ({ thumb } = {}, cb) => {
+      if (typeof cb !== 'function') return;
+      jrFoto.neem(thumb).then(f => cb({ f })).catch(err => cb({ error: err.message }));
     });
     socket.on('jr-instellingen', handle(arg => {
       const inst = arg ? junior.zetInstellingen(arg) : junior.instellingen();

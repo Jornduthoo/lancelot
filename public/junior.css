@@ -293,9 +293,9 @@
 .jr-pop { animation: jr-hop .4s ease; }
 
 /* Het keuzevenster en de instellingen: zacht en rond zoals de rest van Junior, nooit grijs of uitgevaagd. */
-.jr-kies-venster, .jr-inst-venster { max-width: 900px; width: calc(100% - 32px); background: var(--jr-room); color: var(--jr-inkt); border: 0; border-radius: 26px; padding: 22px 24px; box-shadow: 0 0 0 4px var(--jr-goud), 0 20px 60px rgb(0 0 0 / .45); clip-path: none; }
-.jr-kies-venster::backdrop, .jr-inst-venster::backdrop { background: rgb(18 40 26 / .55); backdrop-filter: blur(4px); }
-.jr-kies-venster h2, .jr-inst-venster h2 { margin: 0; color: var(--jr-inkt); font-family: var(--jr-schrift); font-size: 1.7rem; }
+.jr-kies-venster, .jr-inst-venster, .jr-foto-venster { max-width: 900px; width: calc(100% - 32px); background: var(--jr-room); color: var(--jr-inkt); border: 0; border-radius: 26px; padding: 22px 24px; box-shadow: 0 0 0 4px var(--jr-goud), 0 20px 60px rgb(0 0 0 / .45); clip-path: none; }
+.jr-kies-venster::backdrop, .jr-inst-venster::backdrop, .jr-foto-venster::backdrop { background: rgb(18 40 26 / .55); backdrop-filter: blur(4px); }
+.jr-kies-venster h2, .jr-inst-venster h2, .jr-foto-venster h2 { margin: 0; color: var(--jr-inkt); font-family: var(--jr-schrift); font-size: 1.7rem; }
 .jr-kies-venster .muted { color: #5b5170; margin: 2px 0 0; }
 .jr-kies-kop { display: flex; gap: 14px; align-items: center; margin-bottom: 10px; }
 .jr-kies-kop img { width: 72px; height: 72px; object-fit: contain; }
@@ -313,10 +313,10 @@
 .jr-kies-venster .jr-kv-manieren button { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 14px 12px; text-align: center; white-space: normal; height: auto; border-radius: 18px; }
 .jr-kv-manieren span { font-size: .85rem; font-weight: 400; color: #5b5170; }
 .jr-kv-ic { font-size: 2rem !important; }
-.jr-kies-venster .actions, .jr-inst-venster .actions { margin-top: 18px; justify-content: flex-end; display: flex; gap: 10px; }
-.jr-kies-venster .actions button, .jr-inst-venster .actions button { border-radius: 999px; clip-path: none; padding: 10px 26px; font-weight: 800; }
-.jr-kies-venster .actions .secondary, .jr-inst-venster .actions .secondary { background: #fff; color: var(--jr-inkt); border: 3px solid #d8c9a3; }
-.jr-kies-venster .actions .gold, .jr-inst-venster .actions .gold { background: var(--jr-goud); color: var(--jr-inkt); border: 0; box-shadow: 0 3px 0 #d69e1a; }
+.jr-kies-venster .actions, .jr-inst-venster .actions, .jr-foto-venster .actions { margin-top: 18px; justify-content: flex-end; display: flex; gap: 10px; }
+.jr-kies-venster .actions button, .jr-inst-venster .actions button, .jr-foto-venster .actions button { border-radius: 999px; clip-path: none; padding: 10px 26px; font-weight: 800; }
+.jr-kies-venster .actions .secondary, .jr-inst-venster .actions .secondary, .jr-foto-venster .actions .secondary { background: #fff; color: var(--jr-inkt); border: 3px solid #d8c9a3; }
+.jr-kies-venster .actions .gold, .jr-inst-venster .actions .gold, .jr-foto-venster .actions .gold { background: var(--jr-goud); color: var(--jr-inkt); border: 0; box-shadow: 0 3px 0 #d69e1a; }
 .jr-inst-uitleg { color: #5b5170; margin: 2px 0 0; font-size: .9rem; }
 
 @media (prefers-reduced-motion: reduce) {
@@ -901,3 +901,18 @@ button.jr-mini-draak:hover { transform: translateY(-2px); }
   .jr-diploma-onder { display: flex; align-items: center; gap: 6mm; font-size: 12pt; }
   .jr-diploma-onder img { width: 22mm; height: 22mm; object-fit: contain; }
 }
+
+/* Echte foto's bij de eigen vragen (Maken) */
+.jr-foto-rij { display: flex; gap: 8px; margin-top: 12px; }
+.jr-foto-rij input { flex: 1; min-width: 0; }
+.jr-foto-tip { min-height: 1.3em; margin: 8px 0; }
+.jr-foto-lijst { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; max-height: 55vh; overflow: auto; }
+.jr-lk main button.jr-foto-keuze, .jr-foto-keuze { padding: 0; aspect-ratio: 1; border-radius: 14px; overflow: hidden; background: #fff; border: 3px solid transparent; }
+.jr-foto-keuze:hover { border-color: var(--jr-goud); }
+.jr-foto-keuze img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.jr-foto-klein { font-size: .85rem; opacity: .75; margin: 10px 0 0; }
+.jr-bw-optie .jr-bw-foto { width: 3.2em; height: 3.2em; object-fit: cover; border-radius: 10px; flex: none; }
+.jr-lk .panel label.jr-bw-optie { display: flex; flex-wrap: nowrap; margin-top: 0; }
+.jr-bw-optie .jr-bw-w { width: auto; margin: 0; }
+.jr-lk main .jr-bw-optie button.jr-bw-fk { width: auto; padding: 4px 8px; min-height: 0; flex: none; margin: 0; }
+.jr-foto { width: 4.2em; height: 4.2em; object-fit: cover; border-radius: .35em; display: block; margin: 0 auto; box-shadow: 0 .08em .2em rgb(0 0 0 / .25); }
