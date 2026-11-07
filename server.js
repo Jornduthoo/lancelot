@@ -763,6 +763,13 @@ app.get('/junior-leerkracht', (req, res) => {
   res.setHeader('Cache-Control', 'no-cache');
   res.sendFile(path.join(__dirname, 'public', 'junior-leerkracht.html'));
 });
+// Bij het opstarten: kiezen tussen LANcelot en LANcelot Junior (zonder Junior meteen naar LANcelot).
+app.get('/kies', (req, res) => {
+  if (!isLeerkracht(req)) return res.status(403).send(GEEN_TOEGANG);
+  if (!juniorAan()) return res.redirect('/host');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.sendFile(path.join(__dirname, 'public', 'kies.html'));
+});
 app.get('/junior', (req, res) => {
   if (!juniorAan()) return res.redirect('/');
   // Het leerkrachtenscherm staat op LANcelot en er loopt geen Junior-spel: dan hoort de leerling op LANcelot.
@@ -1409,6 +1416,8 @@ io.on('connection', socket => {
       if (typeof cb !== 'function') return;
       jrFoto.neem(thumb).then(f => cb({ f })).catch(err => cb({ error: err.message }));
     });
+    // Lukt het ophalen op de server niet (Wikimedia weigert soms), dan stuurt de browser de foto zelf door.
+    socket.on('jr-foto-bewaar', handle(({ data, soort } = {}) => ({ f: jrFoto.bewaar(data, String(soort || '')) })));
     socket.on('jr-instellingen', handle(arg => {
       const inst = arg ? junior.zetInstellingen(arg) : junior.instellingen();
       if (arg) { io.emit('jr-stand', junior.stand()); juniorSoon(); }
@@ -1469,6 +1478,16 @@ io.on('connection', socket => {
       settings.write({ quizNiveau: ['alle', 'leerling'].includes(niveau) ? niveau : niveaus.clean(niveau) || 'schildknaap' });
       io.to('host').emit('quiz-niveau', quizzes.classNiveau());
     });
+    socket.on('jr-klas', handle(({ actie, namen, id, naam } = {}) => {
+      if (actie === 'nieuw') klas.voegToe(namen);
+      else if (actie === 'hernoem') klas.hernoem(String(id || ''), naam);
+      else if (actie === 'wis') klas.wis(String(id || ''));
+      else throw new Error('Onbekend.');
+      io.emit('klas-namen', klas.names());
+      juniorSoon();
+      syncSoon();
+      return { kinderen: junior.kinderen() };
+    }));
     socket.on('klas-save', handle(data => {
       const saved = klas.write(data);
       io.emit('klas-namen', klas.names());
@@ -2654,7 +2673,7 @@ server.once('listening', () => {
   if (PORT !== EERSTE_POORT) { const wie = require('./src/poortgebruiker').uitleg(EERSTE_POORT); if (wie) console.log(wie); }
   if (!store.ACTIEF) console.log('\n  Sluit dit venster om te stoppen.\n');
   // Start LANcelot.bat vraagt om het leerkrachtenscherm te openen zodra de server echt luistert, op de juiste poort.
-  if ((process.env.LANCELOT_OPEN || store.ACTIEF) && process.platform === 'win32') execFile('cmd', ['/c', 'start', '', `http://localhost:${PORT}/host`], { windowsHide: true });
+  if ((process.env.LANCELOT_OPEN || store.ACTIEF) && process.platform === 'win32') execFile('cmd', ['/c', 'start', '', `http://localhost:${PORT}/${juniorAan() ? 'kies' : 'host'}`], { windowsHide: true });
 });
 function poortBezet(err) {
   if (err.code === 'EADDRINUSE' && !VASTE_POORT && PORT < EERSTE_POORT + 10) {

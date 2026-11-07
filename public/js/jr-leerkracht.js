@@ -291,6 +291,32 @@ $('jr-inst-knop').addEventListener('click', () => {
   });
 });
 $('jr-inst-dicht').addEventListener('click', () => $('jr-inst-venster').close());
+// De taal en de AI-sleutel kies je ook hier, zodat Junior op zichzelf werkt.
+for (const b of $('jr-inst-taal').children) {
+  b.classList.toggle('aan', b.dataset.w === (window.LANCELOT_TAAL || 'nl'));
+  b.addEventListener('click', () => { if (b.dataset.w !== (window.LANCELOT_TAAL || 'nl')) socket.emit('taal-zet', b.dataset.w); });
+}
+let aiStand = null;
+function toonAi(st) {
+  if (st) aiStand = st;
+  if (!aiStand || !aiStand.diensten) return;
+  const d = aiStand.diensten[$('jr-ai-dienst').value];
+  $('jr-ai-stand').textContent = d && d.hasKey ? `✅ ${d.naam}: sleutel bewaard (${d.keyHint}).` : '';
+}
+socket.on('settings', st => { toonAi(st); if (st && st.diensten) { const heeft = Object.values(st.diensten).some(d => d.hasKey); if (heeft) $('jr-maak-ai-tip').textContent = ''; } });
+$('jr-ai-dienst').addEventListener('change', () => toonAi());
+$('jr-inst-ai').addEventListener('submit', e => {
+  e.preventDefault();
+  const dienst = $('jr-ai-dienst').value;
+  const sleutel = $('jr-ai-sleutel').value.trim();
+  if (!sleutel) return $('jr-ai-sleutel').focus();
+  const veld = { gemini: 'geminiKey', claude: 'claudeKey', openai: 'openaiKey' }[dienst];
+  socket.emit('save-settings', { aiDienst: dienst, [veld]: sleutel }, res => {
+    if (!res || res.error) return Ui.melding((res && res.error) || 'Bewaren lukte niet.');
+    $('jr-ai-sleutel').value = '';
+    $('jr-ai-stand').textContent = '✅ Bewaard.';
+  });
+});
 const stemKnop = () => { $('jr-stem-knop').textContent = Junior.Stem.uit ? '🔇' : '🔊'; };
 $('jr-stem-knop').addEventListener('click', () => { Junior.Stem.uit = !Junior.Stem.uit; stemKnop(); });
 stemKnop();
@@ -316,7 +342,7 @@ function klas() {
     const d = document.createElement('div');
     d.className = 'jr-klas-kind';
     d.innerHTML = `<button type="button" class="jr-klas-beeld" title="${k.eigen ? 'Eigen symbool' : 'Tik om een ander dier te geven'}"><img src="${k.beeld}" alt=""></button><span>${Junior.esc(k.naam)}</span><em>${k.stickers ? `🏅 ${k.stickers}` : ''}</em>`
-      + `<span class="jr-klas-knoppen"><button type="button" class="jr-sym jr-eigen" title="Eigen symbooltje opladen (zoals aan de kapstok)">📷</button><button type="button" class="jr-jarig-knop jr-eigen ${k.jarig ? 'aan' : ''}" title="Verjaardag">🎂${k.jarig ? `<small data-geen-vertaling>${+k.jarig.slice(3)}/${+k.jarig.slice(0, 2)}</small>` : ''}</button>${k.eigen ? '<button type="button" class="jr-sym-weg jr-eigen" title="Terug naar een dier">✕</button>' : ''}</span>`;
+      + `<span class="jr-klas-knoppen"><button type="button" class="jr-sym jr-eigen" title="Eigen symbooltje opladen (zoals aan de kapstok)">📷</button><button type="button" class="jr-jarig-knop jr-eigen ${k.jarig ? 'aan' : ''}" title="Verjaardag">🎂${k.jarig ? `<small data-geen-vertaling>${+k.jarig.slice(3)}/${+k.jarig.slice(0, 2)}</small>` : ''}</button>${k.eigen ? '<button type="button" class="jr-sym-weg jr-eigen" title="Terug naar een dier">✕</button>' : ''}<button type="button" class="jr-kind-naam jr-eigen" title="Andere naam">✏️</button><button type="button" class="jr-kind-weg jr-eigen" title="Uit de klas halen">🗑️</button></span>`;
     d.querySelector('.jr-klas-beeld').addEventListener('click', () => {
       if (k.eigen) return;
       socket.emit('jr-dier', { id: k.id }, res => { if (res && res.kinderen) { kinderen = res.kinderen; klas(); } });
@@ -325,9 +351,58 @@ function klas() {
     d.querySelector('.jr-jarig-knop').addEventListener('click', () => kiesJarig(k));
     const weg = d.querySelector('.jr-sym-weg');
     if (weg) weg.addEventListener('click', () => stuurSymbool(k, ''));
+    d.querySelector('.jr-kind-naam').addEventListener('click', () => {
+      const span = d.querySelector(':scope > span');
+      const inp = document.createElement('input');
+      inp.className = 'jr-kind-invoer';
+      inp.maxLength = 20;
+      inp.value = k.naam;
+      span.replaceWith(inp);
+      inp.focus();
+      inp.select();
+      let klaar = false;
+      const bewaar = () => {
+        if (klaar) return;
+        klaar = true;
+        const naam = inp.value.trim();
+        if (!naam || naam === k.naam) return klas();
+        klasActie({ actie: 'hernoem', id: k.id, naam });
+      };
+      inp.addEventListener('keydown', e => { if (e.key === 'Enter') bewaar(); if (e.key === 'Escape') { klaar = true; klas(); } });
+      inp.addEventListener('blur', bewaar);
+    });
+    d.querySelector('.jr-kind-weg').addEventListener('click', async () => {
+      if (!(await Ui.vraag(`${k.naam} uit de klas halen?`))) return;
+      klasActie({ actie: 'wis', id: k.id });
+    });
     box.appendChild(d);
   }
 }
+// De klas aanpassen in Junior zelf: dezelfde klaslijst als Mijn klas.
+function klasActie(arg, klaar) {
+  socket.emit('jr-klas', arg, res => {
+    if (!res || res.error) { Ui.melding((res && res.error) || 'Bewaren lukte niet.'); return klas(); }
+    const oud = new Map(kinderen.map(k => [k.id, k]));
+    kinderen = (res.kinderen || []).map(k => ({ ...(oud.get(k.id) || {}), ...k }));
+    klas();
+    if (klaar) klaar();
+  });
+}
+// Een lijst plakken (uit Excel of een document): elke regel wordt een naam.
+$('jr-klas-nieuw').addEventListener('paste', e => {
+  const t = e.clipboardData && e.clipboardData.getData('text');
+  if (!t || !/[\r\n\t]/.test(t)) return;
+  e.preventDefault();
+  const inp = $('jr-klas-nieuw');
+  const lijst = t.split(/[\r\n\t]+/).map(x => x.trim()).filter(Boolean).join(', ');
+  inp.setRangeText(lijst, inp.selectionStart, inp.selectionEnd, 'end');
+});
+$('jr-klas-erbij').addEventListener('submit', e => {
+  e.preventDefault();
+  const inp = $('jr-klas-nieuw');
+  if (!inp.value.trim()) return inp.focus();
+  klasActie({ actie: 'nieuw', namen: inp.value }, () => { inp.value = ''; inp.focus(); });
+});
 // De verjaardag van een kind: dag en maand (het jaar is niet nodig).
 function kiesJarig(k) {
   const v = $('jr-jarig-venster');
@@ -1178,14 +1253,24 @@ function fotoZoek() {
       b.innerHTML = `<img src="${Junior.esc(f.thumb)}" alt="" loading="lazy">`;
       b.addEventListener('click', () => {
         $('jr-foto-tip').textContent = 'De foto wordt bewaard...';
-        socket.emit('jr-foto-neem', { thumb: f.thumb }, r => {
-          if (!r || r.error) { $('jr-foto-tip').textContent = (r && r.error) || 'Die foto lukt niet.'; return; }
+        const gelukt = r => {
           const o = $('jr-foto-venster')._optie;
           o.f = r.f;
           o.fb = [f.bron, 'Wikimedia Commons'].filter(Boolean).join(', ');
           if (!o.w && !$('jr-foto-venster')._isVraag) o.w = $('jr-foto-woord').value.trim().slice(0, 30);
           $('jr-foto-venster').close();
           vragenLijst();
+        };
+        // Eerst haalt de pc de foto op. Weigert Wikimedia dat, dan stuurt deze browser de foto zelf door (die toont ze al).
+        const zelf = fout => fetch(f.thumb, { mode: 'cors' }).then(x => (x.ok ? x.blob() : Promise.reject())).then(async blob => {
+          socket.emit('jr-foto-bewaar', { data: await blob.arrayBuffer(), soort: blob.type }, r => {
+            if (!r || r.error) { $('jr-foto-tip').textContent = (r && r.error) || fout; return; }
+            gelukt(r);
+          });
+        }).catch(() => { $('jr-foto-tip').textContent = fout; });
+        socket.emit('jr-foto-neem', { thumb: f.thumb }, r => {
+          if (!r || r.error) return zelf((r && r.error) || 'Die foto lukt niet.');
+          gelukt(r);
         });
       });
       lijst.appendChild(b);
@@ -1268,7 +1353,7 @@ socket.on('connect', () => {
     if (!res || res.error) return;
     zetMappen(res.mappen);
     zetSets(res.sets);
-    $('jr-maak-ai-tip').textContent = res.ai ? '' : 'Nog geen AI-sleutel? Kopieer de prompt en plak het antwoord van een chatbot hieronder. Een sleutel zet je bij Instellingen in LANcelot.';
+    $('jr-maak-ai-tip').textContent = res.ai ? '' : 'Nog geen AI-sleutel? Kopieer de prompt en plak het antwoord van een chatbot hieronder. Een sleutel zet je bij ⚙️ Instellingen.';
   });
   socket.emit('jr-lk-get', null, res => {
     if (!res) return;

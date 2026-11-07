@@ -929,7 +929,7 @@
       sc.appendChild(draakje);
       for (const p of v.plekken) {
         const id = p.id === 'naast' ? `naast-${v.naastKant}` : p.id;
-        const k = el('button', `jr-plek-knop jr-p-${id}`);
+        const k = el('button', `jr-plek-knop jr-eigen jr-p-${id}`);
         k.type = 'button';
         k.addEventListener('click', () => {
           if (af || k.disabled) return;

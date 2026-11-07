@@ -157,4 +157,27 @@ function lesmapSamen(hier, daar) {
   return JSON.stringify({ naam: a.naam || b.naam, leerjaar: a.leerjaar || b.leerjaar, leerlingen: leerlingen.slice(0, MAX) }, null, 2) + '\n';
 }
 
-module.exports = { read, write, setNiveau, niveauVoor, names, match, LESMAP, naarLesmap, uitLesmap, lesmapGeldig, lesmapSamen };
+// LANcelot Junior: de klas meteen in Junior aanpassen (kinderen toevoegen, hernoemen, wissen). Zelfde klaslijst.
+function voegToe(namen) {
+  const k = read();
+  const extra = (Array.isArray(namen) ? namen : String(namen || '').split(/[\n,;]+/)).map(cleanName).filter(Boolean);
+  if (!extra.length) throw new Error('Typ eerst een naam.');
+  return write({ naam: k.naam, leerjaar: k.leerjaar, namen: [...k.leerlingen.map(l => l.naam), ...extra] });
+}
+function hernoem(id, nieuw) {
+  const k = read();
+  const l = k.leerlingen.find(x => x.id === id);
+  const naam = cleanName(nieuw);
+  if (!l || !naam) throw new Error('Typ eerst een naam.');
+  if (k.leerlingen.some(x => x !== l && x.naam.toLowerCase() === naam.toLowerCase())) throw new Error('Die naam staat al op de klaslijst.');
+  l.naam = naam;
+  fs.mkdirSync(DIR, { recursive: true });
+  fs.writeFileSync(FILE, JSON.stringify(k, null, 2) + '\n');
+  return k;
+}
+function wis(id) {
+  const k = read();
+  return write({ naam: k.naam, leerjaar: k.leerjaar, namen: k.leerlingen.filter(l => l.id !== id).map(l => l.naam) });
+}
+
+module.exports = { voegToe, hernoem, wis, read, write, setNiveau, niveauVoor, names, match, LESMAP, naarLesmap, uitLesmap, lesmapGeldig, lesmapSamen };

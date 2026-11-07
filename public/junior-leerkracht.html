@@ -43,7 +43,7 @@
       <button type="button" class="jr-ochtend-knop jr-feest-knop jr-eigen hidden" id="jr-feest-knop" data-ga="feest"><img src="/img/junior/hol/1.webp" alt=""> 🎂 <span data-geen-vertaling id="jr-feest-namen"></span> is jarig!</button>
       <button type="button" class="jr-ochtend-knop jr-eigen" data-ga="ochtend"><img src="/img/junior/weer/1.webp" alt=""> Goeiemorgen! Het ochtendmoment</button>
       <button type="button" class="jr-ochtend-knop jr-eiland-knop jr-eigen" data-ga="eiland"><img src="/img/junior/burcht/1.webp" alt=""> Ons klaseiland</button>
-      <button type="button" class="jr-ochtend-knop jr-rijk-knop jr-eigen" data-ga="rijk"><img src="/img/junior/rijk/boerderij/1.webp" alt=""> Het Toverdorp</button>
+      <button type="button" class="jr-ochtend-knop jr-rijk-knop jr-eigen" data-ga="rijk"><img src="/img/junior/rijk/dorp.webp" alt=""> Het Toverdorp</button>
       <button type="button" class="jr-ochtend-knop jr-tools-knop jr-eigen" data-ga="klastools"><img src="/img/junior/tools/icoon/2.webp" alt=""> Klastools</button>
       <button type="button" class="panel jr-mini-draak jr-eigen" data-ga="draakje">
         <img id="jr-mini-draak" src="/img/junior/draak/1.webp" alt="">
@@ -111,7 +111,7 @@
     </div>
 
     <div class="jr-view hidden" id="jr-v-rijk">
-      <div class="jr-view-kop"><button class="terug-knop" type="button" data-ga="thuis"><i class="ic ic-terug" aria-hidden="true"></i>Terug</button><h2><img src="/img/junior/rijk/boerderij/1.webp" alt=""> Het Toverdorp</h2></div>
+      <div class="jr-view-kop"><button class="terug-knop" type="button" data-ga="thuis"><i class="ic ic-terug" aria-hidden="true"></i>Terug</button><h2><img src="/img/junior/rijk/dorp.webp" alt=""> Het Toverdorp</h2></div>
       <div id="jr-rijk-bord"></div>
       <p class="jr-view-uitleg">Tik op een plek en daarna op wat je ziet: het draakje zegt het woord. Met 🔍 zoekt de klas samen: waar is de koe? De kinderen kunnen het Toverdorp ook zelf ontdekken op de tablet.</p>
     </div>
@@ -138,17 +138,18 @@
       </div>
       <div class="panel jr-klas" id="jr-klas">
         <p class="title">🐾 De dieren van de klas</p>
-        <p class="muted small">Elk kind heeft een vast dier. Tik op een dier om het te wisselen, of laad met 📷 het eigen symbooltje van het kind op (zoals aan de kapstok). De namen komen uit <a href="/klas">Mijn klas</a>.</p>
+        <p class="muted small">Elk kind heeft een vast dier. Tik op een dier om het te wisselen, of laad met 📷 het eigen symbooltje van het kind op (zoals aan de kapstok). Met ✏️ verander je een naam, met 🗑️ haal je een kind uit de klas.</p>
+        <form class="jr-klas-erbij" id="jr-klas-erbij"><input id="jr-klas-nieuw" maxlength="600" autocomplete="off" placeholder="Naam van een kind (of plak meerdere namen)"><button type="submit" class="jr-eigen jr-klas-plus">➕ Toevoegen</button></form>
         <div class="jr-klas-rooster" id="jr-klas-rooster" data-geen-vertaling></div>
         <div class="actions"><button class="secondary" id="jr-print">🖨️ Kaartjes printen</button><button class="secondary" id="jr-diplomas">📜 Diploma's printen</button></div>
         <p class="muted small">Elke 12 stickers is een volle bladzijde in het stickerboek: dan krijgt het kind een diploma.</p>
-        <p class="muted small hidden" id="jr-klas-leeg">Er staat nog niemand op de klaslijst. Zet de namen in <a href="/klas">Mijn klas</a>.</p>
+        <p class="muted small hidden" id="jr-klas-leeg">Er staat nog niemand in de klas. Typ hierboven de namen van de kinderen.</p>
       </div>
     </div>
 
     <div class="jr-view hidden" id="jr-v-opvolgen">
       <div class="jr-view-kop"><button class="terug-knop" type="button" data-ga="thuis"><i class="ic ic-terug" aria-hidden="true"></i>Terug</button><h2><img src="/img/junior/blok/opvolgen.webp" alt=""> Opvolgen</h2></div>
-      <p class="jr-view-uitleg">Per kind en per spel: 🌟 gaat goed, 🙂 lukt meestal, 🌱 nog oefenen. Het getal is hoeveel opdrachten het kind deed. Alles staat ook in het logboek van <a href="/klas">Mijn klas</a>.</p>
+      <p class="jr-view-uitleg">Per kind en per spel: 🌟 gaat goed, 🙂 lukt meestal, 🌱 nog oefenen. Het getal is hoeveel opdrachten het kind deed. </p>
       <div class="panel jr-opvolg-wrap"><table class="jr-opvolg" id="jr-opvolg" data-geen-vertaling></table></div>
       <p class="muted small hidden" id="jr-opvolg-leeg">Nog niets gespeeld. Start een spel bij Spelen.</p>
     </div>
@@ -356,6 +357,19 @@
   <div class="jr-kv-keuzes jr-inst-thema" id="jr-inst-thema">
     <button type="button" data-w="auto">📅 Automatisch</button><button type="button" data-w="herfst">🍂 Herfst</button><button type="button" data-w="sint">🎁 Sinterklaas</button><button type="button" data-w="kerst">🎄 Kerst</button><button type="button" data-w="carnaval">🎭 Carnaval</button><button type="button" data-w="halloween">🎃 Halloween</button><button type="button" data-w="winter">⛄ Winter</button><button type="button" data-w="valentijn">💗 Valentijn</button><button type="button" data-w="lente">🌷 Lente</button><button type="button" data-w="pasen">🐣 Pasen</button><button type="button" data-w="moederdag">💐 Moederdag</button><button type="button" data-w="vaderdag">👔 Vaderdag</button><button type="button" data-w="zomer">☀️ Zomer</button><button type="button" data-w="school">🎒 Schoolstart</button><button type="button" data-w="geen">Geen</button>
   </div>
+  <p class="jr-kv-label">Taal</p>
+  <p class="jr-inst-uitleg">De taal van het bord, de tablets en het draakje.</p>
+  <div class="jr-kv-keuzes" id="jr-inst-taal" data-geen-vertaling>
+    <button type="button" data-w="nl">Nederlands</button><button type="button" data-w="en">English</button><button type="button" data-w="fr">Français</button><button type="button" data-w="es">Español</button><button type="button" data-w="de">Deutsch</button>
+  </div>
+  <p class="jr-kv-label">AI-sleutel (niet verplicht)</p>
+  <p class="jr-inst-uitleg">Daarmee maakt de AI zelf vragen bij Maken. Zonder sleutel kopieer je de prompt naar een chatbot.</p>
+  <form class="jr-inst-ai" id="jr-inst-ai">
+    <select id="jr-ai-dienst" data-geen-vertaling><option value="gemini">Gemini</option><option value="claude">Claude</option><option value="openai">ChatGPT</option></select>
+    <input id="jr-ai-sleutel" type="password" autocomplete="off" maxlength="300" placeholder="Plak hier je sleutel">
+    <button type="submit" class="jr-eigen jr-ai-bewaar">Bewaar</button>
+  </form>
+  <p class="jr-inst-uitleg" id="jr-ai-stand"></p>
   <div class="actions">
     <button class="gold" id="jr-inst-dicht">Klaar</button>
   </div>

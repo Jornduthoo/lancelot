@@ -17,7 +17,7 @@ async function zoek(woord) {
   if (!q) throw new Error('Typ eerst een woord.');
   const url = 'https://commons.wikimedia.org/w/api.php?' + new URLSearchParams({
     action: 'query', format: 'json', generator: 'search', gsrsearch: `${q} filetype:bitmap`, gsrnamespace: '6', gsrlimit: '16',
-    prop: 'imageinfo', iiprop: 'url|mime|extmetadata', iiurlwidth: '400', iiextmetadatafilter: 'Artist|LicenseShortName',
+    prop: 'imageinfo', iiprop: 'url|mime|extmetadata', iiurlwidth: '500', iiextmetadatafilter: 'Artist|LicenseShortName',
   });
   let data;
   try {
@@ -47,8 +47,17 @@ async function neem(thumb) {
   } catch {
     throw new Error('De foto ophalen lukt niet. Is er internet op deze pc?');
   }
+  if (!/^image\/(png|jpe?g)/.test(soort)) throw new Error('Die foto lukt niet. Kies een andere.');
+  return bewaar(buf, soort);
+}
+
+// Bewaart een foto (jpg of png) in de klasmap. Ook voor een foto die de browser van de leerkracht zelf ophaalde.
+function bewaar(data, soort) {
+  const buf = Buffer.isBuffer(data) ? data : data instanceof ArrayBuffer ? Buffer.from(data) : data && data.buffer ? Buffer.from(data.buffer) : null;
   const ext = /png/.test(soort) ? 'png' : /jpe?g/.test(soort) ? 'jpg' : null;
-  if (!ext || buf.length > MAX) throw new Error('Die foto lukt niet. Kies een andere.');
+  if (!buf || !buf.length || !ext || buf.length > MAX) throw new Error('Die foto lukt niet. Kies een andere.');
+  const kop = buf.subarray(0, 4).toString('hex');
+  if (!(ext === 'png' ? kop === '89504e47' : kop.startsWith('ffd8'))) throw new Error('Die foto lukt niet. Kies een andere.');
   const naam = `${crypto.createHash('sha1').update(buf).digest('hex').slice(0, 16)}.${ext}`;
   fs.mkdirSync(MAP, { recursive: true });
   const f = path.join(MAP, naam);
@@ -75,4 +84,4 @@ function stemBewaar(data, soort) {
 }
 const stemBestand = naam => (STEM_NAAM.test(String(naam)) ? path.join(STEM_MAP, naam) : null);
 
-module.exports = { zoek, neem, bestand, NAAM, stemBewaar, stemBestand, STEM_NAAM };
+module.exports = { zoek, neem, bewaar, bestand, NAAM, stemBewaar, stemBestand, STEM_NAAM };

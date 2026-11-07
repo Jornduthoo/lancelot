@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <script src="/taal.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LANcelot · Kies</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="stylesheet" href="/style.css">
+  <style>
+    body.kies-start { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 28px; padding: 24px 16px; box-sizing: border-box; }
+    .kies-start h1 { margin: 0; text-align: center; font-size: clamp(1.6rem, 3.4vw, 2.6rem); }
+    .kies-rij { display: flex; flex-wrap: wrap; gap: 28px; justify-content: center; width: 100%; max-width: 1100px; }
+    .kies-kaart { flex: 1 1 300px; max-width: 480px; display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 28px 24px; border-radius: 28px; text-decoration: none; color: inherit;
+      background: var(--k-paneel, rgb(255 255 255 / .08)); border: 3px solid var(--k-rand, rgb(255 255 255 / .18)); box-shadow: 0 12px 30px rgb(0 0 0 / .25); transition: transform .15s ease, border-color .15s ease; }
+    .kies-kaart:hover, .kies-kaart:focus-visible { transform: translateY(-4px); border-color: var(--k-goud, #ffc94a); outline: none; }
+    .kies-kaart.vorige { border-color: var(--k-goud, #ffc94a); }
+    .kies-kaart img { width: min(260px, 60vw); height: 200px; object-fit: contain; filter: drop-shadow(0 8px 10px rgb(0 0 0 / .35)); }
+    .kies-kaart b { font-size: 1.7rem; }
+    .kies-kaart span { text-align: center; opacity: .85; line-height: 1.4; }
+    .kies-junior { background: linear-gradient(160deg, #fff6df, #ffe7b8); color: #2b2340; border-color: #f4d58a; }
+  </style>
+</head>
+<body class="klas-host kies-start">
+  <h1>Waarmee wil je vandaag werken?</h1>
+  <div class="kies-rij">
+    <a class="kies-kaart" id="kies-lancelot" href="/host">
+      <img src="/img/logo.webp" alt="">
+      <b>LANcelot</b>
+      <span>Voor de lagere school: quizzen, spellen, oefenbladen en toetsen.</span>
+    </a>
+    <a class="kies-kaart kies-junior" id="kies-junior" href="/junior-leerkracht">
+      <img src="/img/junior/logo.webp" alt="">
+      <b>LANcelot Junior</b>
+      <span>Voor de kleuterklas tot het 2e leerjaar: spelletjes met prenten en een draakje dat voorleest.</span>
+    </a>
+  </div>
+  <p class="muted small">Je kan later altijd wisselen met de knop bovenaan.</p>
+  <script>
+    // De vorige keuze krijgt een gouden rand, zodat je ze meteen terugvindt.
+    try {
+      const vorige = localStorage.getItem('lancelot-start');
+      const el = document.getElementById(vorige === 'junior' ? 'kies-junior' : vorige === 'lancelot' ? 'kies-lancelot' : '');
+      if (el) { el.classList.add('vorige'); el.focus(); }
+    } catch { /* geen opslag */ }
+    for (const [id, w] of [['kies-lancelot', 'lancelot'], ['kies-junior', 'junior']]) {
+      document.getElementById(id).addEventListener('click', () => { try { localStorage.setItem('lancelot-start', w); } catch { /* geen opslag */ } });
+    }
+  </script>
+</body>
+</html>
