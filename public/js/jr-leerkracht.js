@@ -355,20 +355,43 @@ function volg(lijst) {
 
 // ---------- Op het bord: 4 kleurteams ----------
 // Elk team heeft zijn eigen geschilderde draakje en een rij sterren. Het team dat aan de beurt is, springt.
+// Wie zit in welk team: de aanwezige kinderen, in de volgorde van de klaslijst (kind 1 rood, kind 2 blauw ...).
+const teamLeden = i => kinderen.filter(k => k.team === i && !afwezig.has(k.id));
+// Het kind van dit team dat nu naar het bord mag komen (om de beurt binnen het team).
+function teamKind(i) { const l = teamLeden(i); return l.length ? l[(bord ? bord.wie[i] : 0) % l.length] : null; }
 function teams(nieuw = -1) {
   $('jr-teams').innerHTML = TEAMKLEUR.map((kl, i) => {
     const n = stand.teams ? stand.teams[i] : 0;
+    const nu = bord && bord.team === i ? teamKind(i) : null;
+    // Alle kinderen van het team; tik op een kind om het af te vinken (afwezig) of terug aan te zetten.
+    const leden = kinderen.filter(k => k.team === i).map(k => `<button type="button" class="jr-team-lid jr-eigen ${nu && nu.id === k.id ? 'nu' : ''} ${afwezig.has(k.id) ? 'weg' : ''}" data-lid="${k.id}" title="${Junior.esc(k.naam)}"><img src="${k.beeld}" alt=""></button>`).join('');
     const sterren = Array.from({ length: Math.min(10, n) }, (_, j) => `<img class="${i === nieuw && j === Math.min(10, n) - 1 ? 'nieuw' : ''}" src="/img/junior/race/ster.webp" alt="">`).join('');
     return `<div class="jr-team jr-team-${kl} ${bord && bord.team === i ? 'aan' : ''}">
       <img class="jr-team-draak" src="/img/junior/race/draak${i + 1}.webp" alt="">
-      <div class="jr-team-info"><b>${(J().zin.teams || [])[i] || ''}</b><span class="jr-team-sterren">${sterren}${n > 10 ? `<em>${n}</em>` : ''}</span></div></div>`;
+      <div class="jr-team-info"><b>${(J().zin.teams || [])[i] || ''}</b><span class="jr-team-sterren">${sterren}${n > 10 ? `<em>${n}</em>` : ''}</span>
+        ${nu ? `<span class="jr-team-roep"><img src="${nu.beeld}" alt="">${Junior.esc(nu.naam)}</span>` : ''}<span class="jr-team-leden">${leden}</span></div></div>`;
   }).join('');
 }
+$('jr-teams').addEventListener('click', e => {
+  const b = e.target.closest('[data-lid]');
+  if (!b) return;
+  const id = b.dataset.lid;
+  const wasNu = bord && teamKind(bord.team) && teamKind(bord.team).id === id;
+  if (afwezig.has(id)) afwezig.delete(id); else afwezig.add(id);
+  bewaarOchtend();
+  teams();
+  // Was dit kind net geroepen, dan roept het draakje meteen een ander kind van hetzelfde team.
+  const ander = bord && teamKind(bord.team);
+  if (wasNu && ander) Junior.Stem.zeg([(J().zin.teams || [])[bord.team], ander.naam, J().zin.teamKom]);
+});
 async function bordVraag() {
   if (!bord) return;
   const mijn = bord;
+  // Een team zonder (aanwezige) kinderen slaan we over.
+  for (let i = 0; i < 4 && kinderen.length && !teamLeden(bord.team).length; i++) bord.team = (bord.team + 1) % 4;
   teams();
-  await Junior.Stem.zeg([(J().zin.teams || [])[bord.team], J().zin.teamBeurt]);
+  const wie = teamKind(bord.team);
+  await Junior.Stem.zeg(wie ? [(J().zin.teams || [])[bord.team], wie.naam, J().zin.teamKom] : [(J().zin.teams || [])[bord.team], J().zin.teamBeurt]);
   if (mijn !== bord) return;
   const v = Junior.vraag(stand.spel, stand.niveau, bord.r);
   bord.huidig = Junior.speel($('jr-bord-vak'), v, {
@@ -381,6 +404,7 @@ async function bordVraag() {
         try { sfx.naald(); } catch {}
         if (res && res.draak) toonDraak(res.draak);
         if (res && res.gegroeid) Junior.Stem.zeg([J().zin.groei]);
+        bord.wie[bord.team]++;
         bord.team = (bord.team + 1) % 4;
         setTimeout(bordVraag, res && res.gegroeid ? 2600 : 900);
       });
@@ -583,7 +607,7 @@ function toon() {
     bord = null;
   }
   if (opBord && (!bord || bord.seed !== stand.seed)) {
-    bord = { seed: stand.seed, r: Junior.toeval(stand.seed), team: 0, huidig: null };
+    bord = { seed: stand.seed, r: Junior.toeval(stand.seed), team: 0, wie: [0, 0, 0, 0], huidig: null };
     Junior.schaal($('jr-bord-vak'));
     bordVraag();
   }
@@ -810,7 +834,7 @@ function ochtend(stap) {
   } else if (stap === 'wie') {
     const er = kinderen.filter(k => !afwezig.has(k.id));
     vak.innerHTML = `<p class="jr-ochtend-zin">${Junior.esc(z.ochtendWie)}</p>
-      <div class="jr-wie">${kinderen.map(k => `<button type="button" class="jr-wie-kind jr-eigen ${afwezig.has(k.id) ? 'weg' : ''}" data-wie="${k.id}"><img src="${k.beeld}" alt=""><span>${Junior.esc(k.naam)}</span></button>`).join('')}</div>
+      <div class="jr-wie-rooster">${kinderen.map(k => `<button type="button" class="jr-wie-kind jr-eigen ${afwezig.has(k.id) ? 'weg' : ''}" data-wie="${k.id}"><img src="${k.beeld}" alt=""><span>${Junior.esc(k.naam)}</span></button>`).join('')}</div>
       <div class="jr-wie-tel"><span class="jr-wie-getal">${er.length}</span><span class="jr-wie-bolletjes">${er.map(() => '<i></i>').join('')}</span></div>`;
     vak.querySelectorAll('[data-wie]').forEach(b => b.addEventListener('click', () => {
       const id = b.dataset.wie;
