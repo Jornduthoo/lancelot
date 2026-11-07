@@ -1092,3 +1092,9 @@ button.jr-mini-draak:hover { transform: translateY(-2px); }
   #jr-rijk .jr-knoppen { flex-direction: column; }
   #jr-rijk-klaar { padding: 10px 12px; font-size: 1rem; min-height: 0; }
 }
+
+/* Mijn naam */
+.jr[data-spel="naam"] { background-image: url(/img/junior/bg/naam.webp); }
+@media (max-width: 800px) { .jr[data-spel="naam"] { background-image: url(/img/junior/bg/naam-klein.webp); } }
+.jr-naam-groot { display: inline-flex; gap: .08em; background: #fff; border-radius: .4em; padding: .1em .45em; box-shadow: 0 .12em 0 #d8c9a3; font-family: var(--jr-schrift); font-weight: 800; font-size: 3.2em; line-height: 1.1; color: var(--jr-inkt); }
+.jr-naam-groot .jr-naam-eerste { color: #e8590c; }

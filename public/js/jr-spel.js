@@ -536,6 +536,43 @@
         kaarten: [...woord.k.map((k, i) => ({ html: `<span class="jr-letter">${esc(k)}</span>`, plek: i })), ...extra.map(l => ({ html: `<span class="jr-letter">${esc(l)}</span>`, plek: -1 }))],
       };
     },
+    // Mijn naam: de eerste letter van je naam, de letters van je naam leggen, een woord dat begint zoals je naam.
+    naam(r, niv, wie) {
+      let naam = String(wie.naam || '').trim().split(/[\s-]+/)[0] || '';
+      let letters = [...naam].filter(c => /\p{L}/u.test(c)).slice(0, 9);
+      if (letters.length < 2) { letters = [...(J().zin.naamStandaard || 'Draakje')]; }
+      naam = letters.join('');
+      const eerste = letters[0];
+      const klein = eerste.toLocaleLowerCase();
+      const z = J().zin;
+      const groot = `<span class="jr-naam-groot">${letters.map((l, i) => `<b class="${i === 0 && niv !== 1 ? 'jr-naam-eerste' : ''}">${esc(l)}</b>`).join('')}</span>`;
+      const woorden = (J().woorden || []).filter(x => x.e && x.w);
+      const begint = woorden.filter(x => x.w.toLocaleLowerCase().replace(/^(de|het|een|the|a|le|la|les|l'|el|los|las|der|die|das)\s+/, '').startsWith(klein));
+      if (niv === 1) {
+        return {
+          soort: 'volgorde', zeg: [naam, z.naamLeg], herhaal: [naam],
+          kop: groot,
+          kaarten: letters.map((l, i) => ({ html: `<span class="jr-letter">${esc(l)}</span>`, plek: i })),
+        };
+      }
+      if (niv === 2 && begint.length) {
+        const woord = r.kies(begint);
+        const rest = r.schud(woorden.filter(x => !x.w.toLocaleLowerCase().includes(klein))).slice(0, 2);
+        if (rest.length === 2) {
+          return {
+            soort: 'kies', zeg: [naam, z.naamWoord], herhaal: [naam, z.naamWoord],
+            kop: groot,
+            opties: r.schud([woord, ...rest]).map(x => ({ html: emoji(x.e, 'jr-emoji-groot'), juist: x === woord, zeg: x.w })),
+          };
+        }
+      }
+      const anders = r.schud((J().letters || []).filter(l => l !== klein)).slice(0, 2).map(l => eerste === klein ? l : l.toLocaleUpperCase());
+      return {
+        soort: 'kies', zeg: [naam, z.naamLetter], herhaal: [naam, z.naamLetter],
+        kop: groot,
+        opties: r.schud([eerste, ...anders]).map(l => ({ html: `<span class="jr-letter">${esc(l)}</span>`, juist: l === eerste })),
+      };
+    },
     // Seizoenenboom: sleep elk prentje naar het juiste seizoen.
     seizoen(r, niv) {
       const S = { winter: ['⛄', '🧤', '🛷', '❄️', '🎿', '🧣'], lente: ['🌷', '🐣', '🌸', '🐝', '🌱', '🐑'], zomer: ['🏖️', '🍦', '🩱', '🌞', '🍉', '⛱️'], herfst: ['🍂', '🍄', '🌰', '🎃', '☔', '🍁'] };
@@ -615,9 +652,10 @@
     },
   };
 
-  function vraag(spel, niveau, r) {
+  // wie: { naam } van het kind dat aan de beurt is (voor het spel Mijn naam).
+  function vraag(spel, niveau, r, wie) {
     const m = MAKERS[spel];
-    return m ? m(r, Number(niveau) || 0) : null;
+    return m ? m(r, Number(niveau) || 0, wie || {}) : null;
   }
 
   // ---------- Het speelveld ----------
@@ -825,6 +863,9 @@
         knop.type = 'button';
         const probeer = () => {
           if (af || knop.classList.contains('jr-weg')) return;
+          // Twee dezelfde letters of woorden (Lotte, pop): elk van beide mag op dat vakje.
+          const nodig = juist[volgende];
+          if (nodig && kaart !== nodig && kaart.plek > volgende && kaart.html === nodig.html) { nodig.plek = kaart.plek; kaart.plek = volgende; }
           if (kaart.plek === volgende) {
             leg(kaart, knop);
             if (volgende >= juist.length) {

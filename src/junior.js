@@ -77,6 +77,8 @@ const SPELLEN = [
     niveaus: ['Korte zinnen', 'Langere zinnen'] },
   { id: 'dictee', naam: 'Dictee-draakje', zin: 'Luister en leg de letters van het woord.', groep: 'taal', beeld: 'stuk/20',
     niveaus: ['Korte woorden', 'Langere woorden', 'Moeilijke klanken'] },
+  { id: 'naam', naam: 'Mijn naam', zin: 'De letters van je eigen naam.', groep: 'taal', beeld: 'stuk/25',
+    niveaus: ['Eerste letter', 'Mijn naam leggen', 'Woord met mijn letter'] },
   { id: 'seizoen', naam: 'Seizoenenboom', zin: 'Bij welk seizoen hoort het?', groep: 'wereld', beeld: 'stuk/21',
     niveaus: ['Twee seizoenen', 'Vier seizoenen'] },
   { id: 'gevoel', naam: 'Gevoelensspiegel', zin: 'Hoe voelt het draakje?', groep: 'samen', beeld: 'stuk/22',

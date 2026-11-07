@@ -187,7 +187,7 @@ async function volgendeVraag() {
   } else banner.classList.add('hidden');
   // Intussen een ander spel gestart: deze vraag niet meer tonen.
   if (ronde !== deze) return;
-  const v = Junior.vraag(S().spel, S().niveau, ronde.r);
+  const v = Junior.vraag(S().spel, S().niveau, ronde.r, wie);
   if (!v) return;
   const mijnSeed = ronde.seed;
   huidig = Junior.speel($('jr-vak'), v, {
