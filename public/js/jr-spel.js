@@ -597,6 +597,45 @@
       const items = r.schud(seizoenen.flatMap(s => r.schud(S[s].filter(e => e !== teken[s])).slice(0, niv === 0 ? 3 : 2).map(e => ({ html: emoji(e), mand: s, hint: J().zin.seizoenNaam && J().zin.seizoenNaam[s] }))));
       return { soort: 'sorteer', zeg: [J().zin.seizoenVraag], items, manden: seizoenen.map(s => ({ id: s, html: `${emoji(teken[s])}<span class="jr-mand-naam">${esc((J().zin.seizoenNaam || {})[s] || s)}</span>` })) };
     },
+    // Waar woont het dier? Sorteer de dieren naar de boerderij, het bos, de zee (en het ijs).
+    thuis(r, niv) {
+      const D = { boerderij: ['🐄', '🐖', '🐑', '🐓', '🐴', '🦆'], bos: ['🦊', '🦔', '🦉', '🐿️', '🦌', '🐻'], zee: ['🐟', '🐙', '🦀', '🐬', '🐳', '🦈'], ijs: ['🐧', '🦭'] };
+      const teken = { boerderij: '🚜', bos: '🌲', zee: '🌊', ijs: '🧊' };
+      const plekken = niv === 0 ? r.schud(['boerderij', 'bos', 'zee']).slice(0, 2) : ['boerderij', 'bos', 'zee', 'ijs'];
+      const items = r.schud(plekken.flatMap(pl => r.schud(D[pl]).slice(0, niv === 0 ? 3 : 2).map(e => ({ html: emoji(e), mand: pl, hint: (J().zin.thuisNaam || {})[pl] }))));
+      return { soort: 'sorteer', zeg: [J().zin.thuisVraag], items, manden: plekken.map(pl => ({ id: pl, html: `${emoji(teken[pl])}<span class="jr-mand-naam">${esc((J().zin.thuisNaam || {})[pl] || pl)}</span>` })) };
+    },
+    // Wie werkt hiermee? Twee dingen bovenaan, kies wie ermee werkt.
+    beroep(r, niv) {
+      const alle = J().beroepen || [];
+      const pool = niv === 0 ? alle.slice(0, 6) : alle;
+      const b = r.kies(pool);
+      const andere = r.schud(pool.filter(x => x !== b)).slice(0, niv === 0 ? 2 : 3);
+      return {
+        soort: 'kies', zeg: [J().zin.beroepVraag], na: [b.w],
+        kop: `<span class="jr-situatie">${b.t.map(e => emoji(e, 'jr-emoji-reus')).join('')}</span>`,
+        opties: r.schud([b, ...andere]).map(x => ({ html: `${emoji(x.e, 'jr-emoji-groot')}<span class="jr-optie-woord">${esc(x.w)}</span>`, juist: x === b })),
+      };
+    },
+    // Gezond of af en toe? Sorteer het eten in twee manden.
+    gezond(r, niv) {
+      const G = { gezond: ['🍎', '🥕', '🥦', '🍌', '🥛', '🍇', '🥒', '🍐', '🍓', '🥝'], snoep: ['🍭', '🍩', '🍟', '🍬', '🍫', '🧁', '🍰', '🥤', '🍦'] };
+      const teken = { gezond: '💪', snoep: '🍭' };
+      const n = niv === 0 ? 2 : 4;
+      const items = r.schud(Object.keys(G).flatMap(g => r.schud(G[g].filter(e => e !== teken[g])).slice(0, n).map(e => ({ html: emoji(e), mand: g, hint: (J().zin.gezondNaam || {})[g] }))));
+      return { soort: 'sorteer', zeg: [J().zin.gezondVraag], items, manden: ['gezond', 'snoep'].map(g => ({ id: g, html: `${emoji(teken[g])}<span class="jr-mand-naam">${esc((J().zin.gezondNaam || {})[g] || g)}</span>` })) };
+    },
+    // Hoe help je? Een situatie in de klas, kies wat een goede vriend doet. Niveau 2: beleefd zijn.
+    helpen(r, niv) {
+      const pool = (J().helpen || []).filter(h => h.n === niv + 1);
+      const h = r.kies(pool);
+      const fout = r.schud(J().helpFout || []).slice(0, niv === 0 ? 2 : 3);
+      return {
+        soort: 'kies', zeg: [h.z, J().zin.helpenVraag], herhaal: [h.z, J().zin.helpenVraag], na: [h.goed.w],
+        kop: `<span class="jr-situatie">${beeld('draak/3', 'jr-situatie-draak')}${emoji(h.e, 'jr-emoji-reus')}</span>`,
+        opties: r.schud([{ ...h.goed, juist: true }, ...fout]).map(x => ({ html: `${emoji(x.e, 'jr-emoji-groot')}<span class="jr-optie-woord">${esc(x.w)}</span>`, juist: !!x.juist })),
+      };
+    },
     // Gevoelensspiegel: hoe voelt het draakje? Kies het juiste gezicht.
     gevoel(r, niv) {
       const G = J().gevoelens || {};

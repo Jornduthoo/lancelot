@@ -411,6 +411,10 @@
 .jr[data-spel="zinnen"] { background-image: url(/img/junior/bg/zinnen.webp); }
 .jr[data-spel="dictee"] { background-image: url(/img/junior/bg/dictee.webp); }
 .jr[data-spel="seizoen"] { background-image: url(/img/junior/bg/seizoen.webp); }
+.jr[data-spel="thuis"] { background-image: url(/img/junior/bg/thuis.webp); }
+.jr[data-spel="beroep"] { background-image: url(/img/junior/bg/beroep.webp); }
+.jr[data-spel="gezond"] { background-image: url(/img/junior/bg/gezond.webp); }
+.jr[data-spel="helpen"] { background-image: url(/img/junior/bg/helpen.webp); }
 .jr[data-spel="gevoel"] { background-image: url(/img/junior/bg/gevoel.webp); }
 .jr[data-spel="stappen"] { background-image: url(/img/junior/bg/stappen.webp); }
 @media (max-width: 800px) {
@@ -439,6 +443,10 @@
   .jr[data-spel="zinnen"] { background-image: url(/img/junior/bg/zinnen-klein.webp); }
   .jr[data-spel="dictee"] { background-image: url(/img/junior/bg/dictee-klein.webp); }
   .jr[data-spel="seizoen"] { background-image: url(/img/junior/bg/seizoen-klein.webp); }
+  .jr[data-spel="thuis"] { background-image: url(/img/junior/bg/thuis-klein.webp); }
+  .jr[data-spel="beroep"] { background-image: url(/img/junior/bg/beroep-klein.webp); }
+  .jr[data-spel="gezond"] { background-image: url(/img/junior/bg/gezond-klein.webp); }
+  .jr[data-spel="helpen"] { background-image: url(/img/junior/bg/helpen-klein.webp); }
   .jr[data-spel="gevoel"] { background-image: url(/img/junior/bg/gevoel-klein.webp); }
   .jr[data-spel="stappen"] { background-image: url(/img/junior/bg/stappen-klein.webp); }
 }
