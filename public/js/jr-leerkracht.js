@@ -630,7 +630,7 @@ function eiland(lijst) {
     const b = lijst.find(x => x.id === k.id) || { plek: [] };
     const [x, y] = p[i] || [0.5, 0.5];
     const leeg = !b.plek.some(Boolean);
-    return `<button type="button" class="jr-eb jr-eigen ${leeg ? 'leeg' : ''}" data-eb="${k.id}" style="left:${x * 100}%;top:${y * 100}%;z-index:${Math.round(y * 100)}">
+    return `<button type="button" class="jr-eb jr-eigen ${leeg ? 'jr-leeg' : ''}" data-eb="${k.id}" style="left:${x * 100}%;top:${y * 100}%;z-index:${Math.round(y * 100)}">
       <span class="jr-eb-burcht">${leeg ? '<img class="jr-eb-tent" src="/img/junior/burcht/14.webp" alt="">' : miniBurcht(b.plek)}</span>
       <span class="jr-eb-naam"><img src="${k.beeld}" alt="">${Junior.esc(k.naam)}</span></button>`;
   }).join('');
@@ -757,7 +757,7 @@ function opvolg({ kinderen: lijst = [], spellen = [], cellen = {} }) {
   const rijen = lijst.map(k => {
     const cel = s => {
       const c = cellen[k.id] && cellen[k.id][s.id];
-      if (!c || !c.n) return '<td class="leeg">·</td>';
+      if (!c || !c.n) return '<td class="jr-opv-niets">·</td>';
       const p = c.g / c.n;
       const [ic, cls] = c.n < 3 ? ['…', 'weinig'] : p >= 0.8 ? ['🌟', 'goed'] : p >= 0.5 ? ['🙂', 'midden'] : ['🌱', 'oefen'];
       return `<td class="${cls}" title="${c.g} van de ${c.n} meteen goed · ${c.t}">${ic}<small>${c.n}</small></td>`;

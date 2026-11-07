@@ -476,7 +476,7 @@
 .jr-opvolg td.goed { background: rgb(255 201 74 / .22); }
 .jr-opvolg td.midden { background: rgb(81 207 102 / .18); }
 .jr-opvolg td.oefen { background: rgb(255 107 107 / .2); }
-.jr-opvolg td.leeg { opacity: .35; }
+.jr-opvolg td.jr-opv-niets { opacity: .35; }
 
 /* Maken: eigen vragen */
 .jr-maken { display: grid; grid-template-columns: 1.2fr 1fr; gap: 16px; }
@@ -640,10 +640,10 @@
 .jr-plek { position: absolute; width: calc(21cqw * var(--sc)); height: calc(21cqw * var(--sc)); min-height: 0; max-width: none; transform: translate(-50%, -88%); border: 0; background: none; padding: 0; cursor: pointer; }
 .jr-plek img { position: absolute; left: 0; right: 0; bottom: 0; margin: 0 auto; width: auto; height: auto; max-width: 100%; max-height: 100%; filter: drop-shadow(0 6px 5px rgb(0 0 0 / .3)); transition: transform .2s ease; }
 .jr-plek.vol:hover img, .jr-plek.vol.aan img { transform: scale(1.06); filter: drop-shadow(0 0 10px #fff) drop-shadow(0 6px 5px rgb(0 0 0 / .3)); }
-.jr-plek.leeg span { position: absolute; left: 50%; bottom: 4%; transform: translateX(-50%); width: 40%; aspect-ratio: 1.6; border-radius: 50%; display: grid; place-items: center;
+.jr-plek.jr-leeg span { position: absolute; left: 50%; bottom: 4%; transform: translateX(-50%); width: 40%; aspect-ratio: 1.6; border-radius: 50%; display: grid; place-items: center;
   font-size: clamp(1.2rem, 3vw, 2.4rem); font-weight: 800; color: #fff; background: rgb(76 201 255 / .35); border: 3px dashed #fff; text-shadow: 0 2px 3px rgb(0 0 0 / .4);
   box-shadow: 0 0 16px rgb(76 201 255 / .8); animation: jr-plek-gloei 1.8s ease-in-out infinite; }
-.jr-plek.leeg.aan span { background: rgb(255 201 74 / .6); border-style: solid; }
+.jr-plek.jr-leeg.aan span { background: rgb(255 201 74 / .6); border-style: solid; }
 @keyframes jr-plek-gloei { 50% { box-shadow: 0 0 30px rgb(76 201 255 / 1); transform: translateX(-50%) scale(1.08); } }
 .jr-plek.jr-gebouwd img { animation: jr-bouw .7s cubic-bezier(.3, 1.6, .5, 1); }
 @keyframes jr-bouw { from { transform: translateY(-40%) scale(.3); opacity: 0; } to { transform: none; opacity: 1; } }
