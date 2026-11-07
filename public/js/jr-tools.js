@@ -23,6 +23,7 @@
     { id: 'dag', icoon: 5, naam: 'Dagritme' },
     { id: 'dobbel', icoon: 6, naam: 'Dobbelsteen' },
     { id: 'groepjes', icoon: 8, naam: 'Groepjes' },
+    { id: 'rust', icoon: 'rust', naam: 'Rustmoment' },
   ];
   let vak = null, opt = null, huidig = null, opruim = [];
   const kids = () => (opt && opt.kinderen ? opt.kinderen() : []);
@@ -45,7 +46,7 @@
     vak.querySelectorAll('[data-tool]').forEach(b => b.classList.toggle('aan', b.dataset.tool === id));
     const p = vak.querySelector('#jr-kt-podium');
     p.className = `jr-kt-podium jr-kt-${id}`;
-    ({ beurt, klok, stil, hoeken, dag, dobbel, groepjes })[id](p);
+    ({ beurt, klok, stil, hoeken, dag, dobbel, groepjes, rust })[id](p);
   }
   const dierHtml = (k, cls = '') => `<span class="jr-kt-dier ${cls}" data-kind="${esc(k.id)}"><img src="${esc(k.beeld)}" alt=""><b>${esc(k.naam)}</b></span>`;
 
@@ -348,6 +349,51 @@
       p.querySelectorAll('[data-g]').forEach(el => el.addEventListener('click', () => { const i = +el.dataset.g; zeg([`${Z().ktGroep || ''} ${(Z().ktKleuren || [])[i] || i + 1}`, ...groepen[i].map(k => k.naam)]); }));
     };
     maak();
+  }
+
+  // ---------- Rustmoment: samen met het draakje rustig in- en uitademen. ----------
+  function rust(p) {
+    let keer = lees('jr-kt-rust', 5), bezig = false;
+    const POSE = n => `/img/junior/draakpose/${n}.webp`;
+    const teken = () => {
+      p.innerHTML = `<div class="jr-kt-rustvak"><div class="jr-kt-adem" id="jr-kt-adem"></div><img class="jr-kt-rustdraak" id="jr-kt-rustdraak" src="${POSE(5)}" alt="">
+          <p class="jr-kt-rusttekst" id="jr-kt-rusttekst" data-geen-vertaling></p><div class="jr-kt-rustbollen" id="jr-kt-rustbollen">${'<i></i>'.repeat(keer)}</div></div>
+        <div class="jr-kt-knoppen">${[3, 5, 8].map(m => `<button type="button" class="jr-kt-klein jr-eigen ${m === keer ? 'aan' : ''}" data-keer="${m}">${m}×</button>`).join('')}
+          <button type="button" class="jr-kt-groot jr-eigen" id="jr-kt-rust-start">▶ Start</button></div>`;
+      p.querySelectorAll('[data-keer]').forEach(b => b.addEventListener('click', () => { if (bezig) return; keer = +b.dataset.keer; bewaar('jr-kt-rust', keer); teken(); }));
+      p.querySelector('#jr-kt-rust-start').addEventListener('click', () => (bezig ? stopRust() : start()));
+    };
+    const zet = (pose, tekst, klasse) => {
+      p.querySelector('#jr-kt-rustdraak').src = POSE(pose);
+      p.querySelector('#jr-kt-rusttekst').textContent = tekst || '';
+      const a = p.querySelector('#jr-kt-adem'); a.className = `jr-kt-adem ${klasse || ''}`;
+    };
+    const stopRust = () => { stopTool(); bezig = false; try { JrMuziek.stop(); } catch {} teken(); };
+    const start = async () => {
+      bezig = true;
+      p.querySelector('#jr-kt-rust-start').textContent = '■ Stop';
+      p.querySelectorAll('[data-keer]').forEach(b => { b.disabled = true; });
+      opruim.push(() => { bezig = false; });
+      zet(5, Z().rustStart, '');
+      await zeg([Z().rustStart]);
+      let n = 0;
+      const ronde = () => {
+        if (!bezig) return;
+        if (n >= keer) {
+          zet(5, Z().rustKlaar, 'klaar'); fx('good'); zeg([Z().rustKlaar]);
+          later(() => { bezig = false; teken(); }, 4000);
+          return;
+        }
+        zet(3, Z().rustIn, 'in'); zeg([Z().rustIn]); try { JrMuziek.adem(true, 4); } catch {}
+        later(() => {
+          if (!bezig) return;
+          zet(4, Z().rustUit, 'uit'); zeg([Z().rustUit]); try { JrMuziek.adem(false, 5); } catch {}
+          later(() => { const b = p.querySelectorAll('#jr-kt-rustbollen i')[n]; if (b) b.classList.add('af'); n++; ronde(); }, 5000);
+        }, 4000);
+      };
+      ronde();
+    };
+    teken();
   }
 
   window.JrTools = {
