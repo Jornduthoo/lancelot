@@ -275,8 +275,26 @@ function stuurSymbool(k, data) {
     .catch(() => Ui.melding('Opladen lukte niet. Probeer het opnieuw.'));
 }
 // Een blad met een kaartje per kind (dier of symbool en naam), om op te hangen in de klas.
+// Een diploma voor elk kind met minstens één volle bladzijde (12 stickers) in het stickerboek.
+$('jr-diplomas').addEventListener('click', () => {
+  const wie = kinderen.filter(k => (k.stickers || 0) >= 12);
+  if (!wie.length) { Ui.melding('Nog niemand heeft een volle bladzijde van 12 stickers.'); return; }
+  const blad = $('jr-printblad');
+  const datum = new Intl.DateTimeFormat((J().stemmen || ['nl-BE'])[0], { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date());
+  blad.classList.add('diploma');
+  blad.innerHTML = wie.map(k => `<div class="jr-diploma"><div class="jr-diploma-in">
+    <h1>${'Diploma'}</h1>
+    <img class="jr-diploma-dier" src="${k.beeld}" alt="">
+    <b class="jr-diploma-naam">${Junior.esc(k.naam)}</b>
+    <p>${`heeft al ${k.stickers} stickers verzameld!`}</p>
+    <div class="jr-diploma-onder"><img src="${draakImg()}" alt=""><span>${Junior.esc(datum)}</span></div>
+  </div></div>`).join('');
+  const imgs = [...blad.querySelectorAll('img')];
+  Promise.all(imgs.map(i => (i.complete ? null : new Promise(r => { i.onload = r; i.onerror = r; })))).then(() => print());
+});
 $('jr-print').addEventListener('click', () => {
   const blad = $('jr-printblad');
+  blad.classList.remove('diploma');
   blad.innerHTML = kinderen.map(k => `<div class="jr-printkaart"><img src="${k.beeld}" alt=""><b>${Junior.esc(k.naam)}</b></div>`).join('');
   const imgs = [...blad.querySelectorAll('img')];
   Promise.all(imgs.map(i => (i.complete ? null : new Promise(r => { i.onload = r; i.onerror = r; })))).then(() => print());

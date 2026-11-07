@@ -19,6 +19,7 @@ module.exports = {
     teams: ['Team rood', 'Team blauw', 'Team geel', 'Team groen'],
     teamBeurt: 'jullie zijn aan de beurt.',
     raceWint: 'wint de race!',
+    boekVol: "Hoera! Je bladzijde is vol. Je krijgt een diploma!",
     ballonWint: "is als eerste bij de wolken!",
     bouwKlaar: "Hoera! Samen hebben we de burcht gebouwd!",
     jijTeam: 'Jij speelt in',
