@@ -247,24 +247,49 @@
     let st = lees('jr-kt-dag', { rij: [1, 2, 3, 4, 13, 9, 12, 8], nu: 0, dag: '' });
     if (st.dag !== vandaag()) st.nu = 0;
     let maak = false;
+    // Eigen prenten (foto of tekening van de leerkracht) blijven op dit toestel bewaard.
+    let eigen = lees('jr-kt-dag-eigen', []);
+    const eig = d => eigen.find(e => e.id === d);
+    const src = d => eig(d) ? eig(d).src : `${IMG}/dag/${d}.webp`;
+    const naam = d => eig(d) ? eig(d).naam : (namen[d - 1] || '');
+    st.rij = st.rij.filter(d => typeof d === 'number' || eig(d));
     const bewaarSt = () => { st.dag = vandaag(); bewaar('jr-kt-dag', st); };
+    const verklein = bestand => new Promise((ok, nee) => {
+      const img = new Image(); img.onload = () => {
+        const z = Math.min(1, 320 / Math.max(img.width, img.height)); const c = document.createElement('canvas');
+        c.width = Math.round(img.width * z); c.height = Math.round(img.height * z); c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+        URL.revokeObjectURL(img.src); const w = c.toDataURL('image/webp', .8); ok(w.startsWith('data:image/webp') ? w : c.toDataURL('image/jpeg', .8));
+      }; img.onerror = nee; img.src = URL.createObjectURL(bestand);
+    });
     function teken() {
       if (maak) {
         p.innerHTML = `<p class="jr-kt-tip">Tik op de prenten in de volgorde van de dag. Tik op een prent in de rij om ze weg te halen.</p>
-          <div class="jr-kt-dagrij klein">${st.rij.map((d, i) => `<button type="button" class="jr-kt-dagkaart jr-eigen" data-weg="${i}"><img src="${IMG}/dag/${d}.webp" alt=""><b>${esc(namen[d - 1] || '')}</b></button>`).join('')}</div>
-          <div class="jr-kt-hoekkies">${namen.map((n, i) => `<button type="button" class="jr-kt-hoek-kaart jr-eigen" data-d="${i + 1}"><img src="${IMG}/dag/${i + 1}.webp" alt=""><b>${esc(n)}</b></button>`).join('')}</div>
+          <div class="jr-kt-dagrij klein">${st.rij.map((d, i) => `<button type="button" class="jr-kt-dagkaart jr-eigen" data-weg="${i}"><img src="${src(d)}" alt=""><b>${esc(naam(d))}</b></button>`).join('')}</div>
+          <div class="jr-kt-eigen-rij"><input type="text" id="jr-kt-eignaam" maxlength="24" placeholder="Naam van je eigen prent"><label class="jr-kt-klein jr-eigen jr-kt-foto">📷 Eigen prent toevoegen<input type="file" id="jr-kt-eigfoto" accept="image/*" hidden></label></div>
+          <div class="jr-kt-hoekkies">${eigen.map(e => `<div class="jr-kt-eigen-kaart"><button type="button" class="jr-kt-hoek-kaart jr-eigen" data-e="${e.id}"><img src="${e.src}" alt=""><b>${esc(e.naam)}</b></button><button type="button" class="jr-kt-wis jr-eigen" data-wis="${e.id}" aria-label="Wissen">✕</button></div>`).join('')}${namen.map((n, i) => `<button type="button" class="jr-kt-hoek-kaart jr-eigen" data-d="${i + 1}"><img src="${IMG}/dag/${i + 1}.webp" alt=""><b>${esc(n)}</b></button>`).join('')}</div>
           <div class="jr-kt-knoppen"><button type="button" class="jr-kt-klein jr-eigen" id="jr-kt-leeg">🗑️ Leeg</button><button type="button" class="jr-kt-groot jr-eigen" id="jr-kt-klaar">✓ Klaar</button></div>`;
         p.querySelectorAll('[data-weg]').forEach(b => b.addEventListener('click', () => { st.rij.splice(+b.dataset.weg, 1); teken(); }));
         p.querySelectorAll('[data-d]').forEach(b => b.addEventListener('click', () => { if (st.rij.length < 12) { st.rij.push(+b.dataset.d); teken(); } }));
+        p.querySelectorAll('[data-e]').forEach(b => b.addEventListener('click', () => { if (st.rij.length < 12) { st.rij.push(b.dataset.e); teken(); } }));
+        p.querySelectorAll('[data-wis]').forEach(b => b.addEventListener('click', () => { eigen = eigen.filter(e => e.id !== b.dataset.wis); st.rij = st.rij.filter(d => d !== b.dataset.wis); bewaar('jr-kt-dag-eigen', eigen); teken(); }));
+        p.querySelector('#jr-kt-eigfoto').addEventListener('change', async e => {
+          const b = e.target.files[0]; if (!b) return;
+          try {
+            const nieuw = { id: 'e' + Date.now(), naam: p.querySelector('#jr-kt-eignaam').value.trim() || 'Eigen prent', src: await verklein(b) };
+            eigen.push(nieuw); bewaar('jr-kt-dag-eigen', eigen);
+            if (lees('jr-kt-dag-eigen', []).length !== eigen.length) { eigen.pop(); window.Ui && Ui.melding('Er is geen plaats meer voor eigen prenten. Wis er eerst een.'); return teken(); }
+            if (st.rij.length < 12) st.rij.push(nieuw.id); teken();
+          } catch { window.Ui && Ui.melding('Die prent kon niet geladen worden.'); }
+        });
         p.querySelector('#jr-kt-leeg').addEventListener('click', () => { st.rij = []; teken(); });
         p.querySelector('#jr-kt-klaar').addEventListener('click', () => { maak = false; st.nu = 0; bewaarSt(); teken(); });
         return;
       }
       st.nu = Math.max(0, Math.min(st.rij.length - 1, st.nu));
       p.innerHTML = `<div class="jr-kt-dagrij">${st.rij.map((d, i) => `<button type="button" class="jr-kt-dagkaart jr-eigen ${i < st.nu ? 'voorbij' : i === st.nu ? 'nu' : ''}" data-i="${i}">
-          ${i === st.nu ? `<img class="jr-kt-wijs" src="${draak(5)}" alt="">` : ''}<img src="${IMG}/dag/${d}.webp" alt=""><b>${esc(namen[d - 1] || '')}</b></button>`).join('')}</div>
+          ${i === st.nu ? `<img class="jr-kt-wijs" src="${draak(5)}" alt="">` : ''}<img src="${src(d)}" alt=""><b>${esc(naam(d))}</b></button>`).join('')}</div>
         <div class="jr-kt-knoppen"><button type="button" class="jr-kt-klein jr-eigen" id="jr-kt-terug">◀</button><button type="button" class="jr-kt-groot jr-eigen" id="jr-kt-verder">Volgende ▶</button><button type="button" class="jr-kt-klein jr-eigen" id="jr-kt-maak">✏️ Dag maken</button></div>`;
-      const ga = i => { st.nu = Math.max(0, Math.min(st.rij.length - 1, i)); bewaarSt(); teken(); fx('jump'); zeg([Z().ktNu, namen[st.rij[st.nu] - 1]]); };
+      const ga = i => { st.nu = Math.max(0, Math.min(st.rij.length - 1, i)); bewaarSt(); teken(); fx('jump'); zeg([Z().ktNu, naam(st.rij[st.nu])]); };
       p.querySelectorAll('[data-i]').forEach(b => b.addEventListener('click', () => ga(+b.dataset.i)));
       p.querySelector('#jr-kt-terug').addEventListener('click', () => ga(st.nu - 1));
       p.querySelector('#jr-kt-verder').addEventListener('click', () => ga(st.nu + 1));

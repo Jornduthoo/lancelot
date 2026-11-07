@@ -970,7 +970,7 @@ button.jr-mini-draak:hover { transform: translateY(-2px); }
 .jr-kt-zonder { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; padding: 10px; border: 3px dashed #d8c9a3; border-radius: 18px; }
 .jr-kt-hoekkies { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; width: 100%; }
 .jr-lk main button.jr-kt-hoek-kaart { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px; border-radius: 18px; background: #fff; color: var(--jr-inkt); border: 4px solid transparent; opacity: .55; }
-.jr-lk main button.jr-kt-hoek-kaart.aan, .jr-kt-dagrij + .jr-kt-hoekkies .jr-kt-hoek-kaart { opacity: 1; }
+.jr-lk main button.jr-kt-hoek-kaart.aan, .jr-kt-dagrij ~ .jr-kt-hoekkies .jr-kt-hoek-kaart { opacity: 1; }
 .jr-lk main button.jr-kt-hoek-kaart.aan { border-color: var(--jr-goud); }
 .jr-kt-hoek-kaart img { width: 80px; height: 80px; object-fit: contain; }
 .jr-kt-hoek-kaart b { font-size: .85rem; }
@@ -1038,3 +1038,13 @@ button.jr-mini-draak:hover { transform: translateY(-2px); }
 @keyframes jr-rook { to { translate: 0 -30px; opacity: 0; } }
 .jr-feest-knoppen { background: rgb(255 248 231 / .9); border-radius: 999px; padding: 10px 18px; width: fit-content; margin: 10px auto 0; }
 .jr-feest-vraag { font-weight: 900; font-size: 1.2rem; color: var(--jr-inkt); }
+
+/* Dagritme: eigen prenten */
+.jr-kt-eigen-rij { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; justify-content: center; }
+.jr-kt-eigen-rij input[type=text] { font: inherit; padding: 10px 14px; border-radius: 14px; border: 3px solid var(--jr-goud); min-width: 220px; }
+.jr-kt-foto { cursor: pointer; }
+.jr-kt-eigen-kaart { position: relative; display: flex; }
+.jr-kt-eigen-kaart > .jr-kt-hoek-kaart { flex: 1; }
+.jr-kt-eigen-kaart img { border-radius: 12px; }
+.jr-lk main button.jr-kt-wis { position: absolute; top: -6px; right: -6px; width: 32px; height: 32px; border-radius: 50%; padding: 0; background: #e5484d; color: #fff; font-weight: 800; border: 3px solid #fff; }
+.jr-lk main label.jr-kt-foto { display: inline-flex; align-items: center; padding: 10px 18px; border-radius: 999px; background: #fff; color: var(--jr-inkt); font-size: 1.1rem; font-weight: 800; border: 3px solid var(--jr-goud); }
