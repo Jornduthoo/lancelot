@@ -13,7 +13,7 @@
 <div class="topbar jr-topbar">
   <div class="jr-brand" title="LANcelot Junior">
     <img class="jr-woordmerk" src="/img/junior/woordmerk.webp" alt="LANcelot Junior">
-    <div class="subtitle" id="jr-status">Het klasdraakje</div>
+    <div class="subtitle" id="jr-status"></div>
   </div>
   <div class="actions">
     <button class="secondary pauze-knop" data-pauze title="Alle tablets op slot om de aandacht te vragen"><img src="/img/icons/pauze-klein.webp" alt=""> Pauze</button>
@@ -40,6 +40,7 @@
         <button type="button" class="jr-blok" data-ga="maken"><img src="/img/junior/blok/maken.webp" alt=""><b>Maken</b><span>Je eigen vragen met prentjes, met of zonder AI.</span><em id="jr-tel-maken"></em></button>
       </div>
       <div class="jr-thuis-onder">
+      <button type="button" class="jr-ochtend-knop jr-feest-knop jr-eigen hidden" id="jr-feest-knop" data-ga="feest"><img src="/img/junior/hol/1.webp" alt=""> 🎂 <span data-geen-vertaling id="jr-feest-namen"></span> is jarig!</button>
       <button type="button" class="jr-ochtend-knop jr-eigen" data-ga="ochtend"><img src="/img/junior/weer/1.webp" alt=""> Goeiemorgen! Het ochtendmoment</button>
       <button type="button" class="jr-ochtend-knop jr-eiland-knop jr-eigen" data-ga="eiland"><img src="/img/junior/burcht/1.webp" alt=""> Ons klaseiland</button>
       <button type="button" class="jr-ochtend-knop jr-rijk-knop jr-eigen" data-ga="rijk"><img src="/img/junior/rijk/boerderij/1.webp" alt=""> Het Toverdorp</button>
@@ -101,6 +102,12 @@
     <div class="jr-view hidden" id="jr-v-klastools">
       <div class="jr-view-kop"><button class="terug-knop" type="button" data-ga="thuis"><i class="ic ic-terug" aria-hidden="true"></i>Terug</button><h2><img src="/img/junior/tools/icoon/2.webp" alt=""> Klastools</h2></div>
       <div id="jr-tools-bord"></div>
+    </div>
+
+    <!-- Verjaardag: het jarige kind in de kijker, kaarsjes tellen en uitblazen. -->
+    <div class="jr-view hidden" id="jr-v-feest">
+      <div class="jr-view-kop"><button class="terug-knop" type="button" data-ga="thuis"><i class="ic ic-terug" aria-hidden="true"></i>Terug</button><h2><img src="/img/junior/hol/1.webp" alt=""> Hoera, een verjaardag!</h2></div>
+      <div id="jr-feest-bord" data-geen-vertaling></div>
     </div>
 
     <div class="jr-view hidden" id="jr-v-rijk">
@@ -299,6 +306,13 @@
   </div>
 </dialog>
 
+<dialog class="jr-foto-venster jr-jarig-venster" id="jr-jarig-venster">
+  <h2>🎂 Verjaardag van <span id="jr-jarig-naam" data-geen-vertaling></span></h2>
+  <div class="jr-foto-rij"><label>Dag<select id="jr-jarig-dag"><option value=""></option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option><option>11</option><option>12</option><option>13</option><option>14</option><option>15</option><option>16</option><option>17</option><option>18</option><option>19</option><option>20</option><option>21</option><option>22</option><option>23</option><option>24</option><option>25</option><option>26</option><option>27</option><option>28</option><option>29</option><option>30</option><option>31</option></select></label>
+  <label>Maand<select id="jr-jarig-maand"><option value=""></option><option value="1">januari</option><option value="2">februari</option><option value="3">maart</option><option value="4">april</option><option value="5">mei</option><option value="6">juni</option><option value="7">juli</option><option value="8">augustus</option><option value="9">september</option><option value="10">oktober</option><option value="11">november</option><option value="12">december</option></select></label></div>
+  <p class="jr-foto-klein">Op die dag staat het kind in de kijker op het bord, met een kroon op het dier.</p>
+  <div class="actions"><button class="secondary" id="jr-jarig-wis" type="button">Wissen</button><button class="secondary" id="jr-jarig-dicht" type="button">Annuleren</button><button class="gold" id="jr-jarig-bewaar" type="button">Bewaren</button></div>
+</dialog>
 <dialog class="jr-foto-venster" id="jr-foto-venster">
   <h2>📷 Echte foto zoeken</h2>
   <div class="jr-foto-rij"><input id="jr-foto-woord" maxlength="60" placeholder="bijvoorbeeld: koe"><button class="gold" id="jr-foto-zoek" type="button">Zoeken</button></div>

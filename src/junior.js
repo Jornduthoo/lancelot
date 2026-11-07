@@ -115,6 +115,8 @@ function load() {
   if (!Array.isArray(data.hol.gekocht)) data.hol.gekocht = [];
   if (!Array.isArray(data.hol.uit)) data.hol.uit = [];
   if (typeof data.hol.hoed !== 'number') data.hol.hoed = 0;
+  // Verjaardagen: { kind-id: 'MM-DD' }.
+  if (!data.jarig || typeof data.jarig !== 'object') data.jarig = {};
   return data;
 }
 function save() {
@@ -169,10 +171,23 @@ function kinderen() {
     const stickers = (d.stickers[l.id] || []).length;
     const groei = groeit ? dierFase(stickers) : 1;
     const map = groei === 1 ? 'dier' : `dier${groei}`;
-    return { id: l.id, naam: l.naam, team: lijst.indexOf(l) % 4, dier, groei, eigen: !!sym, beeld: sym ? `/junior/symbool/${l.id}?v=${sym.v}` : `/img/junior/${map}/${dier}.webp`, stickers };
+    const jarig = d.jarig[l.id] || '';
+    return { id: l.id, naam: l.naam, team: lijst.indexOf(l) % 4, dier, groei, eigen: !!sym, beeld: sym ? `/junior/symbool/${l.id}?v=${sym.v}` : `/img/junior/${map}/${dier}.webp`, stickers, jarig, feest: !!jarig && jarig === maandDag() };
   });
   if (veranderd) save();
   return uit;
+}
+
+// Vandaag als 'MM-DD' (de klok van deze pc).
+function maandDag(d = new Date()) { return `${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; }
+// De verjaardag van een kind zetten ('MM-DD') of wissen (leeg).
+function zetJarig(id, datum) {
+  if (!klas.read().leerlingen.some(l => l.id === id)) throw new Error('Dat kind staat niet meer op de klaslijst.');
+  const d = load();
+  const m = /^(\d{2})-(\d{2})$/.exec(String(datum || ''));
+  if (m && +m[1] >= 1 && +m[1] <= 12 && +m[2] >= 1 && +m[2] <= 31) d.jarig[id] = datum; else delete d.jarig[id];
+  save();
+  return kinderen();
 }
 
 // De leerkracht tikt op het dier van een kind: het volgende vrije dier.
@@ -564,6 +579,7 @@ function inhoud(taalId) {
 }
 
 module.exports = {
+  zetJarig,
   SPELLEN, AVONTUREN, FASEN, PER_RONDE, RONDES, DIEREN, instellingen, zetInstellingen, STICKERS, DIER_GROEI, dierFase,
   kinderen, wisselDier, zetSymbool, symboolBestand, draak, noemDraak, holKoop, holZet, HOL_SPUL, eiland, start, stop, stand, overzicht, antwoord, teamGoed, klasBeloning, stickers,
   kringKies, kringStand, kringVolgende, inhoud, fase, niveausVan,
