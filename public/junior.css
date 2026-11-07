@@ -369,6 +369,21 @@
 .jr[data-spel="woordbrug"] { background-image: url(/img/junior/bg/woordbrug.webp); }
 .jr[data-spel="dans"] { background-image: url(/img/junior/bg/dans.webp); }
 .jr[data-spel="kring"] { background-image: url(/img/junior/bg/kring.webp); }
+.jr[data-spel="lijn"] { background-image: url(/img/junior/bg/lijn.webp); }
+.jr[data-spel="delen"] { background-image: url(/img/junior/bg/delen.webp); }
+.jr[data-spel="tafel"] { background-image: url(/img/junior/bg/tafel.webp); }
+.jr[data-spel="klok"] { background-image: url(/img/junior/bg/klok.webp); }
+.jr[data-spel="geld"] { background-image: url(/img/junior/bg/geld.webp); }
+.jr[data-spel="sorteer"] { background-image: url(/img/junior/bg/sorteer.webp); }
+.jr[data-spel="patroon"] { background-image: url(/img/junior/bg/patroon.webp); }
+.jr[data-spel="code"] { background-image: url(/img/junior/bg/code.webp); }
+.jr[data-spel="rijm"] { background-image: url(/img/junior/bg/rijm.webp); }
+.jr[data-spel="klap"] { background-image: url(/img/junior/bg/klap.webp); }
+.jr[data-spel="zinnen"] { background-image: url(/img/junior/bg/zinnen.webp); }
+.jr[data-spel="dictee"] { background-image: url(/img/junior/bg/dictee.webp); }
+.jr[data-spel="seizoen"] { background-image: url(/img/junior/bg/seizoen.webp); }
+.jr[data-spel="gevoel"] { background-image: url(/img/junior/bg/gevoel.webp); }
+.jr[data-spel="stappen"] { background-image: url(/img/junior/bg/stappen.webp); }
 @media (max-width: 800px) {
   .jr[data-spel="eieren"] { background-image: url(/img/junior/bg/eieren-klein.webp); }
   .jr[data-spel="splits"] { background-image: url(/img/junior/bg/splits-klein.webp); }
@@ -382,6 +397,21 @@
   .jr[data-spel="woordbrug"] { background-image: url(/img/junior/bg/woordbrug-klein.webp); }
   .jr[data-spel="dans"] { background-image: url(/img/junior/bg/dans-klein.webp); }
   .jr[data-spel="kring"] { background-image: url(/img/junior/bg/kring-klein.webp); }
+  .jr[data-spel="lijn"] { background-image: url(/img/junior/bg/lijn-klein.webp); }
+  .jr[data-spel="delen"] { background-image: url(/img/junior/bg/delen-klein.webp); }
+  .jr[data-spel="tafel"] { background-image: url(/img/junior/bg/tafel-klein.webp); }
+  .jr[data-spel="klok"] { background-image: url(/img/junior/bg/klok-klein.webp); }
+  .jr[data-spel="geld"] { background-image: url(/img/junior/bg/geld-klein.webp); }
+  .jr[data-spel="sorteer"] { background-image: url(/img/junior/bg/sorteer-klein.webp); }
+  .jr[data-spel="patroon"] { background-image: url(/img/junior/bg/patroon-klein.webp); }
+  .jr[data-spel="code"] { background-image: url(/img/junior/bg/code-klein.webp); }
+  .jr[data-spel="rijm"] { background-image: url(/img/junior/bg/rijm-klein.webp); }
+  .jr[data-spel="klap"] { background-image: url(/img/junior/bg/klap-klein.webp); }
+  .jr[data-spel="zinnen"] { background-image: url(/img/junior/bg/zinnen-klein.webp); }
+  .jr[data-spel="dictee"] { background-image: url(/img/junior/bg/dictee-klein.webp); }
+  .jr[data-spel="seizoen"] { background-image: url(/img/junior/bg/seizoen-klein.webp); }
+  .jr[data-spel="gevoel"] { background-image: url(/img/junior/bg/gevoel-klein.webp); }
+  .jr[data-spel="stappen"] { background-image: url(/img/junior/bg/stappen-klein.webp); }
 }
 
 /* Eieren: een echt nest (tot 5), losse eieren op stro, of eierdozen van 10 (het tienveld). */
@@ -467,3 +497,58 @@
 .jr-lk .jr-groep { background: rgb(18 40 26 / .72); backdrop-filter: blur(4px); border-radius: 22px; padding: 12px 14px 14px; }
 .jr-lk .jr-groep h3 { margin: 0; font-family: var(--jr-schrift); font-size: 1.15rem; text-transform: none; letter-spacing: 0; }
 .jr-lk .jr-groep .jr-tegels { grid-template-columns: repeat(auto-fill, minmax(124px, 1fr)); }
+
+/* ---------- Fase 2: de nieuwe spelletjes ---------- */
+.jr-stapel .jr-kaart > .jr-emoji { font-size: 2.6em; }
+.jr-mand-teken > .jr-emoji { font-size: 2em; }
+.jr-mand-in .jr-emoji { font-size: 1.3em; }
+.jr-mand-naam { display: block; font-family: var(--jr-schrift); font-weight: 800; font-size: .8em; color: var(--jr-inkt); }
+/* Getallenlijn */
+.jr-lijn { position: relative; width: 26em; max-width: 92vw; height: 6.4em; background: rgb(255 248 231 / .94); border-radius: 1em; box-shadow: 0 .2em .8em rgb(0 0 0 / .2); }
+.jr-lijn-balk { position: absolute; left: 1.4em; right: 1.4em; top: 4em; height: .25em; background: var(--jr-inkt); border-radius: 1em; }
+.jr-lijn-streep { position: absolute; top: 3.6em; left: calc(1.4em + (100% - 2.8em) * var(--xf)); width: .14em; height: 1em; background: var(--jr-inkt); transform: translateX(-50%); }
+.jr-lijn-streep.groot { height: 1.4em; top: 3.4em; width: .2em; }
+.jr-lijn-streep b { position: absolute; top: 1.5em; left: 50%; transform: translateX(-50%); font-family: var(--jr-schrift); font-size: .9em; }
+.jr-lijn-draak { position: absolute; top: .3em; left: calc(1.4em + (100% - 2.8em) * var(--xf)); width: 3em; transform: translateX(-50%); }
+.jr-lijn-draak .jr-img { width: 100%; animation: jr-zweef 1.6s ease-in-out infinite; }
+/* Eerlijk delen */
+.jr-delen { display: flex; flex-direction: column; align-items: center; gap: .4em; background: rgb(255 248 231 / .9); border-radius: 1em; padding: .5em 1em; }
+.jr-delen-snoep { display: flex; flex-wrap: wrap; justify-content: center; gap: .15em; max-width: 16em; font-size: 1.6em; }
+.jr-delen-draken { display: flex; gap: .6em; }
+.jr-delen-draak { width: 3.2em; }
+.jr-taart { width: 5em; height: 5em; display: block; }
+/* Tafeltoren: groepjes stippen */
+.jr-groepjes { display: flex; flex-wrap: wrap; gap: .5em; justify-content: center; max-width: 24em; }
+.jr-groepje { display: grid; grid-template-columns: repeat(5, .9em); gap: .15em; padding: .3em; background: #fff8e7; border-radius: .5em; box-shadow: 0 .1em 0 #d8c9a3; }
+.jr-groepje i { width: .9em; height: .9em; border-radius: 50%; background: #e8590c; }
+/* Klokkentoren */
+.jr-klok { width: 8em; height: 8em; filter: drop-shadow(0 .2em .5em rgb(0 0 0 / .3)); }
+.jr-klok-cijfers text { font-family: var(--jr-schrift); font-weight: 800; font-size: 9px; text-anchor: middle; fill: #2b2340; }
+/* Geldmarkt */
+.jr-geld { display: flex; flex-wrap: wrap; gap: .4em; align-items: center; justify-content: center; max-width: 26em; background: rgb(255 248 231 / .85); border-radius: 1em; padding: .5em; }
+.jr-geld .jr-munt { width: 3.4em; }
+.jr-geld .jr-briefje { width: 6.4em; }
+/* Patronenpad */
+.jr-patroon { display: flex; gap: .2em; align-items: center; background: rgb(255 248 231 / .92); border-radius: 1em; padding: .3em .6em; font-size: 2em; flex-wrap: wrap; justify-content: center; max-width: 13em; }
+.jr-patroon-vraag { font-family: var(--jr-schrift); font-weight: 900; color: #e8590c; width: 1em; text-align: center; border: .08em dashed #e8590c; border-radius: .2em; }
+/* Codeerdraakje */
+.jr-code { display: grid; grid-template-columns: repeat(4, 2.5em); grid-template-rows: repeat(4, 2.5em); gap: .2em; background: rgb(255 248 231 / .9); border-radius: .8em; padding: .3em; }
+.jr-code-cel { background: rgb(95 225 255 / .18); border: .08em solid rgb(43 35 64 / .15); border-radius: .4em; display: flex; align-items: center; justify-content: center; }
+.jr-code-cel .jr-img { width: 2.2em; height: 2.2em; object-fit: contain; }
+.jr-pijlen { font-size: 1.8em; letter-spacing: .05em; white-space: nowrap; }
+/* Rijmkikker, Klapdraak, Gevoelensspiegel */
+.jr-rijm-kop, .jr-klap-kop, .jr-situatie { display: flex; align-items: center; gap: .3em; background: rgb(255 248 231 / .9); border-radius: 1em; padding: .2em .8em; }
+.jr-klap-kop { flex-direction: column; }
+.jr-rijm-kikker { width: 4em; }
+.jr-situatie-draak { width: 4em; }
+.jr-klappen { font-size: 1.6em; }
+/* Drakenstappen */
+.jr-meet { font-size: 1.3em; display: flex; flex-direction: column; align-items: flex-start; gap: .2em; background: rgb(255 248 231 / .9); border-radius: 1em; padding: .6em .8em; }
+.jr-meet-ding { height: 1.6em; width: calc(var(--n) * 2.2em); border-radius: .4em; box-shadow: 0 .15em .3em rgb(0 0 0 / .25); }
+.jr-meet-plank { background: repeating-linear-gradient(90deg, #c68642 0 1.1em, #b07436 1.1em 2.2em); border: .1em solid #6d4321; }
+.jr-meet-slang { background: repeating-linear-gradient(45deg, #51cf66 0 .5em, #2f9e44 .5em 1em); border-radius: 1em .4em .4em 1em; border: .1em solid #1b6e2e; }
+.jr-meet-tak { height: .9em; background: linear-gradient(#8b5a2b, #5c3a1a); border-radius: .5em; }
+.jr-meet-poten { display: flex; }
+.jr-meet-poten span { font-size: 1.6em; width: calc(2.2em / 1.6); }
+.jr-lk .jr-groep .jr-tegel b { font-size: .98rem; hyphens: auto; -webkit-hyphens: auto; overflow-wrap: anywhere; line-height: 1.15; }
+.jr-lk .jr-groep .jr-tegel span { font-size: .82rem; }
