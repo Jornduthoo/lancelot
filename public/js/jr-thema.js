@@ -1,4 +1,4 @@
-// LANcelot Junior · thema-versiering (herfst, Sinterklaas, kerst, carnaval) aan de randen van het scherm.
+// LANcelot Junior · thema-versiering volgens de kalender (herfst, Halloween, Sinterklaas, kerst, winter, Valentijn, carnaval, lente, Pasen, Moederdag, Vaderdag, zomer, schoolstart) aan de randen van het scherm.
 // JrThema.zet('herfst') of JrThema.zet('') . De prenten staan in /img/junior/thema/<thema>/1-8.webp.
 (function () {
   // Plekken langs de randen (links/rechts in %, onder in %, grootte in vmin, draaiing). Nooit in het midden.
