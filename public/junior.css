@@ -1113,3 +1113,13 @@ button.jr-mini-draak:hover { transform: translateY(-2px); }
 .jr-kt-rustbollen { position: relative; display: flex; gap: 10px; }
 .jr-kt-rustbollen i { width: 22px; height: 22px; border-radius: 50%; background: rgb(255 255 255 / .7); box-shadow: inset 0 0 0 3px #8ce9ff; }
 .jr-kt-rustbollen i.af { background: #8ce9ff; }
+
+/* Thema-versiering langs de randen; klikt nooit in de weg. */
+.jr-thema { position: fixed; inset: 0; pointer-events: none; z-index: 5; }
+.jr-thema img { position: absolute; height: auto; transform: rotate(var(--r)); filter: drop-shadow(0 4px 6px rgb(0 0 0 / .3)); opacity: .95; animation: jr-thema-wieg 5s ease-in-out infinite; }
+@keyframes jr-thema-wieg { 50% { transform: rotate(calc(var(--r) * -1)) translateY(-4px); } }
+@media (orientation: portrait) and (max-width: 600px) { .jr-thema img:nth-child(n+5) { display: none; } }
+@media (prefers-reduced-motion: reduce) { .jr-thema img { animation: none; } }
+.jr-inst-thema { flex-wrap: wrap; }
+.jr-thema-titel { margin-top: 18px; }
+.jr-thema-sets { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }

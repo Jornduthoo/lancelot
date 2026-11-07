@@ -188,6 +188,9 @@
           <p class="muted small">Speel een reeks bij Spelen, onder Mijn vragen.</p>
           <div id="jr-sets" data-geen-vertaling></div>
           <p class="muted small hidden" id="jr-sets-leeg">Nog geen reeksen.</p>
+          <p class="title jr-thema-titel">🎁 Kant-en-klare reeksen</p>
+          <p class="muted small">Eén tik en de reeks staat bij je reeksen. Daarna kun je ze aanpassen.</p>
+          <div class="jr-thema-sets" id="jr-thema-sets" data-geen-vertaling></div>
         </div>
       </div>
       <div class="panel jr-bewerk hidden" id="jr-bewerk">
@@ -338,6 +341,11 @@
   <div class="jr-kv-keuzes" id="jr-inst-groei">
     <button type="button" data-w="1">Aan</button><button type="button" data-w="0">Uit</button>
   </div>
+  <p class="jr-kv-label">Thema</p>
+  <p class="jr-inst-uitleg">Versiering op het bord en de tablets. Automatisch volgt de kalender.</p>
+  <div class="jr-kv-keuzes jr-inst-thema" id="jr-inst-thema">
+    <button type="button" data-w="auto">📅 Automatisch</button><button type="button" data-w="herfst">🍂 Herfst</button><button type="button" data-w="sint">🎁 Sinterklaas</button><button type="button" data-w="kerst">🎄 Kerst</button><button type="button" data-w="carnaval">🎭 Carnaval</button><button type="button" data-w="geen">Geen</button>
+  </div>
   <div class="actions">
     <button class="gold" id="jr-inst-dicht">Klaar</button>
   </div>
@@ -361,6 +369,7 @@
 <script src="/junior/inhoud.js"></script>
 <script src="/js/jr-spel.js"></script>
 <script src="/js/jr-rijk.js"></script>
+<script src="/js/jr-thema.js"></script>
 <script src="/js/jr-tools.js"></script>
 <script src="/js/jr-muziek.js"></script>
 <script src="/js/jr-leerkracht.js"></script>

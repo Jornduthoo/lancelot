@@ -197,6 +197,7 @@ function toonInstellingen(i) {
   zet('jr-inst-ronde', i.perRonde);
   zet('jr-inst-voorlezen', i.voorlezen ? 1 : 0);
   zet('jr-inst-groei', i.groei ? 1 : 0);
+  zet('jr-inst-thema', i.thema || 'auto');
 }
 function bewaarInstelling(nieuw) {
   socket.emit('jr-instellingen', nieuw, res => {
@@ -207,6 +208,7 @@ function bewaarInstelling(nieuw) {
 for (const b of $('jr-inst-ronde').children) b.addEventListener('click', () => bewaarInstelling({ perRonde: Number(b.dataset.w) }));
 for (const b of $('jr-inst-voorlezen').children) b.addEventListener('click', () => bewaarInstelling({ voorlezen: b.dataset.w === '1' }));
 for (const b of $('jr-inst-groei').children) b.addEventListener('click', () => bewaarInstelling({ groei: b.dataset.w === '1' }));
+for (const b of $('jr-inst-thema').children) b.addEventListener('click', () => bewaarInstelling({ thema: b.dataset.w }));
 $('jr-inst-knop').addEventListener('click', () => {
   socket.emit('jr-instellingen', null, res => {
     if (res && res.error) return Ui.melding(res.error);
@@ -1048,6 +1050,21 @@ $('jr-maak-lees').addEventListener('click', () => {
   });
 });
 socket.on('jr-sets', lijst => zetSets(lijst));
+// Kant-en-klare themareeksen (herfst, Sinterklaas, kerst, carnaval) uit de inhoud van de taal.
+function themaSets() {
+  const box = $('jr-thema-sets');
+  const ts = J().themaSets || {};
+  box.innerHTML = Object.entries(ts).map(([id, t]) => `<button type="button" class="secondary jr-eigen" data-thema-set="${id}">${Junior.esc(t.naam)}</button>`).join('');
+  box.querySelectorAll('[data-thema-set]').forEach(b => b.addEventListener('click', () => {
+    const t = ts[b.dataset.themaSet];
+    socket.emit('jr-set-bewaar', { id: `thema-${b.dataset.themaSet}`, naam: t.naam, vragen: t.vragen }, res => {
+      if (res && res.error) return Ui.melding(res.error);
+      if (res && res.sets) zetSets(res.sets);
+      Ui.melding(`${t.naam}: ${t.vragen.length} vragen staan nu bij je reeksen.`);
+    });
+  }));
+}
+themaSets();
 
 socket.on('connect', () => {
   socket.emit('jr-sets', null, res => {
@@ -1058,6 +1075,7 @@ socket.on('connect', () => {
   socket.emit('jr-lk-get', null, res => {
     if (!res) return;
     stand = res.stand;
+    try { JrThema.zet(stand.thema); } catch {}
     kinderen = res.kinderen || [];
     toonDraak(res.stand.draak);
     klas();
@@ -1066,6 +1084,7 @@ socket.on('connect', () => {
   });
 });
 socket.on('jr-stand', s => {
+  try { JrThema.zet(s && s.thema); } catch {}
   const oud = stand.seed;
   stand = s;
   toonDraak(s.draak);
