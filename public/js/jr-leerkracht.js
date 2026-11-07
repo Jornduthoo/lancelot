@@ -382,12 +382,13 @@ $('jr-diplomas').addEventListener('click', () => {
   const datum = new Intl.DateTimeFormat((J().stemmen || ['nl-BE'])[0], { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date());
   blad.classList.remove('werkblad');
   blad.classList.add('diploma');
-  blad.innerHTML = wie.map(k => `<div class="jr-diploma"><div class="jr-diploma-in">
-    <h1>${'Diploma'}</h1>
+  // Het printblad vertaalt zichzelf niet: de vaste woorden hier wel.
+  const t = x => (window.I18n ? I18n.t(x) : x);
+  blad.innerHTML = wie.map(k => `<div class="jr-diploma"><h1 class="jr-diploma-titel">${t('Diploma')}</h1><div class="jr-diploma-in">
     <img class="jr-diploma-dier" src="${k.beeld}" alt="">
     <b class="jr-diploma-naam">${Junior.esc(k.naam)}</b>
-    <p>${`heeft al ${k.stickers} stickers verzameld!`}</p>
-    <div class="jr-diploma-onder"><img src="${draakImg()}" alt=""><span>${Junior.esc(datum)}</span></div>
+    <p>${t(`heeft al ${k.stickers} stickers verzameld!`)}</p>
+    <div class="jr-diploma-onder"><span>${Junior.esc(datum)}</span><span class="jr-diploma-teken">${t('De leerkracht')}<i></i></span></div>
   </div></div>`).join('');
   const imgs = [...blad.querySelectorAll('img')];
   Promise.all(imgs.map(i => (i.complete ? null : new Promise(r => { i.onload = r; i.onerror = r; })))).then(() => print());

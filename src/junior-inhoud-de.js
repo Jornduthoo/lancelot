@@ -18,6 +18,7 @@ module.exports = {
     teamKom: "komm an die Tafel!",
     raceWint: 'gewinnt das Rennen!',
     boekVol: "Hurra! Deine Seite ist voll. Du bekommst eine Urkunde!",
+    boekLeeg: "Dein Stickerheft ist noch leer. Spiel mit und sammle Sticker!",
     ballonWint: "ist als Erstes bei den Wolken!",
     bouwKlaar: "Hurra! Zusammen haben wir die Burg gebaut!",
     jijTeam: 'Du spielst im',

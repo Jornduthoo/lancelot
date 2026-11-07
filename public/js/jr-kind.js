@@ -4,7 +4,7 @@
 const socket = io();
 const $ = id => document.getElementById(id);
 const J = () => window.JR || { zin: {}, dieren: [] };
-const SCHERMEN = ['jr-wacht', 'jr-kies', 'jr-spel', 'jr-beloning', 'jr-naar-bord', 'jr-kring', 'jr-apart', 'jr-burcht', 'jr-rijk'];
+const SCHERMEN = ['jr-wacht', 'jr-kies', 'jr-spel', 'jr-beloning', 'jr-naar-bord', 'jr-kring', 'jr-apart', 'jr-burcht', 'jr-rijk', 'jr-stickerboek'];
 
 let stand = { actief: false };
 let kinderen = [];
@@ -23,6 +23,14 @@ let alleen = false;
 let burcht = null;
 let rijkOpen = false; // Het Toverdorp staat open op de tablet.
 const PER_BLAD = 12; // zoveel stickers op een bladzijde van het stickerboek; een volle bladzijde = een diploma
+const BLADEN = ['bos', 'zee', 'ruimte', 'kasteel']; // het thema van elke bladzijde (public/img/junior/boek), dan weer van voor af
+// Eén bladzijde van het stickerboek: een geschilderde prent met 12 plekjes (4 x 3).
+function bladHtml(lijst, blad, nieuw) {
+  const op = lijst.slice(blad * PER_BLAD, blad * PER_BLAD + PER_BLAD);
+  return `<div class="jr-boek-blad" style="--blad:url(/img/junior/boek/${BLADEN[blad % BLADEN.length]}.webp)">${Array.from({ length: PER_BLAD }, (_, i) => (op[i]
+    ? `<span class="jr-boek-plek vol ${nieuw && i === op.length - 1 ? 'nieuw' : ''}"><img src="/img/junior/sticker/${op[i]}.webp" alt=""></span>`
+    : '<span class="jr-boek-plek"></span>')).join('')}</div>`;
+}
 try { apart = JSON.parse(sessionStorage.getItem('jr-apart') || 'null'); } catch { apart = null; }
 const S = () => (apart ? { ...stand, actief: true, spel: apart.spel, niveau: apart.niveau, seed: apart.seed, manier: 'beurt', perRonde: apart.raadsel ? 3 : 5 } : stand);
 
@@ -222,11 +230,8 @@ function beloning() {
   socket.emit('jr-stickers', { id: ik[0] }, res => {
     const lijst = (res && res.stickers) || [];
     const blad = Math.max(0, Math.floor((lijst.length - 1) / PER_BLAD));
-    const op = lijst.slice(blad * PER_BLAD, blad * PER_BLAD + PER_BLAD);
     const vol = nieuwSticker && lijst.length > 0 && lijst.length % PER_BLAD === 0;
-    $('jr-boek').innerHTML = `<div class="jr-boek-kop">📖 ${blad + 1}</div><div class="jr-boek-blad">${Array.from({ length: PER_BLAD }, (_, i) => (op[i]
-      ? `<span class="jr-boek-plek vol ${nieuwSticker && i === op.length - 1 ? 'nieuw' : ''}"><img src="/img/junior/sticker/${op[i]}.webp" alt=""></span>`
-      : '<span class="jr-boek-plek"></span>')).join('')}</div>${vol ? '<div class="jr-boek-diploma"><img src="/img/junior/avontuur/burcht.webp" alt="">📜</div>' : ''}`;
+    $('jr-boek').innerHTML = `<div class="jr-boek-kop">📖 ${blad + 1}</div>${bladHtml(lijst, blad, nieuwSticker)}${vol ? '<div class="jr-boek-diploma"><img src="/img/junior/diploma.webp" alt=""></div>' : ''}`;
     if (vol) Junior.Stem.zeg([J().zin.boekVol]);
   });
   // Het raadsel is één keer per dag: daarna alleen 'Klaar' (terug naar het begin). Anders: nog een keer of het volgende kind.
@@ -298,7 +303,7 @@ function route() {
   if (burcht) {
     if (burcht.van === 'wacht') ik = ik.filter(id => kind(id)).slice(0, 1);
     if (!ik.length) { kiesScherm(); return; }
-    burchtScherm();
+    if (burcht.soort === 'boek') boekScherm(); else burchtScherm();
     return;
   }
   if (apart) {
@@ -540,6 +545,32 @@ function burchtLade(i) {
 }
 $('jr-burcht-lade-dicht').addEventListener('click', () => { burcht.plek = -1; $('jr-burcht-lade').classList.add('hidden'); burchtTeken(); });
 $('jr-burcht-knop').addEventListener('click', () => burchtOpen('wacht'));
+// ---------- Mijn stickerboek: alle bladzijden om door te bladeren ----------
+$('jr-boek-knop').addEventListener('click', () => { burchtOpen('wacht'); burcht.soort = 'boek'; route(); });
+function boekScherm() {
+  toon('jr-stickerboek');
+  const wie = kind(ik[0]);
+  $('jr-sb-wie').innerHTML = wie ? `${dierImg(wie)}<b>${Junior.esc(wie.naam)}</b>` : '';
+  socket.emit('jr-stickers', { id: ik[0] }, res => {
+    if (!burcht || burcht.soort !== 'boek') return;
+    burcht.lijst = (res && res.stickers) || [];
+    const n = Math.max(1, Math.ceil(burcht.lijst.length / PER_BLAD));
+    if (burcht.blad == null) burcht.blad = n - 1;
+    boekBlad();
+    if (!burcht.lijst.length) Junior.Stem.zeg([J().zin.boekLeeg]);
+  });
+}
+function boekBlad() {
+  const n = Math.max(1, Math.ceil(burcht.lijst.length / PER_BLAD));
+  burcht.blad = Math.max(0, Math.min(n - 1, burcht.blad));
+  $('jr-sb-blad').innerHTML = bladHtml(burcht.lijst, burcht.blad, false);
+  $('jr-sb-nr').textContent = `${burcht.blad + 1} / ${n}`;
+  $('jr-sb-terug').disabled = burcht.blad === 0;
+  $('jr-sb-verder').disabled = burcht.blad >= n - 1;
+}
+$('jr-sb-terug').addEventListener('click', () => { burcht.blad--; boekBlad(); try { sfx.tick(); } catch {} });
+$('jr-sb-verder').addEventListener('click', () => { burcht.blad++; boekBlad(); try { sfx.tick(); } catch {} });
+$('jr-sb-klaar').addEventListener('click', () => { burcht = null; ik = []; gekozen = []; bewaarIk(); socket.emit('jr-login', { ids: [] }); route(); });
 $('jr-rijk-knop').addEventListener('click', () => { try { sfx.unlock(); } catch {} rijkOpen = true; route(); });
 $('jr-rijk-klaar').addEventListener('click', () => { rijkOpen = false; JrRijk.stop(); route(); });
 $('jr-bouwen').addEventListener('click', () => burchtOpen('beloning'));

@@ -14,7 +14,19 @@ const FILE = path.join(gegevens.pad('klas'), 'junior.json');
 const SYMBOLEN = path.join(gegevens.pad('klas'), 'junior-symbolen');
 const SOORTEN = { 'image/png': 'png', 'image/jpeg': 'jpg', 'image/webp': 'webp' };
 const DIEREN = 30; // public/img/junior/dier/1..30.webp
-const STICKERS = 16; // public/img/junior/sticker/1..16.webp
+const STICKERS = 48; // public/img/junior/sticker/1..48.webp
+// Elke bladzijde van het stickerboek heeft een thema (public/img/junior/boek): bos, zee, ruimte, kasteel, en dan weer van voor af.
+// Op het bos en het kasteel komen de stickers 1-16 (en op het kasteel alle), op de zee 17-32, in de ruimte 33-48.
+const PER_BLAD = 12;
+const BLAD_STICKERS = [[1, 16], [17, 32], [33, 48], [1, 48]];
+function nieuweSticker(lijst) {
+  const [van, tot] = BLAD_STICKERS[Math.floor(lijst.length / PER_BLAD) % BLAD_STICKERS.length];
+  const op = new Set(lijst.slice(lijst.length - (lijst.length % PER_BLAD)));
+  const kan = [];
+  for (let s = van; s <= tot; s++) if (!op.has(s)) kan.push(s);
+  const uit = kan.length ? kan : Array.from({ length: tot - van + 1 }, (_, i) => van + i);
+  return uit[Math.floor(Math.random() * uit.length)];
+}
 const PER_RONDE = 5; // zoveel opdrachten, en dan een sticker (de leerkracht kan 3, 5 of 8 kiezen)
 const RONDES = [3, 5, 8];
 // Hoeveel eten het klasdraakje nodig heeft voor elke fase: ei, ei dat openbreekt, baby, jong draakje, ridderdraak.
@@ -431,8 +443,8 @@ function antwoord(id, { vraag, juist, apart } = {}) {
   if (raadsel && verdiend) load().raadsel[id] = vandaag;
   if (verdiend) {
     p.rondes++;
-    sticker = 1 + Math.floor(Math.random() * STICKERS);
     const d = load();
+    sticker = nieuweSticker(d.stickers[id] || []);
     (d.stickers[id] = d.stickers[id] || []).push(sticker);
     if (d.stickers[id].length > 500) d.stickers[id] = d.stickers[id].slice(-500);
     save();
@@ -612,7 +624,7 @@ function inhoud(taalId) {
 
 module.exports = {
   zetJarig, themaNu, pasen, THEMAS,
-  SPELLEN, AVONTUREN, FASEN, PER_RONDE, RONDES, DIEREN, instellingen, zetInstellingen, STICKERS, DIER_GROEI, dierFase,
+  SPELLEN, AVONTUREN, FASEN, PER_RONDE, RONDES, DIEREN, instellingen, zetInstellingen, STICKERS, nieuweSticker, DIER_GROEI, dierFase,
   kinderen, wisselDier, zetSymbool, symboolBestand, draak, noemDraak, holKoop, holZet, HOL_SPUL, eiland, start, stop, stand, overzicht, antwoord, teamGoed, klasBeloning, stickers,
   kringKies, kringStand, kringVolgende, inhoud, fase, niveausVan,
   burcht, burchtBouw, BURCHT_PLEKKEN, BURCHT_STUKKEN,
