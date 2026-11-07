@@ -257,6 +257,7 @@ function raceBouw() {
   if (box.children.length) return;
   box.innerHTML = TEAMKLEUR.map((kl, i) => `<div class="jr-baan jr-baan-${kl}" data-team="${i}">
     <span class="jr-baan-naam">${Junior.esc((J().zin.teams || [])[i] || '')}</span>
+    <span class="jr-baan-leden"></span>
     <span class="jr-baan-winst"></span>
     <img class="jr-baan-vlag" src="/img/junior/race/vlag.webp" alt="">
     <div class="jr-baan-loper" style="--ver:0"><img class="jr-baan-draak" src="/img/junior/race/draak${i + 1}.webp" alt=""></div>
@@ -269,6 +270,8 @@ function raceToon(a, opnieuw) {
   for (const baan of $('jr-race-banen').children) {
     const t = +baan.dataset.team;
     baan.querySelector('.jr-baan-loper').style.setProperty('--ver', a.ver[t]);
+    // Wie in dit team zit: de dieren van de klas, zodat elk kind zijn baan vindt.
+    baan.querySelector('.jr-baan-leden').innerHTML = kinderen.filter(k => k.team === t).map(k => `<img src="${k.beeld}" alt="" title="${Junior.esc(k.naam)}">`).join('');
     baan.querySelector('.jr-baan-winst').innerHTML = '<img src="/img/junior/race/beker.webp" alt="">'.repeat(Math.min(5, a.winst[t]));
   }
 }

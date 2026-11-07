@@ -580,7 +580,7 @@
 .jr-baan-blauw { background: rgb(28 126 214 / .38); }
 .jr-baan-geel { background: rgb(242 178 0 / .42); }
 .jr-baan-groen { background: rgb(47 158 68 / .38); }
-.jr-baan-naam { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #fff; font-weight: 800; font-size: clamp(.8rem, 1.6vw, 1.15rem);
+.jr-baan-naam { position: absolute; left: 14px; top: 30%; transform: translateY(-50%); color: #fff; font-weight: 800; font-size: clamp(.8rem, 1.6vw, 1.15rem);
   text-shadow: 0 2px 3px rgb(0 0 0 / .55); white-space: nowrap; }
 .jr-baan-winst { position: absolute; right: 9%; top: 50%; transform: translateY(-50%); display: flex; gap: 2px; }
 .jr-baan-winst img { height: clamp(30px, 7vh, 56px); filter: drop-shadow(0 2px 3px rgb(0 0 0 / .35)); }
@@ -652,3 +652,15 @@
 /* Alleen het gebouw zelf of het plusje is aantikbaar, niet het lege vak eromheen (zo blokkeert vooraan niets achteraan). */
 .jr-plek { pointer-events: none; }
 .jr-plek img, .jr-plek span { pointer-events: auto; }
+
+.jr-baan-leden { position: absolute; left: 10px; top: 48%; width: 18%; display: flex; flex-wrap: wrap; gap: 1px; }
+.jr-baan-leden img { width: clamp(20px, 4vh, 34px); height: clamp(20px, 4vh, 34px); object-fit: contain; filter: drop-shadow(0 1px 1px rgb(0 0 0 / .4)); }
+
+/* Op de tablet: groot tonen in welk team je speelt. */
+.jr-team-splash { position: fixed; inset: 0; z-index: 400; display: flex; align-items: center; justify-content: center; gap: 24px; flex-wrap: wrap; background: rgb(255 248 230 / .7); backdrop-filter: blur(4px); }
+.jr-ts-een { position: relative; width: min(80vw, 360px); border-radius: 32px; padding: 20px 20px 18px; text-align: center; color: #fff; box-shadow: 0 0 0 6px #fff, 0 20px 50px rgb(0 0 0 / .35); animation: jr-bouw .6s cubic-bezier(.3, 1.6, .5, 1); }
+.jr-ts-rood { background: #e03131; } .jr-ts-blauw { background: #1c7ed6; } .jr-ts-geel { background: #f2b200; } .jr-ts-groen { background: #2f9e44; }
+.jr-ts-draak { width: 70%; animation: jr-ren .5s ease-in-out infinite alternate; filter: drop-shadow(0 8px 10px rgb(0 0 0 / .3)); }
+.jr-ts-dier { position: absolute; left: 14px; top: 14px; width: 30%; background: #fff; border-radius: 50%; padding: 4px; }
+.jr-ts-een p { margin: 6px 0 0; font-size: 1.3rem; font-weight: 700; text-shadow: 0 2px 3px rgb(0 0 0 / .35); }
+.jr-ts-een b { display: block; font-family: var(--jr-schrift); font-size: clamp(2rem, 6vw, 3rem); }
