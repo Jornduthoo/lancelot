@@ -585,11 +585,10 @@ function toonView(v) {
   muziek();
   if (v !== 'eiland') eilandTourStop();
   if (v === 'rijk') JrRijk.maak($('jr-rijk-bord')); else if (window.JrRijk) JrRijk.stop();
+  if (v === 'klastools') JrTools.maak($('jr-tools-bord'), { kinderen: () => kinderen.filter(k => !afwezig.has(k.id)) }); else if (window.JrTools) JrTools.stop();
   if (v === 'eiland') socket.emit('jr-eiland', null, res => res && res.eiland && eiland(res.eiland));
 }
 
-// De klastools van LANcelot openen; de Wapenkamer brengt je met Terug weer naar Junior.
-document.querySelectorAll('[data-wk]').forEach(b => b.addEventListener('click', () => { location.href = `/wapenkamer?van=junior#${b.dataset.wk}`; }));
 
 // ---------- Het klaseiland: elke burcht van de klas op één eiland ----------
 // Zelfde plekjes als op de tablet: midden (%), onderkant (%), grootte.
