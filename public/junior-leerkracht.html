@@ -41,6 +41,7 @@
       <div class="jr-thuis-onder">
       <button type="button" class="jr-ochtend-knop jr-eigen" data-ga="ochtend"><img src="/img/junior/weer/1.webp" alt=""> Goeiemorgen! Het ochtendmoment</button>
       <button type="button" class="jr-ochtend-knop jr-eiland-knop jr-eigen" data-ga="eiland"><img src="/img/junior/burcht/1.webp" alt=""> Ons klaseiland</button>
+      <button type="button" class="jr-ochtend-knop jr-rijk-knop jr-eigen" data-ga="rijk"><img src="/img/junior/rijk/boerderij/1.webp" alt=""> Het Toverdorp</button>
       <button type="button" class="panel jr-mini-draak jr-eigen" data-ga="draakje">
         <img id="jr-mini-draak" src="/img/junior/draak/1.webp" alt="">
         <div><b id="jr-mini-naam">Het klasdraakje</b><div class="jr-groeibalk"><span id="jr-mini-groei"></span></div></div>
@@ -91,6 +92,13 @@
           <div class="jr-eiland-plein" id="jr-eiland-plein"></div>
         </div>
       </div>
+    </div>
+
+    <!-- Het Toverdorp: zes plekken om samen te ontdekken (woordenschat), met een zoekspel. -->
+    <div class="jr-view hidden" id="jr-v-rijk">
+      <div class="jr-view-kop"><button class="terug-knop" type="button" data-ga="thuis"><i class="ic ic-terug" aria-hidden="true"></i>Terug</button><h2><img src="/img/junior/rijk/boerderij/1.webp" alt=""> Het Toverdorp</h2></div>
+      <div id="jr-rijk-bord"></div>
+      <p class="jr-view-uitleg">Tik op een plek en daarna op wat je ziet: het draakje zegt het woord. Met 🔍 zoekt de klas samen: waar is de koe? De kinderen kunnen het Toverdorp ook zelf ontdekken op de tablet.</p>
     </div>
 
     <div class="jr-view hidden" id="jr-v-spelen">
@@ -319,6 +327,7 @@
 <script src="/js/logo-3d.js"></script>
 <script src="/junior/inhoud.js"></script>
 <script src="/js/jr-spel.js"></script>
+<script src="/js/jr-rijk.js"></script>
 <script src="/js/jr-leerkracht.js"></script>
 </body>
 </html>
