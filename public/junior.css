@@ -179,19 +179,23 @@
 
 .jr-waar { position: relative; width: 22em; height: 15em; }
 .jr-tafel { position: absolute; left: 50%; bottom: 1.2em; width: 9em; transform: translateX(-50%); }
-.jr-vlieger { position: absolute; width: 3.4em; left: 50%; bottom: -1em; transform: translate(-50%, 0) scale(.8); transition: all .45s cubic-bezier(.3, 1.4, .5, 1); opacity: .9; z-index: 2; pointer-events: none; }
+.jr-vlieger { position: absolute; width: 3.4em; left: 50%; bottom: -1em; translate: -50% 0; transform: scale(.8); transition: left .45s cubic-bezier(.3, 1.4, .5, 1), bottom .45s cubic-bezier(.3, 1.4, .5, 1), width .45s, transform .45s, opacity .45s; opacity: .9; z-index: 2; pointer-events: none; }
 .jr-vlieger .jr-img { width: 100%; }
 .jr-vlieger:not([class*="jr-p-"]) { left: 1.5em; bottom: 0; }
-.jr .jr-plek-knop { position: absolute; width: 3.6em; height: 3.6em; border-radius: 50%; border: .16em dashed rgb(43 35 64 / .45); background: rgb(95 225 255 / .25); transform: translate(-50%, 0); animation: jr-puls 1.8s ease-in-out infinite; }
+.jr .jr-plek-knop { position: absolute; width: 3.6em; height: 3.6em; border-radius: 50%; border: .16em dashed rgb(43 35 64 / .6); background: transparent; box-shadow: 0 0 0 .12em rgb(255 255 255 / .55); translate: -50% 0; transform: none; filter: none; padding: 0; min-height: 0; animation: jr-plek-puls 1.8s ease-in-out infinite; }
+.jr .jr-plek-knop:hover, .jr .jr-plek-knop:active { transform: none; filter: none; background: rgb(255 255 255 / .18); }
+@keyframes jr-plek-puls { 50% { box-shadow: 0 0 0 .12em rgb(255 255 255 / .55), 0 0 .9em .2em rgb(255 255 255 / .75); } }
 .jr .jr-plek-knop:disabled { opacity: .25; animation: none; }
 .jr .jr-plek-knop.jr-juist { opacity: 0; }
+.jr .jr-plek-knop.jr-schud { animation: jr-plek-nee .45s ease; }
+@keyframes jr-plek-nee { 25% { rotate: -12deg; scale: .9; } 75% { rotate: 12deg; scale: .9; } }
 @keyframes jr-puls { 50% { background: rgb(95 225 255 / .5); } }
 .jr-p-op { left: 50%; bottom: 7.6em; }
 .jr-p-onder { left: 50%; bottom: 1.3em; }
 .jr-p-boven { left: 50%; bottom: 11.4em; }
 .jr-p-links, .jr-p-naast-links { left: 16%; bottom: 1.3em; }
 .jr-p-rechts, .jr-p-naast-rechts { left: 84%; bottom: 1.3em; }
-.jr-vlieger.jr-p-op, .jr-vlieger.jr-p-onder, .jr-vlieger.jr-p-boven, .jr-vlieger.jr-p-links, .jr-vlieger.jr-p-rechts, .jr-vlieger.jr-p-naast-links, .jr-vlieger.jr-p-naast-rechts { transform: translate(-50%, 0) scale(1); opacity: 1; }
+.jr-vlieger.jr-p-op, .jr-vlieger.jr-p-onder, .jr-vlieger.jr-p-boven, .jr-vlieger.jr-p-links, .jr-vlieger.jr-p-rechts, .jr-vlieger.jr-p-naast-links, .jr-vlieger.jr-p-naast-rechts { transform: scale(1); opacity: 1; }
 .jr-vlieger.jr-p-onder { bottom: 1.1em; width: 2.8em; }
 
 .jr-schud { animation: jr-schud .45s ease; }
@@ -326,6 +330,14 @@
 
 /* Eigen symbooltjes en de kaartjes om te printen */
 .jr-klas-kind { position: relative; cursor: default !important; }
+.jr-inst-ai { display: flex; gap: 8px; flex-wrap: wrap; }
+.jr-inst-ai select, .jr-inst-ai input { padding: 8px 10px; border-radius: 12px; border: 2px solid #eadfc4; font: inherit; background: #fff; color: var(--jr-inkt); }
+.jr-inst-ai input { flex: 1 1 200px; min-width: 0; }
+.jr-inst-ai button.jr-ai-bewaar { border: 0; border-radius: 999px; padding: 8px 18px; background: var(--jr-groen); color: #fff; font: inherit; font-weight: 800; cursor: pointer; }
+.jr-klas-erbij { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+.jr-klas-erbij input { flex: 1 1 220px; min-width: 0; padding: 8px 12px; border-radius: 12px; border: 2px solid #eadfc4; font: inherit; background: #fff; color: var(--jr-inkt); }
+.jr-lk main .jr-klas-erbij button.jr-klas-plus { border: 0; border-radius: 999px; padding: 8px 16px; background: var(--jr-groen); color: #fff; font: inherit; font-weight: 800; cursor: pointer; box-shadow: 0 3px 0 #2f9e44; }
+.jr-klas-kind .jr-kind-invoer { width: 100%; min-width: 0; font: inherit; font-size: .85rem; text-align: center; padding: 2px 4px; border-radius: 8px; border: 2px solid var(--jr-groen); }
 .jr-lk .jr-klas-beeld { border: 0; background: transparent; padding: 0; cursor: pointer; }
 .jr-klas-kind .jr-klas-knoppen { display: flex; gap: 4px; overflow: visible; white-space: normal; flex-wrap: wrap; justify-content: center; }
 .jr-lk .jr-klas-knoppen button { border: 0; background: #efe6cc; color: var(--jr-inkt); border-radius: 8px; padding: 3px 8px; font-size: .9rem; line-height: 1.2; cursor: pointer; min-height: 0; height: auto; box-shadow: none; clip-path: none; }
