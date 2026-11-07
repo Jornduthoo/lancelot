@@ -1,7 +1,7 @@
 // LANcelot Junior: de wereld voor de 3e kleuterklas tot het 3e leerjaar, in dezelfde app.
 // Dezelfde klaslijst en hetzelfde logboek als LANcelot. Kinderen loggen in met een dier, alles wordt voorgelezen,
 // en de klas laat samen het klasdraakje groeien. Geen ranglijsten: elk kind krijgt stickers.
-// Drie manieren van spelen: op het bord in 4 kleurteams, met twee op een tablet, of om de beurt (hoekenwerk).
+// Vier manieren van spelen: op het bord in 4 kleurteams, met twee op een tablet, om de beurt (hoekenwerk) of elk op een eigen tablet.
 // Bewaard in klas/junior.json bij de gegevens (die map gaat mee in de back-up en staat in .gitignore).
 const fs = require('fs');
 const path = require('path');
@@ -19,7 +19,7 @@ const PER_RONDE = 5; // zoveel opdrachten, en dan een sticker (de leerkracht kan
 const RONDES = [3, 5, 8];
 // Hoeveel eten het klasdraakje nodig heeft voor elke fase: ei, ei dat openbreekt, baby, jong draakje, ridderdraak.
 const FASEN = [0, 15, 50, 120, 250];
-const MANIEREN = ['bord', 'duo', 'beurt'];
+const MANIEREN = ['bord', 'duo', 'beurt', 'alleen']; // alleen: elk kind op een eigen tablet, zonder doorgeven
 // Avonturen op het bord: de kinderen oefenen op de tablet (met twee of om de beurt), en elk juist antwoord
 // laat op het bord iets gebeuren voor hun kleurteam. Het team van een kind volgt de klaslijst (rood, blauw, geel, groen...).
 const AVONTUREN = ['race'];
@@ -445,11 +445,21 @@ function wisSet(id) {
   return d.sets;
 }
 const TAALNAAM = { nl: 'Nederlands (Vlaams)', en: 'English', fr: 'français', es: 'español', de: 'Deutsch' };
-function eigenPrompt({ onderwerp, aantal, taal: t } = {}) {
+// Voor wie de vragen zijn: dat bepaalt hoe moeilijk en of de kinderen al wat kunnen lezen.
+const KLASSEN = {
+  k1: { wie: 'peuters en de 1e kleuterklas (3-4 jaar)', niveau: 'Heel eenvoudig: kleuren, dieren, dingen uit hun eigen leefwereld, tellen tot 3. De kinderen lezen nog niet: alles zit in de prent.' },
+  k2: { wie: 'de 2e kleuterklas (4-5 jaar)', niveau: 'Eenvoudig: dieren, seizoenen, vormen, tellen tot 5, groot en klein. De kinderen lezen nog niet: alles zit in de prent.' },
+  k3: { wie: 'de 3e kleuterklas (5-6 jaar)', niveau: 'Tellen tot 10, eerste klanken (met welke klank begint het woord?), rijmen, tegenstellingen, wereldoriëntatie. De kinderen lezen nog niet: alles zit in de prent.' },
+  l1: { wie: 'het 1e leerjaar (6-7 jaar)', niveau: 'Rekenen tot 20, korte klankzuivere woorden lezen (zoals maan, vis, boom), klanken en letters. Het woord bij de prent mag gelezen worden.' },
+  l2: { wie: 'het 2e leerjaar (7-8 jaar)', niveau: 'Rekenen tot 100, de tafels van 2, 5 en 10, de klok (uur en half), korte zinnen lezen, spelling van eenvoudige woorden.' },
+};
+function eigenPrompt({ onderwerp, aantal, klas: kl, taal: t } = {}) {
   const ond = kort(onderwerp, 200);
   if (!ond) throw new Error('Typ eerst een onderwerp, bijvoorbeeld: de herfst.');
   const n = Math.max(3, Math.min(MAX_VRAGEN, Number(aantal) || 8));
-  return `Je maakt vragen voor jonge kinderen van 5 tot 8 jaar (kleuterklas tot 2e leerjaar) die nog niet of nauwelijks lezen.
+  const k = KLASSEN[kl] || KLASSEN.k3;
+  return `Je maakt vragen voor kinderen uit ${k.wie}.
+Niveau: ${k.niveau}
 Onderwerp: ${ond}
 Taal van de vragen: ${TAALNAAM[t] || TAALNAAM.nl}
 

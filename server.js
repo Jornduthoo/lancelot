@@ -948,8 +948,9 @@ function sendAddresses(target) {
   const list = lanInterfaces();
   const preferred = settings.read().preferredAddress;
   const urls = list.map(i => `http://${i.address}:${PORT}`);
-  return Promise.all(urls.map(url => QRCode.toString(url, { type: 'svg', margin: 1 })))
-    .then(qrs => target.emit('addresses', urls.map((url, k) => ({ url, qr: qrs[k], name: list[k].name, sure: list[k].address === preferred }))));
+  // Junior heeft een eigen QR-code: die brengt de kinderen meteen op /junior.
+  return Promise.all(urls.flatMap(url => [QRCode.toString(url, { type: 'svg', margin: 1 }), QRCode.toString(`${url}/junior`, { type: 'svg', margin: 1 })]))
+    .then(qrs => target.emit('addresses', urls.map((url, k) => ({ url, qr: qrs[2 * k], jrQr: qrs[2 * k + 1], name: list[k].name, sure: list[k].address === preferred }))));
 }
 
 // Eén fout in een spel mag nooit de hele server (en dus de les) laten vallen.

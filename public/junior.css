@@ -283,7 +283,7 @@
 .jr-pop { animation: jr-hop .4s ease; }
 
 /* Het keuzevenster en de instellingen: zacht en rond zoals de rest van Junior, nooit grijs of uitgevaagd. */
-.jr-kies-venster, .jr-inst-venster { max-width: 760px; width: calc(100% - 32px); background: var(--jr-room); color: var(--jr-inkt); border: 0; border-radius: 26px; padding: 22px 24px; box-shadow: 0 0 0 4px var(--jr-goud), 0 20px 60px rgb(0 0 0 / .45); clip-path: none; }
+.jr-kies-venster, .jr-inst-venster { max-width: 900px; width: calc(100% - 32px); background: var(--jr-room); color: var(--jr-inkt); border: 0; border-radius: 26px; padding: 22px 24px; box-shadow: 0 0 0 4px var(--jr-goud), 0 20px 60px rgb(0 0 0 / .45); clip-path: none; }
 .jr-kies-venster::backdrop, .jr-inst-venster::backdrop { background: rgb(18 40 26 / .55); backdrop-filter: blur(4px); }
 .jr-kies-venster h2, .jr-inst-venster h2 { margin: 0; color: var(--jr-inkt); font-family: var(--jr-schrift); font-size: 1.7rem; }
 .jr-kies-venster .muted { color: #5b5170; margin: 2px 0 0; }
@@ -297,7 +297,8 @@
 .jr-kies-venster .jr-kv-niveaus button:hover, .jr-kies-venster .jr-kv-manieren button:hover, .jr-inst-venster .jr-kv-keuzes button:hover { border-color: var(--jr-goud); }
 .jr-kies-venster .jr-kv-niveaus button.aan, .jr-kies-venster .jr-kv-manieren button.aan, .jr-inst-venster .jr-kv-keuzes button.aan {
   background: #fff1c7; border-color: #f0a500; box-shadow: 0 3px 0 #d69e1a, 0 0 0 3px rgb(255 201 74 / .45); }
-.jr-kv-manieren { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.jr-kv-manieren { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+@media (max-width: 760px) { .jr-kv-manieren { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 640px) { .jr-kv-manieren { grid-template-columns: 1fr; } }
 .jr-kies-venster .jr-kv-manieren button { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 14px 12px; text-align: center; white-space: normal; height: auto; border-radius: 18px; }
 .jr-kv-manieren span { font-size: .85rem; font-weight: 400; color: #5b5170; }
