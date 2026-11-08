@@ -578,9 +578,7 @@
     nav.className = 'snelmenu';
     nav.setAttribute('aria-label', 'Snel naar');
     nav.innerHTML = `${
-      RIJKEN.map(([id, naam, ic]) => `<a href="/host#${id}" data-rijk="${id}" title="${id === 'kronieken' && window.LANCELOT_STORE ? naam : `Naar De ${naam}`}"><img src="/img/icons/${ic}.webp" alt=""><span>${naam}</span></a>`).join('')}${
-      // LANcelot Junior (3e kleuterklas tot 3e leerjaar): wisselen met één klik, dezelfde klas en gegevens. Nog niet in de Store-versie.
-      window.LANCELOT_STORE ? '' : '<a href="/junior-leerkracht" class="snel-junior" title="Naar LANcelot Junior (dezelfde klas)"><img src="/img/icons/junior.webp" alt=""><span>Junior</span></a>'}`;
+      RIJKEN.map(([id, naam, ic]) => `<a href="/host#${id}" data-rijk="${id}" title="${id === 'kronieken' && window.LANCELOT_STORE ? naam : `Naar De ${naam}`}"><img src="/img/icons/${ic}.webp" alt=""><span>${naam}</span></a>`).join('')}`;
     brand.after(nav);
     snelMarkeer = () => { const r = rijkHier(); for (const a of nav.querySelectorAll('[data-rijk]')) a.classList.toggle('on', a.dataset.rijk === r); };
     snelMarkeer();

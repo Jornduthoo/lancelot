@@ -76,7 +76,8 @@
     if (!lied || !ctx) return;
     // Zachter terwijl het draakje praat.
     const praat = (window.Junior && Junior.Stem && Junior.Stem.praat) || (window.speechSynthesis && speechSynthesis.speaking);
-    meester.gain.setTargetAtTime(praat ? VOL * 0.3 : VOL, ctx.currentTime, 0.15);
+    const vol = lied.vol || VOL;
+    meester.gain.setTargetAtTime(praat ? vol * 0.3 : vol, ctx.currentTime, 0.15);
     while (lied.volgende < ctx.currentTime + 0.6) {
       const st = lied.stappen[lied.i % lied.stappen.length];
       if (st.toon !== null) noot(hz(st.toon), lied.volgende, lied.tempo * 2.6, 0.5, 'triangle');
@@ -87,18 +88,22 @@
   }
 
   window.JrMuziek = {
-    speel(naam) {
-      if (!aan || stil) return;
+    // o.altijd: ook als de achtergrondmuziek uit staat (de leerkracht kiest het zelf, bv. het opruimdeuntje).
+    // o.tempo: sneller (< 1) of trager (> 1); o.vol: luider dan de zachte achtergrond.
+    speel(naam, o = {}) {
+      if ((!aan && !o.altijd) || stil) return;
       if (lied && lied.naam === naam) return;
       this.stop();
       if (!audio()) return;
-      lied = { naam, ...maakLied(naam), volgende: ctx.currentTime + 0.2, i: 0 };
+      const l = maakLied(naam);
+      lied = { naam, ...l, tempo: l.tempo * (o.tempo || 1), vol: o.vol || VOL, volgende: ctx.currentTime + 0.2, i: 0 };
       lied.klok = setInterval(plan, 120);
       plan();
     },
     stop() {
       if (lied) clearInterval(lied.klok);
       lied = null;
+      if (meester) meester.gain.setTargetAtTime(VOL, ctx.currentTime, 0.05);
     },
     // Een vrolijk loopje naar boven, als het draakje groeit of de klas iets koopt.
     liedje() {
