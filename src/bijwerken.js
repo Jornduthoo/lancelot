@@ -156,6 +156,8 @@ function annuleer() {
 }
 
 let laatsteMelding = '';
+// Foutcodes van Windows als een bestand of map nog open is bij een ander programma.
+const VAST = new Set(['EPERM', 'EBUSY', 'EACCES', 'ENOTEMPTY']);
 
 // Bij het opstarten, nog voor de server: een klaargezette update installeren.
 // Geeft { npm } terug als er geïnstalleerd werd (npm: de onderdelen moeten opnieuw geïnstalleerd worden), anders null.
@@ -166,6 +168,7 @@ function pasToe() {
   const nieuw = path.join(DIR, 'nieuw');
   const oud = path.join(DIR, 'oud');
   const gedaan = [];
+  let bewaar = false;
   try {
     const files = zip.read(fs.readFileSync(KLAAR));
     const prefix = wortel(files);
@@ -204,9 +207,18 @@ function pasToe() {
       // Een .bat die cmd nog aan het lezen is, vervangen we alleen als hij echt veranderde.
       if (top.endsWith('.bat') && fs.existsSync(dst) && fs.readFileSync(dst).equals(fs.readFileSync(src))) continue;
       const had = fs.existsSync(dst);
-      if (had) fs.renameSync(dst, path.join(oud, top));
-      fs.renameSync(src, dst);
-      gedaan.push({ top, had });
+      try {
+        if (had) fs.renameSync(dst, path.join(oud, top));
+        fs.renameSync(src, dst);
+        gedaan.push({ top, had });
+      } catch (err) {
+        // Windows: een map die nog open is (een ander LANcelot-venster, de Verkenner, een virusscanner) kan niet
+        // verplaatst worden. Dan kopiëren we de bestanden erover; dat lukt bijna altijd.
+        if (!VAST.has(err.code)) throw err;
+        if (had && !fs.existsSync(path.join(oud, top))) fs.cpSync(dst, path.join(oud, top), { recursive: true });
+        fs.cpSync(src, dst, { recursive: true, force: true });
+        gedaan.push({ top, had, kopie: true });
+      }
     }
     fs.writeFileSync(VERSIE, JSON.stringify({ sha: info.sha || '', datum: info.datum || '', bericht: info.bericht || '', geinstalleerd: new Date().toISOString() }, null, 2) + '\n');
     const lockNa = (() => { try { return fs.readFileSync(path.join(APP, 'package-lock.json'), 'utf8'); } catch { return ''; } })();
@@ -214,18 +226,23 @@ function pasToe() {
     return { npm: lockVoor !== lockNa };
   } catch (err) {
     // Alles terugzetten zoals het was.
-    for (const { top, had } of gedaan.reverse()) {
+    for (const { top, had, kopie } of gedaan.reverse()) {
       try {
+        if (kopie) { if (had) fs.cpSync(path.join(oud, top), path.join(APP, top), { recursive: true, force: true }); continue; }
         fs.rmSync(path.join(APP, top), { recursive: true, force: true });
         if (had) fs.renameSync(path.join(oud, top), path.join(APP, top));
       } catch {}
     }
-    laatsteMelding = `Bijwerken lukte niet: ${err.message}. LANcelot draait verder met de vorige versie.`;
+    // Zat er alleen iets vast (een ander venster), dan blijft de update klaarstaan voor de volgende start.
+    bewaar = VAST.has(err.code);
+    laatsteMelding = bewaar
+      ? 'Bijwerken lukte nog niet: een map van LANcelot is nog open (staat er nog een ander LANcelot-venster open?). Sluit alle LANcelot-vensters en start opnieuw: de update staat nog klaar.'
+      : `Bijwerken lukte niet: ${err.message}. LANcelot draait verder met de vorige versie.`;
     console.error(`  ${laatsteMelding}`);
     return null;
   } finally {
-    fs.rmSync(nieuw, { recursive: true, force: true });
-    for (const f of [KLAAR, KLAAR_INFO]) {
+    try { fs.rmSync(nieuw, { recursive: true, force: true }); } catch {}
+    if (!bewaar) for (const f of [KLAAR, KLAAR_INFO]) {
       try { fs.unlinkSync(f); } catch {}
     }
   }
