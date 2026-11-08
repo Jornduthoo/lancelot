@@ -9,9 +9,10 @@ const gegevens = require('./gegevens');
 const klas = require('./klas');
 const logboek = require('./logboek');
 
-const FILE = path.join(gegevens.pad('klas'), 'junior.json');
+const FILE = () => path.join(gegevens.pad('klas'), 'junior.json');
+const GEDEELD = () => gegevens.vast('klas', 'junior.json');
 // Eigen symbooltjes van de klas (zoals aan de kapstok): één prent per kind, opgeladen door de leerkracht.
-const SYMBOLEN = path.join(gegevens.pad('klas'), 'junior-symbolen');
+const SYMBOLEN = () => path.join(gegevens.pad('klas'), 'junior-symbolen');
 const SOORTEN = { 'image/png': 'png', 'image/jpeg': 'jpg', 'image/webp': 'webp' };
 const DIEREN = 30; // public/img/junior/dier/1..30.webp
 const STICKERS = 48; // public/img/junior/sticker/1..48.webp
@@ -121,7 +122,7 @@ const SPEL = Object.fromEntries(SPELLEN.map(s => [s.id, s]));
 let data = null;
 function load() {
   if (data) return data;
-  try { data = JSON.parse(fs.readFileSync(FILE, 'utf8')); } catch { data = {}; }
+  try { data = JSON.parse(fs.readFileSync(FILE(), 'utf8')); } catch { data = {}; }
   if (!data.dieren || typeof data.dieren !== 'object') data.dieren = {};
   if (!data.stickers || typeof data.stickers !== 'object') data.stickers = {};
   if (!data.symbolen || typeof data.symbolen !== 'object') data.symbolen = {};
@@ -143,17 +144,34 @@ function load() {
   if (!data.jarig || typeof data.jarig !== 'object') data.jarig = {};
   // Op maat per kind (buitengewoon onderwijs, zorg): { kind-id: { stap: -1 | 0 | 1, minder: true } }.
   if (!data.opMaat || typeof data.opMaat !== 'object') data.opMaat = {};
+  // Meerdere klassen: de eigen reeksen (Maken) zijn van de leerkracht en gedeeld. Ze staan bij de eerste klas.
+  if (gegevens.actieveKlas() !== gegevens.EERSTE) {
+    let eerste = {};
+    try { eerste = JSON.parse(fs.readFileSync(GEDEELD(), 'utf8')); } catch {}
+    data.sets = Array.isArray(eerste.sets) ? eerste.sets : [];
+    data.mappen = Array.isArray(eerste.mappen) ? eerste.mappen : [];
+  }
   return data;
+}
+function schrijf(file, obj) {
+  fs.mkdirSync(path.dirname(file), { recursive: true });
+  fs.writeFileSync(file + '.tmp', JSON.stringify(obj));
+  fs.renameSync(file + '.tmp', file);
 }
 function save() {
   try {
-    fs.mkdirSync(path.dirname(FILE), { recursive: true });
-    fs.writeFileSync(FILE + '.tmp', JSON.stringify(data));
-    fs.renameSync(FILE + '.tmp', FILE);
+    if (gegevens.actieveKlas() === gegevens.EERSTE) return schrijf(FILE(), data);
+    const { sets, mappen, ...klasDeel } = data;
+    schrijf(FILE(), klasDeel);
+    let eerste = {};
+    try { eerste = JSON.parse(fs.readFileSync(GEDEELD(), 'utf8')); } catch {}
+    schrijf(GEDEELD(), { ...eerste, sets, mappen });
   } catch (err) {
     console.error('Junior bewaren mislukt:', err.message);
   }
 }
+// Een andere klas gekozen: de dieren, stickers en het klasdraakje van die klas lezen. Een lopende les stopt.
+gegevens.voorKlasWissel(() => { data = null; les = null; apartTel.clear(); });
 
 // Elk kind van de klaslijst krijgt een vast dier. Nieuwe kinderen krijgen het eerste vrije dier.
 // Zijn er meer dan 30 kinderen, dan krijgen er twee hetzelfde dier (hun naam staat eronder).
@@ -307,7 +325,7 @@ function zetSymbool(id, dataUrl) {
   if (!klas.read().leerlingen.some(l => l.id === id)) throw new Error('Dat kind staat niet meer op de klaslijst.');
   const d = load();
   const oud = d.symbolen[id];
-  if (oud) { try { fs.unlinkSync(path.join(SYMBOLEN, `${id}.${oud.ext}`)); } catch {} }
+  if (oud) { try { fs.unlinkSync(path.join(SYMBOLEN(), `${id}.${oud.ext}`)); } catch {} }
   delete d.symbolen[id];
   if (dataUrl) {
     const m = /^data:(image\/(?:png|jpeg|webp));base64,([A-Za-z0-9+/=]+)$/.exec(String(dataUrl));
@@ -315,8 +333,8 @@ function zetSymbool(id, dataUrl) {
     const buf = Buffer.from(m[2], 'base64');
     if (buf.length > 400 * 1024) throw new Error('Die prent is te groot.');
     const ext = SOORTEN[m[1]];
-    fs.mkdirSync(SYMBOLEN, { recursive: true });
-    fs.writeFileSync(path.join(SYMBOLEN, `${id}.${ext}`), buf);
+    fs.mkdirSync(SYMBOLEN(), { recursive: true });
+    fs.writeFileSync(path.join(SYMBOLEN(), `${id}.${ext}`), buf);
     d.symbolen[id] = { ext, v: Date.now().toString(36) };
   }
   save();
@@ -324,7 +342,7 @@ function zetSymbool(id, dataUrl) {
 }
 function symboolBestand(id) {
   const s = load().symbolen[id];
-  return s ? { file: path.join(SYMBOLEN, `${id}.${s.ext}`), ext: s.ext } : null;
+  return s ? { file: path.join(SYMBOLEN(), `${id}.${s.ext}`), ext: s.ext } : null;
 }
 
 function fase(eten) {

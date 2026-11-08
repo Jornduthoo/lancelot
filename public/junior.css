@@ -1629,3 +1629,5 @@ body.jr-los #jr-vak, body.jr-los #jr-beurt { visibility: hidden; }
 .jr-lk main .jr-wbg label.jr-wb-vink { flex-direction: row; align-items: center; }
 .jr-printblad.werkblad .wb-ding .jr-emoji-groot { font-size: 30px; }
 .jr-printblad.werkblad .wb-ding .jr-optie-woord { font-size: 9pt; }
+/* De klaskiezer (Meerdere klassen) in Onze klas: dezelfde balk als in Mijn klas, in de Junior-stijl. */
+.jr-lk main .klaskiezer button.kk-klas.on { background: rgb(var(--k-goud) / .25); border-color: rgb(var(--k-goud)); box-shadow: 0 0 14px rgb(var(--k-goud) / .45); }

@@ -6,8 +6,8 @@ const fs = require('fs');
 const path = require('path');
 const gegevens = require('./gegevens');
 
-const DIR = path.join(gegevens.pad('klas'), 'klasindeling');
-const FILE = path.join(DIR, 'klasindeling.json');
+const DIR = () => path.join(gegevens.pad('klas'), 'klasindeling');
+const FILE = () => path.join(DIR(), 'klasindeling.json');
 const MAX_OPSTELLINGEN = 8;
 const MAX_STUKKEN = 160;
 
@@ -81,16 +81,16 @@ function schoon(d) {
   return { actief: ids.has(d && d.actief) ? d.actief : opstellingen[0].id, opstellingen, uitElkaar };
 }
 
-const read = () => schoon(lees(FILE));
+const read = () => schoon(lees(FILE()));
 
 // Bewaar alleen als er echt iets veranderde, zodat de lesmap geen lege wijzigingen ziet.
 function write(data = {}) {
   const schoner = schoon(data);
   const text = JSON.stringify(schoner, null, 1) + '\n';
-  if (!(fs.existsSync(FILE) && fs.readFileSync(FILE, 'utf8') === text)) {
-    fs.mkdirSync(DIR, { recursive: true });
-    fs.writeFileSync(`${FILE}.tmp`, text);
-    fs.renameSync(`${FILE}.tmp`, FILE);
+  if (!(fs.existsSync(FILE()) && fs.readFileSync(FILE(), 'utf8') === text)) {
+    fs.mkdirSync(DIR(), { recursive: true });
+    fs.writeFileSync(`${FILE()}.tmp`, text);
+    fs.renameSync(`${FILE()}.tmp`, FILE());
   }
   return schoner;
 }
@@ -100,4 +100,4 @@ function geldig(d) {
   if (!d || typeof d !== 'object' || !Array.isArray(d.opstellingen)) throw new Error('Ongeldig bestand.');
 }
 
-module.exports = { read, write, geldig, DIR, SOORTEN };
+module.exports = { read, write, geldig, get DIR() { return DIR(); }, SOORTEN };

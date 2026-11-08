@@ -9,7 +9,7 @@ const gegevens = require('./gegevens');
 const klas = require('./klas');
 const art = require('../public/js/hd-art');
 
-const FILE = path.join(gegevens.pad('burchten'), 'huisdieren.json');
+const FILE = () => path.join(gegevens.pad('burchten'), 'huisdieren.json');
 
 const UIT_NA = 5; // zoveel Eer na het kiezen van je ei, en het komt uit
 const SNOEP_PER = 10; // elke 10 Eer: een snoepje
@@ -29,7 +29,7 @@ let data = null;
 function load() {
   if (data) return data;
   try {
-    data = JSON.parse(fs.readFileSync(FILE, 'utf8'));
+    data = JSON.parse(fs.readFileSync(FILE(), 'utf8'));
   } catch {
     data = {};
   }
@@ -38,13 +38,16 @@ function load() {
 }
 function save() {
   try {
-    fs.mkdirSync(path.dirname(FILE), { recursive: true });
-    fs.writeFileSync(FILE + '.tmp', JSON.stringify(data));
-    fs.renameSync(FILE + '.tmp', FILE);
+    fs.mkdirSync(path.dirname(FILE()), { recursive: true });
+    fs.writeFileSync(FILE() + '.tmp', JSON.stringify(data));
+    fs.renameSync(FILE() + '.tmp', FILE());
   } catch (err) {
     console.error('Huisdieren bewaren mislukt:', err.message);
   }
 }
+
+// Een andere klas gekozen: eerst alles wegschrijven, dan vergeten (de nieuwe klas leest haar eigen bestanden).
+gegevens.voorKlasWissel(() => { data = null; });
 
 const p2 = n => String(n).padStart(2, '0');
 const vandaag = () => {

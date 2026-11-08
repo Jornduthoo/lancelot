@@ -6,7 +6,7 @@ const path = require('path');
 const gegevens = require('./gegevens');
 const klas = require('./klas');
 
-const DIR = gegevens.pad('logboek');
+const DIR = () => gegevens.pad('logboek');
 // Een half uur geen antwoorden meer in hetzelfde spel: dan begint er een nieuwe sessie.
 const SESSION_GAP_MS = 30 * 60000;
 const FLUSH_MS = 3000;
@@ -18,7 +18,7 @@ function schooljaar(now = new Date()) {
 }
 
 function file(now) {
-  return path.join(DIR, `${schooljaar(now)}.jsonl`);
+  return path.join(DIR(), `${schooljaar(now)}.jsonl`);
 }
 
 // Er loopt hooguit één spel tegelijk, dus één open sessie volstaat.
@@ -55,7 +55,7 @@ function add(entries) {
     });
   });
   try {
-    fs.mkdirSync(DIR, { recursive: true });
+    fs.mkdirSync(DIR(), { recursive: true });
     fs.appendFileSync(file(now), lines.join('\n') + '\n');
   } catch (err) {
     console.error('Logboek bijwerken mislukt:', err.message);
@@ -141,14 +141,14 @@ function summary() {
 
 // Gokken (drie keer na elkaar snel en fout) bewaren we apart, voor het zorgoverzicht: logboek/<schooljaar>-gok.jsonl.
 function gokFile(now) {
-  return path.join(DIR, `${schooljaar(now)}-gok.jsonl`);
+  return path.join(DIR(), `${schooljaar(now)}-gok.jsonl`);
 }
 
 function gok(spel, naam) {
   const now = new Date();
   const leerling = klas.match(naam);
   try {
-    fs.mkdirSync(DIR, { recursive: true });
+    fs.mkdirSync(DIR(), { recursive: true });
     fs.appendFileSync(gokFile(now), JSON.stringify({ t: now.toISOString(), leerling: leerling ? leerling.id : null, naam, spel }) + '\n');
   } catch (err) {
     console.error('Gokken bijhouden mislukt:', err.message);
@@ -177,7 +177,7 @@ function readGok(now) {
 // Welk fout antwoord een leerling koos (of typte), voor de veelgemaakte fouten: logboek/<schooljaar>-keuze.jsonl.
 // Apart van het logboek, zodat alles wat antwoorden telt ongemoeid blijft. Alleen foute antwoorden.
 function keuzeFile(now) {
-  return path.join(DIR, `${schooljaar(now)}-keuze.jsonl`);
+  return path.join(DIR(), `${schooljaar(now)}-keuze.jsonl`);
 }
 
 let keuzes = [];
@@ -199,7 +199,7 @@ function flushKeuze() {
   const lines = keuzes;
   keuzes = [];
   try {
-    fs.mkdirSync(DIR, { recursive: true });
+    fs.mkdirSync(DIR(), { recursive: true });
     fs.appendFileSync(keuzeFile(new Date()), lines.join('\n') + '\n');
   } catch (err) {
     console.error('Foute antwoorden bijhouden mislukt:', err.message);
@@ -225,5 +225,7 @@ function readKeuze(now) {
 }
 
 process.on('exit', () => { flush(); flushKeuze(); });
+// Een andere klas gekozen: eerst alles wegschrijven, dan vergeten (de nieuwe klas leest haar eigen bestanden).
+gegevens.voorKlasWissel(() => { flush(); flushKeuze(); current = null; });
 
-module.exports = { add, answer, flush, endSession, read, summary, schooljaar, gok, readGok, keuze, readKeuze, DIR };
+module.exports = { add, answer, flush, endSession, read, summary, schooljaar, gok, readGok, keuze, readKeuze, get DIR() { return DIR(); } };

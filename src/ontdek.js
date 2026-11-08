@@ -23,9 +23,9 @@ const W = require('../public/js/od-wereld');
 
 const NAAM = 'Het rijk van Lancelot';
 const SPEL = NAAM; // zo staat het in het logboek
-const DIR = gegevens.pad('ontdek');
-const INSTELLINGEN = path.join(DIR, 'instellingen.json');
-const EIGEN = path.join(DIR, 'eigen.json');
+const DIR = () => gegevens.pad('ontdek');
+const INSTELLINGEN = () => path.join(DIR(), 'instellingen.json');
+const EIGEN = () => path.join(DIR(), 'eigen.json');
 const NIVEAUS = niveaus.NIVEAUS;
 const TOEGANG = ['dicht', 'klaar', 'open'];
 
@@ -131,7 +131,7 @@ function dagVan(now = new Date()) {
   return `${now.getFullYear()}-${p(now.getMonth() + 1)}-${p(now.getDate())}`;
 }
 
-const jaarFile = sj => path.join(DIR, `${sj}.json`);
+const jaarFile = sj => path.join(DIR(), `${sj}.json`);
 let data = null; // { schooljaar, spelers: { key: { naam, kristallen, uitgegeven, gebouwd, woorden, weetjes, dagen, open, laatst } } }
 let saveTimer = null;
 
@@ -150,7 +150,7 @@ function jaar(now = new Date()) {
 }
 
 function schrijf(file, obj) {
-  fs.mkdirSync(DIR, { recursive: true });
+  fs.mkdirSync(DIR(), { recursive: true });
   fs.writeFileSync(file + '.tmp', JSON.stringify(obj));
   fs.renameSync(file + '.tmp', file);
 }
@@ -170,6 +170,8 @@ function save() {
   if (!saveTimer) saveTimer = setTimeout(flush, 1500);
 }
 process.on('exit', flush);
+// Een andere klas gekozen: eerst alles wegschrijven, dan vergeten (de nieuwe klas leest haar eigen bestanden).
+gegevens.voorKlasWissel(() => { flush(); data = null; inst = null; eigenCache = null; });
 
 // ---------- Instellingen: wie mag erin ----------
 
@@ -177,7 +179,7 @@ let inst = null;
 function instellingen() {
   if (inst) return inst;
   try {
-    inst = JSON.parse(fs.readFileSync(INSTELLINGEN, 'utf8'));
+    inst = JSON.parse(fs.readFileSync(INSTELLINGEN(), 'utf8'));
   } catch {
     inst = {};
   }
@@ -188,7 +190,7 @@ function instellingen() {
 function zetToegang(toegang) {
   if (!TOEGANG.includes(toegang)) throw new Error('Kies dicht, klaar of open.');
   instellingen().toegang = toegang;
-  schrijf(INSTELLINGEN, inst);
+  schrijf(INSTELLINGEN(), inst);
   return { toegang };
 }
 
@@ -208,7 +210,7 @@ let eigenCache = null;
 function eigen() {
   if (eigenCache) return eigenCache;
   try {
-    const e = JSON.parse(fs.readFileSync(EIGEN, 'utf8'));
+    const e = JSON.parse(fs.readFileSync(EIGEN(), 'utf8'));
     eigenCache = { woorden: Array.isArray(e.woorden) ? e.woorden : [], weetjes: Array.isArray(e.weetjes) ? e.weetjes : [], leerjaar: e.leerjaar || '' };
   } catch {
     eigenCache = { woorden: [], weetjes: [], leerjaar: '' };
@@ -217,7 +219,7 @@ function eigen() {
 }
 
 function bewaarEigen() {
-  schrijf(EIGEN, eigenCache);
+  schrijf(EIGEN(), eigenCache);
 }
 
 const tekst = (v, max = 200) => String(v == null ? '' : v).replace(/\s+/g, ' ').trim().slice(0, max);
@@ -751,6 +753,6 @@ module.exports = {
   LK,
   vind,
   opdracht,
-  NAAM, SPEL, DIR, STATIONS, view, open, poging, bouw, boek, bord, zetToegang, toegangVoor,
+  NAAM, SPEL, get DIR() { return DIR(); }, STATIONS, view, open, poging, bouw, boek, bord, zetToegang, toegangVoor,
   eigenView, zetWoorden, wisWeetje, wisAlles, aiMaak, aiPrompt, plak, flush, dagVan, versleutel,
 };

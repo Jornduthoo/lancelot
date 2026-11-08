@@ -14,10 +14,10 @@ const logboek = require('./logboek');
 const cat = require('../public/js/bu-catalogus');
 const huisdieren = require('./huisdieren');
 
-const DIR = gegevens.pad('burchten');
-const FILE = path.join(DIR, 'burchten.json');
+const DIR = () => gegevens.pad('burchten');
+const FILE = () => path.join(DIR(), 'burchten.json');
 // De kopie voor Mijn lesmap: één bestand per pc, alleen om te bekijken.
-const LESMAP = path.join(DIR, 'lesmap');
+const LESMAP = () => path.join(DIR(), 'lesmap');
 const EIGEN = `${String(os.hostname() || 'pc').replace(/[^\w-]+/g, '-').replace(/^[-_]+/, '').slice(0, 40) || 'pc'}.json`;
 
 const SESSIE_MAX = 40; // zo levert een spel met heel veel vragen niet oneindig veel Eer op
@@ -36,7 +36,7 @@ let data = null;
 function load() {
   if (data) return data;
   try {
-    data = JSON.parse(fs.readFileSync(FILE, 'utf8'));
+    data = JSON.parse(fs.readFileSync(FILE(), 'utf8'));
   } catch {
     data = {};
   }
@@ -50,13 +50,15 @@ function load() {
 let giftVersie = 0;
 function save() {
   try {
-    fs.mkdirSync(DIR, { recursive: true });
-    fs.writeFileSync(FILE + '.tmp', JSON.stringify(data));
-    fs.renameSync(FILE + '.tmp', FILE);
+    fs.mkdirSync(DIR(), { recursive: true });
+    fs.writeFileSync(FILE() + '.tmp', JSON.stringify(data));
+    fs.renameSync(FILE() + '.tmp', FILE());
   } catch (err) {
     console.error('Burchten bewaren mislukt:', err.message);
   }
 }
+
+gegevens.voorKlasWissel(() => { data = null; cache = { key: '', per: new Map() }; kopieCache = { key: '', val: null }; giftVersie++; });
 
 // Kasteeltijd zet de leerkracht aan. Daarbuiten kan je je burcht bekijken, maar niet bouwen.
 let kasteeltijd = false;
@@ -451,12 +453,12 @@ function naarLesmap() {
   if (!antwoorden && !Object.keys(d.burchten).length && !d.giften.length) return;
   // Zonder de lijst met wat elke leerling verdiende (die komt uit het logboek, en dat blijft op deze pc).
   const inhoud = { eiland: { ...eiland(true), kasteeltijd: false }, boek: ridderboek(true).map(l => ({ ...l, posten: [] })) };
-  const file = path.join(LESMAP, EIGEN);
+  const file = path.join(LESMAP(), EIGEN);
   try {
     const oud = JSON.parse(fs.readFileSync(file, 'utf8'));
     if (JSON.stringify({ eiland: oud.eiland, boek: oud.boek }) === JSON.stringify(inhoud) && oud.antwoorden === antwoorden) return;
   } catch {}
-  fs.mkdirSync(LESMAP, { recursive: true });
+  fs.mkdirSync(LESMAP(), { recursive: true });
   fs.writeFileSync(file + '.tmp', JSON.stringify({ pc: os.hostname(), at: new Date().toISOString(), antwoorden, ...inhoud }));
   fs.renameSync(file + '.tmp', file);
 }
@@ -465,15 +467,15 @@ function naarLesmap() {
 let kopieCache = { key: '', val: null };
 function kopie() {
   let names = [];
-  try { names = fs.readdirSync(LESMAP).filter(n => n !== EIGEN && /^[^_.][^\\/]*\.json$/.test(n)); } catch { return null; }
+  try { names = fs.readdirSync(LESMAP()).filter(n => n !== EIGEN && /^[^_.][^\\/]*\.json$/.test(n)); } catch { return null; }
   if (!names.length) return null;
-  const key = names.map(n => { try { return `${n}:${fs.statSync(path.join(LESMAP, n)).mtimeMs}`; } catch { return n; } }).join('|') + `|${logboek.read().length}`;
+  const key = names.map(n => { try { return `${n}:${fs.statSync(path.join(LESMAP(), n)).mtimeMs}`; } catch { return n; } }).join('|') + `|${logboek.read().length}`;
   if (kopieCache.key === key) return kopieCache.val;
   const hier = antwoordenHier();
   let beste = null;
   for (const n of names) {
     try {
-      const k = JSON.parse(fs.readFileSync(path.join(LESMAP, n), 'utf8'));
+      const k = JSON.parse(fs.readFileSync(path.join(LESMAP(), n), 'utf8'));
       kopieGeldig(k);
       const a = Number(k.antwoorden) || 0;
       if (a > hier && (!beste || a > beste.antwoorden)) beste = { ...k, antwoorden: a };
@@ -488,4 +490,4 @@ function alleenBekijken() {
   if (kopie()) throw new Error('Dit is een kopie van het digibord: hier kan je alleen kijken. Aanpassen doe je op het digibord.');
 }
 
-module.exports = { naarLesmap, kopieGeldig, LESMAP, periode, view, zet, eilandje, stijl, setKasteeltijd, kasteeltijd: () => kasteeltijd, geef, neemTerug, wisNaam, setKlasdoel, eiland, ridderboek, DIR };
+module.exports = { naarLesmap, kopieGeldig, get LESMAP() { return LESMAP(); }, periode, view, zet, eilandje, stijl, setKasteeltijd, kasteeltijd: () => kasteeltijd, geef, neemTerug, wisNaam, setKlasdoel, eiland, ridderboek, get DIR() { return DIR(); } };

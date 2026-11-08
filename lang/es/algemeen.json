@@ -1089,5 +1089,21 @@
  "LANGUE : LANcelot est utilisé en français. Write everything you create (titles, questions, answers, explanations, words, meanings, sentences, feedback) in French, even where the instructions below ask for Dutch or Belgian Dutch. Keep JSON keys and fixed values (such as page, schildknaap, ridder) exactly as written below.": null,
  "IDIOMA: El docente usa LANcelot en español. Write everything you create (titles, questions, answers, explanations, words, meanings, sentences, feedback) in Spanish (Spain), even where the instructions below ask for Dutch or Belgian Dutch. Keep JSON keys and fixed values (such as page, schildknaap, ridder) exactly as written below.": null,
  "SPRACHE: Die Lehrkraft benutzt LANcelot auf Deutsch. Write everything you create (titles, questions, answers, explanations, words, meanings, sentences, feedback) in German (Germany), even where the instructions below ask for Dutch or Belgian Dutch. Keep JSON keys and fixed values (such as page, schildknaap, ridder) exactly as written below.": "SPRACHE: Die Lehrkraft benutzt LANcelot auf Deutsch. Write everything you create (titles, questions, answers, explanations, words, meanings, sentences, feedback) in German (Germany), even where the instructions below ask for Dutch or Belgian Dutch. Keep JSON keys and fixed values (such as page, schildknaap, ridder) exactly as written below.",
- "Klaseiland voor de lesmap bewaren mislukt:": "No se pudo guardar la Isla de la clase en la carpeta de clase:"
+ "Klaseiland voor de lesmap bewaren mislukt:": "No se pudo guardar la Isla de la clase en la carpeta de clase:",
+ "Klas {0}": "Clase {0}",
+ "Klassen": "Clases",
+ "Aantal leerlingen": "Número de alumnos",
+ "＋ Nieuwe klas": "＋ Nueva clase",
+ "Naam van de klas veranderen": "Cambiar el nombre de la clase",
+ "Deze klas weghalen": "Quitar esta clase",
+ "{0} weghalen? Je kiest dan weer de eerste klas. Er wordt niets gewist: de map van de klas gaat naar klassen/_weg bij je gegevens.": "¿Quitar {0}? Se vuelve a elegir la primera clase. No se borra nada: la carpeta de la clase pasa a klassen/_weg en tus datos.",
+ "Naam van de klas, bijv. 5B": "Nombre de la clase, p. ej. 5B",
+ "Klas maken": "Crear clase",
+ "Een nieuwe klas begint leeg: eigen leerlingen, logboek, taken, burchten en klasdraakje. Quizzen, oefenbladen en toetsen deel je met al je klassen.": "Una clase nueva empieza vacía: sus propios alumnos, registro, tareas, castillos y dragón de la clase. Los cuestionarios, fichas y exámenes se comparten con todas tus clases.",
+ "Die klas bestaat niet (meer).": "Esa clase no existe (ya).",
+ "Klas wisselen:": "Cambiar de clase:",
+ "Je kan hooguit {0} klassen hebben.": "Puedes tener como máximo {0} clases.",
+ "De eerste klas kan je niet weghalen. Geef ze gerust een andere naam.": "La primera clase no se puede quitar. Puedes cambiarle el nombre.",
+ "Ongeldige lijst van klassen.": "Lista de clases no válida.",
+ "Klassen voor de lesmap bewaren mislukt:": "No se pudieron guardar las clases para la carpeta de clases:"
 }
