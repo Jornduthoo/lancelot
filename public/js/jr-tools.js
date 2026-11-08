@@ -23,6 +23,7 @@
     { id: 'dag', icoon: 5, naam: 'Dagritme' },
     { id: 'dobbel', icoon: 6, naam: 'Dobbelsteen' },
     { id: 'groepjes', icoon: 8, naam: 'Groepjes' },
+    { id: 'opruim', icoon: 'opruim', naam: 'Opruimen' },
     { id: 'rust', icoon: 'rust', naam: 'Rustmoment' },
   ];
   let vak = null, opt = null, huidig = null, opruim = [];
@@ -46,7 +47,7 @@
     vak.querySelectorAll('[data-tool]').forEach(b => b.classList.toggle('aan', b.dataset.tool === id));
     const p = vak.querySelector('#jr-kt-podium');
     p.className = `jr-kt-podium jr-kt-${id}`;
-    ({ beurt, klok, stil, hoeken, dag, dobbel, groepjes, rust })[id](p);
+    ({ beurt, klok, stil, hoeken, dag, dobbel, groepjes, rust, opruim: opruimen })[id](p);
   }
   const dierHtml = (k, cls = '') => `<span class="jr-kt-dier ${cls}" data-kind="${esc(k.id)}"><img src="${esc(k.beeld)}" alt=""><b>${esc(k.naam)}</b></span>`;
 
@@ -189,11 +190,28 @@
     });
   }
 
+  // Foto of tekening van de leerkracht verkleinen tot een kleine prent (blijft op dit toestel).
+  const verklein = bestand => new Promise((ok, nee) => {
+    const img = new Image(); img.onload = () => {
+      const z = Math.min(1, 320 / Math.max(img.width, img.height)); const c = document.createElement('canvas');
+      c.width = Math.round(img.width * z); c.height = Math.round(img.height * z); c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(img.src); const w = c.toDataURL('image/webp', .8); ok(w.startsWith('data:image/webp') ? w : c.toDataURL('image/jpeg', .8));
+    }; img.onerror = nee; img.src = URL.createObjectURL(bestand);
+  });
+
   // ---------- Hoekenbord: de leerkracht kiest de hoeken, de dieren worden verdeeld. Tik een dier en dan een hoek om te verplaatsen. ----------
   function hoeken(p) {
     const namen = Z().hoeken || [];
     let st = lees('jr-kt-hoeken', { aan: [1, 2, 3, 4, 5, 6], max: 5, dag: '', plek: {} });
     if (st.dag !== vandaag()) st.plek = {};
+    // Eigen hoeken (naam + foto van de leerkracht) blijven op dit toestel bewaard.
+    let eigen = lees('jr-kt-hoek-eigen', []);
+    const eig = h => eigen.find(e => e.id === h);
+    const src = h => eig(h) ? eig(h).src : `${IMG}/hoek/${h}.webp`;
+    const naam = h => eig(h) ? eig(h).naam : (namen[h - 1] || '');
+    const hv = v => /^\d+$/.test(v) ? +v : v;
+    const orde = (a, c) => (typeof a === 'number' ? 0 : 1) - (typeof c === 'number' ? 0 : 1) || (typeof a === 'number' ? a - c : 0);
+    st.aan = st.aan.filter(h => typeof h === 'number' || eig(h));
     let kies = false, vast = null;
     const bewaarSt = () => { st.dag = vandaag(); bewaar('jr-kt-hoeken', st); };
     function verdeel() {
@@ -212,21 +230,36 @@
     function teken() {
       const lijst = kids();
       if (kies) {
+        const kaart = (h, beeld, nm, wis) => `<div class="jr-kt-eigen-kaart"><button type="button" class="jr-kt-hoek-kaart jr-eigen ${st.aan.includes(h) ? 'aan' : ''}" data-h="${h}"><img src="${beeld}" alt=""><b>${esc(nm)}</b></button>${wis ? `<button type="button" class="jr-kt-wis jr-eigen" data-wis="${h}" aria-label="Wissen">✕</button>` : ''}</div>`;
         p.innerHTML = `<p class="jr-kt-tip">Tik op de hoeken die open zijn vandaag.</p>
-          <div class="jr-kt-hoekkies">${namen.map((n, i) => `<button type="button" class="jr-kt-hoek-kaart jr-eigen ${st.aan.includes(i + 1) ? 'aan' : ''}" data-h="${i + 1}"><img src="${IMG}/hoek/${i + 1}.webp" alt=""><b>${esc(n)}</b></button>`).join('')}</div>
+          <div class="jr-kt-hoekkies">${namen.map((n, i) => kaart(i + 1, `${IMG}/hoek/${i + 1}.webp`, n)).join('')}${eigen.map(e => kaart(e.id, e.src, e.naam, true)).join('')}</div>
+          <div class="jr-kt-eigen-rij"><input type="text" id="jr-kt-eignaam" maxlength="24" placeholder="Naam van je eigen hoek"><label class="jr-kt-klein jr-eigen jr-kt-foto">📷 Met foto toevoegen<input type="file" id="jr-kt-eigfoto" accept="image/*" hidden></label><button type="button" class="jr-kt-klein jr-eigen" id="jr-kt-eigzonder">➕ Zonder foto</button></div>
           <div class="jr-kt-knoppen"><label class="jr-kt-schuif">Kinderen per hoek <select id="jr-kt-max">${[2, 3, 4, 5, 6, 8].map(m => `<option ${m === st.max ? 'selected' : ''}>${m}</option>`).join('')}</select></label>
           <button type="button" class="jr-kt-groot jr-eigen" id="jr-kt-klaar">✓ Klaar</button></div>`;
         p.querySelectorAll('[data-h]').forEach(b => b.addEventListener('click', () => {
-          const h = +b.dataset.h;
-          st.aan = st.aan.includes(h) ? st.aan.filter(x => x !== h) : [...st.aan, h].sort((a, c) => a - c);
+          const h = hv(b.dataset.h);
+          st.aan = st.aan.includes(h) ? st.aan.filter(x => x !== h) : [...st.aan, h].sort(orde);
           b.classList.toggle('aan', st.aan.includes(h));
         }));
+        p.querySelectorAll('[data-wis]').forEach(b => b.addEventListener('click', () => { eigen = eigen.filter(e => e.id !== b.dataset.wis); st.aan = st.aan.filter(h => h !== b.dataset.wis); bewaar('jr-kt-hoek-eigen', eigen); teken(); }));
+        const voegToe = async bestand => {
+          const nm = p.querySelector('#jr-kt-eignaam').value.trim();
+          if (!nm) { window.Ui && Ui.melding('Geef je hoek eerst een naam.'); p.querySelector('#jr-kt-eignaam').focus(); return; }
+          try {
+            const nieuw = { id: 'e' + Date.now(), naam: nm, src: bestand ? await verklein(bestand) : draak(5) };
+            eigen.push(nieuw); bewaar('jr-kt-hoek-eigen', eigen);
+            if (lees('jr-kt-hoek-eigen', []).length !== eigen.length) { eigen.pop(); window.Ui && Ui.melding('Er is geen plaats meer voor eigen hoeken. Wis er eerst een.'); return teken(); }
+            st.aan = [...st.aan, nieuw.id].sort(orde); teken();
+          } catch { window.Ui && Ui.melding('Die foto kon niet geladen worden.'); }
+        };
+        p.querySelector('#jr-kt-eigfoto').addEventListener('change', e => { const b = e.target.files[0]; if (b) voegToe(b); });
+        p.querySelector('#jr-kt-eigzonder').addEventListener('click', () => voegToe(null));
         p.querySelector('#jr-kt-max').addEventListener('change', e => { st.max = +e.target.value; });
         p.querySelector('#jr-kt-klaar').addEventListener('click', () => { kies = false; st.plek = {}; bewaarSt(); verdeel(); });
         return;
       }
       const zonder = lijst.filter(k => !st.aan.includes(st.plek[k.id]));
-      p.innerHTML = `<div class="jr-kt-hoekbord">${st.aan.map(h => `<div class="jr-kt-hoek" data-h="${h}"><div class="jr-kt-hoek-kop"><img src="${IMG}/hoek/${h}.webp" alt=""><b>${esc(namen[h - 1] || '')}</b></div>
+      p.innerHTML = `<div class="jr-kt-hoekbord">${st.aan.map(h => `<div class="jr-kt-hoek" data-h="${h}"><div class="jr-kt-hoek-kop"><img src="${src(h)}" alt=""><b>${esc(naam(h))}</b></div>
           <div class="jr-kt-hoek-dieren">${lijst.filter(k => st.plek[k.id] === h).map(k => dierHtml(k, vast === k.id ? 'licht' : '')).join('')}</div></div>`).join('')}</div>
         ${zonder.length ? `<div class="jr-kt-zonder">${zonder.map(k => dierHtml(k, vast === k.id ? 'licht' : '')).join('')}</div>` : ''}
         <div class="jr-kt-knoppen"><button type="button" class="jr-kt-groot jr-eigen" id="jr-kt-verdeel">🎲 Verdeel opnieuw</button><button type="button" class="jr-kt-klein jr-eigen" id="jr-kt-kieshoeken">⚙️ Hoeken kiezen</button></div>
@@ -235,8 +268,8 @@
       p.querySelector('#jr-kt-kieshoeken').addEventListener('click', () => { kies = true; teken(); });
       p.querySelectorAll('.jr-kt-dier').forEach(el => el.addEventListener('click', e => { e.stopPropagation(); vast = vast === el.dataset.kind ? null : el.dataset.kind; teken(); }));
       p.querySelectorAll('.jr-kt-hoek').forEach(el => el.addEventListener('click', () => {
-        if (!vast) { zeg([namen[+el.dataset.h - 1]]); return; }
-        st.plek[vast] = +el.dataset.h; vast = null; bewaarSt(); fx('marker'); teken();
+        if (!vast) { zeg([naam(hv(el.dataset.h))]); return; }
+        st.plek[vast] = hv(el.dataset.h); vast = null; bewaarSt(); fx('marker'); teken();
       }));
     }
     if (!Object.keys(st.plek).length && st.aan.length) verdeel(); else teken();
@@ -255,13 +288,6 @@
     const naam = d => eig(d) ? eig(d).naam : (namen[d - 1] || '');
     st.rij = st.rij.filter(d => typeof d === 'number' || eig(d));
     const bewaarSt = () => { st.dag = vandaag(); bewaar('jr-kt-dag', st); };
-    const verklein = bestand => new Promise((ok, nee) => {
-      const img = new Image(); img.onload = () => {
-        const z = Math.min(1, 320 / Math.max(img.width, img.height)); const c = document.createElement('canvas');
-        c.width = Math.round(img.width * z); c.height = Math.round(img.height * z); c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
-        URL.revokeObjectURL(img.src); const w = c.toDataURL('image/webp', .8); ok(w.startsWith('data:image/webp') ? w : c.toDataURL('image/jpeg', .8));
-      }; img.onerror = nee; img.src = URL.createObjectURL(bestand);
-    });
     function teken() {
       if (maak) {
         p.innerHTML = `<p class="jr-kt-tip">Tik op de prenten in de volgorde van de dag. Tik op een prent in de rij om ze weg te halen.</p>
@@ -297,6 +323,103 @@
       p.querySelector('#jr-kt-maak').addEventListener('click', () => { maak = true; teken(); });
     }
     teken();
+  }
+
+  // ---------- Opruimen: een opruimdeuntje (ingebouwd of eigen muziek) met een balk die leegloopt. Muziek stopt = alles op zijn plek. ----------
+  // Eigen muziek (mp3 van de leerkracht) blijft op dit toestel bewaard in IndexedDB; localStorage is daar te klein voor.
+  const DEUNEN = [
+    { id: 'mars', naam: 'Riddermars', tempo: 0.85 },
+    { id: 'bezem', naam: 'Snelle bezem', tempo: 0.62 },
+    { id: 'draak', naam: 'Drakendans', tempo: 0.75 },
+    { id: 'kalm', naam: 'Rustig opruimen', tempo: 1.25 },
+  ];
+  const db = () => new Promise((ok, nee) => {
+    const r = indexedDB.open('jr-opruim', 1);
+    r.onupgradeneeded = () => r.result.createObjectStore('muziek', { keyPath: 'id' });
+    r.onsuccess = () => ok(r.result); r.onerror = () => nee(r.error);
+  });
+  const dbDoe = (modus, fn) => db().then(d => new Promise((ok, nee) => {
+    const t = d.transaction('muziek', modus); const r = fn(t.objectStore('muziek'));
+    t.oncomplete = () => { ok(r && r.result); d.close(); }; t.onerror = () => { nee(t.error); d.close(); };
+  }));
+  const eigenLijst = () => dbDoe('readonly', st => st.getAll()).catch(() => []);
+  function opruimen(p) {
+    const MIN = [1, 2, 3, 5];
+    let st = lees('jr-kt-opruim', { lied: 'mars', min: 2 });
+    let eigen = [], loopt = false, rest = st.min * 60, t0 = 0, raf = 0, speler = null, url = '';
+    const stopMuziek = () => { try { JrMuziek.stop(); } catch {} if (speler) { speler.pause(); speler = null; } if (url) { URL.revokeObjectURL(url); url = ''; } };
+    opruim.push(() => { cancelAnimationFrame(raf); stopMuziek(); });
+    const startMuziek = () => {
+      const d = DEUNEN.find(x => x.id === st.lied);
+      if (d) { try { JrMuziek.speel('opruim-' + d.id, { altijd: true, tempo: d.tempo, vol: 0.14 }); } catch {} return; }
+      const e = eigen.find(x => x.id === st.lied);
+      if (!e) return;
+      url = URL.createObjectURL(e.blob); speler = new Audio(url); speler.loop = true;
+      if (window.JrMuziek && JrMuziek.stil) return;
+      speler.play().catch(() => {});
+    };
+    const chip = (id, naam, wis) => `<span class="jr-kt-lied"><button type="button" class="jr-kt-klein jr-eigen ${st.lied === id ? 'aan' : ''}" data-lied="${id}">🎵 ${esc(naam)}</button>${wis ? `<button type="button" class="jr-kt-wis jr-eigen" data-wislied="${id}" aria-label="Wissen">✕</button>` : ''}</span>`;
+    function teken() {
+      p.innerHTML = `<div class="jr-kt-opruimvak">
+        <div class="jr-kt-opruim-beeld" id="jr-kt-opruim-beeld"><img src="${IMG}/icoon/opruim.webp" alt=""></div>
+        <div class="jr-kt-opruim-zij">
+        <div class="jr-kt-tijd" id="jr-kt-tijd" data-geen-vertaling></div>
+        <div class="jr-kt-opruim-balk"><span id="jr-kt-opruim-vul"></span></div>
+        <div class="jr-kt-knoppen"><button type="button" class="jr-kt-groot jr-eigen" id="jr-kt-start"></button><button type="button" class="jr-kt-klein jr-eigen" id="jr-kt-reset">↺</button></div>
+        <div class="jr-kt-minuten">${MIN.map(m => `<button type="button" class="jr-kt-klein jr-eigen ${m === st.min ? 'aan' : ''}" data-min="${m}">${m} min</button>`).join('')}</div>
+        <div class="jr-kt-liedjes">${DEUNEN.map(d => chip(d.id, d.naam)).join('')}${eigen.map(e => chip(e.id, e.naam, true)).join('')}
+          <label class="jr-kt-klein jr-eigen jr-kt-foto">➕ Eigen muziek<input type="file" id="jr-kt-eigmuziek" accept="audio/*" hidden></label></div>
+      </div></div>`;
+      p.querySelectorAll('[data-min]').forEach(b => b.addEventListener('click', () => { st.min = +b.dataset.min; bewaar('jr-kt-opruim', st); stopAlles(); teken(); }));
+      p.querySelectorAll('[data-lied]').forEach(b => b.addEventListener('click', () => {
+        st.lied = b.dataset.lied; bewaar('jr-kt-opruim', st);
+        p.querySelectorAll('[data-lied]').forEach(x => x.classList.toggle('aan', x === b));
+        if (loopt) { stopMuziek(); startMuziek(); }
+      }));
+      p.querySelectorAll('[data-wislied]').forEach(b => b.addEventListener('click', async () => {
+        await dbDoe('readwrite', s2 => s2.delete(b.dataset.wislied)).catch(() => {});
+        if (st.lied === b.dataset.wislied) { st.lied = 'mars'; bewaar('jr-kt-opruim', st); }
+        eigen = await eigenLijst(); teken();
+      }));
+      p.querySelector('#jr-kt-eigmuziek').addEventListener('change', async e => {
+        const f = e.target.files[0]; if (!f) return;
+        if (f.size > 30 * 1024 * 1024) { window.Ui && Ui.melding('Dat muziekbestand is te groot (meer dan 30 MB).'); return; }
+        const nieuw = { id: 'm' + Date.now(), naam: f.name.replace(/\.[^.]+$/, '').slice(0, 30), blob: f };
+        try { await dbDoe('readwrite', s2 => s2.put(nieuw)); } catch { window.Ui && Ui.melding('Die muziek kon niet bewaard worden.'); return; }
+        st.lied = nieuw.id; bewaar('jr-kt-opruim', st); eigen = await eigenLijst(); teken();
+      });
+      p.querySelector('#jr-kt-start').addEventListener('click', () => {
+        if (rest <= 0) rest = st.min * 60;
+        loopt = !loopt;
+        p.querySelector('.jr-kt-opruimvak').classList.remove('klaar');
+        if (loopt) { t0 = performance.now(); raf = requestAnimationFrame(tik); if (rest === st.min * 60) zeg([Z().ktOpruim]).then(() => { if (loopt) startMuziek(); }); else startMuziek(); }
+        else { cancelAnimationFrame(raf); stopMuziek(); }
+        toon();
+      });
+      p.querySelector('#jr-kt-reset').addEventListener('click', () => { stopAlles(); toon(); });
+      toon();
+    }
+    function stopAlles() { loopt = false; cancelAnimationFrame(raf); stopMuziek(); rest = st.min * 60; const v = p.querySelector('.jr-kt-opruimvak'); if (v) v.classList.remove('klaar'); }
+    function toon() {
+      const f = Math.max(0, rest / (st.min * 60)), s = Math.ceil(rest);
+      p.querySelector('#jr-kt-opruim-vul').style.width = `${f * 100}%`;
+      p.querySelector('#jr-kt-tijd').textContent = `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+      p.querySelector('#jr-kt-start').textContent = loopt ? '⏸ Pauze' : '▶ Opruimen!';
+      p.querySelector('#jr-kt-opruim-beeld').classList.toggle('bezig', loopt);
+    }
+    function tik() {
+      rest = Math.max(0, rest - (performance.now() - t0) / 1000); t0 = performance.now(); toon();
+      if (rest <= 0) {
+        loopt = false; stopMuziek(); toon();
+        p.querySelector('.jr-kt-opruimvak').classList.add('klaar');
+        fx('fanfare'); try { JrMuziek.liedje(); } catch {}
+        zeg([Z().ktOpruimKlaar]);
+        return;
+      }
+      if (loopt) raf = requestAnimationFrame(tik);
+    }
+    teken();
+    eigenLijst().then(l => { eigen = l; if (!loopt) teken(); });
   }
 
   // ---------- Dobbelsteen: één of twee grote dobbelstenen met ogen. ----------
