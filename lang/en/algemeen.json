@@ -1106,5 +1106,6 @@
  "De eerste klas kan je niet weghalen. Geef ze gerust een andere naam.": "The first class cannot be removed. Feel free to rename it.",
  "Ongeldige lijst van klassen.": "Invalid list of classes.",
  "Klassen voor de lesmap bewaren mislukt:": "Saving classes for the lesson folder failed:",
- "Er komt geen antwoord van de update-server. Probeer het later opnieuw, of werk bij met een zip-bestand.": "The update server is not responding. Try again later, or update with a zip file."
+ "Er komt geen antwoord van de update-server. Probeer het later opnieuw, of werk bij met een zip-bestand.": "The update server is not responding. Try again later, or update with a zip file.",
+ "Bijwerken lukte nog niet: een map van LANcelot is nog open (staat er nog een ander LANcelot-venster open?). Sluit alle LANcelot-vensters en start opnieuw: de update staat nog klaar.": "The update didn't work yet: a LANcelot folder is still open (is another LANcelot window still open?). Close all LANcelot windows and start again: the update is still ready."
 }

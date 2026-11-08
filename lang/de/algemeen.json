@@ -1106,5 +1106,6 @@
  "De eerste klas kan je niet weghalen. Geef ze gerust een andere naam.": "Die erste Klasse kannst du nicht entfernen. Gib ihr ruhig einen anderen Namen.",
  "Ongeldige lijst van klassen.": "Ungültige Klassenliste.",
  "Klassen voor de lesmap bewaren mislukt:": "Klassen für den Unterrichtsordner speichern fehlgeschlagen:",
- "Er komt geen antwoord van de update-server. Probeer het later opnieuw, of werk bij met een zip-bestand.": "Der Update-Server antwortet nicht. Versuche es später noch einmal oder aktualisiere mit einer ZIP-Datei."
+ "Er komt geen antwoord van de update-server. Probeer het later opnieuw, of werk bij met een zip-bestand.": "Der Update-Server antwortet nicht. Versuche es später noch einmal oder aktualisiere mit einer ZIP-Datei.",
+ "Bijwerken lukte nog niet: een map van LANcelot is nog open (staat er nog een ander LANcelot-venster open?). Sluit alle LANcelot-vensters en start opnieuw: de update staat nog klaar.": "Das Update hat noch nicht geklappt: Ein LANcelot-Ordner ist noch geöffnet (ist noch ein anderes LANcelot-Fenster offen?). Schließe alle LANcelot-Fenster und starte neu: Das Update liegt noch bereit."
 }
