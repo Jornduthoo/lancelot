@@ -45,6 +45,7 @@
       <button type="button" class="jr-ochtend-knop jr-eiland-knop jr-eigen" data-ga="eiland"><img src="/img/junior/burcht/1.webp" alt=""> Ons klaseiland</button>
       <button type="button" class="jr-ochtend-knop jr-rijk-knop jr-eigen" data-ga="rijk"><img src="/img/junior/rijk/dorp.webp" alt=""> Het Toverdorp</button>
       <button type="button" class="jr-ochtend-knop jr-tools-knop jr-eigen" data-ga="klastools"><img src="/img/junior/tools/icoon/2.webp" alt=""> Klastools</button>
+      <button type="button" class="jr-ochtend-knop jr-tools-knop jr-eigen" data-ga="werkbladen"><img src="/img/junior/tools/icoon/print.webp" alt=""> Werkbladen</button>
       <button type="button" class="panel jr-mini-draak jr-eigen" data-ga="draakje">
         <img id="jr-mini-draak" src="/img/junior/draak/1.webp" alt="">
         <div><b id="jr-mini-naam">Het klasdraakje</b><div class="jr-groeibalk"><span id="jr-mini-groei"></span></div></div>
@@ -105,6 +106,16 @@
 
     <!-- Het Toverdorp: zes plekken om samen te ontdekken (woordenschat), met een zoekspel. -->
     <!-- Klastools voor de kleuterklas (jr-tools.js): op het bord, met de dieren van de klas. -->
+    <!-- De werkbladgenerator (jr-werkblad.js): links de keuzes, rechts meteen het blad. -->
+    <div class="jr-view hidden" id="jr-v-werkbladen">
+      <div class="jr-view-kop"><button class="terug-knop" type="button" data-ga="thuis"><i class="ic ic-terug" aria-hidden="true"></i>Terug</button><h2><img src="/img/junior/tools/icoon/print.webp" alt=""> Werkbladen</h2>
+        <span class="jr-wbg-tel" id="jr-wbg-tel" data-geen-vertaling></span><button type="button" class="gold" id="jr-wbg-print">🖨️ Afdrukken</button></div>
+      <div class="jr-wbg">
+        <div class="panel jr-wbg-opties" id="jr-wbg-opties"></div>
+        <div class="jr-wbg-scroll"><div class="jr-printblad werkblad jr-wb-voorbeeld" id="jr-wbg-voorbeeld" data-geen-vertaling></div></div>
+      </div>
+    </div>
+
     <div class="jr-view hidden" id="jr-v-klastools">
       <div class="jr-view-kop"><button class="terug-knop" type="button" data-ga="thuis"><i class="ic ic-terug" aria-hidden="true"></i>Terug</button><h2><img src="/img/junior/tools/icoon/2.webp" alt=""> Klastools</h2></div>
       <div id="jr-tools-bord"></div>
@@ -320,19 +331,6 @@
   </div>
 </dialog>
 
-<dialog class="jr-inst-venster jr-wb-venster" id="jr-wb-venster">
-  <h2><img src="/img/junior/tools/icoon/print.webp" alt=""> Werkblad</h2>
-  <div class="jr-wb-keuzes">
-    <div><p class="jr-kv-label">Aantal oefeningen</p><div class="jr-kv-keuzes" id="jr-wb-aantal"></div></div>
-    <label class="jr-wb-vink"><input type="checkbox" id="jr-wb-sleutel"> Verbetersleutel erbij</label>
-    <button type="button" class="secondary" id="jr-wb-nieuw">🎲 Andere oefeningen</button>
-  </div>
-  <div class="jr-wb-scroll"><div class="jr-printblad werkblad jr-wb-voorbeeld" id="jr-wb-voorbeeld" data-geen-vertaling></div></div>
-  <div class="actions">
-    <button class="secondary" id="jr-wb-annuleer">Annuleren</button>
-    <button class="gold" id="jr-wb-print">Afdrukken</button>
-  </div>
-</dialog>
 
 <dialog class="jr-foto-venster jr-jarig-venster" id="jr-jarig-venster">
   <h2>🎂 Verjaardag van <span id="jr-jarig-naam" data-geen-vertaling></span></h2>
@@ -471,5 +469,6 @@
 <script src="/js/jr-tools.js"></script>
 <script src="/js/jr-muziek.js"></script>
 <script src="/js/jr-leerkracht.js"></script>
+<script src="/js/jr-werkblad.js"></script>
 </body>
 </html>
