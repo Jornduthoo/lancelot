@@ -1565,9 +1565,6 @@ body.jr-los #jr-vak, body.jr-los #jr-beurt { visibility: hidden; }
 .jr-hulpje-kaart { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 16px 22px; border-radius: 26px; background: rgb(var(--k-panel) / .92); box-shadow: 0 0 0 3px #ffd36b, 0 0 36px rgb(76 201 255 / .45); color: var(--jr-inkt); font-size: 1.4rem; }
 .jr-hulpje-kaart img { width: min(26vh, 200px); height: min(26vh, 200px); object-fit: contain; }
 .jr-hulpje-info { display: flex; flex-direction: column; gap: 14px; align-items: center; max-width: 620px; }
-.jr-klusjes { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
-.jr-lk main button.jr-klus { padding: 8px 16px; border-radius: 999px; border: 2px solid var(--jr-lijn); background: rgb(var(--k-panel) / .88); color: var(--jr-inkt); font: inherit; font-weight: 700; cursor: pointer; }
-.jr-lk main button.jr-klus.aan { border-color: #ffd36b; background: rgb(76 201 255 / .2); box-shadow: 0 0 16px rgb(76 201 255 / .5); }
 .jr-onzedag { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
 .jr-lk main button.jr-onzedag-kaart { display: flex; flex-direction: column; align-items: center; gap: 4px; width: 118px; padding: 8px; border-radius: 18px; border: 2px solid rgb(224 169 58 / .5); background: rgb(var(--k-panel) / .9); color: var(--jr-inkt); font: inherit; cursor: pointer; }
 .jr-onzedag-kaart img { width: 90px; height: 90px; object-fit: contain; }
@@ -1633,3 +1630,4 @@ body.jr-los #jr-vak, body.jr-los #jr-beurt { visibility: hidden; }
 .jr-lk main .klaskiezer button.kk-klas.on { background: rgb(var(--k-goud) / .25); border-color: rgb(var(--k-goud)); box-shadow: 0 0 14px rgb(var(--k-goud) / .45); }
 .jr-lk .jr-view-kop .jr-maken-wb { margin-left: auto; display: inline-flex; align-items: center; gap: 8px; border-radius: 999px; padding: 8px 20px 8px 10px; }
 .jr-maken-wb img { width: 34px; height: 34px; object-fit: contain; }
+#jr-ostap-keuzes button:not(.aan) { opacity: .45; text-decoration: line-through; }

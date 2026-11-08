@@ -616,13 +616,13 @@
  "📶 Netwerk": "📶 Red",
  "☁️ Lesmap": "☁️ Carpeta de clases",
  "🖥️ Bureau-pc": "🖥️ PC del escritorio",
- "Ander hulpje": "Otro ayudante",
+ "Ander kindje": "Otro ayudante",
  "Je dag aanpassen doe je in Klastools, bij Dagritme.": "Cambias tu día en Herramientas de clase, en Ritmo del día.",
  "Naar het verjaardagsfeest": "A la fiesta de cumpleaños",
  "🍂 Maand en seizoen": "🍂 Mes y estación",
  "🧥 Wat trek ik aan?": "🧥 ¿Qué me pongo?",
  "💛 Hoe voel je je?": "💛 ¿Cómo te sientes?",
- "⭐ Hulpje": "⭐ Ayudante",
+ "⭐ Kindje van de dag": "⭐ Ayudante",
  "🗓️ Onze dag": "🗓️ Nuestro día",
  "🎂 Jarig": "🎂 Cumpleaños",
  "✏️ Aanpassen": "✏️ Editar",
@@ -657,5 +657,8 @@
  "blad": "ficha",
  "sleutel": "solución",
  "Werkbladen maken": "Crear fichas",
- "Eigen vragen met prentjes, met of zonder AI, en werkbladen om af te drukken.": "Tus propias preguntas con imágenes, con o sin IA, y fichas para imprimir."
+ "Eigen vragen met prentjes, met of zonder AI, en werkbladen om af te drukken.": "Tus propias preguntas con imágenes, con o sin IA, y fichas para imprimir.",
+ "Kies welke stappen je toont": "Elige qué pasos mostrar",
+ "⚙️ Wat toon je bij het ochtendmoment?": "⚙️ ¿Qué muestras en la asamblea de la mañana?",
+ "Tik een stap aan of uit. Wat uit staat, slaan we over.": "Toca un paso para activarlo o desactivarlo. Los pasos desactivados se saltan."
 }

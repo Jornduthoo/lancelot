@@ -84,7 +84,7 @@ module.exports = {
     ochtendKlerenNee: "Hmm, do you need that in this weather?",
     ochtendEerstWeer: "Choose the weather first.",
     ochtendGevoel: "How do you feel today? Tap your animal and then your feeling.",
-    ochtendHulpje: "Today's helper is",
+    ochtendHulpje: "Today's star of the day is",
     ochtendKlus: "Today you help with",
     klusjes: ["leading the line", "watering the plants", "setting the tables", "the calendar", "tidying up", "holding the door"],
     ochtendOnzeDag: "This is what we do today.",

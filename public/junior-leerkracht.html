@@ -80,10 +80,11 @@
           <button type="button" class="jr-ostap jr-eigen" data-ostap="weer">🌤️ Welk weer?</button>
           <button type="button" class="jr-ostap jr-eigen" data-ostap="kleren">🧥 Wat trek ik aan?</button>
           <button type="button" class="jr-ostap jr-eigen" data-ostap="gevoel">💛 Hoe voel je je?</button>
-          <button type="button" class="jr-ostap jr-eigen" data-ostap="hulpje">⭐ Hulpje</button>
+          <button type="button" class="jr-ostap jr-eigen" data-ostap="hulpje">⭐ Kindje van de dag</button>
           <button type="button" class="jr-ostap jr-eigen" data-ostap="onzedag">🗓️ Onze dag</button>
           <button type="button" class="jr-ostap jr-eigen hidden" data-ostap="jarig">🎂 Jarig</button>
           <button type="button" class="jr-ostap jr-eigen" data-ostap="klaar">🐉 Klaar!</button>
+          <button type="button" class="jr-ostap jr-ostap-kies jr-eigen" id="jr-ostap-kies" title="Kies welke stappen je toont">⚙️</button>
         </div>
         <div class="jr-ochtend-vak" id="jr-ochtend-vak" data-geen-vertaling></div>
       </div>
@@ -352,6 +353,12 @@
     <button type="button" data-w="0">Gewoon</button><button type="button" data-w="1">Minder</button>
   </div>
   <div class="actions"><button class="gold" id="jr-maat-dicht" type="button">Klaar</button></div>
+</dialog>
+<dialog class="jr-foto-venster jr-maat-venster" id="jr-ostap-venster">
+  <h2>⚙️ Wat toon je bij het ochtendmoment?</h2>
+  <p class="jr-foto-klein">Tik een stap aan of uit. Wat uit staat, slaan we over.</p>
+  <div class="jr-kv-keuzes" id="jr-ostap-keuzes"></div>
+  <div class="actions"><button class="gold" id="jr-ostap-dicht" type="button">Klaar</button></div>
 </dialog>
 <dialog class="jr-foto-venster" id="jr-foto-venster">
   <h2>📷 Echte foto zoeken</h2>

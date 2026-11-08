@@ -616,13 +616,13 @@
  "📶 Netwerk": "📶 Network",
  "☁️ Lesmap": "☁️ Lesson folder",
  "🖥️ Bureau-pc": "🖥️ Desk PC",
- "Ander hulpje": "Another helper",
+ "Ander kindje": "Another star",
  "Je dag aanpassen doe je in Klastools, bij Dagritme.": "You change your day in Class tools, under Daily rhythm.",
  "Naar het verjaardagsfeest": "To the birthday party",
  "🍂 Maand en seizoen": "🍂 Month and season",
  "🧥 Wat trek ik aan?": "🧥 What do I wear?",
  "💛 Hoe voel je je?": "💛 How do you feel?",
- "⭐ Hulpje": "⭐ Helper",
+ "⭐ Kindje van de dag": "⭐ Star of the day",
  "🗓️ Onze dag": "🗓️ Our day",
  "🎂 Jarig": "🎂 Birthday",
  "✏️ Aanpassen": "✏️ Edit",
@@ -657,5 +657,8 @@
  "blad": "sheet",
  "sleutel": "key",
  "Werkbladen maken": "Make worksheets",
- "Eigen vragen met prentjes, met of zonder AI, en werkbladen om af te drukken.": "Your own questions with pictures, with or without AI, and worksheets to print."
+ "Eigen vragen met prentjes, met of zonder AI, en werkbladen om af te drukken.": "Your own questions with pictures, with or without AI, and worksheets to print.",
+ "Kies welke stappen je toont": "Choose which steps to show",
+ "⚙️ Wat toon je bij het ochtendmoment?": "⚙️ What do you show in the morning circle?",
+ "Tik een stap aan of uit. Wat uit staat, slaan we over.": "Tap a step on or off. Steps that are off are skipped."
 }
