@@ -129,7 +129,7 @@
         const v = stem();
         if (v) u.voice = v;
         u.lang = v ? v.lang : (J().stemmen || ['nl-BE'])[0];
-        u.rate = rustig ? 0.75 : 0.9;
+        u.rate = rustig ? 0.7 : 0.8;
         u.pitch = 1.1;
         const af = () => { clearTimeout(t); klaar(); };
         const t = setTimeout(af, 4000 + tekst.length * 120);
