@@ -203,6 +203,19 @@
 .jr-p-rechts, .jr-p-naast-rechts { left: 84%; bottom: 1.3em; }
 .jr-vlieger.jr-p-op, .jr-vlieger.jr-p-onder, .jr-vlieger.jr-p-boven, .jr-vlieger.jr-p-links, .jr-vlieger.jr-p-rechts, .jr-vlieger.jr-p-naast-links, .jr-vlieger.jr-p-naast-rechts { transform: scale(1); opacity: 1; }
 .jr-vlieger.jr-p-onder { bottom: 1.1em; width: 2.8em; }
+/* Niveau 3: tafel links, karretje rechts. Achter de tafel en in het karretje zit het draakje er half achter. */
+.jr-waar-kar .jr-tafel { left: 30%; z-index: 1; }
+.jr-kar { position: absolute; left: 80%; bottom: 1em; width: 6.4em; transform: translateX(-50%); z-index: 1; }
+.jr-waar-kar .jr-plek-knop { z-index: 3; }
+.jr-waar-kar .jr-p-voor { left: 30%; bottom: -.7em; }
+.jr-waar-kar .jr-p-achter { left: 30%; bottom: 6.6em; }
+.jr-waar-kar .jr-p-in { left: 80%; bottom: 3.6em; }
+.jr-waar-kar .jr-p-tussen { left: 56%; bottom: 1.3em; }
+.jr-waar-kar .jr-vlieger:not([class*="jr-p-"]) { left: 1.2em; bottom: 9em; }
+.jr-vlieger.jr-p-voor, .jr-vlieger.jr-p-achter, .jr-vlieger.jr-p-in, .jr-vlieger.jr-p-tussen { transform: scale(1); opacity: 1; }
+.jr-vlieger.jr-p-voor { z-index: 4; width: 3.8em; }
+.jr-vlieger.jr-p-achter { z-index: 0; width: 2.8em; }
+.jr-vlieger.jr-p-in { z-index: 0; width: 3em; }
 
 .jr-schud { animation: jr-schud .45s ease; }
 @keyframes jr-schud { 20%, 60% { transform: translateX(-.35em) rotate(-3deg); } 40%, 80% { transform: translateX(.35em) rotate(3deg); } }
@@ -573,6 +586,10 @@
 .jr-code { display: grid; grid-template-columns: repeat(4, 2.5em); grid-template-rows: repeat(4, 2.5em); gap: .2em; background: rgb(var(--k-panel) / .9); border-radius: .8em; padding: .3em; }
 .jr-code-cel { background: rgb(95 225 255 / .18); border: .08em solid rgb(var(--k-tekst) / .15); border-radius: .4em; display: flex; align-items: center; justify-content: center; }
 .jr-code-cel .jr-img { width: 2.2em; height: 2.2em; object-fit: contain; }
+.jr-code { position: relative; }
+/* Het draakje loopt over het rooster: elk vakje is 2.5em met .2em tussenruimte. */
+.jr-code-draak { position: absolute; left: calc(.3em + var(--x) * 2.7em); top: calc(.3em + var(--y) * 2.7em); width: 2.5em; height: 2.5em; display: flex; align-items: center; justify-content: center; transition: left .4s cubic-bezier(.3, 1.3, .5, 1), top .4s cubic-bezier(.3, 1.3, .5, 1); z-index: 2; pointer-events: none; }
+.jr-code-draak .jr-img { width: 2.2em; height: 2.2em; object-fit: contain; animation: jr-ren .4s ease-in-out infinite alternate; }
 .jr-pijlen { font-size: 1.8em; letter-spacing: .05em; white-space: nowrap; }
 /* Rijmkikker, Klapdraak, Gevoelensspiegel */
 .jr-rijm-kop, .jr-klap-kop, .jr-situatie { display: flex; align-items: center; gap: .3em; background: rgb(var(--k-panel) / .9); border-radius: 1em; padding: .2em .8em; }
@@ -582,12 +599,14 @@
 .jr-klappen { font-size: 1.6em; }
 /* Drakenstappen */
 .jr-meet { font-size: 1.3em; display: flex; flex-direction: column; align-items: flex-start; gap: .2em; background: rgb(var(--k-panel) / .9); border-radius: 1em; padding: .6em .8em; }
-.jr-meet-ding { height: 1.6em; width: calc(var(--n) * 2.2em); border-radius: .4em; box-shadow: 0 .15em .3em rgb(0 0 0 / .25); }
-.jr-meet-plank { background: repeating-linear-gradient(90deg, #c68642 0 1.1em, #b07436 1.1em 2.2em); border: .1em solid #6d4321; }
+.jr-meet-ding { position: relative; height: 1.6em; width: calc(var(--n) * 2.2em); border-radius: .4em; box-shadow: 0 .15em .3em rgb(0 0 0 / .25); }
+/* Eén vak op het ding per stap: de streepjes vallen precies boven de pootjes. */
+.jr-meet-ding::after { content: ''; position: absolute; inset: 0; border-radius: inherit; background: repeating-linear-gradient(90deg, transparent 0 calc(2.2em - .12em), rgb(0 0 0 / .5) calc(2.2em - .12em) 2.2em); }
+.jr-meet-plank { background: repeating-linear-gradient(90deg, #c68642 0 2.2em, #b07436 2.2em 4.4em); border: .1em solid #6d4321; }
 .jr-meet-slang { background: repeating-linear-gradient(45deg, #51cf66 0 .5em, #2f9e44 .5em 1em); border-radius: 1em .4em .4em 1em; border: .1em solid #1b6e2e; }
 .jr-meet-tak { height: .9em; background: linear-gradient(#8b5a2b, #5c3a1a); border-radius: .5em; }
 .jr-meet-poten { display: flex; }
-.jr-meet-poten span { font-size: 1.6em; width: calc(2.2em / 1.6); }
+.jr-meet-poten span { font-size: 1.6em; width: calc(2.2em / 1.6); text-align: center; }
 .jr-lk .jr-groep .jr-tegel b { font-size: .98rem; hyphens: auto; -webkit-hyphens: auto; overflow-wrap: anywhere; line-height: 1.15; }
 .jr-lk .jr-groep .jr-tegel span { font-size: .82rem; }
 

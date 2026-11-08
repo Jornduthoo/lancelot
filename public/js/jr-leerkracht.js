@@ -313,6 +313,7 @@ function toonInstellingen(i) {
   zet('jr-inst-voorlezen', i.voorlezen ? 1 : 0);
   zet('jr-inst-groei', i.groei ? 1 : 0);
   zet('jr-inst-rustig', i.rustig ? 1 : 0);
+  zet('jr-inst-vrij', i.vrij === false ? 0 : 1);
   zet('jr-inst-thema', i.thema || 'auto');
   zet('jr-inst-munt', i.munt || 'auto');
 }
@@ -324,6 +325,7 @@ function bewaarInstelling(nieuw) {
 }
 for (const b of $('jr-inst-ronde').children) b.addEventListener('click', () => bewaarInstelling({ perRonde: Number(b.dataset.w) }));
 for (const b of $('jr-inst-voorlezen').children) b.addEventListener('click', () => bewaarInstelling({ voorlezen: b.dataset.w === '1' }));
+for (const b of $('jr-inst-vrij').children) b.addEventListener('click', () => bewaarInstelling({ vrij: b.dataset.w === '1' }));
 for (const b of $('jr-inst-rustig').children) b.addEventListener('click', () => bewaarInstelling({ rustig: b.dataset.w === '1' }));
 for (const b of $('jr-inst-groei').children) b.addEventListener('click', () => bewaarInstelling({ groei: b.dataset.w === '1' }));
 for (const b of $('jr-inst-thema').children) b.addEventListener('click', () => bewaarInstelling({ thema: b.dataset.w }));
@@ -646,6 +648,7 @@ async function bordVraag() {
         if (res && res.gegroeid) Junior.Stem.zeg([J().zin.groei]);
         bord.wie[bord.team]++;
         bord.team = (bord.team + 1) % 4;
+        try { localStorage.setItem('jr-bord-beurt', JSON.stringify({ team: bord.team, wie: bord.wie })); } catch {}
         setTimeout(bordVraag, res && res.gegroeid ? 2600 : 900);
       });
     },
@@ -847,7 +850,11 @@ function toon() {
     bord = null;
   }
   if (opBord && (!bord || bord.seed !== stand.seed)) {
-    bord = { seed: stand.seed, r: Junior.toeval(stand.seed), team: 0, wie: [0, 0, 0, 0], huidig: null };
+    // Verder waar het vorige bordspel stopte: zo komen niet altijd dezelfde kinderen eerst aan het bord.
+    let vorig = null;
+    try { vorig = JSON.parse(localStorage.getItem('jr-bord-beurt') || 'null'); } catch {}
+    const ok = vorig && Array.isArray(vorig.wie) && vorig.wie.length === 4;
+    bord = { seed: stand.seed, r: Junior.toeval(stand.seed), team: ok ? (vorig.team | 0) % 4 : Math.floor(Math.random() * 4), wie: ok ? vorig.wie.map(x => x | 0) : [0, 1, 2, 3].map(() => Math.floor(Math.random() * 8)), huidig: null };
     Junior.schaal($('jr-bord-vak'));
     bordVraag();
   }

@@ -372,7 +372,12 @@
       };
     },
     waar(r, niv) {
-      const plekken = niv === 0 ? ['op', 'onder', r() < 0.5 ? 'naast' : 'naast'] : ['op', 'onder', 'boven', 'links', 'rechts'];
+      // Niveau 3: een tafel en een karretje, voor voor, achter, in en tussen.
+      if (niv >= 2) {
+        const doel = r.kies(['voor', 'achter', 'in', 'tussen', 'voor', 'achter']);
+        return { soort: 'waar', kar: true, zeg: [J().zin.waar[doel]], plekken: ['voor', 'achter', 'in', 'tussen'].map(p => ({ id: p, juist: p === doel })) };
+      }
+      const plekken = niv === 0 ? ['op', 'onder', 'naast'] : ['op', 'onder', 'boven', 'links', 'rechts'];
       const doel = r.kies(plekken);
       return { soort: 'waar', zeg: [J().zin.waar[doel]], plekken: plekken.map(p => ({ id: p, juist: p === doel })), naastKant: r() < 0.5 ? 'links' : 'rechts' };
     },
@@ -522,9 +527,17 @@
         const VERF = { rood: '#ff6b6b', groen: '#51cf66', geel: '#ffd43b', blauw: '#4dabf7' };
         return { soort: 'sorteer', zeg: [J().zin.sorteerKleur], items, manden: kleuren.map(k => ({ id: k, html: vorm('cirkel', VERF[k]) })) };
       }
+      // Waar leeft het? Het land, het water of de lucht.
+      if (niv === 3) {
+        const LEEFT = { land: ['🐄', '🐎', '🐑', '🦁', '🐘', '🐇', '🦒', '🐿️'], water: ['🐟', '🐬', '🐳', '🐙', '🦀', '🐠', '🦈', '🦭'], lucht: ['🐦', '🦅', '🦉', '🦋', '🐝', '🦜', '🕊️', '🦇'] };
+        const MAND = { land: '🌳', water: '🌊', lucht: '☁️' };
+        const items = r.schud(Object.keys(LEEFT).flatMap(g => r.schud(LEEFT[g]).slice(0, 2).map(e => ({ html: emoji(e), mand: g }))));
+        return { soort: 'sorteer', zeg: [J().zin.sorteerLeeft], items, manden: Object.keys(LEEFT).map(g => ({ id: g, html: emoji(MAND[g]) })) };
+      }
       const SOORT = { dier: ['🐶', '🐱', '🐰', '🐻', '🐸', '🐷', '🐮', '🦁'], fruit: ['🍎', '🍌', '🍐', '🍇', '🍓', '🍒', '🍊'], voertuig: ['🚗', '🚌', '🚲', '🚂', '🚜', '✈️', '🚀'],
-        kleding: ['👕', '👖', '🧦', '👗', '🧢', '👟'], bal: ['⚽', '🏀', '🎾', '🏈', '🏐'] };
-      const n = niv === 0 ? 2 : 3;
+        kleding: ['👕', '👖', '🧦', '👗', '🧢', '👟'], bal: ['⚽', '🏀', '🎾', '🏈', '🏐'], groente: ['🥕', '🥦', '🌽', '🥒', '🍆', '🧅', '🫑'],
+        speelgoed: ['🧸', '🪀', '🪁', '🎲', '🧩', '🪆'], muziek: ['🎸', '🥁', '🎺', '🎻', '🎹', '🪗'], gereedschap: ['🔨', '🪛', '🔧', '🪚', '🪜', '🧰'] };
+      const n = niv === 0 ? 2 : niv === 4 ? 4 : 3;
       const groepen = r.schud(Object.keys(SOORT)).slice(0, n);
       const items = r.schud(groepen.flatMap(g => r.schud(SOORT[g]).slice(1, niv === 0 ? 4 : 3).map(e => ({ html: emoji(e), mand: g }))));
       return { soort: 'sorteer', zeg: [J().zin.sorteerSoort], items, manden: groepen.map(g => ({ id: g, html: emoji(SOORT[g][0]) })) };
@@ -550,35 +563,35 @@
     code(r, niv) {
       const PIJL = { b: ['⬆️', 0, -1], o: ['⬇️', 0, 1], l: ['⬅️', -1, 0], r: ['➡️', 1, 0] };
       const stappen = niv === 0 ? 1 : niv === 1 ? 2 : r.int(3, 4);
-      let x = r.int(0, 3), y = r.int(0, 3);
-      const start = [x, y];
-      const pad = [];
-      for (let i = 0; i < stappen; i++) {
-        const kan = Object.keys(PIJL).filter(k => { const nx = x + PIJL[k][1], ny = y + PIJL[k][2]; return nx >= 0 && nx < 4 && ny >= 0 && ny < 4 && !(nx === start[0] && ny === start[1]); });
-        const k = r.kies(kan);
-        x += PIJL[k][1]; y += PIJL[k][2];
-        pad.push(k);
+      // De schat ligt precies 'stappen' vakjes ver: de juiste pijlen zijn altijd de kortste weg (geen omwegen).
+      const plekken = [];
+      for (let sx = 0; sx < 4; sx++) for (let sy = 0; sy < 4; sy++) for (let tx = 0; tx < 4; tx++) for (let ty = 0; ty < 4; ty++) {
+        if (Math.abs(tx - sx) + Math.abs(ty - sy) === stappen) plekken.push([sx, sy, tx, ty]);
       }
-      if (x === start[0] && y === start[1]) return MAKERS.code(r, niv);
+      const [sx, sy, tx, ty] = r.kies(plekken);
+      const pad = r.schud([...Array(Math.abs(tx - sx)).fill(tx > sx ? 'r' : 'l'), ...Array(Math.abs(ty - sy)).fill(ty > sy ? 'o' : 'b')]);
+      // Waar kom je uit met deze pijlen? (Buiten het veld blijft het draakje aan de rand staan.)
+      const eind = p => p.reduce(([x, y], k) => [Math.max(0, Math.min(3, x + PIJL[k][1])), Math.max(0, Math.min(3, y + PIJL[k][2]))], [sx, sy]);
       const toon = p => p.map(k => PIJL[k][0]).join('');
-      const doel = toon(pad);
-      const set = new Set([doel]);
-      for (let i = 0; set.size < 3 && i < 40; i++) {
+      const opties = [pad];
+      const gezien = new Set([toon(pad)]);
+      for (let i = 0; opties.length < 3 && i < 200; i++) {
         const p = pad.slice();
-        const j = r.int(0, p.length - 1);
-        p[j] = r.kies(Object.keys(PIJL).filter(k => k !== p[j]));
-        if (stappen > 1 && r() < 0.4) p.reverse();
-        set.add(toon(p));
+        p[r.int(0, p.length - 1)] = r.kies(Object.keys(PIJL));
+        if (p.length > 1 && r() < 0.3) p.reverse();
+        const [ex, ey] = eind(p);
+        // Een fout antwoord mag nooit ook bij de schat uitkomen.
+        if ((ex === tx && ey === ty) || gezien.has(toon(p))) continue;
+        gezien.add(toon(p));
+        opties.push(p);
       }
       const cellen = [];
-      for (let cy = 0; cy < 4; cy++) for (let cx = 0; cx < 4; cx++) {
-        const inh = cx === start[0] && cy === start[1] ? beeld('draak/3') : cx === x && cy === y ? beeld('stuk/7') : '';
-        cellen.push(`<span class="jr-code-cel">${inh}</span>`);
-      }
+      for (let cy = 0; cy < 4; cy++) for (let cx = 0; cx < 4; cx++) cellen.push(`<span class="jr-code-cel">${cx === tx && cy === ty ? beeld('stuk/7') : ''}</span>`);
       return {
         soort: 'kies', zeg: [stappen === 1 ? J().zin.codeEen : J().zin.codeVraag],
-        scene: `<div class="jr-code">${cellen.join('')}</div>`,
-        opties: r.schud([...set]).map(t => ({ html: `<span class="jr-pijlen">${t}</span>`, juist: t === doel })),
+        scene: `<div class="jr-code">${cellen.join('')}<span class="jr-code-draak" style="--x:${sx};--y:${sy}">${beeld('draak/3')}</span></div>`,
+        opties: r.schud(opties).map(p => ({ html: `<span class="jr-pijlen">${toon(p)}</span>`, juist: p === pad, pad: p.map(k => [PIJL[k][1], PIJL[k][2]]) })),
+        code: { start: [sx, sy] },
       };
     },
     // Rijmkikker: wat rijmt op dit woord?
@@ -890,12 +903,33 @@
     };
 
     if (v.soort === 'kies') {
+      let loopt = false;
       const rij = knopRij(`${v.stenen ? 'jr-stenen' : ''} ${v.lijst ? 'jr-lijst' : ''} ${v.open ? 'jr-open' : ''}`);
       for (const o of v.opties) {
         const k = el('button', 'jr-optie', o.html);
         k.type = 'button';
         k.addEventListener('click', () => {
-          if (af || k.disabled) return;
+          if (af || k.disabled || loopt) return;
+          // Codeerdraakje: het draakje stapt echt de pijlen af, vakje per vakje.
+          const draak = o.pad && v.code && veld.querySelector('.jr-code-draak');
+          if (draak) {
+            loopt = true;
+            let [x, y] = v.code.start;
+            o.pad.forEach(([dx, dy], i) => setTimeout(() => {
+              if (af) return;
+              x = Math.max(0, Math.min(3, x + dx)); y = Math.max(0, Math.min(3, y + dy));
+              draak.style.setProperty('--x', x); draak.style.setProperty('--y', y);
+              try { sfx.jump(); } catch {}
+            }, 150 + i * 480));
+            setTimeout(() => {
+              if (af) return;
+              if (o.juist) { loopt = false; k.classList.add('jr-juist'); gelukt(); return; }
+              k.disabled = true; k.classList.add('jr-mis'); fout(k);
+              // Mis: even blijven staan, dan terug naar het begin.
+              setTimeout(() => { draak.style.setProperty('--x', v.code.start[0]); draak.style.setProperty('--y', v.code.start[1]); loopt = false; }, 700);
+            }, 150 + o.pad.length * 480 + 250);
+            return;
+          }
           if (o.juist) { k.classList.add('jr-juist'); gelukt(); } else { k.disabled = true; k.classList.add('jr-mis'); fout(k); }
         });
         rij.appendChild(k);
@@ -1061,8 +1095,8 @@
       }
       for (const m of mandEl) m.addEventListener('click', () => gekozen && leg(gekozen.it, gekozen.knop, m));
     } else if (v.soort === 'waar') {
-      const sc = el('div', 'jr-waar');
-      sc.innerHTML = beeld('stuk/8', 'jr-tafel');
+      const sc = el('div', v.kar ? 'jr-waar jr-waar-kar' : 'jr-waar');
+      sc.innerHTML = beeld('stuk/8', 'jr-tafel') + (v.kar ? beeld('stuk/5', 'jr-kar') : '');
       const draakje = el('div', 'jr-vlieger', beeld('draak/3'));
       sc.appendChild(draakje);
       for (const p of v.plekken) {

@@ -55,8 +55,8 @@ const SPELLEN = [
     niveaus: ['Ochtend, middag, avond', 'Mijn dag', 'De seizoenen', 'De dagen van de week'] },
   { id: 'vormen', naam: 'Vormenjacht', zin: 'Zoek de cirkels, driehoeken en vierkanten.', groep: 'meetkunde', jaar: '2e kl - 1e lj', beeld: 'sticker/7',
     niveaus: ['Cirkel, driehoek, vierkant', 'Met rechthoeken', 'Sorteer de vormen'] },
-  { id: 'waar', naam: 'Waar is het draakje?', zin: 'Zet het draakje op, onder of naast de tafel.', groep: 'meetkunde', jaar: '2e kl - 1e lj', beeld: 'stuk/8',
-    niveaus: ['Op, onder, naast', 'Ook boven, links en rechts'] },
+  { id: 'waar', naam: 'Waar is het draakje?', zin: 'Zet het draakje op, onder, naast, voor of achter de tafel.', groep: 'meetkunde', jaar: '2e kl - 1e lj', beeld: 'stuk/8',
+    niveaus: ['Op, onder, naast', 'Ook boven, links en rechts', 'Voor, achter, in, tussen'] },
   { id: 'geluiden', naam: 'Geluidenbos', zin: 'Luister goed: wie maakt dit geluid?', groep: 'taal', jaar: '2e - 3e kl', beeld: 'dier/2',
     niveaus: ['Dieren', 'Dieren en dingen'] },
   { id: 'trein', naam: 'Klankentrein', zin: 'Zet de letters op de wagons, en de trein rijdt weg.', groep: 'taal', jaar: '3e kl - 1e lj', beeld: 'stuk/4',
@@ -77,7 +77,7 @@ const SPELLEN = [
   { id: 'stappen', naam: 'Drakenstappen', zin: 'Meet met drakenpootjes.', groep: 'meten', beeld: 'stuk/23',
     niveaus: ['Tot 5', 'Tot 10'] },
   { id: 'sorteer', naam: 'Sorteermand', zin: 'Sorteer de prentjes in de juiste mand.', groep: 'meetkunde', beeld: 'stuk/14',
-    niveaus: ['Twee soorten', 'Op kleur', 'Drie soorten'] },
+    niveaus: ['Twee soorten', 'Op kleur', 'Drie soorten', 'Waar leeft het?', 'Vier soorten'] },
   { id: 'patroon', naam: 'Patronenpad', zin: 'Wat komt er nu? Maak het patroon af.', groep: 'meetkunde', beeld: 'stuk/15',
     niveaus: ['Makkelijk', 'Moeilijker', 'Uitdaging'] },
   { id: 'code', naam: 'Codeerdraakje', zin: 'Welke pijlen brengen het draakje naar de schat?', groep: 'meetkunde', beeld: 'stuk/16',
@@ -164,7 +164,7 @@ const DIER_GROEI = [0, 10, 30]; // public/img/junior/dier, dier2, dier3
 const THEMAS = ['herfst', 'halloween', 'sint', 'kerst', 'winter', 'valentijn', 'carnaval', 'lente', 'pasen', 'moederdag', 'vaderdag', 'zomer', 'school'];
 function instellingen() {
   const i = load().instellingen;
-  return { perRonde: RONDES.includes(i.perRonde) ? i.perRonde : PER_RONDE, voorlezen: i.voorlezen !== false, groei: i.groei !== false, thema: ['auto', 'geen', ...THEMAS].includes(i.thema) ? i.thema : 'auto', rustig: i.rustig === true, munt: MUNTEN.includes(i.munt) ? i.munt : 'auto' };
+  return { perRonde: RONDES.includes(i.perRonde) ? i.perRonde : PER_RONDE, voorlezen: i.voorlezen !== false, groei: i.groei !== false, thema: ['auto', 'geen', ...THEMAS].includes(i.thema) ? i.thema : 'auto', rustig: i.rustig === true, vrij: i.vrij !== false, munt: MUNTEN.includes(i.munt) ? i.munt : 'auto' };
 }
 // Het geld in Geldmarkt: euro, dollar of pond. 'auto' volgt het land van de doelen (VS: dollar, Engeland: pond), anders euro.
 const MUNTEN = ['auto', 'eur', 'usd', 'gbp'];
@@ -217,6 +217,7 @@ function zetInstellingen(nieuw = {}) {
   if (typeof nieuw.voorlezen === 'boolean') i.voorlezen = nieuw.voorlezen;
   if (typeof nieuw.groei === 'boolean') i.groei = nieuw.groei;
   if (typeof nieuw.rustig === 'boolean') i.rustig = nieuw.rustig;
+  if (typeof nieuw.vrij === 'boolean') i.vrij = nieuw.vrij;
   if (['auto', 'geen', ...THEMAS].includes(nieuw.thema)) i.thema = nieuw.thema;
   if (MUNTEN.includes(nieuw.munt)) i.munt = nieuw.munt;
   save();
@@ -410,12 +411,12 @@ function stop() {
 function stand() {
   // Rustig: geen versiering aan de randen.
   const thema = instellingen().rustig ? '' : themaNu();
-  if (!les) return { actief: false, draak: draak(), voorlezen: instellingen().voorlezen, rustig: instellingen().rustig, thema, munt: muntNu() };
+  if (!les) return { actief: false, draak: draak(), voorlezen: instellingen().voorlezen, rustig: instellingen().rustig, vrij: instellingen().vrij, thema, munt: muntNu() };
   const s = SPEL[les.spel];
   return {
     actief: true, spel: les.spel, naam: s.naam, niveau: les.niveau, niveauNaam: niveausVan(s)[les.niveau], manier: les.manier, seed: les.seed,
     eigen: les.spel === 'eigen' ? load().sets[les.niveau] || null : undefined,
-    perRonde: instellingen().perRonde, voorlezen: instellingen().voorlezen, teams: les.teams, avontuur: avontuurStand(), kring: { vraag: les.kring.vraag }, draak: draak(), rustig: instellingen().rustig, thema, munt: muntNu(),
+    perRonde: instellingen().perRonde, voorlezen: instellingen().voorlezen, teams: les.teams, avontuur: avontuurStand(), kring: { vraag: les.kring.vraag }, draak: draak(), rustig: instellingen().rustig, vrij: instellingen().vrij, thema, munt: muntNu(),
   };
 }
 // Hoe ver elk team is (0 tot 1). Een team met meer kinderen moet ook meer stappen zetten: zo blijft het eerlijk.
