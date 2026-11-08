@@ -145,7 +145,7 @@ function kies(s) {
   $('jr-kv-naam').textContent = s.naam;
   $('jr-kv-zin').textContent = s.zin;
   // Spellen zonder papieren versie (bewegen, kring, waar is het draakje, de eigen naam): geen werkbladknop.
-  $('jr-kv-print').classList.toggle('hidden', ['naam', 'dans', 'kring', 'waar'].includes(s.id));
+  $('jr-kv-print').classList.toggle('hidden', ['naam', 'dans', 'kring', 'waar', 'ritme', 'geluiden'].includes(s.id));
   // Eigen vragen: meteen de gekozen reeks bekijken of aanpassen.
   $('jr-kv-kijk').classList.toggle('hidden', s.id !== 'eigen');
   $('jr-kv-bewerk').classList.toggle('hidden', s.id !== 'eigen');
