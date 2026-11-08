@@ -578,5 +578,10 @@
  "$ Dollar": "$ Dollar",
  "£ Pond": "£ Pound",
  "usd/": null,
- "geld/{0}{1}": null
+ "geld/{0}{1}": null,
+ "Verbetersleutel erbij": "Add answer key",
+ "🎲 Andere oefeningen": "🎲 Other exercises",
+ "Verbetersleutel": "Answer key",
+ "Al het geluid op het bord aan of uit: stem, muziek en geluidjes": "Turn all sound on the board on or off: voice, music and sound effects",
+ "Geluid aan of uit": "Sound on or off"
 }

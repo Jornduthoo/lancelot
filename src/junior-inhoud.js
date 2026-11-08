@@ -199,6 +199,13 @@ module.exports = {
   // Reeksen om in volgorde te zetten. niveau: het niveau van de Dagboog (0 tot 3).
   reeksen: [
     { niveau: 0, items: [{ e: '🌅', t: 'De ochtend' }, { e: '☀️', t: 'De middag' }, { e: '🌇', t: 'De avond' }, { e: '🌙', t: 'De nacht' }] },
+    { niveau: 0, items: [{ e: '☁️', t: 'De wolk' }, { e: '🌧️', t: 'De regen' }, { e: '🌈', t: 'De regenboog' }] },
+    { niveau: 0, items: [{ e: '👶', t: 'De baby' }, { e: '🧒', t: 'Het kind' }, { e: '👵', t: 'De oma' }] },
+    { niveau: 0, items: [{ e: '🌱', t: 'Het zaadje' }, { e: '🌿', t: 'Het plantje' }, { e: '🌻', t: 'De bloem' }] },
+    { niveau: 0, items: [{ e: '🥚', t: 'Het ei' }, { e: '🐣', t: 'Het kuiken komt uit' }, { e: '🐥', t: 'Het kuikentje' }] },
+    { niveau: 0, items: [{ e: '🧦', t: 'Sokken aan' }, { e: '👟', t: 'Schoenen aan' }, { e: '🚶', t: 'Naar buiten' }] },
+    { niveau: 0, items: [{ e: '🛁', t: 'In bad' }, { e: '🪥', t: 'Tanden poetsen' }, { e: '😴', t: 'Slapen' }] },
+    { niveau: 0, items: [{ e: '🧱', t: 'De stenen' }, { e: '🏗️', t: 'Bouwen' }, { e: '🏠', t: 'Het huis' }] },
     { niveau: 1, items: [{ e: '🛏️', t: 'Wakker worden' }, { e: '🥣', t: 'Ontbijten' }, { e: '🎒', t: 'Naar school' }, { e: '🛁', t: 'In bad' }, { e: '😴', t: 'Slapen' }] },
     { niveau: 1, items: [{ e: '🥚', t: 'Het ei' }, { e: '🐣', t: 'Het kuiken komt uit' }, { e: '🐥', t: 'Het kuikentje' }, { e: '🐔', t: 'De kip' }] },
     { niveau: 1, items: [{ e: '🌱', t: 'Het zaadje' }, { e: '🌿', t: 'Het plantje' }, { e: '🌷', t: 'De bloem' }] },

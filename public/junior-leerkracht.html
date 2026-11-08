@@ -18,7 +18,7 @@
   <div class="actions">
     <button class="secondary pauze-knop" data-pauze title="Alle tablets op slot om de aandacht te vragen"><img src="/img/icons/pauze-klein.webp" alt=""> Pauze</button>
     <button class="secondary" id="jr-qr-knop" title="De QR-code waarmee de tablets verbinden"><i class="ic ic-qr"></i> QR-code</button>
-    <button class="secondary icon" id="jr-stem-knop" title="Voorlezen op het bord aan of uit" aria-label="Voorlezen aan of uit">🔊</button>
+    <button class="secondary icon" id="jr-stem-knop" title="Al het geluid op het bord aan of uit: stem, muziek en geluidjes" aria-label="Geluid aan of uit">🔊</button>
     <button class="secondary icon" id="jr-muziek-knop" title="Zachte muziek op het bord aan of uit" aria-label="Muziek aan of uit">🎵</button>
     <button class="secondary" id="jr-inst-knop" title="Instellingen van LANcelot Junior">⚙️ Instellingen</button>
     <a class="button jr-wissel" id="jr-wissel" href="/host" title="Naar LANcelot (dezelfde klas, dezelfde gegevens)"><img src="/img/mark.webp" alt=""> LANcelot</a>
@@ -311,6 +311,20 @@
     <button class="secondary jr-kv-print" id="jr-kv-print" title="Een werkblad op papier met vragen uit dit spel"><img src="/img/junior/tools/icoon/print.webp" alt=""> Werkblad</button>
     <button class="secondary" id="jr-kv-annuleer">Annuleren</button>
     <button class="gold" id="jr-kv-start">Start</button>
+  </div>
+</dialog>
+
+<dialog class="jr-inst-venster jr-wb-venster" id="jr-wb-venster">
+  <h2><img src="/img/junior/tools/icoon/print.webp" alt=""> Werkblad</h2>
+  <div class="jr-wb-keuzes">
+    <div><p class="jr-kv-label">Aantal oefeningen</p><div class="jr-kv-keuzes" id="jr-wb-aantal"></div></div>
+    <label class="jr-wb-vink"><input type="checkbox" id="jr-wb-sleutel"> Verbetersleutel erbij</label>
+    <button type="button" class="secondary" id="jr-wb-nieuw">🎲 Andere oefeningen</button>
+  </div>
+  <div class="jr-wb-scroll"><div class="jr-printblad werkblad jr-wb-voorbeeld" id="jr-wb-voorbeeld" data-geen-vertaling></div></div>
+  <div class="actions">
+    <button class="secondary" id="jr-wb-annuleer">Annuleren</button>
+    <button class="gold" id="jr-wb-print">Afdrukken</button>
   </div>
 </dialog>
 

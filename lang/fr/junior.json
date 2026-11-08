@@ -578,5 +578,10 @@
  "$ Dollar": "$ Dollar",
  "£ Pond": "£ Livre",
  "usd/": null,
- "geld/{0}{1}": null
+ "geld/{0}{1}": null,
+ "Verbetersleutel erbij": "Ajouter le corrigé",
+ "🎲 Andere oefeningen": "🎲 Autres exercices",
+ "Verbetersleutel": "Corrigé",
+ "Al het geluid op het bord aan of uit: stem, muziek en geluidjes": "Activer ou couper tout le son au tableau : voix, musique et bruitages",
+ "Geluid aan of uit": "Son activé ou coupé"
 }

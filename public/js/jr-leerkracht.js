@@ -207,50 +207,91 @@ for (const b of $('jr-kv-manieren').children) {
 }
 $('jr-kv-annuleer').addEventListener('click', () => $('jr-kies-venster').close());
 // ---------- Werkblad: vragen uit het gekozen spel op papier (A4) ----------
+// Elke maker geeft het blad (k = false) of de verbetersleutel (k = true) met het juiste antwoord aangeduid.
+const goed = (k, ja) => (k && ja ? ' wb-goed' : '');
 const WB = {
-  kies: v => ({ doe: 'Kleur het juiste antwoord.', html: `<div class="wb-rij">${v.opties.map(o => `<span class="wb-ding">${o.html}</span>`).join('')}</div>` }),
-  tikAlle: v => ({ doe: 'Kleur alles wat past.', html: `<div class="wb-rij wb-veel">${v.items.map(i => `<span class="wb-ding">${i.html}</span>`).join('')}</div>` }),
-  tikAantal: v => ({ doe: 'Kleur er zoveel als gevraagd.', html: `<div class="wb-rij wb-veel">${v.items.map(i => `<span class="wb-ding">${i.html}</span>`).join('')}</div>` }),
-  volgorde: (v, i) => {
+  kies: (v, i, k) => ({ doe: 'Kleur het juiste antwoord.', html: `<div class="wb-rij">${v.opties.map(o => `<span class="wb-ding${goed(k, o.juist)}">${o.html}</span>`).join('')}</div>` }),
+  tikAlle: (v, i, k) => ({ doe: 'Kleur alles wat past.', html: `<div class="wb-rij wb-veel">${v.items.map(x => `<span class="wb-ding${goed(k, x.doel)}">${x.html}</span>`).join('')}</div>` }),
+  tikAantal: (v, i, k) => ({ doe: 'Kleur er zoveel als gevraagd.', html: `<div class="wb-rij wb-veel">${v.items.map((x, j) => `<span class="wb-ding${goed(k, j < v.aantal)}">${x.html}</span>`).join('')}</div>` }),
+  volgorde: (v, i, k) => {
     const r = Junior.toeval(v.kaarten.length * 31 + 7 + i * 101);
-    return { doe: 'Schrijf 1, 2, 3 ... in de goede volgorde.', html: `<div class="wb-rij">${r.schud(v.kaarten).map(k => `<span class="wb-ding wb-kaart">${k.html}<i class="wb-hokje"></i></span>`).join('')}</div>` };
+    return { doe: 'Schrijf 1, 2, 3 ... in de goede volgorde.', html: `<div class="wb-rij">${r.schud(v.kaarten).map(x => `<span class="wb-ding wb-kaart">${x.html}<i class="wb-hokje">${k ? x.plek + 1 : ''}</i></span>`).join('')}</div>` };
   },
   // Het splitshuis: het getal op het dak, links de draakjes die er al zijn, rechts tekenen en schrijven.
-  sleepAantal: v => ({ doe: 'Teken wat er nog bij moet en schrijf het getal.', html: `<div class="wb-huis"><b class="wb-dak">${v.totaal}</b><div class="wb-kamers"><span>${'●'.repeat(v.vast).replace(/(●{5})/g, '$1 ')}<b>${v.vast}</b></span><span><i class="wb-hokje"></i></span></div></div>` }),
-  sorteer: v => ({ doe: 'Trek een lijn naar de goede mand.', html: `<div class="wb-sorteer"><div class="wb-kolom">${v.items.map(i => `<span class="wb-ding">${i.html}<i class="wb-punt"></i></span>`).join('')}</div><div class="wb-kolom wb-manden">${v.manden.map(m => `<span class="wb-ding wb-mand"><i class="wb-punt"></i>${m.html}</span>`).join('')}</div></div>` }),
+  sleepAantal: (v, i, k) => ({ doe: 'Teken wat er nog bij moet en schrijf het getal.', html: `<div class="wb-huis"><b class="wb-dak">${v.totaal}</b><div class="wb-kamers"><span>${'●'.repeat(v.vast).replace(/(●{5})/g, '$1 ')}<b>${v.vast}</b></span><span>${k ? `<em class="wb-sl-tekening">${'●'.repeat(v.doel).replace(/(●{5})/g, '$1 ')}</em>` : ''}<i class="wb-hokje">${k ? v.doel : ''}</i></span></div></div>` }),
+  // Sorteren: in de sleutel staat bij elk prentje het nummer van zijn mand.
+  sorteer: (v, i, k) => {
+    const nr = id => v.manden.findIndex(m => m.id === id) + 1;
+    return { doe: 'Trek een lijn naar de goede mand.', html: `<div class="wb-sorteer"><div class="wb-kolom">${v.items.map(x => `<span class="wb-ding">${x.html}${k ? `<em class="wb-sl">${nr(x.mand)}</em>` : ''}<i class="wb-punt"></i></span>`).join('')}</div><div class="wb-kolom wb-manden">${v.manden.map((m, j) => `<span class="wb-ding wb-mand"><i class="wb-punt"></i>${m.html}${k ? `<em class="wb-sl">${j + 1}</em>` : ''}</span>`).join('')}</div></div>` };
+  },
 };
-function werkblad() {
-  const s = J().spellen.find(x => x.id === gekozen.spel);
-  // Mijn naam gaat over de naam van elk kind: dat kan niet op één blad voor de hele klas.
-  if (!s || s.id === 'naam') return Ui.melding('Dit spel heeft nog geen werkblad. Kies een ander spel.');
+// De keuzes van de leerkracht: hoeveel oefeningen, met of zonder verbetersleutel. Onthouden op dit toestel.
+const wb = { aantal: 6, sleutel: true, start: 0, spel: null };
+try { Object.assign(wb, JSON.parse(localStorage.getItem('jr-werkblad') || '{}'), { start: 0, spel: null }); } catch {}
+const WB_AANTAL = [4, 6, 8, 10, 12];
+function wbVragen(aantal) {
   const vragen = [];
   const gezien = new Set();
-  const start = Math.floor(Math.random() * 1e6);
-  // Eerst zes verschillende vragen; zijn er maar weinig (een korte reeks), dan mogen ze terugkomen.
-  for (let i = 0; i < 400 && vragen.length < 6; i++) {
+  // Eerst verschillende vragen; zijn er maar weinig (een korte reeks), dan mogen ze terugkomen.
+  for (let i = 0; i < 600 && vragen.length < aantal; i++) {
     let v = null;
-    try { v = Junior.vraag(gekozen.spel, gekozen.niveau, Junior.toeval(start + i * 7919)); } catch { v = null; }
+    try { v = Junior.vraag(gekozen.spel, gekozen.niveau, Junior.toeval(wb.start + i * 7919)); } catch { v = null; }
     if (!v || !WB[v.soort]) continue;
-    const zeg = (v.zeg || []).filter(z => typeof z === 'string').join(' ');
+    const zeg = (v.zeg || []).filter(z => typeof z === 'string' || typeof z === 'number').join(' ');
     const sleutel = (v.kop || '') + zeg + JSON.stringify(v.opties || v.items || v.kaarten || '');
-    if (gezien.has(sleutel) && (i < 200 || gezien.size >= 3)) continue;
+    if (gezien.has(sleutel) && (i < 300 || gezien.size >= 3)) continue;
     gezien.add(sleutel);
-    vragen.push({ v, zeg, ...WB[v.soort](v, i) });
+    vragen.push({ v, zeg, i });
   }
-  if (!vragen.length) return Ui.melding('Dit spel heeft nog geen werkblad. Kies een ander spel.');
+  return vragen;
+}
+function wbBlad(s, vragen, k) {
   const niv = s.id === 'eigen' ? ((sets[gekozen.niveau] || {}).naam || '') : (s.niveaus || [])[gekozen.niveau] || '';
   // Het printblad vertaalt zichzelf niet (de inhoud is al in de taal van Junior): de vaste woorden hier wel.
   const t = x => (window.I18n ? I18n.t(x) : x);
+  const rechts = k ? `<span class="wb-naam wb-sleutel-kop">${t('Verbetersleutel')}</span>` : `<span class="wb-naam">${t('Naam:')} <i></i></span>`;
+  return `<div class="wb-blad${k ? ' wb-sleutel' : ''}"><header class="wb-kop"><img src="${draakImg()}" alt=""><div><h1>${Junior.esc(s.naam)}</h1><p>${Junior.esc(niv)}</p></div>${rechts}</header>
+    <div class="wb-vragen">${vragen.map((q, n) => { const w = WB[q.v.soort](q.v, q.i, k); return `<section class="wb-vraag"><p class="wb-doe"><b>${n + 1}</b> <span>${t(w.doe)}</span></p><p class="wb-zeg">🔊 ${Junior.esc(q.zeg)}</p><div class="wb-inhoud">${q.v.kop ? `<div class="wb-vk">${q.v.kop}</div>` : ''}${q.v.scene ? `<div class="wb-scene">${q.v.scene}</div>` : ''}${w.html}</div></section>`; }).join('')}</div>
+    <footer class="wb-voet">LANcelot Junior</footer></div>`;
+}
+function wbToon() {
+  const s = J().spellen.find(x => x.id === gekozen.spel);
+  const vragen = wbVragen(wb.aantal);
+  for (const b of $('jr-wb-aantal').children) b.classList.toggle('aan', +b.dataset.n === wb.aantal);
+  $('jr-wb-sleutel').checked = wb.sleutel;
+  $('jr-wb-voorbeeld').innerHTML = vragen.length ? wbBlad(s, vragen, false) + (wb.sleutel ? wbBlad(s, vragen, true) : '') : '';
+  $('jr-wb-print').disabled = !vragen.length;
+}
+function werkblad() {
+  const s = J().spellen.find(x => x.id === gekozen.spel);
+  // Mijn naam gaat over de naam van elk kind: dat kan niet op één blad voor de hele klas.
+  if (!s || s.id === 'naam' || !wbVragen(1).length) return Ui.melding('Dit spel heeft nog geen werkblad. Kies een ander spel.');
+  // Hetzelfde spel en niveau opnieuw: dezelfde oefeningen (tot je op Andere oefeningen tikt).
+  const wie = `${gekozen.spel}/${gekozen.niveau}`;
+  if (wb.spel !== wie || !wb.start) { wb.spel = wie; wb.start = 1 + Math.floor(Math.random() * 1e6); }
+  $('jr-kies-venster').close();
+  $('jr-wb-venster').showModal();
+  wbToon();
+}
+const wbBewaar = () => { try { localStorage.setItem('jr-werkblad', JSON.stringify({ aantal: wb.aantal, sleutel: wb.sleutel })); } catch {} };
+$('jr-wb-aantal').innerHTML = WB_AANTAL.map(n => `<button type="button" data-n="${n}">${n}</button>`).join('');
+$('jr-wb-aantal').addEventListener('click', e => {
+  const b = e.target.closest('button');
+  if (!b) return;
+  wb.aantal = +b.dataset.n; wbBewaar(); wbToon();
+});
+$('jr-wb-sleutel').addEventListener('change', () => { wb.sleutel = $('jr-wb-sleutel').checked; wbBewaar(); wbToon(); });
+$('jr-wb-nieuw').addEventListener('click', () => { wb.start = 1 + Math.floor(Math.random() * 1e6); wbToon(); });
+$('jr-wb-annuleer').addEventListener('click', () => $('jr-wb-venster').close());
+$('jr-wb-print').addEventListener('click', () => {
   const blad = $('jr-printblad');
   blad.classList.remove('diploma');
   blad.classList.add('werkblad');
-  blad.innerHTML = `<div class="wb-blad"><header class="wb-kop"><img src="${draakImg()}" alt=""><div><h1>${Junior.esc(s.naam)}</h1><p>${Junior.esc(niv)}</p></div><span class="wb-naam">${t('Naam:')} <i></i></span></header>
-    <div class="wb-vragen">${vragen.map((q, i) => `<section class="wb-vraag"><p class="wb-doe"><b>${i + 1}</b> <span>${t(q.doe)}</span></p><p class="wb-zeg">🔊 ${Junior.esc(q.zeg)}</p><div class="wb-inhoud">${q.v.kop ? `<div class="wb-vk">${q.v.kop}</div>` : ''}${q.v.scene ? `<div class="wb-scene">${q.v.scene}</div>` : ''}${q.html}</div></section>`).join('')}</div>
-    <footer class="wb-voet">LANcelot Junior</footer></div>`;
-  $('jr-kies-venster').close();
+  blad.innerHTML = $('jr-wb-voorbeeld').innerHTML;
+  $('jr-wb-venster').close();
   // Even wachten tot de prenten geladen zijn.
   Promise.all([...blad.querySelectorAll('img')].map(im => (im.complete ? 0 : new Promise(r => { im.onload = im.onerror = r; })))).then(() => setTimeout(() => window.print(), 100));
-}
+});
 $('jr-kv-print').addEventListener('click', werkblad);
 $('jr-kv-start').addEventListener('click', () => {
   try { sfx.unlock(); } catch {}
@@ -321,9 +362,15 @@ $('jr-inst-ai').addEventListener('submit', e => {
     $('jr-ai-stand').textContent = '✅ Bewaard.';
   });
 });
-const stemKnop = () => { $('jr-stem-knop').textContent = Junior.Stem.uit ? '🔇' : '🔊'; };
-$('jr-stem-knop').addEventListener('click', () => { Junior.Stem.uit = !Junior.Stem.uit; stemKnop(); });
-stemKnop();
+// 🔊 is AL het geluid op het bord: het draakje, de muziek en de geluidjes. 🎵 is alleen de muziek.
+const stemKnop = () => {
+  const uit = Junior.Stem.uit;
+  $('jr-stem-knop').textContent = uit ? '🔇' : '🔊';
+  JrMuziek.stil = uit;
+  try { if (sfx.muted !== uit) sfx.toggle(); } catch {}
+  $('jr-muziek-knop').disabled = uit;
+};
+$('jr-stem-knop').addEventListener('click', () => { Junior.Stem.uit = !Junior.Stem.uit; stemKnop(); muziek(); });
 // Zachte muziek op het bord: tijdens een spel, en in het hol, op het klaseiland en in het Toverdorp.
 const muziekKnop = () => { $('jr-muziek-knop').classList.toggle('uit', !JrMuziek.aan); $('jr-muziek-knop').style.opacity = JrMuziek.aan ? '' : '.45'; };
 function muziek() {
@@ -335,6 +382,7 @@ function muziek() {
 }
 $('jr-muziek-knop').addEventListener('click', () => { JrMuziek.aan = !JrMuziek.aan; muziekKnop(); muziek(); });
 muziekKnop();
+stemKnop();
 
 // ---------- De klas en hun dieren ----------
 function klas() {

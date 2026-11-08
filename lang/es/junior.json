@@ -578,5 +578,10 @@
  "$ Dollar": "$ Dólar",
  "£ Pond": "£ Libra",
  "usd/": null,
- "geld/{0}{1}": null
+ "geld/{0}{1}": null,
+ "Verbetersleutel erbij": "Añadir solucionario",
+ "🎲 Andere oefeningen": "🎲 Otros ejercicios",
+ "Verbetersleutel": "Solucionario",
+ "Al het geluid op het bord aan of uit: stem, muziek en geluidjes": "Activar o desactivar todo el sonido en la pizarra: voz, música y efectos",
+ "Geluid aan of uit": "Sonido sí o no"
 }
