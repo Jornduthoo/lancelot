@@ -420,8 +420,11 @@ $('jr-raadsel-knop').addEventListener('click', () => {
   draak.addEventListener('contextmenu', e => e.preventDefault());
 }
 
-socket.on('connect', () => {
+// Was de tablet even weg (slaapstand, wifi): het oude spel niet tonen tot we weten wat er nu loopt.
+// Anders zie je eerst nog het vorige spel als de leerkracht intussen een nieuw spel startte.
+function bijwerken() {
   socket.emit('jr-get', null, res => {
+    document.body.classList.remove('jr-los');
     if (!res) return;
     kinderen = res.kinderen || [];
     bezet = res.bezet || [];
@@ -433,6 +436,13 @@ socket.on('connect', () => {
     if (oud !== stand.seed) oudWeg();
     route();
   });
+}
+socket.on('connect', bijwerken);
+socket.on('disconnect', () => document.body.classList.add('jr-los'));
+let wegSinds = 0;
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) { wegSinds = Date.now(); return; }
+  if (wegSinds && Date.now() - wegSinds > 5000) { document.body.classList.add('jr-los'); if (socket.connected) bijwerken(); }
 });
 socket.on('jr-stand', s => {
   try { JrThema.zet(s && s.thema); } catch {}

@@ -561,7 +561,7 @@
 .jr-groepje i { width: .9em; height: .9em; border-radius: 50%; background: #e8590c; }
 /* Klokkentoren */
 .jr-klok { width: 8em; height: 8em; filter: drop-shadow(0 .2em .5em rgb(0 0 0 / .3)); }
-.jr-klok-cijfers text { font-family: var(--jr-schrift); font-weight: 800; font-size: 9px; text-anchor: middle; fill: var(--jr-inkt); }
+.jr-klok-cijfers text { font-family: var(--jr-schrift); font-weight: 800; font-size: 9px; text-anchor: middle; fill: #2b2340; }
 /* Geldmarkt */
 .jr-geld { display: flex; flex-wrap: wrap; gap: .4em; align-items: center; justify-content: center; max-width: 26em; background: rgb(var(--k-panel) / .85); border-radius: 1em; padding: .5em; }
 .jr-geld .jr-munt { width: 3.4em; }
@@ -1194,6 +1194,33 @@ button.jr-mini-draak:hover { transform: translateY(-2px); }
 .jr-printblad.werkblad .wb-ding .wb-punt { position: absolute; right: -2.5mm; width: 2.5mm; height: 2.5mm; border-radius: 50%; background: #000; }
 .jr-printblad.werkblad .wb-mand .wb-punt { right: auto; left: -2.5mm; }
 .jr-printblad.werkblad .wb-mand { min-width: 18mm; min-height: 18mm; }
+/* Papier: zwart op wit, geen donkere vlakken (inkt) en geen stenen achter de getallen. */
+.jr-printblad.werkblad .wb-blad { --jr-inkt: #000; --jr-paneel: #fff; --jr-rand: #000; --jr-lijn: #000; --jr-room: #fff; --k-tekst: 0 0 0; --k-panel: 255 255 255; --k-bg: 0 0 0; }
+.jr-printblad.werkblad .wb-blad .jr-som, .jr-printblad.werkblad .wb-blad .jr-vraagkaart { background: #fff; color: #000; border: 1.5px solid #000; box-shadow: none; white-space: nowrap; font-size: 2.2em; }
+.jr-printblad.werkblad .wb-blad .jr-vraagkaart { font-size: 1.2em; white-space: normal; }
+.jr-printblad.werkblad .wb-blad .jr-groepje { background: #fff; border: 1px solid #000; box-shadow: none; }
+.jr-printblad.werkblad .wb-blad .jr-steen { display: none; }
+.jr-printblad.werkblad .wb-blad .jr-op-steen { color: #000; text-shadow: none; }
+.jr-printblad.werkblad .wb-blad .jr-getal { color: #000; font-size: 2em; }
+.jr-printblad.werkblad .wb-blad .jr-vorm-lijn svg * { stroke: #000; }
+/* De sleutel: het juiste antwoord groen omcirkeld, nummers ingevuld. Op papier een nieuwe bladzijde. */
+.jr-printblad.werkblad .wb-sleutel { break-before: page; }
+.jr-printblad.werkblad .wb-sleutel-kop { font-weight: 800; color: #2f9e44; }
+.jr-printblad.werkblad .wb-goed { border: 1.2mm solid #2f9e44 !important; background: rgb(47 158 68 / .14); border-radius: 50%; }
+.jr-printblad.werkblad .wb-sleutel .wb-hokje { display: grid; place-items: center; font-style: normal; font-weight: 800; font-size: 11pt; color: #2f9e44; }
+.jr-printblad.werkblad .wb-sl { position: absolute; top: -2mm; left: -2mm; width: 5mm; height: 5mm; border-radius: 50%; background: #2f9e44; color: #fff; font: 800 8pt/5mm 'Exo 2', sans-serif; text-align: center; }
+.jr-printblad.werkblad .wb-sl-tekening { color: #2f9e44; font-style: normal; letter-spacing: .5mm; margin-bottom: 8mm; }
+/* Het venster met de keuzes en een voorbeeld van het blad op schermgrootte. */
+.jr-wb-venster h2 { display: flex; align-items: center; gap: 10px; }
+.jr-wb-venster h2 img { width: 1.4em; height: 1.4em; object-fit: contain; }
+.jr-wb-keuzes { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px 24px; margin-bottom: 12px; }
+.jr-wb-vink { display: flex; align-items: center; gap: 8px; font-weight: 700; padding-bottom: 8px; cursor: pointer; }
+.jr-wb-vink input { width: 22px; height: 22px; accent-color: #f0a500; }
+.jr-wb-scroll { max-height: 52vh; overflow: auto; border-radius: 14px; background: rgb(0 0 0 / .25); padding: 12px; }
+.jr-printblad.jr-wb-voorbeeld { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 0; }
+.jr-wb-voorbeeld .wb-blad { width: 190mm; box-sizing: border-box; padding: 8mm; background: #fff; color: #000; font-family: 'Exo 2', sans-serif; font-size: 11pt; zoom: .55; border-radius: 3mm; }
+@media (max-width: 760px) { .jr-wb-voorbeeld .wb-blad { zoom: .4; } }
+@media print { .jr-wb-venster { display: none !important; } }
 .jr-printblad.werkblad .wb-voet { margin-top: 3mm; text-align: right; font-size: 8pt; color: #888; }
 
 /* Toverdorp: derde kaart, "waar hoort dit?" op de kaart en "draakje zegt" op een plek. */
@@ -1446,3 +1473,6 @@ html.jr-rustig .jr-doe-bel.plop, html.jr-rustig .jr-doe-ding.valt, html.jr-rusti
 .jr .jr-doe-bel:is(:hover, :active):not(:disabled), .jr-lk .jr-doe-bel:is(:hover, :active):not(:disabled) { transform: translate(-50%, -50%); }
 .jr .jr-doosveld .jr-tik:is(:hover, :active):not(:disabled) { transform: translate(-50%, -58%); }
 .jr-lk main button.jr-eb:is(:hover, :active):not(:disabled) { transform: translate(-50%, -85%); }
+
+/* De tablet was even weg: het oude spel verbergen tot de nieuwe stand er is. */
+body.jr-los #jr-vak, body.jr-los #jr-beurt { visibility: hidden; }

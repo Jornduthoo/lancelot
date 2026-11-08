@@ -193,6 +193,13 @@ module.exports = {
   ],
   reeksen: [
     { niveau: 0, items: [{ e: '🌅', t: 'Morning' }, { e: '☀️', t: 'Afternoon' }, { e: '🌇', t: 'Evening' }, { e: '🌙', t: 'Night' }] },
+    { niveau: 0, items: [{ e: '☁️', t: 'The cloud' }, { e: '🌧️', t: 'The rain' }, { e: '🌈', t: 'The rainbow' }] },
+    { niveau: 0, items: [{ e: '👶', t: 'The baby' }, { e: '🧒', t: 'The child' }, { e: '👵', t: 'Grandma' }] },
+    { niveau: 0, items: [{ e: '🌱', t: 'The seed' }, { e: '🌿', t: 'The little plant' }, { e: '🌻', t: 'The flower' }] },
+    { niveau: 0, items: [{ e: '🥚', t: 'The egg' }, { e: '🐣', t: 'The chick hatches' }, { e: '🐥', t: 'The little chick' }] },
+    { niveau: 0, items: [{ e: '🧦', t: 'Socks on' }, { e: '👟', t: 'Shoes on' }, { e: '🚶', t: 'Go outside' }] },
+    { niveau: 0, items: [{ e: '🛁', t: 'Bath time' }, { e: '🪥', t: 'Brush your teeth' }, { e: '😴', t: 'Sleep' }] },
+    { niveau: 0, items: [{ e: '🧱', t: 'The bricks' }, { e: '🏗️', t: 'Building' }, { e: '🏠', t: 'The house' }] },
     { niveau: 1, items: [{ e: '🛏️', t: 'Waking up' }, { e: '🥣', t: 'Breakfast' }, { e: '🎒', t: 'Going to school' }, { e: '🛁', t: 'Bath time' }, { e: '😴', t: 'Sleeping' }] },
     { niveau: 1, items: [{ e: '🥚', t: 'The egg' }, { e: '🐣', t: 'The chick hatches' }, { e: '🐥', t: 'The little chick' }, { e: '🐔', t: 'The hen' }] },
     { niveau: 1, items: [{ e: '🌱', t: 'The seed' }, { e: '🌿', t: 'The little plant' }, { e: '🌷', t: 'The flower' }] },

@@ -5,6 +5,8 @@
 (function () {
   let ctx = null, meester = null, echo = null;
   let aan = true;
+  // stil: al het geluid op het bord staat uit (knop 🔊). Dan ook geen muziek, los van de muziekknop.
+  let stil = false;
   try { aan = localStorage.getItem('jr-muziek') !== '0'; } catch {}
   let lied = null; // { stappen, tempo, volgende, i, klok }
   const VOL = 0.05;
@@ -86,7 +88,7 @@
 
   window.JrMuziek = {
     speel(naam) {
-      if (!aan) return;
+      if (!aan || stil) return;
       if (lied && lied.naam === naam) return;
       this.stop();
       if (!audio()) return;
@@ -100,14 +102,14 @@
     },
     // Een vrolijk loopje naar boven, als het draakje groeit of de klas iets koopt.
     liedje() {
-      if (!aan || !audio()) return;
+      if (!aan || stil || !audio()) return;
       const t = ctx.currentTime + 0.05;
       [72, 76, 79, 84, 88, 91, 96].forEach((m, i) => noot(hz(m), t + i * 0.09, 0.6, 0.6, 'triangle'));
       noot(hz(60), t, 1.2, 0.4);
     },
     // Een eigen vrolijk feestdeuntje voor een verjaardag (geen bestaand liedje).
     feest() {
-      if (!aan || !audio()) return;
+      if (!aan || stil || !audio()) return;
       this.stop();
       const t = ctx.currentTime + 0.1;
       const mel = [67, 67, 69, 67, 72, 71, null, 67, 67, 69, 67, 74, 72, null, 67, 79, 76, 72, 71, 69, null, 77, 77, 76, 72, 74, 72];
@@ -116,7 +118,7 @@
     },
     // Een zachte klank die aanzwelt (inademen) of wegebt (uitademen), voor het rustmoment.
     adem(inademen, sec = 4) {
-      if (!aan || !audio()) return;
+      if (!aan || stil || !audio()) return;
       const t = ctx.currentTime + 0.05;
       for (const m of inademen ? [55, 62, 67] : [55, 60, 64]) {
         const o = ctx.createOscillator(), g = ctx.createGain();
@@ -130,6 +132,8 @@
         o.start(t); o.stop(t + sec + 0.1);
       }
     },
+    get stil() { return stil; },
+    set stil(v) { stil = !!v; if (stil) this.stop(); },
     get aan() { return aan; },
     set aan(v) {
       aan = !!v;
