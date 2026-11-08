@@ -9,7 +9,8 @@
   const st = { blokken: [], per: 4, mix: false, wie: 'klas', groot: false, naam: true, datum: true, zeg: true, smiley: true, stempel: false, sleutel: true, titel: '', start: 1 };
   try { Object.assign(st, JSON.parse(localStorage.getItem('jr-wbgen') || '{}')); } catch {}
   // Oude instelling 'groot' → maat. Klein = 3 per rij: zuinig met papier, vooral voor rekenen.
-  if (!st.maat) st.maat = st.groot ? 'groot' : 'normaal';
+  // Automatisch (standaard): oefeningen zonder prenten (rekenen) 3 per rij, met prenten 2 per rij.
+  if (st.maatV !== 2) { st.maat = 'auto'; st.maatV = 2; }
   if (!st.start) st.start = 1 + Math.floor(Math.random() * 1e6);
   const bewaar = () => { try { localStorage.setItem('jr-wbgen', JSON.stringify(st)); } catch {} };
   const spellen = () => (J().spellen || []).filter(s => !GEEN.includes(s.id) && !s.bordAlleen && (s.id !== 'naam' || st.wie === 'kind'));
@@ -25,7 +26,9 @@
       try { v = Junior.vraag(id, niv, Junior.toeval(zaad + i * 7919), kind || undefined, true); } catch { v = null; }
       if (!v || !WB[v.soort]) continue;
       const zeg = (v.zeg || []).filter(z => typeof z === 'string' || typeof z === 'number').join(' ');
-      const sl = (v.kop || '') + zeg + JSON.stringify(v.opties || v.items || v.kaarten || '');
+      // Dezelfde oefening met de antwoorden in een andere volgorde telt als dezelfde.
+      const sl = v.opties ? (v.kop || '') + zeg + (v.scene || '') + v.opties.filter(o => o.juist).map(o => o.html).join()
+        : (v.kop || '') + zeg + JSON.stringify((v.items || v.kaarten || []).map(o => JSON.stringify(o)).sort());
       if (gezien.has(sl) && i < 200) continue;
       gezien.add(sl);
       uit.push({ v, zeg, i, spel: id });
@@ -61,7 +64,9 @@
     const ws = q.map(x => WB[x.v.soort](x.v, x.i, k));
     // Dezelfde opdracht bij elke oefening? Dan staat ze één keer bovenaan.
     const samen = ws.length > 1 && ws.every(w => w.doe === ws[0].doe) ? ws[0].doe : '';
-    return `<div class="wb-blad${k ? ' wb-sleutel' : ''}${st.maat !== 'normaal' ? ' wb-' + st.maat : ''}"><header class="wb-kop">${kindBeeld}<div><h1>${esc(titel())}</h1><p>${esc(sub(kind))}</p></div>${rechts}</header>
+    const zonderPrent = q.every((x, n) => !/<img(?![^>]*jr-steen)|\p{Extended_Pictographic}/u.test(ws[n].html + (x.v.kop || '') + (x.v.scene || '')));
+    const maat = st.maat === 'auto' ? (zonderPrent ? 'klein' : 'normaal') : st.maat;
+    return `<div class="wb-blad${k ? ' wb-sleutel' : ''}${maat !== 'normaal' ? ' wb-' + maat : ''}"><header class="wb-kop">${kindBeeld}<div><h1>${esc(titel())}</h1><p>${esc(sub(kind))}</p></div>${rechts}</header>
       ${samen ? `<p class="wb-opdracht">${esc(t(samen))}</p>` : ''}
       <div class="wb-vragen">${q.map((x, n) => { const w = ws[n]; return `<section class="wb-vraag"><p class="wb-doe"><b>${n + 1}</b> <span>${samen ? '' : esc(t(w.doe))}</span>${st.smiley && !k ? '<span class="wb-smileys"><i>☺</i><i>😐</i><i>☹</i></span>' : ''}</p>${st.zeg ? `<p class="wb-zeg">🔊 ${esc(x.zeg)}</p>` : ''}<div class="wb-inhoud">${x.v.kop ? `<div class="wb-vk">${x.v.kop}</div>` : ''}${x.v.scene ? `<div class="wb-scene">${x.v.scene}</div>` : ''}${w.html}</div></section>`; }).join('')}</div>
       <footer class="wb-voet">${st.stempel && !k ? `<span class="wb-stempel">${esc(t('Sticker of stempel'))}</span>` : ''}<span>LANcelot Junior</span></footer></div>`;
@@ -96,7 +101,7 @@
       </section>
       <section class="jr-wbg-deel"><h3>4. ${esc(t('Opmaak'))}</h3>
         <label class="jr-wbg-titel">${esc(t('Titel'))} <input id="jr-wbg-titel" maxlength="40" value="${esc(st.titel)}" placeholder="${esc(titel())}"></label>
-        <div class="jr-kv-keuzes">${[['groot', 'Groot (1 per rij)'], ['normaal', 'Normaal (2 per rij)'], ['klein', 'Klein (3 per rij)']].map(([m, l]) => `<button type="button" data-maat="${m}" class="jr-eigen ${st.maat === m ? 'aan' : ''}">${esc(t(l))}</button>`).join('')}</div>
+        <div class="jr-kv-keuzes">${[['auto', 'Automatisch'], ['groot', 'Groot (1 per rij)'], ['normaal', 'Normaal (2 per rij)'], ['klein', 'Klein (3 per rij)']].map(([m, l]) => `<button type="button" data-maat="${m}" class="jr-eigen ${st.maat === m ? 'aan' : ''}">${esc(t(l))}</button>`).join('')}</div>
         <div class="jr-wbg-vinken">
           <label class="jr-wb-vink"><input type="checkbox" data-vink="naam" ${st.naam ? 'checked' : ''}> ${esc(t('Naamlijn'))}</label>
           <label class="jr-wb-vink"><input type="checkbox" data-vink="datum" ${st.datum ? 'checked' : ''}> ${esc(t('Datumlijn'))}</label>
