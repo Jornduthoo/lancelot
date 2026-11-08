@@ -827,9 +827,11 @@
       opties: v.opties.map((o, i) => ({ html: `${o.f ? `<img class="jr-foto" src="/junior/foto/${esc(o.f)}" alt="">` : o.e ? emoji(esc(o.e), 'jr-emoji-groot') : ''}${o.w ? `<span class="jr-optie-woord">${esc(o.w)}</span>` : ''}`, juist: i === v.juist })),
     };
   }
-  function vraag(spel, niveau, r, wie) {
+  // vast: altijd dezelfde vraag bij hetzelfde toeval (voor werkbladen: blad, sleutel en afdruk gelijk).
+  function vraag(spel, niveau, r, wie, vast) {
     const m = MAKERS[spel];
     if (!m) return null;
+    if (vast) return m(r, Number(niveau) || 0, wie || {});
     let v = null;
     const oud = recent[spel] || (recent[spel] = []);
     for (let i = 0; i < 8; i++) {
