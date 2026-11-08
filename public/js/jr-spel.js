@@ -139,7 +139,8 @@
       });
     }
     // delen: ['Hoeveel is', 3, 'plus', 4]. Heeft elk stukje een ingesproken bestand, dan die na elkaar.
-    async function zeg(delen) {
+    // los: elk stukje apart, met een korte pauze ertussen (ei ... bij ... hoera), anders loopt het in elkaar.
+    async function zeg(delen, { los = false } = {}) {
       stop();
       const mijn = beurt;
       const lijstDelen = (Array.isArray(delen) ? delen : [delen]).filter(d => d !== '' && d != null);
@@ -156,10 +157,20 @@
           }
           return;
         }
+        const rust = () => new Promise(r => setTimeout(r, 350));
         if (lijst && stukken.every(d => lijst[d])) {
           for (const d of stukken) {
             if (mijn !== beurt) return;
             await clip(lijst[d], mijn);
+            if (los) await rust();
+          }
+          return;
+        }
+        if (los) {
+          for (const d of stukken) {
+            if (mijn !== beurt) return;
+            await spreek(d, mijn);
+            await rust();
           }
           return;
         }
@@ -613,7 +624,7 @@
       const w = r.kies(pool);
       const max = niv === 0 ? 3 : 4;
       return {
-        soort: 'kies', zeg: [J().zin.klapVraag, w.w], herhaal: [w.w], na: [w.g || w.w],
+        soort: 'kies', zeg: [J().zin.klapVraag, w.w], herhaal: [w.w], na: [w.w, ...(w.g ? w.g.split(' - ') : [])],
         kop: `<span class="jr-klap-kop">${emoji(w.e, 'jr-emoji-reus')}${niv === 1 ? `<span class="jr-optie-woord">${esc(w.w)}</span>` : ''}</span>`,
         opties: Array.from({ length: max }, (_, i) => i + 1).map(n => ({ html: `<span class="jr-klappen">${'👏'.repeat(n)}</span><span class="jr-optie-woord">${n}</span>`, juist: n === w.n })),
       };
@@ -811,9 +822,54 @@
   }
 
   // wie: { naam } van het kind dat aan de beurt is (voor het spel Mijn naam).
+  // Niet twee keer (bijna) dezelfde vraag kort na elkaar: de laatste vier per spel worden onthouden.
+  const recent = {};
   function vraag(spel, niveau, r, wie) {
     const m = MAKERS[spel];
-    return m ? m(r, Number(niveau) || 0, wie || {}) : null;
+    if (!m) return null;
+    let v = null;
+    const oud = recent[spel] || (recent[spel] = []);
+    for (let i = 0; i < 8; i++) {
+      v = m(r, Number(niveau) || 0, wie || {});
+      if (!v || spel === 'raadsel') return v;
+      const sleutel = JSON.stringify(v.zeg || '') + (v.kop || '');
+      if (!oud.includes(sleutel) || i === 7) { oud.push(sleutel); if (oud.length > 4) oud.shift(); break; }
+    }
+    return v;
+  }
+
+  // ---------- Prenten in plaats van emoji (3D-prenten van Microsoft Fluent, MIT-licentie) ----------
+  // Elke emoji in een spel wordt een prent uit /img/junior/prent/<codepunten>.webp, op elk toestel dezelfde.
+  const PRENT = new Set('1f300 1f305 1f307 1f308 1f30a 1f311 1f319 1f31e 1f31f 1f327 1f32c 1f330 1f331 1f332 1f333 1f334 1f335 1f337 1f338 1f339 1f33b 1f33c 1f33d 1f33e 1f33f 1f341 1f342 1f344 1f345 1f346 1f347 1f349 1f34a 1f34c 1f34d 1f34e 1f34f 1f350 1f352 1f353 1f354 1f355 1f35d 1f35f 1f366 1f369 1f36a 1f36b 1f36c 1f36d 1f370 1f372 1f373 1f374 1f380 1f381 1f382 1f383 1f384 1f388 1f38a 1f392 1f39a 1f3a4 1f3a8 1f3a9 1f3ad 1f3ae 1f3b2 1f3b5 1f3b8 1f3b9 1f3ba 1f3bb 1f3be 1f3bf 1f3c0 1f3c3 1f3c5 1f3c8 1f3d0 1f3d4 1f3d6 1f3d7 1f3e0 1f3eb 1f3f0 1f3f9 1f404 1f407 1f409 1f40a 1f40c 1f40d 1f40e 1f411 1f413 1f414 1f415 1f416 1f418 1f419 1f41a 1f41d 1f41e 1f41f 1f420 1f422 1f423 1f425 1f426 1f427 1f42b 1f42c 1f42d 1f42e 1f42f 1f430 1f431 1f433 1f434 1f435 1f436 1f437 1f438 1f43b 1f43e 1f43f 1f442 1f444 1f44b 1f44f 1f451 1f454 1f455 1f456 1f457 1f45c 1f45e 1f45f 1f46e 1f475 1f476 1f477 1f47b 1f483 1f48b 1f48c 1f490 1f497 1f499 1f4a1 1f4a5 1f4aa 1f4c1 1f4c2 1f4cf 1f4d6 1f4da 1f4e2 1f4e6 1f4ef 1f4f7 1f4fa 1f507 1f50a 1f511 1f514 1f522 1f524 1f525 1f526 1f527 1f528 1f529 1f52a 1f534 1f535 1f537 1f54a 1f56f 1f576 1f577 1f58a 1f58c 1f58d 1f590 1f5bc 1f5d1 1f5e3 1f600 1f602 1f60a 1f60c 1f614 1f620 1f621 1f622 1f628 1f62e 1f633 1f634 1f642 1f648 1f64b 1f64c 1f64f 1f680 1f681 1f682 1f68c 1f692 1f693 1f697 1f69c 1f6a2 1f6a8 1f6aa 1f6b2 1f6b6 1f6c1 1f6cb 1f6cf 1f6d2 1f6d6 1f6df 1f6e2 1f6f6 1f6f7 1f7e1 1f7e2 1f7e5 1f7e6 1f7e8 1f7e9 1f917 1f91d 1f921 1f929 1f92b 1f941 1f944 1f952 1f954 1f955 1f95a 1f95b 1f95d 1f963 1f964 1f966 1f970 1f97e 1f980 1f981 1f982 1f985 1f986 1f987 1f988 1f989 1f98a 1f98b 1f98c 1f992 1f994 1f995 1f998 1f99c 1f99f 1f9a2 1f9a9 1f9ad 1f9b5 1f9b6 1f9c0 1f9c1 1f9c3 1f9c5 1f9ca 1f9d1-200d-1f33e 1f9d1-200d-1f373 1f9d1-200d-1f3a8 1f9d1-200d-1f3eb 1f9d1-200d-1f527 1f9d1-200d-1f680 1f9d1-200d-1f692 1f9d1-200d-2695 1f9d1-200d-2708 1f9d2 1f9e2 1f9e3 1f9e4 1f9e5 1f9e6 1f9e9 1f9ef 1f9f0 1f9f1 1f9f3 1f9f8 1f9f9 1f9fa 1f9fb 1f9fd 1fa71 1fa73 1fa74 1fa79 1fa7a 1fa80 1fa81 1fa86 1fa90 1fa93 1fa97 1fa9a 1fa9b 1fa9c 1faa3 1faa5 1faa8 1fab1 1fab6 1fad0 1fad1 1fae7 23f0 23f8 23f9 25b6 25c0 2600 2601 2602 2614 2615 2699 26bd 26c4 26c8 26ea 26f1 26fa 2705 2708 270b 270f 2728 2744 2764 2795 27a1 2b05 2b06 2b07 2b50 2b55'.split(' '));
+  const cpVan = e => [...e].filter(c => c !== '\ufe0f').map(c => c.codePointAt(0).toString(16)).join('-');
+  const EMOJI_RE = /\p{Extended_Pictographic}\ufe0f?(?:\u200d\p{Extended_Pictographic}\ufe0f?)*/gu;
+  function prenten(root) {
+    if (!root || !root.querySelectorAll) return root;
+    const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    const nodes = [];
+    while (w.nextNode()) if (EMOJI_RE.test(w.currentNode.nodeValue)) nodes.push(w.currentNode);
+    for (const n of nodes) {
+      EMOJI_RE.lastIndex = 0;
+      const tekst = n.nodeValue;
+      const frag = document.createDocumentFragment();
+      let i = 0;
+      for (const m of tekst.matchAll(EMOJI_RE)) {
+        const cp = cpVan(m[0]);
+        if (!PRENT.has(cp)) continue;
+        if (m.index > i) frag.appendChild(document.createTextNode(tekst.slice(i, m.index)));
+        const img = document.createElement('img');
+        img.className = 'jr-prent';
+        img.src = `/img/junior/prent/${cp}.webp`;
+        img.alt = m[0];
+        img.draggable = false;
+        frag.appendChild(img);
+        i = m.index + m[0].length;
+      }
+      if (i === 0) continue;
+      if (i < tekst.length) frag.appendChild(document.createTextNode(tekst.slice(i)));
+      n.parentNode.replaceChild(frag, n);
+    }
+    return root;
   }
 
   // ---------- Het speelveld ----------
@@ -888,7 +944,7 @@
       af = true;
       geluid('good');
       vak.classList.add('jr-gelukt');
-      await Stem.zeg([...(v.na || []), goedZin()]);
+      await Stem.zeg([...(v.na || []), goedZin()], { los: !!(v.na && v.na.length) });
       await new Promise(r => setTimeout(r, 350));
       vak.classList.remove('jr-gelukt');
       klaar(fouten === 0);
@@ -902,11 +958,15 @@
       return k;
     };
 
+    // Opties met een woord eronder worden na de vraag ook voorgelezen, één voor één (het knopje licht dan op).
+    const voorlees = [];
     if (v.soort === 'kies') {
       let loopt = false;
       const rij = knopRij(`${v.stenen ? 'jr-stenen' : ''} ${v.lijst ? 'jr-lijst' : ''} ${v.open ? 'jr-open' : ''}`);
       for (const o of v.opties) {
         const k = el('button', 'jr-optie', o.html);
+        const woord = k.querySelector('.jr-optie-woord');
+        voorlees.push({ k, tekst: woord ? woord.textContent.trim() : '' });
         k.type = 'button';
         k.addEventListener('click', () => {
           if (af || k.disabled || loopt) return;
@@ -1115,7 +1175,20 @@
       }
       veld.appendChild(sc);
     }
-    Stem.zeg(v.zeg);
+    prenten(veld);
+    if (voorlees.length > 1 && voorlees.every(x => x.tekst)) {
+      (async () => {
+        await Stem.zeg(v.zeg);
+        for (const { k, tekst } of voorlees) {
+          if (af || Stem.uit) return;
+          await new Promise(r => setTimeout(r, 250));
+          if (af) return;
+          k.classList.add('jr-leest');
+          await Stem.zeg([tekst]);
+          k.classList.remove('jr-leest');
+        }
+      })();
+    } else Stem.zeg(v.zeg);
     if (vak._pas) {
       vak._pas();
       for (const img of veld.querySelectorAll('img')) if (!img.complete) img.addEventListener('load', vak._pas, { once: true });
@@ -1158,5 +1231,5 @@
     else addEventListener('resize', pas);
   }
 
-  window.Junior = { Stem, toeval, vraag, speel, schaal, beeld, emoji, esc, MAKERS, minder, niveauVoor, get rustig() { return rustig; }, set rustig(v) { zetRustig(v); } };
+  window.Junior = { Stem, toeval, vraag, speel, schaal, beeld, emoji, esc, prenten, MAKERS, minder, niveauVoor, get rustig() { return rustig; }, set rustig(v) { zetRustig(v); } };
 })();

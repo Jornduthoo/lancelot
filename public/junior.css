@@ -1495,3 +1495,8 @@ html.jr-rustig .jr-doe-bel.plop, html.jr-rustig .jr-doe-ding.valt, html.jr-rusti
 
 /* De tablet was even weg: het oude spel verbergen tot de nieuwe stand er is. */
 body.jr-los #jr-vak, body.jr-los #jr-beurt { visibility: hidden; }
+
+/* Prenten in plaats van emoji (3D, op elk toestel dezelfde). Ze nemen de grootte van de tekst aan. */
+.jr-prent { width: 1.15em; height: 1.15em; object-fit: contain; vertical-align: -.2em; display: inline-block; pointer-events: none; -webkit-user-drag: none; user-select: none; }
+/* Het knopje dat het draakje nu voorleest. */
+.jr .jr-optie.jr-leest { box-shadow: 0 0 0 .2em var(--jr-goud), 0 0 1em rgb(255 201 74 / .6); }
