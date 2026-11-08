@@ -20,13 +20,15 @@ function slug(text, fallback) {
 }
 
 // kind: 'quiz', 'oefenblad', 'sessie' of 'proef' (een toets). checkFile, load, save, validate en list komen uit de module zelf.
-function library({ kind, dir, checkFile, load, save, validate, list }) {
-  const META = path.join(dir, '_mappen.json');
+// dir mag ook een functie zijn (de resultaten: elke klas haar eigen map).
+function library({ kind, dir: map, checkFile, load, save, validate, list }) {
+  const dir = () => (typeof map === 'function' ? map() : map);
+  const META = () => path.join(dir(), '_mappen.json');
   const words = KINDS[kind];
 
   function readMeta() {
     try {
-      const meta = JSON.parse(fs.readFileSync(META, 'utf8'));
+      const meta = JSON.parse(fs.readFileSync(META(), 'utf8'));
       const out = { folders: Array.isArray(meta.folders) ? meta.folders.filter(f => typeof f === 'string') : [], place: meta.place && typeof meta.place === 'object' ? meta.place : {} };
       if (Array.isArray(meta.gezien)) out.gezien = meta.gezien.filter(f => typeof f === 'string');
       return out;
@@ -36,8 +38,8 @@ function library({ kind, dir, checkFile, load, save, validate, list }) {
   }
 
   function writeMeta(meta) {
-    fs.mkdirSync(dir, { recursive: true });
-    fs.writeFileSync(META, JSON.stringify(meta, null, 2) + '\n');
+    fs.mkdirSync(dir(), { recursive: true });
+    fs.writeFileSync(META(), JSON.stringify(meta, null, 2) + '\n');
   }
 
   // Mappen kunnen in mappen zitten. Een map is een pad: "Wiskunde/Breuken".
@@ -176,7 +178,7 @@ function library({ kind, dir, checkFile, load, save, validate, list }) {
   // Zo is een verkeerde klik nooit meteen weg. Geeft het aantal verwijderde bestanden terug.
   function trash(files) {
     const paths = files.map(checkFile);
-    const bin = path.join(dir, '_prullenbak');
+    const bin = path.join(dir(), '_prullenbak');
     fs.mkdirSync(bin, { recursive: true });
     const now = Date.now();
     for (const old of fs.readdirSync(bin)) {

@@ -17,9 +17,9 @@ const quizzes = require('./quizzes');
 const zonnewijzer = require('./zonnewijzer');
 const { NAMES } = require('./niveaus');
 
-const DIR = gegevens.pad('taken');
-const FILE = path.join(DIR, 'taken.json');
-const PLAN = path.join(DIR, 'plan');
+const DIR = () => gegevens.pad('taken');
+const FILE = () => path.join(DIR(), 'taken.json');
+const PLAN = () => path.join(DIR(), 'plan');
 const MAX = 80; // daarboven vallen de oudste afgesloten taken weg
 const SAVE_MS = 1000;
 // Tegen gokken bij meteen verbeteren, zoals bij het oefenblad live: na een fout keuzeantwoord even wachten.
@@ -41,7 +41,7 @@ let data = null;
 function all() {
   if (data) return data;
   try {
-    const raw = JSON.parse(fs.readFileSync(FILE, 'utf8'));
+    const raw = JSON.parse(fs.readFileSync(FILE(), 'utf8'));
     data = Array.isArray(raw.taken) ? raw.taken : [];
   } catch {
     data = [];
@@ -60,9 +60,9 @@ function flush() {
   saveTimer = null;
   if (!data) return;
   try {
-    fs.mkdirSync(DIR, { recursive: true });
-    fs.writeFileSync(FILE + '.tmp', JSON.stringify({ taken: data }) + '\n');
-    fs.renameSync(FILE + '.tmp', FILE);
+    fs.mkdirSync(DIR(), { recursive: true });
+    fs.writeFileSync(FILE() + '.tmp', JSON.stringify({ taken: data }) + '\n');
+    fs.renameSync(FILE() + '.tmp', FILE());
   } catch (err) {
     console.error('Taken bewaren mislukt:', err.message);
   }
@@ -99,6 +99,9 @@ function niveauVoor(soort, inhoud, vak, naam) {
   const er = niveausVan(soort, inhoud);
   return er.includes(n) ? n : er.includes('schildknaap') ? 'schildknaap' : er[0];
 }
+
+// Een andere klas gekozen: eerst alles wegschrijven, dan vergeten (de nieuwe klas leest haar eigen bestanden).
+gegevens.voorKlasWissel(() => { flush(); data = null; });
 
 // Het blad op één niveau, met velden en een vaste volgorde bij verbinden (per taak en niveau).
 const bladen = new Map();
@@ -223,13 +226,13 @@ function bewaarNieuw(t) {
 // De taak zoals ze gegeven werd: wat, voor wie en hoe. Geen antwoorden, geen voortgang.
 function planBewaar(t) {
   try {
-    fs.mkdirSync(PLAN, { recursive: true });
+    fs.mkdirSync(PLAN(), { recursive: true });
     const plan = {
       id: t.id, soort: t.soort, file: t.file, titel: t.titel, vak: t.vak, feedback: t.feedback, gemaakt: t.gemaakt,
       spel: t.spel || null, minuten: t.minuten || null, niveau: t.niveau || null, les: t.les || null,
       namen: Object.values(t.werk).map(w => w.naam), inhoud: t.inhoud,
     };
-    fs.writeFileSync(path.join(PLAN, `${t.id}.json`), JSON.stringify(plan) + '\n');
+    fs.writeFileSync(path.join(PLAN(), `${t.id}.json`), JSON.stringify(plan) + '\n');
     t.plan = true;
   } catch (err) {
     console.error('Taak voor de lesmap bewaren mislukt:', err.message);
@@ -237,7 +240,7 @@ function planBewaar(t) {
 }
 
 function planWeg(id) {
-  try { fs.unlinkSync(path.join(PLAN, `${id}.json`)); } catch {}
+  try { fs.unlinkSync(path.join(PLAN(), `${id}.json`)); } catch {}
 }
 
 function planGeldig(p) {
@@ -250,12 +253,12 @@ function planGeldig(p) {
 // Geeft terug of er iets veranderde.
 function uitLesmap() {
   let plannen = [];
-  try { plannen = fs.readdirSync(PLAN).filter(n => /^[a-z0-9]+\.json$/.test(n)); } catch {}
+  try { plannen = fs.readdirSync(PLAN()).filter(n => /^[a-z0-9]+\.json$/.test(n)); } catch {}
   const ids = new Set();
   let veranderd = false;
   for (const naam of plannen) {
     let p;
-    try { p = JSON.parse(fs.readFileSync(path.join(PLAN, naam), 'utf8')); planGeldig(p); } catch { continue; }
+    try { p = JSON.parse(fs.readFileSync(path.join(PLAN(), naam), 'utf8')); planGeldig(p); } catch { continue; }
     if (`${p.id}.json` !== naam) continue;
     ids.add(p.id);
     let t = all().find(x => x.id === p.id);
@@ -577,4 +580,4 @@ function soloAntwoord({ id, naam, i, keuze, juist } = {}) {
   return { klaar, ...voortgang(t, w) };
 }
 
-module.exports = { lesVan, PLAN, planGeldig, uitLesmap, SOLO, MINUTEN, soloRonde, soloAntwoord, voorbeeld, inhoud, maak, voegToe, haalWeg, zetNiveau, sluit, heropen, wis, lijst, detail, mijn, aantal, open, antwoord, inleveren, quizAntwoord, flush, DIR };
+module.exports = { lesVan, get PLAN() { return PLAN(); }, planGeldig, uitLesmap, SOLO, MINUTEN, soloRonde, soloAntwoord, voorbeeld, inhoud, maak, voegToe, haalWeg, zetNiveau, sluit, heropen, wis, lijst, detail, mijn, aantal, open, antwoord, inleveren, quizAntwoord, flush, get DIR() { return DIR(); } };

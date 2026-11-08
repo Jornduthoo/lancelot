@@ -2,6 +2,7 @@
 // Op het bord speelt de klas in 4 kleurteams. Met tablets ziet de leerkracht live wie speelt en wie al geweest is.
 // De knop LANcelot in de titelbalk brengt je terug naar LANcelot: dezelfde klas, dezelfde gegevens.
 const socket = io({ query: { role: 'host' } });
+KlasKiezer.start(socket, document.getElementById('klaskiezer'));
 const $ = id => document.getElementById(id);
 const J = () => window.JR || { zin: {}, spellen: [] };
 const GROEPEN = [['getallen', '🔢 Getallen en rekenen'], ['meten', '📏 Meten en tijd'], ['meetkunde', '🔷 Vormen en ruimte'], ['taal', '🔤 Taal en klanken'], ['wereld', '🌍 De wereld'], ['samen', '💃 Samen en gevoel'], ['eigen', '✨ Mijn eigen vragen']];

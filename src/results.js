@@ -5,7 +5,7 @@ const gegevens = require('./gegevens');
 const { TYPE_NAMES } = require('./rondetafel');
 const { library } = require('./library');
 
-const DIR = gegevens.pad('resultaten');
+const DIR = () => gegevens.pad('resultaten');
 const LETTERS = ['A', 'B', 'C', 'D'];
 
 // Puntkomma als scheidingsteken, zoals Excel in België verwacht.
@@ -37,11 +37,11 @@ function stamp(now) {
 function write(now, slug, lines) {
   const date = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
   const time = `${pad(now.getHours())}${pad(now.getMinutes())}`;
-  fs.mkdirSync(DIR, { recursive: true });
+  fs.mkdirSync(DIR(), { recursive: true });
   let file = `${date}_${time}_${slug}.csv`;
-  for (let i = 2; fs.existsSync(path.join(DIR, file)); i++) file = `${date}_${time}_${slug}-${i}.csv`;
+  for (let i = 2; fs.existsSync(path.join(DIR(), file)); i++) file = `${date}_${time}_${slug}-${i}.csv`;
   // BOM zodat Excel de é's en ë's goed toont.
-  fs.writeFileSync(path.join(DIR, file), '\ufeff' + lines.join('\r\n') + '\r\n');
+  fs.writeFileSync(path.join(DIR(), file), '\ufeff' + lines.join('\r\n') + '\r\n');
   return file;
 }
 
@@ -119,15 +119,15 @@ function saveRondeTafel(rt) {
 }
 
 function list() {
-  if (!fs.existsSync(DIR)) return [];
-  return fs.readdirSync(DIR).filter(f => f.endsWith('.csv')).sort().reverse();
+  if (!fs.existsSync(DIR())) return [];
+  return fs.readdirSync(DIR()).filter(f => f.endsWith('.csv')).sort().reverse();
 }
 
 function filePath(file) {
   if (typeof file !== 'string' || path.basename(file) !== file || !file.endsWith('.csv')) {
     throw new Error('Ongeldige bestandsnaam.');
   }
-  return path.join(DIR, file);
+  return path.join(DIR(), file);
 }
 
 // De eerste regel van elk bestand: de soort (Quiz, Toets, Oefenblad, een spel) en de titel. Bestanden veranderen niet, dus één keer lezen.
@@ -137,7 +137,7 @@ function kop(file) {
   let soort = '';
   let title = file.replace(/\.csv$/, '').replace(/^\d{4}-\d\d-\d\d_\d{4}_/, '').replace(/-/g, ' ');
   try {
-    const fd = fs.openSync(path.join(DIR, file), 'r');
+    const fd = fs.openSync(path.join(DIR(), file), 'r');
     const buf = Buffer.alloc(600);
     const n = fs.readSync(fd, buf, 0, buf.length, 0);
     fs.closeSync(fd);
@@ -548,4 +548,4 @@ function saveProef(rec, standVan) {
   return write(now, `toets-${slugOf(rec.title)}`, lines);
 }
 
-module.exports = { saveProef, save, saveKnight, saveRossen, saveRijk, saveRace, saveRoof, saveVerrader, saveBurcht, saveDuel, saveRondeTafel, saveToren, saveSchat, saveLaserslag, saveOefenblad, saveNeon, saveBaas, saveGalaga, saveBomber, list, items, lib, filePath, DIR };
+module.exports = { saveProef, save, saveKnight, saveRossen, saveRijk, saveRace, saveRoof, saveVerrader, saveBurcht, saveDuel, saveRondeTafel, saveToren, saveSchat, saveLaserslag, saveOefenblad, saveNeon, saveBaas, saveGalaga, saveBomber, list, items, lib, filePath, get DIR() { return DIR(); } };

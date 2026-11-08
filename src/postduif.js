@@ -14,7 +14,7 @@ const logboek = require('./logboek');
 const doelen = require('./doelen');
 const burchten = require('./burchten');
 
-const DIR = gegevens.pad('postduif');
+const DIR = () => gegevens.pad('postduif');
 const ID = /^[a-f0-9]{8}$/;
 const DATUM = /^\d{4}-\d{2}-\d{2}$/;
 const MAX_FOTOS = 3;
@@ -31,11 +31,11 @@ const dag = d => `${d.getFullYear()}-${p2(d.getMonth() + 1)}-${p2(d.getDate())}`
 const lokaleDag = t => dag(new Date(t));
 
 function lees(naam, leeg) {
-  try { return JSON.parse(fs.readFileSync(path.join(DIR, naam), 'utf8')); } catch { return leeg; }
+  try { return JSON.parse(fs.readFileSync(path.join(DIR(), naam), 'utf8')); } catch { return leeg; }
 }
 function schrijf(naam, data) {
-  fs.mkdirSync(DIR, { recursive: true });
-  const doel = path.join(DIR, naam);
+  fs.mkdirSync(DIR(), { recursive: true });
+  const doel = path.join(DIR(), naam);
   fs.writeFileSync(`${doel}.tmp`, JSON.stringify(data));
   fs.renameSync(`${doel}.tmp`, doel);
 }
@@ -66,8 +66,8 @@ function schoon(b, id) {
 }
 
 function lijst() {
-  if (!fs.existsSync(DIR)) return [];
-  return fs.readdirSync(DIR).filter(f => /^brief-[a-f0-9]{8}\.json$/.test(f)).map(f => {
+  if (!fs.existsSync(DIR())) return [];
+  return fs.readdirSync(DIR()).filter(f => /^brief-[a-f0-9]{8}\.json$/.test(f)).map(f => {
     const b = lees(f, null);
     return b ? { id: f.slice(6, 14), titel: b.titel, van: b.van, tot: b.tot, gewijzigd: b.gewijzigd } : null;
   }).filter(Boolean).sort((a, b) => (b.tot || '').localeCompare(a.tot || '') || (b.gewijzigd || '').localeCompare(a.gewijzigd || ''));
@@ -99,9 +99,9 @@ function bewaar(data) {
 }
 
 function verwijder(id) {
-  const bin = path.join(DIR, '_prullenbak');
+  const bin = path.join(DIR(), '_prullenbak');
   fs.mkdirSync(bin, { recursive: true });
-  fs.renameSync(path.join(DIR, bestand(id)), path.join(bin, `${Date.now()}-${bestand(id)}`));
+  fs.renameSync(path.join(DIR(), bestand(id)), path.join(bin, `${Date.now()}-${bestand(id)}`));
 }
 
 // ---------- Wat er in de brief van elke leerling komt ----------
@@ -181,4 +181,4 @@ function laad(id) {
   return { brief: b, klas: { naam: k.naam, leerjaar: k.leerjaar }, leerlingen, toetsen: t.length };
 }
 
-module.exports = { DIR, lijst, nieuw, laad, bewaar, verwijder };
+module.exports = { get DIR() { return DIR(); }, lijst, nieuw, laad, bewaar, verwijder };

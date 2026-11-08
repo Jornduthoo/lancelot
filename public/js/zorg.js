@@ -1,5 +1,6 @@
 // Het zorgoverzicht: wie valt uit, waarop, en gaat het beter of slechter? Alles komt uit het logboek op deze pc.
 const socket = io({ query: { role: 'host' } });
+KlasKiezer.start(socket, document.getElementById('klaskiezer'));
 const $ = id => document.getElementById(id);
 const KLEUR = { rood: 'Aandacht nodig', oranje: 'Opvolgen', groen: 'Mee met de klas', weinig: 'Te weinig gegevens' };
 

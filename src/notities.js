@@ -3,12 +3,12 @@ const fs = require('fs');
 const path = require('path');
 const gegevens = require('./gegevens');
 
-const FILE = gegevens.pad('klas', 'notities.json');
+const FILE = () => gegevens.pad('klas', 'notities.json');
 const MAX = 200; // per leerling
 
 function read() {
   try {
-    const data = JSON.parse(fs.readFileSync(FILE, 'utf8'));
+    const data = JSON.parse(fs.readFileSync(FILE(), 'utf8'));
     return data && typeof data === 'object' ? data : {};
   } catch {
     return {};
@@ -16,8 +16,8 @@ function read() {
 }
 
 function write(data) {
-  fs.mkdirSync(path.dirname(FILE), { recursive: true });
-  fs.writeFileSync(FILE, JSON.stringify(data, null, 2) + '\n');
+  fs.mkdirSync(path.dirname(FILE()), { recursive: true });
+  fs.writeFileSync(FILE(), JSON.stringify(data, null, 2) + '\n');
 }
 
 function key(leerling) {

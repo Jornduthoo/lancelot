@@ -6,7 +6,8 @@ const path = require('path');
 const crypto = require('crypto');
 const gegevens = require('./gegevens');
 
-const MAP = path.join(gegevens.pad('klas'), 'junior-fotos');
+// Gedeeld door alle klassen (bij de eerste klas), net als de eigen reeksen waar ze bij horen.
+const MAP = gegevens.vast('klas', 'junior-fotos');
 const UA = 'LANcelot/1.0 (klasapp; https://lancelot.network)';
 const MAX = 800 * 1024;
 const NAAM = /^[a-f0-9]{16}\.(jpg|png)$/;
@@ -68,7 +69,7 @@ function bewaar(data, soort) {
 const bestand = naam => (NAAM.test(String(naam)) ? path.join(MAP, naam) : null);
 
 // De eigen stem van de leerkracht bij een vraag (Maken > 🎤): een kort geluidsbestand uit de browser, in de klasmap.
-const STEM_MAP = path.join(gegevens.pad('klas'), 'junior-stem');
+const STEM_MAP = gegevens.vast('klas', 'junior-stem');
 const STEM_NAAM = /^[a-f0-9]{16}\.(webm|ogg|m4a)$/;
 const STEM_MAX = 700 * 1024;
 function stemBewaar(data, soort) {

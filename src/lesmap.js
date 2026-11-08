@@ -82,9 +82,23 @@ function readState(root) {
 }
 
 // Eén soort (bv. quizzen) gelijk zetten. Geeft terug of er hier iets binnenkwam.
+// Meerdere klassen: wat van de klas is (perKlas), gaat mee voor de klas die nu gekozen is.
+// De eerste klas staat in de lesmap waar ze altijd stond; een andere klas in klassen/<id>/.
+function plek(kind) {
+  const id = gegevens.actieveKlas();
+  const eerste = !kind.perKlas || id === gegevens.EERSTE;
+  return {
+    local: typeof kind.dir === 'function' ? kind.dir() : kind.dir,
+    remote: eerste ? kind.remote : path.join('klassen', id, kind.remote),
+    key: eerste ? kind.kind : `${kind.kind}@${id}`,
+  };
+}
+
 async function syncKind(kind, root, state, count) {
-  const local = kind.dir;
-  const remote = path.join(root, kind.remote);
+  const p = plek(kind);
+  const local = p.local;
+  const remote = path.join(root, p.remote);
+  kind = { ...kind, kind: p.key, remote: p.remote };
   const seen = state.files[kind.kind] || {};
   // Is de map in de lesmap weg (nog niet gedownload, verkeerd verplaatst)? Dan niets verwijderen, en volgende keer opnieuw.
   if (Object.keys(seen).length && !(await fsp.stat(remote).catch(() => null))) throw new Error(`De map ${kind.remote} ontbreekt in de lesmap.`);
