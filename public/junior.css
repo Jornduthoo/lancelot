@@ -1576,3 +1576,11 @@ body.jr-los #jr-vak, body.jr-los #jr-beurt { visibility: hidden; }
 .jr-ochtend-vak[data-stap='weer'] .jr-weer { width: min(100%, 600px); }
 .jr-lk main button.jr-maand { opacity: .85; }
 .jr-lk main button.jr-seizoen { opacity: .7; }
+/* 👁 Een reeks bekijken zoals op de tablet. */
+.jr-kijk-venster { width: min(1000px, 94vw); border: 3px solid rgb(var(--k-goud)); border-radius: 26px; background: rgb(var(--k-bg2)); color: var(--jr-inkt); padding: 16px 18px; }
+.jr-kijk-venster::backdrop { background: rgb(0 0 0 / .6); }
+.jr-kijk-kop { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.jr-kijk-kop b { font-size: 1.3rem; flex: 1; }
+.jr-kijk-tablet { aspect-ratio: 16 / 9; max-height: 68vh; border-radius: 22px; overflow: hidden; display: flex; background: url(/img/junior/bg/thuis.webp) center / cover, #0e1626; box-shadow: inset 0 0 0 6px #0a0e18, 0 10px 30px rgb(0 0 0 / .5); }
+.jr-kijk-vak { font-size: clamp(16px, 2.3vw, 26px); }
+.jr-kijk-venster .actions { justify-content: center; margin-top: 12px; }

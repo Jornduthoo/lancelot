@@ -1341,7 +1341,7 @@ function toonSets() {
     d.addEventListener('dragend', () => d.classList.remove('sleep'));
     const voorbeeld = set.vragen.slice(0, 1).flatMap(v => v.opties.map(o => o.e)).join(' ');
     d.innerHTML = `<div><b>${Junior.esc(set.naam)}</b><span>${set.vragen.length} vragen · ${Junior.esc(voorbeeld)}</span></div>`
-      + '<span class="jr-set-knoppen"><button type="button" class="gold jr-set-speel">▶ Spelen</button><button type="button" class="secondary jr-set-map" title="In een map steken">📁</button><button type="button" class="secondary jr-set-bw">✏️</button><button type="button" class="secondary jr-set-wis">🗑️</button></span>';
+      + '<span class="jr-set-knoppen"><button type="button" class="gold jr-set-speel">▶ Spelen</button><button type="button" class="secondary jr-set-kijk" title="Bekijken zoals op de tablet">👁</button><button type="button" class="secondary jr-set-map" title="In een map steken">📁</button><button type="button" class="secondary jr-set-bw">✏️</button><button type="button" class="secondary jr-set-wis">🗑️</button></span>';
     d.querySelector('.jr-set-speel').addEventListener('click', () => {
       const s = spelVan('eigen');
       kies(s);
@@ -1349,6 +1349,7 @@ function toonSets() {
       for (const [i, x] of [...$('jr-kv-niveaus').children].entries()) x.classList.toggle('aan', i === gekozen.niveau);
     });
     d.querySelector('.jr-set-bw').addEventListener('click', () => bewerk(set));
+    d.querySelector('.jr-set-kijk').addEventListener('click', () => voorbeeldSet(set));
     d.querySelector('.jr-set-map').addEventListener('click', () => mapVenster({ set }));
     d.querySelector('.jr-set-wis').addEventListener('click', async () => {
       if (!(await Ui.vraag(`De reeks "${set.naam}" wissen?`))) return;
@@ -1357,6 +1358,24 @@ function toonSets() {
     box.appendChild(d);
   }
 }
+// 👁 Een reeks bekijken zoals een kind ze op de tablet ziet: vraag per vraag, met voorlezen. Tikken mag (het juiste antwoord licht op).
+let kijk = null;
+function voorbeeldSet(set, i = 0) {
+  const v = $('jr-kijk-venster');
+  if (!set.vragen.length) return;
+  i = (i + set.vragen.length) % set.vragen.length;
+  $('jr-kijk-titel').textContent = set.naam;
+  $('jr-kijk-teller').textContent = `${i + 1} / ${set.vragen.length}`;
+  if (kijk) try { kijk.stop(); } catch {}
+  const vak = $('jr-kijk-vak');
+  kijk = Junior.speel(vak, Junior.eigenVraag(set.vragen[i]), { klaar() {} });
+  $('jr-kijk-vorige').onclick = () => voorbeeldSet(set, i - 1);
+  $('jr-kijk-volgende').onclick = () => voorbeeldSet(set, i + 1);
+  $('jr-kijk-bewerk').onclick = () => { v.close(); bewerk(set); };
+  if (!v.open) v.showModal();
+}
+$('jr-kijk-dicht').addEventListener('click', () => $('jr-kijk-venster').close());
+$('jr-kijk-venster').addEventListener('close', () => { if (kijk) try { kijk.stop(); } catch {} kijk = null; try { Junior.Stem.stop(); } catch {} });
 let bezig = null; // de reeks die nu bewerkt wordt
 function bewerk(set) {
   bezig = JSON.parse(JSON.stringify(set));
