@@ -146,6 +146,9 @@ function kies(s) {
   $('jr-kv-zin').textContent = s.zin;
   // Spellen zonder papieren versie (bewegen, kring, waar is het draakje, de eigen naam): geen werkbladknop.
   $('jr-kv-print').classList.toggle('hidden', ['naam', 'dans', 'kring', 'waar'].includes(s.id));
+  // Eigen vragen: meteen de gekozen reeks bekijken of aanpassen.
+  $('jr-kv-kijk').classList.toggle('hidden', s.id !== 'eigen');
+  $('jr-kv-bewerk').classList.toggle('hidden', s.id !== 'eigen');
   const niv = $('jr-kv-niveaus');
   niv.innerHTML = '';
   (s.id === 'eigen' ? sets.map(x => x.naam) : s.niveaus).forEach((n, i) => {
@@ -233,6 +236,8 @@ function werkblad() {
   JrWerkblad.toon({ spel: gekozen.spel, niveau: gekozen.niveau });
 }
 $('jr-kv-print').addEventListener('click', werkblad);
+$('jr-kv-kijk').addEventListener('click', () => { const set = sets[gekozen.niveau]; if (set) voorbeeldSet(set); });
+$('jr-kv-bewerk').addEventListener('click', () => { const set = sets[gekozen.niveau]; if (!set) return; $('jr-kies-venster').close(); ga('maken'); bewerk(set); });
 $('jr-kv-start').addEventListener('click', () => {
   try { sfx.unlock(); } catch {}
   socket.emit('jr-start', { ...gekozen, avontuur: gekozen.manier === 'bord' ? '' : gekozen.avontuur }, res => {
@@ -574,6 +579,10 @@ async function bordVraag() {
   for (let i = 0; i < 4 && kinderen.length && !teamLeden(bord.team).length; i++) bord.team = (bord.team + 1) % 4;
   teams();
   const wie = teamKind(bord.team);
+  // De vorige opdracht weg: terwijl het draakje het volgende kind roept, staat dat kind groot op het bord.
+  if (bord.huidig) try { bord.huidig.stop(); } catch {}
+  bord.huidig = null;
+  $('jr-bord-vak').innerHTML = `<div class="jr-bord-roep jr-team-${TEAMKLEUR[bord.team]}">${wie ? `<img src="${wie.beeld}" alt=""><b>${Junior.esc(wie.naam)}</b>` : `<img src="/img/junior/race/draak${bord.team + 1}.webp" alt=""><b>${Junior.esc((J().zin.teams || [])[bord.team] || '')}</b>`}</div>`;
   await Junior.Stem.zeg(wie ? [(J().zin.teams || [])[bord.team], wie.naam, J().zin.teamKom] : [(J().zin.teams || [])[bord.team], J().zin.teamBeurt]);
   if (mijn !== bord) return;
   const v = Junior.vraag(stand.spel, stand.niveau, bord.r, teamKind(bord.team) || {});
@@ -796,6 +805,7 @@ function toon() {
     try { vorig = JSON.parse(localStorage.getItem('jr-bord-beurt') || 'null'); } catch {}
     const ok = vorig && Array.isArray(vorig.wie) && vorig.wie.length === 4;
     bord = { seed: stand.seed, r: Junior.toeval(stand.seed), team: ok ? (vorig.team | 0) % 4 : Math.floor(Math.random() * 4), wie: ok ? vorig.wie.map(x => x | 0) : [0, 1, 2, 3].map(() => Math.floor(Math.random() * 8)), huidig: null };
+    $('jr-bord-vak').innerHTML = '';
     Junior.schaal($('jr-bord-vak'));
     bordVraag();
   }
@@ -1326,7 +1336,7 @@ function voorbeeldSet(set, i = 0) {
   kijk = Junior.speel(vak, Junior.eigenVraag(set.vragen[i]), { klaar() {} });
   $('jr-kijk-vorige').onclick = () => voorbeeldSet(set, i - 1);
   $('jr-kijk-volgende').onclick = () => voorbeeldSet(set, i + 1);
-  $('jr-kijk-bewerk').onclick = () => { v.close(); bewerk(set); };
+  $('jr-kijk-bewerk').onclick = () => { v.close(); if ($('jr-kies-venster').open) { $('jr-kies-venster').close(); ga('maken'); } bewerk(set); };
   if (!v.open) v.showModal();
 }
 $('jr-kijk-dicht').addEventListener('click', () => $('jr-kijk-venster').close());
