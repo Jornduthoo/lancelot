@@ -28,6 +28,44 @@
       stil.delete(obj);
     }
   }
+  // Feest in de LANcelot-stijl in plaats van confetti: gloeiende cyaan en gouden runen en sterretjes die uit het midden opstijgen en uitdoven.
+  const RUNEN = 'ᚠᚢᚦᚨᚱᚲᚷᚹᚺᚾᛁᛃᛇᛈᛉᛊᛏᛒᛖᛗᛚᛜᛞᛟ';
+  function runenFeest(duur = 3000) {
+    const oud = document.getElementById('jr-feest'); if (oud) oud.remove();
+    const doek = document.createElement('canvas');
+    doek.id = 'jr-feest';
+    Object.assign(doek.style, { position: 'fixed', inset: '0', pointerEvents: 'none', zIndex: '9999' });
+    document.body.appendChild(doek);
+    const c = doek.getContext('2d');
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    doek.width = innerWidth * dpr; doek.height = innerHeight * dpr; c.scale(dpr, dpr);
+    const W = innerWidth, H = innerHeight, maat = Math.min(W, H);
+    const kleuren = ['127, 220, 255', '76, 201, 255', '255, 201, 74', '255, 224, 138'];
+    const maak = () => {
+      const hoek = -Math.PI / 2 + (Math.random() - .5) * 2.2, v = maat * (.006 + Math.random() * .012);
+      return { x: W / 2 + (Math.random() - .5) * W * .5, y: H * (.55 + Math.random() * .35), vx: Math.cos(hoek) * v, vy: Math.sin(hoek) * v,
+        t: Math.random() < .55 ? RUNEN[Math.floor(Math.random() * RUNEN.length)] : '✦', g: maat * (.025 + Math.random() * .035),
+        k: kleuren[Math.floor(Math.random() * kleuren.length)], leef: 0, max: 70 + Math.random() * 60 };
+    };
+    let deeltjes = Array.from({ length: 36 }, maak);
+    const einde = performance.now() + duur;
+    (function stap(nu) {
+      c.clearRect(0, 0, W, H);
+      if (nu < einde - 900 && deeltjes.length < 60) deeltjes.push(maak(), maak());
+      c.textAlign = 'center'; c.textBaseline = 'middle';
+      for (const d of deeltjes) {
+        d.leef++; d.x += d.vx; d.y += d.vy; d.vy *= .985; d.vx *= .985;
+        const a = Math.max(0, Math.min(1, d.leef / 12, (d.max - d.leef) / 30));
+        c.font = `700 ${d.g}px system-ui, sans-serif`;
+        c.shadowColor = `rgba(${d.k}, ${a})`; c.shadowBlur = d.g * .6;
+        c.fillStyle = `rgba(${d.k}, ${a})`;
+        c.fillText(d.t, d.x, d.y);
+      }
+      deeltjes = deeltjes.filter(d => d.leef < d.max);
+      if (nu < einde || deeltjes.length) requestAnimationFrame(stap); else doek.remove();
+    })(performance.now());
+  }
+  window.confetti = runenFeest;
   let echteConfetti = null;
   function zetRustig(v) {
     v = !!v;

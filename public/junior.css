@@ -756,12 +756,12 @@ button.jr-mini-draak:hover { transform: translateY(-2px); }
   background: url(/img/junior/bg/hol.webp) center / cover; box-shadow: 0 8px 26px rgba(0,0,0,.25); }
 @media (max-width: 800px) { .jr-hol { background-image: url(/img/junior/bg/hol-klein.webp); } }
 .jr-hol-ding { position: absolute; transform: translateY(-100%); filter: drop-shadow(0 6px 6px rgba(0,0,0,.3)); pointer-events: none; }
-.jr-hol-draak { position: absolute; left: 50%; bottom: 10%; height: 50%; aspect-ratio: 292 / 325; transform: translateX(-50%); border: 0; padding: 0; background: none; cursor: pointer; z-index: 2; }
+.jr-hol-draak { position: absolute; left: 50%; bottom: 10%; height: 50%; aspect-ratio: 292 / 325; translate: -50% 0; border: 0; padding: 0; background: none; cursor: pointer; z-index: 2; }
 .jr-hol-draak > img:first-child { width: 100%; height: 100%; object-fit: contain; object-position: bottom; filter: drop-shadow(0 10px 10px rgba(0,0,0,.3)); animation: jr-hol-adem 3s ease-in-out infinite; transform-origin: bottom; }
 .jr-hol-hoed { position: absolute; transform: translateY(30%); pointer-events: none; animation: jr-hol-adem 3s ease-in-out infinite; transform-origin: bottom; }
 @keyframes jr-hol-adem { 0%, 100% { scale: 1 1; } 50% { scale: 1.02 .98; } }
 .jr-hol-draak.hop { animation: jr-hol-hop .6s ease-out; }
-@keyframes jr-hol-hop { 0%, 100% { translate: 0 0; } 40% { translate: 0 -14%; } 70% { translate: 0 2%; } }
+@keyframes jr-hol-hop { 0%, 100% { translate: -50% 0; } 40% { translate: -50% -14%; } 70% { translate: -50% 2%; } }
 .jr-hol-groei { position: absolute; left: 50%; bottom: 3%; width: 30%; transform: translateX(-50%); z-index: 3; }
 .jr-winkel { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; max-width: 1200px; margin: 0 auto 30px; }
 .jr-winkel-ding { position: relative; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px 8px 12px; border-radius: 18px; border: 3px solid #e7dcc0;
@@ -1439,3 +1439,9 @@ html.jr-rustig .jr-doe-bel.plop, html.jr-rustig .jr-doe-ding.valt, html.jr-rusti
 /* Op maat (klaslijst) */
 .jr-maat-label { font-size: .7rem; font-weight: 800; color: rgb(var(--k-cyan)); }
 .jr-maat-venster .jr-kv-keuzes { margin-bottom: 6px; }
+
+/* Knoppen die met transform op hun plek staan: de algemene hover/tik-stijl (translateY) mag ze niet doen verspringen. */
+.jr .jr-hol-draak:is(:hover, :active):not(:disabled), .jr-lk .jr-hol-draak:is(:hover, :active):not(:disabled) { transform: none; }
+.jr .jr-doe-bel:is(:hover, :active):not(:disabled), .jr-lk .jr-doe-bel:is(:hover, :active):not(:disabled) { transform: translate(-50%, -50%); }
+.jr .jr-doosveld .jr-tik:is(:hover, :active):not(:disabled) { transform: translate(-50%, -58%); }
+.jr-lk main button.jr-eb:is(:hover, :active):not(:disabled) { transform: translate(-50%, -85%); }
