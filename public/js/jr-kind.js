@@ -290,7 +290,8 @@ function kringScherm(k) {
 // ---------- Waar ben ik ----------
 function route() {
   // Start de leerkracht een spel terwijl iemand het raadsel doet: dan gaat de klas voor.
-  if (apart && apart.raadsel && stand.actief) {
+  // Ook bij vrij oefenen: de klas gaat voor.
+  if (apart && (apart.raadsel || apart.vrij) && stand.actief) {
     apart = null;
     try { sessionStorage.removeItem('jr-apart'); } catch {}
     ronde = null;
@@ -322,6 +323,7 @@ function route() {
     if (huidig) huidig.stop();
     huidig = null;
     ronde = null;
+    $('jr-vrij-knop').classList.toggle('hidden', stand.vrij === false);
     toon('jr-wacht');
     stappen();
     return;
@@ -345,7 +347,13 @@ function route() {
 // ---------- Apart oefenen (ondersteuner) ----------
 // Op het wachtscherm met de knop, of altijd: het draakje linksboven twee seconden ingedrukt houden.
 let apartKeuze = { spel: '', niveau: 0 };
-function apartScherm() {
+// vrij: het kind kiest zelf (knop Vrij oefenen op het wachtscherm). Anders is het de ondersteuner (Apart oefenen).
+let vrijKeuze = false;
+function apartScherm(e) {
+  if (e !== 'blijf') vrijKeuze = !!(e && e.currentTarget && e.currentTarget.id === 'jr-vrij-knop');
+  $('jr-apart-titel').textContent = (window.I18n ? I18n.t : x => x)(vrijKeuze ? '🎮 Vrij oefenen' : 'Apart oefenen');
+  $('jr-vrij-uitleg').classList.toggle('hidden', !vrijKeuze);
+  $('jr-apart-uitleg').classList.toggle('hidden', vrijKeuze);
   if (huidig) huidig.stop();
   huidig = null;
   toon('jr-apart');
@@ -356,7 +364,7 @@ function apartScherm() {
     b.type = 'button';
     b.className = `jr-apart-spel ${apartKeuze.spel === sp.id ? 'jr-aan' : ''}`;
     b.innerHTML = `<img src="/img/junior/${sp.beeld}.webp" alt=""><b>${sp.naam}</b>`;
-    b.addEventListener('click', () => { apartKeuze = { spel: sp.id, niveau: 0 }; apartScherm(); });
+    b.addEventListener('click', () => { apartKeuze = { spel: sp.id, niveau: 0 }; apartScherm('blijf'); });
     box.appendChild(b);
   }
   const sp = (J().spellen || []).find(x => x.id === apartKeuze.spel);
@@ -367,7 +375,7 @@ function apartScherm() {
     b.type = 'button';
     b.className = `jr-knop ${apartKeuze.niveau === i ? 'jr-knop-goud' : ''}`;
     b.textContent = n;
-    b.addEventListener('click', () => { apartKeuze.niveau = i; apartScherm(); });
+    b.addEventListener('click', () => { apartKeuze.niveau = i; apartScherm('blijf'); });
     niv.appendChild(b);
   });
   $('jr-apart-start').disabled = !sp;
@@ -375,7 +383,7 @@ function apartScherm() {
 $('jr-apart-start').addEventListener('click', () => {
   if (!apartKeuze.spel) return;
   try { sfx.unlock(); } catch {}
-  apart = { ...apartKeuze, seed: Math.floor(Math.random() * 1e9) };
+  apart = { ...apartKeuze, seed: Math.floor(Math.random() * 1e9), vrij: vrijKeuze };
   try { sessionStorage.setItem('jr-apart', JSON.stringify(apart)); } catch {}
   ik = ik.slice(0, 1);
   ronde = null;
@@ -402,6 +410,7 @@ function raadselKlaar() {
 $('jr-klaar').addEventListener('click', raadselKlaar);
 $('jr-raadsel-stop').addEventListener('click', raadselKlaar);
 $('jr-apart-knop').addEventListener('click', apartScherm);
+$('jr-vrij-knop').addEventListener('click', apartScherm);
 // Raadsel van vandaag: drie korte opdrachten, elke dag andere, voor iedereen dezelfde. Eén sticker per dag.
 $('jr-raadsel-knop').addEventListener('click', () => {
   try { sfx.unlock(); } catch {}
@@ -415,7 +424,7 @@ $('jr-raadsel-knop').addEventListener('click', () => {
 {
   let t = null;
   const draak = $('jr-balk-draak');
-  draak.addEventListener('pointerdown', () => { t = setTimeout(apartScherm, 2000); });
+  draak.addEventListener('pointerdown', () => { t = setTimeout(() => apartScherm(), 2000); });
   for (const ev of ['pointerup', 'pointerleave', 'pointercancel']) draak.addEventListener(ev, () => clearTimeout(t));
   draak.addEventListener('contextmenu', e => e.preventDefault());
 }
