@@ -142,6 +142,8 @@ module.exports = {
     klokVraag: "Wie spät ist es?",
     geldVraag: "Wie viel Geld ist das?",
     euro: "Euro",
+    dollar: "Dollar",
+    pond: "Pfund",
     sorteerSoort: "Ziehe jedes Bild in den richtigen Korb.",
     sorteerKleur: "Ziehe jedes Bild in den Korb mit der richtigen Farbe.",
     patroonVraag: "Was kommt als Nächstes?",

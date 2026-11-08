@@ -428,6 +428,7 @@ socket.on('connect', () => {
     const oud = stand.seed;
     stand = res.stand || { actief: false };
     try { JrThema.zet(stand.thema); } catch {}
+    Junior.munt = stand.munt || Junior.munt;
     if (ik.length) socket.emit('jr-login', { ids: ik });
     if (oud !== stand.seed) oudWeg();
     route();
@@ -435,6 +436,7 @@ socket.on('connect', () => {
 });
 socket.on('jr-stand', s => {
   try { JrThema.zet(s && s.thema); } catch {}
+  if (s && s.munt) Junior.munt = s.munt;
   if (apart) { stand = s; zetDraak(); return; }
   const nieuw = s.seed !== stand.seed || s.manier !== stand.manier;
   stand = s;

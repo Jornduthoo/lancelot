@@ -73,7 +73,7 @@ const SPELLEN = [
   { id: 'klok', naam: 'Klokkentoren', zin: 'Hoe laat is het?', groep: 'meten', beeld: 'stuk/12',
     niveaus: ['Hele uren', 'Halve uren', 'Kwartieren'] },
   { id: 'geld', naam: 'Geldmarkt', zin: 'Hoeveel geld is dit?', groep: 'meten', beeld: 'stuk/13',
-    niveaus: ['Tot 10 euro', 'Tot 20 euro', 'Tot 100 euro'] },
+    niveaus: ['Tot 10', 'Tot 20', 'Tot 100'] },
   { id: 'stappen', naam: 'Drakenstappen', zin: 'Meet met drakenpootjes.', groep: 'meten', beeld: 'stuk/23',
     niveaus: ['Tot 5', 'Tot 10'] },
   { id: 'sorteer', naam: 'Sorteermand', zin: 'Sorteer de prentjes in de juiste mand.', groep: 'meetkunde', beeld: 'stuk/14',
@@ -164,7 +164,16 @@ const DIER_GROEI = [0, 10, 30]; // public/img/junior/dier, dier2, dier3
 const THEMAS = ['herfst', 'halloween', 'sint', 'kerst', 'winter', 'valentijn', 'carnaval', 'lente', 'pasen', 'moederdag', 'vaderdag', 'zomer', 'school'];
 function instellingen() {
   const i = load().instellingen;
-  return { perRonde: RONDES.includes(i.perRonde) ? i.perRonde : PER_RONDE, voorlezen: i.voorlezen !== false, groei: i.groei !== false, thema: ['auto', 'geen', ...THEMAS].includes(i.thema) ? i.thema : 'auto', rustig: i.rustig === true };
+  return { perRonde: RONDES.includes(i.perRonde) ? i.perRonde : PER_RONDE, voorlezen: i.voorlezen !== false, groei: i.groei !== false, thema: ['auto', 'geen', ...THEMAS].includes(i.thema) ? i.thema : 'auto', rustig: i.rustig === true, munt: MUNTEN.includes(i.munt) ? i.munt : 'auto' };
+}
+// Het geld in Geldmarkt: euro, dollar of pond. 'auto' volgt het land van de doelen (VS: dollar, Engeland: pond), anders euro.
+const MUNTEN = ['auto', 'eur', 'usd', 'gbp'];
+function muntNu() {
+  const m = instellingen().munt;
+  if (m !== 'auto') return m;
+  let l = 'be';
+  try { l = require('./doelen').land(); } catch {}
+  return l === 'us' ? 'usd' : l === 'en' ? 'gbp' : 'eur';
 }
 // Paaszondag (Gauss/Meeus), voor de datum van carnaval.
 function pasen(j) {
@@ -209,6 +218,7 @@ function zetInstellingen(nieuw = {}) {
   if (typeof nieuw.groei === 'boolean') i.groei = nieuw.groei;
   if (typeof nieuw.rustig === 'boolean') i.rustig = nieuw.rustig;
   if (['auto', 'geen', ...THEMAS].includes(nieuw.thema)) i.thema = nieuw.thema;
+  if (MUNTEN.includes(nieuw.munt)) i.munt = nieuw.munt;
   save();
   return instellingen();
 }
@@ -400,12 +410,12 @@ function stop() {
 function stand() {
   // Rustig: geen versiering aan de randen.
   const thema = instellingen().rustig ? '' : themaNu();
-  if (!les) return { actief: false, draak: draak(), voorlezen: instellingen().voorlezen, rustig: instellingen().rustig, thema };
+  if (!les) return { actief: false, draak: draak(), voorlezen: instellingen().voorlezen, rustig: instellingen().rustig, thema, munt: muntNu() };
   const s = SPEL[les.spel];
   return {
     actief: true, spel: les.spel, naam: s.naam, niveau: les.niveau, niveauNaam: niveausVan(s)[les.niveau], manier: les.manier, seed: les.seed,
     eigen: les.spel === 'eigen' ? load().sets[les.niveau] || null : undefined,
-    perRonde: instellingen().perRonde, voorlezen: instellingen().voorlezen, teams: les.teams, avontuur: avontuurStand(), kring: { vraag: les.kring.vraag }, draak: draak(), rustig: instellingen().rustig, thema,
+    perRonde: instellingen().perRonde, voorlezen: instellingen().voorlezen, teams: les.teams, avontuur: avontuurStand(), kring: { vraag: les.kring.vraag }, draak: draak(), rustig: instellingen().rustig, thema, munt: muntNu(),
   };
 }
 // Hoe ver elk team is (0 tot 1). Een team met meer kinderen moet ook meer stappen zetten: zo blijft het eerlijk.
@@ -715,7 +725,7 @@ function inhoud(taalId) {
 }
 
 module.exports = {
-  zetJarig, themaNu, pasen, THEMAS,
+  zetJarig, themaNu, muntNu, pasen, THEMAS,
   SPELLEN, AVONTUREN, FASEN, PER_RONDE, RONDES, DIEREN, instellingen, zetInstellingen, STICKERS, nieuweSticker, DIER_GROEI, dierFase,
   kinderen, wisselDier, zetSymbool, symboolBestand, draak, noemDraak, holKoop, holZet, HOL_SPUL, eiland, start, stop, stand, overzicht, antwoord, teamGoed, klasBeloning, stickers,
   kringKies, kringStand, kringVolgende, inhoud, fase, niveausVan, zetMaat, niveauVoor,

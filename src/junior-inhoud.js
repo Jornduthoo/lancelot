@@ -145,6 +145,8 @@ module.exports = {
     klokVraag: "Hoe laat is het?",
     geldVraag: "Hoeveel geld is dit?",
     euro: "euro",
+    dollar: "dollar",
+    pond: "pond",
     sorteerSoort: "Sleep elk prentje naar de juiste mand.",
     sorteerKleur: "Sleep elk prentje naar de mand met de juiste kleur.",
     patroonVraag: "Wat komt er nu?",
