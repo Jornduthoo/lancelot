@@ -87,7 +87,7 @@ module.exports = {
     ochtendKlerenNee: "Hmm, heb je dat nodig met dit weer?",
     ochtendEerstWeer: "Kies eerst het weer.",
     ochtendGevoel: "Hoe voel jij je vandaag? Tik op je dier en dan op je gevoel.",
-    ochtendHulpje: "Het hulpje van vandaag is",
+    ochtendHulpje: "Het kindje van de dag is",
     ochtendKlus: "Vandaag help je met",
     klusjes: ["de rij leiden", "de planten water geven", "de tafels dekken", "de kalender", "opruimen", "de deur openhouden"],
     ochtendOnzeDag: "Dit doen we vandaag.",

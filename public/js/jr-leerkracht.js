@@ -978,7 +978,7 @@ $('jr-eiland-tour').addEventListener('click', () => {
 });
 
 // ---------- Het ochtendmoment, zoals in de kleuterklas: wie is er (tellen), welke dag, maand en seizoen, het weer,
-// wat trekken we aan, hoe voel je je, het hulpje van de dag, onze dag (dagritme), wie is er jarig. ----------
+// wat trekken we aan, hoe voel je je, het kindje van de dag, onze dag (dagritme), wie is er jarig. ----------
 const vandaag = () => new Date().toISOString().slice(0, 10);
 let ochtendWeer = 0;
 let afwezig = new Set();
@@ -996,10 +996,14 @@ function seizoenVan(d) {
   return md >= 321 && md < 621 ? 0 : md >= 621 && md < 923 ? 1 : md >= 923 && md < 1221 ? 2 : 3;
 }
 const SEIZOEN_E = ['🌷', '☀️', '🍂', '❄️'];
+// De leerkracht kiest welke stappen er zijn (⚙️). "Klaar" blijft altijd.
+const ostapUit = () => { try { return new Set(JSON.parse(localStorage.getItem('jr-ochtend-uit') || '[]')); } catch { return new Set(); } };
 function ochtend(stap) {
   const jarigen = kinderen.filter(k => k.feest);
-  const jb = document.querySelector('[data-ostap="jarig"]'); if (jb) jb.classList.toggle('hidden', !jarigen.length);
-  if (stap === 'jarig' && !jarigen.length) stap = 'klaar';
+  const uit = ostapUit();
+  const toon = id => id === 'klaar' || (!uit.has(id) && (id !== 'jarig' || jarigen.length));
+  for (const b of document.querySelectorAll('.jr-ochtend-stappen [data-ostap]')) b.classList.toggle('hidden', !toon(b.dataset.ostap));
+  if (!toon(stap)) stap = OSTAPPEN.slice(OSTAPPEN.indexOf(stap)).find(toon) || 'klaar';
   for (const b of document.querySelectorAll('[data-ostap]')) b.classList.toggle('aan', b.dataset.ostap === stap);
   const vak = $('jr-ochtend-vak');
   const z = J().zin;
@@ -1009,7 +1013,7 @@ function ochtend(stap) {
   const nu = new Date();
   const er = kinderen.filter(k => !afwezig.has(k.id));
   // Onderaan altijd: naar de volgende stap.
-  const volgende = () => { let i = OSTAPPEN.indexOf(stap) + 1; if (OSTAPPEN[i] === 'jarig' && !jarigen.length) i++; return OSTAPPEN[i]; };
+  const volgende = () => OSTAPPEN.slice(OSTAPPEN.indexOf(stap) + 1).find(toon);
   const verder = stap === 'klaar' ? '' : `<button type="button" class="jr-ostap-verder jr-eigen" data-ostap="${volgende()}">${E(window.I18n ? I18n.t('Volgende') : 'Volgende')} →</button>`;
   if (stap === 'wie') {
     vak.innerHTML = `<p class="jr-ochtend-zin">${E(z.ochtendWie)}</p>
@@ -1106,9 +1110,8 @@ function ochtend(stap) {
     }));
     if (!Object.keys(gevoel).length) zeg([z.ochtendGevoel]);
   } else if (stap === 'hulpje') {
-    const klusjes = z.klusjes || [];
     const kies = () => {
-      // Eerlijk rond: wie het langst geen hulpje was, komt eerst.
+      // Eerlijk rond: wie het langst geen kindje van de dag was, komt eerst.
       let vorige = [];
       try { vorige = JSON.parse(localStorage.getItem('jr-hulpjes') || '[]'); } catch {}
       const kans = er.filter(k => !vorige.includes(k.id));
@@ -1117,18 +1120,16 @@ function ochtend(stap) {
       const k = pool[Math.floor(Math.random() * pool.length)];
       vorige = (kans.length ? vorige : []).concat(k.id);
       try { localStorage.setItem('jr-hulpjes', JSON.stringify(vorige)); } catch {}
-      hulpje = { id: k.id, klus: Math.floor(Math.random() * Math.max(1, klusjes.length)) };
+      hulpje = { id: k.id };
       bewaarOchtend();
     };
     if (!hulpje || afwezig.has(hulpje.id) || !kinderen.some(k => k.id === hulpje.id)) kies();
     const k = hulpje && kinderen.find(x => x.id === hulpje.id);
     vak.innerHTML = k ? `<div class="jr-hulpje"><div class="jr-hulpje-kaart"><img src="${k.beeld}" alt=""><b>${E(k.naam)}</b></div>
       <div class="jr-hulpje-info"><p class="jr-ochtend-zin">${E(z.ochtendHulpje)} <b>${E(k.naam)}</b></p>
-      <div class="jr-klusjes">${klusjes.map((t, i) => `<button type="button" class="jr-klus jr-eigen ${hulpje.klus === i ? 'aan' : ''}" data-klus="${i}">${E(t)}</button>`).join('')}</div>
-      <button type="button" class="jr-ostap-verder jr-eigen" id="jr-ander-hulpje">🎲 ${E(window.I18n ? I18n.t('Ander hulpje') : 'Ander hulpje')}</button></div></div>${verder}` : verder;
-    vak.querySelectorAll('[data-klus]').forEach(b => b.addEventListener('click', () => { hulpje.klus = +b.dataset.klus; bewaarOchtend(); ochtend('hulpje'); zeg([z.ochtendKlus, klusjes[hulpje.klus]]); }));
+      <button type="button" class="jr-ostap-verder jr-eigen" id="jr-ander-hulpje">🎲 ${E(window.I18n ? I18n.t('Ander kindje') : 'Ander kindje')}</button></div></div>${verder}` : verder;
     const ander = $('jr-ander-hulpje'); if (ander) ander.addEventListener('click', () => { kies(); ochtend('hulpje'); });
-    if (k) zeg([z.ochtendHulpje, k.naam, z.ochtendKlus, klusjes[hulpje.klus]]);
+    if (k) zeg([z.ochtendHulpje, k.naam]);
   } else if (stap === 'onzedag') {
     // Het dagritme uit Klastools: dezelfde prenten, zodat de kinderen weten wat er komt.
     let rij = [], eigen = [];
@@ -1164,6 +1165,19 @@ document.addEventListener('click', e => {
   const b = e.target.closest('[data-ostap]');
   if (b) ochtend(b.dataset.ostap);
 });
+function toonOstapKeuzes() {
+  const uit = ostapUit();
+  $('jr-ostap-keuzes').innerHTML = [...document.querySelectorAll('.jr-ochtend-stappen [data-ostap]')].filter(b => b.dataset.ostap !== 'klaar')
+    .map(b => `<button type="button" class="${uit.has(b.dataset.ostap) ? '' : 'aan'}" data-uit="${b.dataset.ostap}">${Junior.esc(b.textContent.trim())}</button>`).join('');
+}
+$('jr-ostap-kies').addEventListener('click', () => { toonOstapKeuzes(); $('jr-ostap-venster').showModal(); });
+$('jr-ostap-keuzes').addEventListener('click', e => {
+  const b = e.target.closest('[data-uit]'); if (!b) return;
+  const uit = ostapUit(); uit.has(b.dataset.uit) ? uit.delete(b.dataset.uit) : uit.add(b.dataset.uit);
+  try { localStorage.setItem('jr-ochtend-uit', JSON.stringify([...uit])); } catch {}
+  toonOstapKeuzes();
+});
+$('jr-ostap-dicht').addEventListener('click', () => { $('jr-ostap-venster').close(); ochtend($('jr-ochtend-vak').dataset.stap || 'wie'); });
 document.addEventListener('click', e => {
   const b = e.target.closest('[data-ga]');
   if (b) ga(b.dataset.ga);
