@@ -810,17 +810,18 @@ button.jr-mini-draak:hover { transform: translateY(-2px); }
 @media (max-width: 800px) { .jr-ochtend { background-image: url(/img/junior/bg/ochtend-klein.webp); } }
 .jr-ochtend-stappen { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; padding: 14px; }
 .jr-lk main button.jr-ostap { border: 3px solid var(--jr-lijn); background: rgb(var(--k-panel) / .85); color: var(--jr-inkt); font: inherit; font-weight: 800; font-size: 1.15rem; padding: 10px 20px; border-radius: 999px; cursor: pointer; box-shadow: 0 3px 0 rgb(0 0 0 / .15); }
-.jr-lk main button.jr-ostap.aan { background: #51cf66; color: #fff; transform: scale(1.06); }
+.jr-lk main button.jr-ostap.aan { background: linear-gradient(180deg, rgb(var(--k-goud-l)), rgb(var(--k-goud))); color: rgb(var(--k-op-goud)); border-color: rgb(var(--k-goud-d)); transform: scale(1.06); }
 .jr-ochtend-vak { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; padding: 10px 18px 26px; }
 .jr-ochtend-zin { background: rgb(var(--k-panel) / .92); color: var(--jr-inkt); border-radius: 22px; padding: 12px 26px; font-size: clamp(1.4rem, 3vw, 2.3rem); font-weight: 800; text-align: center; margin: 0; box-shadow: 0 4px 14px rgb(0 0 0 / .15); }
-.jr-ochtend-zin b { color: #c2410c; }
+.jr-ochtend-zin b { color: rgb(var(--k-goud-l)); }
 .jr-dagen { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; width: 100%; }
 .jr-lk main button.jr-dag { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 16px 4px; border-radius: 18px; border: 3px solid var(--jr-lijn); font: inherit; color: #fff; cursor: pointer; opacity: .75; text-shadow: 0 1px 2px rgb(0 0 0 / .4); box-shadow: 0 4px 0 rgb(0 0 0 / .18); }
 .jr-dag b { font-size: clamp(.8rem, 1.6vw, 1.2rem); text-transform: capitalize; }
 .jr-dag span { font-size: clamp(1.4rem, 3vw, 2.4rem); font-weight: 800; }
-.jr-dag-0 { background: #e03131; } .jr-dag-1 { background: #f08c00; } .jr-dag-2 { background: #f2b200; } .jr-dag-3 { background: #2f9e44; }
-.jr-dag-4 { background: #1c7ed6; } .jr-dag-5 { background: #7048e8; } .jr-dag-6 { background: #d6336c; }
-.jr-lk main button.jr-dag.vandaag { opacity: 1; transform: scale(1.12); box-shadow: 0 0 0 5px #ffe066, 0 8px 24px rgb(0 0 0 / .3); animation: jr-dag-hop 1.6s ease-in-out infinite; z-index: 1; }
+.jr-lk main button.jr-dag { background: linear-gradient(180deg, #24304d, #141b2e); border-color: rgb(224 169 58 / .55); }
+.jr-lk main button.jr-dag.weekend { background: linear-gradient(180deg, #1a2238, #0e1424); opacity: .6; }
+.jr-lk main button.jr-dag.vandaag { background: linear-gradient(180deg, #2a5d86, #163a5c); border-color: #ffd36b; color: #fff; }
+.jr-lk main button.jr-dag.vandaag { opacity: 1; transform: scale(1.12); box-shadow: 0 0 0 3px #ffd36b, 0 0 26px rgb(76 201 255 / .55), 0 8px 24px rgb(0 0 0 / .3); z-index: 1; }
 .jr-lk main button.jr-dag.gisteren, .jr-lk main button.jr-dag.morgen { opacity: .92; }
 .jr-dag.tik { animation: jr-dag-tik .5s; }
 @keyframes jr-dag-hop { 0%, 100% { translate: 0 0; } 50% { translate: 0 -8px; } }
@@ -836,7 +837,7 @@ button.jr-mini-draak:hover { transform: translateY(-2px); }
 .jr-wie-kind img { width: 84px; height: 84px; object-fit: contain; }
 .jr-lk main button.jr-wie-kind.weg { opacity: .4; filter: grayscale(1); transform: scale(.92); }
 .jr-wie-tel { display: flex; align-items: center; gap: 16px; background: rgb(var(--k-panel) / .92); border-radius: 22px; padding: 10px 22px; }
-.jr-wie-getal { font-size: 3rem; font-weight: 800; color: #c2410c; min-width: 1.4em; text-align: center; }
+.jr-wie-getal { font-size: 3rem; font-weight: 800; color: rgb(var(--k-goud-l)); min-width: 1.4em; text-align: center; }
 .jr-wie-bolletjes { display: grid; grid-template-columns: repeat(10, 22px); gap: 5px; }
 .jr-wie-bolletjes i { width: 22px; height: 22px; border-radius: 50%; background: #e03131; box-shadow: inset 0 -3px 0 rgb(0 0 0 / .2); }
 .jr-wie-bolletjes i:nth-child(10n+6), .jr-wie-bolletjes i:nth-child(10n+7), .jr-wie-bolletjes i:nth-child(10n+8), .jr-wie-bolletjes i:nth-child(10n+9), .jr-wie-bolletjes i:nth-child(10n) { background: #1c7ed6; }
@@ -1524,3 +1525,54 @@ body.jr-los #jr-vak, body.jr-los #jr-beurt { visibility: hidden; }
 .jr-inst-tab.tab-uit { display: none; }
 .jr-inst-tab { min-height: 300px; }
 .jr-inst-links { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+
+/* Ochtendmoment: de nieuwe stappen. */
+.jr-lk main button.jr-ostap { padding: 8px 14px; font-size: .95rem; }
+.jr-lk main button.jr-ostap-verder { align-self: center; padding: 12px 30px; border-radius: 999px; font: inherit; font-weight: 800; font-size: 1.15rem; border: 0; cursor: pointer;
+  background: linear-gradient(180deg, rgb(var(--k-goud-l)), rgb(var(--k-goud))); color: rgb(var(--k-op-goud)); box-shadow: 0 4px 0 rgb(var(--k-goud-d)); }
+.jr-wie-niet { display: inline-flex; align-items: center; gap: 8px; margin-left: 10px; padding-left: 16px; border-left: 2px solid rgb(var(--k-goud) / .4); color: rgb(var(--k-muted)); font-size: 1.6rem; }
+.jr-wie-bolletjes i.weg { background: rgb(255 255 255 / .18); box-shadow: none; }
+.jr-maanden { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; width: min(100%, 980px); }
+.jr-lk main button.jr-maand { padding: 10px 4px; border-radius: 14px; border: 2px solid rgb(255 255 255 / .12); color: var(--jr-inkt); font: inherit; cursor: pointer; opacity: .7; text-transform: capitalize; }
+.jr-maand b { font-size: clamp(.8rem, 1.4vw, 1.05rem); }
+.jr-maand.sz-0, .jr-seizoen.sz-0 { background: linear-gradient(180deg, #1f4636, #12291f); }
+.jr-maand.sz-1, .jr-seizoen.sz-1 { background: linear-gradient(180deg, #4d4019, #2a230d); }
+.jr-maand.sz-2, .jr-seizoen.sz-2 { background: linear-gradient(180deg, #4a2c18, #2a180c); }
+.jr-maand.sz-3, .jr-seizoen.sz-3 { background: linear-gradient(180deg, #23365a, #121d33); }
+.jr-lk main button.jr-maand.nu { opacity: 1; border-color: #ffd36b; box-shadow: 0 0 0 2px #ffd36b, 0 0 22px rgb(76 201 255 / .5); transform: scale(1.08); }
+.jr-seizoenen { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; width: min(100%, 760px); }
+.jr-lk main button.jr-seizoen { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 12px 6px; border-radius: 18px; border: 2px solid rgb(255 255 255 / .12); color: var(--jr-inkt); font: inherit; cursor: pointer; opacity: .55; text-transform: capitalize; }
+.jr-seizoen-e { font-size: 2.6rem; line-height: 1; }
+.jr-lk main button.jr-seizoen.nu { opacity: 1; border-color: #ffd36b; box-shadow: 0 0 0 2px #ffd36b, 0 0 26px rgb(76 201 255 / .5); }
+.jr-kleren-rij { display: flex; align-items: center; gap: 22px; width: min(100%, 1100px); justify-content: center; }
+.jr-kleren-weer { width: 130px; height: 130px; object-fit: contain; filter: drop-shadow(0 6px 12px rgb(0 0 0 / .4)); }
+.jr-kleren { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; flex: 1; max-width: 860px; }
+.jr-lk main button.jr-kleding { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px 4px; border-radius: 18px; border: 3px solid var(--jr-lijn); background: rgb(var(--k-panel) / .88); color: var(--jr-inkt); font: inherit; cursor: pointer; }
+.jr-kleding-e { font-size: 3rem; line-height: 1; }
+.jr-kleding b { font-size: .9rem; }
+.jr-lk main button.jr-kleding.goed { border-color: #ffd36b; box-shadow: 0 0 0 2px #ffd36b, 0 0 22px rgb(76 201 255 / .55); }
+.jr-lk main button.jr-kleding.mis { opacity: .45; filter: grayscale(.7); }
+.jr-gevoelens { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; width: 100%; }
+.jr-gevoel-kolom { background: rgb(var(--k-panel) / .88); border: 2px solid rgb(224 169 58 / .45); border-radius: 18px; padding: 8px; min-height: 170px; cursor: pointer; display: flex; flex-direction: column; gap: 6px; }
+.jr-gevoel-kop { display: flex; flex-direction: column; align-items: center; gap: 2px; color: var(--jr-inkt); }
+.jr-gevoel-e { font-size: 2.6rem; line-height: 1; }
+.jr-gevoel-kids, .jr-gevoel-pool { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+.jr-gevoel-pool { background: rgb(var(--k-panel) / .7); border-radius: 18px; padding: 8px; width: 100%; }
+.jr-lk main button.jr-gv-kind { display: flex; flex-direction: column; align-items: center; border: 2px solid transparent; background: none; padding: 2px; border-radius: 14px; cursor: pointer; color: var(--jr-inkt); font: inherit; font-size: .8rem; }
+.jr-gv-kind img { width: 52px; height: 52px; object-fit: contain; }
+.jr-lk main button.jr-gv-kind.licht { border-color: #ffd36b; box-shadow: 0 0 18px rgb(76 201 255 / .7); background: rgb(76 201 255 / .15); }
+.jr-hulpje { display: flex; gap: 30px; align-items: center; justify-content: center; flex-wrap: wrap; }
+.jr-hulpje-kaart { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 16px 22px; border-radius: 26px; background: rgb(var(--k-panel) / .92); box-shadow: 0 0 0 3px #ffd36b, 0 0 36px rgb(76 201 255 / .45); color: var(--jr-inkt); font-size: 1.4rem; }
+.jr-hulpje-kaart img { width: min(26vh, 200px); height: min(26vh, 200px); object-fit: contain; }
+.jr-hulpje-info { display: flex; flex-direction: column; gap: 14px; align-items: center; max-width: 620px; }
+.jr-klusjes { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.jr-lk main button.jr-klus { padding: 8px 16px; border-radius: 999px; border: 2px solid var(--jr-lijn); background: rgb(var(--k-panel) / .88); color: var(--jr-inkt); font: inherit; font-weight: 700; cursor: pointer; }
+.jr-lk main button.jr-klus.aan { border-color: #ffd36b; background: rgb(76 201 255 / .2); box-shadow: 0 0 16px rgb(76 201 255 / .5); }
+.jr-onzedag { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+.jr-lk main button.jr-onzedag-kaart { display: flex; flex-direction: column; align-items: center; gap: 4px; width: 118px; padding: 8px; border-radius: 18px; border: 2px solid rgb(224 169 58 / .5); background: rgb(var(--k-panel) / .9); color: var(--jr-inkt); font: inherit; cursor: pointer; }
+.jr-onzedag-kaart img { width: 90px; height: 90px; object-fit: contain; }
+.jr-onzedag-kaart b { font-size: .85rem; }
+@media (max-width: 800px) { .jr-maanden { grid-template-columns: repeat(4, 1fr); } .jr-kleren, .jr-gevoelens { grid-template-columns: repeat(3, 1fr); } .jr-kleren-rij { flex-direction: column; } }
+.jr-ochtend-vak[data-stap='weer'] .jr-weer { width: min(100%, 600px); }
+.jr-lk main button.jr-maand { opacity: .85; }
+.jr-lk main button.jr-seizoen { opacity: .7; }
