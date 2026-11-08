@@ -2,6 +2,7 @@
 // Kies een oefenblad of quiz, tik de leerlingen aan (of kies snel: hele klas, een kleur of een groepje uit het zorgoverzicht)
 // en geef de taak. Daaronder zie je live per leerling: nog niet begonnen, bezig of klaar, met de score.
 const socket = io({ query: { role: 'host' } });
+KlasKiezer.start(socket, document.getElementById('klaskiezer'));
 const $ = id => document.getElementById(id);
 const el = (tag, cls, text) => {
   const e = document.createElement(tag);

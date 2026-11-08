@@ -586,24 +586,29 @@ lesmap.init([
   // De Kronieken: mappen, online bordboeken en koppelingen per les (de pdf's zelf blijven op elke pc).
   { kind: 'kronieken', dir: kronieken.LINKS_DIR, remote: 'kronieken', validate: kronieken.geldigeLinks },
   // Taken: thuis klaarzetten, op het digibord werken de leerlingen eraan. Alleen de taak zelf, nooit het werk.
-  { kind: 'taak', dir: taken.PLAN, remote: 'taken', validate: taken.planGeldig },
+  // perKlas: hoort bij de klas die nu gekozen is (Meerdere klassen); de eerste klas staat waar ze altijd stond.
+  { kind: 'taak', dir: () => taken.PLAN, perKlas: true, remote: 'taken', validate: taken.planGeldig },
   // De klastaken van De Wachtlijst (de taken en de beurt, niet de volgorde van de leerlingen).
-  { kind: 'klastaken', dir: klastaken.DIR, remote: 'klastaken', validate: klastaken.geldig },
+  { kind: 'klastaken', dir: () => klastaken.DIR, perKlas: true, remote: 'klastaken', validate: klastaken.geldig },
   // De Klasindeling: je lokaal en wie waar zit, thuis klaar te zetten.
-  { kind: 'klasindeling', dir: klasindeling.DIR, remote: 'klasindeling', validate: klasindeling.geldig },
+  { kind: 'klasindeling', dir: () => klasindeling.DIR, perKlas: true, remote: 'klasindeling', validate: klasindeling.geldig },
   // De klaslijst (alleen namen en niveaus), zodat je thuis taken per kind klaarzet. Twee lijsten worden samengevoegd.
-  { kind: 'klas', dir: klas.LESMAP, remote: 'klas', validate: klas.lesmapGeldig, merge: klas.lesmapSamen },
+  { kind: 'klas', dir: () => klas.LESMAP, perKlas: true, remote: 'klas', validate: klas.lesmapGeldig, merge: klas.lesmapSamen },
+  // Welke klassen er zijn (Meerdere klassen): een klas die thuis gemaakt werd, staat dan ook op het digibord.
+  { kind: 'klassen', dir: klas.KLASSEN_LESMAP, remote: 'klassen-lijst', validate: klas.klassenGeldig, merge: klas.klassenSamen },
   // Het Klaseiland en het ridderboek: de pc waar de klas speelt zet een kopie klaar, thuis kan je die bekijken.
-  { kind: 'burchten', dir: burchten.LESMAP, remote: 'klaseiland', validate: burchten.kopieGeldig },
+  { kind: 'burchten', dir: () => burchten.LESMAP, perKlas: true, remote: 'klaseiland', validate: burchten.kopieGeldig },
 ]);
 let syncTimer = null;
 function runSync() {
   try { klas.naarLesmap(); } catch (err) { console.error('Klaslijst voor de lesmap bewaren mislukt:', err.message); }
+  try { klas.naarLesmapKlassen(); } catch (err) { console.error('Klassen voor de lesmap bewaren mislukt:', err.message); }
   if (settings.read().lesmap) {
     try { burchten.naarLesmap(); } catch (err) { console.error('Klaseiland voor de lesmap bewaren mislukt:', err.message); }
   }
   return lesmap.sync().then(changed => {
     // Eerst de klaslijst: taken uit de lesmap gaan alleen naar wie op de klaslijst staat.
+    if (changed.includes('klassen') && klas.uitLesmapKlassen()) io.to('host').emit('klassen', klas.klassen());
     if (changed.includes('klas') && klas.uitLesmap()) {
       io.emit('klas-namen', klas.names());
       io.to('host').emit('klas-gewijzigd');
@@ -1496,9 +1501,44 @@ io.on('connection', socket => {
     socket.on('klas-save', handle(data => {
       const saved = klas.write(data);
       io.emit('klas-namen', klas.names());
+      io.to('host').emit('klassen', klas.klassen());
       juniorSoon();
       syncSoon();
       return { klas: saved };
+    }));
+    // Meerdere klassen op één toestel: de kiezer bovenaan Mijn klas en Onze klas (Junior).
+    // Kiezen geldt voor heel LANcelot: het aanmelden, de spellen, het logboek, de taken, Junior...
+    const naKlasWissel = () => {
+      io.emit('klas-namen', klas.names());
+      io.to('host').emit('klassen', klas.klassen());
+      io.to('host').emit('klas-gewijzigd');
+      io.emit('tk-nieuw');
+      juniorSoon();
+      syncSoon();
+    };
+    socket.on('klassen-get', handle(() => klas.klassen()));
+    socket.on('klassen-kies', handle(({ id } = {}) => {
+      const uit = klas.kiesKlas(id);
+      naKlasWissel();
+      return uit;
+    }));
+    socket.on('klassen-nieuw', handle(({ naam, leerjaar } = {}) => {
+      const uit = klas.nieuweKlas({ naam, leerjaar });
+      naKlasWissel();
+      return uit;
+    }));
+    socket.on('klassen-naam', handle(({ naam } = {}) => {
+      const k = klas.read();
+      klas.write({ naam, leerjaar: k.leerjaar, namen: k.leerlingen.map(l => l.naam) });
+      io.to('host').emit('klassen', klas.klassen());
+      io.to('host').emit('klas-gewijzigd');
+      syncSoon();
+      return klas.klassen();
+    }));
+    socket.on('klassen-weg', handle(({ id } = {}) => {
+      const uit = klas.verwijderKlas(id);
+      naKlasWissel();
+      return uit;
     }));
     socket.on('doelen-get', handle(() => ({ doelen: doelen.all(), leerjaar: klas.read().leerjaar, leerjaren: doelen.leerjaren(), land: doelen.land() })));
     // Welke doelen: een land kiezen, eigen doelen plakken, of een prompt om ze door een AI te laten voorstellen.

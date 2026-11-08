@@ -8,9 +8,9 @@ const gegevens = require('./gegevens');
 const klas = require('./klas');
 
 // Het oude bestand van voor de lesmap (met id's); alleen nog om over te zetten.
-const FILE = path.join(gegevens.pad('klas'), 'klastaken.json');
-const DIR = path.join(gegevens.pad('klas'), 'wachtlijst');
-const GEDEELD = path.join(DIR, 'klastaken.json');
+const FILE = () => path.join(gegevens.pad('klas'), 'klastaken.json');
+const DIR = () => path.join(gegevens.pad('klas'), 'wachtlijst');
+const GEDEELD = () => path.join(DIR(), 'klastaken.json');
 const MAX_TAKEN = 20;
 
 const STANDAARD = [
@@ -44,9 +44,9 @@ function naarIds(namen) {
 }
 
 function read() {
-  const oud = lees(FILE) || {};
+  const oud = lees(FILE()) || {};
   // Nog geen gedeeld bestand (van voor de lesmap): alles staat dan nog in het oude bestand.
-  const d = lees(GEDEELD) || oud;
+  const d = lees(GEDEELD()) || oud;
   return {
     taken: Array.isArray(d.taken) ? d.taken : STANDAARD,
     volgorde: Array.isArray(d.namen) ? naarIds(d.namen) : Array.isArray(oud.volgorde) ? oud.volgorde : [],
@@ -83,7 +83,7 @@ function write(data = {}) {
     .filter(t => t.naam)
     .slice(0, MAX_TAKEN);
   const ids = (Array.isArray(data.volgorde) ? data.volgorde : []).filter(id => typeof id === 'string' && id.length <= 20).slice(0, 60);
-  const vorige = (lees(GEDEELD) || {}).namen;
+  const vorige = (lees(GEDEELD()) || {}).namen;
   const gedeeld = {
     taken,
     namen: naarNamen(ids, Array.isArray(vorige) ? vorige : []),
@@ -91,14 +91,14 @@ function write(data = {}) {
     sinds: /^\d{4}-\d{2}-\d{2}$/.test(data.sinds) ? data.sinds : maandag(),
     auto: data.auto !== false,
   };
-  bewaar(GEDEELD, gedeeld);
+  bewaar(GEDEELD(), gedeeld);
   return read();
 }
 
 // Van voor de lesmap of van voor de namen: meteen overzetten naar het gedeelde bestand, zodat alles mee kan.
-const gedeeld = lees(GEDEELD);
+const gedeeld = lees(GEDEELD());
 // Zonder klaslijst (een thuis-pc) niets overzetten: dan komt de volgorde straks uit de lesmap.
-if ((!gedeeld && lees(FILE) && Array.isArray(lees(FILE).taken)) || (gedeeld && !Array.isArray(gedeeld.namen) && leerlingen().length)) {
+if ((!gedeeld && lees(FILE()) && Array.isArray(lees(FILE()).taken)) || (gedeeld && !Array.isArray(gedeeld.namen) && leerlingen().length)) {
   try { write(read()); } catch {}
 }
 
@@ -107,4 +107,4 @@ function geldig(d) {
   if (!d || typeof d !== 'object' || !Array.isArray(d.taken)) throw new Error('Ongeldig bestand.');
 }
 
-module.exports = { read, write, geldig, DIR };
+module.exports = { read, write, geldig, get DIR() { return DIR(); } };

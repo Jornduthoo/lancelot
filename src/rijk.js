@@ -9,7 +9,7 @@ const gegevens = require('./gegevens');
 const logboek = require('./logboek');
 const quizzes = require('./quizzes');
 
-const DIR = gegevens.pad('rijken');
+const DIR = () => gegevens.pad('rijken');
 const COLS = 11;
 const ROWS = 7;
 const WATER = 10;
@@ -92,7 +92,7 @@ function slug(text) {
 
 function checkFile(file) {
   if (!/^[a-z0-9-]+\.json$/.test(String(file))) throw new Error('Ongeldig rijk.');
-  return path.join(DIR, file);
+  return path.join(DIR(), file);
 }
 
 function read(file) {
@@ -102,7 +102,7 @@ function read(file) {
 }
 
 function write(file, data) {
-  fs.mkdirSync(DIR, { recursive: true });
+  fs.mkdirSync(DIR(), { recursive: true });
   const target = checkFile(file);
   fs.writeFileSync(target + '.tmp', JSON.stringify(data));
   fs.renameSync(target + '.tmp', target);
@@ -122,9 +122,9 @@ function summary(file, data) {
 }
 
 function list() {
-  if (!fs.existsSync(DIR)) return [];
+  if (!fs.existsSync(DIR())) return [];
   const out = [];
-  for (const file of fs.readdirSync(DIR)) {
+  for (const file of fs.readdirSync(DIR())) {
     if (!/^[a-z0-9-]+\.json$/.test(file)) continue;
     try {
       out.push(summary(file, read(file)));
@@ -140,7 +140,7 @@ function create(name, teamCount, teamNames) {
   if (!clean) throw new Error('Geef je rijk een naam.');
   const n = [2, 3, 4].includes(teamCount) ? teamCount : 2;
   let file = `${slug(clean)}.json`;
-  for (let i = 2; fs.existsSync(path.join(DIR, file)); i++) file = `${slug(clean)}-${i}.json`;
+  for (let i = 2; fs.existsSync(path.join(DIR(), file)); i++) file = `${slug(clean)}-${i}.json`;
   const teams = TEAMS.slice(0, n).map((t, i) => ({
     name: String((teamNames && teamNames[i]) || '').trim().slice(0, 24) || t.name, color: t.color,
   }));
@@ -522,4 +522,4 @@ class Rijk {
   }
 }
 
-module.exports = { Rijk, list, create, remove, read, neighbours, DIR };
+module.exports = { Rijk, list, create, remove, read, neighbours, get DIR() { return DIR(); } };

@@ -12,7 +12,7 @@ const klas = require('./klas');
 const proeven = require('./proeven');
 const R = require('../public/js/zr-reken');
 
-const DIR = gegevens.pad('zegelrol');
+const DIR = () => gegevens.pad('zegelrol');
 const OPMAAK = 'opmaak.json';
 const ID = /^[a-f0-9]{8}$/;
 const DATUM = /^\d{4}-\d{2}-\d{2}$/;
@@ -28,11 +28,11 @@ const nieuwId = () => crypto.randomBytes(4).toString('hex');
 const half = n => Math.round(n * 2) / 2;
 
 function lees(naam, leeg) {
-  try { return JSON.parse(fs.readFileSync(path.join(DIR, naam), 'utf8')); } catch { return leeg; }
+  try { return JSON.parse(fs.readFileSync(path.join(DIR(), naam), 'utf8')); } catch { return leeg; }
 }
 function schrijf(naam, data) {
-  fs.mkdirSync(DIR, { recursive: true });
-  const doel = path.join(DIR, naam);
+  fs.mkdirSync(DIR(), { recursive: true });
+  const doel = path.join(DIR(), naam);
   fs.writeFileSync(`${doel}.tmp`, JSON.stringify(data));
   fs.renameSync(`${doel}.tmp`, doel);
 }
@@ -227,8 +227,8 @@ const ATTITUDES = ['Ik werk zelfstandig.', 'Ik werk netjes en verzorgd.', 'Ik lu
   'Ik heb mijn materiaal en huiswerk in orde.', 'Ik zet door als iets moeilijk is.'];
 
 function lijst() {
-  if (!fs.existsSync(DIR)) return [];
-  return fs.readdirSync(DIR).filter(f => /^rapport-[a-f0-9]{8}\.json$/.test(f)).map(f => {
+  if (!fs.existsSync(DIR())) return [];
+  return fs.readdirSync(DIR()).filter(f => /^rapport-[a-f0-9]{8}\.json$/.test(f)).map(f => {
     const r = lees(f, null);
     if (!r) return null;
     const onderdelen = (r.vakken || []).reduce((n, v) => n + (v.onderdelen || []).length, 0);
@@ -338,8 +338,8 @@ function bewaar(data) {
 }
 
 function verwijder(id) {
-  const p = path.join(DIR, bestand(id));
-  const bin = path.join(DIR, '_prullenbak');
+  const p = path.join(DIR(), bestand(id));
+  const bin = path.join(DIR(), '_prullenbak');
   fs.mkdirSync(bin, { recursive: true });
   fs.renameSync(p, path.join(bin, `${Date.now()}-${bestand(id)}`));
 }
@@ -362,4 +362,4 @@ const leesCommentaar = data => {
   return { commentaar: c };
 };
 
-module.exports = { standaardDomeinen, DIR, lijst, nieuw, laad, bewaar, verwijder, opmaak, bewaarOpmaak, commentaarPrompt, leesCommentaar, SYMBOLEN };
+module.exports = { standaardDomeinen, get DIR() { return DIR(); }, lijst, nieuw, laad, bewaar, verwijder, opmaak, bewaarOpmaak, commentaarPrompt, leesCommentaar, SYMBOLEN };

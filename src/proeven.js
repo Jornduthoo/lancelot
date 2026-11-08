@@ -12,7 +12,8 @@ const logboek = require('./logboek');
 const K = require('../public/js/pf-kern');
 
 const DIR = gegevens.pad('proeven');
-const AFNAMES = path.join(DIR, '_afnames');
+// De afnames horen bij de klas (Meerdere klassen): elke klas heeft haar eigen punten.
+const AFNAMES = () => gegevens.pad('proeven', '_afnames');
 
 function list() {
   if (!fs.existsSync(DIR)) return [];
@@ -85,7 +86,7 @@ const lib = library({ kind: 'proef', dir: DIR, checkFile, load, save, validate: 
 
 function afnamePad(file) {
   if (typeof file !== 'string' || path.basename(file) !== file || !/^[\w-]+\.json$/.test(file)) throw new Error('Ongeldige afname.');
-  return path.join(AFNAMES, file);
+  return path.join(AFNAMES(), file);
 }
 
 function stempel(d) {
@@ -95,10 +96,10 @@ function stempel(d) {
 
 // Een nieuwe afname wegschrijven (bij het afsluiten). Geeft de bestandsnaam terug.
 function bewaarAfname(rec) {
-  fs.mkdirSync(AFNAMES, { recursive: true });
+  fs.mkdirSync(AFNAMES(), { recursive: true });
   const base = `${stempel(new Date(rec.datum))}_${slug(rec.title)}`;
   let file = `${base}.json`;
-  for (let i = 2; fs.existsSync(path.join(AFNAMES, file)); i++) file = `${base}-${i}.json`;
+  for (let i = 2; fs.existsSync(path.join(AFNAMES(), file)); i++) file = `${base}-${i}.json`;
   rec.file = file;
   schrijf(rec);
   return file;
@@ -133,8 +134,8 @@ function stand(rec, s) {
 }
 
 function afnames() {
-  if (!fs.existsSync(AFNAMES)) return [];
-  return fs.readdirSync(AFNAMES).filter(f => f.endsWith('.json')).map(file => {
+  if (!fs.existsSync(AFNAMES())) return [];
+  return fs.readdirSync(AFNAMES()).filter(f => f.endsWith('.json')).map(file => {
     try {
       const rec = laadAfname(file);
       const open = rec.spelers.reduce((n, s) => n + stand(rec, s).open, 0);

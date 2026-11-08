@@ -1,5 +1,6 @@
 // Mijn klas: de klaslijst invullen, het logboek bekijken en de leerplandoelen doorzoeken.
 const socket = io({ query: { role: 'host' } });
+KlasKiezer.start(socket, document.getElementById('klaskiezer'));
 const $ = id => document.getElementById(id);
 
 let doelen = [];

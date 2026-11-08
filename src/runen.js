@@ -15,8 +15,8 @@ const taal = require('./taal');
 // De ingebouwde woorden en de woordenlijst hangen af van de taal van LANcelot (Instellingen > Uiterlijk > Taal).
 const ingebouwdVoor = () => taal.inhoud('runen-woorden');
 
-const DIR = gegevens.pad('runen');
-const LIJST = path.join(DIR, 'weeklijst.json');
+const DIR = () => gegevens.pad('runen');
+const LIJST = () => path.join(DIR(), 'weeklijst.json');
 const POGINGEN = 6;
 const LEVELS = {
   page: { lens: [4], get woorden() { return ingebouwdVoor().PAGE; } },
@@ -66,7 +66,7 @@ function dagVan(now = new Date()) {
   return `${now.getFullYear()}-${p(now.getMonth() + 1)}-${p(now.getDate())}`;
 }
 
-const jaarFile = sj => path.join(DIR, `${sj}.json`);
+const jaarFile = sj => path.join(DIR(), `${sj}.json`);
 let data = null; // { schooljaar, dagen: { 'YYYY-MM-DD': { woorden: { page: {w,b,z,eigen} }, spelers: { key: { naam, eigen, niveaus: { page: { p: [...], klaar, ok } } } } } } }
 let saveTimer = null;
 
@@ -89,7 +89,7 @@ function flush() {
   saveTimer = null;
   if (!data) return;
   try {
-    fs.mkdirSync(DIR, { recursive: true });
+    fs.mkdirSync(DIR(), { recursive: true });
     const f = jaarFile(data.schooljaar);
     fs.writeFileSync(f + '.tmp', JSON.stringify(data));
     fs.renameSync(f + '.tmp', f);
@@ -102,6 +102,8 @@ function save() {
   if (!saveTimer) saveTimer = setTimeout(flush, 1500);
 }
 process.on('exit', flush);
+// Een andere klas gekozen: eerst alles wegschrijven, dan vergeten (de nieuwe klas leest haar eigen bestanden).
+gegevens.voorKlasWissel(() => { flush(); data = null; lijstCache = null; });
 
 // ---------- Woorden van de week (van de leerkracht) ----------
 
@@ -109,7 +111,7 @@ let lijstCache = null;
 function lijst() {
   if (lijstCache) return lijstCache;
   try {
-    const l = JSON.parse(fs.readFileSync(LIJST, 'utf8'));
+    const l = JSON.parse(fs.readFileSync(LIJST(), 'utf8'));
     lijstCache = { woorden: Array.isArray(l.woorden) ? l.woorden : [], doel: doelen.clean(l.doel) };
   } catch {
     lijstCache = { woorden: [], doel: '' };
@@ -141,9 +143,9 @@ function bewaarLijst({ text, doel } = {}) {
   const woorden = leesLijst(text);
   if (!woorden.length && woorden.fout.length) throw new Error(`Geen enkel woord past (4 tot 7 letters, zonder spaties of cijfers): ${woorden.fout.slice(0, 6).join(', ')}`);
   const l = { woorden: [...woorden], doel: doelen.clean(doel) };
-  fs.mkdirSync(DIR, { recursive: true });
-  fs.writeFileSync(LIJST + '.tmp', JSON.stringify(l, null, 1));
-  fs.renameSync(LIJST + '.tmp', LIJST);
+  fs.mkdirSync(DIR(), { recursive: true });
+  fs.writeFileSync(LIJST() + '.tmp', JSON.stringify(l, null, 1));
+  fs.renameSync(LIJST() + '.tmp', LIJST());
   lijstCache = l;
   return { ...lijstView(), overgeslagen: woorden.fout };
 }
@@ -525,4 +527,4 @@ function onthul() {
   return { dag, woorden: out };
 }
 
-module.exports = { view, raad, bord, onthul, kransVan, bewaarLijst, lijstView, vulAan, maakLijst, chatPrompt, kleur, normaal, dagVan, flush, DIR, KRANS, KRANS_NAMEN };
+module.exports = { view, raad, bord, onthul, kransVan, bewaarLijst, lijstView, vulAan, maakLijst, chatPrompt, kleur, normaal, dagVan, flush, get DIR() { return DIR(); }, KRANS, KRANS_NAMEN };

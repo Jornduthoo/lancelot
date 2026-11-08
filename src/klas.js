@@ -6,16 +6,16 @@ const gegevens = require('./gegevens');
 const niveaus = require('./niveaus');
 const doelen = require('./doelen');
 
-const DIR = gegevens.pad('klas');
-const FILE = path.join(DIR, 'klas.json');
+const DIR = () => gegevens.pad('klas');
+const FILE = () => path.join(DIR(), 'klas.json');
 const MAX = 40;
 // Mee met Mijn lesmap: alleen de namen en niveaus (geen id's, geen notities), zodat je thuis taken per kind klaarzet.
-const LESMAP = path.join(DIR, 'lesmap');
-const LIJST = path.join(LESMAP, 'klaslijst.json');
+const LESMAP = () => path.join(DIR(), 'lesmap');
+const LIJST = () => path.join(LESMAP(), 'klaslijst.json');
 
 function read() {
   try {
-    const data = JSON.parse(fs.readFileSync(FILE, 'utf8'));
+    const data = JSON.parse(fs.readFileSync(FILE(), 'utf8'));
     return { naam: data.naam || '', leerjaar: doelen.leerjaar(data.leerjaar || 6), leerlingen: Array.isArray(data.leerlingen) ? data.leerlingen : [] };
   } catch {
     return { naam: '', leerjaar: 6, leerlingen: [] };
@@ -45,8 +45,8 @@ function write({ naam, leerjaar, namen } = {}) {
   }
   if (leerlingen.length > MAX) throw new Error(`Een klas mag hooguit ${MAX} leerlingen hebben.`);
   const data = { naam: String(naam || '').trim().slice(0, 40), leerjaar: doelen.leerjaar(leerjaar), leerlingen };
-  fs.mkdirSync(DIR, { recursive: true });
-  fs.writeFileSync(FILE, JSON.stringify(data, null, 2) + '\n');
+  fs.mkdirSync(DIR(), { recursive: true });
+  fs.writeFileSync(FILE(), JSON.stringify(data, null, 2) + '\n');
   return data;
 }
 
@@ -66,8 +66,8 @@ function setNiveau(id, niveau, vak) {
     else delete leerling.vakNiveaus;
   } else if (n && n !== 'schildknaap') leerling.niveau = n;
   else delete leerling.niveau;
-  fs.mkdirSync(DIR, { recursive: true });
-  fs.writeFileSync(FILE, JSON.stringify(data, null, 2) + '\n');
+  fs.mkdirSync(DIR(), { recursive: true });
+  fs.writeFileSync(FILE(), JSON.stringify(data, null, 2) + '\n');
   return data;
 }
 
@@ -77,12 +77,12 @@ function names() {
 
 // De leerling op de lijst met deze naam (hoofdletters maken niet uit), of null.
 // Spellen vragen dit bij elke vraag op: de lijst wordt pas opnieuw gelezen als het bestand veranderde.
-let cache = { mtime: -1, list: [] };
+let cache = { file: '', mtime: -1, list: [] };
 function match(name) {
   const key = cleanName(name).toLowerCase();
   let mtime = 0;
-  try { mtime = fs.statSync(FILE).mtimeMs; } catch {}
-  if (mtime !== cache.mtime) cache = { mtime, list: read().leerlingen };
+  try { mtime = fs.statSync(FILE()).mtimeMs; } catch {}
+  if (mtime !== cache.mtime || cache.file !== FILE()) cache = { file: FILE(), mtime, list: read().leerlingen };
   return cache.list.find(l => l.naam.toLowerCase() === key) || null;
 }
 
@@ -114,17 +114,17 @@ function naarLesmap() {
   if (!data.leerlingen.length) return;
   const text = lesmapTekst(data);
   let oud = '';
-  try { oud = fs.readFileSync(LIJST, 'utf8'); } catch {}
+  try { oud = fs.readFileSync(LIJST(), 'utf8'); } catch {}
   if (oud === text) return;
-  fs.mkdirSync(LESMAP, { recursive: true });
-  fs.writeFileSync(LIJST, text);
+  fs.mkdirSync(LESMAP(), { recursive: true });
+  fs.writeFileSync(LIJST(), text);
 }
 
 // Na het synchroniseren: kwam er een andere klaslijst binnen, dan wordt dat de klaslijst hier.
 // Een leerling die hier al stond, houdt zijn id (en dus zijn logboek). Geeft terug of er iets veranderde.
 function uitLesmap() {
   let d;
-  try { d = JSON.parse(fs.readFileSync(LIJST, 'utf8')); lesmapGeldig(d); } catch { return false; }
+  try { d = JSON.parse(fs.readFileSync(LIJST(), 'utf8')); lesmapGeldig(d); } catch { return false; }
   const data = read();
   if (lesmapTekst(data) === lesmapTekst({ naam: String(d.naam || '').trim().slice(0, 40), leerjaar: doelen.leerjaar(d.leerjaar || 6), leerlingen: d.leerlingen.map(l => ({ ...l, naam: cleanName(l.naam) })) })) return false;
   const seen = new Set();
@@ -143,8 +143,8 @@ function uitLesmap() {
     });
   }
   const nieuw = { naam: String(d.naam || '').trim().slice(0, 40), leerjaar: doelen.leerjaar(d.leerjaar || 6), leerlingen };
-  fs.mkdirSync(DIR, { recursive: true });
-  fs.writeFileSync(FILE, JSON.stringify(nieuw, null, 2) + '\n');
+  fs.mkdirSync(DIR(), { recursive: true });
+  fs.writeFileSync(FILE(), JSON.stringify(nieuw, null, 2) + '\n');
   return true;
 }
 
@@ -171,8 +171,8 @@ function hernoem(id, nieuw) {
   if (!l || !naam) throw new Error('Typ eerst een naam.');
   if (k.leerlingen.some(x => x !== l && x.naam.toLowerCase() === naam.toLowerCase())) throw new Error('Die naam staat al op de klaslijst.');
   l.naam = naam;
-  fs.mkdirSync(DIR, { recursive: true });
-  fs.writeFileSync(FILE, JSON.stringify(k, null, 2) + '\n');
+  fs.mkdirSync(DIR(), { recursive: true });
+  fs.writeFileSync(FILE(), JSON.stringify(k, null, 2) + '\n');
   return k;
 }
 function wis(id) {
@@ -180,4 +180,97 @@ function wis(id) {
   return write({ naam: k.naam, leerjaar: k.leerjaar, namen: k.leerlingen.filter(l => l.id !== id).map(l => l.naam) });
 }
 
-module.exports = { voegToe, hernoem, wis, read, write, setNiveau, niveauVoor, names, match, LESMAP, naarLesmap, uitLesmap, lesmapGeldig, lesmapSamen };
+// ---------- Meerdere klassen op één toestel ----------
+// Elke klas heeft haar eigen klaslijst (en logboek, taken, burchten...): zie gegevens.js. Hier: de lijst van klassen.
+
+function leesVan(id) {
+  try {
+    const d = JSON.parse(fs.readFileSync(gegevens.klasPad(id, 'klas', 'klas.json'), 'utf8'));
+    return { naam: String(d.naam || ''), leerjaar: doelen.leerjaar(d.leerjaar || 6), aantal: Array.isArray(d.leerlingen) ? d.leerlingen.length : 0 };
+  } catch {
+    return { naam: '', leerjaar: 6, aantal: 0 };
+  }
+}
+
+function klassen() {
+  const ids = gegevens.klasIds();
+  return {
+    actief: gegevens.actieveKlas(),
+    klassen: ids.map((id, i) => ({ id, nr: i + 1, ...leesVan(id) })),
+  };
+}
+
+function schrijfLeeg(id, naam, leerjaar) {
+  const file = gegevens.klasPad(id, 'klas', 'klas.json');
+  if (fs.existsSync(file)) return;
+  fs.mkdirSync(path.dirname(file), { recursive: true });
+  fs.writeFileSync(file, JSON.stringify({ naam: String(naam || '').trim().slice(0, 40), leerjaar: doelen.leerjaar(leerjaar || 6), leerlingen: [] }, null, 2) + '\n');
+}
+
+// Een nieuwe, lege klas maken en meteen kiezen.
+function nieuweKlas({ naam, leerjaar } = {}) {
+  const id = gegevens.nieuweKlas();
+  schrijfLeeg(id, naam, leerjaar || read().leerjaar);
+  gegevens.kiesKlas(id);
+  naarLesmapKlassen();
+  return klassen();
+}
+
+function kiesKlas(id) {
+  gegevens.kiesKlas(String(id || ''));
+  return klassen();
+}
+
+function verwijderKlas(id) {
+  gegevens.verwijderKlas(String(id || ''));
+  naarLesmapKlassen();
+  return klassen();
+}
+
+// Mee met Mijn lesmap: welke klassen er zijn (id en naam), zodat de andere pc dezelfde klassen krijgt.
+const KLASSEN_LESMAP = () => gegevens.vast('klassen', 'lesmap');
+const KLASSEN_LIJST = () => path.join(KLASSEN_LESMAP(), 'klassen.json');
+
+function klassenGeldig(d) {
+  if (!d || typeof d !== 'object' || !Array.isArray(d.klassen) || d.klassen.some(k => !k || typeof k.id !== 'string' || !/^[a-z0-9]{1,12}$/.test(k.id))) throw new Error('Ongeldige lijst van klassen.');
+}
+
+function klassenTekst(lijst) {
+  return JSON.stringify({ klassen: lijst.map(k => ({ id: k.id, naam: String(k.naam || '').slice(0, 40), leerjaar: doelen.leerjaar(k.leerjaar || 6) })) }, null, 2) + '\n';
+}
+
+// Alleen als er meer dan één klas is: met één klas blijft de lesmap zoals ze altijd was.
+function naarLesmapKlassen() {
+  const { klassen: lijst } = klassen();
+  let oud = '';
+  try { oud = fs.readFileSync(KLASSEN_LIJST(), 'utf8'); } catch {}
+  if (lijst.length < 2 && !oud) return;
+  const text = klassenTekst(lijst);
+  if (oud === text) return;
+  fs.mkdirSync(KLASSEN_LESMAP(), { recursive: true });
+  fs.writeFileSync(KLASSEN_LIJST(), text);
+}
+
+// Twee lijsten van klassen: samenvoegen, nooit een klas schrappen.
+function klassenSamen(hier, daar) {
+  const a = JSON.parse(hier).klassen, b = JSON.parse(daar).klassen;
+  const uit = a.slice();
+  for (const k of b) if (!uit.some(x => x.id === k.id)) uit.push(k);
+  return klassenTekst(uit);
+}
+
+// Na het synchroniseren: een klas die op de andere pc gemaakt werd, komt er hier bij (leeg, met haar naam).
+function uitLesmapKlassen() {
+  let d;
+  try { d = JSON.parse(fs.readFileSync(KLASSEN_LIJST(), 'utf8')); klassenGeldig(d); } catch { return false; }
+  let nieuw = false;
+  for (const k of d.klassen) {
+    if (gegevens.klasIds().includes(k.id)) continue;
+    try { gegevens.nieuweKlas(k.id); } catch { break; }
+    schrijfLeeg(k.id, k.naam, k.leerjaar);
+    nieuw = true;
+  }
+  return nieuw;
+}
+
+module.exports = { klassen, nieuweKlas, kiesKlas, verwijderKlas, get KLASSEN_LESMAP() { return KLASSEN_LESMAP(); }, klassenGeldig, klassenSamen, naarLesmapKlassen, uitLesmapKlassen, voegToe, hernoem, wis, read, write, setNiveau, niveauVoor, names, match, get LESMAP() { return LESMAP(); }, naarLesmap, uitLesmap, lesmapGeldig, lesmapSamen };
