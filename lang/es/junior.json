@@ -608,5 +608,12 @@
  "Dat muziekbestand is te groot (meer dan 30 MB).": "Ese archivo de música es demasiado grande (más de 30 MB).",
  "Die muziek kon niet bewaard worden.": "No se pudo guardar esa música.",
  "⏸ Pauze": "⏸ Pausa",
- "▶ Opruimen!": "▶ ¡A recoger!"
+ "▶ Opruimen!": "▶ ¡A recoger!",
+ "Gegevens en meer": "Datos y más",
+ "Back-ups, bijwerken, het netwerk, je lesmap en de bureau-pc stel je één keer in voor heel LANcelot. Ze gelden ook voor Junior.": "Las copias, las actualizaciones, la red, tu carpeta de clases y el PC del escritorio se configuran una vez para todo LANcelot. También valen para Junior.",
+ "💾 Gegevens en back-ups": "💾 Datos y copias",
+ "⬇️ Bijwerken": "⬇️ Actualizar",
+ "📶 Netwerk": "📶 Red",
+ "☁️ Lesmap": "☁️ Carpeta de clases",
+ "🖥️ Bureau-pc": "🖥️ PC del escritorio"
 }

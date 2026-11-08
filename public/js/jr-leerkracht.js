@@ -338,6 +338,7 @@ $('jr-inst-knop').addEventListener('click', () => {
   });
 });
 $('jr-inst-dicht').addEventListener('click', () => $('jr-inst-venster').close());
+Ui.tabs($('jr-inst-tabs'), 'jr-instellingen-tab');
 // De taal en de AI-sleutel kies je ook hier, zodat Junior op zichzelf werkt.
 for (const b of $('jr-inst-taal').children) {
   b.classList.toggle('aan', b.dataset.w === (window.LANCELOT_TAAL || 'nl'));

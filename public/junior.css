@@ -1518,3 +1518,9 @@ body.jr-los #jr-vak, body.jr-los #jr-beurt { visibility: hidden; }
 .jr-prent { width: 1.15em; height: 1.15em; object-fit: contain; vertical-align: -.2em; display: inline-block; pointer-events: none; -webkit-user-drag: none; user-select: none; }
 /* Het knopje dat het draakje nu voorleest. */
 .jr .jr-optie.jr-leest { box-shadow: 0 0 0 .2em var(--jr-goud), 0 0 1em rgb(255 201 74 / .6); }
+
+/* Instellingen: tabbladen zoals in LANcelot. */
+.jr-inst-venster .tabbalk { margin-top: 4px; }
+.jr-inst-tab.tab-uit { display: none; }
+.jr-inst-tab { min-height: 300px; }
+.jr-inst-links { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }

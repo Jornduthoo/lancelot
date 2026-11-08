@@ -402,6 +402,9 @@ ItemList.mount($('results-list'), {
 
 $('open-results').addEventListener('click', () => show('results'));
 // Instellingen in tabbladen; het laatst gekozen tabblad komt terug.
+// Vanuit Junior: /host?instellingen=gegevens opent meteen dat tabblad van de instellingen.
+const instTab = new URLSearchParams(location.search).get('instellingen');
+if (instTab) { try { localStorage.setItem('lancelot-instellingen-tab', instTab); } catch {} setTimeout(() => $('open-settings').click(), 300); }
 Ui.tabs($('set-tabs'), 'lancelot-instellingen-tab');
 $('open-klas').addEventListener('click', () => { location.href = '/klas'; });
 $('open-taken').addEventListener('click', () => { location.href = '/taken'; });

@@ -365,6 +365,10 @@
 </dialog>
 <dialog class="jr-inst-venster" id="jr-inst-venster">
   <h2>⚙️ Instellingen</h2>
+  <nav class="tabbalk" id="jr-inst-tabs" aria-label="Instellingen">
+    <button type="button" data-tab="spelen">Spelen</button><button type="button" data-tab="uiterlijk">Uiterlijk</button><button type="button" data-tab="ai">AI</button><button type="button" data-tab="meer">Gegevens en meer</button>
+  </nav>
+  <div class="jr-inst-tab" data-tab="spelen">
   <p class="jr-kv-label">Opdrachten per ronde</p>
   <p class="jr-inst-uitleg">Na elke ronde krijgt het kind een sticker.</p>
   <div class="jr-kv-keuzes" id="jr-inst-ronde">
@@ -373,11 +377,6 @@
   <p class="jr-kv-label">Voorlezen op de tablets</p>
   <p class="jr-inst-uitleg">Uit: het draakje leest alleen voor als een kind op 🔊 tikt.</p>
   <div class="jr-kv-keuzes" id="jr-inst-voorlezen">
-    <button type="button" data-w="1">Aan</button><button type="button" data-w="0">Uit</button>
-  </div>
-  <p class="jr-kv-label">🌙 Rustig</p>
-  <p class="jr-inst-uitleg">Voor kinderen die snel overprikkeld raken: niets beweegt, geen confetti, geen geluidjes of muziek, zachte kleuren en een tragere stem.</p>
-  <div class="jr-kv-keuzes" id="jr-inst-rustig">
     <button type="button" data-w="1">Aan</button><button type="button" data-w="0">Uit</button>
   </div>
   <p class="jr-kv-label">🎮 Vrij oefenen</p>
@@ -390,21 +389,30 @@
   <div class="jr-kv-keuzes" id="jr-inst-groei">
     <button type="button" data-w="1">Aan</button><button type="button" data-w="0">Uit</button>
   </div>
-  <p class="jr-kv-label">Thema</p>
-  <p class="jr-inst-uitleg">Versiering op het bord en de tablets. Automatisch volgt de kalender.</p>
-  <div class="jr-kv-keuzes jr-inst-thema" id="jr-inst-thema">
-    <button type="button" data-w="auto">📅 Automatisch</button><button type="button" data-w="herfst">🍂 Herfst</button><button type="button" data-w="sint">🎁 Sinterklaas</button><button type="button" data-w="kerst">🎄 Kerst</button><button type="button" data-w="carnaval">🎭 Carnaval</button><button type="button" data-w="halloween">🎃 Halloween</button><button type="button" data-w="winter">⛄ Winter</button><button type="button" data-w="valentijn">💗 Valentijn</button><button type="button" data-w="lente">🌷 Lente</button><button type="button" data-w="pasen">🐣 Pasen</button><button type="button" data-w="moederdag">💐 Moederdag</button><button type="button" data-w="vaderdag">👔 Vaderdag</button><button type="button" data-w="zomer">☀️ Zomer</button><button type="button" data-w="school">🎒 Schoolstart</button><button type="button" data-w="geen">Geen</button>
-  </div>
   <p class="jr-kv-label">Geld</p>
   <p class="jr-inst-uitleg">Het geld in Geldmarkt. Automatisch volgt het land van je doelen.</p>
   <div class="jr-kv-keuzes" id="jr-inst-munt">
     <button type="button" data-w="auto">📅 Automatisch</button><button type="button" data-w="eur">€ Euro</button><button type="button" data-w="usd">$ Dollar</button><button type="button" data-w="gbp">£ Pond</button>
+  </div>
+  </div>
+  <div class="jr-inst-tab" data-tab="uiterlijk">
+  <p class="jr-kv-label">🌙 Rustig</p>
+  <p class="jr-inst-uitleg">Voor kinderen die snel overprikkeld raken: niets beweegt, geen confetti, geen geluidjes of muziek, zachte kleuren en een tragere stem.</p>
+  <div class="jr-kv-keuzes" id="jr-inst-rustig">
+    <button type="button" data-w="1">Aan</button><button type="button" data-w="0">Uit</button>
+  </div>
+  <p class="jr-kv-label">Thema</p>
+  <p class="jr-inst-uitleg">Versiering op het bord en de tablets. Automatisch volgt de kalender.</p>
+  <div class="jr-kv-keuzes jr-inst-thema" id="jr-inst-thema">
+    <button type="button" data-w="auto">📅 Automatisch</button><button type="button" data-w="herfst">🍂 Herfst</button><button type="button" data-w="sint">🎁 Sinterklaas</button><button type="button" data-w="kerst">🎄 Kerst</button><button type="button" data-w="carnaval">🎭 Carnaval</button><button type="button" data-w="halloween">🎃 Halloween</button><button type="button" data-w="winter">⛄ Winter</button><button type="button" data-w="valentijn">💗 Valentijn</button><button type="button" data-w="lente">🌷 Lente</button><button type="button" data-w="pasen">🐣 Pasen</button><button type="button" data-w="moederdag">💐 Moederdag</button><button type="button" data-w="vaderdag">👔 Vaderdag</button><button type="button" data-w="zomer">☀️ Zomer</button><button type="button" data-w="school">🎒 Schoolstart</button><button type="button" data-w="geen">Geen</button>
   </div>
   <p class="jr-kv-label">Taal</p>
   <p class="jr-inst-uitleg">De taal van het bord, de tablets en het draakje.</p>
   <div class="jr-kv-keuzes" id="jr-inst-taal" data-geen-vertaling>
     <button type="button" data-w="nl">Nederlands</button><button type="button" data-w="en">English</button><button type="button" data-w="fr">Français</button><button type="button" data-w="es">Español</button><button type="button" data-w="de">Deutsch</button>
   </div>
+  </div>
+  <div class="jr-inst-tab" data-tab="ai">
   <p class="jr-kv-label">AI-sleutel (niet verplicht)</p>
   <p class="jr-inst-uitleg">Daarmee maakt de AI zelf vragen bij Maken. Zonder sleutel kopieer je de prompt naar een chatbot.</p>
   <form class="jr-inst-ai" id="jr-inst-ai">
@@ -413,6 +421,17 @@
     <button type="submit" class="jr-eigen jr-ai-bewaar">Bewaar</button>
   </form>
   <p class="jr-inst-uitleg" id="jr-ai-stand"></p>
+  </div>
+  <div class="jr-inst-tab" data-tab="meer">
+  <p class="jr-inst-uitleg">Back-ups, bijwerken, het netwerk, je lesmap en de bureau-pc stel je één keer in voor heel LANcelot. Ze gelden ook voor Junior.</p>
+  <div class="jr-inst-links">
+    <a class="button secondary" href="/host?instellingen=gegevens">💾 Gegevens en back-ups</a>
+    <a class="button secondary" href="/host?instellingen=bijwerken">⬇️ Bijwerken</a>
+    <a class="button secondary" href="/host?instellingen=netwerk">📶 Netwerk</a>
+    <a class="button secondary" href="/host?instellingen=lesmap">☁️ Lesmap</a>
+    <a class="button secondary" href="/host?instellingen=schermen">🖥️ Bureau-pc</a>
+  </div>
+  </div>
   <div class="actions">
     <button class="gold" id="jr-inst-dicht">Klaar</button>
   </div>
