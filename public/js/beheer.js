@@ -126,7 +126,12 @@
   // --- Bijwerken ---
   function toonUpdate(v) {
     if (v.store) return;
-    if (v.error) return void ($('up-error').textContent = v.error);
+    if (v.error) {
+      $('up-error').textContent = v.error;
+      if ($('up-status').textContent === 'Even geduld…') $('up-status').textContent = '';
+      $('up-zoek').disabled = $('up-download').disabled = false;
+      return;
+    }
     $('up-error').textContent = v.fout || '';
     const nieuwst = v.nieuwste;
     const actueel = nieuwst && v.huidig && v.huidig.sha === nieuwst.sha;
@@ -144,8 +149,16 @@
     if (document.activeElement !== $('up-bron')) $('up-bron').value = v.bron || '';
   }
   const bezig = () => toonUpdate({ bezig: true });
-  $('up-zoek').addEventListener('click', async () => { bezig(); toonUpdate(await ask('update-zoek')); });
-  $('up-download').addEventListener('click', async () => { bezig(); toonUpdate(await ask('update-download')); });
+  // Valt LANcelot weg terwijl hij zoekt, dan komt er nooit antwoord: na een tijd zeggen we dat, en bij het terugkomen halen we de stand opnieuw.
+  let wachtUpdate = false;
+  const vraagUpdate = (event, ms) => {
+    wachtUpdate = true;
+    return Promise.race([ask(event), new Promise(r => setTimeout(() => r({ error: 'LANcelot antwoordt niet. Herlaad de pagina en probeer opnieuw.' }), ms))])
+      .finally(() => { wachtUpdate = false; });
+  };
+  socket.on('connect', async () => { if (wachtUpdate || $('up-zoek').disabled) toonUpdate(await ask('update-get')); });
+  $('up-zoek').addEventListener('click', async () => { bezig(); toonUpdate(await vraagUpdate('update-zoek', 40000)); });
+  $('up-download').addEventListener('click', async () => { bezig(); toonUpdate(await vraagUpdate('update-download', 6 * 60000)); });
   $('up-annuleer').addEventListener('click', async () => toonUpdate(await ask('update-annuleer')));
   $('up-bron-zet').addEventListener('click', async () => toonUpdate(await ask('update-bron', $('up-bron').value)));
   // Een zip van LANcelot (bv. van een usb-stick): werkt zonder internet en zonder GitHub.
