@@ -1669,3 +1669,6 @@ body.jr-los #jr-vak, body.jr-los #jr-beurt { visibility: hidden; }
 .jr-trom .jr-img { width: 9em; height: auto; filter: drop-shadow(0 0 .6em rgb(76 201 255 / .45)); }
 .jr-trom.jr-tik-pop { animation: jr-trom-tik .18s ease-out; }
 @keyframes jr-trom-tik { 50% { transform: scale(.92); } }
+.jr-kt-label { color: var(--jr-inkt); font-weight: 800; opacity: .8; margin-left: 8px; }
+.jr-kt-groepen.jr-kt-veel { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+.jr-kt-veel .jr-kt-groep { padding: 6px; }
