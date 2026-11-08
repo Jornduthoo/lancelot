@@ -1105,5 +1105,6 @@
  "Je kan hooguit {0} klassen hebben.": "Puedes tener como máximo {0} clases.",
  "De eerste klas kan je niet weghalen. Geef ze gerust een andere naam.": "La primera clase no se puede quitar. Puedes cambiarle el nombre.",
  "Ongeldige lijst van klassen.": "Lista de clases no válida.",
- "Klassen voor de lesmap bewaren mislukt:": "No se pudieron guardar las clases para la carpeta de clases:"
+ "Klassen voor de lesmap bewaren mislukt:": "No se pudieron guardar las clases para la carpeta de clases:",
+ "Er komt geen antwoord van de update-server. Probeer het later opnieuw, of werk bij met een zip-bestand.": "El servidor de actualizaciones no responde. Inténtalo más tarde o actualiza con un archivo zip."
 }

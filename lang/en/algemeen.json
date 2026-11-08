@@ -1105,5 +1105,6 @@
  "Je kan hooguit {0} klassen hebben.": "You can have at most {0} classes.",
  "De eerste klas kan je niet weghalen. Geef ze gerust een andere naam.": "The first class cannot be removed. Feel free to rename it.",
  "Ongeldige lijst van klassen.": "Invalid list of classes.",
- "Klassen voor de lesmap bewaren mislukt:": "Saving classes for the lesson folder failed:"
+ "Klassen voor de lesmap bewaren mislukt:": "Saving classes for the lesson folder failed:",
+ "Er komt geen antwoord van de update-server. Probeer het later opnieuw, of werk bij met een zip-bestand.": "The update server is not responding. Try again later, or update with a zip file."
 }

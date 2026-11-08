@@ -57,8 +57,15 @@ function view() {
   return { ...status, bron: eigenBron(), github: !eigenBron(), huidig: leesJson(VERSIE), klaar: fs.existsSync(KLAAR) ? leesJson(KLAAR_INFO) : null, melding: laatsteMelding || (process.env.LANCELOT_BIJGEWERKT ? 'LANcelot is bijgewerkt naar de nieuwste versie.' : '') };
 }
 
-async function haal(url) {
-  const res = await fetch(url, { headers: { 'User-Agent': 'LANcelot', Accept: 'application/vnd.github+json' } });
+// Nooit eindeloos wachten: een hangende verbinding (proxy, slechte wifi) geeft na een tijd een duidelijke fout.
+async function haal(url, ms = 20000) {
+  let res;
+  try {
+    res = await fetch(url, { headers: { 'User-Agent': 'LANcelot', Accept: 'application/vnd.github+json' }, signal: AbortSignal.timeout(ms) });
+  } catch (err) {
+    if (err.name === 'TimeoutError' || err.name === 'AbortError') throw new Error('Er komt geen antwoord van de update-server. Probeer het later opnieuw, of werk bij met een zip-bestand.');
+    throw err;
+  }
   if (res.status === 403 && res.headers.get('x-ratelimit-remaining') === '0') throw new Error('GitHub krijgt even te veel vragen. Probeer het over een uur opnieuw.');
   if (res.status === 404 || res.status === 401 || res.status === 403) {
     throw new Error(eigenBron()
@@ -101,7 +108,7 @@ async function download() {
   status = { ...status, bezig: true, fout: '' };
   try {
     const url = status.nieuwste.zip || `https://codeload.github.com/${REPO}/zip/${sha}`;
-    const buf = Buffer.from(await (await haal(url)).arrayBuffer());
+    const buf = Buffer.from(await (await haal(url, 5 * 60000)).arrayBuffer());
     zetKlaar(buf, { sha, datum, bericht });
   } catch (err) {
     status.fout = /fetch failed|ENOTFOUND|ECONN/i.test(err.message) ? 'Geen internet: bijwerken lukt alleen met internet.' : err.message;

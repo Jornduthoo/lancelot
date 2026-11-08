@@ -1105,5 +1105,6 @@
  "Je kan hooguit {0} klassen hebben.": "Du kannst höchstens {0} Klassen haben.",
  "De eerste klas kan je niet weghalen. Geef ze gerust een andere naam.": "Die erste Klasse kannst du nicht entfernen. Gib ihr ruhig einen anderen Namen.",
  "Ongeldige lijst van klassen.": "Ungültige Klassenliste.",
- "Klassen voor de lesmap bewaren mislukt:": "Klassen für den Unterrichtsordner speichern fehlgeschlagen:"
+ "Klassen voor de lesmap bewaren mislukt:": "Klassen für den Unterrichtsordner speichern fehlgeschlagen:",
+ "Er komt geen antwoord van de update-server. Probeer het later opnieuw, of werk bij met een zip-bestand.": "Der Update-Server antwortet nicht. Versuche es später noch einmal oder aktualisiere mit einer ZIP-Datei."
 }
