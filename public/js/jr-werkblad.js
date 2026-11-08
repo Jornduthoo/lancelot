@@ -12,12 +12,15 @@
   const bewaar = () => { try { localStorage.setItem('jr-wbgen', JSON.stringify(st)); } catch {} };
   const spellen = () => (J().spellen || []).filter(s => !GEEN.includes(s.id) && !s.bordAlleen && (s.id !== 'naam' || st.wie === 'kind'));
   const spel = id => (J().spellen || []).find(s => s.id === id);
+  // Een blok: een spel met zijn niveau, of een eigen reeks (spel 'eigen', niveau = de plaats van de reeks).
+  const reeks = b => (b.spel === 'eigen' ? (window.JR && JR.sets || [])[b.niveau] : null);
+  const blokNaam = b => (b.spel === 'eigen' ? (reeks(b) || {}).naam || '' : (spel(b.spel) || {}).naam || '');
   // De vragen van één spel en niveau (zelfde zaadje = zelfde oefeningen, tot je op 🎲 tikt).
   function vragen(id, niv, n, zaad, kind) {
     const uit = [], gezien = new Set();
     for (let i = 0; i < 400 && uit.length < n; i++) {
       let v = null;
-      try { v = Junior.vraag(id, niv, Junior.toeval(zaad + i * 7919), kind || undefined); } catch { v = null; }
+      try { v = Junior.vraag(id, niv, Junior.toeval(zaad + i * 7919), kind || undefined, true); } catch { v = null; }
       if (!v || !WB[v.soort]) continue;
       const zeg = (v.zeg || []).filter(z => typeof z === 'string' || typeof z === 'number').join(' ');
       const sl = (v.kop || '') + zeg + JSON.stringify(v.opties || v.items || v.kaarten || '');
@@ -32,23 +35,23 @@
   function blad(kind, nr) {
     let alles = [];
     st.blokken.forEach((b, bi) => {
-      const niv = kind ? Junior.niveauVoor(kind, b.spel, b.niveau) : b.niveau;
+      const niv = kind && b.spel !== 'eigen' ? Junior.niveauVoor(kind, b.spel, b.niveau) : b.niveau;
       const zaad = st.start + bi * 104729 + (kind ? (nr + 1) * 15485863 : 0);
-      alles = alles.concat(vragen(b.spel, niv, st.per, zaad, kind && { naam: kind.naam }));
+      const n = b.spel === 'eigen' ? Math.min(st.per, ((reeks(b) || {}).vragen || []).length) : st.per;
+      alles = alles.concat(vragen(b.spel, niv, n, zaad, kind && { naam: kind.naam }));
     });
     if (st.mix) { const r = Junior.toeval(st.start + (nr || 0)); alles = r.schud(alles); }
     return alles;
   }
   function titel() {
     if (st.titel.trim()) return st.titel.trim();
-    if (st.blokken.length === 1) return (spel(st.blokken[0].spel) || {}).naam || '';
+    if (st.blokken.length === 1) return blokNaam(st.blokken[0]);
     return t('Mijn werkblad');
   }
   function sub(kind) {
-    return st.blokken.map(b => { const s = spel(b.spel); if (!s) return ''; const n = kind ? Junior.niveauVoor(kind, b.spel, b.niveau) : b.niveau; return st.blokken.length > 1 ? `${s.naam}: ${s.niveaus[n] || ''}` : s.niveaus[n] || ''; }).join(' · ');
+    return st.blokken.map(b => { if (b.spel === 'eigen') return st.blokken.length > 1 ? blokNaam(b) : ''; const s = spel(b.spel); if (!s) return ''; const n = kind ? Junior.niveauVoor(kind, b.spel, b.niveau) : b.niveau; return st.blokken.length > 1 ? `${s.naam}: ${s.niveaus[n] || ''}` : s.niveaus[n] || ''; }).join(' · ');
   }
-  function html(kind, nr, k) {
-    const q = blad(kind, nr);
+  function html(kind, nr, k, q) {
     const lijn = (lab, w, waarde) => `<span class="wb-naam">${esc(t(lab))} ${waarde ? `<u>${esc(waarde)}</u>` : `<i style="width:${w}mm"></i>`}</span>`;
     const rechts = k ? `<span class="wb-naam wb-sleutel-kop">${esc(t('Verbetersleutel'))}${kind ? ` · ${esc(kind.naam)}` : ''}</span>`
       : `<span class="wb-lijnen">${st.naam ? lijn('Naam:', 55, kind && kind.naam) : ''}${st.datum ? lijn('Datum:', 35) : ''}</span>`;
@@ -60,7 +63,7 @@
   const wieLijst = () => (st.wie === 'kind' ? kinderen.filter(k => !afwezig.has(k.id)) : [null]);
   function alleBladen(max) {
     const wie = wieLijst().slice(0, max || 999);
-    return wie.map((k, i) => html(k, i, false) + (st.sleutel ? html(k, i, true) : '')).join('');
+    return wie.map((k, i) => { const q = blad(k, i); return html(k, i, false, q) + (st.sleutel ? html(k, i, true, q) : ''); }).join('');
   }
   // ---------- Het scherm ----------
   function opties() {
@@ -68,23 +71,26 @@
     const groepen = {};
     for (const s of spellen()) (groepen[s.groep] = groepen[s.groep] || []).push(s);
     const gekozen = id => st.blokken.find(b => b.spel === id);
+    const sets = (window.JR && JR.sets) || [];
+    const reeksGekozen = i => st.blokken.find(b => b.spel === 'eigen' && b.niveau === i);
     box.innerHTML = `
       <section class="jr-wbg-deel"><h3>1. ${esc(t('Kies de spelletjes'))}</h3>
-        <div class="jr-wbg-spellen">${GROEPEN.filter(([g]) => groepen[g]).map(([g, kop]) => `<p class="jr-wbg-groep">${esc(t(kop))}</p><div class="jr-wbg-rij">${groepen[g].map(s => `<button type="button" class="jr-wbg-spel jr-eigen ${gekozen(s.id) ? 'aan' : ''}" data-spel="${s.id}"><img src="${beeldPad(s)}" alt=""><span>${esc(s.naam)}</span></button>`).join('')}</div>`).join('')}</div>
-        ${st.blokken.length ? `<div class="jr-wbg-blokken">${st.blokken.map((b, i) => { const s = spel(b.spel); return s ? `<div class="jr-wbg-blok"><img src="${beeldPad(s)}" alt=""><b>${esc(s.naam)}</b><select data-niv="${i}">${s.niveaus.map((n, j) => `<option value="${j}" ${j === b.niveau ? 'selected' : ''}>${esc(n)}</option>`).join('')}</select><button type="button" class="jr-kt-wis jr-eigen jr-wbg-weg" data-weg="${i}" aria-label="Weg">✕</button></div>` : ''; }).join('')}</div>` : `<p class="jr-wbg-tip">${esc(t('Tik op een of meer spelletjes.'))}</p>`}
+        <div class="jr-wbg-spellen">${GROEPEN.filter(([g]) => groepen[g]).map(([g, kop]) => `<p class="jr-wbg-groep">${esc(t(kop))}</p><div class="jr-wbg-rij">${groepen[g].map(s => `<button type="button" class="jr-wbg-spel jr-eigen ${gekozen(s.id) ? 'aan' : ''}" data-spel="${s.id}"><img src="${beeldPad(s)}" alt=""><span>${esc(s.naam)}</span></button>`).join('')}</div>`).join('')}
+          ${sets.length ? `<p class="jr-wbg-groep">${esc(t('✨ Mijn eigen vragen'))}</p><div class="jr-wbg-rij">${sets.map((r, i) => `<button type="button" class="jr-wbg-spel jr-eigen ${reeksGekozen(i) ? 'aan' : ''}" data-reeks="${i}"><img src="/img/junior/blok/maken.webp" alt=""><span data-geen-vertaling>${esc(r.naam)}</span></button>`).join('')}</div>` : ''}</div>
+        ${st.blokken.length ? `<div class="jr-wbg-blokken">${st.blokken.map((b, i) => { if (b.spel === 'eigen') return reeks(b) ? `<div class="jr-wbg-blok"><img src="/img/junior/blok/maken.webp" alt=""><b data-geen-vertaling>${esc(blokNaam(b))}</b><button type="button" class="jr-kt-wis jr-eigen jr-wbg-weg" data-weg="${i}" aria-label="Weg">✕</button></div>` : ''; const s = spel(b.spel); return s ? `<div class="jr-wbg-blok"><img src="${beeldPad(s)}" alt=""><b>${esc(s.naam)}</b><select data-niv="${i}">${s.niveaus.map((n, j) => `<option value="${j}" ${j === b.niveau ? 'selected' : ''}>${esc(n)}</option>`).join('')}</select><button type="button" class="jr-kt-wis jr-eigen jr-wbg-weg" data-weg="${i}" aria-label="Weg">✕</button></div>` : ''; }).join('')}</div>` : `<p class="jr-wbg-tip">${esc(t('Tik op een of meer spelletjes.'))}</p>`}
       </section>
       <section class="jr-wbg-deel"><h3>2. ${esc(t('Oefeningen'))}</h3>
-        <p class="jr-kv-label">${esc(t('Per spel'))}</p><div class="jr-kv-keuzes">${AANTAL.map(n => `<button type="button" data-per="${n}" class="${st.per === n ? 'aan' : ''}">${n}</button>`).join('')}</div>
+        <p class="jr-kv-label">${esc(t('Per spel'))}</p><div class="jr-kv-keuzes">${AANTAL.map(n => `<button type="button" data-per="${n}" class="jr-eigen ${st.per === n ? 'aan' : ''}">${n}</button>`).join('')}</div>
         <label class="jr-wb-vink"><input type="checkbox" data-vink="mix" ${st.mix ? 'checked' : ''}> ${esc(t('Spelletjes door elkaar'))}</label>
         <button type="button" class="secondary" id="jr-wbg-nieuw">🎲 ${esc(t('Andere oefeningen'))}</button>
       </section>
       <section class="jr-wbg-deel"><h3>3. ${esc(t('Voor wie?'))}</h3>
-        <div class="jr-kv-keuzes"><button type="button" data-wie="klas" class="${st.wie === 'klas' ? 'aan' : ''}">${esc(t('Eén blad voor de hele klas'))}</button><button type="button" data-wie="kind" class="${st.wie === 'kind' ? 'aan' : ''}">${esc(t('Een eigen blad per kind'))}</button></div>
+        <div class="jr-kv-keuzes"><button type="button" data-wie="klas" class="jr-eigen ${st.wie === 'klas' ? 'aan' : ''}">${esc(t('Eén blad voor de hele klas'))}</button><button type="button" data-wie="kind" class="jr-eigen ${st.wie === 'kind' ? 'aan' : ''}">${esc(t('Een eigen blad per kind'))}</button></div>
         <p class="jr-wbg-tip">${esc(t(st.wie === 'kind' ? 'Elk kind krijgt andere oefeningen, met zijn naam en dier erop en het niveau van Op maat. Alleen wie er vandaag is.' : 'Iedereen dezelfde oefeningen: druk het blad zo vaak af als je nodig hebt.'))}</p>
       </section>
       <section class="jr-wbg-deel"><h3>4. ${esc(t('Opmaak'))}</h3>
         <label class="jr-wbg-titel">${esc(t('Titel'))} <input id="jr-wbg-titel" maxlength="40" value="${esc(st.titel)}" placeholder="${esc(titel())}"></label>
-        <div class="jr-kv-keuzes"><button type="button" data-groot="0" class="${st.groot ? '' : 'aan'}">${esc(t('Normaal (2 per rij)'))}</button><button type="button" data-groot="1" class="${st.groot ? 'aan' : ''}">${esc(t('Groot (1 per rij)'))}</button></div>
+        <div class="jr-kv-keuzes"><button type="button" data-groot="0" class="jr-eigen ${st.groot ? '' : 'aan'}">${esc(t('Normaal (2 per rij)'))}</button><button type="button" data-groot="1" class="jr-eigen ${st.groot ? 'aan' : ''}">${esc(t('Groot (1 per rij)'))}</button></div>
         <div class="jr-wbg-vinken">
           <label class="jr-wb-vink"><input type="checkbox" data-vink="naam" ${st.naam ? 'checked' : ''}> ${esc(t('Naamlijn'))}</label>
           <label class="jr-wb-vink"><input type="checkbox" data-vink="datum" ${st.datum ? 'checked' : ''}> ${esc(t('Datumlijn'))}</label>
@@ -99,6 +105,12 @@
       if (gekozen(id)) st.blokken = st.blokken.filter(x => x.spel !== id);
       else if (!kanPapier(id)) return Ui.melding(t('Dit spel heeft nog geen werkblad. Kies een ander spel.'));
       else st.blokken.push({ spel: id, niveau: 0 });
+      ververs(true);
+    }));
+    box.querySelectorAll('[data-reeks]').forEach(b => b.addEventListener('click', () => {
+      const i = +b.dataset.reeks;
+      if (reeksGekozen(i)) st.blokken = st.blokken.filter(x => !(x.spel === 'eigen' && x.niveau === i));
+      else st.blokken.push({ spel: 'eigen', niveau: i });
       ververs(true);
     }));
     box.querySelectorAll('[data-niv]').forEach(s => s.addEventListener('change', () => { st.blokken[+s.dataset.niv].niveau = +s.value; ververs(); }));
@@ -120,7 +132,7 @@
   function ververs(opnieuwOpties) { bewaar(); if (opnieuwOpties) opties(); voorbeeld(); }
   function toon(keuze) {
     if (keuze && keuze.spel) { st.blokken = [{ spel: keuze.spel, niveau: keuze.niveau || 0 }]; st.titel = ''; st.start = 1 + Math.floor(Math.random() * 1e6); }
-    st.blokken = st.blokken.filter(b => spel(b.spel));
+    st.blokken = st.blokken.filter(b => (b.spel === 'eigen' ? reeks(b) : spel(b.spel)));
     opties(); voorbeeld();
   }
   $('jr-wbg-print').addEventListener('click', () => {
@@ -131,4 +143,6 @@
     Promise.all([...blad.querySelectorAll('img')].map(im => (im.complete ? 0 : new Promise(r => { im.onload = im.onerror = r; })))).then(() => setTimeout(() => window.print(), 100));
   });
   window.JrWerkblad = { toon };
+  // Rechtstreeks op #werkbladen geopend (herladen): dit script laadt na de eerste toonView.
+  if (location.hash === '#werkbladen') toon();
 })();

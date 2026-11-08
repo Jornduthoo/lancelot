@@ -1535,6 +1535,7 @@ socket.on('connect', () => {
     // Wie op het ochtendmoment herlaadt: de klas is er nu pas, dus de huidige stap opnieuw tekenen.
     const ov = $('jr-ochtend-vak');
     if (ov && ov.dataset.stap && !$('jr-v-ochtend').classList.contains('hidden')) ochtend(ov.dataset.stap);
+    if (window.JrWerkblad && !$('jr-v-werkbladen').classList.contains('hidden')) JrWerkblad.toon();
   });
 });
 socket.on('jr-stand', s => {
