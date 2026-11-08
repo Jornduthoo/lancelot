@@ -453,23 +453,30 @@
     teken();
   }
 
-  // ---------- Groepjes: de dieren in 2 tot 6 kleurgroepjes. ----------
+  // ---------- Groepjes: de dieren in kleurgroepjes. Kies hoeveel groepjes (2 tot 6), of hoe groot (groepjes van 2 tot 5). ----------
   function groepjes(p) {
-    let n = lees('jr-kt-groepen', 4), groepen = [];
+    let n = lees('jr-kt-groepen', 4), van = lees('jr-kt-groepen-van', 0), groepen = [];
+    const t = x => (window.I18n ? I18n.t(x) : x);
     const maak = () => {
-      groepen = Array.from({ length: n }, () => []);
-      schud(kids()).forEach((k, i) => groepen[i % n].push(k));
+      const lijst = schud(kids());
+      // Groepjes van 'van' kinderen: wie overschiet, komt er bij een groepje bij (nooit een groepje van 1).
+      const aantal = van ? Math.max(1, Math.floor(lijst.length / van)) : n;
+      groepen = Array.from({ length: aantal }, () => []);
+      lijst.forEach((k, i) => groepen[i % aantal].push(k));
       fx('good');
       teken();
     };
+    // Meer dan 6 groepjes: dan zijn er te weinig kleuren, dus nummers.
+    const naamVan = i => { const kl = groepen.length <= 6 && (Z().ktKleuren || [])[i]; return `${Z().ktGroep || ''} ${kl || i + 1}`; };
     const teken = () => {
-      const kleur = Z().ktKleuren || [];
-      p.innerHTML = `<div class="jr-kt-groepen">${groepen.map((g, i) => `<div class="jr-kt-groep kleur-${i}" data-g="${i}"><div class="jr-kt-groep-kop">${esc(Z().ktGroep || '')} ${esc(kleur[i] || i + 1)}</div><div class="jr-kt-hoek-dieren">${g.map(k => dierHtml(k)).join('')}</div></div>`).join('')}</div>
-        <div class="jr-kt-knoppen">${[2, 3, 4, 5, 6].map(m => `<button type="button" class="jr-kt-klein jr-eigen ${m === n ? 'aan' : ''}" data-n="${m}">${m}</button>`).join('')}
+      p.innerHTML = `<div class="jr-kt-groepen${groepen.length > 6 ? ' jr-kt-veel' : ''}">${groepen.map((g, i) => `<div class="jr-kt-groep kleur-${i % 6}" data-g="${i}"><div class="jr-kt-groep-kop">${esc(naamVan(i))}</div><div class="jr-kt-hoek-dieren">${g.map(k => dierHtml(k)).join('')}</div></div>`).join('')}</div>
+        <div class="jr-kt-knoppen"><span class="jr-kt-label">${esc(t('Aantal groepjes'))}</span>${[2, 3, 4, 5, 6].map(m => `<button type="button" class="jr-kt-klein jr-eigen ${!van && m === n ? 'aan' : ''}" data-n="${m}">${m}</button>`).join('')}
+        <span class="jr-kt-label">${esc(t('Groepjes van'))}</span>${[2, 3, 4, 5].map(m => `<button type="button" class="jr-kt-klein jr-eigen ${van === m ? 'aan' : ''}" data-van="${m}">${m}</button>`).join('')}
         <button type="button" class="jr-kt-groot jr-eigen" id="jr-kt-meng">🎲 Maak groepjes</button></div>`;
-      p.querySelectorAll('[data-n]').forEach(b => b.addEventListener('click', () => { n = +b.dataset.n; bewaar('jr-kt-groepen', n); maak(); }));
+      p.querySelectorAll('[data-n]').forEach(b => b.addEventListener('click', () => { n = +b.dataset.n; van = 0; bewaar('jr-kt-groepen', n); bewaar('jr-kt-groepen-van', 0); maak(); }));
+      p.querySelectorAll('[data-van]').forEach(b => b.addEventListener('click', () => { van = +b.dataset.van; bewaar('jr-kt-groepen-van', van); maak(); }));
       p.querySelector('#jr-kt-meng').addEventListener('click', maak);
-      p.querySelectorAll('[data-g]').forEach(el => el.addEventListener('click', () => { const i = +el.dataset.g; zeg([`${Z().ktGroep || ''} ${(Z().ktKleuren || [])[i] || i + 1}`, ...groepen[i].map(k => k.naam)]); }));
+      p.querySelectorAll('[data-g]').forEach(el => el.addEventListener('click', () => { const i = +el.dataset.g; zeg([naamVan(i), ...groepen[i].map(k => k.naam)]); }));
     };
     maak();
   }
