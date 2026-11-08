@@ -1584,5 +1584,50 @@ body.jr-los #jr-vak, body.jr-los #jr-beurt { visibility: hidden; }
 .jr-kijk-tablet { aspect-ratio: 16 / 9; max-height: 68vh; border-radius: 22px; overflow: hidden; display: flex; background: url(/img/junior/bg/thuis.webp) center / cover, #0e1626; box-shadow: inset 0 0 0 6px #0a0e18, 0 10px 30px rgb(0 0 0 / .5); }
 .jr-kijk-vak { font-size: clamp(16px, 2.3vw, 26px); }
 .jr-kijk-venster .actions { justify-content: center; margin-top: 12px; }
+/* De werkbladgenerator: links de keuzes, rechts meteen het blad. */
+.jr-wbg { display: grid; grid-template-columns: minmax(340px, 470px) 1fr; gap: 18px; align-items: start; }
+.jr-wbg-opties { display: flex; flex-direction: column; gap: 14px; max-height: calc(100vh - 170px); overflow: auto; }
+.jr-wbg-deel h3 { margin: 0 0 8px; font-family: Cinzel, var(--jr-schrift); color: rgb(var(--k-goud-l)); font-size: 1.1rem; }
+.jr-wbg-deel { display: flex; flex-direction: column; gap: 8px; padding-bottom: 12px; border-bottom: 1px solid rgb(255 255 255 / .1); }
+.jr-wbg-groep { margin: 6px 0 2px; font-weight: 800; font-size: .85rem; color: rgb(var(--k-muted)); }
+.jr-wbg-rij { display: grid; grid-template-columns: repeat(auto-fill, minmax(86px, 1fr)); gap: 6px; }
+.jr-lk main button.jr-wbg-spel { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 4px; border-radius: 14px; border: 2px solid rgb(255 255 255 / .1); background: rgb(var(--k-panel) / .7); color: var(--jr-inkt); font: inherit; font-size: .72rem; font-weight: 700; cursor: pointer; line-height: 1.15; }
+.jr-wbg-spel img { width: 44px; height: 44px; object-fit: contain; }
+.jr-lk main button.jr-wbg-spel.aan { border-color: #ffd36b; background: rgb(76 201 255 / .18); box-shadow: 0 0 14px rgb(76 201 255 / .45); }
+.jr-wbg-blokken { display: flex; flex-direction: column; gap: 6px; margin-top: 6px; }
+.jr-wbg-blok { position: relative; display: flex; align-items: center; gap: 8px; padding: 6px 40px 6px 8px; border-radius: 14px; background: rgb(var(--k-panel) / .85); border: 2px solid rgb(224 169 58 / .5); }
+.jr-wbg-blok img { width: 34px; height: 34px; object-fit: contain; }
+.jr-wbg-blok b { flex: 1; font-size: .9rem; }
+.jr-wbg-blok select { max-width: 180px; }
+.jr-lk main button.jr-wbg-weg { top: 50%; right: 6px; translate: 0 -50%; }
+.jr-wbg-tip, .jr-wbg-leeg { margin: 0; font-size: .85rem; color: rgb(var(--k-muted)); }
+.jr-wbg-leeg { padding: 40px; text-align: center; font-size: 1.1rem; }
+.jr-wbg-titel { display: flex; flex-direction: column; gap: 4px; font-weight: 700; }
+.jr-wbg-vinken { display: flex; flex-direction: column; gap: 2px; }
+.jr-wbg-vinken .jr-wb-vink { padding-bottom: 2px; font-weight: 600; }
+.jr-wbg-scroll { max-height: calc(100vh - 170px); overflow: auto; border-radius: 14px; background: rgb(0 0 0 / .3); padding: 14px; }
+.jr-wbg-tel { margin-left: auto; color: rgb(var(--k-muted)); font-weight: 700; }
+@media (max-width: 900px) { .jr-wbg { grid-template-columns: 1fr; } }
+/* Extra's op het blad */
+.jr-printblad.werkblad .wb-blad + .wb-blad { break-before: page; }
+.jr-printblad.werkblad .wb-lijnen { margin-left: auto; display: flex; flex-direction: column; gap: 2mm; align-items: flex-end; }
+.jr-printblad.werkblad .wb-naam u { text-decoration: none; border-bottom: 1.5px solid #000; min-width: 55mm; display: inline-block; font-weight: 800; font-size: 16pt; }
+.jr-printblad.werkblad .wb-kop img.wb-dier { border-radius: 50%; border: 1.5px solid #000; }
+.jr-printblad.werkblad .wb-smileys { margin-left: auto; display: flex; gap: 1.5mm; }
+.jr-printblad.werkblad .wb-smileys i { width: 6mm; height: 6mm; border: 1.2px solid #000; border-radius: 50%; display: grid; place-items: center; font-style: normal; font-size: 9pt; line-height: 1; color: #000; filter: grayscale(1); }
+.jr-printblad.werkblad .wb-voet { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 3mm; font-size: 8pt; color: #777; }
+.jr-printblad.werkblad .wb-stempel { width: 30mm; height: 22mm; border: 1.5px dashed #000; border-radius: 3mm; display: grid; place-items: center; text-align: center; font-size: 7pt; color: #777; }
+.jr-printblad.werkblad .wb-groot .wb-vragen { grid-template-columns: 1fr; }
+.jr-printblad.werkblad .wb-groot .wb-vraag { height: 84mm; }
+.jr-printblad.werkblad .wb-groot .wb-inhoud { font-size: 9px; }
+.jr-printblad.werkblad .wb-groot .wb-ding .jr-img { max-width: 24mm; max-height: 22mm; }
+/* Op papier: prenten licht en grijs, zodat kinderen ze kunnen inkleuren en de printer weinig inkt gebruikt. */
+.jr-printblad.werkblad .wb-blad .wb-inhoud img { filter: grayscale(1) brightness(1.45) contrast(.85); }
+/* Generator: de keuzeknoppen zoals in de vensters, vinkjes naast hun tekst. */
+.jr-lk main .jr-wbg .jr-kv-keuzes button { border: 2px solid var(--jr-lijn); background: rgb(var(--k-panel) / .85); color: var(--jr-inkt); box-shadow: none; font-weight: 700; }
+.jr-lk main .jr-wbg .jr-kv-keuzes button.aan { border-color: #ffd36b; background: rgb(76 201 255 / .2); color: var(--jr-inkt); box-shadow: 0 0 12px rgb(76 201 255 / .4); }
+.jr-lk main .jr-wbg label.jr-wb-vink { flex-direction: row; align-items: center; }
+.jr-printblad.werkblad .wb-ding .jr-emoji-groot { font-size: 30px; }
+.jr-printblad.werkblad .wb-ding .jr-optie-woord { font-size: 9pt; }
 /* De klaskiezer (Meerdere klassen) in Onze klas: dezelfde balk als in Mijn klas, in de Junior-stijl. */
 .jr-lk main .klaskiezer button.kk-klas.on { background: rgb(var(--k-goud) / .25); border-color: rgb(var(--k-goud)); box-shadow: 0 0 14px rgb(var(--k-goud) / .45); }
