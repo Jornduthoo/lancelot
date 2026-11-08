@@ -4,6 +4,12 @@
 // Een fout is nooit erg: het draakje geeft een hint en het kind probeert opnieuw. Telt voor het logboek: meteen goed of niet.
 // Alle tekst en alles wat gezegd wordt, komt uit window.JR (src/junior-inhoud*.js via /junior/inhoud.js).
 (() => {
+  // Geld per munt: welke stukken per niveau, waar de prenten staan, en welke stukken briefjes zijn. De VS heeft geen munt van 2 dollar.
+  const MUNT = {
+    eur: { teken: '€', woord: 'euro', map: '', soorten: [[1, 2, 5], [1, 2, 5, 10], [5, 10, 20, 50]], briefje: s => s >= 5 },
+    usd: { teken: '$', woord: 'dollar', map: 'usd/', soorten: [[1, 5], [1, 5, 10], [5, 10, 20, 50]], briefje: () => true },
+    gbp: { teken: '£', woord: 'pond', map: 'gbp/', soorten: [[1, 2, 5], [1, 2, 5, 10], [5, 10, 20, 50]], briefje: s => s >= 5 },
+  };
   const J = () => window.JR || { zin: {}, stemmen: [] };
   // Rustig (buitengewoon onderwijs, kinderen die snel overprikkeld raken): de leerkracht zet het aan bij ⚙️.
   // Geen bewegende prentjes, geen confetti, geen geluidjes of muziek, zachtere kleuren en een tragere stem.
@@ -446,9 +452,10 @@
         na: [juist],
       };
     },
-    // Geldmarkt: hoeveel geld is dit? Munten en briefjes in euro.
+    // Geldmarkt: hoeveel geld is dit? Munten en briefjes in euro, dollar (VS) of pond (VK): Junior.munt komt van de server.
     geld(r, niv) {
-      const soorten = niv === 0 ? [1, 2, 5] : niv === 1 ? [1, 2, 5, 10] : [5, 10, 20, 50];
+      const munt = MUNT[(window.Junior || {}).munt] || MUNT.eur;
+      const soorten = munt.soorten[niv];
       const max = [10, 20, 100][niv];
       const stukken = [];
       let som = 0;
@@ -463,9 +470,9 @@
       stukken.sort((a, b) => b - a);
       return {
         soort: 'kies', zeg: [J().zin.geldVraag],
-        scene: `<div class="jr-geld">${stukken.map(s => beeld(`geld/${s}`, s >= 5 ? 'jr-briefje' : 'jr-munt')).join('')}</div>`,
-        opties: buren(r, som, niv === 2 ? 5 : 1, 1).map(x => ({ html: `<span class="jr-getal">€ ${x}</span>`, juist: x === som })),
-        na: [som, J().zin.euro],
+        scene: `<div class="jr-geld">${stukken.map(s => beeld(`geld/${munt.map}${s}`, munt.briefje(s) ? 'jr-briefje' : 'jr-munt')).join('')}</div>`,
+        opties: buren(r, som, niv === 2 ? 5 : 1, 1).map(x => ({ html: `<span class="jr-getal">${munt.teken} ${x}</span>`, juist: x === som })),
+        na: [som, J().zin[munt.woord] || J().zin.euro],
       };
     },
     // Sorteermand: op soort (dieren, fruit, voertuigen...) of op kleur.

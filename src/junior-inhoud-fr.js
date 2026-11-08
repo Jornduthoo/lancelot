@@ -142,6 +142,8 @@ module.exports = {
     klokVraag: "Quelle heure est-il ?",
     geldVraag: "Combien d'argent y a-t-il ?",
     euro: "euros",
+    dollar: "dollars",
+    pond: "livres",
     sorteerSoort: "Fais glisser chaque image dans le bon panier.",
     sorteerKleur: "Fais glisser chaque image dans le panier de la bonne couleur.",
     patroonVraag: "Qu'est-ce qui vient ensuite ?",

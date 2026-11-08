@@ -273,6 +273,7 @@ function toonInstellingen(i) {
   zet('jr-inst-groei', i.groei ? 1 : 0);
   zet('jr-inst-rustig', i.rustig ? 1 : 0);
   zet('jr-inst-thema', i.thema || 'auto');
+  zet('jr-inst-munt', i.munt || 'auto');
 }
 function bewaarInstelling(nieuw) {
   socket.emit('jr-instellingen', nieuw, res => {
@@ -285,6 +286,7 @@ for (const b of $('jr-inst-voorlezen').children) b.addEventListener('click', () 
 for (const b of $('jr-inst-rustig').children) b.addEventListener('click', () => bewaarInstelling({ rustig: b.dataset.w === '1' }));
 for (const b of $('jr-inst-groei').children) b.addEventListener('click', () => bewaarInstelling({ groei: b.dataset.w === '1' }));
 for (const b of $('jr-inst-thema').children) b.addEventListener('click', () => bewaarInstelling({ thema: b.dataset.w }));
+for (const b of $('jr-inst-munt').children) b.addEventListener('click', () => bewaarInstelling({ munt: b.dataset.w }));
 $('jr-inst-knop').addEventListener('click', () => {
   socket.emit('jr-instellingen', null, res => {
     if (res && res.error) return Ui.melding(res.error);
@@ -1397,6 +1399,7 @@ socket.on('connect', () => {
     stand = res.stand;
     Junior.rustig = stand.rustig === true;
     try { JrThema.zet(stand.thema); } catch {}
+    Junior.munt = stand.munt || Junior.munt;
     kinderen = res.kinderen || [];
     toonDraak(res.stand.draak);
     klas();
@@ -1406,6 +1409,7 @@ socket.on('connect', () => {
 });
 socket.on('jr-stand', s => {
   try { JrThema.zet(s && s.thema); } catch {}
+  if (s && s.munt) Junior.munt = s.munt;
   const oud = stand.seed;
   stand = s;
   Junior.rustig = s.rustig === true;

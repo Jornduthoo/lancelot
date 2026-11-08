@@ -245,9 +245,6 @@
  "Kwartieren": "Cuartos de hora",
  "Geldmarkt": "Mercado del dinero",
  "Hoeveel geld is dit?": "¿Cuánto dinero hay?",
- "Tot 10 euro": "Hasta 10 euros",
- "Tot 20 euro": "Hasta 20 euros",
- "Tot 100 euro": "Hasta 100 euros",
  "Drakenstappen": "Pasos de dragón",
  "Meet met drakenpootjes.": "Mide con patas de dragón.",
  "Sorteermand": "Cesta de clasificar",
@@ -574,5 +571,12 @@
  "🌙 Rustig": "🌙 Tranquilo",
  "Voor kinderen die snel overprikkeld raken: niets beweegt, geen confetti, geen geluidjes of muziek, zachte kleuren en een tragere stem.": "Para niños que se sobreestimulan fácilmente: nada se mueve, sin confeti, sin sonidos ni música, colores suaves y una voz más lenta.",
  "Op maat: niveau en aantal prenten voor dit kind": "A medida: nivel y número de imágenes para este niño",
- "Minder prenten": "Menos imágenes"
+ "Minder prenten": "Menos imágenes",
+ "Geld": "Dinero",
+ "Het geld in Geldmarkt. Automatisch volgt het land van je doelen.": "El dinero en Mercado del dinero. Automático sigue el país de tus objetivos.",
+ "€ Euro": "€ Euro",
+ "$ Dollar": "$ Dólar",
+ "£ Pond": "£ Libra",
+ "usd/": null,
+ "geld/{0}{1}": null
 }

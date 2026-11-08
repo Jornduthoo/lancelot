@@ -94,3 +94,20 @@ test('op maat: minder prenten houdt de juiste prent en precies één andere', ()
   }
   assert.ok(getest > 50, 'er zijn genoeg kies-vragen getest');
 });
+
+test('Geldmarkt werkt in euro, dollar en pond, en elk geldbeeld bestaat', () => {
+  const J = laad('en');
+  for (const [munt, map, teken] of [['eur', '', '€'], ['usd', 'usd/', '$'], ['gbp', 'gbp/', '£']]) {
+    J.munt = munt;
+    for (let n = 0; n < 3; n++) {
+      for (let seed = 1; seed <= 30; seed++) {
+        const v = J.vraag('geld', n, J.toeval(seed));
+        assert.ok(v.opties.every(o => o.html.includes(teken)), `${munt} niveau ${n}: teken`);
+        for (const [, s] of v.scene.matchAll(/geld\/(?:usd\/|gbp\/)?(\d+)/g)) {
+          assert.ok(fs.existsSync(path.join(__dirname, '..', 'public', 'img', 'junior', 'geld', `${map}${s}.webp`)), `${munt} ${s}`);
+        }
+      }
+    }
+  }
+  junior.zetInstellingen && assert.strictEqual(typeof junior.muntNu(), 'string');
+});
