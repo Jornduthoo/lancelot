@@ -1631,3 +1631,22 @@ body.jr-los #jr-vak, body.jr-los #jr-beurt { visibility: hidden; }
 .jr-lk .jr-view-kop .jr-maken-wb { margin-left: auto; display: inline-flex; align-items: center; gap: 8px; border-radius: 999px; padding: 8px 20px 8px 10px; }
 .jr-maken-wb img { width: 34px; height: 34px; object-fit: contain; }
 #jr-ostap-keuzes button:not(.aan) { opacity: .45; text-decoration: line-through; }
+
+/* Werkblad: opdracht één keer bovenaan, en klein = 3 per rij (zuinig met papier). */
+.jr-printblad.werkblad .wb-opdracht { margin: 0 0 3mm; font-weight: 700; font-size: 12pt; }
+.jr-printblad.werkblad .wb-klein .wb-vragen { grid-template-columns: 1fr 1fr 1fr; gap: 3mm; }
+.jr-printblad.werkblad .wb-klein .wb-vraag { height: auto; min-height: 38mm; padding: 2mm; }
+.jr-printblad.werkblad .wb-klein .wb-inhoud { font-size: 5.5px; gap: 1.5mm; }
+.jr-printblad.werkblad .wb-klein .wb-zeg { font-size: 7pt; margin-bottom: 1mm; }
+.jr-printblad.werkblad .wb-klein .wb-ding .jr-img { max-width: 16mm; max-height: 15mm; }
+.jr-printblad.werkblad .wb-klein .wb-vk .jr-img, .jr-printblad.werkblad .wb-klein .wb-scene .jr-img { max-height: 15mm; }
+.jr-printblad.werkblad .wb-klein .wb-inhoud .jr-img, .jr-printblad.werkblad .wb-klein .wb-inhoud img { max-height: 11mm; max-width: 14mm; }
+.jr-printblad.werkblad .wb-klein .wb-scene .jr-img, .jr-printblad.werkblad .wb-klein .wb-scene img { max-height: 20mm; max-width: 40mm; }
+.jr-printblad.werkblad .wb-klein .wb-doe { font-size: 8pt; }
+
+/* Op het bord: tussen twee opdrachten staat het geroepen kind groot in beeld. */
+.jr-bord-roep { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; min-height: 40vh; animation: jr-roep-in .35s ease-out; }
+.jr-bord-roep img { width: min(30vh, 260px); height: min(30vh, 260px); object-fit: contain; filter: drop-shadow(0 0 24px rgb(76 201 255 / .55)); }
+.jr-bord-roep b { font-size: clamp(2rem, 5vw, 3.4rem); color: var(--jr-inkt); text-shadow: 0 2px 0 rgb(0 0 0 / .4); }
+@keyframes jr-roep-in { from { opacity: 0; transform: scale(.85); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .jr-bord-roep { animation: none; } }

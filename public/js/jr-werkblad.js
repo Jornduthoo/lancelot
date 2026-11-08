@@ -5,9 +5,11 @@
   const t = x => (window.I18n ? I18n.t(x) : x);
   const esc = s => Junior.esc(s);
   const GEEN = ['dans', 'kring', 'waar', 'eigen'];
-  const AANTAL = [2, 3, 4, 6, 8];
+  const AANTAL = [2, 3, 4, 6, 8, 12, 15];
   const st = { blokken: [], per: 4, mix: false, wie: 'klas', groot: false, naam: true, datum: true, zeg: true, smiley: true, stempel: false, sleutel: true, titel: '', start: 1 };
   try { Object.assign(st, JSON.parse(localStorage.getItem('jr-wbgen') || '{}')); } catch {}
+  // Oude instelling 'groot' → maat. Klein = 3 per rij: zuinig met papier, vooral voor rekenen.
+  if (!st.maat) st.maat = st.groot ? 'groot' : 'normaal';
   if (!st.start) st.start = 1 + Math.floor(Math.random() * 1e6);
   const bewaar = () => { try { localStorage.setItem('jr-wbgen', JSON.stringify(st)); } catch {} };
   const spellen = () => (J().spellen || []).filter(s => !GEEN.includes(s.id) && !s.bordAlleen && (s.id !== 'naam' || st.wie === 'kind'));
@@ -56,8 +58,12 @@
     const rechts = k ? `<span class="wb-naam wb-sleutel-kop">${esc(t('Verbetersleutel'))}${kind ? ` · ${esc(kind.naam)}` : ''}</span>`
       : `<span class="wb-lijnen">${st.naam ? lijn('Naam:', 55, kind && kind.naam) : ''}${st.datum ? lijn('Datum:', 35) : ''}</span>`;
     const kindBeeld = kind && kind.beeld ? `<img class="wb-dier" src="${kind.beeld}" alt="">` : `<img src="${draakImg()}" alt="">`;
-    return `<div class="wb-blad${k ? ' wb-sleutel' : ''}${st.groot ? ' wb-groot' : ''}"><header class="wb-kop">${kindBeeld}<div><h1>${esc(titel())}</h1><p>${esc(sub(kind))}</p></div>${rechts}</header>
-      <div class="wb-vragen">${q.map((x, n) => { const w = WB[x.v.soort](x.v, x.i, k); return `<section class="wb-vraag"><p class="wb-doe"><b>${n + 1}</b> <span>${esc(t(w.doe))}</span>${st.smiley && !k ? '<span class="wb-smileys"><i>☺</i><i>😐</i><i>☹</i></span>' : ''}</p>${st.zeg ? `<p class="wb-zeg">🔊 ${esc(x.zeg)}</p>` : ''}<div class="wb-inhoud">${x.v.kop ? `<div class="wb-vk">${x.v.kop}</div>` : ''}${x.v.scene ? `<div class="wb-scene">${x.v.scene}</div>` : ''}${w.html}</div></section>`; }).join('')}</div>
+    const ws = q.map(x => WB[x.v.soort](x.v, x.i, k));
+    // Dezelfde opdracht bij elke oefening? Dan staat ze één keer bovenaan.
+    const samen = ws.length > 1 && ws.every(w => w.doe === ws[0].doe) ? ws[0].doe : '';
+    return `<div class="wb-blad${k ? ' wb-sleutel' : ''}${st.maat !== 'normaal' ? ' wb-' + st.maat : ''}"><header class="wb-kop">${kindBeeld}<div><h1>${esc(titel())}</h1><p>${esc(sub(kind))}</p></div>${rechts}</header>
+      ${samen ? `<p class="wb-opdracht">${esc(t(samen))}</p>` : ''}
+      <div class="wb-vragen">${q.map((x, n) => { const w = ws[n]; return `<section class="wb-vraag"><p class="wb-doe"><b>${n + 1}</b> <span>${samen ? '' : esc(t(w.doe))}</span>${st.smiley && !k ? '<span class="wb-smileys"><i>☺</i><i>😐</i><i>☹</i></span>' : ''}</p>${st.zeg ? `<p class="wb-zeg">🔊 ${esc(x.zeg)}</p>` : ''}<div class="wb-inhoud">${x.v.kop ? `<div class="wb-vk">${x.v.kop}</div>` : ''}${x.v.scene ? `<div class="wb-scene">${x.v.scene}</div>` : ''}${w.html}</div></section>`; }).join('')}</div>
       <footer class="wb-voet">${st.stempel && !k ? `<span class="wb-stempel">${esc(t('Sticker of stempel'))}</span>` : ''}<span>LANcelot Junior</span></footer></div>`;
   }
   const wieLijst = () => (st.wie === 'kind' ? kinderen.filter(k => !afwezig.has(k.id)) : [null]);
@@ -90,7 +96,7 @@
       </section>
       <section class="jr-wbg-deel"><h3>4. ${esc(t('Opmaak'))}</h3>
         <label class="jr-wbg-titel">${esc(t('Titel'))} <input id="jr-wbg-titel" maxlength="40" value="${esc(st.titel)}" placeholder="${esc(titel())}"></label>
-        <div class="jr-kv-keuzes"><button type="button" data-groot="0" class="jr-eigen ${st.groot ? '' : 'aan'}">${esc(t('Normaal (2 per rij)'))}</button><button type="button" data-groot="1" class="jr-eigen ${st.groot ? 'aan' : ''}">${esc(t('Groot (1 per rij)'))}</button></div>
+        <div class="jr-kv-keuzes">${[['groot', 'Groot (1 per rij)'], ['normaal', 'Normaal (2 per rij)'], ['klein', 'Klein (3 per rij)']].map(([m, l]) => `<button type="button" data-maat="${m}" class="jr-eigen ${st.maat === m ? 'aan' : ''}">${esc(t(l))}</button>`).join('')}</div>
         <div class="jr-wbg-vinken">
           <label class="jr-wb-vink"><input type="checkbox" data-vink="naam" ${st.naam ? 'checked' : ''}> ${esc(t('Naamlijn'))}</label>
           <label class="jr-wb-vink"><input type="checkbox" data-vink="datum" ${st.datum ? 'checked' : ''}> ${esc(t('Datumlijn'))}</label>
@@ -117,7 +123,7 @@
     box.querySelectorAll('[data-weg]').forEach(b => b.addEventListener('click', () => { st.blokken.splice(+b.dataset.weg, 1); ververs(true); }));
     box.querySelectorAll('[data-per]').forEach(b => b.addEventListener('click', () => { st.per = +b.dataset.per; ververs(true); }));
     box.querySelectorAll('[data-wie]').forEach(b => b.addEventListener('click', () => { st.wie = b.dataset.wie; if (st.wie === 'klas') st.blokken = st.blokken.filter(x => x.spel !== 'naam'); ververs(true); }));
-    box.querySelectorAll('[data-groot]').forEach(b => b.addEventListener('click', () => { st.groot = b.dataset.groot === '1'; ververs(true); }));
+    box.querySelectorAll('[data-maat]').forEach(b => b.addEventListener('click', () => { st.maat = b.dataset.maat; ververs(true); }));
     box.querySelectorAll('[data-vink]').forEach(c => c.addEventListener('change', () => { st[c.dataset.vink] = c.checked; ververs(); }));
     $('jr-wbg-titel').addEventListener('input', e => { st.titel = e.target.value; bewaar(); voorbeeld(); });
     $('jr-wbg-nieuw').addEventListener('click', () => { st.start = 1 + Math.floor(Math.random() * 1e6); ververs(); });
