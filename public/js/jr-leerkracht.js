@@ -338,6 +338,7 @@ $('jr-inst-knop').addEventListener('click', () => {
   });
 });
 $('jr-inst-dicht').addEventListener('click', () => $('jr-inst-venster').close());
+Ui.tabs($('jr-inst-tabs'), 'jr-instellingen-tab');
 // De taal en de AI-sleutel kies je ook hier, zodat Junior op zichzelf werkt.
 for (const b of $('jr-inst-taal').children) {
   b.classList.toggle('aan', b.dataset.w === (window.LANCELOT_TAAL || 'nl'));
@@ -883,7 +884,7 @@ function toonView(v) {
   window.scrollTo(0, 0);
   if (v === 'opvolgen') socket.emit('jr-voortgang', null, res => res && !res.error && opvolg(res));
   if (v === 'maken') toonSets();
-  if (v === 'ochtend') ochtend('dag');
+  if (v === 'ochtend') ochtend('wie');
   muziek();
   if (v !== 'eiland') eilandTourStop();
   if (v === 'rijk') JrRijk.maak($('jr-rijk-bord')); else if (window.JrRijk) JrRijk.stop();
@@ -1035,69 +1036,180 @@ $('jr-eiland-tour').addEventListener('click', () => {
   volgende();
 });
 
-// ---------- Het ochtendmoment: welke dag is het, wat voor weer, wie is er? ----------
+// ---------- Het ochtendmoment, zoals in de kleuterklas: wie is er (tellen), welke dag, maand en seizoen, het weer,
+// wat trekken we aan, hoe voel je je, het hulpje van de dag, onze dag (dagritme), wie is er jarig. ----------
 const vandaag = () => new Date().toISOString().slice(0, 10);
 let ochtendWeer = 0;
 let afwezig = new Set();
+let gevoel = {}, hulpje = null, kleren = [], gevoelKind = null;
 try {
   const o = JSON.parse(localStorage.getItem('jr-ochtend') || '{}');
-  if (o.dag === vandaag()) { ochtendWeer = o.weer || 0; afwezig = new Set(o.afwezig || []); }
+  if (o.dag === vandaag()) { ochtendWeer = o.weer || 0; afwezig = new Set(o.afwezig || []); gevoel = o.gevoel || {}; hulpje = o.hulpje || null; kleren = o.kleren || []; }
 } catch {}
-const bewaarOchtend = () => { try { localStorage.setItem('jr-ochtend', JSON.stringify({ dag: vandaag(), weer: ochtendWeer, afwezig: [...afwezig] })); } catch {} };
+const bewaarOchtend = () => { try { localStorage.setItem('jr-ochtend', JSON.stringify({ dag: vandaag(), weer: ochtendWeer, afwezig: [...afwezig], gevoel, hulpje, kleren })); } catch {} };
 const taalCode = () => (J().stemmen || ['nl-BE'])[0];
 function dagNaam(d) { return new Intl.DateTimeFormat(taalCode(), { weekday: 'long' }).format(d); }
+const OSTAPPEN = ['wie', 'dag', 'maand', 'weer', 'kleren', 'gevoel', 'hulpje', 'onzedag', 'jarig', 'klaar'];
+function seizoenVan(d) {
+  const md = (d.getMonth() + 1) * 100 + d.getDate();
+  return md >= 321 && md < 621 ? 0 : md >= 621 && md < 923 ? 1 : md >= 923 && md < 1221 ? 2 : 3;
+}
+const SEIZOEN_E = ['🌷', '☀️', '🍂', '❄️'];
 function ochtend(stap) {
+  const jarigen = kinderen.filter(k => k.feest);
+  const jb = document.querySelector('[data-ostap="jarig"]'); if (jb) jb.classList.toggle('hidden', !jarigen.length);
+  if (stap === 'jarig' && !jarigen.length) stap = 'klaar';
   for (const b of document.querySelectorAll('[data-ostap]')) b.classList.toggle('aan', b.dataset.ostap === stap);
   const vak = $('jr-ochtend-vak');
   const z = J().zin;
+  const E = Junior.esc;
   vak.dataset.stap = stap;
-  if (stap === 'dag') {
-    const nu = new Date();
-    const maandag = new Date(nu); maandag.setDate(nu.getDate() - ((nu.getDay() + 6) % 7));
-    const dagen = Array.from({ length: 7 }, (_, i) => { const d = new Date(maandag); d.setDate(maandag.getDate() + i); return d; });
-    const datum = new Intl.DateTimeFormat(taalCode(), { day: 'numeric', month: 'long' }).format(nu);
-    vak.innerHTML = `<p class="jr-ochtend-zin">${Junior.esc(z.ochtendDag)} <b>${Junior.esc(dagNaam(nu))} ${Junior.esc(datum)}</b></p>
-      <div class="jr-dagen">${dagen.map((d, i) => {
-        const verschil = i - ((nu.getDay() + 6) % 7);
-        const wat = verschil === 0 ? 'vandaag' : verschil === -1 ? 'gisteren' : verschil === 1 ? 'morgen' : '';
-        return `<button type="button" class="jr-dag jr-eigen jr-dag-${i} ${wat}" data-dag="${i}" data-wat="${wat}"><b>${Junior.esc(dagNaam(d))}</b><span>${d.getDate()}</span></button>`;
-      }).join('')}</div>`;
-    vak.querySelectorAll('[data-dag]').forEach(b => b.addEventListener('click', () => {
-      const d = dagen[+b.dataset.dag];
-      const zin = b.dataset.wat === 'gisteren' ? z.ochtendGisteren : b.dataset.wat === 'morgen' ? z.ochtendMorgen : b.dataset.wat === 'vandaag' ? z.ochtendDag : '';
-      b.classList.remove('tik'); void b.offsetWidth; b.classList.add('tik');
-      Junior.Stem.zeg(zin ? [zin, dagNaam(d)] : [dagNaam(d)]);
-    }));
-    Junior.Stem.zeg([z.ochtendWelkeDag, z.ochtendDag, dagNaam(nu), datum]);
-  } else if (stap === 'weer') {
-    const zinnen = z.weer || [];
-    vak.innerHTML = `<p class="jr-ochtend-zin">${Junior.esc(ochtendWeer ? zinnen[ochtendWeer - 1] || '' : z.ochtendWelkWeer)}</p>
-      <div class="jr-weer">${zinnen.map((_, i) => `<button type="button" class="jr-weer-knop jr-eigen ${ochtendWeer === i + 1 ? 'aan' : ''}" data-weer="${i + 1}"><img src="/img/junior/weer/${i + 1}.webp" alt=""></button>`).join('')}</div>`;
-    vak.querySelectorAll('[data-weer]').forEach(b => b.addEventListener('click', () => {
-      ochtendWeer = +b.dataset.weer;
-      bewaarOchtend();
-      try { sfx.good(); } catch {}
-      ochtend('weer');
-      Junior.Stem.zeg([zinnen[ochtendWeer - 1]]);
-    }));
-    if (!ochtendWeer) Junior.Stem.zeg([z.ochtendWelkWeer]);
-  } else if (stap === 'wie') {
-    const er = kinderen.filter(k => !afwezig.has(k.id));
-    vak.innerHTML = `<p class="jr-ochtend-zin">${Junior.esc(z.ochtendWie)}</p>
-      <div class="jr-wie-rooster">${kinderen.map(k => `<button type="button" class="jr-wie-kind jr-eigen ${afwezig.has(k.id) ? 'weg' : ''}" data-wie="${k.id}"><img src="${k.beeld}" alt=""><span>${Junior.esc(k.naam)}</span></button>`).join('')}</div>
-      <div class="jr-wie-tel"><span class="jr-wie-getal">${er.length}</span><span class="jr-wie-bolletjes">${er.map(() => '<i></i>').join('')}</span></div>`;
+  const zeg = d => Junior.Stem.zeg(d.filter(x => x !== undefined && x !== ''));
+  const nu = new Date();
+  const er = kinderen.filter(k => !afwezig.has(k.id));
+  // Onderaan altijd: naar de volgende stap.
+  const volgende = () => { let i = OSTAPPEN.indexOf(stap) + 1; if (OSTAPPEN[i] === 'jarig' && !jarigen.length) i++; return OSTAPPEN[i]; };
+  const verder = stap === 'klaar' ? '' : `<button type="button" class="jr-ostap-verder jr-eigen" data-ostap="${volgende()}">${E(window.I18n ? I18n.t('Volgende') : 'Volgende')} →</button>`;
+  if (stap === 'wie') {
+    vak.innerHTML = `<p class="jr-ochtend-zin">${E(z.ochtendWie)}</p>
+      <div class="jr-wie-rooster">${kinderen.map(k => `<button type="button" class="jr-wie-kind jr-eigen ${afwezig.has(k.id) ? 'weg' : ''}" data-wie="${k.id}"><img src="${k.beeld}" alt=""><span>${E(k.naam)}</span></button>`).join('')}</div>
+      <div class="jr-wie-tel"><span class="jr-wie-getal">${er.length}</span><span class="jr-wie-bolletjes">${er.map(() => '<i></i>').join('')}</span>${afwezig.size ? `<span class="jr-wie-niet"><b>${afwezig.size}</b><span class="jr-wie-bolletjes">${[...afwezig].map(() => '<i class="weg"></i>').join('')}</span></span>` : ''}</div>${verder}`;
     vak.querySelectorAll('[data-wie]').forEach(b => b.addEventListener('click', () => {
       const id = b.dataset.wie;
       if (afwezig.has(id)) afwezig.delete(id); else afwezig.add(id);
       bewaarOchtend();
       ochtend('wie');
-      Junior.Stem.zeg([kinderen.filter(k => !afwezig.has(k.id)).length, z.ochtendTel]);
+      const n = kinderen.filter(k => !afwezig.has(k.id)).length;
+      zeg(afwezig.size ? [n, z.ochtendTel, afwezig.size, z.ochtendNiet] : [n, z.ochtendTel]);
     }));
-    Junior.Stem.zeg([z.ochtendWie]);
+    zeg([z.ochtendWie]);
+  } else if (stap === 'dag') {
+    const maandag = new Date(nu); maandag.setDate(nu.getDate() - ((nu.getDay() + 6) % 7));
+    const dagen = Array.from({ length: 7 }, (_, i) => { const d = new Date(maandag); d.setDate(maandag.getDate() + i); return d; });
+    const datum = new Intl.DateTimeFormat(taalCode(), { day: 'numeric', month: 'long' }).format(nu);
+    vak.innerHTML = `<p class="jr-ochtend-zin">${E(z.ochtendDag)} <b>${E(dagNaam(nu))} ${E(datum)}</b></p>
+      <div class="jr-dagen">${dagen.map((d, i) => {
+        const verschil = i - ((nu.getDay() + 6) % 7);
+        const wat = verschil === 0 ? 'vandaag' : verschil === -1 ? 'gisteren' : verschil === 1 ? 'morgen' : '';
+        return `<button type="button" class="jr-dag jr-eigen ${i > 4 ? 'weekend' : ''} ${wat}" data-dag="${i}" data-wat="${wat}"><b>${E(dagNaam(d))}</b><span>${d.getDate()}</span></button>`;
+      }).join('')}</div>${verder}`;
+    vak.querySelectorAll('[data-dag]').forEach(b => b.addEventListener('click', () => {
+      const d = dagen[+b.dataset.dag];
+      const zin = b.dataset.wat === 'gisteren' ? z.ochtendGisteren : b.dataset.wat === 'morgen' ? z.ochtendMorgen : b.dataset.wat === 'vandaag' ? z.ochtendDag : '';
+      b.classList.remove('tik'); void b.offsetWidth; b.classList.add('tik');
+      zeg(zin ? [zin, dagNaam(d)] : [dagNaam(d)]);
+    }));
+    zeg([z.ochtendWelkeDag, z.ochtendDag, dagNaam(nu), datum]);
+  } else if (stap === 'maand') {
+    const fmt = new Intl.DateTimeFormat(taalCode(), { month: 'long' });
+    const maanden = Array.from({ length: 12 }, (_, i) => fmt.format(new Date(2026, i, 15)));
+    const m = nu.getMonth(), sz = seizoenVan(nu), sn = z.seizoenen || [];
+    // Elke maand kleurt mee met zijn seizoen; zo zien de kinderen de seizoenen rondgaan.
+    const mSz = i => seizoenVan(new Date(nu.getFullYear(), i, 15));
+    vak.innerHTML = `<p class="jr-ochtend-zin">${E(z.ochtendMaand)} <b>${E(maanden[m])}</b>. ${E(z.ochtendSeizoen)} <b>${E(sn[sz] || '')}</b>.</p>
+      <div class="jr-maanden">${maanden.map((n, i) => `<button type="button" class="jr-maand jr-eigen sz-${mSz(i)} ${i === m ? 'nu' : ''}" data-maand="${i}"><b>${E(n)}</b></button>`).join('')}</div>
+      <div class="jr-seizoenen">${sn.map((n, i) => `<button type="button" class="jr-seizoen jr-eigen sz-${i} ${i === sz ? 'nu' : ''}" data-sz="${i}"><span class="jr-seizoen-e">${SEIZOEN_E[i]}</span><b>${E(n)}</b></button>`).join('')}</div>${verder}`;
+    vak.querySelectorAll('[data-maand]').forEach(b => b.addEventListener('click', () => zeg([maanden[+b.dataset.maand]])));
+    vak.querySelectorAll('[data-sz]').forEach(b => b.addEventListener('click', () => zeg([sn[+b.dataset.sz]])));
+    zeg([z.ochtendWelkeMaand, z.ochtendMaand, maanden[m], z.ochtendSeizoen, sn[sz]]);
+  } else if (stap === 'weer') {
+    const zinnen = z.weer || [];
+    vak.innerHTML = `<p class="jr-ochtend-zin">${E(ochtendWeer ? zinnen[ochtendWeer - 1] || '' : z.ochtendWelkWeer)}</p>
+      <div class="jr-weer">${zinnen.map((_, i) => `<button type="button" class="jr-weer-knop jr-eigen ${ochtendWeer === i + 1 ? 'aan' : ''}" data-weer="${i + 1}"><img src="/img/junior/weer/${i + 1}.webp" alt=""></button>`).join('')}</div>${verder}`;
+    vak.querySelectorAll('[data-weer]').forEach(b => b.addEventListener('click', () => {
+      ochtendWeer = +b.dataset.weer; kleren = [];
+      bewaarOchtend();
+      try { sfx.good(); } catch {}
+      ochtend('weer');
+      zeg([zinnen[ochtendWeer - 1]]);
+    }));
+    if (!ochtendWeer) zeg([z.ochtendWelkWeer]);
+  } else if (stap === 'kleren') {
+    const lijst = z.kleren || [];
+    vak.innerHTML = `<p class="jr-ochtend-zin">${E(ochtendWeer ? z.ochtendKleren : z.ochtendEerstWeer)}</p>
+      <div class="jr-kleren-rij">${ochtendWeer ? `<img class="jr-kleren-weer" src="/img/junior/weer/${ochtendWeer}.webp" alt="">` : ''}<div class="jr-kleren">${lijst.map((k, i) => `<button type="button" class="jr-kleding jr-eigen ${kleren.includes(i) ? (k.weer.includes(ochtendWeer) ? 'goed' : 'mis') : ''}" data-kl="${i}"><span class="jr-kleding-e">${k.e}</span><b>${E(k.w)}</b></button>`).join('')}</div></div>
+      ${ochtendWeer ? '' : '<button type="button" class="jr-ostap-verder jr-eigen" data-ostap="weer">🌤️</button>'}${verder}`;
+    Junior.prenten(vak);
+    vak.querySelectorAll('[data-kl]').forEach(b => b.addEventListener('click', () => {
+      if (!ochtendWeer) { zeg([z.ochtendEerstWeer]); return; }
+      const i = +b.dataset.kl, k = lijst[i];
+      if (kleren.includes(i)) kleren = kleren.filter(x => x !== i); else kleren.push(i);
+      bewaarOchtend();
+      const goed = k.weer.includes(ochtendWeer);
+      if (kleren.includes(i)) { try { goed ? sfx.good() : sfx.bad(); } catch {} zeg([k.w, goed ? z.ochtendKlerenJa : z.ochtendKlerenNee]); }
+      ochtend('kleren');
+    }));
+    zeg([ochtendWeer ? z.ochtendKleren : z.ochtendEerstWeer]);
+  } else if (stap === 'gevoel') {
+    const G = J().gevoelens || {};
+    const soorten = ['blij', 'trots', 'moe', 'verdrietig', 'boos', 'bang'].filter(g => G[g]);
+    const zonder = er.filter(k => !gevoel[k.id]);
+    vak.innerHTML = `<p class="jr-ochtend-zin">${E(z.ochtendGevoel)}</p>
+      <div class="jr-gevoelens">${soorten.map(g => `<div class="jr-gevoel-kolom" data-gv="${g}"><div class="jr-gevoel-kop"><span class="jr-gevoel-e">${G[g].e}</span><b>${E(G[g].w)}</b></div>
+        <div class="jr-gevoel-kids">${er.filter(k => gevoel[k.id] === g).map(k => `<button type="button" class="jr-gv-kind jr-eigen ${gevoelKind === k.id ? 'licht' : ''}" data-gk="${k.id}"><img src="${k.beeld}" alt=""></button>`).join('')}</div></div>`).join('')}</div>
+      ${zonder.length ? `<div class="jr-gevoel-pool">${zonder.map(k => `<button type="button" class="jr-gv-kind jr-eigen ${gevoelKind === k.id ? 'licht' : ''}" data-gk="${k.id}"><img src="${k.beeld}" alt=""><span>${E(k.naam)}</span></button>`).join('')}</div>` : ''}${verder}`;
+    Junior.prenten(vak);
+    vak.querySelectorAll('[data-gk]').forEach(b => b.addEventListener('click', e => {
+      e.stopPropagation(); gevoelKind = gevoelKind === b.dataset.gk ? null : b.dataset.gk;
+      const k = kinderen.find(x => x.id === b.dataset.gk); if (k && gevoelKind) zeg([k.naam]);
+      ochtend('gevoel');
+    }));
+    vak.querySelectorAll('[data-gv]').forEach(c => c.addEventListener('click', () => {
+      const g = c.dataset.gv;
+      if (!gevoelKind) { zeg([G[g].w]); return; }
+      const k = kinderen.find(x => x.id === gevoelKind);
+      gevoel[gevoelKind] = g; gevoelKind = null; bewaarOchtend();
+      try { sfx.marker ? sfx.marker() : sfx.good(); } catch {}
+      zeg([k ? k.naam : '', G[g].w]);
+      ochtend('gevoel');
+    }));
+    if (!Object.keys(gevoel).length) zeg([z.ochtendGevoel]);
+  } else if (stap === 'hulpje') {
+    const klusjes = z.klusjes || [];
+    const kies = () => {
+      // Eerlijk rond: wie het langst geen hulpje was, komt eerst.
+      let vorige = [];
+      try { vorige = JSON.parse(localStorage.getItem('jr-hulpjes') || '[]'); } catch {}
+      const kans = er.filter(k => !vorige.includes(k.id));
+      const pool = kans.length ? kans : er;
+      if (!pool.length) return;
+      const k = pool[Math.floor(Math.random() * pool.length)];
+      vorige = (kans.length ? vorige : []).concat(k.id);
+      try { localStorage.setItem('jr-hulpjes', JSON.stringify(vorige)); } catch {}
+      hulpje = { id: k.id, klus: Math.floor(Math.random() * Math.max(1, klusjes.length)) };
+      bewaarOchtend();
+    };
+    if (!hulpje || afwezig.has(hulpje.id) || !kinderen.some(k => k.id === hulpje.id)) kies();
+    const k = hulpje && kinderen.find(x => x.id === hulpje.id);
+    vak.innerHTML = k ? `<div class="jr-hulpje"><div class="jr-hulpje-kaart"><img src="${k.beeld}" alt=""><b>${E(k.naam)}</b></div>
+      <div class="jr-hulpje-info"><p class="jr-ochtend-zin">${E(z.ochtendHulpje)} <b>${E(k.naam)}</b></p>
+      <div class="jr-klusjes">${klusjes.map((t, i) => `<button type="button" class="jr-klus jr-eigen ${hulpje.klus === i ? 'aan' : ''}" data-klus="${i}">${E(t)}</button>`).join('')}</div>
+      <button type="button" class="jr-ostap-verder jr-eigen" id="jr-ander-hulpje">🎲 ${E(window.I18n ? I18n.t('Ander hulpje') : 'Ander hulpje')}</button></div></div>${verder}` : verder;
+    vak.querySelectorAll('[data-klus]').forEach(b => b.addEventListener('click', () => { hulpje.klus = +b.dataset.klus; bewaarOchtend(); ochtend('hulpje'); zeg([z.ochtendKlus, klusjes[hulpje.klus]]); }));
+    const ander = $('jr-ander-hulpje'); if (ander) ander.addEventListener('click', () => { kies(); ochtend('hulpje'); });
+    if (k) zeg([z.ochtendHulpje, k.naam, z.ochtendKlus, klusjes[hulpje.klus]]);
+  } else if (stap === 'onzedag') {
+    // Het dagritme uit Klastools: dezelfde prenten, zodat de kinderen weten wat er komt.
+    let rij = [], eigen = [];
+    try { const d = JSON.parse(localStorage.getItem('jr-kt-dag') || 'null'); rij = d && d.rij ? d.rij : [1, 2, 3, 4, 13, 9, 12, 8]; } catch { rij = [1, 2, 3, 4, 13, 9, 12, 8]; }
+    try { eigen = JSON.parse(localStorage.getItem('jr-kt-dag-eigen') || '[]'); } catch {}
+    const namen = z.dagdelen || [];
+    const dd = r => { const e = eigen.find(x => x.id === r); return e ? { src: e.src, naam: e.naam } : typeof r === 'number' ? { src: `/img/junior/tools/dag/${r}.webp`, naam: namen[r - 1] || '' } : null; };
+    const items = rij.map(dd).filter(Boolean);
+    vak.innerHTML = `<p class="jr-ochtend-zin">${E(z.ochtendOnzeDag)}</p>
+      <div class="jr-onzedag">${items.map((d, i) => `<button type="button" class="jr-onzedag-kaart jr-eigen" data-od="${i}"><img src="${d.src}" alt=""><b>${E(d.naam)}</b></button>`).join('')}</div>
+      <p class="jr-view-uitleg">${E(window.I18n ? I18n.t('Je dag aanpassen doe je in Klastools, bij Dagritme.') : 'Je dag aanpassen doe je in Klastools, bij Dagritme.')}</p>${verder}`;
+    vak.querySelectorAll('[data-od]').forEach(b => b.addEventListener('click', () => zeg([items[+b.dataset.od].naam])));
+    zeg([z.ochtendOnzeDag, ...items.map(d => d.naam)]);
+  } else if (stap === 'jarig') {
+    vak.innerHTML = `<p class="jr-ochtend-zin">${E(z.ochtendJarig)}</p>
+      <div class="jr-wie-rooster jr-jarig-rij">${jarigen.map(k => `<div class="jr-wie-kind"><img src="${k.beeld}" alt=""><span>${E(k.naam)}</span></div>`).join('')}</div>
+      <button type="button" class="jr-ochtend-knop jr-eigen" data-ga="feest">🎂 ${E(window.I18n ? I18n.t('Naar het verjaardagsfeest') : 'Naar het verjaardagsfeest')}</button>${verder}`;
+    zeg([z.ochtendJarig, ...jarigen.map(k => k.naam)]);
   } else {
-    vak.innerHTML = `<div class="jr-ochtend-klaar"><img class="jr-ochtend-draak" src="${draakImg()}" alt=""><p class="jr-ochtend-zin">${Junior.esc(z.ochtendKlaar)}</p></div>`;
+    vak.innerHTML = `<div class="jr-ochtend-klaar"><img class="jr-ochtend-draak" src="${draakImg()}" alt=""><p class="jr-ochtend-zin">${E(z.ochtendKlaar)}</p></div>`;
     try { confetti(3000); sfx.fanfare(); } catch {}
-    Junior.Stem.zeg([z.ochtendKlaar]);
+    zeg([z.ochtendKlaar]);
     // Eén keer per dag krijgt het klasdraakje een beloning voor het ochtendmoment.
     let al = '';
     try { al = localStorage.getItem('jr-ochtend-beloning') || ''; } catch {}
@@ -1229,7 +1341,7 @@ function toonSets() {
     d.addEventListener('dragend', () => d.classList.remove('sleep'));
     const voorbeeld = set.vragen.slice(0, 1).flatMap(v => v.opties.map(o => o.e)).join(' ');
     d.innerHTML = `<div><b>${Junior.esc(set.naam)}</b><span>${set.vragen.length} vragen · ${Junior.esc(voorbeeld)}</span></div>`
-      + '<span class="jr-set-knoppen"><button type="button" class="gold jr-set-speel">▶ Spelen</button><button type="button" class="secondary jr-set-map" title="In een map steken">📁</button><button type="button" class="secondary jr-set-bw">✏️</button><button type="button" class="secondary jr-set-wis">🗑️</button></span>';
+      + '<span class="jr-set-knoppen"><button type="button" class="gold jr-set-speel">▶ Spelen</button><button type="button" class="secondary jr-set-kijk" title="Bekijken zoals op de tablet">👁</button><button type="button" class="secondary jr-set-map" title="In een map steken">📁</button><button type="button" class="secondary jr-set-bw">✏️</button><button type="button" class="secondary jr-set-wis">🗑️</button></span>';
     d.querySelector('.jr-set-speel').addEventListener('click', () => {
       const s = spelVan('eigen');
       kies(s);
@@ -1237,6 +1349,7 @@ function toonSets() {
       for (const [i, x] of [...$('jr-kv-niveaus').children].entries()) x.classList.toggle('aan', i === gekozen.niveau);
     });
     d.querySelector('.jr-set-bw').addEventListener('click', () => bewerk(set));
+    d.querySelector('.jr-set-kijk').addEventListener('click', () => voorbeeldSet(set));
     d.querySelector('.jr-set-map').addEventListener('click', () => mapVenster({ set }));
     d.querySelector('.jr-set-wis').addEventListener('click', async () => {
       if (!(await Ui.vraag(`De reeks "${set.naam}" wissen?`))) return;
@@ -1245,6 +1358,24 @@ function toonSets() {
     box.appendChild(d);
   }
 }
+// 👁 Een reeks bekijken zoals een kind ze op de tablet ziet: vraag per vraag, met voorlezen. Tikken mag (het juiste antwoord licht op).
+let kijk = null;
+function voorbeeldSet(set, i = 0) {
+  const v = $('jr-kijk-venster');
+  if (!set.vragen.length) return;
+  i = (i + set.vragen.length) % set.vragen.length;
+  $('jr-kijk-titel').textContent = set.naam;
+  $('jr-kijk-teller').textContent = `${i + 1} / ${set.vragen.length}`;
+  if (kijk) try { kijk.stop(); } catch {}
+  const vak = $('jr-kijk-vak');
+  kijk = Junior.speel(vak, Junior.eigenVraag(set.vragen[i]), { klaar() {} });
+  $('jr-kijk-vorige').onclick = () => voorbeeldSet(set, i - 1);
+  $('jr-kijk-volgende').onclick = () => voorbeeldSet(set, i + 1);
+  $('jr-kijk-bewerk').onclick = () => { v.close(); bewerk(set); };
+  if (!v.open) v.showModal();
+}
+$('jr-kijk-dicht').addEventListener('click', () => $('jr-kijk-venster').close());
+$('jr-kijk-venster').addEventListener('close', () => { if (kijk) try { kijk.stop(); } catch {} kijk = null; try { Junior.Stem.stop(); } catch {} });
 let bezig = null; // de reeks die nu bewerkt wordt
 function bewerk(set) {
   bezig = JSON.parse(JSON.stringify(set));
@@ -1460,6 +1591,9 @@ socket.on('connect', () => {
     klas();
     volg(res.overzicht || []);
     toon();
+    // Wie op het ochtendmoment herlaadt: de klas is er nu pas, dus de huidige stap opnieuw tekenen.
+    const ov = $('jr-ochtend-vak');
+    if (ov && ov.dataset.stap && !$('jr-v-ochtend').classList.contains('hidden')) ochtend(ov.dataset.stap);
   });
 });
 socket.on('jr-stand', s => {

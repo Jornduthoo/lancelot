@@ -408,12 +408,7 @@
     eigen(r, niv) {
       const set = (J().sets || [])[niv];
       if (!set || !set.vragen || !set.vragen.length) return null;
-      const v = r.kies(set.vragen);
-      return {
-        soort: 'kies', zeg: [v.s ? { url: `/junior/stem/${v.s}` } : v.vraag], kop: `<span class="jr-vraagkaart">${esc(v.vraag)}</span>`, eigen: true,
-        scene: v.f ? `<img class="jr-foto jr-vraag-foto" src="/junior/foto/${esc(v.f)}" alt="">` : '',
-        opties: v.opties.map((o, i) => ({ html: `${o.f ? `<img class="jr-foto" src="/junior/foto/${esc(o.f)}" alt="">` : o.e ? emoji(esc(o.e), 'jr-emoji-groot') : ''}${o.w ? `<span class="jr-optie-woord">${esc(o.w)}</span>` : ''}`, juist: i === v.juist })),
-      };
+      return eigenVraag(r.kies(set.vragen));
     },
     // ---------- Fase 2 ----------
     // Getallenlijn: het draakje staat op een streepje, welk getal is dat? Tot 100 met streepjes per 10.
@@ -824,6 +819,14 @@
   // wie: { naam } van het kind dat aan de beurt is (voor het spel Mijn naam).
   // Niet twee keer (bijna) dezelfde vraag kort na elkaar: de laatste vier per spel worden onthouden.
   const recent = {};
+  // Een eigen vraag van de leerkracht zoals de tablet ze toont (ook voor het voorbeeld bij Maken).
+  function eigenVraag(v) {
+    return {
+      soort: 'kies', zeg: [v.s ? { url: `/junior/stem/${v.s}` } : v.vraag], kop: `<span class="jr-vraagkaart">${esc(v.vraag)}</span>`, eigen: true,
+      scene: v.f ? `<img class="jr-foto jr-vraag-foto" src="/junior/foto/${esc(v.f)}" alt="">` : '',
+      opties: v.opties.map((o, i) => ({ html: `${o.f ? `<img class="jr-foto" src="/junior/foto/${esc(o.f)}" alt="">` : o.e ? emoji(esc(o.e), 'jr-emoji-groot') : ''}${o.w ? `<span class="jr-optie-woord">${esc(o.w)}</span>` : ''}`, juist: i === v.juist })),
+    };
+  }
   function vraag(spel, niveau, r, wie) {
     const m = MAKERS[spel];
     if (!m) return null;
@@ -1231,5 +1234,5 @@
     else addEventListener('resize', pas);
   }
 
-  window.Junior = { Stem, toeval, vraag, speel, schaal, beeld, emoji, esc, prenten, MAKERS, minder, niveauVoor, get rustig() { return rustig; }, set rustig(v) { zetRustig(v); } };
+  window.Junior = { Stem, toeval, vraag, eigenVraag, speel, schaal, beeld, emoji, esc, prenten, MAKERS, minder, niveauVoor, get rustig() { return rustig; }, set rustig(v) { zetRustig(v); } };
 })();
