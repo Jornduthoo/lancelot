@@ -598,5 +598,15 @@
  "➕ Zonder foto": "➕ Without photo",
  "Geef je hoek eerst een naam.": "Give your corner a name first.",
  "Er is geen plaats meer voor eigen hoeken. Wis er eerst een.": "There is no more room for your own corners. Delete one first.",
- "Die foto kon niet geladen worden.": "That photo could not be loaded."
+ "Die foto kon niet geladen worden.": "That photo could not be loaded.",
+ "Opruimen": "Tidy up",
+ "Riddermars": "Knight march",
+ "Snelle bezem": "Quick broom",
+ "Drakendans": "Dragon dance",
+ "Rustig opruimen": "Calm tidy-up",
+ "➕ Eigen muziek": "➕ Own music",
+ "Dat muziekbestand is te groot (meer dan 30 MB).": "That music file is too big (over 30 MB).",
+ "Die muziek kon niet bewaard worden.": "That music could not be saved.",
+ "⏸ Pauze": "⏸ Pause",
+ "▶ Opruimen!": "▶ Tidy up!"
 }
