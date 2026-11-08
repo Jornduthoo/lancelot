@@ -4,7 +4,7 @@
 (function () {
   const t = x => (window.I18n ? I18n.t(x) : x);
   const esc = s => Junior.esc(s);
-  const GEEN = ['dans', 'kring', 'waar', 'eigen'];
+  const GEEN = ['dans', 'kring', 'waar', 'eigen', 'ritme', 'geluiden'];
   const AANTAL = [2, 3, 4, 6, 8, 12, 15];
   const st = { blokken: [], per: 4, mix: false, wie: 'klas', groot: false, naam: true, datum: true, zeg: true, smiley: true, stempel: false, sleutel: true, titel: '', start: 1 };
   try { Object.assign(st, JSON.parse(localStorage.getItem('jr-wbgen') || '{}')); } catch {}

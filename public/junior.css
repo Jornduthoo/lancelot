@@ -408,6 +408,7 @@
 .jr[data-spel="vormen"] { background-image: url(/img/junior/bg/vormen.webp); }
 .jr[data-spel="waar"] { background-image: url(/img/junior/bg/waar.webp); }
 .jr[data-spel="geluiden"] { background-image: url(/img/junior/bg/geluiden.webp); }
+.jr[data-spel="ritme"] { background-image: url(/img/junior/bg/ritme.webp); }
 .jr[data-spel="trein"] { background-image: url(/img/junior/bg/trein.webp); }
 .jr[data-spel="woordbrug"] { background-image: url(/img/junior/bg/woordbrug.webp); }
 .jr[data-spel="dans"] { background-image: url(/img/junior/bg/dans.webp); }
@@ -440,6 +441,7 @@
   .jr[data-spel="vormen"] { background-image: url(/img/junior/bg/vormen-klein.webp); }
   .jr[data-spel="waar"] { background-image: url(/img/junior/bg/waar-klein.webp); }
   .jr[data-spel="geluiden"] { background-image: url(/img/junior/bg/geluiden-klein.webp); }
+  .jr[data-spel="ritme"] { background-image: url(/img/junior/bg/ritme-klein.webp); }
   .jr[data-spel="trein"] { background-image: url(/img/junior/bg/trein-klein.webp); }
   .jr[data-spel="woordbrug"] { background-image: url(/img/junior/bg/woordbrug-klein.webp); }
   .jr[data-spel="dans"] { background-image: url(/img/junior/bg/dans-klein.webp); }
@@ -1650,3 +1652,20 @@ body.jr-los #jr-vak, body.jr-los #jr-beurt { visibility: hidden; }
 .jr-bord-roep b { font-size: clamp(2rem, 5vw, 3.4rem); color: var(--jr-inkt); text-shadow: 0 2px 0 rgb(0 0 0 / .4); }
 @keyframes jr-roep-in { from { opacity: 0; transform: scale(.85); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { .jr-bord-roep { animation: none; } }
+
+/* Ritmedraak: ritmekaartjes (grote stip = ta, twee kleine verbonden stippen = titi) en de trom om op te tikken. */
+.jr-ritme { display: inline-flex; align-items: center; gap: .55em; padding: .35em .6em; }
+.jr-ritme i { display: inline-flex; align-items: center; gap: .18em; position: relative; }
+.jr-ritme b { display: block; border-radius: 50%; background: #ffd36b; box-shadow: 0 0 0 .08em rgb(0 0 0 / .35); transition: background .12s, box-shadow .12s, transform .12s; }
+.jr-ritme .ta b { width: 1.25em; height: 1.25em; }
+.jr-ritme .titi b { width: .75em; height: .75em; }
+.jr-ritme .titi::after { content: ''; position: absolute; left: .3em; right: .3em; top: -.32em; height: .14em; border-radius: .1em; background: #ffd36b; }
+.jr-ritme b.aan { background: #4cc9ff; box-shadow: 0 0 .6em #4cc9ff; transform: scale(1.25); }
+.jr-ritme b.af { background: #4cc9ff; box-shadow: 0 0 .35em rgb(76 201 255 / .8); }
+.jr-kop .jr-ritme { font-size: 2.2em; background: rgb(var(--k-panel) / .85); border-radius: .5em; box-shadow: 0 0 0 .06em var(--jr-lijn); }
+.jr-optie .jr-ritme { font-size: 1.15em; }
+.jr-trom-kop .jr-img { width: 5em; height: auto; }
+.jr-trom { display: block; margin: .6em auto 0; border: 0; background: none; padding: 0; cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+.jr-trom .jr-img { width: 9em; height: auto; filter: drop-shadow(0 0 .6em rgb(76 201 255 / .45)); }
+.jr-trom.jr-tik-pop { animation: jr-trom-tik .18s ease-out; }
+@keyframes jr-trom-tik { 50% { transform: scale(.92); } }
