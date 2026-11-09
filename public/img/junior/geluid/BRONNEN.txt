@@ -7,3 +7,4 @@ Geluiden van Wikimedia Commons (vrije licenties). Bestand / origineel / maker / 
 1f413.mp3	Rooster crowing.ogg	Filo gèn'	CC BY-SA 4.0	https://commons.wikimedia.org/wiki/File:Rooster_crowing.ogg
 1f438.mp3	Single Frog Croak.oga	MichaeltheFox8621	CC BY-SA 4.0	https://commons.wikimedia.org/wiki/File:Single_Frog_Croak.oga
 1f981.mp3	Lion raring-sound1TamilNadu178.ogg	த*உழவன்	Public domain	https://commons.wikimedia.org/wiki/File:Lion_raring-sound1TamilNadu178.ogg
+1f989.mp3	Strix aluco male.oga	Vianney Bajart	CC BY-SA 4.0	https://commons.wikimedia.org/wiki/File:Strix_aluco_male.oga
