@@ -238,6 +238,14 @@
     "tekst": "LANcelot llegará pronto a Microsoft Store. Durante el primer mes lo pruebas todo completo, sin pagar. Después pagas una sola vez 29,99 €.",
     "noot": "Solo necesitas un PC con Windows en el aula. Los alumnos juegan desde el navegador."
   },
+  "winkel": {
+    "nav": "Descargar",
+    "knop": "Descárgalo en Microsoft Store",
+    "badge": "Consíguelo en",
+    "noot": "PC con Windows · Los alumnos juegan en el navegador",
+    "tekst": "LANcelot ya está en Microsoft Store. Durante el primer mes lo pruebas todo completo, sin pagar. Después pagas una sola vez 29,99 €.",
+    "faq": "Ya mismo: descarga LANcelot en Microsoft Store. Durante el primer mes todo funciona, sin pagar."
+  },
   "faq": {
     "titel": "Preguntas frecuentes",
     "lijst": [

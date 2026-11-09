@@ -68,3 +68,12 @@ test('website: elk spel heeft een eigen pagina in elke taal, met extra info', ()
     }
   }
 });
+
+test('website: de downloadknoppen wijzen naar dezelfde Store-pagina als de app', () => {
+  const config = JSON.parse(fs.readFileSync(path.join(BRON, 'site.json'), 'utf8'));
+  const app = fs.readFileSync(path.join(__dirname, '..', 'src', 'store.js'), 'utf8').match(/STORE_ID = .*'(\w+)'/)[1];
+  assert.strictEqual(config.store.id, app, 'store.id in website/bron/site.json hoort gelijk te zijn aan STORE_ID in src/store.js');
+  assert.strictEqual(typeof config.store.live, 'boolean');
+  const html = fs.readFileSync(path.join(SITE, 'index.html'), 'utf8');
+  assert.strictEqual(html.includes(`apps.microsoft.com/detail/${config.store.id}`), config.store.live, 'bouw de site opnieuw na store.live (node website/bron/bouw.js)');
+});

@@ -85,6 +85,19 @@ function videoBlok(rel, naam, poster, t) {
 
 function pad(taal) { return taal === 'nl' ? '/' : `/${taal}/`; }
 const BASIS = CONFIG.adres.replace(/\/$/, '');
+// Verkoop loopt enkel via de Microsoft Store. Zolang store.live in bron/site.json false is, zegt de site 'binnenkort';
+// op true (en opnieuw bouwen) wordt elke downloadknop een link naar de Store-pagina, in de taal van de pagina.
+const STORE = CONFIG.store || {};
+const STORE_TAAL = { nl: 'nl-BE', en: 'en-GB', fr: 'fr-BE', es: 'es-ES', de: 'de-DE' };
+const storeUrl = taal => (STORE.live && STORE.id ? `https://apps.microsoft.com/detail/${STORE.id}?hl=${STORE_TAAL[taal] || 'en-GB'}` : '');
+// Als de Store live is, nemen de teksten uit 'winkel' de plaats in van de 'binnenkort'-teksten.
+function winkel(taal, t) {
+  const url = storeUrl(taal);
+  if (!url) return { ...t, store: '' };
+  const w = t.winkel;
+  return { ...t, store: url, nav: { ...t.nav, download: w.nav }, hero: { ...t.hero, knop: w.knop, noot: w.noot },
+    download: { ...t.download, tekst: w.tekst }, faq: { ...t.faq, lijst: t.faq.lijst.map((x, i) => (i === 0 ? { ...x, a: w.faq } : x)) } };
+}
 const INFO = JSON.parse(fs.readFileSync(path.join(BRON, 'spellen.json'), 'utf8'));
 // Het privacybeleid (ook het adres dat in de Microsoft Store staat): bron/privacy.json, een pagina per taal.
 const PRIVACY = JSON.parse(fs.readFileSync(path.join(BRON, 'privacy.json'), 'utf8'));
@@ -206,7 +219,7 @@ function pagina(taal, t, w, data, alle) {
         <p class="wereld">${esc(t.hero.wereld)}</p>
         <p class="lead">${esc(t.hero.tekst)}</p>
         <div class="knoppen">
-          <a class="knop" href="#download">${esc(t.hero.knop)}</a>
+          <a class="knop" href="${t.store ? esc(t.store) : '#download'}">${esc(t.hero.knop)}</a>
           <a class="knop tweede" href="#spellen">${esc(t.hero.knop2)}</a>
         </div>
         <p class="noot">${esc(t.hero.noot)}</p>
@@ -296,7 +309,9 @@ ${heeftVideo(`spellen-${taal}`) ? videoBlok(rel, `spellen-${taal}`, `spellen-${t
     <section class="blok download" id="download">
       <h2 class="titel">${esc(t.download.titel)}</h2>
       <p class="intro">${esc(t.download.tekst)}</p>
-      <p class="binnenkort">${esc(t.nav.download)}</p>
+      ${t.store
+    ? `<a class="store-badge" href="${esc(t.store)}"><svg viewBox="0 0 32 32" width="30" height="30" aria-hidden="true"><path d="M11 10V8a5 5 0 0 1 10 0v2" fill="none" stroke="currentColor" stroke-width="2.2"/><rect x="5" y="10" width="22" height="18" rx="2.5" fill="currentColor"/><path d="M11.5 15h4v4h-4zM16.5 15h4v4h-4zM11.5 20h4v4h-4zM16.5 20h4v4h-4z" fill="#000"/></svg><span><small>${esc(t.winkel.badge)}</small> Microsoft Store</span></a>`
+    : `<p class="binnenkort">${esc(t.nav.download)}</p>`}
       <p class="noot">${esc(t.download.noot)}</p>
       ${CONFIG.email ? `<p class="contact">${esc(t.voet.contact)} <a href="mailto:${esc(CONFIG.email)}">${esc(CONFIG.email)}</a></p>` : ''}
     </section>
@@ -392,7 +407,7 @@ function kopieer(van, naar) {
 
 function bouw() {
   const data = spellen();
-  const alle = Object.fromEntries(TALEN.map(x => [x, JSON.parse(fs.readFileSync(path.join(BRON, 'teksten', `${x}.json`), 'utf8'))]));
+  const alle = Object.fromEntries(TALEN.map(x => [x, winkel(x, JSON.parse(fs.readFileSync(path.join(BRON, 'teksten', `${x}.json`), 'utf8')))]));
   // Beelden uit de app: iconen van spellen en zalen, het merk en de lettertypes.
   const iconen = new Set(['arena', 'ronde-tafel', 'smidse', 'wapenkamer', 'burcht', ...Object.values(MOTIVATIE_ICOON), ...Object.values(OPVOLGEN_ICOON)].map(x => x + '.webp'));
   for (const g of data.groepen) for (const s of g.spellen) iconen.add(s.icoon);

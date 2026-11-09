@@ -238,6 +238,14 @@
     "tekst": "LANcelot is coming soon to the Microsoft Store. For the first month you try everything in full, without paying. After that, it is a one-time payment of €29.99.",
     "noot": "All you need is a Windows PC in the classroom. Students join in their browser."
   },
+  "winkel": {
+    "nav": "Download",
+    "knop": "Get it in the Microsoft Store",
+    "badge": "Get it from",
+    "noot": "Windows PC · Students join in the browser",
+    "tekst": "LANcelot is in the Microsoft Store. For the first month you try everything in full, without paying. After that, it is a one-time payment of €29.99.",
+    "faq": "Right now: get LANcelot in the Microsoft Store. For the first month everything works, without paying."
+  },
   "faq": {
     "titel": "Frequently asked questions",
     "lijst": [
