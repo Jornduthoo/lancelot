@@ -107,7 +107,7 @@ const SPELLEN = [
     niveaus: ['Weinig eten', 'Veel eten'] },
   { id: 'helpen', naam: 'Goede vriendjes', zin: 'Wat doe je als iemand hulp nodig heeft?', groep: 'samen', beeld: 'stuk/29',
     niveaus: ['Helpen', 'Beleefd zijn', 'Veilig zijn'] },
-  { id: 'gevoel', naam: 'Gevoelensspiegel', zin: 'Hoe voelt het draakje?', groep: 'samen', beeld: 'stuk/22',
+  { id: 'gevoel', naam: 'Gevoelensspiegel', zin: 'Hoe voelt het draakje zich?', groep: 'samen', beeld: 'stuk/22',
     niveaus: ['Blij, verdrietig, boos, bang', 'Meer gevoelens'] },
   { id: 'dans', naam: 'Bewegingsdans', zin: 'Het draakje danst voor, de klas doet mee.', groep: 'samen', jaar: 'Iedereen', beeld: 'draak/4', bordAlleen: true,
     niveaus: ['Tellen tot 5', 'Tellen tot 10'] },

@@ -782,7 +782,7 @@
         opties: r.schud([{ ...h.goed, juist: true }, ...fout]).map(x => ({ html: `${emoji(x.e, 'jr-emoji-groot')}<span class="jr-optie-woord">${esc(x.w)}</span>`, juist: !!x.juist })),
       };
     },
-    // Gevoelensspiegel: hoe voelt het draakje? Kies het juiste gezicht.
+    // Gevoelensspiegel: hoe voelt het draakje zich? Kies het juiste gezicht.
     gevoel(r, niv) {
       const G = J().gevoelens || {};
       const pool = (J().situaties || []).filter(s => niv === 1 || ['blij', 'verdrietig', 'boos', 'bang'].includes(s.g));
