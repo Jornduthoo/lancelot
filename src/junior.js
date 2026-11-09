@@ -60,6 +60,8 @@ const SPELLEN = [
     niveaus: ['Op, onder, naast', 'Ook boven, links en rechts', 'Voor, achter, in, tussen'] },
   { id: 'geluiden', naam: 'Geluidenbos', zin: 'Luister goed: wie maakt dit geluid?', groep: 'taal', jaar: '2e - 3e kl', beeld: 'dier/2',
     niveaus: ['Dieren', 'Dieren en dingen'] },
+  { id: 'schrijf', naam: 'Schrijfdraakje', zin: 'Trek de lijnen en letters over met je vinger.', groep: 'taal', jaar: '3e kl - 1e lj', beeld: 'stuk/30',
+    niveaus: ['Schrijfpatronen'] },
   { id: 'ritme', naam: 'Ritmedraak', zin: 'Luister naar de trom en zoek het ritme. Of tik het na.', groep: 'samen', jaar: '2e kl - 1e lj', beeld: 'stuk/30',
     niveaus: ['Hoeveel slagen?', 'Welk ritme hoor je?', 'Tik het ritme na'] },
   { id: 'trein', naam: 'Klankentrein', zin: 'Zet de letters op de wagons, en de trein rijdt weg.', groep: 'taal', jaar: '3e kl - 1e lj', beeld: 'stuk/4',

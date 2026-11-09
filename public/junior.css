@@ -1672,3 +1672,20 @@ body.jr-los #jr-vak, body.jr-los #jr-beurt { visibility: hidden; }
 .jr-kt-label { color: var(--jr-inkt); font-weight: 800; opacity: .8; margin-left: 8px; }
 .jr-kt-groepen.jr-kt-veel { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
 .jr-kt-veel .jr-kt-groep { padding: 6px; }
+
+/* Schrijfdraakje: sporen met de vinger op schrijflijnen. */
+.jr-spoor { width: min(100%, 60em); margin: 0 auto; background: rgb(var(--k-panel) / .9); border-radius: 1em; box-shadow: 0 0 0 .1em var(--jr-lijn); padding: .4em; }
+.jr-spoor svg { width: 100%; height: auto; max-height: 62vh; display: block; touch-action: none; user-select: none; -webkit-user-select: none; }
+.jr-spoor-lijnen line { stroke: rgb(255 255 255 / .18); stroke-width: .5; }
+.jr-spoor-lijnen line.mid { stroke-dasharray: 2 2; }
+.jr-spoor-lijnen line.basis { stroke: rgb(255 211 107 / .55); stroke-width: .8; }
+.jr-spoor-gids { fill: none; stroke: rgb(255 255 255 / .35); stroke-width: 2.2; stroke-dasharray: .1 3.2; stroke-linecap: round; stroke-linejoin: round; }
+.jr-spoor-gids.nu { stroke: rgb(255 255 255 / .85); }
+.jr-spoor-gids.af { stroke: #4cc9ff; stroke-dasharray: none; stroke-width: 3; opacity: .55; }
+.jr-spoor-inkt polyline { fill: none; stroke: #ffd36b; stroke-width: 3.2; stroke-linecap: round; stroke-linejoin: round; transition: opacity .45s; }
+.jr-spoor-inkt polyline.goed { stroke: #4cc9ff; filter: drop-shadow(0 0 1.5px #4cc9ff); }
+.jr-spoor-inkt polyline.weg { opacity: 0; }
+.jr-spoor-bol { fill: #51cf66; stroke: #fff; stroke-width: .8; animation: jr-bol 1.2s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+.jr-spoor-pijl { fill: none; stroke: #51cf66; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+@keyframes jr-bol { 50% { transform: scale(1.25); } }
+@media (prefers-reduced-motion: reduce) { .jr-spoor-bol { animation: none; } }
