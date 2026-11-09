@@ -216,10 +216,10 @@ const goed = (k, ja) => (k && ja ? ' wb-goed' : '');
 const WB = {
   kies: (v, i, k) => ({ doe: 'Kleur het juiste antwoord.', html: `<div class="wb-rij">${v.opties.map(o => `<span class="wb-ding${goed(k, o.juist)}">${o.html}</span>`).join('')}</div>` }),
   tikAlle: (v, i, k) => ({ doe: 'Kleur alles wat past.', html: `<div class="wb-rij wb-veel">${v.items.map(x => `<span class="wb-ding${goed(k, x.doel)}">${x.html}</span>`).join('')}</div>` }),
-  tikAantal: (v, i, k) => ({ doe: 'Kleur er zoveel als gevraagd.', html: `<div class="wb-rij wb-veel">${v.items.map((x, j) => `<span class="wb-ding${goed(k, j < v.aantal)}">${x.html}</span>`).join('')}</div>` }),
+  tikAantal: (v, i, k) => ({ doe: 'Kleur er zoveel als er gevraagd wordt.', html: `<div class="wb-rij wb-veel">${v.items.map((x, j) => `<span class="wb-ding${goed(k, j < v.aantal)}">${x.html}</span>`).join('')}</div>` }),
   volgorde: (v, i, k) => {
     const r = Junior.toeval(v.kaarten.length * 31 + 7 + i * 101);
-    return { doe: 'Schrijf 1, 2, 3 ... in de goede volgorde.', html: `<div class="wb-rij">${r.schud(v.kaarten).map(x => `<span class="wb-ding wb-kaart">${x.html}<i class="wb-hokje">${k ? x.plek + 1 : ''}</i></span>`).join('')}</div>` };
+    return { doe: 'Schrijf 1, 2, 3 ... in de juiste volgorde.', html: `<div class="wb-rij">${r.schud(v.kaarten).map(x => `<span class="wb-ding wb-kaart">${x.html}<i class="wb-hokje">${k ? x.plek + 1 : ''}</i></span>`).join('')}</div>` };
   },
   // Het splitshuis: het getal op het dak, links de draakjes die er al zijn, rechts tekenen en schrijven.
   sleepAantal: (v, i, k) => ({ doe: 'Teken wat er nog bij moet en schrijf het getal.', html: `<div class="wb-huis"><b class="wb-dak">${v.totaal}</b><div class="wb-kamers"><span>${'●'.repeat(v.vast).replace(/(●{5})/g, '$1 ')}<b>${v.vast}</b></span><span>${k ? `<em class="wb-sl-tekening">${'●'.repeat(v.doel).replace(/(●{5})/g, '$1 ')}</em>` : ''}<i class="wb-hokje">${k ? v.doel : ''}</i></span></div></div>` }),
