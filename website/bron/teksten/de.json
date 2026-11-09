@@ -233,10 +233,48 @@
     "titel": "In fünf Sprachen",
     "tekst": "Niederländisch, Englisch, Französisch, Spanisch und Deutsch. Wähle die Sprache in den Einstellungen und jeder Bildschirm wechselt mit, auch bei den Kindern."
   },
+  "junior": {
+    "kicker": "Demnächst",
+    "titel": "LANcelot Junior",
+    "tekst": "Für die Jüngsten, von 5 bis 9 Jahren. Dieselben Ritter und Drachen, mit Spielen für kleine Hände und Kinder, die noch nicht (flüssig) lesen.",
+    "lijst": [
+      {
+        "naam": "Alles wird vorgelesen",
+        "tekst": "Jede Aufgabe wird laut vorgelesen, in der Sprache deiner Klasse. Auch wer noch nicht liest, spielt selbstständig mit."
+      },
+      {
+        "naam": "35 Spiele",
+        "tekst": "Zählen und Rechnen, Messen und Uhrzeit, Formen, Buchstaben und Laute, die Welt, Musik und Miteinander."
+      },
+      {
+        "naam": "An der Tafel oder auf Tablets",
+        "tekst": "Die ganze Klasse in vier Teams, zu zweit an einem Tablet oder jedes Kind an einem eigenen Tablet."
+      },
+      {
+        "naam": "Zauberdorf und Klassendrache",
+        "tekst": "Die Kinder erkunden gemeinsam ein Zaubererdorf und kümmern sich um ihren eigenen Klassendrachen."
+      }
+    ],
+    "beelden": {
+      "spel": "Dracheneier zählen an der Tafel",
+      "thuis": "Der Startbildschirm von LANcelot Junior",
+      "spellen": "Alle Spiele nach Bereich",
+      "toverdorp": "Das Zauberdorf",
+      "draakje": "Unser Klassendrache"
+    },
+    "noot": "LANcelot Junior kommt in derselben App. Ein Knopf, und du wechselst zwischen LANcelot und LANcelot Junior."
+  },
   "download": {
     "titel": "Hol LANcelot in deine Klasse",
     "tekst": "LANcelot kommt bald in den Microsoft Store. Im ersten Monat testest du alles in vollem Umfang, ohne zu bezahlen. Danach zahlst du einmalig 29,99 €.",
     "noot": "Du brauchst nur einen Windows-PC in der Klasse. Die Kinder spielen im Browser mit."
+  },
+  "store": {
+    "nav": "Download",
+    "knop": "Im Microsoft Store herunterladen",
+    "noot": "Windows-PC · Die Kinder spielen im Browser · Einmalig 29,99 €",
+    "tekst": "LANcelot ist im Microsoft Store. Im ersten Monat testest du alles vollständig, ohne zu bezahlen. Danach zahlst du einmalig 29,99 €.",
+    "faq": "Ab sofort. Hol dir LANcelot aus dem Microsoft Store und teste einen Monat lang alles, ohne zu bezahlen. Danach zahlst du einmalig 29,99 €."
   },
   "faq": {
     "titel": "Häufige Fragen",

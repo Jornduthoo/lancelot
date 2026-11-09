@@ -85,6 +85,9 @@ function videoBlok(rel, naam, poster, t) {
 
 function pad(taal) { return taal === 'nl' ? '/' : `/${taal}/`; }
 const BASIS = CONFIG.adres.replace(/\/$/, '');
+// De Store-knop verschijnt pas als store.live in site.json op true staat (de app is echt te koop).
+const STORE = CONFIG.store && CONFIG.store.live ? `https://apps.microsoft.com/detail/${CONFIG.store.id}` : '';
+const JUNIOR_BEELDEN = ['spel', 'thuis', 'spellen', 'toverdorp', 'draakje'];
 const INFO = JSON.parse(fs.readFileSync(path.join(BRON, 'spellen.json'), 'utf8'));
 // Het privacybeleid (ook het adres dat in de Microsoft Store staat): bron/privacy.json, een pagina per taal.
 const PRIVACY = JSON.parse(fs.readFileSync(path.join(BRON, 'privacy.json'), 'utf8'));
@@ -136,7 +139,7 @@ function omhulsel({ taal, t, alle, root, thuis, links, adressen, titel, omschrij
       <summary aria-label="${esc(t.voet.taal)}">${SVG.wereld}<span>${taal.toUpperCase()}</span></summary>
       <div class="talen-lijst">${talenLinks}</div>
     </details>
-    <a class="knop klein" href="${thuis}#download">${esc(t.nav.download)}</a>
+    <a class="knop klein" href="${thuis}#download">${esc(STORE ? t.store.nav : t.nav.download)}</a>
   </header>
   <p class="taalwenk" id="taalwenk" hidden></p>
 
@@ -206,10 +209,10 @@ function pagina(taal, t, w, data, alle) {
         <p class="wereld">${esc(t.hero.wereld)}</p>
         <p class="lead">${esc(t.hero.tekst)}</p>
         <div class="knoppen">
-          <a class="knop" href="#download">${esc(t.hero.knop)}</a>
+          ${STORE ? `<a class="knop" href="${STORE}" rel="noopener">${esc(t.store.knop)}</a>` : `<a class="knop" href="#download">${esc(t.hero.knop)}</a>`}
           <a class="knop tweede" href="#spellen">${esc(t.hero.knop2)}</a>
         </div>
-        <p class="noot">${esc(t.hero.noot)}</p>
+        <p class="noot">${esc(STORE ? t.store.noot : t.hero.noot)}</p>
       </div>
     </section>
 
@@ -293,10 +296,21 @@ ${heeftVideo(`spellen-${taal}`) ? videoBlok(rel, `spellen-${taal}`, `spellen-${t
       </div>
     </section>
 
+    <section class="blok" id="junior">
+      <p class="kicker">${esc(t.junior.kicker)}</p>
+      <h2 class="titel">${esc(t.junior.titel)}</h2>
+      <p class="intro">${esc(t.junior.tekst)}</p>
+      <div class="junior-beelden">
+        ${JUNIOR_BEELDEN.map((b, i) => `<figure${i === 0 ? ' class="groot"' : ''}><img src="${rel}junior/${b}.webp" alt="${esc(t.junior.beelden[b])}" width="960" height="540" loading="lazy" decoding="async"><figcaption>${esc(t.junior.beelden[b])}</figcaption></figure>`).join('\n        ')}
+      </div>
+      <ul class="vinken junior-punten">${t.junior.lijst.map(x => `<li>${SVG.vink}<span><strong>${esc(x.naam)}</strong> ${esc(x.tekst)}</span></li>`).join('')}</ul>
+      <p class="noot">${esc(t.junior.noot)}</p>
+    </section>
+
     <section class="blok download" id="download">
       <h2 class="titel">${esc(t.download.titel)}</h2>
-      <p class="intro">${esc(t.download.tekst)}</p>
-      <p class="binnenkort">${esc(t.nav.download)}</p>
+      <p class="intro">${esc(STORE ? t.store.tekst : t.download.tekst)}</p>
+      ${STORE ? `<a class="knop" href="${STORE}" rel="noopener">${esc(t.store.knop)}</a>` : `<p class="binnenkort">${esc(t.nav.download)}</p>`}
       <p class="noot">${esc(t.download.noot)}</p>
       ${CONFIG.email ? `<p class="contact">${esc(t.voet.contact)} <a href="mailto:${esc(CONFIG.email)}">${esc(CONFIG.email)}</a></p>` : ''}
     </section>
@@ -304,7 +318,7 @@ ${heeftVideo(`spellen-${taal}`) ? videoBlok(rel, `spellen-${taal}`, `spellen-${t
     <section class="blok" id="faq">
       <h2 class="titel">${esc(t.faq.titel)}</h2>
       <div class="faq">
-        ${t.faq.lijst.map(x => `<details><summary>${esc(x.v)}</summary><p>${esc(x.a)}</p></details>`).join('\n        ')}
+        ${t.faq.lijst.map((x, i) => `<details><summary>${esc(x.v)}</summary><p>${esc(STORE && i === 0 ? t.store.faq : x.a)}</p></details>`).join('\n        ')}
       </div>
     </section>`;
 
