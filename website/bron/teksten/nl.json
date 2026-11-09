@@ -233,10 +233,48 @@
     "titel": "In vijf talen",
     "tekst": "Nederlands, Engels, Frans, Spaans en Duits. Kies de taal in de instellingen en elk scherm wisselt mee, ook bij de leerlingen."
   },
+  "junior": {
+    "kicker": "Binnenkort",
+    "titel": "LANcelot Junior",
+    "tekst": "Voor de jongste klassen, van de 3e kleuterklas tot het 3e leerjaar. Dezelfde ridders en draken, met spellen op maat van kleine handen en ogen die nog niet (vlot) lezen.",
+    "lijst": [
+      {
+        "naam": "Alles wordt voorgelezen",
+        "tekst": "Elke opdracht klinkt hardop, in de taal van je klas. Ook wie nog niet leest, speelt zelfstandig mee."
+      },
+      {
+        "naam": "35 spellen",
+        "tekst": "Tellen en rekenen, meten en klok, vormen, letters en klanken, de wereld, muziek en samen omgaan."
+      },
+      {
+        "naam": "Op het bord of op tablets",
+        "tekst": "Met de hele klas in vier teams, met twee op een tablet of elk op een eigen tablet."
+      },
+      {
+        "naam": "Toverdorp en klasdraakje",
+        "tekst": "Kinderen ontdekken samen een tovenaarsdorp en zorgen voor hun eigen klasdraakje."
+      }
+    ],
+    "beelden": {
+      "spel": "Drakeneieren tellen op het bord",
+      "thuis": "Het startscherm van LANcelot Junior",
+      "spellen": "Alle spellen per domein",
+      "toverdorp": "Het Toverdorp",
+      "draakje": "Ons klasdraakje"
+    },
+    "noot": "LANcelot Junior komt in dezelfde app. Eén knop en je schakelt tussen LANcelot en LANcelot Junior."
+  },
   "download": {
     "titel": "Haal LANcelot in je klas",
     "tekst": "LANcelot komt binnenkort in de Microsoft Store. De eerste maand probeer je alles volledig uit, zonder te betalen. Daarna betaal je één keer € 29,99.",
     "noot": "Je hebt enkel een Windows-pc in de klas nodig. Leerlingen spelen mee in de browser."
+  },
+  "store": {
+    "nav": "Download",
+    "knop": "Download in de Microsoft Store",
+    "noot": "Windows-pc · Leerlingen via de browser · Eén keer € 29,99",
+    "tekst": "LANcelot staat in de Microsoft Store. De eerste maand probeer je alles volledig uit, zonder te betalen. Daarna betaal je één keer € 29,99.",
+    "faq": "Nu al. Je haalt LANcelot uit de Microsoft Store en probeert een maand lang alles uit zonder te betalen. Daarna betaal je één keer € 29,99."
   },
   "faq": {
     "titel": "Veelgestelde vragen",

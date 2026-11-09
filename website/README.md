@@ -10,7 +10,7 @@ een bezoeker laadt per taal zo'n 1,5 MB, de beelden pas als hij ernaar scrolt).
   rechtstreeks uit de app: `public/host.html` en de vertalingen in `lang/`. Een nieuw spel staat na een nieuwe
   bouw dus vanzelf op de site. Spellen in `nietOpSite` (`bron/site.json`) blijven weg.
 - `bron/schermen.js` maakt de schermafbeeldingen in elke taal opnieuw uit een draaiende LANcelot.
-- `bron/site.json`: het adres van de site (voor Google). Downloaden staat nog op 'binnenkort'.
+- `bron/site.json`: het adres van de site (voor Google). `store.live` op `true` zet overal de knop naar de Microsoft Store (pas doen als de app echt te koop is), daarna opnieuw bouwen.
 
 `npm test` controleert dat elke taal alle teksten heeft en dat de site geen bestaande spellen of merken noemt.
 

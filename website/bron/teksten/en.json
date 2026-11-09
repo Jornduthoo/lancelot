@@ -233,10 +233,48 @@
     "titel": "In five languages",
     "tekst": "Dutch, English, French, Spanish and German. Pick the language in the settings and every screen switches, students' screens too."
   },
+  "junior": {
+    "kicker": "Coming soon",
+    "titel": "LANcelot Junior",
+    "tekst": "For the youngest classes, ages 5 to 9. The same knights and dragons, with games made for small hands and children who cannot read (fluently) yet.",
+    "lijst": [
+      {
+        "naam": "Everything is read aloud",
+        "tekst": "Every task is spoken out loud in your class's language. Even children who cannot read yet play on their own."
+      },
+      {
+        "naam": "35 games",
+        "tekst": "Counting and sums, measuring and time, shapes, letters and sounds, the world, music and getting along."
+      },
+      {
+        "naam": "On the board or on tablets",
+        "tekst": "The whole class in four teams, two children sharing a tablet, or each child on their own tablet."
+      },
+      {
+        "naam": "Magic village and class dragon",
+        "tekst": "Children explore a wizard village together and look after their own class dragon."
+      }
+    ],
+    "beelden": {
+      "spel": "Counting dragon eggs on the board",
+      "thuis": "The LANcelot Junior home screen",
+      "spellen": "All games by subject",
+      "toverdorp": "The magic village",
+      "draakje": "Our class dragon"
+    },
+    "noot": "LANcelot Junior comes in the same app. One button switches between LANcelot and LANcelot Junior."
+  },
   "download": {
     "titel": "Bring LANcelot to your classroom",
     "tekst": "LANcelot is coming soon to the Microsoft Store. For the first month you try everything in full, without paying. After that, it is a one-time payment of €29.99.",
     "noot": "All you need is a Windows PC in the classroom. Students join in their browser."
+  },
+  "store": {
+    "nav": "Download",
+    "knop": "Get it from the Microsoft Store",
+    "noot": "Windows PC · Students join in the browser · One-time €29.99",
+    "tekst": "LANcelot is in the Microsoft Store. For the first month you try everything in full, without paying. After that, it is a one-time payment of €29.99.",
+    "faq": "Right now. Get LANcelot from the Microsoft Store and try everything for a month without paying. After that, it is a one-time payment of €29.99."
   },
   "faq": {
     "titel": "Frequently asked questions",

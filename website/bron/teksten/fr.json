@@ -233,10 +233,48 @@
     "titel": "En cinq langues",
     "tekst": "Néerlandais, anglais, français, espagnol et allemand. Choisis la langue dans les réglages et chaque écran change, aussi chez les élèves."
   },
+  "junior": {
+    "kicker": "Bientôt",
+    "titel": "LANcelot Junior",
+    "tekst": "Pour les plus jeunes, de 5 à 9 ans. Les mêmes chevaliers et dragons, avec des jeux pensés pour les petites mains et les enfants qui ne lisent pas encore (bien).",
+    "lijst": [
+      {
+        "naam": "Tout est lu à voix haute",
+        "tekst": "Chaque consigne est dite à voix haute, dans la langue de ta classe. Même ceux qui ne lisent pas encore jouent seuls."
+      },
+      {
+        "naam": "35 jeux",
+        "tekst": "Compter et calculer, mesurer et l’heure, les formes, les lettres et les sons, le monde, la musique et vivre ensemble."
+      },
+      {
+        "naam": "Au tableau ou sur tablette",
+        "tekst": "Toute la classe en quatre équipes, à deux sur une tablette ou chacun sur sa propre tablette."
+      },
+      {
+        "naam": "Village magique et dragon de classe",
+        "tekst": "Les enfants explorent ensemble un village de magiciens et s’occupent de leur propre dragon de classe."
+      }
+    ],
+    "beelden": {
+      "spel": "Compter les œufs de dragon au tableau",
+      "thuis": "L’écran d’accueil de LANcelot Junior",
+      "spellen": "Tous les jeux par domaine",
+      "toverdorp": "Le village magique",
+      "draakje": "Notre dragon de classe"
+    },
+    "noot": "LANcelot Junior arrive dans la même application. Un bouton suffit pour passer de LANcelot à LANcelot Junior."
+  },
   "download": {
     "titel": "Fais entrer LANcelot dans ta classe",
     "tekst": "LANcelot arrive bientôt sur le Microsoft Store. Le premier mois, tu essaies tout en version complète, sans payer. Ensuite, tu paies une seule fois 29,99 €.",
     "noot": "Il te faut seulement un PC Windows en classe. Les élèves jouent dans leur navigateur."
+  },
+  "store": {
+    "nav": "Télécharger",
+    "knop": "Télécharger sur le Microsoft Store",
+    "noot": "PC Windows · Élèves via le navigateur · 29,99 € une seule fois",
+    "tekst": "LANcelot est sur le Microsoft Store. Le premier mois, tu essaies tout sans payer. Ensuite, tu paies une seule fois 29,99 €.",
+    "faq": "Dès maintenant. Installe LANcelot depuis le Microsoft Store et essaie tout pendant un mois sans payer. Ensuite, tu paies une seule fois 29,99 €."
   },
   "faq": {
     "titel": "Questions fréquentes",

@@ -6,5 +6,9 @@
     "packnight",
     "bomberknight"
   ],
-  "email": "hello@lancelot.network"
+  "email": "hello@lancelot.network",
+  "store": {
+    "id": "9P1CLC6W364H",
+    "live": false
+  }
 }
