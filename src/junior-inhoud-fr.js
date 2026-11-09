@@ -90,7 +90,7 @@ module.exports = {
     ochtendOnzeDag: "Voici ce que nous faisons aujourd'hui.",
     ochtendNiet: "enfants ne sont pas là.",
     ochtendJarig: "Quelqu'un fête son anniversaire aujourd'hui !",
-    kleren: [{"e": "🧥", "w": "un manteau", "weer": [3, 4, 5, 6, 7, 8]}, {"e": "🧣", "w": "une écharpe", "weer": [6, 7]}, {"e": "🧤", "w": "des gants", "weer": [6]}, {"e": "🧢", "w": "une casquette", "weer": [1, 2]}, {"e": "🕶️", "w": "des lunettes de soleil", "weer": [1]}, {"e": "☂️", "w": "un parapluie", "weer": [4, 5]}, {"e": "👢", "w": "des bottes", "weer": [4, 6]}, {"e": "🩳", "w": "un short", "weer": [1]}, {"e": "👕", "w": "un T-shirt", "weer": [1, 2]}],
+    kleren: [{"e": "🧥", "w": "un manteau", "weer": [3, 4, 5, 6, 7, 8]}, {"e": "🧣", "w": "une écharpe", "weer": [6, 7]}, {"e": "🧤", "w": "des gants", "weer": [6]}, {"e": "🧢", "w": "une casquette", "weer": [1, 2]}, {"e": "🕶️", "w": "des lunettes de soleil", "weer": [1]}, {"e": "☂️", "w": "un parapluie", "weer": [4, 5]}, {"e": "👢", "w": "des bottes", "weer": [4, 6]}, {"e": "🩳", "w": "un short", "weer": [1]}, {"e": "👕", "w": "un T-shirt", "weer": [1, 2]}, {"e": "👖", "w": "un pantalon", "weer": [2, 3, 4, 5, 6, 7, 8]}, {"e": "", "img": "trui", "w": "un pull", "weer": [3, 4, 5, 6, 7, 8]}],
     weer: ["Aujourd'hui, il fait soleil.", "Aujourd'hui, il y a un peu de soleil.", "Aujourd'hui, c'est nuageux.", "Aujourd'hui, il pleut.", "Aujourd'hui, il y a de l'orage.", "Aujourd'hui, il neige.", "Aujourd'hui, il y a beaucoup de vent.", "Aujourd'hui, il y a du brouillard."],
     holTeWeinig: "Pas encore assez d'étoiles. On s'entraîne encore un peu ensemble !",
     holKoop: "Youpi ! Merci, j'adore !",
