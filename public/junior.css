@@ -1550,7 +1550,7 @@ body.jr-los #jr-vak, body.jr-los #jr-beurt { visibility: hidden; }
 .jr-lk main button.jr-seizoen.nu { opacity: 1; border-color: #ffd36b; box-shadow: 0 0 0 2px #ffd36b, 0 0 26px rgb(76 201 255 / .5); }
 .jr-kleren-rij { display: flex; align-items: center; gap: 22px; width: min(100%, 1100px); justify-content: center; }
 .jr-kleren-weer { width: 130px; height: 130px; object-fit: contain; filter: drop-shadow(0 6px 12px rgb(0 0 0 / .4)); }
-.jr-kleren { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; flex: 1; max-width: 860px; }
+.jr-kleren { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; flex: 1; max-width: 960px; }
 .jr-lk main button.jr-kleding { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px 4px; border-radius: 18px; border: 3px solid var(--jr-lijn); background: rgb(var(--k-panel) / .88); color: var(--jr-inkt); font: inherit; cursor: pointer; }
 .jr-kleding-e { font-size: 3rem; line-height: 1; }
 .jr-kleding b { font-size: .9rem; }
@@ -1708,3 +1708,11 @@ body.jr-los #jr-vak, body.jr-los #jr-beurt { visibility: hidden; }
 .wb-spoor path { fill: none; stroke: #555; stroke-width: 1.6; stroke-dasharray: .1 2.6; stroke-linecap: round; stroke-linejoin: round; }
 .wb-spoor path.k { stroke: #222; stroke-dasharray: none; stroke-width: 1.2; }
 .wb-spoor circle { fill: #2a9d4b; }
+/* Instellingen: elke keuze een eigen blok met lucht ertussen; de gekozen knop gloeit binnen zijn eigen rand (niets steekt over de buurknop). */
+.jr-inst-venster .jr-kv-label { margin: 0 0 2px; padding-top: 16px; border-top: 1px solid var(--jr-lijn); }
+.jr-inst-venster .jr-inst-tab > .jr-kv-label:first-child { border-top: 0; padding-top: 4px; }
+.jr-inst-venster .jr-inst-uitleg { margin: 0 0 10px; }
+.jr-inst-venster .jr-kv-keuzes { gap: 12px; margin-bottom: 16px; }
+.jr-inst-venster .jr-kv-keuzes button { box-shadow: none; }
+.jr-inst-venster .jr-kv-keuzes button.aan { background: rgb(255 201 74 / .16); border-color: #f0a500; box-shadow: inset 0 0 10px rgb(255 201 74 / .35); }
+.jr-inst-venster .jr-inst-schrift button { border-radius: 18px; padding: 10px 18px; }

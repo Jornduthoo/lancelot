@@ -1095,7 +1095,7 @@ function ochtend(stap) {
   } else if (stap === 'kleren') {
     const lijst = z.kleren || [];
     vak.innerHTML = `<p class="jr-ochtend-zin">${E(ochtendWeer ? z.ochtendKleren : z.ochtendEerstWeer)}</p>
-      <div class="jr-kleren-rij">${ochtendWeer ? `<img class="jr-kleren-weer" src="/img/junior/weer/${ochtendWeer}.webp" alt="">` : ''}<div class="jr-kleren">${lijst.map((k, i) => `<button type="button" class="jr-kleding jr-eigen ${kleren.includes(i) ? (k.weer.includes(ochtendWeer) ? 'goed' : 'mis') : ''}" data-kl="${i}"><span class="jr-kleding-e">${k.e}</span><b>${E(k.w)}</b></button>`).join('')}</div></div>
+      <div class="jr-kleren-rij">${ochtendWeer ? `<img class="jr-kleren-weer" src="/img/junior/weer/${ochtendWeer}.webp" alt="">` : ''}<div class="jr-kleren">${lijst.map((k, i) => `<button type="button" class="jr-kleding jr-eigen ${kleren.includes(i) ? (k.weer.includes(ochtendWeer) ? 'goed' : 'mis') : ''}" data-kl="${i}"><span class="jr-kleding-e">${k.img ? `<img class="jr-prent" src="/img/junior/prent/${k.img}.webp" alt="" draggable="false">` : k.e}</span><b>${E(k.w)}</b></button>`).join('')}</div></div>
       ${ochtendWeer ? '' : '<button type="button" class="jr-ostap-verder jr-eigen" data-ostap="weer">🌤️</button>'}${verder}`;
     Junior.prenten(vak);
     vak.querySelectorAll('[data-kl]').forEach(b => b.addEventListener('click', () => {
