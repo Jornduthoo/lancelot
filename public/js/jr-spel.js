@@ -853,9 +853,9 @@
       };
     },
     // Schrijfdraakje: sporen met de vinger. Schrijfpatronen, cijfers, kleine letters, hoofdletters, je naam en woordjes.
-    // Het schrift (schuin of recht lopend schrift, of drukletters) kiest de leerkracht bij Instellingen: Junior.schrift komt van de server.
+    // Het schrift (lopend schrift 1 of 2, of drukletters) kiest de leerkracht bij Instellingen: Junior.schrift komt van de server.
     schrijf(r, niv, wie) {
-      const S = window.JrSchrift, stijl = (window.Junior || {}).schrift || 'schuin', z = J().zin;
+      const S = window.JrSchrift, stijl = (window.Junior || {}).schrift || 'lopend1', z = J().zin;
       const kaal = t => String(t || '').normalize('NFD').replace(/\p{M}/gu, '');
       const spoor = (tekst, zeg, extra = {}) => {
         const v = S && S.woord(tekst, stijl);

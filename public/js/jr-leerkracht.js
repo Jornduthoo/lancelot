@@ -227,7 +227,7 @@ const WB = {
   spoor: (v, i, k) => {
     const S = window.JrSchrift;
     let m = v;
-    if (S && v.tekst && v.tekst.length === 1) m = S.woord(`${v.tekst} ${v.tekst} ${v.tekst}`, Junior.schrift || 'schuin') || v;
+    if (S && v.tekst && v.tekst.length === 1) m = S.woord(`${v.tekst} ${v.tekst} ${v.tekst}`, Junior.schrift || 'lopend1') || v;
     const lijnen = w => [15, 45, 70, 95].map(y => `<line x1="0" x2="${w}" y1="${y}" y2="${y}" class="${y === 70 ? 'b' : y === 45 ? 'm' : ''}"/>`).join('');
     const bol = d => { const q = /M\s*([-\d.]+)[ ,]([-\d.]+)/.exec(d); return q ? `<circle cx="${q[1]}" cy="${q[2]}" r="2.2"/>` : ''; };
     const w = Math.max(m.w, 60);
@@ -271,7 +271,7 @@ function toonInstellingen(i) {
   zet('jr-inst-vrij', i.vrij === false ? 0 : 1);
   zet('jr-inst-thema', i.thema || 'auto');
   zet('jr-inst-munt', i.munt || 'auto');
-  zet('jr-inst-schrift', i.schrift || 'schuin');
+  zet('jr-inst-schrift', i.schrift || 'lopend1');
 }
 function bewaarInstelling(nieuw) {
   socket.emit('jr-instellingen', nieuw, res => {

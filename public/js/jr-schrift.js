@@ -1,75 +1,21 @@
 // Schrift voor het Schrijfdraakje: elke letter als halen (lijnen in schrijfvolgorde) om met de vinger over te trekken.
-// Drie stijlen, de leerkracht kiest: 'schuin' (lopend schrift, schuin), 'recht' (lopend schrift, bijna recht) en 'druk' (drukletters).
-// Coördinaten: basislijn y=70, middenlijn y=45 (x-hoogte 25), stokken tot y=20, staarten tot y=93. Een punt [x, y, 1] is een hoek.
-// Lopend schrift wordt rechtop getekend en daarna schuin gezet; letters in een woord worden met een verbindingslijn aan elkaar geschreven.
+// Drie stijlen, de leerkracht kiest: 'lopend1' en 'lopend2' (lopend schrift zoals op de letterkaarten van de klas) en 'druk' (drukletters).
+// Coördinaten: basislijn y=70, middenlijn y=45 (x-hoogte 25), stokken tot y=17, staarten tot y=95. Een punt [x, y, 1] is een hoek.
+// Lopend schrift (jr-schrift-lopend.js) is rechtop opgeslagen en wordt schuin gezet; letters in een woord worden aan elkaar geschreven.
 (function () {
   const H = 1; // hoekpunt
-  // Ovaal van a, d, g, q: begint rechtsboven en draait tegen de klok in.
-  const OV = [[11, 48], [7, 45], [2, 48.5], [0, 56], [0.8, 65], [5, 70], [9.5, 67.5], [12, 60]];
-  // Lus omhoog voor b, f, h, k, l.
-  const LUS = [[0, 62], [4, 55], [8, 40], [10, 28], [9.5, 21.5], [7.5, 20], [5.5, 22], [4.5, 30]];
-  const HAAK = [[0, 49], [1.5, 46], [3.5, 46.5], [4, 50]]; // klein haakje bovenaan voor m, n, p, u, v, w, y
   const STIP = x => [[x, 35], [x + 0.4, 34.6]];
-
-  // Lopend schrift, kleine letters. s: halen; hoog: de letter eindigt bovenaan (verbinding op middenhoogte).
-  const LOPEND = {
-    a: { ovaal: true, s: [[...OV, [12.5, 45, H], [12.5, 64], [14, 69], [16.5, 70], [19, 67]]] },
-    b: { s: [[...LUS, [4, 60], [4.8, 67], [7.5, 70], [11, 68.5], [13, 61], [12.8, 52], [11, 47], [9, 46.2], [8.5, 48], [11, 48.6], [14, 48], [17, 46.5]]], hoog: true },
-    c: { s: [[[11, 49], [10.5, 46], [7, 45], [2, 48.5], [0, 56], [0.8, 65], [5, 70], [10, 70], [14, 67]]] },
-    d: { ovaal: true, s: [[...OV, [14, 20, H], [14, 64], [15.5, 69], [18, 70], [20.5, 67]]] },
-    e: { s: [[[0, 62], [5, 59], [9.5, 54], [10.5, 49], [8.5, 45.3], [5, 46], [2.5, 51], [2, 59], [3.5, 66], [7.5, 70], [11.5, 69.5], [14.5, 66.5]]] },
-    f: { s: [[...LUS, [4, 50], [3.5, 93, H], [3.8, 80], [5, 71], [8, 67.5], [11, 66.5]]] },
-    g: { ovaal: true, s: [[...OV, [12.5, 45, H], [12.5, 80], [11.5, 90], [8.5, 94], [5, 93], [4.5, 88], [8, 82], [13, 77], [16, 73.5], [19, 68]]] },
-    h: { s: [[...LUS, [4, 70, H], [4.8, 58], [7, 49], [10, 45.5], [13, 47], [14, 53], [14, 64], [15.5, 69], [18, 70], [20.5, 67]]] },
-    i: { s: [[[0, 62], [2.5, 55], [4, 45, H], [4, 64], [5.5, 69], [8, 70], [10.5, 67]], STIP(4.5)] },
-    j: { s: [[[0, 62], [2.5, 55], [4, 45, H], [4, 82], [3, 91], [0, 94], [-3, 92], [-3, 87], [1, 81], [6, 76], [10, 72], [13, 68]], STIP(4.5)] },
-    k: { s: [[...LUS, [4, 70, H], [5, 58], [8.5, 48.5], [12, 46], [13.5, 49], [11, 54.5], [6, 57.5], [9, 58.5], [12.5, 63], [14, 69], [16.5, 70], [19, 67]]] },
-    l: { s: [[...LUS, [4, 62], [5.5, 69], [8, 70], [10.5, 67]]] },
-    m: { s: [[...HAAK, [4, 70, H], [4.8, 57], [7, 48.5], [9.5, 45.5], [12, 47], [13, 52], [13, 70, H], [13.8, 57], [16, 48.5], [18.5, 45.5], [21, 47], [22, 53], [22, 64], [23.5, 69], [26, 70], [28.5, 67]]] },
-    n: { s: [[...HAAK, [4, 70, H], [4.8, 57], [7, 48.5], [9.5, 45.5], [12, 47], [13, 53], [13, 64], [14.5, 69], [17, 70], [19.5, 67]]] },
-    o: { ovaal: true, s: [[[11, 48], [7, 45], [2, 48.5], [0, 56], [0.8, 65], [5, 70], [9.5, 67.5], [11.8, 59], [11.5, 50], [10, 46.5], [8.5, 46.8], [9.5, 48.5], [13, 48], [16, 46.5]]], hoog: true },
-    p: { s: [[...HAAK, [4, 93, H], [4, 70], [4.5, 57], [7, 48.5], [9.5, 45.5], [12, 47], [13, 53], [13, 64], [14.5, 69], [17, 70], [19.5, 67]]] },
-    q: { ovaal: true, s: [[...OV, [12.5, 45, H], [12.5, 93, H], [12.5, 75], [14, 69.5], [16.5, 70], [19, 67]]] },
-    r: { s: [[[0, 62], [2.5, 55], [4, 45.5, H], [6.5, 48], [9, 48.5], [10.5, 46, H], [10, 56], [10.5, 65], [12, 69.5], [14.5, 70], [17, 67]]] },
-    s: { s: [[[0, 62], [3, 55], [5.5, 45, H], [8.5, 52], [10.5, 60], [10, 67], [7, 70], [3.5, 69], [2.5, 66.5], [4.5, 65.5], [7.5, 68.5], [10.5, 70], [13.5, 67]]] },
-    t: { s: [[[0, 62], [3, 52], [6, 30, H], [6, 64], [7.5, 69], [10, 70], [12.5, 67]], [[2, 45], [11, 45]]] },
-    u: { s: [[...HAAK, [4, 63], [5.5, 69], [8, 70], [11, 68], [13, 62], [13.5, 45, H], [13.5, 64], [15, 69], [17.5, 70], [20, 67]]] },
-    v: { s: [[[0, 49], [1.5, 46], [3.5, 46.5], [4.5, 51], [5.5, 62], [7.5, 69], [10, 70], [12.5, 66], [13.5, 56], [13.5, 47], [12.5, 45.5], [11.5, 47.5], [14, 48.5], [17, 46.5]]], hoog: true },
-    w: { s: [[...HAAK, [4, 63], [5.5, 69], [8, 70], [11, 68], [12.5, 62], [13, 46, H], [13, 63], [14.5, 69], [17, 70], [20, 67], [21.5, 58], [21.5, 47], [20.5, 45.5], [19.5, 47.5], [22, 48.5], [25, 46.5]]], hoog: true },
-    x: { s: [[[0, 48], [2, 45.5], [5, 45.5], [7, 50], [7.5, 58], [7, 65], [5, 69.5], [2, 70], [0, 67.5]], [[14, 48], [13.5, 46], [10.5, 45.5], [8, 50], [7.5, 58], [8, 65], [10.5, 69.5], [13.5, 70], [16, 67]]] },
-    y: { s: [[...HAAK, [4, 63], [5.5, 69], [8, 70], [11, 68], [13, 62], [13.5, 45, H], [13.5, 82], [12.5, 91], [9.5, 94], [6, 92.5], [6, 87.5], [10, 81], [15, 76], [18, 72], [20.5, 68]]] },
-    z: { s: [[[0, 48], [2, 45.5], [6, 46.5], [10, 45.5], [12, 46, H], [1, 69.5, H], [5, 68.5], [9, 70], [12.5, 69], [15, 66.5]]] },
-  };
-  // Lopend schrift, hoofdletters. los: het volgende letter wordt niet aangesloten.
-  const HOOG_STAM = [[2, 30], [5, 22], [8, 22], [9, 30], [8, 50]];
-  const LOPEND_HOOFD = {
-    A: { s: [[[22, 24], [17, 20.5], [9, 24], [3.5, 38], [2, 55], [5.5, 67], [11, 70], [17, 64], [21, 52], [24, 21, H], [23.5, 55], [24.5, 66], [27, 70], [30, 67]]] },
-    B: { s: [[[7, 20, H], [7, 70]], [[7, 22], [13, 20], [19, 22.5], [20, 30], [16, 40], [10, 44.5], [17, 46.5], [22, 54], [21, 64], [15, 70], [8, 69]]], los: true },
-    C: { s: [[[22, 28], [21, 22], [17, 20], [10, 22], [4, 32], [1.5, 47], [3, 61], [9, 69.5], [17, 69], [22, 64]]] },
-    D: { s: [[[10, 22], [10, 50], [9, 66], [5, 70], [2, 67], [5, 63], [11, 68], [17, 69.5], [23, 64], [26, 50], [25, 33], [19, 23], [11, 20], [5, 22], [3, 26]]], los: true },
-    E: { s: [[[20, 25], [17, 20.5], [11, 21], [8, 26], [9, 32], [14, 43.5], [8, 45], [3, 52], [3, 62], [8, 69.5], [16, 69.5], [21, 64]]] },
-    F: { s: [[[4, 25], [9, 21], [15, 22], [20, 21], [24, 19]], [[16, 22], [15, 45], [13, 62], [9, 69.5], [4, 69], [2, 64]], [[10, 45], [19, 45]]], los: true },
-    G: { s: [[[22, 27], [20, 21], [13, 20.5], [6, 26], [3, 38], [4, 52], [9, 59], [15, 57], [19, 48], [20, 45, H], [20, 82], [18, 92], [13, 94], [10, 90], [14, 82], [20, 75], [25, 69]]] },
-    H: { s: [[[4, 24], [7, 20.5], [10, 26], [9, 50], [7, 66], [3, 70], [0, 67]], [[21, 20.5], [21, 48], [20, 62], [21.5, 69], [24, 70], [27, 67]], [[7, 45], [21, 44]]] },
-    I: { s: [[[4, 24], [9, 20.5], [16, 21], [22, 19.5]], [[16, 21], [15, 45], [13, 62], [9, 69.5], [4, 69], [2, 64]]], los: true },
-    J: { s: [[[4, 24], [9, 20.5], [16, 21], [22, 19.5]], [[16, 21], [15, 50], [14, 80], [11, 92], [6, 94], [4, 89], [9, 80], [16, 74], [22, 69]]] },
-    K: { s: [[[4, 24], [7, 20.5], [10, 26], [9, 50], [7, 66], [3, 70], [0, 67]], [[24, 22], [20, 22], [14, 30], [9, 44], [14, 44], [17, 52], [18, 64], [20, 69.5], [23, 70], [26, 67]]] },
-    L: { s: [[[2, 44], [7, 41], [13, 35], [17, 27], [18, 21.5], [16, 19.5], [13.5, 22], [12, 32], [10, 50], [7, 63], [3, 69.5], [0.5, 69], [1, 66.5], [5, 66], [10, 68.5], [16, 70], [21, 68], [24, 64]]] },
-    M: { s: [[[0, 66], [2, 70], [5, 68], [9, 55], [13, 35], [16, 20, H], [17, 45], [17.5, 70, H], [21, 48], [25, 30], [28, 20, H], [29, 45], [29, 64], [31, 69.5], [34, 70], [37, 67]]] },
-    N: { s: [[[0, 66], [2, 70], [5, 68], [9, 55], [13, 35], [16, 20, H], [17, 45], [18, 70, H], [21, 50], [25, 30], [29, 21], [32, 20], [33.5, 23], [32, 26]]], los: true },
-    O: { s: [[[18, 22], [12, 20.5], [5, 26], [2, 40], [2.5, 57], [7, 68], [13, 70], [19, 64], [22, 50], [22, 33], [19, 23], [15, 21], [13, 24], [18, 25], [23, 22]]], los: true },
-    P: { s: [[[8, 24], [9, 45], [7, 62], [4, 70]], [[4, 30], [8, 22], [15, 20], [20, 23], [21, 31], [17, 40], [11, 44], [8, 43]]], los: true },
-    Q: { s: [[[22, 25], [17, 20.5], [9, 24], [3.5, 38], [2.5, 48], [6, 55], [12, 54], [18, 46], [22, 30], [23, 21, H], [22, 50], [20, 75], [18, 92]]], los: true },
-    R: { s: [[[8, 24], [9, 45], [7, 62], [4, 70]], [[4, 30], [8, 22], [15, 20], [20, 23], [21, 31], [17, 40], [11, 44], [8, 43], [14, 45], [18, 52], [19, 64], [21, 69.5], [24, 70], [27, 67]]] },
-    S: { s: [[[2, 46], [7, 43], [13, 37], [17, 29], [18, 22], [16, 19.5], [13.5, 22], [12, 32], [11, 50], [9, 62], [5, 69.5], [1, 69], [0, 65], [2, 62], [5, 63.5]]], los: true },
-    T: { s: [[[3, 26], [6, 21], [12, 22], [18, 21], [24, 19]], [[14, 22], [12, 45], [11, 60], [13, 68], [17, 70], [21, 67]]] },
-    U: { s: [[...HOOG_STAM, [8, 62], [11, 69.5], [15, 70], [19, 64], [22, 45], [24, 22, H], [23, 50], [23, 64], [25, 69.5], [28, 70], [31, 67]]] },
-    V: { s: [[...HOOG_STAM, [9, 50], [11, 66], [14, 70], [18, 64], [21, 45], [23, 28], [25, 21], [27.5, 20.5], [28, 23.5], [26, 24], [30, 22]]], los: true },
-    W: { s: [[...HOOG_STAM, [9, 50], [10, 66], [13, 70], [16, 64], [17, 45], [18, 24, H], [18, 50], [19, 66], [22, 70], [25, 64], [28, 45], [30, 28], [32, 21], [34.5, 20.5], [35, 23.5], [33, 24], [37, 22]]], los: true },
-    X: { s: [[[3, 26], [7, 20.5], [11, 22], [13, 30], [13, 50], [11, 64], [7, 70], [3, 69], [1, 65]], [[25, 22], [22, 20.5], [17, 25], [13, 45], [13, 60], [15, 68], [19, 70], [24, 67]]] },
-    Y: { s: [[...HOOG_STAM, [8, 62], [11, 69.5], [15, 70], [19, 64], [22, 45], [24, 22, H], [23, 60], [22, 82], [19, 92], [14, 94], [11, 90], [15, 82], [21, 75], [26, 69]]] },
-    Z: { s: [[[4, 25], [8, 20.5], [14, 22], [20, 21], [22, 20.5, H], [4, 68, H], [9, 66], [15, 69], [21, 70], [25, 66]], [[8, 45], [18, 45]]] },
-  };
+  // Lopende letters uit jr-schrift-lopend.js: "x,y x,y* ..." wordt [[x, y], [x, y, H], ...].
+  const LOPEND = {};
+  const bron = (window.JrSchriftLopend || {}).letters || {};
+  for (const c in bron) {
+    const g = bron[c];
+    LOPEND[c] = {
+      s: g.s.map(h => h.split(' ').map(p => { const [x, y] = p.replace('*', '').split(',').map(Number); return p.endsWith('*') ? [x, y, H] : [x, y]; })),
+      ovaal: !!g.ovaal, los: !!g.los, lus: c === 'e', // e: de aanloop vormt zelf het lusje
+    };
+  }
+  // Cijfers voor drukletters.
   const CIJFERS = {
     0: { s: [[[9, 20.5], [3.5, 27], [1, 45], [2, 62], [6, 70], [10, 68.5], [13, 58], [14, 40], [13, 26], [9, 20.5]]] },
     1: { s: [[[3, 32], [8, 26], [12, 20, H], [12, 70]]] },
@@ -143,15 +89,18 @@
   const DRUK_CIJFERS = {
     2: { s: [[[2, 30], [5, 22], [9, 20.5], [13, 23], [14, 31], [11, 43], [1, 70, H], [15, 70]]] },
   };
-  const STIJLEN = { schuin: 0.3, recht: 0.08, druk: 0 };
+  // Hoe schuin het lopend schrift staat: kaart 1 schuiner, kaart 2 bijna recht. Oude namen blijven werken.
+  const STIJLEN = { lopend1: 0.3, lopend2: 0.15, druk: 0 };
+  const OUD = { schuin: 'lopend1', recht: 'lopend2' };
+  const stijlVan = s => (STIJLEN.hasOwnProperty(s) ? s : OUD[s] || 'lopend1');
   const glyph = (c, stijl) => {
-    if (/\d/.test(c)) return (stijl === 'druk' && DRUK_CIJFERS[c]) || CIJFERS[c];
-    if (stijl === 'druk') return DRUK[c];
-    return LOPEND[c] || LOPEND_HOOFD[c];
+    if (stijlVan(stijl) === 'druk') return /\d/.test(c) ? DRUK_CIJFERS[c] || CIJFERS[c] : DRUK[c];
+    return LOPEND[c];
   };
-  const kan = (c, stijl = 'schuin') => !!glyph(c, stijl);
-  // Is de laatste haal een stip of een streepje (i, j, t, x): die komt na de verbinding, niet ervoor.
-  const extra = s => s.length > 1 && s[s.length - 1].length <= 2;
+  const kan = (c, stijl = 'lopend1') => !!glyph(c, stijl);
+  // Een stip of streepje (i, j, t, E): een korte, platte haal na de eerste. Die telt niet mee voor de verbinding.
+  const extra = h => { const ys = h.map(p => p[1]), xs = h.map(p => p[0]); return Math.max(...ys) - Math.min(...ys) < 6 && Math.max(...xs) - Math.min(...xs) < 18; };
+  const hoofdHaal = s => { for (let i = s.length - 1; i > 0; i--) if (!extra(s[i])) return s[i]; return s[0]; };
 
   // Vloeiende lijn door de punten (centripetale Catmull-Rom), hoeken blijven scherp. voor: denkbeeldig punt vóór het begin (voor een vloeiende aansluiting).
   function pad(pts, voor) {
@@ -181,50 +130,75 @@
     }
   }
   const f = n => Math.round(n * 10) / 10;
+  const argMin = (pts, k, tot = pts.length) => { let b = 0; for (let i = 1; i < tot; i++) if (pts[i][k] < pts[b][k]) b = i; return b; };
+
+  // Hoe een lopende letter aan de vorige hangt. Geeft { s, aan, o }: de halen (eerste haal eventueel ingekort), de punten van de
+  // verbindingslijn (in lettercoördinaten) en de verschuiving o. ex, ey: einde van de vorige letter.
+  // sx: x zoals hij na het schuin zetten uitkomt (om afstanden tussen letters te meten).
+  function aansluiting(g, ex, ey, rechts, sx) {
+    const s = g.s.map(h => h.slice());
+    const h0 = s[0];
+    const hoog = ey < 57; // de vorige letter eindigt bovenaan (b, o, v, w): verbinding op middenhoogte
+    if (g.ovaal) {
+      // a, d, g, o, q, c beginnen rechtsboven en draaien tegen de klok in. De verbinding loopt langs de linkerkant (na een lage
+      // uithaal) of over de bovenkant (na een hoge uithaal) omhoog tot het begin; daar draait de pen om.
+      const iL = argMin(h0, 0, Math.ceil(h0.length * 0.6));
+      const iT = argMin(h0, 1, iL + 1);
+      const aan = h0.slice(1, (hoog ? Math.max(iT - 1, 1) : iL) + 1).reverse();
+      h0[0] = [h0[0][0], h0[0][1], H];
+      return { s, aan, o: Math.max(ex + 1 - h0[iL][0], rechts + 3 - Math.min(...h0.map(sx))) };
+    }
+    // Een aanloop die laag begint, valt weg na een hoge uithaal: de verbinding gaat dan rechtstreeks verder op middenhoogte.
+    // Bij de e blijft het lusje: de verbinding zakt even en klimt dan door de lus.
+    const tot = g.lus ? ey + 6 : ey - 1;
+    if (hoog && h0[0][1] > tot) {
+      let i = 0;
+      while (i < h0.length - 2 && h0[i][1] > tot) i++;
+      s[0] = h0.slice(i);
+    }
+    const eerste = s[0][0];
+    const boven = eerste[1] < 52; // de letter begint bovenaan (i, u, t, j): scherpe punt bovenaan
+    if (boven) s[0][0] = [eerste[0], eerste[1], H];
+    const stijg = ey - eerste[1];
+    const d = hoog ? (boven ? 4 : 3) : Math.max(1.5, stijg * 0.5 + (boven ? 2 : 0));
+    let o = ex + d - eerste[0];
+    // Niet over de vorige letter schuiven.
+    const romp = s.flat().filter(p => p[1] > 42 && p[1] < 72);
+    if (romp.length) o = Math.max(o, rechts + 3 - Math.min(...romp.map(sx)));
+    return { s, aan: [], o };
+  }
 
   // Een woord (of één letter) als halen. Geeft { w, paden } voor het spoorspel, of null als een teken ontbreekt.
-  function woord(tekst, stijl = 'schuin') {
-    if (!STIJLEN.hasOwnProperty(stijl)) stijl = 'schuin';
+  function woord(tekst, stijl = 'lopend1') {
+    stijl = stijlVan(stijl);
     const k = STIJLEN[stijl], lopend = stijl !== 'druk', bx = lopend ? 1.2 : 1.35; // iets breder en ronder dan getekend
     const tekens = [...String(tekst)];
     if (!tekens.length || !tekens.every(c => c === ' ' || kan(c, stijl))) return null;
     const halen = []; // { pts, voor }
-    let x = 0, vorig = null; // vorig: { eind, richting, los } van de vorige letter in lopend schrift
+    const sx = p => p[0] + (70 - p[1]) * k / bx;
+    let x = 0, vorig = null; // vorig: { eind, vorig, los } van de vorige letter in lopend schrift
     for (const c of tekens) {
       if (c === ' ') { x += 10; vorig = null; continue; }
       const g = glyph(c, stijl);
-      const xs = g.s.flat().map(p => p[0]);
-      const min = Math.min(...xs), max = Math.max(...xs);
       const hoofd = /\p{Lu}/u.test(c) || /\d/.test(c);
-      const eerste = g.s[0][0];
-      let o;
       const sluit = lopend && vorig && !vorig.los && !hoofd;
-      // Na een lage uithaal loopt de verbinding naar a, d, g, o, q langs de linkerkant van het ovaal omhoog; daarna draait de pen om.
-      const langs = sluit && g.ovaal && !vorig.hoog;
-      if (langs) {
-        o = vorig.eind[0] - 0.5;
-      } else if (sluit) {
-        // Aansluiten: de verbinding loopt van het einde van de vorige letter naar het begin van deze.
-        const d = eerste[1] >= 52 ? 3 : vorig.hoog ? 3 : 6;
-        o = Math.max(vorig.eind[0] + d - eerste[0], vorig.eind[0] + 1.5 - min);
-      } else {
-        o = (x ? x + (lopend ? 3 : 5) : 0) - min;
-      }
+      let s = g.s, aan = [], o;
+      if (sluit) ({ s, aan, o } = aansluiting(g, vorig.eind[0], vorig.eind[1], vorig.rechts, sx));
+      else o = (x ? x + (lopend ? 4 : 5) : 0) - Math.min(...s.flat().map(sx));
       const zet = p => [p[0] + o, p[1], p[2]];
-      g.s.forEach((h, i) => {
+      s.forEach((h, i) => {
         let pts = h.map(zet), voor = null;
         if (i === 0 && sluit) {
           voor = [2 * vorig.eind[0] - vorig.vorig[0], 2 * vorig.eind[1] - vorig.vorig[1]];
-          const aan = langs ? [[0.4, 57], [2.5, 48.5], [7, 45]].map(zet) : [];
-          if (langs) pts[0] = [pts[0][0], pts[0][1], H];
-          pts = [[vorig.eind[0], vorig.eind[1]], ...aan, ...pts];
+          pts = [[vorig.eind[0], vorig.eind[1]], ...aan.map(p => zet([p[0], p[1]])), ...pts];
         }
         halen.push({ pts, voor });
       });
-      x = max + o;
-      const hoofdHaal = g.s[extra(g.s) ? g.s.length - 2 : g.s.length - 1].map(zet);
-      vorig = lopend && !/\d/.test(c) ? { eind: hoofdHaal[hoofdHaal.length - 1], vorig: hoofdHaal[hoofdHaal.length - 2], hoog: !!g.hoog, los: !!g.los } : null;
-      if (vorig) x = Math.max(x, vorig.eind[0]);
+      x = Math.max(...s.flat().map(sx)) + o;
+      const hh = hoofdHaal(s).map(zet);
+      const romp = s.flat().filter(p => p[1] > 42 && p[1] < 72).map(p => sx(p) + o);
+      vorig = lopend && !/\d/.test(c) ? { eind: hh[hh.length - 1], vorig: hh[hh.length - 2], los: !!g.los, rechts: Math.max(...romp, sx(hh[hh.length - 1])) } : null;
+      if (vorig) x = Math.max(x, sx(vorig.eind));
     }
     // Schuin zetten en links een marge van 10 laten.
     const schuin = p => [p[0] * bx + (70 - p[1]) * k, p[1], p[2]];
@@ -239,5 +213,5 @@
     const v = woord(tekst, stijl);
     return v ? `<svg class="jr-schrift-vb" viewBox="0 12 ${v.w} 86" aria-hidden="true"><line x1="0" x2="${v.w}" y1="45" y2="45"/><line x1="0" x2="${v.w}" y1="70" y2="70"/>${v.paden.map(d => `<path d="${d}"/>`).join('')}</svg>` : '';
   }
-  window.JrSchrift = { woord, kan, voorbeeld, STIJLEN: Object.keys(STIJLEN) };
+  window.JrSchrift = { woord, kan, voorbeeld, STIJLEN: Object.keys(STIJLEN), stijl: stijlVan };
 })();
