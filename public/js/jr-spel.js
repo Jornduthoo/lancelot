@@ -852,12 +852,34 @@
         opties: r.schud(opties).map(o => ({ html: ritmeKaart(o), juist: o === doel })),
       };
     },
-    // Schrijfdraakje: sporen met de vinger. Niveau 0: schrijfpatronen (voorbereidend schrijven).
-    schrijf(r, niv) {
-      const P = SCHRIJFPATRONEN;
-      const id = r.kies(Object.keys(P));
-      const n = r.int(4, 5);
-      return { soort: 'spoor', zeg: [J().zin.spoorPatroon], w: 30 + n * 22, paden: [P[id](15, n)], lijnen: true };
+    // Schrijfdraakje: sporen met de vinger. Schrijfpatronen, cijfers, kleine letters, hoofdletters, je naam en woordjes.
+    // Het schrift (schuin of recht lopend schrift, of drukletters) kiest de leerkracht bij Instellingen: Junior.schrift komt van de server.
+    schrijf(r, niv, wie) {
+      const S = window.JrSchrift, stijl = (window.Junior || {}).schrift || 'schuin', z = J().zin;
+      const kaal = t => String(t || '').normalize('NFD').replace(/\p{M}/gu, '');
+      const spoor = (tekst, zeg, extra = {}) => {
+        const v = S && S.woord(tekst, stijl);
+        return v && { soort: 'spoor', zeg, w: v.w, paden: v.paden, lijnen: true, tekst, ...extra };
+      };
+      if (niv === 0 || !S) {
+        const P = SCHRIJFPATRONEN;
+        const id = r.kies(Object.keys(P));
+        const n = r.int(4, 5);
+        return { soort: 'spoor', zeg: [z.spoorPatroon], w: 30 + n * 22, paden: [P[id](15, n)], lijnen: true };
+      }
+      if (niv === 1) { const c = String(r.int(0, 9)); return spoor(c, [c, z.spoorCijfer]); }
+      const abc = 'abcdefghijklmnopqrstuvwxyz';
+      if (niv === 2) { const c = r.kies([...abc]); return spoor(c, [c, z.spoorLetter]); }
+      if (niv === 3) { const c = r.kies([...abc.toUpperCase()]); return spoor(c, [c, z.spoorLetter]); }
+      if (niv === 4) {
+        const naam = kaal(String((wie && wie.naam) || '').trim().split(/[\s-]+/)[0]).replace(/[^A-Za-z]/g, '').slice(0, 9);
+        const n = naam.length >= 2 ? naam[0].toUpperCase() + naam.slice(1).toLowerCase() : (z.naamStandaard || 'Draakje');
+        const v = spoor(n, [n, z.spoorNaam]);
+        if (v) return v;
+      }
+      const pool = (J().woorden || []).filter(x => S.kan && [...kaal(x.w)].every(c => S.kan(c, stijl)) && x.w.length <= (niv === 4 ? 5 : 6));
+      const woord = pool.length ? r.kies(pool) : { w: 'draak', e: '🐉' };
+      return spoor(kaal(woord.w), [woord.w, z.spoorWoord], { kop: emoji(woord.e, 'jr-emoji-reus') });
     },
     trein(r, niv) {
       const w = J().woorden || [];
@@ -1335,6 +1357,18 @@
         const q = punt(e);
         if (afst(q, halen[h][0]) > R * 1.6) { pop(startG, 'jr-schud'); Stem.zeg([J().zin.spoorBegin]); return; }
         e.preventDefault();
+        // Een stip (op de i en j): even tikken is genoeg.
+        if (halen[h].length < 3 || afst(halen[h][0], halen[h][halen[h].length - 1]) < 1.5) {
+          gidsen[h].classList.add('af');
+          const st = document.createElementNS(NS, 'circle');
+          st.setAttribute('cx', halen[h][0].x); st.setAttribute('cy', halen[h][0].y); st.setAttribute('r', '1.6'); st.setAttribute('class', 'jr-spoor-stip');
+          inktG.appendChild(st);
+          h++;
+          try { sfx.naald(); } catch {}
+          toonStart();
+          if (h >= halen.length) gelukt();
+          return;
+        }
         svg.setPointerCapture(e.pointerId);
         const lijn = document.createElementNS(NS, 'polyline');
         inktG.appendChild(lijn);

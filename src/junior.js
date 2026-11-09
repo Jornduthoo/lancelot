@@ -60,8 +60,8 @@ const SPELLEN = [
     niveaus: ['Op, onder, naast', 'Ook boven, links en rechts', 'Voor, achter, in, tussen'] },
   { id: 'geluiden', naam: 'Geluidenbos', zin: 'Luister goed: wie maakt dit geluid?', groep: 'taal', jaar: '2e - 3e kl', beeld: 'dier/2',
     niveaus: ['Dieren', 'Dieren en dingen'] },
-  { id: 'schrijf', naam: 'Schrijfdraakje', zin: 'Trek de lijnen en letters over met je vinger.', groep: 'taal', jaar: '3e kl - 1e lj', beeld: 'stuk/30',
-    niveaus: ['Schrijfpatronen'] },
+  { id: 'schrijf', naam: 'Schrijfdraakje', zin: 'Trek de lijnen en letters over met je vinger.', groep: 'taal', jaar: '3e kl - 1e lj', beeld: 'stuk/31',
+    niveaus: ['Schrijfpatronen', 'Cijfers', 'Kleine letters', 'Hoofdletters', 'Mijn naam', 'Woordjes'] },
   { id: 'ritme', naam: 'Ritmedraak', zin: 'Luister naar de trom en zoek het ritme. Of tik het na.', groep: 'samen', jaar: '2e kl - 1e lj', beeld: 'stuk/30',
     niveaus: ['Hoeveel slagen?', 'Welk ritme hoor je?', 'Tik het ritme na'] },
   { id: 'trein', naam: 'Klankentrein', zin: 'Zet de letters op de wagons, en de trein rijdt weg.', groep: 'taal', jaar: '3e kl - 1e lj', beeld: 'stuk/4',
@@ -186,10 +186,12 @@ const DIER_GROEI = [0, 10, 30]; // public/img/junior/dier, dier2, dier3
 const THEMAS = ['herfst', 'halloween', 'sint', 'kerst', 'winter', 'valentijn', 'carnaval', 'lente', 'pasen', 'moederdag', 'vaderdag', 'zomer', 'school'];
 function instellingen() {
   const i = load().instellingen;
-  return { perRonde: RONDES.includes(i.perRonde) ? i.perRonde : PER_RONDE, voorlezen: i.voorlezen !== false, groei: i.groei !== false, thema: ['auto', 'geen', ...THEMAS].includes(i.thema) ? i.thema : 'auto', rustig: i.rustig === true, vrij: i.vrij !== false, munt: MUNTEN.includes(i.munt) ? i.munt : 'auto' };
+  return { perRonde: RONDES.includes(i.perRonde) ? i.perRonde : PER_RONDE, voorlezen: i.voorlezen !== false, groei: i.groei !== false, thema: ['auto', 'geen', ...THEMAS].includes(i.thema) ? i.thema : 'auto', rustig: i.rustig === true, vrij: i.vrij !== false, munt: MUNTEN.includes(i.munt) ? i.munt : 'auto', schrift: SCHRIFTEN.includes(i.schrift) ? i.schrift : 'schuin' };
 }
 // Het geld in Geldmarkt: euro, dollar of pond. 'auto' volgt het land van de doelen (VS: dollar, Engeland: pond), anders euro.
 const MUNTEN = ['auto', 'eur', 'usd', 'gbp'];
+// Het schrift in het Schrijfdraakje: schuin of recht lopend schrift, of drukletters (de leerkracht kiest).
+const SCHRIFTEN = ['schuin', 'recht', 'druk'];
 function muntNu() {
   const m = instellingen().munt;
   if (m !== 'auto') return m;
@@ -242,6 +244,7 @@ function zetInstellingen(nieuw = {}) {
   if (typeof nieuw.vrij === 'boolean') i.vrij = nieuw.vrij;
   if (['auto', 'geen', ...THEMAS].includes(nieuw.thema)) i.thema = nieuw.thema;
   if (MUNTEN.includes(nieuw.munt)) i.munt = nieuw.munt;
+  if (SCHRIFTEN.includes(nieuw.schrift)) i.schrift = nieuw.schrift;
   save();
   return instellingen();
 }
@@ -433,12 +436,12 @@ function stop() {
 function stand() {
   // Rustig: geen versiering aan de randen.
   const thema = instellingen().rustig ? '' : themaNu();
-  if (!les) return { actief: false, draak: draak(), voorlezen: instellingen().voorlezen, rustig: instellingen().rustig, vrij: instellingen().vrij, thema, munt: muntNu() };
+  if (!les) return { actief: false, draak: draak(), voorlezen: instellingen().voorlezen, rustig: instellingen().rustig, vrij: instellingen().vrij, thema, munt: muntNu(), schrift: instellingen().schrift };
   const s = SPEL[les.spel];
   return {
     actief: true, spel: les.spel, naam: s.naam, niveau: les.niveau, niveauNaam: niveausVan(s)[les.niveau], manier: les.manier, seed: les.seed,
     eigen: les.spel === 'eigen' ? load().sets[les.niveau] || null : undefined,
-    perRonde: instellingen().perRonde, voorlezen: instellingen().voorlezen, teams: les.teams, avontuur: avontuurStand(), kring: { vraag: les.kring.vraag }, draak: draak(), rustig: instellingen().rustig, vrij: instellingen().vrij, thema, munt: muntNu(),
+    perRonde: instellingen().perRonde, voorlezen: instellingen().voorlezen, teams: les.teams, avontuur: avontuurStand(), kring: { vraag: les.kring.vraag }, draak: draak(), rustig: instellingen().rustig, vrij: instellingen().vrij, thema, munt: muntNu(), schrift: instellingen().schrift,
   };
 }
 // Hoe ver elk team is (0 tot 1). Een team met meer kinderen moet ook meer stappen zetten: zo blijft het eerlijk.

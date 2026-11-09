@@ -409,6 +409,7 @@
 .jr[data-spel="waar"] { background-image: url(/img/junior/bg/waar.webp); }
 .jr[data-spel="geluiden"] { background-image: url(/img/junior/bg/geluiden.webp); }
 .jr[data-spel="ritme"] { background-image: url(/img/junior/bg/ritme.webp); }
+.jr[data-spel="schrijf"] { background-image: url(/img/junior/bg/schrijf.webp); }
 .jr[data-spel="trein"] { background-image: url(/img/junior/bg/trein.webp); }
 .jr[data-spel="woordbrug"] { background-image: url(/img/junior/bg/woordbrug.webp); }
 .jr[data-spel="dans"] { background-image: url(/img/junior/bg/dans.webp); }
@@ -442,6 +443,7 @@
   .jr[data-spel="waar"] { background-image: url(/img/junior/bg/waar-klein.webp); }
   .jr[data-spel="geluiden"] { background-image: url(/img/junior/bg/geluiden-klein.webp); }
   .jr[data-spel="ritme"] { background-image: url(/img/junior/bg/ritme-klein.webp); }
+  .jr[data-spel="schrijf"] { background-image: url(/img/junior/bg/schrijf-klein.webp); }
   .jr[data-spel="trein"] { background-image: url(/img/junior/bg/trein-klein.webp); }
   .jr[data-spel="woordbrug"] { background-image: url(/img/junior/bg/woordbrug-klein.webp); }
   .jr[data-spel="dans"] { background-image: url(/img/junior/bg/dans-klein.webp); }
@@ -1689,3 +1691,20 @@ body.jr-los #jr-vak, body.jr-los #jr-beurt { visibility: hidden; }
 .jr-spoor-pijl { fill: none; stroke: #51cf66; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
 @keyframes jr-bol { 50% { transform: scale(1.25); } }
 @media (prefers-reduced-motion: reduce) { .jr-spoor-bol { animation: none; } }
+
+/* Schrift kiezen bij Instellingen: elk knopje toont een voorbeeldje van het schrift. */
+.jr-inst-schrift button { display: inline-flex; flex-direction: column; align-items: center; gap: 4px; }
+.jr-schrift-vb { height: 46px; width: auto; max-width: 120px; }
+.jr-schrift-vb line { stroke: currentColor; stroke-width: .6; opacity: .35; }
+.jr-schrift-vb path { fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+.jr-spoor-stip { fill: #4cc9ff; }
+
+/* Werkblad schrijven: stippellijn om over te trekken, startbolletjes, en een lege lijn om zelf te schrijven. */
+.jr-printblad.werkblad .wb-spoor { display: flex; flex-direction: column; gap: 2mm; flex: 1; justify-content: center; }
+.jr-printblad.werkblad .wb-spoor svg { width: 100%; height: auto; max-height: 30mm; }
+.wb-spoor line { stroke: #bbb; stroke-width: .5; }
+.wb-spoor line.m { stroke-dasharray: 2 2; }
+.wb-spoor line.b { stroke: #777; stroke-width: .8; }
+.wb-spoor path { fill: none; stroke: #555; stroke-width: 1.6; stroke-dasharray: .1 2.6; stroke-linecap: round; stroke-linejoin: round; }
+.wb-spoor path.k { stroke: #222; stroke-dasharray: none; stroke-width: 1.2; }
+.wb-spoor circle { fill: #2a9d4b; }
