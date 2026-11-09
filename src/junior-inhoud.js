@@ -197,7 +197,7 @@ module.exports = {
     naamStandaard: "Draakje",
     seizoenVraag: "Bij welk seizoen hoort het?",
     seizoenNaam: {"lente": "Lente", "zomer": "Zomer", "herfst": "Herfst", "winter": "Winter"},
-    gevoelVraag: "Hoe voelt het draakje?",
+    gevoelVraag: "Hoe voelt het draakje zich?",
     stappenVraag: {"plank": "Hoeveel drakenpootjes lang is de plank?", "slang": "Hoeveel drakenpootjes lang is de slang?", "tak": "Hoeveel drakenpootjes lang is de tak?"},
   },
   dieren: ['Vos', 'Uil', 'Konijn', 'Beer', 'Kikker', 'Kat', 'Egel', 'Eenhoorn', 'Schildpad', 'Leeuw', 'Pinguïn', 'Eekhoorn', 'Olifant', 'Giraf', 'Panda',
