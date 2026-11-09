@@ -186,12 +186,13 @@ const DIER_GROEI = [0, 10, 30]; // public/img/junior/dier, dier2, dier3
 const THEMAS = ['herfst', 'halloween', 'sint', 'kerst', 'winter', 'valentijn', 'carnaval', 'lente', 'pasen', 'moederdag', 'vaderdag', 'zomer', 'school'];
 function instellingen() {
   const i = load().instellingen;
-  return { perRonde: RONDES.includes(i.perRonde) ? i.perRonde : PER_RONDE, voorlezen: i.voorlezen !== false, groei: i.groei !== false, thema: ['auto', 'geen', ...THEMAS].includes(i.thema) ? i.thema : 'auto', rustig: i.rustig === true, vrij: i.vrij !== false, munt: MUNTEN.includes(i.munt) ? i.munt : 'auto', schrift: SCHRIFTEN.includes(i.schrift) ? i.schrift : 'schuin' };
+  return { perRonde: RONDES.includes(i.perRonde) ? i.perRonde : PER_RONDE, voorlezen: i.voorlezen !== false, groei: i.groei !== false, thema: ['auto', 'geen', ...THEMAS].includes(i.thema) ? i.thema : 'auto', rustig: i.rustig === true, vrij: i.vrij !== false, munt: MUNTEN.includes(i.munt) ? i.munt : 'auto', schrift: SCHRIFTEN.includes(i.schrift) ? i.schrift : OUDE_SCHRIFTEN[i.schrift] || 'lopend1' };
 }
 // Het geld in Geldmarkt: euro, dollar of pond. 'auto' volgt het land van de doelen (VS: dollar, Engeland: pond), anders euro.
 const MUNTEN = ['auto', 'eur', 'usd', 'gbp'];
-// Het schrift in het Schrijfdraakje: schuin of recht lopend schrift, of drukletters (de leerkracht kiest).
-const SCHRIFTEN = ['schuin', 'recht', 'druk'];
+// Het schrift in het Schrijfdraakje: lopend schrift zoals letterkaart 1 of 2 van de klas, of drukletters (de leerkracht kiest).
+const SCHRIFTEN = ['lopend1', 'lopend2', 'druk'];
+const OUDE_SCHRIFTEN = { schuin: 'lopend1', recht: 'lopend2' }; // namen van vroeger
 function muntNu() {
   const m = instellingen().munt;
   if (m !== 'auto') return m;
