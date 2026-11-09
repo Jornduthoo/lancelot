@@ -674,5 +674,19 @@
  "stuk/30": null,
  "Automatisch": "Automatic",
  "Aantal groepjes": "Number of groups",
- "Groepjes van": "Groups of"
+ "Groepjes van": "Groups of",
+ "Schrijfdraakje": "Writing Dragon",
+ "Trek de lijnen en letters over met je vinger.": "Trace the lines and letters with your finger.",
+ "Schrijfpatronen": "Writing patterns",
+ "Schrift": "Handwriting",
+ "Hoe de letters eruitzien in het Schrijfdraakje en op de schrijfbladen. Kies het schrift van je klas.": "How the letters look in the Writing Dragon and on the writing sheets. Choose the handwriting your class learns.",
+ "abc": "abc",
+ "Schuin lopend schrift": "Slanted cursive",
+ "Recht lopend schrift": "Upright cursive",
+ "Drukletters": "Print letters",
+ "Cijfers": "Numbers",
+ "Kleine letters": "Lowercase letters",
+ "Hoofdletters": "Capital letters",
+ "Trek over en schrijf het daarna zelf.": "Trace it, then write it yourself.",
+ "stuk/31": null
 }

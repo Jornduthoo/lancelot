@@ -223,6 +223,16 @@ const WB = {
   },
   // Het splitshuis: het getal op het dak, links de draakjes die er al zijn, rechts tekenen en schrijven.
   sleepAantal: (v, i, k) => ({ doe: 'Teken wat er nog bij moet en schrijf het getal.', html: `<div class="wb-huis"><b class="wb-dak">${v.totaal}</b><div class="wb-kamers"><span>${'●'.repeat(v.vast).replace(/(●{5})/g, '$1 ')}<b>${v.vast}</b></span><span>${k ? `<em class="wb-sl-tekening">${'●'.repeat(v.doel).replace(/(●{5})/g, '$1 ')}</em>` : ''}<i class="wb-hokje">${k ? v.doel : ''}</i></span></div></div>` }),
+  // Schrijven: de stippellijn met een bolletje waar je begint, en daaronder een lege lijn om het zelf te schrijven.
+  spoor: (v, i, k) => {
+    const S = window.JrSchrift;
+    let m = v;
+    if (S && v.tekst && v.tekst.length === 1) m = S.woord(`${v.tekst} ${v.tekst} ${v.tekst}`, Junior.schrift || 'schuin') || v;
+    const lijnen = w => [15, 45, 70, 95].map(y => `<line x1="0" x2="${w}" y1="${y}" y2="${y}" class="${y === 70 ? 'b' : y === 45 ? 'm' : ''}"/>`).join('');
+    const bol = d => { const q = /M\s*([-\d.]+)[ ,]([-\d.]+)/.exec(d); return q ? `<circle cx="${q[1]}" cy="${q[2]}" r="2.2"/>` : ''; };
+    const w = Math.max(m.w, 60);
+    return { doe: 'Trek over en schrijf het daarna zelf.', html: `<div class="wb-spoor"><svg viewBox="0 8 ${w} 92">${lijnen(w)}${m.paden.map(d => `<path d="${d}"${k ? ' class="k"' : ''}/>`).join('')}${k ? '' : m.paden.map(bol).join('')}</svg><svg viewBox="0 8 ${w} 92">${lijnen(w)}</svg></div>` };
+  },
   // Sorteren: in de sleutel staat bij elk prentje het nummer van zijn mand.
   sorteer: (v, i, k) => {
     const nr = id => v.manden.findIndex(m => m.id === id) + 1;
@@ -261,6 +271,7 @@ function toonInstellingen(i) {
   zet('jr-inst-vrij', i.vrij === false ? 0 : 1);
   zet('jr-inst-thema', i.thema || 'auto');
   zet('jr-inst-munt', i.munt || 'auto');
+  zet('jr-inst-schrift', i.schrift || 'schuin');
 }
 function bewaarInstelling(nieuw) {
   socket.emit('jr-instellingen', nieuw, res => {
@@ -275,6 +286,8 @@ for (const b of $('jr-inst-rustig').children) b.addEventListener('click', () => 
 for (const b of $('jr-inst-groei').children) b.addEventListener('click', () => bewaarInstelling({ groei: b.dataset.w === '1' }));
 for (const b of $('jr-inst-thema').children) b.addEventListener('click', () => bewaarInstelling({ thema: b.dataset.w }));
 for (const b of $('jr-inst-munt').children) b.addEventListener('click', () => bewaarInstelling({ munt: b.dataset.w }));
+for (const b of $('jr-inst-schrift').children) { try { b.querySelector('b').outerHTML = JrSchrift.voorbeeld('abc', b.dataset.w); } catch {} }
+for (const b of $('jr-inst-schrift').children) b.addEventListener('click', () => bewaarInstelling({ schrift: b.dataset.w }));
 $('jr-inst-knop').addEventListener('click', () => {
   socket.emit('jr-instellingen', null, res => {
     if (res && res.error) return Ui.melding(res.error);
@@ -1551,6 +1564,7 @@ socket.on('connect', () => {
     Junior.rustig = stand.rustig === true;
     try { JrThema.zet(stand.thema); } catch {}
     Junior.munt = stand.munt || Junior.munt;
+    Junior.schrift = stand.schrift || Junior.schrift;
     kinderen = res.kinderen || [];
     toonDraak(res.stand.draak);
     klas();
@@ -1565,6 +1579,7 @@ socket.on('connect', () => {
 socket.on('jr-stand', s => {
   try { JrThema.zet(s && s.thema); } catch {}
   if (s && s.munt) Junior.munt = s.munt;
+  if (s && s.schrift) Junior.schrift = s.schrift;
   const oud = stand.seed;
   stand = s;
   Junior.rustig = s.rustig === true;

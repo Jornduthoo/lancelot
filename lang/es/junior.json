@@ -674,5 +674,19 @@
  "stuk/30": null,
  "Automatisch": "Automático",
  "Aantal groepjes": "Número de grupos",
- "Groepjes van": "Grupos de"
+ "Groepjes van": "Grupos de",
+ "Schrijfdraakje": "Dragoncito escritor",
+ "Trek de lijnen en letters over met je vinger.": "Repasa las líneas y las letras con el dedo.",
+ "Schrijfpatronen": "Patrones de escritura",
+ "Schrift": "Escritura",
+ "Hoe de letters eruitzien in het Schrijfdraakje en op de schrijfbladen. Kies het schrift van je klas.": "Cómo se ven las letras en el Dragoncito escritor y en las fichas de escritura. Elige la escritura de tu clase.",
+ "abc": "abc",
+ "Schuin lopend schrift": "Cursiva inclinada",
+ "Recht lopend schrift": "Cursiva recta",
+ "Drukletters": "Letra de imprenta",
+ "Cijfers": "Números",
+ "Kleine letters": "Minúsculas",
+ "Hoofdletters": "Mayúsculas",
+ "Trek over en schrijf het daarna zelf.": "Repásalo y luego escríbelo tú.",
+ "stuk/31": null
 }

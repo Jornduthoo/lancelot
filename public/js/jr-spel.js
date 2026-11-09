@@ -212,6 +212,14 @@
   }
 
   const beeld = (pad, cls = '') => `<img class="jr-img ${cls}" src="/img/junior/${pad}.webp" alt="" draggable="false">`;
+  // Schrijfpatronen tussen de middenlijn (45) en de basislijn (70): x0 = begin, n = aantal herhalingen, elk 22 breed.
+  const SCHRIJFPATRONEN = {
+    golf: (x, n) => `M${x} 57.5` + Array.from({ length: n }, (_, i) => ` c 5.5 -16 11 -16 11 0 s 5.5 16 11 0`).join(''),
+    boog: (x, n) => `M${x} 70` + Array.from({ length: n }, () => ` c 0 -32 22 -32 22 0`).join(''),
+    kom: (x, n) => `M${x} 45` + Array.from({ length: n }, () => ` c 0 32 22 32 22 0`).join(''),
+    zigzag: (x, n) => `M${x} 70` + Array.from({ length: n }, () => ` l 11 -25 l 11 25`).join(''),
+    lus: (x, n) => `M${x} 70` + Array.from({ length: n }, () => ` c 12 -4 16 -20 10 -24 c -6 -4 -10 10 -4 20 c 4 4 10 4 16 4`).join(''),
+  };
   // Ritmekaartje: een grote stip per 'ta', twee kleine verbonden stippen per 'titi'.
   const ritmeKaart = tellen => `<span class="jr-ritme">${tellen.map(b => (b === 'ta' ? '<i class="ta"><b></b></i>' : '<i class="titi"><b></b><b></b></i>')).join('')}</span>`;
   // De trom, gemaakt in de browser (geen bestanden): een lage toon die zakt, met een korte tik erbovenop.
@@ -844,6 +852,35 @@
         opties: r.schud(opties).map(o => ({ html: ritmeKaart(o), juist: o === doel })),
       };
     },
+    // Schrijfdraakje: sporen met de vinger. Schrijfpatronen, cijfers, kleine letters, hoofdletters, je naam en woordjes.
+    // Het schrift (schuin of recht lopend schrift, of drukletters) kiest de leerkracht bij Instellingen: Junior.schrift komt van de server.
+    schrijf(r, niv, wie) {
+      const S = window.JrSchrift, stijl = (window.Junior || {}).schrift || 'schuin', z = J().zin;
+      const kaal = t => String(t || '').normalize('NFD').replace(/\p{M}/gu, '');
+      const spoor = (tekst, zeg, extra = {}) => {
+        const v = S && S.woord(tekst, stijl);
+        return v && { soort: 'spoor', zeg, w: v.w, paden: v.paden, lijnen: true, tekst, ...extra };
+      };
+      if (niv === 0 || !S) {
+        const P = SCHRIJFPATRONEN;
+        const id = r.kies(Object.keys(P));
+        const n = r.int(4, 5);
+        return { soort: 'spoor', zeg: [z.spoorPatroon], w: 30 + n * 22, paden: [P[id](15, n)], lijnen: true };
+      }
+      if (niv === 1) { const c = String(r.int(0, 9)); return spoor(c, [c, z.spoorCijfer]); }
+      const abc = 'abcdefghijklmnopqrstuvwxyz';
+      if (niv === 2) { const c = r.kies([...abc]); return spoor(c, [c, z.spoorLetter]); }
+      if (niv === 3) { const c = r.kies([...abc.toUpperCase()]); return spoor(c, [c, z.spoorLetter]); }
+      if (niv === 4) {
+        const naam = kaal(String((wie && wie.naam) || '').trim().split(/[\s-]+/)[0]).replace(/[^A-Za-z]/g, '').slice(0, 9);
+        const n = naam.length >= 2 ? naam[0].toUpperCase() + naam.slice(1).toLowerCase() : (z.naamStandaard || 'Draakje');
+        const v = spoor(n, [n, z.spoorNaam]);
+        if (v) return v;
+      }
+      const pool = (J().woorden || []).filter(x => S.kan && [...kaal(x.w)].every(c => S.kan(c, stijl)) && x.w.length <= (niv === 4 ? 5 : 6));
+      const woord = pool.length ? r.kies(pool) : { w: 'draak', e: '🐉' };
+      return spoor(kaal(woord.w), [woord.w, z.spoorWoord], { kop: emoji(woord.e, 'jr-emoji-reus') });
+    },
     trein(r, niv) {
       const w = J().woorden || [];
       if (niv === 0) {
@@ -1285,6 +1322,91 @@
         sc.appendChild(k);
       }
       veld.appendChild(sc);
+    } else if (v.soort === 'spoor') {
+      // Schrijven: met de vinger over de stippellijn. Elke haal begint bij het groene bolletje, de pijl wijst de richting.
+      // Telt pas als bijna de hele lijn in de goede richting overgetrokken is en de vinger niet te ver van de lijn ging.
+      const wrap = el('div', 'jr-spoor');
+      const lijnen = v.lijnen === false ? '' : `<g class="jr-spoor-lijnen"><line x1="0" x2="${v.w}" y1="15" y2="15"/><line x1="0" x2="${v.w}" y1="45" y2="45" class="mid"/><line x1="0" x2="${v.w}" y1="70" y2="70" class="basis"/><line x1="0" x2="${v.w}" y1="95" y2="95"/></g>`;
+      wrap.innerHTML = `<svg viewBox="0 0 ${v.w} 100" preserveAspectRatio="xMidYMid meet">${lijnen}<g class="jr-spoor-gidsen">${v.paden.map(d => `<path class="jr-spoor-gids" d="${d}"/>`).join('')}</g><g class="jr-spoor-inkt"></g><g class="jr-spoor-start"></g></svg>`;
+      veld.appendChild(wrap);
+      const svg = wrap.firstChild;
+      const NS = 'http://www.w3.org/2000/svg';
+      const gidsen = [...svg.querySelectorAll('.jr-spoor-gids')];
+      const R = v.marge || 8;
+      const halen = gidsen.map(pad => {
+        const L = pad.getTotalLength();
+        const n = Math.max(8, Math.round(L / 2.5));
+        return Array.from({ length: n + 1 }, (_, i) => { const q = pad.getPointAtLength((L * i) / n); return { x: q.x, y: q.y }; });
+      });
+      let h = 0;
+      const startG = svg.querySelector('.jr-spoor-start'), inktG = svg.querySelector('.jr-spoor-inkt');
+      const toonStart = () => {
+        startG.innerHTML = '';
+        if (h >= halen.length) return;
+        const pts = halen[h], a = pts[0], b = pts[Math.min(pts.length - 1, 3)];
+        const hoek = Math.atan2(b.y - a.y, b.x - a.x) * 180 / Math.PI;
+        startG.innerHTML = `<circle cx="${a.x}" cy="${a.y}" r="4.2" class="jr-spoor-bol"/><g transform="translate(${a.x} ${a.y}) rotate(${hoek})"><path d="M7 -3.5 L13 0 L7 3.5" class="jr-spoor-pijl"/></g>`;
+        gidsen.forEach((g, i) => g.classList.toggle('nu', i === h));
+      };
+      toonStart();
+      const punt = e => { const m = svg.getScreenCTM().inverse(); const q = new DOMPoint(e.clientX, e.clientY).matrixTransform(m); return { x: q.x, y: q.y }; };
+      const afst = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
+      let tek = null;
+      svg.addEventListener('pointerdown', e => {
+        if (af || h >= halen.length) return;
+        const q = punt(e);
+        if (afst(q, halen[h][0]) > R * 1.6) { pop(startG, 'jr-schud'); Stem.zeg([J().zin.spoorBegin]); return; }
+        e.preventDefault();
+        // Een stip (op de i en j): even tikken is genoeg.
+        if (halen[h].length < 3 || afst(halen[h][0], halen[h][halen[h].length - 1]) < 1.5) {
+          gidsen[h].classList.add('af');
+          const st = document.createElementNS(NS, 'circle');
+          st.setAttribute('cx', halen[h][0].x); st.setAttribute('cy', halen[h][0].y); st.setAttribute('r', '1.6'); st.setAttribute('class', 'jr-spoor-stip');
+          inktG.appendChild(st);
+          h++;
+          try { sfx.naald(); } catch {}
+          toonStart();
+          if (h >= halen.length) gelukt();
+          return;
+        }
+        svg.setPointerCapture(e.pointerId);
+        const lijn = document.createElementNS(NS, 'polyline');
+        inktG.appendChild(lijn);
+        tek = { lijn, pts: [q], hit: 0, mis: 0, tot: 0 };
+        lijn.setAttribute('points', `${q.x},${q.y}`);
+      });
+      svg.addEventListener('pointermove', e => {
+        if (!tek) return;
+        const q = punt(e);
+        tek.pts.push(q);
+        tek.lijn.setAttribute('points', tek.pts.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' '));
+        const pts = halen[h];
+        tek.tot++;
+        // Volgorde: alleen een stukje vooruit mag meetellen (zo telt de lijn achterstevoren overtrekken niet).
+        let raak = false;
+        for (let i = tek.hit; i < Math.min(pts.length, tek.hit + 6); i++) if (afst(q, pts[i]) < R) { tek.hit = Math.max(tek.hit, i + 1); raak = true; }
+        if (!raak && !pts.some(p => afst(q, p) < R * 1.8)) tek.mis++;
+      });
+      const los = () => {
+        if (!tek) return;
+        const t = tek; tek = null;
+        const pts = halen[h];
+        if (t.hit >= pts.length - 1 && t.mis <= Math.max(3, t.tot * 0.25)) {
+          t.lijn.classList.add('goed');
+          gidsen[h].classList.add('af');
+          h++;
+          try { sfx.naald(); } catch {}
+          toonStart();
+          if (h >= halen.length) gelukt();
+          return;
+        }
+        // Nog niet goed: de lijn vervaagt, en opnieuw bij hetzelfde bolletje.
+        t.lijn.classList.add('weg');
+        setTimeout(() => t.lijn.remove(), 500);
+        fout(null, t.hit < pts.length * 0.5 ? J().zin.spoorVolg : J().zin.spoorHeel);
+      };
+      svg.addEventListener('pointerup', los);
+      svg.addEventListener('pointercancel', los);
     }
     prenten(veld);
     if (voorlees.length > 1 && voorlees.every(x => x.tekst)) {
