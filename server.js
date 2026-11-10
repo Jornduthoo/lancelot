@@ -2114,6 +2114,8 @@ io.on('connection', socket => {
     socket.on('zw-week-rooster', zwWijzig(arg => ({ weekData: zonnewijzer.zetWeekRooster(arg) })));
     socket.on('zw-vink', zwWijzig(arg => ({ weekData: zonnewijzer.vink(arg) })));
     socket.on('zw-schuif', zwWijzig(arg => ({ weekData: zonnewijzer.schuif(arg) })));
+    socket.on('zw-dagen', zwWijzig(arg => ({ weekData: zonnewijzer.zetDagen(arg) })));
+    socket.on('zw-vrij', zwWijzig(arg => ({ weekData: zonnewijzer.zetVrij(arg) })));
     socket.on('zw-laatste', handle(arg => zonnewijzer.laatsteVan(arg)));
     socket.on('zw-doelen', handle(({ codes } = {}) => zonnewijzer.doelInfo(codes)));
     // De doelen van een les uit zijn quiz: de codes die het vaakst voorkomen (Ridder-vragen niet, dat is de uitdaging).
