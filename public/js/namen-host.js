@@ -48,6 +48,8 @@
   // leerling (Proefridder 1, die bestuur je zelf); Proefridder 2 en 3 spelen onzichtbaar en vanzelf mee.
   const proef = document.createElement('button');
   proef.className = 'secondary proef-knop';
+  // Bij een toets of een oefenblad heeft meespelen geen zin: daar zouden de proefridders in de resultaten komen.
+  if (/^\/(proef|oefenblad)\b/.test(location.pathname)) proef.hidden = true;
   proef.textContent = 'Proefspelen';
   proef.title = 'Geen klas bij de hand? Speel zelf mee als leerling, met twee proefridders erbij.';
   let proefVak = null;

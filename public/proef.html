@@ -50,8 +50,20 @@
         <p class="muted small">Beveiligd zover een browser dat kan: volledig scherm, vragen en keuzes door elkaar, niet kopiëren of plakken, en wie de toets verlaat, staat meteen op het bord (en gaat op slot als je dat wil). Echt vergrendelen kan alleen als je school de Chromebooks in kioskmodus zet.<details class="hulp"><summary aria-label="Uitleg">?</summary><p>Een webpagina kan een leerling nooit helemaal tegenhouden: de Esc-toets haalt het volledige scherm altijd weg, en een tweede toestel ziet LANcelot niet. LANcelot merkt wel elke keer dat de leerling de toets verlaat en toont dat live op het bord en in de resultaten. Wil je echt vergrendelen? Vraag ICT om de Chromebooks voor toetsen in kioskmodus te zetten (Google Admin) met het adres van LANcelot.</p></details></p>
       </div>
     </div>
-    <div class="panel form pf-inst">
-      <h3>Zo neem je af</h3>
+    <p class="notice hidden" id="stopped"></p>
+    <div class="quiz-list" id="toets-list"></div>
+    <p class="error" id="list-error"></p>
+    <div class="panel pf-afnames" id="afnames-panel">
+      <h3>Afgenomen toetsen <span class="muted small">· verbeteren, punten en Excel</span></h3>
+      <div id="afnames"></div>
+    </div>
+  </section>
+
+  <!-- ---------- Maken met AI ---------- -->
+  <dialog class="start-venster" id="pf-afname">
+    <h2>Toets afnemen</h2>
+    <p class="muted" id="pf-afname-naam"></p>
+    <div class="form pf-inst">
       <div class="row">
         <label>Tijd (minuten, leeg = geen limiet)<input id="i-tijd" type="number" min="0" max="240" placeholder="geen"></label>
         <label>Verlaat een leerling de toets
@@ -86,16 +98,12 @@
         </label>
       </div>
     </div>
-    <p class="notice hidden" id="stopped"></p>
-    <div class="quiz-list" id="toets-list"></div>
-    <p class="error" id="list-error"></p>
-    <div class="panel pf-afnames" id="afnames-panel">
-      <h3>Afgenomen toetsen <span class="muted small">· verbeteren, punten en Excel</span></h3>
-      <div id="afnames"></div>
+    <div class="row-buttons">
+      <button type="button" class="secondary" id="pf-afname-nee">Annuleren</button>
+      <button type="button" class="gold" id="pf-afname-ja">Start de toets ▶</button>
     </div>
-  </section>
+  </dialog>
 
-  <!-- ---------- Maken met AI ---------- -->
   <section id="maker" class="hidden">
     <div class="bar">
       <h2>Nieuwe toets</h2>
