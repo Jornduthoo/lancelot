@@ -2367,3 +2367,19 @@ body[data-wacht] { background: linear-gradient(rgba(4, 6, 14, .55), rgba(4, 6, 1
 .kk-form { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 10px; }
 .kk-form input { flex: 1 1 200px; max-width: 320px; }
 .kk-form p { flex-basis: 100%; margin: 0; }
+
+/* ---------- Gebruiksgemak (2026-11-10) ---------- */
+/* Tegels: het icoon staat altijd bovenaan, ook als er onderaan geen label staat. Zo lijnen de tegels in één rij mooi uit. */
+.module:not(.balk) { justify-content: flex-start; align-content: flex-start; }
+/* Aanmelden met een klaslijst: het logo wordt kleiner, zodat de namen meteen in beeld staan (gsm en Chromebook). */
+.player .welcome:has(.klas-namen) > img, .player .welcome:has(.klas-namen) > .logo-3d { width: min(170px, 40vw); }
+/* Startscherm van de leerling op een liggend scherm (Chromebook): de knoppen in twee kolommen, zodat alles zonder scrollen past. */
+@media (min-width: 700px) and (orientation: landscape) {
+  .player:has(#idle:not(.hidden)) main { max-width: 760px; }
+  .player #idle:not(.hidden) { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 16px; }
+  .player #idle > :not(.rn-knop) { grid-column: 1 / -1; }
+  .player #idle > .rn-knop:last-of-type:nth-of-type(odd) { grid-column: 1 / -1; }
+}
+@media (min-width: 700px) and (orientation: landscape) and (max-height: 820px) {
+  .player #idle > img, .player #idle > .logo-3d { width: min(220px, 30vh); }
+}
