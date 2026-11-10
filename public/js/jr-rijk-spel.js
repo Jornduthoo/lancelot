@@ -13,10 +13,22 @@
     keuken: { v: 'lijst', pot: true }, badkamer: { v: 'bel' }, slaapkamer: { v: 'zaklamp' }, moestuin: { v: 'kras', laag: 'aarde' }, vliegveld: { v: 'puzzel' }, jungle: { v: 'voer' },
   };
   const ICOON = { kras: '🖐️', bel: '🫧', zaklamp: '🔦', lijst: '🛒', toren: '🧱', voer: '🍎', puzzel: '🧩', vang: '🧺', muziek: '🎵' };
-  // Wat de dieren lusten: [plek, prent].
-  const ETEN = [['markt', 0], ['markt', 1], ['markt', 2], ['markt', 3], ['markt', 4], ['bakkerij', 2], ['bakkerij', 3], ['moestuin', 0], ['moestuin', 1], ['moestuin', 2], ['ijssalon', 0], ['ijssalon', 3], ['winkel', 5], ['winkel', 4]];
+  // Wat elk dier lust (ja) en wat zeker niet (nee): [plek, prent]. Het dier vraagt iets uit ja; de andere keuzes komen uit nee,
+  // zodat er nooit twee goede antwoorden liggen.
+  const M = i => ['markt', i], B = i => ['bakkerij', i], G = i => ['moestuin', i], IJ = i => ['ijssalon', i], W = i => ['winkel', i];
+  const APPEL = M(0), BROOD = M(1), KAAS = M(2), WORTEL = M(3), BANAAN = M(4), TAART = B(2), KOEKJE = B(3), POMPOEN = G(1), SLA = G(2);
+  const IJSJE = IJ(0), AARDBEI = IJ(3), DRUIVEN = W(5), EIEREN = W(4), VIS = ['vijver', 2];
+  const SNOEP = [TAART, KOEKJE, IJSJE];
+  const GRAS = { ja: [SLA, WORTEL, APPEL, POMPOEN], nee: [VIS, KAAS, EIEREN, ...SNOEP] };
+  const FRUIT = { ja: [BANAAN, APPEL, AARDBEI, DRUIVEN], nee: [VIS, KAAS, EIEREN, BROOD, ...SNOEP] };
+  const VISETER = { ja: [VIS], nee: [SLA, WORTEL, BANAAN, APPEL, AARDBEI, POMPOEN, ...SNOEP] };
+  const LUST = {
+    boerderij: { 0: GRAS, 2: { ja: [BROOD, SLA, DRUIVEN], nee: [VIS, KAAS, ...SNOEP] }, 3: GRAS, 4: GRAS },
+    dierentuin: { 1: FRUIT, 2: { ja: [SLA, APPEL], nee: GRAS.nee }, 3: FRUIT, 4: GRAS, 5: VISETER },
+    jungle: { 1: { ja: [EIEREN], nee: [SLA, WORTEL, BANAAN, POMPOEN, ...SNOEP] }, 2: VISETER, 3: GRAS, 4: FRUIT },
+  };
   // Welke prenten van een plek dieren zijn die je kunt voeren.
-  const DIEREN = { boerderij: [0, 1, 2, 3, 4], dierentuin: [0, 1, 2, 3, 4, 5], jungle: [0, 1, 2, 3, 4, 5] };
+  const DIEREN = Object.fromEntries(Object.entries(LUST).map(([id, d]) => [id, Object.keys(d).map(Number)]));
   const MAND = '/img/junior/rijk/extra/3.webp';
 
   let h = null;     // de hulpjes van jr-rijk.js
@@ -313,8 +325,9 @@
       dier.className = 'jr-doe-dier';
       dier.innerHTML = `<img src="${h.img(p.id, di)}" alt="">`;
       laag.appendChild(dier);
-      const keuze = schud(ETEN).slice(0, 4);
-      const goed = keuze[Math.floor(Math.random() * keuze.length)];
+      const lust = (LUST[p.id] || {})[di] || FRUIT;
+      const goed = lust.ja[Math.floor(Math.random() * lust.ja.length)];
+      const keuze = schud([goed, ...schud(lust.nee).slice(0, 3)]);
       const r = maat();
       keuze.forEach(([id, i], n) => {
         const el = document.createElement('div');
