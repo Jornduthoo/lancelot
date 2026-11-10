@@ -1107,5 +1107,14 @@
  "Ongeldige lijst van klassen.": "Lista de clases no válida.",
  "Klassen voor de lesmap bewaren mislukt:": "No se pudieron guardar las clases para la carpeta de clases:",
  "Er komt geen antwoord van de update-server. Probeer het later opnieuw, of werk bij met een zip-bestand.": "El servidor de actualizaciones no responde. Inténtalo más tarde o actualiza con un archivo zip.",
- "Bijwerken lukte nog niet: een map van LANcelot is nog open (staat er nog een ander LANcelot-venster open?). Sluit alle LANcelot-vensters en start opnieuw: de update staat nog klaar.": "La actualización aún no ha funcionado: una carpeta de LANcelot sigue abierta (¿hay otra ventana de LANcelot abierta?). Cierra todas las ventanas de LANcelot y vuelve a iniciar: la actualización sigue preparada."
+ "Bijwerken lukte nog niet: een map van LANcelot is nog open (staat er nog een ander LANcelot-venster open?). Sluit alle LANcelot-vensters en start opnieuw: de update staat nog klaar.": "La actualización aún no ha funcionado: una carpeta de LANcelot sigue abierta (¿hay otra ventana de LANcelot abierta?). Cierra todas las ventanas de LANcelot y vuelve a iniciar: la actualización sigue preparada.",
+ "Menu": "Menú",
+ "Naar een ander rijk. Het spel blijft lopen.": "A otro reino. El juego sigue en marcha.",
+ "Meer ▾": "Más ▾",
+ "Proefspelen": "Probar",
+ "Geen klas bij de hand? Speel zelf mee als leerling, met twee proefridders erbij.": "¿No tienes la clase a mano? Juega tú como alumno, con dos caballeros de prueba.",
+ "Zo ziet een leerling het": "Así lo ve un alumno",
+ "Jij bent Proefridder 1: speel hier mee. Twee andere proefridders antwoorden vanzelf. Hun antwoorden komen niet in het logboek.": "Eres el Caballero de prueba 1: juega aquí. Otros dos caballeros de prueba responden solos. Sus respuestas no van al registro.",
+ "Het scherm van een leerling": "La pantalla de un alumno",
+ "Proefridder {0}": null
 }

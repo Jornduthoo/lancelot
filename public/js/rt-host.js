@@ -60,6 +60,14 @@ function startSession(file) {
   loadGame('rt-load', file, res => { $('list-error').textContent = res.error || ''; });
 }
 
+// Exit-ticket uit De Zonnewijzer: de vragen staan klaar in deze tab, de sessie start meteen (zonder ze te bewaren).
+if (new URLSearchParams(location.search).has('exit')) {
+  let ticket = null;
+  try { ticket = JSON.parse(sessionStorage.getItem('lancelot-exit') || 'null'); sessionStorage.removeItem('lancelot-exit'); } catch {}
+  history.replaceState(null, '', '/rondetafel');
+  if (ticket) loadGame('rt-direct', ticket, res => { $('list-error').textContent = (res && res.error) || ''; });
+}
+
 // ---------- Adres en QR-code ----------
 
 // ---------- Live ----------

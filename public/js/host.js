@@ -86,7 +86,7 @@ function fillRows() {
   // een rij met één tegel minder heeft net iets bredere tegels.
   for (const grid of document.querySelectorAll('.realm-panel:not(.hidden) .modules')) {
     // Een brede balk (zoals het Klaseiland) neemt een hele rij: die telt niet mee.
-    const tiles = [...grid.children].filter(t => !t.classList.contains('balk'));
+    const tiles = [...grid.children].filter(t => !t.classList.contains('balk') && !t.classList.contains('weg'));
     for (const t of tiles) t.style.gridColumn = '';
     grid.style.gridTemplateColumns = '';
     const n = tiles.length;
@@ -237,7 +237,7 @@ QuizList.mount($('lib-list'), {
   errorId: 'lib-error',
   go: 'Bewerken',
   play: q => { quizBase = 'bibliotheek'; editQuiz(q.file); },
-  buttons: [{ label: '📋 Als taak', cls: 'taak', title: 'Geef deze quiz als taak aan een of meer leerlingen', click: q => { location.href = `/taken?soort=quiz&file=${encodeURIComponent(q.file)}`; } }],
+  buttons: [{ label: '▶ Speel', cls: 'speel', hoofd: true, title: 'Speel deze quiz: kies daarna het spel', click: q => window.ArenaKies.open(q) }, { label: '📋 Als taak', cls: 'taak', title: 'Geef deze quiz als taak aan een of meer leerlingen', click: q => { location.href = `/taken?soort=quiz&file=${encodeURIComponent(q.file)}`; } }],
 });
 
 // ---------- Lobby ----------

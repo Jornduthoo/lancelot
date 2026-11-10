@@ -2383,3 +2383,59 @@ body[data-wacht] { background: linear-gradient(rgba(4, 6, 14, .55), rgba(4, 6, 1
 @media (min-width: 700px) and (orientation: landscape) and (max-height: 820px) {
   .player #idle > img, .player #idle > .logo-3d { width: min(220px, 30vh); }
 }
+.ic-zon { --ic: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cg stroke='black' stroke-width='2' stroke-linecap='round' fill='none'%3E%3Ccircle cx='12' cy='12' r='4'/%3E%3Cpath d='M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8'/%3E%3C/g%3E%3C/svg%3E"); }
+.ic-week { --ic: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' fill='none' d='M4 6h16v14H4z M4 10.5h16 M8 3.5v4 M16 3.5v4 M9.3 10.5V20 M14.7 10.5V20'/%3E%3C/svg%3E"); }
+.ic-rooster { --ic: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' fill='none' d='M4 5h16v15H4z M4 10h16 M4 15h16 M10 5v15'/%3E%3C/svg%3E"); }
+.ic-pen { --ic: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' fill='none' d='M4 20l1-4.5L16.5 4l3.5 3.5L8.5 19z M14 6.5l3.5 3.5'/%3E%3C/svg%3E"); }
+/* Terug staat op elk leerkrachtenscherm links, vóór de titel (ui.js verhuist de knop). */
+.bar > .terug-links { order: -1; margin-right: 4px; }
+.bar:has(> .terug-links) { justify-content: flex-start; }
+.bar:has(> .terug-links) > h2 { margin-right: auto; }
+.terug-rij { display: flex; gap: 10px; margin: 0 0 12px; }
+.terug-rij:empty { display: none; }
+/* Rustig bord tijdens een spel: het snelmenu klapt dicht tot de knop Menu. */
+.snel-toggle { display: none; }
+body.spel-loopt .snel-toggle { display: inline-flex; }
+body.spel-loopt .snelmenu:not(.open) { display: none; }
+body.spel-loopt .topbar .junior-home, body.spel-loopt #open-netwerk, body.spel-loopt #open-settings { display: none; }
+/* De Arena: zoekvak, snelkeuzes en "Laatst gespeeld" (arena-kies.js). */
+.arena-zoek { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin: 0 0 18px; }
+.arena-zoek input { flex: 1 1 220px; max-width: 320px; margin: 0; padding: 8px 12px; font: inherit; color: var(--text); background: var(--panel); border: 1px solid var(--line); }
+.arena-zoek input:focus { outline: none; border-color: var(--cyan); }
+.arena-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.arena-chips .chip { padding: 7px 12px; font-size: .9rem; }
+.arena-chips .chip.on { border-color: rgb(var(--k-goud)); color: rgb(var(--k-goud-l)); box-shadow: inset 0 0 0 1px rgb(var(--k-goud) / .7); }
+.module.weg { display: none; }
+.arena-recent { margin: 0 0 22px; }
+.arena-recent-rij { display: flex; flex-wrap: wrap; gap: 10px; }
+.spel-klein { display: flex; align-items: center; gap: 10px; padding: 6px 14px 6px 6px; background: rgb(var(--k-panel) / .85); color: var(--text); box-shadow: inset 0 0 0 1px var(--line); font-weight: 600; }
+.spel-klein:hover { box-shadow: inset 0 0 0 1px var(--cyan), 0 0 14px var(--cyan-glow); }
+.spel-klein img { width: 40px; height: 40px; border-radius: 6px; object-fit: cover; }
+dialog.speel-kies { width: min(920px, 94vw); max-height: 88vh; overflow: auto; padding: 22px; border: 1px solid var(--line); background: rgb(var(--k-bg2)); color: var(--text); }
+dialog.speel-kies::backdrop { background: rgb(0 0 0 / .7); }
+dialog.speel-kies h3 { margin: 18px 0 8px; color: var(--cyan); }
+/* Een rij met veel knoppen: de rest zit achter "Meer" (quiz-list.js). */
+.meer-wrap { position: relative; display: flex; }
+.meer-wrap .meer-knop { padding: 13px 14px; white-space: nowrap; }
+.meer-menu { position: absolute; right: 0; top: calc(100% + 4px); z-index: 30; display: flex; flex-direction: column; gap: 4px; min-width: 200px; padding: 6px; background: rgb(var(--k-bg2)); border: 1px solid var(--line); box-shadow: 0 10px 30px rgb(0 0 0 / .5); }
+.meer-menu.hidden { display: none; }
+.meer-menu button { display: flex; align-items: center; gap: 8px; justify-content: flex-start; width: 100%; padding: 10px 12px; text-align: left; white-space: nowrap; }
+.quiz-row.meer-open { position: relative; z-index: 31; }
+/* Een klein startvenster: de keuzes vlak voor je iets live zet (oefenblad). */
+dialog.start-venster { width: min(720px, calc(100% - 32px)); max-height: calc(100% - 32px); padding: 22px 26px 18px; border: 0; color: var(--text); background: linear-gradient(160deg, rgb(var(--k-panel)), var(--panel-solid) 60%); box-shadow: inset 0 0 0 1px var(--cyan), 0 0 40px var(--cyan-glow); }
+dialog.start-venster::backdrop { background: rgb(0 0 0 / .7); }
+dialog.start-venster h2 { margin: 0 0 4px; }
+dialog.start-venster .row-buttons { display: flex; justify-content: flex-end; gap: 10px; margin-top: 14px; }
+/* Proefspelen: het scherm van een leerling rechts op het bord (namen-host.js, proef-bot.js). */
+.proef-knop.on { border-color: rgb(var(--k-goud)); color: rgb(var(--k-goud-l)); }
+.proef-vak { position: fixed; top: 0; right: 0; bottom: 0; z-index: 900; display: flex; flex-direction: column; gap: 6px; width: min(400px, 92vw); padding: 10px; background: rgb(var(--k-bg2)); border-left: 1px solid var(--cyan); box-shadow: -12px 0 40px rgb(0 0 0 / .6); }
+.proef-kop { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.proef-kop button { padding: 6px 10px; }
+.proef-vak p { margin: 0; }
+.proef-scherm { flex: 1; width: 100%; border: 1px solid var(--line); background: #000; }
+.proef-stil { position: fixed; left: -3000px; top: 0; width: 390px; height: 720px; border: 0; visibility: hidden; }
+@media print { .proef-vak { display: none !important; } }
+body.proef-open { padding-right: min(400px, 92vw); }
+/* De regel onder het logo mag niet onder het snelmenu schuiven. */
+.topbar:has(.snelmenu) .brand .subtitle { letter-spacing: .2em; }
+.topbar:has(.snelmenu) .brand .subtitle::after { display: none; }

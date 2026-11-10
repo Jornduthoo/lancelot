@@ -133,45 +133,55 @@ const sfx = (() => {
   };
 })();
 
-// --- Confetti ---
+// --- Vieren: gloeiende sterren en runen die opstijgen (geen confetti). De naam confetti() blijft voor alle spellen. ---
 function confetti(duration = 4000) {
   const canvas = document.createElement('canvas');
   canvas.id = 'confetti';
   document.body.appendChild(canvas);
   const c = canvas.getContext('2d');
-  const resize = () => { canvas.width = innerWidth; canvas.height = innerHeight; };
-  resize();
-  const colors = ['#4cc9ff', '#ffc94a', '#ff4d6d', '#2ee6a6', '#3d8bff', '#ffffff'];
-  const parts = Array.from({ length: 180 }, () => ({
+  canvas.width = innerWidth; canvas.height = innerHeight;
+  // Elk figuurtje één keer vooraf tekenen met zijn gloed: dat blijft vlot op een Chromebook.
+  const RUNEN = ['ᚠ', 'ᚱ', 'ᛟ', 'ᛉ', 'ᛏ', 'ᛒ'];
+  const stempel = (kleur, rune) => {
+    const k = document.createElement('canvas');
+    k.width = k.height = 64;
+    const x = k.getContext('2d');
+    x.shadowColor = kleur; x.shadowBlur = 14; x.fillStyle = kleur;
+    if (rune) { x.font = '700 34px serif'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(rune, 32, 34); return k; }
+    x.beginPath();
+    for (let i = 0; i < 8; i++) { const r = i % 2 ? 5 : 20, h = (i * Math.PI) / 4; x.lineTo(32 + Math.sin(h) * r, 32 - Math.cos(h) * r); }
+    x.closePath(); x.fill();
+    return k;
+  };
+  const stempels = [stempel('#6fe0ff'), stempel('#ffd06a'), stempel('#ffffff'), ...RUNEN.map((r, i) => stempel(i % 2 ? '#ffd06a' : '#6fe0ff', r))];
+  const parts = Array.from({ length: 70 }, () => ({
     x: Math.random() * canvas.width,
-    y: -20 - Math.random() * canvas.height * .5,
-    vx: (Math.random() - .5) * 3,
-    vy: 2 + Math.random() * 4,
-    r: Math.random() * Math.PI,
-    vr: (Math.random() - .5) * .3,
-    w: 6 + Math.random() * 6,
-    color: colors[Math.floor(Math.random() * colors.length)],
+    y: canvas.height + 20 + Math.random() * canvas.height * .6,
+    vx: (Math.random() - .5) * .8,
+    vy: 1.6 + Math.random() * 2.6,
+    g: .35 + Math.random() * .75,
+    f: Math.random() * Math.PI * 2,
+    b: stempels[Math.floor(Math.random() * stempels.length)],
   }));
-  const end = performance.now() + duration;
+  const start = performance.now();
+  const end = start + duration;
   (function frame(now) {
     c.clearRect(0, 0, canvas.width, canvas.height);
+    const uit = Math.min(1, (end - now) / 600);
     for (const p of parts) {
-      p.x += p.vx; p.y += p.vy; p.r += p.vr;
-      c.save();
-      c.translate(p.x, p.y);
-      c.rotate(p.r);
-      c.fillStyle = p.color;
-      c.fillRect(-p.w / 2, -p.w / 4, p.w, p.w / 2);
-      c.restore();
+      p.x += p.vx + Math.sin(now / 500 + p.f) * .4; p.y -= p.vy;
+      c.globalAlpha = Math.max(0, uit) * (.55 + .45 * Math.sin(now / 180 + p.f));
+      const m = 64 * p.g;
+      c.drawImage(p.b, p.x - m / 2, p.y - m / 2, m, m);
     }
     if (now < end) requestAnimationFrame(frame);
     else canvas.remove();
-  })(performance.now());
+  })(start);
 }
 
 // Een spel starten. Loopt er nog een ander spel, dan vragen we of dat mag stoppen in plaats van een foutmelding te tonen.
 const GAME_OF_EVENT = {
-  load: 'toernooi', 'rt-load': 'rondetafel', 'tw-load': 'toren', 'sj-load': 'schat', 'ls-load': 'laserslag', 'rr-load': 'race',
+  load: 'toernooi', 'rt-load': 'rondetafel', 'rt-direct': 'rondetafel', 'tw-load': 'toren', 'sj-load': 'schat', 'ls-load': 'laserslag', 'rr-load': 'race',
   'bb-load': 'burcht', 'du-load': 'duel', 'pk-load': 'knight', 'sr-load': 'rossen', 'gt-load': 'gauntlet', 'ry-load': 'royale', 'sv-load': 'sterren', 'rs-load': 'slang', 'bs-load': 'storm', 'pw-load': 'poort', 'nv-load': 'vlucht', 'db-load': 'diep', 'jp-load': 'raket', 'sz-load': 'zwaard', 'ww-load': 'wankel', 'pp-load': 'plasma', 'tm-load': 'tuimel', 'ko-load': 'kolk', 'nc-load': 'camelot', 'ti-load': 'titan', 'hb-load': 'hooi', 'zm-load': 'zwerm', 'hk-load': 'haak', 'bv-load': 'banier', 'px-load': 'pixel', 'mo-load': 'robomol', 'kk-load': 'kerker', 'hs-load': 'hofschilder', 'rp-load': 'paarden', 'nd-load': 'neon', 'lb-load': 'baas', 'rk-load': 'rijk', 'kr-load': 'roof', 'vr-load': 'verrader', 'ob-load': 'oefenblad', 'pf-load': 'proef',
   'cg-load': 'galaga', 'bk-load': 'bomber', 'opwarmer-start': 'toernooi',
 };

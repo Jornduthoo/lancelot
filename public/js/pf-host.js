@@ -55,7 +55,7 @@ ItemList.mount($('toets-list'), {
   errorId: 'list-error',
   go: 'Afnemen ▶',
   detail: t => `${t.count} vragen · ${nl(t.punten)} punten · ${t.types.map(x => TYPE_ICONS[x] || '').join(' ')}${(t.niveaus || []).length > 1 ? ` · ${t.niveaus.map(n => Niveau.ICONS[n]).join('')}` : ''}${t.klaar ? '' : ' · ⚠ nog niet klaar'}`,
-  play: t => afnemen(t.file),
+  play: t => vraagAfname(t.file, t.title),
   buttons: [
     { label: '🖨 Print', cls: 'print', title: 'Afdrukken', click: t => window.open(`/proef-print?file=${encodeURIComponent(t.file)}`, '_blank') },
     { label: 'Verbeterblad', cls: 'key', title: 'Verbetersleutel afdrukken', click: t => window.open(`/proef-print?file=${encodeURIComponent(t.file)}&sleutel=1`, '_blank') },
@@ -91,6 +91,17 @@ try {
   }
 } catch {}
 for (const k of INST) $(`i-${k}`).addEventListener('change', () => { try { localStorage.setItem('lancelot-pf-inst', JSON.stringify(leesInst())); } catch {} });
+
+// Afnemen vanuit de lijst of de editor: eerst kort hoe (tijd, slot, niveau ...), dan Start. De keuzes blijven onthouden.
+let afnameToets = '';
+function vraagAfname(file, titel) {
+  afnameToets = file;
+  $('pf-afname-naam').textContent = titel || '';
+  $('pf-afname').showModal();
+  $('pf-afname-ja').focus();
+}
+$('pf-afname-nee').addEventListener('click', () => $('pf-afname').close());
+$('pf-afname-ja').addEventListener('click', () => { $('pf-afname').close(); afnemen(afnameToets); });
 
 function afnemen(file) {
   $('stopped').classList.add('hidden');
@@ -646,7 +657,7 @@ function save(then, fail) {
   });
 }
 $('e-save').addEventListener('click', () => save(() => show('list')));
-$('e-live').addEventListener('click', () => save(file => afnemen(file)));
+$('e-live').addEventListener('click', () => save(file => vraagAfname(file, $('e-title').value)));
 $('e-print').addEventListener('click', () => {
   const tab = window.open('', '_blank');
   const keyTab = window.open('', '_blank');
@@ -1027,7 +1038,7 @@ function renderAfname() {
     const hand = !alleVragen && PfKern.handPunten(g.q);
     const sleutel = g.q.type === 'blad' ? PfKern.oplossing(g.q) : g.q.model || PfKern.oplossing(g.q);
     return `<div class="panel pf-vg">
-      <h3>${multi ? `${Niveau.ICONS[g.n]} ` : ''}Vraag ${esc(g.nr)} · ${esc(PfKern.NAMES[g.q.type])} <span class="muted small">(${hand ? `${nl(PfKern.handPunten(g.q))} ${g.q.type === 'rekenen' ? 'punten voor de bewerking' : 'punten'}` : `${nl(PfKern.maxVan(g.q))} punten`})</span></h3>
+      <h3>${multi ? `${Niveau.ICONS[g.n]} ` : ''}Vraag ${esc(g.nr)} · ${esc(PfKern.NAMES[g.q.type])} <span class="muted small">(${hand ? `${nl(PfKern.handPunten(g.q))} ${PfKern.handPunten(g.q) === 1 ? 'punt' : 'punten'}${g.q.type === 'rekenen' ? ' voor de bewerking' : ''}` : `${nl(PfKern.maxVan(g.q))} ${PfKern.maxVan(g.q) === 1 ? 'punt' : 'punten'}`})</span></h3>
       ${g.bron && g.bron.tekst ? `<details class="pf-bron-kort"><summary>Bron: ${esc(g.bron.titel || 'tekst')}</summary><p>${esc(g.bron.tekst).replace(/\n/g, '<br>')}</p></details>` : ''}
       ${g.q.vraag ? `<p class="pf-vg-vraag">${esc(g.q.vraag)}</p>` : ''}
       ${g.q.beeld && !g.q.beeld.startsWith('#') && g.q.type !== 'blad' ? `<img class="pf-beeld klein" src="${g.q.beeld}" alt="">` : ''}
@@ -1248,4 +1259,4 @@ $('v-klaar').addEventListener('click', async () => {
 const params = new URLSearchParams(location.search);
 if (params.get('maak') === 'ai') $('new-ai').click();
 // Vanuit De Zonnewijzer: die toets meteen afnemen.
-if (params.get('afnemen')) afnemen(params.get('afnemen'));
+if (params.get('afnemen')) vraagAfname(params.get('afnemen'), '');

@@ -857,5 +857,14 @@
  "Op die tijd staat al iets anders. Kies een andere tijd of maak dat eerst korter.": "Something else is already at that time. Choose another time or make that shorter first.",
  "Plak hier het antwoord van de chatbot (Ctrl+V)": "Paste the chatbot's answer here (Ctrl+V)",
  "Plak hem in de chatbot met Ctrl+V, kopieer het antwoord en plak het hier in het vak 📋.": "Paste it into the chatbot with Ctrl+V, copy the answer and paste it here in the 📋 box.",
- "Dit is niet het antwoord van de chatbot. Kopieer het hele antwoord (met \"doel\" en \"criteria\") en plak opnieuw.": "This is not the chatbot's answer. Copy the whole answer (with \"doel\" and \"criteria\") and paste again."
+ "Dit is niet het antwoord van de chatbot. Kopieer het hele antwoord (met \"doel\" en \"criteria\") en plak opnieuw.": "This is not the chatbot's answer. Copy the whole answer (with \"doel\" and \"criteria\") and paste again.",
+ "Week": "Week",
+ "Lesroosters": "Timetables",
+ "Maak quiz en oefenblad": "Make quiz and worksheet",
+ "De AI maakt een quiz en een oefenblad bij deze les": "The AI makes a quiz and a worksheet for this lesson",
+ "Peil op het einde van de les of het doel bereikt is": "Check at the end of the lesson whether the goal was reached",
+ "Ja, dat lukt": "Yes, I can do this",
+ "Lukt dit al? {0}": "Can you do this yet? {0}",
+ "Wat vond je nog moeilijk?": "What did you still find difficult?",
+ "Exit-ticket: {0}": "Exit ticket: {0}"
 }

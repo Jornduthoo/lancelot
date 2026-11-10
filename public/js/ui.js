@@ -616,6 +616,55 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', snelmenu);
   else snelmenu();
 
+  // ---------- Terug altijd linksboven ----------
+  // Op elk leerkrachtenscherm staat Terug op dezelfde plek: links, vóór de titel. Knoppen die in de pagina
+  // rechts in de knoppenrij of rechtsboven in de kopbalk staan, verhuizen hier naar links en krijgen het pijltje.
+  function terugLinks() {
+    if (!document.querySelector('.topbar > .brand') || document.body.classList.contains('player')) return;
+    let rij = null;
+    for (const k of document.querySelectorAll('.bar [data-back], .bar #to-home, .topbar .actions #to-home, .topbar .actions #ke-terug')) {
+      k.classList.add('terug-links');
+      if (!k.querySelector('.ic')) k.insertAdjacentHTML('afterbegin', '<i class="ic ic-terug" aria-hidden="true"></i> ');
+      const bar = k.closest('.bar');
+      if (bar) { bar.prepend(k); continue; }
+      if (!rij) {
+        rij = document.createElement('div');
+        rij.className = 'terug-rij';
+        document.querySelector('.topbar').after(rij);
+      }
+      rij.append(k);
+    }
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', terugLinks);
+  else terugLinks();
+
+  // ---------- Rustig bord tijdens een spel ----------
+  // Zolang er een spel loopt (de Stop-knop staat er), klapt het snelmenu dicht tot één knop Menu en verdwijnen
+  // Junior, netwerk en instellingen uit de kopbalk. Zo leidt niets af en klikt niemand per ongeluk weg.
+  function rustigBord() {
+    const stop = document.getElementById('stop');
+    const nav = document.querySelector('.snelmenu');
+    if (!stop || !nav) return;
+    const knop = document.createElement('button');
+    knop.type = 'button';
+    knop.className = 'secondary snel-toggle';
+    knop.textContent = 'Menu';
+    knop.title = 'Naar een ander rijk. Het spel blijft lopen.';
+    knop.addEventListener('click', () => nav.classList.toggle('open'));
+    nav.before(knop);
+    const zet = () => {
+      const loopt = !stop.classList.contains('hidden') && stop.getClientRects().length > 0;
+      if (document.body.classList.contains('spel-loopt') === loopt) return;
+      document.body.classList.toggle('spel-loopt', loopt);
+      nav.classList.remove('open');
+    };
+    new MutationObserver(zet).observe(stop, { attributes: true, attributeFilter: ['class', 'style', 'hidden'] });
+    setInterval(zet, 1000);
+    zet();
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', rustigBord);
+  else rustigBord();
+
   // ---------- Geschilderd decor ----------
   // Elk rijk heeft zijn eigen geschilderde zaal achter de schermen (style.css, html[data-achter]).
   // Spelpagina's hebben hun eigen decor, dus daar niets. Leerlingenschermen krijgen de sterrenpoort.

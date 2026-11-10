@@ -37,6 +37,9 @@ function sessionFor(spel, bron, now) {
 function add(entries) {
   if (!entries.length) return;
   const now = new Date();
+  // Proefridders (de leerkracht probeert een spel uit, zie proef-bot.js) komen niet in het logboek.
+  entries = entries.filter(e => !/^Proefridder \d+$/.test(String(e.naam || '')));
+  if (!entries.length) return;
   const lines = entries.map(e => {
     const leerling = klas.match(e.naam);
     const bron = String(e.bron || '').slice(0, 100);

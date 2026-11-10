@@ -1,6 +1,10 @@
 // Leerlingscherm. Gebruikt ICONS uit fx.js.
 
+// Proefspelen (de leerkracht probeert een spel uit zonder klas): /?proef=1 is een proefleerling in een venster
+// op het bord. Elke proefleerling krijgt een eigen id en naam, los van de echte leerling op dit toestel.
+const PROEF = new URLSearchParams(location.search).get('proef');
 function store(key, value) {
+  if (PROEF && (key === 'lancelot-id' || key === 'lancelot-name')) key = `proef${PROEF}-${key}`;
   try {
     if (value === undefined) return localStorage.getItem(key);
     if (value === null) localStorage.removeItem(key);

@@ -857,5 +857,14 @@
  "Op die tijd staat al iets anders. Kies een andere tijd of maak dat eerst korter.": "Zu dieser Zeit ist schon etwas anderes. Wähle eine andere Zeit oder mach es zuerst kürzer.",
  "Plak hier het antwoord van de chatbot (Ctrl+V)": "Füge hier die Antwort des Chatbots ein (Strg+V)",
  "Plak hem in de chatbot met Ctrl+V, kopieer het antwoord en plak het hier in het vak 📋.": "Füge ihn mit Strg+V in den Chatbot ein, kopiere die Antwort und füge sie hier im Feld 📋 ein.",
- "Dit is niet het antwoord van de chatbot. Kopieer het hele antwoord (met \"doel\" en \"criteria\") en plak opnieuw.": "Das ist nicht die Antwort des Chatbots. Kopiere die ganze Antwort (mit \"doel\" und \"criteria\") und füge sie erneut ein."
+ "Dit is niet het antwoord van de chatbot. Kopieer het hele antwoord (met \"doel\" en \"criteria\") en plak opnieuw.": "Das ist nicht die Antwort des Chatbots. Kopiere die ganze Antwort (mit \"doel\" und \"criteria\") und füge sie erneut ein.",
+ "Week": "Woche",
+ "Lesroosters": "Stundenpläne",
+ "Maak quiz en oefenblad": "Quiz und Übungsblatt erstellen",
+ "De AI maakt een quiz en een oefenblad bij deze les": "Die KI erstellt ein Quiz und ein Übungsblatt zu dieser Stunde",
+ "Peil op het einde van de les of het doel bereikt is": "Am Ende der Stunde prüfen, ob das Ziel erreicht ist",
+ "Ja, dat lukt": "Ja, das kann ich",
+ "Lukt dit al? {0}": "Klappt das schon? {0}",
+ "Wat vond je nog moeilijk?": "Was fandest du noch schwierig?",
+ "Exit-ticket: {0}": "Exit-Ticket: {0}"
 }
