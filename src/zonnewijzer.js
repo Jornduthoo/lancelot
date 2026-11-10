@@ -454,7 +454,7 @@ function voorstelPrompt({ vak, titel, notitie, leerjaar } = {}) {
     notitie ? `Notitie van de leerkracht: ${tekst(notitie, 600)}` : '',
     'Schrijf het lesdoel zoals de klas het op het bord ziet, kort en in kindertaal, beginnend met "Vandaag leer ik" of "Vandaag".',
     'Schrijf 2 tot 4 succescriteria, elk één korte zin die begint met "Ik kan", concreet en zichtbaar voor de leerkracht.',
-    'Standaardnederlands zoals in Vlaanderen. Geef enkel JSON: {"doel": "...", "criteria": ["Ik kan ...", "..."]}',
+    'Standaardnederlands zoals in Vlaanderen. Geen bronverwijzingen zoals [cite: 1]. Geef enkel JSON: {"doel": "...", "criteria": ["Ik kan ...", "..."]}',
   ].filter(Boolean).join('\n');
 }
 
