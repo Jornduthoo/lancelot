@@ -62,7 +62,8 @@
       plus.addEventListener('click', () => { form = form && form.soort === 'nieuw' ? null : { soort: 'nieuw' }; teken(); });
       lijst.appendChild(plus);
       const nu = stand.klassen.find(k => k.id === stand.actief);
-      const pen = knop('✏️', 'kk-pen secondary', 'Naam van de klas veranderen');
+      const pen = knop('', 'kk-pen secondary', 'Naam van de klas veranderen');
+      pen.innerHTML = '<i class="ic ic-pen"></i>';
       pen.addEventListener('click', () => { form = form && form.soort === 'naam' ? null : { soort: 'naam' }; teken(); });
       lijst.appendChild(pen);
       if (nu && stand.klassen.length > 1 && nu.nr !== 1) {

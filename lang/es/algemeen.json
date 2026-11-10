@@ -1107,5 +1107,7 @@
  "Ongeldige lijst van klassen.": "Lista de clases no válida.",
  "Klassen voor de lesmap bewaren mislukt:": "No se pudieron guardar las clases para la carpeta de clases:",
  "Er komt geen antwoord van de update-server. Probeer het later opnieuw, of werk bij met een zip-bestand.": "El servidor de actualizaciones no responde. Inténtalo más tarde o actualiza con un archivo zip.",
- "Bijwerken lukte nog niet: een map van LANcelot is nog open (staat er nog een ander LANcelot-venster open?). Sluit alle LANcelot-vensters en start opnieuw: de update staat nog klaar.": "La actualización aún no ha funcionado: una carpeta de LANcelot sigue abierta (¿hay otra ventana de LANcelot abierta?). Cierra todas las ventanas de LANcelot y vuelve a iniciar: la actualización sigue preparada."
+ "Bijwerken lukte nog niet: een map van LANcelot is nog open (staat er nog een ander LANcelot-venster open?). Sluit alle LANcelot-vensters en start opnieuw: de update staat nog klaar.": "La actualización aún no ha funcionado: una carpeta de LANcelot sigue abierta (¿hay otra ventana de LANcelot abierta?). Cierra todas las ventanas de LANcelot y vuelve a iniciar: la actualización sigue preparada.",
+ "Menu": "Menú",
+ "Naar een ander rijk. Het spel blijft lopen.": "A otro reino. El juego sigue en marcha."
 }
