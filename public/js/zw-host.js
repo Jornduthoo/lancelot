@@ -73,7 +73,15 @@ function dagUren(r, d) {
   let n = 0;
   return ((r && r.dagen && r.dagen[d]) || []).map(u => ({ ...u, les: u.soort === 'les' ? n++ : -1 }));
 }
-const vakOp = (r, d, u) => (dagUren(r, d).find(x => x.les === u) || {}).vak || '';
+// De uren van een dag in DEZE week: een vrije dag heeft er geen, een aangepaste dag heeft zijn eigen uren.
+// Het vaste rooster blijft zoals het is.
+const vrijOp = d => ((zw.weekData && zw.weekData.vrij) || {})[d] || '';
+function weekUren(d) {
+  if (vrijOp(d)) return [];
+  const eigen = ((zw.weekData && zw.weekData.dagen) || {})[d];
+  return dagUren(eigen ? { dagen: { [d]: eigen } } : rooster(), d);
+}
+const vakOp = (d, u) => (weekUren(d).find(x => x.les === u) || {}).vak || '';
 // Alle vakken uit het rooster, het vaakst eerst.
 function roosterVakken(r) {
   const tel = new Map();
@@ -139,7 +147,7 @@ function tekenVandaag() {
   lijst.textContent = '';
   const nu = nuMinuten();
   let nuSlot = null;
-  for (const u of dagUren(r, zw.dag)) {
+  for (const u of weekUren(zw.dag)) {
     const li = el('li', `zw-uur ${u.soort}`);
     const tijd = el('span', 'zw-tijd', u.van ? `${u.van}` : '');
     if (u.soort === 'pauze') {
@@ -180,12 +188,17 @@ function tekenNu(r) {
   const kaart = $('zw-nu');
   kaart.textContent = '';
   const slot = zw.gekozen;
+  if (vrijOp(zw.dag)) {
+    kaart.className = 'panel zw-nu';
+    kaart.append(el('h2', '', `🌴 ${vrijOp(zw.dag)}`));
+    return;
+  }
   if (!slot || !r) {
     kaart.append(el('p', 'muted', 'Op deze dag staan geen lesuren in je rooster.'));
     return;
   }
   const [d, u] = slot.split('-').map(Number);
-  const vak = vakOp(r, d, u);
+  const vak = vakOp(d, u);
   const les = zw.weekData.lessen[slot];
   const st = vakStijl((les && les.vak) || vak);
   kaart.className = `panel zw-nu kleur-${st.kleur}`;
@@ -298,7 +311,10 @@ function takenBlok(taken) {
     const i = el('i');
     i.style.width = `${t.leerlingen.length ? Math.round((klaar / t.leerlingen.length) * 100) : 0}%`;
     balk.append(i);
-    a.append(el('strong', '', t.titel), balk, el('span', 'zw-taak-tel', `${klaar}/${t.leerlingen.length} klaar`));
+    // Een geplande taak: nog niet zichtbaar bij de leerlingen.
+    const tel = t.vanaf ? `⏰ ${new Date(t.vanaf).toLocaleTimeString('nl-BE', { hour: '2-digit', minute: '2-digit' })}` : `${klaar}/${t.leerlingen.length} klaar`;
+    if (t.vanaf) a.title = 'Gepland: de leerlingen zien deze taak pas vanaf dit uur';
+    a.append(el('strong', '', t.titel), balk, el('span', 'zw-taak-tel', tel));
     box.append(a);
   }
   return box;
@@ -350,10 +366,12 @@ function tekenWeek() {
   sel.value = r ? r.id : '';
   const doos = $('zw-week');
   doos.textContent = '';
-  const alle = [1, 2, 3, 4, 5].flatMap(d => dagUren(r, d)).filter(u => u.van && u.tot);
+  const alle = [1, 2, 3, 4, 5].flatMap(d => weekUren(d)).filter(u => u.van && u.tot);
   const start = Math.floor(Math.min(8 * 60 + 30, ...alle.map(u => min(u.van))) / 30) * 30;
-  const eind = Math.ceil(Math.max(start + 120, ...alle.map(u => min(u.tot))) / 30) * 30;
+  // Een uur extra onderaan: daar kan je tikken om een uur toe te voegen.
+  const eind = Math.min(19 * 60, Math.ceil(Math.max(start + 120, ...alle.map(u => min(u.tot))) / 30) * 30 + 60);
   const hoog = (eind - start) * PX;
+  zw.weekStart = start;
   doos.style.setProperty('--hoog', `${hoog}px`);
   const as = el('div', 'zw-wk-as');
   as.append(el('div', 'zw-wk-kop', ''));
@@ -367,24 +385,38 @@ function tekenWeek() {
   doos.append(as);
   for (let d = 1; d <= 5; d++) {
     const kol = el('div', 'zw-wk-dag');
-    const kop = el('div', 'zw-wk-kop', `${KORT[d - 1]} ${plusDagen(ma, d - 1).getDate()}/${plusDagen(ma, d - 1).getMonth() + 1}`);
+    const kop = el('button', 'zw-wk-kop', `${KORT[d - 1]} ${plusDagen(ma, d - 1).getDate()}/${plusDagen(ma, d - 1).getMonth() + 1}`);
+    kop.type = 'button';
+    kop.title = 'Vrije dag, extra lesuur of de dag terug zoals het rooster';
+    if ((zw.weekData.dagen || {})[d] || vrijOp(d)) kop.classList.add('eigen');
+    kop.addEventListener('click', () => openDagMenu(d));
     if (zw.week === weekVan(new Date()) && d === vandaagDag()) kop.classList.add('vandaag');
     const lijf = el('div', 'zw-wk-lijf');
+    lijf.dataset.dag = d;
+    leegVak(lijf, d);
+    if (vrijOp(d)) {
+      const v = el('button', 'zw-wk-vrij', `🌴 ${vrijOp(d)}`);
+      v.type = 'button';
+      v.addEventListener('click', () => openDagMenu(d));
+      lijf.append(v);
+    }
     for (let t = Math.ceil(start / 60) * 60; t <= eind; t += 60) {
       const lijn = el('i', 'zw-wk-lijn');
       lijn.style.top = `${(t - start) * PX}px`;
       lijf.append(lijn);
     }
-    for (const u of dagUren(r, d)) {
-      if (!u.van || !u.tot) continue;
+    weekUren(d).forEach((u, i) => {
+      if (!u.van || !u.tot) return;
       const top = (min(u.van) - start) * PX;
       const h = Math.max(14, (min(u.tot) - min(u.van)) * PX - 3);
       if (u.soort === 'pauze') {
         const p = el('div', 'zw-wk-pauze', u.vak || 'pauze');
         p.style.top = `${top}px`;
         p.style.height = `${h}px`;
+        p.append(el('span', 'zw-cel-trek'));
+        sleepbaar(p, d, i);
         lijf.append(p);
-        continue;
+        return;
       }
       const slot = `${d}-${u.les}`;
       const les = zw.weekData.lessen[slot];
@@ -401,9 +433,11 @@ function tekenWeek() {
         const tags = [les.doel || les.doelen.length ? '🎯' : '', les.criteria.length ? `⭐${les.criteria.length}` : '', les.map ? '📚' : ''].filter(Boolean).join(' ');
         if (tags && h >= 70) b.append(el('span', 'zw-cel-tags', tags));
       } else if (h >= 60) b.append(el('span', 'zw-cel-leeg', '+ plannen'));
-      b.addEventListener('click', () => openEditor(slot));
+      b.addEventListener('click', () => { if (!zw.netGesleept) openEditor(slot); });
+      b.append(el('span', 'zw-cel-trek'));
+      sleepbaar(b, d, i);
       lijf.append(b);
-    }
+    });
     kol.append(kop, lijf);
     doos.append(kol);
   }
@@ -418,6 +452,256 @@ $('zw-week-rooster').addEventListener('change', e => {
     zw.weekData = res.weekData;
     teken();
   });
+});
+
+// ---------- Deze week anders: slepen, langer maken, een uur weg, een vrije dag ----------
+// Alles hier geldt enkel voor deze week. Het vaste rooster (tabblad Roosters) blijft zoals het is.
+
+const VIJF = 5;
+const snap = m => Math.round(m / VIJF) * VIJF;
+// De uren van een dag als lijst die je kan aanpassen, elk lesuur met zijn les.
+function dagItems(d) {
+  return weekUren(d).map(u => ({ van: u.van, tot: u.tot, soort: u.soort, vak: u.vak, les: u.soort === 'les' ? zw.weekData.lessen[`${d}-${u.les}`] || null : null }));
+}
+function bewaarDagen(perDag, klaar) {
+  const dagen = {};
+  for (const [d, items] of Object.entries(perDag)) {
+    if (!items) continue;
+    items.sort((a, b) => (a.van && b.van ? a.van.localeCompare(b.van) : 0));
+    const lessen = {};
+    let n = 0;
+    for (const it of items) if (it.soort === 'les') { if (it.les) lessen[n] = it.les; n++; }
+    dagen[d] = { uren: items.map(({ van, tot, soort, vak }) => ({ van, tot, soort, vak })), lessen };
+  }
+  stuurDagen(dagen, klaar);
+}
+function stuurDagen(dagen, klaar) {
+  socket.emit('zw-dagen', { week: zw.week, dagen }, res => {
+    if (!res || res.error) {
+      Ui.melding((res && res.error) || 'Bewaren lukte niet.');
+      return teken();
+    }
+    zw.weekData = res.weekData;
+    teken();
+    if (klaar) klaar();
+  });
+}
+const botst = (items, van, tot, behalve) => items.find(x => x !== behalve && x.van && x.tot && min(x.van) < tot && van < min(x.tot));
+
+// Slepen = verplaatsen (op een andere les = wisselen). Trekken aan de onderkant = langer of korter.
+// Werkt met muis en vinger (digibord). Een tik zonder bewegen opent de les gewoon.
+let sleep = null;
+function sleepbaar(b, d, i) {
+  b.addEventListener('contextmenu', e => e.preventDefault());
+  b.addEventListener('pointerdown', e => {
+    if (e.button !== 0 || sleep) return;
+    const trek = e.target.classList.contains('zw-cel-trek');
+    const r = b.getBoundingClientRect();
+    sleep = { b, d, i, trek, x: e.clientX, y: e.clientY, grijp: e.clientY - r.top, top: parseFloat(b.style.top), hoog: parseFloat(b.style.height), actief: false, id: e.pointerId };
+  });
+}
+function begin() {
+  if (!sleep || sleep.actief) return;
+  sleep.actief = true;
+  sleep.b.classList.add('sleept');
+  try { sleep.b.setPointerCapture(sleep.id); } catch {}
+}
+document.addEventListener('pointermove', e => {
+  if (!sleep || e.pointerId !== sleep.id) return;
+  const dx = e.clientX - sleep.x;
+  const dy = e.clientY - sleep.y;
+  if (!sleep.actief) {
+    if (Math.hypot(dx, dy) < 6) return;
+    begin();
+  }
+  if (sleep.trek) sleep.b.style.height = `${Math.max(14, sleep.hoog + dy)}px`;
+  else sleep.b.style.transform = `translate(${dx}px, ${dy}px)`;
+});
+document.addEventListener('pointercancel', () => {
+  if (!sleep) return;
+  const was = sleep.actief;
+  sleep = null;
+  if (was) teken();
+});
+document.addEventListener('pointerup', e => {
+  if (!sleep || e.pointerId !== sleep.id) return;
+  const s = sleep;
+  sleep = null;
+  if (!s.actief) return;
+  // De klik na het slepen opent de les niet.
+  zw.netGesleept = true;
+  setTimeout(() => { zw.netGesleept = false; }, 0);
+  s.b.classList.remove('sleept');
+  if (Math.hypot(e.clientX - s.x, e.clientY - s.y) < 6) return teken();
+  s.b.style.pointerEvents = 'none';
+  const onder = document.elementFromPoint(e.clientX, e.clientY);
+  s.b.style.pointerEvents = '';
+  const begin0 = zw.weekStart;
+  const bron = dagItems(s.d);
+  const it = bron[s.i];
+  if (!it) return teken();
+  if (s.trek) {
+    const tot = Math.min(18 * 60, Math.max(min(it.van) + 10, snap(begin0 + (s.top + s.hoog + (e.clientY - s.y) + 3) / PX)));
+    const volgende = Math.min(18 * 60, ...bron.filter(x => x !== it && x.van && min(x.van) >= min(it.van)).map(x => min(x.van)));
+    if (tot > volgende) Ui.melding('Daar begint al iets anders. Maak dat eerst korter of sleep het weg.');
+    const nieuw = hhmm(Math.min(tot, volgende));
+    if (nieuw === it.tot) return teken();
+    it.tot = nieuw;
+    return bewaarDagen({ [s.d]: bron });
+  }
+  const lijf = onder && onder.closest('.zw-wk-lijf[data-dag]');
+  const cel = onder && onder.closest('.zw-cel');
+  const d2 = lijf ? Number(lijf.dataset.dag) : 0;
+  if (!d2 || vrijOp(d2)) return teken();
+  const doel = d2 === s.d ? bron : dagItems(d2);
+  // Op een andere les gelegd: de twee lessen wisselen van plaats.
+  if (cel && cel !== s.b && it.soort === 'les') {
+    const plek = Math.round((parseFloat(cel.style.top) + 2) / PX + begin0);
+    const ander = doel.find(x => x.soort === 'les' && x.van && Math.abs(min(x.van) - plek) <= 1);
+    if (!ander) return teken();
+    [it.vak, it.les, ander.vak, ander.les] = [ander.vak, ander.les, it.vak, it.les];
+    return bewaarDagen(d2 === s.d ? { [s.d]: bron } : { [s.d]: bron, [d2]: doel });
+  }
+  const duur = min(it.tot) - min(it.van);
+  const lijfTop = lijf.getBoundingClientRect().top;
+  const van = Math.max(7 * 60, Math.min(18 * 60 - duur, snap(begin0 + (e.clientY - s.grijp - lijfTop) / PX)));
+  if (botst(doel, van, van + duur, it)) {
+    Ui.melding('Daar staat al iets. Leg de les op een andere les om te wisselen, of maak eerst plaats.');
+    return teken();
+  }
+  if (d2 === s.d && hhmm(van) === it.van) return teken();
+  it.van = hhmm(van);
+  it.tot = hhmm(van + duur);
+  if (d2 === s.d) return bewaarDagen({ [s.d]: bron });
+  bron.splice(s.i, 1);
+  doel.push(it);
+  bewaarDagen({ [s.d]: bron, [d2]: doel });
+});
+
+// Zoals in een agenda: tik in een leeg vak = een nieuw uur op die plek (50 minuten, of tot het volgende blok).
+// Met de muis kan je ook een stuk slepen: dan krijgt het uur precies die tijd.
+function leegVak(lijf, d) {
+  let neer = null;
+  const tijdOp = y => zw.weekStart + (y - lijf.getBoundingClientRect().top) / PX;
+  lijf.addEventListener('pointerdown', e => {
+    if (e.button !== 0 || (e.target !== lijf && !e.target.classList.contains('zw-wk-lijn')) || vrijOp(d)) return;
+    neer = { y: e.clientY, id: e.pointerId, muis: e.pointerType === 'mouse' };
+    if (neer.muis) {
+      neer.spook = el('div', 'zw-wk-nieuw');
+      try { lijf.setPointerCapture(e.pointerId); } catch {}
+    }
+  });
+  lijf.addEventListener('pointermove', e => {
+    if (!neer || !neer.spook || e.pointerId !== neer.id || Math.abs(e.clientY - neer.y) < 6) return;
+    const [a, b] = [neer.y, e.clientY].sort((x, y) => x - y);
+    const top = a - lijf.getBoundingClientRect().top;
+    neer.spook.style.top = `${top}px`;
+    neer.spook.style.height = `${b - a}px`;
+    if (!neer.spook.isConnected) lijf.append(neer.spook);
+  });
+  lijf.addEventListener('pointercancel', () => { if (neer && neer.spook) neer.spook.remove(); neer = null; });
+  lijf.addEventListener('pointerup', e => {
+    if (!neer || e.pointerId !== neer.id) return;
+    const n = neer;
+    neer = null;
+    if (n.spook) n.spook.remove();
+    const items = dagItems(d);
+    let van;
+    let tot;
+    if (n.spook && Math.abs(e.clientY - n.y) >= 6) {
+      van = snap(tijdOp(Math.min(n.y, e.clientY)));
+      tot = snap(tijdOp(Math.max(n.y, e.clientY)));
+    } else {
+      van = Math.floor(tijdOp(e.clientY) / 15) * 15;
+      tot = van + 50;
+    }
+    // Niet over een ander blok heen: het nieuwe uur stopt waar het volgende begint.
+    const voor = items.filter(x => x.tot && min(x.tot) > van && min(x.van) <= van);
+    if (voor.length) van = Math.max(...voor.map(x => min(x.tot)));
+    const na = items.filter(x => x.van && min(x.van) >= van).map(x => min(x.van));
+    tot = Math.min(tot, 18 * 60, ...na);
+    if (tot - van < 10) return Ui.melding('Hier is geen plaats meer voor een uur.');
+    openEditor(null, { d, van: hhmm(van), tot: hhmm(tot) });
+  });
+}
+
+// Een lesuur enkel deze week weghalen (de les erin gaat mee weg).
+$('zw-ed-uurweg').addEventListener('click', async () => {
+  const { dag, index } = zw.bewerk || {};
+  const items = dagItems(dag);
+  if (!items[index]) return;
+  if (!await Ui.vraag('Dit lesuur enkel deze week weghalen? Je vaste rooster blijft hetzelfde.', { ja: 'Weghalen', gevaar: true })) return;
+  items.splice(index, 1);
+  bewaarDagen({ [dag]: items }, () => $('zw-editor').close());
+});
+
+// Tik op een dag bovenaan: vrije dag, een extra lesuur of de dag terug zoals het rooster.
+function openDagMenu(d) {
+  zw.dagMenu = d;
+  const ma = maandag(zw.week);
+  $('zw-dm-titel').textContent = `${DAGEN[d - 1]} ${datum(plusDagen(ma, d - 1))}`;
+  const vrij = vrijOp(d);
+  $('zw-dm-les').classList.toggle('hidden', !!vrij);
+  $('zw-dm-vrijdag').classList.toggle('hidden', !vrij);
+  $('zw-dm-vrij-tekst').textContent = vrij ? `🌴 ${vrij}` : '';
+  $('zw-dm-reden').value = '';
+  $('zw-dm-terug').classList.toggle('hidden', !(zw.weekData.dagen || {})[d]);
+  $('zw-dagmenu').showModal();
+}
+$('zw-dm-dicht').addEventListener('click', () => $('zw-dagmenu').close());
+function zetVrij(reden, klaar) {
+  socket.emit('zw-vrij', { week: zw.week, dag: zw.dagMenu, reden }, res => {
+    if (!res || res.error) return Ui.melding((res && res.error) || 'Bewaren lukte niet.');
+    zw.weekData = res.weekData;
+    $('zw-dagmenu').close();
+    teken();
+    if (klaar) klaar();
+  });
+}
+$('zw-dm-vrij').addEventListener('click', async () => {
+  const d = zw.dagMenu;
+  const reden = $('zw-dm-reden').value.trim() || 'Vrije dag';
+  // Lessen die al gepland stonden: laatste eerst doorschuiven, zodat ze hun volgorde houden.
+  const sloten = Object.keys(zw.weekData.lessen).filter(k => k.startsWith(`${d}-`)).sort((a, b) => Number(b.split('-')[1]) - Number(a.split('-')[1]));
+  let schuif = false;
+  if (sloten.length) schuif = await Ui.vraag(`Geplande lessen op deze dag: ${sloten.length}. Doorschuiven naar het volgende uur van hun vak? Anders blijven ze bewaard en komen ze terug als het weer een lesdag wordt.`, { ja: 'Doorschuiven', nee: 'Laten staan' });
+  zetVrij(reden, async () => {
+    if (!schuif) return;
+    for (const slot of sloten) {
+      const res = await new Promise(k => socket.emit('zw-schuif', { week: zw.week, slot }, k));
+      if (res && res.error) Ui.melding(res.error);
+      else if (res) zw.weekData = res.weekData;
+    }
+    teken();
+  });
+});
+$('zw-dm-lesdag').addEventListener('click', () => zetVrij(null));
+$('zw-dm-extra').addEventListener('click', () => {
+  const d = zw.dagMenu;
+  const items = dagItems(d);
+  const laatste = Math.max(8 * 60 + 30, ...items.filter(x => x.tot).map(x => min(x.tot)));
+  if (laatste + 30 > 18 * 60) return Ui.melding('Deze dag zit al vol.');
+  items.push({ van: hhmm(laatste), tot: hhmm(Math.min(18 * 60, laatste + 50)), soort: 'les', vak: '', les: null });
+  bewaarDagen({ [d]: items }, () => $('zw-dagmenu').close());
+});
+$('zw-dm-terug').addEventListener('click', async () => {
+  const d = zw.dagMenu;
+  // De geplande lessen gaan naar een uur van hun vak in het rooster, anders naar een leeg uur.
+  const nieuw = dagUren(rooster(), d).filter(u => u.soort === 'les');
+  const vrijPlek = new Set(nieuw.map(u => u.les));
+  const lessen = {};
+  let weg = 0;
+  const oud = dagItems(d).filter(x => x.les);
+  for (const it of oud) {
+    const vak = String(it.les.vak || it.vak).toLowerCase();
+    const plek = nieuw.find(u => vrijPlek.has(u.les) && u.vak.toLowerCase() === vak) || nieuw.find(u => vrijPlek.has(u.les));
+    if (!plek) { weg++; continue; }
+    vrijPlek.delete(plek.les);
+    lessen[plek.les] = it.les;
+  }
+  const vraag = weg ? `Deze dag terugzetten zoals in je rooster? Lessen die er dan niet meer in passen: ${weg}.` : 'Deze dag terugzetten zoals in je rooster?';
+  if (!await Ui.vraag(vraag, { ja: 'Terugzetten' })) return;
+  stuurDagen({ [d]: { uren: null, lessen } }, () => $('zw-dagmenu').close());
 });
 
 // ---------- Een les plannen ----------
@@ -468,6 +752,8 @@ function kiesVak(v) {
     vulLessen('', 0);
   }
   zetSoort(mappenVan(v).length || $('zw-ed-map').value ? 'pakket' : 'eigen');
+  // Nieuw of leeg uur: meteen de volgende les van dat vak voorstellen.
+  if (zw.bewerk && !zw.bewerk.oud && v && $('zw-editor').open && !$('zw-ed-map').value) stelVoor(zw.bewerk.slot, v);
 }
 $('zw-ed-vak').addEventListener('change', e => kiesVak(e.target.value.trim()));
 
@@ -577,9 +863,8 @@ async function stelVoor(slot, vak) {
 
 // Vul de week aan: elk leeg lesuur van een vak krijgt de volgende les, na de laatst geplande les van dat vak.
 $('zw-vul').addEventListener('click', async () => {
-  const r = rooster();
   const leeg = [];
-  for (let d = 1; d <= 5; d++) for (const u of dagUren(r, d)) if (u.soort === 'les' && u.vak && !zw.weekData.lessen[`${d}-${u.les}`]) leeg.push({ slot: `${d}-${u.les}`, vak: u.vak });
+  for (let d = 1; d <= 5; d++) for (const u of weekUren(d)) if (u.soort === 'les' && u.vak && !zw.weekData.lessen[`${d}-${u.les}`]) leeg.push({ slot: `${d}-${u.les}`, vak: u.vak });
   const stand = new Map();
   const plan = [];
   for (const p of leeg) {
@@ -705,13 +990,14 @@ function zetCriteria(lijst) {
   if (!lijst.length) critRij('');
 }
 
-function openEditor(slot) {
-  const r = rooster();
-  const [d, u] = slot.split('-').map(Number);
-  const uur = dagUren(r, d).find(x => x.les === u) || {};
+// slot = een bestaand lesuur ("dag-nummer"). nieuw = { d, van, tot }: een uur dat er nog niet is (tik in een leeg vak).
+function openEditor(slot, nieuw = null) {
+  const [d, u] = nieuw ? [nieuw.d, -1] : slot.split('-').map(Number);
+  const uren = weekUren(d);
+  const uur = nieuw ? { van: nieuw.van, tot: nieuw.tot, vak: '' } : uren.find(x => x.les === u) || {};
   const vak = uur.vak || '';
-  const les = zw.weekData.lessen[slot] || null;
-  zw.bewerk = { slot, oud: les };
+  const les = nieuw ? null : zw.weekData.lessen[slot] || null;
+  zw.bewerk = { slot, oud: les, nieuw, vak };
   // Een les uit het lespakket: wat erbij staat, mag een andere les vervangen.
   ed.auto = les && les.map ? { titel: les.titel, doel: les.doel, criteria: JSON.stringify(les.criteria), doelen: JSON.stringify(les.doelen) } : null;
   $('zw-ed-titel').textContent = `${DAGEN[d - 1]}${uur.van ? ` · ${uur.van}–${uur.tot}` : ''}`;
@@ -736,6 +1022,9 @@ function openEditor(slot) {
   stopDenken();
   maakPrompt();
   $('zw-ed-wis').classList.toggle('hidden', !les);
+  zw.bewerk.dag = d;
+  zw.bewerk.index = nieuw ? -1 : uren.indexOf(uur);
+  $('zw-ed-uurweg').classList.toggle('hidden', zw.bewerk.index < 0);
   $('zw-ed-schuif').classList.toggle('hidden', !les);
   $('zw-editor').showModal();
   if (!les && vak) stelVoor(slot, vak);
@@ -996,7 +1285,17 @@ function stuurLes(les) {
 }
 $('zw-ed-bewaar').addEventListener('click', () => {
   const les = leesEditor();
-  if (!les.titel && !les.doel && !les.criteria.length && !les.nr && !les.oefen.length) return ($('zw-ed-fout').textContent = 'Geef de les een titel, een doel of een succescriterium.');
+  const leeg = !les.titel && !les.doel && !les.criteria.length && !les.nr && !les.oefen.length;
+  const { nieuw, dag, index } = zw.bewerk;
+  // Een nieuw uur, of enkel een ander vak: dat gaat in de uren van deze week (zoals in een agenda).
+  if (nieuw || (leeg && les.vak !== zw.bewerk.vak)) {
+    if (leeg && !les.vak) return ($('zw-ed-fout').textContent = 'Kies een vak of geef de les een titel.');
+    const items = dagItems(dag);
+    if (nieuw) items.push({ van: nieuw.van, tot: nieuw.tot, soort: 'les', vak: les.vak, les: leeg ? null : les });
+    else if (items[index]) Object.assign(items[index], { vak: les.vak, les: leeg ? null : les });
+    return bewaarDagen({ [dag]: items }, () => $('zw-editor').close());
+  }
+  if (leeg) return ($('zw-ed-fout').textContent = 'Geef de les een titel, een doel of een succescriterium.');
   stuurLes(les);
 });
 $('zw-ed-wis').addEventListener('click', async () => {
@@ -1174,7 +1473,7 @@ function weekLessen() {
   return [1, 2, 3, 4, 5].map(d => ({
     d,
     datum: plusDagen(ma, d - 1),
-    uren: dagUren(r, d).filter(u => u.soort === 'les').map(u => ({ ...u, plan: zw.weekData.lessen[`${d}-${u.les}`] || null })),
+    uren: weekUren(d).filter(u => u.soort === 'les').map(u => ({ ...u, plan: zw.weekData.lessen[`${d}-${u.les}`] || null })),
   }));
 }
 
@@ -1207,7 +1506,8 @@ $('zw-print').addEventListener('click', async () => {
     for (let d = 1; d <= 5; d++) {
       kopRij.append(el('th', '', `${DAGEN[d - 1]} ${datum(plusDagen(ma, d - 1))}`));
       const td = el('td');
-      for (const u of dagUren(r, d)) {
+      if (vrijOp(d)) td.append(el('div', 'zw-af-les', `🌴 ${vrijOp(d)}`));
+      for (const u of weekUren(d)) {
         if (!u.van || !u.tot) continue;
         if (u.soort === 'pauze') {
           td.append(el('div', 'zw-af-pauze', `${u.van} ${u.vak || 'pauze'}`));

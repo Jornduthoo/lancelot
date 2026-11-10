@@ -57,14 +57,14 @@ function naarDagen(r) {
   return dagen;
 }
 
+const schoonDag = lijst => (Array.isArray(lijst) ? lijst : []).slice(0, MAX_UREN)
+  .map(u => ({ van: tijd(u.van), tot: tijd(u.tot), soort: u.soort === 'pauze' ? 'pauze' : 'les', vak: tekst(u.vak, 30) }))
+  .sort((a, b) => (a.van && b.van ? a.van.localeCompare(b.van) : 0));
+
 function schoonRooster(r) {
   const bron = r && r.dagen && typeof r.dagen === 'object' ? r.dagen : naarDagen(r || {});
   const dagen = {};
-  for (const d of DAGEN) {
-    dagen[d] = (Array.isArray(bron[d]) ? bron[d] : []).slice(0, MAX_UREN)
-      .map(u => ({ van: tijd(u.van), tot: tijd(u.tot), soort: u.soort === 'pauze' ? 'pauze' : 'les', vak: u.soort === 'pauze' ? tekst(u.vak, 30) || '' : tekst(u.vak, 30) }))
-      .sort((a, b) => (a.van && b.van ? a.van.localeCompare(b.van) : 0));
-  }
+  for (const d of DAGEN) dagen[d] = schoonDag(bron[d]);
   return { id: /^[\w-]{1,40}$/.test((r && r.id) || '') ? r.id : crypto.randomBytes(4).toString('hex'), naam: tekst(r && r.naam, 40) || 'Rooster', dagen };
 }
 
@@ -151,16 +151,56 @@ function week(id) {
     const les = SLOT.test(slot) && schoonLes(l);
     if (les) lessen[slot] = les;
   }
-  return { week: id, rooster: typeof data.rooster === 'string' ? data.rooster : '', lessen };
+  // Enkel voor deze week: een dag met andere uren (les versleept, langer gemaakt, uur weg) of een vrije dag.
+  // Het vaste rooster blijft zoals het is.
+  const dagen = {};
+  const vrij = {};
+  for (const d of DAGEN) {
+    if (data.dagen && Array.isArray(data.dagen[d])) dagen[d] = schoonDag(data.dagen[d]);
+    if (data.vrij && typeof data.vrij[d] === 'string') vrij[d] = tekst(data.vrij[d], 60) || 'Vrije dag';
+  }
+  return { week: id, rooster: typeof data.rooster === 'string' ? data.rooster : '', lessen, dagen, vrij };
 }
 
 function bewaarWeek(w) {
   const naam = weekNaam(w.week);
-  if (!w.rooster && !Object.keys(w.lessen).length) {
+  const dagen = w.dagen || {};
+  const vrij = w.vrij || {};
+  if (!w.rooster && !Object.keys(w.lessen).length && !Object.keys(dagen).length && !Object.keys(vrij).length) {
     try { fs.unlinkSync(path.join(DIR, naam)); } catch {}
     return;
   }
-  schrijf(naam, { week: w.week, rooster: w.rooster, lessen: w.lessen });
+  schrijf(naam, { week: w.week, rooster: w.rooster, lessen: w.lessen, dagen, vrij });
+}
+
+// Eén of meer dagen van deze week anders: { dagen: { 3: { uren, lessen } } } met de lessen per lesuurnummer van die dag.
+// null = de dag weer zoals het rooster (met de lessen die meegegeven worden).
+function zetDagen({ week: id, dagen } = {}) {
+  const w = week(id);
+  for (const [k, v] of Object.entries(dagen || {})) {
+    const d = Number(k);
+    if (!DAGEN.includes(d)) throw new Error('Ongeldige dag.');
+    for (const slot of Object.keys(w.lessen)) if (slot.startsWith(`${d}-`)) delete w.lessen[slot];
+    if (v && Array.isArray(v.uren)) w.dagen[d] = schoonDag(v.uren); else delete w.dagen[d];
+    for (const [u, l] of Object.entries((v && v.lessen) || {})) {
+      const slot = `${d}-${Number(u)}`;
+      const les = SLOT.test(slot) && schoonLes(l);
+      if (les) w.lessen[slot] = les;
+    }
+  }
+  bewaarWeek(w);
+  return w;
+}
+
+// Een vrije dag (bv. Wapenstilstand). De lessen van die dag blijven bewaard en komen terug als de dag weer een lesdag wordt.
+function zetVrij({ week: id, dag, reden } = {}) {
+  const d = Number(dag);
+  if (!DAGEN.includes(d)) throw new Error('Ongeldige dag.');
+  const w = week(id);
+  if (reden === null || reden === false) delete w.vrij[d];
+  else w.vrij[d] = tekst(reden, 60) || 'Vrije dag';
+  bewaarWeek(w);
+  return w;
 }
 
 function zetLes({ week: id, slot, les }) {
@@ -251,6 +291,21 @@ function laatsteVan({ vak, week: id, slot } = {}) {
   return { les: null };
 }
 
+// Wanneer een les begint, als "JJJJ-MM-DDTHH:MM" (tijd van deze pc), om een taak op dat moment te laten verschijnen.
+// Een vrije dag of een lesuur dat er niet is: ''.
+function lesStart({ week: id, slot } = {}) {
+  if (!WEEK.test(String(id)) || !SLOT.test(String(slot))) return '';
+  const [d, n] = slotNr(slot);
+  const w = week(id);
+  if (w.vrij[d]) return '';
+  const uren = w.dagen[d] || roosterVan(w, roosters()).dagen[d] || [];
+  const u = uren.filter(x => x.soort === 'les')[n];
+  if (!u || !u.van) return '';
+  const dag = maandag(id);
+  dag.setUTCDate(dag.getUTCDate() + d - 1);
+  return `${dag.toISOString().slice(0, 10)}T${u.van}`;
+}
+
 function roosterVan(w, alle) {
   return alle.roosters.find(r => r.id === w.rooster) || alle.roosters.find(r => r.id === alle.standaard) || alle.roosters[0];
 }
@@ -271,7 +326,7 @@ function schuif({ week: id, slot }) {
     const data = weken.get(w) || week(w);
     weken.set(w, data);
     const r = roosterVan(data, alle);
-    for (const d of DAGEN) lesUren(r, d).forEach((x, u) => {
+    for (const d of DAGEN) if (!data.vrij[d]) lesUren(data.dagen[d] ? { dagen: data.dagen } : r, d).forEach((x, u) => {
       if (x.vak.toLowerCase() === vak) plekken.push({ w, slot: `${d}-${u}`, d, u });
     });
   }
@@ -410,4 +465,4 @@ function leesVoorstel(data) {
   return { doel, criteria };
 }
 
-module.exports = { DIR, mijnLessen, bewaarMijnLes, verwijderMijnLes, ingebouwdVoorstel, voorstelPrompt, leesVoorstel, vul, roosters, bewaarRoosters, importeerRoosters, schoonRooster, week, laatsteVan, zetLes, zetWeekRooster, vink, schuif, doelInfo, ikZin, weekVan };
+module.exports = { DIR, mijnLessen, bewaarMijnLes, verwijderMijnLes, ingebouwdVoorstel, voorstelPrompt, leesVoorstel, vul, roosters, bewaarRoosters, importeerRoosters, schoonRooster, week, laatsteVan, zetLes, zetWeekRooster, vink, schuif, zetDagen, zetVrij, doelInfo, ikZin, weekVan, lesStart };

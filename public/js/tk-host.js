@@ -12,7 +12,7 @@ const el = (tag, cls, text) => {
 };
 const datum = iso => new Date(iso).toLocaleDateString('nl-BE', { weekday: 'short', day: 'numeric', month: 'short' });
 
-const tk = { soort: 'oefenblad', bronnen: null, klas: [], gekozen: new Set(), per: {}, eigen: null, vak: null, zorg: null, taken: [], detail: null, erbij: null, vb: null };
+const tk = { soort: 'oefenblad', bronnen: null, meer: null, klas: [], gekozen: new Set(), per: {}, eigen: null, vak: null, zorg: null, taken: [], detail: null, erbij: null, vb: null };
 
 // Komt de leerkracht van het zorgoverzicht of een lijst, dan staat de keuze al klaar (?namen=a|b, ?soort=…&file=…).
 const vraag = new URLSearchParams(location.search);
@@ -21,17 +21,55 @@ for (const n of (vraag.get('namen') || '').split('|').filter(Boolean)) tk.gekoze
 
 // Uit een les in De Zonnewijzer (?week=…&slot=…): de taak krijgt het doel en de succescriteria van die les mee.
 tk.les = null;
-function zetLes(les) {
+function zetLes(les, start) {
   tk.les = les || null;
   $('tk-les').classList.toggle('hidden', !tk.les);
+  zetLesStart(tk.les && start);
   if (!tk.les) return;
   $('tk-les-titel').textContent = `🎯 Voor de les: ${[tk.les.vak, tk.les.titel].filter(Boolean).join(' · ')}`;
   $('tk-les-doel').textContent = tk.les.doel || tk.les.criteria.join(' · ');
 }
 if (vraag.get('week') && vraag.get('slot')) {
-  socket.emit('tk-les', { week: vraag.get('week'), slot: vraag.get('slot') }, res => zetLes(res && res.les));
+  socket.emit('tk-les', { week: vraag.get('week'), slot: vraag.get('slot') }, res => zetLes(res && res.les, res && res.start));
 }
 $('tk-les-weg').addEventListener('click', () => zetLes(null));
+
+// ---------- Wanneer? ----------
+// Meteen, bij het begin van de les (uit De Zonnewijzer) of later op een gekozen dag en uur.
+// Een geplande taak staat al bij Gegeven taken, maar de leerlingen zien ze pas vanaf dat moment.
+const lokaal = d => new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+const wanneerTekst = v => new Date(v).toLocaleString('nl-BE', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+tk.lesStart = '';
+function zetLesStart(start) {
+  tk.lesStart = start && Date.parse(start) > Date.now() ? start : '';
+  const o = $('tk-wanneer-les');
+  o.classList.toggle('hidden', !tk.lesStart);
+  o.disabled = !tk.lesStart;
+  if (tk.lesStart) {
+    o.textContent = `Bij het begin van de les (${wanneerTekst(tk.lesStart)})`;
+    $('tk-wanneer').value = 'les';
+  } else if ($('tk-wanneer').value === 'les') $('tk-wanneer').value = 'nu';
+  wanneer();
+}
+function wanneer() {
+  const later = $('tk-wanneer').value === 'later';
+  $('tk-vanaf-label').classList.toggle('hidden', !later);
+  $('tk-vanaf').min = lokaal(new Date());
+  // Standaard morgen om half negen.
+  if (later && !$('tk-vanaf').value) {
+    const d = new Date();
+    d.setDate(d.getDate() + 1);
+    d.setHours(8, 30, 0, 0);
+    $('tk-vanaf').value = lokaal(d);
+  }
+}
+$('tk-wanneer').addEventListener('change', wanneer);
+function vanaf() {
+  const w = $('tk-wanneer').value;
+  if (w === 'les') return tk.lesStart;
+  if (w === 'later') return $('tk-vanaf').value;
+  return '';
+}
 
 $('brand').addEventListener('click', () => { location.href = '/host'; });
 // Terug gaat naar waar je vandaan kwam (De Kronieken, Mijn quizzen…), anders naar het startscherm.
@@ -75,7 +113,13 @@ function vulBron() {
 }
 
 // De gekozen quiz of het gekozen oefenblad staat op de knop; klik erop om een ander te kiezen.
+// Met ☑ Meerdere kiezen staan er meer op de knop: elk wordt een aparte taak voor dezelfde leerlingen.
 function zetBron(x) {
+  if (Array.isArray(x)) {
+    if (x.length === 1) x = x[0];
+    else return zetMeer(x);
+  }
+  tk.meer = null;
   $('tk-bron').value = x ? x.file : '';
   const b = $('tk-kies');
   b.innerHTML = '';
@@ -98,6 +142,7 @@ for (const soort of ['quiz', 'oefenblad']) {
   ItemList.mount($(`k-${soort}`), {
     kind: soort, kiezen: true, errorId: 'k-fout', go: 'Kies ▶',
     play: q => { $('tk-kiezer').close(); zetBron(q); },
+    meer: lijst => { $('tk-kiezer').close(); zetBron(lijst); },
   });
 }
 $('tk-kies').addEventListener('click', () => {
@@ -109,6 +154,29 @@ $('tk-kies').addEventListener('click', () => {
   if (zoek) zoek.focus();
 });
 $('k-sluit').addEventListener('click', () => $('tk-kiezer').close());
+
+function zetMeer(lijst) {
+  tk.meer = lijst;
+  $('tk-bron').value = lijst[0].file;
+  const b = $('tk-kies');
+  b.innerHTML = '';
+  const titels = lijst.slice(0, 3).map(x => x.title).join(' · ') + (lijst.length > 3 ? ` · en nog ${lijst.length - 3}` : '');
+  b.append(el('strong', '', `${lijst.length} ${tk.soort === 'quiz' ? 'quizzen' : 'oefenbladen'}`), el('span', 'muted', titels), el('span', 'tk-kies-ander', 'Ander kiezen'));
+  tk.per = {};
+  tk.eigen = tk.vak = null;
+  // Elke taak volgt het vak van zijn eigen inhoud: het niveau per naam tonen we dan niet.
+  $('tk-niveau').innerHTML = '<option value="">Eigen niveau van elke leerling</option>'
+    + ['page', 'schildknaap', 'ridder'].map(n => `<option value="${n}">Iedereen ${Niveau.label(n)}</option>`).join('');
+  $('tk-nv-label').classList.remove('hidden');
+  meerInfo();
+}
+
+function meerInfo() {
+  const vast = $('tk-niveau').value;
+  $('tk-bron-info').textContent = `${tk.meer.length} aparte taken voor dezelfde leerlingen. `
+    + (vast ? `Wie je aantikt, krijgt ${Niveau.NAMES[vast]} waar dat niveau bestaat.` : 'Elke leerling krijgt zijn eigen niveau, zoals in Mijn klas.');
+  tekenNamen();
+}
 
 // Welk niveau krijgt elke leerling? Dat tonen we bij de namen.
 function kiesBron() {
@@ -133,6 +201,7 @@ function kiesBron() {
 }
 
 function kiesNiveau() {
+  if (tk.meer) return meerInfo();
   const res = tk.eigen, vast = $('tk-niveau').value;
   tk.per = {};
   if (res) for (const naam of Object.keys(res.per)) tk.per[naam] = vast || res.per[naam];
@@ -172,7 +241,11 @@ function knop() {
   const n = tk.gekozen.size;
   $('tk-geef').disabled = !n || !$('tk-bron').value;
   $('tk-bekijk').disabled = !$('tk-bron').value;
-  $('tk-geef').textContent = !n ? 'Tik eerst leerlingen aan' : n === tk.klas.length && n > 1 ? 'Geef taak aan de hele klas' : `Geef taak aan ${n} ${n === 1 ? 'leerling' : 'leerlingen'}`;
+  const m = tk.meer && tk.meer.length;
+  const wie = n === 1 ? 'leerling' : 'leerlingen';
+  $('tk-geef').textContent = !n ? 'Tik eerst leerlingen aan'
+    : m ? (n === tk.klas.length && n > 1 ? `Geef ${m} taken aan de hele klas` : `Geef ${m} taken aan ${n} ${wie}`)
+    : n === tk.klas.length && n > 1 ? 'Geef taak aan de hele klas' : `Geef taak aan ${n} ${wie}`;
 }
 
 function kiesNamen(namen, erbij = false) {
@@ -220,17 +293,39 @@ $('tk-groepje').addEventListener('change', () => {
 $('tk-geef').addEventListener('click', () => {
   const namen = [...tk.gekozen];
   const b = $('tk-geef');
+  const start = vanaf();
+  if ($('tk-wanneer').value === 'later' && !(Date.parse(start) > Date.now())) {
+    $('tk-fout').textContent = 'Kies een dag en uur in de toekomst.';
+    return;
+  }
   b.disabled = true;
-  socket.emit('tk-maak', { soort: tk.soort, file: $('tk-bron').value, namen, feedback: $('tk-feedback').value, spel: $('tk-spel').value, minuten: Number($('tk-minuten').value), niveau: $('tk-niveau').value, les: tk.les && { week: tk.les.week, slot: tk.les.slot } }, res => {
+  // Meerdere gekozen: één taak per quiz of oefenblad, na elkaar.
+  const files = tk.meer ? tk.meer.map(x => x.file) : [$('tk-bron').value];
+  const fouten = [];
+  let klaar = 0;
+  const volgende = () => {
+    if (klaar + fouten.length === files.length) return gedaan();
+    const file = files[klaar + fouten.length];
+    socket.emit('tk-maak', { soort: tk.soort, file, namen, feedback: $('tk-feedback').value, spel: $('tk-spel').value, minuten: Number($('tk-minuten').value), niveau: $('tk-niveau').value, les: tk.les && { week: tk.les.week, slot: tk.les.slot }, vanaf: start }, res => {
+      if (res.error) fouten.push(res.error); else klaar++;
+      volgende();
+    });
+  };
+  const gedaan = () => {
     knop();
-    if (res.error) return ($('tk-fout').textContent = res.error);
-    $('tk-fout').textContent = '';
+    $('tk-fout').textContent = [...new Set(fouten)].join(' ');
+    if (!klaar) return;
     // Volgende taak weer standaard op ieders eigen niveau.
     $('tk-niveau').value = '';
     kiesNiveau();
     kiesNamen([]);
-    Ui.melding(`De taak staat klaar bij ${namen.length === 1 ? namen[0] : `${namen.length} leerlingen`}. Zij vinden ze op hun toestel bij Mijn taken.`);
-  });
+    const wie = namen.length === 1 ? namen[0] : `${namen.length} leerlingen`;
+    $('tk-wanneer').value = tk.lesStart ? 'les' : 'nu';
+    wanneer();
+    if (start) return Ui.melding(klaar === 1 ? `De taak is gepland voor ${wie}. Ze verschijnt ${wanneerTekst(start)} bij Mijn taken.` : `${klaar} taken zijn gepland voor ${wie}. Ze verschijnen ${wanneerTekst(start)} bij Mijn taken.`);
+    Ui.melding(klaar === 1 ? `De taak staat klaar bij ${wie}. Zij vinden ze op hun toestel bij Mijn taken.` : `${klaar} taken staan klaar bij ${wie}. Zij vinden ze op hun toestel bij Mijn taken.`);
+  };
+  volgende();
 });
 
 // ---------- Gegeven taken ----------
@@ -255,7 +350,9 @@ function kaart(t) {
   img.alt = '';
   const tel = s => t.leerlingen.filter(l => l.status === s).length;
   const titel = el('div', 'tk-taak-titel');
-  titel.append(el('strong', '', t.titel), el('small', 'muted', `${t.soort === 'quiz' ? 'Quiz' : 'Oefenblad'}${t.spel ? ` in ${t.spel.naam}` : ''}${t.vak ? ` · ${t.vak}` : ''}${t.niveau ? ` · iedereen ${Niveau.NAMES[t.niveau]}` : ''}${t.uitLesmap ? ' · uit je lesmap' : ''} · ${datum(t.gemaakt)}${t.dicht ? ' · afgesloten' : ''}`));
+  titel.append(el('strong', '', t.titel));
+  if (t.vanaf) titel.append(el('small', 'tk-taak-gepland', `⏰ Gepland: verschijnt ${wanneerTekst(t.vanaf)}`));
+  titel.append(el('small', 'muted', `${t.soort === 'quiz' ? 'Quiz' : 'Oefenblad'}${t.spel ? ` in ${t.spel.naam}` : ''}${t.vak ? ` · ${t.vak}` : ''}${t.niveau ? ` · iedereen ${Niveau.NAMES[t.niveau]}` : ''}${t.uitLesmap ? ' · uit je lesmap' : ''} · ${datum(t.gemaakt)}${t.dicht ? ' · afgesloten' : ''}`));
   // Uit een les in De Zonnewijzer: het doel van die les.
   if (t.les) titel.append(el('small', 'tk-taak-les', `🎯 ${t.les.doel || t.les.titel}`));
   const telling = el('div', 'tk-telling');
@@ -266,6 +363,7 @@ function kaart(t) {
     b.addEventListener('click', fn);
     acties.appendChild(b);
   };
+  if (t.vanaf) knopje('▶ Nu al geven', () => socket.emit('tk-start', { id: t.id }, uit));
   if (!t.dicht) knopje('+ Leerlingen', () => erbij(t));
   knopje('👁 Bekijk', () => bekijk({ id: t.id }, t));
   if (t.dicht) knopje('🔓 Weer openen', () => socket.emit('tk-heropen', { id: t.id }, uit));

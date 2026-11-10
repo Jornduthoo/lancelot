@@ -221,3 +221,21 @@ a.zw-oefen:hover, button.zw-oefen:hover { box-shadow: inset 0 0 0 2px var(--cyan
 .zw-taak-balk { height: 10px; border-radius: 99px; background: rgb(var(--k-bg) / .7); overflow: hidden; }
 .zw-taak-balk i { display: block; height: 100%; background: var(--green, #3ddc84); }
 .zw-taak-tel { color: var(--muted); font-weight: 600; white-space: nowrap; }
+
+/* Deze week anders: slepen, langer maken, vrije dag. */
+button.zw-wk-kop { width: 100%; background: none; border: 0; box-shadow: none; clip-path: none; padding: 0; min-height: 0; cursor: pointer; border-radius: 6px; }
+button.zw-wk-kop:hover { color: var(--text); background: rgb(var(--k-cyan) / .08); }
+.zw-wk-kop.eigen::after { content: ' ✎'; color: var(--gold); }
+.zw-wk-vrij { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; text-align: center; clip-path: none; font-size: 1rem; color: var(--gold);
+  background: repeating-linear-gradient(135deg, rgb(var(--k-goud) / .08) 0 10px, transparent 10px 20px); box-shadow: inset 0 0 0 1px rgb(var(--k-goud) / .3); }
+.zw-cel, .zw-wk-pauze { touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+.zw-wk-pauze { cursor: grab; }
+.zw-cel-trek { position: absolute; left: 0; right: 0; bottom: 0; height: clamp(5px, 25%, 9px); cursor: ns-resize; touch-action: none; }
+.zw-cel-trek::after { content: ''; position: absolute; left: 50%; bottom: 2px; width: 28px; height: 3px; margin-left: -14px; border-radius: 2px; background: currentColor; opacity: 0; transition: opacity .15s; }
+.zw-cel:hover .zw-cel-trek::after, .zw-wk-pauze:hover .zw-cel-trek::after, .sleept .zw-cel-trek::after { opacity: .5; }
+.zw-cel.sleept, .zw-wk-pauze.sleept { z-index: 5; opacity: .85; outline: 2px dashed rgb(var(--k-cyan)); cursor: grabbing; transition: none; }
+.zw-dagmenu { max-width: 440px; }
+.zw-week-hint { margin: 0; }
+@media (pointer: coarse) { .zw-cel-trek { height: clamp(5px, 30%, 16px); } .zw-cel-trek::after { opacity: .35; } }
+.zw-wk-lijf[data-dag] { cursor: cell; }
+.zw-wk-nieuw { position: absolute; left: 0; right: 0; pointer-events: none; border-radius: 4px; background: rgb(var(--k-cyan) / .18); box-shadow: inset 0 0 0 2px rgb(var(--k-cyan) / .7); }

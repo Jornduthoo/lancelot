@@ -657,6 +657,19 @@ function takenSoon() {
   }, 500);
 }
 
+// Geplande taken: op het moment dat er een verschijnt, krijgen de leerlingen en het bord een seintje.
+// Eén keer per halve minuut kijken is genoeg (een taak die om 10:25 gepland staat, is er uiterlijk om 10:25:30).
+let takenGekeken = Date.now();
+setInterval(() => {
+  const sinds = takenGekeken;
+  takenGekeken = Date.now();
+  try {
+    if (!taken.gestartSinds(sinds)) return;
+    io.to('host').emit('tk-lijst', taken.lijst());
+    io.emit('tk-nieuw');
+  } catch {}
+}, 30000).unref();
+
 // De ontdekwereld: wie wat oploste, hooguit om de twee seconden naar de leerkrachtenschermen.
 let ontdekTimer = null;
 const ontdekBinnen = () => [...io.sockets.sockets.values()].filter(s => !s.data.host && s.data.waar === 'ontdek' && s.data.naam).map(s => s.data.naam);
@@ -1596,7 +1609,7 @@ io.on('connection', socket => {
     socket.on('tk-bronnen', handle(() => ({ quizzen: quizzes.list(), bladen: oefenbladen.list(), klas: klas.names() })));
     socket.on('tk-lijst', handle(() => ({ taken: taken.lijst() })));
     socket.on('tk-voorbeeld', handle(arg => taken.voorbeeld(arg || {})));
-    socket.on('tk-les', handle(arg => ({ les: taken.lesVan(arg) })));
+    socket.on('tk-les', handle(arg => ({ les: taken.lesVan(arg), start: zonnewijzer.lesStart(arg || {}) })));
     socket.on('tk-detail', handle(arg => taken.detail(arg || {})));
     socket.on('tk-inhoud', handle(arg => taken.inhoud(arg || {})));
     socket.on('tk-maak', taak(arg => ({ id: taken.maak(arg).id })));
@@ -1604,6 +1617,7 @@ io.on('connection', socket => {
     socket.on('tk-weg', taak(taken.haalWeg));
     socket.on('tk-niveau', taak(taken.zetNiveau));
     socket.on('tk-sluit', taak(arg => taken.sluit(arg.id)));
+    socket.on('tk-start', taak(taken.startNu));
     socket.on('tk-heropen', taak(taken.heropen));
     socket.on('tk-wis', taak(arg => taken.wis(arg.id)));
     socket.on('notitie-add', handle(({ leerling, tekst } = {}) => ({ notities: notities.add(leerling, tekst).slice().reverse() })));
@@ -2114,6 +2128,8 @@ io.on('connection', socket => {
     socket.on('zw-week-rooster', zwWijzig(arg => ({ weekData: zonnewijzer.zetWeekRooster(arg) })));
     socket.on('zw-vink', zwWijzig(arg => ({ weekData: zonnewijzer.vink(arg) })));
     socket.on('zw-schuif', zwWijzig(arg => ({ weekData: zonnewijzer.schuif(arg) })));
+    socket.on('zw-dagen', zwWijzig(arg => ({ weekData: zonnewijzer.zetDagen(arg) })));
+    socket.on('zw-vrij', zwWijzig(arg => ({ weekData: zonnewijzer.zetVrij(arg) })));
     socket.on('zw-laatste', handle(arg => zonnewijzer.laatsteVan(arg)));
     socket.on('zw-doelen', handle(({ codes } = {}) => zonnewijzer.doelInfo(codes)));
     // De doelen van een les uit zijn quiz: de codes die het vaakst voorkomen (Ridder-vragen niet, dat is de uitdaging).
