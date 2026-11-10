@@ -272,6 +272,22 @@ figcaption { color: rgb(var(--k-muted)); font-size: 14px; margin-top: 10px; text
   .faq summary { padding: 14px; }
 }
 
+/* Binnenkort: LANcelot Junior */
+#junior .kicker { margin-bottom: 6px; }
+.junior-beelden { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 14px; margin: 8px 0 28px; }
+.junior-beelden .groot { grid-row: span 2; }
+.junior-beelden figcaption { margin-top: 6px; font-size: 13px; }
+.junior-punten { grid-template-columns: 1fr 1fr; gap: 14px 28px; }
+.junior-punten strong { display: block; }
+.junior-punten span { color: rgb(var(--k-muted)); }
+.junior-punten strong { color: rgb(var(--k-tekst)); }
+#junior > .noot { margin-top: 20px; }
+@media (max-width: 760px) {
+  .junior-beelden { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .junior-beelden .groot { grid-column: 1 / -1; grid-row: auto; }
+  .junior-punten { grid-template-columns: 1fr; }
+}
+
 /* Pagina per spel */
 .spelpagina { padding-top: 32px; }
 .terug { display: inline-block; margin-bottom: 22px; font-weight: 600; text-decoration: none; }

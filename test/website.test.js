@@ -24,7 +24,7 @@ test('website: elke taal heeft een pagina met zijn schermafbeeldingen', () => {
   for (const t of TALEN) {
     const html = fs.readFileSync(path.join(SITE, t === 'nl' ? 'index.html' : `${t}/index.html`), 'utf8');
     assert.match(html, new RegExp(`<html lang="${t}">`));
-    for (const m of html.matchAll(/(?:src|href)="((?:\.\.\/)?(?:img|shots|fonts)\/[^"?]+)(?:\?v=\w+)?"/g)) {
+    for (const m of html.matchAll(/(?:src|href)="((?:\.\.\/)?(?:img|shots|fonts|junior)\/[^"?]+)(?:\?v=\w+)?"/g)) {
       const bestand = path.join(t === 'nl' ? SITE : path.join(SITE, t), m[1]);
       assert.ok(fs.existsSync(bestand), `${t}: ${m[1]} ontbreekt`);
     }
@@ -66,5 +66,16 @@ test('website: elk spel heeft een eigen pagina in elke taal, met extra info', ()
         assert.ok(fs.existsSync(path.join(path.dirname(f), m[1])), `${t}/${s.id}: ${m[1]} ontbreekt`);
       }
     }
+  }
+});
+
+test('website: de Store-knop staat er alleen als store.live aan staat', () => {
+  const config = JSON.parse(fs.readFileSync(path.join(BRON, 'site.json'), 'utf8'));
+  const store = config.store || {};
+  for (const t of TALEN) {
+    const html = fs.readFileSync(path.join(SITE, t === 'nl' ? 'index.html' : `${t}/index.html`), 'utf8');
+    const heeftLink = html.includes(`apps.microsoft.com/detail/${store.id}`);
+    assert.strictEqual(heeftLink, !!store.live, `${t}: Store-knop ${store.live ? 'ontbreekt' : 'staat er al, maar de app is nog niet live'}`);
+    assert.match(html, /id="junior"/, `${t}: blok LANcelot Junior ontbreekt`);
   }
 });

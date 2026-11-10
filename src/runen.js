@@ -3,6 +3,7 @@
 // Leerlingen spelen het wanneer ze willen, naast de gewone spellen. Het woord zelf gaat pas naar de gsm als het raadsel klaar is.
 // Wie het kraakt verdient runen; met genoeg runen krijgt je ridder een runenkrans (avatar-sleutel 'runen').
 // Alles staat in de map runen/ (in .gitignore): één bestand per schooljaar en de woorden van de week van de leerkracht.
+// De woorden van de week staan apart in runen/woorden/: die gaan mee met Mijn lesmap (thuis klaarzetten), de spelresultaten niet.
 const fs = require('fs');
 const path = require('path');
 const gegevens = require('./gegevens');
@@ -16,7 +17,10 @@ const taal = require('./taal');
 const ingebouwdVoor = () => taal.inhoud('runen-woorden');
 
 const DIR = () => gegevens.pad('runen');
-const LIJST = () => path.join(DIR(), 'weeklijst.json');
+const WOORDEN_DIR = () => path.join(DIR(), 'woorden');
+const LIJST = () => path.join(WOORDEN_DIR(), 'weeklijst.json');
+// Vroeger stond de weeklijst los in runen/: één keer verhuizen naar runen/woorden/.
+const OUDE_LIJST = () => path.join(DIR(), 'weeklijst.json');
 const POGINGEN = 6;
 const LEVELS = {
   page: { lens: [4], get woorden() { return ingebouwdVoor().PAGE; } },
@@ -108,8 +112,18 @@ gegevens.voorKlasWissel(() => { flush(); data = null; lijstCache = null; });
 // ---------- Woorden van de week (van de leerkracht) ----------
 
 let lijstCache = null;
+function verhuis() {
+  try {
+    if (fs.existsSync(OUDE_LIJST()) && !fs.existsSync(LIJST())) {
+      fs.mkdirSync(WOORDEN_DIR(), { recursive: true });
+      fs.renameSync(OUDE_LIJST(), LIJST());
+    }
+  } catch {}
+}
+
 function lijst() {
   if (lijstCache) return lijstCache;
+  verhuis();
   try {
     const l = JSON.parse(fs.readFileSync(LIJST(), 'utf8'));
     lijstCache = { woorden: Array.isArray(l.woorden) ? l.woorden : [], doel: doelen.clean(l.doel) };
@@ -143,12 +157,22 @@ function bewaarLijst({ text, doel } = {}) {
   const woorden = leesLijst(text);
   if (!woorden.length && woorden.fout.length) throw new Error(`Geen enkel woord past (4 tot 7 letters, zonder spaties of cijfers): ${woorden.fout.slice(0, 6).join(', ')}`);
   const l = { woorden: [...woorden], doel: doelen.clean(doel) };
-  fs.mkdirSync(DIR(), { recursive: true });
+  verhuis();
+  fs.mkdirSync(WOORDEN_DIR(), { recursive: true });
   fs.writeFileSync(LIJST() + '.tmp', JSON.stringify(l, null, 1));
   fs.renameSync(LIJST() + '.tmp', LIJST());
   lijstCache = l;
   return { ...lijstView(), overgeslagen: woorden.fout };
 }
+
+// Mijn lesmap: een weeklijst die binnenkomt, moet kloppen (woorden van 4 tot 7 letters).
+function lijstGeldig(l) {
+  if (!l || typeof l !== 'object' || Array.isArray(l) || !Array.isArray(l.woorden) || l.woorden.length > 60) throw new Error('Ongeldig bestand.');
+  for (const x of l.woorden) if (!x || typeof x.w !== 'string' || !/^[a-z]{4,7}$/.test(x.w)) throw new Error('Ongeldig bestand.');
+}
+
+// Na het synchroniseren: de weeklijst opnieuw lezen. Vóór elke ronde: een oude weeklijst eerst verhuizen.
+function uitLesmap() { lijstCache = null; }
 
 function lijstView() {
   const l = lijst();
@@ -527,4 +551,4 @@ function onthul() {
   return { dag, woorden: out };
 }
 
-module.exports = { view, raad, bord, onthul, kransVan, bewaarLijst, lijstView, vulAan, maakLijst, chatPrompt, kleur, normaal, dagVan, flush, get DIR() { return DIR(); }, KRANS, KRANS_NAMEN };
+module.exports = { lijstGeldig, uitLesmap, verhuis, get WOORDEN_DIR() { return WOORDEN_DIR(); }, view, raad, bord, onthul, kransVan, bewaarLijst, lijstView, vulAan, maakLijst, chatPrompt, kleur, normaal, dagVan, flush, get DIR() { return DIR(); }, KRANS, KRANS_NAMEN };

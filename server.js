@@ -598,11 +598,14 @@ lesmap.init([
   { kind: 'klassen', dir: klas.KLASSEN_LESMAP, remote: 'klassen-lijst', validate: klas.klassenGeldig, merge: klas.klassenSamen },
   // Het Klaseiland en het ridderboek: de pc waar de klas speelt zet een kopie klaar, thuis kan je die bekijken.
   { kind: 'burchten', dir: () => burchten.LESMAP, perKlas: true, remote: 'klaseiland', validate: burchten.kopieGeldig },
+  // De woorden van de week van het Runenraadsel: thuis klaarzetten, op het bord raden. De resultaten blijven op deze pc.
+  { kind: 'runen', dir: () => runen.WOORDEN_DIR, perKlas: true, remote: 'runenraadsel', validate: runen.lijstGeldig },
 ]);
 let syncTimer = null;
 function runSync() {
   try { klas.naarLesmap(); } catch (err) { console.error('Klaslijst voor de lesmap bewaren mislukt:', err.message); }
   try { klas.naarLesmapKlassen(); } catch (err) { console.error('Klassen voor de lesmap bewaren mislukt:', err.message); }
+  runen.verhuis();
   if (settings.read().lesmap) {
     try { burchten.naarLesmap(); } catch (err) { console.error('Klaseiland voor de lesmap bewaren mislukt:', err.message); }
   }
@@ -620,6 +623,7 @@ function runSync() {
       else if (kind === 'klastaken') io.to('host').emit('wk-taken', klastaken.read());
       else if (kind === 'klasindeling') io.to('host').emit('wk-indeling', klasindeling.read());
       else if (kind === 'burchten') io.to('host').emit('bu-eiland', burchten.eiland());
+      else if (kind === 'runen') { runen.uitLesmap(); io.to('host').emit('rn-bord', runen.bord()); }
     }
     if (taken.uitLesmap()) {
       io.to('host').emit('tk-lijst', taken.lijst());
@@ -1720,6 +1724,7 @@ io.on('connection', socket => {
     socket.on('rn-lijst-save', handle(arg => {
       const lijst = runen.bewaarLijst(arg || {});
       io.to('host').emit('rn-bord', runen.bord());
+      syncSoon();
       return { lijst };
     }));
     socket.on('rn-lijst-ai', ({ text } = {}, cb) => {
