@@ -45,9 +45,14 @@ function tryParse(text) {
 
 const looksLikeApp = str => /<!doctype|<html|<script|<div|import\s+react|export\s+default|function\s+\w+\s*\(|const\s+\w+\s*=|useState|document\./i.test(str);
 
+const zonderBronnen = str => str
+  .replace(/\s*\[cite(?:_start|_end)?(?::[^\]\n]*)?\]/gi, '')
+  .replace(/\s*【[^】\n]*】/g, '');
+
 // what: 'quiz', 'oefenblad' of 'sessie' (voor de foutmeldingen). check(data) zegt of het de juiste soort is.
 function extract(raw, what, check = () => true) {
-  const str = String(raw || '').replace(/^﻿/, '');
+  // Gemini zet bronverwijzingen in de tekst: [cite: 14, 16], [cite_start], [cite_end], 【4†bron】. Die horen er niet in.
+  const str = zonderBronnen(String(raw || '').replace(/^﻿/, ''));
   // Eerst de codeblokken met json, dan alles.
   const fences = [...str.matchAll(/```(?:json|JSON)?\s*([\s\S]*?)```/g)].map(m => m[1]);
   for (const part of [...fences, str]) {
@@ -63,4 +68,4 @@ function extract(raw, what, check = () => true) {
   throw new Error(`De geplakte tekst is geen geldige JSON. Vraag de AI om "enkel de JSON als tekst" en probeer opnieuw.`);
 }
 
-module.exports = { extract };
+module.exports = { extract, zonderBronnen };

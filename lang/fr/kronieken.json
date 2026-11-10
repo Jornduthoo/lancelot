@@ -847,5 +847,15 @@
  "🗑 Verwijderen": "🗑 Supprimer",
  "Hier is geen plaats meer voor een uur.": "Il n’y a plus de place pour un créneau ici.",
  "Kies een vak of geef de les een titel.": "Choisis une matière ou donne un titre à la leçon.",
- "Gepland: de leerlingen zien deze taak pas vanaf dit uur": "Planifiée : les élèves ne voient cette tâche qu'à partir de cette heure"
+ "Gepland: de leerlingen zien deze taak pas vanaf dit uur": "Planifiée : les élèves ne voient cette tâche qu'à partir de cette heure",
+ "Tijd": "Heure",
+ "−5 min": "−5 min",
+ "25 min": "25 min",
+ "50 min": "50 min",
+ "Daarvoor staat al iets anders. Maak dat eerst korter of sleep het weg.": "Il y a déjà autre chose avant. Raccourcis-le d’abord ou déplace-le.",
+ "Het einde moet na het begin komen.": "La fin doit venir après le début.",
+ "Op die tijd staat al iets anders. Kies een andere tijd of maak dat eerst korter.": "Il y a déjà autre chose à cette heure. Choisis une autre heure ou raccourcis-le d’abord.",
+ "Plak hier het antwoord van de chatbot (Ctrl+V)": "Colle ici la réponse du chatbot (Ctrl+V)",
+ "Plak hem in de chatbot met Ctrl+V, kopieer het antwoord en plak het hier in het vak 📋.": "Colle-le dans le chatbot avec Ctrl+V, copie la réponse et colle-la ici dans la case 📋.",
+ "Dit is niet het antwoord van de chatbot. Kopieer het hele antwoord (met \"doel\" en \"criteria\") en plak opnieuw.": "Ce n'est pas la réponse du chatbot. Copie toute la réponse (avec \"doel\" et \"criteria\") et colle à nouveau."
 }

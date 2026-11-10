@@ -104,6 +104,20 @@
     </div>
 
     <div class="zw-ed-blok">
+      <span class="zw-ed-label">Tijd</span>
+      <div class="zw-tijdrij">
+        <input type="time" id="zw-ed-van" step="300" aria-label="Begin">
+        <span>–</span>
+        <input type="time" id="zw-ed-tot" step="300" aria-label="Einde">
+        <span class="muted small" id="zw-ed-duur"></span>
+        <button type="button" class="secondary small" data-plus="-5">−5 min</button>
+        <button type="button" class="secondary small" data-plus="5">+5 min</button>
+        <button type="button" class="secondary small" data-lengte="25">25 min</button>
+        <button type="button" class="secondary small" data-lengte="50">50 min</button>
+      </div>
+    </div>
+
+    <div class="zw-ed-blok">
       <span class="zw-ed-label">Vak</span>
       <div class="zw-chips" id="zw-ed-vakken"></div>
       <input id="zw-ed-vak" class="hidden" list="zw-vakken" maxlength="30" placeholder="Naam van het vak">
@@ -138,6 +152,7 @@
         <button type="button" class="secondary small chatbot" data-url="https://chatgpt.com/">ChatGPT</button>
         <button type="button" class="secondary small chatbot" data-url="https://claude.ai/new">Claude</button>
       </div>
+      <div class="zw-ed-plak"><span aria-hidden="true">📋</span> <textarea id="zw-ed-plak" rows="1" placeholder="Plak hier het antwoord van de chatbot (Ctrl+V)" aria-label="Plak hier het antwoord van de chatbot"></textarea></div>
       <p class="muted small" id="zw-ed-crit-info"></p>
       <div id="zw-ed-crit"></div>
       <button type="button" class="secondary small" id="zw-ed-crit-plus"><i class="ic ic-plus" aria-hidden="true"></i> Criterium</button>

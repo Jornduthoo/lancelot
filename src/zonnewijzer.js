@@ -454,13 +454,19 @@ function voorstelPrompt({ vak, titel, notitie, leerjaar } = {}) {
     notitie ? `Notitie van de leerkracht: ${tekst(notitie, 600)}` : '',
     'Schrijf het lesdoel zoals de klas het op het bord ziet, kort en in kindertaal, beginnend met "Vandaag leer ik" of "Vandaag".',
     'Schrijf 2 tot 4 succescriteria, elk één korte zin die begint met "Ik kan", concreet en zichtbaar voor de leerkracht.',
-    'Standaardnederlands zoals in Vlaanderen. Geef enkel JSON: {"doel": "...", "criteria": ["Ik kan ...", "..."]}',
+    'Standaardnederlands zoals in Vlaanderen. Geen bronverwijzingen zoals [cite: 1]. Geef enkel JSON: {"doel": "...", "criteria": ["Ik kan ...", "..."]}',
   ].filter(Boolean).join('\n');
 }
 
+// Het antwoord van een AI of chatbot. Chatbots noemen de velden soms anders ("lesdoel", "succescriteria")
+// of geven de criteria als één tekst met een streepje per regel.
 function leesVoorstel(data) {
-  const doel = tekst(data && data.doel, 300);
-  const criteria = (Array.isArray(data && data.criteria) ? data.criteria : []).map(c => tekst(c, 160)).filter(Boolean).slice(0, 6);
+  const d = data && typeof data === 'object' ? data : {};
+  const doel = tekst(d.doel || d.lesdoel || d.Doel || d.goal, 300);
+  let lijst = d.criteria || d.succescriteria || d.Criteria || d.Succescriteria || [];
+  if (typeof lijst === 'string') lijst = lijst.split(/\n+/);
+  const criteria = (Array.isArray(lijst) ? lijst : [])
+    .map(c => tekst(typeof c === 'string' ? c.replace(/^\s*(?:[-*•]|\d+[.)])\s*/, '') : c, 160)).filter(Boolean).slice(0, 6);
   if (!doel && !criteria.length) throw new Error('De AI gaf geen bruikbaar voorstel.');
   return { doel, criteria };
 }

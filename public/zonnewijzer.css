@@ -113,6 +113,8 @@ body.zonnewijzer main { max-width: 1440px; }
 .zw-editor-kop h2 { margin: 0; font-family: var(--head); font-size: 1.25rem; text-transform: capitalize; }
 .zw-ed-crit-kop { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 6px; }
 .zw-ed-crit-kop button { margin-left: auto; }
+.zw-ed-plak { display: flex; flex-direction: row; align-items: center; gap: 8px; margin: 0 0 6px; font-size: 1.3em; }
+.zw-ed-plak textarea { flex: 1; width: auto; min-height: 2.4em; resize: vertical; border-style: dashed; font-size: 0.77em; }
 .zw-ed-bots { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin-bottom: 6px; }
 .zw-crit-rij { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
 .zw-crit-rij input { flex: 1; }
@@ -230,12 +232,18 @@ button.zw-wk-kop:hover { color: var(--text); background: rgb(var(--k-cyan) / .08
   background: repeating-linear-gradient(135deg, rgb(var(--k-goud) / .08) 0 10px, transparent 10px 20px); box-shadow: inset 0 0 0 1px rgb(var(--k-goud) / .3); }
 .zw-cel, .zw-wk-pauze { touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
 .zw-wk-pauze { cursor: grab; }
-.zw-cel-trek { position: absolute; left: 0; right: 0; bottom: 0; height: clamp(5px, 25%, 9px); cursor: ns-resize; touch-action: none; }
-.zw-cel-trek::after { content: ''; position: absolute; left: 50%; bottom: 2px; width: 28px; height: 3px; margin-left: -14px; border-radius: 2px; background: currentColor; opacity: 0; transition: opacity .15s; }
-.zw-cel:hover .zw-cel-trek::after, .zw-wk-pauze:hover .zw-cel-trek::after, .sleept .zw-cel-trek::after { opacity: .5; }
+.zw-cel-trek { position: absolute; left: 0; right: 0; bottom: 0; height: clamp(6px, 30%, 14px); cursor: ns-resize; touch-action: none; z-index: 1; }
+.zw-cel-trek.boven { bottom: auto; top: 0; }
+.zw-cel-trek::after { content: ''; position: absolute; left: 50%; bottom: 2px; width: 36px; height: 4px; margin-left: -18px; border-radius: 2px; background: currentColor; opacity: .3; transition: opacity .15s; }
+.zw-cel-trek.boven::after { bottom: auto; top: 2px; }
+.zw-cel-trek:hover::after { opacity: .9; }
+.zw-cel:hover .zw-cel-trek::after, .zw-wk-pauze:hover .zw-cel-trek::after, .sleept .zw-cel-trek::after { opacity: .7; }
 .zw-cel.sleept, .zw-wk-pauze.sleept { z-index: 5; opacity: .85; outline: 2px dashed rgb(var(--k-cyan)); cursor: grabbing; transition: none; }
 .zw-dagmenu { max-width: 440px; }
 .zw-week-hint { margin: 0; }
-@media (pointer: coarse) { .zw-cel-trek { height: clamp(5px, 30%, 16px); } .zw-cel-trek::after { opacity: .35; } }
+@media (pointer: coarse) { .zw-cel-trek { height: clamp(8px, 35%, 22px); } .zw-cel-trek::after { width: 44px; margin-left: -22px; } }
+.zw-cel.kort .zw-cel-trek.boven { display: none; }
+.zw-tijdrij { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.zw-tijdrij input[type=time] { width: auto; min-width: 7.5em; }
 .zw-wk-lijf[data-dag] { cursor: cell; }
 .zw-wk-nieuw { position: absolute; left: 0; right: 0; pointer-events: none; border-radius: 4px; background: rgb(var(--k-cyan) / .18); box-shadow: inset 0 0 0 2px rgb(var(--k-cyan) / .7); }
