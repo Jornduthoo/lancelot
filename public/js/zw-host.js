@@ -413,7 +413,7 @@ function tekenWeek() {
         const p = el('div', 'zw-wk-pauze', u.vak || 'pauze');
         p.style.top = `${top}px`;
         p.style.height = `${h}px`;
-        p.append(el('span', 'zw-cel-trek'));
+        p.append(el('span', 'zw-cel-trek boven'), el('span', 'zw-cel-trek'));
         sleepbaar(p, d, i);
         lijf.append(p);
         return;
@@ -434,7 +434,7 @@ function tekenWeek() {
         if (tags && h >= 70) b.append(el('span', 'zw-cel-tags', tags));
       } else if (h >= 60) b.append(el('span', 'zw-cel-leeg', '+ plannen'));
       b.addEventListener('click', () => { if (!zw.netGesleept) openEditor(slot); });
-      b.append(el('span', 'zw-cel-trek'));
+      b.append(el('span', 'zw-cel-trek boven'), el('span', 'zw-cel-trek'));
       sleepbaar(b, d, i);
       lijf.append(b);
     });
@@ -495,7 +495,7 @@ function sleepbaar(b, d, i) {
   b.addEventListener('contextmenu', e => e.preventDefault());
   b.addEventListener('pointerdown', e => {
     if (e.button !== 0 || sleep) return;
-    const trek = e.target.classList.contains('zw-cel-trek');
+    const trek = e.target.classList.contains('zw-cel-trek') ? (e.target.classList.contains('boven') ? 'boven' : 'onder') : '';
     const r = b.getBoundingClientRect();
     sleep = { b, d, i, trek, x: e.clientX, y: e.clientY, grijp: e.clientY - r.top, top: parseFloat(b.style.top), hoog: parseFloat(b.style.height), actief: false, id: e.pointerId };
   });
@@ -514,7 +514,11 @@ document.addEventListener('pointermove', e => {
     if (Math.hypot(dx, dy) < 6) return;
     begin();
   }
-  if (sleep.trek) sleep.b.style.height = `${Math.max(14, sleep.hoog + dy)}px`;
+  if (sleep.trek === 'boven') {
+    const d = Math.min(dy, sleep.hoog - 14);
+    sleep.b.style.top = `${sleep.top + d}px`;
+    sleep.b.style.height = `${sleep.hoog - d}px`;
+  } else if (sleep.trek) sleep.b.style.height = `${Math.max(14, sleep.hoog + dy)}px`;
   else sleep.b.style.transform = `translate(${dx}px, ${dy}px)`;
 });
 document.addEventListener('pointercancel', () => {
@@ -540,6 +544,15 @@ document.addEventListener('pointerup', e => {
   const bron = dagItems(s.d);
   const it = bron[s.i];
   if (!it) return teken();
+  if (s.trek === 'boven') {
+    const van = Math.max(7 * 60, Math.min(min(it.tot) - 10, snap(begin0 + (s.top + (e.clientY - s.y)) / PX)));
+    const vorige = Math.max(7 * 60, ...bron.filter(x => x !== it && x.tot && min(x.tot) <= min(it.tot) && min(x.van) < min(it.van)).map(x => min(x.tot)));
+    if (van < vorige) Ui.melding('Daarvoor staat al iets anders. Maak dat eerst korter of sleep het weg.');
+    const nieuw = hhmm(Math.max(van, vorige));
+    if (nieuw === it.van) return teken();
+    it.van = nieuw;
+    return bewaarDagen({ [s.d]: bron });
+  }
   if (s.trek) {
     const tot = Math.min(18 * 60, Math.max(min(it.van) + 10, snap(begin0 + (s.top + s.hoog + (e.clientY - s.y) + 3) / PX)));
     const volgende = Math.min(18 * 60, ...bron.filter(x => x !== it && x.van && min(x.van) >= min(it.van)).map(x => min(x.van)));
@@ -1000,7 +1013,12 @@ function openEditor(slot, nieuw = null) {
   zw.bewerk = { slot, oud: les, nieuw, vak };
   // Een les uit het lespakket: wat erbij staat, mag een andere les vervangen.
   ed.auto = les && les.map ? { titel: les.titel, doel: les.doel, criteria: JSON.stringify(les.criteria), doelen: JSON.stringify(les.doelen) } : null;
-  $('zw-ed-titel').textContent = `${DAGEN[d - 1]}${uur.van ? ` · ${uur.van}–${uur.tot}` : ''}`;
+  $('zw-ed-titel').textContent = DAGEN[d - 1];
+  $('zw-ed-van').value = uur.van || '';
+  $('zw-ed-tot').value = uur.tot || '';
+  zw.bewerk.van = uur.van || '';
+  zw.bewerk.tot = uur.tot || '';
+  toonDuur();
   const hetVak = les ? les.vak : vak;
   $('zw-ed-vak').value = hetVak;
   $('zw-ed-vak').classList.add('hidden');
@@ -1029,6 +1047,22 @@ function openEditor(slot, nieuw = null) {
   $('zw-editor').showModal();
   if (!les && vak) stelVoor(slot, vak);
 }
+
+// De lengte van een les: begin en einde zelf typen, of met de knoppen (−5, +5, 25 of 50 minuten).
+function toonDuur() {
+  const v = $('zw-ed-van').value;
+  const t = $('zw-ed-tot').value;
+  $('zw-ed-duur').textContent = v && t && min(t) > min(v) ? `${min(t) - min(v)} min` : '';
+}
+for (const id of ['zw-ed-van', 'zw-ed-tot']) $(id).addEventListener('input', toonDuur);
+for (const b of document.querySelectorAll('#zw-editor [data-plus], #zw-editor [data-lengte]')) b.addEventListener('click', () => {
+  const v = $('zw-ed-van').value;
+  if (!v) return;
+  const t = $('zw-ed-tot').value || v;
+  const tot = b.dataset.lengte ? min(v) + Number(b.dataset.lengte) : Math.max(min(v) + 5, min(t) + Number(b.dataset.plus));
+  $('zw-ed-tot').value = hhmm(Math.min(19 * 60, tot));
+  toonDuur();
+});
 
 $('zw-ed-dicht').addEventListener('click', () => $('zw-editor').close());
 function meerTel() {
@@ -1287,12 +1321,19 @@ $('zw-ed-bewaar').addEventListener('click', () => {
   const les = leesEditor();
   const leeg = !les.titel && !les.doel && !les.criteria.length && !les.nr && !les.oefen.length;
   const { nieuw, dag, index } = zw.bewerk;
-  // Een nieuw uur, of enkel een ander vak: dat gaat in de uren van deze week (zoals in een agenda).
-  if (nieuw || (leeg && les.vak !== zw.bewerk.vak)) {
-    if (leeg && !les.vak) return ($('zw-ed-fout').textContent = 'Kies een vak of geef de les een titel.');
+  const van = $('zw-ed-van').value;
+  const tot = $('zw-ed-tot').value;
+  const andereTijd = van !== zw.bewerk.van || tot !== zw.bewerk.tot;
+  if (andereTijd && (!van || !tot || min(tot) <= min(van))) return ($('zw-ed-fout').textContent = 'Het einde moet na het begin komen.');
+  // Een nieuw uur, een andere tijd of enkel een ander vak: dat gaat in de uren van deze week (zoals in een agenda).
+  if (nieuw || andereTijd || (leeg && les.vak !== zw.bewerk.vak)) {
+    if (leeg && !les.vak && (nieuw || !zw.bewerk.vak)) return ($('zw-ed-fout').textContent = 'Kies een vak of geef de les een titel.');
     const items = dagItems(dag);
-    if (nieuw) items.push({ van: nieuw.van, tot: nieuw.tot, soort: 'les', vak: les.vak, les: leeg ? null : les });
-    else if (items[index]) Object.assign(items[index], { vak: les.vak, les: leeg ? null : les });
+    const zelf = nieuw ? null : items[index];
+    if (!nieuw && !zelf) return;
+    if (botst(items, min(van), min(tot), zelf)) return ($('zw-ed-fout').textContent = 'Op die tijd staat al iets anders. Kies een andere tijd of maak dat eerst korter.');
+    if (nieuw) items.push({ van, tot, soort: 'les', vak: les.vak, les: leeg ? null : les });
+    else Object.assign(zelf, { van, tot, vak: les.vak || zelf.vak, les: leeg ? null : les });
     return bewaarDagen({ [dag]: items }, () => $('zw-editor').close());
   }
   if (leeg) return ($('zw-ed-fout').textContent = 'Geef de les een titel, een doel of een succescriterium.');

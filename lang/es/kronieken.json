@@ -847,5 +847,12 @@
  "🗑 Verwijderen": "🗑 Eliminar",
  "Hier is geen plaats meer voor een uur.": "Aquí ya no cabe ninguna hora.",
  "Kies een vak of geef de les een titel.": "Elige una asignatura o ponle un título a la clase.",
- "Gepland: de leerlingen zien deze taak pas vanaf dit uur": "Programada: los alumnos solo ven esta tarea desde esta hora"
+ "Gepland: de leerlingen zien deze taak pas vanaf dit uur": "Programada: los alumnos solo ven esta tarea desde esta hora",
+ "Tijd": "Hora",
+ "−5 min": "−5 min",
+ "25 min": "25 min",
+ "50 min": "50 min",
+ "Daarvoor staat al iets anders. Maak dat eerst korter of sleep het weg.": "Antes ya hay otra cosa. Acórtala primero o arrástrala a otro sitio.",
+ "Het einde moet na het begin komen.": "El final debe ser después del inicio.",
+ "Op die tijd staat al iets anders. Kies een andere tijd of maak dat eerst korter.": "A esa hora ya hay otra cosa. Elige otra hora o acórtala primero."
 }
