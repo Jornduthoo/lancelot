@@ -4,7 +4,10 @@ Geluiden van Wikimedia Commons (vrije licenties). Bestand / origineel / maker / 
 1f42e.mp3	Single Cow Moo.ogg	MichaeltheFox8621	CC BY-SA 4.0	https://commons.wikimedia.org/wiki/File:Single_Cow_Moo.ogg
 1f411.mp3	Sheep bleating.ogg	earthcalling	Public domain	https://commons.wikimedia.org/wiki/File:Sheep_bleating.ogg
 1f437.mp3	Pig grunt - Erdie.ogg	erdie	CC BY 3.0	https://commons.wikimedia.org/wiki/File:Pig_grunt_-_Erdie.ogg
+1f986.mp3	Anas platyrhynchos - Mallard XC62258.mp3	Jonathon Jongsma	CC BY-SA 3.0	https://commons.wikimedia.org/wiki/File:Anas_platyrhynchos_-_Mallard_XC62258.mp3
 1f413.mp3	Rooster crowing.ogg	Filo gèn'	CC BY-SA 4.0	https://commons.wikimedia.org/wiki/File:Rooster_crowing.ogg
 1f438.mp3	Single Frog Croak.oga	MichaeltheFox8621	CC BY-SA 4.0	https://commons.wikimedia.org/wiki/File:Single_Frog_Croak.oga
 1f981.mp3	Lion raring-sound1TamilNadu178.ogg	த*உழவன்	Public domain	https://commons.wikimedia.org/wiki/File:Lion_raring-sound1TamilNadu178.ogg
 1f989.mp3	Strix aluco male.oga	Vianney Bajart	CC BY-SA 4.0	https://commons.wikimedia.org/wiki/File:Strix_aluco_male.oga
+1f41d.mp3	Bee Buzzing Sound - Animal Sounds.opus	Free Sounds Library User Spanac	CC BY 3.0	https://commons.wikimedia.org/wiki/File:Bee_Buzzing_Sound_-_Animal_Sounds.opus
+1f682.mp3	WWS SteamWhistle.ogg	Work With Sounds / Konrad Gutkowski	CC BY 4.0	https://commons.wikimedia.org/wiki/File:WWS_SteamWhistle.ogg
