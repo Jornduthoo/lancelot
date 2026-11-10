@@ -1110,5 +1110,11 @@
  "Bijwerken lukte nog niet: een map van LANcelot is nog open (staat er nog een ander LANcelot-venster open?). Sluit alle LANcelot-vensters en start opnieuw: de update staat nog klaar.": "The update didn't work yet: a LANcelot folder is still open (is another LANcelot window still open?). Close all LANcelot windows and start again: the update is still ready.",
  "Menu": "Menu",
  "Naar een ander rijk. Het spel blijft lopen.": "To another realm. The game keeps running.",
- "Meer ▾": "More ▾"
+ "Meer ▾": "More ▾",
+ "Proefspelen": "Try it out",
+ "Geen klas bij de hand? Speel zelf mee als leerling, met twee proefridders erbij.": "No class at hand? Play along as a student, with two trial knights.",
+ "Zo ziet een leerling het": "This is what a student sees",
+ "Jij bent Proefridder 1: speel hier mee. Twee andere proefridders antwoorden vanzelf. Hun antwoorden komen niet in het logboek.": "You are Trial Knight 1: play along here. Two other trial knights answer by themselves. Their answers do not go into the logbook.",
+ "Het scherm van een leerling": "A student's screen",
+ "Proefridder {0}": null
 }

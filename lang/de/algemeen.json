@@ -1110,5 +1110,11 @@
  "Bijwerken lukte nog niet: een map van LANcelot is nog open (staat er nog een ander LANcelot-venster open?). Sluit alle LANcelot-vensters en start opnieuw: de update staat nog klaar.": "Das Update hat noch nicht geklappt: Ein LANcelot-Ordner ist noch geöffnet (ist noch ein anderes LANcelot-Fenster offen?). Schließe alle LANcelot-Fenster und starte neu: Das Update liegt noch bereit.",
  "Menu": "Menü",
  "Naar een ander rijk. Het spel blijft lopen.": "Zu einem anderen Reich. Das Spiel läuft weiter.",
- "Meer ▾": "Mehr ▾"
+ "Meer ▾": "Mehr ▾",
+ "Proefspelen": "Ausprobieren",
+ "Geen klas bij de hand? Speel zelf mee als leerling, met twee proefridders erbij.": "Keine Klasse zur Hand? Spiel selbst als Schüler mit, mit zwei Proberittern.",
+ "Zo ziet een leerling het": "So sieht es ein Schüler",
+ "Jij bent Proefridder 1: speel hier mee. Twee andere proefridders antwoorden vanzelf. Hun antwoorden komen niet in het logboek.": "Du bist Proberitter 1: spiel hier mit. Zwei weitere Proberitter antworten von selbst. Ihre Antworten kommen nicht ins Logbuch.",
+ "Het scherm van een leerling": "Der Bildschirm eines Schülers",
+ "Proefridder {0}": null
 }
