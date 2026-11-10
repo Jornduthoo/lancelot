@@ -25,6 +25,7 @@ function show(name) {
   view = name;
   for (const s of VIEWS) $(s).classList.toggle('hidden', s !== name);
   window.scrollTo(0, 0);
+  Ui.snelMarkeer();
 }
 
 // Browsers spelen pas geluid af na een klik; elke klik ontgrendelt het geluid.
@@ -34,6 +35,7 @@ $('mute').addEventListener('click', () => { $('mute').innerHTML = Ui.ic(sfx.togg
 
 // Het logo brengt je altijd terug naar het startscherm met de vijf rijken.
 $('brand').addEventListener('click', () => {
+  if (window.instTerug && view === 'settings') { location.href = window.instTerug; return; }
   if (!OWN_VIEWS.includes(view)) return;
   show('home');
   openRealm('');
@@ -402,9 +404,22 @@ ItemList.mount($('results-list'), {
 
 $('open-results').addEventListener('click', () => show('results'));
 // Instellingen in tabbladen; het laatst gekozen tabblad komt terug.
-// Vanuit Junior: /host?instellingen=gegevens opent meteen dat tabblad van de instellingen.
-const instTab = new URLSearchParams(location.search).get('instellingen');
-if (instTab) { try { localStorage.setItem('lancelot-instellingen-tab', instTab); } catch {} setTimeout(() => $('open-settings').click(), 300); }
+// Vanaf elke pagina (snelmenu ⚙️) en vanuit Junior: /host?instellingen opent meteen de instellingen,
+// /host?instellingen=gegevens meteen dat tabblad. Met &terug=/pagina brengt Terug je naar die pagina (geen omweg via het startscherm).
+const instParams = new URLSearchParams(location.search);
+if (instParams.has('instellingen')) {
+  const instTab = instParams.get('instellingen');
+  if (instTab) { try { localStorage.setItem('lancelot-instellingen-tab', instTab); } catch {} }
+  const terug = instParams.get('terug') || '';
+  // Alleen een pagina van LANcelot zelf (begint met één /), nooit een ander adres.
+  window.instTerug = /^\/(?!\/)/.test(terug) && !/^\/host(\?|#|$)/.test(terug) ? terug : null;
+  // Vanuit Junior: geen LANcelot-knoppen bovenaan, het logo en Terug gaan terug naar Junior.
+  if (window.instTerug && /^\/junior/.test(window.instTerug)) document.body.classList.add('inst-vanuit-junior');
+  if (window.instTerug) $('brand').title = 'Terug';
+  $('home').classList.add('hidden');
+  // Pas als alle scripts geladen zijn (maker.js zet de knop klaar).
+  document.addEventListener('DOMContentLoaded', () => $('open-settings').click());
+}
 Ui.tabs($('set-tabs'), 'lancelot-instellingen-tab');
 $('open-klas').addEventListener('click', () => { location.href = '/klas'; });
 $('open-taken').addEventListener('click', () => { location.href = '/taken'; });

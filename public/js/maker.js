@@ -174,6 +174,8 @@ const returnTo = GAMES.includes(params.get('terug')) ? params.get('terug') : nul
 for (const b of document.querySelectorAll('[data-back]')) {
   b.addEventListener('click', () => {
     if (returnTo && ['maker', 'editor'].includes(view)) location.href = returnTo;
+    // Instellingen geopend vanaf een andere pagina (snelmenu ⚙️ of Junior): Terug gaat daar weer naartoe.
+    else if (window.instTerug && view === 'settings') location.href = window.instTerug;
     else show(b.dataset.back || quizBase);
   });
 }

@@ -717,7 +717,8 @@ const GEEN_TOEGANG = '<!doctype html><meta charset="utf-8"><script src="/taal.js
 for (const [route, page] of PAGINAS) {
   app.get(route, (req, res) => {
     if (!isLeerkracht(req)) return res.status(403).send(GEEN_TOEGANG);
-    if (route === '/host') zetJuniorModus(false);
+    // De instellingen openen vanuit Junior zet LANcelot niet terug als opstartscherm.
+    if (route === '/host' && !('instellingen' in req.query)) zetJuniorModus(false);
     // Store-versie na de proefmaand zonder aankoop: eerst kopen. Privacy blijft altijd leesbaar.
     if (route !== '/privacy' && store.geblokkeerd()) return res.redirect('/licentie');
     res.setHeader('Cache-Control', 'no-cache');
