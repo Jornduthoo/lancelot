@@ -1109,5 +1109,6 @@
  "Er komt geen antwoord van de update-server. Probeer het later opnieuw, of werk bij met een zip-bestand.": "The update server is not responding. Try again later, or update with a zip file.",
  "Bijwerken lukte nog niet: een map van LANcelot is nog open (staat er nog een ander LANcelot-venster open?). Sluit alle LANcelot-vensters en start opnieuw: de update staat nog klaar.": "The update didn't work yet: a LANcelot folder is still open (is another LANcelot window still open?). Close all LANcelot windows and start again: the update is still ready.",
  "Menu": "Menu",
- "Naar een ander rijk. Het spel blijft lopen.": "To another realm. The game keeps running."
+ "Naar een ander rijk. Het spel blijft lopen.": "To another realm. The game keeps running.",
+ "Meer ▾": "More ▾"
 }

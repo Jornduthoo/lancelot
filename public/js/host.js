@@ -237,7 +237,7 @@ QuizList.mount($('lib-list'), {
   errorId: 'lib-error',
   go: 'Bewerken',
   play: q => { quizBase = 'bibliotheek'; editQuiz(q.file); },
-  buttons: [{ label: '▶ Speel', cls: 'speel', title: 'Speel deze quiz: kies daarna het spel', click: q => window.ArenaKies.open(q) }, { label: '📋 Als taak', cls: 'taak', title: 'Geef deze quiz als taak aan een of meer leerlingen', click: q => { location.href = `/taken?soort=quiz&file=${encodeURIComponent(q.file)}`; } }],
+  buttons: [{ label: '▶ Speel', cls: 'speel', hoofd: true, title: 'Speel deze quiz: kies daarna het spel', click: q => window.ArenaKies.open(q) }, { label: '📋 Als taak', cls: 'taak', title: 'Geef deze quiz als taak aan een of meer leerlingen', click: q => { location.href = `/taken?soort=quiz&file=${encodeURIComponent(q.file)}`; } }],
 });
 
 // ---------- Lobby ----------

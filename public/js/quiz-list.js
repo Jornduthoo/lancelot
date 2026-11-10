@@ -219,6 +219,42 @@ const ItemList = (() => {
       });
     }
 
+    // Een rij met veel knoppen blijft rustig: naast de hoofdknop staan hoogstens Bekijken en één vaste knop
+    // (een knop met hoofd: true, anders Bewerken). De rest zit achter "Meer", met de naam erbij.
+    function meerMenu(el) {
+      const knoppen = [...el.querySelectorAll(':scope > button.extra, :scope > button.edit, :scope > button.export, :scope > button.delete')];
+      if (knoppen.length < 4) return;
+      const vast = knoppen.find(b => b.dataset.extra !== undefined && (opts.buttons[b.dataset.extra] || {}).hoofd) || knoppen.find(b => b.classList.contains('edit'));
+      const rest = knoppen.filter(b => b !== vast);
+      const wrap = document.createElement('div');
+      wrap.className = 'meer-wrap';
+      wrap.innerHTML = '<button type="button" class="secondary meer-knop" aria-haspopup="true" aria-expanded="false">Meer ▾</button><div class="meer-menu hidden"></div>';
+      const menu = wrap.querySelector('.meer-menu');
+      for (const b of rest) {
+        if (b.classList.contains('export')) b.insertAdjacentText('beforeend', ' Exporteren');
+        if (b.classList.contains('delete')) b.insertAdjacentText('beforeend', ' Verwijderen');
+        menu.appendChild(b);
+      }
+      el.appendChild(wrap);
+      const knop = wrap.querySelector('.meer-knop');
+      const zet = open => { menu.classList.toggle('hidden', !open); knop.setAttribute('aria-expanded', open); el.classList.toggle('meer-open', open); };
+      knop.addEventListener('click', e => {
+        e.stopPropagation();
+        const open = menu.classList.contains('hidden');
+        for (const m of document.querySelectorAll('.meer-menu:not(.hidden)')) m.classList.add('hidden');
+        for (const r of document.querySelectorAll('.quiz-row.meer-open')) r.classList.remove('meer-open');
+        zet(open);
+      });
+      menu.addEventListener('click', () => zet(false));
+    }
+    if (!window.meerMenuSluit) {
+      window.meerMenuSluit = true;
+      document.addEventListener('click', () => {
+        for (const m of document.querySelectorAll('.meer-menu:not(.hidden)')) m.classList.add('hidden');
+        for (const r of document.querySelectorAll('.quiz-row.meer-open')) r.classList.remove('meer-open');
+      });
+    }
+
     // Eén item. Bij zoeken staat de map erbij. Verplaatsen kan met slepen of met het mapje (werkt ook op een touchscreen).
     function row(q) {
       const el = document.createElement('div');
@@ -235,6 +271,7 @@ const ItemList = (() => {
         ${opts.edit ? '<button class="secondary edit">Bewerken</button>' : ''}
         ${kiezen || k.bestanden ? '' : `<button class="secondary export" title="Exporteren naar een bestand" aria-label="Exporteren">${Ui.ic('download')}</button>`}
         ${opts.remove ? `<button class="secondary delete" title="Verwijderen" aria-label="Verwijderen">${Ui.ic('kruis')}</button>` : ''}`;
+      meerMenu(el);
       if (picking) {
         const tick = el.querySelector('.kies');
         const pick = e => {

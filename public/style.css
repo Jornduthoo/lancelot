@@ -2414,3 +2414,15 @@ body.spel-loopt .topbar .junior-home, body.spel-loopt #open-netwerk, body.spel-l
 dialog.speel-kies { width: min(920px, 94vw); max-height: 88vh; overflow: auto; padding: 22px; border: 1px solid var(--line); background: rgb(var(--k-bg2)); color: var(--text); }
 dialog.speel-kies::backdrop { background: rgb(0 0 0 / .7); }
 dialog.speel-kies h3 { margin: 18px 0 8px; color: var(--cyan); }
+/* Een rij met veel knoppen: de rest zit achter "Meer" (quiz-list.js). */
+.meer-wrap { position: relative; display: flex; }
+.meer-wrap .meer-knop { padding: 13px 14px; white-space: nowrap; }
+.meer-menu { position: absolute; right: 0; top: calc(100% + 4px); z-index: 30; display: flex; flex-direction: column; gap: 4px; min-width: 200px; padding: 6px; background: rgb(var(--k-bg2)); border: 1px solid var(--line); box-shadow: 0 10px 30px rgb(0 0 0 / .5); }
+.meer-menu.hidden { display: none; }
+.meer-menu button { display: flex; align-items: center; gap: 8px; justify-content: flex-start; width: 100%; padding: 10px 12px; text-align: left; white-space: nowrap; }
+.quiz-row.meer-open { position: relative; z-index: 31; }
+/* Een klein startvenster: de keuzes vlak voor je iets live zet (oefenblad). */
+dialog.start-venster { width: min(720px, calc(100% - 32px)); max-height: calc(100% - 32px); padding: 22px 26px 18px; border: 0; color: var(--text); background: linear-gradient(160deg, rgb(var(--k-panel)), var(--panel-solid) 60%); box-shadow: inset 0 0 0 1px var(--cyan), 0 0 40px var(--cyan-glow); }
+dialog.start-venster::backdrop { background: rgb(0 0 0 / .7); }
+dialog.start-venster h2 { margin: 0 0 4px; }
+dialog.start-venster .row-buttons { display: flex; justify-content: flex-end; gap: 10px; margin-top: 14px; }

@@ -48,7 +48,7 @@ ItemList.mount($('sheet-list'), {
   errorId: 'list-error',
   go: 'Live ▶',
   detail: s => `${s.count} ${s.count === 1 ? 'oefening' : 'oefeningen'} · ${s.types.map(t => TYPE_ICONS[t] || '').join(' ')}${(s.niveaus || []).length > 1 ? ` · ${s.niveaus.map(n => Niveau.ICONS[n]).join('')} ${s.niveaus.length} niveaus` : ''}`,
-  play: s => goLive(s.file),
+  play: s => vraagLive(s.file, s.title),
   buttons: [
     { label: '🖨 Print', cls: 'print', title: 'Afdrukken', click: s => window.open(`/oefenblad-print?file=${encodeURIComponent(s.file)}`, '_blank') },
     { label: 'Verbeterblad', cls: 'key', title: 'Verbeterblad afdrukken', click: s => window.open(`/oefenblad-print?file=${encodeURIComponent(s.file)}&sleutel=1`, '_blank') },
@@ -65,6 +65,22 @@ ItemList.mount($('sheet-list'), {
     socket.emit('ob-delete', s.file, res => { $('list-error').textContent = res.error || ''; });
   },
 });
+
+// Live starten vanuit de lijst of de editor: eerst kort de keuzes (verbeteren, niveau, voorlezen), dan Start.
+// De keuzes blijven onthouden, dus meestal is het gewoon op Start drukken.
+let liveBlad = '';
+function vraagLive(file, titel) {
+  liveBlad = file;
+  $('ob-start-naam').textContent = titel || '';
+  $('ob-start').showModal();
+  $('ob-start-ja').focus();
+}
+$('ob-start-nee').addEventListener('click', () => $('ob-start').close());
+$('ob-start-ja').addEventListener('click', () => { $('ob-start').close(); goLive(liveBlad); });
+for (const id of ['ob-feedback', 'ob-voorlees']) {
+  try { if (localStorage.getItem(`lancelot-${id}`)) $(id).value = localStorage.getItem(`lancelot-${id}`); } catch {}
+  $(id).addEventListener('change', () => { try { localStorage.setItem(`lancelot-${id}`, $(id).value); } catch {} });
+}
 
 function goLive(file) {
   $('stopped').classList.add('hidden');
@@ -610,7 +626,7 @@ function save(then, fail) {
   });
 }
 $('e-save').addEventListener('click', () => save(() => show('list')));
-$('e-live').addEventListener('click', () => save(file => goLive(file)));
+$('e-live').addEventListener('click', () => save(file => vraagLive(file, $('e-title') ? $('e-title').value : '')));
 // Printen: het werkblad en het verbeterblad openen elk in een eigen tabblad.
 $('e-print').addEventListener('click', () => {
   const sheetTab = window.open('', '_blank');
