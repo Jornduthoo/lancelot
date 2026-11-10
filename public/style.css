@@ -2436,3 +2436,6 @@ dialog.start-venster .row-buttons { display: flex; justify-content: flex-end; ga
 .proef-stil { position: fixed; left: -3000px; top: 0; width: 390px; height: 720px; border: 0; visibility: hidden; }
 @media print { .proef-vak { display: none !important; } }
 body.proef-open { padding-right: min(400px, 92vw); }
+/* De regel onder het logo mag niet onder het snelmenu schuiven. */
+.topbar:has(.snelmenu) .brand .subtitle { letter-spacing: .2em; }
+.topbar:has(.snelmenu) .brand .subtitle::after { display: none; }
