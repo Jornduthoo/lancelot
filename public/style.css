@@ -2398,3 +2398,18 @@ body[data-wacht] { background: linear-gradient(rgba(4, 6, 14, .55), rgba(4, 6, 1
 body.spel-loopt .snel-toggle { display: inline-flex; }
 body.spel-loopt .snelmenu:not(.open) { display: none; }
 body.spel-loopt .topbar .junior-home, body.spel-loopt #open-netwerk, body.spel-loopt #open-settings { display: none; }
+/* De Arena: zoekvak, snelkeuzes en "Laatst gespeeld" (arena-kies.js). */
+.arena-zoek { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin: 0 0 18px; }
+.arena-zoek input { flex: 1 1 220px; max-width: 320px; margin: 0; }
+.arena-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.arena-chips .chip { padding: 7px 12px; font-size: .9rem; }
+.arena-chips .chip.on { border-color: rgb(var(--k-goud)); color: rgb(var(--k-goud-l)); box-shadow: inset 0 0 0 1px rgb(var(--k-goud) / .7); }
+.module.weg { display: none; }
+.arena-recent { margin: 0 0 22px; }
+.arena-recent-rij { display: flex; flex-wrap: wrap; gap: 10px; }
+.spel-klein { display: flex; align-items: center; gap: 10px; padding: 6px 14px 6px 6px; background: rgb(var(--k-panel) / .85); color: var(--text); box-shadow: inset 0 0 0 1px var(--line); font-weight: 600; }
+.spel-klein:hover { box-shadow: inset 0 0 0 1px var(--cyan), 0 0 14px var(--cyan-glow); }
+.spel-klein img { width: 40px; height: 40px; border-radius: 6px; object-fit: cover; }
+dialog.speel-kies { width: min(920px, 94vw); max-height: 88vh; overflow: auto; padding: 22px; border: 1px solid var(--line); background: rgb(var(--k-bg2)); color: var(--text); }
+dialog.speel-kies::backdrop { background: rgb(0 0 0 / .7); }
+dialog.speel-kies h3 { margin: 18px 0 8px; color: var(--cyan); }
