@@ -263,6 +263,25 @@ function tekenNu(r) {
     if (info.blad) knop('📝 Oefenblad', Lessen.link.blad(info.blad), 'Het oefenblad live starten');
     if (info.xl) knop('📝 XL', Lessen.link.blad(info.xl), 'Het lange oefenblad live starten');
   }
+  // Nog niets om te oefenen bij deze les: laat de AI een quiz en een oefenblad maken, met de les al ingevuld.
+  const vakNaam = les.vak || vak;
+  if (les.titel && !(info && (info.quiz || info.blad)) && !(les.oefen || []).length) {
+    knop('Maak quiz en oefenblad', `/reeks?${new URLSearchParams({ vak: vakNaam, les: les.titel, inhoud: [les.doel, ...les.criteria].filter(Boolean).join('; ').slice(0, 300) })}`, 'De AI maakt een quiz en een oefenblad bij deze les');
+  }
+  // Exit-ticket: de leerlingen duiden per succescriterium aan of het lukt. Start meteen aan De Ronde Tafel.
+  if (les.doel || les.criteria.length) {
+    const b = el('button', 'secondary', 'Exit-ticket');
+    b.type = 'button';
+    b.title = 'Peil op het einde van de les of het doel bereikt is';
+    b.addEventListener('click', () => {
+      const keuzes = ['Ja, dat lukt', 'Bijna', 'Nog niet'];
+      const items = (les.criteria.length ? les.criteria.slice(0, 6) : [les.doel]).map(c => ({ type: 'keuze', question: `Lukt dit al? ${c}`.slice(0, 200), options: keuzes }));
+      items.push({ type: 'open', question: 'Wat vond je nog moeilijk?' });
+      try { sessionStorage.setItem('lancelot-exit', JSON.stringify({ title: `Exit-ticket: ${les.titel || vakNaam || 'les'}`.slice(0, 100), items })); } catch {}
+      location.href = '/rondetafel?exit';
+    });
+    knoppen.append(b);
+  }
   if ((les.oefen || []).length) kaart.append(oefenKnoppen(les.oefen, { week: zw.week, slot }));
   const taken = takenVan(zw.week, slot);
   if (taken.length) kaart.append(takenBlok(taken));
@@ -1119,7 +1138,7 @@ function stopDenken() {
   $('zw-ed-voorstel').disabled = false;
   $('zw-ed-crit-info').textContent = '';
 }
-function lesInfo() {
+function edInfo() {
   return { titel: $('zw-ed-naam').value.trim(), vak: $('zw-ed-vak').value.trim(), notitie: $('zw-ed-notitie').value.trim() };
 }
 $('zw-ed-voorstel').addEventListener('click', () => {
@@ -1128,7 +1147,7 @@ $('zw-ed-voorstel').addEventListener('click', () => {
   $('zw-ed-fout').textContent = '';
   $('zw-ed-crit-info').textContent = '';
   if (codes.length) return socket.emit('zw-doelen', { codes }, res => { if (res && !res.error) zetVoorstel(res); });
-  const info = lesInfo();
+  const info = edInfo();
   if (!info.titel) return ($('zw-ed-fout').textContent = 'Geef de les eerst een titel (bv. Onthaal / Jeugdjournaal), dan help ik met het doel en de succescriteria.');
   const nr = ++vraagNr;
   knop.disabled = true;
@@ -1156,7 +1175,7 @@ let promptTik = 0;
 function maakPrompt() {
   clearTimeout(promptTik);
   promptTik = setTimeout(() => {
-    const info = lesInfo();
+    const info = edInfo();
     const sleutel = JSON.stringify(info);
     if (!info.titel || sleutel === klaarPrompt.sleutel) return;
     socket.emit('zw-voorstel-prompt', info, res => { if (res && !res.error) Object.assign(klaarPrompt, { sleutel, prompt: res.prompt }); });
@@ -1167,7 +1186,7 @@ $('zw-ed-vakken').addEventListener('click', maakPrompt);
 for (const b of document.querySelectorAll('#zw-editor .chatbot')) {
   b.addEventListener('click', () => {
     $('zw-ed-fout').textContent = '';
-    const info = lesInfo();
+    const info = edInfo();
     if (!info.titel) return ($('zw-ed-fout').textContent = 'Geef de les eerst een titel, dan maak ik de prompt voor de chatbot.');
     const tip = 'Plak hem in de chatbot met Ctrl+V, kopieer het antwoord en plak het hier in het vak 📋.';
     if (klaarPrompt.sleutel === JSON.stringify(info)) {

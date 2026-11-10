@@ -1783,6 +1783,13 @@ io.on('connection', socket => {
       rt.load(rondetafel.load(file));
       return {};
     }));
+    // Een sessie die nergens bewaard is, zoals het exit-ticket van een les uit De Zonnewijzer.
+    socket.on('rt-direct', handle(session => {
+      const busy = busyWith('rondetafel');
+      if (busy) throw busyError(busy);
+      rt.load(rondetafel.validate(session));
+      return {};
+    }));
     socket.on('rt-go', index => Number.isInteger(index) && rt.go(index));
     socket.on('rt-lock', () => rt.toggleLock());
     socket.on('rt-results', () => rt.toggleResults());

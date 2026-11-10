@@ -859,5 +859,12 @@
  "Plak hem in de chatbot met Ctrl+V, kopieer het antwoord en plak het hier in het vak 📋.": "Colle-le dans le chatbot avec Ctrl+V, copie la réponse et colle-la ici dans la case 📋.",
  "Dit is niet het antwoord van de chatbot. Kopieer het hele antwoord (met \"doel\" en \"criteria\") en plak opnieuw.": "Ce n'est pas la réponse du chatbot. Copie toute la réponse (avec \"doel\" et \"criteria\") et colle à nouveau.",
  "Week": "Semaine",
- "Lesroosters": "Horaires"
+ "Lesroosters": "Horaires",
+ "Maak quiz en oefenblad": "Créer quiz et fiche d'exercices",
+ "De AI maakt een quiz en een oefenblad bij deze les": "L'IA crée un quiz et une fiche d'exercices pour cette leçon",
+ "Peil op het einde van de les of het doel bereikt is": "Vérifiez à la fin de la leçon si l'objectif est atteint",
+ "Ja, dat lukt": "Oui, j'y arrive",
+ "Lukt dit al? {0}": "Tu y arrives déjà ? {0}",
+ "Wat vond je nog moeilijk?": "Qu'as-tu encore trouvé difficile ?",
+ "Exit-ticket: {0}": "Ticket de sortie : {0}"
 }

@@ -470,6 +470,14 @@ if (opgeslagen) {
     if ([...$('r-level').options].some(o => o.value === naam)) $('r-level').value = naam;
   });
 }
+// Vanuit een les in De Zonnewijzer: het vak en die ene les staan al ingevuld.
+const vanLes = new URLSearchParams(location.search);
+if (vanLes.get('les')) {
+  $('r-vak').value = mapNaam(vanLes.get('vak')) || $('r-vak').value;
+  $('r-lessen').value = `${vanLes.get('les').replace(/[|\n]/g, ' ')}${vanLes.get('inhoud') ? ` | ${vanLes.get('inhoud').replace(/[|\n]/g, ' ')}` : ''}`;
+  history.replaceState(null, '', '/reeks');
+  onthoud();
+}
 for (const id of VELDEN) {
   $(id).addEventListener('input', () => { onthoud(); teken(); });
   $(id).addEventListener('change', () => { onthoud(); teken(); });
