@@ -824,9 +824,6 @@
  "{0}/{1} klaar": "{0}/{1} terminé",
  "Dit lesuur enkel deze week weghalen, je vaste rooster blijft hetzelfde": "Retirer ce créneau pour cette semaine seulement, ton horaire fixe reste le même",
  "bv. Wapenstilstand": "p. ex. Armistice",
- "Tik op een lesuur om een les te plannen: uit De Kronieken (met quiz en oefenblad) of een eigen les. Sleep een les naar een ander uur, of op een andere les om ze te wisselen. Trek aan de onderkant om ze langer of korter te maken. Tik op een dag bovenaan voor een vrije dag of een extra lesuur. Dat geldt enkel voor die week: je vaste rooster blijft hetzelfde. Werk je thuis aan je planning, kies dan bij Instellingen dezelfde Mijn lesmap als op het digibord: dan staat ze er 's morgens.": "Touche un créneau pour planifier une leçon : depuis les Chroniques (avec quiz et fiche) ou ta propre leçon. Fais glisser une leçon vers une autre heure, ou sur une autre leçon pour les échanger. Tire le bord inférieur pour l’allonger ou la raccourcir. Touche un jour en haut pour un jour de congé ou un créneau en plus. Cela vaut seulement pour cette semaine : ton horaire fixe reste le même. Si tu travailles sur ton planning à la maison, choisis le même dossier Mon dossier de cours dans les Paramètres qu’au tableau : il sera là le matin.",
- "✋ Sleep een les om ze te verplaatsen, trek aan de onderkant om ze langer te maken, tik op een dag voor een vrije dag.": "✋ Fais glisser une leçon pour la déplacer, tire le bas pour l’allonger, touche un jour pour un jour de congé.",
- "🗑 Uur weg deze week": "🗑 Retirer le créneau cette semaine",
  "Waarom vrij?": "Pourquoi congé ?",
  "🌴 Vrije dag": "🌴 Jour de congé",
  "➕ Extra lesuur": "➕ Créneau en plus",
@@ -844,5 +841,10 @@
  "Deze dag terugzetten zoals in je rooster?": "Remettre ce jour comme dans ton horaire ?",
  "Terugzetten": "Remettre",
  "Ongeldige dag.": "Jour invalide.",
- "Daar begint al iets anders. Maak dat eerst korter of sleep het weg.": "Autre chose commence déjà là. Raccourcis-le d’abord ou déplace-le."
+ "Daar begint al iets anders. Maak dat eerst korter of sleep het weg.": "Autre chose commence déjà là. Raccourcis-le d’abord ou déplace-le.",
+ "Tik op een lesuur om een les te plannen: uit De Kronieken (met quiz en oefenblad) of een eigen les. Tik in een leeg vak voor een nieuw uur (met de muis kan je ook een stuk slepen). Sleep een les naar een ander uur, of op een andere les om ze te wisselen. Trek aan de onderkant om ze langer of korter te maken. Tik op een dag bovenaan voor een vrije dag of een extra lesuur. Dat geldt enkel voor die week: je vaste rooster blijft hetzelfde. Werk je thuis aan je planning, kies dan bij Instellingen dezelfde Mijn lesmap als op het digibord: dan staat ze er 's morgens.": "Touche un créneau pour planifier une leçon : depuis les Chroniques (avec quiz et fiche) ou ta propre leçon. Touche un espace vide pour un nouveau créneau (à la souris, tu peux aussi tirer une plage). Fais glisser une leçon vers une autre heure, ou sur une autre leçon pour les échanger. Tire le bord inférieur pour l’allonger ou la raccourcir. Touche un jour en haut pour un jour de congé ou un créneau en plus. Cela vaut seulement pour cette semaine : ton horaire fixe reste le même. Si tu travailles sur ton planning à la maison, choisis le même dossier Mon dossier de cours dans les Paramètres qu’au tableau : il sera là le matin.",
+ "✋ Werkt als een agenda: tik in een leeg vak voor een nieuw uur, sleep een les om ze te verplaatsen, trek aan de onderkant om ze langer te maken, tik op een dag voor een vrije dag.": "✋ Fonctionne comme un agenda : touche un espace vide pour un nouveau créneau, fais glisser une leçon pour la déplacer, tire le bas pour l’allonger, touche un jour pour un jour de congé.",
+ "🗑 Verwijderen": "🗑 Supprimer",
+ "Hier is geen plaats meer voor een uur.": "Il n’y a plus de place pour un créneau ici.",
+ "Kies een vak of geef de les een titel.": "Choisis une matière ou donne un titre à la leçon."
 }

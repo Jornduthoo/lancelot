@@ -824,9 +824,6 @@
  "{0}/{1} klaar": "{0}/{1} done",
  "Dit lesuur enkel deze week weghalen, je vaste rooster blijft hetzelfde": "Remove this period for this week only, your fixed timetable stays the same",
  "bv. Wapenstilstand": "e.g. Armistice Day",
- "Tik op een lesuur om een les te plannen: uit De Kronieken (met quiz en oefenblad) of een eigen les. Sleep een les naar een ander uur, of op een andere les om ze te wisselen. Trek aan de onderkant om ze langer of korter te maken. Tik op een dag bovenaan voor een vrije dag of een extra lesuur. Dat geldt enkel voor die week: je vaste rooster blijft hetzelfde. Werk je thuis aan je planning, kies dan bij Instellingen dezelfde Mijn lesmap als op het digibord: dan staat ze er 's morgens.": "Tap a period to plan a lesson: from The Chronicles (with quiz and worksheet) or your own lesson. Drag a lesson to another time, or onto another lesson to swap them. Pull the bottom edge to make it longer or shorter. Tap a day at the top for a day off or an extra period. This only applies to that week: your fixed timetable stays the same. If you work on your planning at home, choose the same My lesson folder in Settings as on the whiteboard: then it is there in the morning.",
- "✋ Sleep een les om ze te verplaatsen, trek aan de onderkant om ze langer te maken, tik op een dag voor een vrije dag.": "✋ Drag a lesson to move it, pull the bottom edge to make it longer, tap a day for a day off.",
- "🗑 Uur weg deze week": "🗑 Remove period this week",
  "Waarom vrij?": "Why off?",
  "🌴 Vrije dag": "🌴 Day off",
  "➕ Extra lesuur": "➕ Extra period",
@@ -844,5 +841,10 @@
  "Deze dag terugzetten zoals in je rooster?": "Put this day back as in your timetable?",
  "Terugzetten": "Put back",
  "Ongeldige dag.": "Invalid day.",
- "Daar begint al iets anders. Maak dat eerst korter of sleep het weg.": "Something else already starts there. Make that shorter first or drag it away."
+ "Daar begint al iets anders. Maak dat eerst korter of sleep het weg.": "Something else already starts there. Make that shorter first or drag it away.",
+ "Tik op een lesuur om een les te plannen: uit De Kronieken (met quiz en oefenblad) of een eigen les. Tik in een leeg vak voor een nieuw uur (met de muis kan je ook een stuk slepen). Sleep een les naar een ander uur, of op een andere les om ze te wisselen. Trek aan de onderkant om ze langer of korter te maken. Tik op een dag bovenaan voor een vrije dag of een extra lesuur. Dat geldt enkel voor die week: je vaste rooster blijft hetzelfde. Werk je thuis aan je planning, kies dan bij Instellingen dezelfde Mijn lesmap als op het digibord: dan staat ze er 's morgens.": "Tap a period to plan a lesson: from The Chronicles (with quiz and worksheet) or your own lesson. Tap an empty spot for a new period (with the mouse you can also drag a range). Drag a lesson to another time, or onto another lesson to swap them. Pull the bottom edge to make it longer or shorter. Tap a day at the top for a day off or an extra period. This only applies to that week: your fixed timetable stays the same. If you work on your planning at home, choose the same My lesson folder in Settings as on the whiteboard: then it is there in the morning.",
+ "✋ Werkt als een agenda: tik in een leeg vak voor een nieuw uur, sleep een les om ze te verplaatsen, trek aan de onderkant om ze langer te maken, tik op een dag voor een vrije dag.": "✋ Works like a calendar: tap an empty spot for a new period, drag a lesson to move it, pull the bottom edge to make it longer, tap a day for a day off.",
+ "🗑 Verwijderen": "🗑 Delete",
+ "Hier is geen plaats meer voor een uur.": "There is no room left for a period here.",
+ "Kies een vak of geef de les een titel.": "Choose a subject or give the lesson a title."
 }
