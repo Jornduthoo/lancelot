@@ -1032,6 +1032,7 @@ function openEditor(slot, nieuw = null) {
   $('zw-ed-doel').value = les ? les.doel : '';
   doelVeld.zet(les ? les.doelen : []);
   zetCriteria(les ? les.criteria : []);
+  $('zw-ed-plak').value = '';
   $('zw-ed-notitie').value = les ? les.notitie : '';
   zetOefen(les ? les.oefen || [] : []);
   $('zw-ed-meer').open = !!(les && (les.doelen.length || les.notitie));
@@ -1168,7 +1169,7 @@ for (const b of document.querySelectorAll('#zw-editor .chatbot')) {
     $('zw-ed-fout').textContent = '';
     const info = lesInfo();
     if (!info.titel) return ($('zw-ed-fout').textContent = 'Geef de les eerst een titel, dan maak ik de prompt voor de chatbot.');
-    const tip = 'Plak hem in de chatbot met Ctrl+V, kopieer het antwoord en kom hier terug. Lukt het niet vanzelf, plak dan hier met Ctrl+V.';
+    const tip = 'Plak hem in de chatbot met Ctrl+V, kopieer het antwoord en plak het hier in het vak 📋.';
     if (klaarPrompt.sleutel === JSON.stringify(info)) {
       gekopieerd = klaarPrompt.prompt;
       kopieer(gekopieerd);
@@ -1185,13 +1186,22 @@ for (const b of document.querySelectorAll('#zw-editor .chatbot')) {
     });
   });
 }
+// Het antwoord van de chatbot: JSON met "doel" en "criteria" (ook met ```json of tekst eromheen).
+const lijktAntwoord = text => /[{]/.test(text || '') && /criteria|doel/i.test(text || '');
 function leesAntwoord(text, stil) {
-  if (!gekopieerd || !text || text === gekopieerd || !/criteria|doel/i.test(text)) return false;
+  // Vanzelf (klembord bij terugkomst) alleen na een klik op een chatbotknop; zelf plakken mag altijd.
+  if (stil && (!gekopieerd || text === gekopieerd)) return false;
+  if (!lijktAntwoord(text) || text === klaarPrompt.prompt) return false;
   socket.emit('zw-voorstel-lees', text, res => {
     if (!res || res.error) { if (!stil) $('zw-ed-fout').textContent = (res && res.error) || 'Dat lukte niet.'; return; }
     gekopieerd = text;
     $('zw-ed-fout').textContent = '';
+    // Een eerder geplakt stuk JSON in een criterium-vak gaat weg.
+    for (const i of $('zw-ed-crit').querySelectorAll('input')) if (/^\s*[{\[]/.test(i.value)) i.closest('.zw-crit-rij').remove();
+    if (/^\s*[{\[]/.test($('zw-ed-doel').value)) $('zw-ed-doel').value = '';
     zetVoorstel(res);
+    if (!$('zw-ed-crit').querySelector('input')) critRij('');
+    $('zw-ed-plak').value = '';
     $('zw-ed-crit-info').textContent = '✨ Antwoord van de chatbot ingevuld. Pas gerust aan.';
   });
   return true;
@@ -1200,13 +1210,17 @@ window.addEventListener('focus', async () => {
   if (!gekopieerd || !$('zw-editor').open || !navigator.clipboard?.readText) return;
   try { leesAntwoord(await navigator.clipboard.readText(), true); } catch { /* geen toestemming: dan plakt de leerkracht zelf */ }
 });
-// Plakken kan overal in het venster; in een tekstvak alleen als het echt het antwoord van de chatbot is (JSON).
+// Plakken kan overal in het venster (ook in een criterium of het doel): is het het antwoord van de chatbot, dan vullen we alles in.
 $('zw-editor').addEventListener('paste', e => {
   const text = e.clipboardData && e.clipboardData.getData('text');
-  const veld = /^(INPUT|TEXTAREA)$/.test(e.target.tagName);
-  if (veld && !/[{]/.test(text || '')) return;
   if (leesAntwoord(text, false)) e.preventDefault();
+  else if (e.target.id === 'zw-ed-plak' && text) {
+    e.preventDefault();
+    $('zw-ed-fout').textContent = 'Dit is niet het antwoord van de chatbot. Kopieer het hele antwoord (met "doel" en "criteria") en plak opnieuw.';
+  }
 });
+// Rechtsklik > Plakken of typen in het plakvak: ook dan lezen.
+$('zw-ed-plak').addEventListener('input', () => { const t = $('zw-ed-plak').value; if (/[}]/.test(t)) leesAntwoord(t, false); });
 $('zw-ed-crit-plus').addEventListener('click', () => critRij('').focus());
 
 // ---------- Oefenen in deze les: wat (quiz, oefenblad, toets) en hoe (welk spel, live, als taak) ----------
