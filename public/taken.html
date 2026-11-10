@@ -70,6 +70,16 @@
           <option value="robomol">Alleen in: Robomol</option>
         </select>
       </label>
+      <label title="Een geplande taak zien de leerlingen pas vanaf dat moment">Wanneer?
+        <select id="tk-wanneer">
+          <option value="nu">Meteen</option>
+          <option value="les" class="hidden" id="tk-wanneer-les">Bij het begin van de les</option>
+          <option value="later">Later: kies dag en uur</option>
+        </select>
+      </label>
+      <label id="tk-vanaf-label" class="hidden">Vanaf
+        <input type="datetime-local" id="tk-vanaf">
+      </label>
       <label id="tk-min-label" class="hidden">Speeltijd per ronde
         <select id="tk-minuten">
           <option value="3">3 minuten</option>

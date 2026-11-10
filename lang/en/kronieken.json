@@ -846,5 +846,6 @@
  "✋ Werkt als een agenda: tik in een leeg vak voor een nieuw uur, sleep een les om ze te verplaatsen, trek aan de onderkant om ze langer te maken, tik op een dag voor een vrije dag.": "✋ Works like a calendar: tap an empty spot for a new period, drag a lesson to move it, pull the bottom edge to make it longer, tap a day for a day off.",
  "🗑 Verwijderen": "🗑 Delete",
  "Hier is geen plaats meer voor een uur.": "There is no room left for a period here.",
- "Kies een vak of geef de les een titel.": "Choose a subject or give the lesson a title."
+ "Kies een vak of geef de les een titel.": "Choose a subject or give the lesson a title.",
+ "Gepland: de leerlingen zien deze taak pas vanaf dit uur": "Scheduled: pupils only see this task from this time"
 }

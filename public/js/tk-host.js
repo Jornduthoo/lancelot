@@ -21,17 +21,55 @@ for (const n of (vraag.get('namen') || '').split('|').filter(Boolean)) tk.gekoze
 
 // Uit een les in De Zonnewijzer (?week=…&slot=…): de taak krijgt het doel en de succescriteria van die les mee.
 tk.les = null;
-function zetLes(les) {
+function zetLes(les, start) {
   tk.les = les || null;
   $('tk-les').classList.toggle('hidden', !tk.les);
+  zetLesStart(tk.les && start);
   if (!tk.les) return;
   $('tk-les-titel').textContent = `🎯 Voor de les: ${[tk.les.vak, tk.les.titel].filter(Boolean).join(' · ')}`;
   $('tk-les-doel').textContent = tk.les.doel || tk.les.criteria.join(' · ');
 }
 if (vraag.get('week') && vraag.get('slot')) {
-  socket.emit('tk-les', { week: vraag.get('week'), slot: vraag.get('slot') }, res => zetLes(res && res.les));
+  socket.emit('tk-les', { week: vraag.get('week'), slot: vraag.get('slot') }, res => zetLes(res && res.les, res && res.start));
 }
 $('tk-les-weg').addEventListener('click', () => zetLes(null));
+
+// ---------- Wanneer? ----------
+// Meteen, bij het begin van de les (uit De Zonnewijzer) of later op een gekozen dag en uur.
+// Een geplande taak staat al bij Gegeven taken, maar de leerlingen zien ze pas vanaf dat moment.
+const lokaal = d => new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+const wanneerTekst = v => new Date(v).toLocaleString('nl-BE', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+tk.lesStart = '';
+function zetLesStart(start) {
+  tk.lesStart = start && Date.parse(start) > Date.now() ? start : '';
+  const o = $('tk-wanneer-les');
+  o.classList.toggle('hidden', !tk.lesStart);
+  o.disabled = !tk.lesStart;
+  if (tk.lesStart) {
+    o.textContent = `Bij het begin van de les (${wanneerTekst(tk.lesStart)})`;
+    $('tk-wanneer').value = 'les';
+  } else if ($('tk-wanneer').value === 'les') $('tk-wanneer').value = 'nu';
+  wanneer();
+}
+function wanneer() {
+  const later = $('tk-wanneer').value === 'later';
+  $('tk-vanaf-label').classList.toggle('hidden', !later);
+  $('tk-vanaf').min = lokaal(new Date());
+  // Standaard morgen om half negen.
+  if (later && !$('tk-vanaf').value) {
+    const d = new Date();
+    d.setDate(d.getDate() + 1);
+    d.setHours(8, 30, 0, 0);
+    $('tk-vanaf').value = lokaal(d);
+  }
+}
+$('tk-wanneer').addEventListener('change', wanneer);
+function vanaf() {
+  const w = $('tk-wanneer').value;
+  if (w === 'les') return tk.lesStart;
+  if (w === 'later') return $('tk-vanaf').value;
+  return '';
+}
 
 $('brand').addEventListener('click', () => { location.href = '/host'; });
 // Terug gaat naar waar je vandaan kwam (De Kronieken, Mijn quizzen…), anders naar het startscherm.
@@ -255,6 +293,11 @@ $('tk-groepje').addEventListener('change', () => {
 $('tk-geef').addEventListener('click', () => {
   const namen = [...tk.gekozen];
   const b = $('tk-geef');
+  const start = vanaf();
+  if ($('tk-wanneer').value === 'later' && !(Date.parse(start) > Date.now())) {
+    $('tk-fout').textContent = 'Kies een dag en uur in de toekomst.';
+    return;
+  }
   b.disabled = true;
   // Meerdere gekozen: één taak per quiz of oefenblad, na elkaar.
   const files = tk.meer ? tk.meer.map(x => x.file) : [$('tk-bron').value];
@@ -263,7 +306,7 @@ $('tk-geef').addEventListener('click', () => {
   const volgende = () => {
     if (klaar + fouten.length === files.length) return gedaan();
     const file = files[klaar + fouten.length];
-    socket.emit('tk-maak', { soort: tk.soort, file, namen, feedback: $('tk-feedback').value, spel: $('tk-spel').value, minuten: Number($('tk-minuten').value), niveau: $('tk-niveau').value, les: tk.les && { week: tk.les.week, slot: tk.les.slot } }, res => {
+    socket.emit('tk-maak', { soort: tk.soort, file, namen, feedback: $('tk-feedback').value, spel: $('tk-spel').value, minuten: Number($('tk-minuten').value), niveau: $('tk-niveau').value, les: tk.les && { week: tk.les.week, slot: tk.les.slot }, vanaf: start }, res => {
       if (res.error) fouten.push(res.error); else klaar++;
       volgende();
     });
@@ -277,6 +320,9 @@ $('tk-geef').addEventListener('click', () => {
     kiesNiveau();
     kiesNamen([]);
     const wie = namen.length === 1 ? namen[0] : `${namen.length} leerlingen`;
+    $('tk-wanneer').value = tk.lesStart ? 'les' : 'nu';
+    wanneer();
+    if (start) return Ui.melding(klaar === 1 ? `De taak is gepland voor ${wie}. Ze verschijnt ${wanneerTekst(start)} bij Mijn taken.` : `${klaar} taken zijn gepland voor ${wie}. Ze verschijnen ${wanneerTekst(start)} bij Mijn taken.`);
     Ui.melding(klaar === 1 ? `De taak staat klaar bij ${wie}. Zij vinden ze op hun toestel bij Mijn taken.` : `${klaar} taken staan klaar bij ${wie}. Zij vinden ze op hun toestel bij Mijn taken.`);
   };
   volgende();
@@ -304,7 +350,9 @@ function kaart(t) {
   img.alt = '';
   const tel = s => t.leerlingen.filter(l => l.status === s).length;
   const titel = el('div', 'tk-taak-titel');
-  titel.append(el('strong', '', t.titel), el('small', 'muted', `${t.soort === 'quiz' ? 'Quiz' : 'Oefenblad'}${t.spel ? ` in ${t.spel.naam}` : ''}${t.vak ? ` · ${t.vak}` : ''}${t.niveau ? ` · iedereen ${Niveau.NAMES[t.niveau]}` : ''}${t.uitLesmap ? ' · uit je lesmap' : ''} · ${datum(t.gemaakt)}${t.dicht ? ' · afgesloten' : ''}`));
+  titel.append(el('strong', '', t.titel));
+  if (t.vanaf) titel.append(el('small', 'tk-taak-gepland', `⏰ Gepland: verschijnt ${wanneerTekst(t.vanaf)}`));
+  titel.append(el('small', 'muted', `${t.soort === 'quiz' ? 'Quiz' : 'Oefenblad'}${t.spel ? ` in ${t.spel.naam}` : ''}${t.vak ? ` · ${t.vak}` : ''}${t.niveau ? ` · iedereen ${Niveau.NAMES[t.niveau]}` : ''}${t.uitLesmap ? ' · uit je lesmap' : ''} · ${datum(t.gemaakt)}${t.dicht ? ' · afgesloten' : ''}`));
   // Uit een les in De Zonnewijzer: het doel van die les.
   if (t.les) titel.append(el('small', 'tk-taak-les', `🎯 ${t.les.doel || t.les.titel}`));
   const telling = el('div', 'tk-telling');
@@ -315,6 +363,7 @@ function kaart(t) {
     b.addEventListener('click', fn);
     acties.appendChild(b);
   };
+  if (t.vanaf) knopje('▶ Nu al geven', () => socket.emit('tk-start', { id: t.id }, uit));
   if (!t.dicht) knopje('+ Leerlingen', () => erbij(t));
   knopje('👁 Bekijk', () => bekijk({ id: t.id }, t));
   if (t.dicht) knopje('🔓 Weer openen', () => socket.emit('tk-heropen', { id: t.id }, uit));

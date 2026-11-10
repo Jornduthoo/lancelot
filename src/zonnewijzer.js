@@ -291,6 +291,21 @@ function laatsteVan({ vak, week: id, slot } = {}) {
   return { les: null };
 }
 
+// Wanneer een les begint, als "JJJJ-MM-DDTHH:MM" (tijd van deze pc), om een taak op dat moment te laten verschijnen.
+// Een vrije dag of een lesuur dat er niet is: ''.
+function lesStart({ week: id, slot } = {}) {
+  if (!WEEK.test(String(id)) || !SLOT.test(String(slot))) return '';
+  const [d, n] = slotNr(slot);
+  const w = week(id);
+  if (w.vrij[d]) return '';
+  const uren = w.dagen[d] || roosterVan(w, roosters()).dagen[d] || [];
+  const u = uren.filter(x => x.soort === 'les')[n];
+  if (!u || !u.van) return '';
+  const dag = maandag(id);
+  dag.setUTCDate(dag.getUTCDate() + d - 1);
+  return `${dag.toISOString().slice(0, 10)}T${u.van}`;
+}
+
 function roosterVan(w, alle) {
   return alle.roosters.find(r => r.id === w.rooster) || alle.roosters.find(r => r.id === alle.standaard) || alle.roosters[0];
 }
@@ -450,4 +465,4 @@ function leesVoorstel(data) {
   return { doel, criteria };
 }
 
-module.exports = { DIR, mijnLessen, bewaarMijnLes, verwijderMijnLes, ingebouwdVoorstel, voorstelPrompt, leesVoorstel, vul, roosters, bewaarRoosters, importeerRoosters, schoonRooster, week, laatsteVan, zetLes, zetWeekRooster, vink, schuif, zetDagen, zetVrij, doelInfo, ikZin, weekVan };
+module.exports = { DIR, mijnLessen, bewaarMijnLes, verwijderMijnLes, ingebouwdVoorstel, voorstelPrompt, leesVoorstel, vul, roosters, bewaarRoosters, importeerRoosters, schoonRooster, week, laatsteVan, zetLes, zetWeekRooster, vink, schuif, zetDagen, zetVrij, doelInfo, ikZin, weekVan, lesStart };
