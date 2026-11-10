@@ -1084,5 +1084,12 @@
  "Elke pagina wordt een blad met vakjes, zoals in De Proef": "Chaque page devient une fiche avec des cases, comme dans L’Épreuve",
  "📄 Blad uit een pdf": "📄 Fiche depuis un PDF",
  "de leerlingen vullen het blad in op hun Chromebook of gsm. Invullen, meerkeuze, verbinden, woordjes en ook alle vragen uit De Proef: tabellen, getallenas, breuken, tekenen of je eigen pdf met vakjes. Het blad verbetert zichzelf en jij ziet op het bord live hoe ver iedereen staat en waar het misloopt.": "les élèves remplissent la fiche sur leur Chromebook ou leur téléphone. Textes à trous, QCM, relier, mots et aussi tous les types de questions de L’Épreuve : tableaux, droite graduée, fractions, dessin ou ton propre PDF avec des cases. La fiche se corrige toute seule et tu vois en direct au tableau où en est chacun et où ça coince.",
- "Kort antwoord (ook breuken)": "Réponse courte (fractions aussi)"
+ "Kort antwoord (ook breuken)": "Réponse courte (fractions aussi)",
+ "· en nog {0}": "· et encore {0}",
+ "{0} aparte taken voor dezelfde leerlingen.": "{0} tâches séparées pour les mêmes élèves.",
+ "Wie je aantikt, krijgt {0} waar dat niveau bestaat.": "Les élèves choisis reçoivent {0} là où ce niveau existe.",
+ "Elke leerling krijgt zijn eigen niveau, zoals in Mijn klas.": "Chaque élève reçoit son propre niveau, comme dans Ma classe.",
+ "Geef {0} taken aan de hele klas": "Donner {0} tâches à toute la classe",
+ "Geef {0} taken aan {1} {2}": "Donner {0} tâches à {1} {2}",
+ "{0} taken staan klaar bij {1}. Zij vinden ze op hun toestel bij Mijn taken.": "{0} tâches attendent {1}. Ils les trouvent sur leur appareil dans Mes tâches."
 }

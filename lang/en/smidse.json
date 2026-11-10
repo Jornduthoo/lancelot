@@ -1084,5 +1084,12 @@
  "Elke pagina wordt een blad met vakjes, zoals in De Proef": "Every page becomes a sheet with boxes, just like in The Trial",
  "📄 Blad uit een pdf": "📄 Sheet from a PDF",
  "de leerlingen vullen het blad in op hun Chromebook of gsm. Invullen, meerkeuze, verbinden, woordjes en ook alle vragen uit De Proef: tabellen, getallenas, breuken, tekenen of je eigen pdf met vakjes. Het blad verbetert zichzelf en jij ziet op het bord live hoe ver iedereen staat en waar het misloopt.": "students fill in the sheet on their Chromebook or phone. Fill in the blanks, multiple choice, matching, words and also every question type from The Trial: tables, number lines, fractions, drawing or your own PDF with boxes. The sheet corrects itself and you see live on the board how far everyone is and where things go wrong.",
- "Kort antwoord (ook breuken)": "Short answer (fractions too)"
+ "Kort antwoord (ook breuken)": "Short answer (fractions too)",
+ "· en nog {0}": "· and {0} more",
+ "{0} aparte taken voor dezelfde leerlingen.": "{0} separate tasks for the same pupils.",
+ "Wie je aantikt, krijgt {0} waar dat niveau bestaat.": "Whoever you tap gets {0} where that level exists.",
+ "Elke leerling krijgt zijn eigen niveau, zoals in Mijn klas.": "Every pupil gets their own level, as in My class.",
+ "Geef {0} taken aan de hele klas": "Give {0} tasks to the whole class",
+ "Geef {0} taken aan {1} {2}": "Give {0} tasks to {1} {2}",
+ "{0} taken staan klaar bij {1}. Zij vinden ze op hun toestel bij Mijn taken.": "{0} tasks are ready for {1}. They find them on their device under My tasks."
 }
