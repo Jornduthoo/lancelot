@@ -1091,5 +1091,17 @@
  "Elke leerling krijgt zijn eigen niveau, zoals in Mijn klas.": "Cada alumno recibe su propio nivel, como en Mi clase.",
  "Geef {0} taken aan de hele klas": "Dar {0} tareas a toda la clase",
  "Geef {0} taken aan {1} {2}": "Dar {0} tareas a {1} {2}",
- "{0} taken staan klaar bij {1}. Zij vinden ze op hun toestel bij Mijn taken.": "{0} tareas están listas para {1}. Las encuentran en su dispositivo en Mis tareas."
+ "{0} taken staan klaar bij {1}. Zij vinden ze op hun toestel bij Mijn taken.": "{0} tareas están listas para {1}. Las encuentran en su dispositivo en Mis tareas.",
+ "Bij het begin van de les ({0})": "Al inicio de la clase ({0})",
+ "Kies een dag en uur in de toekomst.": "Elige un día y una hora en el futuro.",
+ "De taak is gepland voor {0}. Ze verschijnt {1} bij Mijn taken.": "La tarea está programada para {0}. Aparece {1} en Mis tareas.",
+ "{0} taken zijn gepland voor {1}. Ze verschijnen {2} bij Mijn taken.": "{0} tareas están programadas para {1}. Aparecen {2} en Mis tareas.",
+ "▶ Nu al geven": "▶ Dar ahora",
+ "Een geplande taak zien de leerlingen pas vanaf dat moment": "Los alumnos solo ven una tarea programada desde ese momento",
+ "Wanneer?": "¿Cuándo?",
+ "Meteen": "Ahora mismo",
+ "Bij het begin van de les": "Al inicio de la clase",
+ "Later: kies dag en uur": "Más tarde: elige día y hora",
+ "Vanaf": "Desde",
+ "⏰ Gepland: verschijnt {0}": "⏰ Programada: aparece {0}"
 }

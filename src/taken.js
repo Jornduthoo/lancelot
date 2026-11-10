@@ -179,6 +179,24 @@ function lesVan(les) {
   if (!l) return null;
   return schoonLes({ week: les.week, slot: les.slot, titel: l.titel, vak: l.vak, doel: l.doel, criteria: l.criteria });
 }
+// Een geplande taak: ze verschijnt pas bij de leerlingen vanaf dit moment ("JJJJ-MM-DDTHH:MM", tijd van deze pc).
+const VANAF = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/;
+function schoonVanaf(v) {
+  return VANAF.test(String(v || '')) && Date.parse(v) > Date.now() ? String(v) : null;
+}
+const zichtbaar = t => !t.vanaf || Date.parse(t.vanaf) <= Date.now();
+// Verscheen er sinds dit moment een geplande taak? (voor het seintje naar de leerlingen en het bord)
+function gestartSinds(sinds) {
+  const nu = Date.now();
+  return all().some(t => t.vanaf && !t.dicht && Date.parse(t.vanaf) > sinds && Date.parse(t.vanaf) <= nu);
+}
+// Een geplande taak meteen laten verschijnen.
+function startNu({ id } = {}) {
+  const t = find(id);
+  t.vanaf = null;
+  save();
+  planBewaar(t);
+}
 function schoonLes(l) {
   if (!l || !WEEK.test(String(l.week)) || !SLOT.test(String(l.slot))) return null;
   const les = {
@@ -190,7 +208,7 @@ function schoonLes(l) {
 // Voor de leerling: alleen het doel en de criteria.
 const lesVoorLeerling = t => (t.les && (t.les.doel || t.les.criteria.length) ? { doel: t.les.doel, criteria: t.les.criteria } : null);
 
-function maak({ soort, file, namen, feedback, spel, minuten, niveau, les } = {}) {
+function maak({ soort, file, namen, feedback, spel, minuten, niveau, les, vanaf } = {}) {
   const inhoud = laad(soort, file);
   const lijst = [...new Set((Array.isArray(namen) ? namen : []).map(clean).filter(Boolean))];
   if (!lijst.length) throw new Error('Kies minstens één leerling.');
@@ -202,6 +220,8 @@ function maak({ soort, file, namen, feedback, spel, minuten, niveau, les } = {})
   if (soort === 'quiz' && SOLO[spel]) Object.assign(t, { spel, minuten: MINUTEN.includes(Number(minuten)) ? Number(minuten) : 5 });
   const uitLes = lesVan(les);
   if (uitLes) t.les = uitLes;
+  const start = schoonVanaf(vanaf);
+  if (start) t.vanaf = start;
   // De leerkracht kan iedereen op één niveau zetten (bv. de hele klas eens Page), anders elk zijn eigen niveau.
   if (niveausVan(soort, inhoud).length > 1 && niveausVan(soort, inhoud).includes(niveau)) t.niveau = niveau;
   for (const naam of lijst) t.werk[key(naam)] = nieuwWerk(t, naam, startNiveau(t, naam));
@@ -229,7 +249,7 @@ function planBewaar(t) {
     fs.mkdirSync(PLAN(), { recursive: true });
     const plan = {
       id: t.id, soort: t.soort, file: t.file, titel: t.titel, vak: t.vak, feedback: t.feedback, gemaakt: t.gemaakt,
-      spel: t.spel || null, minuten: t.minuten || null, niveau: t.niveau || null, les: t.les || null,
+      spel: t.spel || null, minuten: t.minuten || null, niveau: t.niveau || null, les: t.les || null, vanaf: t.vanaf || null,
       namen: Object.values(t.werk).map(w => w.naam), inhoud: t.inhoud,
     };
     fs.writeFileSync(path.join(PLAN(), `${t.id}.json`), JSON.stringify(plan) + '\n');
@@ -272,6 +292,8 @@ function uitLesmap() {
       if (niveausVan(t.soort, t.inhoud).includes(p.niveau) && niveausVan(t.soort, t.inhoud).length > 1) t.niveau = p.niveau;
       const les = schoonLes(p.les);
       if (les) t.les = les;
+      const start = schoonVanaf(p.vanaf);
+      if (start) t.vanaf = start;
       bewaarNieuw(t);
       veranderd = true;
     }
@@ -374,7 +396,7 @@ function voortgang(t, w) {
 function lijst() {
   return all().map(t => ({
     id: t.id, soort: t.soort, titel: t.titel, vak: t.vak, feedback: t.feedback, gemaakt: t.gemaakt, dicht: t.dicht, spel: spelVan(t), uitLesmap: !!t.uitLesmap,
-    niveaus: niveausVan(t.soort, t.inhoud), niveau: t.niveau || null, les: t.les || null,
+    niveaus: niveausVan(t.soort, t.inhoud), niveau: t.niveau || null, les: t.les || null, vanaf: zichtbaar(t) ? null : t.vanaf,
     leerlingen: Object.values(t.werk).map(w => ({ naam: w.naam, niveau: w.niveau, status: w.status, klaar: w.klaar, ...voortgang(t, w) }))
       .sort((a, b) => a.naam.localeCompare(b.naam, 'nl')),
   }));
@@ -404,7 +426,7 @@ function detail({ id, naam } = {}) {
 function werkVan(id, naam) {
   const t = find(id);
   const w = t.werk[key(naam)];
-  if (!w) throw new Error('Deze taak is niet voor jou.');
+  if (!w || !zichtbaar(t)) throw new Error('Deze taak is niet voor jou.');
   return { t, w };
 }
 
@@ -413,7 +435,7 @@ function mijn(naam) {
   const k = key(naam);
   if (!k) throw new Error('Vul je naam in.');
   const sinds = Date.now() - 14 * 86400000;
-  const lijst = all().filter(t => t.werk[k]).filter(t => {
+  const lijst = all().filter(t => t.werk[k] && zichtbaar(t)).filter(t => {
     const w = t.werk[k];
     return (!t.dicht && w.status !== 'klaar') || Date.parse(w.klaar || t.gemaakt) > sinds;
   }).map(t => {
@@ -429,7 +451,7 @@ function mijn(naam) {
 // Hoeveel taken nog open staan voor deze leerling (voor het startscherm).
 function aantal(naam) {
   const k = key(naam);
-  return k ? all().filter(t => !t.dicht && t.werk[k] && t.werk[k].status !== 'klaar').length : 0;
+  return k ? all().filter(t => !t.dicht && zichtbaar(t) && t.werk[k] && t.werk[k].status !== 'klaar').length : 0;
 }
 
 function begin(t, w) {
@@ -580,4 +602,4 @@ function soloAntwoord({ id, naam, i, keuze, juist } = {}) {
   return { klaar, ...voortgang(t, w) };
 }
 
-module.exports = { lesVan, get PLAN() { return PLAN(); }, planGeldig, uitLesmap, SOLO, MINUTEN, soloRonde, soloAntwoord, voorbeeld, inhoud, maak, voegToe, haalWeg, zetNiveau, sluit, heropen, wis, lijst, detail, mijn, aantal, open, antwoord, inleveren, quizAntwoord, flush, get DIR() { return DIR(); } };
+module.exports = { lesVan, gestartSinds, startNu, get PLAN() { return PLAN(); }, planGeldig, uitLesmap, SOLO, MINUTEN, soloRonde, soloAntwoord, voorbeeld, inhoud, maak, voegToe, haalWeg, zetNiveau, sluit, heropen, wis, lijst, detail, mijn, aantal, open, antwoord, inleveren, quizAntwoord, flush, get DIR() { return DIR(); } };

@@ -846,5 +846,6 @@
  "✋ Werkt als een agenda: tik in een leeg vak voor een nieuw uur, sleep een les om ze te verplaatsen, trek aan de onderkant om ze langer te maken, tik op een dag voor een vrije dag.": "✋ Funciona como una agenda: toca un hueco vacío para una hora nueva, arrastra una clase para moverla, tira del borde inferior para alargarla, toca un día para un día libre.",
  "🗑 Verwijderen": "🗑 Eliminar",
  "Hier is geen plaats meer voor een uur.": "Aquí ya no cabe ninguna hora.",
- "Kies een vak of geef de les een titel.": "Elige una asignatura o ponle un título a la clase."
+ "Kies een vak of geef de les een titel.": "Elige una asignatura o ponle un título a la clase.",
+ "Gepland: de leerlingen zien deze taak pas vanaf dit uur": "Programada: los alumnos solo ven esta tarea desde esta hora"
 }

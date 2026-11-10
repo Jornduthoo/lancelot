@@ -311,7 +311,10 @@ function takenBlok(taken) {
     const i = el('i');
     i.style.width = `${t.leerlingen.length ? Math.round((klaar / t.leerlingen.length) * 100) : 0}%`;
     balk.append(i);
-    a.append(el('strong', '', t.titel), balk, el('span', 'zw-taak-tel', `${klaar}/${t.leerlingen.length} klaar`));
+    // Een geplande taak: nog niet zichtbaar bij de leerlingen.
+    const tel = t.vanaf ? `⏰ ${new Date(t.vanaf).toLocaleTimeString('nl-BE', { hour: '2-digit', minute: '2-digit' })}` : `${klaar}/${t.leerlingen.length} klaar`;
+    if (t.vanaf) a.title = 'Gepland: de leerlingen zien deze taak pas vanaf dit uur';
+    a.append(el('strong', '', t.titel), balk, el('span', 'zw-taak-tel', tel));
     box.append(a);
   }
   return box;

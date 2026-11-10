@@ -143,3 +143,5 @@
 .tk-doel-crit { margin-top: 8px; }
 .tk-doel-crit ul { margin: 4px 0 0; padding-left: 22px; }
 .tk-doel-crit li { margin: 3px 0; }
+/* Een geplande taak: de leerlingen zien ze pas vanaf dat moment. */
+.tk-taak-gepland { display: block; color: rgb(var(--k-cyan)); font-weight: 600; }
