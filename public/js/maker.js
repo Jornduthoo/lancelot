@@ -414,7 +414,7 @@ function toonDienst() {
   $('s-modellen').innerHTML = info.modellen.map(m => `<option value="${m}">`).join('');
   $('s-model').value = d.model;
   $('s-model').placeholder = info.modellen[0];
-  const actief = id === aiSettings.aiDienst ? ' Deze AI wordt nu gebruikt.' : '';
+  const actief = d.hasKey && id === aiSettings.aiDienst ? ' Deze AI wordt nu gebruikt.' : '';
   $('s-status').textContent = d.hasKey ? `Er is een ${d.naam}-sleutel opgeslagen (${d.keyHint}).${actief}` : `Er is nog geen ${d.naam}-sleutel opgeslagen.${actief}`;
   $('s-remove').classList.toggle('hidden', !d.hasKey);
 }
