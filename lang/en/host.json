@@ -466,5 +466,11 @@
  "{0} kant-en-klare quizzen en oefenbladen bij Op.stap-doelen (breuken en procenten, deelbaarheid, schaal, oppervlakte, werkwoorden, Europa, WO II), met uitleg bij elke vraag. Ze komen in de map \"Startpakket 6e leerjaar\".": "{0} ready-made Dutch-language quizzes and worksheets for the Flemish curriculum goals (fractions and percentages, divisibility, scale, area, verbs, Europe, WWII), with an explanation for every question. They go into the folder \"Startpakket 6e leerjaar\".",
  "Dat lukte niet.": "That didn't work.",
  "{0} quizzen en oefenbladen staan nu in de map \"{1}\".": "{0} quizzes and worksheets are now in the folder \"{1}\".",
- "LANcelot antwoordt niet. Herlaad de pagina en probeer opnieuw.": "LANcelot is not responding. Reload the page and try again."
+ "LANcelot antwoordt niet. Herlaad de pagina en probeer opnieuw.": "LANcelot is not responding. Reload the page and try again.",
+ "{0} {1} aangevinkt": "{0} {1} ticked",
+ "Kies {0} ▶": "Choose {0} ▶",
+ "Vink aan, ook in andere mappen. Shift-klik kiest een reeks.": "Tick them, also in other folders. Shift-click picks a range.",
+ "Meerdere {0} aanvinken en samen kiezen": "Tick several {0} and choose them together",
+ "Eén kiezen": "Choose one",
+ "☑ Meerdere kiezen": "☑ Choose several"
 }

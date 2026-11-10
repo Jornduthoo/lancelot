@@ -11,6 +11,7 @@
 // Met 👁 bekijk je een quiz, oefenblad of toets snel: alle vragen met de juiste antwoorden in een venster.
 // Met ?quiz=<bestand> in het adres start de quiz meteen in dat spel (vanuit De Zonnewijzer).
 // Met kiezen: true (bv. een taak geven) alleen zoeken, mappen openen en kiezen: niets slepen, verplaatsen of exporteren.
+// Met kiezen en meer: lijst => ... kan de leerkracht ook ☑ Meerdere kiezen aanvinken en ze samen kiezen.
 // Voor oefenbladen en sessies: ItemList.mount(el, { kind: 'oefenblad', ... }) met dezelfde opties, plus
 // detail: q => 'tekst achter de titel' en buttons: [{ label, title, cls, click: q => ... }] voor extra knoppen.
 // Gebruikt de globale socket van de pagina.
@@ -370,6 +371,24 @@ const ItemList = (() => {
       const n = picked.size;
       const el = document.createElement('div');
       el.className = 'lib-kies';
+      if (kiezen) {
+        el.innerHTML = `<strong>${n} ${n === 1 ? k.one : k.many} aangevinkt</strong>
+          <button class="secondary" type="button" data-do="alles">Alles hier</button>
+          <button class="secondary" type="button" data-do="niets"${n ? '' : ' disabled'}>Niets</button>
+          <button type="button" data-do="kies"${n ? '' : ' disabled'}>Kies ${n || ''} ▶</button>
+          <span class="muted small lib-kies-tip">Vink aan, ook in andere mappen. Shift-klik kiest een reeks.</span>`;
+        const on = (what, fn) => el.querySelector(`[data-do=${what}]`).addEventListener('click', fn);
+        on('alles', () => { for (const f of shown) picked.add(f); redraw(); });
+        on('niets', () => { picked.clear(); redraw(); });
+        on('kies', () => {
+          const lijst = items.filter(q => picked.has(q.file));
+          picked.clear();
+          picking = false;
+          render();
+          opts.meer(lijst);
+        });
+        return el;
+      }
       el.innerHTML = `<strong>${n} ${n === 1 ? k.one : k.many} geselecteerd</strong>
         <button class="secondary" type="button" data-do="alles">Alles hier</button>
         <button class="secondary" type="button" data-do="niets"${n ? '' : ' disabled'}>Niets</button>
@@ -465,7 +484,8 @@ const ItemList = (() => {
       explorer = null;
       const bar = document.createElement('div');
       bar.className = 'quiz-tools';
-      bar.innerHTML = kiezen ? '<span class="muted small lib-note"></span>' : `<span class="muted small lib-note"></span>
+      bar.innerHTML = kiezen ? `<span class="muted small lib-note"></span>
+        ${items.length && opts.meer ? `<button class="secondary small-btn kies-knop${picking ? ' on' : ''}" type="button" title="Meerdere ${k.many} aanvinken en samen kiezen">${picking ? 'Eén kiezen' : '☑ Meerdere kiezen'}</button>` : ''}` : `<span class="muted small lib-note"></span>
         ${items.length && opts.remove ? `<button class="secondary small-btn kies-knop${picking ? ' on' : ''}" type="button" title="Meerdere ${k.many} aanvinken, bijvoorbeeld om ze samen te verwijderen">${picking ? 'Klaar met selecteren' : '☑ Selecteren'}</button>` : ''}
         <button class="secondary small-btn new-folder" type="button">${Ui.ic('map')} Nieuwe map</button>
         ${k.bestanden ? '' : `<label class="button secondary small-btn" title="Een bestand van ⬇ Exporteren inladen, bijvoorbeeld van je laptop thuis">${Ui.ic('upload')} Importeren<input type="file" accept=".json,application/json" multiple hidden></label>`}
