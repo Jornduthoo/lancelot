@@ -824,9 +824,6 @@
  "{0}/{1} klaar": "{0}/{1} hecho",
  "Dit lesuur enkel deze week weghalen, je vaste rooster blijft hetzelfde": "Quitar esta hora solo esta semana, tu horario fijo sigue igual",
  "bv. Wapenstilstand": "p. ej. Día del Armisticio",
- "Tik op een lesuur om een les te plannen: uit De Kronieken (met quiz en oefenblad) of een eigen les. Sleep een les naar een ander uur, of op een andere les om ze te wisselen. Trek aan de onderkant om ze langer of korter te maken. Tik op een dag bovenaan voor een vrije dag of een extra lesuur. Dat geldt enkel voor die week: je vaste rooster blijft hetzelfde. Werk je thuis aan je planning, kies dan bij Instellingen dezelfde Mijn lesmap als op het digibord: dan staat ze er 's morgens.": "Toca una hora para planificar una clase: desde las Crónicas (con cuestionario y ficha) o tu propia clase. Arrastra una clase a otra hora, o sobre otra clase para intercambiarlas. Tira del borde inferior para alargarla o acortarla. Toca un día arriba para un día libre o una hora extra. Solo vale para esa semana: tu horario fijo sigue igual. Si trabajas en tu planificación en casa, elige en Ajustes la misma Mi carpeta de clase que en la pizarra: por la mañana estará ahí.",
- "✋ Sleep een les om ze te verplaatsen, trek aan de onderkant om ze langer te maken, tik op een dag voor een vrije dag.": "✋ Arrastra una clase para moverla, tira del borde inferior para alargarla, toca un día para un día libre.",
- "🗑 Uur weg deze week": "🗑 Quitar hora esta semana",
  "Waarom vrij?": "¿Por qué libre?",
  "🌴 Vrije dag": "🌴 Día libre",
  "➕ Extra lesuur": "➕ Hora extra",
@@ -844,5 +841,10 @@
  "Deze dag terugzetten zoals in je rooster?": "¿Volver a poner este día como en tu horario?",
  "Terugzetten": "Volver a poner",
  "Ongeldige dag.": "Día no válido.",
- "Daar begint al iets anders. Maak dat eerst korter of sleep het weg.": "Ahí ya empieza otra cosa. Acórtala primero o arrástrala a otro sitio."
+ "Daar begint al iets anders. Maak dat eerst korter of sleep het weg.": "Ahí ya empieza otra cosa. Acórtala primero o arrástrala a otro sitio.",
+ "Tik op een lesuur om een les te plannen: uit De Kronieken (met quiz en oefenblad) of een eigen les. Tik in een leeg vak voor een nieuw uur (met de muis kan je ook een stuk slepen). Sleep een les naar een ander uur, of op een andere les om ze te wisselen. Trek aan de onderkant om ze langer of korter te maken. Tik op een dag bovenaan voor een vrije dag of een extra lesuur. Dat geldt enkel voor die week: je vaste rooster blijft hetzelfde. Werk je thuis aan je planning, kies dan bij Instellingen dezelfde Mijn lesmap als op het digibord: dan staat ze er 's morgens.": "Toca una hora para planificar una clase: desde las Crónicas (con cuestionario y ficha) o tu propia clase. Toca un hueco vacío para una hora nueva (con el ratón también puedes arrastrar un tramo). Arrastra una clase a otra hora, o sobre otra clase para intercambiarlas. Tira del borde inferior para alargarla o acortarla. Toca un día arriba para un día libre o una hora extra. Solo vale para esa semana: tu horario fijo sigue igual. Si trabajas en tu planificación en casa, elige en Ajustes la misma Mi carpeta de clase que en la pizarra: por la mañana estará ahí.",
+ "✋ Werkt als een agenda: tik in een leeg vak voor een nieuw uur, sleep een les om ze te verplaatsen, trek aan de onderkant om ze langer te maken, tik op een dag voor een vrije dag.": "✋ Funciona como una agenda: toca un hueco vacío para una hora nueva, arrastra una clase para moverla, tira del borde inferior para alargarla, toca un día para un día libre.",
+ "🗑 Verwijderen": "🗑 Eliminar",
+ "Hier is geen plaats meer voor een uur.": "Aquí ya no cabe ninguna hora.",
+ "Kies een vak of geef de les een titel.": "Elige una asignatura o ponle un título a la clase."
 }
