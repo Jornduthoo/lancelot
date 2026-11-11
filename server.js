@@ -720,6 +720,7 @@ for (const [route, page] of PAGINAS) {
     if (!isLeerkracht(req)) return res.status(403).send(GEEN_TOEGANG);
     // De instellingen openen vanuit Junior zet LANcelot niet terug als opstartscherm.
     if (route === '/host' && !('instellingen' in req.query)) zetJuniorModus(false);
+    if (route === '/host') zetStartOnthouden(req);
     // Store-versie na de proefmaand zonder aankoop: eerst kopen. Privacy blijft altijd leesbaar.
     if (route !== '/privacy' && store.geblokkeerd()) return res.redirect('/licentie');
     res.setHeader('Cache-Control', 'no-cache');
@@ -779,10 +780,17 @@ function zetJuniorModus(aan) {
   io.emit('jr-modus', { junior: aan });
 }
 const juniorModus = () => juniorAan() && settings.read().juniorModus === true;
+// Het keuzescherm LANcelot of Junior: met "Onthoud mijn keuze" opent het opstarten voortaan meteen de laatst gebruikte
+// versie (gewisseld wordt met de knop bovenaan). Onthouden in settings.json (startOnthouden).
+function zetStartOnthouden(req) {
+  const o = req.query.onthoud;
+  if (o === '1' || o === '0') settings.write({ startOnthouden: o === '1' });
+}
 app.get('/junior-leerkracht', (req, res) => {
   if (!isLeerkracht(req)) return res.status(403).send(GEEN_TOEGANG);
   if (!juniorAan()) return res.redirect('/host');
   zetJuniorModus(true);
+  zetStartOnthouden(req);
   if (store.geblokkeerd()) return res.redirect('/licentie');
   res.setHeader('Cache-Control', 'no-cache');
   res.sendFile(path.join(__dirname, 'public', 'junior-leerkracht.html'));
@@ -791,6 +799,8 @@ app.get('/junior-leerkracht', (req, res) => {
 app.get('/kies', (req, res) => {
   if (!isLeerkracht(req)) return res.status(403).send(GEEN_TOEGANG);
   if (!juniorAan()) return res.redirect('/host');
+  // Keuze onthouden: meteen naar de versie van de vorige keer. Met /kies?vraag=1 toch het keuzescherm.
+  if (settings.read().startOnthouden === true && !('vraag' in req.query)) return res.redirect(juniorModus() ? '/junior-leerkracht' : '/host');
   res.setHeader('Cache-Control', 'no-cache');
   res.sendFile(path.join(__dirname, 'public', 'kies.html'));
 });
