@@ -451,12 +451,12 @@ const guarded = {
   verrader: gok.guard(verrader, 'verrader', 'De Verrader'),
   burcht: gok.guard(burcht, 'burcht', 'Burchtbouwers'),
   rijk: gok.guard(rijk, 'rijk', 'Het Rijk'),
-  knight: gok.guard(knight, 'knight', 'Pac-Knight', { own: true }),
+  knight: gok.guard(knight, 'knight', 'Doolhofridder', { own: true }),
   rossen: gok.guard(rossen, 'rossen', 'Strijdrossen', { own: true }),
-  galaga: gok.guard(galaga, 'galaga', 'Cyber-Galaga', { own: true }),
+  galaga: gok.guard(galaga, 'galaga', 'Drakenjacht', { own: true }),
   neon: gok.guard(neon, 'neon', 'Neon Duel', { own: true }),
-  gauntlet: gok.guard(gauntlet, 'gauntlet', 'Gauntlet', { own: true }),
-  bomber: gok.guard(bomber, 'bomber', 'Bomber-Knight', { own: true }),
+  gauntlet: gok.guard(gauntlet, 'gauntlet', 'Schaduwburcht', { own: true }),
+  bomber: gok.guard(bomber, 'bomber', 'Kruitridder', { own: true }),
   baas: gok.guard(baas, 'baas', 'Leraar-baas', { own: true }),
   royale: gok.guard(royale, 'royale', 'Ridder-Royale', { own: true }),
   sterren: gok.guard(sterren, 'sterren', 'Sterrenvreter', { own: true }),
@@ -512,13 +512,13 @@ function busyWith(except) {
   if (except !== 'verrader' && verrader.active) return 'De Verrader loopt nog. Stop dat spel eerst.';
   if (except !== 'burcht' && burcht.active) return 'Burchtbouwers loopt nog. Stop dat spel eerst.';
   if (except !== 'duel' && duel.active) return 'Duel in de arena loopt nog. Stop dat eerst.';
-  if (except !== 'knight' && knight.active) return 'Pac-Knight loopt nog. Stop dat spel eerst.';
+  if (except !== 'knight' && knight.active) return 'Doolhofridder loopt nog. Stop dat spel eerst.';
   if (except !== 'rossen' && rossen.active) return 'Strijdrossen loopt nog. Stop dat spel eerst.';
-  if (except !== 'galaga' && galaga.active) return 'Cyber-Galaga loopt nog. Stop dat spel eerst.';
-  if (except !== 'bomber' && bomber.active) return 'Bomber-Knight loopt nog. Stop dat spel eerst.';
+  if (except !== 'galaga' && galaga.active) return 'Drakenjacht loopt nog. Stop dat spel eerst.';
+  if (except !== 'bomber' && bomber.active) return 'Kruitridder loopt nog. Stop dat spel eerst.';
   if (except !== 'neon' && neon.active) return 'Neon Duel loopt nog. Stop dat spel eerst.';
   if (except !== 'baas' && baas.active) return 'Leraar-baas loopt nog. Stop dat spel eerst.';
-  if (except !== 'gauntlet' && gauntlet.active) return 'Gauntlet loopt nog. Stop dat spel eerst.';
+  if (except !== 'gauntlet' && gauntlet.active) return 'Schaduwburcht loopt nog. Stop dat spel eerst.';
   if (except !== 'royale' && royale.active) return 'Ridder-Royale loopt nog. Stop dat spel eerst.';
   if (except !== 'sterren' && sterren.active) return 'Sterrenvreter loopt nog. Stop dat spel eerst.';
   if (except !== 'slang' && slang.active) return 'Ridderslang loopt nog. Stop dat spel eerst.';
@@ -1937,7 +1937,7 @@ io.on('connection', socket => {
     socket.on('du-restart', () => duel.quiz && duel.load(duel.quiz, duel.hearts));
     socket.on('du-stop', (_, cb) => cb && cb({ file: duel.stop() }));
 
-    // Pac-Knight
+    // Doolhofridder
     socket.on('pk-load', handle(({ file, minutes, tempo } = {}) => {
       const busy = busyWith('knight');
       if (busy) throw busyError(busy);
@@ -1950,7 +1950,7 @@ io.on('connection', socket => {
     socket.on('pk-restart', () => knight.quiz && knight.load(knight.quiz, knight.minutes, knight.tempo));
     socket.on('pk-stop', (_, cb) => cb && cb({ file: knight.stop() }));
 
-    // Cyber-Galaga
+    // Drakenjacht
     socket.on('cg-load', handle(({ file, minutes, tempo } = {}) => {
       const busy = busyWith('galaga');
       if (busy) throw busyError(busy);
@@ -1963,7 +1963,7 @@ io.on('connection', socket => {
     socket.on('cg-restart', () => galaga.quiz && galaga.load(galaga.quiz, galaga.minutes, galaga.tempo));
     socket.on('cg-stop', (_, cb) => cb && cb({ file: galaga.stop() }));
 
-    // Bomber-Knight
+    // Kruitridder
     socket.on('bk-load', handle(({ file, minutes, tempo } = {}) => {
       const busy = busyWith('bomber');
       if (busy) throw busyError(busy);
@@ -2016,7 +2016,7 @@ io.on('connection', socket => {
       if (typeof cb === 'function') cb(clean ? { ok: true, boss: clean } : { error: 'Ongeldige eindbaas.' });
     });
 
-    // Gauntlet en Ridder-Royale
+    // Schaduwburcht en Ridder-Royale
     gauntlet.attachHost(socket, handle, busyWith, busyError, quizzes);
     royale.attachHost(socket, handle, busyWith, busyError, quizzes);
     sterren.attachHost(socket, handle, busyWith, busyError, quizzes);
@@ -2539,7 +2539,7 @@ io.on('connection', socket => {
     if (typeof cb === 'function') cb(out || {});
   });
 
-  // Pac-Knight
+  // Doolhofridder
   socket.emit('pk-state', knight.base());
   socket.on('pk-join', ({ playerId, name } = {}, cb) => {
     if (!validId(playerId)) return cb && cb({ error: 'Ongeldige speler.' });
@@ -2558,7 +2558,7 @@ io.on('connection', socket => {
   socket.on('pk-question', pk(id => guarded.knight.question(id)));
   socket.on('pk-answer', pk((id, choice) => guarded.knight.answer(id, choice)));
 
-  // Cyber-Galaga
+  // Drakenjacht
   socket.emit('cg-state', galaga.base());
   socket.on('cg-join', ({ playerId, name } = {}, cb) => {
     if (!validId(playerId)) return cb && cb({ error: 'Ongeldige speler.' });
@@ -2577,7 +2577,7 @@ io.on('connection', socket => {
   socket.on('cg-bomb', cg(id => galaga.bomb(id)));
   socket.on('cg-report', cg((id, r) => galaga.report(id, r)));
 
-  // Bomber-Knight
+  // Kruitridder
   socket.emit('bk-state', bomber.base());
   socket.on('bk-join', ({ playerId, name } = {}, cb) => {
     if (!validId(playerId)) return cb && cb({ error: 'Ongeldige speler.' });
@@ -2595,7 +2595,7 @@ io.on('connection', socket => {
   socket.on('bk-asking', bk((id, on) => bomber.asking(id, on)));
   socket.on('bk-question', bk(id => guarded.bomber.question(id)));
   socket.on('bk-answer', bk((id, choice) => guarded.bomber.answer(id, choice)));
-  // Gauntlet en Ridder-Royale
+  // Schaduwburcht en Ridder-Royale
   gauntlet.attachPlayer(socket, validId, guarded.gauntlet);
   royale.attachPlayer(socket, validId, guarded.royale);
   sterren.attachPlayer(socket, validId, guarded.sterren);

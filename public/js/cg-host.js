@@ -1,4 +1,4 @@
-// Cyber-Galaga op het bord: alle piloten van de klas onderaan, een zwerm cyberdraken erboven,
+// Drakenjacht op het bord: alle piloten van de klas onderaan, een zwerm cyberdraken erboven,
 // en op het einde de klasbaas met één levensbalk voor de hele klas.
 // Elke draak die een leerling op zijn toestel neerhaalt, wordt hier ook door zijn ridder neergeschoten.
 // Gebruikt sfx, confetti uit fx.js, quizMakerUrl uit quiz-links.js, CgArt uit cg-art.js.
@@ -54,7 +54,7 @@ socket.on('cg-state', s => {
   const live = s.phase !== 'idle';
   $('stop').classList.toggle('hidden', !live);
   $('join-mini').classList.toggle('hidden', s.phase !== 'play');
-  $('status').textContent = live ? `Cyber-Galaga · ${s.title}` : 'Cyber-Galaga';
+  $('status').textContent = live ? `Drakenjacht · ${s.title}` : 'Drakenjacht';
   if (!live) return show('setup');
   if (s.phase === 'lobby') {
     renderLobby();
@@ -394,7 +394,7 @@ function renderEnd() {
   }
   const top = s.ranking[0];
   const b = s.boss || {};
-  $('w-title').textContent = b.down ? '🏆 De klas heeft de klasbaas verslagen!' : top ? `🏆 ${top.name} wint Cyber-Galaga!` : 'Cyber-Galaga is voorbij';
+  $('w-title').textContent = b.down ? '🏆 De klas heeft de klasbaas verslagen!' : top ? `🏆 ${top.name} wint Drakenjacht!` : 'Drakenjacht is voorbij';
   const dragons = s.ranking.reduce((a, r) => a + r.dragons, 0);
   const right = s.ranking.reduce((a, r) => a + r.right, 0);
   const bossTop = [...s.ranking].sort((a, c) => c.bossDmg - a.bossDmg)[0];

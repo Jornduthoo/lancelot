@@ -1,4 +1,4 @@
-// Pac-Knight op de gsm of Chromebook: door het doolhof lopen, kristallen rapen, drones ontwijken en krachten verdienen met vragen.
+// Doolhofridder op de gsm of Chromebook: door het doolhof lopen, kristallen rapen, drones ontwijken en krachten verdienen met vragen.
 // Gebruikt socket, $, playerId, store en buzz uit player.js, ICONS, sfx en confetti uit fx.js, PacDraw uit pk-draw.js.
 const pk = {
   state: null,
@@ -82,7 +82,7 @@ socket.on('pk-state', s => {
     const medals = ['🥇', '🥈', '🥉'];
     const me = s.me || {};
     $('pk-end-medal').textContent = medals[me.rank - 1] || '💎';
-    $('pk-end-title').textContent = me.rank === 1 && (me.score ?? 1) > 0 ? 'Jij bent de beste Pac-Knight!' : `Plek ${me.rank} van ${me.players}`;
+    $('pk-end-title').textContent = me.rank === 1 && (me.score ?? 1) > 0 ? 'Jij bent de beste Doolhofridder!' : `Plek ${me.rank} van ${me.players}`;
     $('pk-end-score').textContent = `${me.crystals || 0} 💎`;
     $('pk-end-stats').textContent = `${s.right} ${s.right === 1 ? 'vraag' : 'vragen'} juist · ${me.drones || 0} ${me.drones === 1 ? 'drone' : 'drones'} uitgeschakeld`;
     if (!$('pk-end').dataset.done && me.rank && me.rank <= 3) confetti(4000);

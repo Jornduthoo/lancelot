@@ -1,4 +1,4 @@
-// Bomber-Knight: tot dertig ridders in één arena vol kratten en pilaren, zoals Bomberman.
+// Kruitridder: tot dertig ridders in één arena vol kratten en pilaren.
 // Een mijn kost ⚡ energie, en energie verdien je alleen met goede antwoorden. Een mijn ontploft na een paar
 // seconden in een kruis; kratten springen open (💎 en soms een upgrade: 🔥 grotere ontploffing, 🛡️ schild, ⚡ energie).
 // Wie geraakt wordt, verliest een paar kristallen en staat even later ergens anders weer op.
@@ -315,7 +315,7 @@ class Bomber {
     if (!p || this.phase !== 'play' || p.question === null) return { error: 'Er staat geen vraag open.' };
     const q = this.quiz.questions[p.question];
     const correct = choice === q.correct;
-    this.log.push({ naam: p.name, spel: 'Bomber-Knight', bron: this.quiz.title, vraag: q.question, doel: q.doel, juist: correct });
+    this.log.push({ naam: p.name, spel: 'Kruitridder', bron: this.quiz.title, vraag: q.question, doel: q.doel, juist: correct });
     p.last = p.question;
     let gained = 0;
     let bonus = null;

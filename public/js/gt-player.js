@@ -1,4 +1,4 @@
-// Gauntlet op de gsm of Chromebook: kies je klasse, vecht je met je ploeg door de kerker en geneest je ploeg met goede antwoorden.
+// Schaduwburcht op de gsm of Chromebook: kies je klasse, vecht je met je ploeg door de kerker en geneest je ploeg met goede antwoorden.
 // Je eigen ridder beweegt meteen (geen wachten op de server); de anderen tekenen we vloeiend tussen twee berichten in.
 // Gebruikt socket, $, playerId, store en buzz uit player.js, sfx en confetti uit fx.js, AK, GtWorld en GtDraw.
 (() => {
@@ -8,13 +8,13 @@
   root.innerHTML = `
   <form id="gt-join" class="screen welcome hidden">
     <img src="/img/logo.webp" alt="LANcelot">
-    <p class="title">Gauntlet</p>
+    <p class="title">Schaduwburcht</p>
     <input id="gt-name" maxlength="20" autocomplete="off" placeholder="Je naam">
     <p class="error" id="gt-join-error"></p>
     <button type="submit" class="big">De kerker in</button>
   </form>
   <section id="gt-lobby" class="screen panel hidden">
-    <p class="status">Gauntlet</p>
+    <p class="status">Schaduwburcht</p>
     <p class="title" id="gt-lobby-name"></p>
     <p>Kies je klasse. Bij de start maakt LANcelot ploegen van vier, met zoveel mogelijk verschillende klassen.</p>
     <div class="gt-classes" id="gt-classes"></div>
@@ -164,7 +164,7 @@
       const me = s.me || {};
       const team = s.teams[me.team] || {};
       $('gt-end-medal').textContent = medals[s.rank - 1] || '🗝️';
-      $('gt-end-title').textContent = s.rank === 1 ? `${team.name || 'Je ploeg'} wint Gauntlet!` : `${team.name || 'Je ploeg'}: plek ${s.rank} van ${s.teams.length}`;
+      $('gt-end-title').textContent = s.rank === 1 ? `${team.name || 'Je ploeg'} wint Schaduwburcht!` : `${team.name || 'Je ploeg'}: plek ${s.rank} van ${s.teams.length}`;
       $('gt-end-score').textContent = `Niveau ${me.level || 1} · ${me.gold || 0} goud`;
       $('gt-end-stats').textContent = `${s.right} ${s.right === 1 ? 'vraag' : 'vragen'} juist · ${me.kills || 0} monsters verslagen`;
       if (!$('gt-end').dataset.done && s.rank === 1) confetti(4000);

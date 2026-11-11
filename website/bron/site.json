@@ -1,11 +1,11 @@
 {
   "adres": "https://lancelot.network",
-  "nietOpSite": [
-    "gauntlet",
-    "cybergalaga",
-    "packnight",
-    "bomberknight"
-  ],
+  "siteId": {
+    "gauntlet": "schaduwburcht",
+    "cybergalaga": "drakenjacht",
+    "packnight": "doolhofridder",
+    "bomberknight": "kruitridder"
+  },
   "email": "hello@lancelot.network",
   "store": {
     "id": "9P1CLC6W364H",

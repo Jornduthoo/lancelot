@@ -1,5 +1,5 @@
-// Gauntlet: ploegen van vier ridders (paladijn, mage, ranger en mech) vechten zich samen door een cyberkerker naar de uitgang.
-// Je levenspunten lopen langzaam weg, zoals in de echte Gauntlet. Een goed antwoord geneest je hele ploeg en laadt je speciale kracht.
+// Schaduwburcht: ploegen van vier ridders (paladijn, mage, ranger en mech) vechten zich samen door een cyberkerker naar de uitgang.
+// Je levenspunten lopen langzaam weg,. Een goed antwoord geneest je hele ploeg en laadt je speciale kracht.
 // Geveld? Dan beantwoord je een vraag om terug te komen. Elke ploeg krijgt dezelfde kerkers: wie raakt het diepst?
 // Tegen gokken: na een fout antwoord even wachten (het juiste antwoord blijft staan), en die vraag komt later terug.
 // De leerling beweegt zelf (geen vertraging) en stuurt zijn positie; de server beslist over monsters, schoten en treffers.
@@ -66,7 +66,7 @@ class Gauntlet {
     this.quiz = quiz;
     this.minutes = [1, 2, 3, 4, 5, 6, 8, 10, 12, 15].includes(minutes) ? minutes : 8;
     this.tempo = tempoOf(tempo);
-    this.vragen = new Vragen(quiz, 'Gauntlet', this.tempo);
+    this.vragen = new Vragen(quiz, 'Schaduwburcht', this.tempo);
     this.phase = 'lobby';
     this.broadcast();
   }
@@ -718,7 +718,7 @@ class Gauntlet {
         rows.push([i + 1, t.name, p.name, CLASSES[p.cls].name, t.cleared, t.gold, p.kills, p.healed, p.revives, p.bestStreak, p.right, p.wrong, pct(p.right, p.right + p.wrong)]);
       }
     });
-    return saveCsv(`gauntlet-${this.quiz.title}`, [['Gauntlet', this.quiz.title], ['Speeltijd', `${this.minutes} minuten`], ['Tempo', this.tempo], ['Leerlingen', this.players.size]],
+    return saveCsv(`gauntlet-${this.quiz.title}`, [['Schaduwburcht', this.quiz.title], ['Speeltijd', `${this.minutes} minuten`], ['Tempo', this.tempo], ['Leerlingen', this.players.size]],
       ['Plaats ploeg', 'Ploeg', 'Naam', 'Klasse', 'Niveaus gehaald', 'Goud ploeg', 'Monsters verslagen', 'Genezen', 'Teruggekomen', 'Langste reeks', 'Vragen goed', 'Vragen fout', '% goed'], rows);
   }
 

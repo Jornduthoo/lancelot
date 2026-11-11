@@ -1,4 +1,4 @@
-// Cyber-Galaga: elke leerling vliegt op zijn eigen toestel met een jetpack tegen golven cyberdraken.
+// Drakenjacht: elke leerling vliegt op zijn eigen toestel met een jetpack tegen golven cyberdraken.
 // Het vliegen en schieten gebeurt helemaal op het toestel zelf (geen vertraging over het netwerk).
 // De server beslist over de vragen en de beloningen, houdt de scores bij en beheert de klasbaas:
 // op het einde vecht de hele klas samen tegen één reuzendraak met één gedeelde levensbalk.
@@ -148,7 +148,7 @@ class Galaga {
     if (!p || this.phase !== 'play' || p.question === null) return { error: 'Er staat geen vraag open.' };
     const q = this.quiz.questions[p.question];
     const correct = choice === q.correct;
-    this.log.push({ naam: p.name, spel: 'Cyber-Galaga', bron: this.quiz.title, vraag: q.question, doel: q.doel, juist: correct });
+    this.log.push({ naam: p.name, spel: 'Drakenjacht', bron: this.quiz.title, vraag: q.question, doel: q.doel, juist: correct });
     p.last = p.question;
     let gained = 0;
     let wait = 0;
