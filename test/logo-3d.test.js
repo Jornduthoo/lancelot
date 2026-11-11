@@ -1,5 +1,5 @@
-// Elk leerlingscherm met een aanmeldscherm toont het bewegende 3D-logo, nooit het vaste logo.webp.
-// Faalt dus als een nieuw spel (xx-player.js) of een nieuwe leerlingpagina het logo vergeet.
+// Het bewegende 3D-logo staat alleen op het startscherm van de leerkracht (bord).
+// Leerlingschermen tonen het vaste logo.webp: minder afleiding en sneller op trage Chromebooks.
 const test = require('node:test');
 const assert = require('node:assert');
 const fs = require('fs');
@@ -17,16 +17,16 @@ const SPELERS = fs.readdirSync(path.join(PUB, 'js')).filter(f => /-player\.js$/.
 const aanmeldschermen = tekst => [...tekst.matchAll(/<form id="([\w-]+)" class="screen welcome[^"]*">([\s\S]*?)<\/form>/g)]
   .map(m => ({ id: m[1], inhoud: m[2] }));
 
-test('elke leerlingpagina laadt het bewegende logo', () => {
-  for (const f of LEERLINGPAGINAS) assert.match(lees(f), /<script src="\/js\/logo-3d\.js"><\/script>/, `${f} laadt logo-3d.js niet`);
+test('leerlingpagina\'s laden het bewegende logo niet (sneller op trage Chromebooks)', () => {
+  for (const f of [...LEERLINGPAGINAS, 'junior.html']) assert.doesNotMatch(lees(f), /logo-3d\.js/, `${f} laadt logo-3d.js nog`);
 });
 
-test('elk aanmeldscherm voor leerlingen toont het bewegende logo', () => {
+test('elk aanmeldscherm voor leerlingen toont het vaste logo, niet het bewegende', () => {
   let geteld = 0;
   for (const f of [...LEERLINGPAGINAS, ...SPELERS]) {
     for (const s of aanmeldschermen(lees(f))) {
       geteld++;
-      assert.match(s.inhoud, /<img [^>]*data-logo-3d/, `${f}: aanmeldscherm #${s.id} heeft geen bewegend logo (<img src="/img/logo.webp" alt="LANcelot" data-logo-3d>)`);
+      assert.doesNotMatch(s.inhoud, /data-logo-3d/, `${f}: aanmeldscherm #${s.id} heeft nog het bewegende logo`);
     }
   }
   assert.ok(geteld > 40, 'te weinig aanmeldschermen gevonden: klopt de zoekopdracht nog?');
@@ -38,16 +38,20 @@ test('elk spel dat leerlingen spelen heeft een aanmeldscherm met logo', () => {
     if (!index.includes(`src="/${f}"`)) continue;
     const t = lees(f);
     if (!/class="screen welcome/.test(t)) continue; // hulpspelers zonder eigen aanmelding (bv. avatar)
-    assert.ok(aanmeldschermen(t).length > 0, `${f}: aanmeldscherm niet herkend`);
+    const schermen = aanmeldschermen(t);
+    assert.ok(schermen.length > 0, `${f}: aanmeldscherm niet herkend`);
+    for (const s of schermen) assert.match(s.inhoud, /<img [^>]*logo\.webp/, `${f}: aanmeldscherm #${s.id} zonder logo`);
   }
 });
 
-test('nergens bij leerlingen het vaste logo zonder data-logo-3d', () => {
-  for (const f of [...LEERLINGPAGINAS, ...SPELERS]) {
-    for (const img of lees(f).match(/<img [^>]*logo\.webp[^>]*>/g) || []) {
-      assert.match(img, /data-logo-3d/, `${f}: vast logo ${img}`);
-    }
-  }
+test('bij leerlingen nergens data-logo-3d', () => {
+  for (const f of [...LEERLINGPAGINAS, ...SPELERS, 'junior.html']) assert.doesNotMatch(lees(f), /data-logo-3d/, `${f} gebruikt nog het bewegende logo`);
+});
+
+test('startscherm leerkracht houdt het bewegende logo', () => {
+  const host = lees('host.html');
+  assert.match(host, /<img [^>]*data-logo-3d/, 'host.html: geen bewegend logo meer op de start');
+  assert.match(host, /<script src="\/js\/logo-3d\.js"><\/script>/, 'host.html laadt logo-3d.js niet');
 });
 
 test('valt het filmpje uit, dan blijft de ridder bewegen', () => {

@@ -8,7 +8,7 @@
   root.id = 'storm';
   root.innerHTML = `
   <form id="bs-join" class="screen welcome hidden">
-    <img src="/img/logo.webp" alt="LANcelot" data-logo-3d>
+    <img src="/img/logo.webp" alt="LANcelot">
     <p class="title">Burchtstorm</p>
     <input id="bs-name" maxlength="20" autocomplete="off" placeholder="Je naam">
     <p class="error" id="bs-join-error"></p>

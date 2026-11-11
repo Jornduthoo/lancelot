@@ -8,7 +8,7 @@
   root.id = 'poort';
   root.innerHTML = `
   <form id="pw-join" class="screen welcome hidden">
-    <img src="/img/logo.webp" alt="LANcelot" data-logo-3d>
+    <img src="/img/logo.webp" alt="LANcelot">
     <p class="title">Poortwacht</p>
     <input id="pw-name" maxlength="20" autocomplete="off" placeholder="Je naam">
     <p class="error" id="pw-join-error"></p>
