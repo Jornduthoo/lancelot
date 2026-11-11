@@ -5,10 +5,10 @@ const fs = require('fs');
 const path = require('path');
 
 const KINDS = {
-  quiz: { one: 'quiz', many: 'quizzen', waar: 'De Smidse > Mijn quizzen' },
-  oefenblad: { one: 'oefenblad', many: 'oefenbladen', waar: 'De Smidse > Mijn oefenbladen' },
+  quiz: { one: 'quiz', many: 'quizzen', waar: 'Maken > Mijn quizzen' },
+  oefenblad: { one: 'oefenblad', many: 'oefenbladen', waar: 'Maken > Mijn oefenbladen' },
   sessie: { one: 'sessie', many: 'sessies', waar: 'De Ronde Tafel' },
-  proef: { one: 'toets', many: 'toetsen', waar: 'De Smidse > Mijn toetsen' },
+  proef: { one: 'toets', many: 'toetsen', waar: 'Maken > Mijn toetsen' },
   resultaat: { one: 'resultaat', many: 'resultaten', waar: 'Resultaten' },
 };
 const MAX_IMPORT = 2000;

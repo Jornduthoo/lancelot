@@ -66,22 +66,22 @@
     "lijst": [
       {
         "id": "arena",
-        "naam": "De Arena",
+        "naam": "Spelen",
         "tekst": "Spelend oefenen met je eigen quizzen: snelle quizzen, duels, ploegspellen en avonturen."
       },
       {
         "id": "ronde-tafel",
-        "naam": "De Ronde Tafel",
+        "naam": "Peilen",
         "tekst": "Peilen met de hele klas: polls, stellingen, woordwolken, open vragen en kringgesprekken."
       },
       {
         "id": "smidse",
-        "naam": "De Smidse",
+        "naam": "Maken",
         "tekst": "Maak quizzen, oefenbladen en toetsen, met AI of zelf. Live spelen of op papier met verbeterblad."
       },
       {
         "id": "wapenkamer",
-        "naam": "De Wapenkamer",
+        "naam": "Klastools",
         "tekst": "Klastools op het bord: lot, groepjes, timer, geluidsmeter, dobbelstenen en klastaken."
       },
       {
@@ -111,7 +111,7 @@
     "vorm": "Zo speel je",
     "juist": "Goed antwoord",
     "quiz": "Lesstof",
-    "quizTekst": "Met elke quiz uit de Smidse: zelf gemaakt of met AI.",
+    "quizTekst": "Met elke quiz die je maakt: zelf of met AI.",
     "toestellen": "Leerlingen spelen op",
     "toestellenTekst": "Chromebook, laptop, tablet of gsm, in de browser",
     "vorige": "Vorig spel",
@@ -174,7 +174,7 @@
       {
         "id": "proef",
         "naam": "Toetsen met verbeterblad",
-        "tekst": "Maak een toets in de Smidse, laat hem online maken of print hem. De punten komen vanzelf in je overzicht."
+        "tekst": "Maak een toets, laat hem online maken of print hem. De punten komen vanzelf in je overzicht."
       }
     ]
   },

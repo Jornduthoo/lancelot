@@ -560,7 +560,7 @@ const ItemList = (() => {
         renderUitlegBar(ub);
       }
       if (items.length === 0 && folders.length === 0) {
-        box.insertAdjacentHTML('beforeend', `<div class="leeg"><p>Nog geen ${k.many}.</p><p class="muted small">${k.bestanden ? 'Speel eerst een quiz, spel, oefenblad of toets tot het einde: dan staan de scores hier, klaar voor Excel.' : kiezen ? `Maak of importeer eerst ${k.many} in De Smidse.` : 'Maak er een met de knoppen hierboven, of importeer een bestand.'}</p></div>`);
+        box.insertAdjacentHTML('beforeend', `<div class="leeg"><p>Nog geen ${k.many}.</p><p class="muted small">${k.bestanden ? 'Speel eerst een quiz, spel, oefenblad of toets tot het einde: dan staan de scores hier, klaar voor Excel.' : kiezen ? `Maak of importeer eerst ${k.many} bij Maken.` : 'Maak er een met de knoppen hierboven, of importeer een bestand.'}</p></div>`);
         return;
       }
       explorer = explorerView();

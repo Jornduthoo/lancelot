@@ -66,22 +66,22 @@
     "lijst": [
       {
         "id": "arena",
-        "naam": "La Arena",
+        "naam": "Jugar",
         "tekst": "Practicar jugando con tus propios cuestionarios: cuestionarios rápidos, duelos, juegos en equipo y aventuras."
       },
       {
         "id": "ronde-tafel",
-        "naam": "La Mesa Redonda",
+        "naam": "Sondear",
         "tekst": "Pregunta a toda la clase: encuestas, afirmaciones, nubes de palabras, preguntas abiertas y asambleas."
       },
       {
         "id": "smidse",
-        "naam": "La Forja",
+        "naam": "Crear",
         "tekst": "Crea cuestionarios, fichas y exámenes, con IA o tú mismo. En directo o en papel con solucionario."
       },
       {
         "id": "wapenkamer",
-        "naam": "La Armería",
+        "naam": "Herramientas de clase",
         "tekst": "Herramientas de aula en la pizarra: sorteo, grupos, temporizador, medidor de ruido, dados y tareas de clase."
       },
       {
@@ -111,7 +111,7 @@
     "vorm": "Cómo se juega",
     "juist": "Respuesta correcta",
     "quiz": "Contenido",
-    "quizTekst": "Con cualquier cuestionario de la Forja: tuyo o creado con IA.",
+    "quizTekst": "Con cualquier cuestionario que crees: tuyo o creado con IA.",
     "toestellen": "Los alumnos juegan en",
     "toestellenTekst": "Chromebook, portátil, tableta o móvil, en el navegador",
     "vorige": "Juego anterior",
@@ -174,7 +174,7 @@
       {
         "id": "proef",
         "naam": "Exámenes con hoja de corrección",
-        "tekst": "Crea un examen en la Forja, hazlo en línea o imprímelo. Las notas llegan solas a tu resumen."
+        "tekst": "Crea un examen, hazlo en línea o imprímelo. Las notas llegan solas a tu resumen."
       }
     ]
   },
