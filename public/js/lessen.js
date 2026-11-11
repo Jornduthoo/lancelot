@@ -71,13 +71,13 @@ const Lessen = (() => {
   // icoon = een tegel uit public/img/icons, teken = een emoji als er geen tegel is.
   const SPELEN = [['/host', 'Toernooi', 'toernooi'], ['/hofschilder', 'De Hofschilder', 'hofschilder'], ['/duel', 'Duel in de arena', 'duel'],
     ['/kerker', 'Ontsnap uit de kerker', 'kerker'], ['/titanenstrijd', 'Titanenstrijd', 'titanenstrijd'], ['/burchtbouwers', 'Burchtbouwers', 'burcht'], ['/poortwacht', 'Poortwacht', 'poortwacht'],
-    ['/gauntlet', 'Gauntlet', 'gauntlet'], ['/cybergalaga', 'Cyber-Galaga', 'cybergalaga'], ['/leraarbaas', 'Leraar-baas', 'leraarbaas'],
+    ['/gauntlet', 'Schaduwburcht', 'gauntlet'], ['/cybergalaga', 'Drakenjacht', 'cybergalaga'], ['/leraarbaas', 'Leraar-baas', 'leraarbaas'],
     ['/verrader', 'De Verrader', 'verrader'], ['/ridderrace', 'Ridderrace', 'strijdros'], ['/robopaarden', 'Robopaarden', 'robopaarden'],
     ['/toren', 'De prinses in de toren', 'toren'], ['/pixelridder', 'Pixelridder', 'pixelridder'], ['/neonvlucht', 'Neonvlucht', 'neonvlucht'], ['/raketridder', 'Raketridder', 'raketridder'], ['/splijtzwaard', 'Splijtzwaard', 'splijtzwaard'], ['/wankelwagen', 'Wankelwagen', 'wankelwagen'], ['/plasmapoort', 'Plasmapoort', 'plasmapoort'], ['/kolkridder', 'Kolkridder', 'kolkridder'], ['/neoncamelot', 'Neon-Camelot', 'neoncamelot'], ['/tuimelridder', 'Tuimelridder', 'tuimelridder'], ['/hooibergjacht', 'Hooibergjacht', 'hooibergjacht'], ['/zwermwacht', 'Zwermwacht', 'zwermwacht'], ['/haakridder', 'Haakridder', 'haakridder'], ['/banierveld', 'Banierveld', 'banierveld'],
     ['/diepboor', 'Diepboor', 'diepboor'], ['/schattenjacht', 'Schattenjacht', 'schattenjacht'], ['/kristalroof', 'Kristalroof', 'kristalroof'],
-    ['/laserslag', 'Laserslag', 'laserslag'], ['/strijdrossen', 'Strijdrossen', 'strijdrossen'], ['/bomberknight', 'Bomber-Knight', 'bomberknight'],
+    ['/laserslag', 'Laserslag', 'laserslag'], ['/strijdrossen', 'Strijdrossen', 'strijdrossen'], ['/bomberknight', 'Kruitridder', 'bomberknight'],
     ['/neonduel', 'Neon Duel', 'neonduel'], ['/ridder-royale', 'Ridder-Royale', 'royale'], ['/sterrenvreter', 'Sterrenvreter', 'sterrenvreter'],
-    ['/ridderslang', 'Ridderslang', 'ridderslang'], ['/packnight', 'Pac-Knight', 'packnight'], ['/robomol', 'Robomol', 'robomol'], ['/burchtstorm', 'Burchtstorm', 'burchtstorm']];
+    ['/ridderslang', 'Ridderslang', 'ridderslang'], ['/packnight', 'Doolhofridder', 'packnight'], ['/robomol', 'Robomol', 'robomol'], ['/burchtstorm', 'Burchtstorm', 'burchtstorm']];
   const taak = { id: 'taak', naam: 'Als taak per leerling', teken: '📋' };
   const VORMEN = {
     quiz: [...SPELEN.map(([id, naam, icoon]) => ({ id, naam, icoon })), taak],

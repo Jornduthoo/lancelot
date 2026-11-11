@@ -1,4 +1,4 @@
-// Gauntlet tekenen, voor het bord en de leerling: de kerker (één keer vooraf getekend), monsters, poorten, schatten,
+// Schaduwburcht tekenen, voor het bord en de leerling: de kerker (één keer vooraf getekend), monsters, poorten, schatten,
 // schoten, vonken en het licht van fakkels en ridders in het donker. Gebruikt GtWorld en AK (arena-kit.js).
 const GtDraw = (() => {
   const { T, R, CLASSES, MONSTERS, POORT } = GtWorld;

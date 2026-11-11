@@ -14,10 +14,10 @@ Het thema: middeleeuws met een scifi-kantje. Het startscherm heeft drie grote te
    - **De Verrader**: ridders herstellen de kristalkern met goede antwoorden, de geheime verraders betoveren ze. Aan de Ronde Tafel praat de klas en stemt wie verbannen wordt
    - **Burchtbouwers**: de hele klas bouwt samen één burcht. Elk goed antwoord is een steen die je zelf op een deel van de burcht legt. Als de tijd om is, valt de draak aan
    - **Duel in de arena**: één tegen één op dezelfde vraag, wie eerst juist antwoordt slaat toe. Een toernooischema op het bord tot er één kampioen is
-   - **Pac-Knight**: alle ridders samen in één neon doolhof. Raap kristallen en ontwijk de drones; een goed antwoord geeft een kracht waarmee jij op de drones jaagt
+   - **Doolhofridder**: alle ridders samen in één neon doolhof. Raap kristallen en ontwijk de drones; een goed antwoord geeft een kracht waarmee jij op de drones jaagt
    - **Strijdrossen**: hoverrossen in een 3D-gevechtsarena; lasers, raketten en mijnen krijg je alleen met goede antwoorden
-   - **Cyber-Galaga**: elke leerling vliegt op zijn eigen toestel met een jetpack tegen golven cyberdraken. Een goed antwoord geeft een beloning naar keuze (dubbele laser, schild of bom); op het einde verslaat de hele klas samen de klasbaas met één gedeelde levensbalk
-   - **Bomber-Knight**: tot dertig ridders in één burchtarena. Een mijn kost energie en energie verdien je met goede antwoorden; uit kratten komen kristallen, grotere ontploffingen en schilden
+   - **Drakenjacht**: elke leerling vliegt op zijn eigen toestel met een jetpack tegen golven cyberdraken. Een goed antwoord geeft een beloning naar keuze (dubbele laser, schild of bom); op het einde verslaat de hele klas samen de klasbaas met één gedeelde levensbalk
+   - **Kruitridder**: tot dertig ridders in één burchtarena. Een mijn kost energie en energie verdien je met goede antwoorden; uit kratten komen kristallen, grotere ontploffingen en schilden
    - **Neon Duel**: een vechtspel. De klas speelt in twee teams, op het bord vechten twee grote ridders. Elk goed antwoord is een slag, snel juist een combo, drie op rij een supermove
    - **Poortwacht**: de klas verdedigt samen de burchtpoort tegen golven monsters en een draak. Goede antwoorden geven goud voor je eigen toren
    - **Neonvlucht**: rennen, springen en glijden door de neonburcht. Bij een vraagpoort loop je door het juiste antwoord voor turbo en een hogere vermenigvuldiger
@@ -50,11 +50,11 @@ Het thema: middeleeuws met een scifi-kantje. Het startscherm heeft drie grote te
 
 Leerlingen stellen hun eigen ridder samen: ridder of ridderes, huidskleur, haar, tien helmen (van ridderhelm tot holovizier en cyberhelm), versieringen, vijf soorten harnas (klassiek, cyber, goud, mecha, kristal), een robotarm, iets op de rug (cape, jetpack, lichtvleugels of een drone), zeven wapens (ook een plasmablaster en energiespeer) en een schild met patroon en kleur. De eerste keer opent de riddermaker vanzelf na het aanmelden; daarna kan het altijd met **🛡️ Pas je ridder aan** op het aanmeldscherm en in de lobby.
 
-LANcelot bewaart de ridder op de naam van de leerling in `avatars.json` (blijft bewaard bij updates). De ridder staat in elke lobby, op het podium en in de eindstanden, en speelt mee: in de toren, in Laserslag (3D-zichten in de kleur van je team, en het hoofd naast de naam van bovenaf), op het hoverros in de Ridderrace, in het toernooischema van het duel, bij de bouwers van de burcht en in het doolhof van Pac-Knight.
+LANcelot bewaart de ridder op de naam van de leerling in `avatars.json` (blijft bewaard bij updates). De ridder staat in elke lobby, op het podium en in de eindstanden, en speelt mee: in de toren, in Laserslag (3D-zichten in de kleur van je team, en het hoofd naast de naam van bovenaf), op het hoverros in de Ridderrace, in het toernooischema van het duel, bij de bouwers van de burcht en in het doolhof van Doolhofridder.
 
 ## Tempo van de vragen
 
-In de Ridderrace, Laserslag, De prinses in de toren, Pac-Knight, Strijdrossen, Neon Duel en Leraar-baas kies je het **tempo van de vragen**: *rustig* (een goed antwoord geeft veel brandstof, munitie, energie of een langere kracht), *normaal* of *intens* (alles raakt sneller op, dus vaker nieuwe vragen). LANcelot onthoudt je keuze.
+In de Ridderrace, Laserslag, De prinses in de toren, Doolhofridder, Strijdrossen, Neon Duel en Leraar-baas kies je het **tempo van de vragen**: *rustig* (een goed antwoord geeft veel brandstof, munitie, energie of een langere kracht), *normaal* of *intens* (alles raakt sneller op, dus vaker nieuwe vragen). LANcelot onthoudt je keuze.
 
 ## Starten (Windows)
 
@@ -162,7 +162,7 @@ Een samenwerkingsspel: de hele klas bouwt één burcht met zes delen (twee toren
 - De hoogte die de draak vraagt, hangt af van het aantal leerlingen, de speeltijd en de moeilijkheid (makkelijk, normaal, moeilijk). Wie later binnenkomt, maakt het niet moeilijker.
 - Resultaten (stenen, juist en fout, beste reeks, favoriete deel) in `resultaten/`.
 
-## Pac-Knight
+## Doolhofridder
 
 Met de hele klas in één doolhof. Elke leerling speelt op zijn eigen gsm of Chromebook, het bord toont het hele doolhof.
 

@@ -1,4 +1,4 @@
-// Cyber-Galaga op de gsm of Chromebook: je eigen ridder vliegt met een jetpack tegen golven cyberdraken.
+// Drakenjacht op de gsm of Chromebook: je eigen ridder vliegt met een jetpack tegen golven cyberdraken.
 // Het spel draait helemaal op het toestel zelf, dus er is geen vertraging. De server geeft vragen en beloningen,
 // telt de scores en beheert de klasbaas waar de hele klas op het einde samen tegen vecht.
 // Gebruikt socket, $, playerId, store en buzz uit player.js, ICONS, sfx en confetti uit fx.js, CgArt uit cg-art.js.
@@ -330,7 +330,7 @@ function updateEnemies(dt) {
       e.angle += d * Math.min(1, dt * 8);
     }
   }
-  // Duiken zoals bij Galaga: om de zoveel tijd stort een draak (of een groepje) zich op je.
+  // Duiken: om de zoveel tijd stort een draak (of een groepje) zich op je.
   if (!boss && G.gt >= G.nextDive && homed && !G.ship.crashed) {
     const k = G.wave;
     const home = G.enemies.filter(e => e.state === 'home');

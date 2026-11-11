@@ -11,8 +11,8 @@ const BRON = __dirname;
 const SITE = path.join(ROOT, 'website', 'site');
 const CONFIG = JSON.parse(fs.readFileSync(path.join(BRON, 'site.json'), 'utf8'));
 const TALEN = ['nl', 'en', 'fr', 'es', 'de'];
-// Spellen waarvan de naam naar een bestaand spel verwijst, staan niet op de website.
-const NIET_OP_SITE = new Set(CONFIG.nietOpSite || []);
+// Vier spellen kregen een eigen naam; op de website heet ook hun pagina en icoon zo (in de app bleef het oude adres).
+const SITE_ID = CONFIG.siteId || {};
 
 const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
@@ -49,8 +49,8 @@ function spellen() {
   while ((m = re.exec(stuk))) {
     if (m[1]) { groepen.push({ naam: m[1], spellen: [] }); continue; }
     totaal++;
-    if (NIET_OP_SITE.has(m[2])) continue;
-    groepen[groepen.length - 1].spellen.push({ id: m[2], icoon: m[3], naam: m[4].trim(), uitleg: m[5].trim(), groep: groepen[groepen.length - 1].naam });
+    const id = SITE_ID[m[2]] || m[2];
+    groepen[groepen.length - 1].spellen.push({ id, icoon: SITE_ID[m[2]] ? `${id}.webp` : m[3], icoonBron: m[3], naam: m[4].trim(), uitleg: m[5].trim(), groep: groepen[groepen.length - 1].naam });
   }
   return { groepen, totaal };
 }
@@ -409,9 +409,10 @@ function bouw() {
   const alle = Object.fromEntries(TALEN.map(x => [x, JSON.parse(fs.readFileSync(path.join(BRON, 'teksten', `${x}.json`), 'utf8'))]));
   // Beelden uit de app: iconen van spellen en zalen, het merk en de lettertypes.
   const iconen = new Set(['arena', 'ronde-tafel', 'smidse', 'wapenkamer', 'burcht', ...Object.values(MOTIVATIE_ICOON), ...Object.values(OPVOLGEN_ICOON)].map(x => x + '.webp'));
-  for (const g of data.groepen) for (const s of g.spellen) iconen.add(s.icoon);
+  const bron = {};
+  for (const g of data.groepen) for (const s of g.spellen) { iconen.add(s.icoon); bron[s.icoon] = s.icoonBron; }
   fs.rmSync(path.join(SITE, 'img', 'spellen'), { recursive: true, force: true });
-  for (const f of iconen) kopieer(path.join(ROOT, 'public', 'img', 'icons', f), path.join(SITE, 'img', 'spellen', f));
+  for (const f of iconen) kopieer(path.join(ROOT, 'public', 'img', 'icons', bron[f] || f), path.join(SITE, 'img', 'spellen', f));
   kopieer(path.join(ROOT, 'public', 'img', 'mark.webp'), path.join(SITE, 'img', 'mark.webp'));
   kopieer(path.join(ROOT, 'public', 'img', 'wordmark.webp'), path.join(SITE, 'img', 'wordmark.webp'));
   kopieer(path.join(ROOT, 'public', 'favicon.png'), path.join(SITE, 'img', 'favicon.png'));

@@ -368,7 +368,7 @@ function saveKnight(k) {
   const ranking = k.ranking();
   const pct = (a, n) => (n ? `${Math.round((a / n) * 100)}%` : '-');
   const lines = [
-    row(['Pac-Knight', k.quiz.title]),
+    row(['Doolhofridder', k.quiz.title]),
     row(['Datum', stamp(now)]),
     row(['Speeltijd', `${k.minutes} minuten`]),
     row(['Tempo', k.tempo]),
@@ -386,7 +386,7 @@ function saveGalaga(g) {
   const pct = (a, n) => (n ? `${Math.round((a / n) * 100)}%` : '-');
   const b = g.boss;
   const lines = [
-    row(['Cyber-Galaga', g.quiz.title]),
+    row(['Drakenjacht', g.quiz.title]),
     row(['Datum', stamp(now)]),
     row(['Speeltijd', `${g.minutes} minuten`]),
     row(['Tempo', g.tempo]),
@@ -404,7 +404,7 @@ function saveBomber(k) {
   const ranking = k.ranking();
   const pct = (a, n) => (n ? `${Math.round((a / n) * 100)}%` : '-');
   const lines = [
-    row(['Bomber-Knight', k.quiz.title]),
+    row(['Kruitridder', k.quiz.title]),
     row(['Datum', stamp(now)]),
     row(['Speeltijd', `${k.minutes} minuten`]),
     row(['Tempo', k.tempo]),

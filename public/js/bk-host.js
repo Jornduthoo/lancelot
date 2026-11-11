@@ -1,4 +1,4 @@
-// Bomber-Knight op het bord: de hele arena met alle ridders, mijnen en ontploffingen, en wie de meeste kristallen heeft.
+// Kruitridder op het bord: de hele arena met alle ridders, mijnen en ontploffingen, en wie de meeste kristallen heeft.
 // Gebruikt sfx, confetti uit fx.js, quizMakerUrl uit quiz-links.js, BomberDraw uit bk-draw.js.
 const socket = io({ query: { role: 'host' } });
 const $ = id => document.getElementById(id);
@@ -53,7 +53,7 @@ socket.on('bk-state', s => {
   const live = s.phase !== 'idle';
   $('stop').classList.toggle('hidden', !live);
   $('join-mini').classList.toggle('hidden', s.phase !== 'play');
-  $('status').textContent = live ? `Bomber-Knight · ${s.title}` : 'Bomber-Knight';
+  $('status').textContent = live ? `Kruitridder · ${s.title}` : 'Kruitridder';
   if (s.arena) scene = BomberDraw.fromState(s, scene);
   if (!live) return show('setup');
   if (s.phase === 'lobby') {
@@ -174,7 +174,7 @@ function renderEnd() {
     saved.append(downloadLink(s.resultsFile));
   }
   const top = s.ranking[0];
-  $('w-title').textContent = top ? `🏆 ${top.name} wint Bomber-Knight!` : 'Bomber-Knight is voorbij';
+  $('w-title').textContent = top ? `🏆 ${top.name} wint Kruitridder!` : 'Kruitridder is voorbij';
   const kos = s.ranking.reduce((a, r) => a + r.kos, 0);
   const crates = s.ranking.reduce((a, r) => a + r.crates, 0);
   const right = s.ranking.reduce((a, r) => a + r.right, 0);

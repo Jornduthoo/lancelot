@@ -1,4 +1,4 @@
-// Gauntlet: de kerker, de vier klassen en de monsters. Gedeeld door de server, de leerlingen en het bord.
+// Schaduwburcht: de kerker, de vier klassen en de monsters. Gedeeld door de server, de leerlingen en het bord.
 // Een kerker is een raster van vakjes (T eenheden groot) met zalen en gangen. Elke ploeg krijgt dezelfde kerker
 // (zelfde zaadje per niveau), zodat de race tussen de ploegen eerlijk is. Hoek 0 is naar rechts.
 (function (root, factory) {

@@ -1,4 +1,4 @@
-// Gedeeld gereedschap voor Gauntlet en Ridder-Royale (bord en leerling): besturing met toetsen en duimjoystick,
+// Gedeeld gereedschap voor Schaduwburcht en Ridder-Royale (bord en leerling): besturing met toetsen en duimjoystick,
 // vloeiend tekenen van de anderen (interpolatie), vonken en ontploffingen, ridders tekenen en het vragenvenster.
 // Gebruikt ICONS en sfx uit fx.js.
 const AK = (() => {

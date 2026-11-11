@@ -1,4 +1,4 @@
-// Pac-Knight: alle ridders lopen samen door één neon doolhof en rapen kristallen. Drones jagen op hen.
+// Doolhofridder: alle ridders lopen samen door één neon doolhof en rapen kristallen. Drones jagen op hen.
 // Een goed antwoord geeft een kracht (💥). Met een actieve kracht (8 seconden bij normaal tempo) vluchten
 // de drones, en wie er een raakt, schakelt hem uit. Wie zonder kracht gevangen wordt, verliest kristallen.
 // Tegen gokken: na een fout antwoord even wachten (het juiste antwoord blijft staan), en die vraag komt later terug.
@@ -67,7 +67,7 @@ function makeMaze(W, H, rnd = Math.random) {
       if (d !== undefined) open(x + DX[d], y + DY[d]);
     }
   }
-  // Extra lussen, zodat het doolhof ruim aanvoelt zoals bij Pac-Man.
+  // Extra lussen, zodat het doolhof ruim aanvoelt.
   for (let y = 1; y < H - 1; y++) {
     for (let x = 1; x <= mid; x++) {
       if (g[y][x] !== 1 || (x % 2) === (y % 2)) continue;
@@ -316,7 +316,7 @@ class PacKnight {
     if (!p || this.phase !== 'play' || p.question === null) return { error: 'Er staat geen vraag open.' };
     const q = this.quiz.questions[p.question];
     const correct = choice === q.correct;
-    this.log.push({ naam: p.name, spel: 'Pac-Knight', bron: this.quiz.title, vraag: q.question, doel: q.doel, juist: correct });
+    this.log.push({ naam: p.name, spel: 'Doolhofridder', bron: this.quiz.title, vraag: q.question, doel: q.doel, juist: correct });
     p.last = p.question;
     let gained = 0;
     let wait = 0;

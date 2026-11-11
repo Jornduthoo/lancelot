@@ -1,4 +1,4 @@
-/* Gauntlet en Ridder-Royale: gedeelde stijl voor de leerling en het bord. */
+/* Schaduwburcht en Ridder-Royale: gedeelde stijl voor de leerling en het bord. */
 
 /* Op het leerlingscherm: als een van deze spellen loopt, verdwijnt de rest. */
 body[data-gt="1"] main > :not(#gauntlet), body[data-ry="1"] main > :not(#royale), body[data-sv="1"] main > :not(#sterren), body[data-rs="1"] main > :not(#slang), body[data-bs="1"] main > :not(#storm), body[data-px="1"] main > :not(#pixel) { display: none !important; }
