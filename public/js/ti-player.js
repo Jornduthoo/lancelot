@@ -13,7 +13,7 @@
   root.id = 'titan';
   root.innerHTML = `
   <form id="ti-join" class="screen welcome hidden">
-    <img src="/img/logo.webp" alt="LANcelot" data-logo-3d>
+    <img src="/img/logo.webp" alt="LANcelot">
     <p class="title">Titanenstrijd</p>
     <input id="ti-name" maxlength="20" autocomplete="off" placeholder="Je naam">
     <p class="error" id="ti-join-error"></p>
