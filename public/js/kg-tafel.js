@@ -10,6 +10,13 @@ const KgTafel = (() => {
     img.onload = () => { zaalImg = img; ver++; opKlaar.forEach(f => f()); };
     img.src = '/img/zalen/raadzaal.webp';
   }
+  // De geschilderde tafel (van bovenaf, rond). Op het scherm rekken we ze uit tot de ellips van de kring.
+  let tafelImg = null;
+  if (typeof Image !== 'undefined') {
+    const img = new Image();
+    img.onload = () => { tafelImg = img; ver++; opKlaar.forEach(f => f()); };
+    img.src = '/img/kring/tafel.webp';
+  }
   function cover(g, img, w, h) {
     const sc = Math.max(w / img.width, h / img.height);
     const ox = (w - img.width * sc) / 2, oy = (h - img.height * sc) / 2;
@@ -188,6 +195,19 @@ const KgTafel = (() => {
   function tafel(g, m) {
     const { cx, cy, rx, ry } = m;
     const ellips = (f, rot = 0) => { g.beginPath(); g.ellipse(cx, cy, rx * f, ry * f, rot, 0, Math.PI * 2); };
+    if (tafelImg) {
+      // Een zachte schaduw op de vloer, dan het geschilderde blad.
+      g.save();
+      g.shadowColor = 'rgb(0 0 0 / .75)';
+      g.shadowBlur = rx * .1;
+      g.shadowOffsetY = ry * .09;
+      g.fillStyle = 'rgb(8 6 4)';
+      ellips(1.0);
+      g.fill();
+      g.restore();
+      g.drawImage(tafelImg, cx - rx * 1.04, cy - ry * 1.04, rx * 2.08, ry * 2.08);
+      return;
+    }
     // Dikte van het blad: een donkere schijf iets lager.
     g.save();
     g.shadowColor = 'rgb(0 0 0 / .8)';
