@@ -484,7 +484,7 @@
 /* ---------- Beginscherm van de leerkracht: grote blokken zoals in LANcelot ---------- */
 .jr-view { display: flex; flex-direction: column; gap: 16px; }
 .jr-held { display: flex; flex-direction: column; align-items: center; gap: 6px; margin-top: 4px; }
-.jr-held-logo { width: auto; max-width: min(46vw, 300px); max-height: 30vh; height: auto; filter: drop-shadow(0 8px 18px rgb(0 0 0 / .45)); }
+.jr-held-logo { width: auto; max-width: min(34vw, 210px); max-height: 21vh; height: auto; filter: drop-shadow(0 8px 18px rgb(0 0 0 / .45)); }
 .jr-held-zin { color: #fff; font-family: var(--jr-schrift); font-weight: 700; font-size: 1.2rem; text-shadow: 0 2px 8px rgb(0 0 0 / .7); margin: 0; text-align: center; }
 .jr-blokken { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
 @media (max-width: 1000px) { .jr-blokken { grid-template-columns: repeat(2, 1fr); } }

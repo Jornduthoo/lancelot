@@ -1912,7 +1912,7 @@ html[data-thema="daglicht"] body:has(#home:not(.hidden)) { background: var(--bg)
 .eiland-rij .module.balk .tag { display: none; }
 @media (max-width: 1000px) { .eiland-rij { grid-template-columns: 1fr; } }
 /* Op het startscherm passen logo en vijf rijken samen op één scherm (bord en Chromebook). */
-#home .hero img { width: auto; height: clamp(150px, 34vh, 340px); max-width: 70vw; object-fit: contain; }
+#home .hero img { width: auto; height: clamp(110px, 24vh, 240px); max-width: 55vw; object-fit: contain; }
 .rijk-kop { display: flex; align-items: center; gap: 14px; width: 100%; margin: 4px 0 18px; }
 .rijk-kop-icoon { width: 56px; height: 56px; object-fit: cover; clip-path: polygon(22% 0, 78% 0, 100% 22%, 100% 78%, 78% 100%, 22% 100%, 0 78%, 0 22%); }
 .rijk-kop h2 { margin: 0; font-family: var(--head); font-size: 1.8rem; }
