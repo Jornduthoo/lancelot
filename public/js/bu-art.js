@@ -2058,6 +2058,7 @@ const BuArt = (() => {
 
   // Een sterrenhemel met nevels, één keer gebakken.
   // planeet: waar de verre planeet staat, als deel van de breedte en hoogte, met zijn straal.
+  let hemelGroot = null;
   function hemel(w, h, planeet = { x: 0.86, y: 0.2, r: 0.075 }) {
     const key = `h|${w}|${h}|${planeet.x}|${planeet.y}|${planeet.r}`;
     let c = cache.get(key);
@@ -2065,7 +2066,13 @@ const BuArt = (() => {
     c = canvas(w, h);
     const g = c.getContext('2d');
     // Jorns geschilderde sterrenhemel (met eigen planeet), zo groot dat hij alles bedekt.
-    const img = ART.hemel;
+    // Op brede schermen (digibord) halen we er pas dan een 2x scherpere versie bij; Chromebooks en gsm's laden hem niet.
+    if (w > 1800 && !hemelGroot) {
+      hemelGroot = new Image();
+      hemelGroot.onload = () => { ART.hemelGroot = hemelGroot; for (const k of [...cache.keys()]) if (k.startsWith('h|')) cache.delete(k); };
+      hemelGroot.src = '/img/burcht/hemel-groot.webp';
+    }
+    const img = (w > 1800 && ART.hemelGroot) || ART.hemel;
     if (img) {
       const sc = Math.max(w / img.width, h / img.height);
       g.imageSmoothingQuality = 'high';
