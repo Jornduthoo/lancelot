@@ -17,7 +17,8 @@ const MAX_DIEPTE = 6;
 const MAX_LES = 999;
 
 // De mappen, de online links en de koppelingen per les gaan mee in Mijn lesmap (kronieken-links/links.json): klein, en
-// zo bereid je thuis voor wat 's morgens op het bord staat. De pdf's zelf en de pagina waar je stopte blijven op deze pc.
+// zo bereid je thuis voor wat 's morgens op het bord staat. De pdf's zelf gaan apart mee (map bordboeken, zie syncNaam);
+// de pagina waar je stopte blijft op deze pc.
 const LINKS_DIR = gegevens.pad('kronieken-links');
 const LINKS = path.join(LINKS_DIR, 'links.json');
 
@@ -144,13 +145,52 @@ function bewaar(map, naam, data) {
 function verwijder(map, naam) {
   const bron = volledig(map, naam);
   if (!fs.existsSync(bron)) throw new Error('Dat bestand bestaat niet meer.');
-  fs.mkdirSync(PRULLENBAK, { recursive: true });
-  fs.renameSync(bron, path.join(PRULLENBAK, `${gegevens.stempel()}_${path.basename(bron)}`));
+  naarPrullenbak(bron);
   const m = leesMeta();
   const k = sleutel(map, path.basename(bron));
   delete m.pagina[k];
   zonderKoppeling(m, k);
   schrijfMeta(m);
+}
+
+// ---------- Mijn lesmap: de bestanden zelf ----------
+// De pdf's en afbeeldingen gaan mee naar de lesmap (map bordboeken), zodat een boek dat je thuis toevoegt ook op het
+// digibord staat. Alleen wat LANcelot zelf zo zou bewaren (zelfde naamregels, niet te diep), nooit _prullenbak.
+function syncNaam(rel) {
+  const delen = String(rel || '').split('/');
+  const naam = delen.pop();
+  if (delen.length > MAX_DIEPTE) return false;
+  try {
+    return !!SOORTEN[path.extname(naam).toLowerCase()] && bestandNaam(naam) === naam && mapPad(delen.join('/')) === delen.join('/');
+  } catch {
+    return false;
+  }
+}
+
+// Een boek dat uit de lesmap vervangen of verwijderd wordt: naar de prullenbak van Mijn methodes, nooit weg.
+// vervang: er komt meteen een nieuwere versie op dezelfde plek, dus de pagina en de koppelingen blijven staan.
+function syncWeg(rel, vervang) {
+  const delen = String(rel).split('/');
+  const naam = delen.pop();
+  if (!vervang) return verwijder(delen.join('/'), naam);
+  naarPrullenbak(volledig(delen.join('/'), naam));
+}
+
+// Werd dit boek hier in LANcelot verwijderd (staat het in de prullenbak)? Dan mag het ook uit de lesmap.
+function inPrullenbak(rel) {
+  const naam = String(rel).split('/').pop();
+  const ext = path.extname(naam), stam = naam.slice(0, -ext.length);
+  try { return fs.readdirSync(PRULLENBAK).some(n => n.endsWith(`_${naam}`) || (n.includes(`_${stam} (`) && n.endsWith(ext))); } catch { return false; }
+}
+
+// Nooit een ouder boek in de prullenbak overschrijven (de stempel is per minuut).
+function naarPrullenbak(bron) {
+  fs.mkdirSync(PRULLENBAK, { recursive: true });
+  const ext = path.extname(bron);
+  const stam = `${gegevens.stempel()}_${path.basename(bron, ext)}`;
+  let doel = `${stam}${ext}`;
+  for (let n = 2; fs.existsSync(path.join(PRULLENBAK, doel)); n++) doel = `${stam} (${n})${ext}`;
+  fs.renameSync(bron, path.join(PRULLENBAK, doel));
 }
 
 // ---------- Online bordboeken ----------
@@ -321,4 +361,4 @@ function routes(app, isLeerkracht, express, wijzig) {
   });
 }
 
-module.exports = { DIR, LINKS_DIR, geldigeLinks, lijst, nieuweMap, bewaar, verwijder, verwijderMap, zetPagina, koppel, ontkoppel, voegLinkToe, verwijderLink, linkApart, testInbed, magInbedden, routes };
+module.exports = { DIR, LINKS_DIR, syncNaam, syncWeg, inPrullenbak, geldigeLinks, lijst, nieuweMap, bewaar, verwijder, verwijderMap, zetPagina, koppel, ontkoppel, voegLinkToe, verwijderLink, linkApart, testInbed, magInbedden, routes };

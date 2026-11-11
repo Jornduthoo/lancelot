@@ -17,10 +17,12 @@
     if (v.pushed) parts.push(`${v.pushed} weggeschreven`);
     if (v.removed) parts.push(`${v.removed} naar de prullenbak`);
     $('lm-status').textContent = !v.lesmap ? 'Nog geen lesmap gekozen. Alles blijft alleen op deze pc.'
+      : v.boeken && v.boeken.totaal ? `Bordboeken kopiëren: ${v.boeken.klaar} van ${v.boeken.totaal}…`
       : v.error ? `⚠ ${v.error}`
         : v.at ? `✓ Gesynchroniseerd ${when(v.at)}${parts.length ? ` (${parts.join(', ')})` : ''}.` : 'Bezig met synchroniseren…';
     $('lm-status').className = v.error ? 'error' : '';
-    for (const id of ['lm-sync', 'lm-open', 'lm-off']) $(id).classList.toggle('hidden', !v.lesmap);
+    for (const id of ['lm-sync', 'lm-open', 'lm-off', 'lm-boeken-rij']) $(id).classList.toggle('hidden', !v.lesmap);
+    $('lm-boeken').checked = v.boekenAan !== false;
   }
 
   function choose(folder) {
@@ -61,6 +63,7 @@
     $('lm-status').textContent = 'Bezig met synchroniseren…';
     socket.emit('lesmap-sync', null, render);
   });
+  $('lm-boeken').addEventListener('change', e => socket.emit('lesmap-boeken', e.target.checked, render));
   $('lm-open').addEventListener('click', () => socket.emit('lesmap-open'));
   $('lm-off').addEventListener('click', async () => {
     if (await Ui.vraag('De lesmap loskoppelen? Je quizzen blijven op deze pc en in de lesmap staan, maar worden niet meer gelijk gehouden.')) choose('');
