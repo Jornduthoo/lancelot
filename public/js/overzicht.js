@@ -129,10 +129,26 @@ const Overzicht = (() => {
     });
     close.addEventListener('click', () => modal.classList.add('hidden'));
     modal.addEventListener('click', e => { if (e.target === modal) modal.classList.add('hidden'); });
+    // Meteen na het spel: één zin over wat goed ging en wat moeilijk was (zonder namen, want het bord hangt voor de klas).
+    const zin = el('button', 'ov-zin hidden');
+    zin.title = 'Open het overzicht van dit spel';
+    document.body.append(zin);
+    zin.addEventListener('click', () => { zin.classList.add('hidden'); btn.click(); });
+    let zinWeg = null;
+    const kort = v => (v.length > 60 ? `${v.slice(0, 58)}…` : v);
     sock.on('sessie-klaar', o => {
       last = o;
       btn.classList.remove('hidden');
       btn.classList.add('nieuw');
+      const moeilijk = o.vragen[0];
+      const goed = o.vragen[o.vragen.length - 1];
+      if (o.antwoorden < 4 || !moeilijk || moeilijk === goed) return;
+      zin.textContent = moeilijk.pct === goed.pct
+        ? `De klas had ${o.pct}% juist. Bekijk het overzicht.`
+        : `De klas had ${o.pct}% juist. Dit ging goed: "${kort(goed.vraag)}". Dit ging moeilijk: "${kort(moeilijk.vraag)}".`;
+      zin.classList.remove('hidden');
+      clearTimeout(zinWeg);
+      zinWeg = setTimeout(() => zin.classList.add('hidden'), 45000);
     });
   }
 

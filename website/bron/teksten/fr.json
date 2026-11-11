@@ -66,22 +66,22 @@
     "lijst": [
       {
         "id": "arena",
-        "naam": "L’Arène",
+        "naam": "Jouer",
         "tekst": "S’exercer en jouant avec tes propres quiz : quiz rapides, duels, jeux d’équipe et aventures."
       },
       {
         "id": "ronde-tafel",
-        "naam": "La Table ronde",
+        "naam": "Sonder",
         "tekst": "Interroger toute la classe : sondages, affirmations, nuages de mots, questions ouvertes et cercles de parole."
       },
       {
         "id": "smidse",
-        "naam": "La Forge",
+        "naam": "Créer",
         "tekst": "Crée des quiz, des fiches et des tests, avec l’IA ou toi-même. En direct ou sur papier avec corrigé."
       },
       {
         "id": "wapenkamer",
-        "naam": "L’Armurerie",
+        "naam": "Outils de classe",
         "tekst": "Des outils de classe au tableau : tirage au sort, groupes, minuteur, sonomètre, dés et responsabilités."
       },
       {
@@ -111,7 +111,7 @@
     "vorm": "Comment on joue",
     "juist": "Bonne réponse",
     "quiz": "Matière",
-    "quizTekst": "Avec chaque quiz de la Forge : le tien ou créé par l’IA.",
+    "quizTekst": "Avec chaque quiz que tu crées : le tien ou créé par l’IA.",
     "toestellen": "Les élèves jouent sur",
     "toestellenTekst": "Chromebook, portable, tablette ou téléphone, dans le navigateur",
     "vorige": "Jeu précédent",
@@ -174,7 +174,7 @@
       {
         "id": "proef",
         "naam": "Évaluations avec corrigé",
-        "tekst": "Crée une évaluation dans la Forge, fais-la passer en ligne ou imprime-la. Les points arrivent tout seuls dans ton aperçu."
+        "tekst": "Crée une évaluation, fais-la passer en ligne ou imprime-la. Les points arrivent tout seuls dans ton aperçu."
       }
     ]
   },

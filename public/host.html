@@ -51,38 +51,71 @@
       <p>Alles voor je klas, op je eigen netwerk</p>
     </div>
     <p class="notice hidden" id="store-tip"><span id="store-tip-tekst"></span> <a id="store-tip-koop" href="#">Koop LANcelot in de Microsoft Store</a></p>
-    <p class="notice hidden" id="welkom-tip">👋 De eerste keer LANcelot? <a href="/welkom">Zet in vier stappen je klas, je leerjaar en het netwerk klaar.</a></p>
+    <section class="eerste-start hidden" id="eerste-start">
+      <div class="es-proef">
+        <div>
+          <h2>Welkom bij LANcelot</h2>
+          <p>Zie in één minuut hoe een spel werkt. Jij speelt mee als leerling en twee proefridders spelen vanzelf mee.</p>
+        </div>
+        <button class="gold big" id="es-proef">Speel nu een proefspel</button>
+      </div>
+      <div class="es-kop">
+        <strong id="es-stap" data-geen-vertaling></strong>
+        <span class="es-balk"><i id="es-balk"></i></span>
+        <button class="secondary" id="es-weg" title="Dit blok niet meer tonen">Verbergen</button>
+      </div>
+      <ol class="es-stappen">
+        <li data-stap="klas">
+          <b>1</b>
+          <div><strong>Zet je klas erin</strong><span>Typ of plak de namen van je leerlingen.</span></div>
+          <a class="button secondary" href="/welkom">Mijn klas</a>
+        </li>
+        <li data-stap="quiz">
+          <b>2</b>
+          <div><strong>Je eerste quiz</strong><span>Neem kant-en-klare quizzen voor je leerjaar of maak er zelf een.</span></div>
+          <select id="es-jaar" aria-label="Leerjaar"></select>
+          <button class="secondary" id="es-pakket">Zet quizzen klaar</button>
+          <button class="secondary" id="es-maak">Maak een quiz</button>
+        </li>
+        <li data-stap="spel">
+          <b>3</b>
+          <div><strong>Speel met je klas</strong><span>Kies een spel. De leerlingen scannen de QR-code en doen mee.</span></div>
+          <button class="secondary" id="es-spelen">Kies een spel</button>
+        </li>
+      </ol>
+      <p class="muted small" id="es-melding"></p>
+    </section>
     <!-- Het startscherm toont enkel de vijf rijken. Een klik opent het rijk; het logo of "Alle rijken" brengt je terug. -->
     <div class="realms">
       <button class="realm" data-realm="arena">
         <img class="tile-icon" src="/img/icons/arena.webp" alt="">
-        <strong>De Arena</strong>
+        <strong>Spelen</strong>
         <span>Spelen en oefenen met de hele klas, met je eigen quizzen.</span>
-        <em class="tag">20 spellen</em>
+        <em class="tag">De Arena</em>
       </button>
       <button class="realm" data-realm="tafel">
         <img class="tile-icon" src="/img/icons/ronde-tafel.webp" alt="">
-        <strong>De Ronde Tafel</strong>
+        <strong>Peilen</strong>
         <span>Vragen aan de klas: polls, woordwolken, voorkennis en kringgesprekken.</span>
-        <em class="tag">Peilen</em>
+        <em class="tag">De Ronde Tafel</em>
       </button>
       <button class="realm" data-realm="smidse">
         <img class="tile-icon" src="/img/icons/smidse.webp" alt="">
-        <strong>De Smidse</strong>
+        <strong>Maken</strong>
         <span>Smeed je eigen quizzen, oefenbladen en toetsen, met of zonder AI.</span>
-        <em class="tag">Maken</em>
+        <em class="tag">De Smidse</em>
       </button>
       <button class="realm" data-realm="wapenkamer">
         <img class="tile-icon" src="/img/icons/wapenkamer.webp" alt="">
-        <strong>De Wapenkamer</strong>
+        <strong>Klastools</strong>
         <span>Klastools op het bord: kiezen, groepjes, timer en meer.</span>
-        <em class="tag">8 tools</em>
+        <em class="tag">De Wapenkamer</em>
       </button>
       <button class="realm" data-realm="kronieken">
         <img class="tile-icon" src="/img/icons/kronieken.webp" alt="">
-        <strong>De Kronieken</strong>
+        <strong>Lesgeven</strong>
         <span>Je methodes, je planning en je klas: lesgeven en opvolgen.</span>
-        <em class="tag">Lesgeven</em>
+        <em class="tag">De Kronieken</em>
       </button>
       <!-- In de Store-versie staat hier "Mijn klas" in plaats van De Kronieken (zie beheer.js, toonStore). -->
     </div>
@@ -108,7 +141,7 @@
       </button>
     </div>
     <div class="rijk-kop hidden" id="rijk-kop">
-      <button class="secondary" id="rijk-terug"><i class="ic ic-terug" aria-hidden="true"></i> Alle rijken</button>
+      <button class="secondary" id="rijk-terug"><i class="ic ic-terug" aria-hidden="true"></i> Terug</button>
       <img class="rijk-kop-icoon" id="rijk-kop-icoon" src="" alt="">
       <h2 id="rijk-kop-naam"></h2>
     </div>
@@ -130,7 +163,6 @@
         <img class="tile-icon" src="/img/icons/hofschilder.webp" alt="">
         <strong>De Hofschilder</strong>
         <span>Eén ridder tekent een begrip uit de les met neoninkt, de rest raadt het op zijn eigen toestel. Snel juist = meer punten, ook voor de tekenaar.</span>
-        <em class="tag nieuw">Nieuw</em>
       </button>
       <button class="module" data-module="duel">
         <img class="tile-icon" src="/img/icons/duel.webp" alt="">
@@ -150,7 +182,6 @@
         <img class="tile-icon" src="/img/icons/kerker.webp" alt="">
         <strong>Ontsnap uit de kerker</strong>
         <span>De hele klas zit opgesloten. Samen sleutels smeden, runencodes kraken en de Kerkermeester verslaan: deur na deur naar buiten.</span>
-        <em class="tag nieuw">Nieuw</em>
       </button>
       <button class="module" data-module="burchtbouwers">
         <img class="tile-icon" src="/img/icons/burcht.webp" alt="">
@@ -161,7 +192,6 @@
         <img class="tile-icon" src="/img/icons/poortwacht.webp" alt="">
         <strong>Poortwacht</strong>
         <span>Verdedig samen de burchtpoort. Goede antwoorden geven goud voor je eigen toren. Op het einde komt de draak.</span>
-        <em class="tag nieuw">Nieuw</em>
       </button>
       <button class="module" data-module="gauntlet">
         <img class="tile-icon" src="/img/icons/gauntlet.webp" alt="">
@@ -207,7 +237,6 @@
         <img class="tile-icon" src="/img/icons/robopaarden.webp" alt="">
         <strong>Robopaarden</strong>
         <span>Bouw je eigen robotpaard en race rond het burchtmeer, met schansen, nitro en geheime wegen. Runenkisten geven een vraag: juist = een wapen.</span>
-        <em class="tag nieuw">Nieuw</em>
       </button>
       <button class="module" data-module="toren">
         <img class="tile-icon" src="/img/icons/toren.webp" alt="">
@@ -218,61 +247,51 @@
         <img class="tile-icon" src="/img/icons/pixelridder.webp" alt="">
         <strong>Pixelridder</strong>
         <span>Ren en spring met je eigen ridder door retro pixelwerelden. Runeblokken geven een vraag: juist = power-up. Wie haalt de meeste runepoorten?</span>
-        <em class="tag nieuw">Nieuw</em>
       </button>
       <button class="module" data-module="neonvlucht">
         <img class="tile-icon" src="/img/icons/neonvlucht.webp" alt="">
         <strong>Neonvlucht</strong>
         <span>Ren, spring en glij door de neonburcht. Bij een vraagpoort loop je door het juiste antwoord voor turbo en een hogere ×.</span>
-        <em class="tag nieuw">Nieuw</em>
       </button>
       <button class="module" data-module="raketridder">
         <img class="tile-icon" src="/img/icons/raketridder.webp" alt="">
         <strong>Raketridder</strong>
         <span>Vlieg met je raketridder van vlag naar vlag over lava, stekels en lasers. Elke vlag is een vraag: juist = turbo. Wie is het snelst?</span>
-        <em class="tag nieuw">Nieuw</em>
       </button>
       <button class="module" data-module="splijtzwaard">
         <img class="tile-icon" src="/img/icons/splijtzwaard.webp" alt="">
         <strong>Splijtzwaard</strong>
         <span>Tik en je gloeiend zwaard maakt een salto. Splijt kristallen, tonnen en robots en steek vast in hout. Elke runenpaal is een vraag: juist = gouden kling.</span>
-        <em class="tag nieuw">Nieuw</em>
       </button>
       <button class="module" data-module="wankelwagen">
         <img class="tile-icon" src="/img/icons/wankelwagen.webp" alt="">
         <strong>Wankelwagen</strong>
         <span>Rij met je ridderkar over schansen, wiebelbruggen en wippen. Elke vlag een vraag én een andere kar: ijswielen, vierkante wielen...</span>
-        <em class="tag nieuw">Nieuw</em>
       </button>
       <button class="module" data-module="hooibergjacht">
         <img class="tile-icon" src="/img/icons/hooibergjacht.webp" alt="">
         <strong>Hooibergjacht</strong>
         <span>Graaf door je neonhooiberg tot je de kristallen naald vindt. Juist antwoord = beter werktuig en het kompas wijst de weg.</span>
-        <em class="tag nieuw">Nieuw</em>
       </button>
       <button class="module" data-module="banierveld">
         <img class="tile-icon" src="/img/icons/banierveld.webp" alt="">
         <strong>Banierveld</strong>
         <span>Rij met je zwevend ros een lichtspoor en sluit een lus: al het land erbinnen wordt jouw kleur. Energie op = vraag, juist = turbo.</span>
-        <em class="tag nieuw">Nieuw</em>
       </button>
       <button class="module" data-module="zwermwacht">
         <img class="tile-icon" src="/img/icons/zwermwacht.webp" alt="">
         <strong>Zwermwacht</strong>
         <span>Hou je ridder heel tegen zwermen roestrobots. Je wapens vuren vanzelf. Balk vol = een vraag: juist = kies zelf je upgrade.</span>
-        <em class="tag nieuw">Nieuw</em>
       </button>
       <button class="module" data-module="plasmapoort">
         <img class="tile-icon" src="/img/icons/plasmapoort.webp" alt="">
         <strong>Plasmapoort</strong>
         <span>Strafschoppen tegen 8 robotridders: mik je plasmabal en duik als keeper. Elke trap een vraag: juist = gouden bal en groot schild.</span>
-        <em class="tag nieuw">Nieuw</em>
       </button>
       <button class="module" data-module="haakridder">
         <img class="tile-icon" src="/img/icons/haakridder.webp" alt="">
         <strong>Haakridder</strong>
         <span>Slinger met je plasmahaak van kristalanker naar kristalanker: ingedrukt = grijpen, loslaten = vliegen. Elke vlag een vraag: juist = gouden haak.</span>
-        <em class="tag nieuw">Nieuw</em>
       </button>
       <button class="module" data-module="kolkridder">
         <img class="tile-icon" src="/img/icons/kolkridder.webp" alt="">
@@ -284,13 +303,11 @@
         <img class="tile-icon" src="/img/icons/tuimelridder.webp" alt="">
         <strong>Tuimelridder</strong>
         <span>Stuntparcours met een ridder op een rare rijmachine: springplanken, hamers, lasers en kanonnen. Elke vlag een vraag: juist = turbo.</span>
-        <em class="tag nieuw">Nieuw</em>
       </button>
       <button class="module" data-module="diepboor">
         <img class="tile-icon" src="/img/icons/diepboor.webp" alt="">
         <strong>Diepboor</strong>
         <span>Boor zo diep als je kan naar goud, kristal en neonkernen. Goede antwoorden geven brandstof, de smidse maakt je boor sterker.</span>
-        <em class="tag nieuw">Nieuw</em>
       </button>
       <button class="module" data-module="schattenjacht">
         <img class="tile-icon" src="/img/icons/schattenjacht.webp" alt="">
@@ -334,13 +351,11 @@
         <img class="tile-icon" src="/img/icons/sterrenvreter.webp" alt="">
         <strong>Sterrenvreter</strong>
         <span>Eet sterrenstof en kleinere ridders, ontwijk het zwarte gat. Goede antwoorden geven massa, turbo en supernova.</span>
-        <em class="tag nieuw">Nieuw</em>
       </button>
       <button class="module" data-module="ridderslang">
         <img class="tile-icon" src="/img/icons/ridderslang.webp" alt="">
         <strong>Ridderslang</strong>
         <span>Een neon lansslang die groeit met goede antwoorden. Snijd anderen af en eet hun licht op.</span>
-        <em class="tag nieuw">Nieuw</em>
       </button>
       <button class="module" data-module="packnight">
         <img class="tile-icon" src="/img/icons/packnight.webp" alt="">
@@ -351,28 +366,24 @@
         <img class="tile-icon" src="/img/icons/robomol.webp" alt="">
         <strong>Robomol</strong>
         <span>Robotmollen schieten uit de burchtputten: mep ze met je zwaard. Goede antwoorden laden je zwaard op en geven het Vuurzwaard.</span>
-        <em class="tag nieuw">Nieuw</em>
       </button>
       <button class="module" data-module="burchtstorm">
         <img class="tile-icon" src="/img/icons/burchtstorm.webp" alt="">
         <strong>Burchtstorm</strong>
         <span>Vallende neonstenen: vul rijen en bestook de burchten van je klasgenoten. Goede antwoorden geven een runeschild en dubbele aanvallen.</span>
-        <em class="tag nieuw">Nieuw</em>
       </button>
       </div>
     </div>
     <div class="realm-panel hidden" id="realm-tafel"><div class="modules">
       <button class="module" data-module="rondetafel">
         <img class="tile-icon" src="/img/icons/ronde-tafel.webp" alt="">
-        <strong>De Ronde Tafel</strong>
+        <strong>Peilingen</strong>
         <span>Polls, stellingen en woordwolken op het bord, ook om voorkennis te activeren of te peilen. Kies een sessie of maak er een met AI.</span>
-        <em class="tag">Open</em>
       </button>
       <button class="module" data-module="kringgesprek">
         <img class="tile-icon" src="/img/icons/kringgesprek.webp" alt="">
         <strong>Het Kringgesprek</strong>
         <span>De klas rond de ronde tafel. Een gloeiende steen gaat van stoel tot stoel: wie de steen heeft, spreekt. Met vragen, spreektijd en pas.</span>
-        <em class="tag nieuw">Nieuw</em>
       </button>
       </div></div>
     <!-- De Smidse: al je lesmateriaal. Een quiz werkt in elk spel, dus je maakt en ordent hem hier zonder eerst een spel te kiezen. -->
@@ -380,22 +391,19 @@
       <div class="groep-kop"><h3>Mijn lesmateriaal</h3><p class="muted small">Kies wat je wil maken of gebruiken. Binnenin maak je iets nieuws, met AI of zelf.</p></div>
       <div class="modules smidse-rij">
       <button class="module" id="home-quizzen">
-        <img class="tile-icon" src="/img/icons/toernooi.webp" alt="">
+        <img class="tile-icon" src="/img/icons/quizzen.webp" alt="">
         <strong>Quizzen</strong>
         <span>Een quiz werkt in elk spel. Maak er een met AI of zelf.</span>
-        <em class="tag">Open</em>
       </button>
       <button class="module" data-module="oefenblad">
         <img class="tile-icon" src="/img/icons/oefenblad.webp" alt="">
         <strong>Oefenbladen</strong>
         <span>Live oefenen op de Chromebooks of op papier, met verbeterblad.</span>
-        <em class="tag">Open</em>
       </button>
       <button class="module" data-module="proef">
         <img class="tile-icon" src="/img/icons/proef.webp" alt="">
         <strong>Toetsen</strong>
         <span>Een toets beveiligd afnemen, ook vanuit je eigen pdf. Verbeteren met punten.</span>
-        <em class="tag">Open</em>
       </button>
       <button class="module" data-module="reeks">
         <img class="tile-icon" src="/img/icons/oefenblad-ai.webp" alt="">
@@ -472,11 +480,10 @@
         <img class="tile-icon" src="/img/icons/kronieken.webp" alt="">
         <strong>Mijn methodes</strong>
         <span>Je bordboeken, handleidingen en kopieerbladen per vak en blok. Per les meteen de juiste pagina, de voorkennisquiz, de quiz en het oefenblad.</span>
-        <em class="tag">Open</em>
       </button>
       <button class="module" data-module="zonnewijzer">
         <img class="tile-icon" src="/img/icons/zonnewijzer.webp" alt="">
-        <strong>De Zonnewijzer</strong>
+        <strong>Planning</strong>
         <span>Je lesroosters en je weekplanning. Op het bord: de dag van vandaag, met het doel en de succescriteria van elke les.</span>
         <em class="tag nieuw">Nieuw</em>
       </button>
@@ -485,34 +492,30 @@
       <div class="groep-kop"><h3>Opvolgen</h3><p class="muted small">Hoe gaat het met je klas?</p></div>
       <div class="modules">
       <button class="module" id="open-klas" title="Klaslijst, doelen, zorgoverzicht, taken en logboek">
-        <img class="tile-icon" src="/img/icons/burcht.webp" alt="">
+        <img class="tile-icon" src="/img/icons/mijn-klas.webp" alt="">
         <strong>Mijn klas</strong>
         <span>Klaslijst, niveaus, zorgoverzicht, taken per leerling, doelen en het logboek.</span>
-        <em class="tag">Open</em>
       </button>
       <button class="module" id="open-taken">
-        <img class="tile-icon" src="/img/icons/oefenblad.webp" alt="">
+        <img class="tile-icon" src="/img/icons/taken.webp" alt="">
         <strong>Taken klaarzetten</strong>
         <span>Geef een quiz of oefenblad aan een of meer leerlingen, elk op zijn niveau. Eerst bekijken zoals de leerling het krijgt.</span>
-        <em class="tag">Open</em>
       </button>
       <button class="module niet-in-store" data-module="zegelrol">
         <img class="tile-icon" src="/img/icons/zegelrol.webp" alt="">
-        <strong>De Zegelrol</strong>
+        <strong>Rapporten</strong>
         <span>Je rapporten: de toetsen komen er vanzelf in per vak, jij zet er symbolen, commentaar en je logo bij.</span>
-        <em class="tag nieuw">Nieuw</em>
       </button>
       <button class="module niet-in-store" data-module="postduif">
         <img class="tile-icon" src="/img/icons/postduif.webp" alt="">
-        <strong>De Postduif</strong>
+        <strong>Brief voor thuis</strong>
         <span>Een brief voor thuis per leerling: de toetsen met de verbeterde toets, wat lukt, wat nog oefenen en nieuws uit de klas.</span>
         <em class="tag nieuw">Nieuw</em>
       </button>
       <button class="module" id="open-results">
-        <img class="tile-icon" src="/img/icons/proef.webp" alt="">
+        <img class="tile-icon" src="/img/icons/resultaten.webp" alt="">
         <strong>Resultaten</strong>
         <span>De resultaten van elke quiz en elk spel, per leerling.</span>
-        <em class="tag">Open</em>
       </button>
       </div>
     </div>
@@ -606,8 +609,8 @@
       <button type="button" data-tab="schermen">Bureau-pc</button>
     </nav>
     <div class="panel form" id="lesmap" data-tab="lesmap">
-      <h3>Mijn lesmap: van overal voorbereiden<details class="hulp"><summary aria-label="Uitleg">?</summary><p>Handig als je thuis voorbereidt. Kies een map die OneDrive of Google Drive op deze pc bijhoudt. LANcelot kopieert je quizzen, oefenbladen, taken, je klaslijst (alleen namen en niveaus), je planning uit De Zonnewijzer, je bordboek-links uit De Kronieken, de woorden van de week van het Runenraadsel en een kopie van het Klaseiland (om thuis te bekijken) daarheen en haalt nieuwe op. Zonder lesmap werkt alles gewoon, alleen op deze pc.</p></details></h3>
-      <p class="muted small">Kies een map in je OneDrive of Google Drive. Je quizzen, oefenbladen, Ronde Tafels, je planning uit De Zonnewijzer en je links en lesknoppen uit De Kronieken komen daar ook in (de pdf's zelf niet). Op een andere pc met LANcelot kies je dezelfde map: wat je daar maakt, staat hier vanzelf klaar bij het opstarten (en daarna elke minuut). Je taken en de namen en niveaus van je klaslijst gaan ook mee, zodat je thuis taken per leerling klaarzet. Het logboek, de resultaten, je notities en het werk van de leerlingen gaan nooit mee: die blijven op deze pc.</p>
+      <h3>Mijn lesmap: van overal voorbereiden<details class="hulp"><summary aria-label="Uitleg">?</summary><p>Handig als je thuis voorbereidt. Kies een map die OneDrive of Google Drive op deze pc bijhoudt. LANcelot kopieert je quizzen, oefenbladen, taken, je klaslijst (alleen namen en niveaus), je planning, je bordboek-links uit Mijn methodes, de woorden van de week van het Runenraadsel en een kopie van het Klaseiland (om thuis te bekijken) daarheen en haalt nieuwe op. Zonder lesmap werkt alles gewoon, alleen op deze pc.</p></details></h3>
+      <p class="muted small">Kies een map in je OneDrive of Google Drive. Je quizzen, oefenbladen, Ronde Tafels, je planning en je links en lesknoppen uit Mijn methodes komen daar ook in (de pdf's zelf niet). Op een andere pc met LANcelot kies je dezelfde map: wat je daar maakt, staat hier vanzelf klaar bij het opstarten (en daarna elke minuut). Je taken en de namen en niveaus van je klaslijst gaan ook mee, zodat je thuis taken per leerling klaarzet. Het logboek, de resultaten, je notities en het werk van de leerlingen gaan nooit mee: die blijven op deze pc.</p>
       <p id="lm-status"></p>
       <div class="actions" id="lm-suggest"></div>
       <label>Map<input id="lm-path" autocomplete="off" placeholder="bv. C:\Users\jij\OneDrive\LANcelot"></label>
@@ -915,11 +918,13 @@
 <script src="/js/niveau.js"></script>
 <script src="/js/quiz-list.js"></script>
 <script src="/js/host.js"></script>
+<script src="/js/arena-kies.js"></script>
 <script src="/js/address.js"></script>
 <script src="/js/doel-kies.js"></script>
 <script src="/js/maker.js"></script>
 <script src="/js/lesmap.js"></script>
 <script src="/js/beheer.js"></script>
+<script src="/js/eerste-start.js"></script>
 <script src="/js/opwarmer.js"></script>
 <script src="/js/overzicht.js"></script>
 </body>

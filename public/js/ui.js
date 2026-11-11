@@ -552,11 +552,12 @@
   });
 
   // ---------- Snel naar ----------
-  // Op elk leerkrachtenscherm naast het logo: de vijf rijken (het logo zelf is Start). Zo ben je als leerkracht met één klik overal.
+  // Op elk leerkrachtenscherm naast het logo: de vijf rijken (het logo zelf is Start) en ⚙️ Instellingen. Zo ben je als leerkracht met één klik overal.
   // Het rijk waar je nu bent, licht op. Loopt er een spel, dan eerst even vragen (het spel loopt gewoon door).
   // In de Store-versie heet het vijfde rijk "Mijn klas" (zonder De Kronieken).
-  const RIJKEN = [['arena', 'Arena', 'arena'], ['tafel', 'Ronde Tafel', 'ronde-tafel'], ['smidse', 'Smidse', 'smidse'], ['wapenkamer', 'Wapenkamer', 'wapenkamer'],
-    window.LANCELOT_STORE ? ['kronieken', 'Mijn klas', 'burcht'] : ['kronieken', 'Kronieken', 'kronieken']];
+  // Gewone woorden: wat je er doet, niet hoe het rijk heet.
+  const RIJKEN = [['arena', 'Spelen', 'arena'], ['tafel', 'Peilen', 'ronde-tafel'], ['smidse', 'Maken', 'smidse'], ['wapenkamer', 'Klastools', 'wapenkamer'],
+    window.LANCELOT_STORE ? ['kronieken', 'Mijn klas', 'burcht'] : ['kronieken', 'Lesgeven', 'kronieken']];
   const PAD_RIJK = {
     tafel: ['rondetafel', 'kringgesprek', 'ontdek-beheer', 'runenraadsel'],
     smidse: ['oefenblad', 'proef', 'reeks'],
@@ -578,9 +579,13 @@
     nav.className = 'snelmenu';
     nav.setAttribute('aria-label', 'Snel naar');
     nav.innerHTML = `${
-      RIJKEN.map(([id, naam, ic]) => `<a href="/host#${id}" data-rijk="${id}" title="${id === 'kronieken' && window.LANCELOT_STORE ? naam : `Naar De ${naam}`}"><img src="/img/icons/${ic}.webp" alt=""><span>${naam}</span></a>`).join('')}`;
+      RIJKEN.map(([id, naam, ic]) => `<a href="/host#${id}" data-rijk="${id}" title="${id === 'kronieken' && window.LANCELOT_STORE ? naam : `Naar De ${naam}`}"><img src="/img/icons/${ic}.webp" alt=""><span>${naam}</span></a>`).join('')}<a href="/host?instellingen" class="snel-inst" data-inst="1" title="Instellingen" aria-label="Instellingen"><i class="ic ic-instellingen" aria-hidden="true"></i><span>Instellingen</span></a>`;
     brand.after(nav);
-    snelMarkeer = () => { const r = rijkHier(); for (const a of nav.querySelectorAll('[data-rijk]')) a.classList.toggle('on', a.dataset.rijk === r); };
+    snelMarkeer = () => {
+      const r = rijkHier();
+      for (const a of nav.querySelectorAll('[data-rijk]')) a.classList.toggle('on', a.dataset.rijk === r);
+      nav.querySelector('[data-inst]').classList.toggle('on', !!document.querySelector('#settings:not(.hidden)'));
+    };
     snelMarkeer();
     addEventListener('hashchange', () => snelMarkeer());
     // Het logo brengt je naar het startscherm (daarom geen aparte Start-knop). Op /host regelt host.js dat zelf.
@@ -592,6 +597,12 @@
       const a = e.target.closest('a');
       if (!a) return;
       e.preventDefault();
+      // Instellingen: vanaf elke pagina meteen open, en Terug brengt je weer naar deze pagina.
+      if (a.dataset.inst) {
+        const knop = location.pathname === '/host' && document.getElementById('open-settings');
+        if (knop) return knop.click();
+        return ga(`/host?instellingen&terug=${encodeURIComponent(location.pathname + location.search + location.hash)}`);
+      }
       ga(a.getAttribute('href'));
     });
     async function ga(doel) {
@@ -605,6 +616,72 @@
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', snelmenu);
   else snelmenu();
+
+  // ---------- Terug altijd linksboven ----------
+  // Op elk leerkrachtenscherm staat Terug op dezelfde plek: links, vóór de titel. Knoppen die in de pagina
+  // rechts in de knoppenrij of rechtsboven in de kopbalk staan, verhuizen hier naar links en krijgen het pijltje.
+  function terugLinks() {
+    if (!document.querySelector('.topbar > .brand') || document.body.classList.contains('player')) return;
+    let rij = null;
+    for (const k of document.querySelectorAll('.bar [data-back], .bar #to-home, .topbar .actions #to-home, .topbar .actions #ke-terug')) {
+      k.classList.add('terug-links');
+      if (!k.querySelector('.ic')) k.insertAdjacentHTML('afterbegin', '<i class="ic ic-terug" aria-hidden="true"></i> ');
+      const bar = k.closest('.bar');
+      if (bar) { bar.prepend(k); continue; }
+      if (!rij) {
+        rij = document.createElement('div');
+        rij.className = 'terug-rij';
+        document.querySelector('.topbar').after(rij);
+      }
+      rij.append(k);
+    }
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', terugLinks);
+  else terugLinks();
+
+  // ---------- Rustig bord tijdens een spel ----------
+  // Zolang er een spel loopt (de Stop-knop staat er), klapt het snelmenu dicht tot één knop Menu en verdwijnen
+  // Junior, netwerk en instellingen uit de kopbalk. Zo leidt niets af en klikt niemand per ongeluk weg.
+  function rustigBord() {
+    const stop = document.getElementById('stop');
+    const nav = document.querySelector('.snelmenu');
+    if (!stop || !nav) return;
+    const knop = document.createElement('button');
+    knop.type = 'button';
+    knop.className = 'secondary snel-toggle';
+    knop.textContent = 'Menu';
+    knop.title = 'Naar een ander rijk. Het spel blijft lopen.';
+    knop.addEventListener('click', () => nav.classList.toggle('open'));
+    nav.before(knop);
+    const zet = () => {
+      const loopt = !stop.classList.contains('hidden') && stop.getClientRects().length > 0;
+      if (document.body.classList.contains('spel-loopt') === loopt) return;
+      document.body.classList.toggle('spel-loopt', loopt);
+      nav.classList.remove('open');
+    };
+    new MutationObserver(zet).observe(stop, { attributes: true, attributeFilter: ['class', 'style', 'hidden'] });
+    setInterval(zet, 1000);
+    zet();
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', rustigBord);
+  else rustigBord();
+
+  // ---------- Korte uitleg ----------
+  // Boven elk spel staat één alinea: wat het is. De rest (regels, besturing) zit achter "Meer uitleg".
+  function korteUitleg() {
+    for (const vak of document.querySelectorAll('.tw-intro > div')) {
+      const ps = [...vak.children].filter(e => e.tagName === 'P');
+      if (ps.length < 2 || vak.querySelector('.meer-uitleg')) continue;
+      const meer = document.createElement('details');
+      meer.className = 'meer-uitleg';
+      const kop = document.createElement('summary');
+      kop.textContent = 'Meer uitleg';
+      ps[1].before(meer);
+      meer.append(kop, ...ps.slice(1));
+    }
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', korteUitleg);
+  else korteUitleg();
 
   // ---------- Geschilderd decor ----------
   // Elk rijk heeft zijn eigen geschilderde zaal achter de schermen (style.css, html[data-achter]).

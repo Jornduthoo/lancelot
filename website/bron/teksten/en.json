@@ -66,22 +66,22 @@
     "lijst": [
       {
         "id": "arena",
-        "naam": "The Arena",
+        "naam": "Play",
         "tekst": "Practise through play with your own quizzes: quick quizzes, duels, team games and adventures."
       },
       {
         "id": "ronde-tafel",
-        "naam": "The Round Table",
+        "naam": "Poll",
         "tekst": "Ask the whole class: polls, statements, word clouds, open questions and circle time."
       },
       {
         "id": "smidse",
-        "naam": "The Forge",
+        "naam": "Create",
         "tekst": "Make quizzes, worksheets and tests, with AI or by hand. Play them live or print them with an answer key."
       },
       {
         "id": "wapenkamer",
-        "naam": "The Armoury",
+        "naam": "Class tools",
         "tekst": "Classroom tools on the board: picker, groups, timer, noise meter, dice and class jobs."
       },
       {
@@ -111,7 +111,7 @@
     "vorm": "How you play",
     "juist": "Right answer",
     "quiz": "Lesson content",
-    "quizTekst": "With any quiz from the Forge: your own or made with AI.",
+    "quizTekst": "With any quiz you make: your own or made with AI.",
     "toestellen": "Students play on",
     "toestellenTekst": "Chromebook, laptop, tablet or phone, in the browser",
     "vorige": "Previous game",
@@ -174,7 +174,7 @@
       {
         "id": "proef",
         "naam": "Tests with answer sheet",
-        "tekst": "Make a test in the Forge, let pupils take it online or print it. The scores go straight into your overview."
+        "tekst": "Make a test, let pupils take it online or print it. The scores go straight into your overview."
       }
     ]
   },

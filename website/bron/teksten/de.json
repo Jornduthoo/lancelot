@@ -66,22 +66,22 @@
     "lijst": [
       {
         "id": "arena",
-        "naam": "Die Arena",
+        "naam": "Spielen",
         "tekst": "Spielend üben mit deinen eigenen Quiz: schnelle Quiz, Duelle, Teamspiele und Abenteuer."
       },
       {
         "id": "ronde-tafel",
-        "naam": "Die Tafelrunde",
+        "naam": "Umfragen",
         "tekst": "Die ganze Klasse befragen: Umfragen, Aussagen, Wortwolken, offene Fragen und Gesprächskreise."
       },
       {
         "id": "smidse",
-        "naam": "Die Schmiede",
+        "naam": "Erstellen",
         "tekst": "Erstelle Quiz, Arbeitsblätter und Tests, mit KI oder selbst. Live spielen oder auf Papier mit Lösungsblatt."
       },
       {
         "id": "wapenkamer",
-        "naam": "Die Waffenkammer",
+        "naam": "Klassenwerkzeuge",
         "tekst": "Klassenwerkzeuge an der Tafel: Losrad, Gruppen, Timer, Lautstärkemesser, Würfel und Klassendienste."
       },
       {
@@ -111,7 +111,7 @@
     "vorm": "So wird gespielt",
     "juist": "Richtige Antwort",
     "quiz": "Lernstoff",
-    "quizTekst": "Mit jedem Quiz aus der Schmiede: selbst gemacht oder mit KI.",
+    "quizTekst": "Mit jedem Quiz, das du erstellst: selbst gemacht oder mit KI.",
     "toestellen": "Die Kinder spielen auf",
     "toestellenTekst": "Chromebook, Laptop, Tablet oder Handy, im Browser",
     "vorige": "Vorheriges Spiel",
@@ -174,7 +174,7 @@
       {
         "id": "proef",
         "naam": "Tests mit Lösungsblatt",
-        "tekst": "Erstelle einen Test in der Schmiede, lass ihn online schreiben oder drucke ihn. Die Punkte landen von selbst in deiner Übersicht."
+        "tekst": "Erstelle einen Test, lass ihn online schreiben oder drucke ihn. Die Punkte landen von selbst in deiner Übersicht."
       }
     ]
   },

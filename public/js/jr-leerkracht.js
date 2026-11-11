@@ -296,6 +296,8 @@ $('jr-inst-knop').addEventListener('click', () => {
   });
 });
 $('jr-inst-dicht').addEventListener('click', () => $('jr-inst-venster').close());
+// Terug uit de gedeelde instellingen van LANcelot (Gegevens en meer): meteen weer de instellingen van Junior.
+if (location.hash === '#instellingen') { history.replaceState(null, '', location.pathname + location.search); $('jr-inst-knop').click(); }
 Ui.tabs($('jr-inst-tabs'), 'jr-instellingen-tab');
 // De taal en de AI-sleutel kies je ook hier, zodat Junior op zichzelf werkt.
 for (const b of $('jr-inst-taal').children) {

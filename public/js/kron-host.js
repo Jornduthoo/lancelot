@@ -213,10 +213,10 @@ function tekenBoeken() {
     weg.innerHTML = Ui.ic('kruis');
     weg.addEventListener('click', async () => {
       if (online) {
-        if (!await Ui.vraag(`De link "${b.naam}" uit De Kronieken verwijderen? Het bordboek zelf blijft gewoon online.`, { ja: 'Verwijderen', gevaar: true })) return;
+        if (!await Ui.vraag(`De link "${b.naam}" uit Mijn methodes verwijderen? Het bordboek zelf blijft gewoon online.`, { ja: 'Verwijderen', gevaar: true })) return;
         return socket.emit('kr-link-weg', { id: b.id }, res => { $('kr-fout').textContent = res.error || ''; });
       }
-      if (!await Ui.vraag(`"${zonderExt(b.naam)}" uit De Kronieken verwijderen? Het gaat naar de prullenbak in de map kronieken.`, { ja: 'Verwijderen', gevaar: true })) return;
+      if (!await Ui.vraag(`"${zonderExt(b.naam)}" uit Mijn methodes verwijderen? Het gaat naar de prullenbak in de map kronieken.`, { ja: 'Verwijderen', gevaar: true })) return;
       socket.emit('kr-weg', { map: b.map, naam: b.naam }, res => { $('kr-fout').textContent = res.error || ''; });
     });
     kaart.append(open);

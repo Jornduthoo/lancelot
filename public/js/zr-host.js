@@ -96,7 +96,7 @@ function toonStart() {
     weg.innerHTML = '🗑';
     weg.title = 'Rapport verwijderen';
     weg.addEventListener('click', async () => {
-      if (!await Ui.vraag(`"${r.titel}" verwijderen? Het gaat naar de prullenbak van De Zegelrol. De toetsen zelf blijven.`, { ja: 'Verwijderen', gevaar: true })) return;
+      if (!await Ui.vraag(`"${r.titel}" verwijderen? Het gaat naar de prullenbak van Rapporten. De toetsen zelf blijven.`, { ja: 'Verwijderen', gevaar: true })) return;
       socket.emit('zr-weg', { id: r.id }, res => (res.error ? Ui.melding(res.error) : start()));
     });
     k.append(open, weg);
@@ -244,7 +244,7 @@ function tekenPunten() {
   if (v.punten) {
     const plus = el('button', 'gold');
     plus.innerHTML = `${Ui.ic('plus')} Toets toevoegen`;
-    plus.title = 'Een toets of opdracht met punten die niet uit De Proef komt (op papier, spreekbeurt, werkstuk...)';
+    plus.title = 'Een toets of opdracht met punten die je niet digitaal afnam (op papier, spreekbeurt, werkstuk...)';
     plus.addEventListener('click', () => kolomBewerk(vi, -1));
     kop.append(plus);
   }
@@ -252,8 +252,8 @@ function tekenPunten() {
   if (!klas.leerlingen.length) { box.append(el('p', 'notice', 'Je klaslijst is nog leeg. Zet je leerlingen eerst bij Mijn klas.')); return; }
   if (!v.punten) { box.append(el('p', 'muted', 'Dit vak heeft geen punten: het symbool en het commentaar vul je in bij 👤 Per leerling. Wil je toch punten? Tik op de naam en zet "Dit vak krijgt punten" aan.')); return; }
   const lijst = zr.domein ? R.vanDomein(v, zr.domein) : v.onderdelen;
-  if (!lijst.length) { box.append(el('p', 'muted', 'Nog geen toetsen hier. Een toets uit De Proef in deze periode komt vanzelf, of tik op Toets toevoegen.')); return; }
-  box.append(el('p', 'muted small zr-uitleg', '⚡ = uit De Proef, vanzelf ingevuld. Typ een cijfer om het zelf te zetten (A = afwezig, V = vrijgesteld, leeg = terug naar De Proef). 💬 = notitie bij dat punt. Enter = naar de volgende leerling.'));
+  if (!lijst.length) { box.append(el('p', 'muted', 'Nog geen toetsen hier. Een digitale toets in deze periode komt vanzelf, of tik op Toets toevoegen.')); return; }
+  box.append(el('p', 'muted small zr-uitleg', '⚡ = digitale toets, vanzelf ingevuld. Typ een cijfer om het zelf te zetten (A = afwezig, V = vrijgesteld, leeg = terug naar het punt van de toets). 💬 = notitie bij dat punt. Enter = naar de volgende leerling.'));
 
   const wrap = el('div', 'zr-tabel-scroll');
   const t = el('table', 'zr-punten');
@@ -277,7 +277,7 @@ function tekenPunten() {
   for (const o of volgorde) {
     const th = el('th');
     const b = el('button', 'zr-kolom');
-    b.innerHTML = `${o.toets ? '<span class="zr-auto" title="Uit De Proef">⚡</span>' : ''}<strong>${Z.esc(o.naam)}</strong><span>${o.datum ? Z.kort(o.datum) : 'geen datum'}</span>`;
+    b.innerHTML = `${o.toets ? '<span class="zr-auto" title="Digitale toets">⚡</span>' : ''}<strong>${Z.esc(o.naam)}</strong><span>${o.datum ? Z.kort(o.datum) : 'geen datum'}</span>`;
     b.title = `${o.inhoud || o.naam} · tik om te bewerken`;
     b.addEventListener('click', () => kolomBewerk(vi, v.onderdelen.indexOf(o)));
     th.append(b);
@@ -336,7 +336,7 @@ function vulCel(inp, lid, o) {
   inp.classList.toggle('auto', !!w.auto);
   inp.classList.toggle('eigen', !!(w.eigen && o.toets));
   inp.classList.toggle('open', !!w.open);
-  inp.title = w.open ? 'Nog niet alles verbeterd in De Proef' : '';
+  inp.title = w.open ? 'Nog niet alles verbeterd bij Toetsen' : '';
   inp.classList.toggle('te-veel', typeof w.w === 'number' && w.w > o.max);
 }
 
@@ -403,7 +403,7 @@ function kolomBewerk(vi, oi) {
   const v = zr.data.rapport.vakken[vi];
   const o = oi >= 0 ? v.onderdelen[oi] : { naam: '', inhoud: '', max: 20, datum: vandaag(), domein: zr.domein || '', toets: '' };
   zr.kolom = { vi, oi };
-  $('zr-kolom-titel').textContent = oi < 0 ? 'Toets toevoegen' : o.toets ? 'Toets uit De Proef' : 'Toets';
+  $('zr-kolom-titel').textContent = oi < 0 ? 'Toets toevoegen' : o.toets ? 'Digitale toets' : 'Toets';
   $('zr-kolom-toets').classList.toggle('hidden', !o.toets);
   $('zr-k-naam').value = o.naam;
   $('zr-k-inhoud').value = o.inhoud;
@@ -454,7 +454,7 @@ $('zr-k-weg').addEventListener('click', async () => {
   const { vi, oi } = zr.kolom;
   const v = zr.data.rapport.vakken[vi];
   const o = v.onderdelen[oi];
-  const tekst = o.toets ? `"${o.naam}" van dit rapport halen? De toets en de afname in De Proef blijven gewoon bestaan.` : `"${o.naam}" en de punten ervan verwijderen?`;
+  const tekst = o.toets ? `"${o.naam}" van dit rapport halen? De toets en de afname bij Toetsen blijven gewoon bestaan.` : `"${o.naam}" en de punten ervan verwijderen?`;
   if (!await Ui.vraag(tekst, { ja: 'Weghalen', gevaar: true })) return;
   v.onderdelen.splice(oi, 1);
   if (o.toets) zr.data.rapport.weg.push(o.toets);

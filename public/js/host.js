@@ -25,6 +25,7 @@ function show(name) {
   view = name;
   for (const s of VIEWS) $(s).classList.toggle('hidden', s !== name);
   window.scrollTo(0, 0);
+  Ui.snelMarkeer();
 }
 
 // Browsers spelen pas geluid af na een klik; elke klik ontgrendelt het geluid.
@@ -34,6 +35,7 @@ $('mute').addEventListener('click', () => { $('mute').innerHTML = Ui.ic(sfx.togg
 
 // Het logo brengt je altijd terug naar het startscherm met de vijf rijken.
 $('brand').addEventListener('click', () => {
+  if (window.instTerug && view === 'settings') { location.href = window.instTerug; return; }
   if (!OWN_VIEWS.includes(view)) return;
   show('home');
   openRealm('');
@@ -46,7 +48,7 @@ window.storeBlok = () => {
   const blok = document.querySelector('.realm[data-realm="kronieken"]');
   if (!blok || blok.dataset.store) return;
   blok.dataset.store = '1';
-  blok.querySelector('img').src = '/img/icons/burcht.webp';
+  blok.querySelector('img').src = '/img/icons/mijn-klas.webp';
   blok.querySelector('strong').textContent = 'Mijn klas';
   blok.querySelector('span').textContent = 'Je klaslijst, je doelen, taken per leerling en de resultaten.';
   blok.querySelector('em').textContent = 'Opvolgen';
@@ -84,7 +86,7 @@ function fillRows() {
   // een rij met één tegel minder heeft net iets bredere tegels.
   for (const grid of document.querySelectorAll('.realm-panel:not(.hidden) .modules')) {
     // Een brede balk (zoals het Klaseiland) neemt een hele rij: die telt niet mee.
-    const tiles = [...grid.children].filter(t => !t.classList.contains('balk'));
+    const tiles = [...grid.children].filter(t => !t.classList.contains('balk') && !t.classList.contains('weg'));
     for (const t of tiles) t.style.gridColumn = '';
     grid.style.gridTemplateColumns = '';
     const n = tiles.length;
@@ -145,7 +147,16 @@ $('qr-venster').addEventListener('click', e => {
   const r = e.currentTarget.getBoundingClientRect();
   if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) e.currentTarget.close();
 });
-document.querySelector('[data-realm="arena"] .tag').textContent = `${document.querySelectorAll('#realm-arena .module').length} spellen`;
+document.querySelector('[data-realm="arena"] .tag').textContent = `De Arena · ${document.querySelectorAll('#realm-arena .module').length} spellen`;
+// Een tegel toont één zin. De hele uitleg blijft staan als je met de muis op de tegel blijft hangen.
+for (const span of document.querySelectorAll('.module > span')) {
+  const heel = (window.I18n ? I18n.t(span.textContent) : span.textContent).trim();
+  const kort = /^.+?[.!?](?=\s|$)/.exec(heel);
+  if (!kort || kort[0].length >= heel.length) continue;
+  span.dataset.geenVertaling = '';
+  span.textContent = kort[0];
+  span.parentElement.title = heel;
+}
 for (const t of document.querySelectorAll('.realm')) t.addEventListener('click', () => { history.pushState(null, '', `#${t.dataset.realm}`); openRealm(t.dataset.realm, true); sfx.tick(); });
 addEventListener('popstate', () => openRealm(location.hash.slice(1)));
 openRealm(location.hash.slice(1));
@@ -235,16 +246,19 @@ QuizList.mount($('lib-list'), {
   errorId: 'lib-error',
   go: 'Bewerken',
   play: q => { quizBase = 'bibliotheek'; editQuiz(q.file); },
-  buttons: [{ label: '📋 Als taak', cls: 'taak', title: 'Geef deze quiz als taak aan een of meer leerlingen', click: q => { location.href = `/taken?soort=quiz&file=${encodeURIComponent(q.file)}`; } }],
+  buttons: [{ label: '▶ Speel', cls: 'speel', hoofd: true, title: 'Speel deze quiz: kies daarna het spel', click: q => window.ArenaKies.open(q) }, { label: '📋 Als taak', cls: 'taak', title: 'Geef deze quiz als taak aan een of meer leerlingen', click: q => { location.href = `/taken?soort=quiz&file=${encodeURIComponent(q.file)}`; } }],
 });
 
 // ---------- Lobby ----------
+let proefStart = new URLSearchParams(location.search).get('proef') === '1';
 
 function renderLobby() {
   const n = state.ranking.length;
   $('player-count').textContent = n;
   $('player-word').textContent = n === 1 ? 'ridder' : 'ridders';
   $('start').disabled = n === 0;
+  // Het proefspel van de eerste start (/host?quiz=…&proef=1): zodra de drie proefridders binnen zijn, begint het vanzelf.
+  if (proefStart && n >= 3 && view === 'lobby') { proefStart = false; setTimeout(() => { if (view === 'lobby') $('start').click(); }, 1800); }
   const known = new Set([...$('names').children].map(el => el.dataset.id));
   const current = new Set(state.ranking.map(p => p.id));
   for (const el of [...$('names').children]) if (!current.has(el.dataset.id)) el.remove();
@@ -402,9 +416,22 @@ ItemList.mount($('results-list'), {
 
 $('open-results').addEventListener('click', () => show('results'));
 // Instellingen in tabbladen; het laatst gekozen tabblad komt terug.
-// Vanuit Junior: /host?instellingen=gegevens opent meteen dat tabblad van de instellingen.
-const instTab = new URLSearchParams(location.search).get('instellingen');
-if (instTab) { try { localStorage.setItem('lancelot-instellingen-tab', instTab); } catch {} setTimeout(() => $('open-settings').click(), 300); }
+// Vanaf elke pagina (snelmenu ⚙️) en vanuit Junior: /host?instellingen opent meteen de instellingen,
+// /host?instellingen=gegevens meteen dat tabblad. Met &terug=/pagina brengt Terug je naar die pagina (geen omweg via het startscherm).
+const instParams = new URLSearchParams(location.search);
+if (instParams.has('instellingen')) {
+  const instTab = instParams.get('instellingen');
+  if (instTab) { try { localStorage.setItem('lancelot-instellingen-tab', instTab); } catch {} }
+  const terug = instParams.get('terug') || '';
+  // Alleen een pagina van LANcelot zelf (begint met één /), nooit een ander adres.
+  window.instTerug = /^\/(?!\/)/.test(terug) && !/^\/host(\?|#|$)/.test(terug) ? terug : null;
+  // Vanuit Junior: geen LANcelot-knoppen bovenaan, het logo en Terug gaan terug naar Junior.
+  if (window.instTerug && /^\/junior/.test(window.instTerug)) document.body.classList.add('inst-vanuit-junior');
+  if (window.instTerug) $('brand').title = 'Terug';
+  $('home').classList.add('hidden');
+  // Pas als alle scripts geladen zijn (maker.js zet de knop klaar).
+  document.addEventListener('DOMContentLoaded', () => $('open-settings').click());
+}
 Ui.tabs($('set-tabs'), 'lancelot-instellingen-tab');
 $('open-klas').addEventListener('click', () => { location.href = '/klas'; });
 $('open-taken').addEventListener('click', () => { location.href = '/taken'; });

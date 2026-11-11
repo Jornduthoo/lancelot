@@ -18,9 +18,9 @@ const TiDraw = (() => {
   const RIG = {
     benen: { piv: [.5, 1], at: [0, 0] },
     kanon: { piv: [.28, .62], at: [-40, -650], z: -1 },
-    zwaardarm: { piv: [.3, .14], at: [95, -615] },
+    zwaardarm: { piv: [.22, .22], at: [135, -540] },
     romp: { piv: [.5, .92], at: [-6, -330] },
-    schildarm: { piv: [.26, .14], at: [-70, -612] },
+    schildarm: { piv: [.25, .22], at: [-96, -545] },
   };
   const ORDER = ['kanon', 'benen', 'zwaardarm', 'romp', 'schildarm'];
   const BACK = ['kanon', 'schildarm', 'benen', 'zwaardarm', 'romp'];
@@ -94,7 +94,8 @@ const TiDraw = (() => {
   }
 
   function parts(ctx, kleur, a) {
-    // Het schild hangt achter de romp, en komt pas naar voren als de schildwacht het heft.
+    // Beide armen hangen aan de schouders van de romp. De schildarm hangt in rust achter de romp omlaag,
+    // en komt naar voren voor de borst als de schildwacht het schild heft.
     const order = (a.shield || 0) > .3 ? ORDER : BACK;
     for (const name of order) {
       const r = RIG[name], img = ART[name];
@@ -102,7 +103,7 @@ const TiDraw = (() => {
       const pic = tinted(name, kleur, a.flash ? 'flits' : broken ? 'kapot' : '');
       let rot = 0, dx = 0, dy = 0;
       if (name === 'zwaardarm') { const sw = a.swing || 0; rot = broken ? .75 : sw < 0 ? sw * 1.1 : sw * .55; }
-      if (name === 'schildarm') { const sh = a.shield || 0; rot = broken ? .6 : .25 - sh * .55; dx = -150 + sh * 230; dy = 20 - sh * 30; }
+      if (name === 'schildarm') { const sh = a.shield || 0; rot = broken ? 1.35 : 1 - sh * 1.1; }
       if (name === 'kanon') { rot = broken ? .5 : -.08 + (a.aim || 0) * -.12; dx = -(a.recoil || 0) * 40; }
       ctx.save();
       ctx.translate(r.at[0] + dx, r.at[1] + dy);

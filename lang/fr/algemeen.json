@@ -1107,5 +1107,19 @@
  "Ongeldige lijst van klassen.": "Liste de classes non valide.",
  "Klassen voor de lesmap bewaren mislukt:": "L'enregistrement des classes pour le dossier de cours a échoué :",
  "Er komt geen antwoord van de update-server. Probeer het later opnieuw, of werk bij met een zip-bestand.": "Le serveur de mise à jour ne répond pas. Réessaie plus tard, ou mets à jour avec un fichier zip.",
- "Bijwerken lukte nog niet: een map van LANcelot is nog open (staat er nog een ander LANcelot-venster open?). Sluit alle LANcelot-vensters en start opnieuw: de update staat nog klaar.": "La mise à jour n'a pas encore réussi : un dossier de LANcelot est encore ouvert (une autre fenêtre LANcelot est-elle encore ouverte ?). Ferme toutes les fenêtres LANcelot et redémarre : la mise à jour est toujours prête."
+ "Bijwerken lukte nog niet: een map van LANcelot is nog open (staat er nog een ander LANcelot-venster open?). Sluit alle LANcelot-vensters en start opnieuw: de update staat nog klaar.": "La mise à jour n'a pas encore réussi : un dossier de LANcelot est encore ouvert (une autre fenêtre LANcelot est-elle encore ouverte ?). Ferme toutes les fenêtres LANcelot et redémarre : la mise à jour est toujours prête.",
+ "Menu": "Menu",
+ "Naar een ander rijk. Het spel blijft lopen.": "Vers un autre royaume. Le jeu continue.",
+ "Meer ▾": "Plus ▾",
+ "Proefspelen": "Essayer",
+ "Geen klas bij de hand? Speel zelf mee als leerling, met twee proefridders erbij.": "Pas de classe sous la main ? Joue toi-même comme élève, avec deux chevaliers d'essai.",
+ "Zo ziet een leerling het": "Voici ce que voit un élève",
+ "Jij bent Proefridder 1: speel hier mee. Twee andere proefridders antwoorden vanzelf. Hun antwoorden komen niet in het logboek.": "Tu es le Chevalier d'essai 1 : joue ici. Deux autres chevaliers d'essai répondent tout seuls. Leurs réponses ne vont pas dans le journal.",
+ "Het scherm van een leerling": "L'écran d'un élève",
+ "Proefridder {0}": null,
+ "Wie is er vandaag? Afwezigen krijgen geen stoel aan de tafel. Dezelfde lijst als bij Klastools.": "Qui est là aujourd’hui ? Les élèves absents n’ont pas de chaise à la table. La même liste que dans Outils de classe.",
+ "Tik op wie afwezig is. Afwezigen krijgen vandaag geen stoel. Dit is dezelfde lijst als bij Klastools, morgen is iedereen weer aanwezig.": "Touche qui est absent. Les élèves absents n’ont pas de chaise aujourd’hui. C’est la même liste que dans Outils de classe, demain tout le monde est à nouveau présent.",
+ "Maken > Mijn quizzen": "Créer > Mes quiz",
+ "Maken > Mijn oefenbladen": "Créer > Mes fiches",
+ "Maken > Mijn toetsen": "Créer > Mes tests"
 }

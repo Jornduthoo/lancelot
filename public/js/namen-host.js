@@ -44,7 +44,33 @@
     socket.emit('storm-start', pad, res => { if (res && res.error) Ui.melding(res.error); else stormTekst(res); });
   });
   socket.on('storm-stand', stormTekst);
-  rij.append(pauze, storm, maakKnop());
+  // Proefspelen: de leerkracht probeert het spel uit zonder klas. Rechts op het bord komt het scherm van een
+  // leerling (Proefridder 1, die bestuur je zelf); Proefridder 2 en 3 spelen onzichtbaar en vanzelf mee.
+  const proef = document.createElement('button');
+  proef.className = 'secondary proef-knop';
+  // Bij een toets of een oefenblad heeft meespelen geen zin: daar zouden de proefridders in de resultaten komen.
+  if (/^\/(proef|oefenblad)\b/.test(location.pathname)) proef.hidden = true;
+  proef.textContent = 'Proefspelen';
+  proef.title = 'Geen klas bij de hand? Speel zelf mee als leerling, met twee proefridders erbij.';
+  let proefVak = null;
+  proef.addEventListener('click', () => {
+    if (proefVak) { proefVak.remove(); proefVak = null; proef.classList.remove('on'); document.body.classList.remove('proef-open'); return; }
+    proefVak = document.createElement('aside');
+    proefVak.className = 'proef-vak';
+    proefVak.innerHTML = '<div class="proef-kop"><strong>Zo ziet een leerling het</strong><button type="button" class="secondary" aria-label="Sluiten"></button></div>'
+      + '<p class="muted small">Jij bent Proefridder 1: speel hier mee. Twee andere proefridders antwoorden vanzelf. Hun antwoorden komen niet in het logboek.</p>'
+      + '<iframe class="proef-scherm" src="/?proef=1" title="Het scherm van een leerling"></iframe>'
+      + '<iframe class="proef-stil" src="/?proef=2" tabindex="-1" aria-hidden="true"></iframe><iframe class="proef-stil" src="/?proef=3" tabindex="-1" aria-hidden="true"></iframe>';
+    const dicht = proefVak.querySelector('button');
+    dicht.innerHTML = Ui.ic('kruis');
+    dicht.addEventListener('click', () => proef.click());
+    document.body.append(proefVak);
+    document.body.classList.add('proef-open');
+    proef.classList.add('on');
+  });
+  rij.append(pauze, storm, maakKnop(), proef);
+  // De knop "Speel nu een proefspel" op het startscherm (eerste-start.js): het proefvenster gaat vanzelf open.
+  if (new URLSearchParams(location.search).get('proef') === '1' && !proef.hidden) setTimeout(() => { if (!proefVak) proef.click(); }, 900);
 
   const modal = document.createElement('div');
   modal.className = 'ob-modal hidden';

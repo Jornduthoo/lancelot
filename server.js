@@ -100,6 +100,7 @@ const pauze = require('./src/pauze');
 const THEMAS = ['nachtburcht', 'daglicht', 'ijspaleis', 'rozenkasteel', 'smaragdwoud', 'drakenvuur', 'contrast'];
 const opwarmer = require('./src/opwarmer');
 const startpakket = require('./src/startpakket');
+const eerstestart = require('./src/eerstestart');
 const overzicht = require('./src/overzicht');
 const zorg = require('./src/zorg');
 const notities = require('./src/notities');
@@ -717,7 +718,8 @@ const GEEN_TOEGANG = '<!doctype html><meta charset="utf-8"><script src="/taal.js
 for (const [route, page] of PAGINAS) {
   app.get(route, (req, res) => {
     if (!isLeerkracht(req)) return res.status(403).send(GEEN_TOEGANG);
-    if (route === '/host') zetJuniorModus(false);
+    // De instellingen openen vanuit Junior zet LANcelot niet terug als opstartscherm.
+    if (route === '/host' && !('instellingen' in req.query)) zetJuniorModus(false);
     // Store-versie na de proefmaand zonder aankoop: eerst kopen. Privacy blijft altijd leesbaar.
     if (route !== '/privacy' && store.geblokkeerd()) return res.redirect('/licentie');
     res.setHeader('Cache-Control', 'no-cache');
@@ -1580,6 +1582,8 @@ io.on('connection', socket => {
       game.load(opwarmer.prepare(quiz));
       return {};
     }));
+    // De eerste start: proefspel, drie stappen en startquizzen per leerjaar (src/eerstestart.js).
+    eerstestart.host(socket, handle, sendLibrary);
     // Het startpakket 6e leerjaar: kant-en-klare quizzen en oefenbladen erbij zetten.
     socket.on('startpakket-status', handle(() => startpakket.status()));
     socket.on('startpakket-installeer', handle(() => {
@@ -1780,6 +1784,13 @@ io.on('connection', socket => {
       const busy = busyWith('rondetafel');
       if (busy) throw busyError(busy);
       rt.load(rondetafel.load(file));
+      return {};
+    }));
+    // Een sessie die nergens bewaard is, zoals het exit-ticket van een les uit De Zonnewijzer.
+    socket.on('rt-direct', handle(session => {
+      const busy = busyWith('rondetafel');
+      if (busy) throw busyError(busy);
+      rt.load(rondetafel.validate(session));
       return {};
     }));
     socket.on('rt-go', index => Number.isInteger(index) && rt.go(index));

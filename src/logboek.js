@@ -37,6 +37,9 @@ function sessionFor(spel, bron, now) {
 function add(entries) {
   if (!entries.length) return;
   const now = new Date();
+  // Proefridders (de leerkracht probeert een spel uit, zie proef-bot.js) komen niet in het logboek.
+  entries = entries.filter(e => !/^Proefridder \d+$/.test(String(e.naam || '')));
+  if (!entries.length) return;
   const lines = entries.map(e => {
     const leerling = klas.match(e.naam);
     const bron = String(e.bron || '').slice(0, 100);
@@ -183,7 +186,7 @@ function keuzeFile(now) {
 let keuzes = [];
 let keuzeTimer = null;
 function keuze({ naam, spel, bron, vraag, doel, gekozen, juist }) {
-  if (!vraag || !gekozen) return;
+  if (!vraag || !gekozen || /^Proefridder \d+$/.test(String(naam || ''))) return;
   const leerling = klas.match(naam);
   keuzes.push(JSON.stringify({
     t: new Date().toISOString(), leerling: leerling ? leerling.id : null, naam, spel, bron: String(bron || '').slice(0, 100),
