@@ -32,7 +32,7 @@ test('de Leescheck staat standaard uit en werkt pas als de leerkracht hem aanzet
   fs.rmSync(tmp, { recursive: true, force: true });
 });
 
-test('een antwoord moet titel, bladzijde en minstens vijf woorden hebben', () => {
+test('een antwoord moet titel, bladzijde en een antwoord hebben (een kort antwoord mag)', () => {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'lezen-'));
   const res = run(tmp, `
     klas.write({ naam: '6A', leerjaar: 6, namen: ['Lotte'] });
@@ -41,12 +41,12 @@ test('een antwoord moet titel, bladzijde en minstens vijf woorden hebben', () =>
     return {
       geenBoek: fout(() => lezen.bewaar({ naam: 'Lotte', boek: '', blz: 5, antwoord: 'een twee drie vier vijf' }, t)),
       geenBlz: fout(() => lezen.bewaar({ naam: 'Lotte', boek: 'Matilda', blz: '', antwoord: 'een twee drie vier vijf' }, t)),
-      kort: fout(() => lezen.bewaar({ naam: 'Lotte', boek: 'Matilda', blz: 5, antwoord: 'goed boek' }, t)),
+      leeg: fout(() => lezen.bewaar({ naam: 'Lotte', boek: 'Matilda', blz: 5, antwoord: '  ' }, t)),
       ok: lezen.bewaar({ naam: 'Lotte', boek: 'Matilda', blz: 12, antwoord: 'Matilda leest boeken in de bibliotheek.' }, t).vandaag,
       morgen: lezen.view('Lotte', dag('2026-11-10')).vorige,
     };
   `);
-  assert.ok(res.geenBoek && res.geenBlz && res.kort);
+  assert.ok(res.geenBoek && res.geenBlz && res.leeg);
   assert.deepStrictEqual(res.ok, { boek: 'Matilda', blz: 12, antwoord: 'Matilda leest boeken in de bibliotheek.' });
   assert.deepStrictEqual(res.morgen, { dag: '2026-11-09', boek: 'Matilda', blz: 12 });
   fs.rmSync(tmp, { recursive: true, force: true });
@@ -56,7 +56,7 @@ test('het overzicht toont gemiste dagen, stilstand, sprongen en hetzelfde antwoo
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'lezen-'));
   const res = run(tmp, `
     klas.write({ naam: '6A', leerjaar: 6, namen: ['Lotte', 'Mats', 'Noor', 'Finn'] });
-    lezen.zet({ aan: true });
+    lezen.zet({ aan: true, vragen: 'Wat gebeurde er?\\nWie kwam er voor?' });
     const b = (naam, d, blz, antwoord, boek = 'Boek') => lezen.bewaar({ naam, boek, blz, antwoord }, dag(d));
     b('Lotte', '2026-11-09', 10, 'De heks vliegt naar het kasteel in het bos.');
     b('Lotte', '2026-11-10', 22, 'De ridder vindt een kaart onder de brug vandaag.');
@@ -92,5 +92,28 @@ test('eigen vragen vervangen de standaardvragen, een lege lijst zet ze terug', (
   assert.strictEqual(res.isEigen, true);
   assert.strictEqual(res.isEigenNa, false);
   assert.ok(res.terug >= 5);
+  fs.rmSync(tmp, { recursive: true, force: true });
+});
+
+test('nooit twee dagen na elkaar dezelfde vraag, en een korte vraag (*) geeft geen signaal kort of zelfde', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'lezen-'));
+  const res = run(tmp, `
+    klas.write({ naam: '6A', leerjaar: 6, namen: ['Lotte', 'Mats'] });
+    lezen.zet({ aan: true, vragen: '* Hoe heet het hoofdpersonage?\\nWat gebeurde er?' });
+    const dagen = lezen.schooldagen(12, dag('2026-11-27'));
+    const vragen = [];
+    for (const d of dagen) {
+      const v = lezen.view('Lotte', dag(d));
+      vragen.push(v.vraag);
+      lezen.bewaar({ naam: 'Lotte', boek: 'Matilda', blz: 10 + vragen.length * 5, antwoord: v.kort ? 'Matilda' : 'Ze leest een boek over een walvis.' }, dag(d));
+      lezen.bewaar({ naam: 'Mats', boek: 'Matilda', blz: 10 + vragen.length * 5, antwoord: 'Matilda' }, dag(d));
+    }
+    const o = lezen.overzicht({ dagen: 20 }, dag('2026-11-27'));
+    const lotte = o.leerlingen.find(l => l.naam === 'Lotte');
+    return { vragen, kortCellen: Object.values(lotte.cellen).filter(c => c.antwoord === 'Matilda').map(c => c.signalen) };
+  `);
+  for (let i = 1; i < res.vragen.length; i++) assert.notStrictEqual(res.vragen[i], res.vragen[i - 1]);
+  assert.ok(res.vragen.includes('Hoe heet het hoofdpersonage?'), 'het sterretje staat niet in de vraag');
+  for (const sig of res.kortCellen) assert.deepStrictEqual(sig, []);
   fs.rmSync(tmp, { recursive: true, force: true });
 });

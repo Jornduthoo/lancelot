@@ -85,6 +85,8 @@ let maat = null;
 let hoekVan = {}; // id -> hoek van zijn stoel
 function schik() {
   const zaal = $('zaal');
+  // De zaal vult precies wat er onder de balk nog vrij is, zodat de onderste namen niet van het scherm vallen.
+  zaal.style.height = `${Math.max(300, Math.round(innerHeight - zaal.getBoundingClientRect().top - scrollY - (document.fullscreenElement ? 8 : 40)))}px`;
   const w = zaal.clientWidth;
   const h = zaal.clientHeight;
   if (!w || !h) return;
@@ -94,7 +96,7 @@ function schik() {
   ids.forEach((id, i) => { hoekVan[id] = -Math.PI / 2 + i / Math.max(1, n) * TWEE_PI; });
   maat = KgTafel.teken($('tafel'), w, h, ids.map(id => hoekVan[id]));
   $('vlammen').innerHTML = maat.vuur.map(([x, y, s], i) => `<i style="left:${x.toFixed(0)}px;top:${y.toFixed(0)}px;--s:${s.toFixed(0)}px;animation-delay:-${i * .37}s"></i>`).join('');
-  const fs = Math.max(12, Math.min(24, Math.min(w, h) * .03)) * (n > 26 ? .82 : n > 18 ? .92 : 1);
+  const fs = Math.max(15, Math.min(24, Math.min(w, h) * .03)) * (n > 26 ? .82 : n > 18 ? .92 : 1);
   zaal.style.setProperty('--kg-fs', `${fs.toFixed(1)}px`);
   zaal.style.setProperty('--kg-midden', `${Math.round(maat.rx * .88)}px`);
   zaal.style.setProperty('--kg-vfs', `${Math.max(14, Math.min(34, maat.rx * .052)).toFixed(1)}px`);
@@ -111,6 +113,8 @@ function schik() {
   toon();
 }
 new ResizeObserver(() => schik()).observe($('zaal'));
+addEventListener('resize', () => schik());
+document.addEventListener('fullscreenchange', () => setTimeout(schik, 60));
 // Een ander thema: de tafel opnieuw tekenen in de nieuwe kleuren.
 new MutationObserver(() => schik()).observe(document.documentElement, { attributes: true, attributeFilter: ['data-thema'] });
 

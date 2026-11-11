@@ -10,6 +10,13 @@ const KgTafel = (() => {
     img.onload = () => { zaalImg = img; ver++; opKlaar.forEach(f => f()); };
     img.src = '/img/zalen/raadzaal.webp';
   }
+  // De geschilderde tafel (van bovenaf, rond). Op het scherm rekken we ze uit tot de ellips van de kring.
+  let tafelImg = null;
+  if (typeof Image !== 'undefined') {
+    const img = new Image();
+    img.onload = () => { tafelImg = img; ver++; opKlaar.forEach(f => f()); };
+    img.src = '/img/kring/tafel.webp';
+  }
   function cover(g, img, w, h) {
     const sc = Math.max(w / img.width, h / img.height);
     const ox = (w - img.width * sc) / 2, oy = (h - img.height * sc) / 2;
@@ -26,8 +33,9 @@ const KgTafel = (() => {
   function maten(w, h) {
     const cx = w / 2;
     const cy = h / 2;
-    const sx = Math.max(120, w / 2 - Math.min(110, w * .09));
     const sy = Math.max(90, h / 2 - Math.min(44, h * .07));
+    // Op een breed en laag scherm wordt de tafel anders een platte streep: hooguit 3 keer zo breed als hoog.
+    const sx = Math.min(Math.max(120, w / 2 - Math.min(110, w * .09)), sy * 3);
     return { cx, cy, sx, sy, rx: sx * .8, ry: sy * .74 };
   }
 
@@ -187,6 +195,34 @@ const KgTafel = (() => {
   function tafel(g, m) {
     const { cx, cy, rx, ry } = m;
     const ellips = (f, rot = 0) => { g.beginPath(); g.ellipse(cx, cy, rx * f, ry * f, rot, 0, Math.PI * 2); };
+    if (tafelImg) {
+      // Een zachte schaduw op de vloer, dan het geschilderde blad.
+      g.save();
+      g.shadowColor = 'rgb(0 0 0 / .75)';
+      g.shadowBlur = rx * .1;
+      g.shadowOffsetY = ry * .09;
+      g.fillStyle = 'rgb(8 6 4)';
+      ellips(1.0);
+      g.fill();
+      g.restore();
+      g.drawImage(tafelImg, cx - rx * 1.04, cy - ry * 1.04, rx * 2.08, ry * 2.08);
+      // Het donkere hart iets groter dan geschilderd, zodat de vraag en de naam er ook op een laag scherm in passen.
+      g.save();
+      const hart = g.createRadialGradient(cx, cy, 0, cx, cy, rx * .6);
+      hart.addColorStop(0, 'rgb(13 24 46)');
+      hart.addColorStop(1, 'rgb(6 11 24)');
+      g.fillStyle = hart;
+      ellips(.6);
+      g.fill();
+      g.shadowColor = kleur('--k-cyan', .9);
+      g.shadowBlur = rx * .03;
+      g.strokeStyle = kleur('--k-cyan', .85);
+      g.lineWidth = Math.max(2, rx * .006);
+      ellips(.6);
+      g.stroke();
+      g.restore();
+      return;
+    }
     // Dikte van het blad: een donkere schijf iets lager.
     g.save();
     g.shadowColor = 'rgb(0 0 0 / .8)';

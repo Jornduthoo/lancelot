@@ -107,7 +107,7 @@ code { font-family: var(--tech); font-size: .85em; color: var(--cyan); }
 .topbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
 /* Op een breed scherm altijd één rij: een lange ondertitel loopt dan door op twee regels, in plaats van de knoppen naar onder te duwen. */
 @media (min-width: 1000px) {
-  .topbar:not(:has(.taken-home)) { flex-wrap: nowrap; }
+  .topbar:not(:has(.qr-home)) { flex-wrap: nowrap; }
   .topbar > .brand, .topbar > .brand > div { min-width: 0; flex: 0 1 auto; }
   .topbar > .actions, .topbar > .snelmenu { flex: none; }
 }
@@ -560,7 +560,7 @@ a:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; border-ra
 .pauze-knop { display: inline-flex; align-items: center; gap: 6px; color: var(--gold); box-shadow: inset 0 0 0 1px rgb(var(--k-goud) / .55); }
 .pauze-knop img { width: 22px; height: 22px; margin: -4px 0; }
 /* Op het startscherm staat de knop bovenaan; in een spel staat hij linksonder op het bord. */
-body:has(#home.hidden) .pauze-home, body:has(#home.hidden) .qr-home, body:has(#home.hidden) .taken-home { display: none; }
+body:has(#home.hidden) .pauze-home, body:has(#home.hidden) .qr-home { display: none; }
 .pauze-scherm {
   position: fixed; inset: 0; z-index: 2147483000; display: none; align-items: center; justify-content: center; padding: 16px;
   overflow: auto; text-align: center; touch-action: none; user-select: none;
@@ -2318,20 +2318,20 @@ body.inst-vanuit-junior .topbar > .brand { cursor: pointer; }
 /* Het startscherm heeft al veel knoppen bovenaan: daar staat het snelmenu als eigen balk eronder. */
 /* Op het startscherm en in de vijf rijken zelf staan de tegels al: daar geen snelmenu. */
 body:has(#home:not(.hidden)) .snelmenu { display: none; }
-.topbar:has(.taken-home) .snelmenu { order: 3; flex: 1 1 100%; margin-right: 0; justify-content: center; }
+.topbar:has(.qr-home) .snelmenu { order: 3; flex: 1 1 100%; margin-right: 0; justify-content: center; }
 /* Tijdens het toernooi (startscherm weg): het snelmenu in dezelfde rij als bij de spellen, dat spaart een hele rij. */
 @media (min-width: 1000px) {
-  body:has(#home.hidden) .topbar:has(.taken-home) { flex-wrap: nowrap; }
-  body:has(#home.hidden) .topbar:has(.taken-home) .snelmenu { order: 1; flex: none; margin-right: auto; justify-content: flex-start; }
-  body:has(#home.hidden) .topbar:has(.taken-home) .actions { order: 2; }
-  body:has(#home.hidden) .topbar:has(.taken-home) .snelmenu a { min-width: 62px; flex-direction: column; gap: 2px; font-size: .72rem; padding: 4px 6px; }
+  body:has(#home.hidden) .topbar:has(.qr-home) { flex-wrap: nowrap; }
+  body:has(#home.hidden) .topbar:has(.qr-home) .snelmenu { order: 1; flex: none; margin-right: auto; justify-content: flex-start; }
+  body:has(#home.hidden) .topbar:has(.qr-home) .actions { order: 2; }
+  body:has(#home.hidden) .topbar:has(.qr-home) .snelmenu a { min-width: 62px; flex-direction: column; gap: 2px; font-size: .72rem; padding: 4px 6px; }
 }
-.topbar:has(.taken-home) .snelmenu a { min-width: 110px; flex-direction: row; gap: 8px; font-size: .85rem; padding: 6px 12px; }
-@media (max-width: 1100px) { .snelmenu span { display: none; } .snelmenu a { min-width: 40px; } .topbar:has(.taken-home) .snelmenu span { display: inline; } .topbar:has(.taken-home) .snelmenu a { min-width: 0; } }
+.topbar:has(.qr-home) .snelmenu a { min-width: 110px; flex-direction: row; gap: 8px; font-size: .85rem; padding: 6px 12px; }
+@media (max-width: 1100px) { .snelmenu span { display: none; } .snelmenu a { min-width: 40px; } .topbar:has(.qr-home) .snelmenu span { display: inline; } .topbar:has(.qr-home) .snelmenu a { min-width: 0; } }
 /* Startscherm leerkracht: logo en knoppen op één rij (sinds de knop Junior erbij kwam, paste het net niet meer). */
 @media (min-width: 1000px) {
-  .topbar:has(.taken-home) .actions { gap: 6px; flex-wrap: nowrap; }
-  .topbar:has(.taken-home) .actions > .secondary:not(.icon) { padding-left: 14px; padding-right: 14px; }
+  .topbar:has(.qr-home) .actions { gap: 6px; flex-wrap: nowrap; }
+  .topbar:has(.qr-home) .actions > .secondary:not(.icon) { padding-left: 14px; padding-right: 14px; }
 }
 /* Laserslag en Ridder Royale op de gsm: een geschilderde achtergrond achter de wacht- en vraagschermen. */
 body[data-ls="1"] { --quiz-bg: url('/img/quizspellen/laserslag.webp'); }
@@ -2466,8 +2466,10 @@ body.proef-open { padding-right: min(400px, 92vw); }
 
 /* "Proberen" op elke speltegel in Spelen: het spel zelf uitproberen zonder klas (arena-kies.js). */
 .module { position: relative; }
-.module .tegel-proef { position: absolute; top: 12px; right: 12px; display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; font-size: .82rem; font-weight: 700; color: var(--text); background: rgb(var(--k-bg) / .7); border: 1px solid var(--line); }
+.module .tegel-proef { position: absolute; top: 0; right: 0; display: inline-flex; align-items: center; gap: 7px; padding: 7px 14px 7px 18px; font-family: var(--tech); font-size: .68rem; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: var(--cyan); background: linear-gradient(180deg, rgb(var(--k-cyan) / .22), rgb(var(--k-cyan) / .06)); box-shadow: inset 0 -1px 0 var(--line), inset 1px 0 0 var(--line); clip-path: polygon(0 0, 100% 0, 100% 100%, 12px 100%); transition: color .15s, background .15s; }
 .module .tegel-proef span { color: inherit; font-size: inherit; }
-.module .tegel-proef .ic { width: 16px; height: 16px; }
-.module .tegel-proef:hover, .module .tegel-proef:focus-visible { border-color: var(--gold); color: var(--gold); }
-.module:has(.tegel-proef) .tag.nieuw { top: 48px; right: 12px; }
+.module .tegel-proef .ic { width: 15px; height: 15px; filter: drop-shadow(0 0 6px var(--cyan-glow)); }
+.module:hover .tegel-proef { background: linear-gradient(180deg, rgb(var(--k-cyan) / .34), rgb(var(--k-cyan) / .1)); }
+.module .tegel-proef:hover, .module .tegel-proef:focus-visible { color: rgb(var(--k-op-goud, var(--k-bg))); background: linear-gradient(180deg, rgb(var(--k-goud-l)), var(--gold)); outline: none; }
+.module .tegel-proef:hover .ic, .module .tegel-proef:focus-visible .ic { filter: none; }
+.module:has(.tegel-proef) .tag.nieuw { top: 40px; right: 12px; }
