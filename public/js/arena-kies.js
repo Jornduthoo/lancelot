@@ -28,6 +28,19 @@
     b.addEventListener('click', () => { keuze = id; filter(); });
     chips.appendChild(b);
   }
+  // Verras ons: een willekeurig spel uit wat nu in beeld staat. Zo komt elk spel eens aan de beurt.
+  const verras = document.createElement('button');
+  verras.type = 'button';
+  verras.className = 'gold chip verras';
+  verras.textContent = 'Verras ons';
+  verras.title = 'Kies een willekeurig spel';
+  verras.addEventListener('click', () => {
+    const kan = tegels.filter(t => !t.classList.contains('weg') && !ZONDER_QUIZ.has(t.dataset.module) && t.dataset.module !== 'rijk');
+    if (kan.length) kan[Math.floor(Math.random() * kan.length)].click();
+  });
+  chips.appendChild(verras);
+  // Nog niets gespeeld? Dan staan hier vijf spellen die vanzelf lukken, om mee te beginnen.
+  const BEGIN = ['toernooi', 'kerker', 'poortwacht', 'robomol', 'ridderrace'];
   const recent = document.createElement('div');
   recent.className = 'arena-recent hidden';
   recent.innerHTML = '<div class="groep-kop"><h3>Laatst gespeeld</h3></div><div class="arena-recent-rij"></div>';
@@ -70,7 +83,9 @@
   function tekenRecent() {
     const rij = recent.querySelector('.arena-recent-rij');
     rij.innerHTML = '';
-    for (const m of lees()) {
+    const gespeeld = lees();
+    recent.querySelector('h3').textContent = gespeeld.length ? 'Laatst gespeeld' : 'Begin hier';
+    for (const m of gespeeld.length ? gespeeld : BEGIN) {
       const t = tegels.find(x => x.dataset.module === m);
       if (!t) continue;
       rij.appendChild(klein(t, () => t.click()));

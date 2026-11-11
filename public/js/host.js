@@ -147,7 +147,16 @@ $('qr-venster').addEventListener('click', e => {
   const r = e.currentTarget.getBoundingClientRect();
   if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) e.currentTarget.close();
 });
-document.querySelector('[data-realm="arena"] .tag').textContent = `${document.querySelectorAll('#realm-arena .module').length} spellen`;
+document.querySelector('[data-realm="arena"] .tag').textContent = `De Arena · ${document.querySelectorAll('#realm-arena .module').length} spellen`;
+// Een tegel toont één zin. De hele uitleg blijft staan als je met de muis op de tegel blijft hangen.
+for (const span of document.querySelectorAll('.module > span')) {
+  const heel = (window.I18n ? I18n.t(span.textContent) : span.textContent).trim();
+  const kort = /^.+?[.!?](?=\s|$)/.exec(heel);
+  if (!kort || kort[0].length >= heel.length) continue;
+  span.dataset.geenVertaling = '';
+  span.textContent = kort[0];
+  span.parentElement.title = heel;
+}
 for (const t of document.querySelectorAll('.realm')) t.addEventListener('click', () => { history.pushState(null, '', `#${t.dataset.realm}`); openRealm(t.dataset.realm, true); sfx.tick(); });
 addEventListener('popstate', () => openRealm(location.hash.slice(1)));
 openRealm(location.hash.slice(1));

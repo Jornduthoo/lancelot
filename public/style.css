@@ -2404,6 +2404,7 @@ body.spel-loopt .topbar .junior-home, body.spel-loopt #open-netwerk, body.spel-l
 .arena-zoek input:focus { outline: none; border-color: var(--cyan); }
 .arena-chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .arena-chips .chip { padding: 7px 12px; font-size: .9rem; }
+.arena-chips .chip.verras { margin-left: 6px; }
 .arena-chips .chip.on { border-color: rgb(var(--k-goud)); color: rgb(var(--k-goud-l)); box-shadow: inset 0 0 0 1px rgb(var(--k-goud) / .7); }
 .module.weg { display: none; }
 .arena-recent { margin: 0 0 22px; }
@@ -2439,3 +2440,10 @@ body.proef-open { padding-right: min(400px, 92vw); }
 /* De regel onder het logo mag niet onder het snelmenu schuiven. */
 .topbar:has(.snelmenu) .brand .subtitle { letter-spacing: .2em; }
 .topbar:has(.snelmenu) .brand .subtitle::after { display: none; }
+/* Korte uitleg boven een spel: de rest zit achter "Meer uitleg". */
+.meer-uitleg summary { display: inline-block; cursor: pointer; color: rgb(var(--k-cyan-l)); font-weight: 700; font-size: .92rem; list-style: none; }
+.meer-uitleg summary::-webkit-details-marker { display: none; }
+.meer-uitleg summary::after { content: ' \25BE'; }
+.meer-uitleg[open] summary::after { content: ' \25B4'; }
+.meer-uitleg[open] summary { margin-bottom: 8px; }
+.tw-intro > div > p:first-child { margin-bottom: 6px; }
