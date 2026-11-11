@@ -545,6 +545,11 @@
 .jr-bw-optie .jr-bw-w { flex: 1; min-width: 0; }
 .jr-optie-woord { display: block; font-size: .42em; font-weight: 800; margin-top: .1em; color: var(--jr-inkt); font-family: var(--jr-schrift); }
 .jr-vak[data-soort="kies"] .jr-optie:has(.jr-optie-woord) { flex-direction: column; padding: .4em .9em .3em; }
+/* Woordenschat in het raadsel: de betekenis is een korte zin, groot genoeg om zelf te lezen. */
+.jr-optie-woord.jr-betekenis { font-size: .7em; line-height: 1.2; white-space: normal; text-align: center; margin: 0; }
+.jr-lijst:has(.jr-betekenis) { align-items: center; }
+.jr-vak[data-soort="kies"] .jr-optie:has(.jr-betekenis) { width: min(14em, 88vw); height: auto; min-height: 0; min-width: 0; padding: .35em .6em; justify-content: center; }
+.jr-woordvraag { font-family: var(--jr-schrift); }
 .jr-vraagkaart { display: inline-block; background: rgb(var(--k-panel) / .95); color: var(--jr-inkt); font-family: var(--jr-schrift); font-weight: 800; font-size: .8em; padding: .35em .9em; border-radius: .8em; box-shadow: 0 .2em .8em rgb(0 0 0 / .2); max-width: 22em; text-align: center; }
 
 /* Spelen: elk domein een eigen kaart, naast elkaar zodat alles op één scherm past */

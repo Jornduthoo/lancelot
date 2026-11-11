@@ -810,9 +810,9 @@
     raadsel(r, niv) {
       const LIJST = [
         [['nietBij', 0], ['nietBij', 0], ['eieren', 0], ['groot', 0], ['vormen', 0], ['waar', 0], ['geluiden', 0]],
-        [['denk', 0], ['denk', 0], ['denk', 0], ['denk', 0], ['rivier', 2], ['patroon', 2], ['woordbrug', 1], ['klok', 0], ['geld', 1], ['code', 2], ['rijm', 1], ['trein', 2]],
-        [['denk', 1], ['denk', 1], ['denk', 1], ['denk', 1], ['denk', 1], ['tafel', 2], ['klok', 1], ['geld', 2], ['lijn', 2], ['woordbrug', 2], ['zinnen', 1], ['dictee', 1], ['code', 2]],
-        [['denk', 2], ['denk', 2], ['denk', 2], ['denk', 2], ['denk', 2], ['tafel', 6], ['klok', 2], ['geld', 2], ['dictee', 2], ['zinnen', 1], ['code', 2]],
+        [['denk', 0], ['denk', 0], ['denk', 0], ['denk', 0], ['woord', 0], ['woord', 0], ['woord', 0], ['rivier', 2], ['patroon', 2], ['woordbrug', 1], ['klok', 0], ['geld', 1], ['code', 2], ['rijm', 1], ['trein', 2]],
+        [['denk', 1], ['denk', 1], ['denk', 1], ['denk', 1], ['denk', 1], ['woord', 1], ['woord', 1], ['woord', 1], ['woord', 1], ['tafel', 2], ['klok', 1], ['geld', 2], ['lijn', 2], ['woordbrug', 2], ['zinnen', 1], ['dictee', 1], ['code', 2]],
+        [['denk', 2], ['denk', 2], ['denk', 2], ['denk', 2], ['denk', 2], ['woord', 2], ['woord', 2], ['woord', 2], ['woord', 2], ['tafel', 6], ['klok', 2], ['geld', 2], ['dictee', 2], ['zinnen', 1], ['code', 2]],
       ];
       const lijst = LIJST[Math.max(0, Math.min(3, Number(niv) || 0))];
       // Welke spellen dit toeval (deze ronde) al gaf: zo blijft het raadsel voor iedereen hetzelfde en toch afwisselend.
@@ -822,6 +822,21 @@
       const [sp, n] = r.kies(kan.length ? kan : lijst);
       al.push(sp);
       return MAKERS[sp](r, n);
+    },
+    // Woordenschat (alleen in het raadsel van vandaag, 1e tot 3e leerjaar): wat betekent dit woord? Drie betekenissen,
+    // die het draakje voorleest. De woorden staan per taal en per leerjaar in junior-inhoud(-en/fr/es/de).js.
+    woord(r, niv) {
+      const lijst = (J().woordenschat || [])[Math.max(0, Math.min(2, Number(niv) || 0))] || [];
+      // Foute keuzes van dezelfde soort woord (een ding bij een ding), anders raad je het aan de vorm.
+      const ding = x => /^(de|het|the|le|la|les|l'|el|la|los|las|der|die|das)\b/i.test(x.w);
+      const doel = r.kies(lijst);
+      const zelfde = r.schud(lijst.filter(x => x !== doel && ding(x) === ding(doel)));
+      const rest = [...zelfde, ...r.schud(lijst.filter(x => x !== doel && ding(x) !== ding(doel)))].slice(0, 2);
+      return {
+        soort: 'kies', zeg: [J().zin.betekenis, doel.w],
+        kop: `<span class="jr-som jr-woordvraag">${esc(doel.w)}</span>`, lijst: true,
+        opties: r.schud([doel, ...rest]).map(x => ({ html: `<span class="jr-optie-woord jr-betekenis">${esc(x.b)}</span>`, juist: x === doel })),
+      };
     },
     // Denkraadsel (alleen in het raadsel van vandaag, 1e tot 3e leerjaar): getallenrij afmaken, het ontbrekende getal,
     // het grootste of kleinste getal (plaatswaarde), en bij het 2e en 3e leerjaar ook delen.
