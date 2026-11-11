@@ -1440,6 +1440,24 @@ io.on('connection', socket => {
         .catch(err => cb({ error: err.message }))
         .finally(() => io.to('host').emit('settings', settings.publicView()));
     });
+    // Woorden van de week voor het raadsel van vandaag: zelf typen, de prompt kopiëren of met de AI-sleutel laten maken.
+    socket.on('jr-woorden', handle(lijst => {
+      const w = lijst == null ? junior.woorden() : junior.zetWoorden(lijst);
+      if (lijst != null) io.emit('jr-stand', junior.stand());
+      return { woorden: w };
+    }));
+    socket.on('jr-woorden-prompt', handle((arg = {}) => ({ prompt: junior.woordPrompt({ ...arg, taal: taal.huidig() }) })));
+    socket.on('jr-woorden-lees', handle(text => ({ woorden: junior.leesWoorden(aiJson.extract(text, 'woordenlijst', d => Array.isArray(d.woorden))) })));
+    socket.on('jr-woorden-ai', (arg = {}, cb) => {
+      if (typeof cb !== 'function') return;
+      let prompt;
+      try { prompt = junior.woordPrompt({ ...arg, taal: taal.huidig() }); } catch (err) { return cb({ error: err.message }); }
+      if (!settings.actief().key) return cb({ error: 'Er is nog geen AI-sleutel. Kopieer de prompt en plak het antwoord.' });
+      generateQuiz(prompt, [], text => junior.leesWoorden(aiJson.extract(text, 'woordenlijst', d => Array.isArray(d.woorden))))
+        .then(woorden => cb({ woorden }))
+        .catch(err => cb({ error: err.message }))
+        .finally(() => io.to('host').emit('settings', settings.publicView()));
+    });
     // Echte foto's bij de eigen vragen: zoeken op Wikimedia Commons en één foto bewaren in de klasmap.
     socket.on('jr-foto-zoek', ({ woord } = {}, cb) => {
       if (typeof cb !== 'function') return;

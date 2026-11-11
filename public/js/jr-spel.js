@@ -826,7 +826,9 @@
     // Woordenschat (alleen in het raadsel van vandaag, 1e tot 3e leerjaar): wat betekent dit woord? Drie betekenissen,
     // die het draakje voorleest. De woorden staan per taal en per leerjaar in junior-inhoud(-en/fr/es/de).js.
     woord(r, niv) {
-      const lijst = (J().woordenschat || [])[Math.max(0, Math.min(2, Number(niv) || 0))] || [];
+      // Woorden van de week van de leerkracht (blok Maken) gaan voor, anders de vaste woorden van dit leerjaar.
+      const eigen = (window.Junior || {}).woorden || [];
+      const lijst = eigen.length >= 3 ? eigen : (J().woordenschat || [])[Math.max(0, Math.min(2, Number(niv) || 0))] || [];
       // Foute keuzes van dezelfde soort woord (een ding bij een ding), anders raad je het aan de vorm.
       const ding = x => /^(de|het|the|le|la|les|l'|el|la|los|las|der|die|das)\b/i.test(x.w);
       const doel = r.kies(lijst);

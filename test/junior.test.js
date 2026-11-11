@@ -172,3 +172,18 @@ test('woordenschat: elke taal 3 leerjaren met elk 20 woorden en verschillende be
     }
   }
 });
+
+test('woorden van de week: typen, AI-antwoord inlezen en in het raadsel', () => {
+  assert.deepStrictEqual(junior.leesWoordRegels('dapper = je durft veel\nde oogst: wat je van het veld haalt\nsluipen - heel stil stappen\nzonder betekenis'),
+    [{ w: 'dapper', b: 'je durft veel' }, { w: 'de oogst', b: 'wat je van het veld haalt' }, { w: 'sluipen', b: 'heel stil stappen' }]);
+  assert.throws(() => junior.leesWoorden({ woorden: [{ woord: 'a', betekenis: 'b' }] }));
+  assert.strictEqual(junior.leesWoorden({ woorden: Array.from({ length: 50 }, (_, i) => ({ woord: `w${i}`, betekenis: `b${i}` })) }).length, 30);
+  assert.ok(junior.woordPrompt({ onderwerp: 'de herfst' }).includes('de herfst'));
+  const J = laad('nl');
+  J.woorden = [{ w: 'egel', b: 'dier met stekels' }, { w: 'eikel', b: 'vrucht van de eik' }, { w: 'mist', b: 'wolk vlak bij de grond' }];
+  for (let seed = 1; seed <= 20; seed++) {
+    const v = J.vraag('woord', 1, J.toeval(seed));
+    assert.ok(J.woorden.some(x => v.zeg[1] === x.w), 'eigen woord');
+    assert.strictEqual(v.opties.filter(o => o.juist).length, 1);
+  }
+});
