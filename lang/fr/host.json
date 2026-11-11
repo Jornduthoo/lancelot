@@ -522,5 +522,7 @@
  "Open het overzicht van dit spel": "Ouvrir le résumé de ce jeu",
  "De klas had {0}% juist. Bekijk het overzicht.": "La classe a eu {0} % de bonnes réponses. Voir le résumé.",
  "De klas had {0}% juist. Dit ging goed: \"{1}\". Dit ging moeilijk: \"{2}\".": "La classe a eu {0} % de bonnes réponses. Bien réussi : « {1} ». Difficile : « {2} ».",
- "Er is nog geen quiz. Maak er eerst een.": "Il n’y a pas encore de quiz. Crées-en un d’abord."
+ "Er is nog geen quiz. Maak er eerst een.": "Il n’y a pas encore de quiz. Crées-en un d’abord.",
+ "Probeer dit spel zelf, zonder klas": "Essaie ce jeu toi-même, sans classe",
+ "Proberen": "Essayer"
 }

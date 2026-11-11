@@ -11,7 +11,7 @@ const zip = require('./zip');
 
 const APP = path.resolve(__dirname, '..');
 // Alles wat van de leerkracht en de klas is. De rest (public, src, doelen...) hoort bij de app.
-const ITEMS = ['klas', 'klassen', 'logboek', 'runen', 'ontdek', 'burchten', 'taken', 'rijken', 'resultaten', 'posters', 'quizzes', 'oefenbladen', 'rondetafel', 'proeven', 'kronieken', 'kronieken-links', 'zonnewijzer', 'zegelrol', 'postduif', 'avatars.json', 'settings.json', 'lesmap-sync.json', 'doelen-eigen.json'];
+const ITEMS = ['klas', 'klassen', 'logboek', 'runen', 'lezen', 'ontdek', 'burchten', 'taken', 'rijken', 'resultaten', 'posters', 'quizzes', 'oefenbladen', 'rondetafel', 'proeven', 'kronieken', 'kronieken-links', 'zonnewijzer', 'zegelrol', 'postduif', 'avatars.json', 'settings.json', 'lesmap-sync.json', 'doelen-eigen.json'];
 // Bordboeken en handleidingen zijn te groot voor de dagelijkse back-up-zip. Ze verhuizen wel mee en een update laat ze staan.
 const NIET_IN_BACKUP = new Set(['kronieken']);
 const POINTER = path.join(APP, 'gegevensmap.json');
@@ -255,7 +255,7 @@ zetTerug();
 // Elke extra klas staat in klassen/<id>/ met dezelfde mappen. Wat de leerkracht maakt (quizzen, oefenbladen,
 // toetsen, de Zonnewijzer, bordboeken, instellingen) blijft gedeeld door alle klassen.
 // klassen/klassen.json: { actief: '1', ids: ['1', 'k7f3a2c9'] }. De naam van een klas staat in haar eigen klaslijst.
-const PER_KLAS = new Set(['klas', 'logboek', 'taken', 'burchten', 'runen', 'ontdek', 'rijken', 'resultaten', 'zegelrol', 'postduif']);
+const PER_KLAS = new Set(['klas', 'logboek', 'taken', 'burchten', 'runen', 'lezen', 'ontdek', 'rijken', 'resultaten', 'zegelrol', 'postduif']);
 const EERSTE = '1';
 const KLASSEN_FILE = () => vast('klassen', 'klassen.json');
 const ID_RE = /^[a-z0-9]{1,12}$/;
