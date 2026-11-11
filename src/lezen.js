@@ -15,7 +15,8 @@ const DIR = () => gegevens.pad('lezen');
 const INSTELLINGEN = () => path.join(DIR(), 'instellingen.json');
 const jaarFile = sj => path.join(DIR(), `${sj}.json`);
 
-// Vragen die je alleen goed beantwoordt als je net las. Elke leerling krijgt elke dag een andere (zo helpt afkijken niet).
+// Vragen die je alleen goed beantwoordt als je net las. Elke leerling krijgt elke dag een andere (zo helpt afkijken niet),
+// en nooit twee dagen na elkaar dezelfde. Een sterretje vooraan: een kort antwoord is genoeg (een naam, één woord).
 const VRAGEN = [
   'Wat gebeurde er in het stuk dat je net las? Vertel het in je eigen woorden.',
   'Welk personage kwam voor in wat je las? Wat deed of zei het?',
@@ -26,11 +27,41 @@ const VRAGEN = [
   'Welk moeilijk of mooi woord las je? Schrijf de zin over waarin het stond.',
   'Schrijf de laatste zin over die je las.',
   'Wat heb je bijgeleerd of wat viel je op in wat je las?',
+  'Wat wil het hoofdpersonage graag? Wat houdt het tegen?',
+  'Welk probleem kwam er in wat je las? Is het al opgelost?',
+  'Wat zou jij gedaan hebben in de plaats van het hoofdpersonage?',
+  'Wat gebeurde er eerst, en wat daarna? Vertel het in twee zinnen.',
+  'Welke vraag zou je willen stellen aan een personage? Aan wie?',
+  'Hoe ziet het hoofdpersonage eruit? Beschrijf het.',
+  'Waarom deed een personage iets in wat je las? Leg uit.',
+  'Welke titel zou jij het stuk geven dat je las? Waarom?',
+  'Wie vind je het leukste of het stomste personage? Waarom?',
+  'Schrijf de eerste zin over van de bladzijde waar je stopte.',
+  'Vertel in één zin wat je las aan iemand die het boek niet kent.',
+  '* Hoe heet het hoofdpersonage?',
+  '* Wie schreef je boek?',
+  '* Welk personage kwam voor in wat je las? Schrijf de naam.',
+  '* Waar speelde wat je las zich af?',
+  '* Welk hoofdstuk las je? Schrijf het nummer of de titel.',
+  '* Welk dier of voorwerp kwam voor in wat je las?',
+  '* Was het stuk spannend, grappig, triest of saai?',
+  '* Wat is het laatste woord dat je las?',
+  '* Was het dag of nacht in het stuk dat je las?',
+  '* Hoeveel personages kwamen voor in wat je las?',
+  '* Welke score geef je je boek vandaag, van 1 tot 5?',
+  '* Welk nieuw woord leerde je?',
 ];
+// Een vraag als tekst ('* ...' = kort antwoord) naar { tekst, kort }.
+function vraagVan(v) {
+  const m = /^\s*\*\s*/.exec(v);
+  return { tekst: v.slice(m ? m[0].length : 0).trim(), kort: !!m };
+}
 // In de taal van LANcelot (Instellingen > Uiterlijk > Taal).
-const standaard = () => VRAGEN.map(v => taal.t(v));
-const MAX_VRAGEN = 30;
-const MIN_WOORDEN = 5;
+const standaard = () => VRAGEN.map(v => {
+  const q = vraagVan(v);
+  return `${q.kort ? '* ' : ''}${taal.t(q.tekst)}`;
+});
+const MAX_VRAGEN = 60;
 // Meer bladzijden dan dit per dag sinds de vorige keer: dat valt op.
 const SPRONG_PER_DAG = 35;
 
@@ -94,10 +125,15 @@ function jaar(now = new Date()) {
 }
 
 // Elke leerling een andere vraag, en elke dag een andere: een vaste mengeling van dag en naam.
-function vraagVoor(dag, key, vragen) {
+// Nooit dezelfde vraag als de vorige keer.
+function vraagVoor(dag, key, vragen, vorigeVraag = '') {
+  const lijst = vragen.map(vraagVan).filter(q => q.tekst);
+  if (!lijst.length) return vraagVan(VRAGEN[0]);
   let h = 2166136261;
   for (const c of `${dag}|${key}`) h = Math.imul(h ^ c.charCodeAt(0), 16777619) >>> 0;
-  return vragen[h % vragen.length];
+  let i = h % lijst.length;
+  if (lijst.length > 1 && lijst[i].tekst === vorigeVraag) i = (i + 1) % lijst.length;
+  return lijst[i];
 }
 
 // De laatste keer vóór vandaag: welk boek en welke bladzijde.
@@ -106,7 +142,7 @@ function vorige(j, key, dag) {
   if (!dagen.length) return null;
   const d = dagen[dagen.length - 1];
   const e = j.dagen[d][key];
-  return { dag: d, boek: e.boek, blz: e.blz };
+  return { dag: d, boek: e.boek, blz: e.blz, vraag: e.vraag };
 }
 
 function view(naam, now = new Date()) {
@@ -116,13 +152,16 @@ function view(naam, now = new Date()) {
   const dag = datum(now);
   const j = jaar(now);
   const vandaag = (j.dagen[dag] || {})[w.key] || null;
+  const vorig = vorige(j, w.key, dag);
+  // Al ingevuld vandaag: dezelfde vraag houden, ook als de leerkracht de vragen intussen aanpaste.
+  const q = vandaag ? { tekst: vandaag.vraag, kort: !!vandaag.kort } : vraagVoor(dag, w.key, s.vragen, vorig ? vorig.vraag : '');
   return {
     naam: w.naam,
     dag,
-    // Al ingevuld vandaag: dezelfde vraag houden, ook als de leerkracht de vragen intussen aanpaste.
-    vraag: vandaag ? vandaag.vraag : vraagVoor(dag, w.key, s.vragen),
+    vraag: q.tekst,
+    kort: q.kort,
     vandaag: vandaag ? { boek: vandaag.boek, blz: vandaag.blz, antwoord: vandaag.antwoord } : null,
-    vorige: vorige(j, w.key, dag),
+    vorige: vorig ? { dag: vorig.dag, boek: vorig.boek, blz: vorig.blz } : null,
   };
 }
 
@@ -136,10 +175,10 @@ function bewaar({ naam, boek, blz, antwoord } = {}, now = new Date()) {
   const nr = Number(blz);
   if (!Number.isInteger(nr) || nr < 1 || nr > 3000) throw new Error('Schrijf op welke bladzijde je nu bent.');
   const tekst = String(antwoord || '').trim().replace(/\s+/g, ' ').slice(0, 400);
-  if (woorden(tekst) < MIN_WOORDEN) throw new Error(`Schrijf een antwoord van minstens ${MIN_WOORDEN} woorden.`);
+  if (!tekst) throw new Error('Schrijf je antwoord.');
   const j = jaar(now);
   if (!j.dagen[v.dag]) j.dagen[v.dag] = {};
-  j.dagen[v.dag][w.key] = { naam: w.naam, boek: titel, blz: nr, vraag: v.vraag, antwoord: tekst, t: now.toISOString() };
+  j.dagen[v.dag][w.key] = { naam: w.naam, boek: titel, blz: nr, vraag: v.vraag, ...(v.kort ? { kort: true } : {}), antwoord: tekst, t: now.toISOString() };
   schrijfJson(jaarFile(j.schooljaar), j);
   return view(naam, now);
 }
@@ -168,6 +207,8 @@ function signalen(e, vorig, eerder, klasgenoten = new Map(), key = '') {
     if (verschil <= 0) uit.push('stil');
     else if (verschil > SPRONG_PER_DAG * Math.max(1, dagenTussen(vorig.dag, e.dag))) uit.push('sprong');
   } else if (vorig) uit.push('nieuw');
+  // Een korte vraag (een naam, één woord): dan is kort en hetzelfde gewoon normaal.
+  if (e.kort) return uit;
   if (woorden(e.antwoord) < 7) uit.push('kort');
   const a = normaal(e.antwoord);
   if (a && (eerder.has(a) || [...(klasgenoten.get(a) || [])].some(k => k !== key))) uit.push('zelfde');
@@ -189,6 +230,7 @@ function overzicht({ dagen = 10 } = {}, now = new Date()) {
 
   const wieSchreef = new Map();
   for (const d of alle) for (const [key, e] of Object.entries(j.dagen[d])) {
+    if (e.kort) continue;
     const a = normaal(e.antwoord);
     if (!wieSchreef.has(a)) wieSchreef.set(a, new Set());
     wieSchreef.get(a).add(key);
@@ -211,7 +253,7 @@ function overzicht({ dagen = 10 } = {}, now = new Date()) {
         gedaan++;
         if (sig.some(x => x !== 'nieuw')) opvallend++;
       }
-      eerder.add(normaal(e.antwoord));
+      if (!e.kort) eerder.add(normaal(e.antwoord));
       vorig = { dag: d, boek: e.boek, blz: e.blz };
     }
     // Gemist: schooldagen zonder leescheck, maar pas vanaf de eerste dag dat de klas de Leescheck gebruikte.

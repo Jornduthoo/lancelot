@@ -49,6 +49,8 @@ function lzVorm(s) {
   $('lz-blz').value = v ? v.blz : '';
   $('lz-antwoord').value = v ? v.antwoord : '';
   $('lz-vraag').textContent = s.vraag;
+  $('lz-antwoord').rows = s.kort ? 2 : 4;
+  $('lz-antwoord').placeholder = s.kort ? 'Een kort antwoord is genoeg.' : 'Schrijf je antwoord in een paar zinnen.';
   $('lz-vorige').classList.toggle('hidden', !s.vorige);
   if (s.vorige) $('lz-vorige').textContent = `Vorige keer was je op bladzijde ${s.vorige.blz} (${lzDag(s.vorige.dag)}).`;
   $('lz-error').textContent = '';
