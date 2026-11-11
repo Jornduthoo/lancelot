@@ -115,6 +115,7 @@ const { generateQuiz } = require('./src/ai');
 const antigok = require('./src/antigok');
 const vragenstorm = require('./src/vragenstorm');
 const runen = require('./src/runen');
+const lezen = require('./src/lezen');
 const ontdek = require('./src/ontdek');
 const burchten = require('./src/burchten');
 const huisdieren = require('./src/huisdieren');
@@ -394,7 +395,7 @@ function oudeSpeler(name) {
 
 // Wie zit waar? Voor de knop "Namen" op elk leerkrachtenscherm. Een spel weet zijn spelers; op het Runenraadsel,
 // Mijn burcht, Mijn taken en het startscherm onthoudt de verbinding zelf welke naam erop staat.
-const ZONDER_SPEL = { runen: 'Runenraadsel', ontdek: ontdek.NAAM, burcht: 'Mijn burcht', huisdier: 'Mijn huisdier', taken: 'Mijn taken', junior: 'LANcelot Junior', solo: 'Taak in een spel', start: 'Wacht op een spel' };
+const ZONDER_SPEL = { runen: 'Runenraadsel', ontdek: ontdek.NAAM, burcht: 'Mijn burcht', huisdier: 'Mijn huisdier', taken: 'Mijn taken', lezen: 'Leescheck', junior: 'LANcelot Junior', solo: 'Taak in een spel', start: 'Wacht op een spel' };
 function hier(socket, naam, waar) {
   if (typeof naam !== 'string' || !naam.trim() || naam.length > 60 || !ZONDER_SPEL[waar]) return;
   socket.data.naam = naam.trim();
@@ -700,7 +701,7 @@ function juniorSoon() {
 }
 
 // De leerkrachtenschermen, elk bij zijn adres.
-const PAGINAS = [['/host', 'host.html'], ['/rondetafel', 'rondetafel.html'], ['/toren', 'toren.html'], ['/schattenjacht', 'schattenjacht.html'], ['/laserslag', 'laserslag.html'], ['/ridderrace', 'ridderrace.html'], ['/kristalroof', 'kristalroof.html'], ['/verrader', 'verrader.html'], ['/burchtbouwers', 'burchtbouwers.html'], ['/duel', 'duel.html'], ['/packnight', 'packnight.html'], ['/strijdrossen', 'strijdrossen.html'], ['/gauntlet', 'gauntlet.html'], ['/ridder-royale', 'royale.html'], ['/sterrenvreter', 'sterrenvreter.html'], ['/ridderslang', 'ridderslang.html'], ['/burchtstorm', 'burchtstorm.html'], ['/poortwacht', 'poortwacht.html'], ['/neonvlucht', 'neonvlucht.html'], ['/diepboor', 'diepboor.html'], ['/raketridder', 'raketridder.html'], ['/splijtzwaard', 'splijtzwaard.html'], ['/wankelwagen', 'wankelwagen.html'], ['/plasmapoort', 'plasmapoort.html'], ['/tuimelridder', 'tuimelridder.html'], ['/hooibergjacht', 'hooibergjacht.html'], ['/zwermwacht', 'zwermwacht.html'], ['/haakridder', 'haakridder.html'], ['/kolkridder', 'kolkridder.html'], ['/neoncamelot', 'neoncamelot.html'], ['/titanenstrijd', 'titanenstrijd.html'], ['/banierveld', 'banierveld.html'], ['/pixelridder', 'pixelridder.html'], ['/robomol', 'robomol.html'], ['/kerker', 'kerker.html'], ['/hofschilder', 'hofschilder.html'], ['/robopaarden', 'robopaarden.html'], ['/neonduel', 'neonduel.html'], ['/leraarbaas', 'leraarbaas.html'], ['/cybergalaga', 'cybergalaga.html'], ['/bomberknight', 'bomberknight.html'], ['/rijk', 'rijk.html'], ['/oefenblad', 'oefenblad.html'], ['/proef', 'proef.html'], ['/proef-print', 'proef-print.html'], ['/reeks', 'reeks.html'], ['/wapenkamer', 'wapenkamer.html'], ['/kringgesprek', 'kringgesprek.html'], ['/kronieken', 'kronieken.html'], ['/zonnewijzer', 'zonnewijzer.html'], ['/zegelrol', 'zegelrol.html'], ['/zegelrol-print', 'zegelrol-print.html'], ['/postduif', 'postduif.html'], ['/postduif-print', 'postduif-print.html'], ['/oefenblad-print', 'oefenblad-print.html'], ['/klas', 'klas.html'], ['/zorg', 'zorg.html'], ['/taken', 'taken.html'], ['/zorg-fiche', 'zorg-fiche.html'], ['/runenraadsel', 'runenraadsel.html'], ['/ontdek-beheer', 'ontdek-beheer.html'], ['/klaseiland', 'klaseiland.html'], ['/netwerk', 'netwerk.html'], ['/welkom', 'welkom.html'], ['/privacy', 'privacy.html']];
+const PAGINAS = [['/host', 'host.html'], ['/rondetafel', 'rondetafel.html'], ['/toren', 'toren.html'], ['/schattenjacht', 'schattenjacht.html'], ['/laserslag', 'laserslag.html'], ['/ridderrace', 'ridderrace.html'], ['/kristalroof', 'kristalroof.html'], ['/verrader', 'verrader.html'], ['/burchtbouwers', 'burchtbouwers.html'], ['/duel', 'duel.html'], ['/packnight', 'packnight.html'], ['/strijdrossen', 'strijdrossen.html'], ['/gauntlet', 'gauntlet.html'], ['/ridder-royale', 'royale.html'], ['/sterrenvreter', 'sterrenvreter.html'], ['/ridderslang', 'ridderslang.html'], ['/burchtstorm', 'burchtstorm.html'], ['/poortwacht', 'poortwacht.html'], ['/neonvlucht', 'neonvlucht.html'], ['/diepboor', 'diepboor.html'], ['/raketridder', 'raketridder.html'], ['/splijtzwaard', 'splijtzwaard.html'], ['/wankelwagen', 'wankelwagen.html'], ['/plasmapoort', 'plasmapoort.html'], ['/tuimelridder', 'tuimelridder.html'], ['/hooibergjacht', 'hooibergjacht.html'], ['/zwermwacht', 'zwermwacht.html'], ['/haakridder', 'haakridder.html'], ['/kolkridder', 'kolkridder.html'], ['/neoncamelot', 'neoncamelot.html'], ['/titanenstrijd', 'titanenstrijd.html'], ['/banierveld', 'banierveld.html'], ['/pixelridder', 'pixelridder.html'], ['/robomol', 'robomol.html'], ['/kerker', 'kerker.html'], ['/hofschilder', 'hofschilder.html'], ['/robopaarden', 'robopaarden.html'], ['/neonduel', 'neonduel.html'], ['/leraarbaas', 'leraarbaas.html'], ['/cybergalaga', 'cybergalaga.html'], ['/bomberknight', 'bomberknight.html'], ['/rijk', 'rijk.html'], ['/oefenblad', 'oefenblad.html'], ['/proef', 'proef.html'], ['/proef-print', 'proef-print.html'], ['/reeks', 'reeks.html'], ['/wapenkamer', 'wapenkamer.html'], ['/kringgesprek', 'kringgesprek.html'], ['/kronieken', 'kronieken.html'], ['/zonnewijzer', 'zonnewijzer.html'], ['/zegelrol', 'zegelrol.html'], ['/zegelrol-print', 'zegelrol-print.html'], ['/postduif', 'postduif.html'], ['/postduif-print', 'postduif-print.html'], ['/oefenblad-print', 'oefenblad-print.html'], ['/klas', 'klas.html'], ['/zorg', 'zorg.html'], ['/taken', 'taken.html'], ['/zorg-fiche', 'zorg-fiche.html'], ['/runenraadsel', 'runenraadsel.html'], ['/lezen', 'lezen.html'], ['/ontdek-beheer', 'ontdek-beheer.html'], ['/klaseiland', 'klaseiland.html'], ['/netwerk', 'netwerk.html'], ['/welkom', 'welkom.html'], ['/privacy', 'privacy.html']];
 
 // Het leerkrachtenscherm werkt op de pc waar de server draait (meestal het digibord),
 // en op een tweede scherm dat de leerkracht met een koppelcode koppelde (de bureau-pc).
@@ -741,6 +742,11 @@ app.get('/licentie/stand', (req, res) => {
 app.get('/runen', (req, res) => {
   res.setHeader('Cache-Control', 'no-cache');
   res.sendFile(path.join(__dirname, 'public', 'runen.html'));
+});
+// De Leescheck voor leerlingen: in één minuut tonen dat je las (alleen als de leerkracht hem aanzette).
+app.get('/leescheck', (req, res) => {
+  res.setHeader('Cache-Control', 'no-cache');
+  res.sendFile(path.join(__dirname, 'public', 'leescheck.html'));
 });
 // De ontdekwereld voor leerlingen: op hun eigen toestel, als de leerkracht hem openzet.
 app.get('/ontdek', (req, res) => {
@@ -1191,6 +1197,21 @@ io.on('connection', socket => {
       }
     });
   }
+  // De Leescheck: is hij aan (voor de knop op het startscherm), de stand van een leerling en zijn antwoord van vandaag.
+  socket.on('lz-aan', (_, cb) => typeof cb === 'function' && cb(lezen.staat().aan));
+  socket.on('lz-get', (naam, cb) => {
+    if (typeof cb !== 'function') return;
+    try { cb({ ok: true, ...lezen.view(naam) }); } catch (err) { cb({ error: err.message }); }
+  });
+  socket.on('lz-bewaar', (arg, cb) => {
+    if (typeof cb !== 'function') return;
+    try {
+      cb({ ok: true, ...lezen.bewaar(arg || {}) });
+      io.to('host').emit('lz-nieuw');
+    } catch (err) {
+      cb({ error: err.message });
+    }
+  });
   socket.on('tk-aantal', (naam, cb) => {
     if (typeof cb !== 'function') return;
     if (socket.data.waar !== 'taken') hier(socket, naam, 'start');
@@ -1628,6 +1649,13 @@ io.on('connection', socket => {
     }));
     socket.on('doelenkaart-get', handle(() => ({ kaart: overzicht.kaart() })));
     socket.on('zorg-get', handle(opts => ({ zorg: zorg.overzicht(opts || {}) })));
+    // De Leescheck voor de leerkracht: aan of uit, eigen vragen, en het overzicht per leerling.
+    socket.on('lz-overzicht', handle(opts => ({ overzicht: lezen.overzicht(opts || {}), staat: lezen.staat() })));
+    socket.on('lz-zet', handle(arg => {
+      const st = lezen.zet(arg || {});
+      io.emit('lz-staat', st.aan);
+      return { staat: st };
+    }));
     // Taken geven: een oefenblad of quiz aan een of meer leerlingen, elk op zijn niveau.
     // Na elke wijziging krijgen alle leerlingschermen een seintje, zodat Mijn taken meteen klopt.
     const taak = fn => handle(arg => {

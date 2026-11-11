@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <script src="/taal.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LANcelot · Leescheck</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/lezen.css">
+</head>
+<body class="klas-host">
+<main>
+  <div class="topbar">
+    <div class="brand" id="brand" title="Naar het startscherm">
+      <img src="/img/mark.webp" alt="">
+      <div>
+        <div class="wordmark">LAN<span>celot</span></div>
+        <div class="subtitle">Mijn klas</div>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="secondary" id="to-home">Terug</button>
+    </div>
+  </div>
+  <nav class="tabbalk" id="klas-tabs" aria-label="Mijn klas">
+    <a href="/klas#klas"><i class="ic ic-namen" aria-hidden="true"></i> Klas</a>
+    <a href="/zorg"><i class="ic ic-zorg" aria-hidden="true"></i> Zorg</a>
+    <a href="/taken"><i class="ic ic-taak" aria-hidden="true"></i> Taken</a>
+    <a href="/lezen" class="on" aria-current="page"><i class="ic ic-boek" aria-hidden="true"></i> Lezen</a>
+    <a href="/klas#doelen"><i class="ic ic-doel" aria-hidden="true"></i> Doelen</a>
+    <a href="/klas#logboek"><i class="ic ic-resultaten" aria-hidden="true"></i> Logboek</a>
+  </nav>
+  <div id="klaskiezer"></div>
+
+  <section>
+    <div class="panel form">
+      <h3><i class="ic ic-boek" aria-hidden="true"></i> Leescheck</h3>
+      <p class="muted">Lezen je leerlingen echt elke dag? In één minuut vullen ze op hun toestel de titel, hun bladzijde en een kort antwoord in. Jij ziet hier wie het deed en wat opvalt.</p>
+      <label class="inline check"><input type="checkbox" id="lz-aan"> <strong>Leescheck staat aan</strong> <span class="muted small">Dan zien leerlingen de knop Leescheck op hun startscherm.</span></label>
+      <p class="lz-telling" id="lz-telling"></p>
+    </div>
+
+    <div class="panel form" id="lz-overzicht-blok">
+      <div class="lz-balk">
+        <h3>Overzicht</h3>
+        <label class="inline">Periode
+          <select id="lz-dagen">
+            <option value="5">Deze week</option>
+            <option value="10" selected>2 weken</option>
+            <option value="20">4 weken</option>
+          </select>
+        </label>
+        <label class="inline">Volgorde
+          <select id="lz-volgorde">
+            <option value="naam">Op naam</option>
+            <option value="op">Eerst wie opvalt</option>
+          </select>
+        </label>
+      </div>
+      <div class="lz-legende">
+        <span><i class="lz-cel ok">47</i> gelezen</span>
+        <span><i class="lz-cel mis">–</i> niet ingevuld</span>
+        <span>💤 geen nieuwe bladzijden</span>
+        <span>⏩ grote sprong</span>
+        <span>✂️ heel kort antwoord</span>
+        <span>🔁 zelfde antwoord als eerder of als een klasgenoot</span>
+        <span>📕 ander boek</span>
+      </div>
+      <p class="muted small">Klik een vakje of een naam om de antwoorden te lezen.</p>
+      <div class="lz-tabel-wrap"><table class="lz-tabel" id="lz-tabel"></table></div>
+      <p class="muted" id="lz-leeg"></p>
+      <div class="lz-detail hidden" id="lz-detail"></div>
+    </div>
+
+    <div class="panel form">
+      <details class="lz-vragen">
+        <summary><strong>Vragen</strong> <span class="muted small" id="lz-vragen-info"></span></summary>
+        <p class="muted small">Elke leerling krijgt elke dag een andere vraag uit deze lijst, zodat afkijken niet helpt. Eén vraag per regel. Maak je de lijst leeg, dan gebruikt LANcelot weer de standaardvragen.</p>
+        <textarea id="lz-vragen" rows="9"></textarea>
+        <div class="row">
+          <button type="button" id="lz-vragen-bewaar">Vragen bewaren</button>
+          <button type="button" class="secondary" id="lz-vragen-standaard">Standaardvragen terugzetten</button>
+        </div>
+      </details>
+    </div>
+  </section>
+</main>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/ui.js"></script>
+<script src="/js/klaskiezer.js"></script>
+<script src="/js/lz-host.js"></script>
+</body>
+</html>

@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <script src="/taal.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#060a13">
+  <title>LANcelot · Leescheck</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="apple-touch-icon" href="/img/icon-192.png">
+  <style>html { background: #060a13; }</style>
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/lezen.css">
+</head>
+<body class="player lz-page">
+<main>
+  <div class="lz-top">
+    <a class="terug-knop" href="/"><i class="ic ic-terug" aria-hidden="true"></i>Terug</a>
+    <i class="ic ic-boek lz-top-ic" aria-hidden="true"></i>
+    <div class="lz-kop">
+      <div class="lz-kop-titel">Leescheck</div>
+      <div class="lz-kop-sub" id="lz-sub"></div>
+    </div>
+  </div>
+
+  <div class="lz-spel-start hidden" id="lz-start-banner">
+    <span>⚔️ De leerkracht startte een spel!</span>
+    <a class="button gold" href="/">Ga meedoen</a>
+  </div>
+
+  <form id="lz-join" class="screen welcome hidden">
+    <img src="/img/logo.webp" alt="LANcelot">
+    <p class="title">Leescheck</p>
+    <p class="muted">Vertel in één minuut wat je las in je boek.</p>
+    <input id="lz-name" maxlength="20" autocomplete="off" placeholder="Je naam">
+    <p class="error" id="lz-join-error"></p>
+    <button type="submit" class="big">Verder</button>
+  </form>
+
+  <p class="lz-uit hidden" id="lz-uit">De leerkracht zette de Leescheck nog niet aan.</p>
+
+  <form id="lz-vorm" class="panel lz-vorm hidden" autocomplete="off">
+    <label>Mijn boek
+      <input id="lz-boek" maxlength="80" placeholder="De titel van je boek">
+    </label>
+    <label>Ik ben nu op bladzijde
+      <input id="lz-blz" type="number" inputmode="numeric" min="1" max="3000" placeholder="bijv. 47">
+    </label>
+    <p class="muted small lz-vorige hidden" id="lz-vorige"></p>
+    <label class="lz-vraag-label"><span class="lz-vraag" id="lz-vraag"></span>
+      <textarea id="lz-antwoord" rows="4" maxlength="400" placeholder="Schrijf je antwoord in een paar zinnen."></textarea>
+    </label>
+    <p class="error" id="lz-error"></p>
+    <button type="submit" class="gold big" id="lz-klaar">Klaar</button>
+  </form>
+
+  <section id="lz-gedaan" class="panel lz-gedaan hidden">
+    <p class="lz-gedaan-ster" aria-hidden="true">✦</p>
+    <p class="title">Goed gelezen!</p>
+    <p class="muted" id="lz-gedaan-tekst"></p>
+    <button type="button" class="secondary" id="lz-pas-aan">Antwoord aanpassen</button>
+  </section>
+
+  <button type="button" class="secondary klas-switch hidden" id="lz-switch">Niet jij? Kies je naam</button>
+</main>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/ui.js"></script>
+<script src="/js/fx.js"></script>
+<script src="/js/lz-player.js"></script>
+<script src="/js/klas-kies.js"></script>
+</body>
+</html>

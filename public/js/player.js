@@ -248,6 +248,13 @@ function tkTel() {
 socket.on('connect', tkTel);
 socket.on('tk-nieuw', tkTel);
 
+// De Leescheck: de knop staat er alleen als de leerkracht hem aanzette (Mijn klas > Lezen).
+function lzKnop() {
+  socket.emit('lz-aan', null, aan => $('lz-knop').classList.toggle('hidden', aan !== true));
+}
+socket.on('connect', lzKnop);
+socket.on('lz-staat', lzKnop);
+
 // Chromebook: met de toetsen 1-4 antwoorden in de quiz, de Ronde Tafel en de spellen.
 document.addEventListener('keydown', e => {
   if (!/^[1-4]$/.test(e.key) || e.target.matches('input, textarea')) return;
