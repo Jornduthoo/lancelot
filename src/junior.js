@@ -117,8 +117,9 @@ const SPELLEN = [
   { id: 'eigen', naam: 'Mijn vragen', zin: 'Je eigen vragen met prentjes, voorgelezen.', groep: 'eigen', jaar: 'Iedereen', beeld: 'stuk/7',
     niveaus: [] },
   // Geen tegel voor de leerkracht: kinderen starten dit zelf op de tablet, één keer per dag een sticker.
+  // Het niveau volgt de klas die de leerkracht bij Instellingen kiest (instellingen().raadsel), met de stap van Op maat.
   { id: 'raadsel', naam: 'Raadsel van vandaag', zin: 'Drie korte raadsels, elke dag nieuw.', groep: 'raadsel', jaar: 'Iedereen', beeld: 'sticker/1', verborgen: true,
-    niveaus: ['Vandaag'] },
+    niveaus: ['Kleuters', '1e leerjaar', '2e leerjaar', '3e leerjaar'] },
 ];
 const RAADSEL_VRAGEN = 3;
 const SPEL = Object.fromEntries(SPELLEN.map(s => [s.id, s]));
@@ -186,8 +187,12 @@ const DIER_GROEI = [0, 10, 30]; // public/img/junior/dier, dier2, dier3
 const THEMAS = ['herfst', 'halloween', 'sint', 'kerst', 'winter', 'valentijn', 'carnaval', 'lente', 'pasen', 'moederdag', 'vaderdag', 'zomer', 'school'];
 function instellingen() {
   const i = load().instellingen;
-  return { perRonde: RONDES.includes(i.perRonde) ? i.perRonde : PER_RONDE, voorlezen: i.voorlezen !== false, groei: i.groei !== false, thema: ['auto', 'geen', ...THEMAS].includes(i.thema) ? i.thema : 'auto', rustig: i.rustig === true, vrij: i.vrij !== false, munt: MUNTEN.includes(i.munt) ? i.munt : 'auto', schrift: SCHRIFTEN.includes(i.schrift) ? i.schrift : OUDE_SCHRIFTEN[i.schrift] || 'lopend1' };
+  return { perRonde: RONDES.includes(i.perRonde) ? i.perRonde : PER_RONDE, voorlezen: i.voorlezen !== false, groei: i.groei !== false, thema: ['auto', 'geen', ...THEMAS].includes(i.thema) ? i.thema : 'auto', rustig: i.rustig === true, vrij: i.vrij !== false, munt: MUNTEN.includes(i.munt) ? i.munt : 'auto', schrift: SCHRIFTEN.includes(i.schrift) ? i.schrift : OUDE_SCHRIFTEN[i.schrift] || 'lopend1',
+    raadsel: RAADSEL_KLASSEN.includes(i.raadsel) ? i.raadsel : 'k' };
 }
+// Het raadsel van vandaag: voor welke klas (kleuters, 1e, 2e of 3e leerjaar). Dat is het niveau van het spel 'raadsel'.
+const RAADSEL_KLASSEN = ['k', 'l1', 'l2', 'l3'];
+const raadselNiveau = () => RAADSEL_KLASSEN.indexOf(instellingen().raadsel);
 // Het geld in Geldmarkt: euro, dollar of pond. 'auto' volgt het land van de doelen (VS: dollar, Engeland: pond), anders euro.
 const MUNTEN = ['auto', 'eur', 'usd', 'gbp'];
 // Het schrift in het Schrijfdraakje: lopend schrift zoals letterkaart 1 of 2 van de klas, of drukletters (de leerkracht kiest).
@@ -246,6 +251,7 @@ function zetInstellingen(nieuw = {}) {
   if (['auto', 'geen', ...THEMAS].includes(nieuw.thema)) i.thema = nieuw.thema;
   if (MUNTEN.includes(nieuw.munt)) i.munt = nieuw.munt;
   if (SCHRIFTEN.includes(nieuw.schrift)) i.schrift = nieuw.schrift;
+  if (RAADSEL_KLASSEN.includes(nieuw.raadsel)) i.raadsel = nieuw.raadsel;
   save();
   return instellingen();
 }
@@ -437,12 +443,12 @@ function stop() {
 function stand() {
   // Rustig: geen versiering aan de randen.
   const thema = instellingen().rustig ? '' : themaNu();
-  if (!les) return { actief: false, draak: draak(), voorlezen: instellingen().voorlezen, rustig: instellingen().rustig, vrij: instellingen().vrij, thema, munt: muntNu(), schrift: instellingen().schrift };
+  if (!les) return { actief: false, draak: draak(), voorlezen: instellingen().voorlezen, rustig: instellingen().rustig, vrij: instellingen().vrij, thema, munt: muntNu(), schrift: instellingen().schrift, raadsel: raadselNiveau() };
   const s = SPEL[les.spel];
   return {
     actief: true, spel: les.spel, naam: s.naam, niveau: les.niveau, niveauNaam: niveausVan(s)[les.niveau], manier: les.manier, seed: les.seed,
     eigen: les.spel === 'eigen' ? load().sets[les.niveau] || null : undefined,
-    perRonde: instellingen().perRonde, voorlezen: instellingen().voorlezen, teams: les.teams, avontuur: avontuurStand(), kring: { vraag: les.kring.vraag }, draak: draak(), rustig: instellingen().rustig, vrij: instellingen().vrij, thema, munt: muntNu(), schrift: instellingen().schrift,
+    perRonde: instellingen().perRonde, voorlezen: instellingen().voorlezen, teams: les.teams, avontuur: avontuurStand(), kring: { vraag: les.kring.vraag }, draak: draak(), rustig: instellingen().rustig, vrij: instellingen().vrij, thema, munt: muntNu(), schrift: instellingen().schrift, raadsel: raadselNiveau(),
   };
 }
 // Hoe ver elk team is (0 tot 1). Een team met meer kinderen moet ook meer stappen zetten: zo blijft het eerlijk.
