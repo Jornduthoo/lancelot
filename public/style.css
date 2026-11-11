@@ -208,11 +208,6 @@ input, textarea { -webkit-user-select: text; user-select: text; }
 .hero img { width: min(380px, 70vw); filter: var(--logo-tint, hue-rotate(0deg)) drop-shadow(0 0 22px var(--cyan-glow)); animation: float 6s ease-in-out infinite, logo-glow 3.5s ease-in-out infinite; }
 /* Het logo zweeft en de neon gloeit zacht aan en uit. */
 /* Het 3D-logo: drie lagen op elkaar (kabel achter, de ridder als filmpje, letters vooraan). Geen gloei-animatie op het filmpje: dat houdt het vlot. */
-.logo-3d { position: relative; width: min(380px, 70vw); aspect-ratio: 720 / 654; filter: none; /* 3D-logo blijft altijd blauw, ook bij andere thema's */ animation: float 6s ease-in-out infinite; }
-.logo-3d > *, .player .welcome .logo-3d > * { position: absolute; inset: 0; width: 100%; height: 100%; filter: none; animation: none; }
-.logo-3d > img:last-of-type, .player .welcome .logo-3d > img:last-of-type { filter: drop-shadow(0 0 18px rgb(76 201 255 / .55)); }
-.logo-3d video, .logo-3d .ridder { -webkit-mask-image: linear-gradient(#000 78%, transparent 96%); mask-image: linear-gradient(#000 78%, transparent 96%); pointer-events: none; }
-.player .welcome .logo-3d { width: min(300px, 72vw); margin: 0 auto; }
 @keyframes logo-glow { 50% { filter: var(--logo-tint, hue-rotate(0deg)) drop-shadow(0 0 38px rgb(var(--k-cyan) / .85)) brightness(1.12); } }
 .hero h1 { font-size: clamp(2.4rem, 6vw, 4rem); font-weight: 900; letter-spacing: .06em; }
 .hero h1 span { color: var(--cyan); text-shadow: 0 0 24px var(--cyan-glow); }
@@ -1918,8 +1913,6 @@ html[data-thema="daglicht"] body:has(#home:not(.hidden)) { background: var(--bg)
 @media (max-width: 1000px) { .eiland-rij { grid-template-columns: 1fr; } }
 /* Op het startscherm passen logo en vijf rijken samen op één scherm (bord en Chromebook). */
 #home .hero img { width: auto; height: clamp(150px, 34vh, 340px); max-width: 70vw; object-fit: contain; }
-#home .hero .logo-3d { width: auto; height: clamp(150px, 34vh, 340px); max-width: 70vw; }
-#home .hero .logo-3d > * { width: 100%; height: 100%; max-width: none; }
 .rijk-kop { display: flex; align-items: center; gap: 14px; width: 100%; margin: 4px 0 18px; }
 .rijk-kop-icoon { width: 56px; height: 56px; object-fit: cover; clip-path: polygon(22% 0, 78% 0, 100% 22%, 100% 78%, 78% 100%, 22% 100%, 0 78%, 0 22%); }
 .rijk-kop h2 { margin: 0; font-family: var(--head); font-size: 1.8rem; }
@@ -2372,7 +2365,7 @@ body[data-wacht] { background: linear-gradient(rgba(4, 6, 14, .55), rgba(4, 6, 1
 /* Tegels: het icoon staat altijd bovenaan, ook als er onderaan geen label staat. Zo lijnen de tegels in één rij mooi uit. */
 .module:not(.balk) { justify-content: flex-start; align-content: flex-start; }
 /* Aanmelden met een klaslijst: het logo wordt kleiner, zodat de namen meteen in beeld staan (gsm en Chromebook). */
-.player .welcome:has(.klas-namen) > img, .player .welcome:has(.klas-namen) > .logo-3d { width: min(170px, 40vw); }
+.player .welcome:has(.klas-namen) > img { width: min(170px, 40vw); }
 /* Startscherm van de leerling op een liggend scherm (Chromebook): de knoppen in twee kolommen, zodat alles zonder scrollen past. */
 @media (min-width: 700px) and (orientation: landscape) {
   .player:has(#idle:not(.hidden)) main { max-width: 760px; }
@@ -2381,7 +2374,7 @@ body[data-wacht] { background: linear-gradient(rgba(4, 6, 14, .55), rgba(4, 6, 1
   .player #idle > .rn-knop:last-of-type:nth-of-type(odd) { grid-column: 1 / -1; }
 }
 @media (min-width: 700px) and (orientation: landscape) and (max-height: 820px) {
-  .player #idle > img, .player #idle > .logo-3d { width: min(220px, 30vh); }
+  .player #idle > img { width: min(220px, 30vh); }
 }
 .ic-zon { --ic: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cg stroke='black' stroke-width='2' stroke-linecap='round' fill='none'%3E%3Ccircle cx='12' cy='12' r='4'/%3E%3Cpath d='M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8'/%3E%3C/g%3E%3C/svg%3E"); }
 .ic-week { --ic: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' fill='none' d='M4 6h16v14H4z M4 10.5h16 M8 3.5v4 M16 3.5v4 M9.3 10.5V20 M14.7 10.5V20'/%3E%3C/svg%3E"); }
