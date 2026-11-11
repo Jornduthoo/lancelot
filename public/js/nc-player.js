@@ -9,7 +9,7 @@
   root.id = 'camelot';
   root.innerHTML = `
   <form id="nc-join" class="screen welcome hidden">
-    <img src="/img/logo.webp" alt="LANcelot" data-logo-3d>
+    <img src="/img/logo.webp" alt="LANcelot">
     <p class="title">Neon-Camelot</p>
     <input id="nc-name" maxlength="20" autocomplete="off" placeholder="Je naam">
     <p class="error" id="nc-join-error"></p>

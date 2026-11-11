@@ -8,7 +8,7 @@
   root.id = 'wankel';
   root.innerHTML = `
   <form id="ww-join" class="screen welcome hidden">
-    <img src="/img/logo.webp" alt="LANcelot" data-logo-3d>
+    <img src="/img/logo.webp" alt="LANcelot">
     <p class="title">Wankelwagen</p>
     <input id="ww-name" maxlength="20" autocomplete="off" placeholder="Je naam">
     <p class="error" id="ww-join-error"></p>

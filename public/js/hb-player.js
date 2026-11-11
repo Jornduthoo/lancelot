@@ -8,7 +8,7 @@
   root.id = 'hooi';
   root.innerHTML = `
   <form id="hb-join" class="screen welcome hidden">
-    <img src="/img/logo.webp" alt="LANcelot" data-logo-3d>
+    <img src="/img/logo.webp" alt="LANcelot">
     <p class="title">Hooibergjacht</p>
     <input id="hb-name" maxlength="20" autocomplete="off" placeholder="Je naam">
     <p class="error" id="hb-join-error"></p>
