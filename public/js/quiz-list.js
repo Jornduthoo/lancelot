@@ -587,23 +587,41 @@ const ItemList = (() => {
     socket.on(k.list, list => {
       items = list;
       render();
-      if (kind === 'quiz' && !kiezen && !opts.beheer) startUitAdres(items, opts.play, error);
+      if (kind === 'quiz' && !kiezen && !opts.beheer) startUitAdres(items, opts.play, error, box);
     });
   }
 
   // /laserslag?quiz=… (een les in De Zonnewijzer): die quiz meteen laden in dit spel, één keer per pagina.
   let gestart = false;
-  function startUitAdres(lijst, play, error) {
+  function startUitAdres(lijst, play, error, box) {
     if (gestart || !play) return;
     const vraag = new URLSearchParams(location.search);
     const file = vraag.get('quiz');
     if (!file) return;
     gestart = true;
     vraag.delete('quiz');
+    const kies = vraag.get('kies');
+    vraag.delete('kies');
     try { history.replaceState(null, '', `${location.pathname}${vraag.toString() ? `?${vraag}` : ''}${location.hash}`); } catch {}
     const q = lijst.find(x => x.file === file);
-    if (q) play(q);
-    else error({ error: 'Die quiz bestaat niet meer. Kies er hieronder een.' });
+    if (!q) return error({ error: 'Die quiz bestaat niet meer. Kies er hieronder een.' });
+    // Vanuit "Speel deze quiz in…" (&kies=1): eerst de instellingen van het spel (speeltijd, tempo), dan pas starten.
+    if (kies && box) return kiesEerst(q, play, box);
+    play(q);
+  }
+  function kiesEerst(q, play, box) {
+    const t = s => (window.I18n ? I18n.t(s) : s);
+    const blok = document.createElement('div');
+    blok.className = 'panel kies-eerst';
+    blok.innerHTML = `<div><strong data-titel></strong><p class="muted small">Kies hierboven de instellingen, zoals speeltijd en tempo. Druk dan op Start.</p></div>
+      <div class="actions"><button type="button" class="secondary" data-ander>Andere quiz</button><button type="button" data-start>Start ▶</button></div>`;
+    blok.querySelector('[data-titel]').textContent = `${t('Quiz')}: ${q.title}`;
+    const weg = () => { blok.remove(); box.classList.remove('hidden'); };
+    blok.querySelector('[data-ander]').addEventListener('click', weg);
+    blok.querySelector('[data-start]').addEventListener('click', () => { weg(); play(q); });
+    box.classList.add('hidden');
+    box.before(blok);
+    setTimeout(() => blok.scrollIntoView({ block: 'end', behavior: 'smooth' }), 150);
   }
 
   // Geldt voor elke quiz met niveaus. Een quiz zonder niveaus speelt altijd alle vragen.
