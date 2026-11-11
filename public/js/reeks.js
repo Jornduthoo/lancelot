@@ -228,7 +228,7 @@ $('r-start').addEventListener('click', async () => {
   $('r-pauze').classList.add('hidden');
   $('r-pauze').disabled = false;
   teken();
-  if (!teDoen().length) Ui.melding('De reeks is klaar! Je vindt alles in De Smidse bij Mijn quizzen en Mijn oefenbladen.');
+  if (!teDoen().length) Ui.melding('De reeks is klaar! Je vindt alles bij Maken bij Mijn quizzen en Mijn oefenbladen.');
 });
 $('r-pauze').addEventListener('click', () => {
   pauze = true;

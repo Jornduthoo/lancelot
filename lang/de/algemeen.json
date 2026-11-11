@@ -1116,5 +1116,10 @@
  "Zo ziet een leerling het": "So sieht es ein Schüler",
  "Jij bent Proefridder 1: speel hier mee. Twee andere proefridders antwoorden vanzelf. Hun antwoorden komen niet in het logboek.": "Du bist Proberitter 1: spiel hier mit. Zwei weitere Proberitter antworten von selbst. Ihre Antworten kommen nicht ins Logbuch.",
  "Het scherm van een leerling": "Der Bildschirm eines Schülers",
- "Proefridder {0}": null
+ "Proefridder {0}": null,
+ "Wie is er vandaag? Afwezigen krijgen geen stoel aan de tafel. Dezelfde lijst als bij Klastools.": "Wer ist heute da? Abwesende bekommen keinen Stuhl am Tisch. Dieselbe Liste wie in Klassenwerkzeuge.",
+ "Tik op wie afwezig is. Afwezigen krijgen vandaag geen stoel. Dit is dezelfde lijst als bij Klastools, morgen is iedereen weer aanwezig.": "Tippe an, wer fehlt. Abwesende bekommen heute keinen Stuhl. Das ist dieselbe Liste wie in Klassenwerkzeuge, morgen sind wieder alle anwesend.",
+ "Maken > Mijn quizzen": "Erstellen > Meine Quiz",
+ "Maken > Mijn oefenbladen": "Erstellen > Meine Arbeitsblätter",
+ "Maken > Mijn toetsen": "Erstellen > Meine Tests"
 }

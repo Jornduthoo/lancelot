@@ -66,7 +66,7 @@ function mapPad(waarde) {
 
 function bestandNaam(naam) {
   const ext = path.extname(String(naam || '')).toLowerCase();
-  if (!SOORTEN[ext]) throw new Error('Enkel pdf-bestanden en afbeeldingen (png, jpg, webp) kunnen in De Kronieken.');
+  if (!SOORTEN[ext]) throw new Error('Enkel pdf-bestanden en afbeeldingen (png, jpg, webp) kunnen in Mijn methodes.');
   const stam = path.basename(String(naam), path.extname(String(naam))).replace(/[\\/:*?"<>|\x00-\x1f]/g, '-').trim().replace(/\s+/g, ' ').replace(/^[._]+/, '').slice(0, 80);
   return `${stam || 'bestand'}${ext}`;
 }

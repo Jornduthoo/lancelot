@@ -1116,5 +1116,10 @@
  "Zo ziet een leerling het": "This is what a student sees",
  "Jij bent Proefridder 1: speel hier mee. Twee andere proefridders antwoorden vanzelf. Hun antwoorden komen niet in het logboek.": "You are Trial Knight 1: play along here. Two other trial knights answer by themselves. Their answers do not go into the logbook.",
  "Het scherm van een leerling": "A student's screen",
- "Proefridder {0}": null
+ "Proefridder {0}": null,
+ "Wie is er vandaag? Afwezigen krijgen geen stoel aan de tafel. Dezelfde lijst als bij Klastools.": "Who is here today? Absent students don't get a chair at the table. The same list as in Class tools.",
+ "Tik op wie afwezig is. Afwezigen krijgen vandaag geen stoel. Dit is dezelfde lijst als bij Klastools, morgen is iedereen weer aanwezig.": "Tap who is absent. Absent students don't get a chair today. This is the same list as in Class tools, tomorrow everyone is present again.",
+ "Maken > Mijn quizzen": "Create > My quizzes",
+ "Maken > Mijn oefenbladen": "Create > My worksheets",
+ "Maken > Mijn toetsen": "Create > My tests"
 }

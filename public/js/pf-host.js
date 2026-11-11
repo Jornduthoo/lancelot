@@ -757,7 +757,7 @@ socket.on('pf-state', s => {
   const prev = state;
   state = s;
   $('stop').classList.toggle('hidden', !s.active);
-  $('status').textContent = s.active ? `Toets · ${s.title}` : 'De Proef';
+  $('status').textContent = s.active ? `Toets · ${s.title}` : 'Toetsen';
   if (!s.active) {
     if (view === 'lobby') show('list');
     return;
