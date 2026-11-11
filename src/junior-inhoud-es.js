@@ -114,7 +114,7 @@ module.exports = {
     rustKlaar: "Muy bien. Ahora estamos muy tranquilos.",
     ktKleuren: ["rojo", "azul", "amarillo", "verde", "morado", "naranja"],
     hoeken: ["Rincón de construcción", "Rincón de muñecas", "Rincón de lectura", "Rincón de dibujo", "Rincón de pintura", "Mesa de arena", "Rincón de puzles", "Cocinita", "Rincón de coches", "Plastilina", "Rincón de música", "Disfraces", "Tiendita", "Rincón de contar", "Rincón de naturaleza", "Rincón de bloques"],
-    dagdelen: ["Bienvenida", "Asamblea", "Recreo", "Comida", "Fruta", "Psicomotricidad", "Descanso", "A casa", "Manualidades", "Cantar", "Cuento", "Jugar fuera", "Lavarse las manos", "Ficha", "Recoger", "Tableta", "Ir al baño", "Ponerse el abrigo", "Contar", "Biblioteca", "Piscina", "Excursión", "Cumpleaños", "Beber agua", "Lavarse los dientes", "Bailar", "Plantar", "Bicicleta", "Cocinar", "Rincones", "Fiesta", "Puzles"],
+    dagdelen: ["Bienvenida", "Asamblea", "Recreo", "Comida", "Fruta", "Psicomotricidad", "Descanso", "A casa", "Manualidades", "Cantar", "Cuento", "Jugar fuera", "Lavarse las manos", "Ficha", "Recoger", "Tableta", "Ir al baño", "Ponerse el abrigo", "Contar", "Biblioteca", "Piscina", "Excursión", "Cumpleaños", "Beber agua", "Lavarse los dientes", "Bailar", "Plantar", "Bicicleta", "Cocinar", "Rincones", "Fiesta", "Puzles", "Lengua", "Lectura", "Escritura", "Matemáticas", "Ortografía", "Conocimiento del medio", "Dibujo", "Música", "Religión y valores", "Examen", "La hora", "Teatro"],
     wacht: 'Mira a tu profe. Empezamos enseguida.',
     bord: '¡Mira la pizarra y participa!',
     volgende: '¿A quién le toca ahora? Toca tu animal.',

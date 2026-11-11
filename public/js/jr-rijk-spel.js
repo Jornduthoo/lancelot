@@ -39,7 +39,7 @@
   const later = (f, ms) => { const r = ronde; timers.push(setTimeout(() => { if (r === ronde) f(); }, ms)); };
   const schud = a => a.map(x => [Math.random(), x]).sort((p, q) => p[0] - q[0]).map(x => x[1]);
   const Z = () => h.Z();
-  const zeg = s => h.zeg(s);
+  const zeg = (s, o) => h.zeg(s, o);
   const fx = n => h.fx(n);
   const vraag = (tekst, prent) => {
     let v = laag.querySelector('.jr-doe-vraag');
@@ -248,7 +248,7 @@
         }, () => zeg([w]));
       });
       vraag(Z().spLijst);
-      zeg([Z().spLijst, ...nodig.map(i => p.woorden[i])]);
+      zeg([Z().spLijst, ...nodig.map(i => p.woorden[i])], { los: true });
     };
     doe();
   }

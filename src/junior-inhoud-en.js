@@ -114,7 +114,7 @@ module.exports = {
     rustKlaar: "Well done. Now we are nice and calm.",
     ktKleuren: ["red", "blue", "yellow", "green", "purple", "orange"],
     hoeken: ["Building corner", "Doll corner", "Reading corner", "Drawing corner", "Painting corner", "Sand table", "Puzzle corner", "Kitchen corner", "Car corner", "Play dough", "Music corner", "Dress-up corner", "Little shop", "Counting corner", "Nature corner", "Construction corner"],
-    dagdelen: ["Welcome", "Circle time", "Playtime", "Lunch", "Fruit", "Gym", "Rest", "Home time", "Crafts", "Singing", "Story", "Outdoor play", "Wash hands", "Worksheet", "Tidy up", "Tablet time", "Toilet", "Coats on", "Counting", "Library", "Swimming", "Trip", "Birthday", "Drink water", "Brush teeth", "Dancing", "Planting", "Cycling", "Cooking", "Play corners", "Party", "Puzzles"],
+    dagdelen: ["Welcome", "Circle time", "Playtime", "Lunch", "Fruit", "Gym", "Rest", "Home time", "Crafts", "Singing", "Story", "Outdoor play", "Wash hands", "Worksheet", "Tidy up", "Tablet time", "Toilet", "Coats on", "Counting", "Library", "Swimming", "Trip", "Birthday", "Drink water", "Brush teeth", "Dancing", "Planting", "Cycling", "Cooking", "Play corners", "Party", "Puzzles", "Language", "Reading", "Writing", "Maths", "Spelling", "World studies", "Drawing", "Music", "Religion and ethics", "Test", "Telling time", "Drama"],
     wacht: 'Look at your teacher. We will start soon.',
     bord: 'Look at the board and join in!',
     volgende: 'Whose turn is it now? Tap your animal.',

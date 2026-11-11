@@ -150,32 +150,32 @@
       try {
         // Een eigen opname van de leerkracht ({ url }): die eerst, de rest met de gewone stem.
         if (stukken.some(d => d.url)) {
-          for (const d of stukken) {
+          for (const [i, d] of stukken.entries()) {
             if (mijn !== beurt) return;
+            if (i) await new Promise(r => setTimeout(r, 400));
             if (d.url) await clip(null, mijn, d.url);
             else if (lijst && lijst[d]) await clip(lijst[d], mijn);
             else await spreek(d, mijn);
           }
           return;
         }
-        const rust = () => new Promise(r => setTimeout(r, 350));
-        if (lijst && stukken.every(d => lijst[d])) {
-          for (const d of stukken) {
-            if (mijn !== beurt) return;
-            await clip(lijst[d], mijn);
-            if (los) await rust();
-          }
-          return;
+        // Een rust na een volle zin (. ? ! :) of, bij los, na elk stukje (een rij namen of woorden),
+        // zodat de stem de stukken niet aan elkaar plakt. "Hoeveel is" 3 "plus" 4 blijft wel één vloeiende zin.
+        const rust = () => new Promise(r => setTimeout(r, los ? 600 : 450));
+        const groepen = [];
+        let g = [];
+        for (const d of stukken) {
+          g.push(d);
+          if (los || /[.?!:]\s*$/.test(String(d))) { groepen.push(g); g = []; }
         }
-        if (los) {
-          for (const d of stukken) {
-            if (mijn !== beurt) return;
-            await spreek(d, mijn);
-            await rust();
-          }
-          return;
+        if (g.length) groepen.push(g);
+        const opname = lijst && stukken.every(d => lijst[d]);
+        for (let i = 0; i < groepen.length; i++) {
+          if (mijn !== beurt) return;
+          if (i) await rust();
+          if (opname) { for (const d of groepen[i]) { if (mijn !== beurt) return; await clip(lijst[d], mijn); } }
+          else await spreek(groepen[i].join(' '), mijn);
         }
-        await spreek(stukken.join(' '), mijn);
       } finally {
         if (mijn === beurt) praat = false;
       }
