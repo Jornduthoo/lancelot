@@ -82,7 +82,7 @@
     if (document.querySelector('dialog[open]')) return;
     // De spatie blijft voor de knop van de leerkracht (volgende vraag, start) als die er staat.
     if (e.key === ' ' && [...document.querySelectorAll('[data-spatie]')].some(zichtbaar)) return;
-    if (e.key === 'Tab' || /^F\d+$/.test(e.key)) return;
+    if (/^(Tab|F\d+)$/.test(e.key)) return;
     if ((e.key === ' ' || e.key === 'Enter') && doel && doel.closest && doel.closest('button, a, summary')) return;
     let doc;
     try { doc = proefVak.querySelector('.proef-scherm').contentDocument; } catch { return; }
