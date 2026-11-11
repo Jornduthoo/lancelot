@@ -206,6 +206,21 @@ const KgTafel = (() => {
       g.fill();
       g.restore();
       g.drawImage(tafelImg, cx - rx * 1.04, cy - ry * 1.04, rx * 2.08, ry * 2.08);
+      // Het donkere hart iets groter dan geschilderd, zodat de vraag en de naam er ook op een laag scherm in passen.
+      g.save();
+      const hart = g.createRadialGradient(cx, cy, 0, cx, cy, rx * .6);
+      hart.addColorStop(0, 'rgb(13 24 46)');
+      hart.addColorStop(1, 'rgb(6 11 24)');
+      g.fillStyle = hart;
+      ellips(.6);
+      g.fill();
+      g.shadowColor = kleur('--k-cyan', .9);
+      g.shadowBlur = rx * .03;
+      g.strokeStyle = kleur('--k-cyan', .85);
+      g.lineWidth = Math.max(2, rx * .006);
+      ellips(.6);
+      g.stroke();
+      g.restore();
       return;
     }
     // Dikte van het blad: een donkere schijf iets lager.

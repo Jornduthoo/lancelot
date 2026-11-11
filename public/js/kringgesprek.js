@@ -98,7 +98,7 @@ function schik() {
   $('vlammen').innerHTML = maat.vuur.map(([x, y, s], i) => `<i style="left:${x.toFixed(0)}px;top:${y.toFixed(0)}px;--s:${s.toFixed(0)}px;animation-delay:-${i * .37}s"></i>`).join('');
   const fs = Math.max(15, Math.min(24, Math.min(w, h) * .03)) * (n > 26 ? .82 : n > 18 ? .92 : 1);
   zaal.style.setProperty('--kg-fs', `${fs.toFixed(1)}px`);
-  zaal.style.setProperty('--kg-midden', `${Math.round(maat.rx * .72)}px`);
+  zaal.style.setProperty('--kg-midden', `${Math.round(maat.rx * .88)}px`);
   zaal.style.setProperty('--kg-vfs', `${Math.max(14, Math.min(34, maat.rx * .052)).toFixed(1)}px`);
   zaal.style.setProperty('--kg-kw', `${Math.round(maat.rx * 1.32)}px`);
   zaal.style.setProperty('--kg-kh', `${Math.round(maat.ry * 1.32)}px`);
@@ -272,7 +272,7 @@ function toon(bericht) {
   // De naam zo groot als past in het midden van de tafel.
   if (maat) {
     const groot = Math.min(maat.ry * (st.cur && !bericht ? .3 : .17), 110);
-    naam.style.fontSize = `${Math.max(18, Math.min(groot, maat.rx * .72 / (Math.max(4, naam.textContent.length) * .72))).toFixed(1)}px`;
+    naam.style.fontSize = `${Math.max(18, Math.min(groot, maat.rx * .88 / (Math.max(4, naam.textContent.length) * .72))).toFixed(1)}px`;
   }
   naam.classList.remove('kom');
   void naam.offsetWidth;
