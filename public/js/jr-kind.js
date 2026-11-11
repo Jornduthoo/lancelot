@@ -196,8 +196,9 @@ async function volgendeVraag() {
   } else banner.classList.add('hidden');
   // Intussen een ander spel gestart: deze vraag niet meer tonen.
   if (ronde !== deze) return;
-  // Op maat (leerkracht, klaslijst): dit kind speelt een niveau makkelijker of moeilijker, of met minder prenten. Niet bij apart oefenen.
-  const niv = apart ? S().niveau : Junior.niveauVoor(wie, S().spel, S().niveau);
+  // Op maat (leerkracht, klaslijst): dit kind speelt een niveau makkelijker of moeilijker, of met minder prenten. Niet bij apart oefenen,
+  // wel bij het raadsel van vandaag (dat volgt de klas die de leerkracht koos, een leerjaar hoger of lager voor dit kind).
+  const niv = apart && !apart.raadsel ? S().niveau : Junior.niveauVoor(wie, S().spel, S().niveau);
   let v = Junior.vraag(S().spel, niv, ronde.r, wie);
   if (!v) return;
   if (!apart && wie && wie.maat && wie.maat.minder) v = Junior.minder(v);
@@ -415,7 +416,8 @@ $('jr-vrij-knop').addEventListener('click', apartScherm);
 $('jr-raadsel-knop').addEventListener('click', () => {
   try { sfx.unlock(); } catch {}
   const d = new Date();
-  apart = { spel: 'raadsel', niveau: 0, seed: d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate(), raadsel: true };
+  // Het niveau is de klas die de leerkracht bij Instellingen koos: kleuters, 1e, 2e of 3e leerjaar.
+  apart = { spel: 'raadsel', niveau: Number(stand.raadsel) || 0, seed: d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate(), raadsel: true };
   try { sessionStorage.setItem('jr-apart', JSON.stringify(apart)); } catch {}
   ik = [];
   ronde = null;
@@ -442,6 +444,7 @@ function bijwerken() {
     try { JrThema.zet(stand.thema); } catch {}
     Junior.munt = stand.munt || Junior.munt;
     Junior.schrift = stand.schrift || Junior.schrift;
+    Junior.woorden = stand.woorden || [];
     if (ik.length) socket.emit('jr-login', { ids: ik });
     if (oud !== stand.seed) oudWeg();
     route();
@@ -458,6 +461,7 @@ socket.on('jr-stand', s => {
   try { JrThema.zet(s && s.thema); } catch {}
   if (s && s.munt) Junior.munt = s.munt;
   if (s && s.schrift) Junior.schrift = s.schrift;
+  if (s && s.woorden) Junior.woorden = s.woorden;
   if (apart) { stand = s; zetDraak(); return; }
   const nieuw = s.seed !== stand.seed || s.manier !== stand.manier;
   stand = s;

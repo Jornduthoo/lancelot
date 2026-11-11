@@ -805,9 +805,139 @@
         opties: buren(r, n, 1, 1).map(x => ({ html: `<span class="jr-getal">${x}</span>`, juist: x === n })),
       };
     },
-    raadsel(r) {
-      const soort = r.kies(['nietBij', 'nietBij', 'eieren', 'groot', 'vormen', 'waar', 'geluiden']);
-      return MAKERS[soort](r, 0);
+    // Raadsel van vandaag, per klas (de leerkracht kiest bij Instellingen): 0 kleuters, 1 tot 3 het 1e tot 3e leerjaar.
+    // Per klas een lijst [spel, niveau]; het denkraadsel staat er vaker in. Drie raadsels per dag, nooit twee keer hetzelfde spel.
+    raadsel(r, niv) {
+      const LIJST = [
+        [['nietBij', 0], ['nietBij', 0], ['eieren', 0], ['groot', 0], ['vormen', 0], ['waar', 0], ['geluiden', 0]],
+        [['denk', 0], ['denk', 0], ['denk', 0], ['denk', 0], ['woord', 0], ['woord', 0], ['woord', 0], ['rivier', 2], ['patroon', 2], ['woordbrug', 1], ['klok', 0], ['geld', 1], ['code', 2], ['rijm', 1], ['trein', 2]],
+        [['denk', 1], ['denk', 1], ['denk', 1], ['denk', 1], ['denk', 1], ['woord', 1], ['woord', 1], ['woord', 1], ['woord', 1], ['tafel', 2], ['klok', 1], ['geld', 2], ['lijn', 2], ['woordbrug', 2], ['zinnen', 1], ['dictee', 1], ['code', 2]],
+        [['denk', 2], ['denk', 2], ['denk', 2], ['denk', 2], ['denk', 2], ['woord', 2], ['woord', 2], ['woord', 2], ['woord', 2], ['tafel', 6], ['klok', 2], ['geld', 2], ['dictee', 2], ['zinnen', 1], ['code', 2]],
+      ];
+      const lijst = LIJST[Math.max(0, Math.min(3, Number(niv) || 0))];
+      // Welke spellen dit toeval (deze ronde) al gaf: zo blijft het raadsel voor iedereen hetzelfde en toch afwisselend.
+      const al = raadselGehad.get(r) || [];
+      raadselGehad.set(r, al);
+      const kan = lijst.filter(([sp]) => sp === 'denk' || !al.includes(sp));
+      const [sp, n] = r.kies(kan.length ? kan : lijst);
+      al.push(sp);
+      return MAKERS[sp](r, n);
+    },
+    // Woordenschat (alleen in het raadsel van vandaag, 1e tot 3e leerjaar): wat betekent dit woord? Drie betekenissen,
+    // die het draakje voorleest. De woorden staan per taal en per leerjaar in junior-inhoud(-en/fr/es/de).js.
+    woord(r, niv) {
+      // Woorden van de week van de leerkracht (blok Maken) gaan voor, anders de vaste woorden van dit leerjaar.
+      const eigen = (window.Junior || {}).woorden || [];
+      const lijst = eigen.length >= 3 ? eigen : (J().woordenschat || [])[Math.max(0, Math.min(2, Number(niv) || 0))] || [];
+      // Foute keuzes van dezelfde soort woord (een ding bij een ding), anders raad je het aan de vorm.
+      const ding = x => /^(de|het|the|le|la|les|l'|el|la|los|las|der|die|das)\b/i.test(x.w);
+      const doel = r.kies(lijst);
+      const zelfde = r.schud(lijst.filter(x => x !== doel && ding(x) === ding(doel)));
+      const rest = [...zelfde, ...r.schud(lijst.filter(x => x !== doel && ding(x) !== ding(doel)))].slice(0, 2);
+      return {
+        soort: 'kies', zeg: [J().zin.betekenis, doel.w],
+        kop: `<span class="jr-som jr-woordvraag">${esc(doel.w)}</span>`, lijst: true,
+        opties: r.schud([doel, ...rest]).map(x => ({ html: `<span class="jr-optie-woord jr-betekenis">${esc(x.b)}</span>`, juist: x === doel })),
+      };
+    },
+    // Denkraadsel (alleen in het raadsel van vandaag, 1e tot 3e leerjaar): getallenrij afmaken, het ontbrekende getal,
+    // het grootste of kleinste getal (plaatswaarde), en bij het 2e en 3e leerjaar ook delen.
+    denk(r, niv) {
+      const soorten = niv === 0 ? ['rij', 'rij', 'mist', 'mist', 'groot'] : ['rij', 'rij', 'mist', 'mist', 'groot', 'deel'];
+      // In het raadsel van vandaag niet twee keer dezelfde soort denkraadsel op één dag.
+      const al = raadselGehad.get(r) || [];
+      const nieuw = soorten.filter(x => !al.includes('d' + x));
+      const soort = r.kies(nieuw.length ? nieuw : soorten);
+      al.push('d' + soort);
+      const steen = (uit, stap, min = 0) => buren(r, uit, stap, min).map(x => ({ html: `${beeld('stuk/6', 'jr-steen')}<span class="jr-getal jr-op-steen">${x}</span>`, juist: x === uit }));
+      if (soort === 'rij') {
+        // 1e lj: +1, +2 of -1 tot 20. 2e lj: sprongen van 2, 5 en 10 (ook terug) tot 100. 3e lj: 3, 4, 25, 50, 100 en verdubbelen tot 1000.
+        let rij;
+        if (niv === 0) {
+          const stap = r.kies([1, 2, 2, -1, -2]);
+          const start = stap > 0 ? r.int(0, 20 - 4 * stap) : r.int(-4 * stap, 20);
+          rij = Array.from({ length: 5 }, (_, i) => start + i * stap);
+        } else if (niv === 1) {
+          const stap = r.kies([2, 5, 10, 10, -10, -5, 3]);
+          const a = Math.abs(stap);
+          let start = stap === 10 || stap === -10 ? r.int(1, 9) + 10 * r.int(0, 1) : a * r.int(1, Math.floor(100 / a) - 5);
+          if (stap < 0) start = Math.min(100, start + 4 * a);
+          if (stap === -10) start = r.int(5, 9) * 10 + r.int(1, 9);
+          rij = Array.from({ length: 5 }, (_, i) => start + i * stap);
+        } else if (r() < 0.25) {
+          const start = r.int(2, 9);
+          rij = Array.from({ length: 5 }, (_, i) => start * 2 ** i);
+        } else {
+          const stap = r.kies([3, 4, 6, 25, 50, 100, -25, -100]);
+          const a = Math.abs(stap);
+          const start = a >= 25 ? a * r.int(stap < 0 ? 5 : 0, Math.floor(1000 / a) - (stap < 0 ? 1 : 5)) + (a === 100 ? r.int(0, 9) * 10 : 0) : r.int(0, 60);
+          rij = Array.from({ length: 5 }, (_, i) => start + i * stap);
+        }
+        const uit = rij.pop();
+        const sprong = Math.abs(rij[1] - rij[0]) || 1;
+        return {
+          soort: 'kies', zeg: [J().zin.patroonVraag],
+          kop: `<span class="jr-som">${rij.join(', ')}, ?</span>`,
+          opties: steen(uit, rij[3] / rij[2] === 2 && rij[2] / rij[1] === 2 ? rij[3] : sprong > 2 ? sprong : 1), stenen: true,
+        };
+      }
+      if (soort === 'mist') {
+        // Het ontbrekende getal: a + ? = c, ? - b = c, of bij de tafels ? × t = c.
+        let a, b, c, op, wat;
+        if (niv === 0) {
+          op = r() < 0.6 ? '+' : '-';
+          if (op === '+') { c = r.int(5, r() < 0.5 ? 10 : 20); b = r.int(1, Math.min(9, c - 1)); a = c - b; wat = 'b'; }
+          else { a = r.int(6, 20); b = r.int(1, Math.min(9, a - 1)); c = a - b; wat = 'a'; }
+        } else if (niv === 1) {
+          const t = r.int(0, 3);
+          if (t === 0) { op = '+'; a = r.int(2, 9); c = r.int(11, Math.min(18, a + 9)); b = c - a; wat = 'b'; }
+          else if (t === 1) { op = '+'; a = r.int(1, 8) * 10 + r.int(1, 9); c = Math.ceil(a / 10) * 10; b = c - a; wat = 'b'; }
+          else if (t === 2) { op = '+'; a = r.int(1, 8) * 10; b = r.int(1, 9 - a / 10) * 10; c = a + b; wat = 'b'; }
+          else { op = '×'; b = r.kies([2, 5, 10]); a = r.int(2, 10); c = a * b; wat = 'a'; }
+        } else {
+          const t = r.int(0, 3);
+          if (t === 3) { op = r() < 0.5 ? '+' : '-'; a = r.int(2, 8) * 100 + r.int(1, 9) * 10; b = r.int(1, 9) * 10 + (r() < 0.5 ? 100 : 0); if (op === '-') { c = a - b; wat = 'b'; } else { c = a + b; wat = 'b'; } }
+          else if (t === 0) { op = '+'; a = r.int(12, 68); b = r.int(12, 99 - a); if (a % 10 + b % 10 < 10) b += 10 - (a % 10 + b % 10) % 10; if (a + b > 100) b = 100 - a; c = a + b; wat = 'b'; }
+          else if (t === 1) { op = '-'; c = r.int(15, 60); b = r.int(12, 39); a = c + b; wat = 'a'; }
+          else { op = '×'; b = r.int(3, 9); a = r.int(2, 10); c = a * b; wat = 'a'; }
+        }
+        const uit = wat === 'a' ? a : b;
+        const teken = op === '-' ? '−' : op;
+        const toon = wat === 'a' ? `? ${teken} ${b} = ${c}` : `${a} ${teken} ? = ${c}`;
+        return {
+          soort: 'kies', zeg: [J().zin.getalPast],
+          kop: `<span class="jr-som">${toon}</span>`,
+          opties: steen(uit, uit >= 20 && uit % 10 === 0 ? 10 : 1), stenen: true,
+        };
+      }
+      if (soort === 'groot') {
+        // Plaatswaarde: dezelfde cijfers in een andere volgorde (47, 74, 44) of (305, 350, 503).
+        const doel = r() < 0.6 ? 'grootsteGetal' : 'kleinsteGetal';
+        let getallen;
+        if (niv === 0) getallen = r.schud([...new Set([r.int(10, 20), r.int(1, 9), r.int(11, 19), r.int(2, 20), r.int(1, 20)])]).slice(0, 3);
+        else {
+          const cijfers = niv === 1 ? [r.int(1, 9), r.int(1, 9)] : [r.int(1, 9), r.int(0, 9), r.int(1, 9)];
+          if (new Set(cijfers).size < 2) cijfers[1] = (cijfers[0] % 9) + 1;
+          const perm = niv === 1
+            ? [cijfers.join(''), [...cijfers].reverse().join(''), `${cijfers[0]}${cijfers[0]}`, `${cijfers[1]}${cijfers[1]}`]
+            : [[0, 1, 2], [0, 2, 1], [1, 0, 2], [1, 2, 0], [2, 0, 1], [2, 1, 0]].map(p => p.map(i => cijfers[i]).join(''));
+          getallen = r.schud([...new Set(perm.map(Number).filter(x => x >= (niv === 1 ? 10 : 100)))]).slice(0, 3);
+        }
+        while (getallen.length < 3) { const x = niv === 0 ? r.int(1, 20) : r.int(niv === 2 ? 100 : 10, niv === 2 ? 999 : 99); if (!getallen.includes(x)) getallen.push(x); }
+        const uit = doel === 'grootsteGetal' ? Math.max(...getallen) : Math.min(...getallen);
+        return {
+          soort: 'kies', zeg: [J().zin[doel]],
+          opties: getallen.map(x => ({ html: `${beeld('stuk/6', 'jr-steen')}<span class="jr-getal jr-op-steen">${x}</span>`, juist: x === uit })), stenen: true,
+        };
+      }
+      // Delen: 2e lj de deeltafels van 2, 5 en 10, 3e lj alle deeltafels.
+      const t = niv === 1 ? r.kies([2, 5, 10]) : r.int(2, 9);
+      const uit = r.int(niv === 1 ? 1 : 2, 10);
+      return {
+        soort: 'kies', zeg: [J().zin.hoeveelIs, uit * t, J().zin.gedeeldDoor, t],
+        kop: `<span class="jr-som">${uit * t} : ${t} = ?</span>`,
+        opties: steen(uit, 1, 1), stenen: true,
+      };
     },
     geluiden(r, niv) {
       const pool = (J().geluiden || []).filter(g => niv === 1 || g.soort === 'dier');
@@ -933,6 +1063,7 @@
   // wie: { naam } van het kind dat aan de beurt is (voor het spel Mijn naam).
   // Niet twee keer (bijna) dezelfde vraag kort na elkaar: de laatste vier per spel worden onthouden.
   const recent = {};
+  const raadselGehad = new WeakMap();
   // Een eigen vraag van de leerkracht zoals de tablet ze toont (ook voor het voorbeeld bij Maken).
   function eigenVraag(v) {
     return {

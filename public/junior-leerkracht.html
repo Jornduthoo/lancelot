@@ -202,6 +202,24 @@
             <div class="actions"><button class="secondary" id="jr-maak-lees" type="button">Inlezen</button></div>
           </div>
         </div>
+        <div class="panel jr-maak-woorden">
+          <p class="title">📖 Woorden van de week</p>
+          <p class="muted small">Deze woorden komen in het raadsel van vandaag: wat betekent dit woord? Typ een onderwerp en laat de AI ze maken, of typ ze zelf: één woord per regel, zo: dapper = je durft veel.</p>
+          <label>Onderwerp<input id="jr-woord-onderwerp" maxlength="200" placeholder="Bijvoorbeeld: de herfst, het bos, ridders"></label>
+          <div class="actions">
+            <button class="gold" id="jr-woord-ai" type="button">✨ Maak met AI</button>
+            <button class="secondary" id="jr-woord-kopieer" type="button">📋 Kopieer de prompt</button>
+          </div>
+          <div class="hidden" id="jr-woord-plak-blok">
+            <label>Plak hier het antwoord van de chatbot<textarea id="jr-woord-plak" rows="3"></textarea></label>
+          </div>
+          <label>De woorden<textarea id="jr-woord-lijst" rows="8" placeholder="dapper = je durft veel"></textarea></label>
+          <div class="actions">
+            <button class="gold" id="jr-woord-bewaar" type="button">💾 Bewaren</button>
+            <button class="secondary" id="jr-woord-wis" type="button">🗑️ Leegmaken</button>
+          </div>
+          <p class="muted small" id="jr-woord-tip"></p>
+        </div>
         <div class="panel jr-maak-lijst">
           <p class="title">📚 Mijn reeksen</p>
           <p class="muted small">Speel een reeks bij Spelen, onder Mijn vragen. Steek je reeksen in mapjes: sleep ze erin of tik op 📁.</p>
@@ -417,6 +435,11 @@
   <div class="jr-kv-keuzes jr-inst-schrift" id="jr-inst-schrift">
     <button type="button" data-w="lopend1"><b>abc</b> Lopend schrift 1</button><button type="button" data-w="lopend2"><b>abc</b> Lopend schrift 2</button><button type="button" data-w="druk"><b>abc</b> Drukletters</button>
   </div>
+  <p class="jr-kv-label">Raadsel van vandaag</p>
+  <p class="jr-inst-uitleg">Voor welke klas zijn de drie raadsels van elke dag? Met Op maat krijgt een kind een leerjaar makkelijker of moeilijker.</p>
+  <div class="jr-kv-keuzes" id="jr-inst-raadsel">
+    <button type="button" data-w="k">Kleuters</button><button type="button" data-w="l1">1e leerjaar</button><button type="button" data-w="l2">2e leerjaar</button><button type="button" data-w="l3">3e leerjaar</button>
+  </div>
   </div>
   <div class="jr-inst-tab" data-tab="uiterlijk">
   <p class="jr-kv-label">🌙 Rustig</p>
@@ -475,7 +498,6 @@
 <script src="/js/ui.js"></script>
 <script src="/js/klaskiezer.js"></script>
 <script src="/js/fx.js"></script>
-<script src="/js/logo-3d.js"></script>
 <script src="/junior/inhoud.js"></script>
 <script src="/js/jr-schrift-lopend.js"></script>
 <script src="/js/jr-schrift.js"></script>

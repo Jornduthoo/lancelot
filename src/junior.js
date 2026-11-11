@@ -117,8 +117,9 @@ const SPELLEN = [
   { id: 'eigen', naam: 'Mijn vragen', zin: 'Je eigen vragen met prentjes, voorgelezen.', groep: 'eigen', jaar: 'Iedereen', beeld: 'stuk/7',
     niveaus: [] },
   // Geen tegel voor de leerkracht: kinderen starten dit zelf op de tablet, één keer per dag een sticker.
+  // Het niveau volgt de klas die de leerkracht bij Instellingen kiest (instellingen().raadsel), met de stap van Op maat.
   { id: 'raadsel', naam: 'Raadsel van vandaag', zin: 'Drie korte raadsels, elke dag nieuw.', groep: 'raadsel', jaar: 'Iedereen', beeld: 'sticker/1', verborgen: true,
-    niveaus: ['Vandaag'] },
+    niveaus: ['Kleuters', '1e leerjaar', '2e leerjaar', '3e leerjaar'] },
 ];
 const RAADSEL_VRAGEN = 3;
 const SPEL = Object.fromEntries(SPELLEN.map(s => [s.id, s]));
@@ -186,8 +187,12 @@ const DIER_GROEI = [0, 10, 30]; // public/img/junior/dier, dier2, dier3
 const THEMAS = ['herfst', 'halloween', 'sint', 'kerst', 'winter', 'valentijn', 'carnaval', 'lente', 'pasen', 'moederdag', 'vaderdag', 'zomer', 'school'];
 function instellingen() {
   const i = load().instellingen;
-  return { perRonde: RONDES.includes(i.perRonde) ? i.perRonde : PER_RONDE, voorlezen: i.voorlezen !== false, groei: i.groei !== false, thema: ['auto', 'geen', ...THEMAS].includes(i.thema) ? i.thema : 'auto', rustig: i.rustig === true, vrij: i.vrij !== false, munt: MUNTEN.includes(i.munt) ? i.munt : 'auto', schrift: SCHRIFTEN.includes(i.schrift) ? i.schrift : OUDE_SCHRIFTEN[i.schrift] || 'lopend1' };
+  return { perRonde: RONDES.includes(i.perRonde) ? i.perRonde : PER_RONDE, voorlezen: i.voorlezen !== false, groei: i.groei !== false, thema: ['auto', 'geen', ...THEMAS].includes(i.thema) ? i.thema : 'auto', rustig: i.rustig === true, vrij: i.vrij !== false, munt: MUNTEN.includes(i.munt) ? i.munt : 'auto', schrift: SCHRIFTEN.includes(i.schrift) ? i.schrift : OUDE_SCHRIFTEN[i.schrift] || 'lopend1',
+    raadsel: RAADSEL_KLASSEN.includes(i.raadsel) ? i.raadsel : 'k' };
 }
+// Het raadsel van vandaag: voor welke klas (kleuters, 1e, 2e of 3e leerjaar). Dat is het niveau van het spel 'raadsel'.
+const RAADSEL_KLASSEN = ['k', 'l1', 'l2', 'l3'];
+const raadselNiveau = () => RAADSEL_KLASSEN.indexOf(instellingen().raadsel);
 // Het geld in Geldmarkt: euro, dollar of pond. 'auto' volgt het land van de doelen (VS: dollar, Engeland: pond), anders euro.
 const MUNTEN = ['auto', 'eur', 'usd', 'gbp'];
 // Het schrift in het Schrijfdraakje: lopend schrift zoals letterkaart 1 of 2 van de klas, of drukletters (de leerkracht kiest).
@@ -246,6 +251,7 @@ function zetInstellingen(nieuw = {}) {
   if (['auto', 'geen', ...THEMAS].includes(nieuw.thema)) i.thema = nieuw.thema;
   if (MUNTEN.includes(nieuw.munt)) i.munt = nieuw.munt;
   if (SCHRIFTEN.includes(nieuw.schrift)) i.schrift = nieuw.schrift;
+  if (RAADSEL_KLASSEN.includes(nieuw.raadsel)) i.raadsel = nieuw.raadsel;
   save();
   return instellingen();
 }
@@ -437,12 +443,12 @@ function stop() {
 function stand() {
   // Rustig: geen versiering aan de randen.
   const thema = instellingen().rustig ? '' : themaNu();
-  if (!les) return { actief: false, draak: draak(), voorlezen: instellingen().voorlezen, rustig: instellingen().rustig, vrij: instellingen().vrij, thema, munt: muntNu(), schrift: instellingen().schrift };
+  if (!les) return { actief: false, draak: draak(), voorlezen: instellingen().voorlezen, rustig: instellingen().rustig, vrij: instellingen().vrij, thema, munt: muntNu(), schrift: instellingen().schrift, raadsel: raadselNiveau(), woorden: woorden() };
   const s = SPEL[les.spel];
   return {
     actief: true, spel: les.spel, naam: s.naam, niveau: les.niveau, niveauNaam: niveausVan(s)[les.niveau], manier: les.manier, seed: les.seed,
     eigen: les.spel === 'eigen' ? load().sets[les.niveau] || null : undefined,
-    perRonde: instellingen().perRonde, voorlezen: instellingen().voorlezen, teams: les.teams, avontuur: avontuurStand(), kring: { vraag: les.kring.vraag }, draak: draak(), rustig: instellingen().rustig, vrij: instellingen().vrij, thema, munt: muntNu(), schrift: instellingen().schrift,
+    perRonde: instellingen().perRonde, voorlezen: instellingen().voorlezen, teams: les.teams, avontuur: avontuurStand(), kring: { vraag: les.kring.vraag }, draak: draak(), rustig: instellingen().rustig, vrij: instellingen().vrij, thema, munt: muntNu(), schrift: instellingen().schrift, raadsel: raadselNiveau(), woorden: woorden(),
   };
 }
 // Hoe ver elk team is (0 tot 1). Een team met meer kinderen moet ook meer stappen zetten: zo blijft het eerlijk.
@@ -722,6 +728,62 @@ function leesEigen(data) {
   return s;
 }
 
+// Woorden van de week voor het raadsel van vandaag (wat betekent dit woord?): de leerkracht typt ze zelf of laat de AI ze maken.
+// Zijn er minstens 3, dan komen de woordenschatraadsels uit deze lijst in plaats van uit de vaste woorden.
+const MAX_WOORDEN = 30;
+function schoonWoorden(lijst) {
+  const uit = [];
+  const gezien = new Set();
+  for (const x of Array.isArray(lijst) ? lijst : []) {
+    const w = kort(x && (x.w || x.woord), 40);
+    const b = kort(x && (x.b || x.betekenis), 80);
+    if (!w || !b || gezien.has(w.toLowerCase())) continue;
+    gezien.add(w.toLowerCase());
+    uit.push({ w, b });
+    if (uit.length >= MAX_WOORDEN) break;
+  }
+  return uit;
+}
+// Getypte regels: "woord = betekenis" (ook "woord: betekenis" of "woord - betekenis").
+function leesWoordRegels(tekst) {
+  return schoonWoorden(String(tekst || '').split(/\r?\n/).map(r => {
+    const m = r.match(/^\s*([^=:–-]+?)\s*(?:=|:|–|-)\s*(.+?)\s*$/);
+    return m ? { w: m[1], b: m[2] } : null;
+  }).filter(Boolean));
+}
+function woorden() {
+  const d = load();
+  return Array.isArray(d.woorden) ? d.woorden : [];
+}
+function zetWoorden(lijst) {
+  const d = load();
+  d.woorden = typeof lijst === 'string' ? leesWoordRegels(lijst) : schoonWoorden(lijst);
+  save();
+  return d.woorden;
+}
+const RAADSEL_WIE = { k: KLASSEN.l1, l1: KLASSEN.l1, l2: KLASSEN.l2, l3: { wie: 'het 3e leerjaar (8-9 jaar)', niveau: 'Rekenen tot 1000, alle tafels, langere zinnen en korte teksten lezen.' } };
+function woordPrompt({ onderwerp, taal: t } = {}) {
+  const ond = kort(onderwerp, 200);
+  if (!ond) throw new Error('Typ eerst een onderwerp, bijvoorbeeld: de herfst.');
+  const k = RAADSEL_WIE[instellingen().raadsel] || KLASSEN.l2;
+  return `Je kiest woordenschat voor kinderen uit ${k.wie}.
+Niveau: ${k.niveau}
+Onderwerp: ${ond}
+Taal: ${TAALNAAM[t] || TAALNAAM.nl}${!t || t === 'nl' ? ' (Vlaams, zoals een leerkracht in Vlaanderen het zegt)' : ''}
+
+Kies 12 woorden bij dit onderwerp die kinderen van die leeftijd moeten leren: niet te makkelijk, niet te moeilijk.
+Geef bij elk woord een korte, kindvriendelijke betekenis van hoogstens 7 woorden. Herhaal het woord zelf niet in de betekenis.
+Zet de of het voor een zelfstandig naamwoord (bijvoorbeeld: de egel).
+
+Geef ALLEEN deze JSON, zonder uitleg en zonder codeblok:
+{"woorden": [{"woord": "dapper", "betekenis": "je durft veel"}, {"woord": "de oogst", "betekenis": "wat je van het veld haalt"}]}`;
+}
+function leesWoorden(data) {
+  const lijst = schoonWoorden(data && data.woorden);
+  if (lijst.length < 3) throw new Error('Er stonden te weinig woorden in. Probeer opnieuw.');
+  return lijst;
+}
+
 function stickers(id) {
   return (load().stickers[id] || []).slice(-60);
 }
@@ -757,6 +819,6 @@ module.exports = {
   kinderen, wisselDier, zetSymbool, symboolBestand, draak, noemDraak, holKoop, holZet, HOL_SPUL, eiland, start, stop, stand, overzicht, antwoord, teamGoed, klasBeloning, stickers,
   kringKies, kringStand, kringVolgende, inhoud, fase, niveausVan, zetMaat, niveauVoor,
   burcht, burchtBouw, BURCHT_PLEKKEN, BURCHT_STUKKEN,
-  voortgang, sets, bewaarSet, wisSet, mappen, nieuweMap, hernoemMap, wisMap, zetMap, eigenPrompt, leesEigen,
+  voortgang, sets, bewaarSet, wisSet, mappen, nieuweMap, hernoemMap, wisMap, zetMap, eigenPrompt, leesEigen, woorden, zetWoorden, woordPrompt, leesWoorden, leesWoordRegels,
   get actief() { return !!les; },
 };

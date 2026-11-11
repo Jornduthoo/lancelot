@@ -484,7 +484,7 @@
 /* ---------- Beginscherm van de leerkracht: grote blokken zoals in LANcelot ---------- */
 .jr-view { display: flex; flex-direction: column; gap: 16px; }
 .jr-held { display: flex; flex-direction: column; align-items: center; gap: 6px; margin-top: 4px; }
-.jr-held-logo { width: auto; max-width: min(46vw, 300px); max-height: 30vh; height: auto; filter: drop-shadow(0 8px 18px rgb(0 0 0 / .45)); }
+.jr-held-logo { width: auto; max-width: min(34vw, 210px); max-height: 21vh; height: auto; filter: drop-shadow(0 8px 18px rgb(0 0 0 / .45)); }
 .jr-held-zin { color: #fff; font-family: var(--jr-schrift); font-weight: 700; font-size: 1.2rem; text-shadow: 0 2px 8px rgb(0 0 0 / .7); margin: 0; text-align: center; }
 .jr-blokken { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
 @media (max-width: 1000px) { .jr-blokken { grid-template-columns: repeat(2, 1fr); } }
@@ -545,6 +545,11 @@
 .jr-bw-optie .jr-bw-w { flex: 1; min-width: 0; }
 .jr-optie-woord { display: block; font-size: .42em; font-weight: 800; margin-top: .1em; color: var(--jr-inkt); font-family: var(--jr-schrift); }
 .jr-vak[data-soort="kies"] .jr-optie:has(.jr-optie-woord) { flex-direction: column; padding: .4em .9em .3em; }
+/* Woordenschat in het raadsel: de betekenis is een korte zin, groot genoeg om zelf te lezen. */
+.jr-optie-woord.jr-betekenis { font-size: .7em; line-height: 1.2; white-space: normal; text-align: center; margin: 0; }
+.jr-lijst:has(.jr-betekenis) { align-items: center; }
+.jr-vak[data-soort="kies"] .jr-optie:has(.jr-betekenis) { width: min(14em, 88vw); height: auto; min-height: 0; min-width: 0; padding: .35em .6em; justify-content: center; }
+.jr-woordvraag { font-family: var(--jr-schrift); }
 .jr-vraagkaart { display: inline-block; background: rgb(var(--k-panel) / .95); color: var(--jr-inkt); font-family: var(--jr-schrift); font-weight: 800; font-size: .8em; padding: .35em .9em; border-radius: .8em; box-shadow: 0 .2em .8em rgb(0 0 0 / .2); max-width: 22em; text-align: center; }
 
 /* Spelen: elk domein een eigen kaart, naast elkaar zodat alles op één scherm past */
@@ -614,12 +619,6 @@
 .jr-lk .jr-groep .jr-tegel b { font-size: .98rem; hyphens: auto; -webkit-hyphens: auto; overflow-wrap: anywhere; line-height: 1.15; }
 .jr-lk .jr-groep .jr-tegel span { font-size: .82rem; }
 
-/* Het bewegende 3D-logo van Junior (logo-3d.js): eigen verhouding, geen blauwe gloed rond de letters. */
-.logo-3d.logo-3d-junior { aspect-ratio: 640 / 542; height: auto; }
-.logo-3d.logo-3d-junior > img:last-of-type { filter: none; }
-.logo-3d.logo-3d-junior video, .logo-3d.logo-3d-junior .ridder { -webkit-mask-image: none; mask-image: none; }
-.logo-3d.jr-logo-groot { width: min(40vw, 240px, 32vh * 640 / 542); }
-.logo-3d.jr-held-logo { width: min(46vw, 300px, 30vh * 640 / 542); max-height: none; }
 
 /* ---------- Avonturen op het bord ---------- */
 .jr-kies-venster { max-height: calc(100vh - 32px); overflow-y: auto; }
@@ -1278,8 +1277,6 @@ button.jr-mini-draak:hover { transform: translateY(-2px); }
 .jr-rijk-hoort img { width: max(56px, 11cqw); height: max(56px, 11cqw); object-fit: contain; filter: drop-shadow(0 4px 6px rgb(0 0 0 / .3)); }
 .jr-rijk-hoort span { font-size: max(16px, 2.8cqw); }
 /* Vooraan het gewone LANcelot-logo (Jorn: de ridder met draak was te griezelig voor kleuters). */
-.jr-scherm > .logo-3d { width: min(40vw, 240px, 32vh * 720 / 654); }
-.jr-held > .logo-3d { width: min(46vw, 300px, 30vh * 720 / 654); }
 
 /* Maken: een prent bij de vraag zelf. */
 .jr-vraag-foto { display: block; max-height: 9em; max-width: 16em; width: auto; height: auto; margin: .3em auto; border-radius: .6em; border: .2em solid var(--jr-lijn); box-shadow: 0 .2em .6em rgb(0 0 0 / .25); object-fit: contain; }

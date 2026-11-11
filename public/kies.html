@@ -17,6 +17,8 @@
     .kies-kaart.vorige { border-color: var(--k-goud, #ffc94a); }
     .kies-kaart img { width: min(260px, 60vw); height: 200px; object-fit: contain; filter: drop-shadow(0 8px 10px rgb(0 0 0 / .35)); }
     .kies-kaart b { font-size: 1.7rem; }
+    .kies-onthoud { display: flex; align-items: center; gap: 10px; font-size: 1.1rem; cursor: pointer; }
+    .kies-onthoud input { width: 22px; height: 22px; accent-color: var(--k-goud, #ffc94a); }
     .kies-kaart span { text-align: center; opacity: .85; line-height: 1.4; }
   </style>
 </head>
@@ -34,6 +36,7 @@
       <span>Voor de kleuterklas tot het 2e leerjaar: spelletjes met prenten en een draakje dat voorleest.</span>
     </a>
   </div>
+  <label class="kies-onthoud"><input type="checkbox" id="kies-onthoud" checked> Onthoud mijn keuze en open dit de volgende keer meteen.</label>
   <p class="muted small">Je kan later altijd wisselen met de knop bovenaan.</p>
   <script>
     // De vorige keuze krijgt een gouden rand, zodat je ze meteen terugvindt.
@@ -43,7 +46,12 @@
       if (el) { el.classList.add('vorige'); el.focus(); }
     } catch { /* geen opslag */ }
     for (const [id, w] of [['kies-lancelot', 'lancelot'], ['kies-junior', 'junior']]) {
-      document.getElementById(id).addEventListener('click', () => { try { localStorage.setItem('lancelot-start', w); } catch { /* geen opslag */ } });
+      const a = document.getElementById(id), adres = a.getAttribute('href');
+      a.addEventListener('click', () => {
+        try { localStorage.setItem('lancelot-start', w); } catch { /* geen opslag */ }
+        // Onthouden gebeurt op de server: bij het volgende opstarten opent LANcelot meteen de laatst gebruikte versie.
+        a.href = adres + '?onthoud=' + (document.getElementById('kies-onthoud').checked ? '1' : '0');
+      });
     }
   </script>
 </body>

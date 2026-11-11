@@ -272,6 +272,7 @@ function toonInstellingen(i) {
   zet('jr-inst-thema', i.thema || 'auto');
   zet('jr-inst-munt', i.munt || 'auto');
   zet('jr-inst-schrift', i.schrift || 'lopend1');
+  zet('jr-inst-raadsel', i.raadsel || 'k');
 }
 function bewaarInstelling(nieuw) {
   socket.emit('jr-instellingen', nieuw, res => {
@@ -288,6 +289,7 @@ for (const b of $('jr-inst-thema').children) b.addEventListener('click', () => b
 for (const b of $('jr-inst-munt').children) b.addEventListener('click', () => bewaarInstelling({ munt: b.dataset.w }));
 for (const b of $('jr-inst-schrift').children) { try { b.querySelector('b').outerHTML = JrSchrift.voorbeeld('abc', b.dataset.w); } catch {} }
 for (const b of $('jr-inst-schrift').children) b.addEventListener('click', () => bewaarInstelling({ schrift: b.dataset.w }));
+for (const b of $('jr-inst-raadsel').children) b.addEventListener('click', () => bewaarInstelling({ raadsel: b.dataset.w }));
 $('jr-inst-knop').addEventListener('click', () => {
   socket.emit('jr-instellingen', null, res => {
     if (res && res.error) return Ui.melding(res.error);
@@ -1536,6 +1538,50 @@ function leesPlak(stil) {
 $('jr-maak-lees').addEventListener('click', () => leesPlak(false));
 // Plakken is genoeg: het antwoord van de chatbot wordt meteen ingelezen (lukt het niet, dan blijft de knop Inlezen).
 $('jr-maak-plak').addEventListener('paste', () => setTimeout(() => leesPlak(true), 50));
+// Woorden van de week (raadsel van vandaag): in het tekstvak één woord per regel, 'woord = betekenis'.
+const woordTekst = lijst => (lijst || []).map(x => `${x.w} = ${x.b}`).join('\n');
+function zetWoorden(lijst, bewaard) {
+  $('jr-woord-lijst').value = woordTekst(lijst);
+  $('jr-woord-tip').textContent = (lijst || []).length >= 3 ? (bewaard ? '✅ ' : '') + `${lijst.length} woorden in het raadsel van vandaag.` : 'Nog geen eigen woorden: het raadsel gebruikt de vaste woorden.';
+}
+function bewaarWoorden(lijst) {
+  socket.emit('jr-woorden', lijst, res => {
+    if (!res || res.error) return Ui.melding((res && res.error) || 'Dat lukte niet.');
+    zetWoorden(res.woorden, true);
+  });
+}
+socket.emit('jr-woorden', null, res => { if (res && !res.error) zetWoorden(res.woorden); });
+$('jr-woord-bewaar').addEventListener('click', () => bewaarWoorden($('jr-woord-lijst').value));
+$('jr-woord-wis').addEventListener('click', async () => {
+  if (await Ui.vraag('Alle eigen woorden wissen?')) bewaarWoorden([]);
+});
+$('jr-woord-ai').addEventListener('click', () => {
+  const knop = $('jr-woord-ai');
+  knop.disabled = true;
+  $('jr-woord-tip').textContent = 'De AI maakt je woorden. Even geduld...';
+  socket.emit('jr-woorden-ai', { onderwerp: $('jr-woord-onderwerp').value }, res => {
+    knop.disabled = false;
+    if (!res || res.error) { $('jr-woord-tip').textContent = ''; return Ui.melding((res && res.error) || 'Dat lukte niet.'); }
+    bewaarWoorden(res.woorden);
+  });
+});
+$('jr-woord-kopieer').addEventListener('click', () => {
+  socket.emit('jr-woorden-prompt', { onderwerp: $('jr-woord-onderwerp').value }, res => {
+    if (!res || res.error) return Ui.melding((res && res.error) || 'Dat lukte niet.');
+    $('jr-woord-plak-blok').classList.remove('hidden');
+    $('jr-woord-tip').textContent = 'De prompt staat klaar. Plak hem in een chatbot (Gemini, ChatGPT of Claude) en plak het antwoord hieronder: het wordt meteen ingelezen.';
+    Ui.kopieer(res.prompt);
+  });
+});
+// Plakken is genoeg: het antwoord van de chatbot wordt meteen ingelezen en bewaard.
+$('jr-woord-plak').addEventListener('paste', () => setTimeout(() => {
+  socket.emit('jr-woorden-lees', $('jr-woord-plak').value, res => {
+    if (!res || res.error) return Ui.melding((res && res.error) || 'Dat lukte niet.');
+    $('jr-woord-plak').value = '';
+    $('jr-woord-plak-blok').classList.add('hidden');
+    bewaarWoorden(res.woorden);
+  });
+}, 50));
 socket.on('jr-sets', lijst => zetSets(lijst));
 // Kant-en-klare themareeksen (herfst, Sinterklaas, kerst, carnaval) uit de inhoud van de taal.
 function themaSets() {
