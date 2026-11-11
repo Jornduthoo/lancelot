@@ -444,6 +444,7 @@ function bijwerken() {
     try { JrThema.zet(stand.thema); } catch {}
     Junior.munt = stand.munt || Junior.munt;
     Junior.schrift = stand.schrift || Junior.schrift;
+    Junior.woorden = stand.woorden || [];
     if (ik.length) socket.emit('jr-login', { ids: ik });
     if (oud !== stand.seed) oudWeg();
     route();
@@ -460,6 +461,7 @@ socket.on('jr-stand', s => {
   try { JrThema.zet(s && s.thema); } catch {}
   if (s && s.munt) Junior.munt = s.munt;
   if (s && s.schrift) Junior.schrift = s.schrift;
+  if (s && s.woorden) Junior.woorden = s.woorden;
   if (apart) { stand = s; zetDraak(); return; }
   const nieuw = s.seed !== stand.seed || s.manier !== stand.manier;
   stand = s;
