@@ -555,8 +555,9 @@
   // Op elk leerkrachtenscherm naast het logo: de vijf rijken (het logo zelf is Start) en ⚙️ Instellingen. Zo ben je als leerkracht met één klik overal.
   // Het rijk waar je nu bent, licht op. Loopt er een spel, dan eerst even vragen (het spel loopt gewoon door).
   // In de Store-versie heet het vijfde rijk "Mijn klas" (zonder De Kronieken).
-  const RIJKEN = [['arena', 'Arena', 'arena'], ['tafel', 'Ronde Tafel', 'ronde-tafel'], ['smidse', 'Smidse', 'smidse'], ['wapenkamer', 'Wapenkamer', 'wapenkamer'],
-    window.LANCELOT_STORE ? ['kronieken', 'Mijn klas', 'burcht'] : ['kronieken', 'Kronieken', 'kronieken']];
+  // Gewone woorden: wat je er doet, niet hoe het rijk heet.
+  const RIJKEN = [['arena', 'Spelen', 'arena'], ['tafel', 'Peilen', 'ronde-tafel'], ['smidse', 'Maken', 'smidse'], ['wapenkamer', 'Klastools', 'wapenkamer'],
+    window.LANCELOT_STORE ? ['kronieken', 'Mijn klas', 'burcht'] : ['kronieken', 'Lesgeven', 'kronieken']];
   const PAD_RIJK = {
     tafel: ['rondetafel', 'kringgesprek', 'ontdek-beheer', 'runenraadsel'],
     smidse: ['oefenblad', 'proef', 'reeks'],
@@ -664,6 +665,23 @@
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', rustigBord);
   else rustigBord();
+
+  // ---------- Korte uitleg ----------
+  // Boven elk spel staat één alinea: wat het is. De rest (regels, besturing) zit achter "Meer uitleg".
+  function korteUitleg() {
+    for (const vak of document.querySelectorAll('.tw-intro > div')) {
+      const ps = [...vak.children].filter(e => e.tagName === 'P');
+      if (ps.length < 2 || vak.querySelector('.meer-uitleg')) continue;
+      const meer = document.createElement('details');
+      meer.className = 'meer-uitleg';
+      const kop = document.createElement('summary');
+      kop.textContent = 'Meer uitleg';
+      ps[1].before(meer);
+      meer.append(kop, ...ps.slice(1));
+    }
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', korteUitleg);
+  else korteUitleg();
 
   // ---------- Geschilderd decor ----------
   // Elk rijk heeft zijn eigen geschilderde zaal achter de schermen (style.css, html[data-achter]).
