@@ -2248,11 +2248,13 @@ a.terug-knop, button.terug-knop { flex: none; padding: 8px 14px 8px 10px; gap: 6
 a.terug-knop:hover, button.terug-knop:hover { box-shadow: inset 0 0 0 1px rgb(var(--k-cyan)), 0 4px 14px rgb(var(--k-zwart) / .3); }
 .terug-knop .ic { width: 1.2em; height: 1.2em; }
 
-/* Klaar met een spel op het leerlingscherm (klaar-balk.js): onderaan één knop naar Mijn taken */
+/* Klaar met een spel op het leerlingscherm (klaar-balk.js): onderaan een knop naar het startscherm en een naar Mijn taken */
 .klaar-balk { position: fixed; left: 50%; bottom: max(14px, env(safe-area-inset-bottom)); transform: translateX(-50%); z-index: 55; display: flex; align-items: center; gap: 12px;
   padding: 8px 8px 8px 16px; width: max-content; max-width: calc(100% - 32px); border-radius: 16px; background: rgb(var(--k-panel) / .94); border: 1px solid rgb(var(--k-goud) / .6); box-shadow: 0 8px 24px rgb(var(--k-zwart) / .45); font-weight: 700; }
 .klaar-balk.hidden { display: none; }
-.klaar-balk .button { padding: 10px 16px; white-space: nowrap; }
+.klaar-balk .button, .klaar-balk button { padding: 10px 16px; white-space: nowrap; margin: 0; }
+.klaar-knoppen { display: flex; gap: 8px; align-items: center; }
+.klaar-knoppen .hidden { display: none; }
 @media (max-width: 420px) { .klaar-balk { flex-direction: column; gap: 6px; padding: 10px; text-align: center; } }
 
 /* ---------- Een taak alleen spelen in een spel (tk-solo.js) ---------- */

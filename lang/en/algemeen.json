@@ -341,7 +341,6 @@
  "⚠️ Gokt er iemand?": "⚠️ Is someone guessing?",
  "· {0}e keer": "· {0}th time",
  "blur(14px) brightness(.55)": null,
- "Klaar? Ga verder met je taken.": "Done? Carry on with your tasks.",
  "⚡ Vragenstorm": "⚡ Question Storm",
  "Vraag {0} van {1}": "Question {0} of {1}",
  "Juist! ⚡ Bonus voor je spel.": "Correct! ⚡ Bonus for your game.",
@@ -1121,5 +1120,7 @@
  "Tik op wie afwezig is. Afwezigen krijgen vandaag geen stoel. Dit is dezelfde lijst als bij Klastools, morgen is iedereen weer aanwezig.": "Tap who is absent. Absent students don't get a chair today. This is the same list as in Class tools, tomorrow everyone is present again.",
  "Maken > Mijn quizzen": "Create > My quizzes",
  "Maken > Mijn oefenbladen": "Create > My worksheets",
- "Maken > Mijn toetsen": "Create > My tests"
+ "Maken > Mijn toetsen": "Create > My tests",
+ "Klaar? Kies waar je heen wil.": "Done? Choose where to go.",
+ "Startscherm": "Start screen"
 }
