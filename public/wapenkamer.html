@@ -24,9 +24,9 @@
       </div>
     </div>
     <div class="actions">
-      <button class="secondary wk-mini hidden" id="mini-klok" title="Naar de Zandloper"><img src="/img/icons/wk-zandloper.webp" alt=""> <span>0:00</span></button>
-      <button class="secondary wk-mini hidden" id="mini-licht" title="Naar het Werklicht"><i class="wk-lampje"></i> <span></span></button>
-      <button class="secondary" id="aanwezig" title="Wie is er vandaag? Afwezigen doen niet mee bij het Lot en de Banieren."><i class="ic ic-namen" aria-hidden="true"></i> <span>Aanwezig</span></button>
+      <button class="secondary wk-mini hidden" id="mini-klok" title="Naar de timer"><img src="/img/icons/wk-zandloper.webp" alt=""> <span>0:00</span></button>
+      <button class="secondary wk-mini hidden" id="mini-licht" title="Naar het stoplicht"><i class="wk-lampje"></i> <span></span></button>
+      <button class="secondary" id="aanwezig" title="Wie is er vandaag? Afwezigen doen niet mee bij Leerling kiezen en Groepjes."><i class="ic ic-namen" aria-hidden="true"></i> <span>Aanwezig</span></button>
       <button class="secondary icon" id="mute" title="Geluid aan/uit" aria-label="Geluid aan/uit"><i class="ic ic-geluid"></i></button>
       <button class="secondary" id="groot" title="Schermvullend op het bord">⛶ Groot</button>
       <button class="secondary" id="to-home">Terug</button>
@@ -35,14 +35,14 @@
 
   <!-- Het wapenrek: een houten balk, elk wapen is een tool. -->
   <nav class="wk-rek" id="rek" aria-label="Tools">
-    <a href="#lot" data-tool="lot"><img src="/img/icons/wk-lot.webp" alt=""><span>Het Lot</span></a>
-    <a href="#banieren" data-tool="banieren"><img src="/img/icons/wk-banieren.webp" alt=""><span>Banieren</span></a>
-    <a href="#zandloper" data-tool="zandloper"><img src="/img/icons/wk-zandloper.webp" alt=""><span>Zandloper</span></a>
-    <a href="#wachtlijst" data-tool="wachtlijst"><img src="/img/icons/wk-wachtlijst.webp" alt=""><span>Wachtlijst</span></a>
-    <a href="#stilte" data-tool="stilte"><img src="/img/icons/wk-stilte.webp" alt=""><span>Stilte-banier</span></a>
-    <a href="#werklicht" data-tool="werklicht"><img src="/img/icons/wk-werklicht.webp" alt=""><span>Werklicht</span></a>
-    <a href="#runensteen" data-tool="runensteen"><img src="/img/icons/wk-runensteen.webp" alt=""><span>Runensteen</span></a>
-    <a href="#heraut" data-tool="heraut"><img src="/img/icons/wk-heraut.webp" alt=""><span>Heraut</span></a>
+    <a href="#lot" data-tool="lot"><img src="/img/icons/wk-lot.webp" alt=""><span>Leerling kiezen</span></a>
+    <a href="#banieren" data-tool="banieren"><img src="/img/icons/wk-banieren.webp" alt=""><span>Groepjes</span></a>
+    <a href="#zandloper" data-tool="zandloper"><img src="/img/icons/wk-zandloper.webp" alt=""><span>Timer</span></a>
+    <a href="#wachtlijst" data-tool="wachtlijst"><img src="/img/icons/wk-wachtlijst.webp" alt=""><span>Klastaken</span></a>
+    <a href="#stilte" data-tool="stilte"><img src="/img/icons/wk-stilte.webp" alt=""><span>Geluidsmeter</span></a>
+    <a href="#werklicht" data-tool="werklicht"><img src="/img/icons/wk-werklicht.webp" alt=""><span>Stoplicht</span></a>
+    <a href="#runensteen" data-tool="runensteen"><img src="/img/icons/wk-runensteen.webp" alt=""><span>Dobbelstenen</span></a>
+    <a href="#heraut" data-tool="heraut"><img src="/img/icons/wk-heraut.webp" alt=""><span>Opdracht</span></a>
     <a href="#indeling" data-tool="indeling"><img src="/img/icons/wk-indeling.webp" alt=""><span>Klasindeling</span></a>
   </nav>
 
@@ -51,7 +51,7 @@
   <div id="wk-game">
   <!-- Het Lot: een rad met de namen. -->
   <section class="wk-tool hidden" id="t-lot">
-    <div class="wk-titel"><img src="/img/icons/wk-lot.webp" alt=""><span>Het Lot</span></div>
+    <div class="wk-titel"><img src="/img/icons/wk-lot.webp" alt=""><span>Leerling kiezen<small>Het Lot</small></span></div>
     <div class="lot-veld">
       <div class="lot-kant">
         <div class="lot-rad" id="lot-rad">
@@ -84,7 +84,7 @@
       </div>
       <div class="lot-zij">
         <div class="wk-lijst lot-uitslag" id="lot-uitslag">
-          <div class="wk-lijst-label">Het Lot kiest</div>
+          <div class="wk-lijst-label">Gekozen</div>
           <div class="lot-naam" id="lot-naam">?</div>
         </div>
         <div class="wk-bediening">
@@ -99,7 +99,7 @@
 
   <!-- De Banieren: groepjes maken. -->
   <section class="wk-tool hidden" id="t-banieren">
-    <div class="wk-titel"><img src="/img/icons/wk-banieren.webp" alt=""><span>De Banieren</span></div>
+    <div class="wk-titel"><img src="/img/icons/wk-banieren.webp" alt=""><span>Groepjes<small>De Banieren</small></span></div>
     <div class="wk-bediening form ban-keuze">
       <label>Maak
         <select id="ban-soort"><option value="groepen">groepjes</option><option value="per">per groepje</option></select>
@@ -126,7 +126,7 @@
 
   <!-- De Zandloper: de timer. -->
   <section class="wk-tool hidden" id="t-zandloper">
-    <div class="wk-titel"><img src="/img/icons/wk-zandloper.webp" alt=""><span>De Zandloper</span></div>
+    <div class="wk-titel"><img src="/img/icons/wk-zandloper.webp" alt=""><span>Timer<small>De Zandloper</small></span></div>
     <div class="zl-veld">
       <div class="zl-kant">
         <svg class="zl-glas" id="zl-glas" viewBox="0 0 200 300" aria-hidden="true">
@@ -212,7 +212,7 @@
 
   <!-- De Wachtlijst: klastaken die elke week doorschuiven. -->
   <section class="wk-tool hidden" id="t-wachtlijst">
-    <div class="wk-titel"><img src="/img/icons/wk-wachtlijst.webp" alt=""><span>De Wachtlijst</span></div>
+    <div class="wk-titel"><img src="/img/icons/wk-wachtlijst.webp" alt=""><span>Klastaken<small>De Wachtlijst</small></span></div>
     <div class="wk-bediening wl-bediening">
       <button class="secondary" id="wl-terug" title="Een week terug">◀</button>
       <span class="wl-week" id="wl-week"></span>
@@ -237,7 +237,7 @@
 
   <!-- De Stilte-banier: een geluidsmeter. -->
   <section class="wk-tool hidden" id="t-stilte">
-    <div class="wk-titel"><img src="/img/icons/wk-stilte.webp" alt=""><span>De Stilte-banier</span></div>
+    <div class="wk-titel"><img src="/img/icons/wk-stilte.webp" alt=""><span>Geluidsmeter<small>De Stilte-banier</small></span></div>
     <div class="st-veld" id="st-veld">
       <div class="st-kant">
         <svg class="st-banier" viewBox="0 0 220 320" aria-hidden="true">
@@ -276,7 +276,7 @@
 
   <!-- Het Werklicht: rood, oranje of groen. -->
   <section class="wk-tool hidden" id="t-werklicht">
-    <div class="wk-titel"><img src="/img/icons/wk-werklicht.webp" alt=""><span>Het Werklicht</span></div>
+    <div class="wk-titel"><img src="/img/icons/wk-werklicht.webp" alt=""><span>Stoplicht<small>Het Werklicht</small></span></div>
     <div class="wl-licht">
       <div class="wl-toren">
         <div class="wl-kantelen" aria-hidden="true"></div>
@@ -298,7 +298,7 @@
 
   <!-- De Runensteen: dobbelstenen. -->
   <section class="wk-tool hidden" id="t-runensteen">
-    <div class="wk-titel"><img src="/img/icons/wk-runensteen.webp" alt=""><span>De Runensteen</span></div>
+    <div class="wk-titel"><img src="/img/icons/wk-runensteen.webp" alt=""><span>Dobbelstenen<small>De Runensteen</small></span></div>
     <div class="wk-bediening form rs-keuze">
       <label>Aantal stenen
         <select id="rs-aantal"><option>1</option><option selected>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select>
@@ -329,7 +329,7 @@
 
   <!-- De Heraut: een opdracht groot op het bord. -->
   <section class="wk-tool hidden" id="t-heraut">
-    <div class="wk-titel"><img src="/img/icons/wk-heraut.webp" alt=""><span>De Heraut</span></div>
+    <div class="wk-titel"><img src="/img/icons/wk-heraut.webp" alt=""><span>Opdracht<small>De Heraut</small></span></div>
     <div class="wk-lijst form hr-maak" id="hr-maak">
       <label>Wat moet de klas doen?
         <textarea id="hr-tekst" rows="4" maxlength="300" placeholder="Bijvoorbeeld: Maak oefening 3 en 4 op blz. 25. Klaar? Lees in je leesboek."></textarea>
@@ -358,7 +358,7 @@
 
   <!-- De Klasindeling: het lokaal nabouwen en wie waar zit. -->
   <section class="wk-tool hidden" id="t-indeling">
-    <div class="wk-titel"><img src="/img/icons/wk-indeling.webp" alt=""><span>De Klasindeling</span></div>
+    <div class="wk-titel"><img src="/img/icons/wk-indeling.webp" alt=""><span>Klasindeling</span></div>
     <div class="wk-bediening ki-balk">
       <div class="ki-modus" role="tablist">
         <button class="secondary on" data-modus="zit" role="tab"><i class="ic ic-namen" aria-hidden="true"></i> Wie zit waar</button>
@@ -431,7 +431,7 @@
     <h2>Uit elkaar zetten</h2>
     <button class="secondary icon" id="ki-paren-dicht" aria-label="Sluiten"><i class="ic ic-kruis"></i></button>
   </div>
-  <p class="muted small">Wie mag niet naast of achter elkaar zitten? Bij het verdelen zet de Klasindeling hen uit elkaar.</p>
+  <p class="muted small">Wie mag niet naast of achter elkaar zitten? Bij het verdelen komen ze uit elkaar te zitten.</p>
   <div class="ki-paar-nieuw form">
     <select id="ki-paar-a" aria-label="Eerste leerling"></select>
     <span>en</span>
@@ -446,7 +446,7 @@
     <h2>Wie is er vandaag?</h2>
     <button class="secondary icon" id="aanwezig-dicht" aria-label="Sluiten"><i class="ic ic-kruis"></i></button>
   </div>
-  <p class="muted small">Tik op wie afwezig is. Afwezigen doen vandaag niet mee bij het Lot en de Banieren. Morgen is iedereen weer aanwezig.</p>
+  <p class="muted small">Tik op wie afwezig is. Afwezigen doen vandaag niet mee bij Leerling kiezen en Groepjes. Morgen is iedereen weer aanwezig.</p>
   <div class="wk-namen" id="aanwezig-namen"></div>
 </dialog>
 

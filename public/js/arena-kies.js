@@ -108,6 +108,31 @@
   tekenRecent();
   addEventListener('pageshow', tekenRecent);
 
+  // ---------- Proberen ----------
+  // Op elke speltegel: "Proberen". De leerkracht speelt het spel zonder klas, met een voorbeeldquiz en het venster
+  // "Zo ziet een leerling het" (namen-host.js) meteen open. Twee proefridders spelen vanzelf mee.
+  for (const t of tegels) {
+    const m = t.dataset.module;
+    if (ZONDER_QUIZ.has(m) || m === 'rijk') continue;
+    const p = document.createElement('b');
+    p.className = 'tegel-proef';
+    p.setAttribute('role', 'button');
+    p.tabIndex = 0;
+    p.title = 'Probeer dit spel zelf, zonder klas';
+    p.innerHTML = '<i class="ic ic-oog" aria-hidden="true"></i> <span>Proberen</span>';
+    const start = e => {
+      e.preventDefault();
+      e.stopPropagation();
+      socket.emit('eerste-start-proef', null, res => {
+        if (!res || res.error) return Ui.melding((res && res.error) || 'Dat lukte niet.');
+        location.href = `${m === 'toernooi' ? '/host' : padVan(m)}?quiz=${encodeURIComponent(res.file)}&proef=1`;
+      });
+    };
+    p.addEventListener('click', start);
+    p.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') start(e); });
+    t.appendChild(p);
+  }
+
   // ---------- Speel deze quiz in… ----------
   const venster = document.createElement('dialog');
   venster.className = 'speel-kies';

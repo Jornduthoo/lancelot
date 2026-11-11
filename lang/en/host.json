@@ -522,5 +522,7 @@
  "Open het overzicht van dit spel": "Open the overview of this game",
  "De klas had {0}% juist. Bekijk het overzicht.": "The class got {0}% right. View the overview.",
  "De klas had {0}% juist. Dit ging goed: \"{1}\". Dit ging moeilijk: \"{2}\".": "The class got {0}% right. This went well: \"{1}\". This was hard: \"{2}\".",
- "Er is nog geen quiz. Maak er eerst een.": "There is no quiz yet. Make one first."
+ "Er is nog geen quiz. Maak er eerst een.": "There is no quiz yet. Make one first.",
+ "Probeer dit spel zelf, zonder klas": "Try this game yourself, without a class",
+ "Proberen": "Try it"
 }
