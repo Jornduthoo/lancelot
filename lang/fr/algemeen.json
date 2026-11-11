@@ -341,7 +341,6 @@
  "⚠️ Gokt er iemand?": "⚠️ Quelqu’un devine-t-il au hasard ?",
  "· {0}e keer": "· {0}e fois",
  "blur(14px) brightness(.55)": null,
- "Klaar? Ga verder met je taken.": "Fini ? Continue avec tes tâches.",
  "⚡ Vragenstorm": "⚡ Tempête de questions",
  "Vraag {0} van {1}": "Question {0} sur {1}",
  "Juist! ⚡ Bonus voor je spel.": "Juste ! ⚡ Bonus pour ton jeu.",
@@ -1121,5 +1120,7 @@
  "Tik op wie afwezig is. Afwezigen krijgen vandaag geen stoel. Dit is dezelfde lijst als bij Klastools, morgen is iedereen weer aanwezig.": "Touche qui est absent. Les élèves absents n’ont pas de chaise aujourd’hui. C’est la même liste que dans Outils de classe, demain tout le monde est à nouveau présent.",
  "Maken > Mijn quizzen": "Créer > Mes quiz",
  "Maken > Mijn oefenbladen": "Créer > Mes fiches",
- "Maken > Mijn toetsen": "Créer > Mes tests"
+ "Maken > Mijn toetsen": "Créer > Mes tests",
+ "Klaar? Kies waar je heen wil.": "Fini ? Choisis où aller.",
+ "Startscherm": "Écran d’accueil"
 }
