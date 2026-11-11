@@ -26,8 +26,9 @@ const KgTafel = (() => {
   function maten(w, h) {
     const cx = w / 2;
     const cy = h / 2;
-    const sx = Math.max(120, w / 2 - Math.min(110, w * .09));
     const sy = Math.max(90, h / 2 - Math.min(44, h * .07));
+    // Op een breed en laag scherm wordt de tafel anders een platte streep: hooguit 3 keer zo breed als hoog.
+    const sx = Math.min(Math.max(120, w / 2 - Math.min(110, w * .09)), sy * 3);
     return { cx, cy, sx, sy, rx: sx * .8, ry: sy * .74 };
   }
 

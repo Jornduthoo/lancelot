@@ -2466,8 +2466,10 @@ body.proef-open { padding-right: min(400px, 92vw); }
 
 /* "Proberen" op elke speltegel in Spelen: het spel zelf uitproberen zonder klas (arena-kies.js). */
 .module { position: relative; }
-.module .tegel-proef { position: absolute; top: 12px; right: 12px; display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; font-size: .82rem; font-weight: 700; color: var(--text); background: rgb(var(--k-bg) / .7); border: 1px solid var(--line); }
+.module .tegel-proef { position: absolute; top: 0; right: 0; display: inline-flex; align-items: center; gap: 7px; padding: 7px 14px 7px 18px; font-family: var(--tech); font-size: .68rem; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: var(--cyan); background: linear-gradient(180deg, rgb(var(--k-cyan) / .22), rgb(var(--k-cyan) / .06)); box-shadow: inset 0 -1px 0 var(--line), inset 1px 0 0 var(--line); clip-path: polygon(0 0, 100% 0, 100% 100%, 12px 100%); transition: color .15s, background .15s; }
 .module .tegel-proef span { color: inherit; font-size: inherit; }
-.module .tegel-proef .ic { width: 16px; height: 16px; }
-.module .tegel-proef:hover, .module .tegel-proef:focus-visible { border-color: var(--gold); color: var(--gold); }
-.module:has(.tegel-proef) .tag.nieuw { top: 48px; right: 12px; }
+.module .tegel-proef .ic { width: 15px; height: 15px; filter: drop-shadow(0 0 6px var(--cyan-glow)); }
+.module:hover .tegel-proef { background: linear-gradient(180deg, rgb(var(--k-cyan) / .34), rgb(var(--k-cyan) / .1)); }
+.module .tegel-proef:hover, .module .tegel-proef:focus-visible { color: rgb(var(--k-op-goud, var(--k-bg))); background: linear-gradient(180deg, rgb(var(--k-goud-l)), var(--gold)); outline: none; }
+.module .tegel-proef:hover .ic, .module .tegel-proef:focus-visible .ic { filter: none; }
+.module:has(.tegel-proef) .tag.nieuw { top: 40px; right: 12px; }
