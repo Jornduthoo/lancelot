@@ -524,5 +524,7 @@
  "De klas had {0}% juist. Dit ging goed: \"{1}\". Dit ging moeilijk: \"{2}\".": "Die Klasse hatte {0} % richtig. Das ging gut: „{1}“. Das war schwer: „{2}“.",
  "Er is nog geen quiz. Maak er eerst een.": "Es gibt noch kein Quiz. Erstelle zuerst eins.",
  "Probeer dit spel zelf, zonder klas": "Probiere dieses Spiel selbst aus, ohne Klasse",
- "Proberen": "Ausprobieren"
+ "Proberen": "Ausprobieren",
+ "Kies hierboven de instellingen, zoals speeltijd en tempo. Druk dan op Start.": "Wähle oben die Einstellungen, zum Beispiel Spielzeit und Tempo. Drücke dann auf Start.",
+ "Andere quiz": "Anderes Quiz"
 }
