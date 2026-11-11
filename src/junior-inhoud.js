@@ -117,7 +117,7 @@ module.exports = {
     rustKlaar: "Goed zo. Nu zijn we helemaal rustig.",
     ktKleuren: ["rood", "blauw", "geel", "groen", "paars", "oranje"],
     hoeken: ["Bouwhoek", "Poppenhoek", "Leeshoek", "Tekenhoek", "Schilderhoek", "Zandtafel", "Puzzelhoek", "Keukenhoek", "Autohoek", "Kleihoek", "Muziekhoek", "Verkleedhoek", "Winkeltje", "Rekenhoek", "Natuurhoek", "Constructiehoek"],
-    dagdelen: ["Onthaal", "Kring", "Speeltijd", "Eten", "Fruit", "Turnen", "Rusten", "Naar huis", "Knutselen", "Zingen", "Verhaal", "Buiten spelen", "Handen wassen", "Werkblad", "Opruimen", "Op de tablet", "Naar het toilet", "Jas aandoen", "Tellen", "Naar de bib", "Zwemmen", "Uitstap", "Verjaardag", "Water drinken", "Tanden poetsen", "Dansen", "Planten", "Fietsen", "Koken", "Hoekenwerk", "Feest", "Puzzelen"],
+    dagdelen: ["Onthaal", "Kring", "Speeltijd", "Eten", "Fruit", "Turnen", "Rusten", "Naar huis", "Knutselen", "Zingen", "Verhaal", "Buiten spelen", "Handen wassen", "Werkblad", "Opruimen", "Op de tablet", "Naar het toilet", "Jas aandoen", "Tellen", "Naar de bib", "Zwemmen", "Uitstap", "Verjaardag", "Water drinken", "Tanden poetsen", "Dansen", "Planten", "Fietsen", "Koken", "Hoekenwerk", "Feest", "Puzzelen", "Taal", "Lezen", "Schrijven", "Rekenen", "Spelling", "Wereldoriëntatie", "Tekenen", "Muziek", "Levensbeschouwing", "Toets", "Klokkijken", "Toneel"],
     wacht: 'Kijk naar je leerkracht. We beginnen zo.',
     bord: 'Kijk naar het bord en doe mee!',
     volgende: 'Wie is er nu aan de beurt? Tik op jouw dier.',

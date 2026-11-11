@@ -1034,7 +1034,7 @@ function ochtend(stap) {
   const z = J().zin;
   const E = Junior.esc;
   vak.dataset.stap = stap;
-  const zeg = d => Junior.Stem.zeg(d.filter(x => x !== undefined && x !== ''));
+  const zeg = (d, o) => Junior.Stem.zeg(d.filter(x => x !== undefined && x !== ''), o);
   const nu = new Date();
   const er = kinderen.filter(k => !afwezig.has(k.id));
   // Onderaan altijd: naar de volgende stap.
@@ -1167,12 +1167,12 @@ function ochtend(stap) {
       <div class="jr-onzedag">${items.map((d, i) => `<button type="button" class="jr-onzedag-kaart jr-eigen" data-od="${i}"><img src="${d.src}" alt=""><b>${E(d.naam)}</b></button>`).join('')}</div>
       <p class="jr-view-uitleg">${E(window.I18n ? I18n.t('Je dag aanpassen doe je in Klastools, bij Dagritme.') : 'Je dag aanpassen doe je in Klastools, bij Dagritme.')}</p>${verder}`;
     vak.querySelectorAll('[data-od]').forEach(b => b.addEventListener('click', () => zeg([items[+b.dataset.od].naam])));
-    zeg([z.ochtendOnzeDag, ...items.map(d => d.naam)]);
+    zeg([z.ochtendOnzeDag, ...items.map(d => d.naam)], { los: true });
   } else if (stap === 'jarig') {
     vak.innerHTML = `<p class="jr-ochtend-zin">${E(z.ochtendJarig)}</p>
       <div class="jr-wie-rooster jr-jarig-rij">${jarigen.map(k => `<div class="jr-wie-kind"><img src="${k.beeld}" alt=""><span>${E(k.naam)}</span></div>`).join('')}</div>
       <button type="button" class="jr-ochtend-knop jr-eigen" data-ga="feest">🎂 ${E(window.I18n ? I18n.t('Naar het verjaardagsfeest') : 'Naar het verjaardagsfeest')}</button>${verder}`;
-    zeg([z.ochtendJarig, ...jarigen.map(k => k.naam)]);
+    zeg([z.ochtendJarig, ...jarigen.map(k => k.naam)], { los: true });
   } else {
     vak.innerHTML = `<div class="jr-ochtend-klaar"><img class="jr-ochtend-draak" src="${draakImg()}" alt=""><p class="jr-ochtend-zin">${E(z.ochtendKlaar)}</p></div>`;
     try { confetti(3000); sfx.fanfare(); } catch {}

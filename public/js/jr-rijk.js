@@ -27,7 +27,7 @@
   let spel = null; // { soort: 'zoek' | 'verstop' | 'niet', plek, ... }
   let mand = null; // { dingen: [{ plek, i }], gevonden: Set }
   let wacht = null;
-  const zeg = stukken => { try { return Junior.Stem.zeg(stukken); } catch { return Promise.resolve(); } };
+  const zeg = (stukken, o) => { try { return Junior.Stem.zeg(stukken, o); } catch { return Promise.resolve(); } };
   const fx = naam => { try { sfx[naam](); } catch {} };
   const schud = a => a.map(x => [Math.random(), x]).sort((p, q) => p[0] - q[0]).map(x => x[1]);
   const plekken = () => J().rijk || [];
@@ -61,7 +61,7 @@
     }));
     vak.querySelectorAll('.jr-rijk-brug').forEach(b => b.addEventListener('click', () => { fx('jump'); kaart(+b.dataset.naar, false); zeg([Z().rijkBrug]); }));
     vak.querySelectorAll('[data-kaartspel]').forEach(b => b.addEventListener('click', () => (b.dataset.kaartspel === 'vind' ? vindStart : hoortStart)(k)));
-    vak.querySelector('.jr-rijk-mand').addEventListener('click', () => zeg([Z().rijkMand, ...mand.dingen.filter(d => !mand.gevonden.has(sleutel(d.plek, d.i))).map(d => woord(d.plek, d.i))]));
+    vak.querySelector('.jr-rijk-mand').addEventListener('click', () => zeg([Z().rijkMand, ...mand.dingen.filter(d => !mand.gevonden.has(sleutel(d.plek, d.i))).map(d => woord(d.plek, d.i))], { los: true }));
     if (praat) zeg([Z().rijkKaart]);
   }
 

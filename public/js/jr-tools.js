@@ -5,7 +5,7 @@
   const J = () => window.JR || { zin: {} };
   const Z = () => J().zin || {};
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  const zeg = stukken => { try { return Junior.Stem.zeg(stukken); } catch { return Promise.resolve(); } };
+  const zeg = (stukken, o) => { try { return Junior.Stem.zeg(stukken, o); } catch { return Promise.resolve(); } };
   const fx = naam => { try { sfx[naam](); } catch {} };
   const lees = (k, s) => { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? s : v; } catch { return s; } };
   const bewaar = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
@@ -476,7 +476,7 @@
       p.querySelectorAll('[data-n]').forEach(b => b.addEventListener('click', () => { n = +b.dataset.n; van = 0; bewaar('jr-kt-groepen', n); bewaar('jr-kt-groepen-van', 0); maak(); }));
       p.querySelectorAll('[data-van]').forEach(b => b.addEventListener('click', () => { van = +b.dataset.van; bewaar('jr-kt-groepen-van', van); maak(); }));
       p.querySelector('#jr-kt-meng').addEventListener('click', maak);
-      p.querySelectorAll('[data-g]').forEach(el => el.addEventListener('click', () => { const i = +el.dataset.g; zeg([naamVan(i), ...groepen[i].map(k => k.naam)]); }));
+      p.querySelectorAll('[data-g]').forEach(el => el.addEventListener('click', () => { const i = +el.dataset.g; zeg([naamVan(i), ...groepen[i].map(k => k.naam)], { los: true }); }));
     };
     maak();
   }

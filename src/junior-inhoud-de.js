@@ -114,7 +114,7 @@ module.exports = {
     rustKlaar: "Gut gemacht. Jetzt sind wir ganz ruhig.",
     ktKleuren: ["rot", "blau", "gelb", "grün", "lila", "orange"],
     hoeken: ["Bauecke", "Puppenecke", "Leseecke", "Malecke", "Farbecke", "Sandtisch", "Puzzleecke", "Kinderküche", "Autoecke", "Knete", "Musikecke", "Verkleidungsecke", "Kaufladen", "Rechenecke", "Naturecke", "Konstruktionsecke"],
-    dagdelen: ["Ankommen", "Morgenkreis", "Spielzeit", "Essen", "Obst", "Turnen", "Ruhezeit", "Nach Hause", "Basteln", "Singen", "Geschichte", "Draußen spielen", "Hände waschen", "Arbeitsblatt", "Aufräumen", "Tablet", "Toilette", "Jacke anziehen", "Zählen", "Bücherei", "Schwimmen", "Ausflug", "Geburtstag", "Wasser trinken", "Zähne putzen", "Tanzen", "Pflanzen", "Radfahren", "Kochen", "Spielecken", "Fest", "Puzzeln"],
+    dagdelen: ["Ankommen", "Morgenkreis", "Spielzeit", "Essen", "Obst", "Turnen", "Ruhezeit", "Nach Hause", "Basteln", "Singen", "Geschichte", "Draußen spielen", "Hände waschen", "Arbeitsblatt", "Aufräumen", "Tablet", "Toilette", "Jacke anziehen", "Zählen", "Bücherei", "Schwimmen", "Ausflug", "Geburtstag", "Wasser trinken", "Zähne putzen", "Tanzen", "Pflanzen", "Radfahren", "Kochen", "Spielecken", "Fest", "Puzzeln", "Sprache", "Lesen", "Schreiben", "Rechnen", "Rechtschreibung", "Sachunterricht", "Zeichnen", "Musik", "Religion und Ethik", "Test", "Uhr lesen", "Theater"],
     wacht: 'Schau zu deiner Lehrkraft. Gleich geht es los.',
     bord: 'Schau zur Tafel und mach mit!',
     volgende: 'Wer ist jetzt dran? Tippe auf dein Tier.',

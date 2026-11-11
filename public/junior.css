@@ -1717,3 +1717,9 @@ body.jr-los #jr-vak, body.jr-los #jr-beurt { visibility: hidden; }
 .jr-inst-venster .jr-kv-keuzes button.aan { background: rgb(255 201 74 / .16); border-color: #f0a500; box-shadow: inset 0 0 10px rgb(255 201 74 / .35); }
 .jr-inst-venster .jr-inst-schrift button { border-radius: 18px; padding: 10px 18px; }
 .jr-rijk-spellen .jr-prent { width: 72%; height: 72%; vertical-align: middle; }
+
+/* Startscherm van het kind: vijf knoppen in dezelfde donkere stijl, even breed, elk met een geschilderde prent. */
+.jr-start-knoppen { width: min(960px, 100%); margin: 0 auto; }
+.jr-start-knoppen .jr-knop { justify-content: flex-start; width: 310px; max-width: 100%; white-space: nowrap; text-align: left; padding-left: 18px; padding-right: 14px; }
+@media (max-width: 700px) { .jr-start-knoppen { flex-direction: column; align-items: stretch; width: min(440px, 100%); } .jr-start-knoppen .jr-knop { width: 100%; } }
+.jr-start-knoppen .jr-knop img { width: 2.2em; height: 2.2em; object-fit: contain; }

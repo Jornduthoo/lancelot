@@ -114,7 +114,7 @@ module.exports = {
     rustKlaar: "Bravo. Maintenant, nous sommes tout calmes.",
     ktKleuren: ["rouge", "bleu", "jaune", "vert", "violet", "orange"],
     hoeken: ["Coin construction", "Coin poupées", "Coin lecture", "Coin dessin", "Coin peinture", "Bac à sable", "Coin puzzles", "Coin cuisine", "Coin voitures", "Pâte à modeler", "Coin musique", "Coin déguisements", "Petit magasin", "Coin calcul", "Coin nature", "Coin briques"],
-    dagdelen: ["Accueil", "Regroupement", "Récréation", "Repas", "Fruits", "Gym", "Repos", "Retour à la maison", "Bricolage", "Chanter", "Histoire", "Jouer dehors", "Se laver les mains", "Fiche", "Ranger", "Tablette", "Toilettes", "Mettre son manteau", "Compter", "Bibliothèque", "Piscine", "Sortie", "Anniversaire", "Boire de l'eau", "Se brosser les dents", "Danser", "Planter", "Vélo", "Cuisiner", "Ateliers", "Fête", "Puzzles"],
+    dagdelen: ["Accueil", "Regroupement", "Récréation", "Repas", "Fruits", "Gym", "Repos", "Retour à la maison", "Bricolage", "Chanter", "Histoire", "Jouer dehors", "Se laver les mains", "Fiche", "Ranger", "Tablette", "Toilettes", "Mettre son manteau", "Compter", "Bibliothèque", "Piscine", "Sortie", "Anniversaire", "Boire de l'eau", "Se brosser les dents", "Danser", "Planter", "Vélo", "Cuisiner", "Ateliers", "Fête", "Puzzles", "Langue", "Lecture", "Écriture", "Calcul", "Orthographe", "Éveil", "Dessin", "Musique", "Religion et morale", "Évaluation", "Lire l'heure", "Théâtre"],
     wacht: 'Regarde ton enseignant ou ton enseignante. On commence bientôt.',
     bord: 'Regarde le tableau et fais comme nous !',
     volgende: 'À qui le tour ? Touche ton animal.',
