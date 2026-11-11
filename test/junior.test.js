@@ -111,3 +111,51 @@ test('Geldmarkt werkt in euro, dollar en pond, en elk geldbeeld bestaat', () => 
   }
   junior.zetInstellingen && assert.strictEqual(typeof junior.muntNu(), 'string');
 });
+
+// Raadsel van vandaag per klas (Jorn 2026-11-11: veel te makkelijk voor het 2e leerjaar): elke klas eigen raadsels,
+// één juist antwoord, geen dubbele keuzes, en de denkraadsels kloppen echt.
+test('raadsel van vandaag: per leerjaar, juist en niet te makkelijk', () => {
+  const J = laad('nl');
+  const getal = o => Number(String(o.html).replace(/<[^>]*>/g, '').trim());
+  const max = [20, 20, 100, 1000];
+  for (let niv = 0; niv < 4; niv++) {
+    const zinnen = new Set();
+    for (let seed = 1; seed <= 400; seed++) {
+      const r = J.toeval(seed);
+      for (let i = 0; i < 3; i++) {
+        const v = J.vraag('raadsel', niv, r);
+        assert.ok(v && v.soort, `niveau ${niv} seed ${seed}: geen vraag`);
+        assert.ok(!JSON.stringify(v).includes('undefined') && !JSON.stringify(v).includes('NaN'), `niveau ${niv} seed ${seed}: undefined/NaN`);
+        zinnen.add(JSON.stringify(v.zeg[0]));
+        if (v.soort !== 'kies') continue;
+        assert.strictEqual(v.opties.filter(o => o.juist).length, 1, `niveau ${niv} seed ${seed}: één juist antwoord`);
+        const html = v.opties.map(o => o.html);
+        assert.strictEqual(new Set(html).size, html.length, `niveau ${niv} seed ${seed}: dubbele keuzes`);
+        // Een som of getallenrij in de kop: rekenen we na met het juiste antwoord.
+        const som = (v.kop || '').replace(/<[^>]*>/g, '');
+        const juist = v.opties.find(o => o.juist);
+        if (v.stenen && /\?/.test(som)) {
+          const x = getal(juist);
+          assert.ok(Number.isInteger(x) && x >= 0 && x <= max[niv], `niveau ${niv} seed ${seed}: ${som} -> ${x}`);
+          if (som.includes('=')) {
+            const [links, rechts] = som.replace('?', x).replace('×', '*').replace('−', '-').replace(':', '/').split('=');
+            assert.strictEqual(Function(`return ${links}`)(), Number(rechts), `niveau ${niv} seed ${seed}: ${som} met ${x}`);
+          } else if (som.includes(',')) {
+            const rij = som.split(',').slice(0, -1).map(Number).concat(x);
+            const d = rij.slice(1).map((y, k) => y - rij[k]);
+            const q = rij.slice(1).map((y, k) => y / rij[k]);
+            assert.ok(d.every(y => y === d[0]) || q.every(y => y === q[0]), `niveau ${niv} seed ${seed}: rij ${rij}`);
+            assert.ok(rij.every(y => y >= 0 && y <= max[niv]), `niveau ${niv} seed ${seed}: rij ${rij} buiten bereik`);
+          }
+        }
+      }
+    }
+    // Vanaf het 1e leerjaar geen kleuteropdrachten meer (wat hoort er niet bij, waar is het draakje).
+    if (niv > 0) {
+      const kleuter = laadZin('nl');
+      assert.ok(!zinnen.has(JSON.stringify(kleuter.nietBij)), `niveau ${niv}: nog kleuterraadsels`);
+    }
+    if (niv >= 2) assert.ok(zinnen.has(JSON.stringify(laadZin('nl').getalPast)), `niveau ${niv}: geen denkraadsel`);
+  }
+});
+function laadZin(t) { return inhoudBestand(t).zin; }

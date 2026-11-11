@@ -272,6 +272,7 @@ function toonInstellingen(i) {
   zet('jr-inst-thema', i.thema || 'auto');
   zet('jr-inst-munt', i.munt || 'auto');
   zet('jr-inst-schrift', i.schrift || 'lopend1');
+  zet('jr-inst-raadsel', i.raadsel || 'k');
 }
 function bewaarInstelling(nieuw) {
   socket.emit('jr-instellingen', nieuw, res => {
@@ -288,6 +289,7 @@ for (const b of $('jr-inst-thema').children) b.addEventListener('click', () => b
 for (const b of $('jr-inst-munt').children) b.addEventListener('click', () => bewaarInstelling({ munt: b.dataset.w }));
 for (const b of $('jr-inst-schrift').children) { try { b.querySelector('b').outerHTML = JrSchrift.voorbeeld('abc', b.dataset.w); } catch {} }
 for (const b of $('jr-inst-schrift').children) b.addEventListener('click', () => bewaarInstelling({ schrift: b.dataset.w }));
+for (const b of $('jr-inst-raadsel').children) b.addEventListener('click', () => bewaarInstelling({ raadsel: b.dataset.w }));
 $('jr-inst-knop').addEventListener('click', () => {
   socket.emit('jr-instellingen', null, res => {
     if (res && res.error) return Ui.melding(res.error);
