@@ -289,6 +289,4 @@
     toonUpdate(await ask('update-get'));
   });
 
-  // De allereerste keer: een verwijzing naar de wizard op het startscherm.
-  socket.on('welkom-nodig', nodig => $('welkom-tip').classList.toggle('hidden', !nodig));
 })();

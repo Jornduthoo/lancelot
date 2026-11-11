@@ -100,6 +100,7 @@ const pauze = require('./src/pauze');
 const THEMAS = ['nachtburcht', 'daglicht', 'ijspaleis', 'rozenkasteel', 'smaragdwoud', 'drakenvuur', 'contrast'];
 const opwarmer = require('./src/opwarmer');
 const startpakket = require('./src/startpakket');
+const eerstestart = require('./src/eerstestart');
 const overzicht = require('./src/overzicht');
 const zorg = require('./src/zorg');
 const notities = require('./src/notities');
@@ -1581,6 +1582,8 @@ io.on('connection', socket => {
       game.load(opwarmer.prepare(quiz));
       return {};
     }));
+    // De eerste start: proefspel, drie stappen en startquizzen per leerjaar (src/eerstestart.js).
+    eerstestart.host(socket, handle, sendLibrary);
     // Het startpakket 6e leerjaar: kant-en-klare quizzen en oefenbladen erbij zetten.
     socket.on('startpakket-status', handle(() => startpakket.status()));
     socket.on('startpakket-installeer', handle(() => {

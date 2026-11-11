@@ -250,12 +250,15 @@ QuizList.mount($('lib-list'), {
 });
 
 // ---------- Lobby ----------
+let proefStart = new URLSearchParams(location.search).get('proef') === '1';
 
 function renderLobby() {
   const n = state.ranking.length;
   $('player-count').textContent = n;
   $('player-word').textContent = n === 1 ? 'ridder' : 'ridders';
   $('start').disabled = n === 0;
+  // Het proefspel van de eerste start (/host?quiz=…&proef=1): zodra de drie proefridders binnen zijn, begint het vanzelf.
+  if (proefStart && n >= 3 && view === 'lobby') { proefStart = false; setTimeout(() => { if (view === 'lobby') $('start').click(); }, 1800); }
   const known = new Set([...$('names').children].map(el => el.dataset.id));
   const current = new Set(state.ranking.map(p => p.id));
   for (const el of [...$('names').children]) if (!current.has(el.dataset.id)) el.remove();

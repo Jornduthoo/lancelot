@@ -69,6 +69,8 @@
     proef.classList.add('on');
   });
   rij.append(pauze, storm, maakKnop(), proef);
+  // De knop "Speel nu een proefspel" op het startscherm (eerste-start.js): het proefvenster gaat vanzelf open.
+  if (new URLSearchParams(location.search).get('proef') === '1' && !proef.hidden) setTimeout(() => { if (!proefVak) proef.click(); }, 900);
 
   const modal = document.createElement('div');
   modal.className = 'ob-modal hidden';
