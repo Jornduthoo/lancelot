@@ -156,6 +156,19 @@ test('raadsel van vandaag: per leerjaar, juist en niet te makkelijk', () => {
       assert.ok(!zinnen.has(JSON.stringify(kleuter.nietBij)), `niveau ${niv}: nog kleuterraadsels`);
     }
     if (niv >= 2) assert.ok(zinnen.has(JSON.stringify(laadZin('nl').getalPast)), `niveau ${niv}: geen denkraadsel`);
+    if (niv >= 1) assert.ok(zinnen.has(JSON.stringify(laadZin('nl').betekenis)), `niveau ${niv}: geen woordenschat`);
   }
 });
 function laadZin(t) { return inhoudBestand(t).zin; }
+
+test('woordenschat: elke taal 3 leerjaren met elk 20 woorden en verschillende betekenissen', () => {
+  for (const t of TALEN) {
+    const w = inhoudBestand(t).woordenschat;
+    assert.strictEqual(w.length, 3, t);
+    for (const lijst of w) {
+      assert.ok(lijst.length >= 15, t);
+      assert.strictEqual(new Set(lijst.map(x => x.b)).size, lijst.length, `${t}: dubbele betekenis`);
+      assert.ok(lijst.every(x => x.w && x.b), t);
+    }
+  }
+});
