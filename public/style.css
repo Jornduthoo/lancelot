@@ -1908,7 +1908,7 @@ html[data-thema="daglicht"] body:has(#home:not(.hidden)) { background: var(--bg)
 @keyframes rijk-glans { 0% { left: -60%; opacity: 1; } 100% { left: 130%; opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .realm::before, .realms .realm .tile-icon { animation: none; } }
 /* Een rijk open: de vijf tegels en het grote logo maken plaats voor de onderdelen van dat rijk. */
-#home.in-rijk .realms, #home.in-rijk .hero, #home.in-rijk #welkom-tip, #home.in-rijk .eiland-rij { display: none; }
+#home.in-rijk .realms, #home.in-rijk .hero, #home.in-rijk .eerste-start, #home.in-rijk .eiland-rij { display: none; }
 .eiland-rij { width: 100%; margin: 0 0 18px; }
 /* Drie balken naast elkaar: korter, zelfde rustige stijl; op smalle schermen onder elkaar. */
 .eiland-rij { grid-template-columns: repeat(3, minmax(0, 1fr)); }
@@ -2447,3 +2447,23 @@ body.proef-open { padding-right: min(400px, 92vw); }
 .meer-uitleg[open] summary::after { content: ' \25B4'; }
 .meer-uitleg[open] summary { margin-bottom: 8px; }
 .tw-intro > div > p:first-child { margin-bottom: 6px; }
+
+/* De eerste start: één grote knop voor een proefspel en drie stappen (eerste-start.js). */
+.eerste-start { display: grid; gap: 12px; padding: 16px 18px; margin: 0 0 16px; border: 1px solid rgb(var(--k-goud) / .55); background: rgb(var(--k-bg2) / .82); }
+.es-proef { display: flex; align-items: center; justify-content: space-between; gap: 18px; flex-wrap: wrap; }
+.es-proef h2 { margin: 0 0 4px; }
+.es-proef p { margin: 0; max-width: 60ch; }
+.es-kop { display: flex; align-items: center; gap: 12px; }
+.es-kop button { padding: 4px 10px; font-size: .8rem; }
+.es-balk { flex: 1; height: 8px; background: rgb(var(--k-wit) / .12); overflow: hidden; }
+.es-balk i { display: block; height: 100%; width: 0; background: var(--gold); transition: width .4s; }
+.es-stappen { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.es-stappen li { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 8px 10px; background: rgb(var(--k-wit) / .04); }
+.es-stappen li > b { flex: none; width: 34px; height: 34px; display: grid; place-items: center; border: 1px solid var(--cyan); border-radius: 50%; font-family: var(--tech); }
+.es-stappen li > div { flex: 1; min-width: 220px; display: grid; }
+.es-stappen li > div span { color: var(--muted); font-size: .92rem; }
+.es-stappen li.klaar { opacity: .6; }
+.es-stappen li.klaar > b { background: var(--gold); border-color: var(--gold); color: rgb(var(--k-bg)); }
+.es-stappen li.klaar :is(a, button, select) { display: none; }
+.es-stappen li.nu { outline: 1px solid rgb(var(--k-goud) / .7); }
+.es-stappen :is(a, button, select) { padding: 8px 12px; }

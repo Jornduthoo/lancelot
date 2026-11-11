@@ -51,7 +51,40 @@
       <p>Alles voor je klas, op je eigen netwerk</p>
     </div>
     <p class="notice hidden" id="store-tip"><span id="store-tip-tekst"></span> <a id="store-tip-koop" href="#">Koop LANcelot in de Microsoft Store</a></p>
-    <p class="notice hidden" id="welkom-tip">👋 De eerste keer LANcelot? <a href="/welkom">Zet in vier stappen je klas, je leerjaar en het netwerk klaar.</a></p>
+    <section class="eerste-start hidden" id="eerste-start">
+      <div class="es-proef">
+        <div>
+          <h2>Welkom bij LANcelot</h2>
+          <p>Zie in één minuut hoe een spel werkt. Jij speelt mee als leerling en twee proefridders spelen vanzelf mee.</p>
+        </div>
+        <button class="gold big" id="es-proef">Speel nu een proefspel</button>
+      </div>
+      <div class="es-kop">
+        <strong id="es-stap" data-geen-vertaling></strong>
+        <span class="es-balk"><i id="es-balk"></i></span>
+        <button class="secondary" id="es-weg" title="Dit blok niet meer tonen">Verbergen</button>
+      </div>
+      <ol class="es-stappen">
+        <li data-stap="klas">
+          <b>1</b>
+          <div><strong>Zet je klas erin</strong><span>Typ of plak de namen van je leerlingen.</span></div>
+          <a class="button secondary" href="/welkom">Mijn klas</a>
+        </li>
+        <li data-stap="quiz">
+          <b>2</b>
+          <div><strong>Je eerste quiz</strong><span>Neem kant-en-klare quizzen voor je leerjaar of maak er zelf een.</span></div>
+          <select id="es-jaar" aria-label="Leerjaar"></select>
+          <button class="secondary" id="es-pakket">Zet quizzen klaar</button>
+          <button class="secondary" id="es-maak">Maak een quiz</button>
+        </li>
+        <li data-stap="spel">
+          <b>3</b>
+          <div><strong>Speel met je klas</strong><span>Kies een spel. De leerlingen scannen de QR-code en doen mee.</span></div>
+          <button class="secondary" id="es-spelen">Kies een spel</button>
+        </li>
+      </ol>
+      <p class="muted small" id="es-melding"></p>
+    </section>
     <!-- Het startscherm toont enkel de vijf rijken. Een klik opent het rijk; het logo of "Alle rijken" brengt je terug. -->
     <div class="realms">
       <button class="realm" data-realm="arena">
@@ -891,6 +924,7 @@
 <script src="/js/maker.js"></script>
 <script src="/js/lesmap.js"></script>
 <script src="/js/beheer.js"></script>
+<script src="/js/eerste-start.js"></script>
 <script src="/js/opwarmer.js"></script>
 <script src="/js/overzicht.js"></script>
 </body>
