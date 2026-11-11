@@ -50,7 +50,7 @@
     vak.innerHTML = `<div class="jr-rijk jr-rijk-kaart ${k > 1 ? `jr-rijk-kaart${k}` : ''}">
       <div class="jr-rijk-balk jr-rijk-balk-kaart"><span class="jr-rijk-sterren" data-geen-vertaling></span><span class="jr-rijk-spellen"><button type="button" class="jr-eigen" data-kaartspel="hoort"><img class="jr-prent" src="/img/junior/prent/1f9ed.webp" alt="🧭"></button><button type="button" class="jr-eigen" data-kaartspel="vind"><img class="jr-prent" src="/img/junior/prent/1f50e.webp" alt="🔎"></button></span></div>
       <p class="jr-rijk-vraag jr-rijk-hoort hidden" data-geen-vertaling></p>
-      ${opKaart(k).map(p => { const [x, y] = KAART[p.id] || [50, 50]; const hier = mand.dingen.some(d => d.plek === p.id && !mand.gevonden.has(sleutel(d.plek, d.i))); return `<button type="button" class="jr-rijk-plek jr-eigen ${hier ? 'mand-hier' : ''}" data-plek="${p.id}" style="left:${x}%;top:${y}%"><span>${esc(p.naam)}</span></button>`; }).join('')}
+      ${opKaart(k).map(p => { const [x, y] = KAART[p.id] || [50, 50]; const hier = mand.dingen.some(d => d.plek === p.id && !mand.gevonden.has(sleutel(d.plek, d.i))); return `<button type="button" class="jr-rijk-plek jr-eigen ${hier ? 'mand-hier' : ''} ${x >= 80 ? 'rechts' : ''}" data-plek="${p.id}" style="left:${x}%;top:${y}%"><span>${esc(p.naam)}</span></button>`; }).join('')}
       ${BRUG[k].map(([bx, by, bi, naar]) => `<button type="button" class="jr-rijk-brug jr-eigen" data-naar="${naar}" style="left:${bx}%;top:${by}%" aria-label="${esc(Z().rijkBrug || '')}"><img src="/img/junior/rijk/extra/${bi}.webp" alt=""></button>`).join('')}
       ${mandHtml()}
     </div>`;
@@ -152,7 +152,7 @@
   function herstel(p) {
     paneel('');
     const pd = vak.querySelector('.jr-rijk-plaats'); if (pd) pd.classList.remove('doe-aan');
-    const pl = vak.querySelector('.jr-rijk-plaats'); if (pl) pl.classList.remove('memo-aan');
+    const pl = vak.querySelector('.jr-rijk-plaats'); if (pl) pl.classList.remove('memo-aan', 'weg-kies');
     vak.querySelectorAll('.jr-rijk-ding').forEach(b => { b.classList.remove('weg', 'open', 'vreemd', 'kwijt'); b.querySelector('img').src = img(p.id, +b.dataset.ding); b.querySelector('.jr-rijk-struik').classList.add('hidden'); });
   }
   function verstopStart(p) {
@@ -378,7 +378,7 @@
   function schaduwVraag(p) {
     const x = spel.volgorde[spel.nr];
     const v = vak.querySelector('.jr-rijk-vraag');
-    v.innerHTML = `<img class="jr-rijk-schaduw" src="${img(p.id, x)}" alt=""><span>${esc(Z().rijkSchaduw || '')}</span>`;
+    v.innerHTML = `<span class="jr-rijk-schijf"><img class="jr-rijk-schaduw" src="${img(p.id, x)}" alt=""></span><span>${esc(Z().rijkSchaduw || '')}</span>`;
     v.classList.remove('hidden'); v.classList.add('met-prent');
     zeg([Z().rijkSchaduw]);
   }
@@ -416,13 +416,13 @@
           if (spel !== mijn) return;
           vak.querySelectorAll('.jr-rijk-ding').forEach(b => { b.querySelector('.jr-rijk-struik').classList.add('hidden'); b.classList.remove('weg'); });
           knop(x).classList.add('kwijt');
-          // Drie keuzes: wat weg is en twee dingen van andere plekken.
-          const keuzes = [[p.id, x]];
-          while (keuzes.length < 3) { const [o, oi] = vreemde(p); if (!keuzes.some(([id, i]) => id === o.id && i === oi)) keuzes.push([o.id, oi]); }
-          schud(keuzes).forEach((k, n) => { keuzes[n] = k; });
-          const el = paneel(`<div class="jr-rijk-keuzes">${keuzes.map(([id, i]) => `<button type="button" class="jr-eigen" data-k="${id}:${i}"><img src="${img(id, i)}" alt=""></button>`).join('')}</div>`);
-          el.classList.add('onder');
-          vraag(Z().rijkWeg); zeg([Z().rijkWeg]);
+          // Drie keuzes, allemaal van deze plek: wat weg is en twee dingen die er nog staan. Zo kan het kind vergelijken.
+          const keuzes = schud([[p.id, x], ...schud(p.woorden.map((_, i) => i).filter(i => i !== x)).slice(0, 2).map(i => [p.id, i])]);
+          // De keuzes komen bovenaan in de plaats van de spelknoppen, zodat alle prenten op de plek zichtbaar blijven.
+          const el = paneel(`<div class="jr-rijk-keuzes"><span class="jr-rijk-keuzes-zin">${esc(Z().rijkWeg || '')}</span>${keuzes.map(([id, i]) => `<button type="button" class="jr-eigen" data-k="${id}:${i}"><img src="${img(id, i)}" alt=""></button>`).join('')}</div>`);
+          el.classList.add('boven');
+          vak.querySelector('.jr-rijk-plaats').classList.add('weg-kies');
+          vraag(''); zeg([Z().rijkWeg]);
           mijn.bezig = false;
           el.querySelectorAll('[data-k]').forEach(b => b.addEventListener('click', () => {
             if (spel !== mijn || mijn.bezig) return;

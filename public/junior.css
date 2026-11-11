@@ -1320,6 +1320,12 @@ button.jr-mini-draak:hover { transform: translateY(-2px); }
 .jr-rijk-paneel { position: absolute; left: 50%; top: 56%; transform: translate(-50%, -50%); z-index: 180; }
 .jr-rijk-paneel.hidden { display: none; }
 .jr-rijk-paneel.onder { top: auto; bottom: 2cqw; transform: translateX(-50%); }
+/* Wat is er weg?: de keuzes boven de prenten, zodat het kind ziet wat er nog staat. */
+.jr-rijk-paneel.boven { top: 1.2cqw; left: auto; right: 1.5cqw; transform: none; }
+.jr-rijk-plaats.weg-kies .jr-rijk-spellen, .jr-rijk-plaats.doe-aan .jr-rijk-spellen { visibility: hidden; }
+.jr-rijk-paneel.boven .jr-rijk-keuzes { align-items: center; padding: .8cqw 1.2cqw; gap: 1.2cqw; }
+.jr-rijk-keuzes-zin { max-width: 16cqw; text-align: right; font-weight: 800; font-size: max(13px, 2.2cqw); line-height: 1.15; color: var(--jr-inkt); }
+.jr-rijk .jr-rijk-paneel.boven .jr-rijk-keuzes button { width: 8.5cqw; height: 8.5cqw; }
 .jr-rijk-plaats.memo-aan .jr-rijk-ding { visibility: hidden; }
 .jr-rijk-memo { display: grid; grid-template-columns: repeat(6, 11cqw); gap: 1.2cqw; }
 .jr-rijk .jr-rijk-memo button { width: 11cqw; height: 11cqw; min-height: 0; padding: 0; border: 0.5cqw solid var(--jr-lijn); border-radius: 1.6cqw; clip-path: none; box-shadow: 0 0.6cqw 0 rgb(0 0 0 / .2); background: linear-gradient(135deg, #4dabf7, #845ef7); position: relative; transition: transform .3s; }
@@ -1342,7 +1348,9 @@ button.jr-mini-draak:hover { transform: translateY(-2px); }
 .jr-rijk-tel-knoppen button.ja, .jr-rijk-keuzes button.ja { animation: jr-rijk-ja .7s; }
 .jr-rijk-vraag.met-prent { display: flex; align-items: center; gap: 1cqw; padding: .5cqw 1.6cqw .5cqw .5cqw; }
 .jr-rijk-vraag.met-prent.hidden { display: none; }
-.jr-rijk-schaduw { width: max(48px, 9cqw); height: max(48px, 9cqw); object-fit: contain; filter: brightness(0) opacity(.85); transition: filter .5s; }
+/* De schaduw staat op een lichte schijf: zwart op het donkere balkje zie je anders bijna niet. */
+.jr-rijk-schijf { display: grid; place-items: center; width: max(58px, 10cqw); height: max(58px, 10cqw); border-radius: 50%; background: radial-gradient(circle, #f4f8ff 55%, #cfe0f5); flex: none; }
+.jr-rijk-schaduw { width: 84%; height: 84%; object-fit: contain; filter: brightness(0) opacity(.85); transition: filter .5s; }
 .jr-rijk-schaduw.licht { filter: none; }
 .jr-rijk-ding.kwijt { visibility: hidden; }
 .jr-rijk-keuzes { display: flex; gap: 1.6cqw; background: rgb(var(--k-panel) / .94); border-radius: 2.4cqw; padding: 1cqw 1.6cqw; box-shadow: 0 6px 18px rgb(0 0 0 / .25); }
@@ -1375,7 +1383,7 @@ button.jr-mini-draak:hover { transform: translateY(-2px); }
 /* Kleine schermen (gsm): de spelknoppen staan op twee rijen, dus de vraag en het paneel schuiven wat lager. */
 @container (max-width: 720px) {
   .jr-rijk-plaats .jr-rijk-vraag { top: 25%; font-size: max(15px, 3.2cqw); }
-  .jr-rijk-plaats .jr-rijk-paneel:not(.onder) { top: 64%; }
+  .jr-rijk-plaats .jr-rijk-paneel:not(.onder):not(.boven) { top: 64%; }
   .jr-rijk-memo { grid-template-columns: repeat(6, 10cqw); gap: 1cqw; }
   .jr-rijk .jr-rijk-memo button { width: 10cqw; height: 10cqw; }
 }
@@ -1459,9 +1467,10 @@ button.jr-mini-draak:hover { transform: translateY(-2px); }
 .jr-doe-muziek button.licht { animation: jr-doe-licht .55s; }
 @keyframes jr-doe-licht { 30% { transform: scale(1.14) translateY(-1cqw); background: var(--kl); box-shadow: 0 0 3cqw var(--kl); } }
 @container (max-width: 720px) {
-  .jr-doe-vraag { top: 27%; left: 40%; max-width: 56cqw; white-space: normal; text-align: left; line-height: 1.15; }
-  .jr-doe-bak { top: 34%; }
-  .jr-doe-lijstje { top: 30%; }
+  /* Op de gsm komt de opdracht bovenaan rechts, in de plaats van de spelknoppen (die zijn tijdens de doe-opdracht weg). */
+  .jr-doe-vraag { top: 1.2cqw; left: auto; right: 1.5cqw; transform: none; max-width: 60cqw; white-space: normal; text-align: left; line-height: 1.15; }
+  .jr-doe-bak { top: 20%; }
+  .jr-doe-lijstje { top: 20%; }
 }
 /* Spelen: de blokken vullen elke rij helemaal. Een blok is zo breed als zijn tegels (--n), samen rekken ze uit tot de rij vol is. */
 .jr-lk #jr-groepen { display: flex; flex-wrap: wrap; align-items: stretch; gap: 14px; }
@@ -1723,3 +1732,8 @@ body.jr-los #jr-vak, body.jr-los #jr-beurt { visibility: hidden; }
 .jr-start-knoppen .jr-knop { justify-content: flex-start; width: 310px; max-width: 100%; white-space: nowrap; text-align: left; padding-left: 18px; padding-right: 14px; }
 @media (max-width: 700px) { .jr-start-knoppen { flex-direction: column; align-items: stretch; width: min(440px, 100%); } .jr-start-knoppen .jr-knop { width: 100%; } }
 .jr-start-knoppen .jr-knop img { width: 2.2em; height: 2.2em; object-fit: contain; }
+
+/* Kaart: de naam van een plek aan de rechterrand schuift wat naar links, weg van de wegwijzer.
+   De mand staat op de kaart bovenaan naast de spelknoppen, zodat ze geen naam van een plek bedekt. */
+.jr-rijk .jr-rijk-plek.rechts span { transform: translateX(calc(-50% - 4cqw)); }
+.jr-rijk-kaart .jr-rijk-mand { left: auto; bottom: auto; top: 1.2cqw; right: calc(3 * max(40px, 5.4cqw)); }

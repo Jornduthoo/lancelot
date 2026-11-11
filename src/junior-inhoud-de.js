@@ -40,6 +40,8 @@ module.exports = {
     spPrik: "Platze:",
     spZaklamp: "Es ist dunkel! Leuchte mit dem Finger und such:",
     spLijst: "Geh einkaufen! Zieh alles von der Liste in den Korb.",
+    spLijstDokter: "Hilf dem Arzt! Zieh alles von der Liste in den Verbandskasten.",
+    spLijstSchool: "Pack deinen Schulranzen! Zieh alles von der Liste in deinen Schulranzen.",
     spNietLijst: "Das steht nicht auf der Liste.",
     spOei: "Hoppla, umgefallen! Noch mal.",
     spHoog: "Wow, was für ein hoher Turm!",
