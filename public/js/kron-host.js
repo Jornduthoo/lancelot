@@ -484,3 +484,11 @@ function openBoek(b, pagina) {
   if (window.Lezer) start();
   else window.addEventListener('lezer-klaar', start, { once: true });
 }
+
+// Mijn lesmap haalt bordboeken binnen of zet ze klaar: tonen hoe ver het staat.
+socket.on('lesmap', v => {
+  const b = v && v.boeken;
+  const bezig = !!(b && b.totaal);
+  $('kr-sync').classList.toggle('hidden', !bezig);
+  if (bezig) $('kr-sync').textContent = `☁️ Bordboeken via je lesmap: ${b.klaar} van ${b.totaal}…`;
+});

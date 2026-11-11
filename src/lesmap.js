@@ -19,9 +19,12 @@ const FILE_RE = /^[^_\\/][^\\/]*\.json$/;
 let kinds = [];
 let busy = null;
 let status = { at: 0, pulled: 0, pushed: 0, removed: 0, error: '' };
+let voortgang = () => {};
 
-function init(list) {
+// opties.voortgang: wordt opgeroepen tijdens het kopiëren van grote bestanden (de bordboeken), om dat te tonen.
+function init(list, opties = {}) {
   kinds = list;
+  if (typeof opties.voortgang === 'function') voortgang = opties.voortgang;
 }
 
 const hash = text => crypto.createHash('sha1').update(text).digest('hex');
@@ -176,6 +179,175 @@ async function syncKind(kind, root, state, count) {
   return changedHere;
 }
 
+// ---------- Grote bestanden (de pdf's en afbeeldingen van Mijn methodes) ----------
+// Anders dan de json-bestanden hierboven: in submappen (vak/blok), binair en groot. Daarom vergelijken we op grootte en
+// tijdstip (per kant onthouden), en lezen we de inhoud alleen als twee bestanden even groot zijn maar anders lijken.
+// Nooit iets kwijt: wat vervangen of verwijderd wordt, gaat naar een prullenbak (op deze pc die van de soort zelf,
+// in de lesmap _prullenbak voor 30 dagen). Een bestand uit de lesmap komt pas binnen als het een ronde lang niet meer
+// veranderde: zo halen we nooit een bordboek binnen dat OneDrive of Google Drive nog aan het downloaden is.
+const MAX_DIEPTE = 6;
+const TMP = '.lancelot-kopie';
+
+async function bestandInfo(file) {
+  try {
+    const st = await fsp.stat(file);
+    if (st.isFile() && st.size > 0) return { size: st.size, mtime: st.mtimeMs, fp: `${st.size}:${Math.floor(st.mtimeMs / 1000)}` };
+  } catch {}
+  return null;
+}
+
+async function lijstBestanden(dir, toegelaten) {
+  const out = {};
+  const loop = async (abs, rel, diepte) => {
+    let items;
+    try { items = await fsp.readdir(abs, { withFileTypes: true }); } catch { return; }
+    for (const it of items) {
+      if (it.name.startsWith('_') || it.name.startsWith('.')) continue;
+      const r = rel ? `${rel}/${it.name}` : it.name;
+      if (it.isDirectory()) {
+        if (diepte < MAX_DIEPTE) await loop(path.join(abs, it.name), r, diepte + 1);
+      } else if (toegelaten(r)) {
+        const info = await bestandInfo(path.join(abs, it.name));
+        if (info) out[r] = info;
+      }
+    }
+  };
+  await loop(dir, '', 0);
+  return out;
+}
+
+const absPad = (dir, rel) => path.join(dir, ...rel.split('/'));
+
+async function inhoudHash(file) {
+  const h = crypto.createHash('sha1');
+  for await (const stuk of fs.createReadStream(file)) h.update(stuk);
+  return h.digest('hex');
+}
+
+// Kopiëren naar een tijdelijke naam (die niemand oppikt), het tijdstip van het origineel meegeven en dan pas op zijn plek.
+async function kopieer(van, naar) {
+  await fsp.mkdir(path.dirname(naar), { recursive: true });
+  const tmp = path.join(path.dirname(naar), `${TMP}-${process.pid}-${path.basename(naar)}`);
+  try {
+    await fsp.copyFile(van, tmp);
+    const st = await fsp.stat(van);
+    await fsp.utimes(tmp, st.atime, st.mtime);
+    await fsp.rename(tmp, naar);
+  } catch (err) {
+    await fsp.unlink(tmp).catch(() => {});
+    throw err;
+  }
+}
+
+async function naarLesmapBak(remote, rel) {
+  const bin = path.join(remote, TRASH);
+  await fsp.mkdir(bin, { recursive: true });
+  const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-');
+  const ext = path.extname(rel);
+  await fsp.rename(absPad(remote, rel), path.join(bin, `${rel.slice(0, -ext.length).split('/').join(' - ')}-${stamp}${ext}`));
+  try {
+    for (const old of await fsp.readdir(bin)) {
+      const stat = await fsp.stat(path.join(bin, old));
+      if (Date.now() - stat.mtimeMs > KEEP_DAYS * 864e5) await fsp.unlink(path.join(bin, old));
+    }
+  } catch {}
+}
+
+async function syncBestanden(kind, root, state, count, fouten) {
+  const local = typeof kind.dir === 'function' ? kind.dir() : kind.dir;
+  const remote = path.join(root, kind.remote);
+  const seen = state.files[kind.kind] || {};
+  const wacht = (state.wacht || {})[kind.kind] || {};
+  if (Object.keys(seen).length && !(await fsp.stat(remote).catch(() => null))) throw new Error(`De map ${kind.remote} ontbreekt in de lesmap.`);
+  await fsp.mkdir(remote, { recursive: true });
+  const L = await lijstBestanden(local, kind.toegelaten);
+  const R = await lijstBestanden(remote, kind.toegelaten);
+  const next = {};
+  const nieuwWacht = {};
+  const taken = [];
+
+  for (const rel of new Set([...Object.keys(L), ...Object.keys(R), ...Object.keys(seen)])) {
+    const l = L[rel], r = R[rel], s = seen[rel];
+    // Uit de lesmap enkel wat een ronde stil lag (niet meer aan het downloaden).
+    const rKlaar = r && wacht[rel] === r.fp;
+    if (r) nieuwWacht[rel] = r.fp;
+    if (l && r) {
+      if (s && s.l === l.fp && s.r === r.fp) { next[rel] = s; continue; }
+      if (l.size === r.size) {
+        let zelfde = false;
+        try { zelfde = (await inhoudHash(absPad(local, rel))) === (await inhoudHash(absPad(remote, rel))); } catch {}
+        if (zelfde) { next[rel] = { l: l.fp, r: r.fp }; continue; }
+      }
+      const lAnders = !s || s.l !== l.fp, rAnders = !s || s.r !== r.fp;
+      const binnen = rAnders && (!lAnders || r.mtime > l.mtime);
+      if (binnen && !rKlaar) { if (s) next[rel] = s; continue; }
+      taken.push({ rel, doe: binnen ? 'binnen' : 'weg', oud: s, vervang: true });
+    } else if (l) {
+      if (s && s.r && s.l === l.fp) taken.push({ rel, doe: 'wis-hier', oud: s });
+      else taken.push({ rel, doe: 'weg' });
+    } else if (r) {
+      if (s && s.l && s.r === r.fp) taken.push({ rel, doe: 'wis-daar', oud: s });
+      else if (rKlaar) taken.push({ rel, doe: 'binnen' });
+    }
+  }
+
+  // Ontbreken plots veel bestanden aan één kant zonder dat iemand ze verwijderde (OneDrive nog niet klaar, een lege
+  // map), dan verwijderen we niets. Wie in LANcelot verwijdert, zet het boek in de prullenbak: dat telt niet mee.
+  let bakDaar = [];
+  try { bakDaar = await fsp.readdir(path.join(remote, TRASH)); } catch {}
+  const inBakDaar = rel => { const ext = path.extname(rel); const stam = rel.slice(0, -ext.length).split('/').join(' - '); return bakDaar.some(n => n.startsWith(`${stam}-`) && n.endsWith(ext)); };
+  const wisHier = taken.filter(t => t.doe === 'wis-hier' && !inBakDaar(t.rel)).length;
+  const wisDaar = taken.filter(t => t.doe === 'wis-daar' && !(kind.inPrullenbak && kind.inPrullenbak(t.rel))).length;
+  const bekend = Object.keys(seen).length;
+  const teVeel = n => n > 3 && n > bekend / 2;
+  if (teVeel(wisHier) || teVeel(wisDaar)) {
+    fouten.push('Veel bordboeken lijken weg aan één kant. Er werd niets verwijderd: kijk of OneDrive of Google Drive alles heeft binnengehaald.');
+    for (const t of taken) if (t.doe === 'wis-hier' || t.doe === 'wis-daar') { t.doe = 'niets'; next[t.rel] = t.oud; }
+  }
+
+  const kopie = taken.filter(t => t.doe === 'binnen' || t.doe === 'weg');
+  const totaal = kopie.length;
+  let klaar = 0;
+  let changedHere = false;
+  const toon = (naam) => { status = { ...status, boeken: { klaar, totaal, naam } }; voortgang(); };
+  for (const t of taken) {
+    const { rel } = t;
+    try {
+      if (t.doe === 'binnen') {
+        toon(rel);
+        if (t.vervang) await kind.weg(rel, true);
+        await kopieer(absPad(remote, rel), absPad(local, rel));
+        next[rel] = { l: (await bestandInfo(absPad(local, rel))).fp, r: R[rel].fp };
+        changedHere = true;
+        count.pulled++;
+        klaar++;
+      } else if (t.doe === 'weg') {
+        toon(rel);
+        if (t.vervang) await naarLesmapBak(remote, rel);
+        await kopieer(absPad(local, rel), absPad(remote, rel));
+        next[rel] = { l: L[rel].fp, r: (await bestandInfo(absPad(remote, rel))).fp };
+        count.pushed++;
+        klaar++;
+      } else if (t.doe === 'wis-hier') {
+        await kind.weg(rel, false);
+        changedHere = true;
+        count.removed++;
+      } else if (t.doe === 'wis-daar') {
+        await naarLesmapBak(remote, rel);
+        count.removed++;
+      }
+    } catch (err) {
+      // Lukt één bestand niet (vol, in gebruik), dan de rest wel en dit de volgende keer opnieuw.
+      if (t.oud) next[rel] = t.oud;
+      fouten.push(`"${path.basename(rel)}" kopiëren lukte niet (${err.code || err.message}).`);
+    }
+  }
+  if (totaal) toon('');
+  state.files[kind.kind] = next;
+  state.wacht = { ...state.wacht, [kind.kind]: nieuwWacht };
+  return changedHere;
+}
+
 // Alles synchroniseren. Geeft de soorten terug waar hier iets veranderde, zodat de lijsten bijgewerkt worden.
 function sync() {
   if (busy) return busy;
@@ -188,12 +360,22 @@ function sync() {
       const stat = await fsp.stat(root).catch(() => null);
       if (!stat || !stat.isDirectory()) throw new Error('De lesmap is niet gevonden. Staat OneDrive of Google Drive aan?');
       const state = readState(root);
-      for (const kind of kinds) if (await syncKind(kind, root, state, count)) changed.push(kind.kind);
+      const fouten = [];
+      for (const kind of kinds) {
+        if (kind.bestanden) {
+          // De bordboeken: groot, dus apart, en uit te zetten. Uit: de vorige stand vergeten, zodat er na het weer
+          // aanzetten eerst alleen samengevoegd wordt en niets verdwijnt.
+          if (!boekenAan()) { delete state.files[kind.kind]; delete (state.wacht || {})[kind.kind]; continue; }
+          if (await syncBestanden(kind, root, state, count, fouten)) changed.push(kind.kind);
+          fs.writeFileSync(STATE, JSON.stringify(state) + '\n');
+        } else if (await syncKind(kind, root, state, count)) changed.push(kind.kind);
+      }
       fs.writeFileSync(STATE, JSON.stringify(state) + '\n');
-      status = { at: Date.now(), ...count, error: '' };
+      status = { at: Date.now(), ...count, error: fouten.join(' ') };
     } catch (err) {
       status = { ...status, error: err.message };
     }
+    delete status.boeken;
     return changed;
   })().finally(() => { busy = null; });
   return busy;
@@ -232,7 +414,12 @@ function choose(folder) {
 }
 
 function view() {
-  return { lesmap: settings.read().lesmap || '', ...status };
+  return { lesmap: settings.read().lesmap || '', boekenAan: boekenAan(), ...status };
 }
 
-module.exports = { init, sync, choose, view, suggestions };
+const boekenAan = () => settings.read().lesmapBoeken !== false;
+function zetBoeken(aan) {
+  settings.write({ lesmapBoeken: !!aan });
+}
+
+module.exports = { init, sync, choose, view, suggestions, zetBoeken };

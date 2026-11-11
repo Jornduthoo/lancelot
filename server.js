@@ -585,7 +585,7 @@ lesmap.init([
   { kind: 'proef', dir: proeven.DIR, remote: 'toetsen', validate: proeven.K.validate },
   // De planning van De Zonnewijzer: thuis voorbereiden, op het bord gebruiken.
   { kind: 'zonnewijzer', dir: zonnewijzer.DIR, remote: 'zonnewijzer', validate: d => { if (!d || typeof d !== 'object' || Array.isArray(d)) throw new Error('Ongeldig bestand.'); } },
-  // De Kronieken: mappen, online bordboeken en koppelingen per les (de pdf's zelf blijven op elke pc).
+  // De Kronieken: mappen, online bordboeken en koppelingen per les.
   { kind: 'kronieken', dir: kronieken.LINKS_DIR, remote: 'kronieken', validate: kronieken.geldigeLinks },
   // Taken: thuis klaarzetten, op het digibord werken de leerlingen eraan. Alleen de taak zelf, nooit het werk.
   // perKlas: hoort bij de klas die nu gekozen is (Meerdere klassen); de eerste klas staat waar ze altijd stond.
@@ -602,7 +602,21 @@ lesmap.init([
   { kind: 'burchten', dir: () => burchten.LESMAP, perKlas: true, remote: 'klaseiland', validate: burchten.kopieGeldig },
   // De woorden van de week van het Runenraadsel: thuis klaarzetten, op het bord raden. De resultaten blijven op deze pc.
   { kind: 'runen', dir: () => runen.WOORDEN_DIR, perKlas: true, remote: 'runenraadsel', validate: runen.lijstGeldig },
-]);
+  // De bordboeken zelf (pdf's en afbeeldingen van Mijn methodes): groot, dus apart en uit te zetten bij Instellingen.
+  // Als laatste: zo staat al het kleine werk er al terwijl een groot boek nog kopieert.
+  { kind: 'bordboeken', bestanden: true, dir: kronieken.DIR, remote: 'bordboeken', toegelaten: kronieken.syncNaam, weg: kronieken.syncWeg, inPrullenbak: kronieken.inPrullenbak },
+], {
+  // Grote bordboeken kopiëren duurt even: tussendoor tonen hoe ver het staat (hooguit twee keer per seconde).
+  voortgang: (() => {
+    let laatst = 0;
+    return () => {
+      const nu = Date.now();
+      if (nu - laatst < 500) return;
+      laatst = nu;
+      io.to('host').emit('lesmap', lesmap.view());
+    };
+  })(),
+});
 let syncTimer = null;
 function runSync() {
   try { klas.naarLesmap(); } catch (err) { console.error('Klaslijst voor de lesmap bewaren mislukt:', err.message); }
@@ -621,7 +635,7 @@ function runSync() {
     for (const kind of changed) {
       if (LIBS[kind]) sendLibrary(kind, null, true);
       else if (kind === 'zonnewijzer') io.to('host').emit('zw-gewijzigd');
-      else if (kind === 'kronieken') io.to('host').emit('kr-lijst', kronieken.lijst());
+      else if (kind === 'kronieken' || kind === 'bordboeken') io.to('host').emit('kr-lijst', kronieken.lijst());
       else if (kind === 'klastaken') io.to('host').emit('wk-taken', klastaken.read());
       else if (kind === 'klasindeling') io.to('host').emit('wk-indeling', klasindeling.read());
       else if (kind === 'burchten') io.to('host').emit('bu-eiland', burchten.eiland());
@@ -863,7 +877,7 @@ app.get('/huisdier', (req, res) => {
 taal.route(app);
 beheer.routes(app, isLeerkracht);
 // De Kronieken: eigen bordboeken en handleidingen tonen en toevoegen (enkel de leerkracht).
-kronieken.routes(app, isLeerkracht, express, () => io.to('host').emit('kr-lijst', kronieken.lijst()));
+kronieken.routes(app, isLeerkracht, express, () => { io.to('host').emit('kr-lijst', kronieken.lijst()); syncSoon(); });
 // Een tweede leerkrachtscherm koppelen: de bureau-pc tikt hier de code van het digibord in.
 app.get('/koppel', (req, res) => {
   if (isLeerkracht(req)) return res.redirect('/host');
@@ -1307,6 +1321,12 @@ io.on('connection', socket => {
       runSync().then(() => cb && cb({ ok: true, ...lesmap.view() }));
     });
     socket.on('lesmap-sync', (_, cb) => runSync().then(() => cb && cb(lesmap.view())));
+    socket.on('lesmap-boeken', (aan, cb) => {
+      lesmap.zetBoeken(aan);
+      io.to('host').emit('lesmap', lesmap.view());
+      if (aan) syncSoon();
+      if (typeof cb === 'function') cb(lesmap.view());
+    });
     // Het gewone Windows-venster om een map te kiezen.
     socket.on('lesmap-pick', (_, cb) => {
       if (scherm) return cb && cb({ error: 'Dat venster zou op het digibord openen. Typ het pad van de map hieronder.' });

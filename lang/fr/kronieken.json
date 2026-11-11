@@ -21,7 +21,7 @@
  "Online bordboek": "Manuel en ligne",
  "Openen in een apart venster, naast LANcelot (en dat voortaan onthouden)": "Ouvrir dans une fenêtre séparée, à côté de LANcelot (et s’en souvenir désormais)",
  "LANcelot · De Kronieken": "LANcelot · Les Chroniques",
- "Elke map is een vak, en daarin een blok of thema, net zoals bij je quizzen. Mappen uit je lespakket staan er vanzelf. Je bordboeken en handleidingen blijven enkel op deze pc, in de map kronieken bij je gegevens.": "Chaque dossier est une matière, et dedans une unité ou un thème, comme pour tes quiz. Les dossiers de ton pack de leçons y sont automatiquement. Tes manuels et guides de l’enseignant restent uniquement sur ce PC, dans le dossier kronieken avec tes données.",
+ "Elke map is een vak, en daarin een blok of thema, net zoals bij je quizzen. Mappen uit je lespakket staan er vanzelf. Je bordboeken en handleidingen staan in de map kronieken bij je gegevens. Heb je Mijn lesmap gekoppeld, dan gaan ze ook mee naar je andere pc.": "Chaque dossier est une matière, et dedans une unité ou un thème, comme pour tes quiz. Les dossiers de ton pack de leçons y sont automatiquement. Tes manuels et guides de l’enseignant sont dans le dossier kronieken avec tes données. Si tu as lié Mon dossier de cours, ils vont aussi sur ton autre PC.",
  "Boek toevoegen": "Ajouter un livre",
  "🌐 Online bordboek": "🌐 Manuel en ligne",
  "Open het bordboek eerst in je browser en kopieer het adres bovenaan. Het opent op het bord met je eigen login: LANcelot downloadt er niets van.": "Ouvre d’abord le manuel dans ton navigateur et copie l’adresse en haut. Il s’ouvre au tableau avec ton propre identifiant : LANcelot n’en télécharge rien.",
@@ -886,5 +886,11 @@
  "Kies een periode. Je digitale toetsen komen er vanzelf in, bij het juiste vak, met de punten. Jij zet er de rest bij.": "Choisis une période. Tes tests numériques y vont automatiquement, avec la bonne matière et les points. Tu ajoutes le reste.",
  "⚡ Deze toets werd digitaal afgenomen: de punten komen vanzelf mee, ook als je verder verbetert.": "⚡ Ce test a été passé en numérique : les points suivent automatiquement, même si tu continues à corriger.",
  "Een toets of opdracht met punten die je niet digitaal afnam (op papier, spreekbeurt, werkstuk...)": "Un test ou un travail avec points qui n’a pas été passé en numérique (sur papier, exposé, projet...)",
- "Digitale toets": "Test numérique"
+ "Digitale toets": "Test numérique",
+ "Bordboeken ook meenemen": "Emporter aussi les manuels",
+ "de pdf's uit Mijn methodes. Uit: alleen de links en lesknoppen gaan mee.": "les PDF de Mes manuels. Désactivé : seuls les liens et boutons de leçon suivent.",
+ "Veel bordboeken lijken weg aan één kant. Er werd niets verwijderd: kijk of OneDrive of Google Drive alles heeft binnengehaald.": "Beaucoup de manuels semblent manquer d’un côté. Rien n’a été supprimé : vérifie que OneDrive ou Google Drive a tout téléchargé.",
+ "\"{0}\" kopiëren lukte niet ({1}).": "La copie de « {0} » a échoué ({1}).",
+ "☁️ Bordboeken via je lesmap: {0} van {1}…": "☁️ Manuels via ton dossier de cours : {0} sur {1}…",
+ "Bordboeken kopiëren: {0} van {1}…": "Copie des manuels : {0} sur {1}…"
 }
