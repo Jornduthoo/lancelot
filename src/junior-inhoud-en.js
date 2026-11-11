@@ -40,6 +40,8 @@ module.exports = {
     spPrik: "Pop",
     spZaklamp: "It is dark! Shine with your finger and find:",
     spLijst: "Do the shopping! Drag everything on the list into the basket.",
+    spLijstDokter: "Help the doctor! Drag everything on the list into the first aid box.",
+    spLijstSchool: "Pack your school bag! Drag everything on the list into your school bag.",
     spNietLijst: "That is not on the list.",
     spOei: "Oops, it fell! Try again.",
     spHoog: "Wow, what a tall tower!",

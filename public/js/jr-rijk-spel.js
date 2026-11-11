@@ -7,10 +7,10 @@
   const DOE = {
     boerderij: { v: 'voer' }, bos: { v: 'zaklamp' }, vijver: { v: 'bel' }, markt: { v: 'lijst' }, kasteel: { v: 'toren' }, tuin: { v: 'kras', laag: 'aarde' },
     strand: { v: 'kras', laag: 'zand' }, speeltuin: { v: 'puzzel' }, station: { v: 'puzzel' }, bakkerij: { v: 'vang' }, dierentuin: { v: 'voer' }, sneeuw: { v: 'kras', laag: 'sneeuw' },
-    brandweer: { v: 'kras', laag: 'vuur' }, dokter: { v: 'lijst', zak: true }, haven: { v: 'bel' }, circus: { v: 'muziek' }, school: { v: 'lijst', zak: true }, ruimte: { v: 'zaklamp' },
+    brandweer: { v: 'kras', laag: 'vuur' }, dokter: { v: 'lijst', bak: 5, niet: [4], zin: 'spLijstDokter' }, haven: { v: 'bel' }, circus: { v: 'muziek' }, school: { v: 'lijst', bak: 0, zin: 'spLijstSchool' }, ruimte: { v: 'zaklamp' },
     zwembad: { v: 'bel' }, kermis: { v: 'bel', ballon: true }, bouwwerf: { v: 'toren' }, winkel: { v: 'lijst' }, onderwater: { v: 'bel' }, dino: { v: 'kras', laag: 'aarde' },
-    politie: { v: 'zaklamp' }, eiland: { v: 'kras', laag: 'zand' }, weer: { v: 'vang' }, ijssalon: { v: 'toren' }, garage: { v: 'puzzel' }, muziek: { v: 'muziek' },
-    keuken: { v: 'lijst', pot: true }, badkamer: { v: 'bel' }, slaapkamer: { v: 'zaklamp' }, moestuin: { v: 'kras', laag: 'aarde' }, vliegveld: { v: 'puzzel' }, jungle: { v: 'voer' },
+    politie: { v: 'zaklamp' }, eiland: { v: 'kras', laag: 'zand' }, weer: { v: 'kras', laag: 'wolk' }, ijssalon: { v: 'toren' }, garage: { v: 'puzzel' }, muziek: { v: 'muziek' },
+    keuken: { v: 'puzzel' }, badkamer: { v: 'bel' }, slaapkamer: { v: 'zaklamp' }, moestuin: { v: 'kras', laag: 'aarde' }, vliegveld: { v: 'puzzel' }, jungle: { v: 'voer' },
   };
   const ICOON = { kras: '🖐️', bel: '🫧', zaklamp: '🔦', lijst: '🛒', toren: '🧱', voer: '🍎', puzzel: '🧩', vang: '🧺', muziek: '🎵' };
   // Wat elk dier lust (ja) en wat zeker niet (nee): [plek, prent]. Het dier vraagt iets uit ja; de andere keuzes komen uit nee,
@@ -80,7 +80,7 @@
   const binnen = (x, y, el, rand = 0) => { const r = maat(), b = el.getBoundingClientRect(); return x >= b.left - r.left - rand && x <= b.right - r.left + rand && y >= b.top - r.top - rand && y <= b.bottom - r.top + rand; };
 
   // ---------- Krassen: wrijf het zand (of de sneeuw, de aarde, het vuur) weg. Wat zit eronder? ----------
-  const KLEUR = { zand: ['#e9c98a', '#d6ae67'], sneeuw: ['#ffffff', '#dbe9f5'], aarde: ['#8a5a32', '#6b4425'], vuur: ['#ff6b1a', '#ffd43b'] };
+  const KLEUR = { zand: ['#e9c98a', '#d6ae67'], sneeuw: ['#ffffff', '#dbe9f5'], aarde: ['#8a5a32', '#6b4425'], vuur: ['#ff6b1a', '#ffd43b'], wolk: ['#d7dee7', '#8e9bab'] };
   function kras() {
     const p = h.p, soort = DOE[p.id].laag || 'zand';
     let nr = 0;
@@ -98,7 +98,7 @@
       g.fillStyle = grad; g.fillRect(0, 0, 480, 360);
       // korreltjes / sneeuwvlokjes / vlammetjes
       for (let i = 0; i < 380; i++) {
-        g.fillStyle = soort === 'vuur' ? `rgba(255,${120 + Math.random() * 120},0,.55)` : soort === 'sneeuw' ? 'rgba(170,200,230,.45)' : `rgba(0,0,0,${0.06 + Math.random() * 0.1})`;
+        g.fillStyle = soort === 'vuur' ? `rgba(255,${120 + Math.random() * 120},0,.55)` : soort === 'sneeuw' ? 'rgba(170,200,230,.45)' : soort === 'wolk' ? 'rgba(255,255,255,.4)' : `rgba(0,0,0,${0.06 + Math.random() * 0.1})`;
         g.beginPath(); g.arc(Math.random() * 480, Math.random() * 360, 2 + Math.random() * (soort === 'vuur' ? 14 : 5), 0, 7); g.fill();
       }
       g.globalCompositeOperation = 'destination-out';
@@ -208,14 +208,16 @@
     zoek();
   }
 
-  // ---------- Boodschappen: sleep alles van het lijstje in de mand (of de doktertas, de boekentas, de kookpot). ----------
+  // ---------- Boodschappen: sleep alles van het lijstje in de mand. Bij de dokter in de verbanddoos, op school in de boekentas:
+  // die prent van de plek is dan de bak zelf, en wat er niet in kan (de ziekenwagen) komt niet op het lijstje. ----------
   function lijst() {
-    const p = h.p;
+    const p = h.p, d = DOE[p.id];
+    const kan = p.woorden.map((_, i) => i).filter(i => i !== d.bak && !(d.niet || []).includes(i));
     let rondeNr = 0;
     h.plaats.classList.add('doe-weg');
     const doe = () => {
       laag.querySelectorAll('.jr-doe-ding, .jr-doe-lijstje, .jr-doe-mand').forEach(x => x.remove());
-      const nodig = schud(p.woorden.map((_, i) => i)).slice(0, 3);
+      const nodig = schud(kan).slice(0, 3);
       const gedaan = new Set();
       const lijstje = document.createElement('div');
       lijstje.className = 'jr-doe-lijstje';
@@ -223,10 +225,11 @@
       laag.appendChild(lijstje);
       const mand = document.createElement('div');
       mand.className = 'jr-doe-mand';
-      mand.innerHTML = `<img src="${MAND}" alt="">`;
+      mand.innerHTML = `<img src="${d.bak != null ? h.img(p.id, d.bak) : MAND}" alt="">`;
       laag.appendChild(mand);
       const r = maat();
       p.woorden.forEach((w, i) => {
+        if (i === d.bak) return;
         const el = document.createElement('div');
         el.className = 'jr-doe-ding';
         el.innerHTML = `<img src="${h.img(p.id, i)}" alt="">`;
@@ -247,8 +250,8 @@
           return true;
         }, () => zeg([w]));
       });
-      vraag(Z().spLijst);
-      zeg([Z().spLijst, ...nodig.map(i => p.woorden[i])], { los: true });
+      vraag(Z()[d.zin || 'spLijst']);
+      zeg([Z()[d.zin || 'spLijst'], ...nodig.map(i => p.woorden[i])], { los: true });
     };
     doe();
   }
@@ -399,7 +402,7 @@
     let nr = 0, doel = 0;
     const mand = document.createElement('div');
     mand.className = 'jr-doe-mand jr-doe-vangmand';
-    mand.innerHTML = `<img src="${MAND}" alt="">`;
+    mand.innerHTML = `<img src="${d.bak != null ? h.img(p.id, d.bak) : MAND}" alt="">`;
     laag.appendChild(mand);
     let mx = maat().width / 2;
     const zetMand = () => { mand.style.left = `${mx}px`; };
