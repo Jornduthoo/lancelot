@@ -238,5 +238,13 @@
  "Kies…": "Choisis…",
  "niet naast": "pas à côté de",
  "Nog niemand.": "Personne pour l’instant.",
- "LANcelot · Klastools": "LANcelot · Outils de classe"
+ "LANcelot · Klastools": "LANcelot · Outils de classe",
+ "Stoplicht": "Feu tricolore",
+ "Opdracht op het bord": "Consigne au tableau",
+ "Naar de timer": "Vers le minuteur",
+ "Naar het stoplicht": "Vers le feu tricolore",
+ "Gekozen": "Choisi",
+ "Wie is er vandaag? Afwezigen doen niet mee bij Leerling kiezen en Groepjes.": "Qui est là aujourd’hui ? Les absents ne participent pas à Tirer un élève ni aux Groupes.",
+ "Wie mag niet naast of achter elkaar zitten? Bij het verdelen komen ze uit elkaar te zitten.": "Qui ne peut pas s’asseoir à côté ou derrière l’autre ? Ils sont séparés lors de la répartition.",
+ "Tik op wie afwezig is. Afwezigen doen vandaag niet mee bij Leerling kiezen en Groepjes. Morgen is iedereen weer aanwezig.": "Touche les absents. Ils ne participent pas aujourd’hui à Tirer un élève ni aux Groupes. Demain, tout le monde est de nouveau présent."
 }

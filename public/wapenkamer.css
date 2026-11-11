@@ -369,3 +369,6 @@ body.tijd-om main { animation: tijd-om .5s ease-in-out 6; }
   .rs-plaat .rs-reeks { font-size: 1.2rem; }
   .rs-plaat b { font-size: 2.4rem; }
 }
+
+/* Onder de gewone naam staat de oude naam, klein. */
+.wk-titel span small { display: block; margin-top: 2px; font-size: .42em; letter-spacing: .18em; opacity: .75; }

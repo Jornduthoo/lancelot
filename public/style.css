@@ -2460,3 +2460,11 @@ body.proef-open { padding-right: min(400px, 92vw); }
 .es-stappen li.klaar :is(a, button, select) { display: none; }
 .es-stappen li.nu { outline: 1px solid rgb(var(--k-goud) / .7); }
 .es-stappen :is(a, button, select) { padding: 8px 12px; }
+
+/* "Proberen" op elke speltegel in Spelen: het spel zelf uitproberen zonder klas (arena-kies.js). */
+.module { position: relative; }
+.module .tegel-proef { position: absolute; top: 12px; right: 12px; display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; font-size: .82rem; font-weight: 700; color: var(--text); background: rgb(var(--k-bg) / .7); border: 1px solid var(--line); }
+.module .tegel-proef span { color: inherit; font-size: inherit; }
+.module .tegel-proef .ic { width: 16px; height: 16px; }
+.module .tegel-proef:hover, .module .tegel-proef:focus-visible { border-color: var(--gold); color: var(--gold); }
+.module:has(.tegel-proef) .tag.nieuw { top: 48px; right: 12px; }
