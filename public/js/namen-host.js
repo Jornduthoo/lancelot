@@ -64,10 +64,35 @@
     const dicht = proefVak.querySelector('button');
     dicht.innerHTML = Ui.ic('kruis');
     dicht.addEventListener('click', () => proef.click());
+    // Toetsen (E voor een vraag, pijltjes, spatie) moeten bij Proefridder 1 aankomen, ook als de leerkracht net op
+    // het bord klikte: het venster krijgt de focus zodra je erin klikt, en wat op het bord getypt wordt, gaat mee door.
+    const scherm = proefVak.querySelector('.proef-scherm');
+    scherm.addEventListener('load', () => {
+      try { scherm.contentDocument.addEventListener('pointerdown', () => scherm.contentWindow.focus(), true); } catch {}
+    });
     document.body.append(proefVak);
     document.body.classList.add('proef-open');
     proef.classList.add('on');
   });
+  const zichtbaar = el => !!el.getClientRects().length && !el.disabled;
+  const stuurDoor = e => {
+    if (!proefVak || e.ctrlKey || e.metaKey || e.altKey) return;
+    const doel = e.target;
+    if (doel && doel.closest && doel.closest('input, textarea, select, [contenteditable], dialog[open]')) return;
+    if (document.querySelector('dialog[open]')) return;
+    // De spatie blijft voor de knop van de leerkracht (volgende vraag, start) als die er staat.
+    if (e.key === ' ' && [...document.querySelectorAll('[data-spatie]')].some(zichtbaar)) return;
+    if (e.key === 'Tab' || /^F\d+$/.test(e.key)) return;
+    if ((e.key === ' ' || e.key === 'Enter') && doel && doel.closest && doel.closest('button, a, summary')) return;
+    let doc;
+    try { doc = proefVak.querySelector('.proef-scherm').contentDocument; } catch { return; }
+    if (!doc || !doc.body) return;
+    const kopie = new doc.defaultView.KeyboardEvent(e.type, { key: e.key, code: e.code, repeat: e.repeat, shiftKey: e.shiftKey, bubbles: true, cancelable: true });
+    (doc.activeElement || doc.body).dispatchEvent(kopie);
+    if (e.key === ' ' || e.key === 'Enter' || e.key.startsWith('Arrow')) e.preventDefault();
+  };
+  window.addEventListener('keydown', stuurDoor, true);
+  window.addEventListener('keyup', stuurDoor, true);
   rij.append(pauze, storm, maakKnop(), proef);
   // De knop "Speel nu een proefspel" op het startscherm (eerste-start.js): het proefvenster gaat vanzelf open.
   if (new URLSearchParams(location.search).get('proef') === '1' && !proef.hidden) setTimeout(() => { if (!proefVak) proef.click(); }, 900);
