@@ -241,9 +241,8 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
   function zetSleutel(bladen, data, start = 1) {
     let lijst = data;
     if (typeof data === 'string') {
-      const blok = /```(?:json)?\s*([\s\S]*?)```/i.exec(data);
-      const tekst = blok ? blok[1] : data.slice(data.indexOf('{'), data.lastIndexOf('}') + 1);
-      try { lijst = JSON.parse(tekst); } catch { throw new Error('Dit is geen verbetersleutel. Kopieer het hele antwoord van de chatbot.'); }
+      // Zelfde opkuis als overal (ChatGPT, Claude, Gemini): backslashes, &#x20;, codeblokken, [cite: ...].
+      try { lijst = window.AiJson.extract(data, 'verbetersleutel', d => Array.isArray(d.velden)); } catch { throw new Error('Dit is geen verbetersleutel. Kopieer het hele antwoord van de chatbot.'); }
     }
     if (lijst && !Array.isArray(lijst)) lijst = lijst.velden;
     if (!Array.isArray(lijst)) throw new Error('Dit is geen verbetersleutel. Kopieer het hele antwoord van de chatbot.');
