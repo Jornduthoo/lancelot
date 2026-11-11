@@ -48,7 +48,7 @@ window.storeBlok = () => {
   const blok = document.querySelector('.realm[data-realm="kronieken"]');
   if (!blok || blok.dataset.store) return;
   blok.dataset.store = '1';
-  blok.querySelector('img').src = '/img/icons/burcht.webp';
+  blok.querySelector('img').src = '/img/icons/mijn-klas.webp';
   blok.querySelector('strong').textContent = 'Mijn klas';
   blok.querySelector('span').textContent = 'Je klaslijst, je doelen, taken per leerling en de resultaten.';
   blok.querySelector('em').textContent = 'Opvolgen';
