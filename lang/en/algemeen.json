@@ -1141,5 +1141,7 @@
  "Gekopieerd. Plak het in een mail of chatbericht.": "Copied. Paste it into an email or chat message.",
  "Kopiëren lukte niet. Selecteer de tekst hierboven.": "Copying didn't work. Select the text above.",
  "Nieuw adres: vorige keer was het {0}. Een vast adres lost dat op.": "New address: last time it was {0}. A fixed address solves this.",
- "Vast adres vragen": "Ask for a fixed address"
+ "Vast adres vragen": "Ask for a fixed address",
+ "{0} ridder(s) teruggehaald uit de back-ups.": "{0} knight(s) restored from the backups.",
+ "Ridders terughalen lukte niet:": "Restoring knights failed:"
 }

@@ -22,6 +22,36 @@ function avSend(name = avName()) {
   if (name) socket.emit('avatar-set', { name, avatar: avState.mine });
 }
 
+// De pc van de leerkracht is de baas over je ridder: bij het aanmelden halen we hem daar op.
+// Zo blijft je ridder dezelfde als de bord-pc een ander adres krijgt, op een andere Chromebook of na een gewiste browser.
+// Kent de pc je nog niet, dan geven we de ridder van dit toestel door (tenzij hij van iemand anders was).
+function avSync(name, kiezen = false) {
+  name = String(name || '').trim();
+  if (!name) return;
+  const wie = name.replace(/\s+/g, ' ').slice(0, 20).toLowerCase();
+  socket.emit('avatar-get', name, res => {
+    if (!res) return;
+    if (res.avatar) {
+      avState.mine = Avatar.clean(res.avatar);
+      store('lancelot-avatar-made', '1');
+    } else {
+      const van = store('lancelot-avatar-naam');
+      if (van && van !== wie) {
+        avState.mine = Avatar.random();
+        store('lancelot-avatar-made', null);
+      }
+      if (res.krans && !avState.mine.runen) avState.mine = { ...avState.mine, runen: res.krans };
+      avSend(name);
+      if (kiezen && !store('lancelot-avatar-made')) setTimeout(avOpen, 400);
+    }
+    store('lancelot-avatar', JSON.stringify(avState.mine));
+    store('lancelot-avatar-naam', wie);
+    Avatar.setMine(avState.mine);
+    avPaint();
+    if (typeof rnRidder === 'function') rnRidder();
+  });
+}
+
 // ---------- Het blokje "Mijn ridder" op aanmeldschermen en in lobby's ----------
 
 function avBlock() {
@@ -43,8 +73,7 @@ for (const form of document.querySelectorAll('form.welcome')) {
   form.addEventListener('submit', () => {
     const name = form.querySelector('input').value.trim();
     if (!name) return;
-    avSend(name);
-    if (!store('lancelot-avatar-made')) setTimeout(avOpen, 400);
+    avSync(name, true);
   }, true);
 }
 for (const section of document.querySelectorAll('#idle, #lobby, section.screen[id$="-lobby"]')) {
@@ -246,12 +275,14 @@ $('av-done').addEventListener('click', () => {
   Avatar.setMine(avState.mine);
   maker.classList.add('hidden');
   avPaint();
-  avSend();
+  const naam = avName();
+  if (naam) store('lancelot-avatar-naam', naam.replace(/\s+/g, ' ').slice(0, 20).toLowerCase());
+  avSend(naam);
   sfx.good();
 });
 
-// Opnieuw verbonden (bijvoorbeeld na een herstart van de server): ridder opnieuw doorgeven.
-socket.on('connect', () => avSend(store('lancelot-name')));
+// Verbonden (bij het openen of na een herstart van de server): de ridder van de pc ophalen, of hem doorgeven.
+socket.on('connect', () => avSync(store('lancelot-name')));
 
 // Begint het spel terwijl een leerling nog zijn ridder aanpast, dan bewaren we de ridder en sluiten we het venster,
 // zodat niemand het begin van het spel mist achter dit scherm.

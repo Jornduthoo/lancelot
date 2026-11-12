@@ -1141,5 +1141,7 @@
  "Gekopieerd. Plak het in een mail of chatbericht.": "Copié. Colle-le dans un e-mail ou un message.",
  "Kopiëren lukte niet. Selecteer de tekst hierboven.": "La copie n’a pas marché. Sélectionne le texte ci-dessus.",
  "Nieuw adres: vorige keer was het {0}. Een vast adres lost dat op.": "Nouvelle adresse : la dernière fois, c’était {0}. Une adresse fixe règle le problème.",
- "Vast adres vragen": "Demander une adresse fixe"
+ "Vast adres vragen": "Demander une adresse fixe",
+ "{0} ridder(s) teruggehaald uit de back-ups.": "{0} chevalier(s) récupéré(s) dans les sauvegardes.",
+ "Ridders terughalen lukte niet:": "La récupération des chevaliers a échoué :"
 }
