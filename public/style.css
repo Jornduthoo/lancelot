@@ -1987,7 +1987,7 @@ html[data-thema="daglicht"] body:has(#home:not(.hidden)) { background: var(--bg)
 .klas-switch { margin-top: 10px; font-size: .85rem; padding: 6px 12px; }
 #ob-work .klas-switch { margin: 0 0 0 8px; }
 
-/* ---------- Pac-Knight ---------- */
+/* ---------- Doolhofridder ---------- */
 body[data-pk="1"] #toernooi, body[data-pk="1"] #rondetafel, body[data-pk="1"] #toren, body[data-pk="1"] #schat, body[data-pk="1"] #laserslag, body[data-pk="1"] #ridderrace, body[data-pk="1"] #kristalroof, body[data-pk="1"] #verrader, body[data-pk="1"] #oefenblad, body[data-pk="1"] #burcht, body[data-pk="1"] #duel, body[data-pk="1"] #rijk { display: none !important; }
 body:not([data-pk="1"]) #packnight { display: none !important; }
 #packnight { display: contents; }
@@ -2248,11 +2248,13 @@ a.terug-knop, button.terug-knop { flex: none; padding: 8px 14px 8px 10px; gap: 6
 a.terug-knop:hover, button.terug-knop:hover { box-shadow: inset 0 0 0 1px rgb(var(--k-cyan)), 0 4px 14px rgb(var(--k-zwart) / .3); }
 .terug-knop .ic { width: 1.2em; height: 1.2em; }
 
-/* Klaar met een spel op het leerlingscherm (klaar-balk.js): onderaan één knop naar Mijn taken */
+/* Klaar met een spel op het leerlingscherm (klaar-balk.js): onderaan een knop naar het startscherm en een naar Mijn taken */
 .klaar-balk { position: fixed; left: 50%; bottom: max(14px, env(safe-area-inset-bottom)); transform: translateX(-50%); z-index: 55; display: flex; align-items: center; gap: 12px;
   padding: 8px 8px 8px 16px; width: max-content; max-width: calc(100% - 32px); border-radius: 16px; background: rgb(var(--k-panel) / .94); border: 1px solid rgb(var(--k-goud) / .6); box-shadow: 0 8px 24px rgb(var(--k-zwart) / .45); font-weight: 700; }
 .klaar-balk.hidden { display: none; }
-.klaar-balk .button { padding: 10px 16px; white-space: nowrap; }
+.klaar-balk .button, .klaar-balk button { padding: 10px 16px; white-space: nowrap; margin: 0; }
+.klaar-knoppen { display: flex; gap: 8px; align-items: center; }
+.klaar-knoppen .hidden { display: none; }
 @media (max-width: 420px) { .klaar-balk { flex-direction: column; gap: 6px; padding: 10px; text-align: center; } }
 
 /* ---------- Een taak alleen spelen in een spel (tk-solo.js) ---------- */
@@ -2466,10 +2468,22 @@ body.proef-open { padding-right: min(400px, 92vw); }
 
 /* "Proberen" op elke speltegel in Spelen: het spel zelf uitproberen zonder klas (arena-kies.js). */
 .module { position: relative; }
-.module .tegel-proef { position: absolute; top: 0; right: 0; display: inline-flex; align-items: center; gap: 7px; padding: 7px 14px 7px 18px; font-family: var(--tech); font-size: .68rem; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: var(--cyan); background: linear-gradient(180deg, rgb(var(--k-cyan) / .22), rgb(var(--k-cyan) / .06)); box-shadow: inset 0 -1px 0 var(--line), inset 1px 0 0 var(--line); clip-path: polygon(0 0, 100% 0, 100% 100%, 12px 100%); transition: color .15s, background .15s; }
-.module .tegel-proef span { color: inherit; font-size: inherit; }
-.module .tegel-proef .ic { width: 15px; height: 15px; filter: drop-shadow(0 0 6px var(--cyan-glow)); }
-.module:hover .tegel-proef { background: linear-gradient(180deg, rgb(var(--k-cyan) / .34), rgb(var(--k-cyan) / .1)); }
+.module .tegel-proef { position: absolute; top: 6px; right: 6px; display: inline-flex; align-items: center; justify-content: center; min-width: 40px; height: 40px; padding: 0 11px; border-radius: 20px; font-family: var(--tech); font-size: .66rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--cyan); background: transparent; transition: color .15s, background .15s; }
+.module .tegel-proef span { color: inherit; font-size: inherit; max-width: 0; overflow: hidden; white-space: nowrap; opacity: 0; transition: max-width .2s, opacity .2s, margin .2s; }
+.module .tegel-proef .ic { width: 20px; height: 20px; flex: none; opacity: .75; filter: drop-shadow(0 0 6px var(--cyan-glow)); }
+.module:hover .tegel-proef .ic { opacity: 1; }
 .module .tegel-proef:hover, .module .tegel-proef:focus-visible { color: rgb(var(--k-op-goud, var(--k-bg))); background: linear-gradient(180deg, rgb(var(--k-goud-l)), var(--gold)); outline: none; }
-.module .tegel-proef:hover .ic, .module .tegel-proef:focus-visible .ic { filter: none; }
-.module:has(.tegel-proef) .tag.nieuw { top: 40px; right: 12px; }
+.module .tegel-proef:hover span, .module .tegel-proef:focus-visible span { max-width: 140px; opacity: 1; margin-left: 7px; }
+.module .tegel-proef:hover .ic, .module .tegel-proef:focus-visible .ic { opacity: 1; filter: none; }
+.module:has(.tegel-proef) .tag.nieuw { top: 46px; right: 12px; }
+
+/* Vanuit "Speel deze quiz in…": de gekozen quiz met Start, onder de instellingen van het spel. */
+.kies-eerst { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; border-color: var(--k-accent, #5ef0ff); }
+.kies-eerst strong { font-size: 1.15rem; }
+.kies-eerst p { margin: 4px 0 0; }
+.kies-eerst [data-start] { font-size: 1.15rem; padding: 12px 28px; }
+body:has(.kies-eerst) .panel.form > p.muted.small:last-child { display: none; }
+/* Tip in de lobby: de pc kreeg een nieuw adres (vast adres vragen op /netwerk). */
+.adres-tip { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 6px; margin: 4px 0 0; }
+.adres-tip .adres-tip-weg { padding: 2px 6px; min-height: 0; line-height: 1; }
+.nw-ict { white-space: pre-wrap; font: inherit; font-size: .92em; margin: 8px 0; padding: 10px 12px; border-radius: 10px; background: rgb(var(--k-bg) / .5); border: 1px solid var(--line); }

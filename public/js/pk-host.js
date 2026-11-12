@@ -1,4 +1,4 @@
-// Pac-Knight op het bord: het hele doolhof met alle ridders en drones, en wie de meeste kristallen heeft.
+// Doolhofridder op het bord: het hele doolhof met alle ridders en drones, en wie de meeste kristallen heeft.
 // Gebruikt sfx, confetti uit fx.js, quizMakerUrl uit quiz-links.js, PacDraw uit pk-draw.js.
 const socket = io({ query: { role: 'host' } });
 const $ = id => document.getElementById(id);
@@ -48,7 +48,7 @@ socket.on('pk-state', s => {
   const live = s.phase !== 'idle';
   $('stop').classList.toggle('hidden', !live);
   $('join-mini').classList.toggle('hidden', s.phase !== 'play');
-  $('status').textContent = live ? `Pac-Knight · ${s.title}` : 'Pac-Knight';
+  $('status').textContent = live ? `Doolhofridder · ${s.title}` : 'Doolhofridder';
   if (s.maze) scene = PacDraw.fromState(s, scene);
   if (!live) return show('setup');
   if (s.phase === 'lobby') {
@@ -180,7 +180,7 @@ function renderEnd() {
     saved.append(downloadLink(s.resultsFile));
   }
   const top = s.ranking[0];
-  $('w-title').textContent = top ? `🏆 ${top.name} wint Pac-Knight!` : 'Pac-Knight is voorbij';
+  $('w-title').textContent = top ? `🏆 ${top.name} wint Doolhofridder!` : 'Doolhofridder is voorbij';
   const drones = s.ranking.reduce((a, r) => a + r.drones, 0);
   const right = s.ranking.reduce((a, r) => a + r.right, 0);
   $('w-why').textContent = `Samen ${right} vragen juist en ${drones} ${drones === 1 ? 'drone' : 'drones'} uitgeschakeld.`;

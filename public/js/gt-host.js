@@ -1,4 +1,4 @@
-// Gauntlet op het bord: voor elke ploeg een venster in haar kerker, en welke ploeg het diepst zit.
+// Schaduwburcht op het bord: voor elke ploeg een venster in haar kerker, en welke ploeg het diepst zit.
 // Gebruikt sfx, confetti en loadGame uit fx.js, quizMakerUrl uit quiz-links.js, AK, GtWorld en GtDraw.
 const socket = io({ query: { role: 'host' } });
 const $ = id => document.getElementById(id);
@@ -61,7 +61,7 @@ socket.on('gt-state', s => {
   const live = s.phase !== 'idle';
   $('stop').classList.toggle('hidden', !live);
   $('join-mini').classList.toggle('hidden', s.phase !== 'play');
-  $('status').textContent = live ? `Gauntlet · ${s.title}` : 'Gauntlet';
+  $('status').textContent = live ? `Schaduwburcht · ${s.title}` : 'Schaduwburcht';
   if (!prev || prev.run !== s.run) { scenes.clear(); $('p-grid').innerHTML = ''; }
   if (!live) return show('setup');
   if (s.phase === 'lobby') {
@@ -251,7 +251,7 @@ function renderEnd() {
     saved.append(downloadLink(s.resultsFile));
   }
   const top = s.ranking[0];
-  $('w-title').textContent = top ? `🏆 ${top.name} wint Gauntlet!` : 'Gauntlet is voorbij';
+  $('w-title').textContent = top ? `🏆 ${top.name} wint Schaduwburcht!` : 'Schaduwburcht is voorbij';
   const right = s.ranking.reduce((a, t) => a + t.players.reduce((b, p) => b + p.right, 0), 0);
   const kills = s.ranking.reduce((a, t) => a + t.kills, 0);
   $('w-why').textContent = `Samen ${right} vragen juist en ${kills} monsters verslagen.`;

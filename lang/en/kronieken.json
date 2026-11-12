@@ -21,7 +21,7 @@
  "Online bordboek": "Online textbook",
  "Openen in een apart venster, naast LANcelot (en dat voortaan onthouden)": "Open in a separate window, next to LANcelot (and remember that from now on)",
  "LANcelot · De Kronieken": "LANcelot · The Chronicles",
- "Elke map is een vak, en daarin een blok of thema, net zoals bij je quizzen. Mappen uit je lespakket staan er vanzelf. Je bordboeken en handleidingen blijven enkel op deze pc, in de map kronieken bij je gegevens.": "Every folder is a subject, and inside it a unit or theme, just like with your quizzes. Folders from your lesson pack are there automatically. Your textbooks and teacher's guides stay only on this PC, in the kronieken folder with your data.",
+ "Elke map is een vak, en daarin een blok of thema, net zoals bij je quizzen. Mappen uit je lespakket staan er vanzelf. Je bordboeken en handleidingen staan in de map kronieken bij je gegevens. Heb je Mijn lesmap gekoppeld, dan gaan ze ook mee naar je andere pc.": "Every folder is a subject, and inside it a unit or theme, just like with your quizzes. Folders from your lesson pack are there automatically. Your textbooks and teacher's guides are in the kronieken folder with your data. If you linked My lesson folder, they also go to your other PC.",
  "Boek toevoegen": "Add book",
  "🌐 Online bordboek": "🌐 Online textbook",
  "Open het bordboek eerst in je browser en kopieer het adres bovenaan. Het opent op het bord met je eigen login: LANcelot downloadt er niets van.": "First open the textbook in your browser and copy the address at the top. It opens on the board with your own login: LANcelot downloads nothing from it.",
@@ -886,5 +886,11 @@
  "Kies een periode. Je digitale toetsen komen er vanzelf in, bij het juiste vak, met de punten. Jij zet er de rest bij.": "Choose a period. Your digital tests go in automatically, with the right subject and the points. You add the rest.",
  "⚡ Deze toets werd digitaal afgenomen: de punten komen vanzelf mee, ook als je verder verbetert.": "⚡ This test was taken digitally: the points come along automatically, also if you keep marking.",
  "Een toets of opdracht met punten die je niet digitaal afnam (op papier, spreekbeurt, werkstuk...)": "A test or assignment with points that was not taken digitally (on paper, presentation, project...)",
- "Digitale toets": "Digital test"
+ "Digitale toets": "Digital test",
+ "Bordboeken ook meenemen": "Also take the textbooks along",
+ "de pdf's uit Mijn methodes. Uit: alleen de links en lesknoppen gaan mee.": "the PDFs from My textbooks. Off: only the links and lesson buttons go along.",
+ "Veel bordboeken lijken weg aan één kant. Er werd niets verwijderd: kijk of OneDrive of Google Drive alles heeft binnengehaald.": "Many textbooks seem to be missing on one side. Nothing was removed: check whether OneDrive or Google Drive has downloaded everything.",
+ "\"{0}\" kopiëren lukte niet ({1}).": "Copying \"{0}\" failed ({1}).",
+ "☁️ Bordboeken via je lesmap: {0} van {1}…": "☁️ Textbooks via your lesson folder: {0} of {1}…",
+ "Bordboeken kopiëren: {0} van {1}…": "Copying textbooks: {0} of {1}…"
 }

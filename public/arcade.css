@@ -1,4 +1,4 @@
-/* Cyber-Galaga en Bomber-Knight. Apart van style.css, zodat nieuwe spellen elkaar niet in de weg zitten. */
+/* Drakenjacht en Kruitridder. Apart van style.css, zodat nieuwe spellen elkaar niet in de weg zitten. */
 
 /* Loopt een van deze spellen, dan verdwijnt al de rest van het leerlingscherm. */
 body[data-cg="1"] main > div:not(#galaga), body[data-bk="1"] main > div:not(#bomber) { display: none !important; }

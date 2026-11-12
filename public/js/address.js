@@ -58,3 +58,28 @@ socket.on('addresses', list => {
   }
   showAddress(list, 0);
 });
+
+// Kreeg de pc een nieuw adres van het schoolnetwerk? Eén zin onder het adres, met de weg naar een vast adres.
+// Weg met het kruisje of na een klik op de tip; bij een volgende wisseling komt hij terug.
+socket.on('adres-tip', tip => {
+  const onder = $('other-urls');
+  if (!onder || !tip || !tip.van || document.querySelector('.adres-tip')) return;
+  const p = document.createElement('p');
+  p.className = 'adres-tip muted small';
+  const tekst = document.createElement('span');
+  tekst.innerHTML = '<i class="ic ic-netwerk" aria-hidden="true"></i> ';
+  tekst.append(`Nieuw adres: vorige keer was het ${tip.van}. Een vast adres lost dat op.`);
+  const link = document.createElement('a');
+  link.href = '/netwerk#vast-adres';
+  link.target = '_blank';
+  link.textContent = 'Vast adres vragen';
+  const weg = document.createElement('button');
+  weg.className = 'secondary adres-tip-weg';
+  weg.title = 'Verbergen';
+  weg.innerHTML = '<i class="ic ic-kruis" aria-hidden="true"></i>';
+  const sluit = () => { p.remove(); socket.emit('adres-tip-weg'); };
+  link.addEventListener('click', sluit);
+  weg.addEventListener('click', sluit);
+  p.append(tekst, ' ', link, ' ', weg);
+  onder.after(p);
+});

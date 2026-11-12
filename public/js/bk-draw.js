@@ -1,4 +1,4 @@
-// Bomber-Knight tekenen: de burchtarena met pilaren en kratten, de mijnen, de ontploffingen en de ridders.
+// Kruitridder tekenen: de burchtarena met pilaren en kratten, de mijnen, de ontploffingen en de ridders.
 // De vloer en pilaren worden één keer getekend; kratten worden alleen bijgewerkt waar iets verandert.
 // Posities komen van de server per vakje; we tekenen ze vloeiend tussen het vorige en het huidige vakje.
 // Gebruikt door het bord en de leerlingen.

@@ -193,12 +193,12 @@
       </button>
       <button class="module" data-module="gauntlet">
         <img class="tile-icon" src="/img/icons/gauntlet.webp" alt="">
-        <strong>Gauntlet</strong>
+        <strong>Schaduwburcht</strong>
         <span>Ploegen van vier (paladijn, mage, ranger, mech) vechten zich samen door een kerker. Goede antwoorden genezen je ploeg.</span>
       </button>
       <button class="module" data-module="cybergalaga">
         <img class="tile-icon" src="/img/icons/cybergalaga.webp" alt="">
-        <strong>Cyber-Galaga</strong>
+        <strong>Drakenjacht</strong>
         <span>Vlieg met je jetpack tegen golven cyberdraken, op je eigen toestel. Op het einde verslaat de hele klas samen de klasbaas.</span>
       </button>
       <button class="module" data-module="leraarbaas">
@@ -332,7 +332,7 @@
       </button>
       <button class="module" data-module="bomberknight">
         <img class="tile-icon" src="/img/icons/bomberknight.webp" alt="">
-        <strong>Bomber-Knight</strong>
+        <strong>Kruitridder</strong>
         <span>Tot dertig ridders in één arena. Een mijn kost energie, en energie verdien je met goede antwoorden.</span>
       </button>
       <button class="module" data-module="neonduel">
@@ -357,7 +357,7 @@
       </button>
       <button class="module" data-module="packnight">
         <img class="tile-icon" src="/img/icons/packnight.webp" alt="">
-        <strong>Pac-Knight</strong>
+        <strong>Doolhofridder</strong>
         <span>Raap kristallen in een neon doolhof en ontwijk de drones. Een goed antwoord geeft een kracht: dan jaag jij op hen.</span>
       </button>
       <button class="module" data-module="robomol">
@@ -607,9 +607,10 @@
       <button type="button" data-tab="schermen">Bureau-pc</button>
     </nav>
     <div class="panel form" id="lesmap" data-tab="lesmap">
-      <h3>Mijn lesmap: van overal voorbereiden<details class="hulp"><summary aria-label="Uitleg">?</summary><p>Handig als je thuis voorbereidt. Kies een map die OneDrive of Google Drive op deze pc bijhoudt. LANcelot kopieert je quizzen, oefenbladen, taken, je klaslijst (alleen namen en niveaus), je planning, je bordboek-links uit Mijn methodes, de woorden van de week van het Runenraadsel en een kopie van het Klaseiland (om thuis te bekijken) daarheen en haalt nieuwe op. Zonder lesmap werkt alles gewoon, alleen op deze pc.</p></details></h3>
-      <p class="muted small">Kies een map in je OneDrive of Google Drive. Je quizzen, oefenbladen, Ronde Tafels, je planning en je links en lesknoppen uit Mijn methodes komen daar ook in (de pdf's zelf niet). Op een andere pc met LANcelot kies je dezelfde map: wat je daar maakt, staat hier vanzelf klaar bij het opstarten (en daarna elke minuut). Je taken en de namen en niveaus van je klaslijst gaan ook mee, zodat je thuis taken per leerling klaarzet. Het logboek, de resultaten, je notities en het werk van de leerlingen gaan nooit mee: die blijven op deze pc.</p>
+      <h3>Mijn lesmap: van overal voorbereiden<details class="hulp"><summary aria-label="Uitleg">?</summary><p>Handig als je thuis voorbereidt. Kies een map die OneDrive of Google Drive op deze pc bijhoudt. LANcelot kopieert je quizzen, oefenbladen, taken, je klaslijst (alleen namen en niveaus), je planning, je bordboeken en links uit Mijn methodes, de woorden van de week van het Runenraadsel en een kopie van het Klaseiland (om thuis te bekijken) daarheen en haalt nieuwe op. Zonder lesmap werkt alles gewoon, alleen op deze pc.</p></details></h3>
+      <p class="muted small">Kies een map in je OneDrive of Google Drive. Je quizzen, oefenbladen, Ronde Tafels, je planning en je bordboeken, links en lesknoppen uit Mijn methodes komen daar ook in. Op een andere pc met LANcelot kies je dezelfde map: wat je daar maakt, staat hier vanzelf klaar bij het opstarten (en daarna elke minuut). Je taken en de namen en niveaus van je klaslijst gaan ook mee, zodat je thuis taken per leerling klaarzet. Het logboek, de resultaten, je notities en het werk van de leerlingen gaan nooit mee: die blijven op deze pc.</p>
       <p id="lm-status"></p>
+      <label class="inline check hidden" id="lm-boeken-rij"><input type="checkbox" id="lm-boeken"> <strong>Bordboeken ook meenemen</strong> <span class="muted small">de pdf's uit Mijn methodes. Uit: alleen de links en lesknoppen gaan mee.</span></label>
       <div class="actions" id="lm-suggest"></div>
       <label>Map<input id="lm-path" autocomplete="off" placeholder="bv. C:\Users\jij\OneDrive\LANcelot"></label>
       <p class="error" id="lm-error"></p>

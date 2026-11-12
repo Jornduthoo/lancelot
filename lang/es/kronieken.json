@@ -21,7 +21,7 @@
  "Online bordboek": "Libro en línea",
  "Openen in een apart venster, naast LANcelot (en dat voortaan onthouden)": "Abrir en una ventana aparte, junto a LANcelot (y recordarlo a partir de ahora)",
  "LANcelot · De Kronieken": "LANcelot · Las Crónicas",
- "Elke map is een vak, en daarin een blok of thema, net zoals bij je quizzen. Mappen uit je lespakket staan er vanzelf. Je bordboeken en handleidingen blijven enkel op deze pc, in de map kronieken bij je gegevens.": "Cada carpeta es una asignatura, y dentro una unidad o tema, igual que con tus cuestionarios. Las carpetas de tu paquete de clases aparecen automáticamente. Tus libros y guías del profesor se quedan solo en este PC, en la carpeta kronieken con tus datos.",
+ "Elke map is een vak, en daarin een blok of thema, net zoals bij je quizzen. Mappen uit je lespakket staan er vanzelf. Je bordboeken en handleidingen staan in de map kronieken bij je gegevens. Heb je Mijn lesmap gekoppeld, dan gaan ze ook mee naar je andere pc.": "Cada carpeta es una asignatura, y dentro una unidad o tema, igual que con tus cuestionarios. Las carpetas de tu paquete de clases aparecen automáticamente. Tus libros y guías del profesor están en la carpeta kronieken con tus datos. Si vinculaste Mi carpeta de clase, también van a tu otro PC.",
  "Boek toevoegen": "Añadir libro",
  "🌐 Online bordboek": "🌐 Libro en línea",
  "Open het bordboek eerst in je browser en kopieer het adres bovenaan. Het opent op het bord met je eigen login: LANcelot downloadt er niets van.": "Primero abre el libro en tu navegador y copia la dirección de arriba. Se abre en la pizarra con tu propio inicio de sesión: LANcelot no descarga nada de él.",
@@ -886,5 +886,11 @@
  "Kies een periode. Je digitale toetsen komen er vanzelf in, bij het juiste vak, met de punten. Jij zet er de rest bij.": "Elige un periodo. Tus exámenes digitales entran automáticamente, con la asignatura correcta y los puntos. Tú añades el resto.",
  "⚡ Deze toets werd digitaal afgenomen: de punten komen vanzelf mee, ook als je verder verbetert.": "⚡ Este examen se hizo en digital: los puntos llegan solos, también si sigues corrigiendo.",
  "Een toets of opdracht met punten die je niet digitaal afnam (op papier, spreekbeurt, werkstuk...)": "Un examen o trabajo con puntos que no se hizo en digital (en papel, exposición, proyecto...)",
- "Digitale toets": "Examen digital"
+ "Digitale toets": "Examen digital",
+ "Bordboeken ook meenemen": "Llevar también los libros",
+ "de pdf's uit Mijn methodes. Uit: alleen de links en lesknoppen gaan mee.": "los PDF de Mis libros de texto. Desactivado: solo van los enlaces y botones de clase.",
+ "Veel bordboeken lijken weg aan één kant. Er werd niets verwijderd: kijk of OneDrive of Google Drive alles heeft binnengehaald.": "Parece que faltan muchos libros en un lado. No se eliminó nada: comprueba si OneDrive o Google Drive lo ha descargado todo.",
+ "\"{0}\" kopiëren lukte niet ({1}).": "No se pudo copiar «{0}» ({1}).",
+ "☁️ Bordboeken via je lesmap: {0} van {1}…": "☁️ Libros a través de tu carpeta de clase: {0} de {1}…",
+ "Bordboeken kopiëren: {0} van {1}…": "Copiando libros: {0} de {1}…"
 }

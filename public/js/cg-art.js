@@ -1,4 +1,4 @@
-// Cyber-Galaga tekenen: cyberdraken, de klasbaas, lasers, vuurballen, gloed en de sterrenhemel.
+// Drakenjacht tekenen: cyberdraken, de klasbaas, lasers, vuurballen, gloed en de sterrenhemel.
 // Alles wordt één keer op een eigen canvas getekend (met gloed) en daarna alleen nog met drawImage gebruikt.
 // Zo blijft het vloeiend, ook op een Chromebook. Gebruikt door het bord en de leerlingen.
 const CgArt = (() => {

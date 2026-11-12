@@ -91,6 +91,7 @@ const proeven = require('./src/proeven');
 const { ProefLive } = require('./src/proef-live');
 const niveaus = require('./src/niveaus');
 const settings = require('./src/settings');
+const vastAdres = require('./src/vast-adres');
 const taal = require('./src/taal');
 const klas = require('./src/klas');
 const doelen = require('./src/doelen');
@@ -451,12 +452,12 @@ const guarded = {
   verrader: gok.guard(verrader, 'verrader', 'De Verrader'),
   burcht: gok.guard(burcht, 'burcht', 'Burchtbouwers'),
   rijk: gok.guard(rijk, 'rijk', 'Het Rijk'),
-  knight: gok.guard(knight, 'knight', 'Pac-Knight', { own: true }),
+  knight: gok.guard(knight, 'knight', 'Doolhofridder', { own: true }),
   rossen: gok.guard(rossen, 'rossen', 'Strijdrossen', { own: true }),
-  galaga: gok.guard(galaga, 'galaga', 'Cyber-Galaga', { own: true }),
+  galaga: gok.guard(galaga, 'galaga', 'Drakenjacht', { own: true }),
   neon: gok.guard(neon, 'neon', 'Neon Duel', { own: true }),
-  gauntlet: gok.guard(gauntlet, 'gauntlet', 'Gauntlet', { own: true }),
-  bomber: gok.guard(bomber, 'bomber', 'Bomber-Knight', { own: true }),
+  gauntlet: gok.guard(gauntlet, 'gauntlet', 'Schaduwburcht', { own: true }),
+  bomber: gok.guard(bomber, 'bomber', 'Kruitridder', { own: true }),
   baas: gok.guard(baas, 'baas', 'Leraar-baas', { own: true }),
   royale: gok.guard(royale, 'royale', 'Ridder-Royale', { own: true }),
   sterren: gok.guard(sterren, 'sterren', 'Sterrenvreter', { own: true }),
@@ -512,13 +513,13 @@ function busyWith(except) {
   if (except !== 'verrader' && verrader.active) return 'De Verrader loopt nog. Stop dat spel eerst.';
   if (except !== 'burcht' && burcht.active) return 'Burchtbouwers loopt nog. Stop dat spel eerst.';
   if (except !== 'duel' && duel.active) return 'Duel in de arena loopt nog. Stop dat eerst.';
-  if (except !== 'knight' && knight.active) return 'Pac-Knight loopt nog. Stop dat spel eerst.';
+  if (except !== 'knight' && knight.active) return 'Doolhofridder loopt nog. Stop dat spel eerst.';
   if (except !== 'rossen' && rossen.active) return 'Strijdrossen loopt nog. Stop dat spel eerst.';
-  if (except !== 'galaga' && galaga.active) return 'Cyber-Galaga loopt nog. Stop dat spel eerst.';
-  if (except !== 'bomber' && bomber.active) return 'Bomber-Knight loopt nog. Stop dat spel eerst.';
+  if (except !== 'galaga' && galaga.active) return 'Drakenjacht loopt nog. Stop dat spel eerst.';
+  if (except !== 'bomber' && bomber.active) return 'Kruitridder loopt nog. Stop dat spel eerst.';
   if (except !== 'neon' && neon.active) return 'Neon Duel loopt nog. Stop dat spel eerst.';
   if (except !== 'baas' && baas.active) return 'Leraar-baas loopt nog. Stop dat spel eerst.';
-  if (except !== 'gauntlet' && gauntlet.active) return 'Gauntlet loopt nog. Stop dat spel eerst.';
+  if (except !== 'gauntlet' && gauntlet.active) return 'Schaduwburcht loopt nog. Stop dat spel eerst.';
   if (except !== 'royale' && royale.active) return 'Ridder-Royale loopt nog. Stop dat spel eerst.';
   if (except !== 'sterren' && sterren.active) return 'Sterrenvreter loopt nog. Stop dat spel eerst.';
   if (except !== 'slang' && slang.active) return 'Ridderslang loopt nog. Stop dat spel eerst.';
@@ -585,7 +586,7 @@ lesmap.init([
   { kind: 'proef', dir: proeven.DIR, remote: 'toetsen', validate: proeven.K.validate },
   // De planning van De Zonnewijzer: thuis voorbereiden, op het bord gebruiken.
   { kind: 'zonnewijzer', dir: zonnewijzer.DIR, remote: 'zonnewijzer', validate: d => { if (!d || typeof d !== 'object' || Array.isArray(d)) throw new Error('Ongeldig bestand.'); } },
-  // De Kronieken: mappen, online bordboeken en koppelingen per les (de pdf's zelf blijven op elke pc).
+  // De Kronieken: mappen, online bordboeken en koppelingen per les.
   { kind: 'kronieken', dir: kronieken.LINKS_DIR, remote: 'kronieken', validate: kronieken.geldigeLinks },
   // Taken: thuis klaarzetten, op het digibord werken de leerlingen eraan. Alleen de taak zelf, nooit het werk.
   // perKlas: hoort bij de klas die nu gekozen is (Meerdere klassen); de eerste klas staat waar ze altijd stond.
@@ -602,7 +603,21 @@ lesmap.init([
   { kind: 'burchten', dir: () => burchten.LESMAP, perKlas: true, remote: 'klaseiland', validate: burchten.kopieGeldig },
   // De woorden van de week van het Runenraadsel: thuis klaarzetten, op het bord raden. De resultaten blijven op deze pc.
   { kind: 'runen', dir: () => runen.WOORDEN_DIR, perKlas: true, remote: 'runenraadsel', validate: runen.lijstGeldig },
-]);
+  // De bordboeken zelf (pdf's en afbeeldingen van Mijn methodes): groot, dus apart en uit te zetten bij Instellingen.
+  // Als laatste: zo staat al het kleine werk er al terwijl een groot boek nog kopieert.
+  { kind: 'bordboeken', bestanden: true, dir: kronieken.DIR, remote: 'bordboeken', toegelaten: kronieken.syncNaam, weg: kronieken.syncWeg, inPrullenbak: kronieken.inPrullenbak },
+], {
+  // Grote bordboeken kopiëren duurt even: tussendoor tonen hoe ver het staat (hooguit twee keer per seconde).
+  voortgang: (() => {
+    let laatst = 0;
+    return () => {
+      const nu = Date.now();
+      if (nu - laatst < 500) return;
+      laatst = nu;
+      io.to('host').emit('lesmap', lesmap.view());
+    };
+  })(),
+});
 let syncTimer = null;
 function runSync() {
   try { klas.naarLesmap(); } catch (err) { console.error('Klaslijst voor de lesmap bewaren mislukt:', err.message); }
@@ -621,7 +636,7 @@ function runSync() {
     for (const kind of changed) {
       if (LIBS[kind]) sendLibrary(kind, null, true);
       else if (kind === 'zonnewijzer') io.to('host').emit('zw-gewijzigd');
-      else if (kind === 'kronieken') io.to('host').emit('kr-lijst', kronieken.lijst());
+      else if (kind === 'kronieken' || kind === 'bordboeken') io.to('host').emit('kr-lijst', kronieken.lijst());
       else if (kind === 'klastaken') io.to('host').emit('wk-taken', klastaken.read());
       else if (kind === 'klasindeling') io.to('host').emit('wk-indeling', klasindeling.read());
       else if (kind === 'burchten') io.to('host').emit('bu-eiland', burchten.eiland());
@@ -863,7 +878,7 @@ app.get('/huisdier', (req, res) => {
 taal.route(app);
 beheer.routes(app, isLeerkracht);
 // De Kronieken: eigen bordboeken en handleidingen tonen en toevoegen (enkel de leerkracht).
-kronieken.routes(app, isLeerkracht, express, () => io.to('host').emit('kr-lijst', kronieken.lijst()));
+kronieken.routes(app, isLeerkracht, express, () => { io.to('host').emit('kr-lijst', kronieken.lijst()); syncSoon(); });
 // Een tweede leerkrachtscherm koppelen: de bureau-pc tikt hier de code van het digibord in.
 app.get('/koppel', (req, res) => {
   if (isLeerkracht(req)) return res.redirect('/host');
@@ -994,7 +1009,9 @@ function probeRoute() {
   }
 }
 probeRoute();
-setInterval(probeRoute, 60000).unref();
+setInterval(() => { probeRoute(); noteerAdres(); }, 60000).unref();
+// Even wachten: na het opstarten van Windows is de wifi soms nog niet verbonden.
+setTimeout(noteerAdres, 3000).unref();
 
 // Hoe kleiner het getal, hoe eerder het adres op het bord komt.
 // Eerst het adres waarlangs leerlingen echt binnenkwamen (of dat de leerkracht koos), dan de standaardroute.
@@ -1019,6 +1036,27 @@ function lanInterfaces() {
 
 function lanAddresses() {
   return lanInterfaces().map(i => i.address);
+}
+
+// Het hoofdadres van deze pc (wifi of kabel, geen hotspot of virtuele kaart), om wisselingen te zien.
+function echteKaart() {
+  return lanInterfaces().find(i => !VIRTUAL.test(i.name) && !/^192\.168\.(137|42|225)\.|^172\.20\.10\./.test(i.address));
+}
+// Kreeg deze pc van het schoolnetwerk een nieuw adres? Dan tonen we in de lobby één keer de tip voor een vast adres.
+function noteerAdres() {
+  const i = echteKaart();
+  if (!i) return;
+  const s = settings.read();
+  const { adressen, vorig, nieuw } = vastAdres.volg(s.adressen, i.address);
+  if (!nieuw) return;
+  settings.write({ adressen, adresTip: vorig || '' });
+  if (vorig && typeof io !== 'undefined') io.to('host').emit('adres-tip', { van: vorig, nu: i.address });
+}
+// Alles wat de leerkracht nodig heeft om ICT om een vast adres te vragen.
+function netwerkInfo() {
+  const i = echteKaart() || lanInterfaces()[0];
+  const ip = i ? i.address : '';
+  return { pc: os.hostname(), ip, kaart: i ? i.name : '', mac: i ? vastAdres.mac(i.mac) : '', eerder: vastAdres.eerder(settings.read().adressen, ip), poort: PORT };
 }
 
 // Adressen met QR-code voor het leerkrachtenscherm. Het eerste is het grote adres op het bord.
@@ -1083,6 +1121,12 @@ io.on('connection', socket => {
 
   // Eigen ridders: iedereen mag ze zien, een leerling stelt de zijne in.
   socket.on('avatars-get', (_, cb) => typeof cb === 'function' && cb(avatars.all()));
+  // Bij het aanmelden: de ridder die op de pc bewaard is, met de runenkrans die je verdiende.
+  socket.on('avatar-get', (name, cb) => {
+    if (typeof cb !== 'function') return;
+    const av = avatars.get(name);
+    cb({ avatar: av, krans: runen.kransVan(name) });
+  });
   socket.on('avatar-set', ({ name, avatar } = {}) => {
     // De runenkrans moet je verdienen in het Runenraadsel.
     const av = avatar && typeof avatar === 'object' ? { ...avatar, runen: Math.min(Number(avatar.runen) || 0, runen.kransVan(name)) } : avatar;
@@ -1287,6 +1331,10 @@ io.on('connection', socket => {
     for (const kind of Object.keys(LIBS)) sendLibrary(kind, socket);
     sendAddresses(socket);
     // De leerkracht kiest het adres dat werkt; dat onthouden we voor de volgende keer.
+    const tip = settings.read().adresTip;
+    if (tip) socket.emit('adres-tip', { van: tip, nu: (echteKaart() || {}).address || '' });
+    socket.on('adres-tip-weg', () => settings.write({ adresTip: '' }));
+    socket.on('netwerk-info', (_, cb) => typeof cb === 'function' && cb(netwerkInfo()));
     socket.on('choose-address', address => {
       if (!lanAddresses().includes(address)) return;
       settings.write({ preferredAddress: address });
@@ -1307,6 +1355,12 @@ io.on('connection', socket => {
       runSync().then(() => cb && cb({ ok: true, ...lesmap.view() }));
     });
     socket.on('lesmap-sync', (_, cb) => runSync().then(() => cb && cb(lesmap.view())));
+    socket.on('lesmap-boeken', (aan, cb) => {
+      lesmap.zetBoeken(aan);
+      io.to('host').emit('lesmap', lesmap.view());
+      if (aan) syncSoon();
+      if (typeof cb === 'function') cb(lesmap.view());
+    });
     // Het gewone Windows-venster om een map te kiezen.
     socket.on('lesmap-pick', (_, cb) => {
       if (scherm) return cb && cb({ error: 'Dat venster zou op het digibord openen. Typ het pad van de map hieronder.' });
@@ -1937,7 +1991,7 @@ io.on('connection', socket => {
     socket.on('du-restart', () => duel.quiz && duel.load(duel.quiz, duel.hearts));
     socket.on('du-stop', (_, cb) => cb && cb({ file: duel.stop() }));
 
-    // Pac-Knight
+    // Doolhofridder
     socket.on('pk-load', handle(({ file, minutes, tempo } = {}) => {
       const busy = busyWith('knight');
       if (busy) throw busyError(busy);
@@ -1950,7 +2004,7 @@ io.on('connection', socket => {
     socket.on('pk-restart', () => knight.quiz && knight.load(knight.quiz, knight.minutes, knight.tempo));
     socket.on('pk-stop', (_, cb) => cb && cb({ file: knight.stop() }));
 
-    // Cyber-Galaga
+    // Drakenjacht
     socket.on('cg-load', handle(({ file, minutes, tempo } = {}) => {
       const busy = busyWith('galaga');
       if (busy) throw busyError(busy);
@@ -1963,7 +2017,7 @@ io.on('connection', socket => {
     socket.on('cg-restart', () => galaga.quiz && galaga.load(galaga.quiz, galaga.minutes, galaga.tempo));
     socket.on('cg-stop', (_, cb) => cb && cb({ file: galaga.stop() }));
 
-    // Bomber-Knight
+    // Kruitridder
     socket.on('bk-load', handle(({ file, minutes, tempo } = {}) => {
       const busy = busyWith('bomber');
       if (busy) throw busyError(busy);
@@ -2016,7 +2070,7 @@ io.on('connection', socket => {
       if (typeof cb === 'function') cb(clean ? { ok: true, boss: clean } : { error: 'Ongeldige eindbaas.' });
     });
 
-    // Gauntlet en Ridder-Royale
+    // Schaduwburcht en Ridder-Royale
     gauntlet.attachHost(socket, handle, busyWith, busyError, quizzes);
     royale.attachHost(socket, handle, busyWith, busyError, quizzes);
     sterren.attachHost(socket, handle, busyWith, busyError, quizzes);
@@ -2539,7 +2593,7 @@ io.on('connection', socket => {
     if (typeof cb === 'function') cb(out || {});
   });
 
-  // Pac-Knight
+  // Doolhofridder
   socket.emit('pk-state', knight.base());
   socket.on('pk-join', ({ playerId, name } = {}, cb) => {
     if (!validId(playerId)) return cb && cb({ error: 'Ongeldige speler.' });
@@ -2558,7 +2612,7 @@ io.on('connection', socket => {
   socket.on('pk-question', pk(id => guarded.knight.question(id)));
   socket.on('pk-answer', pk((id, choice) => guarded.knight.answer(id, choice)));
 
-  // Cyber-Galaga
+  // Drakenjacht
   socket.emit('cg-state', galaga.base());
   socket.on('cg-join', ({ playerId, name } = {}, cb) => {
     if (!validId(playerId)) return cb && cb({ error: 'Ongeldige speler.' });
@@ -2577,7 +2631,7 @@ io.on('connection', socket => {
   socket.on('cg-bomb', cg(id => galaga.bomb(id)));
   socket.on('cg-report', cg((id, r) => galaga.report(id, r)));
 
-  // Bomber-Knight
+  // Kruitridder
   socket.emit('bk-state', bomber.base());
   socket.on('bk-join', ({ playerId, name } = {}, cb) => {
     if (!validId(playerId)) return cb && cb({ error: 'Ongeldige speler.' });
@@ -2595,7 +2649,7 @@ io.on('connection', socket => {
   socket.on('bk-asking', bk((id, on) => bomber.asking(id, on)));
   socket.on('bk-question', bk(id => guarded.bomber.question(id)));
   socket.on('bk-answer', bk((id, choice) => guarded.bomber.answer(id, choice)));
-  // Gauntlet en Ridder-Royale
+  // Schaduwburcht en Ridder-Royale
   gauntlet.attachPlayer(socket, validId, guarded.gauntlet);
   royale.attachPlayer(socket, validId, guarded.royale);
   sterren.attachPlayer(socket, validId, guarded.sterren);
@@ -2798,6 +2852,7 @@ const EERSTE_POORT = PORT;
 server.once('listening', () => {
   server.removeListener('error', poortBezet);
   gegevens.dagelijks();
+  if (avatars.herstelUitBackups(gegevens, settings, runen.kransVan).length) io.emit('avatars', avatars.all());
   runSync();
   setInterval(runSync, 60 * 1000);
   console.log('\n  LANcelot draait!\n');

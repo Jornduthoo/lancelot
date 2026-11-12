@@ -118,7 +118,7 @@
     p.className = 'tegel-proef';
     p.setAttribute('role', 'button');
     p.tabIndex = 0;
-    p.title = 'Probeer dit spel zelf, zonder klas';
+    p.setAttribute('aria-label', 'Proberen');
     p.innerHTML = '<i class="ic ic-oog" aria-hidden="true"></i> <span>Proberen</span>';
     const start = e => {
       e.preventDefault();
@@ -159,7 +159,7 @@
             onthoud(m);
             venster.close();
             if (m === 'toernooi' && typeof loadQuiz === 'function') { show('idle'); loadQuiz(q.file); return; }
-            location.href = `${padVan(m)}?quiz=${encodeURIComponent(q.file)}`;
+            location.href = `${padVan(m)}?quiz=${encodeURIComponent(q.file)}&kies=1`;
           }));
         }
         lijst.append(h, rij);

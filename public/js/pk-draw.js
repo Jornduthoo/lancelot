@@ -1,4 +1,4 @@
-// Pac-Knight tekenen: het neon doolhof, de kristallen, de ridders en de drones. Gebruikt door het bord en de leerlingen.
+// Doolhofridder tekenen: het neon doolhof, de kristallen, de ridders en de drones. Gebruikt door het bord en de leerlingen.
 // Posities komen van de server per vakje; we tekenen ze vloeiend tussen het vorige en het huidige vakje.
 const PacDraw = (() => {
   const COLORS = ['#ff4d6d', '#3d8bff', '#ffb703', '#22c993', '#a66bff', '#ff8c42', '#ff5fd2', '#4cc9ff', '#9be15d', '#f2f2f2'];
