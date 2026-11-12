@@ -1121,6 +1121,12 @@ io.on('connection', socket => {
 
   // Eigen ridders: iedereen mag ze zien, een leerling stelt de zijne in.
   socket.on('avatars-get', (_, cb) => typeof cb === 'function' && cb(avatars.all()));
+  // Bij het aanmelden: de ridder die op de pc bewaard is, met de runenkrans die je verdiende.
+  socket.on('avatar-get', (name, cb) => {
+    if (typeof cb !== 'function') return;
+    const av = avatars.get(name);
+    cb({ avatar: av, krans: runen.kransVan(name) });
+  });
   socket.on('avatar-set', ({ name, avatar } = {}) => {
     // De runenkrans moet je verdienen in het Runenraadsel.
     const av = avatar && typeof avatar === 'object' ? { ...avatar, runen: Math.min(Number(avatar.runen) || 0, runen.kransVan(name)) } : avatar;
@@ -2846,6 +2852,7 @@ const EERSTE_POORT = PORT;
 server.once('listening', () => {
   server.removeListener('error', poortBezet);
   gegevens.dagelijks();
+  if (avatars.herstelUitBackups(gegevens, settings, runen.kransVan).length) io.emit('avatars', avatars.all());
   runSync();
   setInterval(runSync, 60 * 1000);
   console.log('\n  LANcelot draait!\n');
