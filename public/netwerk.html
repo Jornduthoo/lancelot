@@ -35,6 +35,13 @@
       <ul class="nw-adressen" id="nw-adressen"><li class="muted">Laden…</li></ul>
     </div>
 
+    <div class="panel form" id="vast-adres">
+      <h3>Verandert het adres vaak?</h3>
+      <p>Dat is normaal: het schoolnetwerk deelt de adressen zelf uit en geeft deze pc soms een nieuw adres. De QR-code op het bord toont altijd het juiste adres, maar de toestellen moeten dan opnieuw verbinden. Een <strong>vast adres</strong> lost dat op. Dat stelt de ICT-verantwoordelijke van je school in (een "DHCP-reservatie"). Kopieer dit bericht en stuur het door:</p>
+      <pre class="nw-ict" id="nw-ict">Laden…</pre>
+      <button id="nw-ict-kopieer"><i class="ic ic-taak" aria-hidden="true"></i> Bericht voor ICT kopiëren</button> <span class="muted" id="nw-ict-ok"></span>
+    </div>
+
     <div class="panel form">
       <h3>Stap voor stap</h3>
       <ol class="nw-stappen">
@@ -85,6 +92,34 @@
       $('nw-fw-error').textContent = res.error || '';
       if (res.ok) $('nw-fw').textContent = '✓ Firewall staat goed';
     });
+  });
+
+  // Het bericht voor ICT: LANcelot vult de naam van de pc, het MAC-adres en het adres zelf in.
+  const t = s => (window.I18n ? I18n.t(s) : s);
+  let ictTekst = '';
+  socket.emit('netwerk-info', null, info => {
+    if (!info) return;
+    const regels = [
+      t('Hallo,'),
+      '',
+      info.eerder.length
+        ? t(`Het IP-adres van mijn pc in de klas verandert vaak (nu ${info.ip}, eerder ${info.eerder.join(', ')}).`)
+        : t(`Het IP-adres van mijn pc in de klas verandert soms (nu ${info.ip}).`),
+      t('Daardoor moeten de toestellen in de klas telkens opnieuw verbinden met LANcelot, de software die ik in de klas gebruik.'),
+      t('Kun je voor deze pc een DHCP-reservatie (vast IP-adres) instellen? Welk adres maakt niet uit, als het maar hetzelfde blijft.'),
+      t(`De toestellen in de klas moeten deze pc ook kunnen bereiken op poort ${info.poort}.`),
+      '',
+      t(`Naam pc: ${info.pc}`),
+    ];
+    if (info.mac) regels.push(info.kaart ? t(`MAC-adres (${info.kaart}): ${info.mac}`) : t(`MAC-adres: ${info.mac}`));
+    regels.push('', t('Alvast bedankt!'));
+    ictTekst = regels.join('\n');
+    $('nw-ict').dataset.geenVertaling = '';
+    $('nw-ict').textContent = ictTekst;
+  });
+  $('nw-ict-kopieer').addEventListener('click', () => {
+    if (!ictTekst) return;
+    $('nw-ict-ok').textContent = Ui.kopieer(ictTekst) ? t('Gekopieerd. Plak het in een mail of chatbericht.') : t('Kopiëren lukte niet. Selecteer de tekst hierboven.');
   });
 
   // Wat voor netwerk is dit adres? Een korte uitleg helpt het juiste adres kiezen.

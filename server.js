@@ -91,6 +91,7 @@ const proeven = require('./src/proeven');
 const { ProefLive } = require('./src/proef-live');
 const niveaus = require('./src/niveaus');
 const settings = require('./src/settings');
+const vastAdres = require('./src/vast-adres');
 const taal = require('./src/taal');
 const klas = require('./src/klas');
 const doelen = require('./src/doelen');
@@ -1008,7 +1009,9 @@ function probeRoute() {
   }
 }
 probeRoute();
-setInterval(probeRoute, 60000).unref();
+setInterval(() => { probeRoute(); noteerAdres(); }, 60000).unref();
+// Even wachten: na het opstarten van Windows is de wifi soms nog niet verbonden.
+setTimeout(noteerAdres, 3000).unref();
 
 // Hoe kleiner het getal, hoe eerder het adres op het bord komt.
 // Eerst het adres waarlangs leerlingen echt binnenkwamen (of dat de leerkracht koos), dan de standaardroute.
@@ -1033,6 +1036,27 @@ function lanInterfaces() {
 
 function lanAddresses() {
   return lanInterfaces().map(i => i.address);
+}
+
+// Het hoofdadres van deze pc (wifi of kabel, geen hotspot of virtuele kaart), om wisselingen te zien.
+function echteKaart() {
+  return lanInterfaces().find(i => !VIRTUAL.test(i.name) && !/^192\.168\.(137|42|225)\.|^172\.20\.10\./.test(i.address));
+}
+// Kreeg deze pc van het schoolnetwerk een nieuw adres? Dan tonen we in de lobby één keer de tip voor een vast adres.
+function noteerAdres() {
+  const i = echteKaart();
+  if (!i) return;
+  const s = settings.read();
+  const { adressen, vorig, nieuw } = vastAdres.volg(s.adressen, i.address);
+  if (!nieuw) return;
+  settings.write({ adressen, adresTip: vorig || '' });
+  if (vorig && typeof io !== 'undefined') io.to('host').emit('adres-tip', { van: vorig, nu: i.address });
+}
+// Alles wat de leerkracht nodig heeft om ICT om een vast adres te vragen.
+function netwerkInfo() {
+  const i = echteKaart() || lanInterfaces()[0];
+  const ip = i ? i.address : '';
+  return { pc: os.hostname(), ip, kaart: i ? i.name : '', mac: i ? vastAdres.mac(i.mac) : '', eerder: vastAdres.eerder(settings.read().adressen, ip), poort: PORT };
 }
 
 // Adressen met QR-code voor het leerkrachtenscherm. Het eerste is het grote adres op het bord.
@@ -1301,6 +1325,10 @@ io.on('connection', socket => {
     for (const kind of Object.keys(LIBS)) sendLibrary(kind, socket);
     sendAddresses(socket);
     // De leerkracht kiest het adres dat werkt; dat onthouden we voor de volgende keer.
+    const tip = settings.read().adresTip;
+    if (tip) socket.emit('adres-tip', { van: tip, nu: (echteKaart() || {}).address || '' });
+    socket.on('adres-tip-weg', () => settings.write({ adresTip: '' }));
+    socket.on('netwerk-info', (_, cb) => typeof cb === 'function' && cb(netwerkInfo()));
     socket.on('choose-address', address => {
       if (!lanAddresses().includes(address)) return;
       settings.write({ preferredAddress: address });
