@@ -103,7 +103,13 @@ test('Mijn lesmap: bordboeken gaan heen en terug, en nooit verloren', () => {
   assert.match(b.view.error, /niets verwijderd/);
 
   // Zet OneDrive ze terug, dan is alles weer gewoon. Daarna thuis bewust 5 boeken verwijderen in LANcelot: dat mag wel.
-  for (let i = 1; i <= 5; i++) fs.copyFileSync(kr(thuis, 'Wero', `Werkboek ${i}.pdf`), path.join(map, 'bordboeken', 'Wero', `Werkboek ${i}.pdf`));
+  // Zoals OneDrive: met het tijdstip van het origineel (anders lijkt het een nieuwere versie en houdt thuis die bij, zie onder).
+  for (let i = 1; i <= 5; i++) {
+    const van = kr(thuis, 'Wero', `Werkboek ${i}.pdf`), naar = path.join(map, 'bordboeken', 'Wero', `Werkboek ${i}.pdf`);
+    fs.copyFileSync(van, naar);
+    const st = fs.statSync(van);
+    fs.utimesSync(naar, st.atime, st.mtime);
+  }
   b = sync(bord);
   assert.strictEqual(b.view.error, '');
   t = sync(thuis, `for (let i = 1; i <= 5; i++) kronieken.verwijder('Wero', 'Werkboek ' + i + '.pdf');`);
@@ -113,6 +119,17 @@ test('Mijn lesmap: bordboeken gaan heen en terug, en nooit verloren', () => {
   assert.strictEqual(b.view.error, '');
   assert.deepStrictEqual(boeken(b), ['Rekenen/Blok 1/Bordboek rekenen.pdf']);
   assert.ok(bak(bord).filter(n => n.includes('Werkboek')).length === 5, 'op het bord in de prullenbak');
+
+  // Verwijder je thuis een boek terwijl er in de lesmap net een andere versie staat, dan wint het boek: het komt terug.
+  zet(kr(thuis, 'Wero', 'Extra.pdf'), pdf(20, 'extra'));
+  sync(thuis);
+  const extra = path.join(map, 'bordboeken', 'Wero', 'Extra.pdf');
+  const nieuwer = new Date(Date.now() + 120e3);
+  fs.utimesSync(extra, nieuwer, nieuwer);
+  sync(thuis, `kronieken.verwijder('Wero', 'Extra.pdf');`);
+  assert.ok(fs.existsSync(extra), 'niet verwijderd uit de lesmap');
+  t = sync(thuis);
+  assert.ok(boeken(t).includes('Wero/Extra.pdf'), 'en thuis weer terug');
 
   // Uitgezet: een nieuw boek blijft op deze pc.
   zet(kr(bord, 'Frans', 'Mission 9.pdf'), pdf(10, 'fr'));
