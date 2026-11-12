@@ -2483,3 +2483,7 @@ body.proef-open { padding-right: min(400px, 92vw); }
 .kies-eerst p { margin: 4px 0 0; }
 .kies-eerst [data-start] { font-size: 1.15rem; padding: 12px 28px; }
 body:has(.kies-eerst) .panel.form > p.muted.small:last-child { display: none; }
+/* Tip in de lobby: de pc kreeg een nieuw adres (vast adres vragen op /netwerk). */
+.adres-tip { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 6px; margin: 4px 0 0; }
+.adres-tip .adres-tip-weg { padding: 2px 6px; min-height: 0; line-height: 1; }
+.nw-ict { white-space: pre-wrap; font: inherit; font-size: .92em; margin: 8px 0; padding: 10px 12px; border-radius: 10px; background: rgb(var(--k-bg) / .5); border: 1px solid var(--line); }
