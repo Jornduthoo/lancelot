@@ -60,6 +60,13 @@ input[type=text]:focus{outline:none;border-color:var(--zee-2)}
 .score .getal{font-family:var(--display);font-weight:800;font-size:2.6rem;line-height:1;font-variant-numeric:tabular-nums}
 .score p{margin:0}
 .uitleg{color:var(--inkt-zacht);font-size:.95rem;margin:0}
+.link{background:var(--papier);border:2px dashed var(--koraal);border-radius:12px;padding:10px 14px;margin:0;font-weight:600}
+.link a{color:var(--zee-2)}
+.optie.rij{align-items:center}
+.optie.koppel{flex-direction:column-reverse;align-items:stretch;gap:6px}
+.optie.koppel span{font-weight:700}
+.optie.koppel select{max-width:100%;width:100%}
+.optie select{font:inherit;padding:4px 6px;border-radius:8px;border:2px solid var(--lijn);background:var(--papier);color:var(--inkt);max-width:55%}
 .voet{font-size:.85rem;color:var(--inkt-zacht);text-align:center}
 @media (prefers-reduced-motion:no-preference){.vraag,.score{animation:op .25s ease-out}@keyframes op{from{transform:translateY(4px)}to{transform:none}}}
 </style>
@@ -67,13 +74,14 @@ input[type=text]:focus{outline:none;border-color:var(--zee-2)}
 <header class="band"><div class="in" id="kop"></div></header>
 <main class="wrap" id="app"></main>
 
-<script src="data.js?v=2026-11-23"></script>
+<script src="data.js?v=2026-11-23b"></script>
 <script>
 (function(){
 const app=document.getElementById('app'), kop=document.getElementById('kop');
 const W=window.WEKEN||[];
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const norm=s=>String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]/g,'');
+function schud(a,seed){const b=a.slice();let x=seed*9301+49297;for(let k=b.length-1;k>0;k--){x=(x*9301+49297)%233280;const r=Math.floor(x/233280*(k+1));[b[k],b[r]]=[b[r],b[k]]}return b}
 function vind(id){for(const w of W)for(const t of w.toetsen)if(t.id===id)return {w,t};return null}
 
 function home(){
@@ -96,6 +104,7 @@ function toets(id,niv){
   const t=f.t, d=t.niveaus[niv]; if(!d){home();return}
   kop.innerHTML='<button class="terug" data-go="">← Alle toetsen</button><h1>'+esc(t.titel)+'</h1><p>'+esc(t.vak)+(niv==='1b'?' · 1B-versie':'')+' · toets op '+esc(t.datum)+'</p>';
   let h='';
+  if(d.echteTekst){h+='<p class="link">Lees ook de echte toetstekst: <a href="'+esc(d.echteTekst.url)+'" target="_blank" rel="noopener">'+esc(d.echteTekst.titel)+'</a></p>'}
   if(d.teksten){
     h+='<p class="uitleg">Lees eerst de tekst(en) goed. Je kunt ze altijd opnieuw openen bij de vragen.</p>';
     d.teksten.forEach((x,i)=>{h+=tekstHTML(x,i,false)});
@@ -105,6 +114,12 @@ function toets(id,niv){
     if(d.teksten&&q.tekst!=null) h+=tekstHTML(d.teksten[q.tekst],q.tekst,true);
     if(q.t==='mc'){h+='<div class="opties">'+q.k.map((k,j)=>'<label class="optie"><input type="radio" name="q'+i+'" value="'+j+'"><span>'+esc(k)+'</span></label>').join('')+'</div>'}
     else if(q.t==='jf'){h+='<div class="opties">'+['Juist','Fout'].map((k,j)=>'<label class="optie"><input type="radio" name="q'+i+'" value="'+(j===0)+'"><span>'+k+'</span></label>').join('')+'</div>'}
+    else if(q.t==='volg'||q.t==='koppel'){
+      const links=q.t==='volg'?q.items.map((x,j)=>({x,j})):q.paren.map((x,j)=>({x:x[0],j}));
+      const keuzes=q.t==='volg'?q.items.map((_,j)=>String(j+1)):q.paren.map(x=>x[1]);
+      const toon=schud(links,i), kz=q.t==='volg'?keuzes:schud(keuzes,i+7);
+      h+='<div class="opties">'+toon.map(o=>'<label class="optie rij'+(q.t==='koppel'?' koppel':'')+'" data-j="'+o.j+'"><select id="q'+i+'_'+o.j+'"><option value="">'+(q.t==='volg'?'nr.':'kies\u2026')+'</option>'+kz.map(k=>'<option>'+esc(k)+'</option>').join('')+'</select><span>'+esc(o.x)+'</span></label>').join('')+'</div>';
+    }
     else {h+='<input type="text" id="q'+i+'" autocomplete="off" placeholder="Typ je antwoord">'}
     h+='<div class="fb" hidden></div></section>';
   });
@@ -126,6 +141,10 @@ function verbeter(d){
       ok=kies&&kies.value===juistVal;
       sec.querySelectorAll('.optie').forEach(l=>{l.classList.remove('goed','fout');const v=l.querySelector('input').value;if(v===juistVal)l.classList.add('goed');else if(l.querySelector('input').checked)l.classList.add('fout')});
       juist=q.t==='mc'?q.k[q.a]:(q.a?'Juist':'Fout');
+    } else if(q.t==='volg'||q.t==='koppel'){
+      const n=q.t==='volg'?q.items.length:q.paren.length; let alles=true;
+      for(let j=0;j<n;j++){const sel=document.getElementById('q'+i+'_'+j), want=q.t==='volg'?String(j+1):q.paren[j][1];const r=sel.value===want;if(!r)alles=false;const l=sel.closest('.optie');l.classList.remove('goed','fout');l.classList.add(r?'goed':'fout')}
+      ok=alles; juist=q.t==='volg'?q.items.map((x,j)=>(j+1)+'. '+x).join('  \u00b7  '):q.paren.map(x=>x[0]+' \u2192 '+x[1]).join('  \u00b7  ');
     } else {
       const v=norm(document.getElementById('q'+i).value); ok=v!==''&&q.a.some(a=>norm(a)===v); juist=q.a[0];
     }
