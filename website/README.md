@@ -34,3 +34,7 @@ Elk spel heeft een eigen pagina (`site/spellen/<id>.html`, `site/<taal>/spellen/
 extra info uit `bron/spellen.json` (spelvorm en wat een goed antwoord geeft, in elke taal) en drie schermafbeeldingen
 per taal in `site/beelden/<taal>/<id>-bord|cb|gsm.webp` (960×540, 800×450, 270×585). Voeg je een spel toe, zet het dan
 ook in `bron/spellen.json`, anders faalt `npm test`. Zonder beelden toont de pagina enkel de tekst.
+
+## Oefentoetsen
+
+`site/oefentoets/` is een verborgen pagina (noindex, niet gelinkt) met wekelijkse oefentoetsen voor het 6de leerjaar, in een gewone en een 1B-versie. Alle toetsen staan in `site/oefentoets/data.js` (vraagtypes `mc`, `jf`, `invul`; bij begrijpend lezen `teksten` per niveau). Leerlingen melden zich aan met voornaam + eigen code van 4 cijfers; per gemaakte oefentoets worden enkel voornaam, toets, niveau, score en datum bewaard in Supabase (schema `oefentoets`, enkel bereikbaar via de functies `ot_aanmelden`, `ot_bewaar` en `ot_overzicht`). `site/oefentoets/leerkracht.html` toont het overzicht na een wachtwoord. `bouw.js` raakt deze map niet aan.

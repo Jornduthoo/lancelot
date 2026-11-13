@@ -1,0 +1,241 @@
+<!doctype html><html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex, nofollow"><title>Oefentoetsen 6de leerjaar</title></head><body>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@400;600;700&display=swap">
+<style>
+/* Layout: één smalle kolom zoals een werkblad; bovenaan een zeeblauwe band, toetsen als kaarten met een oranje datumstempel */
+:root{
+  --zee:#0f4c5c; --zee-2:#1d6f80; --koraal:#ff914d; --zand:#f6f1e7; --papier:#ffffff;
+  --inkt:#16313a; --inkt-zacht:#4b6670; --lijn:#d9e3e5; --goed:#1f8a4c; --goed-bg:#e3f4ea; --fout:#c23b2a; --fout-bg:#fbe7e3;
+  --kies:#e9f3f5;
+  --display:"Baloo 2","Trebuchet MS",system-ui,sans-serif; --body:"Nunito",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --zee:#0b2f39; --zee-2:#2b8ca0; --koraal:#ff9d60; --zand:#0f1d22; --papier:#16282e;
+  --inkt:#e6f0f2; --inkt-zacht:#9fb7be; --lijn:#2a4048; --goed:#5fd093; --goed-bg:#163b29; --fout:#ff8a78; --fout-bg:#45201b; --kies:#1d3a42; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --zee:#0b2f39; --zee-2:#2b8ca0; --koraal:#ff9d60; --zand:#0f1d22; --papier:#16282e;
+  --inkt:#e6f0f2; --inkt-zacht:#9fb7be; --lijn:#2a4048; --goed:#5fd093; --goed-bg:#163b29; --fout:#ff8a78; --fout-bg:#45201b; --kies:#1d3a42; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--zand);color:var(--inkt);font-family:var(--body);font-size:17px;line-height:1.55;margin:0}
+.band{background:var(--zee);color:#fff;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:22px 26px}
+.band .in,.wrap{max-width:720px;margin:0 auto}
+.band h1{font-family:var(--display);font-weight:800;font-size:2rem;line-height:1.1;margin:0;text-wrap:balance}
+.band p{margin:.3rem 0 0;opacity:.85}
+.wrap{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:22px 48px;display:flex;flex-direction:column;gap:18px}
+h2{font-family:var(--display);font-weight:800;font-size:1.4rem;margin:0;line-height:1.2;text-wrap:balance}
+h3{font-family:var(--display);font-weight:600;font-size:1.15rem;margin:0}
+.weeklabel{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;color:var(--inkt-zacht)}
+.toets{background:var(--papier);border:1px solid var(--lijn);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:12px}
+.toets .kop{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:flex-start}
+.vak{font-weight:700;color:var(--zee-2);font-size:.9rem;text-transform:uppercase;letter-spacing:.06em}
+.stempel{border:2px solid var(--koraal);color:var(--koraal);border-radius:8px;padding:2px 10px;font-weight:700;font-size:.85rem;white-space:nowrap;transform:rotate(-2deg)}
+.knoppen{display:flex;gap:10px;flex-wrap:wrap}
+button{font:inherit;cursor:pointer;border-radius:10px;border:2px solid transparent;padding:10px 16px;font-weight:700}
+button:focus-visible{outline:3px solid var(--koraal);outline-offset:2px}
+.hoofd{background:var(--zee-2);color:#fff}
+.hoofd:hover{filter:brightness(1.1)}
+.tweede{background:transparent;color:var(--zee-2);border-color:var(--zee-2)}
+.terug{background:none;color:#fff;padding:4px 0;border:0;font-weight:600;opacity:.9}
+.tekstblok{background:var(--papier);border:1px solid var(--lijn);border-radius:14px;padding:18px 20px}
+.tekstblok .soort{font-size:.8rem;color:var(--inkt-zacht);text-transform:uppercase;letter-spacing:.06em;font-weight:700}
+.tekstblok p{margin:.6rem 0;max-width:65ch}
+.tekstblok p .nr{font-weight:700;color:var(--koraal);margin-right:6px;font-variant-numeric:tabular-nums}
+details.tekst summary{cursor:pointer;font-weight:700;color:var(--zee-2)}
+.vraag{background:var(--papier);border:1px solid var(--lijn);border-radius:14px;padding:16px 18px;display:flex;flex-direction:column;gap:10px}
+.vraag .nr{font-family:var(--display);font-weight:800;color:var(--koraal);font-size:1.1rem}
+.vraag .bij{font-size:.82rem;color:var(--inkt-zacht);font-weight:600}
+.opties{display:flex;flex-direction:column;gap:8px}
+.optie{display:flex;gap:10px;align-items:flex-start;background:var(--kies);border:2px solid transparent;border-radius:10px;padding:9px 12px;cursor:pointer}
+.optie input{margin-top:5px;accent-color:var(--zee-2)}
+.optie:has(input:checked){border-color:var(--zee-2)}
+.optie.goed{background:var(--goed-bg);border-color:var(--goed)}
+.optie.fout{background:var(--fout-bg);border-color:var(--fout)}
+input[type=text]{font:inherit;padding:10px 12px;border-radius:10px;border:2px solid var(--lijn);background:var(--papier);color:var(--inkt);width:100%;max-width:360px}
+input[type=text]:focus{outline:none;border-color:var(--zee-2)}
+.feedback{border-radius:10px;padding:10px 12px;font-weight:600}
+.feedback.goed{background:var(--goed-bg);color:var(--goed)}
+.feedback.fout{background:var(--fout-bg);color:var(--fout)}
+.feedback span{display:block;font-weight:400;color:var(--inkt);margin-top:2px}
+.score{background:var(--zee);color:#fff;border-radius:14px;padding:20px;display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.score .getal{font-family:var(--display);font-weight:800;font-size:2.6rem;line-height:1;font-variant-numeric:tabular-nums}
+.score p{margin:0}
+.uitleg{color:var(--inkt-zacht);font-size:.95rem;margin:0}
+.link{background:var(--papier);border:2px dashed var(--koraal);border-radius:12px;padding:10px 14px;margin:0;font-weight:600}
+.link a{color:var(--zee-2)}
+.optie.rij{align-items:center}
+.optie.koppel{flex-direction:column-reverse;align-items:stretch;gap:6px}
+.optie.koppel span{font-weight:700}
+.optie.koppel select{max-width:100%;width:100%}
+.optie select{font:inherit;padding:4px 6px;border-radius:8px;border:2px solid var(--lijn);background:var(--papier);color:var(--inkt);max-width:55%}
+.veld{display:flex;flex-direction:column;gap:4px;font-weight:700}
+.band .terug{color:inherit;text-decoration:underline;font-size:.9rem;padding:0}
+.luister{background:var(--kies);border:0;border-radius:999px;width:2.1em;height:2.1em;padding:0;margin-right:8px;font-size:.95rem;vertical-align:middle;cursor:pointer}
+.voortgang{display:flex;align-items:center;gap:10px;font-size:.85rem;font-weight:700;color:var(--inkt-zacht)}
+.voortgang .balk{flex:1;height:8px;background:var(--kies);border-radius:99px;overflow:hidden}
+.voortgang .balk span{display:block;height:100%;background:var(--koraal)}
+.sterren{font-size:2rem;color:var(--koraal);letter-spacing:4px}.sterren .leeg{opacity:.3}
+.voet{font-size:.85rem;color:var(--inkt-zacht);text-align:center}
+@media (prefers-reduced-motion:no-preference){.vraag,.score{animation:op .25s ease-out}@keyframes op{from{transform:translateY(4px)}to{transform:none}}}
+</style>
+
+<header class="band"><div class="in" id="kop"></div></header>
+<main class="wrap" id="app"></main>
+
+<script src="data.js?v=2026-11-23g"></script>
+<script>
+(function(){
+const app=document.getElementById('app'), kop=document.getElementById('kop');
+const W=window.WEKEN||[];
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const norm=s=>String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]/g,'');
+const DB={url:'https://kkqzstqsczcooutdjypt.supabase.co/rest/v1/rpc/',key:'sb_publishable_woxocUFof4ifDWmkVGsHsQ_HL_eMAhc'};
+async function rpc(f,body){const r=await fetch(DB.url+f,{method:'POST',headers:{apikey:DB.key,'Content-Type':'application/json'},body:JSON.stringify(body)});if(!r.ok){const t=await r.text();throw new Error(t.includes('te_veel')?'te_veel':'net')}return r.json()}
+function ik(){try{return JSON.parse(sessionStorage.getItem('ot_ik')||'null')}catch(e){return null}}
+function zetIk(v){try{v?sessionStorage.setItem('ot_ik',JSON.stringify(v)):sessionStorage.removeItem('ot_ik')}catch(e){}}
+let bezigToets=null;
+const kanSpreken='speechSynthesis' in window;
+function spreek(t){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);const v=speechSynthesis.getVoices();u.voice=v.find(x=>x.lang==='nl-BE')||v.find(x=>/^nl/i.test(x.lang))||null;u.lang=u.voice?u.voice.lang:'nl-BE';u.rate=.9;speechSynthesis.speak(u)}catch(e){}}
+const luister=t=>kanSpreken?'<button type="button" class="luister" data-zeg="'+esc(t)+'" aria-label="Lees voor">\ud83d\udd0a</button>':'';
+function schud(a,seed){const b=a.slice();let x=seed*9301+49297;for(let k=b.length-1;k>0;k--){x=(x*9301+49297)%233280;const r=Math.floor(x/233280*(k+1));[b[k],b[r]]=[b[r],b[k]]}return b}
+function vind(id){for(const w of W)for(const t of w.toetsen)if(t.id===id)return {w,t};return null}
+
+function aanmeld(){
+  kop.innerHTML='<h1>Oefentoetsen</h1><p>Zesde leerjaar · oefen thuis voor de toetsen van deze week</p>';
+  app.innerHTML='<form class="toets" id="aanmeld" autocomplete="off"><h2>Wie ben jij?</h2><p class="uitleg">Vul je voornaam en je geheime code van 4 cijfers in. Die code krijg je van de meester.</p>'+
+   '<label class="veld">Voornaam<input type="text" id="naam" required></label><label class="veld">Geheime code<input type="text" id="code" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" required></label>'+
+   '<div class="knoppen"><button class="hoofd" type="submit">Start</button></div><p class="feedback fout" id="aanmeldfout" hidden></p></form>'+
+   '<p class="voet">We bewaren alleen je voornaam, welke oefentoets je maakte, je score en de datum. Zo ziet de meester hoe je oefent.</p>';
+  document.getElementById('aanmeld').onsubmit=async e=>{e.preventDefault();const f=document.getElementById('aanmeldfout'),btn=e.target.querySelector('button');f.hidden=true;btn.disabled=true;
+    const naam=document.getElementById('naam').value.trim(),code=document.getElementById('code').value.trim();
+    try{const r=await rpc('ot_aanmelden',{p_naam:naam,p_code:code});if(!r){f.textContent='Die naam en code passen niet bij elkaar. Kijk ze nog eens na.';f.hidden=false}else{zetIk({naam:r.voornaam,code,niveau:r.niveau});route()}}
+    catch(err){f.textContent=err.message==='te_veel'?'Te veel foute pogingen. Wacht 10 minuten en probeer opnieuw.':'Er ging iets mis met de verbinding. Probeer opnieuw.';f.hidden=false}
+    btn.disabled=false};
+}
+function home(){
+  const me=ik(); if(!me){aanmeld();return}
+  kop.innerHTML='<h1>Dag '+esc(me.naam)+'!</h1><p>Oefen voor de toetsen van deze week · <button class="terug" id="afmelden">Ben je '+esc(me.naam)+' niet? Afmelden</button></p>';
+  let h='';
+  const nu=new Date().toISOString().slice(0,10); const plus=(d,n)=>new Date(new Date(d+'T12:00:00Z').getTime()+n*864e5).toISOString().slice(0,10);
+  let tonen=W.filter(w=>plus(w.week,6)>=nu); if(!tonen.length)tonen=W.slice(-1);
+  tonen.forEach(w=>{
+    h+='<div class="weeklabel">'+esc(w.label)+'</div>';
+    w.toetsen.filter(t=>me.niveau!=='1b'||t.niveaus['1b']).forEach(t=>{
+      h+='<article class="toets"><div class="kop"><div><div class="vak">'+esc(t.vak)+'</div><h2>'+esc(t.titel)+'</h2></div><span class="stempel">'+esc(t.datum)+'</span></div>'+
+      '<div class="knoppen"><button class="hoofd" data-go="'+t.id+'-'+(me.niveau==='1b'?'1b':'gewoon')+'">Start oefentoets</button></div></article>';
+    });
+  });
+  h+='<p class="voet">Je kunt zo vaak oefenen als je wilt. De meester ziet je score.</p>';
+  app.innerHTML=h;
+  document.getElementById('afmelden').onclick=()=>{zetIk(null);route()};
+}
+
+function toets(id,niv){
+  const f=vind(id); if(!f){home();return}
+  const t=f.t, d=t.niveaus[niv]; if(!d){home();return}
+  if(!ik()){aanmeld();return}
+  bezigToets={id,niv,bewaard:false};
+  kop.innerHTML='<button class="terug" data-go="">← Alle toetsen</button><h1>'+esc(t.titel)+'</h1><p>'+esc(t.vak)+(niv==='1b'?' · 1B-versie':'')+' · toets op '+esc(t.datum)+'</p>';
+  let h='';
+  if(d.echteTekst){h+='<p class="link">Lees ook de echte toetstekst: <a href="'+esc(d.echteTekst.url)+'" target="_blank" rel="noopener">'+esc(d.echteTekst.titel)+'</a></p>'}
+  if(d.teksten){
+    h+='<p class="uitleg">Lees eerst de tekst(en) goed. Je kunt ze altijd opnieuw openen bij de vragen.</p>';
+    d.teksten.forEach((x,i)=>{h+=tekstHTML(x,i,false)});
+  }
+  d.vragen.forEach((q,i)=>{
+    h+='<section class="vraag" id="v'+i+'"><div><span class="nr">'+(i+1)+'.</span> '+(d.teksten&&q.tekst!=null?'<span class="bij">bij tekst '+(q.tekst+1)+'</span>':'')+'</div><h3>'+luister(q.v)+esc(q.v)+'</h3>';
+    if(d.teksten&&q.tekst!=null) h+=tekstHTML(d.teksten[q.tekst],q.tekst,true);
+    if(q.t==='mc'){h+='<div class="opties">'+q.k.map((k,j)=>'<label class="optie"><input type="radio" name="q'+i+'" value="'+j+'"><span>'+esc(k)+'</span></label>').join('')+'</div>'}
+    else if(q.t==='jf'){h+='<div class="opties">'+['Juist','Fout'].map((k,j)=>'<label class="optie"><input type="radio" name="q'+i+'" value="'+(j===0)+'"><span>'+k+'</span></label>').join('')+'</div>'}
+    else if(q.t==='volg'||q.t==='koppel'){
+      const links=q.t==='volg'?q.items.map((x,j)=>({x,j})):q.paren.map((x,j)=>({x:x[0],j}));
+      const keuzes=q.t==='volg'?q.items.map((_,j)=>String(j+1)):q.paren.map(x=>x[1]);
+      const toon=schud(links,i), kz=q.t==='volg'?keuzes:schud(keuzes,i+7);
+      h+='<div class="opties">'+toon.map(o=>'<label class="optie rij'+(q.t==='koppel'?' koppel':'')+'" data-j="'+o.j+'"><select id="q'+i+'_'+o.j+'"><option value="">'+(q.t==='volg'?'nr.':'kies\u2026')+'</option>'+kz.map(k=>'<option>'+esc(k)+'</option>').join('')+'</select><span>'+esc(o.x)+'</span></label>').join('')+'</div>';
+    }
+    else {h+='<input type="text" id="q'+i+'" autocomplete="off" placeholder="Typ je antwoord">'}
+    h+='<div class="fb" hidden></div></section>';
+  });
+  if(niv==='1b'){stappen(d,h);return}
+  h+='<div class="knoppen"><button class="hoofd" id="verbeter">Verbeter mijn toets</button></div><div id="uitslag"></div>';
+  app.innerHTML=h; window.scrollTo(0,0);
+  document.getElementById('verbeter').onclick=()=>verbeter(d);
+}
+function stappen(d,h){
+  app.innerHTML=(d.teksten?'<div id="leesscherm" class="stapscherm">'+'</div>':'')+h.replace(/<p class="uitleg">Lees eerst[^<]*<\/p>/,'')+'<div id="uitslag"></div>';
+  const secs=[...app.querySelectorAll('.vraag')], tb=[...app.querySelectorAll(':scope > .tekstblok')];
+  let nu=-1, goed=0; const n=d.vragen.length;
+  secs.forEach((sec,i)=>{sec.hidden=true;
+    const k=document.createElement('div');k.className='knoppen';
+    k.innerHTML='<button class="hoofd" data-k="controleer">Controleer</button><button class="tweede" data-k="oplossing" hidden>Toon de oplossing</button><button class="hoofd" data-k="volgende" hidden>'+(i===n-1?'Klaar!':'Volgende \u2192')+'</button>';
+    sec.insertBefore(k,sec.querySelector('.fb'));
+    const pr=document.createElement('div');pr.className='voortgang';pr.innerHTML='Vraag '+(i+1)+' van '+n+'<span class="balk"><span style="width:'+Math.round(i/n*100)+'%"></span></span>';sec.prepend(pr);
+    let eerste=true;
+    k.querySelector('[data-k=controleer]').onclick=()=>{const ok=checkQ(d.vragen[i],i,false);if(eerste&&ok)goed++;eerste=false;
+      k.querySelector('[data-k=controleer]').hidden=ok;k.querySelector('[data-k=oplossing]').hidden=ok;k.querySelector('[data-k=volgende]').hidden=false;
+      if(!ok)k.querySelector('[data-k=controleer]').textContent='Probeer nog eens';};
+    k.querySelector('[data-k=oplossing]').onclick=()=>{checkQ(d.vragen[i],i,true);if(eerste)eerste=false;k.querySelector('[data-k=oplossing]').hidden=true;k.querySelector('[data-k=controleer]').hidden=true};
+    k.querySelector('[data-k=volgende]').onclick=()=>{if(eerste)eerste=false;ga(i+1)};
+  });
+  function ga(i){secs.forEach(x=>x.hidden=true);tb.forEach(x=>x.hidden=true);const l=document.getElementById('leesscherm');if(l)l.hidden=true;nu=i;
+    if(i>=n){toonUitslag(goed,n,true);return}
+    secs[i].hidden=false;window.scrollTo(0,0);}
+  if(d.teksten){const l=document.getElementById('leesscherm');l.innerHTML='<p class="uitleg">Lees eerst de tekst. Klik op \ud83d\udd0a om hem te laten voorlezen.</p>';
+    const kn=document.createElement('div');kn.className='knoppen';kn.innerHTML='<button class="hoofd">Ik heb de tekst gelezen \u2192</button>';kn.firstChild.onclick=()=>ga(0);
+    tb[tb.length-1].after(kn);tb.forEach(x=>x.hidden=false);
+    const verberg=()=>{kn.hidden=true};const oud=ga;ga=i=>{verberg();oud(i)};
+  } else ga(0);
+  window.scrollTo(0,0);
+}
+function tekstHTML(x,i,dicht){
+  const body='<div class="soort">Tekst '+(i+1)+' · '+esc(x.soort)+'</div><h2>'+esc(x.titel)+'</h2>'+x.alineas.map((p,j)=>'<p><span class="nr">'+(j+1)+'</span>'+luister(p)+esc(p)+'</p>').join('');
+  return dicht?'<details class="tekst"><summary>Toon tekst '+(i+1)+'</summary><div class="tekstblok">'+body+'</div></details>':'<div class="tekstblok">'+body+'</div>';
+}
+function checkQ(q,i,toonAntwoord){
+    const sec=document.getElementById('v'+i), fb=sec.querySelector('.fb'); let ok=false, juist='';
+    if(q.t==='mc'||q.t==='jf'){
+      const kies=sec.querySelector('input:checked');
+      const juistVal=q.t==='mc'?String(q.a):String(q.a);
+      ok=kies&&kies.value===juistVal;
+      sec.querySelectorAll('.optie').forEach(l=>{l.classList.remove('goed','fout');const v=l.querySelector('input').value;const gek=l.querySelector('input').checked;if(v===juistVal&&(gek||toonAntwoord))l.classList.add('goed');else if(gek&&v!==juistVal)l.classList.add('fout')});
+      juist=q.t==='mc'?q.k[q.a]:(q.a?'Juist':'Fout');
+    } else if(q.t==='volg'||q.t==='koppel'){
+      const n=q.t==='volg'?q.items.length:q.paren.length; let alles=true;
+      for(let j=0;j<n;j++){const sel=document.getElementById('q'+i+'_'+j), want=q.t==='volg'?String(j+1):q.paren[j][1];const r=sel.value===want;if(!r)alles=false;const l=sel.closest('.optie');l.classList.remove('goed','fout');l.classList.add(r?'goed':'fout')}
+      ok=alles; juist=q.t==='volg'?q.items.map((x,j)=>(j+1)+'. '+x).join('  \u00b7  '):q.paren.map(x=>x[0]+' \u2192 '+x[1]).join('  \u00b7  ');
+    } else {
+      const raw=document.getElementById('q'+i).value; const ex=t=>String(t).replace(/[\u2018\u2019`]/g,"'").replace(/\s+/g,' ').trim(); ok=raw.trim()!==''&&(q.exact?q.a.some(a=>ex(a)===ex(raw)):q.a.some(a=>norm(a)===norm(raw))); juist=q.a[0];
+    }
+    const fb2=document.getElementById('v'+i).querySelector('.fb');
+    fb2.hidden=false; fb2.className='fb feedback '+(ok?'goed':'fout');
+    fb2.innerHTML=ok?'Goed zo!<span>'+esc(q.u||'')+'</span>':(toonAntwoord?'Nog niet juist. Het juiste antwoord: '+esc(juist)+'<span>'+esc(q.u||'')+'</span>':'Nog niet juist.');
+    return ok;
+}
+function verbeter(d){
+  let goed=0;
+  d.vragen.forEach((q,i)=>{
+    if(checkQ(q,i,true))goed++;
+  });
+  toonUitslag(goed,d.vragen.length,false);
+}
+function toonUitslag(goed,n,sterren){
+  const pct=Math.round(goed/n*100);
+  const msg=pct>=90?'Super! Je bent klaar voor de toets.':pct>=70?'Goed bezig! Bekijk nog even de rode vragen.':pct>=50?'Je bent op weg. Lees de uitleg bij de rode vragen en probeer opnieuw.':'Oefen nog wat extra. Lees je boek of themaschrift nog eens en probeer opnieuw.';
+  const u=document.getElementById('uitslag');
+  const me=ik(); let bewaarTekst='';
+  if(me&&bezigToets&&!bezigToets.bewaard){bezigToets.bewaard=true;bewaarTekst='<p id="bewaarstatus">Je score wordt doorgestuurd\u2026</p>';
+    rpc('ot_bewaar',{p_naam:me.naam,p_code:me.code,p_toets:bezigToets.id,p_niveau:bezigToets.niv,p_score:goed,p_totaal:n}).then(ok=>{const b=document.getElementById('bewaarstatus');if(b)b.textContent=ok?'Je score is doorgestuurd naar de meester.':'Je score kon niet bewaard worden. Meld je opnieuw aan.'}).catch(()=>{const b=document.getElementById('bewaarstatus');if(b)b.textContent='Je score kon niet doorgestuurd worden (geen verbinding).'})}
+  u.innerHTML='<div class="score"><div class="getal">'+goed+'/'+n+'</div><div><p><strong>'+msg+'</strong></p><p>'+(sterren?'<span class="sterren" aria-label="'+(pct>=90?3:pct>=60?2:1)+' sterren">'+'\u2605'.repeat(pct>=90?3:pct>=60?2:1)+'<span class="leeg">'+'\u2605'.repeat(3-(pct>=90?3:pct>=60?2:1))+'</span></span>':'De verbetering staat bij elke vraag.')+'</p>'+bewaarTekst+'</div></div><div class="knoppen" style="margin-top:12px"><button class="tweede" id="opnieuw">Probeer opnieuw</button></div>';
+  document.getElementById('opnieuw').onclick=route;
+  u.scrollIntoView({behavior:'smooth',block:'center'});
+}
+function route(){
+  const h=location.hash.slice(1); const m=h.match(/^(.+)-(gewoon|1b)$/);
+  if(m)toets(m[1],m[2]); else home();
+}
+document.addEventListener('click',e=>{const z=e.target.closest('[data-zeg]');if(z){spreek(z.dataset.zeg);return}const b=e.target.closest('[data-go]');if(!b)return;const g=b.dataset.go;if(location.hash.slice(1)===g)route();else location.hash=g;if(!g)route()});
+window.addEventListener('hashchange',route); route();
+})();
+</script>
+
+</body></html>
