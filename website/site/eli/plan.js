@@ -29,6 +29,7 @@ const dag = (s, n) => { const d = new Date(s + 'T12:00:00'); d.setDate(d.getDate
 const dagen = () => { const out = []; for (let d = START; d <= EINDE; d = dag(d, 1)) out.push(d); return out; };
 
 const KAART_MIN = 10;           // herhaalkaartjes elke dag
+const OVERHOOR_MIN = 5;         // uitleggen aan een supporter
 const LEER_MIN = 22, HERHAAL_MIN = 10, PROEF_MIN = 25, ZWAK_MIN = 15;
 
 function maak(){
@@ -89,7 +90,13 @@ function maak(){
     const items = [];
     // Eerst leren, daarna pas de herhaalkaartjes (en op de eerste dag zijn er nog geen kaartjes).
     const kaart = (b > 0 && d > START) ? { id:'kaarten:' + d, soort:'kaarten', titel:'Herhaalkaartjes van vandaag', min: Math.min(KAART_MIN, b), dyn:true } : null;
-    const sluit = () => { if (kaart) items.push(kaart); plan[d] = items; };
+    // Elke dag (behalve korte dagen en examendagen) 5 minuten uitleggen aan een supporter.
+    // Alleen als er na het leren nog 5 minuten over zijn, zodat de planning niet opschuift.
+    const sluit = () => {
+      const gebruikt = items.reduce((a, i) => a + i.min, 0) + (kaart ? kaart.min : 0);
+      if (b >= 30 && d > START && d < '2026-12-07' && b - gebruikt >= OVERHOOR_MIN) items.push({ id:'overhoor:' + d, soort:'overhoor', titel:'Leg het uit aan een supporter', min: OVERHOOR_MIN, dyn:true });
+      if (kaart) items.push(kaart); plan[d] = items;
+    };
     if (vast[d]) { items.push(...vast[d]); sluit(); continue; }
     if (d >= '2026-12-05') { sluit(); continue; }
     let over = b - (kaart ? KAART_MIN : 0);

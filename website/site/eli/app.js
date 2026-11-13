@@ -106,7 +106,7 @@ function itemsVandaag(){
   // Inhaalwerk: alles van vroegere dagen dat niet af is (behalve de dagelijkse kaartjes).
   for (const [dag, items] of Object.entries(S.plan)) {
     if (dag >= d) continue;
-    for (const it of items) if (it.soort !== 'kaarten' && !isKlaar(it.id)) out.push({ ...it, inhaal: dag });
+    for (const it of items) if (!it.dyn && !isKlaar(it.id)) out.push({ ...it, inhaal: dag });
   }
   for (const it of (S.plan[d] || [])) out.push(it);
   // Zwakke onderwerpen: een extra herhaling als een quiz de laatste dagen slecht ging (max 2 per dag).
@@ -198,9 +198,9 @@ function thuis(){
     const done = isKlaar(it.id), slot = !done && i !== eersteOpen;
     el.className = 'taak' + (done ? ' klaar' : '') + (slot ? ' slot' : '') + (it.inhaal ? ' inhaal' : '');
     el.style.setProperty('--vk', vk(it.vak));
-    const ic = done ? '✅' : it.soort === 'kennis' ? '⭐' : it.soort === 'kaarten' ? '🃏' : it.soort === 'proef' ? '📝' : it.soort === 'drill' ? '⚡' : it.soort === 'zwak' || it.soort === 'extra' ? '🎯' : (V[it.vak] || {}).icoon || '📘';
-    const wat = { kennis:'Kennismaking', leer:'Leren + kaartjes + quiz', herhaal:'Herhalen + quiz', proef:'Proefexamen', zwak:'Zwakke punten', extra:'Extra herhaling (ging moeilijk)', drill:'Werkwoorden-sprint', kaarten:'Herhaalkaartjes' }[it.soort] || '';
-    el.innerHTML = `<div class="ic">${ic}</div><div class="tx">${it.inhaal ? `<span class="tag">Inhaalwerk van ${mooiDatum(it.inhaal, true)}</span>` : ''}<b></b><span>${esc((V[it.vak] || {}).kort || 'Alle vakken')} · ${wat} · ± ${it.min} min</span></div>`;
+    const ic = done ? '✅' : it.soort === 'kennis' ? '⭐' : it.soort === 'kaarten' ? '🃏' : it.soort === 'overhoor' ? '🗣️' : it.soort === 'proef' ? '📝' : it.soort === 'drill' ? '⚡' : it.soort === 'zwak' || it.soort === 'extra' ? '🎯' : (V[it.vak] || {}).icoon || '📘';
+    const wat = { kennis:'Kennismaking', leer:'Leren + zelf uitleggen + quiz', herhaal:'Herhalen + quiz', proef:'Proefexamen', zwak:'Zwakke punten', extra:'Extra herhaling (ging moeilijk)', drill:'Werkwoorden-sprint', kaarten:'Herhaalkaartjes', overhoor:'3 vragen, samen met mama, papa of een supporter' }[it.soort] || '';
+    el.innerHTML = `<div class="ic">${ic}</div><div class="tx">${it.inhaal ? `<span class="tag">Inhaalwerk van ${mooiDatum(it.inhaal, true)}</span>` : ''}<b></b><span>${esc((V[it.vak] || {}).kort || 'Alle vakken')}${wat ? ' · ' + wat : ''} · ± ${it.min} min</span></div>`;
     el.querySelector('b').textContent = it.titel;
     const knop = document.createElement('button');
     knop.className = 'knop klein' + (done ? ' licht' : '');
@@ -279,7 +279,7 @@ function tekenPlanning(){
     const exam = Object.values(V).filter(v => v.examen === x).map(v => `<div class="pitem"><i>🎓</i><b>EXAMEN ${esc(v.naam)}</b></div>`).join('');
     const rij = items.map(it => {
       const k = isKlaar(it.id);
-      const s = k ? '✓' : x < d ? (it.soort === 'kaarten' ? '–' : '⚠️') : x === d ? '⏳' : '🔒';
+      const s = k ? '✓' : x < d ? (it.dyn ? '–' : '⚠️') : x === d ? '⏳' : '🔒';
       return `<div class="pitem" style="${k ? 'opacity:.6' : ''}"><i>${s}</i><span>${esc(it.titel)} <span class="muted">· ${esc((V[it.vak] || {}).kort || '')}</span></span></div>`;
     }).join('');
     return `<div class="pdag${x === d ? ' nu' : ''}" ${x === d ? 'id="plan-nu"' : ''}><div class="d">${mooiDatum(x, true)}<br><span class="muted">${P.budget(x)} min</span></div><div>${exam}${rij || '<span class="muted klein">vrij</span>'}</div></div>`;
@@ -380,7 +380,7 @@ async function bewaarKaarten(){
   }
 }
 async function logResultaat(soort, vak, onderwerp, score, totaal, xp, detail){
-  try { await rpc('eli_log', { p_naam: S.naam, p_pin: S.pin, p_soort: soort, p_vak: vak || null, p_onderwerp: onderwerp || null, p_score: score, p_totaal: totaal, p_xp: Math.max(0, Math.min(500, Math.round(xp || 0))), p_detail: detail || {} }); }
+  try { await rpc('eli_log', { p_naam: S.naam, p_pin: S.pin, p_soort: soort, p_vak: vak || null, p_onderwerp: onderwerp || null, p_score: Math.round(score ?? 0), p_totaal: Math.round(totaal ?? 0), p_xp: Math.max(0, Math.min(500, Math.round(xp || 0))), p_detail: detail || {} }); }
   catch {}
 }
 async function taakKlaar(it, score, totaal){
@@ -486,16 +486,18 @@ let lopend = null;
 function voerUit(it){
   const t = it.onderwerp && TOPIC[it.onderwerp];
   const stappen = [];
-  if (it.soort === 'leer') stappen.push(['lees', t], ['kaartjes', t.kaarten.map((_, i) => t.id + '-' + i)], ['quiz', vragenVan(t, Math.min(10, t.quiz.length + 2))]);
+  if (it.soort === 'leer') { stappen.push(['lees', t]); if (VOORBEELD[t.id]) stappen.push(['voorbeeld', t]); if (SNAP[t.id]) stappen.push(['uitleg', t]); stappen.push(['kaartjes', t.kaarten.map((_, i) => t.id + '-' + i)], ['quiz', vragenVan(t, Math.min(10, t.quiz.length + 2))]); }
   else if (it.soort === 'herhaal') stappen.push(['kaartjes', schud(t.kaarten.map((_, i) => t.id + '-' + i)).filter(id => !S.kaarten[id] || S.kaarten[id].d < 4).slice(0, 10)], ['quiz', vragenVan(t, 8)]);
-  else if (it.soort === 'extra') stappen.push(['lees', t], ['quiz', vragenVan(t, 8)]);
+  else if (it.soort === 'extra') { stappen.push(['lees', t]); if (VOORBEELD[t.id]) stappen.push(['voorbeeld', t]); if (SNAP[t.id]) stappen.push(['uitleg', t]); stappen.push(['quiz', vragenVan(t, 8)]); }
+  else if (it.soort === 'overhoor') stappen.push(['overhoor', it]);
   else if (it.soort === 'kaarten') stappen.push(['kaartjes', kaartenVanDag(), true]);
   else if (it.soort === 'proef') {
     const ts = T.filter(x => x.vak === it.vak);
     const zwak = new Set(zwakkeOnderwerpen(it.vak).map(z => z.id));
     let qs = [];
     for (const x of ts) qs = qs.concat(vragenVan(x, zwak.has(x.id) ? 4 : 3));
-    stappen.push(['quiz', schud(qs).slice(0, 20), 'proef']);
+    const open = schud(ts.filter(x => SNAP[x.id])).slice(0, 3).map(x => ({ t:'open', v: SNAP[x.id].kern.v, m: SNAP[x.id].kern.m, k: SNAP[x.id].kern.k, tid: x.id, vak: x.vak }));
+    stappen.push(['quiz', schud(qs.filter(q => q.t !== 'open')).slice(0, 17).concat(open), 'proef']);
   } else if (it.soort === 'zwak') {
     let zs = zwakkeOnderwerpen(it.vak).slice(0, 3);
     if (!zs.length) zs = schud(T.filter(x => x.vak === it.vak)).slice(0, 3);
@@ -525,10 +527,10 @@ function voerUit(it){
   S.huidigVak = it.vak || 'alle';
   volgendeStap();
 }
-$('taak-terug').onclick = () => { bewaarKaarten(); lopend = null; thuis(); };
+$('taak-terug').onclick = () => { bewaarKaarten(); lopend = null; S.proefStart = null; thuis(); };
 
 function tekenStappen(){
-  const namen = { lees:'📖 Leren', kaartjes:'🃏 Kaartjes', quiz:'❓ Quiz', kennis:'⭐ Je ploeg' };
+  const namen = { lees:'📖 Leren', voorbeeld:'🧮 Voorbeeld', uitleg:'✍️ Zelf uitleggen', kaartjes:'🃏 Kaartjes', quiz:'❓ Quiz', kennis:'⭐ Je ploeg', overhoor:'🗣️ Uitleggen' };
   $('taak-stappen').innerHTML = lopend.stappen.map((s, i) => `<span class="${i < lopend.i ? 'ok' : i === lopend.i ? 'aan' : ''}">${i < lopend.i ? '✓ ' : ''}${namen[s[0]]}${s[2] === 'proef' ? ' (proefexamen)' : ''}</span>`).join('');
 }
 function balk(p){ $('taak-balk').style.width = Math.round(p * 100) + '%'; }
@@ -543,6 +545,9 @@ function volgendeStap(){
   S.huidigAct = soort;
   if (soort === 'kennis') stapKennis(verder);
   else if (soort === 'lees') stapLees(data, verder);
+  else if (soort === 'voorbeeld') stapVoorbeeld(data, verder);
+  else if (soort === 'uitleg') stapUitleg(data, verder);
+  else if (soort === 'overhoor') stapOverhoor(data, verder);
   else if (soort === 'kaartjes') stapKaartjes(data, verder, extra);
   else stapQuiz(data, verder, extra);
 }
@@ -604,7 +609,7 @@ function goedAntwoord(q){
   return typeof q.a === 'string' ? q.a : '';
 }
 function uitDeLes(q){
-  if (q.u || q.pron) return '';
+  if (q.u || q.pron || q.w) return '';
   const t = TOPIC[q.tid]; if (!t) return '';
   const zoek = woorden(q.v + ' ' + goedAntwoord(q) + ' ' + goedAntwoord(q));
   let best = null, bs = 0;
@@ -637,6 +642,180 @@ function stapLees(t, verder){
     if (n < punten.length) return toon();
     geefXP(15, knop);
     verder({ soort:'lees' });
+  };
+}
+
+// --- Snap je het? Zelf uitleggen, uitgewerkte voorbeelden, uitleggen aan een supporter ---
+const SNAP = window.ELI_SNAP || {};
+const plat = s => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+// Welke kernwoorden staan in de tekst? k = ['a|b', ...]
+function kernCheck(tekst, k){
+  const x = plat(tekst);
+  return (k || []).map(alt => {
+    const opties = alt.split('|');
+    const hit = opties.some(w => { const p = plat(w); return p.length <= 2 ? new RegExp('(^|[^a-z])' + p.replace(/[.*+?^${}()[\]\\]/g, '\\$&') + '([^a-z]|$)').test(x) : x.includes(p); });
+    return { woord: opties[0], hit };
+  });
+}
+const kernHtml = res => `<div class="kernw">${res.map(r => `<span class="${r.hit ? 'ja' : 'nee'}">${r.hit ? '✅' : '⬜'} ${esc(r.woord)}</span>`).join('')}</div>`;
+
+function stapUitleg(t, verder){
+  const s = SNAP[t.id]; if (!s) return verder();
+  const box = $('taakinhoud');
+  box.innerHTML = `<div class="babbel" id="ul-pop"></div><div class="kaart uitlegkaart"><div class="label">✍️ Leg het uit in je eigen woorden</div><h3 style="margin:6px 0 10px">${s.kern.v}</h3>
+    <textarea id="ul-t" rows="5" maxlength="1200" placeholder="Schrijf alsof je het uitlegt aan een vriend. Zonder terug te kijken!"></textarea>
+    <div class="rij" style="justify-content:space-between;margin-top:6px"><span class="muted klein" id="ul-n">Minstens 2 zinnen</span><button class="knop" id="ul-ok" disabled>Vergelijk met het modelantwoord</button></div><div id="ul-mod"></div></div>`;
+  POP.babbel($('ul-pop'), 'Wie het kan uitleggen, snapt het echt. Probeer het eerst helemaal zelf. 💪', { vak: t.vak });
+  const ta = $('ul-t'); setTimeout(() => ta.focus(), 50);
+  ta.oninput = () => { const n = ta.value.trim().split(/\s+/).filter(Boolean).length; $('ul-ok').disabled = n < 8; $('ul-n').textContent = n < 8 ? `Nog ${8 - n} woorden…` : 'Klaar? Vergelijk maar!'; };
+  $('ul-ok').onclick = () => {
+    ta.disabled = true; $('ul-ok').hidden = true;
+    const res = kernCheck(ta.value, s.kern.k), n = res.filter(r => r.hit).length;
+    $('ul-mod').innerHTML = `<div class="feedback info">Modelantwoord<span>${s.kern.m}</span></div>
+      <p class="label" style="margin:12px 0 4px">Kernwoorden in jouw uitleg: ${n} van ${res.length}</p>${kernHtml(res)}
+      <p class="muted klein" style="margin-top:10px">Vergelijk eerlijk: had je de kern?</p>
+      <div class="rij"><button class="knop" data-p="2">✅ Ja, helemaal</button><button class="knop goud" data-p="1">🤏 Deels</button><button class="knop licht" data-p="0">❌ Nog niet</button></div>`;
+    $('ul-mod').querySelectorAll('[data-p]').forEach(b => b.onclick = () => {
+      const p = Number(b.dataset.p);
+      $('ul-mod').querySelectorAll('[data-p]').forEach(x => x.disabled = true);
+      logResultaat('uitleg', t.vak, t.id, p, 2, 0, { vraag: s.kern.v.replace(/<[^>]+>/g, ''), tekst: ta.value.trim().slice(0, 1200), kern: n, van: res.length });
+      const r = (S.stand.onderwerpen[t.id] = S.stand.onderwerpen[t.id] || { s:0, t:0 }); r.s += p / 2; r.t += 1;
+      geefXP(p === 2 ? 15 : 10, b);
+      const nog = document.createElement('div'); nog.className = 'onder';
+      if (p < 2) nog.insertAdjacentHTML('beforeend', `<p class="muted klein" style="flex:1 1 100%">Lees het modelantwoord nog eens hardop. ${p === 0 ? 'Dit onderwerp komt extra terug.' : ''}</p>`);
+      const k = document.createElement('button'); k.className = 'knop groot'; k.textContent = 'Verder →'; k.onclick = () => verder({ soort:'uitleg', score:p });
+      nog.append(k); $('ul-mod').append(nog); k.scrollIntoView({ block:'nearest', behavior:'smooth' });
+    });
+  };
+}
+
+// Uitgewerkte voorbeelden voor de rekenonderwerpen. Een generator geeft een opgave met stappen.
+const kies = l => l[Math.floor(Math.random() * l.length)];
+const VOORBEELD = {
+  W6: vast => {
+    const k = vast ? 40 : kies([20, 25, 40, 50, 80, 120, 150]), cm = vast ? 5.0 : kies([2.0, 3.0, 4.0, 5.0, 6.0, 8.0, 12]);
+    const F = k * cm / 100;
+    return { opgave:`Een veer met veerconstante <b>k = ${k} N/m</b> wordt <b>${getal(cm.toFixed(1))} cm</b> uitgerekt. Hoe groot is de veerkracht F<sub>v</sub>?`, stappen:[
+      { label:'Gegeven', v:'Wat is gegeven en wat wordt gevraagd?', uit:`k = ${k} N/m · Δl = ${getal(cm.toFixed(1))} cm · gevraagd: F<sub>v</sub>`, q:{ t:'mc', v:'Wat wordt gevraagd?', o:['De veerkracht F<sub>v</sub>','De veerconstante k','De uitrekking Δl'].map(x => x.replace(/<[^>]+>/g, '')), a:0 } },
+      { label:'Formule', v:'Welke formule heb je nodig?', uit:'F<sub>v</sub> = k · Δl (wet van Hooke)', q:{ t:'mc', v:'Welke formule?', o:['Fv = k · Δl','Fv = k / Δl','Fv = Δl / k'], a:0 } },
+      { label:'Eenheden', v:'Zet Δl om naar meter.', uit:`${getal(cm.toFixed(1))} cm = ${getal(cm / 100)} m (cm → m: delen door 100)`, q:{ t:'getal', v:`${getal(cm.toFixed(1))} cm = … m`, a: cm / 100, tol:.001 }, hint:'1 cm = 0,01 m. Deel door 100.' },
+      { label:'Oplossing', v:'Vul in en reken uit.', uit:`F<sub>v</sub> = ${k} · ${getal(cm / 100)} = <b>${getal(rond(F, 3))} N</b>`, q:{ t:'getal', v:`F<sub>v</sub> = ${k} · ${getal(cm / 100)} = … N`, a: F, tol:.012 }, hint:'Vermenigvuldig k met Δl in meter.' },
+    ] };
+  },
+  W5: vast => {
+    const g = vast ? 750 : kies([250, 400, 500, 650, 750, 1200, 1500, 2500]);
+    const F = g / 1000 * 9.81;
+    return { opgave:`Een voetbal(tas) heeft een massa van <b>${g} g</b>. Bereken de zwaartekracht op aarde (g = 9,81 N/kg).`, stappen:[
+      { label:'Gegeven', v:'Wat is gegeven?', uit:`m = ${g} g · g = 9,81 N/kg · gevraagd: F<sub>z</sub>`, q:{ t:'mc', v:'Wat is hier "g = 9,81 N/kg"?', o:['De zwaarteveldsterkte','De massa','Het gewicht'], a:0 } },
+      { label:'Formule', v:'Welke formule?', uit:'F<sub>z</sub> = m · g', q:{ t:'mc', v:'Welke formule?', o:['Fz = m · g','Fz = m / g','Fz = g / m'], a:0 } },
+      { label:'Eenheden', v:'Massa in kg zetten.', uit:`${g} g = ${getal(g / 1000)} kg (delen door 1000)`, q:{ t:'getal', v:`${g} g = … kg`, a: g / 1000, tol:.001 }, hint:'1 kg = 1000 g. Deel door 1000.' },
+      { label:'Oplossing', v:'Invullen en uitrekenen.', uit:`F<sub>z</sub> = ${getal(g / 1000)} · 9,81 = <b>${getal(rond(F, 3))} N</b>`, q:{ t:'getal', v:`F<sub>z</sub> = ${getal(g / 1000)} · 9,81 = … N`, a: F, tol:.012 }, hint:'Massa in kg maal 9,81.' },
+    ] };
+  },
+  W2: vast => {
+    const [van, naar, n] = vast ? [['k', 3], ['m', -3], 4] : [kies([['k', 3], ['M', 6], ['h', 2]]), kies([['m', -3], ['c', -2], ['d', -1], ['µ', -6]]), kies([2, 3, 5, 7, 8])];
+    const eh = vast ? 'm' : kies(['m', 'g', 's']);
+    const exp = van[1] - naar[1];
+    return { opgave:`Zet om: <b>${n} ${van[0]}${eh}</b> = … ${naar[0]}${eh}`, stappen:[
+      { label:'Stap 1', v:`Wat is de macht van 10 van "${van[0]}"?`, uit:`${van[0]} = 10<sup>${van[1]}</sup>`, q:{ t:'getal', v:`${van[0]} = 10 tot de macht …`, a: van[1], tol:0 }, hint:'Kijk naar de voorvoegsel-trap: kilo = 3, mega = 6, hecto = 2.' },
+      { label:'Stap 2', v:`Wat is de macht van 10 van "${naar[0]}"?`, uit:`${naar[0]} = 10<sup>${naar[1]}</sup>`, q:{ t:'getal', v:`${naar[0]} = 10 tot de macht … (negatief? typ -)`, a: naar[1], tol:0 }, hint:'Onder de basis zijn de machten negatief: deci -1, centi -2, milli -3, micro -6.' },
+      { label:'Stap 3', v:'Verschil van de exponenten = hoeveel keer × 10?', uit:`${van[1]} − (${naar[1]}) = ${exp} → × 10<sup>${exp}</sup>`, q:{ t:'getal', v:`${van[1]} − (${naar[1]}) = …`, a: exp, tol:0 }, hint:'Min een negatief getal = plus.' },
+      { label:'Oplossing', v:'Schrijf het resultaat.', uit:`${n} ${van[0]}${eh} = <b>${n}·10<sup>${exp}</sup> ${naar[0]}${eh}</b>`, q:{ t:'getal', v:`${n} ${van[0]}${eh} = … ${naar[0]}${eh} (bv. ${n}e${exp})`, a: n * 10 ** exp, tol:.001 }, hint:`Typ ${n}e${exp} of ${n}·10^${exp}.` },
+    ] };
+  },
+  W3: vast => {
+    const [a, ab] = vast ? ['2,50', 3] : kies([['2,50', 3], ['4,0', 2], ['1,25', 3], ['0,80', 2], ['12,0', 3]]);
+    const [b, bb] = vast ? ['1,2', 2] : kies([['1,2', 2], ['3,456', 4], ['0,5', 1], ['2,00', 3], ['7,5', 2]]);
+    const x = Number(a.replace(',', '.')) * Number(b.replace(',', '.')), bc = Math.min(ab, bb);
+    return { opgave:`Een tegel is <b>${a} m</b> lang en <b>${b} m</b> breed. Bereken de oppervlakte met het juiste aantal BC.`, stappen:[
+      { label:'BC 1', v:`Hoeveel beduidende cijfers heeft ${a}?`, uit:`${a} heeft ${ab} BC`, q:{ t:'getal', v:`${a} → … BC`, a: ab, tol:0 }, hint:'Nullen vooraan tellen niet, nullen achteraan na de komma wel.' },
+      { label:'BC 2', v:`Hoeveel beduidende cijfers heeft ${b}?`, uit:`${b} heeft ${bb} BC`, q:{ t:'getal', v:`${b} → … BC`, a: bb, tol:0 }, hint:'Tel vanaf het eerste cijfer dat geen 0 is.' },
+      { label:'Regel', v:'Vermenigvuldigen: hoeveel BC krijgt de uitkomst?', uit:`Het minste: ${bc} BC`, q:{ t:'getal', v:'De uitkomst krijgt … BC', a: bc, tol:0 }, hint:'Bij vermenigvuldigen en delen: evenveel als het minste.' },
+      { label:'Oplossing', v:'Reken uit en rond af.', uit:`${a} · ${b} = ${getal(Number(x.toFixed(6)))} → <b>${getal(rond(x, bc))} m²</b>`, q:{ t:'getal', v:`${a} · ${b} = … m² (afgerond op ${bc} BC)`, a: rond(x, bc), tol:.0001 }, hint:`Reken uit, rond dan af op ${bc} beduidende cijfers.` },
+    ] };
+  },
+  W4: vast => {
+    const f1 = vast ? 50 : kies([20, 30, 45, 60, 80]), f2 = vast ? 30 : kies([10, 15, 25, 35]), zelf = vast ? false : Math.random() < .5;
+    const r = zelf ? f1 + f2 : f1 - f2;
+    return { opgave:`Op een kar werken 2 horizontale krachten: <b>${f1} N naar rechts</b> en <b>${f2} N naar ${zelf ? 'rechts' : 'links'}</b>. Hoe groot is de resulterende kracht en wat is de zin?`, stappen:[
+      { label:'Zin', v:'Hebben de krachten dezelfde of een tegengestelde zin?', uit: zelf ? 'Dezelfde zin → optellen' : 'Tegengestelde zin → aftrekken', q:{ t:'mc', v:'Wat doe je?', o:['Optellen','Aftrekken'], a: zelf ? 0 : 1 } },
+      { label:'Grootte', v:'Bereken de grootte.', uit:`${f1} ${zelf ? '+' : '−'} ${f2} = <b>${r} N</b>`, q:{ t:'getal', v:`F<sub>R</sub> = … N`, a: r, tol:0 }, hint: zelf ? 'Zelfde zin: tel op.' : 'Tegengestelde zin: grootste min kleinste.' },
+      { label:'Zin', v:'In welke zin wijst de resultante?', uit:'Naar rechts (de zin van de grootste kracht)', q:{ t:'mc', v:'Zin van de resultante?', o:['Naar rechts','Naar links'], a:0 }, hint:'De resultante wijst in de zin van de grootste kracht.' },
+    ] };
+  },
+};
+function stapVoorbeeld(t, verder){
+  const gen = VOORBEELD[t.id]; if (!gen) return verder();
+  const box = $('taakinhoud');
+  const vb = gen(true);
+  let n = 0;
+  box.innerHTML = `<div class="babbel" id="vb-pop"></div><div class="kaart"><div class="label">🧮 Uitgewerkt voorbeeld</div><p style="margin:6px 0 10px">${vb.opgave}</p><div id="vb-st"></div><div class="onder"><button class="knop groot" id="vb-v">Toon stap 1</button></div></div>`;
+  POP.babbel($('vb-pop'), 'Eerst kijken hoe het moet, stap voor stap. Zo doe je het ook op je examen!', { vak: t.vak });
+  const knop = $('vb-v');
+  knop.onclick = () => {
+    if (n < vb.stappen.length) {
+      const s = vb.stappen[n++];
+      $('vb-st').insertAdjacentHTML('beforeend', `<div class="vb-stap"><span class="vb-n">${n}</span><div><b>${s.label}</b><small>${s.v}</small><div>${s.uit}</div></div></div>`);
+      knop.textContent = n < vb.stappen.length ? `Toon stap ${n + 1}` : 'Nu jij! ✏️';
+      return;
+    }
+    oefen(1);
+  };
+  // Oefening 1 met hulp (stap per stap), oefening 2 zonder hulp.
+  const oefen = nr => {
+    const o = gen(false), metHulp = nr === 1;
+    let k = metHulp ? 0 : o.stappen.length - 1, fouten = 0;
+    box.innerHTML = `<div class="kaart"><div class="label">${metHulp ? '✏️ Nu jij, met hulp per stap' : '🎯 En nu helemaal zelf'}</div><p style="margin:6px 0 10px">${o.opgave}</p><div id="vb-st"></div><div id="vb-q"></div></div>`;
+    const volgende = () => {
+      if (k >= o.stappen.length) {
+        const eind = document.createElement('div'); eind.className = 'onder';
+        const b = document.createElement('button'); b.className = 'knop groot'; b.textContent = metHulp ? 'Nog eentje, zonder hulp →' : 'Verder →';
+        b.onclick = () => metHulp ? oefen(2) : verder({ soort:'voorbeeld' });
+        eind.append(b); $('vb-q').innerHTML = ''; $('vb-q').append(eind); b.focus(); return;
+      }
+      const s = o.stappen[k];
+      $('vb-q').innerHTML = `<div class="vb-vraag"><b>${metHulp ? `Stap ${k + 1}: ${s.label}` : 'Eindantwoord'}</b> <span class="muted klein">${metHulp ? s.v : ''}</span><p style="margin:6px 0">${s.q.v}</p><div id="ant"></div><div id="fb"></div>${s.hint ? '<button class="link klein" id="vb-h">💡 Hint</button>' : ''}</div>`;
+      if (s.hint) $('vb-h').onclick = () => { $('vb-h').outerHTML = `<p class="muted klein">💡 ${s.hint}</p>`; };
+      tekenAntwoord(s.q, pt => {
+        const fb = $('fb'); const h = $('vb-h'); if (h) h.remove();
+        if (pt >= 1) {
+          fb.className = 'feedback goed'; fb.innerHTML = 'Juist! ✓'; geefXP(3, fb); piep('goed');
+          setTimeout(() => { $('vb-st').insertAdjacentHTML('beforeend', `<div class="vb-stap"><span class="vb-n">✓</span><div><b>${s.label}</b><div>${s.uit}</div></div></div>`); k++; volgende(); }, 700);
+        } else {
+          fouten++; piep('fout');
+          fb.className = 'feedback fout'; fb.innerHTML = `Nog niet.<span>Zo moest het: ${s.uit}</span>${!metHulp ? `<span>Tip: doe het stap voor stap: ${o.stappen.slice(0, -1).map(x => x.label.toLowerCase()).join(' → ')}.</span>` : ''}`;
+          const b = document.createElement('button'); b.className = 'knop'; b.textContent = 'Begrepen, verder →'; b.style.marginTop = '8px';
+          b.onclick = () => { $('vb-st').insertAdjacentHTML('beforeend', `<div class="vb-stap fout"><span class="vb-n">!</span><div><b>${s.label}</b><div>${s.uit}</div></div></div>`); k++; volgende(); };
+          fb.after(b);
+        }
+      });
+    };
+    volgende();
+  };
+}
+
+// Uitleggen aan een supporter (zelfde 3 vragen als op de supporterspagina).
+function stapOverhoor(it, verder){
+  const box = $('taakinhoud');
+  const vragen = window.ELI_OVERHOOR(vandaag(), S.stand, P);
+  const wie = POP.kring();
+  box.innerHTML = `<div class="babbel" id="oh-pop"></div><div class="kaart"><div class="label">🗣️ Leg het uit aan een supporter</div>
+    <p style="margin:6px 0 10px">Ga naar mama, papa of iemand anders van je ploeg (of bel ze op). Zij stellen je deze 3 vragen. <b>Zij zien de antwoorden op hun eigen pagina</b>, jij niet!</p>
+    <ol class="oh-lijst">${vragen.map(q => `<li>${q.v}</li>`).join('')}</ol>
+    <p class="label" style="margin-top:14px">Aan wie heb je het uitgelegd?</p><div class="rij" id="oh-wie">${['mama','papa','boeboe','moemoe','iemand anders'].map(n => `<button class="knop licht" data-w="${n}">${n === 'boeboe' ? 'Boeboe' : n === 'moemoe' ? 'Moemoe' : n[0].toUpperCase() + n.slice(1)}</button>`).join('')}</div>
+    <p class="label" style="margin-top:14px">Hoeveel wist je goed uit te leggen?</p><div class="rij" id="oh-score">${[0, 1, 2, 3].map(n => `<button class="knop licht" data-s="${n}">${n} / 3</button>`).join('')}</div>
+    <div class="onder"><button class="knop groot" id="oh-ok" disabled>Klaar ✓</button></div></div>`;
+  POP.babbel($('oh-pop'), 'Wie het kan uitleggen aan een ander, snapt het echt. En wij leren mee! 💛', { figuur: wie || undefined });
+  let w = null, sc = null;
+  const zet = () => $('oh-ok').disabled = w === null || sc === null;
+  $('oh-wie').onclick = e => { const b = e.target.closest('[data-w]'); if (!b) return; w = b.dataset.w; $('oh-wie').querySelectorAll('button').forEach(x => x.className = 'knop ' + (x === b ? '' : 'licht')); zet(); };
+  $('oh-score').onclick = e => { const b = e.target.closest('[data-s]'); if (!b) return; sc = Number(b.dataset.s); $('oh-score').querySelectorAll('button').forEach(x => x.className = 'knop ' + (x === b ? '' : 'licht')); zet(); };
+  $('oh-ok').onclick = () => {
+    $('oh-ok').disabled = true;
+    logResultaat('overhoor', null, null, sc, 3, 0, { wie: w, vragen: vragen.map(q => q.v.replace(/<[^>]+>/g, '')) });
+    for (const q of vragen) if (q.tid && sc < 3) { const r = (S.stand.onderwerpen[q.tid] = S.stand.onderwerpen[q.tid] || { s:0, t:0 }); r.s += sc / 3; r.t += 1; }
+    geefXP(10 + sc * 5, $('oh-ok'));
+    verder({ soort:'kaartjes', goed: sc, totaal: 3 });
   };
 }
 
@@ -701,8 +880,9 @@ function stapQuiz(vragen, verder, modus){
       else return einde();
     }
     const q = vragen[i];
+    if (modus === 'proef' && !S.proefStart) { S.proefStart = Date.now(); const iv = setInterval(() => { const el = $('pk-t'); if (!S.proefStart) return clearInterval(iv); if (!el) return; const sec = Math.round((Date.now() - S.proefStart) / 1000); el.textContent = ' · ⏱️ ' + Math.floor(sec / 60) + ':' + String(sec % 60).padStart(2, '0') + ' / ' + P.PROEF_MIN + ' min'; el.classList.toggle('laat', sec > P.PROEF_MIN * 60); }, 500); }
     balk((lopend.i + Math.min(i, totaal) / totaal) / lopend.stappen.length);
-    box.innerHTML = `<div class="vraagkaart" style="--vk:${vk(q.vak)}"><div class="rij" style="justify-content:space-between"><span class="label">${q.herkans ? '🔁 Nog eens' : `Vraag ${i + 1} van ${totaal}`}</span><span class="pil">${esc((V[q.vak] || {}).kort || '')}</span></div><div class="babbel vraagbabbel" id="qpop"></div><div id="ant"></div><div id="fb"></div><div class="onder" id="qv"></div></div>`;
+    box.innerHTML = `<div class="vraagkaart" style="--vk:${vk(q.vak)}"><div class="rij" style="justify-content:space-between"><span class="label">${q.herkans ? '🔁 Nog eens' : `Vraag ${i + 1} van ${totaal}`}<span id="pk-t" class="pk"></span></span><span class="pil">${esc((V[q.vak] || {}).kort || '')}</span></div><div class="babbel vraagbabbel" id="qpop"></div><div id="ant"></div><div id="fb"></div><div class="onder" id="qv"></div></div>`;
     POP.babbel($('qpop'), `<div class="vtekst">${q.v}</div>`, { figuur: vrager(q.vak) });
     tekenAntwoord(q, (pt, uitleg) => resultaat(q, pt, uitleg));
   };
@@ -745,9 +925,12 @@ function stapQuiz(vragen, verder, modus){
       const r = (S.stand.onderwerpen[tid] = S.stand.onderwerpen[tid] || { s:0, t:0 });
       r.s += o.s; r.t += o.t;
     }
+    const duur = S.proefStart ? Math.round((Date.now() - S.proefStart) / 60000) : null; S.proefStart = null;
+    const nogNiet = modus === 'proef' ? entries.filter(([, o]) => o.s / o.t < .7).map(([tid]) => TOPIC[tid]).filter(Boolean) : [];
     const sterren = pct >= .95 ? 3 : pct >= .8 ? 2 : pct >= nodig ? 1 : 0;
-    box.innerHTML = `<div class="kaart resultaat"><div class="sterren">${'⭐'.repeat(sterren)}${'☆'.repeat(3 - sterren)}</div><div class="groot">${Math.round(pct * 100)}%</div><p class="muted">${Math.round(score * 10) / 10} van ${totaal} juist bij de eerste poging</p><div class="babbel" id="rp" style="text-align:left"></div>${fouten.length ? `<div class="foutlijst"><div class="label" style="margin-bottom:6px">Deze komen extra terug</div>${fouten.slice(0, 8).map(f => `<div>${esc(f)}</div>`).join('')}</div>` : ''}<div class="onder" style="justify-content:center" id="rk"></div></div>`;
+    box.innerHTML = `<div class="kaart resultaat"><div class="sterren">${'⭐'.repeat(sterren)}${'☆'.repeat(3 - sterren)}</div><div class="groot">${Math.round(pct * 100)}%</div><p class="muted">${Math.round(score * 10) / 10} van ${totaal} juist bij de eerste poging</p><div class="babbel" id="rp" style="text-align:left"></div>${modus === 'proef' ? (nogNiet.length ? `<div class="foutlijst nognie"><div class="label" style="margin-bottom:6px">🎯 Dit zit nog niet goed (wordt extra ingepland)</div>${nogNiet.map(t => `<button class="link" data-herlees="${t.id}">📖 ${esc(t.titel)}</button>`).join('')}</div>` : '<p class="goed-tekst">🎯 Alle onderwerpen boven 70%. Klaar voor het examen!</p>') + (duur !== null ? `<p class="muted klein">⏱️ Je deed er ${duur} minuten over (examen-tempo: ${P.PROEF_MIN} min).</p>` : '') : ''}${fouten.length ? `<div class="foutlijst"><div class="label" style="margin-bottom:6px">Deze komen extra terug</div>${fouten.slice(0, 8).map(f => `<div>${esc(f)}</div>`).join('')}</div>` : ''}<div class="onder" style="justify-content:center" id="rk"></div></div>`;
     POP.babbel($('rp'), gehaald ? (pct === 1 ? 'PERFECT! Dat is een hattrick! 🎩⚽' : 'Goed gedaan! Opdracht gehaald. 💪') : `Nog niet genoeg (nodig: ${Math.round(nodig * 100)}%). Geen probleem: <b>nog een keer</b>, nu met andere volgorde. Lees eerst even je fouten.`, gehaald && Math.random() < .5 ? { figuur: POP.kring() || undefined, eigen: true } : { vak: lopend.it.vak });
+    box.querySelectorAll('[data-herlees]').forEach(b => b.onclick = () => stapLees(TOPIC[b.dataset.herlees], () => verder({ soort:'quiz', score, totaal, gehaald })));
     if (gehaald) { confetti(sterren === 3 ? 3500 : 1800); piep('klaar'); }
     const rk = $('rk');
     if (gehaald) {
@@ -770,14 +953,14 @@ function tekenAntwoord(q, klaar){
   let af = false;
   const done = (pt, uitleg) => { if (af) return; af = true; klaar(pt, uitleg); };
   if (q.t === 'mc') {
-    const opties = schud(q.o.map((o, j) => ({ o, goed: j === (q.a || 0) })));
+    const opties = schud(q.o.map((o, j) => ({ o, j, goed: j === (q.a || 0) })));
     ant.innerHTML = `<div class="opties">${opties.map((x, j) => `<button class="optie" data-j="${j}"><span class="lt">${'ABCD'[j] || j + 1}</span><span></span></button>`).join('')}</div>`;
     [...ant.querySelectorAll('.optie')].forEach((b, j) => {
       b.querySelector('span:last-child').textContent = opties[j].o;
       b.onclick = () => {
         ant.querySelectorAll('.optie').forEach((x, k) => { x.disabled = true; if (opties[k].goed) x.classList.add('goed'); });
         if (!opties[j].goed) b.classList.add('fout');
-        done(opties[j].goed ? 1 : 0, opties[j].goed ? '' : 'Juist was: <b>' + esc(q.o[q.a || 0]) + '</b>');
+        done(opties[j].goed ? 1 : 0, opties[j].goed ? '' : 'Juist was: <b>' + esc(q.o[q.a || 0]) + '</b>' + (q.w && q.w[opties[j].j] ? `<span class="waaromniet">🤔 <b>Waarom niet "${esc(opties[j].o)}"?</b> ${q.w[opties[j].j]}</span>` : ''));
       };
     });
   } else if (q.t === 'jf') {
@@ -814,9 +997,11 @@ function tekenAntwoord(q, klaar){
   } else if (q.t === 'open') {
     ant.innerHTML = `<textarea id="ov" rows="4" placeholder="Schrijf je antwoord (in je eigen woorden)"></textarea><div class="onder"><button class="knop" id="om">Toon het modelantwoord</button></div><div id="mod"></div>`;
     $('om').onclick = () => {
-      $('om').disabled = true;
+      if (!$('ov').value.trim()) return $('ov').focus();
+      $('om').disabled = true; $('ov').disabled = true;
       $('mod').innerHTML = `<div class="feedback info">Modelantwoord<span></span></div><p class="muted klein">Vergelijk eerlijk. Hoe goed was jouw antwoord?</p><div class="rij"><button class="knop" data-p="1">✓ Juist</button><button class="knop goud" data-p="0.5">± Half</button><button class="knop licht" data-p="0">✗ Fout</button></div>`;
-      $('mod').querySelector('span').textContent = q.m;
+      $('mod').querySelector('span').innerHTML = q.m; // modelantwoorden komen uit onze eigen inhoud
+      if (q.k) $('mod').querySelector('.feedback').insertAdjacentHTML('afterend', `<p class="label" style="margin:10px 0 4px">Kernwoorden in jouw antwoord</p>${kernHtml(kernCheck($('ov').value, q.k))}`);
       $('mod').querySelectorAll('[data-p]').forEach(b => b.onclick = () => { $('mod').querySelectorAll('[data-p]').forEach(x => x.disabled = true); done(Number(b.dataset.p), ''); });
     };
   } else if (q.t === 'volgorde') {
