@@ -219,6 +219,46 @@ window.WEKEN = [
     }
   },
   {
+    id: "spelling-t3-dictee",
+    vak: "Spelling",
+    titel: "Thema 3 les 14: dictee (Franse woorden, hoofdletters, 's en 'k)",
+    datum: "dinsdag 24 november",
+    niveaus: {
+      gewoon: {
+        vragen: [
+          { t: "mc", v: "Welk woord is juist geschreven?", k: ["buro", "bureau", "burau"], a: 1, u: "Bureau komt uit het Frans: eau klinkt als o." },
+          { t: "mc", v: "Welk woord is juist geschreven?", k: ["doeane", "douane", "douwane"], a: 1, u: "Douane: ou klinkt als oe." },
+          { t: "mc", v: "Welk woord is juist geschreven?", k: ["mayonaise", "majonèse", "mayonese"], a: 0, u: "Mayonaise: ai klinkt als è." },
+          { t: "mc", v: "Welk woord is juist geschreven?", k: ["kadootjes", "cadeautjes", "cadeaus-jes"], a: 1, u: "Cadeau + tjes = cadeautjes." },
+          { t: "mc", v: "Welk woord is juist geschreven?", k: ["meubilair", "meubilèr", "meubiler"], a: 0, u: "Meubilair: air klinkt als èr." },
+          { t: "mc", v: "Welk woord is juist geschreven?", k: ["entoesiast", "enthousiast", "enthoesiast"], a: 1, u: "Enthousiast: met th en ou." },
+          { t: "invul", exact: true, v: "Vul aan: Na het zwemmen neem ik een d…che.", a: ["douche", "ou"], u: "Douche: ou klinkt als oe." },
+          { t: "invul", exact: true, v: "Vul aan: De wasmach… draait nog.", a: ["machine", "wasmachine", "ine"], u: "Machine: ine klinkt als iene." },
+          { t: "mc", v: "Welke zin is juist geschreven?", k: ["We gaan in de Winter naar zuid-Frankrijk.", "We gaan in de winter naar Zuid-Frankrijk.", "We gaan in de winter naar zuid-frankrijk."], a: 1, u: "Seizoenen: kleine letter. Aardrijkskundige namen zoals Zuid-Frankrijk: hoofdletters." },
+          { t: "mc", v: "Welke zin is juist geschreven?", k: ["Met pinksteren en carnaval zijn we vrij.", "Met Pinksteren en Carnaval zijn we vrij.", "Met Pinksteren en carnaval zijn we vrij."], a: 2, u: "Feestdagen zoals Pinksteren krijgen een hoofdletter, carnaval niet." },
+          { t: "mc", v: "Welke zin is juist geschreven?", k: ["Mijn tante woont in het Noorden van België.", "Mijn tante woont in het noorden van België.", "mijn tante woont in het noorden van belgië."], a: 1, u: "Windstreken (het noorden) schrijf je met een kleine letter." },
+          { t: "mc", v: "Hoe begin je deze zin juist?", k: ["'S nachts was het koud.", "'s Nachts was het koud.", "'s nachts was het koud."], a: 1, u: "Begint de zin met 's, dan krijgt het volgende woord de hoofdletter: 's Nachts." },
+          { t: "mc", v: "Hoe begin je deze zin juist?", k: ["'K heb het gehoord.", "'k heb het gehoord.", "'k Heb het gehoord."], a: 2, u: "Na 'k aan het begin van de zin krijgt het volgende woord de hoofdletter." },
+          { t: "invul", exact: true, v: "De goochelaar heeft een konijn … (toveren)", a: ["getoverd"], u: "Toveren: stam tover, niet in 't kofschip, dus -d: getoverd." },
+          { t: "invul", exact: true, v: "Het feest werd met de hele familie … (vieren)", a: ["gevierd"], u: "Vieren: stam vier, niet in 't kofschip, dus -d: gevierd." },
+          { t: "mc", v: "Welke zin is juist geschreven?", k: ["Ken jij het verhaal van mozes?", "Ken jij het verhaal van Mozes?"], a: 1, u: "Namen van personen krijgen een hoofdletter." }
+        ]
+      },
+      "1b": {
+        vragen: [
+          { t: "mc", v: "Welk woord is juist?", k: ["cadeau", "kado"], a: 0, u: "Cadeau: eau klinkt als o." },
+          { t: "mc", v: "Welk woord is juist?", k: ["buro", "bureau"], a: 1, u: "Bureau: eau klinkt als o." },
+          { t: "mc", v: "Welk woord is juist?", k: ["douche", "doesje"], a: 0, u: "Douche: ou klinkt als oe." },
+          { t: "mc", v: "Welk woord is juist?", k: ["majonèse", "mayonaise"], a: 1, u: "Mayonaise: ai klinkt als è." },
+          { t: "mc", v: "Welke zin is juist?", k: ["Ik ben jarig in november.", "Ik ben jarig in November."], a: 0, u: "Maanden schrijf je met een kleine letter." },
+          { t: "mc", v: "Welke zin is juist?", k: ["Met pasen zoeken we eieren.", "Met Pasen zoeken we eieren."], a: 1, u: "Feesten zoals Pasen krijgen een hoofdletter." },
+          { t: "mc", v: "Welke zin is juist?", k: ["We gaan naar Spanje.", "We gaan naar spanje."], a: 0, u: "Landen krijgen een hoofdletter." },
+          { t: "mc", v: "Welke zin is juist?", k: ["Op Maandag zwemmen we.", "Op maandag zwemmen we."], a: 1, u: "Dagen schrijf je met een kleine letter." }
+        ]
+      }
+    }
+  },
+  {
     id: "wero-wo2",
     vak: "WERO",
     titel: "De Tweede Wereldoorlog",
@@ -267,6 +307,47 @@ window.WEKEN = [
           { t: "mc", tekst: 0, v: "Hoe heet de dag dat de soldaten met boten aankwamen in Frankrijk?", k: ["D-Day", "Kerstmis", "Pasen"], a: 0, u: "Die dag heet D-Day (1944)." },
           { t: "volg", tekst: 0, v: "Wat gebeurde eerst? Zet 1, 2, 3.", items: ["De oorlog begint.", "D-Day: soldaten komen met boten.", "De oorlog is voorbij."], u: "1939, dan 1944, dan 1945." },
           { t: "jf", tekst: 0, v: "Na de oorlog wilden landen samenwerken voor vrede.", a: true, u: "Dat staat in het laatste stukje." }
+        ]
+      }
+    }
+  },
+  {
+    id: "taaldenken-t3",
+    vak: "Taal",
+    titel: "Taaldenken thema 3 (incl. betekenissen)",
+    datum: "vrijdag 27 november",
+    niveaus: {
+      gewoon: {
+        vragen: [
+          { t: "mc", v: "Wat is een grondwoord?", k: ["Een woord met een voorvoegsel.", "Het kortste woord: je kunt het niet meer splitsen.", "Twee woorden samen."], a: 1, u: "Een grondwoord kun je niet meer in kleinere woorden splitsen, bv. kerk, vriend, oorlog." },
+          { t: "mc", v: "Is 'kerkplein' een afleiding of een samenstelling?", k: ["afleiding", "samenstelling"], a: 1, u: "Kerk + plein: twee grondwoorden samen = samenstelling." },
+          { t: "mc", v: "Is 'bevriend' een afleiding of een samenstelling?", k: ["afleiding", "samenstelling"], a: 0, u: "Be + vriend + d: een grondwoord met een voorvoegsel = afleiding." },
+          { t: "mc", v: "Is 'Engelsen' een afleiding of een samenstelling?", k: ["afleiding", "samenstelling"], a: 0, u: "Engels + -en: een achtervoegsel erbij = afleiding." },
+          { t: "mc", v: "Is 'rundsvlees' een afleiding of een samenstelling?", k: ["afleiding", "samenstelling"], a: 1, u: "Rund(s) + vlees: twee grondwoorden = samenstelling." },
+          { t: "invul", v: "Wat is het grondwoord van 'vriendelijk'?", a: ["vriend"], u: "Vriend + -elijk." },
+          { t: "invul", v: "Wat is het grondwoord van 'onrustig'?", a: ["rust"], u: "On- + rust + -ig." },
+          { t: "mc", v: "Welk woord is een afleiding van 'vrouw'?", k: ["poetsvrouw", "vrouwelijk", "vrouwenkoor"], a: 1, u: "Vrouw + -elijk = afleiding. Poetsvrouw en vrouwenkoor zijn samenstellingen." },
+          { t: "mc", v: "Welk woord is een samenstelling met 'bloed'?", k: ["bloederig", "bebloed", "bloedgroep"], a: 2, u: "Bloed + groep = samenstelling." },
+          { t: "mc", v: "Wat is het onderwerp in: 'Op aanraden van de meester trekken mijn broers naar het café.'?", k: ["de meester", "mijn broers", "het café"], a: 1, u: "Wie trekken naar het café? Mijn broers." },
+          { t: "mc", v: "Wat is de persoonsvorm in: 'Wij hoorden het nieuws op de radio.'?", k: ["wij", "hoorden", "nieuws"], a: 1, u: "Zet de zin in een andere tijd: wij horen. Het woord dat verandert is de persoonsvorm: hoorden." },
+          { t: "mc", v: "'De uitzending is moeilijk.' Wat zegt 'is moeilijk' over het onderwerp?", k: ["wat het onderwerp doet (groen)", "wat het onderwerp is of wordt (roze)"], a: 1, u: "Is + moeilijk zegt hoe de uitzending is: roze." },
+          { t: "mc", v: "'Charlie komt op verlofdagen uitblazen.' Welke woorden zeggen wat Charlie doet?", k: ["komt … uitblazen", "op verlofdagen", "Charlie"], a: 0, u: "Komt en uitblazen zijn werkwoorden die zeggen wat Charlie doet: groen." },
+          { t: "koppel", v: "Verbind het woord met de betekenis.", paren: [["razzia","veel mensen tegelijk oppakken"],["geslepen","sluw en slim"],["barbaars","wreed en onmenselijk"],["verraderlijk","gevaarlijker dan het lijkt"],["achterdochtig","wantrouwig"]], u: "Woorden uit thema 3." },
+          { t: "mc", v: "'Iets in zijn schild voeren' betekent …", k: ["een schild dragen", "stiekem iets slechts van plan zijn", "iemand beschermen"], a: 1, u: "Wie iets in zijn schild voert, is stiekem iets van plan." },
+          { t: "mc", v: "'Je hart luchten' betekent …", k: ["vertellen wat je dwarszit", "diep ademhalen", "naar buiten gaan"], a: 0, u: "Je hart luchten = vertellen wat je dwarszit, zodat je je beter voelt." },
+          { t: "mc", v: "'Iemand tegen je in het harnas jagen' betekent …", k: ["iemand een harnas geven", "iemand boos maken op jou", "samen vechten"], a: 1, u: "Dan maak je iemand kwaad op jou." }
+        ]
+      },
+      "1b": {
+        vragen: [
+          { t: "mc", v: "kerk + plein = …", k: ["kerkplein", "pleinkerk"], a: 0, u: "Twee woorden samen: kerkplein." },
+          { t: "mc", v: "voet + bal = …", k: ["balvoet", "voetbal"], a: 1, u: "Twee woorden samen: voetbal." },
+          { t: "mc", v: "Uit welke twee woorden bestaat 'schooltas'?", k: ["school + tas", "schoo + ltas"], a: 0, u: "School + tas." },
+          { t: "mc", v: "Wie doet iets? 'Oma bakt brood.'", k: ["oma", "brood"], a: 0, u: "Wie bakt? Oma." },
+          { t: "mc", v: "Wie doet iets? 'De kinderen spelen op het plein.'", k: ["het plein", "de kinderen"], a: 1, u: "Wie spelen? De kinderen." },
+          { t: "mc", v: "De vos is slim en sluw. Hij is …", k: ["geslepen", "achterdochtig"], a: 0, u: "Geslepen = slim en sluw." },
+          { t: "mc", v: "Tom vertrouwt niemand. Hij is …", k: ["geslepen", "achterdochtig"], a: 1, u: "Achterdochtig = je vertrouwt niemand." },
+          { t: "mc", v: "Lisa vertelt mama wat haar dwarszit. Ze …", k: ["lucht haar hart", "speelt buiten"], a: 0, u: "Je hart luchten = vertellen wat je dwarszit." }
         ]
       }
     }
