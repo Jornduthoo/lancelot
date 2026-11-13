@@ -16,6 +16,7 @@
   --zee:#0b2f39; --zee-2:#2b8ca0; --koraal:#ff9d60; --zand:#0f1d22; --papier:#16282e;
   --inkt:#e6f0f2; --inkt-zacht:#9fb7be; --lijn:#2a4048; --goed:#5fd093; --goed-bg:#163b29; --fout:#ff8a78; --fout-bg:#45201b; --kies:#1d3a42; color-scheme:dark}
 *{box-sizing:border-box}
+[hidden]{display:none!important}
 body{background:var(--zand);color:var(--inkt);font-family:var(--body);font-size:17px;line-height:1.55;margin:0}
 .band{background:var(--zee);color:#fff;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:22px 26px}
 .band .in,.wrap{max-width:720px;margin:0 auto}
@@ -128,6 +129,7 @@ function teken(){
   data.leerlingen.forEach(l=>{
     h+='<tr><td class="naam">'+esc(l.voornaam)+(l.niveau==='1b'?'<span class="tag">1B</span>':'')+'</td>'+(toonCodes?'<td>'+esc(l.code)+'</td>':'');
     toetsen.forEach(t=>{
+      if(l.niveau==='1b'&&!t.niveaus['1b']){h+='<td><small class="uitleg">geen 1B</small></td>';return}
       const rs=data.resultaten.filter(r=>r.voornaam===l.voornaam&&r.toets===t.id);
       if(!rs.length){nooit++;h+='<td><span class="pil niet">nog niet</span></td>';return}
       const best=rs.reduce((a,b)=>b.score/b.totaal>a.score/a.totaal?b:a), pct=best.score/best.totaal;

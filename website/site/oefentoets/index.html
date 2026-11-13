@@ -16,6 +16,7 @@
   --zee:#0b2f39; --zee-2:#2b8ca0; --koraal:#ff9d60; --zand:#0f1d22; --papier:#16282e;
   --inkt:#e6f0f2; --inkt-zacht:#9fb7be; --lijn:#2a4048; --goed:#5fd093; --goed-bg:#163b29; --fout:#ff8a78; --fout-bg:#45201b; --kies:#1d3a42; color-scheme:dark}
 *{box-sizing:border-box}
+[hidden]{display:none!important}
 body{background:var(--zand);color:var(--inkt);font-family:var(--body);font-size:17px;line-height:1.55;margin:0}
 .band{background:var(--zee);color:#fff;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:22px 26px}
 .band .in,.wrap{max-width:720px;margin:0 auto}
@@ -69,6 +70,11 @@ input[type=text]:focus{outline:none;border-color:var(--zee-2)}
 .optie select{font:inherit;padding:4px 6px;border-radius:8px;border:2px solid var(--lijn);background:var(--papier);color:var(--inkt);max-width:55%}
 .veld{display:flex;flex-direction:column;gap:4px;font-weight:700}
 .band .terug{color:inherit;text-decoration:underline;font-size:.9rem;padding:0}
+.luister{background:var(--kies);border:0;border-radius:999px;width:2.1em;height:2.1em;padding:0;margin-right:8px;font-size:.95rem;vertical-align:middle;cursor:pointer}
+.voortgang{display:flex;align-items:center;gap:10px;font-size:.85rem;font-weight:700;color:var(--inkt-zacht)}
+.voortgang .balk{flex:1;height:8px;background:var(--kies);border-radius:99px;overflow:hidden}
+.voortgang .balk span{display:block;height:100%;background:var(--koraal)}
+.sterren{font-size:2rem;color:var(--koraal);letter-spacing:4px}.sterren .leeg{opacity:.3}
 .voet{font-size:.85rem;color:var(--inkt-zacht);text-align:center}
 @media (prefers-reduced-motion:no-preference){.vraag,.score{animation:op .25s ease-out}@keyframes op{from{transform:translateY(4px)}to{transform:none}}}
 </style>
@@ -76,7 +82,7 @@ input[type=text]:focus{outline:none;border-color:var(--zee-2)}
 <header class="band"><div class="in" id="kop"></div></header>
 <main class="wrap" id="app"></main>
 
-<script src="data.js?v=2026-11-23f"></script>
+<script src="data.js?v=2026-11-23g"></script>
 <script>
 (function(){
 const app=document.getElementById('app'), kop=document.getElementById('kop');
@@ -88,6 +94,9 @@ async function rpc(f,body){const r=await fetch(DB.url+f,{method:'POST',headers:{
 function ik(){try{return JSON.parse(sessionStorage.getItem('ot_ik')||'null')}catch(e){return null}}
 function zetIk(v){try{v?sessionStorage.setItem('ot_ik',JSON.stringify(v)):sessionStorage.removeItem('ot_ik')}catch(e){}}
 let bezigToets=null;
+const kanSpreken='speechSynthesis' in window;
+function spreek(t){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);const v=speechSynthesis.getVoices();u.voice=v.find(x=>x.lang==='nl-BE')||v.find(x=>/^nl/i.test(x.lang))||null;u.lang=u.voice?u.voice.lang:'nl-BE';u.rate=.9;speechSynthesis.speak(u)}catch(e){}}
+const luister=t=>kanSpreken?'<button type="button" class="luister" data-zeg="'+esc(t)+'" aria-label="Lees voor">\ud83d\udd0a</button>':'';
 function schud(a,seed){const b=a.slice();let x=seed*9301+49297;for(let k=b.length-1;k>0;k--){x=(x*9301+49297)%233280;const r=Math.floor(x/233280*(k+1));[b[k],b[r]]=[b[r],b[k]]}return b}
 function vind(id){for(const w of W)for(const t of w.toetsen)if(t.id===id)return {w,t};return null}
 
@@ -111,9 +120,9 @@ function home(){
   let tonen=W.filter(w=>plus(w.week,6)>=nu); if(!tonen.length)tonen=W.slice(-1);
   tonen.forEach(w=>{
     h+='<div class="weeklabel">'+esc(w.label)+'</div>';
-    w.toetsen.forEach(t=>{
+    w.toetsen.filter(t=>me.niveau!=='1b'||t.niveaus['1b']).forEach(t=>{
       h+='<article class="toets"><div class="kop"><div><div class="vak">'+esc(t.vak)+'</div><h2>'+esc(t.titel)+'</h2></div><span class="stempel">'+esc(t.datum)+'</span></div>'+
-      '<div class="knoppen"><button class="hoofd" data-go="'+t.id+'-'+(me.niveau==='1b'&&t.niveaus['1b']?'1b':'gewoon')+'">Start oefentoets</button></div></article>';
+      '<div class="knoppen"><button class="hoofd" data-go="'+t.id+'-'+(me.niveau==='1b'?'1b':'gewoon')+'">Start oefentoets</button></div></article>';
     });
   });
   h+='<p class="voet">Je kunt zo vaak oefenen als je wilt. De meester ziet je score.</p>';
@@ -134,7 +143,7 @@ function toets(id,niv){
     d.teksten.forEach((x,i)=>{h+=tekstHTML(x,i,false)});
   }
   d.vragen.forEach((q,i)=>{
-    h+='<section class="vraag" id="v'+i+'"><div><span class="nr">'+(i+1)+'.</span> '+(d.teksten&&q.tekst!=null?'<span class="bij">bij tekst '+(q.tekst+1)+'</span>':'')+'</div><h3>'+esc(q.v)+'</h3>';
+    h+='<section class="vraag" id="v'+i+'"><div><span class="nr">'+(i+1)+'.</span> '+(d.teksten&&q.tekst!=null?'<span class="bij">bij tekst '+(q.tekst+1)+'</span>':'')+'</div><h3>'+luister(q.v)+esc(q.v)+'</h3>';
     if(d.teksten&&q.tekst!=null) h+=tekstHTML(d.teksten[q.tekst],q.tekst,true);
     if(q.t==='mc'){h+='<div class="opties">'+q.k.map((k,j)=>'<label class="optie"><input type="radio" name="q'+i+'" value="'+j+'"><span>'+esc(k)+'</span></label>').join('')+'</div>'}
     else if(q.t==='jf'){h+='<div class="opties">'+['Juist','Fout'].map((k,j)=>'<label class="optie"><input type="radio" name="q'+i+'" value="'+(j===0)+'"><span>'+k+'</span></label>').join('')+'</div>'}
@@ -147,23 +156,48 @@ function toets(id,niv){
     else {h+='<input type="text" id="q'+i+'" autocomplete="off" placeholder="Typ je antwoord">'}
     h+='<div class="fb" hidden></div></section>';
   });
+  if(niv==='1b'){stappen(d,h);return}
   h+='<div class="knoppen"><button class="hoofd" id="verbeter">Verbeter mijn toets</button></div><div id="uitslag"></div>';
   app.innerHTML=h; window.scrollTo(0,0);
   document.getElementById('verbeter').onclick=()=>verbeter(d);
 }
+function stappen(d,h){
+  app.innerHTML=(d.teksten?'<div id="leesscherm" class="stapscherm">'+'</div>':'')+h.replace(/<p class="uitleg">Lees eerst[^<]*<\/p>/,'')+'<div id="uitslag"></div>';
+  const secs=[...app.querySelectorAll('.vraag')], tb=[...app.querySelectorAll(':scope > .tekstblok')];
+  let nu=-1, goed=0; const n=d.vragen.length;
+  secs.forEach((sec,i)=>{sec.hidden=true;
+    const k=document.createElement('div');k.className='knoppen';
+    k.innerHTML='<button class="hoofd" data-k="controleer">Controleer</button><button class="tweede" data-k="oplossing" hidden>Toon de oplossing</button><button class="hoofd" data-k="volgende" hidden>'+(i===n-1?'Klaar!':'Volgende \u2192')+'</button>';
+    sec.insertBefore(k,sec.querySelector('.fb'));
+    const pr=document.createElement('div');pr.className='voortgang';pr.innerHTML='Vraag '+(i+1)+' van '+n+'<span class="balk"><span style="width:'+Math.round(i/n*100)+'%"></span></span>';sec.prepend(pr);
+    let eerste=true;
+    k.querySelector('[data-k=controleer]').onclick=()=>{const ok=checkQ(d.vragen[i],i,false);if(eerste&&ok)goed++;eerste=false;
+      k.querySelector('[data-k=controleer]').hidden=ok;k.querySelector('[data-k=oplossing]').hidden=ok;k.querySelector('[data-k=volgende]').hidden=false;
+      if(!ok)k.querySelector('[data-k=controleer]').textContent='Probeer nog eens';};
+    k.querySelector('[data-k=oplossing]').onclick=()=>{checkQ(d.vragen[i],i,true);if(eerste)eerste=false;k.querySelector('[data-k=oplossing]').hidden=true;k.querySelector('[data-k=controleer]').hidden=true};
+    k.querySelector('[data-k=volgende]').onclick=()=>{if(eerste)eerste=false;ga(i+1)};
+  });
+  function ga(i){secs.forEach(x=>x.hidden=true);tb.forEach(x=>x.hidden=true);const l=document.getElementById('leesscherm');if(l)l.hidden=true;nu=i;
+    if(i>=n){toonUitslag(goed,n,true);return}
+    secs[i].hidden=false;window.scrollTo(0,0);}
+  if(d.teksten){const l=document.getElementById('leesscherm');l.innerHTML='<p class="uitleg">Lees eerst de tekst. Klik op \ud83d\udd0a om hem te laten voorlezen.</p>';
+    const kn=document.createElement('div');kn.className='knoppen';kn.innerHTML='<button class="hoofd">Ik heb de tekst gelezen \u2192</button>';kn.firstChild.onclick=()=>ga(0);
+    tb[tb.length-1].after(kn);tb.forEach(x=>x.hidden=false);
+    const verberg=()=>{kn.hidden=true};const oud=ga;ga=i=>{verberg();oud(i)};
+  } else ga(0);
+  window.scrollTo(0,0);
+}
 function tekstHTML(x,i,dicht){
-  const body='<div class="soort">Tekst '+(i+1)+' · '+esc(x.soort)+'</div><h2>'+esc(x.titel)+'</h2>'+x.alineas.map((p,j)=>'<p><span class="nr">'+(j+1)+'</span>'+esc(p)+'</p>').join('');
+  const body='<div class="soort">Tekst '+(i+1)+' · '+esc(x.soort)+'</div><h2>'+esc(x.titel)+'</h2>'+x.alineas.map((p,j)=>'<p><span class="nr">'+(j+1)+'</span>'+luister(p)+esc(p)+'</p>').join('');
   return dicht?'<details class="tekst"><summary>Toon tekst '+(i+1)+'</summary><div class="tekstblok">'+body+'</div></details>':'<div class="tekstblok">'+body+'</div>';
 }
-function verbeter(d){
-  let goed=0;
-  d.vragen.forEach((q,i)=>{
+function checkQ(q,i,toonAntwoord){
     const sec=document.getElementById('v'+i), fb=sec.querySelector('.fb'); let ok=false, juist='';
     if(q.t==='mc'||q.t==='jf'){
       const kies=sec.querySelector('input:checked');
       const juistVal=q.t==='mc'?String(q.a):String(q.a);
       ok=kies&&kies.value===juistVal;
-      sec.querySelectorAll('.optie').forEach(l=>{l.classList.remove('goed','fout');const v=l.querySelector('input').value;if(v===juistVal)l.classList.add('goed');else if(l.querySelector('input').checked)l.classList.add('fout')});
+      sec.querySelectorAll('.optie').forEach(l=>{l.classList.remove('goed','fout');const v=l.querySelector('input').value;const gek=l.querySelector('input').checked;if(v===juistVal&&(gek||toonAntwoord))l.classList.add('goed');else if(gek&&v!==juistVal)l.classList.add('fout')});
       juist=q.t==='mc'?q.k[q.a]:(q.a?'Juist':'Fout');
     } else if(q.t==='volg'||q.t==='koppel'){
       const n=q.t==='volg'?q.items.length:q.paren.length; let alles=true;
@@ -172,17 +206,26 @@ function verbeter(d){
     } else {
       const raw=document.getElementById('q'+i).value; const ex=t=>String(t).replace(/[\u2018\u2019`]/g,"'").replace(/\s+/g,' ').trim(); ok=raw.trim()!==''&&(q.exact?q.a.some(a=>ex(a)===ex(raw)):q.a.some(a=>norm(a)===norm(raw))); juist=q.a[0];
     }
-    if(ok)goed++;
-    fb.hidden=false; fb.className='fb feedback '+(ok?'goed':'fout');
-    fb.innerHTML=(ok?'Goed zo!':'Nog niet juist. Het juiste antwoord: '+esc(juist))+'<span>'+esc(q.u||'')+'</span>';
+    const fb2=document.getElementById('v'+i).querySelector('.fb');
+    fb2.hidden=false; fb2.className='fb feedback '+(ok?'goed':'fout');
+    fb2.innerHTML=ok?'Goed zo!<span>'+esc(q.u||'')+'</span>':(toonAntwoord?'Nog niet juist. Het juiste antwoord: '+esc(juist)+'<span>'+esc(q.u||'')+'</span>':'Nog niet juist.');
+    return ok;
+}
+function verbeter(d){
+  let goed=0;
+  d.vragen.forEach((q,i)=>{
+    if(checkQ(q,i,true))goed++;
   });
-  const n=d.vragen.length, pct=Math.round(goed/n*100);
+  toonUitslag(goed,d.vragen.length,false);
+}
+function toonUitslag(goed,n,sterren){
+  const pct=Math.round(goed/n*100);
   const msg=pct>=90?'Super! Je bent klaar voor de toets.':pct>=70?'Goed bezig! Bekijk nog even de rode vragen.':pct>=50?'Je bent op weg. Lees de uitleg bij de rode vragen en probeer opnieuw.':'Oefen nog wat extra. Lees je boek of themaschrift nog eens en probeer opnieuw.';
   const u=document.getElementById('uitslag');
   const me=ik(); let bewaarTekst='';
   if(me&&bezigToets&&!bezigToets.bewaard){bezigToets.bewaard=true;bewaarTekst='<p id="bewaarstatus">Je score wordt doorgestuurd\u2026</p>';
     rpc('ot_bewaar',{p_naam:me.naam,p_code:me.code,p_toets:bezigToets.id,p_niveau:bezigToets.niv,p_score:goed,p_totaal:n}).then(ok=>{const b=document.getElementById('bewaarstatus');if(b)b.textContent=ok?'Je score is doorgestuurd naar de meester.':'Je score kon niet bewaard worden. Meld je opnieuw aan.'}).catch(()=>{const b=document.getElementById('bewaarstatus');if(b)b.textContent='Je score kon niet doorgestuurd worden (geen verbinding).'})}
-  u.innerHTML='<div class="score"><div class="getal">'+goed+'/'+n+'</div><div><p><strong>'+msg+'</strong></p><p>De verbetering staat bij elke vraag.</p>'+bewaarTekst+'</div></div><div class="knoppen" style="margin-top:12px"><button class="tweede" id="opnieuw">Probeer opnieuw</button></div>';
+  u.innerHTML='<div class="score"><div class="getal">'+goed+'/'+n+'</div><div><p><strong>'+msg+'</strong></p><p>'+(sterren?'<span class="sterren" aria-label="'+(pct>=90?3:pct>=60?2:1)+' sterren">'+'\u2605'.repeat(pct>=90?3:pct>=60?2:1)+'<span class="leeg">'+'\u2605'.repeat(3-(pct>=90?3:pct>=60?2:1))+'</span></span>':'De verbetering staat bij elke vraag.')+'</p>'+bewaarTekst+'</div></div><div class="knoppen" style="margin-top:12px"><button class="tweede" id="opnieuw">Probeer opnieuw</button></div>';
   document.getElementById('opnieuw').onclick=route;
   u.scrollIntoView({behavior:'smooth',block:'center'});
 }
@@ -190,7 +233,7 @@ function route(){
   const h=location.hash.slice(1); const m=h.match(/^(.+)-(gewoon|1b)$/);
   if(m)toets(m[1],m[2]); else home();
 }
-document.addEventListener('click',e=>{const b=e.target.closest('[data-go]');if(!b)return;const g=b.dataset.go;if(location.hash.slice(1)===g)route();else location.hash=g;if(!g)route()});
+document.addEventListener('click',e=>{const z=e.target.closest('[data-zeg]');if(z){spreek(z.dataset.zeg);return}const b=e.target.closest('[data-go]');if(!b)return;const g=b.dataset.go;if(location.hash.slice(1)===g)route();else location.hash=g;if(!g)route()});
 window.addEventListener('hashchange',route); route();
 })();
 </script>
