@@ -157,6 +157,7 @@ main.wrap{padding-top:18px;padding-bottom:60px}
 .speler span{font-size:.82rem;color:var(--inkt-zacht)}
 .speler.ster{grid-column:1/-1}
 .speler.ster .pop.groot{height:280px}
+.badge{position:absolute;top:-6px;right:-6px;background:var(--fout);color:#fff;font-size:.72rem;min-width:20px;height:20px;border-radius:99px;display:grid;place-items:center;padding:0 5px;box-shadow:0 0 0 2px #1b6e30}
 .commentaar{display:block;margin-top:6px;font-style:italic;opacity:.9}
 .meekijkband{position:sticky;top:0;z-index:60;background:var(--paars);color:#fff;text-align:center;padding:8px 12px;font-weight:800;font-size:.92rem}
 .meekijkband a{color:#fff;margin-left:8px}
@@ -229,7 +230,7 @@ main.wrap{padding-top:18px;padding-bottom:60px}
           <h1 id="groet">Hoi Eli!</h1>
         </div>
         <div class="acties">
-          <button id="knop-berichten" title="Berichtjes" aria-label="Berichtjes">💌</button>
+          <button id="knop-berichten" title="Inbox" aria-label="Inbox" style="position:relative">💌</button>
           <button id="knop-geluid" title="Geluid aan/uit" aria-label="Geluid aan of uit">🔊</button>
           <button id="knop-uit" title="Uitloggen" aria-label="Uitloggen">🚪</button>
         </div>
