@@ -182,8 +182,9 @@ function thuis(){
   $('ring-min').textContent = min;
   $('ring-van').textContent = '/ ' + budget + ' min';
   const wd = new Date(d + 'T12:00:00').getDay();
-  $('dagtitel').textContent = d > P.EINDE ? 'Examens voorbij!' : budget === 0 ? 'Laatste examen: Cultuur' : wd === 2 ? 'Voetbaldag: korte training' : (wd === 0 || wd === 6) ? 'Weekendtraining' : 'Training van vandaag';
-  $('dagsub').textContent = budget ? `${budget} minuten actief werken. Na elke 25 minuten krijg je een pauze.` : 'Succes vandaag! Je hebt hard gewerkt.';
+  if (d < P.START) { $('ring').style.setProperty('--p', 0); $('ring-min').textContent = '⭐'; $('ring-van').textContent = 'start morgen'; }
+  $('dagtitel').textContent = d < P.START ? 'Kennismaken met je ploeg' : d > P.EINDE ? 'Examens voorbij!' : budget === 0 ? 'Laatste examen: Cultuur' : wd === 2 ? 'Voetbaldag: korte training' : (wd === 0 || wd === 6) ? 'Weekendtraining' : 'Training van vandaag';
+  $('dagsub').textContent = d < P.START ? 'Vandaag nog geen training: maak kennis met je ploeg (5 minuutjes). Morgen, zaterdag, start de echte training!' : budget ? `${budget} minuten actief werken. Na elke 25 minuten krijg je een pauze.` : 'Succes vandaag! Je hebt hard gewerkt.';
 
   // Opdrachten
   const items = itemsVandaag();
@@ -248,6 +249,7 @@ function motivatie(items, alles){
   const r = reeks();
   const open = items.filter(it => !isKlaar(it.id)).length;
   const inhaal = items.filter(it => it.inhaal && !isKlaar(it.id)).length;
+  if (vandaag() < P.START) return alles ? 'Welkom in de ploeg! Morgen start de training. Slaap goed, kampioen. 😴' : 'Hey Eli! Kom kennismaken met je ploeg. Morgen beginnen we eraan! ⚽';
   if (alles) return 'Toppie! Alles gedaan vandaag. 🏆 Morgen gaan we verder.';
   if (inhaal) return `Er staat nog <b>${inhaal} opdracht${inhaal > 1 ? 'en' : ''} inhaalwerk</b> klaar. Eerst die, dan de rest. Je kan het!`;
   const zinnen = [
@@ -934,7 +936,7 @@ function welkom(){
   lokaal.set('welkom-' + vandaag(), true);
   const items = itemsVandaag();
   const m = $('modaal'), c = $('modaal-inhoud');
-  c.innerHTML = `<div class="babbel" id="wp"></div><h2>Klaar voor de training?</h2><p class="muted">${items.length} opdracht${items.length === 1 ? '' : 'en'} vandaag, ± ${P.budget(vandaag())} minuten. Begin bovenaan en werk ze één voor één af.</p><div class="onder"><button class="knop groot" id="wk">Let's go! ⚽</button></div>`;
+  c.innerHTML = `<div class="babbel" id="wp"></div><h2>Klaar voor de training?</h2><p class="muted">${vandaag() < P.START ? 'Vandaag maak je kennis met je leerploeg. Morgen start de echte training!' : `${items.length} opdracht${items.length === 1 ? '' : 'en'} vandaag, ± ${P.budget(vandaag())} minuten. Begin bovenaan en werk ze één voor één af.`}</p><div class="onder"><button class="knop groot" id="wk">Let's go! ⚽</button></div>`;
   POP.babbel($('wp'), 'Welkom terug, Eli! Elke dag een beetje, dan haal je die examens met glans. 💪', { figuur: POP.kring() || undefined, eigen: true });
   m.hidden = false;
   $('wk').onclick = () => m.hidden = true;
