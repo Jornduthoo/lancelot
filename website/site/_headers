@@ -9,3 +9,6 @@
   Referrer-Policy: strict-origin-when-cross-origin
 /europa/*
   X-Robots-Tag: noindex, nofollow
+/oefentoets/*
+  X-Robots-Tag: noindex, nofollow
+  Cache-Control: no-cache

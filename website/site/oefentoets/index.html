@@ -1,0 +1,152 @@
+<!doctype html><html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex, nofollow"><title>Oefentoetsen 6de leerjaar</title></head><body>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@400;600;700&display=swap">
+<style>
+/* Layout: één smalle kolom zoals een werkblad; bovenaan een zeeblauwe band, toetsen als kaarten met een oranje datumstempel */
+:root{
+  --zee:#0f4c5c; --zee-2:#1d6f80; --koraal:#ff914d; --zand:#f6f1e7; --papier:#ffffff;
+  --inkt:#16313a; --inkt-zacht:#4b6670; --lijn:#d9e3e5; --goed:#1f8a4c; --goed-bg:#e3f4ea; --fout:#c23b2a; --fout-bg:#fbe7e3;
+  --kies:#e9f3f5;
+  --display:"Baloo 2","Trebuchet MS",system-ui,sans-serif; --body:"Nunito",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --zee:#0b2f39; --zee-2:#2b8ca0; --koraal:#ff9d60; --zand:#0f1d22; --papier:#16282e;
+  --inkt:#e6f0f2; --inkt-zacht:#9fb7be; --lijn:#2a4048; --goed:#5fd093; --goed-bg:#163b29; --fout:#ff8a78; --fout-bg:#45201b; --kies:#1d3a42; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --zee:#0b2f39; --zee-2:#2b8ca0; --koraal:#ff9d60; --zand:#0f1d22; --papier:#16282e;
+  --inkt:#e6f0f2; --inkt-zacht:#9fb7be; --lijn:#2a4048; --goed:#5fd093; --goed-bg:#163b29; --fout:#ff8a78; --fout-bg:#45201b; --kies:#1d3a42; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--zand);color:var(--inkt);font-family:var(--body);font-size:17px;line-height:1.55;margin:0}
+.band{background:var(--zee);color:#fff;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:22px 26px}
+.band .in,.wrap{max-width:720px;margin:0 auto}
+.band h1{font-family:var(--display);font-weight:800;font-size:2rem;line-height:1.1;margin:0;text-wrap:balance}
+.band p{margin:.3rem 0 0;opacity:.85}
+.wrap{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:22px 48px;display:flex;flex-direction:column;gap:18px}
+h2{font-family:var(--display);font-weight:800;font-size:1.4rem;margin:0;line-height:1.2;text-wrap:balance}
+h3{font-family:var(--display);font-weight:600;font-size:1.15rem;margin:0}
+.weeklabel{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;color:var(--inkt-zacht)}
+.toets{background:var(--papier);border:1px solid var(--lijn);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:12px}
+.toets .kop{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:flex-start}
+.vak{font-weight:700;color:var(--zee-2);font-size:.9rem;text-transform:uppercase;letter-spacing:.06em}
+.stempel{border:2px solid var(--koraal);color:var(--koraal);border-radius:8px;padding:2px 10px;font-weight:700;font-size:.85rem;white-space:nowrap;transform:rotate(-2deg)}
+.knoppen{display:flex;gap:10px;flex-wrap:wrap}
+button{font:inherit;cursor:pointer;border-radius:10px;border:2px solid transparent;padding:10px 16px;font-weight:700}
+button:focus-visible{outline:3px solid var(--koraal);outline-offset:2px}
+.hoofd{background:var(--zee-2);color:#fff}
+.hoofd:hover{filter:brightness(1.1)}
+.tweede{background:transparent;color:var(--zee-2);border-color:var(--zee-2)}
+.terug{background:none;color:#fff;padding:4px 0;border:0;font-weight:600;opacity:.9}
+.tekstblok{background:var(--papier);border:1px solid var(--lijn);border-radius:14px;padding:18px 20px}
+.tekstblok .soort{font-size:.8rem;color:var(--inkt-zacht);text-transform:uppercase;letter-spacing:.06em;font-weight:700}
+.tekstblok p{margin:.6rem 0;max-width:65ch}
+.tekstblok p .nr{font-weight:700;color:var(--koraal);margin-right:6px;font-variant-numeric:tabular-nums}
+details.tekst summary{cursor:pointer;font-weight:700;color:var(--zee-2)}
+.vraag{background:var(--papier);border:1px solid var(--lijn);border-radius:14px;padding:16px 18px;display:flex;flex-direction:column;gap:10px}
+.vraag .nr{font-family:var(--display);font-weight:800;color:var(--koraal);font-size:1.1rem}
+.vraag .bij{font-size:.82rem;color:var(--inkt-zacht);font-weight:600}
+.opties{display:flex;flex-direction:column;gap:8px}
+.optie{display:flex;gap:10px;align-items:flex-start;background:var(--kies);border:2px solid transparent;border-radius:10px;padding:9px 12px;cursor:pointer}
+.optie input{margin-top:5px;accent-color:var(--zee-2)}
+.optie:has(input:checked){border-color:var(--zee-2)}
+.optie.goed{background:var(--goed-bg);border-color:var(--goed)}
+.optie.fout{background:var(--fout-bg);border-color:var(--fout)}
+input[type=text]{font:inherit;padding:10px 12px;border-radius:10px;border:2px solid var(--lijn);background:var(--papier);color:var(--inkt);width:100%;max-width:360px}
+input[type=text]:focus{outline:none;border-color:var(--zee-2)}
+.feedback{border-radius:10px;padding:10px 12px;font-weight:600}
+.feedback.goed{background:var(--goed-bg);color:var(--goed)}
+.feedback.fout{background:var(--fout-bg);color:var(--fout)}
+.feedback span{display:block;font-weight:400;color:var(--inkt);margin-top:2px}
+.score{background:var(--zee);color:#fff;border-radius:14px;padding:20px;display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.score .getal{font-family:var(--display);font-weight:800;font-size:2.6rem;line-height:1;font-variant-numeric:tabular-nums}
+.score p{margin:0}
+.uitleg{color:var(--inkt-zacht);font-size:.95rem;margin:0}
+.voet{font-size:.85rem;color:var(--inkt-zacht);text-align:center}
+@media (prefers-reduced-motion:no-preference){.vraag,.score{animation:op .25s ease-out}@keyframes op{from{transform:translateY(4px)}to{transform:none}}}
+</style>
+
+<header class="band"><div class="in" id="kop"></div></header>
+<main class="wrap" id="app"></main>
+
+<script src="data.js?v=2026-11-23"></script>
+<script>
+(function(){
+const app=document.getElementById('app'), kop=document.getElementById('kop');
+const W=window.WEKEN||[];
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const norm=s=>String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]/g,'');
+function vind(id){for(const w of W)for(const t of w.toetsen)if(t.id===id)return {w,t};return null}
+
+function home(){
+  kop.innerHTML='<h1>Oefentoetsen</h1><p>Zesde leerjaar · oefen thuis voor de toetsen van deze week</p>';
+  let h='';
+  W.slice().reverse().forEach(w=>{
+    h+='<div class="weeklabel">'+esc(w.label)+'</div>';
+    w.toetsen.forEach(t=>{
+      h+='<article class="toets"><div class="kop"><div><div class="vak">'+esc(t.vak)+'</div><h2>'+esc(t.titel)+'</h2></div><span class="stempel">'+esc(t.datum)+'</span></div>'+
+      '<div class="knoppen"><button class="hoofd" data-go="'+t.id+'-gewoon">Start oefentoets</button>'+
+      (t.niveaus['1b']?'<button class="tweede" data-go="'+t.id+'-1b">Start 1B-versie</button>':'')+'</div></article>';
+    });
+  });
+  h+='<p class="voet">Je antwoorden worden nergens bewaard. Je kunt zo vaak oefenen als je wilt.</p>';
+  app.innerHTML=h;
+}
+
+function toets(id,niv){
+  const f=vind(id); if(!f){home();return}
+  const t=f.t, d=t.niveaus[niv]; if(!d){home();return}
+  kop.innerHTML='<button class="terug" data-go="">← Alle toetsen</button><h1>'+esc(t.titel)+'</h1><p>'+esc(t.vak)+(niv==='1b'?' · 1B-versie':'')+' · toets op '+esc(t.datum)+'</p>';
+  let h='';
+  if(d.teksten){
+    h+='<p class="uitleg">Lees eerst de tekst(en) goed. Je kunt ze altijd opnieuw openen bij de vragen.</p>';
+    d.teksten.forEach((x,i)=>{h+=tekstHTML(x,i,false)});
+  }
+  d.vragen.forEach((q,i)=>{
+    h+='<section class="vraag" id="v'+i+'"><div><span class="nr">'+(i+1)+'.</span> '+(d.teksten&&q.tekst!=null?'<span class="bij">bij tekst '+(q.tekst+1)+'</span>':'')+'</div><h3>'+esc(q.v)+'</h3>';
+    if(d.teksten&&q.tekst!=null) h+=tekstHTML(d.teksten[q.tekst],q.tekst,true);
+    if(q.t==='mc'){h+='<div class="opties">'+q.k.map((k,j)=>'<label class="optie"><input type="radio" name="q'+i+'" value="'+j+'"><span>'+esc(k)+'</span></label>').join('')+'</div>'}
+    else if(q.t==='jf'){h+='<div class="opties">'+['Juist','Fout'].map((k,j)=>'<label class="optie"><input type="radio" name="q'+i+'" value="'+(j===0)+'"><span>'+k+'</span></label>').join('')+'</div>'}
+    else {h+='<input type="text" id="q'+i+'" autocomplete="off" placeholder="Typ je antwoord">'}
+    h+='<div class="fb" hidden></div></section>';
+  });
+  h+='<div class="knoppen"><button class="hoofd" id="verbeter">Verbeter mijn toets</button></div><div id="uitslag"></div>';
+  app.innerHTML=h; window.scrollTo(0,0);
+  document.getElementById('verbeter').onclick=()=>verbeter(d);
+}
+function tekstHTML(x,i,dicht){
+  const body='<div class="soort">Tekst '+(i+1)+' · '+esc(x.soort)+'</div><h2>'+esc(x.titel)+'</h2>'+x.alineas.map((p,j)=>'<p><span class="nr">'+(j+1)+'</span>'+esc(p)+'</p>').join('');
+  return dicht?'<details class="tekst"><summary>Toon tekst '+(i+1)+'</summary><div class="tekstblok">'+body+'</div></details>':'<div class="tekstblok">'+body+'</div>';
+}
+function verbeter(d){
+  let goed=0;
+  d.vragen.forEach((q,i)=>{
+    const sec=document.getElementById('v'+i), fb=sec.querySelector('.fb'); let ok=false, juist='';
+    if(q.t==='mc'||q.t==='jf'){
+      const kies=sec.querySelector('input:checked');
+      const juistVal=q.t==='mc'?String(q.a):String(q.a);
+      ok=kies&&kies.value===juistVal;
+      sec.querySelectorAll('.optie').forEach(l=>{l.classList.remove('goed','fout');const v=l.querySelector('input').value;if(v===juistVal)l.classList.add('goed');else if(l.querySelector('input').checked)l.classList.add('fout')});
+      juist=q.t==='mc'?q.k[q.a]:(q.a?'Juist':'Fout');
+    } else {
+      const v=norm(document.getElementById('q'+i).value); ok=v!==''&&q.a.some(a=>norm(a)===v); juist=q.a[0];
+    }
+    if(ok)goed++;
+    fb.hidden=false; fb.className='fb feedback '+(ok?'goed':'fout');
+    fb.innerHTML=(ok?'Goed zo!':'Nog niet juist. Het juiste antwoord: '+esc(juist))+'<span>'+esc(q.u||'')+'</span>';
+  });
+  const n=d.vragen.length, pct=Math.round(goed/n*100);
+  const msg=pct>=90?'Super! Je bent klaar voor de toets.':pct>=70?'Goed bezig! Bekijk nog even de rode vragen.':pct>=50?'Je bent op weg. Lees de uitleg bij de rode vragen en probeer opnieuw.':'Oefen nog wat extra. Lees je boek of themaschrift nog eens en probeer opnieuw.';
+  const u=document.getElementById('uitslag');
+  u.innerHTML='<div class="score"><div class="getal">'+goed+'/'+n+'</div><div><p><strong>'+msg+'</strong></p><p>De verbetering staat bij elke vraag.</p></div></div><div class="knoppen" style="margin-top:12px"><button class="tweede" id="opnieuw">Probeer opnieuw</button></div>';
+  document.getElementById('opnieuw').onclick=route;
+  u.scrollIntoView({behavior:'smooth',block:'center'});
+}
+function route(){
+  const h=location.hash.slice(1); const m=h.match(/^(.+)-(gewoon|1b)$/);
+  if(m)toets(m[1],m[2]); else home();
+}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-go]');if(!b)return;const g=b.dataset.go;if(location.hash.slice(1)===g)route();else location.hash=g;if(!g)route()});
+window.addEventListener('hashchange',route); route();
+})();
+</script>
+
+</body></html>
