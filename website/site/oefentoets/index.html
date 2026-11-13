@@ -67,6 +67,8 @@ input[type=text]:focus{outline:none;border-color:var(--zee-2)}
 .optie.koppel span{font-weight:700}
 .optie.koppel select{max-width:100%;width:100%}
 .optie select{font:inherit;padding:4px 6px;border-radius:8px;border:2px solid var(--lijn);background:var(--papier);color:var(--inkt);max-width:55%}
+.veld{display:flex;flex-direction:column;gap:4px;font-weight:700}
+.band .terug{color:inherit;text-decoration:underline;font-size:.9rem;padding:0}
 .voet{font-size:.85rem;color:var(--inkt-zacht);text-align:center}
 @media (prefers-reduced-motion:no-preference){.vraag,.score{animation:op .25s ease-out}@keyframes op{from{transform:translateY(4px)}to{transform:none}}}
 </style>
@@ -74,34 +76,54 @@ input[type=text]:focus{outline:none;border-color:var(--zee-2)}
 <header class="band"><div class="in" id="kop"></div></header>
 <main class="wrap" id="app"></main>
 
-<script src="data.js?v=2026-11-23b"></script>
+<script src="data.js?v=2026-11-23c"></script>
 <script>
 (function(){
 const app=document.getElementById('app'), kop=document.getElementById('kop');
 const W=window.WEKEN||[];
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const norm=s=>String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]/g,'');
+const DB={url:'https://kkqzstqsczcooutdjypt.supabase.co/rest/v1/rpc/',key:'sb_publishable_woxocUFof4ifDWmkVGsHsQ_HL_eMAhc'};
+async function rpc(f,body){const r=await fetch(DB.url+f,{method:'POST',headers:{apikey:DB.key,'Content-Type':'application/json'},body:JSON.stringify(body)});if(!r.ok){const t=await r.text();throw new Error(t.includes('te_veel')?'te_veel':'net')}return r.json()}
+function ik(){try{return JSON.parse(sessionStorage.getItem('ot_ik')||'null')}catch(e){return null}}
+function zetIk(v){try{v?sessionStorage.setItem('ot_ik',JSON.stringify(v)):sessionStorage.removeItem('ot_ik')}catch(e){}}
+let bezigToets=null;
 function schud(a,seed){const b=a.slice();let x=seed*9301+49297;for(let k=b.length-1;k>0;k--){x=(x*9301+49297)%233280;const r=Math.floor(x/233280*(k+1));[b[k],b[r]]=[b[r],b[k]]}return b}
 function vind(id){for(const w of W)for(const t of w.toetsen)if(t.id===id)return {w,t};return null}
 
-function home(){
+function aanmeld(){
   kop.innerHTML='<h1>Oefentoetsen</h1><p>Zesde leerjaar · oefen thuis voor de toetsen van deze week</p>';
+  app.innerHTML='<form class="toets" id="aanmeld" autocomplete="off"><h2>Wie ben jij?</h2><p class="uitleg">Vul je voornaam en je geheime code van 4 cijfers in. Die code krijg je van de meester.</p>'+
+   '<label class="veld">Voornaam<input type="text" id="naam" required></label><label class="veld">Geheime code<input type="text" id="code" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" required></label>'+
+   '<div class="knoppen"><button class="hoofd" type="submit">Start</button></div><p class="feedback fout" id="aanmeldfout" hidden></p></form>'+
+   '<p class="voet">We bewaren alleen je voornaam, welke oefentoets je maakte, je score en de datum. Zo ziet de meester hoe je oefent.</p>';
+  document.getElementById('aanmeld').onsubmit=async e=>{e.preventDefault();const f=document.getElementById('aanmeldfout'),btn=e.target.querySelector('button');f.hidden=true;btn.disabled=true;
+    const naam=document.getElementById('naam').value.trim(),code=document.getElementById('code').value.trim();
+    try{const r=await rpc('ot_aanmelden',{p_naam:naam,p_code:code});if(!r){f.textContent='Die naam en code passen niet bij elkaar. Kijk ze nog eens na.';f.hidden=false}else{zetIk({naam:r.voornaam,code,niveau:r.niveau});route()}}
+    catch(err){f.textContent=err.message==='te_veel'?'Te veel foute pogingen. Wacht 10 minuten en probeer opnieuw.':'Er ging iets mis met de verbinding. Probeer opnieuw.';f.hidden=false}
+    btn.disabled=false};
+}
+function home(){
+  const me=ik(); if(!me){aanmeld();return}
+  kop.innerHTML='<h1>Dag '+esc(me.naam)+'!</h1><p>Oefen voor de toetsen van deze week · <button class="terug" id="afmelden">Ben je '+esc(me.naam)+' niet? Afmelden</button></p>';
   let h='';
   W.slice().reverse().forEach(w=>{
     h+='<div class="weeklabel">'+esc(w.label)+'</div>';
     w.toetsen.forEach(t=>{
       h+='<article class="toets"><div class="kop"><div><div class="vak">'+esc(t.vak)+'</div><h2>'+esc(t.titel)+'</h2></div><span class="stempel">'+esc(t.datum)+'</span></div>'+
-      '<div class="knoppen"><button class="hoofd" data-go="'+t.id+'-gewoon">Start oefentoets</button>'+
-      (t.niveaus['1b']?'<button class="tweede" data-go="'+t.id+'-1b">Start 1B-versie</button>':'')+'</div></article>';
+      '<div class="knoppen"><button class="hoofd" data-go="'+t.id+'-'+(me.niveau==='1b'&&t.niveaus['1b']?'1b':'gewoon')+'">Start oefentoets</button></div></article>';
     });
   });
-  h+='<p class="voet">Je antwoorden worden nergens bewaard. Je kunt zo vaak oefenen als je wilt.</p>';
+  h+='<p class="voet">Je kunt zo vaak oefenen als je wilt. De meester ziet je score.</p>';
   app.innerHTML=h;
+  document.getElementById('afmelden').onclick=()=>{zetIk(null);route()};
 }
 
 function toets(id,niv){
   const f=vind(id); if(!f){home();return}
   const t=f.t, d=t.niveaus[niv]; if(!d){home();return}
+  if(!ik()){aanmeld();return}
+  bezigToets={id,niv,bewaard:false};
   kop.innerHTML='<button class="terug" data-go="">← Alle toetsen</button><h1>'+esc(t.titel)+'</h1><p>'+esc(t.vak)+(niv==='1b'?' · 1B-versie':'')+' · toets op '+esc(t.datum)+'</p>';
   let h='';
   if(d.echteTekst){h+='<p class="link">Lees ook de echte toetstekst: <a href="'+esc(d.echteTekst.url)+'" target="_blank" rel="noopener">'+esc(d.echteTekst.titel)+'</a></p>'}
@@ -155,7 +177,10 @@ function verbeter(d){
   const n=d.vragen.length, pct=Math.round(goed/n*100);
   const msg=pct>=90?'Super! Je bent klaar voor de toets.':pct>=70?'Goed bezig! Bekijk nog even de rode vragen.':pct>=50?'Je bent op weg. Lees de uitleg bij de rode vragen en probeer opnieuw.':'Oefen nog wat extra. Lees je boek of themaschrift nog eens en probeer opnieuw.';
   const u=document.getElementById('uitslag');
-  u.innerHTML='<div class="score"><div class="getal">'+goed+'/'+n+'</div><div><p><strong>'+msg+'</strong></p><p>De verbetering staat bij elke vraag.</p></div></div><div class="knoppen" style="margin-top:12px"><button class="tweede" id="opnieuw">Probeer opnieuw</button></div>';
+  const me=ik(); let bewaarTekst='';
+  if(me&&bezigToets&&!bezigToets.bewaard){bezigToets.bewaard=true;bewaarTekst='<p id="bewaarstatus">Je score wordt doorgestuurd\u2026</p>';
+    rpc('ot_bewaar',{p_naam:me.naam,p_code:me.code,p_toets:bezigToets.id,p_niveau:bezigToets.niv,p_score:goed,p_totaal:n}).then(ok=>{const b=document.getElementById('bewaarstatus');if(b)b.textContent=ok?'Je score is doorgestuurd naar de meester.':'Je score kon niet bewaard worden. Meld je opnieuw aan.'}).catch(()=>{const b=document.getElementById('bewaarstatus');if(b)b.textContent='Je score kon niet doorgestuurd worden (geen verbinding).'})}
+  u.innerHTML='<div class="score"><div class="getal">'+goed+'/'+n+'</div><div><p><strong>'+msg+'</strong></p><p>De verbetering staat bij elke vraag.</p>'+bewaarTekst+'</div></div><div class="knoppen" style="margin-top:12px"><button class="tweede" id="opnieuw">Probeer opnieuw</button></div>';
   document.getElementById('opnieuw').onclick=route;
   u.scrollIntoView({behavior:'smooth',block:'center'});
 }

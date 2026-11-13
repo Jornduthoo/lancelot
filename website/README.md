@@ -37,4 +37,4 @@ ook in `bron/spellen.json`, anders faalt `npm test`. Zonder beelden toont de pag
 
 ## Oefentoetsen
 
-`site/oefentoets/` is een verborgen pagina (noindex, niet gelinkt) met wekelijkse oefentoetsen voor het 6de leerjaar, in een gewone en een 1B-versie. Alle toetsen staan in `site/oefentoets/data.js` (vraagtypes `mc`, `jf`, `invul`; bij begrijpend lezen `teksten` per niveau). Geen accounts, er wordt niets bewaard. `bouw.js` raakt deze map niet aan.
+`site/oefentoets/` is een verborgen pagina (noindex, niet gelinkt) met wekelijkse oefentoetsen voor het 6de leerjaar, in een gewone en een 1B-versie. Alle toetsen staan in `site/oefentoets/data.js` (vraagtypes `mc`, `jf`, `invul`; bij begrijpend lezen `teksten` per niveau). Leerlingen melden zich aan met voornaam + eigen code van 4 cijfers; per gemaakte oefentoets worden enkel voornaam, toets, niveau, score en datum bewaard in Supabase (schema `oefentoets`, enkel bereikbaar via de functies `ot_aanmelden`, `ot_bewaar` en `ot_overzicht`). `site/oefentoets/leerkracht.html` toont het overzicht na een wachtwoord. `bouw.js` raakt deze map niet aan.
