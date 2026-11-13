@@ -14,7 +14,6 @@ window.WEKEN = [
     datum: "dinsdag 24 november",
     niveaus: {
       gewoon: {
-        echteTekst: { titel: "Thema 3 leestekst fictie (TeacherMade)", url: "https://app.classwork.com/app/674ba58b-d9c1-47f2-873b-bc46bcf1d734" },
         teksten: [
           { titel: "Uit het dagboek van Rosa", soort: "dagboek (fictie)", alineas: [
             "Dinsdag 16 mei 1944. Lief dagboek, vannacht ging de sirene weer. Mama trok Jules en mij uit bed en we liepen in onze pyjama naar de kelder. Jules huilde de hele tijd. Ik deed alsof ik niet bang was, maar mijn knieën bibberden. Toen het eindelijk stil werd, was het al bijna ochtend.",
@@ -51,7 +50,6 @@ window.WEKEN = [
         ]
       },
       "1b": {
-        echteTekst: { titel: "Thema 3 leestekst fictie (TeacherMade)", url: "https://app.classwork.com/app/674ba58b-d9c1-47f2-873b-bc46bcf1d734" },
         teksten: [
           { titel: "Het dagboek van Rosa", soort: "dagboek", alineas: [
             "16 mei 1944. Vannacht ging de sirene. We liepen snel naar de kelder. Mijn broertje Jules huilde. Ik was ook bang.",
