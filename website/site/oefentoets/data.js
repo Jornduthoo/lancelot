@@ -51,22 +51,21 @@ window.WEKEN = [
       },
       "1b": {
         teksten: [
-          { titel: "Het dagboek van Rosa", soort: "dagboek", alineas: [
-            "16 mei 1944. Vannacht ging de sirene. We liepen snel naar de kelder. Mijn broertje Jules huilde. Ik was ook bang.",
-            "3 juni 1944. Ik stond lang aan te schuiven bij de bakker. Ik had bonnen bij. Het brood was grijs. Papa is ver weg. Hij moet in Duitsland werken.",
-            "7 juni 1944. Oom Felix luistert stiekem naar de radio. Dat mag niet. Hij zegt: “Er zijn soldaten in Frankrijk. Ze komen ons helpen!”",
-            "4 september 1944. Er rijden Engelse tanks in onze straat. We zijn vrij! Iedereen zingt. Jules krijgt chocolade van een soldaat."
+          { titel: "Rosa schrijft in haar dagboek", soort: "dagboek", alineas: [
+            "Dinsdag 16 mei 1944. Het is oorlog. Vannacht hoorde ik een luid alarm. Mama riep: “Snel, naar de kelder!” In de kelder zijn we veilig. Mijn broertje Jules huilde. Ik was ook bang.",
+            "Zaterdag 3 juni 1944. Er is niet veel eten. Ik ging naar de bakker. Ik moest heel lang wachten. Het brood was niet lekker. Papa is niet thuis. Hij moet ver weg werken, in Duitsland. Ik mis papa.",
+            "Maandag 4 september 1944. Er rijden soldaten in onze straat. Het zijn goede soldaten. Ze komen ons helpen! De oorlog is voorbij in onze stad. Iedereen is blij. Jules krijgt chocolade van een soldaat."
           ]}
         ],
         vragen: [
-          { t: "mc", tekst: 0, v: "Wat voor tekst is dit?", k: ["Een dagboek", "Een recept", "Een gedicht"], a: 0, u: "Er staan datums boven en Rosa schrijft over haar leven. Dat is een dagboek." },
-          { t: "mc", tekst: 0, v: "Waarom gaan ze naar de kelder?", k: ["De sirene gaat: er komen misschien bommen.", "Ze gaan spelen.", "Ze halen brood."], a: 0, u: "De sirene waarschuwt. In de kelder ben je veiliger." },
-          { t: "mc", tekst: 0, v: "Hoe voelt Rosa zich in de kelder?", k: ["Blij", "Bang", "Moe"], a: 1, u: "‘Ik was ook bang.’" },
-          { t: "mc", tekst: 0, v: "Wat heeft Rosa nodig bij de bakker?", k: ["Bonnen", "Een fiets", "Een boek"], a: 0, u: "In de oorlog kreeg je eten met bonnen." },
-          { t: "jf", tekst: 0, v: "Papa is thuis bij Rosa.", a: false, u: "Papa moet in Duitsland werken." },
-          { t: "jf", tekst: 0, v: "Naar die radio luisteren mocht niet.", a: true, u: "Oom Felix luistert stiekem. ‘Dat mag niet.’" },
-          { t: "volg", tekst: 0, v: "Wat gebeurt eerst? Geef een nummer (1 = eerst).", items: ["Ze gaan naar de kelder.", "Rosa staat aan te schuiven bij de bakker.", "Er rijden Engelse tanks in de straat."], u: "Kijk naar de datums: mei, juni, september." },
-          { t: "mc", tekst: 0, v: "Hoe voelt Rosa zich op 4 september?", k: ["Bang", "Blij", "Boos"], a: 1, u: "Ze zijn vrij en iedereen zingt." }
+          { t: "mc", tekst: 0, v: "Wie schrijft in het dagboek?", k: ["Rosa", "Jules", "Mama"], a: 0, u: "Rosa schrijft. Jules is haar broertje." },
+          { t: "mc", tekst: 0, v: "Waar gaan ze naartoe als het alarm gaat?", k: ["Naar de kelder", "Naar de bakker", "Naar school"], a: 0, u: "“Snel, naar de kelder!” In de kelder zijn ze veilig." },
+          { t: "mc", tekst: 0, v: "Hoe voelt Rosa zich in de kelder?", k: ["Blij", "Bang"], a: 1, u: "“Ik was ook bang.”" },
+          { t: "jf", tekst: 0, v: "Er is veel eten.", a: false, u: "Er is niet veel eten." },
+          { t: "mc", tekst: 0, v: "Waar is papa?", k: ["Thuis", "In Duitsland", "Bij de bakker"], a: 1, u: "Papa moet ver weg werken, in Duitsland." },
+          { t: "jf", tekst: 0, v: "Rosa mist papa.", a: true, u: "“Ik mis papa.”" },
+          { t: "mc", tekst: 0, v: "Wat krijgt Jules van een soldaat?", k: ["Een bal", "Chocolade", "Brood"], a: 1, u: "Jules krijgt chocolade." },
+          { t: "mc", tekst: 0, v: "Hoe voelen de mensen zich op 4 september?", k: ["Blij", "Boos"], a: 0, u: "“Iedereen is blij.” De soldaten komen helpen." }
         ]
       }
     }
@@ -99,17 +98,27 @@ window.WEKEN = [
         ]
       },
       "1b": {
+        teksten: [
+          { titel: "De Tweede Wereldoorlog in het kort", soort: "lees dit eerst", alineas: [
+            "De Tweede Wereldoorlog begon in 1939. Hij duurde tot 1945. Dat is zes jaar.",
+            "De baas van Duitsland was Hitler. Hij wilde veel landen veroveren. Het Duitse leger viel Polen binnen. Daarna ook België.",
+            "In de oorlog was er weinig eten. Mensen kregen bonnen. Met een bon mocht je een beetje eten kopen.",
+            "Hitler haatte de Joden. Joden moesten een gele ster dragen. Veel Joden werden weggebracht naar kampen. Daar stierven ze.",
+            "In 1944 kwamen soldaten uit Amerika, Engeland en Canada. Ze kwamen met boten aan in Frankrijk. Die dag heet D-Day. Ze bevrijdden België.",
+            "In 1945 was de oorlog voorbij. Daarna wilden landen samenwerken voor vrede."
+          ]}
+        ],
         vragen: [
-          { t: "mc", v: "Met welk land begon Duitsland de oorlog in 1939?", k: ["Polen", "Spanje", "Italië"], a: 0, u: "Duitsland viel Polen binnen." },
-          { t: "mc", v: "Wie viel Pearl Harbor aan?", k: ["Japan", "België", "Frankrijk"], a: 0, u: "Japan viel de Amerikaanse vloot aan in Pearl Harbor." },
-          { t: "mc", v: "Wat moesten Joden dragen op hun kleren?", k: ["Een gele ster", "Een rode hoed", "Een blauwe sjaal"], a: 0, u: "De gele davidsster." },
-          { t: "jf", v: "Joden werden weggevoerd naar kampen.", a: true, u: "Ze werden gedeporteerd naar concentratie- en vernietigingskampen." },
-          { t: "koppel", v: "Verbind wat samenhoort.", paren: [["D-Day","soldaten landen in Normandië"],["atoombom","Hiroshima in Japan"],["Stalingrad","grote slag in Rusland"]], u: "Dit zijn belangrijke gebeurtenissen in de oorlog." },
-          { t: "mc", v: "Wanneer eindigde de oorlog in Europa?", k: ["8 mei 1945", "1 januari 1900", "25 december 1944"], a: 0, u: "Op 8 mei 1945: VE-day." },
-          { t: "mc", v: "Wat is een ersatzproduct?", k: ["Een vervanger, zoals nepkoffie", "Een speelgoedje", "Een soldaat"], a: 0, u: "Omdat er te weinig was, gebruikte men vervangers." },
-          { t: "mc", v: "Welke organisatie werkt sinds 1945 voor vrede?", k: ["De Verenigde Naties", "De voetbalbond", "De bakkerij"], a: 0, u: "De VN willen nieuwe oorlogen voorkomen." },
-          { t: "volg", v: "Wat gebeurde eerst? Geef een nummer (1 = eerst).", items: ["Begin van de oorlog", "D-Day", "Einde van de oorlog"], u: "1939 – 1944 – 1945." },
-          { t: "jf", v: "Bij een oorlog lijden alle mensen, aan beide kanten.", a: true, u: "Daarom zegt men dat er bij oorlog alleen verliezers zijn." }
+          { t: "mc", tekst: 0, v: "In welk jaar begon de oorlog?", k: ["1939", "2000"], a: 0, u: "De oorlog begon in 1939." },
+          { t: "mc", tekst: 0, v: "In welk jaar was de oorlog voorbij?", k: ["1945", "1900"], a: 0, u: "In 1945 was de oorlog voorbij." },
+          { t: "mc", tekst: 0, v: "Wie was de baas van Duitsland?", k: ["Hitler", "De koning van België", "Sinterklaas"], a: 0, u: "Hitler was de baas van Duitsland." },
+          { t: "jf", tekst: 0, v: "Het Duitse leger viel ook België binnen.", a: true, u: "Eerst Polen, daarna ook België." },
+          { t: "jf", tekst: 0, v: "In de oorlog was er veel eten.", a: false, u: "Er was weinig eten." },
+          { t: "mc", tekst: 0, v: "Wat had je nodig om eten te kopen?", k: ["Bonnen", "Een fiets", "Een gsm"], a: 0, u: "Met een bon mocht je een beetje eten kopen." },
+          { t: "mc", tekst: 0, v: "Wat moesten Joden dragen?", k: ["Een gele ster", "Een rode pet"], a: 0, u: "Joden moesten een gele ster dragen." },
+          { t: "mc", tekst: 0, v: "Hoe heet de dag dat de soldaten met boten aankwamen in Frankrijk?", k: ["D-Day", "Kerstmis", "Pasen"], a: 0, u: "Die dag heet D-Day (1944)." },
+          { t: "volg", tekst: 0, v: "Wat gebeurde eerst? Zet 1, 2, 3.", items: ["De oorlog begint.", "D-Day: soldaten komen met boten.", "De oorlog is voorbij."], u: "1939, dan 1944, dan 1945." },
+          { t: "jf", tekst: 0, v: "Na de oorlog wilden landen samenwerken voor vrede.", a: true, u: "Dat staat in het laatste stukje." }
         ]
       }
     }
