@@ -17,6 +17,12 @@ async function laad(){
     sessie.wis(); location.href = 'index.html'; return;
   }
   $('laden').hidden = true; $('pagina').hidden = false;
+  if (!laad.figKlaar) {
+    laad.figKlaar = true;
+    POP.zet(D.stand.figuren || [], D.stand.figkey);
+    const ik = POP.vanLogin(D.ik || s.naam);
+    if (ik) $('mijnfig').innerHTML = POP.html(ik);
+  }
   teken();
 }
 
@@ -95,6 +101,45 @@ function teken(){
   $('logins').textContent = logins.slice(0, 12).map(x => new Date(x).toLocaleString('nl-BE', { weekday:'short', day:'numeric', month:'numeric', hour:'2-digit', minute:'2-digit' })).join(' · ') || 'Nog niet ingelogd.';
 
   tekenBerichten();
+  tekenLeerstof(plan, taken);
+}
+
+// --- Leerstof: wat moet hij doen en waarover gaat het ---
+let oVak = 'kf';
+function tekenLeerstof(plan, taken){
+  const d = vandaag();
+  const komend = P.dagen().filter(x => x >= d).slice(0, 4);
+  const wat = { leer:'leren + quiz', herhaal:'herhalen + quiz', proef:'proefexamen', zwak:'zwakke punten', drill:'werkwoorden', kaarten:'herhaalkaartjes' };
+  $('komend').innerHTML = komend.map(x => `<div class="dagblok"><h4>${x === d ? 'Vandaag' : mooiDatum(x)} <span class="muted klein">· ${P.budget(x)} min</span></h4>${
+    (plan[x] || []).map(it => `<button class="oitem" style="--vk:${(V[it.vak] || {}).kleur || 'var(--gras)'}" ${it.onderwerp ? `data-t="${it.onderwerp}"` : it.vak ? `data-v="${it.vak}"` : ''}><span>${(V[it.vak] || {}).icoon || '🃏'}</span><span>${esc(it.titel)}<small>${esc((V[it.vak] || {}).kort || 'alle vakken')} · ${wat[it.soort] || ''} · ± ${it.min} min</small></span>${taken[it.id] ? '<span class="klaar">✓</span>' : ''}</button>`).join('') || '<p class="muted klein">Geen opdrachten.</p>'}</div>`).join('');
+  $('o-vaktabs').innerHTML = Object.entries(V).map(([k, v]) => `<button data-vak="${k}" class="${k === oVak ? 'aan' : ''}">${v.icoon} ${esc(v.kort)}</button>`).join('');
+  $('o-onderwerpen').innerHTML = T.filter(t => t.vak === oVak).map(t => `<button class="oitem" style="--vk:${V[t.vak].kleur}" data-t="${t.id}"><span>${V[t.vak].icoon}</span><span>${esc(t.titel)}<small>${t.samenvatting.length} leerpunten · ${t.kaarten.length} kaartjes · ${t.quiz.length} vragen</small></span>${taken['leer:' + t.id] ? '<span class="klaar">✓ geleerd</span>' : ''}</button>`).join('');
+}
+document.addEventListener('click', e => {
+  const tab = e.target.closest('#o-vaktabs button');
+  if (tab) { oVak = tab.dataset.vak; tekenLeerstof(P.maak(), D.stand.taken || {}); return; }
+  const b = e.target.closest('.oitem');
+  if (b && b.dataset.t) return toonOnderwerp(TOPIC[b.dataset.t]);
+  if (b && b.dataset.v) { oVak = b.dataset.v; tekenLeerstof(P.maak(), D.stand.taken || {}); $('o-vaktabs').scrollIntoView({ behavior:'smooth', block:'center' }); }
+  if (e.target.id === 'modaal' || e.target.closest('#m-sluit')) $('modaal').hidden = true;
+});
+function antwoordVan(q){
+  if (q.t === 'mc') return q.o[q.a || 0];
+  if (q.t === 'jf') return q.a ? 'Juist' : 'Fout';
+  if (q.t === 'volgorde') return q.o.join(' → ');
+  if (Array.isArray(q.a)) return q.a[0];
+  return q.a ?? q.m ?? '';
+}
+function toonOnderwerp(t){
+  if (!t) return;
+  const v = V[t.vak];
+  $('modaal-inhoud').innerHTML = `<div class="rij" style="justify-content:space-between;flex-wrap:nowrap"><span class="pil" style="background:${v.kleur};color:#fff">${v.icoon} ${esc(v.kort)}</span><button class="link" id="m-sluit" aria-label="Sluiten">✕</button></div>
+    <h2 style="margin:10px 0 4px">${esc(t.titel)}</h2>
+    ${(t.bron || []).map(([l, u]) => `<a href="${esc(u)}" target="_blank" rel="noopener" class="klein">📄 ${esc(l)}</a>`).join(' · ')}
+    <details open><summary>Wat moet hij kennen</summary><ul class="leer">${t.samenvatting.map(p => `<li>${p}</li>`).join('')}</ul></details>
+    <details><summary>Kaartjes (${t.kaarten.length}): vraag en antwoord</summary><div class="kaartjes">${t.kaarten.map(([a, b]) => `<div><b>${a}</b><span>${b}</span></div>`).join('')}</div></details>
+    <details><summary>Quizvragen (${t.quiz.length}) met antwoord</summary><ol class="quizlijst">${t.quiz.map(q => `<li>${q.v}<br><span class="antw">→ ${esc(String(antwoordVan(q)))}</span>${q.u ? `<br><span class="muted klein">${q.u}</span>` : ''}</li>`).join('')}</ol></details>`;
+  $('modaal').hidden = false;
 }
 
 function tekenBerichten(){
@@ -107,7 +152,9 @@ function tekenBerichten(){
     const meta = document.createElement('div'); meta.className = 'meta';
     meta.innerHTML = `${esc(naamVan(b.van))} · ${new Date(b.op).toLocaleString('nl-BE', { weekday:'short', day:'numeric', month:'numeric', hour:'2-digit', minute:'2-digit' })} · ${b.gezien ? `<span class="ok">👀 gezien ${new Date(b.gezien).toLocaleString('nl-BE', { weekday:'short', hour:'2-digit', minute:'2-digit' })}</span>` : 'nog niet gezien'}${b.heeftFoto && !b.foto ? ' · 📷' : ''}`;
     const p = document.createElement('div'); p.textContent = b.tekst || '';
-    tx.append(meta, p); r.append(tx); el.append(r);
+    tx.append(meta, p);
+    if (b.antwoord) { const a = document.createElement('div'); a.className = 'antw'; a.textContent = '💬 Eli: ' + b.antwoord; tx.append(a); }
+    r.append(tx); el.append(r);
   }
 }
 

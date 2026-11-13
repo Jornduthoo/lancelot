@@ -157,6 +157,13 @@ main.wrap{padding-top:18px;padding-bottom:60px}
 .speler span{font-size:.82rem;color:var(--inkt-zacht)}
 .speler.ster{grid-column:1/-1}
 .speler.ster .pop.groot{height:280px}
+.commentaar{display:block;margin-top:6px;font-style:italic;opacity:.9}
+.meekijkband{position:sticky;top:0;z-index:60;background:var(--paars);color:#fff;text-align:center;padding:8px 12px;font-weight:800;font-size:.92rem}
+.meekijkband a{color:#fff;margin-left:8px}
+.bericht .afz{display:flex;gap:10px;align-items:center}.bericht .afz .pop{width:54px;height:70px;animation:none}
+.antwoord{display:flex;gap:8px;margin-top:8px}.antwoord input{flex:1;padding:10px 12px}
+.mijnantw{margin-top:8px;background:var(--gras-zacht);border-radius:12px;padding:8px 12px;font-weight:700}
+.kennis-pop .pop.groot{height:min(46vh,360px)}
 @keyframes knik{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(5deg) translateY(-2px)}}
 @keyframes wieg{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
 .ballon{flex:1;background:var(--kaart);border:2px solid var(--lijn);border-radius:20px;padding:12px 14px;position:relative;margin-bottom:28px;font-weight:600;box-shadow:var(--schaduw-klein)}
@@ -209,7 +216,7 @@ main.wrap{padding-top:18px;padding-bottom:60px}
     <input id="pin" inputmode="numeric" pattern="[0-9]*" maxlength="4" aria-label="Pincode" style="position:absolute;opacity:0;pointer-events:none;width:1px;height:1px">
     <div class="toetsen" id="toetsen"></div>
     <p class="login-fout" id="loginfout" role="alert"></p>
-    <p class="muted klein">Ouders en grootouders kunnen hier ook inloggen.</p>
+    <p class="muted klein">Supporters loggen hier ook in, met hun eigen naam en code.</p>
   </form>
 </section>
 

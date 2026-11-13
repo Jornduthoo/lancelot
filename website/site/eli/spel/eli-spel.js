@@ -9,8 +9,10 @@ const dicht = tekst => {
   $('galaga').style.display = 'none';
   $('eli-dicht').classList.remove('hidden');
 };
-if (!s || s.rol !== 'eli') return dicht('Log eerst in bij je leerploeg.');
-if (MODUS === 'beloning') {
+const MEEKIJK = new URLSearchParams(location.search).has('meekijk') && s && s.rol === 'ouder';
+if (!s || (s.rol !== 'eli' && !MEEKIJK)) return dicht('Log eerst in bij je leerploeg.');
+if (MEEKIJK) { /* supporter probeert het spel uit: geen slot, niets bewaard */ }
+else if (MODUS === 'beloning') {
   if (lokaal.get('beloning-' + dag, false)) return dicht('Je hebt vandaag al gespeeld. Morgen weer, na je training! 🐉');
   lokaal.set('beloning-' + dag, true);
 } else {
@@ -34,8 +36,8 @@ addEventListener('spel-einde', e => {
   clearInterval(t); klok.remove();
   const r = e.detail;
   $('eli-einde-tekst').textContent = MODUS === 'pauze' ? 'De pauze is voorbij. Terug naar de training, kampioen!' : 'Goed gespeeld! Tot morgen.';
-  rpc('eli_log', { p_naam: s.naam, p_pin: s.pin, p_soort: 'spel', p_vak: null, p_onderwerp: null, p_score: r.right, p_totaal: r.right + r.wrong,
+  if (!MEEKIJK) rpc('eli_log', { p_naam: s.naam, p_pin: s.pin, p_soort: 'spel', p_vak: null, p_onderwerp: null, p_score: r.right, p_totaal: r.right + r.wrong,
     p_xp: Math.min(100, r.right * 3), p_detail: { modus: MODUS, score: r.score, draken: r.dragons, golf: r.wave, baas: r.boss } }).catch(() => {});
 });
-$('eli-terug').onclick = () => location.href = 'index.html';
+$('eli-terug').onclick = () => location.href = MEEKIJK ? 'index.html?meekijk=1' : 'index.html';
 })();

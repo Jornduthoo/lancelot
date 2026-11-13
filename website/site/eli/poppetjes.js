@@ -57,13 +57,41 @@ function html(f, groot){
     : `<div class="fig leeg">${f.emoji || '🙂'}</div>`;
   return `<div class="pop${groot ? ' groot' : ''}" aria-hidden="true">${binnen}</div>`;
 }
-// Een praatwolkje met een figuur ernaast. opts: { vak, rol, figuur, id }
+// Eigen karakter: wat zeggen ze typisch? (gebruikt bij aanmoedigingen)
+const EIGEN = {
+  moemoe: [
+    'Dag schatteke! Ik ben zo trots op jou. Elke dag een beetje, dat lukt jou zeker. 💛',
+    'Ik denk heel de dag aan je, hoor. Zet hem op, lieverd! 🥰',
+    'Weet je wat ik het liefste zie? Jou die zijn best doet. Dikke knuffel! 🤗',
+    'Rustig aan, stap voor stap. Moemoe gelooft in jou! 💛',
+    'Als je klaar bent, verdien je een dikke knuffel van mij. En een koekje. 🍪',
+  ],
+  boeboe: [
+    'Waarom nam de voetballer een touw mee naar de match? Om de bal vast te binden! 😂 Hup, aan de slag!',
+    'Weet je waarom boeken nooit koud hebben? Ze hebben een kaft! 📚😄 Doe je best, maat!',
+    'Wat zegt een nul tegen een acht? Mooie riem! 😆 Zorg jij maar voor geen nullen.',
+    'Waarom kan een fiets niet alleen rechtstaan? Hij is te moe! 🚲 Jij niet hé, kom op!',
+    'Wat is groen en zit in een doel? Een keepertje… sla! 🥬 Oké, slecht. Leren nu!',
+    'Waarom ging de leraar met een zonnebril naar school? Zijn leerlingen waren zo slim! 😎 Zoals jij.',
+  ],
+  papa: [
+    'Pak je tijd! Geen half werk! 💪',
+    'Kampioenen worden gemaakt op training, niet op de match. Hup!',
+    'Focus, Eli! Gsm weg, hersenen aan. 🧠',
+  ],
+  marieke: [
+    'Ik zie dat je bezig bent. Super, schat! Zo doen we dat. 💪',
+    'Eerst je werk, dan je ontspanning. Je kan het! ⚽',
+  ],
+};
+const eigen = (f, standaard) => (f && EIGEN[f.id] && Math.random() < .7) ? EIGEN[f.id][Math.floor(Math.random() * EIGEN[f.id].length)] : standaard;
+// Een praatwolkje met een figuur ernaast. opts: { vak, rol, figuur, id, eigen }
 function babbel(el, tekst, opts = {}){
   if (!el) return null;
   const f = opts.figuur || (opts.id && metId(opts.id)) || kies(opts.vak, opts.rol);
   el.innerHTML = `${html(f)}<div class="ballon"><span class="wie"></span><div class="tx"></div></div>`;
   el.querySelector('.wie').textContent = f.naam;
-  el.querySelector('.tx').innerHTML = tekst; // tekst komt uit onze eigen inhoud
+  el.querySelector('.tx').innerHTML = opts.eigen ? eigen(f, tekst) : tekst; // tekst komt uit onze eigen inhoud
   return f;
 }
 // De ereplek: alle figuren met hun taak.
@@ -81,5 +109,8 @@ function ploegHtml(){
 // De binnenste kring: mama, papa, Boeboe en Moemoe. Zij zeggen het vaakst iets.
 const KRING = ['marieke','papa','boeboe','moemoe'];
 function kring(){ const l = KRING.map(metId).filter(Boolean); return l[Math.floor(Math.random() * l.length)] || null; }
-window.POP = { zet, kies, html, babbel, metId, kring, ploegHtml, klaar: () => klaarP, ROLNAAM };
+// Wie logt in als welke figuur?
+const LOGIN = { mama:'marieke', omaveldegem:'oma' };
+const vanLogin = naam => metId(LOGIN[naam] || naam);
+window.POP = { vanLogin, zet, kies, html, babbel, metId, kring, ploegHtml, klaar: () => klaarP, ROLNAAM };
 })();

@@ -1,10 +1,13 @@
 // Eli's leerploeg: de app zelf.
 (function(){
-const { rpc, sessie, lokaal, vandaag, opDag, mooiDatum, dagenTussen, esc, $, toast, confetti, xpPop, piep, naamVan } = window.ELI;
+const { rpc: rpcEcht, sessie, lokaal, vandaag, opDag, mooiDatum, dagenTussen, esc, $, toast, confetti, xpPop, piep, naamVan } = window.ELI;
 const P = window.ELI_PLAN, V = P.VAKKEN;
 const T = window.ELI_ONDERWERPEN;
 const TOPIC = Object.fromEntries(T.map(t => [t.id, t]));
 
+// Meekijken: een supporter ziet de app zoals Eli, maar er wordt niets bewaard.
+const MEEKIJK = new URLSearchParams(location.search).has('meekijk');
+const rpc = (fn, args, opts) => (MEEKIJK && fn !== 'eli_ouder') ? Promise.resolve(fn === 'eli_antwoord' ? false : true) : rpcEcht(fn, args, opts);
 const S = {
   naam: null, pin: null, stand: null, plan: null,
   taken: {}, kaarten: {}, vuil: new Set(), xpLokaal: 0, minLokaal: 0,
@@ -97,6 +100,8 @@ function isKlaar(id){ return !!S.taken[id]; }
 function itemsVandaag(){
   const d = vandaag();
   const out = [];
+  // Voor de start: alleen kennismaken met de leerploeg.
+  if (d < P.START) return [{ id:'kennis:ploeg', soort:'kennis', titel:'Maak kennis met je leerploeg', min:5 }];
   // Inhaalwerk: alles van vroegere dagen dat niet af is (behalve de dagelijkse kaartjes).
   for (const [dag, items] of Object.entries(S.plan)) {
     if (dag >= d) continue;
@@ -191,8 +196,8 @@ function thuis(){
     const done = isKlaar(it.id), slot = !done && i !== eersteOpen;
     el.className = 'taak' + (done ? ' klaar' : '') + (slot ? ' slot' : '') + (it.inhaal ? ' inhaal' : '');
     el.style.setProperty('--vk', vk(it.vak));
-    const ic = done ? '✅' : it.soort === 'kaarten' ? '🃏' : it.soort === 'proef' ? '📝' : it.soort === 'drill' ? '⚡' : it.soort === 'zwak' || it.soort === 'extra' ? '🎯' : (V[it.vak] || {}).icoon || '📘';
-    const wat = { leer:'Leren + kaartjes + quiz', herhaal:'Herhalen + quiz', proef:'Proefexamen', zwak:'Zwakke punten', extra:'Extra herhaling (ging moeilijk)', drill:'Werkwoorden-sprint', kaarten:'Herhaalkaartjes' }[it.soort] || '';
+    const ic = done ? '✅' : it.soort === 'kennis' ? '⭐' : it.soort === 'kaarten' ? '🃏' : it.soort === 'proef' ? '📝' : it.soort === 'drill' ? '⚡' : it.soort === 'zwak' || it.soort === 'extra' ? '🎯' : (V[it.vak] || {}).icoon || '📘';
+    const wat = { kennis:'Kennismaking', leer:'Leren + kaartjes + quiz', herhaal:'Herhalen + quiz', proef:'Proefexamen', zwak:'Zwakke punten', extra:'Extra herhaling (ging moeilijk)', drill:'Werkwoorden-sprint', kaarten:'Herhaalkaartjes' }[it.soort] || '';
     el.innerHTML = `<div class="ic">${ic}</div><div class="tx">${it.inhaal ? `<span class="tag">Inhaalwerk van ${mooiDatum(it.inhaal, true)}</span>` : ''}<b></b><span>${esc((V[it.vak] || {}).kort || 'Alle vakken')} · ${wat} · ± ${it.min} min</span></div>`;
     el.querySelector('b').textContent = it.titel;
     const knop = document.createElement('button');
@@ -208,8 +213,10 @@ function thuis(){
   // Beloning
   const alles = items.length && items.every(it => isKlaar(it.id));
   const bel = $('beloning');
-  if (alles) {
-    bel.innerHTML = `<div class="beloning"><div class="groot">🐉</div><div style="flex:1"><h3>Alles gedaan! Tijd voor Drakenjacht</h3><p style="margin:2px 0 0;opacity:.9">10 minuten vliegen. Juist antwoorden geeft lasers en schilden.</p></div><a class="knop goud" href="spel.html?beloning=1" style="text-decoration:none;padding:12px 16px;border-radius:14px">Spelen</a></div>`;
+  if (d < P.START) {
+    bel.innerHTML = `<div class="beloning dicht"><div class="groot">🐉</div><div><h3>Drakenjacht</h3><p style="margin:2px 0 0">Vanaf morgen: maak je opdrachten af en jaag 10 minuten op draken.</p></div></div>`;
+  } else if (alles) {
+    bel.innerHTML = `<div class="beloning"><div class="groot">🐉</div><div style="flex:1"><h3>Alles gedaan! Tijd voor Drakenjacht</h3><p style="margin:2px 0 0;opacity:.9">10 minuten vliegen. Juist antwoorden geeft lasers en schilden.</p></div><a class="knop goud" href="spel.html?beloning=1${MEEKIJK ? '&meekijk=1' : ''}" style="text-decoration:none;padding:12px 16px;border-radius:14px">Spelen</a></div>`;
     if (!lokaal.get('feest-' + d, false)) { lokaal.set('feest-' + d, true); confetti(3000); piep('klaar'); }
   } else {
     bel.innerHTML = `<div class="beloning dicht"><div class="groot">🔒</div><div><h3>Drakenjacht</h3><p style="margin:2px 0 0">Maak eerst alle opdrachten van vandaag af. Dan mag je 10 minuten draken jagen.</p></div></div>`;
@@ -233,7 +240,7 @@ function thuis(){
   // Babbel
   const mot = motivatie(items, alles);
   const maat = Math.random() < .75 && POP.kring();
-  POP.babbel($('dagbabbel'), mot, maat ? { figuur: maat } : { rol: alles ? ['supporter','manager','trainer'] : ['manager','trainer','supporter','coach'] });
+  POP.babbel($('dagbabbel'), mot, maat ? { figuur: maat, eigen: !/inhaal|Toppie/.test(mot) } : { rol: alles ? ['supporter','manager','trainer'] : ['manager','trainer','supporter','coach'] });
 }
 
 function motivatie(items, alles){
@@ -503,6 +510,7 @@ function voerUit(it){
   } else if (it.soort === 'vrij-lees') stappen.push(['lees', t]);
   else if (it.soort === 'vrij-kaartjes') stappen.push(['kaartjes', t.kaarten.map((_, i) => t.id + '-' + i)]);
   else if (it.soort === 'vrij-quiz') stappen.push(['quiz', vragenVan(t, 10)]);
+  else if (it.soort === 'kennis') stappen.push(['kennis']);
 
   lopend = { it, stappen, i: 0, resultaten: [] };
   S.taakXP = 0;
@@ -517,7 +525,7 @@ function voerUit(it){
 $('taak-terug').onclick = () => { bewaarKaarten(); lopend = null; thuis(); };
 
 function tekenStappen(){
-  const namen = { lees:'📖 Leren', kaartjes:'🃏 Kaartjes', quiz:'❓ Quiz' };
+  const namen = { lees:'📖 Leren', kaartjes:'🃏 Kaartjes', quiz:'❓ Quiz', kennis:'⭐ Je ploeg' };
   $('taak-stappen').innerHTML = lopend.stappen.map((s, i) => `<span class="${i < lopend.i ? 'ok' : i === lopend.i ? 'aan' : ''}">${i < lopend.i ? '✓ ' : ''}${namen[s[0]]}${s[2] === 'proef' ? ' (proefexamen)' : ''}</span>`).join('');
 }
 function balk(p){ $('taak-balk').style.width = Math.round(p * 100) + '%'; }
@@ -530,12 +538,59 @@ function volgendeStap(){
   const verder = res => { if (res) lopend.resultaten.push(res); lopend.i++; volgendeStap(); };
   if (pauzeNodig()) return pauze(() => volgendeStap());
   S.huidigAct = soort;
-  if (soort === 'lees') stapLees(data, verder);
+  if (soort === 'kennis') stapKennis(verder);
+  else if (soort === 'lees') stapLees(data, verder);
   else if (soort === 'kaartjes') stapKaartjes(data, verder, extra);
   else stapQuiz(data, verder, extra);
 }
 
 // --- Leren ---
+// Kennismaking: elk lid van de ploeg stelt zich voor, daarna hoe het werkt.
+const VOORSTEL = {
+  eli: 'Dit ben jij! Nummer 10, de kampioen van deze ploeg. Wij spelen allemaal voor jou. ⚽',
+  marieke: 'Ik ben je ploegmanager. Ik hou je planning in de gaten en stuur je af en toe een berichtje. 💌',
+  papa: 'Krachttrainer hier! Bij de pauzes doen we samen oefeningen. Spieren én hersenen trainen! 💪',
+  boeboe: 'Hey maat! Ik help je met Gedrag. Samen krijgen we dat examen klein. 😉',
+  moemoe: 'Dag schat! Ik help je ook bij Gedrag. En ik ben altijd supertrots op je. 💛',
+  thor: 'Ik ben je supporter nummer 1. Ik sta altijd langs de lijn te roepen! 📣',
+  bjorn: 'Ik ben de hoofdcoach. Bij de quizzen stel ik de vragen. Geen half werk, hé!',
+  onno: 'Ik ben de pauzekapitein. Na 25 minuten werken roep ik: PAUZE! 🧸',
+};
+const VAKZIN = { kf:'Kunst & Filosofie', gsw:'Gedrag', fr:'Frans', wet:'Wetenschappen', cul:'Cultuur' };
+function stapKennis(verder){
+  const box = $('taakinhoud');
+  const volg = ['eli','marieke','papa','boeboe','moemoe','thor','bjorn','onno'];
+  const lijst = (S.stand.figuren || []).filter(f => f.rol !== 'weg' && f.img).sort((a, b) => { const ia = volg.indexOf(a.id), ib = volg.indexOf(b.id); return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib); });
+  let n = 0;
+  const toon = () => {
+    if (n >= lijst.length) return slot();
+    const f = lijst[n];
+    const zin = VOORSTEL[f.id] || `Ik ben ${f.naam}. Ik leg je ${VAKZIN[f.vak] || 'van alles'} uit en stel je er vragen over. Samen gaan we ervoor!`;
+    balk((n + 1) / (lijst.length + 1));
+    box.innerHTML = `<div class="kaart center" style="padding:18px 14px"><div class="label">${n + 1} van ${lijst.length}</div><div class="kennis-pop">${POP.html(f, true)}</div><h2 style="margin-top:6px">${esc(f.naam)}</h2><p class="muted" style="margin:0">${esc(POP.ROLNAAM[f.rol] || '')}${f.vak ? ' · ' + esc(VAKZIN[f.vak]) : ''}</p><div class="ballon" style="margin:14px 0 6px;text-align:left"><div class="tx"></div></div><div class="onder" style="justify-content:center"><button class="knop groot" id="kn">${n + 1 < lijst.length ? 'Volgende speler →' : 'Hoe werkt het? →'}</button></div></div>`;
+    box.querySelector('.tx').textContent = zin;
+    piep('klik');
+    $('kn').onclick = () => { n++; toon(); };
+  };
+  const slot = () => {
+    balk(1);
+    box.innerHTML = `<div class="kaart" style="padding:20px 16px"><h2>Zo werkt jouw training</h2>
+      <ol style="padding-left:20px;line-height:1.6">
+        <li><b>Elke dag inloggen.</b> Morgen (zaterdag) start de echte training.</li>
+        <li>Je opdrachten doe je <b>van boven naar onder</b>: eerst leren, dan kaartjes en een quiz.</li>
+        <li>Wat je niet afmaakt, komt de volgende dag terug als <b>inhaalwerk</b>.</li>
+        <li>Na <b>25 minuten</b> werken krijg je <b>5 minuten pauze</b>, met Drakenjacht of een oefening van papa.</li>
+        <li>Alles af? Dan mag je <b>10 minuten Drakenjacht</b> spelen als beloning. 🐉</li>
+        <li>Je verdient <b>XP</b>, stijgt in level en verzamelt trofeeën. 🏆</li>
+      </ol>
+      <div class="babbel" id="kp"></div>
+      <div class="onder" style="justify-content:center"><button class="knop groot goud" id="kn">Ik ben er klaar voor! ⚽</button></div></div>`;
+    POP.babbel($('kp'), 'Pak je tijd, geen half werk! Tot morgen, kampioen. 💪', { id:'papa' });
+    $('kn').onclick = () => verder({ soort:'kennis' });
+  };
+  POP.klaar().then(toon);
+}
+
 function stapLees(t, verder){
   const box = $('taakinhoud');
   const punten = t.samenvatting;
@@ -638,6 +693,13 @@ function stapQuiz(vragen, verder, modus){
     fb.className = 'feedback ' + (goed ? 'goed' : half ? 'info' : 'fout');
     const lof = ['Juist! ⚽','Goal! 🎉','Top! 💪','Netjes!','Helemaal juist!'];
     fb.innerHTML = (goed ? lof[Math.floor(Math.random() * lof.length)] : half ? 'Bijna!' : 'Niet juist.') + (uitleg ? `<span>${uitleg}</span>` : '') + (q.u ? `<span>💡 ${q.u}</span>` : '');
+    if (Math.random() < .2) {
+      const wie = POP.metId(goed ? (Math.random() < .5 ? 'boeboe' : 'moemoe') : 'moemoe');
+      const zin = goed
+        ? (wie && wie.id === 'boeboe' ? schud(['Goal! Zelfs ik had dat niet geweten. 😜','Slimmerik! Heb je dat van mij? 😎','Juist! Dat verdient een high five. ✋ Mis! Ah nee, toch raak.'])[0] : schud(['Goed zo, schatteke! 💛','Zie je wel dat je het kan! 🥰','Moemoe is trots! 💛'])[0])
+        : schud(['Geeft niks, lieverd. Volgende keer weet je het! 💛','Fouten maken is leren. Kop op! 🤗'])[0];
+      if (wie) fb.insertAdjacentHTML('beforeend', `<span class="commentaar">${esc(wie.naam)}: ${zin}</span>`);
+    }
     piep(goed ? 'goed' : 'fout');
     const b = document.createElement('button'); b.className = 'knop groot'; b.textContent = 'Volgende →';
     b.onclick = () => { i++; if (pauzeNodig() && i < vragen.length - 2) pauze(toon); else toon(); };
@@ -659,7 +721,7 @@ function stapQuiz(vragen, verder, modus){
     }
     const sterren = pct >= .95 ? 3 : pct >= .8 ? 2 : pct >= nodig ? 1 : 0;
     box.innerHTML = `<div class="kaart resultaat"><div class="sterren">${'⭐'.repeat(sterren)}${'☆'.repeat(3 - sterren)}</div><div class="groot">${Math.round(pct * 100)}%</div><p class="muted">${Math.round(score * 10) / 10} van ${totaal} juist bij de eerste poging</p><div class="babbel" id="rp" style="text-align:left"></div>${fouten.length ? `<div class="foutlijst"><div class="label" style="margin-bottom:6px">Deze komen extra terug</div>${fouten.slice(0, 8).map(f => `<div>${esc(f)}</div>`).join('')}</div>` : ''}<div class="onder" style="justify-content:center" id="rk"></div></div>`;
-    POP.babbel($('rp'), gehaald ? (pct === 1 ? 'PERFECT! Dat is een hattrick! 🎩⚽' : 'Goed gedaan! Opdracht gehaald. 💪') : `Nog niet genoeg (nodig: ${Math.round(nodig * 100)}%). Geen probleem: <b>nog een keer</b>, nu met andere volgorde. Lees eerst even je fouten.`, gehaald && Math.random() < .5 ? { figuur: POP.kring() || undefined } : { vak: lopend.it.vak });
+    POP.babbel($('rp'), gehaald ? (pct === 1 ? 'PERFECT! Dat is een hattrick! 🎩⚽' : 'Goed gedaan! Opdracht gehaald. 💪') : `Nog niet genoeg (nodig: ${Math.round(nodig * 100)}%). Geen probleem: <b>nog een keer</b>, nu met andere volgorde. Lees eerst even je fouten.`, gehaald && Math.random() < .5 ? { figuur: POP.kring() || undefined, eigen: true } : { vak: lopend.it.vak });
     if (gehaald) { confetti(sterren === 3 ? 3500 : 1800); piep('klaar'); }
     const rk = $('rk');
     if (gehaald) {
@@ -760,12 +822,13 @@ async function taakAf(){
   logResultaat('taak', it.vak, it.onderwerp, score ?? 0, totaal ?? 0, S.taakXP, { taak: it.id, soort: it.soort, titel: it.titel });
   const box = $('taakinhoud');
   balk(1); lopend.i = lopend.stappen.length; tekenStappen();
-  const items = itemsVandaag(), allesAf = items.length && items.every(x => isKlaar(x.id));
-  box.innerHTML = `<div class="kaart center" style="padding:26px 18px"><div style="font-size:3.4rem">${allesAf ? '🏆' : '✅'}</div><h2>${allesAf ? 'Alles gedaan voor vandaag!' : 'Opdracht klaar!'}</h2><p class="muted">Je verdiende <b>${S.taakXP} XP</b> met deze opdracht.</p><div class="babbel" id="ap" style="text-align:left;margin-top:12px"></div><div class="onder" style="justify-content:center"><button class="knop groot" id="naar">${allesAf ? 'Naar de beloning 🐉' : 'Volgende opdracht →'}</button></div></div>`;
-  POP.babbel($('ap'), allesAf ? 'Wat een training! Ik ben trots op je. Nu mag je even draken jagen. 🐉' : 'Lekker bezig! Op naar de volgende.', { figuur: POP.kring() || undefined, vak: it.vak });
+  const items = itemsVandaag(), allesAf = it.soort !== 'kennis' && items.length && items.every(x => isKlaar(x.id));
+  box.innerHTML = `<div class="kaart center" style="padding:26px 18px"><div style="font-size:3.4rem">${allesAf ? '🏆' : '✅'}</div><h2>${allesAf ? 'Alles gedaan voor vandaag!' : it.soort === 'kennis' ? 'Je kent je ploeg!' : 'Opdracht klaar!'}</h2><p class="muted">Je verdiende <b>${S.taakXP} XP</b> met deze opdracht.</p><div class="babbel" id="ap" style="text-align:left;margin-top:12px"></div><div class="onder" style="justify-content:center"><button class="knop groot" id="naar">${allesAf ? 'Naar de beloning 🐉' : it.soort === 'kennis' ? 'Bekijk je ploeg ⭐' : 'Volgende opdracht →'}</button></div></div>`;
+  POP.babbel($('ap'), allesAf ? 'Wat een training! Ik ben trots op je. Nu mag je even draken jagen. 🐉' : it.soort === 'kennis' ? 'Welkom in de ploeg, kampioen! Morgen beginnen we eraan. 💪' : 'Lekker bezig! Op naar de volgende.', { figuur: POP.kring() || undefined, vak: it.vak, eigen: !allesAf });
   confetti(allesAf ? 4000 : 1500); piep('klaar');
   $('naar').onclick = () => {
-    if (allesAf) { location.href = 'spel.html?beloning=1'; return; }
+    if (allesAf) { location.href = 'spel.html?beloning=1' + (MEEKIJK ? '&meekijk=1' : ''); return; }
+    if (it.soort === 'kennis') { thuis(); document.querySelector('#tabs [data-tab="ploeg"]').click(); return; }
     if (it.vrij) return thuis();
     const volgende = itemsVandaag().find(x => !isKlaar(x.id));
     if (volgende && !pauzeNodig()) voerUit(volgende); else thuis();
@@ -808,7 +871,7 @@ function pauze(daarna){
   };
   c.querySelectorAll('[data-p]').forEach(b => b.onclick = () => {
     const pz = $('pz'); const soort = b.dataset.p;
-    if (soort === 'spel') { sessie.set({ ...sessie.get(), terugNaPauze: true }); location.href = 'spel.html?pauze=1'; return; }
+    if (soort === 'spel') { sessie.set({ ...sessie.get(), terugNaPauze: true }); location.href = 'spel.html?pauze=1' + (MEEKIJK ? '&meekijk=1' : ''); return; }
     if (soort === 'adem') pz.innerHTML = `<div class="adem">adem in…</div><p class="center muted">Adem 4 tellen in als de bol groeit, 4 tellen uit als hij krimpt.</p>`;
     if (soort === 'beweeg') pz.innerHTML = `<div class="babbel" id="pzp"></div><div class="kaart"><h3>Voetbal-pauze ⚽</h3><p>1. 20 keer hooghouden (of doen alsof met een prop papier).<br>2. 10 squats als een keeper.<br>3. 30 seconden op één been staan, dan het andere.<br>4. Een glas water drinken. 💧</p></div>`;
     if (soort === 'beweeg') POP.babbel($('pzp'), 'Kom op, kampioen! Spieren wakker maken. Ik doe mee! 💪', { id:'papa' });
@@ -835,8 +898,24 @@ function toonBerichten(lijst, nieuw){
   for (const b of lijst) {
     const el = document.createElement('div'); el.className = 'bericht';
     if (b.foto) { const img = document.createElement('img'); img.src = b.foto; img.alt = 'Selfie van ' + naamVan(b.van); el.append(img); }
-    const van = document.createElement('div'); van.className = 'van'; van.textContent = naamVan(b.van) + ' · ' + new Date(b.op).toLocaleString('nl-BE', { weekday:'short', hour:'2-digit', minute:'2-digit' }); el.append(van);
+    const afz = document.createElement('div'); afz.className = 'afz';
+    const fig = POP.vanLogin(b.van); if (fig) afz.insertAdjacentHTML('beforeend', POP.html(fig));
+    const van = document.createElement('div'); van.className = 'van'; van.textContent = naamVan(b.van) + ' · ' + new Date(b.op).toLocaleString('nl-BE', { weekday:'short', hour:'2-digit', minute:'2-digit' }); afz.append(van); el.append(afz);
     if (b.tekst) { const p = document.createElement('p'); p.textContent = b.tekst; el.append(p); }
+    const antw = () => {
+      el.querySelectorAll('.antwoord,.mijnantw').forEach(x => x.remove());
+      if (b.antwoord) { const m = document.createElement('div'); m.className = 'mijnantw'; m.textContent = '💬 Jij: ' + b.antwoord; el.append(m); return; }
+      const f = document.createElement('form'); f.className = 'antwoord';
+      f.innerHTML = `<input maxlength="300" placeholder="Stuur iets terug naar ${esc(naamVan(b.van))}…" aria-label="Antwoord"><button class="knop klein">Stuur</button>`;
+      f.onsubmit = async e => {
+        e.preventDefault(); const tekst = f.querySelector('input').value.trim(); if (!tekst) return;
+        f.querySelector('button').disabled = true;
+        try { const ok = await rpc('eli_antwoord', { p_naam: S.naam, p_pin: S.pin, p_id: b.id, p_tekst: tekst }); if (ok === false) throw 0; b.antwoord = tekst; antw(); toast('Verstuurd naar ' + naamVan(b.van) + '! 💌'); piep('goed'); }
+        catch { f.querySelector('button').disabled = false; toast('Versturen lukte niet. Probeer nog eens.'); }
+      };
+      el.append(f);
+    };
+    if (b.id) antw();
     c.append(el);
   }
   const k = document.createElement('div'); k.className = 'onder';
@@ -852,12 +931,12 @@ function welkom(){
   const items = itemsVandaag();
   const m = $('modaal'), c = $('modaal-inhoud');
   c.innerHTML = `<div class="babbel" id="wp"></div><h2>Klaar voor de training?</h2><p class="muted">${items.length} opdracht${items.length === 1 ? '' : 'en'} vandaag, ± ${P.budget(vandaag())} minuten. Begin bovenaan en werk ze één voor één af.</p><div class="onder"><button class="knop groot" id="wk">Let's go! ⚽</button></div>`;
-  POP.babbel($('wp'), 'Welkom terug, Eli! Elke dag een beetje, dan haal je die examens met glans. 💪', { figuur: POP.kring() || undefined });
+  POP.babbel($('wp'), 'Welkom terug, Eli! Elke dag een beetje, dan haal je die examens met glans. 💪', { figuur: POP.kring() || undefined, eigen: true });
   m.hidden = false;
   $('wk').onclick = () => m.hidden = true;
 }
 $('knop-berichten').onclick = () => toonBerichten(null, false);
-$('knop-uit').onclick = () => { bewaarKaarten(); sessie.wis(); location.reload(); };
+$('knop-uit').onclick = () => { if (MEEKIJK) { location.href = 'ouder.html'; return; } bewaarKaarten(); sessie.wis(); location.reload(); };
 $('knop-geluid').onclick = () => { const s = !lokaal.get('stil', false); lokaal.set('stil', s); $('knop-geluid').textContent = s ? '🔇' : '🔊'; };
 $('knop-geluid').textContent = lokaal.get('stil', false) ? '🔇' : '🔊';
 $('modaal').addEventListener('click', e => { if (e.target === $('modaal') && !S.pauze) $('modaal').hidden = true; });
@@ -866,6 +945,21 @@ $('modaal').addEventListener('click', e => { if (e.target === $('modaal') && !S.
 tekenToetsen();
 (async () => {
   const s = sessie.get();
+  if (s && s.rol === 'ouder' && MEEKIJK) {
+    try {
+      const res = await rpc('eli_ouder', { p_naam: s.naam, p_pin: s.pin });
+      if (res) {
+        S.naam = s.naam; S.pin = s.pin;
+        document.body.classList.add('meekijk');
+        const band = document.createElement('div'); band.className = 'meekijkband';
+        band.innerHTML = `👀 Je kijkt mee met Eli's app. Niets wordt bewaard. <a href="ouder.html">Terug</a>`;
+        document.body.prepend(band);
+        lokaal.set('welkom-' + vandaag(), true);
+        start({ ...res.stand, berichten: [] });
+        return;
+      }
+    } catch {}
+  }
   if (s && s.rol === 'ouder') { location.href = 'ouder.html'; return; }
   if (s && s.naam && s.pin) {
     try {

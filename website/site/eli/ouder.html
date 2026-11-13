@@ -50,6 +50,24 @@ td.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
 .tag{display:inline-block;font-size:.75rem;font-weight:800;padding:2px 8px;border-radius:99px;background:var(--fout-bg);color:var(--fout);margin-left:4px}
 .tag.ok{background:var(--goed-bg);color:var(--goed)}
 #laden{padding:60px 16px;text-align:center}
+#mijnfig .pop{width:74px;height:96px;flex:none}
+.pop{position:relative;animation:wieg 2.6s ease-in-out infinite;transform-origin:50% 100%}
+.pop .fig{width:100%;height:100%;object-fit:contain;object-position:50% 100%;opacity:0;transition:opacity .3s;filter:drop-shadow(0 4px 6px rgba(0,0,0,.25))}
+.pop .fig.klaar{opacity:1}
+@keyframes wieg{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+.ber .antw{margin-top:6px;background:var(--gras-zacht);border-radius:10px;padding:6px 10px;font-weight:700}
+.tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+.tabs button{background:var(--bg-2);color:var(--inkt);border:1px solid var(--lijn);padding:8px 13px;border-radius:999px;white-space:nowrap;font-size:.9rem}
+.tabs button.aan{background:var(--inkt);color:var(--bg)}
+.dagblok{margin-top:10px}.dagblok h4{margin:0 0 4px;font-family:var(--display);font-size:1rem}
+.oitem{display:flex;gap:10px;align-items:center;width:100%;text-align:left;background:var(--bg-2);color:var(--inkt);border-radius:12px;padding:9px 12px;margin:4px 0;font-weight:700;border-left:5px solid var(--vk,var(--gras))}
+.oitem small{display:block;font-weight:600;color:var(--inkt-zacht)}
+.oitem .klaar{margin-left:auto;color:var(--goed)}
+.leer li{margin:6px 0}
+.kaartjes div{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:8px 0;border-bottom:1px solid var(--lijn);font-size:.95rem}
+.kaartjes div b{font-weight:700}
+.quizlijst li{margin:8px 0}.quizlijst .antw{color:var(--goed);font-weight:800}
+details{margin-top:12px}summary{cursor:pointer;font-family:var(--display);font-weight:800;font-size:1.1rem}
 @media (max-width:560px){.vaktabel th:nth-child(2),.vaktabel td:nth-child(2){display:none}.kopbalk h1{font-size:1.5rem}}
 </style>
 </head>
@@ -59,13 +77,14 @@ td.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
   <header class="veld">
     <div class="wrap">
       <div class="kopbalk">
-        <div><div class="label" style="color:rgba(255,255,255,.85)" id="wie"></div><h1>Hoe gaat het met Eli?</h1></div>
+        <div class="rij" style="flex-wrap:nowrap;gap:12px"><div id="mijnfig"></div><div><div class="label" style="color:rgba(255,255,255,.85)" id="wie"></div><h1>Hoe gaat het met Eli?</h1></div></div>
         <div class="rij"><a href="index.html" style="display:none"></a><button id="ververs" aria-label="Vernieuwen">🔄</button><button id="uit" aria-label="Uitloggen">🚪</button></div>
       </div>
       <div class="raster" id="cijfers"></div>
     </div>
   </header>
   <main class="wrap">
+    <section class="kaart" style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;justify-content:space-between"><div><h2 style="margin:0">👀 Kijk mee met Eli</h2><p class="muted klein" style="margin:2px 0 0">Zie de app precies zoals Eli hem ziet, met zijn ploeg en opdrachten. Je kan alles uitproberen; er wordt niets bewaard.</p></div><a class="knop paars" href="index.html?meekijk=1" style="text-decoration:none;padding:12px 18px;border-radius:14px">Open Eli's app</a></section>
     <section class="kaart bericht-maak">
       <h2>💌 Stuur Eli een berichtje</h2>
       <p class="muted klein" style="margin-top:-4px">Hij ziet het meteen als hij de app opent. Een selfie maakt het extra leuk.</p>
@@ -80,6 +99,15 @@ td.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
       <div class="rij"><button class="knop groot" id="stuur">Versturen ⚽</button><span class="muted klein" id="stuurstatus"></span></div>
       <h3 style="margin-top:18px">Verstuurde berichtjes</h3>
       <div id="berichten"></div>
+    </section>
+
+    <section class="kaart" id="leerstof">
+      <h2>📖 Wat moet Eli doen?</h2>
+      <p class="muted klein" style="margin-top:-4px">Tik op een opdracht of onderwerp om de leerstof, de kaartjes en de quizvragen (met antwoorden) te bekijken. Zo kan je meeleren en hem overhoren.</p>
+      <div id="komend"></div>
+      <h3 style="margin-top:16px">Alle leerstof</h3>
+      <div class="tabs" id="o-vaktabs" style="margin:8px 0"></div>
+      <div id="o-onderwerpen"></div>
     </section>
 
     <section class="kaart">
@@ -112,6 +140,7 @@ td.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
     </section>
   </main>
 </div>
+<div class="modaal" id="modaal" hidden><div class="kaart" id="modaal-inhoud"></div></div>
 <script src="gemeen.js"></script>
 <script src="inhoud-kf.js"></script>
 <script src="inhoud-gsw.js"></script>
@@ -119,6 +148,7 @@ td.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
 <script src="inhoud-wet.js"></script>
 <script src="inhoud-cul.js"></script>
 <script src="plan.js"></script>
+<script src="poppetjes.js"></script>
 <script src="ouder.js"></script>
 </body>
 </html>

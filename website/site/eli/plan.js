@@ -11,7 +11,7 @@ const VAKKEN = {
   cul: { naam:'Project Cultuur',   kort:'Cultuur', kleur:'#c2255c', icoon:'🏛️', examen:'2026-12-10', uur:'do 10/12 · 9u00 + 10u55' },
 };
 
-const START = '2026-11-13';
+const START = '2026-11-14';
 const EINDE = '2026-12-10';
 
 // Hoeveel minuten per dag (afspraak met papa).
@@ -86,19 +86,21 @@ function maak(){
   for (const d of dagen()) {
     const b = budget(d);
     const items = [];
-    if (b > 0) items.push({ id:'kaarten:' + d, soort:'kaarten', titel:'Herhaalkaartjes van vandaag', min: Math.min(KAART_MIN, b), dyn:true });
-    if (vast[d]) { items.push(...vast[d]); plan[d] = items; continue; }
-    if (d >= '2026-12-05') { plan[d] = items; continue; }
-    let over = b - KAART_MIN;
+    // Eerst leren, daarna pas de herhaalkaartjes (en op de eerste dag zijn er nog geen kaartjes).
+    const kaart = (b > 0 && d > START) ? { id:'kaarten:' + d, soort:'kaarten', titel:'Herhaalkaartjes van vandaag', min: Math.min(KAART_MIN, b), dyn:true } : null;
+    const sluit = () => { if (kaart) items.push(kaart); plan[d] = items; };
+    if (vast[d]) { items.push(...vast[d]); sluit(); continue; }
+    if (d >= '2026-12-05') { sluit(); continue; }
+    let over = b - (kaart ? KAART_MIN : 0);
     while (wachtrij.length && over >= Math.min(10, wachtrij[0].min)) {
       const t = wachtrij.shift();
       items.push(t);
       over -= t.min;
     }
-    plan[d] = items;
+    sluit();
   }
   // Wat er na 4/12 nog in de wachtrij zit (mag eigenlijk niet), komt op 4/12 als extra.
-  if (wachtrij.length) plan['2026-12-04'].push(...wachtrij.splice(0));
+  if (wachtrij.length) plan['2026-12-04'].splice(-1, 0, ...wachtrij.splice(0));
   return plan;
 }
 
