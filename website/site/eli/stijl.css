@@ -175,3 +175,22 @@ input:focus,textarea:focus{outline:none;border-color:var(--gras)}
 /* uitleg bij fout antwoord */
 .uitdeles{display:block;margin-top:8px;padding:8px 10px;border-radius:12px;background:var(--kaart);border-left:5px solid var(--paars);color:var(--inkt);font-weight:600;line-height:1.35}
 .uitdeles small{display:block;font-weight:800;color:var(--paars);font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px}
+
+/* ---------- Snap je het? (zelf uitleggen, voorbeelden, overhoren) ---------- */
+.waaromniet{display:block;margin-top:8px;padding:8px 10px;border-radius:12px;background:var(--kaart);border-left:5px solid var(--goud);color:var(--inkt);font-weight:600;line-height:1.35}
+.uitlegkaart textarea,#ov{width:100%;min-height:110px;font:inherit;font-size:1rem;padding:10px 12px;border-radius:14px;border:2px solid var(--lijn);background:var(--bg);color:var(--inkt);resize:vertical;box-sizing:border-box}
+.uitlegkaart textarea:focus,#ov:focus{outline:none;border-color:var(--paars)}
+.kernw{display:flex;flex-wrap:wrap;gap:6px}
+.kernw span{font-size:.85rem;font-weight:800;padding:4px 10px;border-radius:99px;background:var(--bg-2);color:var(--inkt-zacht)}
+.kernw span.ja{background:var(--goed-bg);color:var(--goed)}
+.vb-stap{display:flex;gap:10px;align-items:flex-start;background:var(--bg-2);border-radius:14px;padding:9px 12px;margin:6px 0;line-height:1.35;animation:schuif .3s ease}
+.vb-stap b{display:block}.vb-stap small{display:block;color:var(--inkt-zacht);font-size:.82rem}
+.vb-stap.fout{background:var(--fout-bg)}
+.vb-n{flex:none;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--paars);color:#fff;font-weight:800;font-size:.9rem}
+.vb-stap.fout .vb-n{background:var(--fout)}
+.vb-vraag{border:2px dashed var(--paars);border-radius:16px;padding:12px;margin-top:10px}
+.oh-lijst{margin:0;padding-left:22px}.oh-lijst li{margin:8px 0;font-weight:700;line-height:1.35}
+.pk{text-transform:none;letter-spacing:0;font-variant-numeric:tabular-nums}.pk.laat{color:var(--fout)}
+.foutlijst.nognie{background:var(--goud-zacht);padding:10px 12px;border-radius:14px}
+.foutlijst.nognie .link{display:block;text-align:left;padding:4px 0;font-weight:800}
+.goed-tekst{color:var(--goed);font-weight:800}

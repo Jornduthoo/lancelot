@@ -42,7 +42,7 @@ function teken(){
   let reeks = 0;
   for (let x = gehaald(d) ? d : P.dag(d, -1); x >= P.START; x = P.dag(x, -1)) { const g = gehaald(x); if (g === null) continue; if (!g) break; reeks++; }
   const achter = [];
-  for (const x of verleden) for (const it of (plan[x] || [])) if (it.soort !== 'kaarten' && !taken[it.id]) achter.push({ ...it, dag: x });
+  for (const x of verleden) for (const it of (plan[x] || [])) if (!it.dyn && !taken[it.id]) achter.push({ ...it, dag: x });
   const totMin = Object.values(dagen).reduce((a, b) => a + b, 0);
   const logins = D.logins || [];
   const laatst = logins[0] ? new Date(logins[0]).toLocaleString('nl-BE', { weekday:'short', day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' }) : 'nog nooit';
@@ -94,6 +94,8 @@ function teken(){
     const t = TOPIC[l.onderwerp];
     if (l.soort === 'taak') return `✅ Opdracht klaar: <b>${esc((l.detail && l.detail.titel) || (t && t.titel) || '')}</b>`;
     if (l.soort === 'quiz') return `❓ Quiz ${esc(t ? t.titel : l.onderwerp || '')}: <b>${Math.round(l.score / Math.max(1, l.totaal) * 100)}%</b> <span class="muted">(${l.score}/${l.totaal})</span>`;
+    if (l.soort === 'uitleg') return `✍️ Legde <b>${esc(t ? t.titel : '')}</b> uit in eigen woorden <span class="muted">(zelf: ${['nog niet','deels','helemaal'][l.score] || '?'})</span>`;
+    if (l.soort === 'overhoor') return `🗣️ Uitgelegd aan ${esc((l.detail && l.detail.wie) || 'een supporter')}: <b>${l.score}/3</b> goed`;
     if (l.soort === 'spel') return `🐉 Drakenjacht gespeeld${l.score ? ` (${l.score} juist)` : ''}`;
     return esc(l.soort) + (t ? ' · ' + esc(t.titel) : '');
   };
@@ -103,6 +105,7 @@ function teken(){
 
   tekenBerichten();
   tekenLeerstof(plan, taken);
+  tekenOverhoor(plan);
 }
 
 // --- Leerstof: wat moet hij doen en waarover gaat het ---
@@ -213,4 +216,16 @@ $('stuur').onclick = async () => {
 $('uit').onclick = () => { sessie.wis(); location.href = 'index.html'; };
 $('ververs').onclick = laad;
 laad();
+// --- Overhoor Eli: dezelfde 3 vragen als in zijn app ---
+function tekenOverhoor(plan){
+  const d = vandaag(), st = D.stand;
+  const gepland = (plan[d] || []).some(i => i.soort === 'overhoor');
+  const vragen = window.ELI_OVERHOOR(d, st, P);
+  const gedaan = (D.log || []).find(l => l.soort === 'overhoor' && opDag(l.op) === d);
+  $('oh-status').innerHTML = gedaan ? `<span class="tag ok">✓ Vandaag gedaan bij ${esc((gedaan.detail && gedaan.detail.wie) || 'een supporter')} · ${gedaan.score}/3</span>`
+    : gepland ? '<span class="tag">Staat vandaag op zijn planning</span>' : '<span class="muted klein">Vandaag niet gepland, maar overhoren mag altijd!</span>';
+  $('oh-vragen').innerHTML = vragen.map((q, i) => `<div class="oh-v"><b>${i + 1}. ${q.v}</b><details><summary>Toon het antwoord</summary><div>${q.a}</div></details></div>`).join('');
+  const uitleg = (D.log || []).filter(l => l.soort === 'uitleg' && l.detail && l.detail.tekst).slice(0, 5);
+  $('oh-uitleg').innerHTML = uitleg.length ? uitleg.map(l => `<div class="oh-u"><div class="muted klein">${esc((TOPIC[l.onderwerp] || {}).titel || '')} · ${new Date(l.op).toLocaleDateString('nl-BE', { weekday:'short', day:'numeric', month:'numeric' })} · zelf: ${['nog niet','deels','helemaal'][l.score] || '?'}</div><b>${esc(l.detail.vraag || '')}</b><p>“${esc(l.detail.tekst)}”</p></div>`).join('') : '<p class="muted klein">Na elke les legt Eli de kern uit in zijn eigen woorden. Die uitleg verschijnt hier.</p>';
+}
 })();
