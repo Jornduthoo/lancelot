@@ -76,7 +76,7 @@ input[type=text]:focus{outline:none;border-color:var(--zee-2)}
 <header class="band"><div class="in" id="kop"></div></header>
 <main class="wrap" id="app"></main>
 
-<script src="data.js?v=2026-11-23e"></script>
+<script src="data.js?v=2026-11-23f"></script>
 <script>
 (function(){
 const app=document.getElementById('app'), kop=document.getElementById('kop');
@@ -107,7 +107,9 @@ function home(){
   const me=ik(); if(!me){aanmeld();return}
   kop.innerHTML='<h1>Dag '+esc(me.naam)+'!</h1><p>Oefen voor de toetsen van deze week · <button class="terug" id="afmelden">Ben je '+esc(me.naam)+' niet? Afmelden</button></p>';
   let h='';
-  W.slice().reverse().forEach(w=>{
+  const nu=new Date().toISOString().slice(0,10); const plus=(d,n)=>new Date(new Date(d+'T12:00:00Z').getTime()+n*864e5).toISOString().slice(0,10);
+  let tonen=W.filter(w=>plus(w.week,6)>=nu); if(!tonen.length)tonen=W.slice(-1);
+  tonen.forEach(w=>{
     h+='<div class="weeklabel">'+esc(w.label)+'</div>';
     w.toetsen.forEach(t=>{
       h+='<article class="toets"><div class="kop"><div><div class="vak">'+esc(t.vak)+'</div><h2>'+esc(t.titel)+'</h2></div><span class="stempel">'+esc(t.datum)+'</span></div>'+
@@ -168,7 +170,7 @@ function verbeter(d){
       for(let j=0;j<n;j++){const sel=document.getElementById('q'+i+'_'+j), want=q.t==='volg'?String(j+1):q.paren[j][1];const r=sel.value===want;if(!r)alles=false;const l=sel.closest('.optie');l.classList.remove('goed','fout');l.classList.add(r?'goed':'fout')}
       ok=alles; juist=q.t==='volg'?q.items.map((x,j)=>(j+1)+'. '+x).join('  \u00b7  '):q.paren.map(x=>x[0]+' \u2192 '+x[1]).join('  \u00b7  ');
     } else {
-      const v=norm(document.getElementById('q'+i).value); ok=v!==''&&q.a.some(a=>norm(a)===v); juist=q.a[0];
+      const raw=document.getElementById('q'+i).value; const ex=t=>String(t).replace(/[\u2018\u2019`]/g,"'").replace(/\s+/g,' ').trim(); ok=raw.trim()!==''&&(q.exact?q.a.some(a=>ex(a)===ex(raw)):q.a.some(a=>norm(a)===norm(raw))); juist=q.a[0];
     }
     if(ok)goed++;
     fb.hidden=false; fb.className='fb feedback '+(ok?'goed':'fout');

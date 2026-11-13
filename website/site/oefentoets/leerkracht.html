@@ -93,14 +93,14 @@ select.wk{font:inherit;padding:8px 10px;border-radius:10px;border:2px solid var(
 
 <header class="band"><div class="in" style="max-width:1100px" id="kop"><h1>Oefentoetsen: overzicht</h1><p>Wie oefende wat? Alleen voor de leerkracht.</p></div></header>
 <main class="wrap breed" id="app"></main>
-<script src="data.js?v=2026-11-23e"></script>
+<script src="data.js?v=2026-11-23f"></script>
 <script>
 (function(){
 const DB={url:'https://kkqzstqsczcooutdjypt.supabase.co/rest/v1/rpc/',key:'sb_publishable_woxocUFof4ifDWmkVGsHsQ_HL_eMAhc'};
 const app=document.getElementById('app'), W=window.WEKEN||[];
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 let ww=null; try{ww=sessionStorage.getItem('ot_ww')}catch(e){}
-let data=null, week=W.length?W[W.length-1].week:null, toonCodes=false;
+const vandaag=new Date(Date.now()+3*864e5).toISOString().slice(0,10);let data=null, week=(W.filter(x=>x.week<=vandaag).pop()||W[0]||{}).week, toonCodes=false;
 async function laad(){
   const r=await fetch(DB.url+'ot_overzicht',{method:'POST',headers:{apikey:DB.key,'Content-Type':'application/json'},body:JSON.stringify({p_wachtwoord:ww})});
   if(!r.ok){const t=await r.text();throw new Error(t.includes('te_veel')?'Te veel foute pogingen. Wacht 10 minuten.':'Geen verbinding met de databank.')}
