@@ -89,6 +89,7 @@ function start(stand){
   hartslag();
   const ses = sessie.get();
   if (ses && ses.terugNaPauze) { sessie.set({ ...ses, terugNaPauze: false }); setTimeout(() => toast('Welkom terug van je pauze! Verder met de training. ⚽'), 600); }
+  teller();
   const nieuw = (stand.berichten || []).filter(b => !b.gezien);
   if (nieuw.length) setTimeout(() => toonBerichten(nieuw, true), 400);
   else setTimeout(() => welkom(), 300);
@@ -894,13 +895,14 @@ function pauze(daarna){
 function toonBerichten(lijst, nieuw){
   const m = $('modaal'), c = $('modaal-inhoud');
   lijst = lijst || (S.stand.berichten || []);
-  c.innerHTML = `<h2 style="margin-bottom:10px">${nieuw ? '💌 Je hebt een berichtje!' : '💌 Berichtjes'}</h2>` + (lijst.length ? '' : '<p class="muted">Nog geen berichtjes.</p>');
+  c.innerHTML = `<h2 style="margin-bottom:4px">${nieuw ? (lijst.length > 1 ? `💌 Je hebt ${lijst.length} nieuwe berichtjes!` : '💌 Je hebt een berichtje!') : '💌 Je inbox'}</h2>${nieuw ? '' : '<p class="muted klein" style="margin:0 0 10px">Berichtjes van je supporters (laatste 2 weken). Stuur gerust iets terug!</p>'}` + (lijst.length ? '' : '<p class="muted">Nog geen berichtjes.</p>');
   for (const b of lijst) {
-    const el = document.createElement('div'); el.className = 'bericht';
+    const el = document.createElement('div'); el.className = 'bericht' + (!b.gezien ? ' nieuw' : '');
     if (b.foto) { const img = document.createElement('img'); img.src = b.foto; img.alt = 'Selfie van ' + naamVan(b.van); el.append(img); }
+    else if (b.heeftFoto) { const f = document.createElement('div'); f.className = 'muted klein'; f.textContent = '📷 met een selfie (is na een paar dagen verdwenen)'; el.append(f); }
     const afz = document.createElement('div'); afz.className = 'afz';
     const fig = POP.vanLogin(b.van); if (fig) afz.insertAdjacentHTML('beforeend', POP.html(fig));
-    const van = document.createElement('div'); van.className = 'van'; van.textContent = naamVan(b.van) + ' · ' + new Date(b.op).toLocaleString('nl-BE', { weekday:'short', hour:'2-digit', minute:'2-digit' }); afz.append(van); el.append(afz);
+    const van = document.createElement('div'); van.className = 'van'; van.textContent = (!b.gezien ? '🆕 ' : '') + naamVan(b.van) + ' · ' + new Date(b.op).toLocaleString('nl-BE', { weekday:'short', day:'numeric', month:'numeric', hour:'2-digit', minute:'2-digit' }); afz.append(van); el.append(afz);
     if (b.tekst) { const p = document.createElement('p'); p.textContent = b.tekst; el.append(p); }
     const antw = () => {
       el.querySelectorAll('.antwoord,.mijnantw').forEach(x => x.remove());
@@ -923,7 +925,9 @@ function toonBerichten(lijst, nieuw){
   ok.onclick = () => { m.hidden = true; };
   k.append(ok); c.append(k);
   m.hidden = false;
-  if (nieuw) { confetti(1500); rpc('eli_gezien', { p_naam: S.naam, p_pin: S.pin }).catch(() => {}); lijst.forEach(b => b.gezien = new Date().toISOString()); }
+  const ongelezen = (S.stand.berichten || []).filter(b => !b.gezien);
+  if (ongelezen.length) { if (nieuw) confetti(1500); rpc('eli_gezien', { p_naam: S.naam, p_pin: S.pin }).catch(() => {}); ongelezen.forEach(b => b.gezien = new Date().toISOString()); }
+  teller();
 }
 function welkom(){
   if (lokaal.get('welkom-' + vandaag(), false)) return;
@@ -934,6 +938,12 @@ function welkom(){
   POP.babbel($('wp'), 'Welkom terug, Eli! Elke dag een beetje, dan haal je die examens met glans. 💪', { figuur: POP.kring() || undefined, eigen: true });
   m.hidden = false;
   $('wk').onclick = () => m.hidden = true;
+}
+function teller(){
+  const n = ((S.stand && S.stand.berichten) || []).filter(b => !b.gezien).length;
+  const k = $('knop-berichten');
+  k.innerHTML = '💌' + (n ? `<b class="badge">${n}</b>` : '');
+  k.setAttribute('aria-label', n ? `Inbox, ${n} nieuw` : 'Inbox');
 }
 $('knop-berichten').onclick = () => toonBerichten(null, false);
 $('knop-uit').onclick = () => { if (MEEKIJK) { location.href = 'ouder.html'; return; } bewaarKaarten(); sessie.wis(); location.reload(); };
