@@ -12,3 +12,6 @@
 /oefentoets/*
   X-Robots-Tag: noindex, nofollow
   Cache-Control: no-cache
+/eli/*
+  X-Robots-Tag: noindex, nofollow
+  Cache-Control: no-cache
