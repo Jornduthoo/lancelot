@@ -594,11 +594,34 @@ function stapKennis(verder){
   POP.klaar().then(toon);
 }
 
+// Bij een fout antwoord: het best passende stukje uit de les erbij.
+const STOP = new Set('de het een en van in op is te dat die met voor zijn wat wie hoe welke waarom niet als er aan om bij of ook door naar dan je hij ze we wordt worden was uit tot over nog meer heeft hebben kan deze dit juist fout'.split(' '));
+const woorden = x => String(x).replace(/<[^>]+>/g, ' ').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').split(/[^a-z0-9]+/).filter(w => w.length > 2 && !STOP.has(w));
+function goedAntwoord(q){
+  if (q.t === 'mc') return q.o[q.a || 0];
+  if (q.t === 'volgorde') return q.o.join(' ');
+  if (Array.isArray(q.a)) return q.a.join(' ');
+  return typeof q.a === 'string' ? q.a : '';
+}
+function uitDeLes(q){
+  if (q.u || q.pron) return '';
+  const t = TOPIC[q.tid]; if (!t) return '';
+  const zoek = woorden(q.v + ' ' + goedAntwoord(q) + ' ' + goedAntwoord(q));
+  let best = null, bs = 0;
+  for (const p of t.samenvatting) {
+    const pw = new Set(woorden(p));
+    let sc = 0; for (const w of zoek) if (pw.has(w) || [...pw].some(x => x.length > 4 && (x.startsWith(w.slice(0, 5)) && w.length > 4))) sc += w.length > 6 ? 2 : 1;
+    if (sc > bs) { bs = sc; best = p; }
+  }
+  return bs >= 2 ? `<span class="uitdeles"><small>📖 Uit de les</small>${best}</span>` : '';
+}
+
 function stapLees(t, verder){
   const box = $('taakinhoud');
   const punten = t.samenvatting;
   let n = 0, laatst = Date.now();
-  box.innerHTML = `<div class="babbel" id="lees-pop"></div><div class="bronnen">${t.bron.map(([l, u]) => `<a href="${esc(u)}" target="_blank" rel="noopener">📄 ${esc(l)}</a>`).join('')}</div><div id="punten"></div><div class="onder"><button class="knop groot" id="lees-verder">Volgende punt ↓</button></div>`;
+  const vis = (window.ELI_VISUEEL || {})[t.id];
+  box.innerHTML = `<div class="babbel" id="lees-pop"></div>${vis ? `<div class="visueel">${vis}</div>` : ''}<div class="bronnen">${t.bron.map(([l, u]) => `<a href="${esc(u)}" target="_blank" rel="noopener">📄 ${esc(l)}</a>`).join('')}</div><div id="punten"></div><div class="onder"><button class="knop groot" id="lees-verder">Volgende punt ↓</button></div>`;
   POP.babbel($('lees-pop'), `We gaan <b>${esc(t.titel)}</b> leren. Lees elk punt rustig. Hardop zeggen helpt!`, { vak: t.vak });
   const knop = $('lees-verder');
   const toon = () => {
@@ -695,7 +718,7 @@ function stapQuiz(vragen, verder, modus){
     const goed = pt >= 1, half = pt > 0 && pt < 1;
     fb.className = 'feedback ' + (goed ? 'goed' : half ? 'info' : 'fout');
     const lof = ['Juist! ⚽','Goal! 🎉','Top! 💪','Netjes!','Helemaal juist!'];
-    fb.innerHTML = (goed ? lof[Math.floor(Math.random() * lof.length)] : half ? 'Bijna!' : 'Niet juist.') + (uitleg ? `<span>${uitleg}</span>` : '') + (q.u ? `<span>💡 ${q.u}</span>` : '');
+    fb.innerHTML = (goed ? lof[Math.floor(Math.random() * lof.length)] : half ? 'Bijna!' : 'Niet juist.') + (uitleg ? `<span>${uitleg}</span>` : '') + (q.u ? `<span>💡 ${q.u}</span>` : '') + (!goed ? uitDeLes(q) : '');
     if (Math.random() < .2) {
       const wie = POP.metId(goed ? (Math.random() < .5 ? 'boeboe' : 'moemoe') : 'moemoe');
       const zin = goed
