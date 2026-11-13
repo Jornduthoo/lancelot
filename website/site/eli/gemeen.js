@@ -138,7 +138,7 @@ async function verklein(bestandOfCanvas, max = 640, kwaliteit = .78){
   return url;
 }
 
-const NAMEN = { eli:'Eli', papa:'Papa', mama:'Mama', moemoe:'Moemoe', boeboe:'Boeboe' };
+const NAMEN = { eli:'Eli', papa:'Papa', mama:'Mama', moemoe:'Moemoe', boeboe:'Boeboe', opa:'Opa Limburg', omalimburg:'Oma Limburg', omaveldegem:'Oma Veldegem', sylvie:'Tante Sylvie', tim:'Nonkel Tim', bjorn:'Nonkel Bjorn' };
 const naamVan = n => NAMEN[n] || (n ? n[0].toUpperCase() + n.slice(1) : '');
 
 window.ELI = { DB, rpc, sessie, lokaal, vandaag, opDag, mooiDatum, dagenTussen, esc, $, toast, confetti, xpPop, piep, verklein, naamVan, DAGEN, MAANDEN };
