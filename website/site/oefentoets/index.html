@@ -122,7 +122,7 @@ function home(){
     h+='<div class="weeklabel">'+esc(w.label)+'</div>';
     w.toetsen.filter(t=>me.niveau!=='1b'||t.niveaus['1b']).forEach(t=>{
       h+='<article class="toets"><div class="kop"><div><div class="vak">'+esc(t.vak)+'</div><h2>'+esc(t.titel)+'</h2></div><span class="stempel">'+esc(t.datum)+'</span></div>'+
-      '<div class="knoppen"><button class="hoofd" data-go="'+t.id+'-'+(me.niveau==='1b'?'1b':'gewoon')+'">Start oefentoets</button></div></article>';
+      '<div class="knoppen"><button class="hoofd" data-go="'+t.id+'-'+(me.niveau==='1b'?'plus':'gewoon')+'">Start oefentoets</button></div></article>';
     });
   });
   h+='<p class="voet">Je kunt zo vaak oefenen als je wilt. De meester ziet je score.</p>';
@@ -135,7 +135,7 @@ function toets(id,niv){
   const t=f.t, d=t.niveaus[niv]; if(!d){home();return}
   if(!ik()){aanmeld();return}
   bezigToets={id,niv,bewaard:false};
-  kop.innerHTML='<button class="terug" data-go="">← Alle toetsen</button><h1>'+esc(t.titel)+'</h1><p>'+esc(t.vak)+(niv==='1b'?' · 1B-versie':'')+' · toets op '+esc(t.datum)+'</p>';
+  kop.innerHTML='<button class="terug" data-go="">← Alle toetsen</button><h1>'+esc(t.titel)+'</h1><p>'+esc(t.vak)+(niv==='1b'?' · 6+':'')+' · toets op '+esc(t.datum)+'</p>';
   let h='';
   if(d.echteTekst){h+='<p class="link">Lees ook de echte toetstekst: <a href="'+esc(d.echteTekst.url)+'" target="_blank" rel="noopener">'+esc(d.echteTekst.titel)+'</a></p>'}
   if(d.teksten){
@@ -230,8 +230,8 @@ function toonUitslag(goed,n,sterren){
   u.scrollIntoView({behavior:'smooth',block:'center'});
 }
 function route(){
-  const h=location.hash.slice(1); const m=h.match(/^(.+)-(gewoon|1b)$/);
-  if(m)toets(m[1],m[2]); else home();
+  const h=location.hash.slice(1); const m=h.match(/^(.+)-(gewoon|plus|1b)$/);
+  if(m)toets(m[1],m[2]==='gewoon'?'gewoon':'1b'); else home();
 }
 document.addEventListener('click',e=>{const z=e.target.closest('[data-zeg]');if(z){spreek(z.dataset.zeg);return}const b=e.target.closest('[data-go]');if(!b)return;const g=b.dataset.go;if(location.hash.slice(1)===g)route();else location.hash=g;if(!g)route()});
 window.addEventListener('hashchange',route); route();

@@ -127,13 +127,13 @@ function teken(){
   h+='<div class="tabelvak"><table><thead><tr><th>Leerling</th>'+(toonCodes?'<th>Code</th>':'')+toetsen.map(t=>'<th>'+esc(t.vak)+'<br>'+esc(t.titel)+'</th>').join('')+'</tr></thead><tbody>';
   let nooit=0;
   data.leerlingen.forEach(l=>{
-    h+='<tr><td class="naam">'+esc(l.voornaam)+(l.niveau==='1b'?'<span class="tag">1B</span>':'')+'</td>'+(toonCodes?'<td>'+esc(l.code)+'</td>':'');
+    h+='<tr><td class="naam">'+esc(l.voornaam)+(l.niveau==='1b'?'<span class="tag">6+</span>':'')+'</td>'+(toonCodes?'<td>'+esc(l.code)+'</td>':'');
     toetsen.forEach(t=>{
-      if(l.niveau==='1b'&&!t.niveaus['1b']){h+='<td><small class="uitleg">geen 1B</small></td>';return}
+      if(l.niveau==='1b'&&!t.niveaus['1b']){h+='<td><small class="uitleg">geen 6+</small></td>';return}
       const rs=data.resultaten.filter(r=>r.voornaam===l.voornaam&&r.toets===t.id);
       if(!rs.length){nooit++;h+='<td><span class="pil niet">nog niet</span></td>';return}
       const best=rs.reduce((a,b)=>b.score/b.totaal>a.score/a.totaal?b:a), pct=best.score/best.totaal;
-      h+='<td><span class="cel"><span class="pil '+(pct>=.8?'goed':pct>=.5?'mid':'fout')+'">'+best.score+'/'+best.totaal+'</span><small>'+rs.length+'\u00d7 geoefend \u00b7 laatst '+datum(rs[0].op)+(best.niveau==='1b'?' \u00b7 1B':'')+'</small></span></td>';
+      h+='<td><span class="cel"><span class="pil '+(pct>=.8?'goed':pct>=.5?'mid':'fout')+'">'+best.score+'/'+best.totaal+'</span><small>'+rs.length+'\u00d7 geoefend \u00b7 laatst '+datum(rs[0].op)+(best.niveau==='1b'?' \u00b7 6+':'')+'</small></span></td>';
     });
     h+='</tr>';
   });
