@@ -1,0 +1,149 @@
+<!doctype html><html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex, nofollow"><title>Oefentoetsen: leerkracht</title></head><body>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@400;600;700&display=swap">
+<style>
+/* Layout: één smalle kolom zoals een werkblad; bovenaan een zeeblauwe band, toetsen als kaarten met een oranje datumstempel */
+:root{
+  --zee:#0f4c5c; --zee-2:#1d6f80; --koraal:#ff914d; --zand:#f6f1e7; --papier:#ffffff;
+  --inkt:#16313a; --inkt-zacht:#4b6670; --lijn:#d9e3e5; --goed:#1f8a4c; --goed-bg:#e3f4ea; --fout:#c23b2a; --fout-bg:#fbe7e3;
+  --kies:#e9f3f5;
+  --display:"Baloo 2","Trebuchet MS",system-ui,sans-serif; --body:"Nunito",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --zee:#0b2f39; --zee-2:#2b8ca0; --koraal:#ff9d60; --zand:#0f1d22; --papier:#16282e;
+  --inkt:#e6f0f2; --inkt-zacht:#9fb7be; --lijn:#2a4048; --goed:#5fd093; --goed-bg:#163b29; --fout:#ff8a78; --fout-bg:#45201b; --kies:#1d3a42; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --zee:#0b2f39; --zee-2:#2b8ca0; --koraal:#ff9d60; --zand:#0f1d22; --papier:#16282e;
+  --inkt:#e6f0f2; --inkt-zacht:#9fb7be; --lijn:#2a4048; --goed:#5fd093; --goed-bg:#163b29; --fout:#ff8a78; --fout-bg:#45201b; --kies:#1d3a42; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--zand);color:var(--inkt);font-family:var(--body);font-size:17px;line-height:1.55;margin:0}
+.band{background:var(--zee);color:#fff;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:22px 26px}
+.band .in,.wrap{max-width:720px;margin:0 auto}
+.band h1{font-family:var(--display);font-weight:800;font-size:2rem;line-height:1.1;margin:0;text-wrap:balance}
+.band p{margin:.3rem 0 0;opacity:.85}
+.wrap{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:22px 48px;display:flex;flex-direction:column;gap:18px}
+h2{font-family:var(--display);font-weight:800;font-size:1.4rem;margin:0;line-height:1.2;text-wrap:balance}
+h3{font-family:var(--display);font-weight:600;font-size:1.15rem;margin:0}
+.weeklabel{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;color:var(--inkt-zacht)}
+.toets{background:var(--papier);border:1px solid var(--lijn);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:12px}
+.toets .kop{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:flex-start}
+.vak{font-weight:700;color:var(--zee-2);font-size:.9rem;text-transform:uppercase;letter-spacing:.06em}
+.stempel{border:2px solid var(--koraal);color:var(--koraal);border-radius:8px;padding:2px 10px;font-weight:700;font-size:.85rem;white-space:nowrap;transform:rotate(-2deg)}
+.knoppen{display:flex;gap:10px;flex-wrap:wrap}
+button{font:inherit;cursor:pointer;border-radius:10px;border:2px solid transparent;padding:10px 16px;font-weight:700}
+button:focus-visible{outline:3px solid var(--koraal);outline-offset:2px}
+.hoofd{background:var(--zee-2);color:#fff}
+.hoofd:hover{filter:brightness(1.1)}
+.tweede{background:transparent;color:var(--zee-2);border-color:var(--zee-2)}
+.terug{background:none;color:#fff;padding:4px 0;border:0;font-weight:600;opacity:.9}
+.tekstblok{background:var(--papier);border:1px solid var(--lijn);border-radius:14px;padding:18px 20px}
+.tekstblok .soort{font-size:.8rem;color:var(--inkt-zacht);text-transform:uppercase;letter-spacing:.06em;font-weight:700}
+.tekstblok p{margin:.6rem 0;max-width:65ch}
+.tekstblok p .nr{font-weight:700;color:var(--koraal);margin-right:6px;font-variant-numeric:tabular-nums}
+details.tekst summary{cursor:pointer;font-weight:700;color:var(--zee-2)}
+.vraag{background:var(--papier);border:1px solid var(--lijn);border-radius:14px;padding:16px 18px;display:flex;flex-direction:column;gap:10px}
+.vraag .nr{font-family:var(--display);font-weight:800;color:var(--koraal);font-size:1.1rem}
+.vraag .bij{font-size:.82rem;color:var(--inkt-zacht);font-weight:600}
+.opties{display:flex;flex-direction:column;gap:8px}
+.optie{display:flex;gap:10px;align-items:flex-start;background:var(--kies);border:2px solid transparent;border-radius:10px;padding:9px 12px;cursor:pointer}
+.optie input{margin-top:5px;accent-color:var(--zee-2)}
+.optie:has(input:checked){border-color:var(--zee-2)}
+.optie.goed{background:var(--goed-bg);border-color:var(--goed)}
+.optie.fout{background:var(--fout-bg);border-color:var(--fout)}
+input[type=text]{font:inherit;padding:10px 12px;border-radius:10px;border:2px solid var(--lijn);background:var(--papier);color:var(--inkt);width:100%;max-width:360px}
+input[type=text]:focus{outline:none;border-color:var(--zee-2)}
+.feedback{border-radius:10px;padding:10px 12px;font-weight:600}
+.feedback.goed{background:var(--goed-bg);color:var(--goed)}
+.feedback.fout{background:var(--fout-bg);color:var(--fout)}
+.feedback span{display:block;font-weight:400;color:var(--inkt);margin-top:2px}
+.score{background:var(--zee);color:#fff;border-radius:14px;padding:20px;display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.score .getal{font-family:var(--display);font-weight:800;font-size:2.6rem;line-height:1;font-variant-numeric:tabular-nums}
+.score p{margin:0}
+.uitleg{color:var(--inkt-zacht);font-size:.95rem;margin:0}
+.link{background:var(--papier);border:2px dashed var(--koraal);border-radius:12px;padding:10px 14px;margin:0;font-weight:600}
+.link a{color:var(--zee-2)}
+.optie.rij{align-items:center}
+.optie.koppel{flex-direction:column-reverse;align-items:stretch;gap:6px}
+.optie.koppel span{font-weight:700}
+.optie.koppel select{max-width:100%;width:100%}
+.optie select{font:inherit;padding:4px 6px;border-radius:8px;border:2px solid var(--lijn);background:var(--papier);color:var(--inkt);max-width:55%}
+.veld{display:flex;flex-direction:column;gap:4px;font-weight:700}
+.band .terug{color:inherit;text-decoration:underline;font-size:.9rem;padding:0}
+.voet{font-size:.85rem;color:var(--inkt-zacht);text-align:center}
+@media (prefers-reduced-motion:no-preference){.vraag,.score{animation:op .25s ease-out}@keyframes op{from{transform:translateY(4px)}to{transform:none}}}
+</style>
+<style>
+.wrap.breed{max-width:1100px}
+.tabelvak{overflow-x:auto;background:var(--papier);border:1px solid var(--lijn);border-radius:14px}
+table{border-collapse:collapse;width:100%;font-size:.95rem;font-variant-numeric:tabular-nums}
+th,td{padding:8px 10px;border-bottom:1px solid var(--lijn);text-align:left;white-space:nowrap}
+th{font-size:.78rem;text-transform:uppercase;letter-spacing:.05em;color:var(--inkt-zacht);vertical-align:bottom;white-space:normal;min-width:110px}
+td.naam{font-weight:700}
+.cel{display:inline-flex;flex-direction:column;align-items:flex-start;gap:2px;line-height:1.2}
+.cel small{color:var(--inkt-zacht);font-size:.78rem}
+.pil{display:inline-block;border-radius:999px;padding:2px 10px;font-weight:700}
+.pil.goed{background:var(--goed-bg);color:var(--goed)}
+.pil.mid{background:var(--kies);color:var(--zee-2)}
+.pil.fout{background:var(--fout-bg);color:var(--fout)}
+.pil.niet{background:transparent;border:2px dashed var(--fout);color:var(--fout);font-weight:600}
+.tag{font-size:.72rem;font-weight:700;color:var(--koraal);margin-left:6px}
+.rij2{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+select.wk{font:inherit;padding:8px 10px;border-radius:10px;border:2px solid var(--lijn);background:var(--papier);color:var(--inkt)}
+</style>
+
+<header class="band"><div class="in" style="max-width:1100px" id="kop"><h1>Oefentoetsen: overzicht</h1><p>Wie oefende wat? Alleen voor de leerkracht.</p></div></header>
+<main class="wrap breed" id="app"></main>
+<script src="data.js?v=2026-11-23c"></script>
+<script>
+(function(){
+const DB={url:'https://kkqzstqsczcooutdjypt.supabase.co/rest/v1/rpc/',key:'sb_publishable_woxocUFof4ifDWmkVGsHsQ_HL_eMAhc'};
+const app=document.getElementById('app'), W=window.WEKEN||[];
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let ww=null; try{ww=sessionStorage.getItem('ot_ww')}catch(e){}
+let data=null, week=W.length?W[W.length-1].week:null, toonCodes=false;
+async function laad(){
+  const r=await fetch(DB.url+'ot_overzicht',{method:'POST',headers:{apikey:DB.key,'Content-Type':'application/json'},body:JSON.stringify({p_wachtwoord:ww})});
+  if(!r.ok){const t=await r.text();throw new Error(t.includes('te_veel')?'Te veel foute pogingen. Wacht 10 minuten.':'Geen verbinding met de databank.')}
+  return r.json();
+}
+function login(fout){
+  app.innerHTML='<form class="toets" id="f" style="max-width:420px"><h2>Aanmelden</h2><label class="veld">Wachtwoord<input type="password" id="ww" autocomplete="current-password" required></label><div class="knoppen"><button class="hoofd" type="submit">Toon overzicht</button></div>'+(fout?'<p class="feedback fout">'+esc(fout)+'</p>':'')+'</form>';
+  document.getElementById('f').onsubmit=e=>{e.preventDefault();ww=document.getElementById('ww').value;start()};
+}
+async function start(){
+  if(!ww){login();return}
+  app.innerHTML='<p class="uitleg">Laden\u2026</p>';
+  try{data=await laad()}catch(e){login(e.message);return}
+  if(!data){ww=null;try{sessionStorage.removeItem('ot_ww')}catch(e){};login('Dat wachtwoord klopt niet.');return}
+  try{sessionStorage.setItem('ot_ww',ww)}catch(e){}
+  teken();
+}
+function datum(iso){const d=new Date(iso);return d.toLocaleDateString('nl-BE',{weekday:'short',day:'numeric',month:'numeric'})+' '+d.toLocaleTimeString('nl-BE',{hour:'2-digit',minute:'2-digit'})}
+function teken(){
+  const w=W.find(x=>x.week===week)||W[W.length-1]; const toetsen=w?w.toetsen:[];
+  let h='<div class="rij2"><label class="veld" style="flex-direction:row;align-items:center;gap:8px">Week <select class="wk" id="wk">'+W.slice().reverse().map(x=>'<option value="'+x.week+'"'+(x.week===week?' selected':'')+'>'+esc(x.label)+'</option>').join('')+'</select></label>'+
+    '<button class="tweede" id="ververs">Vernieuwen</button><button class="tweede" id="codes">'+(toonCodes?'Verberg codes':'Toon codes')+'</button><button class="tweede" id="uit">Afmelden</button></div>';
+  h+='<div class="tabelvak"><table><thead><tr><th>Leerling</th>'+(toonCodes?'<th>Code</th>':'')+toetsen.map(t=>'<th>'+esc(t.vak)+'<br>'+esc(t.titel)+'</th>').join('')+'</tr></thead><tbody>';
+  let nooit=0;
+  data.leerlingen.forEach(l=>{
+    h+='<tr><td class="naam">'+esc(l.voornaam)+(l.niveau==='1b'?'<span class="tag">1B</span>':'')+'</td>'+(toonCodes?'<td>'+esc(l.code)+'</td>':'');
+    toetsen.forEach(t=>{
+      const rs=data.resultaten.filter(r=>r.voornaam===l.voornaam&&r.toets===t.id);
+      if(!rs.length){nooit++;h+='<td><span class="pil niet">nog niet</span></td>';return}
+      const best=rs.reduce((a,b)=>b.score/b.totaal>a.score/a.totaal?b:a), pct=best.score/best.totaal;
+      h+='<td><span class="cel"><span class="pil '+(pct>=.8?'goed':pct>=.5?'mid':'fout')+'">'+best.score+'/'+best.totaal+'</span><small>'+rs.length+'\u00d7 geoefend \u00b7 laatst '+datum(rs[0].op)+(best.niveau==='1b'?' \u00b7 1B':'')+'</small></span></td>';
+    });
+    h+='</tr>';
+  });
+  h+='</tbody></table></div>';
+  h+='<p class="uitleg">Beste score per leerling per oefentoets. Groen = 80% of meer, rood = minder dan 50%. '+nooit+' keer \u201cnog niet\u201d deze week.</p>';
+  app.innerHTML=h;
+  document.getElementById('wk').onchange=e=>{week=e.target.value;teken()};
+  document.getElementById('ververs').onclick=start;
+  document.getElementById('codes').onclick=()=>{toonCodes=!toonCodes;teken()};
+  document.getElementById('uit').onclick=()=>{ww=null;data=null;try{sessionStorage.removeItem('ot_ww')}catch(e){};login()};
+}
+start();
+})();
+</script>
+</body></html>
