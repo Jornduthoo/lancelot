@@ -13,3 +13,7 @@ Geluiden van Wikimedia Commons (vrije licenties). Bestand / origineel / maker / 
 1f682.mp3	WWS SteamWhistle.ogg	Work With Sounds / Konrad Gutkowski	CC BY 4.0	https://commons.wikimedia.org/wiki/File:WWS_SteamWhistle.ogg
 1f692.mp3	WWS Fireenginesiren.ogg	Work With Sounds / Konrad Gutkowski	CC BY 4.0	https://commons.wikimedia.org/wiki/File:WWS_Fireenginesiren.ogg
 1f514.mp3	Samariter Church bell III (b).ogg	Pete w. View	CC BY-SA 4.0	https://commons.wikimedia.org/wiki/File:Samariter_Church_bell_III_%28b%29.ogg
+23f0.mp3	Alarm clock - 01.ogg	Mathieu Kappler	CC BY-SA 4.0	https://commons.wikimedia.org/wiki/File:Alarm_clock_-_01.ogg
+1f941.mp3	Bass drum.ogg	No machine-readable author provided. Clngre~commonswiki assumed (based on copyright claims).	CC BY-SA 3.0	https://commons.wikimedia.org/wiki/File:Bass_drum.ogg
+1f697.mp3	Car Horn.wav	15HPanska_Ruttner_Jan	CC0	https://commons.wikimedia.org/wiki/File:Car_Horn.wav
+1f434.mp3	Wiehern.ogg	Hü.	Public domain	https://commons.wikimedia.org/wiki/File:Wiehern.ogg
