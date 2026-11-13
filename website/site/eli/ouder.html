@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#2f9e44">
+<title>Eli's leerploeg: ouders</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📋</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@500;700;800&display=swap">
+<link rel="stylesheet" href="stijl.css">
+<style>
+.kopbalk{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.kopbalk button{background:rgba(255,255,255,.16);color:#fff;padding:8px 12px;border-radius:12px}
+main{padding:18px 0 60px}
+.raster{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:14px}
+.cijfer{background:rgba(255,255,255,.14);border-radius:16px;padding:10px 12px}
+.cijfer b{display:block;font-family:var(--display);font-size:1.7rem;line-height:1.1}
+.cijfer span{font-size:.85rem;opacity:.9}
+section.kaart{margin-top:16px}
+section.kaart h2{margin-bottom:10px}
+.dagen{display:flex;gap:6px;align-items:flex-end;height:150px;padding-top:10px;overflow-x:auto}
+.dag{flex:1 0 26px;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end;font-size:.72rem;color:var(--inkt-zacht)}
+.dag .zuil{width:100%;max-width:30px;position:relative;background:var(--bg-2);border-radius:8px 8px 4px 4px;flex:1;display:flex;align-items:flex-end;overflow:hidden}
+.dag .zuil i{display:block;width:100%;background:var(--gras);border-radius:6px 6px 0 0}
+.dag .zuil i.laag{background:var(--goud)}
+.dag .zuil i.nul{background:var(--fout)}
+.dag.nu{color:var(--inkt);font-weight:800}
+table{width:100%;border-collapse:collapse;font-size:.95rem}
+th,td{text-align:left;padding:7px 6px;border-bottom:1px solid var(--lijn);vertical-align:top}
+th{font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;color:var(--inkt-zacht)}
+td.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.balkje{height:8px;border-radius:99px;background:var(--bg-2);overflow:hidden;min-width:60px}
+.balkje i{display:block;height:100%;background:var(--gras)}
+.ok{color:var(--goed);font-weight:800}.nok{color:var(--fout);font-weight:800}
+.bericht-maak textarea{min-height:90px;resize:vertical}
+.selfie{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:10px 0}
+.selfie img{width:110px;height:110px;object-fit:cover;border-radius:18px;border:3px solid var(--goud)}
+.camera{position:relative;background:#000;border-radius:18px;overflow:hidden;margin:10px 0}
+.camera video{width:100%;display:block;transform:scaleX(-1);max-height:60vh;object-fit:cover}
+.camera .knoppen{position:absolute;left:0;right:0;bottom:12px;display:flex;justify-content:center;gap:10px}
+.sluiter{width:68px;height:68px;border-radius:50%;background:#fff;border:6px solid rgba(255,255,255,.5);background-clip:padding-box;padding:0}
+.ber{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--lijn)}
+.ber img{width:64px;height:64px;object-fit:cover;border-radius:12px;flex:none}
+.ber .meta{font-size:.82rem;color:var(--inkt-zacht)}
+.log{font-size:.92rem}
+.log div{padding:6px 0;border-bottom:1px dashed var(--lijn);display:flex;gap:10px}
+.log .t{color:var(--inkt-zacht);white-space:nowrap;font-variant-numeric:tabular-nums;min-width:92px}
+.tag{display:inline-block;font-size:.75rem;font-weight:800;padding:2px 8px;border-radius:99px;background:var(--fout-bg);color:var(--fout);margin-left:4px}
+.tag.ok{background:var(--goed-bg);color:var(--goed)}
+#laden{padding:60px 16px;text-align:center}
+@media (max-width:560px){.vaktabel th:nth-child(2),.vaktabel td:nth-child(2){display:none}.kopbalk h1{font-size:1.5rem}}
+</style>
+</head>
+<body>
+<div id="laden" class="muted">Even laden…</div>
+<div id="pagina" hidden>
+  <header class="veld">
+    <div class="wrap">
+      <div class="kopbalk">
+        <div><div class="label" style="color:rgba(255,255,255,.85)" id="wie"></div><h1>Hoe gaat het met Eli?</h1></div>
+        <div class="rij"><a href="index.html" style="display:none"></a><button id="ververs" aria-label="Vernieuwen">🔄</button><button id="uit" aria-label="Uitloggen">🚪</button></div>
+      </div>
+      <div class="raster" id="cijfers"></div>
+    </div>
+  </header>
+  <main class="wrap">
+    <section class="kaart bericht-maak">
+      <h2>💌 Stuur Eli een berichtje</h2>
+      <p class="muted klein" style="margin-top:-4px">Hij ziet het meteen als hij de app opent. Een selfie maakt het extra leuk.</p>
+      <textarea id="tekst" maxlength="500" placeholder="Bv. Zet hem op vandaag! Na je training gaan we samen frietjes eten. 🍟"></textarea>
+      <div class="camera" id="camera" hidden><video id="video" playsinline muted autoplay></video>
+        <div class="knoppen"><button class="link" id="cam-weg" style="color:#fff;background:rgba(0,0,0,.4)">Annuleer</button><button class="sluiter" id="klik" aria-label="Foto nemen"></button></div></div>
+      <div class="selfie">
+        <button class="knop paars" id="maak-selfie" type="button">🤳 Selfie trekken</button>
+        <label class="knop licht" style="cursor:pointer;padding:12px 16px;border-radius:14px;font-weight:800">🖼️ Foto kiezen<input type="file" accept="image/*" capture="user" id="bestand" hidden></label>
+        <span id="voorbeeld"></span>
+      </div>
+      <div class="rij"><button class="knop groot" id="stuur">Versturen ⚽</button><span class="muted klein" id="stuurstatus"></span></div>
+      <h3 style="margin-top:18px">Verstuurde berichtjes</h3>
+      <div id="berichten"></div>
+    </section>
+
+    <section class="kaart">
+      <h2>⏱️ Minuten per dag</h2>
+      <p class="muted klein" style="margin-top:-4px">Alleen actieve tijd telt (geen pauzes of spelletjes). Groen = doel gehaald, geel = te weinig, rood = niets gedaan.</p>
+      <div class="dagen" id="dagen"></div>
+    </section>
+
+    <section class="kaart">
+      <h2>📋 Volgt hij de planning?</h2>
+      <div id="planning"></div>
+    </section>
+
+    <section class="kaart">
+      <h2>📚 Per vak</h2>
+      <table class="vaktabel"><thead><tr><th>Vak</th><th>Examen</th><th class="n">Minuten</th><th>Geleerd</th><th class="n">Quizscore</th></tr></thead><tbody id="vakken"></tbody></table>
+    </section>
+
+    <section class="kaart">
+      <h2>🎯 Zwakke punten</h2>
+      <p class="muted klein" style="margin-top:-4px">Onderwerpen met een quizscore onder 70% (laatste 10 dagen). Die worden automatisch extra ingepland.</p>
+      <div id="zwak"></div>
+    </section>
+
+    <section class="kaart">
+      <h2>🕑 Wat deed hij?</h2>
+      <div class="log" id="log"></div>
+      <h3 style="margin-top:16px">Laatste keren ingelogd</h3>
+      <div class="muted klein" id="logins"></div>
+    </section>
+  </main>
+</div>
+<script src="gemeen.js"></script>
+<script src="inhoud-kf.js"></script>
+<script src="inhoud-gsw.js"></script>
+<script src="inhoud-fr.js"></script>
+<script src="inhoud-wet.js"></script>
+<script src="inhoud-cul.js"></script>
+<script src="plan.js"></script>
+<script src="ouder.js"></script>
+</body>
+</html>

@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#2f9e44">
+<title>Eli's leerploeg</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚽</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@500;700;800&display=swap">
+<link rel="stylesheet" href="stijl.css">
+<style>
+/* ---------- Inloggen ---------- */
+#login{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px 16px;background:
+  radial-gradient(700px 400px at 50% 0%, rgba(255,255,255,.18), transparent 70%),
+  repeating-linear-gradient(90deg, rgba(255,255,255,.05) 0 70px, transparent 70px 140px),
+  linear-gradient(170deg,#2f9e44,#1a6b2e 60%,#0f4a1f)}
+.login-kaart{width:100%;max-width:400px;background:var(--kaart);border-radius:28px;padding:26px 22px 22px;box-shadow:0 30px 60px rgba(0,0,0,.35);text-align:center}
+.login-kaart .bal{font-size:56px;display:inline-block;animation:stuiter 1.6s cubic-bezier(.3,0,.5,1) infinite}
+@keyframes stuiter{0%,100%{transform:translateY(0) rotate(0)}45%{transform:translateY(-18px) rotate(160deg)}55%{transform:translateY(-18px) rotate(200deg)}}
+.login-kaart h1{font-size:1.9rem;margin-top:4px}
+.pin-bolletjes{display:flex;gap:12px;justify-content:center;margin:16px 0 6px}
+.pin-bolletjes i{width:18px;height:18px;border-radius:50%;border:3px solid var(--gras);transition:background .15s, transform .15s}
+.pin-bolletjes i.vol{background:var(--gras);transform:scale(1.1)}
+.pin-bolletjes.schud{animation:schud .4s}
+@keyframes schud{20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+.toetsen{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+.toetsen button{background:var(--bg-2);color:var(--inkt);font-family:var(--display);font-size:1.6rem;padding:10px 0;border-radius:18px}
+.toetsen button:hover{background:var(--gras-zacht)}
+.login-fout{color:var(--fout);font-weight:800;min-height:1.5em;margin:4px 0 0}
+
+/* ---------- Kop ---------- */
+.kopbalk{display:flex;align-items:center;gap:12px;justify-content:space-between}
+.kopbalk h1{font-size:1.7rem}
+.kopbalk .acties{display:flex;gap:6px}
+.kopbalk .acties button{background:rgba(255,255,255,.16);color:#fff;padding:8px 11px;border-radius:12px;font-size:1rem}
+.statrij{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px}
+.stat{background:rgba(0,0,0,.18);border-radius:16px;padding:10px 12px;min-width:0}
+.stat b{display:block;font-family:var(--display);font-size:1.45rem;line-height:1.1}
+.stat span{font-size:.78rem;opacity:.9;font-weight:700}
+.levelbalk{margin-top:12px;background:rgba(0,0,0,.22);border-radius:999px;height:14px;overflow:hidden;position:relative}
+.levelbalk i{display:block;height:100%;background:linear-gradient(90deg,#ffe066,#f5b700);border-radius:999px;transition:width .8s cubic-bezier(.2,1,.3,1)}
+.leveltekst{display:flex;justify-content:space-between;font-size:.82rem;font-weight:800;margin-top:5px;opacity:.95}
+
+/* ---------- Vandaag ---------- */
+main.wrap{padding-top:18px;padding-bottom:60px}
+.sectiekop{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin:22px 0 10px}
+.dagring{display:flex;gap:16px;align-items:center}
+.ring{--p:0;width:86px;height:86px;border-radius:50%;flex:none;display:grid;place-items:center;background:conic-gradient(var(--gras) calc(var(--p)*1%), var(--bg-2) 0)}
+.ring>div{width:68px;height:68px;border-radius:50%;background:var(--kaart);display:grid;place-items:center;text-align:center;line-height:1}
+.ring b{font-family:var(--display);font-size:1.35rem}
+.ring small{font-size:.7rem;font-weight:800;color:var(--inkt-zacht)}
+.taken{display:flex;flex-direction:column;gap:10px}
+.taak{display:flex;gap:14px;align-items:center;background:var(--kaart);border:1px solid var(--lijn);border-radius:18px;padding:12px 14px;box-shadow:var(--schaduw-klein);position:relative;overflow:hidden}
+.taak::before{content:"";position:absolute;left:0;top:0;bottom:0;width:6px;background:var(--vk,var(--gras))}
+.taak .ic{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;font-size:1.5rem;background:color-mix(in srgb,var(--vk,var(--gras)) 16%, transparent);flex:none}
+.taak .tx{flex:1;min-width:0}
+.taak .tx b{display:block;font-family:var(--display);font-size:1.08rem;line-height:1.2}
+.taak .tx span{font-size:.85rem;color:var(--inkt-zacht);font-weight:700}
+.taak.klaar{opacity:.7}
+.taak.klaar .ic{background:var(--goed-bg)}
+.taak.slot{opacity:.55}
+.taak.inhaal{border-color:var(--fout)}
+.taak .tag{font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--fout);display:block}
+.leeg{padding:18px;text-align:center;color:var(--inkt-zacht);font-weight:700}
+.beloning{background:linear-gradient(135deg,#6741d9,#3b1fa3);color:#fff;border-radius:22px;padding:18px;display:flex;gap:14px;align-items:center;box-shadow:var(--schaduw)}
+.beloning .groot{font-size:2.6rem}
+.beloning.dicht{background:var(--bg-2);color:var(--inkt-zacht);box-shadow:none}
+
+.examens{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.examen{background:var(--kaart);border:1px solid var(--lijn);border-radius:18px;padding:12px;position:relative;overflow:hidden}
+.examen .em{font-size:1.4rem}
+.examen b{display:block;font-family:var(--display);font-size:1rem;line-height:1.2;margin-top:2px}
+.examen .wanneer{font-size:.78rem;color:var(--inkt-zacht);font-weight:700}
+.klaarbalk{height:8px;border-radius:99px;background:var(--bg-2);margin-top:8px;overflow:hidden}
+.klaarbalk i{display:block;height:100%;background:var(--vk);border-radius:99px}
+.examen .pct{font-size:.78rem;font-weight:800;margin-top:4px}
+
+.weekstrip{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.wdag{background:var(--kaart);border:1px solid var(--lijn);border-radius:14px;padding:8px 2px;text-align:center;font-weight:800;font-size:.8rem}
+.wdag .s{font-size:1.2rem;display:block;margin-top:2px}
+.wdag.nu{border:2px solid var(--gras)}
+
+.tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+.tabs button{background:var(--kaart);color:var(--inkt);border:1px solid var(--lijn);padding:9px 14px;border-radius:999px;white-space:nowrap;font-size:.92rem}
+.tabs button.aan{background:var(--inkt);color:var(--bg);border-color:var(--inkt)}
+
+/* ---------- Taak (oefenen) ---------- */
+#taak{min-height:100vh;display:flex;flex-direction:column}
+.taakkop{position:sticky;top:0;z-index:5;background:var(--bg);padding:12px 0 8px;border-bottom:1px solid var(--lijn)}
+.taakkop .rij{justify-content:space-between;flex-wrap:nowrap}
+.taakkop h2{font-size:1.1rem;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.voortgang{height:10px;background:var(--bg-2);border-radius:99px;overflow:hidden;margin-top:8px}
+.voortgang i{display:block;height:100%;background:var(--vk,var(--gras));border-radius:99px;transition:width .4s ease}
+.stappen{display:flex;gap:6px;margin-top:8px;font-size:.78rem;font-weight:800;color:var(--inkt-zacht);flex-wrap:wrap}
+.stappen span{padding:3px 9px;border-radius:999px;background:var(--bg-2)}
+.stappen span.aan{background:var(--vk,var(--gras));color:#fff}
+.stappen span.ok{background:var(--goed-bg);color:var(--goed)}
+#taakinhoud{padding:18px 0 80px;flex:1}
+
+.leerpunt{background:var(--kaart);border:1px solid var(--lijn);border-left:6px solid var(--vk);border-radius:16px;padding:14px 16px;margin-bottom:10px;animation:schuif .35s ease}
+@keyframes schuif{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.leerpunt b{color:color-mix(in srgb,var(--vk) 80%, var(--inkt))}
+.bronnen{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 14px}
+.bronnen a{font-size:.85rem;font-weight:800;text-decoration:none;background:var(--info-bg);padding:6px 11px;border-radius:999px;color:var(--inkt)}
+
+.flip{perspective:1200px;cursor:pointer;margin:6px auto 14px;max-width:560px}
+.flip .binnen{position:relative;min-height:230px;transition:transform .5s cubic-bezier(.3,1.3,.5,1);transform-style:preserve-3d}
+.flip.om .binnen{transform:rotateY(180deg)}
+.flip .zij{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:24px;padding:22px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;box-shadow:var(--schaduw)}
+.flip .voor{background:var(--kaart);border:3px solid var(--vk)}
+.flip .achter{background:var(--vk);color:#fff;transform:rotateY(180deg)}
+.flip .zij p{font-family:var(--display);font-size:1.35rem;font-weight:700;line-height:1.3;margin:0}
+.flip .achter p{font-size:1.15rem}
+.flip .hint{position:absolute;bottom:12px;font-size:.78rem;font-weight:800;opacity:.6}
+.flip .doos{position:absolute;top:12px;right:14px;font-size:.75rem;font-weight:800;opacity:.7}
+
+.vraagkaart{background:var(--kaart);border:1px solid var(--lijn);border-radius:22px;padding:20px;box-shadow:var(--schaduw-klein);animation:schuif .3s ease}
+.vraagkaart .vtekst{font-family:var(--display);font-size:1.3rem;font-weight:700;line-height:1.3;margin:4px 0 14px}
+.opties{display:grid;gap:10px}
+.optie{background:var(--bg-2);color:var(--inkt);text-align:left;padding:14px 16px;border-radius:16px;border:2px solid transparent;font-weight:700;font-size:1.02rem;display:flex;gap:12px;align-items:center}
+.optie .lt{width:30px;height:30px;border-radius:10px;background:var(--kaart);display:grid;place-items:center;font-family:var(--display);flex:none}
+.optie:hover:not(:disabled){border-color:var(--vk)}
+.optie.goed{background:var(--goed-bg);border-color:var(--goed)}
+.optie.fout{background:var(--fout-bg);border-color:var(--fout)}
+.optie:disabled{cursor:default;opacity:1}
+.jf{grid-template-columns:1fr 1fr}
+.jf .optie{justify-content:center;font-size:1.15rem}
+.feedback{margin-top:14px;border-radius:16px;padding:12px 14px;font-weight:800;animation:schuif .25s ease}
+.feedback.goed{background:var(--goed-bg);color:var(--goed)}
+.feedback.fout{background:var(--fout-bg);color:var(--fout)}
+.feedback.info{background:var(--info-bg);color:var(--inkt)}
+.feedback span{display:block;color:var(--inkt);font-weight:600;margin-top:3px}
+.volgorde-gekozen{display:flex;flex-direction:column;gap:6px;min-height:20px;margin-bottom:10px}
+.volgorde-gekozen div{background:var(--gras-zacht);border-radius:12px;padding:8px 12px;font-weight:800}
+.onder{display:flex;gap:10px;justify-content:flex-end;margin-top:16px;flex-wrap:wrap}
+
+.resultaat{text-align:center;padding:10px 0}
+.resultaat .groot{font-family:var(--display);font-size:3.6rem;font-weight:800;line-height:1}
+.sterren{font-size:2.2rem;letter-spacing:4px;margin:6px 0}
+.foutlijst{text-align:left;margin-top:14px}
+.foutlijst div{background:var(--fout-bg);border-radius:12px;padding:8px 12px;margin-bottom:6px;font-size:.92rem}
+
+/* ---------- Poppetjes ---------- */
+.babbel{display:flex;gap:10px;align-items:flex-end;margin:4px 0 14px}
+.pop{position:relative;width:92px;height:122px;flex:none;animation:wieg 2.6s ease-in-out infinite;transform-origin:50% 100%}
+.pop .fig{width:100%;height:100%;object-fit:contain;object-position:50% 100%;opacity:0;transition:opacity .3s;filter:drop-shadow(0 4px 6px rgba(0,0,0,.25))}
+.pop .fig.klaar{opacity:1}
+.pop .fig.leeg{display:grid;place-items:center;font-size:52px;opacity:1}
+.pop.groot{width:100%;height:210px;animation:none}
+.vraagbabbel{margin:10px 0 6px}.vraagbabbel .ballon{margin-bottom:14px;font-weight:500}.vraagbabbel .vtekst{margin:2px 0 0}
+.ploeg{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.speler{text-align:center;padding:6px 4px 10px;transition:transform .2s}
+.speler:hover{transform:translateY(-4px) rotate(-1deg)}
+.speler b{display:block;font-family:var(--display);font-size:1.1rem;margin-top:6px}
+.speler span{font-size:.82rem;color:var(--inkt-zacht)}
+.speler.ster{grid-column:1/-1}
+.speler.ster .pop.groot{height:280px}
+@keyframes knik{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(5deg) translateY(-2px)}}
+@keyframes wieg{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+.ballon{flex:1;background:var(--kaart);border:2px solid var(--lijn);border-radius:20px;padding:12px 14px;position:relative;margin-bottom:28px;font-weight:600;box-shadow:var(--schaduw-klein)}
+.ballon::before{content:"";position:absolute;left:-12px;bottom:16px;border:10px solid transparent;border-right-color:var(--lijn);border-left:0}
+.ballon .wie{display:block;font-family:var(--display);font-weight:800;color:var(--paars);font-size:1rem}
+
+/* ---------- Berichten ---------- */
+.bericht{background:var(--goud-zacht);border-radius:20px;padding:14px;margin-bottom:12px}
+.bericht img{width:100%;max-height:380px;object-fit:cover;border-radius:16px;margin-bottom:10px;display:block}
+.bericht .van{font-family:var(--display);font-weight:800;font-size:1.05rem}
+.bericht p{font-size:1.1rem;font-weight:700;margin:4px 0 0;white-space:pre-wrap}
+
+/* ---------- Pauze ---------- */
+.adem{width:160px;height:160px;border-radius:50%;margin:16px auto;background:radial-gradient(circle,#74c0fc,#1c7ed6);animation:adem 8s ease-in-out infinite;display:grid;place-items:center;color:#fff;font-family:var(--display);font-weight:800;font-size:1.2rem}
+@keyframes adem{0%,100%{transform:scale(.6)}50%{transform:scale(1)}}
+.pauzekeuze{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.pauzekeuze button{background:var(--bg-2);color:var(--inkt);padding:16px 10px;border-radius:18px;display:flex;flex-direction:column;align-items:center;gap:4px}
+.pauzekeuze button span{font-size:2rem}
+.pauzeklok{font-family:var(--display);font-size:2.6rem;font-weight:800;text-align:center}
+
+.trofeeen{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+.trofee{background:var(--kaart);border:1px solid var(--lijn);border-radius:18px;padding:12px;text-align:center}
+.trofee .t{font-size:2.2rem;display:block}
+.trofee b{display:block;font-family:var(--display);font-size:.98rem;line-height:1.2;margin-top:4px}
+.trofee span{font-size:.75rem;color:var(--inkt-zacht);font-weight:700}
+.trofee.dicht .t{filter:grayscale(1);opacity:.35}
+
+.planlijst .pdag{display:flex;gap:12px;padding:10px 0;border-bottom:1px dashed var(--lijn)}
+.planlijst .pdag .d{width:68px;flex:none;font-weight:800;font-size:.85rem}
+.planlijst .pdag.nu .d{color:var(--gras)}
+.planlijst .pitem{font-size:.88rem;font-weight:700;display:flex;gap:6px;align-items:baseline}
+.planlijst .pitem i{font-style:normal;width:18px;flex:none}
+
+@media (max-width:520px){
+  .statrij{gap:8px} .stat b{font-size:1.2rem}
+  .kopbalk h1{font-size:1.4rem}
+  .vraagkaart .vtekst{font-size:1.15rem}
+}
+</style>
+</head>
+<body>
+
+<section id="login">
+  <form class="login-kaart" id="loginform" autocomplete="off">
+    <div class="bal" aria-hidden="true">⚽</div>
+    <h1>Eli's leerploeg</h1>
+    <p class="muted">Elke dag even trainen. Op 7 december ben jij er klaar voor.</p>
+    <input id="naam" placeholder="Je naam" value="Eli" aria-label="Naam" style="margin-top:12px;text-align:center;font-weight:800">
+    <div class="pin-bolletjes" id="bolletjes" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+    <input id="pin" inputmode="numeric" pattern="[0-9]*" maxlength="4" aria-label="Pincode" style="position:absolute;opacity:0;pointer-events:none;width:1px;height:1px">
+    <div class="toetsen" id="toetsen"></div>
+    <p class="login-fout" id="loginfout" role="alert"></p>
+    <p class="muted klein">Ouders en grootouders kunnen hier ook inloggen.</p>
+  </form>
+</section>
+
+<section id="app" hidden>
+  <header class="veld">
+    <div class="wrap">
+      <div class="kopbalk">
+        <div>
+          <div class="label" style="color:rgba(255,255,255,.85)" id="datumlabel"></div>
+          <h1 id="groet">Hoi Eli!</h1>
+        </div>
+        <div class="acties">
+          <button id="knop-berichten" title="Berichtjes" aria-label="Berichtjes">💌</button>
+          <button id="knop-geluid" title="Geluid aan/uit" aria-label="Geluid aan of uit">🔊</button>
+          <button id="knop-uit" title="Uitloggen" aria-label="Uitloggen">🚪</button>
+        </div>
+      </div>
+      <div class="statrij">
+        <div class="stat"><b id="st-streak">0</b><span>🔥 dagen op rij</span></div>
+        <div class="stat"><b id="st-xp">0</b><span>🏆 XP</span></div>
+        <div class="stat"><b id="st-examen">0</b><span>📅 dagen tot examen</span></div>
+      </div>
+      <div class="levelbalk"><i id="lvl-balk" style="width:0"></i></div>
+      <div class="leveltekst"><span id="lvl-naam">Level 1</span><span id="lvl-volgende"></span></div>
+    </div>
+  </header>
+
+  <main class="wrap" id="thuis">
+    <div class="tabs" role="tablist" id="tabs">
+      <button class="aan" data-tab="vandaag">⚽ Vandaag</button>
+      <button data-tab="planning">🗓️ Planning</button>
+      <button data-tab="vakken">📚 Vrij oefenen</button>
+      <button data-tab="ploeg">⭐ Mijn ploeg</button>
+      <button data-tab="trofeeen">🏆 Trofeeën</button>
+    </div>
+
+    <div data-paneel="vandaag">
+      <div class="babbel" id="dagbabbel"></div>
+      <div class="kaart dagring">
+        <div class="ring" id="ring"><div><b id="ring-min">0</b><small id="ring-van">/ 60 min</small></div></div>
+        <div>
+          <h2 id="dagtitel">Training van vandaag</h2>
+          <p class="muted" id="dagsub"></p>
+        </div>
+      </div>
+      <div class="sectiekop"><h2>Jouw opdrachten</h2><span class="muted klein" id="takenteller"></span></div>
+      <div class="taken" id="takenlijst"></div>
+      <div class="sectiekop"><h2>Beloning</h2></div>
+      <div id="beloning"></div>
+      <div class="sectiekop"><h2>Deze week</h2></div>
+      <div class="weekstrip" id="weekstrip"></div>
+      <div class="sectiekop"><h2>Examens</h2><span class="muted klein">hoe klaar ben je?</span></div>
+      <div class="examens" id="examens"></div>
+    </div>
+
+    <div data-paneel="planning" hidden>
+      <div class="sectiekop"><h2>De hele planning</h2></div>
+      <p class="muted">✓ = gedaan · ⚠️ = nog in te halen · 🔒 = komt nog. Wat je mist, schuift automatisch door naar de volgende dag.</p>
+      <div class="kaart planlijst" id="planlijst"></div>
+    </div>
+
+    <div data-paneel="vakken" hidden>
+      <div class="sectiekop"><h2>Vrij oefenen</h2></div>
+      <p class="muted">Extra oefenen telt ook mee voor je XP. Maar eerst je opdrachten van vandaag!</p>
+      <div class="tabs" id="vaktabs"></div>
+      <div class="taken" id="onderwerplijst" style="margin-top:12px"></div>
+    </div>
+
+    <div data-paneel="ploeg" hidden>
+      <div class="sectiekop"><h2>Eli's leerploeg</h2><span class="muted klein">zij supporteren voor jou</span></div>
+      <p class="muted" style="margin-top:-4px">Deze ploeg legt uit, stelt vragen en juicht als je scoort. Ze rekenen op je, kampioen!</p>
+      <div class="ploeg" id="ploeg"></div>
+    </div>
+    <div data-paneel="trofeeen" hidden>
+      <div class="sectiekop"><h2>Trofeeënkast</h2></div>
+      <div class="trofeeen" id="trofeeen"></div>
+    </div>
+  </main>
+
+  <section id="taak" hidden>
+    <div class="taakkop">
+      <div class="wrap">
+        <div class="rij">
+          <button class="link" id="taak-terug" aria-label="Terug">← Terug</button>
+          <h2 id="taak-titel"></h2>
+          <span class="pil" id="taak-xp">+0 XP</span>
+        </div>
+        <div class="voortgang"><i id="taak-balk" style="width:0"></i></div>
+        <div class="stappen" id="taak-stappen"></div>
+      </div>
+    </div>
+    <div class="wrap" id="taakinhoud"></div>
+  </section>
+</section>
+
+<div class="modaal" id="modaal" hidden><div class="kaart" id="modaal-inhoud"></div></div>
+
+<script src="gemeen.js"></script>
+<script src="inhoud-kf.js"></script>
+<script src="inhoud-gsw.js"></script>
+<script src="inhoud-fr.js"></script>
+<script src="inhoud-wet.js"></script>
+<script src="inhoud-cul.js"></script>
+<script src="plan.js"></script>
+<script src="poppetjes.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
