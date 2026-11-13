@@ -22,6 +22,7 @@ async function laad(){
     POP.zet(D.stand.figuren || [], D.stand.figkey);
     const ik = POP.vanLogin(D.ik || s.naam);
     if (ik) $('mijnfig').innerHTML = POP.html(ik);
+    $('ploeg').innerHTML = POP.ploegHtml();
   }
   teken();
 }
@@ -136,6 +137,7 @@ function toonOnderwerp(t){
   $('modaal-inhoud').innerHTML = `<div class="rij" style="justify-content:space-between;flex-wrap:nowrap"><span class="pil" style="background:${v.kleur};color:#fff">${v.icoon} ${esc(v.kort)}</span><button class="link" id="m-sluit" aria-label="Sluiten">✕</button></div>
     <h2 style="margin:10px 0 4px">${esc(t.titel)}</h2>
     ${(t.bron || []).map(([l, u]) => `<a href="${esc(u)}" target="_blank" rel="noopener" class="klein">📄 ${esc(l)}</a>`).join(' · ')}
+    ${(window.ELI_VISUEEL || {})[t.id] ? `<div class="visueel" style="margin-top:12px">${window.ELI_VISUEEL[t.id]}</div>` : ''}
     <details open><summary>Wat moet hij kennen</summary><ul class="leer">${t.samenvatting.map(p => `<li>${p}</li>`).join('')}</ul></details>
     <details><summary>Kaartjes (${t.kaarten.length}): vraag en antwoord</summary><div class="kaartjes">${t.kaarten.map(([a, b]) => `<div><b>${a}</b><span>${b}</span></div>`).join('')}</div></details>
     <details><summary>Quizvragen (${t.quiz.length}) met antwoord</summary><ol class="quizlijst">${t.quiz.map(q => `<li>${q.v}<br><span class="antw">→ ${esc(String(antwoordVan(q)))}</span>${q.u ? `<br><span class="muted klein">${q.u}</span>` : ''}</li>`).join('')}</ol></details>`;
