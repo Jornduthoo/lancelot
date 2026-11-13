@@ -18,6 +18,7 @@ const EINDE = '2026-12-10';
 function budget(datum){
   const d = new Date(datum + 'T12:00:00');
   const wd = d.getDay(); // 0 zo … 6 za
+  if (datum < START) return 0;                      // voor de start: alleen kennismaken
   if (datum === '2026-12-10') return 0;            // laatste examen
   if (wd === 2) return 10;                          // dinsdag: voetbal
   if (wd === 0 || wd === 6) return 100;             // weekend
