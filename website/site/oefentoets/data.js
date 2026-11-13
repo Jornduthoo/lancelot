@@ -1,7 +1,7 @@
 /* Oefentoetsen per week. Voeg elke week een blok toe aan WEKEN.
    Vraagtypes: mc (k = keuzes, a = index juiste), jf (a = true/false), invul (a = aanvaarde antwoorden),
    volg (items in de JUISTE volgorde; de leerling nummert), koppel (paren [links, rechts]). invul met exact: true = hoofdletters tellen mee (spelling).
-   Begrijpend lezen: teksten per niveau, tekst = index per vraag, echteTekst = link naar de echte toetstekst. */
+   Geen "1b"-niveau = 1B-leerlingen zien die toets niet (bv. Frans: 1B krijgt nooit Frans). Begrijpend lezen: teksten per niveau, tekst = index per vraag, echteTekst = link naar de echte toetstekst. */
 window.WEKEN = [
 {
   week: "2026-11-16",
@@ -144,19 +144,6 @@ window.WEKEN = [
           { t: "mc", v: "Maak een vraag met est-ce que: ‘Tu aimes le foot?’", k: ["Est-ce que tu aimes le foot?", "Tu est-ce que aimes le foot?", "Est-ce que aimes tu le foot?"], a: 0, u: "Zet est-ce que vooraan. De rest van de zin blijft gewoon staan." },
           { t: "mc", v: "Welke vraag is juist?", k: ["Est-ce que il habite à Gand?", "Est-ce qu’il habite à Gand?", "Est-ce qu il habite à Gand?"], a: 1, u: "Voor een klinker (il, elle) wordt est-ce que → est-ce qu’." },
           { t: "mc", v: "Antwoord: ‘Oui, j’ai un frère.’ Wat was de vraag?", k: ["Est-ce que tu as un frère?", "Est-ce que tu as une sœur?", "Est-ce que tu es un frère?"], a: 0, u: "avoir un frère = een broer hebben: Est-ce que tu as un frère?" }
-        ]
-      },
-      "1b": {
-        vragen: [
-          { t: "koppel", v: "Verbind.", paren: [["une tête","hoofd"],["une main","hand"],["un pied","voet"],["une bouche","mond"]], u: "Lichaamsdelen in het Frans." },
-          { t: "mc", v: "Wat is ‘un nez’?", k: ["neus", "oor", "knie"], a: 0, u: "un nez = neus." },
-          { t: "mc", v: "Wat is ‘un bras’?", k: ["been", "arm"], a: 1, u: "un bras = arm, une jambe = been." },
-          { t: "mc", v: "Wat is ‘une oreille’?", k: ["oor", "oog"], a: 0, u: "une oreille = oor." },
-          { t: "mc", v: "Hoe zeg je ‘twee ogen’?", k: ["deux yeux", "deux œils"], a: 0, u: "un œil – deux yeux." },
-          { t: "mc", v: "voir = …", k: ["zien", "horen"], a: 0, u: "voir = zien, entendre = horen." },
-          { t: "mc", v: "Je … un chat.", k: ["vois", "voient"], a: 0, u: "je vois." },
-          { t: "mc", v: "Tu … la musique?", k: ["entends", "entendent"], a: 0, u: "tu entends." },
-          { t: "mc", v: "Welke zin is een vraag?", k: ["Est-ce que tu as un chien?", "Tu as un chien."], a: 0, u: "Est-ce que vooraan + vraagteken = een vraag." }
         ]
       }
     }
