@@ -21,10 +21,15 @@ async function ontsleutel(f){
   if (!f.img) return null;
   if (!f.img.startsWith('enc:')) return (urls[f.id] = f.img);
   if (!sleutel) return null;
-  const r = await fetch(f.img.slice(4), { cache:'force-cache' });
-  if (!r.ok) throw new Error('fig ' + r.status);
-  const buf = new Uint8Array(await r.arrayBuffer());
-  const data = await crypto.subtle.decrypt({ name:'AES-GCM', iv: buf.slice(0, 12) }, sleutel, buf.slice(12));
+  // Eerst uit de cache; lukt dat niet (oude 404 of html in de cache), dan vers ophalen.
+  const haal = async (cache) => {
+    const r = await fetch(f.img.slice(4), { cache });
+    if (!r.ok) throw new Error('fig ' + r.status);
+    const buf = new Uint8Array(await r.arrayBuffer());
+    return crypto.subtle.decrypt({ name:'AES-GCM', iv: buf.slice(0, 12) }, sleutel, buf.slice(12));
+  };
+  let data;
+  try { data = await haal('force-cache'); } catch { data = await haal('reload'); }
   const url = URL.createObjectURL(new Blob([data], { type:'image/webp' }));
   urls[f.id] = url;
   document.querySelectorAll(`img[data-fig="${f.id}"]`).forEach(img => { img.src = url; img.classList.add('klaar'); });
