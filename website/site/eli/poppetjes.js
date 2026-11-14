@@ -6,7 +6,7 @@
 const ROLNAAM = {
   eli:'De kampioen zelf', supporter:'Supporter nummer 1', manager:'Ploegmanager', trainer:'Krachttrainer',
   coach:'Hoofdcoach', pauze:'Pauzekapitein', prof:'Professor', kunst:'Kunstkenner', denker:'Denker',
-  chef:'Chef Frans', labo:'Laborant', ridder:'Geschiedenisridder',
+  chef:'Chef Frans', labo:'Laborant', ridder:'Geschiedenisridder', begeleider:'Persoonlijke begeleider',
 };
 const VAKNAAM = { kf:'Kunst & Filosofie', gsw:'Gedrag', fr:'Frans', wet:'Wetenschappen', cul:'Cultuur' };
 const RESERVE = [{ id:'coach', naam:'Coach', rol:'coach', emoji:'🧢' }];
@@ -79,6 +79,15 @@ const EIGEN = {
     'Kampioenen worden gemaakt op training, niet op de match. Hup!',
     'Focus, Eli! Gsm weg, hersenen aan. 🧠',
   ],
+  tim: [
+    'Geen excuses. Werk. Nu. 🤘',
+    'Gsm weg. Boek open. Go.',
+    'Fout? Opnieuw. Tot het zit.',
+    'Talent is niks zonder werk. Aan de slag.',
+    'Niet zeuren. Doen. 🤘',
+    'Elke dag. Geen dag overslaan. Zo simpel is het.',
+    'Moe? Prima. Eerst afwerken, dan rusten.',
+  ],
   marieke: [
     'Ik zie dat je bezig bent. Super, schat! Zo doen we dat. 💪',
     'Eerst je werk, dan je ontspanning. Je kan het! ⚽',
@@ -97,7 +106,7 @@ function babbel(el, tekst, opts = {}){
 // De ereplek: alle figuren met hun taak.
 function ploegHtml(){
   const esc = window.ELI.esc;
-  const volg = ['eli','marieke','papa','boeboe','moemoe','thor','bjorn','onno'];
+  const volg = ['eli','marieke','papa','boeboe','moemoe','tim','thor','bjorn','onno'];
   const maten = { boeboe:1, moemoe:1, marieke:1, papa:1 };
   const lijst = alle().slice().sort((a, b) => {
     const ia = volg.indexOf(a.id), ib = volg.indexOf(b.id);
@@ -112,5 +121,6 @@ function kring(){ const l = KRING.map(metId).filter(Boolean); return l[Math.floo
 // Wie logt in als welke figuur?
 const LOGIN = { mama:'marieke', omaveldegem:'oma' };
 const vanLogin = naam => metId(LOGIN[naam] || naam);
-window.POP = { vanLogin, zet, kies, html, babbel, metId, kring, ploegHtml, klaar: () => klaarP, ROLNAAM };
+const tim = () => metId('tim');
+window.POP = { tim, vanLogin, zet, kies, html, babbel, metId, kring, ploegHtml, klaar: () => klaarP, ROLNAAM };
 })();
