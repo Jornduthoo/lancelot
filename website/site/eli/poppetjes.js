@@ -6,7 +6,7 @@
 const ROLNAAM = {
   eli:'De kampioen zelf', supporter:'Supporter nummer 1', manager:'Ploegmanager', trainer:'Krachttrainer',
   coach:'Hoofdcoach', pauze:'Pauzekapitein', prof:'Professor', kunst:'Kunstkenner', denker:'Denker',
-  chef:'Chef Frans', labo:'Laborant', ridder:'Geschiedenisridder', begeleider:'Persoonlijke begeleider',
+  chef:'Chef Frans', labo:'Laborant', ridder:'Geschiedenisridder', begeleider:'Persoonlijke begeleider', afleider:'De afleider',
 };
 const VAKNAAM = { kf:'Kunst & Filosofie', gsw:'Gedrag', fr:'Frans', wet:'Wetenschappen', cul:'Cultuur' };
 const RESERVE = [{ id:'coach', naam:'Coach', rol:'coach', emoji:'🧢' }];
@@ -85,13 +85,12 @@ const EIGEN = {
     'Focus, Eli! Gsm weg, hersenen aan. 🧠',
   ],
   tim: [
-    'Geen excuses. Werk. Nu. 🤘',
-    'Gsm weg. Boek open. Go.',
-    'Fout? Opnieuw. Tot het zit.',
-    'Talent is niks zonder werk. Aan de slag.',
-    'Niet zeuren. Doen. 🤘',
-    'Elke dag. Geen dag overslaan. Zo simpel is het.',
-    'Moe? Prima. Eerst afwerken, dan rusten.',
+    'Pssst… de PS4 staat al aan. Eén spelletje maar? 😈🎮',
+    'Xbox of boek? Ik weet wel wat ík zou kiezen… 🎮',
+    'Ik heb drie consoles voor je klaarstaan. Maar wie eerst werkt, wint. 😏',
+    'Eén potje kan toch geen kwaad? … Grapje. Of niet? 😈',
+    'Ik ben de afleider. Kun jij mij weerstaan? 🤘🎮',
+    'Die PS3 voelt zich eenzaam, hoor. Maar ja, eerst je taken… 😒',
   ],
   marieke: [
     'Ik zie dat je bezig bent. Super, schat! Zo doen we dat. 💪',
