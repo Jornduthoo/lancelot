@@ -242,3 +242,8 @@ input:focus,textarea:focus{outline:none;border-color:var(--gras)}
 .lp-vv td:nth-child(3){font-weight:800;color:var(--paars)}
 .lp-vv td:last-child{font-variant-numeric:tabular-nums;color:var(--inkt-zacht)}
 .lp-vv tr.basis-r td{background:var(--goud-zacht);font-weight:800}
+.lp-tijd td{text-align:left!important;vertical-align:top;font-size:.9rem}
+.lp-tijd td:first-child{font-weight:800;color:var(--paars);white-space:normal;width:32%}
+.lp-tijd td:nth-child(2){font-weight:400}
+.lp-ketting span small{font-weight:600;color:var(--inkt-zacht)}
+.lp-tijd td:last-child{color:var(--inkt);font-size:.9rem;text-align:left}
