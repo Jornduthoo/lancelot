@@ -198,7 +198,8 @@ function thuis(){
   const lijst = $('takenlijst');
   let eersteOpen = items.findIndex(it => !isKlaar(it.id));
   const klaar = items.filter(it => isKlaar(it.id)).length;
-  $('takenteller').textContent = items.length ? `${klaar} van ${items.length} klaar` : '';
+  const restMin = items.filter(it => !isKlaar(it.id)).reduce((a, it) => a + (it.min || 0), 0);
+  $('takenteller').textContent = items.length ? `${klaar} van ${items.length} klaar` + (restMin ? ` · nog ± ${restMin} min` : ' ✅') : '';
   lijst.innerHTML = items.length ? '' : '<div class="leeg kaart">Geen opdrachten vandaag. Geniet ervan!</div>';
   items.forEach((it, i) => {
     const el = document.createElement('div');
@@ -218,6 +219,7 @@ function thuis(){
     el.append(knop);
     lijst.append(el);
   });
+  verrassing(lijst, d);
 
   // Beloning
   const alles = items.length && items.every(it => isKlaar(it.id));
@@ -299,6 +301,29 @@ function tekenPlanning(){
   const nu = $('plan-nu'); if (nu) nu.scrollIntoView({ block:'center' });
 }
 
+// ⚡ Verrassingstoets: duikt willekeurig op (± om de 2 dagen), 10 vragen over wat Eli al leerde.
+function verrassing(lijst, d){
+  if (MEEKIJK || d < P.START) return;
+  const geleerdT = T.filter(t => geleerd(t.id));
+  if (geleerdT.length < 2) return;
+  let keuze = lokaal.get('verr-dag-' + d, null);
+  if (keuze === null) {
+    const laatst = lokaal.get('verr-laatst', null);
+    const dagen = laatst ? Math.round((new Date(d) - new Date(laatst)) / 864e5) : 99;
+    keuze = dagen >= 2 && Math.random() < .6;
+    lokaal.set('verr-dag-' + d, keuze);
+  }
+  if (!keuze || lokaal.get('verr-af-' + d, false)) return;
+  const el = document.createElement('div'); el.className = 'verrassing';
+  el.innerHTML = `<div class="groot">⚡</div><div style="flex:1"><h3>Verrassingstoets!</h3><p class="klein" style="margin:0">10 vragen over wat je al leerde. Haal je 8 of meer? Dan krijg je <b>50 XP</b> extra.</p></div>`;
+  const b = document.createElement('button'); b.className = 'knop goud'; b.textContent = 'Start';
+  b.onclick = () => {
+    let qs = []; for (const t of geleerdT) qs = qs.concat(vragenVan(t, 3).filter(q => q.t !== 'open'));
+    voerUit({ id:'verrassing:' + d, soort:'verrassing', vak:'alle', titel:'⚡ Verrassingstoets', vrij:true, vragen: schud(qs).slice(0, 10) });
+  };
+  el.append(b); lijst.prepend(el);
+}
+
 let vrijVak = 'kf';
 function tekenVakken(){
   $('vaktabs').innerHTML = Object.entries(V).map(([k, v]) => `<button data-vak="${k}" class="${k === vrijVak ? 'aan' : ''}">${v.icoon} ${esc(v.kort)}</button>`).join('');
@@ -317,8 +342,8 @@ function tekenVakken(){
     el.innerHTML = `<div class="ic">${geleerd(t.id) ? '✅' : V[t.vak].icoon}</div><div class="tx"><b></b><span>${t.kaarten.length} kaartjes · ${t.quiz.length} vragen${r ? ` · laatste score ${Math.round(r.s / r.t * 100)}%` : ''}</span></div>`;
     el.querySelector('b').textContent = t.titel;
     const rij = document.createElement('div'); rij.className = 'rij'; rij.style.flexWrap = 'nowrap';
-    for (const [lbl, soort] of [['📖', 'lees'], ['🃏', 'kaartjes'], ['❓', 'quiz']]) {
-      const b = document.createElement('button'); b.className = 'knop licht klein'; b.textContent = lbl; b.title = { lees:'Leerkaart', kaartjes:'Kaartjes', quiz:'Quiz' }[soort];
+    for (const [lbl, soort] of [['📖', 'lees'], ['🃏', 'kaartjes'], ['🔗', 'koppel'], ['⏱️', 'race'], ['❓', 'quiz']]) {
+      const b = document.createElement('button'); b.className = 'knop licht klein'; b.textContent = lbl; b.title = { lees:'Leerkaart', kaartjes:'Kaartjes', koppel:'Koppelen', race:'Tijdrace (60 s)', quiz:'Quiz' }[soort];
       b.onclick = () => voerUit({ id:'vrij:' + soort + ':' + t.id, soort:'vrij-' + soort, vak:t.vak, onderwerp:t.id, titel:t.titel, vrij:true });
       rij.append(b);
     }
@@ -513,8 +538,13 @@ let lopend = null;
 function voerUit(it){
   const t = it.onderwerp && TOPIC[it.onderwerp];
   const stappen = [];
-  if (it.soort === 'leer') { stappen.push(['lees', t]); if (VOORBEELD[t.id]) stappen.push(['voorbeeld', t]); if (SNAP[t.id]) stappen.push(['uitleg', t]); stappen.push(['kaartjes', t.kaarten.map((_, i) => t.id + '-' + i)], ['quiz', vragenVan(t, Math.min(10, t.quiz.length + 2))]); }
-  else if (it.soort === 'herhaal') stappen.push(['kaartjes', schud(t.kaarten.map((_, i) => t.id + '-' + i)).filter(id => !S.kaarten[id] || S.kaarten[id].d < 4).slice(0, 10)], ['quiz', vragenVan(t, 8)]);
+  if (it.soort === 'leer') { stappen.push(['lees', t]); if (VOORBEELD[t.id]) stappen.push(['voorbeeld', t]); if (SNAP[t.id]) stappen.push(['uitleg', t]); stappen.push(['kaartjes', t.kaarten.map((_, i) => t.id + '-' + i)]); if (parenVan([t]).length >= 4) stappen.push(['koppel', parenVan([t]), 1]); stappen.push(['quiz', vragenVan(t, Math.min(10, t.quiz.length + 2))]); }
+  else if (it.soort === 'herhaal') {
+    // Afwisseling: om de andere herhaling koppelen + tijdrace in plaats van kaartjes + quiz.
+    const anders = (Number(vandaag().slice(-2)) + T.indexOf(t)) % 2 === 1 && parenVan([t]).length >= 8;
+    if (anders) stappen.push(['koppel', parenVan([t]), 2], ['race', raceVragen([t]), t.id], ['quiz', vragenVan(t, 5)]);
+    else stappen.push(['kaartjes', schud(t.kaarten.map((_, i) => t.id + '-' + i)).filter(id => !S.kaarten[id] || S.kaarten[id].d < 4).slice(0, 10)], ['quiz', vragenVan(t, 8)]);
+  }
   else if (it.soort === 'extra') { stappen.push(['lees', t]); if (VOORBEELD[t.id]) stappen.push(['voorbeeld', t]); if (SNAP[t.id]) stappen.push(['uitleg', t]); stappen.push(['quiz', vragenVan(t, 8)]); }
   else if (it.soort === 'overhoor') stappen.push(['overhoor', it]);
   else if (it.soort === 'kaarten') stappen.push(['kaartjes', kaartenVanDag(), true]);
@@ -542,6 +572,9 @@ function voerUit(it){
   } else if (it.soort === 'vrij-lees') stappen.push(['lees', t]);
   else if (it.soort === 'vrij-kaartjes') stappen.push(['kaartjes', t.kaarten.map((_, i) => t.id + '-' + i)]);
   else if (it.soort === 'vrij-quiz') stappen.push(['quiz', vragenVan(t, 10)]);
+  else if (it.soort === 'vrij-koppel') stappen.push(['koppel', parenVan([t]), 3]);
+  else if (it.soort === 'vrij-race') stappen.push(['race', raceVragen([t]), t.id]);
+  else if (it.soort === 'verrassing') stappen.push(['quiz', it.vragen]);
   else if (it.soort === 'kennis') stappen.push(['kennis']);
 
   startTaak({ it, stappen, i: 0, resultaten: [] }, 0);
@@ -587,7 +620,7 @@ function startTaak(l, xp){
 $('taak-terug').onclick = () => { bewaarKaarten(); lopend = null; S.proefStart = null; thuis(); };
 
 function tekenStappen(){
-  const namen = { lees:'📖 Leren', voorbeeld:'🧮 Voorbeeld', uitleg:'✍️ Zelf uitleggen', kaartjes:'🃏 Kaartjes', quiz:'❓ Quiz', kennis:'⭐ Je ploeg', overhoor:'🗣️ Uitleggen' };
+  const namen = { lees:'📖 Leren', voorbeeld:'🧮 Voorbeeld', uitleg:'✍️ Zelf uitleggen', kaartjes:'🃏 Kaartjes', quiz:'❓ Quiz', kennis:'⭐ Je ploeg', overhoor:'🗣️ Uitleggen', koppel:'🔗 Koppelen', race:'⏱️ Tijdrace' };
   $('taak-stappen').innerHTML = lopend.stappen.map((s, i) => `<span class="${i < lopend.i ? 'ok' : i === lopend.i ? 'aan' : ''}">${i < lopend.i ? '✓ ' : ''}${namen[s[0]]}${s[2] === 'proef' ? ' (proefexamen)' : ''}</span>`).join('');
 }
 function balk(p){ $('taak-balk').style.width = Math.round(p * 100) + '%'; }
@@ -606,6 +639,8 @@ function volgendeStap(){
   else if (soort === 'uitleg') stapUitleg(data, verder);
   else if (soort === 'overhoor') stapOverhoor(data, verder);
   else if (soort === 'kaartjes') stapKaartjes(data, verder, extra);
+  else if (soort === 'koppel') stapKoppel(data, verder, extra);
+  else if (soort === 'race') stapRace(data, verder, extra);
   else stapQuiz(data, verder, extra);
 }
 
@@ -925,6 +960,92 @@ function stapKaartjes(ids, verder, dagelijks){
 }
 
 // --- Quiz ---
+// --- Nieuwe leervormen: koppelen en tijdrace ---
+const kaal = h => String(h || '').replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+// Paren uit de kaartjes van één of meer onderwerpen (korte, duidelijke paren).
+function parenVan(ts){
+  const p = [];
+  for (const t of ts) for (const [v, a] of t.kaarten) { const x = kaal(v), y = kaal(a); if (x && y && x.length <= 80 && y.length <= 90) p.push([x, y, t.vak]); }
+  // Elk antwoord maar één keer, en van woordkaartjes in 2 richtingen enkel de eerste richting.
+  const antw = new Set(), vraag = new Set();
+  return schud(p.filter(([x, y]) => { const a = y.toLowerCase(), v = x.toLowerCase(); if (antw.has(a) || antw.has(v) || vraag.has(a)) return false; antw.add(a); vraag.add(v); return true; }));
+}
+// Vragen voor de tijdrace: meerkeuze en juist/fout uit de quiz, aangevuld met meerkeuze uit de kaartjes.
+function raceVragen(ts){
+  let qs = [];
+  for (const t of ts) qs = qs.concat(vragenVan(t, 99).filter(q => q.t === 'mc' || q.t === 'jf'));
+  const p = []; for (const t of ts) for (const [x, y] of parenVan([t])) p.push([x, y, t]);
+  for (const [x, y, t] of p) {
+    const fout = schud(p.filter(z => z[1] !== y && z[2].vak === t.vak)).slice(0, 3).map(z => z[1]);
+    if (fout.length === 3) qs.push({ t:'mc', v: x, o: [y, ...fout], a: 0, tid: t.id, vak: t.vak });
+  }
+  return schud(qs);
+}
+function stapKoppel(paren, verder, rondes){
+  const box = $('taakinhoud');
+  rondes = Math.max(1, Math.min(rondes || 2, Math.floor(paren.length / 4)));
+  if (paren.length < 4) return verder();
+  let ronde = 0, fout = 0, goed = 0;
+  const t0 = Date.now();
+  const speel = () => {
+    const set = paren.slice(ronde * 5, ronde * 5 + 5);
+    if (set.length < 3) return einde();
+    balk((lopend.i + ronde / rondes) / lopend.stappen.length);
+    const links = schud(set.map((p, i) => ({ i, tx: p[0] }))), rechts = schud(set.map((p, i) => ({ i, tx: p[1] })));
+    box.innerHTML = `<div class="babbel" id="kpop"></div><div class="kaart koppelkaart"><div class="rij" style="justify-content:space-between"><span class="label">🔗 Koppelen · ronde ${ronde + 1} van ${rondes}</span><span class="pil" id="kp-st">0 / ${set.length}</span></div>
+      <div class="koppel"><div class="kol" id="kl"></div><div class="kol" id="kr"></div></div></div>`;
+    POP.babbel($('kpop'), ronde === 0 ? 'Tik links een begrip en rechts de uitleg die erbij hoort. Hoe minder fouten, hoe beter! 🔗' : 'Nog een ronde, kampioen!', { vak: set[0][2] });
+    const maak = (lijst, kol, kant) => lijst.forEach(o => { const b = document.createElement('button'); b.className = 'kp ' + kant; b.textContent = o.tx; b.dataset.i = o.i; kol.append(b); });
+    maak(links, $('kl'), 'l'); maak(rechts, $('kr'), 'r');
+    let sel = null, af = 0;
+    box.querySelector('.koppel').onclick = e => {
+      const b = e.target.closest('.kp'); if (!b || b.disabled) return;
+      if (b.classList.contains('l')) { box.querySelectorAll('.kp.l').forEach(x => x.classList.remove('sel')); b.classList.add('sel'); sel = b; piep('klik'); return; }
+      if (!sel) { b.classList.add('wiebel'); setTimeout(() => b.classList.remove('wiebel'), 400); return; }
+      if (sel.dataset.i === b.dataset.i) {
+        sel.classList.remove('sel'); sel.classList.add('ok'); b.classList.add('ok'); sel.disabled = b.disabled = true; sel = null; af++; goed++;
+        $('kp-st').textContent = af + ' / ' + set.length; piep('goed');
+        if (af === set.length) { geefXP(5, $('kp-st')); setTimeout(() => { ronde++; ronde < rondes ? speel() : einde(); }, 600); }
+      } else { fout++; b.classList.add('mis'); sel.classList.add('mis'); const s2 = sel; setTimeout(() => { b.classList.remove('mis'); s2.classList.remove('mis'); }, 500); piep('fout'); }
+    };
+  };
+  const einde = () => {
+    const sec = Math.round((Date.now() - t0) / 1000);
+    box.innerHTML = `<div class="kaart center" style="padding:22px"><div style="font-size:2.6rem">🔗</div><h2>${goed} paren gekoppeld</h2><p class="muted">${fout === 0 ? 'Zonder één fout! 🔥' : fout + ' keer mis'} · ${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, '0')}</p><div class="onder" style="justify-content:center"><button class="knop groot" id="kpv">Verder →</button></div></div>`;
+    if (fout === 0) confetti(1200);
+    $('kpv').onclick = () => verder({ soort:'koppel', goed, fout });
+  };
+  speel();
+}
+// Tijdrace: zoveel mogelijk juist in 60 seconden (meerkeuze en juist/fout).
+function stapRace(vragen, verder, sleutel){
+  const box = $('taakinhoud');
+  vragen = schud(vragen.filter(q => q && (q.t === 'mc' || q.t === 'jf')));
+  if (vragen.length < 4) return verder();
+  const DUUR = 60; let i = 0, goed = 0, fout = 0, eind = 0, tik = null;
+  const best = Number(lokaal.get('race-' + sleutel, 0)) || 0;
+  box.innerHTML = `<div class="babbel" id="rpop"></div><div class="kaart center" style="padding:22px"><div style="font-size:2.6rem">⏱️</div><h2>Tijdrace!</h2><p class="muted">60 seconden. Zoveel mogelijk juist. Een fout kost je 3 seconden.${best ? `<br>Jouw record: <b>${best}</b>` : ''}</p><div class="onder" style="justify-content:center"><button class="knop groot" id="rgo">Start! 🏁</button></div></div>`;
+  POP.babbel($('rpop'), 'Klaar? Snel maar niet slordig! ⚡', { vak: vragen[0].vak });
+  const klok = () => { const s = Math.max(0, Math.ceil((eind - Date.now()) / 1000)); const el = $('rk'); if (el) { el.textContent = s + 's'; el.classList.toggle('laat', s <= 10); } const bar = $('rbar'); if (bar) bar.style.width = (s / DUUR * 100) + '%'; if (s <= 0) einde(); };
+  const toon = () => {
+    if (i >= vragen.length) { vragen = vragen.concat(schud(vragen.slice())); }
+    const q = vragen[i];
+    box.innerHTML = `<div class="vraagkaart race" style="--vk:${vk(q.vak)}"><div class="rij" style="justify-content:space-between"><span class="label">⏱️ <b id="rk">${DUUR}s</b></span><span class="pil">✅ ${goed}</span></div><div class="racebalk"><i id="rbar"></i></div><div class="vtekst" style="margin:10px 0">${q.v}</div><div id="ant"></div></div>`;
+    klok();
+    tekenAntwoord(q, pt => { if (pt >= 1) { goed++; piep('goed'); } else { fout++; eind -= 3000; piep('fout'); } i++; setTimeout(() => { if (Date.now() < eind) toon(); }, pt >= 1 ? 250 : 700); });
+  };
+  let klaar = false;
+  const einde = () => {
+    if (klaar) return; klaar = true; clearInterval(tik);
+    const record = goed > best; if (record) lokaal.set('race-' + sleutel, goed);
+    geefXP(Math.min(20, goed * 2));
+    box.innerHTML = `<div class="kaart center" style="padding:22px"><div style="font-size:2.6rem">${record ? '🏆' : '🏁'}</div><h2>${goed} juist in 60 seconden</h2><p class="muted">${record ? 'Nieuw record!' : best ? 'Record: ' + best : ''}${fout ? ' · ' + fout + ' fout' : ''}</p><div class="onder" style="justify-content:center"><button class="knop groot" id="rv">Verder →</button></div></div>`;
+    if (record) confetti(1500);
+    $('rv').onclick = () => verder({ soort:'race', goed, fout });
+  };
+  $('rgo').onclick = () => { eind = Date.now() + DUUR * 1000; tik = setInterval(klok, 250); toon(); };
+}
+
 function stapQuiz(vragen, verder, modus){
   const h = neemHerstel('quiz');
   vragen = h ? h.vragen : vragen.filter(Boolean);
@@ -1096,6 +1217,7 @@ async function taakAf(){
     await taakKlaar(it, score, totaal);
     geefXP(25);
   }
+  if (it.soort === 'verrassing') { const d = vandaag(); lokaal.set('verr-af-' + d, true); lokaal.set('verr-laatst', d); if (score >= 8) { geefXP(50); toast('⚡ ' + score + '/10! +50 XP bonus'); } }
   logResultaat('taak', it.vak, it.onderwerp, score ?? 0, totaal ?? 0, S.taakXP, { taak: it.id, soort: it.soort, titel: it.titel });
   const box = $('taakinhoud');
   balk(1); lopend.i = lopend.stappen.length; tekenStappen();
