@@ -88,7 +88,8 @@ function start(stand){
   thuis();
   hartslag();
   const ses = sessie.get();
-  if (ses && ses.terugNaPauze) { sessie.set({ ...ses, terugNaPauze: false }); setTimeout(() => toast('Welkom terug van je pauze! Verder met de training. ⚽'), 600); }
+  let terug = false;
+  if (ses && ses.terugNaPauze) { sessie.set({ ...ses, terugNaPauze: false }); terug = hervat(); setTimeout(() => toast(terug ? 'Welkom terug! Je gaat verder waar je was. ⚽' : 'Welkom terug van je pauze! Verder met de training. ⚽'), 600); }
   teller();
   const nieuw = (stand.berichten || []).filter(b => !b.gezien);
   if (nieuw.length) setTimeout(() => toonBerichten(nieuw, true), 400);
@@ -522,9 +523,38 @@ function voerUit(it){
   else if (it.soort === 'vrij-quiz') stappen.push(['quiz', vragenVan(t, 10)]);
   else if (it.soort === 'kennis') stappen.push(['kennis']);
 
-  lopend = { it, stappen, i: 0, resultaten: [] };
-  S.taakXP = 0;
-  $('taak-xp').textContent = '+0 XP';
+  startTaak({ it, stappen, i: 0, resultaten: [] }, 0);
+}
+
+// Na het spelletje in de pauze ga je verder waar je was (de pagina laadt opnieuw).
+const HERVAT = 'eli-hervat';
+function bewaarHervat(){
+  if (!lopend) return;
+  const stappen = lopend.stappen.map(([s, d, x]) => [s, d && d.id && TOPIC[d.id] === d ? { tid: d.id } : d, x]);
+  const st = { datum: vandaag(), it: lopend.it, stappen, i: lopend.i, resultaten: lopend.resultaten, xp: S.taakXP || 0, sub: lopend.subGet ? lopend.subGet() : null };
+  try { sessionStorage.setItem(HERVAT, JSON.stringify(st)); } catch {}
+}
+function hervat(){
+  let st = null;
+  try { st = JSON.parse(sessionStorage.getItem(HERVAT)); sessionStorage.removeItem(HERVAT); } catch {}
+  if (!st || st.datum !== vandaag() || !st.it) return false;
+  const stappen = st.stappen.map(([s, d, x]) => [s, d && d.tid ? TOPIC[d.tid] : d, x]);
+  if (stappen.some(([s, d]) => ['lees','voorbeeld','uitleg'].includes(s) && !d)) return false;
+  startTaak({ it: st.it, stappen, i: st.i, resultaten: st.resultaten || [], herstel: st.sub ? { ...st.sub, stap: st.i } : null }, st.xp);
+  return true;
+}
+// Gebruik de bewaarde toestand van de stap waarin de pauze begon (maar één keer).
+function neemHerstel(soort){
+  const h = lopend && lopend.herstel;
+  if (!h || h.soort !== soort || h.stap !== lopend.i) return null;
+  lopend.herstel = null;
+  return h;
+}
+function startTaak(l, xp){
+  const it = l.it;
+  lopend = l;
+  S.taakXP = xp || 0;
+  $('taak-xp').textContent = '+' + S.taakXP + ' XP';
   $('taak-titel').textContent = it.titel;
   $('taak').style.setProperty('--vk', vk(it.vak));
   $('thuis').hidden = true; document.querySelector('.veld').hidden = true; $('taak').hidden = false;
@@ -835,9 +865,11 @@ function stapKaartjes(ids, verder, dagelijks){
     $('kv').onclick = () => verder({ soort:'kaartjes', goed:0, totaal:0 });
     return;
   }
-  const rij = schud(ids).map(id => ({ id, poging: 0 }));
-  const totaal = rij.length; let goedEerst = 0, gedaan = 0;
-  const eerste = new Set();
+  const h = neemHerstel('kaartjes');
+  const rij = h ? h.rij : schud(ids).map(id => ({ id, poging: 0 }));
+  const totaal = h ? h.totaal : rij.length; let goedEerst = h ? h.goedEerst : 0, gedaan = h ? h.gedaan : 0;
+  const eerste = new Set(h ? h.eerste : []);
+  lopend.subGet = () => ({ soort:'kaartjes', rij, totaal, goedEerst, gedaan, eerste: [...eerste] });
   const toon = () => {
     if (!rij.length) { bewaarKaarten(); return verder({ soort:'kaartjes', goed: goedEerst, totaal }); }
     const k = rij[0], c = kaartInhoud(k.id), st = S.kaarten[k.id];
@@ -872,12 +904,15 @@ function stapKaartjes(ids, verder, dagelijks){
 
 // --- Quiz ---
 function stapQuiz(vragen, verder, modus){
-  vragen = vragen.filter(Boolean);
+  const h = neemHerstel('quiz');
+  vragen = h ? h.vragen : vragen.filter(Boolean);
   const box = $('taakinhoud');
-  const totaal = vragen.length;
-  let i = 0, score = 0;
-  const fouten = [], perOnderwerp = {};
-  const opnieuw = [];
+  const totaal = h ? h.totaal : vragen.length;
+  let i = h ? h.i : 0, score = h ? h.score : 0;
+  const fouten = h ? h.fouten : [], perOnderwerp = h ? h.perOnderwerp : {};
+  const opnieuw = h ? h.opnieuw : [];
+  if (h && h.proefSec != null) S.proefStart = Date.now() - h.proefSec * 1000;
+  lopend.subGet = () => ({ soort:'quiz', vragen, totaal, i, score, fouten, perOnderwerp, opnieuw, proefSec: S.proefStart ? Math.round((Date.now() - S.proefStart) / 1000) : null });
   const vragers = {};
   const vrager = vak => (vragers[vak] = vragers[vak] || POP.kies(vak, 'coach'));
   const toon = () => {
@@ -1089,7 +1124,7 @@ function pauze(daarna){
   };
   c.querySelectorAll('[data-p]').forEach(b => b.onclick = () => {
     const pz = $('pz'); const soort = b.dataset.p;
-    if (soort === 'spel') { sessie.set({ ...sessie.get(), terugNaPauze: true }); location.href = 'spel.html?pauze=1' + (MEEKIJK ? '&meekijk=1' : ''); return; }
+    if (soort === 'spel') { bewaarHervat(); sessie.set({ ...sessie.get(), terugNaPauze: true }); location.href = 'spel.html?pauze=1' + (MEEKIJK ? '&meekijk=1' : ''); return; }
     if (soort === 'adem') pz.innerHTML = `<div class="adem">adem in…</div><p class="center muted">Adem 4 tellen in als de bol groeit, 4 tellen uit als hij krimpt.</p>`;
     if (soort === 'beweeg') pz.innerHTML = `<div class="babbel" id="pzp"></div><div class="kaart"><h3>Voetbal-pauze ⚽</h3><p>1. 20 keer hooghouden (of doen alsof met een prop papier).<br>2. 10 squats als een keeper.<br>3. 30 seconden op één been staan, dan het andere.<br>4. Een glas water drinken. 💧</p></div>`;
     if (soort === 'beweeg') POP.babbel($('pzp'), 'Kom op, kampioen! Spieren wakker maken. Ik doe mee! 💪', { id:'papa' });
