@@ -1143,5 +1143,8 @@
  "Nieuw adres: vorige keer was het {0}. Een vast adres lost dat op.": "New address: last time it was {0}. A fixed address solves this.",
  "Vast adres vragen": "Ask for a fixed address",
  "{0} ridder(s) teruggehaald uit de back-ups.": "{0} knight(s) restored from the backups.",
- "Ridders terughalen lukte niet:": "Restoring knights failed:"
+ "Ridders terughalen lukte niet:": "Restoring knights failed:",
+ "Vast adres:": "Fixed address:",
+ "vraag ICT één keer om een vast adres voor deze pc, dan klopt de QR-code op het bord altijd.": "ask IT once for a fixed address for this PC, then the QR code on the board is always right.",
+ "Bericht voor ICT": "Message for IT"
 }
