@@ -126,6 +126,7 @@ const vocab2 = [
   ['Je cherche…','Ik zoek…'],['Pouvez-vous m\'aider ?','Kunt u mij helpen?'],['Je suis perdu(e).','Ik ben verloren.'],['Il y a…','Er is / er zijn…'],['C\'est combien ?','Hoeveel is dat?'],
   ['À quelle heure… ?','Hoe laat…?'],['Je prends… (le train)','Ik neem… (de trein)'],['C\'est magnifique !','Het is prachtig!'],['C\'est trop cher !','Het is te duur!'],['J\'adore voyager !','Ik hou van reizen!']
 ];
+window.ELI_VOCAB = [...vocab, ...vocab2];
 
 const kaartenWW = (lijst) => lijst.map(w => [w + ' (' + WW[w][6] + ') – vervoeg in het présent', WW[w].slice(0,6).map((f,i) => (i===0 && /^[aeéèêhiouy]/i.test(f) ? 'j\'' : window.ELI_PERS[i].split(' / ')[0] + ' ') + f).join(' · ')]);
 
