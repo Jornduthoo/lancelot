@@ -220,6 +220,7 @@ function thuis(){
     lijst.append(el);
   });
   verrassing(lijst, d);
+  fotoronde(lijst);
 
   // Beloning
   const alles = items.length && items.every(it => isKlaar(it.id));
@@ -342,8 +343,10 @@ function tekenVakken(){
     el.innerHTML = `<div class="ic">${geleerd(t.id) ? '✅' : V[t.vak].icoon}</div><div class="tx"><b></b><span>${t.kaarten.length} kaartjes · ${t.quiz.length} vragen${r ? ` · laatste score ${Math.round(r.s / r.t * 100)}%` : ''}</span></div>`;
     el.querySelector('b').textContent = t.titel;
     const rij = document.createElement('div'); rij.className = 'rij'; rij.style.flexWrap = 'nowrap';
-    for (const [lbl, soort] of [['📖', 'lees'], ['🃏', 'kaartjes'], ['🔗', 'koppel'], ['⏱️', 'race'], ['❓', 'quiz']]) {
-      const b = document.createElement('button'); b.className = 'knop licht klein'; b.textContent = lbl; b.title = { lees:'Leerkaart', kaartjes:'Kaartjes', koppel:'Koppelen', race:'Tijdrace (60 s)', quiz:'Quiz' }[soort];
+    const vormen = [['📖', 'lees'], ['🃏', 'kaartjes'], ['🔗', 'koppel'], ['⏱️', 'race'], ['❓', 'quiz']];
+    if (FOTO.some(f => f.tid === t.id)) vormen.splice(4, 0, ['📸', 'foto']);
+    for (const [lbl, soort] of vormen) {
+      const b = document.createElement('button'); b.className = 'knop licht klein'; b.textContent = lbl; b.title = { lees:'Leerkaart', kaartjes:'Kaartjes', koppel:'Koppelen', race:'Tijdrace (60 s)', foto:'Fotoronde', quiz:'Quiz' }[soort];
       b.onclick = () => voerUit({ id:'vrij:' + soort + ':' + t.id, soort:'vrij-' + soort, vak:t.vak, onderwerp:t.id, titel:t.titel, vrij:true });
       rij.append(b);
     }
@@ -574,7 +577,8 @@ function voerUit(it){
   else if (it.soort === 'vrij-quiz') stappen.push(['quiz', vragenVan(t, 10)]);
   else if (it.soort === 'vrij-koppel') stappen.push(['koppel', parenVan([t]), 3]);
   else if (it.soort === 'vrij-race') stappen.push(['race', raceVragen([t]), t.id]);
-  else if (it.soort === 'verrassing') stappen.push(['quiz', it.vragen]);
+  else if (it.soort === 'verrassing' || it.soort === 'fotoronde') stappen.push(['quiz', it.vragen]);
+  else if (it.soort === 'vrij-foto') stappen.push(['quiz', fotoVragen([t])]);
   else if (it.soort === 'kennis') stappen.push(['kennis']);
 
   startTaak({ it, stappen, i: 0, resultaten: [] }, 0);
@@ -970,10 +974,32 @@ function parenVan(ts){
   const antw = new Set(), vraag = new Set();
   return schud(p.filter(([x, y]) => { const a = y.toLowerCase(), v = x.toLowerCase(); if (antw.has(a) || antw.has(v) || vraag.has(a)) return false; antw.add(a); vraag.add(v); return true; }));
 }
+// --- Fotoronde: kijk naar de foto en kies het juiste antwoord ---
+const FOTO = window.ELI_FOTO || [];
+const fotoTag = q => q.img ? `<img class="fotovraag" src="foto/${q.img}.webp" alt="" onerror="this.remove()">` : '';
+function fotoVragen(ts){
+  const ids = new Set(ts.map(t => t.id));
+  return schud(FOTO.filter(f => ids.has(f.tid) && TOPIC[f.tid]).map(f => {
+    const pool = f.o || [...new Set(FOTO.filter(g => g.v === f.v && g.a !== f.a).map(g => g.a))];
+    const fout = schud(pool.filter(x => x !== f.a)).slice(0, 3);
+    return { t:'mc', img: f.f, v: f.v, o: [f.a, ...fout], a: 0, tid: f.tid, vak: TOPIC[f.tid].vak };
+  }));
+}
+function fotoronde(lijst){
+  if (MEEKIJK) return;
+  const qs = fotoVragen(T.filter(t => geleerd(t.id)));
+  if (qs.length < 5) return;
+  const el = document.createElement('div'); el.className = 'taak'; el.style.setProperty('--vk', '#7c4dff');
+  el.innerHTML = `<div class="ic">📸</div><div class="tx"><b>Fotoronde</b><span>Kijk naar de foto en kies het juiste antwoord · ${Math.min(10, qs.length)} foto's · extra</span></div>`;
+  const b = document.createElement('button'); b.className = 'knop klein licht'; b.textContent = 'Start';
+  b.onclick = () => voerUit({ id:'vrij:fotoronde', soort:'fotoronde', vak:'alle', titel:'📸 Fotoronde', vrij:true, vragen: qs.slice(0, 10) });
+  el.append(b); lijst.append(el);
+}
 // Vragen voor de tijdrace: meerkeuze en juist/fout uit de quiz, aangevuld met meerkeuze uit de kaartjes.
 function raceVragen(ts){
   let qs = [];
   for (const t of ts) qs = qs.concat(vragenVan(t, 99).filter(q => q.t === 'mc' || q.t === 'jf'));
+  qs = qs.concat(fotoVragen(ts));
   const p = []; for (const t of ts) for (const [x, y] of parenVan([t])) p.push([x, y, t]);
   for (const [x, y, t] of p) {
     const fout = schud(p.filter(z => z[1] !== y && z[2].vak === t.vak)).slice(0, 3).map(z => z[1]);
@@ -1030,7 +1056,7 @@ function stapRace(vragen, verder, sleutel){
   const toon = () => {
     if (i >= vragen.length) { vragen = vragen.concat(schud(vragen.slice())); }
     const q = vragen[i];
-    box.innerHTML = `<div class="vraagkaart race" style="--vk:${vk(q.vak)}"><div class="rij" style="justify-content:space-between"><span class="label">⏱️ <b id="rk">${DUUR}s</b></span><span class="pil">✅ ${goed}</span></div><div class="racebalk"><i id="rbar"></i></div><div class="vtekst" style="margin:10px 0">${q.v}</div><div id="ant"></div></div>`;
+    box.innerHTML = `<div class="vraagkaart race" style="--vk:${vk(q.vak)}"><div class="rij" style="justify-content:space-between"><span class="label">⏱️ <b id="rk">${DUUR}s</b></span><span class="pil">✅ ${goed}</span></div><div class="racebalk"><i id="rbar"></i></div>${fotoTag(q)}<div class="vtekst" style="margin:10px 0">${q.v}</div><div id="ant"></div></div>`;
     klok();
     tekenAntwoord(q, pt => { if (pt >= 1) { goed++; piep('goed'); } else { fout++; eind -= 3000; piep('fout'); } i++; setTimeout(() => { if (Date.now() < eind) toon(); }, pt >= 1 ? 250 : 700); });
   };
@@ -1066,7 +1092,7 @@ function stapQuiz(vragen, verder, modus){
     const q = vragen[i];
     if (modus === 'proef' && !S.proefStart) { S.proefStart = Date.now(); const iv = setInterval(() => { const el = $('pk-t'); if (!S.proefStart) return clearInterval(iv); if (!el) return; const sec = Math.round((Date.now() - S.proefStart) / 1000); el.textContent = ' · ⏱️ ' + Math.floor(sec / 60) + ':' + String(sec % 60).padStart(2, '0') + ' / ' + P.PROEF_MIN + ' min'; el.classList.toggle('laat', sec > P.PROEF_MIN * 60); }, 500); }
     balk((lopend.i + Math.min(i, totaal) / totaal) / lopend.stappen.length);
-    box.innerHTML = `<div class="vraagkaart" style="--vk:${vk(q.vak)}"><div class="rij" style="justify-content:space-between"><span class="label">${q.herkans ? '🔁 Nog eens' : `Vraag ${i + 1} van ${totaal}`}<span id="pk-t" class="pk"></span></span><span class="pil">${esc((V[q.vak] || {}).kort || '')}</span></div><div class="babbel vraagbabbel" id="qpop"></div><div id="ant"></div><div id="fb"></div><div class="onder" id="qv"></div></div>`;
+    box.innerHTML = `<div class="vraagkaart" style="--vk:${vk(q.vak)}"><div class="rij" style="justify-content:space-between"><span class="label">${q.herkans ? '🔁 Nog eens' : `Vraag ${i + 1} van ${totaal}`}<span id="pk-t" class="pk"></span></span><span class="pil">${esc((V[q.vak] || {}).kort || '')}</span></div>${fotoTag(q)}<div class="babbel vraagbabbel" id="qpop"></div><div id="ant"></div><div id="fb"></div><div class="onder" id="qv"></div></div>`;
     POP.babbel($('qpop'), `<div class="vtekst">${q.v}</div>`, { figuur: vrager(q.vak) });
     tekenAntwoord(q, (pt, uitleg) => resultaat(q, pt, uitleg));
   };
