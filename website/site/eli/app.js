@@ -29,7 +29,12 @@ const xpTotaal = () => (S.stand ? S.stand.xp : 0) + S.xpLokaal;
 // ---------------- Helpers ----------------
 const schud = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 const stripAccent = s => s.normalize('NFD').replace(/[̀-ͯ]/g, '');
-const norm = s => String(s || '').toLowerCase().replace(/[’`´]/g, "'").replace(/\s+/g, ' ').replace(/[.!?;:]+$/,'').trim();
+// Soepel vergelijken: hoofdletters, spaties en leestekens (. … , ! ? ; : " « » haakjes) tellen niet mee.
+// Accenten, apostrofs en streepjes (viens-tu) tellen wel.
+const norm = s => String(s || '').toLowerCase().normalize('NFC').replace(/[’`´‘]/g, "'").replace(/[  ]/g, ' ')
+  .replace(/[.…,!?¡¿;:"«»“”()[\]]/g, ' ').replace(/\s*'\s*/g, "'").replace(/\s*-\s*/g, '-').replace(/\s+/g, ' ').trim();
+// "perdu(e)" → perdu én perdue; "Je prends… (le train)" → met en zonder het stuk tussen haakjes.
+const varianten = a => { const s = String(a); return /\(/.test(s) ? [s, s.replace(/\(([^)]*)\)/g, '$1'), s.replace(/\([^)]*\)/g, '')] : [s]; };
 const vk = vak => (V[vak] && V[vak].kleur) || 'var(--gras)';
 
 // ---------------- Login ----------------
@@ -1028,12 +1033,14 @@ function tekenAntwoord(q, klaar){
         return done(goed ? 1 : 0, goed ? '' : `Juist antwoord: <b>${getal(rond(q.a, 4))}</b>`);
       }
       let x = norm(iv.value);
-      const opties = q.a.map(norm);
+      const opties = q.a.flatMap(varianten).map(norm);
       if (q.pron) x = x.replace(/^(je|j'|tu|il|elle|on|nous|vous|ils|elles)\s*/, '');
       const exact = opties.includes(x);
       const zonder = !exact && opties.map(stripAccent).includes(stripAccent(x));
       if (exact) return done(1, '');
       if (zonder) return done(q.fr ? .5 : 1, q.fr ? `Let op de accenten: <b>${esc(q.a[0])}</b>` : '');
+      const los = s => stripAccent(s).replace(/-/g, ' ');
+      if (opties.map(los).includes(los(x))) return done(q.fr ? .5 : 1, q.fr ? `Bijna! Let op de schrijfwijze (accent of streepje): <b>${esc(q.a[0])}</b>` : '');
       done(0, `Juist antwoord: <b>${esc(q.a[0])}</b>`);
     };
   } else if (q.t === 'open') {
