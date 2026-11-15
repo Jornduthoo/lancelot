@@ -194,15 +194,11 @@ window.ELI_ONDERWERPEN.push(
   id:'KF5', vak:'kf', titel:'Wat is kunst? Kunstvormen',
   bron:[['Cursus kunstbeschouwing p. 1–4', D('1auWuIyLQnay90JHdKlZjFiL1hiCUi_yN')],['Presentatie P1 Wat is kunst?', D('1fmKTk7rpHfs89CLRCG6q5GA5kNTrIqPr')]],
   samenvatting:[
-    'Kunst is moeilijk te definiëren. Samengevat, kunst…',
-    '★ is altijd een <b>bewuste creatie</b> van iets <b>moois en/of betekenisvols</b> · ★ de kunstenaar gebruikt <b>vaardigheden en verbeelding</b> · ★ heeft tot doel de <b>zintuigen te prikkelen en/of emoties los te maken</b> · ★ <b>verandert doorheen de tijd</b> · ★ kan sterk <b>verschillen per cultuur</b>.',
-    'Voorbeeld van verandering in de tijd: middeleeuwen (religieus, gestileerd, weinig perspectief) → renaissance (realistisch, anatomie, licht en schaduw, perspectief; Leonardo da Vinci, Michelangelo; humanisme).',
-    'Performance: <b>Marina Abramović</b>, <i>The Artist is Present</i> (MoMA New York, 3 maanden, mensen zaten zwijgend tegenover haar).',
-    '<b>3 grote categorieën kunstvormen</b>:',
-    '<b>Beeldende kunsten</b>: schilderkunst, beeldhouwkunst, architectuur, fotografie, strips, design (meubels, kledij/fashion).',
-    '<b>Podiumkunsten</b>: <i>woord</i> (theater, voordracht, poëzie, literatuur), <i>dans</i> (ballet), <i>muziek</i> (orkest, concerten, zingen, opera).',
-    '<b>Audiovisuele kunsten</b>: film, tv, videokunst, digital art.',
-    '<b>Mengvormen</b>: musical, graffiti, videobeelden tijdens theater, performance art.'
+    '<h4>🎨 Wat is kunst?</h4><p>Kunst is <b>moeilijk te definiëren</b>. Samengevat, kunst …</p><div class="lp-tegels k2"><div><i>⭐</i><b>is een bewuste creatie</b><small>van iets moois en/of betekenisvols</small></div><div><i>⭐</i><b>vraagt vaardigheden en verbeelding</b><small>van de kunstenaar</small></div><div><i>⭐</i><b>prikkelt de zintuigen</b><small>en/of maakt emoties los</small></div><div><i>⭐</i><b>verandert doorheen de tijd</b></div><div><i>⭐</i><b>verschilt per cultuur</b></div></div><p class="lp-tip">💡 Onthoud de <b>5 sterren</b>.</p>',
+    '<h4>⏳ Kunst verandert: middeleeuwen → renaissance</h4><div class="lp-vs"><div><b>⛪ middeleeuwen</b><u>religieus</u> en gestileerd<small>weinig perspectief</small></div><div><b>🖼️ renaissance</b><u>realistisch</u><small>anatomie, licht en schaduw, perspectief · humanisme · Leonardo da Vinci, Michelangelo</small></div></div>',
+    '<h4>🪑 Performance: Marina Abramović</h4><p><b><i>The Artist is Present</i></b> in het <b>MoMA</b> (New York).</p><div class="lp-tegels"><div><i>📅</i><b>3 maanden</b></div><div><i>🤫</i><b>zwijgend</b><small>mensen zaten tegenover haar</small></div><div><i>👀</i><b>alleen kijken</b><small>en emoties voelen</small></div></div>',
+    '<h4>🗂️ 3 grote categorieën kunstvormen</h4><div class="lp-tegels"><div><i>🖌️</i><b>beeldende kunsten</b><small>schilderkunst, beeldhouwkunst, architectuur, fotografie, strips, design (meubels, fashion)</small></div><div><i>🎭</i><b>podiumkunsten</b><small><b>woord</b>: theater, poëzie, literatuur<br><b>dans</b>: ballet<br><b>muziek</b>: orkest, zingen, opera</small></div><div><i>🎬</i><b>audiovisuele kunsten</b><small>film, tv, videokunst, digital art</small></div></div>',
+    '<h4>🔀 Mengvormen</h4><p>Sommige kunst hoort bij <b>meer dan één</b> categorie:</p><div class="lp-tegels k2"><div><i>🎤</i><b>musical</b><small>woord + dans + muziek</small></div><div><i>🧱</i><b>graffiti</b></div><div><i>📽️</i><b>video tijdens theater</b></div><div><i>🧍</i><b>performance art</b></div></div>'
   ],
   kaarten:[
     ['Noem de 5 kenmerken van kunst (samenvatting cursus)','Bewuste creatie van iets moois/betekenisvols · vaardigheden en verbeelding · zintuigen prikkelen/emoties losmaken · verandert in de tijd · verschilt per cultuur'],
