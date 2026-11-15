@@ -547,11 +547,14 @@ let lopend = null;
 function voerUit(it){
   const t = it.onderwerp && TOPIC[it.onderwerp];
   const stappen = [];
-  if (it.soort === 'leer') { stappen.push(['lees', t]); if (VOORBEELD[t.id]) stappen.push(['voorbeeld', t]); if (SNAP[t.id]) stappen.push(['uitleg', t]); stappen.push(['kaartjes', t.kaarten.map((_, i) => t.id + '-' + i)]); if (parenVan([t]).length >= 4) stappen.push(['koppel', parenVan([t]), 1]); stappen.push(['quiz', vragenVan(t, Math.min(10, t.quiz.length + 2))]); }
+  if (it.soort === 'leer') { stappen.push(['lees', t]); if (VOORBEELD[t.id]) stappen.push(['voorbeeld', t]); if (SNAP[t.id]) stappen.push(['uitleg', t]); stappen.push(['kaartjes', t.kaarten.map((_, i) => t.id + '-' + i)]); if (parenVan([t]).length >= 4) stappen.push(['koppel', parenVan([t]), 1]); const v = vormVoor(t); if (v) stappen.push(v); stappen.push(['quiz', vragenVan(t, Math.min(v ? 7 : 10, t.quiz.length + 2))]); }
   else if (it.soort === 'herhaal') {
     // Afwisseling: om de andere herhaling koppelen + tijdrace in plaats van kaartjes + quiz.
-    const anders = (Number(vandaag().slice(-2)) + T.indexOf(t)) % 2 === 1 && parenVan([t]).length >= 8;
-    if (anders) stappen.push(['koppel', parenVan([t]), 2], ['race', raceVragen([t]), t.id], ['quiz', vragenVan(t, 5)]);
+    // Drie soorten herhaling die elkaar afwisselen.
+    const v = vormVoor(t), keus = (Number(vandaag().slice(-2)) + T.indexOf(t)) % 3;
+    const anders = keus === 1 && parenVan([t]).length >= 8;
+    if (keus === 2 && v) stappen.push(v, ['kaartjes', schud(t.kaarten.map((_, i) => t.id + '-' + i)).filter(id => !S.kaarten[id] || S.kaarten[id].d < 4).slice(0, 6)], ['quiz', vragenVan(t, 5)]);
+    else if (anders) stappen.push(['koppel', parenVan([t]), 2], ['race', raceVragen([t]), t.id], ['quiz', vragenVan(t, 5)]);
     else stappen.push(['kaartjes', schud(t.kaarten.map((_, i) => t.id + '-' + i)).filter(id => !S.kaarten[id] || S.kaarten[id].d < 4).slice(0, 10)], ['quiz', vragenVan(t, 8)]);
   }
   else if (it.soort === 'extra') { stappen.push(['lees', t]); if (VOORBEELD[t.id]) stappen.push(['voorbeeld', t]); if (SNAP[t.id]) stappen.push(['uitleg', t]); stappen.push(['quiz', vragenVan(t, 8)]); }
@@ -652,10 +655,10 @@ function volgendeStap(){
   else if (soort === 'kaartjes') stapKaartjes(data, verder, extra);
   else if (soort === 'koppel') stapKoppel(data, verder, extra);
   else if (soort === 'race') stapRace(data, verder, extra);
-  else if (soort === 'letters') stapLetters(verder);
-  else if (soort === 'sorteer') stapSorteer(verder);
-  else if (soort === 'tijdlijn') stapTijdlijn(verder);
-  else if (soort === 'foutzoek') stapFoutZoek(verder);
+  else if (soort === 'letters') stapLetters(verder, data);
+  else if (soort === 'sorteer') stapSorteer(verder, data);
+  else if (soort === 'tijdlijn') stapTijdlijn(verder, data, extra);
+  else if (soort === 'foutzoek') stapFoutZoek(verder, data, extra);
   else stapQuiz(data, verder, extra);
 }
 
@@ -1083,6 +1086,17 @@ function stapRace(vragen, verder, sleutel){
   $('rgo').onclick = () => { eind = Date.now() + DUUR * 1000; tik = setInterval(klok, 250); toon(); };
 }
 
+// Welke speciale vorm past bij dit onderwerp? (in de opdrachten van de dag, in plaats van een stuk quiz)
+function vormVoor(t){
+  const ids = T.filter(x => x.vak === t.vak && (geleerd(x.id) || x.id === t.id)).map(x => x.id);
+  if (t.id === 'F1' || t.id === 'F7') return ['letters', 6];
+  if (t.id === 'W2') return ['quiz', omzetVragen(6)];
+  if (t.id === 'G2') return ['sorteer', 6];
+  if (t.vak === 'cul' && window.ELI_TIJDLIJN.filter(x => ids.includes(x.tid)).length >= 5) return ['tijdlijn', 2, ids];
+  if (t.vak === 'kf' && window.ELI_FOUT.filter(z => ids.includes(z[2])).length >= 3) return ['foutzoek', 5, ids];
+  const f = fotoVragen([t]); if (f.length >= 4) return ['quiz', f.slice(0, 6)];
+  return null;
+}
 // --- Eén eigen leervorm per vak ---
 const VAKVORM = {
   fr:  { soort:'letters', ic:'🔤', titel:'Letterpuzzel', uitleg:'Zet de letters van het Franse woord in de juiste volgorde' },
@@ -1104,9 +1118,9 @@ function letterWoorden(){
     return !/[\s\/…?!()']/.test(woord) && woord.length >= 3 && woord.length <= 11 && !gezien.has(fr) && gezien.add(fr);
   }));
 }
-function stapLetters(verder){
+function stapLetters(verder, max){
   const box = $('taakinhoud');
-  const lijst = letterWoorden().slice(0, 8);
+  const lijst = letterWoorden().slice(0, max || 8);
   if (lijst.length < 3) return verder();
   let n = 0, goed = 0, fout = 0;
   const volgende = () => {
@@ -1163,9 +1177,9 @@ function omzetVragen(aantal){
   return qs;
 }
 // Gedrag: sorteren in bakjes
-function stapSorteer(verder){
+function stapSorteer(verder, max){
   const S0 = window.ELI_SORTEER; const box = $('taakinhoud');
-  const items = schud(S0.items.slice()).slice(0, 10);
+  const items = schud(S0.items.slice()).slice(0, max || 10);
   let n = 0, goed = 0, fout = 0; const telling = {};
   const volgende = () => {
     if (n >= items.length) return eindKaart(box, '🗂️', `${goed} van ${items.length} juist gesorteerd`, goed === items.length ? 'Perfect! 🔥' : 'Kijk nog eens naar de fouten in de samenvatting.', () => verder({ soort:'sorteer', goed, fout }));
@@ -1184,9 +1198,10 @@ function stapSorteer(verder){
   volgende();
 }
 // Cultuur: tijdlijn (tik van oud naar nieuw)
-function stapTijdlijn(verder){
-  const box = $('taakinhoud'); const alle = window.ELI_TIJDLIJN;
-  const RONDES = 3; let ronde = 0, goed = 0, fout = 0;
+function stapTijdlijn(verder, rondes, ids){
+  const box = $('taakinhoud'); const alle = window.ELI_TIJDLIJN.filter(x => !ids || ids.includes(x.tid));
+  if (alle.length < 5) return verder();
+  const RONDES = rondes || 3; let ronde = 0, goed = 0, fout = 0;
   const speel = () => {
     if (ronde >= RONDES) return eindKaart(box, '📅', `${goed} rondes zonder fout`, fout ? fout + ' keer mis getikt' : 'Alles meteen juist! 🔥', () => verder({ soort:'tijdlijn', goed, fout }));
     balk((lopend.i + ronde / RONDES) / lopend.stappen.length);
@@ -1206,9 +1221,10 @@ function stapTijdlijn(verder){
   speel();
 }
 // K&F: fout zoeken (tik het foute woord)
-function stapFoutZoek(verder){
+function stapFoutZoek(verder, max, ids){
   const box = $('taakinhoud');
-  const zinnen = schud(window.ELI_FOUT.filter(z => TOPIC[z[2]])).slice(0, 8);
+  const zinnen = schud(window.ELI_FOUT.filter(z => TOPIC[z[2]] && (!ids || ids.includes(z[2])))).slice(0, max || 8);
+  if (zinnen.length < 3) return verder();
   let n = 0, goed = 0;
   const volgende = () => {
     if (n >= zinnen.length) return eindKaart(box, '🔍', `${goed} van ${zinnen.length} fouten meteen gevonden`, goed === zinnen.length ? 'Scherp! 🔥' : '', () => verder({ soort:'foutzoek', goed, fout: zinnen.length - goed }));
