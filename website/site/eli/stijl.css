@@ -312,3 +312,12 @@ input:focus,textarea:focus{outline:none;border-color:var(--gras)}
 .hulpkaart textarea{resize:vertical}
 .hulpknop{position:fixed;right:14px;bottom:14px;z-index:30;background:#7c4dff;box-shadow:0 4px 14px rgba(0,0,0,.25)}
 #taakinhoud{padding-bottom:70px}
+
+/* Onregelmatige werkwoorden naast elkaar */
+.lp-irr th{font-size:.95rem;text-align:left;padding:6px 8px;color:var(--vk,#1565c0)}
+.lp-irr th small{display:block;font-weight:400;color:#888;font-size:.75rem}
+.lp-irr td:first-child{color:#888;font-size:.85rem;white-space:nowrap}
+.lp-irr{margin:8px 0}
+.lp-irr td:last-child{text-align:left;font-size:.95rem;color:inherit}
+.lp-irr td:first-child{width:22%}
+.lp-irr td b{color:var(--inkt,#222)}

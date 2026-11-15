@@ -101,6 +101,10 @@ window.ELI_PC = {
 const wtab = (lijst, idx) => '<table class="lp-ww lp-woord">' + idx.map(i => `<tr><td>${lijst[i][0]}</td><td>${lijst[i][1]}</td></tr>`).join('') + '</table>';
 // Vervoegingstabel voor samenvattingen: [persoon, stam, uitgang, vertaling]
 const vtab = rijen => '<table class="lp-ww">' + rijen.map(([p, st, u, nl]) => `<tr><td>${p}</td><td>${st}<b class="lp-u">${u}</b></td><td>${nl}</td></tr>`).join('') + '</table>';
+
+// Tabel met de vervoeging van 2 à 3 onregelmatige werkwoorden naast elkaar.
+const ITAB_P = ['je','tu','il/elle','nous','vous','ils/elles'];
+const itab = ws => '<table class="lp-ww lp-irr"><tr><th></th>' + ws.map(w => `<th>${w}<small>${WW[w][6]}</small></th>`).join('') + '</tr>' + ITAB_P.map((p, i) => `<tr><td>${p}</td>` + ws.map(w => `<td><b>${WW[w][i]}</b></td>`).join('') + '</tr>').join('') + '</table>';
 const vocab = [
   ['un pays','een land'],['un continent','een continent'],['un passeport','een paspoort'],['un avion','een vliegtuig'],['un train','een trein'],['un bateau','een boot'],
   ['un bus','een bus'],['un métro','een metro'],['un tram','een tram'],['un voyage','een reis'],['une valise','een koffer'],['une carte','een kaart'],['une gare','een station'],
@@ -200,9 +204,13 @@ window.ELI_ONDERWERPEN.push(
   id:'F4', vak:'fr', titel:'Onregelmatige werkwoorden (présent)',
   bron:[['Flashcards verbes irréguliers', IRR],['Lijst werkwoorden', LST]],
   samenvatting:[
-    'Deze moet je <b>gewoon vanbuiten</b> kennen. De 26 uit je flashcards: avoir, être, aller, faire, vouloir, pouvoir, devoir, savoir, boire, connaître, courir, croire, dire, écrire, envoyer, lire, mettre, mourir, prendre, recevoir, rire, suivre, tenir, venir, vivre, voir.',
-    'Let op de valkuilen: <b>vous êtes, vous faites, vous dites</b> (geen -ez!) · <b>ils sont, ils ont, ils vont, ils font</b> · je <b>suis</b> = ik ben (être) én ik volg (suivre) · <b>il connaît</b> (accent) · <b>nous buvons</b>, ils <b>boivent</b> · <b>reçois</b> met ç, nous recevons zonder.',
-    'Methode: 5 per dag, hardop opzeggen, dan zonder kijken typen in de drill.'
+    '<h4>🧱 Onregelmatige werkwoorden</h4><p>Bij deze werkwoorden werkt de gewone regel (stam + uitgang) <b>niet</b>. Je moet ze <b>vanbuiten</b> kennen. In je flashcards staan er <b>26</b>.</p><p class="lp-tip">💪 Methode: leer er <b>5 per dag</b>, zeg ze <b>hardop</b> op, en typ ze daarna zonder te kijken in de <b>Werkwoorden-sprint</b>.</p><p class="lp-kop">🔑 Goed nieuws: veel hebben <b>dezelfde uitgangen</b></p><div class="lp-tegels"><div><i>1️⃣</i><b>-s · -s · -t</b><small>je, tu, il (bijna altijd)</small></div><div><i>👥</i><b>-ons · -ez</b><small>nous, vous</small></div><div><i>👪</i><b>-ent</b><small>ils/elles</small></div></div>',
+    '<h4>⭐ De grote 4</h4>' + itab(['avoir','être']) + itab(['aller','faire']) + '<p class="lp-tip">⚠️ Valkuilen: <b>vous êtes, vous faites</b> (geen -ez!) en <b>ils sont, ils ont, ils vont, ils font</b> (allemaal op <b>-ont</b>).</p>',
+    '<h4>🙋 Willen, kunnen, moeten, weten</h4>' + itab(['vouloir','pouvoir']) + itab(['devoir','savoir']) + '<p class="lp-tip">💡 je en tu eindigen op <b>-x</b> bij vouloir en pouvoir: <b>je veux, je peux</b>. Bij ils verandert de stam: <b>veulent, peuvent, doivent</b>.</p>',
+    '<h4>🔄 Stam verandert bij nous en vous</h4><p>Bij deze werkwoorden lijken <b>nous</b> en <b>vous</b> op de infinitief, maar de andere vormen niet.</p>' + itab(['boire','recevoir']) + itab(['venir','tenir','prendre']) + '<p class="lp-tip">⚠️ <b>reçois</b> met ç, maar <b>nous recevons</b> zonder. <b>ils prennent</b> met 2 n, <b>ils viennent, ils tiennent</b> met 2 n.</p>',
+    '<h4>✍️ Werkwoorden op -re</h4>' + itab(['dire','écrire','lire']) + itab(['mettre','rire']) + '<p class="lp-tip">⚠️ <b>vous dites</b> (net als vous faites en vous êtes)! <b>je mets</b> met één t, <b>nous mettons</b> met twee.</p>',
+    '<h4>🟰 Opgelet: dezelfde vorm!</h4>' + itab(['suivre','vivre']) + '<div class="lp-vs"><div><b>être</b><u>je suis</u> = ik <u>ben</u></div><div><b>suivre</b><u>je suis</u> = ik <u>volg</u></div></div><p>Uit de zin moet je halen welk werkwoord het is: <i>Je suis le guide</i> = ik volg de gids.</p>',
+    '<h4>🧩 De rest</h4>' + itab(['connaître','croire','voir']) + itab(['courir','mourir','envoyer']) + '<p class="lp-tip">⚠️ <b>il connaît</b> met een accent circonflexe. <b>nous croyons, nous voyons</b> met <b>y</b>. <b>je meurs</b> maar <b>nous mourons</b>.</p>'
   ],
   kaarten: kaartenWW(['être','avoir','aller','faire','vouloir','pouvoir','devoir','savoir','boire','connaître','courir','croire','dire','écrire','envoyer','lire','mettre','mourir','prendre','recevoir','rire','suivre','tenir','venir','vivre','voir']),
   quiz:[
