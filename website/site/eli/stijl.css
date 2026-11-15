@@ -247,3 +247,6 @@ input:focus,textarea:focus{outline:none;border-color:var(--gras)}
 .lp-tijd td:nth-child(2){font-weight:400}
 .lp-ketting span small{font-weight:600;color:var(--inkt-zacht)}
 .lp-tijd td:last-child{color:var(--inkt);font-size:.9rem;text-align:left}
+.lp-woord td{font-size:.92rem;text-align:left!important}
+.lp-woord td:first-child{color:var(--paars);font-weight:800;white-space:normal}
+.lp-woord td:last-child{color:var(--inkt);font-size:.9rem}

@@ -97,6 +97,8 @@ window.ELI_PC = {
   rire:['avoir','ri','lachen'], savoir:['avoir','su','weten'], suivre:['avoir','suivi','volgen'], tenir:['avoir','tenu','houden'], venir:['être','venu','komen'], vivre:['avoir','vécu','leven'], voir:['avoir','vu','zien'], vouloir:['avoir','voulu','willen']
 };
 
+// Woordentabel voor samenvattingen: indexen uit een woordenlijst
+const wtab = (lijst, idx) => '<table class="lp-ww lp-woord">' + idx.map(i => `<tr><td>${lijst[i][0]}</td><td>${lijst[i][1]}</td></tr>`).join('') + '</table>';
 // Vervoegingstabel voor samenvattingen: [persoon, stam, uitgang, vertaling]
 const vtab = rijen => '<table class="lp-ww">' + rijen.map(([p, st, u, nl]) => `<tr><td>${p}</td><td>${st}<b class="lp-u">${u}</b></td><td>${nl}</td></tr>`).join('') + '</table>';
 const vocab = [
@@ -132,7 +134,14 @@ window.ELI_ONDERWERPEN.push(
 {
   id:'F1', vak:'fr', titel:'Vocabulaire: partons dans le monde',
   bron:[['Woordkaartjes partie 1', VOC]],
-  samenvatting:['Leer de woordenlijst <b>in beide richtingen</b>: Frans → Nederlands én Nederlands → Frans. Let op de <b>lidwoorden</b> (un/une) en de <b>vrouwelijke vormen</b> (étranger/étrangère, cher/chère).','Tip: zeg het woord hardop, schrijf het één keer op, en test jezelf daarna zonder te kijken.'],
+  samenvatting:[
+    '<h4>🌍 Partons dans le monde!</h4><p>Woorden over <b>reizen</b>. Leer ze in <b>2 richtingen</b>: Frans → Nederlands én Nederlands → Frans.</p><p class="lp-tip">🔑 Leer elk zelfstandig naamwoord <b>mét lidwoord</b>: <b>un</b> = mannelijk, <b>une</b> = vrouwelijk. Een fout lidwoord = een fout!</p><p class="lp-kop">🧠 Zo leer je woorden het best</p><div class="lp-ketting"><span>👀 lees</span><i>→</i><span>🗣️ zeg hardop</span><i>→</i><span>✍️ schrijf 1×</span><i>→</i><span>🙈 test zonder kijken</span></div>',
+    '<h4>🧳 Op reis</h4>' + wtab(vocab, [0,1,2,9,10,11,13,18,19]),
+    '<h4>🚆 Vervoer</h4>' + wtab(vocab, [3,4,5,6,7,8,12]) + '<p class="lp-tip">💡 Alle vervoermiddelen hier zijn <b>mannelijk</b> (un). Alleen <b>une gare</b> (station) is vrouwelijk, maar dat is geen vervoermiddel!</p><h4 style="margin-top:12px">🏖️ Landschap</h4>' + wtab(vocab, [14,15,16,17]) + '<p class="muted klein">Die 4 zijn allemaal vrouwelijk: une plage, une mer, une montagne, une colline.</p>',
+    '<h4>✨ Bijvoeglijke naamwoorden</h4>' + wtab(vocab, [20,21,22,23,24,25,26,27,28,29]) + '<p class="lp-tip">⚠️ Let op de <b>vrouwelijke vorm</b>: étranger → étrang<b>ère</b> · cher → ch<b>ère</b> · national → national<b>e</b> · culturel → culturel<b>le</b>. Eindigt een woord al op <b>-e</b> (moderne, célèbre)? Dan verandert er niets.</p>',
+    '<h4>🏃 Werkwoorden</h4>' + wtab(vocab, [30,31,32,33,34,35,36,37,38,39,40,41,42,43,44]) + '<p class="muted klein">Weet je nog hoe je ze vervoegt? acheter (è), se promener (è), nager (nous nageons), partir (MESESODOPA), découvrir (zoals ouvrir), conduire (nous conduisons).</p>',
+    '<h4>💬 Handige zinnetjes</h4>' + wtab(vocab, [45,46,47,48,49,53,54]) + '<h4 style="margin-top:12px">🧭 De weg vragen</h4>' + wtab(vocab, [50,51,52]) + '<p class="lp-tip">⚠️ In het Frans staat er een <b>spatie</b> vóór ? en ! : <i>Où est… ?</i> · <i>Bon voyage !</i></p>'
+  ],
   kaarten: vocab.map(([f,n]) => [n, f]).concat(vocab.map(([f,n]) => [f, n])),
   quiz: vocab.slice(0).map(([f,n]) => ({t:'invul', v:'Vertaal naar het Frans: <b>' + n + '</b>', a:[f.replace(/ \/ .*/,''), f], fr:true}))
 },
@@ -262,7 +271,14 @@ window.ELI_ONDERWERPEN.push(
 ,{
   id:'F7', vak:'fr', titel:'Vocabulaire partie 2: en voyage',
   bron:[['Woordkaartjes partie 2', VOC2]],
-  samenvatting:['Deel 2 van de woordenlijst: logeren, bezoeken, sporten op reis en handige zinnen. Leer in <b>beide richtingen</b>.','Let op de <b>vrouwelijke vormen</b>: dangereux → dangereu<b>se</b>, sûr → sû<b>re</b>, lent → len<b>te</b>, complet → compl<b>ète</b>.','Sporten met <b>faire</b>: faire <b>du</b> (le) ski, faire <b>de la</b> (la) plongée, faire <b>de l\'</b>escalade. Uitzondering: <b>patiner</b> en <b>bronzer</b> zijn gewone werkwoorden.'],
+  samenvatting:[
+    '<h4>✈️ En voyage: deel 2</h4><p>Woorden voor <b>logeren</b>, <b>bezoeken</b>, <b>sporten</b> op reis en handige <b>zinnen</b>. Leer ze in <b>2 richtingen</b> en altijd <b>mét lidwoord</b> (un/une).</p><div class="lp-tegels"><div><i>🏨</i><b>logeren</b></div><div><i>🏰</i><b>bezoeken</b></div><div><i>🏄</i><b>sporten</b></div></div>',
+    '<h4>🏨 Reizen en logeren</h4>' + wtab(vocab2, [0,1,2,3,4,8,13,14,15,16]),
+    '<h4>🏰 Bezoeken</h4>' + wtab(vocab2, [5,6,7,9,10,11,12,17,18,19]) + '<p class="lp-tip">⚠️ Valkuil: <b>un plan</b> = een <b>plattegrond</b> (van een stad). Een landkaart is <b>une carte</b> (deel 1).</p>',
+    '<h4>✨ Bijvoeglijke naamwoorden</h4>' + wtab(vocab2, [20,21,22,23,24,25,26,27,28,29]) + '<p class="lp-tip">⚠️ Vrouwelijke vormen: dangereux → dangereu<b>se</b> · sûr → sû<b>re</b> · lent → len<b>te</b> · complet → compl<b>ète</b>.<br>Complet voor een hotel = <b>volgeboekt</b> (niet “plein”).</p>',
+    '<h4>🏄 Sporten met FAIRE</h4><div class="lp-stroom"><div><span>mannelijke sport (le ski)</span><b>faire <u>du</u> ski</b></div><div><span>vrouwelijke sport (la plongée)</span><b>faire <u>de la</u> plongée</b></div><div><span>sport met een klinker (l’escalade)</span><b>faire <u>de l’</u>escalade</b></div></div>' + wtab(vocab2, [33,34,35,36,37,38,40,41,42,43]) + '<p class="lp-tip">💡 Uitzonderingen zonder faire: <b>patiner</b> (skeeleren/schaatsen) en <b>bronzer</b> (zonnebaden) zijn gewone werkwoorden.</p><h4 style="margin-top:12px">🗣️ Andere werkwoorden</h4>' + wtab(vocab2, [30,31,32,39]),
+    '<h4>💬 Handige zinnen</h4>' + wtab(vocab2, [44,45,46,47,48,49,50,51,52,53]) + '<p class="lp-tip">⚠️ <b>Pouvez-vous m’aider ?</b> → het voornaamwoord (me) staat <b>vóór</b> het werkwoord: m’aider, niet “aider moi”.<br>Je suis perdu<b>(e)</b>: met <b>e</b> als een meisje het zegt.</p>'
+  ],
   kaarten: vocab2.map(([f,n]) => [n, f]).concat(vocab2.map(([f,n]) => [f, n])),
   quiz: vocab2.map(([f,n]) => ({t:'invul', v:'Vertaal naar het Frans: <b>' + n + '</b>', a:[f.replace(/ \/ .*/,''), f], fr:true})).concat([
     {t:'mc',v:'Het hotel is volgeboekt. → L\'hôtel est …',o:['complet','plein','disponible','fermé'],a:0,w:['','Plein = vol (bv. een glas), maar voor een hotel zeg je complet.','Disponible = beschikbaar, dus net het omgekeerde.','Fermé = gesloten, niet volgeboekt.']},
