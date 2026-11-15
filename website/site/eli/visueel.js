@@ -32,11 +32,14 @@ const huis = `<div class="vz"><div class="vz-t">Het huis van de filosofie</div><
   ${[['✅','het Ware','waarheid'],['💚','het Goede','goedheid'],['🌸','het Schone','schoonheid']].map(([i, a, b], n) => `<text x="${73 + n * 87}" y="205" text-anchor="middle" font-size="20">${i}</text><text x="${73 + n * 87}" y="223" text-anchor="middle" font-size="11" font-weight="800" fill="var(--inkt)">${a}</text><text x="${73 + n * 87}" y="234" text-anchor="middle" font-size="8.5" fill="var(--inkt-zacht)">${b}</text>`).join('')}
 </svg></div>`;
 
-const voorvoegsels = `<div class="vz"><div class="vz-t">De voorvoegsel-trap</div><div class="trap">${[
-  ['G','giga',9],['M','mega',6],['k','kilo',3],['h','hecto',2],['da','deca',1],['–','(basis)',0],['d','deci',-1],['c','centi',-2],['m','milli',-3],['µ','micro',-6],['n','nano',-9]]
-  .map(([s, n, e]) => `<div class="trap-i ${e > 0 ? 'op' : e < 0 ? 'neer' : 'nul'}" style="--b:${50 + e * 5}%"><b>${s}</b><span>${n}</span><em>10<sup>${e}</sup></em></div>`).join('')}</div>
-  <div class="trap-uit"><span>⬆️ naar groter = kleiner getal</span><span>⬇️ naar kleiner = groter getal</span></div>
-  ${weetje('🧮', '<b>km → m</b>: 1 km = 10³ m, dus 4 km = 4·10³ m. <b>Oppervlakte</b>: exponent × 2 (1 cm² = 10⁻⁴ m²). <b>Volume</b>: exponent × 3 (1 cm³ = 10⁻⁶ m³).')}</div>`;
+const voorvoegsels = tabel(['voorvoegsel', 'symbool', 'betekent', 'macht'], [
+    ['tera', 'T', 'biljoen', '10<sup>12</sup>'], ['giga', 'G', 'miljard', '10<sup>9</sup>'], ['mega', 'M', 'miljoen', '10<sup>6</sup>'], ['kilo', 'k', 'duizend', '10<sup>3</sup>'],
+    ['hecto', 'h', 'honderd', '10<sup>2</sup>'], ['deca', 'da', 'tien', '10<sup>1</sup>'], ['<span class="basis-r">basiseenheid</span>', '<span class="basis-r">–</span>', '<span class="basis-r">één</span>', '<span class="basis-r">10<sup>0</sup></span>'],
+    ['deci', 'd', 'een tiende', '10<sup>−1</sup>'], ['centi', 'c', 'een honderdste', '10<sup>−2</sup>'], ['milli', 'm', 'een duizendste', '10<sup>−3</sup>'],
+    ['micro', 'µ', 'een miljoenste', '10<sup>−6</sup>'], ['nano', 'n', 'een miljardste', '10<sup>−9</sup>'], ['pico', 'p', 'een biljoenste', '10<sup>−12</sup>']], '① De tabel met voorvoegsels (vanbuiten kennen!)')
+  + versus(['⬇️','Groot → klein', K.blauw, ['bv. km → m, s → ms','je krijgt <b>méér</b> stukjes','× 10 met <b>positieve</b> exponent','3 km = 3·10<sup>3</sup> m']], ['⬆️','Klein → groot', K.oranje, ['bv. ns → s, mg → g','je krijgt <b>minder</b> stukjes','× 10 met <b>negatieve</b> exponent','8 ns = 8·10<sup>−9</sup> s']], '② Welk teken krijgt de exponent?')
+  + stappen([['1','Schrijf de gelijkheid', '2 Mm = 2 · … mm'], ['2','Macht van het gegeven voorvoegsel', 'Mm → m: groot → klein, dus 10<sup>6</sup>'], ['3','Macht van het gevraagde voorvoegsel', 'm → mm: groot → klein, dus 10<sup>3</sup>'], ['4','Zet alles achter elkaar', '2 Mm = 2 · 10<sup>6</sup> · 10<sup>3</sup> mm'], ['5','Exponenten optellen', '2 Mm = 2 · 10<sup>9</sup> mm ✅']], '③ De 5 stappen, met een voorbeeld')
+  + weetje('📦', '<b>m²</b>: exponent <b>× 2</b> · <b>m³</b>: exponent <b>× 3</b>.<br>5 cm³ → m³: c = 10<sup>−2</sup>, × 3 = 10<sup>−6</sup> → <b>5 cm³ = 5 · 10<sup>−6</sup> m³</b>.');
 
 const vector = `<div class="vz"><div class="vz-t">Een kracht = een pijl met 4 kenmerken</div><svg viewBox="0 0 320 170" class="svg" role="img" aria-label="Krachtvector">
   <defs><marker id="pk" markerWidth="10" markerHeight="10" refX="7" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10z" fill="${K.rood}"/></marker></defs>

@@ -194,3 +194,5 @@ input:focus,textarea:focus{outline:none;border-color:var(--gras)}
 .foutlijst.nognie{background:var(--goud-zacht);padding:10px 12px;border-radius:14px}
 .foutlijst.nognie .link{display:block;text-align:left;padding:4px 0;font-weight:800}
 .goed-tekst{color:var(--goed);font-weight:800}
+
+.basis-r{color:var(--paars);font-weight:800}

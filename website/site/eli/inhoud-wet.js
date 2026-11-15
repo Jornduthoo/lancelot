@@ -60,7 +60,7 @@ window.ELI_ONDERWERPEN.push(
   id:'W2', vak:'wet', titel:'Eenheden omzetten & voorvoegsels',
   bron:[['Cursus basiskennis p. 8–10', BAS]],
   samenvatting:[
-    'Voorvoegsels (tabel kennen!): <b>giga G 10⁹</b> · <b>mega M 10⁶</b> · <b>kilo k 10³</b> · hecto h 10² · deca da 10¹ · — 10⁰ · deci d 10⁻¹ · <b>centi c 10⁻²</b> · <b>milli m 10⁻³</b> · <b>micro µ 10⁻⁶</b> · <b>nano n 10⁻⁹</b>.',
+    'Voorvoegsels (tabel kennen!): <b>tera T 10¹²</b> · <b>giga G 10⁹</b> · <b>mega M 10⁶</b> · <b>kilo k 10³</b> · hecto h 10² · deca da 10¹ · — 10⁰ · deci d 10⁻¹ · <b>centi c 10⁻²</b> · <b>milli m 10⁻³</b> · <b>micro µ 10⁻⁶</b> · <b>nano n 10⁻⁹</b> · <b>pico p 10⁻¹²</b>.',
     'Werkwijze: 1) gelijkheid noteren · 2) macht van 10 van het gegeven voorvoegsel · 3) macht van het gevraagde voorvoegsel · 4) maatgetal × machten · 5) rekenregel machten toepassen.',
     'Van <b>groot naar klein</b> (km → m): macht met <b>positieve</b> exponent. Van <b>klein naar groot</b> (ns → s): <b>negatieve</b> exponent.',
     'Voorbeelden: 8 ns = 8·10⁻⁹ s · 2 Mm = 2·10⁶·10³ mm = 2·10⁹ mm.',
