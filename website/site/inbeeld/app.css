@@ -166,6 +166,17 @@ a.kaart:hover{transform:translateY(-3px) rotate(-.4deg);box-shadow:var(--shadow-
 .tegel{display:flex;flex-direction:column;gap:6px;padding:20px 22px;border-radius:22px;background:var(--paper);border:1px solid var(--line);box-shadow:var(--shadow);text-decoration:none;color:var(--ink);transition:transform .15s,box-shadow .15s;position:relative;overflow:hidden}
 .tegel:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg)}
 .tegel h3{font-size:22px}
+.thema-tegel{padding:14px 16px 16px;gap:4px}
+.thema-tegel h3{font-size:19px;hyphens:auto;-webkit-hyphens:auto;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.mozaiek{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px;background:var(--dom-t);border-radius:14px;padding:8px;height:120px;align-items:center;align-content:center}
+.mozaiek.m2{grid-template-columns:repeat(2,minmax(0,64px));justify-content:center}
+.mozaiek.m0 .woordjes{grid-column:1/-1}.mozaiek.m1 .woordjes{grid-column:2/-1}.mozaiek.m2 .woordjes{grid-column:3/-1}
+.woordjes{display:flex;flex-direction:column;gap:5px;min-width:0}
+.woordjes span{background:var(--paper);border:2px solid var(--dom);border-radius:999px;padding:3px 10px;font-family:var(--f-display);font-weight:600;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink)}
+.mozaiek .mini{aspect-ratio:3/4;background:var(--paper);border:3px solid var(--dom);border-radius:9px;display:grid;place-items:center;overflow:hidden;padding:3px;transition:transform .2s}
+.mozaiek .mini img{width:100%;height:100%;object-fit:contain}
+.mozaiek .mini:nth-child(1){transform:rotate(-3deg)}.mozaiek .mini:nth-child(3){transform:rotate(3deg)}
+.thema-tegel:hover .mozaiek .mini{transform:none}
 .tegel p{margin:0;color:var(--muted);font-size:15px}
 .tegel .ic{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:var(--dom-t,var(--soft));color:var(--dom,var(--ink));margin-bottom:6px}
 .tegel .ic svg{width:26px;height:26px}
@@ -284,6 +295,111 @@ a.kaart:hover{transform:translateY(-3px) rotate(-.4deg);box-shadow:var(--shadow-
 .sterren{font-size:46px;letter-spacing:6px;margin:10px 0;color:var(--star)}
 .sterren .uit{color:var(--line)}
 .einde .lijst{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin:24px 0;text-align:left}
+
+/* spelletjes: menu, niveaus, punten */
+.niveaus{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:-6px 0 22px}
+.niveaus .eyebrow{margin-right:4px}
+.niv-uitleg{font-size:14px}
+.spelgroep{font-size:20px;margin:30px 0 12px}
+.spel-tegel .ic svg{width:26px;height:26px}
+.ic-t{font-size:19px;letter-spacing:.02em;white-space:nowrap}
+.spel-tegel .rec{display:inline-flex;align-items:center;gap:5px;font-family:var(--f-display);font-weight:600;font-size:13px;color:var(--muted);margin-top:4px}
+.spel-tegel .rec svg{width:14px;height:14px;color:var(--star)}
+.tegel.groot .rec{color:color-mix(in srgb,var(--bg) 75%,transparent)}
+.spelkop{gap:12px}
+.scorebalk{position:relative;display:flex;gap:8px;align-items:center;font-family:var(--f-display);font-weight:600}
+.scorebalk .pt{background:var(--paper);border:2px solid var(--line);border-radius:999px;padding:4px 12px;font-size:15px;font-variant-numeric:tabular-nums}
+.scorebalk .pt b{font-size:18px}
+.scorebalk .pt.ster{display:inline-flex;gap:6px;align-items:center}
+.scorebalk .pt.ster svg{width:20px;height:20px;color:var(--star)}
+.scorebalk .reeks{background:var(--st);color:#fff;border-radius:999px;padding:5px 12px;font-size:14px;white-space:nowrap}
+.scorebalk .reeks.knal{animation:knal .5s}
+.scorebalk .plus{position:absolute;left:14px;top:-4px;color:var(--good);font-weight:700;pointer-events:none;animation:op 1s forwards}
+@keyframes knal{40%{transform:scale(1.25)}}
+@keyframes op{to{transform:translateY(-26px);opacity:0}}
+.herkans-label{display:inline-block;font-family:var(--f-display);font-weight:600;font-size:14px;color:var(--st);background:var(--st-t);border-radius:999px;padding:4px 12px;margin-bottom:10px}
+.feedback .msg .na{display:block;font-family:var(--f-body);font-weight:400;font-size:15px;color:var(--muted);margin-top:2px}
+.feedback .btn small{font-weight:500;opacity:.7}
+.opties.veel{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.toon-beeld.klein{width:min(150px,36vw)}
+.optie.schaduw{background:#F4F5F9}
+.optie.schaduw img{filter:brightness(0);opacity:.82;transition:filter .4s}
+.optie.schaduw.goed img{filter:none;opacity:1}
+.optie.jn{font-size:22px;padding:18px}
+.optie.jn.ja{--dom:var(--good);--dom-t:color-mix(in srgb,var(--good) 12%,var(--paper))}
+.optie.jn.nee{--dom:var(--bad);--dom-t:color-mix(in srgb,var(--bad) 12%,var(--paper))}
+.optie.duimpje{background:var(--paper);border-color:var(--line)}
+.optie.duimpje .duim{font-size:64px;line-height:1}
+.waar-uitleg{display:block;font-family:var(--f-body);font-size:.72em;font-weight:400;margin-top:8px;color:var(--ink)}
+
+/* tegen de klok */
+.snel-start{text-align:center;padding:20px 0}
+.snel-start p{max-width:48ch;margin:12px auto}
+.grote-klok{font-family:var(--f-display);font-weight:700;font-size:80px;line-height:1}
+.grote-klok small{display:block;font-size:16px;color:var(--muted);font-weight:500}
+.klok{position:relative;height:28px;border-radius:999px;background:var(--soft);overflow:hidden;margin:0 0 18px}
+.klok i{position:absolute;inset:0 auto 0 0;width:100%;background:var(--wo);transition:width .1s linear}
+.klok i.bijna{background:var(--bad)}
+.klok span{position:relative;display:block;text-align:center;font-family:var(--f-display);font-weight:700;line-height:28px;font-variant-numeric:tabular-nums}
+
+/* verbinden */
+.koppel{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:14px 28px}
+.koppel .kol{display:grid;gap:10px;align-content:start}
+.koppel button{position:relative;font:inherit;text-align:left;padding:12px 14px;border-radius:14px;border:3px solid var(--line);background:var(--paper);cursor:pointer;min-height:58px;color:var(--ink);transition:border-color .15s,transform .12s}
+.kop-l{font-family:var(--f-display)!important;font-weight:600!important;font-size:19px!important;border-color:var(--dom)!important;background:var(--dom-t)!important}
+.kop-r.ku{font-size:15px;line-height:1.35}
+.kop-r.kb{display:grid;place-items:center;padding:6px}
+.kop-r.kb img{width:84px;height:84px;object-fit:contain}
+.koppel button.sel{outline:4px solid var(--ink);outline-offset:2px;transform:translateY(-2px)}
+.koppel button.af{border-color:var(--good)!important;background:color-mix(in srgb,var(--good) 10%,var(--paper))!important;opacity:.75;cursor:default}
+.koppel button.af::after{content:attr(data-nr);position:absolute;top:-9px;right:-9px;width:24px;height:24px;border-radius:50%;background:var(--good);color:#fff;font-family:var(--f-display);font-weight:700;font-size:13px;display:grid;place-items:center}
+.koppel button.fout{border-color:var(--bad)!important;animation:schud .4s}
+@media (max-width:560px){.koppel{gap:10px}.kop-l{font-size:16px!important}.kop-r.ku{font-size:13px}}
+
+/* letterhussel */
+.plekken{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center;margin:22px 0 14px}
+.plekken .lw{font-family:var(--f-display);font-size:22px;color:var(--muted);margin-right:6px}
+.plek{width:46px;height:56px;border:0;border-bottom:4px solid var(--ink);background:none;font-family:var(--f-display);font-weight:700;font-size:32px;text-transform:uppercase;cursor:pointer;color:var(--ink);padding:0}
+.plek.vol{background:var(--soft);border-radius:10px 10px 0 0}
+.plek.vast{color:var(--good);border-color:var(--good);cursor:default}
+.plekken.fout{animation:schud .4s}
+.hus-tegels{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-bottom:10px}
+.hus{width:52px;height:56px;border-radius:14px;border:3px solid var(--line);background:var(--paper);box-shadow:var(--shadow);font-family:var(--f-display);font-weight:700;font-size:28px;text-transform:uppercase;cursor:pointer;color:var(--ink);transition:transform .12s,opacity .15s}
+.hus:hover{transform:translateY(-2px)}
+.hus.weg{opacity:.18;box-shadow:none;cursor:default;transform:none}
+@media (max-width:480px){.plek{width:34px;height:46px;font-size:24px}.hus{width:42px;height:48px;font-size:22px}}
+
+/* woordzoeker */
+.zoeker{display:grid;grid-template-columns:minmax(0,520px) minmax(180px,1fr);gap:22px;align-items:start}
+@media (max-width:720px){.zoeker{grid-template-columns:1fr}}
+.wz{display:grid;grid-template-columns:repeat(var(--n),1fr);gap:3px;width:min(520px,100%);aspect-ratio:1;touch-action:none;user-select:none;-webkit-user-select:none;background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:8px;box-shadow:var(--shadow)}
+.wz-c{display:grid;place-items:center;font-family:var(--f-display);font-weight:600;font-size:clamp(13px,3.2vw,22px);text-transform:uppercase;border-radius:8px;cursor:pointer;transition:background .1s}
+.wz-c.sel{background:var(--ink);color:var(--bg)}
+.wz-c.f{color:#fff}
+.wz-c.f0{background:var(--wis)}.wz-c.f1{background:var(--nl)}.wz-c.f2{background:var(--wo)}.wz-c.f3{background:var(--st)}.wz-c.f4{background:#9056C9}.wz-c.f5{background:#C2417A}
+.wz-c.mis:not(.f){background:color-mix(in srgb,var(--bad) 22%,transparent);color:var(--bad)}
+.wz-lijst{margin:0;padding-left:22px;display:grid;gap:8px}
+.wz-lijst li{font-family:var(--f-display);font-weight:600;font-size:19px}
+.wz-lijst li .u{font-family:var(--f-body);font-weight:400;font-size:15px}
+.wz-lijst li small{color:var(--muted);font-weight:500;font-size:13px}
+.wz-lijst li.af{color:var(--muted);text-decoration:line-through;text-decoration-thickness:2px}
+.wz-lijst li.af b{color:var(--good);text-decoration:none;display:inline-block}
+
+.memory.groot{grid-template-columns:repeat(4,1fr);max-width:640px}
+
+/* einde */
+.einde{position:relative}
+.einde .score small{display:block;font-size:16px;color:var(--muted);font-weight:500;margin-top:4px}
+.einde-stats{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:14px 0 4px}
+.einde-stats span{background:var(--paper);border:1px solid var(--line);border-radius:999px;padding:5px 14px;font-size:15px}
+.nieuw-record{display:inline-flex;gap:8px;align-items:center;margin-top:12px;background:var(--star);color:#1B1E2B;font-family:var(--f-display);font-weight:700;font-size:18px;border-radius:999px;padding:8px 18px;animation:knal .6s .3s both}
+.nieuw-record svg{width:20px;height:20px}
+.sterren span{display:inline-block;animation:sterin .5s both}
+@keyframes sterin{from{transform:scale(0) rotate(-40deg);opacity:0}}
+.confetti{position:absolute;inset:-20px 0 auto 0;height:0;pointer-events:none;overflow:visible}
+.confetti i{position:absolute;top:0;width:9px;height:14px;border-radius:2px;opacity:0;animation:val 2s ease-in forwards}
+@keyframes val{0%{opacity:1;transform:translateY(0) rotate(0)}100%{opacity:0;transform:translateY(420px) rotate(var(--r))}}
+@media (prefers-reduced-motion:reduce){.confetti{display:none}}
 
 /* leerkracht */
 .tabs{display:flex;gap:6px;flex-wrap:wrap;margin:18px 0}

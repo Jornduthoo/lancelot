@@ -600,14 +600,21 @@
     const ik = S.ik;
     const pr = ik && !ik.gast ? ik.projecten : [];
     const th = themas(ik);
-    const tegel = (href, naam, n, cls, sub) => `<a class="tegel ${cls}" href="${href}"><span class="ic">${ICON.map}</span><h3>${esc(naam)}</h3><p>${n} kaarten${sub ? ' · ' + esc(sub) : ''}</p></a>`;
+    // Een tegel toont drie kaartjes uit het thema (liefst met beeld), dan de naam.
+    const mini = k => `<span class="mini ${vak(k).cls}"><img src="${beeld(k)}" alt="" loading="lazy"></span>`;
+    const tegel = (href, naam, nrs, cls, sub) => {
+      const ks = nrs.map(n => BY[n]).filter(Boolean);
+      let met = ks.filter(k => k.b).slice(0, 3); const zonder = met.length >= 2 ? [] : ks.filter(k => !k.b).slice(0, 3 - met.length);
+      const pillen = zonder.length ? `<span class="woordjes">${zonder.map(k => `<span>${esc(splits(k.w).kern)}</span>`).join('')}</span>` : '';
+      return `<a class="tegel thema-tegel ${cls}" href="${href}" title="${esc(naam)}"><span class="mozaiek m${met.length}">${met.map(mini).join('')}${pillen}</span><h3>${esc(naam)}</h3><p>${ks.length} kaarten${sub ? ' · ' + esc(sub) : ''}</p></a>`;
+    };
     el.innerHTML = `
       <div class="page-head"><div><div class="eyebrow">Projecten</div><h1>Kaarten die samen horen</h1>
       <p>De kaarten van een project op één plek, uit alle vakken. Oude projecten blijven bewaard.</p></div></div>
-      ${ik && !ik.gast ? (pr.length ? `<h2 style="font-size:22px;margin:4px 0 12px">Projecten van je klas</h2><div class="tegels">${pr.map(p => tegel('#/project/' + p.id, p.naam, p.kaarten.length, 'st')).join('')}</div>`
+      ${ik && !ik.gast ? (pr.length ? `<h2 style="font-size:22px;margin:4px 0 12px">Projecten van je klas</h2><div class="tegels">${pr.map(p => tegel('#/project/' + p.id, p.naam, p.kaarten, 'st')).join('')}</div>`
         : '<p class="note">Je klas heeft nog geen projecten. Je juf of meester kan er een maken.</p>') : ''}
       <h2 style="font-size:22px;margin:30px 0 12px">Thema's uit de leerplannen</h2>
-      <div class="tegels">${th.map(t => tegel('#/thema/' + encodeURIComponent(t.naam), t.naam, t.kaarten.length, VAK[t.v].cls, VAK[t.v].naam)).join('')}</div>`;
+      <div class="tegels">${th.map(t => tegel('#/thema/' + encodeURIComponent(t.naam), t.naam, t.kaarten, VAK[t.v].cls, VAK[t.v].naam)).join('')}</div>`;
   }, { nav: '/projecten', titel: 'Projecten' });
 
   function setPagina(el, titel, sub, nrs, sleutel) {
