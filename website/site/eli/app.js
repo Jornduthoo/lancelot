@@ -94,7 +94,8 @@ function start(stand){
   hartslag();
   const ses = sessie.get();
   let terug = false;
-  if (ses && ses.terugNaPauze) { sessie.set({ ...ses, terugNaPauze: false }); terug = hervat(); setTimeout(() => toast(terug ? 'Welkom terug! Je gaat verder waar je was. ⚽' : 'Welkom terug van je pauze! Verder met de training. ⚽'), 600); }
+  let wacht = false; try { wacht = !!localStorage.getItem('eli-hervat'); } catch {}
+  if ((ses && ses.terugNaPauze) || wacht) { if (ses && ses.terugNaPauze) sessie.set({ ...ses, terugNaPauze: false }); terug = hervat(); setTimeout(() => toast(terug ? 'Welkom terug! Je gaat verder waar je was. ⚽' : 'Welkom terug van je pauze! Verder met de training. ⚽'), 600); }
   teller();
   const nieuw = (stand.berichten || []).filter(b => !b.gezien);
   if (nieuw.length) setTimeout(() => toonBerichten(nieuw, true), 400);
@@ -551,13 +552,14 @@ const HERVAT = 'eli-hervat';
 function bewaarHervat(){
   if (!lopend) return;
   const stappen = lopend.stappen.map(([s, d, x]) => [s, d && d.id && TOPIC[d.id] === d ? { tid: d.id } : d, x]);
-  const st = { datum: vandaag(), it: lopend.it, stappen, i: lopend.i, resultaten: lopend.resultaten, xp: S.taakXP || 0, sub: lopend.subGet ? lopend.subGet() : null };
-  try { sessionStorage.setItem(HERVAT, JSON.stringify(st)); } catch {}
+  const st = { datum: vandaag(), tijd: Date.now(), it: lopend.it, stappen, i: lopend.i, resultaten: lopend.resultaten, xp: S.taakXP || 0, sub: lopend.subGet ? lopend.subGet() : null };
+  try { localStorage.setItem(HERVAT, JSON.stringify(st)); } catch {}
 }
 function hervat(){
   let st = null;
-  try { st = JSON.parse(sessionStorage.getItem(HERVAT)); sessionStorage.removeItem(HERVAT); } catch {}
-  if (!st || st.datum !== vandaag() || !st.it) return false;
+  try { st = JSON.parse(localStorage.getItem(HERVAT)); localStorage.removeItem(HERVAT); } catch {}
+  // Ook als het spel in een ander tabblad of venster eindigde: tot 20 minuten na de pauze ga je verder waar je was.
+  if (!st || st.datum !== vandaag() || !st.it || !(Date.now() - (st.tijd || 0) < 20 * 60000)) return false;
   const stappen = st.stappen.map(([s, d, x]) => [s, d && d.tid ? TOPIC[d.tid] : d, x]);
   if (stappen.some(([s, d]) => ['lees','voorbeeld','uitleg'].includes(s) && !d)) return false;
   startTaak({ it: st.it, stappen, i: st.i, resultaten: st.resultaten || [], herstel: st.sub ? { ...st.sub, stap: st.i } : null }, st.xp);
