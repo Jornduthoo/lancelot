@@ -21,8 +21,42 @@
   const BY = Object.create(null);
   K.forEach(k => { BY[k.n] = k; k.rr = []; });
   K.forEach(k => k.r.forEach(n => { const o = BY[n]; if (o && !o.r.includes(k.n) && !o.rr.includes(k.n)) o.rr.push(k.n); }));
-  const rel = k => [...k.r, ...k.rr].filter(n => BY[n]);
   const splits = w => { const m = /^(de|het|een)\s+(.+)$/i.exec(w); return m ? { lw: m[1], kern: m[2] } : { lw: '', kern: w }; };
+  // Extra verbanden, zodat geen kaart alleen staat:
+  // 1. een begrip dat in de uitleg of het voorbeeld van een andere kaart voorkomt (stam -> werkwoord),
+  // 2. wie dan nog weinig verbanden heeft, krijgt een paar kaarten uit hetzelfde thema.
+  (function () {
+    const klein = t => t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    const kernVan = k => klein(splits(k.w).kern.replace(/\s*\(.*\)\s*/g, ' ').trim());
+    const enkel = Object.create(null), meer = [];
+    K.forEach(k => { const w = kernVan(k); if (w.length < 4) return; if (/\s/.test(w)) meer.push([w, k]); else (enkel[w] = enkel[w] || []).push(k); });
+    const vormen = w => [w, w + 'en', w + 's', w + 'e', w + 'n', w + 'en'];
+    K.forEach(k => { k.ra = []; });
+    const koppel = (a, b) => { if (a === b || a.r.includes(b.n) || a.rr.includes(b.n) || a.ra.includes(b.n)) return; a.ra.push(b.n); if (!b.r.includes(a.n) && !b.rr.includes(a.n) && !b.ra.includes(a.n) && b.ra.length < 8) b.ra.push(a.n); };
+    const hitsVan = new Map(), vaak = Object.create(null);
+    K.forEach(k => {
+      const tekst = klein(k.u + ' ' + k.z), woorden = new Set(tekst.split(/[^\p{L}]+/u)), eigen = kernVan(k);
+      const hits = [];
+      woorden.forEach(t => { for (const w of [t, t.replace(/(en|s|e|n)$/, '')]) (enkel[w] || []).forEach(b => hits.includes(b) || hits.push(b)); });
+      meer.forEach(([w, b]) => { if (tekst.includes(w) && !hits.includes(b)) hits.push(b); });
+      // School- en instructietaal (maar, want, juist ...) is te algemeen om op tekst te koppelen.
+      const goed = hits.filter(b => b !== k && kernVan(b) !== eigen && (b.v !== 'S' || k.v === 'S'));
+      goed.forEach(b => { vaak[b.n] = (vaak[b.n] || 0) + 1; });
+      hitsVan.set(k, goed);
+    });
+    // Een woord dat in heel veel uitleg voorkomt (veel, groot ...) zegt weinig: niet koppelen.
+    hitsVan.forEach((hits, k) => hits.filter(b => vaak[b.n] <= 10)
+      .sort((a, b) => (a.v === k.v ? 0 : 1) - (b.v === k.v ? 0 : 1) || Math.abs(a.s - k.s) - Math.abs(b.s - k.s))
+      .slice(0, 5).forEach(b => koppel(k, b)));
+    const per = Object.create(null); K.forEach(k => { const c = k.c || k.d; (per[c] = per[c] || []).push(k); });
+    K.forEach(k => {
+      const n = k.r.length + k.rr.length + k.ra.length;
+      if (n >= 3) return;
+      (per[k.c || k.d] || []).filter(b => b !== k).sort((a, b) => Math.abs(a.s - k.s) - Math.abs(b.s - k.s) || a.n.localeCompare(b.n))
+        .slice(0, 4 - n).forEach(b => koppel(k, b));
+    });
+  })();
+  const rel = k => [...new Set([...k.r, ...k.rr, ...k.ra])].filter(n => BY[n]);
   const beeld = k => k.b ? `api/beelden/${k.n}.webp?v=2` : '';
   const vak = k => VAK[k.v] || VAK.S;
 
