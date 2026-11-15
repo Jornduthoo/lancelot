@@ -635,6 +635,13 @@ class Hofschilder {
       } else if (bron === 'week') {
         const l = runen.lijstView();
         let items = l.woorden.map(x => ({ w: x.w, uitleg: x.b || '', doel: l.doel || '' }));
+        // De kaarten van de week uit In Beeld (Woordkaarten) erbij, ook de woorden die te lang zijn voor het Runenraadsel.
+        const zelfde = new Set(items.map(x => plat(x.w)));
+        for (const k of require('./inbeeld').weekKaarten()) {
+          if (!tekenbaar(k.woord) || zelfde.has(plat(k.woord))) continue;
+          zelfde.add(plat(k.woord));
+          items.push({ w: k.woord, uitleg: k.uitleg, doel: k.doelen[0] || '' });
+        }
         let title = 'Woorden van de week';
         if (items.length < 3) {
           // Nog geen eigen woorden van de week: de ingebouwde woordenschat van het Runenraadsel.

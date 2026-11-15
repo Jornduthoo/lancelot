@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <script src="/taal.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LANcelot · Woordkaarten</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/inbeeld.css">
+</head>
+<body class="ib-host">
+<main>
+  <div class="topbar">
+    <div class="brand" id="brand" title="Naar het startscherm">
+      <img src="/img/mark.webp" alt="">
+      <div>
+        <div class="wordmark">LAN<span>celot</span></div>
+        <div class="subtitle">Woordkaarten</div>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="secondary" id="to-home">Terug</button>
+    </div>
+  </div>
+
+  <section id="lijst">
+    <div class="panel ib-intro">
+      <img class="game-logo" src="/img/icons/inbeeld.webp" alt="">
+      <div>
+        <p class="title">Woordkaarten <span class="ib-merk">In Beeld</span></p>
+        <p>Eén vaste kaart per begrip, met beeld, uitleg en voorbeeldzin. Breng ze aan op het bord, maak er woorden van de week of een quiz van.</p>
+      </div>
+    </div>
+
+    <details class="panel ib-ophalen" id="ib-ophalen">
+      <summary><i class="ic ic-download" aria-hidden="true"></i> Kaarten ophalen</summary>
+      <p class="muted small">Kies een leerjaar of project. LANcelot haalt de kaarten en hun beelden één keer op (daarvoor is internet nodig). Daarna staan ze op deze pc.</p>
+      <div class="ib-online" id="ib-online"><p class="muted small">Even kijken wat er online staat…</p></div>
+      <div class="ib-sets" id="ib-sets"></div>
+      <label class="ib-melden"><input type="checkbox" id="ib-melden"> Laat In Beeld weten welke kaarten je aanbracht (alleen het kaartnummer en het leerjaar, nooit namen of antwoorden)</label>
+    </details>
+
+    <div class="panel ib-filter">
+      <label>Leerjaar
+        <select id="ib-lj">
+          <option value="">Alle leerjaren</option>
+          <option value="JK">Jongste kleuters</option>
+          <option value="K2">2e kleuterklas</option>
+          <option value="K3">3e kleuterklas</option>
+          <option value="1">1e leerjaar</option>
+          <option value="2">2e leerjaar</option>
+          <option value="3">3e leerjaar</option>
+          <option value="4">4e leerjaar</option>
+          <option value="5">5e leerjaar</option>
+          <option value="6">6e leerjaar</option>
+        </select>
+      </label>
+      <label class="ib-zoek">Zoeken<input id="ib-zoek" type="search" maxlength="40" placeholder="Woord of nummer"></label>
+      <label class="ib-check"><input type="checkbox" id="ib-alleen-week"> Alleen de kaarten van de week</label>
+      <label class="ib-check"><input type="checkbox" id="ib-nieuw"> Nog niet aangebracht</label>
+    </div>
+
+    <p class="muted ib-leeg hidden" id="ib-leeg">Nog geen kaarten op deze pc. Open <b>Kaarten ophalen</b> hierboven, of begin met de voorbeeldkaarten.</p>
+    <div class="ib-grid" id="ib-grid" data-geen-vertaling></div>
+
+    <div class="ib-actiebalk hidden" id="ib-actiebalk">
+      <span class="ib-telling" id="ib-telling"></span>
+      <button class="gold" id="ib-aanbreng" type="button" data-spatie>▶ Aanbrengen op het bord</button>
+      <button class="secondary" id="ib-week" type="button">ᚱ Woorden van de week</button>
+      <button class="secondary" id="ib-quiz" type="button">📜 Maak een quiz</button>
+      <button class="secondary" id="ib-jr-woorden" type="button">🥚 Junior: woorden</button>
+      <button class="secondary" id="ib-jr-reeks" type="button">🥚 Junior: prentenreeks</button>
+      <button class="secondary" id="ib-alles" type="button">Alles kiezen</button>
+      <button class="secondary" id="ib-geen" type="button">Niets kiezen</button>
+    </div>
+  </section>
+
+  <section id="play" class="ib-bord hidden">
+    <div class="ib-bord-kop">
+      <span class="ib-teller" id="ib-teller"></span>
+      <label class="ib-bord-lj"><span>Leerjaar</span>
+        <select id="ib-bord-lj">
+          <option value="JK">Jongste kleuters</option>
+          <option value="K2">2e kleuterklas</option>
+          <option value="K3">3e kleuterklas</option>
+          <option value="1">1e leerjaar</option>
+          <option value="2">2e leerjaar</option>
+          <option value="3">3e leerjaar</option>
+          <option value="4">4e leerjaar</option>
+          <option value="5">5e leerjaar</option>
+          <option value="6">6e leerjaar</option>
+        </select>
+      </label>
+      <button class="secondary" id="ib-stop" type="button">Stoppen</button>
+    </div>
+    <div class="ib-bord-midden">
+      <div class="ib-beeld" id="ib-beeld">
+        <img id="ib-img" alt="">
+        <div class="ib-tegels" id="ib-tegels"></div>
+      </div>
+      <div class="ib-tekst hidden" id="ib-tekst" data-geen-vertaling>
+        <p class="ib-nr" id="ib-nr"></p>
+        <h2 class="ib-woord" id="ib-woord"></h2>
+        <p class="ib-uitleg" id="ib-uitleg"></p>
+        <p class="ib-zin" id="ib-zin"></p>
+        <p class="ib-verwant" id="ib-verwant"></p>
+      </div>
+    </div>
+    <p class="ib-raad muted" id="ib-raad">Wat zie je? Raad maar!</p>
+    <div class="ib-bord-knoppen">
+      <button class="secondary" id="ib-stukje" type="button" data-spatie>Nog een stukje</button>
+      <button class="secondary" id="ib-heel" type="button">Toon het hele beeld</button>
+      <button class="gold" id="ib-toon" type="button" data-spatie>Toon het woord</button>
+      <button class="secondary hidden" id="ib-lees" type="button">🔊 Lees voor</button>
+      <button class="gold hidden" id="ib-volgende" type="button" data-spatie>Volgende kaart</button>
+    </div>
+  </section>
+</main>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/ui.js"></script>
+<script src="/js/voorlees.js"></script>
+<script src="/js/inbeeld.js"></script>
+</body>
+</html>

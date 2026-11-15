@@ -608,7 +608,7 @@ function voortgang() {
 // Een reeks: { id, naam, vragen: [{ vraag, opties: [{ e: emoji, w: woord, f: foto, fb: bron van de foto }], juist }] }. Elke vraag heeft 2 tot 4 opties.
 const MAX_SETS = 40;
 const MAX_VRAGEN = 30;
-const FOTO = /^[a-f0-9]{16}\.(jpg|png)$/; // een echte foto uit src/jr-foto.js
+const FOTO = /^[a-f0-9]{16}\.(jpg|png|webp)$/; // een echte foto uit src/jr-foto.js
 const STEM = /^[a-f0-9]{16}\.(webm|ogg|m4a)$/; // een eigen opname uit src/jr-foto.js
 const kort = (x, n) => String(x == null ? '' : x).replace(/\s+/g, ' ').trim().slice(0, n);
 function schoonSet(set = {}) {

@@ -122,6 +122,7 @@ const burchten = require('./src/burchten');
 const huisdieren = require('./src/huisdieren');
 const taken = require('./src/taken');
 const junior = require('./src/junior');
+const inbeeld = require('./src/inbeeld');
 const jrFoto = require('./src/jr-foto');
 const klastaken = require('./src/klastaken');
 const klasindeling = require('./src/klasindeling');
@@ -603,6 +604,9 @@ lesmap.init([
   { kind: 'burchten', dir: () => burchten.LESMAP, perKlas: true, remote: 'klaseiland', validate: burchten.kopieGeldig },
   // De woorden van de week van het Runenraadsel: thuis klaarzetten, op het bord raden. De resultaten blijven op deze pc.
   { kind: 'runen', dir: () => runen.WOORDEN_DIR, perKlas: true, remote: 'runenraadsel', validate: runen.lijstGeldig },
+  // In Beeld: welke kaartensets je ophaalde en de kaarten van de week. De andere pc haalt die sets dan zelf op.
+  // Niet in de Store-versie (alleen voor België).
+  ...(inbeeld.aan() ? [{ kind: 'inbeeld', dir: () => inbeeld.LESMAP_DIR, remote: 'in-beeld', validate: inbeeld.keuzeGeldig }] : []),
   // De bordboeken zelf (pdf's en afbeeldingen van Mijn methodes): groot, dus apart en uit te zetten bij Instellingen.
   // Als laatste: zo staat al het kleine werk er al terwijl een groot boek nog kopieert.
   { kind: 'bordboeken', bestanden: true, dir: kronieken.DIR, remote: 'bordboeken', toegelaten: kronieken.syncNaam, weg: kronieken.syncWeg, inPrullenbak: kronieken.inPrullenbak },
@@ -641,6 +645,7 @@ function runSync() {
       else if (kind === 'klasindeling') io.to('host').emit('wk-indeling', klasindeling.read());
       else if (kind === 'burchten') io.to('host').emit('bu-eiland', burchten.eiland());
       else if (kind === 'runen') { runen.uitLesmap(); io.to('host').emit('rn-bord', runen.bord()); }
+      else if (kind === 'inbeeld') inbeeld.uitLesmap().then(() => io.to('host').emit('ib-view', inbeeld.view()));
     }
     if (taken.uitLesmap()) {
       io.to('host').emit('tk-lijst', taken.lijst());
@@ -762,6 +767,19 @@ app.get('/runen', (req, res) => {
 app.get('/leescheck', (req, res) => {
   res.setHeader('Cache-Control', 'no-cache');
   res.sendFile(path.join(__dirname, 'public', 'leescheck.html'));
+});
+// In Beeld: begrippenkaarten aanbrengen op het bord (alleen voor België, niet in de Store-versie). Zie src/inbeeld.js.
+app.get('/inbeeld', (req, res) => {
+  if (!inbeeld.aan()) return res.status(404).end();
+  if (!isLeerkracht(req)) return res.status(403).send(GEEN_TOEGANG);
+  res.setHeader('Cache-Control', 'no-cache');
+  res.sendFile(path.join(__dirname, 'public', 'inbeeld.html'));
+});
+app.get('/inbeeld/beeld/:naam', (req, res) => {
+  const f = inbeeld.aan() && inbeeld.beeldBestand(req.params.naam);
+  if (!f) return res.status(404).end();
+  res.setHeader('Cache-Control', 'private, max-age=86400');
+  res.sendFile(f, err => err && !res.headersSent && res.status(404).end());
 });
 // De ontdekwereld voor leerlingen: op hun eigen toestel, als de leerkracht hem openzet.
 app.get('/ontdek', (req, res) => {
@@ -1850,7 +1868,53 @@ io.on('connection', socket => {
         .catch(err => cb && cb({ error: err.message }));
     });
     socket.on('rn-onthul', handle(() => runen.onthul()));
-    socket.on('rn-lijst-get', handle(() => ({ lijst: runen.lijstView(), prompt: runen.chatPrompt(), doelen: doelen.all().filter(d => d.vak === 'Nederlands' && doelen.inJaar(d, klas.read().leerjaar)) })));
+    // In Beeld: kaarten ophalen, aanbrengen op het bord, woorden van de week, een quiz en Junior (src/inbeeld.js).
+    const ib = fn => handle(arg => {
+      if (!inbeeld.aan()) throw new Error('In Beeld staat niet in deze versie.');
+      return fn(arg || {});
+    });
+    const ibAsync = fn => (arg, cb) => {
+      if (!inbeeld.aan()) return cb && cb({ error: 'In Beeld staat niet in deze versie.' });
+      fn(arg || {}).then(r => cb && cb({ ok: true, ...r }), err => cb && cb({ error: err.message }));
+    };
+    socket.on('ib-view', ib(() => ({ view: inbeeld.view() })));
+    socket.on('ib-online', ibAsync(() => inbeeld.online()));
+    socket.on('ib-haal', ibAsync(async ({ id }) => {
+      const r = await inbeeld.haalSet(String(id || ''));
+      syncSoon();
+      return { ...r, view: inbeeld.view() };
+    }));
+    socket.on('ib-wis-set', ib(({ id }) => { inbeeld.wisSet(String(id || '')); syncSoon(); return { view: inbeeld.view() }; }));
+    socket.on('ib-week', ib(({ nrs }) => { const week = inbeeld.zetWeek(nrs); syncSoon(); return { week }; }));
+    socket.on('ib-melden', ib(({ aan }) => { inbeeld.zetMelden(aan); return { view: inbeeld.view() }; }));
+    socket.on('ib-aangebracht', ib(({ nr, leerjaar }) => ({ aangebracht: inbeeld.aangebracht(nr, leerjaar) })));
+    socket.on('ib-runen', ib(({ nrs }) => {
+      const r = inbeeld.naarRunen(nrs, runen);
+      io.to('host').emit('rn-bord', runen.bord());
+      syncSoon();
+      return r;
+    }));
+    socket.on('ib-quiz', ib(({ nrs, titel, leerjaar }) => {
+      const quiz = inbeeld.maakQuiz(nrs, titel, Math.random, leerjaar);
+      const file = quizzes.save(quiz);
+      try {
+        if (!quizzes.lib.folders().includes('In Beeld')) quizzes.lib.addFolder('In Beeld');
+        quizzes.lib.move(file, 'In Beeld');
+      } catch {}
+      sendLibrary('quiz');
+      return { file, title: quiz.title, aantal: quiz.questions.length };
+    }));
+    socket.on('ib-jr-woorden', ib(({ nrs }) => {
+      const woorden = inbeeld.naarJuniorWoorden(nrs, junior);
+      io.emit('jr-stand', junior.stand());
+      return { woorden };
+    }));
+    socket.on('ib-jr-reeks', ib(({ nrs }) => {
+      const lijst = inbeeld.naarJuniorReeks(nrs, junior, jrFoto, path.join(__dirname, 'public'));
+      io.emit('jr-sets', lijst);
+      return { aantal: lijst.length };
+    }));
+    socket.on('rn-lijst-get', handle(() => ({ lijst: runen.lijstView(), kaarten: inbeeld.weekKaarten().map(k => k.woord), prompt: runen.chatPrompt(), doelen: doelen.all().filter(d => d.vak === 'Nederlands' && doelen.inJaar(d, klas.read().leerjaar)) })));
     socket.on('rn-lijst-save', handle(arg => {
       const lijst = runen.bewaarLijst(arg || {});
       io.to('host').emit('rn-bord', runen.bord());
