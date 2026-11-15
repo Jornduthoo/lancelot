@@ -207,11 +207,10 @@ window.ELI_ONDERWERPEN.push(
   id:'W6', vak:'wet', titel:'Veerkracht (wet van Hooke)',
   bron:[['Cursus krachten p. 15–20', KR]],
   samenvatting:[
-    '<b>Veer</b>: spiraalvormig voorwerp dat ingedrukt of uitgerekt kan worden en terugkeert (<b>elastische vervorming</b>). <b>Drukveren</b> (balpen, schokdemper) en <b>trekveren</b> (slinky, labo).',
-    'Proef: hang massa\'s aan een veer, meet de <b>uitrekking Δl</b>. Kracht = zwaartekracht op de massa (F = m·g). Grafiek F (y-as) tegen Δl (x-as) = <b>rechte</b> → <b>recht evenredig</b>.',
-    'F/Δl is constant = <b>veerconstante k</b> (N/m), uniek per veer. Grote k = <b>stijve</b> veer, kleine k = <b>slappe</b> veer.',
-    '<b>Wet van Hooke</b> (Robert Hooke): <b>F<sub>v</sub> = k · Δl</b>. Afgeleid: <b>k = F<sub>v</sub> / Δl</b> en <b>Δl = F<sub>v</sub> / k</b>.',
-    'Let op de eenheden: Δl in <b>meter</b> als k in N/m staat (5,0 cm = 0,050 m).'
+    '<h4>🌀 Wat is een veer?</h4><p>Een <b>veer</b> = een spiraalvormig voorwerp dat je kan indrukken of uitrekken, en dat daarna <b>terugkeert</b> = <b>elastische vervorming</b>.</p><div class="lp-vs"><div><b>⬇️ drukveren</b>je <u>drukt</u> ze in<small>balpen, schokdemper</small></div><div><b>↕️ trekveren</b>je <u>rekt</u> ze uit<small>slinky, veer in het labo</small></div></div>',
+    '<h4>🧪 De proef</h4><div class="lp-stroom"><div><span>stap 1</span><b>hang massa\'s aan de veer</b></div><div><span>stap 2</span><b>meet de uitrekking Δl</b></div><div><span>stap 3</span><b>kracht = F<sub>z</sub> = m · g</b></div><div class="groen"><span>grafiek F tegen Δl</span><b>een rechte → recht evenredig</b></div></div><p class="lp-tip">📈 F op de <b>y-as</b>, Δl op de <b>x-as</b>.</p>',
+    '<h4>🔩 De veerconstante k</h4><p>F / Δl is altijd <b>hetzelfde</b> voor één veer = de <b>veerconstante k</b> (in <b>N/m</b>). Elke veer heeft zijn eigen k.</p><div class="lp-vs"><div><b>🧱 grote k</b><u>stijve</u> veer<small>moeilijk uit te rekken</small></div><div><b>🍝 kleine k</b><u>slappe</u> veer<small>makkelijk uit te rekken</small></div></div>',
+    '<h4>📜 Wet van Hooke</h4><p>Ontdekt door <b>Robert Hooke</b>.</p><p class="lp-kop" style="text-align:center;font-size:1.3rem">F<sub>v</sub> = k · Δl</p><div class="lp-tegels"><div><i>💪</i><b>F<sub>v</sub> = k · Δl</b><small>kracht zoeken</small></div><div><i>🔩</i><b>k = F<sub>v</sub> / Δl</b><small>veerconstante zoeken</small></div><div><i>📏</i><b>Δl = F<sub>v</sub> / k</b><small>uitrekking zoeken</small></div></div><p class="lp-tip">⚠️ Eenheden! Staat k in N/m, zet Δl dan in <b>meter</b>: 5,0 cm = <b>0,050 m</b>.</p>'
   ],
   kaarten:[
     ['Wet van Hooke?','F_v = k · Δl'],
