@@ -468,4 +468,4 @@ Quizzen zijn JSON-bestanden in de map `quizzes/`. Kijk naar `quizzes/voorbeeld-b
 
 ## Licentie
 
-© 2026 Jorn Duthoo. Alle rechten voorbehouden. De code is openbaar te bekijken, maar kopiëren, aanpassen of verspreiden mag niet zonder schriftelijke toestemming. Leerkrachten die LANcelot rechtstreeks van Jorn kregen, mogen het gratis in hun eigen lessen gebruiken. Zie [LICENSE](LICENSE).
+© 2026 Jorn Duthoo. Alle rechten voorbehouden. De code is openbaar te bekijken, maar kopiëren, aanpassen of verspreiden mag niet zonder schriftelijke toestemming. Leerkrachten die LANcelot rechtstreeks van Jorn kregen, mogen het gratis in hun eigen lessen gebruiken. Dimitri Vanweymeersch heeft schriftelijke toestemming om LANcelot te gebruiken (niet aan te passen), zie onderaan [LICENSE](LICENSE).
