@@ -10,7 +10,7 @@ const gegevens = require('./gegevens');
 const MAP = gegevens.vast('klas', 'junior-fotos');
 const UA = 'LANcelot/1.0 (klasapp; https://lancelot.network)';
 const MAX = 800 * 1024;
-const NAAM = /^[a-f0-9]{16}\.(jpg|png)$/;
+const NAAM = /^[a-f0-9]{16}\.(jpg|png|webp)$/;
 const tekst = html => String(html || '').replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim().slice(0, 80);
 
 async function zoek(woord) {
@@ -55,10 +55,12 @@ async function neem(thumb) {
 // Bewaart een foto (jpg of png) in de klasmap. Ook voor een foto die de browser van de leerkracht zelf ophaalde.
 function bewaar(data, soort) {
   const buf = Buffer.isBuffer(data) ? data : data instanceof ArrayBuffer ? Buffer.from(data) : data && data.buffer ? Buffer.from(data.buffer) : null;
-  const ext = /png/.test(soort) ? 'png' : /jpe?g/.test(soort) ? 'jpg' : null;
+  // webp: de beelden van de In Beeld-kaarten (src/inbeeld.js).
+  const ext = /png/.test(soort) ? 'png' : /jpe?g/.test(soort) ? 'jpg' : /webp/.test(soort) ? 'webp' : null;
   if (!buf || !buf.length || !ext || buf.length > MAX) throw new Error('Die foto lukt niet. Kies een andere.');
   const kop = buf.subarray(0, 4).toString('hex');
-  if (!(ext === 'png' ? kop === '89504e47' : kop.startsWith('ffd8'))) throw new Error('Die foto lukt niet. Kies een andere.');
+  const webp = buf.subarray(0, 4).toString() === 'RIFF' && buf.subarray(8, 12).toString() === 'WEBP';
+  if (!(ext === 'png' ? kop === '89504e47' : ext === 'webp' ? webp : kop.startsWith('ffd8'))) throw new Error('Die foto lukt niet. Kies een andere.');
   const naam = `${crypto.createHash('sha1').update(buf).digest('hex').slice(0, 16)}.${ext}`;
   fs.mkdirSync(MAP, { recursive: true });
   const f = path.join(MAP, naam);

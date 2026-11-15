@@ -164,6 +164,7 @@ openRealm(location.hash.slice(1));
 document.querySelector('[data-module="toernooi"]').addEventListener('click', () => show('idle'));
 document.querySelector('[data-module="rondetafel"]').addEventListener('click', () => { location.href = '/rondetafel'; });
 document.querySelector('[data-module="zonnewijzer"]').addEventListener('click', () => { location.href = '/zonnewijzer'; });
+document.querySelector('[data-module="inbeeld"]').addEventListener('click', () => { location.href = '/inbeeld'; });
 document.querySelector('[data-module="zegelrol"]').addEventListener('click', () => { location.href = '/zegelrol'; });
 document.querySelector('[data-module="postduif"]').addEventListener('click', () => { location.href = '/postduif'; });
 document.querySelector('[data-module="kronieken"]').addEventListener('click', () => { location.href = '/kronieken'; });

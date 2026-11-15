@@ -562,7 +562,7 @@
     tafel: ['rondetafel', 'kringgesprek', 'ontdek-beheer', 'runenraadsel'],
     smidse: ['oefenblad', 'proef', 'reeks'],
     wapenkamer: ['wapenkamer'],
-    kronieken: ['kronieken', 'zonnewijzer', 'zegelrol', 'postduif', ...(window.LANCELOT_STORE ? ['klas', 'zorg', 'taken'] : [])],
+    kronieken: ['kronieken', 'zonnewijzer', 'inbeeld', 'zegelrol', 'postduif', ...(window.LANCELOT_STORE ? ['klas', 'zorg', 'taken'] : [])],
     geen: ['host', 'netwerk', 'welkom', 'privacy', 'koppel', ...(window.LANCELOT_STORE ? [] : ['klas', 'zorg', 'taken'])],
   };
   function rijkHier() {

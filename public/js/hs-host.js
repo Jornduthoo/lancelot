@@ -46,9 +46,10 @@ bron(['quiz', 'week', 'eigen'].includes(store('hs-bron')) ? store('hs-bron') : '
 
 function weekInfo() {
   socket.emit('rn-lijst-get', null, res => {
-    const woorden = (res && res.lijst && res.lijst.woorden) || [];
+    // Ook de woordkaarten van de week (In Beeld), als die er zijn.
+    const woorden = [...new Set([...((res && res.lijst && res.lijst.woorden) || []).map(w => w.w), ...((res && res.kaarten) || [])])];
     $('week-info').textContent = woorden.length >= 3
-      ? `${woorden.length} woorden klaar: ${woorden.slice(0, 12).map(w => w.w).join(', ')}${woorden.length > 12 ? '…' : ''}`
+      ? `${woorden.length} woorden klaar: ${woorden.slice(0, 12).join(', ')}${woorden.length > 12 ? '…' : ''}`
       : 'Er staan nog geen eigen woorden van de week klaar. Dan spelen we met de ingebouwde woordenschat van het Runenraadsel (zoals moed, oase, dijk, tolk…).';
   });
 }

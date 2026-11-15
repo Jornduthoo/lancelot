@@ -1640,6 +1640,7 @@ body.jr-los #jr-vak, body.jr-los #jr-beurt { visibility: hidden; }
 .jr-lk main .klaskiezer button.kk-klas.on { background: rgb(var(--k-goud) / .25); border-color: rgb(var(--k-goud)); box-shadow: 0 0 14px rgb(var(--k-goud) / .45); }
 .jr-lk .jr-view-kop .jr-maken-wb { margin-left: auto; display: inline-flex; align-items: center; gap: 8px; border-radius: 999px; padding: 8px 20px 8px 10px; }
 .jr-maken-wb img { width: 34px; height: 34px; object-fit: contain; }
+.jr-lk .jr-view-kop .jr-maken-wb + .jr-maken-wb { margin-left: 0; text-decoration: none; }
 #jr-ostap-keuzes button:not(.aan) { opacity: .45; text-decoration: line-through; }
 
 /* Werkblad: opdracht één keer bovenaan, en klein = 3 per rij (zuinig met papier). */
