@@ -223,7 +223,7 @@ input:focus,textarea:focus{outline:none;border-color:var(--gras)}
 .lp-stroom{display:flex;flex-direction:column;gap:6px}
 .lp-stroom>div{display:grid;grid-template-columns:1fr auto;align-items:center;gap:8px;background:var(--info-bg);border-radius:12px;padding:8px 10px;font-size:.92rem}
 .lp-stroom.groen>div{background:var(--gras-zacht)}
-.lp-stroom b{white-space:nowrap;background:var(--kaart);border-radius:999px;padding:4px 10px;font-size:.85rem}
+.lp-stroom>div>b{white-space:nowrap;background:var(--kaart);border-radius:999px;padding:4px 10px;font-size:.85rem}
 .lp-stroom>div>span::after{content:" →";color:var(--inkt-zacht)}
 .lp-ketting{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
 .lp-ketting span{background:var(--gras-zacht);border-radius:999px;padding:5px 10px;font-size:.88rem;font-weight:700}
