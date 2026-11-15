@@ -283,6 +283,7 @@ document.addEventListener('click', e => {
   document.querySelectorAll('[data-paneel]').forEach(p => p.hidden = p.dataset.paneel !== b.dataset.tab);
   if (b.dataset.tab === 'planning') tekenPlanning();
   if (b.dataset.tab === 'vakken') tekenVakken();
+  if (b.dataset.tab === 'hulp') tekenHulp();
   if (b.dataset.tab === 'trofeeen') tekenTrofeeen();
   if (b.dataset.tab === 'ploeg') $('ploeg').innerHTML = POP.ploegHtml();
 });
@@ -323,6 +324,48 @@ function verrassing(lijst, d){
     voerUit({ id:'verrassing:' + d, soort:'verrassing', vak:'alle', titel:'⚡ Verrassingstoets', vrij:true, vragen: schud(qs).slice(0, 10) });
   };
   el.append(b); lijst.prepend(el);
+}
+
+// --- Hulp: vraag + leerstof klaarzetten voor Gemini ---
+let hulpVak = null;
+function tekenHulp(){
+  if (!hulpVak) { const laatst = T.filter(t => geleerd(t.id)).pop(); hulpVak = laatst ? laatst.vak : 'kf'; }
+  $('hulpvakken').innerHTML = Object.entries(V).map(([k, v]) => `<button data-vak="${k}" class="${k === hulpVak ? 'aan' : ''}">${v.icoon} ${esc(v.kort)}</button>`).join('');
+  $('hulpvakken').onclick = e => { const b = e.target.closest('button'); if (!b) return; hulpVak = b.dataset.vak; tekenHulp(); };
+  const sel = $('hulp-ond'), ts = T.filter(t => t.vak === hulpVak);
+  const kies = ts.filter(t => geleerd(t.id)).pop() || ts[0];
+  sel.innerHTML = ts.map(t => `<option value="${t.id}" ${t === kies ? 'selected' : ''}>${esc(t.titel)}</option>`).join('');
+  $('hulp-go').onclick = hulpKlaarzetten;
+}
+function hulpPrompt(t, vraag){
+  const stof = kaal(t.samenvatting.join(' \n ')).slice(0, 4000);
+  return `Je bent een geduldige bijlesleerkracht voor Eli. Hij is 13 jaar en zit in het 3de middelbaar Humane Wetenschappen in Vlaanderen. Binnenkort heeft hij een examen ${VAKZIN[t.vak] || ''}.
+
+Leg in eenvoudig Nederlands uit wat hij niet snapt:
+- kort en stap voor stap, met een voorbeeld uit het dagelijks leven;
+- gebruik de leerstof hieronder uit zijn cursus; staat iets er niet in, zeg dat dan;
+- stel op het einde 1 korte controlevraag en wacht op zijn antwoord.
+
+Onderwerp: ${kaal(t.titel)}
+
+Leerstof uit zijn cursus:
+${stof}
+
+Eli's vraag: ${vraag}`;
+}
+async function hulpKlaarzetten(){
+  const t = TOPIC[$('hulp-ond').value], vraag = $('hulp-tx').value.trim();
+  if (!t) return;
+  if (vraag.length < 5) { $('hulp-fb').innerHTML = '<p class="klein" style="color:#d33">Schrijf eerst wat je niet snapt. 🙂</p>'; $('hulp-tx').focus(); return; }
+  const tekst = hulpPrompt(t, vraag);
+  let gekopieerd = false;
+  try { await navigator.clipboard.writeText(tekst); gekopieerd = true; } catch {}
+  window.open('https://gemini.google.com/app', '_blank', 'noopener');
+  $('hulp-fb').innerHTML = gekopieerd
+    ? '<div class="lp-tip" style="margin-top:12px">✅ Gekopieerd! Gemini gaat open in een nieuw tabblad. Klik daar in het tekstvak en <b>plak</b> (Ctrl + V), dan Enter.</div>'
+    : '<div class="lp-tip" style="margin-top:12px">Kopiëren lukte niet automatisch. Selecteer de tekst hieronder, kopieer hem en plak hem in Gemini.</div><textarea readonly rows="8" style="width:100%;margin-top:8px" id="hulp-kopie"></textarea>';
+  if (!gekopieerd) { $('hulp-kopie').value = tekst; $('hulp-kopie').select(); }
+  try { lokaal.set('hulp-' + vandaag(), (lokaal.get('hulp-' + vandaag(), 0) || 0) + 1); } catch {}
 }
 
 let vrijVak = 'kf';
