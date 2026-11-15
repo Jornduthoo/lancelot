@@ -57,7 +57,7 @@
     });
   })();
   const rel = k => [...new Set([...k.r, ...k.rr, ...k.ra])].filter(n => BY[n]);
-  const beeld = k => k.b ? `api/beelden/${k.n}.webp` : '';
+  const beeld = k => k.b ? `api/beelden/${k.n}.webp?v=2` : '';
   const vak = k => VAK[k.v] || VAK.S;
 
   // ---------- hulpjes ----------
