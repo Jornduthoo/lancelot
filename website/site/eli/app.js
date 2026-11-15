@@ -1116,6 +1116,7 @@ function pauze(daarna){
       <button data-p="adem"><span>🫧</span>Ademhalen<small class="muted">rustig worden</small></button>
       <button data-p="beweeg"><span>🤸</span>Bewegen<small class="muted">voetbal-oefening</small></button>
       <button data-p="weetje"><span>🤯</span>Weetje<small class="muted">iets gek leren</small></button>
+      <button data-p="gsm"><span>📱</span>Gsm<small class="muted">5 min op je gsm</small></button>
     </div><div id="pz" style="margin-top:14px"></div>`;
   POP.babbel($('pp'), 'Even de benen strekken, kampioen! Na de pauze gaan we weer verder.', Math.random() < .5 ? { figuur: POP.kring() || undefined } : { rol:'pauze' });
   m.hidden = false;
@@ -1135,6 +1136,7 @@ function pauze(daarna){
     if (soort === 'adem') pz.innerHTML = `<div class="adem">adem in…</div><p class="center muted">Adem 4 tellen in als de bol groeit, 4 tellen uit als hij krimpt.</p>`;
     if (soort === 'beweeg') pz.innerHTML = `<div class="babbel" id="pzp"></div><div class="kaart"><h3>Voetbal-pauze ⚽</h3><p>1. 20 keer hooghouden (of doen alsof met een prop papier).<br>2. 10 squats als een keeper.<br>3. 30 seconden op één been staan, dan het andere.<br>4. Een glas water drinken. 💧</p></div>`;
     if (soort === 'beweeg') POP.babbel($('pzp'), 'Kom op, kampioen! Spieren wakker maken. Ik doe mee! 💪', { id:'papa' });
+    if (soort === 'gsm') pz.innerHTML = `<div class="kaart"><h3>📱 5 minuten gsm</h3><p>Geniet ervan! Zet een wekker van <b>5 minuten</b>. Gaat hij af? Dan gaat je gsm weg en klik je op <b>Verder</b>. Na 5 minuten gaat het hier ook vanzelf verder.</p></div>`;
     if (soort === 'weetje') pz.innerHTML = `<div class="kaart"><h3>Wist je dat…</h3><p>${schud(weetjes)[0]}</p></div>`;
     if (soort === 'adem') { const el = pz.querySelector('.adem'); let in_ = true; const t = setInterval(() => { if (m.hidden) return clearInterval(t); in_ = !in_; el.textContent = in_ ? 'adem in…' : 'adem uit…'; }, 4000); }
   });
