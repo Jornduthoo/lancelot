@@ -23,7 +23,7 @@
   K.forEach(k => k.r.forEach(n => { const o = BY[n]; if (o && !o.r.includes(k.n) && !o.rr.includes(k.n)) o.rr.push(k.n); }));
   const rel = k => [...k.r, ...k.rr].filter(n => BY[n]);
   const splits = w => { const m = /^(de|het|een)\s+(.+)$/i.exec(w); return m ? { lw: m[1], kern: m[2] } : { lw: '', kern: w }; };
-  const beeld = k => k.b ? `api/beelden/${k.n}.webp` : '';
+  const beeld = k => k.b ? `api/beelden/${k.n}.webp?v=2` : '';
   const vak = k => VAK[k.v] || VAK.S;
 
   // ---------- hulpjes ----------
