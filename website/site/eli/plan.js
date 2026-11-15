@@ -30,7 +30,7 @@ const dagen = () => { const out = []; for (let d = START; d <= EINDE; d = dag(d,
 
 const KAART_MIN = 10;           // herhaalkaartjes elke dag
 const OVERHOOR_MIN = 5;         // uitleggen aan een supporter
-const LEER_MIN = 22, HERHAAL_MIN = 10, PROEF_MIN = 25, ZWAK_MIN = 15;
+const LEER_MIN = 22, HERHAAL_MIN = 7, PROEF_MIN = 25, ZWAK_MIN = 15;
 
 function maak(){
   const T = window.ELI_ONDERWERPEN || [];

@@ -3,7 +3,9 @@
 const D = id => 'https://drive.google.com/file/d/' + id + '/view';
 const RES = D('1wwnZL-ic7UT91oVcPqYPudk32b_Gk_wf'), SCH = D('1JPeFxX_W0taC2-PiNoceEaWQNaapAQGn'), INS = D('1DsFu7SDuQJcyQ6GIOHtgO34R64b4OHU9'),
       VID = D('1AfRi_mXOk5LO9UzmjjSGKlK-MKULSXQK'), IMP = D('1iTGALnJz-f1D_B6PFLBV_5Ji1byZoMti'), IMPI = D('1uJeCUKmHWIqOWSXlbXUfaL_CK2s_cHTn'),
-      VOC = D('1Y5kayzrOG39dSe7MhcCTYKRUuEBAibe7'), IRR = D('1QfjxsiMKnGN7eUDMvec9Ukg2qIj7Zmoe'), LST = D('1IjTQz_l_q5yFIkLG5p1Nzft54brttsRv');
+      VOC = D('1Y5kayzrOG39dSe7MhcCTYKRUuEBAibe7'), IRR = D('1QfjxsiMKnGN7eUDMvec9Ukg2qIj7Zmoe'), LST = D('1IjTQz_l_q5yFIkLG5p1Nzft54brttsRv'),
+      VOC2 = D('19-dd8x8J8ixSqhh1tlDXSXdvY7bfoE9l'), QRES = D('1Sqz4r2bjuEgmsTlsw6yvpV64ZF0Ld42A'), QSCH = D('1cBGYCE1nBSQsZl9XqN1u-pcTSGX3l02h'),
+      PSCH = D('1pKY3Q1tKukJkBew2Ek_hVkCyqSvH7l2c'), RSCH = D('1ydKLCitGyqHMF1VZcTfh3zQD9BpDaZhW'), REX = D('1lzC2gvRcU9lqr64HzVrxA1u8BXi2gMNl');
 
 // Werkwoorden: 6 vormen (je, tu, il/elle/on, nous, vous, ils/elles)
 const WW = window.ELI_WW = {
@@ -105,6 +107,20 @@ const vocab = [
   ['se promener','wandelen'],['nager','zwemmen'],['conduire','rijden'],['louer','huren'],['chercher','zoeken'],['trouver','vinden'],['demander','vragen'],
   ['Où est… ?','Waar is…?'],['Combien coûte… ?','Hoeveel kost…?'],['Je voudrais…','Ik zou graag…'],['C\'est loin ?','Is het ver?'],['J\'ai besoin de…','Ik heb … nodig'],
   ['à gauche','naar links'],['à droite','naar rechts'],['tout droit','rechtdoor'],['faire la valise','de koffer pakken'],['Bon voyage !','Goede reis!']
+];
+
+// Woordenlijst partie 2 (Frans, Nederlands)
+const vocab2 = [
+  ['un billet','een ticket'],['un hôtel','een hotel'],['un aéroport','een luchthaven'],['un sac à dos','een rugzak'],['un guide touristique','een reisgids'],['un musée','een museum'],
+  ['un monument','een monument'],['un château','een kasteel'],['un camping','een camping'],['un plan','een plattegrond'],['une ville','een stad'],['une capitale','een hoofdstad'],
+  ['une campagne','het platteland'],['une auberge de jeunesse','een jeugdherberg'],['une chambre','een kamer'],['une clé','een sleutel'],['une réservation','een reservatie'],
+  ['une excursion','een uitstap'],['une promenade','een wandeling'],['une visite','een bezoek'],['historique','historisch'],['dangereux / dangereuse','gevaarlijk'],['sûr / sûre','veilig'],
+  ['rapide','snel'],['lent / lente','traag'],['loin','ver'],['proche','dichtbij'],['magnifique','prachtig'],['complet / complète','volgeboekt'],['disponible','beschikbaar'],
+  ['répondre','antwoorden'],['expliquer','uitleggen'],['bronzer','zonnebaden'],['faire du ski / du snowboard','skiën'],['faire du vélo','fietsen'],['faire de l\'escalade','klimmen'],
+  ['faire du surf','surfen'],['faire de la planche à voile','windsurfen'],['faire du kite','kitesurfen'],['patiner','skeeleren / schaatsen'],['faire du parapente','parapenten'],['faire du golf','golfen'],
+  ['faire de la plongée sous-marine','diepzeeduiken'],['faire du ski nautique','waterskiën'],
+  ['Je cherche…','Ik zoek…'],['Pouvez-vous m\'aider ?','Kunt u mij helpen?'],['Je suis perdu(e).','Ik ben verloren.'],['Il y a…','Er is / er zijn…'],['C\'est combien ?','Hoeveel is dat?'],
+  ['À quelle heure… ?','Hoe laat…?'],['Je prends… (le train)','Ik neem… (de trein)'],['C\'est magnifique !','Het is prachtig!'],['C\'est trop cher !','Het is te duur!'],['J\'adore voyager !','Ik hou van reizen!']
 ];
 
 const kaartenWW = (lijst) => lijst.map(w => [w + ' (' + WW[w][6] + ') – vervoeg in het présent', WW[w].slice(0,6).map((f,i) => (i===0 && /^[aeéèêhiouy]/i.test(f) ? 'j\'' : window.ELI_PERS[i].split(' / ')[0] + ' ') + f).join(' · ')]);
@@ -238,5 +254,89 @@ window.ELI_ONDERWERPEN.push(
   ],
   drillPC:true
 }
+,{
+  id:'F7', vak:'fr', titel:'Vocabulaire partie 2: en voyage',
+  bron:[['Woordkaartjes partie 2', VOC2]],
+  samenvatting:['Deel 2 van de woordenlijst: logeren, bezoeken, sporten op reis en handige zinnen. Leer in <b>beide richtingen</b>.','Let op de <b>vrouwelijke vormen</b>: dangereux → dangereu<b>se</b>, sûr → sû<b>re</b>, lent → len<b>te</b>, complet → compl<b>ète</b>.','Sporten met <b>faire</b>: faire <b>du</b> (le) ski, faire <b>de la</b> (la) plongée, faire <b>de l\'</b>escalade. Uitzondering: <b>patiner</b> en <b>bronzer</b> zijn gewone werkwoorden.'],
+  kaarten: vocab2.map(([f,n]) => [n, f]).concat(vocab2.map(([f,n]) => [f, n])),
+  quiz: vocab2.map(([f,n]) => ({t:'invul', v:'Vertaal naar het Frans: <b>' + n + '</b>', a:[f.replace(/ \/ .*/,''), f], fr:true})).concat([
+    {t:'mc',v:'Het hotel is volgeboekt. → L\'hôtel est …',o:['complet','plein','disponible','fermé'],a:0,w:['','Plein = vol (bv. een glas), maar voor een hotel zeg je complet.','Disponible = beschikbaar, dus net het omgekeerde.','Fermé = gesloten, niet volgeboekt.']},
+    {t:'mc',v:'Vrouwelijke vorm van dangereux?',o:['dangereuse','dangereuxe','dangereusse','dangereux'],a:0,w:['','-eux wordt -euse, niet -euxe.','Eén s: dangereu-se.','Dat is de mannelijke vorm.']},
+    {t:'mc',v:'Hoe zeg je "Kunt u mij helpen?"',o:['Pouvez-vous m\'aider ?','Vous pouvez aider moi ?','Est-ce que tu m\'aides ?','Pouvez-vous aider ?'],a:0,w:['','"aider moi" is fout: het voornaamwoord staat vóór het werkwoord (m\'aider).','Dat is "Help jij mij?", en met tu in plaats van u.','Dan zeg je niet "mij".']}
+  ])
+},
+{
+  id:'F8', vak:'fr', titel:'La question: vragen stellen',
+  bron:[['Résumé La question', QRES],['Schéma La question', QSCH]],
+  samenvatting:[
+    'Een vraag stellen kan op <b>3 manieren</b>: <b>intonation</b> (gewoon je stem omhoog), <b>inversion</b> (werkwoord en onderwerp omdraaien met een streepje) en <b>est-ce que</b>.',
+    '<b>Zonder vraagwoord</b>: Tu aimes la danse ? · Aimes-tu la danse ? · Est-ce que tu aimes la danse ?',
+    '<b>Met vraagwoord</b>: Tu danses quand ? (vraagwoord achteraan) · Quand danses-tu ? · Quand est-ce que tu danses ?',
+    '<b>Inversion</b>: tussen twee klinkers komt een <b>-t-</b>: Paul joue-<b>t</b>-il de la guitare ? Is het onderwerp een <b>zelfstandig naamwoord of naam</b>, dan herhaal je het met il/elle: Paul joue-t-il… · Comment ces étudiants voyagent-ils ? (of zonder streepje: Comment voyagent ces étudiants ?)',
+    '<b>Est-ce que</b> + klinker → <b>est-ce qu\'</b>: Est-ce qu\'on a des tickets ? Où est-ce qu\'on va manger ?',
+    'Vraagwoorden: <b>qui</b> wie · <b>quoi</b> wat · <b>quel/quelle</b> welke · <b>quand</b> wanneer · <b>comment</b> hoe · <b>à quelle heure</b> hoe laat · <b>pourquoi</b> waarom · <b>où</b> waar · <b>avec/pour qui</b> met/voor wie · <b>à qui</b> aan/tegen wie · <b>combien de fois</b> hoeveel keer · <b>combien de temps</b> hoelang · <b>en quelle année</b> in welk jaar · <b>de quelle manière</b> op welke manier.'
+  ],
+  kaarten:[
+    ['wie?','qui ?'],['wat?','quoi ?'],['welke…?','quel / quelle … ?'],['wanneer?','quand ?'],['hoe?','comment ?'],['hoe laat?','à quelle heure ?'],['waarom?','pourquoi ?'],
+    ['waar?','où ?'],['met / voor wie?','avec / pour qui ?'],['aan / tegen wie?','à qui ?'],['hoeveel keer?','combien de fois ?'],['hoelang?','combien de temps ?'],['in welk jaar?','en quelle année ?'],['op welke manier?','de quelle manière ?'],
+    ['De 3 manieren om een vraag te stellen','intonation · inversion · est-ce que'],
+    ['Tu aimes la danse ? → inversion','Aimes-tu la danse ?'],['Tu aimes la danse ? → est-ce que','Est-ce que tu aimes la danse ?'],
+    ['Tu danses quand ? → inversion','Quand danses-tu ?'],['Tu danses quand ? → est-ce que','Quand est-ce que tu danses ?'],
+    ['Wanneer zet je -t- bij inversion?','Tussen twee klinkers: joue-t-il, a-t-elle, parle-t-on'],['est-ce que + klinker','est-ce qu\' (Est-ce qu\'il vient ?)']
+  ],
+  quiz:[
+    {t:'mc',v:'Welke vraag gebruikt <b>inversion</b>?',o:['Avez-vous une chambre ?','Vous avez une chambre ?','Est-ce que vous avez une chambre ?','Vous avez une chambre quand ?'],a:0,w:['','Dat is intonation: zelfde volgorde als een gewone zin.','Dat is de vraag met est-ce que.','Dat is intonation met het vraagwoord achteraan.']},
+    {t:'mc',v:'Paul joue de la guitare. → inversion?',o:['Paul joue-t-il de la guitare ?','Joue Paul de la guitare ?','Joue-il Paul de la guitare ?','Paul joue-il de la guitare ?'],a:0,w:['','Met een naam als onderwerp herhaal je het als il: Paul joue-t-il…','Je hebt -t- nodig tussen de twee klinkers (joue-t-il).','Tussen e en i (twee klinkers) moet een -t-.']},
+    {t:'mc',v:'Waarom staat er een -t- in "Parle-t-elle français ?"',o:['Tussen twee klinkers zet je een -t-','Omdat het een vrouw is','Omdat parler onregelmatig is','Omdat het een vraag in de passé composé is'],a:0,w:['','Het heeft niets met mannelijk/vrouwelijk te maken: ook parle-t-il.','Parler is een gewoon -er-werkwoord.','Parle is de présent.']},
+    {t:'mc',v:'Est-ce que + on → ?',o:['Est-ce qu\'on','Est-ce que on','Est-ce qu on','Est-qu\'on'],a:0,w:['','Klinkerbotsing: que + klinker wordt qu\'.','Je mag geen spatie laten, je zet een apostrof: qu\'.','Est-ce blijft altijd staan.']},
+    {t:'mc',v:'Tu danses quand ? → met est-ce que?',o:['Quand est-ce que tu danses ?','Est-ce que tu danses quand ?','Quand est-ce que danses-tu ?','Est-ce quand tu danses ?'],a:0,w:['','Het vraagwoord komt vóór est-ce que.','Na est-ce que blijft de gewone volgorde: tu danses (geen inversion).','Deze volgorde bestaat niet.']},
+    {t:'mc',v:'"combien de temps" betekent…',o:['hoelang','hoeveel keer','hoe laat','wanneer'],a:0,w:['','Hoeveel keer = combien de fois.','Hoe laat = à quelle heure.','Wanneer = quand.']},
+    {t:'mc',v:'Welke vraag is <b>intonation</b> met vraagwoord?',o:['Vous savez pourquoi ?','Pourquoi savez-vous ?','Pourquoi est-ce que vous savez ?','Savez-vous ?'],a:0,w:['','Dat is inversion (werkwoord-onderwerp).','Dat is de vorm met est-ce que.','Dat is inversion zonder vraagwoord.']},
+    {t:'jf',v:'Bij een vraag met intonation is de woordvolgorde dezelfde als in een gewone zin.',a:true},
+    {t:'jf',v:'Na "est-ce que" draai je het werkwoord en het onderwerp om.',a:false,u:'Na est-ce que blijft de gewone volgorde: Est-ce que tu viens ?'},
+    {t:'invul',v:'Vertaal het vraagwoord: <b>waarom?</b>',a:['pourquoi','pourquoi ?'],fr:true},
+    {t:'invul',v:'Vertaal het vraagwoord: <b>hoe laat?</b>',a:['à quelle heure','à quelle heure ?','a quelle heure'],fr:true},
+    {t:'invul',v:'Vertaal het vraagwoord: <b>op welke manier?</b>',a:['de quelle manière','de quelle manière ?','de quelle maniere'],fr:true},
+    {t:'invul',v:'Vous partez à quelle heure ? → inversion: À quelle heure … ?',a:['partez-vous','partez-vous ?'],fr:true},
+    {t:'invul',v:'Tu viens ce soir ? → inversion: … ce soir ?',a:['viens-tu','Viens-tu'],fr:true}
+  ]
+},
+{
+  id:'F9', vak:'fr', titel:'Pronoms personnels COD et COI',
+  bron:[['Schéma pronoms COD/COI', PSCH],['Remediëring schema COD/COI', RSCH],['Oefeningen COD/COI', REX]],
+  samenvatting:[
+    '<b>COD</b> = complément d\'objet direct = <b>lijdend voorwerp</b>. Vraag: <b>wie of wat</b> + werkwoord? Er staat <b>geen voorzetsel</b>: Marie achète <b>une valise</b>. (Marie achète quoi ?)',
+    '<b>COI</b> = complément d\'objet indirect = <b>meewerkend voorwerp</b> (of voorzetselvoorwerp). Vraag: <b>à qui / à quoi? de qui / de quoi?</b> Er staat een <b>voorzetsel</b> (à, de): Louis parle <b>à son frère</b>. Elle parle <b>de son problème</b>.',
+    'Voorbeeld: Evelien donne <b>un stylo</b> (COD) <b>à Gust</b> (COI).',
+    'De voornaamwoorden: <b>COD</b>: me, te, <b>le / la / l\'</b>, nous, vous, <b>les</b> · <b>COI</b>: me, te, <b>lui</b>, nous, vous, <b>leur</b>. Alleen bij de 3e persoon zijn ze verschillend!',
+    'Plaats: het voornaamwoord staat <b>vóór het werkwoord</b>: Julie <b>le</b> jette. Le policier <b>lui</b> parle. Julie <b>leur</b> parle.',
+    'Twee voornaamwoorden? Volgorde: <b>me/te/se/nous/vous</b> → <b>le/la/les</b> → <b>lui/leur</b> → werkwoord. Il <b>me la</b> donne. Je <b>la lui</b> donne.'
+  ],
+  kaarten:[
+    ['COD = ?','complément d\'objet direct = lijdend voorwerp (wie/wat? geen voorzetsel)'],['COI = ?','complément d\'objet indirect = meewerkend voorwerp (à qui? de qui? met voorzetsel)'],
+    ['Vraag om de COD te vinden','sujet + verbe + qui ? / quoi ?'],['Vraag om de COI te vinden','sujet + verbe + à qui ? à quoi ? de qui ? de quoi ?'],
+    ['COD 3e persoon (hem/haar/het, hen)','le / la / l\' · les'],['COI 3e persoon (aan hem/haar, aan hen)','lui · leur'],
+    ['COD en COI voor je, tu, nous, vous','me · te · nous · vous (zelfde!)'],['Waar staat het voornaamwoord?','Vóór het werkwoord: Julie le jette.'],
+    ['Julie jette la balle. → pronom','Julie la jette.'],['Julie jette les papiers. → pronom','Julie les jette.'],['Le policier parle à la dame. → pronom','Le policier lui parle.'],
+    ['Julie parle à ses amis. → pronom','Julie leur parle.'],['Volgorde bij 2 voornaamwoorden','me/te/se/nous/vous → le/la/les → lui/leur → verbe'],['Je donne le livre à Paul. → 2 pronoms','Je le lui donne.']
+  ],
+  quiz:[
+    {t:'mc',v:'Duid de COD aan: <i>Marie montre sa nouvelle robe à sa sœur.</i>',o:['sa nouvelle robe','à sa sœur','Marie','montre'],a:0,w:['','À sa sœur heeft een voorzetsel (à): dat is de COI.','Marie is het onderwerp (sujet).','Montre is het werkwoord.']},
+    {t:'mc',v:'Duid de COI aan: <i>Le professeur donne un exercice aux élèves.</i>',o:['aux élèves','un exercice','le professeur','donne'],a:0,w:['','Un exercice: le professeur donne quoi? Dat is de COD.','Dat is het onderwerp.','Dat is het werkwoord.']},
+    {t:'mc',v:'Duid de COI aan: <i>À son petit frère, mes parents offrent un nouveau vélo.</i>',o:['à son petit frère','un nouveau vélo','mes parents','offrent'],a:0,w:['','Un nouveau vélo: offrent quoi? = COD. Ook al staat de COI vooraan, à… blijft de COI.','Onderwerp.','Werkwoord.']},
+    {t:'mc',v:'Julie attrape la balle. → ?',o:['Julie l\'attrape.','Julie la attrape.','Julie lui attrape.','Julie attrape la.'],a:0,w:['','La + klinker wordt l\' (attrape begint met a).','Lui is een COI, maar la balle is een COD (geen à).','Het voornaamwoord staat vóór het werkwoord.']},
+    {t:'mc',v:'Le policier parle au garçon. → ?',o:['Le policier lui parle.','Le policier le parle.','Le policier leur parle.','Le policier parle lui.'],a:0,w:['','Au garçon = à + le garçon: met à, dus COI → lui.','Leur is meervoud (aan hen), hier is het één jongen.','Het voornaamwoord staat vóór het werkwoord.']},
+    {t:'mc',v:'Julie parle à ses amis. → ?',o:['Julie leur parle.','Julie les parle.','Julie lui parle.','Julie leurs parle.'],a:0,w:['','Les is een COD; hier staat à (parler à), dus COI.','Lui is enkelvoud; ses amis is meervoud.','Leur als voornaamwoord krijgt nooit een s.']},
+    {t:'mc',v:'Welke voornaamwoorden zijn verschillend voor COD en COI?',o:['Alleen de 3e persoon: le/la/les ↔ lui/leur','Allemaal','Alleen nous en vous','Geen enkele'],a:0,w:['','Me, te, nous, vous zijn hetzelfde.','Nous en vous blijven gelijk.','Bij de 3e persoon zijn ze wel verschillend.']},
+    {t:'mc',v:'Je donne le livre à Paul. → met 2 voornaamwoorden?',o:['Je le lui donne.','Je lui le donne.','Je le donne lui.','Je leur le donne.'],a:0,w:['','Volgorde: eerst le/la/les, dan lui/leur.','Beide voornaamwoorden staan vóór het werkwoord.','Paul is één persoon: lui, niet leur.']},
+    {t:'jf',v:'De COI vind je met de vraag "à qui?" of "de qui?".',a:true},
+    {t:'jf',v:'Het voornaamwoord COD staat na het werkwoord: Julie jette le.',a:false,u:'Het staat vóór het werkwoord: Julie le jette.'},
+    {t:'invul',v:'Le professeur attend Julie et toi. → Le professeur … attend.',a:['vous'],fr:true},
+    {t:'invul',v:'Le professeur parle à Jef et à moi. → Le professeur … parle.',a:['nous'],fr:true},
+    {t:'invul',v:'Julie jette le papier. → Julie … jette.',a:['le'],fr:true},
+    {t:'invul',v:'Nous prêtons notre échelle à nos voisins. → Nous … prêtons notre échelle.',a:['leur'],fr:true}
+  ]
+}
+
 );
 })();
