@@ -1,9 +1,13 @@
 // Cloudflare: de website van LANcelot (website/site) als statische site. De app zelf draait nooit bij Cloudflare.
+// Eén klein stukje Worker (website/worker.js) vangt enkel POST /inbeeld/api/aangebracht op (terugmelden vanuit LANcelot).
 {
   "name": "lancelot",
   "compatibility_date": "2026-10-01",
+  "main": "./website/worker.js",
   "assets": {
     "directory": "./website/site",
-    "not_found_handling": "none"
+    "binding": "ASSETS",
+    "not_found_handling": "none",
+    "run_worker_first": ["/inbeeld/api/aangebracht"]
   }
 }

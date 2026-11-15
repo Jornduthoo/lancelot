@@ -1,0 +1,85 @@
+{
+ "sets": [
+  {
+   "id": "leerjaar-jk",
+   "titel": "Jongste kleuters",
+   "soort": "leerjaar",
+   "leerjaren": [
+    "JK"
+   ],
+   "aantal": 74
+  },
+  {
+   "id": "leerjaar-k2",
+   "titel": "2de kleuterklas",
+   "soort": "leerjaar",
+   "leerjaren": [
+    "K2"
+   ],
+   "aantal": 139
+  },
+  {
+   "id": "leerjaar-k3",
+   "titel": "3de kleuterklas",
+   "soort": "leerjaar",
+   "leerjaren": [
+    "K3"
+   ],
+   "aantal": 108
+  },
+  {
+   "id": "leerjaar-1",
+   "titel": "1ste leerjaar",
+   "soort": "leerjaar",
+   "leerjaren": [
+    "1"
+   ],
+   "aantal": 116
+  },
+  {
+   "id": "leerjaar-2",
+   "titel": "2de leerjaar",
+   "soort": "leerjaar",
+   "leerjaren": [
+    "2"
+   ],
+   "aantal": 141
+  },
+  {
+   "id": "leerjaar-3",
+   "titel": "3de leerjaar",
+   "soort": "leerjaar",
+   "leerjaren": [
+    "3"
+   ],
+   "aantal": 186
+  },
+  {
+   "id": "leerjaar-4",
+   "titel": "4de leerjaar",
+   "soort": "leerjaar",
+   "leerjaren": [
+    "4"
+   ],
+   "aantal": 225
+  },
+  {
+   "id": "leerjaar-5",
+   "titel": "5de leerjaar",
+   "soort": "leerjaar",
+   "leerjaren": [
+    "5"
+   ],
+   "aantal": 220
+  },
+  {
+   "id": "leerjaar-6",
+   "titel": "6de leerjaar",
+   "soort": "leerjaar",
+   "leerjaren": [
+    "6"
+   ],
+   "aantal": 252
+  }
+ ]
+}

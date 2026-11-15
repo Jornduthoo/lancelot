@@ -15,3 +15,10 @@
 /eli/*
   X-Robots-Tag: noindex, nofollow
   Cache-Control: no-cache
+/inbeeld/*
+  X-Robots-Tag: noindex, nofollow
+  Cache-Control: no-cache
+/inbeeld/api/beelden/*
+  Cache-Control: public, max-age=86400
+/inbeeld/fonts/*
+  Cache-Control: public, max-age=31536000, immutable
