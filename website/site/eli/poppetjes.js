@@ -6,7 +6,7 @@
 const ROLNAAM = {
   eli:'De kampioen zelf', supporter:'Supporter nummer 1', manager:'Ploegmanager', trainer:'Krachttrainer',
   coach:'Hoofdcoach', pauze:'Pauzekapitein', prof:'Professor', kunst:'Kunstkenner', denker:'Denker',
-  chef:'Chef Frans', labo:'Laborant', ridder:'Geschiedenisridder',
+  chef:'Chef Frans', labo:'Laborant', ridder:'Geschiedenisridder', begeleider:'Persoonlijke begeleider', afleider:'De afleider',
 };
 const VAKNAAM = { kf:'Kunst & Filosofie', gsw:'Gedrag', fr:'Frans', wet:'Wetenschappen', cul:'Cultuur' };
 const RESERVE = [{ id:'coach', naam:'Coach', rol:'coach', emoji:'🧢' }];
@@ -21,10 +21,15 @@ async function ontsleutel(f){
   if (!f.img) return null;
   if (!f.img.startsWith('enc:')) return (urls[f.id] = f.img);
   if (!sleutel) return null;
-  const r = await fetch(f.img.slice(4), { cache:'force-cache' });
-  if (!r.ok) throw new Error('fig ' + r.status);
-  const buf = new Uint8Array(await r.arrayBuffer());
-  const data = await crypto.subtle.decrypt({ name:'AES-GCM', iv: buf.slice(0, 12) }, sleutel, buf.slice(12));
+  // Eerst uit de cache; lukt dat niet (oude 404 of html in de cache), dan vers ophalen.
+  const haal = async (cache) => {
+    const r = await fetch(f.img.slice(4), { cache });
+    if (!r.ok) throw new Error('fig ' + r.status);
+    const buf = new Uint8Array(await r.arrayBuffer());
+    return crypto.subtle.decrypt({ name:'AES-GCM', iv: buf.slice(0, 12) }, sleutel, buf.slice(12));
+  };
+  let data;
+  try { data = await haal('force-cache'); } catch { data = await haal('reload'); }
   const url = URL.createObjectURL(new Blob([data], { type:'image/webp' }));
   urls[f.id] = url;
   document.querySelectorAll(`img[data-fig="${f.id}"]`).forEach(img => { img.src = url; img.classList.add('klaar'); });
@@ -79,6 +84,14 @@ const EIGEN = {
     'Kampioenen worden gemaakt op training, niet op de match. Hup!',
     'Focus, Eli! Gsm weg, hersenen aan. 🧠',
   ],
+  tim: [
+    'Pssst… de PS4 staat al aan. Eén spelletje maar? 😈🎮',
+    'Xbox of boek? Ik weet wel wat ík zou kiezen… 🎮',
+    'Ik heb drie consoles voor je klaarstaan. Maar wie eerst werkt, wint. 😏',
+    'Eén potje kan toch geen kwaad? … Grapje. Of niet? 😈',
+    'Ik ben de afleider. Kun jij mij weerstaan? 🤘🎮',
+    'Die PS3 voelt zich eenzaam, hoor. Maar ja, eerst je taken… 😒',
+  ],
   marieke: [
     'Ik zie dat je bezig bent. Super, schat! Zo doen we dat. 💪',
     'Eerst je werk, dan je ontspanning. Je kan het! ⚽',
@@ -97,7 +110,7 @@ function babbel(el, tekst, opts = {}){
 // De ereplek: alle figuren met hun taak.
 function ploegHtml(){
   const esc = window.ELI.esc;
-  const volg = ['eli','marieke','papa','boeboe','moemoe','thor','bjorn','onno'];
+  const volg = ['eli','marieke','papa','boeboe','moemoe','tim','thor','bjorn','onno'];
   const maten = { boeboe:1, moemoe:1, marieke:1, papa:1 };
   const lijst = alle().slice().sort((a, b) => {
     const ia = volg.indexOf(a.id), ib = volg.indexOf(b.id);
@@ -112,5 +125,6 @@ function kring(){ const l = KRING.map(metId).filter(Boolean); return l[Math.floo
 // Wie logt in als welke figuur?
 const LOGIN = { mama:'marieke', omaveldegem:'oma' };
 const vanLogin = naam => metId(LOGIN[naam] || naam);
-window.POP = { vanLogin, zet, kies, html, babbel, metId, kring, ploegHtml, klaar: () => klaarP, ROLNAAM };
+const tim = () => metId('tim');
+window.POP = { tim, vanLogin, zet, kies, html, babbel, metId, kring, ploegHtml, klaar: () => klaarP, ROLNAAM };
 })();

@@ -241,6 +241,11 @@ function thuis(){
 
   // Babbel
   const mot = motivatie(items, alles);
+  // Nonkel Tim, de afleider: lokt met zijn consoles zolang er werk ligt, en geeft gamen vrij als alles af is.
+  if (POP.tim() && Math.random() < .35) {
+    if (alles) return POP.babbel($('dagbabbel'), 'Alles af? Oké… <b>NU</b> mag je gamen. 🤘🎮', { figuur: POP.tim() });
+    if (items.length) return POP.babbel($('dagbabbel'), mot, { figuur: POP.tim(), eigen: true });
+  }
   const maat = Math.random() < .75 && POP.kring();
   POP.babbel($('dagbabbel'), mot, maat ? { figuur: maat, eigen: !/inhaal|Toppie/.test(mot) } : { rol: alles ? ['supporter','manager','trainer'] : ['manager','trainer','supporter','coach'] });
 }
@@ -562,6 +567,7 @@ const VOORSTEL = {
   moemoe: 'Dag schat! Ik help je ook bij Gedrag. En ik ben altijd supertrots op je. 💛',
   thor: 'Ik ben je supporter nummer 1. Ik sta altijd langs de lijn te roepen! 📣',
   bjorn: 'Ik ben de hoofdcoach. Bij de quizzen stel ik de vragen. Geen half werk, hé!',
+  tim: 'Ik ben de afleider. 😈 Ik gaf je net een PS3, een PS4 én een Xbox 360… Benieuwd of jij eerst je werk afmaakt. 🎮🤘',
   onno: 'Ik ben de pauzekapitein. Na 25 minuten werken roep ik: PAUZE! 🧸',
 };
 const VAKZIN = { kf:'Kunst & Filosofie', gsw:'Gedrag', fr:'Frans', wet:'Wetenschappen', cul:'Cultuur' };
@@ -929,7 +935,8 @@ function stapQuiz(vragen, verder, modus){
     const nogNiet = modus === 'proef' ? entries.filter(([, o]) => o.s / o.t < .7).map(([tid]) => TOPIC[tid]).filter(Boolean) : [];
     const sterren = pct >= .95 ? 3 : pct >= .8 ? 2 : pct >= nodig ? 1 : 0;
     box.innerHTML = `<div class="kaart resultaat"><div class="sterren">${'⭐'.repeat(sterren)}${'☆'.repeat(3 - sterren)}</div><div class="groot">${Math.round(pct * 100)}%</div><p class="muted">${Math.round(score * 10) / 10} van ${totaal} juist bij de eerste poging</p><div class="babbel" id="rp" style="text-align:left"></div>${modus === 'proef' ? (nogNiet.length ? `<div class="foutlijst nognie"><div class="label" style="margin-bottom:6px">🎯 Dit zit nog niet goed (wordt extra ingepland)</div>${nogNiet.map(t => `<button class="link" data-herlees="${t.id}">📖 ${esc(t.titel)}</button>`).join('')}</div>` : '<p class="goed-tekst">🎯 Alle onderwerpen boven 70%. Klaar voor het examen!</p>') + (duur !== null ? `<p class="muted klein">⏱️ Je deed er ${duur} minuten over (examen-tempo: ${P.PROEF_MIN} min).</p>` : '') : ''}${fouten.length ? `<div class="foutlijst"><div class="label" style="margin-bottom:6px">Deze komen extra terug</div>${fouten.slice(0, 8).map(f => `<div>${esc(f)}</div>`).join('')}</div>` : ''}<div class="onder" style="justify-content:center" id="rk"></div></div>`;
-    POP.babbel($('rp'), gehaald ? (pct === 1 ? 'PERFECT! Dat is een hattrick! 🎩⚽' : 'Goed gedaan! Opdracht gehaald. 💪') : `Nog niet genoeg (nodig: ${Math.round(nodig * 100)}%). Geen probleem: <b>nog een keer</b>, nu met andere volgorde. Lees eerst even je fouten.`, gehaald && Math.random() < .5 ? { figuur: POP.kring() || undefined, eigen: true } : { vak: lopend.it.vak });
+    const timPest = gehaald && POP.tim() && Math.random() < .25;
+    POP.babbel($('rp'), timPest ? 'Verdorie. Je liet je niet afleiden. 😤🎮' : gehaald ? (pct === 1 ? 'PERFECT! Dat is een hattrick! 🎩⚽' : 'Goed gedaan! Opdracht gehaald. 💪') : `Nog niet genoeg (nodig: ${Math.round(nodig * 100)}%). Geen probleem: <b>nog een keer</b>, nu met andere volgorde. Lees eerst even je fouten.`, timPest ? { figuur: POP.tim() } : gehaald ? (Math.random() < .5 ? { figuur: POP.kring() || undefined, eigen: true } : { vak: lopend.it.vak }) : { vak: lopend.it.vak });
     box.querySelectorAll('[data-herlees]').forEach(b => b.onclick = () => stapLees(TOPIC[b.dataset.herlees], () => verder({ soort:'quiz', score, totaal, gehaald })));
     if (gehaald) { confetti(sterren === 3 ? 3500 : 1800); piep('klaar'); }
     const rk = $('rk');
