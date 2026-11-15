@@ -118,7 +118,7 @@ async function main() {
   // 5. Inpakken met NSIS.
   const uit = path.join(uitMap, 'LANcelot-installatie.exe');
   execFileSync('makensis', ['-V2', '-INPUTCHARSET', 'UTF8',
-    `-DSTAGE=${stage}`, `-DLIJST=${lijst}`, `-DUIT=${uit}`, `-DVERSIE=${v.versie}`, `-DVIVERSIE=${v.vi}`, `-DKB=${grootteKb(stage)}`,
+    `-DSTAGE=${stage}`, `-DLIJST=${lijst}`, `-DUIT=${uit}`, `-DVERSIE=${v.versie}`, `-DVIVERSIE=${v.vi}`, `-DKB=${grootteKb(stage)}`, `-DZIJBALK=${path.join(HIER, 'zijbalk.bmp')}`,
     path.join(HIER, 'lancelot.nsi')], { stdio: 'inherit' });
   fs.rmSync(werk, { recursive: true, force: true });
   const mb = (fs.statSync(uit).size / 1e6).toFixed(1);

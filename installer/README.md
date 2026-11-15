@@ -1,26 +1,43 @@
-# Windows-installer (voorbereiding)
+# Windows-installer voor scholen
 
-De installer zelf is nog niet gebouwd. Alles wat de app ervoor nodig heeft, zit er wel al in.
+`LANcelot-installatie.exe` zet de volledige LANcelot (met De Kronieken, Woordkaarten, Junior en de Vlaamse doelen)
+op een klas- of bord-pc. Geen Node.js, geen zip uitpakken, geen beheerdersrechten.
 
-## Wat de installer moet doen
+## Voor de leerkracht
+
+1. Dubbelklik `LANcelot-installatie.exe`. Toont Windows "Windows heeft uw pc beschermd"? Klik op *Meer info* en dan *Toch uitvoeren*
+   (de installer is niet ondertekend).
+2. Klik op *Installeren*. Windows vraagt daarna één keer toestemming voor de firewall, zodat leerlingen kunnen meespelen: klik op *Ja*.
+   Geen beheerdersrechten? Dan doet ICT het later met *Instellingen > Firewall goed zetten*.
+3. Start LANcelot met het schild op het bureaublad. Vraag ICT één keer een vast adres voor de pc: het bericht staat klaar
+   bij *Netwerk werkt niet? > Vast adres* (en in stap 4 van de wizard).
+
+## Wat de installer doet
 
 | Punt | Hoe |
 | --- | --- |
-| Installeren zonder beheerdersrechten | `PrivilegesRequired=lowest`: de app komt in `%LOCALAPPDATA%\Programs\LANcelot`. Node.js gaat mee in de map `node` (de zip-versie van nodejs.org, geen msi), en `Start LANcelot.bat` gebruikt die map eerst. |
-| Firewall | De enige stap met beheerdersrechten. Na de installatie drukt de leerkracht één keer op *Instellingen > Firewall goed zetten*. Dat zet poorten 3000-3010 open en haalt een blokkeerregel voor Node.js weg (die ontstaat als iemand het venster van Windows ooit wegklikte). |
-| Gegevens apart | `installatie.json` naast de app: LANcelot bewaart klas, logboek, quizzen, posters en back-ups dan in `%LOCALAPPDATA%\LANcelot`. |
-| Verwijderen zonder gegevensverlies | De verwijderaar haalt alleen de app-map weg en nooit `%LOCALAPPDATA%\LANcelot`. Wie opnieuw installeert, vindt alles terug. |
-| Snelkoppelingen | Startmenu altijd, bureaublad als vinkje. In de zip-versie kan het ook met *Instellingen > Snelkoppeling op het bureaublad*. |
-| Poort 3000 bezet | Een tweede start opent gewoon het leerkrachtenscherm. Is 3000 bezet door een ander programma, dan neemt LANcelot 3001 tot 3010 en zegt dat in het venster. |
-| Bijwerken | Zolang de repo publiek is: van GitHub. Daarna: een eigen update-adres (zie hieronder), of *Bijwerken met een zip-bestand* (werkt altijd, ook zonder internet). |
+| Zonder beheerdersrechten | Per gebruiker, in `%LOCALAPPDATA%\Programs\LANcelot`. Node.js (met npm) zit erin, in de map `node`. `Start LANcelot.bat` gebruikt die eerst. |
+| Gegevens apart | `installatie.json` naast de app: klas, logboek, quizzen, posters en back-ups staan in `%LOCALAPPDATA%\LANcelot`. De installer schrijft daar nooit. |
+| Opnieuw installeren | Vervangt alleen de app. Draait LANcelot nog, dan vraagt de installer eerst het venster te sluiten. |
+| Bijwerken | Gewoon in de app (*Instellingen > LANcelot bijwerken*): `versie.json` zegt welke versie er staat. Nieuwe npm-onderdelen installeert de app zelf (npm zit mee). |
+| Firewall | De enige stap met beheerdersrechten: poorten 3000-3010 en `node\node.exe` van deze installatie toelaten (dan komt het venster van Windows Firewall niet). Weigeren mag. |
+| Verwijderen | Via Windows-instellingen > Apps, of `LANcelot verwijderen.exe`. Haalt alleen de app weg, nooit `%LOCALAPPDATA%\LANcelot`. |
+| Stil installeren (ICT) | `LANcelot-installatie.exe /S` (zonder firewallstap, zonder te starten). Verwijderen: `"LANcelot verwijderen.exe" /S`. |
 
-## Bouwen (later)
+Wie al met de zip-versie werkt, hoeft niets te doen: die blijft gewoon werken. Wil je toch overstappen, verhuis dan eerst in de oude
+versie de gegevens met *Instellingen > Mijn gegevens* naar `%LOCALAPPDATA%\LANcelot`, en installeer daarna.
 
-1. `staging\` maken: `git archive main` uitpakken, `npm ci --omit=dev` erin, de map `node` uit `node-v24.x-win-x64.zip` erbij.
-2. Inno Setup 6 installeren en `lancelot.iss` compileren. Resultaat: `uitvoer\LANcelot-installatie.exe`.
-3. Zonder code-ondertekening toont Windows "onbekende uitgever". Dat is een aparte beslissing.
+## Bouwen
 
-Wie eerder de zip-versie gebruikte: eerst in de oude versie *Instellingen > Mijn gegevens* verhuizen naar `%LOCALAPPDATA%\LANcelot`, dan installeren.
+    node installer/maak-installer.js [--uit map]
+
+Nodig: git, npm, `makensis` (Linux: `apt install nsis`, Windows: NSIS 3) en internet (Node.js voor Windows van nodejs.org,
+gecontroleerd met SHASUMS256). Resultaat: `installer/uit/LANcelot-installatie.exe` (ongeveer 90 MB).
+De installer neemt de app zoals ze in git staat (laatste commit), zonder website, tests en hulpmiddelen. `zijbalk.bmp` is de afbeelding
+links op het eerste en laatste scherm (164 x 314).
+
+Testen zonder Windows kan met Wine (32-bit nodig: `dpkg --add-architecture i386 && apt install wine32:i386`):
+`wine LANcelot-installatie.exe /S` en daarna `wine cmd /c "Start LANcelot.bat"` in de geïnstalleerde map.
 
 ## Eigen update-adres
 
@@ -30,4 +47,8 @@ Als de repository ooit privé wordt, werkt bijwerken via GitHub niet meer. Zet d
 { "versie": "2026-11-01", "datum": "2026-11-01T10:00:00Z", "bericht": "Nieuwe games", "zip": "https://.../LANcelot.zip" }
 ```
 
-Het adres van dat bestand komt in *Instellingen > LANcelot bijwerken > Update-adres*, of de installer levert `update-bron.json` mee naast de app: `{ "manifest": "https://.../lancelot-update.json" }`. De zip mag de schoolzip zijn of een zip van de repo: LANcelot zoekt zelf de map met `server.js`, en installeert pas bij de volgende start.
+Het adres van dat bestand komt in *Instellingen > LANcelot bijwerken > Update-adres*, of naast de app in `update-bron.json`:
+`{ "manifest": "https://.../lancelot-update.json" }`. De zip mag de schoolzip zijn of een zip van de repo: LANcelot zoekt zelf de map
+met `server.js`, en installeert pas bij de volgende start.
+
+De Microsoft Store-versie is iets anders: zie `installer/store/README.md`.

@@ -35,13 +35,15 @@ VIAddVersionKey /LANG=1043 "LegalCopyright" "Jorn Duthoo, alle rechten voorbehou
 !define MUI_ICON "${STAGE}\public\img\lancelot.ico"
 !define MUI_UNICON "${STAGE}\public\img\lancelot.ico"
 !define MUI_ABORTWARNING
+!define MUI_WELCOMEFINISHPAGE_BITMAP "${ZIJBALK}"
+!define MUI_UNWELCOMEFINISHPAGE_BITMAP "${ZIJBALK}"
 
 !define MUI_WELCOMEPAGE_TITLE "LANcelot installeren"
 !define MUI_WELCOMEPAGE_TEXT "Zo staat LANcelot in één minuut op deze pc.$\r$\n$\r$\nJe klas, quizzen en resultaten blijven altijd bewaard, ook als je LANcelot later bijwerkt of opnieuw installeert.$\r$\n$\r$\nKlik op Installeren."
 !insertmacro MUI_PAGE_WELCOME
 !insertmacro MUI_PAGE_INSTFILES
 !define MUI_FINISHPAGE_TITLE "LANcelot staat klaar"
-!define MUI_FINISHPAGE_TEXT "Start LANcelot met het schild op het bureaublad.$\r$\n$\r$\nDe eerste keer helpt LANcelot je in vier korte stappen. Daar staat ook het bericht voor de ICT'er, zodat deze pc een vast adres krijgt."
+!define MUI_FINISHPAGE_TEXT "Start LANcelot met het schild op het bureaublad.$\r$\n$\r$\nTip: vraag ICT één keer om een vast adres voor deze pc, dan blijft het adres voor de leerlingen altijd hetzelfde. LANcelot zet dat bericht voor je klaar bij Netwerk werkt niet?"
 !define MUI_FINISHPAGE_RUN
 !define MUI_FINISHPAGE_RUN_TEXT "LANcelot nu starten"
 !define MUI_FINISHPAGE_RUN_FUNCTION StartLancelot
@@ -118,7 +120,7 @@ Section "LANcelot"
   ; (dan komt het venster van Windows Firewall niet, dat iemand per ongeluk kan wegklikken).
   ; Dit is de enige stap met beheerdersrechten. Weigeren mag: Instellingen > Firewall goed zetten doet hetzelfde.
   IfSilent firewall_klaar
-  MessageBox MB_OK|MB_ICONINFORMATION "Nog één ding: Windows vraagt zo toestemming, zodat leerlingen met hun Chromebook of gsm kunnen meespelen. Klik daar op Ja.$\r$\n$\r$\nHeb je geen beheerdersrechten? Geen probleem: de ICT'er kan dit later doen met Instellingen > Firewall goed zetten."
+  MessageBox MB_OK|MB_ICONINFORMATION "Nog één ding: Windows vraagt zo toestemming, zodat leerlingen met hun Chromebook of gsm kunnen meespelen. Klik daar op Ja.$\r$\n$\r$\nHeb je geen beheerdersrechten? Geen probleem: ICT kan dit later doen in LANcelot met Instellingen > Firewall goed zetten."
   ExecShellWait "runas" "powershell.exe" "-NoProfile -WindowStyle Hidden -Command $\"$$n = '$INSTDIR\node\node.exe'; Get-NetFirewallApplicationFilter -Program $$n -ErrorAction SilentlyContinue | Get-NetFirewallRule | Where-Object { $$_.Action -eq 'Block' -and $$_.Direction -eq 'Inbound' } | Remove-NetFirewallRule; Remove-NetFirewallRule -DisplayName 'LANcelot' -ErrorAction SilentlyContinue; New-NetFirewallRule -DisplayName 'LANcelot' -Direction Inbound -Protocol TCP -LocalPort 3000-3010 -Action Allow -Profile Any | Out-Null; New-NetFirewallRule -DisplayName 'LANcelot' -Direction Inbound -Program $$n -Action Allow -Profile Any | Out-Null$\"" SW_HIDE
   firewall_klaar:
 SectionEnd
