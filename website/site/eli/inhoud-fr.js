@@ -229,12 +229,9 @@ window.ELI_ONDERWERPEN.push(
   id:'F5', vak:'fr', titel:'L\'impératif présent',
   bron:[['Résumé impératif', IMP],['L\'impératif présent', IMPI]],
   samenvatting:[
-    'De gebiedende wijs heeft <b>3 vormen</b>, zonder onderwerp:',
-    '<b>tu</b> → neem de vorm van <b>je</b>: tu ouvres → <b>Ouvre !</b>, tu manges → <b>Mange !</b>, tu finis → <b>Finis !</b>',
-    '<b>nous</b> → neem de nous-vorm: <b>Ouvrons !</b> <b>Mangeons !</b> (= laten we…)',
-    '<b>vous</b> → neem de vous-vorm: <b>Ouvrez !</b> <b>Mangez !</b>',
-    'Let op: bij -er-werkwoorden (en ouvrir) valt de <b>-s van tu</b> dus weg, omdat je de je-vorm neemt.',
-    '<b>Speciale vormen</b>: être: <b>sois, soyons, soyez</b> · avoir: <b>aie, ayons, ayez</b> · aller: <b>va, allons, allez</b> · savoir: <b>sache, sachons, sachez</b> · vouloir: <b>veuille, veuillons, veuillez</b> (veuillez = gelieve).'
+    '<h4>📣 De gebiedende wijs (l\'impératif)</h4><p>Je geeft een <b>bevel</b>. Er zijn <b>3 vormen</b>, en er staat <b>geen onderwerp</b> bij.</p><div class="lp-tegels"><div><i>👉</i><b>tu</b><small>tegen één persoon</small></div><div><i>👥</i><b>nous</b><small>= laten we …</small></div><div><i>🙋</i><b>vous</b><small>tegen meerdere personen, of beleefd</small></div></div>',
+    '<h4>🔧 Zo maak je het</h4><table class="lp-ww lp-irr"><tr><th></th><th>ouvrir</th><th>manger</th><th>finir</th></tr><tr><td>tu<br><small>= je-vorm</small></td><td><b>Ouvre !</b></td><td><b>Mange !</b></td><td><b>Finis !</b></td></tr><tr><td>nous<br><small>= nous-vorm</small></td><td><b>Ouvrons !</b></td><td><b>Mangeons !</b></td><td><b>Finissons !</b></td></tr><tr><td>vous<br><small>= vous-vorm</small></td><td><b>Ouvrez !</b></td><td><b>Mangez !</b></td><td><b>Finissez !</b></td></tr></table><div class="lp-vs"><div><b>❌ fout</b><u>Manges !</u></div><div><b>✅ juist</b><u>Mange !</u><small>bij -er-werkwoorden (en ouvrir) valt de <b>-s van tu</b> weg</small></div></div>',
+    '<h4>⭐ Speciale vormen</h4><table class="lp-ww lp-irr"><tr><th></th><th>tu</th><th>nous</th><th>vous</th></tr><tr><td>être</td><td><b>sois</b></td><td><b>soyons</b></td><td><b>soyez</b></td></tr><tr><td>avoir</td><td><b>aie</b></td><td><b>ayons</b></td><td><b>ayez</b></td></tr><tr><td>aller</td><td><b>va</b></td><td><b>allons</b></td><td><b>allez</b></td></tr><tr><td>savoir</td><td><b>sache</b></td><td><b>sachons</b></td><td><b>sachez</b></td></tr><tr><td>vouloir</td><td><b>veuille</b></td><td><b>veuillons</b></td><td><b>veuillez</b></td></tr></table><p class="lp-tip">💡 <b>Veuillez …</b> = gelieve … Dat zie je vaak op bordjes en in brieven.</p>'
   ],
   kaarten:[
     ['être – impératif (tu, nous, vous)','sois · soyons · soyez'],['avoir – impératif','aie · ayons · ayez'],['aller – impératif','va · allons · allez'],

@@ -321,3 +321,4 @@ input:focus,textarea:focus{outline:none;border-color:var(--gras)}
 .lp-irr td:last-child{text-align:left;font-size:.95rem;color:inherit}
 .lp-irr td:first-child{width:22%}
 .lp-irr td b{color:var(--inkt,#222)}
+.lp-irr td b{white-space:nowrap}
