@@ -92,11 +92,18 @@ const levensloop = `<div class="vz"><div class="vz-t">De levensloopfasen</div><d
   .map(([i, a, b, k]) => `<div class="ll-i" style="--k:${k}"><span>${i}</span><b>${a}</b><small>${b} j</small></div>`).join('')}</div>
   ${weetje('📏', 'Leeftijden zijn <b>gemiddelden</b>: elk kind is anders. Hoe jonger, hoe sneller de veranderingen.')}</div>`;
 
-const wetenschappen = `<div class="vz"><div class="vz-t">Soorten wetenschappen</div><div class="boom">
-  <div class="bm-r"><div class="bm" style="--k:${K.grijs}">Wetenschappen</div></div>
-  <div class="bm-r"><div class="bm" style="--k:${K.paars}">Formele<small>wiskunde, logica</small></div><div class="bm" style="--k:${K.blauw}">Ervarings-<small>met je zintuigen</small></div></div>
-  <div class="bm-r"><div class="bm" style="--k:${K.groen}">Natuur-<small>chemie, bio, fysica</small></div><div class="bm" style="--k:${K.oranje}">Gedrags- / sociale<small>psychologie, economie…</small></div><div class="bm" style="--k:${K.roze}">Cultuur-<small>taal, geschiedenis…</small></div></div>
-  <div class="bm-r"><div class="bm" style="--k:${K.oranje}">Psychologie → ontwikkelings&shy;psychologie</div></div></div></div>`;
+const wetenschappen = `<div class="vz"><div class="vz-t">Er zijn 2 grote soorten wetenschappen</div><div class="ws">
+  <div class="ws-f"><div class="ws-kop">🔣 Formele wetenschappen</div>
+    <p>Kan je <b>niet</b> rechtstreeks zien of onderzoeken.</p><p><b>Symboolsystemen</b> om de wereld vorm te geven.</p><p class="ws-bv">bv. wiskunde, logica</p></div>
+  <div class="ws-e"><div class="ws-kop">👀 Ervaringswetenschappen</div><p>Kan je onderzoeken met je <b>zintuigen</b>. Er zijn er 3:</p>
+    ${[['🌿','Natuurwetenschappen','de wetten van de <b>dode materie</b> en van <b>levende wezens</b>','chemie, biologie, fysica'],
+       ['🧑‍🤝‍🧑','Gedragswetenschappen <small>(= sociale wetenschappen)</small>','het <b>gedrag van de mens</b>, alleen of in groep','psychologie, economie, sociologie, pedagogie, antropologie', true],
+       ['🎨','Cultuurwetenschappen','de <b>producten van menselijke creativiteit</b>, zoals kunst en literatuur','talen, geschiedenis, archeologie, kunstwetenschappen']]
+      .map(([i, kop, wat, bv, wij]) => `<div class="ws-k${wij ? ' wij' : ''}"><b>${i} ${kop}</b><span>bestudeert ${wat}</span><span class="ws-bv">bv. ${bv}</span>${wij ? '<em>⭐ hier zit ons vak</em>' : ''}</div>`).join('')}
+  </div></div>
+  <div class="vz-t" style="margin-top:14px">Waar zit ontwikkelingspsychologie?</div>
+  <div class="ws-ketting">${['Ervarings&shy;wetenschappen','Gedrags&shy;wetenschappen','Psychologie','Ontwikkelings&shy;psychologie'].map((x, n) => `<div class="ws-s${n === 3 ? ' doel' : ''}" style="--w:${100 - n * 14}%"><span>${n + 1}</span>${x}</div>`).join('<div class="ws-p">↓ waarin</div>')}</div>
+  ${weetje('🔍', 'Lees het als een zoom-in: ontwikkelingspsychologie is een deel van de psychologie, dat is een deel van de gedragswetenschappen, en dat zijn ervaringswetenschappen.')}</div>`;
 
 // ---------- Per onderwerp ----------
 const V = {
