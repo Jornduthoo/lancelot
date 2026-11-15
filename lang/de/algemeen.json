@@ -1143,5 +1143,8 @@
  "Nieuw adres: vorige keer was het {0}. Een vast adres lost dat op.": "Neue Adresse: Letztes Mal war es {0}. Eine feste Adresse löst das.",
  "Vast adres vragen": "Feste Adresse anfragen",
  "{0} ridder(s) teruggehaald uit de back-ups.": "{0} Ritter aus den Sicherungen wiederhergestellt.",
- "Ridders terughalen lukte niet:": "Ritter wiederherstellen fehlgeschlagen:"
+ "Ridders terughalen lukte niet:": "Ritter wiederherstellen fehlgeschlagen:",
+ "Vast adres:": "Feste Adresse:",
+ "vraag ICT één keer om een vast adres voor deze pc, dan klopt de QR-code op het bord altijd.": "bitte die IT einmal um eine feste Adresse für diesen PC, dann stimmt der QR-Code an der Tafel immer.",
+ "Bericht voor ICT": "Nachricht für die IT"
 }
