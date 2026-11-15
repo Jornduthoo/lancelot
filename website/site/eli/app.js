@@ -547,15 +547,18 @@ let lopend = null;
 function voerUit(it){
   const t = it.onderwerp && TOPIC[it.onderwerp];
   const stappen = [];
-  if (it.soort === 'leer') { stappen.push(['lees', t]); if (VOORBEELD[t.id]) stappen.push(['voorbeeld', t]); if (SNAP[t.id]) stappen.push(['uitleg', t]); stappen.push(['kaartjes', t.kaarten.map((_, i) => t.id + '-' + i)]); if (parenVan([t]).length >= 4) stappen.push(['koppel', parenVan([t]), 1]); const v = vormVoor(t); if (v) stappen.push(v); stappen.push(['quiz', vragenVan(t, Math.min(v ? 7 : 10, t.quiz.length + 2))]); }
+  if (it.soort === 'leer') { stappen.push(['lees', t]); if (VOORBEELD[t.id]) stappen.push(['voorbeeld', t]); if (SNAP[t.id]) stappen.push(['uitleg', t]); const pr = parenVan([t]), v = vormVoor(t);
+    // Geen kaartjes meer in de les: koppelen (telt mee voor de herhaalkaartjes) + een speciale vorm, daarna de quiz.
+    if (pr.length >= 4) stappen.push(['koppel', pr, Math.min(3, Math.ceil(pr.length / 5))]); else stappen.push(['kaartjes', t.kaarten.map((_, i) => t.id + '-' + i)]);
+    if (v) stappen.push(v); stappen.push(['quiz', vragenVan(t, Math.min(10, t.quiz.length + 2))]); }
   else if (it.soort === 'herhaal') {
-    // Afwisseling: om de andere herhaling koppelen + tijdrace in plaats van kaartjes + quiz.
-    // Drie soorten herhaling die elkaar afwisselen.
-    const v = vormVoor(t), keus = (Number(vandaag().slice(-2)) + T.indexOf(t)) % 3;
-    const anders = keus === 1 && parenVan([t]).length >= 8;
-    if (keus === 2 && v) stappen.push(v, ['kaartjes', schud(t.kaarten.map((_, i) => t.id + '-' + i)).filter(id => !S.kaarten[id] || S.kaarten[id].d < 4).slice(0, 6)], ['quiz', vragenVan(t, 5)]);
-    else if (anders) stappen.push(['koppel', parenVan([t]), 2], ['race', raceVragen([t]), t.id], ['quiz', vragenVan(t, 5)]);
-    else stappen.push(['kaartjes', schud(t.kaarten.map((_, i) => t.id + '-' + i)).filter(id => !S.kaarten[id] || S.kaarten[id].d < 4).slice(0, 10)], ['quiz', vragenVan(t, 8)]);
+    // Drie soorten herhaling die elkaar afwisselen (geen kaartjes, de quiz blijft).
+    const v = vormVoor(t), pr = parenVan([t]), keus = (Number(vandaag().slice(-2)) + T.indexOf(t)) % 3;
+    if (pr.length < 4) stappen.push(['kaartjes', schud(t.kaarten.map((_, i) => t.id + '-' + i)).filter(id => !S.kaarten[id] || S.kaarten[id].d < 4).slice(0, 10)]);
+    else if (keus === 0 && v) stappen.push(v);
+    else if (keus === 1) stappen.push(['race', raceVragen([t]), t.id]);
+    else stappen.push(['koppel', pr, 2]);
+    stappen.push(['quiz', vragenVan(t, 8)]);
   }
   else if (it.soort === 'extra') { stappen.push(['lees', t]); if (VOORBEELD[t.id]) stappen.push(['voorbeeld', t]); if (SNAP[t.id]) stappen.push(['uitleg', t]); stappen.push(['quiz', vragenVan(t, 8)]); }
   else if (it.soort === 'overhoor') stappen.push(['overhoor', it]);
@@ -586,9 +589,9 @@ function voerUit(it){
   else if (it.soort === 'vrij-quiz') stappen.push(['quiz', vragenVan(t, 10)]);
   else if (it.soort === 'vrij-koppel') stappen.push(['koppel', parenVan([t]), 3]);
   else if (it.soort === 'vrij-race') stappen.push(['race', raceVragen([t]), t.id]);
-  else if (it.soort === 'verrassing' || it.soort === 'fotoronde') stappen.push(['quiz', it.vragen]);
-  else if (it.soort === 'vakvorm') { const s = VAKVORM[it.vak].soort; stappen.push(s === 'omzet' ? ['quiz', omzetVragen(12)] : [s]); }
-  else if (it.soort === 'vrij-foto') stappen.push(['quiz', fotoVragen([t])]);
+  else if (it.soort === 'verrassing' || it.soort === 'fotoronde') stappen.push([it.soort === 'fotoronde' ? 'foto' : 'quiz', it.vragen]);
+  else if (it.soort === 'vakvorm') { const s = VAKVORM[it.vak].soort; stappen.push(s === 'omzet' ? ['omzet', omzetVragen(12)] : [s]); }
+  else if (it.soort === 'vrij-foto') stappen.push(['foto', fotoVragen([t])]);
   else if (it.soort === 'kennis') stappen.push(['kennis']);
 
   startTaak({ it, stappen, i: 0, resultaten: [] }, 0);
@@ -634,7 +637,7 @@ function startTaak(l, xp){
 $('taak-terug').onclick = () => { bewaarKaarten(); lopend = null; S.proefStart = null; thuis(); };
 
 function tekenStappen(){
-  const namen = { lees:'📖 Leren', voorbeeld:'🧮 Voorbeeld', uitleg:'✍️ Zelf uitleggen', kaartjes:'🃏 Kaartjes', quiz:'❓ Quiz', kennis:'⭐ Je ploeg', overhoor:'🗣️ Uitleggen', koppel:'🔗 Koppelen', race:'⏱️ Tijdrace', letters:'🔤 Letterpuzzel', sorteer:'🗂️ Sorteren', tijdlijn:'📅 Tijdlijn', foutzoek:'🔍 Fout zoeken' };
+  const namen = { lees:'📖 Leren', voorbeeld:'🧮 Voorbeeld', uitleg:'✍️ Zelf uitleggen', kaartjes:'🃏 Kaartjes', quiz:'❓ Quiz', kennis:'⭐ Je ploeg', overhoor:'🗣️ Uitleggen', koppel:'🔗 Koppelen', race:'⏱️ Tijdrace', letters:'🔤 Letterpuzzel', omzet:'🔁 Omzetten', foto:'📸 Foto\'s', sorteer:'🗂️ Sorteren', tijdlijn:'📅 Tijdlijn', foutzoek:'🔍 Fout zoeken' };
   $('taak-stappen').innerHTML = lopend.stappen.map((s, i) => `<span class="${i < lopend.i ? 'ok' : i === lopend.i ? 'aan' : ''}">${i < lopend.i ? '✓ ' : ''}${namen[s[0]]}${s[2] === 'proef' ? ' (proefexamen)' : ''}</span>`).join('');
 }
 function balk(p){ $('taak-balk').style.width = Math.round(p * 100) + '%'; }
@@ -655,6 +658,7 @@ function volgendeStap(){
   else if (soort === 'kaartjes') stapKaartjes(data, verder, extra);
   else if (soort === 'koppel') stapKoppel(data, verder, extra);
   else if (soort === 'race') stapRace(data, verder, extra);
+  else if (soort === 'omzet' || soort === 'foto') stapQuiz(data, verder);
   else if (soort === 'letters') stapLetters(verder, data);
   else if (soort === 'sorteer') stapSorteer(verder, data);
   else if (soort === 'tijdlijn') stapTijdlijn(verder, data, extra);
@@ -983,7 +987,7 @@ const kaal = h => String(h || '').replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').t
 // Paren uit de kaartjes van één of meer onderwerpen (korte, duidelijke paren).
 function parenVan(ts){
   const p = [];
-  for (const t of ts) for (const [v, a] of t.kaarten) { const x = kaal(v), y = kaal(a); if (x && y && x.length <= 80 && y.length <= 90) p.push([x, y, t.vak]); }
+  for (const t of ts) t.kaarten.forEach(([v, a], i) => { const x = kaal(v), y = kaal(a); if (x && y && x.length <= 80 && y.length <= 90) p.push([x, y, t.vak, t.id + '-' + i]); });
   // Elk antwoord maar één keer, en van woordkaartjes in 2 richtingen enkel de eerste richting.
   const antw = new Set(), vraag = new Set();
   return schud(p.filter(([x, y]) => { const a = y.toLowerCase(), v = x.toLowerCase(); if (antw.has(a) || antw.has(v) || vraag.has(a)) return false; antw.add(a); vraag.add(v); return true; }));
@@ -1037,16 +1041,17 @@ function stapKoppel(paren, verder, rondes){
     POP.babbel($('kpop'), ronde === 0 ? 'Tik links een begrip en rechts de uitleg die erbij hoort. Hoe minder fouten, hoe beter! 🔗' : 'Nog een ronde, kampioen!', { vak: set[0][2] });
     const maak = (lijst, kol, kant) => lijst.forEach(o => { const b = document.createElement('button'); b.className = 'kp ' + kant; b.textContent = o.tx; b.dataset.i = o.i; kol.append(b); });
     maak(links, $('kl'), 'l'); maak(rechts, $('kr'), 'r');
-    let sel = null, af = 0;
+    let sel = null, af = 0; const misK = new Set();
     box.querySelector('.koppel').onclick = e => {
       const b = e.target.closest('.kp'); if (!b || b.disabled) return;
       if (b.classList.contains('l')) { box.querySelectorAll('.kp.l').forEach(x => x.classList.remove('sel')); b.classList.add('sel'); sel = b; piep('klik'); return; }
       if (!sel) { b.classList.add('wiebel'); setTimeout(() => b.classList.remove('wiebel'), 400); return; }
       if (sel.dataset.i === b.dataset.i) {
+        { const pr = set[Number(sel.dataset.i)]; if (pr[3] && !misK.has(sel.dataset.i)) kaartAntwoord(pr[3], true); }
         sel.classList.remove('sel'); sel.classList.add('ok'); b.classList.add('ok'); sel.disabled = b.disabled = true; sel = null; af++; goed++;
         $('kp-st').textContent = af + ' / ' + set.length; piep('goed');
         if (af === set.length) { geefXP(5, $('kp-st')); setTimeout(() => { ronde++; ronde < rondes ? speel() : einde(); }, 600); }
-      } else { fout++; b.classList.add('mis'); sel.classList.add('mis'); const s2 = sel; setTimeout(() => { b.classList.remove('mis'); s2.classList.remove('mis'); }, 500); piep('fout'); }
+      } else { fout++; if (!misK.has(sel.dataset.i)) { misK.add(sel.dataset.i); const pr = set[Number(sel.dataset.i)]; if (pr[3]) kaartAntwoord(pr[3], false); } b.classList.add('mis'); sel.classList.add('mis'); const s2 = sel; setTimeout(() => { b.classList.remove('mis'); s2.classList.remove('mis'); }, 500); piep('fout'); }
     };
   };
   const einde = () => {
@@ -1090,11 +1095,11 @@ function stapRace(vragen, verder, sleutel){
 function vormVoor(t){
   const ids = T.filter(x => x.vak === t.vak && (geleerd(x.id) || x.id === t.id)).map(x => x.id);
   if (t.id === 'F1' || t.id === 'F7') return ['letters', 6];
-  if (t.id === 'W2') return ['quiz', omzetVragen(6)];
+  if (t.id === 'W2') return ['omzet', omzetVragen(6)];
   if (t.id === 'G2') return ['sorteer', 6];
   if (t.vak === 'cul' && window.ELI_TIJDLIJN.filter(x => ids.includes(x.tid)).length >= 5) return ['tijdlijn', 2, ids];
   if (t.vak === 'kf' && window.ELI_FOUT.filter(z => ids.includes(z[2])).length >= 3) return ['foutzoek', 5, ids];
-  const f = fotoVragen([t]); if (f.length >= 4) return ['quiz', f.slice(0, 6)];
+  const f = fotoVragen([t]); if (f.length >= 4) return ['foto', f.slice(0, 6)];
   return null;
 }
 // --- Eén eigen leervorm per vak ---
