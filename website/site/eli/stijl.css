@@ -305,3 +305,8 @@ input:focus,textarea:focus{outline:none;border-color:var(--gras)}
 .fz-w.fout-g b{color:#1a9b4b}
 .wiebel{animation:wiebel .35s}
 .srt-bak:disabled{opacity:1;color:inherit}
+
+/* Hulp-tab */
+.hulpkaart{display:flex;flex-direction:column;gap:6px;margin-top:12px}
+.hulpkaart select,.hulpkaart textarea{width:100%;font:inherit;padding:10px 12px;border-radius:12px;border:2px solid #ddd;background:#fff;color:inherit;box-sizing:border-box}
+.hulpkaart textarea{resize:vertical}
