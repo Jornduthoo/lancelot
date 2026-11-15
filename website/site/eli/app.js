@@ -658,7 +658,7 @@ const HERVAT = 'eli-hervat';
 function bewaarHervat(){
   if (!lopend) return;
   const stappen = lopend.stappen.map(([s, d, x]) => [s, d && d.id && TOPIC[d.id] === d ? { tid: d.id } : d, x]);
-  const st = { datum: vandaag(), tijd: Date.now(), it: lopend.it, stappen, i: lopend.i, resultaten: lopend.resultaten, xp: S.taakXP || 0, sub: lopend.subGet ? lopend.subGet() : null };
+  const st = { datum: vandaag(), tijd: Date.now(), it: lopend.it, skips: lopend.skips || 0, stappen, i: lopend.i, resultaten: lopend.resultaten, xp: S.taakXP || 0, sub: lopend.subGet ? lopend.subGet() : null };
   try { localStorage.setItem(HERVAT, JSON.stringify(st)); } catch {}
 }
 function hervat(){
@@ -668,7 +668,7 @@ function hervat(){
   if (!st || st.datum !== vandaag() || !st.it || !(Date.now() - (st.tijd || 0) < 20 * 60000)) return false;
   const stappen = st.stappen.map(([s, d, x]) => [s, d && d.tid ? TOPIC[d.tid] : d, x]);
   if (stappen.some(([s, d]) => ['lees','voorbeeld','uitleg'].includes(s) && !d)) return false;
-  startTaak({ it: st.it, stappen, i: st.i, resultaten: st.resultaten || [], herstel: st.sub ? { ...st.sub, stap: st.i } : null }, st.xp);
+  startTaak({ it: st.it, skips: st.skips || 0, stappen, i: st.i, resultaten: st.resultaten || [], herstel: st.sub ? { ...st.sub, stap: st.i } : null }, st.xp);
   return true;
 }
 // Gebruik de bewaarde toestand van de stap waarin de pauze begon (maar één keer).
@@ -680,7 +680,7 @@ function neemHerstel(soort){
 }
 function startTaak(l, xp){
   const it = l.it;
-  lopend = l;
+  lopend = l; l.skips = l.skips || 0;
   S.taakXP = xp || 0;
   $('taak-xp').textContent = '+' + S.taakXP + ' XP';
   $('taak-titel').textContent = it.titel;
@@ -690,6 +690,22 @@ function startTaak(l, xp){
   S.huidigVak = it.vak || 'alle';
   volgendeStap();
 }
+// Skip: maximaal 3 keer per opdracht een vraag of oefening overslaan.
+const MAX_SKIP = 3;
+function zetSkip(fn){
+  if (!lopend) return;
+  lopend.skipFn = (lopend.it && lopend.it.soort === 'proef') ? null : fn;
+  const b = $('taak-skip'), over = MAX_SKIP - (lopend.skips || 0);
+  b.hidden = !lopend.skipFn;
+  b.disabled = over <= 0;
+  b.textContent = over > 0 ? `⏭️ Skip (${over})` : '⏭️ Op';
+}
+$('taak-skip').onclick = () => {
+  if (!lopend || !lopend.skipFn || (lopend.skips || 0) >= MAX_SKIP) return;
+  lopend.skips = (lopend.skips || 0) + 1;
+  const fn = lopend.skipFn; lopend.skipFn = null; fn();
+  toast(lopend && lopend.skips >= MAX_SKIP ? 'Dat was je laatste skip voor deze opdracht.' : 'Overgeslagen. Nog ' + (MAX_SKIP - lopend.skips) + ' skip' + (MAX_SKIP - lopend.skips === 1 ? '' : 's') + ' over.');
+};
 $('taak-terug').onclick = () => { bewaarKaarten(); lopend = null; S.proefStart = null; thuis(); };
 
 function tekenStappen(){
@@ -702,6 +718,7 @@ function volgendeStap(){
   if (!lopend) return;
   if (lopend.i >= lopend.stappen.length) return taakAf();
   tekenStappen();
+  zetSkip(null);
   const [soort, data, extra] = lopend.stappen[lopend.i];
   const verder = res => { if (res) lopend.resultaten.push(res); lopend.i++; volgendeStap(); };
   if (pauzeNodig()) return pauze(() => volgendeStap());
@@ -1023,6 +1040,7 @@ function stapKaartjes(ids, verder, dagelijks){
       $('kk').innerHTML = `<button class="knop" style="background:var(--fout);box-shadow:0 4px 0 #a61e4d" id="nee">✗ Wist ik niet</button><button class="knop" id="ja">✓ Wist ik!</button>`;
       $('ja').onclick = () => antwoord(true); $('nee').onclick = () => antwoord(false);
     };
+    zetSkip(() => { rij.shift(); gedaan++; toon(); });
     flip.onclick = draai; $('draai').onclick = draai;
     flip.onkeydown = e => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); draai(); } };
   };
@@ -1098,6 +1116,7 @@ function stapKoppel(paren, verder, rondes){
     const maak = (lijst, kol, kant) => lijst.forEach(o => { const b = document.createElement('button'); b.className = 'kp ' + kant; b.textContent = o.tx; b.dataset.i = o.i; kol.append(b); });
     maak(links, $('kl'), 'l'); maak(rechts, $('kr'), 'r');
     let sel = null, af = 0; const misK = new Set();
+    zetSkip(() => { ronde++; ronde < rondes ? speel() : einde(); });
     box.querySelector('.koppel').onclick = e => {
       const b = e.target.closest('.kp'); if (!b || b.disabled) return;
       if (b.classList.contains('l')) { box.querySelectorAll('.kp.l').forEach(x => x.classList.remove('sel')); b.classList.add('sel'); sel = b; piep('klik'); return; }
@@ -1111,6 +1130,7 @@ function stapKoppel(paren, verder, rondes){
     };
   };
   const einde = () => {
+    zetSkip(null);
     const sec = Math.round((Date.now() - t0) / 1000);
     box.innerHTML = `<div class="kaart center" style="padding:22px"><div style="font-size:2.6rem">🔗</div><h2>${goed} paren gekoppeld</h2><p class="muted">${fout === 0 ? 'Zonder één fout! 🔥' : fout + ' keer mis'} · ${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, '0')}</p><div class="onder" style="justify-content:center"><button class="knop groot" id="kpv">Verder →</button></div></div>`;
     if (fout === 0) confetti(1200);
@@ -1194,6 +1214,7 @@ function stapLetters(verder, max){
     let tegels = schud(letters.map((c, i) => ({ c, i })));
     if (letters.length > 2 && tegels.every((t, k) => t.i === k)) tegels = tegels.reverse();
     let pos = 0, misHier = 0;
+    zetSkip(() => { n++; volgende(); });
     box.innerHTML = `<div class="kaart lp-puzzel" style="--vk:${vk('fr')}"><div class="rij" style="justify-content:space-between"><span class="label">🔤 Woord ${n + 1} van ${lijst.length}</span><span class="pil">✅ ${goed}</span></div>
       <p class="muted" style="margin:10px 0 4px">Hoe zeg je in het Frans:</p><h2 style="margin:0 0 12px">${esc(nl)}</h2>
       <div class="lpz-vak">${lidw ? `<span class="lpz-lw">${esc(lidw)}</span>` : ''}${letters.map(() => '<span class="lpz-plek"></span>').join('')}</div>
@@ -1201,7 +1222,7 @@ function stapLetters(verder, max){
       <div class="onder"><button class="knop licht klein" id="lpz-hint">💡 Hint</button></div></div>`;
     const plekken = box.querySelectorAll('.lpz-plek');
     const zet = (c) => { plekken[pos].textContent = c; plekken[pos].classList.add('vol'); pos++; };
-    const klaar = () => { if (pos < letters.length) return; if (misHier === 0) goed++; piep('goed'); geefXP(misHier ? 2 : 5); box.querySelector('.lpz-vak').classList.add('ok'); setTimeout(() => { n++; volgende(); }, 900); };
+    const klaar = () => { if (pos < letters.length) return; zetSkip(null); if (misHier === 0) goed++; piep('goed'); geefXP(misHier ? 2 : 5); box.querySelector('.lpz-vak').classList.add('ok'); setTimeout(() => { n++; volgende(); }, 900); };
     box.querySelector('.lpz-tegels').onclick = e => {
       const b = e.target.closest('.lpz-t'); if (!b || b.disabled) return;
       const c = tegels[b.dataset.k].c;
@@ -1246,12 +1267,13 @@ function stapSorteer(verder, max){
     if (n >= items.length) return eindKaart(box, '🗂️', `${goed} van ${items.length} juist gesorteerd`, goed === items.length ? 'Perfect! 🔥' : 'Kijk nog eens naar de fouten in de samenvatting.', () => verder({ soort:'sorteer', goed, fout }));
     balk((lopend.i + n / items.length) / lopend.stappen.length);
     const [tekst, juist] = items[n];
+    zetSkip(() => { n++; volgende(); });
     box.innerHTML = `<div class="kaart" style="--vk:${vk('gsw')}"><div class="rij" style="justify-content:space-between"><span class="label">🗂️ Situatie ${n + 1} van ${items.length}</span><span class="pil">✅ ${goed}</span></div>
       <div class="srt-item">${esc(tekst)}</div><p class="muted klein center" style="margin:6px 0 10px">In welk bakje hoort dit?</p>
       <div class="srt-bakjes">${S0.bakjes.map(([k, l]) => `<button class="srt-bak" data-k="${k}"><b>${l}</b><small>${telling[k] || 0} erin</small></button>`).join('')}</div><div id="srt-fb"></div></div>`;
     box.querySelector('.srt-bakjes').onclick = e => {
       const b = e.target.closest('.srt-bak'); if (!b || box.querySelector('.srt-bak:disabled')) return;
-      box.querySelectorAll('.srt-bak').forEach(x => { x.disabled = true; if (x.dataset.k === juist) x.classList.add('goed'); });
+      zetSkip(null); box.querySelectorAll('.srt-bak').forEach(x => { x.disabled = true; if (x.dataset.k === juist) x.classList.add('goed'); });
       if (b.dataset.k === juist) { goed++; telling[juist] = (telling[juist] || 0) + 1; piep('goed'); geefXP(3); setTimeout(() => { n++; volgende(); }, 700); }
       else { fout++; b.classList.add('fout'); piep('fout'); $('srt-fb').innerHTML = `<p class="muted center">Het juiste bakje is groen.</p><div class="onder" style="justify-content:center"><button class="knop" id="srt-v">Volgende →</button></div>`; $('srt-v').onclick = () => { n++; volgende(); }; }
     };
@@ -1269,13 +1291,14 @@ function stapTijdlijn(verder, rondes, ids){
     const set = schud(schud(alle.slice()).slice(0, 5));
     const juist = set.slice().sort((a, b) => a.j - b.j);
     let pos = 0, misHier = 0;
+    zetSkip(() => { ronde++; speel(); });
     box.innerHTML = `<div class="kaart" style="--vk:${vk('cul')}"><div class="rij" style="justify-content:space-between"><span class="label">📅 Ronde ${ronde + 1} van ${RONDES}</span><span class="pil" id="tl-st">0 / 5</span></div>
       <p class="muted" style="margin:10px 0">Tik de gebeurtenissen aan van <b>oud</b> naar <b>nieuw</b>.</p><div class="tl-lijst">${set.map((x, k) => `<button class="tl-e" data-k="${k}"><span class="tl-nr"></span><span>${esc(x.e)}</span><small></small></button>`).join('')}</div></div>`;
     box.querySelector('.tl-lijst').onclick = e => {
       const b = e.target.closest('.tl-e'); if (!b || b.disabled) return;
       const x = set[b.dataset.k];
       if (x === juist[pos]) { b.disabled = true; b.classList.add('ok'); b.querySelector('.tl-nr').textContent = pos + 1; b.querySelector('small').textContent = x.t; pos++; $('tl-st').textContent = pos + ' / 5'; piep('klik');
-        if (pos === 5) { if (!misHier) goed++; geefXP(misHier ? 3 : 8); piep('goed'); const lijst = box.querySelector('.tl-lijst'); juist.forEach(j => lijst.append(box.querySelector(`.tl-e[data-k="${set.indexOf(j)}"]`))); setTimeout(() => { const o = document.createElement('div'); o.className = 'onder'; o.innerHTML = '<button class="knop groot" id="tl-v">Verder →</button>'; box.querySelector('.kaart').append(o); $('tl-v').onclick = () => { ronde++; speel(); }; }, 300); }
+        if (pos === 5) { zetSkip(null); if (!misHier) goed++; geefXP(misHier ? 3 : 8); piep('goed'); const lijst = box.querySelector('.tl-lijst'); juist.forEach(j => lijst.append(box.querySelector(`.tl-e[data-k="${set.indexOf(j)}"]`))); setTimeout(() => { const o = document.createElement('div'); o.className = 'onder'; o.innerHTML = '<button class="knop groot" id="tl-v">Verder →</button>'; box.querySelector('.kaart').append(o); $('tl-v').onclick = () => { ronde++; speel(); }; }, 300); }
       } else { fout++; misHier++; b.classList.add('wiebel'); piep('fout'); setTimeout(() => b.classList.remove('wiebel'), 400); }
     };
   };
@@ -1297,10 +1320,12 @@ function stapFoutZoek(verder, max, ids){
     box.innerHTML = `<div class="kaart" style="--vk:${vk('kf')}"><div class="rij" style="justify-content:space-between"><span class="label">🔍 Zin ${n + 1} van ${zinnen.length}</span><span class="pil">✅ ${goed}</span></div>
       <p class="muted" style="margin:10px 0">Eén woord klopt niet. Tik het aan!</p><div class="fz-zin">${stukken.map(([w], k) => /^[.,!?;:…]+$/.test(w) ? `<span>${esc(w)}</span>` : `<button class="fz-w" data-k="${k}">${esc(w)}</button>`).join(' ')}</div><div id="fz-fb"></div></div>`;
     let pogingen = 0;
+    zetSkip(() => { n++; volgende(); });
     box.querySelector('.fz-zin').onclick = e => {
       const b = e.target.closest('.fz-w'); if (!b || box.querySelector('.fz-w.fout-g')) return;
       const k = Number(b.dataset.k);
       if (stukken[k][1]) {
+        zetSkip(null);
         if (pogingen === 0) { goed++; geefXP(5); }
         b.classList.add('fout-g'); b.innerHTML = `<s>${esc(m[2])}</s> <b>${esc(m[3])}</b>`; piep('goed');
         $('fz-fb').innerHTML = `<div class="lp-tip" style="margin-top:12px">💡 ${esc(uitleg)}</div><div class="onder"><button class="knop groot" id="fz-v">Volgende →</button></div>`;
@@ -1315,7 +1340,7 @@ function stapQuiz(vragen, verder, modus){
   const h = neemHerstel('quiz');
   vragen = h ? h.vragen : vragen.filter(Boolean);
   const box = $('taakinhoud');
-  const totaal = h ? h.totaal : vragen.length;
+  let totaal = h ? h.totaal : vragen.length;
   let i = h ? h.i : 0, score = h ? h.score : 0;
   const fouten = h ? h.fouten : [], perOnderwerp = h ? h.perOnderwerp : {};
   const opnieuw = h ? h.opnieuw : [];
@@ -1333,7 +1358,8 @@ function stapQuiz(vragen, verder, modus){
     balk((lopend.i + Math.min(i, totaal) / totaal) / lopend.stappen.length);
     box.innerHTML = `<div class="vraagkaart" style="--vk:${vk(q.vak)}"><div class="rij" style="justify-content:space-between"><span class="label">${q.herkans ? '🔁 Nog eens' : `Vraag ${i + 1} van ${totaal}`}<span id="pk-t" class="pk"></span></span><span class="pil">${esc((V[q.vak] || {}).kort || '')}</span></div>${fotoTag(q)}<div class="babbel vraagbabbel" id="qpop"></div><div id="ant"></div><div id="fb"></div><div class="onder" id="qv"></div></div>`;
     POP.babbel($('qpop'), `<div class="vtekst">${q.v}</div>`, { figuur: vrager(q.vak) });
-    tekenAntwoord(q, (pt, uitleg) => resultaat(q, pt, uitleg));
+    zetSkip(() => { vragen.splice(i, 1); if (!q.herkans) totaal = Math.max(1, totaal - 1); toon(); });
+    tekenAntwoord(q, (pt, uitleg) => { zetSkip(null); resultaat(q, pt, uitleg); });
   };
   const resultaat = (q, pt, uitleg) => {
     if (!q.herkans) {
@@ -1501,6 +1527,7 @@ async function taakAf(){
 
 // ---------------- Pauze ----------------
 function pauze(daarna){
+  zetSkip(null);
   S.pauze = true; S.huidigAct = 'pauze';
   bewaarKaarten();
   const m = $('modaal'), c = $('modaal-inhoud');
