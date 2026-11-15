@@ -338,6 +338,7 @@ function tekenHulp(){
   $('hulp-go').onclick = hulpKlaarzetten;
 }
 function hulpPrompt(t, vraag){
+  if (!t) return `Je bent een geduldige bijlesleerkracht voor Eli. Hij is 13 jaar en zit in het 3de middelbaar Humane Wetenschappen in Vlaanderen. Leg in eenvoudig Nederlands, kort en stap voor stap, uit wat hij niet snapt, met een voorbeeld. Stel op het einde 1 korte controlevraag.\n\n${vraag}`;
   const stof = kaal(t.samenvatting.join(' \n ')).slice(0, 4000);
   return `Je bent een geduldige bijlesleerkracht voor Eli. Hij is 13 jaar en zit in het 3de middelbaar Humane Wetenschappen in Vlaanderen. Binnenkort heeft hij een examen ${VAKZIN[t.vak] || ''}.
 
@@ -367,6 +368,18 @@ async function hulpKlaarzetten(){
   if (!gekopieerd) { $('hulp-kopie').value = tekst; $('hulp-kopie').select(); }
   try { lokaal.set('hulp-' + vandaag(), (lokaal.get('hulp-' + vandaag(), 0) || 0) + 1); } catch {}
 }
+
+// Knop tijdens de oefeningen: de oefening van nu + de leerstof naar Gemini.
+$('taak-hulp').onclick = async () => {
+  const box = $('taakinhoud');
+  const tid = lopend && lopend.it && lopend.it.onderwerp;
+  const t = tid ? TOPIC[tid] : null;
+  const nu = (box.innerText || '').replace(/\n{2,}/g, '\n').trim().slice(0, 900);
+  const tekst = hulpPrompt(t, 'Eli zit vast bij deze oefening en snapt het niet. Leg uit hoe hij het moet aanpakken (geef niet meteen alleen het antwoord):\n---\n' + nu + '\n---');
+  let ok = false; try { await navigator.clipboard.writeText(tekst); ok = true; } catch {}
+  window.open('https://gemini.google.com/app', '_blank', 'noopener');
+  toast(ok ? '📋 Gekopieerd! Plak het in Gemini (Ctrl + V). Je oefening blijft hier openstaan.' : 'Kopiëren lukte niet. Gebruik de Hulp-tab.');
+};
 
 let vrijVak = 'kf';
 function tekenVakken(){
