@@ -358,8 +358,23 @@ function tekenTrofeeen(){
 
 // ---------------- Tijd bijhouden ----------------
 ['pointerdown','keydown','scroll','touchstart'].forEach(ev => addEventListener(ev, () => { S.actief = Date.now(); }, { passive:true }));
-let hartslagT = null;
+let hartslagT = null, klokT = null;
+// Live klok: hoelang Eli vandaag al bezig is, op de seconde. Telt alleen als hij actief is (zelfde regels als de minuten).
+const klokTekst = s => { const h = Math.floor(s / 3600), m = Math.floor(s / 60) % 60, x = String(s % 60).padStart(2, '0'); return h ? `${h}:${String(m).padStart(2, '0')}:${x}` : `${m}:${x}`; };
+function startKlok(){
+  clearInterval(klokT);
+  const sleutel = 'klok-' + vandaag();
+  S.klokSec = Math.max(Number(lokaal.get(sleutel, 0)) || 0, minutenVandaag() * 60);
+  const toon = () => document.querySelectorAll('.liveklok').forEach(el => el.textContent = klokTekst(S.klokSec));
+  toon();
+  klokT = setInterval(() => {
+    if (document.hidden || S.pauze || Date.now() - S.actief > 120000) return;
+    S.klokSec++; toon();
+    if (S.klokSec % 5 === 0) lokaal.set(sleutel, S.klokSec);
+  }, 1000);
+}
 function hartslag(){
+  startKlok();
   clearInterval(hartslagT);
   hartslagT = setInterval(async () => {
     if (document.hidden || S.pauze || Date.now() - S.actief > 120000) return;
