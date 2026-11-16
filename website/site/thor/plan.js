@@ -17,22 +17,22 @@ const EXTRA_EXAMEN = { '2026-12-14': ['wis'] };
 const START = '2026-11-17';
 const EINDE = '2026-12-15';
 
-// Hoeveel minuten per dag.
+// Hoeveel minuten per dag (papa 16/11: 30 min op schooldagen, een uur in het weekend).
 function budget(datum){
   const d = new Date(datum + 'T12:00:00');
   const wd = d.getDay(); // 0 zo … 6 za
   if (datum < START) return 0;            // voor de start: alleen kennismaken
   if (datum === EINDE) return 0;          // laatste examen
-  if (wd === 0 || wd === 6) return 100;   // weekend
-  return 60;
+  if (wd === 0 || wd === 6) return 60;    // weekend: een uur
+  return 30;                              // schooldag: 30 minuutjes
 }
 
 const dag = (s, n) => { const d = new Date(s + 'T12:00:00'); d.setDate(d.getDate() + n); return d.toISOString().slice(0,10); };
 const dagen = () => { const out = []; for (let d = START; d <= EINDE; d = dag(d, 1)) out.push(d); return out; };
 
-const KAART_MIN = 10;           // herhaalkaartjes elke dag
+const KAART_MIN = 5;            // herhaalkaartjes elke dag (weekend 10)
 const OVERHOOR_MIN = 5;         // uitleggen aan een supporter
-const LEER_MIN = 22, HERHAAL_MIN = 7, PROEF_MIN = 25, ZWAK_MIN = 15;
+const LEER_MIN = 20, HERHAAL_MIN = 7, PROEF_MIN = 20, ZWAK_MIN = 10;
 const EXAMENS_START = '2026-12-09';
 
 function maak(){
@@ -80,16 +80,16 @@ function maak(){
   for (const d of dagen()) {
     const b = budget(d);
     const items = [];
-    const kaart = (b > 0 && d > START) ? { id:'kaarten:' + d, soort:'kaarten', titel:'Herhaalkaartjes van vandaag', min: Math.min(KAART_MIN, b), dyn:true } : null;
+    const kaart = (b > 0 && d > START) ? { id:'kaarten:' + d, soort:'kaarten', titel:'Herhaalkaartjes van vandaag', min: Math.min(b >= 60 ? 10 : KAART_MIN, b), dyn:true } : null;
     const sluit = () => {
       const gebruikt = items.reduce((a, i) => a + i.min, 0) + (kaart ? kaart.min : 0);
       if (b >= 30 && d > START && d < EXAMENS_START && b - gebruikt >= OVERHOOR_MIN) items.push({ id:'overhoor:' + d, soort:'overhoor', titel:'Leg het uit aan een supporter', min: OVERHOOR_MIN, dyn:true });
       if (kaart) items.push(kaart); plan[d] = items;
     };
-    let over = b - (kaart ? KAART_MIN : 0);
+    let over = b - (kaart ? kaart.min : 0);
     if (vast[d]) { for (const it of vast[d]) { items.push(it); over -= it.min; } }
     if (d <= laatsteLeerdag) {
-      while (wachtrij.length && over >= Math.min(10, wachtrij[0].min)) {
+      while (wachtrij.length && over >= wachtrij[0].min) {
         const t = wachtrij.shift();
         items.push(t);
         over -= t.min;
