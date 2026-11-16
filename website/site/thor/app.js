@@ -191,7 +191,7 @@ function thuis(){
   const wd = new Date(d + 'T12:00:00').getDay();
   if (d < P.START) { $('ring').style.setProperty('--p', 0); $('ring-min').textContent = '⭐'; $('ring-van').textContent = 'start morgen'; }
   $('dagtitel').textContent = d < P.START ? 'Kennismaken met je crew' : d > P.EINDE ? 'Examens voorbij!' : budget === 0 ? 'Laatste examen: Nederlands' : Object.values(V).some(v => v.examen === d) ? 'Examendag: nog even herhalen' : (wd === 0 || wd === 6) ? 'Weekendtraining' : 'Training van vandaag';
-  $('dagsub').textContent = d < P.START ? 'Vandaag nog geen training: maak kennis met je ploeg (5 minuutjes). Morgen, zaterdag, start de echte training!' : budget ? `${budget} minuten actief werken. Na elke 25 minuten krijg je een pauze.` : 'Succes vandaag! Je hebt hard gewerkt.';
+  $('dagsub').textContent = d < P.START ? 'Vandaag nog geen training: maak kennis met je ploeg (5 minuutjes). Morgen start de echte training!' : budget ? `${budget} minuten actief werken. Na elke 25 minuten krijg je een pauze.` : 'Succes vandaag! Je hebt hard gewerkt.';
 
   // Opdrachten
   const items = itemsVandaag();
