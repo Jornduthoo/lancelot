@@ -197,11 +197,12 @@ function tekenBoeken() {
     open.type = 'button';
     open.title = 'Openen op het bord';
     const online = b.soort === 'online';
-    open.append(el('span', 'kr-boek-rug', online ? '🌐' : b.soort === 'pdf' ? '📖' : '🖼'));
+    open.append(el('span', 'kr-boek-rug', online ? '🌐' : b.soort === 'pdf' ? '📖' : b.soort === 'html' ? '🎞' : '🖼'));
     const tekst = el('span', 'kr-boek-tekst');
     tekst.append(el('strong', '', online ? b.naam : zonderExt(b.naam)));
     const info = online ? `online · ${host(b.url)}${b.inbed === false ? ' · apart venster' : ''}`
-      : b.soort === 'pdf' ? `${b.pagina > 1 ? `verder op p. ${b.pagina} · ` : ''}${mb(b.grootte)}` : `afbeelding · ${mb(b.grootte)}`;
+      : b.soort === 'pdf' ? `${b.pagina > 1 ? `verder op p. ${b.pagina} · ` : ''}${mb(b.grootte)}`
+      : b.soort === 'html' ? (b.pagina > 1 ? `Presentatie · verder op dia ${b.pagina}` : 'Presentatie') : `afbeelding · ${mb(b.grootte)}`;
     tekst.append(el('span', 'muted small', info));
     if (alles && b.map) tekst.append(el('span', 'kr-boek-map small', `📁 ${b.map.split('/').join(' › ')}`));
     open.append(tekst);
@@ -398,13 +399,13 @@ $('kr-ok-form').addEventListener('submit', e => {
   });
 });
 
-const TOEGELATEN = /\.(pdf|png|jpe?g|webp)$/i;
+const TOEGELATEN = /\.(pdf|png|jpe?g|webp|html?)$/i;
 
 // Eén voor één versturen, met de voortgang erbij: een bordboek van 30 MB is op het eigen netwerk toch even bezig.
 async function voegToe(bestanden) {
   const lijst = [...bestanden].filter(f => TOEGELATEN.test(f.name));
   const overgeslagen = bestanden.length - lijst.length;
-  $('kr-fout').textContent = overgeslagen ? `${overgeslagen} ${overgeslagen === 1 ? 'bestand is' : 'bestanden zijn'} overgeslagen: enkel pdf en afbeeldingen (png, jpg, webp).` : '';
+  $('kr-fout').textContent = overgeslagen ? `${overgeslagen} ${overgeslagen === 1 ? 'bestand is' : 'bestanden zijn'} overgeslagen: enkel pdf, afbeeldingen (png, jpg, webp) en presentaties (html).` : '';
   const map = kr.hier;
   for (const [i, f] of lijst.entries()) {
     const label = `${lijst.length > 1 ? `${i + 1}/${lijst.length} · ` : ''}${f.name}`;
@@ -484,6 +485,15 @@ function openBoek(b, pagina) {
   if (window.Lezer) start();
   else window.addEventListener('lezer-klaar', start, { once: true });
 }
+
+// De prompt voor een html-presentatie met AI (zie docs/presentaties-html.md). Vooraf ophalen: kopiëren moet meteen bij de tik.
+let prompt = '';
+fetch('/kronieken-prompt.txt').then(r => (r.ok ? r.text() : '')).then(t => { prompt = t; }, () => {});
+$('kr-prompt').addEventListener('click', () => {
+  if (!prompt) return Ui.melding('De prompt is nog niet geladen. Probeer zo meteen opnieuw.');
+  if (!Ui.kopieer(prompt)) return Ui.melding('Kopiëren lukte niet op deze pc. Je vindt de prompt ook in docs/presentaties-html.md.');
+  $('kr-bezig').textContent = '📋 Prompt gekopieerd. Plak hem in ChatGPT, Gemini of Claude en vul je onderwerp in. Bewaar het antwoord als .html en voeg het hier toe.';
+});
 
 // Mijn lesmap haalt bordboeken binnen of zet ze klaar: tonen hoe ver het staat.
 socket.on('lesmap', v => {

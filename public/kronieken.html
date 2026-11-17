@@ -39,8 +39,8 @@
         <nav class="kr-pad" id="kr-pad" aria-label="Waar ben je"></nav>
         <div class="actions">
           <button class="secondary" id="kr-nieuw-map"><i class="ic ic-plus" aria-hidden="true"></i> Map</button>
-          <label class="button" id="kr-toevoegen" title="Pdf of afbeelding toevoegen. Slepen kan ook."><i class="ic ic-upload" aria-hidden="true"></i> Boek toevoegen
-            <input type="file" id="kr-bestand" accept="application/pdf,.pdf,image/png,image/jpeg,image/webp" multiple hidden>
+          <label class="button" id="kr-toevoegen" title="Pdf, afbeelding of presentatie (html) toevoegen. Slepen kan ook."><i class="ic ic-upload" aria-hidden="true"></i> Boek toevoegen
+            <input type="file" id="kr-bestand" accept="application/pdf,.pdf,image/png,image/jpeg,image/webp,text/html,.html,.htm" multiple hidden>
           </label>
           <button class="secondary" id="kr-nieuw-link" title="Een bordboek van Bingel, Diddit, Scoodle of een andere site">🌐 Online bordboek</button>
         </div>
@@ -66,7 +66,8 @@
         <h3>Boeken <span class="muted small" id="kr-boeken-tel"></span></h3>
         <p class="muted small hidden" id="kr-sync"></p>
         <div class="kr-boeken" id="kr-boeken"></div>
-        <div class="kr-leeg muted" id="kr-boeken-leeg">Sleep hier je bordboek, handleiding of kopieerbladen (pdf) naartoe, of tik op <strong>Boek toevoegen</strong>. Werk je met een online bordboek, tik dan op <strong>🌐 Online bordboek</strong> en plak het adres.</div>
+        <p class="muted small kr-prompt"><button type="button" class="linkknop" id="kr-prompt" title="Een prompt voor ChatGPT, Gemini of Claude: die maakt dan een presentatie (html) die hier werkt, met dia's en stappen">📋 Prompt voor een presentatie met AI kopiëren</button></p>
+        <div class="kr-leeg muted" id="kr-boeken-leeg">Sleep hier je bordboek, handleiding, kopieerbladen (pdf) of een presentatie (html) naartoe, of tik op <strong>Boek toevoegen</strong>. Werk je met een online bordboek, tik dan op <strong>🌐 Online bordboek</strong> en plak het adres.</div>
       </div>
 
       <div class="panel kr-lessen-paneel" id="kr-lessen-paneel">
@@ -86,8 +87,9 @@
     <strong class="kr-lezer-titel" id="kr-titel"></strong>
     <div class="kr-blader">
       <button class="secondary icon" id="kr-vorige" title="Vorige pagina (pijl links)" aria-label="Vorige pagina">◀</button>
-      <label class="kr-pagina">p. <input id="kr-pagina" type="number" min="1" inputmode="numeric"> <span id="kr-totaal"></span></label>
+      <label class="kr-pagina"><span id="kr-p-woord">p.</span> <input id="kr-pagina" type="number" min="1" inputmode="numeric"> <span id="kr-totaal"></span></label>
       <button class="secondary icon" id="kr-volgende" title="Volgende pagina (pijl rechts)" aria-label="Volgende pagina">▶</button>
+      <span class="kr-stap muted small hidden" id="kr-stap" title="Punten op deze dia die nog moeten verschijnen"></span>
     </div>
     <div class="kr-gereedschap">
       <button class="secondary icon" id="kr-kleiner" title="Kleiner" aria-label="Kleiner">−</button>
@@ -105,7 +107,7 @@
     </div>
   </div>
   <form class="kr-koppel hidden" id="kr-koppel">
-    <span>Pagina <strong id="kr-koppel-p"></strong> koppelen aan</span>
+    <span><span id="kr-koppel-woord">Pagina</span> <strong id="kr-koppel-p"></strong> koppelen aan</span>
     <select id="kr-koppel-les"></select>
     <input id="kr-koppel-nr" type="number" min="1" max="999" placeholder="lesnummer" class="hidden">
     <button type="submit">Koppelen</button>
@@ -116,6 +118,7 @@
     <div class="kr-vel" id="kr-vel">
       <canvas id="kr-doek"></canvas>
       <img id="kr-beeld" alt="" class="hidden">
+      <iframe id="kr-html" class="kr-html hidden" title="Presentatie" sandbox="allow-scripts allow-popups allow-popups-to-escape-sandbox" referrerpolicy="no-referrer"></iframe>
       <div id="kr-links" class="kr-links"></div>
       <canvas id="kr-inkt" class="kr-inkt"></canvas>
     </div>

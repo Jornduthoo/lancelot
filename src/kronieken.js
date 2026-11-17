@@ -12,7 +12,8 @@ const gegevens = require('./gegevens');
 const DIR = gegevens.pad('kronieken');
 const META = path.join(DIR, '_kronieken.json');
 const PRULLENBAK = path.join(DIR, '_prullenbak');
-const SOORTEN = { '.pdf': 'pdf', '.png': 'beeld', '.jpg': 'beeld', '.jpeg': 'beeld', '.webp': 'beeld' };
+const SOORTEN = { '.pdf': 'pdf', '.png': 'beeld', '.jpg': 'beeld', '.jpeg': 'beeld', '.webp': 'beeld', '.html': 'html', '.htm': 'html' };
+const MAX_HTML = 60 * 1024 * 1024; // een presentatie met ingebakken foto's kan groot zijn, maar geen bordboek
 const MAX_DIEPTE = 6;
 const MAX_LES = 999;
 
@@ -67,7 +68,7 @@ function mapPad(waarde) {
 
 function bestandNaam(naam) {
   const ext = path.extname(String(naam || '')).toLowerCase();
-  if (!SOORTEN[ext]) throw new Error('Enkel pdf-bestanden en afbeeldingen (png, jpg, webp) kunnen in Mijn methodes.');
+  if (!SOORTEN[ext]) throw new Error('Enkel pdf-bestanden, afbeeldingen (png, jpg, webp) en presentaties (html) kunnen in Mijn methodes.');
   const stam = path.basename(String(naam), path.extname(String(naam))).replace(/[\\/:*?"<>|\x00-\x1f]/g, '-').trim().replace(/\s+/g, ' ').replace(/^[._]+/, '').slice(0, 80);
   return `${stam || 'bestand'}${ext}`;
 }
@@ -131,6 +132,7 @@ function bewaar(map, naam, data) {
   const schoon = bestandNaam(naam);
   const soort = SOORTEN[path.extname(schoon).toLowerCase()];
   if (soort === 'pdf' && data.subarray(0, 1024).indexOf('%PDF') < 0) throw new Error(`"${schoon}" is geen geldig pdf-bestand.`);
+  if (soort === 'html' && !isHtml(data)) throw new Error(`"${schoon}" is geen geldige presentatie (html).`);
   const dir = volledig(map);
   fs.mkdirSync(dir, { recursive: true });
   const ext = path.extname(schoon);
@@ -139,6 +141,49 @@ function bewaar(map, naam, data) {
   for (let n = 2; fs.existsSync(path.join(dir, doel)); n++) doel = `${stam} (${n})${ext}`;
   fs.writeFileSync(path.join(dir, doel), data);
   return { map: mapPad(map), naam: doel };
+}
+
+// Een html-presentatie: tekst (geen nullen), met tags erin, en niet absurd groot.
+function isHtml(data) {
+  if (data.length > MAX_HTML) return false;
+  const begin = data.subarray(0, 4096);
+  if (begin.includes(0)) return false;
+  return /<(!doctype|html|head|body|section|div|h1|h2|p|main|article)\b/i.test(data.toString('utf8', 0, Math.min(data.length, 200000)));
+}
+
+// ---------- Html-presentaties: afgeschermd tonen ----------
+// Het bestand komt van een AI of van een collega: het mag nooit aan LANcelot zelf kunnen. Daarom:
+// - sandbox (ook als je het adres rechtstreeks opent): een eigen, lege herkomst, geen cookies, geen formulieren,
+//   niets aan het venster erboven veranderen. Enkel nieuwe tabbladen openen (links) mag.
+// - eigen scripts in het bestand draaien niet: enkel de dia-speler van LANcelot (met een nonce).
+// - geen verbindingen (fetch), geen formulieren, geen plug-ins. Afbeeldingen, lettertypes en video via https mogen.
+const SPELER = path.join(__dirname, '..', 'public', 'js', 'dia-speler.js');
+const SANDBOX = 'allow-scripts allow-popups allow-popups-to-escape-sandbox';
+
+function presentatie(html) {
+  const nonce = crypto.randomBytes(16).toString('base64');
+  let speler = '';
+  try { speler = fs.readFileSync(SPELER, 'utf8'); } catch {}
+  // Een <meta http-equiv> kan de pagina doorsturen of de regels hieronder in de war sturen: weg ermee.
+  let tekst = String(html).replace(/^\uFEFF/, '').replace(/<meta\b[^>]*http-equiv[^>]*>/gi, '');
+  const script = `<script nonce="${nonce}">${speler.replace(/<\/script/gi, '<\\/script')}</script>`;
+  const eind = tekst.search(/<\/body\s*>(?![\s\S]*<\/body\s*>)/i);
+  tekst = eind >= 0 ? tekst.slice(0, eind) + script + tekst.slice(eind) : tekst + script;
+  const csp = [
+    `sandbox ${SANDBOX}`,
+    "default-src 'none'",
+    `script-src 'nonce-${nonce}'`,
+    "style-src 'unsafe-inline' https:",
+    'img-src data: blob: https:',
+    'font-src data: https:',
+    'media-src data: blob: https:',
+    'frame-src https:',
+    "connect-src 'none'",
+    "form-action 'none'",
+    "base-uri 'none'",
+    "object-src 'none'",
+  ].join('; ');
+  return { tekst, csp };
 }
 
 // Verwijderen = naar _prullenbak, zoals bij de quizzen. Koppelingen naar dat boek verdwijnen mee.
@@ -347,6 +392,13 @@ function routes(app, isLeerkracht, express, wijzig) {
     if (!isLeerkracht(req)) return res.status(403).end();
     let file;
     try { file = volledig(String(req.query.map || ''), String(req.query.naam || '')); } catch { return res.status(404).end(); }
+    if (SOORTEN[path.extname(file).toLowerCase()] === 'html') {
+      let data;
+      try { data = fs.readFileSync(file, 'utf8'); } catch { return res.status(404).end(); }
+      const { tekst, csp } = presentatie(data);
+      res.set({ 'Content-Type': 'text/html; charset=utf-8', 'Content-Security-Policy': csp, 'X-Content-Type-Options': 'nosniff', 'Cache-Control': 'no-cache', 'Referrer-Policy': 'no-referrer' });
+      return res.send(tekst);
+    }
     res.sendFile(file, { headers: { 'Cache-Control': 'no-cache' } }, err => err && !res.headersSent && res.status(404).end());
   });
   app.post('/kronieken/toevoegen', express.raw({ type: () => true, limit: '400mb' }), (req, res) => {
@@ -361,4 +413,4 @@ function routes(app, isLeerkracht, express, wijzig) {
   });
 }
 
-module.exports = { DIR, LINKS_DIR, syncNaam, syncWeg, inPrullenbak, geldigeLinks, lijst, nieuweMap, bewaar, verwijder, verwijderMap, zetPagina, koppel, ontkoppel, voegLinkToe, verwijderLink, linkApart, testInbed, magInbedden, routes };
+module.exports = { DIR, SANDBOX, presentatie, LINKS_DIR, syncNaam, syncWeg, inPrullenbak, geldigeLinks, lijst, nieuweMap, bewaar, verwijder, verwijderMap, zetPagina, koppel, ontkoppel, voegLinkToe, verwijderLink, linkApart, testInbed, magInbedden, routes };

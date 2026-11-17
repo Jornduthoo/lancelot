@@ -1,0 +1,26 @@
+Maak een lespresentatie als één html-bestand voor het digibord in LANcelot.
+
+Onderwerp: [VUL IN, bv. "De Franse Revolutie"]
+Leerjaar: [VUL IN, bv. 6e leerjaar lager onderwijs in Vlaanderen]
+Aantal dia's: [VUL IN, bv. 8]
+
+Volg deze afspraak heel precies, anders werkt de presentatie niet:
+1. Lever één volledig html-bestand: <!doctype html>, <html lang="nl">, <head> met <meta charset="utf-8"> en één <style>-blok, daarna <body>. Geef enkel de code, zonder uitleg ervoor of erna.
+2. Elke dia is een <section class="dia"> rechtstreeks in <body>. Zet niets anders in <body> dan die sections.
+3. Wat pas bij de volgende klik mag verschijnen, krijgt class="stap" (bv. <li class="stap">, <p class="stap">, <img class="stap">). De stappen verschijnen één voor één in de volgorde van het bestand. De titel van een dia is nooit een stap.
+4. Gebruik GEEN JavaScript en geen <script>: het wordt niet uitgevoerd. LANcelot doet het klikken, de pijltjes en de stappen zelf. Ook geen formulieren.
+5. Links naar een website: <a href="https://...">. Die openen in een nieuw tabblad. Een link naar een andere dia: <a href="#dia-3">.
+6. Afbeeldingen enkel als https-adres dat zeker bestaat, of laat ze weg en gebruik emoji of tekeningen met CSS. Geen bestanden naast de html.
+7. Elke dia vult het scherm van een digibord (16:9): section.dia { min-height: 100vh; box-sizing: border-box; padding: 4vh 5vw; }. Grote, goed leesbare letters (titel ongeveer clamp(32px, 5vw, 72px), tekst ongeveer clamp(20px, 2.6vw, 40px)), veel contrast, weinig tekst per dia (hooguit 5 punten).
+8. Rustige, stoere stijl die past bij kinderen van die leeftijd, niet kinderachtig. Zet een kleur of achtergrond op section.dia.
+9. Schrijf in correct Nederlands voor dat leerjaar. Eerste dia: titel en lesdoel ("Ik kan ..."). Laatste dia: korte samenvatting of een vraag om over na te denken.
+
+Voorbeeld van de vorm (vul zelf de inhoud in):
+<section class="dia">
+  <h1>Titel van de dia</h1>
+  <ul>
+    <li class="stap">Eerste punt</li>
+    <li class="stap">Tweede punt</li>
+  </ul>
+  <p class="stap">Meer weten? <a href="https://nl.wikipedia.org/wiki/Hoofdpagina">Lees verder</a></p>
+</section>

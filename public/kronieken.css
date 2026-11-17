@@ -104,3 +104,11 @@ body.kr-leest { overflow: hidden; }
 .kr-koppel-dialoog .actions { justify-content: flex-end; }
 @media (max-width: 640px) { .kr-online-tip { display: none; } }
 .kr-boek-map { display: block; color: rgb(var(--k-goud-l)); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Html-presentatie: een afgeschermd kader (sandbox) dat het hele blad vult. Inkt ligt erover als de pen aan staat. */
+.kr-blad.html { padding: 6px 8px; overflow: hidden; }
+.kr-blad.html .kr-vel { width: 100%; height: 100%; margin: 0; }
+.kr-html { display: block; width: 100%; height: 100%; border: 0; background: #fff; }
+.kr-stap { min-width: 4.5em; text-align: center; }
+.kr-prompt { margin: 10px 0 0; }
+.linkknop { background: none !important; border: 0; box-shadow: none !important; clip-path: none; color: var(--cyan); padding: 2px 0; font: inherit; text-decoration: underline; cursor: pointer; }

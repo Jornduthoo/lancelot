@@ -2,6 +2,8 @@
 // pdf.js laadt pas bij het eerste boek, zodat de lijst zelf licht blijft. Bladeren met de pijlen, vegen of de randen;
 // tekenen met de pen (blijft per pagina staan tot je het boek sluit). De pagina waar je stopte, wordt onthouden.
 // Links in de pdf zijn klikbaar: een website opent in een nieuw tabblad, een link naar een andere pagina bladert erheen.
+// Een html-presentatie draait in een afgeschermd kader (sandbox, zie src/kronieken.js); de dia-speler daarin vertelt
+// via postMessage op welke dia en stap ze staat, en krijgt zo ook de opdrachten van de knoppen.
 const $ = id => document.getElementById(id);
 const MAX_BREED = 3000;
 const KLEUREN = { rood: ['#ff4d6d', 4, 1], blauw: ['#3d8bff', 4, 1], geel: ['#ffd23f', 22, 0.38] };
@@ -15,7 +17,7 @@ async function laadPdfjs() {
   return pdfjs;
 }
 
-const lz = { boek: null, doc: null, pagina: 1, totaal: 1, zoom: 1, breedte: false, taak: null, pen: '', inkt: new Map(), lijn: null, beurt: 0, bewaar: 0 };
+const lz = { boek: null, doc: null, pagina: 1, totaal: 1, zoom: 1, breedte: false, taak: null, pen: '', inkt: new Map(), lijn: null, beurt: 0, bewaar: 0, html: false };
 
 function open(boek) {
   sluitDoc();
@@ -30,15 +32,31 @@ function open(boek) {
   document.body.classList.add('kr-leest');
   $('kr-koppel').classList.add('hidden');
   const pdf = boek.soort === 'pdf';
-  for (const id of ['kr-vorige', 'kr-volgende', 'kr-rand-links', 'kr-rand-rechts']) $(id).classList.toggle('hidden', !pdf);
-  $('kr-pagina').closest('label').classList.toggle('hidden', !pdf);
+  const html = (lz.html = boek.soort === 'html');
+  const bladert = pdf || html;
+  for (const id of ['kr-vorige', 'kr-volgende', 'kr-rand-links', 'kr-rand-rechts']) $(id).classList.toggle('hidden', !bladert);
+  $('kr-pagina').closest('label').classList.toggle('hidden', !bladert);
+  $('kr-p-woord').textContent = html ? 'Dia' : 'p.';
+  $('kr-vorige').title = html ? 'Terug (pijl links)' : 'Vorige pagina (pijl links)';
+  $('kr-volgende').title = html ? 'Volgende stap of dia (pijl rechts, spatie of klik)' : 'Volgende pagina (pijl rechts)';
+  $('kr-stap').classList.add('hidden');
+  $('kr-passen').classList.toggle('hidden', html);
   $('kr-koppel-open').classList.toggle('hidden', !boek.lesMap);
   $('kr-doek').classList.toggle('hidden', !pdf);
-  $('kr-beeld').classList.toggle('hidden', pdf);
+  $('kr-beeld').classList.toggle('hidden', pdf || html);
+  $('kr-html').classList.toggle('hidden', !html);
+  $('kr-blad').classList.toggle('html', html);
   $('kr-links').textContent = '';
   laden(true);
   const url = `/kronieken/bestand?${new URLSearchParams({ map: boek.map, naam: boek.naam })}`;
   const beurt = ++lz.beurt;
+  if (html) {
+    lz.totaal = 1;
+    $('kr-totaal').textContent = '';
+    $('kr-vel').style.width = $('kr-vel').style.height = '';
+    $('kr-html').src = url;
+    return;
+  }
   if (!pdf) {
     $('kr-beeld').onload = () => { if (beurt === lz.beurt) { laden(false); schaal(); } };
     $('kr-beeld').onerror = () => fout('Deze afbeelding kon niet geladen worden.');
@@ -83,6 +101,9 @@ function sluit() {
   const klaar = lz.boek.dicht;
   lz.boek = null;
   $('kr-beeld').removeAttribute('src');
+  $('kr-html').src = 'about:blank';
+  lz.html = false;
+  $('kr-blad').classList.remove('html');
   $('kr-lezer').classList.add('hidden');
   document.body.classList.remove('kr-leest');
   if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
@@ -195,6 +216,7 @@ async function doelPagina(dest) {
 
 function schaal() {
   if (lz.boek && lz.boek.soort === 'pdf') return toon();
+  if (lz.html) return htmlInkt();
   const img = $('kr-beeld');
   $('kr-links').textContent = '';
   if (!img.naturalWidth) return;
@@ -205,7 +227,56 @@ function schaal() {
   zetInkt(img.style.width, img.style.height);
 }
 
+// ---------- Html-presentatie ----------
+
+const speler = bericht => { try { $('kr-html').contentWindow.postMessage({ lancelot: 'speler', ...bericht }, '*'); } catch {} };
+
+function htmlInkt() {
+  const r = $('kr-html').getBoundingClientRect();
+  if (r.width && r.height) zetInkt(`${Math.round(r.width)}px`, `${Math.round(r.height)}px`);
+}
+
+// Enkel berichten van het eigen kader tellen: niemand anders kan zo de lezer besturen.
+window.addEventListener('message', e => {
+  if (!lz.html || e.source !== $('kr-html').contentWindow || !e.data || e.data.lancelot !== 'dia') return;
+  const d = e.data;
+  if (d.soort === 'sluit') return sluit();
+  if (d.soort === 'klaar') {
+    laden(false);
+    // Verder op de dia waar je stopte; groter of kleiner blijft zoals je het zette.
+    if (lz.pagina > 1) speler({ doe: 'naar', dia: lz.pagina });
+    if (lz.zoom !== 1) speler({ doe: 'zoom', zoom: lz.zoom });
+    htmlInkt();
+  }
+  const dia = Math.max(1, Math.round(Number(d.dia) || 1));
+  const dias = Math.max(1, Math.round(Number(d.dias) || 1));
+  if (d.soort === 'klaar' && lz.pagina > 1 && lz.pagina <= dias) return;
+  const nieuw = dia !== lz.pagina;
+  lz.pagina = dia;
+  lz.totaal = dias;
+  $('kr-pagina').max = dias;
+  $('kr-pagina').value = dia;
+  $('kr-totaal').textContent = `/ ${dias}`;
+  const stappen = Math.max(0, Math.round(Number(d.stappen) || 0));
+  const stap = Math.min(stappen, Math.max(0, Math.round(Number(d.stap) || 0)));
+  $('kr-stap').classList.toggle('hidden', !stappen);
+  $('kr-stap').textContent = stappen ? `stap ${stap}/${stappen}` : '';
+  const einde = dia >= dias && stap >= stappen;
+  $('kr-vorige').disabled = $('kr-rand-links').disabled = dia <= 1 && stap <= 0;
+  $('kr-volgende').disabled = $('kr-rand-rechts').disabled = einde;
+  if (nieuw) {
+    tekenInkt();
+    clearTimeout(lz.bewaar);
+    lz.bewaar = setTimeout(bewaarNu, 800);
+  }
+});
+
+// Terug in LANcelot zelf (na een klik in het kader) blijven de pijltjes werken.
+const stapVerder = () => (lz.html ? speler({ doe: 'volgende' }) : naar(lz.pagina + 1));
+const stapTerug = () => (lz.html ? speler({ doe: 'vorige' }) : naar(lz.pagina - 1));
+
 function naar(nr) {
+  if (lz.html) return speler({ doe: 'naar', dia: Math.round(nr) || 1 });
   if (!lz.doc) return;
   const p = Math.min(lz.totaal, Math.max(1, Math.round(nr) || 1));
   if (p === lz.pagina) return ($('kr-pagina').value = p);
@@ -218,7 +289,7 @@ function naar(nr) {
 
 function bewaarNu() {
   clearTimeout(lz.bewaar);
-  if (lz.boek && lz.boek.soort === 'pdf' && lz.boek.bijPagina && lz.boek.gezien !== lz.pagina) {
+  if (lz.boek && (lz.boek.soort === 'pdf' || lz.boek.soort === 'html') && lz.boek.bijPagina && lz.boek.gezien !== lz.pagina) {
     lz.boek.gezien = lz.pagina;
     lz.boek.bijPagina(lz.pagina);
   }
@@ -232,7 +303,7 @@ function zetPen(kleur) {
   $('kr-inkt').classList.toggle('aan', !!kleur);
 }
 
-const inktSleutel = () => (lz.boek && lz.boek.soort === 'pdf' ? lz.pagina : 0);
+const inktSleutel = () => (lz.boek && (lz.boek.soort === 'pdf' || lz.html) ? lz.pagina : 0);
 
 function zetInkt(w, h) {
   const c = $('kr-inkt');
@@ -295,14 +366,19 @@ $('kr-wis').addEventListener('click', () => {
 
 // ---------- Bladeren ----------
 
-$('kr-vorige').addEventListener('click', () => naar(lz.pagina - 1));
-$('kr-volgende').addEventListener('click', () => naar(lz.pagina + 1));
-$('kr-rand-links').addEventListener('click', () => naar(lz.pagina - 1));
-$('kr-rand-rechts').addEventListener('click', () => naar(lz.pagina + 1));
+$('kr-vorige').addEventListener('click', stapTerug);
+$('kr-volgende').addEventListener('click', stapVerder);
+$('kr-rand-links').addEventListener('click', stapTerug);
+$('kr-rand-rechts').addEventListener('click', stapVerder);
 $('kr-pagina').addEventListener('change', e => naar(Number(e.target.value)));
 $('kr-pagina').addEventListener('keydown', e => { if (e.key === 'Enter') e.target.blur(); });
-$('kr-groter').addEventListener('click', () => { lz.zoom = Math.min(4, lz.zoom * 1.25); schaal(); });
-$('kr-kleiner').addEventListener('click', () => { lz.zoom = Math.max(0.4, lz.zoom / 1.25); schaal(); });
+const zoom = z => {
+  lz.zoom = z;
+  if (lz.html) return speler({ doe: 'zoom', zoom: z });
+  schaal();
+};
+$('kr-groter').addEventListener('click', () => zoom(Math.min(4, lz.zoom * 1.25)));
+$('kr-kleiner').addEventListener('click', () => zoom(Math.max(0.4, lz.zoom / 1.25)));
 $('kr-passen').addEventListener('click', () => {
   lz.breedte = !lz.breedte;
   lz.zoom = 1;
@@ -325,8 +401,8 @@ window.addEventListener('resize', () => {
 
 document.addEventListener('keydown', e => {
   if (!lz.boek || e.target.closest('input, select, textarea')) return;
-  if (['ArrowRight', 'PageDown', ' '].includes(e.key)) { e.preventDefault(); naar(lz.pagina + 1); }
-  else if (['ArrowLeft', 'PageUp'].includes(e.key)) { e.preventDefault(); naar(lz.pagina - 1); }
+  if (['ArrowRight', 'PageDown', ' '].includes(e.key)) { e.preventDefault(); stapVerder(); }
+  else if (['ArrowLeft', 'PageUp'].includes(e.key)) { e.preventDefault(); stapTerug(); }
   else if (e.key === 'Home') naar(1);
   else if (e.key === 'End') naar(lz.totaal);
   else if (e.key === 'Escape' && !document.fullscreenElement) sluit();
@@ -335,7 +411,7 @@ document.addEventListener('keydown', e => {
 // Vegen op het touchscherm van het bord (niet als de pen aan staat, en niet als je ingezoomd bent).
 let veeg = null;
 $('kr-blad').addEventListener('pointerdown', e => {
-  if (lz.pen || e.pointerType === 'mouse') return;
+  if (lz.pen || lz.html || e.pointerType === 'mouse') return;
   veeg = { x: e.clientX, y: e.clientY, t: Date.now() };
 });
 $('kr-blad').addEventListener('pointerup', e => {
@@ -352,7 +428,8 @@ $('kr-blad').addEventListener('pointerup', e => {
 $('kr-koppel-open').addEventListener('click', () => {
   const f = $('kr-koppel');
   if (!f.classList.contains('hidden')) return f.classList.add('hidden');
-  $('kr-koppel-p').textContent = lz.boek.soort === 'pdf' ? lz.pagina : '1';
+  $('kr-koppel-p').textContent = lz.boek.soort === 'pdf' || lz.html ? lz.pagina : '1';
+  $('kr-koppel-woord').textContent = lz.html ? 'Dia' : 'Pagina';
   $('kr-koppel-ok').textContent = '';
   const sel = $('kr-koppel-les');
   sel.textContent = '';
@@ -368,9 +445,9 @@ $('kr-koppel').addEventListener('submit', e => {
   e.preventDefault();
   const les = Number($('kr-koppel-les').value || $('kr-koppel-nr').value);
   if (!les) return ($('kr-koppel-ok').textContent = 'Kies een les.');
-  const p = lz.boek.soort === 'pdf' ? lz.pagina : 1;
+  const p = lz.boek.soort === 'pdf' || lz.html ? lz.pagina : 1;
   lz.boek.koppel(les, p, res => {
-    $('kr-koppel-ok').textContent = res.error || `✓ Les ${les} opent nu op p. ${p}.`;
+    $('kr-koppel-ok').textContent = res.error || (lz.html ? `✓ Les ${les} opent nu op dia ${p}.` : `✓ Les ${les} opent nu op p. ${p}.`);
     if (!res.error) setTimeout(() => $('kr-koppel').classList.add('hidden'), 1400);
   });
 });
