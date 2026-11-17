@@ -73,6 +73,10 @@ body.kr-leest { overflow: hidden; }
 .kr-blad { flex: 1; overflow: auto; display: flex; justify-content: center; align-items: flex-start; padding: 8px 12px; position: relative; touch-action: pan-x pan-y; }
 .kr-vel { position: relative; margin: auto; box-shadow: 0 6px 30px rgb(0 0 0 / .5); background: #fff; line-height: 0; }
 .kr-vel canvas, .kr-vel img { display: block; }
+/* Klikbare links uit de pdf: onzichtbaar tot je erover gaat, onder de inkt (als de pen aan staat, tekent de pen). */
+.kr-links { position: absolute; inset: 0; pointer-events: none; }
+.kr-links a { position: absolute; pointer-events: auto; cursor: pointer; border-radius: 3px; -webkit-tap-highlight-color: transparent; }
+.kr-links a:hover, .kr-links a:focus-visible, .kr-links a.tik { background: rgb(61 139 255 / .22); outline: 2px solid rgb(61 139 255 / .55); }
 .kr-inkt { position: absolute; inset: 0; pointer-events: none; }
 .kr-inkt.aan { pointer-events: auto; cursor: crosshair; touch-action: none; }
 .kr-laden { position: absolute; inset: 0; display: grid; place-items: center; font-size: 1.2rem; margin: 0; text-align: center; padding: 20px; }

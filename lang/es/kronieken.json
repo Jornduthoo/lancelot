@@ -892,5 +892,7 @@
  "Veel bordboeken lijken weg aan één kant. Er werd niets verwijderd: kijk of OneDrive of Google Drive alles heeft binnengehaald.": "Parece que faltan muchos libros en un lado. No se eliminó nada: comprueba si OneDrive o Google Drive lo ha descargado todo.",
  "\"{0}\" kopiëren lukte niet ({1}).": "No se pudo copiar «{0}» ({1}).",
  "☁️ Bordboeken via je lesmap: {0} van {1}…": "☁️ Libros a través de tu carpeta de clase: {0} de {1}…",
- "Bordboeken kopiëren: {0} van {1}…": "Copiando libros: {0} de {1}…"
+ "Bordboeken kopiëren: {0} van {1}…": "Copiando libros: {0} de {1}…",
+ "Link": null,
+ "Naar een andere pagina": "A otra página"
 }

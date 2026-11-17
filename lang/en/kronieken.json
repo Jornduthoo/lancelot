@@ -892,5 +892,7 @@
  "Veel bordboeken lijken weg aan één kant. Er werd niets verwijderd: kijk of OneDrive of Google Drive alles heeft binnengehaald.": "Many textbooks seem to be missing on one side. Nothing was removed: check whether OneDrive or Google Drive has downloaded everything.",
  "\"{0}\" kopiëren lukte niet ({1}).": "Copying \"{0}\" failed ({1}).",
  "☁️ Bordboeken via je lesmap: {0} van {1}…": "☁️ Textbooks via your lesson folder: {0} of {1}…",
- "Bordboeken kopiëren: {0} van {1}…": "Copying textbooks: {0} of {1}…"
+ "Bordboeken kopiëren: {0} van {1}…": "Copying textbooks: {0} of {1}…",
+ "Link": null,
+ "Naar een andere pagina": "To another page"
 }
