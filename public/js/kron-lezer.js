@@ -1,6 +1,7 @@
 // De lezer van De Kronieken: één pagina van een bordboek tegelijk, zo groot mogelijk op het bord.
 // pdf.js laadt pas bij het eerste boek, zodat de lijst zelf licht blijft. Bladeren met de pijlen, vegen of de randen;
 // tekenen met de pen (blijft per pagina staan tot je het boek sluit). De pagina waar je stopte, wordt onthouden.
+// Links in de pdf zijn klikbaar: een website opent in een nieuw tabblad, een link naar een andere pagina bladert erheen.
 const $ = id => document.getElementById(id);
 const MAX_BREED = 3000;
 const KLEUREN = { rood: ['#ff4d6d', 4, 1], blauw: ['#3d8bff', 4, 1], geel: ['#ffd23f', 22, 0.38] };
@@ -34,6 +35,7 @@ function open(boek) {
   $('kr-koppel-open').classList.toggle('hidden', !boek.lesMap);
   $('kr-doek').classList.toggle('hidden', !pdf);
   $('kr-beeld').classList.toggle('hidden', pdf);
+  $('kr-links').textContent = '';
   laden(true);
   const url = `/kronieken/bestand?${new URLSearchParams({ map: boek.map, naam: boek.naam })}`;
   const beurt = ++lz.beurt;
@@ -124,20 +126,77 @@ async function toon() {
   }
   if (beurt !== lz.beurt || nr !== lz.pagina) return;
   lz.taak = null;
+  const links = await maakLinks(pagina, pagina.getViewport({ scale: css }));
+  if (beurt !== lz.beurt || nr !== lz.pagina) return;
   // Pas wisselen als de nieuwe pagina klaar is: geen witte flits tussen twee pagina's.
   const oud = $('kr-doek');
   doek.id = 'kr-doek';
   doek.style.width = `${Math.round(basis.width * css)}px`;
   doek.style.height = `${Math.round(basis.height * css)}px`;
   oud.replaceWith(doek);
+  $('kr-links').replaceChildren(...links);
   laden(false);
   zetInkt(doek.style.width, doek.style.height);
   if (lz.pagina < lz.totaal) lz.doc.getPage(lz.pagina + 1).catch(() => {});
 }
 
+// ---------- Links in de pdf ----------
+
+const VEILIG = /^(https?:|mailto:)/i;
+const ACTIES = { NextPage: () => lz.pagina + 1, PrevPage: () => lz.pagina - 1, FirstPage: () => 1, LastPage: () => lz.totaal };
+
+async function maakLinks(pagina, vp) {
+  let lijst;
+  try { lijst = await pagina.getAnnotations({ intent: 'display' }); } catch { return []; }
+  const uit = [];
+  for (const an of lijst) {
+    if (an.subtype !== 'Link' || !an.rect || (an.annotationFlags & 2)) continue;
+    const url = an.url || (an.unsafeUrl && VEILIG.test(an.unsafeUrl) ? an.unsafeUrl : '');
+    if (!url && an.dest == null && !ACTIES[an.action]) continue;
+    const [x1, y1, x2, y2] = vp.convertToViewportRectangle(an.rect);
+    const a = document.createElement('a');
+    Object.assign(a.style, {
+      left: `${Math.min(x1, x2)}px`, top: `${Math.min(y1, y2)}px`,
+      width: `${Math.max(Math.abs(x2 - x1), 6)}px`, height: `${Math.max(Math.abs(y2 - y1), 6)}px`,
+    });
+    if (url) {
+      if (!VEILIG.test(url)) continue;
+      a.href = url;
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+      a.title = url;
+    } else {
+      a.href = '#';
+      a.title = 'Naar een andere pagina';
+      a.addEventListener('click', e => {
+        e.preventDefault();
+        if (ACTIES[an.action]) return naar(ACTIES[an.action]());
+        doelPagina(an.dest).then(p => { if (p) naar(p); });
+      });
+    }
+    // Kort oplichten bij aantikken op het bord, zodat je ziet dat de tik aankwam.
+    a.addEventListener('pointerdown', () => { a.classList.add('tik'); setTimeout(() => a.classList.remove('tik'), 400); });
+    uit.push(a);
+  }
+  return uit;
+}
+
+// Een interne link wijst naar een benoemde bestemming of rechtstreeks naar een pagina.
+async function doelPagina(dest) {
+  const doc = lz.doc;
+  if (!doc) return 0;
+  try {
+    const d = typeof dest === 'string' ? await doc.getDestination(dest) : dest;
+    if (!Array.isArray(d) || d[0] == null) return 0;
+    if (Number.isInteger(d[0])) return d[0] + 1;
+    return (await doc.getPageIndex(d[0])) + 1;
+  } catch { return 0; }
+}
+
 function schaal() {
   if (lz.boek && lz.boek.soort === 'pdf') return toon();
   const img = $('kr-beeld');
+  $('kr-links').textContent = '';
   if (!img.naturalWidth) return;
   const { w, h } = ruimte();
   const pas = lz.breedte ? w / img.naturalWidth : Math.min(w / img.naturalWidth, h / img.naturalHeight);

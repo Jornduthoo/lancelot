@@ -892,5 +892,7 @@
  "Veel bordboeken lijken weg aan één kant. Er werd niets verwijderd: kijk of OneDrive of Google Drive alles heeft binnengehaald.": "Beaucoup de manuels semblent manquer d’un côté. Rien n’a été supprimé : vérifie que OneDrive ou Google Drive a tout téléchargé.",
  "\"{0}\" kopiëren lukte niet ({1}).": "La copie de « {0} » a échoué ({1}).",
  "☁️ Bordboeken via je lesmap: {0} van {1}…": "☁️ Manuels via ton dossier de cours : {0} sur {1}…",
- "Bordboeken kopiëren: {0} van {1}…": "Copie des manuels : {0} sur {1}…"
+ "Bordboeken kopiëren: {0} van {1}…": "Copie des manuels : {0} sur {1}…",
+ "Link": null,
+ "Naar een andere pagina": "Vers une autre page"
 }
