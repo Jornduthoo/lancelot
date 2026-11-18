@@ -324,3 +324,24 @@ input:focus,textarea:focus{outline:none;border-color:var(--gras)}
 .lp-irr td b{white-space:nowrap}
 .lp-wrap td b{white-space:normal}.lp-wrap td,.lp-wrap th{font-size:.85rem;padding:5px 4px}
 .lp-wrap td:last-child{font-size:.85rem}.lp-wrap td:first-child{width:auto}
+/* Examendoelen in Vrij oefenen */
+.doelen{background:#fff;border-radius:16px;border-left:6px solid var(--vk);box-shadow:0 2px 8px rgba(0,0,0,.06);padding:4px 14px;margin-bottom:4px}
+.doelen summary{display:flex;align-items:center;gap:12px;cursor:pointer;list-style:none;padding:10px 0}
+.doelen summary::-webkit-details-marker{display:none}
+.doelen summary .ic{font-size:1.6rem}
+.doelen summary .tx{flex:1;display:flex;flex-direction:column}
+.doelen summary .tx span{font-size:.85rem;color:var(--inkt-zacht)}
+.doelen summary .pijl{transition:transform .2s;color:var(--inkt-zacht)}
+.doelen[open] summary .pijl{transform:rotate(180deg)}
+.doel{border-top:1px solid var(--lijn);padding:12px 0}
+.doelkop{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.doelkop b{font-size:1rem}
+.doel ul{list-style:none;padding:0;margin:6px 0;font-size:.88rem}
+.doel li{padding:3px 0;line-height:1.35}
+.doel li i{font-style:normal;font-weight:800;color:var(--vk);display:block;font-size:.75rem}
+.doel.mist{opacity:.75}
+.doel.kan .doelkop b::before{content:'👍 '}
+.doelknoppen{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end}
+.doelknoppen .vink{background:var(--gras-2,#2e7d32);color:#fff}
+.doel:not(.kan) .doelknoppen .vink{background:#eee;color:#555}
+.doelkop .tag{background:#fff3cd;color:#7a5b00;border-radius:99px;padding:2px 9px;font-size:.75rem;font-weight:700}
