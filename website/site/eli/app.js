@@ -382,10 +382,42 @@ $('taak-hulp').onclick = async () => {
 };
 
 let vrijVak = 'kf';
+// Examendoelen per vak (doelen.js): wat moet ik kennen, op 3 niveaus, met links naar de lessen.
+let doelenOpen = false;
+function doelenKaart(vak){
+  const D = (window.ELI_DOELEN || {})[vak] || [];
+  const kan = lokaal.get('doelen-kan', {});
+  const el = document.createElement('details'); el.className = 'doelen'; el.style.setProperty('--vk', vk(vak)); el.open = doelenOpen;
+  el.ontoggle = () => { doelenOpen = el.open; };
+  const ok = D.filter((d, i) => kan[vak + i]).length;
+  el.innerHTML = `<summary><span class="ic">🎯</span><span class="tx"><b>Wat moet ik kennen voor het examen?</b><span>${D.length} doelen van je leerkracht · ${ok} afgevinkt</span></span><span class="pijl">▾</span></summary>`;
+  const NIV = ['✓ Check', '✓✓ Double check', '✓✓✓ Triple check'];
+  D.forEach((d, i) => {
+    const r = document.createElement('div'); r.className = 'doel' + (d.mist ? ' mist' : '') + (kan[vak + i] ? ' kan' : '');
+    const niv = d.n.map((t, j) => t ? `<li><i>${NIV[j]}</i>${esc(t)}</li>` : '').join('');
+    r.innerHTML = `<div class="doelkop"><b>${esc(d.d)}</b>${d.mist ? '<span class="tag">📭 komt nog</span>' : ''}</div><ul>${niv}</ul>${d.tip ? `<p class="klein muted">💡 ${esc(d.tip)}</p>` : ''}`;
+    const knoppen = document.createElement('div'); knoppen.className = 'doelknoppen';
+    for (const tid of d.t) {
+      const t = T.find(x => x.id === tid); if (!t) continue;
+      const b = document.createElement('button'); b.className = 'knop licht klein'; b.textContent = '📖 ' + t.titel;
+      b.onclick = () => voerUit({ id:'vrij:lees:' + t.id, soort:'vrij-lees', vak:t.vak, onderwerp:t.id, titel:t.titel, vrij:true });
+      knoppen.append(b);
+    }
+    if (!d.mist) {
+      const v = document.createElement('button'); v.className = 'knop klein vink'; v.textContent = kan[vak + i] ? '👍 Ik kan dit' : 'Ik kan dit?';
+      v.onclick = () => { const k = lokaal.get('doelen-kan', {}); k[vak + i] = !k[vak + i]; lokaal.set('doelen-kan', k); tekenVakken(); };
+      knoppen.append(v);
+    }
+    r.append(knoppen); el.append(r);
+  });
+  return el;
+}
+
 function tekenVakken(){
   $('vaktabs').innerHTML = Object.entries(V).map(([k, v]) => `<button data-vak="${k}" class="${k === vrijVak ? 'aan' : ''}">${v.icoon} ${esc(v.kort)}</button>`).join('');
   $('vaktabs').onclick = e => { const b = e.target.closest('button'); if (!b) return; vrijVak = b.dataset.vak; tekenVakken(); };
   const lijst = $('onderwerplijst'); lijst.innerHTML = '';
+  lijst.append(doelenKaart(vrijVak));
   { const f = VAKVORM[vrijVak];
     const el = document.createElement('div'); el.className = 'taak'; el.style.setProperty('--vk', vk(vrijVak));
     el.innerHTML = `<div class="ic">${f.ic}</div><div class="tx"><b>${f.titel}</b><span>${f.uitleg}</span></div>`;
