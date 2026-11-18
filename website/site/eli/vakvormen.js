@@ -44,7 +44,11 @@ window.ELI_TIJDLIJN = [
   { j: 711, t: '711', e: 'De Moren steken de Straat van Gibraltar over', tid: 'C8' },
   { j: 732, t: '732', e: 'Slag bij Poitiers: Karel Martel stopt het Kalifaat', tid: 'C5' },
   { j: 751, t: '751', e: 'Slag bij Talas: China stopt het Kalifaat', tid: 'C5' },
+  { j: 756, t: '756', e: 'Abd al-Rahman I sticht het Emiraat van Córdoba', tid: 'C8' },
+  { j: 929, t: '929', e: 'Het emiraat van Córdoba wordt een kalifaat', tid: 'C8' },
+  { j: 1031, t: '1031', e: 'Het kalifaat van Córdoba valt uiteen in 27 taifa’s', tid: 'C8' },
   { j: 1492, t: '1492', e: 'Val van Granada: einde van de Reconquista', tid: 'C8' },
+  { j: 1916, t: '1916', e: 'Pirenne publiceert Mahomet et Charlemagne', tid: 'C17' },
 ];
 // [zin met [fout|juist], uitleg, onderwerp]
 window.ELI_FOUT = [
