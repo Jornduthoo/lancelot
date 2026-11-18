@@ -315,6 +315,56 @@ window.ELI_ONDERWERPEN.push(
     {t:'jf',v:'De hartspier kan je bewust aansturen.',a:false},
     {t:'invul',v:'Het gewricht aan de basis van je duim is een …gewricht.',a:['zadel','zadelgewricht']}
   ]
+},
+{
+  id:'W9', vak:'wet', titel:'Wiskunde: rekenen met vectoren', min:18,
+  bron:[],
+  samenvatting:[
+    '<h4>➡️ Wat is een vector?</h4><p>Een vector is een <b>georiënteerd lijnstuk</b>: een pijl met een <b>beginpunt A</b> en een <b>eindpunt B</b>. Notatie: <b>AB</b> met een pijltje erboven. Het beginpunt is het <b>aangrijpingspunt</b>.</p><div class="lp-tegels k2"><div><i>📏</i><b>norm (grootte)</b><small>de lengte van het lijnstuk</small></div><div><i>↗️</i><b>richting</b><small>horizontaal, verticaal, schuin</small></div><div><i>👉</i><b>zin</b><small>naar welke kant de pijl wijst</small></div><div><i>📍</i><b>aangrijpingspunt</b><small>het beginpunt</small></div></div><p class="lp-tip">👣 Iedereen zet een stap van 20 cm, horizontaal, naar links: dat zijn <b>gelijke vectoren</b>, ook al staan jullie op een andere plaats.</p>',
+    '<h4>🆓 Vrije of gebonden vector?</h4><table class="lp-ww lp-wrap"><tr><th></th><th>vrije vector</th><th>gebonden vector</th></tr><tr><td>aangrijpingspunt</td><td>niet vast</td><td>vast (meestal het zwaartepunt)</td></tr><tr><td>verschuiven?</td><td>ja, als richting, zin en grootte gelijk blijven</td><td>nee</td></tr><tr><td>gebruik</td><td>verplaatsing, snelheden</td><td>krachten</td></tr></table><p class="lp-tip">💡 Een vrije vector = de <b>verzameling</b> van alle georiënteerde lijnstukken met dezelfde richting, zin en norm.</p>',
+    '<h4>📏 Norm, nulvector, gelijk en tegengesteld</h4><p>De <b>norm</b> van <b>u</b> noteer je <b>‖u‖</b>. Een norm is <b>altijd positief</b>: ‖u‖ ≥ 0.</p><table class="lp-ww lp-wrap"><tr><th></th><th>gelijke vectoren</th><th>tegengestelde vectoren</th><th>nulvector</th></tr><tr><td>norm</td><td>gelijk</td><td>gelijk</td><td>0</td></tr><tr><td>richting</td><td>gelijk</td><td>gelijk</td><td>geen</td></tr><tr><td>zin</td><td>gelijk</td><td>tegengesteld</td><td>geen</td></tr></table><p class="lp-tip">⭕ Bij de <b>nulvector</b> vallen begin- en eindpunt samen (bv. AA). Notatie: <b>0</b> met een pijltje.</p>',
+    '<h4>📐 Krachtvectoren op schaal</h4><div class="lp-vs"><div><b>✏️ tekenen</b>grootte <u>delen</u> door de schaal<small>420 N met 1 cm = 100 N → <b>4,2 cm</b></small></div><div><b>📏 aflezen</b>lengte <u>maal</u> de schaal<small>7,2 cm met 1 cm = 100 N → <b>720 N</b></small></div></div><p class="lp-tip">⚠️ Gebruik een <b>lat</b> en meet nauwkeurig.</p>',
+    '<h4>✖️ Vector maal een getal</h4><p><b>r · AB</b> is een vector met:</p><ul><li>dezelfde <b>richting</b> als AB</li><li>dezelfde <b>zin</b> als r &gt; 0, de <b>tegengestelde zin</b> als r &lt; 0</li><li>als lengte <b>|r| keer</b> de lengte van AB</li></ul><div class="lp-vs"><div><b>2 · AB</b>dubbel zo lang, <u>zelfde</u> zin</div><div><b>−2 · AB</b>dubbel zo lang, <u>andere</u> zin</div></div><p class="lp-tip">0 · AB = nulvector.</p>',
+    '<h4>➖ Verschil tekenen</h4><p>Het verschil <b>v − u</b> is de som van v en de <b>tegengestelde</b> van u:</p><div class="lp-ketting"><span><b>v − u</b></span><i>=</i><span><b>v + (−u)</b></span></div><p class="lp-tip">✏️ Draai u dus om en tel op met de <b>kop-staartmethode</b> of de <b>parallellogrammethode</b> (zie de les over kracht als vector).</p>',
+    '<h4>📍 Coördinaten van vectoren</h4><div class="lp-vs"><div><b>🎯 plaatsvector</b>begint in de <u>oorsprong</u><small>co(OP) = co(P), de coördinaat van het eindpunt · bv. co(OP) = (4 ; 3)</small></div><div><b>🆓 vrije vector</b>eindpunt <u>min</u> beginpunt<small>co(AB) = co(B) − co(A) = (x<sub>B</sub> − x<sub>A</sub> ; y<sub>B</sub> − y<sub>A</sub>)</small></div></div><p class="lp-kop">✍️ Voorbeeld</p><p>A(−4 ; 1) en B(4 ; 4) → co(AB) = (4 − (−4) ; 4 − 1) = <b>(8 ; 3)</b></p>',
+    '<h4>🧮 De norm berekenen</h4><p>Met de <b>stelling van Pythagoras</b> in een rechthoekige driehoek:</p><p style="text-align:center;font-size:1.15rem"><b>‖AB‖ = √( (x<sub>B</sub> − x<sub>A</sub>)² + (y<sub>B</sub> − y<sub>A</sub>)² )</b></p><p class="lp-kop">✍️ Voorbeeld</p><p>A(0 ; 0) en B(−2 ; 3) → ‖AB‖ = √(4 + 9) = √13 ≈ <b>3,61</b></p>',
+    '<h4>➕ Rekenen met coördinaten</h4><p>Voor a(x<sub>a</sub> ; y<sub>a</sub>) en b(x<sub>b</sub> ; y<sub>b</sub>):</p><table class="lp-ww"><tr><td>som</td><td>co(a + b) = (x<sub>a</sub> + x<sub>b</sub> ; y<sub>a</sub> + y<sub>b</sub>)</td></tr><tr><td>verschil</td><td>co(a − b) = (x<sub>a</sub> − x<sub>b</sub> ; y<sub>a</sub> − y<sub>b</sub>)</td></tr><tr><td>maal k</td><td>co(k · a) = (k · x<sub>a</sub> ; k · y<sub>a</sub>)</td></tr></table><p class="lp-kop">✍️ Met k(4 ; −2) en l(−9 ; 6)</p><table class="lp-ww"><tr><td>co(k + l)</td><td>(4 + (−9) ; −2 + 6) = (−5 ; 4)</td></tr><tr><td>co(l − k)</td><td>(−9 − 4 ; 6 − (−2)) = (−13 ; 8)</td></tr><tr><td>co(3l)</td><td>(−27 ; 18)</td></tr><tr><td>co(k + 2l)</td><td>(4 − 18 ; −2 + 12) = (−14 ; 10)</td></tr></table><p class="lp-tip">🪜 Geen coördinaten gegeven? 1) bereken de coördinaten van de vectoren, 2) vermenigvuldig, 3) tel op of trek af.</p>'
+  ],
+  kaarten:[
+    ['Wat is een vector?','Een georiënteerd lijnstuk met een beginpunt (aangrijpingspunt) en een eindpunt'],
+    ['Wat is de norm van een vector?','De lengte van het lijnstuk, genoteerd ‖u‖ (altijd ≥ 0)'],
+    ['Wat is een vrije vector?','De verzameling van alle georiënteerde lijnstukken met dezelfde richting, zin en norm (mag verschuiven)'],
+    ['Wat is een gebonden vector?','Een vector met een vast aangrijpingspunt (bv. het zwaartepunt); gebruikt voor krachten'],
+    ['Wanneer gebruik je vrije vectoren?','Voor verplaatsingen en snelheden'],
+    ['Wat is de nulvector?','Begin- en eindpunt vallen samen; norm 0, geen richting en geen zin'],
+    ['Gelijke vectoren?','Zelfde norm, richting en zin'],
+    ['Tegengestelde vectoren?','Zelfde norm en richting, tegengestelde zin'],
+    ['Kracht van 420 N tekenen met 1 cm = 100 N?','4,2 cm (grootte delen door de schaal)'],
+    ['Pijl van 7,2 cm met 1 cm = 100 N?','720 N (lengte maal de schaal)'],
+    ['Wat doet r · AB als r < 0?','Zelfde richting, tegengestelde zin, lengte |r| keer AB'],
+    ['Hoe teken je v − u?','Als v + (−u): tel v op bij de tegengestelde van u'],
+    ['Wat is een plaatsvector?','Een gebonden vector die begint in de oorsprong'],
+    ['Coördinaat van een plaatsvector?','De coördinaat van het eindpunt'],
+    ['Formule co(AB)?','co(B) − co(A) = (x_B − x_A ; y_B − y_A)'],
+    ['Formule voor de norm ‖AB‖?','√((x_B − x_A)² + (y_B − y_A)²) (Pythagoras)'],
+    ['co(a + b)?','(x_a + x_b ; y_a + y_b)'],
+    ['co(k · a)?','(k · x_a ; k · y_a)']
+  ],
+  quiz:[
+    {t:'mc',v:'Welke vector heeft een vast aangrijpingspunt?',o:['Een gebonden vector','Een vrije vector','De nulvector','Elke vector'],a:0},
+    {t:'mc',v:'Tegengestelde vectoren hebben …',o:['dezelfde norm en richting, maar een andere zin','een andere richting','een andere norm','geen richting'],a:0},
+    {t:'mc',v:'Hoe lang teken je 350 N met schaal 1 cm = 100 N?',o:['3,5 cm','35 cm','0,35 cm','350 cm'],a:0},
+    {t:'mc',v:'Wat is −2 · AB?',o:['Dubbel zo lang, tegengestelde zin','Half zo lang, zelfde zin','Dubbel zo lang, zelfde zin','De nulvector'],a:0},
+    {t:'mc',v:'A(−4 ; 1), B(4 ; 4). Wat is co(AB)?',o:['(8 ; 3)','(0 ; 5)','(−8 ; −3)','(8 ; 5)'],a:0},
+    {t:'mc',v:'Hoe bereken je het verschil v − u?',o:['v + (−u)','u − v','v · u','−v + u'],a:0},
+    {t:'jf',v:'De norm van een vector kan negatief zijn.',a:false,u:'‖u‖ ≥ 0, altijd positief (of 0).'},
+    {t:'jf',v:'De nulvector heeft geen richting en geen zin.',a:true},
+    {t:'jf',v:'Een vrije vector mag je verschuiven als richting, zin en grootte gelijk blijven.',a:true},
+    {t:'invul',v:'k(4 ; −2) en l(−9 ; 6). co(k + l) = ? (schrijf zo: (x;y))',a:['(-5;4)']},
+    {t:'invul',v:'l(−9 ; 6). co(3l) = ? (schrijf zo: (x;y))',a:['(-27;18)']},
+    {t:'getal',v:'A(0 ; 0), B(−2 ; 3). Bereken ‖AB‖ (op 2 decimalen).',a:3.61,tol:.005}
+  ],
+  reken:'vector'
 }
 );
 })();

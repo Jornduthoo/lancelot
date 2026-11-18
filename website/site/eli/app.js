@@ -587,6 +587,17 @@ function rekenVraag(soort, t){
     if (keuze === 1) return { t:'getal', v:`Een veer rekt <b>${getal(cm)} cm</b> uit bij <b>${getal(rond(F, 3))} N</b>. Bereken k in N/m.`, a:k, tol:.015, tid:t.id, vak:'wet', u:`k = F / Δl = ${getal(rond(F, 3))} / ${getal(cm / 100)} = ${k} N/m` };
     return { t:'getal', v:`k = <b>${k} N/m</b>, F<sub>v</sub> = <b>${getal(rond(F, 3))} N</b>. Hoe groot is Δl in m?`, a:cm / 100, tol:.015, tid:t.id, vak:'wet', u:`Δl = F / k = ${getal(rond(F, 3))} / ${k} = ${getal(rond(cm / 100, 3))} m` };
   }
+  if (soort === 'vector') {
+    const g = () => Math.round(r(-9, 9)), co = (x, y) => `(${x} ; ${y})`, ant = (x, y) => [`(${x};${y})`];
+    const keuze = Math.floor(Math.random() * 4);
+    const xa = g(), ya = g(), xb = g(), yb = g();
+    if (keuze === 0) return { t:'invul', v:`A${co(xa, ya)} en B${co(xb, yb)}. Bereken co(AB). <span class="muted">Schrijf zo: (x;y)</span>`, a: ant(xb - xa, yb - ya), tid:t.id, vak:'wet', u:`co(AB) = co(B) − co(A) = (${xb} − ${xa < 0 ? '(' + xa + ')' : xa} ; ${yb} − ${ya < 0 ? '(' + ya + ')' : ya}) = ${co(xb - xa, yb - ya)}` };
+    if (keuze === 1) { const X = xb === xa && yb === ya ? xb + 3 : xb, dx = X - xa, dy = yb - ya, nn = Math.sqrt(dx * dx + dy * dy);
+      return { t:'getal', v:`A${co(xa, ya)} en B${co(X, yb)}. Bereken de norm ‖AB‖ (op 2 decimalen).`, a: nn, tol: .005, tid:t.id, vak:'wet', u:`‖AB‖ = √((${dx})² + (${dy})²) = √(${dx * dx} + ${dy * dy}) = √${dx * dx + dy * dy} ≈ ${getal(rond(nn, 3))}` }; }
+    if (keuze === 2) { const plus = Math.random() < .5; return { t:'invul', v:`a${co(xa, ya)} en b${co(xb, yb)}. Bereken co(a ${plus ? '+' : '−'} b). <span class="muted">Schrijf zo: (x;y)</span>`, a: plus ? ant(xa + xb, ya + yb) : ant(xa - xb, ya - yb), tid:t.id, vak:'wet', u: plus ? 'Tel de coördinaten op: ' + co(xa + xb, ya + yb) : 'Trek de coördinaten af: ' + co(xa - xb, ya - yb) }; }
+    const k = schud([-3, -2, 2, 3, 4])[0];
+    return { t:'invul', v:`a${co(xa, ya)}. Bereken co(${k} · a). <span class="muted">Schrijf zo: (x;y)</span>`, a: ant(k * xa, k * ya), tid:t.id, vak:'wet', u:`Vermenigvuldig elke coördinaat met ${k}: ${co(k * xa, k * ya)}` };
+  }
   return null;
 }
 function leesGetal(s){
