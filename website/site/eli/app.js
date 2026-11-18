@@ -424,6 +424,11 @@ function tekenVakken(){
     const b = document.createElement('button'); b.className = 'knop klein'; b.textContent = 'Start';
     b.onclick = () => voerUit({ id:'vrij:vakvorm:' + vrijVak, soort:'vakvorm', vak:vrijVak, titel:f.ic + ' ' + f.titel, vrij:true });
     el.append(b); lijst.append(el); }
+  { const el = document.createElement('div'); el.className = 'taak'; el.style.setProperty('--vk', vk(vrijVak));
+    el.innerHTML = `<div class="ic">✍️</div><div class="tx"><b>Open vragen</b><span>10 vragen zonder keuzes: schrijf zelf je antwoord, vergelijk met het modelantwoord</span></div>`;
+    const b = document.createElement('button'); b.className = 'knop klein'; b.textContent = 'Start';
+    b.onclick = () => voerUit({ id:'vrij:open:' + vrijVak, soort:'open-vak', vak:vrijVak, titel:'✍️ Open vragen ' + V[vrijVak].kort, vrij:true });
+    el.append(b); lijst.append(el); }
   if (vrijVak === 'fr') {
     const el = document.createElement('div'); el.className = 'taak'; el.style.setProperty('--vk', vk('fr'));
     el.innerHTML = `<div class="ic">⚡</div><div class="tx"><b>Werkwoorden-sprint</b><span>Vervoegen in het présent en passé composé</span></div>`;
@@ -437,10 +442,10 @@ function tekenVakken(){
     el.innerHTML = `<div class="ic">${geleerd(t.id) ? '✅' : V[t.vak].icoon}</div><div class="tx"><b></b><span>${t.kaarten.length} kaartjes · ${t.quiz.length} vragen${r ? ` · laatste score ${Math.round(r.s / r.t * 100)}%` : ''}</span></div>`;
     el.querySelector('b').textContent = t.titel;
     el.style.flexWrap = 'wrap'; const rij = document.createElement('div'); rij.className = 'rij'; rij.style.cssText = 'flex-wrap:wrap;width:100%;justify-content:flex-end;gap:6px';
-    const vormen = [['📖', 'lees'], ['🃏', 'kaartjes'], ['🔗', 'koppel'], ['⏱️', 'race'], ['❓', 'quiz']];
+    const vormen = [['📖', 'lees'], ['🃏', 'kaartjes'], ['🔗', 'koppel'], ['⏱️', 'race'], ['❓', 'quiz'], ['✍️', 'open']];
     if (FOTO.some(f => f.tid === t.id)) vormen.splice(4, 0, ['📸', 'foto']);
     for (const [lbl, soort] of vormen) {
-      const b = document.createElement('button'); b.className = 'knop licht klein'; b.textContent = lbl; b.title = { lees:'Leerkaart', kaartjes:'Kaartjes', koppel:'Koppelen', race:'Tijdrace (60 s)', foto:'Fotoronde', quiz:'Quiz' }[soort];
+      const b = document.createElement('button'); b.className = 'knop licht klein'; b.textContent = lbl; b.title = { lees:'Leerkaart', kaartjes:'Kaartjes', koppel:'Koppelen', race:'Tijdrace (60 s)', foto:'Fotoronde', quiz:'Quiz', open:'Open vragen' }[soort];
       b.onclick = () => voerUit({ id:'vrij:' + soort + ':' + t.id, soort:'vrij-' + soort, vak:t.vak, onderwerp:t.id, titel:t.titel, vrij:true });
       rij.append(b);
     }
@@ -559,6 +564,27 @@ function kaartInhoud(id){
 }
 
 // ---------------- Vragen maken ----------------
+// Open vragen: geen meerkeuze. Eigen open vragen + kernvraag (met kernwoorden), invulvragen,
+// en meerkeuze- en kaartvragen zonder opties (modelantwoord + eerlijk zelf scoren).
+const ZONDER_OPTIES = /\b(GEEN|NIET)\b|welke van|bovenstaande|klopt|juist|fout|onjuist/i;
+function openVragen(ts, n){
+  const kern = [], rest = [], gezien = new Set();
+  const plus = (lijst, q) => { const sl = String(q.v).replace(/<[^>]+>/g, '').trim().toLowerCase(); if (gezien.has(sl)) return; gezien.add(sl); lijst.push(q); };
+  for (const t of ts) {
+    const basis = { tid: t.id, vak: t.vak };
+    const s = (window.ELI_SNAP || {})[t.id];
+    if (s && s.kern) plus(kern, { t:'open', v:s.kern.v, m:s.kern.m, k:s.kern.k, ...basis });
+    for (const q of t.quiz) {
+      if (q.t === 'open') plus(kern, { ...q, ...basis });
+      else if (q.t === 'invul' || q.t === 'getal') plus(rest, { ...q, ...basis });
+      else if (q.t === 'mc' && !ZONDER_OPTIES.test(q.v) && !/alle|beide|geen van/i.test(q.o[q.a])) plus(rest, { t:'open', v:q.v, m:esc(q.o[q.a]) + (q.u ? `<br><small>${esc(q.u)}</small>` : ''), ...basis });
+    }
+    for (const [v, a] of t.kaarten) plus(rest, { t:'open', v:esc(v), m:esc(a), ...basis });
+    for (const q of extraVragen(t)) if (q.t !== 'mc') plus(rest, q);
+  }
+  const k = schud(kern).slice(0, Math.ceil(n / 2));
+  return schud(k.concat(schud(rest).slice(0, n - k.length)));
+}
 function vragenVan(t, n){
   let qs = t.quiz.map(q => ({ ...q, tid: t.id, vak: t.vak }));
   qs = qs.concat(extraVragen(t));
@@ -686,6 +712,8 @@ function voerUit(it){
   } else if (it.soort === 'vrij-lees') stappen.push(['lees', t]);
   else if (it.soort === 'vrij-kaartjes') stappen.push(['kaartjes', t.kaarten.map((_, i) => t.id + '-' + i)]);
   else if (it.soort === 'vrij-quiz') stappen.push(['quiz', vragenVan(t, 10)]);
+  else if (it.soort === 'vrij-open') stappen.push(['quiz', openVragen([t], 8)]);
+  else if (it.soort === 'open-vak') stappen.push(['quiz', openVragen(T.filter(x => x.vak === it.vak && geleerd(x.id)).length >= 2 ? T.filter(x => x.vak === it.vak && geleerd(x.id)) : T.filter(x => x.vak === it.vak), 10)]);
   else if (it.soort === 'vrij-koppel') stappen.push(['koppel', parenVan([t]), 3]);
   else if (it.soort === 'vrij-race') stappen.push(['race', raceVragen([t]), t.id]);
   else if (it.soort === 'verrassing' || it.soort === 'fotoronde') stappen.push([it.soort === 'fotoronde' ? 'foto' : 'quiz', it.vragen]);
