@@ -358,7 +358,7 @@ window.ELI_ONDERWERPEN.push(
 },
 {
   id:'C8', vak:'cul', titel:'Het Moorse Rijk (Al-Andalus)', min:18,
-  bron:['Cursus: Het Moorse Rijk'],
+  bron:[],
   samenvatting:[
     '<h4>🧭 Wie waren de Moren?</h4><p>De <b>Moren</b> waren mensen uit <b>Noord-Afrika</b> die de <b>islam</b> aanhingen. De naam komt van het Latijnse <b>“Mauri”</b>: zo noemde men de <b>Berbers</b> uit die regio (nu Marokko en Algerije).</p><p class="lp-tip">💡 Toen de islam zich uitbreidde, werden de Moren bekend als de islamitische bevolking van Noord-Afrika.</p>',
     '<h4>⚔️ Het ontstaan van het Moorse Rijk</h4><table class="lp-ww lp-tijd lp-wrap"><tr><td>5e eeuw</td><td>na de val van het WRR heersen de <b>Visigoten</b> op het <b>Iberisch Schiereiland</b> (Spanje en Portugal)</td></tr><tr><td>7e eeuw</td><td>in <b>Mekka</b> ontstaat de islam (Mohammed); na zijn dood in <b>632</b> breidt ze razendsnel uit</td></tr><tr><td>647–709</td><td>de <b>Omajjaden</b> veroveren de <b>Maghreb</b> (noordwesten van Afrika), vroeger Byzantijns</td></tr><tr><td>711</td><td><b>Tariq ibn Zijad</b> steekt de <b>Straat van Gibraltar</b> over en verslaat de Visigotische koning <b>Roderik</b> in de <b>slag bij Guadalete</b></td></tr><tr><td>715</td><td><b>Sevilla</b> wordt hoofdstad van <b>Al-Andalus</b>; de gouverneurs leggen verantwoording af aan de kalief in <b>Damascus</b></td></tr><tr><td>732</td><td><b>Karel Martel</b> stopt de Moren in de <b>slag bij Poitiers</b></td></tr></table>',
@@ -413,7 +413,7 @@ window.ELI_ONDERWERPEN.push(
 },
 {
   id:'C17', vak:'cul', titel:'De stelling van Henri Pirenne en eurocentrisme', min:12,
-  bron:['3DO: De stelling van Henri Pirenne (uitbreiding bij hoofdstuk 4, de islam)'],
+  bron:[],
   samenvatting:[
     '<h4>👨‍🏫 Henri Pirenne</h4><div class="lp-tegels"><div><i>🇧🇪</i><b>Belgische historicus</b><small>eind 19e – begin 20e eeuw</small></div><div><i>🎓</i><b>hoogleraar</b><small>aan de universiteit van Gent</small></div><div><i>📖</i><b>Mahomet et Charlemagne</b><small>zijn boek uit <b>1916</b></small></div></div><p>Pirenne zoekt naar <b>continuïteit en discontinuïteit</b>: maatschappelijke eigenschappen die <u>wel of niet</u> blijven bestaan wanneer er grote veranderingen gebeuren.</p><div class="lp-vs"><div><b>➡️ continuïteit</b>iets <u>blijft</u> bestaan</div><div><b>✂️ discontinuïteit</b>een <u>breuk</u>: iets houdt op</div></div>',
     '<h4>🌍 Eurocentrisme</h4><p><b>Eurocentrisme</b> = de neiging om <b>Europa als het centrum van de wereld</b> te zien en Europese culturen en waarden als <b>superieur</b>. Europese geschiedenis en ideeën staan centraal; andere culturen worden als minder belangrijk of “minder geciviliseerd” afgeschilderd.</p><p class="lp-tip">🕶️ Pirenne probeert de <b>eurocentristische bril af te zetten</b>.</p><div class="lp-tegels k2"><div><i>👑</i><b>hegemonie</b><small>ideeën zo dominant dat ze vanzelfsprekend lijken</small></div><div><i>🗣️</i><b>discours</b><small>geheel van ideeën en woorden dat macht uitoefent</small></div><div><i>🖼️</i><b>representatie</b><small>hoe een groep wordt afgebeeld in kunst en media</small></div><div><i>🧕</i><b>oriëntalisme</b><small>westers, vertekend beeld van het Oosten</small></div></div>',
