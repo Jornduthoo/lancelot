@@ -659,10 +659,13 @@ function rekenVraag(soort, t){
   return null;
 }
 function leesGetal(s){
-  s = String(s || '').trim().replace(/\s/g, '').replace(/[a-zA-Zµ/²³]+$/,'')
+  // Ook LaTeX-notatie (gekopieerd uit Gemini): $8 \cdot 10^{9}$, 8\times10^9
+  s = String(s || '').replace(/\\(cdot|times)/g, '·').replace(/[${}\\]/g, '');
+  s = s.trim().replace(/\s/g, '').replace(/[a-zA-Zµ/²³]+$/,'')
     .replace(/[⁰¹²³⁴⁵⁶⁷⁸⁹⁻]/g, c => ({'⁰':'0','¹':'1','²':'2','³':'3','⁴':'4','⁵':'5','⁶':'6','⁷':'7','⁸':'8','⁹':'9','⁻':'-'}[c]))
-    .replace(',', '.').replace(/(\d)\.(\d{3})\.(\d{3})/, '$1$2$3');
-  s = s.replace(/[x×·*]10\^?(-?\d+)/i, 'e$1').replace(/^10\^?(-?\d+)$/, '1e$1');
+    .replace(',', '.');
+  if (/^-?\d{1,3}(\.\d{3}){2,}$/.test(s)) s = s.replace(/\./g, '');
+  s = s.replace(/[x×·*.]10(?:\^|\*\*)(-?\d+)/i, 'e$1').replace(/[x×·*]10\^?(-?\d+)/i, 'e$1').replace(/^10\^?(-?\d+)$/, '1e$1');
   const n = Number(s);
   return isFinite(n) && s !== '' ? n : null;
 }
