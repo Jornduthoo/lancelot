@@ -625,7 +625,7 @@ function rekenVraag(soort, t){
     do { b = VV[Math.floor(Math.random() * VV.length)]; } while (b === a);
     const n = rond(r(1, 99), 2);
     const ant = n * Math.pow(10, a[1] - b[1]);
-    return { t:'getal', v:`Zet om: <b>${getal(n)} ${a[0]}${eenh}</b> = … ${b[0]}${eenh}`, a: ant, tol: .001, tid: t.id, vak:'wet', u:`${a[0] || '(geen voorvoegsel)'} = 10^${a[1]}, ${b[0] || '(geen voorvoegsel)'} = 10^${b[1]} → × 10^${a[1] - b[1]}. Je mag ook 4,5e3 of 4,5·10^3 typen.` };
+    return { t:'getal', macht:true, v:`Zet om: <b>${getal(n)} ${a[0]}${eenh}</b> = … ${b[0]}${eenh}`, a: ant, tol: .001, tid: t.id, vak:'wet', u:`${a[0] || '(geen voorvoegsel)'} = 10^${a[1]}, ${b[0] || '(geen voorvoegsel)'} = 10^${b[1]} → × 10^${a[1] - b[1]}.` };
   }
   if (soort === 'bc') {
     const voorbeelden = [['0,0450 m',3],['23,0 g',3],['1,05 kg',3],['0,23 g',2],['120,40 s',5],['0,007 L',1],['5,00 N',3],['3,1416',5],['0,0102 m',3],['70,0 km',3]];
@@ -965,7 +965,7 @@ const VOORBEELD = {
       { label:'Stap 1', v:`Wat is de macht van 10 van "${van[0]}"?`, uit:`${van[0]} = 10<sup>${van[1]}</sup>`, q:{ t:'getal', v:`${van[0]} = 10 tot de macht …`, a: van[1], tol:0 }, hint:'Kijk naar de voorvoegsel-trap: kilo = 3, mega = 6, hecto = 2.' },
       { label:'Stap 2', v:`Wat is de macht van 10 van "${naar[0]}"?`, uit:`${naar[0]} = 10<sup>${naar[1]}</sup>`, q:{ t:'getal', v:`${naar[0]} = 10 tot de macht … (negatief? typ -)`, a: naar[1], tol:0 }, hint:'Onder de basis zijn de machten negatief: deci -1, centi -2, milli -3, micro -6.' },
       { label:'Stap 3', v:'Verschil van de exponenten = hoeveel keer × 10?', uit:`${van[1]} − (${naar[1]}) = ${exp} → × 10<sup>${exp}</sup>`, q:{ t:'getal', v:`${van[1]} − (${naar[1]}) = …`, a: exp, tol:0 }, hint:'Min een negatief getal = plus.' },
-      { label:'Oplossing', v:'Schrijf het resultaat.', uit:`${n} ${van[0]}${eh} = <b>${n}·10<sup>${exp}</sup> ${naar[0]}${eh}</b>`, q:{ t:'getal', v:`${n} ${van[0]}${eh} = … ${naar[0]}${eh} (bv. ${n}e${exp})`, a: n * 10 ** exp, tol:.001 }, hint:`Typ ${n}e${exp} of ${n}·10^${exp}.` },
+      { label:'Oplossing', v:'Schrijf het resultaat.', uit:`${n} ${van[0]}${eh} = <b>${n}·10<sup>${exp}</sup> ${naar[0]}${eh}</b>`, q:{ t:'getal', macht:true, v:`${n} ${van[0]}${eh} = … ${naar[0]}${eh}`, a: n * 10 ** exp, tol:.001 }, hint:`Het getal blijft ${n}, de macht van 10 is het antwoord van stap 3.` },
     ] };
   },
   W3: vast => {
@@ -1303,7 +1303,7 @@ function omzetVragen(aantal){
       let a = r(VV), b = r(VV); if (a === b || Math.abs(a[1] - b[1]) > 3) continue;
       const val = r([1, 2, 3, 4, 5, 6, 7, 8, 9, 12, 25, 40, 1.5, 2.5, 7.5]);
       const ant = val * Math.pow(10, a[1] - b[1]);
-      qs.push({ t:'getal', v:`🔁 Zet om: <b>${getal(val)} ${a[0]}${e} = … ${b[0]}${e}</b>`, a: Number(ant.toPrecision(10)), tol: 1e-9, tid:'W2', vak:'wet' });
+      qs.push({ t:'getal', macht:true, v:`🔁 Zet om: <b>${getal(val)} ${a[0]}${e} = … ${b[0]}${e}</b>`, a: Number(ant.toPrecision(10)), tol: 1e-9, tid:'W2', vak:'wet' });
     } else {
       const g = r(GROOT), e = r(['m', 's', 'g', 'A']); const val = r([2, 3, 5, 8]);
       qs.push({ t:'getal', v:`🔁 Vul de exponent in: <b>${val} ${g[0]}${e} = ${val} · 10<sup>?</sup> ${e}</b>`, a: g[1], tid:'W2', vak:'wet' });
@@ -1496,7 +1496,10 @@ function tekenAntwoord(q, klaar){
       done(goed ? 1 : 0, goed ? '' : `De stelling is <b>${q.a ? 'juist' : 'fout'}</b>.`);
     });
   } else if (q.t === 'invul' || q.t === 'getal') {
-    ant.innerHTML = `<form id="if" class="rij" style="flex-wrap:nowrap"><input id="iv" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="${q.t === 'getal' ? 'Getal (bv. 4,5 of 4,5e3)' : 'Typ je antwoord'}" ${q.t === 'getal' ? 'inputmode="decimal"' : ''}><button class="knop">OK</button></form>${q.fr ? '<div class="rij" style="margin-top:8px" id="acc"></div>' : ''}`;
+    // macht: aparte vakjes voor het getal en de exponent (getal · 10^x), Eli's vraag 18/11.
+    ant.innerHTML = q.macht
+      ? `<form id="if" class="rij macht" style="flex-wrap:nowrap"><input id="iv" autocomplete="off" inputmode="decimal" placeholder="getal"><span class="maal">· 10</span><sup><input id="ix" autocomplete="off" inputmode="text" placeholder="x" aria-label="macht van 10"></sup><button class="knop">OK</button></form><p class="muted klein" style="margin-top:6px">Negatieve macht? Typ een − (min). Geen macht nodig? Laat het kleine vakje leeg.</p>`
+      : `<form id="if" class="rij" style="flex-wrap:nowrap"><input id="iv" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="${q.t === 'getal' ? 'Getal (bv. 4,5 of 4,5e3)' : 'Typ je antwoord'}" ${q.t === 'getal' ? 'inputmode="decimal"' : ''}><button class="knop">OK</button></form>${q.fr ? '<div class="rij" style="margin-top:8px" id="acc"></div>' : ''}`;
     if (q.fr) $('acc').innerHTML = ['é','è','ê','à','ç','ô','î','ë'].map(c => `<button type="button" class="knop licht klein" data-c="${c}">${c}</button>`).join('');
     if (q.fr) $('acc').onclick = e => { const b = e.target.closest('button'); if (!b) return; const iv = $('iv'); const p = iv.selectionStart ?? iv.value.length; iv.value = iv.value.slice(0, p) + b.dataset.c + iv.value.slice(p); iv.focus(); iv.setSelectionRange(p + 1, p + 1); };
     const iv = $('iv'); setTimeout(() => iv.focus(), 50);
@@ -1505,9 +1508,12 @@ function tekenAntwoord(q, klaar){
       if (!iv.value.trim()) return;
       iv.disabled = true;
       if (q.t === 'getal') {
-        const n = leesGetal(iv.value);
+        let n = leesGetal(iv.value);
+        if (q.macht) { const ix = $('ix'); ix.disabled = true; const x = ix.value.trim().replace(/[−–]/g, '-');
+          if (x) { const e = /^-?\d+$/.test(x) ? Number(x) : NaN; n = n === null || isNaN(e) ? null : Number((n * 10 ** e).toPrecision(12)); } }
         const goed = n !== null && (q.tol ? Math.abs(n - q.a) <= Math.abs(q.a) * q.tol + 1e-12 : n === q.a);
-        return done(goed ? 1 : 0, goed ? '' : `Juist antwoord: <b>${getal(rond(q.a, 4))}</b>`);
+        const wet = q.macht && q.a !== 0 ? (() => { const [m, e] = q.a.toExponential().split('e'); return ` = <b>${getal(rond(Number(m), 4))} · 10<sup>${Number(e)}</sup></b>`; })() : '';
+        return done(goed ? 1 : 0, goed ? '' : `Juist antwoord: <b>${getal(rond(q.a, 4))}</b>${wet}`);
       }
       let x = norm(iv.value);
       const opties = q.a.flatMap(varianten).map(norm);
