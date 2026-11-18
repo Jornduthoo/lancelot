@@ -37,6 +37,7 @@ function maak(){
   const per = {}; for (const t of T) (per[t.vak] = per[t.vak] || []).push(t);
   // Eerste ronde: vakken door elkaar (afwisseling helpt onthouden), vroegste examen krijgt voorrang.
   const volg = ['kf','gsw','fr','wet','cul'];
+  // min: vaste duur, of per onderwerp (t.min) voor korte lessen. Woordenschatlessen (geenHerhaal) oefen je via de kaartjes.
   const ronde = (soort, min) => {
     const rij = [], idx = {}; volg.forEach(v => idx[v] = 0);
     let nog = true;
@@ -46,21 +47,26 @@ function maak(){
         const lijst = per[v] || [];
         if (idx[v] < lijst.length) {
           const t = lijst[idx[v]++];
-          rij.push({ id: soort + ':' + t.id, soort, vak: v, onderwerp: t.id, titel: t.titel, min });
+          if (soort === 'herhaal' && t.geenHerhaal) { nog = true; continue; }
+          rij.push({ id: soort + ':' + t.id, soort, vak: v, onderwerp: t.id, titel: t.titel, min: soort === 'leer' && t.min ? t.min : min });
           nog = true;
         }
       }
     }
     return rij;
   };
-  const wachtrij = [...ronde('leer', LEER_MIN), ...ronde('herhaal', HERHAAL_MIN)];
-  // Proefexamens Wetenschappen en Cultuur vóór het weekend van 5/12.
-  wachtrij.push({ id:'proef:wet:1', soort:'proef', vak:'wet', titel:'Proefexamen Wetenschappen', min: PROEF_MIN });
-  wachtrij.push({ id:'proef:cul:1', soort:'proef', vak:'cul', titel:'Proefexamen Cultuur', min: PROEF_MIN });
-  wachtrij.push({ id:'zwak:wet:1', soort:'zwak', vak:'wet', titel:'Zwakke punten Wetenschappen wegwerken', min: ZWAK_MIN });
+  // Eerst alles leren, dan zwakke punten Wetenschappen, dan herhalen zolang er plaats is.
+  const wachtrij = [...ronde('leer', LEER_MIN),
+    { id:'zwak:wet:1', soort:'zwak', vak:'wet', titel:'Zwakke punten Wetenschappen wegwerken', min: ZWAK_MIN },
+    ...ronde('herhaal', HERHAAL_MIN)];
 
   // Vaste examenperiode (het slot van de planning).
   const vast = {
+    // Proefexamens Wetenschappen en Cultuur vóór het weekend van 5/12.
+    '2026-12-04': [
+      { id:'proef:wet:1', soort:'proef', vak:'wet', titel:'Proefexamen Wetenschappen', min: PROEF_MIN },
+      { id:'proef:cul:1', soort:'proef', vak:'cul', titel:'Proefexamen Cultuur', min: PROEF_MIN },
+    ],
     '2026-12-05': [
       { id:'proef:kf:1',  soort:'proef', vak:'kf',  titel:'Proefexamen Kunst & Filosofie', min: PROEF_MIN },
       { id:'zwak:kf:1',   soort:'zwak',  vak:'kf',  titel:'Zwakke punten K&F wegwerken', min: ZWAK_MIN },
@@ -100,15 +106,19 @@ function maak(){
     if (vast[d]) { items.push(...vast[d]); sluit(); continue; }
     if (d >= '2026-12-05') { sluit(); continue; }
     let over = b - (kaart ? KAART_MIN : 0);
-    while (wachtrij.length && over >= Math.min(10, wachtrij[0].min)) {
+    // Vanaf 19/11 strikt: een taak komt er alleen bij als ze nog helemaal past.
+    const past = t => d >= '2026-11-19' ? t.min <= over : over >= Math.min(10, t.min);
+    while (wachtrij.length && past(wachtrij[0])) {
       const t = wachtrij.shift();
       items.push(t);
       over -= t.min;
     }
     sluit();
   }
-  // Wat er na 4/12 nog in de wachtrij zit (mag eigenlijk niet), komt op 4/12 als extra.
-  if (wachtrij.length) plan['2026-12-04'].splice(-1, 0, ...wachtrij.splice(0));
+  // Afspraak met papa (18/11): de tijd blijft gelijk. Herhalingen die niet meer passen vallen weg;
+  // nieuwe lessen die niet passen (mag niet), komen op 4/12 als extra.
+  const rest = wachtrij.filter(t => t.soort !== 'herhaal');
+  if (rest.length) plan['2026-12-04'].splice(-1, 0, ...rest);
   return plan;
 }
 

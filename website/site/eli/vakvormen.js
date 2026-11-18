@@ -35,6 +35,16 @@ window.ELI_TIJDLIJN = [
   { j: 476, t: '476', e: 'Odoaker zet Romulus Augustulus af', tid: 'C2' },
   { j: 481, t: '± 481', e: 'Clovis wordt koning van de Franken', tid: 'C3' },
   { j: 511, t: '511', e: 'Clovis sterft en zijn zonen verdelen het rijk', tid: 'C3' },
+  { j: 570, t: '± 570', e: 'Mohammed wordt geboren in Mekka', tid: 'C5' },
+  { j: 602, t: '602 – 628', e: 'Oorlog tussen Byzantium en de Sassaniden', tid: 'C5' },
+  { j: 610, t: '610', e: 'De engel Djibriel verschijnt aan Mohammed in de grot Hira', tid: 'C5' },
+  { j: 622, t: '622', e: 'Vlucht van Mekka naar Medina: start van de islamitische jaartelling', tid: 'C5' },
+  { j: 632, t: '632', e: 'Mohammed sterft, einde van fase 1', tid: 'C5' },
+  { j: 661, t: '661', e: 'Einde van fase 2 van het Kalifaat', tid: 'C5' },
+  { j: 711, t: '711', e: 'De Moren steken de Straat van Gibraltar over', tid: 'C8' },
+  { j: 732, t: '732', e: 'Slag bij Poitiers: Karel Martel stopt het Kalifaat', tid: 'C5' },
+  { j: 751, t: '751', e: 'Slag bij Talas: China stopt het Kalifaat', tid: 'C5' },
+  { j: 1492, t: '1492', e: 'Val van Granada: einde van de Reconquista', tid: 'C8' },
 ];
 // [zin met [fout|juist], uitleg, onderwerp]
 window.ELI_FOUT = [
