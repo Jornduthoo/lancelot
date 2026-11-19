@@ -167,5 +167,8 @@
  "🎧 Luisterfragment bij de bron:": "🎧 Extrait audio avec la source :",
  "🎧 Luisterfragment toevoegen (opname of geluidsbestand)": "🎧 Ajouter un extrait audio (enregistrement ou fichier son)",
  "🔀 Keuzes altijd door elkaar (ook als de vragen in een vaste volgorde staan)": "🔀 Toujours mélanger les choix (même si les questions sont dans un ordre fixe)",
- "Allebei": "Les deux"
+ "Allebei": "Les deux",
+ "Je hebt al 1 keer geluisterd.": "Tu as déjà écouté 1 fois.",
+ "Je hebt al {0} keer geluisterd.": "Tu as déjà écouté {0} fois.",
+ "🎧 Hoe vaak mag de leerling luisteren?": "🎧 Combien de fois l'élève peut-il écouter ?"
 }

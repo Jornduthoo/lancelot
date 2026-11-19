@@ -772,7 +772,8 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
     } else if (f.soort === 'luister') {
       kop.textContent = NAAM.luister;
       inh.innerHTML = `<p class="bv-vraag">Neem je uitleg op of kies een geluidsbestand:</p><div class="pf-be-audio bv-audio"></div>
-        <label>Of: tekst die LANcelot voorleest<textarea class="bv-tekst" rows="2">${esc(f.tekst || '')}</textarea></label>`;
+        <label>Of: tekst die LANcelot voorleest<textarea class="bv-tekst" rows="2">${esc(f.tekst || '')}</textarea></label>
+        <label>Hoe vaak mag de leerling luisteren? <select class="bv-lm">${[[0, 'onbeperkt'], [2, '2 keer'], [1, '1 keer']].map(([n, t]) => `<option value="${n}"${(f.luisterMax || 0) === n ? ' selected' : ''}>${t}</option>`).join('')}</select></label>`;
       if (typeof PfAudio !== 'undefined') PfAudio.knop(inh.querySelector('.bv-audio'), { waarde: f.audio || '', max: 90, grootte: 2000000, label: 'Opnemen', onChange: d => { if (d) f.audio = d; else delete f.audio; bijwerken(); } });
     } else if (f.soort === 'vlak') {
       kop.textContent = NAAM.vlak;
@@ -830,6 +831,7 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
       else if (t.classList.contains('bv-eenheid')) { f.eenheid = t.value.trim(); bijwerken(); }
       else if (t.classList.contains('bv-model')) { f.antwoord = t.value; bijwerken(); }
       else if (t.classList.contains('bv-tekst')) { f.tekst = t.value; bijwerken(); }
+      else if (t.classList.contains('bv-lm')) { const n = Number(t.value); if (n) f.luisterMax = n; else delete f.luisterMax; bijwerken(); }
       else if (t.classList.contains('bv-woorden')) box.querySelector('#be-woorden').value = t.value;
       else if (t.classList.contains('bv-r')) {
         if (!f.doel) f.doel = { x: 50, y: 50, r: 12 };
