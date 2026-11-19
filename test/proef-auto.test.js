@@ -171,6 +171,11 @@ test('veelhoek op roosterpunten: de computer herkent de soort', () => {
   assert.deepEqual(K.vakGoed(q, ['0,0;2,0;2,2;0,2', '0,0;2,0;2,2;0,2']), [true, false]);
   assert.deepEqual(K.vakGoed(q, ['0,0;3,0;3,2;0,2', '0,0;3,0;3,2;0,2']), [true, true]);
   assert.deepEqual(K.vakGoed(q, ['0,0;3,0', '']), [false, false]);
+  // De uiteinden van de diagonalen na elkaar aangetikt: toch de bedoelde figuur (rondom).
+  assert.deepEqual(K.rondom([[4, 1], [1, 3], [7, 3], [4, 5]]).map(String), ['4,1', '7,3', '4,5', '1,3']);
+  const ruit = { x: 0, y: 0, w: 30, h: 30 / 1.414, soort: 'veelhoek', kol: 9, rij: 7, figuur: 'ruit', strikt: true };
+  assert.deepEqual(K.vakGoed(blad([ruit]), ['4,1;1,3;7,3;4,5']), [true]);
+  assert.deepEqual(K.vakGoed(blad([ruit]), ['4,1;7,3;4,5;1,3']), [true]);
   assert.equal(K.veldSleutel(q)[0], 'rechthoek');
   assert.equal(K.veldSleutel(q)[1], 'precies een rechthoek');
   const leeg = toets([{ ...v, figuur: undefined }]);

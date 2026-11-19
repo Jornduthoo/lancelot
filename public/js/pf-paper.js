@@ -1142,7 +1142,7 @@ const PfPaper = (() => {
 
   // De figuur van de leerling als svg: een veelhoek (vanaf 3 punten dicht), of een lijn en een punt.
   function veelhoekSvg(v, kol, rij) {
-    const p = String(v || '').split(';').map(x => x.split(',').map(Number)).filter(x => x.length === 2 && x.every(Number.isFinite));
+    const p = PfKern.rondom(String(v || '').split(';').map(x => x.split(',').map(Number)).filter(x => x.length === 2 && x.every(Number.isFinite)));
     const xy = p.map(([c, r]) => `${(c / (kol - 1)) * 100},${(r / (rij - 1)) * 100}`).join(' ');
     if (p.length >= 3) return `<polygon class="ant" points="${xy}" vector-effect="non-scaling-stroke"/>`;
     if (p.length === 2) return `<polyline class="ant" points="${xy}" vector-effect="non-scaling-stroke"/>`;
