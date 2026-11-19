@@ -166,3 +166,25 @@ test('voorlezen: een tekst bij elke vraag die de leerling hoort maar niet ziet',
   assert.equal(K.viewOf(q, '0').voorlees, 'fiets');
   assert.equal(een({ type: 'kort', vraag: 'x', antwoord: '1' }).voorlees, undefined);
 });
+
+test('kleine dingen: even brede gaten en meerdere stellingen in één juist-of-foutvraag', () => {
+  const oud = een({ type: 'invullen', vraag: 'x', tekst: 'De [kat] zit op de [vensterbank].' });
+  const parts = K.viewOf(oud, '0').parts.filter(p => p.size);
+  assert.notEqual(parts[0].size, parts[1].size);
+  const gelijk = een({ type: 'invullen', vraag: 'x', tekst: 'De [kat] zit op de [vensterbank].', gelijk: true });
+  const g = K.viewOf(gelijk, '0').parts.filter(p => p.size);
+  assert.equal(g[0].size, g[1].size);
+  assert.equal(K.auto(gelijk, ['kat', 'vensterbank']), 2);
+  const jf = een({ type: 'juistfout', vraag: 'x', juist: false });
+  assert.equal(jf.stellingen, undefined);
+  assert.equal(K.auto(jf, 'F'), 1);
+  const st = een({ type: 'juistfout', vraag: 'Klopt dit?', stellingen: [{ tekst: 'Een walvis is een vis.', juist: false }, { tekst: 'Gent ligt in België.', juist: true }, { tekst: '2 + 2 = 5', juist: 'nee' }], labels: 'janee' });
+  assert.equal(st.punten, 3);
+  assert.equal(st.juist, undefined);
+  assert.equal(K.auto(st, ['F', 'J', 'F']), 3);
+  assert.equal(K.auto(st, ['F', 'F', null]), 1);
+  assert.deepEqual(K.schoon(st, ['J', 'x', 'F', 'J']), ['J', null, 'F']);
+  assert.deepEqual(K.viewOf(st, '0').stellingen, ['Een walvis is een vis.', 'Gent ligt in België.', '2 + 2 = 5']);
+  assert.ok(!JSON.stringify(K.viewOf(st, '0')).includes('"juist"'));
+  assert.equal(K.oplossing(st), '1. Nee · 2. Ja · 3. Nee');
+});

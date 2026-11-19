@@ -230,8 +230,30 @@ const PfEdit = (() => {
         box.addEventListener('change', meer);
         meer();
       } else if (q.type === 'juistfout') {
-        veld('<label>Het juiste antwoord<select class="e-jf"><option value="J">Juist</option><option value="F">Fout</option></select></label>');
+        const een = veld('<label>Het juiste antwoord<select class="e-jf"><option value="J">Juist</option><option value="F">Fout</option></select></label>');
         card.querySelector('.e-jf').value = q.juist ? 'J' : 'F';
+        // Meerdere stellingen in één vraag, met een punt per stelling.
+        veld('<label class="inline check"><input type="checkbox" class="e-meerst"> Meerdere stellingen in één vraag (een punt per stelling)</label>');
+        const meerst = veld(`<label>De leerling kiest<select class="e-labels"><option value="">Juist of fout</option><option value="janee">Ja of nee</option></select></label><div class="pf-e-stellingen"></div>
+          <button type="button" class="secondary small-btn e-st-add">+ stelling</button>`);
+        const box = meerst.querySelector('.pf-e-stellingen');
+        const rij = x => {
+          const r = document.createElement('div');
+          r.className = 'pf-e-stelling';
+          r.innerHTML = '<input class="e-st" maxlength="300" placeholder="stelling, bv. Een walvis is een vis."><select class="e-st-jf"><option value="J">juist / ja</option><option value="F">fout / nee</option></select><button type="button" class="secondary small-btn weg" title="Weghalen">✕</button>';
+          r.querySelector('.e-st').value = (x && x.tekst) || '';
+          r.querySelector('.e-st-jf').value = x && x.juist ? 'J' : 'F';
+          r.querySelector('.weg').addEventListener('click', () => { if (box.children.length > 1) { r.remove(); cfg.preview(); } });
+          return r;
+        };
+        for (const x of q.stellingen && q.stellingen.length ? q.stellingen : [{ juist: true }, {}]) box.appendChild(rij(x));
+        meerst.querySelector('.e-st-add').addEventListener('click', () => { if (box.children.length < 20) { box.appendChild(rij({})); cfg.preview(); } });
+        card.querySelector('.e-labels').value = q.labels || '';
+        const vink = card.querySelector('.e-meerst');
+        vink.checked = !!(q.stellingen && q.stellingen.length);
+        const toon = () => { meerst.classList.toggle('hidden', !vink.checked); een.classList.toggle('hidden', vink.checked); };
+        vink.addEventListener('change', () => { toon(); cfg.preview(); });
+        toon();
       } else if (q.type === 'invullen') {
         veld('<label>Tekst met gaten<textarea class="e-tekst" rows="3" placeholder="De hoofdstad van België is [Brussel]. Een spin heeft {acht|zes|tien} poten."></textarea></label>');
         card.querySelector('.e-tekst').value = q.tekst || '';
@@ -239,6 +261,8 @@ const PfEdit = (() => {
         gatKnoppen(hulp, card.querySelector('.e-tekst'));
         veld('<label class="inline check"><input type="checkbox" class="e-bank"> 🧲 Woordenbank: de leerling sleept de woorden in de gaten</label><label class="e-extra-label">Extra woorden in de bank (foute keuzes, gescheiden door /)<input class="e-extra" maxlength="600" placeholder="bijv. hond / tafel"></label>');
         card.querySelector('.e-bank').checked = !!q.bank;
+        veld('<label class="inline check"><input type="checkbox" class="e-gelijk"> Alle gaten even breed (de lengte verraadt het antwoord niet)</label>');
+        card.querySelector('.e-gelijk').checked = !!q.gelijk;
         card.querySelector('.e-extra').value = (q.extra || []).join(' / ');
         const bk = () => card.querySelector('.e-extra-label').classList.toggle('hidden', !card.querySelector('.e-bank').checked);
         card.querySelector('.e-bank').addEventListener('change', bk);
@@ -686,9 +710,14 @@ const PfEdit = (() => {
         if (waarde(card, '.e-puntenper')) q.puntenPer = waarde(card, '.e-puntenper');
         if (waarde(card, '.e-aantal')) q.aantal = Number(waarde(card, '.e-aantal'));
       }
-    } else if (type === 'juistfout') q.juist = waarde(card, '.e-jf') === 'J';
-    else if (type === 'invullen') {
+    } else if (type === 'juistfout') {
+      if (card.querySelector(':scope > .pf-k-body .e-meerst').checked) {
+        q.stellingen = [...card.querySelectorAll(':scope > .pf-k-body .pf-e-stelling')].map(r => ({ tekst: r.querySelector('.e-st').value.trim(), juist: r.querySelector('.e-st-jf').value === 'J' })).filter(x => x.tekst);
+        if (waarde(card, '.e-labels')) q.labels = waarde(card, '.e-labels');
+      } else q.juist = waarde(card, '.e-jf') === 'J';
+    } else if (type === 'invullen') {
       q.tekst = waarde(card, '.e-tekst');
+      if (card.querySelector(':scope > .pf-k-body .e-gelijk').checked) q.gelijk = true;
       if (card.querySelector(':scope > .pf-k-body .e-bank').checked) {
         q.bank = true;
         q.extra = waarde(card, '.e-extra').split('/').map(w => w.trim()).filter(Boolean);

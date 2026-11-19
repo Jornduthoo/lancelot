@@ -440,13 +440,21 @@
         if (out.puntenPer) max = out.aantal || juist.length;
       }
     } else if (type === 'juistfout') {
-      const c = pick(q, 'juist', 'correct');
-      out.juist = c === true || /^(j|juist|true|waar|ja)$/i.test(String(c));
+      const ja = c => c === true || /^(j|juist|true|waar|ja)$/i.test(String(c));
+      // Meerdere stellingen in één vraag: per stelling juist of fout (of ja of nee), een punt per stelling.
+      const st = list(q.stellingen, 20).map(x => (x && typeof x === 'object' ? { tekst: text(x.tekst, 300), juist: ja(x.juist) } : null)).filter(x => x && x.tekst);
+      if (st.length) {
+        out.stellingen = st;
+        if (q.labels === 'janee') out.labels = 'janee';
+        max = st.length;
+      } else out.juist = ja(pick(q, 'juist', 'correct'));
     } else if (type === 'invullen') {
       out.tekst = text(q.tekst || q.text, 4000);
       const n = gapsOf(out.tekst).length;
       if (!n) throw new Error(`${naam} heeft geen gaten. Zet wat de leerling invult tussen [ en ].`);
       if (n > 40) throw new Error(`${naam} heeft te veel gaten (hooguit 40).`);
+      // Alle gaten even breed: de lengte van het gat verraadt het antwoord niet.
+      if (q.gelijk === true) out.gelijk = true;
       if (q.bank === true) {
         out.bank = true;
         const extra = [...new Set(list(q.extra, 20).map(w => text(w, 60)).filter(Boolean))];
@@ -1190,8 +1198,15 @@
       v.opties = order.map(i => (typeof q.opties[i] === 'string' ? { tekst: q.opties[i] } : { tekst: q.opties[i].tekst, beeld: q.opties[i].beeld && !q.opties[i].beeld.startsWith('#') ? img(q.opties[i].beeld) : undefined }));
       v.meer = Array.isArray(q.juist);
       if (q.aantal) v.aantal = q.aantal;
+    } else if (q.type === 'juistfout' && q.stellingen) {
+      v.stellingen = q.stellingen.map(x => x.tekst);
+      if (q.labels) v.labels = q.labels;
     } else if (q.type === 'invullen') {
       v.parts = partsOf(q.tekst);
+      if (q.gelijk) {
+        const breed = Math.max(...v.parts.filter(x => x && x.size).map(x => x.size), 4);
+        for (const x of v.parts) if (x && x.size) x.size = breed;
+      }
       // Een woordenbank: de leerling sleept de woorden in de gaten in plaats van te typen.
       if (q.bank) v.bank = [...new Set([...[...String(q.tekst).matchAll(GAP)].filter(m => m[1] !== undefined).map(m => alts(m[1])[0]), ...(q.extra || [])])].sort((x, y) => x.localeCompare(y, 'nl', { numeric: true }));
     }
@@ -1409,6 +1424,7 @@
       if (q.aantal) return goed === nodig && !fout ? p : 0;
       return juist.length === gekozen.length && juist.every(j => gekozen.includes(j)) ? p : 0;
     }
+    if (q.type === 'juistfout' && q.stellingen) return Array.isArray(a) ? half((p * q.stellingen.filter((x, i) => (a[i] === 'J' || a[i] === 'F') && (a[i] === 'J') === x.juist).length) / q.stellingen.length) : 0;
     if (q.type === 'juistfout') return (a === 'J') === q.juist && (a === 'J' || a === 'F') ? p : 0;
     if (q.type === 'invullen') {
       const gaten = gapsOf(q.tekst);
@@ -1509,6 +1525,7 @@
     const str = v => (typeof v === 'string' || typeof v === 'number' ? String(v).slice(0, 2000) : '');
     if (a === null || a === undefined) return null;
     if (q.type === 'meerkeuze') return Array.isArray(a) ? a.slice(0, 8).map(Number).filter(Number.isInteger) : Number.isInteger(Number(a)) && a !== '' ? Number(a) : null;
+    if (q.type === 'juistfout' && q.stellingen) return list(a, 20).slice(0, q.stellingen.length).map(v => (v === 'J' || v === 'F' ? v : null));
     if (q.type === 'juistfout') return a === 'J' || a === 'F' ? a : null;
     if (q.type === 'invullen' || q.type === 'tabel') return list(a, 60).map(v => str(v).slice(0, 200));
     if (q.type === 'dictee') return list(a, MAX_DICTEE).slice(0, q.delen.length).map(v => (v === null || v === undefined ? '' : String(v).replace(/\s+/g, ' ').slice(0, 400)));
@@ -1561,6 +1578,7 @@
   function oplossing(q) {
     const L = 'ABCDEFGH';
     if (q.type === 'meerkeuze') return (Array.isArray(q.juist) ? q.juist : [q.juist]).map(i => `${L[i]}${typeof q.opties[i] === 'string' ? `. ${q.opties[i]}` : q.opties[i].tekst ? `. ${q.opties[i].tekst}` : ''}`).join(' + ');
+    if (q.type === 'juistfout' && q.stellingen) return q.stellingen.map((x, i) => `${i + 1}. ${q.labels === 'janee' ? (x.juist ? 'Ja' : 'Nee') : x.juist ? 'Juist' : 'Fout'}`).join(' · ');
     if (q.type === 'juistfout') return q.juist ? 'Juist' : 'Fout';
     if (q.type === 'invullen') return gapsOf(q.tekst).map(g => g[0]).join(' · ');
     if (q.type === 'kort' || q.type === 'rekenen') return metEenheid(alts(q.antwoord)[0], q.eenheid);
