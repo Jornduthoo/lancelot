@@ -77,6 +77,89 @@ const PfEdit = (() => {
   };
 
 
+  // Eén korte zin boven de antwoorden: hoe je deze vraag invult. De lange uitleg staat onder Meer opties.
+  const UITLEG = {
+    meerkeuze: 'Typ de keuzes en vink de juiste aan. Meer dan één juist? Vink ze allemaal aan.',
+    juistfout: 'Typ een stelling en kies of ze juist of fout is.',
+    verbinden: 'Eén paar per regel: links = rechts, bv. Antwerpen = Schelde.',
+    ordenen: 'Zet de kaartjes in de juiste volgorde. De leerling krijgt ze door elkaar.',
+    groeperen: 'Zet de kaartjes die samen horen in dezelfde groep.',
+    sorteren: 'Geef elke kolom een naam en de woorden die erin horen.',
+    invullen: 'Selecteer een woord in de tekst en klik op "+ Gat om te typen" of "+ Keuzelijstje".',
+    kort: 'Typ het juiste antwoord. Meer goede antwoorden? Scheid ze met |, bv. 0,5|1/2.',
+    rekenen: 'Typ de bewerking als vraag en de uitkomst als antwoord.',
+    tabel: 'Eén rij per regel, cellen gescheiden door |. Wat de leerling invult, zet je tussen [ ].',
+    dictee: 'Typ de woorden of zinnen. De computer leest ze voor, de leerling schrijft ze.',
+    aanduiden: 'Kies een afbeelding en klik waar het juiste antwoord ligt.',
+    getallenas: 'Kies begin, einde en stap, en typ het juiste getal.',
+    markeren: 'Typ de tekst en klik de juiste woorden aan.',
+    tekenen: 'Typ de opdracht. Na de toets geef jij de punten.',
+    spreken: 'Typ wat de leerling moet zeggen. Na de toets luister je en geef jij de punten.',
+    open: 'Typ de vraag en een modelantwoord. Na de toets geef jij de punten.',
+    papier: 'Typ de opdracht op papier. Na de toets geef jij de punten.',
+    bron: 'Typ of plak de tekst, en voeg onderaan de deelvragen a, b, c toe.',
+  };
+  // Wat de knop 💡 Voorbeeld invult, per soort.
+  const VOORBEELD = {
+    meerkeuze: { vraag: 'Wat is de hoofdstad van België?', opties: ['Brussel', 'Antwerpen', 'Gent'], juist: 0 },
+    juistfout: { vraag: 'De Schelde stroomt door Antwerpen.', juist: true },
+    verbinden: { vraag: 'Welke rivier stroomt door welke stad?', paren: [['Antwerpen', 'Schelde'], ['Luik', 'Maas'], ['Gent', 'Leie']], afleiders: ['IJzer'] },
+    ordenen: { vraag: 'Zet de seizoenen in de juiste volgorde, te beginnen bij de lente.', items: ['lente', 'zomer', 'herfst', 'winter'] },
+    groeperen: { vraag: 'Geef wat samen hoort dezelfde kleur.', groepen: [['hond', 'kat', 'paard'], ['roos', 'tulp', 'madelief']] },
+    sorteren: { vraag: 'Sleep elk dier naar de juiste kolom.', kolommen: [{ naam: 'Zoogdier', woorden: ['hond', 'walvis'] }, { naam: 'Vogel', woorden: ['merel', 'pinguïn'] }] },
+    invullen: { vraag: 'Vul aan.', tekst: 'De hoofdstad van België is [Brussel]. Een spin heeft {acht|zes|tien} poten.' },
+    kort: { vraag: 'Hoeveel is 3/4 + 1/8?', antwoord: '7/8', breuk: true },
+    rekenen: { vraag: 'Reken uit: 245 × 12', antwoord: '2940', werkPunten: 1 },
+    tabel: { vraag: 'Vul de tabel aan.', rijen: [['kg', 'g'], ['2', '[2000]'], ['[0,5]', '500']] },
+    dictee: { vraag: 'Schrijf wat je hoort.', vorm: 'woorden', delen: [{ tekst: 'fiets', zin: 'Ik fiets naar school.' }, { tekst: "'s nachts" }, { tekst: 'boompje' }] },
+    aanduiden: { vraag: 'Duid Brussel aan op de kaart.' },
+    getallenas: { vraag: 'Duid 3/4 aan op de getallenas.', min: '0', max: '1', stap: '1/4', antwoord: '3/4', getallen: 'alle', breuk: true },
+    markeren: { vraag: 'Duid het onderwerp aan.', tekst: '[De hond] blaft naar de postbode.' },
+    tekenen: { vraag: 'Teken een rechthoek van 4 cm op 2 cm.', model: 'Rechte hoeken en de juiste maten.' },
+    spreken: { vraag: 'Lees deze zin luidop voor: De ridder rijdt naar de burcht.', seconden: 30, model: 'Vlot en duidelijk gelezen.' },
+    open: { vraag: 'Waarom zijn bijen belangrijk voor de natuur?', model: 'Ze bestuiven bloemen, zodat er vruchten en zaden groeien.', regels: 3 },
+    papier: { vraag: 'Maak oefening 3 op je werkblad.', model: 'Zie de verbetersleutel van het werkblad.' },
+    bron: { titel: 'De Schelde', tekst: 'De Schelde is een rivier. Ze ontspringt in Frankrijk en stroomt door Antwerpen naar de Noordzee.', vragen: [
+      { type: 'meerkeuze', vraag: 'Waar ontspringt de Schelde?', opties: ['in Frankrijk', 'in Nederland', 'in Antwerpen'], juist: 0 },
+      { type: 'kort', vraag: 'Door welke stad stroomt de Schelde?', antwoord: 'Antwerpen' }] },
+  };
+  // Het voorbeeld in de taal van het scherm (de teksten staan ook in lang/).
+  const vertaalDiep = x => (typeof x === 'string' ? (window.I18n ? I18n.t(x) : x) : Array.isArray(x) ? x.map(vertaalDiep) : x && typeof x === 'object' ? Object.fromEntries(Object.entries(x).map(([k, v]) => [k, k === 'type' || k === 'vorm' || k === 'getallen' ? v : vertaalDiep(v)])) : x);
+
+  // Wat onder "⚙ Meer opties" gaat: alles wat je niet bij elke vraag nodig hebt. De vraag en de antwoorden blijven bovenaan.
+  const EXTRA = '.pf-e-blijft, .pf-e-opmaak, .pf-audio-rij, .pf-luister-max, .pf-k-onder, .pf-checks, .pf-e-vakjes, .pf-help, .doel-veld, .pf-e-zegbron';
+  const EXTRA_MET = '.e-voorlees, .e-mkschud, .e-bank, .e-gelijk, .e-hoofd, .pf-vb-edit, .e-afleiders, .e-extra, .e-regels, .e-hoogte, .e-puntenper';
+  // Velden die bij de vraag zelf horen: staat er iets anders in de vraag, dan gaat Meer opties vanzelf open.
+  const KERN = new Set(['type', 'id', 'vraag', 'antwoord', 'eenheid', 'opties', 'juist', 'stellingen', 'labels', 'tekst', 'paren', 'items', 'groepen', 'kolommen', 'rijen', 'delen', 'vorm', 'puntenZin', 'zones', 'verhouding', 'min', 'max', 'stap', 'getallen', 'per', 'aantal', 'kleuren', 'doelen', 'inBron', 'model', 'seconden', 'werkPunten', 'titel', 'vragen', 'beeldNodig', 'beeldPagina']);
+  function inGebruik(q) {
+    return Object.keys(q).some(k => {
+      const v = q[k];
+      if (KERN.has(k) || v === undefined || v === null || v === '' || v === false || (Array.isArray(v) && !v.length)) return false;
+      if (k === 'beeld') return ['aanduiden', 'tekenen', 'bron'].includes(q.type) ? false : true;
+      if (k === 'puntenPer') return q.type !== 'meerkeuze';
+      if (k === 'regels') return Number(v) !== 3;
+      if (k === 'hoofdletters') return v === false;
+      if (k === 'vakjes') return Number(v) > 1;
+      // Punten: alleen als ze anders zijn dan wat LANcelot zelf zou geven.
+      if (k === 'punten') { try { const { punten, ...rest } = q; return PfKern.validate({ titel: 'x', vragen: [rest] }).vragen[0].punten !== Number(v); } catch { return false; } }
+      return true;
+    });
+  }
+  function meerOpties(card, body, q) {
+    const det = document.createElement('details');
+    det.className = 'pf-e-meeropt';
+    det.innerHTML = '<summary>⚙ Meer opties <span class="muted small">(punten, prent, geluid, vet, leerplandoel…)</span></summary>';
+    for (const el of [...body.children]) {
+      const beeld = el.matches('.pf-beeld-rij') && !['aanduiden', 'tekenen', 'bron'].includes(q.type);
+      const extra = el.matches(EXTRA) || beeld || (el.querySelector(EXTRA_MET) && !el.matches('.pf-e-meer, .pf-opties, .pf-deelvragen'));
+      if (extra) det.appendChild(el);
+    }
+    if (det.children.length < 2) return;
+    det.open = inGebruik(q);
+    const deel = body.querySelector(':scope > .pf-deelvragen');
+    body.insertBefore(det, deel || null);
+  }
+
   function beeldRij(houder, waarde, opts = {}) {
     const rij = document.createElement('div');
     rij.className = 'pf-beeld-rij';
@@ -138,7 +221,7 @@ const PfEdit = (() => {
     const sel = rij.querySelector('select');
     sel.value = String(waarde || 0);
     card.pfLuisterToon = () => {
-      const zeg = card.querySelector(bron ? ':scope > .pf-k-body > .pf-e-zegbron .e-voorlees' : ':scope > .pf-k-body .e-voorlees');
+      const zeg = eigen(card, bron ? '.pf-e-zegbron .e-voorlees' : '.e-voorlees');
       rij.classList.toggle('hidden', !card.pfAudio && !(zeg && zeg.value.trim()));
     };
     sel.addEventListener('change', cfg.preview);
@@ -151,10 +234,16 @@ const PfEdit = (() => {
     const tekst = typeof o === 'string' ? o : (o && o.tekst) || '';
     rij.innerHTML = `<label class="pf-juist" title="Juist antwoord"><input type="checkbox"${juist ? ' checked' : ''}> juist</label>
       <input class="pf-optie-tekst" maxlength="300" placeholder="keuze">
-      <span class="pf-optie-beeld"></span>
-      <button type="button" class="secondary small-btn weg" title="Keuze weghalen">✕</button>`;
+      <button type="button" class="secondary small-btn pf-beeld-open" title="Prent bij deze keuze (knip uit pdf of afbeelding)">📎</button>
+      <button type="button" class="secondary small-btn weg" title="Keuze weghalen">✕</button>
+      <span class="pf-optie-beeld"></span>`;
     rij.querySelector('.pf-optie-tekst').value = tekst;
-    rij.querySelector('.pf-optie-beeld').appendChild(beeldRij(rij, o && typeof o === 'object' ? o.beeld : ''));
+    // Eén knop 📎: pas na een klik (of als er al een prent is) staan "Knip uit pdf" en "Afbeelding" eronder.
+    const br = beeldRij(rij, o && typeof o === 'object' ? o.beeld : '');
+    const vak = rij.querySelector('.pf-optie-beeld');
+    vak.appendChild(br);
+    vak.classList.toggle('hidden', !rij.pfBeeld);
+    rij.querySelector('.pf-beeld-open').addEventListener('click', () => vak.classList.toggle('hidden'));
     rij.querySelector('.weg').addEventListener('click', () => { rij.remove(); cfg.preview(); });
     return rij;
   }
@@ -212,12 +301,15 @@ const PfEdit = (() => {
     img.src = url;
   }
 
+  // Het eerste element in deze kaart zelf (niet in een deelvraag van een bron), ook als het onder "Meer opties" zit.
+  const eigen = (card, sel) => [...card.querySelectorAll(`:scope > .pf-k-body ${sel}`)].find(e => e.closest('.pf-kaart-edit') === card) || null;
+
   function vraagKaart(q, inBron) {
     const card = document.createElement('div');
     card.className = `panel pf-kaart-edit${q.type === 'bron' ? ' bron' : ''}`;
     card.dataset.type = q.type;
     card.innerHTML = `<div class="ob-edit-head"><strong><span class="pf-k-nr"></span> ${TYPE_ICONS[q.type] || '📜'} ${PfKern.NAMES[q.type]}</strong>
-        <div class="actions"><button class="secondary up" title="Omhoog">▲</button><button class="secondary down" title="Omlaag">▼</button><button class="secondary del" title="Verwijderen">✕</button></div></div>`;
+        <div class="actions">${VOORBEELD[q.type] ? `<button class="secondary pf-vb-knop" title="Vul een voorbeeld in: zo zie je hoe het moet">${inBron ? '💡' : '💡 Voorbeeld'}</button>` : ''}<button class="secondary up" title="Omhoog">▲</button><button class="secondary down" title="Omlaag">▼</button><button class="secondary del" title="Verwijderen">✕</button></div></div>`;
     const body = document.createElement('div');
     body.className = 'pf-k-body';
     card.appendChild(body);
@@ -241,6 +333,7 @@ const PfEdit = (() => {
       card.querySelector('.e-titel').value = q.titel || '';
       card.querySelector('.e-tekst').value = q.tekst || '';
       card.querySelector('.e-tekst').addEventListener('input', () => { for (const d of card.querySelectorAll('.pf-deelvragen > .pf-kaart-edit')) if (d.pfBronVeranderd) d.pfBronVeranderd(); });
+      veld(`<p class="pf-e-uitleg">${UITLEG.bron}</p>`);
       body.appendChild(beeldRij(card, q.beeld, { nodig: q.beeldNodig, pagina: q.beeldPagina }));
       body.appendChild(audioRij(card, q.audio, true));
       // Of een luistertekst die de computer voorleest (ook lang): de leerling hoort ze, maar ziet ze niet.
@@ -250,7 +343,7 @@ const PfEdit = (() => {
       zegB.querySelector('.e-voorlees').addEventListener('input', () => card.pfLuisterToon());
       body.appendChild(luisterKeuze(card, q.luisterMax, true));
       card.pfLuisterToon();
-      veld(`<p class="muted small">${HELP.bron}</p>`);
+      veld(`<p class="muted small">${HELP.bron}</p>`, 'pf-help');
       const deel = document.createElement('div');
       deel.className = 'pf-deelvragen';
       for (const d of q.vragen || []) deel.appendChild(vraagKaart(d, true));
@@ -266,6 +359,7 @@ const PfEdit = (() => {
     } else {
       veld(`<label>${q.type === 'invullen' || q.type === 'tabel' ? 'Opdracht' : 'Vraag'}<textarea class="e-vraag" rows="2" maxlength="1500"></textarea></label>`);
       card.querySelector('.e-vraag').value = q.vraag ?? DEFAULT_VRAAG[q.type] ?? '';
+      if (UITLEG[q.type]) veld(`<p class="pf-e-uitleg">${UITLEG[q.type]}</p>`);
       const opm = veld('<button type="button" class="secondary small-btn" data-opm="**" title="Vet"><b>B</b> vet</button> <button type="button" class="secondary small-btn" data-opm="__" title="Onderstrepen"><u>U</u> onderstrepen</button> <span class="muted small">Selecteer eerst woorden in de vraag, de tekst of een keuze.</span>', 'actions pf-e-opmaak');
       opmaakKnoppen(opm, card, card.querySelector('.e-vraag'));
       body.appendChild(audioRij(card, q.audio));
@@ -283,7 +377,7 @@ const PfEdit = (() => {
         const box = veld('', 'pf-opties');
         const juist = new Set([].concat(q.juist ?? 0));
         for (const [i, o] of (q.opties && q.opties.length ? q.opties : ['', '', '']).entries()) box.appendChild(optieRij(o, juist.has(i)));
-        const add = veld('<button type="button" class="secondary small-btn">+ keuze</button><span class="muted small"> Vink alle juiste antwoorden aan. Meer dan één: de leerling moet ze allemaal aanduiden.</span>');
+        const add = veld('<button type="button" class="secondary small-btn">+ keuze</button>');
         add.querySelector('button').addEventListener('click', () => { box.appendChild(optieRij('', false)); meer(); cfg.preview(); });
         // Meerdere juiste: alles of niets, of punten per juist antwoord; en eventueel "duid er 2 aan".
         const meerBox = veld(`<div class="row"><label>Hoe tellen?<select class="e-puntenper"><option value="">alles of niets</option><option value="juist">per juist antwoord (een fout kost er één)</option></select></label>
@@ -323,7 +417,7 @@ const PfEdit = (() => {
       } else if (q.type === 'invullen') {
         veld('<label>Tekst met gaten<textarea class="e-tekst" rows="3" placeholder="De hoofdstad van België is [Brussel]. Een spin heeft {acht|zes|tien} poten."></textarea></label>');
         card.querySelector('.e-tekst').value = q.tekst || '';
-        const hulp = veld('<button type="button" class="secondary small-btn" data-in="[]">+ Gat om te typen</button> <button type="button" class="secondary small-btn" data-in="{}">+ Keuzelijstje</button> <span class="muted small">Selecteer eerst het juiste woord in de tekst.</span>', 'actions');
+        const hulp = veld('<button type="button" class="secondary small-btn" data-in="[]">+ Gat om te typen</button> <button type="button" class="secondary small-btn" data-in="{}">+ Keuzelijstje</button>', 'actions');
         gatKnoppen(hulp, card.querySelector('.e-tekst'));
         veld('<label class="inline check"><input type="checkbox" class="e-bank"> 🧲 Woordenbank: de leerling sleept de woorden in de gaten</label><label class="e-extra-label">Extra woorden in de bank (foute keuzes, gescheiden door /)<input class="e-extra" maxlength="600" placeholder="bijv. hond / tafel"></label>');
         card.querySelector('.e-bank').checked = !!q.bank;
@@ -365,7 +459,7 @@ const PfEdit = (() => {
           const toon = () => {
             const meer = Number(sel.value) > 1;
             vk.querySelector('.pf-vakjes-uitleg').classList.toggle('hidden', !meer);
-            card.querySelector(':scope > .pf-k-body > .pf-checks').classList.toggle('hidden', meer);
+            eigen(card, '.pf-checks').classList.toggle('hidden', meer);
           };
           sel.addEventListener('change', () => { toon(); cfg.preview(); });
           toon();
@@ -573,9 +667,23 @@ const PfEdit = (() => {
       onder.querySelector('.e-punten').value = q.punten ?? '';
       onder.querySelector('.e-punten').placeholder = 'auto';
       if (onder.querySelector('.e-exact')) onder.querySelector('.e-exact').checked = !!q.exact;
-      if (HELP[q.type]) veld(`<p class="muted small">${HELP[q.type]}</p>`);
+      if (HELP[q.type]) veld(`<p class="muted small">${HELP[q.type]}</p>`, 'pf-help');
       body.appendChild(DoelKies.field(q.doel, { onChange: () => cfg.preview() }));
     }
+    if (q.type !== 'blad') meerOpties(card, body, q);
+    const vb = card.querySelector('.pf-vb-knop');
+    if (vb) vb.addEventListener('click', async () => {
+      // Staat er al iets in deze vraag? Eerst vragen, want het voorbeeld vervangt het.
+      // (Vergeleken met een lege kaart van dezelfde soort, met de standaardwaarden.)
+      let iets = true;
+      try { iets = JSON.stringify(leesKaart(card)) !== JSON.stringify(leesKaart(vraagKaart({ type: q.type, vraag: DEFAULT_VRAAG[q.type] }, inBron))); } catch {}
+      if (iets && !await Ui.vraag('Het voorbeeld vervangt wat in deze vraag staat. Doorgaan?')) return;
+      const nieuw = vraagKaart({ type: q.type, ...vertaalDiep(VOORBEELD[q.type]) }, inBron);
+      card.replaceWith(nieuw);
+      cfg.preview();
+      const eerste = nieuw.querySelector('.e-vraag, .e-titel');
+      if (eerste) { eerste.focus(); eerste.select(); }
+    });
     card.querySelector('.up').addEventListener('click', () => { if (card.previousElementSibling) card.parentNode.insertBefore(card, card.previousElementSibling); cfg.preview(); });
     card.querySelector('.down').addEventListener('click', () => { if (card.nextElementSibling) card.parentNode.insertBefore(card.nextElementSibling, card); cfg.preview(); });
     card.querySelector('.del').addEventListener('click', async () => {
@@ -808,19 +916,19 @@ const PfEdit = (() => {
   }
 
 
-  const waarde = (card, sel) => { const el = card.querySelector(`:scope > .pf-k-body ${sel}`); return el ? el.value : ''; };
+  const waarde = (card, sel) => { const el = eigen(card, sel); return el ? el.value : ''; };
 
   function leesKaart(card) {
     const type = card.dataset.type;
     const q = { type };
-    const blijft = card.querySelector(':scope > .pf-k-body > .pf-e-blijft input');
+    const blijft = eigen(card, '.pf-e-blijft input');
     if (blijft && blijft.checked) q.blijft = true;
     if (card.pfBeeld) q.beeld = card.pfBeeld;
     else {
       if (card.pfNodig) q.beeldNodig = card.pfNodig;
       if (card.pfPagina) q.beeldPagina = card.pfPagina;
     }
-    const doel = card.querySelector(':scope > .pf-k-body > .doel-veld');
+    const doel = eigen(card, '.doel-veld');
     if (doel && DoelKies.read(doel)) q.doel = DoelKies.read(doel);
     if (type === 'blad') {
       q.beeld = card.pfBeeld;
@@ -835,7 +943,7 @@ const PfEdit = (() => {
       q.titel = waarde(card, '.e-titel');
       q.tekst = waarde(card, '.e-tekst');
       if (card.pfAudio) q.audio = card.pfAudio;
-      const zegB = waarde(card, '> .pf-e-zegbron .e-voorlees').trim();
+      const zegB = waarde(card, '.pf-e-zegbron .e-voorlees').trim();
       if (zegB) q.voorlees = zegB;
       const lm = Number(waarde(card, '.e-luistermax'));
       if ((card.pfAudio || zegB) && lm) q.luisterMax = lm;

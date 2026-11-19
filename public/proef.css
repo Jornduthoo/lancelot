@@ -738,7 +738,7 @@ select.pf-kies { width: auto; min-width: 6em; display: inline-block; margin: 0 2
 .pf-orden-print.met-beeld { flex-direction: row; flex-wrap: wrap; }
 .pf-orden-print.met-beeld li { width: 30%; display: flex; flex-direction: column; gap: 4px; }
 .pf-orden-print li img { max-width: 100%; max-height: 150px; object-fit: contain; }
-.pf-e-orden .pf-optie, .pf-e-groep .pf-optie { align-items: center; flex-wrap: nowrap; }
+.pf-e-orden .pf-optie { align-items: center; }
 .pf-e-orden .pf-optie-tekst, .pf-e-groep .pf-optie-tekst { min-width: 0; flex: 1 1 80px; }
 .pf-e-orden { counter-reset: e-orden; }
 .pf-e-orden-nr::before { counter-increment: e-orden; content: counter(e-orden) '.'; font-weight: 700; min-width: 1.6em; display: inline-block; }
@@ -890,3 +890,17 @@ p.pf-kort.pf-vakjes { flex-wrap: wrap; }
 .pf-veld.sleep.eigen { border-color: var(--bk) !important; border-width: 2px; }
 .pf-veld.sleep.eigen::after { content: attr(data-nr); position: absolute; right: -6px; top: -8px; min-width: 14px; height: 14px; padding: 0 2px; border-radius: 7px; background: var(--bk); color: #fff; font: 700 10px/14px system-ui, sans-serif; text-align: center; }
 .pf-plek-doel.meer.eerste { border-color: #1a9e6e; background: rgba(26, 158, 110, .18); }
+
+/* Editor: kern eerst. Eén korte uitleg boven de antwoorden, de rest onder Meer opties, één 📎 per keuze. */
+.pf-e-uitleg { margin: 2px 0 8px; font-size: .88rem; font-style: italic; color: var(--k-wit, #e8eefc); opacity: .85; }
+.pf-e-meeropt { margin-top: 10px; border-top: 1px dashed rgba(140, 170, 230, .45); padding-top: 8px; }
+.pf-e-meeropt > summary { cursor: pointer; font-weight: 700; color: var(--k-cyan-l, #9fd0ff); padding: 2px 0; }
+.pf-e-meeropt[open] > summary { margin-bottom: 8px; }
+.pf-e-meeropt > * + * { margin-top: 6px; }
+.pf-optie .pf-optie-beeld { flex-basis: 100%; }
+.pf-optie .pf-optie-beeld.hidden { display: none; }
+.pf-vb-knop { font-size: .82rem; padding: 4px 10px; }
+/* Blad-venster: Nakijken en Meer als dichte stukken onder het antwoord. */
+.bv-deel-stuk { margin-top: 8px; border-top: 1px dashed rgba(140, 170, 230, .45); padding-top: 6px; }
+.bv-deel-stuk > summary { cursor: pointer; font-weight: 700; color: var(--k-cyan-l, #9fd0ff); }
+.bv-deel-stuk[open] > summary { margin-bottom: 6px; }
