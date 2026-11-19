@@ -124,6 +124,19 @@ details{margin-top:12px}summary{cursor:pointer;font-family:var(--display);font-w
       <div id="berichten"></div>
     </section>
 
+    <section class="kaart" id="vragensectie">
+      <h2>✍️ Stel Eli een vraag</h2>
+      <p class="muted klein" style="margin-top:-4px">Bedenk zelf een vraag over de leerstof. Eli krijgt ze bij <b>Vrij oefenen</b>, typt zijn antwoord en vergelijkt het met jouw antwoord. Hier zie je wat hij antwoordde.</p>
+      <label class="label" for="vr-vak">Vak</label>
+      <select id="vr-vak"></select>
+      <label class="label" for="vr-vraag" style="margin-top:10px;display:block">Jouw vraag</label>
+      <textarea id="vr-vraag" maxlength="300" rows="2" placeholder="Bv. Waarom noemt men Al-Andalus een multiculturele samenleving?"></textarea>
+      <label class="label" for="vr-model" style="margin-top:10px;display:block">Het juiste antwoord (Eli ziet het pas nadat hij zelf antwoordde)</label>
+      <textarea id="vr-model" maxlength="800" rows="3" placeholder="Bv. Arabieren, Berbers, christenen en joden leefden er samen. Christenen mochten hun eigen wetten volgen."></textarea>
+      <div class="rij" style="margin-top:8px"><button class="knop groot" id="vr-stuur">Vraag toevoegen ✍️</button><span class="muted klein" id="vr-status"></span></div>
+      <h3 style="margin-top:18px">Vragen voor Eli</h3>
+      <div id="vr-lijst"></div>
+    </section>
     <section class="kaart" id="leerstof">
       <h2>📖 Wat moet Eli doen?</h2>
       <p class="muted klein" style="margin-top:-4px">Tik op een opdracht of onderwerp om de leerstof, de kaartjes en de quizvragen (met antwoorden) te bekijken. Zo kan je meeleren en hem overhoren.</p>

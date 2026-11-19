@@ -429,6 +429,17 @@ function tekenVakken(){
     const b = document.createElement('button'); b.className = 'knop klein'; b.textContent = 'Start';
     b.onclick = () => voerUit({ id:'vrij:open:' + vrijVak, soort:'open-vak', vak:vrijVak, titel:'✍️ Open vragen ' + V[vrijVak].kort, vrij:true });
     el.append(b); lijst.append(el); }
+  { const vr = (S.stand.vragen || []).filter(q => q.vak === vrijVak);
+    if (vr.length) {
+      const nieuw = vr.filter(q => !(q.antwoorden || []).length).length;
+      const wie = [...new Set(vr.map(q => naamVan(q.van)))].join(', ');
+      const el = document.createElement('div'); el.className = 'taak'; el.style.setProperty('--vk', vk(vrijVak));
+      el.innerHTML = `<div class="ic">💌</div><div class="tx"><b>Vragen van je supporters${nieuw ? ` <span class="tag">${nieuw} nieuw</span>` : ''}</b><span></span></div>`;
+      el.querySelector('.tx > span').textContent = `${vr.length} ${vr.length === 1 ? 'vraag' : 'vragen'} van ${wie}`;
+      const b = document.createElement('button'); b.className = 'knop klein'; b.textContent = 'Start';
+      b.onclick = () => voerUit({ id:'vrij:supporters:' + vrijVak, soort:'supporters', vak:vrijVak, titel:'💌 Vragen van je supporters', vrij:true });
+      el.append(b); lijst.append(el);
+    } }
   if (vrijVak === 'fr') {
     const el = document.createElement('div'); el.className = 'taak'; el.style.setProperty('--vk', vk('fr'));
     el.innerHTML = `<div class="ic">⚡</div><div class="tx"><b>Werkwoorden-sprint</b><span>Vervoegen in het présent en passé composé</span></div>`;
@@ -716,6 +727,9 @@ function voerUit(it){
   else if (it.soort === 'vrij-kaartjes') stappen.push(['kaartjes', t.kaarten.map((_, i) => t.id + '-' + i)]);
   else if (it.soort === 'vrij-quiz') stappen.push(['quiz', vragenVan(t, 10)]);
   else if (it.soort === 'vrij-open') stappen.push(['quiz', openVragen([t], 8)]);
+  else if (it.soort === 'supporters') { const vr = (S.stand.vragen || []).filter(q => q.vak === it.vak);
+    const nieuw = vr.filter(q => !(q.antwoorden || []).length), oud = vr.filter(q => (q.antwoorden || []).length);
+    stappen.push(['quiz', schud(nieuw).concat(schud(oud)).slice(0, 10).map(q => ({ t:'open', v:esc(q.vraag), m:esc(q.model).replace(/\n/g, '<br>'), vak:q.vak, eid:q.id, van:q.van }))]); }
   else if (it.soort === 'open-vak') stappen.push(['quiz', openVragen(T.filter(x => x.vak === it.vak && geleerd(x.id)).length >= 2 ? T.filter(x => x.vak === it.vak && geleerd(x.id)) : T.filter(x => x.vak === it.vak), 10)]);
   else if (it.soort === 'vrij-koppel') stappen.push(['koppel', parenVan([t]), 3]);
   else if (it.soort === 'vrij-race') stappen.push(['race', raceVragen([t]), t.id]);
@@ -1406,14 +1420,14 @@ function stapQuiz(vragen, verder, modus){
     if (modus === 'proef' && !S.proefStart) { S.proefStart = Date.now(); const iv = setInterval(() => { const el = $('pk-t'); if (!S.proefStart) return clearInterval(iv); if (!el) return; const sec = Math.round((Date.now() - S.proefStart) / 1000); el.textContent = ' · ⏱️ ' + Math.floor(sec / 60) + ':' + String(sec % 60).padStart(2, '0') + ' / ' + P.PROEF_MIN + ' min'; el.classList.toggle('laat', sec > P.PROEF_MIN * 60); }, 500); }
     balk((lopend.i + Math.min(i, totaal) / totaal) / lopend.stappen.length);
     box.innerHTML = `<div class="vraagkaart" style="--vk:${vk(q.vak)}"><div class="rij" style="justify-content:space-between"><span class="label">${q.herkans ? '🔁 Nog eens' : `Vraag ${i + 1} van ${totaal}`}<span id="pk-t" class="pk"></span></span><span class="pil">${esc((V[q.vak] || {}).kort || '')}</span></div>${fotoTag(q)}<div class="babbel vraagbabbel" id="qpop"></div><div id="ant"></div><div id="fb"></div><div class="onder" id="qv"></div></div>`;
-    POP.babbel($('qpop'), `<div class="vtekst">${q.v}</div>`, { figuur: vrager(q.vak) });
+    POP.babbel($('qpop'), `<div class="vtekst">${q.v}</div>`, { figuur: (q.van && POP.vanLogin(q.van)) || vrager(q.vak) });
     tekenAntwoord(q, (pt, uitleg) => resultaat(q, pt, uitleg));
   };
   const resultaat = (q, pt, uitleg) => {
     if (!q.herkans) {
       score += pt;
-      const o = perOnderwerp[q.tid] = perOnderwerp[q.tid] || { s:0, t:0, vak:q.vak };
-      o.s += pt; o.t += 1;
+      if (q.tid) { const o = perOnderwerp[q.tid] = perOnderwerp[q.tid] || { s:0, t:0, vak:q.vak };
+      o.s += pt; o.t += 1; }
       if (pt < 1) { fouten.push(q.v.replace(/<[^>]+>/g, '')); opnieuw.push(q); }
       if (pt >= 1) geefXP(5, $('fb'));
     }
@@ -1534,7 +1548,10 @@ function tekenAntwoord(q, klaar){
       $('mod').innerHTML = `<div class="feedback info">Modelantwoord<span></span></div><p class="muted klein">Vergelijk eerlijk. Hoe goed was jouw antwoord?</p><div class="rij"><button class="knop" data-p="1">✓ Juist</button><button class="knop goud" data-p="0.5">± Half</button><button class="knop licht" data-p="0">✗ Fout</button></div>`;
       $('mod').querySelector('span').innerHTML = q.m; // modelantwoorden komen uit onze eigen inhoud
       if (q.k) $('mod').querySelector('.feedback').insertAdjacentHTML('afterend', `<p class="label" style="margin:10px 0 4px">Kernwoorden in jouw antwoord</p>${kernHtml(kernCheck($('ov').value, q.k))}`);
-      $('mod').querySelectorAll('[data-p]').forEach(b => b.onclick = () => { $('mod').querySelectorAll('[data-p]').forEach(x => x.disabled = true); done(Number(b.dataset.p), ''); });
+      $('mod').querySelectorAll('[data-p]').forEach(b => b.onclick = () => { $('mod').querySelectorAll('[data-p]').forEach(x => x.disabled = true);
+        if (q.eid) { const p = Number(b.dataset.p); logResultaat('supportervraag', q.vak, null, Math.round(p * 2), 2, 0, { id: q.eid, van: q.van, tekst: $('ov').value.trim().slice(0, 1200) });
+          const v = (S.stand.vragen || []).find(x => x.id === q.eid); if (v) (v.antwoorden = v.antwoorden || []).unshift({ tekst: $('ov').value.trim(), score: Math.round(p * 2), op: new Date().toISOString() }); }
+        done(Number(b.dataset.p), ''); });
     };
   } else if (q.t === 'volgorde') {
     const juist = q.o, rest = schud(juist.map((o, j) => ({ o, j })));
