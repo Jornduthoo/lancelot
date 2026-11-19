@@ -64,6 +64,15 @@ function wanneer() {
   }
 }
 $('tk-wanneer').addEventListener('change', wanneer);
+// Voorlezen en volgorde bij een toets: de laatste keuze blijft staan op deze pc (zonder keuze: uit, alles door elkaar).
+const TK_TOETS = 'lancelot-tk-toets';
+try {
+  const k = JSON.parse(localStorage.getItem(TK_TOETS) || '{}');
+  if (['uit', 'page', 'iedereen'].includes(k.voorlees)) $('tk-voorlees').value = k.voorlees;
+  if (['schud', 'vragen', 'alles'].includes(k.volgorde)) $('tk-volgorde').value = k.volgorde;
+  $('tk-uitslag').checked = k.uitslag === true;
+} catch {}
+for (const id of ['tk-voorlees', 'tk-volgorde', 'tk-uitslag']) $(id).addEventListener('change', () => { try { localStorage.setItem(TK_TOETS, JSON.stringify({ voorlees: $('tk-voorlees').value, volgorde: $('tk-volgorde').value, uitslag: $('tk-uitslag').checked })); } catch {} });
 // Uit de toetsenlijst met 📅 Plannen (?wanneer=later): de keuze "Later" staat al klaar, met morgen half negen.
 if (vraag.get('wanneer') === 'later') { $('tk-wanneer').value = 'later'; wanneer(); }
 function vanaf() {
@@ -109,6 +118,7 @@ function vulBron() {
   for (const b of document.querySelectorAll('.tk-soort button')) b.classList.toggle('on', b.dataset.soort === tk.soort);
   $('tk-fb-label').classList.toggle('hidden', tk.soort !== 'oefenblad');
   $('tk-toets-uitleg').classList.toggle('hidden', tk.soort !== 'proef');
+  for (const id of ['tk-vl-label', 'tk-vv-label', 'tk-us-label']) $(id).classList.toggle('hidden', tk.soort !== 'proef');
   spelKeuze();
   const lijst = tk.soort === 'quiz' ? tk.bronnen.quizzen : tk.soort === 'proef' ? tk.bronnen.toetsen || [] : tk.bronnen.bladen;
   const file = vraag.get('file');
@@ -308,7 +318,7 @@ $('tk-geef').addEventListener('click', () => {
   const volgende = () => {
     if (klaar + fouten.length === files.length) return gedaan();
     const file = files[klaar + fouten.length];
-    socket.emit('tk-maak', { soort: tk.soort, file, namen, feedback: $('tk-feedback').value, spel: $('tk-spel').value, minuten: Number($('tk-minuten').value), niveau: $('tk-niveau').value, les: tk.les && { week: tk.les.week, slot: tk.les.slot }, vanaf: start }, res => {
+    socket.emit('tk-maak', { soort: tk.soort, file, namen, feedback: $('tk-feedback').value, spel: $('tk-spel').value, minuten: Number($('tk-minuten').value), niveau: $('tk-niveau').value, les: tk.les && { week: tk.les.week, slot: tk.les.slot }, vanaf: start, voorlees: $('tk-voorlees').value, vragenVast: $('tk-volgorde').value !== 'schud', keuzesVast: $('tk-volgorde').value === 'alles', uitslag: $('tk-uitslag').checked }, res => {
       if (res.error) fouten.push(res.error); else klaar++;
       volgende();
     });

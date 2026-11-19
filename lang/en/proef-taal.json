@@ -425,5 +425,10 @@
  "🎧 Vragen met dezelfde voorleestekst samenzetten in één bron": "🎧 Combine questions with the same read-aloud text into one source",
  "Dan hoort de leerling elk fragment één keer, niet bij elke vraag opnieuw.": "Then the student hears each fragment once, not again for every question.",
  "📅 Plannen": "📅 Schedule",
- "Geef deze toets als taak, nu of later op een gekozen dag en uur": "Give this test as a task, now or later on a chosen day and time"
+ "Geef deze toets als taak, nu of later op een gekozen dag en uur": "Give this test as a task, now or later on a chosen day and time",
+ "De computer leest de vragen voor met 🔊, zoals bij een afname op het bord": "The computer reads the questions aloud with 🔊, as when taking a test on the board",
+ "Een toets met 'Vragen altijd in deze volgorde' blijft altijd in zijn volgorde": "A test with 'Questions always in this order' always keeps its order",
+ "Alles door elkaar": "Everything shuffled",
+ "Vragen in volgorde (keuzes door elkaar)": "Questions in order (choices shuffled)",
+ "Alles in volgorde": "Everything in order"
 }

@@ -141,15 +141,17 @@ function volgordeVoor(t, naam, niveau) {
 
 // Een toets voor één leerling: de vragen van zijn niveau, in zijn eigen volgorde, met geschudde keuzes
 // (zoals bij een afname op het bord). Vast per taak, leerling en niveau.
+// De leerkracht kiest per taak: vragen in de volgorde van de toets (vragenVast) en keuzes van meerkeuze niet geschud
+// (keuzesVast). Zonder keuze: allebei door elkaar, zoals vroeger. Een toets met "altijd in deze volgorde" blijft zo.
 const toetsen = new Map();
 function toets(t, w) {
   const k = `${t.id}:${key(w.naam)}:${w.niveau}`;
   if (!toetsen.has(k)) {
     const lijst = K.lijstVoor(t.inhoud, w.niveau);
-    const order = K.volgorde(lijst, `${k}|vragen`, true);
+    const order = K.volgorde(lijst, `${k}|vragen`, !t.vragenVast && !t.inhoud.vasteVolgorde);
     const perms = {};
     for (const { id, q } of K.vragenVan(lijst)) {
-      if (q.type === 'meerkeuze') perms[id] = K.schud(q.opties.length, `${k}|${id}`);
+      if (q.type === 'meerkeuze' && (!t.keuzesVast || q.schudden)) perms[id] = K.schud(q.opties.length, `${k}|${id}`);
       if (q.type === 'verbinden') perms[id] = K.schud(K.aantalRechts(q), `${k}|${id}`, true);
       if (q.type === 'ordenen') perms[id] = K.schud(q.items.length, `${k}|${id}`, true);
       if (q.type === 'groeperen') perms[id] = K.schud(K.groepKaarten(q).length, `${k}|${id}`, true);
@@ -157,6 +159,34 @@ function toets(t, w) {
     toetsen.set(k, { lijst, order, perms });
   }
   return toetsen.get(k);
+}
+
+// Keuzes bij een toets als taak: voorlezen (uit, page, iedereen) en de volgorde. Alleen wat anders is dan vroeger.
+function toetsKeuzes(t, p) {
+  if (t.soort !== 'proef' || !p) return;
+  if (p.voorlees === 'page' || p.voorlees === 'iedereen') t.voorlees = p.voorlees;
+  if (p.vragenVast === true) t.vragenVast = true;
+  if (p.keuzesVast === true) t.keuzesVast = true;
+  if (p.uitslag === true) t.uitslag = true;
+}
+// Wat de leerling haalde, als de leerkracht dat toont na het inleveren (de open vragen tellen pas na het verbeteren).
+function uitslagVoor(t, w) {
+  if (!t.uitslag || w.status !== 'klaar') return null;
+  let punten = 0, max = 0, hand = 0;
+  for (const { id, q } of K.vragenVan(K.lijstVoor(t.inhoud, w.niveau))) {
+    max += K.maxVan(q);
+    punten += Number(w.auto[id]) || 0;
+    hand += K.handPunten(q);
+  }
+  return { punten, max, hand };
+}
+// Leest de computer de vragen voor (🔊) bij deze leerling? 'page': wie de toets op Page maakt of in Mijn klas Page is.
+function voorleesVoor(t, w) {
+  if (t.voorlees === 'iedereen') return true;
+  if (t.voorlees !== 'page') return false;
+  if (w.niveau === 'page') return true;
+  const kl = klas.match(w.naam);
+  return !!kl && klas.niveauVoor(kl, t.vak) === 'page';
 }
 
 function nieuwWerk(t, naam, niveau) {
@@ -240,7 +270,7 @@ function schoonLes(l) {
 // Voor de leerling: alleen het doel en de criteria.
 const lesVoorLeerling = t => (t.les && (t.les.doel || t.les.criteria.length) ? { doel: t.les.doel, criteria: t.les.criteria } : null);
 
-function maak({ soort, file, namen, feedback, spel, minuten, niveau, les, vanaf } = {}) {
+function maak({ soort, file, namen, feedback, spel, minuten, niveau, les, vanaf, voorlees, vragenVast, keuzesVast, uitslag } = {}) {
   const inhoud = laad(soort, file);
   const lijst = [...new Set((Array.isArray(namen) ? namen : []).map(clean).filter(Boolean))];
   if (!lijst.length) throw new Error('Kies minstens één leerling.');
@@ -250,6 +280,7 @@ function maak({ soort, file, namen, feedback, spel, minuten, niveau, les, vanaf 
     feedback: feedback === 'inleveren' ? 'inleveren' : 'direct', gemaakt: new Date().toISOString(), dicht: false, inhoud, werk: {},
   };
   if (soort === 'quiz' && SOLO[spel]) Object.assign(t, { spel, minuten: MINUTEN.includes(Number(minuten)) ? Number(minuten) : 5 });
+  toetsKeuzes(t, { voorlees, vragenVast, keuzesVast, uitslag });
   const uitLes = lesVan(les);
   if (uitLes) t.les = uitLes;
   const start = schoonVanaf(vanaf);
@@ -282,6 +313,7 @@ function planBewaar(t) {
     const plan = {
       id: t.id, soort: t.soort, file: t.file, titel: t.titel, vak: t.vak, feedback: t.feedback, gemaakt: t.gemaakt,
       spel: t.spel || null, minuten: t.minuten || null, niveau: t.niveau || null, les: t.les || null, vanaf: t.vanaf || null,
+      voorlees: t.voorlees || null, vragenVast: !!t.vragenVast, keuzesVast: !!t.keuzesVast, uitslag: !!t.uitslag,
       namen: Object.values(t.werk).map(w => w.naam), inhoud: t.inhoud,
     };
     fs.writeFileSync(path.join(PLAN(), `${t.id}.json`), JSON.stringify(plan) + '\n');
@@ -321,6 +353,7 @@ function uitLesmap() {
         inhoud: p.inhoud, werk: {}, plan: true, uitLesmap: true,
       };
       if (p.soort === 'quiz' && SOLO[p.spel]) Object.assign(t, { spel: p.spel, minuten: MINUTEN.includes(p.minuten) ? p.minuten : 5 });
+      toetsKeuzes(t, p);
       if (niveausVan(t.soort, t.inhoud).includes(p.niveau) && niveausVan(t.soort, t.inhoud).length > 1) t.niveau = p.niveau;
       const les = schoonLes(p.les);
       if (les) t.les = les;
@@ -545,9 +578,9 @@ function open({ id, naam } = {}) {
   const klaar = t.dicht || w.status === 'klaar';
   const base = { id, soort: t.soort, titel: t.titel, poging: w.poging || 0, spel: spelVan(t), niveau: niveausVan(t.soort, t.inhoud).length > 1 ? w.niveau : null, klaar, dicht: t.dicht, les: lesVoorLeerling(t), ...voortgang(t, w) };
   if (t.soort === 'proef') {
-    if (klaar) return base;
+    if (klaar) return { ...base, uitslag: uitslagVoor(t, w) };
     const { lijst, order, perms } = toets(t, w);
-    return { ...base, intro: t.inhoud.intro || '', totaal: K.totaal(lijst), view: K.studentView(t.inhoud, lijst, { order, perms, img: d => d }), answers: w.ruw, pos: w.pos || 0 };
+    return { ...base, intro: t.inhoud.intro || '', voorlees: voorleesVoor(t, w), totaal: K.totaal(lijst), view: K.studentView(t.inhoud, lijst, { order, perms, img: d => d }), answers: w.ruw, pos: w.pos || 0 };
   }
   if (t.soort === 'quiz') return { ...base, vraag: klaar ? null : vraagVoor(t, w), terug: klaar ? terugblik(t, w) : null };
   const b = blad(t, w.niveau);

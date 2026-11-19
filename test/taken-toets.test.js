@@ -94,3 +94,31 @@ test('heropenen: verder werken houdt de antwoorden, opnieuw beginnen geeft een l
   assert.deepEqual(res.voor, ['Lotte']);
   assert.equal(res.na, 'Nieuw.');
 });
+
+test('toets als taak: voorlezen, volgorde en punten na het inleveren zijn keuzes; zonder keuze zoals vroeger', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'taken-toets-keuzes-'));
+  fs.mkdirSync(path.join(tmp, 'proeven'));
+  const vragen = Array.from({ length: 8 }, (_, i) => ({ type: 'meerkeuze', vraag: `Vraag ${i + 1}`, opties: ['a', 'b', 'c', 'd', 'e', 'f'], juist: 0 }));
+  fs.writeFileSync(path.join(tmp, 'proeven', 'toets.json'), JSON.stringify({ title: 'Volgorde', vragen }));
+  const res = run(tmp, `
+    klas.write({ naam: '6A', leerjaar: 6, namen: ['Lotte', 'Mats'] });
+    const zie = t => { const o = taken.open({ id: t.id, naam: 'Lotte' }); return { voorlees: o.voorlees, vragen: o.view.pages.map(p => p.vraag).join(','), keuzes: o.view.pages.map(p => p.opties.map(x => x.tekst ?? x).join('')).join(',') }; };
+    const oud = zie(taken.maak({ soort: 'proef', file: 'toets.json', namen: ['Lotte'] }));
+    const vragenVast = zie(taken.maak({ soort: 'proef', file: 'toets.json', namen: ['Lotte'], voorlees: 'iedereen', vragenVast: true }));
+    const alles = taken.maak({ soort: 'proef', file: 'toets.json', namen: ['Lotte'], vragenVast: true, keuzesVast: true, uitslag: true });
+    const allesZie = zie(alles);
+    const o = taken.open({ id: alles.id, naam: 'Lotte' });
+    taken.toetsAntwoord({ id: alles.id, naam: 'Lotte', vraag: o.view.pages[0].id, waarde: 0 });
+    taken.inleveren({ id: alles.id, naam: 'Lotte' });
+    return { oud, vragenVast, allesZie, uitslag: taken.open({ id: alles.id, naam: 'Lotte' }).uitslag };
+  `);
+  const inVolgorde = vragen.map(q => q.vraag).join(',');
+  assert.equal(res.oud.voorlees, false);
+  assert.notEqual(res.oud.vragen, inVolgorde, 'zonder keuze: vragen door elkaar zoals vroeger');
+  assert.equal(res.vragenVast.voorlees, true);
+  assert.equal(res.vragenVast.vragen, inVolgorde);
+  assert.notEqual(res.vragenVast.keuzes, Array(8).fill('abcdef').join(','), 'keuzes nog door elkaar');
+  assert.equal(res.allesZie.keuzes, Array(8).fill('abcdef').join(','));
+  assert.deepEqual(res.uitslag, { punten: 1, max: 8, hand: 0 });
+  fs.rmSync(tmp, { recursive: true, force: true });
+});

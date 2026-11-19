@@ -425,5 +425,10 @@
  "🎧 Vragen met dezelfde voorleestekst samenzetten in één bron": "🎧 Regrouper les questions au même texte lu dans une source",
  "Dan hoort de leerling elk fragment één keer, niet bij elke vraag opnieuw.": "L'élève entend alors chaque fragment une fois, pas à chaque question.",
  "📅 Plannen": "📅 Planifier",
- "Geef deze toets als taak, nu of later op een gekozen dag en uur": "Donne ce test comme tâche, maintenant ou plus tard à un jour et une heure choisis"
+ "Geef deze toets als taak, nu of later op een gekozen dag en uur": "Donne ce test comme tâche, maintenant ou plus tard à un jour et une heure choisis",
+ "De computer leest de vragen voor met 🔊, zoals bij een afname op het bord": "L'ordinateur lit les questions à voix haute avec 🔊, comme lors d'un test au tableau",
+ "Een toets met 'Vragen altijd in deze volgorde' blijft altijd in zijn volgorde": "Un test avec « Questions toujours dans cet ordre » garde toujours son ordre",
+ "Alles door elkaar": "Tout mélangé",
+ "Vragen in volgorde (keuzes door elkaar)": "Questions dans l'ordre (choix mélangés)",
+ "Alles in volgorde": "Tout dans l'ordre"
 }
