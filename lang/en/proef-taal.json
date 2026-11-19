@@ -247,5 +247,10 @@
  "evenwijdig met de rechte": "parallel to the line",
  "loodrecht op de rechte": "perpendicular to the line",
  "snijdt de rechte niet loodrecht": "crosses the line, not at a right angle",
- "niet evenwijdig met de rechte": "not parallel to the line"
+ "niet evenwijdig met de rechte": "not parallel to the line",
+ "Vrije punten: geen stippen, de leerling tikt de hoekpunten waar hij wil (bv. een gelijkzijdige driehoek met zijden van 4 cm)": "Free points: no dots, the pupil taps the corners anywhere (e.g. an equilateral triangle with sides of 4 cm)",
+ "Elke zijde (cm, mag leeg)": "Each side (cm, may be empty)",
+ "De leerling meet met 📏 Lat. Zijden die even lang moeten zijn, mogen evenveel verschillen als de marge; hoeken 3 graden.": "The pupil measures with 📏 Ruler. Sides that must be equal may differ by the margin; angles by 3 degrees.",
+ ", zijden {0} cm (± {1})": ", sides {0} cm (± {1})",
+ "Tik de hoekpunten aan, waar je wil (meet met de lat)": "Tap the corners wherever you like (measure with the ruler)"
 }

@@ -749,20 +749,23 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
       const maat = (cls, label, w) => `<span class="bv-aantal">${label} <button type="button" class="secondary small-btn" data-maat="${cls}" data-d="-1">−</button><b>${w}</b><button type="button" class="secondary small-btn" data-maat="${cls}" data-d="1">+</button></span>`;
       const optie = x => `<option${f.figuur === x ? ' selected' : ''}>${x}</option>`;
       inh.innerHTML = `<p class="bv-vraag">De leerling tikt de hoekpunten aan op de stippen. De figuur sluit vanzelf. De computer herkent de soort.</p>
-        <div class="bv-opties">${maat('kol', 'Stippen breed', f.kol || 6)}${maat('rij', 'Stippen hoog', f.rij || 5)}</div>
-        <p class="muted small">Leg het vak precies op de stippen van je blad, of laat LANcelot de stippen tekenen.</p>
+        <div><label class="inline check"><input type="checkbox" class="bv-vrijp"${f.vrijePunten ? ' checked' : ''}> Vrije punten: geen stippen, de leerling tikt de hoekpunten waar hij wil (bv. een gelijkzijdige driehoek met zijden van 4 cm)</label></div>
+        ${f.vrijePunten ? `<div class="bv-opties"><label>Elke zijde (cm, mag leeg) <input class="bv-zijde" inputmode="decimal" value="${esc(f.zijde ?? '')}" placeholder="bijv. 4"></label>
+          <label>Marge (cm) <input class="bv-zmarge" inputmode="decimal" value="${esc(f.zijdeMarge ?? '')}" placeholder="0,2"></label></div>
+          <p class="muted small">De leerling meet met 📏 Lat. Zijden die even lang moeten zijn, mogen evenveel verschillen als de marge; hoeken 3 graden.</p>` : `<div class="bv-opties">${maat('kol', 'Stippen breed', f.kol || 6)}${maat('rij', 'Stippen hoog', f.rij || 5)}</div>
+        <p class="muted small">Leg het vak precies op de stippen van je blad, of laat LANcelot de stippen tekenen.</p>`}
         <label>Welke figuur is juist? <select class="bv-figuur"><option value="">(kies)</option><optgroup label="Driehoeken">${PfKern.FIGUREN.filter(x => /driehoek/.test(x)).map(optie).join('')}</optgroup><optgroup label="Vierhoeken">${PfKern.FIGUREN.filter(x => !/driehoek|vijfhoek|zeshoek/.test(x)).map(optie).join('')}</optgroup><optgroup label="Meer hoeken">${optie('vijfhoek')}${optie('zeshoek')}</optgroup></select></label>
         <div><label class="inline check"><input type="checkbox" data-vlag="strikt"${f.strikt ? ' checked' : ''}> Precies deze soort (een vierkant is dan geen ruit of rechthoek)</label></div>
         <div><label class="inline check"><input type="checkbox" data-vlag="diagonalen"${f.diagonalen ? ' checked' : ''}> Teken eerst de diagonalen: de leerling tikt 2 lijnstukken die elkaar snijden, de vierhoek verschijnt dan vanzelf</label></div>
         <div><label>Korte uitleg in het vak (verdwijnt bij het eerste punt) <input class="bv-uitleg" maxlength="80" value="${esc(f.uitleg || '')}" placeholder="bv. Tik de hoekpunten rondom aan"></label></div>
         <p class="muted small">Tikt de leerling de hoekpunten niet rondom aan, dan zet LANcelot ze zelf rondom.</p>
         <p class="muted small">Zonder vinkje is elke figuur met die eigenschappen juist: een vierkant is ook een rechthoek, een ruit en een parallellogram.</p>
-        <p class="bv-vraag">Of: precies deze figuur op deze plek (bv. gespiegeld, gedraaid of vergroot). Tik de hoekpunten aan:</p>
+        ${f.vrijePunten ? '' : `<p class="bv-vraag">Of: precies deze figuur op deze plek (bv. gespiegeld, gedraaid of vergroot). Tik de hoekpunten aan:</p>
         <div class="bv-vh" style="aspect-ratio:${r2(f.w / (f.h * (staat.verhouding || 1.414)))}"><svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${PfPaper.veelhoekSvg(f.vorm || '', f.kol || 6, f.rij || 5)}</svg>${Array.from({ length: (f.kol || 6) * (f.rij || 5) }, (_, i) => { const c = i % (f.kol || 6); const r = Math.floor(i / (f.kol || 6)); return `<i style="left:${(c / ((f.kol || 6) - 1)) * 100}%;top:${(r / ((f.rij || 5) - 1)) * 100}%"></i>`; }).join('')}</div>
         <p class="bv-samen"><button type="button" class="secondary small-btn bv-vh-terug">↶ Laatste punt weg</button> <button type="button" class="secondary small-btn bv-vh-wis">Figuur wissen</button></p>
-        <p class="muted small">Met een figuur hier kijkt de computer of de leerling precies deze hoekpunten tekent. De soort hierboven telt dan niet.</p>${samenHtml(f, punten)}`;
+        <p class="muted small">Met een figuur hier kijkt de computer of de leerling precies deze hoekpunten tekent. De soort hierboven telt dan niet.</p>`}${samenHtml(f, punten)}`;
       const vh = inh.querySelector('.bv-vh');
-      vh.addEventListener('click', e => {
+      if (vh) vh.addEventListener('click', e => {
         const r = vh.getBoundingClientRect();
         const kol = f.kol || 6;
         const rij = f.rij || 5;
@@ -921,6 +924,8 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
       else if (t.classList.contains('bv-lengte')) { const l = t.value.trim(); if (l) f.lengte = l; else { delete f.lengte; delete f.lengteMarge; } bijwerken(); }
       else if (t.classList.contains('bv-lmarge')) { const l = t.value.trim(); if (l) f.lengteMarge = l; else delete f.lengteMarge; bijwerken(); }
       else if (t.classList.contains('bv-kaantal')) { const c = f.kleuren[Number(t.dataset.i)]; if (c) { const a = t.value.trim(); if (a) c.aantal = a; else delete c.aantal; bijwerken(); } }
+      else if (t.classList.contains('bv-zijde')) { const l = t.value.trim(); if (l) f.zijde = l; else delete f.zijde; bijwerken(); }
+      else if (t.classList.contains('bv-zmarge')) { const l = t.value.trim(); if (l) f.zijdeMarge = l; else delete f.zijdeMarge; bijwerken(); }
       else if (t.classList.contains('bv-hm')) { const l = t.value.trim(); if (l) f.hoekMarge = l; else delete f.hoekMarge; bijwerken(); }
       else if (t.classList.contains('bv-quotient')) { f.quotient = t.value.trim(); bijwerken(); }
       else if (t.classList.contains('bv-rest')) { f.rest = t.value.trim(); bijwerken(); }
@@ -938,6 +943,11 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
       if (t.dataset.vlag) { if (t.checked) f[t.dataset.vlag] = true; else delete f[t.dataset.vlag]; bijwerken(); }
       else if (t.name === 'bv-nakijk') { if (t.value) f.nakijk = t.value; else delete f.nakijk; bijwerken(); venster(staat.velden.indexOf(f)); }
       else if (t.classList.contains('bv-vrij')) { if (t.value) f.vrij = Number(t.value); else delete f.vrij; bijwerken(); }
+      else if (t.classList.contains('bv-vrijp')) {
+        if (t.checked) { f.vrijePunten = true; f.kol = 201; f.rij = 201; delete f.vorm; } else { delete f.vrijePunten; delete f.zijde; delete f.zijdeMarge; f.kol = 6; f.rij = 5; }
+        bijwerken();
+        venster(staat.velden.indexOf(f));
+      }
       else if (t.classList.contains('bv-richting')) { if (t.value) f.richting = t.value; else { delete f.richting; delete f.ref; delete f.hoekMarge; } bijwerken(); venster(staat.velden.indexOf(f)); }
       else if (t.classList.contains('bv-kkleur')) { const c = f.kleuren[Number(t.dataset.i)]; if (c) { c.kleur = t.value; bijwerken(); venster(staat.velden.indexOf(f)); } }
       else if (t.classList.contains('bv-figuur')) { if (t.value) f.figuur = t.value; else delete f.figuur; bijwerken(); }
@@ -1298,6 +1308,7 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
       return `<svg class="pf-be-pl" viewBox="0 0 100 100" preserveAspectRatio="none">${l}</svg>${pt.map(p => `<i class="pf-pt" style="left:${p.x}%;top:${p.y}%"></i>`).join('')}`;
     }
     if (f.soort === 'veelhoek') {
+      if (f.vrijePunten) return '';
       let h = '';
       for (let r = 0; r < (f.rij || 5); r++) for (let c = 0; c < (f.kol || 6); c++) h += `<i class="pf-stip" style="left:${(c / ((f.kol || 6) - 1)) * 100}%;top:${(r / ((f.rij || 5) - 1)) * 100}%"></i>`;
       return h;

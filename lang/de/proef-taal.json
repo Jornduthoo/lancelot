@@ -247,5 +247,10 @@
  "evenwijdig met de rechte": "parallel zur Geraden",
  "loodrecht op de rechte": "senkrecht zur Geraden",
  "snijdt de rechte niet loodrecht": "schneidet die Gerade nicht senkrecht",
- "niet evenwijdig met de rechte": "nicht parallel zur Geraden"
+ "niet evenwijdig met de rechte": "nicht parallel zur Geraden",
+ "Vrije punten: geen stippen, de leerling tikt de hoekpunten waar hij wil (bv. een gelijkzijdige driehoek met zijden van 4 cm)": "Freie Punkte: keine Punkte, das Kind tippt die Eckpunkte, wo es will (z. B. ein gleichseitiges Dreieck mit 4 cm Seiten)",
+ "Elke zijde (cm, mag leeg)": "Jede Seite (cm, darf leer bleiben)",
+ "De leerling meet met 📏 Lat. Zijden die even lang moeten zijn, mogen evenveel verschillen als de marge; hoeken 3 graden.": "Das Kind misst mit 📏 Lineal. Seiten, die gleich lang sein müssen, dürfen um die Toleranz abweichen; Winkel um 3 Grad.",
+ ", zijden {0} cm (± {1})": ", Seiten {0} cm (± {1})",
+ "Tik de hoekpunten aan, waar je wil (meet met de lat)": "Tippe die Eckpunkte an, wo du willst (miss mit dem Lineal)"
 }
