@@ -6,7 +6,10 @@
 const PfPaper = (() => {
   const L = 'ABCDEFGHIJKLMNOPQR';
   const esc = text => String(text ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
-  const paras = text => String(text || '').split(/\n{2,}/).map(p => `<p>${esc(p).replace(/\n/g, '<br>')}</p>`).join('');
+  // Vet (**woord**) en onderstreept (__woord__) in een tekst, na esc. Een rij ____ (een lijn) blijft gewoon staan.
+  const opmaak = html => html.replace(/\*\*([^*\s](?:[^*]*?[^*\s])?)\*\*/g, '<b>$1</b>').replace(/__([^_\s](?:[^_]*?[^_\s])?)__/g, '<u>$1</u>');
+  const tekstHtml = text => opmaak(esc(text)).replace(/\n/g, '<br>');
+  const paras = text => String(text || '').split(/\n{2,}/).map(p => `<p>${tekstHtml(p)}</p>`).join('');
   const nl = n => String(n).replace('.', ',');
   const ptn = n => `${nl(n)} ${n === 1 ? 'punt' : 'punten'}`;
 
@@ -66,7 +69,7 @@ const PfPaper = (() => {
     const zeg = q.voorlees && !print ? zegKnoppen(o.said.push(q.voorlees) - 1, telVan(q.id, q.luisterMax, o)) : '';
     const got = o.punten && o.punten[q.id];
     let h = `<div class="pf-q pf-${q.type}" data-id="${esc(q.id)}" data-type="${q.type}">
-      <h3><span class="pf-nr">${esc(nr)}</span>${say}${luister}${zeg}<span class="pf-vraag">${esc(q.vraag || '').replace(/\n/g, '<br>')}</span>
+      <h3><span class="pf-nr">${esc(nr)}</span>${say}${luister}${zeg}<span class="pf-vraag">${tekstHtml(q.vraag || '')}</span>
       <small class="pf-ptn">${got ? `<b>${nl(got[0] ?? '?')}</b> / ${nl(got[1])}` : `/ ${nl(q.punten)}`}</small></h3>`;
     if (q.type === 'blad') return `${h}${bladHtml(q, a, o)}</div>`;
     if (q.voorlees && print) h += '<p class="pf-tip">🎧 De leerkracht leest dit voor.</p>';
@@ -76,13 +79,13 @@ const PfPaper = (() => {
       const gekozen = new Set([].concat(a ?? []).map(String));
       if (q.meer) h += `<p class="pf-tip">${q.aantal ? `Duid er ${q.aantal} aan.` : 'Er zijn meerdere juiste antwoorden. Duid ze allemaal aan.'}</p>`;
       h += `<div class="pf-keuzes${q.opties.some(x => x.beeld) ? ' met-beeld' : ''}">${q.opties.map((x, i) => print
-        ? `<div class="pf-keuze-print"><span class="ob-check">${L[i]}</span>${x.beeld ? `<img src="${esc(x.beeld)}" alt="">` : ''} ${esc(x.tekst)}</div>`
-        : `<button type="button" class="pf-keuze${gekozen.has(String(i)) ? ' on' : ''}" data-value="${i}"${dis}><b>${L[i]}</b>${x.beeld ? `<img src="${esc(x.beeld)}" alt="">` : ''}<span>${esc(x.tekst)}</span></button>`).join('')}</div>`;
+        ? `<div class="pf-keuze-print"><span class="ob-check">${L[i]}</span>${x.beeld ? `<img src="${esc(x.beeld)}" alt="">` : ''} ${tekstHtml(x.tekst)}</div>`
+        : `<button type="button" class="pf-keuze${gekozen.has(String(i)) ? ' on' : ''}" data-value="${i}"${dis}><b>${L[i]}</b>${x.beeld ? `<img src="${esc(x.beeld)}" alt="">` : ''}<span>${tekstHtml(x.tekst)}</span></button>`).join('')}</div>`;
     } else if (q.type === 'juistfout' && q.stellingen) {
       // Meerdere stellingen: per stelling juist of fout (of ja of nee).
       const lab = q.labels === 'janee' ? { J: 'Ja', F: 'Nee' } : { J: 'Juist', F: 'Fout' };
       const ant = Array.isArray(a) ? a : [];
-      h += `<div class="pf-stellingen">${q.stellingen.map((t, i) => `<div class="pf-stelling" data-i="${i}"><span class="pf-stelling-tekst">${i + 1}. ${esc(t)}</span><span class="pf-stelling-keuze">${['J', 'F'].map(v => (print
+      h += `<div class="pf-stellingen">${q.stellingen.map((t, i) => `<div class="pf-stelling" data-i="${i}"><span class="pf-stelling-tekst">${i + 1}. ${tekstHtml(t)}</span><span class="pf-stelling-keuze">${['J', 'F'].map(v => (print
         ? `<span class="pf-keuze-print"><span class="ob-check"></span> ${lab[v]}</span>`
         : `<button type="button" class="pf-jf${ant[i] === v ? ' on' : ''}" data-value="${v}"${dis}>${v === 'J' ? '✔' : '✖'} ${lab[v]}</button>`)).join('')}</span></div>`).join('')}</div>`;
     } else if (q.type === 'juistfout') {
@@ -91,7 +94,7 @@ const PfPaper = (() => {
         : `<button type="button" class="pf-keuze${a === v ? ' on' : ''}" data-value="${v}"${dis}>${v === 'J' ? '✔ Juist' : '✖ Fout'}</button>`).join('')}</div>`;
     } else if (q.type === 'invullen') {
       h += `${bankHtml(q.bank, live, print)}<p class="pf-gaten">${q.parts.map(part => {
-        if (typeof part === 'string') return esc(part).replace(/\n/g, '<br>');
+        if (typeof part === 'string') return tekstHtml(part);
         if (q.bank && !part.opties) {
           const w = (a || [])[part.gap] || '';
           if (print) return `<span class="ob-line" style="min-width:${part.size * 0.62}em"></span>`;

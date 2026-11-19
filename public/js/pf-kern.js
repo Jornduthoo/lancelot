@@ -2104,7 +2104,13 @@
     : (f.antwoord || '')));
 
   // Het juiste antwoord als tekst, voor het verbeterblad en de leerkracht.
+  // Vet (**woord**) en onderstreept (__woord__) weg, voor waar alleen gewone tekst kan (de sleutel, een overzicht).
+  const zonderOpmaak = t => String(t ?? '').replace(/\*\*([^*\s](?:[^*]*?[^*\s])?)\*\*/g, '$1').replace(/__([^_\s](?:[^_]*?[^_\s])?)__/g, '$1');
   function oplossing(q) {
+    const uit = oplossingRuw(q);
+    return typeof uit === 'string' ? zonderOpmaak(uit) : uit;
+  }
+  function oplossingRuw(q) {
     const L = 'ABCDEFGH';
     if (q.type === 'meerkeuze') return (Array.isArray(q.juist) ? q.juist : [q.juist]).map(i => `${L[i]}${typeof q.opties[i] === 'string' ? `. ${q.opties[i]}` : q.opties[i].tekst ? `. ${q.opties[i].tekst}` : ''}`).join(' + ');
     if (q.type === 'juistfout' && q.stellingen) return q.stellingen.map((x, i) => `${i + 1}. ${q.labels === 'janee' ? (x.juist ? 'Ja' : 'Nee') : x.juist ? 'Juist' : 'Fout'}`).join(' · ');
@@ -2159,6 +2165,6 @@
     TYPES, NAMES, MANUEEL, NIVEAUS, MAX_BEELD, ROOSTER, validate, problemen, vragenVan, niveausVan, lijstVoor,
     maxVan, autoPunten, handPunten, totaal, viewOf, studentView, partsOf, getal, zelfde, canoniek, auto, schoon, oplossing, schud, alts, gapsOf,
     waarschuwingen, metNamen, MAX_ZONES, veldSleutel, vakGoed, vakDeel, handVeld, autoVeld, roosterAuto, roosterScore, roosterCellen, roosterTekst, roosterUitkomst,
-    heeftMarge, margeGoed, tijdSec, VRIJ_SOORT, margeTekst, getalTekst, puntLijnen, puntlijnGoed, cirkelsVan, cirkelGoed, straalCm, puntNaam, handWerk, SCHAAL, NAKIJK, FIGUREN, figurenVan, veelhoekPunten, veelhoekVolgorde, hoekpunten, rondom, rekenregel, formuleFout, lijnGoed, lijnCm, veelhoekCm, lijnHoek, lijnGraden, RICHTING, vakjesGoed, goedeAntwoorden, datumSleutel, paarTekst, aantalRechts, MAX_AFLEIDERS, controleDeel, CONTROLE, plekDeel, groepKaarten, groepUitslag, kaartTekst, MAX_GROEPEN, zelfdeVorm, kleurDoel, kleurGoed, metEenheid, volgorde, SOORTEN, HAND_VELD, woordenVan, doelenVan, sorteerWoorden, sorteerKolommen, dicteeVergelijk, dicteeDeel, dicteeZinPunten, MAX_DICTEE, itemTekst, markeerModel, markeerSleutel, doelenInBron, markeerTel, markeerKort, markeerAntwoord, tekstWoorden, stukkenVan, zonderHaken, STIFTEN, PER, asTekst, MAX_AUDIO, MAX_VOORLEES, celGat, vereenvoudigd, GEEN_ANTWOORD, AUTO_VELD, KLEUREN,
+    heeftMarge, margeGoed, tijdSec, VRIJ_SOORT, margeTekst, getalTekst, puntLijnen, puntlijnGoed, cirkelsVan, cirkelGoed, straalCm, puntNaam, handWerk, SCHAAL, NAKIJK, FIGUREN, figurenVan, veelhoekPunten, veelhoekVolgorde, hoekpunten, rondom, rekenregel, formuleFout, lijnGoed, lijnCm, veelhoekCm, lijnHoek, lijnGraden, RICHTING, vakjesGoed, goedeAntwoorden, datumSleutel, paarTekst, zonderOpmaak, aantalRechts, MAX_AFLEIDERS, controleDeel, CONTROLE, plekDeel, groepKaarten, groepUitslag, kaartTekst, MAX_GROEPEN, zelfdeVorm, kleurDoel, kleurGoed, metEenheid, volgorde, SOORTEN, HAND_VELD, woordenVan, doelenVan, sorteerWoorden, sorteerKolommen, dicteeVergelijk, dicteeDeel, dicteeZinPunten, MAX_DICTEE, itemTekst, markeerModel, markeerSleutel, doelenInBron, markeerTel, markeerKort, markeerAntwoord, tekstWoorden, stukkenVan, zonderHaken, STIFTEN, PER, asTekst, MAX_AUDIO, MAX_VOORLEES, celGat, vereenvoudigd, GEEN_ANTWOORD, AUTO_VELD, KLEUREN,
   };
 });
