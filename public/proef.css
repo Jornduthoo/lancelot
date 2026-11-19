@@ -142,6 +142,7 @@ textarea.pf-veld { resize: none; padding: .2em .3em; line-height: 1.25; overflow
 .pf-veld.kruis.rond.on { background: #1036a8; color: #fff; }
 .pf-veld[readonly], .pf-veld:disabled { opacity: 1; cursor: default; }
 .pf-veld-sleutel { position: absolute; transform: translateY(1px); padding: 0 3px; background: rgba(255, 255, 255, .9); color: #c8102e; font-weight: 800; font-size: max(9px, 1.5cqw); line-height: 1.2; white-space: nowrap; pointer-events: none; }
+.pf-veld-eenheid { position: absolute; display: flex; align-items: center; padding: 0 .3em; color: #1d1d1f; font-weight: 700; font-size: max(11px, 2cqw); white-space: nowrap; pointer-events: none; background: rgba(255, 255, 255, .75); border-radius: 2px; }
 .pf-print .pf-veld-sleutel { font-size: 1.7cqw; }
 .pf-blad-tip { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
 .pf-bron-page { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 22px; align-items: start; }

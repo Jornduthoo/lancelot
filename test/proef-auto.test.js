@@ -223,3 +223,30 @@ test('veelhoek: eerst de diagonalen en een korte uitleg in het vak (extra keuzes
   assert.equal(K.auto(oud, [diag]), 1);
   assert.equal(K.auto(d, ['3,0;3,6;1,3;4,3']), 0);
 });
+
+test('invulvakjes: eenheid tonen, precies deze breuk, volgorde vrij, tijd en doorstreept', () => {
+  const t = toets([
+    { x: 1, y: 1, w: 5, h: 5, soort: 'tekst', antwoord: '4 u 30 min', tijd: true },
+    { x: 1, y: 10, w: 5, h: 5, soort: 'breuk', antwoord: '25/100', precies: true },
+    { x: 1, y: 20, w: 5, h: 5, soort: 'tekst', doorstreep: true },
+    { x: 1, y: 30, w: 5, h: 5, soort: 'tekst', antwoord: '12', vrij: 1 },
+    { x: 1, y: 40, w: 5, h: 5, soort: 'tekst', antwoord: '15', vrij: 1 },
+    { x: 1, y: 50, w: 5, h: 5, soort: 'tekst', antwoord: '8', eenheid: 'm²', toonEenheid: true },
+    { x: 1, y: 60, w: 5, h: 5, soort: 'tekst', antwoord: '3', vrij: 2 },
+  ]);
+  const q = t.vragen[0];
+  // Een groepje van één vakje valt weg; de eenheid staat alleen op het scherm als de leerkracht dat koos.
+  assert.equal(q.velden[6].vrij, undefined);
+  assert.equal(K.viewOf(q).velden[5].eenheid, 'm²');
+  assert.equal(K.viewOf(q).velden[0].eenheid, undefined);
+  assert.equal(K.viewOf(q).velden[2].doorstreep, undefined);
+  assert.deepEqual(K.vakDeel(q, ['270 min', '25/100', 'x', '15', '12', '8', '3']), [1, 1, 1, 1, 1, 1, 1]);
+  assert.deepEqual(K.vakDeel(q, ['4,5 u', '1/4', '', '15', '15', '8 m²', '3']), [1, 0, 1, 1, 0, 1, 1]);
+  assert.deepEqual(K.vakDeel(q, ['4,5 min', '25 / 100', 'iets', '12', '', '', '']), [0, 1, 0, 1, 0, 0, 0]);
+  for (const s of ['4u30', '4:30', '4 uur en 30 minuten', '4.5 h', '4 u 30']) assert.equal(K.tijdSec(s), 16200, s);
+  assert.equal(K.tijdSec('270', 'min'), 16200);
+  assert.equal(K.veldSleutel(q)[2], 'leeg of doorstreept');
+  // Zonder de nieuwe keuzes blijft alles zoals vroeger: 1/4 is gelijk aan 25/100.
+  const oud = toets([{ x: 1, y: 1, w: 5, h: 5, soort: 'breuk', antwoord: '25/100' }, { x: 1, y: 10, w: 5, h: 5, soort: 'tekst', antwoord: '12' }, { x: 1, y: 20, w: 5, h: 5, soort: 'tekst', antwoord: '15' }]).vragen[0];
+  assert.deepEqual(K.vakDeel(oud, ['1/4', '15', '12']), [1, 0, 0]);
+});

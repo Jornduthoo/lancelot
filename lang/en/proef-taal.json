@@ -184,5 +184,15 @@
  "Teken eerst de diagonalen: de leerling tikt 2 lijnstukken die elkaar snijden, de vierhoek verschijnt dan vanzelf": "Draw the diagonals first: the pupil taps 2 line segments that cross, then the quadrilateral appears by itself",
  "Korte uitleg in het vak (verdwijnt bij het eerste punt)": "Short instruction in the box (disappears at the first point)",
  "Tikt de leerling de hoekpunten niet rondom aan, dan zet LANcelot ze zelf rondom.": "If the pupil does not tap the corners in order around, LANcelot puts them in order itself.",
- "Tik eerst de 2 uiteinden van de ene diagonaal aan, dan die van de andere": "First tap the 2 ends of one diagonal, then those of the other"
+ "Tik eerst de 2 uiteinden van de ene diagonaal aan, dan die van de andere": "First tap the 2 ends of one diagonal, then those of the other",
+ "Een tijd: 4 u 30 min, 270 min, 4,5 u en 4:30 zijn allemaal juist": "A time: 4 h 30 min, 270 min, 4.5 h and 4:30 are all correct",
+ "Mag leeg blijven of doorstreept worden (x, / of -)": "May stay empty or be crossed out (x, / or -)",
+ "Precies deze breuk (25/100 juist, 1/4 fout)": "Exactly this fraction (25/100 correct, 1/4 wrong)",
+ "Toon de eenheid naast het vakje": "Show the unit next to the box",
+ "Volgorde vrij": "Any order",
+ "nee": "no",
+ "Geef de vakjes waarvan de volgorde niet uitmaakt hetzelfde groepje. Elk juist antwoord mag dan in elk vakje van dat groepje staan. Twee keer hetzelfde antwoord telt maar één keer.": "Give the boxes whose order does not matter the same group. Each correct answer may then be in any box of that group. The same answer twice counts only once.",
+ "groepje {0}": "group {0}",
+ "Volgorde vrij, groepje {0}": "Any order, group {0}",
+ "leeg of doorstreept": "empty or crossed out"
 }

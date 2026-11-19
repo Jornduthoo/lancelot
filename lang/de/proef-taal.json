@@ -184,5 +184,15 @@
  "Teken eerst de diagonalen: de leerling tikt 2 lijnstukken die elkaar snijden, de vierhoek verschijnt dan vanzelf": "Zuerst die Diagonalen: das Kind tippt 2 Strecken an, die sich schneiden, dann erscheint das Viereck von selbst",
  "Korte uitleg in het vak (verdwijnt bij het eerste punt)": "Kurze Anleitung im Feld (verschwindet beim ersten Punkt)",
  "Tikt de leerling de hoekpunten niet rondom aan, dan zet LANcelot ze zelf rondom.": "Tippt das Kind die Ecken nicht der Reihe nach an, ordnet LANcelot sie selbst.",
- "Tik eerst de 2 uiteinden van de ene diagonaal aan, dan die van de andere": "Tippe zuerst die 2 Enden der einen Diagonale an, dann die der anderen"
+ "Tik eerst de 2 uiteinden van de ene diagonaal aan, dan die van de andere": "Tippe zuerst die 2 Enden der einen Diagonale an, dann die der anderen",
+ "Een tijd: 4 u 30 min, 270 min, 4,5 u en 4:30 zijn allemaal juist": "Eine Zeit: 4 h 30 min, 270 min, 4,5 h und 4:30 sind alle richtig",
+ "Mag leeg blijven of doorstreept worden (x, / of -)": "Darf leer bleiben oder durchgestrichen werden (x, / oder -)",
+ "Precies deze breuk (25/100 juist, 1/4 fout)": "Genau dieser Bruch (25/100 richtig, 1/4 falsch)",
+ "Toon de eenheid naast het vakje": "Einheit neben dem Kästchen zeigen",
+ "Volgorde vrij": "Reihenfolge frei",
+ "nee": "nein",
+ "Geef de vakjes waarvan de volgorde niet uitmaakt hetzelfde groepje. Elk juist antwoord mag dan in elk vakje van dat groepje staan. Twee keer hetzelfde antwoord telt maar één keer.": "Gib den Kästchen, deren Reihenfolge egal ist, dieselbe Gruppe. Jede richtige Antwort darf dann in jedem Kästchen dieser Gruppe stehen. Zweimal dieselbe Antwort zählt nur einmal.",
+ "groepje {0}": "Gruppe {0}",
+ "Volgorde vrij, groepje {0}": "Reihenfolge frei, Gruppe {0}",
+ "leeg of doorstreept": "leer oder durchgestrichen"
 }

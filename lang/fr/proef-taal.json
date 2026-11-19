@@ -184,5 +184,15 @@
  "Teken eerst de diagonalen: de leerling tikt 2 lijnstukken die elkaar snijden, de vierhoek verschijnt dan vanzelf": "Trace d'abord les diagonales : l'élève touche 2 segments qui se coupent, puis le quadrilatère apparaît tout seul",
  "Korte uitleg in het vak (verdwijnt bij het eerste punt)": "Courte consigne dans la case (disparaît au premier point)",
  "Tikt de leerling de hoekpunten niet rondom aan, dan zet LANcelot ze zelf rondom.": "Si l'élève ne touche pas les sommets dans l'ordre, LANcelot les remet dans l'ordre.",
- "Tik eerst de 2 uiteinden van de ene diagonaal aan, dan die van de andere": "Touche d'abord les 2 extrémités d'une diagonale, puis celles de l'autre"
+ "Tik eerst de 2 uiteinden van de ene diagonaal aan, dan die van de andere": "Touche d'abord les 2 extrémités d'une diagonale, puis celles de l'autre",
+ "Een tijd: 4 u 30 min, 270 min, 4,5 u en 4:30 zijn allemaal juist": "Une durée : 4 h 30 min, 270 min, 4,5 h et 4:30 sont tous justes",
+ "Mag leeg blijven of doorstreept worden (x, / of -)": "Peut rester vide ou être barré (x, / ou -)",
+ "Precies deze breuk (25/100 juist, 1/4 fout)": "Exactement cette fraction (25/100 juste, 1/4 faux)",
+ "Toon de eenheid naast het vakje": "Afficher l'unité à côté de la case",
+ "Volgorde vrij": "Ordre libre",
+ "nee": "non",
+ "Geef de vakjes waarvan de volgorde niet uitmaakt hetzelfde groepje. Elk juist antwoord mag dan in elk vakje van dat groepje staan. Twee keer hetzelfde antwoord telt maar één keer.": "Donnez le même groupe aux cases dont l'ordre n'a pas d'importance. Chaque bonne réponse peut alors se trouver dans n'importe quelle case de ce groupe. Deux fois la même réponse ne compte qu'une fois.",
+ "groepje {0}": "groupe {0}",
+ "Volgorde vrij, groepje {0}": "Ordre libre, groupe {0}",
+ "leeg of doorstreept": "vide ou barré"
 }
