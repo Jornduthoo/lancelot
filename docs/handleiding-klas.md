@@ -401,6 +401,14 @@ Maak een toets uit je eigen toets-pdf en neem hem beveiligd af op de Chromebooks
 6. Na de toets verbeter je open vragen en papieren opdrachten per vraag. Klik **Klaar met verbeteren**: de punten gaan naar het logboek en naar Excel.
 7. Afdrukken kan ook: de toets op papier en een verbetersleutel per niveau.
 
+**Rekenen op een blad uit je pdf.** In de vakjes-editor (✏️ Vakjes en antwoorden):
+- **🧮 Rekenrooster**: hokjes waarin de leerling een bewerking uitrekent (cijferen), één cijfer per hokje. Kies hoeveel hokjes breed en hoog. Jij verbetert het rooster; zet er een kort antwoord-vakje naast voor de uitkomst.
+- **Zo eenvoudig mogelijk** (bij een kort antwoord of een breuk): 3/4 is juist, 6/8 niet. Een onechte breuk (7/4) moet dan een gemengd getal zijn (1 3/4). Bij een breuk kan je ook een vakje voor het geheel aanzetten.
+- **🔗 Samen op punten**: open een vakje, klik op *Samen op punten met andere vakjes* en klik de vakjes aan die bij elkaar horen (bv. drie getallen van één bewerking). De leerling krijgt de punten alleen als ze allemaal juist zijn.
+- Bij een losse **rekenvraag** kan de bewerking ook in een rekenrooster (standaard aan bij een nieuwe rekenvraag).
+
+**Mappen en importeren** werken zoals bij quizzen: boven je lijst met toetsen staan **Nieuwe map** en **Importeren** (ook als tegel bovenaan: *Toets importeren*). Bij het verbeteren en op het verbeterblad zie je een lang antwoord nu helemaal.
+
 ## Een hele reeks met AI
 
 Per les een quiz en een oefenblad op 🪶 Page, 🛡️ Schildknaap en ⚔️ Ridder, voor een heel blok of een heel jaar in één keer.

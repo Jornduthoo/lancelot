@@ -61,8 +61,8 @@ const PfEdit = (() => {
     markeren: 'Typ of plak de tekst en zet de woorden die de leerling moet aanduiden tussen [ en ]. Een fout aangeduid woord kost een juist.',
     tekenen: 'De leerling tekent met vinger, pen of muis, eventueel op een afbeelding (bv. een rooster, kaart of figuur). Na de toets geef jij de punten.',
     spreken: 'De leerling neemt zijn antwoord op. Na de toets luister je en geef jij de punten. Opnemen lukt op Chromebooks alleen als ICT het adres van LANcelot toelaat; op de pc zelf altijd.',
-    kort: 'Meerdere goede antwoorden: scheid ze met |. Getallen tellen ook in een andere schrijfwijze (0,5 = ½ = 1/2). Met een breukvak typt de leerling de teller en de noemer apart; 6/8 is dan ook juist voor 3/4, tenzij je "alleen vereenvoudigd" aanvinkt.',
-    rekenen: 'De leerling schrijft zijn bewerking en de uitkomst. De computer verbetert de uitkomst, jij de bewerking.',
+    kort: 'Meerdere goede antwoorden: scheid ze met |. Getallen tellen ook in een andere schrijfwijze (0,5 = ½ = 1/2). Met een breukvak typt de leerling de teller en de noemer apart; 6/8 is dan ook juist voor 3/4, tenzij je "zo eenvoudig mogelijk" aanvinkt.',
+    rekenen: 'De leerling rekent de bewerking uit (in een rekenrooster of een tekstvak) en schrijft de uitkomst. De computer verbetert de uitkomst, jij de bewerking.',
     verbinden: 'Eén paar per regel: links = rechts. De rechterkant komt door elkaar.',
     ordenen: 'Eén ding per regel, in de juiste volgorde. De leerling krijgt ze door elkaar.',
     tabel: 'Eén rij per regel, cellen gescheiden door |. De eerste regel is de kop. Zet wat de leerling invult tussen [ ], bv. 2 | [2000]. Een keuzelijstje in een cel: {groter|kleiner|gelijk}, het eerste is het juiste.',
@@ -231,12 +231,14 @@ const PfEdit = (() => {
         card.querySelector('.e-antwoord').value = q.antwoord || '';
         card.querySelector('.e-eenheid').value = q.eenheid || '';
         if (q.type === 'rekenen') card.querySelector('.e-werkpunten').value = q.werkPunten ?? 1;
-        veld('<label class="inline check"><input type="checkbox" class="e-breuk"> Antwoord in een breukvak (teller boven, noemer onder)</label> <label class="inline check e-vv-label"><input type="checkbox" class="e-vv"> Alleen vereenvoudigd is juist</label>', 'pf-checks');
+        veld(`<label class="inline check"><input type="checkbox" class="e-breuk"> Antwoord in een breukvak (teller boven, noemer onder)</label> <label class="inline check" title="3/4 is juist, 6/8 niet. Een onechte breuk (7/4) moet een gemengd getal zijn (1 3/4), tenzij je juiste antwoord zelf een onechte breuk is."><input type="checkbox" class="e-vv"> Zo eenvoudig mogelijk (3/4 juist, 6/8 fout)</label>${q.type === 'rekenen' ? ' <label class="inline check"><input type="checkbox" class="e-rooster"> Bewerking in een rekenrooster (hokjes)</label>' : ''}`, 'pf-checks');
         card.querySelector('.e-breuk').checked = !!q.breuk;
         card.querySelector('.e-vv').checked = !!q.vereenvoudigd;
-        const vv = () => card.querySelector('.e-vv-label').classList.toggle('hidden', !card.querySelector('.e-breuk').checked);
-        card.querySelector('.e-breuk').addEventListener('change', vv);
-        vv();
+        if (q.type === 'rekenen') {
+          // Een nieuwe rekenvraag krijgt meteen een rooster; een oude houdt zijn tekstvak tot je het aanvinkt.
+          card.querySelector('.e-rooster').checked = q.rooster === true || (q.rooster === undefined && !q.antwoord);
+          card.pfRooster = { kol: q.kol, rij: q.rij };
+        }
       } else if (q.type === 'verbinden') {
         veld('<label>Paren<textarea class="e-lijst" rows="4" placeholder="Antwerpen = Schelde\nLuik = Maas"></textarea></label>');
         card.querySelector('.e-lijst').value = (q.paren || []).map(p => `${p[0]} = ${p[1]}`).join('\n');
@@ -353,7 +355,7 @@ const PfEdit = (() => {
       const leeg = velden.filter(PfBlad.leegVeld).length;
       vak.innerHTML = `<button type="button" class="pf-blad-mini" title="Vakjes plaatsen en antwoorden invullen" style="aspect-ratio:${1 / (card.pfBlad.verhouding || 1.414)}">
           <img src="${card.pfBeeld}" alt="">${velden.map(f => `<i class="${f.soort}${PfBlad.leegVeld(f) ? ' zonder' : ''}" style="left:${f.x}%;top:${f.y}%;width:${f.w}%;height:${f.h}%"></i>`).join('')}</button>
-        <div class="pf-blad-info"><p><strong>${velden.length} vakjes</strong> · ${nl(velden.filter(f => !PfKern.HAND_VELD.has(f.soort)).reduce((s, f) => s + (Number(f.punten) || 0), 0))} punten${velden.some(f => PfKern.HAND_VELD.has(f.soort)) ? ' + open vakjes en tekenvakken (verbeter jij)' : ''}</p>
+        <div class="pf-blad-info"><p><strong>${velden.length} vakjes</strong> · ${nl(velden.filter(f => !PfKern.HAND_VELD.has(f.soort)).reduce((s, f) => s + (Number(f.punten) || 0), 0))} punten${velden.some(f => PfKern.HAND_VELD.has(f.soort)) ? ' + open vakjes, tekenvakken en rekenroosters (verbeter jij)' : ''}</p>
           ${leeg ? `<p class="pf-nodig">⚠ ${leeg} ${leeg === 1 ? 'vakje heeft' : 'vakjes hebben'} nog geen antwoord</p>` : velden.length ? '<p class="muted small">Alle antwoorden staan erin.</p>' : '<p class="pf-nodig">⚠ Nog geen vakjes</p>'}
           <button type="button" class="secondary small-btn bewerk">✏️ Vakjes en antwoorden</button></div>`;
       for (const b of vak.querySelectorAll('.pf-blad-mini, .bewerk')) b.addEventListener('click', bewerk);
@@ -432,7 +434,9 @@ const PfEdit = (() => {
       q.eenheid = waarde(card, '.e-eenheid');
       if (type === 'rekenen') q.werkPunten = waarde(card, '.e-werkpunten');
       q.breuk = card.querySelector(':scope > .pf-k-body .e-breuk').checked;
-      q.vereenvoudigd = q.breuk && card.querySelector(':scope > .pf-k-body .e-vv').checked;
+      q.vereenvoudigd = card.querySelector(':scope > .pf-k-body .e-vv').checked;
+      if (type === 'rekenen' && card.querySelector(':scope > .pf-k-body .e-rooster').checked) Object.assign(q, { rooster: true }, card.pfRooster && card.pfRooster.kol ? card.pfRooster : {});
+      else if (type === 'rekenen') q.rooster = false;
     } else if (type === 'verbinden') q.paren = regels(waarde(card, '.e-lijst')).map(l => split(l, '='));
     else if (type === 'ordenen') q.items = regels(waarde(card, '.e-lijst'));
     else if (type === 'tabel') q.rijen = regels(waarde(card, '.e-lijst')).map(cellenVan);

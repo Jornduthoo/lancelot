@@ -10,10 +10,11 @@
 //   invullen    tekst met gaten: "De hoofdstad is [Brussel]." (meerdere goede antwoorden: [fiets|velo]); bank: true = slepen uit een woordenbank, extra: [foute woorden]
 //   kort        antwoord: "0,5|1/2" (meerdere goede antwoorden), eenheid
 //   rekenen     antwoord (de uitkomst), eenheid, punten (voor de uitkomst) en werkPunten (de leerkracht verbetert de werkwijze)
+//               rooster: true = de bewerking in een rekenrooster (kol kolommen, rij rijen, één teken per hokje) in plaats van een tekstvak
 //   verbinden   paren: [[links, rechts]]
 //   ordenen     items in de juiste volgorde
 //   tabel       rijen: [[cel, cel]], de eerste rij is de kop; een cel "[12]" vult de leerling in, "{groter|kleiner}" is een keuzelijstje
-//   kort/rekenen met breuk: true: de leerling typt in een breukvak (geheel, teller, noemer); vereenvoudigd: true = alleen de vereenvoudigde breuk is juist
+//   kort/rekenen met breuk: true: de leerling typt in een breukvak (geheel, teller, noemer); vereenvoudigd: true = alleen zo eenvoudig mogelijk is juist
 //   aanduiden   beeld, zones: [{ x, y, r }] in procent van de breedte; verhouding = hoogte / breedte van het beeld
 //               zonder namen tikt de leerling één plek aan (elke zone is goed); met namen ({ x, y, r, naam }, bv. de provincies
 //               op een kaart) zet de leerling elke naam op zijn plek: het antwoord is dan [{ x, y } of null] per zone, één punt per naam
@@ -35,6 +36,11 @@
 //               kruisjes met dezelfde groep tellen samen: alleen goed als precies de juiste aangekruist zijn
 //               rond = een bolletje (meerkeuze: de leerling kiest er één per groep), label = een letter op het hokje (A, B, J, F)
 //               bij tekst: hoofdletters, leestekens (tellen mee) en spaties (alle spaties negeren)
+//               bij tekst en breuk: vereenvoudigd = zo eenvoudig mogelijk (6/8 is fout als 3/4 juist is; 7/4 fout als 1 3/4 juist is)
+//               breuk met geheel: true = er staat een vakje voor het geheel ervoor (een gemengd getal: 1 3/4)
+//               rooster = een rekenrooster voor een bewerking (cijferen): kol kolommen en rij rijen, één teken per hokje; de leerkracht verbetert
+//               samen: vakjes met hetzelfde getal tellen samen als één vraag: alleen als ze allemaal juist zijn, krijgt de leerling de punten
+//               (de punten van het groepje staan op het eerste vakje, de rest heeft 0)
 // Bij invullen is {goed|fout|fout} een keuzelijstje: de eerste is de juiste, de leerling ziet ze alfabetisch.
 // Elke vraag kan audio hebben (eigen opname of geluidsbestand, als data-adres): de leerling hoort de uitleg met 🔊.
 // exact: true laat hoofdletters en leestekens meetellen bij invullen, kort en tabel.
@@ -58,14 +64,17 @@
   // Aanduiden: hoeveel plekken (met namen: bv. alle provincies of hoofdsteden op een kaart).
   const MAX_ZONES = 20;
   const metNamen = q => q.zones.some(z => z.naam);
-  const SOORTEN = ['tekst', 'kruis', 'kies', 'open', 'teken', 'luister', 'breuk', 'sleep', 'vlak', 'notitie', 'plek', 'lijn'];
+  const SOORTEN = ['tekst', 'kruis', 'kies', 'open', 'teken', 'luister', 'breuk', 'sleep', 'vlak', 'notitie', 'plek', 'lijn', 'rooster'];
   // Vakjes zonder antwoord: ze staan alleen op het blad.
   const GEEN_ANTWOORD = new Set(['luister', 'vlak', 'notitie']);
   // Vakjes die de computer verbetert met een getypt of gekozen antwoord.
   const AUTO_VELD = new Set(['tekst', 'kies', 'breuk', 'sleep', 'plek', 'lijn']);
   const KLEUREN = ['#ffffff', '#fff3b0', '#d8ecff', '#e4e4e4', '#ffd9d9'];
   // Wat de leerkracht verbetert op een blad.
-  const HAND_VELD = new Set(['open', 'teken']);
+  const HAND_VELD = new Set(['open', 'teken', 'rooster']);
+  // Een rekenrooster: hoeveel hokjes breed en hoog (standaard en hooguit).
+  const ROOSTER = { kol: 8, rij: 4, maxKol: 20, maxRij: 12 };
+  const roosterMaat = (v, standaard, max) => Math.min(max, Math.max(2, Math.round(Number(v)) || standaard));
   // Een afbeelding is een klein webp-bestand (de editor verkleint), als data-adres in de toets zelf.
   const MAX_BEELD = 700000;
   // Audio: een opname van een minuut is ongeveer 300 kB; een geluidsbestand mag wat groter.
@@ -218,10 +227,14 @@
       const eenheid = text(q.eenheid, 20);
       if (eenheid) out.eenheid = eenheid;
       if (type === 'rekenen') out.werkPunten = punt(q.werkPunten, 1);
-      if (q.breuk === true) {
-        out.breuk = true;
-        if (q.vereenvoudigd === true) out.vereenvoudigd = true;
+      if (type === 'rekenen' && q.rooster === true) {
+        out.rooster = true;
+        // Een losse rekenvraag heeft het hele scherm: een wat groter rooster.
+        out.kol = roosterMaat(q.kol, 12, ROOSTER.maxKol);
+        out.rij = roosterMaat(q.rij, 6, ROOSTER.maxRij);
       }
+      if (q.breuk === true) out.breuk = true;
+      if (q.vereenvoudigd === true) out.vereenvoudigd = true;
     } else if (type === 'verbinden') {
       out.paren = list(pick(q, 'paren', 'pairs'), 12).map((p, i) => {
         const l = text(Array.isArray(p) ? p[0] : p && (p.links || p.left), 200);
@@ -312,7 +325,11 @@
         if (n) veld.naar = { x: pct(n.x), y: pct(n.y) };
         veld.r = Math.max(0.5, Math.min(20, pct(f.r) || 3));
         veld.punten = punt(f.punten, 1);
-      } else if (soort === 'teken') {
+      } else if (soort === 'teken' || soort === 'rooster') {
+        if (soort === 'rooster') {
+          veld.kol = roosterMaat(f.kol, ROOSTER.kol, ROOSTER.maxKol);
+          veld.rij = roosterMaat(f.rij, ROOSTER.rij, ROOSTER.maxRij);
+        }
         const antwoord = text(f.antwoord, 1000);
         if (antwoord) veld.antwoord = antwoord;
         veld.punten = punt(f.punten, 1);
@@ -322,10 +339,19 @@
         const eenheid = soort === 'tekst' || soort === 'breuk' ? text(f.eenheid, 20) : '';
         if (eenheid) veld.eenheid = eenheid;
         if (soort === 'tekst') for (const k of ['hoofdletters', 'leestekens', 'spaties']) if (f[k]) veld[k] = true;
+        if ((soort === 'tekst' || soort === 'breuk') && f.vereenvoudigd) veld.vereenvoudigd = true;
+        if (soort === 'breuk' && f.geheel) veld.geheel = true;
         veld.punten = punt(f.punten, 1);
       }
+      // Samen op punten: alleen bij vakjes die de computer verbetert (hokjes hebben hun eigen groep).
+      const samen = Math.round(Number(f.samen));
+      if (AUTO_VELD.has(soort) && samen >= 1 && samen <= 99) veld.samen = samen;
       return veld;
     });
+    // Een groepje van één vakje is geen groepje.
+    const tel = {};
+    for (const f of out.velden) if (f.samen) tel[f.samen] = (tel[f.samen] || 0) + 1;
+    for (const f of out.velden) if (f.samen && tel[f.samen] < 2) delete f.samen;
     out.punten = out.velden.filter(f => !HAND_VELD.has(f.soort)).reduce((s, f) => s + f.punten, 0);
     const woorden = [...new Set(list(q.woorden, 30).map(w => text(w, 60)).filter(Boolean))];
     if (woorden.length && out.velden.some(f => f.soort === 'sleep')) out.woorden = woorden;
@@ -476,6 +502,7 @@
     else if (q.type === 'kort' || q.type === 'rekenen') {
       if (q.eenheid) v.eenheid = q.eenheid;
       if (q.type === 'rekenen') v.werk = true;
+      if (q.type === 'rekenen' && q.rooster) { v.kol = q.kol; v.rij = q.rij; }
       if (q.breuk) v.breuk = true;
     } else if (q.type === 'verbinden') {
       v.links = q.paren.map(x => x[0]);
@@ -505,6 +532,8 @@
         const o = { x: f.x, y: f.y, w: f.w, h: f.h, soort: f.soort };
         if (f.soort === 'kies') o.opties = f.opties;
         if (f.soort === 'kruis') { o.groep = f.groep; if (f.rond) o.rond = true; if (f.label) o.label = f.label; }
+        if (f.soort === 'rooster') { o.kol = f.kol; o.rij = f.rij; }
+        if (f.soort === 'breuk' && f.geheel) o.geheel = true;
         if (f.soort === 'luister') { if (f.audio) o.audio = img(f.audio); if (f.tekst) o.tekst = f.tekst; }
         if (f.soort === 'vlak') o.kleur = f.kleur;
         if (f.soort === 'notitie') o.tekst = f.tekst || '';
@@ -547,14 +576,19 @@
     return /^-?(\d+\.?\d*|\.\d+)$/.test(t) ? Number(t) : null;
   }
 
-  // Is een breuk vereenvoudigd? "3/4" en "1 1/2" wel, "6/8" niet. Een geheel getal of kommagetal telt als vereenvoudigd.
-  function vereenvoudigd(s) {
-    const m = /(\d+)\s*\/\s*(\d+)\s*$/.exec(String(s || ''));
+  // Zo eenvoudig mogelijk? "3/4" en "1 1/2" wel, "6/8" en "4/2" niet. Een geheel getal of kommagetal telt als eenvoudig.
+  // Met de sleutel erbij: een onechte breuk (7/4) is alleen goed als de sleutel zelf ook een onechte breuk is,
+  // anders moet het een gemengd getal zijn (1 3/4).
+  const BREUK_EIND = /(\d+)\s*\/\s*(\d+)\s*$/;
+  function vereenvoudigd(s, sleutel) {
+    const m = BREUK_EIND.exec(String(s || ''));
     if (!m) return true;
     const ggd = (a, b) => (b ? ggd(b, a % b) : a);
     const t = Number(m[1]);
     const n = Number(m[2]);
-    return n > 1 && ggd(t, n) === 1;
+    if (!(n > 1 && ggd(t, n) === 1)) return false;
+    if (t >= n && sleutel !== undefined && !alts(sleutel).some(a => { const k = BREUK_EIND.exec(a); return k && Number(k[1]) >= Number(k[2]); })) return false;
+    return true;
   }
 
   // o: true (exact: alles telt mee) of { exact, hoofdletters, leestekens, spaties }.
@@ -619,6 +653,7 @@
       if (f.soort === 'plek') return plekGoed(f, b[k], q.verhouding);
       if (f.soort === 'lijn') return lijnGoed(f, b[k], q.verhouding);
       if (f.soort === 'sleep') return alts(f.antwoord).includes(String(b[k] || ''));
+      if (f.vereenvoudigd && !vereenvoudigd(b[k], f.antwoord)) return false;
       return zelfde(f.antwoord, b[k], f);
     });
   }
@@ -642,7 +677,7 @@
     }
     if (q.type === 'kort' || q.type === 'rekenen') {
       const uit = q.type === 'rekenen' && a && typeof a === 'object' ? a.uitkomst : a;
-      if (q.vereenvoudigd && !vereenvoudigd(uit)) return 0;
+      if (q.vereenvoudigd && !vereenvoudigd(uit, q.antwoord)) return 0;
       return zelfde(q.antwoord, uit, q) ? p : 0;
     }
     if (q.type === 'verbinden') {
@@ -660,7 +695,16 @@
       const goed = vakGoed(q, b, ov || {});
       let som = 0;
       const groepen = new Map();
+      // Samen op punten: het groepje is goed als elk vakje erin goed is.
+      const samen = new Map();
       q.velden.forEach((f, k) => {
+        if (f.samen && f.soort !== 'kruis') {
+          const s = samen.get(f.samen) || { goed: true, punten: 0 };
+          s.goed = s.goed && !!goed[k];
+          s.punten += f.punten;
+          samen.set(f.samen, s);
+          return;
+        }
         if (goed[k]) som += f.punten;
         if (f.soort !== 'kruis') return;
         const g = groepen.get(f.groep) || { goed: true, punten: 0 };
@@ -669,6 +713,7 @@
         groepen.set(f.groep, g);
       });
       for (const g of groepen.values()) if (g.goed) som += g.punten;
+      for (const s of samen.values()) if (s.goed) som += s.punten;
       return half(som);
     }
     if (q.type === 'getallenas') {
@@ -767,7 +812,7 @@
   }
 
   return {
-    TYPES, NAMES, MANUEEL, NIVEAUS, MAX_BEELD, validate, problemen, vragenVan, niveausVan, lijstVoor,
+    TYPES, NAMES, MANUEEL, NIVEAUS, MAX_BEELD, ROOSTER, validate, problemen, vragenVan, niveausVan, lijstVoor,
     maxVan, autoPunten, handPunten, totaal, viewOf, studentView, partsOf, getal, zelfde, canoniek, auto, schoon, oplossing, schud, alts, gapsOf,
     waarschuwingen, metNamen, MAX_ZONES, veldSleutel, vakGoed, lijnGoed, metEenheid, volgorde, SOORTEN, HAND_VELD, woordenVan, doelenVan, asTekst, MAX_AUDIO, celGat, vereenvoudigd, GEEN_ANTWOORD, AUTO_VELD, KLEUREN,
   };

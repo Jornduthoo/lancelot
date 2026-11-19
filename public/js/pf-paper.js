@@ -58,8 +58,11 @@ const PfPaper = (() => {
         : `<p class="pf-kort"><input class="ob-field pf-in" data-k="0" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="antwoord" aria-label="Antwoord" value="${esc(a ?? '')}"${ro}>${q.eenheid ? `<span class="pf-eenheid">${esc(q.eenheid)}</span>` : ''}</p>`;
     } else if (q.type === 'rekenen') {
       const w = a && typeof a === 'object' ? a : {};
-      h += print ? `<div class="pf-werkvak">Bewerking:</div><p class="pf-antwoordlijn">Uitkomst: ${q.breuk ? breukPrint() : '<span class="ob-line" style="min-width:6em"></span>'} ${esc(q.eenheid || '')}</p>`
-        : `<label class="pf-werk">Bewerking (hoe reken je het uit?)<textarea class="ob-field pf-werkveld" rows="4"${ro}>${esc(w.werk || '')}</textarea></label>
+      // Met een rekenrooster: de bewerking in hokjes, één cijfer per hokje (zoals op ruitjespapier).
+      const werk = q.kol ? `<div class="pf-werk">Bewerking: reken uit in het rooster (één cijfer per hokje)${roosterHtml(w.werk, q.kol, q.rij, live, 'pf-rooster-los')}</div>`
+        : `<label class="pf-werk">Bewerking (hoe reken je het uit?)<textarea class="ob-field pf-werkveld" rows="4"${ro}>${esc(w.werk || '')}</textarea></label>`;
+      h += print ? `${q.kol ? `<div class="pf-werk">Bewerking:${roosterHtml('', q.kol, q.rij, false, 'pf-rooster-los')}</div>` : '<div class="pf-werkvak">Bewerking:</div>'}<p class="pf-antwoordlijn">Uitkomst: ${q.breuk ? breukPrint() : '<span class="ob-line" style="min-width:6em"></span>'} ${esc(q.eenheid || '')}</p>`
+        : `${werk}
           <p class="pf-kort">Uitkomst: ${q.breuk ? breukHtml(w.uitkomst, ro, 'pf-uitkomst') : `<input class="ob-field pf-uitkomst" autocomplete="off" spellcheck="false" value="${esc(w.uitkomst || '')}"${ro}>`}${q.eenheid ? `<span class="pf-eenheid">${esc(q.eenheid)}</span>` : ''}</p>`;
     } else if (q.type === 'verbinden') {
       if (print) {
@@ -148,6 +151,63 @@ const PfPaper = (() => {
     return `${g ? `${g} ` : ''}${t}/${n}`;
   }
 
+  // Een rekenrooster: kol hokjes breed, rij hokjes hoog, één teken per hokje. De waarde is tekst: één regel per rij.
+  function roosterCellen(v, kol, rij) {
+    const rijen = String(v || '').split('\n');
+    return Array.from({ length: rij }, (_, r) => { const t = Array.from(rijen[r] || ''); return Array.from({ length: kol }, (__, c) => (t[c] || ' ').trim()); });
+  }
+  function roosterHtml(v, kol, rij, live, kl = '', stijl = '') {
+    const cellen = roosterCellen(v, kol, rij);
+    return `<div class="pf-rooster ${kl}" data-kol="${kol}" style="--kol:${kol};--rij:${rij};${stijl}">${cellen.map((r, ri) => r.map((c, ci) => (live
+      ? `<input class="pf-cel" data-r="${ri}" data-c="${ci}" maxlength="2" inputmode="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Rij ${ri + 1}, hokje ${ci + 1}" value="${esc(c)}">`
+      : `<span class="pf-cel">${esc(c)}</span>`)).join('')).join('')}</div>`;
+  }
+  function roosterWaarde(el) {
+    const kol = Number(el.dataset.kol) || 1;
+    const cellen = [...el.querySelectorAll('.pf-cel')].map(i => (i.value || '').trim().slice(-1) || ' ');
+    const rijen = [];
+    for (let i = 0; i < cellen.length; i += kol) rijen.push(cellen.slice(i, i + kol).join(''));
+    while (rijen.length && !rijen[rijen.length - 1].trim()) rijen.pop();
+    return rijen.length ? rijen.join('\n') : '';
+  }
+  // Typen in het rooster: één teken per hokje, dan door naar het volgende. Wie van rechts naar links schrijft
+  // (de uitkomst bij het cijferen), gaat vanzelf naar links. Pijltjes, Enter (een rij lager) en Backspace werken ook.
+  function wireRooster(r) {
+    const kol = Number(r.dataset.kol) || 1;
+    const cel = i => r.querySelectorAll('.pf-cel')[i];
+    const index = i => Number(i.dataset.r) * kol + Number(i.dataset.c);
+    r.addEventListener('input', e => {
+      const i = e.target;
+      if (!i.classList.contains('pf-cel')) return;
+      i.value = i.value.trim().slice(-1);
+      if (!i.value) return;
+      const c = Number(i.dataset.c);
+      const n = index(i);
+      const rechts = c < kol - 1 ? cel(n + 1) : null;
+      const links = c > 0 ? cel(n - 1) : null;
+      const doel = (!rechts || rechts.value.trim()) && links && !links.value.trim() ? links : rechts;
+      if (doel) { doel.focus(); doel.select(); }
+    });
+    r.addEventListener('keydown', e => {
+      const i = e.target;
+      if (!i.classList.contains('pf-cel')) return;
+      const n = index(i);
+      const c = Number(i.dataset.c);
+      let doel = null;
+      if (e.key === 'ArrowLeft' && c > 0) doel = cel(n - 1);
+      else if (e.key === 'ArrowRight' && c < kol - 1) doel = cel(n + 1);
+      else if (e.key === 'ArrowUp') doel = cel(n - kol);
+      else if (e.key === 'ArrowDown' || e.key === 'Enter') doel = cel(n + kol);
+      else if (e.key === 'Backspace' && !i.value && c > 0) doel = cel(n - 1);
+      if (e.key === 'Enter') e.preventDefault();
+      if (!doel) return;
+      e.preventDefault();
+      doel.focus();
+      doel.select();
+    });
+    r.addEventListener('focusin', e => { if (e.target.classList.contains('pf-cel')) e.target.select(); });
+  }
+
   // Een getallenas: streepjes per stap, de getallen aan de uiteinden of overal. De leerling ziet niet welk getal hij aanduidt.
   // Zoals PfKern.asTekst (die laadt niet bij de leerling).
   function asTekst(x, breuk) {
@@ -188,13 +248,18 @@ const PfPaper = (() => {
       const zoneLijn = sleutel && f.soort === 'lijn' && f.naar ? `<i class="pf-plek-doel" style="left:${f.naar.x}%;top:${f.naar.y}%;width:${2 * (f.r || 3)}%"></i>` : '';
       if (f.soort === 'plek' && print) return zone;
       if (f.soort === 'lijn' && print) return `<span class="pf-veld lijn" style="left:${f.x}%;top:${f.y}%;width:${f.w}%;height:${f.h}%"></span>${zoneLijn}`;
-      const s = f.soort === 'plek' ? zone : f.soort === 'lijn' ? zoneLijn : sleutel && sleutel[k] && !(oordeel && oordeel.goed[k] !== false) ? `<span class="pf-veld-sleutel${b[k] ? '' : ' in'}" style="left:${f.x}%;top:${b[k] ? f.y + f.h : f.y}%;${b[k] ? '' : `width:${f.w}%;height:${f.h}%;`}">${esc(sleutel[k])}</span>` : '';
+      // Een lang antwoord loopt verder dan het vakje (naar rechts en naar onder), zodat er niets wegvalt.
+      const s = f.soort === 'plek' ? zone : f.soort === 'lijn' ? zoneLijn : sleutel && sleutel[k] && !(oordeel && oordeel.goed[k] !== false) ? `<span class="pf-veld-sleutel${b[k] ? '' : ' in'}" style="left:${f.x}%;top:${b[k] ? f.y + f.h : f.y}%;max-width:${Math.max(f.w, 100 - f.x)}%;${b[k] ? '' : `min-width:${f.w}%;min-height:${f.h}%;`}">${esc(sleutel[k]).replace(/\n/g, '<br>')}</span>` : '';
       if (f.soort === 'vlak') return `<i class="pf-vlak" style="left:${f.x}%;top:${f.y}%;width:${f.w}%;height:${f.h}%;background:${esc(f.kleur || '#fff')}"></i>`;
       if (f.soort === 'notitie') return `<span class="pf-notitie" style="${pos}">${esc(f.tekst || '').replace(/\n/g, '<br>')}</span>`;
-      if (print) return s;
+      if (print) return (f.soort === 'rooster' ? veldEl(f, k, pos, null) : '') + s;
       const g = oordeel ? oordeel.goed[k] : null;
-      const knop = g === null || g === undefined ? '' : `<button type="button" class="pf-vak-oordeel ${g ? 'goed' : 'fout'}${oordeel.zelf[k] !== undefined ? ' zelf' : ''}" data-id="${esc(q.id)}" data-k="${k}" style="left:${f.x + f.w}%;top:${f.y}%" title="Klik om ${g ? 'fout' : 'goed'} te zetten">${g ? '✔' : '✘'}</button>`;
-      return veldEl(f, k, pos, g) + knop + s;
+      // Een lang antwoord groeit naar rechts: dan staat het ✔ / ✘ links van het vakje, en de sleutel onder het antwoord.
+      const vol = isVol(f, k);
+      const knop = g === null || g === undefined ? '' : `<button type="button" class="pf-vak-oordeel ${g ? 'goed' : 'fout'}${oordeel.zelf[k] !== undefined ? ' zelf' : ''}${vol ? ' links' : ''}" data-id="${esc(q.id)}" data-k="${k}" style="left:${vol ? f.x : f.x + f.w}%;top:${f.y}%" title="Klik om ${g ? 'fout' : 'goed'} te zetten">${g ? '✔' : '✘'}</button>`;
+      const tag = f.samen && !live ? `<span class="pf-samen-tag" style="left:${f.x}%;top:${f.y}%" title="Telt samen met de andere vakjes van groepje ${'ABCDEFGHIJKLMNOPQRSTUVWXYZ'[(f.samen - 1) % 26]}">🔗${'ABCDEFGHIJKLMNOPQRSTUVWXYZ'[(f.samen - 1) % 26]}</span>` : '';
+      if (vol) return veldEl(f, k, pos, g, s ? sleutel[k] : '') + knop + tag;
+      return veldEl(f, k, pos, g) + knop + tag + s;
     }).join('');
     // Verbinden: de lijnen van de leerling (en bij de sleutel de juiste lijn, gestreept).
     const lijnen = q.velden.map((f, k) => {
@@ -210,7 +275,11 @@ const PfPaper = (() => {
     return `${live ? '<p class="pf-tip pf-blad-tip">Typ je antwoorden in de vakjes op het blad. <button type="button" class="link pf-groter">🔍 Groter</button></p>' : ''}${bank}
       <div class="pf-blad-wrap"><div class="pf-blad-vel" style="aspect-ratio:${Math.round((1 / v) * 10000) / 10000}">${q.beeld ? `<img src="${esc(q.beeld)}" alt="" draggable="false">` : ''}${svg}${velden}</div></div>`;
 
-    function veldEl(f, k, pos, g) {
+    // Een getypt antwoord dat we helemaal tonen (bekijken en verbeteren), ook als het langer is dan het vakje.
+    function isVol(f, k) {
+      return !live && (f.soort === 'tekst' || f.soort === 'open') && b[k] !== undefined && b[k] !== null && typeof b[k] !== 'boolean' && String(b[k]).trim() !== '';
+    }
+    function veldEl(f, k, pos, g, sl = '') {
       const kl = g === true ? ' goed' : g === false ? ' fout' : '';
       if (f.soort === 'luister') return `<button type="button" class="pf-luister pf-blad-luister" ${f.audio ? `data-src="${esc(f.audio)}"` : `data-tekst="${esc(f.tekst || '')}"`} style="left:${f.x}%;top:${f.y}%;width:${f.w}%;height:${f.h}%" title="Luister" aria-label="Luister">🎧</button>`;
       if (f.soort === 'teken') {
@@ -221,8 +290,15 @@ const PfPaper = (() => {
       // Een bolletje (rond): één keuze per groep. Een hokje: aankruisen, ook meerdere.
       if (f.soort === 'kruis') return `<button type="button" class="pf-veld kruis${f.rond ? ' rond' : ''}${kl}${b[k] === true ? ' on' : ''}" data-k="${k}" data-g="${f.groep || 1}" style="${pos}" aria-label="${f.label ? esc(f.label) : 'Aankruisen'}"${live ? '' : ' disabled'}>${f.rond ? esc(f.label || '') : b[k] === true ? '✗' : esc(f.label || '')}</button>`;
       if (f.soort === 'breuk') {
-        const [t, n] = /\//.test(String(b[k] || '')) ? String(b[k]).split('/') : [b[k] || '', ''];
-        return `<span class="pf-veld breuk${kl}" data-k="${k}" style="${pos}"><input class="teller pf-breuk-in" inputmode="numeric" autocomplete="off" aria-label="Teller" value="${esc(String(t).trim())}"${ro}><i></i><input class="noemer pf-breuk-in" inputmode="numeric" autocomplete="off" aria-label="Noemer" value="${esc(String(n).trim())}"${ro}></span>`;
+        const [g, t, n] = breukDelen(b[k]);
+        const st = `<input class="teller pf-breuk-in" inputmode="numeric" autocomplete="off" aria-label="Teller" value="${esc(t)}"${ro}><i></i><input class="noemer pf-breuk-in" inputmode="numeric" autocomplete="off" aria-label="Noemer" value="${esc(n)}"${ro}>`;
+        // Met een geheel: een gemengd getal (1 3/4), het geheel links van de breuk.
+        if (f.geheel) return `<span class="pf-veld breuk met-geheel${kl}" data-k="${k}" style="${pos}"><input class="geheel pf-breuk-in" inputmode="numeric" autocomplete="off" aria-label="Geheel (mag leeg)" value="${esc(g)}"${ro}><span class="pf-breuk-st">${st}</span></span>`;
+        return `<span class="pf-veld breuk${kl}" data-k="${k}" style="${pos}">${st}</span>`;
+      }
+      if (f.soort === 'rooster') {
+        const cel = Math.round(Math.min((f.h / (f.rij || 4)) * v, f.w / (f.kol || 8)) * 0.62 * 100) / 100;
+        return roosterHtml(b[k], f.kol || 8, f.rij || 4, live, `pf-veld rooster${kl}`, `left:${f.x}%;top:${f.y}%;width:${f.w}%;height:${f.h}%;font-size:max(8px,${cel}cqw)`).replace('<div class="pf-rooster', `<div data-k="${k}" class="pf-rooster`);
       }
       if (f.soort === 'sleep') return `<button type="button" class="pf-veld sleep${kl}${b[k] ? ' vol' : ''}" data-k="${k}" data-waarde="${esc(b[k] || '')}" style="${pos}"${live ? '' : ' disabled'}>${esc(b[k] || '')}</button>`;
       if (f.soort === 'plek') {
@@ -231,6 +307,11 @@ const PfPaper = (() => {
       }
       if (f.soort === 'lijn') return live ? `<button type="button" class="pf-veld lijn" data-k="${k}" data-waarde="${esc(b[k] || '')}" style="left:${f.x}%;top:${f.y}%;width:${f.w}%;height:${f.h}%" title="Sleep een lijn naar de juiste plek" aria-label="Verbinden"></button>` : `<span class="pf-veld lijn${kl}" data-k="${k}" data-waarde="${esc(b[k] || '')}" style="left:${f.x}%;top:${f.y}%;width:${f.w}%;height:${f.h}%"></span>`;
       if (f.soort === 'kies') return `<select class="pf-veld kies${kl}" data-k="${k}" style="${pos}"${live ? '' : ' disabled'}><option value=""></option>${(f.opties || []).map(x => `<option${b[k] === x ? ' selected' : ''}>${esc(x)}</option>`).join('')}</select>`;
+      // Bekijken en verbeteren: het antwoord van de leerling helemaal, ook als het langer is dan het vakje.
+      if (isVol(f, k)) {
+        const groot = pos.replace(`width:${f.w}%;height:${f.h}%`, `min-width:${f.w}%;min-height:${f.h}%;max-width:${Math.max(f.w, 100 - f.x)}%`);
+        return `<span class="pf-veld vol${f.soort === 'open' ? ' open' : ''}${kl}" data-k="${k}" style="${groot}"><span>${esc(b[k]).replace(/\n/g, '<br>')}</span>${sl ? `<span class="pf-vol-sleutel">${esc(sl).replace(/\n/g, '<br>')}</span>` : ''}</span>`;
+      }
       if (f.soort === 'open') return `<textarea class="pf-veld open${kl}" data-k="${k}" style="${pos}" spellcheck="false"${ro}>${esc(b[k] ?? '')}</textarea>`;
       return `<input class="pf-veld${kl}" data-k="${k}" style="${pos}" autocomplete="off" autocapitalize="off" spellcheck="false" value="${esc(b[k] ?? '')}"${ro}>`;
     }
@@ -364,7 +445,11 @@ const PfPaper = (() => {
       return out;
     }
     if (type === 'kort') { const b = el.querySelector('.pf-breuk'); return b ? breukWaarde(b) : el.querySelector('.pf-in').value; }
-    if (type === 'rekenen') { const b = el.querySelector('.pf-breuk'); return { werk: el.querySelector('.pf-werkveld').value, uitkomst: b ? breukWaarde(b) : el.querySelector('.pf-uitkomst').value }; }
+    if (type === 'rekenen') {
+      const b = el.querySelector('.pf-breuk');
+      const r = el.querySelector('.pf-rooster');
+      return { werk: r ? roosterWaarde(r) : el.querySelector('.pf-werkveld').value, uitkomst: b ? breukWaarde(b) : el.querySelector('.pf-uitkomst').value };
+    }
     if (type === 'verbinden') return [...el.querySelectorAll('.pf-sel')].map(s => (s.value === '' ? null : Number(s.value)));
     if (type === 'ordenen') return [...el.querySelectorAll('.pf-orden li')].map(li => Number(li.dataset.i));
     if (type === 'aanduiden') return el.querySelector('.pf-namen') ? el.pfPunten || [] : el.pfPunt || null;
@@ -377,13 +462,15 @@ const PfPaper = (() => {
       const out = [];
       for (const f of el.querySelectorAll('.pf-veld')) {
         const k = Number(f.dataset.k);
-        if (f.classList.contains('kruis')) out[k] = f.classList.contains('on') ? true : null;
+        if (f.classList.contains('rooster')) out[k] = roosterWaarde(f) || null;
+        else if (f.classList.contains('kruis')) out[k] = f.classList.contains('on') ? true : null;
         else if (f.classList.contains('teken')) out[k] = f.pfWaarde || null;
         else if (f.classList.contains('sleep') || f.classList.contains('plek') || f.classList.contains('lijn')) out[k] = f.dataset.waarde || null;
         else if (f.classList.contains('breuk')) {
+          const g = f.querySelector('.geheel') ? f.querySelector('.geheel').value.trim() : '';
           const t = f.querySelector('.teller').value.trim();
           const n = f.querySelector('.noemer').value.trim();
-          out[k] = t || n ? `${t}/${n}` : null;
+          out[k] = t || n ? `${g ? `${g} ` : ''}${t}/${n}` : g || null;
         } else out[k] = f.value;
       }
       return out;
@@ -608,8 +695,9 @@ const PfPaper = (() => {
           send(el);
         });
       }
-      // Enter springt naar het volgende vakje.
-      for (const i of el.querySelectorAll('input')) {
+      for (const r of el.querySelectorAll('.pf-rooster')) wireRooster(r);
+      // Enter springt naar het volgende vakje (in een rekenrooster: een rij lager).
+      for (const i of el.querySelectorAll('input:not(.pf-cel)')) {
         i.addEventListener('keydown', e => {
           if (e.key !== 'Enter') return;
           e.preventDefault();
@@ -638,5 +726,5 @@ const PfPaper = (() => {
     return true;
   }
 
-  return { render, lees, beantwoord, esc, ptn, nl };
+  return { render, lees, beantwoord, esc, ptn, nl, roosterHtml };
 })();
