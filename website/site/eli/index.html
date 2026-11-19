@@ -246,14 +246,13 @@ main.wrap{padding-top:18px;padding-bottom:60px}
   </header>
 
   <main class="wrap" id="thuis">
-    <div class="tabs" role="tablist" id="tabs">
-      <button class="aan" data-tab="vandaag">⚽ Vandaag</button>
-      <button data-tab="planning">🗓️ Planning</button>
-      <button data-tab="vakken">📚 Vrij oefenen</button>
-      <button data-tab="hulp">🙋 Hulp</button>
-      <button data-tab="ploeg">⭐ Mijn ploeg</button>
-      <button data-tab="trofeeen">🏆 Trofeeën</button>
-    </div>
+    <nav class="onav" role="tablist" id="tabs">
+      <button class="aan" data-tab="vandaag"><span>⚽</span>Vandaag</button>
+      <button data-tab="planning"><span>🗓️</span>Planning</button>
+      <button data-tab="vakken"><span>📚</span>Oefenen<b class="badge" id="oefen-badge" hidden></b></button>
+      <button data-tab="hulp"><span>🙋</span>Hulp</button>
+      <button data-tab="ploeg"><span>⭐</span>Ploeg</button>
+    </nav>
 
     <div data-paneel="vandaag">
       <div class="babbel" id="dagbabbel"></div>
@@ -308,8 +307,6 @@ main.wrap{padding-top:18px;padding-bottom:60px}
       <div class="sectiekop"><h2>Eli's leerploeg</h2><span class="muted klein">zij supporteren voor jou</span></div>
       <p class="muted" style="margin-top:-4px">Deze ploeg legt uit, stelt vragen en juicht als je scoort. Ze rekenen op je, kampioen!</p>
       <div class="ploeg" id="ploeg"></div>
-    </div>
-    <div data-paneel="trofeeen" hidden>
       <div class="sectiekop"><h2>Trofeeënkast</h2></div>
       <div class="trofeeen" id="trofeeen"></div>
     </div>

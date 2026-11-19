@@ -304,11 +304,12 @@ document.addEventListener('click', e => {
   const b = e.target.closest('#tabs button'); if (!b) return;
   [...$('tabs').children].forEach(x => x.classList.toggle('aan', x === b));
   document.querySelectorAll('[data-paneel]').forEach(p => p.hidden = p.dataset.paneel !== b.dataset.tab);
+  document.querySelector('.veld').classList.toggle('klein', b.dataset.tab !== 'vandaag');
+  window.scrollTo(0, 0);
   if (b.dataset.tab === 'planning') tekenPlanning();
   if (b.dataset.tab === 'vakken') tekenVakken();
   if (b.dataset.tab === 'hulp') tekenHulp();
-  if (b.dataset.tab === 'trofeeen') tekenTrofeeen();
-  if (b.dataset.tab === 'ploeg') $('ploeg').innerHTML = POP.ploegHtml();
+  if (b.dataset.tab === 'ploeg') { $('ploeg').innerHTML = POP.ploegHtml(); tekenTrofeeen(); }
 });
 
 function tekenPlanning(){
@@ -441,17 +442,19 @@ function tekenVakken(){
   $('vaktabs').onclick = e => { const b = e.target.closest('button'); if (!b) return; vrijVak = b.dataset.vak; tekenVakken(); };
   const lijst = $('onderwerplijst'); lijst.innerHTML = '';
   lijst.append(doelenKaart(vrijVak));
+  const raster = document.createElement('div'); raster.className = 'tegelraster';
+  lijst.append(raster);
   { const f = VAKVORM[vrijVak];
     const el = document.createElement('div'); el.className = 'taak'; el.style.setProperty('--vk', vk(vrijVak));
     el.innerHTML = `<div class="ic">${f.ic}</div><div class="tx"><b>${f.titel}</b><span>${f.uitleg}</span></div>`;
     const b = document.createElement('button'); b.className = 'knop klein'; b.textContent = 'Start';
     b.onclick = () => voerUit({ id:'vrij:vakvorm:' + vrijVak, soort:'vakvorm', vak:vrijVak, titel:f.ic + ' ' + f.titel, vrij:true });
-    el.append(b); lijst.append(el); }
+    el.append(b); raster.append(el); }
   { const el = document.createElement('div'); el.className = 'taak'; el.style.setProperty('--vk', vk(vrijVak));
     el.innerHTML = `<div class="ic">✍️</div><div class="tx"><b>Open vragen</b><span>10 vragen zonder keuzes: schrijf zelf je antwoord, vergelijk met het modelantwoord</span></div>`;
     const b = document.createElement('button'); b.className = 'knop klein'; b.textContent = 'Start';
     b.onclick = () => voerUit({ id:'vrij:open:' + vrijVak, soort:'open-vak', vak:vrijVak, titel:'✍️ Open vragen ' + V[vrijVak].kort, vrij:true });
-    el.append(b); lijst.append(el); }
+    el.append(b); raster.append(el); }
   { const vr = (S.stand.vragen || []).filter(q => q.vak === vrijVak);
     if (vr.length) {
       const nieuw = vr.filter(q => !(q.antwoorden || []).length).length;
@@ -461,15 +464,16 @@ function tekenVakken(){
       el.querySelector('.tx > span').textContent = `${vr.length} ${vr.length === 1 ? 'vraag' : 'vragen'} van ${wie}`;
       const b = document.createElement('button'); b.className = 'knop klein'; b.textContent = 'Start';
       b.onclick = () => voerUit({ id:'vrij:supporters:' + vrijVak, soort:'supporters', vak:vrijVak, titel:'💌 Vragen van je supporters', vrij:true });
-      el.append(b); lijst.append(el);
+      el.append(b); raster.append(el);
     } }
   if (vrijVak === 'fr') {
     const el = document.createElement('div'); el.className = 'taak'; el.style.setProperty('--vk', vk('fr'));
     el.innerHTML = `<div class="ic">⚡</div><div class="tx"><b>Werkwoorden-sprint</b><span>Vervoegen in het présent en passé composé</span></div>`;
     const b = document.createElement('button'); b.className = 'knop klein'; b.textContent = 'Start';
     b.onclick = () => voerUit({ id:'vrij:drill', soort:'drill', vak:'fr', titel:'Werkwoorden-sprint', vrij:true });
-    el.append(b); lijst.append(el);
+    el.append(b); raster.append(el);
   }
+  { const h = document.createElement('div'); h.innerHTML = '<div class="sectiekop"><h2>Per onderwerp</h2></div><p class="muted klein" style="margin:-6px 0 6px">📖 lezen · 🃏 kaartjes · 🔗 koppelen · ⏱️ race · 📸 foto · ❓ quiz · ✍️ open</p>'; lijst.append(h); }
   for (const t of T.filter(t => t.vak === vrijVak)) {
     const el = document.createElement('div'); el.className = 'taak'; el.style.setProperty('--vk', vk(t.vak));
     const r = (S.stand.onderwerpen || {})[t.id];
@@ -1724,7 +1728,13 @@ function welkom(){
   m.hidden = false;
   $('wk').onclick = () => m.hidden = true;
 }
+function oefenBadge(){
+  const b = $('oefen-badge'); if (!b) return;
+  const n = ((S.stand && S.stand.vragen) || []).filter(q => !(q.antwoorden || []).length).length;
+  b.hidden = !n; b.textContent = n;
+}
 function teller(){
+  oefenBadge();
   const n = ((S.stand && S.stand.berichten) || []).filter(b => !b.gezien).length;
   const k = $('knop-berichten');
   k.innerHTML = '💌' + (n ? `<b class="badge">${n}</b>` : '');
