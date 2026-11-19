@@ -575,6 +575,7 @@ function preview() {
     for (const { id, q } of PfKern.vragenVan(lijst)) {
       sleutel[id] = q.type === 'blad' ? PfKern.veldSleutel(q) : PfKern.oplossing(q);
       if (q.type === 'aanduiden') zones[id] = q.zones;
+      else if (q.type === 'markeren' && (q.per || q.inBron || q.kleuren || q.aantal)) zones[id] = PfKern.markeerSleutel(q);
       else if (q.type === 'blad') zones[id] = q.velden;
     }
     PfPaper.render($('e-preview'), v.pages, { mode: 'view', nummer: true, sleutel, zones });
@@ -887,6 +888,7 @@ function papierVan(toets, niveau, answers, punten) {
   for (const { id, q } of PfKern.vragenVan(lijst)) {
     sleutel[id] = q.type === 'blad' ? PfKern.veldSleutel(q) : PfKern.oplossing(q);
     if (q.type === 'aanduiden') zones[id] = q.zones;
+    else if (q.type === 'markeren' && (q.per || q.inBron || q.kleuren || q.aantal)) zones[id] = PfKern.markeerSleutel(q);
     else if (q.type === 'blad') zones[id] = q.velden;
   }
   return { pages: v.pages, opts: { mode: 'view', nummer: true, answers: answers || {}, sleutel, zones, punten } };
@@ -1052,7 +1054,7 @@ function antwoordKort(q, a) {
   if (q.type === 'ordenen') return a.map(i => q.items[i]).join(' → ');
   if (q.type === 'aanduiden') return PfKern.metNamen(q) ? 'namen op de afbeelding' : 'een plek op de afbeelding';
   if (q.type === 'getallenas') return PfKern.asTekst(Number(a), q.breuk);
-  if (q.type === 'markeren') { const w = PfKern.woordenVan(q.tekst); return a.map(i => (w.find(x => x.w === i) || {}).t || '?').join(' · '); }
+  if (q.type === 'markeren') return PfKern.markeerKort(q, a);
   if (q.type === 'tekenen') return 'een tekening';
   if (q.type === 'spreken') return 'een opname';
   if (q.type === 'blad') return q.velden.map((f, k) => (a[k] === true ? `${k + 1}: ✗` : f.soort === 'klad' ? '' : a[k] ? `${k + 1}: ${vakKort(q, f, a[k])}` : '')).filter(Boolean).join(' · ');

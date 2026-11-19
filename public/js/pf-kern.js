@@ -130,13 +130,196 @@
     let w = 0;
     for (const m of String(tekst || '').matchAll(WOORD)) {
       if (m.index > last) out.push({ t: tekst.slice(last, m.index) });
-      out.push({ t: m[1] !== undefined ? m[1].trim() : m[0], w: w++, doel: m[1] !== undefined });
+      const h = m[1] !== undefined ? haakKleur(m[1].trim()) : null;
+      out.push(h ? { t: h.t.trim(), w: w++, doel: true, k: h.k } : { t: m[0], w: w++, doel: false });
       last = m.index + m[0].length;
     }
     if (last < String(tekst || '').length) out.push({ t: tekst.slice(last) });
     return out;
   }
   const doelenVan = tekst => woordenVan(tekst).filter(s => s.doel).map(s => s.w);
+  // ---------- Woorden aanduiden: woorden, zinnen of stukjes tekst, in één of meer kleuren ----------
+  // per: 'zin' (de leerling tikt een hele zin aan) of 'stuk' (de leerling duidt een stuk tekst aan); zonder: losse woorden (zoals altijd).
+  // kleuren: [{ kleur: 'groen', uitleg: 'eigennaam' }] (1 tot 4); in de tekst staat de kleur achter het juiste stuk: [Jan|2] = de tweede kleur.
+  // aantal: hoeveel de leerling moet aanduiden ("duid er 2 aan"); leeg = allemaal.
+  // inBron (een deelvraag van een bron): de leerling duidt aan in de tekst van de bron; doelen: [[eerste woord, laatste woord, kleur]].
+  const PER = ['zin', 'stuk'];
+  const STIFTEN = { geel: '#ffe14d', groen: '#8ce99a', blauw: '#8fd0ff', rood: '#ff9b9b', oranje: '#ffc078', paars: '#d6c2ff' };
+  // Een donkere rand in dezelfde kleur: zo toont de sleutel wat juist is.
+  const STIFT_RAND = { geel: '#b08f00', groen: '#2f9e44', blauw: '#1c7ed6', rood: '#e03131', oranje: '#e8590c', paars: '#7048e8' };
+  const MAX_KLEUREN = 4;
+  // Een stuk tussen haken, eventueel met de kleur erachter: [de hond|2].
+  const HAAK = /\[([^\[\]]+)\]/g;
+  const haakKleur = s => { const m = /^([\s\S]*?)\|([1-4])$/.exec(s); return m ? { t: m[1], k: Number(m[2]) } : { t: s, k: 1 }; };
+  // De tekst zonder haken, met waar de juiste stukken staan (begin en einde in de tekst zonder haken).
+  function zonderHaken(tekst) {
+    let plain = '';
+    let last = 0;
+    const doelen = [];
+    for (const m of String(tekst || '').matchAll(HAAK)) {
+      plain += tekst.slice(last, m.index);
+      const { t, k } = haakKleur(m[1]);
+      doelen.push({ s: plain.length, e: plain.length + t.length, k });
+      plain += t;
+      last = m.index + m[0].length;
+    }
+    plain += String(tekst || '').slice(last);
+    return { plain, doelen };
+  }
+  // Afkortingen: na deze woorden eindigt de zin niet.
+  const AFKORTING = new Set(['bv', 'bijv', 'enz', 'nl', 'oa', 'dhr', 'mevr', 'mr', 'dr', 'ca', 'blz', 'nr', 'st', 'resp', 'evt', 'vb', 'o', 'a', 'd', 'w', 'z', 'm']);
+  // Alle woorden van een tekst (zonder haken), met hun plaats en de zin waarin ze staan.
+  // Een zin eindigt op . ! ? of … (eventueel gevolgd door een aanhalingsteken of haakje) en een spatie, of op een nieuwe regel.
+  const LOS_WOORD = /[\p{L}\p{N}][\p{L}\p{N}'’-]*/gu;
+  function tekstWoorden(plain) {
+    const woorden = [];
+    let z = 0;
+    let last = 0;
+    for (const m of String(plain || '').matchAll(LOS_WOORD)) {
+      const tus = plain.slice(last, m.index);
+      const vorig = woorden[woorden.length - 1];
+      if (vorig && (/\n/.test(tus) || (/[.!?…]["'”’»)\]]*\s/.test(tus) && !(/^\.\s/.test(tus) && AFKORTING.has(vorig.t.toLowerCase()))))) z++;
+      woorden.push({ t: m[0], s: m.index, e: m.index + m[0].length, z });
+      last = m.index + m[0].length;
+    }
+    return woorden;
+  }
+  // De stukken om te tonen: tekst en woorden (w = nummer, z = zin). Een stuk tekst tussen woord w en w + 1 heeft n = w.
+  function stukkenVan(plain, woorden) {
+    const out = [];
+    let last = 0;
+    woorden.forEach((x, i) => {
+      if (x.s > last) out.push(i ? { t: plain.slice(last, x.s), n: i - 1 } : { t: plain.slice(last, x.s) });
+      out.push({ t: x.t, w: i, z: x.z });
+      last = x.e;
+    });
+    if (last < plain.length) out.push({ t: plain.slice(last) });
+    return out;
+  }
+  const nieuwMarkeren = q => !!(q.per || q.inBron);
+  // Het model van een markeervraag: de stukken om te tonen, hoe de leerling aanduidt en wat juist is.
+  // doelen: [{ a, b, k }] (woorden a tot b, kleur k); bij zinnen a = b = het nummer van de zin.
+  function markeerModel(q) {
+    if (!nieuwMarkeren(q)) {
+      // Zoals altijd: losse woorden; een stuk tussen haken is één woord.
+      const st = woordenVan(q.tekst);
+      return { per: 'woord', stukken: st.map(s => (s.w === undefined ? { t: s.t } : { t: s.t, w: s.w })), doelen: st.filter(s => s.doel).map(s => ({ a: s.w, b: s.w, k: s.k || 1 })) };
+    }
+    const per = q.per || 'woord';
+    let plain;
+    let ruw;
+    let haken = [];
+    if (q.inBron) {
+      plain = String(q.bronTekst || '');
+      ruw = (q.doelen || []).map(([a, b, k]) => ({ a, b, k }));
+    } else {
+      const z = zonderHaken(q.tekst);
+      plain = z.plain;
+      ruw = null;
+      haken = z.doelen;
+    }
+    const woorden = tekstWoorden(plain);
+    if (!ruw) {
+      ruw = haken.map(d => {
+        const binnen = woorden.map((x, i) => (x.s < d.e && x.e > d.s ? i : -1)).filter(i => i >= 0);
+        return binnen.length ? { a: binnen[0], b: binnen[binnen.length - 1], k: d.k } : null;
+      }).filter(Boolean);
+    }
+    ruw = ruw.filter(d => d.a >= 0 && d.b >= d.a && d.b < woorden.length);
+    let doelen;
+    if (per === 'zin') {
+      const gezien = new Map();
+      for (const d of ruw) for (let i = d.a; i <= d.b; i++) if (!gezien.has(woorden[i].z)) gezien.set(woorden[i].z, d.k);
+      doelen = [...gezien].map(([z, k]) => ({ a: z, b: z, k })).sort((x, y) => x.a - y.a);
+    } else if (per === 'stuk') doelen = ruw.map(d => ({ ...d })).sort((x, y) => x.a - y.a);
+    else {
+      const gezien = new Map();
+      for (const d of ruw) for (let i = d.a; i <= d.b; i++) if (!gezien.has(i)) gezien.set(i, d.k);
+      doelen = [...gezien].map(([w, k]) => ({ a: w, b: w, k })).sort((x, y) => x.a - y.a);
+    }
+    return { per, plain, woorden, stukken: stukkenVan(plain, woorden), doelen };
+  }
+  // Een antwoord als lijst: [nummer, kleur] (woord of zin) of [eerste, laatste, kleur] (stuk). Een los getal = kleur 1 (zoals vroeger).
+  function markeerAntwoord(a, per) {
+    const out = [];
+    for (const x of Array.isArray(a) ? a : []) {
+      if (Number.isInteger(x)) out.push(per === 'stuk' ? [x, x, 1] : [x, 1]);
+      else if (Array.isArray(x) && per === 'stuk' && x.length === 3) out.push(x);
+      else if (Array.isArray(x) && per !== 'stuk' && x.length === 2) out.push(x);
+    }
+    return out;
+  }
+  // Hoeveel juist en fout aangeduid, en hoeveel er nodig zijn.
+  function markeerTel(q, a) {
+    const m = markeerModel(q);
+    const gekozen = markeerAntwoord(a, m.per);
+    const nodig = Math.max(1, q.aantal ? Math.min(q.aantal, m.doelen.length) : m.doelen.length);
+    let goed = 0;
+    let fout = 0;
+    if (m.per === 'stuk') {
+      // Een stuk is juist als het hetzelfde stuk is: aan elke rand mag er één woord te veel of te weinig staan.
+      const vrij = m.doelen.slice();
+      for (const [x, y, k] of gekozen) {
+        const i = vrij.findIndex(d => d.k === k && Math.abs(d.a - x) <= 1 && Math.abs(d.b - y) <= 1 && x <= d.b && y >= d.a);
+        if (i >= 0) { goed++; vrij.splice(i, 1); } else fout++;
+      }
+    } else {
+      const doel = new Map(m.doelen.map(d => [d.a, d.k]));
+      for (const [n, k] of gekozen) if (doel.get(n) === k) goed++; else fout++;
+    }
+    return { goed: Math.min(goed, nodig), fout, nodig, model: m, gekozen };
+  }
+  // De juiste stukken als tekst (voor de sleutel), per kleur.
+  function markeerTekst(m, lijst) {
+    const tekst = d => (m.per === 'woord' && !m.woorden ? (m.stukken.find(s => s.w === d.a) || {}).t || '?'
+      : m.per === 'zin' ? stukTekst(m, m.woorden.findIndex(x => x.z === d.a), m.woorden.length - 1 - [...m.woorden].reverse().findIndex(x => x.z === d.a))
+        : stukTekst(m, d.a, d.b));
+    const stukTekst = (m2, a, b) => (m2.woorden[a] && m2.woorden[b] ? m2.plain.slice(m2.woorden[a].s, m2.woorden[b].e).replace(/\s+/g, ' ') : '?');
+    return lijst.map(d => ({ k: d.k, t: tekst(d) }));
+  }
+  function markeerOplossing(q) {
+    const m = markeerModel(q);
+    const stukken = markeerTekst(m, m.doelen);
+    const voor = q.aantal && q.aantal < m.doelen.length ? `${q.aantal} van: ` : '';
+    if (!q.kleuren || !q.kleuren.length) return voor + stukken.map(s => s.t).join(' · ');
+    return voor + q.kleuren.map((c, i) => { const l = stukken.filter(s => s.k === i + 1); return l.length ? `${c.kleur}${c.uitleg ? ` (${c.uitleg})` : ''}: ${l.map(s => s.t).join(', ')}` : ''; }).filter(Boolean).join(' · ');
+  }
+  // Wat juist is, in de vorm van een antwoord (voor de sleutel in de juiste kleur).
+  function markeerSleutel(q) {
+    const m = markeerModel(q);
+    return m.doelen.map(d => (m.per === 'stuk' ? [d.a, d.b, d.k] : [d.a, d.k]));
+  }
+  // Het antwoord van een leerling als tekst.
+  function markeerKort(q, a) {
+    const m = markeerModel(q);
+    const lijst = markeerAntwoord(a, m.per).map(x => (m.per === 'stuk' ? { a: x[0], b: x[1], k: x[2] } : { a: x[0], b: x[0], k: x[1] }));
+    return markeerTekst(m, lijst).map(s => (q.kleuren && q.kleuren.length > 1 ? `${s.t} (${(q.kleuren[s.k - 1] || {}).kleur || s.k})` : s.t)).join(' · ');
+  }
+  // In de bron: de juiste stukken terugvinden als de tekst van de bron veranderde (woorden ervoor bij of weg).
+  function doelenInBron(doelen, plain) {
+    const woorden = tekstWoorden(plain).map(x => x.t);
+    return list(doelen, 60).map(d => {
+      const [a, b, k] = Array.isArray(d) ? d.map(Number) : [d && d.a, d && d.b, d && d.k].map(Number);
+      const t = Array.isArray(d) ? d[3] : d && d.t;
+      if (!Number.isInteger(a) || !Number.isInteger(b) || a < 0 || b < a) return null;
+      const kleur = k >= 1 && k <= MAX_KLEUREN ? k : 1;
+      const tekst = typeof t === 'string' ? t.slice(0, 600) : '';
+      if (tekst) {
+        const zoek = tekst.split(' ');
+        const past = i => zoek.every((w, j) => woorden[i + j] === w);
+        if (!past(a)) {
+          let beste = -1;
+          for (let i = 0; i + zoek.length <= woorden.length; i++) if (past(i) && (beste < 0 || Math.abs(i - a) < Math.abs(beste - a))) beste = i;
+          if (beste >= 0) return [beste, beste + zoek.length - 1, kleur, tekst];
+          // Niet meer gevonden (de tekst van het stuk zelf veranderde): dan blijft het op zijn plaats.
+          if (b >= woorden.length) return null;
+          return [a, b, kleur, woorden.slice(a, b + 1).join(' ')];
+        }
+      }
+      if (b >= woorden.length) return null;
+      return [a, b, kleur, tekst || woorden.slice(a, b + 1).join(' ')];
+    }).filter(Boolean);
+  }
   // Een getal op de getallenas als tekst: 0,25 of als breuk 1/4 (de noemer volgt uit de stap).
   function asTekst(x, breuk) {
     if (breuk && Math.abs(x - Math.round(x)) > 1e-9) {
@@ -150,7 +333,7 @@
   // Ook een AI die Engelse namen gebruikt, of een gewone vraag zonder soort, komt goed.
   const pick = (o, ...keys) => { for (const k of keys) if (o[k] !== undefined) return o[k]; return undefined; };
 
-  function cleanVraag(q, waar, deel) {
+  function cleanVraag(q, waar, deel, bronTekst) {
     if (!q || typeof q !== 'object') throw new Error(`${waar} is leeg.`);
     const type = TYPES.includes(q.type) ? q.type : null;
     if (!type) throw new Error(`${waar} heeft een onbekende soort${q.type ? ` (${String(q.type).slice(0, 20)})` : ''}.`);
@@ -172,7 +355,7 @@
     if (type === 'bron') {
       out.titel = text(q.titel || q.title, 120);
       out.tekst = text(q.tekst || q.text, 6000);
-      out.vragen = list(q.vragen || q.questions, MAX_DEEL).map((d, j) => cleanVraag(d, `${waar}${'abcdefghijklmno'[j]}`, true));
+      out.vragen = list(q.vragen || q.questions, MAX_DEEL).map((d, j) => cleanVraag(d, `${waar}${'abcdefghijklmno'[j]}`, true, out.tekst));
       if (!out.vragen.length) throw new Error(`${naam} heeft geen deelvragen.`);
       if (!out.tekst && !out.beeld && !out.beeldNodig) throw new Error(`${naam} heeft geen tekst of afbeelding.`);
       return out;
@@ -194,6 +377,13 @@
       const juist = [...new Set((Array.isArray(raw) ? raw : [raw]).map(Number))].filter(n => Number.isInteger(n) && n >= 0 && n < out.opties.length).sort((a, b) => a - b);
       if (!juist.length) throw new Error(`${naam}: duid het juiste antwoord aan.`);
       out.juist = juist.length === 1 ? juist[0] : juist;
+      // Meerdere juiste: punten per juist antwoord (een fout kost er één), en hoeveel de leerling moet aanduiden.
+      if (juist.length > 1) {
+        if (q.puntenPer === 'juist') out.puntenPer = 'juist';
+        const aantal = Math.round(Number(q.aantal));
+        if (aantal >= 1 && aantal < juist.length) out.aantal = aantal;
+        if (out.puntenPer) max = out.aantal || juist.length;
+      }
     } else if (type === 'juistfout') {
       const c = pick(q, 'juist', 'correct');
       out.juist = c === true || /^(j|juist|true|waar|ja)$/i.test(String(c));
@@ -221,10 +411,27 @@
       out.getallen = q.getallen === 'alle' ? 'alle' : 'rand';
       if (q.breuk === true) out.breuk = true;
     } else if (type === 'markeren') {
-      out.tekst = text(q.tekst || q.text, 4000);
-      const n = doelenVan(out.tekst).length;
-      if (!n) throw new Error(`${naam}: zet de woorden die de leerling moet aanduiden tussen [ en ].`);
-      max = n;
+      if (PER.includes(q.per)) out.per = q.per;
+      const kleuren = list(q.kleuren, MAX_KLEUREN).map(c => ({ kleur: STIFTEN[c && c.kleur] ? c.kleur : '', uitleg: text(c && c.uitleg, 60) })).filter(c => c.kleur);
+      if (kleuren.length) out.kleuren = kleuren;
+      const aantal = Math.round(Number(q.aantal));
+      if (aantal >= 1 && aantal <= 99) out.aantal = aantal;
+      if (deel && q.inBron === true) {
+        out.inBron = true;
+        out.bronTekst = bronTekst || '';
+        out.doelen = doelenInBron(q.doelen, out.bronTekst).map(d => (d[2] > (kleuren.length || 1) ? [d[0], d[1], 1, d[3]] : d));
+        if (!out.bronTekst) throw new Error(`${naam}: de bron heeft nog geen tekst om in aan te duiden.`);
+      } else {
+        out.tekst = text(q.tekst || q.text, 4000);
+        if (!doelenVan(out.tekst).length) throw new Error(`${naam}: zet de woorden die de leerling moet aanduiden tussen [ en ].`);
+      }
+      // Een kleur die niet (meer) bestaat, wordt de eerste.
+      const m = markeerModel(out);
+      if (out.kleuren && m.doelen.some(d => d.k > out.kleuren.length)) throw new Error(`${naam}: een juist stuk heeft een kleur die er niet is.`);
+      if (!out.kleuren && m.doelen.some(d => d.k > 1)) throw new Error(`${naam}: kies de kleuren (er staat een tweede kleur in de tekst).`);
+      max = out.aantal ? Math.min(out.aantal, m.doelen.length) || out.aantal : m.doelen.length;
+      if (out.aantal && out.aantal > m.doelen.length && m.doelen.length) throw new Error(`${naam}: de leerling moet er ${out.aantal} aanduiden, maar er zijn er maar ${m.doelen.length} juist.`);
+      if (!out.inBron) max = Math.max(1, max);
     } else if (type === 'tekenen') {
       const v = Number(q.verhouding);
       out.verhouding = v > 0.05 && v < 20 ? Math.round(v * 1000) / 1000 : 0.6;
@@ -789,6 +996,7 @@
           if (v.type === 'aanduiden' && !v.beeld) out.push(`${tag}vraag ${nr}: kies de afbeelding waarop de leerling aanduidt`);
           else if (v.type === 'aanduiden' && !v.zones.length) out.push(`${tag}vraag ${nr}: klik op de afbeelding waar het juiste antwoord ligt`);
           else if (v.type === 'aanduiden' && metNamen(v) && v.zones.some(z => !z.naam)) out.push(`${tag}vraag ${nr}: geef elke plek een naam`);
+          if (v.type === 'markeren' && v.inBron && !markeerModel(v).doelen.length) out.push(`${tag}vraag ${nr}: duid in de brontekst aan wat juist is`);
           if (typeof v.beeld === 'string' && v.beeld.startsWith('#')) out.push(`${tag}vraag ${nr}: de afbeelding ontbreekt`);
           if (v.type === 'getallenas') {
             const min = getal(v.min); const stap = getal(v.stap); const a = getal(v.antwoord);
@@ -890,6 +1098,7 @@
       const order = p || q.opties.map((_, i) => i);
       v.opties = order.map(i => (typeof q.opties[i] === 'string' ? { tekst: q.opties[i] } : { tekst: q.opties[i].tekst, beeld: q.opties[i].beeld && !q.opties[i].beeld.startsWith('#') ? img(q.opties[i].beeld) : undefined }));
       v.meer = Array.isArray(q.juist);
+      if (q.aantal) v.aantal = q.aantal;
     } else if (q.type === 'invullen') {
       v.parts = partsOf(q.tekst);
       // Een woordenbank: de leerling sleept de woorden in de gaten in plaats van te typen.
@@ -919,7 +1128,14 @@
     else if (q.type === 'getallenas') {
       Object.assign(v, { min: getal(q.min), max: getal(q.max), stap: getal(q.stap), getallen: q.getallen });
       if (q.breuk) v.breuk = true;
-    } else if (q.type === 'markeren') v.stukken = woordenVan(q.tekst).map(s => (s.w === undefined ? { t: s.t } : { t: s.t, w: s.w }));
+    } else if (q.type === 'markeren') {
+      // In de bron: de tekst staat links (bij de bron), hier alleen hoe de leerling aanduidt.
+      if (!q.inBron) v.stukken = markeerModel(q).stukken;
+      if (q.per) v.per = q.per;
+      if (q.inBron) v.inBron = true;
+      if (q.kleuren) v.kleuren = q.kleuren.map(c => ({ kleur: c.kleur, hex: STIFTEN[c.kleur], rand: STIFT_RAND[c.kleur], uitleg: c.uitleg }));
+      if (q.aantal) v.aantal = q.aantal;
+    }
     else if (q.type === 'spreken') v.seconden = q.seconden;
     else if (q.type === 'open') v.regels = q.regels;
     else if (q.type === 'blad') {
@@ -951,6 +1167,8 @@
       const q = lijst[i];
       if (q.type !== 'bron') return viewOf(q, String(i), perms, img);
       const b = { id: String(i), type: 'bron', titel: q.titel, tekst: q.tekst, vragen: q.vragen.map((d, j) => viewOf(d, `${i}.${j}`, perms, img)) };
+      // Een deelvraag duidt aan in de brontekst: de tekst in woorden en zinnen, zodat de leerling ze kan aantikken.
+      if (q.vragen.some(d => d.type === 'markeren' && d.inBron)) b.stukken = stukkenVan(q.tekst, tekstWoorden(q.tekst));
       if (q.beeld && !q.beeld.startsWith('#')) b.beeld = img(q.beeld);
       return b;
     });
@@ -1078,7 +1296,13 @@
     if (leeg(a) && a !== 0 && !(q.type === 'blad' && ov)) return 0;
     if (q.type === 'meerkeuze') {
       const juist = Array.isArray(q.juist) ? q.juist : [q.juist];
-      const gekozen = Array.isArray(a) ? a : [a];
+      const gekozen = [...new Set(Array.isArray(a) ? a : [a])];
+      const nodig = q.aantal || juist.length;
+      const goed = gekozen.filter(j => juist.includes(j)).length;
+      const fout = gekozen.length - goed;
+      if (q.puntenPer === 'juist') return half((p * Math.max(0, Math.min(goed, nodig) - fout)) / nodig);
+      // Alles of niets: precies de juiste (of, met een aantal, zoveel juiste en geen foute).
+      if (q.aantal) return goed === nodig && !fout ? p : 0;
       return juist.length === gekozen.length && juist.every(j => gekozen.includes(j)) ? p : 0;
     }
     if (q.type === 'juistfout') return (a === 'J') === q.juist && (a === 'J' || a === 'F') ? p : 0;
@@ -1134,12 +1358,9 @@
       return Number.isFinite(Number(a)) && Math.abs(Number(a) - x) < Math.max(1e-6, getal(q.stap) / 1000) ? p : 0;
     }
     if (q.type === 'markeren') {
-      const doelen = new Set(doelenVan(q.tekst));
-      const gekozen = new Set(Array.isArray(a) ? a : []);
-      let goed = 0;
-      let fout = 0;
-      for (const w of gekozen) if (doelen.has(w)) goed++; else fout++;
-      return half((p * Math.max(0, goed - fout)) / doelen.size);
+      // Een fout aangeduid stuk (of een stuk in de verkeerde kleur) kost evenveel als een juist oplevert.
+      const { goed, fout, nodig } = markeerTel(q, a);
+      return half((p * Math.max(0, goed - fout)) / nodig);
     }
     if (q.type === 'aanduiden' && metNamen(q)) {
       // Een naam is goed als hij in een plek met diezelfde naam staat (zo mag "rivier" twee keer voorkomen).
@@ -1170,7 +1391,25 @@
     if (q.type === 'rekenen') return a && typeof a === 'object' ? { werk: str(a.werk), uitkomst: str(a.uitkomst).slice(0, 200) } : null;
     if (q.type === 'blad') return list(a, MAX_VELDEN).map((v, k) => (v === true ? true : v === false || v === null ? null : q.velden[k] && (q.velden[k].soort === 'teken' || (q.velden[k].soort === 'klad' && q.velden[k].vorm === 'tekenen')) ? tekeningOf(v) : str(v).slice(0, 1000)));
     if (q.type === 'getallenas') return a !== '' && Number.isFinite(Number(a)) ? Math.round(Number(a) * 1e6) / 1e6 : null;
-    if (q.type === 'markeren') return [...new Set(list(a, 400).map(Number).filter(n => Number.isInteger(n) && n >= 0))].sort((x, y) => x - y);
+    if (q.type === 'markeren') {
+      const n = v => Number.isInteger(Number(v)) && Number(v) >= 0 && Number(v) < 5000;
+      const k = v => Number.isInteger(Number(v)) && Number(v) >= 1 && Number(v) <= MAX_KLEUREN;
+      if (!nieuwMarkeren(q) && !q.kleuren) return [...new Set(list(a, 400).map(Number).filter(x => Number.isInteger(x) && x >= 0))].sort((x, y) => x - y);
+      const uit = [];
+      const gezien = new Set();
+      for (const x of list(a, 400)) {
+        let r = null;
+        if (n(x)) r = q.per === 'stuk' ? [Number(x), Number(x), 1] : [Number(x), 1];
+        else if (Array.isArray(x) && q.per === 'stuk' && x.length === 3 && n(x[0]) && n(x[1]) && k(x[2]) && Number(x[0]) <= Number(x[1])) r = x.map(Number);
+        else if (Array.isArray(x) && q.per !== 'stuk' && x.length === 2 && n(x[0]) && k(x[1])) r = x.map(Number);
+        if (!r) continue;
+        const sleutel = q.per === 'stuk' ? `${r[0]}-${r[1]}` : String(r[0]);
+        if (gezien.has(sleutel)) continue;
+        gezien.add(sleutel);
+        uit.push(r);
+      }
+      return uit.sort((x, y) => x[0] - y[0] || x[1] - y[1]);
+    }
     if (q.type === 'tekenen') return tekeningOf(a);
     if (q.type === 'spreken') return opnameOf(a);
     const pt = v => (v && typeof v === 'object' && Number.isFinite(Number(v.x)) && Number.isFinite(Number(v.y)) ? { x: Math.round(Number(v.x) * 10) / 10, y: Math.round(Number(v.y) * 10) / 10 } : null);
@@ -1204,7 +1443,7 @@
     if (q.type === 'ordenen') return q.items.join(' → ');
     if (q.type === 'tabel') return q.rijen.slice(1).flat().map(celGat).filter(Boolean).map(m => alts(m.goed)[0]).join(' · ');
     if (q.type === 'getallenas') return asTekst(getal(q.antwoord), q.breuk);
-    if (q.type === 'markeren') return woordenVan(q.tekst).filter(s => s.doel).map(s => s.t).join(' · ');
+    if (q.type === 'markeren') return markeerOplossing(q);
     if (MANUEEL.has(q.type)) return q.model || '';
     return '';
   }
@@ -1236,6 +1475,6 @@
     TYPES, NAMES, MANUEEL, NIVEAUS, MAX_BEELD, ROOSTER, validate, problemen, vragenVan, niveausVan, lijstVoor,
     maxVan, autoPunten, handPunten, totaal, viewOf, studentView, partsOf, getal, zelfde, canoniek, auto, schoon, oplossing, schud, alts, gapsOf,
     waarschuwingen, metNamen, MAX_ZONES, veldSleutel, vakGoed, vakDeel, handVeld, autoVeld, roosterAuto, roosterScore, roosterCellen, roosterTekst, roosterUitkomst,
-    heeftMarge, margeGoed, margeTekst, getalTekst, puntLijnen, puntlijnGoed, cirkelsVan, cirkelGoed, straalCm, puntNaam, handWerk, SCHAAL, NAKIJK, FIGUREN, figurenVan, veelhoekPunten, hoekpunten, rekenregel, formuleFout, lijnGoed, metEenheid, volgorde, SOORTEN, HAND_VELD, woordenVan, doelenVan, asTekst, MAX_AUDIO, celGat, vereenvoudigd, GEEN_ANTWOORD, AUTO_VELD, KLEUREN,
+    heeftMarge, margeGoed, margeTekst, getalTekst, puntLijnen, puntlijnGoed, cirkelsVan, cirkelGoed, straalCm, puntNaam, handWerk, SCHAAL, NAKIJK, FIGUREN, figurenVan, veelhoekPunten, hoekpunten, rekenregel, formuleFout, lijnGoed, metEenheid, volgorde, SOORTEN, HAND_VELD, woordenVan, doelenVan, markeerModel, markeerSleutel, doelenInBron, markeerTel, markeerKort, markeerAntwoord, tekstWoorden, stukkenVan, zonderHaken, STIFTEN, PER, asTekst, MAX_AUDIO, celGat, vereenvoudigd, GEEN_ANTWOORD, AUTO_VELD, KLEUREN,
   };
 });

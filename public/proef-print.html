@@ -53,6 +53,7 @@ function teken(niveau) {
     if (key) for (const { id, q } of PfKern.vragenVan(lijst)) {
       sleutel[id] = q.type === 'blad' ? PfKern.veldSleutel(q) : PfKern.oplossing(q) || ' ';
       if (q.type === 'aanduiden') zones[id] = q.zones;
+      else if (q.type === 'markeren' && (q.per || q.inBron || q.kleuren || q.aantal)) zones[id] = PfKern.markeerSleutel(q);
       else if (q.type === 'blad') zones[id] = q.velden;
     }
     const paper = document.createElement('article');
@@ -78,6 +79,7 @@ function kopie(d) {
   for (const { id, q } of PfKern.vragenVan(lijst)) {
     sleutel[id] = q.type === 'blad' ? PfKern.veldSleutel(q) : PfKern.oplossing(q);
     if (q.type === 'aanduiden') zones[id] = q.zones;
+    else if (q.type === 'markeren' && (q.per || q.inBron || q.kleuren || q.aantal)) zones[id] = PfKern.markeerSleutel(q);
     else if (q.type === 'blad') zones[id] = q.velden;
   }
   const multi = PfKern.niveausVan(d.toets).length > 1;

@@ -30,7 +30,7 @@ const PfPaper = (() => {
     if (q.beeld && q.type !== 'aanduiden') h += `<img class="pf-beeld" src="${esc(q.beeld)}" alt="" loading="lazy">`;
     if (q.type === 'meerkeuze') {
       const gekozen = new Set([].concat(a ?? []).map(String));
-      if (q.meer) h += `<p class="pf-tip">Er zijn meerdere juiste antwoorden. Duid ze allemaal aan.</p>`;
+      if (q.meer) h += `<p class="pf-tip">${q.aantal ? `Duid er ${q.aantal} aan.` : 'Er zijn meerdere juiste antwoorden. Duid ze allemaal aan.'}</p>`;
       h += `<div class="pf-keuzes${q.opties.some(x => x.beeld) ? ' met-beeld' : ''}">${q.opties.map((x, i) => print
         ? `<div class="pf-keuze-print"><span class="ob-check">${L[i]}</span>${x.beeld ? `<img src="${esc(x.beeld)}" alt="">` : ''} ${esc(x.tekst)}</div>`
         : `<button type="button" class="pf-keuze${gekozen.has(String(i)) ? ' on' : ''}" data-value="${i}"${dis}><b>${L[i]}</b>${x.beeld ? `<img src="${esc(x.beeld)}" alt="">` : ''}<span>${esc(x.tekst)}</span></button>`).join('')}</div>`;
@@ -110,10 +110,13 @@ const PfPaper = (() => {
       }
     } else if (q.type === 'getallenas') {
       h += `<p class="pf-tip">${print ? 'Zet een pijltje op de juiste plek.' : 'Tik op de getallenas waar het getal ligt.'}</p>${asHtml(q, a, live)}`;
-    } else if (q.type === 'markeren') {
+    } else if (q.type === 'markeren' && !q.per && !q.inBron && !q.kleuren && !q.aantal) {
+      // Zoals altijd: losse woorden in één kleur.
       const on = new Set([].concat(a ?? []).map(Number));
       h += `<p class="pf-tip">${print ? 'Onderstreep de juiste woorden.' : 'Tik op de woorden om ze aan te duiden. Nog eens tikken haalt het weg.'}</p>
         <p class="pf-markeer${live ? ' live' : ''}">${q.stukken.map(x => (x.w === undefined ? esc(x.t).replace(/\n/g, '<br>') : `<span class="pf-woord${on.has(x.w) ? ' on' : ''}" data-w="${x.w}"${live ? ' role="button" tabindex="0"' : ''}>${esc(x.t)}</span>`)).join('')}</p>`;
+    } else if (q.type === 'markeren') {
+      h += markeerVraag(q, a, o);
     } else if (q.type === 'tekenen') {
       const st = `aspect-ratio:${Math.round((1 / (q.verhouding || 0.6)) * 1000) / 1000}`;
       h += `${live ? '<p class="pf-tip">Teken met je vinger, pen of muis.</p>' : ''}<div class="pf-teken-wrap" style="${st}">${q.beeld ? `<img src="${esc(q.beeld)}" alt="" draggable="false">` : ''}
@@ -130,6 +133,88 @@ const PfPaper = (() => {
     }
     if (o.sleutel && !Array.isArray(o.sleutel[q.id]) && String(o.sleutel[q.id] || '').trim()) h += `<p class="pf-sleutel">✔ ${esc(o.sleutel[q.id]).replace(/\n/g, '<br>')}</p>`;
     return `${h}</div>`;
+  }
+
+  // ---------- Aanduiden in een tekst: woorden, zinnen of stukjes, in één of meer kleuren ----------
+  // Een aanduiding: [nummer, kleur] (woord of zin) of [eerste woord, laatste woord, kleur] (stuk). Een los getal is kleur 1.
+  const STIFT = '#ffe14d';
+  const RAND = '#b08f00';
+  function markLijst(a, per) {
+    return [].concat(a ?? []).map(x => (Array.isArray(x) ? x.map(Number) : per === 'stuk' ? [Number(x), Number(x), 1] : [Number(x), 1]));
+  }
+  // Welke kleur krijgt elk woord (w) en elk stukje tussen twee woorden (n)?
+  function markKleuren(stukken, per, lijst) {
+    const woord = new Map();
+    const tus = new Map();
+    const zin = new Map(stukken.filter(x => x.w !== undefined).map(x => [x.w, x.z]));
+    if (per === 'stuk') for (const [x, y, k] of lijst) for (let i = x; i <= y; i++) { woord.set(i, k); if (i < y) tus.set(i, k); }
+    else if (per === 'zin') {
+      const kz = new Map(lijst.map(([z, k]) => [z, k]));
+      for (const [w, z] of zin) if (kz.has(z)) { woord.set(w, kz.get(z)); if (zin.get(w + 1) === z) tus.set(w, kz.get(z)); }
+    } else for (const [w, k] of lijst) woord.set(w, k);
+    return { woord, tus };
+  }
+  // De tekst om aan te duiden. hex: de kleuren (1, 2, ...); sleutel: wat juist is (een stippellijn in de juiste kleur).
+  function markTekst(stukken, per, lijst, { hex = [STIFT], rand = [RAND], sleutel = null, live = false, start = null } = {}) {
+    const kl = markKleuren(stukken, per, lijst);
+    const sl = sleutel ? markKleuren(stukken, per, sleutel) : null;
+    const stijl = (map, i, sMap) => {
+      const k = map.get(i);
+      const s = sMap && sMap.get(i);
+      return `${k ? `background:${hex[k - 1] || STIFT};color:#1d1d1f;` : ''}${s ? `box-shadow:inset 0 -3px 0 ${rand[s - 1] || RAND};` : ''}`;
+    };
+    return stukken.map(x => {
+      if (x.w === undefined) {
+        const t = esc(x.t).replace(/\n/g, '<br>');
+        if (x.n === undefined) return t;
+        const st = stijl(kl.tus, x.n, sl && sl.tus);
+        return st ? `<span class="pf-tus" style="${st}">${t}</span>` : t;
+      }
+      const st = stijl(kl.woord, x.w, sl && sl.woord);
+      return `<span class="pf-woord${kl.woord.has(x.w) ? ' on' : ''}${start === x.w ? ' start' : ''}" data-w="${x.w}" data-z="${x.z}"${st ? ` style="${st}"` : ''}${live ? ' role="button" tabindex="0"' : ''}>${esc(x.t)}</span>`;
+    }).join('');
+  }
+  // Op papier: wat de leerling doet (kleuren of onderstrepen), in hele zinnen (zo kan elke zin vertaald worden).
+  const OP_PAPIER = {
+    woord: ['Onderstreep de juiste woorden.', 'Kleur de juiste woorden.', 'Onderstreep de juiste woorden in de tekst.', 'Kleur de juiste woorden in de tekst.'],
+    zin: ['Onderstreep de juiste zinnen.', 'Kleur de juiste zinnen.', 'Onderstreep de juiste zinnen in de tekst.', 'Kleur de juiste zinnen in de tekst.'],
+    stuk: ['Onderstreep de juiste stukken tekst.', 'Kleur de juiste stukken tekst.', 'Onderstreep de juiste stukken tekst in de tekst.', 'Kleur de juiste stukken tekst in de tekst.'],
+  };
+  const HOE = {
+    woord: 'Tik op de woorden om ze aan te duiden.',
+    zin: 'Tik op een zin om ze aan te duiden.',
+    stuk: 'Sleep over de woorden, of tik het eerste en dan het laatste woord aan.',
+  };
+  const markTip = (q, print) => {
+    const zin = t => `<span>${t}</span>`;
+    const per = q.per || 'woord';
+    const delen = q.aantal ? [zin(`Duid er ${q.aantal} aan.`)] : [];
+    if (print) return [...delen, zin(OP_PAPIER[per][(q.kleuren ? 1 : 0) + (q.inBron ? 2 : 0)])].join(' ');
+    if (q.kleuren && q.kleuren.length > 1) delen.push(zin('Kies eerst een kleur.'));
+    delen.push(zin(HOE[per]), zin('Nog eens tikken haalt het weg.'));
+    return delen.join(' ');
+  };
+  // De stiften: de leerling kiest een kleur. Met één kleur staat alleen de uitleg erbij.
+  const stiftenHtml = (q, live, print) => (q.kleuren ? `<div class="pf-stiften">${q.kleuren.map((c, i) => (print || !live || q.kleuren.length === 1
+    ? `<span class="pf-stift-uitleg"><i style="background:${c.hex}"></i>${esc(c.kleur)}${c.uitleg ? ` = ${esc(c.uitleg)}` : ''}</span>`
+    : `<button type="button" class="pf-stift${i === 0 ? ' on' : ''}" data-k="${i + 1}" style="--stift:${c.hex}"><i></i>${esc(c.kleur)}${c.uitleg ? ` = ${esc(c.uitleg)}` : ''}</button>`)).join('')}</div>` : '');
+  function markeerVraag(q, a, o) {
+    const live = o.mode === 'live';
+    const print = o.mode === 'print';
+    const hex = q.kleuren ? q.kleuren.map(c => c.hex) : [STIFT];
+    const rand = q.kleuren ? q.kleuren.map(c => c.rand) : [RAND];
+    const lijst = markLijst(a, q.per);
+    const sl = o.zones && Array.isArray(o.zones[q.id]) ? o.zones[q.id] : null;
+    let h = `<p class="pf-tip">${markTip(q, print)}</p>${stiftenHtml(q, live, print)}`;
+    if (live) o.mk[q.id] = { per: q.per || 'woord', stukken: q.inBron ? o.bronStukken || [] : q.stukken, hex, rand, inBron: !!q.inBron, aantal: q.aantal || 0 };
+    if (q.inBron) {
+      // In de bron: de leerling duidt links aan. Bekijken en verbeteren: de tekst staat hier, met wat de leerling aanduidde.
+      if (live) return `${h}<p class="pf-inbron"><button type="button" class="secondary small-btn pf-inbron-knop">👈 Duid aan in de tekst</button> <span class="pf-inbron-tel"></span></p>`;
+      if (print || !o.bronStukken) return h;
+      return `${h}<div class="pf-markeer pf-markeer-kopie">${markTekst(o.bronStukken, q.per, lijst, { hex, rand, sleutel: sl })}</div>`;
+    }
+    if (print) return `${h}<p class="pf-markeer${q.per ? ` per-${q.per}` : ''}">${markTekst(q.stukken, q.per, sl || [], { hex, rand })}</p>`;
+    return `${h}<p class="pf-markeer${live ? ' live' : ''}${q.per ? ` per-${q.per}` : ''}">${markTekst(q.stukken, q.per, lijst, { hex, rand, sleutel: sl, live })}</p>`;
   }
 
   // De woordenbank bij sleepwoorden.
@@ -373,18 +458,22 @@ const PfPaper = (() => {
   function pageHtml(p, i, o) {
     const nr = o.nummer ? String(i + 1) : '';
     if (p.type !== 'bron') return `<section class="pf-page">${vraagHtml(p, nr, o)}</section>`;
+    o.bronStukken = p.stukken || null;
     const say = o.voorlees && o.mode !== 'print' && typeof Voorlees !== 'undefined' && Voorlees.ok
       ? `<button type="button" class="ob-say pf-say" data-say="${o.said.push([p.titel, p.tekst].filter(Boolean).join('\n')) - 1}" title="Lees voor" aria-label="Lees voor">🔊</button>` : '';
     return `<section class="pf-page pf-bron-page">
-      <div class="pf-bron">${p.titel || say ? `<h3>${say}${esc(p.titel || 'Bron')}</h3>` : ''}${p.beeld ? `<img class="pf-beeld" src="${esc(p.beeld)}" alt="">` : ''}${paras(p.tekst)}</div>
+      <div class="pf-bron">${p.titel || say ? `<h3>${say}${esc(p.titel || 'Bron')}</h3>` : ''}${p.beeld ? `<img class="pf-beeld" src="${esc(p.beeld)}" alt="">` : ''}${p.stukken && o.mode === 'live'
+    ? `<div class="pf-markeer pf-bron-tekst" data-bron="${esc(p.id)}">${markTekst(p.stukken, 'woord', [])}</div>` : paras(p.tekst)}</div>
       <div class="pf-deel">${p.vragen.map((q, j) => vraagHtml(q, `${nr}${'abcdefghijklmno'[j]}`, o)).join('')}</div>
     </section>`;
   }
 
   function render(box, pages, opts = {}) {
-    const o = { mode: 'view', answers: {}, ...opts, said: [] };
+    const o = { mode: 'view', answers: {}, ...opts, said: [], mk: {} };
     box.innerHTML = pages.map((p, i) => pageHtml(p, opts.start !== undefined ? opts.start + i : i, o)).join('');
     box.pfSaid = o.said;
+    box.pfMk = o.mk;
+    box.pfAntwoorden = o.answers;
     if (o.said.length && !box.pfSayWired) {
       box.pfSayWired = true;
       box.addEventListener('click', e => {
@@ -484,6 +573,102 @@ const PfPaper = (() => {
     }
   }
 
+  // Aanduiden in een tekst (woorden, zinnen of stukjes, met kleuren), ook in de tekst van een bron.
+  // Het antwoord staat op het vraag-element (pfMark); de tekst wordt na elke tik opnieuw getekend.
+  function wireMarkeer(box, el, mk, klaar) {
+    el.pfMark = markLijst(box.pfAntwoorden && box.pfAntwoorden[el.dataset.id], mk.per).filter(x => x.every(Number.isInteger));
+    el.pfMarkKleur = el.querySelector('.pf-stift') ? 1 : 0;
+    let kleur = 1;
+    let begin = null;
+    const page = el.closest('.pf-page');
+    const bronTekst = mk.inBron && page ? page.querySelector('.pf-bron-tekst') : null;
+    const tekst = mk.inBron ? bronTekst : el.querySelector('.pf-markeer');
+    if (!tekst) return;
+    const actief = () => !mk.inBron || page.pfActief === el;
+    const teken = () => {
+      if (!actief()) return;
+      tekst.innerHTML = markTekst(mk.stukken, mk.per, el.pfMark, { hex: mk.hex, rand: mk.rand, live: true, start: begin });
+      const tel = el.querySelector('.pf-inbron-tel');
+      if (tel) tel.textContent = el.pfMark.length ? `${el.pfMark.length} aangeduid` : '';
+    };
+    const zetActief = () => {
+      if (!mk.inBron) return;
+      page.pfActief = el;
+      for (const x of page.querySelectorAll('.pf-q.pf-markeren')) x.classList.toggle('actief', x === el);
+      tekst.pfVraag = el;
+      teken();
+    };
+    for (const b of el.querySelectorAll('.pf-stift')) {
+      b.addEventListener('click', () => {
+        kleur = Number(b.dataset.k);
+        for (const x of el.querySelectorAll('.pf-stift')) x.classList.toggle('on', x === b);
+        zetActief();
+      });
+    }
+    const knop = el.querySelector('.pf-inbron-knop');
+    if (knop) knop.addEventListener('click', () => { zetActief(); tekst.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); });
+    if (mk.inBron) el.addEventListener('pointerdown', e => { if (!e.target.closest('button') || e.target.closest('.pf-stift')) zetActief(); });
+    // Woorden en zinnen: aantikken (nog eens met dezelfde kleur = weg, met een andere kleur = die kleur).
+    const tik = n => {
+      const i = el.pfMark.findIndex(x => x[0] === n);
+      if (i >= 0 && el.pfMark[i][1] === kleur) el.pfMark.splice(i, 1);
+      else if (i >= 0) el.pfMark[i] = [n, kleur];
+      else el.pfMark.push([n, kleur]);
+      el.pfMark.sort((x, y) => x[0] - y[0]);
+      teken();
+      klaar();
+    };
+    // Een stuk: van woord x tot woord y. Wat ermee overlapt, valt weg. Een tik in een stuk met dezelfde kleur haalt het weg.
+    const stuk = (x, y) => {
+      const [a, b] = [Math.min(x, y), Math.max(x, y)];
+      el.pfMark = el.pfMark.filter(m => m[1] < a || m[0] > b);
+      el.pfMark.push([a, b, kleur]);
+      el.pfMark.sort((p, q) => p[0] - q[0]);
+      begin = null;
+      teken();
+      klaar();
+    };
+    const woordVan = t => { const w = t && t.closest && t.closest('.pf-woord'); return w && tekst.contains(w) ? Number(w.dataset.w) : null; };
+    const api = { tik, stuk, mk, el, klaar, kleur: () => kleur, get begin() { return begin; }, set begin(v) { begin = v; teken(); } };
+    el.pfMarkApi = api;
+    if (tekst.pfMarkWired) return;
+    tekst.pfMarkWired = true;
+    // In een bron telt de vraag die nu aanduidt; anders deze vraag.
+    const huidig = () => (mk.inBron ? tekst.pfVraag && tekst.pfVraag.pfMarkApi : api);
+    let sleep = null;
+    tekst.addEventListener('pointerdown', e => {
+      const w = woordVan(e.target);
+      const h = huidig();
+      if (h) h.skip = false;
+      if (w === null || !h || h.mk.per !== 'stuk' || e.pointerType === 'touch') return;
+      sleep = w;
+    });
+    tekst.addEventListener('pointerup', e => {
+      const h = huidig();
+      const w = woordVan(document.elementFromPoint(e.clientX, e.clientY));
+      if (h && sleep !== null && w !== null && w !== sleep) { h.stuk(sleep, w); h.skip = true; }
+      sleep = null;
+    });
+    tekst.addEventListener('click', e => {
+      const h = huidig();
+      if (!h) return;
+      if (h.skip) { h.skip = false; return; }
+      const w = woordVan(e.target);
+      if (w === null) return;
+      if (h.mk.per === 'stuk') {
+        const binnen = h.el.pfMark.findIndex(m => w >= m[0] && w <= m[1]);
+        if (h.begin === null && binnen >= 0 && h.el.pfMark[binnen][2] === h.kleur()) { h.el.pfMark.splice(binnen, 1); h.begin = null; h.klaar(); return; }
+        if (h.begin === null) { h.begin = w; return; }
+        h.stuk(h.begin, w);
+        return;
+      }
+      h.tik(h.mk.per === 'zin' ? Number(e.target.closest('.pf-woord').dataset.z) : w);
+    });
+    tekst.addEventListener('keydown', e => { if ((e.key === 'Enter' || e.key === ' ') && e.target.closest('.pf-woord')) { e.preventDefault(); e.target.click(); } });
+    if (mk.inBron && !page.pfActief) zetActief();
+    else teken();
+  }
+
   // Het antwoord van één vraag uit het scherm halen.
   function lees(el) {
     const type = el.dataset.type;
@@ -508,7 +693,7 @@ const PfPaper = (() => {
     if (type === 'aanduiden') return el.querySelector('.pf-namen') ? el.pfPunten || [] : el.pfPunt || null;
     if (type === 'open') return el.querySelector('.pf-open').value;
     if (type === 'getallenas') { const as = el.querySelector('.pf-as'); return as.dataset.waarde !== undefined ? Number(as.dataset.waarde) : null; }
-    if (type === 'markeren') return [...el.querySelectorAll('.pf-woord.on')].map(w => Number(w.dataset.w));
+    if (type === 'markeren') return el.pfMark ? el.pfMark.map(x => (x.length === 2 && x[1] === 1 && !el.pfMarkKleur ? x[0] : x)) : [...el.querySelectorAll('.pf-woord.on')].map(w => Number(w.dataset.w));
     if (type === 'tekenen') return (el.querySelector('.pf-teken') || {}).pfWaarde || null;
     if (type === 'spreken') return (el.querySelector('.pf-spreek') || {}).pfWaarde || null;
     if (type === 'blad') {
@@ -633,7 +818,8 @@ const PfPaper = (() => {
         v.addEventListener('pointercancel', los);
       }
       el.addEventListener('pf-antwoord', () => send(el));
-      for (const w of el.querySelectorAll('.pf-woord')) {
+      if (box.pfMk && box.pfMk[el.dataset.id]) wireMarkeer(box, el, box.pfMk[el.dataset.id], () => send(el));
+      else for (const w of el.querySelectorAll('.pf-woord')) {
         const klik = () => { w.classList.toggle('on'); send(el); };
         w.addEventListener('click', klik);
         w.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); klik(); } });
