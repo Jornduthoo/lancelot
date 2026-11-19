@@ -382,7 +382,12 @@
   function dicteeWoorden(q, t) {
     return String(t || '').trim().split(/\s+/).map(w => {
       let x = w.normalize('NFC').replace(/[‘’]/g, "'").replace(/[“”„]/g, '"');
-      if (!q.leestekens) x = x.replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, '');
+      if (!q.leestekens) {
+        // 's, 't, 'n: die apostrof hoort bij de spelling, ook als leestekens niet meetellen.
+        const afk = /^'\p{L}{1,2}[^\p{L}\p{N}]*$/u.test(x);
+        x = x.replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, '');
+        if (afk) x = `'${x}`;
+      }
       if (q.hoofdletters === false) x = x.toLocaleLowerCase('nl');
       return x;
     }).filter(Boolean);
@@ -412,8 +417,9 @@
   // De punten van één deel: een woord juist of niet; een zin: zijn punten min één per fout, nooit onder nul.
   function dicteeDeel(q, d, a) {
     if (q.vorm !== 'zinnen') {
-      const w = dicteeWoorden(q, a);
-      return w.length === 1 && dicteeWoorden(q, d.tekst).join(' ') === w[0] ? 1 : 0;
+      // Wat op één lijn staat, is één deel: ook "'s nachts" of "in plaats van" (alles juist = 1 punt).
+      const w = dicteeWoorden(q, a).join(' ');
+      return w && dicteeWoorden(q, d.tekst).join(' ') === w ? 1 : 0;
     }
     if (!String(a || '').trim()) return 0;
     return Math.max(0, dicteeZinPunten(q, d) - dicteeVergelijk(q, d.tekst, a).fouten);

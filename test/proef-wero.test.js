@@ -199,3 +199,16 @@ test('een woordenbank per groepje sleepvakjes', () => {
   assert.deepEqual(K.viewOf(oud, '0').bank, ['a', 'b']);
   assert.equal(K.viewOf(oud, '0').banken, undefined);
 });
+
+test('Dictee: een woordgroep met een spatie is één deel, en de apostrof van ’s telt mee', () => {
+  const t = K.validate({ titel: 'd', vragen: [{ type: 'dictee', vraag: 'Schrijf.', vorm: 'woorden', delen: ["'s nachts", 'in plaats van', 'fiets'], hoofdletters: false }] });
+  const q = t.vragen[0];
+  assert.strictEqual(K.dicteeDeel(q, q.delen[0], "'s nachts"), 1);
+  assert.strictEqual(K.dicteeDeel(q, q.delen[0], '’s Nachts'), 1);
+  assert.strictEqual(K.dicteeDeel(q, q.delen[0], 's nachts'), 0);
+  assert.strictEqual(K.dicteeDeel(q, q.delen[1], 'in  plaats van'), 1);
+  assert.strictEqual(K.dicteeDeel(q, q.delen[1], 'inplaats van'), 0);
+  assert.strictEqual(K.dicteeDeel(q, q.delen[2], 'Fiets.'), 1);
+  assert.strictEqual(K.dicteeDeel(q, q.delen[2], 'fiets fiets'), 0);
+  assert.strictEqual(K.dicteeDeel(q, q.delen[2], ''), 0);
+});

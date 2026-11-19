@@ -124,7 +124,6 @@
  "{0}: typ de zinnen die voorgelezen worden.": "{0}: Tippe die Sätze, die vorgelesen werden.",
  "{0}: typ de woorden die voorgelezen worden.": "{0}: Tippe die Wörter, die vorgelesen werden.",
  "Schrijf wat je hoort.": "Schreib, was du hörst.",
- "Typ de woorden of zinnen die de computer voorleest: de leerling hoort ze en ziet ze niet. Bij een woord kan je er een zin bij zetten (die wordt ook voorgelezen). Een ontbrekend, fout of extra woord is één fout.": "Tippe die Wörter oder Sätze, die der Computer vorliest: Die Schüler hören sie, sehen sie aber nicht. Zu einem Wort kannst du einen Satz hinzufügen (er wird auch vorgelesen). Ein fehlendes, falsches oder zusätzliches Wort ist ein Fehler.",
  "bijv. Luister goed: welk woord hoor je?": "z. B. Hör gut zu: Welches Wort hörst du?",
  "🎧 Laten voorlezen door de computer": "🎧 Vom Computer vorlesen lassen",
  "Tekst om voor te lezen (de leerling hoort ze, maar ziet ze niet)": "Text zum Vorlesen (die Schüler hören ihn, sehen ihn aber nicht)",
@@ -329,5 +328,6 @@
  "+ label op dezelfde prent": "+ Etikett auf demselben Bild",
  "data-bank=\"{0}\" style=\"--bk:{1}\"": null,
  "Tik op een woord en dan op een vakje met {0}.": "Tippe auf ein Wort und dann auf ein Feld mit {0}.",
- "data-bank=\"{0}\" data-nr=\"{1}\"": null
+ "data-bank=\"{0}\" data-nr=\"{1}\"": null,
+ "Typ de woorden of zinnen die de computer voorleest: de leerling hoort ze en ziet ze niet. Bij een woord kan je er een zin bij zetten (die wordt ook voorgelezen). Een woordgroep zoals ’s nachts of in plaats van telt als één woord. Een ontbrekend, fout of extra woord is één fout.": "Tippe die Wörter oder Sätze, die der Computer vorliest: Das Kind hört sie, sieht sie aber nicht. Zu einem Wort kannst du einen Satz hinzufügen (er wird auch vorgelesen). Eine Wortgruppe wie „zum Beispiel“ zählt als ein Wort. Ein fehlendes, falsches oder zusätzliches Wort ist ein Fehler."
 }
