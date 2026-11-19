@@ -55,7 +55,7 @@ const PfPaper = (() => {
     const ro = live ? '' : ' readonly';
     const say = o.voorlees && !print && typeof Voorlees !== 'undefined' && Voorlees.ok
       ? `<button type="button" class="ob-say pf-say" data-say="${o.said.push([q.vraag, ...(q.opties || []).map((x, i) => `${L[i]}: ${x.tekst || ''}`)].filter(Boolean).join('\n')) - 1}" title="Lees voor" aria-label="Lees voor">🔊</button>` : '';
-    const luister = q.audio && !print ? `<button type="button" class="pf-luister" data-src="${esc(q.audio)}" title="Luister naar de uitleg" aria-label="Luister">🎧</button>` : '';
+    const luister = q.audio && !print ? luisterKnop(q, o, 'Luister naar de uitleg') : '';
     // Een tekst om voor te lezen: de leerling hoort ze (🎧, of trager met 🐢) maar ziet ze niet. Op papier leest de leerkracht voor.
     const zeg = q.voorlees && !print ? zegKnoppen(o.said.push(q.voorlees) - 1) : '';
     const got = o.punten && o.punten[q.id];
@@ -64,6 +64,7 @@ const PfPaper = (() => {
       <small class="pf-ptn">${got ? `<b>${nl(got[0] ?? '?')}</b> / ${nl(got[1])}` : `/ ${nl(q.punten)}`}</small></h3>`;
     if (q.type === 'blad') return `${h}${bladHtml(q, a, o)}</div>`;
     if (q.voorlees && print) h += '<p class="pf-tip">🎧 De leerkracht leest dit voor.</p>';
+    h += luisterTip(q, o);
     if (q.beeld && q.type !== 'aanduiden') h += `<img class="pf-beeld" src="${esc(q.beeld)}" alt="" loading="lazy">`;
     if (q.type === 'meerkeuze') {
       const gekozen = new Set([].concat(a ?? []).map(String));
@@ -573,6 +574,20 @@ const PfPaper = (() => {
     }
   }
 
+  // Een luisterknop (🎧) voor een vraag of een bron. Met een maximum telt de knop af: "nog 2×".
+  function luisterKnop(q, o, titel) {
+    const max = o.mode === 'live' && q.luisterMax ? q.luisterMax : 0;
+    const rest = max ? Math.max(0, max - ((o.gehoord && o.gehoord[q.id]) || 0)) : 0;
+    return `<button type="button" class="pf-luister${max ? ' met-max' : ''}${max && !rest ? ' op' : ''}" data-src="${esc(q.audio)}" data-luister="${max ? esc(q.id) : ''}" data-max="${max}" title="${esc(titel)}" aria-label="${esc(titel)}">🎧${max ? `<small class="pf-luister-tel">${rest}×</small>` : ''}</button>`;
+  }
+  // Uitleg bij het geluid: op papier speelt de leerkracht het af, op het scherm staat hoe vaak de leerling mag luisteren.
+  function luisterTip(q, o) {
+    if (!q.audio) return '';
+    if (o.mode === 'print') return '<p class="pf-tip">🎧 Luisterfragment (speel af in de klas).</p>';
+    if (o.mode === 'live' && q.luisterMax) return `<p class="pf-tip pf-luister-tip">${q.luisterMax === 1 ? 'Je mag dit maar 1 keer beluisteren. Luister goed!' : `Je mag dit ${q.luisterMax} keer beluisteren.`}</p>`;
+    return '';
+  }
+
   function pageHtml(p, i, o) {
     const nr = o.nummer ? String(i + 1) : '';
     if (p.type !== 'bron') return `<section class="pf-page">${vraagHtml(p, nr, o)}</section>`;
@@ -580,16 +595,19 @@ const PfPaper = (() => {
     const say = o.voorlees && o.mode !== 'print' && typeof Voorlees !== 'undefined' && Voorlees.ok
       ? `<button type="button" class="ob-say pf-say" data-say="${o.said.push([p.titel, p.tekst].filter(Boolean).join('\n')) - 1}" title="Lees voor" aria-label="Lees voor">🔊</button>` : '';
     return `<section class="pf-page pf-bron-page">
-      <div class="pf-bron">${p.titel || say ? `<h3>${say}${esc(p.titel || 'Bron')}</h3>` : ''}${p.beeld ? `<img class="pf-beeld" src="${esc(p.beeld)}" alt="">` : ''}${p.stukken && o.mode === 'live'
+      <div class="pf-bron">${p.titel || say || p.audio ? `<h3>${say}${p.audio && o.mode !== 'print' ? luisterKnop(p, o, 'Luister naar het fragment') : ''}${esc(p.titel || 'Bron')}</h3>` : ''}${luisterTip(p, o)}${p.beeld ? `<img class="pf-beeld" src="${esc(p.beeld)}" alt="">` : ''}${p.stukken && o.mode === 'live'
     ? `<div class="pf-markeer pf-bron-tekst" data-bron="${esc(p.id)}">${markTekst(p.stukken, 'woord', [])}</div>` : paras(p.tekst)}</div>
       <div class="pf-deel">${p.vragen.map((q, j) => vraagHtml(q, `${nr}${'abcdefghijklmno'[j]}`, o)).join('')}</div>
     </section>`;
   }
 
   function render(box, pages, opts = {}) {
-    const o = { mode: 'view', answers: {}, ...opts, said: [], mk: {} };
+    // Hoe vaak de leerling elk geluid al hoorde: blijft bij de pagina (en met luisterSleutel ook na herladen).
+    if (!box.pfGehoord || (opts.luisterSleutel || '') !== box.pfGehoordSleutel) box.pfGehoord = leesGehoord(opts.luisterSleutel);
+    const o = { mode: 'view', answers: {}, ...opts, said: [], mk: {}, gehoord: box.pfGehoord };
     box.innerHTML = pages.map((p, i) => pageHtml(p, opts.start !== undefined ? opts.start + i : i, o)).join('');
     box.pfSaid = o.said;
+    box.pfGehoordSleutel = opts.luisterSleutel || '';
     box.pfMk = o.mk;
     box.pfAntwoorden = o.answers;
     if (o.said.length && !box.pfSayWired) {
@@ -607,6 +625,18 @@ const PfPaper = (() => {
         const b = e.target.closest('.pf-luister');
         if (!b) return;
         e.preventDefault();
+        // Met een maximum: een nieuwe beurt telt, stoppen mag altijd.
+        const k = b.dataset.luister;
+        if (k && b.dataset.src && !b.classList.contains('speelt')) {
+          const max = Number(b.dataset.max);
+          const al = box.pfGehoord[k] || 0;
+          if (al >= max) return;
+          box.pfGehoord[k] = al + 1;
+          bewaarGehoord(box.pfGehoordSleutel, box.pfGehoord);
+          const tel = b.querySelector('.pf-luister-tel');
+          if (tel) tel.textContent = `${max - al - 1}×`;
+          b.classList.toggle('op', al + 1 >= max);
+        }
         if (b.dataset.src) PfAudio.speel(b.dataset.src, b);
         else if (b.dataset.tekst && typeof Voorlees !== 'undefined') Voorlees.speak(b.dataset.tekst, b);
       });
@@ -617,6 +647,13 @@ const PfPaper = (() => {
       symbolen(box);
     }
   }
+
+  const leesGehoord = sleutel => {
+    try { return (sleutel && JSON.parse(sessionStorage.getItem(`pf-gehoord|${sleutel}`))) || {}; } catch { return {}; }
+  };
+  const bewaarGehoord = (sleutel, g) => {
+    try { if (sleutel) sessionStorage.setItem(`pf-gehoord|${sleutel}`, JSON.stringify(g)); } catch { /* geen opslag: het telt dan alleen op deze pagina */ }
+  };
 
   // De symbolenbalk: onderaan het scherm zodra de leerling in een vakje typt. Een klik zet het teken waar de cursor staat.
   const REKEN = ['²', '³', '√', 'π', '×', '÷', '±', '<', '>', '≤', '≥', '≠', '≈', '€', '°', '%', '½', '¼', '¾'];

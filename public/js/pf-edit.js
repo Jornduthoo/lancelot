@@ -111,16 +111,26 @@ const PfEdit = (() => {
   }
 
   // Audio bij een vraag: eigen opname of een geluidsbestand. Eerst alleen een klein knopje, zo blijft de kaart rustig.
-  function audioRij(houder, waarde) {
+  // Een groot geluidsbestand (bv. een luisterfragment) wordt kleiner gemaakt. Met geluid: hoe vaak mag de leerling luisteren?
+  function audioRij(houder, waarde, luisterMax, bron) {
     const rij = document.createElement('div');
     rij.className = 'pf-audio-rij';
     houder.pfAudio = waarde || '';
+    houder.pfLuisterMax = luisterMax || 0;
+    const keer = () => {
+      const k = rij.querySelector('.pf-luister-max');
+      k.classList.toggle('hidden', !houder.pfAudio);
+      k.querySelector('select').value = String(houder.pfLuisterMax || 0);
+    };
     const open = () => {
-      rij.innerHTML = '<span class="small">🎧 Uitleg om te beluisteren:</span> <span class="pf-audio-knop"></span>';
-      PfAudio.knop(rij.querySelector('.pf-audio-knop'), { waarde: houder.pfAudio, max: 90, grootte: PfKern.MAX_AUDIO, onChange: d => { houder.pfAudio = d; if (!d) dicht(); cfg.preview(); } });
+      rij.innerHTML = `<span class="small">${bron ? '🎧 Luisterfragment bij de bron:' : '🎧 Uitleg om te beluisteren:'}</span> <span class="pf-audio-knop"></span>
+        <label class="inline small pf-luister-max">Hoe vaak mag de leerling luisteren? <select><option value="0">onbeperkt</option><option value="2">2 keer</option><option value="1">1 keer</option></select></label>`;
+      rij.querySelector('.pf-luister-max select').addEventListener('change', e => { houder.pfLuisterMax = Number(e.target.value); cfg.preview(); });
+      PfAudio.knop(rij.querySelector('.pf-audio-knop'), { waarde: houder.pfAudio, max: 90, grootte: PfKern.MAX_AUDIO, onChange: d => { houder.pfAudio = d; if (!d) dicht(); else keer(); cfg.preview(); } });
+      keer();
     };
     const dicht = () => {
-      rij.innerHTML = '<button type="button" class="link small pf-audio-open">🎧 Audio toevoegen (bv. de vraag voorlezen)</button>';
+      rij.innerHTML = `<button type="button" class="link small pf-audio-open">${bron ? '🎧 Luisterfragment toevoegen (opname of geluidsbestand)' : '🎧 Audio toevoegen (bv. de vraag voorlezen)'}</button>`;
       rij.querySelector('button').addEventListener('click', open);
     };
     if (houder.pfAudio) open(); else dicht();
@@ -191,6 +201,7 @@ const PfEdit = (() => {
       card.querySelector('.e-tekst').value = q.tekst || '';
       card.querySelector('.e-tekst').addEventListener('input', () => { for (const d of card.querySelectorAll('.pf-deelvragen > .pf-kaart-edit')) if (d.pfBronVeranderd) d.pfBronVeranderd(); });
       body.appendChild(beeldRij(card, q.beeld, { nodig: q.beeldNodig, pagina: q.beeldPagina }));
+      body.appendChild(audioRij(card, q.audio, q.luisterMax, true));
       veld(`<p class="muted small">${HELP.bron}</p>`);
       const deel = document.createElement('div');
       deel.className = 'pf-deelvragen';
@@ -207,7 +218,7 @@ const PfEdit = (() => {
     } else {
       veld(`<label>${q.type === 'invullen' || q.type === 'tabel' ? 'Opdracht' : 'Vraag'}<textarea class="e-vraag" rows="2" maxlength="1500"></textarea></label>`);
       card.querySelector('.e-vraag').value = q.vraag ?? DEFAULT_VRAAG[q.type] ?? '';
-      body.appendChild(audioRij(card, q.audio));
+      body.appendChild(audioRij(card, q.audio, q.luisterMax));
       // Een tekst die de computer voorleest (🎧 en 🐢 trager). De leerling hoort ze, maar ziet ze niet.
       if (q.type !== 'dictee') {
         const zeg = veld('<details class="pf-e-zeg"><summary class="small">🎧 Laten voorlezen door de computer</summary><label>Tekst om voor te lezen (de leerling hoort ze, maar ziet ze niet)<textarea class="e-voorlees" rows="2" maxlength="1000" placeholder="bijv. Luister goed: welk woord hoor je?"></textarea></label></details>');
@@ -224,6 +235,8 @@ const PfEdit = (() => {
         // Meerdere juiste: alles of niets, of punten per juist antwoord; en eventueel "duid er 2 aan".
         const meerBox = veld(`<div class="row"><label>Punten<select class="e-puntenper"><option value="">alles of niets</option><option value="juist">per juist antwoord (een fout kost er één)</option></select></label>
           <label>Hoeveel moet de leerling aanduiden?<input class="e-aantal" type="number" min="1" max="7" placeholder="allemaal"></label></div>`, 'pf-e-meer');
+        const mix = veld('<label class="inline check"><input type="checkbox" class="e-mkschud"> 🔀 Keuzes altijd door elkaar (ook als de vragen in een vaste volgorde staan)</label>');
+        mix.querySelector('input').checked = !!q.schudden;
         meerBox.querySelector('.e-puntenper').value = q.puntenPer || '';
         meerBox.querySelector('.e-aantal').value = q.aantal || '';
         const meer = () => meerBox.classList.toggle('hidden', [...box.querySelectorAll('.pf-juist input')].filter(i => i.checked).length < 2);
@@ -685,11 +698,14 @@ const PfEdit = (() => {
     if (type === 'bron') {
       q.titel = waarde(card, '.e-titel');
       q.tekst = waarde(card, '.e-tekst');
+      if (card.pfAudio) q.audio = card.pfAudio;
+      if (card.pfAudio && card.pfLuisterMax) q.luisterMax = card.pfLuisterMax;
       q.vragen = [...card.querySelectorAll(':scope > .pf-k-body > .pf-deelvragen > .pf-kaart-edit')].map(leesKaart);
       return q;
     }
     q.vraag = waarde(card, '.e-vraag');
     if (card.pfAudio) q.audio = card.pfAudio;
+    if (card.pfAudio && card.pfLuisterMax) q.luisterMax = card.pfLuisterMax;
     const zeg = waarde(card, '.e-voorlees').trim();
     if (zeg) q.voorlees = zeg;
     const p = waarde(card, '.e-punten');
@@ -706,6 +722,8 @@ const PfEdit = (() => {
       });
       const juist = rijen.map((r, i) => (r.querySelector('.pf-juist input').checked ? i : -1)).filter(i => i >= 0);
       q.juist = juist.length > 1 ? juist : juist[0];
+      const mix = card.querySelector(':scope > .pf-k-body .e-mkschud');
+      if (mix && mix.checked) q.schudden = true;
       if (juist.length > 1) {
         if (waarde(card, '.e-puntenper')) q.puntenPer = waarde(card, '.e-puntenper');
         if (waarde(card, '.e-aantal')) q.aantal = Number(waarde(card, '.e-aantal'));

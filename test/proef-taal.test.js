@@ -188,3 +188,37 @@ test('kleine dingen: even brede gaten en meerdere stellingen in één juist-of-f
   assert.ok(!JSON.stringify(K.viewOf(st, '0')).includes('"juist"'));
   assert.equal(K.oplossing(st), '1. Nee · 2. Ja · 3. Nee');
 });
+
+test('luisteren: een fragment bij een bron, hoe vaak de leerling mag luisteren en keuzes altijd door elkaar', () => {
+  const AUD = 'data:audio/webm;codecs=opus;base64,GkXfo0AAAA==';
+  const oud = een({ type: 'kort', vraag: 'x', antwoord: 'a', audio: AUD });
+  assert.equal(oud.luisterMax, undefined);
+  assert.equal(K.viewOf(oud, '0').luisterMax, undefined);
+  const twee = een({ type: 'kort', vraag: 'x', antwoord: 'a', audio: AUD, luisterMax: 2 });
+  assert.equal(K.viewOf(twee, '0').luisterMax, 2);
+  assert.equal(een({ type: 'kort', vraag: 'x', antwoord: 'a', audio: AUD, luisterMax: 7 }).luisterMax, undefined);
+  assert.equal(een({ type: 'kort', vraag: 'x', antwoord: 'a', luisterMax: 1 }).luisterMax, undefined);
+  const t = K.validate({ title: 't', vragen: [{ type: 'bron', titel: 'Mission 15', tekst: 'Écoute.', audio: AUD, luisterMax: 1, vragen: [{ type: 'meerkeuze', vraag: 'Qui?', opties: ['Léa', 'Tom', 'Max'], juist: 1, schudden: true }] }] });
+  const pagina = K.studentView(t, t.vragen, { img: d => d }).pages[0];
+  assert.equal(pagina.audio, AUD);
+  assert.equal(pagina.luisterMax, 1);
+  assert.equal(t.vragen[0].vragen[0].schudden, true);
+  assert.equal(een({ type: 'meerkeuze', vraag: 'x', opties: ['a', 'b'], juist: 0 }).schudden, undefined);
+  assert.equal(K.maxVan(t.vragen[0].vragen[0]), 1);
+});
+
+test('keuzes altijd door elkaar: ook in een afname met vaste volgorde', () => {
+  const { ProefLive } = require('../src/proef-live');
+  const opties = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+  const toets = K.validate({ title: 't', vragen: [{ type: 'meerkeuze', vraag: 'x', opties, juist: 0, schudden: true }, { type: 'meerkeuze', vraag: 'y', opties, juist: 0 }] });
+  const live = Object.create(ProefLive.prototype);
+  Object.assign(live, { run: 1, inst: { schudden: false }, levels: { schildknaap: toets.vragen } });
+  const geschud = new Set();
+  for (const naam of ['Anna', 'Bram', 'Cas', 'Dirk']) {
+    const p = { niveau: 'schildknaap' };
+    live.schik(naam, p);
+    assert.equal(p.perms['1'], undefined);
+    geschud.add(JSON.stringify(p.perms['0']));
+  }
+  assert.ok(geschud.size > 1);
+});

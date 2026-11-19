@@ -149,5 +149,22 @@
  "fout / nee": "falso / no",
  "Alle gaten even breed (de lengte verraadt het antwoord niet)": "Todos los huecos igual de anchos (la longitud no delata la respuesta)",
  "Ja": "Sí",
- "Nee": "No"
+ "Nee": "No",
+ "Dit luisterfragment is te lang. Het mag hooguit {0} minuten duren.": "Este fragmento de audio es demasiado largo. Puede durar como máximo {0} minutos.",
+ "Het geluid kleiner maken mislukt.": "No se pudo reducir el sonido.",
+ "Deze browser kan het geluid niet kleiner maken.": "Este navegador no puede reducir el sonido.",
+ "⏳ Even geduld…": "⏳ Un momento…",
+ "⏳ Het geluid wordt kleiner gemaakt: {0} van {1}": "⏳ Reduciendo el sonido: {0} de {1}",
+ "Het geluid is kleiner gemaakt: van {0} naar {1}.": "El sonido se ha reducido: de {0} a {1}.",
+ "🎧 Luisterfragment (speel af in de klas).": "🎧 Fragmento de audio (reprodúcelo en clase).",
+ "Je mag dit maar 1 keer beluisteren. Luister goed!": "Solo puedes escuchar esto una vez. ¡Escucha bien!",
+ "Je mag dit {0} keer beluisteren.": "Puedes escuchar esto {0} veces.",
+ "Luister naar het fragment": "Escucha el fragmento",
+ "Hoe vaak mag de leerling luisteren?": "¿Cuántas veces puede escuchar el alumno?",
+ "onbeperkt": "ilimitado",
+ "2 keer": "2 veces",
+ "1 keer": "1 vez",
+ "🎧 Luisterfragment bij de bron:": "🎧 Fragmento de audio con la fuente:",
+ "🎧 Luisterfragment toevoegen (opname of geluidsbestand)": "🎧 Añadir un fragmento de audio (grabación o archivo de sonido)",
+ "🔀 Keuzes altijd door elkaar (ook als de vragen in een vaste volgorde staan)": "🔀 Mezclar siempre las opciones (aunque las preguntas estén en un orden fijo)"
 }

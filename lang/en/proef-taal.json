@@ -149,5 +149,22 @@
  "fout / nee": "false / no",
  "Alle gaten even breed (de lengte verraadt het antwoord niet)": "All gaps equally wide (the length does not give away the answer)",
  "Ja": "Yes",
- "Nee": "No"
+ "Nee": "No",
+ "Dit luisterfragment is te lang. Het mag hooguit {0} minuten duren.": "This listening clip is too long. It may last at most {0} minutes.",
+ "Het geluid kleiner maken mislukt.": "Making the sound smaller failed.",
+ "Deze browser kan het geluid niet kleiner maken.": "This browser cannot make the sound smaller.",
+ "⏳ Even geduld…": "⏳ One moment…",
+ "⏳ Het geluid wordt kleiner gemaakt: {0} van {1}": "⏳ Making the sound smaller: {0} of {1}",
+ "Het geluid is kleiner gemaakt: van {0} naar {1}.": "The sound has been made smaller: from {0} to {1}.",
+ "🎧 Luisterfragment (speel af in de klas).": "🎧 Listening clip (play it in class).",
+ "Je mag dit maar 1 keer beluisteren. Luister goed!": "You may listen to this only once. Listen carefully!",
+ "Je mag dit {0} keer beluisteren.": "You may listen to this {0} times.",
+ "Luister naar het fragment": "Listen to the clip",
+ "Hoe vaak mag de leerling luisteren?": "How often may the pupil listen?",
+ "onbeperkt": "unlimited",
+ "2 keer": "2 times",
+ "1 keer": "1 time",
+ "🎧 Luisterfragment bij de bron:": "🎧 Listening clip with the source:",
+ "🎧 Luisterfragment toevoegen (opname of geluidsbestand)": "🎧 Add a listening clip (recording or sound file)",
+ "🔀 Keuzes altijd door elkaar (ook als de vragen in een vaste volgorde staan)": "🔀 Always shuffle the choices (even when the questions are in a fixed order)"
 }
