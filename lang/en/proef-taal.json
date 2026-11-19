@@ -124,7 +124,6 @@
  "{0}: typ de zinnen die voorgelezen worden.": "{0}: type the sentences that will be read aloud.",
  "{0}: typ de woorden die voorgelezen worden.": "{0}: type the words that will be read aloud.",
  "Schrijf wat je hoort.": "Write what you hear.",
- "Typ de woorden of zinnen die de computer voorleest: de leerling hoort ze en ziet ze niet. Bij een woord kan je er een zin bij zetten (die wordt ook voorgelezen). Een ontbrekend, fout of extra woord is één fout.": "Type the words or sentences the computer reads aloud: the pupil hears them but does not see them. You can add a sentence to a word (it is read aloud too). A missing, wrong or extra word is one mistake.",
  "bijv. Luister goed: welk woord hoor je?": "e.g. Listen carefully: which word do you hear?",
  "🎧 Laten voorlezen door de computer": "🎧 Have the computer read it aloud",
  "Tekst om voor te lezen (de leerling hoort ze, maar ziet ze niet)": "Text to read aloud (the pupil hears it but does not see it)",
@@ -329,5 +328,6 @@
  "+ label op dezelfde prent": "+ label on the same picture",
  "data-bank=\"{0}\" style=\"--bk:{1}\"": null,
  "Tik op een woord en dan op een vakje met {0}.": "Tap a word and then a box with {0}.",
- "data-bank=\"{0}\" data-nr=\"{1}\"": null
+ "data-bank=\"{0}\" data-nr=\"{1}\"": null,
+ "Typ de woorden of zinnen die de computer voorleest: de leerling hoort ze en ziet ze niet. Bij een woord kan je er een zin bij zetten (die wordt ook voorgelezen). Een woordgroep zoals ’s nachts of in plaats van telt als één woord. Een ontbrekend, fout of extra woord is één fout.": "Type the words or sentences the computer reads aloud: the pupil hears them but does not see them. You can add a sentence to a word (it is read aloud too). A word group such as ’s nachts or in plaats van counts as one word. A missing, wrong or extra word is one mistake."
 }

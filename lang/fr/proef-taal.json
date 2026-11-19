@@ -124,7 +124,6 @@
  "{0}: typ de zinnen die voorgelezen worden.": "{0} : tape les phrases qui seront lues.",
  "{0}: typ de woorden die voorgelezen worden.": "{0} : tape les mots qui seront lus.",
  "Schrijf wat je hoort.": "Écris ce que tu entends.",
- "Typ de woorden of zinnen die de computer voorleest: de leerling hoort ze en ziet ze niet. Bij een woord kan je er een zin bij zetten (die wordt ook voorgelezen). Een ontbrekend, fout of extra woord is één fout.": "Tape les mots ou les phrases que l'ordinateur lit : l'élève les entend mais ne les voit pas. Tu peux ajouter une phrase à un mot (elle est lue aussi). Un mot manquant, faux ou en trop compte pour une faute.",
  "bijv. Luister goed: welk woord hoor je?": "p. ex. Écoute bien : quel mot entends-tu ?",
  "🎧 Laten voorlezen door de computer": "🎧 Faire lire par l'ordinateur",
  "Tekst om voor te lezen (de leerling hoort ze, maar ziet ze niet)": "Texte à lire (l'élève l'entend mais ne le voit pas)",
@@ -329,5 +328,6 @@
  "+ label op dezelfde prent": "+ étiquette sur la même image",
  "data-bank=\"{0}\" style=\"--bk:{1}\"": null,
  "Tik op een woord en dan op een vakje met {0}.": "Touche un mot puis une case avec {0}.",
- "data-bank=\"{0}\" data-nr=\"{1}\"": null
+ "data-bank=\"{0}\" data-nr=\"{1}\"": null,
+ "Typ de woorden of zinnen die de computer voorleest: de leerling hoort ze en ziet ze niet. Bij een woord kan je er een zin bij zetten (die wordt ook voorgelezen). Een woordgroep zoals ’s nachts of in plaats van telt als één woord. Een ontbrekend, fout of extra woord is één fout.": "Tape les mots ou les phrases que l’ordinateur lit à voix haute : l’élève les entend mais ne les voit pas. Tu peux ajouter une phrase à un mot (elle est lue aussi). Un groupe de mots comme « tout à coup » compte comme un seul mot. Un mot manquant, faux ou en trop compte comme une faute."
 }

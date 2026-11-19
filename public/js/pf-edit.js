@@ -65,7 +65,7 @@ const PfEdit = (() => {
     rekenen: 'De leerling rekent de bewerking uit (in een rekenrooster of een tekstvak) en schrijft de uitkomst. De computer verbetert de uitkomst, jij de bewerking.',
     verbinden: 'Eén paar per regel: links = rechts. De rechterkant komt door elkaar.',
     ordenen: 'Zet de kaartjes in de juiste volgorde (met de pijltjes). Een kaartje is tekst, een prent of allebei. De leerling krijgt ze door elkaar.',
-    dictee: 'Typ de woorden of zinnen die de computer voorleest: de leerling hoort ze en ziet ze niet. Bij een woord kan je er een zin bij zetten (die wordt ook voorgelezen). Een ontbrekend, fout of extra woord is één fout.',
+    dictee: 'Typ de woorden of zinnen die de computer voorleest: de leerling hoort ze en ziet ze niet. Bij een woord kan je er een zin bij zetten (die wordt ook voorgelezen). Een woordgroep zoals ’s nachts of in plaats van telt als één woord. Een ontbrekend, fout of extra woord is één fout.',
     groeperen: 'Zet de kaartjes in hun groep (2 tot 5 groepen, zonder naam). Een kaartje is tekst, een prent of allebei. De leerling krijgt alle kaartjes door elkaar en geeft wat samen hoort dezelfde kleur. Welke kleur, maakt niet uit.',
     sorteren: 'Geef elke kolom een naam en de woorden die erin horen. Woorden die nergens horen, blijven liggen. De leerling krijgt alle woorden door elkaar; de volgorde in een kolom maakt niet uit.',
     tabel: 'Eén rij per regel, cellen gescheiden door |. De eerste regel is de kop. Zet wat de leerling invult tussen [ ], bv. 2 | [2000]. Een keuzelijstje in een cel: {groter|kleiner|gelijk}, het eerste is het juiste.',
