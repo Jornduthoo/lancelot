@@ -336,5 +336,10 @@
  "bijv. de luistertekst waar de deelvragen over gaan": "p. ej. el texto de escucha sobre el que tratan las subpreguntas",
  "Gent": "Gante",
  "Extra kaartjes rechts die nergens bij horen (mag leeg, één per regel)": "Tarjetas extra a la derecha que no van con nada (puede quedar vacío, una por línea)",
- "(hoort nergens bij: {0})": "(no va con nada: {0})"
+ "(hoort nergens bij: {0})": "(no va con nada: {0})",
+ "Vet": "Negrita",
+ "Onderstrepen": "Subrayar",
+ "vet": "negrita",
+ "onderstrepen": "subrayar",
+ "Selecteer eerst woorden in de vraag, de tekst of een keuze.": "Primero selecciona palabras en la pregunta, el texto o una opción."
 }

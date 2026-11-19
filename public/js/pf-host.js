@@ -1127,7 +1127,7 @@ function renderAfname() {
     return `<div class="panel pf-vg">
       <h3>${multi ? `${Niveau.ICONS[g.n]} ` : ''}Vraag ${esc(g.nr)} · ${esc(PfKern.NAMES[g.q.type])} <span class="muted small">(${hand ? `${nl(PfKern.handPunten(g.q))} ${PfKern.handPunten(g.q) === 1 ? 'punt' : 'punten'}${g.q.type === 'rekenen' ? ' voor de bewerking' : ''}` : `${nl(PfKern.maxVan(g.q))} ${PfKern.maxVan(g.q) === 1 ? 'punt' : 'punten'}`})</span></h3>
       ${g.bron && g.bron.tekst ? `<details class="pf-bron-kort"><summary>Bron: ${esc(g.bron.titel || 'tekst')}</summary><p>${esc(g.bron.tekst).replace(/\n/g, '<br>')}</p></details>` : ''}
-      ${g.q.vraag ? `<p class="pf-vg-vraag">${esc(g.q.vraag)}</p>` : ''}
+      ${g.q.vraag ? `<p class="pf-vg-vraag">${esc(PfKern.zonderOpmaak(g.q.vraag))}</p>` : ''}
       ${g.q.beeld && !g.q.beeld.startsWith('#') && g.q.type !== 'blad' ? `<img class="pf-beeld klein" src="${g.q.beeld}" alt="">` : ''}
       ${sleutel ? `<p class="pf-sleutel">✔ ${esc(sleutel)}</p>` : ''}
       <div class="pf-vg-lijst">${g.spelers.map(({ s, i }) => `<div class="pf-vg-rij${!hand && zelfGegeven(s, g.id) ? ' zelf' : ''}">
@@ -1313,7 +1313,7 @@ function renderAnalyse() {
         else if (!tekst) leeg++;
         else if (!PfKern.MANUEEL.has(q.type)) fout.set(tekst, (fout.get(tekst) || 0) + 1);
       }
-      items.push({ nr, vraag: q.vraag, juist, n: spelers.length - open, leeg, fout, sleutel: q.model || PfKern.oplossing(q), open });
+      items.push({ nr, vraag: PfKern.zonderOpmaak(q.vraag), juist, n: spelers.length - open, leeg, fout, sleutel: q.model || PfKern.oplossing(q), open });
     }
     blokken.push({ n, items });
   }

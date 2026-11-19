@@ -160,6 +160,33 @@ const PfEdit = (() => {
   }
 
   // Een knop die het geselecteerde woord tussen [ ] of { } zet (bij een keuzelijstje met plaats voor foute keuzes).
+  // Vet en onderstrepen: rond de geselecteerde woorden in het laatst gebruikte tekstvak van deze vraag (**vet**, __onderstreept__).
+  function opmaakKnoppen(box, card, standaard) {
+    card.pfTekstvak = standaard;
+    card.addEventListener('focusin', e => {
+      const t = e.target;
+      if (t.closest('.pf-kaart-edit') !== card) return;
+      if (t.tagName === 'TEXTAREA' || (t.tagName === 'INPUT' && (!t.type || t.type === 'text') && !t.classList.contains('e-voorlees'))) card.pfTekstvak = t;
+    });
+    for (const b of box.querySelectorAll('button[data-opm]')) {
+      b.addEventListener('mousedown', e => e.preventDefault());
+      b.addEventListener('click', () => {
+        const ta = card.pfTekstvak && card.pfTekstvak.isConnected ? card.pfTekstvak : standaard;
+        const m = b.dataset.opm;
+        const { selectionStart: a, selectionEnd: z, value } = ta;
+        const stuk = value.slice(a, z);
+        const woord = stuk.trim() || (m === '**' ? 'vet' : 'onderstreept');
+        const voor = stuk.length - stuk.trimStart().length;
+        const na = stuk.length - stuk.trimEnd().length;
+        ta.value = `${value.slice(0, a)}${stuk.slice(0, voor)}${m}${woord}${m}${na ? stuk.slice(-na) : ''}${value.slice(z)}`;
+        ta.focus();
+        const s = a + voor + m.length;
+        ta.setSelectionRange(s, s + woord.length);
+        cfg.preview();
+      });
+    }
+  }
+
   function gatKnoppen(box, ta) {
     for (const b of box.querySelectorAll('button[data-in]')) {
       b.addEventListener('mousedown', e => e.preventDefault());
@@ -239,6 +266,8 @@ const PfEdit = (() => {
     } else {
       veld(`<label>${q.type === 'invullen' || q.type === 'tabel' ? 'Opdracht' : 'Vraag'}<textarea class="e-vraag" rows="2" maxlength="1500"></textarea></label>`);
       card.querySelector('.e-vraag').value = q.vraag ?? DEFAULT_VRAAG[q.type] ?? '';
+      const opm = veld('<button type="button" class="secondary small-btn" data-opm="**" title="Vet"><b>B</b> vet</button> <button type="button" class="secondary small-btn" data-opm="__" title="Onderstrepen"><u>U</u> onderstrepen</button> <span class="muted small">Selecteer eerst woorden in de vraag, de tekst of een keuze.</span>', 'actions pf-e-opmaak');
+      opmaakKnoppen(opm, card, card.querySelector('.e-vraag'));
       body.appendChild(audioRij(card, q.audio));
       // Een tekst die de computer voorleest (🎧 en 🐢 trager). De leerling hoort ze, maar ziet ze niet.
       if (q.type !== 'dictee') {

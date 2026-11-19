@@ -31,7 +31,8 @@ const Voorlees = (() => {
 
   // Lange teksten in regels en zinnen knippen: Chrome breekt een lange zin met een online stem soms af.
   function chunks(text) {
-    return String(text).split(/\n+/).flatMap(line => line.replace(/\s+/g, ' ').match(/[^.!?…]+[.!?…]*/g) || [])
+    // Zonder de tekens voor vet (**) en onderstreept (__) van De Proef.
+    return String(text).replace(/\*\*([^*\s](?:[^*]*?[^*\s])?)\*\*/g, '$1').replace(/__([^_\s](?:[^_]*?[^_\s])?)__/g, '$1').split(/\n+/).flatMap(line => line.replace(/\s+/g, ' ').match(/[^.!?…]+[.!?…]*/g) || [])
       .map(s => s.trim()).filter(s => /[\p{L}\p{N}]/u.test(s));
   }
 

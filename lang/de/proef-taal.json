@@ -336,5 +336,10 @@
  "bijv. de luistertekst waar de deelvragen over gaan": "z. B. der Hörtext, um den es in den Teilfragen geht",
  "Gent": "Gent",
  "Extra kaartjes rechts die nergens bij horen (mag leeg, één per regel)": "Zusätzliche Kärtchen rechts, die zu nichts passen (darf leer sein, eins pro Zeile)",
- "(hoort nergens bij: {0})": "(passt zu nichts: {0})"
+ "(hoort nergens bij: {0})": "(passt zu nichts: {0})",
+ "Vet": "Fett",
+ "Onderstrepen": "Unterstreichen",
+ "vet": "fett",
+ "onderstrepen": "unterstreichen",
+ "Selecteer eerst woorden in de vraag, de tekst of een keuze.": "Markiere zuerst Wörter in der Frage, im Text oder in einer Auswahl."
 }

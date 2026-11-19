@@ -65,6 +65,9 @@ button.link { background: none; box-shadow: none; clip-path: none; color: var(--
 .pf-nr { flex: none; display: inline-grid; place-items: center; min-width: 1.8em; height: 1.8em; padding: 0 4px; border-radius: 50%; background: #2a3350; color: #fbf7ec; font-size: .85rem; font-weight: 800; }
 .pf-nr:empty { display: none; }
 .pf-vraag { flex: 1; }
+/* Vet in de vraag (al vet): nog zwaarder en donkerder, zodat het opvalt. */
+.pf-vraag b { font-weight: 900; color: #000; }
+.pf-vraag u, .pf-gaten u, .pf-keuze u, .pf-stelling-tekst u { text-underline-offset: 3px; text-decoration-thickness: 2px; }
 .pf-ptn { flex: none; font-size: .8rem; color: #8a7a55; font-weight: 700; white-space: nowrap; }
 .pf-ptn b { color: #1a6e4e; }
 .pf-beeld { display: block; max-width: 100%; max-height: 360px; margin: 6px 0 10px; border-radius: 4px; box-shadow: 0 0 0 1px #d8cdb2; background: #fff; }

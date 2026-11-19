@@ -251,3 +251,15 @@ test('Verbinden: afleiders rechts horen nergens bij, de punten blijven per paar'
   assert.strictEqual(oud.afleiders, undefined);
   assert.strictEqual(K.aantalRechts(oud), 2);
 });
+
+test('Vet en onderstreept: **woord** en __woord__, een lijn ____ blijft staan, de sleutel zonder tekens', () => {
+  assert.strictEqual(K.zonderOpmaak('Duid het **onderwerp** aan in __de zin__. Vul in: ____'), 'Duid het onderwerp aan in de zin. Vul in: ____');
+  const t = K.validate({ titel: 'o', vragen: [
+    { type: 'meerkeuze', vraag: 'Wat is het **onderwerp**?', opties: ['**de hond**', 'blaft'], juist: 0 },
+    { type: 'invullen', vraag: 'Vul aan.', tekst: 'De __hond__ [blaft] luid.' },
+  ] });
+  assert.strictEqual(K.oplossing(t.vragen[0]), 'A. de hond');
+  assert.strictEqual(K.auto(t.vragen[1], ['blaft']), 1);
+  const paper = require('fs').readFileSync(require('path').join(__dirname, '..', 'public', 'js', 'pf-paper.js'), 'utf8');
+  assert.match(paper, /const opmaak = html =>/);
+});
