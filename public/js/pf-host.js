@@ -1077,6 +1077,7 @@ function antwoordKort(q, a) {
   if (q.type === 'juistfout' && q.stellingen) return q.stellingen.map((x, i) => `${i + 1}. ${a[i] === 'J' ? (q.labels === 'janee' ? 'Ja' : 'Juist') : a[i] === 'F' ? (q.labels === 'janee' ? 'Nee' : 'Fout') : '…'}`).join(' · ');
   if (q.type === 'juistfout') return a === 'J' ? 'Juist' : 'Fout';
   if (q.type === 'rekenen') return String(a.uitkomst || '');
+  if (q.type === 'kort' && Array.isArray(a)) return a.map(x => x || '…').join(' · ');
   if (q.type === 'invullen' || q.type === 'tabel') return a.map(x => x || '…').join(' · ');
   if (q.type === 'verbinden') return q.paren.map((p, k) => `${p[0]} = ${a[k] === null || a[k] === undefined ? '…' : q.paren[a[k]][1]}`).join(' · ');
   if (q.type === 'ordenen') return a.map(i => PfKern.itemTekst(q, i)).join(' → ');

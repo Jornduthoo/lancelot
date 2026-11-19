@@ -260,5 +260,15 @@
  "Klik 2 punten op het been: eerst het hoekpunt, dan een punt op het been": "Click 2 points on the side: first the vertex, then a point on the side",
  "Klik 2 punten op die rechte op het blad": "Click 2 points on that line on the sheet",
  "De leerling trekt vanuit het bolletje een lijn met de 📐 Gradenboog (zet die aan bij het blad). De hoek met het been telt, niet hoe lang de lijn is.": "The pupil draws a line from the dot using the 📐 Protractor (switch it on for the sheet). The angle with the side counts, not how long the line is.",
- "hoek van {0}° (± {1}°)": "angle of {0}° (± {1}°)"
+ "hoek van {0}° (± {1}°)": "angle of {0}° (± {1}°)",
+ "{0}: geef minstens {1} goede antwoorden (gescheiden door |).": "{0}: give at least {1} correct answers (separated by |).",
+ "{0} van: {1}": "{0} of: {1}",
+ "🔗 Blijft na de vorige vraag (ook als de vragen geschud worden)": "🔗 Stays after the previous question (also when the questions are shuffled)",
+ "Aantal antwoordvakjes": "Number of answer boxes",
+ "Zet alle goede antwoorden bij \"Juist antwoord\", gescheiden door |, bv.": "Put all correct answers in \"Correct answer\", separated by |, e.g.",
+ "hart|longen = long|maag": "heart|lungs = lung|stomach",
+ ". Met = ertussen tellen andere schrijfwijzen als hetzelfde antwoord. Elk vakje met een ander goed antwoord geeft een punt, in elke volgorde.": ". With = in between, other spellings count as the same answer. Each box with a different correct answer gives a point, in any order.",
+ "antwoord {0}": "answer {0}",
+ "Antwoord {0}": "Answer {0}",
+ "Elk vakje een ander antwoord. De volgorde maakt niet uit.": "A different answer in each box. The order does not matter."
 }

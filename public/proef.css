@@ -836,3 +836,6 @@ body.pf-proberen:not(.pf-pr-scherm) { display: flex; flex-direction: column; hei
 .pf-boog text.binnen { font-size: 2.8px; fill: #c8102e; }
 .pf-boog .pf-boog-draai { right: -14px; top: auto; bottom: 0; margin-top: 0; }
 .pf-boog-knop.on { font-weight: 700; text-decoration: underline; }
+p.pf-kort.pf-vakjes { flex-wrap: wrap; }
+.pf-vakje { display: inline-flex; align-items: center; gap: 6px; flex: 0 1 220px; min-width: 0; }
+.pf-vakje input { flex: 1 1 auto; min-width: 0; width: 100%; }
