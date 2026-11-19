@@ -107,14 +107,15 @@ class ProefLive {
     return 'schildknaap';
   }
 
-  // De eigen volgorde van deze leerling: de vragen (als de leerkracht schudt), de keuzes, en altijd verbinden en ordenen.
+  // De eigen volgorde van deze leerling: de vragen (als de leerkracht schudt), de keuzes (ook als de vraag dat zelf vraagt),
+  // en altijd verbinden en ordenen.
   schik(id, p) {
     const lijst = this.lijst(p);
     const seed = `${this.run}|${id}|${p.niveau}`;
     p.order = K.volgorde(lijst, `${seed}|vragen`, this.inst.schudden);
     p.perms = {};
     for (const { id: qid, q } of K.vragenVan(lijst)) {
-      if (q.type === 'meerkeuze' && this.inst.schudden) p.perms[qid] = K.schud(q.opties.length, `${seed}|${qid}`);
+      if (q.type === 'meerkeuze' && (this.inst.schudden || q.schudden)) p.perms[qid] = K.schud(q.opties.length, `${seed}|${qid}`);
       if (q.type === 'verbinden') p.perms[qid] = K.schud(q.paren.length, `${seed}|${qid}`, true);
       if (q.type === 'ordenen') p.perms[qid] = K.schud(q.items.length, `${seed}|${qid}`, true);
     }

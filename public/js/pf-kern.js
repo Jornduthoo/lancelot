@@ -403,6 +403,9 @@
     if (q.exact === true) out.exact = true;
     const audio = audioOf(q.audio);
     if (audio) out.audio = audio;
+    // Hoe vaak de leerling het geluid mag beluisteren (zonder: onbeperkt).
+    const keer = Number(q.luisterMax);
+    if (audio && (keer === 1 || keer === 2)) out.luisterMax = keer;
     // Een tekst die de computer voorleest (🎧): de leerling hoort ze, maar ziet ze niet.
     const zeg = text(q.voorlees, 1000);
     if (zeg && type !== 'bron' && type !== 'blad') out.voorlees = zeg;
@@ -432,6 +435,8 @@
       const juist = [...new Set((Array.isArray(raw) ? raw : [raw]).map(Number))].filter(n => Number.isInteger(n) && n >= 0 && n < out.opties.length).sort((a, b) => a - b);
       if (!juist.length) throw new Error(`${naam}: duid het juiste antwoord aan.`);
       out.juist = juist.length === 1 ? juist[0] : juist;
+      // De keuzes altijd door elkaar, ook als de leerkracht de vragen in een vaste volgorde afneemt.
+      if (q.schudden === true) out.schudden = true;
       // Meerdere juiste: punten per juist antwoord (een fout kost er één), en hoeveel de leerling moet aanduiden.
       if (juist.length > 1) {
         if (q.puntenPer === 'juist') out.puntenPer = 'juist';
@@ -1191,6 +1196,7 @@
     if (q.vraag) v.vraag = q.vraag;
     if (q.beeld && !q.beeld.startsWith('#')) v.beeld = img(q.beeld);
     if (q.audio) v.audio = img(q.audio);
+    if (q.audio && q.luisterMax) v.luisterMax = q.luisterMax;
     if (q.voorlees) v.voorlees = q.voorlees;
     const p = perms[id];
     if (q.type === 'meerkeuze') {
@@ -1281,7 +1287,7 @@
   }
 
   // Eén pagina per vraag; een bron met zijn deelvragen is één pagina. order: de volgorde van de pagina's.
-  function studentView(t, lijst, { order, perms, img } = {}) {
+  function studentView(t, lijst, { order, perms, img = s => s } = {}) {
     const pages = (order || lijst.map((_, i) => i)).map(i => {
       const q = lijst[i];
       if (q.type !== 'bron') return viewOf(q, String(i), perms, img);
@@ -1289,6 +1295,9 @@
       // Een deelvraag duidt aan in de brontekst: de tekst in woorden en zinnen, zodat de leerling ze kan aantikken.
       if (q.vragen.some(d => d.type === 'markeren' && d.inBron)) b.stukken = stukkenVan(q.tekst, tekstWoorden(q.tekst));
       if (q.beeld && !q.beeld.startsWith('#')) b.beeld = img(q.beeld);
+      // Een luisterfragment bij de bron (🎧), eventueel met een maximum aantal keer.
+      if (q.audio) b.audio = img(q.audio);
+      if (q.audio && q.luisterMax) b.luisterMax = q.luisterMax;
       return b;
     });
     return { title: t.title, intro: t.intro || '', pages, totaal: totaal(lijst) };

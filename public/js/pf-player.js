@@ -178,7 +178,7 @@ function tekenPagina() {
   const pages = s.view.pages;
   pf.pos = Math.max(0, Math.min(pages.length - 1, pf.pos));
   pf.rendered = `${s.run}:${s.niveau}:${pf.pos}`;
-  PfPaper.render($('pf-paper'), [pages[pf.pos]], { mode: 'live', answers: pf.answers, start: pf.pos, nummer: true, voorlees: s.voorlees, onAnswer: stuur });
+  PfPaper.render($('pf-paper'), [pages[pf.pos]], { mode: 'live', answers: pf.answers, start: pf.pos, nummer: true, voorlees: s.voorlees, onAnswer: stuur, luisterSleutel: `${s.name}|${s.run}|${new Date().toDateString()}` });
   $('pf-teller').textContent = `Vraag ${pf.pos + 1} van ${pages.length}`;
   $('pf-vorige').classList.toggle('hidden', !s.inst.terug || pf.pos === 0);
   const laatste = pf.pos === pages.length - 1;
