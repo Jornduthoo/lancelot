@@ -16,7 +16,7 @@ const tk = { soort: 'oefenblad', bronnen: null, meer: null, klas: [], gekozen: n
 
 // Komt de leerkracht van het zorgoverzicht of een lijst, dan staat de keuze al klaar (?namen=a|b, ?soort=…&file=…).
 const vraag = new URLSearchParams(location.search);
-if (vraag.get('soort') === 'quiz') tk.soort = 'quiz';
+if (['quiz', 'proef'].includes(vraag.get('soort'))) tk.soort = vraag.get('soort');
 for (const n of (vraag.get('namen') || '').split('|').filter(Boolean)) tk.gekozen.add(n);
 
 // Uit een les in De Zonnewijzer (?week=…&slot=…): de taak krijgt het doel en de succescriteria van die les mee.
@@ -106,8 +106,9 @@ $('tk-spel').addEventListener('change', spelKeuze);
 function vulBron() {
   for (const b of document.querySelectorAll('.tk-soort button')) b.classList.toggle('on', b.dataset.soort === tk.soort);
   $('tk-fb-label').classList.toggle('hidden', tk.soort !== 'oefenblad');
+  $('tk-toets-uitleg').classList.toggle('hidden', tk.soort !== 'proef');
   spelKeuze();
-  const lijst = tk.soort === 'quiz' ? tk.bronnen.quizzen : tk.bronnen.bladen;
+  const lijst = tk.soort === 'quiz' ? tk.bronnen.quizzen : tk.soort === 'proef' ? tk.bronnen.toetsen || [] : tk.bronnen.bladen;
   const file = vraag.get('file');
   zetBron(file && lijst.find(x => x.file === file));
 }
@@ -124,7 +125,7 @@ function zetBron(x) {
   const b = $('tk-kies');
   b.innerHTML = '';
   if (x) b.append(el('strong', '', x.title), el('span', 'muted', [x.folder ? `📁 ${x.folder.split('/').join(' › ')}` : '', (x.niveaus || []).length > 1 ? '3 niveaus' : ''].filter(Boolean).join(' · ')), el('span', 'tk-kies-ander', 'Ander kiezen'));
-  else b.textContent = tk.soort === 'quiz' ? '📂 Kies een quiz…' : '📂 Kies een oefenblad…';
+  else b.textContent = tk.soort === 'quiz' ? '📂 Kies een quiz…' : tk.soort === 'proef' ? '📂 Kies een toets…' : '📂 Kies een oefenblad…';
   kiesBron();
 }
 
@@ -138,7 +139,7 @@ for (const b of document.querySelectorAll('.tk-soort button')) {
 }
 
 // Kiezen gaat zoals in Mijn quizzen: mappen links, zoeken in alles. Hier alleen kiezen, niets verplaatsen.
-for (const soort of ['quiz', 'oefenblad']) {
+for (const soort of ['quiz', 'oefenblad', 'proef']) {
   ItemList.mount($(`k-${soort}`), {
     kind: soort, kiezen: true, errorId: 'k-fout', go: 'Kies ▶',
     play: q => { $('tk-kiezer').close(); zetBron(q); },
@@ -146,9 +147,8 @@ for (const soort of ['quiz', 'oefenblad']) {
   });
 }
 $('tk-kies').addEventListener('click', () => {
-  $('k-titel').textContent = tk.soort === 'quiz' ? 'Kies een quiz' : 'Kies een oefenblad';
-  $('k-quiz').classList.toggle('hidden', tk.soort !== 'quiz');
-  $('k-oefenblad').classList.toggle('hidden', tk.soort !== 'oefenblad');
+  $('k-titel').textContent = tk.soort === 'quiz' ? 'Kies een quiz' : tk.soort === 'proef' ? 'Kies een toets' : 'Kies een oefenblad';
+  for (const soort of ['quiz', 'oefenblad', 'proef']) $(`k-${soort}`).classList.toggle('hidden', tk.soort !== soort);
   $('tk-kiezer').showModal();
   const zoek = $(`k-${tk.soort}`).querySelector('.lib-zoek');
   if (zoek) zoek.focus();
@@ -161,7 +161,7 @@ function zetMeer(lijst) {
   const b = $('tk-kies');
   b.innerHTML = '';
   const titels = lijst.slice(0, 3).map(x => x.title).join(' · ') + (lijst.length > 3 ? ` · en nog ${lijst.length - 3}` : '');
-  b.append(el('strong', '', `${lijst.length} ${tk.soort === 'quiz' ? 'quizzen' : 'oefenbladen'}`), el('span', 'muted', titels), el('span', 'tk-kies-ander', 'Ander kiezen'));
+  b.append(el('strong', '', `${lijst.length} ${tk.soort === 'quiz' ? 'quizzen' : tk.soort === 'proef' ? 'toetsen' : 'oefenbladen'}`), el('span', 'muted', titels), el('span', 'tk-kies-ander', 'Ander kiezen'));
   tk.per = {};
   tk.eigen = tk.vak = null;
   // Elke taak volgt het vak van zijn eigen inhoud: het niveau per naam tonen we dan niet.
@@ -346,13 +346,13 @@ function kaart(t) {
   const k = el('div', `panel tk-taak${t.dicht ? ' dicht' : ''}`);
   const kop = el('div', 'tk-taak-kop');
   const img = el('img');
-  img.src = `/img/icons/${t.spel ? t.spel.icoon : t.soort === 'quiz' ? 'toernooi' : 'oefenblad'}.webp`;
+  img.src = `/img/icons/${t.spel ? t.spel.icoon : t.soort === 'quiz' ? 'toernooi' : t.soort === 'proef' ? 'proef' : 'oefenblad'}.webp`;
   img.alt = '';
   const tel = s => t.leerlingen.filter(l => l.status === s).length;
   const titel = el('div', 'tk-taak-titel');
   titel.append(el('strong', '', t.titel));
   if (t.vanaf) titel.append(el('small', 'tk-taak-gepland', `⏰ Gepland: verschijnt ${wanneerTekst(t.vanaf)}`));
-  titel.append(el('small', 'muted', `${t.soort === 'quiz' ? 'Quiz' : 'Oefenblad'}${t.spel ? ` in ${t.spel.naam}` : ''}${t.vak ? ` · ${t.vak}` : ''}${t.niveau ? ` · iedereen ${Niveau.NAMES[t.niveau]}` : ''}${t.uitLesmap ? ' · uit je lesmap' : ''} · ${datum(t.gemaakt)}${t.dicht ? ' · afgesloten' : ''}`));
+  titel.append(el('small', 'muted', `${t.soort === 'quiz' ? 'Quiz' : t.soort === 'proef' ? 'Toets' : 'Oefenblad'}${t.spel ? ` in ${t.spel.naam}` : ''}${t.vak ? ` · ${t.vak}` : ''}${t.niveau ? ` · iedereen ${Niveau.NAMES[t.niveau]}` : ''}${t.uitLesmap ? ' · uit je lesmap' : ''} · ${datum(t.gemaakt)}${t.dicht ? ' · afgesloten' : ''}`));
   // Uit een les in De Zonnewijzer: het doel van die les.
   if (t.les) titel.append(el('small', 'tk-taak-les', `🎯 ${t.les.doel || t.les.titel}`));
   const telling = el('div', 'tk-telling');
@@ -424,7 +424,7 @@ function toonDetail(id, naam, stil) {
     tk.detail = res;
     $('d-naam').textContent = `${res.naam} · ${res.titel}`;
     const info = [STATUS[res.status]];
-    if (res.status !== 'nieuw') info.push(`${res.gedaan} van ${res.totaal} gedaan`, `${res.juist} van ${res.score} juist`);
+    if (res.status !== 'nieuw') info.push(`${res.gedaan} van ${res.totaal} gedaan`, ...(res.soort === 'proef' ? [] : [`${res.juist} van ${res.score} juist`]));
     $('d-info').textContent = info.join(' · ');
     const sel = $('d-niveau');
     sel.classList.toggle('hidden', res.niveaus.length < 2);
@@ -432,9 +432,18 @@ function toonDetail(id, naam, stil) {
     $('d-heropen').classList.toggle('hidden', res.status !== 'klaar');
     const paper = $('d-paper');
     paper.classList.toggle('hidden', res.soort !== 'oefenblad');
+    $('d-toets').classList.toggle('hidden', res.soort !== 'proef');
     const quiz = $('d-quiz');
     quiz.innerHTML = '';
-    if (res.soort === 'oefenblad') {
+    if (res.soort === 'proef') {
+      // Wat de leerling invulde, met de sleutel. Open vragen verbeter je bij De Proef › Resultaten.
+      PfPaper.render($('d-toets'), res.view.pages, { mode: 'view', nummer: true, answers: res.answers, sleutel: res.sleutel, zones: res.zones, punten: res.status === 'nieuw' ? null : res.punten });
+      if (res.afname) {
+        const a = el('a', 'button secondary', '✔ Verbeteren bij De Proef');
+        a.href = `/proef?verbeter=${encodeURIComponent(res.afname)}`;
+        quiz.appendChild(a);
+      } else if (res.status !== 'klaar') quiz.appendChild(el('p', 'muted small', 'Na het inleveren verbeter je deze toets bij De Proef › Resultaten.'));
+    } else if (res.soort === 'oefenblad') {
       ObSheet.render(paper, res.view, { mode: 'view', answers: res.answers, results: res.results, solutions: res.solutions });
     } else if (!res.vragen.length) {
       quiz.appendChild(el('p', 'muted', 'Nog geen vragen beantwoord.'));
@@ -483,6 +492,9 @@ function bekijk(bron, taak) {
     for (const n of tk.gekozen) if (tk.per[n]) tel[tk.per[n]] = (tel[tk.per[n]] || 0) + 1;
     niveau = $('tk-niveau').value || Object.keys(tel).sort((a, b) => tel[b] - tel[a])[0] || '';
   }
+  // Een toets: proberen zoals de leerling hem krijgt, in een nieuw tabblad (er wordt niets bewaard).
+  const toets = bron.soort === 'proef' ? bron.file : taak && taak.soort === 'proef' ? taak.file : null;
+  if (toets) return window.open(`/proef-proberen?file=${encodeURIComponent(toets)}${niveau ? `&niveau=${niveau}` : ''}`, '_blank');
   tk.vb = { bron, taak, niveau };
   $('vb-antw').checked = false;
   $('tk-vb').classList.remove('antw');

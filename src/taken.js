@@ -1,4 +1,4 @@
-// Taken: de leerkracht geeft een oefenblad of een quiz aan één leerling, een paar leerlingen of de hele klas.
+// Taken: de leerkracht geeft een oefenblad, een quiz of een toets (De Proef) aan één leerling, een paar leerlingen of de hele klas.
 // Elke leerling werkt eraan in de klas, op zijn eigen toestel, in zijn eigen tempo en op zijn eigen niveau
 // (zoals in Mijn klas, per vak). Er hoeft geen spel te lopen. De leerkracht ziet live wie bezig of klaar is.
 // Een taak bewaart een kopie van het blad of de quiz: later iets aanpassen of wissen breekt een lopende taak niet.
@@ -14,6 +14,8 @@ const doelen = require('./doelen');
 const logboek = require('./logboek');
 const sheets = require('./oefenbladen');
 const quizzes = require('./quizzes');
+const proeven = require('./proeven');
+const K = proeven.K;
 const zonnewijzer = require('./zonnewijzer');
 const { NAMES } = require('./niveaus');
 
@@ -79,6 +81,7 @@ function find(id) {
 
 // Het vak van de inhoud (uit de leerplandoelen), om het niveau per vak uit Mijn klas te kiezen.
 function vakVan(soort, inhoud) {
+  if (soort === 'proef') return doelen.hoofdvak(K.niveausVan(inhoud).flatMap(n => K.vragenVan(K.lijstVoor(inhoud, n)).map(v => v.q.doel)));
   if (soort === 'quiz') return doelen.hoofdvak(inhoud.questions.map(q => q.doel));
   return doelen.hoofdvak(['blocks', 'page', 'ridder'].flatMap(k => inhoud[k] || []).map(b => b.doel));
 }
@@ -86,10 +89,17 @@ function vakVan(soort, inhoud) {
 function laad(soort, file) {
   if (soort === 'quiz') return quizzes.load(file);
   if (soort === 'oefenblad') return sheets.load(file);
-  throw new Error('Kies een oefenblad of een quiz.');
+  if (soort === 'proef') {
+    const t = proeven.load(file);
+    const fout = K.problemen(t);
+    if (fout.length) throw new Error(`Deze toets is nog niet af: ${fout[0]}`);
+    return t;
+  }
+  throw new Error('Kies een oefenblad, een quiz of een toets.');
 }
 
 function niveausVan(soort, inhoud) {
+  if (soort === 'proef') return K.niveausVan(inhoud);
   return soort === 'quiz' ? quizzes.niveausOf(inhoud) : sheets.niveausOf(inhoud);
 }
 
@@ -129,9 +139,29 @@ function volgordeVoor(t, naam, niveau) {
   return eigen.sort(() => Math.random() - .5);
 }
 
+// Een toets voor één leerling: de vragen van zijn niveau, in zijn eigen volgorde, met geschudde keuzes
+// (zoals bij een afname op het bord). Vast per taak, leerling en niveau.
+const toetsen = new Map();
+function toets(t, w) {
+  const k = `${t.id}:${key(w.naam)}:${w.niveau}`;
+  if (!toetsen.has(k)) {
+    const lijst = K.lijstVoor(t.inhoud, w.niveau);
+    const order = K.volgorde(lijst, `${k}|vragen`, true);
+    const perms = {};
+    for (const { id, q } of K.vragenVan(lijst)) {
+      if (q.type === 'meerkeuze') perms[id] = K.schud(q.opties.length, `${k}|${id}`);
+      if (q.type === 'verbinden') perms[id] = K.schud(q.paren.length, `${k}|${id}`, true);
+      if (q.type === 'ordenen') perms[id] = K.schud(q.items.length, `${k}|${id}`, true);
+    }
+    toetsen.set(k, { lijst, order, perms });
+  }
+  return toetsen.get(k);
+}
+
 function nieuwWerk(t, naam, niveau) {
   const w = { naam, niveau, status: 'nieuw', begin: null, klaar: null };
-  if (t.soort === 'quiz') Object.assign(w, { volgorde: volgordeVoor(t, naam, niveau), antwoorden: [] });
+  if (t.soort === 'proef') Object.assign(w, { ruw: {}, answers: {}, auto: {}, pos: 0 });
+  else if (t.soort === 'quiz') Object.assign(w, { volgorde: volgordeVoor(t, naam, niveau), antwoorden: [] });
   else Object.assign(w, { answers: {}, results: {}, first: {} });
   return w;
 }
@@ -158,6 +188,7 @@ function inhoud({ soort, file, id, niveau } = {}) {
   const niveaus = niveausVan(bron.soort, bron.inhoud);
   const nv = niveaus.includes(niveau) ? niveau : niveaus.includes('schildknaap') ? 'schildknaap' : niveaus[0];
   const base = { soort: bron.soort, titel: bron.inhoud.title, niveaus, niveau: nv, spel: bron.spel };
+  if (bron.soort === 'proef') return { ...base, file: id ? find(id).file : file };
   if (bron.soort === 'quiz') {
     const qs = bron.inhoud.questions.filter(q => niveaus.length < 2 || (q.niveau || 'schildknaap') === nv);
     return { ...base, vragen: qs.map(q => ({ vraag: q.question, antwoorden: q.answers, correct: q.correct, uitleg: q.uitleg || '' })) };
@@ -265,7 +296,7 @@ function planWeg(id) {
 
 function planGeldig(p) {
   if (!p || typeof p.id !== 'string' || !/^[a-z0-9]{4,20}$/.test(p.id)) throw new Error('Ongeldige taak.');
-  if (!['quiz', 'oefenblad'].includes(p.soort) || !p.inhoud || typeof p.inhoud !== 'object' || !Array.isArray(p.namen)) throw new Error('Ongeldige taak.');
+  if (!['quiz', 'oefenblad', 'proef'].includes(p.soort) || !p.inhoud || typeof p.inhoud !== 'object' || !Array.isArray(p.namen)) throw new Error('Ongeldige taak.');
 }
 
 // Na het synchroniseren: nieuwe taken uit de lesmap klaarzetten, en taken die aan de andere kant gewist zijn ook hier
@@ -380,6 +411,11 @@ function wis(id) {
 }
 
 function voortgang(t, w) {
+  // Een toets: hoeveel vragen ingevuld. Punten toont de leerling niet: de leerkracht verbetert in De Proef.
+  if (t.soort === 'proef') {
+    const ids = K.vragenVan(toets(t, w).lijst).map(v => v.id);
+    return { gedaan: ids.filter(id => w.ruw[id] !== undefined).length, totaal: ids.length, juist: 0, score: 0 };
+  }
   if (t.soort === 'quiz') {
     const juist = w.antwoorden.filter(a => a.juist).length;
     return { gedaan: w.antwoorden.length, totaal: w.volgorde.length, juist, score: w.antwoorden.length };
@@ -395,7 +431,7 @@ function voortgang(t, w) {
 // Alle taken voor het bord, zonder de inhoud.
 function lijst() {
   return all().map(t => ({
-    id: t.id, soort: t.soort, titel: t.titel, vak: t.vak, feedback: t.feedback, gemaakt: t.gemaakt, dicht: t.dicht, spel: spelVan(t), uitLesmap: !!t.uitLesmap,
+    id: t.id, soort: t.soort, file: t.soort === 'proef' ? t.file : undefined, titel: t.titel, vak: t.vak, feedback: t.feedback, gemaakt: t.gemaakt, dicht: t.dicht, spel: spelVan(t), uitLesmap: !!t.uitLesmap,
     niveaus: niveausVan(t.soort, t.inhoud), niveau: t.niveau || null, les: t.les || null, vanaf: zichtbaar(t) ? null : t.vanaf,
     leerlingen: Object.values(t.werk).map(w => ({ naam: w.naam, niveau: w.niveau, status: w.status, klaar: w.klaar, ...voortgang(t, w) }))
       .sort((a, b) => a.naam.localeCompare(b.naam, 'nl')),
@@ -408,6 +444,21 @@ function detail({ id, naam } = {}) {
   const w = t.werk[key(naam)];
   if (!w) throw new Error('Die leerling heeft deze taak niet.');
   const base = { id, soort: t.soort, titel: t.titel, naam: w.naam, niveau: w.niveau, status: w.status, niveaus: niveausVan(t.soort, t.inhoud), ...voortgang(t, w) };
+  if (t.soort === 'proef') {
+    // Wat de leerling invulde, met de sleutel erbij (zoals de kopie van een afname). Verbeteren gebeurt in De Proef.
+    const { lijst } = toets(t, w);
+    const sleutel = {};
+    const zones = {};
+    const punten = {};
+    for (const { id: qid, q } of K.vragenVan(lijst)) {
+      sleutel[qid] = q.type === 'blad' ? K.veldSleutel(q) : K.oplossing(q) || ' ';
+      if (q.type === 'aanduiden') zones[qid] = q.zones;
+      else if (q.type === 'markeren' && (q.per || q.inBron || q.kleuren || q.aantal)) zones[qid] = K.markeerSleutel(q);
+      else if (q.type === 'blad') zones[qid] = q.velden;
+      punten[qid] = [K.handPunten(q) ? null : Number(w.auto[qid]) || 0, K.maxVan(q)];
+    }
+    return { ...base, view: K.studentView(t.inhoud, lijst, { img: d => d }), answers: w.answers, sleutel, zones, punten, afname: t.afname || null };
+  }
   if (t.soort === 'quiz') {
     return {
       ...base,
@@ -465,6 +516,11 @@ function open({ id, naam } = {}) {
   const { t, w } = werkVan(id, naam);
   const klaar = t.dicht || w.status === 'klaar';
   const base = { id, soort: t.soort, titel: t.titel, spel: spelVan(t), niveau: niveausVan(t.soort, t.inhoud).length > 1 ? w.niveau : null, klaar, dicht: t.dicht, les: lesVoorLeerling(t), ...voortgang(t, w) };
+  if (t.soort === 'proef') {
+    if (klaar) return base;
+    const { lijst, order, perms } = toets(t, w);
+    return { ...base, intro: t.inhoud.intro || '', totaal: K.totaal(lijst), view: K.studentView(t.inhoud, lijst, { order, perms, img: d => d }), answers: w.ruw, pos: w.pos || 0 };
+  }
   if (t.soort === 'quiz') return { ...base, vraag: klaar ? null : vraagVoor(t, w), terug: klaar ? terugblik(t, w) : null };
   const b = blad(t, w.niveau);
   return {
@@ -521,6 +577,57 @@ function antwoord({ id, naam, veld, waarde } = {}) {
   return { id: veld, correct: w.results[veld] };
 }
 
+// Eén antwoord op een toets: zoals bij een afname op het bord (schoon, terug naar de echte volgorde, verbeterd).
+function toetsAntwoord({ id, naam, vraag, waarde, pos } = {}) {
+  const { t, w } = werkVan(id, naam);
+  nogOpen(t, w);
+  if (t.soort !== 'proef') throw new Error('Dit is geen toets.');
+  const { lijst, perms } = toets(t, w);
+  if (pos !== undefined) w.pos = Math.max(0, Math.round(Number(pos)) || 0);
+  if (vraag === undefined) return { ok: true };
+  const v = K.vragenVan(lijst).find(x => x.id === vraag);
+  if (!v) throw new Error('Onbekende vraag.');
+  begin(t, w);
+  const ruw = K.schoon(v.q, waarde);
+  if (ruw === null || ruw === '') {
+    delete w.ruw[vraag];
+    delete w.answers[vraag];
+    delete w.auto[vraag];
+  } else {
+    w.ruw[vraag] = ruw;
+    w.answers[vraag] = K.canoniek(v.q, ruw, perms[vraag]);
+    const a = K.auto(v.q, w.answers[vraag]);
+    if (a === null) delete w.auto[vraag];
+    else w.auto[vraag] = a;
+  }
+  save();
+  return { ok: true, ...voortgang(t, w) };
+}
+
+// Een ingeleverde toets komt bij de afname van deze taak in De Proef (Resultaten): daar verbetert de leerkracht
+// de open vragen, zoals na een afname op het bord. Eén afname per taak; wie later inlevert, komt erbij.
+// server.js zet bijAfname: die sluit de afname af als er niets meer met de hand te verbeteren is.
+let bijAfname = () => {};
+function naarAfname(t, w) {
+  let rec = null;
+  if (t.afname) try { rec = proeven.laadAfname(t.afname); } catch {}
+  const nieuw = !rec;
+  if (nieuw) rec = { title: t.titel, datum: t.gemaakt, toetsFile: t.file, instellingen: { taak: true }, toets: t.inhoud, spelers: [], klaar: false, gelogd: false, taak: t.id };
+  const oud = rec.spelers.find(s => key(s.naam) === key(w.naam));
+  const s = { naam: w.naam, niveau: w.niveau, antwoorden: w.answers, auto: w.auto, hand: {}, events: [], begon: w.begin, ingeleverd: w.klaar, extra: 0 };
+  // Weer opengezet en opnieuw ingeleverd: wat de leerkracht al verbeterde blijft staan.
+  if (oud && oud.niveau === s.niveau) Object.assign(s, { hand: oud.hand || {}, over: oud.over, vak: oud.vak, gelogd: oud.gelogd });
+  rec.spelers = rec.spelers.filter(x => x !== oud).concat(s).sort((a, b) => a.naam.localeCompare(b.naam, 'nl'));
+  rec.klaar = false;
+  try {
+    if (nieuw) t.afname = proeven.bewaarAfname(rec);
+    else proeven.schrijfAfname(rec);
+    bijAfname(t.afname);
+  } catch (err) {
+    console.error('Toets bij de afname zetten mislukt:', err.message);
+  }
+}
+
 // Een oefenblad inleveren. Elk verbeterd vakje gaat in het logboek, met het leerplandoel van de oefening.
 function inleveren({ id, naam } = {}) {
   const { t, w } = werkVan(id, naam);
@@ -534,6 +641,7 @@ function inleveren({ id, naam } = {}) {
 function inleverenWerk(t, w) {
   w.status = 'klaar';
   w.klaar = new Date().toISOString();
+  if (t.soort === 'proef') return naarAfname(t, w);
   if (t.soort !== 'oefenblad' || w.gelogd) return;
   // Na heropenen en opnieuw inleveren niet nog eens: anders telt hetzelfde blad dubbel.
   w.gelogd = true;
@@ -602,4 +710,4 @@ function soloAntwoord({ id, naam, i, keuze, juist } = {}) {
   return { klaar, ...voortgang(t, w) };
 }
 
-module.exports = { lesVan, gestartSinds, startNu, get PLAN() { return PLAN(); }, planGeldig, uitLesmap, SOLO, MINUTEN, soloRonde, soloAntwoord, voorbeeld, inhoud, maak, voegToe, haalWeg, zetNiveau, sluit, heropen, wis, lijst, detail, mijn, aantal, open, antwoord, inleveren, quizAntwoord, flush, get DIR() { return DIR(); } };
+module.exports = { toetsAntwoord, set bijAfname(fn) { bijAfname = fn; }, lesVan, gestartSinds, startNu, get PLAN() { return PLAN(); }, planGeldig, uitLesmap, SOLO, MINUTEN, soloRonde, soloAntwoord, voorbeeld, inhoud, maak, voegToe, haalWeg, zetNiveau, sluit, heropen, wis, lijst, detail, mijn, aantal, open, antwoord, inleveren, quizAntwoord, flush, get DIR() { return DIR(); } };

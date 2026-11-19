@@ -1,6 +1,6 @@
 // Mijn taken op de Chromebook of gsm: wat de leerkracht klaarzette, op je eigen niveau en in je eigen tempo.
 // Een oefenblad vul je in zoals live (ObSheet), een quiz beantwoord je vraag per vraag met meteen de uitleg.
-// Gebruikt ObSheet, Niveau, Voorlees, sfx en confetti. klas-kies.js gebruikt store, socket en $ van hier.
+// Een toets (De Proef) maak je vraag per vraag zoals bij een afname (PfPaper). Gebruikt ObSheet, PfPaper, Niveau, Voorlees, sfx en confetti. klas-kies.js gebruikt store, socket en $ van hier.
 
 function store(key, value) {
   try {
@@ -22,9 +22,9 @@ const tk = { naam: store('lancelot-name') || '', scherm: 'join', taak: null, ope
 
 function tkToon(scherm) {
   tk.scherm = scherm;
-  for (const s of ['join', 'lijst', 'blad', 'quiz']) $(`tk-${s}`).classList.toggle('hidden', s !== scherm);
+  for (const s of ['join', 'lijst', 'blad', 'quiz', 'toets']) $(`tk-${s}`).classList.toggle('hidden', s !== scherm);
   // Terug gaat in een taak naar de lijst, op de lijst naar het startscherm.
-  $('tk-back').href = scherm === 'blad' || scherm === 'quiz' ? '#' : '/';
+  $('tk-back').href = ['blad', 'quiz', 'toets'].includes(scherm) ? '#' : '/';
   if (scherm !== 'blad') Voorlees.stop();
   if (scherm === 'lijst' || scherm === 'join') {
     $('tk-doel').classList.add('hidden');
@@ -35,8 +35,9 @@ function tkToon(scherm) {
 }
 
 $('tk-back').addEventListener('click', e => {
-  if (tk.scherm !== 'blad' && tk.scherm !== 'quiz') return;
+  if (!['blad', 'quiz', 'toets'].includes(tk.scherm)) return;
   e.preventDefault();
+  if (tk.scherm === 'toets' && $('tk-toets-paper').pfFlush) $('tk-toets-paper').pfFlush();
   tkLijst();
 });
 
@@ -63,6 +64,8 @@ function tkStatus(t) {
   return 'Nieuw';
 }
 
+const tkIcoon = t => (t.spel ? t.spel.icoon : t.soort === 'quiz' ? 'toernooi' : t.soort === 'proef' ? 'proef' : 'oefenblad');
+
 function tkTekenLijst(taken) {
   const box = $('tk-taken');
   box.innerHTML = '';
@@ -72,8 +75,8 @@ function tkTekenLijst(taken) {
     b.type = 'button';
     b.className = `tk-kaart ${t.status}`;
     const pct = t.totaal ? Math.round((t.gedaan / t.totaal) * 100) : 0;
-    b.innerHTML = `<img src="/img/icons/${t.spel ? t.spel.icoon : t.soort === 'quiz' ? 'toernooi' : 'oefenblad'}.webp" alt="">
-      <span class="tk-kaart-tekst"><strong></strong><small>${t.spel ? `Quiz in ${tkEsc(t.spel.naam)}` : t.soort === 'quiz' ? 'Quiz' : 'Oefenblad'}${t.vak ? ` · ${tkEsc(t.vak)}` : ''}${t.niveau ? ` · ${Niveau.label(t.niveau)}` : ''}</small>
+    b.innerHTML = `<img src="/img/icons/${tkIcoon(t)}.webp" alt="">
+      <span class="tk-kaart-tekst"><strong></strong><small>${t.spel ? `Quiz in ${tkEsc(t.spel.naam)}` : t.soort === 'quiz' ? 'Quiz' : t.soort === 'proef' ? 'Toets' : 'Oefenblad'}${t.vak ? ` · ${tkEsc(t.vak)}` : ''}${t.niveau ? ` · ${Niveau.label(t.niveau)}` : ''}</small>
       ${t.les && t.les.doel ? `<span class="tk-kaart-doel">🎯 ${tkEsc(t.les.doel)}</span>` : ''}
       <span class="tk-balk"><i style="width:${t.status === 'klaar' ? 100 : pct}%"></i></span><em>${tkStatus(t)}</em></span>
       <span class="tk-pijl">${t.status === 'klaar' ? '👁' : '▶'}</span>`;
@@ -116,11 +119,12 @@ function tkOpen(id) {
     // Een quiz in een spel: naar het startscherm, dat dan alleen dit eigen spel toont (tk-solo.js). Klaar: hier terugblikken.
     if (res.spel && !res.klaar) return location.assign(`/?taak=${encodeURIComponent(id)}`);
     tk.taak = res;
-    $('tk-logo').src = `/img/icons/${res.spel ? res.spel.icoon : res.soort === 'quiz' ? 'toernooi' : 'oefenblad'}.webp`;
+    $('tk-logo').src = `/img/icons/${tkIcoon(res)}.webp`;
     $('tk-kop-titel').textContent = res.titel;
     $('tk-kop-sub').textContent = res.niveau ? Niveau.label(res.niveau) : tk.naam;
     tkDoel(res.les);
     if (res.soort === 'quiz') tkQuiz(res);
+    else if (res.soort === 'proef') tkToets(res);
     else tkBlad(res);
     window.scrollTo({ top: 0 });
   });
@@ -293,6 +297,95 @@ document.addEventListener('keydown', e => {
     const b = $('tk-antwoorden').children[Number(e.key) - 1];
     if (b) b.click();
   }
+});
+
+// ---------- Toets ----------
+
+// Een toets zoals bij De Proef: eerst de uitleg, dan vraag per vraag (terug mag). Elk antwoord gaat meteen naar de
+// leerkracht; de leerling ziet niet wat juist is. Inleveren zet de toets bij De Proef › Resultaten.
+function tkToets(t) {
+  tkToon('toets');
+  for (const id of ['tk-toets-intro', 'tk-toets-werk', 'tk-toets-klaar']) $(id).classList.add('hidden');
+  if (t.klaar) return $('tk-toets-klaar').classList.remove('hidden');
+  // Nog niet begonnen: eerst de uitleg en de regels.
+  if (!t.gedaan && !tk.toetsGestart) {
+    $('tk-toets-intro-tekst').textContent = t.intro || '';
+    const n = t.view.pages.length;
+    $('tk-toets-regels').innerHTML = [
+      `${n} ${n === 1 ? 'vraag' : 'vragen'}, samen ${PfPaper.ptn(t.totaal)}.`,
+      'Neem je tijd. Je mag terug naar vorige vragen.',
+      'Lever in als je klaar bent. Je leerkracht verbetert je toets.',
+    ].map(r => `<li>${tkEsc(r)}</li>`).join('');
+    return $('tk-toets-intro').classList.remove('hidden');
+  }
+  $('tk-toets-werk').classList.remove('hidden');
+  tkToetsPagina();
+}
+$('tk-toets-start').addEventListener('click', () => {
+  tk.toetsGestart = true;
+  tkToets(tk.taak);
+});
+$('tk-toets-terug').addEventListener('click', () => tkLijst());
+
+function tkToetsPagina() {
+  const t = tk.taak;
+  const pages = t.view.pages;
+  t.pos = Math.max(0, Math.min(pages.length - 1, t.pos || 0));
+  PfPaper.render($('tk-toets-paper'), [pages[t.pos]], { mode: 'live', answers: t.answers, start: t.pos, nummer: true, voorlees: false, onAnswer: tkToetsStuur });
+  $('tk-toets-vorige').classList.toggle('hidden', t.pos === 0);
+  const laatste = t.pos === pages.length - 1;
+  $('tk-toets-volgende').textContent = laatste ? 'Inleveren ✔' : 'Volgende ▶';
+  $('tk-toets-volgende').classList.toggle('gold', laatste);
+  $('tk-toets-fout').textContent = '';
+  tkToetsBol();
+  window.scrollTo(0, 0);
+}
+
+function tkToetsStuur(vraag, waarde) {
+  const t = tk.taak;
+  t.answers[vraag] = waarde;
+  tkToetsBol();
+  socket.emit('tk-toets', { id: t.id, naam: tk.naam, vraag, waarde, pos: t.pos }, res => {
+    $('tk-toets-fout').textContent = (res && res.error) || '';
+  });
+}
+
+const tkIds = p => (p.type === 'bron' ? p.vragen.map(q => q.id) : [p.id]);
+function tkToetsBol() {
+  const t = tk.taak;
+  $('tk-toets-bol').innerHTML = t.view.pages.map((p, i) => {
+    const klaar = tkIds(p).every(id => PfPaper.beantwoord(t.answers[id]));
+    const half = !klaar && tkIds(p).some(id => PfPaper.beantwoord(t.answers[id]));
+    return `<button type="button" class="pf-bol${i === t.pos ? ' nu' : ''}${klaar ? ' ok' : half ? ' half' : ''}" data-i="${i}" aria-label="Vraag ${i + 1}">${i + 1}</button>`;
+  }).join('');
+}
+
+function tkToetsGa(i) {
+  const t = tk.taak;
+  if ($('tk-toets-paper').pfFlush) $('tk-toets-paper').pfFlush();
+  t.pos = i;
+  socket.emit('tk-toets', { id: t.id, naam: tk.naam, pos: i }, () => {});
+  tkToetsPagina();
+}
+$('tk-toets-bol').addEventListener('click', e => {
+  const b = e.target.closest('.pf-bol');
+  if (b) tkToetsGa(Number(b.dataset.i));
+});
+$('tk-toets-vorige').addEventListener('click', () => tkToetsGa(tk.taak.pos - 1));
+$('tk-toets-volgende').addEventListener('click', async () => {
+  const t = tk.taak;
+  if (t.pos < t.view.pages.length - 1) return tkToetsGa(t.pos + 1);
+  if ($('tk-toets-paper').pfFlush) $('tk-toets-paper').pfFlush();
+  const leeg = t.view.pages.flatMap(p => (p.type === 'bron' ? p.vragen : [p])).filter(q => q.type !== 'papier' && !PfPaper.beantwoord(t.answers[q.id])).length;
+  if (!await Ui.vraag(leeg ? `Nog ${leeg} ${leeg === 1 ? 'vraag' : 'vragen'} niet ingevuld. Toch inleveren?` : 'Je toets inleveren? Daarna kan je niets meer veranderen.', { ja: 'Inleveren' })) return;
+  // Even wachten zodat het laatste antwoord zeker eerst aankomt.
+  setTimeout(() => socket.emit('tk-inleveren', { id: t.id, naam: tk.naam }, res => {
+    if (!res || res.error) return Ui.melding((res && res.error) || 'Inleveren lukte niet.');
+    tk.toetsGestart = false;
+    tk.taak = res;
+    tkToets(res);
+    sfx.good();
+  }), 150);
 });
 
 // ---------- Live ----------

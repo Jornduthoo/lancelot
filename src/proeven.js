@@ -194,9 +194,12 @@ function cijfer({ file, speler, id, punten, over, vak, goed } = {}) {
 // Klaar met verbeteren: de resultaten als Excel-bestand en (één keer) alles in het logboek, met de leerplandoelen.
 function klaar(file, saveCsv) {
   const rec = laadAfname(file);
+  // Een toets als taak (rec.taak) krijgt later nog leerlingen bij: wie al in het logboek staat (s.gelogd), niet opnieuw.
   if (!rec.gelogd) {
     const entries = [];
     for (const s of rec.spelers) {
+      if (s.gelogd) continue;
+      s.gelogd = true;
       for (const { id, q, nr } of K.vragenVan(K.lijstVoor(rec.toets, s.niveau))) {
         const max = K.maxVan(q);
         if (!max) continue;
@@ -208,7 +211,7 @@ function klaar(file, saveCsv) {
       }
     }
     logboek.add(entries);
-    rec.gelogd = true;
+    rec.gelogd = !rec.taak;
   }
   rec.klaar = true;
   rec.resultaten = saveCsv(rec, s => stand(rec, s));
@@ -240,4 +243,4 @@ function kopieData(file, speler) {
   return { title: rec.title, datum: rec.datum, naam: s.naam, niveau: s.niveau, toets: rec.toets, antwoorden: s.antwoorden, punten, vakken, stand: stand(rec, s) };
 }
 
-module.exports = { kregen, DIR, list, load, save, remove, parseAiText, parseSleutel, lib, bewaarAfname, laadAfname, afnames, cijfer, klaar, stand, verwijderAfname, kopieData, K };
+module.exports = { kregen, DIR, list, load, save, remove, parseAiText, parseSleutel, lib, bewaarAfname, schrijfAfname: schrijf, laadAfname, afnames, cijfer, klaar, stand, verwijderAfname, kopieData, K };

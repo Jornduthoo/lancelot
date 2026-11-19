@@ -8,6 +8,7 @@
   <link rel="icon" type="image/png" href="/favicon.png">
   <link rel="stylesheet" href="/style.css">
   <link rel="stylesheet" href="/taken.css">
+  <link rel="stylesheet" href="/proef.css">
 </head>
 <body class="klas-host tk-host">
 <main>
@@ -35,11 +36,13 @@
 
   <section class="panel form tk-nieuw">
     <h2><i class="ic ic-taak" aria-hidden="true"></i> Nieuwe taak</h2>
-    <p class="muted small">Geef een oefenblad of quiz aan een of meer leerlingen. Elke leerling krijgt het op zijn eigen niveau uit Mijn klas (of je kiest één niveau voor iedereen) en werkt eraan in zijn eigen tempo: op zijn toestel bij <b>Mijn taken</b>. Er hoeft geen spel te lopen.</p>
+    <p class="muted small">Geef een oefenblad, quiz of toets aan een of meer leerlingen. Elke leerling krijgt het op zijn eigen niveau uit Mijn klas (of je kiest één niveau voor iedereen) en werkt eraan in zijn eigen tempo: op zijn toestel bij <b>Mijn taken</b>. Er hoeft geen spel te lopen.</p>
     <div class="tk-soort" role="tablist">
       <button type="button" class="on" data-soort="oefenblad"><img src="/img/icons/oefenblad.webp" alt=""> Oefenblad</button>
       <button type="button" data-soort="quiz"><img src="/img/icons/toernooi.webp" alt=""> Quiz</button>
+      <button type="button" data-soort="proef"><img src="/img/icons/proef.webp" alt=""> Toets</button>
     </div>
+    <p class="muted small hidden" id="tk-toets-uitleg">Een toets maakt de leerling zoals bij De Proef: vraag per vraag, zonder te zien wat juist is. Wat ingeleverd is, verbeter je bij De Proef › Resultaten.</p>
     <div class="row">
       <label>Wat?<button type="button" class="secondary tk-kies-knop" id="tk-kies"></button><input type="hidden" id="tk-bron"></label>
       <label id="tk-nv-label" class="hidden" title="Bijvoorbeeld de hele klas eens Page geven, ook wie op Ridder staat">Op welk niveau?
@@ -141,6 +144,7 @@
     </div>
     <p class="muted small" id="d-info"></p>
     <article class="ob-paper hidden" id="d-paper"></article>
+    <article class="ob-paper pf-paper pf-print hidden" id="d-toets"></article>
     <div id="d-quiz"></div>
   </dialog>
 
@@ -151,6 +155,7 @@
     </div>
     <div id="k-quiz" class="quiz-list"></div>
     <div id="k-oefenblad" class="quiz-list"></div>
+    <div id="k-proef" class="quiz-list"></div>
     <p class="error" id="k-fout"></p>
   </dialog>
 
@@ -188,6 +193,8 @@
 <script src="/js/klaskiezer.js"></script>
 <script src="/js/niveau.js"></script>
 <script src="/js/ob-sheet.js"></script>
+<script src="/js/pf-media.js"></script>
+<script src="/js/pf-paper.js"></script>
 <script src="/js/quiz-list.js"></script>
 <script src="/js/tk-host.js"></script>
 </body>

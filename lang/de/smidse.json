@@ -926,7 +926,6 @@
  "Doelen": "Ziele",
  "Logboek": "Logbuch",
  "Nieuwe taak": "Neue Aufgabe",
- "Geef een oefenblad of quiz aan een of meer leerlingen. Elke leerling krijgt het op zijn eigen niveau uit Mijn klas (of je kiest één niveau voor iedereen) en werkt eraan in zijn eigen tempo: op zijn toestel bij": "Gib einem oder mehreren Schülern ein Arbeitsblatt oder Quiz. Jeder Schüler bekommt es auf seinem eigenen Niveau aus Meine Klasse (oder du wählst ein Niveau für alle) und arbeitet in seinem eigenen Tempo daran: auf seinem Gerät unter",
  ". Er hoeft geen spel te lopen.": ". Es muss kein Spiel laufen.",
  "Wat?": "Was?",
  "Op welk niveau?": "Auf welchem Niveau?",
@@ -1287,5 +1286,6 @@
  "Google": null,
  "Chrome": null,
  "Kopie van de toets voor {0} mislukt:": null,
- "✔ 1 kopie in je lesmap › {0}.{1}": "✔ 1 Kopie in deinem Unterrichtsordner › {0}.{1}"
+ "✔ 1 kopie in je lesmap › {0}.{1}": "✔ 1 Kopie in deinem Unterrichtsordner › {0}.{1}",
+ "Geef een oefenblad, quiz of toets aan een of meer leerlingen. Elke leerling krijgt het op zijn eigen niveau uit Mijn klas (of je kiest één niveau voor iedereen) en werkt eraan in zijn eigen tempo: op zijn toestel bij": "Gib einem oder mehreren Schülern ein Arbeitsblatt, ein Quiz oder einen Test. Jeder Schüler bekommt es auf seinem eigenen Niveau aus Meine Klasse (oder du wählst ein Niveau für alle) und arbeitet in seinem eigenen Tempo daran: auf seinem Gerät unter"
 }

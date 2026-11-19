@@ -371,6 +371,17 @@ const proef = new ProefLive(io, rec => {
   return file;
 });
 
+// Een toets als taak (Mijn klas > Taken): elke ingeleverde toets komt bij de afname van die taak.
+// Niets meer met de hand te verbeteren? Dan is ze meteen verbeterd, met een nieuw Excel-bestand in de plaats van het oude.
+taken.bijAfname = file => {
+  const rec = proeven.laadAfname(file);
+  if (!rec.spelers.some(s => proeven.stand(rec, s).open)) {
+    if (rec.resultaten) try { fs.unlinkSync(results.filePath(rec.resultaten)); } catch {}
+    proeven.klaar(file, results.saveProef);
+  }
+  io.to('host').emit('pf-afnames', proeven.afnames());
+};
+
 // Elk spel met leerlingen, bij het adres van zijn leerkrachtenscherm. Een nieuw spel komt hier ook bij:
 // zo werken de grijze (bezette) namen bij het aanmelden en de knop "Namen" op het bord meteen mee.
 const SPELLEN = { '/host': game, '/toren': toren, '/schattenjacht': schat, '/laserslag': laserslag, '/ridderrace': race, '/kristalroof': roof, '/verrader': verrader, '/burchtbouwers': burcht, '/duel': duel, '/packnight': knight, '/strijdrossen': rossen, '/gauntlet': gauntlet, '/ridder-royale': royale, '/sterrenvreter': sterren, '/ridderslang': slang, '/burchtstorm': storm, '/poortwacht': poort, '/neonvlucht': vlucht, '/diepboor': diep, '/raketridder': raket, '/splijtzwaard': zwaard, '/wankelwagen': wankel, '/plasmapoort': plasma, '/tuimelridder': tuimel, '/hooibergjacht': hooi, '/zwermwacht': zwerm, '/haakridder': haak, '/kolkridder': kolk, '/neoncamelot': camelot, '/titanenstrijd': titan, '/banierveld': banier, '/pixelridder': pixel, '/robomol': robomol, '/kerker': kerker, '/hofschilder': hof, '/robopaarden': paarden, '/neonduel': neon, '/leraarbaas': baas, '/cybergalaga': galaga, '/bomberknight': bomber, '/rijk': rijk, '/oefenblad': oefenblad, '/proef': proef };
@@ -1275,7 +1286,7 @@ io.on('connection', socket => {
   }
   // Mijn taken: de lijst, een taak openen, een vakje of een quizvraag beantwoorden en inleveren.
   // Een leerling meldt zich aan met zijn naam, net zoals bij Mijn burcht.
-  for (const [event, fn, bord] of [['tk-mijn', taken.mijn], ['tk-open', taken.open], ['tk-antwoord', taken.antwoord, true], ['tk-inleveren', taken.inleveren, true], ['tk-quiz', taken.quizAntwoord, true]]) {
+  for (const [event, fn, bord] of [['tk-mijn', taken.mijn], ['tk-open', taken.open], ['tk-antwoord', taken.antwoord, true], ['tk-inleveren', taken.inleveren, true], ['tk-quiz', taken.quizAntwoord, true], ['tk-toets', taken.toetsAntwoord, true]]) {
     socket.on(event, (arg, cb) => {
       if (typeof cb !== 'function') return;
       if (event === 'tk-mijn') hier(socket, arg, 'taken');
@@ -1766,7 +1777,7 @@ io.on('connection', socket => {
       syncSoon();
       return out || {};
     });
-    socket.on('tk-bronnen', handle(() => ({ quizzen: quizzes.list(), bladen: oefenbladen.list(), klas: klas.names() })));
+    socket.on('tk-bronnen', handle(() => ({ quizzen: quizzes.list(), bladen: oefenbladen.list(), toetsen: proeven.list(), klas: klas.names() })));
     socket.on('tk-lijst', handle(() => ({ taken: taken.lijst() })));
     socket.on('tk-voorbeeld', handle(arg => taken.voorbeeld(arg || {})));
     socket.on('tk-les', handle(arg => ({ les: taken.lesVan(arg), start: zonnewijzer.lesStart(arg || {}) })));
