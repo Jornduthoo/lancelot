@@ -329,5 +329,9 @@
  "data-bank=\"{0}\" style=\"--bk:{1}\"": null,
  "Tik op een woord en dan op een vakje met {0}.": "Tippe auf ein Wort und dann auf ein Feld mit {0}.",
  "data-bank=\"{0}\" data-nr=\"{1}\"": null,
- "Typ de woorden of zinnen die de computer voorleest: de leerling hoort ze en ziet ze niet. Bij een woord kan je er een zin bij zetten (die wordt ook voorgelezen). Een woordgroep zoals ’s nachts of in plaats van telt als één woord. Een ontbrekend, fout of extra woord is één fout.": "Tippe die Wörter oder Sätze, die der Computer vorliest: Das Kind hört sie, sieht sie aber nicht. Zu einem Wort kannst du einen Satz hinzufügen (er wird auch vorgelesen). Eine Wortgruppe wie „zum Beispiel“ zählt als ein Wort. Ein fehlendes, falsches oder zusätzliches Wort ist ein Fehler."
+ "Typ de woorden of zinnen die de computer voorleest: de leerling hoort ze en ziet ze niet. Bij een woord kan je er een zin bij zetten (die wordt ook voorgelezen). Een woordgroep zoals ’s nachts of in plaats van telt als één woord. Een ontbrekend, fout of extra woord is één fout.": "Tippe die Wörter oder Sätze, die der Computer vorliest: Das Kind hört sie, sieht sie aber nicht. Zu einem Wort kannst du einen Satz hinzufügen (er wird auch vorgelesen). Eine Wortgruppe wie „zum Beispiel“ zählt als ein Wort. Ein fehlendes, falsches oder zusätzliches Wort ist ein Fehler.",
+ ":scope > .pf-k-body > .pf-e-zegbron .e-voorlees": null,
+ ":scope > .pf-k-body .e-voorlees": null,
+ "> .pf-e-zegbron .e-voorlees": null,
+ "bijv. de luistertekst waar de deelvragen over gaan": "z. B. der Hörtext, um den es in den Teilfragen geht"
 }

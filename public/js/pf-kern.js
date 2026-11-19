@@ -101,6 +101,7 @@
   const MAX_BEELD = 700000;
   // Audio: een opname van een minuut is ongeveer 300 kB; een geluidsbestand mag wat groter.
   const MAX_AUDIO = 2000000;
+  const MAX_VOORLEES = 6000;
   // Een tekening of ingesproken antwoord van een leerling.
   const MAX_TEKENING = 500000;
   const MAX_OPNAME = 1500000;
@@ -446,8 +447,9 @@
     const audio = audioOf(q.audio);
     if (audio) out.audio = audio;
     // Een tekst die de computer voorleest (🎧): de leerling hoort ze, maar ziet ze niet.
-    const zeg = text(q.voorlees, 1000);
-    if (zeg && type !== 'bron' && type !== 'blad') out.voorlees = zeg;
+    // Mag lang zijn (een hele luistertekst, ook bij een bron): de computer leest zin per zin.
+    const zeg = text(q.voorlees, MAX_VOORLEES);
+    if (zeg && type !== 'blad') out.voorlees = zeg;
     // Hoe vaak de leerling het geluid of de voorleestekst mag beluisteren (zonder: onbeperkt). 🎧 en 🐢 tellen samen.
     const keer = Number(q.luisterMax);
     if ((audio || out.voorlees) && (keer === 1 || keer === 2)) out.luisterMax = keer;
@@ -457,7 +459,7 @@
       out.tekst = text(q.tekst || q.text, 6000);
       out.vragen = list(q.vragen || q.questions, MAX_DEEL).map((d, j) => cleanVraag(d, `${waar}${'abcdefghijklmno'[j]}`, true, out.tekst));
       if (!out.vragen.length) throw new Error(`${naam} heeft geen deelvragen.`);
-      if (!out.tekst && !out.beeld && !out.beeldNodig) throw new Error(`${naam} heeft geen tekst of afbeelding.`);
+      if (!out.tekst && !out.beeld && !out.beeldNodig && !out.audio && !out.voorlees) throw new Error(`${naam} heeft geen tekst of afbeelding.`);
       return out;
     }
     if (type === 'blad') return cleanBlad(q, out, naam);
@@ -1587,7 +1589,9 @@
       if (q.beeld && !q.beeld.startsWith('#')) b.beeld = img(q.beeld);
       // Een luisterfragment bij de bron (🎧), eventueel met een maximum aantal keer.
       if (q.audio) b.audio = img(q.audio);
-      if (q.audio && q.luisterMax) b.luisterMax = q.luisterMax;
+      // Of een tekst die de computer voorleest (🎧 en 🐢): de leerling hoort ze, maar ziet ze niet.
+      if (q.voorlees) b.voorlees = q.voorlees;
+      if ((q.audio || q.voorlees) && q.luisterMax) b.luisterMax = q.luisterMax;
       return b;
     });
     return { title: t.title, intro: t.intro || '', pages, totaal: totaal(lijst) };
@@ -2149,6 +2153,6 @@
     TYPES, NAMES, MANUEEL, NIVEAUS, MAX_BEELD, ROOSTER, validate, problemen, vragenVan, niveausVan, lijstVoor,
     maxVan, autoPunten, handPunten, totaal, viewOf, studentView, partsOf, getal, zelfde, canoniek, auto, schoon, oplossing, schud, alts, gapsOf,
     waarschuwingen, metNamen, MAX_ZONES, veldSleutel, vakGoed, vakDeel, handVeld, autoVeld, roosterAuto, roosterScore, roosterCellen, roosterTekst, roosterUitkomst,
-    heeftMarge, margeGoed, tijdSec, VRIJ_SOORT, margeTekst, getalTekst, puntLijnen, puntlijnGoed, cirkelsVan, cirkelGoed, straalCm, puntNaam, handWerk, SCHAAL, NAKIJK, FIGUREN, figurenVan, veelhoekPunten, veelhoekVolgorde, hoekpunten, rondom, rekenregel, formuleFout, lijnGoed, lijnCm, veelhoekCm, lijnHoek, lijnGraden, RICHTING, vakjesGoed, goedeAntwoorden, datumSleutel, paarTekst, controleDeel, CONTROLE, plekDeel, groepKaarten, groepUitslag, kaartTekst, MAX_GROEPEN, zelfdeVorm, kleurDoel, kleurGoed, metEenheid, volgorde, SOORTEN, HAND_VELD, woordenVan, doelenVan, sorteerWoorden, sorteerKolommen, dicteeVergelijk, dicteeDeel, dicteeZinPunten, MAX_DICTEE, itemTekst, markeerModel, markeerSleutel, doelenInBron, markeerTel, markeerKort, markeerAntwoord, tekstWoorden, stukkenVan, zonderHaken, STIFTEN, PER, asTekst, MAX_AUDIO, celGat, vereenvoudigd, GEEN_ANTWOORD, AUTO_VELD, KLEUREN,
+    heeftMarge, margeGoed, tijdSec, VRIJ_SOORT, margeTekst, getalTekst, puntLijnen, puntlijnGoed, cirkelsVan, cirkelGoed, straalCm, puntNaam, handWerk, SCHAAL, NAKIJK, FIGUREN, figurenVan, veelhoekPunten, veelhoekVolgorde, hoekpunten, rondom, rekenregel, formuleFout, lijnGoed, lijnCm, veelhoekCm, lijnHoek, lijnGraden, RICHTING, vakjesGoed, goedeAntwoorden, datumSleutel, paarTekst, controleDeel, CONTROLE, plekDeel, groepKaarten, groepUitslag, kaartTekst, MAX_GROEPEN, zelfdeVorm, kleurDoel, kleurGoed, metEenheid, volgorde, SOORTEN, HAND_VELD, woordenVan, doelenVan, sorteerWoorden, sorteerKolommen, dicteeVergelijk, dicteeDeel, dicteeZinPunten, MAX_DICTEE, itemTekst, markeerModel, markeerSleutel, doelenInBron, markeerTel, markeerKort, markeerAntwoord, tekstWoorden, stukkenVan, zonderHaken, STIFTEN, PER, asTekst, MAX_AUDIO, MAX_VOORLEES, celGat, vereenvoudigd, GEEN_ANTWOORD, AUTO_VELD, KLEUREN,
   };
 });

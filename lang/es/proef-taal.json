@@ -329,5 +329,9 @@
  "data-bank=\"{0}\" style=\"--bk:{1}\"": null,
  "Tik op een woord en dan op een vakje met {0}.": "Toca una palabra y luego una casilla con {0}.",
  "data-bank=\"{0}\" data-nr=\"{1}\"": null,
- "Typ de woorden of zinnen die de computer voorleest: de leerling hoort ze en ziet ze niet. Bij een woord kan je er een zin bij zetten (die wordt ook voorgelezen). Een woordgroep zoals ’s nachts of in plaats van telt als één woord. Een ontbrekend, fout of extra woord is één fout.": "Escribe las palabras o frases que lee el ordenador: el alumno las oye pero no las ve. Puedes añadir una frase a una palabra (también se lee). Un grupo de palabras como «a veces» cuenta como una sola palabra. Una palabra que falta, está mal o sobra es un error."
+ "Typ de woorden of zinnen die de computer voorleest: de leerling hoort ze en ziet ze niet. Bij een woord kan je er een zin bij zetten (die wordt ook voorgelezen). Een woordgroep zoals ’s nachts of in plaats van telt als één woord. Een ontbrekend, fout of extra woord is één fout.": "Escribe las palabras o frases que lee el ordenador: el alumno las oye pero no las ve. Puedes añadir una frase a una palabra (también se lee). Un grupo de palabras como «a veces» cuenta como una sola palabra. Una palabra que falta, está mal o sobra es un error.",
+ ":scope > .pf-k-body > .pf-e-zegbron .e-voorlees": null,
+ ":scope > .pf-k-body .e-voorlees": null,
+ "> .pf-e-zegbron .e-voorlees": null,
+ "bijv. de luistertekst waar de deelvragen over gaan": "p. ej. el texto de escucha sobre el que tratan las subpreguntas"
 }

@@ -697,8 +697,9 @@ const PfPaper = (() => {
     o.bronStukken = p.stukken || null;
     const say = o.voorlees && o.mode !== 'print' && typeof Voorlees !== 'undefined' && Voorlees.ok
       ? `<button type="button" class="ob-say pf-say" data-say="${o.said.push([p.titel, p.tekst].filter(Boolean).join('\n')) - 1}" title="Lees voor" aria-label="Lees voor">🔊</button>` : '';
+    const zeg = p.voorlees && o.mode !== 'print' ? zegKnoppen(o.said.push(p.voorlees) - 1, telVan(p.id, p.luisterMax, o)) : '';
     return `<section class="pf-page pf-bron-page">
-      <div class="pf-bron">${p.titel || say || p.audio ? `<h3>${say}${p.audio && o.mode !== 'print' ? luisterKnop(p, o, 'Luister naar het fragment') : ''}${esc(p.titel || 'Bron')}</h3>` : ''}${luisterTip(p, o)}${p.beeld ? `<img class="pf-beeld" src="${esc(p.beeld)}" alt="">` : ''}${p.stukken && o.mode === 'live'
+      <div class="pf-bron">${p.titel || say || p.audio || zeg ? `<h3>${say}${p.audio && o.mode !== 'print' ? luisterKnop(p, o, 'Luister naar het fragment') : ''}${zeg}${esc(p.titel || 'Bron')}</h3>` : ''}${luisterTip(p, o)}${p.voorlees && o.mode === 'print' ? '<p class="pf-tip">🎧 De leerkracht leest dit voor.</p>' : ''}${p.beeld ? `<img class="pf-beeld" src="${esc(p.beeld)}" alt="">` : ''}${p.stukken && o.mode === 'live'
     ? `<div class="pf-markeer pf-bron-tekst" data-bron="${esc(p.id)}">${markTekst(p.stukken, 'woord', [])}</div>` : paras(p.tekst)}</div>
       <div class="pf-deel">${p.vragen.map((q, j) => vraagHtml(q, `${nr}${'abcdefghijklmno'[j]}`, o)).join('')}</div>
     </section>`;

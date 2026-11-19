@@ -138,7 +138,7 @@ const PfEdit = (() => {
     const sel = rij.querySelector('select');
     sel.value = String(waarde || 0);
     card.pfLuisterToon = () => {
-      const zeg = !bron && card.querySelector(':scope > .pf-k-body .e-voorlees');
+      const zeg = card.querySelector(bron ? ':scope > .pf-k-body > .pf-e-zegbron .e-voorlees' : ':scope > .pf-k-body .e-voorlees');
       rij.classList.toggle('hidden', !card.pfAudio && !(zeg && zeg.value.trim()));
     };
     sel.addEventListener('change', cfg.preview);
@@ -216,6 +216,11 @@ const PfEdit = (() => {
       card.querySelector('.e-tekst').addEventListener('input', () => { for (const d of card.querySelectorAll('.pf-deelvragen > .pf-kaart-edit')) if (d.pfBronVeranderd) d.pfBronVeranderd(); });
       body.appendChild(beeldRij(card, q.beeld, { nodig: q.beeldNodig, pagina: q.beeldPagina }));
       body.appendChild(audioRij(card, q.audio, true));
+      // Of een luistertekst die de computer voorleest (ook lang): de leerling hoort ze, maar ziet ze niet.
+      const zegB = veld(`<details class="pf-e-zeg"><summary class="small">🎧 Laten voorlezen door de computer</summary><label>Tekst om voor te lezen (de leerling hoort ze, maar ziet ze niet)<textarea class="e-voorlees" rows="4" maxlength="${PfKern.MAX_VOORLEES}" placeholder="bijv. de luistertekst waar de deelvragen over gaan"></textarea></label></details>`, 'pf-e-zegbron');
+      zegB.querySelector('.e-voorlees').value = q.voorlees || '';
+      zegB.querySelector('details').open = !!q.voorlees;
+      zegB.querySelector('.e-voorlees').addEventListener('input', () => card.pfLuisterToon());
       body.appendChild(luisterKeuze(card, q.luisterMax, true));
       card.pfLuisterToon();
       veld(`<p class="muted small">${HELP.bron}</p>`);
@@ -237,7 +242,7 @@ const PfEdit = (() => {
       body.appendChild(audioRij(card, q.audio));
       // Een tekst die de computer voorleest (🎧 en 🐢 trager). De leerling hoort ze, maar ziet ze niet.
       if (q.type !== 'dictee') {
-        const zeg = veld('<details class="pf-e-zeg"><summary class="small">🎧 Laten voorlezen door de computer</summary><label>Tekst om voor te lezen (de leerling hoort ze, maar ziet ze niet)<textarea class="e-voorlees" rows="2" maxlength="1000" placeholder="bijv. Luister goed: welk woord hoor je?"></textarea></label></details>');
+        const zeg = veld(`<details class="pf-e-zeg"><summary class="small">🎧 Laten voorlezen door de computer</summary><label>Tekst om voor te lezen (de leerling hoort ze, maar ziet ze niet)<textarea class="e-voorlees" rows="2" maxlength="${PfKern.MAX_VOORLEES}" placeholder="bijv. Luister goed: welk woord hoor je?"></textarea></label></details>`);
         zeg.querySelector('.e-voorlees').value = q.voorlees || '';
         zeg.querySelector('details').open = !!q.voorlees;
         zeg.querySelector('.e-voorlees').addEventListener('input', () => card.pfLuisterToon());
@@ -798,8 +803,10 @@ const PfEdit = (() => {
       q.titel = waarde(card, '.e-titel');
       q.tekst = waarde(card, '.e-tekst');
       if (card.pfAudio) q.audio = card.pfAudio;
+      const zegB = waarde(card, '> .pf-e-zegbron .e-voorlees').trim();
+      if (zegB) q.voorlees = zegB;
       const lm = Number(waarde(card, '.e-luistermax'));
-      if (card.pfAudio && lm) q.luisterMax = lm;
+      if ((card.pfAudio || zegB) && lm) q.luisterMax = lm;
       q.vragen = [...card.querySelectorAll(':scope > .pf-k-body > .pf-deelvragen > .pf-kaart-edit')].map(leesKaart);
       return q;
     }

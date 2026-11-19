@@ -212,3 +212,21 @@ test('Dictee: een woordgroep met een spatie is één deel, en de apostrof van �
   assert.strictEqual(K.dicteeDeel(q, q.delen[2], 'fiets fiets'), 0);
   assert.strictEqual(K.dicteeDeel(q, q.delen[2], ''), 0);
 });
+
+test('Voorleestekst: lang mag (tot 6000 tekens), ook bij een bron, met een maximum aantal keer luisteren', () => {
+  const lang = 'Dit is een zin om te beluisteren. '.repeat(100).trim();
+  assert.ok(lang.length > 3000);
+  const t = K.validate({ titel: 'l', vragen: [
+    { type: 'bron', titel: 'Luistertekst', tekst: '', voorlees: lang, luisterMax: 2, vragen: [{ type: 'kort', vraag: 'Wat hoor je?', antwoord: 'zin' }] },
+    { type: 'kort', vraag: 'Wat hoor je?', antwoord: 'zin', voorlees: lang },
+  ] });
+  assert.strictEqual(t.vragen[0].voorlees, lang);
+  assert.strictEqual(t.vragen[0].luisterMax, 2);
+  assert.strictEqual(t.vragen[1].voorlees, lang);
+  const v = K.studentView(t, t.vragen);
+  assert.strictEqual(v.pages[0].voorlees, lang);
+  assert.strictEqual(v.pages[0].luisterMax, 2);
+  // Zonder voorleestekst en zonder geluid: geen maximum.
+  const u = K.validate({ titel: 'l', vragen: [{ type: 'bron', titel: 'B', tekst: 'Tekst.', luisterMax: 2, vragen: [{ type: 'kort', vraag: 'V?', antwoord: 'x' }] }] });
+  assert.strictEqual(u.vragen[0].luisterMax, undefined);
+});
