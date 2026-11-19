@@ -36,3 +36,21 @@ test('een geplande taak verschijnt pas op het geplande moment, of meteen met Nu 
   assert.strictEqual(res.na, 2);
   assert.strictEqual(res.gestart, false);
 });
+
+test('geplande taken staan in volgorde van hun datum, de eerstvolgende eerst', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'taken-plannen-'));
+  fs.mkdirSync(path.join(tmp, 'oefenbladen'));
+  fs.copyFileSync(path.join(ROOT, 'oefenbladen', 'voorbeeld-belgie.json'), path.join(tmp, 'oefenbladen', 'blad.json'));
+  const lokaal = dagen => { const d = new Date(Date.now() + dagen * 86400000); return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16); };
+  const res = run(tmp, `
+    klas.write({ naam: '6A', leerjaar: 6, namen: ['Lotte'] });
+    const ids = {};
+    ids.over5 = taken.maak({ soort: 'oefenblad', file: 'blad.json', namen: ['Lotte'], vanaf: '${lokaal(5)}' }).id;
+    ids.nu = taken.maak({ soort: 'oefenblad', file: 'blad.json', namen: ['Lotte'] }).id;
+    ids.over1 = taken.maak({ soort: 'oefenblad', file: 'blad.json', namen: ['Lotte'], vanaf: '${lokaal(1)}' }).id;
+    ids.over3 = taken.maak({ soort: 'oefenblad', file: 'blad.json', namen: ['Lotte'], vanaf: '${lokaal(3)}' }).id;
+    const naam = Object.fromEntries(Object.entries(ids).map(([k, v]) => [v, k]));
+    return taken.lijst().map(t => naam[t.id]);
+  `);
+  assert.deepStrictEqual(res, ['over1', 'over3', 'over5', 'nu']);
+});
