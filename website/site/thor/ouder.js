@@ -25,6 +25,8 @@ async function laad(){
     $('ploeg').innerHTML = POP.ploegHtml();
   }
   teken();
+  tekenVragen();
+  zetBadge();
 }
 
 function teken(){
@@ -116,7 +118,7 @@ function tekenLeerstof(plan, taken){
   const wat = { leer:'leren + quiz', herhaal:'herhalen + quiz', proef:'proefexamen', zwak:'zwakke punten', drill:'werkwoorden', kaarten:'herhaalkaartjes' };
   $('komend').innerHTML = komend.map(x => `<div class="dagblok"><h4>${x === d ? 'Vandaag' : mooiDatum(x)} <span class="muted klein">· ${P.budget(x)} min</span></h4>${
     (plan[x] || []).map(it => `<button class="oitem" style="--vk:${(V[it.vak] || {}).kleur || 'var(--gras)'}" ${it.onderwerp ? `data-t="${it.onderwerp}"` : it.vak ? `data-v="${it.vak}"` : ''}><span>${(V[it.vak] || {}).icoon || '🃏'}</span><span>${esc(it.titel)}<small>${esc((V[it.vak] || {}).kort || 'alle vakken')} · ${wat[it.soort] || ''} · ± ${it.min} min</small></span>${taken[it.id] ? '<span class="klaar">✓</span>' : ''}</button>`).join('') || '<p class="muted klein">Geen opdrachten.</p>'}</div>`).join('');
-  $('o-vaktabs').innerHTML = Object.entries(V).map(([k, v]) => `<button data-vak="${k}" class="${k === oVak ? 'aan' : ''}">${v.icoon} ${esc(v.kort)}</button>`).join('');
+  $('o-vaktabs').innerHTML = Object.entries(V).filter(([k]) => T.some(t => t.vak === k)).map(([k, v]) => `<button data-vak="${k}" class="${k === oVak ? 'aan' : ''}">${v.icoon} ${esc(v.kort)}</button>`).join('');
   $('o-onderwerpen').innerHTML = T.filter(t => t.vak === oVak).map(t => `<button class="oitem" style="--vk:${V[t.vak].kleur}" data-t="${t.id}"><span>${V[t.vak].icoon}</span><span>${esc(t.titel)}<small>${t.samenvatting.length} leerpunten · ${t.kaarten.length} kaartjes · ${t.quiz.length} vragen</small></span>${taken['leer:' + t.id] ? '<span class="klaar">✓ geleerd</span>' : ''}</button>`).join('');
 }
 document.addEventListener('click', e => {
@@ -213,6 +215,70 @@ $('stuur').onclick = async () => {
     $('stuurstatus').textContent = 'Lukte niet: ' + e.message;
   } finally { $('stuur').disabled = false; }
 };
+// --- Zelf vragen opstellen voor Thor (supporters, 19/11) ---
+$('vr-vak').innerHTML = Object.entries(V).filter(([k]) => T.some(t => t.vak === k)).map(([k, v]) => `<option value="${k}">${v.icoon} ${esc(v.naam || v.kort)}</option>`).join('');
+const BAAS = ['papa', 'mama'];
+function tekenVragen(){
+  const lijst = (D.stand.vragen || []);
+  const ik = (D.ik || s.naam).toLowerCase();
+  $('vr-lijst').innerHTML = lijst.length ? '' : '<p class="muted klein">Nog geen vragen. Wees de eerste!</p>';
+  for (const q of lijst) {
+    const el = document.createElement('div'); el.className = 'vr-item';
+    const a = (q.antwoorden || [])[0];
+    const sc = a ? ['❌ nog niet', '🤏 half', '✅ juist'][a.score] || '' : '';
+    el.innerHTML = `<div class="muted klein">${(V[q.vak] || {}).icoon || ''} ${esc((V[q.vak] || {}).kort || '')} · van ${esc(naamVan(q.van))}</div><b></b><details><summary>Het juiste antwoord</summary><div class="vr-model"></div></details>
+      ${a ? `<div class="vr-ant"><span class="muted klein">Thor antwoordde ${new Date(a.op).toLocaleDateString('nl-BE', { weekday:'short', day:'numeric', month:'numeric' })} · zelf: ${sc}</span><p></p></div>` : '<p class="muted klein">Thor heeft deze vraag nog niet gemaakt.</p>'}`;
+    el.querySelector('b').textContent = q.vraag;
+    el.querySelector('.vr-model').textContent = q.model;
+    if (a) el.querySelector('.vr-ant p').textContent = '“' + a.tekst + '”';
+    if (q.van === ik || BAAS.includes(ik)) {
+      const w = document.createElement('button'); w.className = 'link klein'; w.textContent = '🗑️ Verwijder';
+      w.onclick = async () => { w.disabled = true; try { await rpc('thor_vraag_weg', { p_naam: s.naam, p_pin: s.pin, p_id: q.id }); D = await rpc('thor_ouder', { p_naam: s.naam, p_pin: s.pin }) || D; tekenVragen(); } catch (e) { toast('Lukte niet: ' + e.message); w.disabled = false; } };
+      el.append(w);
+    }
+    $('vr-lijst').append(el);
+  }
+}
+$('vr-stuur').onclick = async () => {
+  const vraag = $('vr-vraag').value.trim(), model = $('vr-model').value.trim();
+  if (vraag.length < 5) { toast('Schrijf eerst een vraag.'); return $('vr-vraag').focus(); }
+  if (model.length < 2) { toast('Schrijf ook het juiste antwoord, zodat Thor kan vergelijken.'); return $('vr-model').focus(); }
+  $('vr-stuur').disabled = true; $('vr-status').textContent = 'Bewaren…';
+  try {
+    const ok = await rpc('thor_vraag', { p_naam: s.naam, p_pin: s.pin, p_vak: $('vr-vak').value, p_vraag: vraag, p_model: model });
+    if (ok === false) throw new Error('de server weigerde het');
+    $('vr-vraag').value = ''; $('vr-model').value = ''; $('vr-status').textContent = '';
+    toast('Bewaard! Thor vindt je vraag bij Vrij oefenen.'); confetti(900);
+    D = await rpc('thor_ouder', { p_naam: s.naam, p_pin: s.pin }) || D; tekenVragen();
+  } catch (e) { $('vr-status').textContent = 'Lukte niet: ' + e.message; }
+  finally { $('vr-stuur').disabled = false; }
+};
+// --- Tabbladen onderaan (19/11) ---
+const LS = { get(k, d){ try { const v = localStorage.getItem('thor-crew-' + k); return v == null ? d : JSON.parse(v); } catch { return d; } }, set(k, v){ try { localStorage.setItem('thor-crew-' + k, JSON.stringify(v)); } catch {} } };
+function nieuwInContact(){
+  const sinds = LS.get('contact-gezien', '');
+  const ik = (D && (D.ik || s.naam) || '').toLowerCase();
+  let n = 0;
+  for (const b of (D && D.berichten) || []) if (b.van === ik && b.antwoord && (b.antwoord_op || b.op) > sinds) n++;
+  for (const q of (D && D.stand.vragen) || []) if (q.van === ik) for (const a of q.antwoorden || []) if (a.op > sinds) n++;
+  return n;
+}
+function zetBadge(){ const n = nieuwInContact(), b = $('contact-badge'); b.hidden = !n; b.textContent = n; }
+function toonTab(t){
+  if (!document.querySelector(`.otab[data-otab="${t}"]`)) t = 'vandaag';
+  document.querySelectorAll('.otab').forEach(x => x.hidden = x.dataset.otab !== t);
+  document.querySelectorAll('#onav button').forEach(x => x.classList.toggle('aan', x.dataset.otab === t));
+  $('cijfers').hidden = t !== 'vandaag';
+  if (t === 'contact') { LS.set('contact-gezien', new Date().toISOString()); }
+  if (D) zetBadge();
+  if (location.hash.slice(1) !== t) history.replaceState(null, '', '#' + t);
+  window.scrollTo(0, 0);
+}
+$('onav').onclick = e => { const b = e.target.closest('button'); if (b) toonTab(b.dataset.otab); };
+$('contact-seg').onclick = e => { const b = e.target.closest('button'); if (!b) return;
+  document.querySelectorAll('#contact-seg button').forEach(x => x.classList.toggle('aan', x === b));
+  document.querySelectorAll('.otab[data-otab="contact"] > div[data-c]').forEach(x => x.hidden = x.dataset.c !== b.dataset.c); };
+toonTab(location.hash.slice(1) || 'vandaag');
 $('uit').onclick = () => { sessie.wis(); location.href = 'index.html'; };
 $('ververs').onclick = laad;
 laad();
