@@ -227,5 +227,11 @@
  "🖍️ kleurveld": "🖍️ cuadrícula para colorear",
  "{0} {1} ({2} van {3} hokjes)": "{0} {1} ({2} de {3} casillas)",
  "Omkringen": "Rodear",
- "Tik de hokjes aan om ze te kleuren": "Toca las casillas para colorearlas"
+ "Tik de hokjes aan om ze te kleuren": "Toca las casillas para colorearlas",
+ "Of: precies deze figuur op deze plek (bv. gespiegeld, gedraaid of vergroot). Tik de hoekpunten aan:": "O: exactamente esta figura en este lugar (p. ej. reflejada, girada o ampliada). Toca los vértices:",
+ "↶ Laatste punt weg": "↶ Quitar el último punto",
+ "Figuur wissen": "Borrar la figura",
+ "Met een figuur hier kijkt de computer of de leerling precies deze hoekpunten tekent. De soort hierboven telt dan niet.": "Con una figura aquí, el ordenador comprueba si el alumno dibuja exactamente estos vértices. El tipo de arriba no cuenta entonces.",
+ "figuur van de sleutel": "figura de la clave",
+ "de figuur van de sleutel": "la figura de la clave"
 }

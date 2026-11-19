@@ -227,5 +227,11 @@
  "🖍️ kleurveld": "🖍️ Malfeld",
  "{0} {1} ({2} van {3} hokjes)": "{0} {1} ({2} von {3} Kästchen)",
  "Omkringen": "Einkreisen",
- "Tik de hokjes aan om ze te kleuren": "Tippe die Kästchen an, um sie auszumalen"
+ "Tik de hokjes aan om ze te kleuren": "Tippe die Kästchen an, um sie auszumalen",
+ "Of: precies deze figuur op deze plek (bv. gespiegeld, gedraaid of vergroot). Tik de hoekpunten aan:": "Oder: genau diese Figur an dieser Stelle (z. B. gespiegelt, gedreht oder vergrößert). Tippe die Eckpunkte an:",
+ "↶ Laatste punt weg": "↶ Letzten Punkt entfernen",
+ "Figuur wissen": "Figur löschen",
+ "Met een figuur hier kijkt de computer of de leerling precies deze hoekpunten tekent. De soort hierboven telt dan niet.": "Mit einer Figur hier prüft der Computer, ob das Kind genau diese Eckpunkte zeichnet. Die Art oben zählt dann nicht.",
+ "figuur van de sleutel": "Figur der Lösung",
+ "de figuur van de sleutel": "die Figur der Lösung"
 }

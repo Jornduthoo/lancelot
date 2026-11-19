@@ -913,7 +913,27 @@
     }
     return n === 5 ? ['vijfhoek'] : n === 6 ? ['zeshoek'] : [];
   }
+  // De hoekpunten zonder punten die midden op een zijde liggen, als een vaste rij (om twee figuren te vergelijken).
+  function vormSleutel(f, a) {
+    let p = rondom(veelhoekVolgorde(f, hoekpunten(a, f)));
+    const uniek = [];
+    for (const x of p) if (!uniek.some(y => y[0] === x[0] && y[1] === x[1])) uniek.push(x);
+    p = uniek;
+    if (p.length >= 3) p = p.filter((b, i) => { const a2 = p[(i + p.length - 1) % p.length]; const c = p[(i + 1) % p.length]; return (b[0] - a2[0]) * (c[1] - a2[1]) - (b[1] - a2[1]) * (c[0] - a2[0]) !== 0; });
+    return p;
+  }
+  // Dezelfde figuur op dezelfde plek: dezelfde hoekpunten in dezelfde volgorde rond (beginnen waar je wilt, in elke richting).
+  function zelfdeVorm(f, a) {
+    const x = vormSleutel(f, a);
+    const y = vormSleutel({ kol: f.kol, rij: f.rij }, f.vorm);
+    if (!y.length || x.length !== y.length) return false;
+    const n = y.length;
+    const s = p => `${p[0]},${p[1]}`;
+    for (const r of [x, [...x].reverse()]) for (let i = 0; i < n; i++) if (y.every((p, j) => s(p) === s(r[(i + j) % n]))) return true;
+    return false;
+  }
   function veelhoekGoed(f, a, verhouding) {
+    if (f.vorm) return zelfdeVorm(f, a);
     if (!f.figuur) return false;
     const soorten = figurenVan(veelhoekPunten(f, a, verhouding));
     return f.strikt ? soorten[0] === f.figuur : soorten.includes(f.figuur);
@@ -1084,6 +1104,9 @@
         veld.rij = roosterMaat(f.rij, 5, 16);
         if (FIGUREN.includes(f.figuur)) veld.figuur = f.figuur;
         if (f.strikt) veld.strikt = true;
+        // Of: precies deze figuur op deze plek (bv. het spiegelbeeld of de gedraaide figuur), als hoekpunten "kol,rij;kol,rij;...".
+        const vorm = hoekpunten(f.vorm, veld);
+        if (vorm.length >= 2) veld.vorm = vorm.map(p => p.join(',')).join(';');
         // Eerst de diagonalen: de leerling tikt 2 lijnstukken (4 punten); de vierhoek verbindt hun uiteinden.
         if (f.diagonalen === true) veld.diagonalen = true;
         // Een korte uitleg in het vak, tot de leerling het eerste punt tikt.
@@ -1231,7 +1254,7 @@
     || (f.soort === 'rooster' && NAKIJK.includes(f.nakijk) && !roosterAuto(f))
     || (f.soort === 'puntlijn' && ((f.pt || []).length < 2 || (f.doorPunt === undefined && !(f.lijnen || []).length)))
     || (f.soort === 'cirkel' && !(f.cirkels || []).length)
-    || (f.soort === 'veelhoek' && !f.figuur)
+    || (f.soort === 'veelhoek' && !f.figuur && !f.vorm)
     || (f.soort === 'kleur' && !(f.kleuren || []).some(c => kleurDoel(f, c) !== null));
 
   // Alles automatisch verbeteren: wat verbetert de leerkracht nog zelf? Een lijst om aan te passen.
@@ -1777,6 +1800,7 @@
     : f.soort === 'rooster' && roosterAuto(f) ? (f.nakijk === 'uitkomst' ? `= ${roosterUitkomst(f)}` : f.nakijk === 'deling' ? `= ${f.quotient}${f.rest ? ` rest ${f.rest}` : ''}` : roosterCellen(f.sleutel).map(r => r.map(c => c || ' ').join('')).join('\n'))
     : f.soort === 'puntlijn' ? (f.doorPunt !== undefined ? `${f.aantal > 1 ? `${f.aantal} lijnen` : 'een lijn'} door het groene punt` : (f.lijnen || []).map(([a, b]) => `${puntNaam(a)}–${puntNaam(b)}`).join(', '))
     : f.soort === 'kleur' ? f.kleuren.filter(c => kleurDoel(f, c) !== null).map(c => `${c.aantal} ${c.kleur} (${kleurDoel(f, c)} van ${f.kol * f.rij} hokjes)`).join(', ')
+    : f.soort === 'veelhoek' && f.vorm ? 'de figuur van de sleutel'
     : f.soort === 'veelhoek' ? (f.figuur ? (f.strikt ? `precies een ${f.figuur}` : f.figuur) : '')
     : f.soort === 'cirkel' ? (f.cirkels || []).map(c => `r = ${getalTekst(c.r)} cm`).join(', ') + ((f.cirkels || []).length ? ` (± ${getalTekst(f.marge ?? 0.1)})` : '')
     : (f.antwoord || '')));
@@ -1828,6 +1852,6 @@
     TYPES, NAMES, MANUEEL, NIVEAUS, MAX_BEELD, ROOSTER, validate, problemen, vragenVan, niveausVan, lijstVoor,
     maxVan, autoPunten, handPunten, totaal, viewOf, studentView, partsOf, getal, zelfde, canoniek, auto, schoon, oplossing, schud, alts, gapsOf,
     waarschuwingen, metNamen, MAX_ZONES, veldSleutel, vakGoed, vakDeel, handVeld, autoVeld, roosterAuto, roosterScore, roosterCellen, roosterTekst, roosterUitkomst,
-    heeftMarge, margeGoed, tijdSec, VRIJ_SOORT, margeTekst, getalTekst, puntLijnen, puntlijnGoed, cirkelsVan, cirkelGoed, straalCm, puntNaam, handWerk, SCHAAL, NAKIJK, FIGUREN, figurenVan, veelhoekPunten, veelhoekVolgorde, hoekpunten, rondom, rekenregel, formuleFout, lijnGoed, lijnCm, kleurDoel, kleurGoed, metEenheid, volgorde, SOORTEN, HAND_VELD, woordenVan, doelenVan, sorteerWoorden, sorteerKolommen, dicteeVergelijk, dicteeDeel, dicteeZinPunten, MAX_DICTEE, itemTekst, markeerModel, markeerSleutel, doelenInBron, markeerTel, markeerKort, markeerAntwoord, tekstWoorden, stukkenVan, zonderHaken, STIFTEN, PER, asTekst, MAX_AUDIO, celGat, vereenvoudigd, GEEN_ANTWOORD, AUTO_VELD, KLEUREN,
+    heeftMarge, margeGoed, tijdSec, VRIJ_SOORT, margeTekst, getalTekst, puntLijnen, puntlijnGoed, cirkelsVan, cirkelGoed, straalCm, puntNaam, handWerk, SCHAAL, NAKIJK, FIGUREN, figurenVan, veelhoekPunten, veelhoekVolgorde, hoekpunten, rondom, rekenregel, formuleFout, lijnGoed, lijnCm, zelfdeVorm, kleurDoel, kleurGoed, metEenheid, volgorde, SOORTEN, HAND_VELD, woordenVan, doelenVan, sorteerWoorden, sorteerKolommen, dicteeVergelijk, dicteeDeel, dicteeZinPunten, MAX_DICTEE, itemTekst, markeerModel, markeerSleutel, doelenInBron, markeerTel, markeerKort, markeerAntwoord, tekstWoorden, stukkenVan, zonderHaken, STIFTEN, PER, asTekst, MAX_AUDIO, celGat, vereenvoudigd, GEEN_ANTWOORD, AUTO_VELD, KLEUREN,
   };
 });

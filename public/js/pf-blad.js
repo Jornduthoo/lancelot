@@ -756,7 +756,25 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
         <div><label class="inline check"><input type="checkbox" data-vlag="diagonalen"${f.diagonalen ? ' checked' : ''}> Teken eerst de diagonalen: de leerling tikt 2 lijnstukken die elkaar snijden, de vierhoek verschijnt dan vanzelf</label></div>
         <div><label>Korte uitleg in het vak (verdwijnt bij het eerste punt) <input class="bv-uitleg" maxlength="80" value="${esc(f.uitleg || '')}" placeholder="bv. Tik de hoekpunten rondom aan"></label></div>
         <p class="muted small">Tikt de leerling de hoekpunten niet rondom aan, dan zet LANcelot ze zelf rondom.</p>
-        <p class="muted small">Zonder vinkje is elke figuur met die eigenschappen juist: een vierkant is ook een rechthoek, een ruit en een parallellogram.</p>${samenHtml(f, punten)}`;
+        <p class="muted small">Zonder vinkje is elke figuur met die eigenschappen juist: een vierkant is ook een rechthoek, een ruit en een parallellogram.</p>
+        <p class="bv-vraag">Of: precies deze figuur op deze plek (bv. gespiegeld, gedraaid of vergroot). Tik de hoekpunten aan:</p>
+        <div class="bv-vh" style="aspect-ratio:${r2(f.w / (f.h * (staat.verhouding || 1.414)))}"><svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${PfPaper.veelhoekSvg(f.vorm || '', f.kol || 6, f.rij || 5)}</svg>${Array.from({ length: (f.kol || 6) * (f.rij || 5) }, (_, i) => { const c = i % (f.kol || 6); const r = Math.floor(i / (f.kol || 6)); return `<i style="left:${(c / ((f.kol || 6) - 1)) * 100}%;top:${(r / ((f.rij || 5) - 1)) * 100}%"></i>`; }).join('')}</div>
+        <p class="bv-samen"><button type="button" class="secondary small-btn bv-vh-terug">↶ Laatste punt weg</button> <button type="button" class="secondary small-btn bv-vh-wis">Figuur wissen</button></p>
+        <p class="muted small">Met een figuur hier kijkt de computer of de leerling precies deze hoekpunten tekent. De soort hierboven telt dan niet.</p>${samenHtml(f, punten)}`;
+      const vh = inh.querySelector('.bv-vh');
+      vh.addEventListener('click', e => {
+        const r = vh.getBoundingClientRect();
+        const kol = f.kol || 6;
+        const rij = f.rij || 5;
+        const c = Math.round(((e.clientX - r.left) / r.width) * (kol - 1));
+        const rr = Math.round(((e.clientY - r.top) / r.height) * (rij - 1));
+        if (c < 0 || rr < 0 || c >= kol || rr >= rij) return;
+        const pts = String(f.vorm || '').split(';').filter(Boolean);
+        if (pts.length && pts[pts.length - 1] === `${c},${rr}`) pts.pop(); else if (pts.length < 12) pts.push(`${c},${rr}`);
+        if (pts.length) f.vorm = pts.join(';'); else delete f.vorm;
+        bijwerken();
+        venster(staat.velden.indexOf(f));
+      });
     } else if (f.soort === 'klad') {
       kop.textContent = NAAM.klad;
       inh.innerHTML = `<p class="bv-vraag">Hier mag de leerling rekenen of schrijven. Het telt niet mee: jij verbetert niets.</p>
@@ -964,6 +982,8 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
         bijwerken();
         return venster(staat.velden.indexOf(f));
       }
+      if (t.classList.contains('bv-vh-terug')) { const pts = String(f.vorm || '').split(';').filter(Boolean); pts.pop(); if (pts.length) f.vorm = pts.join(';'); else delete f.vorm; bijwerken(); return venster(staat.velden.indexOf(f)); }
+      if (t.classList.contains('bv-vh-wis')) { delete f.vorm; bijwerken(); return venster(staat.velden.indexOf(f)); }
       if (t.dataset.maat && f.soort === 'kleur') {
         f[t.dataset.maat] = Math.min(20, Math.max(1, (f[t.dataset.maat] || (t.dataset.maat === 'kol' ? 10 : 1)) + Number(t.dataset.d)));
         bijwerken();
@@ -1229,7 +1249,7 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
     else if (f.soort === 'kies') antw = `<span class="pf-be-kies"><input class="be-o" value="${esc((f.opties || []).join(' / '))}" placeholder="keuzes: groter / kleiner / gelijk"><select class="be-a" aria-label="Juiste keuze"><option value="">juist?</option>${(f.opties || []).map(o => `<option${o === f.antwoord ? ' selected' : ''}>${esc(o)}</option>`).join('')}</select></span>`;
     else if (f.soort === 'plek') antw = '<span class="muted small">klik op het vakje op het blad</span>';
     else if (f.soort === 'lijn') antw = '<span class="muted small">een lijn op het blad</span>';
-    else if (f.soort === 'veelhoek') antw = `<span class="muted small">${f.figuur ? esc(f.figuur) : ''} (dubbelklik)</span>`;
+    else if (f.soort === 'veelhoek') antw = `<span class="muted small">${f.vorm ? 'figuur van de sleutel' : f.figuur ? esc(f.figuur) : ''} (dubbelklik)</span>`;
     else if (f.soort === 'kleur') antw = `<span class="muted small">${esc((f.kleuren || []).filter(c => c.aantal).map(c => `${c.aantal} ${c.kleur}`).join(', '))} (dubbelklik)</span>`;
     else if (f.soort === 'puntlijn' || f.soort === 'cirkel' || f.soort === 'klad') antw = `<span class="muted small">${f.soort === 'klad' ? 'telt niet mee' : 'dubbelklik op het vakje op het blad'}</span>`;
     else if (f.soort === 'rooster' && f.nakijk) antw = `<span class="muted small">${f.nakijk === 'uitkomst' ? `uitkomst ${esc(f.uitkomst || '')}` : f.nakijk === 'deling' ? `quotiënt ${esc(f.quotient || '')}${f.rest ? `, rest ${esc(f.rest)}` : ''}` : 'sleutel in het rooster'} (dubbelklik)</span>`;
@@ -1246,7 +1266,7 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
     || (f.soort === 'rooster' && !!f.nakijk && (f.nakijk === 'deling' ? !String(f.quotient || '').trim() : !(f.sleutel || '').trim() && !(f.nakijk === 'uitkomst' && String(f.uitkomst || '').trim())))
     || (f.soort === 'puntlijn' && ((f.pt || []).length < 2 || (f.doorPunt === undefined && !(f.lijnen || []).length)))
     || (f.soort === 'cirkel' && !(f.cirkels || []).length)
-    || (f.soort === 'veelhoek' && !f.figuur)
+    || (f.soort === 'veelhoek' && !f.figuur && !f.vorm)
     || (f.soort === 'kleur' && !(f.kleuren || []).some(c => String(c.aantal || '').trim()));
   function veldHtml(f, k) {
     const leeg = leegVeld(f, k, staat.velden);

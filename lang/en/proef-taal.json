@@ -227,5 +227,11 @@
  "🖍️ kleurveld": "🖍️ colouring grid",
  "{0} {1} ({2} van {3} hokjes)": "{0} {1} ({2} of {3} squares)",
  "Omkringen": "Circle",
- "Tik de hokjes aan om ze te kleuren": "Tap the squares to colour them"
+ "Tik de hokjes aan om ze te kleuren": "Tap the squares to colour them",
+ "Of: precies deze figuur op deze plek (bv. gespiegeld, gedraaid of vergroot). Tik de hoekpunten aan:": "Or: exactly this figure in this place (e.g. reflected, rotated or enlarged). Tap the corners:",
+ "↶ Laatste punt weg": "↶ Remove last point",
+ "Figuur wissen": "Clear figure",
+ "Met een figuur hier kijkt de computer of de leerling precies deze hoekpunten tekent. De soort hierboven telt dan niet.": "With a figure here, the computer checks whether the pupil draws exactly these corners. The type above then does not count.",
+ "figuur van de sleutel": "figure of the key",
+ "de figuur van de sleutel": "the figure of the key"
 }

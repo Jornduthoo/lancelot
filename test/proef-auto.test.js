@@ -300,3 +300,16 @@ test('kleurveld met vaste kleuren en omkringen', () => {
   assert.equal(K.veldSleutel(q)[0], '60% rood (6 van 10 hokjes), 1/5 blauw (2 van 10 hokjes)');
   assert.equal(K.veldSleutel(q)[2], '◯');
 });
+
+test('veelhoek: precies deze figuur op deze plek (spiegelen, draaien)', () => {
+  const q = blad([{ x: 1, y: 1, w: 30, h: 30, soort: 'veelhoek', kol: 7, rij: 7, vorm: '1,1;4,1;4,3' }, { x: 40, y: 1, w: 30, h: 21.22, soort: 'veelhoek', kol: 7, rij: 7, figuur: 'vierkant' }]);
+  assert.equal(q.velden[0].vorm, '1,1;4,1;4,3');
+  // Elke volgorde en richting, een punt midden op een zijde maakt niet uit; een andere plek of vorm is fout.
+  assert.deepEqual(K.vakDeel(q, ['4,3;1,1;4,1', '']).slice(0, 1), [1]);
+  assert.deepEqual(K.vakDeel(q, ['1,1;2,1;4,1;4,3', '']).slice(0, 1), [1]);
+  assert.deepEqual(K.vakDeel(q, ['2,1;5,1;5,3', '']).slice(0, 1), [0]);
+  assert.deepEqual(K.vakDeel(q, ['1,1;4,1;4,4', '']).slice(0, 1), [0]);
+  assert.equal(K.veldSleutel(q)[0], 'de figuur van de sleutel');
+  // Zonder vorm blijft het zoals vroeger: de soort telt.
+  assert.deepEqual(K.vakDeel(q, ['', '0,0;2,0;2,2;0,2']), [0, 1]);
+});
