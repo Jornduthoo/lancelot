@@ -405,10 +405,10 @@ class Kolkridder {
     for (const p of this.players.values()) this.io.to(p.socketId).emit('ko-world', msg);
   }
 
-  // Compact: [n, x*100, y*100, r*100, vlaggen]. Vlaggen: 1 zuigkracht, 2 aan het antwoorden, 4 beschermd, 8 plasma op.
+  // Compact: [n, x*100, y*100, r*100, vlaggen], t = servertijd (zo tekent de leerling vloeiend, ook als de wifi berichten in pakjes aflevert). Vlaggen: 1 zuigkracht, 2 aan het antwoorden, 4 beschermd, 8 plasma op.
   send(now) {
     const flags = p => (p.zuigUntil > now ? 1 : 0) | (p.asking ? 2 : 0) | (p.safeUntil > now ? 4 : 0) | (now >= p.plasmaAt && now >= this.startedAt ? 8 : 0);
-    const msg = { k: [...this.players.values()].filter(p => p.alive).map(p => [p.n, Math.round(p.x * 100), Math.round(p.y * 100), Math.round(W.radius(p.area) * 100), flags(p)]), ev: this.ev };
+    const msg = { k: [...this.players.values()].filter(p => p.alive).map(p => [p.n, Math.round(p.x * 100), Math.round(p.y * 100), Math.round(W.radius(p.area) * 100), flags(p)]), ev: this.ev, t: now };
     this.ev = [];
     let ranking = null;
     if (this.feedChanged || now - this.lastRank > 1000) {

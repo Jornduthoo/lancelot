@@ -11,6 +11,7 @@ const KoDraw = (() => {
   const CUT = {}; // kind -> {img, x, y, w, h}
   const mk = (w, h) => { const c = document.createElement('canvas'); c.width = Math.max(1, Math.ceil(w)); c.height = Math.max(1, Math.ceil(h)); return c; };
   const cache = new Map();
+  let budget = 2; // nieuwe sprites per beeld (zie sprite)
   let groundTile = null;
   let artGen = 0; // gaat omhoog als er een beeld binnenkomt
 
@@ -184,6 +185,15 @@ const KoDraw = (() => {
     const key = k * 100 + b;
     let sp = cache.get(key);
     if (sp) return sp;
+    // Een nieuw beeld klaarzetten kost tijd. Zoomt de camera mee, dan zouden alle soorten in hetzelfde beeld wisselen:
+    // dat geeft een hapering. Daarom maximaal twee nieuwe per beeld, de rest gebruikt even de dichtstbijzijnde grootte.
+    if (budget <= 0) {
+      for (let d = 1; d < 8; d++) {
+        const near = cache.get(key + d) || cache.get(key - d);
+        if (near) return near;
+      }
+    }
+    budget--;
     const mm = Math.pow(2, b / 3);
     const [, s, hf] = W.KINDS[k];
     const art = CUT[k];
@@ -419,7 +429,22 @@ const KoDraw = (() => {
       this.ys = null;
       this.alive = new Uint8Array(0);
       this.falling = [];
-      this.interp = new AK.Interp(80);
+      // 130 ms achter: genoeg om een wifi-pakje van een paar berichten op te vangen zonder dat de kolk stilvalt.
+      this.interp = new AK.Interp(130);
+      // Komt het volgende bericht toch te laat, dan rijdt de kolk nog even door in dezelfde richting (max. 150 ms)
+      // in plaats van stil te vallen en daarna te springen.
+      const get = this.interp.get.bind(this.interp);
+      this.interp.get = (id, t) => {
+        const list = this.interp.snaps.get(id);
+        if (!list || list.length < 2) return get(id, t);
+        const a = list[list.length - 2], b = list[list.length - 1], over = t - this.interp.delay - b.t;
+        if (over <= 0 || b.t - a.t < 1) return get(id, t);
+        const k = Math.min(150, over) / (b.t - a.t), out = b.v.slice();
+        out[0] += (b.v[0] - a.v[0]) * k;
+        out[1] += (b.v[1] - a.v[1]) * k;
+        return out;
+      };
+      this.clock = null; // lokale tijd - servertijd, het snelste bericht van de laatste tijd
       this.rr = new Map(); // n -> getoonde straal (glijdt naar de echte)
       this.onEvent = null;
       this.version = 0;
@@ -438,11 +463,16 @@ const KoDraw = (() => {
     }
     apply(msg) {
       const t = performance.now();
-      const seen = new Set();
-      for (const k of msg.k) {
-        seen.add(k[0]);
-        this.interp.push(k[0], [k[1] / 100, k[2] / 100, k[3] / 100, k[4]], t);
+      // Een Chromebook op wifi krijgt de berichten vaak in pakjes: drie tegelijk, dan even niets. Met de aankomsttijd
+      // zou de kolk dan springen en stilstaan. Daarom zetten we elk bericht op de tijd waarop de server het maakte,
+      // omgerekend naar onze klok via het snelste bericht (dat kruipt langzaam omhoog, zodat een klokverschil vanzelf bijtrekt).
+      let at = t;
+      if (typeof msg.t === 'number') {
+        const off = t - msg.t;
+        this.clock = this.clock === null || off < this.clock ? off : this.clock + .1;
+        at = msg.t + this.clock;
       }
+      for (const k of msg.k) this.interp.push(k[0], [k[1] / 100, k[2] / 100, k[3] / 100, k[4]], at);
       this.interp.prune(t, 300);
       for (const e of msg.ev) {
         if (e[0] === 'e' && this.alive[e[1]]) {
@@ -458,9 +488,11 @@ const KoDraw = (() => {
     hole(n, t = performance.now()) {
       const v = this.interp.get(n, t);
       if (!v) return null;
+      // De straal glijdt naar de echte, even snel op een trage als op een snelle computer (en maar één keer per tijdstip).
       const prev = this.rr.get(n);
-      const r = prev === undefined ? v[2] : prev + (v[2] - prev) * .12;
-      this.rr.set(n, r);
+      let r = v[2];
+      if (prev) r = t === prev.t ? prev.r : prev.r + (v[2] - prev.r) * (1 - Math.exp(-Math.min(.1, (t - prev.t) / 1000) * 7.5));
+      this.rr.set(n, { r, t });
       return [v[0], v[1], r, v[3]];
     }
     holes(t) {
@@ -516,24 +548,27 @@ const KoDraw = (() => {
     const t = opts.t;
     const sx = x => w / 2 + (x - cam.x) * S;
     const sy = y => h / 2 + (y - cam.y) * S * T;
+    budget = 2;
     ground(ctx, scene, cam);
     if (!scene.objs.length) return;
     const colorOf = n => ((opts.roster && opts.roster.get(n)) || {}).color || '#4cc9ff';
-    const holes = scene.holes(performance.now()).filter(([, x, y, r]) => Math.abs(sx(x) - w / 2) < w / 2 + r * S * 2 + 40 && Math.abs(sy(y) - h / 2) < h / 2 + r * S + 40);
+    // Eén tijdstip voor het hele beeld (opts.now): zo staan de kolk en de camera precies op dezelfde plek.
+    const tms = opts.now || performance.now();
+    const holes = scene.holes(tms).filter(([, x, y, r]) => Math.abs(sx(x) - w / 2) < w / 2 + r * S * 2 + 40 && Math.abs(sy(y) - h / 2) < h / 2 + r * S + 40);
     const hmap = new Map(holes.map(hh => [hh[0], hh]));
     // 1. De binnenkant van de kolken
     for (const [n, x, y, r, f] of holes) holeBack(ctx, sx(x), sy(y), r * S, colorOf(n), t + n, f);
     // 2. Wat erin valt: naar het midden, draaiend, krimpend en wegzakkend, alleen binnen de kolk zichtbaar
-    const now = performance.now() / 1000;
+    const now = tms / 1000;
     for (let i = scene.falling.length - 1; i >= 0; i--) {
       const fo = scene.falling[i];
-      const k = (now - fo.t0) / .6;
+      const k = Math.max(0, (now - fo.t0) / .6);
       const hh = hmap.get(fo.n);
       if (k >= 1 || !hh) { scene.falling.splice(i, 1); continue; }
       const [, hx, hy, hr] = hh;
       const e = k * k;
       const x = fo.x + (hx - fo.x) * Math.min(1, k * 1.4), y = fo.y + (hy - fo.y) * Math.min(1, k * 1.4);
-      const sp = sprite(fo.k, S * (1 - e * .7));
+      const sp = sprite(fo.k, S); // zelfde beeld als toen het nog stond, alleen kleiner getekend
       ctx.save();
       ctx.beginPath();
       ctx.ellipse(sx(hx), sy(hy), hr * S, hr * S * T, 0, 0, Math.PI * 2);
