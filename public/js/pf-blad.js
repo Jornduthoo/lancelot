@@ -718,9 +718,14 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
       inh.innerHTML = `<p class="bv-vraag">De leerling rekent de bewerking uit in de hokjes: één cijfer of teken per hokje.</p>
         <div class="bv-opties">${maat('kol', 'Hokjes breed', kol)}${maat('rij', 'Hokjes hoog', rij)}</div>
         <p class="bv-vraag">Wie verbetert?</p>
-        <div class="bv-keuzelijst">${keuze('', 'Jij (zoals altijd)')}${keuze('uitkomst', 'De computer: alleen de uitkomst')}${keuze('rijen', 'De computer: punten per juiste rij')}${keuze('alles', 'De computer: alles moet juist zijn')}</div>
+        <div class="bv-keuzelijst">${keuze('', 'Jij (zoals altijd)')}${keuze('uitkomst', 'De computer: alleen de uitkomst')}${keuze('rijen', 'De computer: punten per juiste rij')}${keuze('alles', 'De computer: alles moet juist zijn')}${keuze('deling', 'De computer: een deling (quotiënt en rest)')}${keuze('cellen', 'De computer: elk hokje apart (bv. grondplan of aanzicht)')}</div>
         ${f.nakijk === 'uitkomst' ? `<div class="bv-opties"><label>Uitkomst <input class="bv-uitkomst" value="${esc(f.uitkomst || '')}" placeholder="bijv. 39393,6"></label>
           <label>In rij <select class="bv-urij"><option value="">de onderste ingevulde rij</option>${Array.from({ length: rij }, (_, i) => `<option value="${i + 1}"${f.uitkomstRij === i + 1 ? ' selected' : ''}>${i + 1}</option>`).join('')}</select></label></div>` : ''}
+        ${f.nakijk === 'deling' ? `<div class="bv-opties"><label>Quotiënt <input class="bv-quotient" value="${esc(f.quotient || '')}" placeholder="bijv. 246"></label>
+          <label>Rest (mag leeg) <input class="bv-rest" value="${esc(f.rest || '')}" placeholder="bijv. 4"></label></div>
+          <p class="muted small">Het quotiënt staat rechts, naast of onder de deler. De rest staat vooraan in de onderste rij. Met een rest moeten ze allebei juist zijn. Zonder rest kijkt de computer alleen het quotiënt na.</p>` : ''}
+        ${f.nakijk === 'cellen' ? `<p class="small">Vul elk hokje in zoals het juist is (bv. het aantal blokjes, of x voor een gekleurd hokje):</p>${PfPaper.roosterHtml(f.sleutel || '', kol, rij, true, 'bv-rooster-sleutel')}
+          <p class="muted small">Elk hokje telt apart, op zijn eigen plek. Een hokje dat leeg moet blijven, is fout als de leerling er iets in zet. De punten gaan naar het deel juiste hokjes.</p>` : ''}
         ${f.nakijk === 'rijen' || f.nakijk === 'alles' ? `<p class="small">Vul de juiste uitwerking in, zoals de leerling ze invult:</p>${PfPaper.roosterHtml(f.sleutel || '', kol, rij, true, 'bv-rooster-sleutel')}
           <p class="muted small">Een rij die verschoven staat, telt ook. Spaties, × en een punt of komma maken niet uit; de komma mag in een eigen hokje of bij een cijfer (7,).${f.nakijk === 'rijen' ? ' Een extra rij (bv. onthouden cijfers) mag.' : ''}</p>` : ''}
         ${f.nakijk ? '' : `<label>Uitwerking of uitkomst (alleen voor jou, je verbetert zelf)<textarea class="bv-model" rows="2">${esc(f.antwoord || '')}</textarea></label>`}${punten(f.punten ?? 1)}`;
@@ -858,6 +863,8 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
         bijwerken();
       }
       else if (t.classList.contains('bv-uitkomst')) { f.uitkomst = t.value.trim(); bijwerken(); }
+      else if (t.classList.contains('bv-quotient')) { f.quotient = t.value.trim(); bijwerken(); }
+      else if (t.classList.contains('bv-rest')) { f.rest = t.value.trim(); bijwerken(); }
       else if (t.classList.contains('bv-margew')) { f.marge = t.value; bijwerken(); }
       else if (t.classList.contains('bv-margep')) { f.margeProcent = t.value; bijwerken(); }
       else if (t.classList.contains('bv-van')) { f.van = t.value.trim(); bijwerken(); }
@@ -1188,7 +1195,7 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
     else if (f.soort === 'lijn') antw = '<span class="muted small">een lijn op het blad</span>';
     else if (f.soort === 'veelhoek') antw = `<span class="muted small">${f.figuur ? esc(f.figuur) : ''} (dubbelklik)</span>`;
     else if (f.soort === 'puntlijn' || f.soort === 'cirkel' || f.soort === 'klad') antw = `<span class="muted small">${f.soort === 'klad' ? 'telt niet mee' : 'dubbelklik op het vakje op het blad'}</span>`;
-    else if (f.soort === 'rooster' && f.nakijk) antw = `<span class="muted small">${f.nakijk === 'uitkomst' ? `uitkomst ${esc(f.uitkomst || '')}` : 'sleutel in het rooster'} (dubbelklik)</span>`;
+    else if (f.soort === 'rooster' && f.nakijk) antw = `<span class="muted small">${f.nakijk === 'uitkomst' ? `uitkomst ${esc(f.uitkomst || '')}` : f.nakijk === 'deling' ? `quotiënt ${esc(f.quotient || '')}${f.rest ? `, rest ${esc(f.rest)}` : ''}` : 'sleutel in het rooster'} (dubbelklik)</span>`;
     else if (f.soort === 'vlak') antw = `<select class="be-a" aria-label="Kleur">${Object.entries(KLEUR_NAAM).map(([k, n]) => `<option value="${k}"${f.kleur === k ? ' selected' : ''}>${n}</option>`).join('')}</select>`;
     else if (f.soort === 'notitie') antw = `<input class="be-a" value="${esc(f.tekst || '')}" placeholder="tekst op het blad">`;
     else if (f.soort === 'luister') antw = `<span class="pf-be-luister"><span class="pf-be-audio" data-k="${k}"></span><input class="be-a" value="${esc(f.tekst || '')}" placeholder="of: tekst om voor te lezen"></span>`;
@@ -1199,7 +1206,7 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
 
   // Nog zonder antwoord? velden: alle vakjes van het blad (voor een groepje bolletjes zonder juist antwoord).
   const leegVeld = (f, _, velden) => (f.soort === 'kruis' && Array.isArray(velden) && !velden.some(g => g.soort === 'kruis' && g.groep === f.groep && g.antwoord)) || ((f.soort === 'tekst' || f.soort === 'breuk' || f.soort === 'sleep') && !String(f.antwoord || '').trim() && !f.doorstreep) || (f.soort === 'plek' && !f.doel) || (f.soort === 'lijn' && !f.naar) || (f.soort === 'luister' && !f.audio && !String(f.tekst || '').trim()) || (f.soort === 'kies' && (!(f.opties || []).includes(f.antwoord) || f.opties.length < 2))
-    || (f.soort === 'rooster' && !!f.nakijk && !(f.sleutel || '').trim() && !(f.nakijk === 'uitkomst' && String(f.uitkomst || '').trim()))
+    || (f.soort === 'rooster' && !!f.nakijk && (f.nakijk === 'deling' ? !String(f.quotient || '').trim() : !(f.sleutel || '').trim() && !(f.nakijk === 'uitkomst' && String(f.uitkomst || '').trim())))
     || (f.soort === 'puntlijn' && ((f.pt || []).length < 2 || (f.doorPunt === undefined && !(f.lijnen || []).length)))
     || (f.soort === 'cirkel' && !(f.cirkels || []).length)
     || (f.soort === 'veelhoek' && !f.figuur);

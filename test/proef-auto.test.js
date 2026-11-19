@@ -250,3 +250,20 @@ test('invulvakjes: eenheid tonen, precies deze breuk, volgorde vrij, tijd en doo
   const oud = toets([{ x: 1, y: 1, w: 5, h: 5, soort: 'breuk', antwoord: '25/100' }, { x: 1, y: 10, w: 5, h: 5, soort: 'tekst', antwoord: '12' }, { x: 1, y: 20, w: 5, h: 5, soort: 'tekst', antwoord: '15' }]).vragen[0];
   assert.deepEqual(K.vakDeel(oud, ['1/4', '15', '12']), [1, 0, 0]);
 });
+
+test('rekenrooster: een deling (quotiënt en rest) en elk hokje apart (grondplan)', () => {
+  const q = blad([
+    { x: 1, y: 1, w: 30, h: 30, soort: 'rooster', kol: 9, rij: 8, nakijk: 'deling', quotient: '246', rest: '4' },
+    { x: 40, y: 1, w: 30, h: 30, soort: 'rooster', kol: 4, rij: 3, nakijk: 'cellen', sleutel: '21 3\n 1x' },
+    { x: 1, y: 50, w: 30, h: 30, soort: 'rooster', kol: 6, rij: 4, nakijk: 'deling', quotient: '4' },
+    { x: 40, y: 50, w: 30, h: 30, soort: 'rooster', kol: 6, rij: 4, nakijk: 'deling' },
+  ]);
+  assert.equal(K.roosterAuto(q.velden[3]), false);
+  // Het quotiënt rechts naast de deler, de rest onderaan; min-tekens en "r" maken niet uit.
+  assert.deepEqual(K.vakDeel(q, ['1234 5\n-10  246\n 23\n-20\n  34\n -30\n   4', '21 3\n 1x', '8 2\n8 4\n0']), [1, 1, 1, null]);
+  assert.deepEqual(K.vakDeel(q, ['1234 5\n10   246\n r 4', '21 3\n 1X 5', '']), [1, 5 / 6, 0, null]);
+  assert.deepEqual(K.vakDeel(q, ['1234 5\n10   246\n 23\n 20\n  34\n  30\n   3', '2 13\n 1x', '8 2\n8 3']), [0, 4 / 6, 0, null]);
+  assert.deepEqual(K.veldSleutel(q).slice(0, 3), ['= 246 rest 4', '21 3\n 1x', '= 4']);
+  // 0,5 + 0,5 punt is samen 1 punt; een deel van de hokjes geeft een halve punt.
+  assert.equal(K.auto(q, ['', '21', '', '']), 0.5);
+});

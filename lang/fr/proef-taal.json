@@ -194,5 +194,15 @@
  "Geef de vakjes waarvan de volgorde niet uitmaakt hetzelfde groepje. Elk juist antwoord mag dan in elk vakje van dat groepje staan. Twee keer hetzelfde antwoord telt maar één keer.": "Donnez le même groupe aux cases dont l'ordre n'a pas d'importance. Chaque bonne réponse peut alors se trouver dans n'importe quelle case de ce groupe. Deux fois la même réponse ne compte qu'une fois.",
  "groepje {0}": "groupe {0}",
  "Volgorde vrij, groepje {0}": "Ordre libre, groupe {0}",
- "leeg of doorstreept": "vide ou barré"
+ "leeg of doorstreept": "vide ou barré",
+ "De computer: een deling (quotiënt en rest)": "L'ordinateur : une division (quotient et reste)",
+ "De computer: elk hokje apart (bv. grondplan of aanzicht)": "L'ordinateur : chaque case séparément (p. ex. plan ou vue)",
+ "Quotiënt": "Quotient",
+ "Rest (mag leeg)": "Reste (peut rester vide)",
+ "Het quotiënt staat rechts, naast of onder de deler. De rest staat vooraan in de onderste rij. Met een rest moeten ze allebei juist zijn. Zonder rest kijkt de computer alleen het quotiënt na.": "Le quotient est à droite, à côté ou sous le diviseur. Le reste est au début de la dernière ligne. Avec un reste, les deux doivent être justes. Sans reste, l'ordinateur ne corrige que le quotient.",
+ "Vul elk hokje in zoals het juist is (bv. het aantal blokjes, of x voor een gekleurd hokje):": "Remplissez chaque case comme elle doit être (p. ex. le nombre de cubes, ou x pour une case coloriée) :",
+ "Elk hokje telt apart, op zijn eigen plek. Een hokje dat leeg moet blijven, is fout als de leerling er iets in zet. De punten gaan naar het deel juiste hokjes.": "Chaque case compte séparément, à sa place. Une case qui doit rester vide est fausse si l'élève y écrit. Les points suivent la part de cases justes.",
+ "quotiënt {0}{1}": "quotient {0}{1}",
+ ", rest {0}": ", reste {0}",
+ "rest {0}": "reste {0}"
 }
