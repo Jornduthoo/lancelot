@@ -96,3 +96,39 @@ test('meerkeuze met meerdere juiste: alles of niets zoals vroeger, of per juist 
   assert.equal(K.auto(tweePer, [0, 1, 2]), 2);
   assert.equal(K.auto(tweePer, [0, 3]), 0);
 });
+
+const IMG_A = 'data:image/webp;base64,UklGRaaa';
+const IMG_B = 'data:image/webp;base64,UklGRbbb';
+
+test('ordenen: oud blijft alles juist, nieuw per juiste plaats en met prenten', () => {
+  const oud = een({ type: 'ordenen', vraag: 'x', items: ['a', 'b', 'c'], punten: 2 });
+  assert.deepEqual(oud.items, ['a', 'b', 'c']);
+  assert.equal(oud.puntenPer, undefined);
+  assert.equal(K.auto(oud, [0, 1, 2]), 2);
+  assert.equal(K.auto(oud, [1, 0, 2]), 0);
+  const per = een({ type: 'ordenen', vraag: 'x', items: ['a', 'b', 'c', 'd'], puntenPer: 'plaats' });
+  assert.equal(per.punten, 4);
+  assert.equal(K.auto(per, [0, 1, 3, 2]), 2);
+  assert.equal(K.auto(per, [0, 1, 2, 3]), 4);
+  const pr = een({ type: 'ordenen', vraag: 'x', items: [{ tekst: 'op', beeld: IMG_A }, { tekst: '', beeld: IMG_B }, 'school'] });
+  assert.deepEqual(pr.items[0], { tekst: 'op', beeld: IMG_A });
+  assert.equal(K.itemTekst(pr, 2), 'school');
+  const v = K.viewOf(pr, '0');
+  assert.ok(JSON.stringify(v).includes(IMG_B));
+  assert.equal(K.auto(pr, [0, 1, 2]), pr.punten);
+});
+
+test('sorteren: punten per juist gesorteerd woord, extra woorden horen nergens', () => {
+  const q = een({ type: 'sorteren', vraag: 'x', kolommen: [{ naam: '-je', woorden: ['boompje', 'huisje'] }, { naam: '-tje', woorden: ['stoeltje'] }], extra: ['fiets'] });
+  assert.equal(q.punten, 3);
+  const v = K.viewOf(q, '0');
+  assert.deepEqual(v.kolommen, ['-je', '-tje']);
+  assert.equal(v.woorden.length, 4);
+  assert.ok(!JSON.stringify(v).includes('extra'));
+  const ant = w => v.woorden.map(x => (w[x] === undefined ? null : w[x]));
+  assert.equal(K.auto(q, ant({ boompje: 0, huisje: 0, stoeltje: 1 })), 3);
+  assert.equal(K.auto(q, ant({ boompje: 0, huisje: 1, stoeltje: 1 })), 2);
+  assert.equal(K.auto(q, ant({ boompje: 0, huisje: 0, stoeltje: 1, fiets: 0 })), 2);
+  assert.equal(K.auto(q, ant({})), 0);
+  assert.throws(() => een({ type: 'sorteren', vraag: 'x', kolommen: [{ naam: 'a', woorden: ['b'] }] }));
+});

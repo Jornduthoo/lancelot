@@ -13,6 +13,16 @@ const PfPaper = (() => {
   // Een gemengd getal (1 3/4) in kleine letters: een bredere spatie, anders lees je 13/4.
   const gemengd = t => String(t).replace(/(\d) (\d+\/\d+)/g, (_, a, b) => `${a}\u2002${b}`);
 
+  // Altijd dezelfde volgorde voor dezelfde vraag, nooit de juiste (bij 2 of meer).
+  function schudVast(n, sleutel) {
+    let h = 2166136261;
+    for (const c of sleutel) h = Math.imul(h ^ c.charCodeAt(0), 16777619) >>> 0;
+    const o = Array.from({ length: n }, (_, i) => i);
+    for (let i = n - 1; i > 0; i--) { h = Math.imul(h ^ i, 16777619) >>> 0; const j = h % (i + 1); [o[i], o[j]] = [o[j], o[i]]; }
+    if (o.every((x, i) => x === i)) o.push(o.shift());
+    return o;
+  }
+
   function vraagHtml(q, nr, o) {
     const a = o.answers[q.id];
     const live = o.mode === 'live';
@@ -75,8 +85,15 @@ const PfPaper = (() => {
       }
     } else if (q.type === 'ordenen') {
       const order = Array.isArray(a) && a.length === q.items.length ? a : q.items.map((_, i) => i);
-      h += print ? `<p class="pf-tip">Zet de juiste volgorde: 1, 2, 3, …</p><ul class="pf-orden-print">${q.items.map(t => `<li><span class="ob-box"></span> ${esc(t)}</li>`).join('')}</ul>`
-        : `<p class="pf-tip">Zet in de juiste volgorde met de pijltjes.</p><ol class="pf-orden">${order.map(i => `<li data-i="${i}"><span>${esc(q.items[i])}</span>${live ? '<button type="button" class="secondary pf-op" aria-label="Omhoog">▲</button><button type="button" class="secondary pf-neer" aria-label="Omlaag">▼</button>' : ''}</li>`).join('')}</ol>`;
+      // Een item is tekst of { tekst, beeld } (een prent).
+      const item = x => (typeof x === 'string' ? `<span>${esc(x)}</span>` : `${x.beeld ? `<img src="${esc(x.beeld)}" alt="" draggable="false">` : ''}<span>${esc(x.tekst || '')}</span>`);
+      const prenten = q.items.some(x => typeof x !== 'string' && x.beeld);
+      // Prenten op papier: vaste door-elkaar-volgorde, anders staat de oplossing er al (tekst blijft zoals vroeger).
+      const papierOrde = prenten ? schudVast(q.items.length, String(q.vraag || '') + q.items.length) : q.items.map((_, i) => i);
+      h += print ? `<p class="pf-tip">Zet de juiste volgorde: 1, 2, 3, …</p><ul class="pf-orden-print${prenten ? ' met-beeld' : ''}">${papierOrde.map(i => `<li><span class="ob-box"></span> ${item(q.items[i])}</li>`).join('')}</ul>`
+        : `<p class="pf-tip">${prenten ? 'Sleep de kaartjes in de juiste volgorde (of gebruik de pijltjes).' : 'Zet in de juiste volgorde met de pijltjes.'}</p><ol class="pf-orden${prenten ? ' met-beeld' : ''}">${order.map(i => `<li data-i="${i}">${live ? '<span class="pf-greep" aria-hidden="true">⠿</span>' : ''}${item(q.items[i])}${live ? (prenten ? '<span class="pf-orden-knoppen"><button type="button" class="secondary pf-op" aria-label="Naar voren">◀</button><button type="button" class="secondary pf-neer" aria-label="Naar achteren">▶</button></span>' : '<button type="button" class="secondary pf-op" aria-label="Omhoog">▲</button><button type="button" class="secondary pf-neer" aria-label="Omlaag">▼</button>') : ''}</li>`).join('')}</ol>`;
+    } else if (q.type === 'sorteren') {
+      h += sorteerHtml(q, a, live, print);
     } else if (q.type === 'tabel') {
       h += `<div class="pf-tabel-wrap"><table class="pf-tabel">${q.rijen.map((r, ri) => `<tr>${r.map(c => {
         const tag = ri === 0 ? 'th' : 'td';
@@ -215,6 +232,71 @@ const PfPaper = (() => {
     }
     if (print) return `${h}<p class="pf-markeer${q.per ? ` per-${q.per}` : ''}">${markTekst(q.stukken, q.per, sl || [], { hex, rand })}</p>`;
     return `${h}<p class="pf-markeer${live ? ' live' : ''}${q.per ? ` per-${q.per}` : ''}">${markTekst(q.stukken, q.per, lijst, { hex, rand, sleutel: sl, live })}</p>`;
+  }
+
+  // Sorteren in kolommen: de woorden bovenaan, de kolommen eronder. Tik een woord en dan een kolom (of sleep het).
+  // Het antwoord: per woord het nummer van de kolom of null.
+  function sorteerHtml(q, a, live, print) {
+    const b = Array.isArray(a) ? a : [];
+    if (print) {
+      return `<p class="pf-tip">Schrijf elk woord in de juiste kolom.</p><p class="pf-sorteer-woorden">${q.woorden.map(w => `<span>${esc(w)}</span>`).join(' · ')}</p>
+        <div class="pf-tabel-wrap"><table class="pf-tabel pf-sorteer-print"><tr>${q.kolommen.map(k => `<th>${esc(k)}</th>`).join('')}</tr>${`<tr>${q.kolommen.map(() => '<td class="pf-leeg"></td>').join('')}</tr>`.repeat(Math.max(2, q.rijen || 3))}</table></div>`;
+    }
+    const kaart = i => `<button type="button" class="pf-sorteer-w" data-i="${i}"${live ? ' draggable="true"' : ' disabled'}>${esc(q.woorden[i])}</button>`;
+    const los = q.woorden.map((_, i) => i).filter(i => !Number.isInteger(b[i]));
+    return `${live ? '<p class="pf-tip">Tik op een woord en dan op de juiste kolom (of sleep het). Tik op een woord in een kolom om het terug te leggen.</p>' : ''}
+      <div class="pf-sorteer-bank" data-k="">${los.map(kaart).join('')}</div>
+      <div class="pf-sorteer-kols" style="--kols:${q.kolommen.length}">${q.kolommen.map((k, ki) => `<div class="pf-sorteer-kol" data-k="${ki}"><b>${esc(k)}</b><div class="pf-sorteer-in">${q.woorden.map((_, i) => i).filter(i => b[i] === ki).map(kaart).join('')}</div></div>`).join('')}</div>`;
+  }
+  function wireSorteer(el, klaar) {
+    let gekozen = null;
+    const kies = b => {
+      gekozen = gekozen === b ? null : b;
+      for (const x of el.querySelectorAll('.pf-sorteer-w')) x.classList.toggle('on', x === gekozen);
+      el.classList.toggle('kiest', !!gekozen);
+    };
+    const zet = (b, doel) => {
+      const vak = doel.classList.contains('pf-sorteer-kol') ? doel.querySelector('.pf-sorteer-in') : doel;
+      vak.appendChild(b);
+      kies(null);
+      klaar();
+    };
+    el.addEventListener('click', e => {
+      const b = e.target.closest('.pf-sorteer-w');
+      const kol = e.target.closest('.pf-sorteer-kol, .pf-sorteer-bank');
+      if (b && gekozen === null && b.closest('.pf-sorteer-kol')) return zet(b, el.querySelector('.pf-sorteer-bank'));
+      if (b && (!gekozen || b.closest('.pf-sorteer-bank'))) return kies(b);
+      if (kol && gekozen) zet(gekozen, kol);
+    });
+    el.addEventListener('dragstart', e => { const b = e.target.closest('.pf-sorteer-w'); if (b) { kies(b); e.dataTransfer.setData('text/x-pf', b.dataset.i); } });
+    for (const d of el.querySelectorAll('.pf-sorteer-kol, .pf-sorteer-bank')) {
+      d.addEventListener('dragover', e => e.preventDefault());
+      d.addEventListener('drop', e => { e.preventDefault(); const b = el.querySelector(`.pf-sorteer-w[data-i="${e.dataTransfer.getData('text/x-pf')}"]`); if (b) zet(b, d); });
+    }
+  }
+  // Ordenen: een kaartje slepen aan het greepje (ook met een vinger), de pijltjes blijven ook werken.
+  function wireOrden(lijst, klaar) {
+    let sleep = null;
+    lijst.addEventListener('pointerdown', e => {
+      const g = e.target.closest(e.pointerType === 'mouse' ? '.pf-greep,img,li>span' : '.pf-greep,li>img');
+      const li = g && g.closest('li');
+      if (!li || e.target.closest('button')) return;
+      sleep = li;
+      li.classList.add('sleept');
+      lijst.setPointerCapture(e.pointerId);
+      e.preventDefault();
+    });
+    lijst.addEventListener('pointermove', e => {
+      if (!sleep) return;
+      const over = [...lijst.children].find(li => { const r = li.getBoundingClientRect(); return e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom; });
+      if (!over || over === sleep) return;
+      const r = over.getBoundingClientRect();
+      const voor = lijst.classList.contains('met-beeld') && r.width < lijst.getBoundingClientRect().width * 0.6 ? e.clientX < r.left + r.width / 2 : e.clientY < r.top + r.height / 2;
+      lijst.insertBefore(sleep, voor ? over : over.nextSibling);
+    });
+    const los = () => { if (!sleep) return; sleep.classList.remove('sleept'); sleep = null; klaar(); };
+    lijst.addEventListener('pointerup', los);
+    lijst.addEventListener('pointercancel', los);
   }
 
   // De woordenbank bij sleepwoorden.
@@ -690,6 +772,11 @@ const PfPaper = (() => {
     }
     if (type === 'verbinden') return [...el.querySelectorAll('.pf-sel')].map(s => (s.value === '' ? null : Number(s.value)));
     if (type === 'ordenen') return [...el.querySelectorAll('.pf-orden li')].map(li => Number(li.dataset.i));
+    if (type === 'sorteren') {
+      const out = [...el.querySelectorAll('.pf-sorteer-w')].map(() => null);
+      for (const b of el.querySelectorAll('.pf-sorteer-w')) { const kol = b.closest('.pf-sorteer-kol'); out[Number(b.dataset.i)] = kol ? Number(kol.dataset.k) : null; }
+      return out;
+    }
     if (type === 'aanduiden') return el.querySelector('.pf-namen') ? el.pfPunten || [] : el.pfPunt || null;
     if (type === 'open') return el.querySelector('.pf-open').value;
     if (type === 'getallenas') { const as = el.querySelector('.pf-as'); return as.dataset.waarde !== undefined ? Number(as.dataset.waarde) : null; }
@@ -887,6 +974,9 @@ const PfPaper = (() => {
       });
       const groter = el.querySelector('.pf-groter');
       if (groter) groter.addEventListener('click', () => { groter.textContent = el.classList.toggle('groot') ? '🔍 Kleiner' : '🔍 Groter'; });
+      const orden = el.querySelector('.pf-orden');
+      if (orden) wireOrden(orden, () => send(el));
+      if (el.dataset.type === 'sorteren') wireSorteer(el, () => send(el));
       for (const b of el.querySelectorAll('.pf-op, .pf-neer')) {
         b.addEventListener('click', () => {
           const li = b.closest('li');

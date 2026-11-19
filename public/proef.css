@@ -689,3 +689,41 @@ select.pf-kies { width: auto; min-width: 6em; display: inline-block; margin: 0 2
 .pf-markeer.per-zin .pf-woord, .pf-markeer.per-stuk .pf-woord, .pf-bron-tekst .pf-woord, .pf-markeer-kopie .pf-woord, .pf-e-klik .pf-woord,
 .pf-markeer.per-zin .pf-woord.on, .pf-markeer.per-stuk .pf-woord.on, .pf-bron-tekst .pf-woord.on, .pf-markeer-kopie .pf-woord.on { padding: 3px 0; }
 .pf-markeer { text-align: left; }
+
+/* ---------- Ordenen met prenten ---------- */
+.pf-greep { cursor: grab; color: #8a7a55; font-size: 1.2rem; padding: 0 4px; touch-action: none; user-select: none; }
+.pf-orden li.sleept { opacity: .6; box-shadow: inset 0 0 0 2px #2a3350; }
+.pf-orden li img, .pf-orden-print li img { touch-action: none; user-select: none; }
+.pf-orden.met-beeld { flex-direction: row; flex-wrap: wrap; }
+.pf-orden.met-beeld li { flex-direction: column; align-items: stretch; width: min(220px, 46%); position: relative; padding-top: 26px; }
+.pf-orden.met-beeld li::before { position: absolute; left: 8px; top: 4px; }
+.pf-orden.met-beeld li .pf-greep { position: absolute; right: 6px; top: 2px; }
+.pf-orden.met-beeld li img { width: 100%; max-height: 180px; object-fit: contain; background: #fff; }
+.pf-orden.met-beeld li span:not(.pf-greep) { text-align: center; }
+.pf-orden.met-beeld li button { display: inline-block; }
+.pf-orden-print.met-beeld { flex-direction: row; flex-wrap: wrap; }
+.pf-orden-print.met-beeld li { width: 30%; display: flex; flex-direction: column; gap: 4px; }
+.pf-orden-print li img { max-width: 100%; max-height: 150px; object-fit: contain; }
+.pf-e-orden .pf-optie { align-items: center; }
+.pf-e-orden { counter-reset: e-orden; }
+.pf-e-orden-nr::before { counter-increment: e-orden; content: counter(e-orden) '.'; font-weight: 700; min-width: 1.6em; display: inline-block; }
+.pf-e-orden-knop { display: inline-flex; gap: 2px; }
+
+/* ---------- Sorteren in kolommen ---------- */
+.pf-sorteer-bank { display: flex; flex-wrap: wrap; gap: 6px; min-height: 44px; padding: 8px; margin-bottom: 10px; background: #f1e8d2; box-shadow: inset 0 0 0 1.5px #b9ab88; }
+.pf-sorteer-kols { display: grid; grid-template-columns: repeat(var(--kols), minmax(0, 1fr)); gap: 8px; }
+.pf-sorteer-kol { min-height: 120px; padding: 6px; background: #fff; box-shadow: inset 0 0 0 1.5px #b9ab88; cursor: pointer; }
+.pf-sorteer-kol > b { display: block; text-align: center; padding: 4px; margin-bottom: 6px; background: #2a3350; color: #fff; overflow-wrap: anywhere; }
+.pf-sorteer-in { display: flex; flex-wrap: wrap; gap: 5px; }
+.pf-sorteer-w { padding: 6px 10px; background: #fff; color: #1d1d1f; box-shadow: inset 0 0 0 1.5px #8a7a55; clip-path: none; font-weight: 600; }
+.pf-sorteer-w.on { background: #ffe14d; box-shadow: inset 0 0 0 2.5px #2a3350; }
+.pf-sorteer-w:disabled { opacity: 1; cursor: default; }
+.pf-q.kiest .pf-sorteer-kol { box-shadow: inset 0 0 0 2.5px #c49a3a; }
+.pf-sorteer-woorden { font-weight: 600; }
+.pf-sorteer-print td { height: 2em; }
+@media (max-width: 640px) { .pf-sorteer-kols { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.pf-e-kol { display: flex; gap: 6px; margin: 4px 0; align-items: center; }
+.pf-e-kol .e-kolnaam { width: 30%; }
+.pf-e-kol .e-kolwoorden { flex: 1; }
+.pf-orden-knoppen { display: flex; gap: 6px; }
+.pf-orden-knoppen button { flex: 1; }
