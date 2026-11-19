@@ -14,7 +14,7 @@ const VAKKEN = {
 // Wiskunde heeft 2 examendagen: deel 2 op maandag 14/12.
 const EXTRA_EXAMEN = { '2026-12-14': ['wis'] };
 
-const START = '2026-11-17';
+const START = '2026-11-21'; // papa 19/11: Thor begint dit weekend
 const EINDE = '2026-12-15';
 
 // Hoeveel minuten per dag (papa 16/11: 30 min op schooldagen, een uur in het weekend).

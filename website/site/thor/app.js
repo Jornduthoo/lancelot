@@ -212,9 +212,9 @@ function thuis(){
   $('ring-min').textContent = min;
   $('ring-van').textContent = '/ ' + budget + ' min';
   const wd = new Date(d + 'T12:00:00').getDay();
-  if (d < P.START) { $('ring').style.setProperty('--p', 0); $('ring-min').textContent = '⭐'; $('ring-van').textContent = 'start morgen'; }
+  if (d < P.START) { $('ring').style.setProperty('--p', 0); $('ring-min').textContent = '⭐'; $('ring-van').textContent = 'start za 21/11'; }
   $('dagtitel').textContent = d < P.START ? 'Kennismaken met je crew' : d > P.EINDE ? 'Examens voorbij!' : budget === 0 ? 'Laatste examen: Nederlands' : Object.values(V).some(v => v.examen === d) ? 'Examendag: nog even herhalen' : (wd === 0 || wd === 6) ? 'Weekendtraining' : 'Training van vandaag';
-  $('dagsub').textContent = d < P.START ? 'Vandaag nog geen training: maak kennis met je ploeg (5 minuutjes). Morgen start de echte training!' : budget ? `${budget} minuten actief werken. Na elke 25 minuten krijg je een pauze.` : 'Succes vandaag! Je hebt hard gewerkt.';
+  $('dagsub').textContent = d < P.START ? 'Vandaag nog geen training: maak kennis met je ploeg (5 minuutjes). ' + (P.dag(d, 1) === P.START ? 'Morgen, zaterdag, start de echte training!' : 'Zaterdag 21 november start de echte training!') : budget ? `${budget} minuten actief werken. Na elke 25 minuten krijg je een pauze.` : 'Succes vandaag! Je hebt hard gewerkt.';
 
   // Opdrachten
   const items = itemsVandaag();
@@ -249,7 +249,7 @@ function thuis(){
   const alles = items.length && items.every(it => isKlaar(it.id));
   const bel = $('beloning');
   if (d < P.START) {
-    bel.innerHTML = `<div class="beloning dicht"><div class="groot">🐉</div><div><h3>Drakenjacht</h3><p style="margin:2px 0 0">Vanaf morgen: maak je opdrachten af en jaag 10 minuten op draken.</p></div></div>`;
+    bel.innerHTML = `<div class="beloning dicht"><div class="groot">🐉</div><div><h3>Drakenjacht</h3><p style="margin:2px 0 0">Vanaf zaterdag: maak je opdrachten af en jaag 10 minuten op draken.</p></div></div>`;
   } else if (alles) {
     bel.innerHTML = `<div class="beloning"><div class="groot">🐉</div><div style="flex:1"><h3>Alles gedaan! Tijd voor Drakenjacht</h3><p style="margin:2px 0 0;opacity:.9">10 minuten vliegen. Juist antwoorden geeft lasers en schilden.</p></div><a class="knop goud" href="spel.html?beloning=1${MEEKIJK ? '&meekijk=1' : ''}" style="text-decoration:none;padding:12px 16px;border-radius:14px">Spelen</a></div>`;
     if (!lokaal.get('feest-' + d, false)) { lokaal.set('feest-' + d, true); confetti(3000); piep('klaar'); }
@@ -288,7 +288,7 @@ function motivatie(items, alles){
   const r = reeks();
   const open = items.filter(it => !isKlaar(it.id)).length;
   const inhaal = items.filter(it => it.inhaal && !isKlaar(it.id)).length;
-  if (vandaag() < P.START) return alles ? 'Welkom in de crew! Morgen start de training. Slaap goed, kampioen. 😴' : 'Hey Thor! Kom kennismaken met je crew. Morgen beginnen we eraan! 🛹';
+  if (vandaag() < P.START) return alles ? 'Welkom in de crew! Zaterdag start de training. Slaap goed, kampioen. 😴' : 'Hey Thor! Kom kennismaken met je crew. Zaterdag beginnen we eraan! 🛹';
   if (alles) return 'Toppie! Alles gedaan vandaag. 🏆 Morgen gaan we verder.';
   if (inhaal) return `Er staat nog <b>${inhaal} opdracht${inhaal > 1 ? 'en' : ''} inhaalwerk</b> klaar. Eerst die, dan de rest. Je kan het!`;
   const zinnen = [
@@ -794,7 +794,7 @@ function stapKennis(verder){
     balk(1);
     box.innerHTML = `<div class="kaart" style="padding:20px 16px"><h2>Zo werkt jouw training</h2>
       <ol style="padding-left:20px;line-height:1.6">
-        <li><b>Elke dag inloggen.</b> Morgen (zaterdag) start de echte training.</li>
+        <li><b>Elke dag inloggen.</b> Zaterdag 21 november start de echte training.</li>
         <li>Je opdrachten doe je <b>van boven naar onder</b>: eerst leren, dan kaartjes en een quiz.</li>
         <li>Wat je niet afmaakt, komt de volgende dag terug als <b>inhaalwerk</b>.</li>
         <li>Na <b>25 minuten</b> werken krijg je <b>5 minuten pauze</b>, met Drakenjacht of een oefening van papa.</li>
@@ -1636,7 +1636,7 @@ function welkom(){
   lokaal.set('welkom-' + vandaag(), true);
   const items = itemsVandaag();
   const m = $('modaal'), c = $('modaal-inhoud');
-  c.innerHTML = `<div class="babbel" id="wp"></div><h2>Klaar voor de training?</h2><p class="muted">${vandaag() < P.START ? 'Vandaag maak je kennis met je leerploeg. Morgen start de echte training!' : `${items.length} opdracht${items.length === 1 ? '' : 'en'} vandaag, ± ${P.budget(vandaag())} minuten. Begin bovenaan en werk ze één voor één af.`}</p><div class="onder"><button class="knop groot" id="wk">Let's go! 🛹</button></div>`;
+  c.innerHTML = `<div class="babbel" id="wp"></div><h2>Klaar voor de training?</h2><p class="muted">${vandaag() < P.START ? 'Vandaag maak je kennis met je leerploeg. ' + (P.dag(vandaag(), 1) === P.START ? 'Morgen, zaterdag, start de echte training!' : 'Zaterdag 21 november start de echte training!') : `${items.length} opdracht${items.length === 1 ? '' : 'en'} vandaag, ± ${P.budget(vandaag())} minuten. Begin bovenaan en werk ze één voor één af.`}</p><div class="onder"><button class="knop groot" id="wk">Let's go! 🛹</button></div>`;
   POP.babbel($('wp'), 'Welkom terug, Thor! Elke dag een beetje, dan haal je die examens met glans. 💪', { figuur: POP.kring() || undefined, eigen: true });
   m.hidden = false;
   $('wk').onclick = () => m.hidden = true;
