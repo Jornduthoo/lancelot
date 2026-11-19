@@ -738,7 +738,8 @@ select.pf-kies { width: auto; min-width: 6em; display: inline-block; margin: 0 2
 .pf-orden-print.met-beeld { flex-direction: row; flex-wrap: wrap; }
 .pf-orden-print.met-beeld li { width: 30%; display: flex; flex-direction: column; gap: 4px; }
 .pf-orden-print li img { max-width: 100%; max-height: 150px; object-fit: contain; }
-.pf-e-orden .pf-optie { align-items: center; }
+.pf-e-orden .pf-optie, .pf-e-groep .pf-optie { align-items: center; flex-wrap: nowrap; }
+.pf-e-orden .pf-optie-tekst, .pf-e-groep .pf-optie-tekst { min-width: 0; flex: 1 1 80px; }
 .pf-e-orden { counter-reset: e-orden; }
 .pf-e-orden-nr::before { counter-increment: e-orden; content: counter(e-orden) '.'; font-weight: 700; min-width: 1.6em; display: inline-block; }
 .pf-e-orden-knop { display: inline-flex; gap: 2px; }
