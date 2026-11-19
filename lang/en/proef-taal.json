@@ -329,5 +329,9 @@
  "data-bank=\"{0}\" style=\"--bk:{1}\"": null,
  "Tik op een woord en dan op een vakje met {0}.": "Tap a word and then a box with {0}.",
  "data-bank=\"{0}\" data-nr=\"{1}\"": null,
- "Typ de woorden of zinnen die de computer voorleest: de leerling hoort ze en ziet ze niet. Bij een woord kan je er een zin bij zetten (die wordt ook voorgelezen). Een woordgroep zoals ’s nachts of in plaats van telt als één woord. Een ontbrekend, fout of extra woord is één fout.": "Type the words or sentences the computer reads aloud: the pupil hears them but does not see them. You can add a sentence to a word (it is read aloud too). A word group such as ’s nachts or in plaats van counts as one word. A missing, wrong or extra word is one mistake."
+ "Typ de woorden of zinnen die de computer voorleest: de leerling hoort ze en ziet ze niet. Bij een woord kan je er een zin bij zetten (die wordt ook voorgelezen). Een woordgroep zoals ’s nachts of in plaats van telt als één woord. Een ontbrekend, fout of extra woord is één fout.": "Type the words or sentences the computer reads aloud: the pupil hears them but does not see them. You can add a sentence to a word (it is read aloud too). A word group such as ’s nachts or in plaats van counts as one word. A missing, wrong or extra word is one mistake.",
+ ":scope > .pf-k-body > .pf-e-zegbron .e-voorlees": null,
+ ":scope > .pf-k-body .e-voorlees": null,
+ "> .pf-e-zegbron .e-voorlees": null,
+ "bijv. de luistertekst waar de deelvragen over gaan": "e.g. the listening text the sub-questions are about"
 }

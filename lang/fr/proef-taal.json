@@ -329,5 +329,9 @@
  "data-bank=\"{0}\" style=\"--bk:{1}\"": null,
  "Tik op een woord en dan op een vakje met {0}.": "Touche un mot puis une case avec {0}.",
  "data-bank=\"{0}\" data-nr=\"{1}\"": null,
- "Typ de woorden of zinnen die de computer voorleest: de leerling hoort ze en ziet ze niet. Bij een woord kan je er een zin bij zetten (die wordt ook voorgelezen). Een woordgroep zoals ’s nachts of in plaats van telt als één woord. Een ontbrekend, fout of extra woord is één fout.": "Tape les mots ou les phrases que l’ordinateur lit à voix haute : l’élève les entend mais ne les voit pas. Tu peux ajouter une phrase à un mot (elle est lue aussi). Un groupe de mots comme « tout à coup » compte comme un seul mot. Un mot manquant, faux ou en trop compte comme une faute."
+ "Typ de woorden of zinnen die de computer voorleest: de leerling hoort ze en ziet ze niet. Bij een woord kan je er een zin bij zetten (die wordt ook voorgelezen). Een woordgroep zoals ’s nachts of in plaats van telt als één woord. Een ontbrekend, fout of extra woord is één fout.": "Tape les mots ou les phrases que l’ordinateur lit à voix haute : l’élève les entend mais ne les voit pas. Tu peux ajouter une phrase à un mot (elle est lue aussi). Un groupe de mots comme « tout à coup » compte comme un seul mot. Un mot manquant, faux ou en trop compte comme une faute.",
+ ":scope > .pf-k-body > .pf-e-zegbron .e-voorlees": null,
+ ":scope > .pf-k-body .e-voorlees": null,
+ "> .pf-e-zegbron .e-voorlees": null,
+ "bijv. de luistertekst waar de deelvragen over gaan": "p. ex. le texte d’écoute sur lequel portent les sous-questions"
 }
