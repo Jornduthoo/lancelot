@@ -79,6 +79,15 @@ td.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
 .quizlijst li{margin:8px 0}.quizlijst .antw{color:var(--goed);font-weight:800}
 details{margin-top:12px}summary{cursor:pointer;font-family:var(--display);font-weight:800;font-size:1.1rem}
 @media (max-width:560px){.vaktabel th:nth-child(2),.vaktabel td:nth-child(2){display:none}.vaktabel{font-size:.85rem}.vaktabel th,.vaktabel td{padding:6px 3px}.balkje{min-width:34px}.kopbalk h1{font-size:1.5rem}}
+.onav{position:fixed;left:0;right:0;bottom:0;z-index:50;display:flex;justify-content:center;gap:4px;background:var(--kaart);border-top:1px solid var(--lijn);padding:6px 8px calc(6px + env(safe-area-inset-bottom));box-shadow:0 -6px 20px rgba(0,0,0,.06)}
+.onav button{flex:1 1 0;max-width:150px;background:none;border:0;color:var(--inkt-zacht);font:inherit;font-size:.78rem;font-weight:800;padding:4px 2px;border-radius:12px;position:relative;display:flex;flex-direction:column;align-items:center;gap:1px;cursor:pointer}
+.onav button span{font-size:1.35rem;line-height:1.2}
+.onav button.aan{color:var(--inkt);background:var(--bg-2)}
+.onav .badge{position:absolute;top:0;right:calc(50% - 26px);background:var(--fout,#e0245e);color:#fff;border-radius:999px;font-size:.7rem;min-width:18px;height:18px;line-height:18px;padding:0 5px}
+#pagina{padding-bottom:84px}
+.seg{display:flex;gap:6px;background:var(--bg-2);border-radius:999px;padding:4px;margin:16px 0 0}
+.seg button{flex:1;border:0;background:none;font:inherit;font-weight:800;padding:9px 10px;border-radius:999px;color:var(--inkt-zacht);cursor:pointer}
+.seg button.aan{background:var(--kaart);color:var(--inkt);box-shadow:0 1px 4px rgba(0,0,0,.08)}
 </style>
 </head>
 <body>
@@ -94,7 +103,7 @@ details{margin-top:12px}summary{cursor:pointer;font-family:var(--display);font-w
     </div>
   </header>
   <main class="wrap">
-    <section class="kaart" style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;justify-content:space-between"><div><h2 style="margin:0">👀 Kijk mee met Eli</h2><p class="muted klein" style="margin:2px 0 0">Zie de app precies zoals Eli hem ziet, met zijn ploeg en opdrachten. Je kan alles uitproberen; er wordt niets bewaard.</p></div><a class="knop paars" href="index.html?meekijk=1" style="text-decoration:none;padding:12px 18px;border-radius:14px">Open Eli's app</a></section>
+  <div class="otab" data-otab="vandaag">
     <section class="kaart" id="overhoor">
       <h2>🗣️ Overhoor Eli vandaag</h2>
       <p class="muted klein" style="margin-top:-4px">Eli krijgt deze 3 vragen ook in zijn app, maar zonder antwoorden. Laat hem het uitleggen aan jou (of via de telefoon). Wie het kan uitleggen, snapt het echt.</p>
@@ -103,11 +112,16 @@ details{margin-top:12px}summary{cursor:pointer;font-family:var(--display);font-w
       <h3 style="margin-top:16px">✍️ Zo legt Eli het zelf uit</h3>
       <div id="oh-uitleg"></div>
     </section>
-    <section class="kaart" id="ploegsectie">
-      <h2>⭐ Eli's leerploeg</h2>
-      <p class="muted klein" style="margin-top:-4px">Deze ploeg legt uit, stelt vragen en juicht als hij scoort. Jij staat er ook tussen!</p>
-      <div class="ploeg" id="ploeg"></div>
+    <section class="kaart">
+      <h2>📋 Zijn opdrachten</h2>
+      <p class="muted klein" style="margin-top:-4px">Tik op een opdracht om de leerstof, de kaartjes en de quizvragen (met antwoorden) te zien.</p>
+      <div id="komend"></div>
     </section>
+    <section class="kaart" style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;justify-content:space-between"><div><h2 style="margin:0">👀 Kijk mee met Eli</h2><p class="muted klein" style="margin:2px 0 0">Zie de app precies zoals Eli hem ziet, met zijn ploeg en opdrachten. Je kan alles uitproberen; er wordt niets bewaard.</p></div><a class="knop paars" href="index.html?meekijk=1" style="text-decoration:none;padding:12px 18px;border-radius:14px">Open Eli's app</a></section>
+  </div>
+  <div class="otab" data-otab="contact" hidden>
+    <div class="seg" id="contact-seg"><button data-c="ber" class="aan">💌 Berichtje</button><button data-c="vr">✍️ Vraag stellen</button></div>
+  <div data-c="ber">
     <section class="kaart bericht-maak">
       <h2>💌 Stuur Eli een berichtje</h2>
       <p class="muted klein" style="margin-top:-4px">Hij ziet het meteen als hij de app opent. Een selfie maakt het extra leuk.</p>
@@ -123,7 +137,8 @@ details{margin-top:12px}summary{cursor:pointer;font-family:var(--display);font-w
       <h3 style="margin-top:18px">Verstuurde berichtjes</h3>
       <div id="berichten"></div>
     </section>
-
+  </div>
+  <div data-c="vr" hidden>
     <section class="kaart" id="vragensectie">
       <h2>✍️ Stel Eli een vraag</h2>
       <p class="muted klein" style="margin-top:-4px">Bedenk zelf een vraag over de leerstof. Eli krijgt ze bij <b>Vrij oefenen</b>, typt zijn antwoord en vergelijkt het met jouw antwoord. Hier zie je wat hij antwoordde.</p>
@@ -137,44 +152,54 @@ details{margin-top:12px}summary{cursor:pointer;font-family:var(--display);font-w
       <h3 style="margin-top:18px">Vragen voor Eli</h3>
       <div id="vr-lijst"></div>
     </section>
-    <section class="kaart" id="leerstof">
-      <h2>📖 Wat moet Eli doen?</h2>
-      <p class="muted klein" style="margin-top:-4px">Tik op een opdracht of onderwerp om de leerstof, de kaartjes en de quizvragen (met antwoorden) te bekijken. Zo kan je meeleren en hem overhoren.</p>
-      <div id="komend"></div>
-      <h3 style="margin-top:16px">Alle leerstof</h3>
-      <div class="tabs" id="o-vaktabs" style="margin:8px 0"></div>
-      <div id="o-onderwerpen"></div>
-    </section>
-
+  </div>
+  </div>
+  <div class="otab" data-otab="voortgang" hidden>
     <section class="kaart">
       <h2>⏱️ Minuten per dag</h2>
       <p class="muted klein" style="margin-top:-4px">Alleen actieve tijd telt (geen pauzes of spelletjes). Groen = doel gehaald, geel = te weinig, rood = niets gedaan.</p>
       <div class="dagen" id="dagen"></div>
     </section>
-
     <section class="kaart">
       <h2>📋 Volgt hij de planning?</h2>
       <div id="planning"></div>
     </section>
-
     <section class="kaart">
       <h2>📚 Per vak</h2>
       <table class="vaktabel"><thead><tr><th>Vak</th><th>Examen</th><th class="n">Minuten</th><th>Geleerd</th><th class="n">Quizscore</th></tr></thead><tbody id="vakken"></tbody></table>
     </section>
-
     <section class="kaart">
       <h2>🎯 Zwakke punten</h2>
       <p class="muted klein" style="margin-top:-4px">Onderwerpen met een quizscore onder 70% (laatste 10 dagen). Die worden automatisch extra ingepland.</p>
       <div id="zwak"></div>
     </section>
-
     <section class="kaart">
       <h2>🕑 Wat deed hij?</h2>
       <div class="log" id="log"></div>
       <h3 style="margin-top:16px">Laatste keren ingelogd</h3>
       <div class="muted klein" id="logins"></div>
     </section>
+  </div>
+  <div class="otab" data-otab="leerstof" hidden>
+    <section class="kaart" id="leerstof">
+      <h2>📖 Alle leerstof</h2>
+      <p class="muted klein" style="margin-top:-4px">Kies een vak en tik op een onderwerp: leerstof, kaartjes en quizvragen met antwoorden. Zo kan je meeleren en hem overhoren.</p>
+      <div class="tabs" id="o-vaktabs" style="margin:8px 0"></div>
+      <div id="o-onderwerpen"></div>
+    </section>
+    <section class="kaart" id="ploegsectie">
+      <h2>⭐ Eli's leerploeg</h2>
+      <p class="muted klein" style="margin-top:-4px">Deze ploeg legt uit, stelt vragen en juicht als hij scoort. Jij staat er ook tussen!</p>
+      <div class="ploeg" id="ploeg"></div>
+    </section>
+  </div>
   </main>
+  <nav class="onav" id="onav">
+    <button data-otab="vandaag" class="aan"><span>🏠</span>Vandaag</button>
+    <button data-otab="contact"><span>💬</span>Contact<b class="badge" id="contact-badge" hidden></b></button>
+    <button data-otab="voortgang"><span>📈</span>Voortgang</button>
+    <button data-otab="leerstof"><span>📖</span>Leerstof</button>
+  </nav>
 </div>
 <div class="modaal" id="modaal" hidden><div class="kaart" id="modaal-inhoud"></div></div>
 <script src="gemeen.js"></script>
