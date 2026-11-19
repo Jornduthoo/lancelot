@@ -194,5 +194,15 @@
  "Geef de vakjes waarvan de volgorde niet uitmaakt hetzelfde groepje. Elk juist antwoord mag dan in elk vakje van dat groepje staan. Twee keer hetzelfde antwoord telt maar één keer.": "Gib den Kästchen, deren Reihenfolge egal ist, dieselbe Gruppe. Jede richtige Antwort darf dann in jedem Kästchen dieser Gruppe stehen. Zweimal dieselbe Antwort zählt nur einmal.",
  "groepje {0}": "Gruppe {0}",
  "Volgorde vrij, groepje {0}": "Reihenfolge frei, Gruppe {0}",
- "leeg of doorstreept": "leer oder durchgestrichen"
+ "leeg of doorstreept": "leer oder durchgestrichen",
+ "De computer: een deling (quotiënt en rest)": "Der Computer: eine Division (Quotient und Rest)",
+ "De computer: elk hokje apart (bv. grondplan of aanzicht)": "Der Computer: jedes Kästchen einzeln (z. B. Grundriss oder Ansicht)",
+ "Quotiënt": "Quotient",
+ "Rest (mag leeg)": "Rest (darf leer bleiben)",
+ "Het quotiënt staat rechts, naast of onder de deler. De rest staat vooraan in de onderste rij. Met een rest moeten ze allebei juist zijn. Zonder rest kijkt de computer alleen het quotiënt na.": "Der Quotient steht rechts, neben oder unter dem Divisor. Der Rest steht vorne in der untersten Zeile. Mit Rest müssen beide richtig sein. Ohne Rest prüft der Computer nur den Quotienten.",
+ "Vul elk hokje in zoals het juist is (bv. het aantal blokjes, of x voor een gekleurd hokje):": "Füll jedes Kästchen so aus, wie es richtig ist (z. B. die Anzahl Würfel oder x für ein farbiges Kästchen):",
+ "Elk hokje telt apart, op zijn eigen plek. Een hokje dat leeg moet blijven, is fout als de leerling er iets in zet. De punten gaan naar het deel juiste hokjes.": "Jedes Kästchen zählt einzeln, an seinem Platz. Ein Kästchen, das leer bleiben muss, ist falsch, wenn das Kind etwas hineinschreibt. Die Punkte richten sich nach dem Anteil richtiger Kästchen.",
+ "quotiënt {0}{1}": "Quotient {0}{1}",
+ ", rest {0}": ", Rest {0}",
+ "rest {0}": "Rest {0}"
 }

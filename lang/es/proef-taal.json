@@ -194,5 +194,15 @@
  "Geef de vakjes waarvan de volgorde niet uitmaakt hetzelfde groepje. Elk juist antwoord mag dan in elk vakje van dat groepje staan. Twee keer hetzelfde antwoord telt maar één keer.": "Da el mismo grupo a las casillas cuyo orden no importa. Cada respuesta correcta puede estar entonces en cualquier casilla de ese grupo. La misma respuesta dos veces cuenta solo una vez.",
  "groepje {0}": "grupo {0}",
  "Volgorde vrij, groepje {0}": "Orden libre, grupo {0}",
- "leeg of doorstreept": "vacío o tachado"
+ "leeg of doorstreept": "vacío o tachado",
+ "De computer: een deling (quotiënt en rest)": "El ordenador: una división (cociente y resto)",
+ "De computer: elk hokje apart (bv. grondplan of aanzicht)": "El ordenador: cada casilla por separado (p. ej. planta o vista)",
+ "Quotiënt": "Cociente",
+ "Rest (mag leeg)": "Resto (puede quedar vacío)",
+ "Het quotiënt staat rechts, naast of onder de deler. De rest staat vooraan in de onderste rij. Met een rest moeten ze allebei juist zijn. Zonder rest kijkt de computer alleen het quotiënt na.": "El cociente está a la derecha, junto o debajo del divisor. El resto está al principio de la última fila. Con resto, ambos deben ser correctos. Sin resto, el ordenador solo corrige el cociente.",
+ "Vul elk hokje in zoals het juist is (bv. het aantal blokjes, of x voor een gekleurd hokje):": "Rellena cada casilla como debe ser (p. ej. el número de bloques, o x para una casilla coloreada):",
+ "Elk hokje telt apart, op zijn eigen plek. Een hokje dat leeg moet blijven, is fout als de leerling er iets in zet. De punten gaan naar het deel juiste hokjes.": "Cada casilla cuenta por separado, en su sitio. Una casilla que debe quedar vacía es incorrecta si el alumno escribe en ella. Los puntos siguen la parte de casillas correctas.",
+ "quotiënt {0}{1}": "cociente {0}{1}",
+ ", rest {0}": ", resto {0}",
+ "rest {0}": "resto {0}"
 }

@@ -194,5 +194,15 @@
  "Geef de vakjes waarvan de volgorde niet uitmaakt hetzelfde groepje. Elk juist antwoord mag dan in elk vakje van dat groepje staan. Twee keer hetzelfde antwoord telt maar één keer.": "Give the boxes whose order does not matter the same group. Each correct answer may then be in any box of that group. The same answer twice counts only once.",
  "groepje {0}": "group {0}",
  "Volgorde vrij, groepje {0}": "Any order, group {0}",
- "leeg of doorstreept": "empty or crossed out"
+ "leeg of doorstreept": "empty or crossed out",
+ "De computer: een deling (quotiënt en rest)": "The computer: a division (quotient and remainder)",
+ "De computer: elk hokje apart (bv. grondplan of aanzicht)": "The computer: each square separately (e.g. floor plan or view)",
+ "Quotiënt": "Quotient",
+ "Rest (mag leeg)": "Remainder (may be empty)",
+ "Het quotiënt staat rechts, naast of onder de deler. De rest staat vooraan in de onderste rij. Met een rest moeten ze allebei juist zijn. Zonder rest kijkt de computer alleen het quotiënt na.": "The quotient is on the right, next to or under the divisor. The remainder is at the front of the bottom row. With a remainder, both must be correct. Without a remainder, the computer only checks the quotient.",
+ "Vul elk hokje in zoals het juist is (bv. het aantal blokjes, of x voor een gekleurd hokje):": "Fill in each square as it should be (e.g. the number of blocks, or x for a coloured square):",
+ "Elk hokje telt apart, op zijn eigen plek. Een hokje dat leeg moet blijven, is fout als de leerling er iets in zet. De punten gaan naar het deel juiste hokjes.": "Each square counts separately, in its own place. A square that must stay empty is wrong if the pupil writes in it. The points follow the share of correct squares.",
+ "quotiënt {0}{1}": "quotient {0}{1}",
+ ", rest {0}": ", remainder {0}",
+ "rest {0}": "remainder {0}"
 }

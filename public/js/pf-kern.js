@@ -41,6 +41,8 @@
 //               rooster = een rekenrooster voor een bewerking (cijferen): kol kolommen en rij rijen, één teken per hokje; zonder sleutel verbetert de leerkracht
 //                 met sleutel (keuze): nakijk 'uitkomst' (uitkomst: "39393,6", eventueel uitkomstRij: 5), 'rijen' (punten per juiste rij) of
 //                 'alles' (alles juist), sleutel = het hele rooster zoals de leerling het invult (rijen gescheiden door een nieuwe regel)
+//                 'deling' (quotient: "246", rest: "4"; het quotiënt rechts naast de deler, de rest onderaan) of
+//                 'cellen' (elk hokje apart op zijn eigen plek, bv. een grondplan of aanzicht: punten naar het deel juiste hokjes)
 //               bij tekst met een getal (keuze): marge: 0.1 (± een getal), margeProcent: 5 (± procent) of van: 1700, tot: 2100
 //               klad = kladruimte (vorm: 'typen' of 'tekenen'): telt niet mee, de leerkracht verbetert niets
 //               puntlijn = lijnen tussen punten: pt: [{ x, y }] (procent van het vak), sleutel lijnen: [[0, 2], [1, 3]] (richting en volgorde maken
@@ -85,7 +87,7 @@
   const KLEUREN = ['#ffffff', '#fff3b0', '#d8ecff', '#e4e4e4', '#ffd9d9'];
   // Wat de leerkracht verbetert op een blad (een rekenrooster alleen zonder sleutel).
   const HAND_VELD = new Set(['open', 'teken', 'rooster']);
-  const NAKIJK = ['uitkomst', 'rijen', 'alles'];
+  const NAKIJK = ['uitkomst', 'rijen', 'alles', 'deling', 'cellen'];
   // Een A4 is 21 cm breed: zo groot is de lat op het blad, tenzij de leerkracht een andere schaal kiest.
   const SCHAAL = 21;
   // Een rekenrooster: hoeveel hokjes breed en hoog (standaard en hooguit).
@@ -635,7 +637,11 @@
   };
   // De stukken van een rij (gescheiden door lege hokjes), bv. bij een deling: "1234 | 5" en het quotiënt ernaast.
   const rijStukken = cellen => cellen.map(c => c || ' ').join('').split(/\s+/).map(c => rijNorm([c])).filter(Boolean);
-  const roosterAuto = f => f.soort === 'rooster' && NAKIJK.includes(f.nakijk) && !!(f.sleutel || (f.nakijk === 'uitkomst' && f.uitkomst));
+  const roosterAuto = f => f.soort === 'rooster' && NAKIJK.includes(f.nakijk) && (f.nakijk === 'deling' ? !!f.quotient : !!(f.sleutel || (f.nakijk === 'uitkomst' && f.uitkomst)));
+  // Eén hokje om te vergelijken: een kruisje is een x, een punt is een komma.
+  const celNorm = c => String(c || '').trim().toLowerCase().replace(/[×✗✘]/g, 'x').replace(/\./g, ',');
+  // De stukken van een rij bij een deling: gescheiden door lege hokjes of de streep (|), zonder min-tekens en zonder "r" of "rest" ervoor.
+  const delingStukken = cellen => cellen.map(c => c || ' ').join('').split(/[\s|]+/).map(c => rijNorm([c]).replace(/^(rest|r)/, '')).filter(Boolean);
   // De uitkomst die de computer zoekt: zelf ingevuld, of de uitkomstrij (of de onderste rij) van de sleutel.
   function roosterUitkomst(f) {
     if (f.uitkomst) return f.uitkomst;
@@ -650,6 +656,30 @@
     const leerling = roosterCellen(a);
     const vol = leerling.filter(r => rijNorm(r));
     if (!vol.length) return 0;
+    if (f.nakijk === 'deling') {
+      // Het quotiënt rechts in een van de bovenste rijen (naast of onder de deler), de rest vooraan in de onderste ingevulde rij.
+      const q = rijNorm([f.quotient]);
+      const qGoed = vol.slice(0, 3).some(r => { const st = delingStukken(r); return st.length > 0 && rijZelfde(st[st.length - 1], q); });
+      if (!f.rest) return qGoed ? 1 : 0;
+      const st = delingStukken(vol[vol.length - 1]);
+      return qGoed && st.length > 0 && rijZelfde(st[0], rijNorm([f.rest])) ? 1 : 0;
+    }
+    if (f.nakijk === 'cellen') {
+      // Elk hokje op zijn plek; een hokje dat leeg moet blijven, telt alleen mee als de leerling er iets in zette.
+      const sl = roosterCellen(f.sleutel);
+      let n = 0;
+      let goed = 0;
+      for (let r = 0; r < Math.max(sl.length, leerling.length); r++) {
+        for (let c = 0; c < Math.max((sl[r] || []).length, (leerling[r] || []).length); c++) {
+          const x = celNorm((sl[r] || [])[c]);
+          const y = celNorm((leerling[r] || [])[c]);
+          if (!x && !y) continue;
+          n++;
+          if (x === y || (x && y && rijZelfde(x, y))) goed++;
+        }
+      }
+      return n ? goed / n : 0;
+    }
     if (f.nakijk === 'uitkomst') {
       const doel = rijNorm([roosterUitkomst(f)]);
       if (!doel) return 0;
@@ -995,6 +1025,12 @@
             if (uitkomst) veld.uitkomst = uitkomst;
             const rij = Math.round(Number(f.uitkomstRij));
             if (rij >= 1 && rij <= veld.rij) veld.uitkomstRij = rij;
+            if (f.nakijk === 'deling') {
+              const qu = text(f.quotient, 30);
+              if (qu) veld.quotient = qu;
+              const re = text(f.rest, 30);
+              if (re) veld.rest = re;
+            }
           }
         }
         const antwoord = text(f.antwoord, 1000);
@@ -1680,7 +1716,7 @@
     : f.doorstreep && !alts(f.antwoord).length ? 'leeg of doorstreept'
     : f.soort === 'tekst' && heeftMarge(f) ? metEenheid(margeTekst(f), f.eenheid)
     : f.soort === 'tekst' || f.soort === 'breuk' ? metEenheid(alts(f.antwoord)[0] || '', f.eenheid) : f.soort === 'sleep' ? (alts(f.antwoord)[0] || '')
-    : f.soort === 'rooster' && roosterAuto(f) ? (f.nakijk === 'uitkomst' ? `= ${roosterUitkomst(f)}` : roosterCellen(f.sleutel).map(r => r.map(c => c || ' ').join('')).join('\n'))
+    : f.soort === 'rooster' && roosterAuto(f) ? (f.nakijk === 'uitkomst' ? `= ${roosterUitkomst(f)}` : f.nakijk === 'deling' ? `= ${f.quotient}${f.rest ? ` rest ${f.rest}` : ''}` : roosterCellen(f.sleutel).map(r => r.map(c => c || ' ').join('')).join('\n'))
     : f.soort === 'puntlijn' ? (f.doorPunt !== undefined ? `${f.aantal > 1 ? `${f.aantal} lijnen` : 'een lijn'} door het groene punt` : (f.lijnen || []).map(([a, b]) => `${puntNaam(a)}–${puntNaam(b)}`).join(', '))
     : f.soort === 'veelhoek' ? (f.figuur ? (f.strikt ? `precies een ${f.figuur}` : f.figuur) : '')
     : f.soort === 'cirkel' ? (f.cirkels || []).map(c => `r = ${getalTekst(c.r)} cm`).join(', ') + ((f.cirkels || []).length ? ` (± ${getalTekst(f.marge ?? 0.1)})` : '')
