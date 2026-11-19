@@ -824,3 +824,15 @@ body.pf-proberen:not(.pf-pr-scherm) { display: flex; flex-direction: column; hei
 .bv-ref line { stroke: #1a9e6e; stroke-width: 2; stroke-dasharray: 6 4; }
 .bv-ref i, .bv-ref b { position: absolute; width: 10px; height: 10px; margin: -5px 0 0 -5px; border-radius: 50%; background: #1a9e6e; pointer-events: none; }
 .bv-ref b { background: #2b6cff; }
+.pf-boog { position: absolute; z-index: 6; pointer-events: none; filter: drop-shadow(0 2px 4px rgba(0, 0, 0, .35)); }
+.pf-boog .greep, .pf-boog .pf-boog-draai { pointer-events: all; touch-action: none; cursor: grab; }
+.pf-boog .greep { fill: transparent; }
+.pf-boog svg { display: block; width: 100%; height: auto; overflow: visible; }
+.pf-boog .vlak { fill: rgba(220, 240, 255, .6); stroke: #3a6a8a; stroke-width: .3; }
+.pf-boog line { stroke: #102a3a; stroke-width: .25; }
+.pf-boog line.basis { stroke-width: .35; }
+.pf-boog circle { fill: #d6334f; }
+.pf-boog text { font: 600 3.4px system-ui, sans-serif; fill: #102a3a; text-anchor: middle; }
+.pf-boog text.binnen { font-size: 2.8px; fill: #c8102e; }
+.pf-boog .pf-boog-draai { right: -14px; top: auto; bottom: 0; margin-top: 0; }
+.pf-boog-knop.on { font-weight: 700; text-decoration: underline; }

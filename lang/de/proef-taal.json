@@ -252,5 +252,13 @@
  "Elke zijde (cm, mag leeg)": "Jede Seite (cm, darf leer bleiben)",
  "De leerling meet met 📏 Lat. Zijden die even lang moeten zijn, mogen evenveel verschillen als de marge; hoeken 3 graden.": "Das Kind misst mit 📏 Lineal. Seiten, die gleich lang sein müssen, dürfen um die Toleranz abweichen; Winkel um 3 Grad.",
  ", zijden {0} cm (± {1})": ", Seiten {0} cm (± {1})",
- "Tik de hoekpunten aan, waar je wil (meet met de lat)": "Tippe die Eckpunkte an, wo du willst (miss mit dem Lineal)"
+ "Tik de hoekpunten aan, waar je wil (meet met de lat)": "Tippe die Eckpunkte an, wo du willst (miss mit dem Lineal)",
+ "📐 Gradenboog voor de leerling (om hoeken te meten en te tekenen)": "📐 Winkelmesser für die Schüler (um Winkel zu messen und zu zeichnen)",
+ "📐 Gradenboog": "📐 Winkelmesser",
+ "een hoek maakt met een been (gradenboog)": "einen Winkel mit einem Schenkel bildet (Winkelmesser)",
+ "Hoek (graden)": "Winkel (Grad)",
+ "Klik 2 punten op het been: eerst het hoekpunt, dan een punt op het been": "Klicke 2 Punkte auf dem Schenkel: zuerst den Scheitelpunkt, dann einen Punkt auf dem Schenkel",
+ "Klik 2 punten op die rechte op het blad": "Klicke 2 Punkte auf dieser Geraden auf dem Blatt",
+ "De leerling trekt vanuit het bolletje een lijn met de 📐 Gradenboog (zet die aan bij het blad). De hoek met het been telt, niet hoe lang de lijn is.": "Die Schüler ziehen vom Punkt aus eine Linie mit dem 📐 Winkelmesser (für das Blatt einschalten). Der Winkel zum Schenkel zählt, nicht die Länge der Linie.",
+ "hoek van {0}° (± {1}°)": "Winkel von {0}° (± {1}°)"
 }

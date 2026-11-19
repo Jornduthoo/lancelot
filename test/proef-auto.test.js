@@ -341,3 +341,21 @@ test('veelhoek met vrije punten: gelijkzijdige driehoek met zijden van 4 cm', ()
   assert.deepEqual(K.vakDeel(q, ['20,150;125,150;72,60', '10,10;10,100;95,140']), [0, 0]);
   assert.equal(K.veldSleutel(q)[0], 'gelijkzijdige driehoek, zijden 4 cm (± 0,2)');
 });
+
+test('gradenboog: een hoek tekenen vanaf een been, met een marge in graden', () => {
+  const ref = { a: { x: 50, y: 20 }, b: { x: 90, y: 20 } };
+  const q = blad([
+    { x: 49, y: 19, w: 2, h: 2, soort: 'lijn', richting: 'hoek', hoek: '45', ref },
+    { x: 49, y: 19, w: 2, h: 2, soort: 'lijn', richting: 'hoek', ref },
+  ], { gradenboog: true });
+  assert.equal(q.gradenboog, true);
+  assert.equal(K.viewOf(q).gradenboog, true);
+  assert.equal(q.velden[0].hoek, 45);
+  // Zonder aantal graden geen voorwaarde.
+  assert.equal(q.velden[1].richting, undefined);
+  // 45° boven het been is juist; 135° (de verkeerde kant van de gradenboog) en 52° zijn fout.
+  assert.deepEqual(K.vakDeel(q, ['60,12.93', '']).slice(0, 1), [1]);
+  assert.deepEqual(K.vakDeel(q, ['40,12.93', '']).slice(0, 1), [0]);
+  assert.equal(Math.round(K.lijnGraden(q.velden[0], '60,12.93')), 45);
+  assert.equal(K.veldSleutel(q)[0], 'hoek van 45° (± 3°)');
+});
