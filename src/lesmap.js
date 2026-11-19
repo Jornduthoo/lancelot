@@ -1,7 +1,8 @@
 // Mijn lesmap: quizzen, oefenbladen en Ronde Tafel-sessies gelijk houden met een map in OneDrive of Google Drive.
 // Thuis maak je ze in je eigen LANcelot, het digibord haalt ze bij opstart (en daarna elke minuut) binnen, en omgekeerd.
 // Alleen wat de leerkracht maakt gaat mee, plus de namen en niveaus van de klaslijst (om thuis taken per kind klaar te zetten).
-// Logboek, resultaten, notities en avatars blijven altijd op deze pc.
+// Logboek, resultaten, notities en avatars blijven altijd op deze pc. (Een pdf-kopie van verbeterde toetsen per leerling
+// komt er alleen als de leerkracht dat aanzet: zie src/toetskopie.js.)
 const fs = require('fs');
 const fsp = fs.promises;
 const os = require('os');

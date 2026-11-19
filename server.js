@@ -88,6 +88,7 @@ const zegelrol = require('./src/zegelrol');
 const postduif = require('./src/postduif');
 const { OefenbladLive } = require('./src/oefenblad-live');
 const proeven = require('./src/proeven');
+const toetskopie = require('./src/toetskopie');
 const { ProefLive } = require('./src/proef-live');
 const niveaus = require('./src/niveaus');
 const settings = require('./src/settings');
@@ -791,6 +792,31 @@ app.get('/toets', (req, res) => {
   res.setHeader('Cache-Control', 'no-cache');
   res.sendFile(path.join(__dirname, 'public', 'toets.html'));
 });
+// De kopie van één leerling (De Proef), als pdf voor Mijn lesmap: de gegevens zitten meteen in de pagina,
+// zodat de browser zonder venster (Edge of Chrome) niets hoeft te laden. Ook bruikbaar om af te drukken.
+app.get('/proef-kopie', (req, res) => {
+  if (!isLeerkracht(req)) return res.status(403).send(GEEN_TOEGANG);
+  let data;
+  try { data = proeven.kopieData(String(req.query.afname || ''), Number(req.query.speler)); } catch (err) { return res.status(404).send(err.message); }
+  const json = JSON.stringify(data).replace(/</g, '\\u003c').replace(/\u2028/g, '\\u2028').replace(/\u2029/g, '\\u2029');
+  const html = fs.readFileSync(path.join(__dirname, 'public', 'proef-print.html'), 'utf8')
+    .replace('<script src="/socket.io/socket.io.js"></script>', () => `<script>window.KOPIE = ${json};</script>`);
+  res.setHeader('Cache-Control', 'no-store');
+  res.type('html').send(html);
+});
+
+// Na het verbeteren: per leerling een pdf in Mijn lesmap (als de leerkracht dat aanzette). Loopt op de achtergrond.
+function toetsKopieen(file) {
+  let rec;
+  try { rec = proeven.laadAfname(file); } catch { return Promise.resolve({ gemaakt: 0, fout: 'Die afname is niet te vinden.' }); }
+  const k = klas.klassen();
+  const deze = k.klassen.find(x => x.id === k.actief);
+  const klasNaam = k.klassen.length > 1 && deze ? (deze.naam || `Klas ${deze.nr}`) : '';
+  io.to('host').emit('pf-kopie', { file, bezig: true, aantal: rec.spelers.length });
+  return toetskopie.maak({ rec, klas: klasNaam, url: i => `http://127.0.0.1:${PORT}/proef-kopie?afname=${encodeURIComponent(file)}&speler=${i}` })
+    .then(r => { io.to('host').emit('pf-kopie', { file, ...r }); return r; });
+}
+
 // De afbeeldingen van de toets die nu loopt (zo zitten ze niet in elke stand die naar de leerlingen gaat).
 app.get('/toets-beeld/:run/:nr', (req, res) => {
   const b = proef.beeld(req.params.run, req.params.nr);
@@ -2419,8 +2445,14 @@ io.on('connection', socket => {
       const rec = proeven.klaar(file, results.saveProef);
       sendLibrary('resultaat');
       io.to('host').emit('pf-afnames', proeven.afnames());
-      return { resultaten: rec.resultaten };
+      const kopie = toetskopie.aan() && !!settings.read().lesmap;
+      if (kopie) toetsKopieen(file);
+      return { resultaten: rec.resultaten, kopie };
     }));
+    // Een kopie per leerling in Mijn lesmap: aan of uit zetten, of nu (opnieuw) maken.
+    socket.on('pf-kopie-view', (_, cb) => typeof cb === 'function' && cb(toetskopie.view()));
+    socket.on('pf-kopie-zet', handle(aan => toetskopie.zet(aan)));
+    socket.on('pf-kopie-nu', handle(file => { proeven.laadAfname(file); toetsKopieen(file); return { ok: true }; }));
     socket.on('pf-afname-weg', handle(file => {
       proeven.verwijderAfname(file);
       io.to('host').emit('pf-afnames', proeven.afnames());
