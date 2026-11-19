@@ -49,10 +49,48 @@ async function readMeta(dir) {
   try {
     const text = await fsp.readFile(path.join(dir, META), 'utf8');
     const meta = JSON.parse(text);
-    return { text, hash: hash(text), folders: Array.isArray(meta.folders) ? meta.folders.filter(f => typeof f === 'string') : [], place: meta.place && typeof meta.place === 'object' ? meta.place : {} };
+    const obj = x => (x && typeof x === 'object' && !Array.isArray(x) ? x : {});
+    return { ...meta, text, hash: hash(text), folders: Array.isArray(meta.folders) ? meta.folders.filter(f => typeof f === 'string') : [], place: obj(meta.place), tijd: obj(meta.tijd), mapTijd: obj(meta.mapTijd), weg: obj(meta.weg) };
   } catch {
     return null;
   }
+}
+
+// Twee verschillende _mappen.json samenvoegen. Met tijden (sinds 2026-11): per bestand en per map wint de laatste wijziging.
+// Zonder tijd (een oude _mappen.json): wie sinds de vorige ronde veranderde, wint; allebei veranderd: hier wint.
+function mergeMeta(lm, rm, seen) {
+  const lNieuw = lm.hash !== seen, rNieuw = rm.hash !== seen;
+  const voorkeur = !lNieuw && rNieuw ? rm : lm;
+  const tijdVan = (m, veld, k) => Number(m[veld][k]) || 0;
+  const max = veld => {
+    const out = { ...lm[veld] };
+    for (const [k, t] of Object.entries(rm[veld])) if (!(Number(out[k]) >= Number(t))) out[k] = t;
+    return out;
+  };
+  // Mappen: wat aan beide kanten staat, blijft. Staat ze maar aan één kant: bijgemaakt na het verwijderen aan de andere kant?
+  const lF = new Set(lm.folders), rF = new Set(rm.folders);
+  const folders = [...new Set([...lm.folders, ...rm.folders])].filter(f => {
+    if (lF.has(f) && rF.has(f)) return true;
+    const [hier, daar] = lF.has(f) ? [lm, rm] : [rm, lm];
+    const bij = tijdVan(hier, 'mapTijd', f), weg = tijdVan(daar, 'weg', f);
+    if (bij || weg) return bij > weg;
+    return lNieuw && rNieuw ? true : voorkeur === hier;
+  }).sort((a, b) => a.localeCompare(b, 'nl', { numeric: true }));
+  // Bestanden: de kant met de laatste verplaatsing wint.
+  const place = {};
+  for (const file of new Set([...Object.keys(lm.place), ...Object.keys(rm.place)])) {
+    const l = lm.place[file], r = rm.place[file];
+    let f;
+    if (l === r) f = l;
+    else {
+      const tl = tijdVan(lm, 'tijd', file), tr = tijdVan(rm, 'tijd', file);
+      f = tl || tr ? (tr > tl ? r : l) : voorkeur.place[file];
+    }
+    if (typeof f === 'string' && f) place[file] = f;
+  }
+  const extra = {};
+  if (Array.isArray(lm.gezien) || Array.isArray(rm.gezien)) extra.gezien = [...new Set([...(lm.gezien || []), ...(rm.gezien || [])])].filter(f => typeof f === 'string');
+  return { ...rm, ...lm, ...extra, folders, place, tijd: max('tijd'), mapTijd: max('mapTijd'), weg: max('weg') };
 }
 
 async function write(dir, name, text) {
@@ -156,22 +194,19 @@ async function syncKind(kind, root, state, count) {
     else if (r) await pull();
   }
 
-  // De mappen in de lijst (_mappen.json): wie veranderde, wint. Allebei: samenvoegen.
+  // De mappen in de lijst (_mappen.json): per bestand en per map samenvoegen, de laatste wijziging wint (ook "zonder map").
   const lm = await readMeta(local);
   const rm = await readMeta(remote);
   const seenMeta = (state.meta || {})[kind.kind];
-  let meta = null;
-  if (lm && rm && lm.hash !== rm.hash) {
-    if (lm.hash === seenMeta) meta = rm;
-    else if (rm.hash === seenMeta) meta = lm;
-    else meta = { folders: [...new Set([...rm.folders, ...lm.folders])].sort((a, b) => a.localeCompare(b, 'nl', { numeric: true })), place: { ...rm.place, ...lm.place } };
-  } else meta = lm || rm;
+  const meta = lm && rm && lm.hash !== rm.hash ? mergeMeta(lm, rm, seenMeta) : lm || rm;
   if (meta) {
     const place = {};
-    // Ook een bestand dat pas tijdens deze ronde binnenkwam (bv. een import) houdt zijn map.
-    const exists = file => next[file] || fs.existsSync(path.join(local, file));
+    // Ook een bestand dat pas tijdens deze ronde binnenkwam (bv. een import) houdt zijn map, en ook een bestand dat
+    // hier (nog) niet binnenkon (bv. gemaakt met een nieuwere versie van LANcelot): anders springt het op de andere pc terug.
+    const exists = file => next[file] || fs.existsSync(path.join(local, file)) || fs.existsSync(path.join(remote, file));
     for (const [file, f] of Object.entries(meta.place)) if (FILE_RE.test(file) && exists(file) && meta.folders.includes(f)) place[file] = f;
-    const text = JSON.stringify({ folders: meta.folders, place }, null, 2) + '\n';
+    const { text: _t, hash: _h, ...rest } = meta;
+    const text = JSON.stringify({ ...rest, folders: meta.folders, place }, null, 2) + '\n';
     if (!lm || lm.text !== text) { await write(local, META, text); changedHere = true; }
     if (!rm || rm.text !== text) await write(remote, META, text);
     state.meta = { ...state.meta, [kind.kind]: hash(text) };
