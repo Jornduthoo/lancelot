@@ -314,5 +314,20 @@
  "per juist hokje, een fout hokje kost er één": "pro richtigem Kästchen, ein falsches kostet eins",
  "Elk juist woord op zijn plaats telt. Een fout, ontbrekend of extra woord kost er één. Bv. \"Les chats noirs dorment.\" Zet de punten op het aantal woorden.": "Jedes richtige Wort an seinem Platz zählt. Ein falsches, fehlendes oder zusätzliches Wort kostet eins. Z. B. „Les chats noirs dorment.“ Setze die Punkte auf die Anzahl der Wörter.",
  "Juist als het antwoord begint met wat je hierboven typte, bv. \"Est-ce que vous avez\". De rest mag de leerling zelf verzinnen.": "Richtig, wenn die Antwort mit dem beginnt, was du oben eingegeben hast, z. B. „Est-ce que vous avez“. Den Rest dürfen die Schüler selbst ausdenken.",
- "Juist als het antwoord een van de woorden hierboven bevat, bv. \"cinéma\" of \"piscine\". De rest mag de leerling zelf verzinnen.": "Richtig, wenn die Antwort eines der Wörter oben enthält, z. B. „cinéma“ oder „piscine“. Den Rest dürfen die Schüler selbst ausdenken."
+ "Juist als het antwoord een van de woorden hierboven bevat, bv. \"cinéma\" of \"piscine\". De rest mag de leerling zelf verzinnen.": "Richtig, wenn die Antwort eines der Wörter oben enthält, z. B. „cinéma“ oder „piscine“. Den Rest dürfen die Schüler selbst ausdenken.",
+ "Woordenbank": "Wortbank",
+ "de bank van het hele blad (alle woorden samen)": "die Bank des ganzen Blatts (alle Wörter zusammen)",
+ "een eigen bank {0} (bv. voor opdracht {1})": "eine eigene Bank {0} (z. B. für Aufgabe {1})",
+ "Extra woorden in bank {0} (foute keuzes, gescheiden door /)": "Zusätzliche Wörter in Bank {0} (falsche Auswahl, getrennt durch /)",
+ "De leerling ziet een bank per opdracht, in een eigen kleur met een nummer. Een woord uit bank {0} past alleen in de vakjes van bank {1}. Geef alle sleepvakjes van dezelfde opdracht dezelfde bank.": "Die Schüler sehen eine Bank pro Aufgabe, in einer eigenen Farbe mit einer Nummer. Ein Wort aus Bank {0} passt nur in die Felder von Bank {1}. Gib allen Ziehfeldern derselben Aufgabe dieselbe Bank.",
+ "Meer labels op dezelfde prent": "Mehr Etiketten auf demselben Bild",
+ "(bv. b en c): elk label krijgt zijn eigen juiste plek in dit kader.": "(z. B. b und c): Jedes Etikett bekommt seinen eigenen richtigen Platz in diesem Rahmen.",
+ "label, bv. b": "Etikett, z. B. b",
+ "✔ Klik nu op de plek": "✔ Klicke jetzt auf die Stelle",
+ "📍 Andere plek": "📍 Andere Stelle",
+ "📍 Kies de plek": "📍 Wähle die Stelle",
+ "+ label op dezelfde prent": "+ Etikett auf demselben Bild",
+ "data-bank=\"{0}\" style=\"--bk:{1}\"": null,
+ "Tik op een woord en dan op een vakje met {0}.": "Tippe auf ein Wort und dann auf ein Feld mit {0}.",
+ "data-bank=\"{0}\" data-nr=\"{1}\"": null
 }

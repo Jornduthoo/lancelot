@@ -314,5 +314,20 @@
  "per juist hokje, een fout hokje kost er één": "per correct box, a wrong box costs one",
  "Elk juist woord op zijn plaats telt. Een fout, ontbrekend of extra woord kost er één. Bv. \"Les chats noirs dorment.\" Zet de punten op het aantal woorden.": "Each correct word in its place counts. A wrong, missing or extra word costs one. E.g. \"Les chats noirs dorment.\" Set the points to the number of words.",
  "Juist als het antwoord begint met wat je hierboven typte, bv. \"Est-ce que vous avez\". De rest mag de leerling zelf verzinnen.": "Correct if the answer starts with what you typed above, e.g. \"Est-ce que vous avez\". The pupil may make up the rest.",
- "Juist als het antwoord een van de woorden hierboven bevat, bv. \"cinéma\" of \"piscine\". De rest mag de leerling zelf verzinnen.": "Correct if the answer contains one of the words above, e.g. \"cinéma\" or \"piscine\". The pupil may make up the rest."
+ "Juist als het antwoord een van de woorden hierboven bevat, bv. \"cinéma\" of \"piscine\". De rest mag de leerling zelf verzinnen.": "Correct if the answer contains one of the words above, e.g. \"cinéma\" or \"piscine\". The pupil may make up the rest.",
+ "Woordenbank": "Word bank",
+ "de bank van het hele blad (alle woorden samen)": "the bank of the whole sheet (all words together)",
+ "een eigen bank {0} (bv. voor opdracht {1})": "its own bank {0} (e.g. for task {1})",
+ "Extra woorden in bank {0} (foute keuzes, gescheiden door /)": "Extra words in bank {0} (wrong choices, separated by /)",
+ "De leerling ziet een bank per opdracht, in een eigen kleur met een nummer. Een woord uit bank {0} past alleen in de vakjes van bank {1}. Geef alle sleepvakjes van dezelfde opdracht dezelfde bank.": "The pupil sees one bank per task, in its own colour with a number. A word from bank {0} only fits in the boxes of bank {1}. Give all drag boxes of the same task the same bank.",
+ "Meer labels op dezelfde prent": "More labels on the same picture",
+ "(bv. b en c): elk label krijgt zijn eigen juiste plek in dit kader.": "(e.g. b and c): each label gets its own correct place in this frame.",
+ "label, bv. b": "label, e.g. b",
+ "✔ Klik nu op de plek": "✔ Now click the place",
+ "📍 Andere plek": "📍 Other place",
+ "📍 Kies de plek": "📍 Choose the place",
+ "+ label op dezelfde prent": "+ label on the same picture",
+ "data-bank=\"{0}\" style=\"--bk:{1}\"": null,
+ "Tik op een woord en dan op een vakje met {0}.": "Tap a word and then a box with {0}.",
+ "data-bank=\"{0}\" data-nr=\"{1}\"": null
 }

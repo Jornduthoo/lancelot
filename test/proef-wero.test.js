@@ -163,3 +163,39 @@ test('per woord, begint met, bevat: bij kort antwoord en bij een vakje op een bl
   assert.equal(K.auto(q, ['Les chat noirs dorment.', 'Est-ce que vous avez faim ?']), 4);
   assert.deepEqual(K.veldSleutel(q), ['Les chats noirs dorment.', 'begint met: Est-ce que vous avez']);
 });
+
+test('meer labels in één plek-kader: elk label op zijn eigen plek', () => {
+  const beeld = 'data:image/webp;base64,AAAA';
+  const q = K.validate({ title: 't', vragen: [{ type: 'blad', beeld, verhouding: 1.414, velden: [
+    { x: 10, y: 10, w: 40, h: 40, soort: 'plek', label: 'a', doel: { x: 20, y: 20, r: 8 }, meer: [{ label: 'b', doel: { x: 70, y: 20, r: 8 } }, { label: 'c', doel: { x: 50, y: 80, r: 8 } }, { label: 'd' }] },
+    { x: 60, y: 10, w: 20, h: 20, soort: 'plek', label: 'x', doel: { x: 50, y: 50, r: 10 } },
+  ] }] }).vragen[0];
+  // Een label zonder plek valt weg; een punt per label.
+  assert.deepEqual(q.velden[0].meer.map(m => m.label), ['b', 'c']);
+  assert.equal(q.velden[0].punten, 3);
+  assert.deepEqual(K.viewOf(q, '0').velden[0].meer, ['b', 'c']);
+  assert.equal(K.auto(q, ['20,20|70,21|50,80', '50,50']), 4);
+  assert.equal(K.auto(q, ['20,20|50,80|', '50,50']), 2);
+  assert.equal(K.auto(q, ['|70,20|', '']), 1);
+  // Een gewoon kader blijft zoals vroeger.
+  assert.equal(K.plekDeel(q.velden[1], '50,50'), 1);
+});
+
+test('een woordenbank per groepje sleepvakjes', () => {
+  const beeld = 'data:image/webp;base64,AAAA';
+  const sleep = (x, antwoord, extra) => ({ x, y: 1, w: 8, h: 3, soort: 'sleep', antwoord, ...extra });
+  const q = K.validate({ title: 't', vragen: [{ type: 'blad', beeld, verhouding: 1.414, woorden: ['fout'], velden: [
+    sleep(1, 'le'), sleep(10, 'chat', { bank: 1, extra: 'chien / chats' }), sleep(20, 'noir', { bank: 1 }), sleep(30, 'mange', { bank: 2 }), sleep(40, 'dort', { bank: 2 }),
+  ] }] }).vragen[0];
+  assert.equal(q.velden[1].bank, 1);
+  assert.deepEqual(q.velden[1].extra, ['chien', 'chats']);
+  const v = K.viewOf(q, '0');
+  assert.deepEqual(v.bank, ['fout', 'le']);
+  assert.deepEqual(v.banken, { 1: ['chat', 'chats', 'chien', 'noir'], 2: ['dort', 'mange'] });
+  assert.equal(v.velden[3].bank, 2);
+  assert.equal(K.auto(q, ['le', 'chat', 'noir', 'dort', 'mange']), 3);
+  // Zonder bank: één bank zoals vroeger.
+  const oud = K.validate({ title: 't', vragen: [{ type: 'blad', beeld, verhouding: 1.414, velden: [sleep(1, 'a'), sleep(10, 'b')] }] }).vragen[0];
+  assert.deepEqual(K.viewOf(oud, '0').bank, ['a', 'b']);
+  assert.equal(K.viewOf(oud, '0').banken, undefined);
+});
