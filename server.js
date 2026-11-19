@@ -808,9 +808,9 @@ app.get('/burcht', (req, res) => {
   res.setHeader('Cache-Control', 'no-cache');
   res.sendFile(path.join(__dirname, 'public', 'burcht.html'));
 });
-// LANcelot Junior (3e kleuterklas tot 3e leerjaar), in dezelfde app. In de Store-versie nog niet, tot het getest is in de klas
-// (of met juniorInStore: true in settings.json).
-const juniorAan = () => !store.ACTIEF || settings.read().juniorInStore === true;
+// LANcelot Junior (3e kleuterklas tot 3e leerjaar), in dezelfde app. Ook in de Store-versie (Jorn, 2026-11-19);
+// uitzetten kan met juniorInStore: false in settings.json.
+const juniorAan = () => !store.ACTIEF || settings.read().juniorInStore !== false;
 // De leerlingen volgen de leerkracht: staat het leerkrachtenscherm op Junior, dan gaat het leerlingadres naar Junior,
 // anders naar het gewone LANcelot (ook wie /junior intikt). Onthouden in settings.json (juniorModus).
 function zetJuniorModus(aan) {
