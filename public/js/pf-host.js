@@ -147,7 +147,7 @@ const FORMATS = {
   invullen: '{ "type": "invullen", "vraag": "Vul aan.", "tekst": "Een zin met een gat: de hoofdstad van België is [Brussel]. Meerdere goede antwoorden: [fiets|velo].", "punten": 2 }',
   kort: '{ "type": "kort", "vraag": "de vraag", "antwoord": "het antwoord|andere goede schrijfwijze", "eenheid": "", "punten": 1 }',
   breuk: '{ "type": "kort", "vraag": "Vereenvoudig 6/8.", "antwoord": "3/4", "breuk": true, "vereenvoudigd": true, "punten": 1 }',
-  rekenen: '{ "type": "rekenen", "vraag": "een vraagstuk", "antwoord": "36", "eenheid": "cm", "punten": 1, "werkPunten": 1 }',
+  rekenen: '{ "type": "rekenen", "vraag": "een vraagstuk", "antwoord": "36", "eenheid": "cm", "punten": 1, "werkPunten": 1, "rooster": true }',
   verbinden: '{ "type": "verbinden", "vraag": "Verbind wat bij elkaar hoort.", "paren": [["links", "rechts"], ["links", "rechts"]], "punten": 4 }',
   ordenen: '{ "type": "ordenen", "vraag": "Zet in de juiste volgorde.", "items": ["eerste", "tweede", "derde"], "punten": 1 }',
   tabel: '{ "type": "tabel", "vraag": "Vul de tabel aan.", "rijen": [["kg", "g"], ["2", "[2000]"], ["[0,5]", "500"]], "punten": 2 }',
@@ -202,7 +202,8 @@ ${DoelKies.prompt(codes, 'vragen')}${extra ? `\nExtra wensen van de leerkracht:\
 Over de soorten vragen:
 - "juist" bij meerkeuze is het nummer van het juiste antwoord, geteld vanaf 0. Zijn er meerdere juiste antwoorden, geef dan een lijst: "juist": [0, 2].
 - Bij invullen staat elk in te vullen woord tussen [vierkante haken]. Een keuzelijstje schrijf je als {juist|fout|fout} met het juiste antwoord eerst. Bij een tabel staat een in te vullen cel tussen [ ], een keuzelijstje in een cel als {juist|fout}.
-- Is het antwoord een breuk, zet dan bij kort of rekenen "breuk": true (de leerling krijgt een breukvak); moet de breuk vereenvoudigd zijn, ook "vereenvoudigd": true.
+- Is het antwoord een breuk, zet dan bij kort of rekenen "breuk": true (de leerling krijgt een breukvak); moet het antwoord zo eenvoudig mogelijk zijn, ook "vereenvoudigd": true.
+- Bij rekenen: "rooster": true geeft de leerling een rekenrooster (hokjes) om de bewerking uit te rekenen, bv. om te cijferen.
 - Bij kort antwoord en rekenvragen mag "antwoord" meerdere goede schrijfwijzen hebben, gescheiden door |. Getallen met een komma: 0,5.
 - Bij een rekenvraag is "punten" voor de uitkomst en "werkPunten" voor de bewerking (die verbetert de leerkracht).
 - Bij markeren staan de woorden die de leerling moet aanduiden tussen [ ]. Bij een getallenas ligt het juiste getal op een streepje (een veelvoud van de stap vanaf het begin).
@@ -633,12 +634,14 @@ $('new-empty').addEventListener('click', () => {
   openEditor({ title: '', vragen: [] }, null);
   $('e-title').focus();
 });
-// De vier manieren om te beginnen op het startscherm van De Proef.
+// De manieren om te beginnen op het startscherm van De Proef.
 for (const k of document.querySelectorAll('#pf-start [data-start]')) {
   k.addEventListener('click', () => {
     const w = k.dataset.start;
     if (w === 'leeg') return $('new-empty').click();
     if (w === 'bewerk') return $('toets-list').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    // Importeren: dezelfde knop als boven de lijst (zoals bij quizzen en oefenbladen), in de map die open staat.
+    if (w === 'import') { const i = $('toets-list').querySelector('input[type=file]'); if (i) i.click(); return; }
     document.querySelector(`input[name="a-modus"][value="${w}"]`).checked = true;
     $('a-modus').dispatchEvent(new Event('change', { bubbles: true }));
     $('new-ai').click();
@@ -976,12 +979,13 @@ function standVan(s) {
 
 function antwoordTekst(q, a) {
   if (a === undefined || a === null || a === '') return '<em class="muted">niet ingevuld</em>';
-  if (q.type === 'rekenen') return `<div class="pf-werk-antw">${esc(a.werk || '').replace(/\n/g, '<br>') || '<em class="muted">geen bewerking</em>'}</div><p>Uitkomst: <strong>${esc(a.uitkomst || '–')}</strong> ${q.eenheid && !String(a.uitkomst || '').includes(q.eenheid) ? esc(q.eenheid) : ''}</p>`;
+  if (q.type === 'rekenen') return `${q.rooster && a.werk ? PfPaper.roosterHtml(a.werk, q.kol, q.rij, false, 'pf-rooster-los klein') : `<div class="pf-werk-antw">${esc(a.werk || '').replace(/\n/g, '<br>') || '<em class="muted">geen bewerking</em>'}</div>`}<p>Uitkomst: <strong>${esc(a.uitkomst || '–')}</strong> ${q.eenheid && !String(a.uitkomst || '').includes(q.eenheid) ? esc(q.eenheid) : ''}</p>`;
   if (q.type === 'tekenen') return `<div class="pf-teken-wrap klein" style="aspect-ratio:${1 / (q.verhouding || 0.6)}">${q.beeld ? `<img src="${esc(q.beeld)}" alt="">` : ''}<img class="pf-tekening" src="${esc(a)}" alt="Tekening"></div>`;
   if (q.type === 'spreken') return `<audio controls preload="none" src="${esc(a)}"></audio>`;
   if (q.type === 'blad') {
     const rijen = q.velden.map((f, k) => (f.soort === 'open' ? `<p><b>Vak ${k + 1}:</b> ${a[k] ? esc(a[k]).replace(/\n/g, '<br>') : '<em class="muted">leeg</em>'}</p>`
-      : f.soort === 'teken' ? `<p><b>Vak ${k + 1}:</b> ${a[k] ? `<img class="pf-vak-tekening" src="${esc(a[k])}" alt="Tekening">` : '<em class="muted">leeg</em>'}</p>` : '')).join('');
+      : f.soort === 'teken' ? `<p><b>Vak ${k + 1}:</b> ${a[k] ? `<img class="pf-vak-tekening" src="${esc(a[k])}" alt="Tekening">` : '<em class="muted">leeg</em>'}</p>`
+        : f.soort === 'rooster' ? `<div class="pf-vak-rooster"><b>Vak ${k + 1}:</b> ${a[k] ? PfPaper.roosterHtml(a[k], f.kol, f.rij, false, 'pf-rooster-los klein') : '<em class="muted">leeg</em>'}</div>` : '')).join('');
     return rijen || esc(antwoordKort(q, a));
   }
   if (typeof a === 'object') return esc(antwoordKort(q, a));
@@ -1004,7 +1008,7 @@ function antwoordKort(q, a) {
   if (q.type === 'markeren') { const w = PfKern.woordenVan(q.tekst); return a.map(i => (w.find(x => x.w === i) || {}).t || '?').join(' · '); }
   if (q.type === 'tekenen') return 'een tekening';
   if (q.type === 'spreken') return 'een opname';
-  if (q.type === 'blad') return q.velden.map((f, k) => (a[k] === true ? `${k + 1}: ✗` : f.soort === 'teken' && a[k] ? `${k + 1}: tekening` : a[k] ? `${k + 1}: ${a[k]}` : '')).filter(Boolean).join(' · ');
+  if (q.type === 'blad') return q.velden.map((f, k) => (a[k] === true ? `${k + 1}: ✗` : f.soort === 'teken' && a[k] ? `${k + 1}: tekening` : f.soort === 'rooster' && a[k] ? `${k + 1}: rekenrooster` : a[k] ? `${k + 1}: ${a[k]}` : '')).filter(Boolean).join(' · ');
   return String(a).slice(0, 200);
 }
 

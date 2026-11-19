@@ -4,6 +4,7 @@
 // te verschuiven, bij te maken en de antwoorden in te vullen. PfBlad.aiPrompt en PfBlad.genummerd helpen de AI de sleutel te maken.
 // PDF.js laadt pas als er echt een pdf getekend wordt (public/vendor/pdfjs).
 const PfBlad = (() => {
+  const ROOSTER = { kol: 8, rij: 4 }; // een nieuw rekenrooster: zoveel hokjes breed en hoog
   const BREED = 1240; // ongeveer 150 dpi voor een A4: scherp genoeg om te lezen, klein genoeg voor de Chromebooks
   const MAX_DATA = 600000;
   const MAX_BLADEN = 30;
@@ -215,7 +216,7 @@ const PfBlad = (() => {
 
   function aiPrompt(bladen, start = 1, niveau = '') {
     let nr = start;
-    const lijst = bladen.map((b, i) => `Blad ${i + 1}: ${b.velden.map(f => `${nr++}${f.soort === 'kruis' ? ' (hokje)' : f.soort === 'open' ? ' (open)' : f.soort === 'kies' ? ' (keuzelijst)' : f.soort === 'teken' ? ' (tekenvak: zet in antwoord waar de leerkracht op let)' : f.soort === 'luister' || f.soort === 'vlak' || f.soort === 'notitie' || f.soort === 'plek' || f.soort === 'lijn' ? ' (geen antwoord: sla over)' : f.soort === 'breuk' ? ' (breuk, bv. 3/4)' : f.soort === 'sleep' ? ' (sleepwoord)' : ''}`).join(', ')}`).join('\n');
+    const lijst = bladen.map((b, i) => `Blad ${i + 1}: ${b.velden.map(f => `${nr++}${f.soort === 'kruis' ? ' (hokje)' : f.soort === 'open' ? ' (open)' : f.soort === 'kies' ? ' (keuzelijst)' : f.soort === 'teken' ? ' (tekenvak: zet in antwoord waar de leerkracht op let)' : f.soort === 'luister' || f.soort === 'vlak' || f.soort === 'notitie' || f.soort === 'plek' || f.soort === 'lijn' ? ' (geen antwoord: sla over)' : f.soort === 'breuk' ? ' (breuk, bv. 3/4)' : f.soort === 'sleep' ? ' (sleepwoord)' : f.soort === 'rooster' ? ' (rekenrooster: zet in antwoord de uitkomst van de bewerking, de leerkracht verbetert)' : ''}`).join(', ')}`).join('\n');
     return `Je bent een ervaren leerkracht in ${Ui.aiKader().waar}${niveau ? ` (${niveau})` : ''}. Op de bijgevoegde afbeeldingen staan de bladen van een toets.
 Elk rood kader met een nummer is een plek waar de leerling iets invult. Maak de verbetersleutel: geef voor elk nummer het juiste antwoord.
 De vakjes per blad:
@@ -230,6 +231,7 @@ Regels:
   Staat de eenheid al gedrukt naast het vakje, zet ze dan in "eenheid" en niet in het antwoord.
 - Bij "kruis": "antwoord" is true als het hokje aangekruist moet worden, anders false. Hokjes die bij dezelfde vraag horen, krijgen hetzelfde getal in "groep".
 - Bij "open": zet in "antwoord" een kort modelantwoord voor de leerkracht.
+- Vraagt de opdracht om het antwoord zo eenvoudig mogelijk te schrijven (bv. "vereenvoudig", "zo eenvoudig mogelijk"), zet dan "vereenvoudigd": true.
 - "punten": zoals op de toets staat. Staat er niets, geef dan 1. Een hokje dat niet aangekruist moet worden: 0.
 - Is een kader geen plek om iets in te vullen (per ongeluk gevonden), geef dan "soort": "weg".
 
@@ -256,9 +258,10 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
       if (f.soort === 'luister' || f.soort === 'vlak' || f.soort === 'notitie' || f.soort === 'plek' || f.soort === 'lijn') continue;
       if (f.soort === 'breuk' || f.soort === 'sleep') {
         if (r.antwoord) { f.antwoord = String(r.antwoord).slice(0, 300); n++; b.gewijzigd = true; }
+        if (f.soort === 'breuk' && r.vereenvoudigd === true) f.vereenvoudigd = true;
         continue;
       }
-      if (f.soort === 'teken') {
+      if (f.soort === 'teken' || f.soort === 'rooster') {
         if (r.antwoord) { f.antwoord = String(r.antwoord).slice(0, 1000); n++; b.gewijzigd = true; }
         continue;
       }
@@ -270,8 +273,10 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
       } else if (r.antwoord !== undefined && r.antwoord !== null) f.antwoord = String(r.antwoord).slice(0, 1000);
       if (f.soort === 'kies') f.opties = Array.isArray(r.opties) ? r.opties.map(o => String(o).slice(0, 80)).filter(Boolean).slice(0, 8) : f.opties || [];
       if (r.eenheid && f.soort === 'tekst') f.eenheid = String(r.eenheid).slice(0, 20); else delete f.eenheid;
+      if (f.soort === 'tekst' && r.vereenvoudigd === true) f.vereenvoudigd = true;
       const p = Number(String(r.punten ?? '').replace(',', '.'));
-      if (r.punten !== undefined && Number.isFinite(p) && p >= 0) f.punten = Math.min(100, Math.round(p * 2) / 2);
+      // Vakjes die samen op punten staan, houden de punten van hun groepje.
+      if (r.punten !== undefined && Number.isFinite(p) && p >= 0 && !f.samen) f.punten = Math.min(100, Math.round(p * 2) / 2);
       n++;
       b.gewijzigd = true;
     }
@@ -286,7 +291,7 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
   // De gereedschapskist: [stuk, icoon, naam, uitleg]. mk, ak en jf maken een groepje bolletjes of hokjes.
   const KIST = [
     ['Aanwijzen', [['wijs', '👆', 'Aanwijzen', 'Klikken, schuiven, weghalen']]],
-    ['Typen', [['tekst', '✏️', 'Kort antwoord', 'Een woord of getal'], ['breuk', '➗', 'Breuk', 'Teller boven, noemer onder'], ['kies', '▾', 'Keuzelijstje', 'Kiezen uit een lijstje'],
+    ['Typen', [['tekst', '✏️', 'Kort antwoord', 'Een woord of getal'], ['breuk', '➗', 'Breuk', 'Teller boven, noemer onder'], ['rooster', '🧮', 'Rekenrooster', 'Hokjes om uit te rekenen'], ['kies', '▾', 'Keuzelijstje', 'Kiezen uit een lijstje'],
       ['sleep', '🧲', 'Sleepwoord', 'Een woord in het vak slepen'], ['open', '💬', 'Open antwoord', 'Een paar zinnen schrijven']]],
     ['Aanklikken', [['mk', '🔘', 'Meerkeuze', 'Bolletjes, één is juist'], ['ak', '☑️', 'Aankruisen', 'Hokjes, meer mag juist zijn'], ['jf', '⚖️', 'Juist of fout', 'Twee bolletjes: J en F'], ['plek', '📍', 'Aanduiden', 'Een plek aanklikken op een prent'], ['lijn', '↗️', 'Verbinden', 'Een lijn naar de juiste plek']]],
     ['Maken', [['teken', '🎨', 'Tekenvak', 'Tekenen op het blad'], ['luister', '🎧', 'Luisterknop', 'Uitleg om te beluisteren']]],
@@ -304,6 +309,7 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
       <div class="bar"><h2 id="be-titel">Vakjes op het blad</h2>
         <div class="actions"><button class="secondary" id="be-annuleer">Annuleren</button><button class="gold" id="be-klaar">Klaar</button></div></div>
       <p class="pf-be-stappen"><b>1</b> Kies rechts een stuk. <b>2</b> Sleep het op het blad, of klik. <b>3</b> Vul de opties in. <span class="muted">Met 👆 Aanwijzen (of Esc) klik je een vakje aan: verschuiven, kopiëren (Ctrl+C, Ctrl+V) of weghalen (Delete). Dubbelklik voor de opties.</span></p>
+      <p class="pf-be-koppel hidden" id="be-koppel">🔗 <span>Klik de vakjes die samen één vraag zijn. Alleen als ze allemaal juist zijn, krijgt de leerling de punten.</span> <b id="be-koppel-n"></b> <button type="button" class="gold small-btn" id="be-koppel-klaar">Klaar</button></p>
       <p class="error" id="be-error"></p><span class="muted small" id="be-busy"></span>
       <div class="pf-be-copy hidden" id="be-copy-box">
         <p class="small">De prompt is gekopieerd en de bladen met genummerde vakjes worden gedownload. Plak de prompt in een chatbot, voeg die bladen toe en plak het antwoord hier:</p>
@@ -357,6 +363,11 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
       const p = pct(e);
       const el = e.target.closest('.pf-be-veld');
       staat.opVeld = el ? Number(el.dataset.k) : null;
+      if (staat.koppel) {
+        // Samen op punten: een klik zet een vakje erbij of haalt het eruit.
+        if (el) koppelKlik(Number(el.dataset.k));
+        return;
+      }
       if (el) {
         const k = Number(el.dataset.k);
         kies(k);
@@ -373,6 +384,7 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
         const f = { x: r2(p.x), y: r2(p.y), w: 0.5, h: 0.5, soort, punten: ['luister', 'vlak', 'notitie'].includes(soort) ? 0 : 1 };
         if (soort === 'vlak') f.kleur = '#ffffff';
         if (soort === 'kies') f.opties = [];
+        if (soort === 'rooster') { f.kol = ROOSTER.kol; f.rij = ROOSTER.rij; }
         staat.velden.push(f);
         sleep = { k: staat.velden.length - 1, soort: 'nieuw', p, f0: { ...f } };
         teken();
@@ -447,7 +459,7 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
         // Een klik zonder slepen: een vakje van normale grootte.
         const v = staat.verhouding || 1.414;
         if (f.w < 1.2 && f.h < 1.2) {
-          if (f.soort === 'luister') { f.w = 4; f.h = r2(4 / v); } else if (f.soort === 'plek') { f.w = 40; f.h = 20; } else if (f.soort === 'open') { f.w = 60; f.h = 8; } else if (f.soort === 'teken') { f.w = 40; f.h = 16; } else if (f.soort === 'breuk') { f.w = 5; f.h = r2(8 / v); } else if (f.soort === 'vlak') { f.w = 20; f.h = 5; } else if (f.soort === 'notitie') { f.w = 40; f.h = 3; } else { f.w = 14; f.h = 2.6; }
+          if (f.soort === 'luister') { f.w = 4; f.h = r2(4 / v); } else if (f.soort === 'rooster') { f.w = 3 * f.kol; f.h = r2((3 * f.rij) / v); } else if (f.soort === 'plek') { f.w = 40; f.h = 20; } else if (f.soort === 'open') { f.w = 60; f.h = 8; } else if (f.soort === 'teken') { f.w = 40; f.h = 16; } else if (f.soort === 'breuk') { f.w = 5; f.h = r2(8 / v); } else if (f.soort === 'vlak') { f.w = 20; f.h = 5; } else if (f.soort === 'notitie') { f.w = 40; f.h = 3; } else { f.w = 14; f.h = 2.6; }
           f.x = r2(clamp(f.x - (f.soort === 'luister' ? f.w / 2 : 0), 0, 100 - f.w));
           f.y = r2(clamp(f.y - f.h / 2, 0, 100 - f.h));
         }
@@ -464,6 +476,7 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
     document.addEventListener('keydown', e => {
       if (box.classList.contains('hidden')) return;
       if (e.key === 'Escape' && !$('be-venster').classList.contains('hidden')) { e.preventDefault(); return sluitVenster(); }
+      if (e.key === 'Escape' && staat.koppel) { e.preventDefault(); return stopKoppel(); }
       if (e.key === 'Escape') { e.preventDefault(); kies(null); return kiesTool('wijs'); }
       if (e.key === 'Enter' && staat.sel !== null && !e.target.matches('input, textarea, select, button') && $('be-venster').classList.contains('hidden')) { e.preventDefault(); return venster(staat.sel); }
       if ((e.ctrlKey || e.metaKey) && !e.target.matches('input, textarea, select') && $('be-venster').classList.contains('hidden')) {
@@ -481,7 +494,9 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
       const f = staat.velden[staat.sel];
       if (!f) return sluitVenster();
       // Een groepje bolletjes of hokjes gaat samen weg.
+      geefPuntenDoor(f);
       staat.velden = f.soort === 'kruis' ? staat.velden.filter(g => !(g.soort === 'kruis' && g.groep === f.groep)) : staat.velden.filter(g => g !== f);
+      ruimSamenOp();
       staat.sel = null;
       sluitVenster();
     });
@@ -494,6 +509,7 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
       if (e.target.closest('.weg')) weg(Number(r.dataset.k));
       else kies(Number(r.dataset.k));
     });
+    $('be-koppel-klaar').addEventListener('click', stopKoppel);
     $('be-annuleer').addEventListener('click', () => sluit(null));
     $('be-klaar').addEventListener('click', () => {
       const velden = sorteer(staat.velden);
@@ -576,6 +592,7 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
       n.x = r2(n.x + dx);
       n.y = r2(n.y + dy);
       if (n.soort === 'kruis') n.groep = groep;
+      if (n.samen) { delete n.samen; n.punten = n.punten || 1; }
       if (n.naar) n.naar = { x: r2(Math.min(100, Math.max(0, n.naar.x + dx))), y: r2(Math.min(100, Math.max(0, n.naar.y + dy))) };
       staat.velden.push(n);
     }
@@ -651,17 +668,25 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
         <label>Eenheid (mag leeg) <input class="bv-eenheid" value="${esc(f.eenheid || '')}" placeholder="bijv. cm"></label>
         <div class="bv-checks"><label class="inline check"><input type="checkbox" data-vlag="hoofdletters"${f.hoofdletters ? ' checked' : ''}> Hoofdletters moeten kloppen</label>
           <label class="inline check"><input type="checkbox" data-vlag="leestekens"${f.leestekens ? ' checked' : ''}> Leestekens tellen mee ( . , ? ! )</label>
-          <label class="inline check"><input type="checkbox" data-vlag="spaties"${f.spaties ? ' checked' : ''}> Spaties negeren</label></div>
-        <p class="muted small">Getallen tellen ook in een andere schrijfwijze: 0,5 = 0.5 = 1/2.</p>${punten(f.punten ?? 1)}`;
+          <label class="inline check"><input type="checkbox" data-vlag="spaties"${f.spaties ? ' checked' : ''}> Spaties negeren</label>
+          ${eenvoudigVink(f)}</div>
+        <p class="muted small">Getallen tellen ook in een andere schrijfwijze: 0,5 = 0.5 = 1/2.</p>${samenHtml(f, punten)}`;
     } else if (f.soort === 'breuk' || f.soort === 'sleep') {
       kop.textContent = NAAM[f.soort];
       inh.innerHTML = `<p class="bv-vraag">${f.soort === 'breuk' ? 'Juiste breuk(en), bijv. 3/4:' : 'Het juiste woord:'}</p>${lijst(alts.length ? alts : [''], f.soort === 'breuk' ? '+ nog een juiste breuk' : '+ nog een juist woord')}
-        ${f.soort === 'sleep' ? `<label>Extra woorden om uit te kiezen (foute keuzes, gescheiden door /) <input class="bv-woorden" value="${esc(box.querySelector('#be-woorden').value)}"></label>` : ''}${punten(f.punten ?? 1)}`;
+        ${f.soort === 'sleep' ? `<label>Extra woorden om uit te kiezen (foute keuzes, gescheiden door /) <input class="bv-woorden" value="${esc(box.querySelector('#be-woorden').value)}"></label>` : ''}
+        ${f.soort === 'breuk' ? `<div class="bv-checks"><label class="inline check"><input type="checkbox" data-vlag="geheel"${f.geheel ? ' checked' : ''}> Met een vakje voor het geheel (bv. 1 3/4)</label>${eenvoudigVink(f)}</div>` : ''}${samenHtml(f, punten)}`;
     } else if (f.soort === 'kies') {
       const opties = f.opties && f.opties.length ? f.opties : ['', ''];
       kop.textContent = NAAM.kies;
       inh.innerHTML = `<p class="bv-vraag">De keuzes. Duid de juiste aan:</p><div class="bv-lijst">${opties.map((o, i) => `<div class="bv-rij"><input type="radio" name="bv-juist" value="${i}"${o && o === f.antwoord ? ' checked' : ''} aria-label="Juist"><input class="bv-optie" value="${esc(o)}" placeholder="keuze ${i + 1}"><button type="button" class="secondary small-btn bv-x" title="Weghalen">✕</button></div>`).join('')}
-        <button type="button" class="secondary small-btn bv-plus">+ keuze</button></div>${punten(f.punten ?? 1)}`;
+        <button type="button" class="secondary small-btn bv-plus">+ keuze</button></div>${samenHtml(f, punten)}`;
+    } else if (f.soort === 'rooster') {
+      kop.textContent = NAAM.rooster;
+      const maat = (cls, label, w) => `<span class="bv-aantal">${label} <button type="button" class="secondary small-btn" data-maat="${cls}" data-d="-1">−</button><b>${w}</b><button type="button" class="secondary small-btn" data-maat="${cls}" data-d="1">+</button></span>`;
+      inh.innerHTML = `<p class="bv-vraag">De leerling rekent de bewerking uit in de hokjes: één cijfer of teken per hokje.</p>
+        <div class="bv-opties">${maat('kol', 'Hokjes breed', f.kol || ROOSTER.kol)}${maat('rij', 'Hokjes hoog', f.rij || ROOSTER.rij)}</div>
+        <label>Uitwerking of uitkomst (alleen voor jou, je verbetert zelf)<textarea class="bv-model" rows="2">${esc(f.antwoord || '')}</textarea></label>${punten(f.punten ?? 1)}`;
     } else if (f.soort === 'open' || f.soort === 'teken') {
       kop.textContent = NAAM[f.soort];
       inh.innerHTML = `<label>${f.soort === 'open' ? 'Modelantwoord' : 'Waar let je op?'} (alleen voor jou, je verbetert zelf)<textarea class="bv-model" rows="3">${esc(f.antwoord || '')}</textarea></label>${punten(f.punten ?? 1)}`;
@@ -681,7 +706,7 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
         <div class="bv-plek" style="aspect-ratio:${r2(f.w / (f.h * v))}"><img src="${esc(staat.beeld)}" alt="" draggable="false" style="position:absolute;width:${r2((100 / f.w) * 100)}%;left:${r2((-f.x / f.w) * 100)}%;top:${r2((-f.y / f.h) * 100)}%;max-width:none">
           ${f.doel ? `<i class="pf-plek-doel" style="left:${d.x}%;top:${d.y}%;width:${2 * d.r}%"></i>` : ''}</div>
         <label>Hoe groot is de juiste plek? <input type="range" class="bv-r" min="3" max="50" value="${d.r}"></label>
-        <p class="muted small">De leerling tikt in dit kader een plek aan. Binnen de groene cirkel is juist.</p>${punten(f.punten ?? 1)}`;
+        <p class="muted small">De leerling tikt in dit kader een plek aan. Binnen de groene cirkel is juist.</p>${samenHtml(f, punten)}`;
       const vak = inh.querySelector('.bv-plek');
       vak.addEventListener('click', e => {
         const r = vak.getBoundingClientRect();
@@ -693,7 +718,7 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
       kop.textContent = NAAM.lijn;
       inh.innerHTML = `<p class="bv-vraag">De leerling sleept een lijn van het bolletje naar de juiste plek (de groene cirkel).</p>
         <label>Hoe dicht moet het eindpunt liggen? <input type="range" class="bv-lr" min="1" max="10" step="0.5" value="${f.r || 3}"></label>
-        <p class="muted small">Het bolletje kun je verschuiven. Juiste plek fout? Haal de lijn weg en trek ze opnieuw.</p>${punten(f.punten ?? 1)}`;
+        <p class="muted small">Het bolletje kun je verschuiven. Juiste plek fout? Haal de lijn weg en trek ze opnieuw.</p>${samenHtml(f, punten)}`;
     } else if (f.soort === 'notitie') {
       kop.textContent = NAAM.notitie;
       inh.innerHTML = `<label>Tekst op het blad<textarea class="bv-tekst" rows="3">${esc(f.tekst || '')}</textarea></label>`;
@@ -738,7 +763,7 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
     };
     inh.onchange = e => {
       const t = e.target;
-      if (t.dataset.vlag) { if (t.checked) f[t.dataset.vlag] = true; else delete f[t.dataset.vlag]; }
+      if (t.dataset.vlag) { if (t.checked) f[t.dataset.vlag] = true; else delete f[t.dataset.vlag]; bijwerken(); }
       else if (t.name === 'bv-juist') leesOpties();
       else if (t.classList.contains('bv-letters')) { groepVan(f).forEach((x, i) => { if (t.checked) x.label = 'ABCDEFGH'[i]; else delete x.label; }); bijwerken(); venster(staat.velden.indexOf(f)); }
       else if (t.classList.contains('bv-meer')) {
@@ -767,6 +792,27 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
     inh.onclick = e => {
       const t = e.target.closest('button');
       if (!t) return;
+      if (t.classList.contains('bv-koppel')) return startKoppel(f);
+      if (t.classList.contains('bv-los')) {
+        geefPuntenDoor(f);
+        delete f.samen;
+        f.punten = 1;
+        ruimSamenOp();
+        bijwerken();
+        return venster(staat.velden.indexOf(f));
+      }
+      if (t.dataset.maat) {
+        const v = staat.verhouding || 1.414;
+        const kol = f.kol || ROOSTER.kol;
+        const cel = f.w / kol;
+        const max = t.dataset.maat === 'kol' ? 20 : 12;
+        f[t.dataset.maat] = Math.min(max, Math.max(2, (f[t.dataset.maat] || ROOSTER[t.dataset.maat]) + Number(t.dataset.d)));
+        // De hokjes blijven vierkant en even groot.
+        f.w = r2(Math.min(100 - f.x, cel * f.kol));
+        f.h = r2(Math.min(100 - f.y, ((f.w / f.kol) * f.rij) / v));
+        bijwerken();
+        return venster(staat.velden.indexOf(f));
+      }
       if (t.classList.contains('bv-x')) {
         t.closest('.bv-rij').remove();
         if (f.soort === 'kies') leesOpties(); else leesLijst();
@@ -800,8 +846,83 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
     };
   }
 
+  // ---------- Zo eenvoudig mogelijk en samen op punten ----------
+  const eenvoudigVink = f => `<label class="inline check" title="Bij breuken: 3/4 is juist, 6/8 niet. Een onechte breuk (7/4) moet een gemengd getal zijn (1 3/4), tenzij je juiste antwoord zelf een onechte breuk is."><input type="checkbox" data-vlag="vereenvoudigd"${f.vereenvoudigd ? ' checked' : ''}> Zo eenvoudig mogelijk (3/4 juist, 6/8 fout)</label>`;
+  const SAMEN_SOORT = new Set(['tekst', 'breuk', 'kies', 'sleep', 'plek', 'lijn']);
+  // De vakjes van een groepje, in de volgorde van het blad (zoals het in de lijst staat).
+  const samenVan = id => staat.velden.filter(g => g.samen === id);
+  const samenLetter = id => 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'[(id - 1) % 26];
+  function samenHtml(f, punten) {
+    if (!SAMEN_SOORT.has(f.soort)) return punten(f.punten ?? 1);
+    if (!f.samen) return `${punten(f.punten ?? 1)}<p class="bv-samen"><button type="button" class="secondary small-btn bv-koppel">🔗 Samen op punten met andere vakjes</button> <span class="muted small">bv. drie vakjes van één bewerking = 1 punt</span></p>`;
+    const g = samenVan(f.samen);
+    const nrs = g.filter(x => x !== f).map(x => staat.velden.indexOf(x) + 1);
+    return `${punten(g.reduce((s, x) => s + (x.punten || 0), 0), 'Punten voor het groepje')}
+      <p class="bv-samen"><span>🔗 <b>Groepje ${samenLetter(f.samen)}</b>: samen met vakje ${nrs.join(', ')}. Alleen als alles juist is, krijgt de leerling de punten.</span>
+        <button type="button" class="secondary small-btn bv-koppel">Vakjes erbij of eraf</button> <button type="button" class="secondary small-btn bv-los">Loskoppelen</button></p>`;
+  }
+  // Start: het vakje komt in een (nieuw) groepje, daarna klikt de leerkracht de andere vakjes aan op het blad.
+  function startKoppel(f) {
+    if (!f.samen) {
+      f.samen = Math.max(0, ...staat.velden.map(g => g.samen || 0)) + 1;
+      f.punten = f.punten || 1;
+    }
+    staat.koppel = f.samen;
+    box.querySelector('#be-venster').classList.add('hidden');
+    box.querySelector('#be-koppel').classList.remove('hidden');
+    kiesTool('wijs');
+    teken();
+  }
+  function koppelKlik(k) {
+    const f = staat.velden[k];
+    const id = staat.koppel;
+    if (!f || !SAMEN_SOORT.has(f.soort)) return Ui.melding('Dit vakje kan niet samen op punten. Kies een kort antwoord, breuk, keuzelijstje, sleepwoord, aanduiden of verbinden.');
+    if (f.samen === id) {
+      geefPuntenDoor(f);
+      delete f.samen;
+      f.punten = 1;
+    } else {
+      // Uit een ander groepje: daar blijven de punten.
+      if (f.samen) geefPuntenDoor(f);
+      const totaal = samenVan(id).reduce((s, g) => s + (g.punten || 0), 0) || 1;
+      f.samen = id;
+      samenVan(id).forEach((g, i) => { g.punten = i ? 0 : totaal; });
+    }
+    teken();
+  }
+  function stopKoppel() {
+    const id = staat.koppel;
+    staat.koppel = null;
+    box.querySelector('#be-koppel').classList.add('hidden');
+    ruimSamenOp();
+    teken();
+    const eerste = samenVan(id)[0];
+    if (eerste) venster(staat.velden.indexOf(eerste));
+  }
+  // Een vakje gaat uit zijn groepje (of weg): zijn punten gaan naar een ander vakje van het groepje.
+  function geefPuntenDoor(f) {
+    if (!f.samen || !f.punten) return;
+    const ander = samenVan(f.samen).find(g => g !== f);
+    if (ander) { ander.punten = (ander.punten || 0) + f.punten; f.punten = 0; }
+  }
+  // Een groepje van één vakje is geen groepje meer; de punten staan altijd op het eerste vakje.
+  function ruimSamenOp() {
+    const ids = new Set(staat.velden.map(g => g.samen).filter(Boolean));
+    for (const id of ids) {
+      const g = samenVan(id);
+      const totaal = g.reduce((s, x) => s + (x.punten || 0), 0);
+      if (g.length < 2) { delete g[0].samen; g[0].punten = totaal || 1; continue; }
+      g.forEach((x, i) => { x.punten = i ? 0 : totaal; });
+    }
+  }
+
   // Bij een groepje bolletjes of hokjes staan alle punten op het eerste juiste vakje.
   function zetPunten(f, p) {
+    if (f.samen) {
+      // Samen op punten: alle punten op het eerste vakje van het groepje.
+      samenVan(f.samen).forEach((g, i) => { g.punten = i ? 0 : p; });
+      return bijwerken();
+    }
     if (f.soort !== 'kruis') { f.punten = p; return bijwerken(); }
     const g = groepVan(f);
     const juist = g.find(x => x.antwoord) || g[0];
@@ -839,7 +960,7 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
     return Math.max(0, ...staat.velden.filter(g => g !== f && g.soort === 'kruis').map(g => g.groep || 1)) + 1;
   }
 
-  const SOORT = { tekst: '✏️ antwoord', breuk: '➗ breuk', kies: '▾ keuzelijst', sleep: '🧲 sleepwoord', kruis: '☐ hokje', plek: '📍 aanduiden', lijn: '↗️ verbinden', open: '💬 open', teken: '🎨 tekenvak', luister: '🎧 luisterknop', vlak: '⬜ vlak', notitie: '🗒️ notitie' };
+  const SOORT = { tekst: '✏️ antwoord', breuk: '➗ breuk', rooster: '🧮 rekenrooster', kies: '▾ keuzelijst', sleep: '🧲 sleepwoord', kruis: '☐ hokje', plek: '📍 aanduiden', lijn: '↗️ verbinden', open: '💬 open', teken: '🎨 tekenvak', luister: '🎧 luisterknop', vlak: '⬜ vlak', notitie: '🗒️ notitie' };
   const KLEUR_NAAM = { '#ffffff': 'wit', '#fff3b0': 'geel', '#d8ecff': 'blauw', '#e4e4e4': 'grijs', '#ffd9d9': 'roze' };
   function rijHtml(f, k) {
     const s = `<select class="be-s" aria-label="Soort">${Object.entries(SOORT).map(([v, l]) => `<option value="${v}"${f.soort === v ? ' selected' : ''}>${l}</option>`).join('')}</select>`;
@@ -851,8 +972,8 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
     else if (f.soort === 'vlak') antw = `<select class="be-a" aria-label="Kleur">${Object.entries(KLEUR_NAAM).map(([k, n]) => `<option value="${k}"${f.kleur === k ? ' selected' : ''}>${n}</option>`).join('')}</select>`;
     else if (f.soort === 'notitie') antw = `<input class="be-a" value="${esc(f.tekst || '')}" placeholder="tekst op het blad">`;
     else if (f.soort === 'luister') antw = `<span class="pf-be-luister"><span class="pf-be-audio" data-k="${k}"></span><input class="be-a" value="${esc(f.tekst || '')}" placeholder="of: tekst om voor te lezen"></span>`;
-    else antw = `<input class="be-a" value="${esc(f.antwoord || '')}" placeholder="${f.soort === 'open' ? 'modelantwoord (voor jou)' : f.soort === 'teken' ? 'waar je op let (voor jou)' : f.soort === 'breuk' ? 'bijv. 3/4' : f.soort === 'sleep' ? 'het juiste woord' : 'bijv. 1600|1 600'}">`;
-    return `<div class="pf-be-rij${staat.sel === k ? ' on' : ''}${leegVeld(f, k, staat.velden) ? ' zonder' : ''}" data-k="${k}"><b>${k + 1}</b>${s}${antw}
+    else antw = `<input class="be-a" value="${esc(f.antwoord || '')}" placeholder="${f.soort === 'open' ? 'modelantwoord (voor jou)' : f.soort === 'teken' ? 'waar je op let (voor jou)' : f.soort === 'rooster' ? 'uitwerking (voor jou)' : f.soort === 'breuk' ? 'bijv. 3/4' : f.soort === 'sleep' ? 'het juiste woord' : 'bijv. 1600|1 600'}">`;
+    return `<div class="pf-be-rij${staat.sel === k ? ' on' : ''}${leegVeld(f, k, staat.velden) ? ' zonder' : ''}" data-k="${k}"><b>${k + 1}${f.samen ? `<small title="Samen op punten">🔗${samenLetter(f.samen)}</small>` : ''}</b>${s}${antw}
       <input class="be-e" value="${esc(f.eenheid || '')}"${f.soort === 'tekst' || f.soort === 'breuk' ? '' : ' disabled'} aria-label="Eenheid"><input class="be-p" type="number" min="0" max="100" step="0.5" value="${f.punten ?? 1}" aria-label="Punten"${['luister', 'vlak', 'notitie'].includes(f.soort) ? ' disabled' : ''}><button type="button" class="secondary small-btn weg" title="Vakje weghalen">✕</button></div>`;
   }
 
@@ -860,12 +981,14 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
   const leegVeld = (f, _, velden) => (f.soort === 'kruis' && Array.isArray(velden) && !velden.some(g => g.soort === 'kruis' && g.groep === f.groep && g.antwoord)) || ((f.soort === 'tekst' || f.soort === 'breuk' || f.soort === 'sleep') && !String(f.antwoord || '').trim()) || (f.soort === 'plek' && !f.doel) || (f.soort === 'lijn' && !f.naar) || (f.soort === 'luister' && !f.audio && !String(f.tekst || '').trim()) || (f.soort === 'kies' && (!(f.opties || []).includes(f.antwoord) || f.opties.length < 2));
   function veldHtml(f, k) {
     const leeg = leegVeld(f, k, staat.velden);
-    const tekst = f.soort === 'kruis' ? f.label || (f.antwoord ? '✓' : '') : f.soort === 'luister' ? '🎧' : f.soort === 'plek' ? '📍' : f.soort === 'lijn' ? '' : f.soort === 'teken' ? '🎨' : f.soort === 'vlak' ? '' : f.soort === 'notitie' ? (f.tekst || '🗒️') : f.soort === 'open' ? '' : f.antwoord ? `${f.soort === 'kies' ? '▾ ' : ''}${String(f.antwoord).split('|')[0]}` : '';
-    return `<div class="pf-be-veld ${f.soort}${f.rond ? ' rond' : ''}${f.soort === 'kruis' && f.antwoord ? ' juist' : ''}${staat.sel === k ? ' on' : ''}${leeg ? ' zonder' : ''}" data-k="${k}" style="left:${f.x}%;top:${f.y}%;width:${f.w}%;height:${f.h}%${f.soort === 'vlak' ? `;background:${f.kleur || '#fff'}` : ''}">${f.soort === 'kruis' && groepVan(f)[0] !== f ? '' : `<span class="nr">${k + 1}</span>`}<span class="t">${esc(tekst)}</span>${f.soort === 'plek' && f.doel ? `<i class="pf-plek-doel" style="left:${f.doel.x}%;top:${f.doel.y}%;width:${2 * f.doel.r}%"></i>` : ''}<i class="greep"></i></div>`;
+    const tekst = f.soort === 'kruis' ? f.label || (f.antwoord ? '✓' : '') : f.soort === 'luister' ? '🎧' : f.soort === 'plek' ? '📍' : f.soort === 'lijn' ? '' : f.soort === 'teken' ? '🎨' : f.soort === 'rooster' ? '🧮' : f.soort === 'vlak' ? '' : f.soort === 'notitie' ? (f.tekst || '🗒️') : f.soort === 'open' ? '' : f.antwoord ? `${f.soort === 'kies' ? '▾ ' : ''}${String(f.antwoord).split('|')[0]}` : '';
+    const koppel = staat.koppel ? (f.samen === staat.koppel ? ' koppel-in' : SAMEN_SOORT.has(f.soort) ? ' koppel-kan' : ' koppel-niet') : '';
+    return `<div class="pf-be-veld ${f.soort}${f.rond ? ' rond' : ''}${f.soort === 'kruis' && f.antwoord ? ' juist' : ''}${staat.sel === k ? ' on' : ''}${leeg ? ' zonder' : ''}${koppel}" data-k="${k}" style="left:${f.x}%;top:${f.y}%;width:${f.w}%;height:${f.h}%${f.soort === 'vlak' ? `;background:${f.kleur || '#fff'}` : ''}${f.soort === 'rooster' ? `;--kol:${f.kol || ROOSTER.kol};--rij:${f.rij || ROOSTER.rij}` : ''}">${f.soort === 'kruis' && groepVan(f)[0] !== f ? '' : `<span class="nr">${k + 1}</span>`}${f.samen ? `<span class="samen-tag" title="Samen op punten">🔗${samenLetter(f.samen)}</span>` : ''}<span class="t">${esc(tekst)}</span>${f.soort === 'plek' && f.doel ? `<i class="pf-plek-doel" style="left:${f.doel.x}%;top:${f.doel.y}%;width:${2 * f.doel.r}%"></i>` : ''}<i class="greep"></i></div>`;
   }
 
   function teken() {
     box.querySelector('#be-velden').innerHTML = lijnenHtml() + staat.velden.map(veldHtml).join('');
+    if (staat.koppel) { const n = samenVan(staat.koppel).length; box.querySelector('#be-koppel-n').textContent = `${n} ${n === 1 ? 'vakje' : 'vakjes'}`; }
     box.querySelector('#be-rijen').innerHTML = staat.velden.length ? staat.velden.map(rijHtml).join('') : '<p class="muted small">Nog geen vakjes. Sleep op het blad om er een te maken.</p>';
     audioKnoppen();
     box.querySelector('.pf-be-woorden').classList.toggle('hidden', !staat.velden.some(f => f.soort === 'sleep'));
@@ -913,7 +1036,9 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
     }
   }
   function weg(k) {
+    geefPuntenDoor(staat.velden[k]);
     staat.velden.splice(k, 1);
+    ruimSamenOp();
     staat.sel = null;
     teken();
   }
@@ -927,6 +1052,8 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
       if (f.soort === 'kruis') { f.antwoord = false; f.groep = groepBij(f); f.punten = 0; delete f.eenheid; } else if (typeof f.antwoord === 'boolean') delete f.antwoord;
       if (['luister', 'vlak', 'notitie'].includes(f.soort)) { f.punten = 0; delete f.antwoord; delete f.eenheid; }
       if (f.soort === 'vlak' && !f.kleur) f.kleur = '#ffffff';
+      if (f.soort === 'rooster') { f.kol = f.kol || ROOSTER.kol; f.rij = f.rij || ROOSTER.rij; }
+      if (f.samen && !SAMEN_SOORT.has(f.soort)) { geefPuntenDoor(f); delete f.samen; ruimSamenOp(); }
       if (f.soort === 'kies' && !f.opties) f.opties = [];
       if (f.soort === 'kruis') { const v = staat.verhouding || 1.414; f.h = r2(Math.min(f.h, 3)); f.w = r2(f.h * v); }
       teken();
@@ -944,7 +1071,11 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
     }
     if (el.classList.contains('be-g')) f.groep = Math.max(1, Math.round(Number(el.value)) || 1);
     if (el.classList.contains('be-e')) f.eenheid = el.value.trim();
-    if (el.classList.contains('be-p')) f.punten = Math.max(0, Number(String(el.value).replace(',', '.')) || 0);
+    if (el.classList.contains('be-p')) {
+      const p = Math.max(0, Number(String(el.value).replace(',', '.')) || 0);
+      if (f.samen) { zetPunten(f, p); if (opnieuw) teken(); return; }
+      f.punten = p;
+    }
     const veld = box.querySelector(`.pf-be-veld[data-k="${k}"]`);
     if (veld) veld.outerHTML = veldHtml(f, k);
     rij.classList.toggle('zonder', leegVeld(f));
@@ -963,7 +1094,8 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
   function bewerk(b, opts = {}) {
     if (!box) maakBox();
     if (staat && staat.klaar) sluit(null);
-    staat = { velden: (b.velden || []).map(f => ({ ...f })), sel: null, beeld: b.beeld, verhouding: b.verhouding, opts, tool: 'wijs', aantal: 4, klembord: null, muis: null, opVeld: null };
+    staat = { velden: (b.velden || []).map(f => ({ ...f })), sel: null, beeld: b.beeld, verhouding: b.verhouding, opts, tool: 'wijs', aantal: 4, klembord: null, muis: null, opVeld: null, koppel: null };
+    box.querySelector('#be-koppel').classList.add('hidden');
     kiesTool('wijs');
     box.querySelector('#be-aantal').textContent = staat.aantal;
     box.querySelector('#be-venster').classList.add('hidden');
