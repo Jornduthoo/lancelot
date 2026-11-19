@@ -267,3 +267,18 @@ test('rekenrooster: een deling (quotiënt en rest) en elk hokje apart (grondplan
   // 0,5 + 0,5 punt is samen 1 punt; een deel van de hokjes geeft een halve punt.
   assert.equal(K.auto(q, ['', '21', '', '']), 0.5);
 });
+
+test('aanduiden met meer juiste plekken en een label, verbinden met een lengte', () => {
+  const q = blad([
+    { x: 0, y: 0, w: 100, h: 50, soort: 'plek', doel: { x: 20, y: 20, r: 5 }, doelen: [{ x: 80, y: 80, r: 5 }], label: 'A' },
+    { x: 10, y: 60, w: 2, h: 2, soort: 'lijn', lengte: '6,3' },
+    { x: 10, y: 70, w: 2, h: 2, soort: 'lijn', lengte: '5', lengteMarge: '0,5' },
+    { x: 0, y: 80, w: 50, h: 10, soort: 'plek', doel: { x: 50, y: 50, r: 10 } },
+  ]);
+  assert.equal(K.viewOf(q).velden[0].label, 'A');
+  assert.equal(K.viewOf(q).velden[0].doelen, undefined);
+  // 6,3 cm op een blad van 21 cm breed = 30 %; 5 cm naar onder.
+  assert.deepEqual(K.vakDeel(q, ['80,80', '41,61', `11,${71 + (5 / 21) * 100 / 1.414}`, '50,50']), [1, 1, 1, 1]);
+  assert.deepEqual(K.vakDeel(q, ['50,50', '45,61', '11,81', '90,50']), [0, 0, 0, 0]);
+  assert.deepEqual(K.veldSleutel(q).slice(1, 3), ['6,3 cm (± 0,2)', '5 cm (± 0,5)']);
+});

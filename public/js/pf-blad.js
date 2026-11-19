@@ -795,21 +795,31 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
       kop.textContent = NAAM.plek;
       inh.innerHTML = `<p class="bv-vraag">Klik op de juiste plek:</p>
         <div class="bv-plek" style="aspect-ratio:${r2(f.w / (f.h * v))}"><img src="${esc(staat.beeld)}" alt="" draggable="false" style="position:absolute;width:${r2((100 / f.w) * 100)}%;left:${r2((-f.x / f.w) * 100)}%;top:${r2((-f.y / f.h) * 100)}%;max-width:none">
-          ${f.doel ? `<i class="pf-plek-doel" style="left:${d.x}%;top:${d.y}%;width:${2 * d.r}%"></i>` : ''}</div>
+          ${f.doel ? `<i class="pf-plek-doel" style="left:${d.x}%;top:${d.y}%;width:${2 * d.r}%"></i>` : ''}${(f.doelen || []).map(z => `<i class="pf-plek-doel extra" style="left:${z.x}%;top:${z.y}%;width:${2 * z.r}%"></i>`).join('')}</div>
         <label>Hoe groot is de juiste plek? <input type="range" class="bv-r" min="3" max="50" value="${d.r}"></label>
-        <p class="muted small">De leerling tikt in dit kader een plek aan. Binnen de groene cirkel is juist.</p>${samenHtml(f, punten)}`;
+        ${f.doel ? `<p class="bv-samen"><button type="button" class="secondary small-btn bv-plek-extra">${staat.plekExtra ? '✔ Klik nu op de andere juiste plek' : '+ Nog een juiste plek'}</button>${(f.doelen || []).length ? ` <button type="button" class="secondary small-btn bv-plek-wis">Extra plekken weg (${f.doelen.length})</button>` : ''}</p>` : ''}
+        <label>Label dat de leerling op de plek zet (mag leeg) <input class="bv-label" value="${esc(f.label || '')}" placeholder="bijv. A of boom"></label>
+        <p class="muted small">De leerling tikt in dit kader een plek aan. Binnen een groene cirkel is juist. Met een label tikt de leerling eerst het label aan en zet het dan op de plek. Kaders met een label mogen over elkaar liggen.</p>${samenHtml(f, punten)}`;
       const vak = inh.querySelector('.bv-plek');
       vak.addEventListener('click', e => {
         const r = vak.getBoundingClientRect();
-        f.doel = { x: r2(((e.clientX - r.left) / r.width) * 100), y: r2(((e.clientY - r.top) / r.height) * 100), r: Number(inh.querySelector('.bv-r').value) };
+        const z = { x: r2(((e.clientX - r.left) / r.width) * 100), y: r2(((e.clientY - r.top) / r.height) * 100), r: Number(inh.querySelector('.bv-r').value) };
+        if (staat.plekExtra && f.doel) { f.doelen = [...(f.doelen || []), z].slice(0, 8); staat.plekExtra = false; } else f.doel = z;
         bijwerken();
         venster(staat.velden.indexOf(f));
       });
+      const extra = inh.querySelector('.bv-plek-extra');
+      if (extra) extra.addEventListener('click', () => { staat.plekExtra = !staat.plekExtra; venster(staat.velden.indexOf(f)); });
+      const wis = inh.querySelector('.bv-plek-wis');
+      if (wis) wis.addEventListener('click', () => { delete f.doelen; staat.plekExtra = false; bijwerken(); venster(staat.velden.indexOf(f)); });
     } else if (f.soort === 'lijn') {
       kop.textContent = NAAM.lijn;
       inh.innerHTML = `<p class="bv-vraag">De leerling sleept een lijn van het bolletje naar de juiste plek (de groene cirkel).</p>
         <label>Hoe dicht moet het eindpunt liggen? <input type="range" class="bv-lr" min="1" max="10" step="0.5" value="${f.r || 3}"></label>
-        <p class="muted small">Het bolletje kun je verschuiven. Juiste plek fout? Haal de lijn weg en trek ze opnieuw.</p>${samenHtml(f, punten)}`;
+        <p class="muted small">Het bolletje kun je verschuiven. Juiste plek fout? Haal de lijn weg en trek ze opnieuw.</p>
+        <div class="bv-opties"><label>Of: een lijnstuk van (cm, mag leeg) <input class="bv-lengte" inputmode="decimal" value="${esc(f.lengte ?? '')}" placeholder="bijv. 6,5"></label>
+          <label>Marge (cm) <input class="bv-lmarge" inputmode="decimal" value="${esc(f.lengteMarge ?? '')}" placeholder="0,2"></label></div>
+        <p class="muted small">Met een lengte telt alleen hoe lang de lijn is, in elke richting, vanaf het bolletje. De leerling meet met 📏 Lat. Klopt de grootte niet? Stel de schaal in met 📏 Schaal van het blad.</p>${samenHtml(f, punten)}`;
     } else if (f.soort === 'notitie') {
       kop.textContent = NAAM.notitie;
       inh.innerHTML = `<label>Tekst op het blad<textarea class="bv-tekst" rows="3">${esc(f.tekst || '')}</textarea></label>`;
@@ -863,6 +873,9 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
         bijwerken();
       }
       else if (t.classList.contains('bv-uitkomst')) { f.uitkomst = t.value.trim(); bijwerken(); }
+      else if (t.classList.contains('bv-label')) { const l = t.value.trim(); if (l) f.label = l; else delete f.label; bijwerken(); }
+      else if (t.classList.contains('bv-lengte')) { const l = t.value.trim(); if (l) f.lengte = l; else { delete f.lengte; delete f.lengteMarge; } bijwerken(); }
+      else if (t.classList.contains('bv-lmarge')) { const l = t.value.trim(); if (l) f.lengteMarge = l; else delete f.lengteMarge; bijwerken(); }
       else if (t.classList.contains('bv-quotient')) { f.quotient = t.value.trim(); bijwerken(); }
       else if (t.classList.contains('bv-rest')) { f.rest = t.value.trim(); bijwerken(); }
       else if (t.classList.contains('bv-margew')) { f.marge = t.value; bijwerken(); }
@@ -1205,14 +1218,14 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
   }
 
   // Nog zonder antwoord? velden: alle vakjes van het blad (voor een groepje bolletjes zonder juist antwoord).
-  const leegVeld = (f, _, velden) => (f.soort === 'kruis' && Array.isArray(velden) && !velden.some(g => g.soort === 'kruis' && g.groep === f.groep && g.antwoord)) || ((f.soort === 'tekst' || f.soort === 'breuk' || f.soort === 'sleep') && !String(f.antwoord || '').trim() && !f.doorstreep) || (f.soort === 'plek' && !f.doel) || (f.soort === 'lijn' && !f.naar) || (f.soort === 'luister' && !f.audio && !String(f.tekst || '').trim()) || (f.soort === 'kies' && (!(f.opties || []).includes(f.antwoord) || f.opties.length < 2))
+  const leegVeld = (f, _, velden) => (f.soort === 'kruis' && Array.isArray(velden) && !velden.some(g => g.soort === 'kruis' && g.groep === f.groep && g.antwoord)) || ((f.soort === 'tekst' || f.soort === 'breuk' || f.soort === 'sleep') && !String(f.antwoord || '').trim() && !f.doorstreep) || (f.soort === 'plek' && !f.doel) || (f.soort === 'lijn' && !f.naar && !f.lengte) || (f.soort === 'luister' && !f.audio && !String(f.tekst || '').trim()) || (f.soort === 'kies' && (!(f.opties || []).includes(f.antwoord) || f.opties.length < 2))
     || (f.soort === 'rooster' && !!f.nakijk && (f.nakijk === 'deling' ? !String(f.quotient || '').trim() : !(f.sleutel || '').trim() && !(f.nakijk === 'uitkomst' && String(f.uitkomst || '').trim())))
     || (f.soort === 'puntlijn' && ((f.pt || []).length < 2 || (f.doorPunt === undefined && !(f.lijnen || []).length)))
     || (f.soort === 'cirkel' && !(f.cirkels || []).length)
     || (f.soort === 'veelhoek' && !f.figuur);
   function veldHtml(f, k) {
     const leeg = leegVeld(f, k, staat.velden);
-    const tekst = f.soort === 'kruis' ? f.label || (f.antwoord ? '✓' : '') : f.soort === 'luister' ? '🎧' : f.soort === 'plek' ? '📍' : f.soort === 'lijn' ? '' : f.soort === 'teken' ? '🎨' : f.soort === 'rooster' ? '🧮' : f.soort === 'klad' ? '📝 klad' : f.soort === 'puntlijn' || f.soort === 'cirkel' || f.soort === 'veelhoek' ? '' : f.soort === 'vlak' ? '' : f.soort === 'notitie' ? (f.tekst || '🗒️') : f.soort === 'open' ? '' : f.antwoord ? `${f.soort === 'kies' ? '▾ ' : ''}${String(f.antwoord).split('|')[0]}` : '';
+    const tekst = f.soort === 'kruis' ? f.label || (f.antwoord ? '✓' : '') : f.soort === 'luister' ? '🎧' : f.soort === 'plek' ? `📍${f.label ? ` ${f.label}` : ''}` : f.soort === 'lijn' ? '' : f.soort === 'teken' ? '🎨' : f.soort === 'rooster' ? '🧮' : f.soort === 'klad' ? '📝 klad' : f.soort === 'puntlijn' || f.soort === 'cirkel' || f.soort === 'veelhoek' ? '' : f.soort === 'vlak' ? '' : f.soort === 'notitie' ? (f.tekst || '🗒️') : f.soort === 'open' ? '' : f.antwoord ? `${f.soort === 'kies' ? '▾ ' : ''}${String(f.antwoord).split('|')[0]}` : '';
     const koppel = staat.koppel ? (f.samen === staat.koppel ? ' koppel-in' : SAMEN_SOORT.has(f.soort) ? ' koppel-kan' : ' koppel-niet') : '';
     return `<div class="pf-be-veld ${f.soort}${f.rond ? ' rond' : ''}${f.soort === 'kruis' && f.antwoord ? ' juist' : ''}${staat.sel === k ? ' on' : ''}${leeg ? ' zonder' : ''}${koppel}" data-k="${k}" style="left:${f.x}%;top:${f.y}%;width:${f.w}%;height:${f.h}%${f.soort === 'vlak' ? `;background:${f.kleur || '#fff'}` : ''}${f.soort === 'rooster' ? `;--kol:${f.kol || ROOSTER.kol};--rij:${f.rij || ROOSTER.rij}` : ''}">${f.soort === 'kruis' && groepVan(f)[0] !== f ? '' : `<span class="nr">${k + 1}</span>`}${f.samen ? `<span class="samen-tag" title="Samen op punten">🔗${samenLetter(f.samen)}</span>` : ''}<span class="t">${esc(tekst)}</span>${f.soort === 'plek' && f.doel ? `<i class="pf-plek-doel" style="left:${f.doel.x}%;top:${f.doel.y}%;width:${2 * f.doel.r}%"></i>` : ''}${vormHtml(f)}<i class="greep"></i></div>`;
   }

@@ -464,7 +464,7 @@ const PfPaper = (() => {
       const pos = `left:${f.x}%;top:${f.y}%;width:${f.w}%;height:${f.h}%;font-size:max(9px,${Math.round(Math.min(f.h * v * 0.62, 2.2) * 100) / 100}cqw)`;
       // Met een oordeel (verbeteren) alleen de sleutel bij een fout vakje, anders staat alles vol rood.
       // Bij aanduiden toont de sleutel de juiste plek als cirkel (als het vak die kent).
-      const zone = sleutel && f.soort === 'plek' && f.doel ? `<i class="pf-plek-doel" style="left:${f.x + (f.doel.x * f.w) / 100}%;top:${f.y + (f.doel.y * f.h) / 100}%;width:${(2 * f.doel.r * f.w) / 100}%"></i>` : '';
+      const zone = sleutel && f.soort === 'plek' && f.doel ? [f.doel, ...(f.doelen || [])].map(d => `<i class="pf-plek-doel" style="left:${f.x + (d.x * f.w) / 100}%;top:${f.y + (d.y * f.h) / 100}%;width:${(2 * d.r * f.w) / 100}%"></i>`).join('') : '';
       const zoneLijn = sleutel && f.soort === 'lijn' && f.naar ? `<i class="pf-plek-doel" style="left:${f.naar.x}%;top:${f.naar.y}%;width:${2 * (f.r || 3)}%"></i>` : '';
       // Kladruimte telt niet mee: niet op papier, en geen sleutel.
       if (f.soort === 'klad' && print) return '';
@@ -480,7 +480,7 @@ const PfPaper = (() => {
       // Een lang antwoord loopt verder dan het vakje (naar rechts en naar onder), zodat er niets wegvalt.
       // Volgorde vrij: bij een fout vakje alle antwoorden van het groepje (welk ontbreekt, hangt af van de andere vakjes).
       const sk = sleutel && sleutel[k] && f.vrij && oordeel ? [...new Set(q.velden.map((g, i) => (g.vrij === f.vrij ? sleutel[i] : '')).filter(Boolean))].join(' / ') : sleutel && sleutel[k];
-      const s = f.soort === 'plek' ? zone : f.soort === 'lijn' ? zoneLijn : f.soort === 'klad' ? '' : sk && !(oordeel && oordeel.goed[k] !== false) ? `<span class="pf-veld-sleutel${b[k] ? '' : ' in'}" style="left:${f.x}%;top:${b[k] ? f.y + f.h : f.y}%;max-width:${Math.max(f.w, 100 - f.x)}%;${b[k] ? '' : `min-width:${f.w}%;min-height:${f.h}%;`}">${gemengd(esc(sk)).replace(/\n/g, '<br>')}</span>` : '';
+      const s = f.soort === 'plek' ? zone : f.soort === 'lijn' && (!sk || sk === '↗') ? zoneLijn : f.soort === 'klad' ? '' : sk && !(oordeel && oordeel.goed[k] !== false) ? `<span class="pf-veld-sleutel${b[k] ? '' : ' in'}" style="left:${f.x}%;top:${b[k] ? f.y + f.h : f.y}%;max-width:${Math.max(f.w, 100 - f.x)}%;${b[k] ? '' : `min-width:${f.w}%;min-height:${f.h}%;`}">${gemengd(esc(sk)).replace(/\n/g, '<br>')}</span>` : '';
       if (f.soort === 'vlak') return `<i class="pf-vlak" style="left:${f.x}%;top:${f.y}%;width:${f.w}%;height:${f.h}%;background:${esc(f.kleur || '#fff')}"></i>`;
       if (f.soort === 'notitie') return `<span class="pf-notitie" style="${pos}">${esc(f.tekst || '').replace(/\n/g, '<br>')}</span>`;
       if (print) return (f.soort === 'rooster' ? veldEl(f, k, pos, null) : '') + s;
@@ -505,7 +505,9 @@ const PfPaper = (() => {
         + (m && !print ? `<line class="ant" data-k="${k}" x1="${x1}" y1="${y1}" x2="${m[1]}" y2="${m[2]}" vector-effect="non-scaling-stroke"/>` : '');
     }).join('');
     const svg = q.velden.some(f => f.soort === 'lijn') ? `<svg class="pf-lijnen" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${lijnen}</svg>` : '';
-    const bank = bankHtml(q.bank, live, print);
+    // Labels om op de juiste plek te zetten: tik op een label en dan op de plek (in alfabetische volgorde, de volgorde verraadt niets).
+    const labels = live ? q.velden.map((f, k) => (f.soort === 'plek' && f.label ? { k, t: f.label } : null)).filter(Boolean).sort((x, y) => x.t.localeCompare(y.t, 'nl', { numeric: true })) : [];
+    const bank = bankHtml(q.bank, live, print) + (labels.length ? `<div class="pf-label-bank"><span class="pf-tip">Tik op een label en dan op de juiste plek.</span> ${labels.map(l => `<button type="button" class="pf-label-w${b[l.k] ? ' gezet' : ''}" data-k="${l.k}">${esc(l.t)}</button>`).join('')}</div>` : '');
     return `${live ? '<p class="pf-tip pf-blad-tip">Typ je antwoorden in de vakjes op het blad. <button type="button" class="link pf-groter">🔍 Groter</button> <button type="button" class="link pf-lat-knop">📏 Lat</button></p>' : ''}${bank}
       <div class="pf-blad-wrap"><div class="pf-blad-vel" data-schaal="${q.schaal || 21}" data-verhouding="${v}" style="aspect-ratio:${Math.round((1 / v) * 10000) / 10000}">${q.beeld ? `<img src="${esc(q.beeld)}" alt="" draggable="false">` : ''}${svg}${velden}</div></div>`;
 
@@ -545,7 +547,8 @@ const PfPaper = (() => {
       if (f.soort === 'sleep') return `<button type="button" class="pf-veld sleep${kl}${b[k] ? ' vol' : ''}" data-k="${k}" data-waarde="${esc(b[k] || '')}" style="${pos}"${live ? '' : ' disabled'}>${esc(b[k] || '')}</button>`;
       if (f.soort === 'plek') {
         const [px, py] = String(b[k] || '').split(',').map(Number);
-        return `<div class="pf-veld plek${kl}${live ? '' : ' kijk'}" data-k="${k}" data-waarde="${esc(b[k] || '')}" style="left:${f.x}%;top:${f.y}%;width:${f.w}%;height:${f.h}%" title="Tik de juiste plek aan">${b[k] ? `<i class="pf-plek-pin" style="left:${px}%;top:${py}%"></i>` : ''}</div>`;
+        const pin = b[k] ? `<i class="pf-plek-pin${f.label ? ' label' : ''}" style="left:${px}%;top:${py}%">${esc(f.label || '')}</i>` : '';
+        return `<div class="pf-veld plek${f.label ? ' met-label' : ''}${kl}${live ? '' : ' kijk'}" data-k="${k}" data-label="${esc(f.label || '')}" data-waarde="${esc(b[k] || '')}" style="left:${f.x}%;top:${f.y}%;width:${f.w}%;height:${f.h}%" title="${f.label ? `Zet ${esc(f.label)} op de juiste plek` : 'Tik de juiste plek aan'}">${pin}</div>`;
       }
       if (f.soort === 'lijn') return live ? `<button type="button" class="pf-veld lijn" data-k="${k}" data-waarde="${esc(b[k] || '')}" style="left:${f.x}%;top:${f.y}%;width:${f.w}%;height:${f.h}%" title="Sleep een lijn naar de juiste plek" aria-label="Verbinden"></button>` : `<span class="pf-veld lijn${kl}" data-k="${k}" data-waarde="${esc(b[k] || '')}" style="left:${f.x}%;top:${f.y}%;width:${f.w}%;height:${f.h}%"></span>`;
       if (f.soort === 'kies') return `<select class="pf-veld kies${kl}" data-k="${k}" style="${pos}"${live ? '' : ' disabled'}><option value=""></option>${(f.opties || []).map(x => `<option${b[k] === x ? ' selected' : ''}>${esc(x)}</option>`).join('')}</select>`;
@@ -946,13 +949,25 @@ const PfPaper = (() => {
         });
       }
       // Aanduiden op een blad: een speld waar de leerling tikt.
+      // Met een label: eerst het label kiezen; alleen de plek van dat label luistert dan (de kaders mogen over elkaar liggen).
+      const kiesLabel = k => {
+        for (const x of el.querySelectorAll('.pf-label-w')) x.classList.toggle('on', x.dataset.k === k);
+        for (const x of el.querySelectorAll('.pf-veld.plek.met-label')) x.classList.toggle('actief', x.dataset.k === k);
+      };
+      for (const w of el.querySelectorAll('.pf-label-w')) w.addEventListener('click', () => kiesLabel(w.classList.contains('on') ? null : w.dataset.k));
       for (const v of el.querySelectorAll('.pf-veld.plek')) {
         v.addEventListener('click', e => {
+          if (v.classList.contains('met-label') && !v.classList.contains('actief')) return;
           const r = v.getBoundingClientRect();
           const x = Math.round(Math.min(100, Math.max(0, ((e.clientX - r.left) / r.width) * 100)) * 10) / 10;
           const y = Math.round(Math.min(100, Math.max(0, ((e.clientY - r.top) / r.height) * 100)) * 10) / 10;
           v.dataset.waarde = `${x},${y}`;
-          v.innerHTML = `<i class="pf-plek-pin" style="left:${x}%;top:${y}%"></i>`;
+          v.innerHTML = `<i class="pf-plek-pin${v.dataset.label ? ' label' : ''}" style="left:${x}%;top:${y}%">${esc(v.dataset.label || '')}</i>`;
+          if (v.dataset.label) {
+            const w = el.querySelector(`.pf-label-w[data-k="${v.dataset.k}"]`);
+            if (w) w.classList.add('gezet');
+            kiesLabel(null);
+          }
           send(el);
         });
       }

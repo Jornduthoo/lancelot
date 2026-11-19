@@ -204,5 +204,17 @@
  "Elk hokje telt apart, op zijn eigen plek. Een hokje dat leeg moet blijven, is fout als de leerling er iets in zet. De punten gaan naar het deel juiste hokjes.": "Each square counts separately, in its own place. A square that must stay empty is wrong if the pupil writes in it. The points follow the share of correct squares.",
  "quotiënt {0}{1}": "quotient {0}{1}",
  ", rest {0}": ", remainder {0}",
- "rest {0}": "remainder {0}"
+ "rest {0}": "remainder {0}",
+ "bijv. A of boom": "e.g. A or tree",
+ "Label dat de leerling op de plek zet (mag leeg)": "Label the pupil puts on the spot (may be empty)",
+ "De leerling tikt in dit kader een plek aan. Binnen een groene cirkel is juist. Met een label tikt de leerling eerst het label aan en zet het dan op de plek. Kaders met een label mogen over elkaar liggen.": "The pupil taps a spot inside this frame. Inside a green circle is correct. With a label, the pupil first taps the label and then puts it on the spot. Frames with a label may overlap.",
+ "✔ Klik nu op de andere juiste plek": "✔ Now click the other correct spot",
+ "+ Nog een juiste plek": "+ Another correct spot",
+ "Extra plekken weg ({0})": "Remove extra spots ({0})",
+ "bijv. 6,5": "e.g. 6.5",
+ "Of: een lijnstuk van (cm, mag leeg)": "Or: a line segment of (cm, may be empty)",
+ "Marge (cm)": "Margin (cm)",
+ "Met een lengte telt alleen hoe lang de lijn is, in elke richting, vanaf het bolletje. De leerling meet met 📏 Lat. Klopt de grootte niet? Stel de schaal in met 📏 Schaal van het blad.": "With a length, only the length of the line counts, in any direction, from the dot. The pupil measures with 📏 Ruler. Size wrong? Set the scale with 📏 Sheet scale.",
+ "Tik op een label en dan op de juiste plek.": "Tap a label and then the correct spot.",
+ "Zet {0} op de juiste plek": "Put {0} on the correct spot"
 }

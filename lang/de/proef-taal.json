@@ -204,5 +204,17 @@
  "Elk hokje telt apart, op zijn eigen plek. Een hokje dat leeg moet blijven, is fout als de leerling er iets in zet. De punten gaan naar het deel juiste hokjes.": "Jedes Kästchen zählt einzeln, an seinem Platz. Ein Kästchen, das leer bleiben muss, ist falsch, wenn das Kind etwas hineinschreibt. Die Punkte richten sich nach dem Anteil richtiger Kästchen.",
  "quotiënt {0}{1}": "Quotient {0}{1}",
  ", rest {0}": ", Rest {0}",
- "rest {0}": "Rest {0}"
+ "rest {0}": "Rest {0}",
+ "bijv. A of boom": "z. B. A oder Baum",
+ "Label dat de leerling op de plek zet (mag leeg)": "Etikett, das das Kind auf die Stelle setzt (darf leer bleiben)",
+ "De leerling tikt in dit kader een plek aan. Binnen een groene cirkel is juist. Met een label tikt de leerling eerst het label aan en zet het dan op de plek. Kaders met een label mogen over elkaar liggen.": "Das Kind tippt eine Stelle in diesem Rahmen an. Innerhalb eines grünen Kreises ist richtig. Mit Etikett tippt das Kind zuerst das Etikett an und setzt es dann auf die Stelle. Rahmen mit Etikett dürfen sich überlappen.",
+ "✔ Klik nu op de andere juiste plek": "✔ Klick jetzt auf die andere richtige Stelle",
+ "+ Nog een juiste plek": "+ Noch eine richtige Stelle",
+ "Extra plekken weg ({0})": "Zusätzliche Stellen entfernen ({0})",
+ "bijv. 6,5": "z. B. 6,5",
+ "Of: een lijnstuk van (cm, mag leeg)": "Oder: eine Strecke von (cm, darf leer bleiben)",
+ "Marge (cm)": "Toleranz (cm)",
+ "Met een lengte telt alleen hoe lang de lijn is, in elke richting, vanaf het bolletje. De leerling meet met 📏 Lat. Klopt de grootte niet? Stel de schaal in met 📏 Schaal van het blad.": "Mit einer Länge zählt nur, wie lang die Linie ist, in jede Richtung, ab dem Punkt. Das Kind misst mit 📏 Lineal. Stimmt die Größe nicht? Stell den Maßstab mit 📏 Maßstab des Blattes ein.",
+ "Tik op een label en dan op de juiste plek.": "Tippe auf ein Etikett und dann auf die richtige Stelle.",
+ "Zet {0} op de juiste plek": "Setze {0} an die richtige Stelle"
 }
