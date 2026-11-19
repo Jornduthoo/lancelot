@@ -93,3 +93,28 @@ test('Mijn lesmap: een oude _mappen.json zonder tijden werkt zoals vroeger', () 
   assert.strictEqual(out, 'X');
   fs.rmSync(tmp, { recursive: true, force: true });
 });
+
+test('Mijn lesmap: schrijft een ander toestel een oude _mappen.json (zonder tijden), dan zegt LANcelot het', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'mappen-ander-'));
+  const bord = path.join(tmp, 'bord'), map = path.join(tmp, 'lesmap');
+  fs.mkdirSync(path.join(map, 'toetsen'), { recursive: true });
+  fs.mkdirSync(path.join(bord, 'proeven'), { recursive: true });
+  for (const n of ['a', 'b']) fs.writeFileSync(path.join(map, 'toetsen', `${n}.json`), JSON.stringify(TOETS(n)));
+  // Een oude lesmap van voor de tijden: de eerste ronde is geen melding (dat was deze pc zelf, voor de update).
+  fs.writeFileSync(path.join(map, 'toetsen', '_mappen.json'), JSON.stringify({ folders: ['X'], place: { 'a.json': 'X', 'b.json': 'X' } }));
+  const out = JSON.parse(execFileSync(process.execPath, ['-e', `
+    const fs = require('fs');
+    const lesmap = require('./src/lesmap'), settings = require('./src/settings'), proeven = require('./src/proeven');
+    settings.write({ lesmap: ${JSON.stringify(map)} });
+    lesmap.init([{ kind: 'proef', dir: proeven.DIR, remote: 'toetsen', validate: proeven.K.validate }]);
+    (async () => {
+      await lesmap.sync();
+      const eerst = !!lesmap.view().oudToestel;
+      fs.writeFileSync(${JSON.stringify(path.join(map, 'toetsen', '_mappen.json'))}, JSON.stringify({ folders: ['X'], place: { 'a.json': 'X' } }));
+      await lesmap.sync();
+      process.stdout.write('\\n@@' + JSON.stringify({ eerst, daarna: !!lesmap.view().oudToestel }));
+    })();
+  `], { cwd: ROOT, env: { ...process.env, LANCELOT_DATA: bord }, encoding: 'utf8' }).split('\n@@').pop());
+  assert.deepStrictEqual(out, { eerst: false, daarna: true });
+  fs.rmSync(tmp, { recursive: true, force: true });
+});

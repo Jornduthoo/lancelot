@@ -102,6 +102,7 @@
   // Audio: een opname van een minuut is ongeveer 300 kB; een geluidsbestand mag wat groter.
   const MAX_AUDIO = 2000000;
   const MAX_VOORLEES = 6000;
+  const MAX_CEL = 400; // tekens per tabelcel (was 120: langere zinnen vielen stil weg)
   // Een tekening of ingesproken antwoord van een leerling.
   const MAX_TEKENING = 500000;
   const MAX_OPNAME = 1500000;
@@ -664,7 +665,7 @@
       if (out.vorm === 'zinnen' && pz >= 1 && pz <= 20) out.puntenZin = pz;
       max = dicteeMax(out);
     } else if (type === 'tabel') {
-      out.rijen = list(q.rijen || q.rows, 20).map(r => list(r, 8).map(c => text(c, 120)));
+      out.rijen = list(q.rijen || q.rows, 20).map(r => list(r, 8).map(c => text(c, MAX_CEL)));
       const breed = Math.max(0, ...out.rijen.map(r => r.length));
       out.rijen = out.rijen.filter(r => r.some(Boolean)).map(r => [...r, ...Array(breed - r.length).fill('')]);
       if (out.rijen.length < 2 || breed < 1) throw new Error(`${naam} heeft een kop en minstens één rij nodig.`);
@@ -1095,18 +1096,40 @@
   const handVeld = f => f.soort === 'open' || f.soort === 'teken' || (f.soort === 'rooster' && !roosterAuto(f));
   const autoVeld = f => AUTO_VELD.has(f.soort) || roosterAuto(f);
 
+  // Groep van een hokje: een heel getal 1-99 blijft wat het is. Een andere naam (r34, r36.9) krijgt een eigen vrij nummer,
+  // zodat verschillende namen nooit samen in één groep vallen. Leeg = groep 1.
+  function groepNummers(velden) {
+    const heel = v => { const n = Number(v); return Number.isInteger(n) && n >= 1 && n <= 99 ? n : 0; };
+    const bezet = new Set(velden.map(f => (f.soort === 'kruis' ? heel(f.groep) : 0)).filter(Boolean));
+    const namen = new Map();
+    return g => {
+      if (heel(g)) return heel(g);
+      const naam = typeof g === 'string' || typeof g === 'number' ? String(g).trim() : '';
+      if (!naam) return 1;
+      if (!namen.has(naam)) {
+        let n = 1;
+        while (bezet.has(n) && n < 99) n++;
+        bezet.add(n);
+        namen.set(naam, n);
+      }
+      return namen.get(naam);
+    };
+  }
+
   function cleanBlad(q, out, naam) {
     if (!out.beeld) throw new Error(`${naam}: de pagina ontbreekt.`);
     delete out.beeldNodig;
     delete out.beeldPagina;
     const v = Number(q.verhouding);
     out.verhouding = v > 0.05 && v < 20 ? Math.round(v * 10000) / 10000 : 1.414;
-    out.velden = list(q.velden, MAX_VELDEN).filter(f => f && typeof f === 'object').map(f => {
+    const ruw = list(q.velden, MAX_VELDEN).filter(f => f && typeof f === 'object');
+    const groepNr = groepNummers(ruw);
+    out.velden = ruw.map(f => {
       const soort = SOORTEN.includes(f.soort) ? f.soort : 'tekst';
       const veld = { x: pct(f.x, 99), y: pct(f.y, 99), w: Math.max(0.5, pct(f.w)), h: Math.max(0.5, pct(f.h)), soort };
       if (soort === 'kruis') {
         veld.antwoord = f.antwoord === true || /^(true|ja|x|✗|✔|juist)$/i.test(String(f.antwoord || ''));
-        veld.groep = Math.max(1, Math.min(99, Math.round(Number(f.groep)) || 1));
+        veld.groep = groepNr(f.groep);
         veld.punten = punt(f.punten, veld.antwoord ? 1 : 0);
         if (f.rond) veld.rond = true;
         // Omkringen: de leerling omcirkelt iets dat op het blad staat (een getal, een woord); verder als een hokje.
@@ -1340,11 +1363,42 @@
     if (intro) out.intro = intro;
     // Alles automatisch verbeteren: de editor toont wat de leerkracht nog zelf verbetert.
     if (t.auto === true) out.auto = true;
+    // Vragen altijd in deze volgorde (bv. een luistertoets die een verhaal volgt), ook als de afname schudt.
+    if (t.vasteVolgorde === true) out.vasteVolgorde = true;
     for (const k of ['page', 'ridder']) {
       const extra = cleanLijst(take(k), `${NIVEAU_NAAM[k]}: `);
       if (extra.length) out[k] = extra;
     }
     return out;
+  }
+
+  // Luistertoets omzetten: vragen na elkaar met dezelfde voorleestekst worden één bron met die tekst en de vragen als
+  // deelvragen. Zo hoort de leerling elk fragment één keer per fragment, niet per vraag. Punten en antwoorden blijven.
+  // Geeft { lijst, bronnen, vragen } (hoeveel bronnen er kwamen en hoeveel vragen erin gingen).
+  function luisterBronnen(lijst) {
+    const uit = [];
+    let bronnen = 0, vragen = 0;
+    const zeg = q => (q && q.type !== 'bron' && q.type !== 'blad' && typeof q.voorlees === 'string' ? q.voorlees.trim() : '');
+    for (let i = 0; i < (lijst || []).length;) {
+      const tekst = zeg(lijst[i]);
+      let j = i + 1;
+      while (tekst && j < lijst.length && zeg(lijst[j]) === tekst) j++;
+      if (j - i < 2) { uit.push(lijst[i]); i++; continue; }
+      for (let k = i; k < j; k += MAX_DEEL) {
+        const stuk = lijst.slice(k, Math.min(j, k + MAX_DEEL));
+        const eerste = stuk[0];
+        const bron = { type: 'bron', titel: '', tekst: '', voorlees: tekst };
+        if (eerste.luisterMax) bron.luisterMax = eerste.luisterMax;
+        if (eerste.blijft && k === i) bron.blijft = true;
+        if (k > i) bron.blijft = true;
+        bron.vragen = stuk.map(({ voorlees, luisterMax, blijft, ...rest }) => rest);
+        uit.push(bron);
+        bronnen++;
+        vragen += stuk.length;
+      }
+      i = j;
+    }
+    return { lijst: uit, bronnen, vragen };
   }
 
   // Alle vragen met een eigen antwoord (een bron telt niet, zijn deelvragen wel), met hun vaste id: "3" of "3.1".
@@ -1423,17 +1477,27 @@
   }
 
   // Geen fout, wel een tip: een vraag die over een figuur gaat maar er geen heeft.
-  const FIGUUR = /\b(figuur|figuren|tekening|afbeelding|prent|grafiek|kaart|foto|schets|rooster|diagram|hieronder|hiernaast)\b/i;
+  // Alleen als de vraag echt naar een beeld wijst ("de foto hieronder", "bekijk de kaart", "op de figuur"), niet als het
+  // woord toevallig in een verhaal staat ("hij gaf San een foto"). Een brontekst zelf telt niet mee, alleen haar titel.
+  const BEELD_WOORD = '(?:figuur|figuren|tekening|tekeningen|afbeelding|afbeeldingen|prent|prenten|grafiek|kaart|kaartje|foto|foto\'s|schets|diagram|plattegrond)';
+  const LIDW = '(?:de|het|deze|die|dit|dat)';
+  const FIGUUR = new RegExp([
+    `\\b${BEELD_WOORD}\\s+(?:hier)?(?:onder|naast|boven)\\b`,
+    `\\b(?:bekijk|bestudeer|kijk\\s+(?:naar|op|in)|zie)\\s+(?:${LIDW}\\s+|eens\\s+${LIDW}\\s+)?${BEELD_WOORD}\\b`,
+    `\\b(?:op|in|bij|volgens|onder|naast)\\s+${LIDW}\\s+${BEELD_WOORD}\\b`,
+    `\\b${LIDW}\\s+${BEELD_WOORD}\\s+(?:toont|laat\\s+zien|stelt\\s+voor)\\b`,
+    `\\b(?:toont|laat|stelt)\\s+${LIDW}\\s+${BEELD_WOORD}\\b`,
+  ].join('|'), 'i');
   function waarschuwingen(t) {
     const out = [];
     for (const n of niveausVan(t)) {
       const tag = niveausVan(t).length > 1 ? `${NIVEAU_NAAM[n]}, ` : '';
       lijstVoor(t, n).forEach((q, i) => {
         const items = q.type === 'bron' ? q.vragen.map((d, j) => ({ q: d, nr: `${i + 1}${'abcdefghijklmno'[j]}` })) : [{ q, nr: `${i + 1}` }];
-        if (q.type === 'bron' && !q.beeld && FIGUUR.test(`${q.titel} ${q.tekst}`)) out.push(`${tag}vraag ${i + 1} spreekt over een figuur, maar de bron heeft geen afbeelding`);
+        if (q.type === 'bron' && !q.beeld && FIGUUR.test(`${q.titel || ''}`)) out.push(`${tag}vraag ${i + 1} spreekt over een figuur, maar de bron heeft geen afbeelding`);
         for (const { q: v, nr } of items) {
           if (v.type === 'blad' || v.beeld || v.beeldNodig || v.beeldPagina || q.beeld) continue;
-          if (FIGUUR.test(`${v.vraag || ''} ${v.tekst || ''}`)) out.push(`${tag}vraag ${nr} spreekt over een figuur, maar heeft geen afbeelding`);
+          if (FIGUUR.test(`${v.vraag || ''}`)) out.push(`${tag}vraag ${nr} spreekt over een figuur, maar heeft geen afbeelding`);
         }
       });
     }
@@ -2165,6 +2229,6 @@
     TYPES, NAMES, MANUEEL, NIVEAUS, MAX_BEELD, ROOSTER, validate, problemen, vragenVan, niveausVan, lijstVoor,
     maxVan, autoPunten, handPunten, totaal, viewOf, studentView, partsOf, getal, zelfde, canoniek, auto, schoon, oplossing, schud, alts, gapsOf,
     waarschuwingen, metNamen, MAX_ZONES, veldSleutel, vakGoed, vakDeel, handVeld, autoVeld, roosterAuto, roosterScore, roosterCellen, roosterTekst, roosterUitkomst,
-    heeftMarge, margeGoed, tijdSec, VRIJ_SOORT, margeTekst, getalTekst, puntLijnen, puntlijnGoed, cirkelsVan, cirkelGoed, straalCm, puntNaam, handWerk, SCHAAL, NAKIJK, FIGUREN, figurenVan, veelhoekPunten, veelhoekVolgorde, hoekpunten, rondom, rekenregel, formuleFout, lijnGoed, lijnCm, veelhoekCm, lijnHoek, lijnGraden, RICHTING, vakjesGoed, goedeAntwoorden, datumSleutel, paarTekst, zonderOpmaak, aantalRechts, MAX_AFLEIDERS, controleDeel, CONTROLE, plekDeel, groepKaarten, groepUitslag, kaartTekst, MAX_GROEPEN, zelfdeVorm, kleurDoel, kleurGoed, metEenheid, volgorde, SOORTEN, HAND_VELD, woordenVan, doelenVan, sorteerWoorden, sorteerKolommen, dicteeVergelijk, dicteeDeel, dicteeZinPunten, MAX_DICTEE, itemTekst, markeerModel, markeerSleutel, doelenInBron, markeerTel, markeerKort, markeerAntwoord, tekstWoorden, stukkenVan, zonderHaken, STIFTEN, PER, asTekst, MAX_AUDIO, MAX_VOORLEES, celGat, vereenvoudigd, GEEN_ANTWOORD, AUTO_VELD, KLEUREN,
+    heeftMarge, margeGoed, tijdSec, VRIJ_SOORT, margeTekst, getalTekst, puntLijnen, puntlijnGoed, cirkelsVan, cirkelGoed, straalCm, puntNaam, handWerk, SCHAAL, NAKIJK, FIGUREN, figurenVan, veelhoekPunten, veelhoekVolgorde, hoekpunten, rondom, rekenregel, formuleFout, lijnGoed, lijnCm, veelhoekCm, lijnHoek, lijnGraden, RICHTING, vakjesGoed, goedeAntwoorden, datumSleutel, paarTekst, zonderOpmaak, aantalRechts, MAX_AFLEIDERS, controleDeel, CONTROLE, plekDeel, groepKaarten, groepUitslag, kaartTekst, MAX_GROEPEN, zelfdeVorm, kleurDoel, kleurGoed, metEenheid, volgorde, SOORTEN, HAND_VELD, woordenVan, doelenVan, sorteerWoorden, sorteerKolommen, dicteeVergelijk, dicteeDeel, dicteeZinPunten, MAX_DICTEE, itemTekst, markeerModel, markeerSleutel, doelenInBron, markeerTel, markeerKort, markeerAntwoord, tekstWoorden, stukkenVan, zonderHaken, STIFTEN, PER, asTekst, MAX_AUDIO, MAX_VOORLEES, MAX_CEL, luisterBronnen, celGat, vereenvoudigd, GEEN_ANTWOORD, AUTO_VELD, KLEUREN,
   };
 });

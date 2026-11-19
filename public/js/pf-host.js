@@ -506,6 +506,7 @@ function leesLijst(box) {
 function readEditor() {
   const t = { title: $('e-title').value, intro: $('e-intro').value, vragen: leesLijst($('e-vragen')) };
   if ($('e-auto').checked) t.auto = true;
+  if ($('e-volgorde').checked) t.vasteVolgorde = true;
   for (const n of ['page', 'ridder']) {
     const l = leesLijst(vragenBox(n));
     if (l.length) t[n] = l;
@@ -557,6 +558,20 @@ function nummer() {
 
 // Het voorbeeld rechts, met de verbetersleutel. Meteen in de browser gecontroleerd (PfKern), zonder de server.
 let previewTimer = null;
+// Luistertoets omzetten: vragen na elkaar met dezelfde voorleestekst worden één bron (de knop staat er alleen als dat kan).
+const luisterNiveaus = ruw => Niveau.LIST.map(n => [n, n === 'schildknaap' ? ruw.vragen : ruw[n] || []]).map(([n, l]) => [n, PfKern.luisterBronnen(l)]);
+$('e-luister').addEventListener('click', async () => {
+  const per = luisterNiveaus(readEditor()).filter(([, r]) => r.bronnen);
+  if (!per.length) return;
+  const b = per.reduce((s, [, r]) => s + r.bronnen, 0), v = per.reduce((s, [, r]) => s + r.vragen, 0);
+  if (!await Ui.vraag(`${v} vragen gaan met hun voorleestekst samen in een bron (${b} in totaal). Punten en antwoorden blijven hetzelfde. Doorgaan?`)) return;
+  for (const [n, r] of per) {
+    vragenBox(n).innerHTML = '';
+    for (const q of r.lijst) vragenBox(n).appendChild(vraagKaart(q));
+  }
+  preview();
+});
+
 function preview() {
   clearTimeout(previewTimer);
   previewTimer = setTimeout(() => {
@@ -564,6 +579,7 @@ function preview() {
     renderNiveauTabs();
     // Is een vraag nog niet af, dan toont het voorbeeld de vragen die wel af zijn, met erboven wat er nog ontbreekt.
     const ruw = readEditor();
+    $('e-luister-rij').classList.toggle('hidden', !luisterNiveaus(ruw).some(([, r]) => r.bronnen));
     let t = null;
     let fout = '';
     try {
@@ -635,6 +651,7 @@ function openEditor(t, file) {
   $('e-title').value = t.title || '';
   $('e-intro').value = t.intro || '';
   $('e-auto').checked = !!t.auto;
+  $('e-volgorde').checked = !!t.vasteVolgorde;
   for (const n of Niveau.LIST) {
     vragenBox(n).innerHTML = '';
     for (const q of (n === 'schildknaap' ? t.vragen : t[n]) || []) vragenBox(n).appendChild(vraagKaart(q));
@@ -837,7 +854,7 @@ function renderUitleg() {
   $('l-uitleg').textContent = [
     i.tijd ? `${i.tijd} minuten` : 'geen tijdslimiet',
     i.scherm ? 'volledig scherm' : 'zonder volledig scherm',
-    i.schudden ? 'vragen door elkaar' : 'vaste volgorde',
+    i.schudden && !state.vast ? 'vragen door elkaar' : 'vaste volgorde',
     i.terug ? 'terugkeren mag' : 'niet terug',
     i.slot === 'slot' ? 'verlaten = op slot' : 'verlaten = melding',
   ].join(' · ') + '. Klik op een naam om mee te kijken.';

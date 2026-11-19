@@ -9,6 +9,9 @@ const PfPaper = (() => {
   // Vet (**woord**) en onderstreept (__woord__) in een tekst, na esc. Een rij ____ (een lijn) blijft gewoon staan.
   const opmaak = html => html.replace(/\*\*([^*\s](?:[^*]*?[^*\s])?)\*\*/g, '<b>$1</b>').replace(/__([^_\s](?:[^_]*?[^_\s])?)__/g, '<u>$1</u>');
   const tekstHtml = text => opmaak(esc(text)).replace(/\n/g, '<br>');
+  // Een kaartje of tabelcel: **vet** en __onderstreept__ tonen. In een keuzelijst kan dat niet: daar zonder de tekens.
+  const ot = t => opmaak(esc(t));
+  const zo = t => esc(String(t ?? '').replace(/\*\*([^*\s](?:[^*]*?[^*\s])?)\*\*/g, '$1').replace(/__([^_\s](?:[^_]*?[^_\s])?)__/g, '$1'));
   const paras = text => String(text || '').split(/\n{2,}/).map(p => `<p>${tekstHtml(p)}</p>`).join('');
   const nl = n => String(n).replace('.', ',');
   const ptn = n => `${nl(n)} ${n === 1 ? 'punt' : 'punten'}`;
@@ -128,22 +131,22 @@ const PfPaper = (() => {
           <p class="pf-kort">Uitkomst: ${q.breuk ? breukHtml(w.uitkomst, ro, 'pf-uitkomst') : `<input class="ob-field pf-uitkomst" autocomplete="off" spellcheck="false" value="${esc(w.uitkomst || '')}"${ro}>`}${q.eenheid ? `<span class="pf-eenheid">${esc(q.eenheid)}</span>` : ''}</p>`;
     } else if (q.type === 'verbinden' && (q.linksBeeld || q.rechtsBeeld)) {
       // Met prenten: links de kaartjes met een keuzelijst, rechts de kaartjes met een letter.
-      const kaart = (t, b, extra = '') => `<span class="pf-vb-kaart">${extra}${b ? `<img src="${esc(b)}" alt="" draggable="false">` : ''}${t ? `<span>${esc(t)}</span>` : ''}</span>`;
+      const kaart = (t, b, extra = '') => `<span class="pf-vb-kaart">${extra}${b ? `<img src="${esc(b)}" alt="" draggable="false">` : ''}${t ? `<span>${ot(t)}</span>` : ''}</span>`;
       const lb = q.linksBeeld || [];
       const rb = q.rechtsBeeld || [];
       const rechts = `<div class="pf-vb-rechts">${q.rechts.map((t, j) => kaart(t, rb[j], `<b class="pf-vb-letter">${L[j]}</b>`)).join('')}</div>`;
       h += print ? `<div class="pf-vb"><div class="pf-vb-links">${q.links.map((t, i) => `<div class="pf-vb-rij">${kaart(t, lb[i])}<span class="ob-box"></span></div>`).join('')}</div>${rechts}</div>`
-        : `<p class="pf-tip">Kies bij elk kaartje links de letter van het kaartje dat erbij hoort.</p><div class="pf-vb"><div class="pf-vb-links">${q.links.map((t, i) => `<label class="pf-vb-rij">${kaart(t, lb[i])}<select class="ob-field pf-sel" data-k="${i}"${dis} aria-label="Letter"><option value="">kies…</option>${q.rechts.map((x, j) => `<option value="${j}"${a && String(a[i]) === String(j) ? ' selected' : ''}>${L[j]}${x ? `. ${esc(x)}` : ''}</option>`).join('')}</select></label>`).join('')}</div>${rechts}</div>`;
+        : `<p class="pf-tip">Kies bij elk kaartje links de letter van het kaartje dat erbij hoort.</p><div class="pf-vb"><div class="pf-vb-links">${q.links.map((t, i) => `<label class="pf-vb-rij">${kaart(t, lb[i])}<select class="ob-field pf-sel" data-k="${i}"${dis} aria-label="Letter"><option value="">kies…</option>${q.rechts.map((x, j) => `<option value="${j}"${a && String(a[i]) === String(j) ? ' selected' : ''}>${L[j]}${x ? `. ${zo(x)}` : ''}</option>`).join('')}</select></label>`).join('')}</div>${rechts}</div>`;
     } else if (q.type === 'verbinden') {
       if (print) {
-        h += `<div class="ob-match-print"><ol>${q.links.map(l => `<li><span class="ob-box"></span> ${esc(l)}</li>`).join('')}</ol><ul>${q.rechts.map((r, j) => `<li><b>${L[j]}</b> ${esc(r)}</li>`).join('')}</ul></div>`;
+        h += `<div class="ob-match-print"><ol>${q.links.map(l => `<li><span class="ob-box"></span> ${ot(l)}</li>`).join('')}</ol><ul>${q.rechts.map((r, j) => `<li><b>${L[j]}</b> ${ot(r)}</li>`).join('')}</ul></div>`;
       } else {
-        h += `<div class="ob-match">${q.links.map((l, i) => `<label><span>${esc(l)}</span><select class="ob-field pf-sel" data-k="${i}"${dis}><option value="">kies…</option>${q.rechts.map((r, j) => `<option value="${j}"${a && String(a[i]) === String(j) ? ' selected' : ''}>${L[j]}. ${esc(r)}</option>`).join('')}</select></label>`).join('')}</div>`;
+        h += `<div class="ob-match">${q.links.map((l, i) => `<label><span>${ot(l)}</span><select class="ob-field pf-sel" data-k="${i}"${dis}><option value="">kies…</option>${q.rechts.map((r, j) => `<option value="${j}"${a && String(a[i]) === String(j) ? ' selected' : ''}>${L[j]}. ${zo(r)}</option>`).join('')}</select></label>`).join('')}</div>`;
       }
     } else if (q.type === 'ordenen') {
       const order = Array.isArray(a) && a.length === q.items.length ? a : q.items.map((_, i) => i);
       // Een item is tekst of { tekst, beeld } (een prent).
-      const item = x => (typeof x === 'string' ? `<span>${esc(x)}</span>` : `${x.beeld ? `<img src="${esc(x.beeld)}" alt="" draggable="false">` : ''}<span>${esc(x.tekst || '')}</span>`);
+      const item = x => (typeof x === 'string' ? `<span>${ot(x)}</span>` : `${x.beeld ? `<img src="${esc(x.beeld)}" alt="" draggable="false">` : ''}<span>${ot(x.tekst || '')}</span>`);
       const prenten = q.items.some(x => typeof x !== 'string' && x.beeld);
       // Prenten op papier: vaste door-elkaar-volgorde, anders staat de oplossing er al (tekst blijft zoals vroeger).
       const papierOrde = prenten ? schudVast(q.items.length, String(q.vraag || '') + q.items.length) : q.items.map((_, i) => i);
@@ -158,7 +161,7 @@ const PfPaper = (() => {
     } else if (q.type === 'tabel') {
       h += `<div class="pf-tabel-wrap"><table class="pf-tabel">${q.rijen.map((r, ri) => `<tr>${r.map(c => {
         const tag = ri === 0 ? 'th' : 'td';
-        if (typeof c === 'string') return `<${tag}>${esc(c)}</${tag}>`;
+        if (typeof c === 'string') return `<${tag}>${ot(c)}</${tag}>`;
         if (c.opties) {
           if (print) return `<td class="pf-kies-print">${c.opties.map(esc).join(' / ')}</td>`;
           return `<td><select class="ob-field pf-in pf-kies" data-k="${c.gap}"${dis}><option value=""></option>${c.opties.map(x => `<option${(a || [])[c.gap] === x ? ' selected' : ''}>${esc(x)}</option>`).join('')}</select></td>`;
@@ -304,7 +307,7 @@ const PfPaper = (() => {
     const b = Array.isArray(a) ? a : [];
     const kaart = k => {
       const c = Number.isInteger(b[k.i]) ? b[k.i] : null;
-      return `<button type="button" class="pf-groep-k${c !== null ? ' vol' : ''}" data-i="${k.i}"${c !== null ? ` data-c="${c}" style="--gk:${GROEP_KLEUR[c]}"` : ''}${live ? '' : ' disabled'}>${print ? '<span class="ob-box"></span>' : `<b class="pf-groep-nr">${c !== null ? c + 1 : ''}</b>`}${k.beeld ? `<img src="${esc(k.beeld)}" alt="" draggable="false">` : ''}${k.tekst ? `<span>${esc(k.tekst)}</span>` : ''}</button>`;
+      return `<button type="button" class="pf-groep-k${c !== null ? ' vol' : ''}" data-i="${k.i}"${c !== null ? ` data-c="${c}" style="--gk:${GROEP_KLEUR[c]}"` : ''}${live ? '' : ' disabled'}>${print ? '<span class="ob-box"></span>' : `<b class="pf-groep-nr">${c !== null ? c + 1 : ''}</b>`}${k.beeld ? `<img src="${esc(k.beeld)}" alt="" draggable="false">` : ''}${k.tekst ? `<span>${ot(k.tekst)}</span>` : ''}</button>`;
     };
     if (print) return `<p class="pf-tip">Geef wat samen hoort hetzelfde nummer (1 tot ${q.kleuren}).</p><div class="pf-groep">${q.kaarten.map(kaart).join('')}</div>`;
     const pal = live ? `<p class="pf-tip">Kies een kleur en tik op de kaartjes die samen horen. Tik nog eens om een kaartje leeg te maken.</p><div class="pf-groep-pal" role="radiogroup" aria-label="Kleur">${Array.from({ length: q.kleuren }, (_, c) => `<button type="button" class="pf-groep-kleur${c === 0 ? ' on' : ''}" data-c="${c}" style="--gk:${GROEP_KLEUR[c]}" aria-label="${GROEP_NAAM[c]}"><b>${c + 1}</b></button>`).join('')}</div>` : '';
@@ -327,14 +330,14 @@ const PfPaper = (() => {
   function sorteerHtml(q, a, live, print) {
     const b = Array.isArray(a) ? a : [];
     if (print) {
-      return `<p class="pf-tip">Schrijf elk woord in de juiste kolom.</p><p class="pf-sorteer-woorden">${q.woorden.map(w => `<span>${esc(w)}</span>`).join(' · ')}</p>
-        <div class="pf-tabel-wrap"><table class="pf-tabel pf-sorteer-print"><tr>${q.kolommen.map(k => `<th>${esc(k)}</th>`).join('')}</tr>${`<tr>${q.kolommen.map(() => '<td class="pf-leeg"></td>').join('')}</tr>`.repeat(Math.max(2, q.rijen || 3))}</table></div>`;
+      return `<p class="pf-tip">Schrijf elk woord in de juiste kolom.</p><p class="pf-sorteer-woorden">${q.woorden.map(w => `<span>${ot(w)}</span>`).join(' · ')}</p>
+        <div class="pf-tabel-wrap"><table class="pf-tabel pf-sorteer-print"><tr>${q.kolommen.map(k => `<th>${ot(k)}</th>`).join('')}</tr>${`<tr>${q.kolommen.map(() => '<td class="pf-leeg"></td>').join('')}</tr>`.repeat(Math.max(2, q.rijen || 3))}</table></div>`;
     }
-    const kaart = i => `<button type="button" class="pf-sorteer-w" data-i="${i}"${live ? ' draggable="true"' : ' disabled'}>${esc(q.woorden[i])}</button>`;
+    const kaart = i => `<button type="button" class="pf-sorteer-w" data-i="${i}"${live ? ' draggable="true"' : ' disabled'}>${ot(q.woorden[i])}</button>`;
     const los = q.woorden.map((_, i) => i).filter(i => !Number.isInteger(b[i]));
     return `${live ? '<p class="pf-tip">Tik op een woord en dan op de juiste kolom (of sleep het). Tik op een woord in een kolom om het terug te leggen.</p>' : ''}
       <div class="pf-sorteer-bank" data-k="">${los.map(kaart).join('')}</div>
-      <div class="pf-sorteer-kols" style="--kols:${q.kolommen.length}">${q.kolommen.map((k, ki) => `<div class="pf-sorteer-kol" data-k="${ki}"><b>${esc(k)}</b><div class="pf-sorteer-in">${q.woorden.map((_, i) => i).filter(i => b[i] === ki).map(kaart).join('')}</div></div>`).join('')}</div>`;
+      <div class="pf-sorteer-kols" style="--kols:${q.kolommen.length}">${q.kolommen.map((k, ki) => `<div class="pf-sorteer-kol" data-k="${ki}"><b>${ot(k)}</b><div class="pf-sorteer-in">${q.woorden.map((_, i) => i).filter(i => b[i] === ki).map(kaart).join('')}</div></div>`).join('')}</div>`;
   }
   function wireSorteer(el, klaar) {
     let gekozen = null;
