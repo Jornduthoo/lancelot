@@ -298,5 +298,21 @@
  "data-c=\"{0}\" style=\"--gk:{1}\"": null,
  "Geef wat samen hoort hetzelfde nummer (1 tot {0}).": "Give what belongs together the same number (1 to {0}).",
  "Kies een kleur en tik op de kaartjes die samen horen. Tik nog eens om een kaartje leeg te maken.": "Choose a colour and tap the cards that belong together. Tap again to clear a card.",
- "Wat hoort samen? (kleuren)": "What belongs together? (colours)"
+ "Wat hoort samen? (kleuren)": "What belongs together? (colours)",
+ "begint met: {0}": "starts with: {0}",
+ "bevat: {0}": "contains: {0}",
+ "Nakijken": "Marking",
+ "per woord (een zin omzetten of overschrijven)": "per word (rewriting or copying a sentence)",
+ "juist als het begint met …": "correct if it starts with …",
+ "juist als het een woord uit de lijst bevat": "correct if it contains a word from the list",
+ "Elk juist woord op zijn plaats geeft een punt. Een fout, ontbrekend of extra woord kost er één. Bv. \"Les chats noirs dorment.\"": "Each correct word in its place gives a point. A wrong, missing or extra word costs one. E.g. \"Les chats noirs dorment.\"",
+ "Juist als het antwoord begint met het juiste antwoord hierboven, bv. \"Est-ce que vous avez\". De rest verzint de leerling zelf.": "Correct if the answer starts with the correct answer above, e.g. \"Est-ce que vous avez\". The pupil makes up the rest.",
+ "Juist als het antwoord een van de juiste antwoorden hierboven bevat (scheid ze met |), bv. \"cinéma|piscine\". De rest verzint de leerling zelf.": "Correct if the answer contains one of the correct answers above (separate them with |), e.g. \"cinéma|piscine\". The pupil makes up the rest.",
+ "Punten tellen": "Counting points",
+ "alles juist (alleen de juiste hokjes)": "all correct (only the right boxes)",
+ "per juist aangekruist hokje": "per correctly ticked box",
+ "per juist hokje, een fout hokje kost er één": "per correct box, a wrong box costs one",
+ "Elk juist woord op zijn plaats telt. Een fout, ontbrekend of extra woord kost er één. Bv. \"Les chats noirs dorment.\" Zet de punten op het aantal woorden.": "Each correct word in its place counts. A wrong, missing or extra word costs one. E.g. \"Les chats noirs dorment.\" Set the points to the number of words.",
+ "Juist als het antwoord begint met wat je hierboven typte, bv. \"Est-ce que vous avez\". De rest mag de leerling zelf verzinnen.": "Correct if the answer starts with what you typed above, e.g. \"Est-ce que vous avez\". The pupil may make up the rest.",
+ "Juist als het antwoord een van de woorden hierboven bevat, bv. \"cinéma\" of \"piscine\". De rest mag de leerling zelf verzinnen.": "Correct if the answer contains one of the words above, e.g. \"cinéma\" or \"piscine\". The pupil may make up the rest."
 }

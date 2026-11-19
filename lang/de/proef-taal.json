@@ -298,5 +298,21 @@
  "data-c=\"{0}\" style=\"--gk:{1}\"": null,
  "Geef wat samen hoort hetzelfde nummer (1 tot {0}).": "Gib allem, was zusammengehört, dieselbe Nummer (1 bis {0}).",
  "Kies een kleur en tik op de kaartjes die samen horen. Tik nog eens om een kaartje leeg te maken.": "Wähle eine Farbe und tippe auf die Karten, die zusammengehören. Tippe noch einmal, um eine Karte zu leeren.",
- "Wat hoort samen? (kleuren)": "Was gehört zusammen? (Farben)"
+ "Wat hoort samen? (kleuren)": "Was gehört zusammen? (Farben)",
+ "begint met: {0}": "beginnt mit: {0}",
+ "bevat: {0}": "enthält: {0}",
+ "Nakijken": "Korrektur",
+ "per woord (een zin omzetten of overschrijven)": "pro Wort (einen Satz umformen oder abschreiben)",
+ "juist als het begint met …": "richtig, wenn sie mit … beginnt",
+ "juist als het een woord uit de lijst bevat": "richtig, wenn sie ein Wort aus der Liste enthält",
+ "Elk juist woord op zijn plaats geeft een punt. Een fout, ontbrekend of extra woord kost er één. Bv. \"Les chats noirs dorment.\"": "Jedes richtige Wort an seinem Platz gibt einen Punkt. Ein falsches, fehlendes oder zusätzliches Wort kostet einen. Z. B. „Les chats noirs dorment.“",
+ "Juist als het antwoord begint met het juiste antwoord hierboven, bv. \"Est-ce que vous avez\". De rest verzint de leerling zelf.": "Richtig, wenn die Antwort mit der richtigen Antwort oben beginnt, z. B. „Est-ce que vous avez“. Den Rest denken sich die Schüler selbst aus.",
+ "Juist als het antwoord een van de juiste antwoorden hierboven bevat (scheid ze met |), bv. \"cinéma|piscine\". De rest verzint de leerling zelf.": "Richtig, wenn die Antwort eine der richtigen Antworten oben enthält (trenne sie mit |), z. B. „cinéma|piscine“. Den Rest denken sich die Schüler selbst aus.",
+ "Punten tellen": "Punkte zählen",
+ "alles juist (alleen de juiste hokjes)": "alles richtig (nur die richtigen Kästchen)",
+ "per juist aangekruist hokje": "pro richtig angekreuztem Kästchen",
+ "per juist hokje, een fout hokje kost er één": "pro richtigem Kästchen, ein falsches kostet eins",
+ "Elk juist woord op zijn plaats telt. Een fout, ontbrekend of extra woord kost er één. Bv. \"Les chats noirs dorment.\" Zet de punten op het aantal woorden.": "Jedes richtige Wort an seinem Platz zählt. Ein falsches, fehlendes oder zusätzliches Wort kostet eins. Z. B. „Les chats noirs dorment.“ Setze die Punkte auf die Anzahl der Wörter.",
+ "Juist als het antwoord begint met wat je hierboven typte, bv. \"Est-ce que vous avez\". De rest mag de leerling zelf verzinnen.": "Richtig, wenn die Antwort mit dem beginnt, was du oben eingegeben hast, z. B. „Est-ce que vous avez“. Den Rest dürfen die Schüler selbst ausdenken.",
+ "Juist als het antwoord een van de woorden hierboven bevat, bv. \"cinéma\" of \"piscine\". De rest mag de leerling zelf verzinnen.": "Richtig, wenn die Antwort eines der Wörter oben enthält, z. B. „cinéma“ oder „piscine“. Den Rest dürfen die Schüler selbst ausdenken."
 }

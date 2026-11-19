@@ -566,6 +566,11 @@
         const fout = alts(out.antwoord).flatMap(a => a.split('=')).map(a => a.trim()).filter(a => a && !datumSleutel(a));
         if (fout.length) throw new Error(`${naam}: "${fout[0].slice(0, 40)}" is geen datum die LANcelot kent (bv. 7 december 1941 of 7/12/1941).`);
       }
+      // Nakijken per woord, of: begint met / bevat (een vrij antwoord). Niet samen met vakjes of een datum.
+      if (type === 'kort' && CONTROLE.includes(q.controle) && !out.datum && !(Number(q.vakjes) >= 2)) {
+        out.controle = q.controle;
+        if (out.controle === 'woord') max = Math.min(30, Math.max(1, zinWoorden(out, alts(out.antwoord)[0]).length));
+      }
       const vakjes = Math.round(Number(q.vakjes));
       if (type === 'kort' && vakjes >= 2 && vakjes <= 10) {
         out.vakjes = vakjes;
@@ -1092,6 +1097,8 @@
         if (f.rond) veld.rond = true;
         // Omkringen: de leerling omcirkelt iets dat op het blad staat (een getal, een woord); verder als een hokje.
         if (f.omkring) veld.omkring = true;
+        // Deelpunten (alleen hokjes): per juist aangekruist hokje, eventueel kost een fout hokje er één.
+        if (!f.rond && (f.deelpunten === 'juist' || f.deelpunten === 'min')) veld.deelpunten = f.deelpunten;
         const label = text(f.label, 3);
         if (label) veld.label = label;
       } else if (soort === 'kies') {
@@ -1245,6 +1252,8 @@
         if (soort === 'tekst' && f.tijd) veld.tijd = true;
         // Mag leeg blijven of doorstreept worden (x, /, -).
         if (soort === 'tekst' && f.doorstreep) veld.doorstreep = true;
+        // Nakijken per woord (zin overschrijven of omzetten), of juist als het antwoord begint met / een woord bevat.
+        if (soort === 'tekst' && CONTROLE.includes(f.controle)) veld.controle = f.controle;
         veld.punten = punt(f.punten, 1);
       }
       // Volgorde vrij: de antwoorden van een groepje mogen in elk vakje van dat groepje staan.
@@ -1646,6 +1655,28 @@
     const m = MAANDEN.findIndex(n => n.includes(x[2]));
     return m < 0 ? null : goed(x[1] ? Number(x[1]) : null, m + 1, Number(x[3]));
   }
+  // ---------- Nakijken per woord, begint met, bevat ----------
+  const CONTROLE = ['woord', 'begint', 'bevat'];
+  // De woorden van een zin, zoals bij het dictee: leestekens en hoofdletters tellen alleen als de leerkracht dat vraagt.
+  const zinOpties = o => ({ leestekens: !!(o.exact || o.leestekens), hoofdletters: o.exact || o.hoofdletters ? undefined : false });
+  const zinWoorden = (o, t) => dicteeWoorden(zinOpties(o), t);
+  // Hoeveel van het antwoord juist is (0 tot 1). Per woord: de woorden van het beste juiste antwoord, min één per fout, ontbrekend of extra woord.
+  function controleDeel(o, goed, w) {
+    if (w === undefined || w === null || String(w).trim() === '') return 0;
+    const lijst = alts(goed);
+    if (o.controle === 'woord') {
+      return Math.max(0, ...lijst.map(a => {
+        const n = zinWoorden(o, a).length;
+        return n ? Math.max(0, n - dicteeVergelijk(zinOpties(o), a, w).fouten) / n : 0;
+      }));
+    }
+    // Een koppelteken telt niet mee (est-ce = est ce), tenzij leestekens moeten kloppen.
+    const z = t => ` ${zinWoorden(o, o.exact || o.leestekens ? t : String(t || '').replace(/-/g, ' ')).join(' ')} `;
+    const tekst = z(w);
+    if (o.controle === 'begint') return lijst.some(a => tekst.startsWith(z(a).trimEnd())) ? 1 : 0;
+    if (o.controle === 'bevat') return lijst.some(a => tekst.includes(z(a))) ? 1 : 0;
+    return 0;
+  }
   // Juist bij kort antwoord: dezelfde tekst of hetzelfde getal, of (met datum) dezelfde datum in een andere schrijfwijze.
   function kortGelijk(q, goed, v) {
     if (zelfde(goed, v, q)) return true;
@@ -1789,6 +1820,7 @@
     if (f.soort === 'sleep') return alts(f.antwoord).includes(String(w || '')) ? 1 : 0;
     if (f.soort === 'breuk' && f.precies) return alts(f.antwoord).some(a => breukNorm(a) === breukNorm(w)) && breukNorm(w) !== '' ? 1 : 0;
     if (f.vereenvoudigd && !vereenvoudigd(w, f.antwoord)) return 0;
+    if (f.soort === 'tekst' && f.controle) return controleDeel(f, f.antwoord, w);
     if (f.soort === 'tekst' && f.tijd) {
       const t = tijdGoed(f, w);
       if (t !== null) return t ? 1 : 0;
@@ -1872,6 +1904,7 @@
     if (q.type === 'kort' || q.type === 'rekenen') {
       const uit = q.type === 'rekenen' && a && typeof a === 'object' ? a.uitkomst : a;
       if (q.vereenvoudigd && !vereenvoudigd(uit, q.antwoord)) return 0;
+      if (q.type === 'kort' && q.controle) return half(p * controleDeel(q, q.antwoord, uit));
       if (q.type === 'kort') return kortGelijk(q, q.antwoord, uit) ? p : 0;
       return zelfde(q.antwoord, uit, q) ? p : 0;
     }
@@ -1927,12 +1960,17 @@
         }
         if (deel[k]) som += f.punten * deel[k];
         if (f.soort !== 'kruis') return;
-        const g = groepen.get(f.groep) || { goed: true, punten: 0 };
+        const g = groepen.get(f.groep) || { goed: true, punten: 0, deel: f.deelpunten, juist: 0, fout: 0 };
         g.goed = g.goed && (b[k] === true) === f.antwoord;
         g.punten += f.punten;
+        if (b[k] === true && f.antwoord) g.juist += f.punten;
+        if (b[k] === true && !f.antwoord) g.fout += 1;
         groepen.set(f.groep, g);
       });
-      for (const g of groepen.values()) if (g.goed) som += g.punten;
+      for (const g of groepen.values()) {
+        if (g.deel) som += Math.max(0, g.juist - (g.deel === 'min' ? g.fout : 0));
+        else if (g.goed) som += g.punten;
+      }
       for (const s of samen.values()) if (s.goed) som += s.punten;
       return half(som);
     }
@@ -2012,6 +2050,8 @@
   const veldSleutel = q => q.velden.map(f => (f.soort === 'kruis' ? (f.antwoord ? (f.omkring ? '◯' : '✗') : '') : f.soort === 'plek' ? (f.doel ? '📍' : '') : f.soort === 'lijn' ? ([f.richting ? { evenwijdig: 'evenwijdig met de rechte', loodrecht: 'loodrecht op de rechte', 'niet-loodrecht': 'snijdt de rechte niet loodrecht', 'niet-evenwijdig': 'niet evenwijdig met de rechte', hoek: `hoek van ${getalTekst(f.hoek)}° (± ${getalTekst(f.hoekMarge ?? 3)}°)` }[f.richting] : '', f.lengte ? `${getalTekst(f.lengte)} cm (± ${getalTekst(f.lengteMarge ?? 0.2)})` : ''].filter(Boolean).join(', ') || (f.naar ? '↗' : ''))
     : GEEN_ANTWOORD.has(f.soort) || f.soort === 'klad' ? ''
     : f.doorstreep && !alts(f.antwoord).length ? 'leeg of doorstreept'
+    : f.soort === 'tekst' && f.controle === 'begint' ? `begint met: ${alts(f.antwoord).join(' / ')}`
+    : f.soort === 'tekst' && f.controle === 'bevat' ? `bevat: ${alts(f.antwoord).join(' / ')}`
     : f.soort === 'tekst' && heeftMarge(f) ? metEenheid(margeTekst(f), f.eenheid)
     : f.soort === 'tekst' || f.soort === 'breuk' ? metEenheid(alts(f.antwoord)[0] || '', f.eenheid) : f.soort === 'sleep' ? (alts(f.antwoord)[0] || '')
     : f.soort === 'rooster' && roosterAuto(f) ? (f.nakijk === 'uitkomst' ? `= ${roosterUitkomst(f)}` : f.nakijk === 'deling' ? `= ${f.quotient}${f.rest ? ` rest ${f.rest}` : ''}` : roosterCellen(f.sleutel).map(r => r.map(c => c || ' ').join('')).join('\n'))
@@ -2029,6 +2069,8 @@
     if (q.type === 'juistfout' && q.stellingen) return q.stellingen.map((x, i) => `${i + 1}. ${q.labels === 'janee' ? (x.juist ? 'Ja' : 'Nee') : x.juist ? 'Juist' : 'Fout'}`).join(' · ');
     if (q.type === 'juistfout') return q.juist ? 'Juist' : 'Fout';
     if (q.type === 'invullen') return gapsOf(q.tekst).map(g => g[0]).join(' · ');
+    if (q.type === 'kort' && q.controle === 'begint') return `begint met: ${alts(q.antwoord).join(' / ')}`;
+    if (q.type === 'kort' && q.controle === 'bevat') return `bevat: ${alts(q.antwoord).join(' / ')}`;
     if (q.type === 'kort' && q.vakjes) return `${q.vakjes} van: ${goedeAntwoorden(q.antwoord).map(g => metEenheid(g[0], q.eenheid)).join(' · ')}`;
     if (q.type === 'kort' || q.type === 'rekenen') return metEenheid(alts(q.antwoord)[0], q.eenheid);
     if (q.type === 'blad') return veldSleutel(q).map((s, k) => (s ? `${k + 1}: ${s}` : '')).filter(Boolean).join(' · ');
@@ -2076,6 +2118,6 @@
     TYPES, NAMES, MANUEEL, NIVEAUS, MAX_BEELD, ROOSTER, validate, problemen, vragenVan, niveausVan, lijstVoor,
     maxVan, autoPunten, handPunten, totaal, viewOf, studentView, partsOf, getal, zelfde, canoniek, auto, schoon, oplossing, schud, alts, gapsOf,
     waarschuwingen, metNamen, MAX_ZONES, veldSleutel, vakGoed, vakDeel, handVeld, autoVeld, roosterAuto, roosterScore, roosterCellen, roosterTekst, roosterUitkomst,
-    heeftMarge, margeGoed, tijdSec, VRIJ_SOORT, margeTekst, getalTekst, puntLijnen, puntlijnGoed, cirkelsVan, cirkelGoed, straalCm, puntNaam, handWerk, SCHAAL, NAKIJK, FIGUREN, figurenVan, veelhoekPunten, veelhoekVolgorde, hoekpunten, rondom, rekenregel, formuleFout, lijnGoed, lijnCm, veelhoekCm, lijnHoek, lijnGraden, RICHTING, vakjesGoed, goedeAntwoorden, datumSleutel, paarTekst, groepKaarten, groepUitslag, kaartTekst, MAX_GROEPEN, zelfdeVorm, kleurDoel, kleurGoed, metEenheid, volgorde, SOORTEN, HAND_VELD, woordenVan, doelenVan, sorteerWoorden, sorteerKolommen, dicteeVergelijk, dicteeDeel, dicteeZinPunten, MAX_DICTEE, itemTekst, markeerModel, markeerSleutel, doelenInBron, markeerTel, markeerKort, markeerAntwoord, tekstWoorden, stukkenVan, zonderHaken, STIFTEN, PER, asTekst, MAX_AUDIO, celGat, vereenvoudigd, GEEN_ANTWOORD, AUTO_VELD, KLEUREN,
+    heeftMarge, margeGoed, tijdSec, VRIJ_SOORT, margeTekst, getalTekst, puntLijnen, puntlijnGoed, cirkelsVan, cirkelGoed, straalCm, puntNaam, handWerk, SCHAAL, NAKIJK, FIGUREN, figurenVan, veelhoekPunten, veelhoekVolgorde, hoekpunten, rondom, rekenregel, formuleFout, lijnGoed, lijnCm, veelhoekCm, lijnHoek, lijnGraden, RICHTING, vakjesGoed, goedeAntwoorden, datumSleutel, paarTekst, controleDeel, CONTROLE, groepKaarten, groepUitslag, kaartTekst, MAX_GROEPEN, zelfdeVorm, kleurDoel, kleurGoed, metEenheid, volgorde, SOORTEN, HAND_VELD, woordenVan, doelenVan, sorteerWoorden, sorteerKolommen, dicteeVergelijk, dicteeDeel, dicteeZinPunten, MAX_DICTEE, itemTekst, markeerModel, markeerSleutel, doelenInBron, markeerTel, markeerKort, markeerAntwoord, tekstWoorden, stukkenVan, zonderHaken, STIFTEN, PER, asTekst, MAX_AUDIO, celGat, vereenvoudigd, GEEN_ANTWOORD, AUTO_VELD, KLEUREN,
   };
 });

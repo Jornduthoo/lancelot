@@ -684,7 +684,8 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
           <span class="bv-aantal">Aantal <button type="button" class="secondary small-btn" data-n="-1">−</button><b>${g.length}</b><button type="button" class="secondary small-btn" data-n="1">+</button></span>
           <label class="inline check"><input type="checkbox" class="bv-letters"${g.every(x => x.label) ? ' checked' : ''}> Letters A, B, C…</label>
           <label class="inline check"><input type="checkbox" class="bv-meer"${rond ? '' : ' checked'}> Meer dan één juist (hokjes)</label>
-          <label class="inline check"><input type="checkbox" class="bv-omkring"${g.every(x => x.omkring) ? ' checked' : ''}> Omkringen: leg de vakjes over wat op het blad staat (bv. getallen), de leerling omcirkelt het juiste</label></div>`}
+          <label class="inline check"><input type="checkbox" class="bv-omkring"${g.every(x => x.omkring) ? ' checked' : ''}> Omkringen: leg de vakjes over wat op het blad staat (bv. getallen), de leerling omcirkelt het juiste</label>
+          ${rond ? '' : `<label class="inline">Punten tellen <select class="bv-deel"><option value="">alles juist (alleen de juiste hokjes)</option><option value="juist"${g[0].deelpunten === 'juist' ? ' selected' : ''}>per juist aangekruist hokje</option><option value="min"${g[0].deelpunten === 'min' ? ' selected' : ''}>per juist hokje, een fout hokje kost er één</option></select></label>`}</div>`}
         ${punten(g.reduce((s, x) => s + (x.punten || 0), 0) || 1)}`;
     } else if (f.soort === 'tekst') {
       kop.textContent = NAAM.tekst;
@@ -696,6 +697,7 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
           ${eenvoudigVink(f)}
           <label class="inline check"><input type="checkbox" data-vlag="tijd"${f.tijd ? ' checked' : ''}> Een tijd: 4 u 30 min, 270 min, 4,5 u en 4:30 zijn allemaal juist</label>
           <label class="inline check"><input type="checkbox" data-vlag="doorstreep"${f.doorstreep ? ' checked' : ''}> Mag leeg blijven of doorstreept worden (x, / of -)</label></div>
+        ${controleHtml(f)}
         ${margeHtml(f)}
         <label>Gevolgfout (mag leeg): een rekenregel met de antwoorden in andere vakjes <input class="bv-formule" value="${esc(f.formule || '')}" placeholder="bijv. {1} * {2} / 2"></label>
         <p class="muted small bv-formule-uitleg">${f.formule && PfKern.formuleFout(f.formule, staat.velden.length, k) ? `⚠ ${esc(PfKern.formuleFout(f.formule, staat.velden.length, k))}` : 'Rekende de leerling verder met een fout antwoord uit een vorig vakje, dan is dit vakje toch juist als het klopt met zijn eigen getallen. {1} is het antwoord in vakje 1.'}</p>
@@ -968,9 +970,17 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
       }
       else if (t.name === 'bv-juist') leesOpties();
       else if (t.classList.contains('bv-letters')) { groepVan(f).forEach((x, i) => { if (t.checked) x.label = 'ABCDEFGH'[i]; else delete x.label; }); bijwerken(); venster(staat.velden.indexOf(f)); }
+      else if (t.classList.contains('bv-controle')) {
+        if (t.value) f.controle = t.value; else delete f.controle;
+        // Per woord: een punt per woord van het juiste antwoord (als de leerkracht de punten nog niet zelf koos).
+        if (t.value === 'woord' && (Number(f.punten) || 1) === 1) f.punten = Math.max(1, String(String(f.antwoord || '').split('|')[0]).trim().split(/\s+/).filter(Boolean).length);
+        bijwerken();
+        venster(staat.velden.indexOf(f));
+      }
+      else if (t.classList.contains('bv-deel')) { for (const x of groepVan(f)) { if (t.value) x.deelpunten = t.value; else delete x.deelpunten; } bijwerken(); }
       else if (t.classList.contains('bv-omkring')) { for (const x of groepVan(f)) { if (t.checked) x.omkring = true; else delete x.omkring; } bijwerken(); }
       else if (t.classList.contains('bv-meer')) {
-        for (const x of groepVan(f)) { if (t.checked) delete x.rond; else { x.rond = true; x.h = r2(x.w / (staat.verhouding || 1.414)); } }
+        for (const x of groepVan(f)) { if (t.checked) delete x.rond; else { x.rond = true; delete x.deelpunten; x.h = r2(x.w / (staat.verhouding || 1.414)); } }
         // Een bolletje: maar één juist antwoord.
         if (!t.checked) groepVan(f).filter(x => x.antwoord).slice(1).forEach(x => { x.antwoord = false; });
         bijwerken();
@@ -1289,6 +1299,13 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
   }
 
   // Nog zonder antwoord? velden: alle vakjes van het blad (voor een groepje bolletjes zonder juist antwoord).
+  // Hoe de computer een getypt antwoord nakijkt: zoals altijd, per woord, of: begint met / bevat.
+  const CONTROLE_UITLEG = {
+    woord: 'Elk juist woord op zijn plaats telt. Een fout, ontbrekend of extra woord kost er één. Bv. "Les chats noirs dorment." Zet de punten op het aantal woorden.',
+    begint: 'Juist als het antwoord begint met wat je hierboven typte, bv. "Est-ce que vous avez". De rest mag de leerling zelf verzinnen.',
+    bevat: 'Juist als het antwoord een van de woorden hierboven bevat, bv. "cinéma" of "piscine". De rest mag de leerling zelf verzinnen.',
+  };
+  const controleHtml = f => `<label class="bv-controle-label">Nakijken <select class="bv-controle"><option value="">hetzelfde antwoord (zoals altijd)</option><option value="woord"${f.controle === 'woord' ? ' selected' : ''}>per woord (een zin omzetten of overschrijven)</option><option value="begint"${f.controle === 'begint' ? ' selected' : ''}>juist als het begint met …</option><option value="bevat"${f.controle === 'bevat' ? ' selected' : ''}>juist als het een woord uit de lijst bevat</option></select></label>${f.controle ? `<p class="muted small">${CONTROLE_UITLEG[f.controle]}</p>` : ''}`;
   const leegVeld = (f, _, velden) => (f.soort === 'kruis' && Array.isArray(velden) && !velden.some(g => g.soort === 'kruis' && g.groep === f.groep && g.antwoord)) || ((f.soort === 'tekst' || f.soort === 'breuk' || f.soort === 'sleep') && !String(f.antwoord || '').trim() && !f.doorstreep) || (f.soort === 'plek' && !f.doel) || (f.soort === 'lijn' && !f.naar && !f.lengte && !(f.richting && f.ref && f.ref.b && (f.richting !== 'hoek' || String(f.hoek || '').trim()))) || (f.soort === 'luister' && !f.audio && !String(f.tekst || '').trim()) || (f.soort === 'kies' && (!(f.opties || []).includes(f.antwoord) || f.opties.length < 2))
     || (f.soort === 'rooster' && !!f.nakijk && (f.nakijk === 'deling' ? !String(f.quotient || '').trim() : !(f.sleutel || '').trim() && !(f.nakijk === 'uitkomst' && String(f.uitkomst || '').trim())))
     || (f.soort === 'puntlijn' && ((f.pt || []).length < 2 || (f.doorPunt === undefined && !(f.lijnen || []).length)))
