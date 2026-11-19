@@ -1006,11 +1006,23 @@
       } else if (soort === 'plek') {
         const d = f.doel && typeof f.doel === 'object' ? f.doel : null;
         if (d) veld.doel = { x: pct(d.x), y: pct(d.y), r: Math.max(2, Math.min(100, pct(d.r) || 12)) };
+        // Meer juiste plekken (een tik in één ervan is juist), en een label dat de leerling op de plek zet.
+        const extra = list(f.doelen, 8).filter(z => z && typeof z === 'object').map(z => ({ x: pct(z.x), y: pct(z.y), r: Math.max(2, Math.min(100, pct(z.r) || 12)) }));
+        if (d && extra.length) veld.doelen = extra;
+        const label = text(f.label, 30);
+        if (label) veld.label = label;
         veld.punten = punt(f.punten, 1);
       } else if (soort === 'lijn') {
         const n = f.naar && typeof f.naar === 'object' ? f.naar : null;
         if (n) veld.naar = { x: pct(n.x), y: pct(n.y) };
         veld.r = Math.max(0.5, Math.min(20, pct(f.r) || 3));
+        // Een lijnstuk van een bepaalde lengte (cm, elke richting): dan telt de lengte, niet het eindpunt.
+        const lengte = getal(f.lengte);
+        if (lengte !== null && lengte > 0 && lengte <= 100) {
+          veld.lengte = Math.round(lengte * 100) / 100;
+          const m = getal(f.lengteMarge);
+          veld.lengteMarge = m !== null && m >= 0 ? Math.min(5, Math.round(m * 100) / 100) : 0.2;
+        }
         veld.punten = punt(f.punten, 1);
       } else if (soort === 'teken' || soort === 'rooster') {
         if (soort === 'rooster') {
@@ -1203,7 +1215,7 @@
 
   // Een vakje dat de computer verbetert, maar nog geen juist antwoord heeft.
   const zonderSleutel = f => ((f.soort === 'tekst' || f.soort === 'breuk' || f.soort === 'sleep') && !alts(f.antwoord).length && !f.doorstreep)
-    || (f.soort === 'kies' && (f.opties.length < 2 || !f.opties.includes(f.antwoord))) || (f.soort === 'lijn' && !f.naar)
+    || (f.soort === 'kies' && (f.opties.length < 2 || !f.opties.includes(f.antwoord))) || (f.soort === 'lijn' && !f.naar && !f.lengte)
     || (f.soort === 'rooster' && NAKIJK.includes(f.nakijk) && !roosterAuto(f))
     || (f.soort === 'puntlijn' && ((f.pt || []).length < 2 || (f.doorPunt === undefined && !(f.lijnen || []).length)))
     || (f.soort === 'cirkel' && !(f.cirkels || []).length)
@@ -1360,6 +1372,7 @@
         if (f.vrij) o.vrij = f.vrij;
         if (f.soort === 'luister') { if (f.audio) o.audio = img(f.audio); if (f.tekst) o.tekst = f.tekst; if (f.luisterMax) o.luisterMax = f.luisterMax; }
         if (f.soort === 'vlak') o.kleur = f.kleur;
+        if (f.soort === 'plek' && f.label) o.label = f.label;
         if (f.soort === 'notitie') o.tekst = f.tekst || '';
         return o;
       });
@@ -1463,13 +1476,25 @@
   function plekGoed(f, a, verhouding = 1.414) {
     const m = /^(-?[\d.]+),(-?[\d.]+)$/.exec(String(a || ''));
     if (!m || !f.doel) return false;
-    const dx = ((Number(m[1]) - f.doel.x) / 100) * f.w;
-    const dy = ((Number(m[2]) - f.doel.y) / 100) * f.h * verhouding;
-    return Math.hypot(dx, dy) <= (f.doel.r / 100) * f.w;
+    return [f.doel, ...(f.doelen || [])].some(d => {
+      const dx = ((Number(m[1]) - d.x) / 100) * f.w;
+      const dy = ((Number(m[2]) - d.y) / 100) * f.h * verhouding;
+      return Math.hypot(dx, dy) <= (d.r / 100) * f.w;
+    });
+  }
+  // De lengte van een getrokken lijn in cm: van het midden van het bolletje tot het eindpunt.
+  function lijnCm(f, a, verhouding = 1.414, schaal = SCHAAL) {
+    const m = /^(-?[\d.]+),(-?[\d.]+)$/.exec(String(a || ''));
+    if (!m) return null;
+    return (Math.hypot(Number(m[1]) - (f.x + f.w / 2), (Number(m[2]) - (f.y + f.h / 2)) * verhouding) / 100) * schaal;
   }
 
   // Verbinden: het eindpunt van de lijn ("x,y" in procent van het blad) dicht genoeg bij de juiste plek?
-  function lijnGoed(f, a, verhouding = 1.414) {
+  function lijnGoed(f, a, verhouding = 1.414, schaal = SCHAAL) {
+    if (f.lengte) {
+      const cm = lijnCm(f, a, verhouding, schaal);
+      return cm !== null && Math.abs(cm - f.lengte) <= (f.lengteMarge ?? 0.2) + 1e-9;
+    }
     const m = /^(-?[\d.]+),(-?[\d.]+)$/.exec(String(a || ''));
     if (!m || !f.naar) return false;
     return Math.hypot(Number(m[1]) - f.naar.x, (Number(m[2]) - f.naar.y) * verhouding) <= (f.r || 3);
@@ -1485,7 +1510,7 @@
       if (f.soort === 'rooster') return roosterScore(f, b[k]);
       if (f.soort === 'kies') return b[k] === f.antwoord ? 1 : 0;
       if (f.soort === 'plek') return plekGoed(f, b[k], q.verhouding) ? 1 : 0;
-      if (f.soort === 'lijn') return lijnGoed(f, b[k], q.verhouding) ? 1 : 0;
+      if (f.soort === 'lijn') return lijnGoed(f, b[k], q.verhouding, q.schaal || SCHAAL) ? 1 : 0;
       if (f.soort === 'puntlijn') return puntlijnGoed(f, b[k], q.verhouding) ? 1 : 0;
       if (f.soort === 'cirkel') return cirkelGoed(f, b[k], q.verhouding, q.schaal || SCHAAL) ? 1 : 0;
       if (f.soort === 'veelhoek') return veelhoekGoed(f, b[k], q.verhouding) ? 1 : 0;
@@ -1711,7 +1736,7 @@
   // "36 cm", maar geen "36 cm cm" als de eenheid al in het antwoord staat.
   const metEenheid = (a, e) => (e && !String(a || '').toLowerCase().includes(e.toLowerCase()) ? `${a} ${e}` : String(a || ''));
   // Het juiste antwoord per vakje van een blad: tekst, ✗ (aankruisen) of leeg.
-  const veldSleutel = q => q.velden.map(f => (f.soort === 'kruis' ? (f.antwoord ? '✗' : '') : f.soort === 'plek' ? (f.doel ? '📍' : '') : f.soort === 'lijn' ? (f.naar ? '↗' : '')
+  const veldSleutel = q => q.velden.map(f => (f.soort === 'kruis' ? (f.antwoord ? '✗' : '') : f.soort === 'plek' ? (f.doel ? '📍' : '') : f.soort === 'lijn' ? (f.lengte ? `${getalTekst(f.lengte)} cm (± ${getalTekst(f.lengteMarge ?? 0.2)})` : f.naar ? '↗' : '')
     : GEEN_ANTWOORD.has(f.soort) || f.soort === 'klad' ? ''
     : f.doorstreep && !alts(f.antwoord).length ? 'leeg of doorstreept'
     : f.soort === 'tekst' && heeftMarge(f) ? metEenheid(margeTekst(f), f.eenheid)
@@ -1769,6 +1794,6 @@
     TYPES, NAMES, MANUEEL, NIVEAUS, MAX_BEELD, ROOSTER, validate, problemen, vragenVan, niveausVan, lijstVoor,
     maxVan, autoPunten, handPunten, totaal, viewOf, studentView, partsOf, getal, zelfde, canoniek, auto, schoon, oplossing, schud, alts, gapsOf,
     waarschuwingen, metNamen, MAX_ZONES, veldSleutel, vakGoed, vakDeel, handVeld, autoVeld, roosterAuto, roosterScore, roosterCellen, roosterTekst, roosterUitkomst,
-    heeftMarge, margeGoed, tijdSec, VRIJ_SOORT, margeTekst, getalTekst, puntLijnen, puntlijnGoed, cirkelsVan, cirkelGoed, straalCm, puntNaam, handWerk, SCHAAL, NAKIJK, FIGUREN, figurenVan, veelhoekPunten, veelhoekVolgorde, hoekpunten, rondom, rekenregel, formuleFout, lijnGoed, metEenheid, volgorde, SOORTEN, HAND_VELD, woordenVan, doelenVan, sorteerWoorden, sorteerKolommen, dicteeVergelijk, dicteeDeel, dicteeZinPunten, MAX_DICTEE, itemTekst, markeerModel, markeerSleutel, doelenInBron, markeerTel, markeerKort, markeerAntwoord, tekstWoorden, stukkenVan, zonderHaken, STIFTEN, PER, asTekst, MAX_AUDIO, celGat, vereenvoudigd, GEEN_ANTWOORD, AUTO_VELD, KLEUREN,
+    heeftMarge, margeGoed, tijdSec, VRIJ_SOORT, margeTekst, getalTekst, puntLijnen, puntlijnGoed, cirkelsVan, cirkelGoed, straalCm, puntNaam, handWerk, SCHAAL, NAKIJK, FIGUREN, figurenVan, veelhoekPunten, veelhoekVolgorde, hoekpunten, rondom, rekenregel, formuleFout, lijnGoed, lijnCm, metEenheid, volgorde, SOORTEN, HAND_VELD, woordenVan, doelenVan, sorteerWoorden, sorteerKolommen, dicteeVergelijk, dicteeDeel, dicteeZinPunten, MAX_DICTEE, itemTekst, markeerModel, markeerSleutel, doelenInBron, markeerTel, markeerKort, markeerAntwoord, tekstWoorden, stukkenVan, zonderHaken, STIFTEN, PER, asTekst, MAX_AUDIO, celGat, vereenvoudigd, GEEN_ANTWOORD, AUTO_VELD, KLEUREN,
   };
 });

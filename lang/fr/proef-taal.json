@@ -204,5 +204,17 @@
  "Elk hokje telt apart, op zijn eigen plek. Een hokje dat leeg moet blijven, is fout als de leerling er iets in zet. De punten gaan naar het deel juiste hokjes.": "Chaque case compte séparément, à sa place. Une case qui doit rester vide est fausse si l'élève y écrit. Les points suivent la part de cases justes.",
  "quotiënt {0}{1}": "quotient {0}{1}",
  ", rest {0}": ", reste {0}",
- "rest {0}": "reste {0}"
+ "rest {0}": "reste {0}",
+ "bijv. A of boom": "p. ex. A ou arbre",
+ "Label dat de leerling op de plek zet (mag leeg)": "Étiquette que l'élève place sur l'endroit (peut rester vide)",
+ "De leerling tikt in dit kader een plek aan. Binnen een groene cirkel is juist. Met een label tikt de leerling eerst het label aan en zet het dan op de plek. Kaders met een label mogen over elkaar liggen.": "L'élève touche un endroit dans ce cadre. Dans un cercle vert, c'est juste. Avec une étiquette, l'élève touche d'abord l'étiquette puis la place sur l'endroit. Les cadres avec étiquette peuvent se chevaucher.",
+ "✔ Klik nu op de andere juiste plek": "✔ Cliquez maintenant sur l'autre bon endroit",
+ "+ Nog een juiste plek": "+ Un autre bon endroit",
+ "Extra plekken weg ({0})": "Supprimer les endroits en plus ({0})",
+ "bijv. 6,5": "p. ex. 6,5",
+ "Of: een lijnstuk van (cm, mag leeg)": "Ou : un segment de (cm, peut rester vide)",
+ "Marge (cm)": "Marge (cm)",
+ "Met een lengte telt alleen hoe lang de lijn is, in elke richting, vanaf het bolletje. De leerling meet met 📏 Lat. Klopt de grootte niet? Stel de schaal in met 📏 Schaal van het blad.": "Avec une longueur, seule la longueur du trait compte, dans n'importe quelle direction, depuis le point. L'élève mesure avec 📏 Règle. La taille ne va pas ? Réglez l'échelle avec 📏 Échelle de la feuille.",
+ "Tik op een label en dan op de juiste plek.": "Touche une étiquette puis le bon endroit.",
+ "Zet {0} op de juiste plek": "Place {0} au bon endroit"
 }
