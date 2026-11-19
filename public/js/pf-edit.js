@@ -370,6 +370,9 @@ const PfEdit = (() => {
         bouw();
         pv.querySelector('details').open = card.pfPrenten.some(x => x.l.pfBeeld || x.r.pfBeeld);
         card.querySelector('.e-lijst').addEventListener('change', bouw);
+        // Afleiders: kaartjes rechts die nergens bij horen.
+        veld(`<label>Extra kaartjes rechts die nergens bij horen (mag leeg, één per regel)<textarea class="e-afleiders" rows="2" placeholder="Gent"></textarea></label>`);
+        card.querySelector('.e-afleiders').value = (q.afleiders || []).join('\n');
       } else if (q.type === 'ordenen') {
         // Een kaartje per rij: tekst en/of een prent, in de juiste volgorde.
         veld('<strong>In de juiste volgorde</strong>');
@@ -866,6 +869,8 @@ const PfEdit = (() => {
       q.paren = regels(waarde(card, '.e-lijst')).map(l => split(l, '='));
       const pr = (card.pfPrenten || []).slice(0, q.paren.length).map(x => [x.l.pfBeeld || '', x.r.pfBeeld || '']);
       if (pr.some(x => x[0] || x[1])) q.prenten = pr;
+      const af = regels(waarde(card, '.e-afleiders'));
+      if (af.length) q.afleiders = af;
     }
     else if (type === 'ordenen') {
       q.items = [...card.querySelectorAll(':scope > .pf-k-body .pf-optie')].map(r => {

@@ -4,7 +4,7 @@
 //         zones: { id: [{ x, y, r }] } (print met sleutel), nummer: true (Vraag 1, 2, ... op elke pagina), voorlees, onAnswer(id, waarde) }
 // Een antwoord is altijd in de volgorde van het scherm: de server zet het om naar de volgorde van de toets.
 const PfPaper = (() => {
-  const L = 'ABCDEFGHIJKL';
+  const L = 'ABCDEFGHIJKLMNOPQR';
   const esc = text => String(text ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
   const paras = text => String(text || '').split(/\n{2,}/).map(p => `<p>${esc(p).replace(/\n/g, '<br>')}</p>`).join('');
   const nl = n => String(n).replace('.', ',');

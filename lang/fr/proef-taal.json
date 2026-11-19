@@ -333,5 +333,8 @@
  ":scope > .pf-k-body > .pf-e-zegbron .e-voorlees": null,
  ":scope > .pf-k-body .e-voorlees": null,
  "> .pf-e-zegbron .e-voorlees": null,
- "bijv. de luistertekst waar de deelvragen over gaan": "p. ex. le texte d’écoute sur lequel portent les sous-questions"
+ "bijv. de luistertekst waar de deelvragen over gaan": "p. ex. le texte d’écoute sur lequel portent les sous-questions",
+ "Gent": "Gand",
+ "Extra kaartjes rechts die nergens bij horen (mag leeg, één per regel)": "Cartes en plus à droite qui ne vont avec rien (peut rester vide, une par ligne)",
+ "(hoort nergens bij: {0})": "(ne va avec rien : {0})"
 }

@@ -333,5 +333,8 @@
  ":scope > .pf-k-body > .pf-e-zegbron .e-voorlees": null,
  ":scope > .pf-k-body .e-voorlees": null,
  "> .pf-e-zegbron .e-voorlees": null,
- "bijv. de luistertekst waar de deelvragen over gaan": "z. B. der Hörtext, um den es in den Teilfragen geht"
+ "bijv. de luistertekst waar de deelvragen over gaan": "z. B. der Hörtext, um den es in den Teilfragen geht",
+ "Gent": "Gent",
+ "Extra kaartjes rechts die nergens bij horen (mag leeg, één per regel)": "Zusätzliche Kärtchen rechts, die zu nichts passen (darf leer sein, eins pro Zeile)",
+ "(hoort nergens bij: {0})": "(passt zu nichts: {0})"
 }

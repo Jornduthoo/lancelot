@@ -230,3 +230,24 @@ test('Voorleestekst: lang mag (tot 6000 tekens), ook bij een bron, met een maxim
   const u = K.validate({ titel: 'l', vragen: [{ type: 'bron', titel: 'B', tekst: 'Tekst.', luisterMax: 2, vragen: [{ type: 'kort', vraag: 'V?', antwoord: 'x' }] }] });
   assert.strictEqual(u.vragen[0].luisterMax, undefined);
 });
+
+test('Verbinden: afleiders rechts horen nergens bij, de punten blijven per paar', () => {
+  const t = K.validate({ titel: 'v', vragen: [{ type: 'verbinden', vraag: 'Verbind.', paren: [['Antwerpen', 'Schelde'], ['Luik', 'Maas']], afleiders: ['Leie', '', 'IJzer'] }] });
+  const q = t.vragen[0];
+  assert.deepStrictEqual(q.afleiders, ['Leie', 'IJzer']);
+  assert.strictEqual(K.aantalRechts(q), 4);
+  const perm = K.schud(4, 'x', true);
+  const v = K.studentView(t, t.vragen, { perms: { 0: perm } }).pages[0];
+  assert.strictEqual(v.rechts.length, 4);
+  assert.deepStrictEqual([...v.rechts].sort(), ['IJzer', 'Leie', 'Maas', 'Schelde']);
+  const pos = w => v.rechts.indexOf(w);
+  assert.deepStrictEqual(K.canoniek(q, [pos('Schelde'), pos('Leie')], perm), [0, 2]);
+  assert.strictEqual(K.auto(q, [0, 2]), 1);
+  assert.strictEqual(K.auto(q, [0, 1]), 2);
+  assert.strictEqual(K.paarTekst(q, 3, 1), 'IJzer');
+  assert.match(K.oplossing(q), /hoort nergens bij: Leie, IJzer/);
+  // Zonder afleiders: precies zoals vroeger.
+  const oud = K.validate({ titel: 'v', vragen: [{ type: 'verbinden', vraag: 'Verbind.', paren: [['a', 'b'], ['c', 'd']] }] }).vragen[0];
+  assert.strictEqual(oud.afleiders, undefined);
+  assert.strictEqual(K.aantalRechts(oud), 2);
+});

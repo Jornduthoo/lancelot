@@ -150,7 +150,7 @@ function toets(t, w) {
     const perms = {};
     for (const { id, q } of K.vragenVan(lijst)) {
       if (q.type === 'meerkeuze') perms[id] = K.schud(q.opties.length, `${k}|${id}`);
-      if (q.type === 'verbinden') perms[id] = K.schud(q.paren.length, `${k}|${id}`, true);
+      if (q.type === 'verbinden') perms[id] = K.schud(K.aantalRechts(q), `${k}|${id}`, true);
       if (q.type === 'ordenen') perms[id] = K.schud(q.items.length, `${k}|${id}`, true);
       if (q.type === 'groeperen') perms[id] = K.schud(K.groepKaarten(q).length, `${k}|${id}`, true);
     }
