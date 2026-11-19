@@ -252,5 +252,13 @@
  "Elke zijde (cm, mag leeg)": "Cada lado (cm, puede quedar vacío)",
  "De leerling meet met 📏 Lat. Zijden die even lang moeten zijn, mogen evenveel verschillen als de marge; hoeken 3 graden.": "El alumno mide con 📏 Regla. Los lados que deben ser iguales pueden diferir en el margen; los ángulos en 3 grados.",
  ", zijden {0} cm (± {1})": ", lados {0} cm (± {1})",
- "Tik de hoekpunten aan, waar je wil (meet met de lat)": "Toca los vértices donde quieras (mide con la regla)"
+ "Tik de hoekpunten aan, waar je wil (meet met de lat)": "Toca los vértices donde quieras (mide con la regla)",
+ "📐 Gradenboog voor de leerling (om hoeken te meten en te tekenen)": "📐 Transportador para el alumno (para medir y dibujar ángulos)",
+ "📐 Gradenboog": "📐 Transportador",
+ "een hoek maakt met een been (gradenboog)": "forma un ángulo con un lado (transportador)",
+ "Hoek (graden)": "Ángulo (grados)",
+ "Klik 2 punten op het been: eerst het hoekpunt, dan een punt op het been": "Haz clic en 2 puntos del lado: primero el vértice, luego un punto del lado",
+ "Klik 2 punten op die rechte op het blad": "Haz clic en 2 puntos de esa recta en la hoja",
+ "De leerling trekt vanuit het bolletje een lijn met de 📐 Gradenboog (zet die aan bij het blad). De hoek met het been telt, niet hoe lang de lijn is.": "El alumno traza una línea desde el punto con el 📐 Transportador (actívalo para la hoja). Cuenta el ángulo con el lado, no la longitud de la línea.",
+ "hoek van {0}° (± {1}°)": "ángulo de {0}° (± {1}°)"
 }

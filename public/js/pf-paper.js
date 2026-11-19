@@ -508,7 +508,7 @@ const PfPaper = (() => {
     // Labels om op de juiste plek te zetten: tik op een label en dan op de plek (in alfabetische volgorde, de volgorde verraadt niets).
     const labels = live ? q.velden.map((f, k) => (f.soort === 'plek' && f.label ? { k, t: f.label } : null)).filter(Boolean).sort((x, y) => x.t.localeCompare(y.t, 'nl', { numeric: true })) : [];
     const bank = bankHtml(q.bank, live, print) + (labels.length ? `<div class="pf-label-bank"><span class="pf-tip">Tik op een label en dan op de juiste plek.</span> ${labels.map(l => `<button type="button" class="pf-label-w${b[l.k] ? ' gezet' : ''}" data-k="${l.k}">${esc(l.t)}</button>`).join('')}</div>` : '');
-    return `${live ? '<p class="pf-tip pf-blad-tip">Typ je antwoorden in de vakjes op het blad. <button type="button" class="link pf-groter">🔍 Groter</button> <button type="button" class="link pf-lat-knop">📏 Lat</button></p>' : ''}${bank}
+    return `${live ? '<p class="pf-tip pf-blad-tip">Typ je antwoorden in de vakjes op het blad. <button type="button" class="link pf-groter">🔍 Groter</button> <button type="button" class="link pf-lat-knop">📏 Lat</button>' + (q.gradenboog ? ' <button type="button" class="link pf-boog-knop">📐 Gradenboog</button>' : '') + '</p>' : ''}${bank}
       <div class="pf-blad-wrap"><div class="pf-blad-vel" data-schaal="${q.schaal || 21}" data-verhouding="${v}" style="aspect-ratio:${Math.round((1 / v) * 10000) / 10000}">${q.beeld ? `<img src="${esc(q.beeld)}" alt="" draggable="false">` : ''}${svg}${velden}</div></div>`;
 
     // Een getypt antwoord dat we helemaal tonen (bekijken en verbeteren), ook als het langer is dan het vakje.
@@ -1126,6 +1126,13 @@ const PfPaper = (() => {
         if (oud) oud.remove(); else if (vel) maakLat(vel);
         lat.classList.toggle('on', !oud);
       });
+      const boog = el.querySelector('.pf-boog-knop');
+      if (boog) boog.addEventListener('click', () => {
+        const vel = el.querySelector('.pf-blad-vel');
+        const oud = vel && vel.querySelector('.pf-boog');
+        if (oud) oud.remove(); else if (vel) maakBoog(vel);
+        boog.classList.toggle('on', !oud);
+      });
       const groter = el.querySelector('.pf-groter');
       if (groter) groter.addEventListener('click', () => { groter.textContent = el.classList.toggle('groot') ? '🔍 Kleiner' : '🔍 Groter'; });
       const orden = el.querySelector('.pf-orden');
@@ -1462,6 +1469,66 @@ const PfPaper = (() => {
     lat.addEventListener('pointerup', los);
     lat.addEventListener('pointercancel', los);
     return lat;
+  }
+
+  // Een gradenboog op het blad: verschuiven door te slepen, draaien rond het middelpunt met ⟳. Twee schalen (0 tot 180 en terug), zoals op papier.
+  function maakBoog(vel) {
+    const schaal = Number(vel.dataset.schaal) || 21;
+    // 10 cm breed op het blad (de echte maat volgens de schaal).
+    const R = 50;
+    let h = '';
+    // Alleen de rand (met de schaalverdeling) neemt je vast: in het midden kan je gewoon lijnen trekken vanaf het bolletje.
+    for (let g = 0; g <= 180; g++) {
+      const a = (Math.PI * (180 - g)) / 180;
+      const l = g % 10 === 0 ? 7 : g % 5 === 0 ? 5 : 3;
+      const c = Math.cos(a);
+      const s = Math.sin(a);
+      h += `<line x1="${60 + R * c}" y1="${60 - R * s}" x2="${60 + (R - l) * c}" y2="${60 - (R - l) * s}"/>`;
+      if (g % 10 === 0) {
+        h += `<text x="${60 + (R - 11) * c}" y="${60 - (R - 11) * s + 1.3}">${g}</text>`;
+        h += `<text class="binnen" x="${60 + (R - 17) * c}" y="${60 - (R - 17) * s + 1.2}">${180 - g}</text>`;
+      }
+    }
+    const boog = document.createElement('div');
+    boog.className = 'pf-boog';
+    boog.style.width = `${(12 / schaal) * 100}%`;
+    boog.style.transformOrigin = '50% 92.3%';
+    boog.innerHTML = `<svg viewBox="0 0 120 65" aria-hidden="true"><path class="vlak" d="M${60 - R - 2} 60 A ${R + 2} ${R + 2} 0 0 1 ${60 + R + 2} 60 L ${60 + R + 2} 65 L ${60 - R - 2} 65 Z"/>${h}<line class="basis" x1="${60 - R}" y1="60" x2="${60 + R}" y2="60"/><line class="basis" x1="60" y1="60" x2="60" y2="54"/><circle cx="60" cy="60" r="1"/><path class="greep" d="M${60 - R - 2} 60 A ${R + 2} ${R + 2} 0 0 1 ${60 + R + 2} 60 L ${60 + R - 20} 60 A ${R - 20} ${R - 20} 0 0 0 ${60 - R + 20} 60 Z"/></svg><span class="pf-lat-draai pf-boog-draai" title="Draaien" aria-label="Draaien">⟳</span>`;
+    const r = vel.getBoundingClientRect();
+    const st = { x: 20, y: Math.min(80, Math.max(3, ((Math.max(0, -r.top) + 90) / Math.max(1, r.height)) * 100)), hoek: 0 };
+    const zet = () => { boog.style.left = `${st.x}%`; boog.style.top = `${st.y}%`; boog.style.transform = `rotate(${st.hoek}deg)`; };
+    zet();
+    vel.appendChild(boog);
+    let sleep = null;
+    boog.addEventListener('pointerdown', e => {
+      if (e.button > 0) return;
+      e.preventDefault();
+      e.stopPropagation();
+      boog.setPointerCapture(e.pointerId);
+      sleep = { draai: !!e.target.closest('.pf-boog-draai'), px: e.clientX, py: e.clientY, x: st.x, y: st.y, hoek: st.hoek };
+    });
+    boog.addEventListener('pointermove', e => {
+      if (!sleep) return;
+      const v = vel.getBoundingClientRect();
+      if (!sleep.draai) {
+        st.x = sleep.x + ((e.clientX - sleep.px) / v.width) * 100;
+        st.y = sleep.y + ((e.clientY - sleep.py) / v.height) * 100;
+        return zet();
+      }
+      // Draaien rond het middelpunt (onderaan in het midden); dicht bij recht klikt hij vast.
+      const ox = v.left + (st.x / 100) * v.width + boog.offsetWidth / 2;
+      const oy = v.top + (st.y / 100) * v.height + boog.offsetHeight * 0.923;
+      const a0 = Math.atan2(sleep.py - oy, sleep.px - ox);
+      let g = sleep.hoek + ((Math.atan2(e.clientY - oy, e.clientX - ox) - a0) * 180) / Math.PI;
+      const recht = Math.round(g / 90) * 90;
+      if (Math.abs(g - recht) < 3) g = recht;
+      st.hoek = Math.round(g * 10) / 10;
+      zet();
+    });
+    const los = () => { sleep = null; };
+    boog.addEventListener('pointerup', los);
+    boog.addEventListener('pointercancel', los);
+    return boog;
   }
 
   // Is deze vraag al beantwoord? (voor het bolletje in de vraagbalk)

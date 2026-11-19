@@ -854,11 +854,12 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
         <div class="bv-opties"><label>Of: een lijnstuk van (cm, mag leeg) <input class="bv-lengte" inputmode="decimal" value="${esc(f.lengte ?? '')}" placeholder="bijv. 6,5"></label>
           <label>Marge (cm) <input class="bv-lmarge" inputmode="decimal" value="${esc(f.lengteMarge ?? '')}" placeholder="0,2"></label></div>
         <p class="muted small">Met een lengte telt alleen hoe lang de lijn is, in elke richting, vanaf het bolletje. De leerling meet met 📏 Lat. Klopt de grootte niet? Stel de schaal in met 📏 Schaal van het blad.</p>
-        <label>Of: een rechte door het bolletje die <select class="bv-richting"><option value="">(geen voorwaarde)</option>${[['evenwijdig', 'evenwijdig is met een rechte'], ['loodrecht', 'loodrecht staat op een rechte'], ['niet-loodrecht', 'een rechte niet loodrecht snijdt'], ['niet-evenwijdig', 'niet evenwijdig is met een rechte']].map(([v, t]) => `<option value="${v}"${f.richting === v ? ' selected' : ''}>${t}</option>`).join('')}</select></label>
-        ${f.richting ? `<p class="small">Klik 2 punten op die rechte op het blad${f.ref && f.ref.b ? ' (✔ ingesteld, klik opnieuw om te veranderen)' : ''}:</p>
+        <label>Of: een rechte door het bolletje die <select class="bv-richting"><option value="">(geen voorwaarde)</option>${[['evenwijdig', 'evenwijdig is met een rechte'], ['loodrecht', 'loodrecht staat op een rechte'], ['niet-loodrecht', 'een rechte niet loodrecht snijdt'], ['niet-evenwijdig', 'niet evenwijdig is met een rechte'], ['hoek', 'een hoek maakt met een been (gradenboog)']].map(([v, t]) => `<option value="${v}"${f.richting === v ? ' selected' : ''}>${t}</option>`).join('')}</select></label>
+        ${f.richting === 'hoek' ? `<label>Hoek (graden) <input class="bv-hoek" inputmode="decimal" value="${esc(f.hoek ?? '')}" placeholder="50"></label>` : ''}
+        ${f.richting ? `<p class="small">${f.richting === 'hoek' ? 'Klik 2 punten op het been: eerst het hoekpunt, dan een punt op het been' : 'Klik 2 punten op die rechte op het blad'}${f.ref && f.ref.b ? ' (✔ ingesteld, klik opnieuw om te veranderen)' : ''}:</p>
           <div class="bv-ref" style="aspect-ratio:${r2(1 / (staat.verhouding || 1.414))}"><img src="${esc(staat.beeld)}" alt="" draggable="false"><svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${f.ref && f.ref.b ? `<line x1="${f.ref.a.x}" y1="${f.ref.a.y}" x2="${f.ref.b.x}" y2="${f.ref.b.y}" vector-effect="non-scaling-stroke"/>` : ''}</svg>${f.ref ? `<i style="left:${f.ref.a.x}%;top:${f.ref.a.y}%"></i>${f.ref.b ? `<i style="left:${f.ref.b.x}%;top:${f.ref.b.y}%"></i>` : ''}` : ''}<b style="left:${f.x + f.w / 2}%;top:${f.y + f.h / 2}%"></b></div>
           <label>Marge (graden) <input class="bv-hm" inputmode="decimal" value="${esc(f.hoekMarge ?? '')}" placeholder="3"></label>
-          <p class="muted small">De richting telt, niet waar de lijn eindigt. "Niet loodrecht snijden" is ook fout als de lijn evenwijdig loopt.</p>` : ''}${samenHtml(f, punten)}`;
+          <p class="muted small">${f.richting === 'hoek' ? 'De leerling trekt vanuit het bolletje een lijn met de 📐 Gradenboog (zet die aan bij het blad). De hoek met het been telt, niet hoe lang de lijn is.' : 'De richting telt, niet waar de lijn eindigt. "Niet loodrecht snijden" is ook fout als de lijn evenwijdig loopt.'}</p>` : ''}${samenHtml(f, punten)}`;
       const refVak = inh.querySelector('.bv-ref');
       if (refVak) refVak.addEventListener('click', e => {
         const r = refVak.getBoundingClientRect();
@@ -926,6 +927,7 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
       else if (t.classList.contains('bv-kaantal')) { const c = f.kleuren[Number(t.dataset.i)]; if (c) { const a = t.value.trim(); if (a) c.aantal = a; else delete c.aantal; bijwerken(); } }
       else if (t.classList.contains('bv-zijde')) { const l = t.value.trim(); if (l) f.zijde = l; else delete f.zijde; bijwerken(); }
       else if (t.classList.contains('bv-zmarge')) { const l = t.value.trim(); if (l) f.zijdeMarge = l; else delete f.zijdeMarge; bijwerken(); }
+      else if (t.classList.contains('bv-hoek')) { const l = t.value.trim(); if (l) f.hoek = l; else delete f.hoek; bijwerken(); }
       else if (t.classList.contains('bv-hm')) { const l = t.value.trim(); if (l) f.hoekMarge = l; else delete f.hoekMarge; bijwerken(); }
       else if (t.classList.contains('bv-quotient')) { f.quotient = t.value.trim(); bijwerken(); }
       else if (t.classList.contains('bv-rest')) { f.rest = t.value.trim(); bijwerken(); }
@@ -948,7 +950,7 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
         bijwerken();
         venster(staat.velden.indexOf(f));
       }
-      else if (t.classList.contains('bv-richting')) { if (t.value) f.richting = t.value; else { delete f.richting; delete f.ref; delete f.hoekMarge; } bijwerken(); venster(staat.velden.indexOf(f)); }
+      else if (t.classList.contains('bv-richting')) { if (t.value) f.richting = t.value; else { delete f.richting; delete f.ref; delete f.hoekMarge; } if (t.value !== 'hoek') delete f.hoek; bijwerken(); venster(staat.velden.indexOf(f)); }
       else if (t.classList.contains('bv-kkleur')) { const c = f.kleuren[Number(t.dataset.i)]; if (c) { c.kleur = t.value; bijwerken(); venster(staat.velden.indexOf(f)); } }
       else if (t.classList.contains('bv-figuur')) { if (t.value) f.figuur = t.value; else delete f.figuur; bijwerken(); }
       else if (t.classList.contains('bv-urij')) { if (t.value) f.uitkomstRij = Number(t.value); else delete f.uitkomstRij; bijwerken(); }
@@ -1287,7 +1289,7 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
   }
 
   // Nog zonder antwoord? velden: alle vakjes van het blad (voor een groepje bolletjes zonder juist antwoord).
-  const leegVeld = (f, _, velden) => (f.soort === 'kruis' && Array.isArray(velden) && !velden.some(g => g.soort === 'kruis' && g.groep === f.groep && g.antwoord)) || ((f.soort === 'tekst' || f.soort === 'breuk' || f.soort === 'sleep') && !String(f.antwoord || '').trim() && !f.doorstreep) || (f.soort === 'plek' && !f.doel) || (f.soort === 'lijn' && !f.naar && !f.lengte && !(f.richting && f.ref && f.ref.b)) || (f.soort === 'luister' && !f.audio && !String(f.tekst || '').trim()) || (f.soort === 'kies' && (!(f.opties || []).includes(f.antwoord) || f.opties.length < 2))
+  const leegVeld = (f, _, velden) => (f.soort === 'kruis' && Array.isArray(velden) && !velden.some(g => g.soort === 'kruis' && g.groep === f.groep && g.antwoord)) || ((f.soort === 'tekst' || f.soort === 'breuk' || f.soort === 'sleep') && !String(f.antwoord || '').trim() && !f.doorstreep) || (f.soort === 'plek' && !f.doel) || (f.soort === 'lijn' && !f.naar && !f.lengte && !(f.richting && f.ref && f.ref.b && (f.richting !== 'hoek' || String(f.hoek || '').trim()))) || (f.soort === 'luister' && !f.audio && !String(f.tekst || '').trim()) || (f.soort === 'kies' && (!(f.opties || []).includes(f.antwoord) || f.opties.length < 2))
     || (f.soort === 'rooster' && !!f.nakijk && (f.nakijk === 'deling' ? !String(f.quotient || '').trim() : !(f.sleutel || '').trim() && !(f.nakijk === 'uitkomst' && String(f.uitkomst || '').trim())))
     || (f.soort === 'puntlijn' && ((f.pt || []).length < 2 || (f.doorPunt === undefined && !(f.lijnen || []).length)))
     || (f.soort === 'cirkel' && !(f.cirkels || []).length)

@@ -252,5 +252,13 @@
  "Elke zijde (cm, mag leeg)": "Each side (cm, may be empty)",
  "De leerling meet met 📏 Lat. Zijden die even lang moeten zijn, mogen evenveel verschillen als de marge; hoeken 3 graden.": "The pupil measures with 📏 Ruler. Sides that must be equal may differ by the margin; angles by 3 degrees.",
  ", zijden {0} cm (± {1})": ", sides {0} cm (± {1})",
- "Tik de hoekpunten aan, waar je wil (meet met de lat)": "Tap the corners wherever you like (measure with the ruler)"
+ "Tik de hoekpunten aan, waar je wil (meet met de lat)": "Tap the corners wherever you like (measure with the ruler)",
+ "📐 Gradenboog voor de leerling (om hoeken te meten en te tekenen)": "📐 Protractor for the pupil (to measure and draw angles)",
+ "📐 Gradenboog": "📐 Protractor",
+ "een hoek maakt met een been (gradenboog)": "makes an angle with a side (protractor)",
+ "Hoek (graden)": "Angle (degrees)",
+ "Klik 2 punten op het been: eerst het hoekpunt, dan een punt op het been": "Click 2 points on the side: first the vertex, then a point on the side",
+ "Klik 2 punten op die rechte op het blad": "Click 2 points on that line on the sheet",
+ "De leerling trekt vanuit het bolletje een lijn met de 📐 Gradenboog (zet die aan bij het blad). De hoek met het been telt, niet hoe lang de lijn is.": "The pupil draws a line from the dot using the 📐 Protractor (switch it on for the sheet). The angle with the side counts, not how long the line is.",
+ "hoek van {0}° (± {1}°)": "angle of {0}° (± {1}°)"
 }

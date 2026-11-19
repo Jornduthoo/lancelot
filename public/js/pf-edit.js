@@ -650,7 +650,7 @@ const PfEdit = (() => {
   // Een blad uit de pdf: een kleine weergave met de vakjes, en een knop om ze te plaatsen en de antwoorden in te vullen.
   function bladKaart(card, body, q) {
     card.pfBeeld = q.beeld;
-    card.pfBlad = { verhouding: q.verhouding, velden: (q.velden || []).map(f => JSON.parse(JSON.stringify(f))), woorden: q.woorden || [], schaal: q.schaal || PfKern.SCHAAL };
+    card.pfBlad = { verhouding: q.verhouding, velden: (q.velden || []).map(f => JSON.parse(JSON.stringify(f))), woorden: q.woorden || [], schaal: q.schaal || PfKern.SCHAAL, gradenboog: !!q.gradenboog };
     const vak = document.createElement('div');
     vak.className = 'pf-blad-kaart';
     body.appendChild(vak);
@@ -682,7 +682,8 @@ const PfEdit = (() => {
     card.pfTeken = teken;
     teken();
     const v = document.createElement('div');
-    v.innerHTML = `<p class="muted small">${HELP.blad}</p>`;
+    v.innerHTML = `<label class="inline check"><input type="checkbox" class="e-gradenboog"${card.pfBlad.gradenboog ? ' checked' : ''}> 📐 Gradenboog voor de leerling (om hoeken te meten en te tekenen)</label><p class="muted small">${HELP.blad}</p>`;
+    v.querySelector('.e-gradenboog').addEventListener('change', e => { card.pfBlad.gradenboog = e.target.checked; cfg.preview(); });
     body.appendChild(v);
   }
 
@@ -705,6 +706,7 @@ const PfEdit = (() => {
       q.velden = card.pfBlad.velden;
       if (card.pfBlad.woorden && card.pfBlad.woorden.length) q.woorden = card.pfBlad.woorden;
       if (card.pfBlad.schaal && card.pfBlad.schaal !== PfKern.SCHAAL) q.schaal = card.pfBlad.schaal;
+      if (card.pfBlad.gradenboog) q.gradenboog = true;
       return q;
     }
     if (type === 'bron') {
