@@ -216,7 +216,7 @@ const PfBlad = (() => {
 
   function aiPrompt(bladen, start = 1, niveau = '') {
     let nr = start;
-    const lijst = bladen.map((b, i) => `Blad ${i + 1}: ${b.velden.map(f => `${nr++}${f.soort === 'kruis' ? ' (hokje)' : f.soort === 'open' ? ' (open)' : f.soort === 'kies' ? ' (keuzelijst)' : f.soort === 'teken' ? ' (tekenvak: zet in antwoord waar de leerkracht op let)' : f.soort === 'luister' || f.soort === 'vlak' || f.soort === 'notitie' || f.soort === 'plek' || f.soort === 'lijn' || f.soort === 'klad' || f.soort === 'puntlijn' || f.soort === 'cirkel' || f.soort === 'veelhoek' ? ' (geen antwoord: sla over)' : f.soort === 'breuk' ? ' (breuk, bv. 3/4)' : f.soort === 'sleep' ? ' (sleepwoord)' : f.soort === 'rooster' ? ' (rekenrooster: zet in antwoord de uitkomst van de bewerking, de leerkracht verbetert)' : ''}`).join(', ')}`).join('\n');
+    const lijst = bladen.map((b, i) => `Blad ${i + 1}: ${b.velden.map(f => `${nr++}${f.soort === 'kruis' ? ' (hokje)' : f.soort === 'open' ? ' (open)' : f.soort === 'kies' ? ' (keuzelijst)' : f.soort === 'teken' ? ' (tekenvak: zet in antwoord waar de leerkracht op let)' : f.soort === 'luister' || f.soort === 'vlak' || f.soort === 'notitie' || f.soort === 'plek' || f.soort === 'lijn' || f.soort === 'klad' || f.soort === 'puntlijn' || f.soort === 'cirkel' || f.soort === 'veelhoek' || f.soort === 'kleur' ? ' (geen antwoord: sla over)' : f.soort === 'breuk' ? ' (breuk, bv. 3/4)' : f.soort === 'sleep' ? ' (sleepwoord)' : f.soort === 'rooster' ? ' (rekenrooster: zet in antwoord de uitkomst van de bewerking, de leerkracht verbetert)' : ''}`).join(', ')}`).join('\n');
     return `Je bent een ervaren leerkracht in ${Ui.aiKader().waar}${niveau ? ` (${niveau})` : ''}. Op de bijgevoegde afbeeldingen staan de bladen van een toets.
 Elk rood kader met een nummer is een plek waar de leerling iets invult. Maak de verbetersleutel: geef voor elk nummer het juiste antwoord.
 De vakjes per blad:
@@ -255,7 +255,7 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
       const plek = alle[Number(r && r.nr) - start];
       if (!plek) continue;
       const { b, f } = plek;
-      if (['luister', 'vlak', 'notitie', 'plek', 'lijn', 'klad', 'puntlijn', 'cirkel', 'veelhoek'].includes(f.soort)) continue;
+      if (['luister', 'vlak', 'notitie', 'plek', 'lijn', 'klad', 'puntlijn', 'cirkel', 'veelhoek', 'kleur'].includes(f.soort)) continue;
       if (f.soort === 'breuk' || f.soort === 'sleep') {
         if (r.antwoord) { f.antwoord = String(r.antwoord).slice(0, 300); n++; b.gewijzigd = true; }
         if (f.soort === 'breuk' && r.vereenvoudigd === true) f.vereenvoudigd = true;
@@ -294,7 +294,7 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
     ['Typen', [['tekst', '✏️', 'Kort antwoord', 'Een woord of getal'], ['breuk', '➗', 'Breuk', 'Teller boven, noemer onder'], ['rooster', '🧮', 'Rekenrooster', 'Hokjes om uit te rekenen'], ['kies', '▾', 'Keuzelijstje', 'Kiezen uit een lijstje'],
       ['sleep', '🧲', 'Sleepwoord', 'Een woord in het vak slepen'], ['open', '💬', 'Open antwoord', 'Een paar zinnen schrijven']]],
     ['Aanklikken', [['mk', '🔘', 'Meerkeuze', 'Bolletjes, één is juist'], ['ak', '☑️', 'Aankruisen', 'Hokjes, meer mag juist zijn'], ['jf', '⚖️', 'Juist of fout', 'Twee bolletjes: J en F'], ['plek', '📍', 'Aanduiden', 'Een plek aanklikken op een prent'], ['lijn', '↗️', 'Verbinden', 'Een lijn naar de juiste plek']]],
-    ['Maken', [['teken', '🎨', 'Tekenvak', 'Tekenen op het blad'], ['puntlijn', '📐', 'Lijnen tussen punten', 'Van punt naar punt'], ['cirkel', '⭕', 'Cirkel', 'Met middelpunt en straal'], ['veelhoek', '🔷', 'Veelhoek', 'Hoekpunten op stippen'], ['klad', '📝', 'Kladruimte', 'Telt niet mee'], ['luister', '🎧', 'Luisterknop', 'Uitleg om te beluisteren']]],
+    ['Maken', [['teken', '🎨', 'Tekenvak', 'Tekenen op het blad'], ['puntlijn', '📐', 'Lijnen tussen punten', 'Van punt naar punt'], ['cirkel', '⭕', 'Cirkel', 'Met middelpunt en straal'], ['veelhoek', '🔷', 'Veelhoek', 'Hoekpunten op stippen'], ['kleur', '🖍️', 'Kleurveld', 'Hokjes inkleuren'], ['klad', '📝', 'Kladruimte', 'Telt niet mee'], ['luister', '🎧', 'Luisterknop', 'Uitleg om te beluisteren']]],
     ['Op het blad', [['vlak', '⬜', 'Vlak', 'Verbergt iets op het blad'], ['notitie', '🗒️', 'Notitie', 'Jouw tekst op het blad']]],
   ];
   const GROEP_TOOL = new Set(['mk', 'ak', 'jf']);
@@ -387,6 +387,7 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
         if (soort === 'puntlijn') f.pt = [];
         if (soort === 'cirkel') { f.cirkels = []; f.marge = 0.1; }
         if (soort === 'veelhoek') { f.kol = 6; f.rij = 5; }
+        if (soort === 'kleur') { f.kol = 10; f.rij = 1; f.kleuren = [{ kleur: 'rood' }]; }
         if (soort === 'vlak') f.kleur = '#ffffff';
         if (soort === 'kies') f.opties = [];
         if (soort === 'rooster') { f.kol = ROOSTER.kol; f.rij = ROOSTER.rij; }
@@ -475,7 +476,7 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
         // Een klik zonder slepen: een vakje van normale grootte.
         const v = staat.verhouding || 1.414;
         if (f.w < 1.2 && f.h < 1.2) {
-          if (f.soort === 'luister') { f.w = 4; f.h = r2(4 / v); } else if (f.soort === 'rooster') { f.w = 3 * f.kol; f.h = r2((3 * f.rij) / v); } else if (f.soort === 'plek') { f.w = 40; f.h = 20; } else if (f.soort === 'open') { f.w = 60; f.h = 8; } else if (f.soort === 'teken') { f.w = 40; f.h = 16; } else if (f.soort === 'breuk') { f.w = 5; f.h = r2(8 / v); } else if (f.soort === 'vlak') { f.w = 20; f.h = 5; } else if (f.soort === 'notitie') { f.w = 40; f.h = 3; } else if (f.soort === 'klad') { f.w = 40; f.h = 12; } else if (f.soort === 'puntlijn' || f.soort === 'cirkel') { f.w = 40; f.h = r2(28 / v); } else if (f.soort === 'veelhoek') { f.w = 30; f.h = r2((30 / (f.kol - 1)) * (f.rij - 1) / v); } else { f.w = 14; f.h = 2.6; }
+          if (f.soort === 'luister') { f.w = 4; f.h = r2(4 / v); } else if (f.soort === 'rooster') { f.w = 3 * f.kol; f.h = r2((3 * f.rij) / v); } else if (f.soort === 'plek') { f.w = 40; f.h = 20; } else if (f.soort === 'open') { f.w = 60; f.h = 8; } else if (f.soort === 'teken') { f.w = 40; f.h = 16; } else if (f.soort === 'breuk') { f.w = 5; f.h = r2(8 / v); } else if (f.soort === 'vlak') { f.w = 20; f.h = 5; } else if (f.soort === 'notitie') { f.w = 40; f.h = 3; } else if (f.soort === 'klad') { f.w = 40; f.h = 12; } else if (f.soort === 'puntlijn' || f.soort === 'cirkel') { f.w = 40; f.h = r2(28 / v); } else if (f.soort === 'veelhoek') { f.w = 30; f.h = r2((30 / (f.kol - 1)) * (f.rij - 1) / v); } else if (f.soort === 'kleur') { f.w = 40; f.h = r2((4 * f.rij) / v); } else { f.w = 14; f.h = 2.6; }
           f.x = r2(clamp(f.x - (f.soort === 'luister' ? f.w / 2 : 0), 0, 100 - f.w));
           f.y = r2(clamp(f.y - f.h / 2, 0, 100 - f.h));
         }
@@ -682,7 +683,8 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
         ${jf ? '' : `<div class="bv-opties">
           <span class="bv-aantal">Aantal <button type="button" class="secondary small-btn" data-n="-1">−</button><b>${g.length}</b><button type="button" class="secondary small-btn" data-n="1">+</button></span>
           <label class="inline check"><input type="checkbox" class="bv-letters"${g.every(x => x.label) ? ' checked' : ''}> Letters A, B, C…</label>
-          <label class="inline check"><input type="checkbox" class="bv-meer"${rond ? '' : ' checked'}> Meer dan één juist (hokjes)</label></div>`}
+          <label class="inline check"><input type="checkbox" class="bv-meer"${rond ? '' : ' checked'}> Meer dan één juist (hokjes)</label>
+          <label class="inline check"><input type="checkbox" class="bv-omkring"${g.every(x => x.omkring) ? ' checked' : ''}> Omkringen: leg de vakjes over wat op het blad staat (bv. getallen), de leerling omcirkelt het juiste</label></div>`}
         ${punten(g.reduce((s, x) => s + (x.punten || 0), 0) || 1)}`;
     } else if (f.soort === 'tekst') {
       kop.textContent = NAAM.tekst;
@@ -731,6 +733,17 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
         ${f.nakijk ? '' : `<label>Uitwerking of uitkomst (alleen voor jou, je verbetert zelf)<textarea class="bv-model" rows="2">${esc(f.antwoord || '')}</textarea></label>`}${punten(f.punten ?? 1)}`;
       const grid = inh.querySelector('.bv-rooster-sleutel');
       if (grid) PfPaper.wireRooster(grid);
+    } else if (f.soort === 'kleur') {
+      kop.textContent = NAAM.kleur;
+      const maat = (cls, label, w) => `<span class="bv-aantal">${label} <button type="button" class="secondary small-btn" data-maat="${cls}" data-d="-1">−</button><b>${w}</b><button type="button" class="secondary small-btn" data-maat="${cls}" data-d="1">+</button></span>`;
+      const kl = f.kleuren && f.kleuren.length ? f.kleuren : [{ kleur: 'rood' }];
+      const keuze = c => Object.keys(PfKern.STIFTEN).map(x => `<option value="${x}"${x === c ? ' selected' : ''}>${x}</option>`).join('');
+      inh.innerHTML = `<p class="bv-vraag">De leerling tikt hokjes aan om ze te kleuren. Leg het veld over de hokjes op het blad.</p>
+        <div class="bv-opties">${maat('kol', 'Hokjes breed', f.kol || 10)}${maat('rij', 'Hokjes hoog', f.rij || 1)}</div>
+        <p class="bv-vraag">Kleuren en hoeveel (bv. 60%, 3/5 of 12):</p>
+        <div class="bv-lijst">${kl.map((c, i) => `<div class="bv-rij"><span class="bv-stip" style="background:${PfKern.STIFTEN[c.kleur]}"></span><select class="bv-kkleur" data-i="${i}">${keuze(c.kleur)}</select><input class="bv-kaantal" data-i="${i}" value="${esc(c.aantal || '')}" placeholder="bv. 60%">${i ? `<button type="button" class="secondary small-btn bv-kx" data-i="${i}" title="Weghalen">✕</button>` : ''}</div>`).join('')}
+          ${kl.length < 3 ? '<button type="button" class="secondary small-btn bv-kplus">+ kleur</button>' : ''}</div>
+        <p class="muted small">Welke hokjes de leerling kleurt, maakt niet uit: het aantal per kleur moet juist zijn. ${f.kol || 10} × ${f.rij || 1} = ${(f.kol || 10) * (f.rij || 1)} hokjes. Een kleur zonder aantal telt niet mee.</p>${samenHtml(f, punten)}`;
     } else if (f.soort === 'veelhoek') {
       kop.textContent = NAAM.veelhoek;
       const maat = (cls, label, w) => `<span class="bv-aantal">${label} <button type="button" class="secondary small-btn" data-maat="${cls}" data-d="-1">−</button><b>${w}</b><button type="button" class="secondary small-btn" data-maat="${cls}" data-d="1">+</button></span>`;
@@ -876,6 +889,7 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
       else if (t.classList.contains('bv-label')) { const l = t.value.trim(); if (l) f.label = l; else delete f.label; bijwerken(); }
       else if (t.classList.contains('bv-lengte')) { const l = t.value.trim(); if (l) f.lengte = l; else { delete f.lengte; delete f.lengteMarge; } bijwerken(); }
       else if (t.classList.contains('bv-lmarge')) { const l = t.value.trim(); if (l) f.lengteMarge = l; else delete f.lengteMarge; bijwerken(); }
+      else if (t.classList.contains('bv-kaantal')) { const c = f.kleuren[Number(t.dataset.i)]; if (c) { const a = t.value.trim(); if (a) c.aantal = a; else delete c.aantal; bijwerken(); } }
       else if (t.classList.contains('bv-quotient')) { f.quotient = t.value.trim(); bijwerken(); }
       else if (t.classList.contains('bv-rest')) { f.rest = t.value.trim(); bijwerken(); }
       else if (t.classList.contains('bv-margew')) { f.marge = t.value; bijwerken(); }
@@ -892,6 +906,7 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
       if (t.dataset.vlag) { if (t.checked) f[t.dataset.vlag] = true; else delete f[t.dataset.vlag]; bijwerken(); }
       else if (t.name === 'bv-nakijk') { if (t.value) f.nakijk = t.value; else delete f.nakijk; bijwerken(); venster(staat.velden.indexOf(f)); }
       else if (t.classList.contains('bv-vrij')) { if (t.value) f.vrij = Number(t.value); else delete f.vrij; bijwerken(); }
+      else if (t.classList.contains('bv-kkleur')) { const c = f.kleuren[Number(t.dataset.i)]; if (c) { c.kleur = t.value; bijwerken(); venster(staat.velden.indexOf(f)); } }
       else if (t.classList.contains('bv-figuur')) { if (t.value) f.figuur = t.value; else delete f.figuur; bijwerken(); }
       else if (t.classList.contains('bv-urij')) { if (t.value) f.uitkomstRij = Number(t.value); else delete f.uitkomstRij; bijwerken(); }
       else if (t.name === 'bv-vorm') { f.vorm = t.value; bijwerken(); }
@@ -908,6 +923,7 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
       }
       else if (t.name === 'bv-juist') leesOpties();
       else if (t.classList.contains('bv-letters')) { groepVan(f).forEach((x, i) => { if (t.checked) x.label = 'ABCDEFGH'[i]; else delete x.label; }); bijwerken(); venster(staat.velden.indexOf(f)); }
+      else if (t.classList.contains('bv-omkring')) { for (const x of groepVan(f)) { if (t.checked) x.omkring = true; else delete x.omkring; } bijwerken(); }
       else if (t.classList.contains('bv-meer')) {
         for (const x of groepVan(f)) { if (t.checked) delete x.rond; else { x.rond = true; x.h = r2(x.w / (staat.verhouding || 1.414)); } }
         // Een bolletje: maar één juist antwoord.
@@ -948,6 +964,13 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
         bijwerken();
         return venster(staat.velden.indexOf(f));
       }
+      if (t.dataset.maat && f.soort === 'kleur') {
+        f[t.dataset.maat] = Math.min(20, Math.max(1, (f[t.dataset.maat] || (t.dataset.maat === 'kol' ? 10 : 1)) + Number(t.dataset.d)));
+        bijwerken();
+        return venster(staat.velden.indexOf(f));
+      }
+      if (t.classList.contains('bv-kplus')) { f.kleuren = [...(f.kleuren || [{ kleur: 'rood' }]), { kleur: Object.keys(PfKern.STIFTEN).find(x => !(f.kleuren || []).some(c => c.kleur === x)) || 'blauw' }].slice(0, 3); bijwerken(); return venster(staat.velden.indexOf(f)); }
+      if (t.classList.contains('bv-kx')) { f.kleuren.splice(Number(t.dataset.i), 1); bijwerken(); return venster(staat.velden.indexOf(f)); }
       if (t.dataset.maat && f.soort === 'veelhoek') {
         const v = staat.verhouding || 1.414;
         const stap = f.w / Math.max(1, (f.kol || 6) - 1);
@@ -1085,7 +1108,7 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
   const vrijHtml = f => `<label>Volgorde vrij <select class="bv-vrij"><option value="">nee</option>${[1, 2, 3, 4].map(n => `<option value="${n}"${f.vrij === n ? ' selected' : ''}>groepje ${n}</option>`).join('')}</select></label>
     <p class="muted small">Geef de vakjes waarvan de volgorde niet uitmaakt hetzelfde groepje. Elk juist antwoord mag dan in elk vakje van dat groepje staan. Twee keer hetzelfde antwoord telt maar één keer.</p>`;
   const eenvoudigVink = f => `<label class="inline check" title="Bij breuken: 3/4 is juist, 6/8 niet. Een onechte breuk (7/4) moet een gemengd getal zijn (1 3/4), tenzij je juiste antwoord zelf een onechte breuk is."><input type="checkbox" data-vlag="vereenvoudigd"${f.vereenvoudigd ? ' checked' : ''}> Zo eenvoudig mogelijk (3/4 juist, 6/8 fout)</label>`;
-  const SAMEN_SOORT = new Set(['tekst', 'breuk', 'kies', 'sleep', 'plek', 'lijn', 'puntlijn', 'cirkel', 'veelhoek']);
+  const SAMEN_SOORT = new Set(['tekst', 'breuk', 'kies', 'sleep', 'plek', 'lijn', 'puntlijn', 'cirkel', 'veelhoek', 'kleur']);
   // De vakjes van een groepje, in de volgorde van het blad (zoals het in de lijst staat).
   const samenVan = id => staat.velden.filter(g => g.samen === id);
   const samenLetter = id => 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'[(id - 1) % 26];
@@ -1197,7 +1220,7 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
     return Math.max(0, ...staat.velden.filter(g => g !== f && g.soort === 'kruis').map(g => g.groep || 1)) + 1;
   }
 
-  const SOORT = { tekst: '✏️ antwoord', breuk: '➗ breuk', rooster: '🧮 rekenrooster', kies: '▾ keuzelijst', sleep: '🧲 sleepwoord', kruis: '☐ hokje', plek: '📍 aanduiden', lijn: '↗️ verbinden', open: '💬 open', teken: '🎨 tekenvak', puntlijn: '📐 lijnen tussen punten', cirkel: '⭕ cirkel', veelhoek: '🔷 veelhoek', klad: '📝 kladruimte', luister: '🎧 luisterknop', vlak: '⬜ vlak', notitie: '🗒️ notitie' };
+  const SOORT = { tekst: '✏️ antwoord', breuk: '➗ breuk', rooster: '🧮 rekenrooster', kies: '▾ keuzelijst', sleep: '🧲 sleepwoord', kruis: '☐ hokje', plek: '📍 aanduiden', lijn: '↗️ verbinden', open: '💬 open', teken: '🎨 tekenvak', puntlijn: '📐 lijnen tussen punten', cirkel: '⭕ cirkel', veelhoek: '🔷 veelhoek', kleur: '🖍️ kleurveld', klad: '📝 kladruimte', luister: '🎧 luisterknop', vlak: '⬜ vlak', notitie: '🗒️ notitie' };
   const KLEUR_NAAM = { '#ffffff': 'wit', '#fff3b0': 'geel', '#d8ecff': 'blauw', '#e4e4e4': 'grijs', '#ffd9d9': 'roze' };
   function rijHtml(f, k) {
     const s = `<select class="be-s" aria-label="Soort">${Object.entries(SOORT).map(([v, l]) => `<option value="${v}"${f.soort === v ? ' selected' : ''}>${l}</option>`).join('')}</select>`;
@@ -1207,6 +1230,7 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
     else if (f.soort === 'plek') antw = '<span class="muted small">klik op het vakje op het blad</span>';
     else if (f.soort === 'lijn') antw = '<span class="muted small">een lijn op het blad</span>';
     else if (f.soort === 'veelhoek') antw = `<span class="muted small">${f.figuur ? esc(f.figuur) : ''} (dubbelklik)</span>`;
+    else if (f.soort === 'kleur') antw = `<span class="muted small">${esc((f.kleuren || []).filter(c => c.aantal).map(c => `${c.aantal} ${c.kleur}`).join(', '))} (dubbelklik)</span>`;
     else if (f.soort === 'puntlijn' || f.soort === 'cirkel' || f.soort === 'klad') antw = `<span class="muted small">${f.soort === 'klad' ? 'telt niet mee' : 'dubbelklik op het vakje op het blad'}</span>`;
     else if (f.soort === 'rooster' && f.nakijk) antw = `<span class="muted small">${f.nakijk === 'uitkomst' ? `uitkomst ${esc(f.uitkomst || '')}` : f.nakijk === 'deling' ? `quotiënt ${esc(f.quotient || '')}${f.rest ? `, rest ${esc(f.rest)}` : ''}` : 'sleutel in het rooster'} (dubbelklik)</span>`;
     else if (f.soort === 'vlak') antw = `<select class="be-a" aria-label="Kleur">${Object.entries(KLEUR_NAAM).map(([k, n]) => `<option value="${k}"${f.kleur === k ? ' selected' : ''}>${n}</option>`).join('')}</select>`;
@@ -1222,10 +1246,11 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
     || (f.soort === 'rooster' && !!f.nakijk && (f.nakijk === 'deling' ? !String(f.quotient || '').trim() : !(f.sleutel || '').trim() && !(f.nakijk === 'uitkomst' && String(f.uitkomst || '').trim())))
     || (f.soort === 'puntlijn' && ((f.pt || []).length < 2 || (f.doorPunt === undefined && !(f.lijnen || []).length)))
     || (f.soort === 'cirkel' && !(f.cirkels || []).length)
-    || (f.soort === 'veelhoek' && !f.figuur);
+    || (f.soort === 'veelhoek' && !f.figuur)
+    || (f.soort === 'kleur' && !(f.kleuren || []).some(c => String(c.aantal || '').trim()));
   function veldHtml(f, k) {
     const leeg = leegVeld(f, k, staat.velden);
-    const tekst = f.soort === 'kruis' ? f.label || (f.antwoord ? '✓' : '') : f.soort === 'luister' ? '🎧' : f.soort === 'plek' ? `📍${f.label ? ` ${f.label}` : ''}` : f.soort === 'lijn' ? '' : f.soort === 'teken' ? '🎨' : f.soort === 'rooster' ? '🧮' : f.soort === 'klad' ? '📝 klad' : f.soort === 'puntlijn' || f.soort === 'cirkel' || f.soort === 'veelhoek' ? '' : f.soort === 'vlak' ? '' : f.soort === 'notitie' ? (f.tekst || '🗒️') : f.soort === 'open' ? '' : f.antwoord ? `${f.soort === 'kies' ? '▾ ' : ''}${String(f.antwoord).split('|')[0]}` : '';
+    const tekst = f.soort === 'kruis' ? f.label || (f.antwoord ? '✓' : '') : f.soort === 'luister' ? '🎧' : f.soort === 'plek' ? `📍${f.label ? ` ${f.label}` : ''}` : f.soort === 'lijn' ? '' : f.soort === 'teken' ? '🎨' : f.soort === 'rooster' ? '🧮' : f.soort === 'klad' ? '📝 klad' : f.soort === 'puntlijn' || f.soort === 'cirkel' || f.soort === 'veelhoek' ? '' : f.soort === 'kleur' ? '🖍️' : f.soort === 'vlak' ? '' : f.soort === 'notitie' ? (f.tekst || '🗒️') : f.soort === 'open' ? '' : f.antwoord ? `${f.soort === 'kies' ? '▾ ' : ''}${String(f.antwoord).split('|')[0]}` : '';
     const koppel = staat.koppel ? (f.samen === staat.koppel ? ' koppel-in' : SAMEN_SOORT.has(f.soort) ? ' koppel-kan' : ' koppel-niet') : '';
     return `<div class="pf-be-veld ${f.soort}${f.rond ? ' rond' : ''}${f.soort === 'kruis' && f.antwoord ? ' juist' : ''}${staat.sel === k ? ' on' : ''}${leeg ? ' zonder' : ''}${koppel}" data-k="${k}" style="left:${f.x}%;top:${f.y}%;width:${f.w}%;height:${f.h}%${f.soort === 'vlak' ? `;background:${f.kleur || '#fff'}` : ''}${f.soort === 'rooster' ? `;--kol:${f.kol || ROOSTER.kol};--rij:${f.rij || ROOSTER.rij}` : ''}">${f.soort === 'kruis' && groepVan(f)[0] !== f ? '' : `<span class="nr">${k + 1}</span>`}${f.samen ? `<span class="samen-tag" title="Samen op punten">🔗${samenLetter(f.samen)}</span>` : ''}<span class="t">${esc(tekst)}</span>${f.soort === 'plek' && f.doel ? `<i class="pf-plek-doel" style="left:${f.doel.x}%;top:${f.doel.y}%;width:${2 * f.doel.r}%"></i>` : ''}${vormHtml(f)}<i class="greep"></i></div>`;
   }
@@ -1328,6 +1353,7 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
       if (f.soort === 'puntlijn' && !f.pt) f.pt = [];
       if (f.soort === 'cirkel' && !f.cirkels) { f.cirkels = []; f.marge = 0.1; }
       if (f.soort === 'veelhoek') { f.kol = f.kol || 6; f.rij = f.rij || 5; }
+      if (f.soort === 'kleur') { f.kol = f.kol || 10; f.rij = f.rij || 1; if (!f.kleuren || !f.kleuren.length) f.kleuren = [{ kleur: 'rood' }]; }
       if (f.samen && !SAMEN_SOORT.has(f.soort)) { geefPuntenDoor(f); delete f.samen; ruimSamenOp(); }
       if (f.soort === 'kies' && !f.opties) f.opties = [];
       if (f.soort === 'kruis') { const v = staat.verhouding || 1.414; f.h = r2(Math.min(f.h, 3)); f.w = r2(f.h * v); }

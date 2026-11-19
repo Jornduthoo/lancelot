@@ -216,5 +216,16 @@
  "Marge (cm)": "Margin (cm)",
  "Met een lengte telt alleen hoe lang de lijn is, in elke richting, vanaf het bolletje. De leerling meet met 📏 Lat. Klopt de grootte niet? Stel de schaal in met 📏 Schaal van het blad.": "With a length, only the length of the line counts, in any direction, from the dot. The pupil measures with 📏 Ruler. Size wrong? Set the scale with 📏 Sheet scale.",
  "Tik op een label en dan op de juiste plek.": "Tap a label and then the correct spot.",
- "Zet {0} op de juiste plek": "Put {0} on the correct spot"
+ "Zet {0} op de juiste plek": "Put {0} on the correct spot",
+ "Kleurveld": "Colouring grid",
+ "Hokjes inkleuren": "Colour in squares",
+ "Omkringen: leg de vakjes over wat op het blad staat (bv. getallen), de leerling omcirkelt het juiste": "Circle: put the boxes over what is on the sheet (e.g. numbers), the pupil circles the right one",
+ "De leerling tikt hokjes aan om ze te kleuren. Leg het veld over de hokjes op het blad.": "The pupil taps squares to colour them. Put the grid over the squares on the sheet.",
+ "Kleuren en hoeveel (bv. 60%, 3/5 of 12):": "Colours and how many (e.g. 60%, 3/5 or 12):",
+ "Welke hokjes de leerling kleurt, maakt niet uit: het aantal per kleur moet juist zijn. {0} × {1} = {2} hokjes. Een kleur zonder aantal telt niet mee.": "Which squares the pupil colours does not matter: the number per colour must be right. {0} × {1} = {2} squares. A colour without a number does not count.",
+ "+ kleur": "+ colour",
+ "🖍️ kleurveld": "🖍️ colouring grid",
+ "{0} {1} ({2} van {3} hokjes)": "{0} {1} ({2} of {3} squares)",
+ "Omkringen": "Circle",
+ "Tik de hokjes aan om ze te kleuren": "Tap the squares to colour them"
 }

@@ -140,6 +140,16 @@ textarea.pf-veld { resize: none; padding: .2em .3em; line-height: 1.25; overflow
 .pf-veld.kruis.on { background: rgba(255, 255, 255, .85); color: #1036a8; }
 .pf-veld.kruis.rond { border-radius: 50%; color: #1d1d1f; font-weight: 700; }
 .pf-veld.kruis.rond.on { background: #1036a8; color: #fff; }
+.pf-veld.kruis.omkring { background: transparent; border-radius: 50%; box-shadow: inset 0 0 0 1px rgba(43, 108, 255, .3); color: transparent; }
+.pf-veld.kruis.omkring.on { background: transparent; box-shadow: inset 0 0 0 2.5px #d6334f; }
+.pf-veld.kruis.omkring.on.goed { box-shadow: inset 0 0 0 2.5px #1a9e6e; background: transparent; }
+.pf-veld.kruis.omkring:not(.on).goed, .pf-veld.kruis.omkring:not(.on).fout, .pf-veld.kruis.omkring.on.fout { background: transparent; }
+.pf-veld.kleurveld { display: grid; grid-template-columns: repeat(var(--kol), 1fr); grid-template-rows: repeat(var(--rij), 1fr); padding: 0; background: transparent; box-shadow: inset 0 0 0 1.5px rgba(43, 108, 255, .45); }
+.pf-veld.kleurveld i { box-shadow: inset 0 0 0 .5px rgba(43, 108, 255, .25); mix-blend-mode: multiply; }
+.pf-veld.kleurveld.live i { cursor: pointer; }
+.pf-kleur-pal { position: absolute; z-index: 3; display: flex; gap: 4px; transform: translateY(calc(-100% - 3px)); }
+.pf-kleur-knop { min-width: 0; width: max(24px, 2.6cqw); height: max(24px, 2.6cqw); padding: 0; clip-path: none; border-radius: 50%; border: 2px solid; box-shadow: 0 1px 3px rgba(0, 0, 0, .3); }
+.pf-kleur-knop.on { outline: 3px solid #1d1d1f; outline-offset: 1px; }
 .pf-veld[readonly], .pf-veld:disabled { opacity: 1; cursor: default; }
 .pf-veld-sleutel { position: absolute; transform: translateY(1px); padding: 0 3px; background: rgba(255, 255, 255, .9); color: #c8102e; font-weight: 800; font-size: max(9px, 1.5cqw); line-height: 1.2; white-space: nowrap; pointer-events: none; }
 .pf-veld-eenheid { position: absolute; display: flex; align-items: center; padding: 0 .3em; color: #1d1d1f; font-weight: 700; font-size: max(11px, 2cqw); white-space: nowrap; pointer-events: none; background: rgba(255, 255, 255, .75); border-radius: 2px; }
@@ -799,3 +809,4 @@ body.pf-proberen:not(.pf-pr-scherm) { display: flex; flex-direction: column; hei
 .pf-jf.on { background: #2b3553; color: #fff; box-shadow: none; }
 .pf-e-stelling { display: flex; gap: 6px; align-items: center; margin-bottom: 6px; }
 .pf-e-stelling .e-st { flex: 1; min-width: 0; }
+.bv-stip { display: inline-block; flex: none; width: 18px; height: 18px; border-radius: 50%; box-shadow: inset 0 0 0 1.5px rgba(0, 0, 0, .3); }
