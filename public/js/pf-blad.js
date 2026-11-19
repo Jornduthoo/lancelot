@@ -690,7 +690,8 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
     } else if (f.soort === 'tekst') {
       kop.textContent = NAAM.tekst;
       inh.innerHTML = `<p class="bv-vraag">Juiste antwoord(en):</p>${lijst(alts.length ? alts : [''], '+ nog een juist antwoord')}
-        ${eenheidHtml(f)}
+        ${eenheidHtml(f)}${samenHtml(f, punten)}
+        ${deelOpen('nakijk', `Nakijken <span class="muted small bv-kort-nakijk">(${nakijkKort(f)})</span>`)}
         <div class="bv-checks"><label class="inline check"><input type="checkbox" data-vlag="hoofdletters"${f.hoofdletters ? ' checked' : ''}> Hoofdletters moeten kloppen</label>
           <label class="inline check"><input type="checkbox" data-vlag="leestekens"${f.leestekens ? ' checked' : ''}> Leestekens tellen mee ( . , ? ! )</label>
           <label class="inline check"><input type="checkbox" data-vlag="spaties"${f.spaties ? ' checked' : ''}> Spaties negeren</label>
@@ -699,17 +700,21 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
           <label class="inline check"><input type="checkbox" data-vlag="doorstreep"${f.doorstreep ? ' checked' : ''}> Mag leeg blijven of doorstreept worden (x, / of -)</label></div>
         ${controleHtml(f)}
         ${margeHtml(f)}
+        <p class="muted small">Getallen tellen ook in een andere schrijfwijze: 0,5 = 0.5 = 1/2.</p></details>
+        ${deelOpen('meer', `Meer <span class="muted small bv-kort-meer">(${meerKort(f)})</span>`)}
         <label>Gevolgfout (mag leeg): een rekenregel met de antwoorden in andere vakjes <input class="bv-formule" value="${esc(f.formule || '')}" placeholder="bijv. {1} * {2} / 2"></label>
         <p class="muted small bv-formule-uitleg">${f.formule && PfKern.formuleFout(f.formule, staat.velden.length, k) ? `⚠ ${esc(PfKern.formuleFout(f.formule, staat.velden.length, k))}` : 'Rekende de leerling verder met een fout antwoord uit een vorig vakje, dan is dit vakje toch juist als het klopt met zijn eigen getallen. {1} is het antwoord in vakje 1.'}</p>
-        <p class="muted small">Getallen tellen ook in een andere schrijfwijze: 0,5 = 0.5 = 1/2.</p>${vrijHtml(f)}${samenHtml(f, punten)}`;
+        ${vrijHtml(f)}</details>`;
     } else if (f.soort === 'breuk' || f.soort === 'sleep') {
       kop.textContent = NAAM[f.soort];
       inh.innerHTML = `<p class="bv-vraag">${f.soort === 'breuk' ? 'Juiste breuk(en), bijv. 3/4:' : 'Het juiste woord:'}</p>${lijst(alts.length ? alts : [''], f.soort === 'breuk' ? '+ nog een juiste breuk' : '+ nog een juist woord')}
         ${f.soort === 'sleep' ? `<label>Woordenbank <select class="bv-bank"><option value="">de bank van het hele blad (alle woorden samen)</option>${[1, 2, 3, 4, 5].map(n => `<option value="${n}"${f.bank === n ? ' selected' : ''}>een eigen bank ${n} (bv. voor opdracht ${n})</option>`).join('')}</select></label>
           ${f.bank ? `<label>Extra woorden in bank ${f.bank} (foute keuzes, gescheiden door /) <input class="bv-bankextra" value="${esc((f.extra || []).join(' / '))}"></label><p class="muted small">De leerling ziet een bank per opdracht, in een eigen kleur met een nummer. Een woord uit bank ${f.bank} past alleen in de vakjes van bank ${f.bank}. Geef alle sleepvakjes van dezelfde opdracht dezelfde bank.</p>`
             : `<label>Extra woorden om uit te kiezen (foute keuzes, gescheiden door /) <input class="bv-woorden" value="${esc(box.querySelector('#be-woorden').value)}"></label>`}` : ''}
-        ${f.soort === 'breuk' ? `${eenheidHtml(f)}<div class="bv-checks"><label class="inline check"><input type="checkbox" data-vlag="geheel"${f.geheel ? ' checked' : ''}> Met een vakje voor het geheel (bv. 1 3/4)</label>${eenvoudigVink(f)}
-          <label class="inline check"><input type="checkbox" data-vlag="precies"${f.precies ? ' checked' : ''}> Precies deze breuk (25/100 juist, 1/4 fout)</label></div>` : ''}${vrijHtml(f)}${samenHtml(f, punten)}`;
+        ${f.soort === 'breuk' ? eenheidHtml(f) : ''}${samenHtml(f, punten)}
+        ${f.soort === 'breuk' ? `${deelOpen('nakijk', `Nakijken <span class="muted small bv-kort-nakijk">(${nakijkKort(f)})</span>`)}<div class="bv-checks"><label class="inline check"><input type="checkbox" data-vlag="geheel"${f.geheel ? ' checked' : ''}> Met een vakje voor het geheel (bv. 1 3/4)</label>${eenvoudigVink(f)}
+          <label class="inline check"><input type="checkbox" data-vlag="precies"${f.precies ? ' checked' : ''}> Precies deze breuk (25/100 juist, 1/4 fout)</label></div></details>` : ''}
+        ${deelOpen('meer', `Meer <span class="muted small bv-kort-meer">(${meerKort(f)})</span>`)}${vrijHtml(f)}</details>`;
     } else if (f.soort === 'kies') {
       const opties = f.opties && f.opties.length ? f.opties : ['', ''];
       kop.textContent = NAAM.kies;
@@ -1179,6 +1184,32 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
     if (i) i.focus();
   }
 
+  // ---------- Het venster in stukken: eerst het antwoord, dan "Nakijken" en "Meer" (dicht, met wat nu geldt) ----------
+  // Of een stuk open staat, onthouden we zolang de editor open is (het venster wordt na elke wijziging opnieuw getekend).
+  const deelOpen = (sleutel, titel) => `<details class="bv-deel-stuk" data-stuk="${sleutel}"${(staat.open || {})[sleutel] ? ' open' : ''}><summary>${titel}</summary>`;
+  function nakijkKort(f) {
+    const aan = [];
+    if (f.hoofdletters) aan.push('hoofdletters');
+    if (f.leestekens) aan.push('leestekens');
+    if (f.spaties) aan.push('zonder spaties');
+    if (f.vereenvoudigd) aan.push('zo eenvoudig mogelijk');
+    if (f.tijd) aan.push('een tijd');
+    if (f.doorstreep) aan.push('mag leeg');
+    if (f.geheel) aan.push('met geheel');
+    if (f.precies) aan.push('precies deze breuk');
+    if (f.controle) aan.push({ woord: 'per woord', begint: 'begint met', bevat: 'bevat' }[f.controle]);
+    if (f.margeSoort || f.marge || f.margeProcent || f.van !== undefined || f.tot !== undefined) aan.push('met marge');
+    const T = x => (window.I18n ? I18n.t(x) : x);
+    return aan.length ? aan.map(T).join(', ') : T('zoals gewoonlijk');
+  }
+  function meerKort(f) {
+    const aan = [];
+    if (f.formule) aan.push('gevolgfout');
+    if (f.vrij) aan.push(`volgorde vrij, groepje ${f.vrij}`);
+    const T = x => (window.I18n ? I18n.t(x) : x);
+    return aan.length ? aan.map(T).join(', ') : T('niets');
+  }
+
   // ---------- Eenheid, volgorde vrij, zo eenvoudig mogelijk en samen op punten ----------
   const eenheidHtml = f => `<label>Eenheid (mag leeg) <input class="bv-eenheid" value="${esc(f.eenheid || '')}" placeholder="bijv. cm"></label>
     <div><label class="inline check"><input type="checkbox" data-vlag="toonEenheid"${f.toonEenheid ? ' checked' : ''}> Toon de eenheid naast het vakje</label></div>`;
@@ -1482,6 +1513,23 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
     if (!box) maakBox();
     if (staat && staat.klaar) sluit(null);
     staat = { velden: (b.velden || []).map(f => JSON.parse(JSON.stringify(f))), sel: null, beeld: b.beeld, verhouding: b.verhouding, schaal: b.schaal || PfKern.SCHAAL, opts, tool: 'wijs', aantal: 4, klembord: null, muis: null, opVeld: null, koppel: null, ijk: null, ptModus: 'zet', ptStart: null };
+    // Nakijken en Meer in het venster: open of dicht blijft zo tot de editor sluit (toggle bubbelt niet, dus vangen we hem).
+    const inhoud = box.querySelector('#bv-inhoud');
+    if (inhoud && !inhoud.pfStukWacht) {
+      inhoud.pfStukWacht = true;
+      inhoud.addEventListener('toggle', e => { const d = e.target; if (d.dataset && d.dataset.stuk && staat) staat.open = { ...(staat.open || {}), [d.dataset.stuk]: d.open }; }, true);
+      // Na een wijziging: wat er nu geldt, ook in de titel van het stuk.
+      const kort = () => setTimeout(() => {
+        const f = staat && staat.velden[staat.sel];
+        if (!f) return;
+        const n = inhoud.querySelector('.bv-kort-nakijk');
+        const m = inhoud.querySelector('.bv-kort-meer');
+        if (n) n.textContent = `(${nakijkKort(f)})`;
+        if (m) m.textContent = `(${meerKort(f)})`;
+      }, 0);
+      inhoud.addEventListener('change', kort, true);
+      inhoud.addEventListener('input', kort, true);
+    }
     box.querySelector('#be-koppel').classList.add('hidden');
     kiesTool('wijs');
     box.querySelector('#be-aantal').textContent = staat.aantal;
