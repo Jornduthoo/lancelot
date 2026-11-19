@@ -731,7 +731,10 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
         <div class="bv-opties">${maat('kol', 'Stippen breed', f.kol || 6)}${maat('rij', 'Stippen hoog', f.rij || 5)}</div>
         <p class="muted small">Leg het vak precies op de stippen van je blad, of laat LANcelot de stippen tekenen.</p>
         <label>Welke figuur is juist? <select class="bv-figuur"><option value="">(kies)</option><optgroup label="Driehoeken">${PfKern.FIGUREN.filter(x => /driehoek/.test(x)).map(optie).join('')}</optgroup><optgroup label="Vierhoeken">${PfKern.FIGUREN.filter(x => !/driehoek|vijfhoek|zeshoek/.test(x)).map(optie).join('')}</optgroup><optgroup label="Meer hoeken">${optie('vijfhoek')}${optie('zeshoek')}</optgroup></select></label>
-        <label class="inline check"><input type="checkbox" data-vlag="strikt"${f.strikt ? ' checked' : ''}> Precies deze soort (een vierkant is dan geen ruit of rechthoek)</label>
+        <div><label class="inline check"><input type="checkbox" data-vlag="strikt"${f.strikt ? ' checked' : ''}> Precies deze soort (een vierkant is dan geen ruit of rechthoek)</label></div>
+        <div><label class="inline check"><input type="checkbox" data-vlag="diagonalen"${f.diagonalen ? ' checked' : ''}> Teken eerst de diagonalen: de leerling tikt 2 lijnstukken die elkaar snijden, de vierhoek verschijnt dan vanzelf</label></div>
+        <div><label>Korte uitleg in het vak (verdwijnt bij het eerste punt) <input class="bv-uitleg" maxlength="80" value="${esc(f.uitleg || '')}" placeholder="bv. Tik de hoekpunten rondom aan"></label></div>
+        <p class="muted small">Tikt de leerling de hoekpunten niet rondom aan, dan zet LANcelot ze zelf rondom.</p>
         <p class="muted small">Zonder vinkje is elke figuur met die eigenschappen juist: een vierkant is ook een rechthoek, een ruit en een parallellogram.</p>${samenHtml(f, punten)}`;
     } else if (f.soort === 'klad') {
       kop.textContent = NAAM.klad;
@@ -831,6 +834,7 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
       else if (t.classList.contains('bv-eenheid')) { f.eenheid = t.value.trim(); bijwerken(); }
       else if (t.classList.contains('bv-model')) { f.antwoord = t.value; bijwerken(); }
       else if (t.classList.contains('bv-tekst')) { f.tekst = t.value; bijwerken(); }
+      else if (t.classList.contains('bv-uitleg')) { const u = t.value.trim(); if (u) f.uitleg = u; else delete f.uitleg; bijwerken(); }
       else if (t.classList.contains('bv-lm')) { const n = Number(t.value); if (n) f.luisterMax = n; else delete f.luisterMax; bijwerken(); }
       else if (t.classList.contains('bv-woorden')) box.querySelector('#be-woorden').value = t.value;
       else if (t.classList.contains('bv-r')) {

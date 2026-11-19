@@ -179,5 +179,10 @@
  "{0} opnieuw laten beginnen? Alle antwoorden van {1} worden gewist{2}. De leerling begint met een leeg blad.": "Let {0} start over? All answers of {1} are deleted{2}. The pupil starts with an empty sheet.",
  ", ook bij de Resultaten in De Proef": ", also in the Results of The Test",
  "opnieuw laten beginnen door de leerkracht": "made to start over by the teacher",
- "Uit de afname halen mislukt:": "Removing from the test session failed:"
+ "Uit de afname halen mislukt:": "Removing from the test session failed:",
+ "bv. Tik de hoekpunten rondom aan": "e.g. Tap the corners in order around",
+ "Teken eerst de diagonalen: de leerling tikt 2 lijnstukken die elkaar snijden, de vierhoek verschijnt dan vanzelf": "Draw the diagonals first: the pupil taps 2 line segments that cross, then the quadrilateral appears by itself",
+ "Korte uitleg in het vak (verdwijnt bij het eerste punt)": "Short instruction in the box (disappears at the first point)",
+ "Tikt de leerling de hoekpunten niet rondom aan, dan zet LANcelot ze zelf rondom.": "If the pupil does not tap the corners in order around, LANcelot puts them in order itself.",
+ "Tik eerst de 2 uiteinden van de ene diagonaal aan, dan die van de andere": "First tap the 2 ends of one diagonal, then those of the other"
 }

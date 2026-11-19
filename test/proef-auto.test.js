@@ -207,3 +207,19 @@ test('gevolgfout: juist volgens een rekenregel met de eigen antwoorden', () => {
   const fout = toets([{ x: 1, y: 1, w: 10, h: 3, soort: 'tekst', antwoord: '24', formule: '{4} * 2' }]);
   assert.match(K.problemen(fout).join(' '), /rekenregel van vakje 1 klopt niet/);
 });
+
+test('veelhoek: eerst de diagonalen en een korte uitleg in het vak (extra keuzes)', () => {
+  const blad = v => K.validate({ title: 't', vragen: [{ type: 'blad', beeld: 'data:image/webp;base64,AAAA', velden: [{ soort: 'veelhoek', x: 10, y: 10, w: 50, h: 40, kol: 7, rij: 7, figuur: 'ruit', ...v }] }] }).vragen[0];
+  const oud = blad({});
+  assert.equal(oud.velden[0].diagonalen, undefined);
+  assert.equal(oud.velden[0].uitleg, undefined);
+  const d = blad({ diagonalen: true, uitleg: 'Tik eerst de diagonalen aan.' });
+  assert.equal(d.velden[0].diagonalen, true);
+  assert.equal(K.viewOf(d, '0').velden[0].uitleg, 'Tik eerst de diagonalen aan.');
+  // Diagonalen (3,0)-(3,6) en (1,3)-(5,3): een ruit.
+  const diag = '3,0;3,6;1,3;5,3';
+  assert.equal(K.auto(d, [diag]), 1);
+  // Zonder de keuze telt dezelfde tik-volgorde ook (de punten gaan vanzelf rondom).
+  assert.equal(K.auto(oud, [diag]), 1);
+  assert.equal(K.auto(d, ['3,0;3,6;1,3;4,3']), 0);
+});

@@ -568,8 +568,9 @@ const PfPaper = (() => {
       const rij = f.rij || 5;
       let stippen = '';
       for (let r = 0; r < rij; r++) for (let c = 0; c < kol; c++) stippen += `<i class="pf-stip" data-c="${c}" data-r="${r}" style="left:${(c / (kol - 1)) * 100}%;top:${(r / (rij - 1)) * 100}%"></i>`;
-      return `<div class="pf-veld veelhoek${kl}${live ? ' live' : ''}" data-k="${k}" data-waarde="${esc(print ? '' : b[k] || '')}" data-kol="${kol}" data-rij="${rij}" style="left:${f.x}%;top:${f.y}%;width:${f.w}%;height:${f.h}%" title="Tik de hoekpunten aan">
-        <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${veelhoekSvg(print ? '' : b[k], kol, rij)}</svg>${stippen}${live ? '<button type="button" class="pf-cirkel-terug" title="Laatste punt weg" aria-label="Laatste punt weg">↶</button>' : ''}</div>`;
+      const uitleg = live && f.uitleg ? `<span class="pf-vh-uitleg">${esc(f.uitleg)}</span>` : '';
+      return `<div class="pf-veld veelhoek${kl}${live ? ' live' : ''}${f.diagonalen ? ' diag' : ''}" data-k="${k}" data-waarde="${esc(print ? '' : b[k] || '')}" data-kol="${kol}" data-rij="${rij}" style="left:${f.x}%;top:${f.y}%;width:${f.w}%;height:${f.h}%" title="${f.diagonalen ? 'Tik eerst de 2 uiteinden van de ene diagonaal aan, dan die van de andere' : 'Tik de hoekpunten aan'}">
+        <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${veelhoekSvg(print ? '' : b[k], kol, rij, f.diagonalen)}</svg>${stippen}${uitleg}${live ? '<button type="button" class="pf-cirkel-terug" title="Laatste punt weg" aria-label="Laatste punt weg">↶</button>' : ''}</div>`;
     }
     // Een cirkel tekenen: vanuit het middelpunt slepen. De straal staat erbij in cm (volgens de schaal van het blad).
     function cirkelHtml(f, k, kl) {
@@ -1162,9 +1163,17 @@ const PfPaper = (() => {
   }
 
   // De figuur van de leerling als svg: een veelhoek (vanaf 3 punten dicht), of een lijn en een punt.
-  function veelhoekSvg(v, kol, rij) {
-    const p = PfKern.rondom(String(v || '').split(';').map(x => x.split(',').map(Number)).filter(x => x.length === 2 && x.every(Number.isFinite)));
-    const xy = p.map(([c, r]) => `${(c / (kol - 1)) * 100},${(r / (rij - 1)) * 100}`).join(' ');
+  // Met diagonalen: de 2 lijnstukken (stippellijn), en met 4 punten de vierhoek door hun uiteinden.
+  function veelhoekSvg(v, kol, rij, diag) {
+    const ruw = String(v || '').split(';').map(x => x.split(',').map(Number)).filter(x => x.length === 2 && x.every(Number.isFinite));
+    const pt = ([c, r]) => `${(c / (kol - 1)) * 100},${(r / (rij - 1)) * 100}`;
+    if (diag) {
+      const lijnen = [ruw.slice(0, 2), ruw.slice(2, 4)].filter(l => l.length === 2).map(l => `<polyline class="ant diag" points="${l.map(pt).join(' ')}" vector-effect="non-scaling-stroke"/>`).join('');
+      if (ruw.length < 4) return lijnen;
+      return `<polygon class="ant" points="${PfKern.rondom(PfKern.veelhoekVolgorde({ diagonalen: true }, ruw)).map(pt).join(' ')}" vector-effect="non-scaling-stroke"/>${lijnen}`;
+    }
+    const p = PfKern.rondom(ruw);
+    const xy = p.map(pt).join(' ');
     if (p.length >= 3) return `<polygon class="ant" points="${xy}" vector-effect="non-scaling-stroke"/>`;
     if (p.length === 2) return `<polyline class="ant" points="${xy}" vector-effect="non-scaling-stroke"/>`;
     return '';
@@ -1176,7 +1185,7 @@ const PfPaper = (() => {
     const punten = () => String(v.dataset.waarde || '').split(';').filter(Boolean);
     const zet = l => {
       v.dataset.waarde = l.join(';');
-      v.querySelector('svg').innerHTML = veelhoekSvg(v.dataset.waarde, kol, rij);
+      v.querySelector('svg').innerHTML = veelhoekSvg(v.dataset.waarde, kol, rij, v.classList.contains('diag'));
       for (const s of v.querySelectorAll('.pf-stip')) s.classList.toggle('on', l.includes(`${s.dataset.c},${s.dataset.r}`));
       klaar();
     };
@@ -1194,7 +1203,8 @@ const PfPaper = (() => {
       if (d > Math.max(16, Math.min(r.width / (kol - 1), r.height / (rij - 1)) * 0.45)) return;
       const p = `${c},${ri}`;
       const l = punten();
-      if (l[l.length - 1] === p) l.pop(); else if (!l.includes(p) && l.length < 12) l.push(p); else return;
+      const max = v.classList.contains('diag') ? 4 : 12;
+      if (l[l.length - 1] === p) l.pop(); else if (!l.includes(p) && l.length < max) l.push(p); else return;
       zet(l);
     });
     v.querySelector('.pf-cirkel-terug').addEventListener('click', e => { e.stopPropagation(); const l = punten(); l.pop(); zet(l); });
