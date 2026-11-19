@@ -298,5 +298,21 @@
  "data-c=\"{0}\" style=\"--gk:{1}\"": null,
  "Geef wat samen hoort hetzelfde nummer (1 tot {0}).": "Da el mismo número a lo que va junto (1 a {0}).",
  "Kies een kleur en tik op de kaartjes die samen horen. Tik nog eens om een kaartje leeg te maken.": "Elige un color y toca las tarjetas que van juntas. Toca otra vez para vaciar una tarjeta.",
- "Wat hoort samen? (kleuren)": "¿Qué va junto? (colores)"
+ "Wat hoort samen? (kleuren)": "¿Qué va junto? (colores)",
+ "begint met: {0}": "empieza por: {0}",
+ "bevat: {0}": "contiene: {0}",
+ "Nakijken": "Corrección",
+ "per woord (een zin omzetten of overschrijven)": "por palabra (transformar o copiar una frase)",
+ "juist als het begint met …": "correcta si empieza por …",
+ "juist als het een woord uit de lijst bevat": "correcta si contiene una palabra de la lista",
+ "Elk juist woord op zijn plaats geeft een punt. Een fout, ontbrekend of extra woord kost er één. Bv. \"Les chats noirs dorment.\"": "Cada palabra correcta en su lugar da un punto. Una palabra incorrecta, que falta o que sobra cuesta uno. P. ej. «Les chats noirs dorment.»",
+ "Juist als het antwoord begint met het juiste antwoord hierboven, bv. \"Est-ce que vous avez\". De rest verzint de leerling zelf.": "Correcta si la respuesta empieza por la respuesta correcta de arriba, p. ej. «Est-ce que vous avez». El alumno inventa el resto.",
+ "Juist als het antwoord een van de juiste antwoorden hierboven bevat (scheid ze met |), bv. \"cinéma|piscine\". De rest verzint de leerling zelf.": "Correcta si la respuesta contiene una de las respuestas correctas de arriba (sepáralas con |), p. ej. «cinéma|piscine». El alumno inventa el resto.",
+ "Punten tellen": "Contar los puntos",
+ "alles juist (alleen de juiste hokjes)": "todo correcto (solo las casillas correctas)",
+ "per juist aangekruist hokje": "por casilla correcta marcada",
+ "per juist hokje, een fout hokje kost er één": "por casilla correcta, una incorrecta cuesta una",
+ "Elk juist woord op zijn plaats telt. Een fout, ontbrekend of extra woord kost er één. Bv. \"Les chats noirs dorment.\" Zet de punten op het aantal woorden.": "Cada palabra correcta en su lugar cuenta. Una palabra incorrecta, que falta o que sobra cuesta una. P. ej. «Les chats noirs dorment.» Pon los puntos en el número de palabras.",
+ "Juist als het antwoord begint met wat je hierboven typte, bv. \"Est-ce que vous avez\". De rest mag de leerling zelf verzinnen.": "Correcta si la respuesta empieza por lo que escribiste arriba, p. ej. «Est-ce que vous avez». El alumno puede inventar el resto.",
+ "Juist als het antwoord een van de woorden hierboven bevat, bv. \"cinéma\" of \"piscine\". De rest mag de leerling zelf verzinnen.": "Correcta si la respuesta contiene una de las palabras de arriba, p. ej. «cinéma» o «piscine». El alumno puede inventar el resto."
 }

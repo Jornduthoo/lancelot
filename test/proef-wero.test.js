@@ -116,3 +116,50 @@ test('groeperen: wat samen staat telt, de kleur niet; per groep of per kaartje',
   assert.equal(K.oplossing(k), 'a, b | c, d');
   assert.throws(() => K.validate({ title: 't', vragen: [{ type: 'groeperen', vraag: 'v', groepen: [['a', 'b']] }] }), /minstens twee groepen/);
 });
+
+test('aankruisen met deelpunten: per juist hokje, of een fout hokje kost er één', () => {
+  const beeld = 'data:image/webp;base64,AAAA';
+  const hokje = (x, antwoord, groep, deelpunten) => ({ x, y: 1, w: 3, h: 3, soort: 'kruis', antwoord, groep, ...(deelpunten ? { deelpunten } : {}) });
+  const velden = g => [hokje(1, true, g.groep, g.d), hokje(5, true, g.groep, g.d), hokje(9, true, g.groep, g.d), hokje(13, false, g.groep, g.d), hokje(17, false, g.groep, g.d)];
+  const q = K.validate({ title: 't', vragen: [{ type: 'blad', beeld, verhouding: 1.414, velden: [...velden({ groep: 1 }), ...velden({ groep: 2, d: 'juist' }), ...velden({ groep: 3, d: 'min' })] }] }).vragen[0];
+  assert.equal(q.velden[5].deelpunten, 'juist');
+  assert.equal(q.punten, 9);
+  // Twee van de drie juiste aangekruist en één foute, in elke groep.
+  const a = [true, true, false, true, false, true, true, false, true, false, true, true, false, true, false];
+  // Alles juist (zoals vroeger): 0; per juist hokje: 2; met een min voor een fout: 1.
+  assert.equal(K.auto(q, a), 0 + 2 + 1);
+  // Alles juist aangekruist: overal de volle punten.
+  const alles = [true, true, true, false, false, true, true, true, false, false, true, true, true, false, false];
+  assert.equal(K.auto(q, alles), 9);
+  // Een bolletje (één keuze) kan geen deelpunten hebben.
+  const rond = K.validate({ title: 't', vragen: [{ type: 'blad', beeld, verhouding: 1.414, velden: [{ ...hokje(1, true, 1, 'juist'), rond: true }, { ...hokje(5, false, 1, 'juist'), rond: true }] }] }).vragen[0];
+  assert.equal(rond.velden[0].deelpunten, undefined);
+});
+
+test('per woord, begint met, bevat: bij kort antwoord en bij een vakje op een blad', () => {
+  const t = K.validate({ title: 't', vragen: [
+    { type: 'kort', vraag: 'Zet in het meervoud: Le chat noir dort.', antwoord: 'Les chats noirs dorment.', controle: 'woord' },
+    { type: 'kort', vraag: 'Verzin een vraag met est-ce que.', antwoord: 'Est-ce que vous avez', controle: 'begint' },
+    { type: 'kort', vraag: 'Waar ging je naartoe?', antwoord: 'cinéma|piscine', controle: 'bevat' },
+    { type: 'kort', vraag: 'oud', antwoord: 'Les chats noirs dorment.' },
+  ] });
+  const [w, b, c, oud] = t.vragen;
+  assert.equal(w.punten, 4);
+  assert.equal(K.auto(w, 'les chats noirs dorment'), 4);
+  assert.equal(K.auto(w, 'Les chat noirs dorment.'), 3);
+  assert.equal(K.auto(w, 'Les chats dorment.'), 3);
+  assert.equal(K.auto(w, 'Les chats noirs dorment bien.'), 3);
+  assert.equal(K.auto(b, 'Est-ce que vous avez un chien ?'), 1);
+  assert.equal(K.auto(b, 'est ce que vous avez des frères'), 1);
+  assert.equal(K.auto(b, 'Vous avez un chien ?'), 0);
+  assert.equal(K.auto(c, "J'ai été au cinéma."), 1);
+  assert.equal(K.auto(c, 'cinémas'), 0);
+  assert.equal(K.oplossing(b), 'begint met: Est-ce que vous avez');
+  // Zonder keuze: alles of niets, zoals vroeger.
+  assert.equal(K.auto(oud, 'Les chat noirs dorment.'), 0);
+  // Op een blad: een vakje per woord.
+  const beeld = 'data:image/webp;base64,AAAA';
+  const q = K.validate({ title: 't', vragen: [{ type: 'blad', beeld, verhouding: 1.414, velden: [{ x: 1, y: 1, w: 40, h: 4, soort: 'tekst', antwoord: 'Les chats noirs dorment.', controle: 'woord', punten: 4 }, { x: 1, y: 9, w: 40, h: 4, soort: 'tekst', antwoord: 'Est-ce que vous avez', controle: 'begint' }] }] }).vragen[0];
+  assert.equal(K.auto(q, ['Les chat noirs dorment.', 'Est-ce que vous avez faim ?']), 4);
+  assert.deepEqual(K.veldSleutel(q), ['Les chats noirs dorment.', 'begint met: Est-ce que vous avez']);
+});

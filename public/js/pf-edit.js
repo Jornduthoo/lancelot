@@ -309,11 +309,24 @@ const PfEdit = (() => {
         card.querySelector('.e-vv').checked = !!q.vereenvoudigd;
         if (q.type === 'kort') {
           // Meerdere antwoordvakjes: bv. "Geef twee voorbeelden van ..." of een woordspin. Elk goed antwoord uit de lijst telt.
-          const vk = veld(`<label class="inline check" title="Dan is elke gewone schrijfwijze van dezelfde datum juist: 7 december 1941, 7/12/1941, 07-12-1941, 7 dec. 1941 ..."><input type="checkbox" class="e-datum"> 📅 Dit is een datum (elke schrijfwijze is juist)</label> <label class="inline">Aantal antwoordvakjes <select class="e-vakjes">${[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(n => `<option value="${n}">${n}</option>`).join('')}</select></label>
+          const vk = veld(`<label class="inline check" title="Dan is elke gewone schrijfwijze van dezelfde datum juist: 7 december 1941, 7/12/1941, 07-12-1941, 7 dec. 1941 ..."><input type="checkbox" class="e-datum"> 📅 Dit is een datum (elke schrijfwijze is juist)</label>
+            <label class="inline">Nakijken <select class="e-controle"><option value="">hetzelfde antwoord (zoals altijd)</option><option value="woord">per woord (een zin omzetten of overschrijven)</option><option value="begint">juist als het begint met …</option><option value="bevat">juist als het een woord uit de lijst bevat</option></select></label>
+            <p class="muted small pf-controle-uitleg"></p>
+            <label class="inline">Aantal antwoordvakjes <select class="e-vakjes">${[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(n => `<option value="${n}">${n}</option>`).join('')}</select></label>
             <p class="muted small pf-vakjes-uitleg">Zet alle goede antwoorden bij "Juist antwoord", gescheiden door |, bv. <b>hart|longen = long|maag</b>. Met = ertussen tellen andere schrijfwijzen als hetzelfde antwoord. Elk vakje met een ander goed antwoord geeft een punt, in elke volgorde.</p>`, 'pf-e-vakjes');
           const sel = vk.querySelector('.e-vakjes');
           sel.value = String(q.vakjes || 1);
           vk.querySelector('.e-datum').checked = q.datum === true;
+          const ctl = vk.querySelector('.e-controle');
+          ctl.value = q.controle || '';
+          const UITLEG = {
+            woord: 'Elk juist woord op zijn plaats geeft een punt. Een fout, ontbrekend of extra woord kost er één. Bv. "Les chats noirs dorment."',
+            begint: 'Juist als het antwoord begint met het juiste antwoord hierboven, bv. "Est-ce que vous avez". De rest verzint de leerling zelf.',
+            bevat: 'Juist als het antwoord een van de juiste antwoorden hierboven bevat (scheid ze met |), bv. "cinéma|piscine". De rest verzint de leerling zelf.',
+          };
+          const ctlToon = () => { const u = vk.querySelector('.pf-controle-uitleg'); u.textContent = UITLEG[ctl.value] || ''; u.classList.toggle('hidden', !ctl.value); };
+          ctl.addEventListener('change', () => { ctlToon(); cfg.preview(); });
+          ctlToon();
           vk.querySelector('.e-datum').addEventListener('change', () => cfg.preview());
           const toon = () => {
             const meer = Number(sel.value) > 1;
@@ -834,6 +847,8 @@ const PfEdit = (() => {
       const vakjes = Number((card.querySelector(':scope > .pf-k-body .e-vakjes') || {}).value);
       if (type === 'kort' && vakjes > 1) q.vakjes = vakjes;
       if (type === 'kort' && card.querySelector(':scope > .pf-k-body .e-datum')?.checked) q.datum = true;
+      const ctl = card.querySelector(':scope > .pf-k-body .e-controle');
+      if (type === 'kort' && ctl && ctl.value) q.controle = ctl.value;
       q.eenheid = waarde(card, '.e-eenheid');
       if (type === 'rekenen') q.werkPunten = waarde(card, '.e-werkpunten');
       q.breuk = card.querySelector(':scope > .pf-k-body .e-breuk').checked;
