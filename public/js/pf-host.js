@@ -57,6 +57,8 @@ ItemList.mount($('toets-list'), {
   detail: t => `${t.count} vragen · ${nl(t.punten)} punten · ${t.types.map(x => TYPE_ICONS[x] || '').join(' ')}${(t.niveaus || []).length > 1 ? ` · ${t.niveaus.map(n => Niveau.ICONS[n]).join('')}` : ''}${t.klaar ? '' : ' · ⚠ nog niet klaar'}`,
   play: t => vraagAfname(t.file, t.title),
   buttons: [
+    // Plannen: de toets als taak, later op een gekozen dag en uur (Mijn klas › Taken, met deze toets al gekozen).
+    { label: '📅 Plannen', cls: 'taak', title: 'Geef deze toets als taak, nu of later op een gekozen dag en uur', click: t => { location.href = `/taken?soort=proef&file=${encodeURIComponent(t.file)}&wanneer=later`; } },
     { label: '🖨 Print', cls: 'print', title: 'Afdrukken', click: t => window.open(`/proef-print?file=${encodeURIComponent(t.file)}`, '_blank') },
     { label: 'Verbeterblad', cls: 'key', title: 'Verbetersleutel afdrukken', click: t => window.open(`/proef-print?file=${encodeURIComponent(t.file)}&sleutel=1`, '_blank') },
   ],
