@@ -21,6 +21,9 @@ let kinds = [];
 let busy = null;
 let status = { at: 0, pulled: 0, pushed: 0, removed: 0, error: '' };
 let voortgang = () => {};
+// Wanneer een ander toestel voor het laatst een _mappen.json zonder tijden schreef (een oude LANcelot): dan zeggen we het.
+let oudToestel = 0;
+const OUD_DAGEN = 7;
 
 // opties.voortgang: wordt opgeroepen tijdens het kopiëren van grote bestanden (de bordboeken), om dat te tonen.
 function init(list, opties = {}) {
@@ -50,7 +53,7 @@ async function readMeta(dir) {
     const text = await fsp.readFile(path.join(dir, META), 'utf8');
     const meta = JSON.parse(text);
     const obj = x => (x && typeof x === 'object' && !Array.isArray(x) ? x : {});
-    return { ...meta, text, hash: hash(text), folders: Array.isArray(meta.folders) ? meta.folders.filter(f => typeof f === 'string') : [], place: obj(meta.place), tijd: obj(meta.tijd), mapTijd: obj(meta.mapTijd), weg: obj(meta.weg) };
+    return { ...meta, oud: !('tijd' in meta), text, hash: hash(text), folders: Array.isArray(meta.folders) ? meta.folders.filter(f => typeof f === 'string') : [], place: obj(meta.place), tijd: obj(meta.tijd), mapTijd: obj(meta.mapTijd), weg: obj(meta.weg) };
   } catch {
     return null;
   }
@@ -198,6 +201,9 @@ async function syncKind(kind, root, state, count) {
   const lm = await readMeta(local);
   const rm = await readMeta(remote);
   const seenMeta = (state.meta || {})[kind.kind];
+  // Kwam er een _mappen.json zonder tijden binnen, terwijl wij er de vorige keer een met tijden schreven? Dan schreef
+  // een ander toestel met een oude LANcelot hem. Samenvoegen gaat goed, maar zeg het: dat toestel moet bijgewerkt worden.
+  if (rm && rm.oud && seenMeta && rm.hash !== seenMeta) oudToestel = Date.now();
   const meta = lm && rm && lm.hash !== rm.hash ? mergeMeta(lm, rm, seenMeta) : lm || rm;
   if (meta) {
     const place = {};
@@ -205,7 +211,7 @@ async function syncKind(kind, root, state, count) {
     // hier (nog) niet binnenkon (bv. gemaakt met een nieuwere versie van LANcelot): anders springt het op de andere pc terug.
     const exists = file => next[file] || fs.existsSync(path.join(local, file)) || fs.existsSync(path.join(remote, file));
     for (const [file, f] of Object.entries(meta.place)) if (FILE_RE.test(file) && exists(file) && meta.folders.includes(f)) place[file] = f;
-    const { text: _t, hash: _h, ...rest } = meta;
+    const { text: _t, hash: _h, oud: _o, ...rest } = meta;
     const text = JSON.stringify({ ...rest, folders: meta.folders, place }, null, 2) + '\n';
     if (!lm || lm.text !== text) { await write(local, META, text); changedHere = true; }
     if (!rm || rm.text !== text) await write(remote, META, text);
@@ -450,7 +456,8 @@ function choose(folder) {
 }
 
 function view() {
-  return { lesmap: settings.read().lesmap || '', boekenAan: boekenAan(), ...status };
+  const oud = oudToestel && Date.now() - oudToestel < OUD_DAGEN * 864e5 ? { oudToestel } : {};
+  return { lesmap: settings.read().lesmap || '', boekenAan: boekenAan(), ...status, ...oud };
 }
 
 const boekenAan = () => settings.read().lesmapBoeken !== false;

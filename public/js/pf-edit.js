@@ -127,7 +127,7 @@ const PfEdit = (() => {
   const vertaalDiep = x => (typeof x === 'string' ? (window.I18n ? I18n.t(x) : x) : Array.isArray(x) ? x.map(vertaalDiep) : x && typeof x === 'object' ? Object.fromEntries(Object.entries(x).map(([k, v]) => [k, k === 'type' || k === 'vorm' || k === 'getallen' ? v : vertaalDiep(v)])) : x);
 
   // Wat onder "⚙ Meer opties" gaat: alles wat je niet bij elke vraag nodig hebt. De vraag en de antwoorden blijven bovenaan.
-  const EXTRA = '.pf-e-blijft, .pf-e-opmaak, .pf-audio-rij, .pf-luister-max, .pf-k-onder, .pf-checks, .pf-e-vakjes, .pf-help, .doel-veld, .pf-e-zegbron';
+  const EXTRA = '.pf-e-blijft, .pf-audio-rij, .pf-luister-max, .pf-k-onder, .pf-checks, .pf-e-vakjes, .pf-help, .doel-veld, .pf-e-zegbron';
   const EXTRA_MET = '.e-voorlees, .e-mkschud, .e-bank, .e-gelijk, .e-hoofd, .pf-vb-edit, .e-afleiders, .e-extra, .e-regels, .e-hoogte, .e-puntenper';
   // Velden die bij de vraag zelf horen: staat er iets anders in de vraag, dan gaat Meer opties vanzelf open.
   const KERN = new Set(['type', 'id', 'vraag', 'antwoord', 'eenheid', 'opties', 'juist', 'stellingen', 'labels', 'tekst', 'paren', 'items', 'groepen', 'kolommen', 'rijen', 'delen', 'vorm', 'puntenZin', 'zones', 'verhouding', 'min', 'max', 'stap', 'getallen', 'per', 'aantal', 'kleuren', 'doelen', 'inBron', 'model', 'seconden', 'werkPunten', 'titel', 'vragen', 'beeldNodig', 'beeldPagina']);
@@ -592,6 +592,16 @@ const PfEdit = (() => {
       } else if (q.type === 'tabel') {
         veld('<label>Tabel<textarea class="e-lijst" rows="4" placeholder="kg | g\n2 | [2000]\n[0,5] | 500"></textarea></label>');
         card.querySelector('.e-lijst').value = (q.rijen || []).map(r => r.join(' | ')).join('\n');
+        // Een te lange cel valt anders stil weg: zeg het meteen.
+        const let_ = veld('<p class="pf-e-let hidden"></p>');
+        const lang = () => {
+          const te = card.querySelector('.e-lijst').value.split('\n').flatMap(cellenVan).filter(c => c.length > PfKern.MAX_CEL);
+          const zin = 'Een cel is te lang (meer dan 400 tekens): het einde valt weg. Maak de cel korter of gebruik een invulvraag.';
+          let_.querySelector('p').textContent = te.length ? (window.I18n ? I18n.t(zin) : zin) : '';
+          let_.querySelector('p').classList.toggle('hidden', !te.length);
+        };
+        card.querySelector('.e-lijst').addEventListener('input', lang);
+        lang();
       } else if (q.type === 'aanduiden') {
         card.pfZones = (q.zones || []).map(z => ({ ...z }));
         card.pfVerhouding = q.verhouding || 0.75;

@@ -112,7 +112,8 @@ class ProefLive {
   schik(id, p) {
     const lijst = this.lijst(p);
     const seed = `${this.run}|${id}|${p.niveau}`;
-    p.order = K.volgorde(lijst, `${seed}|vragen`, this.inst.schudden);
+    // De toets zelf kan een vaste volgorde vragen (vasteVolgorde): dan alleen de keuzes door elkaar.
+    p.order = K.volgorde(lijst, `${seed}|vragen`, this.inst.schudden && !(this.toets && this.toets.vasteVolgorde));
     p.perms = {};
     for (const { id: qid, q } of K.vragenVan(lijst)) {
       if (q.type === 'meerkeuze' && (this.inst.schudden || q.schudden)) p.perms[qid] = K.schud(q.opties.length, `${seed}|${qid}`);
@@ -429,7 +430,7 @@ class ProefLive {
   }
 
   hostState() {
-    return { ...this.base(), file: this.file, inst: this.inst, multi: this.multi, niveaus: Object.keys(this.levels), ranking: this.ranking(), afname: this.afnameFile || null };
+    return { ...this.base(), file: this.file, inst: this.inst, vast: !!(this.toets && this.toets.vasteVolgorde), multi: this.multi, niveaus: Object.keys(this.levels), ranking: this.ranking(), afname: this.afnameFile || null };
   }
 
   // De volledige toets (met afbeeldingen) voor het bord: één keer bij het starten, niet bij elke verandering.

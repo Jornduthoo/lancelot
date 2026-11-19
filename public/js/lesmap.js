@@ -21,6 +21,12 @@
       : v.error ? `⚠ ${v.error}`
         : v.at ? `✓ Gesynchroniseerd ${when(v.at)}${parts.length ? ` (${parts.join(', ')})` : ''}.` : 'Bezig met synchroniseren…';
     $('lm-status').className = v.error ? 'error' : '';
+    // Een ander toestel met een oude LANcelot schreef in de lesmap: er ging niets verloren, maar werk het bij.
+    const oud = $('lm-oud');
+    if (oud) {
+      oud.textContent = v.lesmap && v.oudToestel ? `⚠ Een ander toestel gebruikt een oude versie van LANcelot (gezien ${when(v.oudToestel)}). Er ging niets verloren, maar werk LANcelot op dat toestel bij.` : '';
+      oud.classList.toggle('hidden', !(v.lesmap && v.oudToestel));
+    }
     for (const id of ['lm-sync', 'lm-open', 'lm-off', 'lm-boeken-rij']) $(id).classList.toggle('hidden', !v.lesmap);
     $('lm-boeken').checked = v.boekenAan !== false;
   }

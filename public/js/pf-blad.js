@@ -531,7 +531,9 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
     $('be-koppel-klaar').addEventListener('click', stopKoppel);
     $('be-schaal').addEventListener('click', () => { staat.ijk = null; schaalVenster(); });
     $('be-annuleer').addEventListener('click', () => sluit(null));
-    $('be-klaar').addEventListener('click', () => {
+    $('be-klaar').addEventListener('click', async () => {
+      const bots = botsingen(staat.velden);
+      if (bots.length && !await Ui.vraag(`Let op: ${botsTekst(bots)}. De leerling ziet dan maar één vakje en kan het verkeerde aantikken. Toch klaar?`)) return;
       const velden = sorteer(staat.velden);
       // De rekenregels (gevolgfout) wijzen naar vakjes: die krijgen hun nieuwe nummer.
       herNummer(velden, staat.velden.map(f => velden.indexOf(f)));
@@ -1415,8 +1417,33 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
   function titel() {
     // Een groepje bolletjes telt als één vraag.
     const open = staat.velden.filter((f, k, a) => leegVeld(f, k, a) && !(f.soort === 'kruis' && groepVan(f)[0] !== f)).length;
-    box.querySelector('#be-titel').textContent = `${staat.opts.titel || 'Vakjes op het blad'} · ${staat.velden.length} vakjes${open ? ` · ${open} zonder antwoord` : ''}`;
+    const bots = botsingen(staat.velden);
+    box.querySelector('#be-titel').textContent = `${staat.opts.titel || 'Vakjes op het blad'} · ${staat.velden.length} vakjes${open ? ` · ${open} zonder antwoord` : ''}${bots.length ? ` · ⚠ ${botsTekst(bots)}` : ''}`;
+    const fout = new Set(bots.flat());
+    for (const el of box.querySelectorAll('.pf-be-veld')) el.classList.toggle('botst', fout.has(Number(el.dataset.k)));
   }
+  // Twee vakjes die de leerling invult, bijna op dezelfde plek: hij ziet er maar één en tikt misschien het verkeerde aan.
+  const BOTS_SOORT = new Set(['tekst', 'breuk', 'kies', 'sleep', 'kruis', 'plek', 'lijn', 'open', 'rooster']);
+  function botsingen(velden) {
+    const uit = [];
+    velden.forEach((a, i) => {
+      if (!BOTS_SOORT.has(a.soort)) return;
+      for (let j = i + 1; j < velden.length; j++) {
+        const b = velden[j];
+        if (!BOTS_SOORT.has(b.soort)) continue;
+        const w = Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x);
+        const h = Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y);
+        if (w <= 0 || h <= 0) continue;
+        if (w * h > 0.5 * Math.min(a.w * a.h, b.w * b.h)) uit.push([i, j]);
+      }
+    });
+    return uit;
+  }
+  const botsTekst = bots => {
+    const [i, j] = bots[0];
+    const zin = `vakje ${i + 1} en ${j + 1} liggen op elkaar`;
+    return bots.length > 1 ? `${zin} (en nog ${bots.length - 1})` : zin;
+  };
   function tekenVeld(k) {
     const el = box.querySelector(`.pf-be-veld[data-k="${k}"]`);
     const f = staat.velden[k];

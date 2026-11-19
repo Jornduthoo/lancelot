@@ -400,7 +400,6 @@
  "in Nederland": "en los Países Bajos",
  "in Antwerpen": "en Amberes",
  "Door welke stad stroomt de Schelde?": "¿Por qué ciudad pasa el Escalda?",
- ".pf-e-blijft, .pf-e-opmaak, .pf-audio-rij, .pf-luister-max, .pf-k-onder, .pf-checks, .pf-e-vakjes, .pf-help, .doel-veld, .pf-e-zegbron": null,
  ".e-voorlees, .e-mkschud, .e-bank, .e-gelijk, .e-hoofd, .pf-vb-edit, .e-afleiders, .e-extra, .e-regels, .e-hoogte, .e-puntenper": null,
  "⚙ Meer opties": "⚙ Más opciones",
  "(punten, prent, geluid, vet, leerplandoel…)": "(puntos, imagen, sonido, negrita, objetivo…)",
@@ -412,5 +411,17 @@
  "met geheel": "con entero",
  "begint met": "empieza por",
  "met marge": "con margen",
- "volgorde vrij, groepje {0}": "orden libre, grupo {0}"
+ "volgorde vrij, groepje {0}": "orden libre, grupo {0}",
+ ".pf-e-blijft, .pf-audio-rij, .pf-luister-max, .pf-k-onder, .pf-checks, .pf-e-vakjes, .pf-help, .doel-veld, .pf-e-zegbron": null,
+ "Een cel is te lang (meer dan 400 tekens): het einde valt weg. Maak de cel korter of gebruik een invulvraag.": "Una celda es demasiado larga (más de 400 caracteres): el final se corta. Acorta la celda o usa una pregunta para completar.",
+ "Let op: {0}. De leerling ziet dan maar één vakje en kan het verkeerde aantikken. Toch klaar?": "Atención: {0}. El alumno solo ve una casilla y puede tocar la equivocada. ¿Terminar igualmente?",
+ "{0} · {1} vakjes{2}{3}": "{0} · {1} casillas{2}{3}",
+ "vakje {0} en {1} liggen op elkaar": "las casillas {0} y {1} se superponen",
+ "{0} (en nog {1})": "{0} (y {1} más)",
+ "{0} vragen gaan met hun voorleestekst samen in een bron ({1} in totaal). Punten en antwoorden blijven hetzelfde. Doorgaan?": "{0} preguntas se agrupan con su texto leído en una fuente ({1} en total). Los puntos y las respuestas no cambian. ¿Continuar?",
+ "⚠ Een ander toestel gebruikt een oude versie van LANcelot (gezien {0}). Er ging niets verloren, maar werk LANcelot op dat toestel bij.": "⚠ Otro dispositivo usa una versión antigua de LANcelot (visto {0}). No se perdió nada, pero actualiza LANcelot en ese dispositivo.",
+ "🔢 Vragen altijd in deze volgorde": "🔢 Preguntas siempre en este orden",
+ "bv. een luistertoets die een verhaal volgt. De keuzes mogen nog door elkaar.": "p. ej. una prueba de escucha que sigue una historia. Las opciones pueden seguir mezcladas.",
+ "🎧 Vragen met dezelfde voorleestekst samenzetten in één bron": "🎧 Agrupar preguntas con el mismo texto leído en una fuente",
+ "Dan hoort de leerling elk fragment één keer, niet bij elke vraag opnieuw.": "Así el alumno oye cada fragmento una vez, no en cada pregunta."
 }
