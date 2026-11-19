@@ -97,7 +97,7 @@ async function main() {
   if (node.LICENSE) fs.writeFileSync(path.join(stage, 'node', 'LICENSE'), node.LICENSE);
   // 4. De starter, de markeringen en de logo's.
   execFileSync('sh', [path.join(HIER, 'bouw-starter.sh'), stage], { stdio: 'inherit' });
-  fs.writeFileSync(path.join(stage, 'store.json'), JSON.stringify({ store: 'microsoft', storeId: STORE_ID, versie }, null, 2) + '\n');
+  fs.writeFileSync(path.join(stage, 'store.json'), JSON.stringify({ store: 'microsoft', storeId: STORE_ID, pfn: 'Jorn.Lancelot_zw3ncfn30yjat', versie }, null, 2) + '\n');
   fs.copyFileSync(path.join(ROOT, 'installer', 'installatie.json'), path.join(stage, 'installatie.json'));
   fs.cpSync(path.join(HIER, 'Assets'), path.join(stage, 'Assets'), { recursive: true });
 

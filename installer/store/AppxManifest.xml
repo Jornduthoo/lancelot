@@ -5,17 +5,13 @@
   xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
   xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
   xmlns:desktop2="http://schemas.microsoft.com/appx/manifest/desktop/windows10/2"
-  xmlns:desktop6="http://schemas.microsoft.com/appx/manifest/desktop/windows10/6"
   xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
-  IgnorableNamespaces="uap desktop2 desktop6 rescap">
+  IgnorableNamespaces="uap desktop2 rescap">
   <Identity Name="Jorn.Lancelot" Publisher="CN=DC7B1AA4-00BE-4CE3-B851-048D44DCE9AC" Version="{VERSIE}" ProcessorArchitecture="x64" />
   <Properties>
     <DisplayName>LANcelot</DisplayName>
     <PublisherDisplayName>Jorn</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
-    <!-- De gegevens van de klas staan in %LOCALAPPDATA%\LANcelot, niet in de verborgen map van het pakket:
-         zo blijven ze bewaard als iemand LANcelot verwijdert en opnieuw installeert. -->
-    <desktop6:FileSystemWriteVirtualization>disabled</desktop6:FileSystemWriteVirtualization>
   </Properties>
   <Dependencies>
     <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.19041.0" MaxVersionTested="10.0.26100.0" />
@@ -27,11 +23,14 @@
     <Resource Language="es" />
     <Resource Language="de" />
   </Resources>
+  <!-- Geen unvirtualizedResources (de Store weigerde die, beleid 10.6.3): de gegevens van de klas staan in de gewone,
+       gevirtualiseerde opslag van het pakket. LANcelot schrijft naar %LOCALAPPDATA%\LANcelot, Windows zet dat in
+       %LOCALAPPDATA%\Packages\<PFN>\LocalCache\Local\LANcelot. Het blijft bij updates; bij verwijderen wist Windows het,
+       daarom wijst het leerkrachtenscherm op "Download een back-up". -->
   <Capabilities>
     <Capability Name="internetClient" />
     <Capability Name="privateNetworkClientServer" />
     <rescap:Capability Name="runFullTrust" />
-    <rescap:Capability Name="unvirtualizedResources" />
   </Capabilities>
   <Applications>
     <Application Id="LANcelot" Executable="LANcelot.exe" EntryPoint="Windows.FullTrustApplication">

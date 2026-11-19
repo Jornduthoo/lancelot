@@ -16,7 +16,7 @@ const POSTER_NAAM = /^[\w.-]+\.(png|jpe?g|webp|gif)$/i;
 
 function openMap(dir) {
   fs.mkdirSync(dir, { recursive: true });
-  if (process.platform === 'win32') execFile('explorer', [dir]);
+  if (process.platform === 'win32') execFile('explorer', [store.echtPad(dir)]);
 }
 
 function posters() {

@@ -37,3 +37,28 @@ test('in de Store-versie zijn eigen updates uit en volgt het blokkeren de licent
     LANCELOT_STORE_LICENTIE: JSON.stringify({ active: false, trial: true, expires: '2026-01-01T00:00:00Z' }) };
   execFileSync(process.execPath, ['-e', code], { cwd: path.join(__dirname, '..'), env, stdio: 'pipe' });
 });
+
+// De Store weigerde unvirtualizedResources (beleid 10.6.3, 2026-11-19). De gegevens staan in de gewone opslag van het pakket.
+test('het Store-pakket vraagt geen unvirtualizedResources en zet de virtualisatie niet uit', () => {
+  const m = require('fs').readFileSync(path.join(__dirname, '..', 'installer', 'store', 'AppxManifest.xml'), 'utf8').replace(/<!--[\s\S]*?-->/g, '');
+  assert.ok(!/unvirtualizedResources/.test(m));
+  assert.ok(!/WriteVirtualization/.test(m));
+  assert.ok(/runFullTrust/.test(m));
+});
+
+test('Verkenner krijgt in de Store-versie de echte map in de opslag van het pakket', () => {
+  const code = `const s = require('./src/store');
+    const env = { LOCALAPPDATA: 'C:\\\\Users\\\\Lk\\\\AppData\\\\Local' };
+    const ja = () => true, nee = () => false;
+    console.log(JSON.stringify([
+      s.echtPad('C:\\\\Users\\\\Lk\\\\AppData\\\\Local\\\\LANcelot\\\\resultaten', env, ja),
+      s.echtPad('C:\\\\Users\\\\Lk\\\\AppData\\\\Local\\\\LANcelot', env, nee),
+      s.echtPad('D:\\\\Lesmap', env, ja),
+    ]));`;
+  const uit = JSON.parse(execFileSync(process.execPath, ['-e', code], { cwd: path.join(__dirname, '..'), env: { ...process.env, LANCELOT_STORE: '1' } }).toString());
+  assert.equal(uit[0], 'C:\\Users\\Lk\\AppData\\Local\\Packages\\Jorn.Lancelot_zw3ncfn30yjat\\LocalCache\\Local\\LANcelot\\resultaten');
+  assert.equal(uit[1], 'C:\\Users\\Lk\\AppData\\Local\\LANcelot');
+  assert.equal(uit[2], 'D:\\Lesmap');
+  // Buiten de Store verandert er niets.
+  assert.equal(require('../src/store').echtPad('C:\\Users\\Lk\\AppData\\Local\\LANcelot', { LOCALAPPDATA: 'C:\\Users\\Lk\\AppData\\Local' }, () => true), 'C:\\Users\\Lk\\AppData\\Local\\LANcelot');
+});
