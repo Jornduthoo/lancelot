@@ -874,3 +874,15 @@ p.pf-kort.pf-vakjes { flex-wrap: wrap; }
 .pf-groep-k:hover, .pf-groep-k:focus { background: rgba(255, 255, 255, .95); }
 .pf-groep-k.vol, .pf-groep-k.vol:hover, .pf-groep-k.vol:focus { background: var(--gk); }
 .pf-groep-kleur:hover, .pf-groep-kleur:focus { background: var(--gk); }
+.pf-plek-doel.meer { border-color: #1c7ed6; background: rgba(28, 126, 214, .18); }
+.pf-plek-doel.meer.kiest { box-shadow: 0 0 0 3px #ffe14d; }
+.pf-plek-doel.meer b { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); font-size: 12px; color: #0b3a6b; }
+.bv-meer { border-top: 1px solid rgb(var(--k-rand) / .5); margin-top: 6px; padding-top: 6px; }
+.bv-meer .bv-rij { display: flex; gap: 6px; align-items: center; margin: 4px 0; }
+.bv-meer-plek.on { outline: 2px solid #ffe14d; }
+/* Een woordenbank per groepje sleepvakjes */
+.pf-bank.eigen { border-left: 6px solid var(--bk); padding-left: 8px; }
+.pf-bank-nr { display: inline-grid; place-items: center; width: 1.6em; height: 1.6em; border-radius: 50%; background: var(--bk); color: #fff; font-size: .95em; }
+.pf-veld.sleep.eigen { border-color: var(--bk) !important; border-width: 2px; }
+.pf-veld.sleep.eigen::after { content: attr(data-nr); position: absolute; right: -6px; top: -8px; min-width: 14px; height: 14px; padding: 0 2px; border-radius: 7px; background: var(--bk); color: #fff; font: 700 10px/14px system-ui, sans-serif; text-align: center; }
+.pf-plek-doel.meer.eerste { border-color: #1a9e6e; background: rgba(26, 158, 110, .18); }

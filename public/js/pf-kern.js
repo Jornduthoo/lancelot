@@ -1129,7 +1129,11 @@
         if (d && extra.length) veld.doelen = extra;
         const label = text(f.label, 30);
         if (label) veld.label = label;
-        veld.punten = punt(f.punten, 1);
+        // Meer labels in hetzelfde kader (bv. a, b, c op één prent): elk label met zijn eigen juiste plek.
+        const meer = label && d ? list(f.meer, 8).filter(m => m && typeof m === 'object' && m.doel && typeof m.doel === 'object')
+          .map(m => ({ label: text(m.label, 30), doel: { x: pct(m.doel.x), y: pct(m.doel.y), r: Math.max(2, Math.min(100, pct(m.doel.r) || 12)) } })).filter(m => m.label) : [];
+        if (meer.length) veld.meer = meer;
+        veld.punten = punt(f.punten, 1 + meer.length);
       } else if (soort === 'lijn') {
         const n = f.naar && typeof f.naar === 'object' ? f.naar : null;
         if (n) veld.naar = { x: pct(n.x), y: pct(n.y) };
@@ -1254,6 +1258,13 @@
         if (soort === 'tekst' && f.doorstreep) veld.doorstreep = true;
         // Nakijken per woord (zin overschrijven of omzetten), of juist als het antwoord begint met / een woord bevat.
         if (soort === 'tekst' && CONTROLE.includes(f.controle)) veld.controle = f.controle;
+        // Een eigen woordenbank per groepje sleepvakjes (bank 1, 2, ...), met eventueel foute woorden erbij.
+        const bk = Math.round(Number(f.bank));
+        if (soort === 'sleep' && bk >= 1 && bk <= 9) {
+          veld.bank = bk;
+          const ex = [...new Set((Array.isArray(f.extra) ? f.extra : String(f.extra || '').split('/')).slice(0, 10).map(w => text(w, 80)).filter(Boolean))];
+          if (ex.length) veld.extra = ex;
+        }
         veld.punten = punt(f.punten, 1);
       }
       // Volgorde vrij: de antwoorden van een groepje mogen in elk vakje van dat groepje staan.
@@ -1543,11 +1554,18 @@
         if (f.soort === 'luister') { if (f.audio) o.audio = img(f.audio); if (f.tekst) o.tekst = f.tekst; if (f.luisterMax) o.luisterMax = f.luisterMax; }
         if (f.soort === 'vlak') o.kleur = f.kleur;
         if (f.soort === 'plek' && f.label) o.label = f.label;
+        if (f.soort === 'plek' && f.meer) o.meer = f.meer.map(m => m.label);
         if (f.soort === 'notitie') o.tekst = f.tekst || '';
+        if (f.soort === 'sleep' && f.bank) o.bank = f.bank;
         return o;
       });
-      const bank = [...q.velden.filter(f => f.soort === 'sleep').map(f => alts(f.antwoord)[0]).filter(Boolean), ...(q.woorden || [])];
-      if (bank.length) v.bank = [...new Set(bank)].sort((a, b) => a.localeCompare(b, 'nl', { numeric: true }));
+      const sorteer = l => [...new Set(l)].sort((a, b) => a.localeCompare(b, 'nl', { numeric: true }));
+      const bank = [...q.velden.filter(f => f.soort === 'sleep' && !f.bank).map(f => alts(f.antwoord)[0]).filter(Boolean), ...(q.woorden || [])];
+      if (bank.length) v.bank = sorteer(bank);
+      // Een bank per groepje: { 1: [woorden], 2: [...] }.
+      const banken = {};
+      for (const f of q.velden) if (f.soort === 'sleep' && f.bank) banken[f.bank] = [...(banken[f.bank] || []), alts(f.antwoord)[0], ...(f.extra || [])].filter(Boolean);
+      if (Object.keys(banken).length) v.banken = Object.fromEntries(Object.entries(banken).map(([n, l]) => [n, sorteer(l)]));
     }
     return v;
   }
@@ -1722,6 +1740,13 @@
       return Math.hypot(dx, dy) <= (d.r / 100) * f.w;
     });
   }
+  // Een kader met meer labels: het antwoord is "x,y|x,y|..." (eerst het label van het kader, dan de andere). Elk label op zijn plek telt.
+  function plekDeel(f, a, verhouding = 1.414) {
+    if (!f.meer) return plekGoed(f, a, verhouding) ? 1 : 0;
+    const delen = String(a || '').split('|');
+    const goed = (plekGoed(f, delen[0], verhouding) ? 1 : 0) + f.meer.filter((m, j) => plekGoed({ w: f.w, h: f.h, doel: m.doel }, delen[j + 1], verhouding)).length;
+    return goed / (1 + f.meer.length);
+  }
   // Kleurveld: hoeveel hokjes moeten deze kleur hebben? "60%" en "3/5" zijn een deel van alle hokjes, "12" is een aantal.
   function kleurDoel(f, c) {
     const a = String((c && c.aantal) || '').trim();
@@ -1804,7 +1829,7 @@
       if (ov[k] === true || ov[k] === false) return ov[k] ? 1 : 0;
       if (f.soort === 'rooster') return roosterScore(f, b[k]);
       if (f.soort === 'kies') return b[k] === f.antwoord ? 1 : 0;
-      if (f.soort === 'plek') return plekGoed(f, b[k], q.verhouding) ? 1 : 0;
+      if (f.soort === 'plek') return plekDeel(f, b[k], q.verhouding);
       if (f.soort === 'lijn') return lijnGoed(f, b[k], q.verhouding, q.schaal || SCHAAL) ? 1 : 0;
       if (f.soort === 'puntlijn') return puntlijnGoed(f, b[k], q.verhouding) ? 1 : 0;
       if (f.soort === 'cirkel') return cirkelGoed(f, b[k], q.verhouding, q.schaal || SCHAAL) ? 1 : 0;
@@ -2118,6 +2143,6 @@
     TYPES, NAMES, MANUEEL, NIVEAUS, MAX_BEELD, ROOSTER, validate, problemen, vragenVan, niveausVan, lijstVoor,
     maxVan, autoPunten, handPunten, totaal, viewOf, studentView, partsOf, getal, zelfde, canoniek, auto, schoon, oplossing, schud, alts, gapsOf,
     waarschuwingen, metNamen, MAX_ZONES, veldSleutel, vakGoed, vakDeel, handVeld, autoVeld, roosterAuto, roosterScore, roosterCellen, roosterTekst, roosterUitkomst,
-    heeftMarge, margeGoed, tijdSec, VRIJ_SOORT, margeTekst, getalTekst, puntLijnen, puntlijnGoed, cirkelsVan, cirkelGoed, straalCm, puntNaam, handWerk, SCHAAL, NAKIJK, FIGUREN, figurenVan, veelhoekPunten, veelhoekVolgorde, hoekpunten, rondom, rekenregel, formuleFout, lijnGoed, lijnCm, veelhoekCm, lijnHoek, lijnGraden, RICHTING, vakjesGoed, goedeAntwoorden, datumSleutel, paarTekst, controleDeel, CONTROLE, groepKaarten, groepUitslag, kaartTekst, MAX_GROEPEN, zelfdeVorm, kleurDoel, kleurGoed, metEenheid, volgorde, SOORTEN, HAND_VELD, woordenVan, doelenVan, sorteerWoorden, sorteerKolommen, dicteeVergelijk, dicteeDeel, dicteeZinPunten, MAX_DICTEE, itemTekst, markeerModel, markeerSleutel, doelenInBron, markeerTel, markeerKort, markeerAntwoord, tekstWoorden, stukkenVan, zonderHaken, STIFTEN, PER, asTekst, MAX_AUDIO, celGat, vereenvoudigd, GEEN_ANTWOORD, AUTO_VELD, KLEUREN,
+    heeftMarge, margeGoed, tijdSec, VRIJ_SOORT, margeTekst, getalTekst, puntLijnen, puntlijnGoed, cirkelsVan, cirkelGoed, straalCm, puntNaam, handWerk, SCHAAL, NAKIJK, FIGUREN, figurenVan, veelhoekPunten, veelhoekVolgorde, hoekpunten, rondom, rekenregel, formuleFout, lijnGoed, lijnCm, veelhoekCm, lijnHoek, lijnGraden, RICHTING, vakjesGoed, goedeAntwoorden, datumSleutel, paarTekst, controleDeel, CONTROLE, plekDeel, groepKaarten, groepUitslag, kaartTekst, MAX_GROEPEN, zelfdeVorm, kleurDoel, kleurGoed, metEenheid, volgorde, SOORTEN, HAND_VELD, woordenVan, doelenVan, sorteerWoorden, sorteerKolommen, dicteeVergelijk, dicteeDeel, dicteeZinPunten, MAX_DICTEE, itemTekst, markeerModel, markeerSleutel, doelenInBron, markeerTel, markeerKort, markeerAntwoord, tekstWoorden, stukkenVan, zonderHaken, STIFTEN, PER, asTekst, MAX_AUDIO, celGat, vereenvoudigd, GEEN_ANTWOORD, AUTO_VELD, KLEUREN,
   };
 });

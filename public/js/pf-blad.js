@@ -705,7 +705,9 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
     } else if (f.soort === 'breuk' || f.soort === 'sleep') {
       kop.textContent = NAAM[f.soort];
       inh.innerHTML = `<p class="bv-vraag">${f.soort === 'breuk' ? 'Juiste breuk(en), bijv. 3/4:' : 'Het juiste woord:'}</p>${lijst(alts.length ? alts : [''], f.soort === 'breuk' ? '+ nog een juiste breuk' : '+ nog een juist woord')}
-        ${f.soort === 'sleep' ? `<label>Extra woorden om uit te kiezen (foute keuzes, gescheiden door /) <input class="bv-woorden" value="${esc(box.querySelector('#be-woorden').value)}"></label>` : ''}
+        ${f.soort === 'sleep' ? `<label>Woordenbank <select class="bv-bank"><option value="">de bank van het hele blad (alle woorden samen)</option>${[1, 2, 3, 4, 5].map(n => `<option value="${n}"${f.bank === n ? ' selected' : ''}>een eigen bank ${n} (bv. voor opdracht ${n})</option>`).join('')}</select></label>
+          ${f.bank ? `<label>Extra woorden in bank ${f.bank} (foute keuzes, gescheiden door /) <input class="bv-bankextra" value="${esc((f.extra || []).join(' / '))}"></label><p class="muted small">De leerling ziet een bank per opdracht, in een eigen kleur met een nummer. Een woord uit bank ${f.bank} past alleen in de vakjes van bank ${f.bank}. Geef alle sleepvakjes van dezelfde opdracht dezelfde bank.</p>`
+            : `<label>Extra woorden om uit te kiezen (foute keuzes, gescheiden door /) <input class="bv-woorden" value="${esc(box.querySelector('#be-woorden').value)}"></label>`}` : ''}
         ${f.soort === 'breuk' ? `${eenheidHtml(f)}<div class="bv-checks"><label class="inline check"><input type="checkbox" data-vlag="geheel"${f.geheel ? ' checked' : ''}> Met een vakje voor het geheel (bv. 1 3/4)</label>${eenvoudigVink(f)}
           <label class="inline check"><input type="checkbox" data-vlag="precies"${f.precies ? ' checked' : ''}> Precies deze breuk (25/100 juist, 1/4 fout)</label></div>` : ''}${vrijHtml(f)}${samenHtml(f, punten)}`;
     } else if (f.soort === 'kies') {
@@ -831,21 +833,33 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
       kop.textContent = NAAM.plek;
       inh.innerHTML = `<p class="bv-vraag">Klik op de juiste plek:</p>
         <div class="bv-plek" style="aspect-ratio:${r2(f.w / (f.h * v))}"><img src="${esc(staat.beeld)}" alt="" draggable="false" style="position:absolute;width:${r2((100 / f.w) * 100)}%;left:${r2((-f.x / f.w) * 100)}%;top:${r2((-f.y / f.h) * 100)}%;max-width:none">
-          ${f.doel ? `<i class="pf-plek-doel" style="left:${d.x}%;top:${d.y}%;width:${2 * d.r}%"></i>` : ''}${(f.doelen || []).map(z => `<i class="pf-plek-doel extra" style="left:${z.x}%;top:${z.y}%;width:${2 * z.r}%"></i>`).join('')}</div>
+          ${f.doel ? `<i class="pf-plek-doel${f.meer ? ' meer eerste' : ''}" style="left:${d.x}%;top:${d.y}%;width:${2 * d.r}%">${f.meer ? `<b>${esc(f.label || '')}</b>` : ''}</i>` : ''}${(f.doelen || []).map(z => `<i class="pf-plek-doel extra" style="left:${z.x}%;top:${z.y}%;width:${2 * z.r}%"></i>`).join('')}${(f.meer || []).map((m, i) => (m.doel ? `<i class="pf-plek-doel meer${staat.plekMeer === i ? ' kiest' : ''}" style="left:${m.doel.x}%;top:${m.doel.y}%;width:${2 * m.doel.r}%"><b>${esc(m.label || '?')}</b></i>` : '')).join('')}</div>
         <label>Hoe groot is de juiste plek? <input type="range" class="bv-r" min="3" max="50" value="${d.r}"></label>
         ${f.doel ? `<p class="bv-samen"><button type="button" class="secondary small-btn bv-plek-extra">${staat.plekExtra ? '✔ Klik nu op de andere juiste plek' : '+ Nog een juiste plek'}</button>${(f.doelen || []).length ? ` <button type="button" class="secondary small-btn bv-plek-wis">Extra plekken weg (${f.doelen.length})</button>` : ''}</p>` : ''}
         <label>Label dat de leerling op de plek zet (mag leeg) <input class="bv-label" value="${esc(f.label || '')}" placeholder="bijv. A of boom"></label>
+        ${f.label && f.doel ? `<div class="bv-meer"><p class="small"><b>Meer labels op dezelfde prent</b> (bv. b en c): elk label krijgt zijn eigen juiste plek in dit kader.</p>
+          ${(f.meer || []).map((m, i) => `<div class="bv-rij"><input class="bv-meer-label" data-i="${i}" value="${esc(m.label || '')}" placeholder="label, bv. b"><button type="button" class="secondary small-btn bv-meer-plek${staat.plekMeer === i ? ' on' : ''}" data-i="${i}">${staat.plekMeer === i ? '✔ Klik nu op de plek' : m.doel ? '📍 Andere plek' : '📍 Kies de plek'}</button><button type="button" class="secondary small-btn bv-meer-x" data-i="${i}" title="Weghalen">✕</button></div>`).join('')}
+          ${(f.meer || []).length < 8 ? '<button type="button" class="secondary small-btn bv-meer-plus">+ label op dezelfde prent</button>' : ''}</div>` : ''}
         <p class="muted small">De leerling tikt in dit kader een plek aan. Binnen een groene cirkel is juist. Met een label tikt de leerling eerst het label aan en zet het dan op de plek. Kaders met een label mogen over elkaar liggen.</p>${samenHtml(f, punten)}`;
       const vak = inh.querySelector('.bv-plek');
       vak.addEventListener('click', e => {
         const r = vak.getBoundingClientRect();
         const z = { x: r2(((e.clientX - r.left) / r.width) * 100), y: r2(((e.clientY - r.top) / r.height) * 100), r: Number(inh.querySelector('.bv-r').value) };
-        if (staat.plekExtra && f.doel) { f.doelen = [...(f.doelen || []), z].slice(0, 8); staat.plekExtra = false; } else f.doel = z;
+        if (staat.plekMeer !== undefined && f.meer && f.meer[staat.plekMeer]) { f.meer[staat.plekMeer].doel = z; staat.plekMeer = undefined; }
+        else if (staat.plekExtra && f.doel) { f.doelen = [...(f.doelen || []), z].slice(0, 8); staat.plekExtra = false; } else f.doel = z;
         bijwerken();
         venster(staat.velden.indexOf(f));
       });
       const extra = inh.querySelector('.bv-plek-extra');
       if (extra) extra.addEventListener('click', () => { staat.plekExtra = !staat.plekExtra; venster(staat.velden.indexOf(f)); });
+      const plus = inh.querySelector('.bv-meer-plus');
+      const volgende = () => { const l = String(f.label || 'a'); return /^[a-y]$/i.test(l) ? String.fromCharCode(l.charCodeAt(0) + 1 + (f.meer || []).length) : ''; };
+      // De punten groeien mee (een punt per label), tenzij de leerkracht ze zelf koos.
+      const pt = n => { if ((Number(f.punten) || 1) === 1 + (f.meer || []).length) f.punten = n; };
+      if (plus) plus.addEventListener('click', () => { pt(2 + (f.meer || []).length); f.meer = [...(f.meer || []), { label: volgende() }]; staat.plekMeer = f.meer.length - 1; staat.plekExtra = false; bijwerken(); venster(staat.velden.indexOf(f)); });
+      for (const b of inh.querySelectorAll('.bv-meer-plek')) b.addEventListener('click', () => { const i = Number(b.dataset.i); staat.plekMeer = staat.plekMeer === i ? undefined : i; staat.plekExtra = false; venster(staat.velden.indexOf(f)); });
+      for (const b of inh.querySelectorAll('.bv-meer-x')) b.addEventListener('click', () => { pt(f.meer.length); f.meer.splice(Number(b.dataset.i), 1); if (!f.meer.length) delete f.meer; staat.plekMeer = undefined; bijwerken(); venster(staat.velden.indexOf(f)); });
+      for (const t of inh.querySelectorAll('.bv-meer-label')) t.addEventListener('input', () => { f.meer[Number(t.dataset.i)].label = t.value.trim(); bijwerken(); });
       const wis = inh.querySelector('.bv-plek-wis');
       if (wis) wis.addEventListener('click', () => { delete f.doelen; staat.plekExtra = false; bijwerken(); venster(staat.velden.indexOf(f)); });
     } else if (f.soort === 'lijn') {
@@ -970,6 +984,13 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
       }
       else if (t.name === 'bv-juist') leesOpties();
       else if (t.classList.contains('bv-letters')) { groepVan(f).forEach((x, i) => { if (t.checked) x.label = 'ABCDEFGH'[i]; else delete x.label; }); bijwerken(); venster(staat.velden.indexOf(f)); }
+      else if (t.classList.contains('bv-bank')) {
+        const n = Number(t.value);
+        if (n) f.bank = n; else { delete f.bank; delete f.extra; }
+        bijwerken();
+        venster(staat.velden.indexOf(f));
+      }
+      else if (t.classList.contains('bv-bankextra')) { const l = t.value.split('/').map(w => w.trim()).filter(Boolean); if (l.length) f.extra = l; else delete f.extra; bijwerken(); }
       else if (t.classList.contains('bv-controle')) {
         if (t.value) f.controle = t.value; else delete f.controle;
         // Per woord: een punt per woord van het juiste antwoord (als de leerkracht de punten nog niet zelf koos).
