@@ -351,7 +351,10 @@
   const sorteerKolommen = (q, w) => q.kolommen.map((k, i) => (k.woorden.includes(w) ? i : -1)).filter(i => i >= 0);
   // Een item van ordenen als tekst (een prent zonder tekst wordt "prent 2").
   // Een kant van een paar bij verbinden als tekst (een prent zonder tekst: "prent 3").
-  const paarTekst = (q, i, k) => (q.paren[i] && q.paren[i][k]) || `prent ${i + 1}`;
+  // Rechts staan ook de afleiders (kaartjes die nergens bij horen): index paren.length en verder.
+  const paarTekst = (q, i, k) => (k === 1 && i >= q.paren.length ? (q.afleiders || [])[i - q.paren.length] || '?' : (q.paren[i] && q.paren[i][k]) || `prent ${i + 1}`);
+  const aantalRechts = q => q.paren.length + (q.afleiders || []).length;
+  const MAX_AFLEIDERS = 6;
   // ---------- Groeperen ----------
   const kaartTekst = k => (typeof k === 'string' ? k : k.tekst || 'prent');
   // Alle kaartjes op een rij, met de groep waar ze in horen.
@@ -603,6 +606,9 @@
       });
       if (prenten.some(x => x[0] || x[1])) out.prenten = prenten;
       if (out.paren.length < 2) throw new Error(`${naam} heeft minstens twee paren nodig.`);
+      // Afleiders: extra kaartjes rechts die bij niets horen (de leerling kan ze niet zomaar wegstrepen).
+      const af = list(q.afleiders, MAX_AFLEIDERS).map(x => text(x, 200)).filter(Boolean);
+      if (af.length) out.afleiders = af;
       max = out.paren.length;
     } else if (type === 'ordenen') {
       // Een item is tekst, of { tekst, beeld } (een prent, met of zonder tekst), net als de keuzes bij meerkeuze.
@@ -1492,12 +1498,12 @@
       if (q.breuk) v.breuk = true;
     } else if (q.type === 'verbinden') {
       v.links = q.paren.map(x => x[0]);
-      const rechts = p || q.paren.map((_, i) => i);
-      v.rechts = rechts.map(i => q.paren[i][1]);
+      const rechts = p || Array.from({ length: aantalRechts(q) }, (_, i) => i);
+      v.rechts = rechts.map(i => (i < q.paren.length ? q.paren[i][1] : q.afleiders[i - q.paren.length]));
       if (q.prenten) {
         const b = x => (x && !x.startsWith('#') ? img(x) : '');
         v.linksBeeld = q.prenten.map(x => b(x[0]));
-        v.rechtsBeeld = rechts.map(i => b(q.prenten[i][1]));
+        v.rechtsBeeld = rechts.map(i => (i < q.paren.length ? b(q.prenten[i][1]) : ''));
       }
     } else if (q.type === 'ordenen') {
       v.items = (p || q.items.map((_, i) => i)).map(i => (typeof q.items[i] === 'string' ? q.items[i] : { tekst: q.items[i].tekst, beeld: q.items[i].beeld && !q.items[i].beeld.startsWith('#') ? img(q.items[i].beeld) : undefined }));
@@ -2109,7 +2115,7 @@
     if (q.type === 'kort' && q.vakjes) return `${q.vakjes} van: ${goedeAntwoorden(q.antwoord).map(g => metEenheid(g[0], q.eenheid)).join(' · ')}`;
     if (q.type === 'kort' || q.type === 'rekenen') return metEenheid(alts(q.antwoord)[0], q.eenheid);
     if (q.type === 'blad') return veldSleutel(q).map((s, k) => (s ? `${k + 1}: ${s}` : '')).filter(Boolean).join(' · ');
-    if (q.type === 'verbinden') return q.paren.map((_, i) => `${paarTekst(q, i, 0)} = ${paarTekst(q, i, 1)}`).join(' · ');
+    if (q.type === 'verbinden') return q.paren.map((_, i) => `${paarTekst(q, i, 0)} = ${paarTekst(q, i, 1)}`).join(' · ') + (q.afleiders ? ` (hoort nergens bij: ${q.afleiders.join(', ')})` : '');
     if (q.type === 'ordenen') return q.items.map((_, i) => itemTekst(q, i)).join(' → ');
     if (q.type === 'sorteren') return q.kolommen.map(k => `${k.naam}: ${k.woorden.join(', ')}`).join(' · ');
     if (q.type === 'groeperen') return q.groepen.map(g => g.map(kaartTekst).join(', ')).join(' | ');
@@ -2153,6 +2159,6 @@
     TYPES, NAMES, MANUEEL, NIVEAUS, MAX_BEELD, ROOSTER, validate, problemen, vragenVan, niveausVan, lijstVoor,
     maxVan, autoPunten, handPunten, totaal, viewOf, studentView, partsOf, getal, zelfde, canoniek, auto, schoon, oplossing, schud, alts, gapsOf,
     waarschuwingen, metNamen, MAX_ZONES, veldSleutel, vakGoed, vakDeel, handVeld, autoVeld, roosterAuto, roosterScore, roosterCellen, roosterTekst, roosterUitkomst,
-    heeftMarge, margeGoed, tijdSec, VRIJ_SOORT, margeTekst, getalTekst, puntLijnen, puntlijnGoed, cirkelsVan, cirkelGoed, straalCm, puntNaam, handWerk, SCHAAL, NAKIJK, FIGUREN, figurenVan, veelhoekPunten, veelhoekVolgorde, hoekpunten, rondom, rekenregel, formuleFout, lijnGoed, lijnCm, veelhoekCm, lijnHoek, lijnGraden, RICHTING, vakjesGoed, goedeAntwoorden, datumSleutel, paarTekst, controleDeel, CONTROLE, plekDeel, groepKaarten, groepUitslag, kaartTekst, MAX_GROEPEN, zelfdeVorm, kleurDoel, kleurGoed, metEenheid, volgorde, SOORTEN, HAND_VELD, woordenVan, doelenVan, sorteerWoorden, sorteerKolommen, dicteeVergelijk, dicteeDeel, dicteeZinPunten, MAX_DICTEE, itemTekst, markeerModel, markeerSleutel, doelenInBron, markeerTel, markeerKort, markeerAntwoord, tekstWoorden, stukkenVan, zonderHaken, STIFTEN, PER, asTekst, MAX_AUDIO, MAX_VOORLEES, celGat, vereenvoudigd, GEEN_ANTWOORD, AUTO_VELD, KLEUREN,
+    heeftMarge, margeGoed, tijdSec, VRIJ_SOORT, margeTekst, getalTekst, puntLijnen, puntlijnGoed, cirkelsVan, cirkelGoed, straalCm, puntNaam, handWerk, SCHAAL, NAKIJK, FIGUREN, figurenVan, veelhoekPunten, veelhoekVolgorde, hoekpunten, rondom, rekenregel, formuleFout, lijnGoed, lijnCm, veelhoekCm, lijnHoek, lijnGraden, RICHTING, vakjesGoed, goedeAntwoorden, datumSleutel, paarTekst, aantalRechts, MAX_AFLEIDERS, controleDeel, CONTROLE, plekDeel, groepKaarten, groepUitslag, kaartTekst, MAX_GROEPEN, zelfdeVorm, kleurDoel, kleurGoed, metEenheid, volgorde, SOORTEN, HAND_VELD, woordenVan, doelenVan, sorteerWoorden, sorteerKolommen, dicteeVergelijk, dicteeDeel, dicteeZinPunten, MAX_DICTEE, itemTekst, markeerModel, markeerSleutel, doelenInBron, markeerTel, markeerKort, markeerAntwoord, tekstWoorden, stukkenVan, zonderHaken, STIFTEN, PER, asTekst, MAX_AUDIO, MAX_VOORLEES, celGat, vereenvoudigd, GEEN_ANTWOORD, AUTO_VELD, KLEUREN,
   };
 });

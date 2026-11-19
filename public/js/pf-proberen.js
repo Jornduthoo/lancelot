@@ -67,7 +67,7 @@
     const order = PfKern.volgorde(pf.lijst, `${seed}|vragen`, true);
     for (const { id, q } of PfKern.vragenVan(pf.lijst)) {
       if (q.type === 'meerkeuze') pf.perms[id] = PfKern.schud(q.opties.length, `${seed}|${id}`);
-      if (q.type === 'verbinden') pf.perms[id] = PfKern.schud(q.paren.length, `${seed}|${id}`, true);
+      if (q.type === 'verbinden') pf.perms[id] = PfKern.schud(PfKern.aantalRechts(q), `${seed}|${id}`, true);
       if (q.type === 'ordenen') pf.perms[id] = PfKern.schud(q.items.length, `${seed}|${id}`, true);
       if (q.type === 'groeperen') pf.perms[id] = PfKern.schud(PfKern.groepKaarten(q).length, `${seed}|${id}`, true);
     }

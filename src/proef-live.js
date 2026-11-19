@@ -116,7 +116,7 @@ class ProefLive {
     p.perms = {};
     for (const { id: qid, q } of K.vragenVan(lijst)) {
       if (q.type === 'meerkeuze' && (this.inst.schudden || q.schudden)) p.perms[qid] = K.schud(q.opties.length, `${seed}|${qid}`);
-      if (q.type === 'verbinden') p.perms[qid] = K.schud(q.paren.length, `${seed}|${qid}`, true);
+      if (q.type === 'verbinden') p.perms[qid] = K.schud(K.aantalRechts(q), `${seed}|${qid}`, true);
       if (q.type === 'ordenen') p.perms[qid] = K.schud(q.items.length, `${seed}|${qid}`, true);
       if (q.type === 'groeperen') p.perms[qid] = K.schud(K.groepKaarten(q).length, `${seed}|${qid}`, true);
     }

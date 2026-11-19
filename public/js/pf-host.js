@@ -1080,7 +1080,7 @@ function antwoordKort(q, a) {
   if (q.type === 'rekenen') return String(a.uitkomst || '');
   if (q.type === 'kort' && Array.isArray(a)) return a.map(x => x || '…').join(' · ');
   if (q.type === 'invullen' || q.type === 'tabel') return a.map(x => x || '…').join(' · ');
-  if (q.type === 'verbinden') return q.paren.map((p, k) => `${PfKern.paarTekst(q, k, 0)} = ${a[k] === null || a[k] === undefined || !q.paren[a[k]] ? '…' : PfKern.paarTekst(q, a[k], 1)}`).join(' · ');
+  if (q.type === 'verbinden') return q.paren.map((p, k) => `${PfKern.paarTekst(q, k, 0)} = ${a[k] === null || a[k] === undefined || !(a[k] < PfKern.aantalRechts(q)) ? '…' : PfKern.paarTekst(q, a[k], 1)}`).join(' · ');
   if (q.type === 'ordenen') return a.map(i => PfKern.itemTekst(q, i)).join(' → ');
   if (q.type === 'groeperen') { const k = PfKern.groepKaarten(q); return q.groepen.map((_, c) => `${c + 1}: ${k.filter((_, i) => a[i] === c).map(x => PfKern.kaartTekst(x.kaart)).join(', ') || '…'}`).join(' · '); }
   if (q.type === 'sorteren') { const w = PfKern.sorteerWoorden(q); return q.kolommen.map((k, i) => `${k.naam}: ${w.filter((_, j) => a[j] === i).join(', ') || '…'}`).join(' · '); }
