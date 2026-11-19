@@ -56,3 +56,37 @@ test('meerdere antwoordvakjes: elk ander goed antwoord telt, in elke volgorde', 
   assert.equal(een.vakjes, undefined);
   assert.equal(K.auto(een, 'b'), 1);
 });
+
+test('datum: elke gewone schrijfwijze van dezelfde datum is juist', () => {
+  const q = K.validate({ title: 't', vragen: [{ type: 'kort', vraag: 'Wanneer viel Japan Pearl Harbor aan?', antwoord: '7 december 1941', datum: true }] }).vragen[0];
+  assert.equal(q.datum, true);
+  for (const a of ['7 december 1941', '7/12/1941', '07-12-1941', '7 dec. 1941', '7.12.1941', 'zondag 7 december 1941', '7 Dec 1941', '7de december 1941']) assert.equal(K.auto(q, a), 1, a);
+  for (const a of ['8 december 1941', '7/11/1941', '1941', 'december 1941', '7-12-41']) assert.equal(K.auto(q, a), 0, a);
+  // Zonder vinkje: zoals vroeger, alleen de getypte schrijfwijze.
+  const oud = K.validate({ title: 't', vragen: [{ type: 'kort', vraag: 'x', antwoord: '7 december 1941' }] }).vragen[0];
+  assert.equal(K.auto(oud, '7/12/1941'), 0);
+  // Ook met meerdere vakjes, en een juist antwoord dat geen datum is geeft een duidelijke melding.
+  const twee = K.validate({ title: 't', vragen: [{ type: 'kort', vraag: 'x', antwoord: '1 september 1939|8 mei 1945', datum: true, vakjes: 2 }] }).vragen[0];
+  assert.equal(K.auto(twee, ['8/5/1945', '01-09-1939']), 2);
+  assert.throws(() => K.validate({ title: 't', vragen: [{ type: 'kort', vraag: 'x', antwoord: 'de oorlog', datum: true }] }), /geen datum/);
+});
+
+test('verbinden met prenten: elke kant mag een prent zijn, oud blijft gelijk', () => {
+  const b = 'data:image/webp;base64,AAAA';
+  const t = K.validate({ title: 't', vragen: [
+    { type: 'verbinden', vraag: 'v', paren: [['', 'rood'], ['Driehoek', '']], prenten: [[b, ''], ['', b]] },
+    { type: 'verbinden', vraag: 'v', paren: [['Antwerpen', 'Schelde'], ['Luik', 'Maas']] },
+  ] });
+  const [q, oud] = t.vragen;
+  assert.deepEqual(q.prenten, [[b, ''], ['', b]]);
+  assert.equal(oud.prenten, undefined);
+  const v = K.viewOf(q, '0', { 0: [1, 0] });
+  assert.deepEqual(v.rechts, ['', 'rood']);
+  assert.deepEqual(v.linksBeeld, [b, '']);
+  assert.deepEqual(v.rechtsBeeld, [b, '']);
+  assert.equal(K.viewOf(oud, '1').linksBeeld, undefined);
+  assert.equal(K.auto(q, [0, 1]), q.punten);
+  assert.equal(K.oplossing(q), 'prent 1 = rood · Driehoek = prent 2');
+  // Zonder tekst en zonder prent: niet volledig.
+  assert.throws(() => K.validate({ title: 't', vragen: [{ type: 'verbinden', vraag: 'v', paren: [['', 'rood'], ['a', 'b']] }] }), /niet volledig/);
+});

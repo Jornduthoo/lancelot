@@ -839,3 +839,19 @@ body.pf-proberen:not(.pf-pr-scherm) { display: flex; flex-direction: column; hei
 p.pf-kort.pf-vakjes { flex-wrap: wrap; }
 .pf-vakje { display: inline-flex; align-items: center; gap: 6px; flex: 0 1 220px; min-width: 0; }
 .pf-vakje input { flex: 1 1 auto; min-width: 0; width: 100%; }
+/* Verbinden met prenten */
+.pf-vb { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; align-items: start; }
+.pf-vb-links, .pf-vb-rechts { display: grid; gap: 8px; }
+.pf-vb-rechts { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); }
+.pf-vb-rij { display: flex; align-items: center; gap: 8px; }
+.pf-vb-rij .pf-vb-kaart { flex: 1 1 auto; }
+.pf-vb-rij select { flex: 0 0 auto; width: auto; max-width: 45%; }
+.pf-vb-kaart { position: relative; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 6px; border: 1px solid #b9ad8f; border-radius: 8px; background: rgba(255, 255, 255, .75); color: #1d2333; min-width: 0; text-align: center; }
+
+.pf-vb-rechts .pf-vb-kaart { padding-top: 2em; }
+.pf-vb-kaart img { max-width: 100%; max-height: 110px; object-fit: contain; border-radius: 4px; }
+.pf-vb-letter { position: absolute; left: 6px; top: 4px; font-size: 1.1em; background: rgb(var(--k-goud)); color: #111; border-radius: 50%; width: 1.6em; height: 1.6em; display: grid; place-items: center; }
+@media (max-width: 600px) { .pf-vb { grid-template-columns: 1fr; } .pf-vb-rechts { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.pf-vb-erij { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; padding: 6px 0; border-top: 1px solid rgb(var(--k-rand) / .5); }
+.pf-vb-kant { display: flex; align-items: center; gap: 6px; }
+.pf-vb-kant img { max-height: 48px; }

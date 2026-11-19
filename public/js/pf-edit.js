@@ -308,10 +308,12 @@ const PfEdit = (() => {
         card.querySelector('.e-vv').checked = !!q.vereenvoudigd;
         if (q.type === 'kort') {
           // Meerdere antwoordvakjes: bv. "Geef twee voorbeelden van ..." of een woordspin. Elk goed antwoord uit de lijst telt.
-          const vk = veld(`<label class="inline">Aantal antwoordvakjes <select class="e-vakjes">${[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(n => `<option value="${n}">${n}</option>`).join('')}</select></label>
+          const vk = veld(`<label class="inline check" title="Dan is elke gewone schrijfwijze van dezelfde datum juist: 7 december 1941, 7/12/1941, 07-12-1941, 7 dec. 1941 ..."><input type="checkbox" class="e-datum"> 📅 Dit is een datum (elke schrijfwijze is juist)</label> <label class="inline">Aantal antwoordvakjes <select class="e-vakjes">${[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(n => `<option value="${n}">${n}</option>`).join('')}</select></label>
             <p class="muted small pf-vakjes-uitleg">Zet alle goede antwoorden bij "Juist antwoord", gescheiden door |, bv. <b>hart|longen = long|maag</b>. Met = ertussen tellen andere schrijfwijzen als hetzelfde antwoord. Elk vakje met een ander goed antwoord geeft een punt, in elke volgorde.</p>`, 'pf-e-vakjes');
           const sel = vk.querySelector('.e-vakjes');
           sel.value = String(q.vakjes || 1);
+          vk.querySelector('.e-datum').checked = q.datum === true;
+          vk.querySelector('.e-datum').addEventListener('change', () => cfg.preview());
           const toon = () => {
             const meer = Number(sel.value) > 1;
             vk.querySelector('.pf-vakjes-uitleg').classList.toggle('hidden', !meer);
@@ -328,6 +330,27 @@ const PfEdit = (() => {
       } else if (q.type === 'verbinden') {
         veld('<label>Paren<textarea class="e-lijst" rows="4" placeholder="Antwerpen = Schelde\nLuik = Maas"></textarea></label>');
         card.querySelector('.e-lijst').value = (q.paren || []).map(p => `${p[0]} = ${p[1]}`).join('\n');
+        // Prenten bij de paren (mag leeg): per paar een prent links en/of rechts. Zonder tekst: zet alleen = op die regel.
+        card.pfPrenten = (q.prenten || []).map(x => ({ l: { pfBeeld: x[0] || '' }, r: { pfBeeld: x[1] || '' } }));
+        const pv = veld(`<details class="pf-vb-edit"><summary class="small">🖼 Prenten bij de paren (mag leeg)</summary><p class="muted small">Elke kant mag ook een prent zijn. Een kant zonder tekst? Laat ze leeg, bv. <b>= Rome</b> of <b>=</b>.</p><div class="pf-vb-rijen"></div></details>`);
+        const rijen = pv.querySelector('.pf-vb-rijen');
+        const bouw = () => {
+          const paren = card.querySelector('.e-lijst').value.split('\n').map(l => l.trim()).filter(Boolean);
+          rijen.innerHTML = '';
+          paren.forEach((l, i) => {
+            const pr = card.pfPrenten[i] || (card.pfPrenten[i] = { l: { pfBeeld: '' }, r: { pfBeeld: '' } });
+            const rij = document.createElement('div');
+            rij.className = 'pf-vb-erij';
+            rij.innerHTML = `<b>${i + 1}.</b> <span class="small">${esc(l)}</span>`;
+            const kant = (naam, h) => { const d = document.createElement('div'); d.className = 'pf-vb-kant'; d.innerHTML = `<span class="muted small">${naam}</span>`; d.appendChild(beeldRij(h, h.pfBeeld)); rij.appendChild(d); };
+            kant('Links', pr.l);
+            kant('Rechts', pr.r);
+            rijen.appendChild(rij);
+          });
+        };
+        bouw();
+        pv.querySelector('details').open = card.pfPrenten.some(x => x.l.pfBeeld || x.r.pfBeeld);
+        card.querySelector('.e-lijst').addEventListener('change', bouw);
       } else if (q.type === 'ordenen') {
         // Een kaartje per rij: tekst en/of een prent, in de juiste volgorde.
         veld('<strong>In de juiste volgorde</strong>');
@@ -783,13 +806,18 @@ const PfEdit = (() => {
       q.antwoord = waarde(card, '.e-antwoord');
       const vakjes = Number((card.querySelector(':scope > .pf-k-body .e-vakjes') || {}).value);
       if (type === 'kort' && vakjes > 1) q.vakjes = vakjes;
+      if (type === 'kort' && card.querySelector(':scope > .pf-k-body .e-datum')?.checked) q.datum = true;
       q.eenheid = waarde(card, '.e-eenheid');
       if (type === 'rekenen') q.werkPunten = waarde(card, '.e-werkpunten');
       q.breuk = card.querySelector(':scope > .pf-k-body .e-breuk').checked;
       q.vereenvoudigd = card.querySelector(':scope > .pf-k-body .e-vv').checked;
       if (type === 'rekenen' && card.querySelector(':scope > .pf-k-body .e-rooster').checked) Object.assign(q, { rooster: true }, card.pfRooster && card.pfRooster.kol ? card.pfRooster : {});
       else if (type === 'rekenen') q.rooster = false;
-    } else if (type === 'verbinden') q.paren = regels(waarde(card, '.e-lijst')).map(l => split(l, '='));
+    } else if (type === 'verbinden') {
+      q.paren = regels(waarde(card, '.e-lijst')).map(l => split(l, '='));
+      const pr = (card.pfPrenten || []).slice(0, q.paren.length).map(x => [x.l.pfBeeld || '', x.r.pfBeeld || '']);
+      if (pr.some(x => x[0] || x[1])) q.prenten = pr;
+    }
     else if (type === 'ordenen') {
       q.items = [...card.querySelectorAll(':scope > .pf-k-body .pf-optie')].map(r => {
         const t = r.querySelector('.pf-optie-tekst').value.trim();
