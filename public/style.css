@@ -2487,3 +2487,6 @@ body:has(.kies-eerst) .panel.form > p.muted.small:last-child { display: none; }
 .adres-tip { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 6px; margin: 4px 0 0; }
 .adres-tip .adres-tip-weg { padding: 2px 6px; min-height: 0; line-height: 1; }
 .nw-ict { white-space: pre-wrap; font: inherit; font-size: .92em; margin: 8px 0; padding: 10px 12px; border-radius: 10px; background: rgb(var(--k-bg) / .5); border: 1px solid var(--line); }
+.lib-bekijk-zicht { display: inline-flex; flex-wrap: wrap; gap: 6px; }
+.lib-bekijk-zicht button.on { background: rgb(var(--k-goud)); color: rgb(var(--k-op-goud)); }
+.lib-bekijk-kop { flex-wrap: wrap; }

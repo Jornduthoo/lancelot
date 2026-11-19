@@ -53,17 +53,32 @@ const ItemList = (() => {
     dlg.showModal();
     const box = dlg.querySelector('.lib-bekijk-inhoud');
     if (BLADEN[kind]) {
-      // Eerst het blad zoals de leerlingen het krijgen; met de knop wissel je naar de verbetersleutel en terug.
-      const toon = sleutel => {
-        box.innerHTML = `<iframe title="${sleutel ? 'Verbetersleutel' : 'Blad'}" src="${BLADEN[kind]}?file=${encodeURIComponent(q.file)}${sleutel ? '&sleutel=1' : ''}&bekijk=1"></iframe>`;
-        wissel.textContent = sleutel ? 'Toon het blad zonder antwoorden' : 'Toon de verbetersleutel';
-        wissel.onclick = () => toon(!sleutel);
+      // Een toets: eerst zoals de leerling hem op het scherm krijgt (echt invullen, niets bewaard), dan het blad en de sleutel.
+      // Een oefenblad: eerst het blad zoals de leerlingen het krijgen, met een knop naar de verbetersleutel en terug.
+      const ZICHTEN = kind === 'proef'
+        ? [['scherm', '👁 Zoals de leerling'], ['blad', '🖨 Op papier'], ['sleutel', '✔ Verbetersleutel']]
+        : [['blad', 'Toon het blad zonder antwoorden'], ['sleutel', 'Toon de verbetersleutel']];
+      const groep = document.createElement('span');
+      groep.className = 'lib-bekijk-zicht';
+      const toon = zicht => {
+        const src = zicht === 'scherm' ? `/proef-proberen?file=${encodeURIComponent(q.file)}&bekijk=1`
+          : `${BLADEN[kind]}?file=${encodeURIComponent(q.file)}${zicht === 'sleutel' ? '&sleutel=1' : ''}&bekijk=1`;
+        box.innerHTML = `<iframe title="${zicht === 'sleutel' ? 'Verbetersleutel' : zicht === 'scherm' ? 'Zoals de leerling' : 'Blad'}" src="${src}"></iframe>`;
+        if (kind === 'proef') for (const b of groep.children) b.classList.toggle('on', b.dataset.zicht === zicht);
+        else groep.replaceChildren(knop(ZICHTEN.find(z => z[0] !== zicht)));
       };
-      const wissel = document.createElement('button');
-      wissel.type = 'button';
-      wissel.className = 'secondary';
-      dlg.querySelector('.lib-bekijk-kop h2').after(wissel);
-      toon(false);
+      const knop = ([zicht, label]) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'secondary';
+        b.dataset.zicht = zicht;
+        b.textContent = label;
+        b.addEventListener('click', () => toon(zicht));
+        return b;
+      };
+      if (kind === 'proef') groep.append(...ZICHTEN.map(knop));
+      dlg.querySelector('.lib-bekijk-kop h2').after(groep);
+      toon(ZICHTEN[0][0]);
       return;
     }
     socket.emit('open-quiz', q.file, res => {

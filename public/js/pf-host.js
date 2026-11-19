@@ -702,6 +702,12 @@ $('e-print').addEventListener('click', () => {
   }, () => { if (tab) tab.close(); if (keyTab) keyTab.close(); });
 });
 
+// 👁 Proberen als leerling: eerst opslaan, dan het scherm van de leerling in een nieuw tabblad (niets wordt bewaard).
+$('e-proberen').addEventListener('click', () => {
+  const tab = window.open('', '_blank');
+  save(file => { if (tab) tab.location = `/proef-proberen?file=${encodeURIComponent(file)}`; }, () => { if (tab) tab.close(); });
+});
+
 // ---------- Bijsturen met AI ----------
 // De hele toets gaat mee als JSON. Afbeeldingen worden "#beeld1", "#beeld2"... (zo blijft de prompt klein) en komen daarna terug.
 let beeldTabel = [];

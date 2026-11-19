@@ -727,3 +727,24 @@ select.pf-kies { width: auto; min-width: 6em; display: inline-block; margin: 0 2
 .pf-e-kol .e-kolwoorden { flex: 1; }
 .pf-orden-knoppen { display: flex; gap: 6px; }
 .pf-orden-knoppen button { flex: 1; }
+
+/* ---------- 👁 Proberen als leerling ---------- */
+body.pf-proberen:not(.pf-pr-scherm) { display: flex; flex-direction: column; height: 100vh; margin: 0; overflow: hidden; }
+.pf-pr-kop { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; padding: 10px 16px; background: rgb(var(--k-bg2) / .95); box-shadow: 0 1px 0 var(--line); }
+.pf-pr-kop.hidden, .pf-pr-kader.hidden { display: none; }
+.pf-pr-uitleg { margin: 0; }
+.pf-pr-knoppen { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.pf-pr-groep { display: inline-flex; gap: 4px; }
+.pf-pr-groep.hidden { display: none; }
+.pf-pr-kop button { padding: 6px 12px; font-size: .9rem; }
+.pf-pr-kop button.on { background: rgb(var(--k-goud)); color: rgb(var(--k-op-goud)); }
+.pf-pr-kader { flex: 1; min-height: 0; display: flex; justify-content: center; padding: 0; }
+.pf-pr-kader iframe { width: 100%; height: 100%; border: 0; display: block; }
+.pf-pr-kader.gsm { padding: 14px 0; overflow: auto; }
+.pf-pr-kader.gsm iframe { width: 390px; max-width: 100%; height: min(844px, 100%); border-radius: 26px; box-shadow: 0 0 0 8px #10141c, 0 0 0 9px var(--line), 0 10px 30px rgb(0 0 0 / .5); }
+.pf-pr-uitslag { max-width: 640px; margin: 20px auto; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.pf-pr-uitslag .actions { justify-content: center; }
+#pf-nagekeken { margin-top: 16px; }
+@media (max-width: 600px) { .pf-pr-kop { padding: 8px 12px; } }
+.pf-voorbeeld-kop { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+.pf-voorbeeld-kop p { margin: 0; flex: 1; min-width: 180px; }
