@@ -450,6 +450,12 @@ function voortgang(t, w) {
   };
 }
 
+// Geplande taken bovenaan, de eerstvolgende eerst; daarna de gegeven taken, de nieuwste eerst.
+function volgorde(a, b) {
+  if (a.vanaf || b.vanaf) return !a.vanaf ? 1 : !b.vanaf ? -1 : a.vanaf.localeCompare(b.vanaf);
+  return String(b.gemaakt || '').localeCompare(String(a.gemaakt || ''));
+}
+
 // Alle taken voor het bord, zonder de inhoud.
 function lijst() {
   return all().map(t => ({
@@ -457,7 +463,7 @@ function lijst() {
     niveaus: niveausVan(t.soort, t.inhoud), niveau: t.niveau || null, les: t.les || null, vanaf: zichtbaar(t) ? null : t.vanaf,
     leerlingen: Object.values(t.werk).map(w => ({ naam: w.naam, niveau: w.niveau, status: w.status, klaar: w.klaar, ...voortgang(t, w) }))
       .sort((a, b) => a.naam.localeCompare(b.naam, 'nl')),
-  }));
+  })).sort(volgorde);
 }
 
 // Wat één leerling deed, voor het venster op het bord.
