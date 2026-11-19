@@ -581,7 +581,7 @@ const PfPaper = (() => {
       for (let r = 0; r < rij; r++) for (let c = 0; c < kol; c++) stippen += `<i class="pf-stip" data-c="${c}" data-r="${r}" style="left:${(c / (kol - 1)) * 100}%;top:${(r / (rij - 1)) * 100}%"></i>`;
       const uitleg = live && f.uitleg ? `<span class="pf-vh-uitleg">${esc(f.uitleg)}</span>` : '';
       return `<div class="pf-veld veelhoek${kl}${live ? ' live' : ''}${f.diagonalen ? ' diag' : ''}" data-k="${k}" data-waarde="${esc(print ? '' : b[k] || '')}" data-kol="${kol}" data-rij="${rij}" style="left:${f.x}%;top:${f.y}%;width:${f.w}%;height:${f.h}%" title="${f.diagonalen ? 'Tik eerst de 2 uiteinden van de ene diagonaal aan, dan die van de andere' : 'Tik de hoekpunten aan'}">
-        <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${veelhoekSvg(print ? '' : b[k], kol, rij, f.diagonalen)}</svg>${stippen}${uitleg}${live ? '<button type="button" class="pf-cirkel-terug" title="Laatste punt weg" aria-label="Laatste punt weg">↶</button>' : ''}</div>`;
+        <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${sleutel && vormen && vormen[k] && vormen[k].vorm ? veelhoekSvg(vormen[k].vorm, kol, rij).replace(/class="ant"/g, 'class="sleutel"') : ''}${veelhoekSvg(print ? '' : b[k], kol, rij, f.diagonalen)}</svg>${stippen}${uitleg}${live ? '<button type="button" class="pf-cirkel-terug" title="Laatste punt weg" aria-label="Laatste punt weg">↶</button>' : ''}</div>`;
     }
     // Een kleurveld: hokjes om in te kleuren met vaste kleuren. Met meer kleuren staan de kleurknoppen boven het veld.
     function kleurHtml(f, k, kl) {
@@ -1212,15 +1212,32 @@ const PfPaper = (() => {
 
   // De figuur van de leerling als svg: een veelhoek (vanaf 3 punten dicht), of een lijn en een punt.
   // Met diagonalen: de 2 lijnstukken (stippellijn), en met 4 punten de vierhoek door hun uiteinden.
+  // Zoals PfKern.rondom en PfKern.veelhoekVolgorde: PfKern laadt niet op elke leerlingpagina (toets, taken).
+  function rondom(pts) {
+    if (typeof PfKern !== 'undefined') return PfKern.rondom(pts);
+    const n = pts.length;
+    const kruis = (a, b, c) => (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]);
+    let kruisen = false;
+    for (let i = 0; i < n && !kruisen; i++) for (let j = i + 2; j < n; j++) {
+      if (i === 0 && j === n - 1) continue;
+      const [p1, p2, p3, p4] = [pts[i], pts[(i + 1) % n], pts[j], pts[(j + 1) % n]];
+      const d1 = kruis(p3, p4, p1); const d2 = kruis(p3, p4, p2); const d3 = kruis(p1, p2, p3); const d4 = kruis(p1, p2, p4);
+      if (((d1 > 0 && d2 < 0) || (d1 < 0 && d2 > 0)) && ((d3 > 0 && d4 < 0) || (d3 < 0 && d4 > 0))) { kruisen = true; break; }
+    }
+    if (n < 4 || !kruisen) return pts;
+    const mx = pts.reduce((t, p) => t + p[0], 0) / n;
+    const my = pts.reduce((t, p) => t + p[1], 0) / n;
+    return [...pts].sort((a, b) => Math.atan2(a[1] - my, a[0] - mx) - Math.atan2(b[1] - my, b[0] - mx));
+  }
   function veelhoekSvg(v, kol, rij, diag) {
     const ruw = String(v || '').split(';').map(x => x.split(',').map(Number)).filter(x => x.length === 2 && x.every(Number.isFinite));
     const pt = ([c, r]) => `${(c / (kol - 1)) * 100},${(r / (rij - 1)) * 100}`;
     if (diag) {
       const lijnen = [ruw.slice(0, 2), ruw.slice(2, 4)].filter(l => l.length === 2).map(l => `<polyline class="ant diag" points="${l.map(pt).join(' ')}" vector-effect="non-scaling-stroke"/>`).join('');
       if (ruw.length < 4) return lijnen;
-      return `<polygon class="ant" points="${PfKern.rondom(PfKern.veelhoekVolgorde({ diagonalen: true }, ruw)).map(pt).join(' ')}" vector-effect="non-scaling-stroke"/>${lijnen}`;
+      return `<polygon class="ant" points="${rondom(ruw.length === 4 ? [ruw[0], ruw[2], ruw[1], ruw[3]] : ruw).map(pt).join(' ')}" vector-effect="non-scaling-stroke"/>${lijnen}`;
     }
-    const p = PfKern.rondom(ruw);
+    const p = rondom(ruw);
     const xy = p.map(pt).join(' ');
     if (p.length >= 3) return `<polygon class="ant" points="${xy}" vector-effect="non-scaling-stroke"/>`;
     if (p.length === 2) return `<polyline class="ant" points="${xy}" vector-effect="non-scaling-stroke"/>`;
@@ -1449,5 +1466,5 @@ const PfPaper = (() => {
     return true;
   }
 
-  return { render, lees, beantwoord, esc, ptn, nl, roosterHtml, roosterWaarde, wireRooster };
+  return { render, lees, beantwoord, esc, ptn, nl, roosterHtml, roosterWaarde, wireRooster, veelhoekSvg };
 })();
