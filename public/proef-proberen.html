@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <script src="/taal.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LANcelot · Proberen als leerling</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/proef.css">
+</head>
+<body class="pf-leerling pf-proberen">
+<!-- De buitenkant: kies Chromebook of gsm en het niveau. Het scherm van de leerling staat in het venster eronder. -->
+<header class="pf-pr-kop hidden" id="pr-kop">
+  <p class="pf-pr-uitleg"><strong>👁 <span>Zo ziet de leerling de toets.</span></strong> <span>Vul gerust in en klik aan: er wordt niets bewaard.</span></p>
+  <div class="pf-pr-knoppen">
+    <span class="pf-pr-groep" id="pr-toestel">
+      <button type="button" class="secondary on" data-toestel="cb">💻 Chromebook</button>
+      <button type="button" class="secondary" data-toestel="gsm">📱 Gsm</button>
+    </span>
+    <span class="pf-pr-groep hidden" id="pr-niveaus"></span>
+    <button type="button" class="secondary" id="pr-opnieuw">↺ Opnieuw</button>
+  </div>
+</header>
+<div class="pf-pr-kader hidden" id="pr-kader"><iframe id="pr-scherm" title="Het scherm van de leerling"></iframe></div>
+
+<!-- Het scherm van de leerling, zoals in toets.html. -->
+<main class="player hidden" id="pr-leerling">
+  <section id="pf-werk">
+    <div class="pf-balk">
+      <span class="pf-naam" id="pf-naam"></span>
+      <span class="pf-teller" id="pf-teller"></span>
+    </div>
+    <nav class="pf-bolletjes" id="pf-bolletjes" aria-label="Vragen"></nav>
+    <article class="ob-paper pf-paper" id="pf-paper"></article>
+    <div class="pf-nav">
+      <button class="secondary" id="pf-vorige">◀ Vorige</button>
+      <p class="error" id="pf-fout"></p>
+      <button id="pf-volgende">Volgende ▶</button>
+    </div>
+  </section>
+  <section id="pf-klaar" class="hidden">
+    <div class="panel pf-pr-uitslag">
+      <p class="title">✔ <span>Ingeleverd (als proef)</span></p>
+      <p id="pf-uitslag"></p>
+      <p class="muted small">Niets bewaard: dit telt niet mee in de resultaten.</p>
+      <div class="actions"><button type="button" class="secondary" id="pf-terug">◀ Terug naar de vragen</button></div>
+    </div>
+    <article class="ob-paper pf-paper pf-print" id="pf-nagekeken"></article>
+  </section>
+</main>
+<p class="error" id="pr-fout"></p>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/ui.js"></script>
+<script src="/js/voorlees.js"></script>
+<script src="/js/niveau.js"></script>
+<script src="/js/pf-kern.js"></script>
+<script src="/js/pf-media.js"></script>
+<script src="/js/pf-paper.js"></script>
+<script src="/js/pf-proberen.js"></script>
+</body>
+</html>
