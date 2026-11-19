@@ -926,7 +926,6 @@
  "Doelen": "Objetivos",
  "Logboek": "Registro",
  "Nieuwe taak": "Nueva tarea",
- "Geef een oefenblad of quiz aan een of meer leerlingen. Elke leerling krijgt het op zijn eigen niveau uit Mijn klas (of je kiest één niveau voor iedereen) en werkt eraan in zijn eigen tempo: op zijn toestel bij": "Da una ficha o un cuestionario a uno o más alumnos. Cada alumno lo recibe en su propio nivel desde Mi clase (o eliges un nivel para todos) y trabaja a su ritmo: en su dispositivo, en",
  ". Er hoeft geen spel te lopen.": ". No hace falta que haya un juego en marcha.",
  "Wat?": "¿Qué?",
  "Op welk niveau?": "¿En qué nivel?",
@@ -1287,5 +1286,6 @@
  "Google": null,
  "Chrome": null,
  "Kopie van de toets voor {0} mislukt:": null,
- "✔ 1 kopie in je lesmap › {0}.{1}": "✔ 1 copia en tu carpeta de clase › {0}.{1}"
+ "✔ 1 kopie in je lesmap › {0}.{1}": "✔ 1 copia en tu carpeta de clase › {0}.{1}",
+ "Geef een oefenblad, quiz of toets aan een of meer leerlingen. Elke leerling krijgt het op zijn eigen niveau uit Mijn klas (of je kiest één niveau voor iedereen) en werkt eraan in zijn eigen tempo: op zijn toestel bij": "Da una ficha, un cuestionario o una prueba a uno o más alumnos. Cada alumno lo recibe en su propio nivel desde Mi clase (o eliges un nivel para todos) y trabaja a su ritmo: en su dispositivo, en"
 }

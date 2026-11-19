@@ -1348,3 +1348,5 @@ const params = new URLSearchParams(location.search);
 if (params.get('maak') === 'ai') $('new-ai').click();
 // Vanuit De Zonnewijzer: die toets meteen afnemen.
 if (params.get('afnemen')) vraagAfname(params.get('afnemen'), '');
+// Vanuit Taken (een toets als taak): meteen die afname verbeteren.
+if (params.get('verbeter')) openAfname(params.get('verbeter'));

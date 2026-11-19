@@ -95,5 +95,20 @@
  "✔ Verbetersleutel": "✔ Answer key",
  "Zoals de leerling": "As the pupil sees it",
  "Slaat de toets op en opent hem zoals de leerling hem krijgt": "Saves the test and opens it as the pupil gets it",
- "👁 Proberen als leerling": "👁 Try as a pupil"
+ "👁 Proberen als leerling": "👁 Try as a pupil",
+ "Neem je tijd. Je mag terug naar vorige vragen.": "Take your time. You may go back to earlier questions.",
+ "Lever in als je klaar bent. Je leerkracht verbetert je toets.": "Hand in when you are done. Your teacher will mark your test.",
+ "📂 Kies een toets…": "📂 Choose a test…",
+ "Kies een toets": "Choose a test",
+ "Een toets maakt de leerling zoals bij De Proef: vraag per vraag, zonder te zien wat juist is. Wat ingeleverd is, verbeter je bij De Proef › Resultaten.": "The pupil takes a test as in De Proef: question by question, without seeing what is correct. You mark what was handed in under De Proef › Results.",
+ "✔ Ingeleverd!": "✔ Handed in!",
+ "Je leerkracht verbetert je toets.": "Your teacher will mark your test.",
+ "Deze toets is nog niet af: {0}": "This test is not finished yet: {0}",
+ "Kies een oefenblad, een quiz of een toets.": "Choose a worksheet, a quiz or a test.",
+ "Toets bij de afname zetten mislukt:": "Adding the test to the results failed:",
+ "✔ Verbeteren bij De Proef": "✔ Mark in De Proef",
+ "Na het inleveren verbeter je deze toets bij De Proef › Resultaten.": "After it is handed in, you mark this test under De Proef › Results.",
+ "Start de toets": "Start the test",
+ "Toets": "Test",
+ "toetsen": "tests"
 }

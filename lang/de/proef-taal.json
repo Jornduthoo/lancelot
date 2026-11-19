@@ -95,5 +95,20 @@
  "✔ Verbetersleutel": "✔ Lösungsschlüssel",
  "Zoals de leerling": "Wie die Schüler",
  "Slaat de toets op en opent hem zoals de leerling hem krijgt": "Speichert den Test und öffnet ihn so, wie die Schüler ihn bekommen",
- "👁 Proberen als leerling": "👁 Als Schüler ausprobieren"
+ "👁 Proberen als leerling": "👁 Als Schüler ausprobieren",
+ "Neem je tijd. Je mag terug naar vorige vragen.": "Lass dir Zeit. Du darfst zu früheren Fragen zurück.",
+ "Lever in als je klaar bent. Je leerkracht verbetert je toets.": "Gib ab, wenn du fertig bist. Deine Lehrkraft korrigiert deinen Test.",
+ "📂 Kies een toets…": "📂 Wähle einen Test…",
+ "Kies een toets": "Wähle einen Test",
+ "Een toets maakt de leerling zoals bij De Proef: vraag per vraag, zonder te zien wat juist is. Wat ingeleverd is, verbeter je bij De Proef › Resultaten.": "Die Schüler machen den Test wie bei De Proef: Frage für Frage, ohne zu sehen, was richtig ist. Was abgegeben wurde, korrigierst du bei De Proef › Ergebnisse.",
+ "✔ Ingeleverd!": "✔ Abgegeben!",
+ "Je leerkracht verbetert je toets.": "Deine Lehrkraft korrigiert deinen Test.",
+ "Deze toets is nog niet af: {0}": "Dieser Test ist noch nicht fertig: {0}",
+ "Kies een oefenblad, een quiz of een toets.": "Wähle ein Arbeitsblatt, ein Quiz oder einen Test.",
+ "Toets bij de afname zetten mislukt:": "Den Test zu den Ergebnissen hinzufügen ist fehlgeschlagen:",
+ "✔ Verbeteren bij De Proef": "✔ In De Proef korrigieren",
+ "Na het inleveren verbeter je deze toets bij De Proef › Resultaten.": "Nach der Abgabe korrigierst du diesen Test bei De Proef › Ergebnisse.",
+ "Start de toets": "Starte den Test",
+ "Toets": "Test",
+ "toetsen": "Tests"
 }

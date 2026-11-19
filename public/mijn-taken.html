@@ -11,6 +11,7 @@
   <style>html { background: #060a13; }</style>
   <link rel="stylesheet" href="/style.css">
   <link rel="stylesheet" href="/taken.css">
+  <link rel="stylesheet" href="/proef.css">
 </head>
 <body class="player tk-page">
 <main>
@@ -94,6 +95,32 @@
       <button class="gold big" id="tk-quiz-terug"><i class="ic ic-taak" aria-hidden="true"></i>Terug naar mijn taken</button>
     </div>
   </section>
+
+  <!-- Een toets (De Proef): vraag per vraag, zoals bij een afname op het bord. Pas de leerkracht verbetert. -->
+  <section id="tk-toets" class="hidden">
+    <div class="pf-tk-intro hidden" id="tk-toets-intro">
+      <div class="panel pf-intro">
+        <img class="pf-icoon" src="/img/icons/proef.webp" alt="">
+        <p id="tk-toets-intro-tekst"></p>
+        <ul class="pf-regels" id="tk-toets-regels"></ul>
+        <button class="gold big" id="tk-toets-start">Start de toets</button>
+      </div>
+    </div>
+    <div id="tk-toets-werk" class="hidden">
+      <nav class="pf-bolletjes" id="tk-toets-bol" aria-label="Vragen"></nav>
+      <article class="ob-paper pf-paper" id="tk-toets-paper"></article>
+      <div class="pf-nav">
+        <button class="secondary" id="tk-toets-vorige">◀ Vorige</button>
+        <p class="error" id="tk-toets-fout"></p>
+        <button id="tk-toets-volgende">Volgende ▶</button>
+      </div>
+    </div>
+    <div class="tk-einde hidden" id="tk-toets-klaar">
+      <p class="title">✔ Ingeleverd!</p>
+      <p class="muted">Je leerkracht verbetert je toets.</p>
+      <button class="gold big" id="tk-toets-terug"><i class="ic ic-taak" aria-hidden="true"></i>Terug naar mijn taken</button>
+    </div>
+  </section>
 </main>
 <script src="/socket.io/socket.io.js"></script>
 <script src="/js/ui.js"></script>
@@ -101,6 +128,8 @@
 <script src="/js/niveau.js"></script>
 <script src="/js/voorlees.js"></script>
 <script src="/js/ob-sheet.js"></script>
+<script src="/js/pf-media.js"></script>
+<script src="/js/pf-paper.js"></script>
 <script src="/js/tk-player.js"></script>
 <script src="/js/klas-kies.js"></script>
 </body>
