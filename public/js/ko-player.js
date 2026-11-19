@@ -348,26 +348,29 @@
   const canvas = $('ko-canvas');
   const ctx = canvas.getContext('2d');
   let last = performance.now();
+  const ui = {};
+  const txt = (id, v) => { v = String(v); if (ui[id] !== v) { ui[id] = v; $(id).textContent = v; } };
+  const cls = (id, c, v) => { const k = `${id}.${c}`; if (ui[k] !== v) { ui[k] = v; $(id).classList.toggle(c, v); } };
   function frame(t) {
     requestAnimationFrame(frame);
     const dt = Math.min(.05, (t - last) / 1000);
     last = t;
     if (!on() || !g.state || g.state.phase !== 'play' || $('ko-game').classList.contains('hidden') || !g.me || !scene.L) return;
+    // De balk bovenaan alleen aanraken als er echt iets verandert: elke DOM-wijziging kost een Chromebook een herberekening.
     const left = g.state.endsAt - now();
-    $('ko-clock').textContent = AK.clock(left);
-    $('ko-clock').classList.toggle('low', left < 30000);
+    txt('ko-clock', AK.clock(left));
+    cls('ko-clock', 'low', left < 30000);
     const wait = g.state.startedAt - now();
-    $('ko-countdown').classList.toggle('hidden', !(wait > 0));
-    if (wait > 0) $('ko-countdown').textContent = Math.ceil(wait / 1000);
-    if (!g.me.alive) $('ko-out-timer').textContent = `Terug over ${Math.max(0, Math.ceil(((g.respawnAt || 0) - t) / 1000))} s`;
+    cls('ko-countdown', 'hidden', !(wait > 0));
+    if (wait > 0) txt('ko-countdown', Math.ceil(wait / 1000));
+    if (!g.me.alive) txt('ko-out-timer', `Terug over ${Math.max(0, Math.ceil(((g.respawnAt || 0) - t) / 1000))} s`);
     const plasma = Math.max(0, g.plasmaEnd - t);
-    const pl = $('ko-plasma');
-    pl.firstChild.style.width = `${Math.round(Math.min(1, plasma / g.plasmaMax) * 100)}%`;
-    pl.classList.toggle('low', plasma < g.plasmaMax * .2);
+    const pct = `${Math.round(Math.min(1, plasma / g.plasmaMax) * 100)}%`;
+    if (ui.pct !== pct) { ui.pct = pct; $('ko-plasma').firstChild.style.width = pct; }
+    cls('ko-plasma', 'low', plasma < g.plasmaMax * .2);
     const zuig = g.zuigEnd - t;
-    const pw = $('ko-power');
-    pw.classList.toggle('hidden', zuig <= 0);
-    if (zuig > 0) pw.textContent = `🌪 ${Math.ceil(zuig / 1000)} s`;
+    cls('ko-power', 'hidden', zuig <= 0);
+    if (zuig > 0) txt('ko-power', `🌪 ${Math.ceil(zuig / 1000)} s`);
     maybeAsk();
 
     // Tijdens een vraag ligt het vragenvenster over de stad: niet tekenen spaart de Chromebook.
@@ -383,7 +386,7 @@
     const S = Math.min(w, h * 1.25) / g.view;
     if (hole) {
       if (!g.cam) g.cam = { x: hole[0], y: hole[1] };
-      const k = Math.min(1, dt * 8);
+      const k = 1 - Math.exp(-dt * 10); // even snel op elke computer
       g.cam.x += (hole[0] - g.cam.x) * k;
       g.cam.y += (hole[1] - g.cam.y) * k;
     }
@@ -391,7 +394,7 @@
     // Niet voorbij de rand van de stad kijken: anders zie je aan de kant een zwarte leegte.
     const binnen = (v, half) => (half * 2 >= scene.L + 3 ? scene.L / 2 : Math.max(half - 1.5, Math.min(scene.L + 1.5 - half, v)));
     const cam = { x: binnen(g.cam.x, w / 2 / S), y: binnen(g.cam.y, h / 2 / (S * W.TILT)), S, w, h };
-    KoDraw.render(ctx, scene, cam, { roster: g.roster, t: sec, me: g.me.n, fs: Math.max(9, 13 * dpr), fmax: 20 * dpr });
+    KoDraw.render(ctx, scene, cam, { roster: g.roster, t: sec, now: t, me: g.me.n, fs: Math.max(9, 13 * dpr), fmax: 20 * dpr });
     fx.update(dt);
     fx.draw(ctx);
     const ms = Math.min(w * .2, h * .28, 120 * dpr);
