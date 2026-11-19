@@ -154,10 +154,11 @@ const PfPaper = (() => {
     return `${g ? `${g} ` : ''}${t}/${n}`;
   }
 
-  // Een rekenrooster: kol hokjes breed, rij hokjes hoog, één teken per hokje. De waarde is tekst: één regel per rij.
+  // Een rekenrooster: kol hokjes breed, rij hokjes hoog, één teken per hokje (een cijfer met een komma mag samen: 7,).
+  // De waarde is tekst: één regel per rij; staat er ergens een hokje met twee tekens, dan staat er | tussen de hokjes.
   function roosterCellen(v, kol, rij) {
     const rijen = String(v || '').split('\n');
-    return Array.from({ length: rij }, (_, r) => { const t = Array.from(rijen[r] || ''); return Array.from({ length: kol }, (__, c) => (t[c] || ' ').trim()); });
+    return Array.from({ length: rij }, (_, r) => { const t = (rijen[r] || '').includes('|') ? rijen[r].split('|') : Array.from(rijen[r] || ''); return Array.from({ length: kol }, (__, c) => (t[c] || ' ').trim()); });
   }
   function roosterHtml(v, kol, rij, live, kl = '', stijl = '') {
     const cellen = roosterCellen(v, kol, rij);
@@ -165,12 +166,16 @@ const PfPaper = (() => {
       ? `<input class="pf-cel" data-r="${ri}" data-c="${ci}" maxlength="2" inputmode="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Rij ${ri + 1}, hokje ${ci + 1}" value="${esc(c)}">`
       : `<span class="pf-cel">${esc(c)}</span>`)).join('')).join('')}</div>`;
   }
+  const celWaarde = v => { const t = String(v || '').trim().replace(/\|/g, ''); return /^(\d[,.]|[,.]\d)$/.test(t) ? t : t.slice(-1); };
   function roosterWaarde(el) {
     const kol = Number(el.dataset.kol) || 1;
-    const cellen = [...el.querySelectorAll('.pf-cel')].map(i => (i.value || '').trim().slice(-1) || ' ');
+    const cellen = [...el.querySelectorAll('.pf-cel')].map(i => celWaarde(i.value) || ' ');
     const rijen = [];
-    for (let i = 0; i < cellen.length; i += kol) rijen.push(cellen.slice(i, i + kol).join(''));
-    while (rijen.length && !rijen[rijen.length - 1].trim()) rijen.pop();
+    for (let i = 0; i < cellen.length; i += kol) {
+      const r = cellen.slice(i, i + kol);
+      if (r.some(c => c.length > 1)) { while (r.length && !r[r.length - 1].trim()) r.pop(); rijen.push(r.map(c => c.trim()).join('|')); } else rijen.push(r.join(''));
+    }
+    while (rijen.length && !rijen[rijen.length - 1].replace(/\|/g, '').trim()) rijen.pop();
     return rijen.length ? rijen.join('\n') : '';
   }
   // Typen in het rooster: één teken per hokje, dan door naar het volgende. Wie van rechts naar links schrijft
@@ -182,7 +187,7 @@ const PfPaper = (() => {
     r.addEventListener('input', e => {
       const i = e.target;
       if (!i.classList.contains('pf-cel')) return;
-      i.value = i.value.trim().slice(-1);
+      i.value = celWaarde(i.value);
       if (!i.value) return;
       const c = Number(i.dataset.c);
       const n = index(i);
@@ -241,6 +246,8 @@ const PfPaper = (() => {
     const b = Array.isArray(a) ? a : [];
     const v = q.verhouding || 1.414;
     const sleutel = o.sleutel && Array.isArray(o.sleutel[q.id]) ? o.sleutel[q.id] : null;
+    // De vakjes zoals in de toets (met de juiste lijnen en cirkels), alleen voor de leerkracht: zones[id].
+    const vormen = o.zones && Array.isArray(o.zones[q.id]) ? o.zones[q.id] : null;
     // Bij verbeteren: per vakje ✔ of ✘, de leerkracht klikt om het om te draaien.
     const oordeel = o.vakken && o.vakken[q.id];
     const velden = q.velden.map((f, k) => {
@@ -249,10 +256,18 @@ const PfPaper = (() => {
       // Bij aanduiden toont de sleutel de juiste plek als cirkel (als het vak die kent).
       const zone = sleutel && f.soort === 'plek' && f.doel ? `<i class="pf-plek-doel" style="left:${f.x + (f.doel.x * f.w) / 100}%;top:${f.y + (f.doel.y * f.h) / 100}%;width:${(2 * f.doel.r * f.w) / 100}%"></i>` : '';
       const zoneLijn = sleutel && f.soort === 'lijn' && f.naar ? `<i class="pf-plek-doel" style="left:${f.naar.x}%;top:${f.naar.y}%;width:${2 * (f.r || 3)}%"></i>` : '';
+      // Kladruimte telt niet mee: niet op papier, en geen sleutel.
+      if (f.soort === 'klad' && print) return '';
+      if ((f.soort === 'puntlijn' || f.soort === 'cirkel') && print) return sleutel ? veldEl(f, k, pos, null) + (sleutel[k] ? `<span class="pf-veld-sleutel" style="left:${f.x}%;top:${f.y + f.h}%;max-width:${Math.max(f.w, 100 - f.x)}%">${esc(sleutel[k])}</span>` : '') : '';
+      // De sleutel van een rekenrooster op papier: het rooster zelf, ingevuld.
+      if (f.soort === 'rooster' && print && sleutel && vormen && vormen[k] && vormen[k].sleutel && vormen[k].nakijk !== 'uitkomst') {
+        const cel = Math.round(Math.min((f.h / (f.rij || 4)) * v, f.w / (f.kol || 8)) * 0.62 * 100) / 100;
+        return roosterHtml(vormen[k].sleutel, f.kol || 8, f.rij || 4, false, 'pf-veld rooster pf-rooster-sleutel', `left:${f.x}%;top:${f.y}%;width:${f.w}%;height:${f.h}%;font-size:max(8px,${cel}cqw)`);
+      }
       if (f.soort === 'plek' && print) return zone;
       if (f.soort === 'lijn' && print) return `<span class="pf-veld lijn" style="left:${f.x}%;top:${f.y}%;width:${f.w}%;height:${f.h}%"></span>${zoneLijn}`;
       // Een lang antwoord loopt verder dan het vakje (naar rechts en naar onder), zodat er niets wegvalt.
-      const s = f.soort === 'plek' ? zone : f.soort === 'lijn' ? zoneLijn : sleutel && sleutel[k] && !(oordeel && oordeel.goed[k] !== false) ? `<span class="pf-veld-sleutel${b[k] ? '' : ' in'}" style="left:${f.x}%;top:${b[k] ? f.y + f.h : f.y}%;max-width:${Math.max(f.w, 100 - f.x)}%;${b[k] ? '' : `min-width:${f.w}%;min-height:${f.h}%;`}">${gemengd(esc(sleutel[k])).replace(/\n/g, '<br>')}</span>` : '';
+      const s = f.soort === 'plek' ? zone : f.soort === 'lijn' ? zoneLijn : f.soort === 'klad' ? '' : sleutel && sleutel[k] && !(oordeel && oordeel.goed[k] !== false) ? `<span class="pf-veld-sleutel${b[k] ? '' : ' in'}" style="left:${f.x}%;top:${b[k] ? f.y + f.h : f.y}%;max-width:${Math.max(f.w, 100 - f.x)}%;${b[k] ? '' : `min-width:${f.w}%;min-height:${f.h}%;`}">${gemengd(esc(sleutel[k])).replace(/\n/g, '<br>')}</span>` : '';
       if (f.soort === 'vlak') return `<i class="pf-vlak" style="left:${f.x}%;top:${f.y}%;width:${f.w}%;height:${f.h}%;background:${esc(f.kleur || '#fff')}"></i>`;
       if (f.soort === 'notitie') return `<span class="pf-notitie" style="${pos}">${esc(f.tekst || '').replace(/\n/g, '<br>')}</span>`;
       if (print) return (f.soort === 'rooster' ? veldEl(f, k, pos, null) : '') + s;
@@ -275,8 +290,8 @@ const PfPaper = (() => {
     }).join('');
     const svg = q.velden.some(f => f.soort === 'lijn') ? `<svg class="pf-lijnen" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${lijnen}</svg>` : '';
     const bank = bankHtml(q.bank, live, print);
-    return `${live ? '<p class="pf-tip pf-blad-tip">Typ je antwoorden in de vakjes op het blad. <button type="button" class="link pf-groter">🔍 Groter</button></p>' : ''}${bank}
-      <div class="pf-blad-wrap"><div class="pf-blad-vel" style="aspect-ratio:${Math.round((1 / v) * 10000) / 10000}">${q.beeld ? `<img src="${esc(q.beeld)}" alt="" draggable="false">` : ''}${svg}${velden}</div></div>`;
+    return `${live ? '<p class="pf-tip pf-blad-tip">Typ je antwoorden in de vakjes op het blad. <button type="button" class="link pf-groter">🔍 Groter</button> <button type="button" class="link pf-lat-knop">📏 Lat</button></p>' : ''}${bank}
+      <div class="pf-blad-wrap"><div class="pf-blad-vel" data-schaal="${q.schaal || 21}" data-verhouding="${v}" style="aspect-ratio:${Math.round((1 / v) * 10000) / 10000}">${q.beeld ? `<img src="${esc(q.beeld)}" alt="" draggable="false">` : ''}${svg}${velden}</div></div>`;
 
     // Een getypt antwoord dat we helemaal tonen (bekijken en verbeteren), ook als het langer is dan het vakje.
     function isVol(f, k) {
@@ -285,11 +300,15 @@ const PfPaper = (() => {
     function veldEl(f, k, pos, g, sl = '') {
       const kl = g === true ? ' goed' : g === false ? ' fout' : '';
       if (f.soort === 'luister') return `<button type="button" class="pf-luister pf-blad-luister" ${f.audio ? `data-src="${esc(f.audio)}"` : `data-tekst="${esc(f.tekst || '')}"`} style="left:${f.x}%;top:${f.y}%;width:${f.w}%;height:${f.h}%" title="Luister" aria-label="Luister">🎧</button>`;
-      if (f.soort === 'teken') {
+      if (f.soort === 'teken' || (f.soort === 'klad' && f.vorm === 'tekenen')) {
         const box = `left:${f.x}%;top:${f.y}%;width:${f.w}%;height:${f.h}%`;
-        if (live) return `<div class="pf-veld teken" data-k="${k}" style="${box}"></div>`;
-        return `<div class="pf-veld teken kijk" data-k="${k}" style="${box}">${typeof b[k] === 'string' && b[k] ? `<img src="${esc(b[k])}" alt="">` : ''}</div>`;
+        const klad = f.soort === 'klad' ? ' klad' : '';
+        if (live) return `<div class="pf-veld teken${klad}" data-k="${k}" style="${box}"></div>`;
+        return `<div class="pf-veld teken kijk${klad}" data-k="${k}" style="${box}">${typeof b[k] === 'string' && b[k] ? `<img src="${esc(b[k])}" alt="">` : ''}</div>`;
       }
+      if (f.soort === 'klad') return `<textarea class="pf-veld open klad" data-k="${k}" style="${pos}" spellcheck="false" placeholder="kladruimte" aria-label="Kladruimte (telt niet mee)"${ro}>${esc(b[k] ?? '')}</textarea>`;
+      if (f.soort === 'puntlijn') return puntlijnHtml(f, k, g, kl);
+      if (f.soort === 'cirkel') return cirkelHtml(f, k, kl);
       // Een bolletje (rond): één keuze per groep. Een hokje: aankruisen, ook meerdere.
       if (f.soort === 'kruis') return `<button type="button" class="pf-veld kruis${f.rond ? ' rond' : ''}${kl}${b[k] === true ? ' on' : ''}" data-k="${k}" data-g="${f.groep || 1}" style="${pos}" aria-label="${f.label ? esc(f.label) : 'Aankruisen'}"${live ? '' : ' disabled'}>${f.rond ? esc(f.label || '') : b[k] === true ? '✗' : esc(f.label || '')}</button>`;
       if (f.soort === 'breuk') {
@@ -317,6 +336,26 @@ const PfPaper = (() => {
       }
       if (f.soort === 'open') return `<textarea class="pf-veld open${kl}" data-k="${k}" style="${pos}" spellcheck="false"${ro}>${esc(b[k] ?? '')}</textarea>`;
       return `<input class="pf-veld${kl}" data-k="${k}" style="${pos}" autocomplete="off" autocapitalize="off" spellcheck="false" value="${esc(b[k] ?? '')}"${ro}>`;
+    }
+    // Lijnen tussen punten: de punten van de leerkracht, de lijnen van de leerling (en bij de sleutel de juiste, gestreept).
+    function puntlijnHtml(f, k, g, kl) {
+      const pt = f.pt || [];
+      const lijn = (i, j, cls) => (pt[i] && pt[j] ? `<line class="${cls}" x1="${pt[i].x}" y1="${pt[i].y}" x2="${pt[j].x}" y2="${pt[j].y}" vector-effect="non-scaling-stroke"/>` : '');
+      const eigen = print ? '' : String(b[k] || '').split(',').map(x => /^(\d+)-(\d+)$/.exec(x.trim())).filter(Boolean).map(m => lijn(Number(m[1]), Number(m[2]), 'ant')).join('');
+      const kf = sleutel && vormen && vormen[k];
+      const sl = kf && kf.lijnen ? kf.lijnen.map(([i, j]) => lijn(i, j, 'sleutel')).join('') : '';
+      return `<div class="pf-veld puntlijn${kl}${live ? ' live' : ''}" data-k="${k}" data-waarde="${esc(b[k] || '')}" style="left:${f.x}%;top:${f.y}%;width:${f.w}%;height:${f.h}%" title="Sleep een lijn van punt naar punt">
+        <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${sl}${eigen}</svg>${pt.map((p, i) => (print && !(kf && kf.doorPunt === i) ? '' : `<i class="pf-pt${kf && kf.doorPunt === i ? ' door' : ''}" data-i="${i}" style="left:${p.x}%;top:${p.y}%"></i>`)).join('')}</div>`;
+    }
+    // Een cirkel tekenen: vanuit het middelpunt slepen. De straal staat erbij in cm (volgens de schaal van het blad).
+    function cirkelHtml(f, k, kl) {
+      const schaal = q.schaal || 21;
+      const eigen = print ? [] : String(b[k] || '').split(';').map(c => c.split(',').map(Number)).filter(c => c.length === 3 && c.every(Number.isFinite));
+      const rond = (x, y, s, cls) => `<i class="pf-cirkel ${cls}" style="left:${x}%;top:${y}%;width:${Math.round(((2 * s) / f.w) * 10000) / 100}%"></i>`;
+      const kf = sleutel && vormen && vormen[k];
+      const sl = kf && kf.cirkels ? kf.cirkels.map(c => rond(c.x, c.y, (c.r / schaal) * 100, 'sleutel')).join('') : '';
+      return `<div class="pf-veld cirkel${kl}${live ? ' live' : ''}" data-k="${k}" data-waarde="${esc(b[k] || '')}" data-w="${f.w}" style="left:${f.x}%;top:${f.y}%;width:${f.w}%;height:${f.h}%" title="Sleep vanuit het middelpunt">
+        ${sl}${eigen.map(([x, y, s]) => rond(x, y, s, 'ant')).join('')}${live ? '<button type="button" class="pf-cirkel-terug" title="Laatste cirkel weg" aria-label="Laatste cirkel weg">↶</button>' : ''}</div>`;
     }
   }
 
@@ -468,7 +507,7 @@ const PfPaper = (() => {
         if (f.classList.contains('rooster')) out[k] = roosterWaarde(f) || null;
         else if (f.classList.contains('kruis')) out[k] = f.classList.contains('on') ? true : null;
         else if (f.classList.contains('teken')) out[k] = f.pfWaarde || null;
-        else if (f.classList.contains('sleep') || f.classList.contains('plek') || f.classList.contains('lijn')) out[k] = f.dataset.waarde || null;
+        else if (f.classList.contains('sleep') || f.classList.contains('plek') || f.classList.contains('lijn') || f.classList.contains('puntlijn') || f.classList.contains('cirkel')) out[k] = f.dataset.waarde || null;
         else if (f.classList.contains('breuk')) {
           const g = f.querySelector('.geheel') ? f.querySelector('.geheel').value.trim() : '';
           const t = f.querySelector('.teller').value.trim();
@@ -639,6 +678,15 @@ const PfPaper = (() => {
           b.addEventListener('dragstart', e => { e.stopPropagation(); e.dataTransfer.setData('text/x-pf', b.dataset.w); });
         }
       }
+      for (const v of el.querySelectorAll('.pf-veld.puntlijn.live')) wirePuntlijn(v, () => send(el));
+      for (const v of el.querySelectorAll('.pf-veld.cirkel.live')) wireCirkel(v, () => send(el));
+      const lat = el.querySelector('.pf-lat-knop');
+      if (lat) lat.addEventListener('click', () => {
+        const vel = el.querySelector('.pf-blad-vel');
+        const oud = vel && vel.querySelector('.pf-lat');
+        if (oud) oud.remove(); else if (vel) maakLat(vel);
+        lat.classList.toggle('on', !oud);
+      });
       const groter = el.querySelector('.pf-groter');
       if (groter) groter.addEventListener('click', () => { groter.textContent = el.classList.toggle('groot') ? '🔍 Kleiner' : '🔍 Groter'; });
       for (const b of el.querySelectorAll('.pf-op, .pf-neer')) {
@@ -721,6 +769,189 @@ const PfPaper = (() => {
     }
   }
 
+  // Lijnen tussen punten: sleep van een punt naar een ander punt (de lijn klikt vast). Tik op een lijn om ze weg te halen.
+  function wirePuntlijn(v, klaar) {
+    const svg = v.querySelector('svg');
+    const pts = [...v.querySelectorAll('.pf-pt')];
+    const P = i => [parseFloat(pts[i].style.left), parseFloat(pts[i].style.top)];
+    const lijnen = () => String(v.dataset.waarde || '').split(',').map(x => /^(\d+)-(\d+)$/.exec(x.trim())).filter(Boolean).map(m => [Number(m[1]), Number(m[2])]);
+    const teken = l => {
+      v.dataset.waarde = l.map(([a, b]) => `${a}-${b}`).join(',');
+      svg.innerHTML = l.map(([a, b]) => `<line class="ant" x1="${P(a)[0]}" y1="${P(a)[1]}" x2="${P(b)[0]}" y2="${P(b)[1]}" vector-effect="non-scaling-stroke"/>`).join('');
+    };
+    const px = e => { const r = v.getBoundingClientRect(); return { r, x: e.clientX - r.left, y: e.clientY - r.top }; };
+    const dichtst = e => {
+      const { r, x, y } = px(e);
+      let best = -1;
+      let bd = Math.max(18, Math.min(r.width, r.height) * 0.06);
+      pts.forEach((_, i) => { const d = Math.hypot((P(i)[0] / 100) * r.width - x, (P(i)[1] / 100) * r.height - y); if (d <= bd) { bd = d; best = i; } });
+      return best;
+    };
+    let start = -1;
+    let tmp = null;
+    v.addEventListener('pointerdown', e => {
+      if (e.button > 0) return;
+      e.preventDefault();
+      // Weg uit een vakje: de symbolenbalk mag niet over het blad blijven staan.
+      if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+      const i = dichtst(e);
+      if (i < 0) {
+        // Geen punt: een lijn vlakbij gaat weg.
+        const { r, x, y } = px(e);
+        const l = lijnen();
+        let weg = -1;
+        let bd = 12;
+        l.forEach(([a, b], n) => {
+          const ax = (P(a)[0] / 100) * r.width; const ay = (P(a)[1] / 100) * r.height;
+          const bx = (P(b)[0] / 100) * r.width; const by = (P(b)[1] / 100) * r.height;
+          const len2 = (bx - ax) ** 2 + (by - ay) ** 2 || 1;
+          const t = Math.min(1, Math.max(0, ((x - ax) * (bx - ax) + (y - ay) * (by - ay)) / len2));
+          const d = Math.hypot(ax + t * (bx - ax) - x, ay + t * (by - ay) - y);
+          if (d < bd) { bd = d; weg = n; }
+        });
+        if (weg >= 0) { l.splice(weg, 1); teken(l); klaar(); }
+        return;
+      }
+      v.setPointerCapture(e.pointerId);
+      start = i;
+      pts[i].classList.add('on');
+      tmp = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      tmp.setAttribute('class', 'ant trek');
+      tmp.setAttribute('vector-effect', 'non-scaling-stroke');
+      for (const [a, w] of [['x1', P(i)[0]], ['y1', P(i)[1]], ['x2', P(i)[0]], ['y2', P(i)[1]]]) tmp.setAttribute(a, w);
+      svg.appendChild(tmp);
+    });
+    v.addEventListener('pointermove', e => {
+      if (start < 0) return;
+      const { r, x, y } = px(e);
+      tmp.setAttribute('x2', (x / r.width) * 100);
+      tmp.setAttribute('y2', (y / r.height) * 100);
+    });
+    const los = e => {
+      if (start < 0) return;
+      const j = e.type === 'pointercancel' ? -1 : dichtst(e);
+      pts[start].classList.remove('on');
+      const l = lijnen();
+      if (j >= 0 && j !== start && !l.some(([a, b]) => (a === start && b === j) || (a === j && b === start))) l.push([Math.min(start, j), Math.max(start, j)]);
+      start = -1;
+      teken(l);
+      klaar();
+    };
+    v.addEventListener('pointerup', los);
+    v.addEventListener('pointercancel', los);
+  }
+
+  // Een cirkel tekenen: druk op het middelpunt en sleep tot de straal juist is. De straal staat erbij in cm.
+  const cmTekst = s => String(Math.round(s * 10) / 10).replace('.', ',');
+  function wireCirkel(v, klaar) {
+    const vel = v.closest('.pf-blad-vel');
+    const schaal = Number(vel && vel.dataset.schaal) || 21;
+    const fw = Number(v.dataset.w) || 10;
+    const cirkels = () => String(v.dataset.waarde || '').split(';').map(c => c.split(',').map(Number)).filter(c => c.length === 3 && c.every(Number.isFinite));
+    const zet = l => {
+      v.dataset.waarde = l.map(c => c.map(n => Math.round(n * 100) / 100).join(',')).join(';');
+      for (const c of v.querySelectorAll('.pf-cirkel.ant')) c.remove();
+      v.insertAdjacentHTML('afterbegin', l.map(([x, y, s]) => `<i class="pf-cirkel ant" style="left:${x}%;top:${y}%;width:${Math.round(((2 * s) / fw) * 10000) / 100}%"></i>`).join(''));
+    };
+    let nieuw = null;
+    let maat = null;
+    v.addEventListener('pointerdown', e => {
+      if (e.button > 0 || e.target.closest('.pf-cirkel-terug')) return;
+      e.preventDefault();
+      if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+      v.setPointerCapture(e.pointerId);
+      const r = v.getBoundingClientRect();
+      nieuw = { x: ((e.clientX - r.left) / r.width) * 100, y: ((e.clientY - r.top) / r.height) * 100, s: 0, cx: e.clientX, cy: e.clientY };
+      v.insertAdjacentHTML('beforeend', `<i class="pf-cirkel nieuw" style="left:${nieuw.x}%;top:${nieuw.y}%;width:0"></i><span class="pf-cirkel-maat" style="left:${nieuw.x}%;top:${nieuw.y}%">r = 0 cm</span>`);
+      maat = v.querySelector('.pf-cirkel-maat');
+    });
+    v.addEventListener('pointermove', e => {
+      if (!nieuw) return;
+      const vr = vel.getBoundingClientRect();
+      nieuw.s = (Math.hypot(e.clientX - nieuw.cx, e.clientY - nieuw.cy) / vr.width) * 100;
+      v.querySelector('.pf-cirkel.nieuw').style.width = `${((2 * nieuw.s) / fw) * 100}%`;
+      const r = v.getBoundingClientRect();
+      maat.style.left = `${((e.clientX - r.left) / r.width) * 100}%`;
+      maat.style.top = `${((e.clientY - r.top) / r.height) * 100}%`;
+      maat.textContent = `r = ${cmTekst((nieuw.s / 100) * schaal)} cm`;
+    });
+    const los = e => {
+      if (!nieuw) return;
+      const c = nieuw;
+      nieuw = null;
+      const n = v.querySelector('.pf-cirkel.nieuw');
+      if (n) n.remove();
+      setTimeout(() => { if (maat && !nieuw) maat.remove(); }, 1500);
+      if (e.type === 'pointercancel' || (c.s / 100) * schaal < 0.2) return;
+      zet([...cirkels(), [c.x, c.y, c.s]]);
+      klaar();
+    };
+    v.addEventListener('pointerup', los);
+    v.addEventListener('pointercancel', los);
+    v.querySelector('.pf-cirkel-terug').addEventListener('click', e => {
+      e.stopPropagation();
+      const l = cirkels();
+      l.pop();
+      zet(l);
+      klaar();
+    });
+  }
+
+  // De lat op het blad: zo groot als een echte lat op het papier (volgens de schaal van het blad).
+  // Sleep om te verschuiven, draai met het bolletje aan het einde.
+  function maakLat(vel) {
+    const schaal = Number(vel.dataset.schaal) || 21;
+    const L = Math.max(5, Math.min(30, Math.floor(schaal * 0.75)));
+    const breed = (L + 2) * 10;
+    let streepjes = '';
+    for (let i = 0; i <= L * 10; i++) {
+      const h = i % 10 === 0 ? 8 : i % 5 === 0 ? 5.5 : 3.5;
+      streepjes += `<line x1="${5 + i}" y1="0" x2="${5 + i}" y2="${h}"/>`;
+      if (i % 10 === 0) streepjes += `<text x="${5 + i}" y="14">${i / 10}</text>`;
+    }
+    const r = vel.getBoundingClientRect();
+    // Bovenaan het stuk van het blad dat de leerling nu ziet.
+    const st = { x: 6, y: Math.min(85, Math.max(3, ((Math.max(0, -r.top) + 90) / Math.max(1, r.height)) * 100)), hoek: 0 };
+    const lat = document.createElement('div');
+    lat.className = 'pf-lat';
+    lat.style.width = `${(breed / 10 / schaal) * 100}%`;
+    lat.style.transformOrigin = `${(5 / breed) * 100}% 50%`;
+    lat.innerHTML = `<svg viewBox="0 0 ${breed} 18" aria-hidden="true"><rect x="0" y="0" width="${breed}" height="18" rx="1.5"/>${streepjes}<text class="cm" x="${breed - 2}" y="15.5">cm</text></svg><span class="pf-lat-draai" title="Draaien" aria-label="Draaien">⟳</span>`;
+    const zet = () => { lat.style.left = `${st.x}%`; lat.style.top = `${st.y}%`; lat.style.transform = `rotate(${st.hoek}deg)`; };
+    zet();
+    vel.appendChild(lat);
+    let sleep = null;
+    lat.addEventListener('pointerdown', e => {
+      if (e.button > 0) return;
+      e.preventDefault();
+      e.stopPropagation();
+      lat.setPointerCapture(e.pointerId);
+      sleep = { draai: !!e.target.closest('.pf-lat-draai'), px: e.clientX, py: e.clientY, x: st.x, y: st.y };
+    });
+    lat.addEventListener('pointermove', e => {
+      if (!sleep) return;
+      const v = vel.getBoundingClientRect();
+      if (!sleep.draai) {
+        st.x = sleep.x + ((e.clientX - sleep.px) / v.width) * 100;
+        st.y = sleep.y + ((e.clientY - sleep.py) / v.height) * 100;
+        return zet();
+      }
+      // Draaien rond het nulpunt; dicht bij recht klikt hij vast.
+      const lb = (lat.offsetWidth * 5) / breed;
+      const ox = v.left + (st.x / 100) * v.width + lb;
+      const oy = v.top + (st.y / 100) * v.height + lat.offsetHeight / 2;
+      let h = (Math.atan2(e.clientY - oy, e.clientX - ox) * 180) / Math.PI;
+      const recht = Math.round(h / 90) * 90;
+      if (Math.abs(h - recht) < 4) h = recht;
+      st.hoek = Math.round(h * 10) / 10;
+      zet();
+    });
+    const los = () => { sleep = null; };
+    lat.addEventListener('pointerup', los);
+    lat.addEventListener('pointercancel', los);
+    return lat;
+  }
+
   // Is deze vraag al beantwoord? (voor het bolletje in de vraagbalk)
   function beantwoord(a) {
     if (a === undefined || a === null || a === '') return false;
@@ -729,5 +960,5 @@ const PfPaper = (() => {
     return true;
   }
 
-  return { render, lees, beantwoord, esc, ptn, nl, roosterHtml };
+  return { render, lees, beantwoord, esc, ptn, nl, roosterHtml, roosterWaarde, wireRooster };
 })();
