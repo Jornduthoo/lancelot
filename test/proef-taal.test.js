@@ -132,3 +132,37 @@ test('sorteren: punten per juist gesorteerd woord, extra woorden horen nergens',
   assert.equal(K.auto(q, ant({})), 0);
   assert.throws(() => een({ type: 'sorteren', vraag: 'x', kolommen: [{ naam: 'a', woorden: ['b'] }] }));
 });
+
+test('dictee: woorden of zinnen, een fout, ontbrekend of extra woord is één fout; hoofdletters tellen, leestekens niet', () => {
+  const z = een({ type: 'dictee', vraag: 'Schrijf', vorm: 'zinnen', delen: ['De kat slaapt op de mat.', 'Jan fietst naar Gent.'] });
+  assert.equal(z.punten, 10);
+  assert.equal(K.auto(z, ['De kat slaapt op de mat.', 'Jan fietst naar Gent.']), 10);
+  assert.equal(K.auto(z, ['De kat slaapt op de mat', 'Jan fietst naar Gent']), 10); // leestekens tellen niet
+  assert.equal(K.auto(z, ['De kat slaapt op de mat.', 'jan fietst naar Gent.']), 9); // hoofdletter vergeten
+  assert.equal(K.auto(z, ['De kat slaap op de mat.', 'Jan fietst Gent.']), 8); // fout woord + ontbrekend woord
+  assert.equal(K.auto(z, ['De kat slaapt op op de mat.', '']), 5); // extra woord, lege zin
+  const v = K.dicteeVergelijk(z, 'De kat slaapt op de mat.', 'De kat slaap op de mat.');
+  assert.equal(v.fouten, 1);
+  assert.deepEqual(v.woorden.map(w => w[1]), [true, true, false, true, true, true]);
+  // Twee punten per zin: elke fout kost er één, nooit onder nul.
+  const pz = een({ type: 'dictee', vraag: 'x', vorm: 'zinnen', delen: ['De kat slaapt.', 'Jan fietst.'], puntenZin: 2 });
+  assert.equal(pz.punten, 4);
+  assert.equal(K.auto(pz, ['De hond slaapt.', 'jan loopt hard.']), 1);
+  const zonder = een({ type: 'dictee', vraag: 'x', vorm: 'zinnen', delen: ['Jan fietst.'], hoofdletters: false, leestekens: true });
+  assert.equal(K.auto(zonder, ['jan fietst.']), zonder.punten);
+  assert.equal(K.auto(zonder, ['jan fietst']), 1); // het punt ontbreekt: één fout
+  const w = een({ type: 'dictee', vraag: 'x', delen: [{ tekst: 'fiets', zin: 'Ik heb een nieuwe fiets.' }, 'boom'] });
+  assert.equal(w.punten, 2);
+  assert.equal(K.auto(w, ['fiets', 'Boom']), 1);
+  const view = K.viewOf(w, '0');
+  assert.equal(view.delen[0].zeg, 'fiets. Ik heb een nieuwe fiets. fiets.');
+  assert.equal(K.oplossing(w), 'fiets\nboom');
+  assert.throws(() => een({ type: 'dictee', vraag: 'x', delen: [] }));
+});
+
+test('voorlezen: een tekst bij elke vraag die de leerling hoort maar niet ziet', () => {
+  const q = een({ type: 'kort', vraag: 'Welk woord hoor je?', antwoord: 'fiets', voorlees: 'fiets' });
+  assert.equal(q.voorlees, 'fiets');
+  assert.equal(K.viewOf(q, '0').voorlees, 'fiets');
+  assert.equal(een({ type: 'kort', vraag: 'x', antwoord: '1' }).voorlees, undefined);
+});
