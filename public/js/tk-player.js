@@ -331,7 +331,7 @@ function tkToetsPagina() {
   const t = tk.taak;
   const pages = t.view.pages;
   t.pos = Math.max(0, Math.min(pages.length - 1, t.pos || 0));
-  PfPaper.render($('tk-toets-paper'), [pages[t.pos]], { mode: 'live', answers: t.answers, start: t.pos, nummer: true, voorlees: false, onAnswer: tkToetsStuur, luisterSleutel: `taak|${t.id}|${tk.naam}` });
+  PfPaper.render($('tk-toets-paper'), [pages[t.pos]], { mode: 'live', answers: t.answers, start: t.pos, nummer: true, voorlees: false, onAnswer: tkToetsStuur, luisterSleutel: `taak|${t.id}|${tk.naam}|${t.poging || 0}` });
   $('tk-toets-vorige').classList.toggle('hidden', t.pos === 0);
   const laatste = t.pos === pages.length - 1;
   $('tk-toets-volgende').textContent = laatste ? 'Inleveren ✔' : 'Volgende ▶';

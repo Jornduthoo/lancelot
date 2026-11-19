@@ -388,18 +388,39 @@ function sluit(id) {
 }
 
 // Weer openzetten: voor één leerling (die werkt verder met wat er al stond) of de hele taak.
-function heropen({ id, naam } = {}) {
+// Met opnieuw begint die leerling met een leeg blad; bij een toets gaat zijn vorige inzending uit de afname.
+function heropen({ id, naam, opnieuw } = {}) {
   const t = find(id);
   t.dicht = false;
   if (naam) {
     const w = t.werk[key(naam)];
     if (!w) throw new Error('Die leerling heeft deze taak niet.');
-    if (w.status === 'klaar') {
+    if (opnieuw === true) {
+      const nw = nieuwWerk(t, w.naam, w.niveau);
+      // Een oefenblad staat al in het logboek: niet nog eens.
+      if (w.gelogd) nw.gelogd = true;
+      nw.poging = (w.poging || 0) + 1;
+      t.werk[key(naam)] = nw;
+      if (t.soort === 'proef') uitAfname(t, w.naam);
+    } else if (w.status === 'klaar') {
       w.status = 'bezig';
       w.klaar = null;
     }
   }
   save();
+}
+
+// Een leerling uit de afname van een taak halen (hij begint opnieuw).
+function uitAfname(t, naam) {
+  if (!t.afname) return;
+  try {
+    const rec = proeven.laadAfname(t.afname);
+    rec.spelers = rec.spelers.filter(s => key(s.naam) !== key(naam));
+    proeven.schrijfAfname(rec);
+    bijAfname(t.afname);
+  } catch (err) {
+    console.error('Uit de afname halen mislukt:', err.message);
+  }
 }
 
 function wis(id) {
@@ -515,7 +536,7 @@ function begin(t, w) {
 function open({ id, naam } = {}) {
   const { t, w } = werkVan(id, naam);
   const klaar = t.dicht || w.status === 'klaar';
-  const base = { id, soort: t.soort, titel: t.titel, spel: spelVan(t), niveau: niveausVan(t.soort, t.inhoud).length > 1 ? w.niveau : null, klaar, dicht: t.dicht, les: lesVoorLeerling(t), ...voortgang(t, w) };
+  const base = { id, soort: t.soort, titel: t.titel, poging: w.poging || 0, spel: spelVan(t), niveau: niveausVan(t.soort, t.inhoud).length > 1 ? w.niveau : null, klaar, dicht: t.dicht, les: lesVoorLeerling(t), ...voortgang(t, w) };
   if (t.soort === 'proef') {
     if (klaar) return base;
     const { lijst, order, perms } = toets(t, w);

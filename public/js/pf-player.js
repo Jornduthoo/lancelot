@@ -152,8 +152,9 @@ function klaar(s) {
 
 function werk(s) {
   toon('pf-werk');
-  if (pf.viewRun !== s.run) {
-    pf.viewRun = s.run;
+  // Een nieuwe toets, of de leerkracht liet de leerling opnieuw beginnen: dan een leeg blad.
+  if (pf.viewRun !== `${s.run}:${s.poging || 0}`) {
+    pf.viewRun = `${s.run}:${s.poging || 0}`;
     pf.answers = { ...(s.answers || {}) };
     pf.pos = s.pos || 0;
     pf.rendered = '';
@@ -161,7 +162,7 @@ function werk(s) {
   $('pf-naam').textContent = `${s.name}${s.niveau ? ` · ${Niveau.label(s.niveau)}` : ''}`;
   pf.eindeOm = s.rest !== null && s.rest !== undefined ? performance.now() + s.rest : 0;
   $('pf-tijd').classList.toggle('hidden', !pf.eindeOm);
-  if (pf.rendered !== `${s.run}:${s.niveau}:${pf.pos}`) tekenPagina();
+  if (pf.rendered !== `${s.run}:${s.poging || 0}:${s.niveau}:${pf.pos}`) tekenPagina();
   bolletjes();
   bewaak(true);
   // Niet hier op Start gedrukt maar toch al bezig: de pagina werd herladen of op een ander toestel geopend.
@@ -177,8 +178,8 @@ function tekenPagina() {
   const s = pf.state;
   const pages = s.view.pages;
   pf.pos = Math.max(0, Math.min(pages.length - 1, pf.pos));
-  pf.rendered = `${s.run}:${s.niveau}:${pf.pos}`;
-  PfPaper.render($('pf-paper'), [pages[pf.pos]], { mode: 'live', answers: pf.answers, start: pf.pos, nummer: true, voorlees: s.voorlees, onAnswer: stuur, luisterSleutel: `${s.name}|${s.run}|${new Date().toDateString()}` });
+  pf.rendered = `${s.run}:${s.poging || 0}:${s.niveau}:${pf.pos}`;
+  PfPaper.render($('pf-paper'), [pages[pf.pos]], { mode: 'live', answers: pf.answers, start: pf.pos, nummer: true, voorlees: s.voorlees, onAnswer: stuur, luisterSleutel: `${s.name}|${s.run}|${s.poging || 0}|${new Date().toDateString()}` });
   $('pf-teller').textContent = `Vraag ${pf.pos + 1} van ${pages.length}`;
   $('pf-vorige').classList.toggle('hidden', !s.inst.terug || pf.pos === 0);
   const laatste = pf.pos === pages.length - 1;
