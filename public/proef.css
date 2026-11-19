@@ -855,3 +855,22 @@ p.pf-kort.pf-vakjes { flex-wrap: wrap; }
 .pf-vb-erij { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; padding: 6px 0; border-top: 1px solid rgb(var(--k-rand) / .5); }
 .pf-vb-kant { display: flex; align-items: center; gap: 6px; }
 .pf-vb-kant img { max-height: 48px; }
+/* Groeperen */
+.pf-groep-pal { display: flex; gap: 10px; margin: 4px 0 10px; }
+.pf-groep-kleur { width: 44px; height: 44px; border-radius: 50%; border: 3px solid rgba(0, 0, 0, .25); background: var(--gk); color: #111; font-weight: 800; font-size: 1.1em; cursor: pointer; padding: 0; }
+.pf-groep-kleur.on { border-color: #111; box-shadow: 0 0 0 3px #fff, 0 0 0 5px #111; }
+.pf-groep { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; }
+.pf-groep-k { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; min-height: 64px; padding: 8px 8px 8px 30px; border: 2px solid #b9ad8f; border-radius: 10px; background: rgba(255, 255, 255, .8); color: #1d2333; font: inherit; cursor: pointer; text-align: center; }
+.pf-groep-k img { max-width: 100%; max-height: 100px; object-fit: contain; border-radius: 4px; }
+.pf-groep-k.vol { background: var(--gk); border-color: rgba(0, 0, 0, .45); }
+.pf-groep-nr { position: absolute; left: 6px; top: 6px; width: 1.5em; height: 1.5em; border-radius: 50%; display: grid; place-items: center; font-size: .95em; background: rgba(255, 255, 255, .85); border: 1px solid rgba(0, 0, 0, .3); }
+.pf-groep-k:not(.vol) .pf-groep-nr { opacity: .35; }
+.pf-groep-k .ob-box { position: absolute; left: 6px; top: 6px; }
+@media (max-width: 600px) { .pf-groep { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.pf-e-groepen { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 10px; }
+.pf-e-groep { border: 1px solid rgb(var(--k-rand)); border-radius: 8px; padding: 8px; }
+.pf-e-groep-kop { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.pf-groep-k, .pf-groep-kleur { clip-path: none; filter: none !important; }
+.pf-groep-k:hover, .pf-groep-k:focus { background: rgba(255, 255, 255, .95); }
+.pf-groep-k.vol, .pf-groep-k.vol:hover, .pf-groep-k.vol:focus { background: var(--gk); }
+.pf-groep-kleur:hover, .pf-groep-kleur:focus { background: var(--gk); }

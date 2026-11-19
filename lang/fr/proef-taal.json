@@ -281,5 +281,22 @@
  "Elke kant mag ook een prent zijn. Een kant zonder tekst? Laat ze leeg, bv.": "Chaque côté peut aussi être une image. Un côté sans texte ? Laisse-le vide, p. ex.",
  "= Rome": "= Rome",
  "Kies bij elk kaartje links de letter van het kaartje dat erbij hoort.": "Pour chaque carte à gauche, choisis la lettre de la carte qui va avec.",
- "Letter": "Lettre"
+ "Letter": "Lettre",
+ "Groeperen": "Regrouper",
+ "{0} heeft minstens twee groepen nodig.": "{0} a besoin d'au moins deux groupes.",
+ "{0} heeft te veel kaartjes (hooguit 24).": "{0} a trop de cartes (24 au maximum).",
+ "Geef wat samen hoort dezelfde kleur.": "Donne la même couleur à ce qui va ensemble.",
+ "Zet de kaartjes in hun groep (2 tot 5 groepen, zonder naam). Een kaartje is tekst, een prent of allebei. De leerling krijgt alle kaartjes door elkaar en geeft wat samen hoort dezelfde kleur. Welke kleur, maakt niet uit.": "Place les cartes dans leur groupe (2 à 5 groupes, sans nom). Une carte est un texte, une image ou les deux. L'élève reçoit toutes les cartes mélangées et donne la même couleur à ce qui va ensemble. La couleur choisie n'a pas d'importance.",
+ "kaartje (tekst, mag leeg met een prent)": "carte (texte, peut rester vide avec une image)",
+ "Groep {0}": "Groupe {0}",
+ "Groep weghalen": "Supprimer le groupe",
+ "✕ groep": "✕ groupe",
+ "+ groep": "+ groupe",
+ "2 tot 5 groepen": "2 à 5 groupes",
+ "per juiste groep": "par groupe juste",
+ "per juist kaartje": "par carte juste",
+ "data-c=\"{0}\" style=\"--gk:{1}\"": null,
+ "Geef wat samen hoort hetzelfde nummer (1 tot {0}).": "Donne le même numéro à ce qui va ensemble (1 à {0}).",
+ "Kies een kleur en tik op de kaartjes die samen horen. Tik nog eens om een kaartje leeg te maken.": "Choisis une couleur et touche les cartes qui vont ensemble. Touche encore pour vider une carte.",
+ "Wat hoort samen? (kleuren)": "Qu'est-ce qui va ensemble ? (couleurs)"
 }

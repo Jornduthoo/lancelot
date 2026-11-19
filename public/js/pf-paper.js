@@ -146,6 +146,8 @@ const PfPaper = (() => {
       const papierOrde = prenten ? schudVast(q.items.length, String(q.vraag || '') + q.items.length) : q.items.map((_, i) => i);
       h += print ? `<p class="pf-tip">Zet de juiste volgorde: 1, 2, 3, …</p><ul class="pf-orden-print${prenten ? ' met-beeld' : ''}">${papierOrde.map(i => `<li><span class="ob-box"></span> ${item(q.items[i])}</li>`).join('')}</ul>`
         : `<p class="pf-tip">${prenten ? 'Sleep de kaartjes in de juiste volgorde (of gebruik de pijltjes).' : 'Zet in de juiste volgorde met de pijltjes.'}</p><ol class="pf-orden${prenten ? ' met-beeld' : ''}">${order.map(i => `<li data-i="${i}">${live ? '<span class="pf-greep" aria-hidden="true">⠿</span>' : ''}${item(q.items[i])}${live ? (prenten ? '<span class="pf-orden-knoppen"><button type="button" class="secondary pf-op" aria-label="Naar voren">◀</button><button type="button" class="secondary pf-neer" aria-label="Naar achteren">▶</button></span>' : '<button type="button" class="secondary pf-op" aria-label="Omhoog">▲</button><button type="button" class="secondary pf-neer" aria-label="Omlaag">▼</button>') : ''}</li>`).join('')}</ol>`;
+    } else if (q.type === 'groeperen') {
+      h += groepHtml(q, a, live, print);
     } else if (q.type === 'sorteren') {
       h += sorteerHtml(q, a, live, print);
     } else if (q.type === 'dictee') {
@@ -292,6 +294,33 @@ const PfPaper = (() => {
 
   // Sorteren in kolommen: de woorden bovenaan, de kolommen eronder. Tik een woord en dan een kolom (of sleep het).
   // Het antwoord: per woord het nummer van de kolom of null.
+  // Groeperen: de leerling kiest een kleur en tikt de kaartjes aan die samen horen. Elke kleur draagt ook een nummer (voor wie kleuren moeilijk ziet).
+  const GROEP_KLEUR = ['#ffe14d', '#8ce99a', '#8fd0ff', '#ff9b9b', '#ffc078'];
+  const GROEP_NAAM = ['geel', 'groen', 'blauw', 'rood', 'oranje'];
+  function groepHtml(q, a, live, print) {
+    const b = Array.isArray(a) ? a : [];
+    const kaart = k => {
+      const c = Number.isInteger(b[k.i]) ? b[k.i] : null;
+      return `<button type="button" class="pf-groep-k${c !== null ? ' vol' : ''}" data-i="${k.i}"${c !== null ? ` data-c="${c}" style="--gk:${GROEP_KLEUR[c]}"` : ''}${live ? '' : ' disabled'}>${print ? '<span class="ob-box"></span>' : `<b class="pf-groep-nr">${c !== null ? c + 1 : ''}</b>`}${k.beeld ? `<img src="${esc(k.beeld)}" alt="" draggable="false">` : ''}${k.tekst ? `<span>${esc(k.tekst)}</span>` : ''}</button>`;
+    };
+    if (print) return `<p class="pf-tip">Geef wat samen hoort hetzelfde nummer (1 tot ${q.kleuren}).</p><div class="pf-groep">${q.kaarten.map(kaart).join('')}</div>`;
+    const pal = live ? `<p class="pf-tip">Kies een kleur en tik op de kaartjes die samen horen. Tik nog eens om een kaartje leeg te maken.</p><div class="pf-groep-pal" role="radiogroup" aria-label="Kleur">${Array.from({ length: q.kleuren }, (_, c) => `<button type="button" class="pf-groep-kleur${c === 0 ? ' on' : ''}" data-c="${c}" style="--gk:${GROEP_KLEUR[c]}" aria-label="${GROEP_NAAM[c]}"><b>${c + 1}</b></button>`).join('')}</div>` : '';
+    return `${pal}<div class="pf-groep">${q.kaarten.map(kaart).join('')}</div>`;
+  }
+  function wireGroep(el, klaar) {
+    let kleur = 0;
+    el.addEventListener('click', e => {
+      const p = e.target.closest('.pf-groep-kleur');
+      if (p) { kleur = Number(p.dataset.c); for (const x of el.querySelectorAll('.pf-groep-kleur')) x.classList.toggle('on', x === p); return; }
+      const k = e.target.closest('.pf-groep-k');
+      if (!k || k.disabled) return;
+      const zelfde = k.dataset.c === String(kleur);
+      if (zelfde) { delete k.dataset.c; k.style.removeProperty('--gk'); } else { k.dataset.c = kleur; k.style.setProperty('--gk', GROEP_KLEUR[kleur]); }
+      k.classList.toggle('vol', !zelfde);
+      k.querySelector('.pf-groep-nr').textContent = zelfde ? '' : kleur + 1;
+      klaar();
+    });
+  }
   function sorteerHtml(q, a, live, print) {
     const b = Array.isArray(a) ? a : [];
     if (print) {
@@ -905,6 +934,11 @@ const PfPaper = (() => {
     if (type === 'verbinden') return [...el.querySelectorAll('.pf-sel')].map(s => (s.value === '' ? null : Number(s.value)));
     if (type === 'ordenen') return [...el.querySelectorAll('.pf-orden li')].map(li => Number(li.dataset.i));
     if (type === 'dictee') return [...el.querySelectorAll('.pf-dictee-in')].map(i => i.value);
+    if (type === 'groeperen') {
+      const out = [...el.querySelectorAll('.pf-groep-k')].map(() => null);
+      for (const k of el.querySelectorAll('.pf-groep-k')) out[Number(k.dataset.i)] = k.dataset.c !== undefined ? Number(k.dataset.c) : null;
+      return out;
+    }
     if (type === 'sorteren') {
       const out = [...el.querySelectorAll('.pf-sorteer-w')].map(() => null);
       for (const b of el.querySelectorAll('.pf-sorteer-w')) { const kol = b.closest('.pf-sorteer-kol'); out[Number(b.dataset.i)] = kol ? Number(kol.dataset.k) : null; }
@@ -1152,6 +1186,7 @@ const PfPaper = (() => {
       const orden = el.querySelector('.pf-orden');
       if (orden) wireOrden(orden, () => send(el));
       if (el.dataset.type === 'sorteren') wireSorteer(el, () => send(el));
+      if (el.dataset.type === 'groeperen') wireGroep(el, () => send(el));
       for (const b of el.querySelectorAll('.pf-op, .pf-neer')) {
         b.addEventListener('click', () => {
           const li = b.closest('li');

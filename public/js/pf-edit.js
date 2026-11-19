@@ -8,7 +8,7 @@ const PfEdit = (() => {
   const esc = PfPaper.esc;
   const nl = PfPaper.nl;
 
-  const TYPE_ICONS = { meerkeuze: '🔘', juistfout: '✔✖', invullen: '✏️', kort: '⌨️', rekenen: '🧮', verbinden: '🔗', ordenen: '↕️', tabel: '▦', aanduiden: '📍', getallenas: '📏', markeren: '🖍️', tekenen: '🎨', spreken: '🎙️', open: '💬', papier: '📝', blad: '📄', bron: '📜', sorteren: '🗂️', dictee: '🎧' };
+  const TYPE_ICONS = { meerkeuze: '🔘', juistfout: '✔✖', invullen: '✏️', kort: '⌨️', rekenen: '🧮', verbinden: '🔗', ordenen: '↕️', tabel: '▦', aanduiden: '📍', getallenas: '📏', markeren: '🖍️', tekenen: '🎨', spreken: '🎙️', open: '💬', papier: '📝', blad: '📄', bron: '📜', sorteren: '🗂️', dictee: '🎧', groeperen: '🧩' };
 
   function alsBron(file) {
     return new Promise((resolve, reject) => {
@@ -52,7 +52,7 @@ const PfEdit = (() => {
   }
   const DEFAULT_VRAAG = {
     meerkeuze: '', juistfout: '', invullen: 'Vul aan.', kort: '', rekenen: '', verbinden: 'Verbind wat bij elkaar hoort.',
-    ordenen: 'Zet in de juiste volgorde.', sorteren: 'Sleep elk woord naar de juiste kolom.', dictee: 'Schrijf wat je hoort.', tabel: 'Vul de tabel aan.', aanduiden: '', open: '', papier: '',
+    ordenen: 'Zet in de juiste volgorde.', sorteren: 'Sleep elk woord naar de juiste kolom.', groeperen: 'Geef wat samen hoort dezelfde kleur.', dictee: 'Schrijf wat je hoort.', tabel: 'Vul de tabel aan.', aanduiden: '', open: '', papier: '',
     getallenas: 'Duid aan op de getallenas.', markeren: 'Duid alle werkwoorden aan.', tekenen: '', spreken: '',
   };
   const HELP = {
@@ -66,6 +66,7 @@ const PfEdit = (() => {
     verbinden: 'Eén paar per regel: links = rechts. De rechterkant komt door elkaar.',
     ordenen: 'Zet de kaartjes in de juiste volgorde (met de pijltjes). Een kaartje is tekst, een prent of allebei. De leerling krijgt ze door elkaar.',
     dictee: 'Typ de woorden of zinnen die de computer voorleest: de leerling hoort ze en ziet ze niet. Bij een woord kan je er een zin bij zetten (die wordt ook voorgelezen). Een ontbrekend, fout of extra woord is één fout.',
+    groeperen: 'Zet de kaartjes in hun groep (2 tot 5 groepen, zonder naam). Een kaartje is tekst, een prent of allebei. De leerling krijgt alle kaartjes door elkaar en geeft wat samen hoort dezelfde kleur. Welke kleur, maakt niet uit.',
     sorteren: 'Geef elke kolom een naam en de woorden die erin horen. Woorden die nergens horen, blijven liggen. De leerling krijgt alle woorden door elkaar; de volgorde in een kolom maakt niet uit.',
     tabel: 'Eén rij per regel, cellen gescheiden door |. De eerste regel is de kop. Zet wat de leerling invult tussen [ ], bv. 2 | [2000]. Een keuzelijstje in een cel: {groter|kleiner|gelijk}, het eerste is het juiste.',
     aanduiden: 'Kies een afbeelding en klik waar het juiste antwoord ligt. Klik op een cirkel om hem weg te halen. Geef je de plekken een naam (bv. de provincies op een kaart), dan zet de leerling elke naam op de juiste plek.',
@@ -401,6 +402,32 @@ const PfEdit = (() => {
         };
         card.querySelector('.e-vorm').addEventListener('change', vorm);
         vorm();
+      } else if (q.type === 'groeperen') {
+        // Groepen zonder naam; per groep kaartjes met tekst en/of een prent.
+        const box = veld('', 'pf-e-groepen');
+        const kaartRij = k => {
+          const rij = optieRij(k, false);
+          rij.querySelector('.pf-juist').remove();
+          rij.querySelector('.pf-optie-tekst').placeholder = 'kaartje (tekst, mag leeg met een prent)';
+          return rij;
+        };
+        const nummer = () => [...box.children].forEach((g, i) => { g.querySelector('.pf-e-groep-nr').textContent = `Groep ${i + 1}`; });
+        const groep = g => {
+          const d = document.createElement('div');
+          d.className = 'pf-e-groep';
+          d.innerHTML = '<div class="pf-e-groep-kop"><b class="pf-e-groep-nr"></b><button type="button" class="secondary small-btn weg-groep" title="Groep weghalen">✕ groep</button></div><div class="pf-e-groep-kaarten"></div><button type="button" class="secondary small-btn plus-kaart">+ kaartje</button>';
+          const lijst = d.querySelector('.pf-e-groep-kaarten');
+          for (const k of g && g.length ? g : ['', '']) lijst.appendChild(kaartRij(k));
+          d.querySelector('.plus-kaart').addEventListener('click', () => { lijst.appendChild(kaartRij('')); cfg.preview(); });
+          d.querySelector('.weg-groep').addEventListener('click', () => { if (box.children.length > 2) { d.remove(); nummer(); cfg.preview(); } });
+          return d;
+        };
+        for (const g of q.groepen && q.groepen.length ? q.groepen : [[], []]) box.appendChild(groep(g));
+        nummer();
+        const add = veld('<button type="button" class="secondary small-btn">+ groep</button> <span class="muted small">2 tot 5 groepen</span>');
+        add.querySelector('button').addEventListener('click', () => { if (box.children.length < 5) { box.appendChild(groep([])); nummer(); cfg.preview(); } });
+        veld('<label>Punten<select class="e-puntenper"><option value="">per juiste groep</option><option value="kaart">per juist kaartje</option></select></label>');
+        card.querySelector('.e-puntenper').value = q.puntenPer || '';
       } else if (q.type === 'sorteren') {
         // De kolommen: een naam en de woorden die erin horen.
         const box = veld('', 'pf-e-kols');
@@ -831,6 +858,12 @@ const PfEdit = (() => {
       if (!card.querySelector(':scope > .pf-k-body .e-hoofd').checked) q.hoofdletters = false;
       if (card.querySelector(':scope > .pf-k-body .e-lees').checked) q.leestekens = true;
       if (q.vorm === 'zinnen' && waarde(card, '.e-pz')) q.puntenZin = Number(waarde(card, '.e-pz'));
+    } else if (type === 'groeperen') {
+      q.groepen = [...card.querySelectorAll(':scope > .pf-k-body .pf-e-groep')].map(g => [...g.querySelectorAll('.pf-optie')].map(r => {
+        const t = r.querySelector('.pf-optie-tekst').value.trim();
+        return r.pfBeeld ? { tekst: t, beeld: r.pfBeeld } : t;
+      }).filter(k => k && (typeof k === 'string' || k.tekst || k.beeld)));
+      if (waarde(card, '.e-puntenper')) q.puntenPer = waarde(card, '.e-puntenper');
     } else if (type === 'sorteren') {
       const delen = v => v.split('/').map(w => w.trim()).filter(Boolean);
       q.kolommen = [...card.querySelectorAll(':scope > .pf-k-body .pf-e-kol')].map(r => ({ naam: r.querySelector('.e-kolnaam').value.trim(), woorden: delen(r.querySelector('.e-kolwoorden').value) }));

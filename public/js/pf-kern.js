@@ -64,14 +64,15 @@
   if (typeof module === 'object' && module.exports) module.exports = factory();
   else root.PfKern = factory();
 })(typeof self !== 'undefined' ? self : this, () => {
-  const TYPES = ['meerkeuze', 'juistfout', 'invullen', 'kort', 'rekenen', 'verbinden', 'ordenen', 'tabel', 'aanduiden', 'getallenas', 'markeren', 'tekenen', 'spreken', 'open', 'papier', 'bron', 'blad', 'sorteren', 'dictee'];
+  const TYPES = ['meerkeuze', 'juistfout', 'invullen', 'kort', 'rekenen', 'verbinden', 'ordenen', 'tabel', 'aanduiden', 'getallenas', 'markeren', 'tekenen', 'spreken', 'open', 'papier', 'bron', 'blad', 'sorteren', 'dictee', 'groeperen'];
   const NAMES = {
     meerkeuze: 'Meerkeuze', juistfout: 'Juist of fout', invullen: 'Invullen', kort: 'Kort antwoord', rekenen: 'Rekenvraag',
     verbinden: 'Verbinden', ordenen: 'Ordenen', tabel: 'Tabel invullen', aanduiden: 'Aanduiden op een afbeelding',
     getallenas: 'Getallenas', markeren: 'Woorden aanduiden', tekenen: 'Tekenen', spreken: 'Inspreken',
-    open: 'Open vraag', papier: 'Op papier', bron: 'Bron met deelvragen', blad: 'Blad uit je pdf', sorteren: 'Sorteren', dictee: 'Dictee',
+    open: 'Open vraag', papier: 'Op papier', bron: 'Bron met deelvragen', blad: 'Blad uit je pdf', sorteren: 'Sorteren', dictee: 'Dictee', groeperen: 'Groeperen',
   };
   // Wat de leerkracht zelf verbetert.
+  const MAX_GROEPEN = 5;
   const MANUEEL = new Set(['open', 'papier', 'tekenen', 'spreken']);
   const NIVEAUS = ['page', 'schildknaap', 'ridder'];
   const MAX_VRAGEN = 80;
@@ -350,6 +351,29 @@
   // Een item van ordenen als tekst (een prent zonder tekst wordt "prent 2").
   // Een kant van een paar bij verbinden als tekst (een prent zonder tekst: "prent 3").
   const paarTekst = (q, i, k) => (q.paren[i] && q.paren[i][k]) || `prent ${i + 1}`;
+  // ---------- Groeperen ----------
+  const kaartTekst = k => (typeof k === 'string' ? k : k.tekst || 'prent');
+  // Alle kaartjes op een rij, met de groep waar ze in horen.
+  const groepKaarten = q => q.groepen.flatMap((g, gi) => g.map(kaart => ({ kaart, groep: gi })));
+  // Welke kleur bij welke groep hoort, maakt niet uit: de beste koppeling telt (elke kleur bij hooguit één groep).
+  // groepen: hoeveel groepen precies goed samen staan (alle kaartjes in één kleur, en niets anders in die kleur); kaarten: hoeveel kaartjes in de kleur van hun groep.
+  function groepUitslag(q, a) {
+    const alle = groepKaarten(q);
+    const kl = alle.map((_, i) => (Array.isArray(a) && Number.isInteger(a[i]) ? a[i] : null));
+    const G = q.groepen.length;
+    const tel = Array.from({ length: G }, (_, g) => Array.from({ length: G }, (_, c) => alle.filter((k, i) => k.groep === g && kl[i] === c).length));
+    let best = 0;
+    const zoek = (g, vrij, som) => {
+      if (g === G) { best = Math.max(best, som); return; }
+      for (let c = 0; c < G; c++) if (vrij & (1 << c)) zoek(g + 1, vrij & ~(1 << c), som + tel[g][c]);
+    };
+    zoek(0, (1 << G) - 1, 0);
+    const groepen = q.groepen.filter((grp, g) => {
+      const c = kl[alle.findIndex(k => k.groep === g)];
+      return c !== null && alle.every((k, i) => (k.groep === g) === (kl[i] === c));
+    }).length;
+    return { groepen, kaarten: best, n: alle.length };
+  }
   const itemTekst = (q, i) => (typeof q.items[i] === 'string' ? q.items[i] : q.items[i] ? q.items[i].tekst || `prent ${i + 1}` : '?');
 
   // ---------- Dictee ----------
@@ -580,6 +604,21 @@
       if (out.items.length < 2) throw new Error(`${naam} heeft minstens twee dingen om te ordenen nodig.`);
       // Punten per juiste plaats (in plaats van alles juist).
       if (q.puntenPer === 'plaats') { out.puntenPer = 'plaats'; max = out.items.length; }
+    } else if (type === 'groeperen') {
+      // Kaartjes (tekst of prent) in 2 tot 5 groepen zonder naam. De leerling geeft wat samen hoort dezelfde kleur.
+      out.groepen = list(q.groepen, MAX_GROEPEN).map(g => list(g, 12).map(k => {
+        if (k && typeof k === 'object') {
+          const t = text(k.tekst, 120);
+          const b = beeldOf(k.beeld) || plaatsOf(k.beeld);
+          return b ? { tekst: t, beeld: b } : t;
+        }
+        return text(k, 120);
+      }).filter(k => k && (typeof k === 'string' || k.tekst || k.beeld))).filter(g => g.length);
+      if (out.groepen.length < 2) throw new Error(`${naam} heeft minstens twee groepen nodig.`);
+      const n = out.groepen.reduce((t, g) => t + g.length, 0);
+      if (n > 24) throw new Error(`${naam} heeft te veel kaartjes (hooguit 24).`);
+      if (q.puntenPer === 'kaart') out.puntenPer = 'kaart';
+      max = out.puntenPer === 'kaart' ? n : out.groepen.length;
     } else if (type === 'sorteren') {
       // Kolommen met de woorden die erin horen; extra = woorden die nergens horen (ze blijven liggen).
       const woord = w => text(w, 80);
@@ -1440,6 +1479,11 @@
       if (q.hoofdletters === false) v.hoofdletters = false;
       if (q.leestekens) v.leestekens = true;
       v.delen = q.delen.map(d => ({ zeg: d.zin ? `${d.tekst}. ${/[.!?…]$/.test(d.zin) ? d.zin : `${d.zin}.`} ${d.tekst}.` : d.tekst }));
+    } else if (q.type === 'groeperen') {
+      // De kaartjes door elkaar (per leerling), met hun eigen nummer i: het antwoord is per kaartje de kleur.
+      const alle = groepKaarten(q);
+      v.kaarten = (p || alle.map((_, i) => i)).map(i => { const k = alle[i].kaart; return { i, tekst: typeof k === 'string' ? k : k.tekst || '', beeld: typeof k === 'object' && k.beeld && !k.beeld.startsWith('#') ? img(k.beeld) : undefined }; });
+      v.kleuren = q.groepen.length;
     } else if (q.type === 'sorteren') {
       v.kolommen = q.kolommen.map(k => k.naam);
       v.woorden = sorteerWoorden(q);
@@ -1841,6 +1885,10 @@
       const got = q.delen.reduce((s, d, i) => s + dicteeDeel(q, d, Array.isArray(a) ? a[i] : ''), 0);
       return half((p * got) / dicteeMax(q));
     }
+    if (q.type === 'groeperen') {
+      const g = groepUitslag(q, a);
+      return half((p * (q.puntenPer === 'kaart' ? g.kaarten : g.groepen)) / (q.puntenPer === 'kaart' ? g.n : q.groepen.length));
+    }
     if (q.type === 'sorteren') {
       // Per juist gesorteerd woord; een woord dat nergens hoort maar toch in een kolom staat, kost er één.
       const woorden = sorteerWoorden(q);
@@ -1925,6 +1973,7 @@
     if (q.type === 'invullen' || q.type === 'tabel') return list(a, 60).map(v => str(v).slice(0, 200));
     if (q.type === 'kort' && q.vakjes) return list(a, q.vakjes).map(v => str(v).slice(0, 200));
     if (q.type === 'dictee') return list(a, MAX_DICTEE).slice(0, q.delen.length).map(v => (v === null || v === undefined ? '' : String(v).replace(/\s+/g, ' ').slice(0, 400)));
+    if (q.type === 'groeperen') return list(a, 24).map(v => (v !== null && v !== '' && Number.isInteger(Number(v)) && Number(v) >= 0 && Number(v) < q.groepen.length ? Number(v) : null));
     if (q.type === 'sorteren') return list(a, 60).map(v => (Number.isInteger(Number(v)) && v !== null && v !== '' && Number(v) >= 0 && Number(v) < q.kolommen.length ? Number(v) : null));
     if (q.type === 'verbinden' || q.type === 'ordenen') return list(a, 12).map(v => (v === null || v === '' ? null : Number.isInteger(Number(v)) ? Number(v) : null));
     if (q.type === 'rekenen') return a && typeof a === 'object' ? { werk: str(a.werk), uitkomst: str(a.uitkomst).slice(0, 200) } : null;
@@ -1986,6 +2035,7 @@
     if (q.type === 'verbinden') return q.paren.map((_, i) => `${paarTekst(q, i, 0)} = ${paarTekst(q, i, 1)}`).join(' · ');
     if (q.type === 'ordenen') return q.items.map((_, i) => itemTekst(q, i)).join(' → ');
     if (q.type === 'sorteren') return q.kolommen.map(k => `${k.naam}: ${k.woorden.join(', ')}`).join(' · ');
+    if (q.type === 'groeperen') return q.groepen.map(g => g.map(kaartTekst).join(', ')).join(' | ');
     if (q.type === 'dictee') return q.delen.map(d => d.tekst).join('\n');
     if (q.type === 'tabel') return q.rijen.slice(1).flat().map(celGat).filter(Boolean).map(m => alts(m.goed)[0]).join(' · ');
     if (q.type === 'getallenas') return asTekst(getal(q.antwoord), q.breuk);
@@ -2026,6 +2076,6 @@
     TYPES, NAMES, MANUEEL, NIVEAUS, MAX_BEELD, ROOSTER, validate, problemen, vragenVan, niveausVan, lijstVoor,
     maxVan, autoPunten, handPunten, totaal, viewOf, studentView, partsOf, getal, zelfde, canoniek, auto, schoon, oplossing, schud, alts, gapsOf,
     waarschuwingen, metNamen, MAX_ZONES, veldSleutel, vakGoed, vakDeel, handVeld, autoVeld, roosterAuto, roosterScore, roosterCellen, roosterTekst, roosterUitkomst,
-    heeftMarge, margeGoed, tijdSec, VRIJ_SOORT, margeTekst, getalTekst, puntLijnen, puntlijnGoed, cirkelsVan, cirkelGoed, straalCm, puntNaam, handWerk, SCHAAL, NAKIJK, FIGUREN, figurenVan, veelhoekPunten, veelhoekVolgorde, hoekpunten, rondom, rekenregel, formuleFout, lijnGoed, lijnCm, veelhoekCm, lijnHoek, lijnGraden, RICHTING, vakjesGoed, goedeAntwoorden, datumSleutel, paarTekst, zelfdeVorm, kleurDoel, kleurGoed, metEenheid, volgorde, SOORTEN, HAND_VELD, woordenVan, doelenVan, sorteerWoorden, sorteerKolommen, dicteeVergelijk, dicteeDeel, dicteeZinPunten, MAX_DICTEE, itemTekst, markeerModel, markeerSleutel, doelenInBron, markeerTel, markeerKort, markeerAntwoord, tekstWoorden, stukkenVan, zonderHaken, STIFTEN, PER, asTekst, MAX_AUDIO, celGat, vereenvoudigd, GEEN_ANTWOORD, AUTO_VELD, KLEUREN,
+    heeftMarge, margeGoed, tijdSec, VRIJ_SOORT, margeTekst, getalTekst, puntLijnen, puntlijnGoed, cirkelsVan, cirkelGoed, straalCm, puntNaam, handWerk, SCHAAL, NAKIJK, FIGUREN, figurenVan, veelhoekPunten, veelhoekVolgorde, hoekpunten, rondom, rekenregel, formuleFout, lijnGoed, lijnCm, veelhoekCm, lijnHoek, lijnGraden, RICHTING, vakjesGoed, goedeAntwoorden, datumSleutel, paarTekst, groepKaarten, groepUitslag, kaartTekst, MAX_GROEPEN, zelfdeVorm, kleurDoel, kleurGoed, metEenheid, volgorde, SOORTEN, HAND_VELD, woordenVan, doelenVan, sorteerWoorden, sorteerKolommen, dicteeVergelijk, dicteeDeel, dicteeZinPunten, MAX_DICTEE, itemTekst, markeerModel, markeerSleutel, doelenInBron, markeerTel, markeerKort, markeerAntwoord, tekstWoorden, stukkenVan, zonderHaken, STIFTEN, PER, asTekst, MAX_AUDIO, celGat, vereenvoudigd, GEEN_ANTWOORD, AUTO_VELD, KLEUREN,
   };
 });
