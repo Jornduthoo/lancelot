@@ -86,6 +86,7 @@
   // Vakjes die de computer verbetert met een getypt of gekozen antwoord.
   const AUTO_VELD = new Set(['tekst', 'kies', 'breuk', 'sleep', 'plek', 'lijn', 'puntlijn', 'cirkel', 'veelhoek', 'kleur']);
   const VRIJ_SOORT = new Set(['tekst', 'breuk', 'sleep']);
+  const RICHTING = ['evenwijdig', 'loodrecht', 'niet-loodrecht', 'niet-evenwijdig'];
   const KLEUREN = ['#ffffff', '#fff3b0', '#d8ecff', '#e4e4e4', '#ffd9d9'];
   // Wat de leerkracht verbetert op een blad (een rekenrooster alleen zonder sleutel).
   const HAND_VELD = new Set(['open', 'teken', 'rooster']);
@@ -1047,6 +1048,14 @@
           const m = getal(f.lengteMarge);
           veld.lengteMarge = m !== null && m >= 0 ? Math.min(5, Math.round(m * 100) / 100) : 0.2;
         }
+        // Een rechte met een voorwaarde (evenwijdig met r, loodrecht op j, ...): dan telt de richting tegenover een rechte op het blad (ref: twee punten).
+        const ref = f.ref && typeof f.ref === 'object' && f.ref.a && f.ref.b ? { a: { x: pct(f.ref.a.x), y: pct(f.ref.a.y) }, b: { x: pct(f.ref.b.x), y: pct(f.ref.b.y) } } : null;
+        if (RICHTING.includes(f.richting) && ref && Math.hypot(ref.a.x - ref.b.x, ref.a.y - ref.b.y) > 0.5) {
+          veld.richting = f.richting;
+          veld.ref = ref;
+          const hm = getal(f.hoekMarge);
+          veld.hoekMarge = hm !== null && hm > 0 ? Math.min(15, Math.round(hm * 10) / 10) : 3;
+        }
         veld.punten = punt(f.punten, 1);
       } else if (soort === 'teken' || soort === 'rooster') {
         if (soort === 'rooster') {
@@ -1250,7 +1259,7 @@
 
   // Een vakje dat de computer verbetert, maar nog geen juist antwoord heeft.
   const zonderSleutel = f => ((f.soort === 'tekst' || f.soort === 'breuk' || f.soort === 'sleep') && !alts(f.antwoord).length && !f.doorstreep)
-    || (f.soort === 'kies' && (f.opties.length < 2 || !f.opties.includes(f.antwoord))) || (f.soort === 'lijn' && !f.naar && !f.lengte)
+    || (f.soort === 'kies' && (f.opties.length < 2 || !f.opties.includes(f.antwoord))) || (f.soort === 'lijn' && !f.naar && !f.lengte && !f.richting)
     || (f.soort === 'rooster' && NAKIJK.includes(f.nakijk) && !roosterAuto(f))
     || (f.soort === 'puntlijn' && ((f.pt || []).length < 2 || (f.doorPunt === undefined && !(f.lijnen || []).length)))
     || (f.soort === 'cirkel' && !(f.cirkels || []).length)
@@ -1545,10 +1554,33 @@
   }
 
   // Verbinden: het eindpunt van de lijn ("x,y" in procent van het blad) dicht genoeg bij de juiste plek?
+  // De hoek (0 tot 90 graden) tussen de getrokken lijn en de rechte ref, in echte verhoudingen; null zonder lijn.
+  function lijnHoek(f, a, verhouding = 1.414) {
+    const m = /^(-?[\d.]+),(-?[\d.]+)$/.exec(String(a || ''));
+    if (!m || !f.ref) return null;
+    const u = [Number(m[1]) - (f.x + f.w / 2), (Number(m[2]) - (f.y + f.h / 2)) * verhouding];
+    const v = [f.ref.b.x - f.ref.a.x, (f.ref.b.y - f.ref.a.y) * verhouding];
+    const lu = Math.hypot(...u);
+    const lv = Math.hypot(...v);
+    if (lu < 0.5 || lv < 1e-9) return null;
+    return (Math.acos(Math.min(1, Math.abs(u[0] * v[0] + u[1] * v[1]) / (lu * lv))) * 180) / Math.PI;
+  }
   function lijnGoed(f, a, verhouding = 1.414, schaal = SCHAAL) {
-    if (f.lengte) {
-      const cm = lijnCm(f, a, verhouding, schaal);
-      return cm !== null && Math.abs(cm - f.lengte) <= (f.lengteMarge ?? 0.2) + 1e-9;
+    if (f.lengte || f.richting) {
+      if (f.lengte) {
+        const cm = lijnCm(f, a, verhouding, schaal);
+        if (!(cm !== null && Math.abs(cm - f.lengte) <= (f.lengteMarge ?? 0.2) + 1e-9)) return false;
+      }
+      if (f.richting) {
+        const h = lijnHoek(f, a, verhouding);
+        if (h === null) return false;
+        const mg = (f.hoekMarge ?? 3) + 1e-9;
+        const ev = h <= mg;
+        const lr = Math.abs(90 - h) <= mg;
+        // "Niet loodrecht snijden": ook niet evenwijdig (dan snijdt ze niet).
+        if (f.richting === 'evenwijdig' ? !ev : f.richting === 'loodrecht' ? !lr : f.richting === 'niet-loodrecht' ? ev || lr : ev) return false;
+      }
+      return true;
     }
     const m = /^(-?[\d.]+),(-?[\d.]+)$/.exec(String(a || ''));
     if (!m || !f.naar) return false;
@@ -1792,7 +1824,7 @@
   // "36 cm", maar geen "36 cm cm" als de eenheid al in het antwoord staat.
   const metEenheid = (a, e) => (e && !String(a || '').toLowerCase().includes(e.toLowerCase()) ? `${a} ${e}` : String(a || ''));
   // Het juiste antwoord per vakje van een blad: tekst, ✗ (aankruisen) of leeg.
-  const veldSleutel = q => q.velden.map(f => (f.soort === 'kruis' ? (f.antwoord ? (f.omkring ? '◯' : '✗') : '') : f.soort === 'plek' ? (f.doel ? '📍' : '') : f.soort === 'lijn' ? (f.lengte ? `${getalTekst(f.lengte)} cm (± ${getalTekst(f.lengteMarge ?? 0.2)})` : f.naar ? '↗' : '')
+  const veldSleutel = q => q.velden.map(f => (f.soort === 'kruis' ? (f.antwoord ? (f.omkring ? '◯' : '✗') : '') : f.soort === 'plek' ? (f.doel ? '📍' : '') : f.soort === 'lijn' ? ([f.richting ? { evenwijdig: 'evenwijdig met de rechte', loodrecht: 'loodrecht op de rechte', 'niet-loodrecht': 'snijdt de rechte niet loodrecht', 'niet-evenwijdig': 'niet evenwijdig met de rechte' }[f.richting] : '', f.lengte ? `${getalTekst(f.lengte)} cm (± ${getalTekst(f.lengteMarge ?? 0.2)})` : ''].filter(Boolean).join(', ') || (f.naar ? '↗' : ''))
     : GEEN_ANTWOORD.has(f.soort) || f.soort === 'klad' ? ''
     : f.doorstreep && !alts(f.antwoord).length ? 'leeg of doorstreept'
     : f.soort === 'tekst' && heeftMarge(f) ? metEenheid(margeTekst(f), f.eenheid)
@@ -1852,6 +1884,6 @@
     TYPES, NAMES, MANUEEL, NIVEAUS, MAX_BEELD, ROOSTER, validate, problemen, vragenVan, niveausVan, lijstVoor,
     maxVan, autoPunten, handPunten, totaal, viewOf, studentView, partsOf, getal, zelfde, canoniek, auto, schoon, oplossing, schud, alts, gapsOf,
     waarschuwingen, metNamen, MAX_ZONES, veldSleutel, vakGoed, vakDeel, handVeld, autoVeld, roosterAuto, roosterScore, roosterCellen, roosterTekst, roosterUitkomst,
-    heeftMarge, margeGoed, tijdSec, VRIJ_SOORT, margeTekst, getalTekst, puntLijnen, puntlijnGoed, cirkelsVan, cirkelGoed, straalCm, puntNaam, handWerk, SCHAAL, NAKIJK, FIGUREN, figurenVan, veelhoekPunten, veelhoekVolgorde, hoekpunten, rondom, rekenregel, formuleFout, lijnGoed, lijnCm, zelfdeVorm, kleurDoel, kleurGoed, metEenheid, volgorde, SOORTEN, HAND_VELD, woordenVan, doelenVan, sorteerWoorden, sorteerKolommen, dicteeVergelijk, dicteeDeel, dicteeZinPunten, MAX_DICTEE, itemTekst, markeerModel, markeerSleutel, doelenInBron, markeerTel, markeerKort, markeerAntwoord, tekstWoorden, stukkenVan, zonderHaken, STIFTEN, PER, asTekst, MAX_AUDIO, celGat, vereenvoudigd, GEEN_ANTWOORD, AUTO_VELD, KLEUREN,
+    heeftMarge, margeGoed, tijdSec, VRIJ_SOORT, margeTekst, getalTekst, puntLijnen, puntlijnGoed, cirkelsVan, cirkelGoed, straalCm, puntNaam, handWerk, SCHAAL, NAKIJK, FIGUREN, figurenVan, veelhoekPunten, veelhoekVolgorde, hoekpunten, rondom, rekenregel, formuleFout, lijnGoed, lijnCm, lijnHoek, RICHTING, zelfdeVorm, kleurDoel, kleurGoed, metEenheid, volgorde, SOORTEN, HAND_VELD, woordenVan, doelenVan, sorteerWoorden, sorteerKolommen, dicteeVergelijk, dicteeDeel, dicteeZinPunten, MAX_DICTEE, itemTekst, markeerModel, markeerSleutel, doelenInBron, markeerTel, markeerKort, markeerAntwoord, tekstWoorden, stukkenVan, zonderHaken, STIFTEN, PER, asTekst, MAX_AUDIO, celGat, vereenvoudigd, GEEN_ANTWOORD, AUTO_VELD, KLEUREN,
   };
 });

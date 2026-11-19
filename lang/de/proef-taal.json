@@ -233,5 +233,19 @@
  "Figuur wissen": "Figur löschen",
  "Met een figuur hier kijkt de computer of de leerling precies deze hoekpunten tekent. De soort hierboven telt dan niet.": "Mit einer Figur hier prüft der Computer, ob das Kind genau diese Eckpunkte zeichnet. Die Art oben zählt dann nicht.",
  "figuur van de sleutel": "Figur der Lösung",
- "de figuur van de sleutel": "die Figur der Lösung"
+ "de figuur van de sleutel": "die Figur der Lösung",
+ "Of: een rechte door het bolletje die": "Oder: eine Gerade durch den Punkt, die",
+ "(geen voorwaarde)": "(keine Bedingung)",
+ "evenwijdig is met een rechte": "parallel zu einer Geraden ist",
+ "loodrecht staat op een rechte": "senkrecht auf einer Geraden steht",
+ "een rechte niet loodrecht snijdt": "eine Gerade schneidet, aber nicht senkrecht",
+ "niet evenwijdig is met een rechte": "nicht parallel zu einer Geraden ist",
+ "Klik 2 punten op die rechte op het blad{0}:": "Klick 2 Punkte auf dieser Geraden auf dem Blatt an{0}:",
+ "Marge (graden)": "Toleranz (Grad)",
+ "De richting telt, niet waar de lijn eindigt. \"Niet loodrecht snijden\" is ook fout als de lijn evenwijdig loopt.": "Die Richtung zählt, nicht wo die Linie endet. „Nicht senkrecht schneiden“ ist auch falsch, wenn die Linie parallel läuft.",
+ "(✔ ingesteld, klik opnieuw om te veranderen)": "(✔ eingestellt, klick erneut zum Ändern)",
+ "evenwijdig met de rechte": "parallel zur Geraden",
+ "loodrecht op de rechte": "senkrecht zur Geraden",
+ "snijdt de rechte niet loodrecht": "schneidet die Gerade nicht senkrecht",
+ "niet evenwijdig met de rechte": "nicht parallel zur Geraden"
 }

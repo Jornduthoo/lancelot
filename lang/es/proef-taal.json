@@ -233,5 +233,19 @@
  "Figuur wissen": "Borrar la figura",
  "Met een figuur hier kijkt de computer of de leerling precies deze hoekpunten tekent. De soort hierboven telt dan niet.": "Con una figura aquí, el ordenador comprueba si el alumno dibuja exactamente estos vértices. El tipo de arriba no cuenta entonces.",
  "figuur van de sleutel": "figura de la clave",
- "de figuur van de sleutel": "la figura de la clave"
+ "de figuur van de sleutel": "la figura de la clave",
+ "Of: een rechte door het bolletje die": "O: una recta por el punto que",
+ "(geen voorwaarde)": "(sin condición)",
+ "evenwijdig is met een rechte": "es paralela a una recta",
+ "loodrecht staat op een rechte": "es perpendicular a una recta",
+ "een rechte niet loodrecht snijdt": "corta una recta, pero no perpendicularmente",
+ "niet evenwijdig is met een rechte": "no es paralela a una recta",
+ "Klik 2 punten op die rechte op het blad{0}:": "Haz clic en 2 puntos de esa recta en la hoja{0}:",
+ "Marge (graden)": "Margen (grados)",
+ "De richting telt, niet waar de lijn eindigt. \"Niet loodrecht snijden\" is ook fout als de lijn evenwijdig loopt.": "Cuenta la dirección, no dónde termina la línea. «No cortar perpendicularmente» también es incorrecto si la línea es paralela.",
+ "(✔ ingesteld, klik opnieuw om te veranderen)": "(✔ ajustado, haz clic de nuevo para cambiar)",
+ "evenwijdig met de rechte": "paralela a la recta",
+ "loodrecht op de rechte": "perpendicular a la recta",
+ "snijdt de rechte niet loodrecht": "corta la recta, no perpendicularmente",
+ "niet evenwijdig met de rechte": "no paralela a la recta"
 }

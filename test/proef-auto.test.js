@@ -313,3 +313,21 @@ test('veelhoek: precies deze figuur op deze plek (spiegelen, draaien)', () => {
   // Zonder vorm blijft het zoals vroeger: de soort telt.
   assert.deepEqual(K.vakDeel(q, ['', '0,0;2,0;2,2;0,2']), [0, 1]);
 });
+
+test('verbinden: een rechte door een punt met een voorwaarde (evenwijdig, loodrecht, niet loodrecht)', () => {
+  const ref = { a: { x: 10, y: 50 }, b: { x: 90, y: 50 } };
+  const q = blad([
+    { x: 49, y: 19, w: 2, h: 2, soort: 'lijn', richting: 'evenwijdig', ref },
+    { x: 49, y: 19, w: 2, h: 2, soort: 'lijn', richting: 'loodrecht', ref },
+    { x: 49, y: 19, w: 2, h: 2, soort: 'lijn', richting: 'niet-loodrecht', ref },
+    { x: 49, y: 19, w: 2, h: 2, soort: 'lijn', richting: 'loodrecht', ref: { a: { x: 1, y: 1 } } },
+  ]);
+  assert.equal(q.velden[0].hoekMarge, 3);
+  assert.equal(q.velden[3].richting, undefined);
+  // Elke lengte en elke kant op; alleen de richting telt.
+  assert.deepEqual(K.vakDeel(q, ['80,21', '50,40', '70,30', '']).slice(0, 3), [1, 1, 1]);
+  assert.deepEqual(K.vakDeel(q, ['20,40', '51,40', '50,45', '']).slice(0, 3), [0, 1, 0]);
+  // Evenwijdig is ook "niet loodrecht snijden" niet: ze snijdt dan niet.
+  assert.deepEqual(K.vakDeel(q, ['10,20', '70,30', '80,20', '']).slice(0, 3), [1, 0, 0]);
+  assert.deepEqual(K.veldSleutel(q).slice(0, 3), ['evenwijdig met de rechte', 'loodrecht op de rechte', 'snijdt de rechte niet loodrecht']);
+});

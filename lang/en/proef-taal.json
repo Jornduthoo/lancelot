@@ -233,5 +233,19 @@
  "Figuur wissen": "Clear figure",
  "Met een figuur hier kijkt de computer of de leerling precies deze hoekpunten tekent. De soort hierboven telt dan niet.": "With a figure here, the computer checks whether the pupil draws exactly these corners. The type above then does not count.",
  "figuur van de sleutel": "figure of the key",
- "de figuur van de sleutel": "the figure of the key"
+ "de figuur van de sleutel": "the figure of the key",
+ "Of: een rechte door het bolletje die": "Or: a straight line through the dot that",
+ "(geen voorwaarde)": "(no condition)",
+ "evenwijdig is met een rechte": "is parallel to a line",
+ "loodrecht staat op een rechte": "is perpendicular to a line",
+ "een rechte niet loodrecht snijdt": "crosses a line, but not at a right angle",
+ "niet evenwijdig is met een rechte": "is not parallel to a line",
+ "Klik 2 punten op die rechte op het blad{0}:": "Click 2 points on that line on the sheet{0}:",
+ "Marge (graden)": "Margin (degrees)",
+ "De richting telt, niet waar de lijn eindigt. \"Niet loodrecht snijden\" is ook fout als de lijn evenwijdig loopt.": "The direction counts, not where the line ends. \"Not crossing at a right angle\" is also wrong if the line is parallel.",
+ "(✔ ingesteld, klik opnieuw om te veranderen)": "(✔ set, click again to change)",
+ "evenwijdig met de rechte": "parallel to the line",
+ "loodrecht op de rechte": "perpendicular to the line",
+ "snijdt de rechte niet loodrecht": "crosses the line, not at a right angle",
+ "niet evenwijdig met de rechte": "not parallel to the line"
 }
