@@ -19,6 +19,25 @@ function slug(text, fallback) {
     .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 50) || fallback;
 }
 
+// Wat veranderde tegenover de vorige stand, krijgt een tijd: een bestand dat verplaatst werd (ook naar "zonder map"),
+// een map die bijkwam (mapTijd) of wegging (weg). Oude tijden (half jaar) vallen weg, zodat het bestand klein blijft.
+const BEWAAR = 183 * 864e5;
+function stempel(oud, meta, now) {
+  const tijd = { ...(oud.tijd || {}), ...(meta.tijd || {}) };
+  const mapTijd = { ...(oud.mapTijd || {}), ...(meta.mapTijd || {}) };
+  const weg = { ...(oud.weg || {}), ...(meta.weg || {}) };
+  for (const file of new Set([...Object.keys(oud.place || {}), ...Object.keys(meta.place || {})])) {
+    if ((oud.place || {})[file] !== meta.place[file]) tijd[file] = now;
+  }
+  const was = new Set(oud.folders || []), is = new Set(meta.folders);
+  for (const f of is) if (!was.has(f)) { mapTijd[f] = now; delete weg[f]; }
+  for (const f of was) if (!is.has(f)) { weg[f] = now; delete mapTijd[f]; }
+  const vers = (obj, houd) => Object.fromEntries(Object.entries(obj).filter(([k, t]) => Number.isFinite(t) && (houd(k) || now - t < BEWAAR)));
+  meta.tijd = vers(tijd, f => f in meta.place);
+  meta.mapTijd = vers(mapTijd, f => is.has(f));
+  meta.weg = vers(weg, () => false);
+}
+
 // kind: 'quiz', 'oefenblad', 'sessie' of 'proef' (een toets). checkFile, load, save, validate en list komen uit de module zelf.
 // dir mag ook een functie zijn (de resultaten: elke klas haar eigen map).
 function library({ kind, dir: map, checkFile, load, save, validate, list }) {
@@ -26,11 +45,14 @@ function library({ kind, dir: map, checkFile, load, save, validate, list }) {
   const META = () => path.join(dir(), '_mappen.json');
   const words = KINDS[kind];
 
+  // _mappen.json: de mappen (folders), de map van elk bestand (place), en wanneer dat veranderde (tijd per bestand,
+  // mapTijd/weg per map). Met die tijden voegt Mijn lesmap twee pc's per bestand samen: de laatste verplaatsing wint.
   function readMeta() {
     try {
       const meta = JSON.parse(fs.readFileSync(META(), 'utf8'));
-      const out = { folders: Array.isArray(meta.folders) ? meta.folders.filter(f => typeof f === 'string') : [], place: meta.place && typeof meta.place === 'object' ? meta.place : {} };
+      const out = { ...meta, folders: Array.isArray(meta.folders) ? meta.folders.filter(f => typeof f === 'string') : [], place: meta.place && typeof meta.place === 'object' ? meta.place : {} };
       if (Array.isArray(meta.gezien)) out.gezien = meta.gezien.filter(f => typeof f === 'string');
+      else delete out.gezien;
       return out;
     } catch {
       return { folders: [], place: {} };
@@ -38,6 +60,7 @@ function library({ kind, dir: map, checkFile, load, save, validate, list }) {
   }
 
   function writeMeta(meta) {
+    stempel(readMeta(), meta, Date.now());
     fs.mkdirSync(dir(), { recursive: true });
     fs.writeFileSync(META(), JSON.stringify(meta, null, 2) + '\n');
   }
