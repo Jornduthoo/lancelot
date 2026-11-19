@@ -223,4 +223,21 @@ function verwijderAfname(file) {
   fs.renameSync(p, path.join(bin, `afname-${Date.now()}-${file}`));
 }
 
-module.exports = { kregen, DIR, list, load, save, remove, parseAiText, parseSleutel, lib, bewaarAfname, laadAfname, afnames, cijfer, klaar, stand, verwijderAfname, K };
+// Wat de kopie van één leerling toont (proef-print.html?kopie): de toets met zijn antwoorden, punten en ✔/✘ per vakje.
+function kopieData(file, speler) {
+  const rec = laadAfname(file);
+  const s = rec.spelers[Number(speler)];
+  if (!s) throw new Error('Die leerling staat niet in deze afname.');
+  const punten = {};
+  const vakken = {};
+  for (const { id, q } of K.vragenVan(K.lijstVoor(rec.toets, s.niveau))) {
+    punten[id] = [kregen(s, id), K.maxVan(q)];
+    if (q.type === 'blad') {
+      const zelf = (s.vak && s.vak[id]) || {};
+      vakken[id] = { goed: K.vakGoed(q, s.antwoorden[id], zelf), zelf };
+    }
+  }
+  return { title: rec.title, datum: rec.datum, naam: s.naam, niveau: s.niveau, toets: rec.toets, antwoorden: s.antwoorden, punten, vakken, stand: stand(rec, s) };
+}
+
+module.exports = { kregen, DIR, list, load, save, remove, parseAiText, parseSleutel, lib, bewaarAfname, laadAfname, afnames, cijfer, klaar, stand, verwijderAfname, kopieData, K };

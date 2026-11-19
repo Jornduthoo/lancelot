@@ -970,6 +970,7 @@ let afname = null;
 function openAfname(file) {
   socket.emit('pf-afname', file, res => {
     if (res.error) return Ui.melding(res.error);
+    if (!afname || afname.file !== res.afname.file) kopieMelding = '';
     afname = res.afname;
     show('verbeter');
     renderAfname();
@@ -1072,6 +1073,7 @@ function renderAfname() {
   }
   note.classList.toggle('hidden', !(a.klaar && a.resultaten));
   $('v-klaar').textContent = a.klaar ? 'Excel opnieuw maken' : 'Klaar met verbeteren';
+  renderKopie();
 
   // Per vraag: wat jij verbetert (open, op papier, de bewerking), of alle vragen om ook de computer te corrigeren.
   const groepen = [];
@@ -1304,6 +1306,32 @@ $('v-klaar').addEventListener('click', async () => {
     afname.resultaten = res.resultaten;
     renderAfname();
   });
+});
+
+// Een kopie per leerling (pdf) in Mijn lesmap, in een mapje per kind: zo staat ze ook in OneDrive of Google Drive.
+// Aan: na Klaar met verbeteren vanzelf. Nu kopiëren: voor een toets die al klaar was, of na een aanpassing.
+let kopie = { aan: false, lesmap: '' };
+let kopieMelding = '';
+function renderKopie() {
+  const geenMap = !kopie.lesmap;
+  $('v-kopie').checked = kopie.aan && !geenMap;
+  $('v-kopie').disabled = geenMap;
+  $('v-kopie-nu').classList.toggle('hidden', geenMap || !kopie.aan || !afname || !afname.klaar);
+  const info = $('v-kopie-info');
+  if (geenMap) info.innerHTML = `<a href="/host?instellingen=lesmap&terug=${encodeURIComponent(location.pathname)}">Kies eerst Mijn lesmap</a>`;
+  else info.textContent = kopieMelding || (kopie.aan ? `In je lesmap › ${kopie.map} › een mapje per leerling.` : '');
+}
+function laadKopie() { socket.emit('pf-kopie-view', null, v => { if (v) { kopie = v; renderKopie(); } }); }
+laadKopie();
+$('v-kopie').addEventListener('change', e => socket.emit('pf-kopie-zet', e.target.checked, v => { if (v && !v.error) { kopie = v; kopieMelding = ''; renderKopie(); } }));
+$('v-kopie-nu').addEventListener('click', () => socket.emit('pf-kopie-nu', afname.file, r => { if (r && r.error) Ui.melding(r.error); }));
+socket.on('pf-kopie', r => {
+  if (!afname || r.file !== afname.file) return;
+  kopieMelding = r.bezig ? `📁 Bezig met ${r.aantal} kopieën…`
+    : r.gemaakt === 1 ? `✔ 1 kopie in je lesmap › ${kopie.map}.${r.fout ? ` ${r.fout}` : ''}`
+      : r.gemaakt ? `✔ ${r.gemaakt} kopieën in je lesmap › ${kopie.map}.${r.fout ? ` ${r.fout}` : ''}`
+      : `⚠ ${r.fout || 'Geen kopieën gemaakt.'}`;
+  renderKopie();
 });
 
 // Vanaf het startscherm: meteen een nieuwe toets maken.
