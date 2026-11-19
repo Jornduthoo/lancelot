@@ -64,6 +64,8 @@ function wanneer() {
   }
 }
 $('tk-wanneer').addEventListener('change', wanneer);
+// Uit de toetsenlijst met 📅 Plannen (?wanneer=later): de keuze "Later" staat al klaar, met morgen half negen.
+if (vraag.get('wanneer') === 'later') { $('tk-wanneer').value = 'later'; wanneer(); }
 function vanaf() {
   const w = $('tk-wanneer').value;
   if (w === 'les') return tk.lesStart;
