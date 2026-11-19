@@ -8,7 +8,7 @@ const PfEdit = (() => {
   const esc = PfPaper.esc;
   const nl = PfPaper.nl;
 
-  const TYPE_ICONS = { meerkeuze: '🔘', juistfout: '✔✖', invullen: '✏️', kort: '⌨️', rekenen: '🧮', verbinden: '🔗', ordenen: '↕️', tabel: '▦', aanduiden: '📍', getallenas: '📏', markeren: '🖍️', tekenen: '🎨', spreken: '🎙️', open: '💬', papier: '📝', blad: '📄', bron: '📜', sorteren: '🗂️' };
+  const TYPE_ICONS = { meerkeuze: '🔘', juistfout: '✔✖', invullen: '✏️', kort: '⌨️', rekenen: '🧮', verbinden: '🔗', ordenen: '↕️', tabel: '▦', aanduiden: '📍', getallenas: '📏', markeren: '🖍️', tekenen: '🎨', spreken: '🎙️', open: '💬', papier: '📝', blad: '📄', bron: '📜', sorteren: '🗂️', dictee: '🎧' };
 
   function alsBron(file) {
     return new Promise((resolve, reject) => {
@@ -52,7 +52,7 @@ const PfEdit = (() => {
   }
   const DEFAULT_VRAAG = {
     meerkeuze: '', juistfout: '', invullen: 'Vul aan.', kort: '', rekenen: '', verbinden: 'Verbind wat bij elkaar hoort.',
-    ordenen: 'Zet in de juiste volgorde.', sorteren: 'Sleep elk woord naar de juiste kolom.', tabel: 'Vul de tabel aan.', aanduiden: '', open: '', papier: '',
+    ordenen: 'Zet in de juiste volgorde.', sorteren: 'Sleep elk woord naar de juiste kolom.', dictee: 'Schrijf wat je hoort.', tabel: 'Vul de tabel aan.', aanduiden: '', open: '', papier: '',
     getallenas: 'Duid aan op de getallenas.', markeren: 'Duid alle werkwoorden aan.', tekenen: '', spreken: '',
   };
   const HELP = {
@@ -65,6 +65,7 @@ const PfEdit = (() => {
     rekenen: 'De leerling rekent de bewerking uit (in een rekenrooster of een tekstvak) en schrijft de uitkomst. De computer verbetert de uitkomst, jij de bewerking.',
     verbinden: 'Eén paar per regel: links = rechts. De rechterkant komt door elkaar.',
     ordenen: 'Zet de kaartjes in de juiste volgorde (met de pijltjes). Een kaartje is tekst, een prent of allebei. De leerling krijgt ze door elkaar.',
+    dictee: 'Typ de woorden of zinnen die de computer voorleest: de leerling hoort ze en ziet ze niet. Bij een woord kan je er een zin bij zetten (die wordt ook voorgelezen). Een ontbrekend, fout of extra woord is één fout.',
     sorteren: 'Geef elke kolom een naam en de woorden die erin horen. Woorden die nergens horen, blijven liggen. De leerling krijgt alle woorden door elkaar; de volgorde in een kolom maakt niet uit.',
     tabel: 'Eén rij per regel, cellen gescheiden door |. De eerste regel is de kop. Zet wat de leerling invult tussen [ ], bv. 2 | [2000]. Een keuzelijstje in een cel: {groter|kleiner|gelijk}, het eerste is het juiste.',
     aanduiden: 'Kies een afbeelding en klik waar het juiste antwoord ligt. Klik op een cirkel om hem weg te halen. Geef je de plekken een naam (bv. de provincies op een kaart), dan zet de leerling elke naam op de juiste plek.',
@@ -207,6 +208,12 @@ const PfEdit = (() => {
       veld(`<label>${q.type === 'invullen' || q.type === 'tabel' ? 'Opdracht' : 'Vraag'}<textarea class="e-vraag" rows="2" maxlength="1500"></textarea></label>`);
       card.querySelector('.e-vraag').value = q.vraag ?? DEFAULT_VRAAG[q.type] ?? '';
       body.appendChild(audioRij(card, q.audio));
+      // Een tekst die de computer voorleest (🎧 en 🐢 trager). De leerling hoort ze, maar ziet ze niet.
+      if (q.type !== 'dictee') {
+        const zeg = veld('<details class="pf-e-zeg"><summary class="small">🎧 Laten voorlezen door de computer</summary><label>Tekst om voor te lezen (de leerling hoort ze, maar ziet ze niet)<textarea class="e-voorlees" rows="2" maxlength="1000" placeholder="bijv. Luister goed: welk woord hoor je?"></textarea></label></details>');
+        zeg.querySelector('.e-voorlees').value = q.voorlees || '';
+        zeg.querySelector('details').open = !!q.voorlees;
+      }
       if (!['aanduiden', 'tekenen', 'markeren', 'getallenas', 'spreken'].includes(q.type)) body.appendChild(beeldRij(card, q.beeld, { nodig: q.beeldNodig, pagina: q.beeldPagina }));
       if (q.type === 'meerkeuze') {
         const box = veld('', 'pf-opties');
@@ -269,6 +276,39 @@ const PfEdit = (() => {
         add.querySelector('button').addEventListener('click', () => { box.appendChild(rij('')); cfg.preview(); });
         veld('<label>Punten<select class="e-puntenper"><option value="">alles juist</option><option value="plaats">per juiste plaats</option></select></label>');
         card.querySelector('.e-puntenper').value = q.puntenPer || '';
+      } else if (q.type === 'dictee') {
+        // Woorden (met eventueel een zin erbij) of hele zinnen. De computer leest ze voor.
+        veld(`<div class="row"><label>Wat schrijft de leerling?<select class="e-vorm"><option value="woorden">Woorden</option><option value="zinnen">Zinnen</option></select></label>
+          <label class="e-pz-label">Punten per zin<select class="e-pz"><option value="">1 punt per woord</option>${[1, 2, 3, 4, 5].map(n => `<option value="${n}">${n} (elke fout −1, nooit onder 0)</option>`).join('')}</select></label></div>`);
+        card.querySelector('.e-vorm').value = q.vorm || 'woorden';
+        card.querySelector('.e-pz').value = q.puntenZin || '';
+        const box = veld('', 'pf-e-delen');
+        const rij = d => {
+          const r = document.createElement('div');
+          r.className = 'pf-e-deel';
+          r.innerHTML = '<input class="e-deel" maxlength="300"><input class="e-deelzin" maxlength="300" placeholder="zin erbij (mag leeg), bv. Ik fiets naar school."><button type="button" class="secondary small-btn weg" title="Weghalen">✕</button>';
+          r.querySelector('.e-deel').value = (d && d.tekst) || (typeof d === 'string' ? d : '');
+          r.querySelector('.e-deelzin').value = (d && d.zin) || '';
+          r.querySelector('.weg').addEventListener('click', () => { if (box.children.length > 1) { r.remove(); cfg.preview(); } });
+          return r;
+        };
+        for (const d of q.delen && q.delen.length ? q.delen : [{}, {}]) box.appendChild(rij(d));
+        const add = veld('<button type="button" class="secondary small-btn e-deel-add"></button>');
+        add.querySelector('button').addEventListener('click', () => { if (box.children.length < PfKern.MAX_DICTEE) { box.appendChild(rij({})); vorm(); cfg.preview(); } });
+        veld('<label class="inline check"><input type="checkbox" class="e-hoofd"> Hoofdletters tellen mee</label> <label class="inline check"><input type="checkbox" class="e-lees"> Leestekens tellen mee</label>');
+        card.querySelector('.e-hoofd').checked = q.hoofdletters !== false;
+        card.querySelector('.e-lees').checked = !!q.leestekens;
+        const vorm = () => {
+          const zinnen = card.querySelector('.e-vorm').value === 'zinnen';
+          card.querySelector('.e-pz-label').classList.toggle('hidden', !zinnen);
+          add.querySelector('button').textContent = zinnen ? '+ zin' : '+ woord';
+          for (const r of box.children) {
+            r.querySelector('.e-deel').placeholder = zinnen ? 'de zin, bv. De kat slaapt op de mat.' : 'het woord, bv. fiets';
+            r.querySelector('.e-deelzin').classList.toggle('hidden', zinnen);
+          }
+        };
+        card.querySelector('.e-vorm').addEventListener('change', vorm);
+        vorm();
       } else if (q.type === 'sorteren') {
         // De kolommen: een naam en de woorden die erin horen.
         const box = veld('', 'pf-e-kols');
@@ -626,6 +666,8 @@ const PfEdit = (() => {
     }
     q.vraag = waarde(card, '.e-vraag');
     if (card.pfAudio) q.audio = card.pfAudio;
+    const zeg = waarde(card, '.e-voorlees').trim();
+    if (zeg) q.voorlees = zeg;
     const p = waarde(card, '.e-punten');
     if (p !== '') q.punten = p;
     const exact = card.querySelector(':scope > .pf-k-body .e-exact');
@@ -667,6 +709,13 @@ const PfEdit = (() => {
         return r.pfBeeld ? { tekst: t, beeld: r.pfBeeld } : t;
       });
       if (waarde(card, '.e-puntenper')) q.puntenPer = waarde(card, '.e-puntenper');
+    } else if (type === 'dictee') {
+      q.vorm = waarde(card, '.e-vorm') || 'woorden';
+      q.delen = [...card.querySelectorAll(':scope > .pf-k-body .pf-e-deel')].map(r => ({ tekst: r.querySelector('.e-deel').value.trim(), zin: q.vorm === 'woorden' ? r.querySelector('.e-deelzin').value.trim() : '' }))
+        .filter(d => d.tekst).map(d => (d.zin ? d : { tekst: d.tekst }));
+      if (!card.querySelector(':scope > .pf-k-body .e-hoofd').checked) q.hoofdletters = false;
+      if (card.querySelector(':scope > .pf-k-body .e-lees').checked) q.leestekens = true;
+      if (q.vorm === 'zinnen' && waarde(card, '.e-pz')) q.puntenZin = Number(waarde(card, '.e-pz'));
     } else if (type === 'sorteren') {
       const delen = v => v.split('/').map(w => w.trim()).filter(Boolean);
       q.kolommen = [...card.querySelectorAll(':scope > .pf-k-body .pf-e-kol')].map(r => ({ naam: r.querySelector('.e-kolnaam').value.trim(), woorden: delen(r.querySelector('.e-kolwoorden').value) }));

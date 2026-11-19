@@ -60,12 +60,12 @@
   if (typeof module === 'object' && module.exports) module.exports = factory();
   else root.PfKern = factory();
 })(typeof self !== 'undefined' ? self : this, () => {
-  const TYPES = ['meerkeuze', 'juistfout', 'invullen', 'kort', 'rekenen', 'verbinden', 'ordenen', 'tabel', 'aanduiden', 'getallenas', 'markeren', 'tekenen', 'spreken', 'open', 'papier', 'bron', 'blad', 'sorteren'];
+  const TYPES = ['meerkeuze', 'juistfout', 'invullen', 'kort', 'rekenen', 'verbinden', 'ordenen', 'tabel', 'aanduiden', 'getallenas', 'markeren', 'tekenen', 'spreken', 'open', 'papier', 'bron', 'blad', 'sorteren', 'dictee'];
   const NAMES = {
     meerkeuze: 'Meerkeuze', juistfout: 'Juist of fout', invullen: 'Invullen', kort: 'Kort antwoord', rekenen: 'Rekenvraag',
     verbinden: 'Verbinden', ordenen: 'Ordenen', tabel: 'Tabel invullen', aanduiden: 'Aanduiden op een afbeelding',
     getallenas: 'Getallenas', markeren: 'Woorden aanduiden', tekenen: 'Tekenen', spreken: 'Inspreken',
-    open: 'Open vraag', papier: 'Op papier', bron: 'Bron met deelvragen', blad: 'Blad uit je pdf', sorteren: 'Sorteren',
+    open: 'Open vraag', papier: 'Op papier', bron: 'Bron met deelvragen', blad: 'Blad uit je pdf', sorteren: 'Sorteren', dictee: 'Dictee',
   };
   // Wat de leerkracht zelf verbetert.
   const MANUEEL = new Set(['open', 'papier', 'tekenen', 'spreken']);
@@ -342,6 +342,49 @@
   // Een item van ordenen als tekst (een prent zonder tekst wordt "prent 2").
   const itemTekst = (q, i) => (typeof q.items[i] === 'string' ? q.items[i] : q.items[i] ? q.items[i].tekst || `prent ${i + 1}` : '?');
 
+  // ---------- Dictee ----------
+  const MAX_DICTEE = 30;
+  // De woorden van een zin, zoals we ze vergelijken: zonder hoofdletters of leestekens als die niet meetellen.
+  function dicteeWoorden(q, t) {
+    return String(t || '').trim().split(/\s+/).map(w => {
+      let x = w.normalize('NFC').replace(/[‘’]/g, "'").replace(/[“”„]/g, '"');
+      if (!q.leestekens) x = x.replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, '');
+      if (q.hoofdletters === false) x = x.toLocaleLowerCase('nl');
+      return x;
+    }).filter(Boolean);
+  }
+  const dicteeZinPunten = (q, d) => (q.vorm === 'zinnen' ? q.puntenZin || Math.max(1, dicteeWoorden(q, d.tekst).length) : 1);
+  const dicteeMax = q => q.delen.reduce((s, d) => s + dicteeZinPunten(q, d), 0);
+  // Woord per woord naast elkaar gelegd (zoals Levenshtein, maar met woorden): een fout, ontbrekend of extra woord is één fout.
+  // Geeft het aantal fouten en per geschreven woord of het goed is.
+  function dicteeVergelijk(q, juist, geschreven) {
+    const a = dicteeWoorden(q, juist);
+    const b = dicteeWoorden(q, geschreven);
+    const ruw = String(geschreven || '').trim().split(/\s+/).filter(Boolean);
+    const d = Array.from({ length: a.length + 1 }, (_, i) => [i, ...Array(b.length).fill(0)]);
+    for (let j = 1; j <= b.length; j++) d[0][j] = j;
+    for (let i = 1; i <= a.length; i++) for (let j = 1; j <= b.length; j++) d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    // Terug door de tabel: welke geschreven woorden kloppen.
+    const goed = Array(b.length).fill(false);
+    let i = a.length;
+    let j = b.length;
+    while (i > 0 && j > 0) {
+      if (a[i - 1] === b[j - 1] && d[i][j] === d[i - 1][j - 1]) { goed[j - 1] = true; i--; j--; } else if (d[i][j] === d[i - 1][j - 1] + 1) { i--; j--; } else if (d[i][j] === d[i][j - 1] + 1) j--; else i--;
+    }
+    // ruw en b hebben evenveel woorden, behalve als een "woord" alleen uit leestekens bestond.
+    const woorden = ruw.length === b.length ? ruw : b;
+    return { fouten: d[a.length][b.length], woorden: woorden.map((w, k) => [w, goed[k]]) };
+  }
+  // De punten van één deel: een woord juist of niet; een zin: zijn punten min één per fout, nooit onder nul.
+  function dicteeDeel(q, d, a) {
+    if (q.vorm !== 'zinnen') {
+      const w = dicteeWoorden(q, a);
+      return w.length === 1 && dicteeWoorden(q, d.tekst).join(' ') === w[0] ? 1 : 0;
+    }
+    if (!String(a || '').trim()) return 0;
+    return Math.max(0, dicteeZinPunten(q, d) - dicteeVergelijk(q, d.tekst, a).fouten);
+  }
+
   function cleanVraag(q, waar, deel, bronTekst) {
     if (!q || typeof q !== 'object') throw new Error(`${waar} is leeg.`);
     const type = TYPES.includes(q.type) ? q.type : null;
@@ -360,6 +403,9 @@
     if (q.exact === true) out.exact = true;
     const audio = audioOf(q.audio);
     if (audio) out.audio = audio;
+    // Een tekst die de computer voorleest (🎧): de leerling hoort ze, maar ziet ze niet.
+    const zeg = text(q.voorlees, 1000);
+    if (zeg && type !== 'bron' && type !== 'blad') out.voorlees = zeg;
     const naam = `${waar} (${NAMES[type].toLowerCase()})`;
     if (type === 'bron') {
       out.titel = text(q.titel || q.title, 120);
@@ -501,6 +547,18 @@
       if (!n) throw new Error(`${naam}: zet de woorden in hun kolom.`);
       if (sorteerWoorden(out).length > 60) throw new Error(`${naam} heeft te veel woorden (hooguit 60).`);
       max = n;
+    } else if (type === 'dictee') {
+      // Woorden: de leerling hoort een woord (en eventueel een zin ermee) en schrijft het woord. Zinnen: hij schrijft de hele zin.
+      out.vorm = q.vorm === 'zinnen' ? 'zinnen' : 'woorden';
+      out.delen = list(q.delen, MAX_DICTEE).map(d => (typeof d === 'string' ? { tekst: d } : d || {}))
+        .map(d => ({ tekst: text(d.tekst, out.vorm === 'zinnen' ? 300 : 80).replace(/\s+/g, ' '), zin: out.vorm === 'woorden' ? text(d.zin, 300).replace(/\s+/g, ' ') : '' }))
+        .filter(d => d.tekst).map(d => (d.zin ? d : { tekst: d.tekst }));
+      if (!out.delen.length) throw new Error(out.vorm === 'zinnen' ? `${naam}: typ de zinnen die voorgelezen worden.` : `${naam}: typ de woorden die voorgelezen worden.`);
+      if (q.hoofdletters === false) out.hoofdletters = false;
+      if (q.leestekens === true) out.leestekens = true;
+      const pz = Math.round(Number(q.puntenZin));
+      if (out.vorm === 'zinnen' && pz >= 1 && pz <= 20) out.puntenZin = pz;
+      max = dicteeMax(out);
     } else if (type === 'tabel') {
       out.rijen = list(q.rijen || q.rows, 20).map(r => list(r, 8).map(c => text(c, 120)));
       const breed = Math.max(0, ...out.rijen.map(r => r.length));
@@ -1125,6 +1183,7 @@
     if (q.vraag) v.vraag = q.vraag;
     if (q.beeld && !q.beeld.startsWith('#')) v.beeld = img(q.beeld);
     if (q.audio) v.audio = img(q.audio);
+    if (q.voorlees) v.voorlees = q.voorlees;
     const p = perms[id];
     if (q.type === 'meerkeuze') {
       const order = p || q.opties.map((_, i) => i);
@@ -1146,6 +1205,12 @@
       v.rechts = (p || q.paren.map((_, i) => i)).map(i => q.paren[i][1]);
     } else if (q.type === 'ordenen') {
       v.items = (p || q.items.map((_, i) => i)).map(i => (typeof q.items[i] === 'string' ? q.items[i] : { tekst: q.items[i].tekst, beeld: q.items[i].beeld && !q.items[i].beeld.startsWith('#') ? img(q.items[i].beeld) : undefined }));
+    } else if (q.type === 'dictee') {
+      // De tekst gaat mee om voor te lezen (niet zichtbaar op het scherm).
+      v.vorm = q.vorm;
+      if (q.hoofdletters === false) v.hoofdletters = false;
+      if (q.leestekens) v.leestekens = true;
+      v.delen = q.delen.map(d => ({ zeg: d.zin ? `${d.tekst}. ${/[.!?…]$/.test(d.zin) ? d.zin : `${d.zin}.`} ${d.tekst}.` : d.tekst }));
     } else if (q.type === 'sorteren') {
       v.kolommen = q.kolommen.map(k => k.naam);
       v.woorden = sorteerWoorden(q);
@@ -1361,6 +1426,10 @@
     }
     if (q.type === 'ordenen' && q.puntenPer === 'plaats') return Array.isArray(a) && a.length === q.items.length ? half((p * a.filter((x, i) => x === i).length) / q.items.length) : 0;
     if (q.type === 'ordenen') return Array.isArray(a) && a.length === q.items.length && a.every((x, i) => x === i) ? p : 0;
+    if (q.type === 'dictee') {
+      const got = q.delen.reduce((s, d, i) => s + dicteeDeel(q, d, Array.isArray(a) ? a[i] : ''), 0);
+      return half((p * got) / dicteeMax(q));
+    }
     if (q.type === 'sorteren') {
       // Per juist gesorteerd woord; een woord dat nergens hoort maar toch in een kolom staat, kost er één.
       const woorden = sorteerWoorden(q);
@@ -1442,6 +1511,7 @@
     if (q.type === 'meerkeuze') return Array.isArray(a) ? a.slice(0, 8).map(Number).filter(Number.isInteger) : Number.isInteger(Number(a)) && a !== '' ? Number(a) : null;
     if (q.type === 'juistfout') return a === 'J' || a === 'F' ? a : null;
     if (q.type === 'invullen' || q.type === 'tabel') return list(a, 60).map(v => str(v).slice(0, 200));
+    if (q.type === 'dictee') return list(a, MAX_DICTEE).slice(0, q.delen.length).map(v => (v === null || v === undefined ? '' : String(v).replace(/\s+/g, ' ').slice(0, 400)));
     if (q.type === 'sorteren') return list(a, 60).map(v => (Number.isInteger(Number(v)) && v !== null && v !== '' && Number(v) >= 0 && Number(v) < q.kolommen.length ? Number(v) : null));
     if (q.type === 'verbinden' || q.type === 'ordenen') return list(a, 12).map(v => (v === null || v === '' ? null : Number.isInteger(Number(v)) ? Number(v) : null));
     if (q.type === 'rekenen') return a && typeof a === 'object' ? { werk: str(a.werk), uitkomst: str(a.uitkomst).slice(0, 200) } : null;
@@ -1498,6 +1568,7 @@
     if (q.type === 'verbinden') return q.paren.map(p => `${p[0]} = ${p[1]}`).join(' · ');
     if (q.type === 'ordenen') return q.items.map((_, i) => itemTekst(q, i)).join(' → ');
     if (q.type === 'sorteren') return q.kolommen.map(k => `${k.naam}: ${k.woorden.join(', ')}`).join(' · ');
+    if (q.type === 'dictee') return q.delen.map(d => d.tekst).join('\n');
     if (q.type === 'tabel') return q.rijen.slice(1).flat().map(celGat).filter(Boolean).map(m => alts(m.goed)[0]).join(' · ');
     if (q.type === 'getallenas') return asTekst(getal(q.antwoord), q.breuk);
     if (q.type === 'markeren') return markeerOplossing(q);
@@ -1532,6 +1603,6 @@
     TYPES, NAMES, MANUEEL, NIVEAUS, MAX_BEELD, ROOSTER, validate, problemen, vragenVan, niveausVan, lijstVoor,
     maxVan, autoPunten, handPunten, totaal, viewOf, studentView, partsOf, getal, zelfde, canoniek, auto, schoon, oplossing, schud, alts, gapsOf,
     waarschuwingen, metNamen, MAX_ZONES, veldSleutel, vakGoed, vakDeel, handVeld, autoVeld, roosterAuto, roosterScore, roosterCellen, roosterTekst, roosterUitkomst,
-    heeftMarge, margeGoed, margeTekst, getalTekst, puntLijnen, puntlijnGoed, cirkelsVan, cirkelGoed, straalCm, puntNaam, handWerk, SCHAAL, NAKIJK, FIGUREN, figurenVan, veelhoekPunten, hoekpunten, rekenregel, formuleFout, lijnGoed, metEenheid, volgorde, SOORTEN, HAND_VELD, woordenVan, doelenVan, sorteerWoorden, sorteerKolommen, itemTekst, markeerModel, markeerSleutel, doelenInBron, markeerTel, markeerKort, markeerAntwoord, tekstWoorden, stukkenVan, zonderHaken, STIFTEN, PER, asTekst, MAX_AUDIO, celGat, vereenvoudigd, GEEN_ANTWOORD, AUTO_VELD, KLEUREN,
+    heeftMarge, margeGoed, margeTekst, getalTekst, puntLijnen, puntlijnGoed, cirkelsVan, cirkelGoed, straalCm, puntNaam, handWerk, SCHAAL, NAKIJK, FIGUREN, figurenVan, veelhoekPunten, hoekpunten, rekenregel, formuleFout, lijnGoed, metEenheid, volgorde, SOORTEN, HAND_VELD, woordenVan, doelenVan, sorteerWoorden, sorteerKolommen, dicteeVergelijk, dicteeDeel, dicteeZinPunten, MAX_DICTEE, itemTekst, markeerModel, markeerSleutel, doelenInBron, markeerTel, markeerKort, markeerAntwoord, tekstWoorden, stukkenVan, zonderHaken, STIFTEN, PER, asTekst, MAX_AUDIO, celGat, vereenvoudigd, GEEN_ANTWOORD, AUTO_VELD, KLEUREN,
   };
 });

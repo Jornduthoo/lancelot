@@ -23,6 +23,30 @@ const PfPaper = (() => {
     return o;
   }
 
+  // 🎧 en 🐢 (trager) voor een tekst die alleen voorgelezen wordt. De tekst zelf staat in o.said, niet op het scherm.
+  const zegKnoppen = i => (typeof Voorlees !== 'undefined' && Voorlees.ok
+    ? `<span class="pf-zeg"><button type="button" class="pf-zeg-knop" data-zeg="${i}" title="Luister" aria-label="Luister">🎧</button><button type="button" class="pf-zeg-knop traag" data-zeg="${i}" data-traag="1" title="Trager voorlezen" aria-label="Trager voorlezen">🐢</button></span>`
+    : '<span class="pf-zeg muted small">(voorlezen werkt niet in deze browser)</span>');
+
+  // Dictee: per woord of zin 🎧 en een lijn om te schrijven. Bij het verbeteren staan de foute woorden in het rood.
+  function dicteeHtml(q, a, o, live, print) {
+    const zinnen = q.vorm === 'zinnen';
+    const ant = Array.isArray(a) ? a : [];
+    if (print) return `<p class="pf-tip">${zinnen ? 'De leerkracht leest de zinnen voor. Schrijf elke zin op een lijn.' : 'De leerkracht leest de woorden voor. Schrijf elk woord op een lijn.'}</p><ol class="pf-dictee-print ${zinnen ? 'zinnen' : 'woorden'}">${q.delen.map((_, i) => `<li><b class="pf-dictee-nr">${i + 1}.</b><span class="pf-dictee-lijn"></span></li>`).join('')}</ol>`;
+    const sl = o.sleutel && typeof o.sleutel[q.id] === 'string' && typeof PfKern !== 'undefined' ? o.sleutel[q.id].split('\n') : null;
+    const gekleurd = i => {
+      const t = String(ant[i] || '').trim();
+      if (!t) return '<span class="muted">—</span>';
+      if (!sl || sl[i] === undefined) return esc(t);
+      if (!zinnen) return `<span class="${PfKern.dicteeDeel(q, { tekst: sl[i] }, t) ? 'pf-d-goed' : 'pf-d-fout'}">${esc(t)}</span>`;
+      return PfKern.dicteeVergelijk(q, sl[i], t).woorden.map(([w, goed]) => `<span class="${goed ? 'pf-d-goed' : 'pf-d-fout'}">${esc(w)}</span>`).join(' ');
+    };
+    const tip = live ? `<p class="pf-tip">${zinnen ? 'Tik op 🎧 en schrijf de zin die je hoort. Met 🐢 klinkt het trager.' : 'Tik op 🎧 en schrijf het woord dat je hoort. Met 🐢 klinkt het trager.'}</p>` : '';
+    return `${tip}<ol class="pf-dictee-lijst ${zinnen ? 'zinnen' : 'woorden'}">${q.delen.map((d, i) => `<li><b class="pf-dictee-nr">${i + 1}.</b>${live ? zegKnoppen(o.said.push(d.zeg) - 1) : ''}${live
+      ? `<input class="ob-field pf-in pf-dictee-in" data-i="${i}" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-label="${zinnen ? `Zin ${i + 1}` : `Woord ${i + 1}`}" value="${esc(ant[i] || '')}">`
+      : `<span class="pf-dictee-ant">${gekleurd(i)}</span>`}${sl && sl[i] !== undefined && !live ? `<small class="pf-dictee-juist">✔ ${esc(sl[i])}</small>` : ''}</li>`).join('')}</ol>`;
+  }
+
   function vraagHtml(q, nr, o) {
     const a = o.answers[q.id];
     const live = o.mode === 'live';
@@ -32,11 +56,14 @@ const PfPaper = (() => {
     const say = o.voorlees && !print && typeof Voorlees !== 'undefined' && Voorlees.ok
       ? `<button type="button" class="ob-say pf-say" data-say="${o.said.push([q.vraag, ...(q.opties || []).map((x, i) => `${L[i]}: ${x.tekst || ''}`)].filter(Boolean).join('\n')) - 1}" title="Lees voor" aria-label="Lees voor">🔊</button>` : '';
     const luister = q.audio && !print ? `<button type="button" class="pf-luister" data-src="${esc(q.audio)}" title="Luister naar de uitleg" aria-label="Luister">🎧</button>` : '';
+    // Een tekst om voor te lezen: de leerling hoort ze (🎧, of trager met 🐢) maar ziet ze niet. Op papier leest de leerkracht voor.
+    const zeg = q.voorlees && !print ? zegKnoppen(o.said.push(q.voorlees) - 1) : '';
     const got = o.punten && o.punten[q.id];
     let h = `<div class="pf-q pf-${q.type}" data-id="${esc(q.id)}" data-type="${q.type}">
-      <h3><span class="pf-nr">${esc(nr)}</span>${say}${luister}<span class="pf-vraag">${esc(q.vraag || '').replace(/\n/g, '<br>')}</span>
+      <h3><span class="pf-nr">${esc(nr)}</span>${say}${luister}${zeg}<span class="pf-vraag">${esc(q.vraag || '').replace(/\n/g, '<br>')}</span>
       <small class="pf-ptn">${got ? `<b>${nl(got[0] ?? '?')}</b> / ${nl(got[1])}` : `/ ${nl(q.punten)}`}</small></h3>`;
     if (q.type === 'blad') return `${h}${bladHtml(q, a, o)}</div>`;
+    if (q.voorlees && print) h += '<p class="pf-tip">🎧 De leerkracht leest dit voor.</p>';
     if (q.beeld && q.type !== 'aanduiden') h += `<img class="pf-beeld" src="${esc(q.beeld)}" alt="" loading="lazy">`;
     if (q.type === 'meerkeuze') {
       const gekozen = new Set([].concat(a ?? []).map(String));
@@ -94,6 +121,8 @@ const PfPaper = (() => {
         : `<p class="pf-tip">${prenten ? 'Sleep de kaartjes in de juiste volgorde (of gebruik de pijltjes).' : 'Zet in de juiste volgorde met de pijltjes.'}</p><ol class="pf-orden${prenten ? ' met-beeld' : ''}">${order.map(i => `<li data-i="${i}">${live ? '<span class="pf-greep" aria-hidden="true">⠿</span>' : ''}${item(q.items[i])}${live ? (prenten ? '<span class="pf-orden-knoppen"><button type="button" class="secondary pf-op" aria-label="Naar voren">◀</button><button type="button" class="secondary pf-neer" aria-label="Naar achteren">▶</button></span>' : '<button type="button" class="secondary pf-op" aria-label="Omhoog">▲</button><button type="button" class="secondary pf-neer" aria-label="Omlaag">▼</button>') : ''}</li>`).join('')}</ol>`;
     } else if (q.type === 'sorteren') {
       h += sorteerHtml(q, a, live, print);
+    } else if (q.type === 'dictee') {
+      h += dicteeHtml(q, a, o, live, print);
     } else if (q.type === 'tabel') {
       h += `<div class="pf-tabel-wrap"><table class="pf-tabel">${q.rijen.map((r, ri) => `<tr>${r.map(c => {
         const tag = ri === 0 ? 'th' : 'td';
@@ -148,7 +177,7 @@ const PfPaper = (() => {
     } else if (q.type === 'papier') {
       h += print ? '<div class="pf-werkvak groot"></div>' : '<p class="pf-papier">📝 Maak deze opdracht op je blad. Je leerkracht verbetert ze.</p>';
     }
-    if (o.sleutel && !Array.isArray(o.sleutel[q.id]) && String(o.sleutel[q.id] || '').trim()) h += `<p class="pf-sleutel">✔ ${esc(o.sleutel[q.id]).replace(/\n/g, '<br>')}</p>`;
+    if (o.sleutel && q.type !== 'dictee' && !Array.isArray(o.sleutel[q.id]) && String(o.sleutel[q.id] || '').trim()) h += `<p class="pf-sleutel">✔ ${esc(o.sleutel[q.id]).replace(/\n/g, '<br>')}</p>`;
     return `${h}</div>`;
   }
 
@@ -561,6 +590,8 @@ const PfPaper = (() => {
       box.addEventListener('click', e => {
         const b = e.target.closest('.pf-say');
         if (b) Voorlees.speak(box.pfSaid[b.dataset.say], b);
+        const z = e.target.closest('.pf-zeg-knop');
+        if (z) Voorlees.speak(box.pfSaid[z.dataset.zeg], z, { traag: !!z.dataset.traag });
       });
     }
     if (!box.pfLuisterWired) {
@@ -772,6 +803,7 @@ const PfPaper = (() => {
     }
     if (type === 'verbinden') return [...el.querySelectorAll('.pf-sel')].map(s => (s.value === '' ? null : Number(s.value)));
     if (type === 'ordenen') return [...el.querySelectorAll('.pf-orden li')].map(li => Number(li.dataset.i));
+    if (type === 'dictee') return [...el.querySelectorAll('.pf-dictee-in')].map(i => i.value);
     if (type === 'sorteren') {
       const out = [...el.querySelectorAll('.pf-sorteer-w')].map(() => null);
       for (const b of el.querySelectorAll('.pf-sorteer-w')) { const kol = b.closest('.pf-sorteer-kol'); out[Number(b.dataset.i)] = kol ? Number(kol.dataset.k) : null; }

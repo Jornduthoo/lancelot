@@ -12,7 +12,8 @@ const Voorlees = (() => {
     const score = v => {
       const lang = (v.lang || '').replace('_', '-').toLowerCase();
       if (!lang.startsWith('nl')) return -1;
-      return (lang === 'nl-be' ? 20 : lang === 'nl-nl' ? 10 : 5) + (v.localService ? 2 : 0) + (/natural|online/i.test(v.name) ? 1 : 0);
+      // Bekende goede Nederlandse stemmen (Google Nederlands, Microsoft Frank) iets voor.
+      return (lang === 'nl-be' ? 20 : lang === 'nl-nl' ? 10 : 5) + (v.localService ? 2 : 0) + (/natural|online/i.test(v.name) ? 1 : 0) + (/google|frank/i.test(v.name) ? 1 : 0);
     };
     voice = all.map(v => [score(v), v]).filter(([s]) => s >= 0).sort((a, b) => b[0] - a[0]).map(([, v]) => v)[0] || null;
   }
@@ -34,8 +35,8 @@ const Voorlees = (() => {
       .map(s => s.trim()).filter(s => /[\p{L}\p{N}]/u.test(s));
   }
 
-  // Nog eens klikken op dezelfde knop stopt het voorlezen.
-  function speak(text, btn) {
+  // Nog eens klikken op dezelfde knop stopt het voorlezen. traag: trager voorlezen (bv. bij een dictee).
+  function speak(text, btn, { traag = false } = {}) {
     if (!ok) return;
     const again = btn && busy === btn;
     stop();
@@ -48,7 +49,7 @@ const Voorlees = (() => {
       const u = new SpeechSynthesisUtterance(part);
       u.lang = voice ? voice.lang : 'nl-BE';
       if (voice) u.voice = voice;
-      u.rate = .9;
+      u.rate = traag ? .65 : .9;
       if (i === parts.length - 1) u.onend = u.onerror = () => { if (busy === btn) stop(); };
       synth.speak(u);
     });

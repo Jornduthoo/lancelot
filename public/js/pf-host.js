@@ -639,7 +639,7 @@ function openEditor(t, file) {
 // Vraag toevoegen: in groepjes, met een icoon en een zinnetje, zodat je meteen ziet wat elke soort doet.
 const ADD_GROEPEN = [
   ['Kiezen', [['meerkeuze', 'Eén of meer juiste keuzes'], ['juistfout', 'Juist of fout'], ['verbinden', 'Wat hoort bij elkaar?'], ['ordenen', 'In de juiste volgorde'], ['sorteren', 'Woorden in de juiste kolom']]],
-  ['Typen', [['invullen', 'Gaten of keuzelijstjes in een tekst'], ['kort', 'Een woord of getal'], ['rekenen', 'Bewerking en uitkomst'], ['tabel', 'Cellen in een tabel']]],
+  ['Typen', [['invullen', 'Gaten of keuzelijstjes in een tekst'], ['kort', 'Een woord of getal'], ['rekenen', 'Bewerking en uitkomst'], ['tabel', 'Cellen in een tabel'], ['dictee', 'Woorden of zinnen die voorgelezen worden']]],
   ['Aanduiden', [['aanduiden', 'Een plek of namen op een afbeelding'], ['getallenas', 'Een getal op de getallenas'], ['markeren', 'Woorden in een tekst']]],
   ['Maken', [['tekenen', 'Tekenen, op een afbeelding of leeg'], ['spreken', 'Een antwoord inspreken'], ['open', 'Een open vraag'], ['papier', 'Een opdracht op papier']]],
   ['Meer', [['bron', 'Een tekst of prent met deelvragen']]],
@@ -1029,6 +1029,13 @@ function antwoordTekst(q, a) {
           : f.soort === 'klad' && a[k] ? `<p class="muted"><b>Kladruimte (telt niet mee):</b> ${f.vorm === 'tekenen' ? `<img class="pf-vak-tekening" src="${esc(a[k])}" alt="Tekening">` : esc(a[k]).replace(/\n/g, '<br>')}</p>` : '')).join('');
     return rijen || esc(antwoordKort(q, a));
   }
+  // Dictee: wat de leerling schreef, met de foute woorden in het rood.
+  if (q.type === 'dictee' && Array.isArray(a)) return `<ol class="pf-dictee-kort">${q.delen.map((d, i) => {
+    const t = String(a[i] || '').trim();
+    if (!t) return '<li><em class="muted">leeg</em></li>';
+    if (q.vorm !== 'zinnen') return `<li><span class="${PfKern.dicteeDeel(q, d, t) ? 'pf-d-goed' : 'pf-d-fout'}">${esc(t)}</span></li>`;
+    return `<li>${PfKern.dicteeVergelijk(q, d.tekst, t).woorden.map(([w, goed]) => `<span class="${goed ? 'pf-d-goed' : 'pf-d-fout'}">${esc(w)}</span>`).join(' ')}</li>`;
+  }).join('')}</ol>`;
   if (typeof a === 'object') return esc(antwoordKort(q, a));
   return esc(String(a)).replace(/\n/g, '<br>');
 }
@@ -1059,6 +1066,7 @@ function antwoordKort(q, a) {
   if (q.type === 'verbinden') return q.paren.map((p, k) => `${p[0]} = ${a[k] === null || a[k] === undefined ? '…' : q.paren[a[k]][1]}`).join(' · ');
   if (q.type === 'ordenen') return a.map(i => PfKern.itemTekst(q, i)).join(' → ');
   if (q.type === 'sorteren') { const w = PfKern.sorteerWoorden(q); return q.kolommen.map((k, i) => `${k.naam}: ${w.filter((_, j) => a[j] === i).join(', ') || '…'}`).join(' · '); }
+  if (q.type === 'dictee') return a.map((x, i) => `${i + 1}. ${x || '…'}`).join(' · ');
   if (q.type === 'aanduiden') return PfKern.metNamen(q) ? 'namen op de afbeelding' : 'een plek op de afbeelding';
   if (q.type === 'getallenas') return PfKern.asTekst(Number(a), q.breuk);
   if (q.type === 'markeren') return PfKern.markeerKort(q, a);
