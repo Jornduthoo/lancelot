@@ -25,6 +25,7 @@ async function laad(){
     $('ploeg').innerHTML = POP.ploegHtml();
   }
   teken();
+  tekenVragen();
 }
 
 function teken(){
@@ -212,6 +213,44 @@ $('stuur').onclick = async () => {
   } catch (e) {
     $('stuurstatus').textContent = 'Lukte niet: ' + e.message;
   } finally { $('stuur').disabled = false; }
+};
+// --- Zelf vragen opstellen voor Eli (supporters, 19/11) ---
+$('vr-vak').innerHTML = Object.entries(V).map(([k, v]) => `<option value="${k}">${v.icoon} ${esc(v.naam || v.kort)}</option>`).join('');
+const BAAS = ['papa', 'mama'];
+function tekenVragen(){
+  const lijst = (D.stand.vragen || []);
+  const ik = (D.ik || s.naam).toLowerCase();
+  $('vr-lijst').innerHTML = lijst.length ? '' : '<p class="muted klein">Nog geen vragen. Wees de eerste!</p>';
+  for (const q of lijst) {
+    const el = document.createElement('div'); el.className = 'vr-item';
+    const a = (q.antwoorden || [])[0];
+    const sc = a ? ['❌ nog niet', '🤏 half', '✅ juist'][a.score] || '' : '';
+    el.innerHTML = `<div class="muted klein">${(V[q.vak] || {}).icoon || ''} ${esc((V[q.vak] || {}).kort || '')} · van ${esc(naamVan(q.van))}</div><b></b><details><summary>Het juiste antwoord</summary><div class="vr-model"></div></details>
+      ${a ? `<div class="vr-ant"><span class="muted klein">Eli antwoordde ${new Date(a.op).toLocaleDateString('nl-BE', { weekday:'short', day:'numeric', month:'numeric' })} · zelf: ${sc}</span><p></p></div>` : '<p class="muted klein">Eli heeft deze vraag nog niet gemaakt.</p>'}`;
+    el.querySelector('b').textContent = q.vraag;
+    el.querySelector('.vr-model').textContent = q.model;
+    if (a) el.querySelector('.vr-ant p').textContent = '“' + a.tekst + '”';
+    if (q.van === ik || BAAS.includes(ik)) {
+      const w = document.createElement('button'); w.className = 'link klein'; w.textContent = '🗑️ Verwijder';
+      w.onclick = async () => { w.disabled = true; try { await rpc('eli_vraag_weg', { p_naam: s.naam, p_pin: s.pin, p_id: q.id }); D = await rpc('eli_ouder', { p_naam: s.naam, p_pin: s.pin }) || D; tekenVragen(); } catch (e) { toast('Lukte niet: ' + e.message); w.disabled = false; } };
+      el.append(w);
+    }
+    $('vr-lijst').append(el);
+  }
+}
+$('vr-stuur').onclick = async () => {
+  const vraag = $('vr-vraag').value.trim(), model = $('vr-model').value.trim();
+  if (vraag.length < 5) { toast('Schrijf eerst een vraag.'); return $('vr-vraag').focus(); }
+  if (model.length < 2) { toast('Schrijf ook het juiste antwoord, zodat Eli kan vergelijken.'); return $('vr-model').focus(); }
+  $('vr-stuur').disabled = true; $('vr-status').textContent = 'Bewaren…';
+  try {
+    const ok = await rpc('eli_vraag', { p_naam: s.naam, p_pin: s.pin, p_vak: $('vr-vak').value, p_vraag: vraag, p_model: model });
+    if (ok === false) throw new Error('de server weigerde het');
+    $('vr-vraag').value = ''; $('vr-model').value = ''; $('vr-status').textContent = '';
+    toast('Bewaard! Eli vindt je vraag bij Vrij oefenen.'); confetti(900);
+    D = await rpc('eli_ouder', { p_naam: s.naam, p_pin: s.pin }) || D; tekenVragen();
+  } catch (e) { $('vr-status').textContent = 'Lukte niet: ' + e.message; }
+  finally { $('vr-stuur').disabled = false; }
 };
 $('uit').onclick = () => { sessie.wis(); location.href = 'index.html'; };
 $('ververs').onclick = laad;
