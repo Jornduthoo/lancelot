@@ -258,6 +258,7 @@ const PfPaper = (() => {
       const zoneLijn = sleutel && f.soort === 'lijn' && f.naar ? `<i class="pf-plek-doel" style="left:${f.naar.x}%;top:${f.naar.y}%;width:${2 * (f.r || 3)}%"></i>` : '';
       // Kladruimte telt niet mee: niet op papier, en geen sleutel.
       if (f.soort === 'klad' && print) return '';
+      if (f.soort === 'veelhoek' && print) return veldEl(f, k, pos, null) + (sleutel && sleutel[k] ? `<span class="pf-veld-sleutel" style="left:${f.x}%;top:${f.y + f.h}%;max-width:${Math.max(f.w, 100 - f.x)}%">${esc(sleutel[k])}</span>` : '');
       if ((f.soort === 'puntlijn' || f.soort === 'cirkel') && print) return sleutel ? veldEl(f, k, pos, null) + (sleutel[k] ? `<span class="pf-veld-sleutel" style="left:${f.x}%;top:${f.y + f.h}%;max-width:${Math.max(f.w, 100 - f.x)}%">${esc(sleutel[k])}</span>` : '') : '';
       // De sleutel van een rekenrooster op papier: het rooster zelf, ingevuld.
       if (f.soort === 'rooster' && print && sleutel && vormen && vormen[k] && vormen[k].sleutel && vormen[k].nakijk !== 'uitkomst') {
@@ -309,6 +310,7 @@ const PfPaper = (() => {
       if (f.soort === 'klad') return `<textarea class="pf-veld open klad" data-k="${k}" style="${pos}" spellcheck="false" placeholder="kladruimte" aria-label="Kladruimte (telt niet mee)"${ro}>${esc(b[k] ?? '')}</textarea>`;
       if (f.soort === 'puntlijn') return puntlijnHtml(f, k, g, kl);
       if (f.soort === 'cirkel') return cirkelHtml(f, k, kl);
+      if (f.soort === 'veelhoek') return veelhoekHtml(f, k, kl);
       // Een bolletje (rond): één keuze per groep. Een hokje: aankruisen, ook meerdere.
       if (f.soort === 'kruis') return `<button type="button" class="pf-veld kruis${f.rond ? ' rond' : ''}${kl}${b[k] === true ? ' on' : ''}" data-k="${k}" data-g="${f.groep || 1}" style="${pos}" aria-label="${f.label ? esc(f.label) : 'Aankruisen'}"${live ? '' : ' disabled'}>${f.rond ? esc(f.label || '') : b[k] === true ? '✗' : esc(f.label || '')}</button>`;
       if (f.soort === 'breuk') {
@@ -346,6 +348,15 @@ const PfPaper = (() => {
       const sl = kf && kf.lijnen ? kf.lijnen.map(([i, j]) => lijn(i, j, 'sleutel')).join('') : '';
       return `<div class="pf-veld puntlijn${kl}${live ? ' live' : ''}" data-k="${k}" data-waarde="${esc(b[k] || '')}" style="left:${f.x}%;top:${f.y}%;width:${f.w}%;height:${f.h}%" title="Sleep een lijn van punt naar punt">
         <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${sl}${eigen}</svg>${pt.map((p, i) => (print && !(kf && kf.doorPunt === i) ? '' : `<i class="pf-pt${kf && kf.doorPunt === i ? ' door' : ''}" data-i="${i}" style="left:${p.x}%;top:${p.y}%"></i>`)).join('')}</div>`;
+    }
+    // Een veelhoek op roosterpunten: de stippen, en de figuur van de leerling (ze sluit vanzelf).
+    function veelhoekHtml(f, k, kl) {
+      const kol = f.kol || 6;
+      const rij = f.rij || 5;
+      let stippen = '';
+      for (let r = 0; r < rij; r++) for (let c = 0; c < kol; c++) stippen += `<i class="pf-stip" data-c="${c}" data-r="${r}" style="left:${(c / (kol - 1)) * 100}%;top:${(r / (rij - 1)) * 100}%"></i>`;
+      return `<div class="pf-veld veelhoek${kl}${live ? ' live' : ''}" data-k="${k}" data-waarde="${esc(print ? '' : b[k] || '')}" data-kol="${kol}" data-rij="${rij}" style="left:${f.x}%;top:${f.y}%;width:${f.w}%;height:${f.h}%" title="Tik de hoekpunten aan">
+        <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${veelhoekSvg(print ? '' : b[k], kol, rij)}</svg>${stippen}${live ? '<button type="button" class="pf-cirkel-terug" title="Laatste punt weg" aria-label="Laatste punt weg">↶</button>' : ''}</div>`;
     }
     // Een cirkel tekenen: vanuit het middelpunt slepen. De straal staat erbij in cm (volgens de schaal van het blad).
     function cirkelHtml(f, k, kl) {
@@ -507,7 +518,7 @@ const PfPaper = (() => {
         if (f.classList.contains('rooster')) out[k] = roosterWaarde(f) || null;
         else if (f.classList.contains('kruis')) out[k] = f.classList.contains('on') ? true : null;
         else if (f.classList.contains('teken')) out[k] = f.pfWaarde || null;
-        else if (f.classList.contains('sleep') || f.classList.contains('plek') || f.classList.contains('lijn') || f.classList.contains('puntlijn') || f.classList.contains('cirkel')) out[k] = f.dataset.waarde || null;
+        else if (f.classList.contains('sleep') || f.classList.contains('plek') || f.classList.contains('lijn') || f.classList.contains('puntlijn') || f.classList.contains('cirkel') || f.classList.contains('veelhoek')) out[k] = f.dataset.waarde || null;
         else if (f.classList.contains('breuk')) {
           const g = f.querySelector('.geheel') ? f.querySelector('.geheel').value.trim() : '';
           const t = f.querySelector('.teller').value.trim();
@@ -680,6 +691,7 @@ const PfPaper = (() => {
       }
       for (const v of el.querySelectorAll('.pf-veld.puntlijn.live')) wirePuntlijn(v, () => send(el));
       for (const v of el.querySelectorAll('.pf-veld.cirkel.live')) wireCirkel(v, () => send(el));
+      for (const v of el.querySelectorAll('.pf-veld.veelhoek.live')) wireVeelhoek(v, () => send(el));
       const lat = el.querySelector('.pf-lat-knop');
       if (lat) lat.addEventListener('click', () => {
         const vel = el.querySelector('.pf-blad-vel');
@@ -767,6 +779,45 @@ const PfPaper = (() => {
         for (const s of spelden) el.pfPunten[Number(s.dataset.n)] = { x: parseFloat(s.style.left), y: parseFloat(s.style.top) };
       }
     }
+  }
+
+  // De figuur van de leerling als svg: een veelhoek (vanaf 3 punten dicht), of een lijn en een punt.
+  function veelhoekSvg(v, kol, rij) {
+    const p = String(v || '').split(';').map(x => x.split(',').map(Number)).filter(x => x.length === 2 && x.every(Number.isFinite));
+    const xy = p.map(([c, r]) => `${(c / (kol - 1)) * 100},${(r / (rij - 1)) * 100}`).join(' ');
+    if (p.length >= 3) return `<polygon class="ant" points="${xy}" vector-effect="non-scaling-stroke"/>`;
+    if (p.length === 2) return `<polyline class="ant" points="${xy}" vector-effect="non-scaling-stroke"/>`;
+    return '';
+  }
+  // Een veelhoek op roosterpunten: tik de hoekpunten aan, één na één. Het laatste punt nog eens tikken (of ↶) haalt het weg.
+  function wireVeelhoek(v, klaar) {
+    const kol = Number(v.dataset.kol) || 6;
+    const rij = Number(v.dataset.rij) || 5;
+    const punten = () => String(v.dataset.waarde || '').split(';').filter(Boolean);
+    const zet = l => {
+      v.dataset.waarde = l.join(';');
+      v.querySelector('svg').innerHTML = veelhoekSvg(v.dataset.waarde, kol, rij);
+      for (const s of v.querySelectorAll('.pf-stip')) s.classList.toggle('on', l.includes(`${s.dataset.c},${s.dataset.r}`));
+      klaar();
+    };
+    for (const s of v.querySelectorAll('.pf-stip')) s.classList.toggle('on', punten().includes(`${s.dataset.c},${s.dataset.r}`));
+    v.addEventListener('pointerdown', e => {
+      if (e.button > 0 || e.target.closest('.pf-cirkel-terug')) return;
+      e.preventDefault();
+      if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+      const r = v.getBoundingClientRect();
+      const c = Math.round(((e.clientX - r.left) / r.width) * (kol - 1));
+      const ri = Math.round(((e.clientY - r.top) / r.height) * (rij - 1));
+      if (c < 0 || ri < 0 || c >= kol || ri >= rij) return;
+      // Dicht genoeg bij de stip?
+      const d = Math.hypot((c / (kol - 1)) * r.width - (e.clientX - r.left), (ri / (rij - 1)) * r.height - (e.clientY - r.top));
+      if (d > Math.max(16, Math.min(r.width / (kol - 1), r.height / (rij - 1)) * 0.45)) return;
+      const p = `${c},${ri}`;
+      const l = punten();
+      if (l[l.length - 1] === p) l.pop(); else if (!l.includes(p) && l.length < 12) l.push(p); else return;
+      zet(l);
+    });
+    v.querySelector('.pf-cirkel-terug').addEventListener('click', e => { e.stopPropagation(); const l = punten(); l.pop(); zet(l); });
   }
 
   // Lijnen tussen punten: sleep van een punt naar een ander punt (de lijn klikt vast). Tik op een lijn om ze weg te halen.
