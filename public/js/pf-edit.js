@@ -111,29 +111,36 @@ const PfEdit = (() => {
   }
 
   // Audio bij een vraag: eigen opname of een geluidsbestand. Eerst alleen een klein knopje, zo blijft de kaart rustig.
-  // Een groot geluidsbestand (bv. een luisterfragment) wordt kleiner gemaakt. Met geluid: hoe vaak mag de leerling luisteren?
-  function audioRij(houder, waarde, luisterMax, bron) {
+  // Een groot geluidsbestand (bv. een luisterfragment) wordt kleiner gemaakt.
+  function audioRij(houder, waarde, bron) {
     const rij = document.createElement('div');
     rij.className = 'pf-audio-rij';
     houder.pfAudio = waarde || '';
-    houder.pfLuisterMax = luisterMax || 0;
-    const keer = () => {
-      const k = rij.querySelector('.pf-luister-max');
-      k.classList.toggle('hidden', !houder.pfAudio);
-      k.querySelector('select').value = String(houder.pfLuisterMax || 0);
-    };
+    const toon = () => { if (houder.pfLuisterToon) houder.pfLuisterToon(); };
     const open = () => {
-      rij.innerHTML = `<span class="small">${bron ? '🎧 Luisterfragment bij de bron:' : '🎧 Uitleg om te beluisteren:'}</span> <span class="pf-audio-knop"></span>
-        <label class="inline small pf-luister-max">Hoe vaak mag de leerling luisteren? <select><option value="0">onbeperkt</option><option value="2">2 keer</option><option value="1">1 keer</option></select></label>`;
-      rij.querySelector('.pf-luister-max select').addEventListener('change', e => { houder.pfLuisterMax = Number(e.target.value); cfg.preview(); });
-      PfAudio.knop(rij.querySelector('.pf-audio-knop'), { waarde: houder.pfAudio, max: 90, grootte: PfKern.MAX_AUDIO, onChange: d => { houder.pfAudio = d; if (!d) dicht(); else keer(); cfg.preview(); } });
-      keer();
+      rij.innerHTML = `<span class="small">${bron ? '🎧 Luisterfragment bij de bron:' : '🎧 Uitleg om te beluisteren:'}</span> <span class="pf-audio-knop"></span>`;
+      PfAudio.knop(rij.querySelector('.pf-audio-knop'), { waarde: houder.pfAudio, max: 90, grootte: PfKern.MAX_AUDIO, onChange: d => { houder.pfAudio = d; if (!d) dicht(); toon(); cfg.preview(); } });
     };
     const dicht = () => {
       rij.innerHTML = `<button type="button" class="link small pf-audio-open">${bron ? '🎧 Luisterfragment toevoegen (opname of geluidsbestand)' : '🎧 Audio toevoegen (bv. de vraag voorlezen)'}</button>`;
       rij.querySelector('button').addEventListener('click', open);
     };
     if (houder.pfAudio) open(); else dicht();
+    return rij;
+  }
+
+  // Hoe vaak mag de leerling luisteren? Zichtbaar zodra er geluid of een voorleestekst is (🎧 en 🐢 tellen samen).
+  function luisterKeuze(card, waarde, bron) {
+    const rij = document.createElement('div');
+    rij.className = 'pf-luister-max';
+    rij.innerHTML = '<label class="inline small">🎧 Hoe vaak mag de leerling luisteren? <select class="e-luistermax"><option value="0">onbeperkt</option><option value="2">2 keer</option><option value="1">1 keer</option></select></label>';
+    const sel = rij.querySelector('select');
+    sel.value = String(waarde || 0);
+    card.pfLuisterToon = () => {
+      const zeg = !bron && card.querySelector(':scope > .pf-k-body .e-voorlees');
+      rij.classList.toggle('hidden', !card.pfAudio && !(zeg && zeg.value.trim()));
+    };
+    sel.addEventListener('change', cfg.preview);
     return rij;
   }
 
@@ -201,7 +208,9 @@ const PfEdit = (() => {
       card.querySelector('.e-tekst').value = q.tekst || '';
       card.querySelector('.e-tekst').addEventListener('input', () => { for (const d of card.querySelectorAll('.pf-deelvragen > .pf-kaart-edit')) if (d.pfBronVeranderd) d.pfBronVeranderd(); });
       body.appendChild(beeldRij(card, q.beeld, { nodig: q.beeldNodig, pagina: q.beeldPagina }));
-      body.appendChild(audioRij(card, q.audio, q.luisterMax, true));
+      body.appendChild(audioRij(card, q.audio, true));
+      body.appendChild(luisterKeuze(card, q.luisterMax, true));
+      card.pfLuisterToon();
       veld(`<p class="muted small">${HELP.bron}</p>`);
       const deel = document.createElement('div');
       deel.className = 'pf-deelvragen';
@@ -218,13 +227,16 @@ const PfEdit = (() => {
     } else {
       veld(`<label>${q.type === 'invullen' || q.type === 'tabel' ? 'Opdracht' : 'Vraag'}<textarea class="e-vraag" rows="2" maxlength="1500"></textarea></label>`);
       card.querySelector('.e-vraag').value = q.vraag ?? DEFAULT_VRAAG[q.type] ?? '';
-      body.appendChild(audioRij(card, q.audio, q.luisterMax));
+      body.appendChild(audioRij(card, q.audio));
       // Een tekst die de computer voorleest (🎧 en 🐢 trager). De leerling hoort ze, maar ziet ze niet.
       if (q.type !== 'dictee') {
         const zeg = veld('<details class="pf-e-zeg"><summary class="small">🎧 Laten voorlezen door de computer</summary><label>Tekst om voor te lezen (de leerling hoort ze, maar ziet ze niet)<textarea class="e-voorlees" rows="2" maxlength="1000" placeholder="bijv. Luister goed: welk woord hoor je?"></textarea></label></details>');
         zeg.querySelector('.e-voorlees').value = q.voorlees || '';
         zeg.querySelector('details').open = !!q.voorlees;
+        zeg.querySelector('.e-voorlees').addEventListener('input', () => card.pfLuisterToon());
       }
+      body.appendChild(luisterKeuze(card, q.luisterMax));
+      card.pfLuisterToon();
       if (!['aanduiden', 'tekenen', 'markeren', 'getallenas', 'spreken'].includes(q.type)) body.appendChild(beeldRij(card, q.beeld, { nodig: q.beeldNodig, pagina: q.beeldPagina }));
       if (q.type === 'meerkeuze') {
         const box = veld('', 'pf-opties');
@@ -699,15 +711,17 @@ const PfEdit = (() => {
       q.titel = waarde(card, '.e-titel');
       q.tekst = waarde(card, '.e-tekst');
       if (card.pfAudio) q.audio = card.pfAudio;
-      if (card.pfAudio && card.pfLuisterMax) q.luisterMax = card.pfLuisterMax;
+      const lm = Number(waarde(card, '.e-luistermax'));
+      if (card.pfAudio && lm) q.luisterMax = lm;
       q.vragen = [...card.querySelectorAll(':scope > .pf-k-body > .pf-deelvragen > .pf-kaart-edit')].map(leesKaart);
       return q;
     }
     q.vraag = waarde(card, '.e-vraag');
     if (card.pfAudio) q.audio = card.pfAudio;
-    if (card.pfAudio && card.pfLuisterMax) q.luisterMax = card.pfLuisterMax;
     const zeg = waarde(card, '.e-voorlees').trim();
     if (zeg) q.voorlees = zeg;
+    const lm = Number(waarde(card, '.e-luistermax'));
+    if ((card.pfAudio || zeg) && lm) q.luisterMax = lm;
     const p = waarde(card, '.e-punten');
     if (p !== '') q.punten = p;
     const exact = card.querySelector(':scope > .pf-k-body .e-exact');

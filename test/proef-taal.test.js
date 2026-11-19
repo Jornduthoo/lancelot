@@ -222,3 +222,17 @@ test('keuzes altijd door elkaar: ook in een afname met vaste volgorde', () => {
   }
   assert.ok(geschud.size > 1);
 });
+
+test('hoe vaak luisteren ook bij een voorleestekst en bij een luisterknop met tekst op een blad', () => {
+  const zeg = een({ type: 'kort', vraag: 'x', antwoord: 'a', voorlees: 'Anne Frank schreef een dagboek.', luisterMax: 2 });
+  assert.equal(zeg.luisterMax, 2);
+  assert.equal(K.viewOf(zeg, '0').luisterMax, 2);
+  assert.equal(een({ type: 'kort', vraag: 'x', antwoord: 'a', voorlees: 'Lees.' }).luisterMax, undefined);
+  assert.equal(een({ type: 'kort', vraag: 'x', antwoord: 'a', luisterMax: 2 }).luisterMax, undefined);
+  const blad = K.validate({ title: 't', vragen: [{ type: 'blad', beeld: 'data:image/webp;base64,AAAA', velden: [{ soort: 'luister', x: 1, y: 1, w: 4, h: 3, tekst: 'Luister.', luisterMax: 1 }, { soort: 'luister', x: 9, y: 1, w: 4, h: 3, tekst: 'Nog eens.' }, { soort: 'tekst', x: 1, y: 9, w: 10, h: 3, antwoord: 'a' }] }] }).vragen[0];
+  assert.equal(blad.velden[0].luisterMax, 1);
+  assert.equal(blad.velden[1].luisterMax, undefined);
+  const v = K.viewOf(blad, '0');
+  assert.equal(v.velden[0].luisterMax, 1);
+  assert.equal(K.maxVan(blad), 1);
+});

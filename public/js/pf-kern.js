@@ -403,12 +403,12 @@
     if (q.exact === true) out.exact = true;
     const audio = audioOf(q.audio);
     if (audio) out.audio = audio;
-    // Hoe vaak de leerling het geluid mag beluisteren (zonder: onbeperkt).
-    const keer = Number(q.luisterMax);
-    if (audio && (keer === 1 || keer === 2)) out.luisterMax = keer;
     // Een tekst die de computer voorleest (🎧): de leerling hoort ze, maar ziet ze niet.
     const zeg = text(q.voorlees, 1000);
     if (zeg && type !== 'bron' && type !== 'blad') out.voorlees = zeg;
+    // Hoe vaak de leerling het geluid of de voorleestekst mag beluisteren (zonder: onbeperkt). 🎧 en 🐢 tellen samen.
+    const keer = Number(q.luisterMax);
+    if ((audio || out.voorlees) && (keer === 1 || keer === 2)) out.luisterMax = keer;
     const naam = `${waar} (${NAMES[type].toLowerCase()})`;
     if (type === 'bron') {
       out.titel = text(q.titel || q.title, 120);
@@ -946,6 +946,8 @@
         if (audio) veld.audio = audio;
         const tekst = text(f.tekst, 1000);
         if (tekst) veld.tekst = tekst;
+        const keer = Number(f.luisterMax);
+        if ((audio || tekst) && (keer === 1 || keer === 2)) veld.luisterMax = keer;
         veld.punten = 0;
       } else if (soort === 'plek') {
         const d = f.doel && typeof f.doel === 'object' ? f.doel : null;
@@ -1196,7 +1198,7 @@
     if (q.vraag) v.vraag = q.vraag;
     if (q.beeld && !q.beeld.startsWith('#')) v.beeld = img(q.beeld);
     if (q.audio) v.audio = img(q.audio);
-    if (q.audio && q.luisterMax) v.luisterMax = q.luisterMax;
+    if ((q.audio || q.voorlees) && q.luisterMax) v.luisterMax = q.luisterMax;
     if (q.voorlees) v.voorlees = q.voorlees;
     const p = perms[id];
     if (q.type === 'meerkeuze') {
@@ -1275,7 +1277,7 @@
         if (f.soort === 'puntlijn') o.pt = f.pt || [];
         if (f.soort === 'veelhoek') { o.kol = f.kol; o.rij = f.rij; }
         if (f.soort === 'breuk' && f.geheel) o.geheel = true;
-        if (f.soort === 'luister') { if (f.audio) o.audio = img(f.audio); if (f.tekst) o.tekst = f.tekst; }
+        if (f.soort === 'luister') { if (f.audio) o.audio = img(f.audio); if (f.tekst) o.tekst = f.tekst; if (f.luisterMax) o.luisterMax = f.luisterMax; }
         if (f.soort === 'vlak') o.kleur = f.kleur;
         if (f.soort === 'notitie') o.tekst = f.tekst || '';
         return o;

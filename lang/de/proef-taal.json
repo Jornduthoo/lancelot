@@ -167,5 +167,8 @@
  "🎧 Luisterfragment bij de bron:": "🎧 Hörtext zur Quelle:",
  "🎧 Luisterfragment toevoegen (opname of geluidsbestand)": "🎧 Hörtext hinzufügen (Aufnahme oder Tondatei)",
  "🔀 Keuzes altijd door elkaar (ook als de vragen in een vaste volgorde staan)": "🔀 Auswahlmöglichkeiten immer mischen (auch wenn die Fragen eine feste Reihenfolge haben)",
- "Allebei": "Beide"
+ "Allebei": "Beide",
+ "Je hebt al 1 keer geluisterd.": "Du hast schon 1-mal zugehört.",
+ "Je hebt al {0} keer geluisterd.": "Du hast schon {0}-mal zugehört.",
+ "🎧 Hoe vaak mag de leerling luisteren?": "🎧 Wie oft darf das Kind zuhören?"
 }

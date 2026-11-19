@@ -24,9 +24,15 @@ const PfPaper = (() => {
   }
 
   // 🎧 en 🐢 (trager) voor een tekst die alleen voorgelezen wordt. De tekst zelf staat in o.said, niet op het scherm.
-  const zegKnoppen = i => (typeof Voorlees !== 'undefined' && Voorlees.ok
-    ? `<span class="pf-zeg"><button type="button" class="pf-zeg-knop" data-zeg="${i}" title="Luister" aria-label="Luister">🎧</button><button type="button" class="pf-zeg-knop traag" data-zeg="${i}" data-traag="1" title="Trager voorlezen" aria-label="Trager voorlezen">🐢</button></span>`
-    : '<span class="pf-zeg muted small">(voorlezen werkt niet in deze browser)</span>');
+  // 🎧 en 🐢 voor een tekst die de computer voorleest. Met een maximum (tel: { key, max, rest }) tellen ze samen.
+  const zegKnoppen = (i, tel) => {
+    if (typeof Voorlees === 'undefined' || !Voorlees.ok) return '<span class="pf-zeg muted small">(voorlezen werkt niet in deze browser)</span>';
+    const m = tel && tel.max ? tel : null;
+    const op = m && !m.rest ? ' op' : '';
+    return `<span class="pf-zeg"><button type="button" class="pf-zeg-knop${m ? ' met-max' : ''}${op}" data-zeg="${i}" data-luister="${m ? esc(m.key) : ''}" data-max="${m ? m.max : 0}" title="Luister" aria-label="Luister">🎧${m ? `<small class="pf-luister-tel">${m.rest}×</small>` : ''}</button><button type="button" class="pf-zeg-knop traag${op}" data-zeg="${i}" data-traag="1" data-luister="${m ? esc(m.key) : ''}" data-max="${m ? m.max : 0}" title="Trager voorlezen" aria-label="Trager voorlezen">🐢</button></span>`;
+  };
+  // Hoe vaak mag het nog (in live, met een maximum)?
+  const telVan = (key, max, o) => (o.mode === 'live' && max ? { key, max, rest: Math.max(0, max - ((o.gehoord && o.gehoord[key]) || 0)) } : null);
 
   // Dictee: per woord of zin 🎧 en een lijn om te schrijven. Bij het verbeteren staan de foute woorden in het rood.
   function dicteeHtml(q, a, o, live, print) {
@@ -57,7 +63,7 @@ const PfPaper = (() => {
       ? `<button type="button" class="ob-say pf-say" data-say="${o.said.push([q.vraag, ...(q.opties || []).map((x, i) => `${L[i]}: ${x.tekst || ''}`)].filter(Boolean).join('\n')) - 1}" title="Lees voor" aria-label="Lees voor">🔊</button>` : '';
     const luister = q.audio && !print ? luisterKnop(q, o, 'Luister naar de uitleg') : '';
     // Een tekst om voor te lezen: de leerling hoort ze (🎧, of trager met 🐢) maar ziet ze niet. Op papier leest de leerkracht voor.
-    const zeg = q.voorlees && !print ? zegKnoppen(o.said.push(q.voorlees) - 1) : '';
+    const zeg = q.voorlees && !print ? zegKnoppen(o.said.push(q.voorlees) - 1, telVan(q.id, q.luisterMax, o)) : '';
     const got = o.punten && o.punten[q.id];
     let h = `<div class="pf-q pf-${q.type}" data-id="${esc(q.id)}" data-type="${q.type}">
       <h3><span class="pf-nr">${esc(nr)}</span>${say}${luister}${zeg}<span class="pf-vraag">${esc(q.vraag || '').replace(/\n/g, '<br>')}</span>
@@ -504,7 +510,10 @@ const PfPaper = (() => {
     }
     function veldEl(f, k, pos, g, sl = '') {
       const kl = g === true ? ' goed' : g === false ? ' fout' : '';
-      if (f.soort === 'luister') return `<button type="button" class="pf-luister pf-blad-luister" ${f.audio ? `data-src="${esc(f.audio)}"` : `data-tekst="${esc(f.tekst || '')}"`} style="left:${f.x}%;top:${f.y}%;width:${f.w}%;height:${f.h}%" title="Luister" aria-label="Luister">🎧</button>`;
+      if (f.soort === 'luister') {
+        const t = telVan(`${q.id}:${k}`, f.luisterMax, o);
+        return `<button type="button" class="pf-luister pf-blad-luister${t ? ` met-max${t.rest ? '' : ' op'}` : ''}" ${f.audio ? `data-src="${esc(f.audio)}"` : `data-tekst="${esc(f.tekst || '')}"`} data-luister="${t ? esc(t.key) : ''}" data-max="${t ? t.max : 0}" style="left:${f.x}%;top:${f.y}%;width:${f.w}%;height:${f.h}%" title="Luister" aria-label="Luister">🎧${t ? `<small class="pf-luister-tel">${t.rest}×</small>` : ''}</button>`;
+      }
       if (f.soort === 'teken' || (f.soort === 'klad' && f.vorm === 'tekenen')) {
         const box = `left:${f.x}%;top:${f.y}%;width:${f.w}%;height:${f.h}%`;
         const klad = f.soort === 'klad' ? ' klad' : '';
@@ -576,16 +585,39 @@ const PfPaper = (() => {
 
   // Een luisterknop (🎧) voor een vraag of een bron. Met een maximum telt de knop af: "nog 2×".
   function luisterKnop(q, o, titel) {
-    const max = o.mode === 'live' && q.luisterMax ? q.luisterMax : 0;
-    const rest = max ? Math.max(0, max - ((o.gehoord && o.gehoord[q.id]) || 0)) : 0;
+    const t = telVan(q.id, q.luisterMax, o);
+    const max = t ? t.max : 0;
+    const rest = t ? t.rest : 0;
     return `<button type="button" class="pf-luister${max ? ' met-max' : ''}${max && !rest ? ' op' : ''}" data-src="${esc(q.audio)}" data-luister="${max ? esc(q.id) : ''}" data-max="${max}" title="${esc(titel)}" aria-label="${esc(titel)}">🎧${max ? `<small class="pf-luister-tel">${rest}×</small>` : ''}</button>`;
   }
   // Uitleg bij het geluid: op papier speelt de leerkracht het af, op het scherm staat hoe vaak de leerling mag luisteren.
   function luisterTip(q, o) {
-    if (!q.audio) return '';
-    if (o.mode === 'print') return '<p class="pf-tip">🎧 Luisterfragment (speel af in de klas).</p>';
-    if (o.mode === 'live' && q.luisterMax) return `<p class="pf-tip pf-luister-tip">${q.luisterMax === 1 ? 'Je mag dit maar 1 keer beluisteren. Luister goed!' : `Je mag dit ${q.luisterMax} keer beluisteren.`}</p>`;
-    return '';
+    if (o.mode === 'print') return q.audio ? '<p class="pf-tip">🎧 Luisterfragment (speel af in de klas).</p>' : '';
+    const t = (q.audio || q.voorlees) && telVan(q.id, q.luisterMax, o);
+    if (!t) return '';
+    return `<p class="pf-tip pf-luister-tip" data-luister="${esc(q.id)}">${t.rest ? tipTekst(t.max) : opTekst(t.max)}</p>`;
+  }
+  const tipTekst = max => (max === 1 ? 'Je mag dit maar 1 keer beluisteren. Luister goed!' : `Je mag dit ${max} keer beluisteren.`);
+  const opTekst = max => (max === 1 ? 'Je hebt al 1 keer geluisterd.' : `Je hebt al ${max} keer geluisterd.`);
+
+  // Een nieuwe beurt (🎧, 🐢 of een luisterknop): telt bij een maximum, en mag niet meer als het op is. Stoppen mag altijd.
+  function beurt(box, b) {
+    const k = b.dataset.luister;
+    const max = Number(b.dataset.max);
+    if (!k || !max || b.classList.contains('speelt') || b.classList.contains('praat')) return true;
+    const al = box.pfGehoord[k] || 0;
+    if (al >= max) return false;
+    box.pfGehoord[k] = al + 1;
+    bewaarGehoord(box.pfGehoordSleutel, box.pfGehoord);
+    const op = al + 1 >= max;
+    for (const x of box.querySelectorAll('[data-luister]')) {
+      if (x.dataset.luister !== k) continue;
+      if (x.classList.contains('pf-luister-tip')) { if (op) x.textContent = opTekst(max); continue; }
+      x.classList.toggle('op', op);
+      const tel = x.querySelector('.pf-luister-tel');
+      if (tel) tel.textContent = `${max - al - 1}×`;
+    }
+    return true;
   }
 
   function pageHtml(p, i, o) {
@@ -616,7 +648,7 @@ const PfPaper = (() => {
         const b = e.target.closest('.pf-say');
         if (b) Voorlees.speak(box.pfSaid[b.dataset.say], b);
         const z = e.target.closest('.pf-zeg-knop');
-        if (z) Voorlees.speak(box.pfSaid[z.dataset.zeg], z, { traag: !!z.dataset.traag });
+        if (z && beurt(box, z)) Voorlees.speak(box.pfSaid[z.dataset.zeg], z, { traag: !!z.dataset.traag });
       });
     }
     if (!box.pfLuisterWired) {
@@ -625,18 +657,7 @@ const PfPaper = (() => {
         const b = e.target.closest('.pf-luister');
         if (!b) return;
         e.preventDefault();
-        // Met een maximum: een nieuwe beurt telt, stoppen mag altijd.
-        const k = b.dataset.luister;
-        if (k && b.dataset.src && !b.classList.contains('speelt')) {
-          const max = Number(b.dataset.max);
-          const al = box.pfGehoord[k] || 0;
-          if (al >= max) return;
-          box.pfGehoord[k] = al + 1;
-          bewaarGehoord(box.pfGehoordSleutel, box.pfGehoord);
-          const tel = b.querySelector('.pf-luister-tel');
-          if (tel) tel.textContent = `${max - al - 1}×`;
-          b.classList.toggle('op', al + 1 >= max);
-        }
+        if (!beurt(box, b)) return;
         if (b.dataset.src) PfAudio.speel(b.dataset.src, b);
         else if (b.dataset.tekst && typeof Voorlees !== 'undefined') Voorlees.speak(b.dataset.tekst, b);
       });

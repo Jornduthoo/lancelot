@@ -167,5 +167,8 @@
  "🎧 Luisterfragment bij de bron:": "🎧 Listening clip with the source:",
  "🎧 Luisterfragment toevoegen (opname of geluidsbestand)": "🎧 Add a listening clip (recording or sound file)",
  "🔀 Keuzes altijd door elkaar (ook als de vragen in een vaste volgorde staan)": "🔀 Always shuffle the choices (even when the questions are in a fixed order)",
- "Allebei": "Both"
+ "Allebei": "Both",
+ "Je hebt al 1 keer geluisterd.": "You have already listened 1 time.",
+ "Je hebt al {0} keer geluisterd.": "You have already listened {0} times.",
+ "🎧 Hoe vaak mag de leerling luisteren?": "🎧 How often may the pupil listen?"
 }

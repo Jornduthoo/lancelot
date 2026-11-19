@@ -373,7 +373,8 @@ select.pf-veld.kies { padding: 0 .1em; appearance: auto; cursor: pointer; }
 .pf-luister.speelt { background: rgb(var(--k-goud) / .35); }
 .pf-luister.met-max { display: inline-flex; align-items: center; gap: 4px; }
 .pf-luister-tel { font-size: .75rem; font-weight: 700; }
-.pf-luister.op:not(.speelt) { opacity: .45; cursor: not-allowed; }
+.pf-luister.op:not(.speelt), .pf-zeg-knop.op:not(.praat) { opacity: .45; cursor: not-allowed; }
+.pf-zeg-knop.met-max { display: inline-flex; align-items: center; gap: 3px; }
 .pf-blad-luister { position: absolute; margin: 0; padding: 0; font-size: max(12px, 2cqw); border-radius: 50%; background: rgba(255, 236, 150, .9); box-shadow: 0 0 0 2px #c49a3a; z-index: 2; }
 .pf-be-veld.luister { background: rgba(255, 170, 0, .25); box-shadow: inset 0 0 0 1.5px #e08a00; }
 .pf-be-veld.teken { background: rgba(0, 150, 200, .1); box-shadow: inset 0 0 0 1.5px #0096c8; }
