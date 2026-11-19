@@ -40,7 +40,7 @@ function teken(niveau) {
   const bar = document.getElementById('p-niveaus');
   bar.classList.toggle('hidden', !multi);
   if (multi) {
-    bar.innerHTML = [...niveaus.map(n => [n, Niveau.label(n)]), ['alle', 'Alle drie']]
+    bar.innerHTML = [...niveaus.map(n => [n, Niveau.label(n)]), ['alle', niveaus.length === 2 ? 'Allebei' : 'Alle drie']]
       .map(([n, label]) => `<button type="button" class="secondary${n === (niveau === 'alle' ? 'alle' : kies[0]) ? ' on' : ''}" data-niveau="${n}">${label}</button>`).join('');
     for (const b of bar.querySelectorAll('button')) b.addEventListener('click', () => teken(b.dataset.niveau));
   }

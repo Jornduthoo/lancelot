@@ -97,6 +97,15 @@ let afnameToets = '';
 function vraagAfname(file, titel) {
   afnameToets = file;
   $('pf-afname-naam').textContent = titel || '';
+  // Alleen de niveaus die de toets echt heeft (bv. Page en Schildknaap, zonder Ridder).
+  const sel = $('i-niveau');
+  socket.emit('pf-open', file, res => {
+    if (afnameToets !== file || !res || res.error) return;
+    const niveaus = PfKern.niveausVan(res.toets);
+    for (const o of sel.options) o.hidden = PfKern.NIVEAUS.includes(o.value) && !niveaus.includes(o.value);
+    sel.closest('label').classList.toggle('hidden', niveaus.length < 2);
+    if (sel.selectedOptions[0] && sel.selectedOptions[0].hidden) sel.value = 'klas';
+  });
   $('pf-afname').showModal();
   $('pf-afname-ja').focus();
 }

@@ -22,7 +22,7 @@
 <script src="/js/niveau.js"></script>
 <script>
 // Afdrukbaar oefenblad, of het verbeterblad met de oplossingen in het rood.
-// Heeft het blad niveaus, dan kies je bovenaan Page, Schildknaap, Ridder of alle drie na elkaar.
+// Heeft het blad niveaus, dan kies je bovenaan Page, Schildknaap, Ridder of alle niveaus na elkaar.
 const socket = io({ query: { role: 'host' } });
 const params = new URLSearchParams(location.search);
 const key = params.get('sleutel') === '1';
@@ -38,7 +38,7 @@ function load(niveau) {
     bar.classList.toggle('hidden', !multi);
     if (multi) {
       const chosen = niveau === 'alle' ? 'alle' : res.niveau;
-      bar.innerHTML = [...res.niveaus.map(n => [n, Niveau.label(n)]), ['alle', 'Alle drie']]
+      bar.innerHTML = [...res.niveaus.map(n => [n, Niveau.label(n)]), ['alle', res.niveaus.length === 2 ? 'Allebei' : 'Alle drie']]
         .map(([n, label]) => `<button type="button" class="secondary${n === chosen ? ' on' : ''}" data-niveau="${n}">${label}</button>`).join('');
       for (const b of bar.querySelectorAll('button')) b.addEventListener('click', () => load(b.dataset.niveau));
     }
