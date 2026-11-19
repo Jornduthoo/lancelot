@@ -159,6 +159,7 @@ const FORMATS = {
   rekenen: '{ "type": "rekenen", "vraag": "een vraagstuk", "antwoord": "36", "eenheid": "cm", "punten": 1, "werkPunten": 1, "rooster": true }',
   verbinden: '{ "type": "verbinden", "vraag": "Verbind wat bij elkaar hoort.", "paren": [["links", "rechts"], ["links", "rechts"]], "punten": 4 }',
   ordenen: '{ "type": "ordenen", "vraag": "Zet in de juiste volgorde.", "items": ["eerste", "tweede", "derde"], "punten": 1 }',
+  groeperen: '{ "type": "groeperen", "vraag": "Geef wat samen hoort dezelfde kleur.", "groepen": [["kaartje", "kaartje", "kaartje"], ["kaartje", "kaartje", "kaartje"]], "puntenPer": "groep" }',
   tabel: '{ "type": "tabel", "vraag": "Vul de tabel aan.", "rijen": [["kg", "g"], ["2", "[2000]"], ["[0,5]", "500"]], "punten": 2 }',
   aanduiden: '{ "type": "aanduiden", "vraag": "Duid Antwerpen aan op de kaart.", "beeldPagina": 2, "beeldNodig": "kaart van België", "punten": 1 }',
   getallenas: '{ "type": "getallenas", "vraag": "Duid 3/4 aan op de getallenas.", "min": "0", "max": "2", "stap": "1/4", "antwoord": "3/4", "getallen": "rand", "breuk": true, "punten": 1 }',
@@ -647,7 +648,7 @@ function openEditor(t, file) {
 
 // Vraag toevoegen: in groepjes, met een icoon en een zinnetje, zodat je meteen ziet wat elke soort doet.
 const ADD_GROEPEN = [
-  ['Kiezen', [['meerkeuze', 'Eén of meer juiste keuzes'], ['juistfout', 'Juist of fout'], ['verbinden', 'Wat hoort bij elkaar?'], ['ordenen', 'In de juiste volgorde'], ['sorteren', 'Woorden in de juiste kolom']]],
+  ['Kiezen', [['meerkeuze', 'Eén of meer juiste keuzes'], ['juistfout', 'Juist of fout'], ['verbinden', 'Wat hoort bij elkaar?'], ['ordenen', 'In de juiste volgorde'], ['groeperen', 'Wat hoort samen? (kleuren)'], ['sorteren', 'Woorden in de juiste kolom']]],
   ['Typen', [['invullen', 'Gaten of keuzelijstjes in een tekst'], ['kort', 'Een woord of getal'], ['rekenen', 'Bewerking en uitkomst'], ['tabel', 'Cellen in een tabel'], ['dictee', 'Woorden of zinnen die voorgelezen worden']]],
   ['Aanduiden', [['aanduiden', 'Een plek of namen op een afbeelding'], ['getallenas', 'Een getal op de getallenas'], ['markeren', 'Woorden in een tekst']]],
   ['Maken', [['tekenen', 'Tekenen, op een afbeelding of leeg'], ['spreken', 'Een antwoord inspreken'], ['open', 'Een open vraag'], ['papier', 'Een opdracht op papier']]],
@@ -1081,6 +1082,7 @@ function antwoordKort(q, a) {
   if (q.type === 'invullen' || q.type === 'tabel') return a.map(x => x || '…').join(' · ');
   if (q.type === 'verbinden') return q.paren.map((p, k) => `${PfKern.paarTekst(q, k, 0)} = ${a[k] === null || a[k] === undefined || !q.paren[a[k]] ? '…' : PfKern.paarTekst(q, a[k], 1)}`).join(' · ');
   if (q.type === 'ordenen') return a.map(i => PfKern.itemTekst(q, i)).join(' → ');
+  if (q.type === 'groeperen') { const k = PfKern.groepKaarten(q); return q.groepen.map((_, c) => `${c + 1}: ${k.filter((_, i) => a[i] === c).map(x => PfKern.kaartTekst(x.kaart)).join(', ') || '…'}`).join(' · '); }
   if (q.type === 'sorteren') { const w = PfKern.sorteerWoorden(q); return q.kolommen.map((k, i) => `${k.naam}: ${w.filter((_, j) => a[j] === i).join(', ') || '…'}`).join(' · '); }
   if (q.type === 'dictee') return a.map((x, i) => `${i + 1}. ${x || '…'}`).join(' · ');
   if (q.type === 'aanduiden') return PfKern.metNamen(q) ? 'namen op de afbeelding' : 'een plek op de afbeelding';

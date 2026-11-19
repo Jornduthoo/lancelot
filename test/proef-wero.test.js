@@ -90,3 +90,29 @@ test('verbinden met prenten: elke kant mag een prent zijn, oud blijft gelijk', (
   // Zonder tekst en zonder prent: niet volledig.
   assert.throws(() => K.validate({ title: 't', vragen: [{ type: 'verbinden', vraag: 'v', paren: [['', 'rood'], ['a', 'b']] }] }), /niet volledig/);
 });
+
+test('groeperen: wat samen staat telt, de kleur niet; per groep of per kaartje', () => {
+  const b = 'data:image/webp;base64,AAAA';
+  const t = K.validate({ title: 't', vragen: [
+    { type: 'groeperen', vraag: 'v', groepen: [['Raad', 'Commissie', { tekst: '', beeld: b }], ['euro', 'cent'], ['Brussel', 'Straatsburg']] },
+    { type: 'groeperen', vraag: 'v', groepen: [['a', 'b'], ['c', 'd']], puntenPer: 'kaart' },
+  ] });
+  const [q, k] = t.vragen;
+  assert.equal(q.punten, 3);
+  assert.equal(k.punten, 4);
+  // Kaartjes in deze volgorde: Raad, Commissie, prent, euro, cent, Brussel, Straatsburg. Kleuren omgewisseld: toch juist.
+  assert.equal(K.auto(q, [2, 2, 2, 0, 0, 1, 1]), 3);
+  // De prent in de verkeerde groep: twee groepen kloppen niet meer.
+  assert.equal(K.auto(q, [2, 2, 0, 0, 0, 1, 1]), 1);
+  assert.equal(K.auto(q, []), 0);
+  assert.equal(K.auto(k, [1, 1, 0, 0]), 4);
+  assert.equal(K.auto(k, [1, 0, 0, 0]), 3);
+  assert.equal(K.auto(k, [1, 1, 1, 1]), 2);
+  const v = K.viewOf(q, '0', { 0: [6, 5, 4, 3, 2, 1, 0] });
+  assert.equal(v.kleuren, 3);
+  assert.deepEqual(v.kaarten.map(x => x.i), [6, 5, 4, 3, 2, 1, 0]);
+  assert.equal(v.kaarten[4].beeld, b);
+  assert.deepEqual(K.schoon(q, [0, '1', 9, null, 'x']), [0, 1, null, null, null]);
+  assert.equal(K.oplossing(k), 'a, b | c, d');
+  assert.throws(() => K.validate({ title: 't', vragen: [{ type: 'groeperen', vraag: 'v', groepen: [['a', 'b']] }] }), /minstens twee groepen/);
+});

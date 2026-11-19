@@ -281,5 +281,22 @@
  "Elke kant mag ook een prent zijn. Een kant zonder tekst? Laat ze leeg, bv.": "Each side may also be a picture. A side without text? Leave it empty, e.g.",
  "= Rome": "= Rome",
  "Kies bij elk kaartje links de letter van het kaartje dat erbij hoort.": "For each card on the left, choose the letter of the card that belongs with it.",
- "Letter": "Letter"
+ "Letter": "Letter",
+ "Groeperen": "Grouping",
+ "{0} heeft minstens twee groepen nodig.": "{0} needs at least two groups.",
+ "{0} heeft te veel kaartjes (hooguit 24).": "{0} has too many cards (at most 24).",
+ "Geef wat samen hoort dezelfde kleur.": "Give what belongs together the same colour.",
+ "Zet de kaartjes in hun groep (2 tot 5 groepen, zonder naam). Een kaartje is tekst, een prent of allebei. De leerling krijgt alle kaartjes door elkaar en geeft wat samen hoort dezelfde kleur. Welke kleur, maakt niet uit.": "Put the cards in their group (2 to 5 groups, without a name). A card is text, a picture or both. The pupil gets all cards mixed up and gives what belongs together the same colour. Which colour does not matter.",
+ "kaartje (tekst, mag leeg met een prent)": "card (text, may be empty with a picture)",
+ "Groep {0}": "Group {0}",
+ "Groep weghalen": "Remove group",
+ "✕ groep": "✕ group",
+ "+ groep": "+ group",
+ "2 tot 5 groepen": "2 to 5 groups",
+ "per juiste groep": "per correct group",
+ "per juist kaartje": "per correct card",
+ "data-c=\"{0}\" style=\"--gk:{1}\"": null,
+ "Geef wat samen hoort hetzelfde nummer (1 tot {0}).": "Give what belongs together the same number (1 to {0}).",
+ "Kies een kleur en tik op de kaartjes die samen horen. Tik nog eens om een kaartje leeg te maken.": "Choose a colour and tap the cards that belong together. Tap again to clear a card.",
+ "Wat hoort samen? (kleuren)": "What belongs together? (colours)"
 }

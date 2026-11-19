@@ -290,7 +290,7 @@ function shufflesFor(sheet, seed) {
   return sheet.blocks.map(b => {
     // Verbinden en ordenen schudden, ook in een vraag uit De Proef.
     const q = b.type === 'vraag' ? b.q : null;
-    const n = b.type === 'verbinden' ? b.pairs.length : q && q.type === 'verbinden' ? q.paren.length : q && q.type === 'ordenen' ? q.items.length : 0;
+    const n = b.type === 'verbinden' ? b.pairs.length : q && q.type === 'verbinden' ? q.paren.length : q && q.type === 'ordenen' ? q.items.length : q && q.type === 'groeperen' ? K.groepKaarten(q).length : 0;
     if (!n) return null;
     const order = [...Array(n).keys()];
     for (let i = order.length - 1; i > 0; i--) {

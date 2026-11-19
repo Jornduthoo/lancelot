@@ -69,6 +69,7 @@
       if (q.type === 'meerkeuze') pf.perms[id] = PfKern.schud(q.opties.length, `${seed}|${id}`);
       if (q.type === 'verbinden') pf.perms[id] = PfKern.schud(q.paren.length, `${seed}|${id}`, true);
       if (q.type === 'ordenen') pf.perms[id] = PfKern.schud(q.items.length, `${seed}|${id}`, true);
+      if (q.type === 'groeperen') pf.perms[id] = PfKern.schud(PfKern.groepKaarten(q).length, `${seed}|${id}`, true);
     }
     pf.view = PfKern.studentView(pf.toets, pf.lijst, { order, perms: pf.perms, img: d => d });
     $('pf-naam').textContent = `${pf.toets.title}${niveaus.length > 1 ? ` · ${Niveau.label(niveau)}` : ''}`;

@@ -281,5 +281,22 @@
  "Elke kant mag ook een prent zijn. Een kant zonder tekst? Laat ze leeg, bv.": "Jede Seite darf auch ein Bild sein. Eine Seite ohne Text? Lass sie leer, z. B.",
  "= Rome": "= Rom",
  "Kies bij elk kaartje links de letter van het kaartje dat erbij hoort.": "Wähle bei jeder Karte links den Buchstaben der Karte, die dazugehört.",
- "Letter": "Buchstabe"
+ "Letter": "Buchstabe",
+ "Groeperen": "Gruppieren",
+ "{0} heeft minstens twee groepen nodig.": "{0} braucht mindestens zwei Gruppen.",
+ "{0} heeft te veel kaartjes (hooguit 24).": "{0} hat zu viele Karten (höchstens 24).",
+ "Geef wat samen hoort dezelfde kleur.": "Gib allem, was zusammengehört, dieselbe Farbe.",
+ "Zet de kaartjes in hun groep (2 tot 5 groepen, zonder naam). Een kaartje is tekst, een prent of allebei. De leerling krijgt alle kaartjes door elkaar en geeft wat samen hoort dezelfde kleur. Welke kleur, maakt niet uit.": "Ordne die Karten ihrer Gruppe zu (2 bis 5 Gruppen, ohne Namen). Eine Karte ist Text, ein Bild oder beides. Die Schüler bekommen alle Karten gemischt und geben allem, was zusammengehört, dieselbe Farbe. Welche Farbe, ist egal.",
+ "kaartje (tekst, mag leeg met een prent)": "Karte (Text, darf mit einem Bild leer bleiben)",
+ "Groep {0}": "Gruppe {0}",
+ "Groep weghalen": "Gruppe entfernen",
+ "✕ groep": "✕ Gruppe",
+ "+ groep": "+ Gruppe",
+ "2 tot 5 groepen": "2 bis 5 Gruppen",
+ "per juiste groep": "pro richtiger Gruppe",
+ "per juist kaartje": "pro richtiger Karte",
+ "data-c=\"{0}\" style=\"--gk:{1}\"": null,
+ "Geef wat samen hoort hetzelfde nummer (1 tot {0}).": "Gib allem, was zusammengehört, dieselbe Nummer (1 bis {0}).",
+ "Kies een kleur en tik op de kaartjes die samen horen. Tik nog eens om een kaartje leeg te maken.": "Wähle eine Farbe und tippe auf die Karten, die zusammengehören. Tippe noch einmal, um eine Karte zu leeren.",
+ "Wat hoort samen? (kleuren)": "Was gehört zusammen? (Farben)"
 }
