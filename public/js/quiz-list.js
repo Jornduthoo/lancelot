@@ -53,7 +53,17 @@ const ItemList = (() => {
     dlg.showModal();
     const box = dlg.querySelector('.lib-bekijk-inhoud');
     if (BLADEN[kind]) {
-      box.innerHTML = `<iframe title="Verbeterblad" src="${BLADEN[kind]}?file=${encodeURIComponent(q.file)}&sleutel=1&bekijk=1"></iframe>`;
+      // Eerst het blad zoals de leerlingen het krijgen; met de knop wissel je naar de verbetersleutel en terug.
+      const toon = sleutel => {
+        box.innerHTML = `<iframe title="${sleutel ? 'Verbetersleutel' : 'Blad'}" src="${BLADEN[kind]}?file=${encodeURIComponent(q.file)}${sleutel ? '&sleutel=1' : ''}&bekijk=1"></iframe>`;
+        wissel.textContent = sleutel ? 'Toon het blad zonder antwoorden' : 'Toon de verbetersleutel';
+        wissel.onclick = () => toon(!sleutel);
+      };
+      const wissel = document.createElement('button');
+      wissel.type = 'button';
+      wissel.className = 'secondary';
+      dlg.querySelector('.lib-bekijk-kop h2').after(wissel);
+      toon(false);
       return;
     }
     socket.emit('open-quiz', q.file, res => {
