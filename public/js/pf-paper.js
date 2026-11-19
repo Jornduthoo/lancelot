@@ -10,6 +10,9 @@ const PfPaper = (() => {
   const nl = n => String(n).replace('.', ',');
   const ptn = n => `${nl(n)} ${n === 1 ? 'punt' : 'punten'}`;
 
+  // Een gemengd getal (1 3/4) in kleine letters: een bredere spatie, anders lees je 13/4.
+  const gemengd = t => String(t).replace(/(\d) (\d+\/\d+)/g, (_, a, b) => `${a}\u2002${b}`);
+
   function vraagHtml(q, nr, o) {
     const a = o.answers[q.id];
     const live = o.mode === 'live';
@@ -249,7 +252,7 @@ const PfPaper = (() => {
       if (f.soort === 'plek' && print) return zone;
       if (f.soort === 'lijn' && print) return `<span class="pf-veld lijn" style="left:${f.x}%;top:${f.y}%;width:${f.w}%;height:${f.h}%"></span>${zoneLijn}`;
       // Een lang antwoord loopt verder dan het vakje (naar rechts en naar onder), zodat er niets wegvalt.
-      const s = f.soort === 'plek' ? zone : f.soort === 'lijn' ? zoneLijn : sleutel && sleutel[k] && !(oordeel && oordeel.goed[k] !== false) ? `<span class="pf-veld-sleutel${b[k] ? '' : ' in'}" style="left:${f.x}%;top:${b[k] ? f.y + f.h : f.y}%;max-width:${Math.max(f.w, 100 - f.x)}%;${b[k] ? '' : `min-width:${f.w}%;min-height:${f.h}%;`}">${esc(sleutel[k]).replace(/\n/g, '<br>')}</span>` : '';
+      const s = f.soort === 'plek' ? zone : f.soort === 'lijn' ? zoneLijn : sleutel && sleutel[k] && !(oordeel && oordeel.goed[k] !== false) ? `<span class="pf-veld-sleutel${b[k] ? '' : ' in'}" style="left:${f.x}%;top:${b[k] ? f.y + f.h : f.y}%;max-width:${Math.max(f.w, 100 - f.x)}%;${b[k] ? '' : `min-width:${f.w}%;min-height:${f.h}%;`}">${gemengd(esc(sleutel[k])).replace(/\n/g, '<br>')}</span>` : '';
       if (f.soort === 'vlak') return `<i class="pf-vlak" style="left:${f.x}%;top:${f.y}%;width:${f.w}%;height:${f.h}%;background:${esc(f.kleur || '#fff')}"></i>`;
       if (f.soort === 'notitie') return `<span class="pf-notitie" style="${pos}">${esc(f.tekst || '').replace(/\n/g, '<br>')}</span>`;
       if (print) return (f.soort === 'rooster' ? veldEl(f, k, pos, null) : '') + s;
@@ -310,7 +313,7 @@ const PfPaper = (() => {
       // Bekijken en verbeteren: het antwoord van de leerling helemaal, ook als het langer is dan het vakje.
       if (isVol(f, k)) {
         const groot = pos.replace(`width:${f.w}%;height:${f.h}%`, `min-width:${f.w}%;min-height:${f.h}%;max-width:${Math.max(f.w, 100 - f.x)}%`);
-        return `<span class="pf-veld vol${f.soort === 'open' ? ' open' : ''}${kl}" data-k="${k}" style="${groot}"><span>${esc(b[k]).replace(/\n/g, '<br>')}</span>${sl ? `<span class="pf-vol-sleutel">${esc(sl).replace(/\n/g, '<br>')}</span>` : ''}</span>`;
+        return `<span class="pf-veld vol${f.soort === 'open' ? ' open' : ''}${kl}" data-k="${k}" style="${groot}"><span>${esc(b[k]).replace(/\n/g, '<br>')}</span>${sl ? `<span class="pf-vol-sleutel">${gemengd(esc(sl)).replace(/\n/g, '<br>')}</span>` : ''}</span>`;
       }
       if (f.soort === 'open') return `<textarea class="pf-veld open${kl}" data-k="${k}" style="${pos}" spellcheck="false"${ro}>${esc(b[k] ?? '')}</textarea>`;
       return `<input class="pf-veld${kl}" data-k="${k}" style="${pos}" autocomplete="off" autocapitalize="off" spellcheck="false" value="${esc(b[k] ?? '')}"${ro}>`;
