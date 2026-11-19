@@ -8,7 +8,7 @@ const PfEdit = (() => {
   const esc = PfPaper.esc;
   const nl = PfPaper.nl;
 
-  const TYPE_ICONS = { meerkeuze: '🔘', juistfout: '✔✖', invullen: '✏️', kort: '⌨️', rekenen: '🧮', verbinden: '🔗', ordenen: '↕️', tabel: '▦', aanduiden: '📍', getallenas: '📏', markeren: '🖍️', tekenen: '🎨', spreken: '🎙️', open: '💬', papier: '📝', blad: '📄', bron: '📜' };
+  const TYPE_ICONS = { meerkeuze: '🔘', juistfout: '✔✖', invullen: '✏️', kort: '⌨️', rekenen: '🧮', verbinden: '🔗', ordenen: '↕️', tabel: '▦', aanduiden: '📍', getallenas: '📏', markeren: '🖍️', tekenen: '🎨', spreken: '🎙️', open: '💬', papier: '📝', blad: '📄', bron: '📜', sorteren: '🗂️' };
 
   function alsBron(file) {
     return new Promise((resolve, reject) => {
@@ -52,7 +52,7 @@ const PfEdit = (() => {
   }
   const DEFAULT_VRAAG = {
     meerkeuze: '', juistfout: '', invullen: 'Vul aan.', kort: '', rekenen: '', verbinden: 'Verbind wat bij elkaar hoort.',
-    ordenen: 'Zet in de juiste volgorde.', tabel: 'Vul de tabel aan.', aanduiden: '', open: '', papier: '',
+    ordenen: 'Zet in de juiste volgorde.', sorteren: 'Sleep elk woord naar de juiste kolom.', tabel: 'Vul de tabel aan.', aanduiden: '', open: '', papier: '',
     getallenas: 'Duid aan op de getallenas.', markeren: 'Duid alle werkwoorden aan.', tekenen: '', spreken: '',
   };
   const HELP = {
@@ -64,7 +64,8 @@ const PfEdit = (() => {
     kort: 'Meerdere goede antwoorden: scheid ze met |. Getallen tellen ook in een andere schrijfwijze (0,5 = ½ = 1/2). Met een breukvak typt de leerling de teller en de noemer apart; 6/8 is dan ook juist voor 3/4, tenzij je "zo eenvoudig mogelijk" aanvinkt.',
     rekenen: 'De leerling rekent de bewerking uit (in een rekenrooster of een tekstvak) en schrijft de uitkomst. De computer verbetert de uitkomst, jij de bewerking.',
     verbinden: 'Eén paar per regel: links = rechts. De rechterkant komt door elkaar.',
-    ordenen: 'Eén ding per regel, in de juiste volgorde. De leerling krijgt ze door elkaar.',
+    ordenen: 'Zet de kaartjes in de juiste volgorde (met de pijltjes). Een kaartje is tekst, een prent of allebei. De leerling krijgt ze door elkaar.',
+    sorteren: 'Geef elke kolom een naam en de woorden die erin horen. Woorden die nergens horen, blijven liggen. De leerling krijgt alle woorden door elkaar; de volgorde in een kolom maakt niet uit.',
     tabel: 'Eén rij per regel, cellen gescheiden door |. De eerste regel is de kop. Zet wat de leerling invult tussen [ ], bv. 2 | [2000]. Een keuzelijstje in een cel: {groter|kleiner|gelijk}, het eerste is het juiste.',
     aanduiden: 'Kies een afbeelding en klik waar het juiste antwoord ligt. Klik op een cirkel om hem weg te halen. Geef je de plekken een naam (bv. de provincies op een kaart), dan zet de leerling elke naam op de juiste plek.',
     open: 'Jij verbetert deze vraag na de toets. Het modelantwoord helpt je (en de AI) snel verbeteren.',
@@ -252,8 +253,39 @@ const PfEdit = (() => {
         veld('<label>Paren<textarea class="e-lijst" rows="4" placeholder="Antwerpen = Schelde\nLuik = Maas"></textarea></label>');
         card.querySelector('.e-lijst').value = (q.paren || []).map(p => `${p[0]} = ${p[1]}`).join('\n');
       } else if (q.type === 'ordenen') {
-        veld('<label>In de juiste volgorde<textarea class="e-lijst" rows="4" placeholder="eerst\ndan\nlaatst"></textarea></label>');
-        card.querySelector('.e-lijst').value = (q.items || []).join('\n');
+        // Een kaartje per rij: tekst en/of een prent, in de juiste volgorde.
+        veld('<strong>In de juiste volgorde</strong>');
+        const box = veld('', 'pf-opties pf-e-orden');
+        const rij = it => {
+          const r = optieRij(it, false);
+          r.querySelector('.pf-juist').outerHTML = '<span class="pf-e-orden-nr"></span><span class="pf-e-orden-knop"><button type="button" class="secondary small-btn op" title="Omhoog">▲</button><button type="button" class="secondary small-btn neer" title="Omlaag">▼</button></span>';
+          r.querySelector('.pf-optie-tekst').placeholder = 'tekst (mag leeg met een prent)';
+          r.querySelector('.op').addEventListener('click', () => { if (r.previousElementSibling) box.insertBefore(r, r.previousElementSibling); cfg.preview(); });
+          r.querySelector('.neer').addEventListener('click', () => { if (r.nextElementSibling) box.insertBefore(r.nextElementSibling, r); cfg.preview(); });
+          return r;
+        };
+        for (const it of q.items && q.items.length ? q.items : ['', '', '']) box.appendChild(rij(it));
+        const add = veld('<button type="button" class="secondary small-btn">+ kaartje</button>');
+        add.querySelector('button').addEventListener('click', () => { box.appendChild(rij('')); cfg.preview(); });
+        veld('<label>Punten<select class="e-puntenper"><option value="">alles juist</option><option value="plaats">per juiste plaats</option></select></label>');
+        card.querySelector('.e-puntenper').value = q.puntenPer || '';
+      } else if (q.type === 'sorteren') {
+        // De kolommen: een naam en de woorden die erin horen.
+        const box = veld('', 'pf-e-kols');
+        const kol = k => {
+          const r = document.createElement('div');
+          r.className = 'pf-e-kol';
+          r.innerHTML = `<input class="e-kolnaam" maxlength="60" placeholder="kolom, bv. -tje"><input class="e-kolwoorden" maxlength="1500" placeholder="woorden in deze kolom, gescheiden door /"><button type="button" class="secondary small-btn weg" title="Kolom weghalen">✕</button>`;
+          r.querySelector('.e-kolnaam').value = (k && k.naam) || '';
+          r.querySelector('.e-kolwoorden').value = ((k && k.woorden) || []).join(' / ');
+          r.querySelector('.weg').addEventListener('click', () => { if (box.children.length > 2) { r.remove(); cfg.preview(); } });
+          return r;
+        };
+        for (const k of q.kolommen && q.kolommen.length ? q.kolommen : [{}, {}]) box.appendChild(kol(k));
+        const add = veld('<button type="button" class="secondary small-btn">+ kolom</button> <span class="muted small">2 tot 6 kolommen</span>');
+        add.querySelector('button').addEventListener('click', () => { if (box.children.length < 6) { box.appendChild(kol({})); cfg.preview(); } });
+        veld('<label>Woorden die nergens horen (mag leeg, gescheiden door /)<input class="e-extra" maxlength="600" placeholder="bijv. tafel / stoel"></label>');
+        card.querySelector('.e-extra').value = (q.extra || []).join(' / ');
       } else if (q.type === 'tabel') {
         veld('<label>Tabel<textarea class="e-lijst" rows="4" placeholder="kg | g\n2 | [2000]\n[0,5] | 500"></textarea></label>');
         card.querySelector('.e-lijst').value = (q.rijen || []).map(r => r.join(' | ')).join('\n');
@@ -629,7 +661,17 @@ const PfEdit = (() => {
       if (type === 'rekenen' && card.querySelector(':scope > .pf-k-body .e-rooster').checked) Object.assign(q, { rooster: true }, card.pfRooster && card.pfRooster.kol ? card.pfRooster : {});
       else if (type === 'rekenen') q.rooster = false;
     } else if (type === 'verbinden') q.paren = regels(waarde(card, '.e-lijst')).map(l => split(l, '='));
-    else if (type === 'ordenen') q.items = regels(waarde(card, '.e-lijst'));
+    else if (type === 'ordenen') {
+      q.items = [...card.querySelectorAll(':scope > .pf-k-body .pf-optie')].map(r => {
+        const t = r.querySelector('.pf-optie-tekst').value.trim();
+        return r.pfBeeld ? { tekst: t, beeld: r.pfBeeld } : t;
+      });
+      if (waarde(card, '.e-puntenper')) q.puntenPer = waarde(card, '.e-puntenper');
+    } else if (type === 'sorteren') {
+      const delen = v => v.split('/').map(w => w.trim()).filter(Boolean);
+      q.kolommen = [...card.querySelectorAll(':scope > .pf-k-body .pf-e-kol')].map(r => ({ naam: r.querySelector('.e-kolnaam').value.trim(), woorden: delen(r.querySelector('.e-kolwoorden').value) }));
+      q.extra = delen(waarde(card, '.e-extra'));
+    }
     else if (type === 'tabel') q.rijen = regels(waarde(card, '.e-lijst')).map(cellenVan);
     else if (type === 'aanduiden') {
       q.zones = card.pfZones || [];

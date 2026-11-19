@@ -60,12 +60,12 @@
   if (typeof module === 'object' && module.exports) module.exports = factory();
   else root.PfKern = factory();
 })(typeof self !== 'undefined' ? self : this, () => {
-  const TYPES = ['meerkeuze', 'juistfout', 'invullen', 'kort', 'rekenen', 'verbinden', 'ordenen', 'tabel', 'aanduiden', 'getallenas', 'markeren', 'tekenen', 'spreken', 'open', 'papier', 'bron', 'blad'];
+  const TYPES = ['meerkeuze', 'juistfout', 'invullen', 'kort', 'rekenen', 'verbinden', 'ordenen', 'tabel', 'aanduiden', 'getallenas', 'markeren', 'tekenen', 'spreken', 'open', 'papier', 'bron', 'blad', 'sorteren'];
   const NAMES = {
     meerkeuze: 'Meerkeuze', juistfout: 'Juist of fout', invullen: 'Invullen', kort: 'Kort antwoord', rekenen: 'Rekenvraag',
     verbinden: 'Verbinden', ordenen: 'Ordenen', tabel: 'Tabel invullen', aanduiden: 'Aanduiden op een afbeelding',
     getallenas: 'Getallenas', markeren: 'Woorden aanduiden', tekenen: 'Tekenen', spreken: 'Inspreken',
-    open: 'Open vraag', papier: 'Op papier', bron: 'Bron met deelvragen', blad: 'Blad uit je pdf',
+    open: 'Open vraag', papier: 'Op papier', bron: 'Bron met deelvragen', blad: 'Blad uit je pdf', sorteren: 'Sorteren',
   };
   // Wat de leerkracht zelf verbetert.
   const MANUEEL = new Set(['open', 'papier', 'tekenen', 'spreken']);
@@ -333,6 +333,15 @@
   // Ook een AI die Engelse namen gebruikt, of een gewone vraag zonder soort, komt goed.
   const pick = (o, ...keys) => { for (const k of keys) if (o[k] !== undefined) return o[k]; return undefined; };
 
+  // ---------- Sorteren in kolommen ----------
+  // De leerling krijgt alle woorden alfabetisch (de volgorde verraadt niets) en zet elk woord in een kolom.
+  // Het antwoord: per woord (in die volgorde) het nummer van de kolom, of null (blijft liggen).
+  const sorteerWoorden = q => [...new Set([...q.kolommen.flatMap(k => k.woorden), ...(q.extra || [])])].sort((a, b) => a.localeCompare(b, 'nl', { numeric: true }));
+  // In welke kolommen hoort een woord (meestal één, geen = een woord dat nergens hoort).
+  const sorteerKolommen = (q, w) => q.kolommen.map((k, i) => (k.woorden.includes(w) ? i : -1)).filter(i => i >= 0);
+  // Een item van ordenen als tekst (een prent zonder tekst wordt "prent 2").
+  const itemTekst = (q, i) => (typeof q.items[i] === 'string' ? q.items[i] : q.items[i] ? q.items[i].tekst || `prent ${i + 1}` : '?');
+
   function cleanVraag(q, waar, deel, bronTekst) {
     if (!q || typeof q !== 'object') throw new Error(`${waar} is leeg.`);
     const type = TYPES.includes(q.type) ? q.type : null;
@@ -467,8 +476,31 @@
       if (out.paren.length < 2) throw new Error(`${naam} heeft minstens twee paren nodig.`);
       max = out.paren.length;
     } else if (type === 'ordenen') {
-      out.items = list(q.items, 12).map(i => text(i, 200)).filter(Boolean);
+      // Een item is tekst, of { tekst, beeld } (een prent, met of zonder tekst), net als de keuzes bij meerkeuze.
+      out.items = list(q.items, 12).map(i => {
+        if (i && typeof i === 'object') {
+          const t = text(i.tekst || i.text, 200);
+          const b = beeldOf(i.beeld) || plaatsOf(i.beeld);
+          return b ? { tekst: t, beeld: b } : t;
+        }
+        return text(i, 200);
+      }).filter(i => i && (typeof i === 'string' || i.tekst || i.beeld));
       if (out.items.length < 2) throw new Error(`${naam} heeft minstens twee dingen om te ordenen nodig.`);
+      // Punten per juiste plaats (in plaats van alles juist).
+      if (q.puntenPer === 'plaats') { out.puntenPer = 'plaats'; max = out.items.length; }
+    } else if (type === 'sorteren') {
+      // Kolommen met de woorden die erin horen; extra = woorden die nergens horen (ze blijven liggen).
+      const woord = w => text(w, 80);
+      out.kolommen = list(q.kolommen, 6).map(k => ({ naam: text(k && k.naam, 60), woorden: [...new Set(list(k && k.woorden, 30).map(woord).filter(Boolean))] }))
+        .filter(k => k.naam || k.woorden.length);
+      if (out.kolommen.length < 2) throw new Error(`${naam} heeft minstens twee kolommen nodig.`);
+      if (out.kolommen.some(k => !k.naam)) throw new Error(`${naam}: geef elke kolom een naam.`);
+      const extra = [...new Set(list(q.extra, 20).map(woord).filter(Boolean))].filter(w => !out.kolommen.some(k => k.woorden.includes(w)));
+      if (extra.length) out.extra = extra;
+      const n = sorteerWoorden(out).filter(w => sorteerKolommen(out, w).length).length;
+      if (!n) throw new Error(`${naam}: zet de woorden in hun kolom.`);
+      if (sorteerWoorden(out).length > 60) throw new Error(`${naam} heeft te veel woorden (hooguit 60).`);
+      max = n;
     } else if (type === 'tabel') {
       out.rijen = list(q.rijen || q.rows, 20).map(r => list(r, 8).map(c => text(c, 120)));
       const breed = Math.max(0, ...out.rijen.map(r => r.length));
@@ -1112,7 +1144,14 @@
     } else if (q.type === 'verbinden') {
       v.links = q.paren.map(x => x[0]);
       v.rechts = (p || q.paren.map((_, i) => i)).map(i => q.paren[i][1]);
-    } else if (q.type === 'ordenen') v.items = (p || q.items.map((_, i) => i)).map(i => q.items[i]);
+    } else if (q.type === 'ordenen') {
+      v.items = (p || q.items.map((_, i) => i)).map(i => (typeof q.items[i] === 'string' ? q.items[i] : { tekst: q.items[i].tekst, beeld: q.items[i].beeld && !q.items[i].beeld.startsWith('#') ? img(q.items[i].beeld) : undefined }));
+    } else if (q.type === 'sorteren') {
+      v.kolommen = q.kolommen.map(k => k.naam);
+      v.woorden = sorteerWoorden(q);
+      // Op papier: zoveel lege rijen als de langste kolom.
+      v.rijen = Math.max(...q.kolommen.map(k => k.woorden.length));
+    }
     else if (q.type === 'tabel') {
       let g = 0;
       v.rijen = q.rijen.map((r, ri) => r.map(c => {
@@ -1320,7 +1359,23 @@
       const goed = q.paren.filter((_, k) => Array.isArray(a) && a[k] === k).length;
       return half((p * goed) / q.paren.length);
     }
+    if (q.type === 'ordenen' && q.puntenPer === 'plaats') return Array.isArray(a) && a.length === q.items.length ? half((p * a.filter((x, i) => x === i).length) / q.items.length) : 0;
     if (q.type === 'ordenen') return Array.isArray(a) && a.length === q.items.length && a.every((x, i) => x === i) ? p : 0;
+    if (q.type === 'sorteren') {
+      // Per juist gesorteerd woord; een woord dat nergens hoort maar toch in een kolom staat, kost er één.
+      const woorden = sorteerWoorden(q);
+      let goed = 0;
+      let fout = 0;
+      let n = 0;
+      woorden.forEach((w, i) => {
+        const kol = sorteerKolommen(q, w);
+        const k = Array.isArray(a) ? a[i] : null;
+        if (kol.length) n++;
+        if (k === null || k === undefined) return;
+        if (kol.includes(k)) goed++; else if (!kol.length) fout++;
+      });
+      return n ? half((p * Math.max(0, goed - fout)) / n) : 0;
+    }
     if (q.type === 'tabel') {
       const cellen = q.rijen.slice(1).flat().map(celGat).filter(Boolean).map(m => m.goed);
       const goed = cellen.filter((c, k) => zelfde(c, Array.isArray(a) ? a[k] : null, q)).length;
@@ -1387,6 +1442,7 @@
     if (q.type === 'meerkeuze') return Array.isArray(a) ? a.slice(0, 8).map(Number).filter(Number.isInteger) : Number.isInteger(Number(a)) && a !== '' ? Number(a) : null;
     if (q.type === 'juistfout') return a === 'J' || a === 'F' ? a : null;
     if (q.type === 'invullen' || q.type === 'tabel') return list(a, 60).map(v => str(v).slice(0, 200));
+    if (q.type === 'sorteren') return list(a, 60).map(v => (Number.isInteger(Number(v)) && v !== null && v !== '' && Number(v) >= 0 && Number(v) < q.kolommen.length ? Number(v) : null));
     if (q.type === 'verbinden' || q.type === 'ordenen') return list(a, 12).map(v => (v === null || v === '' ? null : Number.isInteger(Number(v)) ? Number(v) : null));
     if (q.type === 'rekenen') return a && typeof a === 'object' ? { werk: str(a.werk), uitkomst: str(a.uitkomst).slice(0, 200) } : null;
     if (q.type === 'blad') return list(a, MAX_VELDEN).map((v, k) => (v === true ? true : v === false || v === null ? null : q.velden[k] && (q.velden[k].soort === 'teken' || (q.velden[k].soort === 'klad' && q.velden[k].vorm === 'tekenen')) ? tekeningOf(v) : str(v).slice(0, 1000)));
@@ -1440,7 +1496,8 @@
     if (q.type === 'kort' || q.type === 'rekenen') return metEenheid(alts(q.antwoord)[0], q.eenheid);
     if (q.type === 'blad') return veldSleutel(q).map((s, k) => (s ? `${k + 1}: ${s}` : '')).filter(Boolean).join(' · ');
     if (q.type === 'verbinden') return q.paren.map(p => `${p[0]} = ${p[1]}`).join(' · ');
-    if (q.type === 'ordenen') return q.items.join(' → ');
+    if (q.type === 'ordenen') return q.items.map((_, i) => itemTekst(q, i)).join(' → ');
+    if (q.type === 'sorteren') return q.kolommen.map(k => `${k.naam}: ${k.woorden.join(', ')}`).join(' · ');
     if (q.type === 'tabel') return q.rijen.slice(1).flat().map(celGat).filter(Boolean).map(m => alts(m.goed)[0]).join(' · ');
     if (q.type === 'getallenas') return asTekst(getal(q.antwoord), q.breuk);
     if (q.type === 'markeren') return markeerOplossing(q);
@@ -1475,6 +1532,6 @@
     TYPES, NAMES, MANUEEL, NIVEAUS, MAX_BEELD, ROOSTER, validate, problemen, vragenVan, niveausVan, lijstVoor,
     maxVan, autoPunten, handPunten, totaal, viewOf, studentView, partsOf, getal, zelfde, canoniek, auto, schoon, oplossing, schud, alts, gapsOf,
     waarschuwingen, metNamen, MAX_ZONES, veldSleutel, vakGoed, vakDeel, handVeld, autoVeld, roosterAuto, roosterScore, roosterCellen, roosterTekst, roosterUitkomst,
-    heeftMarge, margeGoed, margeTekst, getalTekst, puntLijnen, puntlijnGoed, cirkelsVan, cirkelGoed, straalCm, puntNaam, handWerk, SCHAAL, NAKIJK, FIGUREN, figurenVan, veelhoekPunten, hoekpunten, rekenregel, formuleFout, lijnGoed, metEenheid, volgorde, SOORTEN, HAND_VELD, woordenVan, doelenVan, markeerModel, markeerSleutel, doelenInBron, markeerTel, markeerKort, markeerAntwoord, tekstWoorden, stukkenVan, zonderHaken, STIFTEN, PER, asTekst, MAX_AUDIO, celGat, vereenvoudigd, GEEN_ANTWOORD, AUTO_VELD, KLEUREN,
+    heeftMarge, margeGoed, margeTekst, getalTekst, puntLijnen, puntlijnGoed, cirkelsVan, cirkelGoed, straalCm, puntNaam, handWerk, SCHAAL, NAKIJK, FIGUREN, figurenVan, veelhoekPunten, hoekpunten, rekenregel, formuleFout, lijnGoed, metEenheid, volgorde, SOORTEN, HAND_VELD, woordenVan, doelenVan, sorteerWoorden, sorteerKolommen, itemTekst, markeerModel, markeerSleutel, doelenInBron, markeerTel, markeerKort, markeerAntwoord, tekstWoorden, stukkenVan, zonderHaken, STIFTEN, PER, asTekst, MAX_AUDIO, celGat, vereenvoudigd, GEEN_ANTWOORD, AUTO_VELD, KLEUREN,
   };
 });
