@@ -139,5 +139,15 @@
  "+ woord": "+ word",
  "de zin, bv. De kat slaapt op de mat.": "the sentence, e.g. The cat sleeps on the mat.",
  "het woord, bv. fiets": "the word, e.g. bike",
- "Woorden of zinnen die voorgelezen worden": "Words or sentences that are read aloud"
+ "Woorden of zinnen die voorgelezen worden": "Words or sentences that are read aloud",
+ "Meerdere stellingen in één vraag (een punt per stelling)": "Several statements in one question (one point per statement)",
+ "De leerling kiest": "The pupil chooses",
+ "Ja of nee": "Yes or no",
+ "+ stelling": "+ statement",
+ "stelling, bv. Een walvis is een vis.": "statement, e.g. A whale is a fish.",
+ "juist / ja": "true / yes",
+ "fout / nee": "false / no",
+ "Alle gaten even breed (de lengte verraadt het antwoord niet)": "All gaps equally wide (the length does not give away the answer)",
+ "Ja": "Yes",
+ "Nee": "No"
 }

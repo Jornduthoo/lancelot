@@ -139,5 +139,15 @@
  "+ woord": "+ mot",
  "de zin, bv. De kat slaapt op de mat.": "la phrase, p. ex. Le chat dort sur le tapis.",
  "het woord, bv. fiets": "le mot, p. ex. vélo",
- "Woorden of zinnen die voorgelezen worden": "Des mots ou des phrases lus à voix haute"
+ "Woorden of zinnen die voorgelezen worden": "Des mots ou des phrases lus à voix haute",
+ "Meerdere stellingen in één vraag (een punt per stelling)": "Plusieurs affirmations dans une question (un point par affirmation)",
+ "De leerling kiest": "L'élève choisit",
+ "Ja of nee": "Oui ou non",
+ "+ stelling": "+ affirmation",
+ "stelling, bv. Een walvis is een vis.": "affirmation, p. ex. La baleine est un poisson.",
+ "juist / ja": "vrai / oui",
+ "fout / nee": "faux / non",
+ "Alle gaten even breed (de lengte verraadt het antwoord niet)": "Tous les trous de même largeur (la longueur ne trahit pas la réponse)",
+ "Ja": "Oui",
+ "Nee": "Non"
 }

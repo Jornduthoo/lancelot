@@ -71,6 +71,13 @@ const PfPaper = (() => {
       h += `<div class="pf-keuzes${q.opties.some(x => x.beeld) ? ' met-beeld' : ''}">${q.opties.map((x, i) => print
         ? `<div class="pf-keuze-print"><span class="ob-check">${L[i]}</span>${x.beeld ? `<img src="${esc(x.beeld)}" alt="">` : ''} ${esc(x.tekst)}</div>`
         : `<button type="button" class="pf-keuze${gekozen.has(String(i)) ? ' on' : ''}" data-value="${i}"${dis}><b>${L[i]}</b>${x.beeld ? `<img src="${esc(x.beeld)}" alt="">` : ''}<span>${esc(x.tekst)}</span></button>`).join('')}</div>`;
+    } else if (q.type === 'juistfout' && q.stellingen) {
+      // Meerdere stellingen: per stelling juist of fout (of ja of nee).
+      const lab = q.labels === 'janee' ? { J: 'Ja', F: 'Nee' } : { J: 'Juist', F: 'Fout' };
+      const ant = Array.isArray(a) ? a : [];
+      h += `<div class="pf-stellingen">${q.stellingen.map((t, i) => `<div class="pf-stelling" data-i="${i}"><span class="pf-stelling-tekst">${i + 1}. ${esc(t)}</span><span class="pf-stelling-keuze">${['J', 'F'].map(v => (print
+        ? `<span class="pf-keuze-print"><span class="ob-check"></span> ${lab[v]}</span>`
+        : `<button type="button" class="pf-jf${ant[i] === v ? ' on' : ''}" data-value="${v}"${dis}>${v === 'J' ? '✔' : '✖'} ${lab[v]}</button>`)).join('')}</span></div>`).join('')}</div>`;
     } else if (q.type === 'juistfout') {
       h += `<div class="pf-keuzes jf">${['J', 'F'].map(v => print
         ? `<span class="pf-keuze-print"><span class="ob-check">${v}</span> ${v === 'J' ? 'Juist' : 'Fout'}</span>`
@@ -789,6 +796,7 @@ const PfPaper = (() => {
       const on = [...el.querySelectorAll('.pf-keuze.on')].map(b => Number(b.dataset.value));
       return el.querySelector('.pf-tip') ? on : (on.length ? on[0] : null);
     }
+    if (type === 'juistfout' && el.querySelector('.pf-stellingen')) return [...el.querySelectorAll('.pf-stelling')].map(r => (r.querySelector('.pf-jf.on') || {}).dataset?.value || null);
     if (type === 'juistfout') return (el.querySelector('.pf-keuze.on') || {}).dataset?.value || null;
     if (type === 'invullen' || type === 'tabel') {
       const out = [];
@@ -847,6 +855,12 @@ const PfPaper = (() => {
     for (const el of box.querySelectorAll('.pf-q')) {
       el.addEventListener('input', e => { if (e.target.matches('input, textarea')) send(el, 800); });
       el.addEventListener('change', e => { if (e.target.matches('input, textarea, select')) send(el); });
+      for (const b of el.querySelectorAll('.pf-jf')) {
+        b.addEventListener('click', () => {
+          for (const x of b.parentNode.querySelectorAll('.pf-jf')) x.classList.toggle('on', x === b);
+          send(el);
+        });
+      }
       for (const b of el.querySelectorAll('.pf-keuze')) {
         b.addEventListener('click', () => {
           const meer = el.dataset.type === 'meerkeuze' && el.querySelector('.pf-tip');

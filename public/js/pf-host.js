@@ -1060,6 +1060,7 @@ function antwoordKort(q, a) {
   if (a === undefined || a === null || a === '' || (Array.isArray(a) && !a.some(x => x !== null && x !== undefined && x !== ''))) return '';
   const opt = i => (typeof q.opties[i] === 'string' ? q.opties[i] : (q.opties[i] && q.opties[i].tekst) || '');
   if (q.type === 'meerkeuze') return [].concat(a).map(i => `${L[i]}${opt(i) ? ` (${opt(i)})` : ''}`).join(' + ');
+  if (q.type === 'juistfout' && q.stellingen) return q.stellingen.map((x, i) => `${i + 1}. ${a[i] === 'J' ? (q.labels === 'janee' ? 'Ja' : 'Juist') : a[i] === 'F' ? (q.labels === 'janee' ? 'Nee' : 'Fout') : '…'}`).join(' · ');
   if (q.type === 'juistfout') return a === 'J' ? 'Juist' : 'Fout';
   if (q.type === 'rekenen') return String(a.uitkomst || '');
   if (q.type === 'invullen' || q.type === 'tabel') return a.map(x => x || '…').join(' · ');
