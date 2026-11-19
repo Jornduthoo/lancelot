@@ -533,7 +533,9 @@ select.pf-kies { width: auto; min-width: 6em; display: inline-block; margin: 0 2
 .pf-rooster .pf-cel { box-sizing: border-box; display: grid; place-items: center; width: 100%; height: 100%; min-width: 0; min-height: 0; margin: 0; padding: 0; border: 0; border-right: 1px solid rgba(43, 108, 255, .35); border-bottom: 1px solid rgba(43, 108, 255, .35); border-radius: 0; background: transparent; color: #1036a8; font: inherit; font-family: ui-monospace, Consolas, monospace; font-weight: 700; line-height: 1; text-align: center; caret-color: #2b6cff; }
 .pf-rooster .pf-cel:focus { outline: none; background: rgba(255, 236, 150, .9); box-shadow: inset 0 0 0 2px #2b6cff; }
 .pf-veld.rooster { padding: 0; clip-path: none; }
-.pf-veld.rooster.goed, .pf-veld.rooster.fout { box-shadow: inset 0 0 0 1.5px rgba(16, 54, 168, .6); background: rgba(255, 255, 255, .78); }
+.pf-veld.rooster.goed { box-shadow: inset 0 0 0 2.5px #1a9e6e; background: rgba(240, 255, 248, .85); }
+.pf-veld.rooster.fout { box-shadow: inset 0 0 0 2.5px #d6334f; background: rgba(255, 244, 246, .85); }
+.pf-rooster .pf-cel { letter-spacing: -.08em; }
 .pf-rooster-los { width: min(100%, calc(var(--kol) * 2.4em)); aspect-ratio: var(--kol) / var(--rij); margin: 6px 0; font-size: 1.25rem; border-radius: 4px; }
 .pf-rooster-los.klein { width: min(100%, calc(var(--kol) * 1.5em)); font-size: .85rem; }
 .pf-vak-rooster { margin: 4px 0; }
@@ -568,3 +570,70 @@ select.pf-kies { width: auto; min-width: 6em; display: inline-block; margin: 0 2
 .pf-be-rij b small { margin-left: 2px; color: #7a3cff; font-size: .75em; }
 /* De toets van één leerling in het venster: het blad krimpt niet, het venster scrolt. */
 #d-paper { flex-shrink: 0; }
+
+/* ---------- Kladruimte: telt niet mee ---------- */
+.pf-veld.klad { background: rgba(240, 240, 240, .45); box-shadow: inset 0 0 0 1.5px rgba(120, 120, 120, .55); color: #444; font-weight: 400; }
+.pf-veld.klad.teken { background: rgba(245, 245, 245, .35); box-shadow: inset 0 0 0 1.5px rgba(120, 120, 120, .55); }
+.pf-veld.klad::placeholder { color: #8a8a8a; font-style: italic; }
+.pf-be-veld.klad { background: rgba(160, 160, 160, .14); box-shadow: inset 0 0 0 1.5px #8a8a8a; border-style: dashed; }
+
+/* ---------- Lijnen tussen punten ---------- */
+.pf-veld.puntlijn { padding: 0; background: transparent; box-shadow: inset 0 0 0 1px rgba(43, 108, 255, .25); touch-action: none; overflow: visible; }
+.pf-veld.puntlijn.live { cursor: crosshair; }
+.pf-veld.puntlijn.goed { box-shadow: inset 0 0 0 2px #1a9e6e; background: rgba(46, 230, 166, .08); }
+.pf-veld.puntlijn.fout { box-shadow: inset 0 0 0 2px #d6334f; background: rgba(255, 77, 109, .06); }
+.pf-veld.puntlijn svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+.pf-veld.puntlijn line { stroke-width: 3; stroke-linecap: round; }
+.pf-veld.puntlijn line.ant { stroke: #2b6cff; }
+.pf-veld.puntlijn line.trek { stroke-dasharray: 5 4; }
+.pf-veld.puntlijn line.sleutel { stroke: #1a9e6e; stroke-dasharray: 6 5; }
+.pf-pt { position: absolute; width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 50%; background: rgba(43, 108, 255, .25); box-shadow: 0 0 0 2px #2b6cff; pointer-events: none; }
+.pf-pt.on { background: #ffe14d; }
+.pf-be-veld.puntlijn, .pf-be-veld.cirkel { background: rgba(43, 108, 255, .06); box-shadow: inset 0 0 0 1.5px #2b6cff; }
+.pf-be-veld .pf-pt { width: 8px; height: 8px; margin: -4px 0 0 -4px; }
+
+/* ---------- Cirkel tekenen ---------- */
+.pf-veld.cirkel { padding: 0; background: transparent; box-shadow: inset 0 0 0 1px rgba(43, 108, 255, .25); touch-action: none; overflow: visible; }
+.pf-veld.cirkel.live { cursor: crosshair; }
+.pf-veld.cirkel.goed { box-shadow: inset 0 0 0 2px #1a9e6e; }
+.pf-veld.cirkel.fout { box-shadow: inset 0 0 0 2px #d6334f; }
+.pf-cirkel { position: absolute; aspect-ratio: 1; transform: translate(-50%, -50%); border-radius: 50%; border: 2px solid #2b6cff; pointer-events: none; box-sizing: border-box; }
+.pf-cirkel::after { content: ''; position: absolute; left: 50%; top: 50%; width: 5px; height: 5px; margin: -2.5px 0 0 -2.5px; border-radius: 50%; background: #2b6cff; }
+.pf-cirkel.nieuw { border-style: dashed; }
+.pf-cirkel.sleutel { border: 2px dashed #1a9e6e; }
+.pf-cirkel.sleutel::after { background: #1a9e6e; }
+.pf-cirkel-maat { position: absolute; transform: translate(10px, -130%); padding: 2px 6px; border-radius: 6px; background: #1d1d1f; color: #fff; font: 700 13px/1.2 system-ui, sans-serif; white-space: nowrap; pointer-events: none; z-index: 5; }
+.pf-cirkel-terug { position: absolute; right: 4px; bottom: 4px; width: 28px; height: 28px; min-width: 0; padding: 0; border-radius: 50%; background: #fff; color: #1d1d1f; font-size: 15px; line-height: 1; box-shadow: 0 1px 4px rgba(0, 0, 0, .35); clip-path: none; z-index: 4; }
+
+/* ---------- De lat op het blad ---------- */
+.pf-lat { position: absolute; z-index: 6; touch-action: none; cursor: grab; filter: drop-shadow(0 2px 4px rgba(0, 0, 0, .35)); }
+.pf-lat svg { display: block; width: 100%; height: auto; }
+.pf-lat rect { fill: rgba(255, 246, 200, .82); stroke: #8a7a3a; stroke-width: .3; }
+.pf-lat line { stroke: #2a2410; stroke-width: .25; }
+.pf-lat text { font: 600 4.2px system-ui, sans-serif; fill: #2a2410; text-anchor: middle; }
+.pf-lat text.cm { font-size: 3.2px; text-anchor: end; }
+.pf-lat-draai { position: absolute; right: -14px; top: 50%; width: 26px; height: 26px; margin-top: -13px; display: grid; place-items: center; border-radius: 50%; background: #2b6cff; color: #fff; font-size: 15px; cursor: grab; box-shadow: 0 0 0 2px #fff; }
+.pf-lat-knop.on { font-weight: 700; text-decoration: underline; }
+
+/* ---------- Venster: sleutel van een rekenrooster, punten en cirkels ---------- */
+.bv-rooster-sleutel { width: min(100%, calc(var(--kol) * 1.9em)); aspect-ratio: var(--kol) / var(--rij); font-size: 1.05rem; border-radius: 4px; margin: 4px 0; }
+.bv-keuzelijst { display: grid; gap: 4px; margin: 4px 0 8px; }
+.bv-vak { position: relative; width: 100%; overflow: hidden; border-radius: 6px; cursor: crosshair; box-shadow: inset 0 0 0 1px var(--line); touch-action: none; }
+.bv-vak > img { pointer-events: none; }
+.bv-vak svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.bv-vak line { stroke: #1a9e6e; stroke-width: 3; stroke-linecap: round; }
+.bv-vak .bv-pt { position: absolute; width: 16px; height: 16px; margin: -8px 0 0 -8px; border-radius: 50%; background: rgba(43, 108, 255, .35); box-shadow: 0 0 0 2px #2b6cff; }
+.bv-vak .bv-pt.on { background: #ffe14d; }
+.bv-vak .bv-pt.door { background: #1a9e6e; }
+.bv-vak .bv-pt b { position: absolute; left: 14px; top: -14px; padding: 0 3px; border-radius: 4px; background: #fff; color: #1036a8; font-size: 12px; }
+.bv-cirkels { display: grid; gap: 4px; margin: 6px 0; }
+.bv-cirkels .bv-rij input { width: 6em; }
+.pf-auto-lijst { margin: 6px 0 0; padding: 8px 12px; border-radius: 8px; background: rgb(var(--k-goud) / .12); box-shadow: inset 0 0 0 1px var(--line); font-size: .9rem; }
+.pf-auto-lijst ul { margin: 4px 0; padding-left: 1.2em; }
+.pf-auto-lijst button { padding: 0; min-width: 0; background: none; color: inherit; text-decoration: underline; box-shadow: none; clip-path: none; font: inherit; cursor: pointer; }
+.pf-be-pl { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+.pf-be-pl line { stroke: #1a9e6e; stroke-width: 2.5; stroke-dasharray: 5 4; }
+.pf-be-veld.puntlijn .t, .pf-be-veld.cirkel .t { display: none; }
+.pf-flits { box-shadow: 0 0 0 3px rgb(var(--k-goud)) !important; transition: box-shadow .3s; }
+.pf-rooster-sleutel .pf-cel { color: #c8102e; }
+.pf-pt.door { background: #1a9e6e; box-shadow: 0 0 0 3px rgba(26, 158, 110, .45); }

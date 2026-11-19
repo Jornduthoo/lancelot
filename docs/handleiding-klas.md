@@ -402,7 +402,13 @@ Maak een toets uit je eigen toets-pdf en neem hem beveiligd af op de Chromebooks
 7. Afdrukken kan ook: de toets op papier en een verbetersleutel per niveau.
 
 **Rekenen op een blad uit je pdf.** In de vakjes-editor (✏️ Vakjes en antwoorden):
-- **🧮 Rekenrooster**: hokjes waarin de leerling een bewerking uitrekent (cijferen), één cijfer per hokje. Kies hoeveel hokjes breed en hoog. Jij verbetert het rooster; zet er een kort antwoord-vakje naast voor de uitkomst.
+- **🧮 Rekenrooster**: hokjes waarin de leerling een bewerking uitrekent (cijferen), één cijfer per hokje (een cijfer met een komma mag samen in één hokje). Kies hoeveel hokjes breed en hoog. Standaard verbeter jij het rooster. Kies je bij *Wie verbetert?* de computer, dan geef je de sleutel: **alleen de uitkomst** (bv. 39393,6, eventueel in een bepaalde rij), **punten per juiste rij** of **alles moet juist zijn** (dan vul je de juiste uitwerking in het rooster). Een verschoven rij, spaties, × en een punt of komma maken niet uit.
+- **Marge bij een getal** (bij een kort antwoord): ± een getal (2,5 ± 0,1), ± procent, of van … tot … (een schatting: 1 700 tot 2 100). Op de verbetersleutel staat dan ≈ 1 800 (1 700 – 2 100).
+- **📝 Kladruimte**: een vak om te typen of te tekenen dat niet meetelt. Jij verbetert er niets aan.
+- **📐 Lijnen tussen punten**: klik de punten aan die op je blad staan, en dan de juiste lijnen (punt na punt). De leerling sleept van punt naar punt; een lijn te veel of te weinig is fout, de richting maakt niet uit. Of kies *elke lijn gaat door punt …* (een middellijn door M).
+- **⭕ Cirkel**: klik het middelpunt aan en geef de straal in cm (en de marge, standaard 0,1 cm). De leerling sleept vanuit het middelpunt en ziet de straal in cm.
+- **📏 Schaal van het blad**: een A4 is 21 cm breed. Is je blad anders, vul dan de breedte in of ijk met een lijn waarvan je de lengte kent. De leerling heeft bij elk blad een **📏 Lat** die hij kan verschuiven en draaien; ze is even groot als een echte lat op het papier.
+- **⚙️ Alles automatisch verbeteren** (bovenaan de toets): dan zie je welke vragen en vakjes je nog zelf verbetert. Klik erop om ze aan te passen. Een vakje met 0 punten en kladruimte tellen niet.
 - **Zo eenvoudig mogelijk** (bij een kort antwoord of een breuk): 3/4 is juist, 6/8 niet. Een onechte breuk (7/4) moet dan een gemengd getal zijn (1 3/4). Bij een breuk kan je ook een vakje voor het geheel aanzetten.
 - **🔗 Samen op punten**: open een vakje, klik op *Samen op punten met andere vakjes* en klik de vakjes aan die bij elkaar horen (bv. drie getallen van één bewerking). De leerling krijgt de punten alleen als ze allemaal juist zijn.
 - Bij een losse **rekenvraag** kan de bewerking ook in een rekenrooster (standaard aan bij een nieuwe rekenvraag).

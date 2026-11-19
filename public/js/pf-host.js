@@ -495,6 +495,7 @@ function leesLijst(box) {
 
 function readEditor() {
   const t = { title: $('e-title').value, intro: $('e-intro').value, vragen: leesLijst($('e-vragen')) };
+  if ($('e-auto').checked) t.auto = true;
   for (const n of ['page', 'ridder']) {
     const l = leesLijst(vragenBox(n));
     if (l.length) t[n] = l;
@@ -574,12 +575,14 @@ function preview() {
     for (const { id, q } of PfKern.vragenVan(lijst)) {
       sleutel[id] = q.type === 'blad' ? PfKern.veldSleutel(q) : PfKern.oplossing(q);
       if (q.type === 'aanduiden') zones[id] = q.zones;
+      else if (q.type === 'blad') zones[id] = q.velden;
     }
     PfPaper.render($('e-preview'), v.pages, { mode: 'view', nummer: true, sleutel, zones });
     if (melding) $('e-preview').insertAdjacentHTML('afterbegin', melding);
     $('e-totaal').textContent = `${PfKern.vragenVan(lijst).length} vragen · ${nl(PfKern.totaal(lijst))} punten${PfKern.niveausVan(t).length > 1 ? ` (${Niveau.NAMES[editNiveau]})` : ''}`;
     $('s-panel').classList.toggle('hidden', !bladKaarten().length);
     $('s-key').classList.toggle('hidden', !hasKey);
+    autoLijst(t);
     const pr = PfKern.problemen(t);
     const tips = PfKern.waarschuwingen(t);
     $('e-problemen').classList.toggle('hidden', !pr.length && !tips.length);
@@ -588,12 +591,39 @@ function preview() {
   }, 250);
 }
 
+// Alles automatisch verbeteren: welke vragen en vakjes verbeter je nog zelf? Een klik brengt je erheen.
+function autoLijst(t) {
+  const box = $('e-auto-lijst');
+  box.classList.toggle('hidden', !$('e-auto').checked);
+  if (!$('e-auto').checked) return;
+  const lijst = PfKern.handWerk(t);
+  box.innerHTML = lijst.length
+    ? `<p>Deze verbeter je nog zelf. Geef ze een sleutel (bv. een rekenrooster met sleutel), maak er een andere soort van, of geef ze 0 punten:</p><ul>${lijst.map((x, i) => `<li><button type="button" data-i="${i}">${esc(x.tekst)}</button></li>`).join('')}</ul>`
+    : '<p>✔ De computer verbetert alles. Na de toets staan de punten meteen klaar.</p>';
+  box.onclick = e => {
+    const b = e.target.closest('button[data-i]');
+    if (!b) return;
+    const x = lijst[Number(b.dataset.i)];
+    if (editNiveau !== x.niveau) showNiveau(x.niveau);
+    const i = parseInt(x.nr, 10) - 1;
+    let card = vragenBox(x.niveau).children[i];
+    const deel = /[a-o]$/.exec(x.nr);
+    if (card && deel) card = card.querySelectorAll(':scope > .pf-k-body > .pf-deelvragen > .pf-kaart-edit')['abcdefghijklmno'.indexOf(deel[0])] || card;
+    if (!card) return;
+    card.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    card.classList.add('pf-flits');
+    setTimeout(() => card.classList.remove('pf-flits'), 1600);
+    if (x.vak !== undefined && card.pfBewerk) card.pfBewerk();
+  };
+}
+
 function openEditor(t, file) {
   editingFile = file;
   mapKeuze.zet(file);
   $('e-heading').textContent = file ? 'Toets bewerken' : 'Nieuwe toets';
   $('e-title').value = t.title || '';
   $('e-intro').value = t.intro || '';
+  $('e-auto').checked = !!t.auto;
   for (const n of Niveau.LIST) {
     vragenBox(n).innerHTML = '';
     for (const q of (n === 'schildknaap' ? t.vragen : t[n]) || []) vragenBox(n).appendChild(vraagKaart(q));
@@ -628,7 +658,7 @@ PfEdit.palet($('e-add'), ADD_GROEPEN, {
   },
 });
 $('editor').addEventListener('input', e => { if (e.target.closest('.pf-vragen') || ['e-title', 'e-intro'].includes(e.target.id)) preview(); });
-$('editor').addEventListener('change', e => { if (e.target.closest('.pf-vragen')) preview(); });
+$('editor').addEventListener('change', e => { if (e.target.closest('.pf-vragen') || e.target.id === 'e-auto') preview(); });
 
 $('new-empty').addEventListener('click', () => {
   openEditor({ title: '', vragen: [] }, null);
@@ -857,6 +887,7 @@ function papierVan(toets, niveau, answers, punten) {
   for (const { id, q } of PfKern.vragenVan(lijst)) {
     sleutel[id] = q.type === 'blad' ? PfKern.veldSleutel(q) : PfKern.oplossing(q);
     if (q.type === 'aanduiden') zones[id] = q.zones;
+    else if (q.type === 'blad') zones[id] = q.velden;
   }
   return { pages: v.pages, opts: { mode: 'view', nummer: true, answers: answers || {}, sleutel, zones, punten } };
 }
@@ -985,11 +1016,25 @@ function antwoordTekst(q, a) {
   if (q.type === 'blad') {
     const rijen = q.velden.map((f, k) => (f.soort === 'open' ? `<p><b>Vak ${k + 1}:</b> ${a[k] ? esc(a[k]).replace(/\n/g, '<br>') : '<em class="muted">leeg</em>'}</p>`
       : f.soort === 'teken' ? `<p><b>Vak ${k + 1}:</b> ${a[k] ? `<img class="pf-vak-tekening" src="${esc(a[k])}" alt="Tekening">` : '<em class="muted">leeg</em>'}</p>`
-        : f.soort === 'rooster' ? `<div class="pf-vak-rooster"><b>Vak ${k + 1}:</b> ${a[k] ? PfPaper.roosterHtml(a[k], f.kol, f.rij, false, 'pf-rooster-los klein') : '<em class="muted">leeg</em>'}</div>` : '')).join('');
+        : f.soort === 'rooster' ? `<div class="pf-vak-rooster"><b>Vak ${k + 1}:</b> ${a[k] ? PfPaper.roosterHtml(a[k], f.kol, f.rij, false, 'pf-rooster-los klein') : '<em class="muted">leeg</em>'}</div>`
+          : f.soort === 'klad' && a[k] ? `<p class="muted"><b>Kladruimte (telt niet mee):</b> ${f.vorm === 'tekenen' ? `<img class="pf-vak-tekening" src="${esc(a[k])}" alt="Tekening">` : esc(a[k]).replace(/\n/g, '<br>')}</p>` : '')).join('');
     return rijen || esc(antwoordKort(q, a));
   }
   if (typeof a === 'object') return esc(antwoordKort(q, a));
   return esc(String(a)).replace(/\n/g, '<br>');
+}
+
+// Het antwoord in één vakje van een blad, kort: een tekening, de onderste rij van een rekenrooster, de lijnen, de stralen.
+function vakKort(q, f, x) {
+  if (f.soort === 'teken') return 'tekening';
+  if (f.soort === 'rooster') {
+    const rijen = PfKern.roosterCellen(x).map(r => r.map(c => c || ' ').join('').trim()).filter(Boolean);
+    return rijen.length ? `rooster, onderaan ${rijen[rijen.length - 1]}` : 'rekenrooster';
+  }
+  if (f.soort === 'puntlijn') return PfKern.puntLijnen(x, (f.pt || []).length).map(([i, j]) => `${PfKern.puntNaam(i)}–${PfKern.puntNaam(j)}`).join(', ') || 'geen lijnen';
+  if (f.soort === 'cirkel') return PfKern.cirkelsVan(x).map(c => `r = ${String(PfKern.straalCm(c[2], q.schaal || PfKern.SCHAAL)).replace('.', ',')} cm`).join(', ');
+  if (f.soort === 'plek' || f.soort === 'lijn') return f.soort === 'plek' ? 'een plek' : 'een lijn';
+  return String(x);
 }
 
 // Een antwoord kort als tekst (voor de lijst en de foutenanalyse), in de volgorde van de toets zelf.
@@ -1008,7 +1053,7 @@ function antwoordKort(q, a) {
   if (q.type === 'markeren') { const w = PfKern.woordenVan(q.tekst); return a.map(i => (w.find(x => x.w === i) || {}).t || '?').join(' · '); }
   if (q.type === 'tekenen') return 'een tekening';
   if (q.type === 'spreken') return 'een opname';
-  if (q.type === 'blad') return q.velden.map((f, k) => (a[k] === true ? `${k + 1}: ✗` : f.soort === 'teken' && a[k] ? `${k + 1}: tekening` : f.soort === 'rooster' && a[k] ? `${k + 1}: rekenrooster` : a[k] ? `${k + 1}: ${a[k]}` : '')).filter(Boolean).join(' · ');
+  if (q.type === 'blad') return q.velden.map((f, k) => (a[k] === true ? `${k + 1}: ✗` : f.soort === 'klad' ? '' : a[k] ? `${k + 1}: ${vakKort(q, f, a[k])}` : '')).filter(Boolean).join(' · ');
   return String(a).slice(0, 200);
 }
 
@@ -1202,7 +1247,7 @@ function renderAnalyse() {
       if (!max) continue;
       if (q.type === 'blad') {
         q.velden.forEach((f, k) => {
-          if (!PfKern.AUTO_VELD.has(f.soort)) return;
+          if (!PfKern.autoVeld(f)) return;
           const fout = new Map();
           let juist = 0;
           let leeg = 0;
@@ -1210,7 +1255,8 @@ function renderAnalyse() {
             const x = (s.antwoorden[id] || [])[k];
             if (x === undefined || x === null || x === '') { leeg++; continue; }
             const ok = PfKern.vakGoed(q, s.antwoorden[id] || [])[k];
-            if (ok) juist++; else fout.set(String(x).trim(), (fout.get(String(x).trim()) || 0) + 1);
+            const kort = vakKort(q, f, x).trim();
+            if (ok) juist++; else fout.set(kort, (fout.get(kort) || 0) + 1);
           }
           items.push({ nr: `${nr} · vak ${k + 1}`, juist, n: spelers.length, leeg, fout, sleutel: PfKern.veldSleutel(q)[k] });
         });

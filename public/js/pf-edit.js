@@ -346,28 +346,31 @@ const PfEdit = (() => {
   // Een blad uit de pdf: een kleine weergave met de vakjes, en een knop om ze te plaatsen en de antwoorden in te vullen.
   function bladKaart(card, body, q) {
     card.pfBeeld = q.beeld;
-    card.pfBlad = { verhouding: q.verhouding, velden: (q.velden || []).map(f => ({ ...f })), woorden: q.woorden || [] };
+    card.pfBlad = { verhouding: q.verhouding, velden: (q.velden || []).map(f => JSON.parse(JSON.stringify(f))), woorden: q.woorden || [], schaal: q.schaal || PfKern.SCHAAL };
     const vak = document.createElement('div');
     vak.className = 'pf-blad-kaart';
     body.appendChild(vak);
     const teken = () => {
       const velden = card.pfBlad.velden;
       const leeg = velden.filter(PfBlad.leegVeld).length;
+      // Wat de leerkracht zelf verbetert; een vakje met 0 punten (of kladruimte) telt niet.
+      const hand = velden.filter(f => PfKern.handVeld(f)).reduce((s, f) => s + (Number(f.punten) || 0), 0);
       vak.innerHTML = `<button type="button" class="pf-blad-mini" title="Vakjes plaatsen en antwoorden invullen" style="aspect-ratio:${1 / (card.pfBlad.verhouding || 1.414)}">
           <img src="${card.pfBeeld}" alt="">${velden.map(f => `<i class="${f.soort}${PfBlad.leegVeld(f) ? ' zonder' : ''}" style="left:${f.x}%;top:${f.y}%;width:${f.w}%;height:${f.h}%"></i>`).join('')}</button>
-        <div class="pf-blad-info"><p><strong>${velden.length} vakjes</strong> · ${nl(velden.filter(f => !PfKern.HAND_VELD.has(f.soort)).reduce((s, f) => s + (Number(f.punten) || 0), 0))} punten${velden.some(f => PfKern.HAND_VELD.has(f.soort)) ? ' + open vakjes, tekenvakken en rekenroosters (verbeter jij)' : ''}</p>
+        <div class="pf-blad-info"><p><strong>${velden.length} vakjes</strong> · ${nl(velden.filter(f => !PfKern.handVeld(f)).reduce((s, f) => s + (Number(f.punten) || 0), 0))} punten${hand ? ` + ${nl(hand)} ${hand === 1 ? 'punt' : 'punten'} die jij verbetert (open vakjes, tekenvakken of rekenroosters zonder sleutel)` : ''}</p>
           ${leeg ? `<p class="pf-nodig">⚠ ${leeg} ${leeg === 1 ? 'vakje heeft' : 'vakjes hebben'} nog geen antwoord</p>` : velden.length ? '<p class="muted small">Alle antwoorden staan erin.</p>' : '<p class="pf-nodig">⚠ Nog geen vakjes</p>'}
           <button type="button" class="secondary small-btn bewerk">✏️ Vakjes en antwoorden</button></div>`;
       for (const b of vak.querySelectorAll('.pf-blad-mini, .bewerk')) b.addEventListener('click', bewerk);
     };
     const bewerk = async () => {
       const nr = card.querySelector('.pf-k-nr').textContent;
-      const velden = await PfBlad.bewerk({ beeld: card.pfBeeld, verhouding: card.pfBlad.verhouding, velden: card.pfBlad.velden, woorden: card.pfBlad.woorden }, {
+      const velden = await PfBlad.bewerk({ beeld: card.pfBeeld, verhouding: card.pfBlad.verhouding, velden: card.pfBlad.velden, woorden: card.pfBlad.woorden, schaal: card.pfBlad.schaal }, {
         titel: `Blad ${nr}`, nr, niveau: cfg.niveau(), ai: cfg.ai(),
       });
       if (!velden) return;
       card.pfBlad.velden = velden;
       card.pfBlad.woorden = velden.woorden || [];
+      card.pfBlad.schaal = velden.schaal || PfKern.SCHAAL;
       teken();
       cfg.preview();
     };
@@ -397,6 +400,7 @@ const PfEdit = (() => {
       q.verhouding = card.pfBlad.verhouding;
       q.velden = card.pfBlad.velden;
       if (card.pfBlad.woorden && card.pfBlad.woorden.length) q.woorden = card.pfBlad.woorden;
+      if (card.pfBlad.schaal && card.pfBlad.schaal !== PfKern.SCHAAL) q.schaal = card.pfBlad.schaal;
       return q;
     }
     if (type === 'bron') {

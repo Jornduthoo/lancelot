@@ -38,7 +38,15 @@
 //               bij tekst: hoofdletters, leestekens (tellen mee) en spaties (alle spaties negeren)
 //               bij tekst en breuk: vereenvoudigd = zo eenvoudig mogelijk (6/8 is fout als 3/4 juist is; 7/4 fout als 1 3/4 juist is)
 //               breuk met geheel: true = er staat een vakje voor het geheel ervoor (een gemengd getal: 1 3/4)
-//               rooster = een rekenrooster voor een bewerking (cijferen): kol kolommen en rij rijen, één teken per hokje; de leerkracht verbetert
+//               rooster = een rekenrooster voor een bewerking (cijferen): kol kolommen en rij rijen, één teken per hokje; zonder sleutel verbetert de leerkracht
+//                 met sleutel (keuze): nakijk 'uitkomst' (uitkomst: "39393,6", eventueel uitkomstRij: 5), 'rijen' (punten per juiste rij) of
+//                 'alles' (alles juist), sleutel = het hele rooster zoals de leerling het invult (rijen gescheiden door een nieuwe regel)
+//               bij tekst met een getal (keuze): marge: 0.1 (± een getal), margeProcent: 5 (± procent) of van: 1700, tot: 2100
+//               klad = kladruimte (vorm: 'typen' of 'tekenen'): telt niet mee, de leerkracht verbetert niets
+//               puntlijn = lijnen tussen punten: pt: [{ x, y }] (procent van het vak), sleutel lijnen: [[0, 2], [1, 3]] (richting en volgorde maken
+//                 niet uit, een lijn te veel of te weinig is fout) of doorPunt: 4 (elke lijn gaat door dat punt, bv. een middellijn) met aantal lijnen
+//               cirkel = een cirkel tekenen: cirkels: [{ x, y (procent van het vak), r (straal in cm) }], marge (cm, standaard 0,1)
+//               schaal (op het blad): hoeveel cm het blad breed is (standaard 21, een A4), voor de lat en de cirkels
 //               samen: vakjes met hetzelfde getal tellen samen als één vraag: alleen als ze allemaal juist zijn, krijgt de leerling de punten
 //               (de punten van het groepje staan op het eerste vakje, de rest heeft 0)
 // Bij invullen is {goed|fout|fout} een keuzelijstje: de eerste is de juiste, de leerling ziet ze alfabetisch.
@@ -64,14 +72,17 @@
   // Aanduiden: hoeveel plekken (met namen: bv. alle provincies of hoofdsteden op een kaart).
   const MAX_ZONES = 20;
   const metNamen = q => q.zones.some(z => z.naam);
-  const SOORTEN = ['tekst', 'kruis', 'kies', 'open', 'teken', 'luister', 'breuk', 'sleep', 'vlak', 'notitie', 'plek', 'lijn', 'rooster'];
+  const SOORTEN = ['tekst', 'kruis', 'kies', 'open', 'teken', 'luister', 'breuk', 'sleep', 'vlak', 'notitie', 'plek', 'lijn', 'rooster', 'klad', 'puntlijn', 'cirkel'];
   // Vakjes zonder antwoord: ze staan alleen op het blad.
   const GEEN_ANTWOORD = new Set(['luister', 'vlak', 'notitie']);
   // Vakjes die de computer verbetert met een getypt of gekozen antwoord.
-  const AUTO_VELD = new Set(['tekst', 'kies', 'breuk', 'sleep', 'plek', 'lijn']);
+  const AUTO_VELD = new Set(['tekst', 'kies', 'breuk', 'sleep', 'plek', 'lijn', 'puntlijn', 'cirkel']);
   const KLEUREN = ['#ffffff', '#fff3b0', '#d8ecff', '#e4e4e4', '#ffd9d9'];
-  // Wat de leerkracht verbetert op een blad.
+  // Wat de leerkracht verbetert op een blad (een rekenrooster alleen zonder sleutel).
   const HAND_VELD = new Set(['open', 'teken', 'rooster']);
+  const NAKIJK = ['uitkomst', 'rijen', 'alles'];
+  // Een A4 is 21 cm breed: zo groot is de lat op het blad, tenzij de leerkracht een andere schaal kiest.
+  const SCHAAL = 21;
   // Een rekenrooster: hoeveel hokjes breed en hoog (standaard en hooguit).
   const ROOSTER = { kol: 8, rij: 4, maxKol: 20, maxRij: 12 };
   const roosterMaat = (v, standaard, max) => Math.min(max, Math.max(2, Math.round(Number(v)) || standaard));
@@ -282,6 +293,191 @@
   }
 
   const pct = (v, max = 100) => Math.round(Math.min(max, Math.max(0, Number(v) || 0)) * 100) / 100;
+
+  // ---------- Rekenrooster met sleutel ----------
+  // Een rooster als tekst: één regel per rij. Heeft een hokje meer dan één teken (7, met de komma erbij),
+  // dan staat er | tussen de hokjes. Lege rijen onderaan vallen weg.
+  function roosterCellen(v, kol = ROOSTER.maxKol, rij = ROOSTER.maxRij) {
+    return String(v || '').replace(/\r/g, '').split('\n').slice(0, rij).map(r => (r.includes('|') ? r.split('|') : Array.from(r)).slice(0, kol).map(c => c.trim()));
+  }
+  function roosterTekst(v, kol, rij) {
+    const rijen = roosterCellen(v, kol, rij).map(r => {
+      const breed = r.some(c => c.length > 1);
+      let cellen = r.map(c => c.replace(/\|/g, '').slice(0, 2));
+      while (cellen.length && !cellen[cellen.length - 1]) cellen.pop();
+      return breed ? cellen.join('|') : cellen.map(c => c || ' ').join('');
+    });
+    while (rijen.length && !rijen[rijen.length - 1].trim().replace(/\|/g, '')) rijen.pop();
+    return rijen.join('\n').slice(0, 1000);
+  }
+  // Een rij om te vergelijken: zonder spaties en rekentekens, een punt is een komma. Een lijn (----) is leeg.
+  const rijNorm = cellen => cellen.join('').toLowerCase().replace(/\s+/g, '').replace(/\./g, ',').replace(/[x*×÷:=+−–_-]/g, '');
+  const rijZelfde = (a, b) => {
+    if (a === b) return true;
+    const x = getal(a);
+    const y = getal(b);
+    return x !== null && y !== null && Math.abs(x - y) < 1e-9 * Math.max(1, Math.abs(x));
+  };
+  // De stukken van een rij (gescheiden door lege hokjes), bv. bij een deling: "1234 | 5" en het quotiënt ernaast.
+  const rijStukken = cellen => cellen.map(c => c || ' ').join('').split(/\s+/).map(c => rijNorm([c])).filter(Boolean);
+  const roosterAuto = f => f.soort === 'rooster' && NAKIJK.includes(f.nakijk) && !!(f.sleutel || (f.nakijk === 'uitkomst' && f.uitkomst));
+  // De uitkomst die de computer zoekt: zelf ingevuld, of de uitkomstrij (of de onderste rij) van de sleutel.
+  function roosterUitkomst(f) {
+    if (f.uitkomst) return f.uitkomst;
+    const r = roosterCellen(f.sleutel);
+    let i = f.uitkomstRij ? f.uitkomstRij - 1 : -1;
+    if (i < 0) for (let j = r.length - 1; j >= 0; j--) if (rijNorm(r[j])) { i = j; break; }
+    return i >= 0 && r[i] ? r[i].map(c => c || ' ').join('').trim() : '';
+  }
+  // Hoeveel van het rooster is juist: 0 tot 1 (per rij), of null zonder sleutel.
+  function roosterScore(f, a) {
+    if (!roosterAuto(f)) return null;
+    const leerling = roosterCellen(a);
+    const vol = leerling.filter(r => rijNorm(r));
+    if (!vol.length) return 0;
+    if (f.nakijk === 'uitkomst') {
+      const doel = rijNorm([roosterUitkomst(f)]);
+      if (!doel) return 0;
+      // De rij van de uitkomst (als de sleutel ze kent) of de onderste ingevulde rij.
+      let rij = f.uitkomstRij;
+      if (!rij && f.sleutel && !f.uitkomst) {
+        const k = roosterCellen(f.sleutel);
+        for (let j = k.length - 1; j >= 0; j--) if (rijNorm(k[j])) { rij = j + 1; break; }
+      }
+      const rijen = [vol[vol.length - 1]];
+      if (rij && leerling[rij - 1]) rijen.unshift(leerling[rij - 1]);
+      return rijen.some(r => rijZelfde(rijNorm(r), doel) || rijStukken(r).some(s => rijZelfde(s, doel))) ? 1 : 0;
+    }
+    const sleutel = roosterCellen(f.sleutel).map(rijNorm).filter(Boolean);
+    const gegeven = vol.map(rijNorm);
+    if (!sleutel.length) return 0;
+    if (f.nakijk === 'alles') return gegeven.length === sleutel.length && sleutel.every((r, i) => rijZelfde(r, gegeven[i])) ? 1 : 0;
+    // Per rij: de juiste rijen in dezelfde volgorde (een extra rij, bv. met onthouden cijfers, mag).
+    let goed = 0;
+    let j = 0;
+    for (const r of sleutel) {
+      const i = gegeven.findIndex((g, n) => n >= j && rijZelfde(g, r));
+      if (i >= 0) { goed++; j = i + 1; }
+    }
+    return goed / sleutel.length;
+  }
+
+  // ---------- Marge bij een getal ----------
+  function margeVan(f, veld) {
+    const n = v => { const x = getal(v); return x === null ? null : x; };
+    if (f.van !== undefined && f.tot !== undefined && f.van !== '' && f.tot !== '' && n(f.van) !== null && n(f.tot) !== null && n(f.van) <= n(f.tot)) {
+      veld.van = text(f.van, 20);
+      veld.tot = text(f.tot, 20);
+      return;
+    }
+    const m = Number(String(f.marge ?? '').replace(',', '.'));
+    if (f.marge !== undefined && f.marge !== '' && f.marge !== null && Number.isFinite(m) && m > 0) { veld.marge = Math.round(m * 1e6) / 1e6; return; }
+    const p = Number(String(f.margeProcent ?? '').replace(',', '.'));
+    if (f.margeProcent !== undefined && f.margeProcent !== '' && f.margeProcent !== null && Number.isFinite(p) && p > 0) veld.margeProcent = Math.min(100, Math.round(p * 100) / 100);
+  }
+  const heeftMarge = f => !!(f.marge || f.margeProcent || (f.van !== undefined && f.tot !== undefined));
+  // De grenzen: [laagste, hoogste] of null.
+  function margeGrenzen(f) {
+    if (f.van !== undefined && f.tot !== undefined) {
+      const a = getal(f.van);
+      const b = getal(f.tot);
+      return a === null || b === null ? null : [a, b];
+    }
+    const x = getal(alts(f.antwoord)[0], f.eenheid);
+    if (x === null) return null;
+    const d = f.marge ? f.marge : (Math.abs(x) * (f.margeProcent || 0)) / 100;
+    return [x - d, x + d];
+  }
+  function margeGoed(f, gegeven) {
+    const g = margeGrenzen(f);
+    const y = getal(gegeven, f.eenheid);
+    if (!g || y === null) return false;
+    const eps = 1e-9 * Math.max(1, Math.abs(y));
+    return y >= g[0] - eps && y <= g[1] + eps;
+  }
+  // Een getal zoals op een Belgisch blad: 1 800 en 0,5.
+  function getalTekst(x) {
+    const r = Math.round(x * 1e6) / 1e6;
+    const [geheel, komma] = String(Math.abs(r)).split('.');
+    const groepen = geheel.length > 3 ? geheel.replace(/\B(?=(\d{3})+(?!\d))/g, ' ') : geheel;
+    return `${r < 0 ? '-' : ''}${groepen}${komma ? `,${komma}` : ''}`;
+  }
+  function margeTekst(f) {
+    const g = margeGrenzen(f);
+    if (!g) return alts(f.antwoord)[0] || '';
+    const a = alts(f.antwoord)[0];
+    const x = getal(a, f.eenheid);
+    const midden = x !== null ? `≈ ${getalTekst(x)} ` : '';
+    return `${midden}(${getalTekst(g[0])} – ${getalTekst(g[1])})`.trim();
+  }
+
+  // ---------- Lijnen tussen punten en cirkels ----------
+  const puntNaam = i => 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'[i] || String(i + 1);
+  // Een antwoord "0-2,1-3": de lijnen van de leerling, elk als [klein, groot].
+  function puntLijnen(a, n) {
+    const out = [];
+    for (const s of String(a || '').split(',')) {
+      const m = /^(\d+)-(\d+)$/.exec(s.trim());
+      if (!m) continue;
+      const x = Number(m[1]);
+      const y = Number(m[2]);
+      if (x === y || x >= n || y >= n) continue;
+      const l = [Math.min(x, y), Math.max(x, y)];
+      if (!out.some(o => o[0] === l[0] && o[1] === l[1])) out.push(l);
+    }
+    return out;
+  }
+  function puntlijnGoed(f, a, verhouding = 1.414) {
+    const n = (f.pt || []).length;
+    const lijnen = puntLijnen(a, n);
+    if (f.doorPunt !== undefined) {
+      // Elke lijn gaat door het punt (bv. de middellijn door M), van een ander punt naar een ander punt.
+      const P = i => ({ x: f.x + (f.pt[i].x * f.w) / 100, y: (f.y + (f.pt[i].y * f.h) / 100) * verhouding });
+      const m = P(f.doorPunt);
+      return lijnen.length === (f.aantal || 1) && lijnen.every(([i, j]) => {
+        if (i === f.doorPunt || j === f.doorPunt) return false;
+        const a1 = P(i);
+        const b1 = P(j);
+        const dx = b1.x - a1.x;
+        const dy = b1.y - a1.y;
+        const len2 = dx * dx + dy * dy;
+        if (!len2) return false;
+        const t = ((m.x - a1.x) * dx + (m.y - a1.y) * dy) / len2;
+        const afstand = Math.hypot(a1.x + t * dx - m.x, a1.y + t * dy - m.y);
+        return t > 0.05 && t < 0.95 && afstand <= 1.2;
+      });
+    }
+    const sleutel = f.lijnen || [];
+    return sleutel.length > 0 && lijnen.length === sleutel.length && sleutel.every(([i, j]) => lijnen.some(l => l[0] === i && l[1] === j));
+  }
+  // Een cirkel van de leerling: "x,y,s" (x, y in procent van het vak, s de straal in procent van de breedte van het blad).
+  function cirkelsVan(a) {
+    return String(a || '').split(';').map(c => c.split(',').map(Number)).filter(c => c.length === 3 && c.every(Number.isFinite) && c[2] > 0).slice(0, 12);
+  }
+  // De straal in cm, afgerond op een mm (zo ziet de leerling hem ook).
+  const straalCm = (s, schaal = SCHAAL) => Math.round(((s / 100) * schaal) * 10) / 10;
+  function cirkelGoed(f, a, verhouding = 1.414, schaal = SCHAAL) {
+    const sleutel = f.cirkels || [];
+    const gegeven = cirkelsVan(a);
+    if (!sleutel.length || gegeven.length !== sleutel.length) return false;
+    const marge = f.marge ?? 0.1;
+    const vrij = gegeven.slice();
+    return sleutel.every(k => {
+      const i = vrij.findIndex(([x, y, s]) => {
+        const dx = (((x - k.x) / 100) * f.w * schaal) / 100;
+        const dy = (((y - k.y) / 100) * f.h * schaal * verhouding) / 100;
+        return Math.hypot(dx, dy) <= Math.max(0.3, marge * 2) + 1e-9 && Math.abs(straalCm(s, schaal) - k.r) <= marge + 1e-9;
+      });
+      if (i < 0) return false;
+      vrij.splice(i, 1);
+      return true;
+    });
+  }
+
+  // Verbetert de leerkracht dit vakje zelf? Een rekenrooster met sleutel verbetert de computer. Kladruimte telt nooit.
+  const handVeld = f => f.soort === 'open' || f.soort === 'teken' || (f.soort === 'rooster' && !roosterAuto(f));
+  const autoVeld = f => AUTO_VELD.has(f.soort) || roosterAuto(f);
+
   function cleanBlad(q, out, naam) {
     if (!out.beeld) throw new Error(`${naam}: de pagina ontbreekt.`);
     delete out.beeldNodig;
@@ -329,9 +525,43 @@
         if (soort === 'rooster') {
           veld.kol = roosterMaat(f.kol, ROOSTER.kol, ROOSTER.maxKol);
           veld.rij = roosterMaat(f.rij, ROOSTER.rij, ROOSTER.maxRij);
+          // De sleutel (een keuze): de computer verbetert de uitkomst, per rij of alles.
+          if (NAKIJK.includes(f.nakijk)) {
+            veld.nakijk = f.nakijk;
+            const sleutel = roosterTekst(f.sleutel, veld.kol, veld.rij);
+            if (sleutel) veld.sleutel = sleutel;
+            const uitkomst = text(f.uitkomst, 60);
+            if (uitkomst) veld.uitkomst = uitkomst;
+            const rij = Math.round(Number(f.uitkomstRij));
+            if (rij >= 1 && rij <= veld.rij) veld.uitkomstRij = rij;
+          }
         }
         const antwoord = text(f.antwoord, 1000);
         if (antwoord) veld.antwoord = antwoord;
+        veld.punten = punt(f.punten, 1);
+      } else if (soort === 'klad') {
+        // Kladruimte: typen of tekenen, het telt niet mee.
+        veld.vorm = f.vorm === 'tekenen' ? 'tekenen' : 'typen';
+        veld.punten = 0;
+      } else if (soort === 'puntlijn') {
+        veld.pt = list(f.pt, 26).filter(p => p && typeof p === 'object').map(p => ({ x: pct(p.x), y: pct(p.y) }));
+        const n = veld.pt.length;
+        const ok = i => Number.isInteger(i) && i >= 0 && i < n;
+        const lijnen = [];
+        for (const l of list(f.lijnen, 40)) {
+          const [a, b] = Array.isArray(l) ? l.map(Number) : [];
+          if (ok(a) && ok(b) && a !== b && !lijnen.some(([c, d]) => (c === a && d === b) || (c === b && d === a))) lijnen.push([Math.min(a, b), Math.max(a, b)]);
+        }
+        const door = f.doorPunt === undefined || f.doorPunt === null || f.doorPunt === '' ? NaN : Number(f.doorPunt);
+        if (ok(door)) {
+          veld.doorPunt = door;
+          veld.aantal = Math.min(12, Math.max(1, Math.round(Number(f.aantal)) || 1));
+        } else if (lijnen.length) veld.lijnen = lijnen;
+        veld.punten = punt(f.punten, 1);
+      } else if (soort === 'cirkel') {
+        veld.cirkels = list(f.cirkels, 8).filter(c => c && typeof c === 'object' && Number(c.r) > 0).map(c => ({ x: pct(c.x), y: pct(c.y), r: Math.round(Math.min(50, Number(c.r)) * 100) / 100 }));
+        const m = Number(String(f.marge ?? '').replace(',', '.'));
+        veld.marge = Number.isFinite(m) && m >= 0 && f.marge !== '' && f.marge !== undefined && f.marge !== null ? Math.min(5, Math.round(m * 100) / 100) : 0.1;
         veld.punten = punt(f.punten, 1);
       } else {
         const antwoord = text(f.antwoord, soort === 'open' ? 1000 : 300);
@@ -341,6 +571,7 @@
         if (soort === 'tekst') for (const k of ['hoofdletters', 'leestekens', 'spaties']) if (f[k]) veld[k] = true;
         if ((soort === 'tekst' || soort === 'breuk') && f.vereenvoudigd) veld.vereenvoudigd = true;
         if (soort === 'breuk' && f.geheel) veld.geheel = true;
+        if (soort === 'tekst') margeVan(f, veld);
         veld.punten = punt(f.punten, 1);
       }
       // Samen op punten: alleen bij vakjes die de computer verbetert (hokjes hebben hun eigen groep).
@@ -352,7 +583,9 @@
     const tel = {};
     for (const f of out.velden) if (f.samen) tel[f.samen] = (tel[f.samen] || 0) + 1;
     for (const f of out.velden) if (f.samen && tel[f.samen] < 2) delete f.samen;
-    out.punten = out.velden.filter(f => !HAND_VELD.has(f.soort)).reduce((s, f) => s + f.punten, 0);
+    out.punten = out.velden.filter(f => !handVeld(f)).reduce((s, f) => s + f.punten, 0);
+    const schaal = Number(String(q.schaal ?? '').replace(',', '.'));
+    if (schaal >= 3 && schaal <= 300 && Math.abs(schaal - SCHAAL) > 1e-9) out.schaal = Math.round(schaal * 100) / 100;
     const woorden = [...new Set(list(q.woorden, 30).map(w => text(w, 60)).filter(Boolean))];
     if (woorden.length && out.velden.some(f => f.soort === 'sleep')) out.woorden = woorden;
     return out;
@@ -390,6 +623,8 @@
     const out = { title, vragen };
     const intro = text(t.intro, 1000);
     if (intro) out.intro = intro;
+    // Alles automatisch verbeteren: de editor toont wat de leerkracht nog zelf verbetert.
+    if (t.auto === true) out.auto = true;
     for (const k of ['page', 'ridder']) {
       const extra = cleanLijst(take(k), `${NIVEAU_NAAM[k]}: `);
       if (extra.length) out[k] = extra;
@@ -432,11 +667,38 @@
           if (v.type === 'blad' && v.velden.some(f => f.soort === 'luister' && !f.audio && !f.tekst)) out.push(`${tag}blad ${nr}: een luisterknop heeft nog geen opname`);
           if (v.type === 'blad' && !v.velden.length) out.push(`${tag}blad ${nr}: zet invulvakjes op het blad`);
           if (v.type === 'blad') {
-            const zonder = v.velden.map((f, k) => (((f.soort === 'tekst' || f.soort === 'breuk' || f.soort === 'sleep') && !alts(f.antwoord).length) || (f.soort === 'kies' && (f.opties.length < 2 || !f.opties.includes(f.antwoord))) || (f.soort === 'lijn' && !f.naar) ? k + 1 : 0)).filter(Boolean);
+            const zonder = v.velden.map((f, k) => (zonderSleutel(f) ? k + 1 : 0)).filter(Boolean);
             if (zonder.length) out.push(`${tag}blad ${nr}: vakje ${zonder.slice(0, 6).join(', ')}${zonder.length > 6 ? ', …' : ''} ${zonder.length > 1 ? 'hebben' : 'heeft'} nog geen antwoord`);
           }
         }
       });
+    }
+    return out;
+  }
+
+  // Een vakje dat de computer verbetert, maar nog geen juist antwoord heeft.
+  const zonderSleutel = f => ((f.soort === 'tekst' || f.soort === 'breuk' || f.soort === 'sleep') && !alts(f.antwoord).length)
+    || (f.soort === 'kies' && (f.opties.length < 2 || !f.opties.includes(f.antwoord))) || (f.soort === 'lijn' && !f.naar)
+    || (f.soort === 'rooster' && NAKIJK.includes(f.nakijk) && !roosterAuto(f))
+    || (f.soort === 'puntlijn' && ((f.pt || []).length < 2 || (f.doorPunt === undefined && !(f.lijnen || []).length)))
+    || (f.soort === 'cirkel' && !(f.cirkels || []).length);
+
+  // Alles automatisch verbeteren: wat verbetert de leerkracht nog zelf? Een lijst om aan te passen.
+  function handWerk(t) {
+    const out = [];
+    for (const n of niveausVan(t)) {
+      const tag = niveausVan(t).length > 1 ? `${NIVEAU_NAAM[n]}, ` : '';
+      for (const { q, nr } of vragenVan(lijstVoor(t, n))) {
+        if (MANUEEL.has(q.type) && q.punten > 0) out.push({ niveau: n, nr, tekst: `${tag}vraag ${nr}: ${NAMES[q.type].toLowerCase()}` });
+        else if (q.type === 'rekenen' && q.werkPunten > 0) out.push({ niveau: n, nr, tekst: `${tag}vraag ${nr}: de bewerking (${q.werkPunten === 1 ? '1 punt' : `${String(q.werkPunten).replace('.', ',')} punten`})` });
+        else if (q.type === 'blad') {
+          q.velden.forEach((f, k) => {
+            if (!handVeld(f) || !(f.punten > 0)) return;
+            const soort = f.soort === 'open' ? 'open antwoord' : f.soort === 'teken' ? 'tekenvak' : 'rekenrooster zonder sleutel';
+            out.push({ niveau: n, nr, vak: k, tekst: `${tag}blad ${nr}, vakje ${k + 1}: ${soort}` });
+          });
+        }
+      }
     }
     return out;
   }
@@ -460,7 +722,7 @@
   }
 
   // Punten: wat de computer verbetert en wat de leerkracht verbetert.
-  const openVelden = q => q.velden.filter(f => HAND_VELD.has(f.soort)).reduce((s, f) => s + f.punten, 0);
+  const openVelden = q => q.velden.filter(handVeld).reduce((s, f) => s + f.punten, 0);
   const handPunten = q => (MANUEEL.has(q.type) ? q.punten : q.type === 'rekenen' ? q.werkPunten : q.type === 'blad' ? openVelden(q) : 0);
   const autoPunten = q => (MANUEEL.has(q.type) ? 0 : q.punten);
   const maxVan = q => autoPunten(q) + handPunten(q);
@@ -528,11 +790,14 @@
     else if (q.type === 'open') v.regels = q.regels;
     else if (q.type === 'blad') {
       v.verhouding = q.verhouding;
+      v.schaal = q.schaal || SCHAAL;
       v.velden = q.velden.map(f => {
         const o = { x: f.x, y: f.y, w: f.w, h: f.h, soort: f.soort };
         if (f.soort === 'kies') o.opties = f.opties;
         if (f.soort === 'kruis') { o.groep = f.groep; if (f.rond) o.rond = true; if (f.label) o.label = f.label; }
         if (f.soort === 'rooster') { o.kol = f.kol; o.rij = f.rij; }
+        if (f.soort === 'klad') o.vorm = f.vorm;
+        if (f.soort === 'puntlijn') o.pt = f.pt || [];
         if (f.soort === 'breuk' && f.geheel) o.geheel = true;
         if (f.soort === 'luister') { if (f.audio) o.audio = img(f.audio); if (f.tekst) o.tekst = f.tekst; }
         if (f.soort === 'vlak') o.kleur = f.kleur;
@@ -564,13 +829,16 @@
   function getal(s, eenheid) {
     let t = String(s ?? '').trim().toLowerCase().replace(/[−–]/g, '-');
     if (eenheid) t = t.split(eenheid.toLowerCase()).join(' ');
+    // Een eenheid met een gewone 2 of 3 erachter: 6,8 cm2 en 1800 m2.
+    t = t.replace(/(?<![a-z])(mm|cm|dm|km|hm|dam|m)[23](?![\d,.])/g, '$1 ');
     t = t.replace(/([a-z])[²³]/g, '$1 ').replace(/[€$%]|euro|(?<![a-z])(cm|mm|dm|km|hm|dam|m|ha|are|kg|hg|dag|g|mg|l|ml|cl|dl|hl|min|sec|s|u|uur)\b/g, ' ').replace(/[½¼¾⅓⅔⅕⅛]/g, c => ` ${BREUK[c]}`).trim();
     let m = /^(-?)(\d+)\s+(\d+)\s*\/\s*(\d+)$/.exec(t);
     if (m && Number(m[4])) return (m[1] ? -1 : 1) * (Number(m[2]) + Number(m[3]) / Number(m[4]));
     m = /^(-?\d+(?:[.,]\d+)?)\s*\/\s*(\d+(?:[.,]\d+)?)$/.exec(t);
     if (m && Number(m[2].replace(',', '.'))) return Number(m[1].replace(',', '.')) / Number(m[2].replace(',', '.'));
     t = t.replace(/\s+/g, '');
-    if (/^-?\d{1,3}(\.\d{3})+(,\d+)?$/.test(t)) t = t.replace(/\./g, '').replace(',', '.');
+    // 1.000 is duizend, maar na een 0 is de punt een komma: 0.194.
+    if (/^-?[1-9]\d{0,2}(\.\d{3})+(,\d+)?$/.test(t)) t = t.replace(/\./g, '').replace(',', '.');
     else if (/^-?\d{1,3}(,\d{3})+\.\d+$/.test(t)) t = t.replace(/,/g, '');
     else t = t.replace(',', '.');
     return /^-?(\d+\.?\d*|\.\d+)$/.test(t) ? Number(t) : null;
@@ -643,20 +911,27 @@
     return Math.hypot(Number(m[1]) - f.naar.x, (Number(m[2]) - f.naar.y) * verhouding) <= (f.r || 3);
   }
 
-  // Per vakje van een blad: goed (true), fout (false) of null (open vak, hokje). ov: wat de leerkracht zelf aanduidde.
-  function vakGoed(q, a, ov = {}) {
+  // Per vakje van een blad: hoeveel juist (1, 0, of een deel bij een rekenrooster per rij) of null (open vak, hokje).
+  // ov: wat de leerkracht zelf aanduidde.
+  function vakDeel(q, a, ov = {}) {
     const b = Array.isArray(a) ? a : [];
     return q.velden.map((f, k) => {
-      if (!AUTO_VELD.has(f.soort)) return null;
-      if (ov[k] === true || ov[k] === false) return ov[k];
-      if (f.soort === 'kies') return b[k] === f.antwoord;
-      if (f.soort === 'plek') return plekGoed(f, b[k], q.verhouding);
-      if (f.soort === 'lijn') return lijnGoed(f, b[k], q.verhouding);
-      if (f.soort === 'sleep') return alts(f.antwoord).includes(String(b[k] || ''));
-      if (f.vereenvoudigd && !vereenvoudigd(b[k], f.antwoord)) return false;
-      return zelfde(f.antwoord, b[k], f);
+      if (!autoVeld(f)) return null;
+      if (ov[k] === true || ov[k] === false) return ov[k] ? 1 : 0;
+      if (f.soort === 'rooster') return roosterScore(f, b[k]);
+      if (f.soort === 'kies') return b[k] === f.antwoord ? 1 : 0;
+      if (f.soort === 'plek') return plekGoed(f, b[k], q.verhouding) ? 1 : 0;
+      if (f.soort === 'lijn') return lijnGoed(f, b[k], q.verhouding) ? 1 : 0;
+      if (f.soort === 'puntlijn') return puntlijnGoed(f, b[k], q.verhouding) ? 1 : 0;
+      if (f.soort === 'cirkel') return cirkelGoed(f, b[k], q.verhouding, q.schaal || SCHAAL) ? 1 : 0;
+      if (f.soort === 'sleep') return alts(f.antwoord).includes(String(b[k] || '')) ? 1 : 0;
+      if (f.vereenvoudigd && !vereenvoudigd(b[k], f.antwoord)) return 0;
+      if (f.soort === 'tekst' && heeftMarge(f) && margeGoed(f, b[k])) return 1;
+      return zelfde(f.antwoord, b[k], f) ? 1 : 0;
     });
   }
+  // Per vakje: goed (true), fout (false) of null. Een rekenrooster dat deels juist is, telt hier als fout.
+  const vakGoed = (q, a, ov) => vakDeel(q, a, ov).map(d => (d === null ? null : d >= 1));
 
   // Punten die de computer geeft voor een antwoord (al canoniek gemaakt). null = de leerkracht verbetert (open, papier).
   // ov: bij een blad de vakjes die de leerkracht zelf goed of fout zette.
@@ -692,7 +967,8 @@
     }
     if (q.type === 'blad') {
       const b = Array.isArray(a) ? a : [];
-      const goed = vakGoed(q, b, ov || {});
+      const deel = vakDeel(q, b, ov || {});
+      const goed = deel.map(d => (d === null ? null : d >= 1));
       let som = 0;
       const groepen = new Map();
       // Samen op punten: het groepje is goed als elk vakje erin goed is.
@@ -705,7 +981,7 @@
           samen.set(f.samen, s);
           return;
         }
-        if (goed[k]) som += f.punten;
+        if (deel[k]) som += f.punten * deel[k];
         if (f.soort !== 'kruis') return;
         const g = groepen.get(f.groep) || { goed: true, punten: 0 };
         g.goed = g.goed && (b[k] === true) === f.antwoord;
@@ -755,7 +1031,7 @@
     if (q.type === 'invullen' || q.type === 'tabel') return list(a, 60).map(v => str(v).slice(0, 200));
     if (q.type === 'verbinden' || q.type === 'ordenen') return list(a, 12).map(v => (v === null || v === '' ? null : Number.isInteger(Number(v)) ? Number(v) : null));
     if (q.type === 'rekenen') return a && typeof a === 'object' ? { werk: str(a.werk), uitkomst: str(a.uitkomst).slice(0, 200) } : null;
-    if (q.type === 'blad') return list(a, MAX_VELDEN).map((v, k) => (v === true ? true : v === false || v === null ? null : q.velden[k] && q.velden[k].soort === 'teken' ? tekeningOf(v) : str(v).slice(0, 1000)));
+    if (q.type === 'blad') return list(a, MAX_VELDEN).map((v, k) => (v === true ? true : v === false || v === null ? null : q.velden[k] && (q.velden[k].soort === 'teken' || (q.velden[k].soort === 'klad' && q.velden[k].vorm === 'tekenen')) ? tekeningOf(v) : str(v).slice(0, 1000)));
     if (q.type === 'getallenas') return a !== '' && Number.isFinite(Number(a)) ? Math.round(Number(a) * 1e6) / 1e6 : null;
     if (q.type === 'markeren') return [...new Set(list(a, 400).map(Number).filter(n => Number.isInteger(n) && n >= 0))].sort((x, y) => x - y);
     if (q.type === 'tekenen') return tekeningOf(a);
@@ -769,7 +1045,14 @@
   // "36 cm", maar geen "36 cm cm" als de eenheid al in het antwoord staat.
   const metEenheid = (a, e) => (e && !String(a || '').toLowerCase().includes(e.toLowerCase()) ? `${a} ${e}` : String(a || ''));
   // Het juiste antwoord per vakje van een blad: tekst, ✗ (aankruisen) of leeg.
-  const veldSleutel = q => q.velden.map(f => (f.soort === 'kruis' ? (f.antwoord ? '✗' : '') : f.soort === 'plek' ? (f.doel ? '📍' : '') : f.soort === 'lijn' ? (f.naar ? '↗' : '') : GEEN_ANTWOORD.has(f.soort) ? '' : f.soort === 'tekst' || f.soort === 'breuk' ? metEenheid(alts(f.antwoord)[0] || '', f.eenheid) : f.soort === 'sleep' ? (alts(f.antwoord)[0] || '') : (f.antwoord || '')));
+  const veldSleutel = q => q.velden.map(f => (f.soort === 'kruis' ? (f.antwoord ? '✗' : '') : f.soort === 'plek' ? (f.doel ? '📍' : '') : f.soort === 'lijn' ? (f.naar ? '↗' : '')
+    : GEEN_ANTWOORD.has(f.soort) || f.soort === 'klad' ? ''
+    : f.soort === 'tekst' && heeftMarge(f) ? metEenheid(margeTekst(f), f.eenheid)
+    : f.soort === 'tekst' || f.soort === 'breuk' ? metEenheid(alts(f.antwoord)[0] || '', f.eenheid) : f.soort === 'sleep' ? (alts(f.antwoord)[0] || '')
+    : f.soort === 'rooster' && roosterAuto(f) ? (f.nakijk === 'uitkomst' ? `= ${roosterUitkomst(f)}` : roosterCellen(f.sleutel).map(r => r.map(c => c || ' ').join('')).join('\n'))
+    : f.soort === 'puntlijn' ? (f.doorPunt !== undefined ? `${f.aantal > 1 ? `${f.aantal} lijnen` : 'een lijn'} door het groene punt` : (f.lijnen || []).map(([a, b]) => `${puntNaam(a)}–${puntNaam(b)}`).join(', '))
+    : f.soort === 'cirkel' ? (f.cirkels || []).map(c => `r = ${getalTekst(c.r)} cm`).join(', ') + ((f.cirkels || []).length ? ` (± ${getalTekst(f.marge ?? 0.1)})` : '')
+    : (f.antwoord || '')));
 
   // Het juiste antwoord als tekst, voor het verbeterblad en de leerkracht.
   function oplossing(q) {
@@ -814,6 +1097,7 @@
   return {
     TYPES, NAMES, MANUEEL, NIVEAUS, MAX_BEELD, ROOSTER, validate, problemen, vragenVan, niveausVan, lijstVoor,
     maxVan, autoPunten, handPunten, totaal, viewOf, studentView, partsOf, getal, zelfde, canoniek, auto, schoon, oplossing, schud, alts, gapsOf,
-    waarschuwingen, metNamen, MAX_ZONES, veldSleutel, vakGoed, lijnGoed, metEenheid, volgorde, SOORTEN, HAND_VELD, woordenVan, doelenVan, asTekst, MAX_AUDIO, celGat, vereenvoudigd, GEEN_ANTWOORD, AUTO_VELD, KLEUREN,
+    waarschuwingen, metNamen, MAX_ZONES, veldSleutel, vakGoed, vakDeel, handVeld, autoVeld, roosterAuto, roosterScore, roosterCellen, roosterTekst, roosterUitkomst,
+    heeftMarge, margeGoed, margeTekst, getalTekst, puntLijnen, puntlijnGoed, cirkelsVan, cirkelGoed, straalCm, puntNaam, handWerk, SCHAAL, NAKIJK, lijnGoed, metEenheid, volgorde, SOORTEN, HAND_VELD, woordenVan, doelenVan, asTekst, MAX_AUDIO, celGat, vereenvoudigd, GEEN_ANTWOORD, AUTO_VELD, KLEUREN,
   };
 });

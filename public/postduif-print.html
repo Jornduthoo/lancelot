@@ -67,6 +67,7 @@ function verbeterd(afname, i, l, t) {
   for (const { id, q } of PfKern.vragenVan(lijst)) {
     sleutel[id] = q.type === 'blad' ? PfKern.veldSleutel(q) : PfKern.oplossing(q);
     if (q.type === 'aanduiden') zones[id] = q.zones;
+    else if (q.type === 'blad') zones[id] = q.velden;
     const over = s.over && s.over[id] !== undefined && s.over[id] !== null;
     punten[id] = [over ? Number(s.over[id]) : (Number(s.auto[id]) || 0) + (Number(s.hand && s.hand[id]) || 0), PfKern.maxVan(q)];
     if (q.type === 'blad') vakken[id] = { goed: PfKern.vakGoed(q, s.antwoorden[id], (s.vak && s.vak[id]) || {}), zelf: (s.vak && s.vak[id]) || {} };
