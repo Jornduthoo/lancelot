@@ -282,3 +282,21 @@ test('aanduiden met meer juiste plekken en een label, verbinden met een lengte',
   assert.deepEqual(K.vakDeel(q, ['50,50', '45,61', '11,81', '90,50']), [0, 0, 0, 0]);
   assert.deepEqual(K.veldSleutel(q).slice(1, 3), ['6,3 cm (± 0,2)', '5 cm (± 0,5)']);
 });
+
+test('kleurveld met vaste kleuren en omkringen', () => {
+  const q = blad([
+    { x: 1, y: 1, w: 30, h: 10, soort: 'kleur', kol: 5, rij: 2, kleuren: [{ kleur: 'rood', aantal: '60%' }, { kleur: 'blauw', aantal: '1/5' }] },
+    { x: 1, y: 20, w: 30, h: 10, soort: 'kleur', kol: 10, rij: 1, kleuren: [{ kleur: 'groen', aantal: '3' }, { kleur: 'paars' }] },
+    { x: 1, y: 40, w: 5, h: 5, soort: 'kruis', groep: 1, antwoord: true, omkring: true },
+    { x: 10, y: 40, w: 5, h: 5, soort: 'kruis', groep: 1, antwoord: false, omkring: true },
+  ]);
+  assert.equal(K.viewOf(q).velden[0].kleuren[0].aantal, undefined);
+  assert.equal(K.viewOf(q).velden[2].omkring, true);
+  // Welke hokjes maakt niet uit, het aantal per kleur wel; een kleur zonder aantal telt niet mee.
+  assert.deepEqual(K.vakDeel(q, ['1110111220', '1100012', true, null]).slice(0, 2), [1, 1]);
+  assert.deepEqual(K.vakDeel(q, ['11101112', '11', true, true]).slice(0, 2), [0, 0]);
+  assert.equal(K.auto(q, ['2211101110', '0001010010', true, null]), 3);
+  assert.equal(K.auto(q, ['', '', true, true]), 0);
+  assert.equal(K.veldSleutel(q)[0], '60% rood (6 van 10 hokjes), 1/5 blauw (2 van 10 hokjes)');
+  assert.equal(K.veldSleutel(q)[2], '◯');
+});

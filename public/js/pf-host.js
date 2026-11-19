@@ -1062,6 +1062,7 @@ function vakKort(q, f, x) {
   }
   if (f.soort === 'puntlijn') return PfKern.puntLijnen(x, (f.pt || []).length).map(([i, j]) => `${PfKern.puntNaam(i)}–${PfKern.puntNaam(j)}`).join(', ') || 'geen lijnen';
   if (f.soort === 'cirkel') return PfKern.cirkelsVan(x).map(c => `r = ${String(PfKern.straalCm(c[2], q.schaal || PfKern.SCHAAL)).replace('.', ',')} cm`).join(', ');
+  if (f.soort === 'kleur') return (f.kleuren || []).map((c, i) => `${[...String(x)].filter(z => z === String(i + 1)).length} ${c.kleur}`).join(', ');
   if (f.soort === 'veelhoek') return PfKern.figurenVan(PfKern.veelhoekPunten(f, x, q.verhouding))[0] || 'geen figuur';
   if (f.soort === 'plek' || f.soort === 'lijn') return f.soort === 'plek' ? 'een plek' : 'een lijn';
   return String(x);

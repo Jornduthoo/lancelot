@@ -531,7 +531,9 @@ const PfPaper = (() => {
       if (f.soort === 'puntlijn') return puntlijnHtml(f, k, g, kl);
       if (f.soort === 'cirkel') return cirkelHtml(f, k, kl);
       if (f.soort === 'veelhoek') return veelhoekHtml(f, k, kl);
+      if (f.soort === 'kleur') return kleurHtml(f, k, kl);
       // Een bolletje (rond): één keuze per groep. Een hokje: aankruisen, ook meerdere.
+      if (f.soort === 'kruis' && f.omkring) return `<button type="button" class="pf-veld kruis omkring${f.rond ? ' rond' : ''}${kl}${b[k] === true ? ' on' : ''}" data-k="${k}" data-g="${f.groep || 1}" style="${pos}" aria-label="Omkringen"${live ? '' : ' disabled'}></button>`;
       if (f.soort === 'kruis') return `<button type="button" class="pf-veld kruis${f.rond ? ' rond' : ''}${kl}${b[k] === true ? ' on' : ''}" data-k="${k}" data-g="${f.groep || 1}" style="${pos}" aria-label="${f.label ? esc(f.label) : 'Aankruisen'}"${live ? '' : ' disabled'}>${f.rond ? esc(f.label || '') : b[k] === true ? '✗' : esc(f.label || '')}</button>`;
       if (f.soort === 'breuk') {
         const [g, t, n] = breukDelen(b[k]);
@@ -580,6 +582,14 @@ const PfPaper = (() => {
       const uitleg = live && f.uitleg ? `<span class="pf-vh-uitleg">${esc(f.uitleg)}</span>` : '';
       return `<div class="pf-veld veelhoek${kl}${live ? ' live' : ''}${f.diagonalen ? ' diag' : ''}" data-k="${k}" data-waarde="${esc(print ? '' : b[k] || '')}" data-kol="${kol}" data-rij="${rij}" style="left:${f.x}%;top:${f.y}%;width:${f.w}%;height:${f.h}%" title="${f.diagonalen ? 'Tik eerst de 2 uiteinden van de ene diagonaal aan, dan die van de andere' : 'Tik de hoekpunten aan'}">
         <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${veelhoekSvg(print ? '' : b[k], kol, rij, f.diagonalen)}</svg>${stippen}${uitleg}${live ? '<button type="button" class="pf-cirkel-terug" title="Laatste punt weg" aria-label="Laatste punt weg">↶</button>' : ''}</div>`;
+    }
+    // Een kleurveld: hokjes om in te kleuren met vaste kleuren. Met meer kleuren staan de kleurknoppen boven het veld.
+    function kleurHtml(f, k, kl) {
+      const kleuren = f.kleuren || [];
+      const w = String(b[k] || '');
+      const cellen = Array.from({ length: f.kol * f.rij }, (_, i) => { const c = kleuren[Number(w[i]) - 1]; return `<i data-i="${i}"${c ? ` style="background:${c.hex}"` : ''}></i>`; }).join('');
+      const pal = live && kleuren.length > 1 ? `<span class="pf-kleur-pal" data-k="${k}" style="left:${f.x}%;top:${f.y}%">${kleuren.map((c, i) => `<button type="button" class="pf-kleur-knop${i ? '' : ' on'}" data-c="${i + 1}" style="background:${c.hex};border-color:${c.rand}" title="${esc(c.kleur)}" aria-label="${esc(c.kleur)}"></button>`).join('')}</span>` : '';
+      return `<div class="pf-veld kleurveld${kl}${live ? ' live' : ''}" data-k="${k}" data-waarde="${esc(w)}" data-n="${f.kol * f.rij}" data-hex="${kleuren.map(c => c.hex).join(',')}" style="left:${f.x}%;top:${f.y}%;width:${f.w}%;height:${f.h}%;--kol:${f.kol};--rij:${f.rij}" title="Tik de hokjes aan om ze te kleuren">${cellen}</div>${pal}`;
     }
     // Een cirkel tekenen: vanuit het middelpunt slepen. De straal staat erbij in cm (volgens de schaal van het blad).
     function cirkelHtml(f, k, kl) {
@@ -898,7 +908,7 @@ const PfPaper = (() => {
         if (f.classList.contains('rooster')) out[k] = roosterWaarde(f) || null;
         else if (f.classList.contains('kruis')) out[k] = f.classList.contains('on') ? true : null;
         else if (f.classList.contains('teken')) out[k] = f.pfWaarde || null;
-        else if (f.classList.contains('sleep') || f.classList.contains('plek') || f.classList.contains('lijn') || f.classList.contains('puntlijn') || f.classList.contains('cirkel') || f.classList.contains('veelhoek')) out[k] = f.dataset.waarde || null;
+        else if (f.classList.contains('sleep') || f.classList.contains('plek') || f.classList.contains('lijn') || f.classList.contains('puntlijn') || f.classList.contains('cirkel') || f.classList.contains('veelhoek') || f.classList.contains('kleurveld')) out[k] = f.dataset.waarde || null;
         else if (f.classList.contains('breuk')) {
           const g = f.querySelector('.geheel') ? f.querySelector('.geheel').value.trim() : '';
           const t = f.querySelector('.teller').value.trim();
@@ -944,11 +954,28 @@ const PfPaper = (() => {
           // Een bolletje: de andere bolletjes van dezelfde vraag gaan uit.
           if (b.classList.contains('rond')) {
             for (const x of el.querySelectorAll(`.pf-veld.kruis.rond[data-g="${b.dataset.g}"]`)) if (x !== b) x.classList.remove('on');
-          } else b.textContent = b.classList.contains('on') ? '✗' : label;
+          } else if (!b.classList.contains('omkring')) b.textContent = b.classList.contains('on') ? '✗' : label;
           send(el);
         });
       }
       // Aanduiden op een blad: een speld waar de leerling tikt.
+      // Kleurveld: tik een hokje aan om het te kleuren (nog eens: weer wit). Met meer kleuren eerst de kleur kiezen.
+      for (const v of el.querySelectorAll('.pf-veld.kleurveld.live')) {
+        const hex = v.dataset.hex.split(',');
+        const pal = el.querySelector(`.pf-kleur-pal[data-k="${v.dataset.k}"]`);
+        if (pal) pal.addEventListener('click', e => { const b = e.target.closest('.pf-kleur-knop'); if (!b) return; for (const x of pal.children) x.classList.toggle('on', x === b); v.dataset.kies = b.dataset.c; });
+        v.addEventListener('click', e => {
+          const c = e.target.closest('i[data-i]');
+          if (!c) return;
+          const kies = v.dataset.kies || '1';
+          const w = (v.dataset.waarde || '').padEnd(Number(v.dataset.n), '0').split('');
+          const i = Number(c.dataset.i);
+          w[i] = w[i] === kies ? '0' : kies;
+          c.style.background = w[i] === '0' ? '' : hex[Number(w[i]) - 1];
+          v.dataset.waarde = w.join('').replace(/0+$/, '');
+          send(el);
+        });
+      }
       // Met een label: eerst het label kiezen; alleen de plek van dat label luistert dan (de kaders mogen over elkaar liggen).
       const kiesLabel = k => {
         for (const x of el.querySelectorAll('.pf-label-w')) x.classList.toggle('on', x.dataset.k === k);
