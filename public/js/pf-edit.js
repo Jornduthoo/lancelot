@@ -58,7 +58,7 @@ const PfEdit = (() => {
   const HELP = {
     invullen: 'Zet wat de leerling typt tussen [ en ]. Meerdere goede antwoorden: [fiets|velo]. Een keuzelijstje: {juist|fout|fout}, het eerste is het juiste (de leerling ziet ze alfabetisch).',
     getallenas: 'Kies het begin, het einde en de stap tussen de streepjes. Het juiste getal moet op een streepje liggen. Breuken mag je typen als 3/4.',
-    markeren: 'Typ of plak de tekst en zet de woorden die de leerling moet aanduiden tussen [ en ]. Een fout aangeduid woord kost een juist.',
+    markeren: 'Typ of plak de tekst en klik de juiste woorden, zinnen of stukken aan (ze komen tussen [ en ]). Een fout aangeduid stuk kost een juist.',
     tekenen: 'De leerling tekent met vinger, pen of muis, eventueel op een afbeelding (bv. een rooster, kaart of figuur). Na de toets geef jij de punten.',
     spreken: 'De leerling neemt zijn antwoord op. Na de toets luister je en geef jij de punten. Opnemen lukt op Chromebooks alleen als ICT het adres van LANcelot toelaat; op de pc zelf altijd.',
     kort: 'Meerdere goede antwoorden: scheid ze met |. Getallen tellen ook in een andere schrijfwijze (0,5 = ½ = 1/2). Met een breukvak typt de leerling de teller en de noemer apart; 6/8 is dan ook juist voor 3/4, tenzij je "zo eenvoudig mogelijk" aanvinkt.',
@@ -187,6 +187,7 @@ const PfEdit = (() => {
       veld('<label>Tekst of gegevens<textarea class="e-tekst" rows="5" placeholder="De leestekst, of gegevens waar de deelvragen over gaan."></textarea></label>');
       card.querySelector('.e-titel').value = q.titel || '';
       card.querySelector('.e-tekst').value = q.tekst || '';
+      card.querySelector('.e-tekst').addEventListener('input', () => { for (const d of card.querySelectorAll('.pf-deelvragen > .pf-kaart-edit')) if (d.pfBronVeranderd) d.pfBronVeranderd(); });
       body.appendChild(beeldRij(card, q.beeld, { nodig: q.beeldNodig, pagina: q.beeldPagina }));
       veld(`<p class="muted small">${HELP.bron}</p>`);
       const deel = document.createElement('div');
@@ -211,7 +212,15 @@ const PfEdit = (() => {
         const juist = new Set([].concat(q.juist ?? 0));
         for (const [i, o] of (q.opties && q.opties.length ? q.opties : ['', '', '']).entries()) box.appendChild(optieRij(o, juist.has(i)));
         const add = veld('<button type="button" class="secondary small-btn">+ keuze</button><span class="muted small"> Vink alle juiste antwoorden aan. Meer dan één: de leerling moet ze allemaal aanduiden.</span>');
-        add.querySelector('button').addEventListener('click', () => { box.appendChild(optieRij('', false)); cfg.preview(); });
+        add.querySelector('button').addEventListener('click', () => { box.appendChild(optieRij('', false)); meer(); cfg.preview(); });
+        // Meerdere juiste: alles of niets, of punten per juist antwoord; en eventueel "duid er 2 aan".
+        const meerBox = veld(`<div class="row"><label>Punten<select class="e-puntenper"><option value="">alles of niets</option><option value="juist">per juist antwoord (een fout kost er één)</option></select></label>
+          <label>Hoeveel moet de leerling aanduiden?<input class="e-aantal" type="number" min="1" max="7" placeholder="allemaal"></label></div>`, 'pf-e-meer');
+        meerBox.querySelector('.e-puntenper').value = q.puntenPer || '';
+        meerBox.querySelector('.e-aantal').value = q.aantal || '';
+        const meer = () => meerBox.classList.toggle('hidden', [...box.querySelectorAll('.pf-juist input')].filter(i => i.checked).length < 2);
+        box.addEventListener('change', meer);
+        meer();
       } else if (q.type === 'juistfout') {
         veld('<label>Het juiste antwoord<select class="e-jf"><option value="J">Juist</option><option value="F">Fout</option></select></label>');
         card.querySelector('.e-jf').value = q.juist ? 'J' : 'F';
@@ -296,10 +305,7 @@ const PfEdit = (() => {
         card.querySelector('.e-getallen').value = q.getallen === 'alle' ? 'alle' : 'rand';
         card.querySelector('.e-breuk').checked = !!q.breuk;
       } else if (q.type === 'markeren') {
-        veld('<label>Tekst<textarea class="e-tekst" rows="4" placeholder="De hond [blaft] en de kat [slaapt]."></textarea></label>');
-        card.querySelector('.e-tekst').value = q.tekst || '';
-        const hulp = veld('<button type="button" class="secondary small-btn" data-in="[]">[ ] Juist woord</button> <span class="muted small">Selecteer een woord in de tekst en klik.</span>', 'actions');
-        gatKnoppen(hulp, card.querySelector('.e-tekst'));
+        markeerEditor(card, body, veld, q, inBron);
       } else if (q.type === 'tekenen') {
         card.pfVerhouding = q.verhouding || 0.6;
         body.appendChild(beeldRij(card, q.beeld, { nodig: q.beeldNodig, pagina: q.beeldPagina, onChange: url => meetBeeld(card, url) }));
@@ -341,6 +347,183 @@ const PfEdit = (() => {
     card.pfPagina = q.beeldPagina || 0;
     if (inBron) card.classList.add('deel');
     return card;
+  }
+
+  // Woorden aanduiden: wat de leerling aantikt (woorden, zinnen of stukjes), de kleuren, hoeveel, en in een bron: in de brontekst.
+  // De maker klikt de juiste woorden of zinnen aan (of sleept over een stuk); dat zet ze tussen [ ] in de tekst (met |2 voor de tweede kleur).
+  const STIFT_NAMEN = Object.keys(PfKern.STIFTEN);
+  function markeerEditor(card, body, veld, q, inBron) {
+    card.pfKleuren = (q.kleuren || []).map(c => ({ ...c }));
+    card.pfDoelen = (q.doelen || []).map(d => d.slice());
+    let kleur = 1;
+    let begin = null;
+    const opties = veld(`<div class="row"><label>Wat tikt de leerling aan?<select class="e-per"><option value="">Woorden</option><option value="zin">Zinnen</option><option value="stuk">Stukjes tekst</option></select></label>
+      <label>Hoeveel moet de leerling aanduiden?<input class="e-aantal" type="number" min="1" max="99" placeholder="allemaal"></label></div>
+      ${inBron ? '<label class="inline check"><input type="checkbox" class="e-inbron"> 👈 Duid aan in de brontekst (de leerling duidt aan in de tekst links)</label>' : ''}`);
+    opties.querySelector('.e-per').value = q.per || '';
+    opties.querySelector('.e-aantal').value = q.aantal || '';
+    const inb = opties.querySelector('.e-inbron');
+    if (inb) inb.checked = !!q.inBron;
+    const kleurBox = veld('', 'pf-e-kleuren');
+    const tekstVeld = veld('<label>Tekst<textarea class="e-tekst" rows="4" placeholder="De hond [blaft] en de kat [slaapt]."></textarea></label>');
+    const ta = tekstVeld.querySelector('.e-tekst');
+    ta.value = q.tekst || '';
+    const klik = veld('', 'pf-e-markeer');
+    const bronKaart = () => card.parentElement && card.parentElement.closest('.pf-kaart-edit.bron');
+    const bronTekst = () => { const b = bronKaart(); const t = b && b.querySelector(':scope > .pf-k-body .e-tekst'); return t ? t.value : ''; };
+    const inBronAan = () => !!(inb && inb.checked);
+    const per = () => opties.querySelector('.e-per').value;
+    const hexen = () => (card.pfKleuren.length ? card.pfKleuren.map(c => PfKern.STIFTEN[c.kleur]) : [PfKern.STIFTEN.geel]);
+    // De juiste stukken als [eerste woord, laatste woord, kleur] in de woorden van de tekst (zonder haken).
+    const model = () => {
+      if (inBronAan()) {
+        const plain = bronTekst();
+        const woorden = PfKern.tekstWoorden(plain);
+        return { plain, woorden, doelen: card.pfDoelen.filter(d => d[1] < woorden.length).map(d => ({ a: d[0], b: d[1], k: d[2] })) };
+      }
+      const z = PfKern.zonderHaken(ta.value);
+      const woorden = PfKern.tekstWoorden(z.plain);
+      const doelen = z.doelen.map(d => {
+        const binnen = woorden.map((x, i) => (x.s < d.e && x.e > d.s ? i : -1)).filter(i => i >= 0);
+        return binnen.length ? { a: binnen[0], b: binnen[binnen.length - 1], k: d.k } : null;
+      }).filter(Boolean);
+      return { plain: z.plain, woorden, doelen };
+    };
+    // Terug naar de tekst met haken (of naar de doelen in de bron).
+    const bewaar = (m, doelen) => {
+      doelen.sort((x, y) => x.a - y.a);
+      if (inBronAan()) card.pfDoelen = doelen.map(d => [d.a, d.b, d.k, m.woorden.slice(d.a, d.b + 1).map(x => x.t).join(' ')]);
+      else {
+        let out = '';
+        let last = 0;
+        for (const d of doelen) {
+          const s = m.woorden[d.a].s;
+          let e = m.woorden[d.b].e;
+          // Een zin: het leesteken erachter hoort erbij.
+          if (per() === 'zin') { const r = /^[.!?…]*["'”’»)]*/.exec(m.plain.slice(e)); e += r[0].length; }
+          if (s < last) continue;
+          out += `${m.plain.slice(last, s)}[${m.plain.slice(s, e)}${d.k > 1 ? `|${d.k}` : ''}]`;
+          last = e;
+        }
+        ta.value = out + m.plain.slice(last);
+      }
+      teken();
+      cfg.preview();
+    };
+    const wissel = (a, b) => {
+      const m = model();
+      const raak = m.doelen.filter(d => d.a <= b && d.b >= a);
+      const rest = m.doelen.filter(d => !raak.includes(d));
+      // Hetzelfde nog eens aanklikken met dezelfde kleur haalt het weg; met een andere kleur krijgt het die kleur.
+      const weg = per() === 'stuk' ? raak.length === 1 && raak[0].a === a && raak[0].b === b && raak[0].k === kleur : raak.length && raak.every(d => d.k === kleur);
+      bewaar(m, weg ? rest : [...rest, { a, b, k: kleur }]);
+    };
+    const tekenKleuren = () => {
+      kleurBox.innerHTML = `<div class="pf-e-kleur-kop"><strong>Kleuren</strong> <span class="muted small">${card.pfKleuren.length ? 'Kies een kleur en klik dan de juiste woorden aan.' : 'Eén kleur. Meer kleuren? Bv. groen = eigennaam, geel = zelfstandig naamwoord.'}</span></div>
+        ${card.pfKleuren.map((c, i) => `<div class="pf-e-kleur" data-i="${i}"><button type="button" class="pf-stift${kleur === i + 1 ? ' on' : ''}" data-k="${i + 1}" style="--stift:${PfKern.STIFTEN[c.kleur]}" title="Met deze kleur aanklikken"><i></i>${i + 1}</button>
+          <select class="e-kleur">${STIFT_NAMEN.map(n => `<option value="${n}"${n === c.kleur ? ' selected' : ''}>${n}</option>`).join('')}</select>
+          <input class="e-uitleg" maxlength="60" placeholder="uitleg, bv. eigennaam" value="${esc(c.uitleg || '')}">
+          <button type="button" class="secondary small-btn weg" title="Kleur weghalen">✕</button></div>`).join('')}
+        ${card.pfKleuren.length < 4 ? `<button type="button" class="secondary small-btn e-kleur-bij">${card.pfKleuren.length ? '+ Nog een kleur' : '+ Meer kleuren'}</button>` : ''}`;
+      for (const r of kleurBox.querySelectorAll('.pf-e-kleur')) {
+        const i = Number(r.dataset.i);
+        r.querySelector('.pf-stift').addEventListener('click', () => { kleur = i + 1; tekenKleuren(); teken(); });
+        r.querySelector('.e-kleur').addEventListener('change', e => { card.pfKleuren[i].kleur = e.target.value; tekenKleuren(); teken(); cfg.preview(); });
+        r.querySelector('.e-uitleg').addEventListener('input', e => { card.pfKleuren[i].uitleg = e.target.value; cfg.preview(); });
+        r.querySelector('.weg').addEventListener('click', () => {
+          // De woorden in deze kleur gaan terug naar de eerste kleur, de kleuren erna schuiven op.
+          const m = model();
+          const doelen = m.doelen.map(d => ({ ...d, k: d.k === i + 1 ? 1 : d.k > i + 1 ? d.k - 1 : d.k }));
+          card.pfKleuren.splice(i, 1);
+          if (card.pfKleuren.length === 1) card.pfKleuren = [];
+          kleur = 1;
+          tekenKleuren();
+          bewaar(m, doelen);
+        });
+      }
+      const bij = kleurBox.querySelector('.e-kleur-bij');
+      if (bij) bij.addEventListener('click', () => {
+        const vrij = STIFT_NAMEN.filter(n => !card.pfKleuren.some(c => c.kleur === n));
+        if (!card.pfKleuren.length) card.pfKleuren.push({ kleur: 'geel', uitleg: '' });
+        card.pfKleuren.push({ kleur: vrij.find(n => n !== 'geel') || 'groen', uitleg: '' });
+        kleur = card.pfKleuren.length;
+        tekenKleuren();
+        teken();
+        cfg.preview();
+      });
+    };
+    // De tekst om aan te klikken, met de juiste stukken in hun kleur.
+    const teken = () => {
+      tekstVeld.classList.toggle('hidden', inBronAan());
+      const m = model();
+      const hex = hexen();
+      const kz = new Map();
+      const kw = new Map();
+      for (const d of m.doelen) for (let i = d.a; i <= d.b; i++) kw.set(i, d.k);
+      if (per() === 'zin') for (const d of m.doelen) for (let i = d.a; i <= d.b; i++) kz.set(m.woorden[i].z, d.k);
+      const kleurVan = (w, x) => (per() === 'zin' ? kz.get(x.z) : kw.get(w));
+      let h = '';
+      let last = 0;
+      m.woorden.forEach((x, w) => {
+        const tus = m.plain.slice(last, x.s);
+        const vorige = w ? kleurVan(w - 1, m.woorden[w - 1]) : 0;
+        const k = kleurVan(w, x);
+        const tusKleur = vorige && vorige === k && (per() === 'zin' ? m.woorden[w - 1].z === x.z : per() === 'stuk' && m.doelen.some(d => d.a < w && d.b >= w));
+        h += tusKleur ? `<span style="background:${hex[k - 1]}">${esc(tus).replace(/\n/g, '<br>')}</span>` : esc(tus).replace(/\n/g, '<br>');
+        h += `<span class="pf-woord${begin === w ? ' start' : ''}" data-w="${w}" data-z="${x.z}"${k ? ` style="background:${hex[k - 1] || hex[0]};color:#1d1d1f"` : ''}>${esc(x.t)}</span>`;
+        last = x.e;
+      });
+      h += esc(m.plain.slice(last)).replace(/\n/g, '<br>');
+      const wat = inBronAan()
+        ? { zin: 'Klik in de brontekst de juiste zin(nen) aan.', stuk: 'Sleep in de brontekst over het juiste stuk (of klik het eerste en dan het laatste woord).' }[per()] || 'Klik in de brontekst de juiste woorden aan.'
+        : { zin: 'Klik de juiste zin(nen) aan.', stuk: 'Sleep over het juiste stuk (of klik het eerste en dan het laatste woord).' }[per()] || 'Klik de juiste woorden aan.';
+      klik.innerHTML = m.woorden.length ? `<p class="muted small">✏️ <span>${wat}</span> <span>Nog eens klikken haalt het weg.</span></p><div class="pf-markeer pf-e-klik">${h}</div>`
+        : `<p class="muted small">${inBronAan() ? 'Typ eerst de tekst van de bron.' : 'Typ of plak eerst de tekst.'}</p>`;
+    };
+    let sleep = null;
+    let gesleept = false;
+    klik.addEventListener('pointerdown', e => { gesleept = false; const w = e.target.closest('.pf-woord'); if (w && per() === 'stuk' && e.pointerType !== 'touch') { sleep = Number(w.dataset.w); e.preventDefault(); } });
+    klik.addEventListener('pointerup', e => {
+      const t = document.elementFromPoint(e.clientX, e.clientY);
+      const w = t && t.closest && t.closest('.pf-woord');
+      if (sleep !== null && w && Number(w.dataset.w) !== sleep) { gesleept = true; begin = null; wissel(Math.min(sleep, Number(w.dataset.w)), Math.max(sleep, Number(w.dataset.w))); }
+      sleep = null;
+    });
+    klik.addEventListener('click', e => {
+      if (gesleept) { gesleept = false; return; }
+      const el = e.target.closest('.pf-woord');
+      if (!el) return;
+      const w = Number(el.dataset.w);
+      const m = model();
+      if (per() === 'zin') {
+        const z = Number(el.dataset.z);
+        const ws = m.woorden.map((x, i) => (x.z === z ? i : -1)).filter(i => i >= 0);
+        return wissel(ws[0], ws[ws.length - 1]);
+      }
+      if (per() === 'stuk') {
+        const in1 = m.doelen.find(d => w >= d.a && w <= d.b);
+        if (begin === null && in1 && in1.k === kleur) return bewaar(m, m.doelen.filter(d => d !== in1));
+        if (begin === null) { begin = w; return teken(); }
+        const a = Math.min(begin, w);
+        const b = Math.max(begin, w);
+        begin = null;
+        return wissel(a, b);
+      }
+      wissel(w, w);
+    });
+    ta.addEventListener('input', teken);
+    opties.querySelector('.e-per').addEventListener('change', () => { begin = null; teken(); cfg.preview(); });
+    if (inb) inb.addEventListener('change', () => {
+      // Naar de brontekst: wat al in de eigen tekst stond, valt weg (de tekst blijft bewaard tot je hem uitvinkt).
+      teken();
+      cfg.preview();
+    });
+    // Verandert de tekst van de bron, dan zoeken we de juiste stukken terug.
+    card.pfBronVeranderd = () => { if (inBronAan()) { card.pfDoelen = PfKern.doelenInBron(card.pfDoelen, bronTekst()); teken(); } };
+    tekenKleuren();
+    // De kaart staat pas na het maken in de bron: dan pas kennen we de brontekst.
+    setTimeout(teken, 0);
+    teken();
   }
 
   // Een blad uit de pdf: een kleine weergave met de vakjes, en een knop om ze te plaatsen en de antwoorden in te vullen.
@@ -425,6 +608,10 @@ const PfEdit = (() => {
       });
       const juist = rijen.map((r, i) => (r.querySelector('.pf-juist input').checked ? i : -1)).filter(i => i >= 0);
       q.juist = juist.length > 1 ? juist : juist[0];
+      if (juist.length > 1) {
+        if (waarde(card, '.e-puntenper')) q.puntenPer = waarde(card, '.e-puntenper');
+        if (waarde(card, '.e-aantal')) q.aantal = Number(waarde(card, '.e-aantal'));
+      }
     } else if (type === 'juistfout') q.juist = waarde(card, '.e-jf') === 'J';
     else if (type === 'invullen') {
       q.tekst = waarde(card, '.e-tekst');
@@ -451,7 +638,14 @@ const PfEdit = (() => {
       for (const k of ['min', 'max', 'stap', 'antwoord']) q[k] = waarde(card, `.e-${k}`);
       q.getallen = waarde(card, '.e-getallen');
       q.breuk = card.querySelector(':scope > .pf-k-body .e-breuk').checked;
-    } else if (type === 'markeren') q.tekst = waarde(card, '.e-tekst');
+    } else if (type === 'markeren') {
+      const body = card.querySelector(':scope > .pf-k-body');
+      const inb = body.querySelector('.e-inbron');
+      if (inb && inb.checked) { q.inBron = true; q.doelen = card.pfDoelen || []; } else q.tekst = waarde(card, '.e-tekst');
+      if (body.querySelector('.e-per').value) q.per = body.querySelector('.e-per').value;
+      if (body.querySelector('.e-aantal').value) q.aantal = Number(body.querySelector('.e-aantal').value);
+      if (card.pfKleuren && card.pfKleuren.length) q.kleuren = card.pfKleuren.map(c => ({ kleur: c.kleur, uitleg: c.uitleg || '' }));
+    }
     else if (type === 'tekenen') {
       q.verhouding = card.pfBeeld ? card.pfVerhouding : Number(waarde(card, '.e-hoogte')) || 0.6;
       q.model = waarde(card, '.e-model');
