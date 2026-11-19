@@ -46,6 +46,10 @@
 //               puntlijn = lijnen tussen punten: pt: [{ x, y }] (procent van het vak), sleutel lijnen: [[0, 2], [1, 3]] (richting en volgorde maken
 //                 niet uit, een lijn te veel of te weinig is fout) of doorPunt: 4 (elke lijn gaat door dat punt, bv. een middellijn) met aantal lijnen
 //               cirkel = een cirkel tekenen: cirkels: [{ x, y (procent van het vak), r (straal in cm) }], marge (cm, standaard 0,1)
+//               veelhoek = een figuur op roosterpunten: kol x rij stippen; de leerling tikt de hoekpunten aan (de figuur sluit vanzelf).
+//                 sleutel figuur: 'vierkant', 'ruit', 'trapezium', ... (de computer herkent de soort); strikt: true = precies die soort
+//                 (een vierkant is dan geen ruit)
+//               bij tekst (keuze): formule = gevolgfout, bv. "{1} * {2} / 2": juist als het getal klopt met de eigen antwoorden in vakje 1 en 2
 //               schaal (op het blad): hoeveel cm het blad breed is (standaard 21, een A4), voor de lat en de cirkels
 //               samen: vakjes met hetzelfde getal tellen samen als één vraag: alleen als ze allemaal juist zijn, krijgt de leerling de punten
 //               (de punten van het groepje staan op het eerste vakje, de rest heeft 0)
@@ -72,11 +76,11 @@
   // Aanduiden: hoeveel plekken (met namen: bv. alle provincies of hoofdsteden op een kaart).
   const MAX_ZONES = 20;
   const metNamen = q => q.zones.some(z => z.naam);
-  const SOORTEN = ['tekst', 'kruis', 'kies', 'open', 'teken', 'luister', 'breuk', 'sleep', 'vlak', 'notitie', 'plek', 'lijn', 'rooster', 'klad', 'puntlijn', 'cirkel'];
+  const SOORTEN = ['tekst', 'kruis', 'kies', 'open', 'teken', 'luister', 'breuk', 'sleep', 'vlak', 'notitie', 'plek', 'lijn', 'rooster', 'klad', 'puntlijn', 'cirkel', 'veelhoek'];
   // Vakjes zonder antwoord: ze staan alleen op het blad.
   const GEEN_ANTWOORD = new Set(['luister', 'vlak', 'notitie']);
   // Vakjes die de computer verbetert met een getypt of gekozen antwoord.
-  const AUTO_VELD = new Set(['tekst', 'kies', 'breuk', 'sleep', 'plek', 'lijn', 'puntlijn', 'cirkel']);
+  const AUTO_VELD = new Set(['tekst', 'kies', 'breuk', 'sleep', 'plek', 'lijn', 'puntlijn', 'cirkel', 'veelhoek']);
   const KLEUREN = ['#ffffff', '#fff3b0', '#d8ecff', '#e4e4e4', '#ffd9d9'];
   // Wat de leerkracht verbetert op een blad (een rekenrooster alleen zonder sleutel).
   const HAND_VELD = new Set(['open', 'teken', 'rooster']);
@@ -474,6 +478,127 @@
     });
   }
 
+  // ---------- Veelhoek op roosterpunten ----------
+  const FIGUREN = ['driehoek', 'rechthoekige driehoek', 'gelijkbenige driehoek', 'stomphoekige driehoek', 'scherphoekige driehoek',
+    'vierhoek', 'vierkant', 'rechthoek', 'ruit', 'parallellogram', 'trapezium', 'rechthoekig trapezium', 'gelijkbenig trapezium', 'vlieger', 'vijfhoek', 'zeshoek'];
+  // Het antwoord "c,r;c,r;...": de hoekpunten (kolom, rij van de stip), in de volgorde waarin de leerling ze aantikte.
+  function hoekpunten(a, f) {
+    return String(a || '').split(';').map(p => p.split(',').map(Number)).filter(p => p.length === 2 && p.every(Number.isInteger) && p[0] >= 0 && p[1] >= 0 && p[0] < (f.kol || 99) && p[1] < (f.rij || 99)).slice(0, 12);
+  }
+  // De punten in echte verhoudingen (de stippen staan gelijk verdeeld over het vak).
+  function veelhoekPunten(f, a, verhouding = 1.414) {
+    const dx = f.w / Math.max(1, f.kol - 1);
+    const dy = (f.h * verhouding) / Math.max(1, f.rij - 1);
+    // Een rooster dat bijna vierkant is (zoals op het blad), telt als vierkant: dan rekenen we met hele stappen.
+    const rho = Math.abs(dy / dx - 1) < 0.1 ? 1 : dy / dx;
+    return hoekpunten(a, f).map(([c, r]) => [c, r * rho]);
+  }
+  // Welke figuren is dit? Een lijst van alle namen die passen (een vierkant is ook een rechthoek, ruit, ...), de meest precieze eerst.
+  function figurenVan(pts) {
+    const n = pts.length;
+    if (n < 3) return [];
+    const kruis = (a, b, c) => (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]);
+    const eps = 1e-6;
+    // Geen twee keer hetzelfde punt, geen drie punten op één lijn, en de zijden kruisen elkaar niet.
+    for (let i = 0; i < n; i++) {
+      const a = pts[i]; const b = pts[(i + 1) % n]; const c = pts[(i + 2) % n];
+      if (Math.abs(kruis(a, b, c)) < eps) return [];
+      for (let j = i + 1; j < n; j++) if (Math.hypot(a[0] - pts[j][0], a[1] - pts[j][1]) < eps) return [];
+    }
+    for (let i = 0; i < n; i++) for (let j = i + 2; j < n; j++) {
+      if (i === 0 && j === n - 1) continue;
+      const [p1, p2, p3, p4] = [pts[i], pts[(i + 1) % n], pts[j], pts[(j + 1) % n]];
+      const d1 = kruis(p3, p4, p1); const d2 = kruis(p3, p4, p2); const d3 = kruis(p1, p2, p3); const d4 = kruis(p1, p2, p4);
+      if (((d1 > eps && d2 < -eps) || (d1 < -eps && d2 > eps)) && ((d3 > eps && d4 < -eps) || (d3 < -eps && d4 > eps))) return [];
+    }
+    const z = i => [pts[(i + 1) % n][0] - pts[i][0], pts[(i + 1) % n][1] - pts[i][1]];
+    const len = v => Math.hypot(v[0], v[1]);
+    const evenLang = (a, b) => Math.abs(len(a) - len(b)) < 1e-6;
+    const evenwijdig = (a, b) => Math.abs(a[0] * b[1] - a[1] * b[0]) < 1e-6;
+    const recht = (a, b) => Math.abs(a[0] * b[0] + a[1] * b[1]) < 1e-6;
+    const zijden = pts.map((_, i) => z(i));
+    const hoekRecht = zijden.some((v, i) => recht(v, zijden[(i + 1) % n]));
+    if (n === 3) {
+      const out = [];
+      const l = zijden.map(len).sort((a, b) => a - b);
+      const verschil = l[2] * l[2] - l[0] * l[0] - l[1] * l[1];
+      // Volgorde: rechthoekig, dan gelijkbenig, dan stomp- of scherphoekig (de eerste is wat 'precies' bedoelt).
+      if (Math.abs(verschil) < 1e-6) out.push('rechthoekige driehoek');
+      if (Math.abs(l[0] - l[1]) < 1e-6 || Math.abs(l[1] - l[2]) < 1e-6) out.push('gelijkbenige driehoek');
+      if (Math.abs(verschil) >= 1e-6) out.push(verschil > 0 ? 'stomphoekige driehoek' : 'scherphoekige driehoek');
+      return [...out, 'driehoek'];
+    }
+    if (n === 4) {
+      const [a, b, c, d] = zijden;
+      const p1 = evenwijdig(a, c);
+      const p2 = evenwijdig(b, d);
+      const alleGelijk = evenLang(a, b) && evenLang(b, c) && evenLang(c, d);
+      const diag = (i, j) => Math.hypot(pts[j][0] - pts[i][0], pts[j][1] - pts[i][1]);
+      const out = [];
+      if (alleGelijk && hoekRecht) out.push('vierkant');
+      if (p1 && p2 && hoekRecht) out.push('rechthoek');
+      if (alleGelijk) out.push('ruit');
+      if (p1 && p2) out.push('parallellogram');
+      if ((p1 || p2) && hoekRecht) out.push('rechthoekig trapezium');
+      if ((p1 || p2) && Math.abs(diag(0, 2) - diag(1, 3)) < 1e-6) out.push('gelijkbenig trapezium');
+      if (p1 || p2) out.push('trapezium');
+      if ((evenLang(a, b) && evenLang(c, d)) || (evenLang(b, c) && evenLang(d, a))) out.push('vlieger');
+      return [...out, 'vierhoek'];
+    }
+    return n === 5 ? ['vijfhoek'] : n === 6 ? ['zeshoek'] : [];
+  }
+  function veelhoekGoed(f, a, verhouding) {
+    if (!f.figuur) return false;
+    const soorten = figurenVan(veelhoekPunten(f, a, verhouding));
+    return f.strikt ? soorten[0] === f.figuur : soorten.includes(f.figuur);
+  }
+
+  // ---------- Gevolgfout: een rekenregel met de eigen antwoorden ----------
+  // "{1} * {2} / 2": de getallen in vakje 1 en 2 van de leerling. Alleen + - * / ( ) en getallen, zonder eval.
+  function rekenregel(formule, waarde) {
+    const t = String(formule || '').replace(/×/g, '*').replace(/[÷:]/g, '/').replace(/\{(\d+)\}/g, (_, n) => {
+      const x = waarde(Number(n));
+      if (x === null || x === undefined || !Number.isFinite(x)) throw new Error(`vakje ${n} is geen getal`);
+      return `(${x})`;
+    }).replace(/(\d),(\d)/g, '$1.$2');
+    let i = 0;
+    const stuk = () => {
+      while (t[i] === ' ') i++;
+      if (t[i] === '(') { i++; const x = som(); while (t[i] === ' ') i++; if (t[i++] !== ')') throw new Error('haakje'); return x; }
+      if (t[i] === '-') { i++; return -stuk(); }
+      const m = /^\d+(\.\d+)?/.exec(t.slice(i));
+      if (!m) throw new Error('teken');
+      i += m[0].length;
+      return Number(m[0]);
+    };
+    const maal = () => { let x = stuk(); for (;;) { while (t[i] === ' ') i++; if (t[i] === '*') { i++; x *= stuk(); } else if (t[i] === '/') { i++; x /= stuk(); } else return x; } };
+    const som = () => { let x = maal(); for (;;) { while (t[i] === ' ') i++; if (t[i] === '+') { i++; x += maal(); } else if (t[i] === '-') { i++; x -= maal(); } else return x; } };
+    const x = som();
+    while (t[i] === ' ') i++;
+    if (i < t.length) throw new Error('teken');
+    return x;
+  }
+  // Wat klopt er niet aan de rekenregel? '' = goed. n: het aantal vakjes, k: dit vakje.
+  function formuleFout(formule, n, k) {
+    const nrs = [...String(formule).matchAll(/\{(\d+)\}/g)].map(m => Number(m[1]));
+    if (!nrs.length) return 'gebruik een vakje, bv. {1}';
+    const fout = nrs.find(x => x < 1 || x > n || x === k + 1);
+    if (fout) return `vakje ${fout} kan niet`;
+    try { rekenregel(formule, () => 1); } catch { return 'alleen getallen, {1}, + - * / en haakjes'; }
+    return '';
+  }
+  // Klopt het getal van de leerling met de rekenregel en zijn eigen antwoorden? Afronden mag, zoals in de sleutel.
+  function gevolgGoed(f, b, k) {
+    let y;
+    try { y = rekenregel(f.formule, n => (n - 1 === k ? null : getal(b[n - 1]))); } catch { return false; }
+    const x = getal(b[k], f.eenheid);
+    if (x === null || !Number.isFinite(y)) return false;
+    const dec = s => { const m = /[.,](\d+)\s*$/.exec(String(s || '').replace(/[^\d.,]+$/, '')); return m ? m[1].length : 0; };
+    const d = Math.max(dec(b[k]), dec(alts(f.antwoord)[0]));
+    if (Math.abs(y - Math.round(y)) < 1e-9 && d === 0) return Math.abs(x - y) < 1e-9;
+    return Math.abs(x - y) <= 0.5 * 10 ** -d + 1e-9;
+  }
+
   // Verbetert de leerkracht dit vakje zelf? Een rekenrooster met sleutel verbetert de computer. Kladruimte telt nooit.
   const handVeld = f => f.soort === 'open' || f.soort === 'teken' || (f.soort === 'rooster' && !roosterAuto(f));
   const autoVeld = f => AUTO_VELD.has(f.soort) || roosterAuto(f);
@@ -558,6 +683,12 @@
           veld.aantal = Math.min(12, Math.max(1, Math.round(Number(f.aantal)) || 1));
         } else if (lijnen.length) veld.lijnen = lijnen;
         veld.punten = punt(f.punten, 1);
+      } else if (soort === 'veelhoek') {
+        veld.kol = roosterMaat(f.kol, 6, 16);
+        veld.rij = roosterMaat(f.rij, 5, 16);
+        if (FIGUREN.includes(f.figuur)) veld.figuur = f.figuur;
+        if (f.strikt) veld.strikt = true;
+        veld.punten = punt(f.punten, 1);
       } else if (soort === 'cirkel') {
         veld.cirkels = list(f.cirkels, 8).filter(c => c && typeof c === 'object' && Number(c.r) > 0).map(c => ({ x: pct(c.x), y: pct(c.y), r: Math.round(Math.min(50, Number(c.r)) * 100) / 100 }));
         const m = Number(String(f.marge ?? '').replace(',', '.'));
@@ -572,6 +703,7 @@
         if ((soort === 'tekst' || soort === 'breuk') && f.vereenvoudigd) veld.vereenvoudigd = true;
         if (soort === 'breuk' && f.geheel) veld.geheel = true;
         if (soort === 'tekst') margeVan(f, veld);
+        if (soort === 'tekst') { const fo = text(f.formule, 120); if (fo) veld.formule = fo; }
         veld.punten = punt(f.punten, 1);
       }
       // Samen op punten: alleen bij vakjes die de computer verbetert (hokjes hebben hun eigen groep).
@@ -668,6 +800,7 @@
           if (v.type === 'blad' && !v.velden.length) out.push(`${tag}blad ${nr}: zet invulvakjes op het blad`);
           if (v.type === 'blad') {
             const zonder = v.velden.map((f, k) => (zonderSleutel(f) ? k + 1 : 0)).filter(Boolean);
+            v.velden.forEach((f, k) => { if (f.formule && formuleFout(f.formule, v.velden.length, k)) out.push(`${tag}blad ${nr}: de rekenregel van vakje ${k + 1} klopt niet (${formuleFout(f.formule, v.velden.length, k)})`); });
             if (zonder.length) out.push(`${tag}blad ${nr}: vakje ${zonder.slice(0, 6).join(', ')}${zonder.length > 6 ? ', …' : ''} ${zonder.length > 1 ? 'hebben' : 'heeft'} nog geen antwoord`);
           }
         }
@@ -681,7 +814,8 @@
     || (f.soort === 'kies' && (f.opties.length < 2 || !f.opties.includes(f.antwoord))) || (f.soort === 'lijn' && !f.naar)
     || (f.soort === 'rooster' && NAKIJK.includes(f.nakijk) && !roosterAuto(f))
     || (f.soort === 'puntlijn' && ((f.pt || []).length < 2 || (f.doorPunt === undefined && !(f.lijnen || []).length)))
-    || (f.soort === 'cirkel' && !(f.cirkels || []).length);
+    || (f.soort === 'cirkel' && !(f.cirkels || []).length)
+    || (f.soort === 'veelhoek' && !f.figuur);
 
   // Alles automatisch verbeteren: wat verbetert de leerkracht nog zelf? Een lijst om aan te passen.
   function handWerk(t) {
@@ -798,6 +932,7 @@
         if (f.soort === 'rooster') { o.kol = f.kol; o.rij = f.rij; }
         if (f.soort === 'klad') o.vorm = f.vorm;
         if (f.soort === 'puntlijn') o.pt = f.pt || [];
+        if (f.soort === 'veelhoek') { o.kol = f.kol; o.rij = f.rij; }
         if (f.soort === 'breuk' && f.geheel) o.geheel = true;
         if (f.soort === 'luister') { if (f.audio) o.audio = img(f.audio); if (f.tekst) o.tekst = f.tekst; }
         if (f.soort === 'vlak') o.kleur = f.kleur;
@@ -924,9 +1059,11 @@
       if (f.soort === 'lijn') return lijnGoed(f, b[k], q.verhouding) ? 1 : 0;
       if (f.soort === 'puntlijn') return puntlijnGoed(f, b[k], q.verhouding) ? 1 : 0;
       if (f.soort === 'cirkel') return cirkelGoed(f, b[k], q.verhouding, q.schaal || SCHAAL) ? 1 : 0;
+      if (f.soort === 'veelhoek') return veelhoekGoed(f, b[k], q.verhouding) ? 1 : 0;
       if (f.soort === 'sleep') return alts(f.antwoord).includes(String(b[k] || '')) ? 1 : 0;
       if (f.vereenvoudigd && !vereenvoudigd(b[k], f.antwoord)) return 0;
       if (f.soort === 'tekst' && heeftMarge(f) && margeGoed(f, b[k])) return 1;
+      if (f.soort === 'tekst' && f.formule && gevolgGoed(f, b, k)) return 1;
       return zelfde(f.antwoord, b[k], f) ? 1 : 0;
     });
   }
@@ -1051,6 +1188,7 @@
     : f.soort === 'tekst' || f.soort === 'breuk' ? metEenheid(alts(f.antwoord)[0] || '', f.eenheid) : f.soort === 'sleep' ? (alts(f.antwoord)[0] || '')
     : f.soort === 'rooster' && roosterAuto(f) ? (f.nakijk === 'uitkomst' ? `= ${roosterUitkomst(f)}` : roosterCellen(f.sleutel).map(r => r.map(c => c || ' ').join('')).join('\n'))
     : f.soort === 'puntlijn' ? (f.doorPunt !== undefined ? `${f.aantal > 1 ? `${f.aantal} lijnen` : 'een lijn'} door het groene punt` : (f.lijnen || []).map(([a, b]) => `${puntNaam(a)}–${puntNaam(b)}`).join(', '))
+    : f.soort === 'veelhoek' ? (f.figuur ? (f.strikt ? `precies een ${f.figuur}` : f.figuur) : '')
     : f.soort === 'cirkel' ? (f.cirkels || []).map(c => `r = ${getalTekst(c.r)} cm`).join(', ') + ((f.cirkels || []).length ? ` (± ${getalTekst(f.marge ?? 0.1)})` : '')
     : (f.antwoord || '')));
 
@@ -1098,6 +1236,6 @@
     TYPES, NAMES, MANUEEL, NIVEAUS, MAX_BEELD, ROOSTER, validate, problemen, vragenVan, niveausVan, lijstVoor,
     maxVan, autoPunten, handPunten, totaal, viewOf, studentView, partsOf, getal, zelfde, canoniek, auto, schoon, oplossing, schud, alts, gapsOf,
     waarschuwingen, metNamen, MAX_ZONES, veldSleutel, vakGoed, vakDeel, handVeld, autoVeld, roosterAuto, roosterScore, roosterCellen, roosterTekst, roosterUitkomst,
-    heeftMarge, margeGoed, margeTekst, getalTekst, puntLijnen, puntlijnGoed, cirkelsVan, cirkelGoed, straalCm, puntNaam, handWerk, SCHAAL, NAKIJK, lijnGoed, metEenheid, volgorde, SOORTEN, HAND_VELD, woordenVan, doelenVan, asTekst, MAX_AUDIO, celGat, vereenvoudigd, GEEN_ANTWOORD, AUTO_VELD, KLEUREN,
+    heeftMarge, margeGoed, margeTekst, getalTekst, puntLijnen, puntlijnGoed, cirkelsVan, cirkelGoed, straalCm, puntNaam, handWerk, SCHAAL, NAKIJK, FIGUREN, figurenVan, veelhoekPunten, hoekpunten, rekenregel, formuleFout, lijnGoed, metEenheid, volgorde, SOORTEN, HAND_VELD, woordenVan, doelenVan, asTekst, MAX_AUDIO, celGat, vereenvoudigd, GEEN_ANTWOORD, AUTO_VELD, KLEUREN,
   };
 });
