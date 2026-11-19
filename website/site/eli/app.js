@@ -98,8 +98,31 @@ function start(stand){
   if ((ses && ses.terugNaPauze) || wacht) { if (ses && ses.terugNaPauze) sessie.set({ ...ses, terugNaPauze: false }); terug = hervat(); setTimeout(() => toast(terug ? 'Welkom terug! Je gaat verder waar je was. ⚽' : 'Welkom terug van je pauze! Verder met de training. ⚽'), 600); }
   teller();
   const nieuw = (stand.berichten || []).filter(b => !b.gezien);
+  const gezienV = lokaal.get('vragen-gezien', []);
+  const nieuweV = (stand.vragen || []).filter(q => !(q.antwoorden || []).length && !gezienV.includes(q.id));
   if (nieuw.length) setTimeout(() => toonBerichten(nieuw, true), 400);
+  else if (nieuweV.length && !MEEKIJK) setTimeout(() => vraagSeintje(nieuweV), 300);
   else setTimeout(() => welkom(), 300);
+}
+
+// Seintje bij het openen: een supporter stelde een nieuwe vraag.
+function vraagSeintje(lijst){
+  lokaal.set('vragen-gezien', [...new Set(lokaal.get('vragen-gezien', []).concat(lijst.map(q => q.id)))]);
+  lokaal.set('welkom-' + vandaag(), true);
+  const wie = [...new Set(lijst.map(q => q.van))];
+  const vakken = [...new Set(lijst.map(q => q.vak))];
+  const namen = wie.map(naamVan);
+  const naamTekst = namen.length > 1 ? namen.slice(0, -1).join(', ') + ' en ' + namen[namen.length - 1] : namen[0];
+  const m = $('modaal'), c = $('modaal-inhoud');
+  c.innerHTML = `<div class="babbel" id="vs-pop"></div><h2>💌 ${lijst.length === 1 ? 'Een nieuwe vraag' : lijst.length + ' nieuwe vragen'} voor jou!</h2>
+    <p class="muted" id="vs-tx"></p><div class="onder"><button class="knop licht" id="vs-later">Straks</button><button class="knop groot" id="vs-nu">Nu beantwoorden ✍️</button></div>`;
+  $('vs-tx').textContent = `${naamTekst} ${wie.length > 1 ? 'hebben' : 'heeft'} een vraag voor je klaargezet bij ${vakken.map(v => (V[v] || {}).kort || v).join(' en ')}. Je vindt ${lijst.length === 1 ? 'ze' : 'ze allemaal'} ook bij Vrij oefenen.`;
+  const zin = lijst.length === 1 ? 'Ik heb een vraag voor jou bedacht. Benieuwd of je het weet! 🤓' : 'Ik heb een paar vragen voor jou bedacht. Benieuwd of je ze weet! 🤓';
+  const f = POP.vanLogin(wie[0]);
+  POP.babbel($('vs-pop'), zin, f ? { figuur: f } : { rol: ['supporter'] });
+  m.hidden = false;
+  $('vs-later').onclick = () => m.hidden = true;
+  $('vs-nu').onclick = () => { m.hidden = true; voerUit({ id:'vrij:supporters:' + vakken[0], soort:'supporters', vak:vakken[0], titel:'💌 Vragen van je supporters', vrij:true }); };
 }
 
 // ---------------- Planning-logica ----------------
