@@ -233,5 +233,19 @@
  "Figuur wissen": "Effacer la figure",
  "Met een figuur hier kijkt de computer of de leerling precies deze hoekpunten tekent. De soort hierboven telt dan niet.": "Avec une figure ici, l'ordinateur vérifie si l'élève dessine exactement ces sommets. Le type ci-dessus ne compte alors pas.",
  "figuur van de sleutel": "figure du corrigé",
- "de figuur van de sleutel": "la figure du corrigé"
+ "de figuur van de sleutel": "la figure du corrigé",
+ "Of: een rechte door het bolletje die": "Ou : une droite passant par le point qui",
+ "(geen voorwaarde)": "(pas de condition)",
+ "evenwijdig is met een rechte": "est parallèle à une droite",
+ "loodrecht staat op een rechte": "est perpendiculaire à une droite",
+ "een rechte niet loodrecht snijdt": "coupe une droite, mais pas perpendiculairement",
+ "niet evenwijdig is met een rechte": "n'est pas parallèle à une droite",
+ "Klik 2 punten op die rechte op het blad{0}:": "Cliquez sur 2 points de cette droite sur la feuille{0} :",
+ "Marge (graden)": "Marge (degrés)",
+ "De richting telt, niet waar de lijn eindigt. \"Niet loodrecht snijden\" is ook fout als de lijn evenwijdig loopt.": "C'est la direction qui compte, pas l'endroit où le trait s'arrête. « Ne pas couper perpendiculairement » est aussi faux si le trait est parallèle.",
+ "(✔ ingesteld, klik opnieuw om te veranderen)": "(✔ réglé, cliquez à nouveau pour changer)",
+ "evenwijdig met de rechte": "parallèle à la droite",
+ "loodrecht op de rechte": "perpendiculaire à la droite",
+ "snijdt de rechte niet loodrecht": "coupe la droite, pas perpendiculairement",
+ "niet evenwijdig met de rechte": "pas parallèle à la droite"
 }

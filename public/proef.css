@@ -816,3 +816,9 @@ body.pf-proberen:not(.pf-pr-scherm) { display: flex; flex-direction: column; hei
 .bv-vh svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
 .bv-vh polygon, .bv-vh polyline { fill: rgba(46, 230, 166, .2); stroke: #2ee6a6; stroke-width: 2; vector-effect: non-scaling-stroke; }
 .bv-vh polyline { fill: none; }
+.bv-ref { position: relative; width: min(100%, 420px); margin: 6px 0; cursor: crosshair; background: #fff; box-shadow: 0 0 0 1px #d8cdb2; }
+.bv-ref img { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.bv-ref svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+.bv-ref line { stroke: #1a9e6e; stroke-width: 2; stroke-dasharray: 6 4; }
+.bv-ref i, .bv-ref b { position: absolute; width: 10px; height: 10px; margin: -5px 0 0 -5px; border-radius: 50%; background: #1a9e6e; pointer-events: none; }
+.bv-ref b { background: #2b6cff; }
