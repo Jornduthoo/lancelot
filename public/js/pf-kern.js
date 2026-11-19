@@ -81,6 +81,7 @@
   const GEEN_ANTWOORD = new Set(['luister', 'vlak', 'notitie']);
   // Vakjes die de computer verbetert met een getypt of gekozen antwoord.
   const AUTO_VELD = new Set(['tekst', 'kies', 'breuk', 'sleep', 'plek', 'lijn', 'puntlijn', 'cirkel', 'veelhoek']);
+  const VRIJ_SOORT = new Set(['tekst', 'breuk', 'sleep']);
   const KLEUREN = ['#ffffff', '#fff3b0', '#d8ecff', '#e4e4e4', '#ffd9d9'];
   // Wat de leerkracht verbetert op een blad (een rekenrooster alleen zonder sleutel).
   const HAND_VELD = new Set(['open', 'teken', 'rooster']);
@@ -1044,8 +1045,19 @@
         if (soort === 'breuk' && f.geheel) veld.geheel = true;
         if (soort === 'tekst') margeVan(f, veld);
         if (soort === 'tekst') { const fo = text(f.formule, 120); if (fo) veld.formule = fo; }
+        // De eenheid ook op het scherm naast het vakje tonen (m², euro, km).
+        if (eenheid && f.toonEenheid) veld.toonEenheid = true;
+        // Breuk: alleen precies deze schrijfwijze (25/100 is dan geen 1/4).
+        if (soort === 'breuk' && f.precies) veld.precies = true;
+        // Tijd: 4 u 30 min = 270 min = 4,5 u = 4:30.
+        if (soort === 'tekst' && f.tijd) veld.tijd = true;
+        // Mag leeg blijven of doorstreept worden (x, /, -).
+        if (soort === 'tekst' && f.doorstreep) veld.doorstreep = true;
         veld.punten = punt(f.punten, 1);
       }
+      // Volgorde vrij: de antwoorden van een groepje mogen in elk vakje van dat groepje staan.
+      const vrij = Math.round(Number(f.vrij));
+      if (VRIJ_SOORT.has(soort) && vrij >= 1 && vrij <= 9) veld.vrij = vrij;
       // Samen op punten: alleen bij vakjes die de computer verbetert (hokjes hebben hun eigen groep).
       const samen = Math.round(Number(f.samen));
       if (AUTO_VELD.has(soort) && samen >= 1 && samen <= 99) veld.samen = samen;
@@ -1055,6 +1067,9 @@
     const tel = {};
     for (const f of out.velden) if (f.samen) tel[f.samen] = (tel[f.samen] || 0) + 1;
     for (const f of out.velden) if (f.samen && tel[f.samen] < 2) delete f.samen;
+    const vt = {};
+    for (const f of out.velden) if (f.vrij) vt[f.vrij] = (vt[f.vrij] || 0) + 1;
+    for (const f of out.velden) if (f.vrij && vt[f.vrij] < 2) delete f.vrij;
     out.punten = out.velden.filter(f => !handVeld(f)).reduce((s, f) => s + f.punten, 0);
     const schaal = Number(String(q.schaal ?? '').replace(',', '.'));
     if (schaal >= 3 && schaal <= 300 && Math.abs(schaal - SCHAAL) > 1e-9) out.schaal = Math.round(schaal * 100) / 100;
@@ -1151,7 +1166,7 @@
   }
 
   // Een vakje dat de computer verbetert, maar nog geen juist antwoord heeft.
-  const zonderSleutel = f => ((f.soort === 'tekst' || f.soort === 'breuk' || f.soort === 'sleep') && !alts(f.antwoord).length)
+  const zonderSleutel = f => ((f.soort === 'tekst' || f.soort === 'breuk' || f.soort === 'sleep') && !alts(f.antwoord).length && !f.doorstreep)
     || (f.soort === 'kies' && (f.opties.length < 2 || !f.opties.includes(f.antwoord))) || (f.soort === 'lijn' && !f.naar)
     || (f.soort === 'rooster' && NAKIJK.includes(f.nakijk) && !roosterAuto(f))
     || (f.soort === 'puntlijn' && ((f.pt || []).length < 2 || (f.doorPunt === undefined && !(f.lijnen || []).length)))
@@ -1305,6 +1320,8 @@
         if (f.soort === 'puntlijn') o.pt = f.pt || [];
         if (f.soort === 'veelhoek') { o.kol = f.kol; o.rij = f.rij; if (f.diagonalen) o.diagonalen = true; if (f.uitleg) o.uitleg = f.uitleg; }
         if (f.soort === 'breuk' && f.geheel) o.geheel = true;
+        if (f.toonEenheid && f.eenheid) o.eenheid = f.eenheid;
+        if (f.vrij) o.vrij = f.vrij;
         if (f.soort === 'luister') { if (f.audio) o.audio = img(f.audio); if (f.tekst) o.tekst = f.tekst; if (f.luisterMax) o.luisterMax = f.luisterMax; }
         if (f.soort === 'vlak') o.kleur = f.kleur;
         if (f.soort === 'notitie') o.tekst = f.tekst || '';
@@ -1436,12 +1453,67 @@
       if (f.soort === 'puntlijn') return puntlijnGoed(f, b[k], q.verhouding) ? 1 : 0;
       if (f.soort === 'cirkel') return cirkelGoed(f, b[k], q.verhouding, q.schaal || SCHAAL) ? 1 : 0;
       if (f.soort === 'veelhoek') return veelhoekGoed(f, b[k], q.verhouding) ? 1 : 0;
-      if (f.soort === 'sleep') return alts(f.antwoord).includes(String(b[k] || '')) ? 1 : 0;
-      if (f.vereenvoudigd && !vereenvoudigd(b[k], f.antwoord)) return 0;
-      if (f.soort === 'tekst' && heeftMarge(f) && margeGoed(f, b[k])) return 1;
-      if (f.soort === 'tekst' && f.formule && gevolgGoed(f, b, k)) return 1;
-      return zelfde(f.antwoord, b[k], f) ? 1 : 0;
+      if (f.vrij) return vrijDeel(q, b, k);
+      return vakWaarde(f, b[k], b, k);
     });
+  }
+  // Is w het juiste antwoord voor vakje f? (b en k alleen voor een gevolgfout.)
+  function vakWaarde(f, w, b, k) {
+    if (f.doorstreep && (String(w ?? '').trim() === '' || STREEP.test(String(w).trim()))) return 1;
+    if (f.soort === 'sleep') return alts(f.antwoord).includes(String(w || '')) ? 1 : 0;
+    if (f.soort === 'breuk' && f.precies) return alts(f.antwoord).some(a => breukNorm(a) === breukNorm(w)) && breukNorm(w) !== '' ? 1 : 0;
+    if (f.vereenvoudigd && !vereenvoudigd(w, f.antwoord)) return 0;
+    if (f.soort === 'tekst' && f.tijd) {
+      const t = tijdGoed(f, w);
+      if (t !== null) return t ? 1 : 0;
+    }
+    if (f.soort === 'tekst' && heeftMarge(f) && margeGoed(f, w)) return 1;
+    if (f.soort === 'tekst' && f.formule && b && gevolgGoed(f, b, k)) return 1;
+    return zelfde(f.antwoord, w, f) ? 1 : 0;
+  }
+  // Volgorde vrij: elk antwoord van het groepje telt bij één vakje waar het past (elk juist antwoord maar één keer).
+  function vrijDeel(q, b, k) {
+    const groep = q.velden.map((f, i) => i).filter(i => q.velden[i].vrij === q.velden[k].vrij);
+    const bij = new Map(); // vakje van de sleutel -> vakje van de leerling
+    const past = (i, j) => vakWaarde(q.velden[j], b[i], null, j) >= 1;
+    const zoek = (i, gezien) => groep.some(j => {
+      if (gezien.has(j) || !past(i, j)) return false;
+      gezien.add(j);
+      if (!bij.has(j) || zoek(bij.get(j), gezien)) { bij.set(j, i); return true; }
+      return false;
+    });
+    for (const i of groep) zoek(i, new Set());
+    return [...bij.values()].includes(k) ? 1 : 0;
+  }
+  // Een streep, kruis of liggend streepje: het vakje is doorstreept.
+  const STREEP = /^[x×✗✘/\\\-–—_]+$/i;
+  const breukNorm = s => String(s ?? '').trim().replace(/\s*\/\s*/g, '/').replace(/\s+/g, ' ');
+  // Een tijdsduur in seconden: "4 u 30 min", "4u30", "270 min", "4,5 uur", "4:30". Zonder eenheid: de eenheid van het vakje.
+  const TIJD = { u: 3600, uur: 3600, uren: 3600, h: 3600, min: 60, minuut: 60, minuten: 60, m: 60, s: 1, sec: 1, seconde: 1, seconden: 1 };
+  function tijdSec(s, eenheid) {
+    const t = String(s ?? '').trim().toLowerCase().replace(/,/g, '.').replace(/([a-z])\.(?!\d)/g, '$1').replace(/\ben\b/g, ' ').trim();
+    if (!t) return null;
+    const m = /^(\d+):(\d{1,2})(?::(\d{1,2}))?\s*(u|uur|h)?$/.exec(t);
+    if (m) return Number(m[1]) * 3600 + Number(m[2]) * 60 + Number(m[3] || 0);
+    const re = /(\d+(?:\.\d+)?)\s*([a-z]*)/g;
+    if (t.replace(re, '').trim()) return null;
+    const delen = [...t.matchAll(re)];
+    let tot = 0;
+    let vorige = 0;
+    for (const d of delen) {
+      let maal = d[2] ? TIJD[d[2]] : vorige === 3600 ? 60 : vorige === 60 ? 1 : delen.length === 1 && eenheid ? TIJD[String(eenheid).toLowerCase().replace(/\.$/, '')] : undefined;
+      if (!maal) return null;
+      tot += Number(d[1]) * maal;
+      vorige = maal;
+    }
+    return delen.length ? Math.round(tot) : null;
+  }
+  // Tijd: true/false, of null als het geen tijd is (dan gewoon vergelijken).
+  function tijdGoed(f, w) {
+    const y = tijdSec(w, f.eenheid);
+    if (y === null) return null;
+    const goed = alts(f.antwoord).map(a => tijdSec(a, f.eenheid)).filter(x => x !== null);
+    return goed.length ? goed.includes(y) : null;
   }
   // Per vakje: goed (true), fout (false) of null. Een rekenrooster dat deels juist is, telt hier als fout.
   const vakGoed = (q, a, ov) => vakDeel(q, a, ov).map(d => (d === null ? null : d >= 1));
@@ -1605,6 +1677,7 @@
   // Het juiste antwoord per vakje van een blad: tekst, ✗ (aankruisen) of leeg.
   const veldSleutel = q => q.velden.map(f => (f.soort === 'kruis' ? (f.antwoord ? '✗' : '') : f.soort === 'plek' ? (f.doel ? '📍' : '') : f.soort === 'lijn' ? (f.naar ? '↗' : '')
     : GEEN_ANTWOORD.has(f.soort) || f.soort === 'klad' ? ''
+    : f.doorstreep && !alts(f.antwoord).length ? 'leeg of doorstreept'
     : f.soort === 'tekst' && heeftMarge(f) ? metEenheid(margeTekst(f), f.eenheid)
     : f.soort === 'tekst' || f.soort === 'breuk' ? metEenheid(alts(f.antwoord)[0] || '', f.eenheid) : f.soort === 'sleep' ? (alts(f.antwoord)[0] || '')
     : f.soort === 'rooster' && roosterAuto(f) ? (f.nakijk === 'uitkomst' ? `= ${roosterUitkomst(f)}` : roosterCellen(f.sleutel).map(r => r.map(c => c || ' ').join('')).join('\n'))
@@ -1660,6 +1733,6 @@
     TYPES, NAMES, MANUEEL, NIVEAUS, MAX_BEELD, ROOSTER, validate, problemen, vragenVan, niveausVan, lijstVoor,
     maxVan, autoPunten, handPunten, totaal, viewOf, studentView, partsOf, getal, zelfde, canoniek, auto, schoon, oplossing, schud, alts, gapsOf,
     waarschuwingen, metNamen, MAX_ZONES, veldSleutel, vakGoed, vakDeel, handVeld, autoVeld, roosterAuto, roosterScore, roosterCellen, roosterTekst, roosterUitkomst,
-    heeftMarge, margeGoed, margeTekst, getalTekst, puntLijnen, puntlijnGoed, cirkelsVan, cirkelGoed, straalCm, puntNaam, handWerk, SCHAAL, NAKIJK, FIGUREN, figurenVan, veelhoekPunten, veelhoekVolgorde, hoekpunten, rondom, rekenregel, formuleFout, lijnGoed, metEenheid, volgorde, SOORTEN, HAND_VELD, woordenVan, doelenVan, sorteerWoorden, sorteerKolommen, dicteeVergelijk, dicteeDeel, dicteeZinPunten, MAX_DICTEE, itemTekst, markeerModel, markeerSleutel, doelenInBron, markeerTel, markeerKort, markeerAntwoord, tekstWoorden, stukkenVan, zonderHaken, STIFTEN, PER, asTekst, MAX_AUDIO, celGat, vereenvoudigd, GEEN_ANTWOORD, AUTO_VELD, KLEUREN,
+    heeftMarge, margeGoed, tijdSec, VRIJ_SOORT, margeTekst, getalTekst, puntLijnen, puntlijnGoed, cirkelsVan, cirkelGoed, straalCm, puntNaam, handWerk, SCHAAL, NAKIJK, FIGUREN, figurenVan, veelhoekPunten, veelhoekVolgorde, hoekpunten, rondom, rekenregel, formuleFout, lijnGoed, metEenheid, volgorde, SOORTEN, HAND_VELD, woordenVan, doelenVan, sorteerWoorden, sorteerKolommen, dicteeVergelijk, dicteeDeel, dicteeZinPunten, MAX_DICTEE, itemTekst, markeerModel, markeerSleutel, doelenInBron, markeerTel, markeerKort, markeerAntwoord, tekstWoorden, stukkenVan, zonderHaken, STIFTEN, PER, asTekst, MAX_AUDIO, celGat, vereenvoudigd, GEEN_ANTWOORD, AUTO_VELD, KLEUREN,
   };
 });

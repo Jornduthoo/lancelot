@@ -184,5 +184,15 @@
  "Teken eerst de diagonalen: de leerling tikt 2 lijnstukken die elkaar snijden, de vierhoek verschijnt dan vanzelf": "Dibuja primero las diagonales: el alumno toca 2 segmentos que se cortan y el cuadrilátero aparece solo",
  "Korte uitleg in het vak (verdwijnt bij het eerste punt)": "Breve explicación en la casilla (desaparece con el primer punto)",
  "Tikt de leerling de hoekpunten niet rondom aan, dan zet LANcelot ze zelf rondom.": "Si el alumno no toca los vértices en orden, LANcelot los ordena solo.",
- "Tik eerst de 2 uiteinden van de ene diagonaal aan, dan die van de andere": "Toca primero los 2 extremos de una diagonal y luego los de la otra"
+ "Tik eerst de 2 uiteinden van de ene diagonaal aan, dan die van de andere": "Toca primero los 2 extremos de una diagonal y luego los de la otra",
+ "Een tijd: 4 u 30 min, 270 min, 4,5 u en 4:30 zijn allemaal juist": "Un tiempo: 4 h 30 min, 270 min, 4,5 h y 4:30 son todos correctos",
+ "Mag leeg blijven of doorstreept worden (x, / of -)": "Puede quedar vacío o tachado (x, / o -)",
+ "Precies deze breuk (25/100 juist, 1/4 fout)": "Exactamente esta fracción (25/100 correcto, 1/4 incorrecto)",
+ "Toon de eenheid naast het vakje": "Mostrar la unidad junto a la casilla",
+ "Volgorde vrij": "Orden libre",
+ "nee": "no",
+ "Geef de vakjes waarvan de volgorde niet uitmaakt hetzelfde groepje. Elk juist antwoord mag dan in elk vakje van dat groepje staan. Twee keer hetzelfde antwoord telt maar één keer.": "Da el mismo grupo a las casillas cuyo orden no importa. Cada respuesta correcta puede estar entonces en cualquier casilla de ese grupo. La misma respuesta dos veces cuenta solo una vez.",
+ "groepje {0}": "grupo {0}",
+ "Volgorde vrij, groepje {0}": "Orden libre, grupo {0}",
+ "leeg of doorstreept": "vacío o tachado"
 }

@@ -478,17 +478,22 @@ const PfPaper = (() => {
       if (f.soort === 'plek' && print) return zone;
       if (f.soort === 'lijn' && print) return `<span class="pf-veld lijn" style="left:${f.x}%;top:${f.y}%;width:${f.w}%;height:${f.h}%"></span>${zoneLijn}`;
       // Een lang antwoord loopt verder dan het vakje (naar rechts en naar onder), zodat er niets wegvalt.
-      const s = f.soort === 'plek' ? zone : f.soort === 'lijn' ? zoneLijn : f.soort === 'klad' ? '' : sleutel && sleutel[k] && !(oordeel && oordeel.goed[k] !== false) ? `<span class="pf-veld-sleutel${b[k] ? '' : ' in'}" style="left:${f.x}%;top:${b[k] ? f.y + f.h : f.y}%;max-width:${Math.max(f.w, 100 - f.x)}%;${b[k] ? '' : `min-width:${f.w}%;min-height:${f.h}%;`}">${gemengd(esc(sleutel[k])).replace(/\n/g, '<br>')}</span>` : '';
+      // Volgorde vrij: bij een fout vakje alle antwoorden van het groepje (welk ontbreekt, hangt af van de andere vakjes).
+      const sk = sleutel && sleutel[k] && f.vrij && oordeel ? [...new Set(q.velden.map((g, i) => (g.vrij === f.vrij ? sleutel[i] : '')).filter(Boolean))].join(' / ') : sleutel && sleutel[k];
+      const s = f.soort === 'plek' ? zone : f.soort === 'lijn' ? zoneLijn : f.soort === 'klad' ? '' : sk && !(oordeel && oordeel.goed[k] !== false) ? `<span class="pf-veld-sleutel${b[k] ? '' : ' in'}" style="left:${f.x}%;top:${b[k] ? f.y + f.h : f.y}%;max-width:${Math.max(f.w, 100 - f.x)}%;${b[k] ? '' : `min-width:${f.w}%;min-height:${f.h}%;`}">${gemengd(esc(sk)).replace(/\n/g, '<br>')}</span>` : '';
       if (f.soort === 'vlak') return `<i class="pf-vlak" style="left:${f.x}%;top:${f.y}%;width:${f.w}%;height:${f.h}%;background:${esc(f.kleur || '#fff')}"></i>`;
       if (f.soort === 'notitie') return `<span class="pf-notitie" style="${pos}">${esc(f.tekst || '').replace(/\n/g, '<br>')}</span>`;
       if (print) return (f.soort === 'rooster' ? veldEl(f, k, pos, null) : '') + s;
       const g = oordeel ? oordeel.goed[k] : null;
       // Een lang antwoord groeit naar rechts: dan staat het ✔ / ✘ links van het vakje, en de sleutel onder het antwoord.
       const vol = isVol(f, k);
-      const knop = g === null || g === undefined ? '' : `<button type="button" class="pf-vak-oordeel ${g ? 'goed' : 'fout'}${oordeel.zelf[k] !== undefined ? ' zelf' : ''}${vol ? ' links' : ''}" data-id="${esc(q.id)}" data-k="${k}" style="left:${vol ? f.x : f.x + f.w}%;top:${f.y}%" title="Klik om ${g ? 'fout' : 'goed'} te zetten">${g ? '✔' : '✘'}</button>`;
+      // De eenheid naast het vakje (als de leerkracht dat koos); het ✔ / ✘ staat dan links.
+      const een = f.eenheid && !vol ? `<span class="pf-veld-eenheid" style="left:${f.x + f.w}%;top:${f.y}%;height:${f.h}%">${esc(f.eenheid)}</span>` : '';
+      const links = vol || !!een;
+      const knop = g === null || g === undefined ? '' : `<button type="button" class="pf-vak-oordeel ${g ? 'goed' : 'fout'}${oordeel.zelf[k] !== undefined ? ' zelf' : ''}${links ? ' links' : ''}" data-id="${esc(q.id)}" data-k="${k}" style="left:${links ? f.x : f.x + f.w}%;top:${f.y}%" title="Klik om ${g ? 'fout' : 'goed'} te zetten">${g ? '✔' : '✘'}</button>`;
       const tag = f.samen && !live ? `<span class="pf-samen-tag" style="left:${f.x}%;top:${f.y}%" title="Telt samen met de andere vakjes van groepje ${'ABCDEFGHIJKLMNOPQRSTUVWXYZ'[(f.samen - 1) % 26]}">🔗${'ABCDEFGHIJKLMNOPQRSTUVWXYZ'[(f.samen - 1) % 26]}</span>` : '';
-      if (vol) return veldEl(f, k, pos, g, s ? sleutel[k] : '') + knop + tag;
-      return veldEl(f, k, pos, g) + knop + tag + s;
+      if (vol) return veldEl(f, k, pos, g, s ? sk : '') + knop + tag;
+      return veldEl(f, k, pos, g) + een + knop + tag + s;
     }).join('');
     // Verbinden: de lijnen van de leerling (en bij de sleutel de juiste lijn, gestreept).
     const lijnen = q.velden.map((f, k) => {
@@ -547,7 +552,8 @@ const PfPaper = (() => {
       // Bekijken en verbeteren: het antwoord van de leerling helemaal, ook als het langer is dan het vakje.
       if (isVol(f, k)) {
         const groot = pos.replace(`width:${f.w}%;height:${f.h}%`, `min-width:${f.w}%;min-height:${f.h}%;max-width:${Math.max(f.w, 100 - f.x)}%`);
-        return `<span class="pf-veld vol${f.soort === 'open' ? ' open' : ''}${kl}" data-k="${k}" style="${groot}"><span>${esc(b[k]).replace(/\n/g, '<br>')}</span>${sl ? `<span class="pf-vol-sleutel">${gemengd(esc(sl)).replace(/\n/g, '<br>')}</span>` : ''}</span>`;
+        const een = f.eenheid && !String(b[k]).toLowerCase().includes(f.eenheid.toLowerCase()) ? ` ${esc(f.eenheid)}` : '';
+        return `<span class="pf-veld vol${f.soort === 'open' ? ' open' : ''}${kl}" data-k="${k}" style="${groot}"><span>${esc(b[k]).replace(/\n/g, '<br>')}${een}</span>${sl ? `<span class="pf-vol-sleutel">${gemengd(esc(sl)).replace(/\n/g, '<br>')}</span>` : ''}</span>`;
       }
       if (f.soort === 'open') return `<textarea class="pf-veld open${kl}" data-k="${k}" style="${pos}" spellcheck="false"${ro}>${esc(b[k] ?? '')}</textarea>`;
       return `<input class="pf-veld${kl}" data-k="${k}" style="${pos}" autocomplete="off" autocapitalize="off" spellcheck="false" value="${esc(b[k] ?? '')}"${ro}>`;

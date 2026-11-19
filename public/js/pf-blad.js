@@ -687,20 +687,23 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
     } else if (f.soort === 'tekst') {
       kop.textContent = NAAM.tekst;
       inh.innerHTML = `<p class="bv-vraag">Juiste antwoord(en):</p>${lijst(alts.length ? alts : [''], '+ nog een juist antwoord')}
-        <label>Eenheid (mag leeg) <input class="bv-eenheid" value="${esc(f.eenheid || '')}" placeholder="bijv. cm"></label>
+        ${eenheidHtml(f)}
         <div class="bv-checks"><label class="inline check"><input type="checkbox" data-vlag="hoofdletters"${f.hoofdletters ? ' checked' : ''}> Hoofdletters moeten kloppen</label>
           <label class="inline check"><input type="checkbox" data-vlag="leestekens"${f.leestekens ? ' checked' : ''}> Leestekens tellen mee ( . , ? ! )</label>
           <label class="inline check"><input type="checkbox" data-vlag="spaties"${f.spaties ? ' checked' : ''}> Spaties negeren</label>
-          ${eenvoudigVink(f)}</div>
+          ${eenvoudigVink(f)}
+          <label class="inline check"><input type="checkbox" data-vlag="tijd"${f.tijd ? ' checked' : ''}> Een tijd: 4 u 30 min, 270 min, 4,5 u en 4:30 zijn allemaal juist</label>
+          <label class="inline check"><input type="checkbox" data-vlag="doorstreep"${f.doorstreep ? ' checked' : ''}> Mag leeg blijven of doorstreept worden (x, / of -)</label></div>
         ${margeHtml(f)}
         <label>Gevolgfout (mag leeg): een rekenregel met de antwoorden in andere vakjes <input class="bv-formule" value="${esc(f.formule || '')}" placeholder="bijv. {1} * {2} / 2"></label>
         <p class="muted small bv-formule-uitleg">${f.formule && PfKern.formuleFout(f.formule, staat.velden.length, k) ? `⚠ ${esc(PfKern.formuleFout(f.formule, staat.velden.length, k))}` : 'Rekende de leerling verder met een fout antwoord uit een vorig vakje, dan is dit vakje toch juist als het klopt met zijn eigen getallen. {1} is het antwoord in vakje 1.'}</p>
-        <p class="muted small">Getallen tellen ook in een andere schrijfwijze: 0,5 = 0.5 = 1/2.</p>${samenHtml(f, punten)}`;
+        <p class="muted small">Getallen tellen ook in een andere schrijfwijze: 0,5 = 0.5 = 1/2.</p>${vrijHtml(f)}${samenHtml(f, punten)}`;
     } else if (f.soort === 'breuk' || f.soort === 'sleep') {
       kop.textContent = NAAM[f.soort];
       inh.innerHTML = `<p class="bv-vraag">${f.soort === 'breuk' ? 'Juiste breuk(en), bijv. 3/4:' : 'Het juiste woord:'}</p>${lijst(alts.length ? alts : [''], f.soort === 'breuk' ? '+ nog een juiste breuk' : '+ nog een juist woord')}
         ${f.soort === 'sleep' ? `<label>Extra woorden om uit te kiezen (foute keuzes, gescheiden door /) <input class="bv-woorden" value="${esc(box.querySelector('#be-woorden').value)}"></label>` : ''}
-        ${f.soort === 'breuk' ? `<div class="bv-checks"><label class="inline check"><input type="checkbox" data-vlag="geheel"${f.geheel ? ' checked' : ''}> Met een vakje voor het geheel (bv. 1 3/4)</label>${eenvoudigVink(f)}</div>` : ''}${samenHtml(f, punten)}`;
+        ${f.soort === 'breuk' ? `${eenheidHtml(f)}<div class="bv-checks"><label class="inline check"><input type="checkbox" data-vlag="geheel"${f.geheel ? ' checked' : ''}> Met een vakje voor het geheel (bv. 1 3/4)</label>${eenvoudigVink(f)}
+          <label class="inline check"><input type="checkbox" data-vlag="precies"${f.precies ? ' checked' : ''}> Precies deze breuk (25/100 juist, 1/4 fout)</label></div>` : ''}${vrijHtml(f)}${samenHtml(f, punten)}`;
     } else if (f.soort === 'kies') {
       const opties = f.opties && f.opties.length ? f.opties : ['', ''];
       kop.textContent = NAAM.kies;
@@ -868,6 +871,7 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
       const t = e.target;
       if (t.dataset.vlag) { if (t.checked) f[t.dataset.vlag] = true; else delete f[t.dataset.vlag]; bijwerken(); }
       else if (t.name === 'bv-nakijk') { if (t.value) f.nakijk = t.value; else delete f.nakijk; bijwerken(); venster(staat.velden.indexOf(f)); }
+      else if (t.classList.contains('bv-vrij')) { if (t.value) f.vrij = Number(t.value); else delete f.vrij; bijwerken(); }
       else if (t.classList.contains('bv-figuur')) { if (t.value) f.figuur = t.value; else delete f.figuur; bijwerken(); }
       else if (t.classList.contains('bv-urij')) { if (t.value) f.uitkomstRij = Number(t.value); else delete f.uitkomstRij; bijwerken(); }
       else if (t.name === 'bv-vorm') { f.vorm = t.value; bijwerken(); }
@@ -1054,7 +1058,12 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
     if (i) i.focus();
   }
 
-  // ---------- Zo eenvoudig mogelijk en samen op punten ----------
+  // ---------- Eenheid, volgorde vrij, zo eenvoudig mogelijk en samen op punten ----------
+  const eenheidHtml = f => `<label>Eenheid (mag leeg) <input class="bv-eenheid" value="${esc(f.eenheid || '')}" placeholder="bijv. cm"></label>
+    <div><label class="inline check"><input type="checkbox" data-vlag="toonEenheid"${f.toonEenheid ? ' checked' : ''}> Toon de eenheid naast het vakje</label></div>`;
+  // Volgorde vrij: vakjes met hetzelfde groepje mogen hun antwoorden in elke volgorde krijgen (bv. de delers van 12).
+  const vrijHtml = f => `<label>Volgorde vrij <select class="bv-vrij"><option value="">nee</option>${[1, 2, 3, 4].map(n => `<option value="${n}"${f.vrij === n ? ' selected' : ''}>groepje ${n}</option>`).join('')}</select></label>
+    <p class="muted small">Geef de vakjes waarvan de volgorde niet uitmaakt hetzelfde groepje. Elk juist antwoord mag dan in elk vakje van dat groepje staan. Twee keer hetzelfde antwoord telt maar één keer.</p>`;
   const eenvoudigVink = f => `<label class="inline check" title="Bij breuken: 3/4 is juist, 6/8 niet. Een onechte breuk (7/4) moet een gemengd getal zijn (1 3/4), tenzij je juiste antwoord zelf een onechte breuk is."><input type="checkbox" data-vlag="vereenvoudigd"${f.vereenvoudigd ? ' checked' : ''}> Zo eenvoudig mogelijk (3/4 juist, 6/8 fout)</label>`;
   const SAMEN_SOORT = new Set(['tekst', 'breuk', 'kies', 'sleep', 'plek', 'lijn', 'puntlijn', 'cirkel', 'veelhoek']);
   // De vakjes van een groepje, in de volgorde van het blad (zoals het in de lijst staat).
@@ -1184,12 +1193,12 @@ Geef je antwoord als één codeblok met JSON (\`\`\`json … \`\`\`), zonder uit
     else if (f.soort === 'notitie') antw = `<input class="be-a" value="${esc(f.tekst || '')}" placeholder="tekst op het blad">`;
     else if (f.soort === 'luister') antw = `<span class="pf-be-luister"><span class="pf-be-audio" data-k="${k}"></span><input class="be-a" value="${esc(f.tekst || '')}" placeholder="of: tekst om voor te lezen"></span>`;
     else antw = `<input class="be-a" value="${esc(f.antwoord || '')}" placeholder="${f.soort === 'open' ? 'modelantwoord (voor jou)' : f.soort === 'teken' ? 'waar je op let (voor jou)' : f.soort === 'rooster' ? 'uitwerking (voor jou)' : f.soort === 'breuk' ? 'bijv. 3/4' : f.soort === 'sleep' ? 'het juiste woord' : 'bijv. 1600|1 600'}">`;
-    return `<div class="pf-be-rij${staat.sel === k ? ' on' : ''}${leegVeld(f, k, staat.velden) ? ' zonder' : ''}" data-k="${k}"><b>${k + 1}${f.samen ? `<small title="Samen op punten">🔗${samenLetter(f.samen)}</small>` : ''}</b>${s}${antw}
+    return `<div class="pf-be-rij${staat.sel === k ? ' on' : ''}${leegVeld(f, k, staat.velden) ? ' zonder' : ''}" data-k="${k}"><b>${k + 1}${f.samen ? `<small title="Samen op punten">🔗${samenLetter(f.samen)}</small>` : ''}${f.vrij ? `<small title="Volgorde vrij, groepje ${f.vrij}">⇄${f.vrij}</small>` : ''}</b>${s}${antw}
       <input class="be-e" value="${esc(f.eenheid || '')}"${f.soort === 'tekst' || f.soort === 'breuk' ? '' : ' disabled'} aria-label="Eenheid"><input class="be-p" type="number" min="0" max="100" step="0.5" value="${f.punten ?? 1}" aria-label="Punten"${['luister', 'vlak', 'notitie', 'klad'].includes(f.soort) ? ' disabled' : ''}><button type="button" class="secondary small-btn weg" title="Vakje weghalen">✕</button></div>`;
   }
 
   // Nog zonder antwoord? velden: alle vakjes van het blad (voor een groepje bolletjes zonder juist antwoord).
-  const leegVeld = (f, _, velden) => (f.soort === 'kruis' && Array.isArray(velden) && !velden.some(g => g.soort === 'kruis' && g.groep === f.groep && g.antwoord)) || ((f.soort === 'tekst' || f.soort === 'breuk' || f.soort === 'sleep') && !String(f.antwoord || '').trim()) || (f.soort === 'plek' && !f.doel) || (f.soort === 'lijn' && !f.naar) || (f.soort === 'luister' && !f.audio && !String(f.tekst || '').trim()) || (f.soort === 'kies' && (!(f.opties || []).includes(f.antwoord) || f.opties.length < 2))
+  const leegVeld = (f, _, velden) => (f.soort === 'kruis' && Array.isArray(velden) && !velden.some(g => g.soort === 'kruis' && g.groep === f.groep && g.antwoord)) || ((f.soort === 'tekst' || f.soort === 'breuk' || f.soort === 'sleep') && !String(f.antwoord || '').trim() && !f.doorstreep) || (f.soort === 'plek' && !f.doel) || (f.soort === 'lijn' && !f.naar) || (f.soort === 'luister' && !f.audio && !String(f.tekst || '').trim()) || (f.soort === 'kies' && (!(f.opties || []).includes(f.antwoord) || f.opties.length < 2))
     || (f.soort === 'rooster' && !!f.nakijk && !(f.sleutel || '').trim() && !(f.nakijk === 'uitkomst' && String(f.uitkomst || '').trim()))
     || (f.soort === 'puntlijn' && ((f.pt || []).length < 2 || (f.doorPunt === undefined && !(f.lijnen || []).length)))
     || (f.soort === 'cirkel' && !(f.cirkels || []).length)
