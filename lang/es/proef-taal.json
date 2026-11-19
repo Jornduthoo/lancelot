@@ -260,5 +260,15 @@
  "Klik 2 punten op het been: eerst het hoekpunt, dan een punt op het been": "Haz clic en 2 puntos del lado: primero el vértice, luego un punto del lado",
  "Klik 2 punten op die rechte op het blad": "Haz clic en 2 puntos de esa recta en la hoja",
  "De leerling trekt vanuit het bolletje een lijn met de 📐 Gradenboog (zet die aan bij het blad). De hoek met het been telt, niet hoe lang de lijn is.": "El alumno traza una línea desde el punto con el 📐 Transportador (actívalo para la hoja). Cuenta el ángulo con el lado, no la longitud de la línea.",
- "hoek van {0}° (± {1}°)": "ángulo de {0}° (± {1}°)"
+ "hoek van {0}° (± {1}°)": "ángulo de {0}° (± {1}°)",
+ "{0}: geef minstens {1} goede antwoorden (gescheiden door |).": "{0}: da al menos {1} respuestas correctas (separadas por |).",
+ "{0} van: {1}": "{0} de: {1}",
+ "🔗 Blijft na de vorige vraag (ook als de vragen geschud worden)": "🔗 Se queda después de la pregunta anterior (también si se mezclan las preguntas)",
+ "Aantal antwoordvakjes": "Número de casillas de respuesta",
+ "Zet alle goede antwoorden bij \"Juist antwoord\", gescheiden door |, bv.": "Pon todas las respuestas correctas en «Respuesta correcta», separadas por |, p. ej.",
+ "hart|longen = long|maag": "corazón|pulmones = pulmón|estómago",
+ ". Met = ertussen tellen andere schrijfwijzen als hetzelfde antwoord. Elk vakje met een ander goed antwoord geeft een punt, in elke volgorde.": ". Con = en medio, otras formas de escribir cuentan como la misma respuesta. Cada casilla con otra respuesta correcta da un punto, en cualquier orden.",
+ "antwoord {0}": "respuesta {0}",
+ "Antwoord {0}": "Respuesta {0}",
+ "Elk vakje een ander antwoord. De volgorde maakt niet uit.": "Una respuesta distinta en cada casilla. El orden no importa."
 }

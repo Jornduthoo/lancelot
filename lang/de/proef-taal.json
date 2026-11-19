@@ -260,5 +260,15 @@
  "Klik 2 punten op het been: eerst het hoekpunt, dan een punt op het been": "Klicke 2 Punkte auf dem Schenkel: zuerst den Scheitelpunkt, dann einen Punkt auf dem Schenkel",
  "Klik 2 punten op die rechte op het blad": "Klicke 2 Punkte auf dieser Geraden auf dem Blatt",
  "De leerling trekt vanuit het bolletje een lijn met de 📐 Gradenboog (zet die aan bij het blad). De hoek met het been telt, niet hoe lang de lijn is.": "Die Schüler ziehen vom Punkt aus eine Linie mit dem 📐 Winkelmesser (für das Blatt einschalten). Der Winkel zum Schenkel zählt, nicht die Länge der Linie.",
- "hoek van {0}° (± {1}°)": "Winkel von {0}° (± {1}°)"
+ "hoek van {0}° (± {1}°)": "Winkel von {0}° (± {1}°)",
+ "{0}: geef minstens {1} goede antwoorden (gescheiden door |).": "{0}: gib mindestens {1} richtige Antworten an (getrennt durch |).",
+ "{0} van: {1}": "{0} aus: {1}",
+ "🔗 Blijft na de vorige vraag (ook als de vragen geschud worden)": "🔗 Bleibt nach der vorigen Frage (auch wenn die Fragen gemischt werden)",
+ "Aantal antwoordvakjes": "Anzahl Antwortfelder",
+ "Zet alle goede antwoorden bij \"Juist antwoord\", gescheiden door |, bv.": "Schreib alle richtigen Antworten bei „Richtige Antwort“, getrennt durch |, z. B.",
+ "hart|longen = long|maag": "Herz|Lungen = Lunge|Magen",
+ ". Met = ertussen tellen andere schrijfwijzen als hetzelfde antwoord. Elk vakje met een ander goed antwoord geeft een punt, in elke volgorde.": ". Mit = dazwischen zählen andere Schreibweisen als dieselbe Antwort. Jedes Feld mit einer anderen richtigen Antwort gibt einen Punkt, in beliebiger Reihenfolge.",
+ "antwoord {0}": "Antwort {0}",
+ "Antwoord {0}": "Antwort {0}",
+ "Elk vakje een ander antwoord. De volgorde maakt niet uit.": "In jedes Feld eine andere Antwort. Die Reihenfolge spielt keine Rolle."
 }

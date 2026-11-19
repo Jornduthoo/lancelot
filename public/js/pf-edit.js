@@ -200,6 +200,12 @@ const PfEdit = (() => {
       body.appendChild(d);
       return d;
     };
+    // Vragen die bij elkaar horen (bv. over de kaart van de vorige vraag) blijven samen als de vragen geschud worden.
+    if (!inBron) {
+      const bl = veld('<label class="inline check small"><input type="checkbox" class="e-blijft"> 🔗 Blijft na de vorige vraag (ook als de vragen geschud worden)</label>', 'pf-e-blijft');
+      bl.querySelector('input').checked = q.blijft === true;
+      bl.querySelector('input').addEventListener('change', () => cfg.preview());
+    }
     if (q.type === 'blad') bladKaart(card, body, q);
     else if (q.type === 'bron') {
       veld('<label>Titel van de bron<input class="e-titel" maxlength="120" placeholder="bijv. Het verhaal van de Leie"></label>');
@@ -300,6 +306,20 @@ const PfEdit = (() => {
         veld(`<label class="inline check"><input type="checkbox" class="e-breuk"> Antwoord in een breukvak (teller boven, noemer onder)</label> <label class="inline check" title="3/4 is juist, 6/8 niet. Een onechte breuk (7/4) moet een gemengd getal zijn (1 3/4), tenzij je juiste antwoord zelf een onechte breuk is."><input type="checkbox" class="e-vv"> Zo eenvoudig mogelijk (3/4 juist, 6/8 fout)</label>${q.type === 'rekenen' ? ' <label class="inline check"><input type="checkbox" class="e-rooster"> Bewerking in een rekenrooster (hokjes)</label>' : ''}`, 'pf-checks');
         card.querySelector('.e-breuk').checked = !!q.breuk;
         card.querySelector('.e-vv').checked = !!q.vereenvoudigd;
+        if (q.type === 'kort') {
+          // Meerdere antwoordvakjes: bv. "Geef twee voorbeelden van ..." of een woordspin. Elk goed antwoord uit de lijst telt.
+          const vk = veld(`<label class="inline">Aantal antwoordvakjes <select class="e-vakjes">${[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(n => `<option value="${n}">${n}</option>`).join('')}</select></label>
+            <p class="muted small pf-vakjes-uitleg">Zet alle goede antwoorden bij "Juist antwoord", gescheiden door |, bv. <b>hart|longen = long|maag</b>. Met = ertussen tellen andere schrijfwijzen als hetzelfde antwoord. Elk vakje met een ander goed antwoord geeft een punt, in elke volgorde.</p>`, 'pf-e-vakjes');
+          const sel = vk.querySelector('.e-vakjes');
+          sel.value = String(q.vakjes || 1);
+          const toon = () => {
+            const meer = Number(sel.value) > 1;
+            vk.querySelector('.pf-vakjes-uitleg').classList.toggle('hidden', !meer);
+            card.querySelector(':scope > .pf-k-body > .pf-checks').classList.toggle('hidden', meer);
+          };
+          sel.addEventListener('change', () => { toon(); cfg.preview(); });
+          toon();
+        }
         if (q.type === 'rekenen') {
           // Een nieuwe rekenvraag krijgt meteen een rooster; een oude houdt zijn tekstvak tot je het aanvinkt.
           card.querySelector('.e-rooster').checked = q.rooster === true || (q.rooster === undefined && !q.antwoord);
@@ -693,6 +713,8 @@ const PfEdit = (() => {
   function leesKaart(card) {
     const type = card.dataset.type;
     const q = { type };
+    const blijft = card.querySelector(':scope > .pf-k-body > .pf-e-blijft input');
+    if (blijft && blijft.checked) q.blijft = true;
     if (card.pfBeeld) q.beeld = card.pfBeeld;
     else {
       if (card.pfNodig) q.beeldNodig = card.pfNodig;
@@ -759,6 +781,8 @@ const PfEdit = (() => {
     }
     else if (type === 'kort' || type === 'rekenen') {
       q.antwoord = waarde(card, '.e-antwoord');
+      const vakjes = Number((card.querySelector(':scope > .pf-k-body .e-vakjes') || {}).value);
+      if (type === 'kort' && vakjes > 1) q.vakjes = vakjes;
       q.eenheid = waarde(card, '.e-eenheid');
       if (type === 'rekenen') q.werkPunten = waarde(card, '.e-werkpunten');
       q.breuk = card.querySelector(':scope > .pf-k-body .e-breuk').checked;

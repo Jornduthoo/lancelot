@@ -104,6 +104,11 @@ const PfPaper = (() => {
         if (print) return `<span class="ob-line" style="min-width:${part.size * 0.62}em"></span>`;
         return `<input class="ob-field ob-gap pf-in" data-k="${part.gap}" size="${part.size}" autocomplete="off" autocapitalize="off" spellcheck="false" value="${esc((a || [])[part.gap] ?? '')}"${ro}>`;
       }).join('')}</p>`;
+    } else if (q.type === 'kort' && q.vakjes) {
+      // Meerdere antwoordvakjes: elk vakje een ander antwoord, de volgorde maakt niet uit.
+      const w = Array.isArray(a) ? a : [];
+      h += print ? `<p class="pf-antwoordlijn">${Array.from({ length: q.vakjes }, () => '<span class="ob-line" style="min-width:8em"></span>').join(' ')} ${esc(q.eenheid || '')}</p>`
+        : `<p class="pf-kort pf-vakjes">${Array.from({ length: q.vakjes }, (_, i) => `<span class="pf-vakje"><input class="ob-field pf-in" data-k="${i}" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="antwoord ${i + 1}" aria-label="Antwoord ${i + 1}" value="${esc(w[i] ?? '')}"${ro}>${q.eenheid ? `<span class="pf-eenheid">${esc(q.eenheid)}</span>` : ''}</span>`).join('')}</p>${live ? '<p class="pf-tip">Elk vakje een ander antwoord. De volgorde maakt niet uit.</p>' : ''}`;
     } else if (q.type === 'kort' && q.breuk) {
       h += print ? `<p class="pf-antwoordlijn">Antwoord: ${breukPrint()} ${esc(q.eenheid || '')}</p>`
         : `<p class="pf-kort">${breukHtml(a, ro, 'pf-in')}${q.eenheid ? `<span class="pf-eenheid">${esc(q.eenheid)}</span>` : ''}</p>`;
@@ -882,6 +887,7 @@ const PfPaper = (() => {
       for (const i of el.querySelectorAll('.pf-in')) out[Number(i.dataset.k)] = i.dataset.waarde !== undefined ? i.dataset.waarde : i.value;
       return out;
     }
+    if (type === 'kort' && el.querySelector('.pf-vakjes')) return [...el.querySelectorAll('.pf-vakjes .pf-in')].map(i => i.value);
     if (type === 'kort') { const b = el.querySelector('.pf-breuk'); return b ? breukWaarde(b) : el.querySelector('.pf-in').value; }
     if (type === 'rekenen') {
       const b = el.querySelector('.pf-breuk');

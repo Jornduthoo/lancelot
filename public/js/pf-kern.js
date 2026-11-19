@@ -120,6 +120,8 @@
     return Number.isFinite(n) && n >= 0 ? Math.min(100, Math.round(n * 2) / 2) : standaard;
   };
   const alts = s => String(s || '').split('|').map(a => a.trim()).filter(Boolean);
+  // Bij meerdere antwoordvakjes: elk goed antwoord apart (gescheiden door |), met = ertussen voor andere schrijfwijzen van hetzelfde antwoord.
+  const goedeAntwoorden = s => alts(s).map(a => a.split('=').map(x => x.trim()).filter(Boolean)).filter(g => g.length);
   // Per gat de goede antwoorden; bij een keuzelijstje alleen de eerste.
   const gapsOf = s => [...String(s || '').matchAll(GAP)].map(m => (m[2] !== undefined ? alts(m[2]).slice(0, 1) : alts(m[1])));
   // Een cel van een tabel die de leerling invult: [antwoord] of een keuzelijstje {juist|fout}. null = gewone cel.
@@ -397,6 +399,8 @@
     if (!type) throw new Error(`${waar} heeft een onbekende soort${q.type ? ` (${String(q.type).slice(0, 20)})` : ''}.`);
     if (deel && (type === 'bron' || type === 'blad')) throw new Error(`${waar}: dit kan niet in een bron.`);
     const out = { type };
+    // Blijft na de vorige vraag, ook als de vragen geschud worden (bv. een vraag over de kaart van de vorige vraag).
+    if (q.blijft === true && !deel) out.blijft = true;
     const vraag = text(pick(q, 'vraag', 'question', 'opdracht'), 1500);
     if (vraag) out.vraag = vraag;
     const beeld = beeldOf(q.beeld) || plaatsOf(q.beeld);
@@ -529,8 +533,17 @@
         out.kol = roosterMaat(q.kol, 12, ROOSTER.maxKol);
         out.rij = roosterMaat(q.rij, 6, ROOSTER.maxRij);
       }
-      if (q.breuk === true) out.breuk = true;
-      if (q.vereenvoudigd === true) out.vereenvoudigd = true;
+      // Meerdere antwoordvakjes (alleen bij kort): elk vakje met een ander goed antwoord uit de lijst telt, in elke volgorde.
+      const vakjes = Math.round(Number(q.vakjes));
+      if (type === 'kort' && vakjes >= 2 && vakjes <= 10) {
+        out.vakjes = vakjes;
+        const n = goedeAntwoorden(out.antwoord).length;
+        if (n < vakjes) throw new Error(`${naam}: geef minstens ${vakjes} goede antwoorden (gescheiden door |).`);
+        max = vakjes;
+      } else {
+        if (q.breuk === true) out.breuk = true;
+        if (q.vereenvoudigd === true) out.vereenvoudigd = true;
+      }
     } else if (type === 'verbinden') {
       out.paren = list(pick(q, 'paren', 'pairs'), 12).map((p, i) => {
         const l = text(Array.isArray(p) ? p[0] : p && (p.links || p.left), 200);
@@ -1394,6 +1407,7 @@
       if (q.eenheid) v.eenheid = q.eenheid;
       if (q.type === 'rekenen') v.werk = true;
       if (q.type === 'rekenen' && q.rooster) { v.kol = q.kol; v.rij = q.rij; }
+      if (q.vakjes) v.vakjes = q.vakjes;
       if (q.breuk) v.breuk = true;
     } else if (q.type === 'verbinden') {
       v.links = q.paren.map(x => x[0]);
@@ -1543,6 +1557,22 @@
   }
 
   const half = x => Math.round(x * 2) / 2;
+
+  // Meerdere antwoordvakjes: welk vakje telt? Elk goed antwoord telt één keer (hetzelfde antwoord twee keer: één punt).
+  function vakjesGoed(q, a) {
+    const groepen = goedeAntwoorden(q.antwoord);
+    const vak = Array.from({ length: q.vakjes }, (_, i) => (Array.isArray(a) ? a[i] : null));
+    const past = vak.map(v => groepen.map((g, j) => (zelfde(g.join('|'), v, q) ? j : -1)).filter(j => j >= 0));
+    const bij = new Array(groepen.length).fill(-1);
+    const zoek = (i, gezien) => past[i].some(j => {
+      if (gezien.has(j)) return false;
+      gezien.add(j);
+      if (bij[j] < 0 || zoek(bij[j], gezien)) { bij[j] = i; return true; }
+      return false;
+    });
+    vak.forEach((_, i) => zoek(i, new Set()));
+    return vak.map((_, i) => bij.includes(i));
+  }
   const leeg = a => a === undefined || a === null || a === '' || (Array.isArray(a) && !a.some(x => x !== null && x !== undefined && x !== ''));
 
   // Het antwoord van de leerling in de vorm van de toets zelf (de keuzes in hun eigen volgorde, niet die van zijn scherm).
@@ -1742,6 +1772,7 @@
       const goed = gaten.filter((g, k) => zelfde(g.join('|'), Array.isArray(a) ? a[k] : null, q)).length;
       return half((p * goed) / gaten.length);
     }
+    if (q.type === 'kort' && q.vakjes) return half((p * vakjesGoed(q, a).filter(Boolean).length) / q.vakjes);
     if (q.type === 'kort' || q.type === 'rekenen') {
       const uit = q.type === 'rekenen' && a && typeof a === 'object' ? a.uitkomst : a;
       if (q.vereenvoudigd && !vereenvoudigd(uit, q.antwoord)) return 0;
@@ -1839,6 +1870,7 @@
     if (q.type === 'juistfout' && q.stellingen) return list(a, 20).slice(0, q.stellingen.length).map(v => (v === 'J' || v === 'F' ? v : null));
     if (q.type === 'juistfout') return a === 'J' || a === 'F' ? a : null;
     if (q.type === 'invullen' || q.type === 'tabel') return list(a, 60).map(v => str(v).slice(0, 200));
+    if (q.type === 'kort' && q.vakjes) return list(a, q.vakjes).map(v => str(v).slice(0, 200));
     if (q.type === 'dictee') return list(a, MAX_DICTEE).slice(0, q.delen.length).map(v => (v === null || v === undefined ? '' : String(v).replace(/\s+/g, ' ').slice(0, 400)));
     if (q.type === 'sorteren') return list(a, 60).map(v => (Number.isInteger(Number(v)) && v !== null && v !== '' && Number(v) >= 0 && Number(v) < q.kolommen.length ? Number(v) : null));
     if (q.type === 'verbinden' || q.type === 'ordenen') return list(a, 12).map(v => (v === null || v === '' ? null : Number.isInteger(Number(v)) ? Number(v) : null));
@@ -1895,6 +1927,7 @@
     if (q.type === 'juistfout' && q.stellingen) return q.stellingen.map((x, i) => `${i + 1}. ${q.labels === 'janee' ? (x.juist ? 'Ja' : 'Nee') : x.juist ? 'Juist' : 'Fout'}`).join(' · ');
     if (q.type === 'juistfout') return q.juist ? 'Juist' : 'Fout';
     if (q.type === 'invullen') return gapsOf(q.tekst).map(g => g[0]).join(' · ');
+    if (q.type === 'kort' && q.vakjes) return `${q.vakjes} van: ${goedeAntwoorden(q.antwoord).map(g => metEenheid(g[0], q.eenheid)).join(' · ')}`;
     if (q.type === 'kort' || q.type === 'rekenen') return metEenheid(alts(q.antwoord)[0], q.eenheid);
     if (q.type === 'blad') return veldSleutel(q).map((s, k) => (s ? `${k + 1}: ${s}` : '')).filter(Boolean).join(' · ');
     if (q.type === 'verbinden') return q.paren.map(p => `${p[0]} = ${p[1]}`).join(' · ');
@@ -1909,12 +1942,17 @@
   }
 
   // De volgorde van de vragen voor één leerling: geschud, maar een blad uit de pdf blijft op zijn plaats.
+  // Een vraag met "blijft" gaat mee met de vraag ervoor (ze vormen samen één blok); een blok dat met een blad begint, blijft staan.
+  // Zonder "blijft" is elk blok één vraag en is de volgorde dezelfde als vroeger.
   function volgorde(lijst, seed, schudden) {
     const order = lijst.map((_, i) => i);
     if (!schudden) return order;
-    const los = order.filter(i => lijst[i].type !== 'blad');
+    const blokken = [];
+    for (const i of order) if (i > 0 && lijst[i].blijft) blokken[blokken.length - 1].push(i); else blokken.push([i]);
+    const vast = b => lijst[b[0]].type === 'blad';
+    const los = blokken.filter(b => !vast(b));
     const mix = schud(los.length, seed).map(k => los[k]);
-    return order.map(i => (lijst[i].type === 'blad' ? i : mix.shift()));
+    return blokken.map(b => (vast(b) ? b : mix.shift())).flat();
   }
 
   // Een willekeurige volgorde, met seed altijd dezelfde (zo blijft de volgorde na herladen gelijk).
@@ -1935,6 +1973,6 @@
     TYPES, NAMES, MANUEEL, NIVEAUS, MAX_BEELD, ROOSTER, validate, problemen, vragenVan, niveausVan, lijstVoor,
     maxVan, autoPunten, handPunten, totaal, viewOf, studentView, partsOf, getal, zelfde, canoniek, auto, schoon, oplossing, schud, alts, gapsOf,
     waarschuwingen, metNamen, MAX_ZONES, veldSleutel, vakGoed, vakDeel, handVeld, autoVeld, roosterAuto, roosterScore, roosterCellen, roosterTekst, roosterUitkomst,
-    heeftMarge, margeGoed, tijdSec, VRIJ_SOORT, margeTekst, getalTekst, puntLijnen, puntlijnGoed, cirkelsVan, cirkelGoed, straalCm, puntNaam, handWerk, SCHAAL, NAKIJK, FIGUREN, figurenVan, veelhoekPunten, veelhoekVolgorde, hoekpunten, rondom, rekenregel, formuleFout, lijnGoed, lijnCm, veelhoekCm, lijnHoek, lijnGraden, RICHTING, zelfdeVorm, kleurDoel, kleurGoed, metEenheid, volgorde, SOORTEN, HAND_VELD, woordenVan, doelenVan, sorteerWoorden, sorteerKolommen, dicteeVergelijk, dicteeDeel, dicteeZinPunten, MAX_DICTEE, itemTekst, markeerModel, markeerSleutel, doelenInBron, markeerTel, markeerKort, markeerAntwoord, tekstWoorden, stukkenVan, zonderHaken, STIFTEN, PER, asTekst, MAX_AUDIO, celGat, vereenvoudigd, GEEN_ANTWOORD, AUTO_VELD, KLEUREN,
+    heeftMarge, margeGoed, tijdSec, VRIJ_SOORT, margeTekst, getalTekst, puntLijnen, puntlijnGoed, cirkelsVan, cirkelGoed, straalCm, puntNaam, handWerk, SCHAAL, NAKIJK, FIGUREN, figurenVan, veelhoekPunten, veelhoekVolgorde, hoekpunten, rondom, rekenregel, formuleFout, lijnGoed, lijnCm, veelhoekCm, lijnHoek, lijnGraden, RICHTING, vakjesGoed, goedeAntwoorden, zelfdeVorm, kleurDoel, kleurGoed, metEenheid, volgorde, SOORTEN, HAND_VELD, woordenVan, doelenVan, sorteerWoorden, sorteerKolommen, dicteeVergelijk, dicteeDeel, dicteeZinPunten, MAX_DICTEE, itemTekst, markeerModel, markeerSleutel, doelenInBron, markeerTel, markeerKort, markeerAntwoord, tekstWoorden, stukkenVan, zonderHaken, STIFTEN, PER, asTekst, MAX_AUDIO, celGat, vereenvoudigd, GEEN_ANTWOORD, AUTO_VELD, KLEUREN,
   };
 });

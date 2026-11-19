@@ -260,5 +260,15 @@
  "Klik 2 punten op het been: eerst het hoekpunt, dan een punt op het been": "Clique 2 points sur le côté : d'abord le sommet, puis un point du côté",
  "Klik 2 punten op die rechte op het blad": "Clique 2 points sur cette droite sur la feuille",
  "De leerling trekt vanuit het bolletje een lijn met de 📐 Gradenboog (zet die aan bij het blad). De hoek met het been telt, niet hoe lang de lijn is.": "L'élève trace une ligne depuis le point avec le 📐 Rapporteur (active-le pour la feuille). L'angle avec le côté compte, pas la longueur de la ligne.",
- "hoek van {0}° (± {1}°)": "angle de {0}° (± {1}°)"
+ "hoek van {0}° (± {1}°)": "angle de {0}° (± {1}°)",
+ "{0}: geef minstens {1} goede antwoorden (gescheiden door |).": "{0} : donne au moins {1} bonnes réponses (séparées par |).",
+ "{0} van: {1}": "{0} parmi : {1}",
+ "🔗 Blijft na de vorige vraag (ook als de vragen geschud worden)": "🔗 Reste après la question précédente (même si les questions sont mélangées)",
+ "Aantal antwoordvakjes": "Nombre de cases de réponse",
+ "Zet alle goede antwoorden bij \"Juist antwoord\", gescheiden door |, bv.": "Mets toutes les bonnes réponses dans « Bonne réponse », séparées par |, p. ex.",
+ "hart|longen = long|maag": "cœur|poumons = poumon|estomac",
+ ". Met = ertussen tellen andere schrijfwijzen als hetzelfde antwoord. Elk vakje met een ander goed antwoord geeft een punt, in elke volgorde.": ". Avec = entre les deux, d'autres écritures comptent comme la même réponse. Chaque case avec une autre bonne réponse donne un point, dans n'importe quel ordre.",
+ "antwoord {0}": "réponse {0}",
+ "Antwoord {0}": "Réponse {0}",
+ "Elk vakje een ander antwoord. De volgorde maakt niet uit.": "Une réponse différente dans chaque case. L'ordre n'a pas d'importance."
 }
