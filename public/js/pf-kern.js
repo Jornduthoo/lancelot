@@ -348,6 +348,8 @@
   // In welke kolommen hoort een woord (meestal één, geen = een woord dat nergens hoort).
   const sorteerKolommen = (q, w) => q.kolommen.map((k, i) => (k.woorden.includes(w) ? i : -1)).filter(i => i >= 0);
   // Een item van ordenen als tekst (een prent zonder tekst wordt "prent 2").
+  // Een kant van een paar bij verbinden als tekst (een prent zonder tekst: "prent 3").
+  const paarTekst = (q, i, k) => (q.paren[i] && q.paren[i][k]) || `prent ${i + 1}`;
   const itemTekst = (q, i) => (typeof q.items[i] === 'string' ? q.items[i] : q.items[i] ? q.items[i].tekst || `prent ${i + 1}` : '?');
 
   // ---------- Dictee ----------
@@ -534,6 +536,12 @@
         out.rij = roosterMaat(q.rij, 6, ROOSTER.maxRij);
       }
       // Meerdere antwoordvakjes (alleen bij kort): elk vakje met een ander goed antwoord uit de lijst telt, in elke volgorde.
+      // Een datum: elke gewone schrijfwijze van dezelfde datum is juist (7/12/1941, 07-12-1941, 7 dec. 1941 ...).
+      if (type === 'kort' && q.datum === true) {
+        out.datum = true;
+        const fout = alts(out.antwoord).flatMap(a => a.split('=')).map(a => a.trim()).filter(a => a && !datumSleutel(a));
+        if (fout.length) throw new Error(`${naam}: "${fout[0].slice(0, 40)}" is geen datum die LANcelot kent (bv. 7 december 1941 of 7/12/1941).`);
+      }
       const vakjes = Math.round(Number(q.vakjes));
       if (type === 'kort' && vakjes >= 2 && vakjes <= 10) {
         out.vakjes = vakjes;
@@ -545,12 +553,18 @@
         if (q.vereenvoudigd === true) out.vereenvoudigd = true;
       }
     } else if (type === 'verbinden') {
+      // Elke kant mag ook een prent zijn (prenten: [[links, rechts], ...] naast de paren; '' = geen prent).
+      const pr = list(q.prenten, 12);
+      const prent = (i, k) => { const b = Array.isArray(pr[i]) ? pr[i][k] : ''; return beeldOf(b) || plaatsOf(b) || ''; };
+      const prenten = [];
       out.paren = list(pick(q, 'paren', 'pairs'), 12).map((p, i) => {
         const l = text(Array.isArray(p) ? p[0] : p && (p.links || p.left), 200);
         const r = text(Array.isArray(p) ? p[1] : p && (p.rechts || p.right), 200);
-        if (!l || !r) throw new Error(`${naam}, paar ${i + 1} is niet volledig.`);
+        prenten.push([prent(i, 0), prent(i, 1)]);
+        if ((!l && !prenten[i][0]) || (!r && !prenten[i][1])) throw new Error(`${naam}, paar ${i + 1} is niet volledig.`);
         return [l, r];
       });
+      if (prenten.some(x => x[0] || x[1])) out.prenten = prenten;
       if (out.paren.length < 2) throw new Error(`${naam} heeft minstens twee paren nodig.`);
       max = out.paren.length;
     } else if (type === 'ordenen') {
@@ -1411,7 +1425,13 @@
       if (q.breuk) v.breuk = true;
     } else if (q.type === 'verbinden') {
       v.links = q.paren.map(x => x[0]);
-      v.rechts = (p || q.paren.map((_, i) => i)).map(i => q.paren[i][1]);
+      const rechts = p || q.paren.map((_, i) => i);
+      v.rechts = rechts.map(i => q.paren[i][1]);
+      if (q.prenten) {
+        const b = x => (x && !x.startsWith('#') ? img(x) : '');
+        v.linksBeeld = q.prenten.map(x => b(x[0]));
+        v.rechtsBeeld = rechts.map(i => b(q.prenten[i][1]));
+      }
     } else if (q.type === 'ordenen') {
       v.items = (p || q.items.map((_, i) => i)).map(i => (typeof q.items[i] === 'string' ? q.items[i] : { tekst: q.items[i].tekst, beeld: q.items[i].beeld && !q.items[i].beeld.startsWith('#') ? img(q.items[i].beeld) : undefined }));
     } else if (q.type === 'dictee') {
@@ -1558,11 +1578,43 @@
 
   const half = x => Math.round(x * 2) / 2;
 
+  // Een datum herkennen in elke gewone schrijfwijze: "7 december 1941", "zondag 7 dec. 1941", "7/12/1941", "07-12-1941", "7.12.1941",
+  // ook zonder dag ("december 1941", "12/1941"). Geeft "1941-12-7" (of "1941-12"), of null als het geen datum is.
+  const MAANDEN = [['januari', 'jan', 'january', 'janvier', 'janv', 'januar', 'enero', 'ene'], ['februari', 'feb', 'febr', 'february', 'février', 'fevrier', 'févr', 'fevr', 'februar', 'febrero'],
+    ['maart', 'mrt', 'maa', 'march', 'mar', 'mars', 'märz', 'marz', 'marzo'], ['april', 'apr', 'avril', 'avr', 'abril', 'abr'], ['mei', 'may', 'mai', 'mayo'], ['juni', 'jun', 'june', 'juin', 'junio'],
+    ['juli', 'jul', 'july', 'juillet', 'juil', 'julio'], ['augustus', 'aug', 'august', 'août', 'aout', 'agosto', 'ago'], ['september', 'sep', 'sept', 'septembre', 'septiembre', 'setiembre'],
+    ['oktober', 'okt', 'oct', 'october', 'octobre', 'octubre'], ['november', 'nov', 'novembre', 'noviembre'], ['december', 'dec', 'déc', 'décembre', 'decembre', 'dezember', 'dez', 'diciembre', 'dic']];
+  const DAGEN = /^(maandag|dinsdag|woensdag|donderdag|vrijdag|zaterdag|zondag|ma|di|wo|do|vr|za|zo|monday|tuesday|wednesday|thursday|friday|saturday|sunday|lundi|mardi|mercredi|jeudi|vendredi|samedi|dimanche)\.?,?\s+/i;
+  function datumSleutel(s) {
+    let t = String(s || '').trim().toLowerCase().replace(DAGEN, '').replace(/\s+/g, ' ').replace(/^(op|de|le|on|the)\s+/, '');
+    const goed = (d, m, j) => (j >= 1 && j <= 9999 && m >= 1 && m <= 12 && (d === null || (d >= 1 && d <= new Date(Date.UTC(2000, m, 0)).getUTCDate())) ? `${j}-${m}${d === null ? '' : `-${d}`}` : null);
+    let x = /^(\d{1,2})\s*[/.\-]\s*(\d{1,2})\s*[/.\-]\s*(\d{3,4})$/.exec(t);
+    if (x) return goed(Number(x[1]), Number(x[2]), Number(x[3]));
+    x = /^(\d{1,2})\s*[/.\-]\s*(\d{3,4})$/.exec(t);
+    if (x) return goed(null, Number(x[1]), Number(x[2]));
+    t = t.replace(/(\d)(er|ste|de|e|st|nd|rd|th)\b/g, '$1');
+    t = t.replace(/\s+de\s+/g, ' ');
+    // Engelse volgorde: "December 7, 1941".
+    const en = /^([a-zéûä]+)\.?\s+(\d{1,2}),?\s+(\d{3,4})$/.exec(t);
+    if (en) { const m = MAANDEN.findIndex(n => n.includes(en[1])); return m < 0 ? null : goed(Number(en[2]), m + 1, Number(en[3])); }
+    x = /^(?:(\d{1,2})\s*[.\-/]?\s*)?([a-zéûä]+)\.?\s*[.\-/,]?\s*(\d{3,4})$/.exec(t);
+    if (!x) return null;
+    const m = MAANDEN.findIndex(n => n.includes(x[2]));
+    return m < 0 ? null : goed(x[1] ? Number(x[1]) : null, m + 1, Number(x[3]));
+  }
+  // Juist bij kort antwoord: dezelfde tekst of hetzelfde getal, of (met datum) dezelfde datum in een andere schrijfwijze.
+  function kortGelijk(q, goed, v) {
+    if (zelfde(goed, v, q)) return true;
+    if (!q.datum) return false;
+    const d = datumSleutel(v);
+    return !!d && alts(goed).some(a => datumSleutel(a) === d);
+  }
+
   // Meerdere antwoordvakjes: welk vakje telt? Elk goed antwoord telt één keer (hetzelfde antwoord twee keer: één punt).
   function vakjesGoed(q, a) {
     const groepen = goedeAntwoorden(q.antwoord);
     const vak = Array.from({ length: q.vakjes }, (_, i) => (Array.isArray(a) ? a[i] : null));
-    const past = vak.map(v => groepen.map((g, j) => (zelfde(g.join('|'), v, q) ? j : -1)).filter(j => j >= 0));
+    const past = vak.map(v => groepen.map((g, j) => (kortGelijk(q, g.join('|'), v) ? j : -1)).filter(j => j >= 0));
     const bij = new Array(groepen.length).fill(-1);
     const zoek = (i, gezien) => past[i].some(j => {
       if (gezien.has(j)) return false;
@@ -1776,6 +1828,7 @@
     if (q.type === 'kort' || q.type === 'rekenen') {
       const uit = q.type === 'rekenen' && a && typeof a === 'object' ? a.uitkomst : a;
       if (q.vereenvoudigd && !vereenvoudigd(uit, q.antwoord)) return 0;
+      if (q.type === 'kort') return kortGelijk(q, q.antwoord, uit) ? p : 0;
       return zelfde(q.antwoord, uit, q) ? p : 0;
     }
     if (q.type === 'verbinden') {
@@ -1930,7 +1983,7 @@
     if (q.type === 'kort' && q.vakjes) return `${q.vakjes} van: ${goedeAntwoorden(q.antwoord).map(g => metEenheid(g[0], q.eenheid)).join(' · ')}`;
     if (q.type === 'kort' || q.type === 'rekenen') return metEenheid(alts(q.antwoord)[0], q.eenheid);
     if (q.type === 'blad') return veldSleutel(q).map((s, k) => (s ? `${k + 1}: ${s}` : '')).filter(Boolean).join(' · ');
-    if (q.type === 'verbinden') return q.paren.map(p => `${p[0]} = ${p[1]}`).join(' · ');
+    if (q.type === 'verbinden') return q.paren.map((_, i) => `${paarTekst(q, i, 0)} = ${paarTekst(q, i, 1)}`).join(' · ');
     if (q.type === 'ordenen') return q.items.map((_, i) => itemTekst(q, i)).join(' → ');
     if (q.type === 'sorteren') return q.kolommen.map(k => `${k.naam}: ${k.woorden.join(', ')}`).join(' · ');
     if (q.type === 'dictee') return q.delen.map(d => d.tekst).join('\n');
@@ -1973,6 +2026,6 @@
     TYPES, NAMES, MANUEEL, NIVEAUS, MAX_BEELD, ROOSTER, validate, problemen, vragenVan, niveausVan, lijstVoor,
     maxVan, autoPunten, handPunten, totaal, viewOf, studentView, partsOf, getal, zelfde, canoniek, auto, schoon, oplossing, schud, alts, gapsOf,
     waarschuwingen, metNamen, MAX_ZONES, veldSleutel, vakGoed, vakDeel, handVeld, autoVeld, roosterAuto, roosterScore, roosterCellen, roosterTekst, roosterUitkomst,
-    heeftMarge, margeGoed, tijdSec, VRIJ_SOORT, margeTekst, getalTekst, puntLijnen, puntlijnGoed, cirkelsVan, cirkelGoed, straalCm, puntNaam, handWerk, SCHAAL, NAKIJK, FIGUREN, figurenVan, veelhoekPunten, veelhoekVolgorde, hoekpunten, rondom, rekenregel, formuleFout, lijnGoed, lijnCm, veelhoekCm, lijnHoek, lijnGraden, RICHTING, vakjesGoed, goedeAntwoorden, zelfdeVorm, kleurDoel, kleurGoed, metEenheid, volgorde, SOORTEN, HAND_VELD, woordenVan, doelenVan, sorteerWoorden, sorteerKolommen, dicteeVergelijk, dicteeDeel, dicteeZinPunten, MAX_DICTEE, itemTekst, markeerModel, markeerSleutel, doelenInBron, markeerTel, markeerKort, markeerAntwoord, tekstWoorden, stukkenVan, zonderHaken, STIFTEN, PER, asTekst, MAX_AUDIO, celGat, vereenvoudigd, GEEN_ANTWOORD, AUTO_VELD, KLEUREN,
+    heeftMarge, margeGoed, tijdSec, VRIJ_SOORT, margeTekst, getalTekst, puntLijnen, puntlijnGoed, cirkelsVan, cirkelGoed, straalCm, puntNaam, handWerk, SCHAAL, NAKIJK, FIGUREN, figurenVan, veelhoekPunten, veelhoekVolgorde, hoekpunten, rondom, rekenregel, formuleFout, lijnGoed, lijnCm, veelhoekCm, lijnHoek, lijnGraden, RICHTING, vakjesGoed, goedeAntwoorden, datumSleutel, paarTekst, zelfdeVorm, kleurDoel, kleurGoed, metEenheid, volgorde, SOORTEN, HAND_VELD, woordenVan, doelenVan, sorteerWoorden, sorteerKolommen, dicteeVergelijk, dicteeDeel, dicteeZinPunten, MAX_DICTEE, itemTekst, markeerModel, markeerSleutel, doelenInBron, markeerTel, markeerKort, markeerAntwoord, tekstWoorden, stukkenVan, zonderHaken, STIFTEN, PER, asTekst, MAX_AUDIO, celGat, vereenvoudigd, GEEN_ANTWOORD, AUTO_VELD, KLEUREN,
   };
 });

@@ -4,7 +4,7 @@
 //         zones: { id: [{ x, y, r }] } (print met sleutel), nummer: true (Vraag 1, 2, ... op elke pagina), voorlees, onAnswer(id, waarde) }
 // Een antwoord is altijd in de volgorde van het scherm: de server zet het om naar de volgorde van de toets.
 const PfPaper = (() => {
-  const L = 'ABCDEFGH';
+  const L = 'ABCDEFGHIJKL';
   const esc = text => String(text ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
   const paras = text => String(text || '').split(/\n{2,}/).map(p => `<p>${esc(p).replace(/\n/g, '<br>')}</p>`).join('');
   const nl = n => String(n).replace('.', ',');
@@ -123,6 +123,14 @@ const PfPaper = (() => {
       h += print ? `${q.kol ? `<div class="pf-werk">Bewerking:${roosterHtml('', q.kol, q.rij, false, 'pf-rooster-los')}</div>` : '<div class="pf-werkvak">Bewerking:</div>'}<p class="pf-antwoordlijn">Uitkomst: ${q.breuk ? breukPrint() : '<span class="ob-line" style="min-width:6em"></span>'} ${esc(q.eenheid || '')}</p>`
         : `${werk}
           <p class="pf-kort">Uitkomst: ${q.breuk ? breukHtml(w.uitkomst, ro, 'pf-uitkomst') : `<input class="ob-field pf-uitkomst" autocomplete="off" spellcheck="false" value="${esc(w.uitkomst || '')}"${ro}>`}${q.eenheid ? `<span class="pf-eenheid">${esc(q.eenheid)}</span>` : ''}</p>`;
+    } else if (q.type === 'verbinden' && (q.linksBeeld || q.rechtsBeeld)) {
+      // Met prenten: links de kaartjes met een keuzelijst, rechts de kaartjes met een letter.
+      const kaart = (t, b, extra = '') => `<span class="pf-vb-kaart">${extra}${b ? `<img src="${esc(b)}" alt="" draggable="false">` : ''}${t ? `<span>${esc(t)}</span>` : ''}</span>`;
+      const lb = q.linksBeeld || [];
+      const rb = q.rechtsBeeld || [];
+      const rechts = `<div class="pf-vb-rechts">${q.rechts.map((t, j) => kaart(t, rb[j], `<b class="pf-vb-letter">${L[j]}</b>`)).join('')}</div>`;
+      h += print ? `<div class="pf-vb"><div class="pf-vb-links">${q.links.map((t, i) => `<div class="pf-vb-rij">${kaart(t, lb[i])}<span class="ob-box"></span></div>`).join('')}</div>${rechts}</div>`
+        : `<p class="pf-tip">Kies bij elk kaartje links de letter van het kaartje dat erbij hoort.</p><div class="pf-vb"><div class="pf-vb-links">${q.links.map((t, i) => `<label class="pf-vb-rij">${kaart(t, lb[i])}<select class="ob-field pf-sel" data-k="${i}"${dis} aria-label="Letter"><option value="">kies…</option>${q.rechts.map((x, j) => `<option value="${j}"${a && String(a[i]) === String(j) ? ' selected' : ''}>${L[j]}${x ? `. ${esc(x)}` : ''}</option>`).join('')}</select></label>`).join('')}</div>${rechts}</div>`;
     } else if (q.type === 'verbinden') {
       if (print) {
         h += `<div class="ob-match-print"><ol>${q.links.map(l => `<li><span class="ob-box"></span> ${esc(l)}</li>`).join('')}</ol><ul>${q.rechts.map((r, j) => `<li><b>${L[j]}</b> ${esc(r)}</li>`).join('')}</ul></div>`;

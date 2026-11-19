@@ -270,5 +270,16 @@
  ". Met = ertussen tellen andere schrijfwijzen als hetzelfde antwoord. Elk vakje met een ander goed antwoord geeft een punt, in elke volgorde.": ". With = in between, other spellings count as the same answer. Each box with a different correct answer gives a point, in any order.",
  "antwoord {0}": "answer {0}",
  "Antwoord {0}": "Answer {0}",
- "Elk vakje een ander antwoord. De volgorde maakt niet uit.": "A different answer in each box. The order does not matter."
+ "Elk vakje een ander antwoord. De volgorde maakt niet uit.": "A different answer in each box. The order does not matter.",
+ "{0}: \"{1}\" is geen datum die LANcelot kent (bv. 7 december 1941 of 7/12/1941).": "{0}: \"{1}\" is not a date LANcelot knows (e.g. 7 December 1941 or 7/12/1941).",
+ "février": null,
+ "août": null,
+ "décembre": null,
+ "Dan is elke gewone schrijfwijze van dezelfde datum juist: 7 december 1941, 7/12/1941, 07-12-1941, 7 dec. 1941 ...": "Then every common way of writing the same date is correct: 7 December 1941, 7/12/1941, 07-12-1941, 7 Dec. 1941 ...",
+ "📅 Dit is een datum (elke schrijfwijze is juist)": "📅 This is a date (any way of writing it is correct)",
+ "🖼 Prenten bij de paren (mag leeg)": "🖼 Pictures with the pairs (may be empty)",
+ "Elke kant mag ook een prent zijn. Een kant zonder tekst? Laat ze leeg, bv.": "Each side may also be a picture. A side without text? Leave it empty, e.g.",
+ "= Rome": "= Rome",
+ "Kies bij elk kaartje links de letter van het kaartje dat erbij hoort.": "For each card on the left, choose the letter of the card that belongs with it.",
+ "Letter": "Letter"
 }
