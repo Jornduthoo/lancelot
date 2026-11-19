@@ -286,7 +286,7 @@ const PfEdit = (() => {
         const add = veld('<button type="button" class="secondary small-btn">+ keuze</button><span class="muted small"> Vink alle juiste antwoorden aan. Meer dan één: de leerling moet ze allemaal aanduiden.</span>');
         add.querySelector('button').addEventListener('click', () => { box.appendChild(optieRij('', false)); meer(); cfg.preview(); });
         // Meerdere juiste: alles of niets, of punten per juist antwoord; en eventueel "duid er 2 aan".
-        const meerBox = veld(`<div class="row"><label>Punten<select class="e-puntenper"><option value="">alles of niets</option><option value="juist">per juist antwoord (een fout kost er één)</option></select></label>
+        const meerBox = veld(`<div class="row"><label>Hoe tellen?<select class="e-puntenper"><option value="">alles of niets</option><option value="juist">per juist antwoord (een fout kost er één)</option></select></label>
           <label>Hoeveel moet de leerling aanduiden?<input class="e-aantal" type="number" min="1" max="7" placeholder="allemaal"></label></div>`, 'pf-e-meer');
         const mix = veld('<label class="inline check"><input type="checkbox" class="e-mkschud"> 🔀 Keuzes altijd door elkaar (ook als de vragen in een vaste volgorde staan)</label>');
         mix.querySelector('input').checked = !!q.schudden;
@@ -409,7 +409,7 @@ const PfEdit = (() => {
         const rij = it => {
           const r = optieRij(it, false);
           r.querySelector('.pf-juist').outerHTML = '<span class="pf-e-orden-nr"></span><span class="pf-e-orden-knop"><button type="button" class="secondary small-btn op" title="Omhoog">▲</button><button type="button" class="secondary small-btn neer" title="Omlaag">▼</button></span>';
-          r.querySelector('.pf-optie-tekst').placeholder = 'tekst (mag leeg met een prent)';
+          r.querySelector('.pf-optie-tekst').placeholder = 'tekst';
           r.querySelector('.op').addEventListener('click', () => { if (r.previousElementSibling) box.insertBefore(r, r.previousElementSibling); cfg.preview(); });
           r.querySelector('.neer').addEventListener('click', () => { if (r.nextElementSibling) box.insertBefore(r.nextElementSibling, r); cfg.preview(); });
           return r;
@@ -417,7 +417,7 @@ const PfEdit = (() => {
         for (const it of q.items && q.items.length ? q.items : ['', '', '']) box.appendChild(rij(it));
         const add = veld('<button type="button" class="secondary small-btn">+ kaartje</button>');
         add.querySelector('button').addEventListener('click', () => { box.appendChild(rij('')); cfg.preview(); });
-        veld('<label>Punten<select class="e-puntenper"><option value="">alles juist</option><option value="plaats">per juiste plaats</option></select></label>');
+        veld('<label>Hoe tellen?<select class="e-puntenper"><option value="">alles juist</option><option value="plaats">per juiste plaats</option></select></label>');
         card.querySelector('.e-puntenper').value = q.puntenPer || '';
       } else if (q.type === 'dictee') {
         // Woorden (met eventueel een zin erbij) of hele zinnen. De computer leest ze voor.
@@ -458,7 +458,7 @@ const PfEdit = (() => {
         const kaartRij = k => {
           const rij = optieRij(k, false);
           rij.querySelector('.pf-juist').remove();
-          rij.querySelector('.pf-optie-tekst').placeholder = 'kaartje (tekst, mag leeg met een prent)';
+          rij.querySelector('.pf-optie-tekst').placeholder = 'kaartje';
           return rij;
         };
         const nummer = () => [...box.children].forEach((g, i) => { g.querySelector('.pf-e-groep-nr').textContent = `Groep ${i + 1}`; });
@@ -476,7 +476,7 @@ const PfEdit = (() => {
         nummer();
         const add = veld('<button type="button" class="secondary small-btn">+ groep</button> <span class="muted small">2 tot 5 groepen</span>');
         add.querySelector('button').addEventListener('click', () => { if (box.children.length < 5) { box.appendChild(groep([])); nummer(); cfg.preview(); } });
-        veld('<label>Punten<select class="e-puntenper"><option value="">per juiste groep</option><option value="kaart">per juist kaartje</option></select></label>');
+        veld('<label>Hoe tellen?<select class="e-puntenper"><option value="">per juiste groep</option><option value="kaart">per juist kaartje</option></select></label>');
         card.querySelector('.e-puntenper').value = q.puntenPer || '';
       } else if (q.type === 'sorteren') {
         // De kolommen: een naam en de woorden die erin horen.
