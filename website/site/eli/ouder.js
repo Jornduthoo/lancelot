@@ -26,6 +26,7 @@ async function laad(){
   }
   teken();
   tekenVragen();
+  zetBadge();
 }
 
 function teken(){
@@ -252,6 +253,32 @@ $('vr-stuur').onclick = async () => {
   } catch (e) { $('vr-status').textContent = 'Lukte niet: ' + e.message; }
   finally { $('vr-stuur').disabled = false; }
 };
+// --- Tabbladen onderaan (19/11) ---
+const LS = { get(k, d){ try { const v = localStorage.getItem('crew-' + k); return v == null ? d : JSON.parse(v); } catch { return d; } }, set(k, v){ try { localStorage.setItem('crew-' + k, JSON.stringify(v)); } catch {} } };
+function nieuwInContact(){
+  const sinds = LS.get('contact-gezien', '');
+  const ik = (D && (D.ik || s.naam) || '').toLowerCase();
+  let n = 0;
+  for (const b of (D && D.berichten) || []) if (b.van === ik && b.antwoord && (b.antwoord_op || b.op) > sinds) n++;
+  for (const q of (D && D.stand.vragen) || []) if (q.van === ik) for (const a of q.antwoorden || []) if (a.op > sinds) n++;
+  return n;
+}
+function zetBadge(){ const n = nieuwInContact(), b = $('contact-badge'); b.hidden = !n; b.textContent = n; }
+function toonTab(t){
+  if (!document.querySelector(`.otab[data-otab="${t}"]`)) t = 'vandaag';
+  document.querySelectorAll('.otab').forEach(x => x.hidden = x.dataset.otab !== t);
+  document.querySelectorAll('#onav button').forEach(x => x.classList.toggle('aan', x.dataset.otab === t));
+  $('cijfers').hidden = t !== 'vandaag';
+  if (t === 'contact') { LS.set('contact-gezien', new Date().toISOString()); }
+  if (D) zetBadge();
+  if (location.hash.slice(1) !== t) history.replaceState(null, '', '#' + t);
+  window.scrollTo(0, 0);
+}
+$('onav').onclick = e => { const b = e.target.closest('button'); if (b) toonTab(b.dataset.otab); };
+$('contact-seg').onclick = e => { const b = e.target.closest('button'); if (!b) return;
+  document.querySelectorAll('#contact-seg button').forEach(x => x.classList.toggle('aan', x === b));
+  document.querySelectorAll('.otab[data-otab="contact"] > div[data-c]').forEach(x => x.hidden = x.dataset.c !== b.dataset.c); };
+toonTab(location.hash.slice(1) || 'vandaag');
 $('uit').onclick = () => { sessie.wis(); location.href = 'index.html'; };
 $('ververs').onclick = laad;
 laad();
