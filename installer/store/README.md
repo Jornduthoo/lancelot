@@ -15,7 +15,10 @@ Elke nieuwe indiening heeft een hogere versie nodig; standaard komt die uit datu
 - De licentie komt van Windows (`src/store-licentie.ps1`). Na de proefmaand zonder aankoop toont het leerkrachtenscherm `/licentie`.
   Lukt het opvragen niet, dan blokkeert LANcelot niets.
 - Bijwerken doet de Store; de eigen updateknop en de keuze van de gegevensmap verdwijnen.
-- De gegevens staan in `%LOCALAPPDATA%\LANcelot` (zie `installatie.json`) en blijven bij een update staan.
+- De gegevens staan in de gewone opslag van het pakket: de app schrijft `%LOCALAPPDATA%\LANcelot` (zie `installatie.json`), Windows zet dat in
+  `%LOCALAPPDATA%\Packages\Jorn.Lancelot_zw3ncfn30yjat\LocalCache\Local\LANcelot`. Ze blijven bij een update staan; bij verwijderen wist Windows ze.
+  Daarom toont Mijn gegevens in de Store-versie een melding om eerst een back-up te downloaden. `store.echtPad` geeft Verkenner de echte map.
+- Geen `unvirtualizedResources`: de Store weigerde die op 2026-11-19 (beleid 10.6.3). Niet opnieuw toevoegen.
 - Kleiner dan de gewone versie: geen De Kronieken (bordboeken, Zonnewijzer, Zegelrol, Postduif) en geen Vlaams startpakket.
   Het vijfde blok heet "Mijn klas" (klaslijst, doelen, taken, resultaten). Wat verdwijnt, heeft de klasse `niet-in-store`.
 - Geen leerplandoelen tot de leerkracht er kiest in Mijn klas > Doelen (een land, eigen doelen of geen). Zie `doelen-landen/`.
@@ -30,6 +33,5 @@ Je gewone LANcelot en zijn gegevens blijven onaangeroerd.
 ## In Partner Center
 
 - Prijs kiezen en "Gratis proefversie: 30 dagen".
-- Beperkte mogelijkheden uitleggen: `runFullTrust` (LANcelot is een lokale server met Node.js) en `unvirtualizedResources`
-  (de gegevens van de klas blijven in `%LOCALAPPDATA%\LANcelot`, ook na updates).
+- Beperkte mogelijkheden uitleggen: alleen `runFullTrust` (LANcelot is een lokale server met Node.js).
 - Privacybeleid: https://lancelot.network/privacy.html

@@ -236,6 +236,9 @@ function view() {
   const { map } = gekozen();
   return {
     map: DATA,
+    // Wat de leerkracht in Verkenner terugvindt (in de Store-versie de echte plek in de opslag van het pakket).
+    toon: require('./store').echtPad(DATA),
+    store: require('./store').ACTIEF,
     app: APP,
     apart: DATA !== APP,
     volgende: map !== DATA ? map : '',

@@ -20,6 +20,20 @@ const STORE_ID = (INFO && INFO.storeId) || '9P1CLC6W364H';
 const KOOP = `ms-windows-store://pdp/?productid=${STORE_ID}`;
 const WEB = `https://apps.microsoft.com/detail/${STORE_ID}`;
 const DAG = 24 * 60 * 60 * 1000;
+// De pakketfamilie uit Partner Center. Windows bewaart wat het pakket in AppData schrijft in Packages\<PFN>\LocalCache.
+const PFN = (INFO && INFO.pfn) || 'Jorn.Lancelot_zw3ncfn30yjat';
+
+// Het pakket schrijft %LOCALAPPDATA%\LANcelot, maar Windows zet dat in de eigen opslag van het pakket. Verkenner (buiten het
+// pakket) kent alleen die echte plek: die tonen we en die openen we. Buiten de Store, of als die map er niet is: het pad zelf.
+function echtPad(p, env = process.env, bestaat = fs.existsSync) {
+  if (!ACTIEF || !p || !env.LOCALAPPDATA) return p;
+  const basis = path.win32.resolve(env.LOCALAPPDATA);
+  const vol = path.win32.resolve(p);
+  if (vol.toLowerCase() !== basis.toLowerCase() && !vol.toLowerCase().startsWith(basis.toLowerCase() + '\\')) return p;
+  if (vol.toLowerCase().startsWith(path.win32.join(basis, 'Packages').toLowerCase() + '\\')) return p;
+  const echt = path.win32.join(basis, 'Packages', PFN, 'LocalCache', 'Local', vol.slice(basis.length + 1));
+  return bestaat(echt) ? echt : p;
+}
 
 // De taal van Windows (nl, en, fr, es, de), voor de eerste start van de Store-versie. Een andere taal: Engels.
 let systeemTaal = null;
@@ -116,4 +130,4 @@ if (ACTIEF) {
   setInterval(opDatum, 5 * 60 * 1000).unref();
 }
 
-module.exports = { ACTIEF, taalVanSysteem, STORE_ID, KOOP, WEB, beoordeel, controleer, geblokkeerd, view };
+module.exports = { ACTIEF, PFN, echtPad, taalVanSysteem, STORE_ID, KOOP, WEB, beoordeel, controleer, geblokkeerd, view };

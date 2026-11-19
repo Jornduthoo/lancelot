@@ -1397,7 +1397,7 @@ io.on('connection', socket => {
     });
     socket.on('open-results-folder', () => {
       fs.mkdirSync(results.DIR, { recursive: true });
-      if (process.platform === 'win32') execFile('explorer', [results.DIR]);
+      if (process.platform === 'win32') execFile('explorer', [store.echtPad(results.DIR)]);
     });
     socket.emit('state', game.hostState());
     socket.emit('rt-state', rt.hostState());
@@ -1769,7 +1769,7 @@ io.on('connection', socket => {
     }));
     socket.on('open-logboek-folder', () => {
       fs.mkdirSync(logboek.DIR, { recursive: true });
-      if (process.platform === 'win32') execFile('explorer', [logboek.DIR]);
+      if (process.platform === 'win32') execFile('explorer', [store.echtPad(logboek.DIR)]);
     });
     // Quizzen, oefenbladen en sessies ordenen in mappen, en importeren van een andere pc.
     const lib = fn => handle(({ kind, ...arg } = {}) => {

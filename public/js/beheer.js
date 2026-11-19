@@ -67,7 +67,8 @@
   // --- Gegevens en back-ups ---
   function toonGegevens(v) {
     if (v.error) return void ($('gg-error').textContent = v.error);
-    $('gg-map').textContent = v.map;
+    $('gg-map').textContent = v.toon || v.map;
+    $('gg-store').classList.toggle('hidden', !v.store);
     $('gg-melding').textContent = v.melding;
     $('gg-melding').classList.toggle('hidden', !v.melding);
     $('gg-verhuis').classList.toggle('hidden', v.vast);
