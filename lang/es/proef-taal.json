@@ -179,5 +179,10 @@
  "{0} opnieuw laten beginnen? Alle antwoorden van {1} worden gewist{2}. De leerling begint met een leeg blad.": "¿Hacer que {0} empiece de nuevo? Se borran todas las respuestas de {1}{2}. El alumno empieza con una hoja en blanco.",
  ", ook bij de Resultaten in De Proef": ", también en los Resultados de La Prueba",
  "opnieuw laten beginnen door de leerkracht": "el docente le hizo empezar de nuevo",
- "Uit de afname halen mislukt:": "No se pudo quitar de la sesión de prueba:"
+ "Uit de afname halen mislukt:": "No se pudo quitar de la sesión de prueba:",
+ "bv. Tik de hoekpunten rondom aan": "p. ej. Toca los vértices en orden alrededor",
+ "Teken eerst de diagonalen: de leerling tikt 2 lijnstukken die elkaar snijden, de vierhoek verschijnt dan vanzelf": "Dibuja primero las diagonales: el alumno toca 2 segmentos que se cortan y el cuadrilátero aparece solo",
+ "Korte uitleg in het vak (verdwijnt bij het eerste punt)": "Breve explicación en la casilla (desaparece con el primer punto)",
+ "Tikt de leerling de hoekpunten niet rondom aan, dan zet LANcelot ze zelf rondom.": "Si el alumno no toca los vértices en orden, LANcelot los ordena solo.",
+ "Tik eerst de 2 uiteinden van de ene diagonaal aan, dan die van de andere": "Toca primero los 2 extremos de una diagonal y luego los de la otra"
 }

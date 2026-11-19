@@ -815,12 +815,16 @@
     return [...pts].sort((a, b) => Math.atan2(a[1] - my, a[0] - mx) - Math.atan2(b[1] - my, b[0] - mx));
   }
   // De punten in echte verhoudingen (de stippen staan gelijk verdeeld over het vak).
+  // Met diagonalen: punt 1-2 en 3-4 zijn de diagonalen, de vierhoek gaat 1, 3, 2, 4 rond.
+  function veelhoekVolgorde(f, pts) {
+    return f && f.diagonalen && pts.length === 4 ? [pts[0], pts[2], pts[1], pts[3]] : pts;
+  }
   function veelhoekPunten(f, a, verhouding = 1.414) {
     const dx = f.w / Math.max(1, f.kol - 1);
     const dy = (f.h * verhouding) / Math.max(1, f.rij - 1);
     // Een rooster dat bijna vierkant is (zoals op het blad), telt als vierkant: dan rekenen we met hele stappen.
     const rho = Math.abs(dy / dx - 1) < 0.1 ? 1 : dy / dx;
-    return rondom(hoekpunten(a, f)).map(([c, r]) => [c, r * rho]);
+    return rondom(veelhoekVolgorde(f, hoekpunten(a, f))).map(([c, r]) => [c, r * rho]);
   }
   // Welke figuren is dit? Een lijst van alle namen die passen (een vierkant is ook een rechthoek, ruit, ...), de meest precieze eerst.
   function figurenVan(pts) {
@@ -1019,6 +1023,11 @@
         veld.rij = roosterMaat(f.rij, 5, 16);
         if (FIGUREN.includes(f.figuur)) veld.figuur = f.figuur;
         if (f.strikt) veld.strikt = true;
+        // Eerst de diagonalen: de leerling tikt 2 lijnstukken (4 punten); de vierhoek verbindt hun uiteinden.
+        if (f.diagonalen === true) veld.diagonalen = true;
+        // Een korte uitleg in het vak, tot de leerling het eerste punt tikt.
+        const uitleg = text(f.uitleg, 80);
+        if (uitleg) veld.uitleg = uitleg;
         veld.punten = punt(f.punten, 1);
       } else if (soort === 'cirkel') {
         veld.cirkels = list(f.cirkels, 8).filter(c => c && typeof c === 'object' && Number(c.r) > 0).map(c => ({ x: pct(c.x), y: pct(c.y), r: Math.round(Math.min(50, Number(c.r)) * 100) / 100 }));
@@ -1294,7 +1303,7 @@
         if (f.soort === 'rooster') { o.kol = f.kol; o.rij = f.rij; }
         if (f.soort === 'klad') o.vorm = f.vorm;
         if (f.soort === 'puntlijn') o.pt = f.pt || [];
-        if (f.soort === 'veelhoek') { o.kol = f.kol; o.rij = f.rij; }
+        if (f.soort === 'veelhoek') { o.kol = f.kol; o.rij = f.rij; if (f.diagonalen) o.diagonalen = true; if (f.uitleg) o.uitleg = f.uitleg; }
         if (f.soort === 'breuk' && f.geheel) o.geheel = true;
         if (f.soort === 'luister') { if (f.audio) o.audio = img(f.audio); if (f.tekst) o.tekst = f.tekst; if (f.luisterMax) o.luisterMax = f.luisterMax; }
         if (f.soort === 'vlak') o.kleur = f.kleur;
@@ -1651,6 +1660,6 @@
     TYPES, NAMES, MANUEEL, NIVEAUS, MAX_BEELD, ROOSTER, validate, problemen, vragenVan, niveausVan, lijstVoor,
     maxVan, autoPunten, handPunten, totaal, viewOf, studentView, partsOf, getal, zelfde, canoniek, auto, schoon, oplossing, schud, alts, gapsOf,
     waarschuwingen, metNamen, MAX_ZONES, veldSleutel, vakGoed, vakDeel, handVeld, autoVeld, roosterAuto, roosterScore, roosterCellen, roosterTekst, roosterUitkomst,
-    heeftMarge, margeGoed, margeTekst, getalTekst, puntLijnen, puntlijnGoed, cirkelsVan, cirkelGoed, straalCm, puntNaam, handWerk, SCHAAL, NAKIJK, FIGUREN, figurenVan, veelhoekPunten, hoekpunten, rondom, rekenregel, formuleFout, lijnGoed, metEenheid, volgorde, SOORTEN, HAND_VELD, woordenVan, doelenVan, sorteerWoorden, sorteerKolommen, dicteeVergelijk, dicteeDeel, dicteeZinPunten, MAX_DICTEE, itemTekst, markeerModel, markeerSleutel, doelenInBron, markeerTel, markeerKort, markeerAntwoord, tekstWoorden, stukkenVan, zonderHaken, STIFTEN, PER, asTekst, MAX_AUDIO, celGat, vereenvoudigd, GEEN_ANTWOORD, AUTO_VELD, KLEUREN,
+    heeftMarge, margeGoed, margeTekst, getalTekst, puntLijnen, puntlijnGoed, cirkelsVan, cirkelGoed, straalCm, puntNaam, handWerk, SCHAAL, NAKIJK, FIGUREN, figurenVan, veelhoekPunten, veelhoekVolgorde, hoekpunten, rondom, rekenregel, formuleFout, lijnGoed, metEenheid, volgorde, SOORTEN, HAND_VELD, woordenVan, doelenVan, sorteerWoorden, sorteerKolommen, dicteeVergelijk, dicteeDeel, dicteeZinPunten, MAX_DICTEE, itemTekst, markeerModel, markeerSleutel, doelenInBron, markeerTel, markeerKort, markeerAntwoord, tekstWoorden, stukkenVan, zonderHaken, STIFTEN, PER, asTekst, MAX_AUDIO, celGat, vereenvoudigd, GEEN_ANTWOORD, AUTO_VELD, KLEUREN,
   };
 });
