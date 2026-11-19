@@ -578,9 +578,10 @@ const PfPaper = (() => {
       const kol = f.kol || 6;
       const rij = f.rij || 5;
       let stippen = '';
-      for (let r = 0; r < rij; r++) for (let c = 0; c < kol; c++) stippen += `<i class="pf-stip" data-c="${c}" data-r="${r}" style="left:${(c / (kol - 1)) * 100}%;top:${(r / (rij - 1)) * 100}%"></i>`;
+      if (f.vrijePunten) stippen = vrijeStippen(print ? '' : b[k], kol, rij);
+      else for (let r = 0; r < rij; r++) for (let c = 0; c < kol; c++) stippen += `<i class="pf-stip" data-c="${c}" data-r="${r}" style="left:${(c / (kol - 1)) * 100}%;top:${(r / (rij - 1)) * 100}%"></i>`;
       const uitleg = live && f.uitleg ? `<span class="pf-vh-uitleg">${esc(f.uitleg)}</span>` : '';
-      return `<div class="pf-veld veelhoek${kl}${live ? ' live' : ''}${f.diagonalen ? ' diag' : ''}" data-k="${k}" data-waarde="${esc(print ? '' : b[k] || '')}" data-kol="${kol}" data-rij="${rij}" style="left:${f.x}%;top:${f.y}%;width:${f.w}%;height:${f.h}%" title="${f.diagonalen ? 'Tik eerst de 2 uiteinden van de ene diagonaal aan, dan die van de andere' : 'Tik de hoekpunten aan'}">
+      return `<div class="pf-veld veelhoek${kl}${live ? ' live' : ''}${f.diagonalen ? ' diag' : ''}${f.vrijePunten ? ' vrij' : ''}" data-k="${k}" data-waarde="${esc(print ? '' : b[k] || '')}" data-kol="${kol}" data-rij="${rij}" style="left:${f.x}%;top:${f.y}%;width:${f.w}%;height:${f.h}%" title="${f.diagonalen ? 'Tik eerst de 2 uiteinden van de ene diagonaal aan, dan die van de andere' : f.vrijePunten ? 'Tik de hoekpunten aan, waar je wil (meet met de lat)' : 'Tik de hoekpunten aan'}">
         <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${sleutel && vormen && vormen[k] && vormen[k].vorm ? veelhoekSvg(vormen[k].vorm, kol, rij).replace(/class="ant"/g, 'class="sleutel"') : ''}${veelhoekSvg(print ? '' : b[k], kol, rij, f.diagonalen)}</svg>${stippen}${uitleg}${live ? '<button type="button" class="pf-cirkel-terug" title="Laatste punt weg" aria-label="Laatste punt weg">↶</button>' : ''}</div>`;
     }
     // Een kleurveld: hokjes om in te kleuren met vaste kleuren. Met meer kleuren staan de kleurknoppen boven het veld.
@@ -1244,6 +1245,10 @@ const PfPaper = (() => {
     return '';
   }
   // Een veelhoek op roosterpunten: tik de hoekpunten aan, één na één. Het laatste punt nog eens tikken (of ↶) haalt het weg.
+  // Vrije punten: een stipje op elk aangetikt hoekpunt.
+  function vrijeStippen(w, kol, rij) {
+    return String(w || '').split(';').map(x => x.split(',').map(Number)).filter(x => x.length === 2 && x.every(Number.isFinite)).map(([c, r]) => `<i class="pf-stip on vrij" style="left:${(c / (kol - 1)) * 100}%;top:${(r / (rij - 1)) * 100}%"></i>`).join('');
+  }
   function wireVeelhoek(v, klaar) {
     const kol = Number(v.dataset.kol) || 6;
     const rij = Number(v.dataset.rij) || 5;
@@ -1251,6 +1256,7 @@ const PfPaper = (() => {
     const zet = l => {
       v.dataset.waarde = l.join(';');
       v.querySelector('svg').innerHTML = veelhoekSvg(v.dataset.waarde, kol, rij, v.classList.contains('diag'));
+      if (v.classList.contains('vrij')) { for (const s of v.querySelectorAll('.pf-stip.vrij')) s.remove(); v.querySelector('svg').insertAdjacentHTML('afterend', vrijeStippen(v.dataset.waarde, kol, rij)); }
       for (const s of v.querySelectorAll('.pf-stip')) s.classList.toggle('on', l.includes(`${s.dataset.c},${s.dataset.r}`));
       klaar();
     };
@@ -1263,8 +1269,8 @@ const PfPaper = (() => {
       const c = Math.round(((e.clientX - r.left) / r.width) * (kol - 1));
       const ri = Math.round(((e.clientY - r.top) / r.height) * (rij - 1));
       if (c < 0 || ri < 0 || c >= kol || ri >= rij) return;
-      // Dicht genoeg bij de stip?
-      const d = Math.hypot((c / (kol - 1)) * r.width - (e.clientX - r.left), (ri / (rij - 1)) * r.height - (e.clientY - r.top));
+      // Dicht genoeg bij de stip? (Bij vrije punten: overal.)
+      const d = v.classList.contains('vrij') ? 0 : Math.hypot((c / (kol - 1)) * r.width - (e.clientX - r.left), (ri / (rij - 1)) * r.height - (e.clientY - r.top));
       if (d > Math.max(16, Math.min(r.width / (kol - 1), r.height / (rij - 1)) * 0.45)) return;
       const p = `${c},${ri}`;
       const l = punten();

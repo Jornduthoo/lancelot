@@ -331,3 +331,13 @@ test('verbinden: een rechte door een punt met een voorwaarde (evenwijdig, loodre
   assert.deepEqual(K.vakDeel(q, ['10,20', '70,30', '80,20', '']).slice(0, 3), [1, 0, 0]);
   assert.deepEqual(K.veldSleutel(q).slice(0, 3), ['evenwijdig met de rechte', 'loodrecht op de rechte', 'snijdt de rechte niet loodrecht']);
 });
+
+test('veelhoek met vrije punten: gelijkzijdige driehoek met zijden van 4 cm', () => {
+  const q = blad([{ x: 1, y: 1, w: 40, h: 40 / 1.414, soort: 'veelhoek', vrijePunten: true, figuur: 'gelijkzijdige driehoek', zijde: '4' }, { x: 50, y: 1, w: 40, h: 40 / 1.414, soort: 'veelhoek', vrijePunten: true, figuur: 'rechthoekige driehoek' }]);
+  assert.equal(q.velden[0].kol, 201);
+  assert.equal(K.viewOf(q).velden[0].vrijePunten, true);
+  // 1 eenheid = 40 % van 21 cm / 200 = 0,042 cm: 95 eenheden is bijna 4 cm.
+  assert.deepEqual(K.vakDeel(q, ['20,150;115,150;68,68', '10,10;10,100;90,101']), [1, 1]);
+  assert.deepEqual(K.vakDeel(q, ['20,150;125,150;72,60', '10,10;10,100;95,140']), [0, 0]);
+  assert.equal(K.veldSleutel(q)[0], 'gelijkzijdige driehoek, zijden 4 cm (± 0,2)');
+});

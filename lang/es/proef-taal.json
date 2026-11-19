@@ -247,5 +247,10 @@
  "evenwijdig met de rechte": "paralela a la recta",
  "loodrecht op de rechte": "perpendicular a la recta",
  "snijdt de rechte niet loodrecht": "corta la recta, no perpendicularmente",
- "niet evenwijdig met de rechte": "no paralela a la recta"
+ "niet evenwijdig met de rechte": "no paralela a la recta",
+ "Vrije punten: geen stippen, de leerling tikt de hoekpunten waar hij wil (bv. een gelijkzijdige driehoek met zijden van 4 cm)": "Puntos libres: sin puntos, el alumno toca los vértices donde quiera (p. ej. un triángulo equilátero de 4 cm de lado)",
+ "Elke zijde (cm, mag leeg)": "Cada lado (cm, puede quedar vacío)",
+ "De leerling meet met 📏 Lat. Zijden die even lang moeten zijn, mogen evenveel verschillen als de marge; hoeken 3 graden.": "El alumno mide con 📏 Regla. Los lados que deben ser iguales pueden diferir en el margen; los ángulos en 3 grados.",
+ ", zijden {0} cm (± {1})": ", lados {0} cm (± {1})",
+ "Tik de hoekpunten aan, waar je wil (meet met de lat)": "Toca los vértices donde quieras (mide con la regla)"
 }

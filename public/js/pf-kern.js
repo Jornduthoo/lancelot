@@ -823,7 +823,7 @@
   }
 
   // ---------- Veelhoek op roosterpunten ----------
-  const FIGUREN = ['driehoek', 'rechthoekige driehoek', 'gelijkbenige driehoek', 'stomphoekige driehoek', 'scherphoekige driehoek',
+  const FIGUREN = ['driehoek', 'gelijkzijdige driehoek', 'rechthoekige driehoek', 'gelijkbenige driehoek', 'stomphoekige driehoek', 'scherphoekige driehoek',
     'vierhoek', 'vierkant', 'rechthoek', 'ruit', 'parallellogram', 'trapezium', 'rechthoekig trapezium', 'gelijkbenig trapezium', 'vlieger', 'vijfhoek', 'zeshoek'];
   // Het antwoord "c,r;c,r;...": de hoekpunten (kolom, rij van de stip), in de volgorde waarin de leerling ze aantikte.
   function hoekpunten(a, f) {
@@ -857,11 +857,12 @@
     const dx = f.w / Math.max(1, f.kol - 1);
     const dy = (f.h * verhouding) / Math.max(1, f.rij - 1);
     // Een rooster dat bijna vierkant is (zoals op het blad), telt als vierkant: dan rekenen we met hele stappen.
-    const rho = Math.abs(dy / dx - 1) < 0.1 ? 1 : dy / dx;
+    const rho = !f.vrijePunten && Math.abs(dy / dx - 1) < 0.1 ? 1 : dy / dx;
     return rondom(veelhoekVolgorde(f, hoekpunten(a, f))).map(([c, r]) => [c, r * rho]);
   }
   // Welke figuren is dit? Een lijst van alle namen die passen (een vierkant is ook een rechthoek, ruit, ...), de meest precieze eerst.
-  function figurenVan(pts) {
+  // tol (bij vrije punten, in cm): { len: marge voor even lang, hoek: marge in graden }. Zonder tol: precies (roosterpunten).
+  function figurenVan(pts, tol) {
     const n = pts.length;
     if (n < 3) return [];
     const kruis = (a, b, c) => (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]);
@@ -880,19 +881,25 @@
     }
     const z = i => [pts[(i + 1) % n][0] - pts[i][0], pts[(i + 1) % n][1] - pts[i][1]];
     const len = v => Math.hypot(v[0], v[1]);
-    const evenLang = (a, b) => Math.abs(len(a) - len(b)) < 1e-6;
-    const evenwijdig = (a, b) => Math.abs(a[0] * b[1] - a[1] * b[0]) < 1e-6;
-    const recht = (a, b) => Math.abs(a[0] * b[0] + a[1] * b[1]) < 1e-6;
+    const graden = (a, b) => (Math.acos(Math.max(-1, Math.min(1, (a[0] * b[0] + a[1] * b[1]) / (len(a) * len(b))))) * 180) / Math.PI;
+    const evenLang = (a, b) => Math.abs(len(a) - len(b)) < (tol ? tol.len + 1e-9 : 1e-6);
+    const evenwijdig = (a, b) => (tol ? Math.min(graden(a, b), 180 - graden(a, b)) <= tol.hoek : Math.abs(a[0] * b[1] - a[1] * b[0]) < 1e-6);
+    const recht = (a, b) => (tol ? Math.abs(90 - graden(a, b)) <= tol.hoek : Math.abs(a[0] * b[0] + a[1] * b[1]) < 1e-6);
     const zijden = pts.map((_, i) => z(i));
     const hoekRecht = zijden.some((v, i) => recht(v, zijden[(i + 1) % n]));
     if (n === 3) {
       const out = [];
       const l = zijden.map(len).sort((a, b) => a - b);
       const verschil = l[2] * l[2] - l[0] * l[0] - l[1] * l[1];
-      // Volgorde: rechthoekig, dan gelijkbenig, dan stomp- of scherphoekig (de eerste is wat 'precies' bedoelt).
-      if (Math.abs(verschil) < 1e-6) out.push('rechthoekige driehoek');
-      if (Math.abs(l[0] - l[1]) < 1e-6 || Math.abs(l[1] - l[2]) < 1e-6) out.push('gelijkbenige driehoek');
-      if (Math.abs(verschil) >= 1e-6) out.push(verschil > 0 ? 'stomphoekige driehoek' : 'scherphoekige driehoek');
+      // De grootste hoek (tegenover de langste zijde), voor de marge bij vrije punten.
+      const groot = (Math.acos(Math.max(-1, Math.min(1, (l[0] * l[0] + l[1] * l[1] - l[2] * l[2]) / (2 * l[0] * l[1])))) * 180) / Math.PI;
+      const rechtH = tol ? Math.abs(groot - 90) <= tol.hoek : Math.abs(verschil) < 1e-6;
+      const gelijk = (a, b) => Math.abs(a - b) < (tol ? tol.len + 1e-9 : 1e-6);
+      // Volgorde: gelijkzijdig, rechthoekig, gelijkbenig, dan stomp- of scherphoekig (de eerste is wat 'precies' bedoelt).
+      if (gelijk(l[0], l[1]) && gelijk(l[1], l[2]) && gelijk(l[0], l[2])) out.push('gelijkzijdige driehoek');
+      if (rechtH) out.push('rechthoekige driehoek');
+      if (gelijk(l[0], l[1]) || gelijk(l[1], l[2])) out.push('gelijkbenige driehoek');
+      if (!rechtH) out.push(verschil > 0 ? 'stomphoekige driehoek' : 'scherphoekige driehoek');
       return [...out, 'driehoek'];
     }
     if (n === 4) {
@@ -907,7 +914,7 @@
       if (alleGelijk) out.push('ruit');
       if (p1 && p2) out.push('parallellogram');
       if ((p1 || p2) && hoekRecht) out.push('rechthoekig trapezium');
-      if ((p1 || p2) && Math.abs(diag(0, 2) - diag(1, 3)) < 1e-6) out.push('gelijkbenig trapezium');
+      if ((p1 || p2) && Math.abs(diag(0, 2) - diag(1, 3)) < (tol ? tol.len + 1e-9 : 1e-6)) out.push('gelijkbenig trapezium');
       if (p1 || p2) out.push('trapezium');
       if ((evenLang(a, b) && evenLang(c, d)) || (evenLang(b, c) && evenLang(d, a))) out.push('vlieger');
       return [...out, 'vierhoek'];
@@ -933,9 +940,22 @@
     for (const r of [x, [...x].reverse()]) for (let i = 0; i < n; i++) if (y.every((p, j) => s(p) === s(r[(i + j) % n]))) return true;
     return false;
   }
-  function veelhoekGoed(f, a, verhouding) {
-    if (f.vorm) return zelfdeVorm(f, a);
+  // Vrije punten: de hoekpunten in cm (volgens de schaal van het blad).
+  function veelhoekCm(f, a, verhouding = 1.414, schaal = SCHAAL) {
+    const per = ((f.w / Math.max(1, f.kol - 1)) / 100) * schaal;
+    return veelhoekPunten(f, a, verhouding).map(([x, y]) => [x * per, y * per]);
+  }
+  function veelhoekGoed(f, a, verhouding, schaal = SCHAAL) {
+    if (f.vorm && !f.vrijePunten) return zelfdeVorm(f, a);
     if (!f.figuur) return false;
+    if (f.vrijePunten) {
+      const pts = veelhoekCm(f, a, verhouding, schaal);
+      const marge = f.zijdeMarge ?? 0.2;
+      // Met een zijde: elke zijde zo lang (bv. een gelijkzijdige driehoek met zijden van 4 cm).
+      if (f.zijde && !pts.every((p, i) => { const q2 = pts[(i + 1) % pts.length]; return Math.abs(Math.hypot(q2[0] - p[0], q2[1] - p[1]) - f.zijde) <= marge + 1e-9; })) return false;
+      const soorten = figurenVan(pts, { len: marge, hoek: 3 });
+      return f.strikt ? soorten[0] === f.figuur : soorten.includes(f.figuur);
+    }
     const soorten = figurenVan(veelhoekPunten(f, a, verhouding));
     return f.strikt ? soorten[0] === f.figuur : soorten.includes(f.figuur);
   }
@@ -1111,6 +1131,16 @@
       } else if (soort === 'veelhoek') {
         veld.kol = roosterMaat(f.kol, 6, 16);
         veld.rij = roosterMaat(f.rij, 5, 16);
+        // Vrije punten: de leerling tikt waar hij wil (geen stippen), bv. een gelijkzijdige driehoek. Intern een fijn rooster van 201 x 201.
+        if (f.vrijePunten === true) {
+          veld.vrijePunten = true;
+          veld.kol = 201;
+          veld.rij = 201;
+          const z = getal(f.zijde);
+          if (z !== null && z > 0 && z <= 50) veld.zijde = Math.round(z * 100) / 100;
+          const zm = getal(f.zijdeMarge);
+          if (zm !== null && zm >= 0) veld.zijdeMarge = Math.min(3, Math.round(zm * 100) / 100);
+        }
         if (FIGUREN.includes(f.figuur)) veld.figuur = f.figuur;
         if (f.strikt) veld.strikt = true;
         // Of: precies deze figuur op deze plek (bv. het spiegelbeeld of de gedraaide figuur), als hoekpunten "kol,rij;kol,rij;...".
@@ -1412,7 +1442,7 @@
         if (f.soort === 'klad') o.vorm = f.vorm;
         if (f.soort === 'puntlijn') o.pt = f.pt || [];
         if (f.soort === 'kleur') { o.kol = f.kol; o.rij = f.rij; o.kleuren = f.kleuren.map(c => ({ kleur: c.kleur, hex: STIFTEN[c.kleur], rand: STIFT_RAND[c.kleur] })); }
-        if (f.soort === 'veelhoek') { o.kol = f.kol; o.rij = f.rij; if (f.diagonalen) o.diagonalen = true; if (f.uitleg) o.uitleg = f.uitleg; }
+        if (f.soort === 'veelhoek') { o.kol = f.kol; o.rij = f.rij; if (f.vrijePunten) o.vrijePunten = true; if (f.diagonalen) o.diagonalen = true; if (f.uitleg) o.uitleg = f.uitleg; }
         if (f.soort === 'breuk' && f.geheel) o.geheel = true;
         if (f.toonEenheid && f.eenheid) o.eenheid = f.eenheid;
         if (f.vrij) o.vrij = f.vrij;
@@ -1600,7 +1630,7 @@
       if (f.soort === 'lijn') return lijnGoed(f, b[k], q.verhouding, q.schaal || SCHAAL) ? 1 : 0;
       if (f.soort === 'puntlijn') return puntlijnGoed(f, b[k], q.verhouding) ? 1 : 0;
       if (f.soort === 'cirkel') return cirkelGoed(f, b[k], q.verhouding, q.schaal || SCHAAL) ? 1 : 0;
-      if (f.soort === 'veelhoek') return veelhoekGoed(f, b[k], q.verhouding) ? 1 : 0;
+      if (f.soort === 'veelhoek') return veelhoekGoed(f, b[k], q.verhouding, q.schaal || SCHAAL) ? 1 : 0;
       if (f.soort === 'kleur') return kleurGoed(f, b[k]) ? 1 : 0;
       if (f.vrij) return vrijDeel(q, b, k);
       return vakWaarde(f, b[k], b, k);
@@ -1832,8 +1862,8 @@
     : f.soort === 'rooster' && roosterAuto(f) ? (f.nakijk === 'uitkomst' ? `= ${roosterUitkomst(f)}` : f.nakijk === 'deling' ? `= ${f.quotient}${f.rest ? ` rest ${f.rest}` : ''}` : roosterCellen(f.sleutel).map(r => r.map(c => c || ' ').join('')).join('\n'))
     : f.soort === 'puntlijn' ? (f.doorPunt !== undefined ? `${f.aantal > 1 ? `${f.aantal} lijnen` : 'een lijn'} door het groene punt` : (f.lijnen || []).map(([a, b]) => `${puntNaam(a)}–${puntNaam(b)}`).join(', '))
     : f.soort === 'kleur' ? f.kleuren.filter(c => kleurDoel(f, c) !== null).map(c => `${c.aantal} ${c.kleur} (${kleurDoel(f, c)} van ${f.kol * f.rij} hokjes)`).join(', ')
-    : f.soort === 'veelhoek' && f.vorm ? 'de figuur van de sleutel'
-    : f.soort === 'veelhoek' ? (f.figuur ? (f.strikt ? `precies een ${f.figuur}` : f.figuur) : '')
+    : f.soort === 'veelhoek' && f.vorm && !f.vrijePunten ? 'de figuur van de sleutel'
+    : f.soort === 'veelhoek' ? (f.figuur ? (f.strikt ? `precies een ${f.figuur}` : f.figuur) + (f.vrijePunten && f.zijde ? `, zijden ${getalTekst(f.zijde)} cm (± ${getalTekst(f.zijdeMarge ?? 0.2)})` : '') : '')
     : f.soort === 'cirkel' ? (f.cirkels || []).map(c => `r = ${getalTekst(c.r)} cm`).join(', ') + ((f.cirkels || []).length ? ` (± ${getalTekst(f.marge ?? 0.1)})` : '')
     : (f.antwoord || '')));
 
@@ -1884,6 +1914,6 @@
     TYPES, NAMES, MANUEEL, NIVEAUS, MAX_BEELD, ROOSTER, validate, problemen, vragenVan, niveausVan, lijstVoor,
     maxVan, autoPunten, handPunten, totaal, viewOf, studentView, partsOf, getal, zelfde, canoniek, auto, schoon, oplossing, schud, alts, gapsOf,
     waarschuwingen, metNamen, MAX_ZONES, veldSleutel, vakGoed, vakDeel, handVeld, autoVeld, roosterAuto, roosterScore, roosterCellen, roosterTekst, roosterUitkomst,
-    heeftMarge, margeGoed, tijdSec, VRIJ_SOORT, margeTekst, getalTekst, puntLijnen, puntlijnGoed, cirkelsVan, cirkelGoed, straalCm, puntNaam, handWerk, SCHAAL, NAKIJK, FIGUREN, figurenVan, veelhoekPunten, veelhoekVolgorde, hoekpunten, rondom, rekenregel, formuleFout, lijnGoed, lijnCm, lijnHoek, RICHTING, zelfdeVorm, kleurDoel, kleurGoed, metEenheid, volgorde, SOORTEN, HAND_VELD, woordenVan, doelenVan, sorteerWoorden, sorteerKolommen, dicteeVergelijk, dicteeDeel, dicteeZinPunten, MAX_DICTEE, itemTekst, markeerModel, markeerSleutel, doelenInBron, markeerTel, markeerKort, markeerAntwoord, tekstWoorden, stukkenVan, zonderHaken, STIFTEN, PER, asTekst, MAX_AUDIO, celGat, vereenvoudigd, GEEN_ANTWOORD, AUTO_VELD, KLEUREN,
+    heeftMarge, margeGoed, tijdSec, VRIJ_SOORT, margeTekst, getalTekst, puntLijnen, puntlijnGoed, cirkelsVan, cirkelGoed, straalCm, puntNaam, handWerk, SCHAAL, NAKIJK, FIGUREN, figurenVan, veelhoekPunten, veelhoekVolgorde, hoekpunten, rondom, rekenregel, formuleFout, lijnGoed, lijnCm, veelhoekCm, lijnHoek, RICHTING, zelfdeVorm, kleurDoel, kleurGoed, metEenheid, volgorde, SOORTEN, HAND_VELD, woordenVan, doelenVan, sorteerWoorden, sorteerKolommen, dicteeVergelijk, dicteeDeel, dicteeZinPunten, MAX_DICTEE, itemTekst, markeerModel, markeerSleutel, doelenInBron, markeerTel, markeerKort, markeerAntwoord, tekstWoorden, stukkenVan, zonderHaken, STIFTEN, PER, asTekst, MAX_AUDIO, celGat, vereenvoudigd, GEEN_ANTWOORD, AUTO_VELD, KLEUREN,
   };
 });
