@@ -170,5 +170,14 @@
  "Allebei": "Beide",
  "Je hebt al 1 keer geluisterd.": "Du hast schon 1-mal zugehört.",
  "Je hebt al {0} keer geluisterd.": "Du hast schon {0}-mal zugehört.",
- "🎧 Hoe vaak mag de leerling luisteren?": "🎧 Wie oft darf das Kind zuhören?"
+ "🎧 Hoe vaak mag de leerling luisteren?": "🎧 Wie oft darf das Kind zuhören?",
+ "De leerling werkt verder met zijn antwoorden": "Das Kind arbeitet mit seinen Antworten weiter",
+ "Alle antwoorden worden gewist": "Alle Antworten werden gelöscht",
+ "🔓 Heropen (werk verder)": "🔓 Wieder öffnen (weiterarbeiten)",
+ "{0} opnieuw laten beginnen? Alle antwoorden van {1} worden gewist. De leerling begint met een leeg blad.": "{0} neu beginnen lassen? Alle Antworten von {1} werden gelöscht. Das Kind beginnt mit einem leeren Blatt.",
+ "Opnieuw beginnen": "Neu beginnen",
+ "{0} opnieuw laten beginnen? Alle antwoorden van {1} worden gewist{2}. De leerling begint met een leeg blad.": "{0} neu beginnen lassen? Alle Antworten von {1} werden gelöscht{2}. Das Kind beginnt mit einem leeren Blatt.",
+ ", ook bij de Resultaten in De Proef": ", auch in den Ergebnissen der Prüfung",
+ "opnieuw laten beginnen door de leerkracht": "von der Lehrkraft neu begonnen",
+ "Uit de afname halen mislukt:": "Aus der Durchführung entfernen fehlgeschlagen:"
 }

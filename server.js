@@ -2443,7 +2443,7 @@ io.on('connection', socket => {
     const pfHost = fn => (arg, cb) => { const res = fn(arg || {}); if (typeof cb === 'function') cb(res || { ok: true }); };
     socket.on('pf-vrij', pfHost(({ id }) => proef.vrijgeven(id)));
     socket.on('pf-extra', pfHost(({ id, minuten }) => proef.extraTijd(id, minuten)));
-    socket.on('pf-heropen', pfHost(({ id }) => proef.heropen(id)));
+    socket.on('pf-heropen', pfHost(({ id, opnieuw }) => proef.heropen(id, opnieuw === true)));
     socket.on('pf-detail', pfHost(({ id }) => proef.detail(id)));
     socket.on('pf-zet-niveau', pfHost(({ id, niveau }) => proef.setNiveau(id, niveau)));
     socket.on('pf-uitslag', pfHost(({ aan }) => proef.toonUitslag(aan)));

@@ -64,3 +64,33 @@ test('toets als taak: niveau per kind, gepland, verbeterd zoals op het bord en i
   assert.match(res.fout, /al in/);
   assert.equal(res.lotteKlaar, true);
 });
+
+test('heropenen: verder werken houdt de antwoorden, opnieuw beginnen geeft een leeg blad en haalt de leerling uit de afname', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'taken-opnieuw-'));
+  fs.mkdirSync(path.join(tmp, 'proeven'));
+  fs.writeFileSync(path.join(tmp, 'proeven', 'toets.json'), JSON.stringify(TOETS));
+  const res = run(tmp, `
+    klas.write({ naam: '6A', leerjaar: 6, namen: ['Lotte', 'Mats'] });
+    const t = taken.maak({ soort: 'proef', file: 'toets.json', namen: ['Lotte', 'Mats'] });
+    for (const naam of ['Lotte', 'Mats']) {
+      taken.open({ id: t.id, naam });
+      taken.toetsAntwoord({ id: t.id, naam, vraag: '1', waarde: 'Omdat.' });
+      taken.inleveren({ id: t.id, naam });
+    }
+    taken.heropen({ id: t.id, naam: 'Lotte' });
+    const verder = taken.open({ id: t.id, naam: 'Lotte' });
+    taken.heropen({ id: t.id, naam: 'Mats', opnieuw: true });
+    const m = taken.open({ id: t.id, naam: 'Mats' });
+    const mats = [m.klaar, Object.keys(m.answers).length, m.poging];
+    const file = taken.detail({ id: t.id, naam: 'Lotte' }).afname;
+    const voor = proeven.laadAfname(file).spelers.map(s => s.naam);
+    taken.toetsAntwoord({ id: t.id, naam: 'Mats', vraag: '1', waarde: 'Nieuw.' });
+    taken.inleveren({ id: t.id, naam: 'Mats' });
+    const na = proeven.laadAfname(file).spelers.find(s => s.naam === 'Mats');
+    return { verder: [verder.klaar, verder.answers['1']], mats, voor, na: na.antwoorden['1'] };
+  `);
+  assert.deepEqual(res.verder, [false, 'Omdat.']);
+  assert.deepEqual(res.mats, [false, 0, 1]);
+  assert.deepEqual(res.voor, ['Lotte']);
+  assert.equal(res.na, 'Nieuw.');
+});

@@ -170,5 +170,14 @@
  "Allebei": "Both",
  "Je hebt al 1 keer geluisterd.": "You have already listened 1 time.",
  "Je hebt al {0} keer geluisterd.": "You have already listened {0} times.",
- "🎧 Hoe vaak mag de leerling luisteren?": "🎧 How often may the pupil listen?"
+ "🎧 Hoe vaak mag de leerling luisteren?": "🎧 How often may the pupil listen?",
+ "De leerling werkt verder met zijn antwoorden": "The pupil continues with their answers",
+ "Alle antwoorden worden gewist": "All answers are deleted",
+ "🔓 Heropen (werk verder)": "🔓 Reopen (continue)",
+ "{0} opnieuw laten beginnen? Alle antwoorden van {1} worden gewist. De leerling begint met een leeg blad.": "Let {0} start over? All answers of {1} are deleted. The pupil starts with an empty sheet.",
+ "Opnieuw beginnen": "Start over",
+ "{0} opnieuw laten beginnen? Alle antwoorden van {1} worden gewist{2}. De leerling begint met een leeg blad.": "Let {0} start over? All answers of {1} are deleted{2}. The pupil starts with an empty sheet.",
+ ", ook bij de Resultaten in De Proef": ", also in the Results of The Test",
+ "opnieuw laten beginnen door de leerkracht": "made to start over by the teacher",
+ "Uit de afname halen mislukt:": "Removing from the test session failed:"
 }

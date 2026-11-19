@@ -10,7 +10,7 @@ const klas = require('./klas');
 const doelen = require('./doelen');
 
 const MODES = [...K.NIVEAUS, 'klas', 'kies'];
-const SOORTEN = { tab: 'ander tabblad of venster', scherm: 'volledig scherm verlaten', herladen: 'pagina herladen of opnieuw geopend', plak: 'probeerde te plakken' };
+const SOORTEN = { opnieuw: 'opnieuw laten beginnen door de leerkracht', tab: 'ander tabblad of venster', scherm: 'volledig scherm verlaten', herladen: 'pagina herladen of opnieuw geopend', plak: 'probeerde te plakken' };
 
 function instellingen(raw = {}) {
   const tijd = Math.round(Number(raw.tijd));
@@ -309,10 +309,15 @@ class ProefLive {
   }
 
   // Een ingeleverde toets weer openzetten: de leerling werkt verder met zijn antwoorden.
-  heropen(playerId) {
+  // Weer openzetten: verder werken met wat er al stond, of (opnieuw) helemaal opnieuw beginnen met een leeg blad.
+  heropen(playerId, opnieuw = false) {
     if (this.phase !== 'open') return { error: 'De toets is al afgesloten.' };
     const p = this.players.get(playerId);
     if (!p) return { error: 'Die leerling is er niet meer.' };
+    if (opnieuw) {
+      Object.assign(p, { ruw: {}, answers: {}, auto: {}, begon: 0, pos: 0, verst: 0, extra: 0, poging: (p.poging || 0) + 1 });
+      p.events.push({ t: Date.now(), soort: 'opnieuw' });
+    }
     p.ingeleverd = 0;
     p.slot = false;
     // Was de tijd om, dan krijgt hij er vijf minuten bij.
@@ -437,7 +442,7 @@ class ProefLive {
     if (!p) return state;
     const e = this.eindeVan(p);
     Object.assign(state, {
-      name: p.name, status: this.status(p), niveau: this.multi ? p.niveau : null, choosing: p.choosing, niveaus: p.choosing ? Object.keys(this.levels) : null,
+      name: p.name, poging: p.poging || 0, status: this.status(p), niveau: this.multi ? p.niveau : null, choosing: p.choosing, niveaus: p.choosing ? Object.keys(this.levels) : null,
       inst: { terug: this.inst.terug, scherm: this.inst.scherm, tijd: this.inst.tijd, slot: this.inst.slot },
       intro: this.toets.intro || '', vragen: K.vragenVan(this.lijst(p)).length, totaal: K.totaal(this.lijst(p)),
       rest: e && !p.ingeleverd ? Math.max(0, e - Date.now()) : null,

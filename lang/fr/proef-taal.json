@@ -170,5 +170,14 @@
  "Allebei": "Les deux",
  "Je hebt al 1 keer geluisterd.": "Tu as déjà écouté 1 fois.",
  "Je hebt al {0} keer geluisterd.": "Tu as déjà écouté {0} fois.",
- "🎧 Hoe vaak mag de leerling luisteren?": "🎧 Combien de fois l'élève peut-il écouter ?"
+ "🎧 Hoe vaak mag de leerling luisteren?": "🎧 Combien de fois l'élève peut-il écouter ?",
+ "De leerling werkt verder met zijn antwoorden": "L'élève continue avec ses réponses",
+ "Alle antwoorden worden gewist": "Toutes les réponses sont effacées",
+ "🔓 Heropen (werk verder)": "🔓 Rouvrir (continuer)",
+ "{0} opnieuw laten beginnen? Alle antwoorden van {1} worden gewist. De leerling begint met een leeg blad.": "Faire recommencer {0} ? Toutes les réponses de {1} sont effacées. L'élève recommence avec une feuille vierge.",
+ "Opnieuw beginnen": "Recommencer",
+ "{0} opnieuw laten beginnen? Alle antwoorden van {1} worden gewist{2}. De leerling begint met een leeg blad.": "Faire recommencer {0} ? Toutes les réponses de {1} sont effacées{2}. L'élève recommence avec une feuille vierge.",
+ ", ook bij de Resultaten in De Proef": ", aussi dans les Résultats de L'Épreuve",
+ "opnieuw laten beginnen door de leerkracht": "recommencé à la demande de l'enseignant",
+ "Uit de afname halen mislukt:": "Le retrait de la passation a échoué :"
 }

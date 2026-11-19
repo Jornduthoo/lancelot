@@ -430,6 +430,7 @@ function toonDetail(id, naam, stil) {
     sel.classList.toggle('hidden', res.niveaus.length < 2);
     sel.innerHTML = res.niveaus.map(n => `<option value="${n}"${n === res.niveau ? ' selected' : ''}>${Niveau.label(n)}</option>`).join('');
     $('d-heropen').classList.toggle('hidden', res.status !== 'klaar');
+    $('d-opnieuw').classList.toggle('hidden', res.status === 'nieuw');
     const paper = $('d-paper');
     paper.classList.toggle('hidden', res.soort !== 'oefenblad');
     $('d-toets').classList.toggle('hidden', res.soort !== 'proef');
@@ -462,6 +463,13 @@ $('d-sluit').addEventListener('click', () => $('tk-detail').close());
 $('d-heropen').addEventListener('click', () => {
   const d = tk.detail;
   socket.emit('tk-heropen', { id: d.id, naam: d.naam }, uit);
+});
+// Opnieuw beginnen: alles wat de leerling invulde, gaat weg (eerst bevestigen).
+$('d-opnieuw').addEventListener('click', async () => {
+  const d = tk.detail;
+  const toets = d.soort === 'proef';
+  if (!await Ui.vraag(`${d.naam} opnieuw laten beginnen? Alle antwoorden van ${d.naam} worden gewist${toets ? ', ook bij de Resultaten in De Proef' : ''}. De leerling begint met een leeg blad.`, { ja: 'Opnieuw beginnen', gevaar: true })) return;
+  socket.emit('tk-heropen', { id: d.id, naam: d.naam, opnieuw: true }, uit);
 });
 $('d-weg').addEventListener('click', async () => {
   const d = tk.detail;

@@ -918,7 +918,7 @@ function openDetail(id, refresh) {
     const knoppen = [];
     if (res.status === 'slot') knoppen.push('<button class="gold" data-a="vrij">🔓 Vrijgeven</button>');
     if (state.inst.tijd && res.status !== 'klaar') knoppen.push('<button class="secondary" data-a="extra">+5 min</button>');
-    if (res.status === 'klaar' && state.phase === 'open') knoppen.push('<button class="secondary" data-a="heropen">🔓 Heropen</button>');
+    if (res.status === 'klaar' && state.phase === 'open') knoppen.push('<button class="secondary" data-a="heropen" title="De leerling werkt verder met zijn antwoorden">🔓 Heropen (werk verder)</button><button class="secondary" data-a="opnieuw" title="Alle antwoorden worden gewist">↺ Opnieuw beginnen</button>');
     if (state.multi && (res.status === 'wacht' || res.status === 'kiest')) for (const n of state.niveaus) knoppen.push(`<button class="secondary${n === res.niveau ? ' on' : ''}" data-a="niveau" data-n="${n}">${Niveau.label(n)}</button>`);
     knoppen.push('<button class="secondary" data-a="weg" title="Uit de toets halen">Verwijderen</button><button class="secondary" data-a="sluit">Sluiten</button>');
     $('d-actions').innerHTML = knoppen.join('');
@@ -929,6 +929,10 @@ function openDetail(id, refresh) {
         if (a === 'vrij') socket.emit('pf-vrij', { id });
         if (a === 'extra') socket.emit('pf-extra', { id, minuten: 5 });
         if (a === 'heropen') socket.emit('pf-heropen', { id });
+        if (a === 'opnieuw') {
+          if (!await Ui.vraag(`${res.name} opnieuw laten beginnen? Alle antwoorden van ${res.name} worden gewist. De leerling begint met een leeg blad.`, { ja: 'Opnieuw beginnen', gevaar: true })) return;
+          socket.emit('pf-heropen', { id, opnieuw: true }, r => { if (r && r.error) Ui.melding(r.error); });
+        }
         if (a === 'niveau') socket.emit('pf-zet-niveau', { id, niveau: b.dataset.n }, r => { if (r && r.error) Ui.melding(r.error); });
         if (a === 'weg') {
           if (!await Ui.vraag(`${res.name} uit de toets halen? Wat al ingevuld is, gaat verloren.`, { gevaar: true })) return;
