@@ -306,7 +306,13 @@ document.addEventListener('keydown', e => {
 function tkToets(t) {
   tkToon('toets');
   for (const id of ['tk-toets-intro', 'tk-toets-werk', 'tk-toets-klaar']) $(id).classList.add('hidden');
-  if (t.klaar) return $('tk-toets-klaar').classList.remove('hidden');
+  if (t.klaar) {
+    // Toont de leerkracht de punten na het inleveren? Dan wat de computer al verbeterde (de open vragen volgen nog).
+    const u = t.uitslag;
+    $('tk-toets-uitslag').innerHTML = u ? `Je haalde <strong>${PfPaper.nl(u.punten)} van de ${PfPaper.nl(u.max - u.hand)}</strong> punten die de computer verbetert.${u.hand ? ` Je leerkracht verbetert nog ${PfPaper.ptn(u.hand)}.` : ''}` : '';
+    $('tk-toets-uitslag').classList.toggle('hidden', !u);
+    return $('tk-toets-klaar').classList.remove('hidden');
+  }
   // Nog niet begonnen: eerst de uitleg en de regels.
   if (!t.gedaan && !tk.toetsGestart) {
     $('tk-toets-intro-tekst').textContent = t.intro || '';
@@ -331,7 +337,7 @@ function tkToetsPagina() {
   const t = tk.taak;
   const pages = t.view.pages;
   t.pos = Math.max(0, Math.min(pages.length - 1, t.pos || 0));
-  PfPaper.render($('tk-toets-paper'), [pages[t.pos]], { mode: 'live', answers: t.answers, start: t.pos, nummer: true, voorlees: false, onAnswer: tkToetsStuur, luisterSleutel: `taak|${t.id}|${tk.naam}|${t.poging || 0}` });
+  PfPaper.render($('tk-toets-paper'), [pages[t.pos]], { mode: 'live', answers: t.answers, start: t.pos, nummer: true, voorlees: !!t.voorlees, onAnswer: tkToetsStuur, luisterSleutel: `taak|${t.id}|${tk.naam}|${t.poging || 0}` });
   $('tk-toets-vorige').classList.toggle('hidden', t.pos === 0);
   const laatste = t.pos === pages.length - 1;
   $('tk-toets-volgende').textContent = laatste ? 'Inleveren ✔' : 'Volgende ▶';
