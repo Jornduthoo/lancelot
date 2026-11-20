@@ -95,3 +95,20 @@ Voorstel: https://claude.ai/artifact/GCzejmKXRwQJBChJN2Gugv. Elke vraag krijgt �
 | 3 | Takenkaarten compact (één regel + Opvolgen ▶), lijst standaard Alles | ○ | |
 | 4 | Eén naam voor één ding (Afnames en verbeteren, Spelresultaten, Even opletten) | ○ | |
 | 5 | Tabjes Mijn klas: Opvolgen, Taken, Klas, Zorg + Meer ▾ | ○ | |
+
+## Verbeterpunten na de overzicht-update (Jorn 20 nov)
+
+| # | Punt | Status | PR |
+| --- | --- | --- | --- |
+| 1 | Hoe ver = "7 van 10 gedaan" + balkje; "x/y" alleen voor punten | ✅ | #594 |
+| 5 | Taken opent op Alles (of het laatst gekozen tabje), kop "Gegeven taken" | ✅ | #594 |
+| 9 | Resultaten: tellers klaar · bezig · nog niet · te verbeteren; "✔ alles verbeterd" alleen als er niets meer is | ✅ | #594 |
+| 10 | Vandaag zonder inhoud: één korte regel "niets gepland · niets te verbeteren ✓", ✕ = weg voor vandaag | ✅ | #594 |
+| 2 | Herkansing alleen via de knop; "Dit is geen herkansing" | ○ | |
+| 8 | Eigen vakken, "niet bij mij" met vinkjes, hele kolom op een niveau | ○ | |
+| + | Niveau per leerling in een zichtbaar keuzelijstje | ○ | |
+| 3 | Opvolgen: symbolen in vakjes, rood in legende (grens instelbaar), vaste koppen | ○ | |
+| 4 | Punten: gemiddelde in dezelfde eenheid | ○ | |
+| 6 | Uitleg "Aandacht nodig" | ○ | |
+| 7 | Toetsenbibliotheek: uitleg icoontjes, vaste knoppen, archief onder Meer | ○ | |
+| + | Test met een trage gedeelde map | ○ | |

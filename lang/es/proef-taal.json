@@ -663,5 +663,12 @@
  "Die keuze bestaat niet.": "Esa opción no existe.",
  "Welke toets?": "¿Qué prueba?",
  "{0} (op {1})": "{0} (sobre {1})",
- "Gemiddelde (op {0})": "Media (sobre {0})"
+ "Gemiddelde (op {0})": "Media (sobre {0})",
+ "· niets gepland · niets te verbeteren ✓": "· nada previsto · nada que corregir ✓",
+ "✔ alles verbeterd": "✔ todo corregido",
+ "{0} van {1} ingevuld{2}{3}{4}": "{0} de {1} respondidas{2}{3}{4}",
+ "✏️ bezig · {0} van {1} gedaan{2}": "✏️ trabajando · {0} de {1} hechas{2}",
+ "bezig · {0} van {1} gedaan": "trabajando · {0} de {1} hechas",
+ "{0} klaar": "{0} terminados",
+ "{0} nog niet": "{0} todavía no"
 }

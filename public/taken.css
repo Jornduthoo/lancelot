@@ -176,3 +176,6 @@
 .tk-klap { background: none; box-shadow: none; padding: 2px 6px; font-size: 1.1rem; color: var(--muted); transition: transform .15s; }
 .tk-taak.ingeklapt .tk-klap { transform: rotate(-90deg); }
 .tk-taak.ingeklapt .tk-leerlingen { display: none; }
+/* Nu bezig: hoe ver, als een balkje onder de knop (geen "7/10", dat is een punt). */
+.tk-nu-ll { position: relative; }
+.tk-nu-balk { left: 0; }

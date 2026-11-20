@@ -663,5 +663,12 @@
  "Die keuze bestaat niet.": "Ce choix n'existe pas.",
  "Welke toets?": "Quel contrôle ?",
  "{0} (op {1})": "{0} (sur {1})",
- "Gemiddelde (op {0})": "Moyenne (sur {0})"
+ "Gemiddelde (op {0})": "Moyenne (sur {0})",
+ "· niets gepland · niets te verbeteren ✓": "· rien de prévu · rien à corriger ✓",
+ "✔ alles verbeterd": "✔ tout corrigé",
+ "{0} van {1} ingevuld{2}{3}{4}": "{0} sur {1} remplies{2}{3}{4}",
+ "✏️ bezig · {0} van {1} gedaan{2}": "✏️ en cours · {0} sur {1} faits{2}",
+ "bezig · {0} van {1} gedaan": "en cours · {0} sur {1} faits",
+ "{0} klaar": "{0} terminé(s)",
+ "{0} nog niet": "{0} pas encore"
 }
