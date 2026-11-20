@@ -52,7 +52,11 @@ function renderNiveaus(leerlingen) {
   }
   const table = document.createElement('table');
   table.className = 'niveau-raster';
-  table.innerHTML = `<thead><tr><th>Leerling</th><th>Algemeen</th>${vakgroepen.map(g => `<th title="${g.vakken.join(', ')}">${g.naam}</th>`).join('')}</tr></thead>`;
+  // Boven elke kolom ▾: iedereen tegelijk op een niveau, en bij een vak: wie volgt het niet bij mij (verbeterpunten 20 nov, 8).
+  const kolKnop = (vak, naam) => `<details class="k-kol"><summary title="Hele kolom">▾</summary><div class="k-kol-menu">
+    <span class="muted small">Iedereen op:</span>${Niveau.LIST.map(n => `<button type="button" data-kol="${vak}" data-niv="${n}" data-naam="${esc(naam)}">${Niveau.ICONS[n]} ${Niveau.NAMES[n]}</button>`).join('')}
+    ${vak ? `<button type="button" data-kol="${vak}" data-niv="" data-naam="${esc(naam)}">= Algemeen</button><button type="button" data-niet="${vak}" data-naam="${esc(naam)}">🚫 Wie volgt ${esc(naam)} niet bij mij?</button>` : ''}</div></details>`;
+  table.innerHTML = `<thead><tr><th>Leerling</th><th>Algemeen ${kolKnop('', 'Algemeen')}</th>${vakgroepen.map(g => `<th title="${esc(g.vakken.join(', '))}">${esc(g.naam)} ${kolKnop(g.id, g.naam)}</th>`).join('')}</tr></thead>`;
   const body = document.createElement('tbody');
   const opts = (current, algemeen) => (algemeen ? `<option value="">= ${Niveau.ICONS[algemeen]}</option>` : '')
     + Niveau.LIST.map(n => `<option value="${n}"${n === current ? ' selected' : ''}>${Niveau.label(n)}</option>`).join('');
@@ -90,7 +94,107 @@ function renderNiveaus(leerlingen) {
   }
   table.appendChild(body);
   box.appendChild(table);
+  // Het menu boven het raster (het raster scrolt opzij): vast op het scherm, onder het ▾. Eén menu tegelijk.
+  const plaats = d => {
+    const r = d.querySelector('summary').getBoundingClientRect();
+    const m = d.querySelector('.k-kol-menu');
+    m.style.top = `${r.bottom + 4}px`;
+    m.style.left = `${Math.max(8, Math.min(r.left, innerWidth - 210))}px`;
+  };
+  for (const d of table.querySelectorAll('.k-kol')) d.addEventListener('toggle', () => {
+    if (!d.open) return;
+    for (const x of table.querySelectorAll('.k-kol[open]')) if (x !== d) x.open = false;
+    plaats(d);
+  });
+  volgMenu = () => { for (const x of table.querySelectorAll('.k-kol[open]')) plaats(x); };
+  const sluitMenus = () => { for (const x of table.querySelectorAll('.k-kol[open]')) x.open = false; };
+  for (const b of table.querySelectorAll('.k-kol-menu button')) b.addEventListener('click', sluitMenus);
+  for (const b of table.querySelectorAll('[data-kol]')) b.addEventListener('click', () => heleKolom(leerlingen, b.dataset.kol, b.dataset.niv, b.dataset.naam));
+  for (const b of table.querySelectorAll('[data-niet]')) b.addEventListener('click', () => toonNiet(leerlingen, b.dataset.niet, b.dataset.naam));
 }
+
+// Een open ▾-menu volgt mee als je scrolt (één luisteraar, voor het raster van nu).
+let volgMenu = () => {};
+addEventListener('scroll', () => volgMenu(), { passive: true });
+$('k-niveaus').addEventListener('scroll', () => volgMenu(), { passive: true });
+const esc = t => String(t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+const naNiveaus = res => {
+  $('k-niveau-error').textContent = res.error || '';
+  if (!res.error) renderNiveaus(res.klas.leerlingen);
+};
+
+// Een hele kolom op één niveau. Gasten en wie het vak niet bij mij volgt, blijven zoals ze zijn.
+async function heleKolom(leerlingen, vak, niveau, naam) {
+  const wie = leerlingen.filter(l => !l.gast && !(vak && (l.nietVakken || []).includes(vak)));
+  const nivTekst = niveau ? Niveau.label(niveau) : '= Algemeen';
+  if (!await Ui.vraag(`Iedereen bij ${naam} op ${nivTekst} zetten (${wie.length} leerlingen)?`, { ja: 'Ja', nee: 'Nee' })) return;
+  socket.emit('klas-niveaus', { lijst: wie.map(l => ({ id: l.id, niveau: niveau || (vak ? '' : 'schildknaap'), vak })) }, naNiveaus);
+}
+
+// Wie volgt dit vak niet bij mij? Met vinkjes, dan Bewaar.
+function toonNiet(leerlingen, vak, naam) {
+  const box = $('k-niet');
+  box.classList.remove('hidden');
+  box.innerHTML = `<h4>🚫 Wie volgt ${esc(naam)} niet bij jou?</h4><p class="muted small">Vink aan wie dit vak bij een andere leerkracht volgt. Zij tellen niet mee bij ${esc(naam)} en worden niet aangevinkt bij Hele klas.</p>
+    <div class="k-niet-lijst">${leerlingen.filter(l => !l.gast).map(l => `<label class="check"><input type="checkbox" value="${esc(l.id)}"${(l.nietVakken || []).includes(vak) ? ' checked' : ''}> ${esc(l.naam)}</label>`).join('')}</div>
+    <div class="actions"><button type="button" id="k-niet-bewaar">Bewaar</button> <button type="button" class="secondary" id="k-niet-sluit">Annuleren</button></div>`;
+  box.scrollIntoView({ block: 'nearest' });
+  $('k-niet-sluit').addEventListener('click', () => box.classList.add('hidden'));
+  $('k-niet-bewaar').addEventListener('click', () => {
+    const lijst = [];
+    for (const c of box.querySelectorAll('input[type=checkbox]')) {
+      const l = leerlingen.find(x => String(x.id) === c.value);
+      const was = (l.nietVakken || []).includes(vak);
+      if (c.checked && !was) lijst.push({ id: l.id, niveau: 'niet', vak });
+      if (!c.checked && was) lijst.push({ id: l.id, niveau: (l.vakNiveaus || {})[vak] || '', vak });
+    }
+    box.classList.add('hidden');
+    if (lijst.length) socket.emit('klas-niveaus', { lijst }, naNiveaus);
+  });
+}
+
+// ---------- Vakken aanpassen: toevoegen, hernoemen, verbergen, welke vakken uit je doelen erbij horen ----------
+let vakkenData = null;
+function tekenVakken() {
+  const box = $('k-vakken');
+  const d = vakkenData;
+  box.innerHTML = `<p class="muted small">De kolommen bij Niveaus. Een quiz, oefenblad of toets volgt het niveau van het vak van zijn doelen. Verbergen kan altijd: de niveaus blijven bewaard.</p>
+    <table class="niveau-raster k-vakken-raster"><thead><tr><th>Naam</th><th>Vakken uit je doelen</th><th>Tonen</th></tr></thead><tbody>${d.groepen.map((g, i) => `<tr>
+      <td><input type="text" maxlength="40" data-i="${i}" data-veld="naam" value="${esc(g.naam)}"></td>
+      <td><details><summary>${esc(g.vakken.join(', '))}</summary><div class="k-vakken-keuze">${[...new Set([...d.doelVakken, ...g.vakken])].map(v => `<label class="check"><input type="checkbox" data-i="${i}" data-vak="${esc(v)}"${g.vakken.includes(v) ? ' checked' : ''}> ${esc(v)}</label>`).join('')}</div></details></td>
+      <td><label class="check"><input type="checkbox" data-i="${i}" data-veld="toon"${g.uit ? '' : ' checked'}> ${g.uit ? 'Verborgen' : 'Zichtbaar'}</label></td></tr>`).join('')}</tbody></table>
+    <div class="actions"><input type="text" id="k-vak-nieuw" maxlength="40" placeholder="Nieuw vak, bv. Engels"> <button type="button" class="secondary" id="k-vak-voeg">+ Vak toevoegen</button> <span class="muted small" id="k-vakken-info"></span></div>`;
+  const bewaar = () => socket.emit('vakken-zet', { groepen: vakkenData.groepen }, res => {
+    if (res.error) return ($('k-vakken-info').textContent = res.error);
+    vakkenData = res;
+    tekenVakken();
+    $('k-vakken-info').textContent = '✓ Bewaard.';
+    loadKlas();
+  });
+  for (const el of box.querySelectorAll('[data-veld=naam]')) el.addEventListener('change', () => { vakkenData.groepen[el.dataset.i].naam = el.value; bewaar(); });
+  for (const el of box.querySelectorAll('[data-veld=toon]')) el.addEventListener('change', () => { vakkenData.groepen[el.dataset.i].uit = !el.checked; bewaar(); });
+  for (const el of box.querySelectorAll('[data-vak]')) el.addEventListener('change', () => {
+    const g = vakkenData.groepen[el.dataset.i];
+    g.vakken = el.checked ? [...new Set([...g.vakken, el.dataset.vak])] : g.vakken.filter(v => v !== el.dataset.vak);
+    bewaar();
+  });
+  $('k-vak-voeg').addEventListener('click', () => socket.emit('vakken-nieuw', { naam: $('k-vak-nieuw').value }, res => {
+    if (res.error) return ($('k-vakken-info').textContent = res.error);
+    vakkenData = res;
+    tekenVakken();
+    loadKlas();
+  }));
+}
+$('k-vakken-knop').addEventListener('click', () => {
+  const box = $('k-vakken');
+  if (!box.classList.contains('hidden')) return box.classList.add('hidden');
+  socket.emit('vakken-get', null, res => {
+    if (res.error) return ($('k-niveau-error').textContent = res.error);
+    vakkenData = res;
+    box.classList.remove('hidden');
+    tekenVakken();
+  });
+});
 
 $('k-save').addEventListener('click', () => {
   $('k-error').textContent = '';

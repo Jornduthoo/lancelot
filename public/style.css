@@ -2545,3 +2545,23 @@ body:has(.kies-eerst) .panel.form > p.muted.small:last-child { display: none; }
 .lib-info.dubbel { color: var(--gold); }
 .lib-voorstel { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 8px; padding: 8px 10px; border-radius: 8px; background: rgb(var(--k-cyan) / .1); box-shadow: inset 0 0 0 1px var(--line); font-size: .9rem; }
 .pf-puntenlijst { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 8px; } .pf-puntenlijst select { padding: 3px 6px; }
+/* Niveaus: hele kolom, niet bij mij, eigen vakken (verbeterpunten 20 nov, 8). */
+.niveau-raster .k-kol { display: inline-block; position: relative; }
+.niveau-raster .k-kol summary { cursor: pointer; list-style: none; padding: 0 4px; border-radius: 4px; }
+.niveau-raster .k-kol summary::-webkit-details-marker { display: none; }
+.niveau-raster .k-kol summary:hover { background: rgb(var(--k-wit, 255 255 255) / .1); }
+.k-kol-menu { position: fixed; z-index: 30; display: grid; gap: 4px; min-width: 190px; padding: 8px; border-radius: 8px; background: rgb(var(--k-bg2, 20 30 50)); box-shadow: 0 6px 20px rgb(0 0 0 / .45), inset 0 0 0 1px rgb(var(--k-goud) / .4); }
+.k-kol-menu button { font-size: .82rem; padding: 4px 8px; min-height: 0; text-align: left; white-space: normal; }
+.k-niet, .k-vakken { margin: 8px 0 12px; padding: 10px 12px; border-radius: 10px; background: rgb(var(--k-bg2, 20 30 50) / .7); box-shadow: inset 0 0 0 1px rgb(var(--k-goud) / .35); }
+.k-niet.hidden, .k-vakken.hidden { display: none; }
+.k-niet h4 { margin: 0 0 4px; }
+.k-niet-lijst { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 4px 12px; margin: 8px 0; }
+.k-vakken-raster input[type=text] { width: 210px; padding: 4px 6px; }
+.k-vakken-raster td { white-space: normal; vertical-align: top; }
+.k-vakken-raster summary { cursor: pointer; font-size: .85rem; }
+.k-vakken-keuze { display: grid; gap: 2px; margin-top: 4px; }
+.k-vakken-keuze label, .k-niet-lijst label { font-size: .88rem; }
+.niveau-raster thead th { position: relative; z-index: 6; }
+.niveau-raster thead th:has(.k-kol[open]) { z-index: 20; }
+.k-niet-lijst label.check, .k-vakken label.check { display: flex; flex-direction: row; align-items: center; gap: 6px; margin: 0; }
+.k-niet-lijst label.check input, .k-vakken label.check input { width: 18px; height: 18px; flex: none; margin: 0; }
