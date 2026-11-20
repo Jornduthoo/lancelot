@@ -670,5 +670,13 @@
  "✏️ bezig · {0} van {1} gedaan{2}": "✏️ en cours · {0} sur {1} faits{2}",
  "bezig · {0} van {1} gedaan": "en cours · {0} sur {1} faits",
  "{0} klaar": "{0} terminé(s)",
- "{0} nog niet": "{0} pas encore"
+ "{0} nog niet": "{0} pas encore",
+ "🔗 Herkansing van:": "🔗 Rattrapage de :",
+ "geen (een eigen toets)": "aucun (un test à part)",
+ "✕ {0}: dit is geen herkansing": "✕ {0} : ce n'est pas un rattrapage",
+ "🔁 Deze taak telt als herkansing (Opvolgen › Punten).": "🔁 Cette tâche compte comme rattrapage (Suivi › Points).",
+ "Geen herkansing": "Pas de rattrapage",
+ "Alleen toetsen. Een herkansing telt alleen als jij dat zegt: met ↻ Herkansing geven of bij Meer ▾. Per toets kies je wat telt. Het gemiddelde rekent met wat telt; ✎ = nog te verbeteren.": "Tests uniquement. Un rattrapage ne compte que si tu le dis : avec ↻ Donner un rattrapage ou sous Plus ▾. Par test, tu choisis ce qui compte. La moyenne utilise ce qui compte ; ✎ = encore à corriger.",
+ "Kies een andere toets.": "Choisis un autre test.",
+ "Dat zou een rondje worden.": "Cela ferait une boucle."
 }

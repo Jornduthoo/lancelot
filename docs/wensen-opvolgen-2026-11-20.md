@@ -104,7 +104,7 @@ Voorstel: https://claude.ai/artifact/GCzejmKXRwQJBChJN2Gugv. Elke vraag krijgt �
 | 5 | Taken opent op Alles (of het laatst gekozen tabje), kop "Gegeven taken" | ✅ | #594 |
 | 9 | Resultaten: tellers klaar · bezig · nog niet · te verbeteren; "✔ alles verbeterd" alleen als er niets meer is | ✅ | #594 |
 | 10 | Vandaag zonder inhoud: één korte regel "niets gepland · niets te verbeteren ✓", ✕ = weg voor vandaag | ✅ | #594 |
-| 2 | Herkansing alleen via de knop; "Dit is geen herkansing" | ○ | |
+| 2 | Herkansing alleen als de leerkracht het zegt: ↻ Herkansing geven koppelt de nieuwe taak; bij Meer ▾ "Herkansing van: …" (ook een kopie) en "✕ dit is geen herkansing". Dezelfde toets twee keer = twee kolommen. | ✅ | #595 |
 | 8 | Eigen vakken, "niet bij mij" met vinkjes, hele kolom op een niveau | ○ | |
 | + | Niveau per leerling in een zichtbaar keuzelijstje | ○ | |
 | 3 | Opvolgen: symbolen in vakjes, rood in legende (grens instelbaar), vaste koppen | ○ | |

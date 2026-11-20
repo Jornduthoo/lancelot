@@ -1,5 +1,7 @@
 // Punten (wensenlijst 20 nov, punt 8): welke poging telt als een leerling een toets herkanste.
-// Een herkansing is gewoon dezelfde toets nog eens gegeven (als taak of op het bord); per toets kies je wat telt:
+// Een herkansing telt alleen als de leerkracht dat zegt (verbeterpunten 20 nov, 2): via "↻ Herkansing geven", of door
+// een kolom zelf te koppelen ("is een herkansing van …"). Dezelfde toets twee keer geven is dus gewoon twee kolommen.
+// herk: { <kolom>: <eerste kolom> } (kolom = taak-id of "afname:<bestand>"). Per eerste kolom kies je wat telt:
 // de hoogste, de laatste, de eerste of het gemiddelde. Gaat mee met Mijn lesmap.
 const fs = require('fs');
 const path = require('path');
@@ -19,7 +21,37 @@ function keuzes() {
   try { d = JSON.parse(fs.readFileSync(FILE(), 'utf8')); } catch {}
   const uit = {};
   for (const [toets, k] of Object.entries(d.telt || {})) if (KEUZES.includes(k)) uit[toets] = k;
-  return { standaard: KEUZES.includes(d.standaard) ? d.standaard : STANDAARD, telt: uit };
+  const herk = {};
+  for (const [k, v] of Object.entries(d.herk || {})) if (kolomId(k) && kolomId(v) && k !== v) herk[k] = v;
+  return { standaard: KEUZES.includes(d.standaard) ? d.standaard : STANDAARD, telt: uit, herk };
+}
+
+const kolomId = v => typeof v === 'string' && v.length > 0 && v.length <= 200;
+function bewaar(d) {
+  fs.mkdirSync(DIR(), { recursive: true });
+  fs.writeFileSync(FILE(), JSON.stringify({ standaard: d.standaard, telt: d.telt, herk: d.herk }, null, 2) + '\n');
+  return keuzes();
+}
+
+// De eerste kolom van een reeks herkansingen (volgt de koppelingen, zonder rondjes).
+function eerste(kolom, herk) {
+  let k = kolom;
+  const gezien = new Set([k]);
+  while (herk[k] && !gezien.has(herk[k])) { k = herk[k]; gezien.add(k); }
+  return k;
+}
+
+// Koppel een kolom als herkansing van een andere (van leeg = "dit is geen herkansing").
+function koppel({ kolom, van } = {}) {
+  if (!kolomId(kolom)) throw new Error('Welke toets?');
+  const d = keuzes();
+  if (!van) delete d.herk[kolom];
+  else {
+    if (!kolomId(van) || van === kolom) throw new Error('Kies een andere toets.');
+    if (eerste(van, d.herk) === kolom) throw new Error('Dat zou een rondje worden.');
+    d.herk[kolom] = van;
+  }
+  return bewaar(d);
 }
 
 function zet({ toets, telt, standaard } = {}) {
@@ -33,9 +65,7 @@ function zet({ toets, telt, standaard } = {}) {
     if (!KEUZES.includes(telt)) throw new Error('Die keuze bestaat niet.');
     d.telt[toets] = telt;
   }
-  fs.mkdirSync(DIR(), { recursive: true });
-  fs.writeFileSync(FILE(), JSON.stringify({ standaard: d.standaard, telt: d.telt }, null, 2) + '\n');
-  return keuzes();
+  return bewaar(d);
 }
 
 // Wat telt uit een reeks pogingen (oudste eerst), elk { punten, max }.
@@ -51,4 +81,4 @@ function telt(pogingen, keuze) {
   return p.reduce((a, b) => (b.punten / b.max > a.punten / a.max ? b : a));
 }
 
-module.exports = { DIR, KEUZES, keuzes, zet, telt, geldig };
+module.exports = { DIR, KEUZES, keuzes, zet, koppel, eerste, telt, geldig };

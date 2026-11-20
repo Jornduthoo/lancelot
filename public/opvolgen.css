@@ -39,3 +39,10 @@
 .op-gem { font-weight: 700; text-align: center; }
 .op-gem.hoog { color: var(--good); } .op-gem.laag { color: var(--bad, #e66); }
 .op-klasgem th, .op-klasgem td { font-weight: 700; color: var(--muted); text-align: center; border-top: 2px solid var(--line); }
+/* Herkansing koppelen of ontkoppelen (alleen als de leerkracht het zegt). */
+.op-meer { font-size: .72rem; margin-top: 3px; font-weight: 400; }
+.op-meer summary { cursor: pointer; color: var(--muted); }
+.op-meer[open] { background: rgb(var(--k-bg2, 20 30 50) / .95); padding: 4px 6px; border-radius: 6px; }
+.op-meer .op-geen { display: block; font: inherit; font-size: .72rem; padding: 2px 0; min-height: 0; text-align: left; white-space: normal; background: none; border: 0; box-shadow: none; clip-path: none; color: var(--cyan); cursor: pointer; text-transform: none; letter-spacing: 0; }
+.op-meer label { display: block; margin-top: 4px; white-space: normal; }
+.op-meer select { font-size: .72rem; padding: 1px 4px; max-width: 180px; }
