@@ -107,7 +107,7 @@ Voorstel: https://claude.ai/artifact/GCzejmKXRwQJBChJN2Gugv. Elke vraag krijgt �
 | 2 | Herkansing alleen als de leerkracht het zegt: ↻ Herkansing geven koppelt de nieuwe taak; bij Meer ▾ "Herkansing van: …" (ook een kopie) en "✕ dit is geen herkansing". Dezelfde toets twee keer = twee kolommen. | ✅ | #595 |
 | 8 | Mijn klas › Klas › Niveaus: ⚙️ Vakken aanpassen (toevoegen, hernoemen, verbergen, welke vakken uit je doelen; vaste vakken blijven bestaan, verborgen niveaus blijven bewaard; mee met Mijn lesmap), ▾ boven elke kolom: iedereen op een niveau, en "🚫 Wie volgt dit vak niet bij mij?" met vinkjes. Back-up bevat nu ook taken-standaard, punten en vakken. | ✅ | #596 |
 | + | Nieuwe taak: "🎚 Niveau per leerling kiezen" met een keuzelijstje per naam (ook twee niveaus na elkaar); het icoontje bij de naam werkt nog | ✅ | #597 |
-| 3 | Opvolgen: symbolen in vakjes, rood in legende (grens instelbaar), vaste koppen | ○ | |
+| 3 | Opvolgen: ○ nog niet, ✎ bezig, ! te verbeteren in de vakjes; legende met rood "klaar, onder 50%"; "Rood onder" 50% of 60% (per toestel, ook voor ↻ Herkansing en de punten); namen en koppen blijven staan; smallere kolommen, volledige titel bij aanwijzen | ✅ | #602 |
 | 4 | Punten: gemiddelde in dezelfde eenheid | ○ | |
 | 6 | Uitleg "Aandacht nodig" | ○ | |
 | 7 | Toetsenbibliotheek: uitleg icoontjes, vaste knoppen, archief onder Meer | ○ | |

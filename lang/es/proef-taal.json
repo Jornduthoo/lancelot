@@ -711,5 +711,12 @@
  "Toon alle afnames ({0})": "Mostrar todas las pruebas ({0})",
  "Een toets maakt de leerling zoals bij De Proef: vraag per vraag, zonder te zien wat juist is. Wat ingeleverd is, verbeter je bij Toetsen › Afnames en verbeteren.": "El alumno hace una prueba como en De Proef: pregunta a pregunta, sin ver qué es correcto. Lo entregado lo corriges en Pruebas › Pruebas realizadas y corrección.",
  "Na het inleveren verbeter je deze toets bij Toetsen › Afnames en verbeteren.": "Tras la entrega, corriges esta prueba en Pruebas › Pruebas realizadas y corrección.",
- "De namen tonen of verbergen": "Mostrar u ocultar los nombres"
+ "De namen tonen of verbergen": "Mostrar u ocultar los nombres",
+ "Een punt onder deze grens kleurt rood": "Una nota por debajo de este límite se vuelve roja",
+ "Rood onder": "Rojo por debajo de",
+ "Alleen toetsen. Een herkansing telt alleen als jij dat zegt: met ↻ Herkansing geven of bij Meer ▾. Per toets kies je wat telt. Het gemiddelde rekent met wat telt; ! = nog te verbeteren.": "Solo pruebas. Una recuperación solo cuenta si tú lo dices: con ↻ Dar recuperación o en Más ▾. En cada prueba eliges qué cuenta. La media usa lo que cuenta; ! = aún por corregir.",
+ "klaar, onder 50%": "terminado, por debajo del 50 %",
+ "klaar, onder {0}%": "terminado, por debajo del {0} %",
+ "Dezelfde toets nog eens geven, met {0} al aangetikt (onder {1}%)": "Volver a dar la misma prueba, con {0} ya marcados (por debajo del {1} %)",
+ "(te verbeteren)": "(por corregir)"
 }

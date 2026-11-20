@@ -711,5 +711,12 @@
  "Toon alle afnames ({0})": "Show all sittings ({0})",
  "Een toets maakt de leerling zoals bij De Proef: vraag per vraag, zonder te zien wat juist is. Wat ingeleverd is, verbeter je bij Toetsen › Afnames en verbeteren.": "A student takes a test like in De Proef: question by question, without seeing what is correct. You mark what was handed in under Tests › Sittings and marking.",
  "Na het inleveren verbeter je deze toets bij Toetsen › Afnames en verbeteren.": "After handing in, you mark this test under Tests › Sittings and marking.",
- "De namen tonen of verbergen": "Show or hide the names"
+ "De namen tonen of verbergen": "Show or hide the names",
+ "Een punt onder deze grens kleurt rood": "A score below this limit turns red",
+ "Rood onder": "Red below",
+ "Alleen toetsen. Een herkansing telt alleen als jij dat zegt: met ↻ Herkansing geven of bij Meer ▾. Per toets kies je wat telt. Het gemiddelde rekent met wat telt; ! = nog te verbeteren.": "Tests only. A retake only counts when you say so: with ↻ Give retake or under More ▾. Per test you choose what counts. The average uses what counts; ! = still to mark.",
+ "klaar, onder 50%": "done, below 50%",
+ "klaar, onder {0}%": "done, below {0}%",
+ "Dezelfde toets nog eens geven, met {0} al aangetikt (onder {1}%)": "Give the same test again, with {0} already ticked (below {1}%)",
+ "(te verbeteren)": "(to mark)"
 }
