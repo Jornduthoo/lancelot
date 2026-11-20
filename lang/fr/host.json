@@ -542,5 +542,8 @@
  "Opvolgen ▶": "Suivi ▶",
  "\"Vandaag\" niet meer tonen op het startscherm? Je zet het terug aan bij Instellingen › Taken.": "Ne plus afficher « Aujourd'hui » sur l'écran d'accueil ? Tu peux le réactiver dans Paramètres › Tâches.",
  "{0} antwoord": "{0} réponse",
- "{0} leerling": "{0} élève"
+ "{0} leerling": "{0} élève",
+ "{0} bezig": "{0} en cours",
+ "{0} antwoorden te verbeteren": "{0} réponses à corriger",
+ "{0} antwoord te verbeteren": "{0} réponse à corriger"
 }

@@ -538,9 +538,12 @@ $('close').addEventListener('click', () => socket.emit('close'));
 $('podium-stop').addEventListener('click', () => socket.emit('stop', null, () => { location.href = '/host'; }));
 
 // Startscherm: lopen er toetsen of moet je nog verbeteren? Eén klik naar De Proef (bij één toets meteen die toets).
+let vandaagAan = true;
 socket.on('pf-afnames', lijst => {
   const b = $('toets-banier');
   if (!b) return;
+  // Staat "Vandaag" aan, dan staan de toetsen daar (één blok op het startscherm).
+  if (vandaagAan && $('vandaag')) return b.classList.add('hidden');
   // Wie nu bezig is, of open vragen van de laatste twee weken (een oude afname laat je niet eeuwig op het startscherm staan).
   const nu = (lijst || []).filter(a => a.bezig || (a.open && Date.now() - Date.parse(a.datum) < 14 * 864e5));
   b.classList.toggle('hidden', !nu.length);
@@ -571,6 +574,11 @@ socket.on('pf-afnames', lijst => {
   }
   function teken(d) {
     const v = $('vandaag');
+    if (d && !d.error) {
+      const aan = !d.uit;
+      // Vandaag uitgezet: dan toont de gouden balk de toetsen weer.
+      if (aan !== vandaagAan) { vandaagAan = aan; socket.emit('pf-afnames', null, l => socket.listeners('pf-afnames').forEach(f => f(l))); }
+    }
     if (!d || d.error || d.uit || d.leeg) return v.classList.add('hidden');
     v.classList.remove('hidden');
     blok('vandaag-verschijnt', d.verschijnt, t => {
@@ -594,9 +602,11 @@ socket.on('pf-afnames', lijst => {
     blok('vandaag-verbeteren', d.verbeteren, a => {
       const li = maak('li');
       const s = maak('span');
-      s.append(`📝 ${a.titel} · `, maak('em', '', `${a.open} ${a.open === 1 ? 'antwoord' : 'antwoorden'}`));
+      s.append(`📝 ${a.titel}`);
+      if (a.bezig) s.append(' · ', maak('em', '', `${a.bezig} bezig`));
+      if (a.open) s.append(' · ', maak('em', '', `${a.open} ${a.open === 1 ? 'antwoord' : 'antwoorden'} te verbeteren`));
       li.append(s);
-      const k = maak('a', 'button secondary', 'Verbeteren ▶');
+      const k = maak('a', 'button secondary', a.open ? 'Verbeteren ▶' : 'Bekijk ▶');
       k.href = `/proef?verbeter=${encodeURIComponent(a.file)}`;
       li.append(k);
       return li;

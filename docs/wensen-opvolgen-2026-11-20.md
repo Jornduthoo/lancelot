@@ -83,3 +83,15 @@ Volgorde: 1, 3, 4, 2, 5, 6, 7, 8, 9.
    - Een puntenlijst per toets, om te kopiëren of als CSV.
    - Een herkansing apart, met een keuze welke telt.
 9. **Startscherm: Vandaag.** Wat vandaag verschijnt (met Nu al geven), wat te verbeteren is en wie iets niet afmaakte.
+
+## Vervolg: één plek per vraag (Jorn 20 nov, voorstel goedgekeurd)
+
+Voorstel: https://claude.ai/artifact/GCzejmKXRwQJBChJN2Gugv. Elke vraag krijgt één vaste plek; elders hoogstens een link.
+
+| # | Wijziging | Status | PR |
+| --- | --- | --- | --- |
+| 1 | Eén blok Vandaag bovenaan; de gouden toetsbalk zit erin (bezig + te verbeteren per toets). De balk toont alleen nog als Vandaag uit staat. | ✅ | #593 |
+| 2 | Opvolgen-tegel in Lesgeven; Mijn klas opent op Opvolgen | ○ | |
+| 3 | Takenkaarten compact (één regel + Opvolgen ▶), lijst standaard Alles | ○ | |
+| 4 | Eén naam voor één ding (Afnames en verbeteren, Spelresultaten, Even opletten) | ○ | |
+| 5 | Tabjes Mijn klas: Opvolgen, Taken, Klas, Zorg + Meer ▾ | ○ | |
