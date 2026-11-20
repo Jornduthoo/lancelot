@@ -776,3 +776,19 @@
     },
   };
 })();
+
+// Mijn klas › Meer ▾: de lijst vast onder de knop (de tabbalk scrolt opzij), dicht bij een klik ernaast of op een keuze.
+(() => {
+  const plaats = d => {
+    const r = d.querySelector('summary').getBoundingClientRect();
+    const l = d.querySelector('.tab-meer-lijst');
+    if (!l) return;
+    l.style.top = `${r.bottom + 4}px`;
+    l.style.left = `${Math.max(8, Math.min(r.left, innerWidth - 190))}px`;
+  };
+  document.addEventListener('toggle', e => { if (e.target.matches && e.target.matches('.tab-meer') && e.target.open) plaats(e.target); }, true);
+  document.addEventListener('click', e => {
+    for (const d of document.querySelectorAll('.tab-meer[open]')) if (!d.contains(e.target) || e.target.closest('.tab-meer-lijst a')) d.open = false;
+  });
+  addEventListener('scroll', () => { for (const d of document.querySelectorAll('.tab-meer[open]')) plaats(d); }, { passive: true });
+})();

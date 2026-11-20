@@ -23,14 +23,19 @@
       <button class="secondary" id="to-home">Terug</button>
     </div>
   </div>
+  <!-- Mijn klas: de vier die je het meest nodig hebt vooraan, de rest onder Meer (één plek per vraag, 5). -->
   <nav class="tabbalk" id="klas-tabs" aria-label="Mijn klas">
+    <a href="/opvolgen"><i class="ic ic-rooster" aria-hidden="true"></i> Opvolgen</a>
+    <a href="/taken"><i class="ic ic-taak" aria-hidden="true"></i> Taken</a>
     <a href="/klas#klas"><i class="ic ic-namen" aria-hidden="true"></i> Klas</a>
     <a href="/zorg" class="on" aria-current="page"><i class="ic ic-zorg" aria-hidden="true"></i> Zorg</a>
-    <a href="/taken"><i class="ic ic-taak" aria-hidden="true"></i> Taken</a>
-    <a href="/opvolgen"><i class="ic ic-rooster" aria-hidden="true"></i> Opvolgen</a>
-    <a href="/lezen"><i class="ic ic-boek" aria-hidden="true"></i> Lezen</a>
-    <a href="/klas#doelen"><i class="ic ic-doel" aria-hidden="true"></i> Doelen</a>
-    <a href="/klas#logboek"><i class="ic ic-resultaten" aria-hidden="true"></i> Logboek</a>
+    <details class="tab-meer"><summary>Meer ▾</summary>
+      <div class="tab-meer-lijst">
+        <a href="/lezen"><i class="ic ic-boek" aria-hidden="true"></i> Lezen</a>
+        <a href="/klas#doelen"><i class="ic ic-doel" aria-hidden="true"></i> Doelen</a>
+        <a href="/klas#logboek"><i class="ic ic-resultaten" aria-hidden="true"></i> Logboek</a>
+      </div>
+    </details>
   </nav>
   <div id="klaskiezer"></div>
 

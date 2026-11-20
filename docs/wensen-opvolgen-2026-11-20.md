@@ -94,7 +94,7 @@ Voorstel: https://claude.ai/artifact/GCzejmKXRwQJBChJN2Gugv. Elke vraag krijgt �
 | 2 | Mijn klas opent op Opvolgen (zonder klaslijst eerst Klas); tegel "Taken klaarzetten" heet nu "Taak geven". Geen extra tegel: minder knoppen. | ✅ | #598 |
 | 3 | Takenkaarten compact (één regel + Opvolgen ▶), lijst standaard Alles | ○ | |
 | 4 | Eén naam voor één ding (Afnames en verbeteren, Spelresultaten, Even opletten) | ○ | |
-| 5 | Tabjes Mijn klas: Opvolgen, Taken, Klas, Zorg + Meer ▾ | ○ | |
+| 5 | Tabjes Mijn klas: Opvolgen, Taken, Klas, Zorg + Meer ▾ (Lezen, Doelen, Logboek), op alle vijf de pagina's | ✅ | #599 |
 
 ## Verbeterpunten na de overzicht-update (Jorn 20 nov)
 
