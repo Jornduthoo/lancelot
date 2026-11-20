@@ -704,5 +704,11 @@
  "Opvolgen, taken, klaslijst, niveaus, zorg, doelen en logboek": "Suivi, tâches, liste de classe, niveaux, soutien, objectifs et journal",
  "Opvolgen: wie deed wat en de punten. Ook je taken, klaslijst, niveaus en zorg.": "Suivi : qui a fait quoi et les points. Aussi tes tâches, ta liste de classe, les niveaux et le soutien.",
  "Taak geven": "Donner une tâche",
- "Een oefenblad, quiz of toets voor een of meer leerlingen, elk op zijn niveau.": "Une fiche, un quiz ou un test pour un ou plusieurs élèves, chacun à son niveau."
+ "Een oefenblad, quiz of toets voor een of meer leerlingen, elk op zijn niveau.": "Une fiche, un quiz ou un test pour un ou plusieurs élèves, chacun à son niveau.",
+ "Even opletten": "À surveiller",
+ "✏️ Afnames en verbeteren": "✏️ Passations et correction",
+ "Spelresultaten": "Résultats des jeux",
+ "Toon alle afnames ({0})": "Afficher toutes les passations ({0})",
+ "Een toets maakt de leerling zoals bij De Proef: vraag per vraag, zonder te zien wat juist is. Wat ingeleverd is, verbeter je bij Toetsen › Afnames en verbeteren.": "L'élève fait un test comme dans De Proef : question par question, sans voir ce qui est juste. Ce qui est rendu, tu le corriges dans Tests › Passations et correction.",
+ "Na het inleveren verbeter je deze toets bij Toetsen › Afnames en verbeteren.": "Après la remise, tu corriges ce test dans Tests › Passations et correction."
 }

@@ -704,5 +704,11 @@
  "Opvolgen, taken, klaslijst, niveaus, zorg, doelen en logboek": "Follow-up, tasks, class list, levels, care, goals and log",
  "Opvolgen: wie deed wat en de punten. Ook je taken, klaslijst, niveaus en zorg.": "Follow-up: who did what and the scores. Also your tasks, class list, levels and care.",
  "Taak geven": "Give a task",
- "Een oefenblad, quiz of toets voor een of meer leerlingen, elk op zijn niveau.": "A worksheet, quiz or test for one or more students, each at their own level."
+ "Een oefenblad, quiz of toets voor een of meer leerlingen, elk op zijn niveau.": "A worksheet, quiz or test for one or more students, each at their own level.",
+ "Even opletten": "Keep an eye on",
+ "✏️ Afnames en verbeteren": "✏️ Sittings and marking",
+ "Spelresultaten": "Game results",
+ "Toon alle afnames ({0})": "Show all sittings ({0})",
+ "Een toets maakt de leerling zoals bij De Proef: vraag per vraag, zonder te zien wat juist is. Wat ingeleverd is, verbeter je bij Toetsen › Afnames en verbeteren.": "A student takes a test like in De Proef: question by question, without seeing what is correct. You mark what was handed in under Tests › Sittings and marking.",
+ "Na het inleveren verbeter je deze toets bij Toetsen › Afnames en verbeteren.": "After handing in, you mark this test under Tests › Sittings and marking."
 }

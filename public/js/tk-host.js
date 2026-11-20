@@ -784,7 +784,7 @@ function toonDetail(id, naam, stil) {
         const a = el('a', 'button secondary', '✔ Verbeteren bij De Proef');
         a.href = `/proef?verbeter=${encodeURIComponent(res.afname)}`;
         quiz.appendChild(a);
-      } else if (res.status !== 'klaar') quiz.appendChild(el('p', 'muted small', 'Na het inleveren verbeter je deze toets bij De Proef › Resultaten.'));
+      } else if (res.status !== 'klaar') quiz.appendChild(el('p', 'muted small', 'Na het inleveren verbeter je deze toets bij Toetsen › Afnames en verbeteren.'));
     } else if (res.soort === 'oefenblad') {
       ObSheet.render(paper, res.view, { mode: 'view', answers: res.answers, results: res.results, solutions: res.solutions });
     } else if (!res.vragen.length) {
