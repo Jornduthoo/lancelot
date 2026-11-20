@@ -38,7 +38,10 @@
     if (!r || r.error) return;
     data = r;
     teken();
+    $('ts-vandaag').checked = r.vandaag !== false;
   }
+  // Vandaag op het startscherm (punt 9): meteen bewaard bij een klik.
+  $('ts-vandaag').addEventListener('change', e => socket.emit('vandaag-zet', e.target.checked, laad));
   socket.emit('tk-standaard', null, laad);
   socket.on('tk-standaard', r => { if (!$('ts-raster').contains(document.activeElement)) laad(r); });
   $('ts-bewaar').addEventListener('click', () => {

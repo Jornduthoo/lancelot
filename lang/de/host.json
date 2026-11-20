@@ -529,5 +529,18 @@
  "Andere quiz": "Anderes Quiz",
  "Blad": "Blatt",
  "Toon het blad zonder antwoorden": "Blatt ohne Antworten zeigen",
- "Toon de verbetersleutel": "Lösungsblatt zeigen"
+ "Toon de verbetersleutel": "Lösungsblatt zeigen",
+ "Verbergen (aanzetten bij Instellingen › Taken)": "Ausblenden (wieder einschalten unter Einstellungen › Aufgaben)",
+ "📅 Vandaag": "📅 Heute",
+ "🕗 Verschijnt vandaag": "🕗 Erscheint heute",
+ "✏️ Nog te verbeteren": "✏️ Noch zu korrigieren",
+ "⏳ Nog niet af": "⏳ Noch nicht fertig",
+ "📅 Toon \"Vandaag\" op het startscherm: wat er vandaag verschijnt, wat je nog verbetert en wie iets niet afmaakte.": "📅 „Heute“ auf dem Startbildschirm zeigen: was heute erscheint, was du noch korrigierst und wer etwas nicht fertig hat.",
+ "✓ {0} staat nu bij de leerlingen.": "✓ {0} ist jetzt bei den Schülern.",
+ "(inhalen)": "(nachholen)",
+ "(bezig)": "(arbeitet)",
+ "Opvolgen ▶": "Verfolgen ▶",
+ "\"Vandaag\" niet meer tonen op het startscherm? Je zet het terug aan bij Instellingen › Taken.": "„Heute“ nicht mehr auf dem Startbildschirm zeigen? Du schaltest es unter Einstellungen › Aufgaben wieder ein.",
+ "{0} antwoord": "{0} Antwort",
+ "{0} leerling": "{0} Schüler"
 }

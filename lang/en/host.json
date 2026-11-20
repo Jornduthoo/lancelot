@@ -529,5 +529,18 @@
  "Andere quiz": "Other quiz",
  "Blad": "Sheet",
  "Toon het blad zonder antwoorden": "Show the sheet without answers",
- "Toon de verbetersleutel": "Show the answer key"
+ "Toon de verbetersleutel": "Show the answer key",
+ "Verbergen (aanzetten bij Instellingen › Taken)": "Hide (turn on again in Settings › Tasks)",
+ "📅 Vandaag": "📅 Today",
+ "🕗 Verschijnt vandaag": "🕗 Appears today",
+ "✏️ Nog te verbeteren": "✏️ Still to correct",
+ "⏳ Nog niet af": "⏳ Not finished yet",
+ "📅 Toon \"Vandaag\" op het startscherm: wat er vandaag verschijnt, wat je nog verbetert en wie iets niet afmaakte.": "📅 Show \"Today\" on the start screen: what appears today, what you still need to correct and who didn't finish something.",
+ "✓ {0} staat nu bij de leerlingen.": "✓ {0} is now with the students.",
+ "(inhalen)": "(catch up)",
+ "(bezig)": "(working)",
+ "Opvolgen ▶": "Follow up ▶",
+ "\"Vandaag\" niet meer tonen op het startscherm? Je zet het terug aan bij Instellingen › Taken.": "Stop showing \"Today\" on the start screen? You can turn it back on in Settings › Tasks.",
+ "{0} antwoord": "{0} answer",
+ "{0} leerling": "{0} student"
 }

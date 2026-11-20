@@ -109,6 +109,7 @@ const zorg = require('./src/zorg');
 const opvolgen = require('./src/opvolgen');
 const toestellen = require('./src/toestellen');
 const takenstandaard = require('./src/takenstandaard');
+const vandaag = require('./src/vandaag');
 const punten = require('./src/punten');
 const notities = require('./src/notities');
 const herhaal = require('./src/herhaal');
@@ -371,7 +372,7 @@ const proef = new ProefLive(io, rec => {
   const file = proeven.bewaarAfname(rec);
   const hand = rec.spelers.some(s => proeven.stand(rec, s).open);
   if (!hand) proeven.klaar(file, results.saveProef);
-  io.to('host').emit('pf-afnames', afnameLijst());
+  vandaagSoon(); io.to('host').emit('pf-afnames', afnameLijst());
   finished(null);
   return file;
 });
@@ -385,7 +386,7 @@ taken.bijAfname = file => {
     // Meteen verbeterd: ook dan de kopie en de mail, zoals na Klaar in De Proef (wie al gemaild werd, krijgt geen tweede).
     naKlaar(file, proeven.klaar(file, results.saveProef));
   }
-  io.to('host').emit('pf-afnames', afnameLijst());
+  vandaagSoon(); io.to('host').emit('pf-afnames', afnameLijst());
 };
 
 // De afnames voor De Proef en het startscherm: bij een toets als taak ook wie nog bezig is of nog niet begon.
@@ -406,7 +407,7 @@ proeven.naSchrijf = () => {
   afnameTimer = setTimeout(() => {
     afnameTimer = null;
     const lijst = afnameLijst();
-    io.to('host').emit('pf-afnames', lijst);
+    vandaagSoon(); io.to('host').emit('pf-afnames', lijst);
     io.to('host').emit('pf-afname-gewijzigd');
     // Een nieuwe afname: bij de toets staat dan "gegeven op …".
     if (lijst.length !== afnamesGeteld) { afnamesGeteld = lijst.length; sendLibrary('proef', null, true); }
@@ -711,7 +712,7 @@ function runSync() {
     }
     if (changed.includes('takenstand') || changed.includes('afnames')) takenNaarBord();
     if (changed.includes('afnames')) {
-      io.to('host').emit('pf-afnames', afnameLijst());
+      vandaagSoon(); io.to('host').emit('pf-afnames', afnameLijst());
       io.to('host').emit('pf-afname-gewijzigd');
       // Klaar op een pc zonder app-wachtwoord (rec.mailWacht): een pc die wel kan mailen, doet het (elke leerling één keer).
       try { if (toetsmail.view().klaar) wachtendeMails(); } catch {}
@@ -744,6 +745,25 @@ const TAKEN_KIJKERS = 'taken-kijkers';
 function takenNaarBord() {
   const r = io.sockets.adapter.rooms.get(TAKEN_KIJKERS);
   if (r && r.size) io.to(TAKEN_KIJKERS).emit('tk-lijst', taken.lijst());
+  vandaagSoon();
+}
+
+// Het blok "Vandaag" op het startscherm (wensenlijst 20 nov, punt 9): alleen naar wie het startscherm open heeft,
+// hooguit om de twee seconden, en alleen als de leerkracht het niet uitzette (Instellingen › Taken).
+const VANDAAG_KIJKERS = 'vandaag-kijkers';
+function vandaagData() {
+  if (!takenstandaard.read().vandaag) return { uit: true };
+  return vandaag.samenvatting(taken.lijst(), proeven.afnames());
+}
+let vandaagTimer = null;
+function vandaagSoon() {
+  if (vandaagTimer) return;
+  const r = io.sockets.adapter.rooms.get(VANDAAG_KIJKERS);
+  if (!r || !r.size) return;
+  vandaagTimer = setTimeout(() => {
+    vandaagTimer = null;
+    try { io.to(VANDAAG_KIJKERS).emit('vandaag', vandaagData()); } catch {}
+  }, 2000);
 }
 
 // Taken: een leerling werkte iets bij. Het bord hooguit twee keer per seconde bijwerken.
@@ -754,7 +774,7 @@ function takenSoon() {
     takenTimer = null;
     takenNaarBord();
     // Ook het toetsoverzicht in De Proef en op het startscherm (wie bezig is).
-    io.to('host').emit('pf-afnames', afnameLijst());
+    vandaagSoon(); io.to('host').emit('pf-afnames', afnameLijst());
     // Alleen wie hoe ver is (de afname zelf verandert pas bij inleveren): Verbeteren haalt dan niet de hele toets opnieuw.
     io.to('host').emit('pf-afname-voortgang');
   }, 500);
@@ -1912,6 +1932,8 @@ io.on('connection', socket => {
     socket.on('pt-telt', handle(arg => { const r = punten.zet(arg || {}); takenNaarBord(); syncSoon(); return r; }));
     socket.on('tk-standaard', handle(() => takenstandaard.read()));
     socket.on('tk-standaard-zet', handle(d => { const r = takenstandaard.write(d || {}); io.to('host').emit('tk-standaard', r); syncSoon(); return r; }));
+    socket.on('vandaag', handle(() => { socket.join(VANDAAG_KIJKERS); return vandaagData(); }));
+    socket.on('vandaag-zet', handle(aan => { const r = takenstandaard.zetVandaag(aan); io.to('host').emit('tk-standaard', r); io.to(VANDAAG_KIJKERS).emit('vandaag', vandaagData()); syncSoon(); return r; }));
     socket.on('toestel-stand', handle(() => toestellen.stand(taken.standen(), lesmap.view())));
     socket.on('toestel-naam', handle(n => { const r = toestellen.zetNaam(n); syncSoon(); return r; }));
     socket.on('op-overzicht', handle(() => { socket.join(TAKEN_KIJKERS); return opvolgen.overzicht(); }));
@@ -2606,7 +2628,7 @@ io.on('connection', socket => {
     socket.on('pf-klaar', handle(file => {
       const rec = proeven.klaar(file, results.saveProef);
       sendLibrary('resultaat');
-      io.to('host').emit('pf-afnames', afnameLijst());
+      vandaagSoon(); io.to('host').emit('pf-afnames', afnameLijst());
       return { resultaten: rec.resultaten, ...naKlaar(file, rec) };
     }));
     // Toetsen mailen: afzender (eigen mailbox) en een adres per leerling.
@@ -2625,7 +2647,7 @@ io.on('connection', socket => {
     socket.on('pf-kopie-nu', handle(file => { proeven.laadAfname(file); toetsKopieen(file); return { ok: true }; }));
     socket.on('pf-afname-weg', handle(file => {
       proeven.verwijderAfname(file);
-      io.to('host').emit('pf-afnames', afnameLijst());
+      vandaagSoon(); io.to('host').emit('pf-afnames', afnameLijst());
       return {};
     }));
 
