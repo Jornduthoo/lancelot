@@ -1373,5 +1373,6 @@
  "⚠ Mailbox: {0}. Vul op deze pc nog het app-wachtwoord in.": "⚠ Mailbox: {0}. Enter the app password on this PC too.",
  "✔ Bewaard. Wachtende toetsen worden nu gemaild ({0}).": "✔ Saved. Waiting tests are being emailed now ({0}).",
  "Deze toets is nog niet gemaild: op deze pc ontbreekt het app-wachtwoord. Vul het in bij Mijn klas › Toetsen mailen, dan vertrekt de mail meteen (één keer).": "This test has not been emailed yet: the app password is missing on this PC. Enter it in My class › Email tests and the email goes out right away (once).",
- "Nu invullen": "Enter now"
+ "Nu invullen": "Enter now",
+ "Alleen in: Kegelridder": "Only in: Bowling Knight"
 }

@@ -301,6 +301,18 @@
       "de": "Ein goldener Haken"
     }
   },
+  "kegelridder": {
+    "vorm": [
+      "ieder"
+    ],
+    "juist": {
+      "nl": "Een bal om te gooien",
+      "en": "A ball to throw",
+      "fr": "Une boule à lancer",
+      "es": "Una bola para lanzar",
+      "de": "Eine Kugel zum Werfen"
+    }
+  },
   "kolkridder": {
     "vorm": [
       "ieder",

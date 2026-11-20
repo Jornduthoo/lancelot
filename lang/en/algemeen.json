@@ -1150,5 +1150,7 @@
  "Vast adres:": "Fixed address:",
  "vraag ICT één keer om een vast adres voor deze pc, dan klopt de QR-code op het bord altijd.": "ask IT once for a fixed address for this PC, then the QR code on the board is always right.",
  "Bericht voor ICT": "Message for IT",
- "Adressen voor toetsen mailen bewaren mislukt:": "Saving addresses for emailing tests failed:"
+ "Adressen voor toetsen mailen bewaren mislukt:": "Saving addresses for emailing tests failed:",
+ "Kegelridder loopt nog. Stop dat spel eerst.": "Bowling Knight is still running. Stop that game first.",
+ "Kegelridder": "Bowling Knight"
 }
