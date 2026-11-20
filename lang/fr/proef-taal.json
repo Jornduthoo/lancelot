@@ -475,5 +475,20 @@
  "Geen open taken van deze soort. Vink aan om de afgesloten taken te zien.": "Aucune tâche ouverte de ce type. Coche pour voir les tâches fermées.",
  "Nog geen quizzen gegeven.": "Aucun quiz donné pour l'instant.",
  "Nog geen toetsen gegeven.": "Aucun test donné pour l'instant.",
- "Nog geen oefenbladen gegeven.": "Aucune fiche donnée pour l'instant."
+ "Nog geen oefenbladen gegeven.": "Aucune fiche donnée pour l'instant.",
+ "✏️ bezig · {0}/{1}{2}": "✏️ en cours · {0}/{1}{2}",
+ "Bekijk wat hij al invulde": "Voir ce qu'il a déjà rempli",
+ "bezig · {0}/{1}": "en cours · {0}/{1}",
+ "· al {0} van {1} punten": "· déjà {0} points sur {1}",
+ "Werkt op {0}.": "Travaille sur {0}.",
+ "Live: wat de leerling al invulde. Je ziet het bijwerken terwijl hij werkt.": "En direct : ce que l'élève a déjà rempli. Cela se met à jour pendant qu'il travaille.",
+ "{0} · {1} ingeleverd{2} · {3}": "{0} · {1} rendu(s){2} · {3}",
+ "· {0} nog bezig": "· {0} encore en cours",
+ "nog niets te verbeteren": "rien à corriger pour l'instant",
+ "Nog niemand ingeleverd.{0}": "Personne n'a encore rendu.{0}",
+ "{0} {1} bezig: klik bovenaan op een naam om live te zien wat hij al invulde.": "{0} {1} en cours : clique sur un nom en haut pour voir en direct ce qu'il a déjà rempli.",
+ "Niets meer te verbeteren bij wie inleverde: de computer verbeterde alles.{0} Klik op Alle vragen om een ✔ of ✘ van de computer aan te passen.": "Plus rien à corriger pour ceux qui ont rendu : l'ordinateur a tout corrigé.{0} Clique sur Toutes les questions pour modifier un ✔ ou ✘ de l'ordinateur.",
+ "{0} {1} nog bezig.": "{0} {1} encore en cours.",
+ "leerling is": "élève est",
+ "leerlingen zijn": "élèves sont"
 }

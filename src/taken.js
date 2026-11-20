@@ -593,7 +593,7 @@ function lijst() {
 function toetsLeerlingen(id) {
   const t = all().find(x => x.id === id);
   if (!t || t.soort !== 'proef') return null;
-  return werkOveral(t, standen()).map(w => ({ naam: w.naam, status: w.status, elders: w.elders ? w.elders.pc : undefined, ...voortgang(t, w) }))
+  return werkOveral(t, standen()).map(w => ({ naam: w.naam, status: w.status, elders: w.elders ? w.elders.pc : undefined, ...voortgang(t, w), ...toetsStand(t, w) }))
     .sort((a, b) => a.naam.localeCompare(b.naam, 'nl'));
 }
 
