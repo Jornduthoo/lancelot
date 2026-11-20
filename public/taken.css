@@ -179,3 +179,11 @@
 /* Nu bezig: hoe ver, als een balkje onder de knop (geen "7/10", dat is een punt). */
 .tk-nu-ll { position: relative; }
 .tk-nu-balk { left: 0; }
+/* Niveau per leerling in een keuzelijstje (verbeterpunten 20 nov). */
+.tk-per-lijst { margin: 6px 0 10px; }
+.tk-per-lijst.hidden { display: none; }
+.tk-per-lijst summary { cursor: pointer; font-weight: 600; color: var(--cyan); }
+.tk-per-raster { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 4px 14px; margin-top: 8px; }
+.tk-per-raster .tk-per-rij { display: flex; flex-direction: row; text-align: left; align-items: center; justify-content: space-between; gap: 8px; margin: 0; font-size: .9rem; opacity: .6; }
+.tk-per-raster .tk-per-rij.on { opacity: 1; }
+.tk-per-raster .tk-per-rij select { width: auto; max-width: 180px; padding: 3px 6px; font-size: .85rem; }

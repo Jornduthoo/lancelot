@@ -698,5 +698,7 @@
  "Zichtbaar": "Visible",
  "Ongeldige vakken.": "Invalid subjects.",
  "Typ een naam voor het vak.": "Type a name for the subject.",
- "Kies leerlingen.": "Choose students."
+ "Kies leerlingen.": "Choose students.",
+ "🎚 Niveau per leerling kiezen": "🎚 Choose the level per student",
+ "Een ander niveau voor één leerling? Kies het bij 🎚 Niveau per leerling hieronder, of klik op het icoontje bij de naam.": "Another level for one student? Choose it under 🎚 Level per student below, or click the icon next to the name."
 }
