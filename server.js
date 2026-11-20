@@ -666,6 +666,8 @@ lesmap.init([
   // In Beeld: welke kaartensets je ophaalde en de kaarten van de week. De andere pc haalt die sets dan zelf op.
   // Niet in de Store-versie (alleen voor België).
   ...(inbeeld.aan() ? [{ kind: 'inbeeld', dir: () => inbeeld.LESMAP_DIR, remote: 'in-beeld', validate: inbeeld.keuzeGeldig }] : []),
+  // De spelresultaten (Excel-bestanden): wat op het bord gespeeld werd, zie je ook thuis (nacontrole 20 nov, 5).
+  { kind: 'resultaat', bestanden: true, dir: () => results.DIR, remote: 'spelresultaten', toegelaten: results.syncNaam, weg: results.syncWeg, inPrullenbak: results.inPrullenbak },
   // De bordboeken zelf (pdf's en afbeeldingen van Mijn methodes): groot, dus apart en uit te zetten bij Instellingen.
   // Als laatste: zo staat al het kleine werk er al terwijl een groot boek nog kopieert.
   { kind: 'bordboeken', bestanden: true, dir: kronieken.DIR, remote: 'bordboeken', toegelaten: kronieken.syncNaam, weg: kronieken.syncWeg, inPrullenbak: kronieken.inPrullenbak },

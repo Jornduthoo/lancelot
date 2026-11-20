@@ -192,6 +192,19 @@ function items() {
   });
 }
 
+// ---------- Mijn lesmap: de spelresultaten van de bordpc ook op je andere pc's ----------
+// Elk resultaat is een eigen bestand dat nooit verandert (unieke naam), dus gewoon kopiëren. Alleen .csv bovenaan, nooit _prullenbak.
+const syncNaam = rel => /^[^/\\]+\.csv$/.test(String(rel || '')) && !String(rel).startsWith('_') && !String(rel).startsWith('.');
+// Weg op de andere pc (of vervangen): naar de prullenbak, nooit echt weg.
+function syncWeg(rel) {
+  try { lib.trash([rel]); } catch {}
+}
+// Werd dit resultaat hier verwijderd (staat het in de prullenbak)? Dan mag het ook uit de lesmap.
+function inPrullenbak(rel) {
+  const ext = path.extname(rel), stam = rel.slice(0, -ext.length);
+  try { return fs.readdirSync(path.join(DIR(), '_prullenbak')).some(n => n === rel || (n.startsWith(`${stam}-`) && n.endsWith(ext))); } catch { return false; }
+}
+
 const geen = () => { throw new Error('Resultaten kan je niet exporteren of importeren: download ze als Excel-bestand.'); };
 const lib = library({ kind: 'resultaat', dir: DIR, checkFile: filePath, load: geen, save: geen, validate: geen, list: items });
 
@@ -548,4 +561,4 @@ function saveProef(rec, standVan) {
   return write(now, `toets-${slugOf(rec.title)}`, lines);
 }
 
-module.exports = { saveProef, save, saveKnight, saveRossen, saveRijk, saveRace, saveRoof, saveVerrader, saveBurcht, saveDuel, saveRondeTafel, saveToren, saveSchat, saveLaserslag, saveOefenblad, saveNeon, saveBaas, saveGalaga, saveBomber, list, items, lib, filePath, get DIR() { return DIR(); } };
+module.exports = { saveProef, save, saveKnight, saveRossen, saveRijk, saveRace, saveRoof, saveVerrader, saveBurcht, saveDuel, saveRondeTafel, saveToren, saveSchat, saveLaserslag, saveOefenblad, saveNeon, saveBaas, saveGalaga, saveBomber, list, items, lib, filePath, syncNaam, syncWeg, inPrullenbak, get DIR() { return DIR(); } };

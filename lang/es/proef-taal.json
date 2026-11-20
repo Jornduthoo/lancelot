@@ -738,5 +738,6 @@
  "Zonder vak": "Sin asignatura",
  "geen taken": "sin tareas",
  "{0}e keer": "vez {0}",
- "{0} · {1}e keer": "{0} · vez {1}"
+ "{0} · {1}e keer": "{0} · vez {1}",
+ "Veel spelresultaten lijken weg aan één kant. Er werd niets verwijderd: kijk of OneDrive of Google Drive alles heeft binnengehaald.": "Muchos resultados de juegos parecen faltar en un lado. No se borró nada: comprueba si OneDrive o Google Drive lo ha descargado todo."
 }
