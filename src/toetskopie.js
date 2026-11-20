@@ -80,6 +80,13 @@ function view() {
   return { aan: aan(), lesmap: settings.read().lesmap || '', map: MAP };
 }
 
+// Ontbreekt de pdf van iemand uit deze afname in de lesmap? (Om bij het opstarten in te halen wat niet gemaakt werd.)
+function ontbreekt(rec, klas) {
+  const root = settings.read().lesmap;
+  if (!aan() || !root || !fs.existsSync(root)) return false;
+  return rec.spelers.some(s => !fs.existsSync(pad(root, { klas, naam: s.naam, datum: rec.datum, titel: rec.title })));
+}
+
 let bezig = Promise.resolve();
 // Kopieën maken voor alle leerlingen van een afname, één na één (een schoolpc heeft niet veel geheugen).
 // Heeft een leerling een mailadres (zie src/toetsmail.js), dan gaat zijn pdf ook naar dat adres.
@@ -138,4 +145,4 @@ function maak({ rec, klas, url, browser, stand, mailOpties, gemaildBij } = {}) {
   return werk;
 }
 
-module.exports = { MAP, veilig, pad, zoekBrowser, maak, aan, zet, view };
+module.exports = { ontbreekt, MAP, veilig, pad, zoekBrowser, maak, aan, zet, view };

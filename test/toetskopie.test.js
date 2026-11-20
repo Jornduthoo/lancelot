@@ -33,3 +33,20 @@ test('toetskopie: zonder lesmap of zonder browser een melding, geen fout', () =>
   const aan = run(`T.zet(true); return T.view();`);
   assert.equal(aan.aan, true);
 });
+
+test('toetskopie: ontbreekt zegt of de pdf van een leerling nog niet in de lesmap staat (om in te halen)', () => {
+  const data = fs.mkdtempSync(path.join(os.tmpdir(), 'toetskopie-ontbreekt-'));
+  const lesmap = path.join(data, 'lesmap');
+  fs.mkdirSync(lesmap);
+  const out = execFileSync(process.execPath, ['-e', `
+    const T = require('./src/toetskopie'), settings = require('./src/settings'), fs = require('fs'), path = require('path');
+    const rec = { title: 'Taal', datum: '2026-11-20T08:00:00Z', spelers: [{ naam: 'Ada' }, { naam: 'Bo' }] };
+    const r = [T.ontbreekt(rec, '')];
+    settings.write({ lesmap: ${JSON.stringify(lesmap)}, toetsKopie: true });
+    r.push(T.ontbreekt(rec, ''));
+    for (const s of rec.spelers) { const p = T.pad(${JSON.stringify(lesmap)}, { naam: s.naam, datum: rec.datum, titel: rec.title }); fs.mkdirSync(path.dirname(p), { recursive: true }); fs.writeFileSync(p, 'pdf'); }
+    r.push(T.ontbreekt(rec, ''));
+    process.stdout.write('\\n@@' + JSON.stringify(r));
+  `], { cwd: ROOT, env: { ...process.env, LANCELOT_DATA: data }, encoding: 'utf8' }).split('\n@@').pop();
+  assert.deepStrictEqual(JSON.parse(out), [false, true, false]);
+});
