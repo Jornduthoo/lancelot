@@ -723,5 +723,12 @@
  "In procent": "En pourcentage",
  "Gemiddelde (%)": "Moyenne (%)",
  "Gemiddelde over maar 1 toets": "Moyenne sur 1 seule évaluation",
- "1 toets": "1 évaluation"
+ "1 toets": "1 évaluation",
+ "🟠 Even opletten": "🟠 À surveiller",
+ "🔴 Aandacht nodig ({0})": "🔴 Besoin d'attention ({0})",
+ "🟠 Even opletten ({0})": "🟠 À surveiller ({0})",
+ "Uit Zorg: de laatste tijd minder dan de helft juist, of ver onder de klas.": "Selon Suivi : moins de la moitié juste ces derniers temps, ou bien en dessous de la classe.",
+ "Uit Zorg: wat onder de klas, gaat achteruit, gokt of heeft meerdere doelen nog niet beheerst.": "Selon Suivi : un peu en dessous de la classe, en recul, devine, ou plusieurs objectifs pas encore maîtrisés.",
+ "🔴 Uit Zorg: de laatste tijd minder dan de helft juist, of ver onder de klas. Aangevinkt: {0}. Wijs een naam aan om te zien waarom.": "🔴 Selon Suivi : moins de la moitié juste ces derniers temps, ou bien en dessous de la classe. Cochés : {0}. Pointe un nom pour voir pourquoi.",
+ "🟠 Uit Zorg: wat onder de klas, gaat achteruit, gokt of heeft meerdere doelen nog niet beheerst. Aangevinkt: {0}. Wijs een naam aan om te zien waarom.": "🟠 Selon Suivi : un peu en dessous de la classe, en recul, devine, ou plusieurs objectifs pas encore maîtrisés. Cochés : {0}. Pointe un nom pour voir pourquoi."
 }

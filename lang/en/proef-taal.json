@@ -723,5 +723,12 @@
  "In procent": "In percent",
  "Gemiddelde (%)": "Average (%)",
  "Gemiddelde over maar 1 toets": "Average over only 1 test",
- "1 toets": "1 test"
+ "1 toets": "1 test",
+ "🟠 Even opletten": "🟠 Keep an eye on",
+ "🔴 Aandacht nodig ({0})": "🔴 Needs attention ({0})",
+ "🟠 Even opletten ({0})": "🟠 Keep an eye on ({0})",
+ "Uit Zorg: de laatste tijd minder dan de helft juist, of ver onder de klas.": "From Support: less than half correct lately, or far below the class.",
+ "Uit Zorg: wat onder de klas, gaat achteruit, gokt of heeft meerdere doelen nog niet beheerst.": "From Support: somewhat below the class, going backwards, guessing, or several goals not yet mastered.",
+ "🔴 Uit Zorg: de laatste tijd minder dan de helft juist, of ver onder de klas. Aangevinkt: {0}. Wijs een naam aan om te zien waarom.": "🔴 From Support: less than half correct lately, or far below the class. Ticked: {0}. Point at a name to see why.",
+ "🟠 Uit Zorg: wat onder de klas, gaat achteruit, gokt of heeft meerdere doelen nog niet beheerst. Aangevinkt: {0}. Wijs een naam aan om te zien waarom.": "🟠 From Support: somewhat below the class, going backwards, guessing, or several goals not yet mastered. Ticked: {0}. Point at a name to see why."
 }

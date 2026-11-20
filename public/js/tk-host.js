@@ -320,6 +320,10 @@ function tekenNamen() {
     const b = el('button', `tk-naam${tk.gekozen.has(naam) ? ' on' : ''}`);
     b.type = 'button';
     b.append(naam);
+    if (tk.markeer && tk.markeer.namen.has(naam)) {
+      b.classList.add('markeer', tk.markeer.kleur);
+      b.title = waarom(naam);
+    }
     if (nietVoorMij(naam)) {
       b.classList.add('niet');
       b.title = tk.gast && tk.gast.has(naam) ? 'Gast: niet in je opvolging' : 'Volgt dit vak niet bij jou';
@@ -418,6 +422,16 @@ function kiesNamen(namen, erbij = false) {
   tekenNamen();
 }
 
+// Wat "Aandacht nodig" en "Even opletten" betekenen (verbeterpunten 20 nov, 6): dezelfde kleuren als in Zorg.
+const UITLEG_SNEL = {
+  rood: 'Uit Zorg: de laatste tijd minder dan de helft juist, of ver onder de klas.',
+  oranje: 'Uit Zorg: wat onder de klas, gaat achteruit, gokt of heeft meerdere doelen nog niet beheerst.',
+};
+// Waarom deze leerling erbij zit (de signalen uit Zorg), voor bij de naam.
+function waarom(naam) {
+  const l = tk.zorg && tk.zorg.leerlingen.find(x => x.naam === naam);
+  return l ? (l.signalen || []).filter(x => x.niveau === 'rood' || x.niveau === 'oranje').map(x => x.tekst).join(' · ') : '';
+}
 // Snel kiezen uit het zorgoverzicht: de kleuren en de groepjes per doel.
 function tekenSnel() {
   const z = tk.zorg;
@@ -427,7 +441,8 @@ function tekenSnel() {
     const b = document.querySelector(`[data-snel="${k}"]`);
     const n = kleur(k).length;
     b.classList.toggle('hidden', !n);
-    b.textContent = `${k === 'rood' ? '🔴 Aandacht nodig' : '🟠 Opvolgen'} (${n})`;
+    b.textContent = k === 'rood' ? `🔴 Aandacht nodig (${n})` : `🟠 Even opletten (${n})`;
+    b.title = UITLEG_SNEL[k];
   }
   const sel = $('tk-groepje');
   const groepen = [...z.klassikaal, ...z.groepjes].filter(d => d.niet.length);
@@ -445,6 +460,7 @@ document.querySelector('#tk-snel').addEventListener('click', e => {
   if (!b) return;
   const w = b.dataset.snel;
   $('tk-snel-info').textContent = '';
+  tk.markeer = null;
   if (w === 'alle') {
     const weg = tk.klas.filter(nietVoorMij);
     kiesNamen(tk.klas.filter(n => !nietVoorMij(n)));
@@ -452,10 +468,20 @@ document.querySelector('#tk-snel').addEventListener('click', e => {
       ? `1 leerling volgt dit vak niet bij jou (${weg[0]}). Tik de naam aan om toch toe te voegen.`
       : `${weg.length} leerlingen volgen dit vak niet bij jou (${weg.join(', ')}). Tik een naam aan om toch toe te voegen.`;
   } else if (w === 'geen') kiesNamen([]);
-  else kiesNamen(tk.zorg.leerlingen.filter(l => l.opLijst && l.kleur === w).map(l => l.naam));
+  else {
+    // Aanvinken én markeren, met wat het betekent: zo zie je wie en waarom.
+    const namen = tk.zorg.leerlingen.filter(l => l.opLijst && l.kleur === w).map(l => l.naam);
+    tk.markeer = { kleur: w, namen: new Set(namen) };
+    kiesNamen(namen);
+    const wie = namen.join(', ');
+    $('tk-snel-info').textContent = w === 'rood'
+      ? `🔴 Uit Zorg: de laatste tijd minder dan de helft juist, of ver onder de klas. Aangevinkt: ${wie}. Wijs een naam aan om te zien waarom.`
+      : `🟠 Uit Zorg: wat onder de klas, gaat achteruit, gokt of heeft meerdere doelen nog niet beheerst. Aangevinkt: ${wie}. Wijs een naam aan om te zien waarom.`;
+  }
 });
 $('tk-groepje').addEventListener('change', () => {
   const v = $('tk-groepje').value;
+  tk.markeer = null;
   if (v) kiesNamen(v.split('|'));
   $('tk-groepje').value = '';
 });
