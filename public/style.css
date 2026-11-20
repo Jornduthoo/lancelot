@@ -2156,6 +2156,8 @@ button .ic + *, .button .ic { margin-right: .1em; }
 /* De knop "Namen" op elk leerkrachtenscherm (namen-host.js): wie is er binnen en waar. Linksonder op een spelbord,
    samen met de pauzeknop, zolang er een spel loopt. */
 .bord-knoppen { position: fixed; left: 18px; bottom: 18px; z-index: 25; display: flex; gap: 8px; }
+.bord-knoppen.in-balk { position: static; z-index: auto; }
+.bord-knoppen.in-balk button { opacity: 1; }
 /* Wachtzaal, instellingen en eindstand: onderaan ruimte vrijlaten, zodat Pauze en Namen geen naamkaartjes bedekken. */
 body:has(.bord-knoppen) #lobby, body:has(.bord-knoppen) #setup, body:has(.bord-knoppen) #podium { padding-bottom: 72px; }
 /* Eindstand: beide knoppen samen rechts, zodat Pauze en Namen linksonder "Nog een keer" niet bedekken. */

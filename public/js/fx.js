@@ -94,6 +94,9 @@ const sfx = (() => {
     hooi() { noise(0, .07, .03); },
     // De naald gevonden: een fonkelend belletje.
     naald() { [1568, 2093, 2637, 3136].forEach((f, i) => tone(f, i * .07, .35, { type: 'triangle', vol: .09 })); },
+    // Kegelridder: de bal rolt over de baan, en een grappige boing bij een gootbal.
+    rumble(d = 1.6) { noise(0, d, .05); tone(70, 0, d, { type: 'sine', vol: .05 }); },
+    boing() { tone(180, 0, .4, { type: 'sine', vol: .2, slide: 3 }); tone(540, .18, .32, { type: 'sine', vol: .12, slide: .4 }); },
     boom() { noise(0, .45, .2); tone(120, 0, .4, { type: 'sawtooth', vol: .1, slide: .4 }); },
     power() { [523, 784, 1046, 1568].forEach((f, i) => tone(f, i * .06, .2, { type: 'square', vol: .06 })); },
     // Een zoemende motor die meegaat met de snelheid (0 = stil, 1 = vol gas).

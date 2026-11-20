@@ -104,7 +104,9 @@
     + '<div class="namen-lijst"></div><p class="muted small namen-extra"></p><div class="actions"><button class="secondary">Sluiten</button></div></div>';
   const lijst = modal.querySelector('.namen-lijst');
   const extra = modal.querySelector('.namen-extra');
-  document.body.append(rij, modal);
+  // Een spelbord kan een plek in zijn balk geven (data-bord-knoppen): dan staan de knoppen niet over het spelbeeld.
+  const plek = document.querySelector('[data-bord-knoppen]');
+  if (plek) { rij.classList.add('in-balk'); plek.append(rij); document.body.append(modal); } else document.body.append(rij, modal);
 
   let timer = null;
   function laad() {

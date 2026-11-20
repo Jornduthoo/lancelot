@@ -21,8 +21,9 @@
     </div>
     <div class="actions">
       <span class="join-mini hidden" id="join-mini"></span>
+      <span class="kb-balk-knoppen" data-bord-knoppen></span>
       <button class="secondary icon" id="mute" title="Geluid aan/uit" aria-label="Geluid aan/uit"><i class="ic ic-geluid"></i></button>
-      <button class="secondary hidden" id="stop">Stop het spel</button>
+      <button class="secondary hidden" id="stop">Stoppen</button>
     </div>
   </div>
 
@@ -38,9 +39,9 @@
     <div class="panel tw-intro">
       <img class="game-logo" src="/img/icons/kegelridder.webp" alt="">
       <div>
-        <p>Bowlen in de kegelhal van de burcht. Iedereen heeft een <strong>eigen kegelbaan</strong> op zijn scherm. <strong>Antwoorden geven ballen:</strong> elke juiste vraag = één bal. Veeg de bal naar de tien runenkegels.</p>
-        <p>Per beurt twee ballen. Alles om met één bal = <strong>STRIKE</strong> (+10 extra), alles om met de tweede = <strong>SPARE</strong> (+5 extra). Drie juist op rij: een gouden runenbal, groter en zwaarder. Fout: even wachten, die vraag komt later terug.</p>
-        <p class="muted">Punten: elke kegel die valt, de strikes en spares, en elke juiste vraag. Op het bord zie je de mooiste worpen van de klas nog eens. Elk antwoord komt in het logboek.</p>
+        <p>Bowlen in de kegelhal van de burcht. Iedereen heeft een <strong>eigen kegelbaan</strong> op zijn scherm. <strong>Antwoorden geven ballen:</strong> elke juiste vraag = een bal. Vegen of in drie tikken mikken (plaats, richting, kracht).</p>
+        <p>Per beurt twee ballen, tien beurten per spel, met een echte scorekaart: <strong>STRIKE</strong> = 10 + de volgende 2 ballen, <strong>SPARE</strong> = 10 + de volgende bal. Na tien beurten begint een nieuw spel, je beste spel telt. Drie juist op rij: een gouden runenbal, groter en zwaarder. Fout: even wachten, die vraag komt later terug.</p>
+        <p class="muted">Op het bord zie je de mooiste worpen van de klas nog eens, met de scorekaart en de top 5. Elk antwoord komt in het logboek.</p>
       </div>
       </div>
     </div>
@@ -63,6 +64,24 @@
           <option value="normaal" selected>Normaal</option>
           <option value="intens">Intens: minder punten per juiste vraag</option>
           <option value="veel">Veel vragen: twee vragen per bal</option>
+        </select>
+      </label>
+      <label>Ballen per juiste vraag
+        <select id="kb-per">
+          <option value="1" selected>1 bal per vraag</option>
+          <option value="2">2 ballen per vraag: één vraag per beurt, meer tijd om te bowlen</option>
+        </select>
+      </label>
+      <label>Telling
+        <select id="kb-telling">
+          <option value="echt" selected>Zoals echt bowlen: strike en spare tellen de volgende ballen mee</option>
+          <option value="eenvoudig">Eenvoudig: elke kegel 1 punt, strike +10, spare +5</option>
+        </select>
+      </label>
+      <label>Mikken
+        <select id="kb-mikken">
+          <option value="normaal" selected>Normaal</option>
+          <option value="rustig">Rustig: pijl en krachtmeter bewegen trager</option>
         </select>
       </label>
       <p class="muted small">Kies hieronder de quiz waaruit de vragen komen.</p>
@@ -94,10 +113,9 @@
       <span class="round" id="p-title"></span>
       <span class="ry-big"><b id="p-alive"></b></span>
       <span class="tw-clock" id="p-clock"></span>
-      <button class="secondary" id="p-finish">Nu stoppen</button>
     </div>
     <div class="ak-board">
-      <div class="ak-stage"><canvas id="p-canvas"></canvas><div class="bb-banner kb-banner hidden" id="p-banner"></div></div>
+      <div class="ak-stage"><canvas id="p-canvas"></canvas><div class="kb-card kb-bord-card hidden" id="p-card"></div><div class="bb-banner kb-banner hidden" id="p-banner"></div></div>
       <div class="tw-side">
         <div class="panel bb-builders"><p class="muted small">Kegelridders · punten</p><ol id="p-top"></ol></div>
         <ul class="tw-feed" id="p-feed"></ul>
