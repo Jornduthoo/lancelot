@@ -464,7 +464,6 @@ function tekenTaken() {
   $('tk-geen').textContent = tk.taken.some(t => t.soort === tk.soort) ? 'Geen open taken van deze soort. Vink aan om de afgesloten taken te zien.'
     : tk.soort === 'quiz' ? 'Nog geen quizzen gegeven.' : tk.soort === 'proef' ? 'Nog geen toetsen gegeven.' : 'Nog geen oefenbladen gegeven.';
   box.innerHTML = '';
-  $('tk-lesmap-tip').classList.toggle('hidden', !lijst.some(t => t.uitLesmap));
   // Bovenaan: wie nu bezig is, over alle taken heen (ook op je andere pc's). Klik: die leerling.
   const nu = [];
   for (const t of alle) for (const l of t.leerlingen) if (l.status === 'bezig') nu.push({ t, l });
@@ -540,6 +539,8 @@ function kaart(t) {
     b.type = 'button';
     const naam = el('span', 'tk-ll-naam', l.naam);
     if (l.afwezig) naam.append(el('span', 'tk-ll-inhalen', ' 🏠'));
+    // Werkt op een andere pc (via Mijn lesmap): op welke.
+    if (l.elders) naam.append(el('span', 'tk-ll-pc', ` 💻 ${l.elders}`));
     if (t.niveaus.length > 1) naam.prepend(el('span', `tk-nv ${l.niveau}`, Niveau.ICONS[l.niveau]));
     // Een toets: 🔊 als de computer voorleest, en na het inleveren de punten die de computer gaf (+ ? = jij verbetert nog).
     if (t.soort === 'proef' && l.voorlees) naam.append(el('span', 'tk-ll-vl', ' 🔊'));

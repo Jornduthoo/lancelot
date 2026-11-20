@@ -2505,3 +2505,9 @@ body:has(.kies-eerst) .panel.form > p.muted.small:last-child { display: none; }
 .lib-bekijk-zicht button.on { background: rgb(var(--k-goud)); color: rgb(var(--k-op-goud)); }
 .lib-bekijk-kop { flex-wrap: wrap; }
 .niveau-raster tr.gast th { opacity: .6; font-style: italic; }
+/* Statusregel "Bijgewerkt van …" (meerdere pc's via Mijn lesmap) */
+.toestel-stand { font-size: .85rem; color: var(--muted); margin: 4px 0 8px; line-height: 1.5; }
+.toestel-stand b { color: var(--text); }
+.toestel-stand a { text-decoration: none; margin-left: 4px; }
+.toestel-stand.rood { color: var(--bad, #e66); }
+.toestel-stand.rood b { color: var(--bad, #e66); }

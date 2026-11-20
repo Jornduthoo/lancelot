@@ -27,7 +27,7 @@
       oud.textContent = v.lesmap && v.oudToestel ? `⚠ Een ander toestel gebruikt een oude versie van LANcelot (gezien ${when(v.oudToestel)}). Er ging niets verloren, maar werk LANcelot op dat toestel bij.` : '';
       oud.classList.toggle('hidden', !(v.lesmap && v.oudToestel));
     }
-    for (const id of ['lm-sync', 'lm-open', 'lm-off', 'lm-boeken-rij']) $(id).classList.toggle('hidden', !v.lesmap);
+    for (const id of ['lm-sync', 'lm-open', 'lm-off', 'lm-boeken-rij', 'lm-toestel-rij']) $(id).classList.toggle('hidden', !v.lesmap);
     $('lm-boeken').checked = v.boekenAan !== false;
   }
 
@@ -41,6 +41,18 @@
   }
 
   socket.on('lesmap', render);
+
+  // Elke pc een eigen naam: dat staat in de regel "Bijgewerkt van …" op je andere pc's.
+  socket.emit('toestel-stand', null, r => {
+    if (r && r.dit && document.activeElement !== $('lm-toestel')) $('lm-toestel').value = r.dit.naam;
+  });
+  $('lm-toestel-bewaar').addEventListener('click', () => {
+    socket.emit('toestel-naam', $('lm-toestel').value, res => {
+      if (res && res.error) return ($('lm-error').textContent = res.error);
+      $('lm-toestel').value = res.naam;
+      Ui.melding(`Deze pc heet nu "${res.naam}".`);
+    });
+  });
 
   // OneDrive en Google Drive op deze pc: met één klik kiezen.
   $('open-settings').addEventListener('click', () => {
