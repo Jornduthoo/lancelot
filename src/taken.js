@@ -131,7 +131,7 @@ function blad(t, niveau) {
 
 // Het niveau bij het geven: het vaste niveau van de taak, of het eigen niveau van de leerling.
 function startNiveau(t, naam) {
-  return t.niveau || niveauVoor(t.soort, t.inhoud, t.vak, naam);
+  return (t.per && t.per[key(naam)]) || t.niveau || niveauVoor(t.soort, t.inhoud, t.vak, naam);
 }
 
 // De vragen van een quiz voor deze leerling, als nummers: alleen die van zijn niveau, door elkaar.
@@ -287,6 +287,21 @@ function schoonVanaf(v) {
   return VANAF.test(String(v || '')) && Date.parse(v) > Date.now() ? String(v) : null;
 }
 const zichtbaar = t => !t.vanaf || Date.parse(t.vanaf) <= Date.now();
+// Meerdere niveaus na elkaar: de volgende taak verschijnt pas voor een leerling als hij de vorige af heeft
+// (of als die vorige afgesloten of gewist is).
+function wacht(t, k) {
+  if (!t.na) return false;
+  const v = all().find(x => x.id === t.na);
+  return !!(v && !v.dicht && v.werk[k] && v.werk[k].status !== 'klaar');
+}
+const voorLeerling = (t, k) => !!t.werk[k] && zichtbaar(t) && !wacht(t, k);
+// Per leerling een gekozen niveau (bij het geven): alleen niveaus die de taak heeft.
+function schoonPer(t, per) {
+  const niveaus = niveausVan(t.soort, t.inhoud);
+  const uit = {};
+  if (niveaus.length > 1 && per && typeof per === 'object') for (const [n, v] of Object.entries(per)) if (niveaus.includes(v) && clean(n)) uit[key(n)] = v;
+  return Object.keys(uit).length ? uit : null;
+}
 // Verscheen er sinds dit moment een geplande taak? (voor het seintje naar de leerlingen en het bord)
 function gestartSinds(sinds) {
   const nu = Date.now();
@@ -310,7 +325,7 @@ function schoonLes(l) {
 // Voor de leerling: alleen het doel en de criteria.
 const lesVoorLeerling = t => (t.les && (t.les.doel || t.les.criteria.length) ? { doel: t.les.doel, criteria: t.les.criteria } : null);
 
-function maak({ soort, file, namen, feedback, spel, minuten, niveau, les, vanaf, voorlees, vragenVast, keuzesVast, uitslag } = {}) {
+function maak({ soort, file, namen, feedback, spel, minuten, niveau, per, na, les, vanaf, voorlees, vragenVast, keuzesVast, uitslag } = {}) {
   const inhoud = laad(soort, file);
   const lijst = [...new Set((Array.isArray(namen) ? namen : []).map(clean).filter(Boolean))];
   if (!lijst.length) throw new Error('Kies minstens één leerling.');
@@ -327,6 +342,9 @@ function maak({ soort, file, namen, feedback, spel, minuten, niveau, les, vanaf,
   if (start) t.vanaf = start;
   // De leerkracht kan iedereen op één niveau zetten (bv. de hele klas eens Page), anders elk zijn eigen niveau.
   if (niveausVan(soort, inhoud).length > 1 && niveausVan(soort, inhoud).includes(niveau)) t.niveau = niveau;
+  const eigen = schoonPer(t, per);
+  if (eigen) t.per = eigen;
+  if (typeof na === 'string' && all().some(x => x.id === na)) t.na = na;
   for (const naam of lijst) t.werk[key(naam)] = nieuwWerk(t, naam, startNiveau(t, naam));
   bewaarNieuw(t);
   planBewaar(t);
@@ -353,6 +371,7 @@ function planBewaar(t) {
     const plan = {
       id: t.id, soort: t.soort, file: t.file, titel: t.titel, vak: t.vak, feedback: t.feedback, gemaakt: t.gemaakt,
       spel: t.spel || null, minuten: t.minuten || null, niveau: t.niveau || null, les: t.les || null, vanaf: t.vanaf || null,
+      per: t.per || null, na: t.na || null,
       voorlees: t.voorlees || null, vragenVast: !!t.vragenVast, keuzesVast: !!t.keuzesVast, uitslag: !!t.uitslag,
       namen: Object.values(t.werk).map(w => w.naam), inhoud: t.inhoud,
     };
@@ -395,6 +414,9 @@ function uitLesmap() {
       if (p.soort === 'quiz' && SOLO[p.spel]) Object.assign(t, { spel: p.spel, minuten: MINUTEN.includes(p.minuten) ? p.minuten : 5 });
       toetsKeuzes(t, p);
       if (niveausVan(t.soort, t.inhoud).includes(p.niveau) && niveausVan(t.soort, t.inhoud).length > 1) t.niveau = p.niveau;
+      const eigen = schoonPer(t, p.per);
+      if (eigen) t.per = eigen;
+      if (typeof p.na === 'string' && /^[a-z0-9]+$/.test(p.na)) t.na = p.na;
       const les = schoonLes(p.les);
       if (les) t.les = les;
       const start = schoonVanaf(p.vanaf);
@@ -601,6 +623,11 @@ function werkOveral(t, per) {
 }
 const eldersVan = (t, per) => (per.get(t.id) || []).map(s => ({ pc: s.pc, adres: s.adres, tijd: s.tijd }));
 
+// Na welke taak (meerdere niveaus na elkaar): de titel en het niveau van die eerste taak.
+function naInfo(id) {
+  const v = all().find(x => x.id === id);
+  return v ? { id, titel: v.titel, niveaus: [...new Set(Object.values(v.werk).map(w => w.niveau))] } : { id, weg: true };
+}
 function lijst() {
   const per = standen();
   // De afname van elke toets als taak: één keer de lijst van afnames, niet per taak opnieuw.
@@ -616,12 +643,13 @@ function lijst() {
   return all().map(t => ({
     id: t.id, soort: t.soort, file: t.soort === 'proef' ? t.file : undefined, titel: t.titel, vak: t.vak, feedback: t.feedback, gemaakt: t.gemaakt, dicht: t.dicht, spel: spelVan(t), uitLesmap: !!t.uitLesmap,
     niveaus: niveausVan(t.soort, t.inhoud), niveau: t.niveau || null, les: t.les || null, vanaf: zichtbaar(t) ? null : t.vanaf,
-    dag: t.vanaf || t.gemaakt,
+    dag: t.vanaf || t.gemaakt, bron: t.file, na: t.na ? naInfo(t.na) : null,
     elders: eldersVan(t, per),
     afname: t.soort === 'proef' ? (t.afname || afnameVoor(t.id)) : undefined,
     leerlingen: werkOveral(t, per).map(w => ({ naam: w.naam, niveau: w.niveau, status: w.status, klaar: w.klaar, elders: w.elders ? w.elders.pc : undefined,
       // Wie dit vak niet bij mij volgt (of een gast is) en wie afwezig was: telt niet mee bij "nog niet".
       ...(w.status === 'nieuw' && klas.doetNiet(ll.get(key(w.naam)), t.vak) ? { niet: true } : {}),
+      ...(w.status === 'nieuw' && wacht(t, key(w.naam)) ? { wacht: true } : {}),
       ...(t.werk[key(w.naam)] && t.werk[key(w.naam)].afwezig && w.status !== 'klaar' ? { afwezig: true } : {}), ...voortgang(t, w), ...(t.soort === 'proef' ? toetsStand(t, w) : {}) }))
       .sort((a, b) => a.naam.localeCompare(b.naam, 'nl')),
   })).sort(volgorde);
@@ -677,6 +705,7 @@ function werkVan(id, naam) {
   const t = find(id);
   const w = t.werk[key(naam)];
   if (!w || !zichtbaar(t)) throw new Error('Deze taak is niet voor jou.');
+  if (wacht(t, key(naam))) throw new Error('Maak eerst de vorige taak af.');
   return { t, w };
 }
 
@@ -685,7 +714,7 @@ function mijn(naam) {
   const k = key(naam);
   if (!k) throw new Error('Vul je naam in.');
   const sinds = Date.now() - 14 * 86400000;
-  const lijst = all().filter(t => t.werk[k] && zichtbaar(t)).filter(t => {
+  const lijst = all().filter(t => voorLeerling(t, k)).filter(t => {
     const w = t.werk[k];
     return (!t.dicht && w.status !== 'klaar') || Date.parse(w.klaar || t.gemaakt) > sinds;
   }).map(t => {
@@ -701,7 +730,7 @@ function mijn(naam) {
 // Hoeveel taken nog open staan voor deze leerling (voor het startscherm).
 function aantal(naam) {
   const k = key(naam);
-  return k ? all().filter(t => !t.dicht && zichtbaar(t) && t.werk[k] && t.werk[k].status !== 'klaar').length : 0;
+  return k ? all().filter(t => !t.dicht && voorLeerling(t, k) && t.werk[k].status !== 'klaar').length : 0;
 }
 
 function begin(t, w) {
