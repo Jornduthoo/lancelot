@@ -97,6 +97,7 @@ function laadBronnen() {
     if (res.error) return ($('tk-fout').textContent = res.error);
     tk.bronnen = res;
     tk.klas = res.klas;
+    tk.gast = new Set(res.gast || []);
     vulBron();
     tekenNamen();
   });
@@ -196,6 +197,7 @@ function kiesBron() {
   const file = $('tk-bron').value;
   tk.per = {};
   tk.eigen = tk.vak = null;
+  tk.niet = new Set();
   $('tk-bron-info').textContent = '';
   $('tk-nv-label').classList.add('hidden');
   $('tk-niveau').innerHTML = '';
@@ -205,6 +207,7 @@ function kiesBron() {
     if ($('tk-bron').value !== file) return;
     tk.eigen = res.niveaus.length > 1 ? res : null;
     tk.vak = res.vak;
+    tk.niet = new Set(res.niet || []);
     // Standaard elk zijn eigen niveau; de leerkracht kan ook iedereen op één niveau zetten.
     $('tk-nv-label').classList.toggle('hidden', !tk.eigen);
     if (tk.eigen) $('tk-niveau').innerHTML = '<option value="">Eigen niveau van elke leerling</option>'
@@ -238,6 +241,10 @@ function tekenNamen() {
     const b = el('button', `tk-naam${tk.gekozen.has(naam) ? ' on' : ''}`);
     b.type = 'button';
     b.append(naam);
+    if (nietVoorMij(naam)) {
+      b.classList.add('niet');
+      b.title = tk.gast && tk.gast.has(naam) ? 'Gast: niet in je opvolging' : 'Volgt dit vak niet bij jou';
+    }
     const n = tk.per[naam];
     if (n) b.appendChild(el('span', `tk-nv ${n}`, Niveau.ICONS[n])).title = Niveau.NAMES[n];
     b.addEventListener('click', () => {
@@ -259,6 +266,11 @@ function knop() {
   $('tk-geef').textContent = !n ? 'Tik eerst leerlingen aan'
     : m ? (n === tk.klas.length && n > 1 ? `Geef ${m} taken aan de hele klas` : `Geef ${m} taken aan ${n} ${wie}`)
     : n === tk.klas.length && n > 1 ? 'Geef taak aan de hele klas' : `Geef taak aan ${n} ${wie}`;
+}
+
+// Wie niet meedoet (gast, of volgt dit vak niet bij mij): niet aanvinken bij Hele klas. Aantikken kan wel.
+function nietVoorMij(naam) {
+  return !!((tk.gast && tk.gast.has(naam)) || (tk.niet && tk.niet.has(naam)));
 }
 
 function kiesNamen(namen, erbij = false) {
@@ -293,8 +305,14 @@ document.querySelector('#tk-snel').addEventListener('click', e => {
   const b = e.target.closest('[data-snel]');
   if (!b) return;
   const w = b.dataset.snel;
-  if (w === 'alle') kiesNamen(tk.klas);
-  else if (w === 'geen') kiesNamen([]);
+  $('tk-snel-info').textContent = '';
+  if (w === 'alle') {
+    const weg = tk.klas.filter(nietVoorMij);
+    kiesNamen(tk.klas.filter(n => !nietVoorMij(n)));
+    if (weg.length) $('tk-snel-info').textContent = weg.length === 1
+      ? `1 leerling volgt dit vak niet bij jou (${weg[0]}). Tik de naam aan om toch toe te voegen.`
+      : `${weg.length} leerlingen volgen dit vak niet bij jou (${weg.join(', ')}). Tik een naam aan om toch toe te voegen.`;
+  } else if (w === 'geen') kiesNamen([]);
   else kiesNamen(tk.zorg.leerlingen.filter(l => l.opLijst && l.kleur === w).map(l => l.naam));
 });
 $('tk-groepje').addEventListener('change', () => {
@@ -344,6 +362,8 @@ $('tk-geef').addEventListener('click', () => {
 // ---------- Gegeven taken ----------
 
 const STATUS = { nieuw: 'Nog niet begonnen', bezig: 'Bezig', klaar: 'Klaar' };
+// Wie niet meedoet (volgt dit vak niet bij mij, of gast) en wie afwezig was, telt niet mee bij "nog niet".
+const telt = l => !l.niet && !l.afwezig;
 
 function tekenTaken() {
   const box = $('tk-taken');
@@ -392,7 +412,8 @@ function kaart(t) {
   const img = el('img');
   img.src = `/img/icons/${t.spel ? t.spel.icoon : t.soort === 'quiz' ? 'toernooi' : t.soort === 'proef' ? 'proef' : 'oefenblad'}.webp`;
   img.alt = '';
-  const tel = s => t.leerlingen.filter(l => l.status === s).length;
+  const tel = s => t.leerlingen.filter(l => l.status === s && (s !== 'nieuw' || telt(l))).length;
+  const inhalen = t.leerlingen.filter(l => l.afwezig).length;
   const titel = el('div', 'tk-taak-titel');
   titel.append(el('strong', '', t.titel));
   if (t.vanaf) titel.append(el('small', 'tk-taak-gepland', `⏰ Gepland: verschijnt ${wanneerTekst(t.vanaf)}`));
@@ -401,6 +422,7 @@ function kaart(t) {
   if (t.les) titel.append(el('small', 'tk-taak-les', `🎯 ${t.les.doel || t.les.titel}`));
   const telling = el('div', 'tk-telling');
   telling.append(el('span', 'klaar', `${tel('klaar')} klaar`), el('span', 'bezig', `${tel('bezig')} bezig`), el('span', 'nieuw', `${tel('nieuw')} nog niet`));
+  if (inhalen) telling.append(el('span', 'inhalen', `${inhalen} inhalen`));
   const acties = el('div', 'actions');
   const knopje = (tekst, fn, cls = 'secondary') => {
     const b = el('button', `${cls} tk-mini`, tekst);
@@ -423,21 +445,22 @@ function kaart(t) {
 
   const rij = el('div', 'tk-leerlingen');
   for (const l of t.leerlingen) {
-    const b = el('button', `tk-ll ${l.status}`);
+    const b = el('button', `tk-ll ${l.status}${l.niet ? ' niet' : ''}${l.afwezig ? ' inhalen' : ''}`);
     b.type = 'button';
     const naam = el('span', 'tk-ll-naam', l.naam);
+    if (l.afwezig) naam.append(el('span', 'tk-ll-inhalen', ' 🏠'));
     if (t.niveaus.length > 1) naam.prepend(el('span', `tk-nv ${l.niveau}`, Niveau.ICONS[l.niveau]));
     // Een toets: 🔊 als de computer voorleest, en na het inleveren de punten die de computer gaf (+ ? = jij verbetert nog).
     if (t.soort === 'proef' && l.voorlees) naam.append(el('span', 'tk-ll-vl', ' 🔊'));
     const toetsPunten = t.soort === 'proef' && l.autoMax ? `${PfPaper.nl(l.punten)}/${PfPaper.nl(l.autoMax)}${l.hand ? ' + ?' : ''}` : '';
     const stand = l.status === 'klaar'
       ? (toetsPunten || (l.score ? `${l.juist}/${l.score}` : '✔'))
-      : l.status === 'bezig' ? `${l.gedaan}/${l.totaal}` : '–';
+      : l.status === 'bezig' ? `${l.gedaan}/${l.totaal}` : l.afwezig ? 'inhalen' : '–';
     const pct = l.status === 'klaar' && t.soort === 'proef' && l.autoMax ? l.punten / l.autoMax : l.status === 'klaar' && l.score ? l.juist / l.score : null;
     const s = el('span', `tk-ll-stand${pct === null ? '' : pct >= .8 ? ' hoog' : pct < .5 ? ' laag' : ''}`, stand);
     const balk = el('span', 'tk-ll-balk');
     balk.appendChild(el('i')).style.width = `${l.status === 'klaar' ? 100 : l.totaal ? (l.gedaan / l.totaal) * 100 : 0}%`;
-    b.title = t.soort === 'proef' && l.status === 'bezig' && l.autoMax ? `${STATUS[l.status]} · vraag ${l.pos + 1} · al ${PfPaper.nl(l.punten)} van ${PfPaper.nl(l.autoMax)} punten` : STATUS[l.status];
+    b.title = l.afwezig ? 'Afwezig: haalt deze taak later in' : l.niet ? 'Volgt dit vak niet bij jou (telt niet mee)' : t.soort === 'proef' && l.status === 'bezig' && l.autoMax ? `${STATUS[l.status]} · vraag ${l.pos + 1} · al ${PfPaper.nl(l.punten)} van ${PfPaper.nl(l.autoMax)} punten` : STATUS[l.status];
     b.append(naam, s, balk);
     b.addEventListener('click', () => toonDetail(t.id, l.naam));
     rij.appendChild(b);
@@ -490,6 +513,10 @@ function toonDetail(id, naam, stil) {
     sel.innerHTML = res.niveaus.map(n => `<option value="${n}"${n === res.niveau ? ' selected' : ''}>${Niveau.label(n)}</option>`).join('');
     $('d-heropen').classList.toggle('hidden', res.status !== 'klaar');
     $('d-opnieuw').classList.toggle('hidden', res.status === 'nieuw');
+    $('d-afwezig').classList.toggle('hidden', res.status === 'klaar');
+    $('d-afwezig').classList.toggle('on', !!res.afwezig);
+    $('d-afwezig').textContent = res.afwezig ? '🏠 Afwezig: haalt in (klik om weg te halen)' : '🏠 Afwezig: inhalen';
+    if (res.afwezig) $('d-info').textContent += ' · afwezig, haalt in';
     const paper = $('d-paper');
     paper.classList.toggle('hidden', res.soort !== 'oefenblad');
     $('d-toets').classList.toggle('hidden', res.soort !== 'proef');
@@ -536,6 +563,13 @@ $('d-opnieuw').addEventListener('click', async () => {
   const toets = d.soort === 'proef';
   if (!await Ui.vraag(`${d.naam} opnieuw laten beginnen? Alle antwoorden van ${d.naam} worden gewist${toets ? ', ook bij de Resultaten in De Proef' : ''}. De leerling begint met een leeg blad.`, { ja: 'Opnieuw beginnen', gevaar: true })) return;
   socket.emit('tk-heropen', { id: d.id, naam: d.naam, opnieuw: true }, uit);
+});
+$('d-afwezig').addEventListener('click', () => {
+  const d = tk.detail;
+  socket.emit('tk-afwezig', { id: d.id, naam: d.naam, aan: !d.afwezig }, res => {
+    if (res && res.error) return Ui.melding(res.error);
+    toonDetail(d.id, d.naam, true);
+  });
 });
 $('d-weg').addEventListener('click', async () => {
   const d = tk.detail;
@@ -679,11 +713,23 @@ $('e-ok').addEventListener('click', () => {
   if (namen.size) socket.emit('tk-toevoegen', { id, namen: [...namen] }, uit);
 });
 
+let openNaam = vraag.get('taak') && vraag.get('naam') ? { id: vraag.get('taak'), naam: vraag.get('naam') } : null;
 socket.on('connect', () => {
   laadBronnen();
   socket.emit('tk-lijst', null, res => {
     if (res.error) return;
     tk.taken = res.taken;
+    // Vanuit Opvolgen (?taak=…&naam=…): de juiste soort tonen en meteen het werk van die leerling openen.
+    if (openNaam) {
+      const t = tk.taken.find(x => x.id === openNaam.id);
+      if (t && t.soort !== tk.soort) {
+        tk.soort = t.soort;
+        if (tk.bronnen) vulBron();
+        else for (const b of document.querySelectorAll('.tk-soort button')) b.classList.toggle('on', b.dataset.soort === tk.soort);
+      }
+      if (t) toonDetail(openNaam.id, openNaam.naam);
+      openNaam = null;
+    }
     tekenTaken();
   });
 });
@@ -695,5 +741,6 @@ socket.on('lesmap', v => {
 });
 socket.on('klas-namen', namen => {
   tk.klas = Array.isArray(namen) ? namen : [];
+  socket.emit('tk-bronnen', null, res => { if (res && !res.error) { tk.gast = new Set(res.gast || []); tekenNamen(); } });
   tekenNamen();
 });

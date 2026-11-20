@@ -1,0 +1,31 @@
+/* Mijn klas › Opvolgen: leerlingen × taken. Namen blijven staan, de kolommen scrollen. */
+.op-paneel { display: flex; flex-direction: column; gap: 12px; }
+.op-kop h2 { margin: 0 0 4px; }
+.op-filters { display: flex; flex-wrap: wrap; gap: 12px; }
+.op-filters label { display: flex; flex-direction: column; gap: 4px; font-weight: 600; min-width: 160px; }
+.op-legende { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; font-size: .85rem; color: var(--muted); }
+.op-legende .op-v { display: inline-grid; place-items: center; width: 18px; height: 18px; border-radius: 4px; font-size: .75rem; }
+.op-wrap { overflow: auto; max-height: 72vh; border: 1px solid var(--line); border-radius: 10px; }
+.op-tabel { border-collapse: separate; border-spacing: 0; font-size: .85rem; min-width: 100%; }
+.op-tabel th, .op-tabel td { border-bottom: 1px solid var(--line); border-right: 1px solid var(--line); }
+.op-tabel thead th { position: sticky; top: 0; z-index: 2; background: rgb(var(--k-panel)); vertical-align: bottom; }
+.op-hoek { left: 0; z-index: 3 !important; text-align: left; padding: 8px 10px; }
+.op-naam { position: sticky; left: 0; z-index: 1; background: rgb(var(--k-panel)); text-align: left; padding: 6px 10px; white-space: nowrap; font-weight: 600; }
+.op-open { display: block; font-size: .72rem; font-weight: 400; color: rgb(var(--k-goud-l)); }
+.op-open.nul { color: rgb(var(--k-groen)); }
+.op-kol { min-width: 96px; max-width: 150px; padding: 6px; text-align: left; font-weight: 600; }
+.op-kol a { display: flex; flex-direction: column; gap: 2px; color: var(--text); text-decoration: none; }
+.op-kol-titel { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.op-kol-dag, .op-kol-tel { font-size: .72rem; font-weight: 400; color: var(--muted); }
+.op-kol-tel { color: rgb(var(--k-goud-l)); }
+.op-v { text-align: center; padding: 0; }
+.op-v a { display: block; padding: 8px 4px; color: inherit; text-decoration: none; min-height: 1.2em; }
+.op-v.nieuw { background: rgb(150 150 160 / .18); }
+.op-v.bezig { background: rgb(var(--k-goud) / .35); }
+.op-v.inhalen { background: rgb(var(--k-cyan) / .25); font-style: italic; }
+.op-v.verbeteren { background: rgb(var(--k-blauw) / .4); }
+.op-v.klaar { background: rgb(var(--k-groen) / .3); }
+.op-v.klaar.hoog { background: rgb(var(--k-groen) / .45); }
+.op-v.klaar.laag { background: rgb(220 80 80 / .3); }
+.op-v.niet { color: var(--muted); background: transparent; }
+.op-v a:hover { outline: 2px solid rgb(var(--k-goud-l)); outline-offset: -2px; }

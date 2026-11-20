@@ -185,6 +185,15 @@ function zetVoorlees({ id, naam, aan } = {}) {
   save();
   return { naam: w.naam, aan: w.voorlees };
 }
+// Afwezig bij een taak: de leerling haalt ze later in. Zijn werk blijft staan; hij kan er gewoon aan verder.
+function zetAfwezig({ id, naam, aan } = {}) {
+  const t = find(id);
+  const w = t.werk[key(naam)];
+  if (!w) throw new Error('Die leerling heeft deze taak niet.');
+  if (aan) w.afwezig = true; else delete w.afwezig;
+  save();
+  return { naam: w.naam, aan: !!w.afwezig };
+}
 // Voor het bord: de punten die de computer al gaf (live), de punten die hij kan geven, en wat de leerkracht nog verbetert.
 function toetsStand(t, w) {
   let punten = 0, max = 0, hand = 0;
@@ -235,7 +244,9 @@ function voorbeeld({ soort, file } = {}) {
   const niveaus = niveausVan(soort, inhoud);
   const per = {};
   for (const naam of klas.names()) per[naam] = niveauVoor(soort, inhoud, vak, naam);
-  return { titel: inhoud.title, vak, niveaus, per };
+  // Wie dit vak niet bij mij volgt (of een gast is): niet aanvinken bij Hele klas.
+  const niet = klas.read().leerlingen.filter(l => klas.doetNiet(l, vak)).map(l => l.naam);
+  return { titel: inhoud.title, vak, niveaus, per, niet };
 }
 
 // De taak vooraf bekijken zoals een leerling op dit niveau ze krijgt: een gekozen bron (soort + file) of een gegeven taak (id).
@@ -601,12 +612,17 @@ function lijst() {
     }
     return perTaak.get(id) || null;
   };
+  const ll = new Map(klas.read().leerlingen.map(l => [key(l.naam), l]));
   return all().map(t => ({
     id: t.id, soort: t.soort, file: t.soort === 'proef' ? t.file : undefined, titel: t.titel, vak: t.vak, feedback: t.feedback, gemaakt: t.gemaakt, dicht: t.dicht, spel: spelVan(t), uitLesmap: !!t.uitLesmap,
     niveaus: niveausVan(t.soort, t.inhoud), niveau: t.niveau || null, les: t.les || null, vanaf: zichtbaar(t) ? null : t.vanaf,
+    dag: t.vanaf || t.gemaakt,
     elders: eldersVan(t, per),
     afname: t.soort === 'proef' ? (t.afname || afnameVoor(t.id)) : undefined,
-    leerlingen: werkOveral(t, per).map(w => ({ naam: w.naam, niveau: w.niveau, status: w.status, klaar: w.klaar, elders: w.elders ? w.elders.pc : undefined, ...voortgang(t, w), ...(t.soort === 'proef' ? toetsStand(t, w) : {}) }))
+    leerlingen: werkOveral(t, per).map(w => ({ naam: w.naam, niveau: w.niveau, status: w.status, klaar: w.klaar, elders: w.elders ? w.elders.pc : undefined,
+      // Wie dit vak niet bij mij volgt (of een gast is) en wie afwezig was: telt niet mee bij "nog niet".
+      ...(w.status === 'nieuw' && klas.doetNiet(ll.get(key(w.naam)), t.vak) ? { niet: true } : {}),
+      ...(t.werk[key(w.naam)] && t.werk[key(w.naam)].afwezig && w.status !== 'klaar' ? { afwezig: true } : {}), ...voortgang(t, w), ...(t.soort === 'proef' ? toetsStand(t, w) : {}) }))
       .sort((a, b) => a.naam.localeCompare(b.naam, 'nl')),
   })).sort(volgorde);
 }
@@ -626,7 +642,7 @@ function detail({ id, naam } = {}) {
   if (!t.werk[key(naam)]) throw new Error('Die leerling heeft deze taak niet.');
   // Werkt de leerling op een andere pc, dan tonen we zijn werk van daar (bekijken; verbeteren gebeurt daar).
   const w = werkOveral(t, standen()).find(x => key(x.naam) === key(naam));
-  const base = { id, soort: t.soort, titel: t.titel, naam: w.naam, elders: w.elders || null, niveau: w.niveau, status: w.status, niveaus: niveausVan(t.soort, t.inhoud), ...voortgang(t, w) };
+  const base = { id, soort: t.soort, titel: t.titel, naam: w.naam, elders: w.elders || null, niveau: w.niveau, status: w.status, afwezig: !!t.werk[key(naam)].afwezig, niveaus: niveausVan(t.soort, t.inhoud), ...voortgang(t, w) };
   if (t.soort === 'proef') {
     // Wat de leerling invulde, met de sleutel erbij (zoals de kopie van een afname). Verbeteren gebeurt in De Proef.
     const { lijst } = toets(t, w);
@@ -913,4 +929,4 @@ function soloAntwoord({ id, naam, i, keuze, juist } = {}) {
   return { klaar, ...voortgang(t, w) };
 }
 
-module.exports = { toetsLeerlingen, standen, toetsAntwoord, zetVoorlees, naarLesmapStand, standGeldig, get STAND() { return STAND(); }, PC, set bijAfname(fn) { bijAfname = fn; }, lesVan, gestartSinds, startNu, get PLAN() { return PLAN(); }, planGeldig, uitLesmap, SOLO, MINUTEN, soloRonde, soloAntwoord, voorbeeld, inhoud, maak, voegToe, haalWeg, zetNiveau, sluit, heropen, wis, lijst, detail, mijn, aantal, open, antwoord, inleveren, quizAntwoord, flush, get DIR() { return DIR(); } };
+module.exports = { toetsLeerlingen, standen, toetsAntwoord, zetVoorlees, zetAfwezig, naarLesmapStand, standGeldig, get STAND() { return STAND(); }, PC, set bijAfname(fn) { bijAfname = fn; }, lesVan, gestartSinds, startNu, get PLAN() { return PLAN(); }, planGeldig, uitLesmap, SOLO, MINUTEN, soloRonde, soloAntwoord, voorbeeld, inhoud, maak, voegToe, haalWeg, zetNiveau, sluit, heropen, wis, lijst, detail, mijn, aantal, open, antwoord, inleveren, quizAntwoord, flush, get DIR() { return DIR(); } };

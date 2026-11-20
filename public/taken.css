@@ -151,3 +151,10 @@
 .tk-nu-ll { font: inherit; font-size: .85rem; padding: 4px 10px; border-radius: 999px; border: 0; clip-path: none; cursor: pointer; background: rgb(var(--k-blauw) / .16); color: var(--text); box-shadow: inset 0 0 0 1px rgb(var(--k-blauw) / .5); }
 .tk-groep { margin: 14px 0 6px; }
 .tk-nu-toets { color: rgb(var(--k-goud-l)); font-weight: 700; text-decoration: none; }
+.tk-naam.niet:not(.on) { opacity: .55; font-style: italic; }
+.tk-naam.niet::after { content: '🚫'; font-size: .8em; }
+.tk-telling .inhalen { color: var(--cyan); }
+.tk-ll.niet:not(.bezig):not(.klaar) { opacity: .5; font-style: italic; }
+.tk-ll.inhalen { --k: var(--cyan); }
+.tk-ll.inhalen .tk-ll-stand { color: var(--cyan); }
+#d-afwezig.on { box-shadow: inset 0 0 0 2px var(--cyan); }

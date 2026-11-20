@@ -1029,7 +1029,7 @@ function stopToets() {
 
 let afname = null;
 let afnameLeerlingen = null;
-function openAfname(file, stil) {
+function openAfname(file, stil, daarna) {
   socket.emit('pf-afname', file, res => {
     if (res.error) return stil || Ui.melding(res.error);
     if (!afname || afname.file !== res.afname.file) kopieMelding = '';
@@ -1039,6 +1039,7 @@ function openAfname(file, stil) {
     const y = window.scrollY;
     renderAfname();
     if (stil) window.scrollTo(0, y);
+    if (daarna) daarna();
   });
 }
 // Live: een leerling leverde in, of je verbeterde op een andere pc (via Mijn lesmap). Niet terwijl een leerling open staat.
@@ -1524,4 +1525,10 @@ if (params.get('maak') === 'ai') $('new-ai').click();
 // Vanuit De Zonnewijzer: die toets meteen afnemen.
 if (params.get('afnemen')) vraagAfname(params.get('afnemen'), '');
 // Vanuit Taken (een toets als taak): meteen die afname verbeteren.
-if (params.get('verbeter')) openAfname(params.get('verbeter'));
+// Vanuit Opvolgen: meteen de toets van één leerling (&leerling=) of live meekijken met wie nog bezig is (&live=).
+if (params.get('verbeter')) openAfname(params.get('verbeter'), false, () => {
+  const naam = params.get('leerling'), live = params.get('live');
+  const i = naam ? afname.spelers.findIndex(s => s.naam.trim().toLowerCase() === naam.trim().toLowerCase()) : -1;
+  if (i >= 0) leerlingAfname(i);
+  else if (live && afname.taak) leerlingLive(live);
+});
