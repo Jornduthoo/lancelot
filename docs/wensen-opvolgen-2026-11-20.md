@@ -92,7 +92,7 @@ Voorstel: https://claude.ai/artifact/GCzejmKXRwQJBChJN2Gugv. Elke vraag krijgt �
 | --- | --- | --- | --- |
 | 1 | Eén blok Vandaag bovenaan; de gouden toetsbalk zit erin (bezig + te verbeteren per toets). De balk toont alleen nog als Vandaag uit staat. | ✅ | #593 |
 | 2 | Mijn klas opent op Opvolgen (zonder klaslijst eerst Klas); tegel "Taken klaarzetten" heet nu "Taak geven". Geen extra tegel: minder knoppen. | ✅ | #598 |
-| 3 | Takenkaarten compact (één regel + Opvolgen ▶), lijst standaard Alles | ○ | |
+| 3 | Takenkaarten compact: één regel met de tellers + Opvolgen ▶; de namen klappen open met ▾ of een klik op de tellers (onthouden). Lijst standaard Alles zat al in #594. | ✅ | #601 |
 | 4 | Eén naam voor één ding: Toetsen › "✏️ Afnames en verbeteren", Lesgeven › "Spelresultaten", Zorg oranje = "Even opletten" | ✅ | #600 |
 | 5 | Tabjes Mijn klas: Opvolgen, Taken, Klas, Zorg + Meer ▾ (Lezen, Doelen, Logboek), op alle vijf de pagina's | ✅ | #599 |
 
