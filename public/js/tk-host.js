@@ -350,7 +350,37 @@ function tekenNamen() {
     });
     box.appendChild(b);
   }
+  tekenPerLijst();
   knop();
+}
+
+// Het niveau per leerling in een gewoon keuzelijstje (naast het icoontje bij de naam): iedereen ziet het meteen.
+const keuzeTekst = k => k.map(x => Niveau.label(x)).join(' → ');
+function tekenPerLijst() {
+  const d = $('tk-per-lijst');
+  const aan = !!(tk.eigen && !tk.meer && !$('tk-niveau').value);
+  d.classList.toggle('hidden', !aan);
+  if (!aan) return;
+  const raster = $('tk-per-raster');
+  raster.innerHTML = '';
+  const keuzes = niveauKeuzes();
+  for (const naam of tk.klas) {
+    const v = tk.per[naam];
+    if (!v) continue;
+    const reeks = Array.isArray(v) ? v : [v];
+    const rij = el('label', `tk-per-rij${tk.gekozen.has(naam) ? ' on' : ''}`);
+    const sel = el('select');
+    sel.innerHTML = keuzes.map((k, i) => `<option value="${i}"${k.join() === reeks.join() ? ' selected' : ''}>${keuzeTekst(k)}</option>`).join('');
+    sel.addEventListener('change', () => {
+      const k = keuzes[Number(sel.value)];
+      tk.per[naam] = k.length === 1 ? k[0] : k;
+      tk.gekozen.add(naam);
+      tekenNamen();
+      perInfo();
+    });
+    rij.append(el('span', '', naam), sel);
+    raster.appendChild(rij);
+  }
 }
 
 function knop() {
@@ -374,7 +404,7 @@ function perInfo() {
   const twee = Object.entries(tk.per).filter(([naam, v]) => Array.isArray(v) && tk.gekozen.has(naam)).length;
   $('tk-per-info').textContent = !tk.eigen ? '' : twee
     ? twee === 1 ? '1 leerling krijgt twee niveaus na elkaar: de tweede taak verschijnt als de eerste af is.' : `${twee} leerlingen krijgen twee niveaus na elkaar: de tweede taak verschijnt als de eerste af is.`
-    : 'Klik op het icoontje bij een naam om dat niveau te wisselen (ook twee niveaus na elkaar).';
+    : 'Een ander niveau voor één leerling? Kies het bij 🎚 Niveau per leerling hieronder, of klik op het icoontje bij de naam.';
 }
 
 // Wie niet meedoet (gast, of volgt dit vak niet bij mij): niet aanvinken bij Hele klas. Aantikken kan wel.
