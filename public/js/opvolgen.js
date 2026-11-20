@@ -17,6 +17,7 @@ const BEWAAR = 'lancelot-opvolgen';
 try {
   const f = JSON.parse(localStorage.getItem(BEWAAR) || '{}');
   if (f.modus === 'punten') modus = 'punten';
+  if (f.gem && $('op-gem').querySelector(`option[value="${f.gem}"]`)) $('op-gem').value = f.gem;
   if (f.op && $('op-op').querySelector(`option[value="${f.op}"]`)) $('op-op').value = f.op;
   for (const k of ['periode', 'soort']) if (f[k] !== undefined && $(`op-${k}`).querySelector(`option[value="${f[k]}"]`)) $(`op-${k}`).value = f[k];
   if (f.vak) $('op-vak').dataset.wil = f.vak;
@@ -83,10 +84,10 @@ function teken() {
   vakSel.value = vakken.includes(wil) ? wil : '';
   delete vakSel.dataset.wil;
   vakSel.parentElement.classList.toggle('hidden', !vakken.length);
-  try { localStorage.setItem(BEWAAR, JSON.stringify({ periode: $('op-periode').value, soort: $('op-soort').value, vak: vakSel.value, modus, op: $('op-op').value, grens: $('op-grens').value })); } catch {}
+  try { localStorage.setItem(BEWAAR, JSON.stringify({ periode: $('op-periode').value, soort: $('op-soort').value, vak: vakSel.value, modus, op: $('op-op').value, gem: $('op-gem').value, grens: $('op-grens').value })); } catch {}
   tekenLegende();
   for (const b of document.querySelectorAll('.op-modus button')) b.classList.toggle('on', b.dataset.modus === modus);
-  for (const id of ['op-op-label', 'op-kopieer', 'op-punten-uitleg']) $(id).classList.toggle('hidden', modus !== 'punten');
+  for (const id of ['op-op-label', 'op-gem-label', 'op-kopieer', 'op-punten-uitleg']) $(id).classList.toggle('hidden', modus !== 'punten');
   $('op-soort').parentElement.classList.toggle('hidden', modus === 'punten');
   if (modus === 'punten') return tekenPunten(vakSel.value);
 
@@ -203,8 +204,16 @@ function tekenPunten(vak) {
         <label>🔗 Herkansing van: <select data-herk="${esc(id)}"><option value="">geen (een eigen toets)</option>${andere(id).map(([g, t]) => `<option value="${esc(g)}"${herk[id] === g ? ' selected' : ''}>${esc(t)}</option>`).join('')}</select></label>
       </details></th>`;
   }).join('');
-  puntenTabel = [['Leerling', ...zicht.map(([, ks]) => (op ? `${ks[0].titel} (op ${op})` : ks[0].titel)), op ? `Gemiddelde (op ${op})` : 'Gemiddelde']];
+  // Het gemiddelde in dezelfde eenheid als de punten (verbeterpunten 20 nov, 4): op 10/20/100 als je omrekent,
+  // anders op het totaal van de toetsen als dat overal hetzelfde is; procent alleen als je dat kiest of als de totalen verschillen.
+  const inProcent = $('op-gem').value === 'pct';
+  const eenheid = maxen => (inProcent ? 0 : op || (maxen.length && maxen.every(m => m === maxen[0]) ? maxen[0] : 0));
+  const gemTekstVan = (g, maxen) => { const e = eenheid(maxen); return e ? `${nl(g * e)}/${nl(e)}` : `${Math.round(g * 100)}%`; };
+  const alleMaxen = rijen.flatMap(r => zicht.map(([id, ks]) => telt(uitkomst(ks, r.naam).pog, keuze(id))).filter(Boolean).map(t => t.max));
+  const gemKop = (() => { const e = eenheid(alleMaxen); return e ? `Gemiddelde (op ${nl(e)})` : 'Gemiddelde (%)'; })();
+  puntenTabel = [['Leerling', ...zicht.map(([, ks]) => (op ? `${ks[0].titel} (op ${op})` : ks[0].titel)), gemKop]];
   const perKol = zicht.map(() => []);
+  const perKolMax = zicht.map(() => []);
   const lijnen = rijen.map(r => {
     const pct = [];
     const tsv = [r.naam];
@@ -218,6 +227,7 @@ function tekenPunten(vak) {
       const p = t.punten / t.max;
       pct.push(p);
       perKol[i].push(p);
+      perKolMax[i].push(t.max);
       const tekst = `${nl(omreken(t.punten, t.max))}/${nl(totaal(t.max))}`;
       // Voor Excel: met een totaal alleen het getal (de kop zegt "op 10"), anders "7 / 10" (geen datum).
       tsv.push(op ? nl(omreken(t.punten, t.max)) : tekst.replace('/', ' / '));
@@ -227,14 +237,18 @@ function tekenPunten(vak) {
       return `<td class="op-v ${t.open || u.pog.some(x => x.open) ? 'verbeteren' : 'klaar'}${t.open || u.pog.some(x => x.open) ? '' : kleur(p)}" title="${esc(titel)}"><a href="/proef?verbeter=${encodeURIComponent(laatste.afname || '')}&leerling=${encodeURIComponent(r.naam)}">${u.pog.some(x => x.open) ? '! ' : ''}${esc(tekst)}${meer ? ' 🔁' : ''}</a></td>`;
     }).join('');
     const gem = pct.length ? pct.reduce((a, b) => a + b, 0) / pct.length : null;
-    const gemTekst = gem === null ? '–' : op ? `${nl(gem * op)}/${op}` : `${Math.round(gem * 100)}%`;
-    tsv.push(gem === null ? '' : op ? nl(gem * op) : gemTekst);
+    // Eén vaste eenheid voor de hele kolom (ook in Excel): die van de kop.
+    const e = eenheid(alleMaxen);
+    const gemTekst = gem === null ? '–' : e ? `${nl(gem * e)}/${nl(e)}` : `${Math.round(gem * 100)}%`;
+    tsv.push(gem === null ? '' : e ? nl(gem * e) : gemTekst);
     puntenTabel.push(tsv);
-    return `<tr><th class="op-naam" scope="row">${esc(r.naam)}</th>${cellen}<td class="op-gem${gem === null ? '' : kleur(gem)}">${esc(gemTekst)}</td></tr>`;
+    // Over maar één toets: grijs, met "1 toets" eronder.
+    const een = pct.length === 1;
+    return `<tr><th class="op-naam" scope="row">${esc(r.naam)}</th>${cellen}<td class="op-gem${gem === null ? '' : een ? ' een' : kleur(gem)}"${een ? ` title="${esc('Gemiddelde over maar 1 toets')}"` : ''}>${esc(gemTekst)}${een ? '<span class="op-gem-een">1 toets</span>' : ''}</td></tr>`;
   }).join('');
   const klasGem = perKol.map(l => (l.length ? l.reduce((a, b) => a + b, 0) / l.length : null));
-  const onder = `<tr class="op-klasgem"><th class="op-naam" scope="row">Klasgemiddelde</th>${klasGem.map(g => `<td>${g === null ? '–' : op ? `${nl(g * op)}/${op}` : `${Math.round(g * 100)}%`}</td>`).join('')}<td></td></tr>`;
-  $('op-wrap').innerHTML = `<table class="op-tabel op-punten"><thead><tr><th class="op-hoek">Leerling</th>${kop}<th class="op-kol">Gemiddelde</th></tr></thead><tbody>${lijnen}${onder}</tbody></table>`;
+  const onder = `<tr class="op-klasgem"><th class="op-naam" scope="row">Klasgemiddelde</th>${klasGem.map((g, i) => `<td>${g === null ? '–' : gemTekstVan(g, perKolMax[i])}</td>`).join('')}<td></td></tr>`;
+  $('op-wrap').innerHTML = `<table class="op-tabel op-punten"><thead><tr><th class="op-hoek">Leerling</th>${kop}<th class="op-kol">${esc(gemKop)}</th></tr></thead><tbody>${lijnen}${onder}</tbody></table>`;
   const naHerk = res => { if (res && res.error) return Ui.melding(res.error); data.telt = res; teken(); };
   for (const d of $('op-wrap').querySelectorAll('.op-meer')) d.addEventListener('click', e => e.stopPropagation());
   for (const b of $('op-wrap').querySelectorAll('[data-geen]')) b.addEventListener('click', () => socket.emit('pt-herk', { kolom: b.dataset.geen, van: '' }, naHerk));
@@ -250,6 +264,7 @@ function tekenPunten(vak) {
 }
 for (const b of document.querySelectorAll('.op-modus button')) b.addEventListener('click', () => { modus = b.dataset.modus; teken(); });
 $('op-op').addEventListener('change', teken);
+$('op-gem').addEventListener('change', teken);
 $('op-kopieer').addEventListener('click', () => {
   if (!puntenTabel.length) return;
   kopieerTekst(puntenTabel.map(r => r.join('\t')).join('\n'));

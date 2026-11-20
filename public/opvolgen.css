@@ -39,6 +39,8 @@
 .op-telt select { font-size: .72rem; padding: 1px 4px; }
 .op-herk { display: block; font-size: .72rem; margin-top: 3px; color: var(--cyan); }
 .op-gem { font-weight: 700; text-align: center; }
+.op-gem.een { color: var(--muted); font-weight: 600; }
+.op-gem-een { display: block; font-size: .68rem; font-weight: 400; }
 .op-gem.hoog { color: var(--good); } .op-gem.laag { color: var(--bad, #e66); }
 .op-klasgem th, .op-klasgem td { font-weight: 700; color: var(--muted); text-align: center; border-top: 2px solid var(--line); }
 /* Herkansing koppelen of ontkoppelen (alleen als de leerkracht het zegt). */
