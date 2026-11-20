@@ -40,6 +40,13 @@ function overzicht() {
   const kolommen = [];
   const lijst = taken.lijst();
   const metTaak = new Set();
+  // Een toets zonder vak bij de taak: het vak uit de doelen van zijn vragen (zoals in de toetsenbibliotheek).
+  let toetsVakken = null;
+  const toetsVak = file => {
+    if (!file) return '';
+    if (!toetsVakken) { toetsVakken = new Map(); try { for (const t of proeven.list()) toetsVakken.set(t.file, t.vak || ''); } catch {} }
+    return toetsVakken.get(file) || '';
+  };
   for (const t of lijst) {
     const vakjes = {};
     const af = t.soort === 'proef' && t.afname ? afnameStand(t.afname) : null;
@@ -59,7 +66,7 @@ function overzicht() {
       vakjes[key(l.naam)] = v;
       if (!opLijst.has(key(l.naam))) { opLijst.add(key(l.naam)); rijen.push({ naam: l.naam, niveau: l.niveau || null }); }
     }
-    kolommen.push({ id: t.id, soort: t.soort, toets: t.soort === 'proef' ? t.bron || t.file || null : null, titel: t.titel, vak: t.vak || '', dag: t.dag || t.gemaakt, gepland: !!t.vanaf, dicht: !!t.dicht, afname: t.afname || null, vakjes });
+    kolommen.push({ id: t.id, soort: t.soort, toets: t.soort === 'proef' ? t.bron || t.file || null : null, titel: t.titel, vak: t.vak || (t.soort === 'proef' ? toetsVak(t.bron || t.file) : ''), dag: t.dag || t.gemaakt, gepland: !!t.vanaf, dicht: !!t.dicht, afname: t.afname || null, vakjes });
   }
   // Toetsen die op het bord afgenomen werden (geen taak): ook een kolom.
   for (const a of proeven.afnames()) {
@@ -69,7 +76,7 @@ function overzicht() {
       vakjes[k] = { status: st.open ? 'verbeteren' : 'klaar', punten: st.punten, max: st.max, open: st.open };
       if (!opLijst.has(k)) { opLijst.add(k); rijen.push({ naam: st.naam, niveau: null }); }
     }
-    kolommen.push({ id: `afname:${a.file}`, soort: 'proef', toets: a.toetsFile || null, titel: a.title, vak: '', dag: a.datum, gepland: false, dicht: true, afname: a.file, live: true, vakjes });
+    kolommen.push({ id: `afname:${a.file}`, soort: 'proef', toets: a.toetsFile || null, titel: a.title, vak: toetsVak(a.toetsFile), dag: a.datum, gepland: false, dicht: true, afname: a.file, live: true, vakjes });
   }
   kolommen.sort((a, b) => String(b.dag || '').localeCompare(String(a.dag || '')));
   return { rijen, kolommen, gasten, telt: punten.keuzes() };

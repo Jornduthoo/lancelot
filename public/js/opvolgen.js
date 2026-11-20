@@ -74,14 +74,31 @@ function doel(k, naam, v) {
   return `/taken?taak=${encodeURIComponent(k.id)}&naam=${encodeURIComponent(naam)}`;
 }
 
+// Dezelfde titel meer dan eens gegeven (bv. twee keer dezelfde toets): "1e keer", "2e keer" erbij, op datum.
+function keerVan(kolommen = data.kolommen) {
+  const per = new Map();
+  for (const k of [...kolommen].sort((a, b) => String(a.dag || '').localeCompare(String(b.dag || '')))) {
+    const t = String(k.titel || '').trim().toLowerCase();
+    if (!per.has(t)) per.set(t, []);
+    per.get(t).push(k.id);
+  }
+  const uit = {};
+  for (const ids of per.values()) if (ids.length > 1) ids.forEach((id, i) => { uit[id] = i + 1; });
+  return uit;
+}
+const vakPast = (vak, kies) => !kies || (kies === '-' ? !vak : vak === kies);
+const keerTekst = n => (n ? ` · ${n}e keer` : '');
+
 function teken() {
   if (!data) return;
   // De vakken uit de taken zelf (niets vast).
   const vakSel = $('op-vak');
   const wil = vakSel.value || vakSel.dataset.wil || '';
   const vakken = [...new Set(data.kolommen.map(k => k.vak).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'nl'));
-  vakSel.innerHTML = '<option value="">Alle vakken</option>' + vakken.map(v => `<option>${esc(v)}</option>`).join('');
-  vakSel.value = vakken.includes(wil) ? wil : '';
+  // "Zonder vak": wat geen vak heeft, verdwijnt nooit uit zicht (verbeterpunten nacontrole, 3).
+  const zonder = data.kolommen.some(k => !k.vak);
+  vakSel.innerHTML = '<option value="">Alle vakken</option>' + vakken.map(v => `<option>${esc(v)}</option>`).join('') + (zonder ? '<option value="-">Zonder vak</option>' : '');
+  vakSel.value = vakken.includes(wil) || (wil === '-' && zonder) ? wil : '';
   delete vakSel.dataset.wil;
   vakSel.parentElement.classList.toggle('hidden', !vakken.length);
   try { localStorage.setItem(BEWAAR, JSON.stringify({ periode: $('op-periode').value, soort: $('op-soort').value, vak: vakSel.value, modus, op: $('op-op').value, gem: $('op-gem').value, grens: $('op-grens').value })); } catch {}
@@ -91,7 +108,7 @@ function teken() {
   $('op-soort').parentElement.classList.toggle('hidden', modus === 'punten');
   if (modus === 'punten') return tekenPunten(vakSel.value);
 
-  const kol = data.kolommen.filter(k => inPeriode(k.dag) && (!$('op-soort').value || k.soort === $('op-soort').value) && (!vakSel.value || k.vak === vakSel.value));
+  const kol = data.kolommen.filter(k => inPeriode(k.dag) && (!$('op-soort').value || k.soort === $('op-soort').value) && vakPast(k.vak, vakSel.value));
   const rijen = data.rijen;
   const leeg = !kol.length || !rijen.length;
   $('op-leeg').classList.toggle('hidden', !leeg);
@@ -101,25 +118,28 @@ function teken() {
   if (leeg) return;
 
   const dagTekst = d => new Date(d).toLocaleDateString('nl-BE', { weekday: 'short', day: 'numeric', month: 'short' });
+  const keer = keerVan();
   const kop = kol.map(k => {
     const voor = rijen.filter(r => k.vakjes[key(r.naam)]);
     const klaar = voor.filter(r => ['klaar', 'verbeteren'].includes(k.vakjes[key(r.naam)].status)).length;
-    return `<th class="op-kol" title="${esc(k.titel)}"><a href="${k.soort === 'proef' && k.afname ? `/proef?verbeter=${encodeURIComponent(k.afname)}` : `/taken?soort=${k.soort}`}">
-      <span class="op-kol-titel">${SOORT[k.soort] || ''} ${esc(k.titel)}</span>
+    return `<th class="op-kol" title="${esc(k.titel + keerTekst(keer[k.id]))}"><a href="${k.soort === 'proef' && k.afname ? `/proef?verbeter=${encodeURIComponent(k.afname)}` : `/taken?soort=${k.soort}`}">
+      <span class="op-kol-titel">${SOORT[k.soort] || ''} ${esc(k.titel)}</span>${keer[k.id] ? `<span class="op-kol-keer">${keer[k.id]}e keer</span>` : ''}
       <span class="op-kol-dag">${esc(dagTekst(k.dag))}${k.gepland && Date.parse(k.dag) > Date.now() ? ' ⏰' : ''}${k.vak ? ` · ${esc(k.vak)}` : ''}</span>
       <span class="op-kol-tel">${klaar}/${voor.length} klaar</span></a></th>`;
   }).join('');
   const lijnen = rijen.map(r => {
     const k0 = key(r.naam);
     let open = 0;
+    let heeft = 0;
     const cellen = kol.map(k => {
       const v = k.vakjes[k0];
+      if (v) heeft++;
       if (v && (v.status === 'nieuw' || v.status === 'bezig')) open++;
       if (!v) return '<td class="op-v niet" title="' + esc(vakjeTitel(r.naam, k, v)) + '">–</td>';
       const pct = v.max ? v.punten / v.max : null;
       return `<td class="op-v ${v.status}${v.inhalen ? ' inhalen' : ''}${pct !== null && v.status === 'klaar' ? kleur(pct) : ''}" title="${esc(vakjeTitel(r.naam, k, v))}"><a href="${doel(k, r.naam, v)}">${esc(vakjeTekst(v))}</a></td>`;
     }).join('');
-    return `<tr><th class="op-naam" scope="row">${esc(r.naam)}<span class="op-open${open ? '' : ' nul'}">${open ? `nog ${open} open` : '✔ alles af'}</span></th>${cellen}</tr>`;
+    return `<tr><th class="op-naam" scope="row">${esc(r.naam)}${!heeft ? '<span class="op-open geen">geen taken</span>' : `<span class="op-open${open ? '' : ' nul'}">${open ? `nog ${open} open` : '✔ alles af'}</span>`}</th>${cellen}</tr>`;
   }).join('');
   $('op-gasten').textContent = (data.gasten || []).length ? `👤 Gasten staan niet in de tabel: ${data.gasten.join(', ')}.` : '';
   $('op-wrap').innerHTML = `<table class="op-tabel"><thead><tr><th class="op-hoek">Leerling</th>${kop}</tr></thead><tbody>${lijnen}</tbody></table>`;
@@ -171,7 +191,7 @@ function tekenPunten(vak) {
   }
   // Om te koppelen: de andere toetsen (eerste kolom van elke groep), met datum.
   const andere = id => [...groepen.entries()].filter(([g]) => g !== id).map(([g, ks]) => [g, `${ks[0].titel} (${dagTekst(ks[0].dag)})`]);
-  const zicht = [...groepen.entries()].filter(([, ks]) => ks.some(k => inPeriode(k.dag)) && (!vak || ks[0].vak === vak))
+  const zicht = [...groepen.entries()].filter(([, ks]) => ks.some(k => inPeriode(k.dag)) && vakPast(ks[0].vak, vak))
     .sort((a, b) => String(b[1][0].dag).localeCompare(String(a[1][0].dag)));
   const leeg = !zicht.length || !rijen.length;
   $('op-leeg').classList.toggle('hidden', !leeg);
@@ -191,11 +211,13 @@ function tekenPunten(vak) {
     const voor = ks.some(k => k.vakjes[key(naam)]);
     return { pog, bezig, voor };
   };
+  // Alleen tussen aparte toetsen (een herkansing staat al in dezelfde kolom).
+  const keer = keerVan([...groepen.entries()].map(([g, ks]) => ({ ...ks[0], id: g })));
   const kop = zicht.map(([id, ks]) => {
     const herk = ks.length - 1;
     const laag = rijen.filter(r => { const u = uitkomst(ks, r.naam); const t = telt(u.pog, keuze(id)); return t && t.punten / t.max < grens(); }).map(r => r.naam);
-    return `<th class="op-kol op-pt-kol" title="${esc(ks[0].titel)}">
-      <a href="${ks[ks.length - 1].afname ? `/proef?verbeter=${encodeURIComponent(ks[ks.length - 1].afname)}` : '/taken?soort=proef'}"><span class="op-kol-titel">📝 ${esc(ks[0].titel)}</span>
+    return `<th class="op-kol op-pt-kol" title="${esc(ks[0].titel + keerTekst(keer[id]))}">
+      <a href="${ks[ks.length - 1].afname ? `/proef?verbeter=${encodeURIComponent(ks[ks.length - 1].afname)}` : '/taken?soort=proef'}"><span class="op-kol-titel">📝 ${esc(ks[0].titel)}</span>${keer[id] ? `<span class="op-kol-keer">${keer[id]}e keer</span>` : ''}
       <span class="op-kol-dag">${esc(ks.map(k => dagTekst(k.dag)).join(' · '))}${ks[0].vak ? ` · ${esc(ks[0].vak)}` : ''}</span></a>
       ${herk ? `<label class="op-telt">🔁 ${herk === 1 ? '1 herkansing' : `${herk} herkansingen`}, telt: <select data-toets="${esc(id)}">${Object.entries(TELT).map(([w, t]) => `<option value="${w}"${keuze(id) === w ? ' selected' : ''}>${esc(t)}</option>`).join('')}</select></label>` : ''}
       ${ks[0].toets ? `<a class="op-herk" href="/taken?soort=proef&file=${encodeURIComponent(ks[0].toets)}&herkansing=${encodeURIComponent(id)}${laag.length ? `&namen=${encodeURIComponent(laag.join('|'))}` : ''}" title="${esc(laag.length ? `Dezelfde toets nog eens geven, met ${laag.join(', ')} al aangetikt (onder ${$('op-grens').value}%)` : 'Dezelfde toets nog eens geven')}">↻ Herkansing geven</a>` : ''}
@@ -277,6 +299,7 @@ function laad() {
     // Vanaf het startscherm (Mijn klas) en nog geen klaslijst: eerst naar Klas, om de namen in te vullen.
     if (new URLSearchParams(location.search).has('start') && !res.rijen.length && !(res.gasten || []).length) return location.replace('/klas#klas');
     data = res;
+    $('op-paneel').classList.remove('laden');
     teken();
   });
 }
