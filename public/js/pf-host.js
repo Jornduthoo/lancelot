@@ -1359,6 +1359,10 @@ $('v-klaar').addEventListener('click', async () => {
     afname.klaar = true;
     afname.resultaten = res.resultaten;
     renderAfname();
+    if (res.mailWacht) {
+      Ui.vraag('Deze toets is nog niet gemaild: op deze pc ontbreekt het app-wachtwoord. Vul het in bij Mijn klas › Toetsen mailen, dan vertrekt de mail meteen (één keer).', { ja: 'Nu invullen', nee: 'Later' })
+        .then(ja => { if (ja) location.href = '/klas#mail'; });
+    }
   });
 });
 

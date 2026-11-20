@@ -78,7 +78,8 @@
   el('km-bewaar').addEventListener('click', () => {
     sock.emit('pf-mail-afzender', { van: el('km-van').value, pass: el('km-pass').value, naam: el('km-naam').value, host: el('km-host').value, port: el('km-port').value }, v => {
       if (v && v.error) { info(`⚠ ${v.error}`); return; }
-      mail = v; el('km-pass').value = ''; renderBox(true); info('✔ Bewaard. Stuur een proefmail om te testen.');
+      mail = v; el('km-pass').value = ''; renderBox(true);
+      info(v.wachtend ? `✔ Bewaard. Wachtende toetsen worden nu gemaild (${v.wachtend}).` : '✔ Bewaard. Stuur een proefmail om te testen.');
     });
   });
   el('km-test').addEventListener('click', () => {
