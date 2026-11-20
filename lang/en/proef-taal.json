@@ -718,5 +718,10 @@
  "klaar, onder 50%": "done, below 50%",
  "klaar, onder {0}%": "done, below {0}%",
  "Dezelfde toets nog eens geven, met {0} al aangetikt (onder {1}%)": "Give the same test again, with {0} already ticked (below {1}%)",
- "(te verbeteren)": "(to mark)"
+ "(te verbeteren)": "(to mark)",
+ "Zelfde eenheid": "Same unit",
+ "In procent": "In percent",
+ "Gemiddelde (%)": "Average (%)",
+ "Gemiddelde over maar 1 toets": "Average over only 1 test",
+ "1 toets": "1 test"
 }

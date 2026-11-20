@@ -718,5 +718,10 @@
  "klaar, onder 50%": "terminado, por debajo del 50 %",
  "klaar, onder {0}%": "terminado, por debajo del {0} %",
  "Dezelfde toets nog eens geven, met {0} al aangetikt (onder {1}%)": "Volver a dar la misma prueba, con {0} ya marcados (por debajo del {1} %)",
- "(te verbeteren)": "(por corregir)"
+ "(te verbeteren)": "(por corregir)",
+ "Zelfde eenheid": "Misma unidad",
+ "In procent": "En porcentaje",
+ "Gemiddelde (%)": "Media (%)",
+ "Gemiddelde over maar 1 toets": "Media de solo 1 prueba",
+ "1 toets": "1 prueba"
 }

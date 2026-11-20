@@ -718,5 +718,10 @@
  "klaar, onder 50%": "fertig, unter 50 %",
  "klaar, onder {0}%": "fertig, unter {0} %",
  "Dezelfde toets nog eens geven, met {0} al aangetikt (onder {1}%)": "Denselben Test noch einmal geben, mit {0} schon angetippt (unter {1} %)",
- "(te verbeteren)": "(zu korrigieren)"
+ "(te verbeteren)": "(zu korrigieren)",
+ "Zelfde eenheid": "Gleiche Einheit",
+ "In procent": "In Prozent",
+ "Gemiddelde (%)": "Durchschnitt (%)",
+ "Gemiddelde over maar 1 toets": "Durchschnitt aus nur 1 Test",
+ "1 toets": "1 Test"
 }
