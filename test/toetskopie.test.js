@@ -50,3 +50,16 @@ test('toetskopie: ontbreekt zegt of de pdf van een leerling nog niet in de lesma
   `], { cwd: ROOT, env: { ...process.env, LANCELOT_DATA: data }, encoding: 'utf8' }).split('\n@@').pop();
   assert.deepStrictEqual(JSON.parse(out), [false, true, false]);
 });
+
+test('toetskopie: standaard aan, ook één keer op een pc waar het uit stond; daarna telt de eigen keuze', () => {
+  const data = fs.mkdtempSync(path.join(os.tmpdir(), 'toetskopie-aan-'));
+  const out = execFileSync(process.execPath, ['-e', `
+    const T = require('./src/toetskopie'), settings = require('./src/settings');
+    settings.write({ toetsKopie: false });
+    const r = [T.aan()];
+    T.zet(false);
+    r.push(T.aan());
+    process.stdout.write('\\n@@' + JSON.stringify(r));
+  `], { cwd: ROOT, env: { ...process.env, LANCELOT_DATA: data }, encoding: 'utf8' }).split('\n@@').pop();
+  assert.deepStrictEqual(JSON.parse(out), [true, false]);
+});

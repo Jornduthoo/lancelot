@@ -870,7 +870,7 @@ function zetMailWacht(file, aan) {
     proeven.schrijfAfname(rec);
   } catch {}
 }
-// inhalen (bij het opstarten): ook een toets als taak van de laatste 7 dagen. Alleen wat op deze pc afgenomen werd.
+// inhalen (bij het opstarten): ook elke verbeterde toets van de laatste 7 dagen zonder pdf in de lesmap. Alleen wat op deze pc afgenomen werd.
 function wachtendeMails({ inhalen = false } = {}) {
   let n = 0;
   const k = klas.klassen();
@@ -879,7 +879,7 @@ function wachtendeMails({ inhalen = false } = {}) {
   for (const a of proeven.afnames()) {
     try {
       const rec = proeven.laadAfname(a.file);
-      const recent = inhalen && rec.klaar && rec.taak && (!rec.pc || rec.pc === proeven.PC) && rec.spelers.some(s => Date.now() - Date.parse(s.ingeleverd || 0) < 7 * 864e5);
+      const recent = inhalen && rec.klaar && (!rec.pc || rec.pc === proeven.PC) && rec.spelers.some(s => Date.now() - Date.parse(s.ingeleverd || rec.datum || 0) < 7 * 864e5);
       if (!rec.mailWacht && !recent) continue;
       const mail = toetsmail.view().klaar && toetsmail.nodig(rec.spelers.filter(s => !s.gemaild));
       const pdf = recent && toetskopie.ontbreekt(rec, klasNaam);

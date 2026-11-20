@@ -71,7 +71,16 @@ function pdf(browser, url, uit) {
   });
 }
 
-const aan = () => settings.read().toetsKopie === true;
+// Standaard aan (2026-11-20, Jorn: "moet automatisch"): wie Mijn lesmap heeft, krijgt de pdf per leerling vanzelf.
+// Eén keer ook aan op een pc waar het vroeger uit stond (toen was uit de standaard); daarna telt de eigen keuze.
+const aan = () => {
+  const s = settings.read();
+  if (!s.toetsKopieStandaard) {
+    settings.write({ toetsKopie: true, toetsKopieStandaard: true });
+    return true;
+  }
+  return s.toetsKopie !== false;
+};
 function zet(waarde) {
   settings.write({ toetsKopie: !!waarde });
   return view();
