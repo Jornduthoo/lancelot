@@ -2918,7 +2918,7 @@ io.on('connection', socket => {
     const out = socket.data.pkId ? fn(socket.data.pkId, arg) : { error: 'Meld je eerst aan.' };
     if (typeof cb === 'function') cb(out || {});
   };
-  socket.on('pk-dir', pk((id, dir) => knight.steer(id, Number(dir))));
+  socket.on('pk-dir', pk((id, dir) => (dir && typeof dir === 'object' ? knight.steer(id, Number(dir.d), 'x' in dir ? { x: Number(dir.x), y: Number(dir.y) } : false) : knight.steer(id, Number(dir)))));
   socket.on('pk-power', pk(id => knight.power(id)));
   socket.on('pk-asking', pk((id, on) => knight.asking(id, on)));
   socket.on('pk-question', pk(id => guarded.knight.question(id)));

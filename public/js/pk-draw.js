@@ -246,15 +246,22 @@ const PacDraw = (() => {
   const SMOOTH_MS = 150;
   const free = (s, x, y) => y >= 0 && y < s.H && s.maze[y][((x % s.W) + s.W) % s.W] !== '#';
 
+  // Waar gaat de volgende stap heen? Een drone zegt het zelf (plan), een ridder kiest zijn gewenste richting als die
+  // open is, anders rechtdoor. Voor de eigen ridder telt wat je net indrukte. Zo klopt het verder lopen bijna altijd.
+  function nextDir(s, e) {
+    const want = e.n !== undefined && e.n === s.meN && s.want != null ? s.want : e.want;
+    const order = e.n === undefined ? [e.plan] : [want, e.dir];
+    return order.find(k => k != null && k >= 0 && free(s, e.x + DX[k], e.y + DY[k]));
+  }
+
   function raw(s, e, now) {
     if (Math.abs(e.x - e.px) > 1) return { x: e.x, y: e.y }; // door de tunnel
     const p = Math.max(0, (now - (s.off || 0) - e.start) / e.ms);
     if (p <= 1) return { x: e.px + (e.x - e.px) * p, y: e.py + (e.y - e.py) * p };
     const moving = (e.x !== e.px || e.y !== e.py) && !(e.flags & 2);
-    const want = e.n !== undefined && e.n === s.meN ? s.want : null;
-    const d = moving ? [want, e.dir].find(k => k != null && k >= 0 && free(s, e.x + DX[k], e.y + DY[k])) : undefined;
+    const d = moving ? nextDir(s, e) : undefined;
     if (d === undefined) return { x: e.x, y: e.y };
-    const q = Math.min(p - 1, .5);
+    const q = Math.min(p - 1, .9);
     return { x: e.x + DX[d] * q, y: e.y + DY[d] * q };
   }
 
@@ -274,6 +281,43 @@ const PacDraw = (() => {
     e.ex = ex;
     e.ey = ey;
     e.eAt = now;
+  }
+
+  // De eigen ridder draait meteen bij het indrukken, zonder op de wifi te wachten. De server doet hetzelfde
+  // (omkeren, of te laat inslaan op het kruispunt dat je net voorbij was); zijn antwoord komt een tikje later.
+  const TURN_PART = .45; // tot bijna halfweg naar het volgende vakje telt het kruispunt waar je net voorbij was
+  function predict(s, dir) {
+    const e = s.knights.get(s.meN);
+    if (!e || e.flags & 6 || e.dir < 0 || Math.abs(e.x - e.px) > 1 || (e.x === e.px && e.y === e.py)) return null;
+    const now = performance.now();
+    const nowS = now - (s.off || 0);
+    const since = nowS - e.start;
+    // Welk stuk loopt de ridder op het scherm: de stap van de server (A naar B), of al verder getekend (B naar C)?
+    let ax = e.px, ay = e.py, bx = e.x, by = e.y, d = e.dir, el = since, start = e.start;
+    if (since >= e.ms) {
+      d = nextDir(s, e);
+      if (d === undefined) return null;
+      ax = e.x; ay = e.y; bx = e.x + DX[d]; by = e.y + DY[d];
+      el = Math.min(since - e.ms, e.ms * .9);
+      start = e.start + e.ms;
+    }
+    if (dir === d) return null;
+    let n = null;
+    if (dir === (d + 2) % 4) {
+      n = { ...e, x: ax, y: ay, px: bx, py: by, dir, start: nowS - (e.ms - el) };
+    } else if (el >= 0 && el <= e.ms * TURN_PART && free(s, ax + DX[dir], ay + DY[dir])) {
+      n = { ...e, x: ax + DX[dir], y: ay + DY[dir], px: ax, py: ay, dir, start };
+    }
+    if (!n) {
+      // Nog op weg naar het volgende kruispunt: daar draait hij vanzelf (de gewenste richting). Toch het kruispunt
+      // meegeven: kwam de toets door de wifi pas aan toen de server er al voorbij was, dan doet hij die stap over.
+      return el > e.ms * TURN_PART && dir !== (d + 2) % 4 && free(s, bx + DX[dir], by + DY[dir]) ? { x: bx, y: by } : null;
+    }
+    settle(s, e, n, now);
+    s.knights.set(s.meN, n);
+    s.pred = { x: n.x, y: n.y, until: now + 300 };
+    // De server krijgt het kruispunt mee, zodat hij dezelfde keuze maakt, ook als de wifi de toets wat ophoudt.
+    return dir === (d + 2) % 4 ? null : { x: ax, y: ay };
   }
 
   // Het verschil tussen de klok van de server en de eigen klok. De snelste tick telt; daarna mag het heel traag opschuiven
@@ -342,27 +386,65 @@ const PacDraw = (() => {
     // Aan het antwoorden: beschermd in een bel.
     if (asking) {
       ctx.globalAlpha = 1;
-      ctx.fillStyle = 'rgba(76, 201, 255, .15)';
-      ctx.strokeStyle = 'rgba(127, 220, 255, .9)';
-      ctx.lineWidth = Math.max(1.5, tile * .05);
-      ctx.beginPath(); ctx.arc(cx, cy, tile * .62, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-      ctx.fillStyle = '#7fdcff';
-      ctx.font = `900 ${Math.round(tile * .45)}px Orbitron, sans-serif`;
-      ctx.textAlign = 'center';
-      ctx.fillText('?', cx + tile * .5, cy - tile * .45);
+      const b = bubble(tile);
+      ctx.drawImage(b, Math.round(cx - b.width / 2), Math.round(cy - b.height / 2));
     }
     ctx.restore();
     if (opts.names && info) {
-      ctx.save();
-      ctx.font = `700 ${Math.max(10, Math.round(tile * .32))}px 'Exo 2', sans-serif`;
-      ctx.textAlign = 'center';
-      ctx.lineWidth = 3;
-      ctx.strokeStyle = 'rgba(0, 0, 0, .8)';
-      ctx.strokeText(info.name, cx, cy + tile * .82);
-      ctx.fillStyle = opts.me ? '#ffc94a' : '#eaf4ff';
-      ctx.fillText(info.name, cx, cy + tile * .82);
-      ctx.restore();
+      const lb = label(info.name, Math.max(10, Math.round(tile * .32)), opts.me);
+      ctx.drawImage(lb, Math.round(cx - lb.width / 2), Math.round(cy + tile * .82 - lb.base));
     }
+  }
+
+  // De bel rond een ridder die een vraag beantwoordt, met het vraagteken: één keer getekend per vakjesgrootte.
+  // (Elk beeld het lettertype instellen was het duurste van heel het tekenen, en in de klas antwoorden er velen tegelijk.)
+  function bubble(tile) {
+    const key = `bel|${tile}`;
+    let c = labels.get(key);
+    if (c) return c;
+    const R = tile * .62, m = Math.ceil(R + tile * .6);
+    c = document.createElement('canvas');
+    c.width = c.height = m * 2;
+    const g = c.getContext('2d');
+    g.fillStyle = 'rgba(76, 201, 255, .15)';
+    g.strokeStyle = 'rgba(127, 220, 255, .9)';
+    g.lineWidth = Math.max(1.5, tile * .05);
+    g.beginPath(); g.arc(m, m, R, 0, Math.PI * 2); g.fill(); g.stroke();
+    g.fillStyle = '#7fdcff';
+    g.font = `900 ${Math.round(tile * .45)}px Orbitron, sans-serif`;
+    g.textAlign = 'center';
+    g.fillText('?', m + tile * .5, m - tile * .45);
+    labels.set(key, c);
+    return c;
+  }
+
+  // Een naam onder de ridder: één keer getekend en bewaard. Elk beeld opnieuw een lettertype instellen en tekst
+  // met een rand tekenen kost een Chromebook met 25 ridders veel tijd.
+  const labels = new Map();
+  // Komt het lettertype later binnen, dan de namen opnieuw tekenen.
+  if (typeof document !== 'undefined' && document.fonts) document.fonts.addEventListener('loadingdone', () => labels.clear());
+  function label(name, px, me) {
+    const key = `${name}|${px}|${me ? 1 : 0}`;
+    let c = labels.get(key);
+    if (c) return c;
+    if (labels.size > 300) labels.clear();
+    c = document.createElement('canvas');
+    const g = c.getContext('2d');
+    const font = `700 ${px}px 'Exo 2', sans-serif`;
+    g.font = font;
+    c.width = Math.ceil(g.measureText(name).width + 8);
+    c.height = Math.ceil(px * 1.5 + 6);
+    c.base = Math.ceil(px * 1.1 + 3);
+    g.font = font;
+    g.textAlign = 'center';
+    g.lineWidth = 3;
+    g.lineJoin = 'round';
+    g.strokeStyle = 'rgba(0, 0, 0, .8)';
+    g.strokeText(name, c.width / 2, c.base);
+    g.fillStyle = me ? '#ffc94a' : '#eaf4ff';
+    g.fillText(name, c.width / 2, c.base);
+    labels.set(key, c);
+    return c;
   }
 
   function drone(ctx, cx, cy, tile, d, t) {
@@ -515,16 +597,22 @@ const PacDraw = (() => {
     clock(s, msg.t, now);
     const t = typeof msg.t === 'number' ? msg.t : now - (s.off || 0);
     const seen = new Set();
-    for (const [n, x, y, px, py, age, ms, flags, dir] of msg.k) {
+    for (const [n, x, y, px, py, age, ms, flags, dir, want] of msg.k) {
       seen.add(n);
-      const e = { n, x, y, px, py, ms, flags, dir, start: t - age };
+      const e = { n, x, y, px, py, ms, flags, dir, want, start: t - age };
+      if (n === s.meN && s.pred) {
+        // Een bericht van vóór de server de toets zag: de voorspelde stap laten staan.
+        const old = s.knights.get(n);
+        if (now < s.pred.until && !(e.flags & 6) && (x !== s.pred.x || y !== s.pred.y) && (px !== s.pred.x || py !== s.pred.y) && old) { old.flags = flags; old.want = want; continue; }
+        s.pred = null;
+      }
       settle(s, s.knights.get(n), e, now);
       s.knights.set(n, e);
     }
     for (const n of [...s.knights.keys()]) if (!seen.has(n)) s.knights.delete(n);
     const old = s.drones;
-    s.drones = msg.d.map(([x, y, px, py, age, ms, flags, dir], i) => {
-      const e = { i, x, y, px, py, ms, flags, dir, start: t - age };
+    s.drones = msg.d.map(([x, y, px, py, age, ms, flags, dir, plan], i) => {
+      const e = { i, x, y, px, py, ms, flags, dir, plan, start: t - age };
       settle(s, old[i], e, now);
       return e;
     });
@@ -544,5 +632,5 @@ const PacDraw = (() => {
     return s;
   }
 
-  return { COLORS, scene, minimap, apply, fromState, pos };
+  return { COLORS, scene, minimap, apply, fromState, pos, predict };
 })();

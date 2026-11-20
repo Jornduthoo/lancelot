@@ -194,8 +194,15 @@ function pkBanner(title, sub, kind = '') {
 
 function pkSteer(dir) {
   if (!pk.state || pk.state.phase !== 'play' || pk.question) return;
+  // Meteen tonen (niet wachten op de wifi). Sla je net te laat in, dan zeggen we de server op welk kruispunt.
+  let hoek = null;
+  if (pk.scene && pk.me) {
+    pk.scene.meN = pk.me.n;
+    pk.scene.want = pk.lastDir;
+    hoek = PacDraw.predict(pk.scene, dir);
+  }
   pk.lastDir = dir;
-  socket.emit('pk-dir', dir);
+  socket.emit('pk-dir', hoek ? { d: dir, x: hoek.x, y: hoek.y } : { d: dir });
 }
 
 function pkPower() {
