@@ -1382,10 +1382,67 @@ $('v-kopie-nu').addEventListener('click', () => socket.emit('pf-kopie-nu', afnam
 socket.on('pf-kopie', r => {
   if (!afname || r.file !== afname.file) return;
   kopieMelding = r.bezig ? `📁 Bezig met ${r.aantal} kopieën…`
-    : r.gemaakt === 1 ? `✔ 1 kopie in je lesmap › ${kopie.map}.${r.fout ? ` ${r.fout}` : ''}`
-      : r.gemaakt ? `✔ ${r.gemaakt} kopieën in je lesmap › ${kopie.map}.${r.fout ? ` ${r.fout}` : ''}`
-      : `⚠ ${r.fout || 'Geen kopieën gemaakt.'}`;
+    : [r.gemaakt === 1 ? `✔ 1 kopie in je lesmap › ${kopie.map}.` : r.gemaakt ? `✔ ${r.gemaakt} kopieën in je lesmap › ${kopie.map}.` : '',
+      r.gemaild === 1 ? '✉️ 1 toets gemaild.' : r.gemaild ? `✉️ ${r.gemaild} toetsen gemaild.` : '',
+      r.fout ? `⚠ ${r.fout}` : ''].filter(Boolean).join(' ') || '⚠ Geen kopieën gemaakt.';
   renderKopie();
+});
+
+// De verbeterde toets mailen naar een begeleider (bv. GON): een adres per leerling, verstuurd met de eigen Gmail.
+let mail = null;
+function mailInfo(t) { $('m-info').textContent = t || ''; }
+// velden: ook de invulvakjes van de mailbox opnieuw vullen (bij openen en na Bewaar, niet na een leerlingadres).
+function renderMail(velden) {
+  if (!mail) return;
+  if (velden) {
+    $('m-van').value = mail.van || '';
+    $('m-naam').value = mail.naam || '';
+    $('m-host').value = mail.host && mail.host !== 'smtp.gmail.com' ? mail.host : '';
+    $('m-port').value = mail.port && mail.port !== 465 ? mail.port : '';
+  }
+  $('m-pass').placeholder = mail.heeftPass ? '•••• bewaard (laat leeg)' : '16 letters';
+  $('m-wis').classList.toggle('hidden', !mail.van);
+  $('m-test').disabled = !mail.klaar;
+  const n = Object.keys(mail.adressen || {}).length;
+  $('v-mail').textContent = n ? `✉️ Mailen naar begeleiders (${n})` : '✉️ Mailen naar begeleiders';
+}
+function laadMail() { socket.emit('pf-mail-view', null, v => { if (v) { mail = v; renderMail(); } }); }
+laadMail();
+function mailLijst() {
+  socket.emit('klas-namen', null, namen => {
+    const lijst = [...new Set([...(namen || []).map(n => (typeof n === 'string' ? n : n && n.naam) || '').filter(Boolean)])];
+    // Ook wie niet (meer) in deze klas staat maar wel een adres heeft.
+    const bekend = new Set(lijst.map(n => n.toLowerCase()));
+    Object.keys(mail.adressen || {}).forEach(k => { if (!bekend.has(k)) lijst.push(k); });
+    const esc = t => String(t).replace(/[&<>"']/g, c => `&#${c.charCodeAt(0)};`);
+    $('m-lijst').innerHTML = lijst.length ? lijst.map(n => `<span>${esc(n)}</span>
+      <input type="text" data-naam="${esc(n)}" value="${esc(mail.adressen[n.toLowerCase()] || '')}" placeholder="adres@school.be" autocomplete="off">`).join('')
+      : '<p class="muted">Nog geen klaslijst. Zet eerst je leerlingen in de klaslijst.</p>';
+    $('m-lijst').querySelectorAll('input').forEach(inp => inp.addEventListener('change', () => {
+      socket.emit('pf-mail-adres', { naam: inp.dataset.naam, adres: inp.value }, v => {
+        if (v && v.error) { Ui.melding(v.error); return; }
+        mail = v; renderMail();
+        inp.classList.add('ok'); setTimeout(() => inp.classList.remove('ok'), 1500);
+      });
+    }));
+  });
+}
+$('v-mail').addEventListener('click', () => { mailInfo(''); $('mail').classList.remove('hidden'); renderMail(true); mailLijst(); });
+$('m-sluit').addEventListener('click', () => $('mail').classList.add('hidden'));
+$('mail').addEventListener('click', e => { if (e.target.id === 'mail') $('mail').classList.add('hidden'); });
+$('m-bewaar').addEventListener('click', () => {
+  socket.emit('pf-mail-afzender', { van: $('m-van').value, pass: $('m-pass').value, naam: $('m-naam').value, host: $('m-host').value, port: $('m-port').value }, v => {
+    if (v && v.error) { mailInfo(`⚠ ${v.error}`); return; }
+    mail = v; $('m-pass').value = ''; renderMail(true); mailInfo('✔ Bewaard. Stuur een proefmail om te testen.');
+  });
+});
+$('m-test').addEventListener('click', () => {
+  mailInfo('⏳ Bezig…');
+  socket.emit('pf-mail-test', null, r => mailInfo(r && r.error ? `⚠ ${r.error}` : `✔ Proefmail verstuurd naar ${mail.van}. Kijk in je mailbox.`));
+});
+$('m-wis').addEventListener('click', async () => {
+  if (!await Ui.vraag('Je mailbox uit Lancelot wissen? De adressen per leerling blijven staan.')) return;
+  socket.emit('pf-mail-afzender', { wis: true }, v => { if (v && !v.error) { mail = v; renderMail(true); mailInfo(''); } });
 });
 
 // Vanaf het startscherm: meteen een nieuwe toets maken.

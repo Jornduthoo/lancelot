@@ -8,6 +8,7 @@ const os = require('os');
 const path = require('path');
 const { execFile } = require('child_process');
 const settings = require('./settings');
+const toetsmail = require('./toetsmail');
 
 const MAP = 'Toetsen per leerling';
 
@@ -81,29 +82,57 @@ function view() {
 
 let bezig = Promise.resolve();
 // Kopieën maken voor alle leerlingen van een afname, één na één (een schoolpc heeft niet veel geheugen).
-// opties: { rec, klas, url: i => 'http://127.0.0.1:3000/proef-kopie?...', browser }
-function maak({ rec, klas, url, browser } = {}) {
+// Heeft een leerling een mailadres (zie src/toetsmail.js), dan gaat zijn pdf ook naar dat adres.
+// Staat de kopie in de lesmap uit, dan maken we alleen een tijdelijke pdf voor wie gemaild moet worden.
+// Wie al gemaild werd (s.gemaild, bv. bij een toets als taak die later nog eens Klaar is), krijgt geen tweede mail.
+// opties: { rec, klas, url: i => 'http://127.0.0.1:3000/proef-kopie?...', browser, stand: s => ({punten, max}),
+//          gemaildBij: i => {} (na een gelukte mail, om dat te onthouden), mailOpties }
+function maak({ rec, klas, url, browser, stand, mailOpties, gemaildBij } = {}) {
   const root = settings.read().lesmap;
   const werk = bezig.then(async () => {
-    if (!root) return { gemaakt: 0, fout: 'Kies eerst Mijn lesmap (bij Instellingen).' };
-    if (!fs.existsSync(root)) return { gemaakt: 0, fout: 'Je lesmap is niet te vinden. Staat OneDrive of Google Drive aan?' };
+    const mailen = toetsmail.nodig(rec.spelers);
+    // Zonder mail: zoals altijd naar de lesmap. Met mail: naar de lesmap alleen als die kopie aan staat.
+    const inLesmap = !mailen || aan();
+    if (inLesmap && !mailen) {
+      if (!root) return { gemaakt: 0, fout: 'Kies eerst Mijn lesmap (bij Instellingen).' };
+      if (!fs.existsSync(root)) return { gemaakt: 0, fout: 'Je lesmap is niet te vinden. Staat OneDrive of Google Drive aan?' };
+    }
+    const lesmapOk = inLesmap && !!root && fs.existsSync(root);
     const b = browser || zoekBrowser();
     if (!b) return { gemaakt: 0, fout: 'Geen Edge of Chrome gevonden om de pdf te maken.' };
     let gemaakt = 0;
+    let gemaild = 0;
     const mislukt = [];
+    const mailMislukt = [];
+    const tmpMap = mailen ? fs.mkdtempSync(path.join(os.tmpdir(), 'lancelot-mail-')) : '';
     for (let i = 0; i < rec.spelers.length; i++) {
       const s = rec.spelers[i];
-      const uit = pad(root, { klas, naam: s.naam, datum: rec.datum, titel: rec.title });
+      const mailNaar = mailen && !s.gemaild && toetsmail.adresVoor(s.naam);
+      if (!lesmapOk && !mailNaar) continue;
+      const uit = lesmapOk ? pad(root, { klas, naam: s.naam, datum: rec.datum, titel: rec.title })
+        : path.join(tmpMap, `${i}.pdf`);
       try {
         fs.mkdirSync(path.dirname(uit), { recursive: true });
         await pdf(b, url(i), uit);
-        gemaakt++;
+        if (lesmapOk) gemaakt++;
       } catch (err) {
         console.error(`Kopie van de toets voor ${s.naam} mislukt:`, err.message);
         mislukt.push(s.naam);
+        continue;
+      }
+      if (!mailNaar) continue;
+      try {
+        await toetsmail.toets({ naam: s.naam, titel: rec.title, datum: rec.datum, stand: stand ? stand(s) : null, pdf: uit, bestand: path.basename(pad('', { naam: s.naam, datum: rec.datum, titel: rec.title })) }, mailOpties);
+        gemaild++;
+        if (gemaildBij) gemaildBij(i);
+      } catch (err) {
+        console.error(`Mail van de toets voor ${s.naam} mislukt:`, err.message);
+        mailMislukt.push(`${s.naam} (${err.message})`);
       }
     }
-    return { gemaakt, map: path.join(root, MAP), fout: mislukt.length ? `Niet gelukt voor ${mislukt.join(', ')}.` : '' };
+    if (tmpMap) fs.rm(tmpMap, { recursive: true, force: true }, () => {});
+    const fout = [mislukt.length ? `Niet gelukt voor ${mislukt.join(', ')}.` : '', mailMislukt.length ? `Mailen niet gelukt voor ${mailMislukt.join(', ')}` : ''].filter(Boolean).join(' ');
+    return { gemaakt, gemaild, map: lesmapOk ? path.join(root, MAP) : '', fout };
   });
   bezig = werk.catch(() => {});
   return werk;
