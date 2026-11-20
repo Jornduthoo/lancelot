@@ -642,7 +642,7 @@ const AK = (() => {
   }
 
   // ---------- Vragenvenster ----------
-  // Eén venster per spel. opts: { root, status(res), ask(cb), answer(i, cb), close(), good(res), bad(res), next(res) }
+  // Eén venster per spel. opts: { root, status(res), ask(cb), answer(i, cb), close(), good(res), bad(res), next(res), closeDelay }
   // next(res) geeft true als er meteen een volgende vraag mag komen. res.more (tempo "Veel vragen") doet hetzelfde.
   function quiz(opts) {
     const box = document.createElement('div');
@@ -750,7 +750,7 @@ const AK = (() => {
             if (!q.open || !q.cur || !q.cur.done) return;
             if (opts.next(res) || res.more) load();
             else q.close();
-          }, 850);
+          }, opts.closeDelay || 850);
         } else {
           // Tegen gokken: het juiste antwoord blijft even staan, en pas daarna komt een nieuwe vraag.
           if (tiles[i]) tiles[i].classList.add('wrong');

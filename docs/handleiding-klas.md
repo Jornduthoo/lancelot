@@ -250,9 +250,11 @@ Tip: een klas die goed en vlot antwoordt, houdt de poort. Bij veel foute antwoor
 ## Kegelridder
 
 1. Kies **De Arena** en dan **Kegelridder**, kies de speeltijd en klik op de quiz. Klik op **Kegelen maar!**
-2. Elke leerling heeft een eigen kegelbaan. Antwoorden geven ballen: elke juiste vraag = één bal.
-3. Gooien: vinger (of muis) op de baan waar de bal moet starten, naar de kegels vegen en loslaten. Sneller vegen = harder, een bocht op het einde = effect. Met toetsen: ← → schuiven, spatie ingedrukt houden en loslaten.
-4. Per beurt twee ballen. Strike = +10 extra, spare = +5 extra. Drie juist op rij geeft een gouden runenbal. Het bord speelt de mooiste worpen na.
+2. Keuzes: **Ballen per juiste vraag** (1, of 2 = één vraag per beurt en meer tijd om te bowlen), **Telling** (zoals echt bowlen, of eenvoudig) en **Mikken** (Rustig = pijl en krachtmeter trager, fijn voor jongere leerlingen).
+3. Elke leerling heeft een eigen kegelbaan. Antwoorden geven ballen. Na een juist antwoord gaat het meteen terug naar de baan.
+4. Gooien kan op twee manieren (de leerling kiest rechtsonder): **Vegen** (vinger of muis op de baan, naar de kegels vegen en loslaten, een bocht op het einde = effect) of **Tikken** in drie stappen: plaats, richting, kracht. Met het toetsenbord: spatie drie keer, houd ← of → vast bij de laatste tik voor effect.
+5. Een echte scorekaart van 10 beurten: strike = 10 + de volgende 2 ballen, spare = 10 + de volgende bal. Na 10 beurten begint een nieuw spel, het beste spel telt. Een split helemaal omgooien krijgt een extra melding. Drie juist op rij geeft een gouden runenbal.
+6. Het bord speelt de mooiste worpen na (een strike in vertraging met de naam groot in beeld), toont de scorekaart van die speler en tussendoor de top 5. Pauze, Vragenstorm, Namen en Stoppen staan in de balk bovenaan.
 
 ## Titanenstrijd
 

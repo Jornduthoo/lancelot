@@ -10,7 +10,7 @@ const KbDraw = (() => {
   // ---------- Geschilderde beelden ----------
   const ART = {};
   if (typeof Image !== 'undefined') {
-    for (const n of ['hal', 'baan', 'kegel', 'bal', 'runenbal']) {
+    for (const n of ['hal', 'baan', 'kegel', 'bal', 'runenbal', 'pindeck']) {
       const img = new Image();
       img.onload = () => { ART[n] = img; baked.clear(); };
       img.src = `/img/kegelridder/${n}.webp`;
@@ -113,12 +113,20 @@ const KbDraw = (() => {
   const vy = y => (y < BEND ? y * .5 : BEND * .5 + (y - BEND));
   const V_HEAD = vy(W.HEAD), V_END = vy(W.END);
 
-  // Camera: waar je staat (x, y in de baan), hoe hoog, en hoe sterk het beeld vergroot.
+  // Camera: zoals een tv-camera vlak achter de speler. In rust staat hij laag achter de bal en kijkt hij een beetje
+  // naar beneden (de kegels groot, bijna geen hal). Tijdens de worp rijdt hij mee en kantelt hij omhoog: dan komt de hal
+  // in beeld. Bij de kegels zie je ze van dichtbij, met het kegeldek als achtergrond.
+  const REST = -6;               // waar de camera in rust staat (6 m achter de foutlijn, in de ingekorte aanloop)
+  const CLOSE = V_HEAD - 6;      // het dichtst bij de kegels
   function camera(w, h, cam) {
-    const d0 = 2.2;
-    const k = Math.min(.8 * w / 1.06, .62 * h / .62);
-    const camH = Math.max(.55, Math.min(2.4, (.64 * h) / k));
-    return { w, h, hz: h * .27, F: k * d0, camH, x: cam.x || 0, y: cam.y };
+    const y = cam.y === undefined ? REST : cam.y;
+    const lw = Math.min(.86 * w, .95 * h);  // zo breed is de baan aan de foutlijn in rust
+    const F = lw * -REST / 1.06;
+    const p = Math.max(0, Math.min(1, (y - REST) / (CLOSE - REST)));
+    const hz = h * (-.06 + .2 * p);
+    // De bal blijft onderaan in beeld (op 88 % van de hoogte), ook als de camera kantelt.
+    const camH = (.88 * h - hz) * -REST / F;
+    return { w, h, hz, F, camH, x: cam.x || 0, y, p };
   }
   function proj(C, x, y, z = 0) {
     const d = Math.max(.25, vy(y) - C.y);
@@ -126,42 +134,60 @@ const KbDraw = (() => {
   }
   // Waar de camera staat als de bal op y rolt (de camera volgt hem tot vlak voor de kegels).
   function camFor(y) {
-    return Math.min(V_HEAD - 3.1, Math.max(-2.2, vy(y) - 2.4));
+    return Math.min(CLOSE, Math.max(REST, vy(y) + REST));
   }
 
   // ---------- Tekenen ----------
   // De hal achter de baan. Wat niet beweegt (lucht, bogen, vloer), bakken we één keer per schermgrootte.
   function hall(ctx, C) {
     const { w, h } = C;
+    // Gebakken met de horizon op 30 % van een 1,3 keer zo hoog beeld: zo kan de camera kantelen zonder opnieuw te bakken.
+    const HZB = h * .3;
     const bg = bake(['hal', w, h, ART.hal ? 'a' : ''].join('|'), () => {
       // 80 px breder, zodat de hal opzij kan schuiven als de camera de bal volgt (zonder te schalen per beeld).
-      const c = mk(w + 80, h), g = c.getContext('2d');
+      const c = mk(w + 80, h * 1.3), g = c.getContext('2d');
       g.translate(40, 0);
+      g.fillStyle = '#05060f'; g.fillRect(-40, 0, w + 80, h * 1.3);
       if (ART.hal) {
         const img = ART.hal;
         const sw = Math.max(w + 80, h * .62 * img.width / img.height) * 1.1, sh = sw * img.height / img.width;
-        g.fillStyle = '#05060f'; g.fillRect(-40, 0, w + 80, h);
-        g.drawImage(img, w / 2 - sw / 2, C.hz - sh * .5, sw, sh);
+        g.drawImage(img, w / 2 - sw / 2, HZB - sh * .5, sw, sh);
       } else {
         const sky = g.createLinearGradient(0, 0, 0, h);
         sky.addColorStop(0, '#0a0b1f'); sky.addColorStop(.35, '#171436'); sky.addColorStop(1, '#07060f');
-        g.fillStyle = sky; g.fillRect(-40, 0, w + 80, h);
+        g.fillStyle = sky; g.fillRect(-40, 0, w + 80, h * 1.3);
         g.strokeStyle = 'rgba(94,231,255,.35)';
         g.lineWidth = 2;
         for (let i = 1; i <= 4; i++) {
-          const r = C.F / (6 + i * 3);
-          g.beginPath(); g.arc(w / 2, C.hz, r * 3, Math.PI, 0); g.stroke();
+          const r = Math.min(w, h) / (2 + i);
+          g.beginPath(); g.arc(w / 2, HZB, r * 1.4, Math.PI, 0); g.stroke();
         }
-        g.fillStyle = 'rgba(255,201,74,.12)';
-        g.beginPath(); g.arc(w / 2, C.hz * .7, C.F * .05, 0, TAU); g.fill();
       }
-      const fl = g.createLinearGradient(0, C.hz, 0, h);
-      fl.addColorStop(0, 'rgba(10,8,24,.0)'); fl.addColorStop(.15, 'rgba(10,8,24,.85)'); fl.addColorStop(1, '#05040c');
-      g.fillStyle = fl; g.fillRect(-40, C.hz, w + 80, h - C.hz);
+      const fl = g.createLinearGradient(0, HZB, 0, h * 1.3);
+      fl.addColorStop(0, 'rgba(10,8,24,.0)'); fl.addColorStop(.12, 'rgba(10,8,24,.85)'); fl.addColorStop(1, '#05040c');
+      g.fillStyle = fl; g.fillRect(-40, HZB, w + 80, h);
       return c;
     });
-    if (baked.size > 12) for (const k of [...baked.keys()]) if (k.startsWith('hal|') && !k.startsWith(['hal', w, h].join('|'))) baked.delete(k);
-    ctx.drawImage(bg, Math.round(-40 - Math.max(-1, Math.min(1, C.x)) * 40), 0);
+    if (baked.size > 14) for (const k of [...baked.keys()]) if (/^(hal|dek)\|/.test(k) && !k.includes(`|${w}|${h}|`)) baked.delete(k);
+    ctx.fillStyle = '#05040c';
+    ctx.fillRect(0, 0, w, h);
+    ctx.drawImage(bg, Math.round(-40 - Math.max(-1, Math.min(1, C.x)) * 40), Math.round(C.hz - HZB));
+    // Dicht bij de kegels: het kegeldek van dichtbij als achtergrond (de close-up).
+    if (ART.pindeck && C.p > .55) {
+      const end = proj(C, 0, W.END);
+      const dek = bake(['dek', w, h].join('|'), () => {
+        const img = ART.pindeck;
+        const sw = Math.max(w, h * 1.1 * img.width / img.height), sh = sw * img.height / img.width;
+        const c = mk(sw, sh);
+        c.getContext('2d').drawImage(img, 0, 0, sw, sh);
+        return c;
+      });
+      ctx.save();
+      ctx.globalAlpha = Math.min(1, (C.p - .55) / .35);
+      // De put van het beeld (op ~62 % van zijn hoogte) komt op het einde van onze baan.
+      ctx.drawImage(dek, Math.round(w / 2 - dek.width / 2), Math.round(end.y - dek.height * .62));
+      ctx.restore();
+    }
   }
 
   function lane(ctx, C) {
@@ -207,7 +233,7 @@ const KbDraw = (() => {
     }
     // De foutlijn en de pin-plek
     const f0 = proj(C, -W.HALF, 0), f1 = proj(C, W.HALF, 0);
-    if (C.y < -0.3) { ctx.fillStyle = 'rgba(94,231,255,.9)'; ctx.fillRect(f0.x, f0.y - Math.max(1, f0.s * .015), f1.x - f0.x, Math.max(2, f0.s * .03)); }
+    if (C.p < .3) { ctx.fillStyle = 'rgba(94,231,255,.9)'; ctx.fillRect(f0.x, f0.y - Math.max(1, f0.s * .015), f1.x - f0.x, Math.max(2, f0.s * .03)); }
     // Achter de kegels: de donkere put onder een lage achterwand met een neonrand.
     const p0 = proj(C, -W.WALL, W.PIT), p1 = proj(C, W.WALL, W.PIT), top = proj(C, 0, W.PIT, .62);
     const wall = ctx.createLinearGradient(0, top.y, 0, p0.y);
@@ -242,7 +268,9 @@ const KbDraw = (() => {
     ctx.translate(P.x, P.y);
     if (p.down) {
       const k = Math.min(1, (t - p.fallAt) / .28);
-      const side = Math.abs(p.fx) > .35 ? Math.sign(p.fx) : 0;
+      let side = Math.abs(p.fx) > .35 ? Math.sign(p.fx) : 0;
+      // Een kegel tegen de zijwand valt niet over de wand heen (dan zou hij naast de baan liggen): hij valt naar binnen.
+      if (side && Math.abs(p.x + side * .38) > W.WALL + .04) side = -side;
       if (side) ctx.rotate(side * k * Math.PI / 2 * .95);
       else { ctx.scale(1, 1 - k * .7); ctx.rotate((p.fx >= 0 ? 1 : -1) * k * .25); }
       ctx.rotate(((p.i * 0.7) % 1 - .5) * k * .3);
@@ -275,26 +303,50 @@ const KbDraw = (() => {
     ctx.restore();
   }
 
-  // Een richtlijn van de bal naar de kegels (alleen bij het mikken).
-  function aimLine(ctx, C, x, a, power, t) {
+  // Een richtlijn van de bal naar de kegels (alleen bij het mikken). Met effect buigt hij af zoals de bal (kb-world.js),
+  // en na ongeveer een derde van de baan vervaagt hij: de rest moet je zelf inschatten.
+  function aimLine(ctx, C, x, a, power, t, spin = 0) {
     ctx.save();
-    ctx.lineCap = 'round';
-    for (let i = 1; i <= 14; i++) {
-      const y = i * 1.25 * (.55 + power * .45);
-      if (y > W.HEAD - .5) break;
-      const p = proj(C, x + a * y, y);
-      ctx.globalAlpha = Math.max(0, .9 - i * .055) * (.7 + .3 * Math.sin(t * 6 - i * .7));
-      ctx.fillStyle = '#5ee7ff';
-      ctx.beginPath(); ctx.arc(p.x, p.y, Math.max(1.5, p.s * .025), 0, TAU); ctx.fill();
+    const v = W.LIMITS.vMin + power * (W.LIMITS.vMax - W.LIMITS.vMin);
+    let px = x, py = 0, vx = v * a;
+    const vyy = v * Math.sqrt(1 - a * a);
+    const dt = 1 / 60;
+    let next = .9, i = 0;
+    while (py < 12.5) {
+      if (py > 8) vx += spin * 1.25 * dt;
+      px += vx * dt;
+      py += vyy * dt;
+      if (py < next) continue;
+      next += .9;
+      i++;
+      const p = proj(C, px, py);
+      const fade = py < 6 ? 1 : Math.max(0, 1 - (py - 6) / 6.5);
+      ctx.globalAlpha = fade * (.75 + .25 * Math.sin(t * 6 - i * .7));
+      ctx.fillStyle = spin ? '#ffc94a' : '#5ee7ff';
+      ctx.beginPath(); ctx.arc(p.x, p.y, Math.max(1.5, p.s * .03), 0, TAU); ctx.fill();
     }
     ctx.restore();
   }
 
+  // De zijwanden van het kegeldek: lage panelen met een neonrand, zodat omgevallen kegels op het dek blijven.
+  function deckWalls(ctx, C) {
+    for (const sx of [-1, 1]) {
+      const x = sx * (W.WALL + .06);
+      const a = proj(C, x, W.HEAD - 1), b = proj(C, x, W.PIT), at = proj(C, x, W.HEAD - 1, .3), bt = proj(C, x, W.PIT, .3);
+      if (a.d < .4) continue;
+      ctx.fillStyle = '#100c22';
+      ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.lineTo(bt.x, bt.y); ctx.lineTo(at.x, at.y); ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = 'rgba(94,231,255,.8)'; ctx.lineWidth = Math.max(1.5, Math.min(4, a.s * .012));
+      ctx.beginPath(); ctx.moveTo(at.x, at.y); ctx.lineTo(bt.x, bt.y); ctx.stroke();
+    }
+  }
+
   // Alles tekenen. o: { sim (lopende worp), standing (kegels zonder worp), ball: {x}, gold, aim: {x, a, power}, t, camY, camX }
   function render(ctx, w, h, o) {
-    const C = camera(w, h, { x: o.camX || 0, y: o.camY === undefined ? -2.2 : o.camY });
+    const C = camera(w, h, { x: o.camX || 0, y: o.camY === undefined ? REST : o.camY });
     hall(ctx, C);
     lane(ctx, C);
+    deckWalls(ctx, C);
     const items = [];
     const t = o.sim ? o.sim.t : 0;
     if (o.sim) {
@@ -310,12 +362,12 @@ const KbDraw = (() => {
         if (o.standing && !o.standing[i]) return;
         items.push({ y: q.y, draw: () => pin(ctx, C, { i, x: q.x, y: q.y, down: false, wob: -1 }, 0, 1) });
       });
-      if (o.ball) {
+      if (o.ball && !o.hideBall) {
         const R = o.gold ? W.GOLD.R : W.BALL.R;
         items.push({ y: 0, draw: () => ball(ctx, C, { x: o.ball.x, y: 0, roll: 0 }, R, o.gold, 0) });
       }
     }
-    if (o.aim) aimLine(ctx, C, o.aim.x, o.aim.a, o.aim.power, o.t || 0);
+    if (o.aim) aimLine(ctx, C, o.aim.x, o.aim.a, o.aim.power, o.t || 0, o.aim.spin || 0);
     items.sort((a, b) => b.y - a.y);
     for (const it of items) it.draw();
     return C;
@@ -323,15 +375,15 @@ const KbDraw = (() => {
 
   // Waar staat een punt van de baan op het scherm (voor vonken en het mikken)?
   function toScreen(w, h, o, x, y, z = 0) {
-    const C = camera(w, h, { x: o.camX || 0, y: o.camY === undefined ? -2.2 : o.camY });
+    const C = camera(w, h, { x: o.camX || 0, y: o.camY === undefined ? REST : o.camY });
     return proj(C, x, y, z);
   }
   // Omgekeerd: welke x op de foutlijn hoort bij een plek op het scherm?
   function laneX(w, h, sx) {
-    const C = camera(w, h, { x: 0, y: -2.2 });
-    const s = C.F / 2.2;
+    const C = camera(w, h, { x: 0, y: REST });
+    const s = C.F / -REST;
     return (sx - w / 2) / s;
   }
 
-  return { render, toScreen, laneX, camFor, pinSprite, ballSprite, has: n => Boolean(ART[n]) };
+  return { REST, render, toScreen, laneX, camFor, pinSprite, ballSprite, has: n => Boolean(ART[n]) };
 })();

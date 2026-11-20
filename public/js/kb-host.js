@@ -1,5 +1,6 @@
-// Kegelridder op het bord: de kegelhal speelt de mooiste worpen van de klas na (strikes en spares eerst),
-// met naast de baan de stand en wat er net gebeurde. Elke worp is vier getallen; het bord rekent hem zelf na (kb-world.js).
+// Kegelridder op het bord, als een tv-uitzending: de kegelhal speelt de mooiste worpen van de klas na (strikes en spares
+// eerst, een strike in vertraging met de naam groot in beeld), met daarna de scorekaart van die speler. Tussen de
+// herhalingen de top 5 van de klas. Naast de baan de stand en wat er net gebeurde. Elke worp is vier getallen; het bord rekent hem zelf na (kb-world.js).
 // Gebruikt sfx, confetti en loadGame uit fx.js, quizMakerUrl uit quiz-links.js, AK, KbWorld en KbDraw.
 const socket = io({ query: { role: 'host' } });
 const $ = id => document.getElementById(id);
@@ -34,7 +35,10 @@ function downloadLink(file) {
 QuizList.mount($('quiz-list'), {
   play: q => {
     $('stopped').classList.add('hidden');
-    loadGame('kb-load', { file: q.file, minutes: Number($('kb-minutes').value), tempo: $('kb-tempo').value }, res => { $('load-error').textContent = res.error || ''; });
+    loadGame('kb-load', {
+      file: q.file, minutes: Number($('kb-minutes').value), tempo: $('kb-tempo').value,
+      per: Number($('kb-per').value), telling: $('kb-telling').value, mikken: $('kb-mikken').value,
+    }, res => { $('load-error').textContent = res.error || ''; });
   },
   edit: q => { location.href = quizMakerUrl('bewerk', q.file); },
 });
@@ -134,6 +138,25 @@ function renderSide(ranking, feed) {
   $('p-alive').textContent = `🎳 ${pins} ${pins === 1 ? 'kegel' : 'kegels'} om`;
 }
 
+// De scorekaart van de speler van de herhaling, onderaan het spelbeeld.
+let cardTimer = null;
+function showCard(th) {
+  const c = W.card(th.rolls || []);
+  const simpel = state && state.telling === 'eenvoudig';
+  let html = `<div class="kb-bord-naam" style="--cape:${th.color}">${AK.esc(th.name)}</div>`;
+  for (let f = 0; f < 10; f++) {
+    const fr = c.frames[f] || { marks: [], total: null };
+    let marks = '';
+    for (let k = 0; k < (f === 9 ? 3 : 2); k++) marks += `<b>${fr.marks[k] || ''}</b>`;
+    html += `<div class="kb-cel${f + 1 === th.frame ? ' nu' : ''}"><small>${f + 1}</small><span>${marks}</span><i>${!simpel && fr.total !== null ? fr.total : ''}</i></div>`;
+  }
+  const el = $('p-card');
+  el.innerHTML = html;
+  el.classList.remove('hidden');
+  clearTimeout(cardTimer);
+  cardTimer = setTimeout(() => el.classList.add('hidden'), 2600);
+}
+
 let bannerTimer = null;
 function banner(text) {
   const el = $('p-banner');
@@ -147,7 +170,7 @@ function banner(text) {
 const canvas = $('p-canvas');
 const ctx = canvas.getContext('2d');
 const fx = new AK.Particles();
-let camY = -2.2, camX = 0;
+let camY = KbDraw.REST, camX = 0;
 let last = performance.now();
 const SPEED = 1.3; // het bord speelt iets sneller na, zo blijft het bij
 function frame(t) {
@@ -159,14 +182,16 @@ function frame(t) {
   const w = fit.w, h = fit.h;
   if (!replay && queue.length) replay = nextReplay(t);
   const o = { t: t / 1000 };
-  let wantY = -2.2, wantX = 0;
+  let wantY = KbDraw.REST, wantX = 0;
   if (replay) {
     const r = replay;
-    const slow = r.hitAt >= 0 && r.sim.t - r.hitAt < .9;
-    r.clock += dt * (slow ? .45 : SPEED);
+    // Een strike in vertraging (de klas juicht mee), de rest iets sneller zodat het bord bijblijft.
+    const slow = r.hitAt >= 0 && r.sim.t - r.hitAt < (r.th.kind === 'strike' ? 1.4 : .9);
+    r.clock += dt * (slow ? (r.th.kind === 'strike' ? .3 : .45) : SPEED);
     W.runTo(r.sim, r.clock);
     const down = r.sim.pins.filter(p => p.down).length;
-    if (down > r.hits) { if (!r.hits) { sfx.boom(); r.hitAt = r.sim.t; } r.hits = down; }
+    // Met een volle klas alleen geluid bij strikes en spares (zachter bord).
+    if (down > r.hits) { if (!r.hits) { if (r.th.kind || roster.size <= 15) sfx.boom(); r.hitAt = r.sim.t; } r.hits = down; }
     o.sim = r.sim;
     o.name = r.th;
     wantY = KbDraw.camFor(r.sim.b.pit ? W.HEAD : r.sim.b.y);
@@ -177,11 +202,12 @@ function frame(t) {
         r.shown = true;
         const n = r.th.down.length;
         if (r.th.kind === 'strike') { banner(`🎳 STRIKE! ${r.th.name}`); sfx.fanfare(); stars(w / fit.dpr / 2, h / fit.dpr * .35, 50); }
-        else if (r.th.kind === 'spare') { banner(`✨ SPARE! ${r.th.name}`); sfx.go(); stars(w / fit.dpr / 2, h / fit.dpr * .35, 26); }
+        else if (r.th.kind === 'spare') { banner(r.th.split ? `💥 SPLIT OM! ${r.th.name}` : `✨ SPARE! ${r.th.name}`); sfx.go(); stars(w / fit.dpr / 2, h / fit.dpr * .35, r.th.split ? 40 : 26); }
         else banner(`${r.th.name}: ${n} ${n === 1 ? 'kegel' : 'kegels'}`);
+        showCard(r.th);
       }
       o.fade = Math.max(0, 1 - (t - r.ended) / 900);
-      if (t - r.ended > (r.th.kind ? 1600 : 900)) replay = null;
+      if (t - r.ended > (r.th.kind ? 2200 : 1100)) replay = null;
     }
   } else {
     o.standing = Array(10).fill(true);
@@ -192,7 +218,22 @@ function frame(t) {
   o.camX = camX;
   KbDraw.render(ctx, w, h, o);
   // Wie gooit er nu?
-  if (replay) {
+  if (replay && replay.th.kind === 'strike' && !replay.ended) {
+    // Een strike: de naam groot in beeld, zoals op tv.
+    const th = replay.th;
+    ctx.save();
+    ctx.font = `900 ${Math.round(h * .075)}px Orbitron, sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    ctx.fillStyle = 'rgba(5,6,15,.55)';
+    const tw = Math.min(ctx.measureText(th.name).width, w * .8);
+    ctx.fillRect(w / 2 - tw / 2 - h * .03, h * .03, tw + h * .06, h * .1);
+    ctx.fillStyle = th.color;
+    ctx.fillRect(w / 2 - tw / 2 - h * .03, h * .125, tw + h * .06, h * .006);
+    ctx.fillStyle = '#ffc94a';
+    ctx.fillText(th.name, w / 2, h * .045, w * .8);
+    ctx.restore();
+  } else if (replay && !replay.shown) {
     const th = replay.th;
     ctx.save();
     ctx.font = `800 ${Math.round(h * .036)}px Orbitron, sans-serif`;
@@ -208,13 +249,7 @@ function frame(t) {
     ctx.fillText(label, h * .045, h * .035, w * .26);
     ctx.restore();
   } else {
-    ctx.save();
-    ctx.font = `800 ${Math.round(h * .05)}px Orbitron, sans-serif`;
-    ctx.textAlign = 'center';
-    ctx.fillStyle = '#ffc94a';
-    ctx.globalAlpha = .75 + .25 * Math.sin(t / 400);
-    ctx.fillText('Wie gooit de volgende strike?', w / 2, h * .12);
-    ctx.restore();
+    top5(w, h, t);
   }
   fx.update(dt);
   ctx.save();
@@ -234,6 +269,44 @@ function frame(t) {
 }
 requestAnimationFrame(frame);
 
+// Tussen de herhalingen: de scorekaart van de klas (top 5), groot in beeld.
+function top5(w, h, t) {
+  const list = (state.ranking || []).filter(r => r.pins > 0).slice(0, 5);
+  ctx.save();
+  ctx.textBaseline = 'middle';
+  ctx.textAlign = 'center';
+  ctx.font = `800 ${Math.round(h * .045)}px Orbitron, sans-serif`;
+  ctx.fillStyle = '#ffc94a';
+  ctx.globalAlpha = .8 + .2 * Math.sin(t / 400);
+  if (list.length) { ctx.textAlign = 'left'; ctx.fillText('Top 5 van de klas', w * .025, h * .11, w * .3); }
+  else ctx.fillText('Wie gooit de eerste strike?', w / 2, h * .08);
+  ctx.globalAlpha = 1;
+  if (list.length) {
+    // Links naast de baan, zodat de kegels in beeld blijven.
+    const bw = Math.min(w * .3, h * .6), rh = h * .062, x0 = w * .025, y0 = h * .16;
+    ctx.fillStyle = 'rgba(5,6,15,.72)';
+    ctx.fillRect(x0, y0, bw, rh * list.length + h * .02);
+    ctx.strokeStyle = 'rgba(255,201,74,.7)';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(x0, y0, bw, rh * list.length + h * .02);
+    ctx.font = `700 ${Math.round(rh * .55)}px Orbitron, sans-serif`;
+    list.forEach((r, i) => {
+      const y = y0 + h * .01 + rh * (i + .5);
+      ctx.textAlign = 'left';
+      ctx.fillStyle = i === 0 ? '#ffc94a' : '#e8f1ff';
+      ctx.fillText(`${i + 1}`, x0 + rh * .4, y);
+      ctx.fillStyle = r.color;
+      ctx.fillRect(x0 + rh * 1.1, y - rh * .2, rh * .14, rh * .4);
+      ctx.fillStyle = '#e8f1ff';
+      ctx.fillText(r.name, x0 + rh * 1.45, y, bw * .55);
+      ctx.textAlign = 'right';
+      ctx.fillStyle = '#ffc94a';
+      ctx.fillText(String(r.score), x0 + bw - rh * .4, y);
+    });
+  }
+  ctx.restore();
+}
+
 // Glimmende runensterren (geen confetti).
 function stars(x, y, n) {
   fx.burst(x, y, { n, color: '#ffc94a', speed: 520, life: 1.1, size: 6, up: 140 });
@@ -250,12 +323,14 @@ setInterval(() => {
 }, 200);
 
 $('start').addEventListener('click', () => socket.emit('kb-start'));
-$('p-finish').addEventListener('click', async () => {
-  if (await Ui.vraag('Het spel nu stoppen en de eindstand tonen?')) socket.emit('kb-finish');
-});
 $('restart').addEventListener('click', () => socket.emit('kb-restart'));
 $('close').addEventListener('click', () => socket.emit('kb-stop', null, () => show('setup')));
+// Eén knop Stoppen: tijdens het spel toont hij de eindstand, in de wachtzaal gaat hij terug naar het begin.
 $('stop').addEventListener('click', async () => {
+  if (state && state.phase === 'play') {
+    if (await Ui.vraag('Het spel stoppen en de eindstand tonen?', { ja: 'Ja, eindstand tonen', nee: 'Verder spelen' })) socket.emit('kb-finish');
+    return;
+  }
   if (!await Ui.vraag('Het spel stoppen en terug naar het begin?')) return;
   socket.emit('kb-stop', null, res => {
     const note = $('stopped');

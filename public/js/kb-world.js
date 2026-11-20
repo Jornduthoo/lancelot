@@ -8,7 +8,7 @@
 })(typeof self !== 'undefined' ? self : this, () => {
   const HALF = 0.53;          // halve breedte van de baan
   const GUTTER = 0.2;         // breedte van een goot
-  const WALL = 0.78;          // de zijwanden bij de kegels (daar ketsen kegels terug)
+  const WALL = 0.7;           // de zijwanden bij de kegels (daar ketsen kegels terug, ze blijven op het kegeldek)
   const HEAD = 18.3;          // de voorste kegel
   const PIT = 19.25;          // daarachter valt alles in de put
   const END = 19.6;           // einde van de baan
@@ -178,5 +178,73 @@
     return { down, gutter: sim.b.gutter, t: sim.t };
   }
 
-  return { HALF, GUTTER, WALL, HEAD, PIT, END, SP, ROW, PIN_R, BALL, GOLD, DT, LIMITS, PINS, COLORS, clean, create, step, runTo, play };
+  // ---------- De scorekaart (zoals echt bowlen) ----------
+  // rolls: hoeveel kegels elke bal van dit spel omgooide. Geeft per beurt de tekens (X, /, -, 0-9) en het totaal
+  // zodra dat vaststaat (strike = 10 + de volgende 2 ballen, spare = 10 + de volgende bal), en waar je nu staat.
+  function card(rolls) {
+    const mark = n => (n === 0 ? '-' : String(n));
+    const frames = [];
+    let i = 0, total = 0, score = 0;
+    for (let f = 0; f < 10 && i < rolls.length; f++) {
+      const fr = { marks: [], total: null };
+      if (f < 9) {
+        const a = rolls[i], b = rolls[i + 1];
+        if (a === 10) {
+          fr.marks = ['X'];
+          if (i + 2 < rolls.length) { total += 10 + rolls[i + 1] + rolls[i + 2]; fr.total = total; }
+          i += 1;
+        } else {
+          fr.marks = [mark(a)];
+          if (b !== undefined) {
+            if (a + b === 10) {
+              fr.marks.push('/');
+              if (i + 2 < rolls.length) { total += 10 + rolls[i + 2]; fr.total = total; }
+            } else { fr.marks.push(mark(b)); total += a + b; fr.total = total; }
+          }
+          i += 2;
+        }
+      } else {
+        const r = rolls.slice(i, i + 3);
+        let fresh = true, prev = 0;
+        for (const k of r) {
+          if (fresh) { fr.marks.push(k === 10 ? 'X' : mark(k)); if (k !== 10) { fresh = false; prev = k; } }
+          else { fr.marks.push(prev + k === 10 ? '/' : mark(k)); fresh = true; }
+        }
+        const done = r.length === 3 || (r.length === 2 && r[0] + r[1] < 10);
+        if (done) { total += r.reduce((x, y) => x + y, 0); fr.total = total; }
+        i += r.length;
+      }
+      if (fr.total !== null) score = fr.total;
+      frames.push(fr);
+    }
+    // Waar sta je nu: beurt, bal, en of er een vers rek kegels staat.
+    const at = where(rolls);
+    return { frames, score, ...at };
+  }
+
+  function where(rolls) {
+    let i = 0;
+    for (let f = 1; f <= 10; f++) {
+      if (f < 10) {
+        if (i >= rolls.length) return { frame: f, ball: 1, fresh: true, done: false };
+        if (rolls[i] === 10) { i += 1; continue; }
+        if (i + 1 >= rolls.length) return { frame: f, ball: 2, fresh: false, done: false };
+        i += 2;
+      } else {
+        const r = rolls.slice(i);
+        if (r.length === 0) return { frame: 10, ball: 1, fresh: true, done: false };
+        if (r.length === 1) return { frame: 10, ball: 2, fresh: r[0] === 10, done: false };
+        if (r.length === 2) {
+          if (r[0] + r[1] < 10 && r[0] !== 10) return { frame: 10, ball: 2, fresh: false, done: true };
+          // Na een strike en een gewone bal: het rek staat nog half; na X X of een spare: een vers rek.
+          const fresh = r[0] === 10 ? r[1] === 10 : true;
+          return { frame: 10, ball: 3, fresh, done: false };
+        }
+        return { frame: 10, ball: 3, fresh: false, done: true };
+      }
+    }
+    return { frame: 10, ball: 3, fresh: false, done: true };
+  }
+
+  return { card, where, HALF, GUTTER, WALL, HEAD, PIT, END, SP, ROW, PIN_R, BALL, GOLD, DT, LIMITS, PINS, COLORS, clean, create, step, runTo, play };
 });
