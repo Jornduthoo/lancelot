@@ -36,6 +36,7 @@
   <div id="klaskiezer"></div>
 
   <!-- Bovenaan: wie nu bezig is en de toetsen die lopen (zonder te scrollen). -->
+  <p class="toestel-stand hidden" data-toestellen></p>
   <div id="tk-nu-top"></div>
   <section class="panel form tk-nieuw">
     <h2><i class="ic ic-taak" aria-hidden="true"></i> Nieuwe taak</h2>
@@ -149,7 +150,6 @@
       <h2 id="tk-gegeven-kop">Gegeven taken</h2>
       <label class="inline tk-toon-dicht"><input type="checkbox" id="tk-toon-dicht"> Afgesloten taken tonen</label>
     </div>
-    <p class="muted small hidden" id="tk-lesmap-tip">📂 Taken uit je lesmap: wat de leerlingen doen, staat op de pc waarmee ze verbonden zijn (meestal het digibord). Volg ze daar op.</p>
     <div id="tk-taken"></div>
     <p class="muted" id="tk-geen">Nog geen taken gegeven.</p>
   </section>
@@ -222,5 +222,6 @@
 <script src="/js/pf-paper.js"></script>
 <script src="/js/quiz-list.js"></script>
 <script src="/js/tk-host.js"></script>
+<script src="/js/toestellen.js"></script>
 </body>
 </html>

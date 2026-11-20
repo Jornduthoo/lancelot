@@ -164,3 +164,4 @@
 .tk-al-info:empty, #tk-per-info:empty, #tk-snel-info:empty { display: none; }
 .tk-taak-na, .tk-taak-verschil { display: block; color: var(--cyan); }
 .tk-ll.wacht:not(.bezig):not(.klaar) { opacity: .6; }
+.tk-ll-pc { font-size: .75em; font-weight: 600; color: var(--cyan); }

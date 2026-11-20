@@ -107,6 +107,7 @@ const eerstestart = require('./src/eerstestart');
 const overzicht = require('./src/overzicht');
 const zorg = require('./src/zorg');
 const opvolgen = require('./src/opvolgen');
+const toestellen = require('./src/toestellen');
 const notities = require('./src/notities');
 const herhaal = require('./src/herhaal');
 const results = require('./src/results');
@@ -632,6 +633,8 @@ lesmap.init([
   // Hoe ver de leerlingen zijn met elke taak: de pc waar ze werken zet het hier, je andere pc's tonen het.
   // De afnames van toetsen (De Proef, ook een toets als taak): zo zie en verbeter je ze op elke pc. Per leerling en per vraag samenvoegen.
   { kind: 'afnames', dir: () => proeven.AFNAMES, perKlas: true, remote: 'toetsen-resultaten', validate: proeven.afnameGeldig, merge: proeven.afnameSamen },
+  // Welke pc's er zijn en wanneer ze het laatst iets stuurden (statusregel "Bijgewerkt van …").
+  { kind: 'toestellen', dir: toestellen.DIR, remote: 'toestellen', validate: toestellen.geldig },
   { kind: 'takenstand', dir: () => taken.STAND, perKlas: true, remote: 'taken-stand', validate: taken.standGeldig },
   // De klastaken van De Wachtlijst (de taken en de beurt, niet de volgorde van de leerlingen).
   { kind: 'klastaken', dir: () => klastaken.DIR, perKlas: true, remote: 'klastaken', validate: klastaken.geldig },
@@ -672,6 +675,7 @@ function runSync() {
   try { toetsmail.naarLesmap(); } catch (err) { console.error('Adressen voor toetsen mailen bewaren mislukt:', err.message); }
   runen.verhuis();
   if (settings.read().lesmap) {
+    try { toestellen.hartslag(); } catch (err) { console.error('Toestel voor de lesmap bewaren mislukt:', err.message); }
     try { const i = echteKaart(); taken.naarLesmapStand(i ? `${i.address}:${PORT}` : ''); } catch (err) { console.error('Stand van de taken voor de lesmap bewaren mislukt:', err.message); }
     try { burchten.naarLesmap(); } catch (err) { console.error('Klaseiland voor de lesmap bewaren mislukt:', err.message); }
   }
@@ -1893,6 +1897,8 @@ io.on('connection', socket => {
     socket.on('tk-bronnen', handle(() => ({ quizzen: quizzes.list(), bladen: oefenbladen.list(), toetsen: proeven.list(), klas: klas.names(), gast: klas.read().leerlingen.filter(l => l.gast).map(l => l.naam) })));
     socket.on('tk-lijst', handle(() => { socket.join(TAKEN_KIJKERS); return { taken: taken.lijst() }; }));
     // Mijn klas › Opvolgen: leerlingen × taken en toetsen.
+    socket.on('toestel-stand', handle(() => toestellen.stand(taken.standen(), lesmap.view())));
+    socket.on('toestel-naam', handle(n => { const r = toestellen.zetNaam(n); syncSoon(); return r; }));
     socket.on('op-overzicht', handle(() => { socket.join(TAKEN_KIJKERS); return opvolgen.overzicht(); }));
     socket.on('tk-voorbeeld', handle(arg => taken.voorbeeld(arg || {})));
     socket.on('tk-les', handle(arg => ({ les: taken.lesVan(arg), start: zonnewijzer.lesStart(arg || {}) })));

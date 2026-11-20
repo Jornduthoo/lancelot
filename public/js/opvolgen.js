@@ -43,7 +43,7 @@ function vakjeTekst(v) {
   if (!v) return '–';
   if (v.inhalen && v.status === 'nieuw') return 'inhalen';
   if (v.status === 'nieuw') return '';
-  if (v.status === 'bezig') return v.totaal ? `${v.gedaan}/${v.totaal}` : '…';
+  if (v.status === 'bezig') return (v.totaal ? `${v.gedaan}/${v.totaal}` : '…') + (v.elders ? ' 💻' : '');
   if (v.status === 'verbeteren') return v.max ? `${nl(v.punten)}/${nl(v.max)} ✎` : '✎';
   return v.max ? `${nl(v.punten)}/${nl(v.max)}` : '✔';
 }

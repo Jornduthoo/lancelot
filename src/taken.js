@@ -10,6 +10,7 @@ const fs = require('fs');
 const path = require('path');
 const gegevens = require('./gegevens');
 const klas = require('./klas');
+const toestellen = require('./toestellen');
 const doelen = require('./doelen');
 const logboek = require('./logboek');
 const sheets = require('./oefenbladen');
@@ -618,10 +619,10 @@ function werkOveral(t, per) {
       if (!r || !RANG[r.status]) continue;
       if (!best || RANG[r.status] > RANG[best.w.status] || (RANG[r.status] === RANG[best.w.status] && s.tijd > best.s.tijd)) best = { w: r, s };
     }
-    return best ? { ...best.w, elders: { pc: best.s.pc, adres: best.s.adres, tijd: best.s.tijd } } : w;
+    return best ? { ...best.w, elders: { pc: toestellen.naamVan(best.s.pc), adres: best.s.adres, tijd: best.s.tijd } } : w;
   });
 }
-const eldersVan = (t, per) => (per.get(t.id) || []).map(s => ({ pc: s.pc, adres: s.adres, tijd: s.tijd }));
+const eldersVan = (t, per) => (per.get(t.id) || []).map(s => ({ pc: toestellen.naamVan(s.pc), adres: s.adres, tijd: s.tijd }));
 
 // Na welke taak (meerdere niveaus na elkaar): de titel en het niveau van die eerste taak.
 function naInfo(id) {
