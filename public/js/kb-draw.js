@@ -24,9 +24,10 @@ const KbDraw = (() => {
     return bake('baan', () => {
       const c = mk(256, 1024), g = c.getContext('2d');
       if (ART.baan) {
-        // Het geschilderde stuk herhalen over de hele lengte.
-        const hh = 256 * ART.baan.height / ART.baan.width;
-        for (let y = 0; y < 1024; y += hh) g.drawImage(ART.baan, 0, y, 256, hh);
+        // Het geschilderde beeld één keer over de hele lengte (de pijltjes komen zo één keer, in de aanloop).
+        // Zonder de buitenrand van het beeld: de baan krijgt in het spel zelf een gouden rand.
+        const cut = ART.baan.width * .07;
+        g.drawImage(ART.baan, cut, 0, ART.baan.width - cut * 2, ART.baan.height, 0, 0, 256, 1024);
         return c;
       }
       const boards = 13, bw = 256 / boards;
@@ -132,20 +133,19 @@ const KbDraw = (() => {
   // De hal achter de baan. Wat niet beweegt (lucht, bogen, vloer), bakken we één keer per schermgrootte.
   function hall(ctx, C) {
     const { w, h } = C;
-    if (ART.hal) {
-      const img = ART.hal;
-      // Wat dichter bij de kegels: de hal komt iets dichterbij.
-      const zoom = 1 + Math.max(0, (C.y + 2.2) / (V_HEAD + 2)) * .25;
-      const sw = Math.max(w, h * .62 * img.width / img.height) * zoom, sh = sw * img.height / img.width;
-      ctx.drawImage(img, w / 2 - sw / 2 - C.x * 40, C.hz - sh * .5, sw, sh);
-      if (C.hz - sh * .5 > 0) { ctx.fillStyle = '#05060f'; ctx.fillRect(0, 0, w, C.hz - sh * .5 + 1); }
-    }
     const bg = bake(['hal', w, h, ART.hal ? 'a' : ''].join('|'), () => {
-      const c = mk(w, h), g = c.getContext('2d');
-      if (!ART.hal) {
+      // 80 px breder, zodat de hal opzij kan schuiven als de camera de bal volgt (zonder te schalen per beeld).
+      const c = mk(w + 80, h), g = c.getContext('2d');
+      g.translate(40, 0);
+      if (ART.hal) {
+        const img = ART.hal;
+        const sw = Math.max(w + 80, h * .62 * img.width / img.height) * 1.1, sh = sw * img.height / img.width;
+        g.fillStyle = '#05060f'; g.fillRect(-40, 0, w + 80, h);
+        g.drawImage(img, w / 2 - sw / 2, C.hz - sh * .5, sw, sh);
+      } else {
         const sky = g.createLinearGradient(0, 0, 0, h);
         sky.addColorStop(0, '#0a0b1f'); sky.addColorStop(.35, '#171436'); sky.addColorStop(1, '#07060f');
-        g.fillStyle = sky; g.fillRect(0, 0, w, h);
+        g.fillStyle = sky; g.fillRect(-40, 0, w + 80, h);
         g.strokeStyle = 'rgba(94,231,255,.35)';
         g.lineWidth = 2;
         for (let i = 1; i <= 4; i++) {
@@ -157,30 +157,32 @@ const KbDraw = (() => {
       }
       const fl = g.createLinearGradient(0, C.hz, 0, h);
       fl.addColorStop(0, 'rgba(10,8,24,.0)'); fl.addColorStop(.15, 'rgba(10,8,24,.85)'); fl.addColorStop(1, '#05040c');
-      g.fillStyle = fl; g.fillRect(0, C.hz, w, h - C.hz);
+      g.fillStyle = fl; g.fillRect(-40, C.hz, w + 80, h - C.hz);
       return c;
     });
     if (baked.size > 12) for (const k of [...baked.keys()]) if (k.startsWith('hal|') && !k.startsWith(['hal', w, h].join('|'))) baked.delete(k);
-    ctx.drawImage(bg, 0, 0);
+    ctx.drawImage(bg, Math.round(-40 - Math.max(-1, Math.min(1, C.x)) * 40), 0);
   }
 
   function lane(ctx, C) {
     const tex = laneTex();
     // Van ver naar dichtbij, in reepjes die dichtbij groter worden.
-    const ys = [];
-    const v0 = Math.max(C.y + .3, -0.6), v1 = V_END;
-    const N = 44;
-    for (let i = 0; i <= N; i++) { const k = i / N; ys.push(v0 + (v1 - v0) * (1 - Math.pow(1 - k, 2.2))); }
+    const v0 = Math.max(C.y + .3, -0.6);
     const inv = v => (v < BEND * .5 ? v / .5 : v - BEND * .5 + BEND);
-    for (let i = N - 1; i >= 0; i--) {
-      const ya = inv(ys[i]), yb = inv(ys[i + 1]);
-      const pa = proj(C, -W.HALF, ya), pb = proj(C, -W.HALF, yb);
-      const wa = W.HALF * 2 * pa.s;
-      const top = pb.y, hgt = pa.y - pb.y + .8;
-      if (pa.y < 0 || top > C.h) continue;
-      // Stuk textuur dat bij deze reep hoort (de textuur is de hele baan lang).
+    // In dunne reepjes op het scherm (van onder naar boven): elke reep krijgt de breedte van zijn midden.
+    // Dichtbij zijn de reepjes het smalst, daar zie je trapjes in de planken het eerst.
+    const yBot = Math.min(C.h, proj(C, 0, inv(v0)).y), yTop = Math.max(0, proj(C, 0, W.END).y);
+    const depth = sy => C.camH * C.F / Math.max(.5, sy - C.hz);
+    // Hoe ver een plank aan de rand verschuift per pixel hoogte: daarop kiezen we de dikte van een reep (max ~1 px fout).
+    const per = W.HALF / C.camH;
+    const step = Math.max(2, Math.min(12, 1.2 / per));
+    for (let sy = yBot; sy > yTop + .2; sy -= step) {
+      const s0 = Math.max(yTop, sy - step);
+      const ya = inv(C.y + depth(sy)), yb = inv(C.y + depth(s0)), ym = inv(C.y + depth((sy + s0) / 2));
+      const pm = proj(C, -W.HALF, ym);
+      const wm = W.HALF * 2 * pm.s;
       const ty0 = 1024 * (1 - Math.min(1, yb / W.END)), ty1 = 1024 * (1 - Math.min(1, ya / W.END));
-      ctx.drawImage(tex, 0, ty0, 256, Math.max(1, ty1 - ty0), pa.x, top, wa, hgt);
+      ctx.drawImage(tex, 0, ty0, 256, Math.max(1, ty1 - ty0), pm.x, s0, wm, sy - s0 + .7);
     }
     // Goten en zijwanden na de baan: hun rechte randen bedekken de trapjes van de reepjes.
     const quad = (x0, x1, col) => {
@@ -213,9 +215,11 @@ const KbDraw = (() => {
     ctx.fillStyle = wall;
     ctx.fillRect(p0.x, top.y, p1.x - p0.x, p0.y - top.y);
     ctx.save();
-    ctx.shadowColor = '#5ee7ff'; ctx.shadowBlur = 10;
-    ctx.strokeStyle = '#5ee7ff'; ctx.lineWidth = Math.max(2, Math.min(5, p0.s * .02));
-    ctx.beginPath(); ctx.moveTo(p0.x, p0.y); ctx.lineTo(p0.x, top.y); ctx.lineTo(p1.x, top.y); ctx.lineTo(p1.x, p0.y); ctx.stroke();
+    // Gloed zonder shadowBlur (die is traag op een Chromebook): eerst breed en doorschijnend, dan smal en fel.
+    const lw = Math.max(2, Math.min(5, p0.s * .02));
+    ctx.beginPath(); ctx.moveTo(p0.x, p0.y); ctx.lineTo(p0.x, top.y); ctx.lineTo(p1.x, top.y); ctx.lineTo(p1.x, p0.y);
+    ctx.strokeStyle = 'rgba(94,231,255,.25)'; ctx.lineWidth = lw * 3; ctx.stroke();
+    ctx.strokeStyle = '#5ee7ff'; ctx.lineWidth = lw; ctx.stroke();
     // Drie runen op de achterwand
     ctx.fillStyle = 'rgba(255,201,74,.85)';
     ctx.font = `${Math.max(8, Math.round((p0.y - top.y) * .45))}px serif`;
