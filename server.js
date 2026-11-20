@@ -814,7 +814,7 @@ app.get('/toets', (req, res) => {
 app.get('/proef-kopie', (req, res) => {
   if (!isLeerkracht(req)) return res.status(403).send(GEEN_TOEGANG);
   let data;
-  try { data = proeven.kopieData(String(req.query.afname || ''), Number(req.query.speler)); } catch (err) { return res.status(404).send(err.message); }
+  try { data = proeven.kopieData(String(req.query.afname || ''), req.query.naam ? String(req.query.naam) : Number(req.query.speler)); } catch (err) { return res.status(404).send(err.message); }
   const json = JSON.stringify(data).replace(/</g, '\\u003c').replace(/\u2028/g, '\\u2028').replace(/\u2029/g, '\\u2029');
   const html = fs.readFileSync(path.join(__dirname, 'public', 'proef-print.html'), 'utf8')
     .replace('<script src="/socket.io/socket.io.js"></script>', () => `<script>window.KOPIE = ${json};</script>`);
@@ -832,13 +832,20 @@ function zetMailWacht(file, aan) {
     proeven.schrijfAfname(rec);
   } catch {}
 }
-function wachtendeMails() {
+// inhalen (bij het opstarten): ook een toets als taak van de laatste 7 dagen. Alleen wat op deze pc afgenomen werd.
+function wachtendeMails({ inhalen = false } = {}) {
   let n = 0;
+  const k = klas.klassen();
+  const deze = k.klassen.find(x => x.id === k.actief);
+  const klasNaam = k.klassen.length > 1 && deze ? (deze.naam || `Klas ${deze.nr}`) : '';
   for (const a of proeven.afnames()) {
     try {
       const rec = proeven.laadAfname(a.file);
-      if (!rec.mailWacht) continue;
-      if (toetsmail.nodig(rec.spelers.filter(s => !s.gemaild))) { toetsKopieen(a.file); n++; } else zetMailWacht(a.file, false);
+      const recent = inhalen && rec.klaar && rec.taak && (!rec.pc || rec.pc === proeven.PC) && rec.spelers.some(s => Date.now() - Date.parse(s.ingeleverd || 0) < 7 * 864e5);
+      if (!rec.mailWacht && !recent) continue;
+      const mail = toetsmail.view().klaar && toetsmail.nodig(rec.spelers.filter(s => !s.gemaild));
+      const pdf = recent && toetskopie.ontbreekt(rec, klasNaam);
+      if (mail || pdf) { toetsKopieen(a.file); n++; } else if (rec.mailWacht && toetsmail.view().klaar) zetMailWacht(a.file, false);
     } catch {}
   }
   return n;
@@ -856,6 +863,10 @@ function naKlaar(file, rec) {
   return { kopie, mail, mailWacht };
 }
 
+// Bij het opstarten: wat nog gemaild moest worden, en de pdf's in de lesmap die ontbreken van een toets als taak
+// die vanzelf verbeterd werd (vóór #578 kwam er dan geen pdf en geen mail). Elke leerling krijgt maar één mail.
+setTimeout(() => { try { wachtendeMails({ inhalen: true }); } catch {} }, 20000).unref();
+
 function toetsKopieen(file) {
   let rec;
   try { rec = proeven.laadAfname(file); } catch { return Promise.resolve({ gemaakt: 0, fout: 'Die afname is niet te vinden.' }); }
@@ -864,9 +875,13 @@ function toetsKopieen(file) {
   const klasNaam = k.klassen.length > 1 && deze ? (deze.naam || `Klas ${deze.nr}`) : '';
   io.to('host').emit('pf-kopie', { file, bezig: true, aantal: rec.spelers.length });
   const gemaildBij = i => {
-    try { const nu = proeven.laadAfname(file); if (nu.spelers[i]) { nu.spelers[i].gemaild = new Date().toISOString(); proeven.schrijfAfname(nu); } } catch {}
+    try {
+      const nu = proeven.laadAfname(file);
+      const s = nu.spelers.find(x => proeven.sleutelVan(x.naam) === proeven.sleutelVan(rec.spelers[i].naam));
+      if (s) { s.gemaild = new Date().toISOString(); proeven.schrijfAfname(nu); }
+    } catch {}
   };
-  return toetskopie.maak({ rec, klas: klasNaam, stand: s => proeven.stand(rec, s), gemaildBij, url: i => `http://127.0.0.1:${PORT}/proef-kopie?afname=${encodeURIComponent(file)}&speler=${i}` })
+  return toetskopie.maak({ rec, klas: klasNaam, stand: s => proeven.stand(rec, s), gemaildBij, url: i => `http://127.0.0.1:${PORT}/proef-kopie?afname=${encodeURIComponent(file)}&speler=${i}&naam=${encodeURIComponent(rec.spelers[i].naam)}` })
     .then(r => {
       // Iedereen met een adres is gemaild: niets meer in de wacht.
       try { if (!toetsmail.heeftAdres(proeven.laadAfname(file).spelers)) zetMailWacht(file, false); } catch {}

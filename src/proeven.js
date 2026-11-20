@@ -12,6 +12,7 @@ const logboek = require('./logboek');
 const K = require('../public/js/pf-kern');
 
 const DIR = gegevens.pad('proeven');
+const PC = String(require('os').hostname() || 'pc').replace(/[^A-Za-z0-9-]/g, '').slice(0, 40) || 'pc';
 // De afnames horen bij de klas (Meerdere klassen): elke klas heeft haar eigen punten.
 const AFNAMES = () => gegevens.pad('proeven', '_afnames');
 
@@ -107,6 +108,7 @@ function bewaarAfname(rec) {
 
 function schrijf(rec) {
   const p = afnamePad(rec.file);
+  if (!rec.pc) rec.pc = PC;
   fs.writeFileSync(`${p}.tmp`, JSON.stringify(rec));
   fs.renameSync(`${p}.tmp`, p);
 }
@@ -227,9 +229,11 @@ function verwijderAfname(file) {
 }
 
 // Wat de kopie van één leerling toont (proef-print.html?kopie): de toets met zijn antwoorden, punten en ✔/✘ per vakje.
+// speler: de plaats in de lijst, of de naam (vast, ook als er intussen iemand bijkwam).
 function kopieData(file, speler) {
   const rec = laadAfname(file);
-  const s = rec.spelers[Number(speler)];
+  const key = n => String(n || '').trim().replace(/\s+/g, ' ').toLowerCase();
+  const s = typeof speler === 'string' ? rec.spelers.find(x => key(x.naam) === key(speler)) : rec.spelers[Number(speler)];
   if (!s) throw new Error('Die leerling staat niet in deze afname.');
   const punten = {};
   const vakken = {};
@@ -243,4 +247,4 @@ function kopieData(file, speler) {
   return { title: rec.title, datum: rec.datum, naam: s.naam, niveau: s.niveau, toets: rec.toets, antwoorden: s.antwoorden, punten, vakken, stand: stand(rec, s) };
 }
 
-module.exports = { kregen, DIR, list, load, save, remove, parseAiText, parseSleutel, lib, bewaarAfname, schrijfAfname: schrijf, laadAfname, afnames, cijfer, klaar, stand, verwijderAfname, kopieData, K };
+module.exports = { PC, sleutelVan: n => String(n || '').trim().replace(/\s+/g, ' ').toLowerCase(), kregen, DIR, list, load, save, remove, parseAiText, parseSleutel, lib, bewaarAfname, schrijfAfname: schrijf, laadAfname, afnames, cijfer, klaar, stand, verwijderAfname, kopieData, K };
