@@ -122,3 +122,28 @@ test('toets als taak: voorlezen, volgorde en punten na het inleveren zijn keuzes
   assert.deepEqual(res.uitslag, { punten: 1, max: 8, hand: 0 });
   fs.rmSync(tmp, { recursive: true, force: true });
 });
+
+test('toets als taak live: bezig na Start, punten op het bord, voorlezen per leerling aan en uit', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'taken-toets-live-'));
+  fs.mkdirSync(path.join(tmp, 'proeven'));
+  fs.writeFileSync(path.join(tmp, 'proeven', 'toets.json'), JSON.stringify({ title: 'Live', vragen: [
+    { type: 'kort', vraag: 'Hoofdstad?', antwoord: 'Brussel', punten: 2 }, { type: 'open', vraag: 'Waarom?', punten: 3 }] }));
+  const res = run(tmp, `
+    klas.write({ naam: '6A', leerjaar: 6, namen: ['Lotte'] });
+    const t = taken.maak({ soort: 'proef', file: 'toets.json', namen: ['Lotte'] });
+    const ll = () => taken.lijst().find(x => x.id === t.id).leerlingen[0];
+    const voor = ll().status;
+    taken.open({ id: t.id, naam: 'Lotte' });
+    taken.toetsAntwoord({ id: t.id, naam: 'Lotte', pos: 0 });
+    const naStart = ll().status;
+    const v0 = taken.open({ id: t.id, naam: 'Lotte' }).voorlees;
+    taken.zetVoorlees({ id: t.id, naam: 'Lotte', aan: true });
+    const v1 = [taken.open({ id: t.id, naam: 'Lotte' }).voorlees, ll().voorlees];
+    taken.toetsAntwoord({ id: t.id, naam: 'Lotte', vraag: '0', waarde: 'Brussel' });
+    const stand = ll();
+    taken.zetVoorlees({ id: t.id, naam: 'Lotte', aan: false });
+    return { voor, naStart, v0, v1, v2: taken.open({ id: t.id, naam: 'Lotte' }).voorlees, punten: [stand.punten, stand.autoMax, stand.hand], gedaan: stand.gedaan };
+  `);
+  assert.deepEqual(res, { voor: 'nieuw', naStart: 'bezig', v0: false, v1: [true, true], v2: false, punten: [2, 2, 3], gedaan: 1 });
+  fs.rmSync(tmp, { recursive: true, force: true });
+});

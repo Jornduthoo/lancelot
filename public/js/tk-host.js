@@ -351,6 +351,7 @@ function tekenTaken() {
   $('tk-geen').classList.toggle('hidden', lijst.length > 0);
   $('tk-geen').textContent = tk.taken.length ? 'Geen open taken. Vink aan om de afgesloten taken te zien.' : 'Nog geen taken gegeven.';
   box.innerHTML = '';
+  $('tk-lesmap-tip').classList.toggle('hidden', !lijst.some(t => t.uitLesmap));
   for (const t of lijst) box.appendChild(kaart(t));
 }
 
@@ -393,14 +394,17 @@ function kaart(t) {
     b.type = 'button';
     const naam = el('span', 'tk-ll-naam', l.naam);
     if (t.niveaus.length > 1) naam.prepend(el('span', `tk-nv ${l.niveau}`, Niveau.ICONS[l.niveau]));
+    // Een toets: 🔊 als de computer voorleest, en na het inleveren de punten die de computer gaf (+ ? = jij verbetert nog).
+    if (t.soort === 'proef' && l.voorlees) naam.append(el('span', 'tk-ll-vl', ' 🔊'));
+    const toetsPunten = t.soort === 'proef' && l.autoMax ? `${PfPaper.nl(l.punten)}/${PfPaper.nl(l.autoMax)}${l.hand ? ' + ?' : ''}` : '';
     const stand = l.status === 'klaar'
-      ? (l.score ? `${l.juist}/${l.score}` : '✔')
+      ? (toetsPunten || (l.score ? `${l.juist}/${l.score}` : '✔'))
       : l.status === 'bezig' ? `${l.gedaan}/${l.totaal}` : '–';
-    const pct = l.status === 'klaar' && l.score ? l.juist / l.score : null;
+    const pct = l.status === 'klaar' && t.soort === 'proef' && l.autoMax ? l.punten / l.autoMax : l.status === 'klaar' && l.score ? l.juist / l.score : null;
     const s = el('span', `tk-ll-stand${pct === null ? '' : pct >= .8 ? ' hoog' : pct < .5 ? ' laag' : ''}`, stand);
     const balk = el('span', 'tk-ll-balk');
     balk.appendChild(el('i')).style.width = `${l.status === 'klaar' ? 100 : l.totaal ? (l.gedaan / l.totaal) * 100 : 0}%`;
-    b.title = STATUS[l.status];
+    b.title = t.soort === 'proef' && l.status === 'bezig' && l.autoMax ? `${STATUS[l.status]} · vraag ${l.pos + 1} · al ${PfPaper.nl(l.punten)} van ${PfPaper.nl(l.autoMax)} punten` : STATUS[l.status];
     b.append(naam, s, balk);
     b.addEventListener('click', () => toonDetail(t.id, l.naam));
     rij.appendChild(b);
@@ -422,7 +426,7 @@ socket.on('tk-lijst', lijst => {
   if (!d || !$('tk-detail').open) return;
   const t = lijst.find(x => x.id === d.id);
   const l = t && t.leerlingen.find(x => x.naam === d.naam);
-  if (!l || l.status !== d.status || l.gedaan !== d.gedaan || l.juist !== d.juist || l.niveau !== d.niveau) toonDetail(d.id, d.naam, true);
+  if (!l || l.status !== d.status || l.gedaan !== d.gedaan || l.juist !== d.juist || l.niveau !== d.niveau || l.punten !== d.puntenNu) toonDetail(d.id, d.naam, true);
 });
 
 // ---------- Eén leerling ----------
@@ -434,10 +438,19 @@ function toonDetail(id, naam, stil) {
       return $('tk-detail').open && $('tk-detail').close();
     }
     tk.detail = res;
+    const nu = res.soort === 'proef' && ((tk.taken.find(x => x.id === id) || {}).leerlingen || []).find(x => x.naam === res.naam);
+    res.puntenNu = nu ? nu.punten : undefined;
     $('d-naam').textContent = `${res.naam} · ${res.titel}`;
     const info = [STATUS[res.status]];
-    if (res.status !== 'nieuw') info.push(`${res.gedaan} van ${res.totaal} gedaan`, ...(res.soort === 'proef' ? [] : [`${res.juist} van ${res.score} juist`]));
+    const ll = res.soort === 'proef' && ((tk.taken.find(x => x.id === id) || {}).leerlingen || []).find(x => x.naam === res.naam);
+    if (res.status !== 'nieuw') info.push(`${res.gedaan} van ${res.totaal} gedaan`, ...(res.soort === 'proef' ? (ll && ll.autoMax ? [`${PfPaper.nl(ll.punten)} van ${PfPaper.nl(ll.autoMax)} punten van de computer${ll.hand ? `, ${PfPaper.ptn(ll.hand)} verbeter jij` : ''}`] : []) : [`${res.juist} van ${res.score} juist`]));
     $('d-info').textContent = info.join(' · ');
+    // Voorlezen aan of uit voor deze leerling, ook terwijl hij werkt.
+    const vl = $('d-voorlees');
+    vl.classList.toggle('hidden', res.soort !== 'proef' || res.status === 'klaar');
+    vl.dataset.aan = ll && ll.voorlees ? '1' : '';
+    vl.textContent = ll && ll.voorlees ? '🔊 Voorlezen: aan' : '🔇 Voorlezen: uit';
+    vl.classList.toggle('on', !!(ll && ll.voorlees));
     const sel = $('d-niveau');
     sel.classList.toggle('hidden', res.niveaus.length < 2);
     sel.innerHTML = res.niveaus.map(n => `<option value="${n}"${n === res.niveau ? ' selected' : ''}>${Niveau.label(n)}</option>`).join('');
@@ -472,6 +485,13 @@ function toonDetail(id, naam, stil) {
 }
 
 $('d-sluit').addEventListener('click', () => $('tk-detail').close());
+$('d-voorlees').addEventListener('click', () => {
+  const d = tk.detail;
+  socket.emit('tk-voorlees', { id: d.id, naam: d.naam, aan: !$('d-voorlees').dataset.aan }, res => {
+    if (res && res.error) return Ui.melding(res.error);
+    toonDetail(d.id, d.naam, true);
+  });
+});
 $('d-heropen').addEventListener('click', () => {
   const d = tk.detail;
   socket.emit('tk-heropen', { id: d.id, naam: d.naam }, uit);

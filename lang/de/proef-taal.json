@@ -430,5 +430,13 @@
  "Een toets met 'Vragen altijd in deze volgorde' blijft altijd in zijn volgorde": "Ein Test mit „Fragen immer in dieser Reihenfolge“ behält immer seine Reihenfolge",
  "Alles door elkaar": "Alles gemischt",
  "Vragen in volgorde (keuzes door elkaar)": "Fragen in Reihenfolge (Auswahl gemischt)",
- "Alles in volgorde": "Alles in Reihenfolge"
+ "Alles in volgorde": "Alles in Reihenfolge",
+ "De computer leest de vragen voor met 🔊 bij deze leerling, ook terwijl hij werkt": "Der Computer liest diesem Kind die Fragen mit 🔊 vor, auch während es arbeitet",
+ "📂 Taken uit je lesmap: wat de leerlingen doen, staat op de pc waarmee ze verbonden zijn (meestal het digibord). Volg ze daar op.": "📂 Aufgaben aus deinem Unterrichtsordner: was die Kinder tun, liegt auf dem PC, mit dem sie verbunden sind (meist die Tafel). Verfolge sie dort.",
+ "🔇 Voorlezen: uit": "🔇 Vorlesen: aus",
+ "🔊 Voorlezen: aan": "🔊 Vorlesen: an",
+ "{0} · vraag {1} · al {2} van {3} punten": "{0} · Frage {1} · schon {2} von {3} Punkten",
+ "{0} van {1} punten van de computer{2}": "{0} von {1} Punkten vom Computer{2}",
+ ", {0} verbeter jij": ", {0} korrigierst du",
+ "Voorlezen kan alleen bij een toets.": "Vorlesen geht nur bei einem Test."
 }

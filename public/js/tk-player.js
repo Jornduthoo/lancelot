@@ -329,6 +329,8 @@ function tkToets(t) {
 }
 $('tk-toets-start').addEventListener('click', () => {
   tk.toetsGestart = true;
+  // Zo ziet de leerkracht meteen dat hij begonnen is.
+  socket.emit('tk-toets', { id: tk.taak.id, naam: tk.naam, pos: tk.taak.pos || 0 }, () => {});
   tkToets(tk.taak);
 });
 $('tk-toets-terug').addEventListener('click', () => tkLijst());
@@ -397,6 +399,17 @@ $('tk-toets-volgende').addEventListener('click', async () => {
 // ---------- Live ----------
 
 // De leerkracht gaf of veranderde een taak: de lijst meteen bijwerken (niet midden in een taak).
+// De leerkracht zet voorlezen aan of uit terwijl de leerling werkt: de vraag opnieuw tonen, met zijn antwoorden.
+socket.on('tk-voorlees', d => {
+  const t = tk.taak;
+  if (!d || !t || t.soort !== 'proef' || t.id !== d.id || String(d.naam).toLowerCase() !== String(tk.naam).toLowerCase()) return;
+  t.voorlees = !!d.aan;
+  if (tk.scherm === 'toets' && !$('tk-toets-werk').classList.contains('hidden')) {
+    if ($('tk-toets-paper').pfFlush) $('tk-toets-paper').pfFlush();
+    tkToetsPagina();
+  }
+});
+
 socket.on('tk-nieuw', () => {
   if (tk.scherm === 'lijst') tkLijst();
 });
