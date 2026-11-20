@@ -582,6 +582,7 @@ function lijst() {
   return all().map(t => ({
     id: t.id, soort: t.soort, file: t.soort === 'proef' ? t.file : undefined, titel: t.titel, vak: t.vak, feedback: t.feedback, gemaakt: t.gemaakt, dicht: t.dicht, spel: spelVan(t), uitLesmap: !!t.uitLesmap,
     niveaus: niveausVan(t.soort, t.inhoud), niveau: t.niveau || null, les: t.les || null, vanaf: zichtbaar(t) ? null : t.vanaf,
+    dag: t.vanaf || t.gemaakt,
     elders: eldersVan(t, per),
     afname: t.soort === 'proef' ? (t.afname || (proeven.afnameVanTaak(t.id) || {}).file || null) : undefined,
     leerlingen: werkOveral(t, per).map(w => ({ naam: w.naam, niveau: w.niveau, status: w.status, klaar: w.klaar, elders: w.elders ? w.elders.pc : undefined, ...voortgang(t, w), ...(t.soort === 'proef' ? toetsStand(t, w) : {}) }))

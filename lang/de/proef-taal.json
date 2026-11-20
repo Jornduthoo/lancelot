@@ -490,5 +490,20 @@
  "Niets meer te verbeteren bij wie inleverde: de computer verbeterde alles.{0} Klik op Alle vragen om een ✔ of ✘ van de computer aan te passen.": "Nichts mehr zu korrigieren bei denen, die abgegeben haben: Der Computer hat alles korrigiert.{0} Klicke auf Alle Fragen, um ein ✔ oder ✘ des Computers zu ändern.",
  "{0} {1} nog bezig.": "{0} {1} noch am Arbeiten.",
  "leerling is": "Schüler ist",
- "leerlingen zijn": "Schüler sind"
+ "leerlingen zijn": "Schüler sind",
+ "LANcelot · Opvolgen": "LANcelot · Übersicht",
+ "Opvolgen": "Übersicht",
+ "Wie heeft wat gedaan? Elke rij is een leerling, elke kolom een taak of toets. Klik op een vakje om het werk te bekijken of te verbeteren.": "Wer hat was gemacht? Jede Zeile ist ein Schüler, jede Spalte eine Aufgabe oder ein Test. Klicke auf ein Feld, um die Arbeit anzusehen oder zu korrigieren.",
+ "Deze maand": "Diesen Monat",
+ "Alles": "Alles",
+ "te verbeteren": "zu korrigieren",
+ "niet voor deze leerling": "nicht für diesen Schüler",
+ "{0}: niet voor deze leerling": "{0}: nicht für diesen Schüler",
+ "(op {0})": "(auf {0})",
+ "Er staat nog geen klaslijst. Zet je leerlingen in Mijn klas › Klas.": "Es gibt noch keine Klassenliste. Trage deine Schüler unter Meine Klasse › Klasse ein.",
+ "Geen taken of toetsen in deze periode. Kies een andere periode of geef een taak bij Taken.": "Keine Aufgaben oder Tests in diesem Zeitraum. Wähle einen anderen Zeitraum oder gib eine Aufgabe unter Aufgaben.",
+ "<td class=\"op-v niet\" title=\"": null,
+ "afname:{0}": null,
+ "nog {0} open": "noch {0} offen",
+ "✔ alles af": "✔ alles fertig"
 }

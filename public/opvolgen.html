@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <script src="/taal.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LANcelot · Opvolgen</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/opvolgen.css">
+</head>
+<body class="klas-host op-host">
+<main>
+  <div class="topbar">
+    <div class="brand" id="brand" title="Naar het startscherm">
+      <img src="/img/mark.webp" alt="">
+      <div>
+        <div class="wordmark">LAN<span>celot</span></div>
+        <div class="subtitle">Mijn klas</div>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="secondary" id="to-home">Terug</button>
+    </div>
+  </div>
+  <nav class="tabbalk" id="klas-tabs" aria-label="Mijn klas">
+    <a href="/klas#klas"><i class="ic ic-namen" aria-hidden="true"></i> Klas</a>
+    <a href="/zorg"><i class="ic ic-zorg" aria-hidden="true"></i> Zorg</a>
+    <a href="/taken"><i class="ic ic-taak" aria-hidden="true"></i> Taken</a>
+    <a href="/opvolgen" class="on" aria-current="page"><i class="ic ic-rooster" aria-hidden="true"></i> Opvolgen</a>
+    <a href="/lezen"><i class="ic ic-boek" aria-hidden="true"></i> Lezen</a>
+    <a href="/klas#doelen"><i class="ic ic-doel" aria-hidden="true"></i> Doelen</a>
+    <a href="/klas#logboek"><i class="ic ic-resultaten" aria-hidden="true"></i> Logboek</a>
+  </nav>
+  <div id="klaskiezer"></div>
+
+  <section class="panel form op-paneel">
+    <div class="op-kop">
+      <h2><i class="ic ic-rooster" aria-hidden="true"></i> Opvolgen</h2>
+      <p class="muted small">Wie heeft wat gedaan? Elke rij is een leerling, elke kolom een taak of toets. Klik op een vakje om het werk te bekijken of te verbeteren.</p>
+    </div>
+    <div class="op-filters">
+      <label>Periode <select id="op-periode">
+        <option value="week" selected>Deze week</option>
+        <option value="vorige">Vorige week</option>
+        <option value="maand">Deze maand</option>
+        <option value="alles">Alles</option>
+      </select></label>
+      <label>Soort <select id="op-soort">
+        <option value="">Alles</option>
+        <option value="oefenblad">Oefenbladen</option>
+        <option value="quiz">Quizzen</option>
+        <option value="proef">Toetsen</option>
+      </select></label>
+      <label>Vak <select id="op-vak"><option value="">Alle vakken</option></select></label>
+    </div>
+    <div class="op-legende">
+      <span class="op-v nieuw"></span> nog niet begonnen
+      <span class="op-v bezig"></span> bezig
+      <span class="op-v verbeteren"></span> te verbeteren
+      <span class="op-v klaar"></span> klaar
+      <span class="op-v niet">–</span> niet voor deze leerling
+    </div>
+    <div class="op-wrap" id="op-wrap"></div>
+    <p class="muted hidden" id="op-leeg"></p>
+  </section>
+</main>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/ui.js"></script>
+<script src="/js/klaskiezer.js"></script>
+<script src="/js/opvolgen.js"></script>
+</body>
+</html>

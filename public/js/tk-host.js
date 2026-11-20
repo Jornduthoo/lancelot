@@ -679,11 +679,23 @@ $('e-ok').addEventListener('click', () => {
   if (namen.size) socket.emit('tk-toevoegen', { id, namen: [...namen] }, uit);
 });
 
+let openNaam = vraag.get('taak') && vraag.get('naam') ? { id: vraag.get('taak'), naam: vraag.get('naam') } : null;
 socket.on('connect', () => {
   laadBronnen();
   socket.emit('tk-lijst', null, res => {
     if (res.error) return;
     tk.taken = res.taken;
+    // Vanuit Opvolgen (?taak=…&naam=…): de juiste soort tonen en meteen het werk van die leerling openen.
+    if (openNaam) {
+      const t = tk.taken.find(x => x.id === openNaam.id);
+      if (t && t.soort !== tk.soort) {
+        tk.soort = t.soort;
+        if (tk.bronnen) vulBron();
+        else for (const b of document.querySelectorAll('.tk-soort button')) b.classList.toggle('on', b.dataset.soort === tk.soort);
+      }
+      if (t) toonDetail(openNaam.id, openNaam.naam);
+      openNaam = null;
+    }
     tekenTaken();
   });
 });
