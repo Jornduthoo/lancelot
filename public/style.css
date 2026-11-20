@@ -2511,3 +2511,8 @@ body:has(.kies-eerst) .panel.form > p.muted.small:last-child { display: none; }
 .toestel-stand a { text-decoration: none; margin-left: 4px; }
 .toestel-stand.rood { color: var(--bad, #e66); }
 .toestel-stand.rood b { color: var(--bad, #e66); }
+/* Instellingen › Taken: standaard per vak */
+.ts-raster { border-collapse: collapse; }
+.ts-raster th, .ts-raster td { padding: 4px 6px; text-align: left; white-space: nowrap; }
+.ts-raster tr:first-child th { font-size: .8rem; color: var(--muted); font-weight: 600; }
+.ts-raster select, .ts-raster input { min-width: 0; }
