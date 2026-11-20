@@ -108,6 +108,7 @@ const overzicht = require('./src/overzicht');
 const zorg = require('./src/zorg');
 const opvolgen = require('./src/opvolgen');
 const toestellen = require('./src/toestellen');
+const takenstandaard = require('./src/takenstandaard');
 const notities = require('./src/notities');
 const herhaal = require('./src/herhaal');
 const results = require('./src/results');
@@ -634,6 +635,8 @@ lesmap.init([
   // De afnames van toetsen (De Proef, ook een toets als taak): zo zie en verbeter je ze op elke pc. Per leerling en per vraag samenvoegen.
   { kind: 'afnames', dir: () => proeven.AFNAMES, perKlas: true, remote: 'toetsen-resultaten', validate: proeven.afnameGeldig, merge: proeven.afnameSamen },
   // Welke pc's er zijn en wanneer ze het laatst iets stuurden (statusregel "Bijgewerkt van …").
+  // De standaardkeuzes voor taken (Instellingen › Taken): per leerkracht, dus niet per klas.
+  { kind: 'takenstandaard', dir: takenstandaard.DIR, remote: 'taken-standaard', validate: takenstandaard.geldig },
   { kind: 'toestellen', dir: toestellen.DIR, remote: 'toestellen', validate: toestellen.geldig },
   { kind: 'takenstand', dir: () => taken.STAND, perKlas: true, remote: 'taken-stand', validate: taken.standGeldig },
   // De klastaken van De Wachtlijst (de taken en de beurt, niet de volgorde van de leerlingen).
@@ -689,6 +692,7 @@ function runSync() {
     for (const kind of changed) {
       if (LIBS[kind]) sendLibrary(kind, null, true);
       else if (kind === 'zonnewijzer') io.to('host').emit('zw-gewijzigd');
+      else if (kind === 'takenstandaard') io.to('host').emit('tk-standaard', takenstandaard.read());
       else if (kind === 'toetsmail') { if (toetsmail.uitLesmap()) io.to('host').emit('toetsmail-gewijzigd'); }
       else if (kind === 'kronieken' || kind === 'bordboeken') io.to('host').emit('kr-lijst', kronieken.lijst());
       else if (kind === 'klastaken') io.to('host').emit('wk-taken', klastaken.read());
@@ -1897,6 +1901,8 @@ io.on('connection', socket => {
     socket.on('tk-bronnen', handle(() => ({ quizzen: quizzes.list(), bladen: oefenbladen.list(), toetsen: proeven.list(), klas: klas.names(), gast: klas.read().leerlingen.filter(l => l.gast).map(l => l.naam) })));
     socket.on('tk-lijst', handle(() => { socket.join(TAKEN_KIJKERS); return { taken: taken.lijst() }; }));
     // Mijn klas › Opvolgen: leerlingen × taken en toetsen.
+    socket.on('tk-standaard', handle(() => takenstandaard.read()));
+    socket.on('tk-standaard-zet', handle(d => { const r = takenstandaard.write(d || {}); io.to('host').emit('tk-standaard', r); syncSoon(); return r; }));
     socket.on('toestel-stand', handle(() => toestellen.stand(taken.standen(), lesmap.view())));
     socket.on('toestel-naam', handle(n => { const r = toestellen.zetNaam(n); syncSoon(); return r; }));
     socket.on('op-overzicht', handle(() => { socket.join(TAKEN_KIJKERS); return opvolgen.overzicht(); }));

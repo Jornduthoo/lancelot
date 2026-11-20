@@ -55,24 +55,75 @@ function wanneer() {
   const later = $('tk-wanneer').value === 'later';
   $('tk-vanaf-label').classList.toggle('hidden', !later);
   $('tk-vanaf').min = lokaal(new Date());
-  // Standaard morgen om half negen.
+  // Standaard de volgende schooldag op je startuur (Instellingen › Taken, anders half negen).
   if (later && !$('tk-vanaf').value) {
     const d = new Date();
     d.setDate(d.getDate() + 1);
-    d.setHours(8, 30, 0, 0);
+    while (d.getDay() === 0 || d.getDay() === 6) d.setDate(d.getDate() + 1);
+    const [u, m] = String((typeof standaard === 'function' && standaard() || {}).startuur || '08:30').split(':').map(Number);
+    d.setHours(u, m, 0, 0);
     $('tk-vanaf').value = lokaal(d);
   }
 }
-$('tk-wanneer').addEventListener('change', wanneer);
-// Voorlezen en volgorde bij een toets: de laatste keuze blijft staan op deze pc (zonder keuze: uit, alles door elkaar).
+$('tk-wanneer').addEventListener('change', () => { wanneer(); stdInfo(); });
+// Standaardkeuzes (Instellingen › Taken): voorlezen, volgorde, punten tonen, verbeteren en startuur, per vak.
+// Wat je hier zelf verandert, blijft staan tot je een taak gaf (ook als je een andere toets kiest).
 const TK_TOETS = 'lancelot-tk-toets';
-try {
-  const k = JSON.parse(localStorage.getItem(TK_TOETS) || '{}');
-  if (['uit', 'page', 'iedereen'].includes(k.voorlees)) $('tk-voorlees').value = k.voorlees;
-  if (['schud', 'vragen', 'alles'].includes(k.volgorde)) $('tk-volgorde').value = k.volgorde;
-  $('tk-uitslag').checked = k.uitslag === true;
-} catch {}
-for (const id of ['tk-voorlees', 'tk-volgorde', 'tk-uitslag']) $(id).addEventListener('change', () => { try { localStorage.setItem(TK_TOETS, JSON.stringify({ voorlees: $('tk-voorlees').value, volgorde: $('tk-volgorde').value, uitslag: $('tk-uitslag').checked })); } catch {} });
+const STD_VELDEN = { voorlees: 'tk-voorlees', volgorde: 'tk-volgorde', uitslag: 'tk-uitslag', feedback: 'tk-feedback' };
+tk.std = null;
+tk.zelf = new Set();
+for (const [k, id] of Object.entries(STD_VELDEN)) $(id).addEventListener('change', () => { tk.zelf.add(k); stdInfo(); });
+function standaard() {
+  const d = tk.std;
+  if (!d) return null;
+  const g = tk.vak && d.vakgroepen.find(x => (VAK_GROEP[x.id] || []).includes(tk.vak));
+  return { ...d.algemeen, ...(g && d.vakken[g.id] ? d.vakken[g.id] : {}), vak: g && d.vakken[g.id] ? g.naam : '' };
+}
+// Welke vakken bij een vakgroep horen (zoals in src/niveaus.js).
+const VAK_GROEP = { wiskunde: ['Wiskunde'], nederlands: ['Nederlands'], frans: ['Frans'], wo: ['Aardrijkskunde', 'Geschiedenis', 'Wetenschap en techniek'] };
+function pasStandaardToe() {
+  const s = standaard();
+  if (!s) return;
+  for (const [k, id] of Object.entries(STD_VELDEN)) {
+    if (tk.zelf.has(k) || s[k] === undefined) continue;
+    if (k === 'uitslag') $(id).checked = !!s[k]; else $(id).value = s[k];
+  }
+  stdInfo();
+}
+const STD_TEKST = {
+  voorlees: { uit: 'niet voorlezen', page: 'voorlezen voor Page', iedereen: 'voorlezen voor iedereen' },
+  volgorde: { schud: 'alles door elkaar', vragen: 'vragen in volgorde', alles: 'alles in volgorde' },
+  feedback: { direct: 'meteen verbeteren', inleveren: 'verbeteren na het inleveren' },
+};
+function stdInfo() {
+  const s = standaard();
+  const box = $('tk-standaard-info');
+  if (!s || !$('tk-bron').value) { box.innerHTML = ''; return; }
+  const delen = tk.soort === 'proef'
+    ? [STD_TEKST.voorlees[s.voorlees], STD_TEKST.volgorde[s.volgorde], s.uitslag ? 'punten meteen tonen' : 'punten na het verbeteren']
+    : tk.soort === 'oefenblad' ? [STD_TEKST.feedback[s.feedback]] : [];
+  if ($('tk-wanneer').value === 'later') delen.push(`start om ${s.startuur}`);
+  const anders = [...tk.zelf].filter(k => k === 'feedback' ? tk.soort === 'oefenblad' : tk.soort === 'proef').length;
+  box.innerHTML = '';
+  if (!delen.length) return;
+  box.append(`⚙️ ${s.vak ? `Volgens je standaard voor ${s.vak}` : 'Volgens je standaard'}: ${delen.join(', ')}${anders ? ' (je veranderde hier iets)' : ''}. `);
+  const a = el('a', '', 'Aanpassen');
+  a.href = `/host?instellingen=taken&terug=${encodeURIComponent('/taken')}`;
+  box.append(a);
+}
+socket.emit('tk-standaard', null, r => {
+  if (!r || r.error) return;
+  tk.std = r;
+  // Nog geen standaard bewaard, wel een laatste keuze op deze pc (van vroeger): die wordt je standaard.
+  if (!r.bewaard) {
+    try {
+      const k = JSON.parse(localStorage.getItem(TK_TOETS) || 'null');
+      if (k) socket.emit('tk-standaard-zet', { algemeen: { ...r.algemeen, ...(k.voorlees ? { voorlees: k.voorlees } : {}), ...(k.volgorde ? { volgorde: k.volgorde } : {}), uitslag: k.uitslag === true } }, n => { if (n && !n.error) { tk.std = n; pasStandaardToe(); } });
+    } catch {}
+  }
+  pasStandaardToe();
+});
+socket.on('tk-standaard', r => { if (r && !r.error) { tk.std = r; pasStandaardToe(); } });
 // Uit de toetsenlijst met 📅 Plannen (?wanneer=later): de keuze "Later" staat al klaar, met morgen half negen.
 if (vraag.get('wanneer') === 'later') { $('tk-wanneer').value = 'later'; wanneer(); }
 function vanaf() {
@@ -203,12 +254,14 @@ function kiesBron() {
   $('tk-bron-info').textContent = '';
   $('tk-nv-label').classList.add('hidden');
   $('tk-niveau').innerHTML = '';
+  pasStandaardToe();
   if (!file) return tekenNamen();
   socket.emit('tk-voorbeeld', { soort: tk.soort, file }, res => {
     if (res.error) return ($('tk-bron-info').textContent = res.error);
     if ($('tk-bron').value !== file) return;
     tk.eigen = res.niveaus.length > 1 ? res : null;
     tk.vak = res.vak;
+    pasStandaardToe();
     tk.niet = new Set(res.niet || []);
     alGegevenInfo(file);
     // Standaard elk zijn eigen niveau; de leerkracht kan ook iedereen op één niveau zetten.
@@ -417,7 +470,9 @@ $('tk-geef').addEventListener('click', async () => {
     knop();
     $('tk-fout').textContent = [...new Set(fouten)].join(' ');
     if (!klaar) return;
-    // Volgende taak weer standaard op ieders eigen niveau.
+    // Volgende taak weer standaard op ieders eigen niveau, en met je standaardkeuzes.
+    tk.zelf.clear();
+    pasStandaardToe();
     $('tk-niveau').value = '';
     kiesNiveau();
     kiesNamen([]);

@@ -608,6 +608,7 @@
     <nav class="tabbalk" id="set-tabs" aria-label="Instellingen">
       <button type="button" data-tab="ai">AI</button>
       <button type="button" data-tab="lesmap">Lesmap</button>
+      <button type="button" data-tab="taken">Taken</button>
       <button type="button" data-tab="uiterlijk">Uiterlijk</button>
       <button type="button" data-tab="gegevens">Gegevens</button>
       <button type="button" data-tab="bijwerken">Bijwerken</button>
@@ -634,6 +635,12 @@
         <button id="lm-open" class="secondary hidden">Map openen</button>
         <button id="lm-off" class="secondary hidden">Loskoppelen</button>
       </div>
+    </div>
+    <div class="panel form" id="taken-standaard" data-tab="taken">
+      <h3>Standaard bij een nieuwe taak<details class="hulp"><summary aria-label="Uitleg">?</summary><p>Wat bij Taken al ingevuld staat als je een taak geeft. Je kan het daar voor één taak altijd nog anders kiezen. Een vak op "= standaard" volgt de eerste rij. Het vak komt uit de doelen van de quiz, het oefenblad of de toets.</p></details></h3>
+      <p class="muted small">Kies één keer hoe jij je taken meestal geeft. Bij Taken staat dan "Volgens je standaard: …" en alles staat al goed. Gaat mee met Mijn lesmap naar je andere pc's.</p>
+      <div class="pf-tabel-wrap"><table class="ts-raster" id="ts-raster"></table></div>
+      <div class="actions"><button type="button" id="ts-bewaar">Bewaar</button> <button type="button" class="secondary" id="ts-reset">Terug naar de standaard van LANcelot</button> <span class="muted small" id="ts-info"></span></div>
     </div>
     <div class="panel form" data-tab="ai">
       <h3>Eigen AI-sleutel (optioneel)<details class="hulp"><summary aria-label="Uitleg">?</summary><p>Zonder sleutel gaat het zo: LANcelot kopieert een opdracht, jij plakt die in een chatbot en kopieert het antwoord. Klik je terug naar LANcelot, dan leest het dat antwoord meestal zelf in, zonder plakken. Met een sleutel doet LANcelot alles zelf. Een sleutel is een lange code die je één keer aanmaakt op de website van de AI-dienst. Deel hem met niemand.</p></details></h3>
@@ -935,6 +942,7 @@
 <script src="/js/doel-kies.js"></script>
 <script src="/js/maker.js"></script>
 <script src="/js/lesmap.js"></script>
+<script src="/js/taken-standaard.js"></script>
 <script src="/js/beheer.js"></script>
 <script src="/js/eerste-start.js"></script>
 <script src="/js/opwarmer.js"></script>
