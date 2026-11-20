@@ -643,6 +643,8 @@ lesmap.init([
   // Welke pc's er zijn en wanneer ze het laatst iets stuurden (statusregel "Bijgewerkt van …").
   // De standaardkeuzes voor taken (Instellingen › Taken): per leerkracht, dus niet per klas.
   { kind: 'takenstandaard', dir: takenstandaard.DIR, remote: 'taken-standaard', validate: takenstandaard.geldig },
+  // Eigen vakken (Mijn klas › Klas › Vakken): toevoegen, hernoemen, verbergen.
+  { kind: 'vakken', dir: niveaus.DIR, remote: 'vakken', validate: niveaus.geldig },
   // Welke poging telt bij een herkansing (Opvolgen › Punten).
   { kind: 'punten', dir: punten.DIR, remote: 'punten', validate: punten.geldig },
   { kind: 'toestellen', dir: toestellen.DIR, remote: 'toestellen', validate: toestellen.geldig },
@@ -1804,6 +1806,18 @@ io.on('connection', socket => {
       syncSoon();
       return { klas: data };
     }));
+    // Een hele kolom tegelijk, of "wie volgt dit vak niet bij mij" met vinkjes (verbeterpunten 20 nov, 8).
+    socket.on('klas-niveaus', handle(({ lijst } = {}) => {
+      if (!Array.isArray(lijst) || lijst.length > 500) throw new Error('Kies leerlingen.');
+      const data = klas.setNiveaus(lijst.map(x => ({ id: String((x && x.id) || ''), niveau: String((x && x.niveau) || ''), vak: String((x && x.vak) || '') })));
+      syncSoon();
+      return { klas: data };
+    }));
+    // Eigen vakken: de lijst (ook verborgen) en de vakken uit je doelen om te koppelen.
+    const vakkenView = () => ({ groepen: niveaus.alle(), doelVakken: [...new Set(doelen.all().map(d => d.vak).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'nl')) });
+    socket.on('vakken-get', handle(() => vakkenView()));
+    socket.on('vakken-zet', handle(({ groepen } = {}) => { niveaus.bewaar(groepen); syncSoon(); return vakkenView(); }));
+    socket.on('vakken-nieuw', handle(({ naam } = {}) => { niveaus.nieuw(naam); syncSoon(); return vakkenView(); }));
     // Op welk niveau de klas de quizspellen speelt (Page, Schildknaap, Ridder of alles door elkaar).
     // Uitleg na een fout antwoord in de spellen (in het Toernooi en het Duel altijd).
     socket.emit('uitleg-spellen', settings.read().uitlegSpellen !== false);
