@@ -1370,5 +1370,8 @@
  "Google weigert dit e-mailadres met dit wachtwoord. Maak een nieuw app-wachtwoord op {0} en plak de 16 letters hier (lukt dat niet met een schooladres, probeer dan je eigen Gmail).": "Google lehnt diese Adresse mit diesem Passwort ab. Erstelle ein neues App-Passwort auf {0} und füge die 16 Buchstaben hier ein (klappt das mit einer Schuladresse nicht, versuch dein eigenes Gmail).",
  "{0} (geen antwoord)": "{0} (keine Antwort)",
  "(niet je gewone wachtwoord; daarvoor moet verificatie in 2 stappen aan staan). De adressen gaan mee met Mijn lesmap, het app-wachtwoord niet: vul dat op elke pc één keer in.": "(nicht dein normales Passwort; die Bestätigung in zwei Schritten muss an sein). Die Adressen gehen mit Mein Unterrichtsordner mit, das App-Passwort nicht: gib es auf jedem PC einmal ein.",
- "⚠ Mailbox: {0}. Vul op deze pc nog het app-wachtwoord in.": "⚠ Postfach: {0}. Gib auf diesem PC noch das App-Passwort ein."
+ "⚠ Mailbox: {0}. Vul op deze pc nog het app-wachtwoord in.": "⚠ Postfach: {0}. Gib auf diesem PC noch das App-Passwort ein.",
+ "✔ Bewaard. Wachtende toetsen worden nu gemaild ({0}).": "✔ Gespeichert. Wartende Tests werden jetzt gemailt ({0}).",
+ "Deze toets is nog niet gemaild: op deze pc ontbreekt het app-wachtwoord. Vul het in bij Mijn klas › Toetsen mailen, dan vertrekt de mail meteen (één keer).": "Dieser Test wurde noch nicht gemailt: auf diesem PC fehlt das App-Passwort. Gib es bei Meine Klasse › Tests mailen ein, dann geht die Mail sofort raus (einmal).",
+ "Nu invullen": "Jetzt eingeben"
 }

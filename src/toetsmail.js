@@ -33,6 +33,11 @@ const klaar = c => !!(c.van && c.pass && c.host);
 // Het adres voor deze leerling (of leeg, ook als het vinkje "automatisch mailen" uit staat).
 const actief = (c, k) => (!c.uit[k] && c.adressen[k]) || '';
 function adresVoor(naam) { return actief(cfg(), sleutel(naam)); }
+// Heeft iemand uit deze afname een adres met het vinkje aan (ook als de mailbox hier nog niet klaar is)?
+function heeftAdres(spelers) {
+  const c = cfg();
+  return (spelers || []).some(s => !s.gemaild && actief(c, sleutel(s.naam)));
+}
 // Moet er voor iemand uit deze afname gemaild worden?
 function nodig(spelers) {
   const c = cfg();
@@ -319,4 +324,4 @@ function uitLesmap() {
   return anders;
 }
 
-module.exports = { LESMAP_DIR, syncGeldig, lesmapSamen, naarLesmap, uitLesmap, uitleg, view, zetAfzender, zetAdres, zetLeerling, adresVoor, nodig, toets, test, verstuur, bericht, sleutel, STANDAARD };
+module.exports = { heeftAdres, klaarOmTeMailen: () => klaar(cfg()), LESMAP_DIR, syncGeldig, lesmapSamen, naarLesmap, uitLesmap, uitleg, view, zetAfzender, zetAdres, zetLeerling, adresVoor, nodig, toets, test, verstuur, bericht, sleutel, STANDAARD };

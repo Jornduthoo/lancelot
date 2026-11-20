@@ -1370,5 +1370,8 @@
  "Google weigert dit e-mailadres met dit wachtwoord. Maak een nieuw app-wachtwoord op {0} en plak de 16 letters hier (lukt dat niet met een schooladres, probeer dan je eigen Gmail).": "Google rejects this email address with this password. Create a new app password at {0} and paste the 16 letters here (if that doesn't work with a school address, try your own Gmail).",
  "{0} (geen antwoord)": "{0} (no answer)",
  "(niet je gewone wachtwoord; daarvoor moet verificatie in 2 stappen aan staan). De adressen gaan mee met Mijn lesmap, het app-wachtwoord niet: vul dat op elke pc één keer in.": "(not your normal password; 2-step verification must be on). The addresses sync with My lesson folder, the app password does not: enter it once on each PC.",
- "⚠ Mailbox: {0}. Vul op deze pc nog het app-wachtwoord in.": "⚠ Mailbox: {0}. Enter the app password on this PC too."
+ "⚠ Mailbox: {0}. Vul op deze pc nog het app-wachtwoord in.": "⚠ Mailbox: {0}. Enter the app password on this PC too.",
+ "✔ Bewaard. Wachtende toetsen worden nu gemaild ({0}).": "✔ Saved. Waiting tests are being emailed now ({0}).",
+ "Deze toets is nog niet gemaild: op deze pc ontbreekt het app-wachtwoord. Vul het in bij Mijn klas › Toetsen mailen, dan vertrekt de mail meteen (één keer).": "This test has not been emailed yet: the app password is missing on this PC. Enter it in My class › Email tests and the email goes out right away (once).",
+ "Nu invullen": "Enter now"
 }

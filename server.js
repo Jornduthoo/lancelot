@@ -822,6 +822,27 @@ app.get('/proef-kopie', (req, res) => {
 });
 
 // Na het verbeteren: per leerling een pdf in Mijn lesmap (als de leerkracht dat aanzette). Loopt op de achtergrond.
+// Een afname die nog gemaild moet worden zodra de mailbox op deze pc klaar is (proeven/_afnames, rec.mailWacht).
+function zetMailWacht(file, aan) {
+  try {
+    const rec = proeven.laadAfname(file);
+    if (!!rec.mailWacht === aan) return;
+    if (aan) rec.mailWacht = true; else delete rec.mailWacht;
+    proeven.schrijfAfname(rec);
+  } catch {}
+}
+function wachtendeMails() {
+  let n = 0;
+  for (const a of proeven.afnames()) {
+    try {
+      const rec = proeven.laadAfname(a.file);
+      if (!rec.mailWacht) continue;
+      if (toetsmail.nodig(rec.spelers.filter(s => !s.gemaild))) { toetsKopieen(a.file); n++; } else zetMailWacht(a.file, false);
+    } catch {}
+  }
+  return n;
+}
+
 function toetsKopieen(file) {
   let rec;
   try { rec = proeven.laadAfname(file); } catch { return Promise.resolve({ gemaakt: 0, fout: 'Die afname is niet te vinden.' }); }
@@ -833,7 +854,12 @@ function toetsKopieen(file) {
     try { const nu = proeven.laadAfname(file); if (nu.spelers[i]) { nu.spelers[i].gemaild = new Date().toISOString(); proeven.schrijfAfname(nu); } } catch {}
   };
   return toetskopie.maak({ rec, klas: klasNaam, stand: s => proeven.stand(rec, s), gemaildBij, url: i => `http://127.0.0.1:${PORT}/proef-kopie?afname=${encodeURIComponent(file)}&speler=${i}` })
-    .then(r => { io.to('host').emit('pf-kopie', { file, ...r }); return r; });
+    .then(r => {
+      // Iedereen met een adres is gemaild: niets meer in de wacht.
+      try { if (!toetsmail.heeftAdres(proeven.laadAfname(file).spelers)) zetMailWacht(file, false); } catch {}
+      io.to('host').emit('pf-kopie', { file, ...r });
+      return r;
+    });
 }
 
 // De afbeeldingen van de toets die nu loopt (zo zitten ze niet in elke stand die naar de leerlingen gaat).
@@ -2468,11 +2494,18 @@ io.on('connection', socket => {
       // Wie een mailadres heeft (bv. de GON-begeleider), krijgt zijn toets ook gemaild.
       const mail = toetsmail.nodig(rec.spelers);
       if (kopie || mail) toetsKopieen(file);
-      return { resultaten: rec.resultaten, kopie, mail };
+      // Wel adressen, maar op deze pc nog geen app-wachtwoord: onthouden en mailen zodra het ingevuld is (niet stil overslaan).
+      const mailWacht = !mail && toetsmail.heeftAdres(rec.spelers);
+      if (mailWacht) zetMailWacht(file, true);
+      return { resultaten: rec.resultaten, kopie, mail, mailWacht };
     }));
     // Toetsen mailen: afzender (eigen mailbox) en een adres per leerling.
     socket.on('pf-mail-view', (_, cb) => typeof cb === 'function' && cb(toetsmail.view()));
-    socket.on('pf-mail-afzender', handle(arg => toetsmail.zetAfzender(arg || {})));
+    socket.on('pf-mail-afzender', handle(arg => {
+      const v = toetsmail.zetAfzender(arg || {});
+      // Toetsen die klaar waren terwijl het wachtwoord hier nog ontbrak: nu alsnog mailen (elke leerling maar één keer).
+      return { ...v, wachtend: v.klaar ? wachtendeMails() : 0 };
+    }));
     socket.on('pf-mail-adres', handle(arg => toetsmail.zetAdres(arg && arg.naam, arg && arg.adres)));
     socket.on('pf-mail-leerling', handle(arg => toetsmail.zetLeerling(arg && arg.naam, arg || {})));
     socket.on('pf-mail-test', (_, cb) => { toetsmail.test().then(() => cb && cb({ ok: true }), err => cb && cb({ error: err.message })); });
