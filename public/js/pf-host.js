@@ -125,25 +125,44 @@ function afnemen(file) {
 
 // Afgenomen toetsen: verder verbeteren.
 let afnames = [];
+let alleAfnames = false;
 socket.on('pf-afnames', list => {
   afnames = list || [];
+  tekenAfnames();
+});
+function tekenAfnames() {
   const box = $('afnames');
   if (!afnames.length) {
     box.innerHTML = '<p class="muted small">Nog geen toetsen afgenomen. Na het afsluiten van een toets verschijnt hij hier.</p>';
     return;
   }
-  box.innerHTML = afnames.map(a => `<div class="pf-afname">
-      <button class="play" data-file="${esc(a.file)}">${esc(a.title)} <span class="muted">· ${new Date(a.datum).toLocaleDateString('nl-BE', { day: 'numeric', month: 'short' })} · ${a.leerlingen} ${a.leerlingen === 1 ? 'leerling' : 'leerlingen'}</span>
-      <span class="tag ${a.klaar && !a.open ? 'ok' : 'todo'}">${a.open ? `${a.open} te verbeteren` : a.klaar ? '✔ klaar' : 'nakijken'}</span></button>
+  // Per toets in één oogopslag: wie bezig is, wie inleverde, wat jij nog verbetert, of hij klaar en gemaild is.
+  // Eerst wat loopt of nog te verbeteren is, dan de rest; niet meer dan 8 tenzij je alles wil zien.
+  const eerst = a => (a.bezig ? 2 : 0) + (a.open ? 1 : 0);
+  const rij = [...afnames].sort((a, b) => eerst(b) - eerst(a) || b.datum.localeCompare(a.datum));
+  const toon = alleAfnames ? rij : rij.slice(0, 8);
+  box.innerHTML = toon.map(a => `<div class="pf-afname">
+      <button class="play" data-file="${esc(a.file)}">${esc(a.title)} <span class="muted">· ${new Date(a.datum).toLocaleDateString('nl-BE', { day: 'numeric', month: 'short' })} · ${a.leerlingen} ${a.leerlingen === 1 ? 'leerling ingeleverd' : 'leerlingen ingeleverd'}</span>
+      ${a.bezig ? `<span class="tag bezig">✏️ ${a.bezig} bezig</span>` : ''}
+      <span class="tag ${a.klaar && !a.open ? 'ok' : 'todo'}">${a.open ? `${a.open} te verbeteren` : a.klaar ? '✔ klaar' : a.leerlingen ? 'nakijken' : 'nog niemand ingeleverd'}</span>
+      ${a.gemaild ? `<span class="tag ok" title="Zoveel leerlingen kregen hun toets gemaild">✉ ${a.gemaild}</span>` : ''}
+      <span class="pf-afname-ga">Verbeteren ▶</span></button>
       <button class="secondary small-btn" data-weg="${esc(a.file)}" title="Verwijderen" aria-label="Verwijderen">✕</button></div>`).join('');
+  if (rij.length > 8) {
+    const m = document.createElement('button');
+    m.className = 'secondary pf-afnames-meer';
+    m.textContent = alleAfnames ? 'Toon minder' : `Toon alle resultaten (${rij.length})`;
+    m.addEventListener('click', () => { alleAfnames = !alleAfnames; tekenAfnames(); });
+    box.appendChild(m);
+  }
   for (const b of box.querySelectorAll('[data-file]')) b.addEventListener('click', () => openAfname(b.dataset.file));
   for (const b of box.querySelectorAll('[data-weg]')) {
     b.addEventListener('click', async () => {
-      if (!await Ui.vraag('Deze afname verwijderen? De antwoorden en punten van de leerlingen gaan naar de prullenbak. Wat al in het logboek of in Excel staat, blijft.')) return;
+      if (!await Ui.vraag('Deze afname verwijderen? De antwoorden en punten van de leerlingen gaan naar de prullenbak, ook op je andere pc\'s met Mijn lesmap. Wat al in het logboek of in Excel staat, blijft.')) return;
       socket.emit('pf-afname-weg', b.dataset.weg, res => { if (res.error) Ui.melding(res.error); });
     });
   }
-});
+}
 
 // ---------- Maken met AI ----------
 
@@ -999,7 +1018,7 @@ $('stop').addEventListener('click', async () => {
 function stopToets() {
   socket.emit('pf-stop', null, res => {
     const note = $('stopped');
-    note.textContent = res && res.afname ? 'De toets is gesloten. Je vindt hem onderaan bij Afgenomen toetsen om verder te verbeteren.' : 'De toets is gesloten.';
+    note.textContent = res && res.afname ? 'De toets is gesloten. Je vindt hem bovenaan bij Resultaten om verder te verbeteren.' : 'De toets is gesloten.';
     note.classList.remove('hidden');
     if (view === 'lobby') show('list');
   });
@@ -1008,14 +1027,48 @@ function stopToets() {
 // ---------- Verbeteren ----------
 
 let afname = null;
-function openAfname(file) {
+let afnameLeerlingen = null;
+function openAfname(file, stil) {
   socket.emit('pf-afname', file, res => {
-    if (res.error) return Ui.melding(res.error);
+    if (res.error) return stil || Ui.melding(res.error);
     if (!afname || afname.file !== res.afname.file) kopieMelding = '';
     afname = res.afname;
-    show('verbeter');
+    afnameLeerlingen = res.leerlingen;
+    if (!stil) show('verbeter');
+    const y = window.scrollY;
     renderAfname();
+    if (stil) window.scrollTo(0, y);
   });
+}
+// Live: een leerling leverde in, of je verbeterde op een andere pc (via Mijn lesmap). Niet terwijl een leerling open staat.
+let afnameTimer = null;
+socket.on('pf-afname-gewijzigd', () => {
+  if (view !== 'verbeter' || !afname) return;
+  clearTimeout(afnameTimer);
+  afnameTimer = setTimeout(function opnieuw() {
+    if (view !== 'verbeter' || !afname) return;
+    if (!$('detail').classList.contains('hidden')) { afnameTimer = setTimeout(opnieuw, 3000); return; }
+    openAfname(afname.file, true);
+  }, 800);
+});
+
+// Wie de toets maakt, in één rij: bezig, ingeleverd met punten, nog te verbeteren, gemaild. Klik: zijn toets.
+function renderStand() {
+  const box = $('v-stand');
+  const rijen = [];
+  const binnen = new Map(afname.spelers.map((s, i) => [s.naam.trim().toLowerCase(), { s, i }]));
+  for (const l of afnameLeerlingen || []) {
+    if (l.status === 'klaar' && binnen.has(l.naam.trim().toLowerCase())) continue;
+    rijen.push(`<span class="pf-st ${l.status}" title="${l.elders ? `Werkt op ${esc(l.elders)}` : ''}"><b>${esc(l.naam)}</b> ${l.status === 'bezig' ? `✏️ bezig · ${l.gedaan}/${l.totaal}` : l.status === 'nieuw' ? '· nog niet begonnen' : '· ingeleverd'}</span>`);
+  }
+  for (const { s, i } of binnen.values()) {
+    const st = standVan(s);
+    rijen.push(`<button type="button" class="pf-st ${st.open ? 'open' : 'klaar'}" data-i="${i}"><b>${esc(s.naam)}</b> ${nl(st.punten)}/${nl(st.max)}${st.open ? ` · ${st.open} te verbeteren` : ' ✔'}${s.gemaild ? ' · ✉' : ''}</button>`);
+  }
+  rijen.sort((a, b) => a.replace(/<[^>]+>/g, '').localeCompare(b.replace(/<[^>]+>/g, ''), 'nl'));
+  box.innerHTML = rijen.join('');
+  box.classList.toggle('hidden', !rijen.length);
+  for (const b of box.querySelectorAll('[data-i]')) b.addEventListener('click', () => leerlingAfname(Number(b.dataset.i)));
 }
 $('v-terug').addEventListener('click', () => show(state && state.active ? 'lobby' : 'list'));
 for (const b of $('v-tabs').querySelectorAll('button')) {
@@ -1127,6 +1180,7 @@ function renderAfname() {
   }
   note.classList.toggle('hidden', !(a.klaar && a.resultaten));
   $('v-klaar').textContent = a.klaar ? 'Excel opnieuw maken' : 'Klaar met verbeteren';
+  renderStand();
   renderKopie();
 
   // Per vraag: wat jij verbetert (open, op papier, de bewerking), of alle vragen om ook de computer te corrigeren.
@@ -1192,7 +1246,7 @@ function zetVak(speler, id, k, klaar) {
   const computer = PfKern.vakGoed(q, s.antwoorden[id], {})[k];
   // Terugdraaien naar wat de computer vond: dan is er geen eigen oordeel meer nodig.
   const nieuw = !goed[k] === computer ? null : !goed[k];
-  socket.emit('pf-cijfer', { file: afname.file, speler, id, vak: k, goed: nieuw }, res => {
+  socket.emit('pf-cijfer', { file: afname.file, speler, naam: afname.spelers[speler].naam, id, vak: k, goed: nieuw }, res => {
     if (res.error) return Ui.melding(res.error);
     s.vak = s.vak || {};
     s.vak[id] = { ...zelf };
@@ -1233,7 +1287,7 @@ function wirePunten(box, na) {
         const s = afname.spelers[Number(g.dataset.speler)];
         const over = g.dataset.over === '1';
         const p = b.dataset.p === 'terug' || (!over && b.classList.contains('on')) ? null : Number(b.dataset.p);
-        socket.emit('pf-cijfer', { file: afname.file, speler: Number(g.dataset.speler), id: g.dataset.id, punten: p, over }, res => {
+        socket.emit('pf-cijfer', { file: afname.file, speler: Number(g.dataset.speler), naam: s.naam, id: g.dataset.id, punten: p, over }, res => {
           if (res.error) return Ui.melding(res.error);
           if (over) {
             s.over = s.over || {};

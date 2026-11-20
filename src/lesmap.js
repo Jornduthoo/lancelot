@@ -1,7 +1,7 @@
 // Mijn lesmap: quizzen, oefenbladen en Ronde Tafel-sessies gelijk houden met een map in OneDrive of Google Drive.
 // Thuis maak je ze in je eigen LANcelot, het digibord haalt ze bij opstart (en daarna elke minuut) binnen, en omgekeerd.
 // Alleen wat de leerkracht maakt gaat mee, plus de namen en niveaus van de klaslijst (om thuis taken per kind klaar te zetten).
-// Logboek, resultaten, notities en avatars blijven altijd op deze pc. (Een pdf-kopie van verbeterde toetsen per leerling
+// Logboek, notities en avatars blijven altijd op deze pc. De resultaten van toetsen (afnames) gaan wel mee: zie proeven.afnameSamen. (Een pdf-kopie van verbeterde toetsen per leerling
 // komt er alleen als de leerkracht dat aanzet: zie src/toetskopie.js.)
 const fs = require('fs');
 const fsp = fs.promises;
@@ -96,6 +96,12 @@ function mergeMeta(lm, rm, seen) {
   return { ...rm, ...lm, ...extra, folders, place, tijd: max('tijd'), mapTijd: max('mapTijd'), weg: max('weg') };
 }
 
+function schrijfNu(dir, name, text) {
+  fs.mkdirSync(dir, { recursive: true });
+  fs.writeFileSync(path.join(dir, `${name}.tmp`), text);
+  fs.renameSync(path.join(dir, `${name}.tmp`), path.join(dir, name));
+}
+
 async function write(dir, name, text) {
   await fsp.mkdir(dir, { recursive: true });
   await fsp.writeFile(path.join(dir, `${name}.tmp`), text);
@@ -164,6 +170,22 @@ async function syncKind(kind, root, state, count) {
     // keep: bij een botsing gaat de versie die verliest naar de prullenbak.
     const pull = async keep => {
       try { kind.validate(JSON.parse(r.text)); } catch { return; }
+      // Kan samenvoegen (bv. de afnames van toetsen): wat hier intussen bijkwam (een leerling leverde net in), nooit
+      // overschrijven. Opnieuw lezen en meteen schrijven, zonder te wachten: dan kan er niets tussen komen.
+      if (kind.merge) {
+        let nu = null;
+        try { nu = fs.readFileSync(path.join(local, name), 'utf8'); } catch {}
+        let text = r.text;
+        if (nu !== null && nu !== (l ? l.text : null)) {
+          try { text = kind.merge(nu, r.text); kind.validate(JSON.parse(text)); } catch { next[name] = s; return; }
+        }
+        schrijfNu(local, name, text);
+        if (text !== r.text) { await write(remote, name, text); count.pushed++; }
+        next[name] = hash(text);
+        changedHere = true;
+        count.pulled++;
+        return;
+      }
       if (l && keep) await trash(local, name);
       await write(local, name, r.text);
       next[name] = r.hash;
@@ -185,8 +207,10 @@ async function syncKind(kind, root, state, count) {
     } else if (l && r && kind.merge) {
       // Aan beide kanten aangepast en de soort kan samenvoegen (de klaslijst): niemand verliest iets.
       let text;
-      try { text = kind.merge(l.text, r.text); kind.validate(JSON.parse(text)); } catch { next[name] = s; continue; }
-      if (text !== l.text) { await write(local, name, text); changedHere = true; count.pulled++; }
+      let nu = l.text;
+      try { nu = fs.readFileSync(path.join(local, name), 'utf8'); } catch {}
+      try { text = kind.merge(nu, r.text); kind.validate(JSON.parse(text)); } catch { next[name] = s; continue; }
+      if (text !== nu) { schrijfNu(local, name, text); changedHere = true; count.pulled++; }
       if (text !== r.text) { await write(remote, name, text); count.pushed++; }
       next[name] = hash(text);
     } else if (l && r) {

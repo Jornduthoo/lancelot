@@ -147,6 +147,7 @@ for (const b of document.querySelectorAll('.tk-soort button')) {
     tk.soort = b.dataset.soort;
     vraag.delete('file');
     vulBron();
+    tekenTaken();
   });
 }
 
@@ -347,11 +348,41 @@ const STATUS = { nieuw: 'Nog niet begonnen', bezig: 'Bezig', klaar: 'Klaar' };
 function tekenTaken() {
   const box = $('tk-taken');
   const toon = $('tk-toon-dicht').checked;
-  const lijst = tk.taken.filter(t => toon || !t.dicht);
+  const alle = tk.taken.filter(t => toon || !t.dicht);
+  // Alleen de soort die je bovenaan koos: Oefenblad toont de gegeven oefenbladen, Toets de gegeven toetsen.
+  const lijst = alle.filter(t => t.soort === tk.soort);
+  $('tk-gegeven-kop').textContent = tk.soort === 'quiz' ? 'Gegeven quizzen' : tk.soort === 'proef' ? 'Gegeven toetsen' : 'Gegeven oefenbladen';
   $('tk-geen').classList.toggle('hidden', lijst.length > 0);
-  $('tk-geen').textContent = tk.taken.length ? 'Geen open taken. Vink aan om de afgesloten taken te zien.' : 'Nog geen taken gegeven.';
+  $('tk-geen').textContent = tk.taken.some(t => t.soort === tk.soort) ? 'Geen open taken van deze soort. Vink aan om de afgesloten taken te zien.'
+    : tk.soort === 'quiz' ? 'Nog geen quizzen gegeven.' : tk.soort === 'proef' ? 'Nog geen toetsen gegeven.' : 'Nog geen oefenbladen gegeven.';
   box.innerHTML = '';
   $('tk-lesmap-tip').classList.toggle('hidden', !lijst.some(t => t.uitLesmap));
+  // Bovenaan: wie nu bezig is, over alle taken heen (ook op je andere pc's). Klik: die leerling.
+  const nu = [];
+  for (const t of alle) for (const l of t.leerlingen) if (l.status === 'bezig') nu.push({ t, l });
+  const top = $('tk-nu-top');
+  top.innerHTML = '';
+  if (nu.length) {
+    const p = el('div', 'panel tk-nu');
+    p.append(el('strong', '', `✏️ Nu bezig (${nu.length})`));
+    const rij = el('div', 'tk-nu-rij');
+    for (const { t, l } of nu) {
+      const b = el('button', 'tk-nu-ll', `${l.naam} · ${t.titel} · ${l.gedaan}/${l.totaal}`);
+      b.type = 'button';
+      if (l.elders) b.title = `Werkt op ${l.elders}`;
+      b.addEventListener('click', () => toonDetail(t.id, l.naam));
+      rij.appendChild(b);
+    }
+    p.appendChild(rij);
+    // De toetsen die lopen: één klik naar het overzicht (punten, verbeteren).
+    for (const t of alle.filter(x => x.soort === 'proef' && x.afname && x.leerlingen.some(l => l.status === 'bezig'))) {
+      const k = t.leerlingen.filter(l => l.status === 'klaar').length, b = t.leerlingen.filter(l => l.status === 'bezig').length;
+      const g = el('a', 'tk-nu-toets', `📝 ${t.titel}: ${k} klaar, ${b} bezig · Verbeteren ▶`);
+      g.href = `/proef?verbeter=${encodeURIComponent(t.afname)}`;
+      p.appendChild(g);
+    }
+    top.appendChild(p);
+  }
   for (const t of lijst) box.appendChild(kaart(t));
 }
 
@@ -376,6 +407,8 @@ function kaart(t) {
     b.addEventListener('click', fn);
     acties.appendChild(b);
   };
+  // Een toets: één klik naar het overzicht in De Proef (punten, verbeteren, Klaar met verbeteren, gemaild).
+  if (t.soort === 'proef' && t.afname) knopje('Verbeteren ▶', () => { location.href = `/proef?verbeter=${encodeURIComponent(t.afname)}`; }, 'gold');
   if (t.vanaf) knopje('▶ Nu al geven', () => socket.emit('tk-start', { id: t.id }, uit));
   if (!t.dicht) knopje('+ Leerlingen', () => erbij(t));
   knopje('👁 Bekijk', () => bekijk({ id: t.id }, t));
@@ -447,7 +480,8 @@ function toonDetail(id, naam, stil) {
     $('d-info').textContent = info.join(' · ');
     // Voorlezen aan of uit voor deze leerling, ook terwijl hij werkt.
     const vl = $('d-voorlees');
-    vl.classList.toggle('hidden', res.soort !== 'proef' || res.status === 'klaar');
+    vl.classList.toggle('hidden', res.soort !== 'proef' || res.status === 'klaar' || !!res.elders);
+    if (res.elders) $('d-info').textContent += ` · werkt op ${res.elders.pc}`;
     vl.dataset.aan = ll && ll.voorlees ? '1' : '';
     vl.textContent = ll && ll.voorlees ? '🔊 Voorlezen: aan' : '🔇 Voorlezen: uit';
     vl.classList.toggle('on', !!(ll && ll.voorlees));

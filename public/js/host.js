@@ -536,3 +536,20 @@ $('restart').addEventListener('click', () => socket.emit('restart'));
 $('close').addEventListener('click', () => socket.emit('close'));
 // Na het podium: toernooi echt afsluiten (resultaten zijn al bewaard) en terug naar het startscherm.
 $('podium-stop').addEventListener('click', () => socket.emit('stop', null, () => { location.href = '/host'; }));
+
+// Startscherm: lopen er toetsen of moet je nog verbeteren? Eén klik naar De Proef (bij één toets meteen die toets).
+socket.on('pf-afnames', lijst => {
+  const b = $('toets-banier');
+  if (!b) return;
+  // Wie nu bezig is, of open vragen van de laatste twee weken (een oude afname laat je niet eeuwig op het startscherm staan).
+  const nu = (lijst || []).filter(a => a.bezig || (a.open && Date.now() - Date.parse(a.datum) < 14 * 864e5));
+  b.classList.toggle('hidden', !nu.length);
+  if (!nu.length) return;
+  const bezig = nu.reduce((n, a) => n + (a.bezig || 0), 0);
+  const open = nu.reduce((n, a) => n + (a.open || 0), 0);
+  const delen = [];
+  if (bezig) delen.push(`${bezig} ${bezig === 1 ? 'leerling' : 'leerlingen'} bezig`);
+  if (open) delen.push(`${open} ${open === 1 ? 'antwoord' : 'antwoorden'} te verbeteren`);
+  $('toets-banier-tekst').textContent = `📝 ${nu.length === 1 ? nu[0].title : `${nu.length} toetsen`}: ${delen.join(' · ')}`;
+  b.href = nu.length === 1 ? `/proef?verbeter=${encodeURIComponent(nu[0].file)}` : '/proef#resultaten';
+});
