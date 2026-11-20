@@ -430,5 +430,13 @@
  "Een toets met 'Vragen altijd in deze volgorde' blijft altijd in zijn volgorde": "Una prueba con «Preguntas siempre en este orden» mantiene siempre su orden",
  "Alles door elkaar": "Todo mezclado",
  "Vragen in volgorde (keuzes door elkaar)": "Preguntas en orden (opciones mezcladas)",
- "Alles in volgorde": "Todo en orden"
+ "Alles in volgorde": "Todo en orden",
+ "De computer leest de vragen voor met 🔊 bij deze leerling, ook terwijl hij werkt": "El ordenador lee las preguntas con 🔊 para este alumno, también mientras trabaja",
+ "📂 Taken uit je lesmap: wat de leerlingen doen, staat op de pc waarmee ze verbonden zijn (meestal het digibord). Volg ze daar op.": "📂 Tareas de tu carpeta de clase: lo que hacen los alumnos queda en el PC al que están conectados (normalmente la pizarra). Síguelos allí.",
+ "🔇 Voorlezen: uit": "🔇 Leer en voz alta: no",
+ "🔊 Voorlezen: aan": "🔊 Leer en voz alta: sí",
+ "{0} · vraag {1} · al {2} van {3} punten": "{0} · pregunta {1} · ya {2} de {3} puntos",
+ "{0} van {1} punten van de computer{2}": "{0} de {1} puntos del ordenador{2}",
+ ", {0} verbeter jij": ", tú corriges {0}",
+ "Voorlezen kan alleen bij een toets.": "Leer en voz alta solo funciona con una prueba."
 }

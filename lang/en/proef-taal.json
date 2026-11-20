@@ -430,5 +430,13 @@
  "Een toets met 'Vragen altijd in deze volgorde' blijft altijd in zijn volgorde": "A test with 'Questions always in this order' always keeps its order",
  "Alles door elkaar": "Everything shuffled",
  "Vragen in volgorde (keuzes door elkaar)": "Questions in order (choices shuffled)",
- "Alles in volgorde": "Everything in order"
+ "Alles in volgorde": "Everything in order",
+ "De computer leest de vragen voor met 🔊 bij deze leerling, ook terwijl hij werkt": "The computer reads the questions aloud with 🔊 for this student, even while they work",
+ "📂 Taken uit je lesmap: wat de leerlingen doen, staat op de pc waarmee ze verbonden zijn (meestal het digibord). Volg ze daar op.": "📂 Tasks from your lesson folder: what students do is stored on the PC they are connected to (usually the board). Follow them there.",
+ "🔇 Voorlezen: uit": "🔇 Read aloud: off",
+ "🔊 Voorlezen: aan": "🔊 Read aloud: on",
+ "{0} · vraag {1} · al {2} van {3} punten": "{0} · question {1} · already {2} of {3} points",
+ "{0} van {1} punten van de computer{2}": "{0} of {1} points from the computer{2}",
+ ", {0} verbeter jij": ", you grade {0}",
+ "Voorlezen kan alleen bij een toets.": "Read aloud only works with a test."
 }

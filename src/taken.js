@@ -169,6 +169,27 @@ function toetsKeuzes(t, p) {
   if (p.keuzesVast === true) t.keuzesVast = true;
   if (p.uitslag === true) t.uitslag = true;
 }
+// Voorlezen aan of uit voor één leerling, ook terwijl hij werkt (zoals bij een afname op het bord).
+function zetVoorlees({ id, naam, aan } = {}) {
+  const t = find(id);
+  if (t.soort !== 'proef') throw new Error('Voorlezen kan alleen bij een toets.');
+  const w = t.werk[key(naam)];
+  if (!w) throw new Error('Die leerling heeft deze taak niet.');
+  w.voorlees = !!aan;
+  save();
+  return { naam: w.naam, aan: w.voorlees };
+}
+// Voor het bord: de punten die de computer al gaf (live), de punten die hij kan geven, en wat de leerkracht nog verbetert.
+function toetsStand(t, w) {
+  let punten = 0, max = 0, hand = 0;
+  for (const { id, q } of K.vragenVan(toets(t, w).lijst)) {
+    max += K.maxVan(q) - K.handPunten(q);
+    punten += Number(w.auto[id]) || 0;
+    hand += K.handPunten(q);
+  }
+  return { punten, autoMax: max, hand, voorlees: voorleesVoor(t, w), pos: w.pos || 0 };
+}
+
 // Wat de leerling haalde, als de leerkracht dat toont na het inleveren (de open vragen tellen pas na het verbeteren).
 function uitslagVoor(t, w) {
   if (!t.uitslag || w.status !== 'klaar') return null;
@@ -182,6 +203,8 @@ function uitslagVoor(t, w) {
 }
 // Leest de computer de vragen voor (🔊) bij deze leerling? 'page': wie de toets op Page maakt of in Mijn klas Page is.
 function voorleesVoor(t, w) {
+  // De leerkracht zette het voor deze leerling aan of uit terwijl hij werkt: dat gaat voor.
+  if (typeof w.voorlees === 'boolean') return w.voorlees;
   if (t.voorlees === 'iedereen') return true;
   if (t.voorlees !== 'page') return false;
   if (w.niveau === 'page') return true;
@@ -494,7 +517,7 @@ function lijst() {
   return all().map(t => ({
     id: t.id, soort: t.soort, file: t.soort === 'proef' ? t.file : undefined, titel: t.titel, vak: t.vak, feedback: t.feedback, gemaakt: t.gemaakt, dicht: t.dicht, spel: spelVan(t), uitLesmap: !!t.uitLesmap,
     niveaus: niveausVan(t.soort, t.inhoud), niveau: t.niveau || null, les: t.les || null, vanaf: zichtbaar(t) ? null : t.vanaf,
-    leerlingen: Object.values(t.werk).map(w => ({ naam: w.naam, niveau: w.niveau, status: w.status, klaar: w.klaar, ...voortgang(t, w) }))
+    leerlingen: Object.values(t.werk).map(w => ({ naam: w.naam, niveau: w.niveau, status: w.status, klaar: w.klaar, ...voortgang(t, w), ...(t.soort === 'proef' ? toetsStand(t, w) : {}) }))
       .sort((a, b) => a.naam.localeCompare(b.naam, 'nl')),
   })).sort(volgorde);
 }
@@ -645,7 +668,8 @@ function toetsAntwoord({ id, naam, vraag, waarde, pos } = {}) {
   if (t.soort !== 'proef') throw new Error('Dit is geen toets.');
   const { lijst, perms } = toets(t, w);
   if (pos !== undefined) w.pos = Math.max(0, Math.round(Number(pos)) || 0);
-  if (vraag === undefined) return { ok: true };
+  // Op Start drukken (of een andere vraag kiezen) is ook begonnen: dan ziet de leerkracht hem meteen als bezig.
+  if (vraag === undefined) { if (pos !== undefined && w.status === 'nieuw') { begin(t, w); save(); } return { ok: true }; }
   const v = K.vragenVan(lijst).find(x => x.id === vraag);
   if (!v) throw new Error('Onbekende vraag.');
   begin(t, w);
@@ -771,4 +795,4 @@ function soloAntwoord({ id, naam, i, keuze, juist } = {}) {
   return { klaar, ...voortgang(t, w) };
 }
 
-module.exports = { toetsAntwoord, set bijAfname(fn) { bijAfname = fn; }, lesVan, gestartSinds, startNu, get PLAN() { return PLAN(); }, planGeldig, uitLesmap, SOLO, MINUTEN, soloRonde, soloAntwoord, voorbeeld, inhoud, maak, voegToe, haalWeg, zetNiveau, sluit, heropen, wis, lijst, detail, mijn, aantal, open, antwoord, inleveren, quizAntwoord, flush, get DIR() { return DIR(); } };
+module.exports = { toetsAntwoord, zetVoorlees, set bijAfname(fn) { bijAfname = fn; }, lesVan, gestartSinds, startNu, get PLAN() { return PLAN(); }, planGeldig, uitLesmap, SOLO, MINUTEN, soloRonde, soloAntwoord, voorbeeld, inhoud, maak, voegToe, haalWeg, zetNiveau, sluit, heropen, wis, lijst, detail, mijn, aantal, open, antwoord, inleveren, quizAntwoord, flush, get DIR() { return DIR(); } };

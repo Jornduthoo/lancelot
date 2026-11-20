@@ -378,7 +378,8 @@ taken.bijAfname = file => {
   const rec = proeven.laadAfname(file);
   if (!rec.spelers.some(s => proeven.stand(rec, s).open)) {
     if (rec.resultaten) try { fs.unlinkSync(results.filePath(rec.resultaten)); } catch {}
-    proeven.klaar(file, results.saveProef);
+    // Meteen verbeterd: ook dan de kopie en de mail, zoals na Klaar in De Proef (wie al gemaild werd, krijgt geen tweede).
+    naKlaar(file, proeven.klaar(file, results.saveProef));
   }
   io.to('host').emit('pf-afnames', proeven.afnames());
 };
@@ -841,6 +842,18 @@ function wachtendeMails() {
     } catch {}
   }
   return n;
+}
+
+// Na Klaar (in De Proef, of vanzelf bij een toets als taak zonder open vragen): de kopie in de lesmap en de mail.
+function naKlaar(file, rec) {
+  const kopie = toetskopie.aan() && !!settings.read().lesmap;
+  // Wie een mailadres heeft (bv. de GON-begeleider), krijgt zijn toets ook gemaild.
+  const mail = toetsmail.nodig(rec.spelers);
+  if (kopie || mail) toetsKopieen(file);
+  // Wel adressen, maar op deze pc nog geen app-wachtwoord: onthouden en mailen zodra het ingevuld is (niet stil overslaan).
+  const mailWacht = !mail && toetsmail.heeftAdres(rec.spelers);
+  if (mailWacht) zetMailWacht(file, true);
+  return { kopie, mail, mailWacht };
 }
 
 function toetsKopieen(file) {
@@ -1824,6 +1837,13 @@ io.on('connection', socket => {
     socket.on('tk-sluit', taak(arg => taken.sluit(arg.id)));
     socket.on('tk-start', taak(taken.startNu));
     socket.on('tk-heropen', taak(taken.heropen));
+    // Voorlezen aan of uit voor één leerling bij een toets als taak: zijn scherm past zich meteen aan.
+    socket.on('tk-voorlees', handle(arg => {
+      const r = taken.zetVoorlees(arg || {});
+      io.emit('tk-voorlees', { id: arg.id, naam: r.naam, aan: r.aan });
+      io.to('host').emit('tk-lijst', taken.lijst());
+      return r;
+    }));
     socket.on('tk-wis', taak(arg => taken.wis(arg.id)));
     socket.on('notitie-add', handle(({ leerling, tekst } = {}) => ({ notities: notities.add(leerling, tekst).slice().reverse() })));
     socket.on('notitie-del', handle(({ leerling, t } = {}) => ({ notities: notities.remove(leerling, t).slice().reverse() })));
@@ -2490,14 +2510,7 @@ io.on('connection', socket => {
       const rec = proeven.klaar(file, results.saveProef);
       sendLibrary('resultaat');
       io.to('host').emit('pf-afnames', proeven.afnames());
-      const kopie = toetskopie.aan() && !!settings.read().lesmap;
-      // Wie een mailadres heeft (bv. de GON-begeleider), krijgt zijn toets ook gemaild.
-      const mail = toetsmail.nodig(rec.spelers);
-      if (kopie || mail) toetsKopieen(file);
-      // Wel adressen, maar op deze pc nog geen app-wachtwoord: onthouden en mailen zodra het ingevuld is (niet stil overslaan).
-      const mailWacht = !mail && toetsmail.heeftAdres(rec.spelers);
-      if (mailWacht) zetMailWacht(file, true);
-      return { resultaten: rec.resultaten, kopie, mail, mailWacht };
+      return { resultaten: rec.resultaten, ...naKlaar(file, rec) };
     }));
     // Toetsen mailen: afzender (eigen mailbox) en een adres per leerling.
     socket.on('pf-mail-view', (_, cb) => typeof cb === 'function' && cb(toetsmail.view()));
