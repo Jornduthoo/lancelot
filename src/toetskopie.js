@@ -98,7 +98,7 @@ function maak({ rec, klas, url, browser, stand, mailOpties, gemaildBij } = {}) {
       if (!fs.existsSync(root)) return { gemaakt: 0, fout: 'Je lesmap is niet te vinden. Staat OneDrive of Google Drive aan?' };
     }
     const lesmapOk = inLesmap && !!root && fs.existsSync(root);
-        const b = browser || zoekBrowser();
+    const b = browser || zoekBrowser();
     if (!b) return { gemaakt: 0, fout: 'Geen Edge of Chrome gevonden om de pdf te maken.' };
     let gemaakt = 0;
     let gemaild = 0;

@@ -114,6 +114,8 @@ function maakBackup() {
         try {
           const s = JSON.parse(data);
           for (const k of ['geminiKey', 'claudeKey', 'openaiKey']) delete s[k];
+          // Ook het app-wachtwoord van de mailbox (toetsen mailen) blijft op deze pc.
+          if (s.toetsMail && typeof s.toetsMail === 'object') { s.toetsMail = { ...s.toetsMail }; delete s.toetsMail.pass; }
           data = Buffer.from(JSON.stringify(s, null, 2) + '\n');
         } catch {}
       }
@@ -189,6 +191,9 @@ function zetTerug() {
         return Object.fromEntries(SLEUTELS.filter(k => s[k]).map(k => [k, s[k]]));
       } catch { return {}; }
     })();
+    const mailPass = (() => {
+      try { const s = JSON.parse(fs.readFileSync(vast('settings.json'), 'utf8')); return (s.toetsMail && s.toetsMail.pass) || ''; } catch { return ''; }
+    })();
     const items = new Set(files.map(f => f.name.split('/')[0]).filter(i => ITEMS.includes(i)));
     for (const item of items) fs.rmSync(vast(item), { recursive: true, force: true });
     for (const f of files) {
@@ -197,9 +202,12 @@ function zetTerug() {
       fs.mkdirSync(path.dirname(target), { recursive: true });
       fs.writeFileSync(target, f.data);
     }
-    if (Object.keys(sleutels).length) {
+    if (Object.keys(sleutels).length || mailPass) {
       const s = (() => { try { return JSON.parse(fs.readFileSync(vast('settings.json'), 'utf8')); } catch { return {}; } })();
-      fs.writeFileSync(vast('settings.json'), JSON.stringify({ ...s, ...sleutels }, null, 2) + '\n');
+      const nieuw = { ...s, ...sleutels };
+      // Het app-wachtwoord zat niet in de back-up: het wachtwoord van deze pc blijft staan.
+      if (mailPass && nieuw.toetsMail && typeof nieuw.toetsMail === 'object' && !nieuw.toetsMail.pass) nieuw.toetsMail = { ...nieuw.toetsMail, pass: mailPass };
+      fs.writeFileSync(vast('settings.json'), JSON.stringify(nieuw, null, 2) + '\n');
     }
     melding = 'De back-up is teruggezet. Een kopie van hoe het ervoor was, staat bij je back-ups.';
     console.log(`  ${melding}`);
