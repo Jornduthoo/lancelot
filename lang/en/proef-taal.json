@@ -490,5 +490,20 @@
  "Niets meer te verbeteren bij wie inleverde: de computer verbeterde alles.{0} Klik op Alle vragen om een ✔ of ✘ van de computer aan te passen.": "Nothing left to mark for those who handed in: the computer marked everything.{0} Click All questions to change a ✔ or ✘ from the computer.",
  "{0} {1} nog bezig.": "{0} {1} still working.",
  "leerling is": "pupil is",
- "leerlingen zijn": "pupils are"
+ "leerlingen zijn": "pupils are",
+ "LANcelot · Opvolgen": "LANcelot · Follow-up",
+ "Opvolgen": "Follow-up",
+ "Wie heeft wat gedaan? Elke rij is een leerling, elke kolom een taak of toets. Klik op een vakje om het werk te bekijken of te verbeteren.": "Who did what? Each row is a pupil, each column a task or test. Click a cell to view or mark the work.",
+ "Deze maand": "This month",
+ "Alles": "All",
+ "te verbeteren": "to mark",
+ "niet voor deze leerling": "not for this pupil",
+ "{0}: niet voor deze leerling": "{0}: not for this pupil",
+ "(op {0})": "(on {0})",
+ "Er staat nog geen klaslijst. Zet je leerlingen in Mijn klas › Klas.": "There is no class list yet. Add your pupils in My class › Class.",
+ "Geen taken of toetsen in deze periode. Kies een andere periode of geef een taak bij Taken.": "No tasks or tests in this period. Choose another period or give a task in Tasks.",
+ "<td class=\"op-v niet\" title=\"": null,
+ "afname:{0}": null,
+ "nog {0} open": "{0} still open",
+ "✔ alles af": "✔ all done"
 }
