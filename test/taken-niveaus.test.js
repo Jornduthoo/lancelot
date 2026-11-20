@@ -38,3 +38,30 @@ test('per leerling een niveau, en een tweede niveau dat pas verschijnt als het e
   assert.strictEqual(o.na.wacht, false);
   assert.deepStrictEqual(o.plan, { ada: 'page', bo: 'ridder' }, 'het gekozen niveau gaat mee naar je andere pc');
 });
+
+// Wensenlijst punt 6: oude taken opruimen sluit ze af (ze blijven bij Afgesloten), behalve waar iemand nog bezig is.
+test('oude taken opruimen: afsluiten, niets wissen, wie bezig is blijft open', () => {
+  const data = fs.mkdtempSync(path.join(os.tmpdir(), 'taken-opruimen-'));
+  const out = execFileSync(process.execPath, ['-e', `
+    const klas = require('./src/klas'), taken = require('./src/taken'), quizzes = require('./src/quizzes');
+    klas.write({ naam: '6A', leerjaar: 6, namen: ['Ada', 'Bo'] });
+    quizzes.save({ title: 'Q', questions: [{ question: 'a?', answers: ['ja', 'nee'], correct: 0 }, { question: 'b?', answers: ['ja', 'nee'], correct: 0 }] }, 'q.json');
+    // Tien dagen geleden gegeven.
+    const Echt = Date, terug = 10 * 864e5;
+    global.Date = class extends Echt { constructor(...a) { if (a.length) super(...a); else super(Echt.now() - terug); } static now() { return Echt.now() - terug; } };
+    const oud = taken.maak({ soort: 'quiz', file: 'q.json', namen: ['Ada'] });
+    const bezig = taken.maak({ soort: 'quiz', file: 'q.json', namen: ['Bo'] });
+    global.Date = Echt;
+    const nieuw = taken.maak({ soort: 'quiz', file: 'q.json', namen: ['Ada'] });
+    taken.quizAntwoord({ id: bezig.id, naam: 'Bo', keuze: 0 });
+    const r = taken.ruimOp({ dagen: 7 });
+    const l = Object.fromEntries(taken.lijst().map(t => [t.id, t.dicht]));
+    process.stdout.write('\\n@@' + JSON.stringify({ r, oud: l[oud.id], bezig: l[bezig.id], nieuw: l[nieuw.id], n: taken.lijst().length }));
+  `], { cwd: ROOT, env: { ...process.env, LANCELOT_DATA: data }, encoding: 'utf8' }).split('\n@@').pop();
+  const o = JSON.parse(out);
+  assert.deepStrictEqual(o.r, { n: 1, bezig: 1 });
+  assert.strictEqual(o.oud, true);
+  assert.strictEqual(o.bezig, false);
+  assert.strictEqual(o.nieuw, false);
+  assert.strictEqual(o.n, 3, 'niets verdwijnt');
+});

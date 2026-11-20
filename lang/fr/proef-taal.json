@@ -594,5 +594,17 @@
  "Volgens je standaard": "Selon votre choix par défaut",
  "(je veranderde hier iets)": "(vous avez changé quelque chose ici)",
  "Ongeldige standaard.": "Valeur par défaut non valide.",
- "Aanpassen": "Modifier"
+ "Aanpassen": "Modifier",
+ "Open taken van meer dan een week geleden afsluiten. Ze blijven bij Afgesloten.": "Clôturer les tâches ouvertes de plus d'une semaine. Elles restent dans Clôturées.",
+ "🧹 Oude taken opruimen": "🧹 Ranger les anciennes tâches",
+ "Gepland later": "Planifié plus tard",
+ "Afgelopen (nog open)": "Passées (encore ouvertes)",
+ "Afgesloten": "Clôturées",
+ "Dichtklappen of openklappen": "Replier ou déplier",
+ "Er zijn geen oude taken om op te ruimen: aan de open taken van vorige week werkt nog iemand.": "Aucune ancienne tâche à ranger : quelqu'un travaille encore sur les tâches ouvertes de la semaine passée.",
+ "Er zijn geen open taken van meer dan een week geleden.": "Il n'y a pas de tâches ouvertes de plus d'une semaine.",
+ "{0} van meer dan een week geleden afsluiten? Ze blijven bij Afgesloten, met alles wat de leerlingen deden.{1}": "Clôturer {0} de plus d'une semaine ? Elles restent dans Clôturées, avec tout ce que les élèves ont fait.{1}",
+ "1 taak": "1 tâche",
+ "1 taak blijft open: daar werkt nog iemand aan.": "1 tâche reste ouverte : quelqu'un y travaille encore.",
+ "{0} taken blijven open: daar werkt nog iemand aan.": "{0} tâches restent ouvertes : quelqu'un y travaille encore."
 }
