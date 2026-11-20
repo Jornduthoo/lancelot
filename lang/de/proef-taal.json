@@ -723,5 +723,12 @@
  "In procent": "In Prozent",
  "Gemiddelde (%)": "Durchschnitt (%)",
  "Gemiddelde over maar 1 toets": "Durchschnitt aus nur 1 Test",
- "1 toets": "1 Test"
+ "1 toets": "1 Test",
+ "🟠 Even opletten": "🟠 Im Auge behalten",
+ "🔴 Aandacht nodig ({0})": "🔴 Braucht Aufmerksamkeit ({0})",
+ "🟠 Even opletten ({0})": "🟠 Im Auge behalten ({0})",
+ "Uit Zorg: de laatste tijd minder dan de helft juist, of ver onder de klas.": "Aus Förderung: zuletzt weniger als die Hälfte richtig oder weit unter der Klasse.",
+ "Uit Zorg: wat onder de klas, gaat achteruit, gokt of heeft meerdere doelen nog niet beheerst.": "Aus Förderung: etwas unter der Klasse, wird schlechter, rät oder mehrere Ziele noch nicht beherrscht.",
+ "🔴 Uit Zorg: de laatste tijd minder dan de helft juist, of ver onder de klas. Aangevinkt: {0}. Wijs een naam aan om te zien waarom.": "🔴 Aus Förderung: zuletzt weniger als die Hälfte richtig oder weit unter der Klasse. Angetippt: {0}. Zeige auf einen Namen, um zu sehen, warum.",
+ "🟠 Uit Zorg: wat onder de klas, gaat achteruit, gokt of heeft meerdere doelen nog niet beheerst. Aangevinkt: {0}. Wijs een naam aan om te zien waarom.": "🟠 Aus Förderung: etwas unter der Klasse, wird schlechter, rät oder mehrere Ziele noch nicht beherrscht. Angetippt: {0}. Zeige auf einen Namen, um zu sehen, warum."
 }
