@@ -247,6 +247,13 @@ Tip: een klas die goed en vlot antwoordt, houdt de poort. Bij veel foute antwoor
 3. Elke vlag is een vraag. Juist: een gouden haak die verder grijpt en harder zwaait.
 4. Wie valt, hangt meteen terug aan zijn laatste anker en slingert verder. Het bord volgt de koploper.
 
+## Kegelridder
+
+1. Kies **De Arena** en dan **Kegelridder**, kies de speeltijd en klik op de quiz. Klik op **Kegelen maar!**
+2. Elke leerling heeft een eigen kegelbaan. Antwoorden geven ballen: elke juiste vraag = één bal.
+3. Gooien: vinger (of muis) op de baan waar de bal moet starten, naar de kegels vegen en loslaten. Sneller vegen = harder, een bocht op het einde = effect. Met toetsen: ← → schuiven, spatie ingedrukt houden en loslaten.
+4. Per beurt twee ballen. Strike = +10 extra, spare = +5 extra. Drie juist op rij geeft een gouden runenbal. Het bord speelt de mooiste worpen na.
+
 ## Titanenstrijd
 
 1. Kies **De Arena** en dan **Titanenstrijd**, kies 2, 3 of 4 titans en de speeltijd, en klik op de quiz. Klik op **Titans, ontwaak!**

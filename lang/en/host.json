@@ -545,5 +545,7 @@
  "{0} leerling": "{0} student",
  "{0} bezig": "{0} working",
  "{0} antwoorden te verbeteren": "{0} answers to correct",
- "{0} antwoord te verbeteren": "{0} answer to correct"
+ "{0} antwoord te verbeteren": "{0} answer to correct",
+ "Kegelridder": "Bowling Knight",
+ "Bowlen in de kegelhal: elke vraag juist = een bal. Veeg je bal naar de tien runenkegels en gooi een strike.": "Bowling in the castle hall: every correct answer = a ball. Swipe your ball at the ten rune pins and roll a strike."
 }
