@@ -55,6 +55,8 @@ ItemList.mount($('toets-list'), {
   errorId: 'list-error',
   go: 'Afnemen ▶',
   detail: t => `${t.count} vragen · ${nl(t.punten)} punten · ${t.types.map(x => TYPE_ICONS[x] || '').join(' ')}${(t.niveaus || []).length > 1 ? ` · ${t.niveaus.map(n => Niveau.ICONS[n]).join('')}` : ''}${t.klaar ? '' : ' · ⚠ nog niet klaar'}`,
+  // Elk icoontje zegt bij aanwijzen wat het is (verbeterpunten 20 nov, 7).
+  detailHtml: t => `${t.count} vragen · ${nl(t.punten)} punten · ${t.types.map(x => `<span title="${esc(PfKern.NAMES[x] || x)}">${TYPE_ICONS[x] || ''}</span>`).join(' ')}${(t.niveaus || []).length > 1 ? ` · ${t.niveaus.map(n => `<span title="${esc(Niveau.NAMES[n])}">${Niveau.ICONS[n]}</span>`).join('')}` : ''}${t.klaar ? '' : ' · ⚠ nog niet klaar'}`,
   play: t => vraagAfname(t.file, t.title),
   buttons: [
     // Plannen: de toets als taak, later op een gekozen dag en uur (Mijn klas › Taken, met deze toets al gekozen).

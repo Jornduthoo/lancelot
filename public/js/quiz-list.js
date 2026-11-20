@@ -278,7 +278,7 @@ const ItemList = (() => {
     // Een rij met veel knoppen blijft rustig: naast de hoofdknop staan hoogstens Bekijken en één vaste knop
     // (een knop met hoofd: true, anders Bewerken). De rest zit achter "Meer", met de naam erbij.
     function meerMenu(el) {
-      const knoppen = [...el.querySelectorAll(':scope > button.extra, :scope > button.edit, :scope > button.export, :scope > button.delete')];
+      const knoppen = [...el.querySelectorAll(':scope > button.extra, :scope > button.edit, :scope > button.archief, :scope > button.export, :scope > button.delete')];
       if (knoppen.length < 4) return;
       const vast = knoppen.find(b => b.dataset.extra !== undefined && (opts.buttons[b.dataset.extra] || {}).hoofd) || knoppen.find(b => b.classList.contains('edit'));
       const rest = knoppen.filter(b => b !== vast);
@@ -288,6 +288,7 @@ const ItemList = (() => {
       const menu = wrap.querySelector('.meer-menu');
       for (const b of rest) {
         if (b.classList.contains('export')) b.insertAdjacentText('beforeend', ' Exporteren');
+        if (b.classList.contains('archief')) b.insertAdjacentText('beforeend', b.textContent.includes('↩') ? ' Terug uit het archief' : ' Naar het archief');
         if (b.classList.contains('delete')) b.insertAdjacentText('beforeend', ' Verwijderen');
         menu.appendChild(b);
       }
@@ -320,8 +321,9 @@ const ItemList = (() => {
       const option = f => `<option value="${esc(f)}"${f === (q.folder || '') ? ' selected' : ''}>${f ? esc(f.split('/').join(' › ')) : 'Bovenaan, in geen map'}</option>`;
       const place = zoekt() && q.folder ? ` · 📁 ${esc(q.folder.split('/').join(' › '))}` : '';
       const info = extraInfo(q);
+      // Titel op één regel, de details eronder (elk icoontje zegt bij aanwijzen wat het is), knoppen op een vaste plaats (verbeterpunten 20 nov, 7).
       el.innerHTML = `${picking ? `<input type="checkbox" class="kies" aria-label="Selecteren"${picked.has(q.file) ? ' checked' : ''}>` : kiezen ? '' : `<span class="grip" title="Sleep naar een map">${Ui.ic('grip')}</span>`}
-        <button class="play">${esc(q.title)} <span class="muted">· ${esc(detail(q))}${kind === 'quiz' && (q.niveaus || []).length > 1 ? ` · ${q.niveaus.map(n => ICONS[n]).join('')}` : ''}${place}${info ? `<span class="lib-info${q.dubbel ? ' dubbel' : ''}"> · ${esc(info)}</span>` : ''}</span>${picking ? '' : `<span class="go">${opts.go || 'Kies ▶'}</span>`}</button>
+        <button class="play"><span class="lib-tekst"><span class="lib-titel" title="${esc(q.title)}">${esc(q.title)}</span><span class="muted lib-meta">${opts.detailHtml ? opts.detailHtml(q) : esc(detail(q))}${kind === 'quiz' && (q.niveaus || []).length > 1 ? ` · ${q.niveaus.map(n => `<span title="${esc(NIVEAUS.find(x => x[0] === n)[1])}">${ICONS[n]}</span>`).join('')}` : ''}${place}${info ? `<span class="lib-info${q.dubbel ? ' dubbel' : ''}"> · ${esc(info)}</span>` : ''}</span></span>${picking ? '' : `<span class="go">${opts.go || 'Kies ▶'}</span>`}</button>
         ${kanBekijken(kind) && !picking ? `<button class="secondary bekijk" title="Snel bekijken: alle vragen met de juiste antwoorden" aria-label="Bekijken">${Ui.ic('oog')}</button>` : ''}
         ${folders.length && !kiezen ? `<label class="move" title="Verplaats naar…">📁<select aria-label="Verplaats naar…">${option(q.folder || '')}</select></label>` : ''}
         ${(opts.buttons || []).map((b, i) => `<button class="secondary extra ${b.cls || ''}" data-extra="${i}" title="${esc(b.title || '')}">${b.label}</button>`).join('')}

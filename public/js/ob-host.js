@@ -48,6 +48,7 @@ ItemList.mount($('sheet-list'), {
   errorId: 'list-error',
   go: 'Live ▶',
   detail: s => `${s.count} ${s.count === 1 ? 'oefening' : 'oefeningen'} · ${s.types.map(t => TYPE_ICONS[t] || '').join(' ')}${(s.niveaus || []).length > 1 ? ` · ${s.niveaus.map(n => Niveau.ICONS[n]).join('')} ${s.niveaus.length} niveaus` : ''}`,
+  detailHtml: s => `${s.count} ${s.count === 1 ? 'oefening' : 'oefeningen'} · ${s.types.map(t => `<span title="${esc(ObSheet.NAMES[t] || t)}">${TYPE_ICONS[t] || ''}</span>`).join(' ')}${(s.niveaus || []).length > 1 ? ` · ${s.niveaus.map(n => `<span title="${esc(Niveau.NAMES[n])}">${Niveau.ICONS[n]}</span>`).join('')} ${s.niveaus.length} niveaus` : ''}`,
   play: s => vraagLive(s.file, s.title),
   buttons: [
     { label: '🖨 Print', cls: 'print', title: 'Afdrukken', click: s => window.open(`/oefenblad-print?file=${encodeURIComponent(s.file)}`, '_blank') },

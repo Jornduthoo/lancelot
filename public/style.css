@@ -2542,6 +2542,11 @@ body:has(.kies-eerst) .panel.form > p.muted.small:last-child { display: none; }
 .lib-dubbel.on { box-shadow: inset 0 0 0 2px var(--gold); }
 .lib-filter-archief { font-size: .85rem; }
 .lib-info { font-size: .85em; }
+/* Een rij in de bibliotheek: titel op één regel, details eronder, de knoppen altijd op dezelfde plaats (verbeterpunten 20 nov, 7). */
+.quiz-row .play .lib-tekst { display: flex; flex-direction: column; gap: 2px; flex: 1 1 auto; min-width: 0; text-align: left; }
+.quiz-row .play .lib-titel { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.quiz-row .play .lib-meta { font-size: .85em; line-height: 1.3; }
+.quiz-row .play .go { flex: none; }
 .lib-info.dubbel { color: var(--gold); }
 .lib-voorstel { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 8px; padding: 8px 10px; border-radius: 8px; background: rgb(var(--k-cyan) / .1); box-shadow: inset 0 0 0 1px var(--line); font-size: .9rem; }
 .pf-puntenlijst { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 8px; } .pf-puntenlijst select { padding: 3px 6px; }
