@@ -19,8 +19,10 @@ function afnameStand(file) {
 
 function overzicht() {
   const kl = klas.read();
-  const rijen = kl.leerlingen.map(l => ({ naam: l.naam, niveau: l.niveau || null }));
-  const opLijst = new Set(rijen.map(r => key(r.naam)));
+  // Een gast volg je niet op: hij staat niet in de tabel (zijn werk blijft wel bij Taken).
+  const gasten = kl.leerlingen.filter(l => l.gast).map(l => l.naam);
+  const rijen = kl.leerlingen.filter(l => !l.gast).map(l => ({ naam: l.naam, niveau: l.niveau || null }));
+  const opLijst = new Set(kl.leerlingen.map(l => key(l.naam)));
   const kolommen = [];
   const lijst = taken.lijst();
   const metTaak = new Set();
@@ -36,6 +38,9 @@ function overzicht() {
           v = st ? { status: st.open ? 'verbeteren' : 'klaar', punten: st.punten, max: st.max, open: st.open } : { status: 'verbeteren' };
         } else v = { status: 'klaar', punten: l.juist, max: l.score };
       }
+      // Volgt dit vak niet bij mij en begon niet: niet voor deze leerling. Afwezig: haalt in.
+      if (l.niet) continue;
+      if (l.afwezig) v.inhalen = true;
       if (l.elders) v.elders = l.elders;
       vakjes[key(l.naam)] = v;
       if (!opLijst.has(key(l.naam))) { opLijst.add(key(l.naam)); rijen.push({ naam: l.naam, niveau: l.niveau || null }); }
@@ -53,7 +58,7 @@ function overzicht() {
     kolommen.push({ id: `afname:${a.file}`, soort: 'proef', titel: a.title, vak: '', dag: a.datum, gepland: false, dicht: true, afname: a.file, live: true, vakjes });
   }
   kolommen.sort((a, b) => String(b.dag || '').localeCompare(String(a.dag || '')));
-  return { rijen, kolommen };
+  return { rijen, kolommen, gasten };
 }
 
 module.exports = { overzicht, key };

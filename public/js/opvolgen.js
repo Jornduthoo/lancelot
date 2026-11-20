@@ -41,6 +41,7 @@ function inPeriode(dag) {
 
 function vakjeTekst(v) {
   if (!v) return '–';
+  if (v.inhalen && v.status === 'nieuw') return 'inhalen';
   if (v.status === 'nieuw') return '';
   if (v.status === 'bezig') return v.totaal ? `${v.gedaan}/${v.totaal}` : '…';
   if (v.status === 'verbeteren') return v.max ? `${nl(v.punten)}/${nl(v.max)} ✎` : '✎';
@@ -49,7 +50,7 @@ function vakjeTekst(v) {
 function vakjeTitel(naam, k, v) {
   if (!v) return `${naam}: niet voor deze leerling`;
   const s = { nieuw: 'nog niet begonnen', bezig: 'bezig', verbeteren: 'te verbeteren', klaar: 'klaar' }[v.status];
-  return `${naam} · ${k.titel}: ${s}${v.elders ? ` (op ${v.elders})` : ''}`;
+  return `${naam} · ${k.titel}: ${s}${v.inhalen ? ' (afwezig, haalt in)' : ''}${v.elders ? ` (op ${v.elders})` : ''}`;
 }
 // Waar een klik naartoe gaat: verbeteren of live meekijken bij een toets, anders het werk in Taken.
 function doel(k, naam, v) {
@@ -98,10 +99,11 @@ function teken() {
       if (v && (v.status === 'nieuw' || v.status === 'bezig')) open++;
       if (!v) return '<td class="op-v niet" title="' + esc(vakjeTitel(r.naam, k, v)) + '">–</td>';
       const pct = v.max ? v.punten / v.max : null;
-      return `<td class="op-v ${v.status}${pct !== null && v.status === 'klaar' ? (pct >= .8 ? ' hoog' : pct < .5 ? ' laag' : '') : ''}" title="${esc(vakjeTitel(r.naam, k, v))}"><a href="${doel(k, r.naam, v)}">${esc(vakjeTekst(v))}</a></td>`;
+      return `<td class="op-v ${v.status}${v.inhalen ? ' inhalen' : ''}${pct !== null && v.status === 'klaar' ? (pct >= .8 ? ' hoog' : pct < .5 ? ' laag' : '') : ''}" title="${esc(vakjeTitel(r.naam, k, v))}"><a href="${doel(k, r.naam, v)}">${esc(vakjeTekst(v))}</a></td>`;
     }).join('');
     return `<tr><th class="op-naam" scope="row">${esc(r.naam)}<span class="op-open${open ? '' : ' nul'}">${open ? `nog ${open} open` : '✔ alles af'}</span></th>${cellen}</tr>`;
   }).join('');
+  $('op-gasten').textContent = (data.gasten || []).length ? `👤 Gasten staan niet in de tabel: ${data.gasten.join(', ')}.` : '';
   $('op-wrap').innerHTML = `<table class="op-tabel"><thead><tr><th class="op-hoek">Leerling</th>${kop}</tr></thead><tbody>${lijnen}</tbody></table>`;
 }
 

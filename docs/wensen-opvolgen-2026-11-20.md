@@ -30,7 +30,7 @@ Volgorde: 1, 3, 4, 2, 5, 6, 7, 8, 9.
 | # | Punt | Stand | PR |
 |---|------|-------|----|
 | 1 | Opvolgen: leerlingen × taken | ✅ Mijn klas › Opvolgen. Kleuren per vakje, filters (periode, soort, vak), tellers per kolom en per leerling. Klik op een vakje: Bekijk, Verbeteren of live meekijken. Namen blijven staan bij scrollen. Klas: de klaskiezer bovenaan. | #583 |
-| 3 | Wie niet meedoet, telt niet mee | ○ | |
+| 3 | Wie niet meedoet, telt niet mee | ✅ Mijn klas › Niveaus: per vak 🚫 Niet bij mij, bij Algemeen 👤 Gast. Hele klas vinkt hen niet aan (met melding, aantikken kan). Tellen niet mee bij "nog niet"; gast niet in Opvolgen, vak niet bij mij = –. Bij een leerling in een taak: 🏠 Afwezig → "inhalen". | #584 |
 | 4 | Eén taak, meerdere niveaus | ○ | |
 | 2 | Dezelfde stand op elke pc | ○ deels (#580: sync van afnames en stand) | |
 | 5 | Standaardkeuzes per leerkracht/vak | ○ | |

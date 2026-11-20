@@ -75,11 +75,15 @@ function renderNiveaus(leerlingen) {
     const name = document.createElement('th');
     name.textContent = l.naam;
     const algemeen = l.niveau || 'schildknaap';
-    row.append(name, pick(l, '', opts(algemeen), algemeen !== 'schildknaap'));
+    // Gast: niet in mijn opvolging. Niet bij mij: volgt dit vak bij een andere leerkracht. Telt dan niet mee.
+    const gast = `<option value="gast"${l.gast ? ' selected' : ''}>👤 Gast (niet opvolgen)</option>`;
+    row.append(name, pick(l, '', (l.gast ? opts('') : opts(algemeen)) + gast, algemeen !== 'schildknaap' || !!l.gast));
+    if (l.gast) row.classList.add('gast');
     for (const g of vakgroepen) {
-      const eigen = (l.vakNiveaus || {})[g.id] || '';
-      const td = pick(l, g.id, opts(eigen, algemeen), !!eigen);
-      td.title = `${l.naam}, ${g.naam}: ${Niveau.NAMES[eigen || algemeen]}${eigen ? '' : ' (zoals algemeen)'}`;
+      const niet = (l.nietVakken || []).includes(g.id);
+      const eigen = niet ? '' : (l.vakNiveaus || {})[g.id] || '';
+      const td = pick(l, g.id, opts(eigen, algemeen) + `<option value="niet"${niet ? ' selected' : ''}>🚫 Niet bij mij</option>`, !!eigen || niet);
+      td.title = niet ? `${l.naam} volgt ${g.naam} niet bij jou: telt niet mee en wordt niet aangevinkt bij Hele klas.` : `${l.naam}, ${g.naam}: ${Niveau.NAMES[eigen || algemeen]}${eigen ? '' : ' (zoals algemeen)'}`;
       row.appendChild(td);
     }
     body.appendChild(row);
