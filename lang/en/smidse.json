@@ -1364,5 +1364,9 @@
  "bv. begeleider@school.be": "e.g. support@school.org",
  "bv. ouder@mail.be": "e.g. parent@mail.com",
  "Bewaard. Stel nog je mailbox in, anders kan Lancelot niet mailen.": "Saved. Now set up your mailbox, otherwise Lancelot cannot send email.",
- "Instellen bij Mijn klas": "Set up in My class"
+ "Instellen bij Mijn klas": "Set up in My class",
+ "Lancelot raakt niet bij de mailserver. Is er internet? Een schoolnetwerk blokkeert soms mail: probeer het thuis of vraag het aan je ICT.": "Lancelot cannot reach the mail server. Is there internet? A school network sometimes blocks email: try it at home or ask your IT staff.",
+ "Google vraagt een app-wachtwoord, niet je gewone wachtwoord. Zet verificatie in 2 stappen aan en maak er een op {0}": "Google wants an app password, not your normal password. Turn on 2-Step Verification and create one at {0}",
+ "Google weigert dit e-mailadres met dit wachtwoord. Maak een nieuw app-wachtwoord op {0} en plak de 16 letters hier (lukt dat niet met een schooladres, probeer dan je eigen Gmail).": "Google rejects this email address with this password. Create a new app password at {0} and paste the 16 letters here (if that doesn't work with a school address, try your own Gmail).",
+ "{0} (geen antwoord)": "{0} (no answer)"
 }

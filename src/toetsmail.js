@@ -125,6 +125,21 @@ function bericht({ van, naam, naar, onderwerp, tekst, bijlage }) {
 }
 
 /* ---------------- versturen (SMTP, zonder extra pakketten) ---------------- */
+// Foutmeldingen in gewone taal, met de ene volgende stap.
+const APP_WW = 'https://myaccount.google.com/apppasswords';
+const GEEN_VERBINDING = 'Lancelot raakt niet bij de mailserver. Is er internet? Een schoolnetwerk blokkeert soms mail: probeer het thuis of vraag het aan je ICT.';
+function uitleg({ code, tekst }) {
+  const t = String(tekst || '');
+  // Google: 534 5.7.9 "Application-specific password required" = je gewone wachtwoord werd gebruikt.
+  if (code === 534 || /application-specific password/i.test(t)) {
+    return `Google vraagt een app-wachtwoord, niet je gewone wachtwoord. Zet verificatie in 2 stappen aan en maak er een op ${APP_WW}`;
+  }
+  // 535 5.7.8 "Username and Password not accepted".
+  if (code === 535) {
+    return `Google weigert dit e-mailadres met dit wachtwoord. Maak een nieuw app-wachtwoord op ${APP_WW} en plak de 16 letters hier (lukt dat niet met een schooladres, probeer dan je eigen Gmail).`;
+  }
+  return `De mailserver weigerde: ${t.split(/\r?\n/).pop()}`;
+}
 // Poort 465: meteen TLS. Andere poort: eerst gewoon, dan STARTTLS (als de server dat aanbiedt).
 // opties.onveilig: alleen voor de tests (een server op 127.0.0.1 zonder TLS).
 function smtp(c, { van, naar, data }, opties = {}) {
@@ -133,7 +148,7 @@ function smtp(c, { van, naar, data }, opties = {}) {
     let buf = '';
     let wacht = null;
     let klaarMet = false;
-    const tijd = setTimeout(() => fout(new Error('De mailserver antwoordt niet.')), opties.timeout || 30000);
+    const tijd = setTimeout(() => fout(new Error(`${GEEN_VERBINDING} (geen antwoord)`)), opties.timeout || 30000);
     function fout(err) {
       if (klaarMet) return;
       klaarMet = true; clearTimeout(tijd);
@@ -156,15 +171,13 @@ function smtp(c, { van, naar, data }, opties = {}) {
       if (regel !== null) sock.write(`${regel}\r\n`);
       const a = await antwoord();
       if (!verwacht.includes(Math.floor(a.code / 100) * 100) && !verwacht.includes(a.code)) {
-        const e = new Error(a.code === 535 || a.code === 534
-          ? 'Inloggen bij de mailserver lukte niet. Klopt het e-mailadres en het app-wachtwoord?'
-          : `De mailserver weigerde: ${a.tekst.split(/\r?\n/).pop()}`);
+        const e = new Error(uitleg(a));
         e.code = a.code;
         throw e;
       }
       return a;
     }
-    function hang(s) { sock = s; s.on('data', lees); s.on('error', e => fout(new Error(`Geen verbinding met de mailserver (${e.code || e.message}).`))); }
+    function hang(s) { sock = s; s.on('data', lees); s.on('error', e => fout(new Error(`${GEEN_VERBINDING} (${e.code || e.message})`))); }
     const veilig = !opties.onveilig && c.port === 465;
     hang(veilig ? tls.connect({ host: c.host, port: c.port, servername: c.host }) : net.connect({ host: c.host, port: c.port }));
     (async () => {
@@ -223,4 +236,4 @@ function test(opties) {
   return verstuur({ naar: c.van, onderwerp: 'Lancelot: proefmail', tekst: 'Het werkt. Lancelot kan toetsen mailen vanuit deze mailbox.\n' }, opties);
 }
 
-module.exports = { view, zetAfzender, zetAdres, zetLeerling, adresVoor, nodig, toets, test, verstuur, bericht, sleutel, STANDAARD };
+module.exports = { uitleg, view, zetAfzender, zetAdres, zetLeerling, adresVoor, nodig, toets, test, verstuur, bericht, sleutel, STANDAARD };
