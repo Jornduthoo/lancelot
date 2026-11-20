@@ -1879,7 +1879,7 @@ io.on('connection', socket => {
       syncSoon();
       return out || {};
     });
-    socket.on('tk-bronnen', handle(() => ({ quizzen: quizzes.list(), bladen: oefenbladen.list(), toetsen: proeven.list(), klas: klas.names() })));
+    socket.on('tk-bronnen', handle(() => ({ quizzen: quizzes.list(), bladen: oefenbladen.list(), toetsen: proeven.list(), klas: klas.names(), gast: klas.read().leerlingen.filter(l => l.gast).map(l => l.naam) })));
     socket.on('tk-lijst', handle(() => ({ taken: taken.lijst() })));
     // Mijn klas › Opvolgen: leerlingen × taken en toetsen.
     socket.on('op-overzicht', handle(() => opvolgen.overzicht()));
@@ -1901,6 +1901,7 @@ io.on('connection', socket => {
       io.to('host').emit('tk-lijst', taken.lijst());
       return r;
     }));
+    socket.on('tk-afwezig', taak(taken.zetAfwezig));
     socket.on('tk-wis', taak(arg => taken.wis(arg.id)));
     socket.on('notitie-add', handle(({ leerling, tekst } = {}) => ({ notities: notities.add(leerling, tekst).slice().reverse() })));
     socket.on('notitie-del', handle(({ leerling, t } = {}) => ({ notities: notities.remove(leerling, t).slice().reverse() })));

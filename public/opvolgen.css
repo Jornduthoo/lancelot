@@ -22,6 +22,7 @@
 .op-v a { display: block; padding: 8px 4px; color: inherit; text-decoration: none; min-height: 1.2em; }
 .op-v.nieuw { background: rgb(150 150 160 / .18); }
 .op-v.bezig { background: rgb(var(--k-goud) / .35); }
+.op-v.inhalen { background: rgb(var(--k-cyan) / .25); font-style: italic; }
 .op-v.verbeteren { background: rgb(var(--k-blauw) / .4); }
 .op-v.klaar { background: rgb(var(--k-groen) / .3); }
 .op-v.klaar.hoog { background: rgb(var(--k-groen) / .45); }

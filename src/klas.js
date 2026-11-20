@@ -41,6 +41,7 @@ function write({ naam, leerjaar, namen } = {}) {
       id: old ? old.id : Math.random().toString(36).slice(2, 10), naam: name,
       ...(old && old.niveau ? { niveau: old.niveau } : {}),
       ...(old && old.vakNiveaus ? { vakNiveaus: old.vakNiveaus } : {}),
+      ...extra(old),
     });
   }
   if (leerlingen.length > MAX) throw new Error(`Een klas mag hooguit ${MAX} leerlingen hebben.`);
@@ -52,10 +53,33 @@ function write({ naam, leerjaar, namen } = {}) {
 
 // Het niveau waarop een leerling oefent. Zonder vak: het algemene niveau (Schildknaap wordt niet bewaard).
 // Met een vakgroep (wiskunde, nederlands, frans, wo): het niveau voor dat vak, of leeg = zoals het algemene niveau.
+// Wie niet meedoet (wensenlijst 20 nov, punt 3): een gast (niet in mijn opvolging), of een vak dat hij niet bij mij volgt.
+function extra(l) {
+  if (!l) return {};
+  const niet = Array.isArray(l.nietVakken) ? l.nietVakken.filter(v => niveaus.VAKGROEPEN.some(g => g.id === v)) : [];
+  return { ...(l.gast ? { gast: true } : {}), ...(niet.length ? { nietVakken: niet } : {}) };
+}
+// Volgt deze leerling dit vak (uit de doelen, bv. 'Geschiedenis') niet bij mij, of is hij een gast?
+function doetNiet(leerling, vak) {
+  if (!leerling) return false;
+  if (leerling.gast) return true;
+  const g = niveaus.groep(vak);
+  return !!(g && Array.isArray(leerling.nietVakken) && leerling.nietVakken.includes(g));
+}
+
 function setNiveau(id, niveau, vak) {
   const data = read();
   const leerling = data.leerlingen.find(l => l.id === id);
   if (!leerling) throw new Error('Die leerling staat niet meer op de lijst.');
+  // 'niet' bij een vak: volgt dit vak niet bij mij. 'gast' bij Algemeen: niet in mijn opvolging.
+  const niet = new Set(leerling.nietVakken || []);
+  if (vak && niet.has(vak) && niveau !== 'niet') niet.delete(vak);
+  if (vak && niveau === 'niet') { niet.add(vak); niveau = ''; }
+  if (niet.size) leerling.nietVakken = [...niet]; else delete leerling.nietVakken;
+  if (!vak) {
+    if (niveau === 'gast') { leerling.gast = true; niveau = leerling.niveau || ''; }
+    else delete leerling.gast;
+  }
   const n = niveaus.clean(niveau);
   if (vak) {
     if (!niveaus.VAKGROEPEN.some(g => g.id === vak)) throw new Error('Dat vak kent LANcelot niet.');
@@ -98,7 +122,7 @@ function niveauVoor(leerling, vak) {
 
 function lesmapTekst(data) {
   const leerlingen = data.leerlingen.map(l => ({
-    naam: l.naam, ...(l.niveau ? { niveau: l.niveau } : {}), ...(l.vakNiveaus ? { vakNiveaus: l.vakNiveaus } : {}),
+    naam: l.naam, ...(l.niveau ? { niveau: l.niveau } : {}), ...(l.vakNiveaus ? { vakNiveaus: l.vakNiveaus } : {}), ...extra(l),
   }));
   return JSON.stringify({ naam: data.naam, leerjaar: data.leerjaar, leerlingen }, null, 2) + '\n';
 }
@@ -139,7 +163,7 @@ function uitLesmap() {
     for (const g of niveaus.VAKGROEPEN) if (l.vakNiveaus && niveaus.clean(l.vakNiveaus[g.id])) per[g.id] = niveaus.clean(l.vakNiveaus[g.id]);
     leerlingen.push({
       id: old ? old.id : Math.random().toString(36).slice(2, 10), naam,
-      ...(niveau && niveau !== 'schildknaap' ? { niveau } : {}), ...(Object.keys(per).length ? { vakNiveaus: per } : {}),
+      ...(niveau && niveau !== 'schildknaap' ? { niveau } : {}), ...(Object.keys(per).length ? { vakNiveaus: per } : {}), ...extra(l),
     });
   }
   const nieuw = { naam: String(d.naam || '').trim().slice(0, 40), leerjaar: doelen.leerjaar(d.leerjaar || 6), leerlingen };
@@ -273,4 +297,4 @@ function uitLesmapKlassen() {
   return nieuw;
 }
 
-module.exports = { klassen, nieuweKlas, kiesKlas, verwijderKlas, get KLASSEN_LESMAP() { return KLASSEN_LESMAP(); }, klassenGeldig, klassenSamen, naarLesmapKlassen, uitLesmapKlassen, voegToe, hernoem, wis, read, write, setNiveau, niveauVoor, names, match, get LESMAP() { return LESMAP(); }, naarLesmap, uitLesmap, lesmapGeldig, lesmapSamen };
+module.exports = { doetNiet, klassen, nieuweKlas, kiesKlas, verwijderKlas, get KLASSEN_LESMAP() { return KLASSEN_LESMAP(); }, klassenGeldig, klassenSamen, naarLesmapKlassen, uitLesmapKlassen, voegToe, hernoem, wis, read, write, setNiveau, niveauVoor, names, match, get LESMAP() { return LESMAP(); }, naarLesmap, uitLesmap, lesmapGeldig, lesmapSamen };

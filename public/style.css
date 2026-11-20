@@ -2504,3 +2504,4 @@ body:has(.kies-eerst) .panel.form > p.muted.small:last-child { display: none; }
 .lib-bekijk-zicht { display: inline-flex; flex-wrap: wrap; gap: 6px; }
 .lib-bekijk-zicht button.on { background: rgb(var(--k-goud)); color: rgb(var(--k-op-goud)); }
 .lib-bekijk-kop { flex-wrap: wrap; }
+.niveau-raster tr.gast th { opacity: .6; font-style: italic; }
