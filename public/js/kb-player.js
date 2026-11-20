@@ -217,7 +217,8 @@
     g.balls--;
     g.gold = false;
     g.throws++;
-    if (g.throws >= 2) $('kb-tip').classList.add('weg');
+    // De tip verdwijnt zodra de bal rolt; na de eerste worp komt hij nog één keer terug.
+    $('kb-tip').classList.add('weg');
     const sim = W.create(clean, g.standing, gold);
     g.roll = { sim, clock: 0, hitAt: -1, res: null, ended: 0, standing: g.standing.slice(), hits: new Set() };
     sfx.whoosh();
@@ -240,6 +241,7 @@
     const r = g.roll;
     const res = r.res;
     g.roll = null;
+    if (g.throws < 2) $('kb-tip').classList.remove('weg');
     if (!res) return;
     g.balls = res.balls;
     g.standing = res.standing;
