@@ -373,6 +373,8 @@ function planBewaar(t) {
       id: t.id, soort: t.soort, file: t.file, titel: t.titel, vak: t.vak, feedback: t.feedback, gemaakt: t.gemaakt,
       spel: t.spel || null, minuten: t.minuten || null, niveau: t.niveau || null, les: t.les || null, vanaf: t.vanaf || null,
       per: t.per || null, na: t.na || null,
+      // Afgesloten of open, met wanneer: zo sluit een taak op al je pc's (de laatste wijziging wint).
+      dicht: !!t.dicht, dichtTijd: t.dichtTijd || null,
       voorlees: t.voorlees || null, vragenVast: !!t.vragenVast, keuzesVast: !!t.keuzesVast, uitslag: !!t.uitslag,
       namen: Object.values(t.werk).map(w => w.naam), inhoud: t.inhoud,
     };
@@ -381,6 +383,13 @@ function planBewaar(t) {
   } catch (err) {
     console.error('Taak voor de lesmap bewaren mislukt:', err.message);
   }
+}
+
+// Afsluiten of heropenen: onthouden wanneer, en het plan in Mijn lesmap bijwerken.
+function zetDicht(t, dicht, tijd = new Date().toISOString()) {
+  t.dicht = !!dicht;
+  t.dichtTijd = tijd;
+  if (t.plan) planBewaar(t);
 }
 
 function planWeg(id) {
@@ -409,9 +418,10 @@ function uitLesmap() {
     if (!t) {
       t = {
         id: p.id, soort: p.soort, file: p.file, titel: String(p.titel || p.inhoud.title || 'Taak'), vak: p.vak || '',
-        feedback: p.feedback === 'inleveren' ? 'inleveren' : 'direct', gemaakt: p.gemaakt || new Date().toISOString(), dicht: false,
+        feedback: p.feedback === 'inleveren' ? 'inleveren' : 'direct', gemaakt: p.gemaakt || new Date().toISOString(), dicht: !!p.dicht,
         inhoud: p.inhoud, werk: {}, plan: true, uitLesmap: true,
       };
+      if (typeof p.dichtTijd === 'string' && Date.parse(p.dichtTijd)) t.dichtTijd = p.dichtTijd;
       if (p.soort === 'quiz' && SOLO[p.spel]) Object.assign(t, { spel: p.spel, minuten: MINUTEN.includes(p.minuten) ? p.minuten : 5 });
       toetsKeuzes(t, p);
       if (niveausVan(t.soort, t.inhoud).includes(p.niveau) && niveausVan(t.soort, t.inhoud).length > 1) t.niveau = p.niveau;
@@ -424,6 +434,23 @@ function uitLesmap() {
       if (start) t.vanaf = start;
       bewaarNieuw(t);
       veranderd = true;
+    } else if (typeof p.dichtTijd === 'string' && Date.parse(p.dichtTijd) && !!p.dicht !== !!t.dicht
+      && (!t.dichtTijd || Date.parse(p.dichtTijd) > Date.parse(t.dichtTijd))) {
+      // Op een andere pc afgesloten (of heropend), en dat is het laatste wat er gebeurde. Afsluiten gaat zoals hier:
+      // wie nog bezig is, levert in wat er staat. Het werk van de leerlingen blijft altijd bewaard.
+      if (p.dicht) for (const w of Object.values(t.werk)) if (w.status === 'bezig') inleverenWerk(t, w);
+      t.dicht = !!p.dicht;
+      t.dichtTijd = p.dichtTijd;
+      veranderd = true;
+    } else if (p.dicht === undefined && t.dicht) {
+      // Een plan van vóór deze versie (zonder dicht) bij een taak die hier al afgesloten is: alsnog doorgeven,
+      // zodat ze ook op je andere pc's sluit.
+      t.dichtTijd = t.dichtTijd || new Date().toISOString();
+      planBewaar(t);
+      veranderd = true;
+    } else if (t.dichtTijd && !!p.dicht !== !!t.dicht && !(Date.parse(p.dichtTijd) >= Date.parse(t.dichtTijd))) {
+      // Hier later afgesloten of heropend dan wat de lesmap zegt (twee pc's tegelijk): onze stand terug in het plan.
+      planBewaar(t);
     }
     // Wie er aan de andere kant bij kwam, komt er hier ook bij (alleen wie op deze klaslijst staat).
     for (const n of p.namen.map(clean).filter(Boolean)) {
@@ -453,8 +480,8 @@ function voegToe({ id, namen } = {}) {
     t.werk[key(naam)] = nieuwWerk(t, naam, startNiveau(t, naam));
     n++;
   }
-  t.dicht = false;
-  if (n && t.plan) planBewaar(t);
+  if (t.dicht) zetDicht(t, false);
+  else if (n && t.plan) planBewaar(t);
   save();
   return n;
 }
@@ -480,7 +507,7 @@ function zetNiveau({ id, naam, niveau } = {}) {
 function sluit(id) {
   const t = find(id);
   for (const w of Object.values(t.werk)) if (w.status === 'bezig') inleverenWerk(t, w);
-  t.dicht = true;
+  zetDicht(t, true);
   save();
 }
 
@@ -492,7 +519,7 @@ function ruimOp({ dagen = 7 } = {}) {
   for (const t of all()) {
     if (t.dicht || !zichtbaar(t) || Date.parse(t.vanaf || t.gemaakt) >= grens) continue;
     if (Object.values(t.werk).some(w => w.status === 'bezig')) { bezig++; continue; }
-    t.dicht = true;
+    zetDicht(t, true);
     n++;
   }
   if (n) save();
@@ -503,7 +530,7 @@ function ruimOp({ dagen = 7 } = {}) {
 // Met opnieuw begint die leerling met een leeg blad; bij een toets gaat zijn vorige inzending uit de afname.
 function heropen({ id, naam, opnieuw } = {}) {
   const t = find(id);
-  t.dicht = false;
+  if (t.dicht) zetDicht(t, false);
   if (naam) {
     const w = t.werk[key(naam)];
     if (!w) throw new Error('Die leerling heeft deze taak niet.');

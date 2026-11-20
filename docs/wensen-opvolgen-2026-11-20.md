@@ -112,3 +112,15 @@ Voorstel: https://claude.ai/artifact/GCzejmKXRwQJBChJN2Gugv. Elke vraag krijgt �
 | 6 | "🔴 Aandacht nodig" en "🟠 Even opletten" (was "Opvolgen") leggen uit wat ze betekenen (bij aanwijzen en na een klik), de namen worden aangevinkt én gemarkeerd, bij aanwijzen van een naam zie je waarom (uit Zorg) | ✅ | #604 |
 | 7 | Bibliotheek (toetsen, oefenbladen, quizzen): titel op één regel met "…", details eronder, elk icoontje zegt bij aanwijzen wat het is, Afnemen ▶ en de knoppen op een vaste plaats, 🗄 archief onder Meer ▾ | ✅ | #605 |
 | + | Test met een trage gedeelde map (2 pc's, elk een eigen kopie, 15 s vertraging, tegelijk werken): taken, niveaus, toetsen en de statusregel kloppen; met 1 pc geen statusmeldingen. Gevonden en opgelost: vakken of herkansing-keuzes die op twee pc's tegelijk veranderden, verloren er één. Nu samengevoegd (per vak / per keuze wint de laatste, "geen herkansing" blijft staan). | ✅ | #606 |
+
+## Nacontrole (Jorn 20 nov, middag)
+
+| # | Punt | Status | PR |
+| --- | --- | --- | --- |
+| 1 | Leerling zonder taken: "geen taken" in plaats van "✔ alles af" | ✅ | #607 |
+| 2 | Dezelfde titel twee keer: "1e keer", "2e keer" onder de titel | ✅ | #607 |
+| 3 | Toets zonder vak krijgt het vak uit zijn doelen; filter "Zonder vak" | ✅ | #607 |
+| 4 | Opvolgen toont "Even laden…" in plaats van een lege tabel | ✅ | #607 |
+| 5 | Spelresultaten gaan mee via Mijn lesmap (verwijderen = prullenbak) | ✅ | #608 |
+| + | Taak afsluiten of heropenen op één pc: ook op je andere pc's (dicht + dichtTijd in het plan, laatste wijziging wint, wie bezig is levert in; oude afgesloten taken worden alsnog doorgegeven) | ✅ | #609 |
+| 6 | Trage gedeelde map getest (2 pc's, 15 s vertraging) | ✅ | #606 |
