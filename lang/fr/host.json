@@ -545,5 +545,7 @@
  "{0} leerling": "{0} élève",
  "{0} bezig": "{0} en cours",
  "{0} antwoorden te verbeteren": "{0} réponses à corriger",
- "{0} antwoord te verbeteren": "{0} réponse à corriger"
+ "{0} antwoord te verbeteren": "{0} réponse à corriger",
+ "Kegelridder": "Chevalier des Quilles",
+ "Bowlen in de kegelhal: elke vraag juist = een bal. Veeg je bal naar de tien runenkegels en gooi een strike.": "Bowling dans la salle du château : chaque bonne réponse = une boule. Lance ta boule d’un geste vers les dix quilles runiques et fais un strike."
 }

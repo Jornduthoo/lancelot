@@ -110,9 +110,9 @@ body:not([data-gt="1"]) #gauntlet, body:not([data-ry="1"]) #royale, body:not([da
 #rs-boost:not(.ready) { opacity: .5; }
 
 /* Poortwacht, Neonvlucht en Diepboor op het leerlingscherm: als een van deze spellen loopt, verdwijnt de rest. */
-body[data-pw="1"] main > :not(#poort), body[data-nv="1"] main > :not(#vlucht), body[data-db="1"] main > :not(#diep), body[data-mo="1"] main > :not(#robomol), body[data-rp="1"] main > :not(#paarden), body[data-kk="1"] main > :not(#kerker), body[data-jp="1"] main > :not(#raket), body[data-hk="1"] main > :not(#haak), body[data-sz="1"] main > :not(#zwaard), body[data-ww="1"] main > :not(#wankel), body[data-hb="1"] main > :not(#hooi), body[data-pp="1"] main > :not(#plasma), body[data-bv="1"] main > :not(#banier), body[data-tm="1"] main > :not(#tuimel) { display: none !important; }
-body:not([data-pw="1"]) #poort, body:not([data-nv="1"]) #vlucht, body:not([data-db="1"]) #diep, body:not([data-mo="1"]) #robomol, body:not([data-rp="1"]) #paarden, body:not([data-kk="1"]) #kerker, body:not([data-jp="1"]) #raket, body:not([data-hk="1"]) #haak, body:not([data-sz="1"]) #zwaard, body:not([data-ww="1"]) #wankel, body:not([data-hb="1"]) #hooi, body:not([data-pp="1"]) #plasma, body:not([data-bv="1"]) #banier, body:not([data-tm="1"]) #tuimel { display: none !important; }
-#poort, #vlucht, #diep, #robomol, #paarden, #kerker, #raket, #zwaard, #wankel, #hooi, #plasma, #banier, #haak, #tuimel { display: contents; }
+body[data-pw="1"] main > :not(#poort), body[data-nv="1"] main > :not(#vlucht), body[data-db="1"] main > :not(#diep), body[data-mo="1"] main > :not(#robomol), body[data-rp="1"] main > :not(#paarden), body[data-kk="1"] main > :not(#kerker), body[data-jp="1"] main > :not(#raket), body[data-hk="1"] main > :not(#haak), body[data-kb="1"] main > :not(#kegel), body[data-sz="1"] main > :not(#zwaard), body[data-ww="1"] main > :not(#wankel), body[data-hb="1"] main > :not(#hooi), body[data-pp="1"] main > :not(#plasma), body[data-bv="1"] main > :not(#banier), body[data-tm="1"] main > :not(#tuimel) { display: none !important; }
+body:not([data-pw="1"]) #poort, body:not([data-nv="1"]) #vlucht, body:not([data-db="1"]) #diep, body:not([data-mo="1"]) #robomol, body:not([data-rp="1"]) #paarden, body:not([data-kk="1"]) #kerker, body:not([data-jp="1"]) #raket, body:not([data-hk="1"]) #haak, body:not([data-kb="1"]) #kegel, body:not([data-sz="1"]) #zwaard, body:not([data-ww="1"]) #wankel, body:not([data-hb="1"]) #hooi, body:not([data-pp="1"]) #plasma, body:not([data-bv="1"]) #banier, body:not([data-tm="1"]) #tuimel { display: none !important; }
+#poort, #vlucht, #diep, #robomol, #paarden, #kerker, #raket, #zwaard, #wankel, #hooi, #plasma, #banier, #haak, #kegel, #tuimel { display: contents; }
 body[data-pw="1"] main > :not(#poort), body[data-nv="1"] main > :not(#vlucht), body[data-db="1"] main > :not(#diep), body[data-mo="1"] main > :not(#robomol), body[data-rp="1"] main > :not(#paarden), body[data-kk="1"] main > :not(#kerker), body[data-jp="1"] main > :not(#raket), body[data-sz="1"] main > :not(#zwaard), body[data-ww="1"] main > :not(#wankel), body[data-hb="1"] main > :not(#hooi), body[data-pp="1"] main > :not(#plasma), body[data-bv="1"] main > :not(#banier), body[data-tm="1"] main > :not(#tuimel) { display: none !important; }
 body:not([data-pw="1"]) #poort, body:not([data-nv="1"]) #vlucht, body:not([data-db="1"]) #diep, body:not([data-mo="1"]) #robomol, body:not([data-rp="1"]) #paarden, body:not([data-kk="1"]) #kerker, body:not([data-jp="1"]) #raket, body:not([data-sz="1"]) #zwaard, body:not([data-ww="1"]) #wankel, body:not([data-hb="1"]) #hooi, body:not([data-pp="1"]) #plasma, body:not([data-bv="1"]) #banier, body:not([data-tm="1"]) #tuimel { display: none !important; }
 #poort, #vlucht, #diep, #robomol, #paarden, #kerker, #raket, #zwaard, #wankel, #hooi, #plasma, #banier, #tuimel { display: contents; }
@@ -252,6 +252,20 @@ body:not([data-pw="1"]) #poort, body:not([data-nv="1"]) #vlucht, body:not([data-
 .hk-tip.weg { display: none; }
 #hk-lobby-knight { display: block; margin: 6px auto 0; }
 #hk-game .ak-question { z-index: 6; }
+
+/* Kegelridder */
+.kb-hud { gap: 10px; }
+.kb-gold { color: rgb(var(--k-goud-l)); box-shadow: 0 0 14px rgb(var(--k-goud) / .6); animation: breathe .8s ease-in-out infinite; }
+.kb-balls.kb-op { opacity: .55; }
+.kb-stage { touch-action: none; user-select: none; -webkit-user-select: none; cursor: grab; }
+.kb-tip { position: absolute; left: 50%; top: 12%; transform: translateX(-50%); padding: 8px 16px; border-radius: 999px; background: rgb(var(--k-bg) / .7); border: 1px solid rgb(var(--k-cyan) / .7); color: var(--text); font-weight: 700; pointer-events: none; text-align: center; max-width: 90%; animation: breathe 1.6s ease-in-out infinite; }
+.kb-tip.weg { display: none; }
+.kb-ask { position: absolute; left: 50%; bottom: 14%; transform: translateX(-50%); z-index: 4; box-shadow: 0 0 24px rgb(var(--k-goud) / .6); animation: breathe 1.4s ease-in-out infinite; }
+.kb-power { position: absolute; right: 14px; bottom: 16%; width: 18px; height: 34%; border-radius: 9px; border: 2px solid rgb(var(--k-cyan) / .8); background: rgb(var(--k-bg) / .6); overflow: hidden; display: flex; align-items: flex-end; pointer-events: none; }
+.kb-power i { display: block; width: 100%; background: linear-gradient(0deg, rgb(var(--k-cyan)), rgb(var(--k-goud-l))); }
+.kb-lobby-icon { display: block; width: 96px; height: 96px; margin: 6px auto 0; border-radius: 18px; }
+#kb-game .ak-question { z-index: 6; }
+.ak-stage .kb-banner { top: 30%; font-size: 2.2rem; box-shadow: 0 0 40px rgb(var(--k-goud) / .6); }
 
 /* Hooibergjacht */
 .hb-hud { gap: 10px; }

@@ -545,5 +545,7 @@
  "{0} leerling": "{0} alumno",
  "{0} bezig": "{0} trabajando",
  "{0} antwoorden te verbeteren": "{0} respuestas por corregir",
- "{0} antwoord te verbeteren": "{0} respuesta por corregir"
+ "{0} antwoord te verbeteren": "{0} respuesta por corregir",
+ "Kegelridder": "Caballero de los Bolos",
+ "Bowlen in de kegelhal: elke vraag juist = een bal. Veeg je bal naar de tien runenkegels en gooi een strike.": "Bolos en la sala del castillo: cada respuesta correcta = una bola. Desliza tu bola hacia los diez bolos rúnicos y haz un strike."
 }

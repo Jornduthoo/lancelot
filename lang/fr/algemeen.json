@@ -1150,5 +1150,7 @@
  "Vast adres:": "Adresse fixe :",
  "vraag ICT één keer om een vast adres voor deze pc, dan klopt de QR-code op het bord altijd.": "demande une fois au service informatique une adresse fixe pour ce PC : le code QR au tableau sera alors toujours correct.",
  "Bericht voor ICT": "Message pour l'informatique",
- "Adressen voor toetsen mailen bewaren mislukt:": "Échec de l'enregistrement des adresses pour l'envoi des tests :"
+ "Adressen voor toetsen mailen bewaren mislukt:": "Échec de l'enregistrement des adresses pour l'envoi des tests :",
+ "Kegelridder loopt nog. Stop dat spel eerst.": "Chevalier des Quilles est encore en cours. Arrête d’abord ce jeu.",
+ "Kegelridder": "Chevalier des Quilles"
 }

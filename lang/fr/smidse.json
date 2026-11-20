@@ -1373,5 +1373,6 @@
  "⚠ Mailbox: {0}. Vul op deze pc nog het app-wachtwoord in.": "⚠ Boîte mail : {0}. Saisissez encore le mot de passe d'application sur ce PC.",
  "✔ Bewaard. Wachtende toetsen worden nu gemaild ({0}).": "✔ Enregistré. Les tests en attente partent maintenant ({0}).",
  "Deze toets is nog niet gemaild: op deze pc ontbreekt het app-wachtwoord. Vul het in bij Mijn klas › Toetsen mailen, dan vertrekt de mail meteen (één keer).": "Ce test n'a pas encore été envoyé : le mot de passe d'application manque sur ce PC. Saisissez-le dans Ma classe › Envoyer les tests par mail, le mail part aussitôt (une seule fois).",
- "Nu invullen": "Saisir maintenant"
+ "Nu invullen": "Saisir maintenant",
+ "Alleen in: Kegelridder": "Seulement dans : Chevalier des Quilles"
 }

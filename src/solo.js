@@ -17,6 +17,7 @@ const { Tuimelridder } = require('./tuimelridder');
 const { Hooibergjacht } = require('./hooibergjacht');
 const { Zwermwacht } = require('./zwermwacht');
 const { Haakridder } = require('./haakridder');
+const { Kegelridder } = require('./kegelridder');
 const { Kolkridder } = require('./kolkridder');
 const { Robomol } = require('./robomol');
 
@@ -35,6 +36,7 @@ const SPELLEN = {
   hooi: { Klasse: Hooibergjacht, eigen: true },
   zwerm: { Klasse: Zwermwacht, eigen: true },
   haak: { Klasse: Haakridder, eigen: true },
+  kegel: { Klasse: Kegelridder, eigen: true },
   kolk: { Klasse: Kolkridder, eigen: true },
   robomol: { Klasse: Robomol, eigen: true },
 };

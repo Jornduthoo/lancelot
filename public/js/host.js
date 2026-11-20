@@ -206,6 +206,7 @@ document.querySelector('[data-module="hooibergjacht"]').addEventListener('click'
 document.querySelector('[data-module="zwermwacht"]').addEventListener('click', () => { location.href = '/zwermwacht'; });
 document.querySelector('[data-module="banierveld"]').addEventListener('click', () => { location.href = '/banierveld'; });
 document.querySelector('[data-module="haakridder"]').addEventListener('click', () => { location.href = '/haakridder'; });
+document.querySelector('[data-module="kegelridder"]').addEventListener('click', () => { location.href = '/kegelridder'; });
 document.querySelector('[data-module="kolkridder"]').addEventListener('click', () => { location.href = '/kolkridder'; });
 document.querySelector('[data-module="neoncamelot"]').addEventListener('click', () => { location.href = '/neoncamelot'; });
 document.querySelector('[data-module="titanenstrijd"]').addEventListener('click', () => { location.href = '/titanenstrijd'; });
