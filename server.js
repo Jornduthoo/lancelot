@@ -387,8 +387,10 @@ taken.bijAfname = file => {
 
 // De afnames voor De Proef en het startscherm: bij een toets als taak ook wie nog bezig is of nog niet begon.
 function afnameLijst() {
+  // De stand van je andere pc's één keer lezen, niet opnieuw voor elke toets.
+  let per = null;
   return proeven.afnames().map(a => {
-    const ll = a.taak && taken.toetsLeerlingen(a.taak);
+    const ll = a.taak && taken.toetsLeerlingen(a.taak, per || (per = taken.standen()));
     return ll ? { ...a, bezig: ll.filter(l => l.status === 'bezig').length, nog: ll.filter(l => l.status === 'nieuw').length } : a;
   });
 }
@@ -691,7 +693,7 @@ function runSync() {
       else if (kind === 'runen') { runen.uitLesmap(); io.to('host').emit('rn-bord', runen.bord()); }
       else if (kind === 'inbeeld') inbeeld.uitLesmap().then(() => io.to('host').emit('ib-view', inbeeld.view()));
     }
-    if (changed.includes('takenstand') || changed.includes('afnames')) io.to('host').emit('tk-lijst', taken.lijst());
+    if (changed.includes('takenstand') || changed.includes('afnames')) takenNaarBord();
     if (changed.includes('afnames')) {
       io.to('host').emit('pf-afnames', afnameLijst());
       io.to('host').emit('pf-afname-gewijzigd');
@@ -699,7 +701,7 @@ function runSync() {
       try { if (toetsmail.view().klaar) wachtendeMails(); } catch {}
     }
     if (taken.uitLesmap()) {
-      io.to('host').emit('tk-lijst', taken.lijst());
+      takenNaarBord();
       io.emit('tk-nieuw');
     }
     io.to('host').emit('lesmap', lesmap.view());
@@ -720,16 +722,25 @@ function eilandSoon() {
   }, 3000);
 }
 
+// De lijst van taken alleen naar de schermen die ze tonen (Taken, De Zonnewijzer): die vragen haar eerst op (tk-lijst).
+// Zo krijgen het startscherm en de spellen niet twee keer per seconde alle taken door wifi, en rekenen we niets voor niemand.
+const TAKEN_KIJKERS = 'taken-kijkers';
+function takenNaarBord() {
+  const r = io.sockets.adapter.rooms.get(TAKEN_KIJKERS);
+  if (r && r.size) io.to(TAKEN_KIJKERS).emit('tk-lijst', taken.lijst());
+}
+
 // Taken: een leerling werkte iets bij. Het bord hooguit twee keer per seconde bijwerken.
 let takenTimer = null;
 function takenSoon() {
   if (takenTimer) return;
   takenTimer = setTimeout(() => {
     takenTimer = null;
-    io.to('host').emit('tk-lijst', taken.lijst());
+    takenNaarBord();
     // Ook het toetsoverzicht in De Proef en op het startscherm (wie bezig is).
     io.to('host').emit('pf-afnames', afnameLijst());
-    io.to('host').emit('pf-afname-gewijzigd');
+    // Alleen wie hoe ver is (de afname zelf verandert pas bij inleveren): Verbeteren haalt dan niet de hele toets opnieuw.
+    io.to('host').emit('pf-afname-voortgang');
   }, 500);
   // De stand ook snel naar je andere pc's (via de lesmap), hooguit om de 20 seconden.
   if (!standTimer && settings.read().lesmap) standTimer = setTimeout(() => { standTimer = null; syncSoon(); }, 20000);
@@ -744,7 +755,7 @@ setInterval(() => {
   takenGekeken = Date.now();
   try {
     if (!taken.gestartSinds(sinds)) return;
-    io.to('host').emit('tk-lijst', taken.lijst());
+    takenNaarBord();
     io.emit('tk-nieuw');
   } catch {}
 }, 30000).unref();
@@ -1873,16 +1884,16 @@ io.on('connection', socket => {
     // Na elke wijziging krijgen alle leerlingschermen een seintje, zodat Mijn taken meteen klopt.
     const taak = fn => handle(arg => {
       const out = fn(arg || {});
-      io.to('host').emit('tk-lijst', taken.lijst());
+      takenNaarBord();
       io.emit('tk-nieuw');
       // Een nieuwe of gewiste taak gaat ook naar Mijn lesmap.
       syncSoon();
       return out || {};
     });
     socket.on('tk-bronnen', handle(() => ({ quizzen: quizzes.list(), bladen: oefenbladen.list(), toetsen: proeven.list(), klas: klas.names(), gast: klas.read().leerlingen.filter(l => l.gast).map(l => l.naam) })));
-    socket.on('tk-lijst', handle(() => ({ taken: taken.lijst() })));
+    socket.on('tk-lijst', handle(() => { socket.join(TAKEN_KIJKERS); return { taken: taken.lijst() }; }));
     // Mijn klas › Opvolgen: leerlingen × taken en toetsen.
-    socket.on('op-overzicht', handle(() => opvolgen.overzicht()));
+    socket.on('op-overzicht', handle(() => { socket.join(TAKEN_KIJKERS); return opvolgen.overzicht(); }));
     socket.on('tk-voorbeeld', handle(arg => taken.voorbeeld(arg || {})));
     socket.on('tk-les', handle(arg => ({ les: taken.lesVan(arg), start: zonnewijzer.lesStart(arg || {}) })));
     socket.on('tk-detail', handle(arg => taken.detail(arg || {})));
@@ -1898,7 +1909,7 @@ io.on('connection', socket => {
     socket.on('tk-voorlees', handle(arg => {
       const r = taken.zetVoorlees(arg || {});
       io.emit('tk-voorlees', { id: arg.id, naam: r.naam, aan: r.aan });
-      io.to('host').emit('tk-lijst', taken.lijst());
+      takenNaarBord();
       return r;
     }));
     socket.on('tk-afwezig', taak(taken.zetAfwezig));
@@ -2568,6 +2579,7 @@ io.on('connection', socket => {
       if (afname.resultaten) try { if (!fs.existsSync(results.filePath(afname.resultaten))) delete afname.resultaten; } catch { delete afname.resultaten; }
       return { afname, leerlingen: afname.taak ? taken.toetsLeerlingen(afname.taak) : null };
     }));
+    socket.on('pf-afname-leerlingen', handle(taak => ({ leerlingen: typeof taak === 'string' ? taken.toetsLeerlingen(taak) : null })));
     socket.on('pf-cijfer', handle(arg => ({ stand: proeven.cijfer(arg) })));
     socket.on('pf-klaar', handle(file => {
       const rec = proeven.klaar(file, results.saveProef);

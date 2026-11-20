@@ -1,6 +1,8 @@
 // Opvolgen (Mijn klas › Opvolgen): één tabel met de leerlingen in de rijen en de taken en toetsen in de kolommen.
 // Per vakje één stand: nog niet begonnen, bezig, te verbeteren, klaar (met punt), of niet voor deze leerling.
 // Alles komt uit wat er al is: de taken (src/taken.js, ook de stand van je andere pc's) en de afnames van De Proef.
+const fs = require('fs');
+const path = require('path');
 const proeven = require('./proeven');
 const taken = require('./taken');
 const klas = require('./klas');
@@ -8,12 +10,23 @@ const klas = require('./klas');
 const key = n => String(n || '').trim().replace(/\s+/g, ' ').toLowerCase();
 
 // De stand van elke leerling in een afname: punten, maximum en nog te verbeteren.
+// Een afname (met de hele toets erin) lezen we alleen opnieuw als ze veranderde: Opvolgen laadt live mee terwijl de klas werkt.
+const memo = new Map();
 function afnameStand(file) {
+  let sleutel = '';
+  try {
+    const st = fs.statSync(path.join(proeven.AFNAMES, file));
+    if (Date.now() - st.mtimeMs > 5000) sleutel = `${proeven.AFNAMES}|${st.size}|${st.mtimeMs}`;
+  } catch {}
+  const oud = memo.get(file);
+  if (sleutel && oud && oud.sleutel === sleutel) return oud.per;
   const per = new Map();
   try {
     const rec = proeven.laadAfname(file);
     for (const s of rec.spelers) per.set(key(s.naam), { ...proeven.stand(rec, s), naam: s.naam });
   } catch {}
+  if (sleutel) memo.set(file, { sleutel, per });
+  else memo.delete(file);
   return per;
 }
 
