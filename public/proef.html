@@ -307,6 +307,7 @@
     <div class="pf-kopie-rij" id="v-kopie-rij">
       <label><input type="checkbox" id="v-kopie"> 📁 Kopie per leerling (pdf) in Mijn lesmap</label>
       <button type="button" class="secondary small hidden" id="v-kopie-nu">Nu kopiëren</button>
+      <button type="button" class="secondary small" id="v-mail">✉️ Mailen naar begeleiders</button>
       <span class="muted small" id="v-kopie-info"></span>
     </div>
     <div class="pf-tabs" id="v-tabs">
@@ -324,6 +325,31 @@
       <div class="bar"><h2 id="d-name"></h2><div class="actions" id="d-actions"></div></div>
       <div class="pf-events" id="d-events"></div>
       <article class="ob-paper pf-paper" id="d-paper"></article>
+    </div>
+  </div>
+  <div class="ob-modal hidden" id="mail">
+    <div class="ob-modal-box pf-mail">
+      <div class="bar"><h2>✉️ Toets mailen naar een begeleider</h2><div class="actions"><button class="secondary" id="m-sluit">Sluiten</button></div></div>
+      <p class="muted">Heeft een leerling een adres, dan gaat zijn verbeterde toets (pdf) na <b>Klaar met verbeteren</b> vanzelf naar dat adres, bv. naar de GON- of zorgbegeleider. Elke leerling krijgt zo één mail per toets.</p>
+      <h3>1. Met welke mailbox?</h3>
+      <p class="muted small">Lancelot verstuurt met je eigen Gmail. Gebruik een <a href="https://myaccount.google.com/apppasswords" target="_blank" rel="noopener">app-wachtwoord</a> (niet je gewone wachtwoord; daarvoor moet verificatie in 2 stappen aan staan). Het blijft alleen op deze pc.</p>
+      <div class="pf-mail-grid">
+        <label>Je e-mailadres <input type="email" id="m-van" autocomplete="off" placeholder="naam@gmail.com"></label>
+        <label>App-wachtwoord <input type="password" id="m-pass" autocomplete="new-password" placeholder="16 letters"></label>
+        <label>Je naam onder de mail <input type="text" id="m-naam" autocomplete="off" placeholder="bv. Meester Jorn"></label>
+      </div>
+      <details class="small muted"><summary>Geen Gmail?</summary>
+        <div class="pf-mail-grid"><label>Mailserver <input type="text" id="m-host" placeholder="smtp.gmail.com"></label><label>Poort <input type="number" id="m-port" placeholder="465"></label></div>
+      </details>
+      <div class="pf-kopie-rij">
+        <button type="button" id="m-bewaar">Bewaar</button>
+        <button type="button" class="secondary" id="m-test">Stuur een proefmail naar mezelf</button>
+        <button type="button" class="secondary hidden" id="m-wis">Mailbox wissen</button>
+        <span class="muted small" id="m-info"></span>
+      </div>
+      <h3>2. Naar wie?</h3>
+      <p class="muted small">Typ bij de leerling het adres van de begeleider. Meer adressen: scheid ze met een komma. Leeg = niet mailen.</p>
+      <div id="m-lijst" class="pf-mail-lijst"></div>
     </div>
   </div>
 

@@ -89,6 +89,7 @@ const postduif = require('./src/postduif');
 const { OefenbladLive } = require('./src/oefenblad-live');
 const proeven = require('./src/proeven');
 const toetskopie = require('./src/toetskopie');
+const toetsmail = require('./src/toetsmail');
 const { ProefLive } = require('./src/proef-live');
 const niveaus = require('./src/niveaus');
 const settings = require('./src/settings');
@@ -824,7 +825,10 @@ function toetsKopieen(file) {
   const deze = k.klassen.find(x => x.id === k.actief);
   const klasNaam = k.klassen.length > 1 && deze ? (deze.naam || `Klas ${deze.nr}`) : '';
   io.to('host').emit('pf-kopie', { file, bezig: true, aantal: rec.spelers.length });
-  return toetskopie.maak({ rec, klas: klasNaam, url: i => `http://127.0.0.1:${PORT}/proef-kopie?afname=${encodeURIComponent(file)}&speler=${i}` })
+  const gemaildBij = i => {
+    try { const nu = proeven.laadAfname(file); if (nu.spelers[i]) { nu.spelers[i].gemaild = new Date().toISOString(); proeven.schrijfAfname(nu); } } catch {}
+  };
+  return toetskopie.maak({ rec, klas: klasNaam, stand: s => proeven.stand(rec, s), gemaildBij, url: i => `http://127.0.0.1:${PORT}/proef-kopie?afname=${encodeURIComponent(file)}&speler=${i}` })
     .then(r => { io.to('host').emit('pf-kopie', { file, ...r }); return r; });
 }
 
@@ -2457,9 +2461,16 @@ io.on('connection', socket => {
       sendLibrary('resultaat');
       io.to('host').emit('pf-afnames', proeven.afnames());
       const kopie = toetskopie.aan() && !!settings.read().lesmap;
-      if (kopie) toetsKopieen(file);
-      return { resultaten: rec.resultaten, kopie };
+      // Wie een mailadres heeft (bv. de GON-begeleider), krijgt zijn toets ook gemaild.
+      const mail = toetsmail.nodig(rec.spelers);
+      if (kopie || mail) toetsKopieen(file);
+      return { resultaten: rec.resultaten, kopie, mail };
     }));
+    // Toetsen mailen: afzender (eigen mailbox) en een adres per leerling.
+    socket.on('pf-mail-view', (_, cb) => typeof cb === 'function' && cb(toetsmail.view()));
+    socket.on('pf-mail-afzender', handle(arg => toetsmail.zetAfzender(arg || {})));
+    socket.on('pf-mail-adres', handle(arg => toetsmail.zetAdres(arg && arg.naam, arg && arg.adres)));
+    socket.on('pf-mail-test', (_, cb) => { toetsmail.test().then(() => cb && cb({ ok: true }), err => cb && cb({ error: err.message })); });
     // Een kopie per leerling in Mijn lesmap: aan of uit zetten, of nu (opnieuw) maken.
     socket.on('pf-kopie-view', (_, cb) => typeof cb === 'function' && cb(toetskopie.view()));
     socket.on('pf-kopie-zet', handle(aan => toetskopie.zet(aan)));
