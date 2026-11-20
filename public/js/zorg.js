@@ -2,7 +2,7 @@
 const socket = io({ query: { role: 'host' } });
 KlasKiezer.start(socket, document.getElementById('klaskiezer'));
 const $ = id => document.getElementById(id);
-const KLEUR = { rood: 'Aandacht nodig', oranje: 'Opvolgen', groen: 'Mee met de klas', weinig: 'Te weinig gegevens' };
+const KLEUR = { rood: 'Aandacht nodig', oranje: 'Even opletten', groen: 'Mee met de klas', weinig: 'Te weinig gegevens' };
 
 let data = null;
 let open = '';

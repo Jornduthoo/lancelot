@@ -154,7 +154,7 @@ function tekenAfnames() {
   if (rij.length > 8) {
     const m = document.createElement('button');
     m.className = 'secondary pf-afnames-meer';
-    m.textContent = alleAfnames ? 'Toon minder' : `Toon alle resultaten (${rij.length})`;
+    m.textContent = alleAfnames ? 'Toon minder' : `Toon alle afnames (${rij.length})`;
     m.addEventListener('click', () => { alleAfnames = !alleAfnames; tekenAfnames(); });
     box.appendChild(m);
   }
