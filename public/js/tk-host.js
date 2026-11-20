@@ -617,7 +617,6 @@ function tekenTaken() {
 }
 
 const TK_GROEPEN = 'lancelot-tk-groepen';
-const TK_INGEKLAPT = 'lancelot-tk-ingeklapt';
 const GROEPEN = [['vandaag', 'Vandaag'], ['week', 'Deze week'], ['later', 'Gepland later'], ['open', 'Afgelopen (nog open)'], ['dicht', 'Afgesloten']];
 function groepVan(t) {
   if (t.dicht) return 'dicht';
@@ -629,23 +628,27 @@ function groepVan(t) {
   maandag.setDate(maandag.getDate() - ((maandag.getDay() + 6) % 7));
   return dag >= maandag ? 'week' : 'open';
 }
-function ingeklapt() {
-  try { return new Set(JSON.parse(localStorage.getItem(TK_INGEKLAPT) || '[]')); } catch { return new Set(); }
+// Een kaart is compact: één regel met de tellers; de namen klappen open met ▾ (één plek per vraag, 3).
+// Wie je openklapte, blijft open (onthouden op deze pc).
+const TK_OPEN = 'lancelot-tk-open';
+function opengeklapt() {
+  try { return new Set(JSON.parse(localStorage.getItem(TK_OPEN) || '[]')); } catch { return new Set(); }
 }
 
 function kaart(t) {
-  const k = el('div', `panel tk-taak${t.dicht ? ' dicht' : ''}${ingeklapt().has(t.id) ? ' ingeklapt' : ''}`);
+  const k = el('div', `panel tk-taak${t.dicht ? ' dicht' : ''}${opengeklapt().has(t.id) ? '' : ' ingeklapt'}`);
   const kop = el('div', 'tk-taak-kop');
   // Dichtklappen: alleen de kop blijft staan (onthouden op deze pc).
   const klap = el('button', 'tk-klap', '▾');
   klap.type = 'button';
-  klap.title = 'Dichtklappen of openklappen';
-  klap.setAttribute('aria-label', 'Dichtklappen of openklappen');
-  klap.addEventListener('click', () => {
-    const set = ingeklapt();
-    if (k.classList.toggle('ingeklapt')) set.add(t.id); else set.delete(t.id);
-    try { localStorage.setItem(TK_INGEKLAPT, JSON.stringify([...set].slice(-300))); } catch {}
-  });
+  klap.title = 'De namen tonen of verbergen';
+  klap.setAttribute('aria-label', 'De namen tonen of verbergen');
+  const wissel = () => {
+    const set = opengeklapt();
+    if (k.classList.toggle('ingeklapt')) set.delete(t.id); else set.add(t.id);
+    try { localStorage.setItem(TK_OPEN, JSON.stringify([...set].slice(-300))); } catch {}
+  };
+  klap.addEventListener('click', wissel);
   const img = el('img');
   img.src = `/img/icons/${t.spel ? t.spel.icoon : t.soort === 'quiz' ? 'toernooi' : t.soort === 'proef' ? 'proef' : 'oefenblad'}.webp`;
   img.alt = '';
@@ -663,6 +666,13 @@ function kaart(t) {
   const telling = el('div', 'tk-telling');
   telling.append(el('span', 'klaar', `${tel('klaar')} klaar`), el('span', 'bezig', `${tel('bezig')} bezig`), el('span', 'nieuw', `${tel('nieuw')} nog niet`));
   if (inhalen) telling.append(el('span', 'inhalen', `${inhalen} inhalen`));
+  // Klik op de tellers: de namen open of dicht. Wie deed wat over alle taken heen: Opvolgen.
+  telling.title = 'De namen tonen of verbergen';
+  telling.addEventListener('click', wissel);
+  const opv = el('a', 'tk-opvolgen', 'Opvolgen ▶');
+  opv.href = '/opvolgen';
+  opv.addEventListener('click', e => e.stopPropagation());
+  telling.append(opv);
   const acties = el('div', 'actions');
   const knopje = (tekst, fn, cls = 'secondary') => {
     const b = el('button', `${cls} tk-mini`, tekst);
