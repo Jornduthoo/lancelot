@@ -24,8 +24,22 @@ test('punten: hoogste, laatste, eerste of gemiddelde; keuze per toets blijft bew
   assert.deepStrictEqual(o.r.laatste, { punten: 16, max: 20 });
   assert.deepStrictEqual(o.r.eerste, { punten: 4, max: 10 });
   assert.ok(Math.abs(o.r.gemiddelde.punten / o.r.gemiddelde.max - 0.6) < 1e-9);
-  assert.deepStrictEqual(o.voor, { standaard: 'hoogste', telt: {} });
+  assert.deepStrictEqual(o.voor, { standaard: 'hoogste', telt: {}, herk: {} });
   assert.deepStrictEqual(o.na.telt, { 'breuken.json': 'laatste' });
   assert.ok(o.fout);
   assert.strictEqual(o.leeg, null);
+});
+
+test('herkansing alleen als de leerkracht het zegt: koppelen, ontkoppelen, geen rondjes', () => {
+  process.env.LANCELOT_DATA = fs.mkdtempSync(path.join(os.tmpdir(), 'herk-'));
+  const punten = require('../src/punten');
+  let r = punten.koppel({ kolom: 'b', van: 'a' });
+  assert.strictEqual(r.herk.b, 'a');
+  r = punten.koppel({ kolom: 'c', van: 'b' });
+  assert.strictEqual(punten.eerste('c', r.herk), 'a');
+  assert.throws(() => punten.koppel({ kolom: 'a', van: 'c' }), /rondje/);
+  assert.throws(() => punten.koppel({ kolom: 'a', van: 'a' }));
+  r = punten.koppel({ kolom: 'b', van: '' });
+  assert.strictEqual(r.herk.b, undefined);
+  assert.strictEqual(r.herk.c, 'b');
 });

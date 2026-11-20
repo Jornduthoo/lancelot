@@ -670,5 +670,13 @@
  "✏️ bezig · {0} van {1} gedaan{2}": "✏️ trabajando · {0} de {1} hechas{2}",
  "bezig · {0} van {1} gedaan": "trabajando · {0} de {1} hechas",
  "{0} klaar": "{0} terminados",
- "{0} nog niet": "{0} todavía no"
+ "{0} nog niet": "{0} todavía no",
+ "🔗 Herkansing van:": "🔗 Recuperación de:",
+ "geen (een eigen toets)": "ninguna (una prueba propia)",
+ "✕ {0}: dit is geen herkansing": "✕ {0}: esto no es una recuperación",
+ "🔁 Deze taak telt als herkansing (Opvolgen › Punten).": "🔁 Esta tarea cuenta como recuperación (Seguimiento › Puntos).",
+ "Geen herkansing": "No es recuperación",
+ "Alleen toetsen. Een herkansing telt alleen als jij dat zegt: met ↻ Herkansing geven of bij Meer ▾. Per toets kies je wat telt. Het gemiddelde rekent met wat telt; ✎ = nog te verbeteren.": "Solo pruebas. Una recuperación solo cuenta si tú lo dices: con ↻ Dar recuperación o en Más ▾. Por prueba eliges qué cuenta. La media usa lo que cuenta; ✎ = aún por corregir.",
+ "Kies een andere toets.": "Elige otra prueba.",
+ "Dat zou een rondje worden.": "Eso crearía un círculo."
 }

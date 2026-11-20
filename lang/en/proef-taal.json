@@ -670,5 +670,13 @@
  "✏️ bezig · {0} van {1} gedaan{2}": "✏️ working · {0} of {1} done{2}",
  "bezig · {0} van {1} gedaan": "working · {0} of {1} done",
  "{0} klaar": "{0} done",
- "{0} nog niet": "{0} not yet"
+ "{0} nog niet": "{0} not yet",
+ "🔗 Herkansing van:": "🔗 Retake of:",
+ "geen (een eigen toets)": "none (a test of its own)",
+ "✕ {0}: dit is geen herkansing": "✕ {0}: this is not a retake",
+ "🔁 Deze taak telt als herkansing (Opvolgen › Punten).": "🔁 This task counts as a retake (Follow-up › Scores).",
+ "Geen herkansing": "Not a retake",
+ "Alleen toetsen. Een herkansing telt alleen als jij dat zegt: met ↻ Herkansing geven of bij Meer ▾. Per toets kies je wat telt. Het gemiddelde rekent met wat telt; ✎ = nog te verbeteren.": "Tests only. A retake only counts when you say so: with ↻ Give a retake or under More ▾. Per test you choose what counts. The average uses what counts; ✎ = still to mark.",
+ "Kies een andere toets.": "Choose another test.",
+ "Dat zou een rondje worden.": "That would make a loop."
 }

@@ -1930,6 +1930,8 @@ io.on('connection', socket => {
     socket.on('tk-lijst', handle(() => { socket.join(TAKEN_KIJKERS); return { taken: taken.lijst() }; }));
     // Mijn klas › Opvolgen: leerlingen × taken en toetsen.
     socket.on('pt-telt', handle(arg => { const r = punten.zet(arg || {}); takenNaarBord(); syncSoon(); return r; }));
+    // Herkansing alleen als de leerkracht het zegt: koppelen of ontkoppelen ("Dit is geen herkansing").
+    socket.on('pt-herk', handle(arg => { const r = punten.koppel(arg || {}); syncSoon(); return r; }));
     socket.on('tk-standaard', handle(() => takenstandaard.read()));
     socket.on('tk-standaard-zet', handle(d => { const r = takenstandaard.write(d || {}); io.to('host').emit('tk-standaard', r); syncSoon(); return r; }));
     socket.on('vandaag', handle(() => { socket.join(VANDAAG_KIJKERS); return vandaagData(); }));
@@ -1941,7 +1943,13 @@ io.on('connection', socket => {
     socket.on('tk-les', handle(arg => ({ les: taken.lesVan(arg), start: zonnewijzer.lesStart(arg || {}) })));
     socket.on('tk-detail', handle(arg => taken.detail(arg || {})));
     socket.on('tk-inhoud', handle(arg => taken.inhoud(arg || {})));
-    socket.on('tk-maak', taak(arg => { const t = taken.maak(arg); if (t.soort === 'proef') sendLibrary('proef', null, true); return { id: t.id }; }));
+    socket.on('tk-maak', taak(arg => {
+      const t = taken.maak(arg);
+      if (t.soort === 'proef') sendLibrary('proef', null, true);
+      // Via "↻ Herkansing geven" (Opvolgen › Punten): deze taak is een herkansing van die kolom.
+      if (t.soort === 'proef' && arg.herkansing) try { punten.koppel({ kolom: t.id, van: String(arg.herkansing) }); } catch {}
+      return { id: t.id };
+    }));
     socket.on('tk-toevoegen', taak(arg => ({ n: taken.voegToe(arg) })));
     socket.on('tk-weg', taak(taken.haalWeg));
     socket.on('tk-niveau', taak(taken.zetNiveau));

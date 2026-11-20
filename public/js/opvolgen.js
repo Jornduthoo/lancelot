@@ -147,13 +147,21 @@ function tekenPunten(vak) {
   const omreken = (p, max) => (op ? (p / max) * op : p);
   const totaal = max => (op || max);
   const rijen = data.rijen;
-  // Eén groep per toets: de eerste keer, daarna de herkansingen (dezelfde toets nog eens gegeven).
+  const dagTekst = d => new Date(d).toLocaleDateString('nl-BE', { day: 'numeric', month: 'short' });
+  // Eén groep per toets: de eerste keer, daarna de herkansingen. Een herkansing is er alleen als de leerkracht
+  // het zei (↻ Herkansing geven, of zelf gekoppeld): dezelfde toets twee keer geven = twee kolommen (verbeterpunten 20 nov, 2).
+  const herk = (data.telt && data.telt.herk) || {};
+  const proefKols = [...data.kolommen].filter(k => k.soort === 'proef').sort((a, b) => String(a.dag).localeCompare(String(b.dag)));
+  const bestaat = new Set(proefKols.map(k => k.id));
+  const wortel = id => { let r = id; const gezien = new Set([r]); while (herk[r] && bestaat.has(herk[r]) && !gezien.has(herk[r])) { r = herk[r]; gezien.add(r); } return r; };
   const groepen = new Map();
-  for (const k of [...data.kolommen].filter(k => k.soort === 'proef').sort((a, b) => String(a.dag).localeCompare(String(b.dag)))) {
-    const id = k.toets || k.id;
+  for (const k of proefKols) {
+    const id = wortel(k.id);
     if (!groepen.has(id)) groepen.set(id, []);
     groepen.get(id).push(k);
   }
+  // Om te koppelen: de andere toetsen (eerste kolom van elke groep), met datum.
+  const andere = id => [...groepen.entries()].filter(([g]) => g !== id).map(([g, ks]) => [g, `${ks[0].titel} (${dagTekst(ks[0].dag)})`]);
   const zicht = [...groepen.entries()].filter(([, ks]) => ks.some(k => inPeriode(k.dag)) && (!vak || ks[0].vak === vak))
     .sort((a, b) => String(b[1][0].dag).localeCompare(String(a[1][0].dag)));
   const leeg = !zicht.length || !rijen.length;
@@ -163,7 +171,6 @@ function tekenPunten(vak) {
   $('op-gasten').textContent = (data.gasten || []).length ? `👤 Gasten staan niet in de tabel: ${data.gasten.join(', ')}.` : '';
   if (leeg) { puntenTabel = []; return; }
   const keuze = id => (data.telt && data.telt.telt[id]) || (data.telt && data.telt.standaard) || 'hoogste';
-  const dagTekst = d => new Date(d).toLocaleDateString('nl-BE', { day: 'numeric', month: 'short' });
   // Per leerling en per toets: alle pogingen (oudste eerst) en wat telt.
   const uitkomst = (ks, naam) => {
     const pog = [];
@@ -182,7 +189,11 @@ function tekenPunten(vak) {
       <a href="${ks[ks.length - 1].afname ? `/proef?verbeter=${encodeURIComponent(ks[ks.length - 1].afname)}` : '/taken?soort=proef'}"><span class="op-kol-titel">📝 ${esc(ks[0].titel)}</span>
       <span class="op-kol-dag">${esc(ks.map(k => dagTekst(k.dag)).join(' · '))}${ks[0].vak ? ` · ${esc(ks[0].vak)}` : ''}</span></a>
       ${herk ? `<label class="op-telt">🔁 ${herk === 1 ? '1 herkansing' : `${herk} herkansingen`}, telt: <select data-toets="${esc(id)}">${Object.entries(TELT).map(([w, t]) => `<option value="${w}"${keuze(id) === w ? ' selected' : ''}>${esc(t)}</option>`).join('')}</select></label>` : ''}
-      ${ks[0].toets ? `<a class="op-herk" href="/taken?soort=proef&file=${encodeURIComponent(ks[0].toets)}${laag.length ? `&namen=${encodeURIComponent(laag.join('|'))}` : ''}" title="${esc(laag.length ? `Dezelfde toets nog eens geven, met ${laag.join(', ')} al aangetikt (minder dan de helft)` : 'Dezelfde toets nog eens geven')}">↻ Herkansing geven</a>` : ''}</th>`;
+      ${ks[0].toets ? `<a class="op-herk" href="/taken?soort=proef&file=${encodeURIComponent(ks[0].toets)}&herkansing=${encodeURIComponent(id)}${laag.length ? `&namen=${encodeURIComponent(laag.join('|'))}` : ''}" title="${esc(laag.length ? `Dezelfde toets nog eens geven, met ${laag.join(', ')} al aangetikt (minder dan de helft)` : 'Dezelfde toets nog eens geven')}">↻ Herkansing geven</a>` : ''}
+      <details class="op-meer"><summary>Meer ▾</summary>
+        ${ks.slice(1).map(k => `<button type="button" class="op-geen" data-geen="${esc(k.id)}">✕ ${esc(dagTekst(k.dag))}: dit is geen herkansing</button>`).join('')}
+        <label>🔗 Herkansing van: <select data-herk="${esc(id)}"><option value="">geen (een eigen toets)</option>${andere(id).map(([g, t]) => `<option value="${esc(g)}"${herk[id] === g ? ' selected' : ''}>${esc(t)}</option>`).join('')}</select></label>
+      </details></th>`;
   }).join('');
   puntenTabel = [['Leerling', ...zicht.map(([, ks]) => (op ? `${ks[0].titel} (op ${op})` : ks[0].titel)), op ? `Gemiddelde (op ${op})` : 'Gemiddelde']];
   const perKol = zicht.map(() => []);
@@ -216,6 +227,10 @@ function tekenPunten(vak) {
   const klasGem = perKol.map(l => (l.length ? l.reduce((a, b) => a + b, 0) / l.length : null));
   const onder = `<tr class="op-klasgem"><th class="op-naam" scope="row">Klasgemiddelde</th>${klasGem.map(g => `<td>${g === null ? '–' : op ? `${nl(g * op)}/${op}` : `${Math.round(g * 100)}%`}</td>`).join('')}<td></td></tr>`;
   $('op-wrap').innerHTML = `<table class="op-tabel op-punten"><thead><tr><th class="op-hoek">Leerling</th>${kop}<th class="op-kol">Gemiddelde</th></tr></thead><tbody>${lijnen}${onder}</tbody></table>`;
+  const naHerk = res => { if (res && res.error) return Ui.melding(res.error); data.telt = res; teken(); };
+  for (const d of $('op-wrap').querySelectorAll('.op-meer')) d.addEventListener('click', e => e.stopPropagation());
+  for (const b of $('op-wrap').querySelectorAll('[data-geen]')) b.addEventListener('click', () => socket.emit('pt-herk', { kolom: b.dataset.geen, van: '' }, naHerk));
+  for (const sel of $('op-wrap').querySelectorAll('select[data-herk]')) sel.addEventListener('change', () => socket.emit('pt-herk', { kolom: sel.dataset.herk, van: sel.value }, naHerk));
   for (const sel of $('op-wrap').querySelectorAll('select[data-toets]')) {
     sel.addEventListener('click', e => e.stopPropagation());
     sel.addEventListener('change', () => socket.emit('pt-telt', { toets: sel.dataset.toets, telt: sel.value }, res => {

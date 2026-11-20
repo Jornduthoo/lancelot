@@ -670,5 +670,13 @@
  "✏️ bezig · {0} van {1} gedaan{2}": "✏️ am Arbeiten · {0} von {1} erledigt{2}",
  "bezig · {0} van {1} gedaan": "am Arbeiten · {0} von {1} erledigt",
  "{0} klaar": "{0} fertig",
- "{0} nog niet": "{0} noch nicht"
+ "{0} nog niet": "{0} noch nicht",
+ "🔗 Herkansing van:": "🔗 Nachprüfung von:",
+ "geen (een eigen toets)": "keine (ein eigener Test)",
+ "✕ {0}: dit is geen herkansing": "✕ {0}: das ist keine Nachprüfung",
+ "🔁 Deze taak telt als herkansing (Opvolgen › Punten).": "🔁 Diese Aufgabe zählt als Nachprüfung (Verfolgen › Punkte).",
+ "Geen herkansing": "Keine Nachprüfung",
+ "Alleen toetsen. Een herkansing telt alleen als jij dat zegt: met ↻ Herkansing geven of bij Meer ▾. Per toets kies je wat telt. Het gemiddelde rekent met wat telt; ✎ = nog te verbeteren.": "Nur Tests. Eine Nachprüfung zählt nur, wenn du es sagst: mit ↻ Nachprüfung geben oder unter Mehr ▾. Pro Test wählst du, was zählt. Der Durchschnitt rechnet mit dem, was zählt; ✎ = noch zu korrigieren.",
+ "Kies een andere toets.": "Wähle einen anderen Test.",
+ "Dat zou een rondje worden.": "Das wäre ein Kreis."
 }

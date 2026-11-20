@@ -19,6 +19,16 @@ const tk = { soort: 'oefenblad', bronnen: null, meer: null, klas: [], gekozen: n
 const vraag = new URLSearchParams(location.search);
 if (['quiz', 'proef'].includes(vraag.get('soort'))) tk.soort = vraag.get('soort');
 for (const n of (vraag.get('namen') || '').split('|').filter(Boolean)) tk.gekozen.add(n);
+// Uit Opvolgen › Punten (↻ Herkansing geven): de nieuwe taak telt als herkansing van die toets.
+tk.herkansing = vraag.get('soort') === 'proef' && vraag.get('herkansing') || null;
+if (tk.herkansing) {
+  const info = el('p', 'muted small tk-herk-info', `🔁 Deze taak telt als herkansing (Opvolgen › Punten). `);
+  const weg = el('button', 'link', 'Geen herkansing');
+  weg.type = 'button';
+  weg.addEventListener('click', () => { tk.herkansing = null; info.remove(); });
+  info.append(weg);
+  document.querySelector('.tk-soort').after(info);
+}
 
 // Uit een les in De Zonnewijzer (?week=…&slot=…): de taak krijgt het doel en de succescriteria van die les mee.
 tk.les = null;
@@ -451,8 +461,10 @@ $('tk-geef').addEventListener('click', async () => {
   const volgende = () => {
     if (klaar + fouten.length === files.length) return gedaan();
     const file = files[klaar + fouten.length];
-    socket.emit('tk-maak', { soort: tk.soort, file, namen, per: Object.keys(per).length ? per : undefined, feedback: $('tk-feedback').value, spel: $('tk-spel').value, minuten: Number($('tk-minuten').value), niveau: $('tk-niveau').value, les: tk.les && { week: tk.les.week, slot: tk.les.slot }, vanaf: start, voorlees: $('tk-voorlees').value, vragenVast: $('tk-volgorde').value !== 'schud', keuzesVast: $('tk-volgorde').value === 'alles', uitslag: $('tk-uitslag').checked }, res => {
+    socket.emit('tk-maak', { soort: tk.soort, file, namen, per: Object.keys(per).length ? per : undefined, feedback: $('tk-feedback').value, spel: $('tk-spel').value, minuten: Number($('tk-minuten').value), niveau: $('tk-niveau').value, les: tk.les && { week: tk.les.week, slot: tk.les.slot }, vanaf: start, voorlees: $('tk-voorlees').value, vragenVast: $('tk-volgorde').value !== 'schud', keuzesVast: $('tk-volgorde').value === 'alles', uitslag: $('tk-uitslag').checked, herkansing: tk.soort === 'proef' && files.length === 1 ? tk.herkansing || undefined : undefined }, res => {
       if (res.error) fouten.push(res.error); else klaar++;
+      // Eén herkansing: de volgende taak die je hier geeft, is weer een gewone.
+      if (!res.error && tk.herkansing) { tk.herkansing = null; const i = document.querySelector('.tk-herk-info'); if (i) i.remove(); }
       if (res.error || !Object.keys(daarna).length) return volgende();
       // De tweede niveaus: elk een taak die pas verschijnt als de eerste af is.
       const rest = Object.entries(daarna);
