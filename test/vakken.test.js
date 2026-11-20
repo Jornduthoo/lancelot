@@ -28,3 +28,18 @@ test('eigen vakken: toevoegen, hernoemen, verbergen, en een verborgen vak volgt 
   assert.ok(d.leerlingen.every(l => l.vakNiveaus.engels === 'ridder'));
   assert.deepStrictEqual(d.leerlingen[1].nietVakken, ['wiskunde']);
 });
+
+test('vakken op twee pc\'s tegelijk aangepast: samenvoegen, niets gaat verloren', () => {
+  const niveaus = require('../src/niveaus');
+  const std = niveaus.STANDAARD;
+  const bord = JSON.stringify({ groepen: [...std, { id: 'muzo', naam: 'Muzo', vakken: ['Muzo'] }], gewijzigd: '2026-11-20T10:00:00.000Z' });
+  const thuis = JSON.stringify({ groepen: [...std.map(g => (g.id === 'wo' ? { ...g, naam: 'Mens en maatschappij' } : g)), { id: 'godsdienst', naam: 'Godsdienst', vakken: ['Godsdienst'] }], gewijzigd: '2026-11-20T10:00:02.000Z' });
+  for (const uit of [niveaus.samen(bord, thuis), niveaus.samen(thuis, bord)]) {
+    const d = JSON.parse(uit);
+    niveaus.geldig(d);
+    assert.deepStrictEqual(d.groepen.map(g => g.id), ['wiskunde', 'nederlands', 'frans', 'wo', 'godsdienst', 'muzo']);
+    // De laatst bewaarde lijst wint bij hetzelfde vak (de nieuwe naam blijft).
+    assert.strictEqual(d.groepen.find(g => g.id === 'wo').naam, 'Mens en maatschappij');
+    assert.strictEqual(d.gewijzigd, '2026-11-20T10:00:02.000Z');
+  }
+});

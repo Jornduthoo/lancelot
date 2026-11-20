@@ -82,6 +82,16 @@ function nieuw(naam) {
   return bewaar([...alle(), { id, naam: n, vakken: [n] }]);
 }
 
+// Twee pc's passen tegelijk de vakken aan (via Mijn lesmap, een trage gedeelde map): samenvoegen, niets gaat verloren.
+// Een vak verdwijnt nooit (alleen verbergen), dus alles van beide kanten blijft. Staat een vak aan beide kanten,
+// dan wint de laatst bewaarde lijst (hernoemen of verbergen), en die bepaalt ook de volgorde.
+function samen(hier, daar) {
+  const a = JSON.parse(hier), b = JSON.parse(daar);
+  const [nieuw, oud] = String(a.gewijzigd || '') >= String(b.gewijzigd || '') ? [a, b] : [b, a];
+  const groepen = schoon({ groepen: [...(nieuw.groepen || []), ...(oud.groepen || [])] });
+  return JSON.stringify({ groepen, gewijzigd: nieuw.gewijzigd || oud.gewijzigd || new Date().toISOString() }, null, 2) + '\n';
+}
+
 // De vakgroep van een vak uit de doelen ('Geschiedenis' -> 'wo'), of '' als het vak het algemene niveau volgt.
 // Een verborgen vak volgt het algemene niveau.
 function groep(vak) {
@@ -90,7 +100,7 @@ function groep(vak) {
 }
 
 module.exports = {
-  NIVEAUS, NAMES, STANDAARD, DIR, clean, groep, alle, bewaar, nieuw, geldig,
+  NIVEAUS, NAMES, STANDAARD, DIR, clean, groep, alle, bewaar, nieuw, geldig, samen,
   // De vakken in de kolommen (zonder de verborgen).
   get VAKGROEPEN() { return zichtbaar(); },
 };

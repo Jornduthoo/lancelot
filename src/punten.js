@@ -16,9 +16,11 @@ function geldig(d) {
   if (!d || typeof d !== 'object' || Array.isArray(d)) throw new Error('Ongeldige keuze.');
 }
 
+function lees() {
+  try { return JSON.parse(fs.readFileSync(FILE(), 'utf8')) || {}; } catch { return {}; }
+}
 function keuzes() {
-  let d = {};
-  try { d = JSON.parse(fs.readFileSync(FILE(), 'utf8')); } catch {}
+  const d = lees();
   const uit = {};
   for (const [toets, k] of Object.entries(d.telt || {})) if (KEUZES.includes(k)) uit[toets] = k;
   const herk = {};
@@ -27,10 +29,36 @@ function keuzes() {
 }
 
 const kolomId = v => typeof v === 'string' && v.length > 0 && v.length <= 200;
-function bewaar(d) {
+// Bewaart één wijziging, met het tijdstip per keuze: zo kan Mijn lesmap twee pc's samenvoegen (zie samen).
+// "Geen herkansing" blijft staan als lege koppeling, anders zou de andere pc hem terugbrengen.
+function bewaar(sleutel, zet) {
+  const d = lees();
+  const raw = { standaard: d.standaard, telt: { ...(d.telt || {}) }, herk: { ...(d.herk || {}) }, tijd: { ...(d.tijd || {}) } };
+  zet(raw);
+  raw.tijd[sleutel] = new Date().toISOString();
   fs.mkdirSync(DIR(), { recursive: true });
-  fs.writeFileSync(FILE(), JSON.stringify({ standaard: d.standaard, telt: d.telt, herk: d.herk }, null, 2) + '\n');
+  fs.writeFileSync(FILE(), JSON.stringify(raw, null, 2) + '\n');
   return keuzes();
+}
+
+// Twee pc's kozen tegelijk iets (via een trage gedeelde map): per keuze wint de laatste, niets anders gaat verloren.
+function samen(hier, daar) {
+  const a = JSON.parse(hier), b = JSON.parse(daar);
+  const ta = a.tijd || {}, tb = b.tijd || {};
+  const uit = { standaard: undefined, telt: {}, herk: {}, tijd: {} };
+  const kies = sleutel => (String(tb[sleutel] || '') > String(ta[sleutel] || '') ? b : a);
+  const st = kies('standaard');
+  uit.standaard = st.standaard !== undefined ? st.standaard : (a.standaard !== undefined ? a.standaard : b.standaard);
+  for (const deel of ['telt', 'herk']) {
+    for (const k of new Set([...Object.keys(a[deel] || {}), ...Object.keys(b[deel] || {})])) {
+      const sleutel = deel + ':' + k;
+      const bron = (kies(sleutel)[deel] || {})[k] !== undefined ? kies(sleutel) : (a[deel] || {})[k] !== undefined ? a : b;
+      uit[deel][k] = bron[deel][k];
+    }
+  }
+  for (const k of new Set([...Object.keys(ta), ...Object.keys(tb)])) uit.tijd[k] = String(tb[k] || '') > String(ta[k] || '') ? tb[k] : ta[k];
+  if (uit.standaard === undefined) delete uit.standaard;
+  return JSON.stringify(uit, null, 2) + '\n';
 }
 
 // De eerste kolom van een reeks herkansingen (volgt de koppelingen, zonder rondjes).
@@ -45,27 +73,22 @@ function eerste(kolom, herk) {
 function koppel({ kolom, van } = {}) {
   if (!kolomId(kolom)) throw new Error('Welke toets?');
   const d = keuzes();
-  if (!van) delete d.herk[kolom];
-  else {
+  if (van) {
     if (!kolomId(van) || van === kolom) throw new Error('Kies een andere toets.');
     if (eerste(van, d.herk) === kolom) throw new Error('Dat zou een rondje worden.');
-    d.herk[kolom] = van;
   }
-  return bewaar(d);
+  return bewaar('herk:' + kolom, raw => { raw.herk[kolom] = van ? String(van) : ''; });
 }
 
 function zet({ toets, telt, standaard } = {}) {
-  const d = keuzes();
-  if (standaard !== undefined) {
-    if (!KEUZES.includes(standaard)) throw new Error('Die keuze bestaat niet.');
-    d.standaard = standaard;
-  }
+  if (standaard !== undefined && !KEUZES.includes(standaard)) throw new Error('Die keuze bestaat niet.');
   if (toets !== undefined) {
     if (typeof toets !== 'string' || !toets || toets.length > 200) throw new Error('Welke toets?');
     if (!KEUZES.includes(telt)) throw new Error('Die keuze bestaat niet.');
-    d.telt[toets] = telt;
   }
-  return bewaar(d);
+  if (standaard !== undefined) bewaar('standaard', raw => { raw.standaard = standaard; });
+  if (toets !== undefined) bewaar('telt:' + toets, raw => { raw.telt[toets] = telt; });
+  return keuzes();
 }
 
 // Wat telt uit een reeks pogingen (oudste eerst), elk { punten, max }.
@@ -81,4 +104,4 @@ function telt(pogingen, keuze) {
   return p.reduce((a, b) => (b.punten / b.max > a.punten / a.max ? b : a));
 }
 
-module.exports = { DIR, KEUZES, keuzes, zet, koppel, eerste, telt, geldig };
+module.exports = { DIR, KEUZES, keuzes, zet, koppel, eerste, telt, geldig, samen };
