@@ -13,6 +13,8 @@
 .op-naam { position: sticky; left: 0; z-index: 1; background: rgb(var(--k-panel)); text-align: left; padding: 6px 10px; white-space: nowrap; font-weight: 600; }
 .op-open { display: block; font-size: .72rem; font-weight: 400; color: rgb(var(--k-goud-l)); }
 .op-open.nul { color: rgb(var(--k-groen)); }
+.op-open.geen { color: var(--muted); }
+.op-kol-keer { font-size: .72rem; font-weight: 700; color: var(--cyan); }
 .op-kol { min-width: 72px; max-width: 112px; padding: 6px; text-align: left; font-weight: 600; }
 .op-kol a { display: flex; flex-direction: column; gap: 2px; color: var(--text); text-decoration: none; }
 .op-kol-titel { overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
@@ -50,3 +52,6 @@
 .op-meer .op-geen { display: block; font: inherit; font-size: .72rem; padding: 2px 0; min-height: 0; text-align: left; white-space: normal; background: none; border: 0; box-shadow: none; clip-path: none; color: var(--cyan); cursor: pointer; text-transform: none; letter-spacing: 0; }
 .op-meer label { display: block; margin-top: 4px; white-space: normal; }
 .op-meer select { font-size: .72rem; padding: 1px 4px; max-width: 180px; }
+/* Tot de klas binnen is: geen lege tabel of filters tonen (nacontrole, 4). */
+.op-paneel.laden > :not(.op-kop):not(.op-laden) { display: none !important; }
+.op-paneel:not(.laden) .op-laden { display: none; }

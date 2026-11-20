@@ -734,5 +734,9 @@
  "Naar het archief": "Vers l'archive",
  "{0} oefeningen ·": "{0} exercices ·",
  "{0} oefening ·": "{0} exercice ·",
- "· {0} niveaus": "· {0} niveaux"
+ "· {0} niveaus": "· {0} niveaux",
+ "Zonder vak": "Sans matière",
+ "geen taken": "pas de tâches",
+ "{0}e keer": "{0}e fois",
+ "{0} · {1}e keer": "{0} · {1}e fois"
 }
