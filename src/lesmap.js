@@ -33,19 +33,44 @@ function init(list, opties = {}) {
 
 const hash = text => crypto.createHash('sha1').update(text).digest('hex');
 
+// Wat we al lazen, per bestand: grootte en tijdstip met de hash. Bij elke ronde (elke minuut, en om de 20 seconden terwijl
+// de klas werkt) lezen we zo alleen wat veranderde, niet elke keer alle toetsen en resultaten aan beide kanten opnieuw.
+// Een bestand dat net (de laatste seconden) veranderde, lezen we altijd: sommige schijven tonen het tijdstip grof.
+const kenmerken = new Map();
+const VERS_MS = 5000;
 async function readSide(dir) {
   const out = {};
   let names = [];
   try { names = await fsp.readdir(dir); } catch { return out; }
   for (const name of names) {
     if (!FILE_RE.test(name)) continue;
+    const file = path.join(dir, name);
     try {
-      const text = await fsp.readFile(path.join(dir, name), 'utf8');
-      const stat = await fsp.stat(path.join(dir, name));
-      out[name] = { text, hash: hash(text), mtime: stat.mtimeMs };
+      // Eerst het tijdstip, dan de inhoud: verandert het bestand ertussen, dan lezen we het de volgende keer opnieuw.
+      const stat = await fsp.stat(file);
+      const fp = `${stat.size}:${stat.mtimeMs}`;
+      const oud = kenmerken.get(file);
+      if (oud && oud.fp === fp && Date.now() - stat.mtimeMs > VERS_MS) {
+        out[name] = { file, hash: oud.hash, mtime: stat.mtimeMs };
+        continue;
+      }
+      const text = await fsp.readFile(file, 'utf8');
+      const h = hash(text);
+      kenmerken.set(file, { fp, hash: h });
+      out[name] = { file, text, hash: h, mtime: stat.mtimeMs };
     } catch {}
   }
   return out;
+}
+// De inhoud pas lezen als we hem nodig hebben (het bestand verschilt tussen hier en de lesmap).
+async function metTekst(e) {
+  if (!e || e.text !== undefined) return;
+  try {
+    e.text = await fsp.readFile(e.file, 'utf8');
+    e.hash = hash(e.text);
+  } catch {
+    e.text = null;
+  }
 }
 
 async function readMeta(dir) {
@@ -158,7 +183,15 @@ async function syncKind(kind, root, state, count) {
   const next = {};
   let changedHere = false;
 
-  for (const name of new Set([...Object.keys(L), ...Object.keys(R), ...Object.keys(seen)])) {
+  const alle = new Set([...Object.keys(L), ...Object.keys(R), ...Object.keys(seen)]);
+  for (const name of alle) {
+    const l = L[name], r = R[name];
+    if ((l && l.hash) !== (r && r.hash)) { await metTekst(l); await metTekst(r); }
+    // Weg tussen het kijken en het lezen: deze ronde laten liggen (zoals een bestand dat niet te lezen was).
+    if (l && l.text === null) delete L[name];
+    if (r && r.text === null) delete R[name];
+  }
+  for (const name of alle) {
     const l = L[name], r = R[name], s = seen[name];
     if ((l && l.hash) === (r && r.hash)) {
       if (l) next[name] = l.hash;

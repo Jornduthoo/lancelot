@@ -19,20 +19,34 @@ const AFNAMES = () => gegevens.pad('proeven', '_afnames');
 function list() {
   if (!fs.existsSync(DIR)) return [];
   const where = lib.places();
-  return fs.readdirSync(DIR)
-    .filter(f => f.endsWith('.json') && !f.startsWith('_'))
-    .map(file => {
-      const folder = where(file);
-      try {
-        const t = K.validate(JSON.parse(fs.readFileSync(path.join(DIR, file), 'utf8')));
-        const types = new Set();
-        for (const v of K.vragenVan(t.vragen)) types.add(v.q.type);
-        return { file, folder, title: t.title, count: K.vragenVan(t.vragen).length, punten: K.totaal(t.vragen), types: [...types], niveaus: K.niveausVan(t), klaar: !K.problemen(t).length };
-      } catch {
-        return { file, folder, title: `${file} (ongeldig bestand)`, count: 0, punten: 0, types: [], niveaus: ['schildknaap'], klaar: false };
-      }
-    })
+  const namen = fs.readdirSync(DIR).filter(f => f.endsWith('.json') && !f.startsWith('_'));
+  const er = new Set(namen);
+  for (const k of lijstMemo.keys()) if (!er.has(k)) lijstMemo.delete(k);
+  return namen
+    .map(file => ({ ...lijstItem(file), folder: where(file) }))
     .sort((a, b) => a.title.localeCompare(b.title, 'nl', { numeric: true }));
+}
+
+// Wat de lijst van een toets toont. Niet elke keer elk bestand (met de afbeeldingen) opnieuw lezen: alleen wat veranderde.
+// Een bestand dat net veranderde (de laatste seconden), lezen we altijd: sommige schijven tonen het tijdstip grof.
+const lijstMemo = new Map();
+function lijstItem(file) {
+  let st = null;
+  try { st = fs.statSync(path.join(DIR, file)); } catch {}
+  const sleutel = st ? `${st.size}|${st.mtimeMs}` : '';
+  const oud = lijstMemo.get(file);
+  if (st && oud && oud.sleutel === sleutel && Date.now() - st.mtimeMs > 5000) return oud.item;
+  let item;
+  try {
+    const t = K.validate(JSON.parse(fs.readFileSync(path.join(DIR, file), 'utf8')));
+    const types = new Set();
+    for (const v of K.vragenVan(t.vragen)) types.add(v.q.type);
+    item = { file, title: t.title, count: K.vragenVan(t.vragen).length, punten: K.totaal(t.vragen), types: [...types], niveaus: K.niveausVan(t), klaar: !K.problemen(t).length };
+  } catch {
+    item = { file, title: `${file} (ongeldig bestand)`, count: 0, punten: 0, types: [], niveaus: ['schildknaap'], klaar: false };
+  }
+  if (st) lijstMemo.set(file, { sleutel, item });
+  return item;
 }
 
 function checkFile(file) {
@@ -60,6 +74,7 @@ function save(toets, file) {
     for (let i = 2; fs.existsSync(path.join(DIR, file)); i++) file = `${base}-${i}.json`;
   }
   fs.writeFileSync(checkFile(file), JSON.stringify(clean) + '\n');
+  lijstMemo.delete(file);
   return file;
 }
 
@@ -144,7 +159,8 @@ const memo = new Map();
 function afnames() {
   if (!fs.existsSync(AFNAMES())) return [];
   const namen = fs.readdirSync(AFNAMES()).filter(f => f.endsWith('.json') && !f.startsWith('_'));
-  for (const k of memo.keys()) if (!namen.includes(k)) memo.delete(k);
+  const er = new Set(namen);
+  for (const k of memo.keys()) if (!er.has(k)) memo.delete(k);
   return namen.map(file => {
     try {
       const st = fs.statSync(path.join(AFNAMES(), file));

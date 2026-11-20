@@ -1056,6 +1056,28 @@ socket.on('pf-afname-gewijzigd', () => {
     openAfname(afname.file, true);
   }, 800);
 });
+// Een leerling werkte verder aan een toets als taak: alleen wie hoe ver is bijwerken, niet de hele toets opnieuw ophalen.
+let voortgangTimer = null;
+socket.on('pf-afname-voortgang', () => {
+  if (view !== 'verbeter' || !afname || !afname.taak || voortgangTimer) return;
+  voortgangTimer = setTimeout(() => {
+    voortgangTimer = null;
+    if (view !== 'verbeter' || !afname || !afname.taak) return;
+    const file = afname.file;
+    socket.emit('pf-afname-leerlingen', afname.taak, res => {
+      if (!res || res.error || !afname || afname.file !== file || view !== 'verbeter') return;
+      afnameLeerlingen = res.leerlingen;
+      // Een leerling staat open: live, dan zijn blad bijwerken; anders niets onder het venster verschuiven.
+      if (!$('detail').classList.contains('hidden')) {
+        if (liveNaam) leerlingLive(liveNaam, true);
+        return;
+      }
+      const y = window.scrollY;
+      renderAfname();
+      window.scrollTo(0, y);
+    });
+  }, 800);
+});
 
 // Wie de toets maakt, in één rij: bezig, ingeleverd met punten, nog te verbeteren, gemaild. Klik: zijn toets.
 function renderStand() {

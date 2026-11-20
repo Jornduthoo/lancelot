@@ -546,14 +546,27 @@ function standGeldig(s) {
   if (!s || typeof s.id !== 'string' || typeof s.pc !== 'string' || !s.werk || typeof s.werk !== 'object') throw new Error('Ongeldige stand.');
 }
 // De stand van de andere pc's, per taak.
+// Elk bestand lezen we alleen opnieuw als het veranderde (grootte of tijdstip, of net veranderd).
+const standMemo = new Map();
+function leesStand(file) {
+  const st = fs.statSync(file);
+  const sleutel = `${st.size}|${st.mtimeMs}`;
+  const oud = standMemo.get(file);
+  if (oud && oud.sleutel === sleutel && Date.now() - st.mtimeMs > 5000) return oud.s;
+  const s = JSON.parse(fs.readFileSync(file, 'utf8'));
+  standGeldig(s);
+  standMemo.set(file, { sleutel, s });
+  return s;
+}
 function standen() {
   const per = new Map();
   let namen = [];
   try { namen = fs.readdirSync(STAND()).filter(n => n.endsWith('.json') && !n.endsWith(`@${PC}.json`)); } catch {}
+  const er = new Set(namen.map(n => path.join(STAND(), n)));
+  for (const k of standMemo.keys()) if (!er.has(k)) standMemo.delete(k);
   for (const naam of namen) {
     try {
-      const s = JSON.parse(fs.readFileSync(path.join(STAND(), naam), 'utf8'));
-      standGeldig(s);
+      const s = leesStand(path.join(STAND(), naam));
       if (!per.has(s.id)) per.set(s.id, []);
       per.get(s.id).push(s);
     } catch {}
@@ -579,21 +592,31 @@ const eldersVan = (t, per) => (per.get(t.id) || []).map(s => ({ pc: s.pc, adres:
 
 function lijst() {
   const per = standen();
+  // De afname van elke toets als taak: één keer de lijst van afnames, niet per taak opnieuw.
+  let perTaak = null;
+  const afnameVoor = id => {
+    if (!perTaak) {
+      perTaak = new Map();
+      for (const a of proeven.afnames()) if (a.taak && !perTaak.has(a.taak)) perTaak.set(a.taak, a.file);
+    }
+    return perTaak.get(id) || null;
+  };
   return all().map(t => ({
     id: t.id, soort: t.soort, file: t.soort === 'proef' ? t.file : undefined, titel: t.titel, vak: t.vak, feedback: t.feedback, gemaakt: t.gemaakt, dicht: t.dicht, spel: spelVan(t), uitLesmap: !!t.uitLesmap,
     niveaus: niveausVan(t.soort, t.inhoud), niveau: t.niveau || null, les: t.les || null, vanaf: zichtbaar(t) ? null : t.vanaf,
     elders: eldersVan(t, per),
-    afname: t.soort === 'proef' ? (t.afname || (proeven.afnameVanTaak(t.id) || {}).file || null) : undefined,
+    afname: t.soort === 'proef' ? (t.afname || afnameVoor(t.id)) : undefined,
     leerlingen: werkOveral(t, per).map(w => ({ naam: w.naam, niveau: w.niveau, status: w.status, klaar: w.klaar, elders: w.elders ? w.elders.pc : undefined, ...voortgang(t, w), ...(t.soort === 'proef' ? toetsStand(t, w) : {}) }))
       .sort((a, b) => a.naam.localeCompare(b.naam, 'nl')),
   })).sort(volgorde);
 }
 
 // Een toets als taak, voor het overzicht in De Proef: wie begon, hoe ver, waar (ook op je andere pc's).
-function toetsLeerlingen(id) {
+// per: de stand van de andere pc's, als die al gelezen is (voor een hele lijst afnames tegelijk).
+function toetsLeerlingen(id, per) {
   const t = all().find(x => x.id === id);
   if (!t || t.soort !== 'proef') return null;
-  return werkOveral(t, standen()).map(w => ({ naam: w.naam, status: w.status, elders: w.elders ? w.elders.pc : undefined, ...voortgang(t, w), ...toetsStand(t, w) }))
+  return werkOveral(t, per || standen()).map(w => ({ naam: w.naam, status: w.status, elders: w.elders ? w.elders.pc : undefined, ...voortgang(t, w), ...toetsStand(t, w) }))
     .sort((a, b) => a.naam.localeCompare(b.naam, 'nl'));
 }
 
@@ -890,4 +913,4 @@ function soloAntwoord({ id, naam, i, keuze, juist } = {}) {
   return { klaar, ...voortgang(t, w) };
 }
 
-module.exports = { toetsLeerlingen, toetsAntwoord, zetVoorlees, naarLesmapStand, standGeldig, get STAND() { return STAND(); }, PC, set bijAfname(fn) { bijAfname = fn; }, lesVan, gestartSinds, startNu, get PLAN() { return PLAN(); }, planGeldig, uitLesmap, SOLO, MINUTEN, soloRonde, soloAntwoord, voorbeeld, inhoud, maak, voegToe, haalWeg, zetNiveau, sluit, heropen, wis, lijst, detail, mijn, aantal, open, antwoord, inleveren, quizAntwoord, flush, get DIR() { return DIR(); } };
+module.exports = { toetsLeerlingen, standen, toetsAntwoord, zetVoorlees, naarLesmapStand, standGeldig, get STAND() { return STAND(); }, PC, set bijAfname(fn) { bijAfname = fn; }, lesVan, gestartSinds, startNu, get PLAN() { return PLAN(); }, planGeldig, uitLesmap, SOLO, MINUTEN, soloRonde, soloAntwoord, voorbeeld, inhoud, maak, voegToe, haalWeg, zetNiveau, sluit, heropen, wis, lijst, detail, mijn, aantal, open, antwoord, inleveren, quizAntwoord, flush, get DIR() { return DIR(); } };
