@@ -21,7 +21,8 @@ const ItemList = (() => {
     quiz: { list: 'quizzes', folders: 'quiz-folders', one: 'quiz', many: 'quizzen', detail: q => `${q.count} vragen` },
     oefenblad: { list: 'ob-sheets', folders: 'ob-folders', one: 'oefenblad', many: 'oefenbladen', detail: q => `${q.count} ${q.count === 1 ? 'oefening' : 'oefeningen'}` },
     sessie: { list: 'rt-sessions', folders: 'rt-folders', one: 'sessie', many: 'sessies', detail: q => `${q.count} vragen` },
-    proef: { list: 'pf-lijst', folders: 'pf-mappen', one: 'toets', many: 'toetsen', detail: q => `${q.count} vragen` },
+    // Toetsen: filters (vak, niveau, gegeven, gewijzigd), "gegeven op …", archiveren en dubbels (wensenlijst 20 nov, punt 7).
+    proef: { list: 'pf-lijst', folders: 'pf-mappen', one: 'toets', many: 'toetsen', detail: q => `${q.count} vragen`, filters: true },
     // Resultaten zijn Excel-bestanden: ordenen in mappen wel, exporteren en importeren niet (je downloadt ze).
     resultaat: { list: 'res-lijst', folders: 'res-mappen', one: 'resultaat', many: 'resultaten', bestanden: true, detail: q => [q.soort, q.datum].filter(Boolean).join(' · ') },
   };
@@ -32,6 +33,15 @@ const ItemList = (() => {
   // Quizzen met vragen op drie niveaus: de klas speelt op één niveau (onthouden op de server).
   const NIVEAUS = [['page', '🪶 Page', 'met hulp'], ['schildknaap', '🛡️ Schildknaap', 'het doel'], ['ridder', '⚔️ Ridder', 'uitdaging'], ['leerling', '👤 Per leerling', 'elke leerling zijn niveau uit Mijn klas, per vak'], ['alle', 'Alles door elkaar', 'alle vragen']];
   const ICONS = { page: '🪶', schildknaap: '🛡️', ridder: '⚔️' };
+  // Het archief is een gewone map: niets verdwijnt, en het gaat mee met Mijn lesmap.
+  const ARCHIEF = 'Archief';
+  const inArchief = q => !!q.folder && within(q.folder, ARCHIEF);
+  const dag = iso => new Date(iso).toLocaleDateString('nl-BE', { day: 'numeric', month: 'short' });
+  // Wat bij een toets staat: wanneer gegeven, en of er een dubbel van is.
+  const extraInfo = q => [
+    Array.isArray(q.gegeven) ? (q.gegeven.length ? `✔ gegeven op ${dag(q.gegeven[0])}${q.gegeven.length > 1 ? ` (${q.gegeven.length}×)` : ''}` : 'nog niet gegeven') : '',
+    q.dubbel ? `⚠ dubbel van "${q.dubbel[0]}"` : '',
+  ].filter(Boolean).join(' · ');
   let quizNiveau = 'schildknaap';
   let uitlegSpellen = true;
   const uitlegBars = new Set();
@@ -105,6 +115,27 @@ const ItemList = (() => {
     let here = '';
     let query = '';
     let note = '';
+    // Filters (alleen bij toetsen): onthouden per soort. Leeg = alles.
+    const filterKey = `lancelot-filters-${kind}`;
+    let filter = { vak: '', niveau: '', gegeven: '', gewijzigd: '', archief: false };
+    try { filter = { ...filter, ...JSON.parse(localStorage.getItem(filterKey) || '{}') }; } catch {}
+    const filterAan = () => !!(k.filters && (filter.vak || filter.niveau || filter.gegeven || filter.gewijzigd || filter.dubbel));
+    const zoekt = () => !!query || filterAan();
+    function past(q) {
+      if (!k.filters) return true;
+      if (filter.vak && (q.vak || '') !== filter.vak) return false;
+      const nv = q.niveaus || [];
+      if (filter.niveau === 'meer' && nv.length < 2) return false;
+      if ((filter.niveau === 'page' || filter.niveau === 'ridder') && !nv.includes(filter.niveau)) return false;
+      if (filter.gegeven === 'nee' && (q.gegeven || []).length) return false;
+      if (filter.gegeven === 'ja' && !(q.gegeven || []).length) return false;
+      if (filter.gewijzigd) {
+        const t = Date.parse(q.gewijzigd || 0);
+        if (!t || Date.now() - t > (filter.gewijzigd === 'week' ? 7 : 31) * 864e5) return false;
+      }
+      if (filter.dubbel && !q.dubbel) return false;
+      return true;
+    }
     let explorer = null;
     // Selecteren: aangevinkte bestanden, ook over mappen heen. last = het laatst aangeklikte item, voor shift-klik.
     let picking = false;
@@ -287,13 +318,15 @@ const ItemList = (() => {
       el.dataset.file = q.file;
       // De keuzelijst krijgt pas al haar mappen als je ze opent: een lange lijst tekent zo veel sneller.
       const option = f => `<option value="${esc(f)}"${f === (q.folder || '') ? ' selected' : ''}>${f ? esc(f.split('/').join(' › ')) : 'Bovenaan, in geen map'}</option>`;
-      const place = query && q.folder ? ` · 📁 ${esc(q.folder.split('/').join(' › '))}` : '';
+      const place = zoekt() && q.folder ? ` · 📁 ${esc(q.folder.split('/').join(' › '))}` : '';
+      const info = extraInfo(q);
       el.innerHTML = `${picking ? `<input type="checkbox" class="kies" aria-label="Selecteren"${picked.has(q.file) ? ' checked' : ''}>` : kiezen ? '' : `<span class="grip" title="Sleep naar een map">${Ui.ic('grip')}</span>`}
-        <button class="play">${esc(q.title)} <span class="muted">· ${esc(detail(q))}${kind === 'quiz' && (q.niveaus || []).length > 1 ? ` · ${q.niveaus.map(n => ICONS[n]).join('')}` : ''}${place}</span>${picking ? '' : `<span class="go">${opts.go || 'Kies ▶'}</span>`}</button>
+        <button class="play">${esc(q.title)} <span class="muted">· ${esc(detail(q))}${kind === 'quiz' && (q.niveaus || []).length > 1 ? ` · ${q.niveaus.map(n => ICONS[n]).join('')}` : ''}${place}${info ? `<span class="lib-info${q.dubbel ? ' dubbel' : ''}"> · ${esc(info)}</span>` : ''}</span>${picking ? '' : `<span class="go">${opts.go || 'Kies ▶'}</span>`}</button>
         ${kanBekijken(kind) && !picking ? `<button class="secondary bekijk" title="Snel bekijken: alle vragen met de juiste antwoorden" aria-label="Bekijken">${Ui.ic('oog')}</button>` : ''}
         ${folders.length && !kiezen ? `<label class="move" title="Verplaats naar…">📁<select aria-label="Verplaats naar…">${option(q.folder || '')}</select></label>` : ''}
         ${(opts.buttons || []).map((b, i) => `<button class="secondary extra ${b.cls || ''}" data-extra="${i}" title="${esc(b.title || '')}">${b.label}</button>`).join('')}
         ${opts.edit ? '<button class="secondary edit">Bewerken</button>' : ''}
+        ${k.filters && !kiezen && !picking ? `<button class="secondary archief" title="${inArchief(q) ? 'Terug uit het archief' : 'Naar het archief: uit de weg, maar niets gaat verloren'}" aria-label="${inArchief(q) ? 'Terug uit het archief' : 'Archiveren'}">${inArchief(q) ? '↩' : '🗄'}</button>` : ''}
         ${kiezen || k.bestanden ? '' : `<button class="secondary export" title="Exporteren naar een bestand" aria-label="Exporteren">${Ui.ic('download')}</button>`}
         ${opts.remove ? `<button class="secondary delete" title="Verwijderen" aria-label="Verwijderen">${Ui.ic('kruis')}</button>` : ''}`;
       meerMenu(el);
@@ -315,6 +348,12 @@ const ItemList = (() => {
       const oog = el.querySelector('.bekijk');
       if (oog) oog.addEventListener('click', () => bekijk(kind, q));
       if (opts.edit) el.querySelector('.edit').addEventListener('click', () => opts.edit(q));
+      const arch = el.querySelector('.archief');
+      if (arch) arch.addEventListener('click', () => {
+        if (inArchief(q)) return move(q.file, '');
+        if (folders.includes(ARCHIEF)) return move(q.file, ARCHIEF);
+        socket.emit('lib-folder-add', { kind, name: ARCHIEF, parent: '' }, res => { if (res && res.error) return error(res); move(q.file, ARCHIEF); });
+      });
       if (!kiezen && !k.bestanden) el.querySelector('.export').addEventListener('click', () => download({ file: q.file }));
       for (const b of el.querySelectorAll('[data-extra]')) b.addEventListener('click', () => opts.buttons[b.dataset.extra].click(q));
       if (opts.remove) el.querySelector('.delete').addEventListener('click', () => opts.remove(q));
@@ -354,7 +393,7 @@ const ItemList = (() => {
     function node(f, depth) {
       const subs = f && subsOf(f).length;
       const el = document.createElement('div');
-      el.className = `lib-node${f === here && !query ? ' on' : ''}${open.has(f) ? ' open' : ''}`;
+      el.className = `lib-node${f === here && !zoekt() ? ' on' : ''}${open.has(f) ? ' open' : ''}`;
       el.style.paddingLeft = `${depth * 10}px`;
       el.innerHTML = `<button type="button" class="chev${subs ? '' : ' none'}" aria-label="Open- of dichtklappen" tabindex="${subs ? 0 : -1}">▸</button>
         <button type="button" class="lib-open"><span class="lib-naam"></span><span class="muted">${f ? countIn(f) : items.length}</span></button>`;
@@ -378,7 +417,7 @@ const ItemList = (() => {
       m.className = 'lib-main';
       const path = document.createElement('div');
       path.className = 'lib-path';
-      if (query) path.innerHTML = `<span class="muted">Zoeken in alle ${k.many}</span>`;
+      if (zoekt()) path.innerHTML = `<span class="muted">${query ? `Zoeken in alle ${k.many}` : `Gefilterd: alle ${k.many}`}${k.filters && !filter.archief ? ' (zonder archief)' : ''}</span>`;
       else {
         const crumbs = [''];
         for (let p = here; p; p = parentOf(p)) crumbs.splice(1, 0, p);
@@ -396,8 +435,10 @@ const ItemList = (() => {
       }
       m.appendChild(path);
       if (picking) m.appendChild(pickBar());
-      const list = query ? items.filter(q => norm(`${q.title} ${q.folder || ''}`).includes(norm(query))) : items.filter(q => (q.folder || '') === here);
-      const subs = query ? [] : subsOf(here);
+      const list = zoekt()
+        ? items.filter(q => (!query || norm(`${q.title} ${q.folder || ''} ${q.vak || ''}`).includes(norm(query))) && past(q) && (!k.filters || filter.archief || !inArchief(q)))
+        : items.filter(q => (q.folder || '') === here);
+      const subs = zoekt() ? [] : subsOf(here);
       if (subs.length) {
         const chips = document.createElement('div');
         chips.className = 'lib-sub';
@@ -419,12 +460,61 @@ const ItemList = (() => {
       shown = list.map(q => q.file);
       for (const q of list) m.appendChild(row(q));
       if (!list.length && !subs.length) {
-        m.insertAdjacentHTML('beforeend', query ? `<p class="muted small lib-leeg">Geen ${k.many} gevonden met "${esc(query)}".</p>`
+        m.insertAdjacentHTML('beforeend', zoekt() ? `<p class="muted small lib-leeg">${query ? `Geen ${k.many} gevonden met "${esc(query)}".` : `Geen ${k.many} met deze filters.`}</p>`
           : kiezen ? `<p class="muted small lib-leeg">${here ? 'Deze map is leeg.' : `Geen ${k.many} buiten de mappen: open links een map.`}</p>`
           : `<p class="muted small lib-leeg">${here ? 'Deze map is leeg.' : `Nog geen ${k.many} buiten de mappen.`} Sleep een ${k.one} hierheen, of kies het mapje 📁 bij een ${k.one}.</p>`);
       }
-      if (!query) dropZone(m, here);
+      if (!zoekt()) dropZone(m, here);
       return m;
+    }
+
+    // De filters onder de zoekbalk: vak, niveau, gegeven of niet, gewijzigd, dubbels en het archief.
+    function filterBar() {
+      const f = document.createElement('div');
+      f.className = 'lib-filters';
+      const vakken = [...new Set(items.map(q => q.vak).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'nl'));
+      const sel = (key, label, opties) => `<label class="lib-filter${filter[key] ? ' aan' : ''}"><span class="muted small">${label}</span><select data-f="${key}">${opties.map(([v, t]) => `<option value="${esc(v)}"${filter[key] === v ? ' selected' : ''}>${esc(t)}</option>`).join('')}</select></label>`;
+      const dubbels = items.filter(q => q.dubbel).length;
+      f.innerHTML = (vakken.length ? sel('vak', 'Vak', [['', 'Alle vakken'], ...vakken.map(v => [v, v])]) : '')
+        + sel('niveau', 'Niveau', [['', 'Alle'], ['meer', 'Met niveaus'], ['page', 'Met 🪶 Page'], ['ridder', 'Met ⚔️ Ridder']])
+        + sel('gegeven', 'Gegeven', [['', 'Alle'], ['nee', 'Nog niet gegeven'], ['ja', 'Al gegeven']])
+        + sel('gewijzigd', 'Gewijzigd', [['', 'Altijd'], ['week', 'Deze week'], ['maand', 'Deze maand']])
+        + (dubbels ? `<button type="button" class="secondary small-btn lib-dubbel${filter.dubbel ? ' on' : ''}" title="Toetsen met dezelfde vragen als een andere toets">⚠ ${dubbels} dubbel${dubbels === 1 ? '' : 's'}</button>` : '')
+        + `<label class="inline check lib-filter-archief"><input type="checkbox"${filter.archief ? ' checked' : ''}> Archief ook tonen</label>`
+        + (filterAan() ? '<button type="button" class="secondary small-btn lib-filter-weg">✕ Filters weg</button>' : '');
+      const zet = () => { try { localStorage.setItem(filterKey, JSON.stringify(filter)); } catch {} render(); };
+      for (const s of f.querySelectorAll('select')) s.addEventListener('change', () => { filter[s.dataset.f] = s.value; zet(); });
+      f.querySelector('.lib-filter-archief input').addEventListener('change', e => { filter.archief = e.target.checked; zet(); });
+      const d = f.querySelector('.lib-dubbel');
+      if (d) d.addEventListener('click', () => { filter.dubbel = !filter.dubbel; zet(); });
+      const weg = f.querySelector('.lib-filter-weg');
+      if (weg) weg.addEventListener('click', () => { filter = { vak: '', niveau: '', gegeven: '', gewijzigd: '', archief: filter.archief }; zet(); });
+      return f;
+    }
+
+    // Een voorgestelde mappenstructuur: per vak een map, voor de toetsen die nog in geen map staan.
+    function voorstel() {
+      const los = items.filter(q => !q.folder && q.vak);
+      const vakken = [...new Set(los.map(q => q.vak))];
+      if (los.length < 3) return null;
+      try { if (localStorage.getItem(`lancelot-mapvoorstel-${kind}`) === 'nee') return null; } catch {}
+      const el = document.createElement('div');
+      el.className = 'lib-voorstel';
+      el.innerHTML = `<span>📁 ${esc(`${los.length} ${k.many} staan in geen map. Zet ze in een map per vak: ${vakken.map(v => `${v} (${los.filter(q => q.vak === v).length})`).join(', ')}?`)}</span>
+        <button type="button" class="small-btn" data-do="ja">Mappen maken</button> <button type="button" class="secondary small-btn" data-do="nee">Nee, bedankt</button>`;
+      el.querySelector('[data-do=nee]').addEventListener('click', () => { try { localStorage.setItem(`lancelot-mapvoorstel-${kind}`, 'nee'); } catch {} el.remove(); });
+      el.querySelector('[data-do=ja]').addEventListener('click', () => {
+        const todo = [...vakken];
+        const volgende = () => {
+          const v = todo.shift();
+          if (!v) { note = `${los.length} ${k.many} staan nu in een map per vak.`; return render(); }
+          const verder = () => { moveMany(los.filter(q => q.vak === v).map(q => q.file), v); setTimeout(volgende, 300); };
+          if (folders.includes(v)) verder();
+          else socket.emit('lib-folder-add', { kind, name: v, parent: '' }, res => { if (res && res.error) return error(res); verder(); });
+        };
+        volgende();
+      });
+      return el;
     }
 
     // De balk tijdens het selecteren: alles hier, niets, dubbels, en verwijderen.
@@ -568,6 +658,8 @@ const ItemList = (() => {
       const all = bar.querySelector('.export-all');
       if (all) all.addEventListener('click', () => download({}));
       box.appendChild(bar);
+      if (k.filters && items.length) box.appendChild(filterBar());
+      if (k.filters && !kiezen && items.length) { const v = voorstel(); if (v) box.appendChild(v); }
       if (typing) search.focus();
       if (kind === 'quiz' && !opts.beheer && !kiezen && items.some(q => (q.niveaus || []).length > 1)) {
         const lv = document.createElement('div');

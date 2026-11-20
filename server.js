@@ -399,12 +399,16 @@ function afnameLijst() {
 
 // Een afname veranderde (een leerling leverde in, de leerkracht verbeterde): de andere schermen en, via de lesmap, je andere pc's.
 let afnameTimer = null;
+let afnamesGeteld = -1;
 proeven.naSchrijf = () => {
   if (afnameTimer) return;
   afnameTimer = setTimeout(() => {
     afnameTimer = null;
-    io.to('host').emit('pf-afnames', afnameLijst());
+    const lijst = afnameLijst();
+    io.to('host').emit('pf-afnames', lijst);
     io.to('host').emit('pf-afname-gewijzigd');
+    // Een nieuwe afname: bij de toets staat dan "gegeven op …".
+    if (lijst.length !== afnamesGeteld) { afnamesGeteld = lijst.length; sendLibrary('proef', null, true); }
     if (settings.read().lesmap) syncSoon();
   }, 1500);
 };
@@ -1910,7 +1914,7 @@ io.on('connection', socket => {
     socket.on('tk-les', handle(arg => ({ les: taken.lesVan(arg), start: zonnewijzer.lesStart(arg || {}) })));
     socket.on('tk-detail', handle(arg => taken.detail(arg || {})));
     socket.on('tk-inhoud', handle(arg => taken.inhoud(arg || {})));
-    socket.on('tk-maak', taak(arg => ({ id: taken.maak(arg).id })));
+    socket.on('tk-maak', taak(arg => { const t = taken.maak(arg); if (t.soort === 'proef') sendLibrary('proef', null, true); return { id: t.id }; }));
     socket.on('tk-toevoegen', taak(arg => ({ n: taken.voegToe(arg) })));
     socket.on('tk-weg', taak(taken.haalWeg));
     socket.on('tk-niveau', taak(taken.zetNiveau));

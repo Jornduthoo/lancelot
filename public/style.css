@@ -2516,3 +2516,13 @@ body:has(.kies-eerst) .panel.form > p.muted.small:last-child { display: none; }
 .ts-raster th, .ts-raster td { padding: 4px 6px; text-align: left; white-space: nowrap; }
 .ts-raster tr:first-child th { font-size: .8rem; color: var(--muted); font-weight: 600; }
 .ts-raster select, .ts-raster input { min-width: 0; }
+/* Toetsenbibliotheek: filters, gegeven op, dubbels, archief, mappen per vak (wensenlijst punt 7) */
+.lib-filters { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 8px; margin: 0 0 8px; }
+.lib-filter { display: flex; flex-direction: column; gap: 2px; }
+.lib-filter select { padding: 4px 8px; font-size: .85rem; }
+.lib-filter.aan select { box-shadow: inset 0 0 0 2px var(--gold); }
+.lib-dubbel.on { box-shadow: inset 0 0 0 2px var(--gold); }
+.lib-filter-archief { font-size: .85rem; }
+.lib-info { font-size: .85em; }
+.lib-info.dubbel { color: var(--gold); }
+.lib-voorstel { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 8px; padding: 8px 10px; border-radius: 8px; background: rgb(var(--k-cyan) / .1); box-shadow: inset 0 0 0 1px var(--line); font-size: .9rem; }
