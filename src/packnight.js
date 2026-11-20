@@ -23,6 +23,8 @@ const BIG_BACK_MS = 10000;
 const SCARE_RANGE = 8;
 const CHASE_RANGE = 14;
 const LOST_ON_CATCH = 5;
+const TURN_GRACE_MS = 70;  // speling voor wifi bij te laat inslaan (bovenop een halve stap)
+const LATE_TURN_MS = 250;  // zegt het scherm op welk kruispunt je insloeg, dan mag de wifi zo lang ophouden
 const POINTS = { kristal: 1, groot: 5, drone: 10 };
 const DX = [0, 1, 0, -1];
 const DY = [-1, 0, 1, 0];
@@ -158,7 +160,7 @@ class PacKnight {
       x: 0, y: 0, px: 0, py: 0, dir: null, want: null, at: 0, next: 0,
       crystals: 0, drones: 0, caught: 0, right: 0, wrong: 0, streak: 0, bestStreak: 0,
       pellets: 0, powerUntil: 0, asking: false, question: null, order: [], last: null, waitUntil: 0,
-      caughtUntil: 0, safeUntil: 0, dirty: true,
+      caughtUntil: 0, safeUntil: 0, dirty: true, trail: [],
     };
     this.players.set(playerId, p);
     if (this.phase === 'play') this.spawn(p, Date.now());
@@ -252,6 +254,7 @@ class PacKnight {
     p.y = p.py = pick.y;
     p.dir = null;
     p.want = null;
+    p.trail = [];
     p.at = now;
     p.next = Math.max(now, this.startedAt);
     p.caughtUntil = 0;
@@ -261,13 +264,65 @@ class PacKnight {
 
   // ---------- Besturing ----------
 
-  steer(playerId, dir) {
+  // hoek: het kruispunt waar de leerling op zijn scherm insloeg (de ridder was er net voorbij); false: het scherm zag
+  // geen kruispunt, dus gewoon onthouden voor het volgende; null: onbekend (oude pagina), dan geldt een korte speling.
+  steer(playerId, dir, hoek = null) {
     const p = this.players.get(playerId);
     if (!p || this.phase !== 'play' || ![0, 1, 2, 3].includes(dir)) return;
     p.want = dir;
     // Stilstaan en meteen een open richting kiezen: niet wachten tot de volgende stap.
     const now = Date.now();
     if (p.dir === null && p.next < now) p.next = now;
+    if (p.dir === null || p.asking || p.caughtUntil || now < this.startedAt || Math.abs(p.x - p.px) > 1) return;
+    const ms = p.powerUntil > now ? POWER_KNIGHT_MS : KNIGHT_MS;
+    const since = now - p.at;
+    const trail = p.trail;
+    if (dir === (p.dir + 2) % 4 && since < ms) {
+      // Omkeren mag meteen, midden in een stap: de ridder loopt van waar hij nu staat terug.
+      if (trail.length) this.undoPick(p, trail[trail.length - 1].pick);
+      p.trail = [];
+      [p.x, p.px] = [p.px, p.x];
+      [p.y, p.py] = [p.py, p.y];
+      p.dir = dir;
+      p.at = now - (ms - since);
+      p.next = p.at + ms;
+      p.dirty = true;
+      return;
+    }
+    // Te laat ingeslagen: de leerling ziet de ridder pas op het kruispunt als de server al verder liep (wifi en tekenen
+    // lopen wat achter). Dan doen we de stappen sinds dat kruispunt over in de gekozen richting, op dezelfde tijdstippen.
+    // Het scherm zegt welk kruispunt (hoek); zonder hoek geldt alleen de laatste stap, als de toets er kort na kwam.
+    let k = -1;
+    if (hoek) {
+      for (let i = trail.length - 1; i >= 0; i--) {
+        if (trail[i].fx === hoek.x && trail[i].fy === hoek.y && now - trail[i].at <= ms + LATE_TURN_MS) { k = i; break; }
+      }
+    } else if (hoek === null && trail.length && since <= ms * .5 + TURN_GRACE_MS) {
+      k = trail.length - 1;
+    }
+    if (k < 0 || trail[k].dir === dir || !this.open(trail[k].fx + DX[dir], trail[k].fy + DY[dir])) return;
+    const undone = trail.splice(k);
+    for (let i = undone.length - 1; i >= 0; i--) this.undoPick(p, undone[i].pick);
+    p.x = undone[0].fx;
+    p.y = undone[0].fy;
+    p.dir = dir;
+    for (const st of undone) {
+      if (p.dir === null) break;
+      this.stepKnight(p, now, st.at);
+    }
+    p.dirty = true;
+  }
+
+  // Het kristal van een stap die ongedaan gemaakt wordt terugleggen (en de punten terugnemen).
+  undoPick(p, pick) {
+    if (!pick || this.crystals[pick.i]) return;
+    this.crystals[pick.i] = pick.c;
+    this.changes.push([pick.i, pick.c]);
+    p.crystals = Math.max(0, p.crystals - pick.points);
+    if (pick.c === 2) {
+      const j = this.bigsBack.indexOf(pick.back);
+      if (j >= 0) this.bigsBack.splice(j, 1);
+    }
   }
 
   power(playerId) {
@@ -374,6 +429,7 @@ class PacKnight {
           d.y = d.py = (this.H - 1) / 2;
           d.at = now;
           d.next = now + 400;
+          d.plan = null;
         }
         let steps = 0;
         while (d.next <= now && steps++ < 3) {
@@ -409,18 +465,24 @@ class PacKnight {
     p.at = at;
     if (p.dir === null || !this.open(p.x + DX[p.dir], p.y + DY[p.dir])) {
       p.dir = null;
+      p.trail = [];
       return;
     }
+    const step = { fx: p.x, fy: p.y, at, dir: p.dir, pick: null };
+    p.trail.push(step);
+    if (p.trail.length > 3) p.trail.shift();
     p.x = (p.x + DX[p.dir] + this.W) % this.W;
     p.y += DY[p.dir];
     const i = p.y * this.W + p.x;
     const c = this.crystals[i];
     if (c) {
       const powered = p.powerUntil > now;
-      p.crystals += (c === 2 ? POINTS.groot : POINTS.kristal) * (powered ? 2 : 1);
+      const points = (c === 2 ? POINTS.groot : POINTS.kristal) * (powered ? 2 : 1);
+      p.crystals += points;
+      step.pick = { i, c, points, back: c === 2 ? now + BIG_BACK_MS : 0 };
       this.crystals[i] = 0;
       this.changes.push([i, 0]);
-      if (c === 2) this.bigsBack.push(now + BIG_BACK_MS);
+      if (c === 2) this.bigsBack.push(step.pick.back);
       p.dirty = true;
     }
   }
@@ -430,48 +492,65 @@ class PacKnight {
     return !p.caughtUntil && !p.asking && now >= p.safeUntil && now >= this.startedAt;
   }
 
+  // De drone kiest zijn volgende vakje al één stap vooraf (d.plan). Zo weten de schermen waar hij heen gaat
+  // en kunnen ze hem vloeiend verder tekenen, ook als een bericht over de wifi wat later aankomt.
   stepDrone(d, now, at = now) {
-    const dist = (x, y, p) => {
-      const dx = Math.abs(x - p.x);
-      return Math.min(dx, this.W - dx) + Math.abs(y - p.y);
-    };
-    let scaredOf = null;
-    let target = null;
-    let best = SCARE_RANGE + 1;
-    let bestT = CHASE_RANGE + 1;
-    for (const p of this.players.values()) {
-      if (p.caughtUntil) continue;
-      const k = dist(d.x, d.y, p);
-      if (p.powerUntil > now) {
-        if (k < best) { best = k; scaredOf = p; }
-      } else if (this.vulnerable(p, now) && k < bestT) {
-        bestT = k;
-        target = p;
-      }
-    }
-    if (d.scared !== Boolean(scaredOf)) d.scared = Boolean(scaredOf);
-    const back = (d.dir + 2) % 4;
-    let opts = [0, 1, 2, 3].filter(k => k !== back && this.open(d.x + DX[k], d.y + DY[k]));
-    if (!opts.length) opts = [back].filter(k => this.open(d.x + DX[k], d.y + DY[k]));
+    const scared = this.scaredOf(d, now) !== null;
+    let dir = d.plan;
+    if (dir === undefined || dir === null || d.planScared !== scared || !this.open(d.x + DX[dir], d.y + DY[dir])) dir = this.chooseDrone(d, now);
     d.px = d.x;
     d.py = d.y;
     d.at = at;
-    if (!opts.length) return;
+    d.scared = scared;
+    d.plan = null;
+    if (dir === null) return;
+    d.dir = dir;
+    d.x = (d.x + DX[dir] + this.W) % this.W;
+    d.y += DY[dir];
+    d.plan = this.chooseDrone(d, now);
+    d.planScared = d.scared;
+  }
+
+  droneDist(x, y, p) {
+    const dx = Math.abs(x - p.x);
+    return Math.min(dx, this.W - dx) + Math.abs(y - p.y);
+  }
+
+  // De dichtste ridder met een kracht (binnen bereik), of null.
+  scaredOf(d, now) {
+    let scaredOf = null;
+    let best = SCARE_RANGE + 1;
+    for (const p of this.players.values()) {
+      if (p.caughtUntil || !(p.powerUntil > now)) continue;
+      const k = this.droneDist(d.x, d.y, p);
+      if (k < best) { best = k; scaredOf = p; }
+    }
+    return scaredOf;
+  }
+
+  // Welke kant de drone vanaf zijn vakje op gaat: weg van een ridder met kracht, naar een kwetsbare ridder, of zomaar.
+  chooseDrone(d, now) {
+    const dist = (x, y, p) => this.droneDist(x, y, p);
+    const scaredOf = this.scaredOf(d, now);
+    let target = null;
+    let bestT = CHASE_RANGE + 1;
+    for (const p of this.players.values()) {
+      if (p.caughtUntil || p.powerUntil > now || !this.vulnerable(p, now)) continue;
+      const k = dist(d.x, d.y, p);
+      if (k < bestT) { bestT = k; target = p; }
+    }
+    const back = (d.dir + 2) % 4;
+    let opts = [0, 1, 2, 3].filter(k => k !== back && this.open(d.x + DX[k], d.y + DY[k]));
+    if (!opts.length) opts = [back].filter(k => this.open(d.x + DX[k], d.y + DY[k]));
+    if (!opts.length) return null;
     const score = k => {
       const x = (d.x + DX[k] + this.W) % this.W, y = d.y + DY[k];
       if (scaredOf) return -dist(x, y, scaredOf);
       if (target) return dist(x, y, target);
       return 0;
     };
-    let dir;
-    if ((scaredOf || target) && Math.random() > .15) {
-      dir = opts.reduce((a, b) => (score(b) < score(a) ? b : a));
-    } else {
-      dir = opts.includes(d.dir) && Math.random() < .6 ? d.dir : opts[Math.floor(Math.random() * opts.length)];
-    }
-    d.dir = dir;
-    d.x = (d.x + DX[dir] + this.W) % this.W;
-    d.y += DY[dir];
+    if ((scaredOf || target) && Math.random() > .15) return opts.reduce((a, b) => (score(b) < score(a) ? b : a));
+    return opts.includes(d.dir) && Math.random() < .6 ? d.dir : opts[Math.floor(Math.random() * opts.length)];
   }
 
   collide(now) {
@@ -590,8 +669,8 @@ class PacKnight {
   send(now) {
     const flags = p => (p.powerUntil > now ? 1 : 0) | (p.asking ? 2 : 0) | (p.caughtUntil ? 4 : 0) | (now < p.safeUntil ? 8 : 0)
       | (p.powerUntil > now && p.powerUntil - now < 2000 ? 16 : 0);
-    const k = [...this.players.values()].map(p => [p.n, p.x, p.y, p.px, p.py, now - p.at, p.powerUntil > now ? POWER_KNIGHT_MS : KNIGHT_MS, flags(p), p.dir === null ? -1 : p.dir]);
-    const d = this.drones.map(x => [x.x, x.y, x.px, x.py, now - x.at, x.scared ? SCARED_MS : DRONE_MS, (x.scared ? 1 : 0) | (x.deadUntil ? 2 : 0), x.dir]);
+    const k = [...this.players.values()].map(p => [p.n, p.x, p.y, p.px, p.py, now - p.at, p.powerUntil > now ? POWER_KNIGHT_MS : KNIGHT_MS, flags(p), p.dir === null ? -1 : p.dir, p.want === null ? -1 : p.want]);
+    const d = this.drones.map(x => [x.x, x.y, x.px, x.py, now - x.at, x.scared ? SCARED_MS : DRONE_MS, (x.scared ? 1 : 0) | (x.deadUntil ? 2 : 0), x.dir, x.plan == null ? -1 : x.plan]);
     const msg = { t: now, k, d, c: this.changes };
     this.changes = [];
     if (this.feedChanged) {
