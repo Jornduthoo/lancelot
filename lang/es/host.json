@@ -542,5 +542,8 @@
  "Opvolgen ▶": "Seguimiento ▶",
  "\"Vandaag\" niet meer tonen op het startscherm? Je zet het terug aan bij Instellingen › Taken.": "¿Dejar de mostrar «Hoy» en la pantalla de inicio? Puedes activarlo de nuevo en Ajustes › Tareas.",
  "{0} antwoord": "{0} respuesta",
- "{0} leerling": "{0} alumno"
+ "{0} leerling": "{0} alumno",
+ "{0} bezig": "{0} trabajando",
+ "{0} antwoorden te verbeteren": "{0} respuestas por corregir",
+ "{0} antwoord te verbeteren": "{0} respuesta por corregir"
 }

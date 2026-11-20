@@ -34,9 +34,10 @@ function samenvatting(takenLijst, afnames, nu = Date.now()) {
   }
   verschijnt.sort((a, b) => a.uur.localeCompare(b.uur));
   nietAf.sort((a, b) => (a.dag < b.dag ? 1 : -1));
+  // Toetsen: wie nu bezig is en wat nog te verbeteren is (vroeger de gouden balk), in één regel per toets.
   const verbeteren = (afnames || [])
-    .filter(a => a.open && nu - Date.parse(a.datum) < TWEE_WEKEN)
-    .map(a => ({ file: a.file, titel: a.title, open: a.open, datum: a.datum }));
+    .filter(a => a.bezig || (a.open && nu - Date.parse(a.datum) < TWEE_WEKEN))
+    .map(a => ({ file: a.file, titel: a.title, open: a.open || 0, bezig: a.bezig || 0, datum: a.datum }));
   return { verschijnt, verbeteren, nietAf, leeg: !verschijnt.length && !verbeteren.length && !nietAf.length };
 }
 

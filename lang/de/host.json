@@ -542,5 +542,8 @@
  "Opvolgen ▶": "Verfolgen ▶",
  "\"Vandaag\" niet meer tonen op het startscherm? Je zet het terug aan bij Instellingen › Taken.": "„Heute“ nicht mehr auf dem Startbildschirm zeigen? Du schaltest es unter Einstellungen › Aufgaben wieder ein.",
  "{0} antwoord": "{0} Antwort",
- "{0} leerling": "{0} Schüler"
+ "{0} leerling": "{0} Schüler",
+ "{0} bezig": "{0} arbeiten",
+ "{0} antwoorden te verbeteren": "{0} Antworten zu korrigieren",
+ "{0} antwoord te verbeteren": "{0} Antwort zu korrigieren"
 }

@@ -753,7 +753,7 @@ function takenNaarBord() {
 const VANDAAG_KIJKERS = 'vandaag-kijkers';
 function vandaagData() {
   if (!takenstandaard.read().vandaag) return { uit: true };
-  return vandaag.samenvatting(taken.lijst(), proeven.afnames());
+  return vandaag.samenvatting(taken.lijst(), afnameLijst());
 }
 let vandaagTimer = null;
 function vandaagSoon() {

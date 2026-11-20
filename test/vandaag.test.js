@@ -32,14 +32,15 @@ test('nog niet af: taken van vorige dagen, wie niet klaar is; niet wie niet meed
   assert.deepStrictEqual(v.nietAf[0].namen, [{ naam: 'Lien', bezig: true }, { naam: 'Sam', afwezig: true }]);
 });
 
-test('te verbeteren: afnames met open antwoorden van de laatste twee weken', () => {
+test('toetsen: wie bezig is en open antwoorden van de laatste twee weken', () => {
   const afnames = [
     { file: 'a.json', title: 'Toets Frans', datum: iso(19), open: 12 },
     { file: 'b.json', title: 'Klaar', datum: iso(19), open: 0 },
     { file: 'c.json', title: 'Oud', datum: iso(2), open: 3 },
+    { file: 'd.json', title: 'Nu bezig', datum: iso(20, 8), open: 0, bezig: 3 },
   ];
   const v = samenvatting([], afnames, NU);
-  assert.deepStrictEqual(v.verbeteren.map(a => [a.file, a.titel, a.open]), [['a.json', 'Toets Frans', 12]]);
+  assert.deepStrictEqual(v.verbeteren.map(a => [a.file, a.open, a.bezig]), [['a.json', 12, 0], ['d.json', 0, 3]]);
 });
 
 test('niets te melden: leeg', () => {

@@ -542,5 +542,8 @@
  "Opvolgen ▶": "Follow up ▶",
  "\"Vandaag\" niet meer tonen op het startscherm? Je zet het terug aan bij Instellingen › Taken.": "Stop showing \"Today\" on the start screen? You can turn it back on in Settings › Tasks.",
  "{0} antwoord": "{0} answer",
- "{0} leerling": "{0} student"
+ "{0} leerling": "{0} student",
+ "{0} bezig": "{0} working",
+ "{0} antwoorden te verbeteren": "{0} answers to correct",
+ "{0} antwoord te verbeteren": "{0} answer to correct"
 }
