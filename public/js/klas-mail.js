@@ -21,7 +21,8 @@
     el('km-pass').placeholder = mail.heeftPass ? '•••• bewaard (laat leeg)' : '16 letters';
     el('km-wis').classList.toggle('hidden', !mail.van);
     el('km-test').disabled = !mail.klaar;
-    el('km-status').textContent = mail.klaar ? `✔ Mailbox: ${mail.van} (wijzigen)` : 'Eerst: met welke mailbox?';
+    el('km-status').textContent = mail.klaar ? `✔ Mailbox: ${mail.van} (wijzigen)`
+      : mail.van ? `⚠ Mailbox: ${mail.van}. Vul op deze pc nog het app-wachtwoord in.` : 'Eerst: met welke mailbox?';
     if (!mail.klaar) el('km-box').open = true;
   }
 
@@ -68,6 +69,11 @@
   const opnieuw = () => { if (!el('km-lijst').contains(document.activeElement)) renderLijst(); };
   sock.on('klas-gewijzigd', opnieuw);
   sock.on('klas-namen', opnieuw);
+  // Adressen of mailbox kwamen binnen via Mijn lesmap (ingevuld op een andere pc).
+  sock.on('toetsmail-gewijzigd', () => {
+    if (el('mail').contains(document.activeElement) && document.activeElement.tagName === 'INPUT') return;
+    laad();
+  });
 
   el('km-bewaar').addEventListener('click', () => {
     sock.emit('pf-mail-afzender', { van: el('km-van').value, pass: el('km-pass').value, naam: el('km-naam').value, host: el('km-host').value, port: el('km-port').value }, v => {

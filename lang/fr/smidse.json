@@ -1368,5 +1368,7 @@
  "Lancelot raakt niet bij de mailserver. Is er internet? Een schoolnetwerk blokkeert soms mail: probeer het thuis of vraag het aan je ICT.": "Lancelot n'atteint pas le serveur mail. Y a-t-il internet ? Un réseau scolaire bloque parfois les mails : essayez à la maison ou demandez au service informatique.",
  "Google vraagt een app-wachtwoord, niet je gewone wachtwoord. Zet verificatie in 2 stappen aan en maak er een op {0}": "Google demande un mot de passe d'application, pas votre mot de passe habituel. Activez la validation en deux étapes et créez-en un sur {0}",
  "Google weigert dit e-mailadres met dit wachtwoord. Maak een nieuw app-wachtwoord op {0} en plak de 16 letters hier (lukt dat niet met een schooladres, probeer dan je eigen Gmail).": "Google refuse cette adresse avec ce mot de passe. Créez un nouveau mot de passe d'application sur {0} et collez les 16 lettres ici (si cela ne marche pas avec une adresse d'école, essayez votre propre Gmail).",
- "{0} (geen antwoord)": "{0} (pas de réponse)"
+ "{0} (geen antwoord)": "{0} (pas de réponse)",
+ "(niet je gewone wachtwoord; daarvoor moet verificatie in 2 stappen aan staan). De adressen gaan mee met Mijn lesmap, het app-wachtwoord niet: vul dat op elke pc één keer in.": "(pas votre mot de passe habituel ; la validation en deux étapes doit être activée). Les adresses suivent Mon dossier de cours, le mot de passe d'application non : saisissez-le une fois sur chaque PC.",
+ "⚠ Mailbox: {0}. Vul op deze pc nog het app-wachtwoord in.": "⚠ Boîte mail : {0}. Saisissez encore le mot de passe d'application sur ce PC."
 }

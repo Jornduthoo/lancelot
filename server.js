@@ -613,6 +613,8 @@ lesmap.init([
   { kind: 'klas', dir: () => klas.LESMAP, perKlas: true, remote: 'klas', validate: klas.lesmapGeldig, merge: klas.lesmapSamen },
   // Welke klassen er zijn (Meerdere klassen): een klas die thuis gemaakt werd, staat dan ook op het digibord.
   { kind: 'klassen', dir: klas.KLASSEN_LESMAP, remote: 'klassen-lijst', validate: klas.klassenGeldig, merge: klas.klassenSamen },
+  // Toetsen mailen: adressen en vinkjes per leerling en de mailbox (nooit het app-wachtwoord). De laatste wijziging wint.
+  { kind: 'toetsmail', dir: toetsmail.LESMAP_DIR, remote: 'toetsen-mailen', validate: toetsmail.syncGeldig, merge: toetsmail.lesmapSamen },
   // Het Klaseiland en het ridderboek: de pc waar de klas speelt zet een kopie klaar, thuis kan je die bekijken.
   { kind: 'burchten', dir: () => burchten.LESMAP, perKlas: true, remote: 'klaseiland', validate: burchten.kopieGeldig },
   // De woorden van de week van het Runenraadsel: thuis klaarzetten, op het bord raden. De resultaten blijven op deze pc.
@@ -639,6 +641,7 @@ let syncTimer = null;
 function runSync() {
   try { klas.naarLesmap(); } catch (err) { console.error('Klaslijst voor de lesmap bewaren mislukt:', err.message); }
   try { klas.naarLesmapKlassen(); } catch (err) { console.error('Klassen voor de lesmap bewaren mislukt:', err.message); }
+  try { toetsmail.naarLesmap(); } catch (err) { console.error('Adressen voor toetsen mailen bewaren mislukt:', err.message); }
   runen.verhuis();
   if (settings.read().lesmap) {
     try { burchten.naarLesmap(); } catch (err) { console.error('Klaseiland voor de lesmap bewaren mislukt:', err.message); }
@@ -653,6 +656,7 @@ function runSync() {
     for (const kind of changed) {
       if (LIBS[kind]) sendLibrary(kind, null, true);
       else if (kind === 'zonnewijzer') io.to('host').emit('zw-gewijzigd');
+      else if (kind === 'toetsmail') { if (toetsmail.uitLesmap()) io.to('host').emit('toetsmail-gewijzigd'); }
       else if (kind === 'kronieken' || kind === 'bordboeken') io.to('host').emit('kr-lijst', kronieken.lijst());
       else if (kind === 'klastaken') io.to('host').emit('wk-taken', klastaken.read());
       else if (kind === 'klasindeling') io.to('host').emit('wk-indeling', klasindeling.read());
