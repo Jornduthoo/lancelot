@@ -730,5 +730,9 @@
  "Uit Zorg: de laatste tijd minder dan de helft juist, of ver onder de klas.": "Selon Suivi : moins de la moitié juste ces derniers temps, ou bien en dessous de la classe.",
  "Uit Zorg: wat onder de klas, gaat achteruit, gokt of heeft meerdere doelen nog niet beheerst.": "Selon Suivi : un peu en dessous de la classe, en recul, devine, ou plusieurs objectifs pas encore maîtrisés.",
  "🔴 Uit Zorg: de laatste tijd minder dan de helft juist, of ver onder de klas. Aangevinkt: {0}. Wijs een naam aan om te zien waarom.": "🔴 Selon Suivi : moins de la moitié juste ces derniers temps, ou bien en dessous de la classe. Cochés : {0}. Pointe un nom pour voir pourquoi.",
- "🟠 Uit Zorg: wat onder de klas, gaat achteruit, gokt of heeft meerdere doelen nog niet beheerst. Aangevinkt: {0}. Wijs een naam aan om te zien waarom.": "🟠 Selon Suivi : un peu en dessous de la classe, en recul, devine, ou plusieurs objectifs pas encore maîtrisés. Cochés : {0}. Pointe un nom pour voir pourquoi."
+ "🟠 Uit Zorg: wat onder de klas, gaat achteruit, gokt of heeft meerdere doelen nog niet beheerst. Aangevinkt: {0}. Wijs een naam aan om te zien waarom.": "🟠 Selon Suivi : un peu en dessous de la classe, en recul, devine, ou plusieurs objectifs pas encore maîtrisés. Cochés : {0}. Pointe un nom pour voir pourquoi.",
+ "Naar het archief": "Vers l'archive",
+ "{0} oefeningen ·": "{0} exercices ·",
+ "{0} oefening ·": "{0} exercice ·",
+ "· {0} niveaus": "· {0} niveaux"
 }
