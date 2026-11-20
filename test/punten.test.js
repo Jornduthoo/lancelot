@@ -43,3 +43,15 @@ test('herkansing alleen als de leerkracht het zegt: koppelen, ontkoppelen, geen 
   assert.strictEqual(r.herk.b, undefined);
   assert.strictEqual(r.herk.c, 'b');
 });
+
+test('punten op twee pc\'s tegelijk gekozen: per keuze wint de laatste, "geen herkansing" blijft', () => {
+  const punten = require('../src/punten');
+  const bord = JSON.stringify({ standaard: 'hoogste', telt: { t1: 'laatste' }, herk: { k2: 'k1', k3: '' }, tijd: { 'telt:t1': '2026-11-20T10:00:00Z', 'herk:k2': '2026-11-20T10:00:00Z', 'herk:k3': '2026-11-20T10:00:05Z' } });
+  const thuis = JSON.stringify({ standaard: 'gemiddelde', telt: { t1: 'eerste', t2: 'hoogste' }, herk: { k3: 'k1' }, tijd: { standaard: '2026-11-20T10:00:01Z', 'telt:t1': '2026-11-20T09:00:00Z', 'telt:t2': '2026-11-20T10:00:01Z', 'herk:k3': '2026-11-20T10:00:01Z' } });
+  for (const uit of [punten.samen(bord, thuis), punten.samen(thuis, bord)]) {
+    const d = JSON.parse(uit);
+    assert.strictEqual(d.standaard, 'gemiddelde');
+    assert.deepStrictEqual(d.telt, { t1: 'laatste', t2: 'hoogste' });
+    assert.deepStrictEqual(d.herk, { k2: 'k1', k3: '' });
+  }
+});

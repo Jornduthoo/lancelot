@@ -643,10 +643,10 @@ lesmap.init([
   // Welke pc's er zijn en wanneer ze het laatst iets stuurden (statusregel "Bijgewerkt van …").
   // De standaardkeuzes voor taken (Instellingen › Taken): per leerkracht, dus niet per klas.
   { kind: 'takenstandaard', dir: takenstandaard.DIR, remote: 'taken-standaard', validate: takenstandaard.geldig },
-  // Eigen vakken (Mijn klas › Klas › Vakken): toevoegen, hernoemen, verbergen.
-  { kind: 'vakken', dir: niveaus.DIR, remote: 'vakken', validate: niveaus.geldig },
+  // Eigen vakken (Mijn klas › Klas › Vakken): toevoegen, hernoemen, verbergen. Op twee pc's tegelijk: samenvoegen.
+  { kind: 'vakken', dir: niveaus.DIR, remote: 'vakken', validate: niveaus.geldig, merge: niveaus.samen, altijdSamen: true },
   // Welke poging telt bij een herkansing (Opvolgen › Punten).
-  { kind: 'punten', dir: punten.DIR, remote: 'punten', validate: punten.geldig },
+  { kind: 'punten', dir: punten.DIR, remote: 'punten', validate: punten.geldig, merge: punten.samen, altijdSamen: true },
   { kind: 'toestellen', dir: toestellen.DIR, remote: 'toestellen', validate: toestellen.geldig },
   { kind: 'takenstand', dir: () => taken.STAND, perKlas: true, remote: 'taken-stand', validate: taken.standGeldig },
   // De klastaken van De Wachtlijst (de taken en de beurt, niet de volgorde van de leerlingen).

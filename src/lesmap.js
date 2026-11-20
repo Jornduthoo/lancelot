@@ -209,7 +209,9 @@ async function syncKind(kind, root, state, count) {
         let nu = null;
         try { nu = fs.readFileSync(path.join(local, name), 'utf8'); } catch {}
         let text = r.text;
-        if (nu !== null && nu !== (l ? l.text : null)) {
+        // altijdSamen (vakken, punten): ook als hier niets veranderde. Een trage gedeelde map kan de versie van de andere pc
+        // over de onze leggen terwijl wij de onze al doorgaven; samenvoegen brengt die dan terug (niets gaat verloren).
+        if (nu !== null && (nu !== (l ? l.text : null) || kind.altijdSamen)) {
           try { text = kind.merge(nu, r.text); kind.validate(JSON.parse(text)); } catch { next[name] = s; return; }
         }
         schrijfNu(local, name, text);
