@@ -22,10 +22,25 @@ function list() {
   const namen = fs.readdirSync(DIR).filter(f => f.endsWith('.json') && !f.startsWith('_'));
   const er = new Set(namen);
   for (const k of lijstMemo.keys()) if (!er.has(k)) lijstMemo.delete(k);
-  return namen
+  const lijst = namen
     .map(file => ({ ...lijstItem(file), folder: where(file) }))
     .sort((a, b) => a.title.localeCompare(b.title, 'nl', { numeric: true }));
+  // Gegeven op … (afnames op het bord en toetsen als taak) en dubbels (dezelfde inhoud onder een andere naam).
+  const gegeven = new Map();
+  const zet = (file, datum) => { if (file && datum) (gegeven.get(file) || gegeven.set(file, new Set()).get(file)).add(String(datum).slice(0, 10)); };
+  for (const a of afnames()) zet(a.toetsFile, a.datum);
+  try { for (const [file, data] of gegevenHook()) for (const d of data) zet(file, d); } catch {}
+  const perSig = new Map();
+  for (const q of lijst) if (q.sig) (perSig.get(q.sig) || perSig.set(q.sig, []).get(q.sig)).push(q);
+  return lijst.map(q => {
+    const g = [...(gegeven.get(q.file) || [])].sort().reverse();
+    const dubbel = q.sig ? perSig.get(q.sig).filter(x => x !== q).map(x => x.title) : [];
+    const { sig, ...rest } = q;
+    return { ...rest, gegeven: g, ...(dubbel.length ? { dubbel } : {}) };
+  });
 }
+// Toetsen die als taak gegeven zijn (src/taken.js zet dit, zonder dat de twee elkaar laden): Map(file → [datums]).
+let gegevenHook = () => [];
 
 // Wat de lijst van een toets toont. Niet elke keer elk bestand (met de afbeeldingen) opnieuw lezen: alleen wat veranderde.
 // Een bestand dat net veranderde (de laatste seconden), lezen we altijd: sommige schijven tonen het tijdstip grof.
@@ -41,7 +56,11 @@ function lijstItem(file) {
     const t = K.validate(JSON.parse(fs.readFileSync(path.join(DIR, file), 'utf8')));
     const types = new Set();
     for (const v of K.vragenVan(t.vragen)) types.add(v.q.type);
-    item = { file, title: t.title, count: K.vragenVan(t.vragen).length, punten: K.totaal(t.vragen), types: [...types], niveaus: K.niveausVan(t), klaar: !K.problemen(t).length };
+    const doelen = require('./doelen');
+    const vak = doelen.hoofdvak(K.niveausVan(t).flatMap(n => K.vragenVan(K.lijstVoor(t, n)).map(v => v.q.doel))) || '';
+    const { title, ...inhoud } = t;
+    const sig = require('crypto').createHash('sha1').update(JSON.stringify(inhoud)).digest('hex');
+    item = { file, title: t.title, count: K.vragenVan(t.vragen).length, punten: K.totaal(t.vragen), types: [...types], niveaus: K.niveausVan(t), klaar: !K.problemen(t).length, vak, gewijzigd: st ? new Date(st.mtimeMs).toISOString() : null, ...(K.vragenVan(t.vragen).length ? { sig } : {}) };
   } catch {
     item = { file, title: `${file} (ongeldig bestand)`, count: 0, punten: 0, types: [], niveaus: ['schildknaap'], klaar: false };
   }
@@ -341,4 +360,4 @@ function kopieData(file, speler) {
   return { title: rec.title, datum: rec.datum, naam: s.naam, niveau: s.niveau, toets: rec.toets, antwoorden: s.antwoorden, punten, vakken, stand: stand(rec, s) };
 }
 
-module.exports = { afnameSamen, afnameGeldig, afnameVanTaak, sleutelVan, PC, set naSchrijf(fn) { naSchrijf = fn; }, get AFNAMES() { return AFNAMES(); }, kregen, DIR, list, load, save, remove, parseAiText, parseSleutel, lib, bewaarAfname, schrijfAfname: schrijf, laadAfname, afnames, cijfer, klaar, stand, verwijderAfname, kopieData, K };
+module.exports = { set gegevenHook(fn) { gegevenHook = fn; }, afnameSamen, afnameGeldig, afnameVanTaak, sleutelVan, PC, set naSchrijf(fn) { naSchrijf = fn; }, get AFNAMES() { return AFNAMES(); }, kregen, DIR, list, load, save, remove, parseAiText, parseSleutel, lib, bewaarAfname, schrijfAfname: schrijf, laadAfname, afnames, cijfer, klaar, stand, verwijderAfname, kopieData, K };
