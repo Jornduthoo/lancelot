@@ -1352,5 +1352,17 @@
  "Beste, In bijlage vind je de verbeterde toets \"{0}\" van {1}{2}.{3} Met vriendelijke groeten{4}": null,
  "Toets {0}: {1}{2}": null,
  "Lancelot: proefmail": null,
- "Het werkt. Lancelot kan toetsen mailen vanuit deze mailbox.": null
+ "Het werkt. Lancelot kan toetsen mailen vanuit deze mailbox.": null,
+ "✉️ Toetsen mailen": "✉️ Tests mailen",
+ "Vul bij een leerling één of twee adressen in (bv. de GON-begeleider of een ouder) en vink": "Gib bei einem Kind eine oder zwei Adressen ein (z. B. die Förderkraft oder ein Elternteil) und hake",
+ "Automatisch mailen": "Automatisch mailen",
+ "aan. Elke verbeterde toets van die leerling gaat dan vanzelf naar die adressen.": "an. Jeder korrigierte Test dieses Kindes geht dann automatisch an diese Adressen.",
+ "Eerst: met welke mailbox?": "Zuerst: welches Postfach?",
+ "✔ Mailbox: {0} (wijzigen)": "✔ Postfach: {0} (ändern)",
+ "Adres 1": "Adresse 1",
+ "Adres 2": "Adresse 2",
+ "bv. begeleider@school.be": "z. B. foerderkraft@schule.de",
+ "bv. ouder@mail.be": "z. B. eltern@mail.de",
+ "Bewaard. Stel nog je mailbox in, anders kan Lancelot niet mailen.": "Gespeichert. Richte noch dein Postfach ein, sonst kann Lancelot nicht mailen.",
+ "Instellen bij Mijn klas": "Einstellen bei Meine Klasse"
 }

@@ -907,12 +907,3 @@ p.pf-kort.pf-vakjes { flex-wrap: wrap; }
 .bv-deel-stuk { margin-top: 8px; border-top: 1px dashed rgba(140, 170, 230, .45); padding-top: 6px; }
 .bv-deel-stuk > summary { cursor: pointer; font-weight: 700; color: var(--k-cyan-l, #9fd0ff); }
 .bv-deel-stuk[open] > summary { margin-bottom: 6px; }
-
-/* Toets mailen naar een begeleider */
-.pf-mail { max-width: 680px; align-self: flex-start; max-height: calc(100vh - 40px); padding: 18px 22px; background: rgb(var(--k-bg2) / .98); border: 1px solid var(--gold); border-radius: 12px; }
-.pf-mail h3 { margin: 16px 0 4px; }
-.pf-mail-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 8px 12px; margin: 8px 0; }
-.pf-mail-grid label { display: flex; flex-direction: column; gap: 4px; font-size: .92rem; }
-.pf-mail-lijst { display: grid; grid-template-columns: minmax(90px, max-content) 1fr; gap: 6px 12px; align-items: center; }
-.pf-mail-lijst input { width: 100%; box-sizing: border-box; }
-.pf-mail-lijst .ok { color: #1e7d4f; }

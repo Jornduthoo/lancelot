@@ -2470,6 +2470,7 @@ io.on('connection', socket => {
     socket.on('pf-mail-view', (_, cb) => typeof cb === 'function' && cb(toetsmail.view()));
     socket.on('pf-mail-afzender', handle(arg => toetsmail.zetAfzender(arg || {})));
     socket.on('pf-mail-adres', handle(arg => toetsmail.zetAdres(arg && arg.naam, arg && arg.adres)));
+    socket.on('pf-mail-leerling', handle(arg => toetsmail.zetLeerling(arg && arg.naam, arg || {})));
     socket.on('pf-mail-test', (_, cb) => { toetsmail.test().then(() => cb && cb({ ok: true }), err => cb && cb({ error: err.message })); });
     // Een kopie per leerling in Mijn lesmap: aan of uit zetten, of nu (opnieuw) maken.
     socket.on('pf-kopie-view', (_, cb) => typeof cb === 'function' && cb(toetskopie.view()));

@@ -165,3 +165,23 @@ test('toetsmail: het app-wachtwoord gaat niet mee in de back-up en blijft staan 
   assert.equal(s.toetsMail.adressen.testkind, 'zorg@example.be');
   assert.equal(JSON.parse(fs.readFileSync(path.join(data, 'settings.json'), 'utf8')).toetsMail.pass, 'geheimwachtwoord');
 });
+
+test('toetsmail: Mijn klas zet twee adressen per leerling en het vinkje automatisch mailen', async () => {
+  const data = fs.mkdtempSync(path.join(os.tmpdir(), 'toetsmail-leerling-'));
+  const run = runner(data);
+  await run(`return M.zetAfzender({ van: 'jorn@example.com', pass: 'geheim' });`);
+  const v = await run(`return M.zetLeerling('Testkind', { adres1: 'gon@example.be', adres2: 'ouder@example.be', aan: true });`);
+  assert.equal(v.adressen.testkind, 'gon@example.be, ouder@example.be');
+  assert.equal(await run(`return M.nodig([{ naam: 'Testkind' }]);`), true);
+  // Vinkje uit: adressen blijven staan, maar er gaat geen mail meer.
+  const uit = await run(`return M.zetLeerling('Testkind', { adres1: 'gon@example.be', adres2: 'ouder@example.be', aan: false });`);
+  assert.equal(uit.adressen.testkind, 'gon@example.be, ouder@example.be');
+  assert.equal(uit.uit.testkind, true);
+  assert.equal(await run(`return M.adresVoor('Testkind');`), '');
+  assert.equal(await run(`return M.nodig([{ naam: 'Testkind' }]);`), false);
+  assert.match((await run(`return M.zetLeerling('Testkind', { adres1: 'fout@', aan: true });`)).fout, /geen geldig/);
+  // Beide adressen leeg: de leerling staat nergens meer.
+  const leeg = await run(`return M.zetLeerling('Testkind', { adres1: '', adres2: '', aan: true });`);
+  assert.equal(leeg.adressen.testkind, undefined);
+  assert.equal(leeg.uit.testkind, undefined);
+});
