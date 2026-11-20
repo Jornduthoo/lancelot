@@ -2565,3 +2565,12 @@ body:has(.kies-eerst) .panel.form > p.muted.small:last-child { display: none; }
 .niveau-raster thead th:has(.k-kol[open]) { z-index: 20; }
 .k-niet-lijst label.check, .k-vakken label.check { display: flex; flex-direction: row; align-items: center; gap: 6px; margin: 0; }
 .k-niet-lijst label.check input, .k-vakken label.check input { width: 18px; height: 18px; flex: none; margin: 0; }
+/* Mijn klas: Meer ▾ met Lezen, Doelen en Logboek (de lijst staat vast op het scherm, de balk scrolt opzij). */
+.tabbalk > .tab-meer { flex: none; display: flex; }
+.tab-meer > summary { display: inline-flex; align-items: center; padding: 10px 16px; font-weight: 600; color: var(--muted); cursor: pointer; list-style: none; border-bottom: 3px solid transparent; }
+.tab-meer > summary::-webkit-details-marker { display: none; }
+.tab-meer > summary:hover { color: var(--text); }
+.tab-meer:has(.on) > summary { color: var(--text); border-bottom-color: var(--gold); }
+.tab-meer-lijst { position: fixed; z-index: 40; display: grid; min-width: 170px; padding: 6px; border-radius: 10px; background: rgb(var(--k-bg2, 20 30 50)); box-shadow: 0 8px 24px rgb(0 0 0 / .5), inset 0 0 0 1px rgb(var(--k-goud) / .4); }
+.tab-meer-lijst a { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 6px; color: var(--muted); font-weight: 600; text-decoration: none; }
+.tab-meer-lijst a:hover, .tab-meer-lijst a.on { color: var(--text); background: rgb(var(--k-wit, 255 255 255) / .08); }
