@@ -17,14 +17,14 @@ const EXTRA_EXAMEN = { '2026-12-14': ['wis'] };
 const START = '2026-11-21'; // papa 19/11: Thor begint dit weekend
 const EINDE = '2026-12-15';
 
-// Hoeveel minuten per dag (papa 16/11: 30 min op schooldagen, een uur in het weekend).
+// Hoeveel minuten per dag (papa 20/11: 45 min op schooldagen, anderhalf uur in het weekend).
 function budget(datum){
   const d = new Date(datum + 'T12:00:00');
   const wd = d.getDay(); // 0 zo … 6 za
   if (datum < START) return 0;            // voor de start: alleen kennismaken
   if (datum === EINDE) return 0;          // laatste examen
-  if (wd === 0 || wd === 6) return 60;    // weekend: een uur
-  return 30;                              // schooldag: 30 minuutjes
+  if (wd === 0 || wd === 6) return 90;    // weekend: anderhalf uur (papa 20/11)
+  return 45;                              // schooldag: 45 minuten (papa 20/11)
 }
 
 const dag = (s, n) => { const d = new Date(s + 'T12:00:00'); d.setDate(d.getDate() + n); return d.toISOString().slice(0,10); };
@@ -34,7 +34,7 @@ const KAART_MIN = 5;            // herhaalkaartjes elke dag (weekend 10)
 const OVERHOOR_MIN = 5;         // uitleggen aan een supporter
 const LEER_MIN = 15, HERHAAL_MIN = 5, PROEF_MIN = 20, ZWAK_MIN = 10; // 20/11: lessen korter (15 min) zodat alle vakken passen in 30 min / 1 uur
 const LEER_VOOR = 3, HERHAAL_VOOR = 2; // nieuwe leerstof ten laatste 3 dagen voor het examen, herhalen 2 dagen ervoor
-const PROEF_TWEE = false;          // twee proefexamens per vak (anders enkel de generale repetitie)
+const PROEF_TWEE = true;           // twee proefexamens per vak (anders enkel de generale repetitie)
 const EXAMENS_START = '2026-12-09';
 
 // Examendag van een onderwerp: eigen datum (wiskunde deel 2) of die van het vak.
