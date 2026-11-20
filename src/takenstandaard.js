@@ -41,11 +41,12 @@ function read() {
     const v = schoon(d && d.vakken && d.vakken[g.id], false);
     if (Object.keys(v).length) vakken[g.id] = v;
   }
-  return { bewaard: !!d, algemeen: schoon(d && d.algemeen, true), vakken, vakgroepen: niveaus.VAKGROEPEN.map(g => ({ id: g.id, naam: g.naam })) };
+  // Het blok "Vandaag" op het startscherm (punt 9): standaard aan.
+  return { bewaard: !!d, algemeen: schoon(d && d.algemeen, true), vakken, vandaag: !(d && d.vandaag === false), vakgroepen: niveaus.VAKGROEPEN.map(g => ({ id: g.id, naam: g.naam })) };
 }
 
-function write({ algemeen, vakken } = {}) {
-  const uit = { algemeen: schoon(algemeen, true), vakken: {}, gewijzigd: new Date().toISOString() };
+function write({ algemeen, vakken, vandaag } = {}) {
+  const uit = { algemeen: schoon(algemeen, true), vakken: {}, vandaag: typeof vandaag === 'boolean' ? vandaag : read().vandaag, gewijzigd: new Date().toISOString() };
   for (const g of niveaus.VAKGROEPEN) {
     const v = schoon(vakken && vakken[g.id], false);
     if (Object.keys(v).length) uit.vakken[g.id] = v;
@@ -62,4 +63,10 @@ function voor(vak) {
   return { ...d.algemeen, ...(g && d.vakken[g] ? d.vakken[g] : {}), vakgroep: g && d.vakken[g] ? g : '' };
 }
 
-module.exports = { DIR, STANDAARD, read, write, voor, geldig };
+// Vandaag op het startscherm tonen of niet (de rest blijft zoals het is).
+function zetVandaag(aan) {
+  const d = read();
+  return write({ algemeen: d.algemeen, vakken: d.vakken, vandaag: !!aan });
+}
+
+module.exports = { DIR, STANDAARD, read, write, voor, geldig, zetVandaag };

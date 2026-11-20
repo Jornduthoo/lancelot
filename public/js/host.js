@@ -553,3 +553,81 @@ socket.on('pf-afnames', lijst => {
   $('toets-banier-tekst').textContent = `📝 ${nu.length === 1 ? nu[0].title : `${nu.length} toetsen`}: ${delen.join(' · ')}`;
   b.href = nu.length === 1 ? `/proef?verbeter=${encodeURIComponent(nu[0].file)}` : '/proef#resultaten';
 });
+
+// ---------- Vandaag (wensenlijst 20 nov, punt 9) ----------
+// Wat er vandaag verschijnt (met "Nu al geven"), welke toetsen nog te verbeteren zijn en wie iets van de
+// vorige dagen nog niet af heeft. Alleen wat er is; leeg of uitgezet (Instellingen › Taken) = niet getoond.
+(() => {
+  if (!$('vandaag')) return;
+  const SOORT = { oefenblad: '📄', quiz: '❓', proef: '📝' };
+  const dagNaam = iso => new Date(iso).toLocaleDateString('nl-BE', { weekday: 'short', day: 'numeric', month: 'short' });
+  const maak = (tag, cls, tekst) => { const e = document.createElement(tag); if (cls) e.className = cls; if (tekst !== undefined) e.textContent = tekst; return e; };
+  const MAX_NAMEN = 8;
+  function blok(id, items, rij) {
+    const b = $(id);
+    b.classList.toggle('hidden', !items.length);
+    const ul = b.querySelector('ul');
+    ul.replaceChildren(...items.map(rij));
+  }
+  function teken(d) {
+    const v = $('vandaag');
+    if (!d || d.error || d.uit || d.leeg) return v.classList.add('hidden');
+    v.classList.remove('hidden');
+    blok('vandaag-verschijnt', d.verschijnt, t => {
+      const li = maak('li');
+      const s = maak('span');
+      s.append(`${SOORT[t.soort] || '📄'} ${t.titel} · `, maak('b', '', `🕗 ${t.uur}`), ' · ', maak('em', '', `${t.n} ${t.n === 1 ? 'leerling' : 'leerlingen'}`));
+      li.append(s);
+      const k = maak('button', 'secondary', '▶ Nu al geven');
+      k.type = 'button';
+      k.addEventListener('click', () => {
+        k.disabled = true;
+        socket.emit('tk-start', { id: t.id }, r => {
+          k.disabled = false;
+          $('vandaag-info').textContent = r && r.error ? r.error : `✓ ${t.titel} staat nu bij de leerlingen.`;
+          laad();
+        });
+      });
+      li.append(k);
+      return li;
+    });
+    blok('vandaag-verbeteren', d.verbeteren, a => {
+      const li = maak('li');
+      const s = maak('span');
+      s.append(`📝 ${a.titel} · `, maak('em', '', `${a.open} ${a.open === 1 ? 'antwoord' : 'antwoorden'}`));
+      li.append(s);
+      const k = maak('a', 'button secondary', 'Verbeteren ▶');
+      k.href = `/proef?verbeter=${encodeURIComponent(a.file)}`;
+      li.append(k);
+      return li;
+    });
+    blok('vandaag-nietaf', d.nietAf, t => {
+      const li = maak('li');
+      const s = maak('span', 'namen');
+      s.append(`${SOORT[t.soort] || '📄'} ${t.titel} (${dagNaam(t.dag)}): `);
+      t.namen.slice(0, MAX_NAMEN).forEach((n, i) => {
+        if (i) s.append(', ');
+        const a = maak('a', '', n.naam);
+        a.href = `/taken?taak=${encodeURIComponent(t.id)}&naam=${encodeURIComponent(n.naam)}`;
+        s.append(a);
+        if (n.afwezig) s.append(' ', maak('em', '', '(inhalen)'));
+        else if (n.bezig) s.append(' ', maak('em', '', '(bezig)'));
+      });
+      if (t.namen.length > MAX_NAMEN) s.append(` +${t.namen.length - MAX_NAMEN}`);
+      li.append(s);
+      const k = maak('a', 'button secondary', 'Opvolgen ▶');
+      k.href = '/opvolgen';
+      li.append(k);
+      return li;
+    });
+  }
+  const laad = () => socket.emit('vandaag', null, teken);
+  socket.on('connect', laad);
+  socket.on('vandaag', teken);
+  // Een nieuwe dag of een geplande taak die verscheen: om de vijf minuten even opnieuw kijken.
+  setInterval(laad, 5 * 60000);
+  $('vandaag-weg').addEventListener('click', async () => {
+    if (!await Ui.vraag('"Vandaag" niet meer tonen op het startscherm? Je zet het terug aan bij Instellingen › Taken.', { ja: 'Verbergen', nee: 'Laten staan' })) return;
+    socket.emit('vandaag-zet', false, () => laad());
+  });
+})();

@@ -86,6 +86,14 @@
     <!-- Het startscherm toont enkel de vijf rijken. Een klik opent het rijk; het logo of "Alle rijken" brengt je terug. -->
     <!-- Toetsen die lopen of nog te verbeteren zijn: één klik naar het overzicht (De Proef › Resultaten). -->
     <a class="toets-banier hidden" id="toets-banier" href="/proef#resultaten"><span id="toets-banier-tekst"></span> <b>Bekijk ▶</b></a>
+    <!-- Vandaag: wat er vandaag verschijnt, wat je nog verbetert en wie iets niet afmaakte (wensenlijst 20 nov, punt 9). -->
+    <section class="vandaag hidden" id="vandaag">
+      <h3>📅 Vandaag <button type="button" class="vandaag-weg" id="vandaag-weg" title="Verbergen (aanzetten bij Instellingen › Taken)" aria-label="Verbergen">✕</button></h3>
+      <div class="vandaag-blok hidden" id="vandaag-verschijnt"><h4>🕗 Verschijnt vandaag</h4><ul></ul></div>
+      <div class="vandaag-blok hidden" id="vandaag-verbeteren"><h4>✏️ Nog te verbeteren</h4><ul></ul></div>
+      <div class="vandaag-blok hidden" id="vandaag-nietaf"><h4>⏳ Nog niet af</h4><ul></ul></div>
+      <p class="muted small" id="vandaag-info"></p>
+    </section>
     <div class="realms">
       <button class="realm" data-realm="arena">
         <img class="tile-icon" src="/img/icons/arena.webp" alt="">
@@ -640,6 +648,7 @@
       <h3>Standaard bij een nieuwe taak<details class="hulp"><summary aria-label="Uitleg">?</summary><p>Wat bij Taken al ingevuld staat als je een taak geeft. Je kan het daar voor één taak altijd nog anders kiezen. Een vak op "= standaard" volgt de eerste rij. Het vak komt uit de doelen van de quiz, het oefenblad of de toets.</p></details></h3>
       <p class="muted small">Kies één keer hoe jij je taken meestal geeft. Bij Taken staat dan "Volgens je standaard: …" en alles staat al goed. Gaat mee met Mijn lesmap naar je andere pc's.</p>
       <div class="pf-tabel-wrap"><table class="ts-raster" id="ts-raster"></table></div>
+      <label class="check"><input type="checkbox" id="ts-vandaag" checked> 📅 Toon "Vandaag" op het startscherm: wat er vandaag verschijnt, wat je nog verbetert en wie iets niet afmaakte.</label>
       <div class="actions"><button type="button" id="ts-bewaar">Bewaar</button> <button type="button" class="secondary" id="ts-reset">Terug naar de standaard van LANcelot</button> <span class="muted small" id="ts-info"></span></div>
     </div>
     <div class="panel form" data-tab="ai">
