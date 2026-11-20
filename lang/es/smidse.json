@@ -1364,5 +1364,9 @@
  "bv. begeleider@school.be": "p. ej. apoyo@escuela.es",
  "bv. ouder@mail.be": "p. ej. familia@correo.es",
  "Bewaard. Stel nog je mailbox in, anders kan Lancelot niet mailen.": "Guardado. Configura aún tu buzón; si no, Lancelot no puede enviar correos.",
- "Instellen bij Mijn klas": "Configurar en Mi clase"
+ "Instellen bij Mijn klas": "Configurar en Mi clase",
+ "Lancelot raakt niet bij de mailserver. Is er internet? Een schoolnetwerk blokkeert soms mail: probeer het thuis of vraag het aan je ICT.": "Lancelot no llega al servidor de correo. ¿Hay internet? La red de una escuela a veces bloquea el correo: pruébalo en casa o pregunta al equipo de informática.",
+ "Google vraagt een app-wachtwoord, niet je gewone wachtwoord. Zet verificatie in 2 stappen aan en maak er een op {0}": "Google pide una contraseña de aplicación, no tu contraseña normal. Activa la verificación en dos pasos y crea una en {0}",
+ "Google weigert dit e-mailadres met dit wachtwoord. Maak een nieuw app-wachtwoord op {0} en plak de 16 letters hier (lukt dat niet met een schooladres, probeer dan je eigen Gmail).": "Google rechaza esta dirección con esta contraseña. Crea una nueva contraseña de aplicación en {0} y pega aquí las 16 letras (si no funciona con una dirección de la escuela, prueba tu propio Gmail).",
+ "{0} (geen antwoord)": "{0} (sin respuesta)"
 }

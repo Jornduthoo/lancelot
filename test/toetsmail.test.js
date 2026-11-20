@@ -185,3 +185,16 @@ test('toetsmail: Mijn klas zet twee adressen per leerling en het vinkje automati
   assert.equal(leeg.adressen.testkind, undefined);
   assert.equal(leeg.uit.testkind, undefined);
 });
+
+test('toetsmail: foutmeldingen zeggen wat er mis is en wat je moet doen', async () => {
+  const M = require('../src/toetsmail');
+  assert.match(M.uitleg({ code: 534, tekst: '534-5.7.9 Application-specific password required.' }), /app-wachtwoord, niet je gewone wachtwoord.*apppasswords/);
+  assert.match(M.uitleg({ code: 535, tekst: '535-5.7.8 Username and Password not accepted.' }), /nieuw app-wachtwoord.*apppasswords/);
+  assert.match(M.uitleg({ code: 550, tekst: '550 nope' }), /weigerde: 550 nope/);
+  // Geen mailserver op die poort: een melding over het netwerk.
+  const data = fs.mkdtempSync(path.join(os.tmpdir(), 'toetsmail-net-'));
+  const run = runner(data);
+  const vrij = await new Promise(r => { const s = net.createServer().listen(0, '127.0.0.1', () => { const p = s.address().port; s.close(() => r(p)); }); });
+  await run(`return M.zetAfzender({ van: 'jorn@example.com', pass: 'geheim', host: '127.0.0.1', port: ${vrij} });`);
+  assert.match((await run(`return M.test({ onveilig: true });`)).fout, /raakt niet bij de mailserver.*ECONNREFUSED/);
+});

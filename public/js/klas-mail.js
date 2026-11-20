@@ -5,7 +5,10 @@
   const el = id => document.getElementById(id);
   const esc = t => String(t).replace(/[&<>"']/g, c => `&#${c.charCodeAt(0)};`);
   let mail = null;
-  const info = t => { el('km-info').textContent = t || ''; };
+  // Een adres in de melding (bv. de pagina voor app-wachtwoorden) wordt een link.
+  const info = t => {
+    el('km-info').innerHTML = esc(t || '').replace(/https:\/\/[^\s<]+[^\s<.,)]/g, u => `<a href="${u}" target="_blank" rel="noopener">${u}</a>`);
+  };
 
   function renderBox(velden) {
     if (!mail) return;
