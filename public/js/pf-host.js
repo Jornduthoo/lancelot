@@ -998,6 +998,7 @@ function openDetail(id, refresh) {
 }
 function sluitDetail() {
   detailId = null;
+  liveNaam = null;
   $('detail').classList.add('hidden');
 }
 $('detail').addEventListener('click', e => { if (e.target.id === 'detail') sluitDetail(); });
@@ -1047,7 +1048,11 @@ socket.on('pf-afname-gewijzigd', () => {
   clearTimeout(afnameTimer);
   afnameTimer = setTimeout(function opnieuw() {
     if (view !== 'verbeter' || !afname) return;
-    if (!$('detail').classList.contains('hidden')) { afnameTimer = setTimeout(opnieuw, 3000); return; }
+    if (!$('detail').classList.contains('hidden')) {
+      if (liveNaam) { openAfname(afname.file, true); leerlingLive(liveNaam, true); return; }
+      afnameTimer = setTimeout(opnieuw, 3000);
+      return;
+    }
     openAfname(afname.file, true);
   }, 800);
 });
@@ -1059,7 +1064,11 @@ function renderStand() {
   const binnen = new Map(afname.spelers.map((s, i) => [s.naam.trim().toLowerCase(), { s, i }]));
   for (const l of afnameLeerlingen || []) {
     if (l.status === 'klaar' && binnen.has(l.naam.trim().toLowerCase())) continue;
-    rijen.push(`<span class="pf-st ${l.status}" title="${l.elders ? `Werkt op ${esc(l.elders)}` : ''}"><b>${esc(l.naam)}</b> ${l.status === 'bezig' ? `✏️ bezig · ${l.gedaan}/${l.totaal}` : l.status === 'nieuw' ? '· nog niet begonnen' : '· ingeleverd'}</span>`);
+    const tekst = `<b>${esc(l.naam)}</b> ${l.status === 'bezig' ? `✏️ bezig · ${l.gedaan}/${l.totaal}${l.voorlees ? ' 🔊' : ''}` : l.status === 'nieuw' ? '· nog niet begonnen' : '· ingeleverd'}`;
+    // Bezig: klik om live te zien wat hij al invulde.
+    rijen.push(l.status === 'bezig'
+      ? `<button type="button" class="pf-st bezig" data-live="${esc(l.naam)}" title="${l.elders ? `Werkt op ${esc(l.elders)}` : 'Bekijk wat hij al invulde'}">${tekst}</button>`
+      : `<span class="pf-st ${l.status}">${tekst}</span>`);
   }
   for (const { s, i } of binnen.values()) {
     const st = standVan(s);
@@ -1069,6 +1078,35 @@ function renderStand() {
   box.innerHTML = rijen.join('');
   box.classList.toggle('hidden', !rijen.length);
   for (const b of box.querySelectorAll('[data-i]')) b.addEventListener('click', () => leerlingAfname(Number(b.dataset.i)));
+  for (const b of box.querySelectorAll('[data-live]')) b.addEventListener('click', () => leerlingLive(b.dataset.live));
+}
+
+// Een leerling die nog bezig is: zijn toets zoals hij nu staat (live), met voorlezen aan of uit.
+let liveNaam = null;
+function leerlingLive(naam, stil) {
+  socket.emit('tk-detail', { id: afname.taak, naam }, res => {
+    if (res.error) { if (!stil) Ui.melding(res.error); return; }
+    liveNaam = naam;
+    const l = (afnameLeerlingen || []).find(x => x.naam === naam) || {};
+    $('d-name').textContent = `${res.naam} · ${res.status === 'klaar' ? 'ingeleverd' : `bezig · ${res.gedaan}/${res.totaal}`}${l.autoMax ? ` · al ${nl(l.punten)} van ${nl(l.autoMax)} punten` : ''}`;
+    const vl = !!l.voorlees;
+    $('d-actions').innerHTML = `${res.status === 'bezig' && !res.elders ? `<button class="secondary${vl ? ' on' : ''}" data-a="voorlees">${vl ? '🔊 Voorlezen: aan' : '🔇 Voorlezen: uit'}</button>` : ''}<button class="secondary" data-a="sluit">Sluiten</button>`;
+    for (const b of $('d-actions').querySelectorAll('button')) {
+      b.addEventListener('click', () => {
+        if (b.dataset.a === 'sluit') return sluitDetail();
+        socket.emit('tk-voorlees', { id: afname.taak, naam, aan: !vl }, r => {
+          if (r && r.error) return Ui.melding(r.error);
+          l.voorlees = !vl;
+          leerlingLive(naam, true);
+        });
+      });
+    }
+    $('d-events').innerHTML = res.elders ? `<span class="muted">Werkt op ${esc(res.elders.pc)}.</span>` : '<span class="muted">Live: wat de leerling al invulde. Je ziet het bijwerken terwijl hij werkt.</span>';
+    const scroll = $('detail').classList.contains('hidden') ? 0 : $('detail').querySelector('.ob-modal-box').scrollTop;
+    PfPaper.render($('d-paper'), res.view.pages, { mode: 'view', nummer: true, answers: res.answers, sleutel: res.sleutel, zones: res.zones, punten: res.status === 'nieuw' ? null : res.punten });
+    $('detail').classList.remove('hidden');
+    $('detail').querySelector('.ob-modal-box').scrollTop = scroll;
+  });
 }
 $('v-terug').addEventListener('click', () => show(state && state.active ? 'lobby' : 'list'));
 for (const b of $('v-tabs').querySelectorAll('button')) {
@@ -1171,7 +1209,9 @@ function renderAfname() {
   const a = afname;
   $('v-title').textContent = `Verbeteren · ${a.title}`;
   const totOpen = a.spelers.reduce((n, s) => n + standVan(s).open, 0);
-  $('v-info').textContent = `${new Date(a.datum).toLocaleString('nl-BE', { dateStyle: 'medium', timeStyle: 'short' })} · ${a.spelers.length} leerlingen · ${totOpen ? `nog ${totOpen} antwoorden te verbeteren` : 'alles verbeterd'}`;
+  // Nog leerlingen bezig (toets als taak)? Dan zeggen we dat, en niet "alles verbeterd".
+  const bezigNu = (afnameLeerlingen || []).filter(l => l.status === 'bezig');
+  $('v-info').textContent = `${new Date(a.datum).toLocaleString('nl-BE', { dateStyle: 'medium', timeStyle: 'short' })} · ${a.spelers.length} ingeleverd${bezigNu.length ? ` · ${bezigNu.length} nog bezig` : ''} · ${totOpen ? `nog ${totOpen} antwoorden te verbeteren` : bezigNu.length || !a.spelers.length ? 'nog niets te verbeteren' : 'alles verbeterd'}`;
   const note = $('v-klaar-note');
   note.innerHTML = '';
   if (a.klaar && a.resultaten) {
@@ -1208,7 +1248,8 @@ function renderAfname() {
         <div class="antw">${g.q.type === 'papier' ? '<em class="muted">op papier</em>' : antwoordTekst(g.q, s.antwoorden[g.id])}${!hand && g.q.type === 'blad' ? vakChips(i, g.id, g.q, s) : ''}</div>
         ${hand ? puntKnoppen(i, g.id, PfKern.handPunten(g.q), s.hand[g.id]) : corrKnoppen(i, g.id, g.q, s)}
       </div>`).join('')}</div></div>`;
-  }).join('') : '<p class="muted">Niets meer te verbeteren: de computer verbeterde alles. Klik op Alle vragen om een ✔ of ✘ van de computer aan te passen.</p>');
+  }).join('') : !a.spelers.length ? `<p class="muted">Nog niemand ingeleverd.${bezigNu.length ? ` ${bezigNu.length} ${bezigNu.length === 1 ? 'leerling is' : 'leerlingen zijn'} bezig: klik bovenaan op een naam om live te zien wat hij al invulde.` : ''}</p>`
+    : `<p class="muted">Niets meer te verbeteren bij wie inleverde: de computer verbeterde alles.${bezigNu.length ? ` ${bezigNu.length} ${bezigNu.length === 1 ? 'leerling is' : 'leerlingen zijn'} nog bezig.` : ''} Klik op Alle vragen om een ✔ of ✘ van de computer aan te passen.</p>`);
   for (const b of $('v-vragen').querySelectorAll('[data-alle]')) b.addEventListener('click', () => { alleVragen = b.dataset.alle === '1'; renderAfname(); });
 
   // Per leerling: punten, procent, hoe vaak hij de toets verliet. Klik voor zijn hele toets.
@@ -1216,7 +1257,8 @@ function renderAfname() {
     ${a.spelers.map((s, i) => {
       const st = standVan(s);
       return `<tr data-i="${i}"><td><button class="link">${esc(s.naam)}</button></td>${multi ? `<td>${Niveau.label(s.niveau)}</td>` : ''}<td>${nl(st.punten)} / ${nl(st.max)}</td><td>${st.max ? Math.round((st.punten / st.max) * 100) : 0}%</td><td>${st.open || '–'}</td><td>${(s.events || []).length ? `⚠ ${(s.events || []).length}×` : '–'}</td></tr>`;
-    }).join('')}</table></div>`;
+    }).join('')}${bezigNu.map(l => `<tr class="pf-bezig-rij"><td><button class="link" data-live="${esc(l.naam)}">${esc(l.naam)}</button></td>${multi ? '<td></td>' : ''}<td colspan="4">✏️ bezig · ${l.gedaan}/${l.totaal}${l.autoMax ? ` · al ${nl(l.punten)} van ${nl(l.autoMax)} punten` : ''}</td></tr>`).join('')}</table></div>`;
+  for (const b of $('v-leerlingen').querySelectorAll('[data-live]')) b.addEventListener('click', () => leerlingLive(b.dataset.live));
   for (const tr of $('v-leerlingen').querySelectorAll('tr[data-i]')) tr.querySelector('button').addEventListener('click', () => leerlingAfname(Number(tr.dataset.i)));
   wirePunten($('v-vragen'));
   renderAnalyse();
@@ -1299,7 +1341,7 @@ function wirePunten(box, na) {
           s.hand[g.dataset.id] = p;
           for (const x of g.querySelectorAll('button')) x.classList.toggle('on', p !== null && Number(x.dataset.p) === p);
           const totOpen = afname.spelers.reduce((n, sp) => n + standVan(sp).open, 0);
-          $('v-info').textContent = $('v-info').textContent.replace(/·[^·]*$/, `· ${totOpen ? `nog ${totOpen} antwoorden te verbeteren` : 'alles verbeterd'}`);
+          $('v-info').textContent = $('v-info').textContent.replace(/·[^·]*$/, `· ${totOpen ? `nog ${totOpen} antwoorden te verbeteren` : (afnameLeerlingen || []).some(l => l.status === 'bezig') ? 'nog niets te verbeteren' : 'alles verbeterd'}`);
           renderAnalyse();
           if (na) na();
         });
@@ -1309,6 +1351,7 @@ function wirePunten(box, na) {
 }
 
 function leerlingAfname(i) {
+  liveNaam = null;
   const s = afname.spelers[i];
   const punten = {};
   const vragen = PfKern.vragenVan(PfKern.lijstVoor(afname.toets, s.niveau));

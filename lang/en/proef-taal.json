@@ -475,5 +475,20 @@
  "Geen open taken van deze soort. Vink aan om de afgesloten taken te zien.": "No open tasks of this kind. Tick the box to see the closed tasks.",
  "Nog geen quizzen gegeven.": "No quizzes given yet.",
  "Nog geen toetsen gegeven.": "No tests given yet.",
- "Nog geen oefenbladen gegeven.": "No worksheets given yet."
+ "Nog geen oefenbladen gegeven.": "No worksheets given yet.",
+ "✏️ bezig · {0}/{1}{2}": "✏️ working · {0}/{1}{2}",
+ "Bekijk wat hij al invulde": "See what they filled in so far",
+ "bezig · {0}/{1}": "working · {0}/{1}",
+ "· al {0} van {1} punten": "· already {0} of {1} points",
+ "Werkt op {0}.": "Working on {0}.",
+ "Live: wat de leerling al invulde. Je ziet het bijwerken terwijl hij werkt.": "Live: what the pupil filled in so far. It updates while they work.",
+ "{0} · {1} ingeleverd{2} · {3}": "{0} · {1} handed in{2} · {3}",
+ "· {0} nog bezig": "· {0} still working",
+ "nog niets te verbeteren": "nothing to mark yet",
+ "Nog niemand ingeleverd.{0}": "Nobody has handed in yet.{0}",
+ "{0} {1} bezig: klik bovenaan op een naam om live te zien wat hij al invulde.": "{0} {1} working: click a name at the top to see live what they filled in so far.",
+ "Niets meer te verbeteren bij wie inleverde: de computer verbeterde alles.{0} Klik op Alle vragen om een ✔ of ✘ van de computer aan te passen.": "Nothing left to mark for those who handed in: the computer marked everything.{0} Click All questions to change a ✔ or ✘ from the computer.",
+ "{0} {1} nog bezig.": "{0} {1} still working.",
+ "leerling is": "pupil is",
+ "leerlingen zijn": "pupils are"
 }

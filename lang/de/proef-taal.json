@@ -475,5 +475,20 @@
  "Geen open taken van deze soort. Vink aan om de afgesloten taken te zien.": "Keine offenen Aufgaben dieser Art. Hake an, um die abgeschlossenen Aufgaben zu sehen.",
  "Nog geen quizzen gegeven.": "Noch keine Quiz gegeben.",
  "Nog geen toetsen gegeven.": "Noch keine Tests gegeben.",
- "Nog geen oefenbladen gegeven.": "Noch keine Arbeitsblätter gegeben."
+ "Nog geen oefenbladen gegeven.": "Noch keine Arbeitsblätter gegeben.",
+ "✏️ bezig · {0}/{1}{2}": "✏️ am Arbeiten · {0}/{1}{2}",
+ "Bekijk wat hij al invulde": "Sehen, was bereits ausgefüllt ist",
+ "bezig · {0}/{1}": "am Arbeiten · {0}/{1}",
+ "· al {0} van {1} punten": "· schon {0} von {1} Punkten",
+ "Werkt op {0}.": "Arbeitet auf {0}.",
+ "Live: wat de leerling al invulde. Je ziet het bijwerken terwijl hij werkt.": "Live: was der Schüler bisher ausgefüllt hat. Es aktualisiert sich, während er arbeitet.",
+ "{0} · {1} ingeleverd{2} · {3}": "{0} · {1} abgegeben{2} · {3}",
+ "· {0} nog bezig": "· {0} noch am Arbeiten",
+ "nog niets te verbeteren": "noch nichts zu korrigieren",
+ "Nog niemand ingeleverd.{0}": "Noch niemand hat abgegeben.{0}",
+ "{0} {1} bezig: klik bovenaan op een naam om live te zien wat hij al invulde.": "{0} {1} am Arbeiten: Klicke oben auf einen Namen, um live zu sehen, was bereits ausgefüllt ist.",
+ "Niets meer te verbeteren bij wie inleverde: de computer verbeterde alles.{0} Klik op Alle vragen om een ✔ of ✘ van de computer aan te passen.": "Nichts mehr zu korrigieren bei denen, die abgegeben haben: Der Computer hat alles korrigiert.{0} Klicke auf Alle Fragen, um ein ✔ oder ✘ des Computers zu ändern.",
+ "{0} {1} nog bezig.": "{0} {1} noch am Arbeiten.",
+ "leerling is": "Schüler ist",
+ "leerlingen zijn": "Schüler sind"
 }
