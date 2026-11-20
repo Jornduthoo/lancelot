@@ -198,6 +198,8 @@ function kiesBron() {
   tk.per = {};
   tk.eigen = tk.vak = null;
   tk.niet = new Set();
+  $('tk-per-info').textContent = '';
+  $('tk-al-info').textContent = '';
   $('tk-bron-info').textContent = '';
   $('tk-nv-label').classList.add('hidden');
   $('tk-niveau').innerHTML = '';
@@ -208,6 +210,7 @@ function kiesBron() {
     tk.eigen = res.niveaus.length > 1 ? res : null;
     tk.vak = res.vak;
     tk.niet = new Set(res.niet || []);
+    alGegevenInfo(file);
     // Standaard elk zijn eigen niveau; de leerkracht kan ook iedereen op één niveau zetten.
     $('tk-nv-label').classList.toggle('hidden', !tk.eigen);
     if (tk.eigen) $('tk-niveau').innerHTML = '<option value="">Eigen niveau van elke leerling</option>'
@@ -216,11 +219,23 @@ function kiesBron() {
   });
 }
 
+// Al eens gegeven? Dan een waarschuwing (bv. dezelfde toets een tweede keer).
+function alGegeven(file) {
+  return tk.taken.filter(t => t.soort === tk.soort && t.bron === file);
+}
+const keren = al => al.slice(0, 3).map(t => `${datum(t.gemaakt)} (${t.leerlingen.length} ${t.leerlingen.length === 1 ? 'leerling' : 'leerlingen'})`).join(', ');
+function alGegevenInfo(file) {
+  const al = alGegeven(file);
+  $('tk-al-info').textContent = !al.length ? ''
+    : tk.soort === 'proef' ? `⚠ Deze toets gaf je al: ${keren(al)}.` : `⚠ Dit gaf je al: ${keren(al)}.`;
+}
+
 function kiesNiveau() {
   if (tk.meer) return meerInfo();
   const res = tk.eigen, vast = $('tk-niveau').value;
   tk.per = {};
   if (res) for (const naam of Object.keys(res.per)) tk.per[naam] = vast || res.per[naam];
+  perInfo();
   $('tk-bron-info').textContent = !res
     ? $('tk-bron').value ? `Eén niveau: iedereen krijgt hetzelfde${tk.vak ? ` (${tk.vak})` : ''}.` : ''
     : vast ? `Iedereen die je aantikt, krijgt ${Niveau.NAMES[vast]} (${Niveau.HELP[vast]}), los van zijn niveau in Mijn klas.`
@@ -246,7 +261,24 @@ function tekenNamen() {
       b.title = tk.gast && tk.gast.has(naam) ? 'Gast: niet in je opvolging' : 'Volgt dit vak niet bij jou';
     }
     const n = tk.per[naam];
-    if (n) b.appendChild(el('span', `tk-nv ${n}`, Niveau.ICONS[n])).title = Niveau.NAMES[n];
+    if (n) {
+      // Klik op het icoontje: een ander niveau voor deze leerling, of twee niveaus na elkaar.
+      const reeks = Array.isArray(n) ? n : [n];
+      const ic = el('span', `tk-nv ${reeks[0]}${tk.eigen ? ' wissel' : ''}`, reeks.map(x => Niveau.ICONS[x]).join('→'));
+      ic.title = reeks.length > 1 ? `Eerst ${Niveau.NAMES[reeks[0]]}, daarna ${Niveau.NAMES[reeks[1]]}. Klik om te wisselen.`
+        : tk.eigen ? `${Niveau.NAMES[reeks[0]]}. Klik om te wisselen.` : Niveau.NAMES[reeks[0]];
+      if (tk.eigen) ic.addEventListener('click', e => {
+        e.stopPropagation();
+        const keuzes = niveauKeuzes();
+        const nu = keuzes.findIndex(k => k.join() === reeks.join());
+        tk.per[naam] = keuzes[(nu + 1) % keuzes.length];
+        if (tk.per[naam].length === 1) tk.per[naam] = tk.per[naam][0];
+        tk.gekozen.add(naam);
+        tekenNamen();
+        perInfo();
+      });
+      b.appendChild(ic);
+    }
     b.addEventListener('click', () => {
       if (tk.gekozen.has(naam)) tk.gekozen.delete(naam); else tk.gekozen.add(naam);
       b.classList.toggle('on', tk.gekozen.has(naam));
@@ -266,6 +298,19 @@ function knop() {
   $('tk-geef').textContent = !n ? 'Tik eerst leerlingen aan'
     : m ? (n === tk.klas.length && n > 1 ? `Geef ${m} taken aan de hele klas` : `Geef ${m} taken aan ${n} ${wie}`)
     : n === tk.klas.length && n > 1 ? 'Geef taak aan de hele klas' : `Geef taak aan ${n} ${wie}`;
+}
+
+// De niveaus die je per leerling kan kiezen: elk niveau apart, en twee opeenvolgende na elkaar (bv. Page → Schildknaap).
+function niveauKeuzes() {
+  const n = tk.eigen ? tk.eigen.niveaus : [];
+  return [...n.map(x => [x]), ...n.slice(1).map((x, i) => [n[i], x])];
+}
+// Zie je meteen hoeveel leerlingen twee niveaus na elkaar krijgen.
+function perInfo() {
+  const twee = Object.entries(tk.per).filter(([naam, v]) => Array.isArray(v) && tk.gekozen.has(naam)).length;
+  $('tk-per-info').textContent = !tk.eigen ? '' : twee
+    ? twee === 1 ? '1 leerling krijgt twee niveaus na elkaar: de tweede taak verschijnt als de eerste af is.' : `${twee} leerlingen krijgen twee niveaus na elkaar: de tweede taak verschijnt als de eerste af is.`
+    : 'Klik op het icoontje bij een naam om dat niveau te wisselen (ook twee niveaus na elkaar).';
 }
 
 // Wie niet meedoet (gast, of volgt dit vak niet bij mij): niet aanvinken bij Hele klas. Aantikken kan wel.
@@ -321,7 +366,7 @@ $('tk-groepje').addEventListener('change', () => {
   $('tk-groepje').value = '';
 });
 
-$('tk-geef').addEventListener('click', () => {
+$('tk-geef').addEventListener('click', async () => {
   const namen = [...tk.gekozen];
   const b = $('tk-geef');
   const start = vanaf();
@@ -329,7 +374,22 @@ $('tk-geef').addEventListener('click', () => {
     $('tk-fout').textContent = 'Kies een dag en uur in de toekomst.';
     return;
   }
+  // Dezelfde toets al gegeven aan (een deel van) deze leerlingen? Eerst vragen.
+  if (!tk.meer && tk.soort === 'proef') {
+    const al = new Set();
+    for (const t of alGegeven($('tk-bron').value)) for (const l of t.leerlingen) if (namen.includes(l.naam)) al.add(l.naam);
+    const wie = [...al].slice(0, 5).join(', ') + (al.size > 5 ? ` en nog ${al.size - 5}` : '');
+    if (al.size && !await Ui.vraag(al.size === 1 ? `${wie} kreeg deze toets al. Toch nog eens geven?` : `${wie} kregen deze toets al. Toch nog eens geven?`, { ja: 'Toch geven', nee: 'Nee' })) return;
+  }
   b.disabled = true;
+  // Twee niveaus na elkaar: eerst de taak met het eerste niveau, dan per tweede niveau een taak die daarna verschijnt.
+  const per = {}, daarna = {};
+  if (tk.eigen && !tk.meer) for (const naam of namen) {
+    const v = tk.per[naam];
+    if (!v) continue;
+    per[naam] = Array.isArray(v) ? v[0] : v;
+    if (Array.isArray(v)) (daarna[v[1]] = daarna[v[1]] || []).push(naam);
+  }
   // Meerdere gekozen: één taak per quiz of oefenblad, na elkaar.
   const files = tk.meer ? tk.meer.map(x => x.file) : [$('tk-bron').value];
   const fouten = [];
@@ -337,9 +397,20 @@ $('tk-geef').addEventListener('click', () => {
   const volgende = () => {
     if (klaar + fouten.length === files.length) return gedaan();
     const file = files[klaar + fouten.length];
-    socket.emit('tk-maak', { soort: tk.soort, file, namen, feedback: $('tk-feedback').value, spel: $('tk-spel').value, minuten: Number($('tk-minuten').value), niveau: $('tk-niveau').value, les: tk.les && { week: tk.les.week, slot: tk.les.slot }, vanaf: start, voorlees: $('tk-voorlees').value, vragenVast: $('tk-volgorde').value !== 'schud', keuzesVast: $('tk-volgorde').value === 'alles', uitslag: $('tk-uitslag').checked }, res => {
+    socket.emit('tk-maak', { soort: tk.soort, file, namen, per: Object.keys(per).length ? per : undefined, feedback: $('tk-feedback').value, spel: $('tk-spel').value, minuten: Number($('tk-minuten').value), niveau: $('tk-niveau').value, les: tk.les && { week: tk.les.week, slot: tk.les.slot }, vanaf: start, voorlees: $('tk-voorlees').value, vragenVast: $('tk-volgorde').value !== 'schud', keuzesVast: $('tk-volgorde').value === 'alles', uitslag: $('tk-uitslag').checked }, res => {
       if (res.error) fouten.push(res.error); else klaar++;
-      volgende();
+      if (res.error || !Object.keys(daarna).length) return volgende();
+      // De tweede niveaus: elk een taak die pas verschijnt als de eerste af is.
+      const rest = Object.entries(daarna);
+      const nog = () => {
+        if (!rest.length) return volgende();
+        const [niveau, wie] = rest.shift();
+        socket.emit('tk-maak', { soort: tk.soort, file, namen: wie, niveau, na: res.id, feedback: $('tk-feedback').value, spel: $('tk-spel').value, minuten: Number($('tk-minuten').value), vanaf: start, voorlees: $('tk-voorlees').value, vragenVast: $('tk-volgorde').value !== 'schud', keuzesVast: $('tk-volgorde').value === 'alles', uitslag: $('tk-uitslag').checked }, r2 => {
+          if (r2.error) fouten.push(r2.error);
+          nog();
+        });
+      };
+      nog();
     });
   };
   const gedaan = () => {
@@ -363,7 +434,24 @@ $('tk-geef').addEventListener('click', () => {
 
 const STATUS = { nieuw: 'Nog niet begonnen', bezig: 'Bezig', klaar: 'Klaar' };
 // Wie niet meedoet (volgt dit vak niet bij mij, of gast) en wie afwezig was, telt niet mee bij "nog niet".
-const telt = l => !l.niet && !l.afwezig;
+const telt = l => !l.niet && !l.afwezig && !l.wacht;
+const uur = iso => new Date(iso).toLocaleTimeString('nl-BE', { hour: '2-digit', minute: '2-digit' });
+// Twee taken met dezelfde naam: wat is het verschil? Niveaus, dag en uur, aantal leerlingen, na een andere taak.
+function verschil(t) {
+  const zelfde = tk.taken.filter(x => x !== t && x.titel === t.titel && x.soort === t.soort);
+  if (!zelfde.length) return '';
+  const kenmerk = x => ({
+    niveau: x.niveaus.length > 1 ? [...new Set(x.leerlingen.map(l => l.niveau))].map(n => Niveau.ICONS[n]).join('') : '',
+    na: x.na ? `na ${(x.na.niveaus || []).map(n => Niveau.ICONS[n]).join('')} ${x.na.titel || ''}`.trim() : '',
+    n: `${x.leerlingen.length} ${x.leerlingen.length === 1 ? 'leerling' : 'leerlingen'}`,
+    dag: `${datum(x.gemaakt)} ${uur(x.gemaakt)}`,
+    bron: x.bron || '',
+  });
+  const mij = kenmerk(t), rest = zelfde.map(kenmerk);
+  const delen = ['niveau', 'n', 'dag'].filter(k => mij[k] && rest.some(o => o[k] !== mij[k])).map(k => mij[k]);
+  if (rest.some(o => o.bron !== mij.bron)) delen.push('ander bestand');
+  return delen.length ? `Zelfde naam als een andere taak. Deze: ${delen.join(' · ')}` : '';
+}
 
 function tekenTaken() {
   const box = $('tk-taken');
@@ -417,9 +505,12 @@ function kaart(t) {
   const titel = el('div', 'tk-taak-titel');
   titel.append(el('strong', '', t.titel));
   if (t.vanaf) titel.append(el('small', 'tk-taak-gepland', `⏰ Gepland: verschijnt ${wanneerTekst(t.vanaf)}`));
-  titel.append(el('small', 'muted', `${t.soort === 'quiz' ? 'Quiz' : t.soort === 'proef' ? 'Toets' : 'Oefenblad'}${t.spel ? ` in ${t.spel.naam}` : ''}${t.vak ? ` · ${t.vak}` : ''}${t.niveau ? ` · iedereen ${Niveau.NAMES[t.niveau]}` : ''}${t.uitLesmap ? ' · uit je lesmap' : ''} · ${datum(t.gemaakt)}${t.dicht ? ' · afgesloten' : ''}`));
+  titel.append(el('small', 'muted', `${t.soort === 'quiz' ? 'Quiz' : t.soort === 'proef' ? 'Toets' : 'Oefenblad'}${t.spel ? ` in ${t.spel.naam}` : ''}${t.vak ? ` · ${t.vak}` : ''}${t.niveau && !t.na ? ` · iedereen ${Niveau.NAMES[t.niveau]}` : ''}${t.uitLesmap ? ' · uit je lesmap' : ''} · ${datum(t.gemaakt)}${t.dicht ? ' · afgesloten' : ''}`));
   // Uit een les in De Zonnewijzer: het doel van die les.
   if (t.les) titel.append(el('small', 'tk-taak-les', `🎯 ${t.les.doel || t.les.titel}`));
+  if (t.na) titel.append(el('small', 'tk-taak-na', `⏭ Verschijnt per leerling als ${t.na.weg ? 'de vorige taak' : `"${t.na.titel}" (${(t.na.niveaus || []).map(n => Niveau.NAMES[n]).join(', ')})`} af is`));
+  const vs = verschil(t);
+  if (vs) titel.append(el('small', 'tk-taak-verschil', `≠ ${vs}`));
   const telling = el('div', 'tk-telling');
   telling.append(el('span', 'klaar', `${tel('klaar')} klaar`), el('span', 'bezig', `${tel('bezig')} bezig`), el('span', 'nieuw', `${tel('nieuw')} nog niet`));
   if (inhalen) telling.append(el('span', 'inhalen', `${inhalen} inhalen`));
@@ -445,7 +536,7 @@ function kaart(t) {
 
   const rij = el('div', 'tk-leerlingen');
   for (const l of t.leerlingen) {
-    const b = el('button', `tk-ll ${l.status}${l.niet ? ' niet' : ''}${l.afwezig ? ' inhalen' : ''}`);
+    const b = el('button', `tk-ll ${l.status}${l.niet ? ' niet' : ''}${l.afwezig ? ' inhalen' : ''}${l.wacht ? ' wacht' : ''}`);
     b.type = 'button';
     const naam = el('span', 'tk-ll-naam', l.naam);
     if (l.afwezig) naam.append(el('span', 'tk-ll-inhalen', ' 🏠'));
@@ -455,12 +546,12 @@ function kaart(t) {
     const toetsPunten = t.soort === 'proef' && l.autoMax ? `${PfPaper.nl(l.punten)}/${PfPaper.nl(l.autoMax)}${l.hand ? ' + ?' : ''}` : '';
     const stand = l.status === 'klaar'
       ? (toetsPunten || (l.score ? `${l.juist}/${l.score}` : '✔'))
-      : l.status === 'bezig' ? `${l.gedaan}/${l.totaal}` : l.afwezig ? 'inhalen' : '–';
+      : l.status === 'bezig' ? `${l.gedaan}/${l.totaal}` : l.afwezig ? 'inhalen' : l.wacht ? '⏭ wacht' : '–';
     const pct = l.status === 'klaar' && t.soort === 'proef' && l.autoMax ? l.punten / l.autoMax : l.status === 'klaar' && l.score ? l.juist / l.score : null;
     const s = el('span', `tk-ll-stand${pct === null ? '' : pct >= .8 ? ' hoog' : pct < .5 ? ' laag' : ''}`, stand);
     const balk = el('span', 'tk-ll-balk');
     balk.appendChild(el('i')).style.width = `${l.status === 'klaar' ? 100 : l.totaal ? (l.gedaan / l.totaal) * 100 : 0}%`;
-    b.title = l.afwezig ? 'Afwezig: haalt deze taak later in' : l.niet ? 'Volgt dit vak niet bij jou (telt niet mee)' : t.soort === 'proef' && l.status === 'bezig' && l.autoMax ? `${STATUS[l.status]} · vraag ${l.pos + 1} · al ${PfPaper.nl(l.punten)} van ${PfPaper.nl(l.autoMax)} punten` : STATUS[l.status];
+    b.title = l.afwezig ? 'Afwezig: haalt deze taak later in' : l.wacht ? 'Verschijnt als de vorige taak af is' : l.niet ? 'Volgt dit vak niet bij jou (telt niet mee)' : t.soort === 'proef' && l.status === 'bezig' && l.autoMax ? `${STATUS[l.status]} · vraag ${l.pos + 1} · al ${PfPaper.nl(l.punten)} van ${PfPaper.nl(l.autoMax)} punten` : STATUS[l.status];
     b.append(naam, s, balk);
     b.addEventListener('click', () => toonDetail(t.id, l.naam));
     rij.appendChild(b);

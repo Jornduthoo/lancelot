@@ -158,3 +158,9 @@
 .tk-ll.inhalen { --k: var(--cyan); }
 .tk-ll.inhalen .tk-ll-stand { color: var(--cyan); }
 #d-afwezig.on { box-shadow: inset 0 0 0 2px var(--cyan); }
+.tk-nv.wissel { cursor: pointer; border-radius: 6px; padding: 0 3px; box-shadow: inset 0 0 0 1px var(--line); }
+.tk-nv.wissel:hover { box-shadow: inset 0 0 0 1px var(--gold); }
+.tk-al-info { color: var(--gold); margin: 4px 0 0; }
+.tk-al-info:empty, #tk-per-info:empty, #tk-snel-info:empty { display: none; }
+.tk-taak-na, .tk-taak-verschil { display: block; color: var(--cyan); }
+.tk-ll.wacht:not(.bezig):not(.klaar) { opacity: .6; }

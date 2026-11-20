@@ -31,7 +31,7 @@ Volgorde: 1, 3, 4, 2, 5, 6, 7, 8, 9.
 |---|------|-------|----|
 | 1 | Opvolgen: leerlingen × taken | ✅ Mijn klas › Opvolgen. Kleuren per vakje, filters (periode, soort, vak), tellers per kolom en per leerling. Klik op een vakje: Bekijk, Verbeteren of live meekijken. Namen blijven staan bij scrollen. Klas: de klaskiezer bovenaan. | #583 |
 | 3 | Wie niet meedoet, telt niet mee | ✅ Mijn klas › Niveaus: per vak 🚫 Niet bij mij, bij Algemeen 👤 Gast. Hele klas vinkt hen niet aan (met melding, aantikken kan). Tellen niet mee bij "nog niet"; gast niet in Opvolgen, vak niet bij mij = –. Bij een leerling in een taak: 🏠 Afwezig → "inhalen". | #584 |
-| 4 | Eén taak, meerdere niveaus | ○ | |
+| 4 | Eén taak, meerdere niveaus | ✅ Bij Taken: klik op het icoontje bij een naam om het niveau te wisselen, ook twee niveaus na elkaar (de tweede taak verschijnt als de eerste af is). ⚠ als de toets al gegeven is, met een vraag bij het geven. Twee taken met dezelfde naam: het verschil staat erbij. Resultaten van alle niveaus stonden al samen (kolom Niveau bij Verbeteren). | #586 |
 | 2 | Dezelfde stand op elke pc | ○ deels (#580: sync van afnames en stand) | |
 | 5 | Standaardkeuzes per leerkracht/vak | ○ | |
 | 6 | Takenlijst sorteren, tabjes, opruimen, dichtklappen | ○ | |
