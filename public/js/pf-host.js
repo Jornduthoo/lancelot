@@ -141,10 +141,13 @@ function tekenAfnames() {
   const eerst = a => (a.bezig ? 2 : 0) + (a.open ? 1 : 0);
   const rij = [...afnames].sort((a, b) => eerst(b) - eerst(a) || b.datum.localeCompare(a.datum));
   const toon = alleAfnames ? rij : rij.slice(0, 8);
+  // Dezelfde tellers als bij Taken: klaar · bezig · nog niet · te verbeteren (verbeterpunten 20 nov, 9).
+  // "✔ klaar" alleen als niemand meer bezig is en er niets meer te verbeteren valt.
+  const teller = (n, tekst, cls = '') => `<span class="tag ${cls}${n ? '' : ' nul'}">${n} ${tekst}</span>`;
   box.innerHTML = toon.map(a => `<div class="pf-afname">
-      <button class="play" data-file="${esc(a.file)}">${esc(a.title)} <span class="muted">· ${new Date(a.datum).toLocaleDateString('nl-BE', { day: 'numeric', month: 'short' })} · ${a.leerlingen} ${a.leerlingen === 1 ? 'leerling ingeleverd' : 'leerlingen ingeleverd'}</span>
-      ${a.bezig ? `<span class="tag bezig">✏️ ${a.bezig} bezig</span>` : ''}
-      <span class="tag ${a.klaar && !a.open ? 'ok' : 'todo'}">${a.open ? `${a.open} te verbeteren` : a.klaar ? '✔ klaar' : a.leerlingen ? 'nakijken' : 'nog niemand ingeleverd'}</span>
+      <button class="play" data-file="${esc(a.file)}">${esc(a.title)} <span class="muted">· ${new Date(a.datum).toLocaleDateString('nl-BE', { day: 'numeric', month: 'short' })}</span>
+      ${teller(a.leerlingen, 'klaar')}${a.leerlingen && !a.open && !a.bezig && !a.nog ? '<span class="tag ok">✔ alles verbeterd</span>'
+    : teller(a.bezig || 0, 'bezig', 'bezig') + (a.nog === undefined ? '' : teller(a.nog, 'nog niet')) + teller(a.open || 0, 'te verbeteren', 'todo')}
       ${a.gemaild ? `<span class="tag ok" title="Zoveel leerlingen kregen hun toets gemaild">✉ ${a.gemaild}</span>` : ''}
       <span class="pf-afname-ga">Verbeteren ▶</span></button>
       <button class="secondary small-btn" data-weg="${esc(a.file)}" title="Verwijderen" aria-label="Verwijderen">✕</button></div>`).join('');
@@ -902,7 +905,7 @@ function renderLive(prev) {
         <span class="n">${esc(p.name)}${lvl}</span>
         <span class="st">${ic} ${label}${p.online ? '' : ' · geen verbinding'}</span>
         <span class="bar"><i style="width:${p.vragen ? (p.gedaan / p.vragen) * 100 : 0}%"></i></span>
-        <span class="info">${p.gedaan}/${p.vragen} ingevuld${p.status === 'bezig' || p.status === 'weg' || p.status === 'slot' ? ` · vraag ${p.pos}` : ''}${p.rest !== null ? ` · ⏳ ${tijd(p.rest)}` : ''}${p.extra ? ` · +${p.extra} min` : ''}</span>
+        <span class="info">${p.gedaan} van ${p.vragen} ingevuld${p.status === 'bezig' || p.status === 'weg' || p.status === 'slot' ? ` · vraag ${p.pos}` : ''}${p.rest !== null ? ` · ⏳ ${tijd(p.rest)}` : ''}${p.extra ? ` · +${p.extra} min` : ''}</span>
         ${p.weg ? `<span class="weg" title="${esc(SOORT[p.laatste] || '')}">⚠ ${p.weg}× verlaten</span>` : ''}
         ${p.status === 'slot' ? '<button class="gold small-btn vrij">🔓 Vrijgeven</button>' : ''}
       </div>`;
@@ -1087,7 +1090,7 @@ function renderStand() {
   const binnen = new Map(afname.spelers.map((s, i) => [s.naam.trim().toLowerCase(), { s, i }]));
   for (const l of afnameLeerlingen || []) {
     if (l.status === 'klaar' && binnen.has(l.naam.trim().toLowerCase())) continue;
-    const tekst = `<b>${esc(l.naam)}</b> ${l.status === 'bezig' ? `✏️ bezig · ${l.gedaan}/${l.totaal}${l.voorlees ? ' 🔊' : ''}` : l.status === 'nieuw' ? '· nog niet begonnen' : '· ingeleverd'}`;
+    const tekst = `<b>${esc(l.naam)}</b> ${l.status === 'bezig' ? `✏️ bezig · ${l.gedaan} van ${l.totaal} gedaan${l.voorlees ? ' 🔊' : ''}` : l.status === 'nieuw' ? '· nog niet begonnen' : '· ingeleverd'}`;
     // Bezig: klik om live te zien wat hij al invulde.
     rijen.push(l.status === 'bezig'
       ? `<button type="button" class="pf-st bezig" data-live="${esc(l.naam)}" title="${l.elders ? `Werkt op ${esc(l.elders)}` : 'Bekijk wat hij al invulde'}">${tekst}</button>`
@@ -1111,7 +1114,7 @@ function leerlingLive(naam, stil) {
     if (res.error) { if (!stil) Ui.melding(res.error); return; }
     liveNaam = naam;
     const l = (afnameLeerlingen || []).find(x => x.naam === naam) || {};
-    $('d-name').textContent = `${res.naam} · ${res.status === 'klaar' ? 'ingeleverd' : `bezig · ${res.gedaan}/${res.totaal}`}${l.autoMax ? ` · al ${nl(l.punten)} van ${nl(l.autoMax)} punten` : ''}`;
+    $('d-name').textContent = `${res.naam} · ${res.status === 'klaar' ? 'ingeleverd' : `bezig · ${res.gedaan} van ${res.totaal} gedaan`}${l.autoMax ? ` · al ${nl(l.punten)} van ${nl(l.autoMax)} punten` : ''}`;
     const vl = !!l.voorlees;
     $('d-actions').innerHTML = `${res.status === 'bezig' && !res.elders ? `<button class="secondary${vl ? ' on' : ''}" data-a="voorlees">${vl ? '🔊 Voorlezen: aan' : '🔇 Voorlezen: uit'}</button>` : ''}<button class="secondary" data-a="sluit">Sluiten</button>`;
     for (const b of $('d-actions').querySelectorAll('button')) {
@@ -1284,7 +1287,7 @@ function renderAfname() {
     ${a.spelers.map((s, i) => {
       const st = standVan(s);
       return `<tr data-i="${i}"><td><button class="link">${esc(s.naam)}</button></td>${multi ? `<td>${Niveau.label(s.niveau)}</td>` : ''}<td>${nl(st.punten)} / ${nl(st.max)}</td><td>${st.max ? Math.round((st.punten / st.max) * 100) : 0}%</td><td>${st.open || '–'}</td><td>${(s.events || []).length ? `⚠ ${(s.events || []).length}×` : '–'}</td></tr>`;
-    }).join('')}${bezigNu.map(l => `<tr class="pf-bezig-rij"><td><button class="link" data-live="${esc(l.naam)}">${esc(l.naam)}</button></td>${multi ? '<td></td>' : ''}<td colspan="4">✏️ bezig · ${l.gedaan}/${l.totaal}${l.autoMax ? ` · al ${nl(l.punten)} van ${nl(l.autoMax)} punten` : ''}</td></tr>`).join('')}</table></div>`;
+    }).join('')}${bezigNu.map(l => `<tr class="pf-bezig-rij"><td><button class="link" data-live="${esc(l.naam)}">${esc(l.naam)}</button></td>${multi ? '<td></td>' : ''}<td colspan="4">✏️ bezig · ${l.gedaan} van ${l.totaal} gedaan${l.autoMax ? ` · al ${nl(l.punten)} van ${nl(l.autoMax)} punten` : ''}</td></tr>`).join('')}</table></div>`;
   for (const b of $('v-leerlingen').querySelectorAll('[data-live]')) b.addEventListener('click', () => leerlingLive(b.dataset.live));
   $('v-op').addEventListener('change', e => { puntenOp = e.target.value; });
   $('v-kopieer').addEventListener('click', () => {

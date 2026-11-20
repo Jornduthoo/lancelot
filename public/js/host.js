@@ -566,6 +566,8 @@ socket.on('pf-afnames', lijst => {
   const dagNaam = iso => new Date(iso).toLocaleDateString('nl-BE', { weekday: 'short', day: 'numeric', month: 'short' });
   const maak = (tag, cls, tekst) => { const e = document.createElement(tag); if (cls) e.className = cls; if (tekst !== undefined) e.textContent = tekst; return e; };
   const MAX_NAMEN = 8;
+  const LEEG_WEG = 'lancelot-vandaag-leeg-weg';
+  const vandaagDag = () => new Date().toDateString();
   function blok(id, items, rij) {
     const b = $(id);
     b.classList.toggle('hidden', !items.length);
@@ -579,7 +581,12 @@ socket.on('pf-afnames', lijst => {
       // Vandaag uitgezet: dan toont de gouden balk de toetsen weer.
       if (aan !== vandaagAan) { vandaagAan = aan; socket.emit('pf-afnames', null, l => socket.listeners('pf-afnames').forEach(f => f(l))); }
     }
-    if (!d || d.error || d.uit || d.leeg) return v.classList.add('hidden');
+    if (!d || d.error || d.uit) return v.classList.add('hidden');
+    // Niets te melden: één korte regel, zodat je ziet dat het werkt (verbeterpunten 20 nov, 10). ✕ verbergt hem voor vandaag.
+    const leegWeg = (() => { try { return localStorage.getItem(LEEG_WEG) === vandaagDag(); } catch { return false; } })();
+    v.classList.toggle('leeg', !!d.leeg);
+    $('vandaag-leeg').classList.toggle('hidden', !d.leeg);
+    if (d.leeg && leegWeg) return v.classList.add('hidden');
     v.classList.remove('hidden');
     blok('vandaag-verschijnt', d.verschijnt, t => {
       const li = maak('li');
@@ -637,6 +644,11 @@ socket.on('pf-afnames', lijst => {
   // Een nieuwe dag of een geplande taak die verscheen: om de vijf minuten even opnieuw kijken.
   setInterval(laad, 5 * 60000);
   $('vandaag-weg').addEventListener('click', async () => {
+    // De lege regel: alleen voor vandaag weg, de instelling blijft aan.
+    if ($('vandaag').classList.contains('leeg')) {
+      try { localStorage.setItem(LEEG_WEG, vandaagDag()); } catch {}
+      return $('vandaag').classList.add('hidden');
+    }
     if (!await Ui.vraag('"Vandaag" niet meer tonen op het startscherm? Je zet het terug aan bij Instellingen › Taken.', { ja: 'Verbergen', nee: 'Laten staan' })) return;
     socket.emit('vandaag-zet', false, () => laad());
   });

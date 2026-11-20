@@ -46,7 +46,8 @@ function vakjeTekst(v) {
   if (!v) return '–';
   if (v.inhalen && v.status === 'nieuw') return 'inhalen';
   if (v.status === 'nieuw') return '';
-  if (v.status === 'bezig') return (v.totaal ? `${v.gedaan}/${v.totaal}` : '…') + (v.elders ? ' 💻' : '');
+  // Hoe ver ("7 van 10"), nooit "7/10": dat is een punt (verbeterpunten 20 nov, 1).
+  if (v.status === 'bezig') return (v.totaal ? `${v.gedaan} van ${v.totaal}` : '…') + (v.elders ? ' 💻' : '');
   if (v.status === 'verbeteren') return v.max ? `${nl(v.punten)}/${nl(v.max)} ✎` : '✎';
   return v.max ? `${nl(v.punten)}/${nl(v.max)}` : '✔';
 }

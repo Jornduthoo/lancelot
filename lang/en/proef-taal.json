@@ -663,5 +663,12 @@
  "Die keuze bestaat niet.": "That choice does not exist.",
  "Welke toets?": "Which test?",
  "{0} (op {1})": "{0} (out of {1})",
- "Gemiddelde (op {0})": "Average (out of {0})"
+ "Gemiddelde (op {0})": "Average (out of {0})",
+ "· niets gepland · niets te verbeteren ✓": "· nothing planned · nothing to correct ✓",
+ "✔ alles verbeterd": "✔ all corrected",
+ "{0} van {1} ingevuld{2}{3}{4}": "{0} of {1} filled in{2}{3}{4}",
+ "✏️ bezig · {0} van {1} gedaan{2}": "✏️ working · {0} of {1} done{2}",
+ "bezig · {0} van {1} gedaan": "working · {0} of {1} done",
+ "{0} klaar": "{0} done",
+ "{0} nog niet": "{0} not yet"
 }

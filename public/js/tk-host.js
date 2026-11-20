@@ -12,6 +12,7 @@ const el = (tag, cls, text) => {
 };
 const datum = iso => new Date(iso).toLocaleDateString('nl-BE', { weekday: 'short', day: 'numeric', month: 'short' });
 
+const TK_TAB = 'lancelot-tk-tab';
 const tk = { soort: 'oefenblad', bronnen: null, meer: null, klas: [], gekozen: new Set(), per: {}, eigen: null, vak: null, zorg: null, taken: [], detail: null, erbij: null, vb: null };
 
 // Komt de leerkracht van het zorgoverzicht of een lijst, dan staat de keuze al klaar (?namen=a|b, ?soort=…&file=…).
@@ -197,7 +198,6 @@ for (const b of document.querySelectorAll('.tk-soort button')) {
   b.addEventListener('click', () => {
     if (tk.soort === b.dataset.soort) return;
     tk.soort = b.dataset.soort;
-    tk.tab = tk.soort;
     vraag.delete('file');
     vulBron();
     tekenTaken();
@@ -512,11 +512,12 @@ function verschil(t) {
 function tekenTaken() {
   const box = $('tk-taken');
   const alle = tk.taken.filter(t => !t.dicht);
-  if (tk.tab === undefined) tk.tab = tk.soort;
+  // Standaard Alles, of het tabje dat de leerkracht het laatst koos (verbeterpunten 20 nov, 5).
+  if (tk.tab === undefined) { try { tk.tab = localStorage.getItem(TK_TAB) || ''; } catch { tk.tab = ''; } }
   for (const b of $('tk-tabjes').querySelectorAll('button')) b.classList.toggle('on', b.dataset.tab === tk.tab);
   // Alleen de soort van het tabje: Oefenbladen toont de gegeven oefenbladen, Toetsen de gegeven toetsen.
   const lijst = tk.taken.filter(t => !tk.tab || t.soort === tk.tab);
-  $('tk-gegeven-kop').textContent = tk.tab === 'quiz' ? 'Gegeven quizzen' : tk.tab === 'proef' ? 'Gegeven toetsen' : tk.tab === 'oefenblad' ? 'Gegeven oefenbladen' : 'Gegeven taken';
+  $('tk-gegeven-kop').textContent = 'Gegeven taken';
   $('tk-geen').classList.toggle('hidden', lijst.length > 0);
   $('tk-geen').textContent = tk.tab === 'quiz' ? 'Nog geen quizzen gegeven.' : tk.tab === 'proef' ? 'Nog geen toetsen gegeven.' : tk.tab === 'oefenblad' ? 'Nog geen oefenbladen gegeven.' : 'Nog geen taken gegeven.';
   box.innerHTML = '';
@@ -530,7 +531,12 @@ function tekenTaken() {
     p.append(el('strong', '', `✏️ Nu bezig (${nu.length})`));
     const rij = el('div', 'tk-nu-rij');
     for (const { t, l } of nu) {
-      const b = el('button', 'tk-nu-ll', `${l.naam} · ${t.titel} · ${l.gedaan}/${l.totaal}`);
+      // Hoe ver de leerling is, als "7 van 10 gedaan" met een balkje: "7/10" lijkt op een punt.
+      const b = el('button', 'tk-nu-ll', `${l.naam} · ${t.titel} · `);
+      b.append(el('span', '', `${l.gedaan} van ${l.totaal} gedaan`));
+      const balk = el('span', 'tk-ll-balk tk-nu-balk');
+      balk.appendChild(el('i')).style.width = `${l.totaal ? (l.gedaan / l.totaal) * 100 : 0}%`;
+      b.append(balk);
       b.type = 'button';
       if (l.elders) b.title = `Werkt op ${l.elders}`;
       b.addEventListener('click', () => toonDetail(t.id, l.naam));
@@ -649,7 +655,7 @@ function kaart(t) {
     const toetsPunten = t.soort === 'proef' && l.autoMax ? `${PfPaper.nl(l.punten)}/${PfPaper.nl(l.autoMax)}${l.hand ? ' + ?' : ''}` : '';
     const stand = l.status === 'klaar'
       ? (toetsPunten || (l.score ? `${l.juist}/${l.score}` : '✔'))
-      : l.status === 'bezig' ? `${l.gedaan}/${l.totaal}` : l.afwezig ? 'inhalen' : l.wacht ? '⏭ wacht' : '–';
+      : l.status === 'bezig' ? `${l.gedaan} van ${l.totaal}` : l.afwezig ? 'inhalen' : l.wacht ? '⏭ wacht' : '–';
     const pct = l.status === 'klaar' && t.soort === 'proef' && l.autoMax ? l.punten / l.autoMax : l.status === 'klaar' && l.score ? l.juist / l.score : null;
     const s = el('span', `tk-ll-stand${pct === null ? '' : pct >= .8 ? ' hoog' : pct < .5 ? ' laag' : ''}`, stand);
     const balk = el('span', 'tk-ll-balk');
@@ -668,7 +674,7 @@ function uit(res) {
 }
 
 // Tabjes Alles / Oefenbladen / Quizzen / Toetsen: volgen de soort die je bovenaan kiest, of kies zelf.
-for (const b of $('tk-tabjes').querySelectorAll('button')) b.addEventListener('click', () => { tk.tab = b.dataset.tab; tekenTaken(); });
+for (const b of $('tk-tabjes').querySelectorAll('button')) b.addEventListener('click', () => { tk.tab = b.dataset.tab; try { localStorage.setItem(TK_TAB, tk.tab); } catch {} tekenTaken(); });
 // Oude taken opruimen: afsluiten (ze blijven bij Afgesloten).
 $('tk-opruimen').addEventListener('click', async () => {
   const grens = Date.now() - 7 * 864e5;
@@ -930,7 +936,8 @@ socket.on('connect', () => {
     if (openNaam) {
       const t = tk.taken.find(x => x.id === openNaam.id);
       if (t && t.soort !== tk.soort) {
-        tk.soort = tk.tab = t.soort;
+        tk.soort = t.soort;
+        tk.tab = '';
         if (tk.bronnen) vulBron();
         else for (const b of document.querySelectorAll('.tk-soort button')) b.classList.toggle('on', b.dataset.soort === tk.soort);
       }
