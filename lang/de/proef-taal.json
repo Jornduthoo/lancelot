@@ -711,5 +711,12 @@
  "Toon alle afnames ({0})": "Alle Durchführungen zeigen ({0})",
  "Een toets maakt de leerling zoals bij De Proef: vraag per vraag, zonder te zien wat juist is. Wat ingeleverd is, verbeter je bij Toetsen › Afnames en verbeteren.": "Ein Test läuft wie bei De Proef: Frage für Frage, ohne zu sehen, was richtig ist. Was abgegeben ist, korrigierst du unter Tests › Durchführungen und Korrigieren.",
  "Na het inleveren verbeter je deze toets bij Toetsen › Afnames en verbeteren.": "Nach der Abgabe korrigierst du diesen Test unter Tests › Durchführungen und Korrigieren.",
- "De namen tonen of verbergen": "Namen zeigen oder ausblenden"
+ "De namen tonen of verbergen": "Namen zeigen oder ausblenden",
+ "Een punt onder deze grens kleurt rood": "Eine Punktzahl unter dieser Grenze wird rot",
+ "Rood onder": "Rot unter",
+ "Alleen toetsen. Een herkansing telt alleen als jij dat zegt: met ↻ Herkansing geven of bij Meer ▾. Per toets kies je wat telt. Het gemiddelde rekent met wat telt; ! = nog te verbeteren.": "Nur Tests. Eine Wiederholung zählt nur, wenn du es sagst: mit ↻ Wiederholung geben oder unter Mehr ▾. Pro Test wählst du, was zählt. Der Durchschnitt nutzt, was zählt; ! = noch zu korrigieren.",
+ "klaar, onder 50%": "fertig, unter 50 %",
+ "klaar, onder {0}%": "fertig, unter {0} %",
+ "Dezelfde toets nog eens geven, met {0} al aangetikt (onder {1}%)": "Denselben Test noch einmal geben, mit {0} schon angetippt (unter {1} %)",
+ "(te verbeteren)": "(zu korrigieren)"
 }

@@ -69,14 +69,19 @@
         <option value="20">20</option>
         <option value="100">100</option>
       </select></label>
+      <label title="Een punt onder deze grens kleurt rood">Rood onder <select id="op-grens">
+        <option value="50" selected>50%</option>
+        <option value="60">60%</option>
+      </select></label>
       <button type="button" class="secondary hidden" id="op-kopieer" title="De punten kopiëren, om in Excel of je rapport te plakken">📋 Kopieer</button>
     </div>
-    <p class="muted small hidden" id="op-punten-uitleg">Alleen toetsen. Een herkansing telt alleen als jij dat zegt: met ↻ Herkansing geven of bij Meer ▾. Per toets kies je wat telt. Het gemiddelde rekent met wat telt; ✎ = nog te verbeteren.</p>
+    <p class="muted small hidden" id="op-punten-uitleg">Alleen toetsen. Een herkansing telt alleen als jij dat zegt: met ↻ Herkansing geven of bij Meer ▾. Per toets kies je wat telt. Het gemiddelde rekent met wat telt; ! = nog te verbeteren.</p>
     <div class="op-legende" id="op-legende">
-      <span class="op-v nieuw"></span> nog niet begonnen
-      <span class="op-v bezig"></span> bezig
-      <span class="op-v verbeteren"></span> te verbeteren
-      <span class="op-v klaar"></span> klaar
+      <span class="op-v nieuw">○</span> nog niet begonnen
+      <span class="op-v bezig">✎</span> bezig
+      <span class="op-v verbeteren">!</span> te verbeteren
+      <span class="op-v klaar">✔</span> klaar
+      <span class="op-v klaar laag">✔</span> <span id="op-grens-tekst">klaar, onder 50%</span>
       <span class="op-v niet">–</span> niet voor deze leerling
     </div>
     <div class="op-wrap" id="op-wrap"></div>

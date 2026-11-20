@@ -1,5 +1,5 @@
 // Mijn klas › Opvolgen: leerlingen × taken en toetsen in één tabel (src/opvolgen.js).
-// Grijs = nog niet begonnen, geel = bezig, blauw = te verbeteren, groen = klaar (met punt), – = niet voor deze leerling.
+// ○ grijs = nog niet begonnen, ✎ geel = bezig, ! blauw = te verbeteren, groen = klaar (rood onder de grens), – = niet voor deze leerling.
 const socket = io({ query: { role: 'host' } });
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -20,7 +20,14 @@ try {
   if (f.op && $('op-op').querySelector(`option[value="${f.op}"]`)) $('op-op').value = f.op;
   for (const k of ['periode', 'soort']) if (f[k] !== undefined && $(`op-${k}`).querySelector(`option[value="${f[k]}"]`)) $(`op-${k}`).value = f[k];
   if (f.vak) $('op-vak').dataset.wil = f.vak;
+  if (f.grens && $('op-grens').querySelector(`option[value="${f.grens}"]`)) $('op-grens').value = f.grens;
 } catch {}
+// Onder deze grens kleurt een vakje rood (instelbaar: 50 % of 60 %, verbeterpunten 20 nov, 3).
+const grens = () => Number($('op-grens').value) / 100 || .5;
+const kleur = p => (p >= .8 ? ' hoog' : p < grens() ? ' laag' : '');
+function tekenLegende() {
+  $('op-grens-tekst').textContent = `klaar, onder ${$('op-grens').value}%`;
+}
 
 function maandag(d) {
   const x = new Date(d);
@@ -45,10 +52,11 @@ function inPeriode(dag) {
 function vakjeTekst(v) {
   if (!v) return '–';
   if (v.inhalen && v.status === 'nieuw') return 'inhalen';
-  if (v.status === 'nieuw') return '';
+  // Een teken per stand, ook zonder kleur te lezen: ○ nog niet, ✎ bezig, ! te verbeteren (verbeterpunten 20 nov, 3).
+  if (v.status === 'nieuw') return '○';
   // Hoe ver ("7 van 10"), nooit "7/10": dat is een punt (verbeterpunten 20 nov, 1).
-  if (v.status === 'bezig') return (v.totaal ? `${v.gedaan} van ${v.totaal}` : '…') + (v.elders ? ' 💻' : '');
-  if (v.status === 'verbeteren') return v.max ? `${nl(v.punten)}/${nl(v.max)} ✎` : '✎';
+  if (v.status === 'bezig') return '✎ ' + (v.totaal ? `${v.gedaan} van ${v.totaal}` : '…') + (v.elders ? ' 💻' : '');
+  if (v.status === 'verbeteren') return v.max ? `! ${nl(v.punten)}/${nl(v.max)}` : '!';
   return v.max ? `${nl(v.punten)}/${nl(v.max)}` : '✔';
 }
 function vakjeTitel(naam, k, v) {
@@ -75,10 +83,10 @@ function teken() {
   vakSel.value = vakken.includes(wil) ? wil : '';
   delete vakSel.dataset.wil;
   vakSel.parentElement.classList.toggle('hidden', !vakken.length);
-  try { localStorage.setItem(BEWAAR, JSON.stringify({ periode: $('op-periode').value, soort: $('op-soort').value, vak: vakSel.value, modus, op: $('op-op').value })); } catch {}
+  try { localStorage.setItem(BEWAAR, JSON.stringify({ periode: $('op-periode').value, soort: $('op-soort').value, vak: vakSel.value, modus, op: $('op-op').value, grens: $('op-grens').value })); } catch {}
+  tekenLegende();
   for (const b of document.querySelectorAll('.op-modus button')) b.classList.toggle('on', b.dataset.modus === modus);
   for (const id of ['op-op-label', 'op-kopieer', 'op-punten-uitleg']) $(id).classList.toggle('hidden', modus !== 'punten');
-  $('op-legende').classList.toggle('hidden', modus === 'punten');
   $('op-soort').parentElement.classList.toggle('hidden', modus === 'punten');
   if (modus === 'punten') return tekenPunten(vakSel.value);
 
@@ -108,7 +116,7 @@ function teken() {
       if (v && (v.status === 'nieuw' || v.status === 'bezig')) open++;
       if (!v) return '<td class="op-v niet" title="' + esc(vakjeTitel(r.naam, k, v)) + '">–</td>';
       const pct = v.max ? v.punten / v.max : null;
-      return `<td class="op-v ${v.status}${v.inhalen ? ' inhalen' : ''}${pct !== null && v.status === 'klaar' ? (pct >= .8 ? ' hoog' : pct < .5 ? ' laag' : '') : ''}" title="${esc(vakjeTitel(r.naam, k, v))}"><a href="${doel(k, r.naam, v)}">${esc(vakjeTekst(v))}</a></td>`;
+      return `<td class="op-v ${v.status}${v.inhalen ? ' inhalen' : ''}${pct !== null && v.status === 'klaar' ? kleur(pct) : ''}" title="${esc(vakjeTitel(r.naam, k, v))}"><a href="${doel(k, r.naam, v)}">${esc(vakjeTekst(v))}</a></td>`;
     }).join('');
     return `<tr><th class="op-naam" scope="row">${esc(r.naam)}<span class="op-open${open ? '' : ' nul'}">${open ? `nog ${open} open` : '✔ alles af'}</span></th>${cellen}</tr>`;
   }).join('');
@@ -184,12 +192,12 @@ function tekenPunten(vak) {
   };
   const kop = zicht.map(([id, ks]) => {
     const herk = ks.length - 1;
-    const laag = rijen.filter(r => { const u = uitkomst(ks, r.naam); const t = telt(u.pog, keuze(id)); return t && t.punten / t.max < .5; }).map(r => r.naam);
+    const laag = rijen.filter(r => { const u = uitkomst(ks, r.naam); const t = telt(u.pog, keuze(id)); return t && t.punten / t.max < grens(); }).map(r => r.naam);
     return `<th class="op-kol op-pt-kol" title="${esc(ks[0].titel)}">
       <a href="${ks[ks.length - 1].afname ? `/proef?verbeter=${encodeURIComponent(ks[ks.length - 1].afname)}` : '/taken?soort=proef'}"><span class="op-kol-titel">📝 ${esc(ks[0].titel)}</span>
       <span class="op-kol-dag">${esc(ks.map(k => dagTekst(k.dag)).join(' · '))}${ks[0].vak ? ` · ${esc(ks[0].vak)}` : ''}</span></a>
       ${herk ? `<label class="op-telt">🔁 ${herk === 1 ? '1 herkansing' : `${herk} herkansingen`}, telt: <select data-toets="${esc(id)}">${Object.entries(TELT).map(([w, t]) => `<option value="${w}"${keuze(id) === w ? ' selected' : ''}>${esc(t)}</option>`).join('')}</select></label>` : ''}
-      ${ks[0].toets ? `<a class="op-herk" href="/taken?soort=proef&file=${encodeURIComponent(ks[0].toets)}&herkansing=${encodeURIComponent(id)}${laag.length ? `&namen=${encodeURIComponent(laag.join('|'))}` : ''}" title="${esc(laag.length ? `Dezelfde toets nog eens geven, met ${laag.join(', ')} al aangetikt (minder dan de helft)` : 'Dezelfde toets nog eens geven')}">↻ Herkansing geven</a>` : ''}
+      ${ks[0].toets ? `<a class="op-herk" href="/taken?soort=proef&file=${encodeURIComponent(ks[0].toets)}&herkansing=${encodeURIComponent(id)}${laag.length ? `&namen=${encodeURIComponent(laag.join('|'))}` : ''}" title="${esc(laag.length ? `Dezelfde toets nog eens geven, met ${laag.join(', ')} al aangetikt (onder ${$('op-grens').value}%)` : 'Dezelfde toets nog eens geven')}">↻ Herkansing geven</a>` : ''}
       <details class="op-meer"><summary>Meer ▾</summary>
         ${ks.slice(1).map(k => `<button type="button" class="op-geen" data-geen="${esc(k.id)}">✕ ${esc(dagTekst(k.dag))}: dit is geen herkansing</button>`).join('')}
         <label>🔗 Herkansing van: <select data-herk="${esc(id)}"><option value="">geen (een eigen toets)</option>${andere(id).map(([g, t]) => `<option value="${esc(g)}"${herk[id] === g ? ' selected' : ''}>${esc(t)}</option>`).join('')}</select></label>
@@ -205,7 +213,7 @@ function tekenPunten(vak) {
       const t = telt(u.pog, keuze(id));
       if (!t) {
         tsv.push('');
-        return `<td class="op-v ${u.bezig ? 'bezig' : u.voor ? 'nieuw' : 'niet'}">${u.bezig ? '…' : u.voor ? '' : '–'}</td>`;
+        return `<td class="op-v ${u.bezig ? 'bezig' : u.voor ? 'nieuw' : 'niet'}">${u.bezig ? '✎' : u.voor ? '○' : '–'}</td>`;
       }
       const p = t.punten / t.max;
       pct.push(p);
@@ -214,15 +222,15 @@ function tekenPunten(vak) {
       // Voor Excel: met een totaal alleen het getal (de kop zegt "op 10"), anders "7 / 10" (geen datum).
       tsv.push(op ? nl(omreken(t.punten, t.max)) : tekst.replace('/', ' / '));
       const meer = u.pog.length > 1;
-      const titel = `${r.naam} · ${ks[0].titel}: ${u.pog.map(x => `${dagTekst(x.dag)} ${nl(omreken(x.punten, x.max))}/${nl(totaal(x.max))}${x.open ? ' ✎' : ''}`).join(' · ')}${meer ? ` → telt: ${TELT[keuze(id)]}` : ''}`;
+      const titel = `${r.naam} · ${ks[0].titel}: ${u.pog.map(x => `${dagTekst(x.dag)} ${nl(omreken(x.punten, x.max))}/${nl(totaal(x.max))}${x.open ? ' (te verbeteren)' : ''}`).join(' · ')}${meer ? ` → telt: ${TELT[keuze(id)]}` : ''}`;
       const laatste = u.pog[u.pog.length - 1].k;
-      return `<td class="op-v ${t.open || u.pog.some(x => x.open) ? 'verbeteren' : 'klaar'}${p >= .8 ? ' hoog' : p < .5 ? ' laag' : ''}" title="${esc(titel)}"><a href="/proef?verbeter=${encodeURIComponent(laatste.afname || '')}&leerling=${encodeURIComponent(r.naam)}">${esc(tekst)}${u.pog.some(x => x.open) ? ' ✎' : ''}${meer ? ' 🔁' : ''}</a></td>`;
+      return `<td class="op-v ${t.open || u.pog.some(x => x.open) ? 'verbeteren' : 'klaar'}${t.open || u.pog.some(x => x.open) ? '' : kleur(p)}" title="${esc(titel)}"><a href="/proef?verbeter=${encodeURIComponent(laatste.afname || '')}&leerling=${encodeURIComponent(r.naam)}">${u.pog.some(x => x.open) ? '! ' : ''}${esc(tekst)}${meer ? ' 🔁' : ''}</a></td>`;
     }).join('');
     const gem = pct.length ? pct.reduce((a, b) => a + b, 0) / pct.length : null;
     const gemTekst = gem === null ? '–' : op ? `${nl(gem * op)}/${op}` : `${Math.round(gem * 100)}%`;
     tsv.push(gem === null ? '' : op ? nl(gem * op) : gemTekst);
     puntenTabel.push(tsv);
-    return `<tr><th class="op-naam" scope="row">${esc(r.naam)}</th>${cellen}<td class="op-gem${gem === null ? '' : gem >= .8 ? ' hoog' : gem < .5 ? ' laag' : ''}">${esc(gemTekst)}</td></tr>`;
+    return `<tr><th class="op-naam" scope="row">${esc(r.naam)}</th>${cellen}<td class="op-gem${gem === null ? '' : kleur(gem)}">${esc(gemTekst)}</td></tr>`;
   }).join('');
   const klasGem = perKol.map(l => (l.length ? l.reduce((a, b) => a + b, 0) / l.length : null));
   const onder = `<tr class="op-klasgem"><th class="op-naam" scope="row">Klasgemiddelde</th>${klasGem.map(g => `<td>${g === null ? '–' : op ? `${nl(g * op)}/${op}` : `${Math.round(g * 100)}%`}</td>`).join('')}<td></td></tr>`;
@@ -257,7 +265,7 @@ function laad() {
     teken();
   });
 }
-for (const id of ['op-periode', 'op-soort', 'op-vak']) $(id).addEventListener('change', teken);
+for (const id of ['op-periode', 'op-soort', 'op-vak', 'op-grens']) $(id).addEventListener('change', teken);
 socket.on('connect', laad);
 // Live: een leerling werkt, levert in, of je verbeterde (ook op een andere pc).
 let timer = null;
