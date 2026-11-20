@@ -661,5 +661,7 @@
  "De puntenlijst staat klaar om te plakken, in Excel of in je rapport.": "The points list is ready to paste, in Excel or your report.",
  "{0} - punten.csv": "{0} - points.csv",
  "Die keuze bestaat niet.": "That choice does not exist.",
- "Welke toets?": "Which test?"
+ "Welke toets?": "Which test?",
+ "{0} (op {1})": "{0} (out of {1})",
+ "Gemiddelde (op {0})": "Average (out of {0})"
 }

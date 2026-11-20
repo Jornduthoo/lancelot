@@ -661,5 +661,7 @@
  "De puntenlijst staat klaar om te plakken, in Excel of in je rapport.": "La liste des points est prête à être collée, dans Excel ou votre bulletin.",
  "{0} - punten.csv": "{0} - points.csv",
  "Die keuze bestaat niet.": "Ce choix n'existe pas.",
- "Welke toets?": "Quel contrôle ?"
+ "Welke toets?": "Quel contrôle ?",
+ "{0} (op {1})": "{0} (sur {1})",
+ "Gemiddelde (op {0})": "Moyenne (sur {0})"
 }
