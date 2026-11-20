@@ -198,3 +198,38 @@ test('toetsmail: foutmeldingen zeggen wat er mis is en wat je moet doen', async 
   await run(`return M.zetAfzender({ van: 'jorn@example.com', pass: 'geheim', host: '127.0.0.1', port: ${vrij} });`);
   assert.match((await run(`return M.test({ onveilig: true });`)).fout, /raakt niet bij de mailserver.*ECONNREFUSED/);
 });
+
+test('toetsmail: adressen en mailbox syncen via Mijn lesmap, het app-wachtwoord nooit', async () => {
+  const a = fs.mkdtempSync(path.join(os.tmpdir(), 'toetsmail-pcA-'));
+  const b = fs.mkdtempSync(path.join(os.tmpdir(), 'toetsmail-pcB-'));
+  const runA = runner(a), runB = runner(b);
+  await runA(`M.zetAfzender({ van: 'jorn@example.com', pass: 'geheimwachtwoord', naam: 'Jorn' });
+    M.zetLeerling('Testkind', { adres1: 'gon@example.be', adres2: 'ouder@example.be', aan: true });
+    M.zetLeerling('Ada', { adres1: 'zorg@example.be', aan: false });
+    M.naarLesmap(); return true;`);
+  const bestand = path.join(a, 'toetsmail-lesmap', 'adressen.json');
+  const tekst = fs.readFileSync(bestand, 'utf8');
+  assert.equal(tekst.includes('geheimwachtwoord'), false);
+  // Mijn lesmap brengt het bestand naar pc B.
+  fs.mkdirSync(path.join(b, 'toetsmail-lesmap'), { recursive: true });
+  fs.writeFileSync(path.join(b, 'toetsmail-lesmap', 'adressen.json'), tekst);
+  assert.equal(await runB(`return M.uitLesmap();`), true);
+  const v = await runB(`return M.view();`);
+  assert.equal(v.van, 'jorn@example.com');
+  assert.equal(v.heeftPass, false);
+  assert.equal(v.klaar, false);
+  assert.equal(v.adressen.testkind, 'gon@example.be, ouder@example.be');
+  assert.equal(v.uit.ada, true);
+  // Op pc B het wachtwoord invullen en een adres wissen; pc A past intussen Testkind aan (later = wint).
+  await new Promise(r => setTimeout(r, 20));
+  await runB(`M.zetAfzender({ van: 'jorn@example.com', pass: 'ookgeheim', naam: 'Jorn' }); M.zetLeerling('Ada', { adres1: '' }); M.naarLesmap(); return true;`);
+  await new Promise(r => setTimeout(r, 20));
+  await runA(`M.zetLeerling('Testkind', { adres1: 'nieuw@example.be', aan: true }); M.naarLesmap(); return true;`);
+  const samen = await runA(`return M.lesmapSamen(require('fs').readFileSync(${JSON.stringify(bestand)}, 'utf8'), require('fs').readFileSync(${JSON.stringify(path.join(b, 'toetsmail-lesmap', 'adressen.json'))}, 'utf8'));`);
+  fs.writeFileSync(path.join(b, 'toetsmail-lesmap', 'adressen.json'), samen);
+  await runB(`return M.uitLesmap();`);
+  const v2 = await runB(`return M.view();`);
+  assert.equal(v2.adressen.testkind, 'nieuw@example.be');
+  assert.equal(v2.adressen.ada, undefined);
+  assert.equal(v2.klaar, true, 'het wachtwoord van pc B blijft staan');
+});
