@@ -1915,6 +1915,7 @@ io.on('connection', socket => {
     socket.on('tk-weg', taak(taken.haalWeg));
     socket.on('tk-niveau', taak(taken.zetNiveau));
     socket.on('tk-sluit', taak(arg => taken.sluit(arg.id)));
+    socket.on('tk-opruimen', taak(arg => taken.ruimOp(arg)));
     socket.on('tk-start', taak(taken.startNu));
     socket.on('tk-heropen', taak(taken.heropen));
     // Voorlezen aan of uit voor één leerling bij een toets als taak: zijn scherm past zich meteen aan.

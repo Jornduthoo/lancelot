@@ -594,5 +594,17 @@
  "Volgens je standaard": "Following your default",
  "(je veranderde hier iets)": "(you changed something here)",
  "Ongeldige standaard.": "Invalid default.",
- "Aanpassen": "Change"
+ "Aanpassen": "Change",
+ "Open taken van meer dan een week geleden afsluiten. Ze blijven bij Afgesloten.": "Close open tasks from more than a week ago. They stay under Closed.",
+ "🧹 Oude taken opruimen": "🧹 Tidy up old tasks",
+ "Gepland later": "Planned later",
+ "Afgelopen (nog open)": "Past (still open)",
+ "Afgesloten": "Closed",
+ "Dichtklappen of openklappen": "Collapse or expand",
+ "Er zijn geen oude taken om op te ruimen: aan de open taken van vorige week werkt nog iemand.": "There are no old tasks to tidy up: someone is still working on last week's open tasks.",
+ "Er zijn geen open taken van meer dan een week geleden.": "There are no open tasks from more than a week ago.",
+ "{0} van meer dan een week geleden afsluiten? Ze blijven bij Afgesloten, met alles wat de leerlingen deden.{1}": "Close {0} from more than a week ago? They stay under Closed, with everything the pupils did.{1}",
+ "1 taak": "1 task",
+ "1 taak blijft open: daar werkt nog iemand aan.": "1 task stays open: someone is still working on it.",
+ "{0} taken blijven open: daar werkt nog iemand aan.": "{0} tasks stay open: someone is still working on them."
 }

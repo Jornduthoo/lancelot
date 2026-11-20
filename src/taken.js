@@ -484,6 +484,21 @@ function sluit(id) {
   save();
 }
 
+// Oude taken opruimen: open taken van meer dan `dagen` geleden afsluiten. Ze blijven bij Afgesloten (niets gaat weg).
+// Een taak waar nog iemand aan bezig is, laten we open: die leerling werkt misschien nog verder.
+function ruimOp({ dagen = 7 } = {}) {
+  const grens = Date.now() - Math.max(1, Number(dagen) || 7) * 864e5;
+  let n = 0, bezig = 0;
+  for (const t of all()) {
+    if (t.dicht || !zichtbaar(t) || Date.parse(t.vanaf || t.gemaakt) >= grens) continue;
+    if (Object.values(t.werk).some(w => w.status === 'bezig')) { bezig++; continue; }
+    t.dicht = true;
+    n++;
+  }
+  if (n) save();
+  return { n, bezig };
+}
+
 // Weer openzetten: voor één leerling (die werkt verder met wat er al stond) of de hele taak.
 // Met opnieuw begint die leerling met een leeg blad; bij een toets gaat zijn vorige inzending uit de afname.
 function heropen({ id, naam, opnieuw } = {}) {
@@ -959,4 +974,4 @@ function soloAntwoord({ id, naam, i, keuze, juist } = {}) {
   return { klaar, ...voortgang(t, w) };
 }
 
-module.exports = { toetsLeerlingen, standen, toetsAntwoord, zetVoorlees, zetAfwezig, naarLesmapStand, standGeldig, get STAND() { return STAND(); }, PC, set bijAfname(fn) { bijAfname = fn; }, lesVan, gestartSinds, startNu, get PLAN() { return PLAN(); }, planGeldig, uitLesmap, SOLO, MINUTEN, soloRonde, soloAntwoord, voorbeeld, inhoud, maak, voegToe, haalWeg, zetNiveau, sluit, heropen, wis, lijst, detail, mijn, aantal, open, antwoord, inleveren, quizAntwoord, flush, get DIR() { return DIR(); } };
+module.exports = { ruimOp, toetsLeerlingen, standen, toetsAntwoord, zetVoorlees, zetAfwezig, naarLesmapStand, standGeldig, get STAND() { return STAND(); }, PC, set bijAfname(fn) { bijAfname = fn; }, lesVan, gestartSinds, startNu, get PLAN() { return PLAN(); }, planGeldig, uitLesmap, SOLO, MINUTEN, soloRonde, soloAntwoord, voorbeeld, inhoud, maak, voegToe, haalWeg, zetNiveau, sluit, heropen, wis, lijst, detail, mijn, aantal, open, antwoord, inleveren, quizAntwoord, flush, get DIR() { return DIR(); } };

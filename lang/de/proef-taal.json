@@ -594,5 +594,17 @@
  "Volgens je standaard": "Nach deinem Standard",
  "(je veranderde hier iets)": "(du hast hier etwas geändert)",
  "Ongeldige standaard.": "Ungültiger Standard.",
- "Aanpassen": "Ändern"
+ "Aanpassen": "Ändern",
+ "Open taken van meer dan een week geleden afsluiten. Ze blijven bij Afgesloten.": "Offene Aufgaben von vor über einer Woche abschließen. Sie bleiben unter Abgeschlossen.",
+ "🧹 Oude taken opruimen": "🧹 Alte Aufgaben aufräumen",
+ "Gepland later": "Später geplant",
+ "Afgelopen (nog open)": "Vorbei (noch offen)",
+ "Afgesloten": "Abgeschlossen",
+ "Dichtklappen of openklappen": "Zuklappen oder aufklappen",
+ "Er zijn geen oude taken om op te ruimen: aan de open taken van vorige week werkt nog iemand.": "Keine alten Aufgaben zum Aufräumen: an den offenen Aufgaben der letzten Woche arbeitet noch jemand.",
+ "Er zijn geen open taken van meer dan een week geleden.": "Es gibt keine offenen Aufgaben von vor über einer Woche.",
+ "{0} van meer dan een week geleden afsluiten? Ze blijven bij Afgesloten, met alles wat de leerlingen deden.{1}": "{0} von vor über einer Woche abschließen? Sie bleiben unter Abgeschlossen, mit allem, was die Kinder gemacht haben.{1}",
+ "1 taak": "1 Aufgabe",
+ "1 taak blijft open: daar werkt nog iemand aan.": "1 Aufgabe bleibt offen: daran arbeitet noch jemand.",
+ "{0} taken blijven open: daar werkt nog iemand aan.": "{0} Aufgaben bleiben offen: daran arbeitet noch jemand."
 }

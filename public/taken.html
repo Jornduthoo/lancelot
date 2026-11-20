@@ -149,7 +149,13 @@
   <section class="tk-lopend">
     <div class="bar">
       <h2 id="tk-gegeven-kop">Gegeven taken</h2>
-      <label class="inline tk-toon-dicht"><input type="checkbox" id="tk-toon-dicht"> Afgesloten taken tonen</label>
+      <button type="button" class="secondary tk-mini" id="tk-opruimen" title="Open taken van meer dan een week geleden afsluiten. Ze blijven bij Afgesloten.">🧹 Oude taken opruimen</button>
+    </div>
+    <div class="tk-tabjes" id="tk-tabjes" role="tablist">
+      <button type="button" data-tab="">Alles</button>
+      <button type="button" data-tab="oefenblad">Oefenbladen</button>
+      <button type="button" data-tab="quiz">Quizzen</button>
+      <button type="button" data-tab="proef">Toetsen</button>
     </div>
     <div id="tk-taken"></div>
     <p class="muted" id="tk-geen">Nog geen taken gegeven.</p>

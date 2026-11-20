@@ -197,6 +197,7 @@ for (const b of document.querySelectorAll('.tk-soort button')) {
   b.addEventListener('click', () => {
     if (tk.soort === b.dataset.soort) return;
     tk.soort = b.dataset.soort;
+    tk.tab = tk.soort;
     vraag.delete('file');
     vulBron();
     tekenTaken();
@@ -510,14 +511,14 @@ function verschil(t) {
 
 function tekenTaken() {
   const box = $('tk-taken');
-  const toon = $('tk-toon-dicht').checked;
-  const alle = tk.taken.filter(t => toon || !t.dicht);
-  // Alleen de soort die je bovenaan koos: Oefenblad toont de gegeven oefenbladen, Toets de gegeven toetsen.
-  const lijst = alle.filter(t => t.soort === tk.soort);
-  $('tk-gegeven-kop').textContent = tk.soort === 'quiz' ? 'Gegeven quizzen' : tk.soort === 'proef' ? 'Gegeven toetsen' : 'Gegeven oefenbladen';
+  const alle = tk.taken.filter(t => !t.dicht);
+  if (tk.tab === undefined) tk.tab = tk.soort;
+  for (const b of $('tk-tabjes').querySelectorAll('button')) b.classList.toggle('on', b.dataset.tab === tk.tab);
+  // Alleen de soort van het tabje: Oefenbladen toont de gegeven oefenbladen, Toetsen de gegeven toetsen.
+  const lijst = tk.taken.filter(t => !tk.tab || t.soort === tk.tab);
+  $('tk-gegeven-kop').textContent = tk.tab === 'quiz' ? 'Gegeven quizzen' : tk.tab === 'proef' ? 'Gegeven toetsen' : tk.tab === 'oefenblad' ? 'Gegeven oefenbladen' : 'Gegeven taken';
   $('tk-geen').classList.toggle('hidden', lijst.length > 0);
-  $('tk-geen').textContent = tk.taken.some(t => t.soort === tk.soort) ? 'Geen open taken van deze soort. Vink aan om de afgesloten taken te zien.'
-    : tk.soort === 'quiz' ? 'Nog geen quizzen gegeven.' : tk.soort === 'proef' ? 'Nog geen toetsen gegeven.' : 'Nog geen oefenbladen gegeven.';
+  $('tk-geen').textContent = tk.tab === 'quiz' ? 'Nog geen quizzen gegeven.' : tk.tab === 'proef' ? 'Nog geen toetsen gegeven.' : tk.tab === 'oefenblad' ? 'Nog geen oefenbladen gegeven.' : 'Nog geen taken gegeven.';
   box.innerHTML = '';
   // Bovenaan: wie nu bezig is, over alle taken heen (ook op je andere pc's). Klik: die leerling.
   const nu = [];
@@ -545,12 +546,58 @@ function tekenTaken() {
     }
     top.appendChild(p);
   }
-  for (const t of lijst) box.appendChild(kaart(t));
+  // In groepen, volgens de dag voor de leerlingen: Vandaag, Deze week, Gepland later, Afgelopen (nog open), Afgesloten.
+  const per = {};
+  for (const t of lijst) (per[groepVan(t)] = per[groepVan(t)] || []).push(t);
+  let dicht = {};
+  try { dicht = JSON.parse(localStorage.getItem(TK_GROEPEN) || '{}'); } catch {}
+  for (const [id, naam] of GROEPEN) {
+    const taken = per[id];
+    if (!taken) continue;
+    taken.sort((a, b) => (id === 'later' ? 1 : -1) * String(a.dag).localeCompare(String(b.dag)));
+    const g = el('details', `tk-groep tk-groep-${id}`);
+    g.open = dicht[id] === undefined ? id !== 'dicht' : !dicht[id];
+    g.append(el('summary', '', `${naam} (${taken.length})`));
+    g.addEventListener('toggle', () => {
+      try { const d = JSON.parse(localStorage.getItem(TK_GROEPEN) || '{}'); d[id] = !g.open; localStorage.setItem(TK_GROEPEN, JSON.stringify(d)); } catch {}
+    });
+    // Afgesloten: de kaarten pas tekenen als je de groep openklikt (snel, ook met veel oude taken).
+    const vul = () => { if (!g.dataset.vol) { g.dataset.vol = '1'; for (const t of taken) g.appendChild(kaart(t)); } };
+    if (g.open) vul(); else g.addEventListener('toggle', vul, { once: true });
+    box.appendChild(g);
+  }
+}
+
+const TK_GROEPEN = 'lancelot-tk-groepen';
+const TK_INGEKLAPT = 'lancelot-tk-ingeklapt';
+const GROEPEN = [['vandaag', 'Vandaag'], ['week', 'Deze week'], ['later', 'Gepland later'], ['open', 'Afgelopen (nog open)'], ['dicht', 'Afgesloten']];
+function groepVan(t) {
+  if (t.dicht) return 'dicht';
+  if (t.vanaf) return 'later';
+  const dag = new Date(t.dag), nu = new Date();
+  if (dag.toDateString() === nu.toDateString()) return 'vandaag';
+  const maandag = new Date(nu);
+  maandag.setHours(0, 0, 0, 0);
+  maandag.setDate(maandag.getDate() - ((maandag.getDay() + 6) % 7));
+  return dag >= maandag ? 'week' : 'open';
+}
+function ingeklapt() {
+  try { return new Set(JSON.parse(localStorage.getItem(TK_INGEKLAPT) || '[]')); } catch { return new Set(); }
 }
 
 function kaart(t) {
-  const k = el('div', `panel tk-taak${t.dicht ? ' dicht' : ''}`);
+  const k = el('div', `panel tk-taak${t.dicht ? ' dicht' : ''}${ingeklapt().has(t.id) ? ' ingeklapt' : ''}`);
   const kop = el('div', 'tk-taak-kop');
+  // Dichtklappen: alleen de kop blijft staan (onthouden op deze pc).
+  const klap = el('button', 'tk-klap', '▾');
+  klap.type = 'button';
+  klap.title = 'Dichtklappen of openklappen';
+  klap.setAttribute('aria-label', 'Dichtklappen of openklappen');
+  klap.addEventListener('click', () => {
+    const set = ingeklapt();
+    if (k.classList.toggle('ingeklapt')) set.add(t.id); else set.delete(t.id);
+    try { localStorage.setItem(TK_INGEKLAPT, JSON.stringify([...set].slice(-300))); } catch {}
+  });
   const img = el('img');
   img.src = `/img/icons/${t.spel ? t.spel.icoon : t.soort === 'quiz' ? 'toernooi' : t.soort === 'proef' ? 'proef' : 'oefenblad'}.webp`;
   img.alt = '';
@@ -586,7 +633,7 @@ function kaart(t) {
   knopje('🗑', async () => {
     if (await Ui.vraag(`De taak "${t.titel}" wissen? Wat leerlingen al deden, blijft in het logboek.`, { ja: 'Wissen', nee: 'Nee' })) socket.emit('tk-wis', { id: t.id }, uit);
   });
-  kop.append(img, titel, telling, acties);
+  kop.append(klap, img, titel, telling, acties);
 
   const rij = el('div', 'tk-leerlingen');
   for (const l of t.leerlingen) {
@@ -620,7 +667,20 @@ function uit(res) {
   if (res && res.error) Ui.melding(res.error);
 }
 
-$('tk-toon-dicht').addEventListener('change', tekenTaken);
+// Tabjes Alles / Oefenbladen / Quizzen / Toetsen: volgen de soort die je bovenaan kiest, of kies zelf.
+for (const b of $('tk-tabjes').querySelectorAll('button')) b.addEventListener('click', () => { tk.tab = b.dataset.tab; tekenTaken(); });
+// Oude taken opruimen: afsluiten (ze blijven bij Afgesloten).
+$('tk-opruimen').addEventListener('click', async () => {
+  const grens = Date.now() - 7 * 864e5;
+  const oud = tk.taken.filter(t => !t.dicht && !t.vanaf && Date.parse(t.dag) < grens);
+  const bezig = oud.filter(t => t.leerlingen.some(l => l.status === 'bezig')).length;
+  const n = oud.length - bezig;
+  if (!n) return Ui.melding(bezig ? 'Er zijn geen oude taken om op te ruimen: aan de open taken van vorige week werkt nog iemand.' : 'Er zijn geen open taken van meer dan een week geleden.');
+  if (!await Ui.vraag(`${n === 1 ? '1 taak' : `${n} taken`} van meer dan een week geleden afsluiten? Ze blijven bij Afgesloten, met alles wat de leerlingen deden.${bezig ? ` ${bezig === 1 ? '1 taak blijft open: daar werkt nog iemand aan.' : `${bezig} taken blijven open: daar werkt nog iemand aan.`}` : ''}`, { ja: 'Opruimen', nee: 'Nee' })) return;
+  socket.emit('tk-opruimen', { dagen: 7 }, res => {
+    if (res && res.error) return Ui.melding(res.error);
+  });
+});
 socket.on('tk-lijst', lijst => {
   tk.taken = lijst;
   tekenTaken();
@@ -870,7 +930,7 @@ socket.on('connect', () => {
     if (openNaam) {
       const t = tk.taken.find(x => x.id === openNaam.id);
       if (t && t.soort !== tk.soort) {
-        tk.soort = t.soort;
+        tk.soort = tk.tab = t.soort;
         if (tk.bronnen) vulBron();
         else for (const b of document.querySelectorAll('.tk-soort button')) b.classList.toggle('on', b.dataset.soort === tk.soort);
       }
