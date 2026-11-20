@@ -29,3 +29,13 @@
 .op-v.klaar.laag { background: rgb(220 80 80 / .3); }
 .op-v.niet { color: var(--muted); background: transparent; }
 .op-v a:hover { outline: 2px solid rgb(var(--k-goud-l)); outline-offset: -2px; }
+/* Punten (wensenlijst punt 8) */
+.op-modus { display: flex; gap: 6px; margin: 0 0 10px; }
+.op-modus button { padding: 6px 14px; background: rgb(var(--k-bg) / .5); color: var(--text); box-shadow: inset 0 0 0 1px var(--line); }
+.op-modus button.on { box-shadow: inset 0 0 0 2px var(--gold); color: var(--gold); }
+.op-telt { display: block; font-size: .72rem; font-weight: 600; color: var(--muted); margin-top: 4px; white-space: nowrap; }
+.op-telt select { font-size: .72rem; padding: 1px 4px; }
+.op-herk { display: block; font-size: .72rem; margin-top: 3px; color: var(--cyan); }
+.op-gem { font-weight: 700; text-align: center; }
+.op-gem.hoog { color: var(--good); } .op-gem.laag { color: var(--bad, #e66); }
+.op-klasgem th, .op-klasgem td { font-weight: 700; color: var(--muted); text-align: center; border-top: 2px solid var(--line); }

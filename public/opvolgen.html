@@ -40,6 +40,10 @@
       <h2><i class="ic ic-rooster" aria-hidden="true"></i> Opvolgen</h2>
       <p class="muted small">Wie heeft wat gedaan? Elke rij is een leerling, elke kolom een taak of toets. Klik op een vakje om het werk te bekijken of te verbeteren.</p>
     </div>
+    <div class="op-modus" role="tablist">
+      <button type="button" data-modus="stand" class="on">✔ Wie deed wat</button>
+      <button type="button" data-modus="punten">📊 Punten</button>
+    </div>
     <div class="op-filters">
       <label>Periode <select id="op-periode">
         <option value="week" selected>Deze week</option>
@@ -54,8 +58,16 @@
         <option value="proef">Toetsen</option>
       </select></label>
       <label>Vak <select id="op-vak"><option value="">Alle vakken</option></select></label>
+      <label class="hidden" id="op-op-label">Omrekenen op <select id="op-op">
+        <option value="">Zoals de toets</option>
+        <option value="10">10</option>
+        <option value="20">20</option>
+        <option value="100">100</option>
+      </select></label>
+      <button type="button" class="secondary hidden" id="op-kopieer" title="De punten kopiëren, om in Excel of je rapport te plakken">📋 Kopieer</button>
     </div>
-    <div class="op-legende">
+    <p class="muted small hidden" id="op-punten-uitleg">Alleen toetsen. Herkansing = dezelfde toets nog eens gegeven: per toets kies je wat telt. Het gemiddelde rekent met wat telt; ✎ = nog te verbeteren.</p>
+    <div class="op-legende" id="op-legende">
       <span class="op-v nieuw"></span> nog niet begonnen
       <span class="op-v bezig"></span> bezig
       <span class="op-v verbeteren"></span> te verbeteren

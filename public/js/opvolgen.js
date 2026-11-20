@@ -10,11 +10,14 @@ $('brand').addEventListener('click', () => { location.href = '/host'; });
 $('to-home').addEventListener('click', () => { location.href = '/host'; });
 
 let data = null;
+let modus = 'stand';
 const SOORT = { oefenblad: '📄', quiz: '❓', proef: '📝' };
 // De gekozen filters blijven staan (per toestel).
 const BEWAAR = 'lancelot-opvolgen';
 try {
   const f = JSON.parse(localStorage.getItem(BEWAAR) || '{}');
+  if (f.modus === 'punten') modus = 'punten';
+  if (f.op && $('op-op').querySelector(`option[value="${f.op}"]`)) $('op-op').value = f.op;
   for (const k of ['periode', 'soort']) if (f[k] !== undefined && $(`op-${k}`).querySelector(`option[value="${f[k]}"]`)) $(`op-${k}`).value = f[k];
   if (f.vak) $('op-vak').dataset.wil = f.vak;
 } catch {}
@@ -71,7 +74,12 @@ function teken() {
   vakSel.value = vakken.includes(wil) ? wil : '';
   delete vakSel.dataset.wil;
   vakSel.parentElement.classList.toggle('hidden', !vakken.length);
-  try { localStorage.setItem(BEWAAR, JSON.stringify({ periode: $('op-periode').value, soort: $('op-soort').value, vak: vakSel.value })); } catch {}
+  try { localStorage.setItem(BEWAAR, JSON.stringify({ periode: $('op-periode').value, soort: $('op-soort').value, vak: vakSel.value, modus, op: $('op-op').value })); } catch {}
+  for (const b of document.querySelectorAll('.op-modus button')) b.classList.toggle('on', b.dataset.modus === modus);
+  for (const id of ['op-op-label', 'op-kopieer', 'op-punten-uitleg']) $(id).classList.toggle('hidden', modus !== 'punten');
+  $('op-legende').classList.toggle('hidden', modus === 'punten');
+  $('op-soort').parentElement.classList.toggle('hidden', modus === 'punten');
+  if (modus === 'punten') return tekenPunten(vakSel.value);
 
   const kol = data.kolommen.filter(k => inPeriode(k.dag) && (!$('op-soort').value || k.soort === $('op-soort').value) && (!vakSel.value || k.vak === vakSel.value));
   const rijen = data.rijen;
@@ -106,6 +114,123 @@ function teken() {
   $('op-gasten').textContent = (data.gasten || []).length ? `👤 Gasten staan niet in de tabel: ${data.gasten.join(', ')}.` : '';
   $('op-wrap').innerHTML = `<table class="op-tabel"><thead><tr><th class="op-hoek">Leerling</th>${kop}</tr></thead><tbody>${lijnen}</tbody></table>`;
 }
+
+// ---------- Punten: per leerling, omgerekend, met herkansingen ----------
+const TELT = { hoogste: 'de hoogste', laatste: 'de laatste', eerste: 'de eerste', gemiddelde: 'het gemiddelde' };
+function telt(pogingen, keuze) {
+  const p = pogingen.filter(x => x && x.max > 0);
+  if (!p.length) return null;
+  if (keuze === 'laatste') return p[p.length - 1];
+  if (keuze === 'eerste') return p[0];
+  if (keuze === 'gemiddelde') {
+    const pct = p.reduce((n, x) => n + x.punten / x.max, 0) / p.length;
+    return { punten: pct * p[p.length - 1].max, max: p[p.length - 1].max, open: p.some(x => x.open) };
+  }
+  return p.reduce((a, b) => (b.punten / b.max > a.punten / a.max ? b : a));
+}
+let puntenTabel = [];
+// Kopiëren zonder iets ervoor (Ui.kopieer zet een taalopdracht voor AI-prompts).
+function kopieerTekst(tekst) {
+  const t = document.createElement('textarea');
+  t.value = tekst;
+  t.style.cssText = 'position:fixed;top:0;left:0;width:1px;height:1px;opacity:0';
+  document.body.appendChild(t);
+  t.select();
+  let ok = false;
+  try { ok = document.execCommand('copy'); } catch {}
+  t.remove();
+  if (!ok && navigator.clipboard) navigator.clipboard.writeText(tekst).catch(() => {});
+}
+function tekenPunten(vak) {
+  const op = Number($('op-op').value) || 0;
+  const omreken = (p, max) => (op ? (p / max) * op : p);
+  const totaal = max => (op || max);
+  const rijen = data.rijen;
+  // Eén groep per toets: de eerste keer, daarna de herkansingen (dezelfde toets nog eens gegeven).
+  const groepen = new Map();
+  for (const k of [...data.kolommen].filter(k => k.soort === 'proef').sort((a, b) => String(a.dag).localeCompare(String(b.dag)))) {
+    const id = k.toets || k.id;
+    if (!groepen.has(id)) groepen.set(id, []);
+    groepen.get(id).push(k);
+  }
+  const zicht = [...groepen.entries()].filter(([, ks]) => ks.some(k => inPeriode(k.dag)) && (!vak || ks[0].vak === vak))
+    .sort((a, b) => String(b[1][0].dag).localeCompare(String(a[1][0].dag)));
+  const leeg = !zicht.length || !rijen.length;
+  $('op-leeg').classList.toggle('hidden', !leeg);
+  $('op-leeg').textContent = !rijen.length ? 'Er staat nog geen klaslijst. Zet je leerlingen in Mijn klas › Klas.' : 'Geen toetsen in deze periode. Kies een andere periode.';
+  $('op-wrap').classList.toggle('hidden', leeg);
+  $('op-gasten').textContent = (data.gasten || []).length ? `👤 Gasten staan niet in de tabel: ${data.gasten.join(', ')}.` : '';
+  if (leeg) { puntenTabel = []; return; }
+  const keuze = id => (data.telt && data.telt.telt[id]) || (data.telt && data.telt.standaard) || 'hoogste';
+  const dagTekst = d => new Date(d).toLocaleDateString('nl-BE', { day: 'numeric', month: 'short' });
+  // Per leerling en per toets: alle pogingen (oudste eerst) en wat telt.
+  const uitkomst = (ks, naam) => {
+    const pog = [];
+    for (const k of ks) {
+      const v = k.vakjes[key(naam)];
+      if (v && (v.status === 'klaar' || v.status === 'verbeteren') && v.max) pog.push({ punten: v.punten, max: v.max, open: v.status === 'verbeteren', dag: k.dag, k });
+    }
+    const bezig = ks.some(k => { const v = k.vakjes[key(naam)]; return v && v.status === 'bezig'; });
+    const voor = ks.some(k => k.vakjes[key(naam)]);
+    return { pog, bezig, voor };
+  };
+  const kop = zicht.map(([id, ks]) => {
+    const herk = ks.length - 1;
+    const laag = rijen.filter(r => { const u = uitkomst(ks, r.naam); const t = telt(u.pog, keuze(id)); return t && t.punten / t.max < .5; }).map(r => r.naam);
+    return `<th class="op-kol op-pt-kol" title="${esc(ks[0].titel)}">
+      <a href="${ks[ks.length - 1].afname ? `/proef?verbeter=${encodeURIComponent(ks[ks.length - 1].afname)}` : '/taken?soort=proef'}"><span class="op-kol-titel">📝 ${esc(ks[0].titel)}</span>
+      <span class="op-kol-dag">${esc(ks.map(k => dagTekst(k.dag)).join(' · '))}${ks[0].vak ? ` · ${esc(ks[0].vak)}` : ''}</span></a>
+      ${herk ? `<label class="op-telt">🔁 ${herk === 1 ? '1 herkansing' : `${herk} herkansingen`}, telt: <select data-toets="${esc(id)}">${Object.entries(TELT).map(([w, t]) => `<option value="${w}"${keuze(id) === w ? ' selected' : ''}>${esc(t)}</option>`).join('')}</select></label>` : ''}
+      ${ks[0].toets ? `<a class="op-herk" href="/taken?soort=proef&file=${encodeURIComponent(ks[0].toets)}${laag.length ? `&namen=${encodeURIComponent(laag.join('|'))}` : ''}" title="${esc(laag.length ? `Dezelfde toets nog eens geven, met ${laag.join(', ')} al aangetikt (minder dan de helft)` : 'Dezelfde toets nog eens geven')}">↻ Herkansing geven</a>` : ''}</th>`;
+  }).join('');
+  puntenTabel = [['Leerling', ...zicht.map(([, ks]) => (op ? `${ks[0].titel} (op ${op})` : ks[0].titel)), op ? `Gemiddelde (op ${op})` : 'Gemiddelde']];
+  const perKol = zicht.map(() => []);
+  const lijnen = rijen.map(r => {
+    const pct = [];
+    const tsv = [r.naam];
+    const cellen = zicht.map(([id, ks], i) => {
+      const u = uitkomst(ks, r.naam);
+      const t = telt(u.pog, keuze(id));
+      if (!t) {
+        tsv.push('');
+        return `<td class="op-v ${u.bezig ? 'bezig' : u.voor ? 'nieuw' : 'niet'}">${u.bezig ? '…' : u.voor ? '' : '–'}</td>`;
+      }
+      const p = t.punten / t.max;
+      pct.push(p);
+      perKol[i].push(p);
+      const tekst = `${nl(omreken(t.punten, t.max))}/${nl(totaal(t.max))}`;
+      // Voor Excel: met een totaal alleen het getal (de kop zegt "op 10"), anders "7 / 10" (geen datum).
+      tsv.push(op ? nl(omreken(t.punten, t.max)) : tekst.replace('/', ' / '));
+      const meer = u.pog.length > 1;
+      const titel = `${r.naam} · ${ks[0].titel}: ${u.pog.map(x => `${dagTekst(x.dag)} ${nl(omreken(x.punten, x.max))}/${nl(totaal(x.max))}${x.open ? ' ✎' : ''}`).join(' · ')}${meer ? ` → telt: ${TELT[keuze(id)]}` : ''}`;
+      const laatste = u.pog[u.pog.length - 1].k;
+      return `<td class="op-v ${t.open || u.pog.some(x => x.open) ? 'verbeteren' : 'klaar'}${p >= .8 ? ' hoog' : p < .5 ? ' laag' : ''}" title="${esc(titel)}"><a href="/proef?verbeter=${encodeURIComponent(laatste.afname || '')}&leerling=${encodeURIComponent(r.naam)}">${esc(tekst)}${u.pog.some(x => x.open) ? ' ✎' : ''}${meer ? ' 🔁' : ''}</a></td>`;
+    }).join('');
+    const gem = pct.length ? pct.reduce((a, b) => a + b, 0) / pct.length : null;
+    const gemTekst = gem === null ? '–' : op ? `${nl(gem * op)}/${op}` : `${Math.round(gem * 100)}%`;
+    tsv.push(gem === null ? '' : op ? nl(gem * op) : gemTekst);
+    puntenTabel.push(tsv);
+    return `<tr><th class="op-naam" scope="row">${esc(r.naam)}</th>${cellen}<td class="op-gem${gem === null ? '' : gem >= .8 ? ' hoog' : gem < .5 ? ' laag' : ''}">${esc(gemTekst)}</td></tr>`;
+  }).join('');
+  const klasGem = perKol.map(l => (l.length ? l.reduce((a, b) => a + b, 0) / l.length : null));
+  const onder = `<tr class="op-klasgem"><th class="op-naam" scope="row">Klasgemiddelde</th>${klasGem.map(g => `<td>${g === null ? '–' : op ? `${nl(g * op)}/${op}` : `${Math.round(g * 100)}%`}</td>`).join('')}<td></td></tr>`;
+  $('op-wrap').innerHTML = `<table class="op-tabel op-punten"><thead><tr><th class="op-hoek">Leerling</th>${kop}<th class="op-kol">Gemiddelde</th></tr></thead><tbody>${lijnen}${onder}</tbody></table>`;
+  for (const sel of $('op-wrap').querySelectorAll('select[data-toets]')) {
+    sel.addEventListener('click', e => e.stopPropagation());
+    sel.addEventListener('change', () => socket.emit('pt-telt', { toets: sel.dataset.toets, telt: sel.value }, res => {
+      if (res && res.error) return Ui.melding(res.error);
+      data.telt = res;
+      teken();
+    }));
+  }
+}
+for (const b of document.querySelectorAll('.op-modus button')) b.addEventListener('click', () => { modus = b.dataset.modus; teken(); });
+$('op-op').addEventListener('change', teken);
+$('op-kopieer').addEventListener('click', () => {
+  if (!puntenTabel.length) return;
+  kopieerTekst(puntenTabel.map(r => r.join('\t')).join('\n'));
+  Ui.melding('De punten staan klaar om te plakken, in Excel of in je rapport.');
+});
 
 function laad() {
   socket.emit('op-overzicht', null, res => {

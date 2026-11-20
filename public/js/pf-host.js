@@ -1276,15 +1276,58 @@ function renderAfname() {
   for (const b of $('v-vragen').querySelectorAll('[data-alle]')) b.addEventListener('click', () => { alleVragen = b.dataset.alle === '1'; renderAfname(); });
 
   // Per leerling: punten, procent, hoe vaak hij de toets verliet. Klik voor zijn hele toets.
-  $('v-leerlingen').innerHTML = `<p class="muted small">Klik op een naam: je ziet de hele toets van die leerling en past bij elke vraag de punten aan.</p><div class="pf-tabel-wrap"><table class="pf-resultaten"><tr><th>Naam</th>${multi ? '<th>Niveau</th>' : ''}<th>Punten</th><th>%</th><th>Nog te verbeteren</th><th>Verliet de toets</th></tr>
+  // Puntenlijst: kopiëren (om in Excel of je rapport te plakken) of als CSV, omgerekend op een gekozen totaal.
+  const lijstOp = `<div class="pf-puntenlijst"><label>Punten op <select id="v-op">${[['', 'zoals de toets'], ['10', '10'], ['20', '20'], ['100', '100']].map(([v, t]) => `<option value="${v}"${puntenOp === v ? ' selected' : ''}>${t}</option>`).join('')}</select></label>
+    <button type="button" class="secondary small-btn" id="v-kopieer"${a.spelers.length ? '' : ' disabled'}>📋 Kopieer puntenlijst</button>
+    <button type="button" class="secondary small-btn" id="v-csv"${a.spelers.length ? '' : ' disabled'}>⬇ CSV</button></div>`;
+  $('v-leerlingen').innerHTML = `${lijstOp}<p class="muted small">Klik op een naam: je ziet de hele toets van die leerling en past bij elke vraag de punten aan.</p><div class="pf-tabel-wrap"><table class="pf-resultaten"><tr><th>Naam</th>${multi ? '<th>Niveau</th>' : ''}<th>Punten</th><th>%</th><th>Nog te verbeteren</th><th>Verliet de toets</th></tr>
     ${a.spelers.map((s, i) => {
       const st = standVan(s);
       return `<tr data-i="${i}"><td><button class="link">${esc(s.naam)}</button></td>${multi ? `<td>${Niveau.label(s.niveau)}</td>` : ''}<td>${nl(st.punten)} / ${nl(st.max)}</td><td>${st.max ? Math.round((st.punten / st.max) * 100) : 0}%</td><td>${st.open || '–'}</td><td>${(s.events || []).length ? `⚠ ${(s.events || []).length}×` : '–'}</td></tr>`;
     }).join('')}${bezigNu.map(l => `<tr class="pf-bezig-rij"><td><button class="link" data-live="${esc(l.naam)}">${esc(l.naam)}</button></td>${multi ? '<td></td>' : ''}<td colspan="4">✏️ bezig · ${l.gedaan}/${l.totaal}${l.autoMax ? ` · al ${nl(l.punten)} van ${nl(l.autoMax)} punten` : ''}</td></tr>`).join('')}</table></div>`;
   for (const b of $('v-leerlingen').querySelectorAll('[data-live]')) b.addEventListener('click', () => leerlingLive(b.dataset.live));
+  $('v-op').addEventListener('change', e => { puntenOp = e.target.value; });
+  $('v-kopieer').addEventListener('click', () => {
+    kopieerTekst(puntenlijst(a).map(r => r.join('\t')).join('\n'));
+    Ui.melding('De puntenlijst staat klaar om te plakken, in Excel of in je rapport.');
+  });
+  $('v-csv').addEventListener('click', () => {
+    const csv = '\ufeff' + puntenlijst(a).map(r => r.map(c => (/[;"\n]/.test(c) ? `"${c.replace(/"/g, '""')}"` : c)).join(';')).join('\r\n');
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+    link.download = `${(a.title || 'toets').replace(/[\\/:*?"<>|]+/g, ' ').trim()} - punten.csv`;
+    document.body.appendChild(link);
+    link.click();
+    setTimeout(() => { URL.revokeObjectURL(link.href); link.remove(); }, 1000);
+  });
   for (const tr of $('v-leerlingen').querySelectorAll('tr[data-i]')) tr.querySelector('button').addEventListener('click', () => leerlingAfname(Number(tr.dataset.i)));
   wirePunten($('v-vragen'));
   renderAnalyse();
+}
+
+// De puntenlijst van een afname: naam, punten, op, procent (en nog te verbeteren), omgerekend als je dat koos.
+let puntenOp = '';
+function puntenlijst(a) {
+  const op = Number(puntenOp) || 0;
+  const rijen = [['Naam', 'Punten', 'Op', '%', 'Nog te verbeteren']];
+  for (const s of [...a.spelers].sort((x, y) => x.naam.localeCompare(y.naam, 'nl'))) {
+    const st = standVan(s);
+    const p = op && st.max ? (st.punten / st.max) * op : st.punten;
+    rijen.push([s.naam, nl(Math.round(p * 10) / 10), String(op || nl(st.max)), st.max ? String(Math.round((st.punten / st.max) * 100)) : '0', st.open ? String(st.open) : '']);
+  }
+  return rijen;
+}
+// Kopiëren zonder iets ervoor (Ui.kopieer zet een taalopdracht voor AI-prompts).
+function kopieerTekst(tekst) {
+  const t = document.createElement('textarea');
+  t.value = tekst;
+  t.style.cssText = 'position:fixed;top:0;left:0;width:1px;height:1px;opacity:0';
+  (document.querySelector('dialog[open]') || document.body).appendChild(t);
+  t.select();
+  let ok = false;
+  try { ok = document.execCommand('copy'); } catch {}
+  t.remove();
+  if (!ok && navigator.clipboard) navigator.clipboard.writeText(tekst).catch(() => {});
 }
 
 function puntKnoppen(speler, id, max, nu) {
