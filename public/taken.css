@@ -145,3 +145,9 @@
 .tk-doel-crit li { margin: 3px 0; }
 /* Een geplande taak: de leerlingen zien ze pas vanaf dat moment. */
 .tk-taak-gepland { display: block; color: rgb(var(--k-cyan)); font-weight: 600; }
+/* Gegeven taken: wie nu bezig is, bovenaan; toetsen apart */
+.tk-nu { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+.tk-nu-rij { display: flex; flex-wrap: wrap; gap: 6px; }
+.tk-nu-ll { font: inherit; font-size: .85rem; padding: 4px 10px; border-radius: 999px; border: 0; clip-path: none; cursor: pointer; background: rgb(var(--k-blauw) / .16); color: var(--text); box-shadow: inset 0 0 0 1px rgb(var(--k-blauw) / .5); }
+.tk-groep { margin: 14px 0 6px; }
+.tk-nu-toets { color: rgb(var(--k-goud-l)); font-weight: 700; text-decoration: none; }

@@ -34,6 +34,8 @@
   </nav>
   <div id="klaskiezer"></div>
 
+  <!-- Bovenaan: wie nu bezig is en de toetsen die lopen (zonder te scrollen). -->
+  <div id="tk-nu-top"></div>
   <section class="panel form tk-nieuw">
     <h2><i class="ic ic-taak" aria-hidden="true"></i> Nieuwe taak</h2>
     <p class="muted small">Geef een oefenblad, quiz of toets aan een of meer leerlingen. Elke leerling krijgt het op zijn eigen niveau uit Mijn klas (of je kiest één niveau voor iedereen) en werkt eraan in zijn eigen tempo: op zijn toestel bij <b>Mijn taken</b>. Er hoeft geen spel te lopen.</p>
@@ -140,7 +142,7 @@
 
   <section class="tk-lopend">
     <div class="bar">
-      <h2>Gegeven taken</h2>
+      <h2 id="tk-gegeven-kop">Gegeven taken</h2>
       <label class="inline tk-toon-dicht"><input type="checkbox" id="tk-toon-dicht"> Afgesloten taken tonen</label>
     </div>
     <p class="muted small hidden" id="tk-lesmap-tip">📂 Taken uit je lesmap: wat de leerlingen doen, staat op de pc waarmee ze verbonden zijn (meestal het digibord). Volg ze daar op.</p>

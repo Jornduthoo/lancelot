@@ -22,6 +22,10 @@ const { NAMES } = require('./niveaus');
 const DIR = () => gegevens.pad('taken');
 const FILE = () => path.join(DIR(), 'taken.json');
 const PLAN = () => path.join(DIR(), 'plan');
+// De stand van de leerlingen per taak, voor je andere pc's (via Mijn lesmap): één bestand per taak en per pc
+// (<taak>@<pc>.json). Alleen de pc waar de leerlingen werken schrijft het; de andere pc's lezen het en tonen het.
+const STAND = () => path.join(DIR(), 'stand');
+const PC = String(process.env.LANCELOT_PC || require('os').hostname() || 'pc').replace(/[^A-Za-z0-9-]/g, '').slice(0, 40) || 'pc';
 const MAX = 80; // daarboven vallen de oudste afgesloten taken weg
 const SAVE_MS = 1000;
 // Tegen gokken bij meteen verbeteren, zoals bij het oefenblad live: na een fout keuzeantwoord even wachten.
@@ -175,6 +179,8 @@ function zetVoorlees({ id, naam, aan } = {}) {
   if (t.soort !== 'proef') throw new Error('Voorlezen kan alleen bij een toets.');
   const w = t.werk[key(naam)];
   if (!w) throw new Error('Die leerling heeft deze taak niet.');
+  const ergens = werkOveral(t, standen()).find(x => key(x.naam) === key(naam));
+  if (ergens && ergens.elders) throw new Error(`${w.naam} werkt op ${ergens.elders.pc}. Zet voorlezen daar aan.`);
   w.voorlees = !!aan;
   save();
   return { naam: w.naam, aan: w.voorlees };
@@ -469,10 +475,12 @@ function heropen({ id, naam, opnieuw } = {}) {
 
 // Een leerling uit de afname van een taak halen (hij begint opnieuw).
 function uitAfname(t, naam) {
-  if (!t.afname) return;
+  const rec = afnameVan(t);
+  if (!rec) return;
   try {
-    const rec = proeven.laadAfname(t.afname);
     rec.spelers = rec.spelers.filter(s => key(s.naam) !== key(naam));
+    // Onthouden dat hij eruit ging: anders brengt een andere pc hem via de lesmap terug.
+    rec.weg = { ...(rec.weg || {}), [key(naam)]: Date.now() };
     proeven.schrijfAfname(rec);
     bijAfname(t.afname);
   } catch (err) {
@@ -513,21 +521,89 @@ function volgorde(a, b) {
 }
 
 // Alle taken voor het bord, zonder de inhoud.
+// ---------- De stand op je andere pc's ----------
+// Wat deze pc in de lesmap zet: per taak (uit of naar de lesmap) met leerlingen die begonnen, hun werk.
+const standGezien = new Map();
+function naarLesmapStand(adres) {
+  fs.mkdirSync(STAND(), { recursive: true });
+  const eigen = new Set();
+  for (const t of all()) {
+    if (!t.plan && !t.uitLesmap) continue;
+    const werk = {};
+    for (const [k, w] of Object.entries(t.werk)) if (w.status !== 'nieuw' && !w.elders) werk[k] = w;
+    if (!Object.keys(werk).length) continue;
+    const naam = `${t.id}@${PC}.json`;
+    eigen.add(naam);
+    const inhoud = JSON.stringify({ id: t.id, pc: PC, adres: adres || '', werk });
+    if (standGezien.get(naam) === inhoud && fs.existsSync(path.join(STAND(), naam))) continue;
+    fs.writeFileSync(path.join(STAND(), naam), JSON.stringify({ id: t.id, pc: PC, adres: adres || '', tijd: new Date().toISOString(), werk }) + '\n');
+    standGezien.set(naam, inhoud);
+  }
+  // Een taak die hier weg is (gewist), haalt ook zijn stand weg.
+  for (const naam of fs.readdirSync(STAND())) if (naam.endsWith(`@${PC}.json`) && !eigen.has(naam) && !all().some(t => naam === `${t.id}@${PC}.json`)) fs.rmSync(path.join(STAND(), naam), { force: true });
+}
+function standGeldig(s) {
+  if (!s || typeof s.id !== 'string' || typeof s.pc !== 'string' || !s.werk || typeof s.werk !== 'object') throw new Error('Ongeldige stand.');
+}
+// De stand van de andere pc's, per taak.
+function standen() {
+  const per = new Map();
+  let namen = [];
+  try { namen = fs.readdirSync(STAND()).filter(n => n.endsWith('.json') && !n.endsWith(`@${PC}.json`)); } catch {}
+  for (const naam of namen) {
+    try {
+      const s = JSON.parse(fs.readFileSync(path.join(STAND(), naam), 'utf8'));
+      standGeldig(s);
+      if (!per.has(s.id)) per.set(s.id, []);
+      per.get(s.id).push(s);
+    } catch {}
+  }
+  return per;
+}
+// Het werk van elke leerling zoals het ergens staat: hier, of (als hij hier nog niet begon) op de pc waar hij werkt.
+const RANG = { nieuw: 0, bezig: 1, klaar: 2 };
+function werkOveral(t, per) {
+  const lijst = per.get(t.id) || [];
+  return Object.entries(t.werk).map(([k, w]) => {
+    if (w.status !== 'nieuw') return w;
+    let best = null;
+    for (const s of lijst) {
+      const r = s.werk[k];
+      if (!r || !RANG[r.status]) continue;
+      if (!best || RANG[r.status] > RANG[best.w.status] || (RANG[r.status] === RANG[best.w.status] && s.tijd > best.s.tijd)) best = { w: r, s };
+    }
+    return best ? { ...best.w, elders: { pc: best.s.pc, adres: best.s.adres, tijd: best.s.tijd } } : w;
+  });
+}
+const eldersVan = (t, per) => (per.get(t.id) || []).map(s => ({ pc: s.pc, adres: s.adres, tijd: s.tijd }));
+
 function lijst() {
+  const per = standen();
   return all().map(t => ({
     id: t.id, soort: t.soort, file: t.soort === 'proef' ? t.file : undefined, titel: t.titel, vak: t.vak, feedback: t.feedback, gemaakt: t.gemaakt, dicht: t.dicht, spel: spelVan(t), uitLesmap: !!t.uitLesmap,
     niveaus: niveausVan(t.soort, t.inhoud), niveau: t.niveau || null, les: t.les || null, vanaf: zichtbaar(t) ? null : t.vanaf,
-    leerlingen: Object.values(t.werk).map(w => ({ naam: w.naam, niveau: w.niveau, status: w.status, klaar: w.klaar, ...voortgang(t, w), ...(t.soort === 'proef' ? toetsStand(t, w) : {}) }))
+    elders: eldersVan(t, per),
+    afname: t.soort === 'proef' ? (t.afname || (proeven.afnameVanTaak(t.id) || {}).file || null) : undefined,
+    leerlingen: werkOveral(t, per).map(w => ({ naam: w.naam, niveau: w.niveau, status: w.status, klaar: w.klaar, elders: w.elders ? w.elders.pc : undefined, ...voortgang(t, w), ...(t.soort === 'proef' ? toetsStand(t, w) : {}) }))
       .sort((a, b) => a.naam.localeCompare(b.naam, 'nl')),
   })).sort(volgorde);
+}
+
+// Een toets als taak, voor het overzicht in De Proef: wie begon, hoe ver, waar (ook op je andere pc's).
+function toetsLeerlingen(id) {
+  const t = all().find(x => x.id === id);
+  if (!t || t.soort !== 'proef') return null;
+  return werkOveral(t, standen()).map(w => ({ naam: w.naam, status: w.status, elders: w.elders ? w.elders.pc : undefined, ...voortgang(t, w) }))
+    .sort((a, b) => a.naam.localeCompare(b.naam, 'nl'));
 }
 
 // Wat één leerling deed, voor het venster op het bord.
 function detail({ id, naam } = {}) {
   const t = find(id);
-  const w = t.werk[key(naam)];
-  if (!w) throw new Error('Die leerling heeft deze taak niet.');
-  const base = { id, soort: t.soort, titel: t.titel, naam: w.naam, niveau: w.niveau, status: w.status, niveaus: niveausVan(t.soort, t.inhoud), ...voortgang(t, w) };
+  if (!t.werk[key(naam)]) throw new Error('Die leerling heeft deze taak niet.');
+  // Werkt de leerling op een andere pc, dan tonen we zijn werk van daar (bekijken; verbeteren gebeurt daar).
+  const w = werkOveral(t, standen()).find(x => key(x.naam) === key(naam));
+  const base = { id, soort: t.soort, titel: t.titel, naam: w.naam, elders: w.elders || null, niveau: w.niveau, status: w.status, niveaus: niveausVan(t.soort, t.inhoud), ...voortgang(t, w) };
   if (t.soort === 'proef') {
     // Wat de leerling invulde, met de sleutel erbij (zoals de kopie van een afname). Verbeteren gebeurt in De Proef.
     const { lijst } = toets(t, w);
@@ -541,7 +617,7 @@ function detail({ id, naam } = {}) {
       else if (q.type === 'blad') zones[qid] = q.velden;
       punten[qid] = [K.handPunten(q) ? null : Number(w.auto[qid]) || 0, K.maxVan(q)];
     }
-    return { ...base, view: K.studentView(t.inhoud, lijst, { img: d => d }), answers: w.answers, sleutel, zones, punten, afname: t.afname || null };
+    return { ...base, view: K.studentView(t.inhoud, lijst, { img: d => d }), answers: w.answers, sleutel, zones, punten, afname: (afnameVan(t) || {}).file || null };
   }
   if (t.soort === 'quiz') {
     return {
@@ -593,6 +669,7 @@ function begin(t, w) {
   if (w.status !== 'nieuw') return;
   w.status = 'bezig';
   w.begin = new Date().toISOString();
+  zorgAfname(t);
 }
 
 // Een taak openen: het blad (zonder oplossingen) of de volgende vraag.
@@ -693,17 +770,35 @@ function toetsAntwoord({ id, naam, vraag, waarde, pos } = {}) {
 // de open vragen, zoals na een afname op het bord. Eén afname per taak; wie later inlevert, komt erbij.
 // server.js zet bijAfname: die sluit de afname af als er niets meer met de hand te verbeteren is.
 let bijAfname = () => {};
+// De afname van een toets als taak: van deze pc, of (via Mijn lesmap) van een andere pc waar al iemand inleverde.
+function afnameVan(t) {
+  if (t.afname) try { return proeven.laadAfname(t.afname); } catch {}
+  const a = proeven.afnameVanTaak(t.id);
+  if (a) try { t.afname = a.file; return proeven.laadAfname(a.file); } catch {}
+  return null;
+}
+function nieuweAfname(t) {
+  const rec = { title: t.titel, datum: t.gemaakt, toetsFile: t.file, instellingen: { taak: true }, toets: t.inhoud, spelers: [], klaar: false, gelogd: false, taak: t.id };
+  t.afname = proeven.bewaarAfname(rec);
+  return rec;
+}
+// Zodra de eerste leerling begint, staat de toets al bij de resultaten in De Proef: één plek om hem op te volgen.
+function zorgAfname(t) {
+  if (t.soort !== 'proef' || afnameVan(t)) return;
+  try { nieuweAfname(t); } catch (err) { console.error('Afname maken mislukt:', err.message); }
+}
 function naarAfname(t, w) {
-  let rec = null;
-  if (t.afname) try { rec = proeven.laadAfname(t.afname); } catch {}
+  let rec = afnameVan(t);
   const nieuw = !rec;
   if (nieuw) rec = { title: t.titel, datum: t.gemaakt, toetsFile: t.file, instellingen: { taak: true }, toets: t.inhoud, spelers: [], klaar: false, gelogd: false, taak: t.id };
   const oud = rec.spelers.find(s => key(s.naam) === key(w.naam));
-  const s = { naam: w.naam, niveau: w.niveau, antwoorden: w.answers, auto: w.auto, hand: {}, events: [], begon: w.begin, ingeleverd: w.klaar, extra: 0 };
+  const s = { naam: w.naam, niveau: w.niveau, antwoorden: w.answers, auto: w.auto, hand: {}, events: [], begon: w.begin, ingeleverd: w.klaar, extra: 0, t: Date.now() };
   // Weer opengezet en opnieuw ingeleverd: wat de leerkracht al verbeterde blijft staan.
-  if (oud && oud.niveau === s.niveau) Object.assign(s, { hand: oud.hand || {}, over: oud.over, vak: oud.vak, gelogd: oud.gelogd });
+  if (oud && oud.niveau === s.niveau) Object.assign(s, { hand: oud.hand || {}, over: oud.over, vak: oud.vak, ht: oud.ht, gelogd: oud.gelogd });
   rec.spelers = rec.spelers.filter(x => x !== oud).concat(s).sort((a, b) => a.naam.localeCompare(b.naam, 'nl'));
   rec.klaar = false;
+  rec.kt = Date.now();
+  if (rec.weg) delete rec.weg[key(w.naam)];
   try {
     if (nieuw) t.afname = proeven.bewaarAfname(rec);
     else proeven.schrijfAfname(rec);
@@ -795,4 +890,4 @@ function soloAntwoord({ id, naam, i, keuze, juist } = {}) {
   return { klaar, ...voortgang(t, w) };
 }
 
-module.exports = { toetsAntwoord, zetVoorlees, set bijAfname(fn) { bijAfname = fn; }, lesVan, gestartSinds, startNu, get PLAN() { return PLAN(); }, planGeldig, uitLesmap, SOLO, MINUTEN, soloRonde, soloAntwoord, voorbeeld, inhoud, maak, voegToe, haalWeg, zetNiveau, sluit, heropen, wis, lijst, detail, mijn, aantal, open, antwoord, inleveren, quizAntwoord, flush, get DIR() { return DIR(); } };
+module.exports = { toetsLeerlingen, toetsAntwoord, zetVoorlees, naarLesmapStand, standGeldig, get STAND() { return STAND(); }, PC, set bijAfname(fn) { bijAfname = fn; }, lesVan, gestartSinds, startNu, get PLAN() { return PLAN(); }, planGeldig, uitLesmap, SOLO, MINUTEN, soloRonde, soloAntwoord, voorbeeld, inhoud, maak, voegToe, haalWeg, zetNiveau, sluit, heropen, wis, lijst, detail, mijn, aantal, open, antwoord, inleveren, quizAntwoord, flush, get DIR() { return DIR(); } };

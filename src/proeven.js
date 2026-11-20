@@ -2,7 +2,8 @@
 // De vraagsoorten, de controle en het verbeteren staan in public/js/pf-kern.js (dezelfde code als in de editor).
 // Een afgenomen toets (een afname) komt in proeven/_afnames/: de antwoorden van elke leerling, de punten
 // van de computer en die van de leerkracht (open vragen, op papier, de werkwijze bij een rekenvraag).
-// Die blijven op deze pc: ze gaan niet mee naar de lesmap.
+// Met Mijn lesmap gaan ze mee naar je andere pc's (toetsen-afnames/): daar zie en verbeter je hetzelfde.
+// Komen twee pc's elkaar tegen, dan voegt afnameSamen ze samen per leerling en per vraag: de laatste wijziging wint.
 const fs = require('fs');
 const path = require('path');
 const gegevens = require('./gegevens');
@@ -12,7 +13,6 @@ const logboek = require('./logboek');
 const K = require('../public/js/pf-kern');
 
 const DIR = gegevens.pad('proeven');
-const PC = String(require('os').hostname() || 'pc').replace(/[^A-Za-z0-9-]/g, '').slice(0, 40) || 'pc';
 // De afnames horen bij de klas (Meerdere klassen): elke klas heeft haar eigen punten.
 const AFNAMES = () => gegevens.pad('proeven', '_afnames');
 
@@ -106,11 +106,15 @@ function bewaarAfname(rec) {
   return file;
 }
 
+const PC = String(process.env.LANCELOT_PC || require('os').hostname() || 'pc').replace(/[^A-Za-z0-9-]/g, '').slice(0, 40) || 'pc';
+let naSchrijf = () => {};
 function schrijf(rec) {
   const p = afnamePad(rec.file);
   if (!rec.pc) rec.pc = PC;
+  memo.delete(rec.file);
   fs.writeFileSync(`${p}.tmp`, JSON.stringify(rec));
   fs.renameSync(`${p}.tmp`, p);
+  naSchrijf(rec.file);
 }
 
 function laadAfname(file) {
@@ -135,28 +139,102 @@ function stand(rec, s) {
   return { punten: Math.round(punten * 2) / 2, max, open };
 }
 
+// De lijst leest niet elke keer elk bestand opnieuw: alleen wat veranderde (op deze pc of via de lesmap).
+const memo = new Map();
 function afnames() {
   if (!fs.existsSync(AFNAMES())) return [];
-  return fs.readdirSync(AFNAMES()).filter(f => f.endsWith('.json')).map(file => {
+  const namen = fs.readdirSync(AFNAMES()).filter(f => f.endsWith('.json') && !f.startsWith('_'));
+  for (const k of memo.keys()) if (!namen.includes(k)) memo.delete(k);
+  return namen.map(file => {
     try {
+      const st = fs.statSync(path.join(AFNAMES(), file));
+      const sleutel = `${AFNAMES()}|${file}|${st.size}|${st.mtimeMs}`;
+      const oud = memo.get(file);
+      if (oud && oud.sleutel === sleutel) return oud.item;
       const rec = laadAfname(file);
       const open = rec.spelers.reduce((n, s) => n + stand(rec, s).open, 0);
-      return { file, title: rec.title, datum: rec.datum, leerlingen: rec.spelers.length, open, klaar: !!rec.klaar };
+      const item = { file, title: rec.title, datum: rec.datum, leerlingen: rec.spelers.length, open, klaar: !!rec.klaar, taak: rec.taak || null, gemaild: rec.spelers.filter(s => s.gemaild).length, toetsFile: rec.toetsFile || null };
+      memo.set(file, { sleutel, item });
+      return item;
     } catch {
       return null;
     }
   }).filter(Boolean).sort((a, b) => b.datum.localeCompare(a.datum));
 }
+const afnameVanTaak = id => (id && afnames().find(a => a.taak === id)) || null;
+
+// ---------- Samenvoegen (Mijn lesmap) ----------
+const ms = x => (typeof x === 'number' ? x : Date.parse(x || 0) || 0);
+const sleutelVan = naam => String(naam || '').trim().replace(/\s+/g, ' ').toLowerCase();
+// Eén leerling van twee pc's: zijn inzending van de laatste keer inleveren, en per vraag het laatste oordeel van de leerkracht.
+function spelerSamen(a, b) {
+  const nieuwer = ms(b.ingeleverd) > ms(a.ingeleverd) || (ms(b.ingeleverd) === ms(a.ingeleverd) && ms(b.t) > ms(a.t));
+  const [w, o] = nieuwer ? [b, a] : [a, b];
+  const m = JSON.parse(JSON.stringify(w));
+  m.hand = m.hand || {};
+  m.ht = { ...(m.ht || {}) };
+  const zelfdeInzending = ms(a.ingeleverd) === ms(b.ingeleverd) && a.niveau === b.niveau;
+  for (const [id, t] of Object.entries(o.ht || {})) {
+    if (!(ms(t) > ms(m.ht[id]))) continue;
+    m.ht[id] = t;
+    const zet = (veld, v) => {
+      if (v === undefined) { if (m[veld]) delete m[veld][id]; return; }
+      m[veld] = m[veld] || {};
+      m[veld][id] = v;
+    };
+    zet('hand', o.hand ? o.hand[id] : undefined);
+    zet('over', o.over ? o.over[id] : undefined);
+    zet('vak', o.vak ? o.vak[id] : undefined);
+    if (zelfdeInzending) zet('auto', o.auto ? o.auto[id] : undefined);
+  }
+  if (!m.gemaild && o.gemaild) m.gemaild = o.gemaild;
+  if (o.gelogd) m.gelogd = true;
+  m.t = Math.max(ms(a.t), ms(b.t)) || undefined;
+  return m;
+}
+function afnameSamen(lText, rText) {
+  const l = JSON.parse(lText), r = JSON.parse(rText);
+  const weg = { ...(r.weg || {}) };
+  for (const [k, t] of Object.entries(l.weg || {})) if (!(ms(weg[k]) >= ms(t))) weg[k] = t;
+  const per = new Map();
+  for (const s of r.spelers || []) per.set(sleutelVan(s.naam), s);
+  const spelers = [];
+  const gezien = new Set();
+  for (const s of l.spelers || []) {
+    const k = sleutelVan(s.naam);
+    gezien.add(k);
+    spelers.push(per.has(k) ? spelerSamen(s, per.get(k)) : s);
+  }
+  for (const [k, s] of per) if (!gezien.has(k)) spelers.push(s);
+  const m = { ...r, ...l };
+  m.spelers = spelers.filter(s => !(ms(weg[sleutelVan(s.naam)]) >= Math.max(ms(s.ingeleverd), ms(s.t)))).sort((a, b) => a.naam.localeCompare(b.naam, 'nl'));
+  if (Object.keys(weg).length) m.weg = weg;
+  // Klaar of weer open (er kwam iemand bij): wat het laatst gebeurde.
+  if (ms(r.kt) > ms(l.kt)) { m.klaar = r.klaar; m.kt = r.kt; }
+  m.gelogd = !!(l.gelogd || r.gelogd);
+  if (l.mailWacht || r.mailWacht) m.mailWacht = true;
+  if (!l.resultaten && r.resultaten) m.resultaten = r.resultaten;
+  return JSON.stringify(m);
+}
+function afnameGeldig(rec) {
+  if (!rec || typeof rec !== 'object' || typeof rec.title !== 'string' || !rec.toets || !Array.isArray(rec.spelers)) throw new Error('Ongeldige afname.');
+  for (const s of rec.spelers) if (!s || typeof s.naam !== 'string' || !s.auto || typeof s.auto !== 'object') throw new Error('Ongeldige afname.');
+}
+const nu = () => new Date().toISOString();
 
 // De punten die een vraag echt oplevert: wat de leerkracht zelf gaf (over), anders computer + leerkracht.
 const kregen = (s, id) => (s.over && s.over[id] !== undefined && s.over[id] !== null ? Number(s.over[id]) : (Number(s.auto[id]) || 0) + (Number(s.hand[id]) || 0));
 
 // Punten van de leerkracht voor één vraag van één leerling (null = nog niet verbeterd).
 // over: true = de leerkracht zet de punten van de hele vraag zelf (ook als de computer al verbeterde); null = terug naar de computer.
-function cijfer({ file, speler, id, punten, over, vak, goed } = {}) {
+// naam: welke leerling (de plaats in de lijst kan verschuiven als er iemand bijkomt, op deze of een andere pc).
+function cijfer({ file, speler, naam, id, punten, over, vak, goed } = {}) {
   const rec = laadAfname(file);
-  const s = rec.spelers[Number(speler)];
+  const s = typeof naam === 'string' ? rec.spelers.find(x => sleutelVan(x.naam) === sleutelVan(naam)) : rec.spelers[Number(speler)];
   if (!s) throw new Error('Die leerling staat niet in deze afname.');
+  s.ht = s.ht || {};
+  s.ht[id] = Date.now();
+  s.t = Date.now();
   const v = K.vragenVan(K.lijstVoor(rec.toets, s.niveau)).find(x => x.id === id);
   // Eén vakje van een blad zelf goed of fout zetten (goed: null = terug naar de computer).
   if (vak !== undefined) {
@@ -216,6 +294,7 @@ function klaar(file, saveCsv) {
     rec.gelogd = !rec.taak;
   }
   rec.klaar = true;
+  rec.kt = Date.now();
   rec.resultaten = saveCsv(rec, s => stand(rec, s));
   schrijf(rec);
   return rec;
@@ -232,8 +311,7 @@ function verwijderAfname(file) {
 // speler: de plaats in de lijst, of de naam (vast, ook als er intussen iemand bijkwam).
 function kopieData(file, speler) {
   const rec = laadAfname(file);
-  const key = n => String(n || '').trim().replace(/\s+/g, ' ').toLowerCase();
-  const s = typeof speler === 'string' ? rec.spelers.find(x => key(x.naam) === key(speler)) : rec.spelers[Number(speler)];
+  const s = typeof speler === 'string' ? rec.spelers.find(x => sleutelVan(x.naam) === sleutelVan(speler)) : rec.spelers[Number(speler)];
   if (!s) throw new Error('Die leerling staat niet in deze afname.');
   const punten = {};
   const vakken = {};
@@ -247,4 +325,4 @@ function kopieData(file, speler) {
   return { title: rec.title, datum: rec.datum, naam: s.naam, niveau: s.niveau, toets: rec.toets, antwoorden: s.antwoorden, punten, vakken, stand: stand(rec, s) };
 }
 
-module.exports = { PC, sleutelVan: n => String(n || '').trim().replace(/\s+/g, ' ').toLowerCase(), kregen, DIR, list, load, save, remove, parseAiText, parseSleutel, lib, bewaarAfname, schrijfAfname: schrijf, laadAfname, afnames, cijfer, klaar, stand, verwijderAfname, kopieData, K };
+module.exports = { afnameSamen, afnameGeldig, afnameVanTaak, sleutelVan, PC, set naSchrijf(fn) { naSchrijf = fn; }, get AFNAMES() { return AFNAMES(); }, kregen, DIR, list, load, save, remove, parseAiText, parseSleutel, lib, bewaarAfname, schrijfAfname: schrijf, laadAfname, afnames, cijfer, klaar, stand, verwijderAfname, kopieData, K };

@@ -367,7 +367,7 @@ const proef = new ProefLive(io, rec => {
   const file = proeven.bewaarAfname(rec);
   const hand = rec.spelers.some(s => proeven.stand(rec, s).open);
   if (!hand) proeven.klaar(file, results.saveProef);
-  io.to('host').emit('pf-afnames', proeven.afnames());
+  io.to('host').emit('pf-afnames', afnameLijst());
   finished(null);
   return file;
 });
@@ -381,7 +381,27 @@ taken.bijAfname = file => {
     // Meteen verbeterd: ook dan de kopie en de mail, zoals na Klaar in De Proef (wie al gemaild werd, krijgt geen tweede).
     naKlaar(file, proeven.klaar(file, results.saveProef));
   }
-  io.to('host').emit('pf-afnames', proeven.afnames());
+  io.to('host').emit('pf-afnames', afnameLijst());
+};
+
+// De afnames voor De Proef en het startscherm: bij een toets als taak ook wie nog bezig is of nog niet begon.
+function afnameLijst() {
+  return proeven.afnames().map(a => {
+    const ll = a.taak && taken.toetsLeerlingen(a.taak);
+    return ll ? { ...a, bezig: ll.filter(l => l.status === 'bezig').length, nog: ll.filter(l => l.status === 'nieuw').length } : a;
+  });
+}
+
+// Een afname veranderde (een leerling leverde in, de leerkracht verbeterde): de andere schermen en, via de lesmap, je andere pc's.
+let afnameTimer = null;
+proeven.naSchrijf = () => {
+  if (afnameTimer) return;
+  afnameTimer = setTimeout(() => {
+    afnameTimer = null;
+    io.to('host').emit('pf-afnames', afnameLijst());
+    io.to('host').emit('pf-afname-gewijzigd');
+    if (settings.read().lesmap) syncSoon();
+  }, 1500);
 };
 
 // Elk spel met leerlingen, bij het adres van zijn leerkrachtenscherm. Een nieuw spel komt hier ook bij:
@@ -606,6 +626,10 @@ lesmap.init([
   // Taken: thuis klaarzetten, op het digibord werken de leerlingen eraan. Alleen de taak zelf, nooit het werk.
   // perKlas: hoort bij de klas die nu gekozen is (Meerdere klassen); de eerste klas staat waar ze altijd stond.
   { kind: 'taak', dir: () => taken.PLAN, perKlas: true, remote: 'taken', validate: taken.planGeldig },
+  // Hoe ver de leerlingen zijn met elke taak: de pc waar ze werken zet het hier, je andere pc's tonen het.
+  // De afnames van toetsen (De Proef, ook een toets als taak): zo zie en verbeter je ze op elke pc. Per leerling en per vraag samenvoegen.
+  { kind: 'afnames', dir: () => proeven.AFNAMES, perKlas: true, remote: 'toetsen-resultaten', validate: proeven.afnameGeldig, merge: proeven.afnameSamen },
+  { kind: 'takenstand', dir: () => taken.STAND, perKlas: true, remote: 'taken-stand', validate: taken.standGeldig },
   // De klastaken van De Wachtlijst (de taken en de beurt, niet de volgorde van de leerlingen).
   { kind: 'klastaken', dir: () => klastaken.DIR, perKlas: true, remote: 'klastaken', validate: klastaken.geldig },
   // De Klasindeling: je lokaal en wie waar zit, thuis klaar te zetten.
@@ -645,6 +669,7 @@ function runSync() {
   try { toetsmail.naarLesmap(); } catch (err) { console.error('Adressen voor toetsen mailen bewaren mislukt:', err.message); }
   runen.verhuis();
   if (settings.read().lesmap) {
+    try { const i = echteKaart(); taken.naarLesmapStand(i ? `${i.address}:${PORT}` : ''); } catch (err) { console.error('Stand van de taken voor de lesmap bewaren mislukt:', err.message); }
     try { burchten.naarLesmap(); } catch (err) { console.error('Klaseiland voor de lesmap bewaren mislukt:', err.message); }
   }
   return lesmap.sync().then(changed => {
@@ -664,6 +689,13 @@ function runSync() {
       else if (kind === 'burchten') io.to('host').emit('bu-eiland', burchten.eiland());
       else if (kind === 'runen') { runen.uitLesmap(); io.to('host').emit('rn-bord', runen.bord()); }
       else if (kind === 'inbeeld') inbeeld.uitLesmap().then(() => io.to('host').emit('ib-view', inbeeld.view()));
+    }
+    if (changed.includes('takenstand') || changed.includes('afnames')) io.to('host').emit('tk-lijst', taken.lijst());
+    if (changed.includes('afnames')) {
+      io.to('host').emit('pf-afnames', afnameLijst());
+      io.to('host').emit('pf-afname-gewijzigd');
+      // Klaar op een pc zonder app-wachtwoord (rec.mailWacht): een pc die wel kan mailen, doet het (elke leerling één keer).
+      try { if (toetsmail.view().klaar) wachtendeMails(); } catch {}
     }
     if (taken.uitLesmap()) {
       io.to('host').emit('tk-lijst', taken.lijst());
@@ -694,8 +726,14 @@ function takenSoon() {
   takenTimer = setTimeout(() => {
     takenTimer = null;
     io.to('host').emit('tk-lijst', taken.lijst());
+    // Ook het toetsoverzicht in De Proef en op het startscherm (wie bezig is).
+    io.to('host').emit('pf-afnames', afnameLijst());
+    io.to('host').emit('pf-afname-gewijzigd');
   }, 500);
+  // De stand ook snel naar je andere pc's (via de lesmap), hooguit om de 20 seconden.
+  if (!standTimer && settings.read().lesmap) standTimer = setTimeout(() => { standTimer = null; syncSoon(); }, 20000);
 }
+let standTimer = null;
 
 // Geplande taken: op het moment dat er een verschijnt, krijgen de leerlingen en het bord een seintje.
 // Eén keer per halve minuut kijken is genoeg (een taak die om 10:25 gepland staat, is er uiterlijk om 10:25:30).
@@ -874,6 +912,7 @@ function toetsKopieen(file) {
   const deze = k.klassen.find(x => x.id === k.actief);
   const klasNaam = k.klassen.length > 1 && deze ? (deze.naam || `Klas ${deze.nr}`) : '';
   io.to('host').emit('pf-kopie', { file, bezig: true, aantal: rec.spelers.length });
+  // Op naam (niet op plaats): intussen kan er iemand bijgekomen zijn, hier of via de lesmap.
   const gemaildBij = i => {
     try {
       const nu = proeven.laadAfname(file);
@@ -2517,14 +2556,19 @@ io.on('connection', socket => {
     socket.on('pf-zet-niveau', pfHost(({ id, niveau }) => proef.setNiveau(id, niveau)));
     socket.on('pf-uitslag', pfHost(({ aan }) => proef.toonUitslag(aan)));
     // Afnames: verder verbeteren na de les (open vragen, op papier, de werkwijze), dan klaar: Excel en logboek.
-    socket.emit('pf-afnames', proeven.afnames());
-    socket.on('pf-afnames', (_, cb) => typeof cb === 'function' && cb(proeven.afnames()));
-    socket.on('pf-afname', handle(file => ({ afname: proeven.laadAfname(file) })));
+    socket.emit('pf-afnames', afnameLijst());
+    socket.on('pf-afnames', (_, cb) => typeof cb === 'function' && cb(afnameLijst()));
+    socket.on('pf-afname', handle(file => {
+      const afname = proeven.laadAfname(file);
+      // Het Excel-bestand van een andere pc staat hier niet: dan geen link die nergens naartoe gaat.
+      if (afname.resultaten) try { if (!fs.existsSync(results.filePath(afname.resultaten))) delete afname.resultaten; } catch { delete afname.resultaten; }
+      return { afname, leerlingen: afname.taak ? taken.toetsLeerlingen(afname.taak) : null };
+    }));
     socket.on('pf-cijfer', handle(arg => ({ stand: proeven.cijfer(arg) })));
     socket.on('pf-klaar', handle(file => {
       const rec = proeven.klaar(file, results.saveProef);
       sendLibrary('resultaat');
-      io.to('host').emit('pf-afnames', proeven.afnames());
+      io.to('host').emit('pf-afnames', afnameLijst());
       return { resultaten: rec.resultaten, ...naKlaar(file, rec) };
     }));
     // Toetsen mailen: afzender (eigen mailbox) en een adres per leerling.
@@ -2543,7 +2587,7 @@ io.on('connection', socket => {
     socket.on('pf-kopie-nu', handle(file => { proeven.laadAfname(file); toetsKopieen(file); return { ok: true }; }));
     socket.on('pf-afname-weg', handle(file => {
       proeven.verwijderAfname(file);
-      io.to('host').emit('pf-afnames', proeven.afnames());
+      io.to('host').emit('pf-afnames', afnameLijst());
       return {};
     }));
 
