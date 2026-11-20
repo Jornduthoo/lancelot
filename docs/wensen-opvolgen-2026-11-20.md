@@ -91,7 +91,7 @@ Voorstel: https://claude.ai/artifact/GCzejmKXRwQJBChJN2Gugv. Elke vraag krijgt �
 | # | Wijziging | Status | PR |
 | --- | --- | --- | --- |
 | 1 | Eén blok Vandaag bovenaan; de gouden toetsbalk zit erin (bezig + te verbeteren per toets). De balk toont alleen nog als Vandaag uit staat. | ✅ | #593 |
-| 2 | Opvolgen-tegel in Lesgeven; Mijn klas opent op Opvolgen | ○ | |
+| 2 | Mijn klas opent op Opvolgen (zonder klaslijst eerst Klas); tegel "Taken klaarzetten" heet nu "Taak geven". Geen extra tegel: minder knoppen. | ✅ | #598 |
 | 3 | Takenkaarten compact (één regel + Opvolgen ▶), lijst standaard Alles | ○ | |
 | 4 | Eén naam voor één ding (Afnames en verbeteren, Spelresultaten, Even opletten) | ○ | |
 | 5 | Tabjes Mijn klas: Opvolgen, Taken, Klas, Zorg + Meer ▾ | ○ | |

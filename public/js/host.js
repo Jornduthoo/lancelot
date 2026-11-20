@@ -434,7 +434,8 @@ if (instParams.has('instellingen')) {
   document.addEventListener('DOMContentLoaded', () => $('open-settings').click());
 }
 Ui.tabs($('set-tabs'), 'lancelot-instellingen-tab');
-$('open-klas').addEventListener('click', () => { location.href = '/klas'; });
+// Mijn klas opent op Opvolgen: wie deed wat en de punten (één plek per vraag). Zonder klaslijst: eerst Klas.
+$('open-klas').addEventListener('click', () => { location.href = '/opvolgen?start=1'; });
 $('open-taken').addEventListener('click', () => { location.href = '/taken'; });
 socket.on('zekerheid', on => { $('zekerheid').checked = on; });
 $('zekerheid').addEventListener('change', e => socket.emit('zekerheid', e.target.checked));

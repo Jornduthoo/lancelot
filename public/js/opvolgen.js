@@ -251,6 +251,8 @@ $('op-kopieer').addEventListener('click', () => {
 function laad() {
   socket.emit('op-overzicht', null, res => {
     if (!res || res.error) return;
+    // Vanaf het startscherm (Mijn klas) en nog geen klaslijst: eerst naar Klas, om de namen in te vullen.
+    if (new URLSearchParams(location.search).has('start') && !res.rijen.length && !(res.gasten || []).length) return location.replace('/klas#klas');
     data = res;
     teken();
   });
