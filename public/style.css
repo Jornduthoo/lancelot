@@ -1310,6 +1310,17 @@ body.breed main { max-width: none; padding-left: 20px; padding-right: 20px; }
 .niveau-pick button { padding: 4px 10px; font-size: .9rem; }
 .niveau-pick button.on { background: var(--gold, rgb(var(--k-goud))); color: rgb(var(--k-panel)); border-color: var(--gold, rgb(var(--k-goud))); }
 .klas-niveaus { margin-top: 8px; overflow-x: auto; }
+/* Mijn klas: toetsen mailen (een adres per leerling) */
+.km-box { margin: 8px 0 12px; padding: 8px 12px; border: 1px dashed var(--gold, #c9a54a); border-radius: 10px; }
+.km-box > summary { cursor: pointer; font-weight: 700; }
+.km-box[open] > summary { margin-bottom: 6px; }
+.km-lijst { display: grid; grid-template-columns: minmax(90px, max-content) 1fr 1fr max-content; gap: 6px 12px; align-items: center; max-width: 900px; }
+.km-lijst .km-kop { font-weight: 700; font-size: .9rem; }
+.km-lijst input[type=email] { width: 100%; box-sizing: border-box; }
+.km-lijst label { display: flex; flex-direction: row; gap: 6px; align-items: center; white-space: nowrap; margin: 0; }
+.km-lijst label input { width: auto; margin: 0; }
+@media (max-width: 700px) { .km-lijst { grid-template-columns: 1fr; } .km-lijst .km-kop { display: none; } .km-lijst > span { margin-top: 8px; font-weight: 700; } }
+.km-lijst input.ok { outline: 2px solid #2fa36b; }
 .niveau-raster { border-collapse: collapse; font-size: .92rem; }
 .niveau-raster th, .niveau-raster td { padding: 3px 6px; text-align: left; white-space: nowrap; }
 .niveau-raster thead th { font-size: .82rem; opacity: .8; }

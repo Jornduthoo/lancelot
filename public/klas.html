@@ -60,6 +60,30 @@
       <p class="error" id="k-niveau-error"></p>
     </div>
 
+    <div class="panel form" data-tab="klas" id="mail">
+      <h3>✉️ Toetsen mailen</h3>
+      <p class="muted">Vul bij een leerling één of twee adressen in (bv. de GON-begeleider of een ouder) en vink <b>Automatisch mailen</b> aan. Elke verbeterde toets van die leerling gaat dan vanzelf naar die adressen.</p>
+      <details class="km-box" id="km-box">
+        <summary id="km-status">Eerst: met welke mailbox?</summary>
+        <p class="muted small">Lancelot verstuurt met je eigen Gmail. Gebruik een <a href="https://myaccount.google.com/apppasswords" target="_blank" rel="noopener">app-wachtwoord</a> (niet je gewone wachtwoord; daarvoor moet verificatie in 2 stappen aan staan). Het blijft alleen op deze pc.</p>
+        <div class="row">
+          <label>Je e-mailadres<input type="email" id="km-van" autocomplete="off" placeholder="naam@gmail.com"></label>
+          <label>App-wachtwoord<input type="password" id="km-pass" autocomplete="new-password" placeholder="16 letters"></label>
+          <label>Je naam onder de mail<input type="text" id="km-naam" autocomplete="off" placeholder="bv. Jorn Peeters"></label>
+        </div>
+        <details class="small muted"><summary>Geen Gmail?</summary>
+          <div class="row"><label>Mailserver<input type="text" id="km-host" placeholder="smtp.gmail.com"></label><label>Poort<input type="number" id="km-port" placeholder="465"></label></div>
+        </details>
+        <div class="actions">
+          <button type="button" id="km-bewaar">Bewaar</button>
+          <button type="button" class="secondary" id="km-test">Stuur een proefmail naar mezelf</button>
+          <button type="button" class="secondary hidden" id="km-wis">Mailbox wissen</button>
+          <span class="muted small" id="km-info"></span>
+        </div>
+      </details>
+      <div class="km-lijst" id="km-lijst"></div>
+    </div>
+
     <div class="panel form" data-tab="logboek">
       <h3>Logboek</h3>
       <p id="l-summary" class="muted">Laden…</p>
@@ -130,5 +154,6 @@
 <script src="/js/niveau.js"></script>
 <script src="/js/overzicht.js"></script>
 <script src="/js/klas-host.js"></script>
+<script src="/js/klas-mail.js"></script>
 </body>
 </html>

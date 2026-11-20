@@ -19,23 +19,26 @@ function cfg() {
     van: String(m.van || '').trim(), pass: String(m.pass || ''), naam: String(m.naam || '').trim(),
     host: String(m.host || STANDAARD.host).trim(), port: Number(m.port) || STANDAARD.port,
     adressen: m.adressen && typeof m.adressen === 'object' ? m.adressen : {},
+    // Leerlingen met een adres maar zonder vinkje "automatisch mailen" (sleutel: true).
+    uit: m.uit && typeof m.uit === 'object' ? m.uit : {},
   };
 }
 function bewaar(c) { settings.write({ toetsMail: c }); }
 
 const klaar = c => !!(c.van && c.pass && c.host);
-// Het adres voor deze leerling (of leeg).
-function adresVoor(naam) { return cfg().adressen[sleutel(naam)] || ''; }
+// Het adres voor deze leerling (of leeg, ook als het vinkje "automatisch mailen" uit staat).
+const actief = (c, k) => (!c.uit[k] && c.adressen[k]) || '';
+function adresVoor(naam) { return actief(cfg(), sleutel(naam)); }
 // Moet er voor iemand uit deze afname gemaild worden?
 function nodig(spelers) {
   const c = cfg();
-  return klaar(c) && (spelers || []).some(s => c.adressen[sleutel(s.naam)]);
+  return klaar(c) && (spelers || []).some(s => actief(c, sleutel(s.naam)));
 }
 
 // Wat het scherm te zien krijgt: nooit het wachtwoord.
 function view() {
   const c = cfg();
-  return { van: c.van, naam: c.naam, host: c.host, port: c.port, heeftPass: !!c.pass, klaar: klaar(c), adressen: { ...c.adressen } };
+  return { van: c.van, naam: c.naam, host: c.host, port: c.port, heeftPass: !!c.pass, klaar: klaar(c), adressen: { ...c.adressen }, uit: { ...c.uit } };
 }
 
 // Afzender instellen. Een leeg wachtwoord laat het oude staan; wis: true haalt alles weg.
@@ -63,7 +66,23 @@ function zetAdres(naam, adres) {
   if (fout) throw new Error(`"${fout}" is geen geldig e-mailadres.`);
   const c = cfg();
   if (lijst.length) c.adressen[k] = lijst.join(', ');
+  else { delete c.adressen[k]; delete c.uit[k]; }
+  bewaar(c);
+  return view();
+}
+
+// Mijn klas: per leerling twee adressen (bv. de GON-begeleider en een ouder) en het vinkje "automatisch mailen".
+function zetLeerling(naam, { adres1, adres2, aan } = {}) {
+  const k = sleutel(naam);
+  if (!k) throw new Error('Kies een leerling.');
+  const lijst = [adres1, adres2].flatMap(a => String(a || '').split(/[,;\s]+/)).map(a => a.trim()).filter(Boolean);
+  const fout = lijst.find(a => !ADRES.test(a));
+  if (fout) throw new Error(`"${fout}" is geen geldig e-mailadres.`);
+  const c = cfg();
+  if (lijst.length) c.adressen[k] = [...new Set(lijst)].join(', ');
   else delete c.adressen[k];
+  if (lijst.length && aan === false) c.uit[k] = true;
+  else delete c.uit[k];
   bewaar(c);
   return view();
 }
@@ -204,4 +223,4 @@ function test(opties) {
   return verstuur({ naar: c.van, onderwerp: 'Lancelot: proefmail', tekst: 'Het werkt. Lancelot kan toetsen mailen vanuit deze mailbox.\n' }, opties);
 }
 
-module.exports = { view, zetAfzender, zetAdres, adresVoor, nodig, toets, test, verstuur, bericht, sleutel, STANDAARD };
+module.exports = { view, zetAfzender, zetAdres, zetLeerling, adresVoor, nodig, toets, test, verstuur, bericht, sleutel, STANDAARD };
