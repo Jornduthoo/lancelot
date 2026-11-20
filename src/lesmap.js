@@ -402,7 +402,7 @@ async function syncBestanden(kind, root, state, count, fouten) {
   const bekend = Object.keys(seen).length;
   const teVeel = n => n > 3 && n > bekend / 2;
   if (teVeel(wisHier) || teVeel(wisDaar)) {
-    fouten.push('Veel bordboeken lijken weg aan één kant. Er werd niets verwijderd: kijk of OneDrive of Google Drive alles heeft binnengehaald.');
+    fouten.push(kind.kind === 'resultaat' ? 'Veel spelresultaten lijken weg aan één kant. Er werd niets verwijderd: kijk of OneDrive of Google Drive alles heeft binnengehaald.' : 'Veel bordboeken lijken weg aan één kant. Er werd niets verwijderd: kijk of OneDrive of Google Drive alles heeft binnengehaald.');
     for (const t of taken) if (t.doe === 'wis-hier' || t.doe === 'wis-daar') { t.doe = 'niets'; next[t.rel] = t.oud; }
   }
 
@@ -466,7 +466,7 @@ function sync() {
         if (kind.bestanden) {
           // De bordboeken: groot, dus apart, en uit te zetten. Uit: de vorige stand vergeten, zodat er na het weer
           // aanzetten eerst alleen samengevoegd wordt en niets verdwijnt.
-          if (!boekenAan()) { delete state.files[kind.kind]; delete (state.wacht || {})[kind.kind]; continue; }
+          if (kind.kind === 'bordboeken' && !boekenAan()) { delete state.files[kind.kind]; delete (state.wacht || {})[kind.kind]; continue; }
           if (await syncBestanden(kind, root, state, count, fouten)) changed.push(kind.kind);
           fs.writeFileSync(STATE, JSON.stringify(state) + '\n');
         } else if (await syncKind(kind, root, state, count)) changed.push(kind.kind);

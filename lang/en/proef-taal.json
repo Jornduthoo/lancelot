@@ -738,5 +738,6 @@
  "Zonder vak": "No subject",
  "geen taken": "no tasks",
  "{0}e keer": "time {0}",
- "{0} · {1}e keer": "{0} · time {1}"
+ "{0} · {1}e keer": "{0} · time {1}",
+ "Veel spelresultaten lijken weg aan één kant. Er werd niets verwijderd: kijk of OneDrive of Google Drive alles heeft binnengehaald.": "Many game results seem missing on one side. Nothing was deleted: check whether OneDrive or Google Drive has fetched everything."
 }
