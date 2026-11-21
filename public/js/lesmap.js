@@ -9,6 +9,38 @@
     return (today ? 'vandaag om ' : `${d.toLocaleDateString('nl-BE')} om `) + d.toLocaleTimeString('nl-BE', { hour: '2-digit', minute: '2-digit' });
   }
 
+  // De naam van elke soort, zoals de leerkracht ze kent.
+  const NAMEN = {
+    quiz: 'Quizzen', oefenblad: 'Oefenbladen', sessie: 'Ronde Tafels', proef: 'Toetsen', zonnewijzer: 'Planning',
+    kronieken: 'Mijn methodes', taak: 'Taken', afnames: 'Resultaten van toetsen', takenstandaard: 'Standaardkeuzes voor taken',
+    vakken: 'Vakken', punten: 'Punten', toestellen: 'Je pc\'s', takenstand: 'Stand van de taken', klastaken: 'Klastaken',
+    klasindeling: 'Klasindeling', klas: 'Klaslijst', klassen: 'Klassen', toetsmail: 'Toetsen mailen', burchten: 'Klaseiland',
+    runen: 'Runenraadsel', inbeeld: 'Woordkaarten', resultaat: 'Spelresultaten', bordboeken: 'Bordboeken',
+  };
+  // "Wat kwam er binnen?": per soort wat er de laatste keer van je andere pc's binnenkwam, en wat niet lukte.
+  function soorten(v) {
+    const box = $('lm-soorten');
+    if (!box) return;
+    const lijst = v.lesmap ? v.soorten || [] : [];
+    const ul = $('lm-soorten-lijst');
+    ul.textContent = '';
+    for (const s of lijst) {
+      const naam = NAMEN[s.soort] || s.soort;
+      const regels = [];
+      if (s.fout) regels.push({ tekst: `⚠ ${naam}: ${s.fout}`, fout: true });
+      for (const x of s.van || []) regels.push({ tekst: x.n === 1 ? `${naam}: 1 bestand van ${x.pc}` : `${naam}: ${x.n} bestanden van ${x.pc}` });
+      if (s.binnen) regels.push({ tekst: s.binnen.n === 1 ? `${naam}: 1 bestand binnengehaald ${when(s.binnen.at)}` : `${naam}: ${s.binnen.n} bestanden binnengehaald ${when(s.binnen.at)}` });
+      for (const r of regels) {
+        const li = document.createElement('li');
+        li.textContent = r.tekst;
+        if (r.fout) li.className = 'error';
+        ul.appendChild(li);
+      }
+    }
+    box.classList.toggle('hidden', !ul.children.length);
+    if (lijst.some(s => s.fout)) box.open = true;
+  }
+
   function render(v) {
     current = v.lesmap;
     if (document.activeElement !== $('lm-path')) $('lm-path').value = v.lesmap;
@@ -27,6 +59,7 @@
       oud.textContent = v.lesmap && v.oudToestel ? `⚠ Een ander toestel gebruikt een oude versie van LANcelot (gezien ${when(v.oudToestel)}). Er ging niets verloren, maar werk LANcelot op dat toestel bij.` : '';
       oud.classList.toggle('hidden', !(v.lesmap && v.oudToestel));
     }
+    soorten(v);
     for (const id of ['lm-sync', 'lm-open', 'lm-off', 'lm-boeken-rij', 'lm-toestel-rij']) $(id).classList.toggle('hidden', !v.lesmap);
     $('lm-boeken').checked = v.boekenAan !== false;
   }

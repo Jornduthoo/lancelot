@@ -409,6 +409,7 @@ function uitLesmap() {
   try { plannen = fs.readdirSync(PLAN()).filter(n => /^[a-z0-9]+\.json$/.test(n)); } catch {}
   const ids = new Set();
   let veranderd = false;
+  let per = null;
   for (const naam of plannen) {
     let p;
     try { p = JSON.parse(fs.readFileSync(path.join(PLAN(), naam), 'utf8')); planGeldig(p); } catch { continue; }
@@ -458,6 +459,16 @@ function uitLesmap() {
       t.werk[key(n)] = nieuwWerk(t, klas.match(n).naam, startNiveau(t, n));
       veranderd = true;
     }
+    // Wie niet (meer) in het plan staat (aan de andere kant weggehaald), gaat hier ook weg, maar alleen zolang hij
+    // nergens begon: niet hier en niet op een andere pc. Anders telde hij bij "Nog niet af" voor een taak die hij niet heeft.
+    const inPlan = new Set(p.namen.map(clean).filter(Boolean).map(key));
+    for (const [k, w] of Object.entries(t.werk)) {
+      if (inPlan.has(k) || inPlan.has(key(w.naam)) || w.status !== 'nieuw' || w.poging) continue;
+      if (!per) per = standen();
+      if ((per.get(t.id) || []).some(s => s.werk[k] && RANG[s.werk[k].status])) continue;
+      delete t.werk[k];
+      veranderd = true;
+    }
   }
   const list = all();
   for (let i = list.length - 1; i >= 0; i--) {
@@ -490,6 +501,8 @@ function voegToe({ id, namen } = {}) {
 function haalWeg({ id, naam } = {}) {
   const t = find(id);
   delete t.werk[key(naam)];
+  // Ook in het plan: zo verdwijnt hij ook op je andere pc's uit de taak.
+  if (t.plan) planBewaar(t);
   save();
 }
 
@@ -648,6 +661,12 @@ function standen() {
     } catch {}
   }
   return per;
+}
+// Hoeveel standen er van elke andere pc binnenkwamen (Instellingen › Lesmap): { pc: aantal }.
+function standPerPc() {
+  const uit = {};
+  for (const lijst of standen().values()) for (const s of lijst) uit[s.pc] = (uit[s.pc] || 0) + 1;
+  return uit;
 }
 // Het werk van elke leerling zoals het ergens staat: hier, of (als hij hier nog niet begon) op de pc waar hij werkt.
 const RANG = { nieuw: 0, bezig: 1, klaar: 2 };
@@ -1009,4 +1028,4 @@ function toetsenGegeven() {
 }
 proeven.gegevenHook = toetsenGegeven;
 
-module.exports = { toetsenGegeven, ruimOp, toetsLeerlingen, standen, toetsAntwoord, zetVoorlees, zetAfwezig, naarLesmapStand, standGeldig, get STAND() { return STAND(); }, PC, set bijAfname(fn) { bijAfname = fn; }, lesVan, gestartSinds, startNu, get PLAN() { return PLAN(); }, planGeldig, uitLesmap, SOLO, MINUTEN, soloRonde, soloAntwoord, voorbeeld, inhoud, maak, voegToe, haalWeg, zetNiveau, sluit, heropen, wis, lijst, detail, mijn, aantal, open, antwoord, inleveren, quizAntwoord, flush, get DIR() { return DIR(); } };
+module.exports = { toetsenGegeven, ruimOp, toetsLeerlingen, standen, standPerPc, toetsAntwoord, zetVoorlees, zetAfwezig, naarLesmapStand, standGeldig, get STAND() { return STAND(); }, PC, set bijAfname(fn) { bijAfname = fn; }, lesVan, gestartSinds, startNu, get PLAN() { return PLAN(); }, planGeldig, uitLesmap, SOLO, MINUTEN, soloRonde, soloAntwoord, voorbeeld, inhoud, maak, voegToe, haalWeg, zetNiveau, sluit, heropen, wis, lijst, detail, mijn, aantal, open, antwoord, inleveren, quizAntwoord, flush, get DIR() { return DIR(); } };

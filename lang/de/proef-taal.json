@@ -739,5 +739,20 @@
  "geen taken": "keine Aufgaben",
  "{0}e keer": "{0}. Mal",
  "{0} · {1}e keer": "{0} · {1}. Mal",
- "Veel spelresultaten lijken weg aan één kant. Er werd niets verwijderd: kijk of OneDrive of Google Drive alles heeft binnengehaald.": "Viele Spielergebnisse scheinen auf einer Seite zu fehlen. Es wurde nichts gelöscht: Prüfe, ob OneDrive oder Google Drive alles heruntergeladen hat."
+ "Veel spelresultaten lijken weg aan één kant. Er werd niets verwijderd: kijk of OneDrive of Google Drive alles heeft binnengehaald.": "Viele Spielergebnisse scheinen auf einer Seite zu fehlen. Es wurde nichts gelöscht: Prüfe, ob OneDrive oder Google Drive alles heruntergeladen hat.",
+ "Ronde Tafels": "Tafelrunden",
+ "Resultaten van toetsen": "Testergebnisse",
+ "Standaardkeuzes voor taken": "Standardeinstellungen für Aufgaben",
+ "Je pc's": "Deine PCs",
+ "Stand van de taken": "Stand der Aufgaben",
+ "Klaslijst": "Klassenliste",
+ "Toetsen mailen": "Tests mailen",
+ "Klaseiland": "Klasseninsel",
+ "Bordboeken": "Tafelbücher",
+ "{0}: 1 bestand van {1}": "{0}: 1 Datei von {1}",
+ "{0}: {1} bestanden van {2}": "{0}: {1} Dateien von {2}",
+ "{0}: 1 bestand binnengehaald {1}": "{0}: 1 Datei empfangen {1}",
+ "{0}: {1} bestanden binnengehaald {2}": "{0}: {1} Dateien empfangen {2}",
+ "Wat kwam er binnen?": "Was ist angekommen?",
+ "Niet alles kon gesynchroniseerd worden. Kijk bij \"Wat kwam er binnen?\".": "Nicht alles konnte synchronisiert werden. Schau unter „Was ist angekommen?“."
 }
