@@ -620,7 +620,8 @@
   function frame(t) {
     requestAnimationFrame(frame);
     // De worp loopt op de echte tijd (ook op een trage Chromebook duurt hij niet langer); de camera glijdt rustig mee.
-    const real = Math.min(1, Math.max(0, (t - last) / 1000));
+    // Tot 10 s tussen twee beelden: zo duurt een worp ook bij 1 beeld per seconde maar een paar seconden.
+    const real = Math.min(10, Math.max(0, (t - last) / 1000));
     const dt = Math.min(.05, real);
     last = t;
     if (!on() || !g.state || g.state.phase !== 'play' || $('kb-game').classList.contains('hidden')) return;
@@ -647,7 +648,7 @@
     if (g.roll) {
       const r = g.roll;
       // Bij de inslag even vertraagd: zo zie je de kegels echt vliegen.
-      const slowMo = r.hitAt >= 0 && r.sim.t - r.hitAt < .9;
+      const slowMo = real < .25 && r.hitAt >= 0 && r.sim.t - r.hitAt < .9;
       r.clock += real * (slowMo ? .45 : 1.15);
       W.runTo(r.sim, r.clock);
       // Kegels die nu omvallen: vonken.

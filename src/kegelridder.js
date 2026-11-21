@@ -194,7 +194,7 @@ class Kegelridder {
       p.frame = 1;
       p.ball = 1;
       p.standing = Array(10).fill(true);
-      this.addFeed(`🏁 ${p.name} speelt een spel van ${gameScore}`, gameScore >= 100);
+      this.addFeed(`🏁 ${p.name} speelt een spel van ${gameScore}`, gameScore >= 100, this.throwId + 1);
     } else {
       p.frame = at.frame;
       p.ball = at.ball;
@@ -204,8 +204,8 @@ class Kegelridder {
     p.best = Math.max(p.best, points);
     if (kind === 'strike') {
       const rij = p.strikeRow >= 3 && p.strikeRow % 3 === 0;
-      this.addFeed(rij ? `🔥 ${p.name} gooit 3 strikes op rij!` : `🎳 STRIKE voor ${p.name}!`, rij || p.strikes <= 3);
-    } else if (kind === 'spare') this.addFeed(split ? `💥 ${p.name} maakt een split helemaal om!` : `✨ Spare voor ${p.name}`, split);
+      this.addFeed(rij ? `🔥 ${p.name} gooit 3 strikes op rij!` : `🎳 STRIKE voor ${p.name}!`, rij || p.strikes <= 3, this.throwId + 1);
+    } else if (kind === 'spare') this.addFeed(split ? `💥 ${p.name} maakt een split helemaal om!` : `✨ Spare voor ${p.name}`, split, this.throwId + 1);
     // Het bord speelt de worp na. Strikes en spares eerst.
     this.throws.push({ id: ++this.throwId, n: p.n, name: p.name, color: p.color, t, standing: before, gold, down: sim.down, kind, split, points, frame, ball, rolls, gameScore });
     if (this.throws.length > 12) this.throws.shift();
@@ -262,8 +262,9 @@ class Kegelridder {
       ['Rang', 'Naam', 'Punten', 'Kegels', 'Strikes', 'Spares', 'Ballen', 'Langste reeks', 'Vragen goed', 'Vragen fout', '% goed'], rows);
   }
 
-  addFeed(text, big = true) {
-    this.feed.unshift({ text, at: Date.now(), big });
+  // tid: de worp waar dit bericht bij hoort. Het bord toont het pas als het die worp heeft nagespeeld.
+  addFeed(text, big = true, tid = 0) {
+    this.feed.unshift({ text, at: Date.now(), big, tid });
     this.feed.length = Math.min(this.feed.length, 8);
     this.changed = true;
   }

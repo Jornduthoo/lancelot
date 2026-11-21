@@ -9,7 +9,19 @@
   const naamNu = () => `Proefridder ${nr + 3 * Math.floor(pogingen / 4)}`;
   const zichtbaar = el => !!(el && el.getClientRects().length && getComputedStyle(el).visibility !== 'hidden');
   let wachtTot = 0;
+  // Wat een proefridder na een vraag als juist antwoord ziet oplichten, onthoudt hij: komt die vraag terug, dan weet
+  // hij het. Zo verdienen ook gokkende proefridders genoeg (bv. ballen in Kegelridder).
+  const geweten = new Map();
+  const vraagVan = el => {
+    const box = el.closest('.ak-question, [class*="question"], [class*="vraag"], section');
+    const tekst = box && box.querySelector('.tw-q-text, .q-small, [class*="q-text"], h2, h3');
+    return tekst ? tekst.textContent.trim() : '';
+  };
   setInterval(() => {
+    for (const juist of document.querySelectorAll('.answers button.right, .antwoorden button.right')) {
+      const vraag = vraagVan(juist);
+      if (vraag && zichtbaar(juist)) geweten.set(vraag, juist.textContent.trim());
+    }
     // De ridder aanpassen slaan we over.
     const klaar = document.querySelector('#av-done');
     if (zichtbaar(klaar)) return klaar.click();
@@ -27,10 +39,12 @@
     // Een vraag: even nadenken, dan een antwoord kiezen (twee op de drie keer het juiste weten ze niet: gewoon gokken).
     const knoppen = [...document.querySelectorAll('.answers button, .antwoorden button, [class*="vraag"] button, [class*="quiz"] button')].filter(b => zichtbaar(b) && !b.disabled);
     // Geen vraag: een spel kan zelf iets laten doen (bv. Kegelridder gooit een bal), via window.proefActie.
-    if (!knoppen.length) { wachtTot = 0; if (typeof window.proefActie === 'function' && Math.random() < .5) window.proefActie(); return; }
+    if (!knoppen.length) { wachtTot = 0; if (typeof window.proefActie === 'function') window.proefActie(); return; }
     if (!wachtTot) { wachtTot = Date.now() + 1500 + Math.random() * 2500; return; }
     if (Date.now() < wachtTot) return;
     wachtTot = 0;
-    knoppen[Math.floor(Math.random() * knoppen.length)].click();
+    const weet = geweten.get(vraagVan(knoppen[0]));
+    const kies = weet && knoppen.find(b => b.textContent.trim() === weet);
+    (kies || knoppen[Math.floor(Math.random() * knoppen.length)]).click();
   }, 700);
 })();
