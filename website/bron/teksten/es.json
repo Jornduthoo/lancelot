@@ -7,6 +7,8 @@
     "hallen": "Qué incluye",
     "spellen": "Juegos",
     "ai": "IA",
+    "opvolgen": "Seguimiento",
+    "toetsen": "Exámenes",
     "privacy": "Privacidad",
     "faq": "Preguntas",
     "download": "Próximamente"
@@ -82,12 +84,12 @@
       {
         "id": "wapenkamer",
         "naam": "Herramientas de clase",
-        "tekst": "Herramientas de aula en la pizarra: sorteo, grupos, temporizador, medidor de ruido, dados y tareas de clase."
+        "tekst": "En la pizarra: elegir alumno, grupos, temporizador, medidor de ruido, semáforo, dados, tareas de clase y plano de clase."
       },
       {
         "id": "burcht",
         "naam": "Mi clase",
-        "tekst": "Tu lista de clase, los objetivos curriculares de tu país o los tuyos, tareas por alumno y los resultados."
+        "tekst": "Sigue a tu clase: tareas y exámenes por alumno, notas, apoyo y los objetivos de tu país."
       }
     ]
   },
@@ -153,9 +155,14 @@
     ]
   },
   "opvolgen": {
-    "titel": "Seguimiento, apoyo e informes",
-    "tekst": "Cada respuesta va al registro, vinculada a los objetivos que elijas. Ves enseguida quién necesita ayuda extra.",
+    "titel": "Seguimiento, apoyo y notas",
+    "tekst": "Mi clase se abre en Seguimiento: cada alumno junto a cada tarea y examen. La pantalla de inicio muestra lo que está listo para hoy y lo que aún tienes que corregir.",
     "lijst": [
+      {
+        "id": "overzicht",
+        "naam": "Una sola vista",
+        "tekst": "De cada alumno ves enseguida qué ha terminado, qué sigue en curso y qué no salió bien. Quien estuvo ausente o no cursa la asignatura no cuenta."
+      },
       {
         "id": "zorg",
         "naam": "Resumen de apoyo",
@@ -164,7 +171,12 @@
       {
         "id": "taken",
         "naam": "Tareas por alumno",
-        "tekst": "Asigna un cuestionario o una ficha a un alumno o a un grupo pequeño, cada uno a su nivel. También desde casa."
+        "tekst": "Da un cuestionario, una ficha o un examen a un alumno, un grupo o toda la clase, cada uno a su nivel. Enseguida, al empezar la clase o el día y la hora que elijas."
+      },
+      {
+        "id": "punten",
+        "naam": "Notas y recuperación",
+        "tekst": "Las notas de los exámenes pasan solas a una lista de notas, sobre 10, 20 o 100, listas para tu boletín. Una recuperación se da con un botón, y tú eliges qué cuenta."
       },
       {
         "id": "doelen",
@@ -172,11 +184,23 @@
         "tekst": "Elige los objetivos de Inglaterra, EE. UU., Países Bajos, Alemania, Francia o Flandes, o añade los tuyos. Una IA puede proponerlos. También puedes trabajar sin objetivos."
       },
       {
-        "id": "proef",
-        "naam": "Exámenes con hoja de corrección",
-        "tekst": "Crea un examen, hazlo en línea o imprímelo. Las notas llegan solas a tu resumen."
+        "id": "lesmap",
+        "naam": "Preparar en casa",
+        "tekst": "Vincula Mi carpeta de clase a tu propio OneDrive o Google Drive. Lo que preparas en casa está en la pizarra a la mañana siguiente, con las mismas tareas, exámenes y resultados."
       }
     ]
+  },
+  "toetsen": {
+    "titel": "Exámenes en el Chromebook o en papel",
+    "tekst": "Crea tu examen con botones, sin código. Los alumnos lo hacen en su dispositivo o en papel. LANcelot corrige lo que puede, tú revisas el resto y las notas aparecen enseguida en tu resumen.",
+    "lijst": [
+      "Opción múltiple, verdadero o falso, completar, relacionar, ordenar, clasificar, agrupar, marcar en un texto y dictado.",
+      "También para matemáticas: dibujar en una cuadrícula, medir con un transportador, polígonos y cuadrículas de cálculo que se corrigen solas.",
+      "Lectura en voz alta por pregunta o por alumno, también más lenta, y preguntas de escucha con tu propio audio.",
+      "Prueba primero el examen tú mismo como un alumno, y míralo en directo mientras la clase trabaja.",
+      "Tras corregir, cada alumno tiene un PDF en tu carpeta de clase. Si quieres, se envía solo por correo a un profesor de apoyo o a los padres, desde tu propio buzón."
+    ],
+    "beeld": "Un examen en el Chromebook de un alumno"
   },
   "motivatie": {
     "titel": "Por qué los alumnos lo esperan cada día",
@@ -206,10 +230,11 @@
   "privacy": {
     "titel": "Los datos de los alumnos se quedan en tu aula",
     "lijst": [
-      "LANcelot funciona en tu propio PC. Sin nube y sin cuentas de alumnos.",
+      "LANcelot funciona en tu propio PC. No hay nube de LANcelot ni cuentas de alumnos.",
       "Los nombres, respuestas y resultados están en una carpeta de ese PC. Tú decides qué pasa con ellos.",
       "Sin anuncios y sin rastreo.",
-      "Si usas IA, solo tu instrucción (tema o material de clase) va a la IA que elijas. Ningún nombre de alumno."
+      "Si usas IA, solo tu instrucción (tema o material de clase) va a la IA que elijas. Ningún nombre de alumno.",
+      "Mi carpeta de clase y el envío de exámenes por correo los activas tú. Entonces tu carpeta pasa por tu propio OneDrive o Google Drive y los correos por tu propio buzón. Eso usa internet."
     ]
   },
   "toestellen": {
@@ -234,7 +259,7 @@
     "tekst": "Neerlandés, inglés, francés, español y alemán. Elige el idioma en los ajustes y cambia cada pantalla, también la de los alumnos."
   },
   "junior": {
-    "kicker": "Muy pronto",
+    "kicker": "En la misma app",
     "titel": "LANcelot Junior",
     "tekst": "Para los más pequeños, de 5 a 9 años. Los mismos caballeros y dragones, con juegos pensados para manos pequeñas y niños que aún no leen (con soltura).",
     "lijst": [
@@ -262,7 +287,7 @@
       "toverdorp": "El pueblo mágico",
       "draakje": "Nuestro dragón de clase"
     },
-    "noot": "LANcelot Junior llega en la misma aplicación. Un botón y pasas de LANcelot a LANcelot Junior."
+    "noot": "LANcelot Junior forma parte de la misma app. Elígelo al arrancar o actívalo en los ajustes."
   },
   "download": {
     "titel": "Lleva LANcelot a tu aula",
@@ -293,7 +318,11 @@
       },
       {
         "v": "¿Necesito internet?",
-        "a": "El juego va por la red local del colegio: el PC y los dispositivos de los alumnos deben estar en la misma red. Solo crear material con IA necesita internet."
+        "a": "El juego funciona por la red local del colegio: el PC y los dispositivos de los alumnos tienen que estar en la misma red. Internet solo hace falta para lo que activas tú: crear material con IA, Mi carpeta de clase con OneDrive o Google Drive, y enviar exámenes por correo."
+      },
+      {
+        "v": "¿Puedo preparar en casa y usar más de un PC?",
+        "a": "Sí. Vincula Mi carpeta de clase a tu OneDrive o Google Drive, en casa y en el PC del aula. Cuestionarios, exámenes, tareas y resultados están entonces en los dos PC, y una tarea que programas en casa está lista en la pizarra a la mañana siguiente."
       },
       {
         "v": "¿Los alumnos necesitan una cuenta?",

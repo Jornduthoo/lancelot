@@ -1,0 +1,33 @@
+{
+  "namen": ["Noor", "Lucas", "Emma", "Milan", "Lina", "Adam", "Sara", "Finn", "Mila", "Yusuf", "Lotte", "Jonas"],
+  "nl": {
+    "klas": "6B",
+    "toets": { "titel": "De middeleeuwen", "sorteren": "Hoort het bij de burcht of bij het klooster? Sleep elk woord naar de juiste kolom.", "kolommen": [["Burcht", ["slotgracht", "ophaalbrug", "donjon", "kantelen"]], ["Klooster", ["abdij", "monnik", "kloostertuin", "gebedenboek"]]], "meerkeuze": ["Waarmee verdedigde een burcht zich?", ["Een slotgracht", "Een parkeergarage", "Een glazen gevel"]], "juistfout": "Een ridder begon als page.", "open": "Waarom bouwden heren hun burcht op een heuvel?" },
+    "zet": [["donjon", "Burcht"], ["monnik", "Klooster"], ["slotgracht", "Burcht"], ["abdij", "Klooster"]],
+    "verbeter": { "titel": "Breuken", "kort": ["1/2 + 1/4 =", "3/4"], "open": "Leg uit hoe je breuken gelijknamig maakt." }
+  },
+  "en": {
+    "klas": "Year 6",
+    "toets": { "titel": "The Middle Ages", "sorteren": "Does it belong to the castle or the monastery? Drag each word to the right column.", "kolommen": [["Castle", ["moat", "drawbridge", "keep", "battlements"]], ["Monastery", ["abbey", "monk", "cloister garden", "prayer book"]]], "meerkeuze": ["How did a castle defend itself?", ["A moat", "A car park", "A glass front"]], "juistfout": "A knight started out as a page.", "open": "Why did lords build their castles on a hill?" },
+    "zet": [["keep", "Castle"], ["monk", "Monastery"], ["moat", "Castle"], ["abbey", "Monastery"]],
+    "verbeter": { "titel": "Fractions", "kort": ["1/2 + 1/4 =", "3/4"], "open": "Explain how you give fractions a common denominator." }
+  },
+  "fr": {
+    "klas": "6e A",
+    "toets": { "titel": "Le Moyen Âge", "sorteren": "Est-ce que cela va avec le château ou avec le monastère ? Glisse chaque mot dans la bonne colonne.", "kolommen": [["Château", ["douves", "pont-levis", "donjon", "créneaux"]], ["Monastère", ["abbaye", "moine", "cloître", "livre de prières"]]], "meerkeuze": ["Comment un château se défendait-il ?", ["Avec des douves", "Avec un parking", "Avec une façade en verre"]], "juistfout": "Un chevalier commençait comme page.", "open": "Pourquoi les seigneurs construisaient-ils leur château sur une colline ?" },
+    "zet": [["donjon", "Château"], ["moine", "Monastère"], ["douves", "Château"], ["abbaye", "Monastère"]],
+    "verbeter": { "titel": "Les fractions", "kort": ["1/2 + 1/4 =", "3/4"], "open": "Explique comment mettre des fractions au même dénominateur." }
+  },
+  "es": {
+    "klas": "6.º B",
+    "toets": { "titel": "La Edad Media", "sorteren": "¿Va con el castillo o con el monasterio? Arrastra cada palabra a la columna correcta.", "kolommen": [["Castillo", ["foso", "puente levadizo", "torre del homenaje", "almenas"]], ["Monasterio", ["abadía", "monje", "claustro", "libro de oraciones"]]], "meerkeuze": ["¿Cómo se defendía un castillo?", ["Con un foso", "Con un aparcamiento", "Con una fachada de cristal"]], "juistfout": "Un caballero empezaba como paje.", "open": "¿Por qué los señores construían su castillo en una colina?" },
+    "zet": [["torre del homenaje", "Castillo"], ["monje", "Monasterio"], ["foso", "Castillo"], ["abadía", "Monasterio"]],
+    "verbeter": { "titel": "Fracciones", "kort": ["1/2 + 1/4 =", "3/4"], "open": "Explica cómo se reducen fracciones a común denominador." }
+  },
+  "de": {
+    "klas": "Klasse 4b",
+    "toets": { "titel": "Das Mittelalter", "sorteren": "Gehört es zur Burg oder zum Kloster? Ziehe jedes Wort in die richtige Spalte.", "kolommen": [["Burg", ["Burggraben", "Zugbrücke", "Bergfried", "Wehrgang"]], ["Kloster", ["Abtei", "Mönch", "Klostergarten", "Gebetbuch"]]], "meerkeuze": ["Wie verteidigte sich eine Burg?", ["Mit einem Burggraben", "Mit einem Parkhaus", "Mit einer Glasfassade"]], "juistfout": "Ein Ritter begann als Page.", "open": "Warum bauten Herren ihre Burg auf einem Hügel?" },
+    "zet": [["Bergfried", "Burg"], ["Mönch", "Kloster"], ["Burggraben", "Burg"], ["Abtei", "Kloster"]],
+    "verbeter": { "titel": "Brüche", "kort": ["1/2 + 1/4 =", "3/4"], "open": "Erkläre, wie man Brüche gleichnamig macht." }
+  }
+}

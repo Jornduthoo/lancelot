@@ -7,6 +7,8 @@
     "hallen": "Was drin ist",
     "spellen": "Spiele",
     "ai": "KI",
+    "opvolgen": "Übersicht",
+    "toetsen": "Tests",
     "privacy": "Datenschutz",
     "faq": "Fragen",
     "download": "Bald"
@@ -82,12 +84,12 @@
       {
         "id": "wapenkamer",
         "naam": "Klassenwerkzeuge",
-        "tekst": "Klassenwerkzeuge an der Tafel: Losrad, Gruppen, Timer, Lautstärkemesser, Würfel und Klassendienste."
+        "tekst": "An der Tafel: Kind auslosen, Gruppen, Timer, Lautstärkemesser, Ampel, Würfel, Klassendienste und Sitzplan."
       },
       {
         "id": "burcht",
         "naam": "Meine Klasse",
-        "tekst": "Deine Klassenliste, die Lehrplanziele deines Landes oder eigene Ziele, Aufgaben pro Kind und die Ergebnisse."
+        "tekst": "Begleite deine Klasse: Aufgaben und Tests pro Kind, Punkte, Förderung und die Lehrplanziele deines Landes."
       }
     ]
   },
@@ -153,9 +155,14 @@
     ]
   },
   "opvolgen": {
-    "titel": "Begleiten, Förderung und Zeugnisse",
-    "tekst": "Jede Antwort landet im Logbuch, verknüpft mit den Zielen, die du wählst. So siehst du sofort, wer mehr Hilfe braucht.",
+    "titel": "Übersicht, Förderung und Punkte",
+    "tekst": "Meine Klasse öffnet mit der Übersicht: jedes Kind neben jeder Aufgabe und jedem Test. Der Startbildschirm zeigt, was heute bereitsteht und was du noch korrigieren musst.",
     "lijst": [
+      {
+        "id": "overzicht",
+        "naam": "Alles auf einen Blick",
+        "tekst": "Bei jedem Kind siehst du sofort, was fertig ist, was noch läuft und was nicht geklappt hat. Wer gefehlt hat oder das Fach nicht belegt, zählt nicht mit."
+      },
       {
         "id": "zorg",
         "naam": "Förderübersicht",
@@ -164,7 +171,12 @@
       {
         "id": "taken",
         "naam": "Aufgaben pro Kind",
-        "tekst": "Gib ein Quiz oder Arbeitsblatt an ein Kind oder eine kleine Gruppe, jedes auf seinem Niveau. Auch von zu Hause vorzubereiten."
+        "tekst": "Gib ein Quiz, ein Arbeitsblatt oder einen Test an ein Kind, eine Gruppe oder die ganze Klasse, jeweils auf dem passenden Niveau. Sofort, zu Beginn der Stunde oder an einem Tag und zu einer Uhrzeit deiner Wahl."
+      },
+      {
+        "id": "punten",
+        "naam": "Punkte und Nachprüfung",
+        "tekst": "Die Punkte der Tests landen von selbst in einer Punkteliste, auf 10, 20 oder 100, bereit für dein Zeugnis. Eine Nachprüfung gibst du mit einem Knopf, und du bestimmst, was zählt."
       },
       {
         "id": "doelen",
@@ -172,11 +184,23 @@
         "tekst": "Wähle die Ziele von England, den USA, den Niederlanden, Deutschland (KMK-Bildungsstandards), Frankreich oder Flandern, oder lege eigene an. Eine KI schlägt sie gern vor. Ohne Ziele geht es auch."
       },
       {
-        "id": "proef",
-        "naam": "Tests mit Lösungsblatt",
-        "tekst": "Erstelle einen Test, lass ihn online schreiben oder drucke ihn. Die Punkte landen von selbst in deiner Übersicht."
+        "id": "lesmap",
+        "naam": "Zu Hause vorbereiten",
+        "tekst": "Verknüpfe Mein Unterrichtsordner mit deinem eigenen OneDrive oder Google Drive. Was du zu Hause vorbereitest, ist am nächsten Morgen an der Tafel, mit denselben Aufgaben, Tests und Ergebnissen."
       }
     ]
+  },
+  "toetsen": {
+    "titel": "Tests am Chromebook oder auf Papier",
+    "tekst": "Baue deinen Test mit Knöpfen, ohne Code. Die Kinder machen ihn auf ihrem Gerät oder auf Papier. LANcelot korrigiert, was geht, du schaust den Rest nach und die Punkte stehen sofort in deiner Übersicht.",
+    "lijst": [
+      "Multiple Choice, richtig oder falsch, Lückentext, Zuordnen, Ordnen, Sortieren, Gruppieren, Markieren im Text und Diktat.",
+      "Auch für Mathe: Zeichnen auf einem Raster, Messen mit dem Winkelmesser, Vielecke und Rechenraster, die sich selbst korrigieren.",
+      "Vorlesen pro Frage oder pro Kind, auch langsamer, und Hörfragen mit deinem eigenen Audioausschnitt.",
+      "Probiere den Test zuerst selbst wie ein Kind aus und schau live zu, während die Klasse arbeitet.",
+      "Nach dem Korrigieren liegt für jedes Kind ein PDF in deinem Unterrichtsordner. Wenn du willst, geht es automatisch per Mail an eine Förderlehrkraft oder die Eltern, über dein eigenes Postfach."
+    ],
+    "beeld": "Ein Test auf dem Chromebook eines Kindes"
   },
   "motivatie": {
     "titel": "Warum sich die Kinder jeden Tag darauf freuen",
@@ -206,10 +230,11 @@
   "privacy": {
     "titel": "Die Daten der Kinder bleiben in deiner Klasse",
     "lijst": [
-      "LANcelot läuft auf deinem eigenen PC. Keine Cloud und keine Konten für Kinder.",
+      "LANcelot läuft auf deinem eigenen PC. Es gibt keine LANcelot-Cloud und keine Konten für Kinder.",
       "Namen, Antworten und Ergebnisse liegen in einem Ordner auf diesem PC. Du entscheidest, was damit passiert.",
       "Keine Werbung und kein Tracking.",
-      "Nutzt du KI, geht nur dein Auftrag (Thema oder Unterrichtsmaterial) an die KI deiner Wahl. Keine Namen der Kinder."
+      "Nutzt du KI, geht nur dein Auftrag (Thema oder Unterrichtsmaterial) an die KI deiner Wahl. Keine Namen der Kinder.",
+      "Mein Unterrichtsordner und das Mailen von Tests schaltest du selbst ein. Dann läuft dein Ordner über dein eigenes OneDrive oder Google Drive und die Mails über dein eigenes Postfach. Das nutzt das Internet."
     ]
   },
   "toestellen": {
@@ -234,7 +259,7 @@
     "tekst": "Niederländisch, Englisch, Französisch, Spanisch und Deutsch. Wähle die Sprache in den Einstellungen und jeder Bildschirm wechselt mit, auch bei den Kindern."
   },
   "junior": {
-    "kicker": "Demnächst",
+    "kicker": "In derselben App",
     "titel": "LANcelot Junior",
     "tekst": "Für die Jüngsten, von 5 bis 9 Jahren. Dieselben Ritter und Drachen, mit Spielen für kleine Hände und Kinder, die noch nicht (flüssig) lesen.",
     "lijst": [
@@ -262,7 +287,7 @@
       "toverdorp": "Das Zauberdorf",
       "draakje": "Unser Klassendrache"
     },
-    "noot": "LANcelot Junior kommt in derselben App. Ein Knopf, und du wechselst zwischen LANcelot und LANcelot Junior."
+    "noot": "LANcelot Junior ist Teil derselben App. Wähle es beim Start oder schalte es in den Einstellungen ein."
   },
   "download": {
     "titel": "Hol LANcelot in deine Klasse",
@@ -293,7 +318,11 @@
       },
       {
         "v": "Brauche ich Internet?",
-        "a": "Gespielt wird über das lokale Schulnetz: der PC und die Geräte der Kinder müssen im selben Netz sein. Nur das Erstellen von Material mit KI braucht Internet."
+        "a": "Gespielt wird über das lokale Netzwerk der Schule: Der PC und die Geräte der Kinder müssen im selben Netzwerk sein. Internet brauchst du nur für das, was du selbst einschaltest: Material mit KI erstellen, Mein Unterrichtsordner über OneDrive oder Google Drive und Tests mailen."
+      },
+      {
+        "v": "Kann ich zu Hause vorbereiten und mehr als einen PC nutzen?",
+        "a": "Ja. Verknüpfe Mein Unterrichtsordner mit deinem OneDrive oder Google Drive, zu Hause und am PC im Klassenzimmer. Quizze, Tests, Aufgaben und Ergebnisse sind dann auf beiden PCs, und eine Aufgabe, die du zu Hause planst, steht am nächsten Morgen an der Tafel bereit."
       },
       {
         "v": "Brauchen die Kinder ein Konto?",
