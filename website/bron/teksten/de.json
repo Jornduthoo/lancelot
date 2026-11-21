@@ -127,14 +127,21 @@
     }
   },
   "ai": {
-    "titel": "Unterrichtsmaterial in Sekunden, mit KI",
-    "tekst": "Gib ein Thema und die Klassenstufe an oder ziehe ein Foto deines Lehrbuchs hinein. Die KI erstellt ein Quiz, ein Arbeitsblatt oder eine ganze Reihe pro Stunde, auf drei Niveaus.",
+    "titel": "Arbeiten mit KI",
+    "tekst": "Gib ein Thema und die Klassenstufe an oder zieh ein Foto deines Schulbuchs hinein. Die KI erstellt ein Quiz, ein Arbeitsblatt, einen Test oder eine ganze Reihe pro Stunde. Du prüfst, passt an und spielst.",
     "lijst": [
-      "Funktioniert mit Gemini, ChatGPT oder Claude: LANcelot kopiert den Auftrag, du fügst die Antwort wieder ein.",
-      "Oder gib deinen eigenen Schlüssel ein und alles geht mit einem Klick.",
-      "Arbeitsblätter spielst du live in der Klasse oder druckst sie mit Lösungsblatt.",
+      "Quiz: Fragen mit Erklärung, sofort spielbar in der Arena.",
+      "Arbeitsblatt: auf drei Niveaus, live in der Klasse oder gedruckt mit Lösungsblatt.",
+      "Reihe pro Stunde: Wähle Fach und Stunden, LANcelot erstellt für jede Stunde ein Quiz und ein Arbeitsblatt.",
+      "Test: Lass die KI einen erstellen oder zieh deinen eigenen Papiertest hinein und er wird digital. Danach stellst du ihn mit Knöpfen fertig.",
+      "Funktioniert mit Gemini, ChatGPT oder Claude: LANcelot kopiert den Auftrag, du fügst die Antwort wieder ein. Oder trag deinen eigenen Schlüssel ein und alles geht mit einem Klick.",
       "Nur das Erstellen mit KI braucht Internet. Gespielt wird über das Klassennetz."
-    ]
+    ],
+    "beelden": {
+      "maker": "Thema und Klassenstufe wählen, dann den Auftrag kopieren",
+      "reeks": "Eine Reihe pro Stunde für ein ganzes Kapitel",
+      "oefenblad": "Ein Arbeitsblatt, fertig zum Drucken"
+    }
   },
   "niveaus": {
     "titel": "Jedes Kind auf seinem Niveau",
@@ -200,7 +207,24 @@
       "Probiere den Test zuerst selbst wie ein Kind aus und schau live zu, während die Klasse arbeitet.",
       "Nach dem Korrigieren liegt für jedes Kind ein PDF in deinem Unterrichtsordner. Wenn du willst, geht es automatisch per Mail an eine Förderlehrkraft oder die Eltern, über dein eigenes Postfach."
     ],
-    "beeld": "Ein Test auf dem Chromebook eines Kindes"
+    "beelden": {
+      "blad": "Ein eigenes Blatt: ausmalen, auf Punkten zeichnen und schriftlich rechnen im Raster",
+      "markeren": "Im Text markieren, in zwei Farben",
+      "groeperen": "Gruppieren: Was gehört zusammen?",
+      "getallenas": "Eine Zahl auf dem Zahlenstrahl einordnen"
+    }
+  },
+  "klastools": {
+    "titel": "Klassenwerkzeuge für jeden Tag",
+    "tekst": "Alles, was du im Unterricht brauchst, groß an der Tafel und mit deiner eigenen Klassenliste.",
+    "beelden": {
+      "lot": "Mit dem Glücksrad auslosen",
+      "banieren": "Gruppen mit einem Klick",
+      "zandloper": "Timer mit Sanduhr",
+      "runensteen": "Würfel",
+      "indeling": "Sitzplan",
+      "wachtlijst": "Klassendienste, die jede Woche wechseln"
+    }
   },
   "motivatie": {
     "titel": "Warum sich die Kinder jeden Tag darauf freuen",

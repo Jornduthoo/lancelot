@@ -179,6 +179,14 @@ figcaption { color: rgb(var(--k-muted)); font-size: 14px; margin-top: 10px; text
 .vinken { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
 .vinken li { display: flex; gap: 12px; }
 .vinken svg { color: rgb(var(--k-cyan)); margin-top: 2px; }
+.vinken.twee { grid-template-columns: 1fr 1fr; gap: 14px 40px; margin-top: 40px; }
+/* Galerijen met echte schermen (toetsen, klastools, AI). */
+.galerij { display: grid; gap: 28px; margin-top: 8px; align-items: start; }
+.galerij.drie { grid-template-columns: repeat(3, 1fr); }
+.galerij img, .toetsgalerij img { width: 100%; height: auto; }
+.galerij figcaption, .toetsgalerij figcaption { font-size: 15px; }
+.toetsgalerij { display: grid; grid-template-columns: 1.5fr 1fr; gap: 28px; align-items: start; margin-top: 8px; }
+.toetsgalerij .stroken { display: grid; gap: 22px; }
 .sub { font-size: 20px; margin: 26px 0 6px; }
 #privacy p { color: rgb(var(--k-muted)); }
 
@@ -230,10 +238,15 @@ figcaption { color: rgb(var(--k-muted)); font-size: 14px; margin-top: 10px; text
 @media (max-width: 1080px) {
   .hallen { grid-template-columns: repeat(3, 1fr); }
   .hallen.vier, .hallen.drie { grid-template-columns: repeat(2, 1fr); }
+  .galerij.drie { grid-template-columns: repeat(2, 1fr); }
+  .toetsgalerij { grid-template-columns: 1fr; }
+  .toetsgalerij .stroken { grid-template-columns: repeat(3, 1fr); }
 }
 @media (max-width: 820px) {
   .punten, .stappen, .niveaus { grid-template-columns: 1fr; }
   .duo { grid-template-columns: 1fr; gap: 28px; }
+  .vinken.twee { grid-template-columns: 1fr; margin-top: 28px; }
+  .toetsgalerij .stroken { grid-template-columns: 1fr; }
   .hallen { grid-template-columns: repeat(2, 1fr); }
   .schermen { padding-right: 0; }
   .scherm-gsm { position: static; width: 60%; max-width: 260px; margin: 28px auto 0; }
@@ -241,6 +254,9 @@ figcaption { color: rgb(var(--k-muted)); font-size: 14px; margin-top: 10px; text
 /* Gsm: korter en rustiger. Spellen als tegels met icoon en naam, de rest in één oogopslag. */
 @media (max-width: 520px) {
   body { font-size: 16px; }
+  .galerij.drie { grid-template-columns: 1fr; gap: 20px; }
+  #klastools .galerij.drie { grid-template-columns: 1fr 1fr; gap: 14px; }
+  #klastools figcaption { font-size: 13px; }
   .kop { gap: 10px; padding-top: 8px; padding-bottom: 8px; }
   .merk .woord { display: none; }
   .held { padding: 16px 16px 92px; }
