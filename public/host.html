@@ -20,7 +20,6 @@
     </div>
     <div class="actions">
       <button class="secondary pauze-knop pauze-home" data-pauze title="Alle leerlingschermen op slot om de aandacht te vragen"><img src="/img/icons/pauze-klein.webp" alt=""> Pauze</button>
-      <a class="button secondary junior-home niet-in-store" href="/junior-leerkracht" title="Naar LANcelot Junior (dezelfde klas)"><img src="/img/icons/junior.webp" alt=""> Junior</a>
       <button class="secondary qr-home" id="qr-open" title="De QR-code waarmee leerlingen verbinden, groot op het bord"><i class="ic ic-qr"></i> QR-code</button>
       <button class="secondary icon" id="open-netwerk" title="Netwerk werkt niet?" aria-label="Netwerk werkt niet?"><i class="ic ic-netwerk"></i></button>
       <button class="secondary icon" id="open-settings" title="Instellingen" aria-label="Instellingen"><i class="ic ic-instellingen"></i></button>
@@ -628,6 +627,7 @@
       <button type="button" data-tab="bijwerken">Bijwerken</button>
       <button type="button" data-tab="netwerk">Netwerk</button>
       <button type="button" data-tab="schermen">Bureau-pc</button>
+      <button type="button" data-tab="junior">Junior</button>
     </nav>
     <div class="panel form" id="lesmap" data-tab="lesmap">
       <h3>Mijn lesmap: van overal voorbereiden<details class="hulp"><summary aria-label="Uitleg">?</summary><p>Handig als je thuis voorbereidt. Kies een map die OneDrive of Google Drive op deze pc bijhoudt. LANcelot kopieert je quizzen, oefenbladen, taken, je klaslijst (alleen namen en niveaus), je planning, je bordboeken en links uit Mijn methodes, de woorden van de week van het Runenraadsel en een kopie van het Klaseiland (om thuis te bekijken) daarheen en haalt nieuwe op. Zonder lesmap werkt alles gewoon, alleen op deze pc.</p></details></h3>
@@ -762,6 +762,12 @@
         <a class="button secondary" href="/welkom">Wizard voor de eerste keer</a>
         <a class="button secondary" href="/privacy">Privacy</a>
       </div>
+    </div>
+    <!-- LANcelot Junior: vroeger een knop bovenaan het startscherm, nu hier (Jorn 2026-11-21: "nog nooit gebruikt"). -->
+    <div class="panel form" id="junior-panel" data-tab="junior">
+      <h3 class="junior-kop"><img src="/img/icons/junior.webp" alt=""> LANcelot Junior</h3>
+      <p class="muted small">Voor de 3e kleuterklas tot het 3e leerjaar, met dezelfde klas. Terug naar LANcelot kan bovenaan in Junior.</p>
+      <div class="actions"><a class="button" id="junior-open" href="/junior-leerkracht">Open LANcelot Junior</a></div>
     </div>
     <div class="panel form" id="schermen-panel" data-tab="schermen">
       <h3>Bureau-pc koppelen<details class="hulp"><summary aria-label="Uitleg">?</summary><p>LANcelot draait op het digibord en bewaart daar alles. Met een koppelcode wordt je bureau-pc (of laptop) een tweede leerkrachtscherm: quizzen maken, taken geven, het zorgoverzicht opvolgen of een spel starten. Alles wat je op het ene scherm doet, zie je meteen op het andere. Leerlingen kunnen dit niet: de code werkt maar 10 minuten, één keer, en vervalt na 5 foute pogingen.</p></details></h3>
