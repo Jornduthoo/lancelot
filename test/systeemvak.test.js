@@ -24,7 +24,14 @@ test('het schild gebruikt het LANcelot-icoon en past op de opdrachtregel van Win
   assert.ok(ps1.includes('LANCELOT_KLAAR'));
 });
 
-test('de teksten naast de klok bestaan in vijf talen en passen in de tooltip', () => {
-  for (const taal of ['nl', 'en', 'fr', 'de', 'es']) assert.match(ps1, new RegExp(`\\n  ${taal} = @\\{ open = `));
-  for (const m of ps1.matchAll(/tip = '([^']*)'/g)) assert.ok(m[1].length <= 63, m[1]);
+test('de teksten van de LANcelot-knop bestaan in vijf talen', () => {
+  for (const taal of ['nl', 'en', 'fr', 'de', 'es']) assert.match(ps1, new RegExp(`\\n  ${taal} = @\\{ zin = `));
+  assert.ok(fs.existsSync(path.join(ROOT, 'public', 'img', 'icon-192.png')));
+});
+
+test('na een update start de knop alles opnieuw, oude knoppen houden het oude gedrag', () => {
+  const server = fs.readFileSync(path.join(ROOT, 'server.js'), 'utf8');
+  assert.match(server, /if \(process\.env\.LANCELOT_KAN_HERSTARTEN\) process\.exit\(75\)/);
+  assert.ok(ps1.includes("EnvironmentVariables['LANCELOT_KAN_HERSTARTEN']"));
+  assert.ok(ps1.includes('$code -eq 75'));
 });

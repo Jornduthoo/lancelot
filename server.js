@@ -22,6 +22,8 @@ const fs = require('fs');
       console.log('  Nieuwe onderdelen installeren...');
       spawnSync('npm', ['install', '--omit=dev'], { cwd: __dirname, stdio: 'inherit', shell: true });
     }
+    // Zonder zwart venster (src/systeemvak.ps1): stoppen met code 75, dan start de LANcelot-knop alles opnieuw, ook zichzelf.
+    if (process.env.LANCELOT_KAN_HERSTARTEN) process.exit(75);
     const r = spawnSync(process.execPath, [__filename, ...process.argv.slice(2)], { stdio: 'inherit', env: { ...process.env, LANCELOT_BIJGEWERKT: '1' } });
     process.exit(r.status || 0);
   }
