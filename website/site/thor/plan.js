@@ -77,7 +77,9 @@ function maak(){
     const voor1 = dag(ex, -1);
     let voor2 = ex <= dag(EXAMENS_START, 1) ? dag(ex, -3) : dag(ex, -2);
     // Twee examens op dezelfde dag (geschiedenis + STEM): het tweede proefexamen schuift naar het weekend ervoor.
-    if (vast[voor2] && vast[voor2].some(i => i.soort === 'proef')) voor2 = dag(voor2, -2);
+    // Schuif het eerste proefexamen naar voren tot het past naast wat die dag al vastligt (kaartjes niet meegeteld).
+    const vastMin = x => (vast[x] || []).reduce((a, i) => a + i.min, 0);
+    while (voor2 > START && vastMin(voor2) + PROEF_MIN + ZWAK_MIN > budget(voor2) - 10) voor2 = dag(voor2, -1);
     if (PROEF_TWEE) zet(voor2, { id:'proef:' + v + ':1', soort:'proef', vak:v, deel, titel:'Proefexamen ' + k1, min: PROEF_MIN });
     zet(voor2, { id:'zwak:' + v + ':1',  soort:'zwak',  vak:v, deel, titel:'Zwakke punten ' + k1 + ' wegwerken', min: ZWAK_MIN });
     zet(voor1, { id:'proef:' + v + ':2', soort:'proef', vak:v, deel, titel:'Generale repetitie ' + k1, min: PROEF_MIN });

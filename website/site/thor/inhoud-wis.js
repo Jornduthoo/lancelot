@@ -8,7 +8,12 @@ const D2 = '2026-12-14';
 // Tekst in een venndiagram: "a|b" = onder elkaar.
 const txt = (x, t, extra) => { const r = String(t).split('|'); return `<text x="${x}" text-anchor="middle" font-size="13"${extra} style="fill:var(--inkt)">${r.map((l, i) => `<tspan x="${x}" y="${82 - (r.length - 1) * 8 + i * 16}">${l}</tspan>`).join('')}</text>`; };
 // Klein venndiagram als tekening: twee cirkels A en B met hun elementen.
-const venn = (a, b, alleenA, samen, alleenB, kleurSamen, buiten) => `<svg viewBox="0 0 300 150" style="width:100%;max-width:340px;display:block;margin:6px auto" role="img" aria-label="venndiagram">
+const venn = (a, b, alleenA, samen, alleenB, kleurSamen, buiten) => !b ? `<svg viewBox="0 0 300 150" style="width:100%;max-width:340px;display:block;margin:6px auto" role="img" aria-label="venndiagram">
+  <rect x="2" y="2" width="296" height="146" rx="12" fill="none" stroke="var(--lijn)" stroke-width="2"/>
+  <circle cx="150" cy="78" r="60" fill="#1c7ed633" stroke="#1c7ed6" stroke-width="3"/>
+  <text x="82" y="26" font-weight="800" fill="#1c7ed6" font-size="16">${a}</text>
+  ${txt(150, [alleenA, samen].filter(Boolean).join(' '), '')}
+</svg>` : `<svg viewBox="0 0 300 150" style="width:100%;max-width:340px;display:block;margin:6px auto" role="img" aria-label="venndiagram">
   <rect x="2" y="2" width="296" height="146" rx="12" fill="none" stroke="var(--lijn)" stroke-width="2"/>
   <circle cx="115" cy="78" r="58" fill="${kleurSamen === 'A' || kleurSamen === 'AB' || kleurSamen === 'U' ? '#1c7ed633' : 'none'}" stroke="#1c7ed6" stroke-width="3"/>
   <circle cx="185" cy="78" r="58" fill="${kleurSamen === 'B' || kleurSamen === 'U' ? '#f08c0033' : 'none'}" stroke="#f08c00" stroke-width="3"/>

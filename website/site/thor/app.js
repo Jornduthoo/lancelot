@@ -637,6 +637,11 @@ function rekenVraag(soort, t){
   }
   if (soort === 'eeuw') {
     // Geschiedenis: in welke eeuw / welk millennium ligt een jaartal (ook v.C.).
+    if (Math.random() < .25) {
+      // "… jaar geleden" omzetten naar een jaar v.C. (cursus: ongeveer − 2000).
+      const x = Math.round(r(40, 120)) * 100;
+      return { t:'getal', v:`Een vondst is ongeveer <b>${x} jaar</b> oud. Rond welk jaar <b>v.C.</b> is dat? (typ enkel het getal)`, a: x - 2000, tol: .015, tid: t.id, vak: t.vak, u:`Trek de ongeveer 2000 jaar n.C. eraf: ${x} − 2000 = ca. ${x - 2000} v.C. (zoals Ötzi: 5300 jaar oud → ca. 3300 v.C.)` };
+    }
     const vc = Math.random() < .35, mil = Math.random() < .3;
     const j = schud([Math.round(r(1, 2026)), Math.round(r(1, 20)) * 100, Math.round(r(1, 99)), Math.round(r(101, 999))])[0];
     const n = mil ? Math.ceil(j / 1000) : Math.ceil(j / 100);
