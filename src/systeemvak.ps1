@@ -33,7 +33,8 @@ function Open-Scherm {
 }
 
 $icoon = New-Object System.Windows.Forms.NotifyIcon
-$icoon.Icon = New-Object System.Drawing.Icon (Join-Path $app 'public\img\lancelot.ico')
+# Een eigen, helder icoon voor naast de klok (het helm-vizier met een lichte rand), in de maat die Windows daar gebruikt.
+$icoon.Icon = New-Object System.Drawing.Icon((Join-Path $app 'public\img\systeemvak.ico'), [System.Windows.Forms.SystemInformation]::SmallIconSize)
 $icoon.Text = 'LANcelot'
 $menu = New-Object System.Windows.Forms.ContextMenuStrip
 $itemOpen = $menu.Items.Add($w.open)
