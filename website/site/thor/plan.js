@@ -17,14 +17,14 @@ const EXTRA_EXAMEN = { '2026-12-14': ['wis'] };
 const START = '2026-11-21'; // papa 19/11: Thor begint dit weekend
 const EINDE = '2026-12-15';
 
-// Hoeveel minuten per dag (papa 16/11: 30 min op schooldagen, een uur in het weekend).
+// Hoeveel minuten per dag (papa 20/11: 45 min op schooldagen, anderhalf uur in het weekend).
 function budget(datum){
   const d = new Date(datum + 'T12:00:00');
   const wd = d.getDay(); // 0 zo … 6 za
   if (datum < START) return 0;            // voor de start: alleen kennismaken
   if (datum === EINDE) return 0;          // laatste examen
-  if (wd === 0 || wd === 6) return 60;    // weekend: een uur
-  return 30;                              // schooldag: 30 minuutjes
+  if (wd === 0 || wd === 6) return 90;    // weekend: anderhalf uur (papa 20/11)
+  return 45;                              // schooldag: 45 minuten (papa 20/11)
 }
 
 const dag = (s, n) => { const d = new Date(s + 'T12:00:00'); d.setDate(d.getDate() + n); return d.toISOString().slice(0,10); };
@@ -32,16 +32,22 @@ const dagen = () => { const out = []; for (let d = START; d <= EINDE; d = dag(d,
 
 const KAART_MIN = 5;            // herhaalkaartjes elke dag (weekend 10)
 const OVERHOOR_MIN = 5;         // uitleggen aan een supporter
-const LEER_MIN = 20, HERHAAL_MIN = 7, PROEF_MIN = 20, ZWAK_MIN = 10;
+const LEER_MIN = 15, HERHAAL_MIN = 5, PROEF_MIN = 20, ZWAK_MIN = 10; // 20/11: lessen korter (15 min) zodat alle vakken passen in 30 min / 1 uur
+const LEER_VOOR = 3, HERHAAL_VOOR = 2; // nieuwe leerstof ten laatste 3 dagen voor het examen, herhalen 2 dagen ervoor
+const PROEF_TWEE = true;           // twee proefexamens per vak (anders enkel de generale repetitie)
 const EXAMENS_START = '2026-12-09';
+
+// Examendag van een onderwerp: eigen datum (wiskunde deel 2) of die van het vak.
+const examVan = t => t.examen || VAKKEN[t.vak].examen;
 
 function maak(){
   const T = window.ELI_ONDERWERPEN || [];
   const per = {}; for (const t of T) (per[t.vak] = per[t.vak] || []).push(t);
   // Vakken met inhoud, vroegste examen eerst.
   const volg = Object.keys(VAKKEN).filter(v => per[v]).sort((a, b) => VAKKEN[a].examen < VAKKEN[b].examen ? -1 : 1);
-  // Eerste ronde: vakken door elkaar (afwisseling helpt onthouden).
-  const ronde = (soort, min) => {
+  // Eerste ronde: vakken door elkaar (afwisseling helpt onthouden). Elk item krijgt een uiterste dag:
+  // nieuwe leerstof ten laatste LEER_VOOR dagen voor het examen, herhalen ten laatste HERHAAL_VOOR dagen ervoor.
+  const ronde = (soort, min, voor) => {
     const rij = [], idx = {}; volg.forEach(v => idx[v] = 0);
     let nog = true;
     while (nog) {
@@ -50,55 +56,76 @@ function maak(){
         const lijst = per[v] || [];
         if (idx[v] < lijst.length) {
           const t = lijst[idx[v]++];
-          rij.push({ id: soort + ':' + t.id, soort, vak: v, onderwerp: t.id, titel: t.titel, min });
+          rij.push({ id: soort + ':' + t.id, soort, vak: v, onderwerp: t.id, titel: t.titel, min, uiterlijk: soort === 'leer' && t.leerTot && t.leerTot < dag(examVan(t), -voor) ? t.leerTot : dag(examVan(t), -voor) });
           nog = true;
         }
       }
     }
     return rij;
   };
-  const wachtrij = [...ronde('leer', LEER_MIN), ...ronde('herhaal', HERHAAL_MIN)];
+  const leer = ronde('leer', LEER_MIN, LEER_VOOR), herhaal = ronde('herhaal', HERHAAL_MIN, HERHAAL_VOOR);
+  const geleerd = {}; // onderwerp → dag waarop het geleerd wordt
 
   // Proefexamens en zwakke punten: de laatste dagen vóór elk examen (vast in de planning).
   const vast = {};
   const zet = (d, it) => { (vast[d] = vast[d] || []).push(it); };
   for (const v of volg) {
     const ex = VAKKEN[v].examen, k = VAKKEN[v].kort;
-    // Examens vóór de examenperiode-start: generale repetitie op de dag ervoor, proefexamen 2 dagen ervoor.
-    // In de examenperiode zelf: de namiddag van de dag ervoor.
-    const voor1 = dag(ex, -1), voor2 = ex <= dag(EXAMENS_START, 1) ? dag(ex, -3) : dag(ex, -2);
-    zet(voor2, { id:'proef:' + v + ':1', soort:'proef', vak:v, titel:'Proefexamen ' + k, min: PROEF_MIN });
-    zet(voor2, { id:'zwak:' + v + ':1',  soort:'zwak',  vak:v, titel:'Zwakke punten ' + k + ' wegwerken', min: ZWAK_MIN });
-    zet(voor1, { id:'proef:' + v + ':2', soort:'proef', vak:v, titel:'Generale repetitie ' + k, min: PROEF_MIN });
+    const deel = v === 'wis' && per.wis.some(t => t.deel === 2) ? 1 : undefined;
+    const k1 = deel ? k + ' deel 1' : k;
+    // Generale repetitie de dag ervoor; zwakke punten twee dagen ervoor (bij een examen in de examenperiode: dezelfde dag als de repetitie).
+    const voor1 = dag(ex, -1);
+    let voor2 = ex <= dag(EXAMENS_START, 1) ? dag(ex, -3) : dag(ex, -2);
+    // Twee examens op dezelfde dag (geschiedenis + STEM): het tweede proefexamen schuift naar het weekend ervoor.
+    // Schuif het eerste proefexamen naar voren tot het past naast wat die dag al vastligt (kaartjes niet meegeteld).
+    const vastMin = x => (vast[x] || []).reduce((a, i) => a + i.min, 0);
+    while (voor2 > START && vastMin(voor2) + PROEF_MIN + ZWAK_MIN > budget(voor2) - 10) voor2 = dag(voor2, -1);
+    if (PROEF_TWEE) zet(voor2, { id:'proef:' + v + ':1', soort:'proef', vak:v, deel, titel:'Proefexamen ' + k1, min: PROEF_MIN });
+    zet(voor2, { id:'zwak:' + v + ':1',  soort:'zwak',  vak:v, deel, titel:'Zwakke punten ' + k1 + ' wegwerken', min: ZWAK_MIN });
+    zet(voor1, { id:'proef:' + v + ':2', soort:'proef', vak:v, deel, titel:'Generale repetitie ' + k1, min: PROEF_MIN });
   }
-  // Wiskunde deel 2: nog eens herhalen tussen de twee examens.
-  if (per.wis) zet('2026-12-13', { id:'proef:wis:3', soort:'proef', vak:'wis', titel:'Proefexamen Wiskunde deel 2', min: PROEF_MIN });
+  // Wiskunde deel 2 (ma 14/12): proefexamen in het weekend ervoor.
+  if (per.wis && per.wis.some(t => t.deel === 2)) zet('2026-12-13', { id:'proef:wis:3', soort:'proef', vak:'wis', deel:2, titel:'Proefexamen Wiskunde deel 2', min: PROEF_MIN });
 
-  // Vanaf deze dag geen nieuwe leerstof meer: dan alleen proefexamens en herhalen.
-  const laatsteLeerdag = dag(EXAMENS_START, -4); // za 5/12
   const plan = {};
+  const wachtrij = [...leer, ...herhaal];
   for (const d of dagen()) {
     const b = budget(d);
     const items = [];
     const kaart = (b > 0 && d > START) ? { id:'kaarten:' + d, soort:'kaarten', titel:'Herhaalkaartjes van vandaag', min: Math.min(b >= 60 ? 10 : KAART_MIN, b), dyn:true } : null;
-    const sluit = () => {
-      const gebruikt = items.reduce((a, i) => a + i.min, 0) + (kaart ? kaart.min : 0);
-      if (b >= 30 && d > START && d < EXAMENS_START && b - gebruikt >= OVERHOOR_MIN) items.push({ id:'overhoor:' + d, soort:'overhoor', titel:'Leg het uit aan een supporter', min: OVERHOOR_MIN, dyn:true });
-      if (kaart) items.push(kaart); plan[d] = items;
-    };
     let over = b - (kaart ? kaart.min : 0);
     if (vast[d]) { for (const it of vast[d]) { items.push(it); over -= it.min; } }
-    if (d <= laatsteLeerdag) {
-      while (wachtrij.length && over >= wachtrij[0].min) {
-        const t = wachtrij.shift();
-        items.push(t);
-        over -= t.min;
-      }
+    // Wat vandaag zijn uiterste dag heeft en nog niet gepland is, moet er sowieso bij (ook als het krap wordt).
+    // Verder kiest de planning telkens het vak dat het meest achterloopt: resterende minuten ÷ dagen tot de uiterste dag.
+    // Zo schuiven alle vakken samen op en komt Nederlands (laatste examen) niet allemaal op het einde.
+    const mag = it => b > 0 && d <= it.uiterlijk && (it.soort !== 'herhaal' || (geleerd[it.onderwerp] && geleerd[it.onderwerp] < d));
+    for (const it of wachtrij.filter(x => mag(x) && x.uiterlijk === d)) {
+      items.push(it); over -= it.min; wachtrij.splice(wachtrij.indexOf(it), 1);
+      if (it.soort === 'leer') geleerd[it.onderwerp] = d;
     }
-    sluit();
+    const dagenTot = x => Math.round((new Date(x + 'T12:00:00') - new Date(d + 'T12:00:00')) / 864e5) + 1;
+    for (;;) {
+      const kand = wachtrij.filter(x => mag(x) && x.min <= over);
+      if (!kand.length) break;
+      // Eerste kandidaat per vak (in volgorde), en de druk op dat vak.
+      const eerste = {}, druk = {};
+      for (const x of kand) if (!eerste[x.vak]) eerste[x.vak] = x;
+      for (const v in eerste) {
+        const rest = wachtrij.filter(x => x.vak === v && x.uiterlijk >= d);
+        druk[v] = Math.max(...rest.map(x => rest.filter(y => y.uiterlijk <= x.uiterlijk).reduce((a, y) => a + y.min, 0) / dagenTot(x.uiterlijk)));
+      }
+      const v = Object.keys(eerste).sort((a, b2) => druk[b2] - druk[a] || (items.some(i => i.vak === a) - items.some(i => i.vak === b2)))[0];
+      const it = eerste[v];
+      items.push(it); over -= it.min; wachtrij.splice(wachtrij.indexOf(it), 1);
+      if (it.soort === 'leer') geleerd[it.onderwerp] = d;
+    }
+    const gebruikt = items.reduce((a, i) => a + i.min, 0) + (kaart ? kaart.min : 0);
+    if (b >= 30 && d > START && d < EXAMENS_START && b - gebruikt >= OVERHOOR_MIN) items.push({ id:'overhoor:' + d, soort:'overhoor', titel:'Leg het uit aan een supporter', min: OVERHOOR_MIN, dyn:true });
+    if (kaart) items.push(kaart);
+    plan[d] = items;
   }
-  // Wat er na de laatste leerdag nog in de wachtrij zit, komt er die dag nog bij.
-  if (wachtrij.length && plan[laatsteLeerdag]) plan[laatsteLeerdag].splice(-1, 0, ...wachtrij.splice(0));
+  // Wat er dan nog over is (kan alleen als de uiterste dag voor de start lag), komt op de eerste dag.
+  if (wachtrij.length && plan[START]) plan[START].push(...wachtrij.splice(0));
   return plan;
 }
 

@@ -604,6 +604,51 @@ function rekenVraag(soort, t){
     const ant = n * Math.pow(10, a[1] - b[1]);
     return { t:'getal', v:`Zet om: <b>${getal(n)} ${a[0]}${eenh}</b> = … ${b[0]}${eenh}`, a: ant, tol: .001, tid: t.id, vak:'wet', u:`${a[0] || '(geen voorvoegsel)'} = 10^${a[1]}, ${b[0] || '(geen voorvoegsel)'} = 10^${b[1]} → × 10^${a[1] - b[1]}. Je mag ook 4,5e3 of 4,5·10^3 typen.` };
   }
+  if (soort === 'lengte') {
+    // Wiskunde: lengtematen herleiden (km … mm), getallen zoals in het boek.
+    const VV = [['km',3],['hm',2],['dam',1],['m',0],['dm',-1],['cm',-2],['mm',-3]];
+    let a = VV[Math.floor(Math.random() * 7)], b;
+    do { b = VV[Math.floor(Math.random() * 7)]; } while (b === a || Math.abs(a[1] - b[1]) > 4);
+    const n = schud([Math.round(r(2, 999)), rond(r(1, 99), 2), Math.round(r(1, 9)) * 100 + Math.round(r(0, 99))])[0];
+    const ant = rond(n * Math.pow(10, a[1] - b[1]), 8);
+    const st = a[1] - b[1];
+    return { t:'getal', v:`Herleid: <b>${getal(n)} ${a[0]}</b> = … ${b[0]}`, a: ant, tol: 1e-9, tid: t.id, vak: t.vak, u:`${Math.abs(st)} ${Math.abs(st) === 1 ? 'stap' : 'stappen'} naar ${st > 0 ? 'rechts in de tabel: × ' + Math.pow(10, st) : 'links in de tabel: : ' + Math.pow(10, -st)} → ${getal(ant)} ${b[0]}. Typ duizendtallen zonder punt (2500, niet 2.500).` };
+  }
+  if (soort === 'macht') {
+    const k = Math.random();
+    if (k < .4) { const g = Math.round(r(1, 15)); return { t:'getal', v:`Bereken zonder rekenmachine: <b>${g}²</b>`, a: g * g, tol: 0, tid: t.id, vak: t.vak, u:`${g}² = ${g} · ${g} = ${g * g}` }; }
+    if (k < .75) { const g = Math.round(r(1, 15)); return { t:'getal', v:`Bereken: <b>√${g * g}</b>`, a: g, tol: 0, tid: t.id, vak: t.vak, u:`√${g * g} = ${g}, want ${g}² = ${g * g}` }; }
+    const [g, e] = schud([[2,3],[2,4],[2,5],[3,3],[4,3],[5,3],[10,4],[2,6],[3,4],[10,3]])[0];
+    return { t:'getal', v:`Bereken: <b>${g}<sup>${e}</sup></b>`, a: Math.pow(g, e), tol: 0, tid: t.id, vak: t.vak, u:`${g}<sup>${e}</sup> = ${Array(e).fill(g).join(' · ')} = ${Math.pow(g, e)}` };
+  }
+  if (soort === 'volgorde') {
+    // Volgorde van de bewerkingen, altijd met een natuurlijk getal als uitkomst.
+    const i = n => Math.round(r(1, n));
+    const vormen = [
+      () => { const a = i(20), b = i(9), c = i(9); return [`${a} + ${b} · ${c}`, a + b * c, `eerst ${b} · ${c} = ${b * c}`]; },
+      () => { const b = i(9) + 1, q = i(9), c = i(9); return [`(${b * q - c} + ${c}) : ${b}`, q, `eerst de haakjes: ${b * q}`]; },
+      () => { const g = i(4) + 1, a = i(9), w = i(9); return [`${a} + ${g}² · √${w * w}`, a + g * g * w, `${g}² = ${g * g} en √${w * w} = ${w}`]; },
+      () => { const b = i(5) + 1, c = i(5) + 1, q = i(9); return [`${b * q} : ${b} · ${c}`, q * c, 'van links naar rechts: eerst delen'] ; },
+      () => { const a = i(20) + 20, b = i(9), c = i(9); return [`${a} − ${b} + ${c}`, a - b + c, 'van links naar rechts: eerst aftrekken']; },
+      () => { const a = i(5) + 1, b = i(6), c = i(6); return [`${a} · (${b} + ${c})²`, a * (b + c) * (b + c), `haakjes: ${b + c}, dan de macht: ${(b + c) * (b + c)}`]; },
+    ];
+    const [exp, ant, hint] = schud(vormen)[0]();
+    return { t:'getal', v:`Bereken (volgorde van de bewerkingen): <b>${exp}</b>`, a: ant, tol: 0, tid: t.id, vak: t.vak, u:`${hint} → uitkomst ${ant}` };
+  }
+  if (soort === 'eeuw') {
+    // Geschiedenis: in welke eeuw / welk millennium ligt een jaartal (ook v.C.).
+    if (Math.random() < .25) {
+      // "… jaar geleden" omzetten naar een jaar v.C. (cursus: ongeveer − 2000).
+      const x = Math.round(r(40, 120)) * 100;
+      return { t:'getal', v:`Een vondst is ongeveer <b>${x} jaar</b> oud. Rond welk jaar <b>v.C.</b> is dat? (typ enkel het getal)`, a: x - 2000, tol: .015, tid: t.id, vak: t.vak, u:`Trek de ongeveer 2000 jaar n.C. eraf: ${x} − 2000 = ca. ${x - 2000} v.C. (zoals Ötzi: 5300 jaar oud → ca. 3300 v.C.)` };
+    }
+    const vc = Math.random() < .35, mil = Math.random() < .3;
+    const j = schud([Math.round(r(1, 2026)), Math.round(r(1, 20)) * 100, Math.round(r(1, 99)), Math.round(r(101, 999))])[0];
+    const n = mil ? Math.ceil(j / 1000) : Math.ceil(j / 100);
+    const w = mil ? 'millennium' : 'eeuw', sfx = vc ? ' v.C.' : '';
+    const weg = mil ? 'drie' : 'twee';
+    return { t:'getal', v:`In welk${mil ? '' : 'e'} <b>${w}</b> ligt het jaar <b>${j}${sfx}</b>? (typ enkel het getal)`, a: n, tol: 0, tid: t.id, vak: t.vak, u:`Laat de laatste ${weg} cijfers weg${(mil ? j % 1000 : j % 100) === 0 ? '; ze zijn allemaal 0, dus niet +1' : ' en tel er 1 bij'} → ${n}e ${w}${sfx}` };
+  }
   if (soort === 'bc') {
     const voorbeelden = [['0,0450 m',3],['23,0 g',3],['1,05 kg',3],['0,23 g',2],['120,40 s',5],['0,007 L',1],['5,00 N',3],['3,1416',5],['0,0102 m',3],['70,0 km',3]];
     const [x, n] = voorbeelden[Math.floor(Math.random() * voorbeelden.length)];
@@ -655,15 +700,16 @@ function voerUit(it){
   else if (it.soort === 'overhoor') stappen.push(['overhoor', it]);
   else if (it.soort === 'kaarten') stappen.push(['kaartjes', kaartenVanDag(), true]);
   else if (it.soort === 'proef') {
-    const ts = T.filter(x => x.vak === it.vak);
+    const ts = T.filter(x => x.vak === it.vak && (!it.deel || (x.deel || 1) === it.deel));
     const zwak = new Set(zwakkeOnderwerpen(it.vak).map(z => z.id));
     let qs = [];
     for (const x of ts) qs = qs.concat(vragenVan(x, zwak.has(x.id) ? 4 : 3));
     const open = schud(ts.filter(x => SNAP[x.id])).slice(0, 3).map(x => ({ t:'open', v: SNAP[x.id].kern.v, m: SNAP[x.id].kern.m, k: SNAP[x.id].kern.k, tid: x.id, vak: x.vak }));
     stappen.push(['quiz', schud(qs.filter(q => q.t !== 'open')).slice(0, 17).concat(open), 'proef']);
   } else if (it.soort === 'zwak') {
-    let zs = zwakkeOnderwerpen(it.vak).slice(0, 3);
-    if (!zs.length) zs = schud(T.filter(x => x.vak === it.vak)).slice(0, 3);
+    const inDeel = x => !it.deel || ((TOPIC[x.id] || x).deel || 1) === it.deel;
+    let zs = zwakkeOnderwerpen(it.vak).filter(inDeel).slice(0, 3);
+    if (!zs.length) zs = schud(T.filter(x => x.vak === it.vak && inDeel(x))).slice(0, 3);
     let qs = []; for (const z of zs) qs = qs.concat(vragenVan(TOPIC[z.id], 5));
     const kaart = [];
     for (const z of zs) TOPIC[z.id].kaarten.forEach((_, i) => { const id = z.id + '-' + i; if (!S.kaarten[id] || S.kaarten[id].d <= 2) kaart.push(id); });
