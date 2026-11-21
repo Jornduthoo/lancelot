@@ -9,11 +9,11 @@ $app = $env:LANCELOT_APP
 $log = Join-Path ([IO.Path]::GetTempPath()) 'lancelot-log.txt'
 
 $teksten = @{
-  nl = @{ open = 'Leerkrachtenscherm openen'; uit = 'LANcelot afsluiten'; tip = 'LANcelot draait. Klik om te openen.'; ballon = 'LANcelot draait. Je vindt het schild hier naast de klok.'; vraag = 'LANcelot afsluiten? Leerlingen kunnen dan niet meer spelen tot je LANcelot opnieuw start.'; fout = 'LANcelot is gestopt met een fout:' }
-  en = @{ open = 'Open teacher screen'; uit = 'Close LANcelot'; tip = 'LANcelot is running. Click to open.'; ballon = 'LANcelot is running. You will find the shield here, next to the clock.'; vraag = 'Close LANcelot? Students cannot play until you start LANcelot again.'; fout = 'LANcelot stopped with an error:' }
-  fr = @{ open = "Ouvrir l'écran de l'enseignant"; uit = 'Fermer LANcelot'; tip = 'LANcelot fonctionne. Cliquez pour ouvrir.'; ballon = "LANcelot fonctionne. Vous trouverez le bouclier ici, à côté de l'horloge."; vraag = 'Fermer LANcelot ? Les élèves ne pourront plus jouer avant que vous redémarriez LANcelot.'; fout = "LANcelot s'est arrêté avec une erreur :" }
-  de = @{ open = 'Lehrkraftbildschirm öffnen'; uit = 'LANcelot beenden'; tip = 'LANcelot läuft. Zum Öffnen klicken.'; ballon = 'LANcelot läuft. Das Schild findest du hier neben der Uhr.'; vraag = 'LANcelot beenden? Die Schüler können erst wieder spielen, wenn du LANcelot neu startest.'; fout = 'LANcelot wurde mit einem Fehler beendet:' }
-  es = @{ open = 'Abrir la pantalla del docente'; uit = 'Cerrar LANcelot'; tip = 'LANcelot está en marcha. Haz clic para abrir.'; ballon = 'LANcelot está en marcha. Encontrarás el escudo aquí, junto al reloj.'; vraag = '¿Cerrar LANcelot? Los alumnos no podrán jugar hasta que vuelvas a iniciar LANcelot.'; fout = 'LANcelot se detuvo con un error:' }
+  nl = @{ open = 'Leerkrachtenscherm openen'; uit = 'LANcelot afsluiten'; tip = 'LANcelot draait. Klik om te openen.'; vraag = 'LANcelot afsluiten? Leerlingen kunnen dan niet meer spelen tot je LANcelot opnieuw start.'; fout = 'LANcelot is gestopt met een fout:' }
+  en = @{ open = 'Open teacher screen'; uit = 'Close LANcelot'; tip = 'LANcelot is running. Click to open.'; vraag = 'Close LANcelot? Students cannot play until you start LANcelot again.'; fout = 'LANcelot stopped with an error:' }
+  fr = @{ open = "Ouvrir l'écran de l'enseignant"; uit = 'Fermer LANcelot'; tip = 'LANcelot fonctionne. Cliquez pour ouvrir.'; vraag = 'Fermer LANcelot ? Les élèves ne pourront plus jouer avant que vous redémarriez LANcelot.'; fout = "LANcelot s'est arrêté avec une erreur :" }
+  de = @{ open = 'Lehrkraftbildschirm öffnen'; uit = 'LANcelot beenden'; tip = 'LANcelot läuft. Zum Öffnen klicken.'; vraag = 'LANcelot beenden? Die Schüler können erst wieder spielen, wenn du LANcelot neu startest.'; fout = 'LANcelot wurde mit einem Fehler beendet:' }
+  es = @{ open = 'Abrir la pantalla del docente'; uit = 'Cerrar LANcelot'; tip = 'LANcelot está en marcha. Haz clic para abrir.'; vraag = '¿Cerrar LANcelot? Los alumnos no podrán jugar hasta que vuelvas a iniciar LANcelot.'; fout = 'LANcelot se detuvo con un error:' }
 }
 $w = $teksten[(Get-UICulture).TwoLetterISOLanguageName]
 if (-not $w) { $w = $teksten.en }
@@ -76,7 +76,6 @@ $klok.add_Tick({
   if (-not $script:gemeld -and (Lees-Log).Contains('LANcelot draait!')) {
     $script:gemeld = $true
     $icoon.Text = $w.tip
-    $icoon.ShowBalloonTip(6000, 'LANcelot', $w.ballon, 'Info')
   }
   if ($server.HasExited) {
     $klok.Stop()
