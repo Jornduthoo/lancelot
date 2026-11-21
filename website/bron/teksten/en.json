@@ -7,6 +7,8 @@
     "hallen": "What's inside",
     "spellen": "Games",
     "ai": "AI",
+    "opvolgen": "Follow-up",
+    "toetsen": "Tests",
     "privacy": "Privacy",
     "faq": "FAQ",
     "download": "Coming soon"
@@ -82,12 +84,12 @@
       {
         "id": "wapenkamer",
         "naam": "Class tools",
-        "tekst": "Classroom tools on the board: picker, groups, timer, noise meter, dice and class jobs."
+        "tekst": "On the board: pick a student, groups, timer, noise meter, traffic light, dice, class jobs and seating plan."
       },
       {
         "id": "burcht",
         "naam": "My class",
-        "tekst": "Your class list, your country's curriculum goals or your own, tasks per pupil and the results."
+        "tekst": "Follow your class: tasks and tests per student, marks, support and your country's standards."
       }
     ]
   },
@@ -153,9 +155,14 @@
     ]
   },
   "opvolgen": {
-    "titel": "Follow-up, support and reports",
-    "tekst": "Every answer goes into the log, linked to the goals you choose. You see at once who needs extra help.",
+    "titel": "Follow-up, support and marks",
+    "tekst": "My class opens on Follow-up: every student next to every task and test. The home screen shows what is ready for today and what you still need to mark.",
     "lijst": [
+      {
+        "id": "overzicht",
+        "naam": "One overview",
+        "tekst": "For each student you see at once what is finished, what is still in progress and what went wrong. Anyone who was absent or doesn't take the subject doesn't count."
+      },
       {
         "id": "zorg",
         "naam": "Support overview",
@@ -164,7 +171,12 @@
       {
         "id": "taken",
         "naam": "Tasks per student",
-        "tekst": "Assign a quiz or worksheet to one student or a small group, each at their own level. You can prepare it at home too."
+        "tekst": "Give a quiz, worksheet or test to one student, a group or the whole class, each at their own level. Right away, at the start of the lesson or on a day and time you choose."
+      },
+      {
+        "id": "punten",
+        "naam": "Marks and retakes",
+        "tekst": "Test marks go straight into a mark list, out of 10, 20 or 100, ready for your report. A retake takes one button, and you choose what counts."
       },
       {
         "id": "doelen",
@@ -172,11 +184,23 @@
         "tekst": "Choose the curriculum goals of England, the US, the Netherlands, Germany, France or Flanders, or add your own. An AI can suggest them. Working without goals is fine too."
       },
       {
-        "id": "proef",
-        "naam": "Tests with answer sheet",
-        "tekst": "Make a test, let pupils take it online or print it. The scores go straight into your overview."
+        "id": "lesmap",
+        "naam": "Prepare at home",
+        "tekst": "Link My lesson folder to your own OneDrive or Google Drive. What you set up at home is on the board the next morning, with the same tasks, tests and results."
       }
     ]
+  },
+  "toetsen": {
+    "titel": "Tests on the Chromebook or on paper",
+    "tekst": "Build your test with buttons, no code. Students take it on their device or on paper. LANcelot marks what it can, you check the rest and the marks appear in your overview straight away.",
+    "lijst": [
+      "Multiple choice, true or false, fill in, matching, ordering, sorting, grouping, highlighting in a text and dictation.",
+      "Maths too: drawing on a grid, measuring with a protractor, polygons and calculation grids that mark themselves.",
+      "Read aloud per question or per student, slower if needed, and listening questions with your own audio clip.",
+      "Try the test yourself as a student first, and watch live while the class works.",
+      "After marking, each student gets a PDF in your lesson folder. If you like, it is emailed automatically to a support teacher or the parents, from your own mailbox."
+    ],
+    "beeld": "A test on a student's Chromebook"
   },
   "motivatie": {
     "titel": "Why students look forward to it every day",
@@ -206,10 +230,11 @@
   "privacy": {
     "titel": "Student data stays in your classroom",
     "lijst": [
-      "LANcelot runs on your own PC. No cloud and no student accounts.",
+      "LANcelot runs on your own PC. There is no LANcelot cloud and no student accounts.",
       "Names, answers and results live in a folder on that PC. You decide what happens to them.",
       "No ads and no tracking.",
-      "If you use AI, only your prompt (topic or lesson material) goes to the AI you choose. No student names."
+      "If you use AI, only your prompt (topic or lesson material) goes to the AI you choose. No student names.",
+      "You switch on My lesson folder and emailing tests yourself. Your lesson folder then goes through your own OneDrive or Google Drive and the emails through your own mailbox. That uses the internet."
     ]
   },
   "toestellen": {
@@ -234,7 +259,7 @@
     "tekst": "Dutch, English, French, Spanish and German. Pick the language in the settings and every screen switches, students' screens too."
   },
   "junior": {
-    "kicker": "Coming soon",
+    "kicker": "In the same app",
     "titel": "LANcelot Junior",
     "tekst": "For the youngest classes, ages 5 to 9. The same knights and dragons, with games made for small hands and children who cannot read (fluently) yet.",
     "lijst": [
@@ -262,7 +287,7 @@
       "toverdorp": "The magic village",
       "draakje": "Our class dragon"
     },
-    "noot": "LANcelot Junior comes in the same app. One button switches between LANcelot and LANcelot Junior."
+    "noot": "LANcelot Junior is part of the same app. Choose it at start-up or switch it on in the settings."
   },
   "download": {
     "titel": "Bring LANcelot to your classroom",
@@ -293,7 +318,11 @@
       },
       {
         "v": "Do I need the internet?",
-        "a": "Play runs over the school's local network: the PC and the students' devices must be on the same network. Only creating lesson material with AI needs the internet."
+        "a": "Playing runs over the school's local network: the PC and the students' devices need to be on the same network. The internet is only needed for what you switch on yourself: creating material with AI, My lesson folder through OneDrive or Google Drive, and emailing tests."
+      },
+      {
+        "v": "Can I prepare at home and use more than one PC?",
+        "a": "Yes. Link My lesson folder to your OneDrive or Google Drive, at home and on the classroom PC. Quizzes, tests, tasks and results are then on both PCs, and a task you schedule at home is ready on the board the next morning."
       },
       {
         "v": "Do students need an account?",

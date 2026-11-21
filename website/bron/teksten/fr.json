@@ -7,6 +7,8 @@
     "hallen": "Ce qu’il contient",
     "spellen": "Jeux",
     "ai": "IA",
+    "opvolgen": "Suivi",
+    "toetsen": "Évaluations",
     "privacy": "Vie privée",
     "faq": "Questions",
     "download": "Bientôt"
@@ -82,12 +84,12 @@
       {
         "id": "wapenkamer",
         "naam": "Outils de classe",
-        "tekst": "Des outils de classe au tableau : tirage au sort, groupes, minuteur, sonomètre, dés et responsabilités."
+        "tekst": "Au tableau : tirer un élève au sort, groupes, minuteur, sonomètre, feu tricolore, dés, responsabilités et plan de classe."
       },
       {
         "id": "burcht",
         "naam": "Ma classe",
-        "tekst": "Ta liste de classe, les objectifs du programme de ton pays ou les tiens, les tâches par élève et les résultats."
+        "tekst": "Suis ta classe : tâches et évaluations par élève, points, accompagnement et objectifs de ton pays."
       }
     ]
   },
@@ -153,9 +155,14 @@
     ]
   },
   "opvolgen": {
-    "titel": "Suivi, accompagnement et bulletins",
-    "tekst": "Chaque réponse va dans le journal, liée aux objectifs que tu choisis. Tu vois tout de suite qui a besoin d'aide.",
+    "titel": "Suivi, accompagnement et points",
+    "tekst": "Ma classe s'ouvre sur le Suivi : chaque élève à côté de chaque tâche et évaluation. L'écran d'accueil montre ce qui est prévu aujourd'hui et ce qu'il te reste à corriger.",
     "lijst": [
+      {
+        "id": "overzicht",
+        "naam": "Une seule vue",
+        "tekst": "Pour chaque élève, tu vois tout de suite ce qui est terminé, ce qui est en cours et ce qui n'a pas réussi. Un élève absent ou qui ne suit pas la branche ne compte pas."
+      },
       {
         "id": "zorg",
         "naam": "Vue d’accompagnement",
@@ -164,7 +171,12 @@
       {
         "id": "taken",
         "naam": "Tâches par élève",
-        "tekst": "Prépare un quiz ou une fiche pour un élève ou un petit groupe, chacun à son niveau. Aussi depuis la maison."
+        "tekst": "Donne un quiz, une fiche ou une évaluation à un élève, un groupe ou toute la classe, chacun à son niveau. Tout de suite, au début de la leçon ou au jour et à l'heure que tu choisis."
+      },
+      {
+        "id": "punten",
+        "naam": "Points et remédiation",
+        "tekst": "Les points des évaluations arrivent seuls dans une liste de points, sur 10, 20 ou 100, prêts pour ton bulletin. Une seconde chance se donne d'un bouton, et c'est toi qui choisis ce qui compte."
       },
       {
         "id": "doelen",
@@ -172,11 +184,23 @@
         "tekst": "Choisis les objectifs de l'Angleterre, des États-Unis, des Pays-Bas, de l'Allemagne, de la France ou de la Flandre, ou ajoute les tiens. Une IA peut les proposer. Travailler sans objectifs, c'est possible aussi."
       },
       {
-        "id": "proef",
-        "naam": "Évaluations avec corrigé",
-        "tekst": "Crée une évaluation, fais-la passer en ligne ou imprime-la. Les points arrivent tout seuls dans ton aperçu."
+        "id": "lesmap",
+        "naam": "Préparer à la maison",
+        "tekst": "Lie Mon dossier de cours à ton propre OneDrive ou Google Drive. Ce que tu prépares à la maison est au tableau le lendemain matin, avec les mêmes tâches, évaluations et résultats."
       }
     ]
+  },
+  "toetsen": {
+    "titel": "Évaluations sur Chromebook ou sur papier",
+    "tekst": "Construis ton évaluation avec des boutons, sans code. Les élèves la font sur leur appareil ou sur papier. LANcelot corrige ce qu'il peut, tu vérifies le reste et les points apparaissent tout de suite dans ton aperçu.",
+    "lijst": [
+      "Choix multiple, vrai ou faux, compléter, relier, ordonner, trier, regrouper, surligner dans un texte et dictée.",
+      "Aussi pour les maths : tracer sur une grille, mesurer avec un rapporteur, polygones et grilles de calcul corrigées automatiquement.",
+      "Lecture à voix haute par question ou par élève, aussi plus lente, et questions d'écoute avec ton propre extrait audio.",
+      "Essaie d'abord l'évaluation toi-même comme un élève, et suis la classe en direct pendant qu'elle travaille.",
+      "Après la correction, chaque élève a un PDF dans ton dossier de cours. Si tu veux, il part tout seul par mail à un enseignant de soutien ou aux parents, depuis ta propre boîte mail."
+    ],
+    "beeld": "Une évaluation sur le Chromebook d'un élève"
   },
   "motivatie": {
     "titel": "Pourquoi les élèves l’attendent chaque jour",
@@ -206,10 +230,11 @@
   "privacy": {
     "titel": "Les données des élèves restent dans ta classe",
     "lijst": [
-      "LANcelot tourne sur ton propre PC. Pas de cloud, pas de compte élève.",
+      "LANcelot tourne sur ton propre PC. Il n'y a pas de cloud LANcelot ni de compte élève.",
       "Les noms, réponses et résultats sont dans un dossier sur ce PC. C’est toi qui décides.",
       "Pas de publicité et pas de pistage.",
-      "Si tu utilises l’IA, seule ta consigne (sujet ou matériel de cours) part vers l’IA que tu choisis. Aucun nom d’élève."
+      "Si tu utilises l’IA, seule ta consigne (sujet ou matériel de cours) part vers l’IA que tu choisis. Aucun nom d’élève.",
+      "Mon dossier de cours et l'envoi des évaluations par mail, c'est toi qui les actives. Ton dossier passe alors par ton propre OneDrive ou Google Drive et les mails par ta propre boîte mail. Cela utilise internet."
     ]
   },
   "toestellen": {
@@ -234,7 +259,7 @@
     "tekst": "Néerlandais, anglais, français, espagnol et allemand. Choisis la langue dans les réglages et chaque écran change, aussi chez les élèves."
   },
   "junior": {
-    "kicker": "Bientôt",
+    "kicker": "Dans la même app",
     "titel": "LANcelot Junior",
     "tekst": "Pour les plus jeunes, de 5 à 9 ans. Les mêmes chevaliers et dragons, avec des jeux pensés pour les petites mains et les enfants qui ne lisent pas encore (bien).",
     "lijst": [
@@ -262,7 +287,7 @@
       "toverdorp": "Le village magique",
       "draakje": "Notre dragon de classe"
     },
-    "noot": "LANcelot Junior arrive dans la même application. Un bouton suffit pour passer de LANcelot à LANcelot Junior."
+    "noot": "LANcelot Junior fait partie de la même app. Choisis-le au démarrage ou active-le dans les réglages."
   },
   "download": {
     "titel": "Fais entrer LANcelot dans ta classe",
@@ -293,7 +318,11 @@
       },
       {
         "v": "Ai-je besoin d’internet ?",
-        "a": "Le jeu passe par le réseau local de l’école : le PC et les appareils des élèves doivent être sur le même réseau. Seule la création de matériel avec l’IA a besoin d’internet."
+        "a": "Le jeu passe par le réseau local de l'école : le PC et les appareils des élèves doivent être sur le même réseau. Internet n'est nécessaire que pour ce que tu actives toi-même : créer du matériel avec l'IA, Mon dossier de cours via OneDrive ou Google Drive, et envoyer les évaluations par mail."
+      },
+      {
+        "v": "Puis-je préparer à la maison et utiliser plusieurs PC ?",
+        "a": "Oui. Lie Mon dossier de cours à ton OneDrive ou Google Drive, à la maison et sur le PC de la classe. Quiz, évaluations, tâches et résultats sont alors sur les deux PC, et une tâche que tu planifies à la maison est prête au tableau le lendemain matin."
       },
       {
         "v": "Les élèves doivent-ils créer un compte ?",

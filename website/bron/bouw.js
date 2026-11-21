@@ -69,7 +69,7 @@ const SVG = {
   munt: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 6.5v11M15 9c-.6-1-1.7-1.5-3-1.5-1.8 0-3 .9-3 2.2 0 3 6 1.6 6 4.6 0 1.3-1.3 2.2-3 2.2-1.4 0-2.6-.6-3.1-1.6"/></svg>'
 };
 const PUNT_ICOON = ['tegels', 'bliksem', 'slot'];
-const OPVOLGEN_ICOON = { zorg: 'toren', taken: 'oefenblad', doelen: 'rijk', proef: 'proef' };
+const OPVOLGEN_ICOON = { overzicht: 'resultaten', zorg: 'toren', taken: 'taken', punten: 'zegelrol', doelen: 'rijk', lesmap: 'kronieken' };
 const MOTIVATIE_ICOON = { ridder: 'toernooi', klaseiland: 'klaseiland', huisdier: 'huisdier', runenraadsel: 'runenraadsel' };
 
 // De video's staan in site/video/: <taal>.mp4 (de trailer) en spellen-<taal>.mp4 (de spellen kort na elkaar), met een poster in webp.
@@ -92,7 +92,7 @@ const INFO = JSON.parse(fs.readFileSync(path.join(BRON, 'spellen.json'), 'utf8')
 // Het privacybeleid (ook het adres dat in de Microsoft Store staat): bron/privacy.json, een pagina per taal.
 const PRIVACY = JSON.parse(fs.readFileSync(path.join(BRON, 'privacy.json'), 'utf8'));
 const privacyPad = taal => `${taal === 'nl' ? '' : taal + '/'}privacy.html`;
-// Schermafbeeldingen per spel (website/site/beelden/<taal>/<id>-bord|cb|gsm.webp), gemaakt met bron/spelbeelden.js.
+// Schermafbeeldingen per spel (website/site/beelden/<taal>/<id>-bord|cb|gsm.webp), gemaakt met bron/spelbeelden.js (node website/bron/spelbeelden.js <id>).
 const BEELDEN = ['bord', 'cb', 'gsm'];
 const spelPad = (taal, id) => `${taal === 'nl' ? '' : taal + '/'}spellen/${id}.html`;
 const beeldPad = (taal, id) => `beelden/${taal}/${(INFO[id] && INFO[id].beeld) || id}`;
@@ -132,6 +132,8 @@ function omhulsel({ taal, t, alle, root, thuis, links, adressen, titel, omschrij
       <a href="${thuis}#hallen">${esc(t.nav.hallen)}</a>
       <a href="${thuis}#spellen">${esc(t.nav.spellen)}</a>
       <a href="${thuis}#ai">${esc(t.nav.ai)}</a>
+      <a href="${thuis}#opvolgen">${esc(t.nav.opvolgen)}</a>
+      <a href="${thuis}#toetsen">${esc(t.nav.toetsen)}</a>
       <a href="${thuis}#privacy">${esc(t.nav.privacy)}</a>
       <a href="${thuis}#faq">${esc(t.nav.faq)}</a>
     </nav>
@@ -231,7 +233,7 @@ ${videoBlok(rel, taal, taal, t)}
         ${t.stappen.lijst.map(s => `<li><h3>${esc(s.titel)}</h3><p>${esc(s.tekst)}</p></li>`).join('\n        ')}
       </ol>
       <div class="schermen">
-        <figure class="scherm-bord"><img src="${shot('host')}" alt="${esc(t.schermen.bord)}" width="1200" height="750" loading="lazy" decoding="async"><figcaption>${esc(t.schermen.bord)}</figcaption></figure>
+        <figure class="scherm-bord"><img src="${shot('host')}" alt="${esc(t.schermen.bord)}" width="1200" height="833" loading="lazy" decoding="async"><figcaption>${esc(t.schermen.bord)}</figcaption></figure>
         <figure class="scherm-gsm"><img src="${shot('gsm')}" alt="${esc(t.schermen.gsm)}" width="390" height="844" loading="lazy" decoding="async"><figcaption>${esc(t.schermen.gsm)}</figcaption></figure>
       </div>
     </section>
@@ -271,9 +273,18 @@ ${heeftVideo(`spellen-${taal}`) ? videoBlok(rel, `spellen-${taal}`, `spellen-${t
     <section class="blok" id="opvolgen">
       <h2 class="titel">${esc(t.opvolgen.titel)}</h2>
       <p class="intro">${esc(t.opvolgen.tekst)}</p>
-      <ul class="hallen vier">
+      <ul class="hallen drie">
         ${t.opvolgen.lijst.map(x => `<li class="hal"><img src="${rel}img/spellen/${OPVOLGEN_ICOON[x.id]}.webp" alt="" width="96" height="96" loading="lazy" decoding="async"><h3>${esc(x.naam)}</h3><p>${esc(x.tekst)}</p></li>`).join('\n        ')}
       </ul>
+    </section>
+
+    <section class="blok duo" id="toetsen">
+      <div>
+        <h2 class="titel">${esc(t.toetsen.titel)}</h2>
+        <p class="intro">${esc(t.toetsen.tekst)}</p>
+        <ul class="vinken">${t.toetsen.lijst.map(x => `<li>${SVG.vink}<span>${esc(x)}</span></li>`).join('')}</ul>
+      </div>
+      <figure><img src="${shot('toets')}" alt="${esc(t.toetsen.beeld)}" width="1200" height="750" loading="lazy" decoding="async"><figcaption>${esc(t.toetsen.beeld)}</figcaption></figure>
     </section>
 
     <section class="blok" id="motivatie">

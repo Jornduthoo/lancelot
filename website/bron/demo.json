@@ -1,0 +1,686 @@
+{
+  "namen": [
+    "Noor",
+    "Lucas",
+    "Emma",
+    "Milan",
+    "Lina",
+    "Adam",
+    "Sara",
+    "Finn",
+    "Mila",
+    "Yusuf",
+    "Lotte",
+    "Jonas"
+  ],
+  "nl": {
+    "klas": "6B",
+    "toets": {
+      "titel": "De middeleeuwen",
+      "sorteren": "Hoort het bij de burcht of bij het klooster? Sleep elk woord naar de juiste kolom.",
+      "kolommen": [
+        [
+          "Burcht",
+          [
+            "slotgracht",
+            "ophaalbrug",
+            "donjon",
+            "kantelen"
+          ]
+        ],
+        [
+          "Klooster",
+          [
+            "abdij",
+            "monnik",
+            "kloostertuin",
+            "gebedenboek"
+          ]
+        ]
+      ],
+      "meerkeuze": [
+        "Waarmee verdedigde een burcht zich?",
+        [
+          "Een slotgracht",
+          "Een parkeergarage",
+          "Een glazen gevel"
+        ]
+      ],
+      "juistfout": "Een ridder begon als page.",
+      "open": "Waarom bouwden heren hun burcht op een heuvel?"
+    },
+    "zet": [
+      [
+        "donjon",
+        "Burcht"
+      ],
+      [
+        "monnik",
+        "Klooster"
+      ],
+      [
+        "slotgracht",
+        "Burcht"
+      ],
+      [
+        "abdij",
+        "Klooster"
+      ]
+    ],
+    "verbeter": {
+      "titel": "Breuken",
+      "kort": [
+        "1/2 + 1/4 =",
+        "3/4"
+      ],
+      "open": "Leg uit hoe je breuken gelijknamig maakt."
+    },
+    "quiz": {
+      "title": "De middeleeuwen",
+      "questions": [
+        {
+          "question": "Hoe heet de diepe gracht rond een burcht?",
+          "answers": [
+            "Slotgracht",
+            "Kanaal",
+            "Vijver",
+            "Beek"
+          ],
+          "correct": 0,
+          "time": 20
+        },
+        {
+          "question": "Wie hielp een ridder met zijn wapens?",
+          "answers": [
+            "Schildknaap",
+            "Bakker",
+            "Monnik",
+            "Koning"
+          ],
+          "correct": 0,
+          "time": 20
+        },
+        {
+          "question": "Wat is de hoogste toren van een burcht?",
+          "answers": [
+            "Donjon",
+            "Kapel",
+            "Stal",
+            "Poort"
+          ],
+          "correct": 0,
+          "time": 20
+        },
+        {
+          "question": "Waar woonden monniken?",
+          "answers": [
+            "Klooster",
+            "Burcht",
+            "Markt",
+            "Haven"
+          ],
+          "correct": 0,
+          "time": 20
+        },
+        {
+          "question": "Wat liet men zakken om de burcht in te gaan?",
+          "answers": [
+            "Ophaalbrug",
+            "Ladder",
+            "Touw",
+            "Trap"
+          ],
+          "correct": 0,
+          "time": 20
+        },
+        {
+          "question": "Hoe heette een jonge leerling-ridder eerst?",
+          "answers": [
+            "Page",
+            "Heraut",
+            "Nar",
+            "Baljuw"
+          ],
+          "correct": 0,
+          "time": 20
+        }
+      ]
+    }
+  },
+  "en": {
+    "klas": "Year 6",
+    "toets": {
+      "titel": "The Middle Ages",
+      "sorteren": "Does it belong to the castle or the monastery? Drag each word to the right column.",
+      "kolommen": [
+        [
+          "Castle",
+          [
+            "moat",
+            "drawbridge",
+            "keep",
+            "battlements"
+          ]
+        ],
+        [
+          "Monastery",
+          [
+            "abbey",
+            "monk",
+            "cloister garden",
+            "prayer book"
+          ]
+        ]
+      ],
+      "meerkeuze": [
+        "How did a castle defend itself?",
+        [
+          "A moat",
+          "A car park",
+          "A glass front"
+        ]
+      ],
+      "juistfout": "A knight started out as a page.",
+      "open": "Why did lords build their castles on a hill?"
+    },
+    "zet": [
+      [
+        "keep",
+        "Castle"
+      ],
+      [
+        "monk",
+        "Monastery"
+      ],
+      [
+        "moat",
+        "Castle"
+      ],
+      [
+        "abbey",
+        "Monastery"
+      ]
+    ],
+    "verbeter": {
+      "titel": "Fractions",
+      "kort": [
+        "1/2 + 1/4 =",
+        "3/4"
+      ],
+      "open": "Explain how you give fractions a common denominator."
+    },
+    "quiz": {
+      "title": "The Middle Ages",
+      "questions": [
+        {
+          "question": "What is the deep ditch around a castle called?",
+          "answers": [
+            "Moat",
+            "Canal",
+            "Pond",
+            "Stream"
+          ],
+          "correct": 0,
+          "time": 20
+        },
+        {
+          "question": "Who helped a knight with his weapons?",
+          "answers": [
+            "Squire",
+            "Baker",
+            "Monk",
+            "King"
+          ],
+          "correct": 0,
+          "time": 20
+        },
+        {
+          "question": "What is the tallest tower of a castle?",
+          "answers": [
+            "Keep",
+            "Chapel",
+            "Stable",
+            "Gate"
+          ],
+          "correct": 0,
+          "time": 20
+        },
+        {
+          "question": "Where did monks live?",
+          "answers": [
+            "Monastery",
+            "Castle",
+            "Market",
+            "Harbour"
+          ],
+          "correct": 0,
+          "time": 20
+        },
+        {
+          "question": "What was lowered to enter the castle?",
+          "answers": [
+            "Drawbridge",
+            "Ladder",
+            "Rope",
+            "Stairs"
+          ],
+          "correct": 0,
+          "time": 20
+        },
+        {
+          "question": "What was a young knight in training first called?",
+          "answers": [
+            "Page",
+            "Herald",
+            "Jester",
+            "Bailiff"
+          ],
+          "correct": 0,
+          "time": 20
+        }
+      ]
+    }
+  },
+  "fr": {
+    "klas": "6e A",
+    "toets": {
+      "titel": "Le Moyen Âge",
+      "sorteren": "Est-ce que cela va avec le château ou avec le monastère ? Glisse chaque mot dans la bonne colonne.",
+      "kolommen": [
+        [
+          "Château",
+          [
+            "douves",
+            "pont-levis",
+            "donjon",
+            "créneaux"
+          ]
+        ],
+        [
+          "Monastère",
+          [
+            "abbaye",
+            "moine",
+            "cloître",
+            "livre de prières"
+          ]
+        ]
+      ],
+      "meerkeuze": [
+        "Comment un château se défendait-il ?",
+        [
+          "Avec des douves",
+          "Avec un parking",
+          "Avec une façade en verre"
+        ]
+      ],
+      "juistfout": "Un chevalier commençait comme page.",
+      "open": "Pourquoi les seigneurs construisaient-ils leur château sur une colline ?"
+    },
+    "zet": [
+      [
+        "donjon",
+        "Château"
+      ],
+      [
+        "moine",
+        "Monastère"
+      ],
+      [
+        "douves",
+        "Château"
+      ],
+      [
+        "abbaye",
+        "Monastère"
+      ]
+    ],
+    "verbeter": {
+      "titel": "Les fractions",
+      "kort": [
+        "1/2 + 1/4 =",
+        "3/4"
+      ],
+      "open": "Explique comment mettre des fractions au même dénominateur."
+    },
+    "quiz": {
+      "title": "Le Moyen Âge",
+      "questions": [
+        {
+          "question": "Comment s'appelle le fossé profond autour d'un château ?",
+          "answers": [
+            "Les douves",
+            "Un canal",
+            "Un étang",
+            "Un ruisseau"
+          ],
+          "correct": 0,
+          "time": 20
+        },
+        {
+          "question": "Qui aidait un chevalier avec ses armes ?",
+          "answers": [
+            "L'écuyer",
+            "Le boulanger",
+            "Le moine",
+            "Le roi"
+          ],
+          "correct": 0,
+          "time": 20
+        },
+        {
+          "question": "Quelle est la plus haute tour d'un château ?",
+          "answers": [
+            "Le donjon",
+            "La chapelle",
+            "L'écurie",
+            "La porte"
+          ],
+          "correct": 0,
+          "time": 20
+        },
+        {
+          "question": "Où vivaient les moines ?",
+          "answers": [
+            "Au monastère",
+            "Au château",
+            "Au marché",
+            "Au port"
+          ],
+          "correct": 0,
+          "time": 20
+        },
+        {
+          "question": "Qu'abaissait-on pour entrer dans le château ?",
+          "answers": [
+            "Le pont-levis",
+            "Une échelle",
+            "Une corde",
+            "Un escalier"
+          ],
+          "correct": 0,
+          "time": 20
+        },
+        {
+          "question": "Comment appelait-on d'abord un jeune apprenti chevalier ?",
+          "answers": [
+            "Un page",
+            "Un héraut",
+            "Un bouffon",
+            "Un bailli"
+          ],
+          "correct": 0,
+          "time": 20
+        }
+      ]
+    }
+  },
+  "es": {
+    "klas": "6.º B",
+    "toets": {
+      "titel": "La Edad Media",
+      "sorteren": "¿Va con el castillo o con el monasterio? Arrastra cada palabra a la columna correcta.",
+      "kolommen": [
+        [
+          "Castillo",
+          [
+            "foso",
+            "puente levadizo",
+            "torre del homenaje",
+            "almenas"
+          ]
+        ],
+        [
+          "Monasterio",
+          [
+            "abadía",
+            "monje",
+            "claustro",
+            "libro de oraciones"
+          ]
+        ]
+      ],
+      "meerkeuze": [
+        "¿Cómo se defendía un castillo?",
+        [
+          "Con un foso",
+          "Con un aparcamiento",
+          "Con una fachada de cristal"
+        ]
+      ],
+      "juistfout": "Un caballero empezaba como paje.",
+      "open": "¿Por qué los señores construían su castillo en una colina?"
+    },
+    "zet": [
+      [
+        "torre del homenaje",
+        "Castillo"
+      ],
+      [
+        "monje",
+        "Monasterio"
+      ],
+      [
+        "foso",
+        "Castillo"
+      ],
+      [
+        "abadía",
+        "Monasterio"
+      ]
+    ],
+    "verbeter": {
+      "titel": "Fracciones",
+      "kort": [
+        "1/2 + 1/4 =",
+        "3/4"
+      ],
+      "open": "Explica cómo se reducen fracciones a común denominador."
+    },
+    "quiz": {
+      "title": "La Edad Media",
+      "questions": [
+        {
+          "question": "¿Cómo se llama la zanja profunda alrededor de un castillo?",
+          "answers": [
+            "Foso",
+            "Canal",
+            "Estanque",
+            "Arroyo"
+          ],
+          "correct": 0,
+          "time": 20
+        },
+        {
+          "question": "¿Quién ayudaba a un caballero con sus armas?",
+          "answers": [
+            "Escudero",
+            "Panadero",
+            "Monje",
+            "Rey"
+          ],
+          "correct": 0,
+          "time": 20
+        },
+        {
+          "question": "¿Cuál es la torre más alta de un castillo?",
+          "answers": [
+            "Torre del homenaje",
+            "Capilla",
+            "Establo",
+            "Puerta"
+          ],
+          "correct": 0,
+          "time": 20
+        },
+        {
+          "question": "¿Dónde vivían los monjes?",
+          "answers": [
+            "Monasterio",
+            "Castillo",
+            "Mercado",
+            "Puerto"
+          ],
+          "correct": 0,
+          "time": 20
+        },
+        {
+          "question": "¿Qué se bajaba para entrar en el castillo?",
+          "answers": [
+            "Puente levadizo",
+            "Escalera de mano",
+            "Cuerda",
+            "Escalera"
+          ],
+          "correct": 0,
+          "time": 20
+        },
+        {
+          "question": "¿Cómo se llamaba primero un joven aprendiz de caballero?",
+          "answers": [
+            "Paje",
+            "Heraldo",
+            "Bufón",
+            "Alguacil"
+          ],
+          "correct": 0,
+          "time": 20
+        }
+      ]
+    }
+  },
+  "de": {
+    "klas": "Klasse 4b",
+    "toets": {
+      "titel": "Das Mittelalter",
+      "sorteren": "Gehört es zur Burg oder zum Kloster? Ziehe jedes Wort in die richtige Spalte.",
+      "kolommen": [
+        [
+          "Burg",
+          [
+            "Burggraben",
+            "Zugbrücke",
+            "Bergfried",
+            "Wehrgang"
+          ]
+        ],
+        [
+          "Kloster",
+          [
+            "Abtei",
+            "Mönch",
+            "Klostergarten",
+            "Gebetbuch"
+          ]
+        ]
+      ],
+      "meerkeuze": [
+        "Wie verteidigte sich eine Burg?",
+        [
+          "Mit einem Burggraben",
+          "Mit einem Parkhaus",
+          "Mit einer Glasfassade"
+        ]
+      ],
+      "juistfout": "Ein Ritter begann als Page.",
+      "open": "Warum bauten Herren ihre Burg auf einem Hügel?"
+    },
+    "zet": [
+      [
+        "Bergfried",
+        "Burg"
+      ],
+      [
+        "Mönch",
+        "Kloster"
+      ],
+      [
+        "Burggraben",
+        "Burg"
+      ],
+      [
+        "Abtei",
+        "Kloster"
+      ]
+    ],
+    "verbeter": {
+      "titel": "Brüche",
+      "kort": [
+        "1/2 + 1/4 =",
+        "3/4"
+      ],
+      "open": "Erkläre, wie man Brüche gleichnamig macht."
+    },
+    "quiz": {
+      "title": "Das Mittelalter",
+      "questions": [
+        {
+          "question": "Wie heißt der tiefe Graben um eine Burg?",
+          "answers": [
+            "Burggraben",
+            "Kanal",
+            "Teich",
+            "Bach"
+          ],
+          "correct": 0,
+          "time": 20
+        },
+        {
+          "question": "Wer half einem Ritter mit seinen Waffen?",
+          "answers": [
+            "Knappe",
+            "Bäcker",
+            "Mönch",
+            "König"
+          ],
+          "correct": 0,
+          "time": 20
+        },
+        {
+          "question": "Wie heißt der höchste Turm einer Burg?",
+          "answers": [
+            "Bergfried",
+            "Kapelle",
+            "Stall",
+            "Tor"
+          ],
+          "correct": 0,
+          "time": 20
+        },
+        {
+          "question": "Wo lebten Mönche?",
+          "answers": [
+            "Kloster",
+            "Burg",
+            "Markt",
+            "Hafen"
+          ],
+          "correct": 0,
+          "time": 20
+        },
+        {
+          "question": "Was ließ man herunter, um in die Burg zu kommen?",
+          "answers": [
+            "Zugbrücke",
+            "Leiter",
+            "Seil",
+            "Treppe"
+          ],
+          "correct": 0,
+          "time": 20
+        },
+        {
+          "question": "Wie hieß ein junger Ritterschüler zuerst?",
+          "answers": [
+            "Page",
+            "Herold",
+            "Narr",
+            "Vogt"
+          ],
+          "correct": 0,
+          "time": 20
+        }
+      ]
+    }
+  }
+}

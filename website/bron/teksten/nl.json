@@ -7,6 +7,8 @@
     "hallen": "Wat zit erin",
     "spellen": "Spellen",
     "ai": "AI",
+    "opvolgen": "Opvolgen",
+    "toetsen": "Toetsen",
     "privacy": "Privacy",
     "faq": "Vragen",
     "download": "Binnenkort"
@@ -82,12 +84,12 @@
       {
         "id": "wapenkamer",
         "naam": "Klastools",
-        "tekst": "Klastools op het bord: lot, groepjes, timer, geluidsmeter, dobbelstenen en klastaken."
+        "tekst": "Op het bord: leerling kiezen, groepjes, timer, geluidsmeter, stoplicht, dobbelstenen, klastaken en klasindeling."
       },
       {
         "id": "burcht",
         "naam": "Mijn klas",
-        "tekst": "Je klaslijst, de leerplandoelen van je land of je eigen doelen, taken per leerling en de resultaten."
+        "tekst": "Volg je klas op: taken en toetsen per leerling, punten, zorg en de doelen van je land."
       }
     ]
   },
@@ -153,9 +155,14 @@
     ]
   },
   "opvolgen": {
-    "titel": "Opvolgen, zorg en rapporten",
-    "tekst": "Elk antwoord komt in het logboek, gekoppeld aan de doelen die jij kiest. Zo zie je meteen wie extra hulp nodig heeft.",
+    "titel": "Opvolgen, zorg en punten",
+    "tekst": "Mijn klas opent op Opvolgen: elke leerling naast elke taak en toets. Op het startscherm zie je wat vandaag klaarstaat en wat je nog moet verbeteren.",
     "lijst": [
+      {
+        "id": "overzicht",
+        "naam": "Eén overzicht",
+        "tekst": "Per leerling zie je meteen wat af is, wat nog bezig is en wat niet lukte. Wie afwezig was of het vak niet volgt, telt niet mee."
+      },
       {
         "id": "zorg",
         "naam": "Zorgoverzicht",
@@ -164,7 +171,12 @@
       {
         "id": "taken",
         "naam": "Taken per leerling",
-        "tekst": "Zet een quiz of oefenblad klaar voor één leerling of een groepje, elk op zijn niveau. Ook thuis voor te bereiden."
+        "tekst": "Geef een quiz, oefenblad of toets aan één leerling, een groepje of de klas, elk op zijn niveau. Meteen, bij het begin van de les of op een dag en uur die jij kiest."
+      },
+      {
+        "id": "punten",
+        "naam": "Punten en herkansing",
+        "tekst": "De punten van toetsen komen vanzelf in een puntenlijst, op 10, 20 of 100, klaar voor je rapport. Een herkansing geef je met één knop, en jij kiest wat telt."
       },
       {
         "id": "doelen",
@@ -172,11 +184,23 @@
         "tekst": "Kies de leerplandoelen van Engeland, de VS, Nederland, Duitsland, Frankrijk of Vlaanderen, of zet je eigen doelen. Een AI stelt ze voor als je wil. Zonder doelen werken mag ook."
       },
       {
-        "id": "proef",
-        "naam": "Toetsen met verbeterblad",
-        "tekst": "Maak een toets, laat hem online maken of print hem. De punten komen vanzelf in je overzicht."
+        "id": "lesmap",
+        "naam": "Thuis voorbereiden",
+        "tekst": "Koppel Mijn lesmap aan je eigen OneDrive of Google Drive. Wat je thuis klaarzet, staat de volgende ochtend op het bord, met dezelfde taken, toetsen en resultaten."
       }
     ]
+  },
+  "toetsen": {
+    "titel": "Toetsen op de Chromebook of op papier",
+    "tekst": "Bouw je toets met knoppen, zonder code. Leerlingen maken hem op hun toestel of op papier. LANcelot verbetert wat kan, jij kijkt de rest na en de punten staan meteen in je overzicht.",
+    "lijst": [
+      "Meerkeuze, juist of fout, invullen, verbinden, ordenen, sorteren, groeperen, aanduiden in een tekst en dictee.",
+      "Ook voor wiskunde: tekenen op een rooster, meten met een gradenboog, veelhoeken en rekenroosters die vanzelf nagekeken worden.",
+      "Voorlezen per vraag of per leerling, ook trager, en luistervragen met je eigen geluidsfragment.",
+      "Probeer de toets eerst zelf zoals een leerling, en kijk live mee terwijl de klas werkt.",
+      "Na het verbeteren komt er per leerling een pdf in je lesmap. Wil je, dan gaat die vanzelf per mail naar een zorgbegeleider of de ouders, via je eigen mailbox."
+    ],
+    "beeld": "Een toets op de Chromebook van een leerling"
   },
   "motivatie": {
     "titel": "Waarom leerlingen er elke dag naar uitkijken",
@@ -206,10 +230,11 @@
   "privacy": {
     "titel": "Leerlinggegevens blijven in je klas",
     "lijst": [
-      "LANcelot draait op je eigen pc. Er is geen cloud en geen account voor leerlingen.",
+      "LANcelot draait op je eigen pc. Er is geen cloud van LANcelot en geen account voor leerlingen.",
       "Namen, antwoorden en resultaten staan in een map op die pc. Jij beslist wat ermee gebeurt.",
       "Geen reclame en geen tracking.",
-      "Wil je AI gebruiken, dan gaat enkel je opdracht (onderwerp of lesmateriaal) naar de AI die jij kiest. Geen leerlingnamen."
+      "Wil je AI gebruiken, dan gaat enkel je opdracht (onderwerp of lesmateriaal) naar de AI die jij kiest. Geen leerlingnamen.",
+      "Mijn lesmap en toetsen mailen zet je zelf aan. Dan gaan je lesmap via je eigen OneDrive of Google Drive en de mails via je eigen mailbox. Dat gebruikt internet."
     ]
   },
   "toestellen": {
@@ -234,7 +259,7 @@
     "tekst": "Nederlands, Engels, Frans, Spaans en Duits. Kies de taal in de instellingen en elk scherm wisselt mee, ook bij de leerlingen."
   },
   "junior": {
-    "kicker": "Binnenkort",
+    "kicker": "In dezelfde app",
     "titel": "LANcelot Junior",
     "tekst": "Voor de jongste klassen, van de 3e kleuterklas tot het 3e leerjaar. Dezelfde ridders en draken, met spellen op maat van kleine handen en ogen die nog niet (vlot) lezen.",
     "lijst": [
@@ -262,7 +287,7 @@
       "toverdorp": "Het Toverdorp",
       "draakje": "Ons klasdraakje"
     },
-    "noot": "LANcelot Junior komt in dezelfde app. Eén knop en je schakelt tussen LANcelot en LANcelot Junior."
+    "noot": "LANcelot Junior zit in dezelfde app. Je kiest het bij het opstarten of zet het aan in de instellingen."
   },
   "download": {
     "titel": "Haal LANcelot in je klas",
@@ -293,7 +318,11 @@
       },
       {
         "v": "Heb ik internet nodig?",
-        "a": "Het spelen loopt over het lokale netwerk van de school: de pc en de toestellen van de leerlingen moeten op hetzelfde netwerk zitten. Alleen het maken van lesmateriaal met AI heeft internet nodig."
+        "a": "Het spelen loopt over het lokale netwerk van de school: de pc en de toestellen van de leerlingen moeten op hetzelfde netwerk zitten. Internet is alleen nodig voor wat je zelf aanzet: lesmateriaal maken met AI, Mijn lesmap via OneDrive of Google Drive en toetsen mailen."
+      },
+      {
+        "v": "Kan ik thuis voorbereiden en op meer dan één pc werken?",
+        "a": "Ja. Koppel Mijn lesmap aan je OneDrive of Google Drive, thuis en op de pc in de klas. Quizzen, toetsen, taken en resultaten staan dan op beide pc's, en een taak die je thuis plant, staat de volgende ochtend klaar op het bord."
       },
       {
         "v": "Moeten leerlingen een account maken?",
