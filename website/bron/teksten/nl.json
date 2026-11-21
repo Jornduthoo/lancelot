@@ -127,14 +127,21 @@
     }
   },
   "ai": {
-    "titel": "Lesmateriaal in seconden, met AI",
-    "tekst": "Geef een onderwerp en het leerjaar, of sleep een foto van je bordboek erbij. De AI maakt een quiz, een oefenblad of een hele reeks per les, op drie niveaus.",
+    "titel": "Werken met AI",
+    "tekst": "Geef een onderwerp en het leerjaar, of sleep een foto van je bordboek erbij. De AI maakt een quiz, een oefenblad, een toets of een hele reeks per les. Jij kijkt na, past aan en speelt.",
     "lijst": [
-      "Werkt met Gemini, ChatGPT of Claude: LANcelot kopieert de opdracht, jij plakt het antwoord terug.",
-      "Of vul je eigen sleutel in en alles gebeurt met één klik.",
-      "Oefenbladen speel je live in de klas of print je met verbeterblad.",
+      "Quiz: vragen met uitleg, meteen speelbaar in de Arena.",
+      "Oefenblad: op drie niveaus, live in de klas of geprint met verbeterblad.",
+      "Reeks per les: kies je vak en lessen, LANcelot maakt per les een quiz en een oefenblad.",
+      "Toets: laat de AI er een maken, of sleep je eigen toets op papier erin en hij wordt digitaal. Daarna werk je hem af met knoppen.",
+      "Werkt met Gemini, ChatGPT of Claude: LANcelot kopieert de opdracht, jij plakt het antwoord terug. Of vul je eigen sleutel in en alles gebeurt met één klik.",
       "Alleen het maken met AI heeft internet nodig. Spelen loopt over het klasnetwerk."
-    ]
+    ],
+    "beelden": {
+      "maker": "Onderwerp en leerjaar kiezen, en de opdracht kopiëren",
+      "reeks": "Een reeks per les voor een heel hoofdstuk",
+      "oefenblad": "Een oefenblad, klaar om te printen"
+    }
   },
   "niveaus": {
     "titel": "Elke leerling op zijn niveau",
@@ -200,7 +207,24 @@
       "Probeer de toets eerst zelf zoals een leerling, en kijk live mee terwijl de klas werkt.",
       "Na het verbeteren komt er per leerling een pdf in je lesmap. Wil je, dan gaat die vanzelf per mail naar een zorgbegeleider of de ouders, via je eigen mailbox."
     ],
-    "beeld": "Een toets op de Chromebook van een leerling"
+    "beelden": {
+      "blad": "Een eigen blad: kleuren, tekenen op stippen en cijferen in een rooster",
+      "markeren": "Aanduiden in een tekst, met twee kleuren",
+      "groeperen": "Groeperen: wat hoort bij elkaar?",
+      "getallenas": "Een getal plaatsen op de getallenas"
+    }
+  },
+  "klastools": {
+    "titel": "Klastools voor elke dag",
+    "tekst": "Alles wat je in de klas nodig hebt, groot op het bord en met je eigen klaslijst.",
+    "beelden": {
+      "lot": "Leerling kiezen met het rad",
+      "banieren": "Groepjes in één klik",
+      "zandloper": "Timer met zandloper",
+      "runensteen": "Dobbelstenen",
+      "indeling": "Klasindeling",
+      "wachtlijst": "Klastaken die elke week doorschuiven"
+    }
   },
   "motivatie": {
     "titel": "Waarom leerlingen er elke dag naar uitkijken",

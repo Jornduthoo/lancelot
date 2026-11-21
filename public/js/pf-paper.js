@@ -277,8 +277,8 @@ const PfPaper = (() => {
   };
   // De stiften: de leerling kiest een kleur. Met één kleur staat alleen de uitleg erbij.
   const stiftenHtml = (q, live, print) => (q.kleuren ? `<div class="pf-stiften">${q.kleuren.map((c, i) => (print || !live || q.kleuren.length === 1
-    ? `<span class="pf-stift-uitleg"><i style="background:${c.hex}"></i>${esc(c.kleur)}${c.uitleg ? ` = ${esc(c.uitleg)}` : ''}</span>`
-    : `<button type="button" class="pf-stift${i === 0 ? ' on' : ''}" data-k="${i + 1}" style="--stift:${c.hex}"><i></i>${esc(c.kleur)}${c.uitleg ? ` = ${esc(c.uitleg)}` : ''}</button>`)).join('')}</div>` : '');
+    ? `<span class="pf-stift-uitleg"><i style="background:${c.hex}"></i><span>${esc(c.kleur)}</span>${c.uitleg ? `<span>= ${esc(c.uitleg)}</span>` : ''}</span>`
+    : `<button type="button" class="pf-stift${i === 0 ? ' on' : ''}" data-k="${i + 1}" style="--stift:${c.hex}"><i></i><span>${esc(c.kleur)}</span>${c.uitleg ? `<span>= ${esc(c.uitleg)}</span>` : ''}</button>`)).join('')}</div>` : '');
   function markeerVraag(q, a, o) {
     const live = o.mode === 'live';
     const print = o.mode === 'print';

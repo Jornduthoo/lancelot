@@ -13,6 +13,7 @@ const CONFIG = JSON.parse(fs.readFileSync(path.join(BRON, 'site.json'), 'utf8'))
 const TALEN = ['nl', 'en', 'fr', 'es', 'de'];
 // Vier spellen kregen een eigen naam; op de website heet ook hun pagina en icoon zo (in de app bleef het oude adres).
 const SITE_ID = CONFIG.siteId || {};
+const MATEN = (() => { try { return JSON.parse(fs.readFileSync(path.join(SITE, 'shots', 'maten.json'), 'utf8')); } catch { return {}; } })();
 
 const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
@@ -196,6 +197,11 @@ function pagina(taal, t, w, data, alle) {
   const tr = s => (w[s] && typeof w[s] === 'string' ? w[s] : s);
   const rel = taal === 'nl' ? '' : '../';
   const shot = naam => `${rel}shots/${taal}-${naam}.webp`;
+  // Beeld met onderschrift; maten.json (gemaakt door schermen.js) geeft breedte en hoogte.
+  const fig = (naam, tekst, klas = '') => {
+    const [b, h] = MATEN[`${taal}-${naam}`] || MATEN[`nl-${naam}`] || [1200, 750];
+    return `<figure${klas ? ` class="${klas}"` : ''}><img src="${shot(naam)}" alt="${esc(tekst)}" width="${b}" height="${h}" loading="lazy" decoding="async"><figcaption>${esc(tekst)}</figcaption></figure>`;
+  };
 
   const spelTegels = data.groepen.map(g => `
       <h3 class="groep">${esc(t.spellen.groepen[g.naam] || tr(g.naam))}</h3>
@@ -253,13 +259,13 @@ ${heeftVideo(`spellen-${taal}`) ? videoBlok(rel, `spellen-${taal}`, `spellen-${t
       ${spelTegels}
     </section>
 
-    <section class="blok duo" id="ai">
-      <div>
-        <h2 class="titel">${esc(t.ai.titel)}</h2>
-        <p class="intro">${esc(t.ai.tekst)}</p>
-        <ul class="vinken">${t.ai.lijst.map(x => `<li>${SVG.vink}<span>${esc(x)}</span></li>`).join('')}</ul>
+    <section class="blok" id="ai">
+      <h2 class="titel">${esc(t.ai.titel)}</h2>
+      <p class="intro">${esc(t.ai.tekst)}</p>
+      <div class="galerij drie">
+        ${['maker', 'reeks', 'oefenblad'].map(n => fig(`ai-${n}`, t.ai.beelden[n])).join('\n        ')}
       </div>
-      <figure><img src="${shot('smidse')}" alt="${esc(t.hallen.lijst[2].naam)}" width="1200" height="433" loading="lazy" decoding="async"></figure>
+      <ul class="vinken twee">${t.ai.lijst.map(x => `<li>${SVG.vink}<span>${esc(x)}</span></li>`).join('')}</ul>
     </section>
 
     <section class="blok" id="niveaus">
@@ -278,13 +284,24 @@ ${heeftVideo(`spellen-${taal}`) ? videoBlok(rel, `spellen-${taal}`, `spellen-${t
       </ul>
     </section>
 
-    <section class="blok duo" id="toetsen">
-      <div>
-        <h2 class="titel">${esc(t.toetsen.titel)}</h2>
-        <p class="intro">${esc(t.toetsen.tekst)}</p>
-        <ul class="vinken">${t.toetsen.lijst.map(x => `<li>${SVG.vink}<span>${esc(x)}</span></li>`).join('')}</ul>
+    <section class="blok" id="toetsen">
+      <h2 class="titel">${esc(t.toetsen.titel)}</h2>
+      <p class="intro">${esc(t.toetsen.tekst)}</p>
+      <div class="toetsgalerij">
+        ${fig('toets-blad', t.toetsen.beelden.blad, 'groot')}
+        <div class="stroken">
+          ${['markeren', 'groeperen', 'getallenas'].map(n => fig(`toets-${n}`, t.toetsen.beelden[n])).join('\n          ')}
+        </div>
       </div>
-      <figure><img src="${shot('toets')}" alt="${esc(t.toetsen.beeld)}" width="1200" height="750" loading="lazy" decoding="async"><figcaption>${esc(t.toetsen.beeld)}</figcaption></figure>
+      <ul class="vinken twee">${t.toetsen.lijst.map(x => `<li>${SVG.vink}<span>${esc(x)}</span></li>`).join('')}</ul>
+    </section>
+
+    <section class="blok" id="klastools">
+      <h2 class="titel">${esc(t.klastools.titel)}</h2>
+      <p class="intro">${esc(t.klastools.tekst)}</p>
+      <div class="galerij drie">
+        ${['lot', 'banieren', 'zandloper', 'runensteen', 'indeling', 'wachtlijst'].map(n => fig(`kt-${n}`, t.klastools.beelden[n])).join('\n        ')}
+      </div>
     </section>
 
     <section class="blok" id="motivatie">

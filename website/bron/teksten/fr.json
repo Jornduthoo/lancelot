@@ -127,14 +127,21 @@
     }
   },
   "ai": {
-    "titel": "Du matériel de cours en quelques secondes, avec l’IA",
-    "tekst": "Donne un sujet et l’année, ou ajoute une photo de ton manuel. L’IA crée un quiz, une fiche ou toute une série par leçon, sur trois niveaux.",
+    "titel": "Travailler avec l’IA",
+    "tekst": "Donne un sujet et l’année, ou glisse une photo de ton manuel. L’IA crée un quiz, une fiche d’exercices, une évaluation ou toute une série par leçon. Tu vérifies, tu ajustes et tu joues.",
     "lijst": [
-      "Fonctionne avec Gemini, ChatGPT ou Claude : LANcelot copie la consigne, tu recolles la réponse.",
-      "Ou entre ta propre clé et tout se fait en un clic.",
-      "Les fiches se jouent en direct en classe ou s’impriment avec corrigé.",
-      "Seule la création avec l’IA a besoin d’internet. Le jeu passe par le réseau de la classe."
-    ]
+      "Quiz : des questions avec explication, prêtes à jouer dans l’Arène.",
+      "Fiche d’exercices : sur trois niveaux, en direct en classe ou imprimée avec corrigé.",
+      "Série par leçon : choisis ta matière et tes leçons, LANcelot crée un quiz et une fiche pour chaque leçon.",
+      "Évaluation : laisse l’IA en créer une, ou glisse ta propre évaluation papier et elle devient numérique. Ensuite, tu la termines avec des boutons.",
+      "Fonctionne avec Gemini, ChatGPT ou Claude : LANcelot copie la consigne, tu recolles la réponse. Ou entre ta propre clé et tout se fait en un clic.",
+      "Seule la création avec l’IA demande internet. Le jeu passe par le réseau de la classe."
+    ],
+    "beelden": {
+      "maker": "Choisir le sujet et l’année, puis copier la consigne",
+      "reeks": "Une série par leçon pour tout un chapitre",
+      "oefenblad": "Une fiche d’exercices, prête à imprimer"
+    }
   },
   "niveaus": {
     "titel": "Chaque élève à son niveau",
@@ -200,7 +207,24 @@
       "Essaie d'abord l'évaluation toi-même comme un élève, et suis la classe en direct pendant qu'elle travaille.",
       "Après la correction, chaque élève a un PDF dans ton dossier de cours. Si tu veux, il part tout seul par mail à un enseignant de soutien ou aux parents, depuis ta propre boîte mail."
     ],
-    "beeld": "Une évaluation sur le Chromebook d'un élève"
+    "beelden": {
+      "blad": "Ta propre feuille : colorier, dessiner sur des points et calculer en colonnes",
+      "markeren": "Repérer dans un texte, en deux couleurs",
+      "groeperen": "Grouper : qu’est-ce qui va ensemble ?",
+      "getallenas": "Placer un nombre sur la droite graduée"
+    }
+  },
+  "klastools": {
+    "titel": "Des outils de classe pour chaque jour",
+    "tekst": "Tout ce qu’il te faut en classe, en grand au tableau et avec ta propre liste d’élèves.",
+    "beelden": {
+      "lot": "Tirer un élève avec la roue",
+      "banieren": "Des groupes en un clic",
+      "zandloper": "Minuteur avec sablier",
+      "runensteen": "Dés",
+      "indeling": "Plan de classe",
+      "wachtlijst": "Tâches de classe qui tournent chaque semaine"
+    }
   },
   "motivatie": {
     "titel": "Pourquoi les élèves l’attendent chaque jour",

@@ -145,6 +145,109 @@
           "time": 20
         }
       ]
+    },
+    "blad": {
+      "toets": "Meetkunde en rekenen",
+      "titel": "Meetkunde en rekenen",
+      "o": [
+        "Kleur 3/5 van de strook rood.",
+        "Teken een rechthoek op de stippen.",
+        "Cijfer: 2 456 + 1 389"
+      ]
+    },
+    "taal": {
+      "toets": "Taal en breuken",
+      "markeren": "Duid het onderwerp geel aan en de persoonsvorm groen.",
+      "kleuren": [
+        "onderwerp",
+        "persoonsvorm"
+      ],
+      "tekst": "[De ridder] [galoppeert|2] naar de burcht. Morgen [vertrekken|2] [de schildknapen] op tocht.",
+      "groeperen": "Welke getallen zijn even groot? Geef ze dezelfde kleur.",
+      "komma": "0,25",
+      "getallenas": "Duid 3/4 aan op de getallenas."
+    },
+    "ai": "De middeleeuwen: burchten, ridders en kloosters",
+    "oefenblad": {
+      "title": "De middeleeuwen",
+      "level": "5e leerjaar",
+      "blocks": [
+        {
+          "type": "tekst",
+          "title": "Leven in de burcht",
+          "text": "Een burcht had dikke muren en een slotgracht. De heer woonde in de donjon, de hoogste toren. Een jongen die ridder wilde worden, begon als page en werd daarna schildknaap."
+        },
+        {
+          "type": "invullen",
+          "instruction": "Vul de ontbrekende woorden in.",
+          "text": "De hoogste toren van een burcht heet de [donjon]. Rond de burcht lag een [slotgracht]. Een jonge ridder begon als [page]."
+        },
+        {
+          "type": "meerkeuze",
+          "instruction": "Kies het juiste antwoord.",
+          "items": [
+            {
+              "question": "Wie hielp een ridder met zijn wapens?",
+              "options": [
+                "de bakker",
+                "de schildknaap",
+                "de monnik"
+              ],
+              "correct": 1
+            },
+            {
+              "question": "Waar woonden monniken?",
+              "options": [
+                "in een klooster",
+                "in een donjon",
+                "op de markt"
+              ],
+              "correct": 0
+            }
+          ]
+        },
+        {
+          "type": "juistfout",
+          "instruction": "Is de zin juist of fout?",
+          "items": [
+            {
+              "statement": "Een burcht had een ophaalbrug.",
+              "correct": true
+            },
+            {
+              "statement": "Ridders reden op fietsen.",
+              "correct": false
+            }
+          ]
+        },
+        {
+          "type": "verbinden",
+          "instruction": "Verbind het woord met de uitleg.",
+          "pairs": [
+            {
+              "left": "slotgracht",
+              "right": "water rond de burcht"
+            },
+            {
+              "left": "kantelen",
+              "right": "tanden boven op de muur"
+            },
+            {
+              "left": "abdij",
+              "right": "groot klooster"
+            }
+          ]
+        }
+      ]
+    },
+    "reeks": {
+      "vak": "Wereldoriëntatie",
+      "lessen": [
+        "# Blok 3 - De middeleeuwen",
+        "Les 1 - Burchten | ophaalbrug, slotgracht, donjon",
+        "Les 2 - Ridders | page, schildknaap, ridderslag",
+        "Les 3 - Kloosters | monniken, abdij, boeken overschrijven"
+      ]
     }
   },
   "en": {
@@ -278,6 +381,109 @@
           "correct": 0,
           "time": 20
         }
+      ]
+    },
+    "blad": {
+      "toets": "Geometry and maths",
+      "titel": "Geometry and maths",
+      "o": [
+        "Colour 3/5 of the strip red.",
+        "Draw a rectangle on the dots.",
+        "Column addition: 2456 + 1389"
+      ]
+    },
+    "taal": {
+      "toets": "Language and fractions",
+      "markeren": "Highlight the subject in yellow and the verb in green.",
+      "kleuren": [
+        "subject",
+        "verb"
+      ],
+      "tekst": "[The knight] [rides|2] to the castle. Tomorrow [the squires] [leave|2] on a journey.",
+      "groeperen": "Which numbers are equal? Give them the same colour.",
+      "komma": "0.25",
+      "getallenas": "Mark 3/4 on the number line."
+    },
+    "ai": "The Middle Ages: castles, knights and monasteries",
+    "oefenblad": {
+      "title": "The Middle Ages",
+      "level": "Year 5",
+      "blocks": [
+        {
+          "type": "tekst",
+          "title": "Life in the castle",
+          "text": "A castle had thick walls and a moat. The lord lived in the keep, the tallest tower. A boy who wanted to become a knight started as a page and then became a squire."
+        },
+        {
+          "type": "invullen",
+          "instruction": "Fill in the missing words.",
+          "text": "The tallest tower of a castle is called the [keep]. Around the castle was a [moat]. A young knight started out as a [page]."
+        },
+        {
+          "type": "meerkeuze",
+          "instruction": "Choose the right answer.",
+          "items": [
+            {
+              "question": "Who helped a knight with his weapons?",
+              "options": [
+                "the baker",
+                "the squire",
+                "the monk"
+              ],
+              "correct": 1
+            },
+            {
+              "question": "Where did monks live?",
+              "options": [
+                "in a monastery",
+                "in a keep",
+                "at the market"
+              ],
+              "correct": 0
+            }
+          ]
+        },
+        {
+          "type": "juistfout",
+          "instruction": "True or false?",
+          "items": [
+            {
+              "statement": "A castle had a drawbridge.",
+              "correct": true
+            },
+            {
+              "statement": "Knights rode bicycles.",
+              "correct": false
+            }
+          ]
+        },
+        {
+          "type": "verbinden",
+          "instruction": "Match the word with its meaning.",
+          "pairs": [
+            {
+              "left": "moat",
+              "right": "water around the castle"
+            },
+            {
+              "left": "battlements",
+              "right": "teeth on top of the wall"
+            },
+            {
+              "left": "abbey",
+              "right": "large monastery"
+            }
+          ]
+        }
+      ]
+    },
+    "reeks": {
+      "vak": "History",
+      "lessen": [
+        "# Unit 3 - The Middle Ages",
+        "Lesson 1 - Castles | drawbridge, moat, keep",
+        "Lesson 2 - Knights | page, squire, knighting",
+        "Lesson 3 - Monasteries | monks, abbeys, copying books"
       ]
     }
   },
@@ -413,6 +619,109 @@
           "time": 20
         }
       ]
+    },
+    "blad": {
+      "toets": "Géométrie et calcul",
+      "titel": "Géométrie et calcul",
+      "o": [
+        "Colorie 3/5 de la bande en rouge.",
+        "Trace un rectangle sur les points.",
+        "Calcule en colonnes : 2 456 + 1 389"
+      ]
+    },
+    "taal": {
+      "toets": "Langue et fractions",
+      "markeren": "Surligne le sujet en jaune et le verbe en vert.",
+      "kleuren": [
+        "sujet",
+        "verbe"
+      ],
+      "tekst": "[Le chevalier] [galope|2] vers le château. Demain, [les écuyers] [partent|2] en voyage.",
+      "groeperen": "Quels nombres sont égaux ? Donne-leur la même couleur.",
+      "komma": "0,25",
+      "getallenas": "Place 3/4 sur la droite graduée."
+    },
+    "ai": "Le Moyen Âge : châteaux, chevaliers et monastères",
+    "oefenblad": {
+      "title": "Le Moyen Âge",
+      "level": "5e primaire",
+      "blocks": [
+        {
+          "type": "tekst",
+          "title": "La vie au château",
+          "text": "Un château avait des murs épais et des douves. Le seigneur vivait dans le donjon, la plus haute tour. Un garçon qui voulait devenir chevalier commençait comme page, puis devenait écuyer."
+        },
+        {
+          "type": "invullen",
+          "instruction": "Complète avec les mots qui manquent.",
+          "text": "La plus haute tour d'un château s'appelle le [donjon]. Autour du château, il y avait des [douves]. Un jeune chevalier commençait comme [page]."
+        },
+        {
+          "type": "meerkeuze",
+          "instruction": "Choisis la bonne réponse.",
+          "items": [
+            {
+              "question": "Qui aidait un chevalier avec ses armes ?",
+              "options": [
+                "le boulanger",
+                "l'écuyer",
+                "le moine"
+              ],
+              "correct": 1
+            },
+            {
+              "question": "Où vivaient les moines ?",
+              "options": [
+                "dans un monastère",
+                "dans un donjon",
+                "au marché"
+              ],
+              "correct": 0
+            }
+          ]
+        },
+        {
+          "type": "juistfout",
+          "instruction": "Vrai ou faux ?",
+          "items": [
+            {
+              "statement": "Un château avait un pont-levis.",
+              "correct": true
+            },
+            {
+              "statement": "Les chevaliers roulaient à vélo.",
+              "correct": false
+            }
+          ]
+        },
+        {
+          "type": "verbinden",
+          "instruction": "Relie le mot à son explication.",
+          "pairs": [
+            {
+              "left": "douves",
+              "right": "l'eau autour du château"
+            },
+            {
+              "left": "créneaux",
+              "right": "les dents en haut du mur"
+            },
+            {
+              "left": "abbaye",
+              "right": "un grand monastère"
+            }
+          ]
+        }
+      ]
+    },
+    "reeks": {
+      "vak": "Éveil historique",
+      "lessen": [
+        "# Bloc 3 - Le Moyen Âge",
+        "Leçon 1 - Les châteaux | pont-levis, douves, donjon",
+        "Leçon 2 - Les chevaliers | page, écuyer, adoubement",
+        "Leçon 3 - Les monastères | moines, abbayes, copier les livres"
+      ]
     }
   },
   "es": {
@@ -547,6 +856,109 @@
           "time": 20
         }
       ]
+    },
+    "blad": {
+      "toets": "Geometría y cálculo",
+      "titel": "Geometría y cálculo",
+      "o": [
+        "Colorea de rojo 3/5 de la tira.",
+        "Dibuja un rectángulo sobre los puntos.",
+        "Suma en columna: 2456 + 1389"
+      ]
+    },
+    "taal": {
+      "toets": "Lengua y fracciones",
+      "markeren": "Marca el sujeto en amarillo y el verbo en verde.",
+      "kleuren": [
+        "sujeto",
+        "verbo"
+      ],
+      "tekst": "[El caballero] [galopa|2] hacia el castillo. Mañana [los escuderos] [salen|2] de viaje.",
+      "groeperen": "¿Qué números son iguales? Dales el mismo color.",
+      "komma": "0,25",
+      "getallenas": "Marca 3/4 en la recta numérica."
+    },
+    "ai": "La Edad Media: castillos, caballeros y monasterios",
+    "oefenblad": {
+      "title": "La Edad Media",
+      "level": "5.º de primaria",
+      "blocks": [
+        {
+          "type": "tekst",
+          "title": "La vida en el castillo",
+          "text": "Un castillo tenía muros gruesos y un foso. El señor vivía en la torre del homenaje, la torre más alta. Un niño que quería ser caballero empezaba como paje y después era escudero."
+        },
+        {
+          "type": "invullen",
+          "instruction": "Completa las palabras que faltan.",
+          "text": "La torre más alta de un castillo es la torre del [homenaje]. Alrededor del castillo había un [foso]. Un joven caballero empezaba como [paje]."
+        },
+        {
+          "type": "meerkeuze",
+          "instruction": "Elige la respuesta correcta.",
+          "items": [
+            {
+              "question": "¿Quién ayudaba a un caballero con sus armas?",
+              "options": [
+                "el panadero",
+                "el escudero",
+                "el monje"
+              ],
+              "correct": 1
+            },
+            {
+              "question": "¿Dónde vivían los monjes?",
+              "options": [
+                "en un monasterio",
+                "en una torre",
+                "en el mercado"
+              ],
+              "correct": 0
+            }
+          ]
+        },
+        {
+          "type": "juistfout",
+          "instruction": "¿Verdadero o falso?",
+          "items": [
+            {
+              "statement": "Un castillo tenía un puente levadizo.",
+              "correct": true
+            },
+            {
+              "statement": "Los caballeros iban en bicicleta.",
+              "correct": false
+            }
+          ]
+        },
+        {
+          "type": "verbinden",
+          "instruction": "Une la palabra con su significado.",
+          "pairs": [
+            {
+              "left": "foso",
+              "right": "agua alrededor del castillo"
+            },
+            {
+              "left": "almenas",
+              "right": "dientes en lo alto del muro"
+            },
+            {
+              "left": "abadía",
+              "right": "monasterio grande"
+            }
+          ]
+        }
+      ]
+    },
+    "reeks": {
+      "vak": "Historia",
+      "lessen": [
+        "# Bloque 3 - La Edad Media",
+        "Lección 1 - Los castillos | puente levadizo, foso, torre del homenaje",
+        "Lección 2 - Los caballeros | paje, escudero, investidura",
+        "Lección 3 - Los monasterios | monjes, abadías, copiar libros"
+      ]
     }
   },
   "de": {
@@ -680,6 +1092,109 @@
           "correct": 0,
           "time": 20
         }
+      ]
+    },
+    "blad": {
+      "toets": "Geometrie und Rechnen",
+      "titel": "Geometrie und Rechnen",
+      "o": [
+        "Färbe 3/5 des Streifens rot.",
+        "Zeichne ein Rechteck auf die Punkte.",
+        "Rechne schriftlich: 2456 + 1389"
+      ]
+    },
+    "taal": {
+      "toets": "Sprache und Brüche",
+      "markeren": "Markiere das Subjekt gelb und das Prädikat grün.",
+      "kleuren": [
+        "Subjekt",
+        "Prädikat"
+      ],
+      "tekst": "[Der Ritter] [reitet|2] zur Burg. Morgen [ziehen|2] [die Knappen] in die Welt.",
+      "groeperen": "Welche Zahlen sind gleich groß? Gib ihnen dieselbe Farbe.",
+      "komma": "0,25",
+      "getallenas": "Markiere 3/4 auf dem Zahlenstrahl."
+    },
+    "ai": "Das Mittelalter: Burgen, Ritter und Klöster",
+    "oefenblad": {
+      "title": "Das Mittelalter",
+      "level": "Klasse 4",
+      "blocks": [
+        {
+          "type": "tekst",
+          "title": "Leben auf der Burg",
+          "text": "Eine Burg hatte dicke Mauern und einen Burggraben. Der Burgherr wohnte im Bergfried, dem höchsten Turm. Ein Junge, der Ritter werden wollte, begann als Page und wurde dann Knappe."
+        },
+        {
+          "type": "invullen",
+          "instruction": "Setze die fehlenden Wörter ein.",
+          "text": "Der höchste Turm einer Burg heißt [Bergfried]. Um die Burg lag ein [Burggraben]. Ein junger Ritter begann als [Page]."
+        },
+        {
+          "type": "meerkeuze",
+          "instruction": "Wähle die richtige Antwort.",
+          "items": [
+            {
+              "question": "Wer half einem Ritter mit seinen Waffen?",
+              "options": [
+                "der Bäcker",
+                "der Knappe",
+                "der Mönch"
+              ],
+              "correct": 1
+            },
+            {
+              "question": "Wo lebten Mönche?",
+              "options": [
+                "in einem Kloster",
+                "in einem Bergfried",
+                "auf dem Markt"
+              ],
+              "correct": 0
+            }
+          ]
+        },
+        {
+          "type": "juistfout",
+          "instruction": "Richtig oder falsch?",
+          "items": [
+            {
+              "statement": "Eine Burg hatte eine Zugbrücke.",
+              "correct": true
+            },
+            {
+              "statement": "Ritter fuhren Fahrrad.",
+              "correct": false
+            }
+          ]
+        },
+        {
+          "type": "verbinden",
+          "instruction": "Verbinde das Wort mit der Erklärung.",
+          "pairs": [
+            {
+              "left": "Burggraben",
+              "right": "Wasser um die Burg"
+            },
+            {
+              "left": "Zinnen",
+              "right": "Zacken oben auf der Mauer"
+            },
+            {
+              "left": "Abtei",
+              "right": "großes Kloster"
+            }
+          ]
+        }
+      ]
+    },
+    "reeks": {
+      "vak": "Sachunterricht",
+      "lessen": [
+        "# Block 3 - Das Mittelalter",
+        "Stunde 1 - Burgen | Zugbrücke, Burggraben, Bergfried",
+        "Stunde 2 - Ritter | Page, Knappe, Ritterschlag",
+        "Stunde 3 - Klöster | Mönche, Abteien, Bücher abschreiben"
       ]
     }
   }
