@@ -3,12 +3,16 @@
 // Proefspelen (de leerkracht probeert een spel uit zonder klas): /?proef=1 is een proefleerling in een venster
 // op het bord. Elke proefleerling krijgt een eigen id en naam, los van de echte leerling op dit toestel.
 const PROEF = new URLSearchParams(location.search).get('proef');
+// Per venster (sessionStorage): een los tabblad /?proef=1 naast het proefvenster op het bord is zo een andere proefridder
+// en neemt Proefridder 1 niet over.
 function store(key, value) {
-  if (PROEF && (key === 'lancelot-id' || key === 'lancelot-name')) key = `proef${PROEF}-${key}`;
+  const proef = PROEF && (key === 'lancelot-id' || key === 'lancelot-name');
+  if (proef) key = `proef${PROEF}-${key}`;
   try {
-    if (value === undefined) return localStorage.getItem(key);
-    if (value === null) localStorage.removeItem(key);
-    else localStorage.setItem(key, value);
+    const opslag = proef ? sessionStorage : localStorage;
+    if (value === undefined) return opslag.getItem(key);
+    if (value === null) opslag.removeItem(key);
+    else opslag.setItem(key, value);
   } catch {
     return null;
   }

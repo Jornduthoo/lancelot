@@ -147,14 +147,18 @@ const server = http.createServer(app);
 // Elke start van de server krijgt een eigen nummer (zie ook 'server-start' hieronder).
 const SERVER_START = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
 // Na een update moet elk scherm meteen de nieuwe scripts gebruiken, ook als de browser een oude versie bewaarde:
-// elke pagina krijgt haar scripts en stijlen met het nummer van deze start in de link (/js/x.js?v=...), en de pagina
-// zelf wordt nooit bewaard.
+// elke pagina krijgt haar scripts, stijlen en beelden met het nummer van deze start in de link (/js/x.js?v=...), en de
+// pagina zelf wordt nooit bewaard. Een link met het juiste nummer mag de browser bewaren tot de volgende start: zo
+// vraagt een pagina die opnieuw opent niet honderden bestanden opnieuw na (snel op een trage klas-pc).
+const bewaarTotHerstart = req => req.query && req.query.v === SERVER_START;
+const BEWAAR = ['private', 'max-age=31536000', 'immutable'].join(', ');
+const cacheVoor = req => (bewaarTotHerstart(req) ? BEWAAR : 'no-cache');
 const paginaCache = new Map();
 function paginaMetVersie(file) {
   const st = fs.statSync(file);
   const hit = paginaCache.get(file);
   if (hit && hit.mtime === st.mtimeMs && hit.size === st.size) return hit;
-  const html = fs.readFileSync(file, 'utf8').replace(/((?:src|href)=")(\/[\w./-]+\.(?:js|css))"/g, `$1$2?v=${SERVER_START}"`);
+  const html = fs.readFileSync(file, 'utf8').replace(/((?:src|href)=")(\/[\w./-]+\.(?:js|css|webp|png|jpg|svg))"/g, `$1$2?v=${SERVER_START}"`);
   const out = { mtime: st.mtimeMs, size: st.size, html, gz: zlib.gzipSync(html) };
   paginaCache.set(file, out);
   return out;
@@ -1222,7 +1226,7 @@ app.get(/^\/(?:[\w./-]*\.(?:js|css|html))?$/, (req, res, next) => {
       try { hit = { tag, body: zlib.gzipSync(fs.readFileSync(file)) }; } catch { return next(); }
       gzipped.set(file, hit);
     }
-    res.set({ 'Content-Encoding': 'gzip', Vary: 'Accept-Encoding', ETag: tag, 'Cache-Control': 'no-cache' }).type(path.extname(file));
+    res.set({ 'Content-Encoding': 'gzip', Vary: 'Accept-Encoding', ETag: tag, 'Cache-Control': cacheVoor(req) }).type(path.extname(file));
     if (req.headers['if-none-match'] === tag) return res.status(304).end();
     res.send(hit.body);
   });
@@ -1230,7 +1234,7 @@ app.get(/^\/(?:[\w./-]*\.(?:js|css|html))?$/, (req, res, next) => {
 // Altijd even navragen of een bestand veranderd is, zodat gsm's en Chromebooks na een update meteen de nieuwe versie hebben.
 // Dezelfde opkuis van geplakte chatbot-antwoorden in de browser (verbetersleutel bij oefenbladen en toetsen).
 app.get('/js/ai-json.js', (req, res) => { res.setHeader('Cache-Control', 'no-cache'); res.sendFile(path.join(__dirname, 'src', 'ai-json.js')); });
-app.use(express.static(path.join(__dirname, 'public'), { index: 'index.html', setHeaders: res => res.setHeader('Cache-Control', 'no-cache') }));
+app.use(express.static(path.join(__dirname, 'public'), { index: 'index.html', setHeaders: res => res.setHeader('Cache-Control', cacheVoor(res.req)) }));
 
 // Virtuele netwerkkaarten (WSL, VirtualBox, VPN, hotspot, gsm via usb) komen achteraan, want leerlingen kunnen die meestal niet bereiken.
 const VIRTUAL = /vethernet|virtualbox|vmware|wsl|docker|hyper-v|tailscale|zerotier|vpn|nordlynx|wireguard|openvpn|tap-|bluetooth|loopback|lokale verbinding\*|local area connection\*|rndis|remote ndis|tether|hotspot/i;
