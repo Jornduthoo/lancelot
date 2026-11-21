@@ -3224,7 +3224,7 @@ server.once('listening', () => {
   for (const a of lanAddresses()) console.log(`  Leerlingen:      http://${a}:${PORT}`);
   if (PORT !== EERSTE_POORT) console.log(`\n  Let op: poort ${EERSTE_POORT} is bezet door een ander programma, daarom gebruikt LANcelot nu poort ${PORT}.\n  Leerlingen gebruiken gewoon het adres op het bord. Lukt het niet, druk dan in Instellingen nog eens op "Firewall goed zetten".`);
   if (PORT !== EERSTE_POORT) { const wie = require('./src/poortgebruiker').uitleg(EERSTE_POORT); if (wie) console.log(wie); }
-  if (!store.ACTIEF) console.log('\n  Sluit dit venster om te stoppen.\n');
+  if (!store.ACTIEF && !process.env.LANCELOT_VERBORGEN) console.log('\n  Sluit dit venster om te stoppen.\n');
   // Start LANcelot.bat vraagt om het leerkrachtenscherm te openen zodra de server echt luistert, op de juiste poort.
   if ((process.env.LANCELOT_OPEN || store.ACTIEF) && process.platform === 'win32') execFile('cmd', ['/c', 'start', '', `http://localhost:${PORT}/${juniorAan() ? 'kies' : 'host'}`], { windowsHide: true });
 });

@@ -1152,5 +1152,7 @@
  "Bericht voor ICT": "Message pour l'informatique",
  "Adressen voor toetsen mailen bewaren mislukt:": "Échec de l'enregistrement des adresses pour l'envoi des tests :",
  "Kegelridder loopt nog. Stop dat spel eerst.": "Chevalier des Quilles est encore en cours. Arrête d’abord ce jeu.",
- "Kegelridder": "Chevalier des Quilles"
+ "Kegelridder": "Chevalier des Quilles",
+ "Hidden": null,
+ "lancelot-systeemvak-{0}.klaar": null
 }
