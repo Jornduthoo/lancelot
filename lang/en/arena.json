@@ -3021,5 +3021,14 @@
  "Tik om te gooien, of tik een pijl voor effect": "Tap to throw, or tap an arrow for spin",
  "Tik om te gooien · houd ← of → vast voor effect": "Tap to throw · hold ← or → for spin",
  "🏁 {0} speelt een spel van {1}": "🏁 {0} bowls a game of {1}",
- "💥 {0} maakt een split helemaal om!": "💥 {0} knocks down a whole split!"
+ "💥 {0} maakt een split helemaal om!": "💥 {0} knocks down a whole split!",
+ "Tip: een spel van 10 beurten is ongeveer 20 ballen. Met de echte telling kies je best 2 ballen per vraag en minstens 5 minuten, anders raakt een spel niet af (wat al ligt, telt wel).": "Tip: a game of 10 frames is about 20 balls. With real scoring, pick 2 balls per question and at least 5 minutes, otherwise a game won't finish (pins already down still count).",
+ "{0} · nog {1} {2}{3}": "{0} · {1} {2} left{3}",
+ "· SPLIT!": "· SPLIT!",
+ "Vegen": "Swipe",
+ "Tikken": "Tap",
+ "Beurt {0} · juist = 🎳 {1}{2}{3}": "Frame {0} · correct = 🎳 {1}{2}{3}",
+ "SPLIT!": "SPLIT!",
+ "{0} {1} om · {2}": "{0} {1} down · {2}",
+ "De tijd is om.": "Time is up."
 }

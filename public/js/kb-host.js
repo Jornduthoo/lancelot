@@ -43,6 +43,21 @@ QuizList.mount($('quiz-list'), {
   edit: q => { location.href = quizMakerUrl('bewerk', q.file); },
 });
 
+// Echte telling met weinig tijd of 1 bal per vraag: een korte tip, want dan raakt een spel van 10 beurten niet af.
+function tipTelling() {
+  const echt = $('kb-telling').value === 'echt';
+  $('kb-tip-telling').classList.toggle('hidden', !(echt && (Number($('kb-per').value) === 1 || Number($('kb-minutes').value) < 5)));
+}
+for (const id of ['kb-telling', 'kb-per', 'kb-minutes']) $(id).addEventListener('change', tipTelling);
+// Wie de echte telling kiest, krijgt meteen 2 ballen per vraag en minstens 5 minuten voorgesteld.
+$('kb-telling').addEventListener('change', () => {
+  if ($('kb-telling').value !== 'echt') return;
+  $('kb-per').value = '2';
+  if (Number($('kb-minutes').value) < 5) $('kb-minutes').value = '5';
+  tipTelling();
+});
+tipTelling();
+
 socket.on('kb-state', s => {
   prev = state;
   state = s;
@@ -52,7 +67,7 @@ socket.on('kb-state', s => {
   $('stop').classList.toggle('hidden', !live);
   $('join-mini').classList.toggle('hidden', s.phase !== 'play');
   $('status').textContent = live ? `Kegelridder · ${s.title}` : 'Kegelridder';
-  if (prev && prev.run !== s.run) { queue.length = 0; replay = null; seen = 0; }
+  if (prev && prev.run !== s.run) { queue.length = 0; replay = null; idle = null; seen = 0; }
   if (!live) return show('setup');
   if (s.phase === 'lobby') {
     renderLobby();
@@ -80,6 +95,7 @@ socket.on('kb-tick', msg => {
 const queue = [];
 let seen = 0;
 let replay = null;
+let idle = null; // de stand van de laatste speler tussen twee herhalingen
 function take(throws) {
   for (const t of throws || []) {
     if (t.id <= seen) continue;
@@ -124,6 +140,17 @@ function renderLobby() {
   }
 }
 
+// De teller "N kegels om" verklapt niets: worpen die het bord nog gaat naspelen, tellen pas mee bij de inslag.
+let pinsTotal = 0, pinsShown = -1;
+function pinCount() {
+  let pending = queue.reduce((a, th) => a + th.down.length, 0);
+  if (replay && !replay.counted) pending += replay.th.down.length;
+  const n = Math.max(0, pinsTotal - pending);
+  if (n === pinsShown) return;
+  pinsShown = n;
+  $('p-alive').textContent = `🎳 ${n} ${n === 1 ? 'kegel' : 'kegels'} om`;
+}
+
 let lastSide = '';
 let lastFeed = '';
 function renderSide(ranking, feed) {
@@ -134,8 +161,8 @@ function renderSide(ranking, feed) {
     lastFeed = key;
     $('p-feed').innerHTML = (feed || []).map(f => `<li>${AK.esc(f.text)}</li>`).join('');
   }
-  const pins = (ranking || []).reduce((a, r) => a + r.pins, 0);
-  $('p-alive').textContent = `🎳 ${pins} ${pins === 1 ? 'kegel' : 'kegels'} om`;
+  pinsTotal = (ranking || []).reduce((a, r) => a + r.pins, 0);
+  pinCount();
 }
 
 // De scorekaart van de speler van de herhaling, onderaan het spelbeeld.
@@ -148,7 +175,8 @@ function showCard(th) {
     const fr = c.frames[f] || { marks: [], total: null };
     let marks = '';
     for (let k = 0; k < (f === 9 ? 3 : 2); k++) marks += `<b>${fr.marks[k] || ''}</b>`;
-    html += `<div class="kb-cel${f + 1 === th.frame ? ' nu' : ''}"><small>${f + 1}</small><span>${marks}</span><i>${!simpel && fr.total !== null ? fr.total : ''}</i></div>`;
+    const tot = simpel || !fr.marks.length ? '' : fr.total !== null ? fr.total : `<em>${fr.live}</em>`;
+    html += `<div class="kb-cel${f + 1 === th.frame ? ' nu' : ''}"><small>${f + 1}</small><span>${marks}</span><i>${tot}</i></div>`;
   }
   const el = $('p-card');
   el.innerHTML = html;
@@ -175,7 +203,8 @@ let last = performance.now();
 const SPEED = 1.3; // het bord speelt iets sneller na, zo blijft het bij
 function frame(t) {
   requestAnimationFrame(frame);
-  const dt = Math.min(.05, (t - last) / 1000);
+  const real = Math.min(1, Math.max(0, (t - last) / 1000));
+  const dt = Math.min(.05, real);
   last = t;
   if (view !== 'play' || !state) return;
   const fit = AK.fit(canvas, 1.25);
@@ -187,10 +216,11 @@ function frame(t) {
     const r = replay;
     // Een strike in vertraging (de klas juicht mee), de rest iets sneller zodat het bord bijblijft.
     const slow = r.hitAt >= 0 && r.sim.t - r.hitAt < (r.th.kind === 'strike' ? 1.4 : .9);
-    r.clock += dt * (slow ? (r.th.kind === 'strike' ? .3 : .45) : SPEED);
+    r.clock += real * (slow ? (r.th.kind === 'strike' ? .3 : .45) : SPEED);
     W.runTo(r.sim, r.clock);
     const down = r.sim.pins.filter(p => p.down).length;
     // Met een volle klas alleen geluid bij strikes en spares (zachter bord).
+    if (down > r.hits && !r.counted) { r.counted = true; }
     if (down > r.hits) { if (!r.hits) { if (r.th.kind || roster.size <= 15) sfx.boom(); r.hitAt = r.sim.t; } r.hits = down; }
     o.sim = r.sim;
     o.name = r.th;
@@ -200,6 +230,7 @@ function frame(t) {
       if (!r.ended) r.ended = t;
       if (!r.shown) {
         r.shown = true;
+        r.counted = true;
         const n = r.th.down.length;
         if (r.th.kind === 'strike') { banner(`🎳 STRIKE! ${r.th.name}`); sfx.fanfare(); stars(w / fit.dpr / 2, h / fit.dpr * .35, 50); }
         else if (r.th.kind === 'spare') { banner(r.th.split ? `💥 SPLIT OM! ${r.th.name}` : `✨ SPARE! ${r.th.name}`); sfx.go(); stars(w / fit.dpr / 2, h / fit.dpr * .35, r.th.split ? 40 : 26); }
@@ -207,11 +238,20 @@ function frame(t) {
         showCard(r.th);
       }
       o.fade = Math.max(0, 1 - (t - r.ended) / 900);
-      if (t - r.ended > (r.th.kind ? 2200 : 1100)) replay = null;
+      if (t - r.ended > (r.th.kind ? 2200 : 1100)) {
+        // Staat er na deze bal nog iets (de beurt is niet af), dan toont de baan tussendoor die echte stand.
+        const th = r.th;
+        const pos = W.where(th.rolls || []);
+        const after = th.standing.map((up, i) => up && !th.down.includes(i));
+        idle = th.gameScore == null && !pos.fresh && after.some(Boolean) ? { th, standing: after, until: t + 6000 } : null;
+        replay = null;
+      }
     }
   } else {
-    o.standing = Array(10).fill(true);
+    if (idle && t > idle.until) idle = null;
+    o.standing = idle ? idle.standing : Array(10).fill(true);
   }
+  pinCount();
   camY += (wantY - camY) * Math.min(1, dt * 5);
   camX += (wantX - camX) * Math.min(1, dt * 3);
   o.camY = camY;
@@ -250,6 +290,22 @@ function frame(t) {
     ctx.restore();
   } else {
     top5(w, h, t);
+    if (idle) {
+      const n = idle.standing.filter(Boolean).length;
+      ctx.save();
+      ctx.font = `800 ${Math.round(h * .036)}px Orbitron, sans-serif`;
+      ctx.textAlign = 'right';
+      ctx.textBaseline = 'top';
+      const label = `${idle.th.name} · nog ${n} ${n === 1 ? 'kegel' : 'kegels'}${W.isSplit(idle.standing) ? ' · SPLIT!' : ''}`;
+      const tw = Math.min(ctx.measureText(label).width, w * .4);
+      ctx.fillStyle = 'rgba(5,6,15,.6)';
+      ctx.fillRect(w - tw - h * .07, h * .02, tw + h * .05, h * .065);
+      ctx.fillStyle = idle.th.color;
+      ctx.fillRect(w - h * .02 - h * .012, h * .02, h * .012, h * .065);
+      ctx.fillStyle = '#e8f1ff';
+      ctx.fillText(label, w - h * .045, h * .035, w * .4);
+      ctx.restore();
+    }
   }
   fx.update(dt);
   ctx.save();
@@ -278,12 +334,12 @@ function top5(w, h, t) {
   ctx.font = `800 ${Math.round(h * .045)}px Orbitron, sans-serif`;
   ctx.fillStyle = '#ffc94a';
   ctx.globalAlpha = .8 + .2 * Math.sin(t / 400);
-  if (list.length) { ctx.textAlign = 'left'; ctx.fillText('Top 5 van de klas', w * .025, h * .11, w * .3); }
+  if (list.length) { ctx.textAlign = 'left'; ctx.fillText('Top 5 van de klas', w * .025, h * .3, w * .3); }
   else ctx.fillText('Wie gooit de eerste strike?', w / 2, h * .08);
   ctx.globalAlpha = 1;
   if (list.length) {
     // Links naast de baan, zodat de kegels in beeld blijven.
-    const bw = Math.min(w * .3, h * .6), rh = h * .062, x0 = w * .025, y0 = h * .16;
+    const bw = Math.min(w * .3, h * .6), rh = h * .062, x0 = w * .025, y0 = h * .345; // onder de scorekaart
     ctx.fillStyle = 'rgba(5,6,15,.72)';
     ctx.fillRect(x0, y0, bw, rh * list.length + h * .02);
     ctx.strokeStyle = 'rgba(255,201,74,.7)';
@@ -359,6 +415,8 @@ function renderEnd() {
   const strikes = s.ranking.reduce((a, r) => a + r.strikes, 0);
   $('w-title').textContent = top ? `🏆 ${top.name} wint Kegelridder!` : 'Kegelridder is voorbij';
   $('w-why').textContent = `Samen ${pins} kegels om, ${strikes} strikes en ${right} vragen juist.`;
-  $('final').innerHTML = s.ranking.map((p, i) => `<li><span class="pos">${i + 1}</span><span><i class="bb-dot" style="background:${p.color}"></i>${AK.esc(p.name)}</span><span class="muted">🎳 ${p.pins} · X ${p.strikes} · / ${p.spares} · ✔ ${p.right}</span><span class="pts">${p.score}</span></li>`).join('');
+  // Voluit geschreven, zodat kinderen het kunnen lezen.
+  const w = (n, een, meer) => `${n} ${n === 1 ? een : meer}`;
+  $('final').innerHTML = s.ranking.map((p, i) => `<li><span class="pos">${i + 1}</span><span><i class="bb-dot" style="background:${p.color}"></i>${AK.esc(p.name)}</span><span class="muted">${w(p.pins, 'kegel', 'kegels')} · ${w(p.strikes, 'strike', 'strikes')} · ${w(p.spares, 'spare', 'spares')} · ${p.right} juist</span><span class="pts">${p.score}</span></li>`).join('');
   if (top) { sfx.fanfare(); confetti(5000); }
 }

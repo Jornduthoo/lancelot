@@ -376,6 +376,17 @@
       socket.on('thema', zetThema);
       // Een andere taal gekozen: dit scherm opnieuw laden, dan komt het woordenboek mee.
       socket.on('taal', id => { if (id && id !== taalNu) location.reload(); });
+      // Na een update (de server startte opnieuw): dit scherm laadt zichzelf opnieuw met de nieuwe versie.
+      // Niet midden in het typen van een antwoord: dan wachten tot het veld de focus verliest.
+      socket.on('server-start', id => {
+        if (!id) return;
+        if (!window.__lancelotStart) { window.__lancelotStart = id; return; }
+        if (id === window.__lancelotStart) return;
+        const herlaad = () => location.reload();
+        const veld = document.activeElement;
+        if (veld && /^(INPUT|TEXTAREA)$/.test(veld.tagName) && veld.value) veld.addEventListener('blur', herlaad, { once: true });
+        else herlaad();
+      });
       if (isHost) { namenKnop(socket); schermInfo(socket); }
       // Vragenstorm: de leerkracht drukt op het bord, en elke leerling in het spel krijgt meteen een paar vragen.
       else {
