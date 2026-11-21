@@ -74,7 +74,10 @@ function maak(){
     const deel = v === 'wis' && per.wis.some(t => t.deel === 2) ? 1 : undefined;
     const k1 = deel ? k + ' deel 1' : k;
     // Generale repetitie de dag ervoor; zwakke punten twee dagen ervoor (bij een examen in de examenperiode: dezelfde dag als de repetitie).
-    const voor1 = dag(ex, -1), voor2 = ex <= dag(EXAMENS_START, 1) ? dag(ex, -3) : dag(ex, -2);
+    const voor1 = dag(ex, -1);
+    let voor2 = ex <= dag(EXAMENS_START, 1) ? dag(ex, -3) : dag(ex, -2);
+    // Twee examens op dezelfde dag (geschiedenis + STEM): het tweede proefexamen schuift naar het weekend ervoor.
+    if (vast[voor2] && vast[voor2].some(i => i.soort === 'proef')) voor2 = dag(voor2, -2);
     if (PROEF_TWEE) zet(voor2, { id:'proef:' + v + ':1', soort:'proef', vak:v, deel, titel:'Proefexamen ' + k1, min: PROEF_MIN });
     zet(voor2, { id:'zwak:' + v + ':1',  soort:'zwak',  vak:v, deel, titel:'Zwakke punten ' + k1 + ' wegwerken', min: ZWAK_MIN });
     zet(voor1, { id:'proef:' + v + ':2', soort:'proef', vak:v, deel, titel:'Generale repetitie ' + k1, min: PROEF_MIN });

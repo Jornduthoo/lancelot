@@ -635,6 +635,15 @@ function rekenVraag(soort, t){
     const [exp, ant, hint] = schud(vormen)[0]();
     return { t:'getal', v:`Bereken (volgorde van de bewerkingen): <b>${exp}</b>`, a: ant, tol: 0, tid: t.id, vak: t.vak, u:`${hint} → uitkomst ${ant}` };
   }
+  if (soort === 'eeuw') {
+    // Geschiedenis: in welke eeuw / welk millennium ligt een jaartal (ook v.C.).
+    const vc = Math.random() < .35, mil = Math.random() < .3;
+    const j = schud([Math.round(r(1, 2026)), Math.round(r(1, 20)) * 100, Math.round(r(1, 99)), Math.round(r(101, 999))])[0];
+    const n = mil ? Math.ceil(j / 1000) : Math.ceil(j / 100);
+    const w = mil ? 'millennium' : 'eeuw', sfx = vc ? ' v.C.' : '';
+    const weg = mil ? 'drie' : 'twee';
+    return { t:'getal', v:`In welk${mil ? '' : 'e'} <b>${w}</b> ligt het jaar <b>${j}${sfx}</b>? (typ enkel het getal)`, a: n, tol: 0, tid: t.id, vak: t.vak, u:`Laat de laatste ${weg} cijfers weg${(mil ? j % 1000 : j % 100) === 0 ? '; ze zijn allemaal 0, dus niet +1' : ' en tel er 1 bij'} → ${n}e ${w}${sfx}` };
+  }
   if (soort === 'bc') {
     const voorbeelden = [['0,0450 m',3],['23,0 g',3],['1,05 kg',3],['0,23 g',2],['120,40 s',5],['0,007 L',1],['5,00 N',3],['3,1416',5],['0,0102 m',3],['70,0 km',3]];
     const [x, n] = voorbeelden[Math.floor(Math.random() * voorbeelden.length)];
