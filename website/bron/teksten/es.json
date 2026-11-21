@@ -127,14 +127,21 @@
     }
   },
   "ai": {
-    "titel": "Material de clase en segundos, con IA",
-    "tekst": "Indica un tema y el curso, o añade una foto de tu libro. La IA crea un cuestionario, una ficha o una serie completa por lección, en tres niveles.",
+    "titel": "Trabajar con IA",
+    "tekst": "Indica un tema y el curso, o arrastra una foto de tu libro. La IA crea un quiz, una ficha de ejercicios, un examen o toda una serie por clase. Tú revisas, ajustas y juegas.",
     "lijst": [
-      "Funciona con Gemini, ChatGPT o Claude: LANcelot copia la instrucción y tú pegas la respuesta.",
-      "O introduce tu propia clave y todo se hace con un clic.",
-      "Las fichas se juegan en directo en clase o se imprimen con solucionario.",
+      "Quiz: preguntas con explicación, listas para jugar en la Arena.",
+      "Ficha de ejercicios: en tres niveles, en directo en clase o impresa con solucionario.",
+      "Serie por clase: elige tu asignatura y tus clases, LANcelot crea un quiz y una ficha para cada clase.",
+      "Examen: deja que la IA cree uno, o arrastra tu propio examen en papel y se vuelve digital. Luego lo terminas con botones.",
+      "Funciona con Gemini, ChatGPT o Claude: LANcelot copia la instrucción y tú pegas la respuesta. O introduce tu propia clave y todo se hace con un clic.",
       "Solo crear con IA necesita internet. El juego va por la red del aula."
-    ]
+    ],
+    "beelden": {
+      "maker": "Elegir tema y curso, y copiar la instrucción",
+      "reeks": "Una serie por clase para todo un capítulo",
+      "oefenblad": "Una ficha de ejercicios, lista para imprimir"
+    }
   },
   "niveaus": {
     "titel": "Cada alumno a su nivel",
@@ -200,7 +207,24 @@
       "Prueba primero el examen tú mismo como un alumno, y míralo en directo mientras la clase trabaja.",
       "Tras corregir, cada alumno tiene un PDF en tu carpeta de clase. Si quieres, se envía solo por correo a un profesor de apoyo o a los padres, desde tu propio buzón."
     ],
-    "beeld": "Un examen en el Chromebook de un alumno"
+    "beelden": {
+      "blad": "Tu propia hoja: colorear, dibujar sobre puntos y sumar en columnas",
+      "markeren": "Marcar en un texto, con dos colores",
+      "groeperen": "Agrupar: ¿qué va junto?",
+      "getallenas": "Colocar un número en la recta numérica"
+    }
+  },
+  "klastools": {
+    "titel": "Herramientas de aula para cada día",
+    "tekst": "Todo lo que necesitas en clase, en grande en la pizarra y con tu propia lista de alumnos.",
+    "beelden": {
+      "lot": "Elegir un alumno con la ruleta",
+      "banieren": "Grupos en un clic",
+      "zandloper": "Temporizador con reloj de arena",
+      "runensteen": "Dados",
+      "indeling": "Plano de clase",
+      "wachtlijst": "Encargos de clase que rotan cada semana"
+    }
   },
   "motivatie": {
     "titel": "Por qué los alumnos lo esperan cada día",

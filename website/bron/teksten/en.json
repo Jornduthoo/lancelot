@@ -127,14 +127,21 @@
     }
   },
   "ai": {
-    "titel": "Lesson material in seconds, with AI",
-    "tekst": "Give a topic and the grade, or drop in a photo of your textbook. The AI makes a quiz, a worksheet or a full set per lesson, on three levels.",
+    "titel": "Working with AI",
+    "tekst": "Give a topic and the grade, or drop in a photo of your textbook. The AI makes a quiz, a worksheet, a test or a whole series per lesson. You check it, adjust it and play.",
     "lijst": [
-      "Works with Gemini, ChatGPT or Claude: LANcelot copies the prompt, you paste the answer back.",
-      "Or enter your own key and everything happens in one click.",
-      "Play worksheets live in class or print them with an answer key.",
-      "Only creating with AI needs the internet. Play runs over the classroom network."
-    ]
+      "Quiz: questions with explanations, ready to play in the Arena.",
+      "Worksheet: on three levels, live in class or printed with an answer sheet.",
+      "Series per lesson: choose your subject and lessons, LANcelot makes a quiz and a worksheet for each lesson.",
+      "Test: let the AI make one, or drop in your own paper test and it becomes digital. Then you finish it with buttons.",
+      "Works with Gemini, ChatGPT or Claude: LANcelot copies the prompt, you paste the answer back. Or enter your own key and everything happens in one click.",
+      "Only creating with AI needs internet. Playing runs over the classroom network."
+    ],
+    "beelden": {
+      "maker": "Choose topic and grade, then copy the prompt",
+      "reeks": "A series per lesson for a whole chapter",
+      "oefenblad": "A worksheet, ready to print"
+    }
   },
   "niveaus": {
     "titel": "Every student at their own level",
@@ -200,7 +207,24 @@
       "Try the test yourself as a student first, and watch live while the class works.",
       "After marking, each student gets a PDF in your lesson folder. If you like, it is emailed automatically to a support teacher or the parents, from your own mailbox."
     ],
-    "beeld": "A test on a student's Chromebook"
+    "beelden": {
+      "blad": "Your own sheet: colouring, drawing on dots and column sums in a grid",
+      "markeren": "Marking words in a text, in two colours",
+      "groeperen": "Grouping: what belongs together?",
+      "getallenas": "Placing a number on the number line"
+    }
+  },
+  "klastools": {
+    "titel": "Classroom tools for every day",
+    "tekst": "Everything you need in class, big on the board and with your own class list.",
+    "beelden": {
+      "lot": "Pick a student with the wheel",
+      "banieren": "Groups in one click",
+      "zandloper": "Timer with hourglass",
+      "runensteen": "Dice",
+      "indeling": "Seating plan",
+      "wachtlijst": "Class jobs that rotate every week"
+    }
   },
   "motivatie": {
     "titel": "Why students look forward to it every day",
