@@ -141,7 +141,7 @@ function renderLobby() {
   }
 }
 
-// Het bord verklapt niets: zolang een worp nog niet nagespeeld is (tot de bal de kegels raakt), blijven de score van
+// Het bord verklapt niets: zolang een worp nog niet nagespeeld is (tot de uitslag op de baan verschijnt), blijven de score van
 // die speler, de teller "N kegels om" en het bericht over die worp zoals ze waren. Zo kijkt de klas mee naar de bal.
 const held = new Map(); // n -> de rij die het bord toont
 let shown = [];
@@ -248,7 +248,6 @@ function frame(t) {
     W.runTo(r.sim, r.clock);
     const down = r.sim.pins.filter(p => p.down).length;
     // Met een volle klas alleen geluid bij strikes en spares (zachter bord).
-    if (down > r.hits && !r.counted) { r.counted = true; }
     if (down > r.hits) { if (!r.hits) { if (r.th.kind || roster.size <= 15) sfx.boom(); r.hitAt = r.sim.t; } r.hits = down; }
     o.sim = r.sim;
     o.name = r.th;
@@ -258,7 +257,7 @@ function frame(t) {
       if (!r.ended) r.ended = t;
       if (!r.shown) {
         r.shown = true;
-        r.counted = true;
+        r.counted = true; // teller, score en melding tegelijk
         const n = r.th.down.length;
         if (r.th.kind === 'strike') { banner(`🎳 STRIKE! ${r.th.name}`); sfx.fanfare(); stars(w / fit.dpr / 2, h / fit.dpr * .35, 50); }
         else if (r.th.kind === 'spare') { banner(r.th.split ? `💥 SPLIT OM! ${r.th.name}` : `✨ SPARE! ${r.th.name}`); sfx.go(); stars(w / fit.dpr / 2, h / fit.dpr * .35, r.th.split ? 40 : 26); }
@@ -271,12 +270,11 @@ function frame(t) {
         const th = r.th;
         const pos = W.where(th.rolls || []);
         const after = th.standing.map((up, i) => up && !th.down.includes(i));
-        idle = th.gameScore == null && !pos.fresh && after.some(Boolean) ? { th, standing: after, until: t + 6000 } : null;
+        idle = th.gameScore == null && !pos.fresh && after.some(Boolean) ? { th, standing: after } : null; // blijft staan tot de volgende worp op het bord
         replay = null;
       }
     }
   } else {
-    if (idle && t > idle.until) idle = null;
     o.standing = idle ? idle.standing : Array(10).fill(true);
   }
   renderSide();
