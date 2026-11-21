@@ -43,8 +43,20 @@ function loadKlas() {
 // Een raster: per leerling een algemeen niveau en een niveau per vak. Een vak zonder eigen keuze volgt het algemene niveau.
 // Elke keuze bewaart meteen.
 let vakgroepen = [];
-function renderNiveaus(leerlingen) {
+// Staat er een keuzelijst van het raster open (of heeft hij de focus), dan wacht een nieuwe tekening tot je klaar bent.
+// Anders verdwijnt het lijstje meteen weer onder je vinger (bv. als de lesmap net de klaslijst bijwerkt).
+let wachtend = null;
+$('k-niveaus').addEventListener('focusout', () => setTimeout(() => {
+  if (!wachtend || $('k-niveaus').contains(document.activeElement)) return;
+  const l = wachtend;
+  wachtend = null;
+  renderNiveaus(l);
+}));
+function renderNiveaus(leerlingen, nu = false) {
   const box = $('k-niveaus');
+  const act = document.activeElement;
+  if (!nu && act && act.tagName === 'SELECT' && box.contains(act)) { wachtend = leerlingen; return; }
+  wachtend = null;
   box.innerHTML = '';
   if (!leerlingen.length) {
     box.innerHTML = '<div class="leeg"><p class="muted">Zet eerst je leerlingen op de klaslijst hierboven.</p></div>';
@@ -68,7 +80,7 @@ function renderNiveaus(leerlingen) {
     sel.addEventListener('change', () => {
       socket.emit('klas-niveau', { id: l.id, niveau: sel.value, vak }, res => {
         $('k-niveau-error').textContent = res.error || '';
-        if (!res.error) renderNiveaus(res.klas.leerlingen);
+        if (!res.error) renderNiveaus(res.klas.leerlingen, true);
       });
     });
     td.appendChild(sel);
@@ -98,8 +110,11 @@ function renderNiveaus(leerlingen) {
   const plaats = d => {
     const r = d.querySelector('summary').getBoundingClientRect();
     const m = d.querySelector('.k-kol-menu');
-    m.style.top = `${r.bottom + 4}px`;
-    m.style.left = `${Math.max(8, Math.min(r.left, innerWidth - 210))}px`;
+    // Het paneel (backdrop-filter) is het ankerpunt van 'fixed': eerst meten waar 0,0 echt ligt.
+    m.style.top = m.style.left = '0px';
+    const nul = m.getBoundingClientRect();
+    m.style.top = `${r.bottom + 4 - nul.top}px`;
+    m.style.left = `${Math.max(8, Math.min(r.left, innerWidth - 210)) - nul.left}px`;
   };
   for (const d of table.querySelectorAll('.k-kol')) d.addEventListener('toggle', () => {
     if (!d.open) return;
