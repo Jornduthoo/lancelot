@@ -18,8 +18,8 @@ test('Start LANcelot.bat probeert eerst het schild en valt anders terug op het v
 });
 
 test('het schild gebruikt het LANcelot-icoon en past op de opdrachtregel van Windows', () => {
-  assert.ok(ps1.includes("public\\img\\lancelot.ico"));
-  assert.ok(fs.existsSync(path.join(ROOT, 'public', 'img', 'lancelot.ico')));
+  assert.ok(ps1.includes("public\\img\\systeemvak.ico"));
+  assert.ok(fs.existsSync(path.join(ROOT, 'public', 'img', 'systeemvak.ico')));
   assert.ok(opdracht().join(' ').length < 30000);
   assert.ok(ps1.includes('LANCELOT_KLAAR'));
 });
