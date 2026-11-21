@@ -440,7 +440,6 @@ $('open-klas').addEventListener('click', () => { location.href = '/opvolgen?star
 $('open-taken').addEventListener('click', () => { location.href = '/taken'; });
 socket.on('zekerheid', on => { $('zekerheid').checked = on; });
 $('zekerheid').addEventListener('change', e => socket.emit('zekerheid', e.target.checked));
-$('open-netwerk').addEventListener('click', () => { location.href = '/netwerk'; });
 for (const b of document.querySelectorAll('.open-folder')) {
   b.addEventListener('click', () => socket.emit('open-results-folder'));
 }

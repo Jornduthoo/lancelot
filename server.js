@@ -1594,6 +1594,8 @@ io.on('connection', socket => {
     if (tip) socket.emit('adres-tip', { van: tip, nu: (echteKaart() || {}).address || '' });
     socket.on('adres-tip-weg', () => settings.write({ adresTip: '' }));
     socket.on('netwerk-info', (_, cb) => typeof cb === 'function' && cb(netwerkInfo()));
+    // De knop QR-code op elk leerkrachtenscherm vraagt de adressen opnieuw (de pagina kan ze bij het verbinden gemist hebben).
+    socket.on('adressen', () => sendAddresses(socket).catch(() => {}));
     socket.on('choose-address', address => {
       if (!lanAddresses().includes(address)) return;
       settings.write({ preferredAddress: address });

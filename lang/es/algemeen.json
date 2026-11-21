@@ -1156,5 +1156,6 @@
  "Hidden": null,
  "lancelot-systeemvak-{0}.klaar": null,
  "Start-Process powershell.exe -WindowStyle Hidden -ArgumentList (\"": null,
- "\" + $env:LANCELOT_PS)": null
+ "\" + $env:LANCELOT_PS)": null,
+ "Namen": "Nombres"
 }
