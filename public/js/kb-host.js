@@ -67,7 +67,7 @@ socket.on('kb-state', s => {
   $('stop').classList.toggle('hidden', !live);
   $('join-mini').classList.toggle('hidden', s.phase !== 'play');
   $('status').textContent = live ? `Kegelridder · ${s.title}` : 'Kegelridder';
-  if (prev && prev.run !== s.run) { queue.length = 0; replay = null; idle = null; seen = 0; }
+  if (prev && prev.run !== s.run) { queue.length = 0; replay = null; idle = null; seen = 0; held.clear(); shown = []; rawRanking = []; rawFeed = []; }
   if (!live) return show('setup');
   if (s.phase === 'lobby') {
     renderLobby();
@@ -75,8 +75,8 @@ socket.on('kb-state', s => {
   } else if (s.phase === 'play') {
     $('p-title').textContent = s.title;
     show('play');
-    renderSide(s.ranking, s.feed);
     take(s.throws);
+    renderSide(s.ranking, s.feed);
   } else if (s.phase === 'einde' && (!prev || prev.phase !== 'einde' || view !== 'podium')) {
     show('podium');
     renderEnd();
@@ -87,8 +87,8 @@ socket.on('kb-tick', msg => {
   if (!state || state.phase !== 'play') return;
   state.ranking = msg.ranking;
   state.feed = msg.feed;
-  renderSide(msg.ranking, msg.feed);
   take(msg.throws);
+  renderSide(msg.ranking, msg.feed);
 });
 
 // ---------- De worpen naspelen ----------
@@ -100,6 +100,7 @@ function take(throws) {
   for (const t of throws || []) {
     if (t.id <= seen) continue;
     seen = t.id;
+    t.got = performance.now();
     queue.push(t);
   }
   // Te veel in de wachtrij: gewone worpen vallen weg, strikes en spares blijven (maar nooit meer dan 4).
@@ -140,29 +141,44 @@ function renderLobby() {
   }
 }
 
-// De teller "N kegels om" verklapt niets: worpen die het bord nog gaat naspelen, tellen pas mee bij de inslag.
-let pinsTotal = 0, pinsShown = -1;
-function pinCount() {
-  let pending = queue.reduce((a, th) => a + th.down.length, 0);
-  if (replay && !replay.counted) pending += replay.th.down.length;
-  const n = Math.max(0, pinsTotal - pending);
-  if (n === pinsShown) return;
-  pinsShown = n;
-  $('p-alive').textContent = `🎳 ${n} ${n === 1 ? 'kegel' : 'kegels'} om`;
+// Het bord verklapt niets: zolang een worp nog niet nagespeeld is (tot de bal de kegels raakt), blijven de score van
+// die speler, de teller "N kegels om" en het bericht over die worp zoals ze waren. Zo kijkt de klas mee naar de bal.
+const held = new Map(); // n -> de rij die het bord toont
+let shown = [];
+let rawRanking = [], rawFeed = [];
+function pending() {
+  const ids = new Set(), ns = new Set();
+  for (const th of queue) { ids.add(th.id); ns.add(th.n); }
+  if (replay && !replay.counted) { ids.add(replay.th.id); ns.add(replay.th.n); }
+  return { ids, ns };
 }
-
+let pinsShown = -1;
 let lastSide = '';
 let lastFeed = '';
 function renderSide(ranking, feed) {
-  const html = (ranking || []).slice(0, 14).map(r => `<li><i class="bb-dot" style="background:${r.color}"></i><span>${AK.esc(r.name)} <small class="muted">${r.strikes ? `X ${r.strikes}` : ''}${r.spares ? ` · / ${r.spares}` : ''}</small></span><b>${r.score}</b></li>`).join('');
+  if (ranking) rawRanking = ranking;
+  if (feed) rawFeed = feed;
+  const wait = pending();
+  shown = rawRanking.map(r => {
+    if (!wait.ns.has(r.n) || !held.has(r.n)) {
+      if (!wait.ns.has(r.n)) held.set(r.n, r);
+      return wait.ns.has(r.n) ? { ...r, score: 0, pins: 0, strikes: 0, spares: 0 } : r;
+    }
+    return { ...held.get(r.n), name: r.name, color: r.color };
+  }).sort((a, b) => b.score - a.score || b.strikes - a.strikes || b.pins - a.pins);
+  const html = shown.slice(0, 14).map(r => `<li><i class="bb-dot" style="background:${r.color}"></i><span>${AK.esc(r.name)} <small class="muted">${r.strikes ? `X ${r.strikes}` : ''}${r.spares ? ` · / ${r.spares}` : ''}</small></span><b>${r.score}</b></li>`).join('');
   if (html !== lastSide) { lastSide = html; $('p-top').innerHTML = html; }
-  const key = JSON.stringify(feed || []);
+  const list = rawFeed.filter(f => !(f.tid && wait.ids.has(f.tid)));
+  const key = JSON.stringify(list);
   if (key !== lastFeed) {
     lastFeed = key;
-    $('p-feed').innerHTML = (feed || []).map(f => `<li>${AK.esc(f.text)}</li>`).join('');
+    $('p-feed').innerHTML = list.map(f => `<li>${AK.esc(f.text)}</li>`).join('');
   }
-  pinsTotal = (ranking || []).reduce((a, r) => a + r.pins, 0);
-  pinCount();
+  const n = shown.reduce((a, r) => a + r.pins, 0);
+  if (n !== pinsShown) {
+    pinsShown = n;
+    $('p-alive').textContent = `🎳 ${n} ${n === 1 ? 'kegel' : 'kegels'} om`;
+  }
 }
 
 // De scorekaart van de speler van de herhaling, onderaan het spelbeeld.
@@ -203,20 +219,32 @@ let last = performance.now();
 const SPEED = 1.3; // het bord speelt iets sneller na, zo blijft het bij
 function frame(t) {
   requestAnimationFrame(frame);
-  const real = Math.min(1, Math.max(0, (t - last) / 1000));
+  // Op echte tijd, ook als de pc maar 1 beeld per seconde haalt (tot 10 s tussen twee beelden).
+  const real = Math.min(10, Math.max(0, (t - last) / 1000));
   const dt = Math.min(.05, real);
   last = t;
   if (view !== 'play' || !state) return;
   const fit = AK.fit(canvas, 1.25);
   const w = fit.w, h = fit.h;
-  if (!replay && queue.length) replay = nextReplay(t);
+  if (!replay && queue.length) {
+    replay = nextReplay(t);
+    // De kaart en de uitslag van de vorige speler weg, zodat ze niet bij de nieuwe worp lijkt te horen.
+    clearTimeout(cardTimer);
+    clearTimeout(bannerTimer);
+    $('p-card').classList.add('hidden');
+    $('p-banner').classList.add('hidden');
+  }
   const o = { t: t / 1000 };
   let wantY = KbDraw.REST, wantX = 0;
   if (replay) {
     const r = replay;
     // Een strike in vertraging (de klas juicht mee), de rest iets sneller zodat het bord bijblijft.
-    const slow = r.hitAt >= 0 && r.sim.t - r.hitAt < (r.th.kind === 'strike' ? 1.4 : .9);
-    r.clock += real * (slow ? (r.th.kind === 'strike' ? .3 : .45) : SPEED);
+    // Loopt het bord achter (worpen in de wachtrij, of een trage pc), dan gaat het sneller en zonder vertraging.
+    const late = t - r.th.got;
+    const behind = queue.length > 0 || late > 10000 || real > .25;
+    const slow = !behind && r.hitAt >= 0 && r.sim.t - r.hitAt < (r.th.kind === 'strike' ? 1.4 : .9);
+    r.clock += real * (slow ? (r.th.kind === 'strike' ? .3 : .45) : behind ? SPEED * 2 : SPEED);
+    if (late > 20000) r.clock = 60; // veel te laat: meteen de uitslag
     W.runTo(r.sim, r.clock);
     const down = r.sim.pins.filter(p => p.down).length;
     // Met een volle klas alleen geluid bij strikes en spares (zachter bord).
@@ -238,7 +266,7 @@ function frame(t) {
         showCard(r.th);
       }
       o.fade = Math.max(0, 1 - (t - r.ended) / 900);
-      if (t - r.ended > (r.th.kind ? 2200 : 1100)) {
+      if (t - r.ended > (queue.length ? 500 : r.th.kind ? 2200 : 1100)) {
         // Staat er na deze bal nog iets (de beurt is niet af), dan toont de baan tussendoor die echte stand.
         const th = r.th;
         const pos = W.where(th.rolls || []);
@@ -251,7 +279,7 @@ function frame(t) {
     if (idle && t > idle.until) idle = null;
     o.standing = idle ? idle.standing : Array(10).fill(true);
   }
-  pinCount();
+  renderSide();
   camY += (wantY - camY) * Math.min(1, dt * 5);
   camX += (wantX - camX) * Math.min(1, dt * 3);
   o.camY = camY;
@@ -280,13 +308,15 @@ function frame(t) {
     ctx.textAlign = 'left';
     ctx.textBaseline = 'top';
     ctx.fillStyle = 'rgba(5,6,15,.6)';
+    // Onderaan links: bovenaan staat de scorekaart van de vorige worp nog.
     const label = `${th.name} · beurt ${th.frame} · bal ${th.ball}${th.gold ? ' · ✨' : ''}`;
-    const tw = Math.min(ctx.measureText(label).width, w * .26);
-    ctx.fillRect(h * .02, h * .02, tw + h * .05, h * .065);
+    const tw = Math.min(ctx.measureText(label).width, w * .6);
+    const y = h * .9;
+    ctx.fillRect(h * .02, y, tw + h * .05, h * .065);
     ctx.fillStyle = th.color;
-    ctx.fillRect(h * .02, h * .02, h * .012, h * .065);
+    ctx.fillRect(h * .02, y, h * .012, h * .065);
     ctx.fillStyle = '#e8f1ff';
-    ctx.fillText(label, h * .045, h * .035, w * .26);
+    ctx.fillText(label, h * .045, y + h * .015, w * .6);
     ctx.restore();
   } else {
     top5(w, h, t);
@@ -296,14 +326,16 @@ function frame(t) {
       ctx.font = `800 ${Math.round(h * .036)}px Orbitron, sans-serif`;
       ctx.textAlign = 'right';
       ctx.textBaseline = 'top';
+      // Onderaan rechts: bovenaan staat dan de scorekaart.
       const label = `${idle.th.name} · nog ${n} ${n === 1 ? 'kegel' : 'kegels'}${W.isSplit(idle.standing) ? ' · SPLIT!' : ''}`;
-      const tw = Math.min(ctx.measureText(label).width, w * .4);
+      const tw = Math.min(ctx.measureText(label).width, w * .5);
+      const y = h * .9;
       ctx.fillStyle = 'rgba(5,6,15,.6)';
-      ctx.fillRect(w - tw - h * .07, h * .02, tw + h * .05, h * .065);
+      ctx.fillRect(w - tw - h * .07, y, tw + h * .05, h * .065);
       ctx.fillStyle = idle.th.color;
-      ctx.fillRect(w - h * .02 - h * .012, h * .02, h * .012, h * .065);
+      ctx.fillRect(w - h * .02 - h * .012, y, h * .012, h * .065);
       ctx.fillStyle = '#e8f1ff';
-      ctx.fillText(label, w - h * .045, h * .035, w * .4);
+      ctx.fillText(label, w - h * .045, y + h * .015, w * .5);
       ctx.restore();
     }
   }
@@ -327,7 +359,7 @@ requestAnimationFrame(frame);
 
 // Tussen de herhalingen: de scorekaart van de klas (top 5), groot in beeld.
 function top5(w, h, t) {
-  const list = (state.ranking || []).filter(r => r.pins > 0).slice(0, 5);
+  const list = shown.filter(r => r.pins > 0).slice(0, 5);
   ctx.save();
   ctx.textBaseline = 'middle';
   ctx.textAlign = 'center';
@@ -354,7 +386,8 @@ function top5(w, h, t) {
       ctx.fillStyle = r.color;
       ctx.fillRect(x0 + rh * 1.1, y - rh * .2, rh * .14, rh * .4);
       ctx.fillStyle = '#e8f1ff';
-      ctx.fillText(r.name, x0 + rh * 1.45, y, bw * .55);
+      const sw = ctx.measureText(String(r.score)).width;
+      ctx.fillText(r.name, x0 + rh * 1.45, y, Math.max(rh, bw - rh * 1.45 - sw - rh * .8));
       ctx.textAlign = 'right';
       ctx.fillStyle = '#ffc94a';
       ctx.fillText(String(r.score), x0 + bw - rh * .4, y);

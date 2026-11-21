@@ -50,7 +50,7 @@
     <p class="muted">Kijk naar het bord voor de eindstand.</p>
   </section>`;
   document.querySelector('main').appendChild(box);
-  if (!document.querySelector('link[href="/neon.css"]')) {
+  if (!document.querySelector('link[href^="/neon.css"]')) {
     const link = document.createElement('link');
     link.rel = 'stylesheet';
     link.href = '/neon.css';

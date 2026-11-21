@@ -301,6 +301,8 @@ body:not([data-pw="1"]) #poort, body:not([data-nv="1"]) #vlucht, body:not([data-
 .kb-lobby-icon { display: block; width: 96px; height: 96px; margin: 6px auto 0; border-radius: 18px; }
 #kb-game .ak-question { z-index: 6; }
 .ak-stage .kb-banner { top: 30%; font-size: 2.2rem; box-shadow: 0 0 40px rgb(var(--k-goud) / .6); }
+/* Op het bord: de uitslag onder de top 5 en de scorekaart, over de baan. */
+#p-banner.kb-banner { top: 62%; }
 
 /* Hooibergjacht */
 .hb-hud { gap: 10px; }
@@ -810,13 +812,23 @@ body:not([data-ti="1"]) #titan { display: none !important; }
 .ti-best-kaart small { color: var(--muted); }
 .ti-best-kaart b { color: var(--team); }
 /* Kegelridder op het bord: de scorekaart van de speler van de herhaling onderaan, de knoppen in de kopbalk */
-.kb-card.kb-bord-card { top: 2%; width: min(80%, 900px); grid-template-columns: 1.6fr repeat(9, 1fr) 1.45fr; }
+.kb-card.kb-bord-card { top: 2%; width: min(92%, 900px); grid-template-columns: 1.6fr repeat(9, 1fr) 1.45fr; }
 .kb-card.kb-bord-card.hidden { display: none; }
-.kb-bord-naam { display: flex; align-items: center; justify-content: center; font-weight: 900; font-family: var(--tech); color: rgb(var(--k-wit)); border-left: 5px solid var(--cape); padding: 0 6px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 1rem; }
+.kb-bord-naam { display: block; align-self: center; text-align: center; font-weight: 900; font-family: var(--tech); color: rgb(var(--k-wit)); border-left: 5px solid var(--cape); padding: 0 6px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: clamp(.7rem, 1.1vw, 1rem); }
 .kb-bord-card .kb-cel b { font-size: 1.3rem; }
 .kb-bord-card .kb-cel i { font-size: 1.5rem; }
 .kb-balk-knoppen:empty { display: none; }
 .kb-balk-knoppen .bord-knoppen { gap: 6px; }
+/* Smaller bord, of het venster Proefspelen staat open: de knoppen worden kleiner en mogen op twee rijen, zodat ze nooit over het logo schuiven. */
+.topbar:has(.kb-balk-knoppen) > .actions { flex: 0 1 auto; min-width: 0; flex-wrap: wrap; justify-content: flex-end; row-gap: 6px; }
+@media (max-width: 1500px) {
+  .kb-balk-knoppen .bord-knoppen button, .topbar:has(.kb-balk-knoppen) #stop { padding: 8px 11px; font-size: .85rem; }
+  .topbar:has(.kb-balk-knoppen) .join-mini { font-size: .8rem; }
+}
+@media (max-width: 1900px) {
+  body.proef-open .kb-balk-knoppen .bord-knoppen button, body.proef-open .topbar:has(.kb-balk-knoppen) #stop { padding: 8px 11px; font-size: .85rem; }
+  body.proef-open .topbar:has(.kb-balk-knoppen) .join-mini { font-size: .8rem; }
+}
 .kb-cel i em { font-style: normal; opacity: .65; }
 .kb-rest { position: absolute; right: 8px; top: calc(min(97vw, 680px) * .188 + 30px); padding: 5px 12px; border-radius: 999px; background: rgb(var(--k-bg) / .78); border: 1px solid rgb(var(--k-goud) / .7); color: rgb(var(--k-goud-l)); font-weight: 800; font-size: .85rem; pointer-events: none; z-index: 7; max-width: 60%; }
 /* Smal (staand) scherm: de uitleg en de keuze Vegen/Tikken boven de baan, onder de scorekaart, zodat ze niet tegen de ridder botsen */

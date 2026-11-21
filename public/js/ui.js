@@ -341,7 +341,7 @@
     window.Ui.stormSocket = socket;
     if (window.Vragenstorm) return window.Vragenstorm(st);
     window.Ui.stormStart = st;
-    if (document.querySelector('script[src="/js/vragenstorm.js"]')) return;
+    if (document.querySelector('script[src^="/js/vragenstorm.js"]')) return;
     const s = document.createElement('script');
     s.src = '/js/vragenstorm.js';
     document.body.appendChild(s);

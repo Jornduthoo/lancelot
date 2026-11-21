@@ -122,7 +122,7 @@ const ObSheet = (() => {
   // De vragen uit De Proef in hun vak tekenen, zodra pf-paper.js geladen is.
   let laden = null;
   const laad = () => laden || (laden = new Promise((resolve, reject) => {
-    if (!document.querySelector('link[href="/proef.css"]')) document.head.insertAdjacentHTML('beforeend', '<link rel="stylesheet" href="/proef.css">');
+    if (!document.querySelector('link[href^="/proef.css"]')) document.head.insertAdjacentHTML('beforeend', '<link rel="stylesheet" href="/proef.css">');
     const nodig = [typeof PfAudio === 'undefined' && '/js/pf-media.js', typeof PfPaper === 'undefined' && '/js/pf-paper.js'].filter(Boolean);
     const volgende = () => {
       const src = nodig.shift();

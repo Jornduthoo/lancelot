@@ -106,3 +106,14 @@ test('de tijd is om terwijl een bal rolt: eerst uitrollen, dan de eindstand; daa
   assert.strictEqual(s.phase, 'einde');
   assert.ok(s.ranking()[0].score > 0); // wat al ligt, telt (ook als de beurt niet af is)
 });
+
+test('het bord verklapt niets: een bericht over een worp draagt het nummer van die worp', () => {
+  const s = spel({});
+  const p = s.players.get('a');
+  p.balls = 1;
+  const res = s.throwBall('a', recht);
+  assert.ok(res.ok);
+  const laatste = s.throws[s.throws.length - 1];
+  if (res.kind) assert.strictEqual(s.feed[0].tid, laatste.id);
+  assert.ok(s.feed.every(f => !f.tid || s.throws.some(t => t.id === f.tid)));
+});

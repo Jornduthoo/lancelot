@@ -144,6 +144,34 @@ let PORT = Number(process.env.PORT) || 3000;
 
 const app = express();
 const server = http.createServer(app);
+// Elke start van de server krijgt een eigen nummer (zie ook 'server-start' hieronder).
+const SERVER_START = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
+// Na een update moet elk scherm meteen de nieuwe scripts gebruiken, ook als de browser een oude versie bewaarde:
+// elke pagina krijgt haar scripts en stijlen met het nummer van deze start in de link (/js/x.js?v=...), en de pagina
+// zelf wordt nooit bewaard.
+const paginaCache = new Map();
+function paginaMetVersie(file) {
+  const st = fs.statSync(file);
+  const hit = paginaCache.get(file);
+  if (hit && hit.mtime === st.mtimeMs && hit.size === st.size) return hit;
+  const html = fs.readFileSync(file, 'utf8').replace(/((?:src|href)=")(\/[\w./-]+\.(?:js|css))"/g, `$1$2?v=${SERVER_START}"`);
+  const out = { mtime: st.mtimeMs, size: st.size, html, gz: zlib.gzipSync(html) };
+  paginaCache.set(file, out);
+  return out;
+}
+function stuurPagina(req, res, file) {
+  let p;
+  try { p = paginaMetVersie(file); } catch { return false; }
+  res.set({ 'Cache-Control': 'no-store', 'Content-Type': 'text/html; charset=utf-8', Vary: 'Accept-Encoding' });
+  if (/\bgzip\b/.test(req.headers['accept-encoding'] || '')) res.set('Content-Encoding', 'gzip').send(p.gz);
+  else res.send(p.html);
+  return true;
+}
+app.use((req, res, next) => {
+  const send = res.sendFile.bind(res);
+  res.sendFile = (file, ...rest) => (typeof file === 'string' && file.endsWith('.html') && !rest.length && stuurPagina(req, res, file) ? undefined : send(file, ...rest));
+  next();
+});
 // Ruim genoeg voor lesstof (screenshots en pdf's) die naar Gemini gaat.
 const io = new Server(server, { maxHttpBufferSize: 30e6 });
 // Na elk spel: de lijst met resultaten bijwerken, de sessie in het logboek afsluiten en het overzicht ervan naar het leerkrachtenscherm sturen.
@@ -1182,11 +1210,12 @@ const gzipped = new Map();
 // Het leerlingadres (/) brengt de kinderen naar Junior zolang het leerkrachtenscherm op Junior staat.
 app.get(['/', '/index.html'], (req, res, next) => (juniorModus() ? res.redirect('/junior') : next()));
 app.get(/^\/(?:[\w./-]*\.(?:js|css|html))?$/, (req, res, next) => {
-  if (!/\bgzip\b/.test(req.headers['accept-encoding'] || '')) return next();
   const file = path.join(PUBLIC, req.path === '/' ? 'index.html' : req.path);
+  if (!/\bgzip\b/.test(req.headers['accept-encoding'] || '') && !file.endsWith('.html')) return next();
   if (!file.startsWith(PUBLIC + path.sep)) return next();
   fs.stat(file, (err, st) => {
     if (err || !st.isFile()) return next();
+    if (file.endsWith('.html')) { if (stuurPagina(req, res, file)) return; return next(); }
     const tag = `W/"${st.size.toString(16)}-${st.mtimeMs.toString(16)}-gz"`;
     let hit = gzipped.get(file);
     if (!hit || hit.tag !== tag) {
@@ -1311,7 +1340,6 @@ const SPELLEN_MET_WEG = [sterren, slang, raket, zwaard, wankel, plasma, tuimel, 
 
 // Elke start van de server krijgt een eigen nummer. Een scherm dat al openstond en na een update (herstart) opnieuw
 // verbindt, ziet een ander nummer en laadt zichzelf opnieuw: zo draait elk scherm meteen de nieuwe versie (ui.js).
-const SERVER_START = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
 io.on('connection', socket => {
   safeHandlers(socket);
   socket.emit('server-start', SERVER_START);
