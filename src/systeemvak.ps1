@@ -89,4 +89,24 @@ $klok.add_Tick({
   }
 })
 $klok.Start()
+
+# Windows 11 zet een nieuw pictogram eerst bij de verborgen pictogrammen (pijltje ^). Het schild moet altijd zichtbaar
+# naast de klok staan: Windows bewaart dat per pictogram in NotifyIconSettings (IsPromoted). Windows maakt die regel
+# pas aan nadat het schild verschenen is, dus een paar keer kijken. Windows 10 kent dit niet: dan gebeurt er niets.
+$script:zichtbaarPogingen = 0
+$zichtbaar = New-Object System.Windows.Forms.Timer
+$zichtbaar.Interval = 1500
+$zichtbaar.add_Tick({
+  $script:zichtbaarPogingen++
+  try {
+    Get-ChildItem 'HKCU:\Control Panel\NotifyIconSettings' -ErrorAction Stop | ForEach-Object {
+      $r = Get-ItemProperty $_.PSPath
+      if ($r.ExecutablePath -like '*powershell.exe' -and $r.InitialTooltip -eq 'LANcelot' -and $r.IsPromoted -ne 1) {
+        Set-ItemProperty $_.PSPath -Name IsPromoted -Value 1 -Type DWord
+      }
+    }
+  } catch {}
+  if ($script:zichtbaarPogingen -ge 8) { $zichtbaar.Stop() }
+})
+$zichtbaar.Start()
 [System.Windows.Forms.Application]::Run()
