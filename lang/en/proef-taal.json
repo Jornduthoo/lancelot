@@ -739,5 +739,20 @@
  "geen taken": "no tasks",
  "{0}e keer": "time {0}",
  "{0} · {1}e keer": "{0} · time {1}",
- "Veel spelresultaten lijken weg aan één kant. Er werd niets verwijderd: kijk of OneDrive of Google Drive alles heeft binnengehaald.": "Many game results seem missing on one side. Nothing was deleted: check whether OneDrive or Google Drive has fetched everything."
+ "Veel spelresultaten lijken weg aan één kant. Er werd niets verwijderd: kijk of OneDrive of Google Drive alles heeft binnengehaald.": "Many game results seem missing on one side. Nothing was deleted: check whether OneDrive or Google Drive has fetched everything.",
+ "Ronde Tafels": "Round Tables",
+ "Resultaten van toetsen": "Test results",
+ "Standaardkeuzes voor taken": "Default choices for tasks",
+ "Je pc's": "Your PCs",
+ "Stand van de taken": "Task progress",
+ "Klaslijst": "Class list",
+ "Toetsen mailen": "Email tests",
+ "Klaseiland": "Class island",
+ "Bordboeken": "Board books",
+ "{0}: 1 bestand van {1}": "{0}: 1 file from {1}",
+ "{0}: {1} bestanden van {2}": "{0}: {1} files from {2}",
+ "{0}: 1 bestand binnengehaald {1}": "{0}: 1 file received {1}",
+ "{0}: {1} bestanden binnengehaald {2}": "{0}: {1} files received {2}",
+ "Wat kwam er binnen?": "What came in?",
+ "Niet alles kon gesynchroniseerd worden. Kijk bij \"Wat kwam er binnen?\".": "Not everything could be synchronised. Look under \"What came in?\"."
 }

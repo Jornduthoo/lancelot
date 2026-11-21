@@ -21,6 +21,9 @@ let kinds = [];
 let busy = null;
 let status = { at: 0, pulled: 0, pushed: 0, removed: 0, error: '' };
 let voortgang = () => {};
+// Per soort: hoeveel bestanden er de laatste keer binnenkwamen (en wanneer), en of het lukte (Instellingen › Lesmap).
+let perSoort = {};
+let overzicht = () => ({});
 // Wanneer een ander toestel voor het laatst een _mappen.json zonder tijden schreef (een oude LANcelot): dan zeggen we het.
 let oudToestel = 0;
 const OUD_DAGEN = 7;
@@ -29,6 +32,7 @@ const OUD_DAGEN = 7;
 function init(list, opties = {}) {
   kinds = list;
   if (typeof opties.voortgang === 'function') voortgang = opties.voortgang;
+  if (typeof opties.overzicht === 'function') overzicht = opties.overzicht;
 }
 
 const hash = text => crypto.createHash('sha1').update(text).digest('hex');
@@ -462,16 +466,33 @@ function sync() {
       if (!stat || !stat.isDirectory()) throw new Error('De lesmap is niet gevonden. Staat OneDrive of Google Drive aan?');
       const state = readState(root);
       const fouten = [];
+      let mislukt = 0;
       for (const kind of kinds) {
-        if (kind.bestanden) {
-          // De bordboeken: groot, dus apart, en uit te zetten. Uit: de vorige stand vergeten, zodat er na het weer
-          // aanzetten eerst alleen samengevoegd wordt en niets verdwijnt.
-          if (kind.kind === 'bordboeken' && !boekenAan()) { delete state.files[kind.kind]; delete (state.wacht || {})[kind.kind]; continue; }
-          if (await syncBestanden(kind, root, state, count, fouten)) changed.push(kind.kind);
-          fs.writeFileSync(STATE, JSON.stringify(state) + '\n');
-        } else if (await syncKind(kind, root, state, count)) changed.push(kind.kind);
+        // Elke soort apart: lukt er één niet (een map die nog downloadt, een bestand dat OneDrive even vasthoudt),
+        // dan gaan de andere soorten gewoon door. Vroeger stopte alles erna, bv. de stand van de taken.
+        const voor = count.pulled;
+        const ps = perSoort[kind.kind] || (perSoort[kind.kind] = {});
+        try {
+          if (kind.bestanden) {
+            // De bordboeken: groot, dus apart, en uit te zetten. Uit: de vorige stand vergeten, zodat er na het weer
+            // aanzetten eerst alleen samengevoegd wordt en niets verdwijnt.
+            if (kind.kind === 'bordboeken' && !boekenAan()) { delete state.files[kind.kind]; delete (state.wacht || {})[kind.kind]; continue; }
+            const f = fouten.length;
+            if (await syncBestanden(kind, root, state, count, fouten)) changed.push(kind.kind);
+            fs.writeFileSync(STATE, JSON.stringify(state) + '\n');
+            ps.fout = fouten.slice(f).join(' ');
+          } else {
+            if (await syncKind(kind, root, state, count)) changed.push(kind.kind);
+            ps.fout = '';
+          }
+        } catch (err) {
+          ps.fout = err.message;
+          mislukt++;
+        }
+        if (count.pulled > voor) ps.binnen = { n: count.pulled - voor, at: Date.now() };
       }
       fs.writeFileSync(STATE, JSON.stringify(state) + '\n');
+      if (mislukt) fouten.unshift('Niet alles kon gesynchroniseerd worden. Kijk bij "Wat kwam er binnen?".');
       status = { at: Date.now(), ...count, error: fouten.join(' ') };
     } catch (err) {
       status = { ...status, error: err.message };
@@ -512,11 +533,16 @@ function choose(folder) {
   fs.mkdirSync(resolved, { recursive: true });
   settings.write({ lesmap: resolved });
   status = { at: 0, pulled: 0, pushed: 0, removed: 0, error: '' };
+  perSoort = {};
 }
 
 function view() {
   const oud = oudToestel && Date.now() - oudToestel < OUD_DAGEN * 864e5 ? { oudToestel } : {};
-  return { lesmap: settings.read().lesmap || '', boekenAan: boekenAan(), ...status, ...oud };
+  let extra = {};
+  try { extra = overzicht() || {}; } catch {}
+  const soorten = kinds.map(k => k.kind).filter(k => perSoort[k] && (perSoort[k].binnen || perSoort[k].fout) || extra[k])
+    .map(k => ({ soort: k, ...(perSoort[k] || {}), ...(extra[k] ? { van: extra[k] } : {}) }));
+  return { lesmap: settings.read().lesmap || '', boekenAan: boekenAan(), ...status, ...oud, soorten };
 }
 
 const boekenAan = () => settings.read().lesmapBoeken !== false;

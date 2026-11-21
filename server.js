@@ -712,6 +712,11 @@ lesmap.init([
   // Als laatste: zo staat al het kleine werk er al terwijl een groot boek nog kopieert.
   { kind: 'bordboeken', bestanden: true, dir: kronieken.DIR, remote: 'bordboeken', toegelaten: kronieken.syncNaam, weg: kronieken.syncWeg, inPrullenbak: kronieken.inPrullenbak },
 ], {
+  // Instellingen › Lesmap, "Wat kwam er binnen?": van welke pc's de stand van de taken hier staat.
+  overzicht: () => {
+    const van = Object.entries(taken.standPerPc()).map(([pc, n]) => ({ pc: toestellen.naamVan(pc), n }));
+    return van.length ? { takenstand: van } : {};
+  },
   // Grote bordboeken kopiëren duurt even: tussendoor tonen hoe ver het staat (hooguit twee keer per seconde).
   voortgang: (() => {
     let laatst = 0;
