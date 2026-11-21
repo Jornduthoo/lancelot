@@ -185,6 +185,25 @@ function showCard(th) {
   cardTimer = setTimeout(() => el.classList.add('hidden'), 2600);
 }
 
+// De scorekaart van de speler van de herhaling, onderaan het spelbeeld.
+let cardTimer = null;
+function showCard(th) {
+  const c = W.card(th.rolls || []);
+  const simpel = state && state.telling === 'eenvoudig';
+  let html = `<div class="kb-bord-naam" style="--cape:${th.color}">${AK.esc(th.name)}</div>`;
+  for (let f = 0; f < 10; f++) {
+    const fr = c.frames[f] || { marks: [], total: null };
+    let marks = '';
+    for (let k = 0; k < (f === 9 ? 3 : 2); k++) marks += `<b>${fr.marks[k] || ''}</b>`;
+    html += `<div class="kb-cel${f + 1 === th.frame ? ' nu' : ''}"><small>${f + 1}</small><span>${marks}</span><i>${!simpel && fr.total !== null ? fr.total : ''}</i></div>`;
+  }
+  const el = $('p-card');
+  el.innerHTML = html;
+  el.classList.remove('hidden');
+  clearTimeout(cardTimer);
+  cardTimer = setTimeout(() => el.classList.add('hidden'), 2600);
+}
+
 let bannerTimer = null;
 function banner(text) {
   const el = $('p-banner');
