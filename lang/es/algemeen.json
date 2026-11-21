@@ -1152,5 +1152,9 @@
  "Bericht voor ICT": "Mensaje para informática",
  "Adressen voor toetsen mailen bewaren mislukt:": "No se pudieron guardar las direcciones para enviar pruebas:",
  "Kegelridder loopt nog. Stop dat spel eerst.": "Caballero de los Bolos sigue en marcha. Detén ese juego primero.",
- "Kegelridder": "Caballero de los Bolos"
+ "Kegelridder": "Caballero de los Bolos",
+ "Hidden": null,
+ "lancelot-systeemvak-{0}.klaar": null,
+ "Start-Process powershell.exe -WindowStyle Hidden -ArgumentList (\"": null,
+ "\" + $env:LANCELOT_PS)": null
 }

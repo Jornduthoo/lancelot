@@ -1152,5 +1152,9 @@
  "Bericht voor ICT": "Message for IT",
  "Adressen voor toetsen mailen bewaren mislukt:": "Saving addresses for emailing tests failed:",
  "Kegelridder loopt nog. Stop dat spel eerst.": "Bowling Knight is still running. Stop that game first.",
- "Kegelridder": "Bowling Knight"
+ "Kegelridder": "Bowling Knight",
+ "Hidden": null,
+ "lancelot-systeemvak-{0}.klaar": null,
+ "Start-Process powershell.exe -WindowStyle Hidden -ArgumentList (\"": null,
+ "\" + $env:LANCELOT_PS)": null
 }

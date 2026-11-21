@@ -28,7 +28,17 @@ if errorlevel 1 (
   )
 )
 
+rem npm zet soms zijn eigen naam in de titel: de naam van LANcelot terugzetten.
+title LANcelot
+
 rem LANcelot opent zelf het leerkrachtenscherm zodra de server draait, ook als poort 3000 bezet was.
 set LANCELOT_OPEN=1
+
+rem Zonder zwart venster: LANcelot draait verborgen, met het schild naast de klok. Klik erop om het leerkrachtenscherm te openen;
+rem rechtsklik om af te sluiten. Lukt dat niet, of staat LANCELOT_VENSTER=1, dan draait LANcelot in dit venster zoals vroeger.
+if not defined LANCELOT_VENSTER (
+  node src\systeemvak.js
+  if not errorlevel 1 exit /b 0
+)
 node server.js
 if errorlevel 1 pause
