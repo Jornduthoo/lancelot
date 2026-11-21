@@ -2386,7 +2386,7 @@ body[data-wacht] { background: linear-gradient(rgba(4, 6, 14, .55), rgba(4, 6, 1
 }
 
 /* LANcelot Junior: de wisselknop in de titelbalk (startscherm) en in het snelmenu. */
-.junior-home img { width: 22px; height: 22px; object-fit: contain; vertical-align: middle; margin: -4px 2px -4px -2px; }
+.junior-kop img { width: 32px; height: 32px; object-fit: contain; vertical-align: middle; margin-right: 6px; }
 
 /* Meerdere klassen op één toestel: de kiezer bovenaan Mijn klas en Onze klas (public/js/klaskiezer.js). */
 .klaskiezer { margin: 0 0 14px; }
@@ -2429,7 +2429,7 @@ body[data-wacht] { background: linear-gradient(rgba(4, 6, 14, .55), rgba(4, 6, 1
 .snel-toggle { display: none; }
 body.spel-loopt .snel-toggle { display: inline-flex; }
 body.spel-loopt .snelmenu:not(.open) { display: none; }
-body.spel-loopt .topbar .junior-home, body.spel-loopt #open-netwerk, body.spel-loopt #open-settings { display: none; }
+body.spel-loopt #open-netwerk, body.spel-loopt #open-settings { display: none; }
 /* De Arena: zoekvak, snelkeuzes en "Laatst gespeeld" (arena-kies.js). */
 .arena-zoek { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin: 0 0 18px; }
 .arena-zoek input { flex: 1 1 220px; max-width: 320px; margin: 0; padding: 8px 12px; font: inherit; color: var(--text); background: var(--panel); border: 1px solid var(--line); }
