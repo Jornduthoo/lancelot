@@ -42,19 +42,25 @@ function start() {
 
 function startSchild() {
   const klaar = path.join(os.tmpdir(), `lancelot-systeemvak-${process.pid}.klaar`);
+  // Windows PowerShell stopt meteen als het los (detached) start, en een gewoon kindproces stopt mee met Node.
+  // Daarom start een korte PowerShell het echte schild met Start-Process: dat blijft draaien als dit stopt.
+  // Het script gaat mee in een omgevingsvariabele, zo is de opdrachtregel nooit te lang.
+  const args = opdracht();
   let ps;
   try {
-    ps = spawn('powershell.exe', opdracht(), {
-      cwd: APP, detached: true, windowsHide: true, stdio: 'ignore',
-      env: { ...process.env, LANCELOT_APP: APP, LANCELOT_NODE: process.execPath, LANCELOT_KLAAR: klaar, LANCELOT_VERBORGEN: '1' },
+    ps = spawn('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command',
+      'Start-Process powershell.exe -WindowStyle Hidden -ArgumentList ("' + args.slice(0, -1).join(' ') + ' " + $env:LANCELOT_PS)'], {
+      cwd: APP, windowsHide: true, stdio: 'ignore',
+      env: { ...process.env, LANCELOT_PS: args[args.length - 1], LANCELOT_APP: APP, LANCELOT_NODE: process.execPath, LANCELOT_KLAAR: klaar, LANCELOT_VERBORGEN: '1' },
     });
   } catch { process.exit(1); }
   const gelukt = () => { try { fs.unlinkSync(klaar); return true; } catch { return false; } };
   const einde = code => { clearInterval(kijk); clearTimeout(stop); process.exit(code); };
   ps.on('error', () => einde(1));
-  ps.on('exit', () => einde(gelukt() ? 0 : 1));
-  const kijk = setInterval(() => { if (gelukt()) { ps.unref(); einde(0); } }, 200);
-  const stop = setTimeout(() => { try { ps.kill(); } catch {} einde(1); }, 15000);
+  // Het starten zelf stopt meteen met 0; enkel een fout daarbij betekent: terug naar het venster.
+  ps.on('exit', code => { if (code !== 0) einde(gelukt() ? 0 : 1); });
+  const kijk = setInterval(() => { if (gelukt()) einde(0); }, 200);
+  const stop = setTimeout(() => einde(1), 15000);
 }
 
 if (require.main === module) start();

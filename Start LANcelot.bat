@@ -28,6 +28,9 @@ if errorlevel 1 (
   )
 )
 
+rem npm zet soms zijn eigen naam in de titel: de naam van LANcelot terugzetten.
+title LANcelot
+
 rem LANcelot opent zelf het leerkrachtenscherm zodra de server draait, ook als poort 3000 bezet was.
 set LANCELOT_OPEN=1
 

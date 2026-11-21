@@ -1154,5 +1154,7 @@
  "Kegelridder loopt nog. Stop dat spel eerst.": "Chevalier des Quilles est encore en cours. Arrête d’abord ce jeu.",
  "Kegelridder": "Chevalier des Quilles",
  "Hidden": null,
- "lancelot-systeemvak-{0}.klaar": null
+ "lancelot-systeemvak-{0}.klaar": null,
+ "Start-Process powershell.exe -WindowStyle Hidden -ArgumentList (\"": null,
+ "\" + $env:LANCELOT_PS)": null
 }

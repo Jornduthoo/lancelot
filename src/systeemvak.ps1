@@ -55,6 +55,8 @@ $server = [System.Diagnostics.Process]::Start($psi)
 [IO.File]::WriteAllText($env:LANCELOT_KLAAR, 'ok')
 
 $ErrorActionPreference = 'Continue'
+# Meldingen altijd bovenaan, niet verstopt achter andere vensters.
+$eigenaar = New-Object System.Windows.Forms.Form -Property @{ TopMost = $true; ShowInTaskbar = $false }
 function Stop-Alles {
   $icoon.Visible = $false
   $icoon.Dispose()
@@ -63,7 +65,7 @@ function Stop-Alles {
 $itemOpen.add_Click({ Open-Scherm })
 $icoon.add_MouseClick({ param($s, $e) if ($e.Button -eq [System.Windows.Forms.MouseButtons]::Left) { Open-Scherm } })
 $itemUit.add_Click({
-  $ja = [System.Windows.Forms.MessageBox]::Show($w.vraag, 'LANcelot', 'YesNo', 'Question')
+  $ja = [System.Windows.Forms.MessageBox]::Show($eigenaar, $w.vraag, 'LANcelot', 'YesNo', 'Question')
   if ($ja -ne 'Yes') { return }
   if (-not $server.HasExited) { & taskkill.exe /T /F /PID $server.Id | Out-Null }
   Stop-Alles
@@ -81,7 +83,7 @@ $klok.add_Tick({
     $klok.Stop()
     if ($server.ExitCode -ne 0) {
       $regels = (Lees-Log) -split "`r?`n" | Where-Object { $_.Trim() } | Select-Object -Last 12
-      [System.Windows.Forms.MessageBox]::Show($w.fout + "`n`n" + ($regels -join "`n"), 'LANcelot', 'OK', 'Warning') | Out-Null
+      [System.Windows.Forms.MessageBox]::Show($eigenaar, $w.fout + "`n`n" + ($regels -join "`n"), 'LANcelot', 'OK', 'Warning') | Out-Null
     }
     Stop-Alles
   }

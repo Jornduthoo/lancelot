@@ -1154,5 +1154,7 @@
  "Kegelridder loopt nog. Stop dat spel eerst.": "Bowling Knight is still running. Stop that game first.",
  "Kegelridder": "Bowling Knight",
  "Hidden": null,
- "lancelot-systeemvak-{0}.klaar": null
+ "lancelot-systeemvak-{0}.klaar": null,
+ "Start-Process powershell.exe -WindowStyle Hidden -ArgumentList (\"": null,
+ "\" + $env:LANCELOT_PS)": null
 }
