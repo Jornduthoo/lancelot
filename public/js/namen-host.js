@@ -8,18 +8,92 @@
   const maakKnop = () => {
     const b = document.createElement('button');
     b.className = 'secondary namen-knop';
-    b.innerHTML = `${Ui.ic('namen')} Namen`;
+    b.innerHTML = `${Ui.ic('namen')} <span class="kop-tekst">Namen</span>`;
     b.title = 'Wie is er binnen? Een verkeerde naam wegklikken';
     b.addEventListener('click', open);
     return b;
   };
 
-  // In de kopbalk: naast de pauzeknop, of vooraan bij de andere knoppen.
+  // In de kopbalk: op elk leerkrachtenscherm rechts dezelfde vaste knoppen, in dezelfde volgorde:
+  // Pauze · Namen · QR-code · Geluid (alleen waar er geluid is). Wat een pagina zelf nog nodig heeft, staat ervoor.
   const kop = maakKnop();
-  const pauzeKop = document.querySelector('[data-pauze]');
-  const acties = document.querySelector('.topbar .actions');
-  if (pauzeKop) pauzeKop.after(kop);
-  else if (acties) acties.prepend(kop);
+  const acties = document.querySelector('.topbar > .brand') && document.querySelector('.topbar > .actions');
+  let pauzeKop = document.querySelector('.topbar [data-pauze]');
+  if (acties) {
+    if (!pauzeKop) {
+      pauzeKop = document.createElement('button');
+      pauzeKop.className = 'secondary pauze-knop';
+      pauzeKop.setAttribute('data-pauze', '');
+      pauzeKop.title = 'Alle leerlingschermen op slot om de aandacht te vragen';
+      pauzeKop.innerHTML = '<img src="/img/icons/pauze-klein.webp" alt=""> <span class="kop-tekst">Pauze</span>';
+    }
+    pauzeKop.classList.add('kop-vast');
+    kop.classList.add('kop-vast');
+    const vast = [pauzeKop, kop, qrKnop()];
+    const mute = document.getElementById('mute');
+    if (mute && acties.contains(mute)) vast.push(mute);
+    // Stop (toernooi, spel) blijft helemaal rechts staan; de vaste knoppen komen ervoor.
+    const stop = acties.querySelector(':scope > #stop');
+    for (const b of vast) if (b) (stop ? stop.before(b) : acties.append(b));
+  } else {
+    const ergens = document.querySelector('.topbar .actions');
+    if (pauzeKop) pauzeKop.after(kop);
+    else if (ergens) ergens.prepend(kop);
+  }
+
+  // Knop QR-code: de QR-code waarmee leerlingen verbinden, groot op het bord. Het startscherm heeft er al een (host.js).
+  function qrKnop() {
+    const eigen = document.getElementById('qr-open');
+    if (eigen) return eigen;
+    const b = document.createElement('button');
+    b.className = 'secondary qr-kop';
+    b.title = 'De QR-code waarmee leerlingen verbinden, groot op het bord';
+    b.innerHTML = `${Ui.ic('qr')} <span class="kop-tekst">QR-code</span>`;
+    const venster = document.createElement('dialog');
+    venster.className = 'qr-venster';
+    venster.innerHTML = '<div class="qr-venster-kop"><h2>Verbinden met LANcelot</h2><button class="secondary icon" title="Sluiten" aria-label="Sluiten"></button></div>'
+      + '<div class="qr-groot"><div class="qr"></div><div class="join-url"></div></div><div class="qr-adressen"></div>'
+      + '<p class="muted small center">Leerlingen moeten op hetzelfde netwerk zitten als deze pc. <a href="/netwerk" target="_blank">Netwerk werkt niet?</a></p>';
+    venster.querySelector('.qr-venster-kop button').innerHTML = Ui.ic('kruis');
+    venster.querySelector('.qr-venster-kop button').addEventListener('click', () => venster.close());
+    venster.addEventListener('click', e => {
+      const r = venster.getBoundingClientRect();
+      if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) venster.close();
+    });
+    document.body.append(venster);
+    let lijst = [];
+    let ip = '';
+    try { ip = localStorage.getItem('lancelot-address') || ''; } catch {}
+    const ipVan = a => a.url.replace(/^http:\/\//, '').replace(/:\d+$/, '');
+    const toon = () => {
+      const a = lijst.find(x => ipVan(x) === ip) || lijst.find(x => x.sure) || lijst[0];
+      venster.querySelector('.qr').innerHTML = a ? a.qr : '';
+      venster.querySelector('.join-url').textContent = a ? a.url : 'Geen netwerk gevonden';
+      const box = venster.querySelector('.qr-adressen');
+      box.innerHTML = '';
+      if (lijst.length < 2) return;
+      box.append('Werkt dit adres niet? Kies een ander: ');
+      for (const x of lijst) {
+        const k = document.createElement('button');
+        k.className = 'secondary address-choice' + (x === a ? ' on' : '');
+        k.textContent = x.name ? `${ipVan(x)} · ${x.name}` : ipVan(x);
+        k.addEventListener('click', () => {
+          ip = ipVan(x);
+          toon();
+          try { localStorage.setItem('lancelot-address', ip); } catch {}
+          socket.emit('choose-address', ip);
+        });
+        box.append(k);
+      }
+    };
+    socket.on('addresses', l => { lijst = l || []; if (venster.open) toon(); });
+    b.addEventListener('click', () => {
+      socket.emit('adressen');
+      toon();
+      if (!venster.open) venster.showModal();
+    });
+    return b;
+  }
 
   // Linksonder op een spelbord, zolang er een spel loopt: Pauze en Namen. Zonder kopbalk staat Namen er altijd.
   const rij = document.createElement('div');
@@ -117,8 +191,10 @@
       storm.classList.toggle('hidden', !res.storm && !stormAan);
       rij.classList.toggle('hidden', !actief && kop.isConnected);
       kop.classList.toggle('hidden', actief);
+      // Loopt er een spel, dan staan Pauze en Namen linksonder op het bord: niet twee keer.
+      if (pauzeKop && pauzeKop.classList.contains('kop-vast') && rij.isConnected) pauzeKop.classList.toggle('hidden', actief);
       const binnen = (res.spelers || []).filter(p => p.online).length;
-      for (const b of document.querySelectorAll('.namen-knop')) b.innerHTML = `${Ui.ic('namen')} Namen${binnen ? ` <b class="namen-tel">${binnen}</b>` : ''}`;
+      for (const b of document.querySelectorAll('.namen-knop')) b.innerHTML = `${Ui.ic('namen')} <span class="kop-tekst">Namen</span>${binnen ? ` <b class="namen-tel">${binnen}</b>` : ''}`;
       if (modal.classList.contains('hidden')) return;
       // Wie in het spel van dit scherm zit eerst, daarna de rest op naam.
       const hier = p => p.pad === pad ? 0 : 1;
