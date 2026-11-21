@@ -33,6 +33,31 @@ function Open-Scherm {
   Start-Process $url
 }
 
+# Een eigen naam en groep in de taakbalk ("LANcelot", niet "Windows PowerShell"). Lukt dit niet, dan werkt alles gewoon verder.
+try {
+  Add-Type -TypeDefinition @"
+using System; using System.Runtime.InteropServices;
+public static class LancelotTaakbalk {
+  [StructLayout(LayoutKind.Sequential, Pack = 4)] public struct PKEY { public Guid fmtid; public uint pid; }
+  [StructLayout(LayoutKind.Explicit)] public struct PV { [FieldOffset(0)] public ushort vt; [FieldOffset(8)] public IntPtr p; }
+  [ComImport, Guid("886D8EEB-8CF2-4446-8D02-CDBA1DBDCF99"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+  interface IPropertyStore { int GetCount(out uint c); int GetAt(uint i, out PKEY k); int GetValue(ref PKEY k, out PV v); int SetValue(ref PKEY k, ref PV v); int Commit(); }
+  [DllImport("shell32.dll")] static extern int SHGetPropertyStoreForWindow(IntPtr hwnd, ref Guid iid, [MarshalAs(UnmanagedType.Interface)] out IPropertyStore ps);
+  static void Een(IPropertyStore s, uint pid, string w) {
+    PKEY k = new PKEY(); k.fmtid = new Guid("9F4C2855-9F79-4B39-A8D0-E1D42DE1D5F3"); k.pid = pid;
+    PV v = new PV(); v.vt = 31; v.p = Marshal.StringToCoTaskMemUni(w);
+    s.SetValue(ref k, ref v); Marshal.FreeCoTaskMem(v.p);
+  }
+  public static void Zet(IntPtr hwnd, string id, string naam, string icoon, string opdracht) {
+    Guid iid = new Guid("886D8EEB-8CF2-4446-8D02-CDBA1DBDCF99"); IPropertyStore s;
+    if (SHGetPropertyStoreForWindow(hwnd, ref iid, out s) != 0) return;
+    Een(s, 2, opdracht); Een(s, 3, icoon); Een(s, 4, naam); Een(s, 5, id); s.Commit(); Marshal.ReleaseComObject(s);
+  }
+}
+"@
+  $script:taakbalkNaam = $true
+} catch { $script:taakbalkNaam = $false }
+
 # Het venster: in de taakbalk met het logo, klein en rustig. Het start geminimaliseerd: alleen de knop in de taakbalk.
 $venster = New-Object System.Windows.Forms.Form
 $venster.Text = 'LANcelot'
@@ -46,6 +71,12 @@ $venster.ForeColor = [System.Drawing.Color]::White
 $venster.Font = New-Object System.Drawing.Font('Segoe UI', 11)
 $venster.ShowInTaskbar = $true
 $venster.WindowState = 'Minimized'
+
+$venster.add_HandleCreated({
+  if ($script:taakbalkNaam) {
+    try { [LancelotTaakbalk]::Zet($venster.Handle, 'LANcelot.Leerkracht', 'LANcelot', (Join-Path $app 'public\img\systeemvak.ico') + ',0', '"' + (Join-Path $app 'Start LANcelot.bat') + '"') } catch {}
+  }
+})
 
 $beeld = New-Object System.Windows.Forms.PictureBox
 $beeld.Image = [System.Drawing.Image]::FromFile((Join-Path $app 'public\img\icon-192.png'))
@@ -101,8 +132,8 @@ $knopUit.add_Click({ $venster.Close() })
 $venster.add_FormClosing({
   param($s, $e)
   if ($script:stoppen) { return }
-  # Windows sluit af of meldt af: niets vragen, gewoon stoppen.
-  if ($e.CloseReason -ne [System.Windows.Forms.CloseReason]::UserClosing) {
+  # Windows sluit af of meldt af (of Taakbeheer stopt LANcelot): niets vragen, gewoon stoppen.
+  if (@([System.Windows.Forms.CloseReason]::WindowsShutDown, [System.Windows.Forms.CloseReason]::TaskManagerClosing) -contains $e.CloseReason) {
     $script:stoppen = $true
     if (-not $server.HasExited) { & taskkill.exe /T /F /PID $server.Id | Out-Null }
     return
