@@ -92,7 +92,7 @@ const INFO = JSON.parse(fs.readFileSync(path.join(BRON, 'spellen.json'), 'utf8')
 // Het privacybeleid (ook het adres dat in de Microsoft Store staat): bron/privacy.json, een pagina per taal.
 const PRIVACY = JSON.parse(fs.readFileSync(path.join(BRON, 'privacy.json'), 'utf8'));
 const privacyPad = taal => `${taal === 'nl' ? '' : taal + '/'}privacy.html`;
-// Schermafbeeldingen per spel (website/site/beelden/<taal>/<id>-bord|cb|gsm.webp), gemaakt met bron/spelbeelden.js.
+// Schermafbeeldingen per spel (website/site/beelden/<taal>/<id>-bord|cb|gsm.webp), gemaakt met bron/spelbeelden.js (node website/bron/spelbeelden.js <id>).
 const BEELDEN = ['bord', 'cb', 'gsm'];
 const spelPad = (taal, id) => `${taal === 'nl' ? '' : taal + '/'}spellen/${id}.html`;
 const beeldPad = (taal, id) => `beelden/${taal}/${(INFO[id] && INFO[id].beeld) || id}`;
