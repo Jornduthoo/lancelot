@@ -9,6 +9,19 @@ Add-Type -AssemblyName System.Windows.Forms, System.Drawing
 $app = $env:LANCELOT_APP
 $log = Join-Path ([IO.Path]::GetTempPath()) 'lancelot-log.txt'
 
+# De server zelf, zonder venster. Wat hij meldt, komt in het logboek. Hij start meteen, nog voor de knop gebouwd
+# wordt: zo wacht het leerkrachtenscherm niet op PowerShell (de knop klaarzetten duurt op een trage pc enkele seconden).
+$psi = New-Object System.Diagnostics.ProcessStartInfo
+$psi.FileName = $env:ComSpec
+$psi.Arguments = '/d /s /c ""' + $env:LANCELOT_NODE + '" server.js > "' + $log + '" 2>&1"'
+$psi.WorkingDirectory = $app
+$psi.UseShellExecute = $false
+$psi.CreateNoWindow = $true
+# Na een update stopt de server met code 75: dan start deze knop LANcelot helemaal opnieuw (zie server.js).
+$psi.EnvironmentVariables['LANCELOT_KAN_HERSTARTEN'] = '1'
+$server = [System.Diagnostics.Process]::Start($psi)
+
+
 $teksten = @{
   nl = @{ zin = 'LANcelot draait. Leerlingen kunnen spelen.'; open = 'Leerkrachtenscherm openen'; uit = 'LANcelot afsluiten'; vraag = 'LANcelot afsluiten? Leerlingen kunnen dan niet meer spelen tot je LANcelot opnieuw start.'; fout = 'LANcelot is gestopt met een fout:' }
   en = @{ zin = 'LANcelot is running. Students can play.'; open = 'Open teacher screen'; uit = 'Close LANcelot'; vraag = 'Close LANcelot? Students cannot play until you start LANcelot again.'; fout = 'LANcelot stopped with an error:' }
@@ -105,17 +118,6 @@ function Maak-Knop($tekst, $y, $kleur) {
 $knopOpen = Maak-Knop $w.open 180 ([System.Drawing.Color]::FromArgb(30, 110, 230))
 $knopUit = Maak-Knop $w.uit 234 ([System.Drawing.Color]::FromArgb(60, 66, 90))
 $venster.AcceptButton = $knopOpen
-
-# De server zelf, zonder venster. Wat hij meldt, komt in het logboek.
-$psi = New-Object System.Diagnostics.ProcessStartInfo
-$psi.FileName = $env:ComSpec
-$psi.Arguments = '/d /s /c ""' + $env:LANCELOT_NODE + '" server.js > "' + $log + '" 2>&1"'
-$psi.WorkingDirectory = $app
-$psi.UseShellExecute = $false
-$psi.CreateNoWindow = $true
-# Na een update stopt de server met code 75: dan start deze knop LANcelot helemaal opnieuw (zie server.js).
-$psi.EnvironmentVariables['LANCELOT_KAN_HERSTARTEN'] = '1'
-$server = [System.Diagnostics.Process]::Start($psi)
 
 # De knop staat er en de server start: Start LANcelot.bat mag zijn venster sluiten.
 [IO.File]::WriteAllText($env:LANCELOT_KLAAR, 'ok')
