@@ -1309,8 +1309,12 @@ pauze.opWijziging(stand => io.emit('pauze', stand));
 
 const SPELLEN_MET_WEG = [sterren, slang, raket, zwaard, wankel, plasma, tuimel, hooi, zwerm, banier, haak, kegel, kolk, titan, camelot, storm, pixel];
 
+// Elke start van de server krijgt een eigen nummer. Een scherm dat al openstond en na een update (herstart) opnieuw
+// verbindt, ziet een ander nummer en laadt zichzelf opnieuw: zo draait elk scherm meteen de nieuwe versie (ui.js).
+const SERVER_START = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
 io.on('connection', socket => {
   safeHandlers(socket);
+  socket.emit('server-start', SERVER_START);
   // De namen op de klaslijst, om bij het aanmelden aan te tikken. Meteen meesturen, nog voor de stand van
   // een spel: zo weet de leerling al of een onthouden naam op de lijst staat voordat hij automatisch meedoet.
   socket.emit('klas-namen', klas.names());

@@ -26,7 +26,8 @@
     if (nr === 1) return; // de leerkracht speelt zelf
     // Een vraag: even nadenken, dan een antwoord kiezen (twee op de drie keer het juiste weten ze niet: gewoon gokken).
     const knoppen = [...document.querySelectorAll('.answers button, .antwoorden button, [class*="vraag"] button, [class*="quiz"] button')].filter(b => zichtbaar(b) && !b.disabled);
-    if (!knoppen.length) { wachtTot = 0; return; }
+    // Geen vraag: een spel kan zelf iets laten doen (bv. Kegelridder gooit een bal), via window.proefActie.
+    if (!knoppen.length) { wachtTot = 0; if (typeof window.proefActie === 'function' && Math.random() < .5) window.proefActie(); return; }
     if (!wachtTot) { wachtTot = Date.now() + 1500 + Math.random() * 2500; return; }
     if (Date.now() < wachtTot) return;
     wachtTot = 0;

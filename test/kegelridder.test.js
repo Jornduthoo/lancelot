@@ -90,3 +90,19 @@ test('eenvoudige telling: kegels en extra punten', () => {
   assert.ok(res.ok);
   assert.strictEqual(s.ranking()[0].score, res.points);
 });
+
+test('de tijd is om terwijl een bal rolt: eerst uitrollen, dan de eindstand; daarna geen nieuwe worp', async () => {
+  const s = spel({});
+  const p = s.players.get('a');
+  p.balls = 2;
+  assert.ok(s.throwBall('a', recht).ok);
+  s.endsAt = Date.now() - 1000;
+  s.timeUp();
+  assert.strictEqual(s.phase, 'play'); // de bal rolt nog uit
+  p.lastThrow = 0;
+  assert.strictEqual(s.throwBall('a', recht).error, 'De tijd is om.');
+  klok.clearTimeout(s.endTimer);
+  s.finish();
+  assert.strictEqual(s.phase, 'einde');
+  assert.ok(s.ranking()[0].score > 0); // wat al ligt, telt (ook als de beurt niet af is)
+});

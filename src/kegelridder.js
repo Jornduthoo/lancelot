@@ -16,20 +16,7 @@ const GOLD_STREAK = 3;   // zoveel juist op rij = een runenbal
 const MAX_BALLS = 9;     // meer ballen sparen kan niet (Vragenstorm)
 const MIN_THROW_MS = 1500; // een worp duurt minstens zo lang (tegen klikken aan de lopende band)
 
-// Een split: de voorste kegel is al om en wat nog staat, ligt in minstens twee groepjes die elkaar niet raken.
-function isSplit(standing) {
-  if (standing[0]) return false;
-  const left = World.PINS.map((p, i) => i).filter(i => standing[i]);
-  if (left.length < 2) return false;
-  const near = (a, b) => Math.hypot(World.PINS[a].x - World.PINS[b].x, World.PINS[a].y - World.PINS[b].y) < World.SP * 1.1;
-  const seen = new Set([left[0]]);
-  const todo = [left[0]];
-  while (todo.length) {
-    const a = todo.pop();
-    for (const b of left) if (!seen.has(b) && near(a, b)) { seen.add(b); todo.push(b); }
-  }
-  return seen.size < left.length;
-}
+const isSplit = World.isSplit;
 
 class Kegelridder {
   constructor(io, onFinish) {
@@ -96,7 +83,7 @@ class Kegelridder {
     const n = this.nextN++;
     this.players.set(playerId, {
       n, name: clean, socketId, color: World.COLORS[n % World.COLORS.length],
-      balls: 0, gold: false, frame: 1, ball: 1, standing: Array(10).fill(true), rolls: [], games: [], bestGame: 0, strikeRow: 0, lastThrow: 0,
+      balls: 0, gold: false, rollUntil: 0, frame: 1, ball: 1, standing: Array(10).fill(true), rolls: [], games: [], bestGame: 0, strikeRow: 0, lastThrow: 0,
       pts: 0, pins: 0, strikes: 0, spares: 0, splits: 0, gutters: 0, thrown: 0, best: 0,
       right: 0, wrong: 0, streak: 0, bestStreak: 0, question: null, order: [], last: null, waitUntil: 0, asking: false,
     });
@@ -121,7 +108,7 @@ class Kegelridder {
     this.endsAt = this.startedAt + this.minutes * 60000;
     this.addFeed('🎳 De kegels staan klaar. Beantwoord een vraag en verdien je eerste bal!');
     this.ticker = setInterval(() => this.send(), SEND_MS);
-    this.endTimer = setTimeout(() => this.finish(), this.endsAt - now);
+    this.endTimer = setTimeout(() => this.timeUp(), this.endsAt - now);
     this.broadcast();
   }
 
@@ -136,6 +123,7 @@ class Kegelridder {
     const p = this.players.get(playerId);
     if (!p || this.phase !== 'play') return { error: 'Het spel loopt niet.' };
     if (p.balls >= MAX_BALLS) return { error: 'Je hebt al genoeg ballen. Gooi eerst!' };
+    if (Date.now() >= this.endsAt) return { error: 'De tijd is om.' };
     const res = this.vragen.next(p);
     if (res.error) return res;
     p.asking = true;
@@ -167,6 +155,8 @@ class Kegelridder {
     if (!p || this.phase !== 'play' || now < this.startedAt) return { error: 'Het spel loopt niet.' };
     if (p.balls <= 0) return { error: 'Je hebt geen bal. Beantwoord eerst een vraag.' };
     if (now - p.lastThrow < MIN_THROW_MS) return { error: 'Je bal rolt nog.' };
+    // Na 0:00 gooit niemand nog (een halve seconde speling voor de wifi); een bal die al rolt, rolt uit en telt.
+    if (now > this.endsAt + 500) return { error: 'De tijd is om.' };
     p.lastThrow = now;
     const t = World.clean(input);
     const before = p.standing.slice();
@@ -174,6 +164,8 @@ class Kegelridder {
     const split = !fresh && isSplit(before);
     const gold = p.gold;
     const sim = World.play(t, before, gold);
+    // Zo lang rolt de bal op het scherm van de leerling (iets sneller dan echt, met vertraging bij de inslag).
+    p.rollUntil = now + (sim.t / 1.15 + 2) * 1000;
     p.balls--;
     p.gold = false;
     p.thrown++;
@@ -227,7 +219,16 @@ class Kegelridder {
   // De stand: bij echt bowlen je beste spel (ook het spel dat nog loopt), anders de punten.
   scoreOf(p) {
     if (this.telling === 'eenvoudig') return Math.round(p.pts);
-    return Math.max(p.bestGame, World.card(p.rolls).score);
+    return Math.max(p.bestGame, World.card(p.rolls).live);
+  }
+
+  // De tijd is om: wie nog een bal ziet rollen, ziet hem uitrollen. Pas daarna de eindstand (hooguit 8 seconden later).
+  timeUp() {
+    if (this.phase !== 'play') return;
+    const last = Math.max(0, ...[...this.players.values()].map(p => p.rollUntil || 0));
+    const wait = Math.min(8000, last - Date.now());
+    if (wait > 0) this.endTimer = setTimeout(() => this.finish(), wait);
+    else this.finish();
   }
 
   finish() {

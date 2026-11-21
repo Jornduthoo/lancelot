@@ -42,9 +42,10 @@
       <div class="kb-card" id="kb-card"></div>
       <img class="kb-knight hidden" id="kb-knight" src="/img/kegelridder/ridder-klaar.webp" alt="">
       <div class="kb-tip" id="kb-tip">Veeg de bal naar de kegels</div>
+      <div class="kb-rest hidden" id="kb-rest"></div>
       <div class="kb-power hidden" id="kb-power"><i></i></div>
       <div class="kb-fx hidden" id="kb-fx"><button type="button" data-s="-1" aria-label="Effect naar links">↶</button><button type="button" data-s="1" aria-label="Effect naar rechts">↷</button></div>
-      <button class="kb-mode" id="kb-mode" type="button" title="Kies hoe je gooit"><span data-m="veeg">👆 Vegen</span><span data-m="tik">🎯 Tikken</span></button>
+      <button class="kb-mode" id="kb-mode" type="button" title="Kies hoe je gooit"><span data-m="veeg">👆 <b>Vegen</b></span><span data-m="tik">🎯 <b>Tikken</b></span></button>
       <button class="gold big kb-ask hidden" id="kb-ask" type="button">🎳 Vraag = bal</button>
       <div class="ls-feed" id="kb-feed"></div>
       <div class="ls-banner" id="kb-banner"></div>
@@ -222,7 +223,9 @@
       let marks = '';
       for (let k = 0; k < n; k++) marks += `<b>${fr.marks[k] || ''}</b>`;
       const nu = f + 1 === g.frame && !c.done ? ' nu' : '';
-      html += `<div class="kb-cel${nu}${f === 9 ? ' tien' : ''}"><small>${f + 1}</small><span>${marks}</span><i>${!simpel && fr.total !== null ? fr.total : ''}</i></div>`;
+      // Staat het totaal nog niet vast (strike of spare wacht op de volgende ballen), dan de lopende score, iets zachter.
+      const tot = simpel || !fr.marks.length ? '' : fr.total !== null ? fr.total : `<em>${fr.live}</em>`;
+      html += `<div class="kb-cel${nu}${f === 9 ? ' tien' : ''}"><small>${f + 1}</small><span>${marks}</span><i>${tot}</i></div>`;
     }
     const extra = g.games ? `<div class="kb-spel">Spel ${g.games + 1} · beste ${g.bestGame}</div>` : '';
     $('kb-card').innerHTML = html + extra;
@@ -234,7 +237,7 @@
     closeText: 'Naar de baan',
     lock: 300,
     closeDelay: 450, // na een juist antwoord meteen terug naar de baan
-    status: () => `Beurt ${g.frame} · juist = 🎳 ${g.state && g.state.per === 2 ? '2 ballen' : 'een bal'}${g.me && g.me.streak % 3 === 2 ? ' · nog 1 juist = ✨ runenbal' : ''}`,
+    status: () => `Beurt ${g.frame} · juist = 🎳 ${g.state && g.state.per === 2 ? '2 ballen' : 'een bal'}${g.me && g.me.streak % 3 === 2 ? ' · nog 1 juist = ✨ runenbal' : ''}${restText() ? ` · ${restText()}` : ''}`,
     ask: cb => socket.emit('kb-question', null, cb),
     answer: (i, cb) => socket.emit('kb-answer', i, res => {
       if (res && res.correct) {
@@ -255,7 +258,7 @@
   });
   $('kb-ask').addEventListener('click', () => { sfx.unlock(); askNow(); });
   function askNow() {
-    if (!playing() || quiz.open || g.roll || g.balls > 0) return;
+    if (!playing() || !timeLeft() || quiz.open || g.roll || g.balls > 0) return;
     g.aim = null;
     quiz.show();
     hud();
@@ -284,7 +287,8 @@
   function playing() {
     return g.state && g.state.phase === 'play' && now() >= g.state.startedAt && !$('kb-game').classList.contains('hidden');
   }
-  const ready = () => playing() && !quiz.open && !g.roll && g.balls > 0;
+  const timeLeft = () => g.state && now() < g.state.endsAt;
+  const ready = () => playing() && timeLeft() && !quiz.open && !g.roll && g.balls > 0;
 
   // ---------- Gooien ----------
   function throwBall(t) {
@@ -320,6 +324,25 @@
     g.knight = 'klaar';
     $('kb-knight').src = '/img/kegelridder/ridder-klaar.webp';
   }
+
+  // Proefspelen: de automatische proefridders (2 en 3) gooien zelf een willekeurige bal, zonder animatie
+  // (hun venster is onzichtbaar), zodat de leerkracht het bord met meerdere spelers ziet (proef-bot.js).
+  window.proefActie = () => {
+    if (!on() || !playing() || !timeLeft() || quiz.open || g.roll) return;
+    if (g.balls <= 0) { askNow(); return; }
+    const rnd = (a, b) => a + Math.random() * (b - a);
+    const t = W.clean({ x: rnd(-.25, .25), a: rnd(-.02, .02), v: rnd(6.5, 10), s: Math.random() < .5 ? 0 : rnd(-.6, .6) });
+    g.balls--;
+    socket.emit('kb-throw', t, res => {
+      if (!res || res.error) return;
+      g.balls = res.balls;
+      g.standing = res.standing;
+      g.frame = res.nextFrame;
+      g.ball = res.nextBall;
+      g.rolls = res.gameScore !== null && res.gameScore !== undefined ? [] : res.rolls.slice();
+      hud();
+    });
+  };
 
   // Waar staan de kegels die nog over zijn? ("nog 3: links achteraan")
   function waar(standing) {
@@ -370,15 +393,20 @@
       banner({ text: 'Mis!', sub: res.ball === 1 ? 'Probeer het met je volgende bal' : 'Volgende beurt beter', ridder: 'baal' });
       sfx.bad();
     } else {
-      const rest = res.nextBall > 1 && res.nextFrame === res.frame ? waar(res.standing) : '';
-      banner({ text: `${n} ${n === 1 ? 'kegel' : 'kegels'}`, sub: [echt ? '' : `+${res.points}`, rest].filter(Boolean).join(' · ') });
+      const open = res.nextFrame === res.frame && !res.standing.every(Boolean);
+      const rest = open ? waar(res.standing) : '';
+      if (open && W.isSplit(res.standing)) {
+        // Een split blijft staan: kort in beeld, de spare wordt een echte uitdaging.
+        banner({ text: 'SPLIT!', sub: `${n} ${n === 1 ? 'kegel' : 'kegels'} om · ${rest}`, kind: 'gold' });
+        shake(1, [30, 30, 30]);
+      } else banner({ text: `${n} ${n === 1 ? 'kegel' : 'kegels'}`, sub: [echt ? '' : `+${res.points}`, rest].filter(Boolean).join(' · ') });
       sfx.good();
     }
     if (res.gameScore !== null && res.gameScore !== undefined) {
       setTimeout(() => banner({ text: `Spel klaar: ${res.gameScore}`, sub: 'Een nieuw spel begint. Je beste spel telt.', kind: 'gold' }), 1800);
     }
     hud();
-    if (g.balls === 0 && g.state && g.state.phase === 'play' && now() < g.state.endsAt - 1500) setTimeout(askNow, 1400);
+    if (g.balls === 0 && g.state && g.state.phase === 'play' && now() < g.state.endsAt - 1500) setTimeout(askNow, n > 0 && n < 10 ? 2000 : 1400);
   }
 
   // Glimmende runensterren (geen confetti).
@@ -571,13 +599,29 @@
     $('kb-tip').classList.toggle('weg', !text);
   }
 
+  // Wat er nog staat (na de eerste bal), ook als de vraag al openstaat.
+  function restText() {
+    if (g.roll || g.standing.every(Boolean) || !g.standing.some(Boolean)) return '';
+    return waar(g.standing);
+  }
+  let restKey = '';
+  function rest() {
+    const text = g.roll ? '' : restText();
+    if (text === restKey) return;
+    restKey = text;
+    $('kb-rest').textContent = text ? `🎳 ${text[0].toUpperCase()}${text.slice(1)}` : '';
+    $('kb-rest').classList.toggle('hidden', !text);
+  }
+
   // ---------- Elke frame ----------
   const ctx = canvas.getContext('2d');
   let camY = KbDraw.REST, camX = 0;
   let last = performance.now();
   function frame(t) {
     requestAnimationFrame(frame);
-    const dt = Math.min(.05, (t - last) / 1000);
+    // De worp loopt op de echte tijd (ook op een trage Chromebook duurt hij niet langer); de camera glijdt rustig mee.
+    const real = Math.min(1, Math.max(0, (t - last) / 1000));
+    const dt = Math.min(.05, real);
     last = t;
     if (!on() || !g.state || g.state.phase !== 'play' || $('kb-game').classList.contains('hidden')) return;
     const left = g.state.endsAt - now();
@@ -604,7 +648,7 @@
       const r = g.roll;
       // Bij de inslag even vertraagd: zo zie je de kegels echt vliegen.
       const slowMo = r.hitAt >= 0 && r.sim.t - r.hitAt < .9;
-      r.clock += dt * (slowMo ? .45 : 1.15);
+      r.clock += real * (slowMo ? .45 : 1.15);
       W.runTo(r.sim, r.clock);
       // Kegels die nu omvallen: vonken.
       for (const p of r.sim.pins) {
@@ -649,6 +693,7 @@
     if (power) $('kb-power').firstElementChild.style.height = `${Math.round(g.aim.power * 74)}%`; // het lemmet loopt van 12 tot 86 %
     $('kb-mode').classList.toggle('hidden', !!(g.roll || quiz.open));
     tip();
+    rest();
     fx.update(dt);
     ctx.save();
     ctx.scale(fit.dpr, fit.dpr);

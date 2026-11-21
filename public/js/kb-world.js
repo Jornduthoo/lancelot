@@ -181,20 +181,25 @@
   // ---------- De scorekaart (zoals echt bowlen) ----------
   // rolls: hoeveel kegels elke bal van dit spel omgooide. Geeft per beurt de tekens (X, /, -, 0-9) en het totaal
   // zodra dat vaststaat (strike = 10 + de volgende 2 ballen, spare = 10 + de volgende bal), en waar je nu staat.
+  // live: de lopende score, met wat er al ligt (een strike telt al 10 + de ballen die er al zijn). Zo staat er nooit 0
+  // terwijl er kegels om liggen; als het spel af is, is live gelijk aan score.
   function card(rolls) {
     const mark = n => (n === 0 ? '-' : String(n));
     const frames = [];
-    let i = 0, total = 0, score = 0;
+    let i = 0, total = 0, score = 0, live = 0;
+    const at = k => rolls[k] || 0;
     for (let f = 0; f < 10 && i < rolls.length; f++) {
-      const fr = { marks: [], total: null };
+      const fr = { marks: [], total: null, live: 0 };
       if (f < 9) {
         const a = rolls[i], b = rolls[i + 1];
         if (a === 10) {
+          live += 10 + at(i + 1) + at(i + 2);
           fr.marks = ['X'];
           if (i + 2 < rolls.length) { total += 10 + rolls[i + 1] + rolls[i + 2]; fr.total = total; }
           i += 1;
         } else {
           fr.marks = [mark(a)];
+          live += b !== undefined && a + b === 10 ? 10 + at(i + 2) : a + at(i + 1);
           if (b !== undefined) {
             if (a + b === 10) {
               fr.marks.push('/');
@@ -205,6 +210,7 @@
         }
       } else {
         const r = rolls.slice(i, i + 3);
+        live += r.reduce((x, y) => x + y, 0);
         let fresh = true, prev = 0;
         for (const k of r) {
           if (fresh) { fr.marks.push(k === 10 ? 'X' : mark(k)); if (k !== 10) { fresh = false; prev = k; } }
@@ -215,11 +221,27 @@
         i += r.length;
       }
       if (fr.total !== null) score = fr.total;
+      fr.live = live;
       frames.push(fr);
     }
     // Waar sta je nu: beurt, bal, en of er een vers rek kegels staat.
-    const at = where(rolls);
-    return { frames, score, ...at };
+    const pos = where(rolls);
+    return { frames, score, live: Math.max(live, score), ...pos };
+  }
+
+  // Een split: de voorste kegel is om en wat nog staat, ligt in minstens twee groepjes die elkaar niet raken.
+  function isSplit(standing) {
+    if (standing[0]) return false;
+    const left = PINS.map((p, i) => i).filter(i => standing[i]);
+    if (left.length < 2) return false;
+    const near = (a, b) => Math.hypot(PINS[a].x - PINS[b].x, PINS[a].y - PINS[b].y) < SP * 1.1;
+    const seen = new Set([left[0]]);
+    const todo = [left[0]];
+    while (todo.length) {
+      const a = todo.pop();
+      for (const b of left) if (!seen.has(b) && near(a, b)) { seen.add(b); todo.push(b); }
+    }
+    return seen.size < left.length;
   }
 
   function where(rolls) {
@@ -246,5 +268,5 @@
     return { frame: 10, ball: 3, fresh: false, done: true };
   }
 
-  return { card, where, HALF, GUTTER, WALL, HEAD, PIT, END, SP, ROW, PIN_R, BALL, GOLD, DT, LIMITS, PINS, COLORS, clean, create, step, runTo, play };
+  return { card, where, isSplit, HALF, GUTTER, WALL, HEAD, PIT, END, SP, ROW, PIN_R, BALL, GOLD, DT, LIMITS, PINS, COLORS, clean, create, step, runTo, play };
 });

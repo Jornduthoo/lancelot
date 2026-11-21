@@ -275,6 +275,7 @@ body:not([data-pw="1"]) #poort, body:not([data-nv="1"]) #vlucht, body:not([data-
 .kb-fx { position: absolute; left: 0; right: 0; bottom: 30%; display: flex; justify-content: space-between; padding: 0 12px; pointer-events: none; z-index: 4; }
 .kb-fx button { pointer-events: auto; width: 58px; height: 58px; border-radius: 50%; font-size: 1.8rem; padding: 0; background: rgb(var(--k-bg) / .75); border: 2px solid rgb(var(--k-goud) / .8); color: rgb(var(--k-goud-l)); }
 .kb-mode { position: absolute; right: 8px; bottom: 8px; z-index: 4; display: flex; gap: 0; padding: 3px; border-radius: 999px; background: rgb(var(--k-bg) / .75); border: 1px solid rgb(var(--k-cyan) / .6); font-size: .8rem; }
+.kb-mode b { font-weight: inherit; }
 .kb-mode span { padding: 5px 10px; border-radius: 999px; color: var(--text); opacity: .75; white-space: nowrap; }
 .kb-mode span.on { opacity: 1; background: rgb(var(--k-cyan) / .25); box-shadow: 0 0 8px rgb(var(--k-cyan) / .6); }
 #kegel .ak-question .ls-q-actions { display: none; }
@@ -816,3 +817,14 @@ body:not([data-ti="1"]) #titan { display: none !important; }
 .kb-bord-card .kb-cel i { font-size: 1.5rem; }
 .kb-balk-knoppen:empty { display: none; }
 .kb-balk-knoppen .bord-knoppen { gap: 6px; }
+.kb-cel i em { font-style: normal; opacity: .65; }
+.kb-rest { position: absolute; right: 8px; top: calc(min(97vw, 680px) * .188 + 30px); padding: 5px 12px; border-radius: 999px; background: rgb(var(--k-bg) / .78); border: 1px solid rgb(var(--k-goud) / .7); color: rgb(var(--k-goud-l)); font-weight: 800; font-size: .85rem; pointer-events: none; z-index: 7; max-width: 60%; }
+/* Smal (staand) scherm: de uitleg en de keuze Vegen/Tikken boven de baan, onder de scorekaart, zodat ze niet tegen de ridder botsen */
+@media (max-aspect-ratio: 4/5) {
+  .kb-tip { top: calc(min(97vw, 680px) * .188 + 28px); bottom: auto; left: 8px; max-width: 62%; font-size: .8rem; padding: 5px 10px; }
+  .kb-mode { top: calc(min(97vw, 680px) * .188 + 26px); bottom: auto; font-size: .75rem; }
+  .kb-mode span { padding: 4px 10px; font-size: 1rem; }
+  .kb-mode b { display: none; }
+  .kb-tip { max-width: 64%; }
+  .kb-rest { top: calc(min(97vw, 680px) * .188 + 64px); font-size: .8rem; }
+}

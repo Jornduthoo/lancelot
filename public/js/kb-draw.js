@@ -121,12 +121,18 @@ const KbDraw = (() => {
   function camera(w, h, cam) {
     const y = cam.y === undefined ? REST : cam.y;
     const lw = Math.min(.86 * w, .95 * h);  // zo breed is de baan aan de foutlijn in rust
-    const F = lw * -REST / 1.06;
     const p = Math.max(0, Math.min(1, (y - REST) / (CLOSE - REST)));
+    // Op een smal (staand) scherm staat de camera in rust verder weg en zoomt hij in: zo zijn de kegels groter in
+    // beeld. Bij de kegels is hij overal even dichtbij.
+    const far = h / w > 1.25 ? 3 : 0;
+    const back = far * (1 - p);
+    const d0 = -REST + back;
+    const F = lw * d0 / 1.06;
     const hz = h * (-.06 + .2 * p);
-    // De bal blijft onderaan in beeld (op 88 % van de hoogte), ook als de camera kantelt.
-    const camH = (.88 * h - hz) * -REST / F;
-    return { w, h, hz, F, camH, x: cam.x || 0, y, p };
+    // De bal staat in rust onderaan (88 %); bij de kegels zakt de camera, zodat de kegels mooi in het midden staan.
+    const target = h * (.88 - .2 * p);
+    const camH = (target - hz) * d0 / F;
+    return { w, h, hz, F, camH, x: cam.x || 0, y: y - back, p };
   }
   function proj(C, x, y, z = 0) {
     const d = Math.max(.25, vy(y) - C.y);
@@ -201,7 +207,8 @@ const KbDraw = (() => {
     const depth = sy => C.camH * C.F / Math.max(.5, sy - C.hz);
     // Hoe ver een plank aan de rand verschuift per pixel hoogte: daarop kiezen we de dikte van een reep (max ~1 px fout).
     const per = W.HALF / C.camH;
-    const step = Math.max(2, Math.min(12, 1.2 / per));
+    // Hooguit ~80 reepjes (snel genoeg op een Chromebook), ook als de camera laag bij de kegels staat.
+    const step = Math.max(2, (yBot - yTop) / 80, Math.min(12, 1.2 / per));
     for (let sy = yBot; sy > yTop + .2; sy -= step) {
       const s0 = Math.max(yTop, sy - step);
       const ya = inv(C.y + depth(sy)), yb = inv(C.y + depth(s0)), ym = inv(C.y + depth((sy + s0) / 2));
@@ -381,7 +388,7 @@ const KbDraw = (() => {
   // Omgekeerd: welke x op de foutlijn hoort bij een plek op het scherm?
   function laneX(w, h, sx) {
     const C = camera(w, h, { x: 0, y: REST });
-    const s = C.F / -REST;
+    const s = C.F / -C.y;
     return (sx - w / 2) / s;
   }
 

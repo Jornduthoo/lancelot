@@ -3021,5 +3021,14 @@
  "Tik om te gooien, of tik een pijl voor effect": "Toca para lanzar, o toca una flecha para el efecto",
  "Tik om te gooien · houd ← of → vast voor effect": "Toca para lanzar · mantén ← o → para el efecto",
  "🏁 {0} speelt een spel van {1}": "🏁 {0} hace una partida de {1}",
- "💥 {0} maakt een split helemaal om!": "💥 ¡{0} derriba un split entero!"
+ "💥 {0} maakt een split helemaal om!": "💥 ¡{0} derriba un split entero!",
+ "Tip: een spel van 10 beurten is ongeveer 20 ballen. Met de echte telling kies je best 2 ballen per vraag en minstens 5 minuten, anders raakt een spel niet af (wat al ligt, telt wel).": "Consejo: una partida de 10 turnos son unas 20 bolas. Con la puntuación real, elige 2 bolas por pregunta y al menos 5 minutos; si no, la partida no termina (lo que ya cayó sí cuenta).",
+ "{0} · nog {1} {2}{3}": "{0} · quedan {1} {2}{3}",
+ "· SPLIT!": "· ¡SPLIT!",
+ "Vegen": "Deslizar",
+ "Tikken": "Tocar",
+ "Beurt {0} · juist = 🎳 {1}{2}{3}": "Turno {0} · correcta = 🎳 {1}{2}{3}",
+ "SPLIT!": "¡SPLIT!",
+ "{0} {1} om · {2}": "{0} {1} derribados · {2}",
+ "De tijd is om.": "Se acabó el tiempo."
 }
