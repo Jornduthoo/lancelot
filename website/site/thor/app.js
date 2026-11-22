@@ -106,8 +106,16 @@ function start(stand){
 }
 
 // Seintje bij het openen: een supporter stelde een nieuwe vraag.
+// Supporters zien op hun pagina of Thor hun vraag al zag (22/11).
+function meldGezien(ids){
+  const nieuw = (S.stand.vragen || []).filter(q => ids.includes(q.id) && !q.gezien);
+  if (!nieuw.length) return;
+  const nu = new Date().toISOString(); nieuw.forEach(q => q.gezien = nu);
+  rpc('thor_vragen_gezien', { p_naam: S.naam, p_pin: S.pin, p_ids: nieuw.map(q => q.id) }).catch(() => nieuw.forEach(q => q.gezien = null));
+}
 function vraagSeintje(lijst){
   lokaal.set('vragen-gezien', [...new Set(lokaal.get('vragen-gezien', []).concat(lijst.map(q => q.id)))]);
+  meldGezien(lijst.map(q => q.id));
   lokaal.set('welkom-' + vandaag(), true);
   const wie = [...new Set(lijst.map(q => q.van))];
   const vakken = [...new Set(lijst.map(q => q.vak))];
@@ -726,7 +734,8 @@ function voerUit(it){
   else if (it.soort === 'vrij-quiz') stappen.push(['quiz', vragenVan(t, 10)]);
   else if (it.soort === 'supporters') { const vr = (S.stand.vragen || []).filter(q => q.vak === it.vak);
     const nieuw = vr.filter(q => !(q.antwoorden || []).length), oud = vr.filter(q => (q.antwoorden || []).length);
-    stappen.push(['quiz', schud(nieuw).concat(schud(oud)).slice(0, 10).map(q => ({ t:'open', v:esc(q.vraag), m:esc(q.model).replace(/\n/g, '<br>'), vak:q.vak, eid:q.id, van:q.van }))]); }
+    const tien = schud(nieuw).concat(schud(oud)).slice(0, 10); meldGezien(tien.map(q => q.id));
+    stappen.push(['quiz', tien.map(q => ({ t:'open', v:esc(q.vraag), m:esc(q.model).replace(/\n/g, '<br>'), vak:q.vak, eid:q.id, van:q.van }))]); }
   else if (it.soort === 'vrij-koppel') stappen.push(['koppel', parenVan([t]), 3]);
   else if (it.soort === 'vrij-race') stappen.push(['race', raceVragen([t]), t.id]);
   else if (it.soort === 'verrassing' || it.soort === 'fotoronde') stappen.push([it.soort === 'fotoronde' ? 'foto' : 'quiz', it.vragen]);
