@@ -105,9 +105,17 @@ function start(stand){
   else setTimeout(() => welkom(), 300);
 }
 
+// Supporters zien op hun pagina of Eli hun vraag al zag (22/11).
+function meldGezien(ids){
+  const nieuw = (S.stand.vragen || []).filter(q => ids.includes(q.id) && !q.gezien);
+  if (!nieuw.length) return;
+  const nu = new Date().toISOString(); nieuw.forEach(q => q.gezien = nu);
+  rpc('eli_vragen_gezien', { p_naam: S.naam, p_pin: S.pin, p_ids: nieuw.map(q => q.id) }).catch(() => nieuw.forEach(q => q.gezien = null));
+}
 // Seintje bij het openen: een supporter stelde een nieuwe vraag.
 function vraagSeintje(lijst){
   lokaal.set('vragen-gezien', [...new Set(lokaal.get('vragen-gezien', []).concat(lijst.map(q => q.id)))]);
+  meldGezien(lijst.map(q => q.id));
   lokaal.set('welkom-' + vandaag(), true);
   const wie = [...new Set(lijst.map(q => q.van))];
   const vakken = [...new Set(lijst.map(q => q.vak))];
@@ -756,7 +764,8 @@ function voerUit(it){
   else if (it.soort === 'vrij-open') stappen.push(['quiz', openVragen([t], 8)]);
   else if (it.soort === 'supporters') { const vr = (S.stand.vragen || []).filter(q => q.vak === it.vak);
     const nieuw = vr.filter(q => !(q.antwoorden || []).length), oud = vr.filter(q => (q.antwoorden || []).length);
-    stappen.push(['quiz', schud(nieuw).concat(schud(oud)).slice(0, 10).map(q => ({ t:'open', v:esc(q.vraag), m:esc(q.model).replace(/\n/g, '<br>'), vak:q.vak, eid:q.id, van:q.van }))]); }
+    const tien = schud(nieuw).concat(schud(oud)).slice(0, 10); meldGezien(tien.map(q => q.id));
+    stappen.push(['quiz', tien.map(q => ({ t:'open', v:esc(q.vraag), m:esc(q.model).replace(/\n/g, '<br>'), vak:q.vak, eid:q.id, van:q.van }))]); }
   else if (it.soort === 'open-vak') stappen.push(['quiz', openVragen(T.filter(x => x.vak === it.vak && geleerd(x.id)).length >= 2 ? T.filter(x => x.vak === it.vak && geleerd(x.id)) : T.filter(x => x.vak === it.vak), 10)]);
   else if (it.soort === 'vrij-koppel') stappen.push(['koppel', parenVan([t]), 3]);
   else if (it.soort === 'vrij-race') stappen.push(['race', raceVragen([t]), t.id]);

@@ -218,6 +218,7 @@ $('stuur').onclick = async () => {
 // --- Zelf vragen opstellen voor Eli (supporters, 19/11) ---
 $('vr-vak').innerHTML = Object.entries(V).map(([k, v]) => `<option value="${k}">${v.icoon} ${esc(v.naam || v.kort)}</option>`).join('');
 const BAAS = ['papa', 'mama'];
+const tijd = t => new Date(t).toLocaleString('nl-BE', { weekday:'short', day:'numeric', month:'numeric', hour:'2-digit', minute:'2-digit' }).replace(':', 'u');
 function tekenVragen(){
   const lijst = (D.stand.vragen || []);
   const ik = (D.ik || s.naam).toLowerCase();
@@ -225,9 +226,22 @@ function tekenVragen(){
   for (const q of lijst) {
     const el = document.createElement('div'); el.className = 'vr-item';
     const a = (q.antwoorden || [])[0];
-    const sc = a ? ['❌ nog niet', '🤏 half', '✅ juist'][a.score] || '' : '';
-    el.innerHTML = `<div class="muted klein">${(V[q.vak] || {}).icoon || ''} ${esc((V[q.vak] || {}).kort || '')} · van ${esc(naamVan(q.van))}</div><b></b><details><summary>Het juiste antwoord</summary><div class="vr-model"></div></details>
-      ${a ? `<div class="vr-ant"><span class="muted klein">Eli antwoordde ${new Date(a.op).toLocaleDateString('nl-BE', { weekday:'short', day:'numeric', month:'numeric' })} · zelf: ${sc}</span><p></p></div>` : '<p class="muted klein">Eli heeft deze vraag nog niet gemaakt.</p>'}`;
+    const gezien = q.gezien || (a && a.op);
+    const stap = a ? 3 : gezien ? 2 : 1;
+    const sc = a ? ['❌ nog niet juist', '🤏 half juist', '✅ juist'][a.score] || '' : '';
+    const laatst = (D.logins || [])[0];
+    const uitleg = a ? '' : gezien
+      ? `Eli zag je vraag ${tijd(gezien)}, maar heeft ze nog niet beantwoord.`
+      : `Eli heeft je vraag nog niet gezien. Hij was het laatst op de site ${laatst ? tijd(laatst) : '(nog nooit)'}. Bij de volgende keer krijgt hij een seintje.`;
+    el.innerHTML = `<div class="muted klein">${(V[q.vak] || {}).icoon || ''} ${esc((V[q.vak] || {}).kort || '')} · van ${esc(naamVan(q.van))}</div><b></b>
+      <ol class="vr-stappen">
+        <li class="aan"><i>📨</i><span>Gesteld</span><small>${tijd(q.op)}</small></li>
+        <li class="${stap >= 2 ? 'aan' : ''}"><i>👀</i><span>Gezien</span><small>${stap >= 2 ? tijd(gezien) : 'nog niet'}</small></li>
+        <li class="${stap >= 3 ? 'aan' : ''}"><i>✍️</i><span>Beantwoord</span><small>${a ? tijd(a.op) : 'nog niet'}</small></li>
+      </ol>
+      ${uitleg ? `<p class="muted klein vr-uitleg">${uitleg}</p>` : ''}
+      ${a ? `<div class="vr-ant"><span class="label">Eli's antwoord</span><p></p><span class="vr-score s${a.score}">Eli vond zelf: ${sc}</span></div>` : ''}
+      <details><summary>Jouw juiste antwoord</summary><div class="vr-model"></div></details>`;
     el.querySelector('b').textContent = q.vraag;
     el.querySelector('.vr-model').textContent = q.model;
     if (a) el.querySelector('.vr-ant p').textContent = '“' + a.tekst + '”';

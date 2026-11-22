@@ -49,6 +49,20 @@ td.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
 .log .t{color:var(--inkt-zacht);white-space:nowrap;font-variant-numeric:tabular-nums;min-width:92px}
 .tag{display:inline-block;font-size:.75rem;font-weight:800;padding:2px 8px;border-radius:99px;background:var(--fout-bg);color:var(--fout);margin-left:4px}
 .tag.ok{background:var(--goed-bg);color:var(--goed)}
+.vr-stappen{list-style:none;margin:8px 0 6px;padding:0;display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.vr-stappen li{text-align:center;padding:7px 4px 6px;border-radius:12px;border:2px dashed var(--lijn);color:var(--inkt-zacht)}
+.vr-stappen li i{filter:grayscale(1);opacity:.5}
+.vr-stappen li.aan{border:2px solid var(--goed);background:var(--goed-bg);color:var(--inkt)}
+.vr-stappen li.aan i{filter:none;opacity:1}
+.vr-stappen i{font-style:normal;font-size:1.15rem;display:block;line-height:1.2}
+.vr-stappen span{display:block;font-weight:800;font-size:.85rem}
+.vr-stappen small{display:block;font-size:.72rem;color:var(--inkt-zacht)}
+.vr-uitleg{margin:4px 0}
+.vr-ant{background:var(--bg-2);border-radius:12px;padding:8px 12px;margin:6px 0}
+.vr-ant .label{display:block}
+.vr-score{display:inline-block;font-size:.8rem;font-weight:800;padding:2px 9px;border-radius:99px;background:var(--fout-bg);color:var(--fout)}
+.vr-score.s1{background:var(--goud-zacht);color:var(--inkt)}
+.vr-score.s2{background:var(--goed-bg);color:var(--goed)}
 #laden{padding:60px 16px;text-align:center}
 #mijnfig .pop{width:74px;height:96px;flex:none}
 .pop{position:relative;animation:wieg 2.6s ease-in-out infinite;transform-origin:50% 100%}
