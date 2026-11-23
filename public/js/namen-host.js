@@ -18,53 +18,23 @@
   // menu ernaast (icoon boven het woord), samen één balk: Spelen … Instellingen | Pauze · Namen · QR-code · Geluid.
   // Geluid alleen waar er geluid is. Wat een pagina zelf nog nodig heeft (Aanwezig, Groot, Stop), staat rechts apart.
   const kop = maakKnop();
-  const brand = document.querySelector('.topbar > .brand');
-  const acties = brand && document.querySelector('.topbar > .actions');
-  let pauzeKop = document.querySelector('.topbar [data-pauze]');
-  if (brand) {
-    if (!pauzeKop) {
-      pauzeKop = document.createElement('button');
-      pauzeKop.className = 'secondary pauze-knop';
-      pauzeKop.setAttribute('data-pauze', '');
-      pauzeKop.title = 'Alle leerlingschermen op slot om de aandacht te vragen';
-    }
-    pauzeKop.innerHTML = `${Ui.ic('pauze')} <span class="kop-tekst">Pauze</span>`;
-    pauzeKop.classList.add('kop-vast');
+  const groep = document.querySelector('.topbar > .kop-vast-rij');
+  if (groep) {
+    // De kopbalk (ui.js) staat er al: Namen en QR-code werkend maken.
+    const plek = groep.querySelector('.namen-knop');
     kop.classList.add('kop-vast');
-    const groep = document.createElement('div');
-    groep.className = 'kop-vast-rij';
-    groep.append(pauzeKop, kop, qrKnop());
-    const mute = document.getElementById('mute');
-    if (mute && acties && acties.contains(mute)) {
-      groep.append(mute);
-      // De spellen zetten bij aan/uit alleen het icoon terug: het woordje Geluid er telkens weer onder zetten.
-      const woord = () => { if (!mute.querySelector('.kop-tekst')) mute.insertAdjacentHTML('beforeend', ' <span class="kop-tekst">Geluid</span>'); };
-      woord();
-      new MutationObserver(woord).observe(mute, { childList: true });
-    }
-    const plaats = () => {
-      const nav = document.querySelector('.topbar > .snelmenu');
-      if (nav) nav.after(groep);
-      else if (!groep.isConnected) brand.after(groep);
-    };
-    plaats();
-    // Het menu komt soms net na deze knoppen (ui.js): dan schuiven ze erachter.
-    if (!document.querySelector('.topbar > .snelmenu')) document.addEventListener('DOMContentLoaded', plaats);
-    setTimeout(plaats, 0);
+    if (plek) plek.replaceWith(kop); else groep.append(kop);
+    const qr = groep.querySelector('.qr-kop');
+    if (qr) qrKnop(qr);
   } else {
+    const pauzeKop = document.querySelector('.topbar [data-pauze]');
     const ergens = document.querySelector('.topbar .actions');
     if (pauzeKop) pauzeKop.after(kop);
     else if (ergens) ergens.prepend(kop);
   }
 
   // Knop QR-code: de QR-code waarmee leerlingen verbinden, groot op het bord. Het startscherm heeft er al een (host.js).
-  function qrKnop() {
-    const eigen = document.getElementById('qr-open');
-    if (eigen) return eigen;
-    const b = document.createElement('button');
-    b.className = 'secondary qr-kop';
-    b.title = 'De QR-code waarmee leerlingen verbinden, groot op het bord';
-    b.innerHTML = `${Ui.ic('qr')} <span class="kop-tekst">QR-code</span>`;
+  function qrKnop(b) {
     const venster = document.createElement('dialog');
     venster.className = 'qr-venster';
     venster.innerHTML = '<div class="qr-venster-kop"><h2>Verbinden met LANcelot</h2><button class="secondary icon" title="Sluiten" aria-label="Sluiten"></button></div>'
@@ -208,7 +178,8 @@
       rij.classList.toggle('hidden', !actief && kop.isConnected);
       kop.classList.toggle('hidden', actief);
       // Loopt er een spel, dan staan Pauze en Namen linksonder op het bord: niet twee keer.
-      if (pauzeKop && pauzeKop.classList.contains('kop-vast') && rij.isConnected) pauzeKop.classList.toggle('hidden', actief);
+      const pauzeKop = document.querySelector('.kop-vast-rij > [data-pauze]');
+      if (pauzeKop && rij.isConnected) pauzeKop.classList.toggle('hidden', actief);
       const binnen = (res.spelers || []).filter(p => p.online).length;
       for (const b of document.querySelectorAll('.namen-knop')) b.innerHTML = `${Ui.ic('namen')} <span class="kop-tekst">Namen</span>${binnen ? ` <b class="namen-tel">${binnen}</b>` : ''}`;
       if (modal.classList.contains('hidden')) return;

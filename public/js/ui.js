@@ -611,6 +611,40 @@
     nav.innerHTML = `${
       RIJKEN.map(([id, naam]) => `<a href="/host#${id}" data-rijk="${id}" title="${id === 'kronieken' && window.LANCELOT_STORE ? naam : `Naar De ${naam}`}"><i class="ic ic-${KOP_IC[id]}" aria-hidden="true"></i><span>${naam}</span></a>`).join('')}<a href="/host?instellingen" class="snel-inst" data-inst="1" title="Instellingen" aria-label="Instellingen"><i class="ic ic-instellingen" aria-hidden="true"></i><span>Instellingen</span></a>`;
     brand.after(nav);
+    // Meteen ook de vaste knoppen ernaast (Pauze · Namen · QR-code · Geluid), zodat de kopbalk vanaf de eerste
+    // tekening klaar staat. namen-host.js maakt Namen en QR-code daarna werkend zodra de verbinding er is.
+    const groep = document.createElement('div');
+    groep.className = 'kop-vast-rij';
+    let pauze = document.querySelector('.topbar [data-pauze]');
+    if (!pauze) {
+      pauze = document.createElement('button');
+      pauze.className = 'secondary pauze-knop';
+      pauze.setAttribute('data-pauze', '');
+      pauze.title = 'Alle leerlingschermen op slot om de aandacht te vragen';
+    }
+    pauze.innerHTML = '<i class="ic ic-pauze" aria-hidden="true"></i> <span class="kop-tekst">Pauze</span>';
+    const namen = document.createElement('button');
+    namen.className = 'secondary namen-knop';
+    namen.title = 'Wie is er binnen? Een verkeerde naam wegklikken';
+    namen.innerHTML = '<i class="ic ic-namen" aria-hidden="true"></i> <span class="kop-tekst">Namen</span>';
+    let qr = document.getElementById('qr-open');
+    if (!qr) {
+      qr = document.createElement('button');
+      qr.className = 'secondary qr-kop';
+      qr.title = 'De QR-code waarmee leerlingen verbinden, groot op het bord';
+      qr.innerHTML = '<i class="ic ic-qr" aria-hidden="true"></i> <span class="kop-tekst">QR-code</span>';
+    }
+    for (const b of [pauze, namen, qr]) b.classList.add('kop-vast');
+    groep.append(pauze, namen, qr);
+    const mute = document.querySelector('.topbar > .actions #mute');
+    if (mute) {
+      groep.append(mute);
+      // De spellen zetten bij aan/uit alleen het icoon terug: het woordje Geluid er telkens weer onder zetten.
+      const woord = () => { if (!mute.querySelector('.kop-tekst')) mute.insertAdjacentHTML('beforeend', ' <span class="kop-tekst">Geluid</span>'); };
+      woord();
+      new MutationObserver(woord).observe(mute, { childList: true });
+    }
+    nav.after(groep);
     snelMarkeer = () => {
       const r = rijkHier();
       for (const a of nav.querySelectorAll('[data-rijk]')) a.classList.toggle('on', a.dataset.rijk === r);
@@ -644,8 +678,9 @@
       location.href = doel;
     }
   }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', snelmenu);
-  else snelmenu();
+  // ui.js staat onderaan de pagina: de kopbalk bestaat dan al, dus meteen bouwen (geen flits van een halve balk).
+  if (document.readyState !== 'loading' || document.querySelector('.topbar > .brand')) snelmenu();
+  else document.addEventListener('DOMContentLoaded', snelmenu);
 
   // ---------- Terug altijd linksboven ----------
   // Op elk leerkrachtenscherm staat Terug op dezelfde plek: links, vóór de titel. Knoppen die in de pagina
