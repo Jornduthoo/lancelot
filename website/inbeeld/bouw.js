@@ -16,7 +16,9 @@ const VAK = { NL: 'Nederlands', WIS: 'Wiskunde', WO: 'Wetenschap en techniek', S
 
 function lees() {
   const ruw = JSON.parse(fs.readFileSync(path.join(HIER, 'kaartenbank.json'), 'utf8'));
-  const beelden = new Set(fs.existsSync(BEELDEN) ? fs.readdirSync(BEELDEN).filter(f => f.endsWith('.webp')).map(f => f.slice(0, -5)) : []);
+  // Per beeld een korte vingerafdruk: verandert het beeld, dan verandert de url (?v=...) en haalt de browser het nieuwe.
+  const beelden = new Map((fs.existsSync(BEELDEN) ? fs.readdirSync(BEELDEN).filter(f => f.endsWith('.webp')) : [])
+    .map(f => [f.slice(0, -5), require('crypto').createHash('sha1').update(fs.readFileSync(path.join(BEELDEN, f))).digest('hex').slice(0, 8)]));
   return ruw.map(k => ({
     n: k.nr,
     w: k.woord.trim(),
@@ -30,7 +32,7 @@ function lees() {
     r: (k.verwant || []).filter(x => x !== k.nr),
     f: k.verwant_vorm || '',
     o: k.codes || [],
-    b: beelden.has(k.nr) ? 1 : 0,
+    b: beelden.get(k.nr) || 0,
   }));
 }
 
