@@ -240,7 +240,6 @@ input, textarea { -webkit-user-select: text; user-select: text; }
 .module.balk:hover { box-shadow: inset 0 0 0 1px var(--gold), 0 0 30px rgb(var(--k-goud) / .25); }
 @media (max-width: 640px) { .module.balk .tag { display: none; } .module.balk { grid-template-columns: auto 1fr; } }
 .module.soon { opacity: .55; cursor: default; }
-.module .tag.nieuw { position: absolute; top: 14px; right: 18px; margin: 0; padding: 2px 8px; color: rgb(var(--k-op-cyan)); background: var(--gold); letter-spacing: .15em; }
 .module { position: relative; }
 .realm-panel > .modules + .groep-kop { margin-top: 26px; }
 .groep-kop { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; margin: 0 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--line); }
@@ -2549,7 +2548,6 @@ body.proef-open { padding-right: min(400px, 92vw); }
 .module .tegel-proef:hover, .module .tegel-proef:focus-visible { color: rgb(var(--k-op-goud, var(--k-bg))); background: linear-gradient(180deg, rgb(var(--k-goud-l)), var(--gold)); outline: none; }
 .module .tegel-proef:hover span, .module .tegel-proef:focus-visible span { max-width: 140px; opacity: 1; margin-left: 7px; }
 .module .tegel-proef:hover .ic, .module .tegel-proef:focus-visible .ic { opacity: 1; filter: none; }
-.module:has(.tegel-proef) .tag.nieuw { top: 46px; right: 12px; }
 
 /* Vanuit "Speel deze quiz in…": de gekozen quiz met Start, onder de instellingen van het spel. */
 .kies-eerst { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; border-color: var(--k-accent, #5ef0ff); }
