@@ -1162,5 +1162,11 @@
  "✓ Er staat een nieuwe versie klaar. LANcelot installeert ze vanzelf zodra er geen les loopt.": "✓ Eine neue Version ist bereit. LANcelot installiert sie automatisch, sobald kein Unterricht läuft.",
  "Er is een nieuwe versie van LANcelot. Bijwerken en opnieuw starten...": "Es gibt eine neue Version von LANcelot. Aktualisieren und neu starten...",
  "Bijwerken mislukt:": "Aktualisierung fehlgeschlagen:",
- "LANcelot haalt een nieuwe versie vanzelf op en installeert ze als er geen les loopt (geen leerlingen verbonden en een tijd niemand aan het bord). Je gegevens blijven altijd staan.": "LANcelot lädt eine neue Version selbst herunter und installiert sie, wenn kein Unterricht läuft (keine Schüler verbunden und eine Weile niemand an der Tafel). Deine Daten bleiben immer erhalten."
+ "LANcelot haalt een nieuwe versie vanzelf op en installeert ze als er geen les loopt (geen leerlingen verbonden en een tijd niemand aan het bord). Je gegevens blijven altijd staan.": "LANcelot lädt eine neue Version selbst herunter und installiert sie, wenn kein Unterricht läuft (keine Schüler verbunden und eine Weile niemand an der Tafel). Deine Daten bleiben immer erhalten.",
+ "Nu herstarten en installeren": "Jetzt neu starten und installieren",
+ "✓ Er staat een nieuwe versie klaar. LANcelot installeert ze vanzelf zodra er geen les loopt, of druk op \"Nu herstarten en installeren\".": "✓ Eine neue Version ist bereit. LANcelot installiert sie automatisch, sobald kein Unterricht läuft, oder drücke auf „Jetzt neu starten und installieren“.",
+ "✓ Er staat een nieuwe versie klaar. Druk op \"Nu herstarten en installeren\" (doe dat na de les).": "✓ Eine neue Version ist bereit. Drücke auf „Jetzt neu starten und installieren“ (am besten nach dem Unterricht).",
+ "Er zijn leerlingen verbonden of er loopt een spel. Als LANcelot nu herstart, vallen ze even weg. Toch nu herstarten?": "Es sind Schüler verbunden oder ein Spiel läuft. Wenn LANcelot jetzt neu startet, sind sie kurz getrennt. Trotzdem jetzt neu starten?",
+ "LANcelot start opnieuw met de nieuwe versie. Even geduld, dit scherm laadt zichzelf opnieuw…": "LANcelot startet mit der neuen Version neu. Einen Moment, dieser Bildschirm lädt sich von selbst neu…",
+ "Er staat geen update klaar.": "Es ist kein Update bereit."
 }

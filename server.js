@@ -1442,6 +1442,16 @@ io.on('connection', socket => {
     laatsteVanBuiten = Date.now();
     socket.on('disconnect', () => { laatsteVanBuiten = Date.now(); });
   }
+  // Instellingen > Bijwerken > "Nu herstarten": de klaargezette update meteen installeren. Zijn er leerlingen of loopt er
+  // een spel, dan eerst vragen (ok: true betekent: de leerkracht zei al "toch herstarten").
+  if (host) socket.on('update-nu', (ok, cb) => {
+    if (typeof cb !== 'function') return;
+    if (!bijwerken.view().klaar) return cb({ error: 'Er staat geen update klaar.' });
+    if (ok !== true && lesBezig()) return cb({ vraag: true });
+    cb({ ok: true });
+    bijwerken.stopAuto();
+    setTimeout(() => herstartVoorUpdate().catch(err => { console.error('Bijwerken mislukt:', err.message); process.exit(process.env.LANCELOT_KAN_HERSTARTEN ? 75 : 1); }), 300);
+  });
   if (host) socket.on('in-gebruik', st => {
     socket.data.zichtbaar = !(st && st.zichtbaar === false);
     if (st && st.invoer) laatsteInvoer = Date.now();
@@ -3335,15 +3345,20 @@ io.on('connection', socket => {
 // staat (geminimaliseerd, ander tabblad, pc vergrendeld), anders 90 minuten (een timer of een bordboek kan lang op het bord staan).
 let laatsteInvoer = Date.now();
 const RUSTIG = { buiten: 10, verborgen: 15, zichtbaar: 90 };
+// Zijn er nu leerlingen verbonden, of loopt er een spel met spelers?
+function lesBezig() {
+  if ([...io.sockets.sockets.values()].some(s => !s.data.host && !isLocal(s.handshake.address))) return true;
+  for (const spel of Object.values(SPELLEN)) {
+    if (!spel || spel.phase === 'idle' || !(spel.players instanceof Map)) continue;
+    for (const p of spel.players.values()) if (online(p.socketId)) return true;
+  }
+  return false;
+}
 function rustig() {
   const nu = Date.now();
   const min = m => m * 60 * 1000 / bijwerken.SNEL;
   const sockets = [...io.sockets.sockets.values()];
-  if (sockets.some(s => !s.data.host && !isLocal(s.handshake.address))) return false;
-  for (const spel of Object.values(SPELLEN)) {
-    if (!spel || spel.phase === 'idle' || !(spel.players instanceof Map)) continue;
-    for (const p of spel.players.values()) if (online(p.socketId)) return false;
-  }
+  if (lesBezig()) return false;
   if (nu - laatsteVanBuiten < min(RUSTIG.buiten)) return false;
   const inBeeld = sockets.some(s => s.data.host && s.data.zichtbaar !== false);
   return nu - laatsteInvoer >= min(inBeeld ? RUSTIG.zichtbaar : RUSTIG.verborgen);

@@ -1162,5 +1162,11 @@
  "✓ Er staat een nieuwe versie klaar. LANcelot installeert ze vanzelf zodra er geen les loopt.": "✓ Hay una nueva versión lista. LANcelot la instala automáticamente en cuanto no haya ninguna clase en curso.",
  "Er is een nieuwe versie van LANcelot. Bijwerken en opnieuw starten...": "Hay una nueva versión de LANcelot. Actualizando y reiniciando...",
  "Bijwerken mislukt:": "La actualización falló:",
- "LANcelot haalt een nieuwe versie vanzelf op en installeert ze als er geen les loopt (geen leerlingen verbonden en een tijd niemand aan het bord). Je gegevens blijven altijd staan.": "LANcelot descarga solo una nueva versión y la instala cuando no hay ninguna clase en curso (ningún alumno conectado y nadie en la pizarra durante un rato). Tus datos siempre se conservan."
+ "LANcelot haalt een nieuwe versie vanzelf op en installeert ze als er geen les loopt (geen leerlingen verbonden en een tijd niemand aan het bord). Je gegevens blijven altijd staan.": "LANcelot descarga solo una nueva versión y la instala cuando no hay ninguna clase en curso (ningún alumno conectado y nadie en la pizarra durante un rato). Tus datos siempre se conservan.",
+ "Nu herstarten en installeren": "Reiniciar e instalar ahora",
+ "✓ Er staat een nieuwe versie klaar. LANcelot installeert ze vanzelf zodra er geen les loopt, of druk op \"Nu herstarten en installeren\".": "✓ Hay una nueva versión lista. LANcelot la instala automáticamente en cuanto no haya ninguna clase en curso, o pulsa «Reiniciar e instalar ahora».",
+ "✓ Er staat een nieuwe versie klaar. Druk op \"Nu herstarten en installeren\" (doe dat na de les).": "✓ Hay una nueva versión lista. Pulsa «Reiniciar e instalar ahora» (hazlo después de la clase).",
+ "Er zijn leerlingen verbonden of er loopt een spel. Als LANcelot nu herstart, vallen ze even weg. Toch nu herstarten?": "Hay alumnos conectados o un juego en curso. Si LANcelot se reinicia ahora, se desconectarán un momento. ¿Reiniciar de todos modos?",
+ "LANcelot start opnieuw met de nieuwe versie. Even geduld, dit scherm laadt zichzelf opnieuw…": "LANcelot se reinicia con la nueva versión. Espera, esta pantalla se recargará sola…",
+ "Er staat geen update klaar.": "No hay ninguna actualización lista."
 }

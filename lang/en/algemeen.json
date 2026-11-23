@@ -1162,5 +1162,11 @@
  "✓ Er staat een nieuwe versie klaar. LANcelot installeert ze vanzelf zodra er geen les loopt.": "✓ A new version is ready. LANcelot installs it automatically as soon as no lesson is running.",
  "Er is een nieuwe versie van LANcelot. Bijwerken en opnieuw starten...": "There is a new version of LANcelot. Updating and restarting...",
  "Bijwerken mislukt:": "Update failed:",
- "LANcelot haalt een nieuwe versie vanzelf op en installeert ze als er geen les loopt (geen leerlingen verbonden en een tijd niemand aan het bord). Je gegevens blijven altijd staan.": "LANcelot downloads a new version by itself and installs it when no lesson is running (no students connected and nobody at the board for a while). Your data always stays."
+ "LANcelot haalt een nieuwe versie vanzelf op en installeert ze als er geen les loopt (geen leerlingen verbonden en een tijd niemand aan het bord). Je gegevens blijven altijd staan.": "LANcelot downloads a new version by itself and installs it when no lesson is running (no students connected and nobody at the board for a while). Your data always stays.",
+ "Nu herstarten en installeren": "Restart and install now",
+ "✓ Er staat een nieuwe versie klaar. LANcelot installeert ze vanzelf zodra er geen les loopt, of druk op \"Nu herstarten en installeren\".": "✓ A new version is ready. LANcelot installs it automatically as soon as no lesson is running, or press \"Restart and install now\".",
+ "✓ Er staat een nieuwe versie klaar. Druk op \"Nu herstarten en installeren\" (doe dat na de les).": "✓ A new version is ready. Press \"Restart and install now\" (do that after the lesson).",
+ "Er zijn leerlingen verbonden of er loopt een spel. Als LANcelot nu herstart, vallen ze even weg. Toch nu herstarten?": "Students are connected or a game is running. If LANcelot restarts now, they will drop out for a moment. Restart now anyway?",
+ "LANcelot start opnieuw met de nieuwe versie. Even geduld, dit scherm laadt zichzelf opnieuw…": "LANcelot is restarting with the new version. Please wait, this screen will reload by itself…",
+ "Er staat geen update klaar.": "No update is ready."
 }

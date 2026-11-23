@@ -41,11 +41,18 @@ test('vanzelf bijwerken staat uit in een map met git (wie aan de code werkt) en 
 
 test('server.js installeert alleen als er geen leerlingen, geen spel en niemand aan het bord is', () => {
   const src = fs.readFileSync(path.join(ROOT, 'server.js'), 'utf8');
-  const rustig = src.slice(src.indexOf('function rustig()'), src.indexOf('async function herstartVoorUpdate'));
+  const rustig = src.slice(src.indexOf('function lesBezig()'), src.indexOf('async function herstartVoorUpdate'));
   assert.match(rustig, /!s\.data\.host && !isLocal/, 'een verbonden leerling houdt de update tegen');
   assert.match(rustig, /spel\.phase === 'idle'/, 'een spel met spelers houdt de update tegen');
   assert.match(rustig, /laatsteInvoer/, 'iemand aan het bord houdt de update tegen');
   // Na de herstart opent er geen nieuw venster: de open schermen laden zichzelf opnieuw.
   assert.match(src, /if \(bijwerken\.wasStil\(\)\) return;/);
   assert.match(fs.readFileSync(path.join(ROOT, 'public', 'js', 'ui.js'), 'utf8'), /socket\.emit\('in-gebruik'/);
+});
+
+test('de LANcelot-knop houdt geen afbeelding open (anders kan een update public\\img niet vervangen)', () => {
+  const ps = fs.readFileSync(path.join(ROOT, 'src', 'systeemvak.ps1'), 'utf8');
+  assert.doesNotMatch(ps, /FromFile|Icon \(Join-Path/, 'laad afbeeldingen via Lees-Stroom (geheugen)');
+  // En lukt verplaatsen toch niet (welke foutcode ook), dan kopieert pasToe de bestanden er één voor één over.
+  assert.match(fs.readFileSync(path.join(ROOT, 'src', 'bijwerken.js'), 'utf8'), /kopieerOver\(src, dst\)/);
 });
