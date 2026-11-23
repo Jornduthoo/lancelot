@@ -14,12 +14,14 @@
     return b;
   };
 
-  // In de kopbalk: op elk leerkrachtenscherm rechts dezelfde vaste knoppen, in dezelfde volgorde:
-  // Pauze · Namen · QR-code · Geluid (alleen waar er geluid is). Wat een pagina zelf nog nodig heeft, staat ervoor.
+  // In de kopbalk: op elk leerkrachtenscherm dezelfde vaste knoppen, in dezelfde volgorde en in dezelfde stijl als het
+  // menu ernaast (icoon boven het woord), samen één balk: Spelen … Instellingen | Pauze · Namen · QR-code · Geluid.
+  // Geluid alleen waar er geluid is. Wat een pagina zelf nog nodig heeft (Aanwezig, Groot, Stop), staat rechts apart.
   const kop = maakKnop();
-  const acties = document.querySelector('.topbar > .brand') && document.querySelector('.topbar > .actions');
+  const brand = document.querySelector('.topbar > .brand');
+  const acties = brand && document.querySelector('.topbar > .actions');
   let pauzeKop = document.querySelector('.topbar [data-pauze]');
-  if (acties) {
+  if (brand) {
     if (!pauzeKop) {
       pauzeKop = document.createElement('button');
       pauzeKop.className = 'secondary pauze-knop';
@@ -29,12 +31,27 @@
     }
     pauzeKop.classList.add('kop-vast');
     kop.classList.add('kop-vast');
-    const vast = [pauzeKop, kop, qrKnop()];
+    kop.innerHTML = '<img src="/img/icons/kop-namen.webp" alt=""> <span class="kop-tekst">Namen</span>';
+    const groep = document.createElement('div');
+    groep.className = 'kop-vast-rij';
+    groep.append(pauzeKop, kop, qrKnop());
     const mute = document.getElementById('mute');
-    if (mute && acties.contains(mute)) vast.push(mute);
-    // Stop (toernooi, spel) blijft helemaal rechts staan; de vaste knoppen komen ervoor.
-    const stop = acties.querySelector(':scope > #stop');
-    for (const b of vast) if (b) (stop ? stop.before(b) : acties.append(b));
+    if (mute && acties && acties.contains(mute)) {
+      groep.append(mute);
+      // De spellen zetten bij aan/uit alleen het icoon terug: het woordje Geluid er telkens weer onder zetten.
+      const woord = () => { if (!mute.querySelector('.kop-tekst')) mute.insertAdjacentHTML('beforeend', ' <span class="kop-tekst">Geluid</span>'); };
+      woord();
+      new MutationObserver(woord).observe(mute, { childList: true });
+    }
+    const plaats = () => {
+      const nav = document.querySelector('.topbar > .snelmenu');
+      if (nav) nav.after(groep);
+      else if (!groep.isConnected) brand.after(groep);
+    };
+    plaats();
+    // Het menu komt soms net na deze knoppen (ui.js): dan schuiven ze erachter.
+    if (!document.querySelector('.topbar > .snelmenu')) document.addEventListener('DOMContentLoaded', plaats);
+    setTimeout(plaats, 0);
   } else {
     const ergens = document.querySelector('.topbar .actions');
     if (pauzeKop) pauzeKop.after(kop);
@@ -48,7 +65,7 @@
     const b = document.createElement('button');
     b.className = 'secondary qr-kop';
     b.title = 'De QR-code waarmee leerlingen verbinden, groot op het bord';
-    b.innerHTML = `${Ui.ic('qr')} <span class="kop-tekst">QR-code</span>`;
+    b.innerHTML = '<img src="/img/icons/kop-qr.webp" alt=""> <span class="kop-tekst">QR-code</span>';
     const venster = document.createElement('dialog');
     venster.className = 'qr-venster';
     venster.innerHTML = '<div class="qr-venster-kop"><h2>Verbinden met LANcelot</h2><button class="secondary icon" title="Sluiten" aria-label="Sluiten"></button></div>'
@@ -194,7 +211,7 @@
       // Loopt er een spel, dan staan Pauze en Namen linksonder op het bord: niet twee keer.
       if (pauzeKop && pauzeKop.classList.contains('kop-vast') && rij.isConnected) pauzeKop.classList.toggle('hidden', actief);
       const binnen = (res.spelers || []).filter(p => p.online).length;
-      for (const b of document.querySelectorAll('.namen-knop')) b.innerHTML = `${Ui.ic('namen')} <span class="kop-tekst">Namen</span>${binnen ? ` <b class="namen-tel">${binnen}</b>` : ''}`;
+      for (const b of document.querySelectorAll('.namen-knop')) b.innerHTML = `${b.closest('.kop-vast-rij') ? '<img src="/img/icons/kop-namen.webp" alt="">' : Ui.ic('namen')} <span class="kop-tekst">Namen</span>${binnen ? ` <b class="namen-tel">${binnen}</b>` : ''}`;
       if (modal.classList.contains('hidden')) return;
       // Wie in het spel van dit scherm zit eerst, daarna de rest op naam.
       const hier = p => p.pad === pad ? 0 : 1;
