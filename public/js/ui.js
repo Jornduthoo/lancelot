@@ -650,6 +650,27 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', terugLinks);
   else terugLinks();
 
+  // ---------- Terug = de vorige pagina ----------
+  // Terug brengt je naar de pagina waar je vandaan kwam (bv. van een spel terug naar Spelen). Naar het startscherm
+  // ga je met het logo. Kwam je niet van een andere LANcelot-pagina (rechtstreeks geopend), dan doet Terug wat hij
+  // altijd deed. Op In Beeld sluit Terug eerst wat er op het bord staat (inbeeld.js regelt dat zelf).
+  const GEEN_VORIGE = /^\/(kies|welkom|licentie|koppel)\b/;
+  function vorigePagina() {
+    if (history.length < 2 || !document.referrer) return false;
+    let v;
+    try { v = new URL(document.referrer); } catch { return false; }
+    if (v.origin !== location.origin || GEEN_VORIGE.test(v.pathname)) return false;
+    if (v.pathname === location.pathname && v.search === location.search) return false;
+    return true;
+  }
+  document.addEventListener('click', e => {
+    const k = e.target.closest && e.target.closest('#to-home');
+    if (!k || document.body.classList.contains('player') || /^\/inbeeld/.test(location.pathname) || !vorigePagina()) return;
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    history.back();
+  }, true);
+
   // ---------- Rustig bord tijdens een spel ----------
   // Zolang er een spel loopt (de Stop-knop staat er), klapt het snelmenu dicht tot één knop Menu en verdwijnen
   // Junior, netwerk en instellingen uit de kopbalk. Zo leidt niets af en klikt niemand per ongeluk weg.
