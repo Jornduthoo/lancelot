@@ -2348,25 +2348,49 @@ body.tk-solo .klaar-balk { display: none; }
 .snelmenu img { width: 30px; height: 30px; object-fit: contain; }
 .snelmenu .ic { width: 26px; height: 26px; margin: 2px 0; }
 /* Instellingen geopend vanuit Junior: geen LANcelot-knoppen bovenaan, alleen het logo (= terug naar Junior). */
-body.inst-vanuit-junior .topbar .snelmenu, body.inst-vanuit-junior .topbar > .actions { display: none; }
+body.inst-vanuit-junior .topbar .snelmenu, body.inst-vanuit-junior .topbar > .actions, body.inst-vanuit-junior .kop-vast-rij { display: none; }
 body.inst-vanuit-junior .topbar > .brand { cursor: pointer; }
-/* Eén kopbalk op elk leerkrachtenscherm, ook op het startscherm en in de vijf rijken: logo (= Start), het menu
-   Spelen · Peilen · Maken · Klastools · Lesgeven · Instellingen, en rechts Pauze · Namen · QR-code · Geluid. */
-@media (max-width: 1100px) { .snelmenu span { display: none; } .snelmenu a { min-width: 40px; } }
+/* Eén kopbalk op elk leerkrachtenscherm, ook op het startscherm en in de vijf rijken: logo (= Start), dan één balk
+   Spelen · Peilen · Maken · Klastools · Lesgeven · Instellingen | Pauze · Namen · QR-code · Geluid, alles icoon boven woord.
+   Wat een pagina zelf nog nodig heeft (Aanwezig, Groot, Stop), staat rechts apart. */
+.topbar > .snelmenu { margin-right: 0; border-radius: 14px 0 0 14px; }
+.kop-vast-rij { display: flex; align-items: stretch; gap: 4px; padding: 4px; margin-right: auto; border-radius: 0 14px 14px 0; background: rgb(var(--k-panel) / .6); box-shadow: inset 0 0 0 1px rgb(var(--k-cyan) / .2); flex: none; position: relative; }
+.kop-vast-rij::before { content: ''; position: absolute; left: -2px; top: 10px; bottom: 10px; width: 1px; background: rgb(var(--k-cyan) / .3); }
+.topbar > .brand + .kop-vast-rij, body.spel-loopt .kop-vast-rij { border-radius: 14px; }
+@media (min-width: 1281px) { .topbar > .snelmenu + .kop-vast-rij { margin-left: -12px; } body.spel-loopt .topbar > .snelmenu + .kop-vast-rij { margin-left: 0; } }
+body.spel-loopt .kop-vast-rij::before, .topbar > .brand + .kop-vast-rij::before { display: none; }
+.kop-vast-rij > button, .kop-vast-rij > button.secondary, .kop-vast-rij > button.icon {
+  position: relative; flex-direction: column; gap: 2px; min-width: 62px; padding: 4px 6px; border-radius: 10px; clip-path: none;
+  background: transparent; box-shadow: none; color: rgb(var(--k-muted)); font-size: .72rem; font-weight: 700; line-height: 1.1; white-space: nowrap; letter-spacing: 0;
+}
+.kop-vast-rij > button:hover:not(:disabled) { background: rgb(var(--k-cyan) / .12); color: rgb(var(--k-tekst)); transform: none; filter: none; }
+.kop-vast-rij > button.hidden { display: none; }
+.kop-vast-rij img { width: 30px; height: 30px; margin: 0; object-fit: contain; }
+.kop-vast-rij .ic { width: 26px; height: 26px; margin: 2px 0; }
+.snelmenu img, .kop-vast-rij img { border-radius: 6px; }
+/* Geluid: de geschilderde hoorn; staat het geluid uit, dan grijs met een rode streep. */
+.kop-vast-rij > #mute .ic { width: 30px; height: 30px; margin: 0; border-radius: 6px; -webkit-mask: none; mask: none; background: url('/img/icons/kop-geluid.webp') center / cover no-repeat; }
+.kop-vast-rij > #mute .ic-stil { filter: grayscale(1) brightness(.55); }
+.kop-vast-rij > #mute:has(.ic-stil)::after { content: ''; position: absolute; left: 50%; top: 6px; width: 3px; height: 32px; margin-left: -1.5px; border-radius: 2px; background: rgb(var(--k-rood-l)); transform: rotate(45deg); box-shadow: 0 0 6px rgb(var(--k-rood-l) / .8); }
+.kop-vast-rij .namen-tel { position: absolute; top: 2px; right: 6px; margin: 0; }
 .topbar > .actions { gap: 6px; flex-wrap: nowrap; }
-.topbar > .actions > .secondary:not(.icon) { padding-left: 14px; padding-right: 14px; }
-/* Kleinere schermen (Chromebook, gsm): het menu op een eigen rij onder het logo. Op de gsm de vaste knoppen alleen als icoon. */
+.topbar > .actions:empty, .topbar > .actions:not(:has(> :not(.hidden))) { display: none; }
+@media (max-width: 1100px) { .snelmenu span, .kop-vast-rij .kop-tekst { display: none; } .snelmenu a, .kop-vast-rij > button { min-width: 40px; } }
+/* Kleinere schermen (Chromebook, gsm): de balk op een eigen rij onder het logo, over de hele breedte. */
 @media (max-width: 1280px) {
   .topbar, .topbar:not(:has(.qr-home)) { flex-wrap: wrap; }
-  .topbar > .snelmenu { order: 3; flex: 1 1 100%; margin-right: 0; justify-content: space-between; }
-  .topbar > .snelmenu a { flex: 1; min-width: 0; }
-  .topbar > .actions { flex-wrap: wrap; justify-content: flex-end; }
-  .topbar > .snelmenu span { display: inline; }
+  .topbar > .snelmenu { order: 3; flex: 6 1 0; justify-content: space-between; }
+  .topbar > .kop-vast-rij { order: 4; flex: 4 1 0; margin-right: 0; justify-content: space-between; }
+  .topbar > .snelmenu a, .topbar > .kop-vast-rij > button { flex: 1; min-width: 0; }
+  .topbar > .actions { flex-wrap: wrap; justify-content: flex-end; margin-left: auto; }
+  .topbar > .snelmenu span, .kop-vast-rij .kop-tekst { display: inline; }
+  .topbar::after { content: ''; order: 2; flex-basis: 100%; }
 }
 @media (max-width: 760px) {
-  .topbar > .snelmenu span { display: none; }
-  .topbar > .actions .kop-tekst { display: none; }
-  .topbar > .actions > .secondary:not(.icon) { padding-left: 12px; padding-right: 12px; }
+  .topbar > .snelmenu span, .kop-vast-rij .kop-tekst { display: none; }
+  .topbar > .snelmenu { flex-basis: 100%; border-radius: 14px; }
+  .topbar > .kop-vast-rij { flex-basis: 100%; border-radius: 14px; }
+  .kop-vast-rij::before { display: none; }
 }
 /* Laserslag en Ridder Royale op de gsm: een geschilderde achtergrond achter de wacht- en vraagschermen. */
 body[data-ls="1"] { --quiz-bg: url('/img/quizspellen/laserslag.webp'); }

@@ -1168,5 +1168,6 @@
  "✓ Er staat een nieuwe versie klaar. Druk op \"Nu herstarten en installeren\" (doe dat na de les).": "✓ A new version is ready. Press \"Restart and install now\" (do that after the lesson).",
  "Er zijn leerlingen verbonden of er loopt een spel. Als LANcelot nu herstart, vallen ze even weg. Toch nu herstarten?": "Students are connected or a game is running. If LANcelot restarts now, they will drop out for a moment. Restart now anyway?",
  "LANcelot start opnieuw met de nieuwe versie. Even geduld, dit scherm laadt zichzelf opnieuw…": "LANcelot is restarting with the new version. Please wait, this screen will reload by itself…",
- "Er staat geen update klaar.": "No update is ready."
+ "Er staat geen update klaar.": "No update is ready.",
+ "Geluid": "Sound"
 }

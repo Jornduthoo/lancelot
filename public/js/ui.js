@@ -607,7 +607,7 @@
     nav.className = 'snelmenu';
     nav.setAttribute('aria-label', 'Snel naar');
     nav.innerHTML = `${
-      RIJKEN.map(([id, naam, ic]) => `<a href="/host#${id}" data-rijk="${id}" title="${id === 'kronieken' && window.LANCELOT_STORE ? naam : `Naar De ${naam}`}"><img src="/img/icons/${ic}.webp" alt=""><span>${naam}</span></a>`).join('')}<a href="/host?instellingen" class="snel-inst" data-inst="1" title="Instellingen" aria-label="Instellingen"><i class="ic ic-instellingen" aria-hidden="true"></i><span>Instellingen</span></a>`;
+      RIJKEN.map(([id, naam, ic]) => `<a href="/host#${id}" data-rijk="${id}" title="${id === 'kronieken' && window.LANCELOT_STORE ? naam : `Naar De ${naam}`}"><img src="/img/icons/${ic}.webp" alt=""><span>${naam}</span></a>`).join('')}<a href="/host?instellingen" class="snel-inst" data-inst="1" title="Instellingen" aria-label="Instellingen"><img src="/img/icons/kop-instellingen.webp" alt=""><span>Instellingen</span></a>`;
     brand.after(nav);
     snelMarkeer = () => {
       const r = rijkHier();
