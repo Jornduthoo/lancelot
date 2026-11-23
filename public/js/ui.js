@@ -347,6 +347,23 @@
     document.body.appendChild(s);
   }
 
+  // Vanzelf bijwerken gebeurt alleen als er niemand met LANcelot bezig is: elk leerkrachtenscherm meldt of het in beeld
+  // staat en, hooguit om de halve minuut, dat er iemand klikte, tikte of typte. Meer niet.
+  function meldGebruik(socket) {
+    let laatst = 0;
+    const zichtbaar = () => document.visibilityState !== 'hidden';
+    const meld = invoer => socket.emit('in-gebruik', { zichtbaar: zichtbaar(), invoer });
+    const invoer = () => {
+      const nu = Date.now();
+      if (nu - laatst < 30000) return;
+      laatst = nu;
+      meld(true);
+    };
+    for (const e of ['pointerdown', 'keydown', 'wheel']) window.addEventListener(e, invoer, { passive: true, capture: true });
+    document.addEventListener('visibilitychange', () => meld(zichtbaar()));
+    socket.on('connect', () => meld(false));
+  }
+
   // De knop "Namen" op elk leerkrachtenscherm (niet op de afdrukbladen en niet bij Proberen als leerling).
   function namenKnop(socket) {
     if (window.Ui.hostSocket || /print|fiche|proberen/.test(location.pathname)) return;
@@ -387,7 +404,7 @@
         if (veld && /^(INPUT|TEXTAREA)$/.test(veld.tagName) && veld.value) veld.addEventListener('blur', herlaad, { once: true });
         else herlaad();
       });
-      if (isHost) { namenKnop(socket); schermInfo(socket); }
+      if (isHost) { namenKnop(socket); schermInfo(socket); meldGebruik(socket); }
       // Vragenstorm: de leerkracht drukt op het bord, en elke leerling in het spel krijgt meteen een paar vragen.
       else {
         socket.on('storm', st => vragenstorm(socket, st));

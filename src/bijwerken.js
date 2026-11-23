@@ -1,7 +1,9 @@
 // Bijwerken vanuit de app: de nieuwste versie van GitHub ophalen en bij de volgende start installeren.
 // Alleen de bestanden van de app worden vervangen. De gegevens van de klas (zie gegevens.js) blijven altijd staan,
 // en wat er werd vervangen, wordt tot de volgende update bewaard in _update/oud.
-// Installeren gebeurt nooit terwijl LANcelot draait: zo gaat er nooit een lopend spel verloren.
+// Vanzelf bijwerken (startAuto): LANcelot kijkt zelf af en toe of er een nieuwe versie is, downloadt ze en installeert ze
+// pas op een rustig moment (geen leerlingen, geen spel, een tijd niemand aan het bord; zie rustig() in server.js).
+// Dan stopt de server even en start meteen opnieuw: de open schermen laden zichzelf opnieuw. Nooit midden in een les.
 // De bron is GitHub, zolang de repository publiek is. Een eigen update-adres (Instellingen, of update-bron.json naast de app)
 // wijst naar een klein json-bestand { versie, datum, bericht, zip } ergens online. En een zip van LANcelot kan altijd ook
 // als bestand: dat werkt zonder internet en los van GitHub.
@@ -52,9 +54,21 @@ function kiesBron(url) {
   return view();
 }
 
+// Vanzelf bijwerken staat aan, behalve in de Store-versie, als de leerkracht het uitzette, of in een map met git
+// (daar werkt iemand aan de code zelf; LANCELOT_AUTO_BIJWERKEN=1 zet het daar toch aan, om te testen).
+function autoAan() {
+  if (store.ACTIEF || settings.read().autoBijwerken === false) return false;
+  return process.env.LANCELOT_AUTO_BIJWERKEN === '1' || !fs.existsSync(path.join(APP, '.git'));
+}
+function zetAuto(aan) {
+  nietInStore();
+  settings.write({ autoBijwerken: !!aan });
+  return view();
+}
+
 function view() {
   if (store.ACTIEF) return { store: true, melding: VIA_STORE };
-  return { ...status, bron: eigenBron(), github: !eigenBron(), huidig: leesJson(VERSIE), klaar: fs.existsSync(KLAAR) ? leesJson(KLAAR_INFO) : null, melding: laatsteMelding || (process.env.LANCELOT_BIJGEWERKT ? 'LANcelot is bijgewerkt naar de nieuwste versie.' : '') };
+  return { ...status, auto: autoAan(), bron: eigenBron(), github: !eigenBron(), huidig: leesJson(VERSIE), klaar: fs.existsSync(KLAAR) ? leesJson(KLAAR_INFO) : null, melding: laatsteMelding || (process.env.LANCELOT_BIJGEWERKT ? 'LANcelot is bijgewerkt naar de nieuwste versie.' : '') };
 }
 
 // Nooit eindeloos wachten: een hangende verbinding (proxy, slechte wifi) geeft na een tijd een duidelijke fout.
@@ -89,6 +103,7 @@ async function zoek() {
     } else {
       const c = await (await haal(`https://api.github.com/repos/${REPO}/commits/${TAK}`)).json();
       status.nieuwste = { sha: c.sha, datum: c.commit && c.commit.committer && c.commit.committer.date, bericht: String((c.commit && c.commit.message) || '').split('\n')[0].slice(0, 120) };
+      await zelfdeApp();
     }
     status.gecontroleerd = Date.now();
   } catch (err) {
@@ -97,6 +112,23 @@ async function zoek() {
     status.bezig = false;
   }
   return view();
+}
+
+// Veranderde er op GitHub alleen iets buiten de app (de website, de tests, de installer)? Dan is er niets te installeren:
+// we noteren gewoon de nieuwe versie. Zo start LANcelot niet opnieuw voor iets wat de leerkracht nooit ziet.
+const BUITEN_APP = /^(website|test|installer|\.github)\/|^wrangler\.jsonc$/;
+async function zelfdeApp() {
+  const huidig = leesJson(VERSIE);
+  const nieuw = status.nieuwste;
+  if (!huidig || !/^[0-9a-f]{40}$/.test(huidig.sha || '') || !nieuw || huidig.sha === nieuw.sha) return;
+  try {
+    const v = await (await haal(`https://api.github.com/repos/${REPO}/compare/${huidig.sha}...${nieuw.sha}`)).json();
+    const files = Array.isArray(v.files) ? v.files : [];
+    // Alleen als GitHub zegt dat de nieuwe versie gewoon verder bouwt op de onze, en de lijst volledig is.
+    if (v.status !== 'ahead' || !files.length || files.length >= 300) return;
+    if (!files.every(f => BUITEN_APP.test(f.filename || '') && (!f.previous_filename || BUITEN_APP.test(f.previous_filename)))) return;
+    fs.writeFileSync(VERSIE, JSON.stringify({ ...huidig, sha: nieuw.sha, datum: nieuw.datum || huidig.datum, bericht: nieuw.bericht || huidig.bericht }, null, 2) + '\n');
+  } catch { /* dan gewoon de volledige update */ }
 }
 
 // De nieuwste versie downloaden en klaarzetten. Installeren gebeurt bij de volgende start.
@@ -248,4 +280,57 @@ function pasToe() {
   }
 }
 
-module.exports = { view, zoek, download, annuleer, pasToe, uitBestand, kiesBron };
+// Vanzelf bijwerken terwijl LANcelot draait. rustig(): mag het nu (geen les bezig)? herstart(): stopt de server, installeert
+// de klaargezette update en start LANcelot opnieuw (server.js). Is er geen internet, dan proberen we het later gewoon opnieuw.
+// LANCELOT_AUTO_SNEL=1 (alleen om te testen): een minuut wordt een seconde.
+const SNEL = process.env.LANCELOT_AUTO_SNEL === '1' ? 60 : 1;
+const AUTO = SNEL > 1 ? { eerste: 1500, zoekElke: 5000, kijkElke: 500 } : { eerste: 60 * 1000, zoekElke: 30 * 60 * 1000, kijkElke: 30 * 1000 };
+let autoTimers = [];
+function startAuto({ rustig, herstart, opties = {} }) {
+  stopAuto();
+  const t = { ...AUTO, ...opties };
+  // Lukte installeren bij deze start niet (bv. een map die vastzat), dan niet nog eens vanzelf: anders start LANcelot steeds opnieuw.
+  if (/^Bijwerken lukte/.test(laatsteMelding)) return;
+  let bezig = false;
+  const zoekEnHaal = async () => {
+    if (bezig || status.bezig || !autoAan() || fs.existsSync(KLAAR)) return;
+    bezig = true;
+    try {
+      await zoek();
+      const n = status.nieuwste;
+      const huidig = leesJson(VERSIE) || {};
+      if (!status.fout && n && n.sha && n.sha !== huidig.sha) await download();
+    } catch { /* volgende keer opnieuw */ } finally { bezig = false; }
+  };
+  let gestart = false;
+  const kijk = () => {
+    if (gestart || bezig || status.bezig || !autoAan() || !fs.existsSync(KLAAR)) return;
+    let ok = false;
+    try { ok = rustig(); } catch { ok = false; }
+    if (!ok) return;
+    gestart = true;
+    stopAuto();
+    herstart();
+  };
+  autoTimers = [setTimeout(zoekEnHaal, t.eerste), setInterval(zoekEnHaal, t.zoekElke), setInterval(kijk, t.kijkElke)];
+  for (const x of autoTimers) x.unref?.();
+}
+function stopAuto() {
+  for (const x of autoTimers) { clearTimeout(x); clearInterval(x); }
+  autoTimers = [];
+}
+
+// Na een automatische update geen nieuw venster openen: de schermen die openstonden, laden zichzelf opnieuw.
+const STIL = path.join(DIR, 'stil');
+function zetStil() {
+  try { fs.mkdirSync(DIR, { recursive: true }); fs.writeFileSync(STIL, String(Date.now())); } catch {}
+}
+function wasStil() {
+  try {
+    const t = Number(fs.readFileSync(STIL, 'utf8'));
+    fs.unlinkSync(STIL);
+    return Date.now() - t < 10 * 60 * 1000;
+  } catch { return false; }
+}
+
+module.exports = { SNEL, view, zoek, download, annuleer, pasToe, uitBestand, kiesBron, zetAuto, autoAan, startAuto, stopAuto, zetStil, wasStil };

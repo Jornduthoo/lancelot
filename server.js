@@ -120,6 +120,7 @@ const herhaal = require('./src/herhaal');
 const results = require('./src/results');
 const lesmap = require('./src/lesmap');
 const beheer = require('./src/beheer');
+const bijwerken = require('./src/bijwerken');
 const store = require('./src/store');
 const schermen = require('./src/schermen');
 const { execFile } = require('child_process');
@@ -185,6 +186,12 @@ function stuurPagina(req, res, file) {
   else res.send(p.html);
   return true;
 }
+// Wanneer kwam er nog iets van een ander toestel (een leerling, of de gekoppelde bureau-pc)? Voor vanzelf bijwerken.
+let laatsteVanBuiten = 0;
+app.use((req, res, next) => {
+  if (!isLocal(req.socket.remoteAddress)) laatsteVanBuiten = Date.now();
+  next();
+});
 app.use((req, res, next) => {
   const send = res.sendFile.bind(res);
   res.sendFile = (file, ...rest) => (typeof file === 'string' && file.endsWith('.html') && !rest.length && stuurPagina(req, res, file) ? undefined : send(file, ...rest));
@@ -753,7 +760,7 @@ function runSync() {
     try { const i = echteKaart(); taken.naarLesmapStand(i ? `${i.address}:${PORT}` : ''); } catch (err) { console.error('Stand van de taken voor de lesmap bewaren mislukt:', err.message); }
     try { burchten.naarLesmap(); } catch (err) { console.error('Klaseiland voor de lesmap bewaren mislukt:', err.message); }
   }
-  return lesmap.sync().then(changed => {
+  syncBezig = lesmap.sync().then(changed => {
     // Eerst de klaslijst: taken uit de lesmap gaan alleen naar wie op de klaslijst staat.
     if (changed.includes('klassen') && klas.uitLesmapKlassen()) io.to('host').emit('klassen', klas.klassen());
     if (changed.includes('klas') && klas.uitLesmap()) {
@@ -786,7 +793,12 @@ function runSync() {
     }
     io.to('host').emit('lesmap', lesmap.view());
   });
+  const p = syncBezig;
+  p.catch(() => {}).finally(() => { if (syncBezig === p) syncBezig = null; });
+  return p;
 }
+// Loopt de lesmap net te synchroniseren? Dan wacht een automatische update daar eerst op.
+let syncBezig = null;
 function syncSoon() {
   clearTimeout(syncTimer);
   syncTimer = setTimeout(runSync, 3000);
@@ -1424,6 +1436,16 @@ io.on('connection', socket => {
   const scherm = isLocal(socket.handshake.address) ? null : schermen.uitCookie(socket.handshake.headers.cookie);
   const host = socket.handshake.query.role === 'host' && (isLocal(socket.handshake.address) || !!scherm);
   socket.data.host = host;
+  // Een leerkrachtenscherm meldt of het in beeld staat en of er iemand op klikt of typt (ui.js): voor vanzelf bijwerken.
+  // Een leerling (of de bureau-pc) kwam binnen of viel weg: ook dat telt als "net nog bezig" (een wifi-onderbreking is geen einde van de les).
+  if (!isLocal(socket.handshake.address)) {
+    laatsteVanBuiten = Date.now();
+    socket.on('disconnect', () => { laatsteVanBuiten = Date.now(); });
+  }
+  if (host) socket.on('in-gebruik', st => {
+    socket.data.zichtbaar = !(st && st.zichtbaar === false);
+    if (st && st.invoer) laatsteInvoer = Date.now();
+  });
   if (host && scherm) socket.data.scherm = scherm.id;
 
   // Een leerling kwam binnen: via welk adres van deze pc? Dat adres werkt dus, en komt voortaan vooraan.
@@ -3308,6 +3330,42 @@ io.on('connection', socket => {
   });
 });
 
+// Vanzelf bijwerken: alleen als er geen les loopt. Dat is: geen leerling verbonden, geen spel met spelers, de laatste 10 minuten
+// niets van een ander toestel, en niemand aan het werk op een leerkrachtenscherm: 15 minuten als geen enkel scherm in beeld
+// staat (geminimaliseerd, ander tabblad, pc vergrendeld), anders 90 minuten (een timer of een bordboek kan lang op het bord staan).
+let laatsteInvoer = Date.now();
+const RUSTIG = { buiten: 10, verborgen: 15, zichtbaar: 90 };
+function rustig() {
+  const nu = Date.now();
+  const min = m => m * 60 * 1000 / bijwerken.SNEL;
+  const sockets = [...io.sockets.sockets.values()];
+  if (sockets.some(s => !s.data.host && !isLocal(s.handshake.address))) return false;
+  for (const spel of Object.values(SPELLEN)) {
+    if (!spel || spel.phase === 'idle' || !(spel.players instanceof Map)) continue;
+    for (const p of spel.players.values()) if (online(p.socketId)) return false;
+  }
+  if (nu - laatsteVanBuiten < min(RUSTIG.buiten)) return false;
+  const inBeeld = sockets.some(s => s.data.host && s.data.zichtbaar !== false);
+  return nu - laatsteInvoer >= min(inBeeld ? RUSTIG.zichtbaar : RUSTIG.verborgen);
+}
+// De server stopt, de klaargezette update wordt geïnstalleerd en LANcelot start opnieuw op dezelfde poort.
+// Met de LANcelot-knop in de taakbalk (systeemvak.ps1): stoppen met code 75, de knop start alles opnieuw.
+// Zonder die knop (het zwarte venster): de nieuwe versie start hier meteen, in hetzelfde venster.
+async function herstartVoorUpdate() {
+  console.log('\n  Er is een nieuwe versie van LANcelot. Bijwerken en opnieuw starten...');
+  if (syncBezig) await Promise.race([syncBezig.catch(() => {}), new Promise(r => setTimeout(r, 60 * 1000))]);
+  bijwerken.zetStil();
+  io.close();
+  server.closeAllConnections?.();
+  await new Promise(r => server.close(() => r()));
+  const { spawnSync } = require('child_process');
+  const gedaan = bijwerken.pasToe();
+  if (gedaan && gedaan.npm) spawnSync('npm', ['install', '--omit=dev'], { cwd: __dirname, stdio: 'inherit', shell: true });
+  if (process.env.LANCELOT_KAN_HERSTARTEN) process.exit(75);
+  const r = spawnSync(process.execPath, [__filename, ...process.argv.slice(2)], { stdio: 'inherit', env: { ...process.env, LANCELOT_BIJGEWERKT: gedaan ? '1' : '' } });
+  process.exit(r.status || 0);
+}
+
 const EERSTE_POORT = PORT;
 server.once('listening', () => {
   server.removeListener('error', poortBezet);
@@ -3323,6 +3381,8 @@ server.once('listening', () => {
   if (PORT !== EERSTE_POORT) { const wie = require('./src/poortgebruiker').uitleg(EERSTE_POORT); if (wie) console.log(wie); }
   if (!store.ACTIEF && !process.env.LANCELOT_VERBORGEN) console.log('\n  Sluit dit venster om te stoppen.\n');
   // Start LANcelot.bat vraagt om het leerkrachtenscherm te openen zodra de server echt luistert, op de juiste poort.
+  bijwerken.startAuto({ rustig, herstart: () => herstartVoorUpdate().catch(err => { console.error('Bijwerken mislukt:', err.message); process.exit(process.env.LANCELOT_KAN_HERSTARTEN ? 75 : 1); }) });
+  if (bijwerken.wasStil()) return;
   if ((process.env.LANCELOT_OPEN || store.ACTIEF) && process.platform === 'win32') execFile('cmd', ['/c', 'start', '', `http://localhost:${PORT}/${juniorAan() ? 'kies' : 'host'}`], { windowsHide: true });
 });
 function poortBezet(err) {

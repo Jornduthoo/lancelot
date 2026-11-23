@@ -139,6 +139,7 @@
     let tekst = v.huidig && v.huidig.datum ? `Jouw versie: ${datum(v.huidig.datum)}.` : 'Jouw versie: bijgewerkt met een zip.';
     if (v.melding) tekst = `✓ ${v.melding} ${tekst}`;
     if (v.bezig) tekst = 'Even geduld…';
+    else if (v.klaar && v.auto) tekst = `✓ Er staat een nieuwe versie klaar. LANcelot installeert ze vanzelf zodra er geen les loopt.`;
     else if (v.klaar && v.klaar.bestand) tekst = `✓ De update ${v.klaar.bericht} staat klaar. Hij wordt geïnstalleerd de volgende keer dat je LANcelot start (doe dat na de les).`;
     else if (v.klaar) tekst = `✓ De update van ${datum(v.klaar.datum)} staat klaar. Hij wordt geïnstalleerd de volgende keer dat je LANcelot start (doe dat na de les).`;
     else if (actueel) tekst += ' Dat is de nieuwste versie.';
@@ -148,6 +149,7 @@
     $('up-annuleer').classList.toggle('hidden', !v.klaar);
     $('up-zoek').disabled = $('up-download').disabled = v.bezig;
     if (document.activeElement !== $('up-bron')) $('up-bron').value = v.bron || '';
+    if (typeof v.auto === 'boolean') $('up-auto').checked = v.auto;
   }
   const bezig = () => toonUpdate({ bezig: true });
   // Valt LANcelot weg terwijl hij zoekt, dan komt er nooit antwoord: na een tijd zeggen we dat, en bij het terugkomen halen we de stand opnieuw.
@@ -161,6 +163,7 @@
   $('up-zoek').addEventListener('click', async () => { bezig(); toonUpdate(await vraagUpdate('update-zoek', 40000)); });
   $('up-download').addEventListener('click', async () => { bezig(); toonUpdate(await vraagUpdate('update-download', 6 * 60000)); });
   $('up-annuleer').addEventListener('click', async () => toonUpdate(await ask('update-annuleer')));
+  $('up-auto').addEventListener('change', async e => toonUpdate(await ask('update-auto', e.target.checked)));
   $('up-bron-zet').addEventListener('click', async () => toonUpdate(await ask('update-bron', $('up-bron').value)));
   // Een zip van LANcelot (bv. van een usb-stick): werkt zonder internet en zonder GitHub.
   $('up-file').addEventListener('change', async e => {

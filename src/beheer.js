@@ -157,6 +157,7 @@ function host(socket, { port, extern }) {
   socket.on('update-download', handle(() => bijwerken.download()));
   socket.on('update-annuleer', handle(() => bijwerken.annuleer()));
   socket.on('update-bron', handle(url => bijwerken.kiesBron(url)));
+  socket.on('update-auto', handle(aan => bijwerken.zetAuto(aan)));
   const posterView = () => ({ posters: posters(), max: MAX_POSTERS, aan: settings.read().posters !== false, grappig: settings.read().grappigePosters !== false });
   socket.on('posters-get', handle(posterView));
   socket.on('poster-add', handle(data => { posterErbij(data); return posterView(); }));
