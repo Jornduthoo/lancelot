@@ -2055,6 +2055,7 @@ io.on('connection', socket => {
     eerstestart.host(socket, handle, sendLibrary);
     // Het startpakket 6e leerjaar: kant-en-klare quizzen en oefenbladen erbij zetten.
     socket.on('startpakket-status', handle(() => startpakket.status()));
+    socket.on('startpakket-nee', handle(() => startpakket.nee()));
     socket.on('startpakket-installeer', handle(() => {
       const out = startpakket.installeer();
       sendLibrary('quiz');

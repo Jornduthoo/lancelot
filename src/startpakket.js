@@ -5,6 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const quizzes = require('./quizzes');
 const oefenbladen = require('./oefenbladen');
+const settings = require('./settings');
 
 const DIR = path.join(__dirname, '..', 'startpakket');
 const MAP = 'Startpakket 6e leerjaar';
@@ -19,7 +20,9 @@ function bestanden(sub) {
 
 // Hoeveel quizzen en oefenbladen uit het pakket nog niet bij de leerkracht staan.
 function status() {
-  const out = { totaal: 0, nieuw: 0 };
+  // nee: de leerkracht klikte "Nee, bedankt". De melding blijft dan weg (onthouden in settings.json);
+  // erbij zetten kan nog in Instellingen > Gegevens.
+  const out = { totaal: 0, nieuw: 0, nee: settings.read().startpakketNee === true };
   for (const { sub, mod } of SOORTEN) {
     for (const f of bestanden(sub)) {
       out.totaal++;
@@ -54,4 +57,9 @@ function installeer() {
   return { erbij, map: MAP, ...status() };
 }
 
-module.exports = { status, installeer, MAP };
+function nee() {
+  settings.write({ startpakketNee: true });
+  return status();
+}
+
+module.exports = { status, installeer, nee, MAP };
