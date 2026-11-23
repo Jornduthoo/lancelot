@@ -1157,5 +1157,10 @@
  "lancelot-systeemvak-{0}.klaar": null,
  "Start-Process powershell.exe -WindowStyle Hidden -ArgumentList (\"": null,
  "\" + $env:LANCELOT_PS)": null,
- "Namen": "Noms"
+ "Namen": "Noms",
+ "Vanzelf bijwerken": "Mettre à jour automatiquement",
+ "✓ Er staat een nieuwe versie klaar. LANcelot installeert ze vanzelf zodra er geen les loopt.": "✓ Une nouvelle version est prête. LANcelot l'installe automatiquement dès qu'aucune leçon n'est en cours.",
+ "Er is een nieuwe versie van LANcelot. Bijwerken en opnieuw starten...": "Il y a une nouvelle version de LANcelot. Mise à jour et redémarrage...",
+ "Bijwerken mislukt:": "Échec de la mise à jour :",
+ "LANcelot haalt een nieuwe versie vanzelf op en installeert ze als er geen les loopt (geen leerlingen verbonden en een tijd niemand aan het bord). Je gegevens blijven altijd staan.": "LANcelot télécharge tout seul une nouvelle version et l'installe quand aucune leçon n'est en cours (aucun élève connecté et personne au tableau depuis un moment). Tes données restent toujours."
 }
