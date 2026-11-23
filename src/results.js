@@ -530,8 +530,12 @@ function saveBaas(b) {
 
 // De Proef (een toets): punten per leerling en per vraag, en hoe vaak de leerling de toets verliet.
 function saveProef(rec, standVan) {
+  return write(new Date(), `toets-${slugOf(rec.title)}`, proefRegels(rec, standVan));
+}
+
+// De regels van het Excel-bestand van een toets (ook voor het toetsarchief).
+function proefRegels(rec, standVan) {
   const K = require('../public/js/pf-kern');
-  const now = new Date();
   const names = { page: 'Page (met hulp)', schildknaap: 'Schildknaap (het doel)', ridder: 'Ridder (uitdaging)' };
   const multi = K.niveausVan(rec.toets).length > 1;
   const nl = n => String(n).replace('.', ',');
@@ -558,7 +562,7 @@ function saveProef(rec, standVan) {
       lines.push(row([s.naam, nl(st.punten), nl(st.max), st.max ? `${Math.round((st.punten / st.max) * 100)}%` : '-', (s.events || []).length, ...vragen.map(cel)]));
     }
   }
-  return write(now, `toets-${slugOf(rec.title)}`, lines);
+  return lines;
 }
 
-module.exports = { saveProef, save, saveKnight, saveRossen, saveRijk, saveRace, saveRoof, saveVerrader, saveBurcht, saveDuel, saveRondeTafel, saveToren, saveSchat, saveLaserslag, saveOefenblad, saveNeon, saveBaas, saveGalaga, saveBomber, list, items, lib, filePath, syncNaam, syncWeg, inPrullenbak, get DIR() { return DIR(); } };
+module.exports = { saveProef, proefRegels, save, saveKnight, saveRossen, saveRijk, saveRace, saveRoof, saveVerrader, saveBurcht, saveDuel, saveRondeTafel, saveToren, saveSchat, saveLaserslag, saveOefenblad, saveNeon, saveBaas, saveGalaga, saveBomber, list, items, lib, filePath, syncNaam, syncWeg, inPrullenbak, get DIR() { return DIR(); } };

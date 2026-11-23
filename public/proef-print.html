@@ -25,7 +25,8 @@
 <script>
 // Een toets op papier, of de verbetersleutel met de antwoorden in het rood. Per niveau een eigen blad.
 // Met window.KOPIE (de route /proef-kopie): de verbeterde toets van één leerling, voor de pdf in Mijn lesmap.
-const socket = window.KOPIE ? null : io({ query: { role: 'host' } });
+// Met window.OPGAVE (de route /archief-opgave): de toets zoals ze toen afgenomen werd, voor het toetsarchief.
+const socket = window.KOPIE || window.OPGAVE ? null : io({ query: { role: 'host' } });
 const params = new URLSearchParams(location.search);
 const key = params.get('sleutel') === '1';
 const file = params.get('file');
@@ -100,7 +101,11 @@ function kopie(d) {
 }
 
 if (window.KOPIE) kopie(window.KOPIE);
-else socket.emit('pf-open', file, res => {
+else if (window.OPGAVE) {
+  toets = window.OPGAVE.toets;
+  teken('alle');
+  document.documentElement.style.background = '#fff';
+} else socket.emit('pf-open', file, res => {
   if (res.error) return (document.getElementById('p-papers').textContent = res.error);
   toets = res.toets;
   teken(params.get('niveau') || 'schildknaap');

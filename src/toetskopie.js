@@ -154,4 +154,4 @@ function maak({ rec, klas, url, browser, stand, mailOpties, gemaildBij } = {}) {
   return werk;
 }
 
-module.exports = { ontbreekt, MAP, veilig, pad, zoekBrowser, maak, aan, zet, view };
+module.exports = { ontbreekt, MAP, veilig, pad, zoekBrowser, pdf, datumTekst, maak, aan, zet, view };

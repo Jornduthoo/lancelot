@@ -1361,6 +1361,9 @@
     const out = { title, vragen };
     const intro = text(t.intro, 1000);
     if (intro) out.intro = intro;
+    // Het vak (Wiskunde, Frans...): een keuze van de leerkracht. Leeg = zoals vroeger, uit de doelen van de vragen.
+    const vak = text(t.vak, 40).replace(/[\u0000-\u001f<>]/g, '');
+    if (vak) out.vak = vak;
     // Alles automatisch verbeteren: de editor toont wat de leerkracht nog zelf verbetert.
     if (t.auto === true) out.auto = true;
     // Vragen altijd in deze volgorde (bv. een luistertoets die een verhaal volgt), ook als de afname schudt.

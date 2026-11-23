@@ -624,6 +624,7 @@
       <button type="button" data-tab="taken">Taken</button>
       <button type="button" data-tab="uiterlijk">Uiterlijk</button>
       <button type="button" data-tab="gegevens">Gegevens</button>
+      <button type="button" data-tab="archief">Toetsarchief</button>
       <button type="button" data-tab="bijwerken">Bijwerken</button>
       <button type="button" data-tab="netwerk">Netwerk</button>
       <button type="button" data-tab="schermen">Bureau-pc</button>
@@ -721,6 +722,28 @@
       <p class="notice hidden" id="bu-klaar"></p>
       <p class="error" id="bu-error"></p>
       <ul class="file-list" id="bu-lijst"></ul>
+    </div>
+    <div class="panel form" id="archief-panel" data-tab="archief">
+      <h3>📦 Toetsarchief<details class="hulp"><summary aria-label="Uitleg">?</summary><p>Mijn lesmap is een spiegel: wat je in LANcelot verwijdert, verdwijnt daar ook. Het toetsarchief groeit alleen. Per schooljaar, vak en maand een map per toets met de opgave zoals ze toen afgenomen werd, de antwoorden en punten (resultaten.csv opent in Excel) en een pdf per leerling. Verbeter je later nog iets, dan komt er een nieuwe pdf bij en gaat de oude naar "eerdere versies". Handig voor de inspectie, het oudercontact en de klassenraad.</p></details></h3>
+      <p class="muted small">Elke afgenomen toets blijft hier jaren bewaard, ook als je hem in LANcelot verwijdert of later aanpast.</p>
+      <label class="inline check"><input type="checkbox" id="ar-aan" checked> <strong>Toetsarchief aan</strong> <span class="muted small">na "Klaar met verbeteren" en altijd vóór je een afname verwijdert.</span></label>
+      <label class="inline check"><input type="checkbox" id="ar-maand" checked> <strong>Elke maand vanzelf archiveren</strong> <span class="muted small">dan ook de toetsen die nog niet helemaal verbeterd zijn.</span></label>
+      <p id="ar-status"></p>
+      <p class="muted small">Archiefmap: <code id="ar-map"></code></p>
+      <p class="notice hidden" id="ar-store">Windows wist deze map als je LANcelot verwijdert. Kies Mijn lesmap of een eigen map (bv. op een usb-stick of in OneDrive) om je toetsen jaren te bewaren.</p>
+      <label><span>Andere map <details class="hulp"><summary aria-label="Uitleg">?</summary><p>Leeg laten: de map Toetsarchief in Mijn lesmap (zo staat hij ook in OneDrive of Google Drive; daarvoor is internet nodig), of zonder lesmap in je gegevensmap op deze pc. Wat al in het archief stond, kopieert LANcelot mee naar de nieuwe map.</p></details></span><input id="ar-pad" autocomplete="off" placeholder="bv. D:\Toetsarchief"></label>
+      <p class="error" id="ar-error"></p>
+      <div class="actions">
+        <button class="secondary" id="ar-kies">Kies map…</button>
+        <button class="secondary" id="ar-bewaar">Deze map gebruiken</button>
+        <button class="secondary hidden" id="ar-standaard">Terug naar de standaardmap</button>
+        <button class="secondary" id="ar-open">Map openen</button>
+        <button class="secondary" id="ar-nu">Nu archiveren</button>
+      </div>
+      <div class="row" id="ar-export-rij">
+        <label>Schooljaar<select id="ar-jaar"></select></label>
+        <a class="button" id="ar-export" href="#">Exporteer schooljaar (zip)</a>
+      </div>
     </div>
     <div class="panel form" id="update-panel" data-tab="bijwerken">
       <h3>LANcelot bijwerken<details class="hulp"><summary aria-label="Uitleg">?</summary><p>Bijwerken geeft je nieuwe spellen en verbeteringen. Kreeg je een zip-bestand van een collega of de school? Kies dan "Bijwerken met een zip-bestand".</p></details></h3>
@@ -964,6 +987,7 @@
 <script src="/js/doel-kies.js"></script>
 <script src="/js/maker.js"></script>
 <script src="/js/lesmap.js"></script>
+<script src="/js/archief.js"></script>
 <script src="/js/taken-standaard.js"></script>
 <script src="/js/beheer.js"></script>
 <script src="/js/eerste-start.js"></script>

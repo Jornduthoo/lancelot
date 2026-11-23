@@ -71,6 +71,66 @@ function write(entries) {
   return Buffer.concat([...locals, ...central, end]);
 }
 
+// Een grote zip rechtstreeks naar een bestand, één bestand tegelijk in het geheugen (het toetsarchief van een schooljaar).
+// entries: [{ name: 'map/bestand.pdf', file: '/pad/op/schijf' }]. Een pdf of afbeelding is al klein: die gaat er onveranderd in.
+async function writeFile(out, entries) {
+  const fh = await fs.promises.open(out, 'w');
+  const central = [];
+  let offset = 0;
+  let n = 0;
+  try {
+    for (const e of entries) {
+      let raw, st;
+      try { raw = await fs.promises.readFile(e.file); st = await fs.promises.stat(e.file); } catch { continue; }
+      const name = Buffer.from(e.name.replace(/\\/g, '/'), 'utf8');
+      const opslaan = /\.(pdf|png|jpe?g|webp|zip)$/i.test(e.name);
+      const packed = opslaan ? raw : zlib.deflateRawSync(raw);
+      const method = opslaan ? 0 : 8;
+      const { time, date } = dosTime(st.mtime);
+      const crc = crc32(raw);
+      const head = Buffer.alloc(30);
+      head.writeUInt32LE(0x04034b50, 0);
+      head.writeUInt16LE(20, 4);
+      head.writeUInt16LE(0x0800, 6);
+      head.writeUInt16LE(method, 8);
+      head.writeUInt16LE(time, 10);
+      head.writeUInt16LE(date, 12);
+      head.writeUInt32LE(crc, 14);
+      head.writeUInt32LE(packed.length, 18);
+      head.writeUInt32LE(raw.length, 22);
+      head.writeUInt16LE(name.length, 26);
+      await fh.write(Buffer.concat([head, name, packed]));
+      const dir = Buffer.alloc(46);
+      dir.writeUInt32LE(0x02014b50, 0);
+      dir.writeUInt16LE(20, 4);
+      dir.writeUInt16LE(20, 6);
+      dir.writeUInt16LE(0x0800, 8);
+      dir.writeUInt16LE(method, 10);
+      dir.writeUInt16LE(time, 12);
+      dir.writeUInt16LE(date, 14);
+      dir.writeUInt32LE(crc, 16);
+      dir.writeUInt32LE(packed.length, 20);
+      dir.writeUInt32LE(raw.length, 24);
+      dir.writeUInt16LE(name.length, 28);
+      dir.writeUInt32LE(offset, 42);
+      central.push(dir, name);
+      offset += head.length + name.length + packed.length;
+      n++;
+    }
+    const cd = Buffer.concat(central);
+    const end = Buffer.alloc(22);
+    end.writeUInt32LE(0x06054b50, 0);
+    end.writeUInt16LE(n, 8);
+    end.writeUInt16LE(n, 10);
+    end.writeUInt32LE(cd.length, 12);
+    end.writeUInt32LE(offset, 16);
+    await fh.write(Buffer.concat([cd, end]));
+  } finally {
+    await fh.close();
+  }
+  return n;
+}
+
 // Alle bestanden uit een zip: [{ name, data }]. Mappen en onveilige namen (met ..) worden overgeslagen.
 function read(buf) {
   let end = -1;
@@ -122,4 +182,4 @@ function listFiles(dir, base = dir, skip = () => false) {
   return out;
 }
 
-module.exports = { write, read, listFiles, crc32 };
+module.exports = { write, writeFile, read, listFiles, crc32 };

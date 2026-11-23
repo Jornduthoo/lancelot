@@ -86,7 +86,7 @@ function find(id) {
 
 // Het vak van de inhoud (uit de leerplandoelen), om het niveau per vak uit Mijn klas te kiezen.
 function vakVan(soort, inhoud) {
-  if (soort === 'proef') return doelen.hoofdvak(K.niveausVan(inhoud).flatMap(n => K.vragenVan(K.lijstVoor(inhoud, n)).map(v => v.q.doel)));
+  if (soort === 'proef') return proeven.vakVan(inhoud);
   if (soort === 'quiz') return doelen.hoofdvak(inhoud.questions.map(q => q.doel));
   return doelen.hoofdvak(['blocks', 'page', 'ridder'].flatMap(k => inhoud[k] || []).map(b => b.doel));
 }

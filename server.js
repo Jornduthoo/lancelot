@@ -92,6 +92,7 @@ const postduif = require('./src/postduif');
 const { OefenbladLive } = require('./src/oefenblad-live');
 const proeven = require('./src/proeven');
 const toetskopie = require('./src/toetskopie');
+const toetsarchief = require('./src/toetsarchief');
 const toetsmail = require('./src/toetsmail');
 const { ProefLive } = require('./src/proef-live');
 const niveaus = require('./src/niveaus');
@@ -681,7 +682,7 @@ lesmap.init([
   { kind: 'taak', dir: () => taken.PLAN, perKlas: true, remote: 'taken', validate: taken.planGeldig },
   // Hoe ver de leerlingen zijn met elke taak: de pc waar ze werken zet het hier, je andere pc's tonen het.
   // De afnames van toetsen (De Proef, ook een toets als taak): zo zie en verbeter je ze op elke pc. Per leerling en per vraag samenvoegen.
-  { kind: 'afnames', dir: () => proeven.AFNAMES, perKlas: true, remote: 'toetsen-resultaten', validate: proeven.afnameGeldig, merge: proeven.afnameSamen },
+  { kind: 'afnames', dir: () => proeven.AFNAMES, perKlas: true, remote: 'toetsen-resultaten', validate: proeven.afnameGeldig, merge: proeven.afnameSamen, voorWeg: p => toetsarchief.voorWeg(p) },
   // Welke pc's er zijn en wanneer ze het laatst iets stuurden (statusregel "Bijgewerkt van …").
   // De standaardkeuzes voor taken (Instellingen › Taken): per leerkracht, dus niet per klas.
   { kind: 'takenstandaard', dir: takenstandaard.DIR, remote: 'taken-standaard', validate: takenstandaard.geldig },
@@ -959,6 +960,50 @@ app.get('/proef-kopie', (req, res) => {
   res.type('html').send(html);
 });
 
+// Het toetsarchief (src/toetsarchief.js): de pdf's maakt dezelfde browser zonder venster, uit de afname in het geheugen
+// (zo lukt het ook als de afname net verwijderd werd). De opgave: de toets zoals ze toen afgenomen werd.
+const metData = (naam, json) => fs.readFileSync(path.join(__dirname, 'public', 'proef-print.html'), 'utf8')
+  .replace('<script src="/socket.io/socket.io.js"></script>', () => `<script>window.${naam} = ${JSON.stringify(json).replace(/</g, '\\u003c').replace(/\u2028/g, '\\u2028').replace(/\u2029/g, '\\u2029')};</script>`);
+app.get('/archief-kopie', (req, res) => {
+  if (!isLeerkracht(req)) return res.status(403).send(GEEN_TOEGANG);
+  let data;
+  try { data = toetsarchief.werkKopie(req.query.werk, req.query.naam); } catch (err) { return res.status(404).send(err.message); }
+  res.setHeader('Cache-Control', 'no-store');
+  res.type('html').send(metData('KOPIE', data));
+});
+app.get('/archief-opgave', (req, res) => {
+  if (!isLeerkracht(req)) return res.status(403).send(GEEN_TOEGANG);
+  let data;
+  try { data = toetsarchief.werkOpgave(req.query.werk); } catch (err) { return res.status(404).send(err.message); }
+  res.setHeader('Cache-Control', 'no-store');
+  res.type('html').send(metData('OPGAVE', data));
+});
+toetsarchief.pdfUrl = (werk, { naam, sleutel } = {}) => naam !== undefined
+  ? `http://127.0.0.1:${PORT}/archief-kopie?werk=${werk}&naam=${encodeURIComponent(naam)}`
+  : `http://127.0.0.1:${PORT}/archief-opgave?werk=${werk}&niveau=alle${sleutel ? '&sleutel=1' : ''}`;
+// Een schooljaar uit het archief als zip.
+app.get('/toetsarchief-export', (req, res) => {
+  if (!isLeerkracht(req)) return res.status(403).send(GEEN_TOEGANG);
+  const jaar = String(req.query.jaar || '');
+  const tmp = path.join(require('os').tmpdir(), `lancelot-archief-${Date.now()}.zip`);
+  toetsarchief.exporteer(jaar, tmp)
+    .then(() => res.download(tmp, `${toetsarchief.MAP_NAAM} ${jaar}.zip`, () => fs.rm(tmp, { force: true }, () => {})))
+    .catch(err => { fs.rm(tmp, { force: true }, () => {}); res.status(404).type('text/plain; charset=utf-8').send(err.message); });
+});
+// Een afname in het archief zetten (na Klaar), met de klas die nu gekozen is.
+function archiveer(file) {
+  try {
+    const rec = proeven.laadAfname(file);
+    rec.file = rec.file || file;
+    const r = toetsarchief.bewaar(rec, toetsarchief.klasCtx(gegevens.actieveKlas()));
+    if (r) r.pdf.then(() => io.to('host').emit('archief', toetsarchief.view()), () => {});
+  } catch (err) { console.error('Toetsarchief:', err.message); }
+}
+// Bij het opstarten (na de kopieën en mails) en daarna om de zes uur: wat nog niet in het archief staat.
+const archiefRonde = () => toetsarchief.vanzelf().then(() => io.to('host').emit('archief', toetsarchief.view())).catch(err => console.error('Toetsarchief:', err.message));
+setTimeout(archiefRonde, 90000).unref();
+setInterval(archiefRonde, 6 * 3600 * 1000).unref();
+
 // Na het verbeteren: per leerling een pdf in Mijn lesmap (als de leerkracht dat aanzette). Loopt op de achtergrond.
 // Een afname die nog gemaild moet worden zodra de mailbox op deze pc klaar is (proeven/_afnames, rec.mailWacht).
 function zetMailWacht(file, aan) {
@@ -993,7 +1038,8 @@ function naKlaar(file, rec) {
   const kopie = toetskopie.aan() && !!settings.read().lesmap;
   // Wie een mailadres heeft (bv. de GON-begeleider), krijgt zijn toets ook gemaild.
   const mail = toetsmail.nodig(rec.spelers);
-  if (kopie || mail) toetsKopieen(file);
+  // Daarna (één browser tegelijk) in het toetsarchief.
+  (kopie || mail ? toetsKopieen(file) : Promise.resolve()).catch(() => {}).then(() => archiveer(file));
   // Wel adressen, maar op deze pc nog geen app-wachtwoord: onthouden en mailen zodra het ingevuld is (niet stil overslaan).
   const mailWacht = !mail && toetsmail.heeftAdres(rec.spelers);
   if (mailWacht) zetMailWacht(file, true);
@@ -1933,6 +1979,8 @@ io.on('connection', socket => {
       return klas.klassen();
     }));
     socket.on('klassen-weg', handle(({ id } = {}) => {
+      // De toetsen van die klas eerst vast in het toetsarchief.
+      try { toetsarchief.heleKlas(String(id || '')); } catch (err) { console.error('Toetsarchief:', err.message); }
       const uit = klas.verwijderKlas(id);
       naKlasWissel();
       return uit;
@@ -2709,6 +2757,38 @@ io.on('connection', socket => {
       vandaagSoon(); io.to('host').emit('pf-afnames', afnameLijst());
       return { resultaten: rec.resultaten, ...naKlaar(file, rec) };
     }));
+    // Het toetsarchief: aan of uit, elke maand, de map, nu archiveren, openen, een schooljaar als zip.
+    socket.on('archief-view', (_, cb) => typeof cb === 'function' && cb(toetsarchief.view()));
+    socket.on('archief-zet', handle(arg => {
+      const v = toetsarchief.zet(arg || {});
+      io.to('host').emit('archief', v);
+      if (v.aan) archiefRonde();
+      return v;
+    }));
+    socket.on('archief-nu', (_, cb) => {
+      io.to('host').emit('archief', { ...toetsarchief.view(), bezig: true });
+      toetsarchief.ronde({ alles: true }).then(r => {
+        const v = toetsarchief.view();
+        io.to('host').emit('archief', v);
+        if (typeof cb === 'function') cb({ ...r, ...v, fout: r.fout || v.fout });
+      }, err => typeof cb === 'function' && cb({ error: err.message }));
+    });
+    socket.on('archief-open', () => {
+      const dir = toetsarchief.map();
+      try { fs.mkdirSync(dir, { recursive: true }); } catch {}
+      if (process.platform === 'win32') execFile('explorer', [store.echtPad(dir)]);
+    });
+    socket.on('archief-kies', (_, cb) => {
+      if (scherm) return cb && cb({ error: 'Dat venster zou op het digibord openen. Typ het pad van de map hieronder.' });
+      if (process.platform !== 'win32') return cb && cb({ error: 'Typ het pad van de map hieronder.' });
+      const ps = 'Add-Type -AssemblyName System.Windows.Forms; $d = New-Object System.Windows.Forms.FolderBrowserDialog; '
+        + '$d.Description = \'Kies de map voor je toetsarchief\'; $d.ShowNewFolderButton = $true; '
+        + '$w = New-Object System.Windows.Forms.Form -Property @{TopMost=$true}; '
+        + 'if ($d.ShowDialog($w) -eq \'OK\') { [Console]::OutputEncoding = [Text.Encoding]::UTF8; $d.SelectedPath }';
+      execFile('powershell', ['-NoProfile', '-STA', '-Command', ps], { windowsHide: true }, (err, out) => {
+        cb && cb(err ? { error: 'Het venster om een map te kiezen opende niet. Typ het pad hieronder.' } : { path: String(out).trim() });
+      });
+    });
     // Toetsen mailen: afzender (eigen mailbox) en een adres per leerling.
     socket.on('pf-mail-view', (_, cb) => typeof cb === 'function' && cb(toetsmail.view()));
     socket.on('pf-mail-afzender', handle(arg => {
@@ -2724,6 +2804,8 @@ io.on('connection', socket => {
     socket.on('pf-kopie-zet', handle(aan => toetskopie.zet(aan)));
     socket.on('pf-kopie-nu', handle(file => { proeven.laadAfname(file); toetsKopieen(file); return { ok: true }; }));
     socket.on('pf-afname-weg', handle(file => {
+      // Eerst vast in het toetsarchief: wat je hier verwijdert, blijft daar staan.
+      toetsarchief.voorWeg(file);
       proeven.verwijderAfname(file);
       vandaagSoon(); io.to('host').emit('pf-afnames', afnameLijst());
       return {};
