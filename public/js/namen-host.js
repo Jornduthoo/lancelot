@@ -27,11 +27,10 @@
       pauzeKop.className = 'secondary pauze-knop';
       pauzeKop.setAttribute('data-pauze', '');
       pauzeKop.title = 'Alle leerlingschermen op slot om de aandacht te vragen';
-      pauzeKop.innerHTML = '<img src="/img/icons/pauze-klein.webp" alt=""> <span class="kop-tekst">Pauze</span>';
     }
+    pauzeKop.innerHTML = `${Ui.ic('pauze')} <span class="kop-tekst">Pauze</span>`;
     pauzeKop.classList.add('kop-vast');
     kop.classList.add('kop-vast');
-    kop.innerHTML = '<img src="/img/icons/kop-namen.webp" alt=""> <span class="kop-tekst">Namen</span>';
     const groep = document.createElement('div');
     groep.className = 'kop-vast-rij';
     groep.append(pauzeKop, kop, qrKnop());
@@ -65,7 +64,7 @@
     const b = document.createElement('button');
     b.className = 'secondary qr-kop';
     b.title = 'De QR-code waarmee leerlingen verbinden, groot op het bord';
-    b.innerHTML = '<img src="/img/icons/kop-qr.webp" alt=""> <span class="kop-tekst">QR-code</span>';
+    b.innerHTML = `${Ui.ic('qr')} <span class="kop-tekst">QR-code</span>`;
     const venster = document.createElement('dialog');
     venster.className = 'qr-venster';
     venster.innerHTML = '<div class="qr-venster-kop"><h2>Verbinden met LANcelot</h2><button class="secondary icon" title="Sluiten" aria-label="Sluiten"></button></div>'
@@ -211,7 +210,7 @@
       // Loopt er een spel, dan staan Pauze en Namen linksonder op het bord: niet twee keer.
       if (pauzeKop && pauzeKop.classList.contains('kop-vast') && rij.isConnected) pauzeKop.classList.toggle('hidden', actief);
       const binnen = (res.spelers || []).filter(p => p.online).length;
-      for (const b of document.querySelectorAll('.namen-knop')) b.innerHTML = `${b.closest('.kop-vast-rij') ? '<img src="/img/icons/kop-namen.webp" alt="">' : Ui.ic('namen')} <span class="kop-tekst">Namen</span>${binnen ? ` <b class="namen-tel">${binnen}</b>` : ''}`;
+      for (const b of document.querySelectorAll('.namen-knop')) b.innerHTML = `${Ui.ic('namen')} <span class="kop-tekst">Namen</span>${binnen ? ` <b class="namen-tel">${binnen}</b>` : ''}`;
       if (modal.classList.contains('hidden')) return;
       // Wie in het spel van dit scherm zit eerst, daarna de rest op naam.
       const hier = p => p.pad === pad ? 0 : 1;

@@ -599,6 +599,8 @@
     for (const [r, paden] of Object.entries(PAD_RIJK)) if (paden.includes(pad)) return r === 'geen' ? '' : r;
     return 'arena'; // alle andere leerkrachtenschermen met een topbalk zijn spellen
   }
+  // Simpele lijn-iconen in de kopbalk (de geschilderde beelden staan op de grote tegels).
+  const KOP_IC = { arena: 'spelen', tafel: 'peilen', smidse: 'maken', wapenkamer: 'klastools', kronieken: window.LANCELOT_STORE ? 'namen' : 'lesgeven' };
   let snelMarkeer = () => {};
   function snelmenu() {
     const brand = document.querySelector('.topbar > .brand');
@@ -607,7 +609,7 @@
     nav.className = 'snelmenu';
     nav.setAttribute('aria-label', 'Snel naar');
     nav.innerHTML = `${
-      RIJKEN.map(([id, naam, ic]) => `<a href="/host#${id}" data-rijk="${id}" title="${id === 'kronieken' && window.LANCELOT_STORE ? naam : `Naar De ${naam}`}"><img src="/img/icons/${ic}.webp" alt=""><span>${naam}</span></a>`).join('')}<a href="/host?instellingen" class="snel-inst" data-inst="1" title="Instellingen" aria-label="Instellingen"><img src="/img/icons/kop-instellingen.webp" alt=""><span>Instellingen</span></a>`;
+      RIJKEN.map(([id, naam]) => `<a href="/host#${id}" data-rijk="${id}" title="${id === 'kronieken' && window.LANCELOT_STORE ? naam : `Naar De ${naam}`}"><i class="ic ic-${KOP_IC[id]}" aria-hidden="true"></i><span>${naam}</span></a>`).join('')}<a href="/host?instellingen" class="snel-inst" data-inst="1" title="Instellingen" aria-label="Instellingen"><i class="ic ic-instellingen" aria-hidden="true"></i><span>Instellingen</span></a>`;
     brand.after(nav);
     snelMarkeer = () => {
       const r = rijkHier();
