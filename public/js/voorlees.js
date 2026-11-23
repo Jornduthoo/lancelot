@@ -91,7 +91,7 @@ const Voorlees = (() => {
     return uitStukken;
   }
 
-  // Nog eens klikken op dezelfde knop stopt het voorlezen. traag: trager voorlezen (bv. bij een dictee).
+  // Nog eens klikken op dezelfde knop stopt het voorlezen. traag: trager voorlezen (🐢, bv. bij een dictee; Jorn vroeg nog trager: .5).
   function speak(text, btn, { traag = false } = {}) {
     if (!ok) return;
     const again = btn && busy === btn;
@@ -110,7 +110,7 @@ const Voorlees = (() => {
         const u = new SpeechSynthesisUtterance(part);
         u.lang = voice ? voice.lang : 'nl-BE';
         if (voice) u.voice = voice;
-        u.rate = traag ? .65 : .9;
+        u.rate = traag ? .5 : .9;
         if (i === parts.length - 1) {
           u.onend = u.onerror = () => {
             if (busy !== mijn) return;
