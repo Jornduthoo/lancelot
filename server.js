@@ -153,16 +153,27 @@ const SERVER_START = `${Date.now().toString(36)}-${Math.random().toString(36).sl
 // elke pagina krijgt haar scripts, stijlen en beelden met het nummer van deze start in de link (/js/x.js?v=...), en de
 // pagina zelf wordt nooit bewaard. Een link met het juiste nummer mag de browser bewaren tot de volgende start: zo
 // vraagt een pagina die opnieuw opent niet honderden bestanden opnieuw na (snel op een trage klas-pc).
-const bewaarTotHerstart = req => req.query && req.query.v === SERVER_START;
+// Het nummer krijgt ook de datum en grootte van het bestand mee: zo ziet de browser een bijgewerkt bestand ook als
+// LANcelot na een update nog niet opnieuw startte (anders: nieuwe pagina met oude stijl en scripts).
+const bewaarTotHerstart = req => !!(req.query && typeof req.query.v === 'string' && req.query.v.split('.')[0] === SERVER_START);
+const PUBLIC_MAP = path.join(__dirname, 'public');
+const bestandStempel = rel => {
+  try { const st = fs.statSync(path.join(PUBLIC_MAP, rel)); return `${Math.round(st.mtimeMs).toString(36)}${st.size.toString(36)}`; } catch { return ''; }
+};
 const BEWAAR = ['private', 'max-age=31536000', 'immutable'].join(', ');
 const cacheVoor = req => (bewaarTotHerstart(req) ? BEWAAR : 'no-cache');
 const paginaCache = new Map();
 function paginaMetVersie(file) {
   const st = fs.statSync(file);
   const hit = paginaCache.get(file);
-  if (hit && hit.mtime === st.mtimeMs && hit.size === st.size) return hit;
-  const html = fs.readFileSync(file, 'utf8').replace(/((?:src|href)=")(\/[\w./-]+\.(?:js|css|webp|png|jpg|svg))"/g, `$1$2?v=${SERVER_START}"`);
-  const out = { mtime: st.mtimeMs, size: st.size, html, gz: zlib.gzipSync(html) };
+  if (hit && hit.mtime === st.mtimeMs && hit.size === st.size && hit.delen.every(([rel, stempel]) => bestandStempel(rel) === stempel)) return hit;
+  const delen = [];
+  const html = fs.readFileSync(file, 'utf8').replace(/((?:src|href)=")(\/[\w./-]+\.(?:js|css|webp|png|jpg|svg))"/g, (_, a, rel) => {
+    const stempel = bestandStempel(rel);
+    delen.push([rel, stempel]);
+    return `${a}${rel}?v=${SERVER_START}.${stempel}"`;
+  });
+  const out = { mtime: st.mtimeMs, size: st.size, delen, html, gz: zlib.gzipSync(html) };
   paginaCache.set(file, out);
   return out;
 }
