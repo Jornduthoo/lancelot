@@ -74,7 +74,10 @@ public static class LancelotTaakbalk {
 # Het venster: in de taakbalk met het logo, klein en rustig. Het start geminimaliseerd: alleen de knop in de taakbalk.
 $venster = New-Object System.Windows.Forms.Form
 $venster.Text = 'LANcelot'
-$venster.Icon = New-Object System.Drawing.Icon (Join-Path $app 'public\img\systeemvak.ico')
+# Afbeeldingen via het geheugen laden, nooit rechtstreeks uit het bestand: een geopend bestand houdt de map public\img
+# vast, en dan kan een update die map niet vervangen ("being used by another process").
+function Lees-Stroom($naam) { New-Object IO.MemoryStream (, [IO.File]::ReadAllBytes((Join-Path $app $naam))) }
+$venster.Icon = New-Object System.Drawing.Icon (Lees-Stroom 'public\img\systeemvak.ico')
 $venster.ClientSize = New-Object System.Drawing.Size(400, 300)
 $venster.FormBorderStyle = 'FixedSingle'
 $venster.MaximizeBox = $false
@@ -92,7 +95,7 @@ $venster.add_HandleCreated({
 })
 
 $beeld = New-Object System.Windows.Forms.PictureBox
-$beeld.Image = [System.Drawing.Image]::FromFile((Join-Path $app 'public\img\icon-192.png'))
+$beeld.Image = [System.Drawing.Image]::FromStream((Lees-Stroom 'public\img\icon-192.png'))
 $beeld.SizeMode = 'Zoom'
 $beeld.SetBounds(140, 14, 120, 120)
 $venster.Controls.Add($beeld)

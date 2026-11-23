@@ -139,14 +139,14 @@
     let tekst = v.huidig && v.huidig.datum ? `Jouw versie: ${datum(v.huidig.datum)}.` : 'Jouw versie: bijgewerkt met een zip.';
     if (v.melding) tekst = `✓ ${v.melding} ${tekst}`;
     if (v.bezig) tekst = 'Even geduld…';
-    else if (v.klaar && v.auto) tekst = `✓ Er staat een nieuwe versie klaar. LANcelot installeert ze vanzelf zodra er geen les loopt.`;
-    else if (v.klaar && v.klaar.bestand) tekst = `✓ De update ${v.klaar.bericht} staat klaar. Hij wordt geïnstalleerd de volgende keer dat je LANcelot start (doe dat na de les).`;
-    else if (v.klaar) tekst = `✓ De update van ${datum(v.klaar.datum)} staat klaar. Hij wordt geïnstalleerd de volgende keer dat je LANcelot start (doe dat na de les).`;
+    else if (v.klaar && v.auto) tekst = `✓ Er staat een nieuwe versie klaar. LANcelot installeert ze vanzelf zodra er geen les loopt, of druk op "Nu herstarten en installeren".`;
+    else if (v.klaar) tekst = `✓ Er staat een nieuwe versie klaar. Druk op "Nu herstarten en installeren" (doe dat na de les).`;
     else if (actueel) tekst += ' Dat is de nieuwste versie.';
     else if (nieuwst) tekst += ` Nieuwste versie: ${datum(nieuwst.datum)}${nieuwst.bericht ? ` (${nieuwst.bericht})` : ''}.`;
     $('up-status').textContent = tekst;
     $('up-download').classList.toggle('hidden', !nieuwst || actueel || !!v.klaar || v.bezig);
     $('up-annuleer').classList.toggle('hidden', !v.klaar);
+    $('up-nu').classList.toggle('hidden', !v.klaar || v.bezig);
     $('up-zoek').disabled = $('up-download').disabled = v.bezig;
     if (document.activeElement !== $('up-bron')) $('up-bron').value = v.bron || '';
     if (typeof v.auto === 'boolean') $('up-auto').checked = v.auto;
@@ -162,6 +162,17 @@
   socket.on('connect', async () => { if (wachtUpdate || $('up-zoek').disabled) toonUpdate(await ask('update-get')); });
   $('up-zoek').addEventListener('click', async () => { bezig(); toonUpdate(await vraagUpdate('update-zoek', 40000)); });
   $('up-download').addEventListener('click', async () => { bezig(); toonUpdate(await vraagUpdate('update-download', 6 * 60000)); });
+  // Meteen installeren: LANcelot stopt even en start opnieuw; dit scherm laadt zichzelf daarna opnieuw.
+  $('up-nu').addEventListener('click', async () => {
+    let r = await ask('update-nu', false);
+    if (r.vraag) {
+      if (!await Ui.vraag('Er zijn leerlingen verbonden of er loopt een spel. Als LANcelot nu herstart, vallen ze even weg. Toch nu herstarten?')) return;
+      r = await ask('update-nu', true);
+    }
+    if (r.error) { $('up-error').textContent = r.error; return; }
+    $('up-status').textContent = 'LANcelot start opnieuw met de nieuwe versie. Even geduld, dit scherm laadt zichzelf opnieuw…';
+    $('up-zoek').disabled = $('up-download').disabled = $('up-nu').disabled = $('up-annuleer').disabled = true;
+  });
   $('up-annuleer').addEventListener('click', async () => toonUpdate(await ask('update-annuleer')));
   $('up-auto').addEventListener('change', async e => toonUpdate(await ask('update-auto', e.target.checked)));
   $('up-bron-zet').addEventListener('click', async () => toonUpdate(await ask('update-bron', $('up-bron').value)));

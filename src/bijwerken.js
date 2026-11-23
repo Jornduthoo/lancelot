@@ -187,6 +187,21 @@ function annuleer() {
   return view();
 }
 
+// De nieuwe bestanden over de oude kopiëren, alleen wat echt anders is.
+function kopieerOver(src, dst) {
+  if (fs.statSync(src).isDirectory()) {
+    fs.mkdirSync(dst, { recursive: true });
+    for (const naam of fs.readdirSync(src)) kopieerOver(path.join(src, naam), path.join(dst, naam));
+    return;
+  }
+  try {
+    const a = fs.statSync(src);
+    const b = fs.statSync(dst);
+    if (a.size === b.size && fs.readFileSync(src).equals(fs.readFileSync(dst))) return;
+  } catch { /* nog niet aanwezig */ }
+  fs.copyFileSync(src, dst);
+}
+
 let laatsteMelding = '';
 // Foutcodes van Windows als een bestand of map nog open is bij een ander programma.
 const VAST = new Set(['EPERM', 'EBUSY', 'EACCES', 'ENOTEMPTY']);
@@ -244,11 +259,11 @@ function pasToe() {
         fs.renameSync(src, dst);
         gedaan.push({ top, had });
       } catch (err) {
-        // Windows: een map die nog open is (een ander LANcelot-venster, de Verkenner, een virusscanner) kan niet
-        // verplaatst worden. Dan kopiëren we de bestanden erover; dat lukt bijna altijd.
-        if (!VAST.has(err.code)) throw err;
+        // Windows: een map waarin iets open is (de LANcelot-knop, de Verkenner, een virusscanner) kan niet verplaatst
+        // worden, met allerlei foutcodes (EPERM, EBUSY, zelfs EPIPE). Dan kopiëren we de bestanden erover, één voor één.
+        // Een bestand dat al hetzelfde is, slaan we over: zo hindert een open bestand dat niet veranderde nooit.
         if (had && !fs.existsSync(path.join(oud, top))) fs.cpSync(dst, path.join(oud, top), { recursive: true });
-        fs.cpSync(src, dst, { recursive: true, force: true });
+        kopieerOver(src, dst);
         gedaan.push({ top, had, kopie: true });
       }
     }
@@ -260,13 +275,13 @@ function pasToe() {
     // Alles terugzetten zoals het was.
     for (const { top, had, kopie } of gedaan.reverse()) {
       try {
-        if (kopie) { if (had) fs.cpSync(path.join(oud, top), path.join(APP, top), { recursive: true, force: true }); continue; }
+        if (kopie) { if (had) kopieerOver(path.join(oud, top), path.join(APP, top)); continue; }
         fs.rmSync(path.join(APP, top), { recursive: true, force: true });
         if (had) fs.renameSync(path.join(oud, top), path.join(APP, top));
       } catch {}
     }
     // Zat er alleen iets vast (een ander venster), dan blijft de update klaarstaan voor de volgende start.
-    bewaar = VAST.has(err.code);
+    bewaar = VAST.has(err.code) || /being used by another process|EPIPE/i.test(`${err.code} ${err.message}`);
     laatsteMelding = bewaar
       ? 'Bijwerken lukte nog niet: een map van LANcelot is nog open (staat er nog een ander LANcelot-venster open?). Sluit alle LANcelot-vensters en start opnieuw: de update staat nog klaar.'
       : `Bijwerken lukte niet: ${err.message}. LANcelot draait verder met de vorige versie.`;
