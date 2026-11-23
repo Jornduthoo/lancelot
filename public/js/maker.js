@@ -490,21 +490,32 @@ if (returnTo) {
 }
 
 // Het startpakket 6e leerjaar: tonen zolang er quizzen of oefenbladen uit het pakket nog niet bij de leerkracht staan.
+// Na "Nee, bedankt" blijft de melding weg (de server onthoudt het); dan staat het nog in Instellingen > Gegevens.
 function startpakketStatus() {
   socket.emit('startpakket-status', null, res => {
     if (!res || !res.ok) return;
-    $('startpakket').classList.toggle('hidden', !res.nieuw);
+    $('startpakket').classList.toggle('hidden', !res.nieuw || res.nee);
+    $('sp-later').classList.toggle('hidden', !res.nieuw || !res.nee);
     $('sp-tekst').textContent = `${res.nieuw} kant-en-klare quizzen en oefenbladen bij Op.stap-doelen (breuken en procenten, deelbaarheid, schaal, oppervlakte, werkwoorden, Europa, WO II), met uitleg bij elke vraag. Ze komen in de map "Startpakket 6e leerjaar".`;
+    $('sp-later-tekst').textContent = `${res.nieuw} kant-en-klare quizzen en oefenbladen bij Op.stap-doelen. Ze komen in de map "Startpakket 6e leerjaar".`;
   });
 }
-$('sp-knop').addEventListener('click', () => {
-  $('sp-knop').disabled = true;
+function startpakketErbij(knop) {
+  knop.disabled = true;
   socket.emit('startpakket-installeer', null, res => {
-    $('sp-knop').disabled = false;
+    knop.disabled = false;
     if (!res || res.error) return Ui.melding(res ? res.error : 'Dat lukte niet.');
     $('startpakket').classList.add('hidden');
+    $('sp-later').classList.add('hidden');
     Ui.melding(`${res.erbij} quizzen en oefenbladen staan nu in de map "${res.map}".`);
   });
+}
+$('sp-knop').addEventListener('click', () => startpakketErbij($('sp-knop')));
+$('sp-later-knop').addEventListener('click', () => startpakketErbij($('sp-later-knop')));
+$('sp-nee').addEventListener('click', () => {
+  socket.emit('startpakket-nee', null, () => {});
+  $('startpakket').classList.add('hidden');
+  $('sp-later').classList.remove('hidden');
 });
 socket.on('connect', startpakketStatus);
 startpakketStatus();
