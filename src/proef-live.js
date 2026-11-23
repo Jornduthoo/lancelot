@@ -69,7 +69,7 @@ class ProefLive {
     this.file = file;
     this.inst = instellingen(inst);
     for (const n of K.niveausVan(toets)) this.levels[n] = K.lijstVoor(toets, n);
-    this.vak = doelen.hoofdvak(Object.values(this.levels).flatMap(l => K.vragenVan(l).map(v => v.q.doel)));
+    this.vak = toets.vak || doelen.hoofdvak(Object.values(this.levels).flatMap(l => K.vragenVan(l).map(v => v.q.doel)));
     this.phase = 'open';
     this.startedAt = Date.now();
     this.klok = setInterval(() => this.tick(), 1000);

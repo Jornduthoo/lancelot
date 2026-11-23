@@ -242,7 +242,11 @@ async function syncKind(kind, root, state, count) {
       else { await trash(remote, name); count.removed++; }
     } else if (rChanged && !lChanged) {
       if (r) await pull();
-      else { await trash(local, name); changedHere = true; count.removed++; }
+      else {
+        // Op een andere pc verwijderd: eerst nog vast bewaren als de soort dat vraagt (het toetsarchief).
+        if (kind.voorWeg) try { kind.voorWeg(path.join(local, name)); } catch {}
+        await trash(local, name); changedHere = true; count.removed++;
+      }
     } else if (l && r && kind.merge) {
       // Aan beide kanten aangepast en de soort kan samenvoegen (de klaslijst): niemand verliest iets.
       let text;

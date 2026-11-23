@@ -57,7 +57,7 @@ function lijstItem(file) {
     const types = new Set();
     for (const v of K.vragenVan(t.vragen)) types.add(v.q.type);
     const doelen = require('./doelen');
-    const vak = doelen.hoofdvak(K.niveausVan(t).flatMap(n => K.vragenVan(K.lijstVoor(t, n)).map(v => v.q.doel))) || '';
+    const vak = vakVan(t);
     const { title, ...inhoud } = t;
     const sig = require('crypto').createHash('sha1').update(JSON.stringify(inhoud)).digest('hex');
     item = { file, title: t.title, count: K.vragenVan(t.vragen).length, punten: K.totaal(t.vragen), types: [...types], niveaus: K.niveausVan(t), klaar: !K.problemen(t).length, vak, gewijzigd: st ? new Date(st.mtimeMs).toISOString() : null, ...(K.vragenVan(t.vragen).length ? { sig } : {}) };
@@ -66,6 +66,13 @@ function lijstItem(file) {
   }
   if (st) lijstMemo.set(file, { sleutel, item });
   return item;
+}
+
+// Het vak van een toets: wat de leerkracht koos, anders het vak dat het vaakst bij de doelen van de vragen staat.
+function vakVan(t) {
+  if (t && t.vak) return t.vak;
+  const doelen = require('./doelen');
+  return doelen.hoofdvak(K.niveausVan(t).flatMap(n => K.vragenVan(K.lijstVoor(t, n)).map(v => v.q.doel))) || '';
 }
 
 function checkFile(file) {
@@ -345,9 +352,14 @@ function verwijderAfname(file) {
 // Wat de kopie van één leerling toont (proef-print.html?kopie): de toets met zijn antwoorden, punten en ✔/✘ per vakje.
 // speler: de plaats in de lijst, of de naam (vast, ook als er intussen iemand bijkwam).
 function kopieData(file, speler) {
-  const rec = laadAfname(file);
+  return kopieVan(laadAfname(file), speler);
+}
+// Hetzelfde voor een afname die al in het geheugen staat (het toetsarchief, ook als de afname intussen weg is).
+function kopieVan(rec, speler) {
   const s = typeof speler === 'string' ? rec.spelers.find(x => sleutelVan(x.naam) === sleutelVan(speler)) : rec.spelers[Number(speler)];
   if (!s) throw new Error('Die leerling staat niet in deze afname.');
+  s.hand = s.hand || {};
+  s.auto = s.auto || {};
   const punten = {};
   const vakken = {};
   for (const { id, q } of K.vragenVan(K.lijstVoor(rec.toets, s.niveau))) {
@@ -360,4 +372,4 @@ function kopieData(file, speler) {
   return { title: rec.title, datum: rec.datum, naam: s.naam, niveau: s.niveau, toets: rec.toets, antwoorden: s.antwoorden, punten, vakken, stand: stand(rec, s) };
 }
 
-module.exports = { set gegevenHook(fn) { gegevenHook = fn; }, afnameSamen, afnameGeldig, afnameVanTaak, sleutelVan, PC, set naSchrijf(fn) { naSchrijf = fn; }, get AFNAMES() { return AFNAMES(); }, kregen, DIR, list, load, save, remove, parseAiText, parseSleutel, lib, bewaarAfname, schrijfAfname: schrijf, laadAfname, afnames, cijfer, klaar, stand, verwijderAfname, kopieData, K };
+module.exports = { vakVan, set gegevenHook(fn) { gegevenHook = fn; }, afnameSamen, afnameGeldig, afnameVanTaak, sleutelVan, PC, set naSchrijf(fn) { naSchrijf = fn; }, get AFNAMES() { return AFNAMES(); }, kregen, DIR, list, load, save, remove, parseAiText, parseSleutel, lib, bewaarAfname, schrijfAfname: schrijf, laadAfname, afnames, cijfer, klaar, stand, verwijderAfname, kopieData, kopieVan, K };

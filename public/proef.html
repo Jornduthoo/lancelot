@@ -55,6 +55,7 @@
     <div class="panel pf-afnames" id="resultaten">
       <h3>✏️ Afnames en verbeteren <span class="muted small">· wie bezig is, punten, verbeteren en gemaild</span></h3>
       <div id="afnames"></div>
+      <p class="muted small"><a href="/host?instellingen=archief&amp;terug=/proef">📦 Toetsarchief</a> · elke afgenomen toets blijft daar jaren bewaard, per schooljaar.</p>
     </div>
     <div class="quiz-list" id="toets-list"></div>
     <p class="error" id="list-error"></p>
@@ -198,6 +199,7 @@
         <div class="panel form">
           <label>Titel<input id="e-title" maxlength="100" placeholder="bijv. Toets breuken blok 4"></label>
           <label id="e-map-veld" class="hidden">In map<select id="e-map"></select></label>
+          <label>Vak<select id="e-vak"><option value="">Vanzelf (uit de doelen van de vragen)</option></select></label>
           <label>Uitleg voor de leerlingen bij de start (mag leeg)<textarea id="e-intro" rows="2" maxlength="1000" placeholder="bijv. Lees elke vraag goed. Een rekenmachine mag niet."></textarea></label>
           <label class="inline check"><input type="checkbox" id="e-auto"> ⚙️ Alles automatisch verbeteren</label>
           <label class="inline check"><input type="checkbox" id="e-volgorde"> 🔢 Vragen altijd in deze volgorde <span class="muted small">bv. een luistertoets die een verhaal volgt. De keuzes mogen nog door elkaar.</span></label>

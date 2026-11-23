@@ -163,7 +163,7 @@ function tekenAfnames() {
   for (const b of box.querySelectorAll('[data-file]')) b.addEventListener('click', () => openAfname(b.dataset.file));
   for (const b of box.querySelectorAll('[data-weg]')) {
     b.addEventListener('click', async () => {
-      if (!await Ui.vraag('Deze afname verwijderen? De antwoorden en punten van de leerlingen gaan naar de prullenbak, ook op je andere pc\'s met Mijn lesmap. Wat al in het logboek of in Excel staat, blijft.')) return;
+      if (!await Ui.vraag('Deze afname verwijderen? De antwoorden en punten van de leerlingen gaan naar de prullenbak, ook op je andere pc\'s met Mijn lesmap. Wat al in het logboek, in Excel of in je toetsarchief staat, blijft.')) return;
       socket.emit('pf-afname-weg', b.dataset.weg, res => { if (res.error) Ui.melding(res.error); });
     });
   }
@@ -533,6 +533,7 @@ function readEditor() {
   const t = { title: $('e-title').value, intro: $('e-intro').value, vragen: leesLijst($('e-vragen')) };
   if ($('e-auto').checked) t.auto = true;
   if ($('e-volgorde').checked) t.vasteVolgorde = true;
+  if ($('e-vak').value) t.vak = $('e-vak').value;
   for (const n of ['page', 'ridder']) {
     const l = leesLijst(vragenBox(n));
     if (l.length) t[n] = l;
@@ -670,6 +671,22 @@ function autoLijst(t) {
   };
 }
 
+// Het vak van de toets: de vakken van Mijn klas en die uit je doelen. Een vak dat er niet (meer) bij staat, blijft kiesbaar.
+function zetVakKeuze(vak) {
+  const sel = $('e-vak');
+  const vul = lijst => {
+    const namen = [...new Set([...lijst, vak].filter(Boolean))];
+    sel.replaceChildren(sel.options[0], ...namen.map(n => { const o = document.createElement('option'); o.value = n; o.textContent = n; return o; }));
+    sel.value = vak;
+  };
+  vul([]);
+  socket.emit('vakken-get', null, res => {
+    if (!res || res.error) return;
+    const uitGroep = (res.groepen || []).filter(g => !g.uit).flatMap(g => g.vakken || [g.naam]);
+    vul([...new Set([...uitGroep, ...(res.doelVakken || [])])].sort((a, b) => a.localeCompare(b, 'nl')));
+  });
+}
+
 function openEditor(t, file) {
   editingFile = file;
   mapKeuze.zet(file);
@@ -678,6 +695,7 @@ function openEditor(t, file) {
   $('e-intro').value = t.intro || '';
   $('e-auto').checked = !!t.auto;
   $('e-volgorde').checked = !!t.vasteVolgorde;
+  zetVakKeuze(t.vak || '');
   for (const n of Niveau.LIST) {
     vragenBox(n).innerHTML = '';
     for (const q of (n === 'schildknaap' ? t.vragen : t[n]) || []) vragenBox(n).appendChild(vraagKaart(q));
