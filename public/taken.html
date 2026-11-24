@@ -222,10 +222,11 @@
     </div>
   </dialog>
 
-  <dialog class="ui-venster tk-venster form tk-keuzes" id="tk-keuzes">
+  <dialog class="ui-venster tk-venster tk-keuzes" id="tk-keuzes">
     <h2>⚙️ Instellingen van deze taak</h2>
     <p class="muted small" id="kz-uitleg"></p>
-    <div class="row">
+    <!-- .form staat binnenin: op de <dialog> zelf zou display:flex het venster altijd tonen. -->
+    <div class="form"><div class="row">
       <label id="kz-fb-label">Verbeteren
         <select id="kz-feedback">
           <option value="direct">Meteen (groen of rood)</option>
@@ -247,7 +248,7 @@
         </select>
       </label>
       <label class="inline check"><input type="checkbox" id="kz-uitslag"> Leerling ziet zijn punten na het inleveren</label>
-    </div>
+    </div></div>
     <div class="actions">
       <button class="secondary" id="kz-annuleer">Annuleren</button>
       <button class="gold" id="kz-ok">Bewaren</button>
