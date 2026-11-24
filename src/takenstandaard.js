@@ -11,7 +11,8 @@ const FILE = () => path.join(DIR(), 'standaard.json');
 
 // Goede standaarden voor wie begint: Page-leerlingen krijgen voorgelezen, alles door elkaar, punten pas na
 // het verbeteren, meteen groen of rood bij een oefenblad, en een geplande taak start om half negen.
-const STANDAARD = { voorlees: 'page', volgorde: 'schud', uitslag: false, feedback: 'direct', startuur: '08:30' };
+// Een toets als taak opent beveiligd (volledig scherm, wegklikken gemeld): zo werkt ook een afname op het bord.
+const STANDAARD = { voorlees: 'page', volgorde: 'schud', uitslag: false, beveiligd: true, feedback: 'direct', startuur: '08:30' };
 const KEUZES = {
   voorlees: ['uit', 'page', 'iedereen'],
   volgorde: ['schud', 'vragen', 'alles'],
@@ -25,6 +26,7 @@ function schoon(d, volledig) {
   const x = d && typeof d === 'object' ? d : {};
   for (const [k, lijst] of Object.entries(KEUZES)) if (lijst.includes(x[k])) uit[k] = x[k];
   if (typeof x.uitslag === 'boolean') uit.uitslag = x.uitslag;
+  if (typeof x.beveiligd === 'boolean') uit.beveiligd = x.beveiligd;
   if (UUR.test(String(x.startuur || ''))) uit.startuur = x.startuur;
   return volledig ? { ...STANDAARD, ...uit } : uit;
 }

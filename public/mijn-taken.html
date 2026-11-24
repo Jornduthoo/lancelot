@@ -122,6 +122,15 @@
       <button class="gold big" id="tk-toets-terug"><i class="ic ic-taak" aria-hidden="true"></i>Terug naar mijn taken</button>
     </div>
   </section>
+  <!-- Een beveiligde toets: wie hem verlaat, ziet dit (en de leerkracht ziet het ook). De antwoorden blijven staan. -->
+  <div class="pf-slot hidden" id="tk-slot">
+    <div class="panel">
+      <div class="pf-slot-icoon" id="tk-slot-icoon">⚠️</div>
+      <h2 id="tk-slot-titel">Je verliet de toets</h2>
+      <p id="tk-slot-tekst">Je leerkracht ziet dat. Je antwoorden zijn bewaard.</p>
+      <button class="gold big" id="tk-verder">Verder met de toets</button>
+    </div>
+  </div>
 </main>
 <script src="/socket.io/socket.io.js"></script>
 <script src="/js/ui.js"></script>

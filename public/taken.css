@@ -194,3 +194,12 @@
 .tk-telling { cursor: pointer; }
 .tk-telling .tk-opvolgen { font-size: .8rem; font-weight: 700; color: var(--cyan); text-decoration: none; white-space: nowrap; }
 .tk-telling .tk-opvolgen:hover { text-decoration: underline; }
+
+/* Een beveiligde toets als taak: volledig scherm, en wie wegklikt staat erbij. */
+.tk-taak-bv { display: block; color: rgb(var(--k-cyan-l)); }
+.tk-mini.on { box-shadow: inset 0 0 0 2px rgb(var(--k-cyan)); }
+.tk-ll-weg { color: rgb(var(--k-rood-l)); font-weight: 700; }
+.tk-alarm { position: fixed; left: 50%; top: 12px; z-index: 60; transform: translate(-50%, -150%); max-width: calc(100vw - 32px);
+  padding: 10px 18px; border-radius: 12px; background: rgb(var(--k-rood) / .92); color: rgb(var(--k-wit)); font-weight: 700;
+  box-shadow: 0 6px 24px rgb(var(--k-zwart) / .5); transition: transform .25s; pointer-events: none; }
+.tk-alarm.aan { transform: translate(-50%, 0); }

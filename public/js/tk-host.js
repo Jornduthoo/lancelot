@@ -80,7 +80,7 @@ $('tk-wanneer').addEventListener('change', () => { wanneer(); stdInfo(); });
 // Standaardkeuzes (Instellingen › Taken): voorlezen, volgorde, punten tonen, verbeteren en startuur, per vak.
 // Wat je hier zelf verandert, blijft staan tot je een taak gaf (ook als je een andere toets kiest).
 const TK_TOETS = 'lancelot-tk-toets';
-const STD_VELDEN = { voorlees: 'tk-voorlees', volgorde: 'tk-volgorde', uitslag: 'tk-uitslag', feedback: 'tk-feedback' };
+const STD_VELDEN = { voorlees: 'tk-voorlees', volgorde: 'tk-volgorde', uitslag: 'tk-uitslag', beveiligd: 'tk-beveiligd', feedback: 'tk-feedback' };
 tk.std = null;
 tk.zelf = new Set();
 for (const [k, id] of Object.entries(STD_VELDEN)) $(id).addEventListener('change', () => { tk.zelf.add(k); stdInfo(); });
@@ -97,7 +97,7 @@ function pasStandaardToe() {
   if (!s) return;
   for (const [k, id] of Object.entries(STD_VELDEN)) {
     if (tk.zelf.has(k) || s[k] === undefined) continue;
-    if (k === 'uitslag') $(id).checked = !!s[k]; else $(id).value = s[k];
+    if (k === 'uitslag' || k === 'beveiligd') $(id).checked = !!s[k]; else $(id).value = s[k];
   }
   stdInfo();
 }
@@ -111,7 +111,7 @@ function stdInfo() {
   const box = $('tk-standaard-info');
   if (!s || !$('tk-bron').value) { box.innerHTML = ''; return; }
   const delen = tk.soort === 'proef'
-    ? [STD_TEKST.voorlees[s.voorlees], STD_TEKST.volgorde[s.volgorde], s.uitslag ? 'punten meteen tonen' : 'punten na het verbeteren']
+    ? [STD_TEKST.voorlees[s.voorlees], STD_TEKST.volgorde[s.volgorde], s.uitslag ? 'punten meteen tonen' : 'punten na het verbeteren', s.beveiligd === false ? 'niet op volledig scherm' : 'volledig scherm']
     : tk.soort === 'oefenblad' ? [STD_TEKST.feedback[s.feedback]] : [];
   if ($('tk-wanneer').value === 'later') delen.push(`start om ${s.startuur}`);
   const anders = [...tk.zelf].filter(k => k === 'feedback' ? tk.soort === 'oefenblad' : tk.soort === 'proef').length;
@@ -181,7 +181,7 @@ function vulBron() {
   for (const b of document.querySelectorAll('.tk-soort button')) b.classList.toggle('on', b.dataset.soort === tk.soort);
   $('tk-fb-label').classList.toggle('hidden', tk.soort !== 'oefenblad');
   $('tk-toets-uitleg').classList.toggle('hidden', tk.soort !== 'proef');
-  for (const id of ['tk-vl-label', 'tk-vv-label', 'tk-us-label']) $(id).classList.toggle('hidden', tk.soort !== 'proef');
+  for (const id of ['tk-vl-label', 'tk-vv-label', 'tk-us-label', 'tk-bv-label']) $(id).classList.toggle('hidden', tk.soort !== 'proef');
   spelKeuze();
   const lijst = tk.soort === 'quiz' ? tk.bronnen.quizzen : tk.soort === 'proef' ? tk.bronnen.toetsen || [] : tk.bronnen.bladen;
   const file = vraag.get('file');
@@ -522,7 +522,7 @@ $('tk-geef').addEventListener('click', async () => {
   const volgende = () => {
     if (klaar + fouten.length === files.length) return gedaan();
     const file = files[klaar + fouten.length];
-    socket.emit('tk-maak', { soort: tk.soort, file, namen, per: Object.keys(per).length ? per : undefined, feedback: $('tk-feedback').value, spel: $('tk-spel').value, minuten: Number($('tk-minuten').value), niveau: $('tk-niveau').value, les: tk.les && { week: tk.les.week, slot: tk.les.slot }, vanaf: start, voorlees: $('tk-voorlees').value, vragenVast: $('tk-volgorde').value !== 'schud', keuzesVast: $('tk-volgorde').value === 'alles', uitslag: $('tk-uitslag').checked, herkansing: tk.soort === 'proef' && files.length === 1 ? tk.herkansing || undefined : undefined }, res => {
+    socket.emit('tk-maak', { soort: tk.soort, file, namen, per: Object.keys(per).length ? per : undefined, feedback: $('tk-feedback').value, spel: $('tk-spel').value, minuten: Number($('tk-minuten').value), niveau: $('tk-niveau').value, les: tk.les && { week: tk.les.week, slot: tk.les.slot }, vanaf: start, voorlees: $('tk-voorlees').value, vragenVast: $('tk-volgorde').value !== 'schud', keuzesVast: $('tk-volgorde').value === 'alles', uitslag: $('tk-uitslag').checked, beveiligd: $('tk-beveiligd').checked, herkansing: tk.soort === 'proef' && files.length === 1 ? tk.herkansing || undefined : undefined }, res => {
       if (res.error) fouten.push(res.error); else klaar++;
       // Eén herkansing: de volgende taak die je hier geeft, is weer een gewone.
       if (!res.error && tk.herkansing) { tk.herkansing = null; const i = document.querySelector('.tk-herk-info'); if (i) i.remove(); }
@@ -532,7 +532,7 @@ $('tk-geef').addEventListener('click', async () => {
       const nog = () => {
         if (!rest.length) return volgende();
         const [niveau, wie] = rest.shift();
-        socket.emit('tk-maak', { soort: tk.soort, file, namen: wie, niveau, na: res.id, feedback: $('tk-feedback').value, spel: $('tk-spel').value, minuten: Number($('tk-minuten').value), vanaf: start, voorlees: $('tk-voorlees').value, vragenVast: $('tk-volgorde').value !== 'schud', keuzesVast: $('tk-volgorde').value === 'alles', uitslag: $('tk-uitslag').checked }, r2 => {
+        socket.emit('tk-maak', { soort: tk.soort, file, namen: wie, niveau, na: res.id, feedback: $('tk-feedback').value, spel: $('tk-spel').value, minuten: Number($('tk-minuten').value), vanaf: start, voorlees: $('tk-voorlees').value, vragenVast: $('tk-volgorde').value !== 'schud', keuzesVast: $('tk-volgorde').value === 'alles', uitslag: $('tk-uitslag').checked, beveiligd: $('tk-beveiligd').checked }, r2 => {
           if (r2.error) fouten.push(r2.error);
           nog();
         });
@@ -692,6 +692,7 @@ function kaart(t) {
   // Uit een les in De Zonnewijzer: het doel van die les.
   if (t.les) titel.append(el('small', 'tk-taak-les', `🎯 ${t.les.doel || t.les.titel}`));
   if (t.na) titel.append(el('small', 'tk-taak-na', `⏭ Verschijnt per leerling als ${t.na.weg ? 'de vorige taak' : `"${t.na.titel}" (${(t.na.niveaus || []).map(n => Niveau.NAMES[n]).join(', ')})`} af is`));
+  if (t.soort === 'proef' && t.beveiligd) titel.append(el('small', 'tk-taak-bv', '🛡 Volledig scherm: je ziet wie de toets verlaat'));
   const vs = verschil(t);
   if (vs) titel.append(el('small', 'tk-taak-verschil', `≠ ${vs}`));
   const telling = el('div', 'tk-telling');
@@ -714,6 +715,8 @@ function kaart(t) {
   if (t.soort === 'proef' && t.afname) knopje('Verbeteren ▶', () => { location.href = `/proef?verbeter=${encodeURIComponent(t.afname)}`; }, 'gold');
   if (t.vanaf) knopje('▶ Nu al geven', () => socket.emit('tk-start', { id: t.id }, uit));
   if (!t.dicht) knopje('+ Leerlingen', () => erbij(t));
+  // Beveiligd aan of uit, ook voor een toets die al loopt: wie werkt, krijgt het meteen.
+  if (t.soort === 'proef' && !t.dicht) knopje(t.beveiligd ? '🛡 Volledig scherm: aan' : '🛡 Volledig scherm: uit', () => socket.emit('tk-beveiligd', { id: t.id, aan: !t.beveiligd }, uit), t.beveiligd ? 'secondary on' : 'secondary');
   knopje('👁 Bekijk', () => bekijk({ id: t.id }, t));
   if (t.dicht) knopje('🔓 Weer openen', () => socket.emit('tk-heropen', { id: t.id }, uit));
   else knopje('🔒 Afsluiten', async () => {
@@ -735,6 +738,8 @@ function kaart(t) {
     if (t.niveaus.length > 1) naam.prepend(el('span', `tk-nv ${l.niveau}`, Niveau.ICONS[l.niveau]));
     // Een toets: 🔊 als de computer voorleest, en na het inleveren de punten die de computer gaf (+ ? = jij verbetert nog).
     if (t.soort === 'proef' && l.voorlees) naam.append(el('span', 'tk-ll-vl', ' 🔊'));
+    // Verliet de beveiligde toets: hoe vaak (de details staan bij de leerling en bij de resultaten).
+    if (l.weg) naam.append(el('span', 'tk-ll-weg', ` ⚠ ${l.weg}×`));
     const toetsPunten = t.soort === 'proef' && l.autoMax ? `${PfPaper.nl(l.punten)}/${PfPaper.nl(l.autoMax)}${l.hand ? ' + ?' : ''}` : '';
     const stand = l.status === 'klaar'
       ? (toetsPunten || (l.score ? `${l.juist}/${l.score}` : '✔'))
@@ -744,6 +749,7 @@ function kaart(t) {
     const balk = el('span', 'tk-ll-balk');
     balk.appendChild(el('i')).style.width = `${l.status === 'klaar' ? 100 : l.totaal ? (l.gedaan / l.totaal) * 100 : 0}%`;
     b.title = l.afwezig ? 'Afwezig: haalt deze taak later in' : l.wacht ? 'Verschijnt als de vorige taak af is' : l.niet ? 'Volgt dit vak niet bij jou (telt niet mee)' : t.soort === 'proef' && l.status === 'bezig' && l.autoMax ? `${STATUS[l.status]} · vraag ${l.pos + 1} · al ${PfPaper.nl(l.punten)} van ${PfPaper.nl(l.autoMax)} punten` : STATUS[l.status];
+    if (l.weg) b.title += ` · verliet de toets ${l.weg}×`;
     b.append(naam, s, balk);
     b.addEventListener('click', () => toonDetail(t.id, l.naam));
     rij.appendChild(b);
@@ -751,6 +757,23 @@ function kaart(t) {
   k.append(kop, rij);
   return k;
 }
+
+const WEG_SOORT = { tab: 'ander tabblad of venster', scherm: 'volledig scherm verlaten', herladen: 'toets opnieuw geopend' };
+// Een leerling verliet een beveiligde toets: een melding bovenaan, ze verdwijnt vanzelf.
+socket.on('tk-alarm', a => {
+  if (!a || !a.naam) return;
+  let n = $('tk-alarm');
+  if (!n) {
+    n = el('div', 'tk-alarm');
+    n.id = 'tk-alarm';
+    n.setAttribute('role', 'status');
+    document.body.appendChild(n);
+  }
+  n.textContent = `⚠ ${a.naam} verliet de toets "${a.titel}" (${WEG_SOORT[a.soort] || a.soort})`;
+  n.classList.add('aan');
+  clearTimeout(n.timer);
+  n.timer = setTimeout(() => n.classList.remove('aan'), 8000);
+});
 
 function uit(res) {
   if (res && res.error) Ui.melding(res.error);
@@ -813,6 +836,10 @@ function toonDetail(id, naam, stil) {
     $('d-afwezig').classList.toggle('on', !!res.afwezig);
     $('d-afwezig').textContent = res.afwezig ? '🏠 Afwezig: haalt in (klik om weg te halen)' : '🏠 Afwezig: inhalen';
     if (res.afwezig) $('d-info').textContent += ' · afwezig, haalt in';
+    if (res.weg && res.weg.length) {
+      const klok = e => new Date((Date.parse(res.begin) || 0) + e.t).toLocaleTimeString('nl-BE', { hour: '2-digit', minute: '2-digit' });
+      $('d-info').textContent += ` · ⚠ Verliet de toets ${res.weg.length}×: ${res.weg.map(e => `${klok(e)} ${WEG_SOORT[e.soort] || e.soort}${e.ms ? ` (${Math.round(e.ms / 1000)} s weg)` : ''}`).join(', ')}`;
+    }
     const paper = $('d-paper');
     paper.classList.toggle('hidden', res.soort !== 'oefenblad');
     $('d-toets').classList.toggle('hidden', res.soort !== 'proef');

@@ -6,12 +6,14 @@
     { k: 'voorlees', kop: 'Voorlezen 🔊 (toets)', opties: [['uit', 'Uit'], ['page', 'Voor 🪶 Page'], ['iedereen', 'Iedereen']] },
     { k: 'volgorde', kop: 'Volgorde (toets)', opties: [['schud', 'Alles door elkaar'], ['vragen', 'Vragen in volgorde'], ['alles', 'Alles in volgorde']] },
     { k: 'uitslag', kop: 'Punten tonen (toets)', opties: [['nee', 'Na het verbeteren'], ['ja', 'Meteen na het inleveren']] },
+    { k: 'beveiligd', kop: 'Volledig scherm 🛡 (toets)', opties: [['ja', 'Aan'], ['nee', 'Uit']] },
     { k: 'feedback', kop: 'Verbeteren (oefenblad)', opties: [['direct', 'Meteen'], ['inleveren', 'Na het inleveren']] },
     { k: 'startuur', kop: 'Startuur (gepland)', uur: true },
   ];
   let data = null;
   const LEEG = 'Leeg = standaard';
-  const waarde = (v, k) => (k === 'uitslag' ? (v === undefined ? undefined : v ? 'ja' : 'nee') : v);
+  const JANEE = ['uitslag', 'beveiligd'];
+  const waarde = (v, k) => (JANEE.includes(k) ? (v === undefined ? undefined : v ? 'ja' : 'nee') : v);
   function teken() {
     const rij = (id, naam, v, vak) => `<tr data-rij="${id}"><th>${naam}</th>${VELDEN.map(f => {
       const w = waarde(v[f.k], f.k);
@@ -28,7 +30,7 @@
       const d = {};
       for (const el of tr.querySelectorAll('[data-k]')) {
         if (!el.value) continue;
-        d[el.dataset.k] = el.dataset.k === 'uitslag' ? el.value === 'ja' : el.value;
+        d[el.dataset.k] = JANEE.includes(el.dataset.k) ? el.value === 'ja' : el.value;
       }
       if (tr.dataset.rij) uit.vakken[tr.dataset.rij] = d; else uit.algemeen = d;
     }

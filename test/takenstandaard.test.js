@@ -17,8 +17,8 @@ test('takenstandaard: goede standaard, een uitzondering per vak, ongeldige keuze
   `], { cwd: ROOT, env: { ...process.env, LANCELOT_DATA: data }, encoding: 'utf8' }).split('\n@@').pop();
   const o = JSON.parse(out);
   assert.strictEqual(o.nieuw.bewaard, false);
-  assert.deepStrictEqual(o.nieuw.algemeen, { voorlees: 'page', volgorde: 'schud', uitslag: false, feedback: 'direct', startuur: '08:30' });
-  assert.deepStrictEqual(o.na.algemeen, { voorlees: 'uit', volgorde: 'schud', uitslag: false, feedback: 'direct', startuur: '08:30' });
+  assert.deepStrictEqual(o.nieuw.algemeen, { voorlees: 'page', volgorde: 'schud', uitslag: false, beveiligd: true, feedback: 'direct', startuur: '08:30' });
+  assert.deepStrictEqual(o.na.algemeen, { voorlees: 'uit', volgorde: 'schud', uitslag: false, beveiligd: true, feedback: 'direct', startuur: '08:30' });
   assert.deepStrictEqual(Object.keys(o.na.vakken), ['frans']);
   assert.strictEqual(o.frans.voorlees, 'iedereen');
   assert.strictEqual(o.frans.startuur, '10:15');

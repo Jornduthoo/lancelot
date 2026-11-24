@@ -1579,12 +1579,15 @@ io.on('connection', socket => {
   }
   // Mijn taken: de lijst, een taak openen, een vakje of een quizvraag beantwoorden en inleveren.
   // Een leerling meldt zich aan met zijn naam, net zoals bij Mijn burcht.
-  for (const [event, fn, bord] of [['tk-mijn', taken.mijn], ['tk-open', taken.open], ['tk-antwoord', taken.antwoord, true], ['tk-inleveren', taken.inleveren, true], ['tk-quiz', taken.quizAntwoord, true], ['tk-toets', taken.toetsAntwoord, true]]) {
+  for (const [event, fn, bord] of [['tk-mijn', taken.mijn], ['tk-open', taken.open], ['tk-antwoord', taken.antwoord, true], ['tk-inleveren', taken.inleveren, true], ['tk-quiz', taken.quizAntwoord, true], ['tk-toets', taken.toetsAntwoord, true], ['tk-verlaat', taken.verlaat, true], ['tk-terugin', taken.terugIn]]) {
     socket.on(event, (arg, cb) => {
       if (typeof cb !== 'function') return;
       if (event === 'tk-mijn') hier(socket, arg, 'taken');
       try {
-        cb({ ok: true, ...fn(arg) });
+        const r = fn(arg);
+        cb({ ok: true, ...r });
+        // Een leerling verliet een beveiligde toets: meteen een melding bij de leerkracht.
+        if (event === 'tk-verlaat' && r && r.naam) io.to('host').emit('tk-alarm', { naam: r.naam, titel: r.titel, soort: r.soort, n: r.n });
         if (bord) takenSoon();
       } catch (err) {
         cb({ error: err.message });
@@ -2126,6 +2129,13 @@ io.on('connection', socket => {
       return r;
     }));
     socket.on('tk-afwezig', taak(taken.zetAfwezig));
+    // Een toets als taak beveiligen (volledig scherm, wegklikken gemeld), ook terwijl leerlingen werken.
+    socket.on('tk-beveiligd', handle(arg => {
+      const r = taken.zetBeveiligd(arg || {});
+      io.emit('tk-beveiligd', r);
+      takenNaarBord();
+      return r;
+    }));
     socket.on('tk-wis', taak(arg => taken.wis(arg.id)));
     socket.on('notitie-add', handle(({ leerling, tekst } = {}) => ({ notities: notities.add(leerling, tekst).slice().reverse() })));
     socket.on('notitie-del', handle(({ leerling, t } = {}) => ({ notities: notities.remove(leerling, t).slice().reverse() })));

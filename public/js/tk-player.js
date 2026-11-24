@@ -25,6 +25,7 @@ function tkToon(scherm) {
   for (const s of ['join', 'lijst', 'blad', 'quiz', 'toets']) $(`tk-${s}`).classList.toggle('hidden', s !== scherm);
   // Terug gaat in een taak naar de lijst, op de lijst naar het startscherm.
   $('tk-back').href = ['blad', 'quiz', 'toets'].includes(scherm) ? '#' : '/';
+  if (scherm !== 'toets') tkBewaak(false);
   if (scherm !== 'blad') Voorlees.stop();
   if (scherm === 'lijst' || scherm === 'join') {
     $('tk-doel').classList.add('hidden');
@@ -306,7 +307,9 @@ document.addEventListener('keydown', e => {
 function tkToets(t) {
   tkToon('toets');
   for (const id of ['tk-toets-intro', 'tk-toets-werk', 'tk-toets-klaar']) $(id).classList.add('hidden');
+  tkBewaak(false);
   if (t.klaar) {
+    tkUitScherm();
     // Toont de leerkracht de punten na het inleveren? Dan wat de computer al verbeterde (de open vragen volgen nog).
     const u = t.uitslag;
     $('tk-toets-uitslag').innerHTML = u ? `Je haalde <strong>${PfPaper.nl(u.punten)} van de ${PfPaper.nl(u.max - u.hand)}</strong> punten die de computer verbetert.${u.hand ? ` Je leerkracht verbetert nog ${PfPaper.ptn(u.hand)}.` : ''}` : '';
@@ -321,14 +324,28 @@ function tkToets(t) {
       `${n} ${n === 1 ? 'vraag' : 'vragen'}, samen ${PfPaper.ptn(t.totaal)}.`,
       'Neem je tijd. Je mag terug naar vorige vragen.',
       'Lever in als je klaar bent. Je leerkracht verbetert je toets.',
+      ...(t.beveiligd ? ['De toets opent op het volledige scherm. Verlaat je de toets (ander tabblad, venster of volledig scherm uit), dan ziet je leerkracht dat.'] : []),
     ].map(r => `<li>${tkEsc(r)}</li>`).join('');
     return $('tk-toets-intro').classList.remove('hidden');
   }
   $('tk-toets-werk').classList.remove('hidden');
   tkToetsPagina();
+  if (!t.beveiligd) return;
+  tkBewaak(true);
+  // Al bezig, maar niet hier op Start gedrukt: de pagina werd herladen of de toets opnieuw geopend.
+  if (!tk.toetsGestart && t.bezig) {
+    tk.toetsGestart = true;
+    tkWeg('herladen');
+  } else if (!tkInScherm()) tkSlot(false);
 }
-$('tk-toets-start').addEventListener('click', () => {
+$('tk-toets-start').addEventListener('click', async () => {
   tk.toetsGestart = true;
+  // Meteen bij de klik vragen: een browser geeft het volledige scherm alleen na een klik.
+  if (tk.taak.beveiligd) await tkNaarScherm();
+  // Was hij al begonnen (nog zonder antwoorden) en opent hij de toets opnieuw: dat ziet de leerkracht ook.
+  if (tk.taak.beveiligd && tk.taak.bezig) {
+    socket.emit('tk-verlaat', { id: tk.taak.id, naam: tk.naam, soort: 'herladen' }, () => socket.emit('tk-terugin', { id: tk.taak.id, naam: tk.naam }, () => {}));
+  }
   // Zo ziet de leerkracht meteen dat hij begonnen is.
   socket.emit('tk-toets', { id: tk.taak.id, naam: tk.naam, pos: tk.taak.pos || 0 }, () => {});
   tkToets(tk.taak);
@@ -390,10 +407,82 @@ $('tk-toets-volgende').addEventListener('click', async () => {
   setTimeout(() => socket.emit('tk-inleveren', { id: t.id, naam: tk.naam }, res => {
     if (!res || res.error) return Ui.melding((res && res.error) || 'Inleveren lukte niet.');
     tk.toetsGestart = false;
+    tkBewaak(false);
     tk.taak = res;
     tkToets(res);
     sfx.good();
   }), 150);
+});
+
+// ---------- Beveiligd: volledig scherm, en wie de toets verlaat, wordt gemeld ----------
+// Een browser kan een Chromebook niet echt op slot zetten. Wel: het volledige scherm vragen, merken wanneer de
+// leerling de toets verlaat, hem dat zeggen en het de leerkracht tonen. Zijn antwoorden blijven altijd bewaard.
+const tkKanScherm = !!document.documentElement.requestFullscreen;
+const tkInScherm = () => !tkKanScherm || !!document.fullscreenElement;
+async function tkNaarScherm() {
+  if (tkInScherm()) return true;
+  try { await document.documentElement.requestFullscreen({ navigationUI: 'hide' }); return true; } catch { return false; }
+}
+function tkUitScherm() {
+  if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+}
+function tkBewaak(aan) {
+  tk.bewaakt = aan;
+  // Tijdens een beveiligde toets geen Terug-knop: inleveren is de weg naar buiten.
+  $('tk-back').classList.toggle('hidden', aan);
+  if (!aan) {
+    tk.weg = false;
+    $('tk-slot').classList.add('hidden');
+  }
+}
+function tkSlot(weg) {
+  $('tk-slot-icoon').textContent = weg ? '⚠️' : '🛡';
+  $('tk-slot-titel').textContent = weg ? 'Je verliet de toets' : 'Toets op het volledige scherm';
+  $('tk-slot-tekst').textContent = weg ? 'Je leerkracht ziet dat. Je antwoorden zijn bewaard. Blijf nu in de toets.' : 'Je toets gaat verder op het volledige scherm. Blijf in de toets tot je inlevert.';
+  $('tk-slot').classList.remove('hidden');
+}
+function tkWeg(soort) {
+  if (!tk.bewaakt || tk.weg || !tk.taak) return;
+  tk.weg = true;
+  // Wat de leerling net typte, eerst bewaren.
+  if ($('tk-toets-paper').pfFlush) $('tk-toets-paper').pfFlush();
+  socket.emit('tk-verlaat', { id: tk.taak.id, naam: tk.naam, soort }, () => {});
+  tkSlot(true);
+}
+function tkTerug() {
+  if (!tk.weg || !tk.taak) return;
+  tk.weg = false;
+  socket.emit('tk-terugin', { id: tk.taak.id, naam: tk.naam }, () => {});
+}
+$('tk-verder').addEventListener('click', async () => {
+  await tkNaarScherm();
+  $('tk-slot').classList.add('hidden');
+  tkTerug();
+});
+// Herladen of sluiten is geen "ander tabblad": dat telt pas als hij de toets weer opent (opnieuw geopend).
+window.addEventListener('pagehide', () => { tk.weg = true; });
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) tkWeg('tab');
+});
+window.addEventListener('blur', () => {
+  // Klikken in een venster van de browser zelf (bv. een bestand kiezen) laat de focus even los: kort wachten.
+  setTimeout(() => { if (!document.hasFocus() && !document.hidden && !(window.pfMicVraag && Date.now() - window.pfMicVraag < 15000)) tkWeg('tab'); }, 400);
+});
+document.addEventListener('fullscreenchange', () => {
+  if (tkKanScherm && !document.fullscreenElement && tk.bewaakt) tkWeg('scherm');
+});
+// Niet kopiëren, plakken of rechtsklikken in een beveiligde toets.
+for (const ev of ['copy', 'cut', 'paste', 'contextmenu', 'dragstart', 'drop']) {
+  document.addEventListener(ev, e => { if (tk.bewaakt && !(ev === 'drop' && e.target.closest && e.target.closest('#tk-toets-paper'))) e.preventDefault(); });
+}
+// De leerkracht zet de beveiliging aan of uit terwijl de leerling werkt.
+socket.on('tk-beveiligd', d => {
+  const t = tk.taak;
+  if (!d || !t || t.soort !== 'proef' || t.id !== d.id || t.klaar) return;
+  t.beveiligd = !!d.aan;
+  if (tk.scherm !== 'toets' || $('tk-toets-werk').classList.contains('hidden')) return;
+  if (t.beveiligd) { tkBewaak(true); if (!tkInScherm()) tkSlot(false); }
+  else { tkBewaak(false); tkUitScherm(); }
 });
 
 // ---------- Live ----------
