@@ -222,6 +222,37 @@
     </div>
   </dialog>
 
+  <dialog class="ui-venster tk-venster form tk-keuzes" id="tk-keuzes">
+    <h2>⚙️ Instellingen van deze taak</h2>
+    <p class="muted small" id="kz-uitleg"></p>
+    <div class="row">
+      <label id="kz-fb-label">Verbeteren
+        <select id="kz-feedback">
+          <option value="direct">Meteen (groen of rood)</option>
+          <option value="inleveren">Pas na het inleveren</option>
+        </select>
+      </label>
+      <label>Voorlezen 🔊
+        <select id="kz-voorlees">
+          <option value="uit">Uit</option>
+          <option value="page">Alleen voor leerlingen op 🪶 Page</option>
+          <option value="iedereen">Iedereen</option>
+        </select>
+      </label>
+      <label id="kz-vv-label">Volgorde
+        <select id="kz-volgorde">
+          <option value="schud">Alles door elkaar</option>
+          <option value="vragen">Vragen in volgorde (keuzes door elkaar)</option>
+          <option value="alles">Alles in volgorde</option>
+        </select>
+      </label>
+      <label class="inline check"><input type="checkbox" id="kz-uitslag"> Leerling ziet zijn punten na het inleveren</label>
+    </div>
+    <div class="actions">
+      <button class="secondary" id="kz-annuleer">Annuleren</button>
+      <button class="gold" id="kz-ok">Bewaren</button>
+    </div>
+  </dialog>
   <dialog class="ui-venster tk-venster" id="tk-erbij">
     <h2>Leerlingen erbij</h2>
     <div class="tk-namen" id="e-namen"></div>

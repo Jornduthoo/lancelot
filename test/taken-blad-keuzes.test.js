@@ -67,3 +67,61 @@ test('uit Mijn lesmap: een nieuw plan neemt de keuzes over, een plan van vroeger
   assert.strictEqual(r.o, true);
   assert.strictEqual(r.oSol, true, 'een plan van vroeger toont de punten zoals vroeger');
 });
+
+test('keuzes achteraf: punten alsnog tonen, wie begon houdt zijn volgorde en verbeteren, gaat mee naar je andere pc', () => {
+  const tmp = map();
+  fs.mkdirSync(path.join(tmp, 'proeven'));
+  fs.writeFileSync(path.join(tmp, 'proeven', 'toets.json'), JSON.stringify({ title: 'T', vragen: [
+    { type: 'meerkeuze', vraag: 'a?', opties: ['1', '2', '3', '4', '5', '6'], juist: 0 },
+    { type: 'meerkeuze', vraag: 'b?', opties: ['1', '2', '3', '4', '5', '6'], juist: 1 },
+    { type: 'meerkeuze', vraag: 'c?', opties: ['1', '2', '3', '4', '5', '6'], juist: 2 }] }));
+  const r = run(tmp, `
+    klas.write({ naam: '6A', leerjaar: 6, namen: ['Lotte', 'Mats'] });
+    const b = taken.maak({ soort: 'oefenblad', file: 'blad.json', namen: ['Lotte', 'Mats'], uitslag: false, feedback: 'direct', voorlees: 'uit' });
+    const veld = taken.detail({ id: b.id, naam: 'Lotte' }).view.blocks.flatMap(x => x.fields || []).map(f => f.id)[0];
+    taken.inleveren({ id: b.id, naam: 'Lotte' });
+    const voor = taken.open({ id: b.id, naam: 'Lotte' });
+    const k = taken.zetKeuzes({ id: b.id, uitslag: true, voorlees: 'iedereen', feedback: 'inleveren' });
+    const na = taken.open({ id: b.id, naam: 'Lotte' });
+    const mats = taken.open({ id: b.id, naam: 'Mats' });
+    const plan = JSON.parse(require('fs').readFileSync(require('path').join(taken.PLAN, b.id + '.json'), 'utf8'));
+
+    const t = taken.maak({ soort: 'proef', file: 'toets.json', namen: ['Lotte', 'Mats'], vragenVast: true, keuzesVast: true });
+    const lotteVoor = taken.open({ id: t.id, naam: 'Lotte' }).view.pages.map(p => p.vraag + p.opties.map(o => o.tekst || o).join(''));
+    taken.zetKeuzes({ id: t.id, volgorde: 'schud' });
+    const lotteNa = taken.open({ id: t.id, naam: 'Lotte' }).view.pages.map(p => p.vraag + p.opties.map(o => o.tekst || o).join(''));
+    const matsNa = taken.open({ id: t.id, naam: 'Mats' }).view.pages.map(p => p.vraag + p.opties.map(o => o.tekst || o).join(''));
+    let quiz = '';
+    try { taken.zetKeuzes({ id: 'bestaatniet' }); } catch (e) { quiz = e.message; }
+    return { voor: [voor.score, !!voor.solutions], na: [na.score > 0, !!na.solutions, na.voorlees, na.feedback], mats: mats.feedback, k,
+      plan: [plan.uitslag, plan.voorlees, plan.feedback, plan.keuzesTijd > plan.gemaakt], lotteVoor, lotteNa, matsAnders: matsNa.join() !== lotteVoor.join(), quiz };
+  `);
+  assert.deepStrictEqual(r.voor, [0, false]);
+  assert.deepStrictEqual(r.na, [true, true, true, 'direct'], 'punten alsnog zichtbaar; Lotte begon met meteen verbeteren en houdt dat');
+  assert.strictEqual(r.mats, 'inleveren', 'wie nog niet begon, krijgt het nieuwe');
+  assert.deepStrictEqual(r.plan, [true, 'iedereen', 'inleveren', true], 'het plan in Mijn lesmap is bijgewerkt');
+  assert.deepStrictEqual(r.lotteNa, r.lotteVoor, 'wie de toets al open had, houdt zijn volgorde');
+  assert.ok(r.matsAnders, 'wie nog niet begon, krijgt alles door elkaar');
+  assert.ok(r.quiz);
+});
+
+test('keuzes achteraf op de andere pc: het nieuwere plan wint', () => {
+  const tmp = map();
+  const r = run(tmp, `
+    klas.write({ naam: '6A', leerjaar: 6, namen: ['Lotte'] });
+    const fs = require('fs'), path = require('path');
+    const b = taken.maak({ soort: 'oefenblad', file: 'blad.json', namen: ['Lotte'], uitslag: false });
+    const f = path.join(taken.PLAN, b.id + '.json');
+    const p = JSON.parse(fs.readFileSync(f, 'utf8'));
+    fs.writeFileSync(f, JSON.stringify({ ...p, uitslag: true, voorlees: 'page', keuzesTijd: new Date(Date.now() + 5000).toISOString() }));
+    taken.uitLesmap();
+    const na = taken.keuzesVoor(b.id);
+    const oud = { ...JSON.parse(fs.readFileSync(f, 'utf8')), uitslag: false, keuzesTijd: new Date(Date.now() - 60000).toISOString() };
+    fs.writeFileSync(f, JSON.stringify(oud));
+    taken.uitLesmap();
+    return { na: [na.uitslag, na.voorlees], oud: taken.keuzesVoor(b.id).uitslag, terug: JSON.parse(fs.readFileSync(f, 'utf8')).uitslag };
+  `);
+  assert.deepStrictEqual(r.na, [true, 'page']);
+  assert.strictEqual(r.oud, true, 'een ouder plan zet niets terug');
+  assert.strictEqual(r.terug, true, 'onze nieuwere keuzes gaan terug in het plan');
+});

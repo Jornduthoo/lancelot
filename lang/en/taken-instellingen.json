@@ -2,5 +2,10 @@
  "Een oefenblad blijft altijd in zijn volgorde": "A worksheet always stays in its order",
  "Punten tonen": "Show points",
  "punten tonen na het inleveren": "show points after handing in",
- "geen punten tonen": "do not show points"
+ "geen punten tonen": "do not show points",
+ "⚙️ Instellingen van deze taak": "⚙️ Settings of this task",
+ "Voorlezen en punten tonen gelden meteen, ook voor wie al inleverde. {0} verandert alleen voor wie nog niet begon.": "Reading aloud and showing points apply right away, also for those who already handed in. {0} only changes for those who have not started yet.",
+ "De volgorde": "The order",
+ "Je kan dit veranderen zolang de taak bestaat.": "You can change this as long as the task exists.",
+ "Bij een quiz is er niets in te stellen.": "There is nothing to set for a quiz."
 }

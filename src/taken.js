@@ -150,20 +150,22 @@ function volgordeVoor(t, naam, niveau) {
 // (keuzesVast). Zonder keuze: allebei door elkaar, zoals vroeger. Een toets met "altijd in deze volgorde" blijft zo.
 const toetsen = new Map();
 function toets(t, w) {
+  const v = vastVan(t, w);
   const k = `${t.id}:${key(w.naam)}:${w.niveau}`;
-  if (!toetsen.has(k)) {
+  const ck = `${k}:${v.vragenVast ? 1 : 0}${v.keuzesVast ? 1 : 0}`;
+  if (!toetsen.has(ck)) {
     const lijst = K.lijstVoor(t.inhoud, w.niveau);
-    const order = K.volgorde(lijst, `${k}|vragen`, !t.vragenVast && !t.inhoud.vasteVolgorde);
+    const order = K.volgorde(lijst, `${k}|vragen`, !v.vragenVast && !t.inhoud.vasteVolgorde);
     const perms = {};
     for (const { id, q } of K.vragenVan(lijst)) {
-      if (q.type === 'meerkeuze' && (!t.keuzesVast || q.schudden)) perms[id] = K.schud(q.opties.length, `${k}|${id}`);
+      if (q.type === 'meerkeuze' && (!v.keuzesVast || q.schudden)) perms[id] = K.schud(q.opties.length, `${k}|${id}`);
       if (q.type === 'verbinden') perms[id] = K.schud(K.aantalRechts(q), `${k}|${id}`, true);
       if (q.type === 'ordenen') perms[id] = K.schud(q.items.length, `${k}|${id}`, true);
       if (q.type === 'groeperen') perms[id] = K.schud(K.groepKaarten(q).length, `${k}|${id}`, true);
     }
-    toetsen.set(k, { lijst, order, perms });
+    toetsen.set(ck, { lijst, order, perms });
   }
-  return toetsen.get(k);
+  return toetsen.get(ck);
 }
 
 // Keuzes bij een toets als taak: voorlezen (uit, page, iedereen) en de volgorde. Alleen wat anders is dan vroeger.
@@ -186,11 +188,65 @@ function toetsKeuzes(t, p) {
 }
 // Ziet de leerling zijn punten na het inleveren? Een oefenblad van vroeger: ja.
 const puntenZien = t => (t.soort === 'oefenblad' ? t.uitslag !== false : !!t.uitslag);
+
+// ---------- Keuzes achteraf veranderen (wens 24 nov, punt 2) ----------
+// Hoe deze leerling werkt: verbeteren (oefenblad) en de volgorde (toets). Wie al begon (of de toets al open had),
+// houdt wat gold toen hij begon: zo verandert er niets aan zijn werk of zijn punten. Wie nog niet begon, krijgt het nieuwe.
+function vastVan(t, w) {
+  if (w && w.vast) return w.vast;
+  return { feedback: t.feedback, vragenVast: !!t.vragenVast, keuzesVast: !!t.keuzesVast };
+}
+function zetVast(t, w) {
+  if (!w.vast) w.vast = vastVan(t, null);
+}
+// De keuzes van een gegeven taak veranderen. Voorlezen en punten tonen gelden meteen voor iedereen (ook wie al
+// inleverde: punten tonen aan = de leerling ziet ze alsnog). Verbeteren en volgorde: voor wie nog niet begon.
+function keuzesNaarTaak(t, p, absoluut) {
+  for (const w of Object.values(t.werk)) if (w.status !== 'nieuw') zetVast(t, w);
+  if (t.soort === 'oefenblad') {
+    if (p.feedback === 'direct' || p.feedback === 'inleveren') t.feedback = p.feedback;
+    if (VOORLEES.includes(p.voorlees)) t.voorlees = p.voorlees;
+    if (typeof p.uitslag === 'boolean') t.uitslag = p.uitslag;
+    return;
+  }
+  if (VOORLEES.includes(p.voorlees) || (absoluut && p.voorlees === null)) {
+    if (p.voorlees === 'page' || p.voorlees === 'iedereen') t.voorlees = p.voorlees; else delete t.voorlees;
+  }
+  const vlag = (k, v) => { if (typeof v !== 'boolean') return; if (v) t[k] = true; else delete t[k]; };
+  if (['schud', 'vragen', 'alles'].includes(p.volgorde)) {
+    vlag('vragenVast', p.volgorde !== 'schud');
+    vlag('keuzesVast', p.volgorde === 'alles');
+  } else if (absoluut) {
+    vlag('vragenVast', p.vragenVast);
+    vlag('keuzesVast', p.keuzesVast);
+  }
+  vlag('uitslag', p.uitslag);
+  if (absoluut) vlag('beveiligd', p.beveiligd);
+}
+function zetKeuzes({ id, ...p } = {}) {
+  const t = find(id);
+  if (t.soort === 'quiz') throw new Error('Bij een quiz is er niets in te stellen.');
+  keuzesNaarTaak(t, p, false);
+  t.keuzesTijd = new Date().toISOString();
+  planBij(t);
+  save();
+  return keuzesVan(t);
+}
+// De keuzes zoals het venster ze toont.
+function keuzesVan(t) {
+  const bezig = Object.values(t.werk).filter(w => w.status !== 'nieuw').length;
+  return {
+    id: t.id, soort: t.soort, feedback: t.feedback, uitslag: puntenZien(t), bezig,
+    voorlees: t.voorlees || (t.soort === 'oefenblad' ? 'iedereen' : 'uit'),
+    volgorde: t.soort === 'proef' ? (t.keuzesVast ? 'alles' : t.vragenVast ? 'vragen' : 'schud') : 'alles',
+  };
+}
 // Beveiligd (volledig scherm, wegklikken gemeld): ook achteraf aan of uit te zetten, voor wie nog werkt.
 function zetBeveiligd({ id, aan } = {}) {
   const t = find(id);
   if (t.soort !== 'proef') throw new Error('Dit kan alleen bij een toets.');
   if (aan) t.beveiligd = true; else delete t.beveiligd;
+  t.keuzesTijd = new Date().toISOString();
   if (t.plan) planBewaar(t);
   save();
   return { id: t.id, aan: !!t.beveiligd };
@@ -526,6 +582,14 @@ function uitLesmap() {
       // Hier later afgesloten of heropend dan wat de lesmap zegt (twee pc's tegelijk): onze stand terug in het plan.
       planBewaar(t);
     }
+    // De keuzes (voorlezen, punten tonen, volgorde…): achteraf veranderd op een andere pc, en dat is het laatste: ook hier.
+    // Hier later veranderd dan het plan zegt: onze keuzes terug in het plan. Een plan van vroeger (zonder tijd) zegt niets.
+    const kPlan = Date.parse(p.keuzesTijd) || 0, kHier = Date.parse(t.keuzesTijd) || 0;
+    if (kPlan > kHier && t.soort !== 'quiz') {
+      keuzesNaarTaak(t, { ...p, feedback: p.feedback, voorlees: p.voorlees === undefined ? null : p.voorlees }, true);
+      t.keuzesTijd = p.keuzesTijd;
+      veranderd = true;
+    } else if (kHier > kPlan && kPlan) planBewaar(t);
     // Wie in de taak zit: is de laatste wijziging hier gebeurd (of het plan oud en hier niet bijgewerkt), dan geldt
     // onze lijst en gaat die in het plan. Zo komt een weggehaalde leerling niet terug uit een oud plan.
     const tPlan = Date.parse(p.namenTijd) || 0, tHier = Date.parse(t.namenTijd) || 0;
@@ -903,6 +967,7 @@ function aantal(naam) {
 
 function begin(t, w) {
   if (w.status !== 'nieuw') return;
+  zetVast(t, w);
   w.status = 'bezig';
   w.begin = new Date().toISOString();
   zorgAfname(t);
@@ -915,6 +980,8 @@ function open({ id, naam } = {}) {
   const base = { id, soort: t.soort, titel: t.titel, poging: w.poging || 0, spel: spelVan(t), niveau: niveausVan(t.soort, t.inhoud).length > 1 ? w.niveau : null, klaar, dicht: t.dicht, les: lesVoorLeerling(t), ...voortgang(t, w) };
   if (t.soort === 'proef') {
     if (klaar) return { ...base, uitslag: uitslagVoor(t, w) };
+    // De toets staat open op zijn scherm: de volgorde ligt vast voor hem, ook als de leerkracht ze nu verandert.
+    if (!w.vast) { zetVast(t, w); save(); }
     const { lijst, order, perms } = toets(t, w);
     return { ...base, intro: t.inhoud.intro || '', voorlees: voorleesVoor(t, w), beveiligd: !!t.beveiligd, bezig: w.status === 'bezig', totaal: K.totaal(lijst), view: K.studentView(t.inhoud, lijst, { order, perms, img: d => d }), answers: w.ruw, pos: w.pos || 0 };
   }
@@ -923,8 +990,8 @@ function open({ id, naam } = {}) {
   // Punten tonen uit: na het inleveren geen score en geen oplossingen (wat al groen of rood was, blijft zo).
   const zien = klaar && puntenZien(t);
   return {
-    ...base, ...(puntenZien(t) ? {} : { juist: 0, score: 0 }), feedback: t.feedback, view: b.view, answers: w.answers,
-    results: t.feedback === 'direct' || zien ? w.results : {},
+    ...base, ...(puntenZien(t) ? {} : { juist: 0, score: 0 }), feedback: vastVan(t, w).feedback, view: b.view, answers: w.answers,
+    results: vastVan(t, w).feedback === 'direct' || zien ? w.results : {},
     solutions: zien ? sheets.solutions(b.sheet, b.shuffles) : null,
     voorlees: voorleesVoor(t, w),
   };
@@ -958,17 +1025,18 @@ function antwoord({ id, naam, veld, waarde } = {}) {
   const field = fields.find(f => f.id === veld);
   if (!field) throw new Error('Onbekend vakje.');
   const now = Date.now();
-  const guard = t.feedback === 'direct' && closed(field);
+  begin(t, w);
+  const direct = vastVan(t, w).feedback === 'direct';
+  const guard = direct && closed(field);
   w.lock = w.lock || {};
   if (guard && w.lock[veld] > now) return { wait: w.lock[veld] - now, id: veld, value: w.answers[veld] ?? '', error: 'Even wachten.' };
   const v = sheets.clean(field, waarde);
-  begin(t, w);
   if (v === '') delete w.answers[veld];
   else w.answers[veld] = v;
   w.results[veld] = sheets.grade(field, v, shuffles);
   if (closed(field) && w.first[veld] === undefined && w.results[veld] !== null) w.first[veld] = w.results[veld];
   save();
-  if (t.feedback !== 'direct') return { id: veld };
+  if (!direct) return { id: veld };
   if (guard && w.results[veld] === false) {
     w.lock[veld] = now + WRONG_MS;
     return { id: veld, correct: false, wait: WRONG_MS };
@@ -1070,7 +1138,7 @@ function inleverenWerk(t, w) {
     return {
       naam: w.naam, spel: 'Taak', bron: t.titel, sessie: `taak-${t.id}`,
       vraag: `${tag}Oefening ${f.block + 1}.${Number(f.id.split('.')[1]) + 1}: ${block.instruction || (block.q && block.q.vraag) || ''}`,
-      doel: block.doel, juist: w.results[f.id] === true && (t.feedback !== 'direct' || w.first[f.id] !== false), leeg: w.answers[f.id] === undefined,
+      doel: block.doel, juist: w.results[f.id] === true && (vastVan(t, w).feedback !== 'direct' || w.first[f.id] !== false), leeg: w.answers[f.id] === undefined,
     };
   }));
 }
@@ -1136,4 +1204,4 @@ function toetsenGegeven() {
 }
 proeven.gegevenHook = toetsenGegeven;
 
-module.exports = { zetBeveiligd, verlaat, terugIn, toetsenGegeven, ruimOp, toetsLeerlingen, standen, standPerPc, toetsAntwoord, zetVoorlees, zetAfwezig, naarLesmapStand, standGeldig, get STAND() { return STAND(); }, PC, set bijAfname(fn) { bijAfname = fn; }, lesVan, gestartSinds, startNu, get PLAN() { return PLAN(); }, planGeldig, uitLesmap, SOLO, MINUTEN, soloRonde, soloAntwoord, voorbeeld, inhoud, maak, voegToe, haalWeg, zetNiveau, sluit, heropen, wis, lijst, detail, mijn, aantal, open, antwoord, inleveren, quizAntwoord, flush, get DIR() { return DIR(); } };
+module.exports = { zetKeuzes, keuzesVoor: id => keuzesVan(find(id)), zetBeveiligd, verlaat, terugIn, toetsenGegeven, ruimOp, toetsLeerlingen, standen, standPerPc, toetsAntwoord, zetVoorlees, zetAfwezig, naarLesmapStand, standGeldig, get STAND() { return STAND(); }, PC, set bijAfname(fn) { bijAfname = fn; }, lesVan, gestartSinds, startNu, get PLAN() { return PLAN(); }, planGeldig, uitLesmap, SOLO, MINUTEN, soloRonde, soloAntwoord, voorbeeld, inhoud, maak, voegToe, haalWeg, zetNiveau, sluit, heropen, wis, lijst, detail, mijn, aantal, open, antwoord, inleveren, quizAntwoord, flush, get DIR() { return DIR(); } };
