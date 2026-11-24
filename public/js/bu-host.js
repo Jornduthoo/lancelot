@@ -553,7 +553,9 @@ function toonEiland(e) {
   // Thuis: een kopie van het digibord via Mijn lesmap. Alleen kijken, aanpassen doe je op het bord.
   const kopie = !!e.kopie;
   if (kopie) $('ke-sub').textContent = `👁 Kopie van het digibord (${new Date(e.kopie.at).toLocaleString('nl-BE', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}) · alleen bekijken`;
-  for (const id of ['ke-tijd', 'ke-geef-knop', 'ke-doel-knop', 'ke-join']) $(id).classList.toggle('hidden', kopie);
+  for (const id of ['ke-geef-knop', 'ke-doel-knop', 'ke-join']) $(id).classList.toggle('hidden', kopie);
+  // Op een kopie blijft de Kasteeltijd-knop staan, zodat je weet waar hij is: aanzetten doe je op het digibord.
+  if (kopie) $('ke-tijd').textContent = '🏗️ Kasteeltijd';
   document.body.classList.toggle('ke-kopie', kopie);
   const d = e.klasdoel;
   $('ke-doel').classList.toggle('gehaald', !!(d && d.gehaald));
@@ -602,6 +604,7 @@ setInterval(() => {
 }, 60000);
 
 $('ke-tijd').addEventListener('click', () => {
+  if (ke.eiland && ke.eiland.kopie) return Ui.melding('Kasteeltijd zet je aan op het digibord, daar bouwen de leerlingen. Op deze pc zie je een kopie.');
   const aan = !(ke.eiland && ke.eiland.kasteeltijd);
   socket.emit('bu-kasteeltijd', aan, () => {
     if (aan) sfx.gong();
