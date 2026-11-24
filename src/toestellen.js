@@ -16,6 +16,10 @@ const ELKE = 2 * 60000;
 const WEG = 30 * 864e5;
 // Rood: een toestel waar leerlingen bezig zijn, stuurde al zo lang niets.
 const STIL = 5 * 60000;
+// Stuurde zo'n toestel al langer dan 2 uur niets, dan staat hij gewoon uit: na school
+// naar huis, en een taak die over meer dagen loopt, staat daar nog open. Dan niet rood, wel een rustige zin:
+// het werk van de leerlingen staat op die pc bewaard en komt in de lesmap zodra hij weer aanstaat.
+const UIT = 2 * 3600000;
 
 const schoon = s => String(s || '').replace(/[\u0000-\u001f<>]/g, '').replace(/\s+/g, ' ').trim().slice(0, 30);
 const naam = () => schoon(settings.read().toestelNaam) || ID;
@@ -86,7 +90,9 @@ function stand(standen, lesmapView, openHier) {
   }
   const anderen = alle().filter(t => t.id !== ID && nu - Date.parse(t.tijd) < WEG).map(t => {
     const geleden = nu - Date.parse(t.tijd);
-    return { naam: t.naam, tijd: t.tijd, bezig: bezig.get(t.id) || 0, stil: !!bezig.get(t.id) && geleden > STIL, ...(t.open ? { open: t.open.length } : {}) };
+    const uit = geleden > UIT;
+    const metLeerlingen = !!bezig.get(t.id) && geleden > STIL;
+    return { naam: t.naam, tijd: t.tijd, bezig: bezig.get(t.id) || 0, stil: metLeerlingen && !uit, ...(metLeerlingen && uit ? { uit: true } : {}), ...(t.open ? { open: t.open.length } : {}) };
   }).sort((a, b) => b.tijd.localeCompare(a.tijd));
   return {
     toon: anderen.length > 0,

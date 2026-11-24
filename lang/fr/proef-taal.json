@@ -552,6 +552,8 @@
  ", {0} bezig": ", {0} en cours",
  "Synchroniseren lukt hier niet: {0}": "La synchronisation échoue ici : {0}",
  "{0} stuurden al even niets, terwijl er leerlingen bezig zijn. Staat LANcelot daar nog aan, met OneDrive of Google Drive?": "{0} n'ont rien envoyé depuis un moment alors que des élèves travaillent. LANcelot y tourne-t-il encore, avec OneDrive ou Google Drive ?",
+ "{0} staat uit sinds {1}. Het werk van de leerlingen daar is bewaard en komt binnen zodra die pc weer aanstaat.": "{0} est éteint depuis {1}. Le travail des élèves y est enregistré et arrivera dès que ce PC sera rallumé.",
+ "{0} staan uit. Het werk van de leerlingen daar is bewaard en komt binnen zodra die pc's weer aanstaan.": "{0} sont éteints. Le travail des élèves y est enregistré et arrivera dès que ces PC seront rallumés.",
  "Bijgewerkt van:": "Mis à jour depuis :",
  "Geef elke pc een eigen naam": "Donnez un nom à chaque PC",
  "dit toestel:": "cet appareil :",
