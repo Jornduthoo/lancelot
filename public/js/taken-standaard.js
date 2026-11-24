@@ -3,9 +3,9 @@
 (() => {
   if (!$('ts-raster')) return;
   const VELDEN = [
-    { k: 'voorlees', kop: 'Voorlezen 🔊 (toets)', opties: [['uit', 'Uit'], ['page', 'Voor 🪶 Page'], ['iedereen', 'Iedereen']] },
+    { k: 'voorlees', kop: 'Voorlezen 🔊', opties: [['uit', 'Uit'], ['page', 'Voor 🪶 Page'], ['iedereen', 'Iedereen']] },
     { k: 'volgorde', kop: 'Volgorde (toets)', opties: [['schud', 'Alles door elkaar'], ['vragen', 'Vragen in volgorde'], ['alles', 'Alles in volgorde']] },
-    { k: 'uitslag', kop: 'Punten tonen (toets)', opties: [['nee', 'Na het verbeteren'], ['ja', 'Meteen na het inleveren']] },
+    { k: 'uitslag', kop: 'Punten tonen', opties: [['nee', 'Na het verbeteren'], ['ja', 'Meteen na het inleveren']] },
     { k: 'beveiligd', kop: 'Volledig scherm 🛡 (toets)', opties: [['ja', 'Aan'], ['nee', 'Uit']] },
     { k: 'feedback', kop: 'Verbeteren (oefenblad)', opties: [['direct', 'Meteen'], ['inleveren', 'Na het inleveren']] },
     { k: 'startuur', kop: 'Startuur (gepland)', uur: true },

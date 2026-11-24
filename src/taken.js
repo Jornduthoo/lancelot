@@ -167,14 +167,25 @@ function toets(t, w) {
 }
 
 // Keuzes bij een toets als taak: voorlezen (uit, page, iedereen) en de volgorde. Alleen wat anders is dan vroeger.
+// Bij een oefenblad (24 nov): voorlezen en punten tonen. Een oefenblad van vroeger (zonder keuzes) leest altijd voor
+// en toont de punten na het inleveren; dat blijft zo. Een oefenblad blijft altijd in zijn volgorde.
+const VOORLEES = ['uit', 'page', 'iedereen'];
 function toetsKeuzes(t, p) {
-  if (t.soort !== 'proef' || !p) return;
+  if (!p) return;
+  if (t.soort === 'oefenblad') {
+    if (VOORLEES.includes(p.voorlees)) t.voorlees = p.voorlees;
+    if (typeof p.uitslag === 'boolean') t.uitslag = p.uitslag;
+    return;
+  }
+  if (t.soort !== 'proef') return;
   if (p.voorlees === 'page' || p.voorlees === 'iedereen') t.voorlees = p.voorlees;
   if (p.vragenVast === true) t.vragenVast = true;
   if (p.keuzesVast === true) t.keuzesVast = true;
   if (p.uitslag === true) t.uitslag = true;
   if (p.beveiligd === true) t.beveiligd = true;
 }
+// Ziet de leerling zijn punten na het inleveren? Een oefenblad van vroeger: ja.
+const puntenZien = t => (t.soort === 'oefenblad' ? t.uitslag !== false : !!t.uitslag);
 // Beveiligd (volledig scherm, wegklikken gemeld): ook achteraf aan of uit te zetten, voor wie nog werkt.
 function zetBeveiligd({ id, aan } = {}) {
   const t = find(id);
@@ -258,6 +269,7 @@ function uitslagVoor(t, w) {
 function voorleesVoor(t, w) {
   // De leerkracht zette het voor deze leerling aan of uit terwijl hij werkt: dat gaat voor.
   if (typeof w.voorlees === 'boolean') return w.voorlees;
+  if (t.soort === 'oefenblad' && !t.voorlees) return true;
   if (t.voorlees === 'iedereen') return true;
   if (t.voorlees !== 'page') return false;
   if (w.niveau === 'page') return true;
@@ -380,6 +392,7 @@ function maak({ soort, file, namen, feedback, spel, minuten, niveau, per, na, le
   };
   if (soort === 'quiz' && SOLO[spel]) Object.assign(t, { spel, minuten: MINUTEN.includes(Number(minuten)) ? Number(minuten) : 5 });
   toetsKeuzes(t, { voorlees, vragenVast, keuzesVast, uitslag, beveiligd });
+  t.keuzesTijd = t.gemaakt;
   const uitLes = lesVan(les);
   if (uitLes) t.les = uitLes;
   const start = schoonVanaf(vanaf);
@@ -420,7 +433,10 @@ function planBewaar(t) {
       namenTijd: t.namenTijd || null,
       // Afgesloten of open, met wanneer: zo sluit een taak op al je pc's (de laatste wijziging wint).
       dicht: !!t.dicht, dichtTijd: t.dichtTijd || null,
-      voorlees: t.voorlees || null, vragenVast: !!t.vragenVast, keuzesVast: !!t.keuzesVast, uitslag: !!t.uitslag, beveiligd: !!t.beveiligd,
+      voorlees: t.voorlees || null, vragenVast: !!t.vragenVast, keuzesVast: !!t.keuzesVast, uitslag: puntenZien(t), beveiligd: !!t.beveiligd,
+      // Wanneer de keuzes (voorlezen, punten tonen…) voor het laatst veranderden. Een plan zonder dit is van vroeger:
+      // dan krijgt een oefenblad de keuzes van vroeger (altijd voorlezen, punten tonen).
+      keuzesTijd: t.keuzesTijd || null,
       namen: Object.values(t.werk).map(w => w.naam), inhoud: t.inhoud,
     };
     fs.writeFileSync(path.join(PLAN(), `${t.id}.json`), JSON.stringify(plan) + '\n');
@@ -479,7 +495,8 @@ function uitLesmap() {
       };
       if (typeof p.dichtTijd === 'string' && Date.parse(p.dichtTijd)) t.dichtTijd = p.dichtTijd;
       if (p.soort === 'quiz' && SOLO[p.spel]) Object.assign(t, { spel: p.spel, minuten: MINUTEN.includes(p.minuten) ? p.minuten : 5 });
-      toetsKeuzes(t, p);
+      if (t.soort !== 'oefenblad' || p.keuzesTijd) toetsKeuzes(t, p);
+      if (typeof p.keuzesTijd === 'string' && Date.parse(p.keuzesTijd)) t.keuzesTijd = p.keuzesTijd;
       if (niveausVan(t.soort, t.inhoud).includes(p.niveau) && niveausVan(t.soort, t.inhoud).length > 1) t.niveau = p.niveau;
       const eigen = schoonPer(t, p.per);
       if (eigen) t.per = eigen;
@@ -871,7 +888,7 @@ function mijn(naam) {
   }).map(t => {
     const w = t.werk[k];
     const open = !t.dicht && w.status !== 'klaar';
-    return { id: t.id, soort: t.soort, titel: t.titel, vak: t.vak, gemaakt: t.gemaakt, spel: spelVan(t), niveau: niveausVan(t.soort, t.inhoud).length > 1 ? w.niveau : null, status: open ? w.status : 'klaar', les: lesVoorLeerling(t), ...voortgang(t, w) };
+    return { id: t.id, soort: t.soort, titel: t.titel, vak: t.vak, gemaakt: t.gemaakt, spel: spelVan(t), niveau: niveausVan(t.soort, t.inhoud).length > 1 ? w.niveau : null, status: open ? w.status : 'klaar', les: lesVoorLeerling(t), ...voortgang(t, w), ...(t.soort === 'oefenblad' && !puntenZien(t) ? { juist: 0, score: 0 } : {}) };
   });
   lijst.sort((a, b) => (a.status === 'klaar') - (b.status === 'klaar') || (a.gemaakt < b.gemaakt ? 1 : -1));
   const l = klas.match(naam);
@@ -903,11 +920,13 @@ function open({ id, naam } = {}) {
   }
   if (t.soort === 'quiz') return { ...base, vraag: klaar ? null : vraagVoor(t, w), terug: klaar ? terugblik(t, w) : null };
   const b = blad(t, w.niveau);
+  // Punten tonen uit: na het inleveren geen score en geen oplossingen (wat al groen of rood was, blijft zo).
+  const zien = klaar && puntenZien(t);
   return {
-    ...base, feedback: t.feedback, view: b.view, answers: w.answers,
-    results: t.feedback === 'direct' || klaar ? w.results : {},
-    solutions: klaar ? sheets.solutions(b.sheet, b.shuffles) : null,
-    voorlees: true,
+    ...base, ...(puntenZien(t) ? {} : { juist: 0, score: 0 }), feedback: t.feedback, view: b.view, answers: w.answers,
+    results: t.feedback === 'direct' || zien ? w.results : {},
+    solutions: zien ? sheets.solutions(b.sheet, b.shuffles) : null,
+    voorlees: voorleesVoor(t, w),
   };
 }
 

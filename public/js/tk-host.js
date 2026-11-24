@@ -112,9 +112,9 @@ function stdInfo() {
   if (!s || !$('tk-bron').value) { box.innerHTML = ''; return; }
   const delen = tk.soort === 'proef'
     ? [STD_TEKST.voorlees[s.voorlees], STD_TEKST.volgorde[s.volgorde], s.uitslag ? 'punten meteen tonen' : 'punten na het verbeteren', s.beveiligd === false ? 'niet op volledig scherm' : 'volledig scherm']
-    : tk.soort === 'oefenblad' ? [STD_TEKST.feedback[s.feedback]] : [];
+    : tk.soort === 'oefenblad' ? [STD_TEKST.feedback[s.feedback], STD_TEKST.voorlees[s.voorlees], s.uitslag ? 'punten tonen na het inleveren' : 'geen punten tonen'] : [];
   if ($('tk-wanneer').value === 'later') delen.push(`start om ${s.startuur}`);
-  const anders = [...tk.zelf].filter(k => k === 'feedback' ? tk.soort === 'oefenblad' : tk.soort === 'proef').length;
+  const anders = [...tk.zelf].filter(k => (k === 'feedback' ? tk.soort === 'oefenblad' : k === 'volgorde' || k === 'beveiligd' ? tk.soort === 'proef' : tk.soort !== 'quiz')).length;
   box.innerHTML = '';
   if (!delen.length) return;
   box.append(`⚙️ ${s.vak ? `Volgens je standaard voor ${s.vak}` : 'Volgens je standaard'}: ${delen.join(', ')}${anders ? ' (je veranderde hier iets)' : ''}. `);
@@ -181,7 +181,10 @@ function vulBron() {
   for (const b of document.querySelectorAll('.tk-soort button')) b.classList.toggle('on', b.dataset.soort === tk.soort);
   $('tk-fb-label').classList.toggle('hidden', tk.soort !== 'oefenblad');
   $('tk-toets-uitleg').classList.toggle('hidden', tk.soort !== 'proef');
-  for (const id of ['tk-vl-label', 'tk-vv-label', 'tk-us-label', 'tk-bv-label']) $(id).classList.toggle('hidden', tk.soort !== 'proef');
+  // Voorlezen en punten tonen bij een toets én een oefenblad; een oefenblad blijft altijd in zijn volgorde.
+  for (const id of ['tk-vl-label', 'tk-us-label']) $(id).classList.toggle('hidden', tk.soort === 'quiz');
+  for (const id of ['tk-vv-label', 'tk-bv-label']) $(id).classList.toggle('hidden', tk.soort !== 'proef');
+  $('tk-vv-blad').classList.toggle('hidden', tk.soort !== 'oefenblad');
   spelKeuze();
   const lijst = tk.soort === 'quiz' ? tk.bronnen.quizzen : tk.soort === 'proef' ? tk.bronnen.toetsen || [] : tk.bronnen.bladen;
   const file = vraag.get('file');
