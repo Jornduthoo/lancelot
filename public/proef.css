@@ -920,3 +920,18 @@ p.pf-kort.pf-vakjes { flex-wrap: wrap; }
 .bv-deel-stuk > summary { cursor: pointer; font-weight: 700; color: var(--k-cyan-l, #9fd0ff); }
 .bv-deel-stuk[open] > summary { margin-bottom: 6px; }
 .pf-afname .tag.nul { opacity: .45; background: none; box-shadow: inset 0 0 0 1px rgb(var(--k-wit, 255 255 255) / .15); }
+
+/* ---------- Aanduiden in de bron: een eigen laag per vraag ---------- */
+.pf-laag:empty { display: none; }
+.pf-laag { position: sticky; top: -12px; z-index: 2; margin: 0 -16px 8px; padding: 8px 16px; background: #f1e8d2; border-bottom: 2px solid #c49a3a; }
+.pf-laag-kop { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 6px !important; color: #2a3350; }
+.pf-laag-vragen { display: inline-flex; flex-wrap: wrap; gap: 6px; }
+.pf-laag-vraag { min-width: 44px; min-height: 36px; padding: 4px 12px; background: #fff; color: #2a3350; box-shadow: inset 0 0 0 1.5px #b9ab88; clip-path: none; font-weight: 700; }
+.pf-laag-vraag.on { background: #2a3350; color: #fff; box-shadow: none; }
+.pf-laag-vraag small { display: inline-block; min-width: 18px; padding: 0 5px; border-radius: 9px; background: #c49a3a; color: #fff; font-size: .75rem; }
+.pf-laag .pf-stiften { margin: 0; }
+.pf-inbron-nu { display: none; color: #2a3350; font-weight: 700; }
+.pf-bron-page .pf-q.pf-markeren.actief .pf-inbron-nu { display: inline; }
+.pf-bron-page .pf-q.pf-markeren.actief .pf-inbron-knop { display: none; }
+.pf-markeer-laag { max-height: none; }
+@media (max-width: 760px) { .pf-laag { top: 0; } }

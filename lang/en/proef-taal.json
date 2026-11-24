@@ -758,5 +758,8 @@
  "Eén niveau": "Single level",
  "Niveaus tonen": "Show levels",
  "⚠ Geen eigen versie voor: {0}{1}.": "⚠ No own version for: {0}{1}.",
- "{0} vragen · {1} punten": "{0} questions · {1} points"
+ "{0} vragen · {1} punten": "{0} questions · {1} points",
+ "✏️ Je duidt nu aan voor deze vraag.": "✏️ You are now marking for this question.",
+ "Duid aan": "Mark",
+ "Je duidt aan voor vraag {0}.": "You are marking for question {0}."
 }

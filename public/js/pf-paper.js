@@ -287,10 +287,15 @@ const PfPaper = (() => {
     const lijst = markLijst(a, q.per);
     const sl = o.zones && Array.isArray(o.zones[q.id]) ? o.zones[q.id] : null;
     let h = `<p class="pf-tip">${markTip(q, print)}</p>${stiftenHtml(q, live, print)}`;
-    if (live) o.mk[q.id] = { per: q.per || 'woord', stukken: q.inBron ? o.bronStukken || [] : q.stukken, hex, rand, inBron: !!q.inBron, aantal: q.aantal || 0 };
+    if (live) o.mk[q.id] = { per: q.per || 'woord', stukken: q.inBron ? o.bronStukken || [] : q.stukken, hex, rand, inBron: !!q.inBron, aantal: q.aantal || 0, kleuren: q.kleuren || null };
     if (q.inBron) {
-      // In de bron: de leerling duidt links aan. Bekijken en verbeteren: de tekst staat hier, met wat de leerling aanduidde.
-      if (live) return `${h}<p class="pf-inbron"><button type="button" class="secondary small-btn pf-inbron-knop">👈 Duid aan in de tekst</button> <span class="pf-inbron-tel"></span></p>`;
+      // In de bron: de leerling duidt links aan, elke vraag in een eigen laag. De stiften van de vraag die nu aanduidt, staan boven de tekst;
+      // hier alleen wat de kleuren betekenen. Bekijken en verbeteren: de tekst staat hier, met wat de leerling aanduidde.
+      if (live) return `<p class="pf-tip">${markTip(q, false)}</p>${stiftenHtml(q, false, false)}<p class="pf-inbron"><button type="button" class="secondary small-btn pf-inbron-knop">👈 Duid aan in de tekst</button> <span class="pf-inbron-nu">✏️ Je duidt nu aan voor deze vraag.</span> <span class="pf-inbron-tel"></span></p>`;
+      // Op papier: delen meer vragen dezelfde tekst, dan krijgt elke vraag een eigen kopie van de tekst om in aan te duiden.
+      if (print && o.bronStukken && o.bronLagen > 1) return `${h}<div class="pf-markeer pf-markeer-kopie pf-markeer-laag per-${q.per || 'woord'}">${markTekst(o.bronStukken, q.per, sl || [], { hex, rand })}</div>`;
+      // De verbetersleutel met één tekst: toon toch wat juist is, in de tekst.
+      if (print && o.bronStukken && sl) return `${h}<div class="pf-markeer pf-markeer-kopie pf-markeer-laag per-${q.per || 'woord'}">${markTekst(o.bronStukken, q.per, sl, { hex, rand })}</div>`;
       if (print || !o.bronStukken) return h;
       return `${h}<div class="pf-markeer pf-markeer-kopie">${markTekst(o.bronStukken, q.per, lijst, { hex, rand, sleutel: sl })}</div>`;
     }
@@ -701,12 +706,14 @@ const PfPaper = (() => {
     const nr = o.nummer ? String(i + 1) : '';
     if (p.type !== 'bron') return `<section class="pf-page">${vraagHtml(p, nr, o)}</section>`;
     o.bronStukken = p.stukken || null;
+    // Hoeveel vragen in deze tekst aanduiden: elk krijgt een eigen laag.
+    o.bronLagen = p.vragen.filter(q => q.type === 'markeren' && q.inBron).length;
     const say = o.voorlees && o.mode !== 'print' && typeof Voorlees !== 'undefined' && Voorlees.ok
       ? `<button type="button" class="ob-say pf-say" data-say="${o.said.push([p.titel, p.tekst].filter(Boolean).join('\n')) - 1}" title="Lees voor" aria-label="Lees voor">🔊</button>` : '';
     const zeg = p.voorlees && o.mode !== 'print' ? zegKnoppen(o.said.push(p.voorlees) - 1, telVan(p.id, p.luisterMax, o)) : '';
     return `<section class="pf-page pf-bron-page">
       <div class="pf-bron">${p.titel || say || p.audio || zeg ? `<h3>${say}${p.audio && o.mode !== 'print' ? luisterKnop(p, o, 'Luister naar het fragment') : ''}${zeg}${esc(p.titel || 'Bron')}</h3>` : ''}${luisterTip(p, o)}${p.voorlees && o.mode === 'print' ? '<p class="pf-tip">🎧 De leerkracht leest dit voor.</p>' : ''}${p.beeld ? `<img class="pf-beeld" src="${esc(p.beeld)}" alt="">` : ''}${p.stukken && o.mode === 'live'
-    ? `<div class="pf-markeer pf-bron-tekst" data-bron="${esc(p.id)}">${markTekst(p.stukken, 'woord', [])}</div>` : paras(p.tekst)}</div>
+    ? `<div class="pf-laag" aria-live="polite"></div><div class="pf-markeer pf-bron-tekst" data-bron="${esc(p.id)}">${markTekst(p.stukken, 'woord', [])}</div>` : paras(p.tekst)}</div>
       <div class="pf-deel">${p.vragen.map((q, j) => vraagHtml(q, `${nr}${'abcdefghijklmno'[j]}`, o)).join('')}</div>
     </section>`;
   }
@@ -833,7 +840,8 @@ const PfPaper = (() => {
   // Het antwoord staat op het vraag-element (pfMark); de tekst wordt na elke tik opnieuw getekend.
   function wireMarkeer(box, el, mk, klaar) {
     el.pfMark = markLijst(box.pfAntwoorden && box.pfAntwoorden[el.dataset.id], mk.per).filter(x => x.every(Number.isInteger));
-    el.pfMarkKleur = el.querySelector('.pf-stift') ? 1 : 0;
+    // Meer dan één kleur: het antwoord bewaart bij elk stuk de kleur (zoals altijd).
+    el.pfMarkKleur = mk.kleuren && mk.kleuren.length > 1 ? 1 : 0;
     let kleur = 1;
     let begin = null;
     const page = el.closest('.pf-page');
@@ -846,14 +854,18 @@ const PfPaper = (() => {
       tekst.innerHTML = markTekst(mk.stukken, mk.per, el.pfMark, { hex: mk.hex, rand: mk.rand, live: true, start: begin });
       const tel = el.querySelector('.pf-inbron-tel');
       if (tel) tel.textContent = el.pfMark.length ? `${el.pfMark.length} aangeduid` : '';
+      if (mk.inBron) tekenLaag(page);
     };
     const zetActief = () => {
       if (!mk.inBron) return;
+      if (page.pfActief === el) return;
       page.pfActief = el;
       for (const x of page.querySelectorAll('.pf-q.pf-markeren')) x.classList.toggle('actief', x === el);
       tekst.pfVraag = el;
+      begin = null;
       teken();
     };
+    el.pfZetActief = zetActief;
     for (const b of el.querySelectorAll('.pf-stift')) {
       b.addEventListener('click', () => {
         kleur = Number(b.dataset.k);
@@ -885,10 +897,12 @@ const PfPaper = (() => {
       klaar();
     };
     const woordVan = t => { const w = t && t.closest && t.closest('.pf-woord'); return w && tekst.contains(w) ? Number(w.dataset.w) : null; };
-    const api = { tik, stuk, mk, el, klaar, kleur: () => kleur, get begin() { return begin; }, set begin(v) { begin = v; teken(); } };
+    const api = { tik, stuk, mk, el, klaar, kleur: () => kleur, zetKleur: k => { kleur = k; begin = null; teken(); }, get begin() { return begin; }, set begin(v) { begin = v; teken(); } };
     el.pfMarkApi = api;
+    if (mk.inBron && page.pfActief) tekenLaag(page);
     if (tekst.pfMarkWired) return;
     tekst.pfMarkWired = true;
+    if (mk.inBron) wireLaag(page);
     // In een bron telt de vraag die nu aanduidt; anders deze vraag.
     const huidig = () => (mk.inBron ? tekst.pfVraag && tekst.pfVraag.pfMarkApi : api);
     let sleep = null;
@@ -923,6 +937,43 @@ const PfPaper = (() => {
     tekst.addEventListener('keydown', e => { if ((e.key === 'Enter' || e.key === ' ') && e.target.closest('.pf-woord')) { e.preventDefault(); e.target.click(); } });
     if (mk.inBron && !page.pfActief) zetActief();
     else teken();
+  }
+
+  // De laag boven de brontekst: voor welke vraag de leerling nu aanduidt, en alleen de stiften van die vraag.
+  // Met meer aanduidvragen in dezelfde tekst kiest de leerling hier de vraag; de tekst toont alleen wat bij die vraag hoort.
+  function tekenLaag(page) {
+    const laag = page.querySelector('.pf-laag');
+    const el = page.pfActief;
+    if (!laag || !el || !el.pfMarkApi) return;
+    const api = el.pfMarkApi;
+    const nr = q => ((q.querySelector('.pf-nr') || {}).textContent || '').trim();
+    const vragen = [...page.querySelectorAll('.pf-q.pf-markeren')].filter(q => q.pfMarkApi && q.pfMarkApi.mk.inBron);
+    const kies = vragen.length > 1
+      ? `<span class="pf-laag-vragen">${vragen.map(q => `<button type="button" class="pf-laag-vraag${q === el ? ' on' : ''}" data-id="${esc(q.dataset.id)}" aria-pressed="${q === el}">${esc(nr(q))}${q.pfMark.length ? ` <small>${q.pfMark.length}</small>` : ''}</button>`).join('')}</span>` : '';
+    const kleuren = api.mk.kleuren;
+    // Geen benoemde kleuren: één markeerstift.
+    const stiften = kleuren && kleuren.length
+      ? kleuren.map((c, i) => `<button type="button" class="pf-stift${kleuren.length === 1 || api.kleur() === i + 1 ? ' on' : ''}" data-k="${i + 1}" style="--stift:${c.hex}"><i></i><span>${esc(c.kleur)}</span>${c.uitleg ? `<span>= ${esc(c.uitleg)}</span>` : ''}</button>`).join('')
+      : `<button type="button" class="pf-stift on" data-k="1" style="--stift:${STIFT}"><i></i><span>Duid aan</span></button>`;
+    laag.innerHTML = `<p class="pf-laag-kop"><b>Je duidt aan voor vraag ${esc(nr(el))}.</b>${kies}</p><div class="pf-stiften">${stiften}</div>`;
+  }
+  function wireLaag(page) {
+    const laag = page.querySelector('.pf-laag');
+    if (!laag || laag.pfWired) return;
+    laag.pfWired = true;
+    laag.addEventListener('click', e => {
+      const v = e.target.closest('.pf-laag-vraag');
+      if (v) {
+        const q = [...page.querySelectorAll('.pf-q.pf-markeren')].find(x => x.dataset.id === v.dataset.id);
+        if (q && q.pfZetActief) q.pfZetActief();
+        return;
+      }
+      const b = e.target.closest('.pf-stift');
+      const api = page.pfActief && page.pfActief.pfMarkApi;
+      if (!b || !api) return;
+      api.zetKleur(Number(b.dataset.k));
+      for (const x of laag.querySelectorAll('.pf-stift')) x.classList.toggle('on', x === b);
+    });
   }
 
   // Het antwoord van één vraag uit het scherm halen.
