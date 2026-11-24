@@ -1,0 +1,13 @@
+{
+ "Je leerkracht wiste deze taak. Wat je al deed, is bewaard.": "Tu docente borró esta tarea. Lo que ya hiciste está guardado.",
+ "Deze taak is gesloten. Wat je al deed, is bewaard.": "Esta tarea está cerrada. Lo que ya hiciste está guardado.",
+ "Taak gesloten": "Tarea cerrada",
+ "Gewiste taak voor de lesmap bewaren mislukt:": "No se pudo guardar la tarea borrada en la carpeta de clase:",
+ "{0} kreeg deze toets al. Toch nog eens geven? De oude taak sluit dan, de punten blijven.": "{0} ya recibió esta prueba. ¿Darla otra vez? La tarea antigua se cierra y los puntos se conservan.",
+ "{0} kregen deze toets al. Toch nog eens geven? De oude taak sluit dan, de punten blijven.": "{0} ya recibieron esta prueba. ¿Darla otra vez? La tarea antigua se cierra y los puntos se conservan.",
+ ", 1 taak open": ", 1 tarea abierta",
+ ", {0} taken open": ", {0} tareas abiertas",
+ "🔁 Geef je dezelfde toets opnieuw, dan sluit de oude taak voor die leerlingen. Hun punten blijven.": "🔁 Si vuelves a dar la misma prueba, la tarea antigua se cierra para esos alumnos. Sus puntos se conservan.",
+ "💻 Nog open op {0}": "💻 Aún abierta en {0}",
+ "💻 Niet open op {0}": "💻 No abierta en {0}"
+}

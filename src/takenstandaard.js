@@ -52,11 +52,12 @@ function read() {
     if (Object.keys(v).length) vakken[g.id] = v;
   }
   // Het blok "Vandaag" op het startscherm (punt 9): standaard aan.
-  return { bewaard: !!d, algemeen: schoon(d && d.algemeen, true), vakken, vandaag: !(d && d.vandaag === false), vakgroepen: niveaus.VAKGROEPEN.map(g => ({ id: g.id, naam: g.naam })) };
+  // Dezelfde toets opnieuw geven: de oude taak sluit voor die leerlingen (wens 24 nov, punt 3): standaard aan.
+  return { bewaard: !!d, algemeen: schoon(d && d.algemeen, true), vakken, vandaag: !(d && d.vandaag === false), oudeSluiten: !(d && d.oudeSluiten === false), vakgroepen: niveaus.VAKGROEPEN.map(g => ({ id: g.id, naam: g.naam })) };
 }
 
-function write({ algemeen, vakken, vandaag } = {}) {
-  const uit = { algemeen: schoon(algemeen, true), vakken: {}, vandaag: typeof vandaag === 'boolean' ? vandaag : read().vandaag, wens2411: true, gewijzigd: new Date().toISOString() };
+function write({ algemeen, vakken, vandaag, oudeSluiten } = {}) {
+  const uit = { algemeen: schoon(algemeen, true), vakken: {}, vandaag: typeof vandaag === 'boolean' ? vandaag : read().vandaag, oudeSluiten: typeof oudeSluiten === 'boolean' ? oudeSluiten : read().oudeSluiten, wens2411: true, gewijzigd: new Date().toISOString() };
   for (const g of niveaus.VAKGROEPEN) {
     const v = schoon(vakken && vakken[g.id], false);
     if (Object.keys(v).length) uit.vakken[g.id] = v;
@@ -79,4 +80,10 @@ function zetVandaag(aan) {
   return write({ algemeen: d.algemeen, vakken: d.vakken, vandaag: !!aan });
 }
 
-module.exports = { DIR, STANDAARD, read, write, voor, geldig, zetVandaag };
+// Bij opnieuw geven van dezelfde toets de oude taak sluiten, of niet.
+function zetOudeSluiten(aan) {
+  const d = read();
+  return write({ algemeen: d.algemeen, vakken: d.vakken, vandaag: d.vandaag, oudeSluiten: !!aan });
+}
+
+module.exports = { DIR, STANDAARD, read, write, voor, geldig, zetVandaag, zetOudeSluiten };

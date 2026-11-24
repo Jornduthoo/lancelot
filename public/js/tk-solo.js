@@ -40,7 +40,7 @@
   }
 
   socket.on('tk-solo', d => {
-    if (d.fout) return toon('Dit lukt niet', d.fout, false);
+    if (d.fout) return toon(d.gesloten ? 'Taak gesloten' : 'Dit lukt niet', d.fout, false);
     stand = { ...stand, ...d };
     if (d.titel) document.title = `LANcelot · ${d.titel}`;
     if (!begonnen && !d.einde) {

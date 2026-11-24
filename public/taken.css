@@ -207,3 +207,4 @@
 /* Instellingen van een gegeven taak: de keuzes onder elkaar. */
 .tk-keuzes { max-width: 520px; }
 .tk-keuzes .row { flex-direction: column; margin: 12px 0 18px; }
+.tk-taak-toestel { display: block; color: var(--k-goud, #e8b84a); font-weight: 600; }

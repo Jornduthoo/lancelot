@@ -1,0 +1,13 @@
+{
+ "Je leerkracht wiste deze taak. Wat je al deed, is bewaard.": "Your teacher deleted this task. What you already did is saved.",
+ "Deze taak is gesloten. Wat je al deed, is bewaard.": "This task is closed. What you already did is saved.",
+ "Taak gesloten": "Task closed",
+ "Gewiste taak voor de lesmap bewaren mislukt:": "Saving the deleted task to the lesson folder failed:",
+ "{0} kreeg deze toets al. Toch nog eens geven? De oude taak sluit dan, de punten blijven.": "{0} already got this test. Give it again anyway? The old task then closes, the scores are kept.",
+ "{0} kregen deze toets al. Toch nog eens geven? De oude taak sluit dan, de punten blijven.": "{0} already got this test. Give it again anyway? The old task then closes, the scores are kept.",
+ ", 1 taak open": ", 1 task open",
+ ", {0} taken open": ", {0} tasks open",
+ "🔁 Geef je dezelfde toets opnieuw, dan sluit de oude taak voor die leerlingen. Hun punten blijven.": "🔁 If you give the same test again, the old task closes for those pupils. Their scores are kept.",
+ "💻 Nog open op {0}": "💻 Still open on {0}",
+ "💻 Niet open op {0}": "💻 Not open on {0}"
+}

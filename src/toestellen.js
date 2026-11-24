@@ -32,15 +32,19 @@ function geldig(d) {
 }
 
 // Bij elke synchronisatie: laten weten dat dit toestel er is (alleen met een lesmap).
-function hartslag(nu = false) {
-  if (!settings.read().lesmap) return;
+// open: de taken die hier open staan (ids). Zo ziet de leerkracht op elke pc of een taak ergens nog open staat.
+function hartslag(nu = false, open = null) {
+  if (!settings.read().lesmap) return false;
   const file = path.join(DIR(), `${ID}.json`);
   let oud = null;
   try { oud = JSON.parse(fs.readFileSync(file, 'utf8')); } catch {}
-  if (!nu && oud && oud.naam === naam() && Date.now() - Date.parse(oud.tijd) < ELKE) return;
+  const lijst = Array.isArray(open) ? [...open].sort() : oud && Array.isArray(oud.open) ? oud.open : undefined;
+  const zelfde = JSON.stringify(lijst) === JSON.stringify(oud && oud.open);
+  if (!nu && zelfde && oud && oud.naam === naam() && Date.now() - Date.parse(oud.tijd) < ELKE) return false;
   fs.mkdirSync(DIR(), { recursive: true });
-  fs.writeFileSync(file, JSON.stringify({ id: ID, naam: naam(), tijd: new Date().toISOString() }) + '\n');
+  fs.writeFileSync(file, JSON.stringify({ id: ID, naam: naam(), tijd: new Date().toISOString(), ...(lijst ? { open: lijst } : {}) }) + '\n');
   memo = null;
+  return true;
 }
 
 // Kort onthouden: "werkt op …" vraagt de namen voor elke leerling op.
@@ -54,7 +58,7 @@ function alle() {
     try {
       const d = JSON.parse(fs.readFileSync(path.join(DIR(), n), 'utf8'));
       geldig(d);
-      uit.push({ id: d.id, naam: schoon(d.naam) || d.id, tijd: d.tijd });
+      uit.push({ id: d.id, naam: schoon(d.naam) || d.id, tijd: d.tijd, ...(Array.isArray(d.open) ? { open: d.open.filter(x => typeof x === 'string').slice(0, 500) } : {}) });
     } catch {}
   }
   memo = { t: Date.now(), lijst: uit };
@@ -69,7 +73,7 @@ function naamVan(id) {
 }
 
 // Voor de statusregel. standen: de stand van de taken op de andere pc's (taken.standen()), voor wie daar bezig is.
-function stand(standen, lesmapView) {
+function stand(standen, lesmapView, openHier) {
   const lm = lesmapView || {};
   if (!lm.lesmap) return { toon: false, dit: { naam: naam() } };
   const nu = Date.now();
@@ -82,13 +86,19 @@ function stand(standen, lesmapView) {
   }
   const anderen = alle().filter(t => t.id !== ID && nu - Date.parse(t.tijd) < WEG).map(t => {
     const geleden = nu - Date.parse(t.tijd);
-    return { naam: t.naam, tijd: t.tijd, bezig: bezig.get(t.id) || 0, stil: !!bezig.get(t.id) && geleden > STIL };
+    return { naam: t.naam, tijd: t.tijd, bezig: bezig.get(t.id) || 0, stil: !!bezig.get(t.id) && geleden > STIL, ...(t.open ? { open: t.open.length } : {}) };
   }).sort((a, b) => b.tijd.localeCompare(a.tijd));
   return {
     toon: anderen.length > 0,
-    dit: { naam: naam(), tijd: lm.at ? new Date(lm.at).toISOString() : null, fout: lm.error || '' },
+    dit: { naam: naam(), tijd: lm.at ? new Date(lm.at).toISOString() : null, fout: lm.error || '', ...(typeof openHier === 'number' ? { open: openHier } : {}) },
     anderen,
   };
 }
 
-module.exports = { DIR, ID, naam, zetNaam, hartslag, geldig, alle, naamVan, stand };
+// De andere pc's (die het al zeggen): welke taken staan daar open? Alleen pc's die de laatste 30 dagen iets stuurden.
+function openElders() {
+  const nu = Date.now();
+  return alle().filter(t => t.id !== ID && t.open && nu - Date.parse(t.tijd) < WEG).map(t => ({ naam: t.naam, open: new Set(t.open) }));
+}
+
+module.exports = { DIR, ID, naam, zetNaam, hartslag, geldig, alle, naamVan, stand, openElders };

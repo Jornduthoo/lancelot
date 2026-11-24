@@ -1,0 +1,13 @@
+{
+ "Je leerkracht wiste deze taak. Wat je al deed, is bewaard.": "Ton enseignant a supprimé cette tâche. Ce que tu as déjà fait est enregistré.",
+ "Deze taak is gesloten. Wat je al deed, is bewaard.": "Cette tâche est fermée. Ce que tu as déjà fait est enregistré.",
+ "Taak gesloten": "Tâche fermée",
+ "Gewiste taak voor de lesmap bewaren mislukt:": "L'enregistrement de la tâche supprimée dans le dossier de cours a échoué :",
+ "{0} kreeg deze toets al. Toch nog eens geven? De oude taak sluit dan, de punten blijven.": "{0} a déjà reçu ce test. Le donner quand même ? L'ancienne tâche se ferme alors, les points sont conservés.",
+ "{0} kregen deze toets al. Toch nog eens geven? De oude taak sluit dan, de punten blijven.": "{0} ont déjà reçu ce test. Le donner quand même ? L'ancienne tâche se ferme alors, les points sont conservés.",
+ ", 1 taak open": ", 1 tâche ouverte",
+ ", {0} taken open": ", {0} tâches ouvertes",
+ "🔁 Geef je dezelfde toets opnieuw, dan sluit de oude taak voor die leerlingen. Hun punten blijven.": "🔁 Si tu redonnes le même test, l'ancienne tâche se ferme pour ces élèves. Leurs points sont conservés.",
+ "💻 Nog open op {0}": "💻 Encore ouverte sur {0}",
+ "💻 Niet open op {0}": "💻 Pas ouverte sur {0}"
+}

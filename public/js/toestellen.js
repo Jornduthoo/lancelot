@@ -29,10 +29,12 @@
       const stil = r.anderen.filter(a => a.stil);
       const fout = r.dit.fout || '';
       v.classList.toggle('rood', !!(stil.length || fout));
-      const anderen = r.anderen.map(a => `<b>${esc(a.naam)}</b> (${esc(geleden(a.tijd))}${a.bezig ? `, ${a.bezig} bezig` : ''})`).join(', ');
+      // Per toestel: hoeveel taken daar open staan (wens 24 nov, punt 4), zodat een verschil opvalt.
+      const open = n => (n === undefined ? '' : n === 1 ? ', 1 taak open' : `, ${n} taken open`);
+      const anderen = r.anderen.map(a => `<b>${esc(a.naam)}</b> (${esc(geleden(a.tijd))}${a.bezig ? `, ${a.bezig} bezig` : ''}${esc(open(a.open))})`).join(', ');
       const extra = fout ? `<br>⚠ ${esc(`Synchroniseren lukt hier niet: ${fout}`)}`
         : stil.length ? `<br>⚠ ${esc(stil.length === 1 ? `${stil[0].naam} stuurt al ${duur(stil[0].tijd)} niets, terwijl er leerlingen bezig zijn. Staat LANcelot daar nog aan, met OneDrive of Google Drive?` : `${stil.map(a => a.naam).join(', ')} stuurden al even niets, terwijl er leerlingen bezig zijn. Staat LANcelot daar nog aan, met OneDrive of Google Drive?`)}` : '';
-      v.innerHTML = `🔄 ${esc('Bijgewerkt van:')} ${anderen} · ${esc('dit toestel:')} <b>${esc(r.dit.naam)}</b> (${esc(geleden(r.dit.tijd))}) <a href="/host?instellingen=lesmap&terug=${encodeURIComponent(location.pathname + location.search)}" title="${esc('Geef elke pc een eigen naam')}">✎</a>${extra}`;
+      v.innerHTML = `🔄 ${esc('Bijgewerkt van:')} ${anderen} · ${esc('dit toestel:')} <b>${esc(r.dit.naam)}</b> (${esc(geleden(r.dit.tijd))}${esc(open(r.dit.open))}) <a href="/host?instellingen=lesmap&terug=${encodeURIComponent(location.pathname + location.search)}" title="${esc('Geef elke pc een eigen naam')}">✎</a>${extra}`;
     }
   }
   function laad() {
