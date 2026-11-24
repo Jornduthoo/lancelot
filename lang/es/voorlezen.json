@@ -65,5 +65,7 @@
  "Die regio ken ik niet (bv. swedencentral).": "No conozco esa región (p. ej. swedencentral).",
  "Maak in de Azure-portal een Speech-bron aan en kopieer \"Sleutel 1\" en de regio (bv. swedencentral). Vlaamse stemmen: Dena (vrouw) en Arnaud (man).": "Crea un recurso Speech en el portal de Azure y copia «Clave 1» y la región (p. ej. swedencentral). Voces flamencas: Dena (mujer) y Arnaud (hombre).",
  "🔊 Test": "🔊 Probar",
- "Speelt meteen een korte zin met de stem van LANcelot.": "Reproduce enseguida una frase corta con la voz de LANcelot."
+ "Speelt meteen een korte zin met de stem van LANcelot.": "Reproduce enseguida una frase corta con la voz de LANcelot.",
+ "Spraakdienst, sleutel, regio, stem en grens gaan mee met Mijn lesmap naar je andere pc's. De teller telt per pc.": "El servicio de voz, la clave, la región, la voz y el límite viajan con Mi carpeta de clase a tus otros PC. El contador cuenta por PC.",
+ "Voorleesinstellingen voor de lesmap bewaren mislukt:": null
 }

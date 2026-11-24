@@ -60,6 +60,8 @@
 
   const vraag = () => socket.emit('stem-get', null, teken);
   socket.on('connect', vraag);
+  // Een andere pc veranderde de instellingen (via Mijn lesmap).
+  socket.on('stem-gewijzigd', vraag);
   if (socket.connected) vraag();
   $('stem-dienst').addEventListener('change', velden);
 

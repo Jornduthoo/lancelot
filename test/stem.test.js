@@ -185,3 +185,29 @@ test('stem van LANcelot: Azure zoals Jorn het vroeg (azureSpeechKey, azureSpeech
   const af = await runner(data, { AZURE_SPEECH_KEY: 'x' })(`stem.bewaar({ dienst: '' }); return stem.view();`);
   assert.strictEqual(af.aan, false);
 });
+
+test('stem van LANcelot: dienst, sleutel en regio gaan mee via Mijn lesmap, de laatste wijziging wint, niet in de back-up', async () => {
+  const thuis = fs.mkdtempSync(path.join(os.tmpdir(), 'stem-thuis-'));
+  const bord = fs.mkdtempSync(path.join(os.tmpdir(), 'stem-bord-'));
+  const kopie = (van, naar) => {
+    fs.mkdirSync(path.join(naar, 'stem-lesmap'), { recursive: true });
+    fs.copyFileSync(path.join(van, 'stem-lesmap', 'instellingen.json'), path.join(naar, 'stem-lesmap', 'instellingen.json'));
+  };
+  await runner(thuis, {})(`stem.bewaar({ dienst: 'azure', sleutel: 'azure-sleutel-wxyz', regio: 'swedencentral', man: true, grens: 9000 }); stem.naarLesmap();`);
+  kopie(thuis, bord);
+  const opBord = await runner(bord, {})(`return { nieuw: stem.uitLesmap(), v: stem.view(), s: settings.read(), weer: stem.uitLesmap() };`);
+  assert.strictEqual(opBord.nieuw, true);
+  assert.strictEqual(opBord.weer, false, 'maar één keer');
+  assert.strictEqual(opBord.s.azureSpeechKey, 'azure-sleutel-wxyz');
+  assert.deepStrictEqual([opBord.v.dienst, opBord.v.regio, opBord.v.man, opBord.v.grens, opBord.v.aan], ['azure', 'swedencentral', true, 9000, true]);
+  assert.strictEqual(opBord.v.diensten.azure.hint, '…wxyz');
+  // Later op het bord: vrouwenstem. Dat wint thuis, de oude versie van thuis wint niet terug.
+  await new Promise(r => setTimeout(r, 5));
+  await runner(bord, {})(`stem.bewaar({ man: false }); stem.naarLesmap();`);
+  kopie(bord, thuis);
+  const terug = await runner(thuis, {})(`return { nieuw: stem.uitLesmap(), man: stem.view().man };`);
+  assert.deepStrictEqual(terug, { nieuw: true, man: false });
+  // De sleutel staat niet in de back-up.
+  const zipInhoud = await runner(bord, {})(`const G = require('./src/gegevens'), zip = require('./src/zip'); return zip.read(G.maakBackup()).map(f => f.name + ':' + f.data.toString('utf8')).join('|');`);
+  assert.strictEqual(zipInhoud.includes('azure-sleutel-wxyz'), false);
+});
