@@ -322,6 +322,7 @@ function bewaar({ dienst, sleutel: key, regio, man, grens } = {}) {
   }
   const d = ch.stemDienst !== undefined ? ch.stemDienst : dienstVan(settings.read());
   if (typeof key === 'string' && key.trim() && DIENSTEN[d]) ch[DIENSTEN[d].key] = key.trim();
+  ch.stemTijd = Date.now();
   settings.write(ch);
   laatsteFout = '';
   return view();
@@ -329,8 +330,56 @@ function bewaar({ dienst, sleutel: key, regio, man, grens } = {}) {
 
 function wisSleutel(dienst) {
   if (!SLEUTELS.includes((DIENSTEN[dienst] || {}).key)) return view();
-  settings.write({ [DIENSTEN[dienst].key]: '', ...(DIENSTEN[dienst].oud ? { [DIENSTEN[dienst].oud]: '' } : {}) });
+  settings.write({ [DIENSTEN[dienst].key]: '', ...(DIENSTEN[dienst].oud ? { [DIENSTEN[dienst].oud]: '' } : {}), stemTijd: Date.now() });
   return view();
+}
+
+// ---------- Mee via Mijn lesmap ----------
+// Jorn (2026-11-24): de instellingen van de spraakdienst, ook de sleutel, gaan mee naar je andere pc's (bv. het digibord),
+// zodat je ze maar één keer invult. De laatste wijziging wint. De Gemini-sleutel (Instellingen > AI) gaat niet mee.
+// Niet in de back-up (map stem-lesmap staat niet bij de onderdelen van de back-up).
+const LESMAP_DIR = () => gegevens.vast('stem-lesmap');
+const LESMAP_BESTAND = () => path.join(LESMAP_DIR(), 'instellingen.json');
+const MEE = ['stemDienst', 'azureSpeechKey', 'azureSpeechRegion', 'stemGoogleKey', 'stemGeslacht', 'stemGrens'];
+const syncTekst = d => `${JSON.stringify(d, null, 2)}\n`;
+
+function syncGeldig(d) {
+  if (!d || typeof d !== 'object' || Array.isArray(d) || !(Number(d.tijd) > 0)) throw new Error('Ongeldig bestand.');
+  if (d.stemDienst !== undefined && d.stemDienst !== '' && !DIENSTEN[d.stemDienst]) throw new Error('Ongeldig bestand.');
+  for (const k of ['azureSpeechKey', 'azureSpeechRegion', 'stemGoogleKey', 'stemGeslacht']) if (d[k] !== undefined && typeof d[k] !== 'string') throw new Error('Ongeldig bestand.');
+  if (d.azureSpeechRegion && !REGIO.test(d.azureSpeechRegion)) throw new Error('Ongeldig bestand.');
+}
+const nieuwste = (a, b) => ((Number(b.tijd) || 0) > (Number(a.tijd) || 0) ? b : a);
+function lesmapSamen(hier, daar) { return syncTekst(nieuwste(JSON.parse(hier), JSON.parse(daar))); }
+
+// Vóór het syncen: de instellingen van hier in het bestand voor Mijn lesmap (alleen als er hier ooit iets bewaard werd).
+function naarLesmap() {
+  const s = settings.read();
+  if (!(Number(s.stemTijd) > 0)) return;
+  const d = { tijd: Number(s.stemTijd) };
+  for (const k of MEE) if (s[k] !== undefined) d[k] = s[k];
+  if (!d.azureSpeechKey && s.stemAzureKey) d.azureSpeechKey = s.stemAzureKey;
+  if (!d.azureSpeechRegion && s.stemAzureRegio) d.azureSpeechRegion = s.stemAzureRegio;
+  let oud = '';
+  try { oud = fs.readFileSync(LESMAP_BESTAND(), 'utf8'); } catch {}
+  let tekst = syncTekst(d);
+  try { const o = JSON.parse(oud); syncGeldig(o); tekst = syncTekst(nieuwste(o, d)); } catch {}
+  if (oud === tekst) return;
+  fs.mkdirSync(LESMAP_DIR(), { recursive: true });
+  fs.writeFileSync(LESMAP_BESTAND(), tekst);
+}
+
+// Na het syncen: nieuwere instellingen van een andere pc overnemen. Geeft terug of er iets veranderde.
+function uitLesmap() {
+  let d;
+  try { d = JSON.parse(fs.readFileSync(LESMAP_BESTAND(), 'utf8')); syncGeldig(d); } catch { return false; }
+  if (Number(d.tijd) <= (Number(settings.read().stemTijd) || 0)) return false;
+  const ch = { stemTijd: Number(d.tijd) };
+  for (const k of MEE) ch[k] = d[k] !== undefined ? d[k] : k === 'stemDienst' ? '' : undefined;
+  for (const k of Object.keys(ch)) if (ch[k] === undefined) delete ch[k];
+  settings.write(ch);
+  laatsteFout = '';
+  return true;
 }
 
 // ---------- Welke stem elke leerling hoort ----------
@@ -366,5 +415,6 @@ function wisStanden() {
 
 module.exports = {
   STANDEN, zetStand, standenView, wisStanden,
+  LESMAP_DIR, syncGeldig, lesmapSamen, naarLesmap, uitLesmap,
   SLEUTELS, DIENSTEN, STEMMEN, aan, taalVanVak, teksten, zorgVoor, geluid, maak, magGemaakt, view, bewaar, wisSleutel, teller, wav,
 };

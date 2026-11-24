@@ -720,6 +720,8 @@ lesmap.init([
   // Welke klassen er zijn (Meerdere klassen): een klas die thuis gemaakt werd, staat dan ook op het digibord.
   { kind: 'klassen', dir: klas.KLASSEN_LESMAP, remote: 'klassen-lijst', validate: klas.klassenGeldig, merge: klas.klassenSamen },
   // Toetsen mailen: adressen en vinkjes per leerling en de mailbox (nooit het app-wachtwoord). De laatste wijziging wint.
+  // Voorlezen: de spraakdienst met sleutel, regio, stem en grens (Jorn wil ze maar één keer invullen). De laatste wijziging wint.
+  { kind: 'stem', dir: stem.LESMAP_DIR, remote: 'voorlezen', validate: stem.syncGeldig, merge: stem.lesmapSamen },
   { kind: 'toetsmail', dir: toetsmail.LESMAP_DIR, remote: 'toetsen-mailen', validate: toetsmail.syncGeldig, merge: toetsmail.lesmapSamen },
   // Het Klaseiland en het ridderboek: de pc waar de klas speelt zet een kopie klaar, thuis kan je die bekijken.
   { kind: 'burchten', dir: () => burchten.LESMAP, perKlas: true, remote: 'klaseiland', validate: burchten.kopieGeldig },
@@ -755,6 +757,7 @@ function runSync() {
   try { klas.naarLesmap(); } catch (err) { console.error('Klaslijst voor de lesmap bewaren mislukt:', err.message); }
   try { klas.naarLesmapKlassen(); } catch (err) { console.error('Klassen voor de lesmap bewaren mislukt:', err.message); }
   try { toetsmail.naarLesmap(); } catch (err) { console.error('Adressen voor toetsen mailen bewaren mislukt:', err.message); }
+  try { stem.naarLesmap(); } catch (err) { console.error('Voorleesinstellingen voor de lesmap bewaren mislukt:', err.message); }
   runen.verhuis();
   if (settings.read().lesmap) {
     try { toestellen.hartslag(); } catch (err) { console.error('Toestel voor de lesmap bewaren mislukt:', err.message); }
@@ -773,6 +776,7 @@ function runSync() {
       else if (kind === 'zonnewijzer') io.to('host').emit('zw-gewijzigd');
       else if (kind === 'punten') takenNaarBord();
       else if (kind === 'takenstandaard') io.to('host').emit('tk-standaard', takenstandaard.read());
+      else if (kind === 'stem') { if (stem.uitLesmap()) { io.to('host').emit('stem-standen', stem.standenView()); io.to('host').emit('stem-gewijzigd'); stemSoon(); } }
       else if (kind === 'toetsmail') { if (toetsmail.uitLesmap()) io.to('host').emit('toetsmail-gewijzigd'); }
       else if (kind === 'kronieken' || kind === 'bordboeken') io.to('host').emit('kr-lijst', kronieken.lijst());
       else if (kind === 'klastaken') io.to('host').emit('wk-taken', klastaken.read());
