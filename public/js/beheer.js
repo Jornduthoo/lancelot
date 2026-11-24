@@ -137,7 +137,8 @@
     const nieuwst = v.nieuwste;
     const actueel = nieuwst && v.huidig && v.huidig.sha === nieuwst.sha;
     let tekst = v.huidig && v.huidig.datum ? `Jouw versie: ${datum(v.huidig.datum)}.` : 'Jouw versie: bijgewerkt met een zip.';
-    if (v.melding) tekst = `✓ ${v.melding} ${tekst}`;
+    // Een mislukte installatie krijgt een waarschuwing, geen vinkje.
+    if (v.melding) tekst = `${/^Bijwerken lukte/.test(v.melding) ? '⚠️' : '✓'} ${v.melding} ${tekst}`;
     if (v.bezig) tekst = 'Even geduld…';
     else if (v.klaar && v.auto) tekst = `✓ Er staat een nieuwe versie klaar. LANcelot installeert ze vanzelf zodra er geen les loopt, of druk op "Nu herstarten en installeren".`;
     else if (v.klaar) tekst = `✓ Er staat een nieuwe versie klaar. Druk op "Nu herstarten en installeren" (doe dat na de les).`;

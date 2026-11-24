@@ -56,3 +56,26 @@ test('de LANcelot-knop houdt geen afbeelding open (anders kan een update public\
   // En lukt verplaatsen toch niet (welke foutcode ook), dan kopieert pasToe de bestanden er één voor één over.
   assert.match(fs.readFileSync(path.join(ROOT, 'src', 'bijwerken.js'), 'utf8'), /kopieerOver\(src, dst\)/);
 });
+
+test('een fout 504 van GitHub: nog eens proberen, en zeggen dat LANcelot het vanzelf opnieuw probeert', async () => {
+  const bijwerken = require('../src/bijwerken');
+  const echt = global.fetch;
+  const echtTimeout = global.setTimeout;
+  let n = 0;
+  global.setTimeout = (f, ms, ...a) => echtTimeout(f, Math.min(ms, 5), ...a);
+  try {
+    global.fetch = async () => { n++; return n < 3 ? new Response('', { status: 504 }) : new Response(JSON.stringify({ sha: 'a'.repeat(40), commit: { message: 'x', committer: { date: '2026-11-24' } } }), { status: 200 }); };
+    let v = await bijwerken.zoek();
+    assert.equal(n, 3, 'twee keer opnieuw geprobeerd');
+    assert.equal(v.fout, '');
+    assert.equal(v.nieuwste.sha, 'a'.repeat(40));
+    n = 0;
+    global.fetch = async () => { n++; return new Response('', { status: 504 }); };
+    v = await bijwerken.zoek();
+    assert.equal(n, 3);
+    assert.match(v.fout, /fout 504\)\. (LANcelot probeert het vanzelf opnieuw|Probeer het later opnieuw)\./);
+  } finally {
+    global.fetch = echt;
+    global.setTimeout = echtTimeout;
+  }
+});

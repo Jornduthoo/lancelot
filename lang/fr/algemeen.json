@@ -1171,5 +1171,12 @@
  "Er staat geen update klaar.": "Aucune mise à jour n'est prête.",
  "Geluid": "Son",
  "LANcelot start opnieuw, met de LANcelot-knop in de taakbalk. Dit venster gaat dicht.": null,
- "(De LANcelot-knop in de taakbalk lukte niet op deze pc: {0})": null
+ "(De LANcelot-knop in de taakbalk lukte niet op deze pc: {0})": null,
+ "Geen verbinding met de update-server.": "Pas de connexion au serveur de mise à jour.",
+ "De update-server antwoordde met fout {0}.": "Le serveur de mise à jour a répondu avec l'erreur {0}.",
+ "Geen verbinding met de update-server. LANcelot probeert het vanzelf opnieuw.": "Pas de connexion au serveur de mise à jour. LANcelot réessaie tout seul.",
+ "Geen verbinding met de update-server. Probeer het later opnieuw, of werk bij met een zip-bestand.": "Pas de connexion au serveur de mise à jour. Réessaie plus tard, ou mets à jour avec un fichier zip.",
+ "De update-server antwoordde even niet (fout {0}). LANcelot probeert het vanzelf opnieuw.": "Le serveur de mise à jour n'a pas répondu un instant (erreur {0}). LANcelot réessaie tout seul.",
+ "De update-server antwoordde even niet (fout {0}). Probeer het later opnieuw.": "Le serveur de mise à jour n'a pas répondu un instant (erreur {0}). Réessaie plus tard.",
+ "Bijwerken lukte nog niet: een bestand van LANcelot was nog open bij een ander programma. De update blijft klaarstaan en wordt opnieuw geprobeerd de volgende keer dat LANcelot start.": "La mise à jour n'a pas encore fonctionné : un fichier de LANcelot était encore ouvert dans un autre programme. La mise à jour reste prête et sera réessayée au prochain démarrage de LANcelot."
 }
