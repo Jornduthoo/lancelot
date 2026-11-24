@@ -203,3 +203,7 @@
   padding: 10px 18px; border-radius: 12px; background: rgb(var(--k-rood) / .92); color: rgb(var(--k-wit)); font-weight: 700;
   box-shadow: 0 6px 24px rgb(var(--k-zwart) / .5); transition: transform .25s; pointer-events: none; }
 .tk-alarm.aan { transform: translate(-50%, 0); }
+
+/* Instellingen van een gegeven taak: de keuzes onder elkaar. */
+.tk-keuzes { max-width: 520px; }
+.tk-keuzes .row { flex-direction: column; margin: 12px 0 18px; }

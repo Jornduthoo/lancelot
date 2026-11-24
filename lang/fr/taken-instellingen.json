@@ -2,5 +2,10 @@
  "Een oefenblad blijft altijd in zijn volgorde": "Une fiche reste toujours dans son ordre",
  "Punten tonen": "Montrer les points",
  "punten tonen na het inleveren": "montrer les points après la remise",
- "geen punten tonen": "ne pas montrer les points"
+ "geen punten tonen": "ne pas montrer les points",
+ "⚙️ Instellingen van deze taak": "⚙️ Réglages de cette tâche",
+ "Voorlezen en punten tonen gelden meteen, ook voor wie al inleverde. {0} verandert alleen voor wie nog niet begon.": "La lecture à voix haute et les points s'appliquent tout de suite, aussi pour ceux qui ont déjà remis. {0} ne change que pour ceux qui n'ont pas encore commencé.",
+ "De volgorde": "L'ordre",
+ "Je kan dit veranderen zolang de taak bestaat.": "Tu peux changer ceci tant que la tâche existe.",
+ "Bij een quiz is er niets in te stellen.": "Il n'y a rien à régler pour un quiz."
 }

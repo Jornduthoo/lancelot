@@ -2130,6 +2130,13 @@ io.on('connection', socket => {
     }));
     socket.on('tk-afwezig', taak(taken.zetAfwezig));
     // Een toets als taak beveiligen (volledig scherm, wegklikken gemeld), ook terwijl leerlingen werken.
+    // Keuzes van een gegeven taak achteraf veranderen (voorlezen, punten tonen, volgorde, verbeteren).
+    socket.on('tk-keuzes', taak(arg => {
+      const r = taken.zetKeuzes(arg);
+      io.emit('tk-keuzes', { id: r.id });
+      return r;
+    }));
+    socket.on('tk-keuzes-get', handle(arg => taken.keuzesVoor((arg || {}).id)));
     socket.on('tk-beveiligd', handle(arg => {
       const r = taken.zetBeveiligd(arg || {});
       io.emit('tk-beveiligd', r);

@@ -499,6 +499,10 @@ socket.on('tk-voorlees', d => {
   }
 });
 
+// De leerkracht veranderde de keuzes van een taak (bv. punten tonen): een ingeleverde taak die open staat, toont het meteen.
+socket.on('tk-keuzes', d => {
+  if (d && tk.taak && tk.taak.id === d.id && tk.taak.klaar && tk.scherm !== 'lijst' && tk.scherm !== 'join') tkOpen(d.id);
+});
 socket.on('tk-nieuw', () => {
   if (tk.scherm === 'lijst') tkLijst();
 });

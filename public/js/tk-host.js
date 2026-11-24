@@ -712,6 +712,8 @@ function kaart(t) {
   if (!t.dicht) knopje('+ Leerlingen', () => erbij(t));
   // Beveiligd aan of uit, ook voor een toets die al loopt: wie werkt, krijgt het meteen.
   if (t.soort === 'proef' && !t.dicht) knopje(t.beveiligd ? '🛡 Volledig scherm: aan' : '🛡 Volledig scherm: uit', () => socket.emit('tk-beveiligd', { id: t.id, aan: !t.beveiligd }, uit), t.beveiligd ? 'secondary on' : 'secondary');
+  // De keuzes achteraf veranderen, ook als de taak al loopt of afgesloten is (bv. de punten alsnog tonen).
+  if (t.soort !== 'quiz') knopje('⚙️ Instellingen', () => keuzes(t));
   knopje('👁 Bekijk', () => bekijk({ id: t.id }, t));
   if (t.dicht) knopje('🔓 Weer openen', () => socket.emit('tk-heropen', { id: t.id }, uit));
   else knopje('🔒 Afsluiten', async () => {
@@ -1029,6 +1031,33 @@ $('e-ok').addEventListener('click', () => {
   const { id, namen } = tk.erbij;
   $('tk-erbij').close();
   if (namen.size) socket.emit('tk-toevoegen', { id, namen: [...namen] }, uit);
+});
+
+// ---------- Instellingen van een gegeven taak ----------
+function keuzes(t) {
+  socket.emit('tk-keuzes-get', { id: t.id }, k => {
+    if (!k || k.error) return Ui.melding((k && k.error) || 'Dat lukte niet.');
+    tk.keuzes = k;
+    const blad = k.soort === 'oefenblad';
+    $('kz-fb-label').classList.toggle('hidden', !blad);
+    $('kz-vv-label').classList.toggle('hidden', blad);
+    $('kz-feedback').value = k.feedback;
+    $('kz-voorlees').value = k.voorlees;
+    $('kz-volgorde').value = k.volgorde;
+    $('kz-uitslag').checked = !!k.uitslag;
+    $('kz-uitleg').textContent = k.bezig
+      ? `Voorlezen en punten tonen gelden meteen, ook voor wie al inleverde. ${blad ? 'Verbeteren' : 'De volgorde'} verandert alleen voor wie nog niet begon.`
+      : 'Je kan dit veranderen zolang de taak bestaat.';
+    $('tk-keuzes').showModal();
+  });
+}
+$('kz-annuleer').addEventListener('click', () => $('tk-keuzes').close());
+$('kz-ok').addEventListener('click', () => {
+  const k = tk.keuzes;
+  $('tk-keuzes').close();
+  const d = { id: k.id, voorlees: $('kz-voorlees').value, uitslag: $('kz-uitslag').checked };
+  if (k.soort === 'oefenblad') d.feedback = $('kz-feedback').value; else d.volgorde = $('kz-volgorde').value;
+  socket.emit('tk-keuzes', d, res => { if (res && res.error) Ui.melding(res.error); });
 });
 
 let openNaam = vraag.get('taak') && vraag.get('naam') ? { id: vraag.get('taak'), naam: vraag.get('naam') } : null;
