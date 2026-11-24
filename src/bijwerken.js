@@ -72,13 +72,25 @@ function view() {
 }
 
 // Nooit eindeloos wachten: een hangende verbinding (proxy, slechte wifi) geeft na een tijd een duidelijke fout.
-async function haal(url, ms = 20000) {
+// Een fout 500-599 of een verbinding die wegvalt, is bij GitHub (of een schoolnetwerk ertussen) bijna altijd even:
+// dan nog twee keer proberen, na 5 en 20 seconden, voor we een fout tonen.
+async function haal(url, ms = 20000, pogingen = 3) {
+  for (let i = 1; ; i++) {
+    try {
+      return await haalEen(url, ms);
+    } catch (err) {
+      if (i >= pogingen || !err.opnieuw) throw err;
+      await new Promise(r => setTimeout(r, (i === 1 ? 5000 : 20000) / (SNEL > 1 ? 1000 : 1)));
+    }
+  }
+}
+async function haalEen(url, ms) {
   let res;
   try {
     res = await fetch(url, { headers: { 'User-Agent': 'LANcelot', Accept: 'application/vnd.github+json' }, signal: AbortSignal.timeout(ms) });
   } catch (err) {
-    if (err.name === 'TimeoutError' || err.name === 'AbortError') throw new Error('Er komt geen antwoord van de update-server. Probeer het later opnieuw, of werk bij met een zip-bestand.');
-    throw err;
+    if (err.name === 'TimeoutError' || err.name === 'AbortError') throw Object.assign(new Error('Geen verbinding met de update-server.'), { opnieuw: true, soort: 'stil' });
+    throw Object.assign(err, { opnieuw: true });
   }
   if (res.status === 403 && res.headers.get('x-ratelimit-remaining') === '0') throw new Error('GitHub krijgt even te veel vragen. Probeer het over een uur opnieuw.');
   if (res.status === 404 || res.status === 401 || res.status === 403) {
@@ -86,8 +98,21 @@ async function haal(url, ms = 20000) {
       ? `Het update-adres antwoordt niet (fout ${res.status}). Kijk het adres na, of werk bij met een zip-bestand.`
       : 'GitHub geeft de nieuwste versie niet vrij (staat de repository op privé?). Werk bij met een zip-bestand, of vul een eigen update-adres in.');
   }
-  if (!res.ok) throw new Error(`GitHub antwoordde met fout ${res.status}. Probeer later opnieuw.`);
+  if (!res.ok) throw Object.assign(new Error(`De update-server antwoordde met fout ${res.status}.`), { opnieuw: res.status >= 500, status: res.status });
   return res;
+}
+
+// De fout voor de leerkracht. Een fout die vanzelf overgaat (geen internet, server even weg): zeggen dat LANcelot het zelf
+// opnieuw probeert, als vanzelf bijwerken aanstaat.
+function foutTekst(err) {
+  const auto = autoAan();
+  if (/fetch failed|ENOTFOUND|ECONN|EAI_AGAIN/i.test(err.message) || err.soort === 'stil') {
+    return auto ? 'Geen verbinding met de update-server. LANcelot probeert het vanzelf opnieuw.' : 'Geen verbinding met de update-server. Probeer het later opnieuw, of werk bij met een zip-bestand.';
+  }
+  if (err.status >= 500) {
+    return auto ? `De update-server antwoordde even niet (fout ${err.status}). LANcelot probeert het vanzelf opnieuw.` : `De update-server antwoordde even niet (fout ${err.status}). Probeer het later opnieuw.`;
+  }
+  return err.message;
 }
 
 // Welke versie staat er nu op GitHub?
@@ -107,7 +132,7 @@ async function zoek() {
     }
     status.gecontroleerd = Date.now();
   } catch (err) {
-    status.fout = /fetch failed|ENOTFOUND|ECONN/i.test(err.message) ? 'Geen internet: bijwerken lukt alleen met internet.' : err.message;
+    status.fout = foutTekst(err);
   } finally {
     status.bezig = false;
   }
@@ -143,7 +168,7 @@ async function download() {
     const buf = Buffer.from(await (await haal(url, 5 * 60000)).arrayBuffer());
     zetKlaar(buf, { sha, datum, bericht });
   } catch (err) {
-    status.fout = /fetch failed|ENOTFOUND|ECONN/i.test(err.message) ? 'Geen internet: bijwerken lukt alleen met internet.' : err.message;
+    status.fout = foutTekst(err);
   } finally {
     status.bezig = false;
   }
@@ -283,7 +308,7 @@ function pasToe() {
     // Zat er alleen iets vast (een ander venster), dan blijft de update klaarstaan voor de volgende start.
     bewaar = VAST.has(err.code) || /being used by another process|EPIPE/i.test(`${err.code} ${err.message}`);
     laatsteMelding = bewaar
-      ? 'Bijwerken lukte nog niet: een map van LANcelot is nog open (staat er nog een ander LANcelot-venster open?). Sluit alle LANcelot-vensters en start opnieuw: de update staat nog klaar.'
+      ? 'Bijwerken lukte nog niet: een bestand van LANcelot was nog open bij een ander programma. De update blijft klaarstaan en wordt opnieuw geprobeerd de volgende keer dat LANcelot start.'
       : `Bijwerken lukte niet: ${err.message}. LANcelot draait verder met de vorige versie.`;
     console.error(`  ${laatsteMelding}`);
     return null;
@@ -327,7 +352,16 @@ function startAuto({ rustig, herstart, opties = {} }) {
     stopAuto();
     herstart();
   };
-  autoTimers = [setTimeout(zoekEnHaal, t.eerste), setInterval(zoekEnHaal, t.zoekElke), setInterval(kijk, t.kijkElke)];
+  // Mislukte het (geen internet, server even weg), dan over 5 minuten nog eens, niet pas over een half uur.
+  const metHerkans = async () => {
+    await zoekEnHaal();
+    if (status.fout && autoAan() && !fs.existsSync(KLAAR)) {
+      const x = setTimeout(zoekEnHaal, t.herkans || 5 * 60 * 1000 / SNEL);
+      x.unref?.();
+      autoTimers.push(x);
+    }
+  };
+  autoTimers = [setTimeout(metHerkans, t.eerste), setInterval(metHerkans, t.zoekElke), setInterval(kijk, t.kijkElke)];
   for (const x of autoTimers) x.unref?.();
 }
 function stopAuto() {
