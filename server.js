@@ -795,7 +795,9 @@ function runSync() {
     if (taken.uitLesmap()) {
       takenNaarBord();
       stemSoon();
+      // Ook wie een taak open heeft die op een andere pc gesloten of gewist werd: zijn scherm kijkt het meteen na.
       io.emit('tk-nieuw');
+      solo.controleer();
     }
     io.to('host').emit('lesmap', lesmap.view());
   });
@@ -803,6 +805,13 @@ function runSync() {
   p.catch(() => {}).finally(() => { if (syncBezig === p) syncBezig = null; });
   return p;
 }
+// Een taak die op een andere pc gesloten, gewist of opnieuw gegeven werd: om de 5 seconden kijken of er in de lesmap
+// iets veranderde aan de taken (alleen namen en tijdstippen, niets lezen). Dan meteen synchroniseren, niet pas na een minuut.
+// Hoe snel het bestand van de andere pc hier aankomt, hangt verder af van OneDrive of Google Drive.
+setInterval(() => {
+  if (syncBezig || !settings.read().lesmap) return;
+  lesmap.nieuwInLesmap().then(nieuw => { if (nieuw && !syncBezig) runSync(); }).catch(() => {});
+}, 5000).unref();
 // Loopt de lesmap net te synchroniseren? Dan wacht een automatische update daar eerst op.
 let syncBezig = null;
 function syncSoon() {
@@ -2161,6 +2170,7 @@ io.on('connection', socket => {
       takenNaarBord();
       stemSoon();
       io.emit('tk-nieuw');
+      solo.controleer();
       // Een nieuwe of gewiste taak gaat ook naar Mijn lesmap.
       syncSoon();
       return out || {};

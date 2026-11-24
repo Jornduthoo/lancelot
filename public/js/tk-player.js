@@ -153,6 +153,7 @@ function tkStuur(veld, waarde) {
   tkBladStand();
   socket.emit('tk-antwoord', { id: t.id, naam: tk.naam, veld, waarde }, res => {
     if (res && res.wait) tkWacht(veld, res.wait, res.error ? res.value : null);
+    if (res && res.error && !res.wait) tkNogOpen();
     if (!res || res.error || res.correct === undefined) return;
     t.results[veld] = res.correct;
     ObSheet.mark($('tk-paper'), t.results, null, t.view);
@@ -247,6 +248,7 @@ function tkKies(i) {
   socket.emit('tk-quiz', { id: t.id, naam: tk.naam, keuze: i }, res => {
     if (!res || res.error) {
       tk.wacht = false;
+      tkNogOpen();
       return Ui.melding((res && res.error) || 'Dat lukte niet.');
     }
     const knoppen = [...$('tk-antwoorden').children];
@@ -376,6 +378,7 @@ function tkToetsStuur(vraag, waarde) {
   tkToetsBol();
   socket.emit('tk-toets', { id: t.id, naam: tk.naam, vraag, waarde, pos: t.pos }, res => {
     $('tk-toets-fout').textContent = (res && res.error) || '';
+    if (res && res.error) tkNogOpen();
   });
 }
 
@@ -509,10 +512,34 @@ socket.on('tk-keuzes', d => {
 });
 socket.on('tk-nieuw', () => {
   if (tk.scherm === 'lijst') tkLijst();
+  else tkNogOpen();
 });
 socket.on('connect', () => {
   if (tk.scherm === 'join' || tk.scherm === 'lijst') tkLijst();
+  else tkNogOpen();
 });
+
+// De leerkracht sloot of wiste de taak die nu open staat (op deze pc of op een andere): meteen stoppen, met een melding.
+// Wat de leerling al deed, is bewaard (elk antwoord gaat meteen naar de pc van de leerkracht).
+function tkNogOpen() {
+  const t = tk.taak;
+  if (!t || t.klaar || !['blad', 'quiz', 'toets'].includes(tk.scherm)) return;
+  socket.emit('tk-mijn', tk.naam, res => {
+    if (!res || res.error || tk.taak !== t) return;
+    const x = res.taken.find(y => y.id === t.id);
+    if (x && !x.dicht) return;
+    tkGesloten(!x);
+  });
+}
+function tkGesloten(gewist) {
+  // Eerst de beveiliging uit: het volledige scherm verlaten telt dan niet als "de toets verlaten".
+  tkBewaak(false);
+  tkUitScherm();
+  Voorlees.stop();
+  tk.taak = null;
+  tkLijst();
+  Ui.melding(gewist ? 'Je leerkracht wiste deze taak. Wat je al deed, is bewaard.' : 'Deze taak is gesloten. Wat je al deed, is bewaard.');
+}
 
 // Start de leerkracht een spel, dan tonen we een knop om mee te doen.
 const tkSpellen = {};

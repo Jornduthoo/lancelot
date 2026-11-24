@@ -199,7 +199,18 @@ function create(io, gok, onWerk) {
     return true;
   }
 
-  return { verbind, aantal: () => sessies.size };
+  // De leerkracht sloot of wiste een taak (hier of op een andere pc): wie ze nog speelt, stopt meteen.
+  // Wat hij al beantwoordde, is bewaard (elk antwoord telt meteen).
+  function controleer() {
+    for (const [sleutel, s] of sessies) {
+      const st = taken.staat(s.id);
+      if (st === 'open') continue;
+      io.to(s.sid).emit('tk-solo', { fout: st === 'weg' ? 'Je leerkracht wiste deze taak. Wat je al deed, is bewaard.' : 'Deze taak is gesloten. Wat je al deed, is bewaard.', gesloten: true });
+      stopSessie(sleutel, s);
+    }
+  }
+
+  return { verbind, controleer, aantal: () => sessies.size };
 }
 
 module.exports = { create, SPELLEN };

@@ -46,13 +46,18 @@ const key = naam => String(naam || '').trim().replace(/\s+/g, ' ').toLowerCase()
 const clean = naam => String(naam || '').trim().replace(/\s+/g, ' ').slice(0, 20);
 
 let data = null;
+// Gewiste taken (id → wanneer), 30 dagen: zo zet een oud plan van een andere pc een gewiste taak nooit terug.
+let gewist = null;
+const GEWIST_DAGEN = 30;
 function all() {
   if (data) return data;
   try {
     const raw = JSON.parse(fs.readFileSync(FILE(), 'utf8'));
     data = Array.isArray(raw.taken) ? raw.taken : [];
+    gewist = raw.gewist && typeof raw.gewist === 'object' && !Array.isArray(raw.gewist) ? raw.gewist : {};
   } catch {
     data = [];
+    gewist = {};
   }
   return data;
 }
@@ -69,7 +74,7 @@ function flush() {
   if (!data) return;
   try {
     fs.mkdirSync(DIR(), { recursive: true });
-    fs.writeFileSync(FILE() + '.tmp', JSON.stringify({ taken: data }) + '\n');
+    fs.writeFileSync(FILE() + '.tmp', JSON.stringify({ taken: data, gewist: gewist || {} }) + '\n');
     fs.renameSync(FILE() + '.tmp', FILE());
   } catch (err) {
     console.error('Taken bewaren mislukt:', err.message);
@@ -480,6 +485,9 @@ function bewaarNieuw(t) {
 
 // De taak zoals ze gegeven werd: wat, voor wie en hoe. Geen antwoorden, geen voortgang.
 function planBewaar(t) {
+  // Gewist (hier of op een andere pc): het plan blijft "gewist", ook als er nog een wijziging achteraan komt.
+  all();
+  if (gewist[t.id]) return;
   try {
     fs.mkdirSync(PLAN(), { recursive: true });
     const plan = {
@@ -521,6 +529,45 @@ function planWeg(id) {
   try { fs.unlinkSync(path.join(PLAN(), `${id}.json`)); } catch {}
 }
 
+// Gewist: in plaats van het plan weg te doen, staat er 30 dagen een klein plan "gewist" in Mijn lesmap. Zo weet elke
+// pc dat de taak weg moet, ook de pc waar leerlingen er al aan begonnen (vroeger bleef ze daar open staan).
+// Het is een geldig (leeg, afgesloten) plan: een oudere LANcelot sluit de taak er dan gewoon mee af.
+function planGewist(id, tijd, t) {
+  try {
+    fs.mkdirSync(PLAN(), { recursive: true });
+    const plan = {
+      id, soort: 'quiz', titel: t ? t.titel : '', gemaakt: (t && t.gemaakt) || tijd, inhoud: { title: t ? t.titel : '', questions: [] },
+      namen: [], namenTijd: tijd, dicht: true, dichtTijd: tijd, gewist: tijd,
+    };
+    fs.writeFileSync(path.join(PLAN(), `${id}.json`), JSON.stringify(plan) + '\n');
+  } catch (err) {
+    console.error('Gewiste taak voor de lesmap bewaren mislukt:', err.message);
+  }
+}
+
+// Een taak weghalen: wie nog bezig was, levert eerst in zoals het er staat (een toets komt zo bij de Resultaten in
+// De Proef, een oefenblad in het logboek). Wat leerlingen deden, gaat nooit verloren.
+function weghalen(t) {
+  for (const w of Object.values(t.werk)) if (w.status === 'bezig') inleverenWerk(t, w);
+  const list = all();
+  const i = list.indexOf(t);
+  if (i >= 0) list.splice(i, 1);
+}
+
+// Gewiste taken van meer dan 30 dagen geleden vergeten (ook hun plan "gewist").
+function ruimGewistOp() {
+  all();
+  const grens = Date.now() - GEWIST_DAGEN * 864e5;
+  let weg = false;
+  for (const [id, tijd] of Object.entries(gewist)) {
+    if (Date.parse(tijd) >= grens) continue;
+    delete gewist[id];
+    planWeg(id);
+    weg = true;
+  }
+  return weg;
+}
+
 function planGeldig(p) {
   if (!p || typeof p.id !== 'string' || !/^[a-z0-9]{4,20}$/.test(p.id)) throw new Error('Ongeldige taak.');
   if (!['quiz', 'oefenblad', 'proef'].includes(p.soort) || !p.inhoud || typeof p.inhoud !== 'object' || !Array.isArray(p.namen)) throw new Error('Ongeldige taak.');
@@ -541,6 +588,19 @@ function uitLesmap() {
     if (`${p.id}.json` !== naam) continue;
     ids.add(p.id);
     let t = all().find(x => x.id === p.id);
+    // Op een andere pc gewist: hier ook weg (wie bezig was, levert eerst in). En onthouden, tegen oude plannen.
+    if (typeof p.gewist === 'string' && Date.parse(p.gewist)) {
+      if (!gewist[p.id]) { gewist[p.id] = p.gewist; veranderd = true; }
+      if (t) { weghalen(t); veranderd = true; }
+      continue;
+    }
+    // Hier gewist, maar er kwam toch weer een gewoon plan binnen (een oudere stand van een andere pc): gewist blijft gewist.
+    if (gewist[p.id]) {
+      planGewist(p.id, gewist[p.id], t);
+      if (t) weghalen(t);
+      veranderd = true;
+      continue;
+    }
     // Een taak die hier al bestond zonder t.plan (een oudere taak), terwijl er wel een plan is: vanaf nu hoort ze bij dat plan.
     const nieuwPlan = !!t && !t.plan;
     if (nieuwPlan) { t.plan = true; veranderd = true; }
@@ -638,10 +698,12 @@ function uitLesmap() {
   for (let i = list.length - 1; i >= 0; i--) {
     const t = list[i];
     if (!t.plan || ids.has(t.id)) continue;
-    if (Object.values(t.werk).every(w => w.status === 'nieuw')) list.splice(i, 1);
+    if (gewist[t.id]) weghalen(t);
+    else if (Object.values(t.werk).every(w => w.status === 'nieuw')) list.splice(i, 1);
     else t.plan = false;
     veranderd = true;
   }
+  if (ruimGewistOp()) veranderd = true;
   if (veranderd) save();
   return veranderd;
 }
@@ -747,12 +809,20 @@ function uitAfname(t, naam) {
   }
 }
 
+// Wissen: op deze pc weg, en via Mijn lesmap ook op je andere pc's (ook waar leerlingen er al aan werkten).
 function wis(id) {
-  const list = all();
-  const i = list.findIndex(x => x.id === id);
-  if (i >= 0) list.splice(i, 1);
-  planWeg(id);
+  const t = all().find(x => x.id === id);
+  const tijd = new Date().toISOString();
+  if (t) weghalen(t);
+  gewist[id] = tijd;
+  planGewist(id, tijd, t);
   save();
+}
+
+// Staat deze taak nog open? 'open', 'dicht' of 'weg' (gewist). Voor wie ze nog op zijn scherm heeft.
+function staat(id) {
+  const t = all().find(x => x.id === id);
+  return !t ? 'weg' : t.dicht ? 'dicht' : 'open';
 }
 
 function voortgang(t, w) {
@@ -953,7 +1023,7 @@ function mijn(naam) {
   }).map(t => {
     const w = t.werk[k];
     const open = !t.dicht && w.status !== 'klaar';
-    return { id: t.id, soort: t.soort, titel: t.titel, vak: t.vak, gemaakt: t.gemaakt, spel: spelVan(t), niveau: niveausVan(t.soort, t.inhoud).length > 1 ? w.niveau : null, status: open ? w.status : 'klaar', les: lesVoorLeerling(t), ...voortgang(t, w), ...(t.soort === 'oefenblad' && !puntenZien(t) ? { juist: 0, score: 0 } : {}) };
+    return { id: t.id, soort: t.soort, titel: t.titel, vak: t.vak, gemaakt: t.gemaakt, dicht: !!t.dicht, spel: spelVan(t), niveau: niveausVan(t.soort, t.inhoud).length > 1 ? w.niveau : null, status: open ? w.status : 'klaar', les: lesVoorLeerling(t), ...voortgang(t, w), ...(t.soort === 'oefenblad' && !puntenZien(t) ? { juist: 0, score: 0 } : {}) };
   });
   lijst.sort((a, b) => (a.status === 'klaar') - (b.status === 'klaar') || (a.gemaakt < b.gemaakt ? 1 : -1));
   const l = klas.match(naam);
@@ -1223,4 +1293,4 @@ function voorleesBronnen() {
   return uit;
 }
 
-module.exports = { voorleesBronnen, zetKeuzes, keuzesVoor: id => keuzesVan(find(id)), zetBeveiligd, verlaat, terugIn, toetsenGegeven, ruimOp, toetsLeerlingen, standen, standPerPc, toetsAntwoord, zetVoorlees, zetAfwezig, naarLesmapStand, standGeldig, get STAND() { return STAND(); }, PC, set bijAfname(fn) { bijAfname = fn; }, lesVan, gestartSinds, startNu, get PLAN() { return PLAN(); }, planGeldig, uitLesmap, SOLO, MINUTEN, soloRonde, soloAntwoord, voorbeeld, inhoud, maak, voegToe, haalWeg, zetNiveau, sluit, heropen, wis, lijst, detail, mijn, aantal, open, antwoord, inleveren, quizAntwoord, flush, get DIR() { return DIR(); } };
+module.exports = { staat, voorleesBronnen, zetKeuzes, keuzesVoor: id => keuzesVan(find(id)), zetBeveiligd, verlaat, terugIn, toetsenGegeven, ruimOp, toetsLeerlingen, standen, standPerPc, toetsAntwoord, zetVoorlees, zetAfwezig, naarLesmapStand, standGeldig, get STAND() { return STAND(); }, PC, set bijAfname(fn) { bijAfname = fn; }, lesVan, gestartSinds, startNu, get PLAN() { return PLAN(); }, planGeldig, uitLesmap, SOLO, MINUTEN, soloRonde, soloAntwoord, voorbeeld, inhoud, maak, voegToe, haalWeg, zetNiveau, sluit, heropen, wis, lijst, detail, mijn, aantal, open, antwoord, inleveren, quizAntwoord, flush, get DIR() { return DIR(); } };

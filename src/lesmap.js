@@ -502,6 +502,8 @@ function sync() {
       status = { ...status, error: err.message };
     }
     delete status.boeken;
+    // Wat we zelf net in de lesmap zetten, is niets nieuws voor nieuwInLesmap.
+    try { await onthoudVingers(GEKEKEN, root); } catch {}
     return changed;
   })().finally(() => { busy = null; });
   return busy;
@@ -554,4 +556,37 @@ function zetBoeken(aan) {
   settings.write({ lesmapBoeken: !!aan });
 }
 
-module.exports = { init, sync, choose, view, suggestions, zetBoeken };
+// Snel kijken of er in de lesmap iets nieuws staat voor deze soorten (bv. een taak die op een andere pc gesloten of gewist
+// werd), zonder iets te lezen: alleen de namen, groottes en tijdstippen van de bestanden. Zo hoeft de volgende sync niet
+// op de volle minuut te wachten. De eerste keer (en na elke sync) onthouden we alleen wat er staat.
+const vingers = new Map();
+async function vingerVan(kind, root) {
+  const p = plek(kind);
+  const dir = path.join(root, p.remote);
+  let names = [];
+  try { names = (await fsp.readdir(dir)).filter(n => FILE_RE.test(n)).sort(); } catch { return `${p.key}:-`; }
+  const delen = [];
+  for (const n of names) {
+    try { const st = await fsp.stat(path.join(dir, n)); delen.push(`${n}:${st.size}:${st.mtimeMs}`); } catch {}
+  }
+  return `${p.key}:${delen.join('|')}`;
+}
+async function onthoudVingers(soorten, root) {
+  let anders = false;
+  for (const soort of soorten) {
+    const kind = kinds.find(k => k.kind === soort);
+    if (!kind) continue;
+    const v = await vingerVan(kind, root);
+    if (vingers.has(soort) && vingers.get(soort) !== v) anders = true;
+    vingers.set(soort, v);
+  }
+  return anders;
+}
+const GEKEKEN = ['taak'];
+async function nieuwInLesmap() {
+  const root = settings.read().lesmap;
+  if (!root || busy) return false;
+  return onthoudVingers(GEKEKEN, root);
+}
+
+module.exports = { init, sync, choose, view, suggestions, zetBoeken, nieuwInLesmap };
