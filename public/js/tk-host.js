@@ -79,7 +79,6 @@ function wanneer() {
 $('tk-wanneer').addEventListener('change', () => { wanneer(); stdInfo(); });
 // Standaardkeuzes (Instellingen › Taken): voorlezen, volgorde, punten tonen, verbeteren en startuur, per vak.
 // Wat je hier zelf verandert, blijft staan tot je een taak gaf (ook als je een andere toets kiest).
-const TK_TOETS = 'lancelot-tk-toets';
 const STD_VELDEN = { voorlees: 'tk-voorlees', volgorde: 'tk-volgorde', uitslag: 'tk-uitslag', beveiligd: 'tk-beveiligd', feedback: 'tk-feedback' };
 tk.std = null;
 tk.zelf = new Set();
@@ -125,13 +124,6 @@ function stdInfo() {
 socket.emit('tk-standaard', null, r => {
   if (!r || r.error) return;
   tk.std = r;
-  // Nog geen standaard bewaard, wel een laatste keuze op deze pc (van vroeger): die wordt je standaard.
-  if (!r.bewaard) {
-    try {
-      const k = JSON.parse(localStorage.getItem(TK_TOETS) || 'null');
-      if (k) socket.emit('tk-standaard-zet', { algemeen: { ...r.algemeen, ...(k.voorlees ? { voorlees: k.voorlees } : {}), ...(k.volgorde ? { volgorde: k.volgorde } : {}), uitslag: k.uitslag === true } }, n => { if (n && !n.error) { tk.std = n; pasStandaardToe(); } });
-    } catch {}
-  }
   pasStandaardToe();
 });
 socket.on('tk-standaard', r => { if (r && !r.error) { tk.std = r; pasStandaardToe(); } });

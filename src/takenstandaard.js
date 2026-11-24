@@ -12,7 +12,8 @@ const FILE = () => path.join(DIR(), 'standaard.json');
 // Goede standaarden voor wie begint: Page-leerlingen krijgen voorgelezen, alles door elkaar, punten pas na
 // het verbeteren, meteen groen of rood bij een oefenblad, en een geplande taak start om half negen.
 // Een toets als taak opent beveiligd (volledig scherm, wegklikken gemeld): zo werkt ook een afname op het bord.
-const STANDAARD = { voorlees: 'page', volgorde: 'schud', uitslag: false, beveiligd: true, feedback: 'direct', startuur: '08:30' };
+// Wens van 24 nov: voorlezen voor iedereen, alles in volgorde en de punten tonen na het inleveren.
+const STANDAARD = { voorlees: 'iedereen', volgorde: 'alles', uitslag: true, beveiligd: true, feedback: 'direct', startuur: '08:30' };
 const KEUZES = {
   voorlees: ['uit', 'page', 'iedereen'],
   volgorde: ['schud', 'vragen', 'alles'],
@@ -38,6 +39,13 @@ function geldig(d) {
 function read() {
   let d = null;
   try { d = JSON.parse(fs.readFileSync(FILE(), 'utf8')); } catch {}
+  // Eén keer (wens 24 nov): wie al een standaard bewaarde, krijgt de nieuwe goede standaard voor voorlezen,
+  // volgorde en punten tonen. Geldt alleen voor nieuwe taken; uitzonderingen per vak blijven.
+  if (d && typeof d === 'object' && !d.wens2411) {
+    d.algemeen = { ...(d.algemeen || {}), voorlees: 'iedereen', volgorde: 'alles', uitslag: true };
+    d.wens2411 = true;
+    try { fs.writeFileSync(FILE(), JSON.stringify(d, null, 2) + '\n'); } catch {}
+  }
   const vakken = {};
   for (const g of niveaus.VAKGROEPEN) {
     const v = schoon(d && d.vakken && d.vakken[g.id], false);
@@ -48,7 +56,7 @@ function read() {
 }
 
 function write({ algemeen, vakken, vandaag } = {}) {
-  const uit = { algemeen: schoon(algemeen, true), vakken: {}, vandaag: typeof vandaag === 'boolean' ? vandaag : read().vandaag, gewijzigd: new Date().toISOString() };
+  const uit = { algemeen: schoon(algemeen, true), vakken: {}, vandaag: typeof vandaag === 'boolean' ? vandaag : read().vandaag, wens2411: true, gewijzigd: new Date().toISOString() };
   for (const g of niveaus.VAKGROEPEN) {
     const v = schoon(vakken && vakken[g.id], false);
     if (Object.keys(v).length) uit.vakken[g.id] = v;
