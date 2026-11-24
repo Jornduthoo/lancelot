@@ -40,20 +40,26 @@ const STEMMEN = {
   gemini: Object.fromEntries(TALEN.map(t => [t, [t, 'Aoede', 'Charon']])),
 };
 const DIENSTEN = {
-  azure: { naam: 'Azure Speech (Microsoft)', key: 'stemAzureKey' },
+  azure: { naam: 'Azure Speech (Microsoft)', key: 'azureSpeechKey', env: 'AZURE_SPEECH_KEY', oud: 'stemAzureKey' },
   google: { naam: 'Google Cloud Text-to-Speech', key: 'stemGoogleKey' },
   gemini: { naam: 'Gemini (je AI-sleutel)', key: 'geminiKey' },
 };
-const SLEUTELS = ['stemAzureKey', 'stemGoogleKey'];
+const SLEUTELS = ['azureSpeechKey', 'stemAzureKey', 'stemGoogleKey'];
+// De sleutel van een dienst: uit de instellingen, anders (Azure) uit de omgevingsvariabele AZURE_SPEECH_KEY.
+const sleutelVan = (s, d) => (DIENSTEN[d] ? String(s[DIENSTEN[d].key] || (DIENSTEN[d].oud && s[DIENSTEN[d].oud]) || (DIENSTEN[d].env && process.env[DIENSTEN[d].env]) || '').trim() : '');
+const REGIO = /^[a-z0-9]{2,30}$/;
+const regioVan = s => [s.azureSpeechRegion, s.stemAzureRegio, process.env.AZURE_SPEECH_REGION].map(r => String(r || '').trim().toLowerCase()).find(r => REGIO.test(r)) || 'westeurope';
+// Nog nooit een spraakdienst gekozen, maar wel een Azure-sleutel (bv. via AZURE_SPEECH_KEY): dan Azure.
+const dienstVan = s => (DIENSTEN[s.stemDienst] ? s.stemDienst : s.stemDienst === undefined && sleutelVan(s, 'azure') ? 'azure' : '');
 
 function instellingen() {
   const s = settings.read();
   return {
-    dienst: DIENSTEN[s.stemDienst] ? s.stemDienst : '',
+    dienst: dienstVan(s),
     man: s.stemGeslacht === 'man',
-    regio: /^[a-z0-9]{2,30}$/.test(s.stemAzureRegio || '') ? s.stemAzureRegio : 'westeurope',
+    regio: regioVan(s),
     grens: Number(s.stemGrens) > 0 ? Math.round(Number(s.stemGrens)) : STANDAARD_GRENS,
-    key: DIENSTEN[s.stemDienst] ? s[DIENSTEN[s.stemDienst].key] || '' : '',
+    key: sleutelVan(s, dienstVan(s)),
   };
 }
 const aan = () => { const i = instellingen(); return !!(i.dienst && i.key); };
@@ -295,7 +301,7 @@ function view() {
   return {
     dienst: i.dienst, man: i.man, regio: i.regio, grens: i.grens, tekens: t.tekens, maand: t.maand,
     bijna: t.tekens >= i.grens * 0.8, op: t.tekens >= i.grens,
-    diensten: Object.fromEntries(Object.entries(DIENSTEN).map(([id, d]) => [id, { naam: d.naam, heeftSleutel: !!s[d.key], hint: s[d.key] ? `…${String(s[d.key]).slice(-4)}` : '' }])),
+    diensten: Object.fromEntries(Object.keys(DIENSTEN).map(id => { const k = sleutelVan(s, id); return [id, { naam: DIENSTEN[id].naam, heeftSleutel: !!k, hint: k ? `…${k.slice(-4)}` : '', omgeving: !!k && !s[DIENSTEN[id].key] && !(DIENSTEN[id].oud && s[DIENSTEN[id].oud]) }]; })),
     aan: aan(), fout: laatsteFout, ...klaar(),
   };
 }
@@ -305,8 +311,8 @@ function bewaar({ dienst, sleutel: key, regio, man, grens } = {}) {
   const ch = {};
   if (dienst !== undefined) ch.stemDienst = DIENSTEN[dienst] ? dienst : '';
   if (typeof regio === 'string' && regio.trim()) {
-    if (!/^[a-z0-9]{2,30}$/i.test(regio.trim())) throw new Error('Die regio ken ik niet (bv. westeurope).');
-    ch.stemAzureRegio = regio.trim().toLowerCase();
+    if (!REGIO.test(regio.trim().toLowerCase())) throw new Error('Die regio ken ik niet (bv. swedencentral).');
+    ch.azureSpeechRegion = regio.trim().toLowerCase();
   }
   if (man !== undefined) ch.stemGeslacht = man ? 'man' : 'vrouw';
   if (grens !== undefined) {
@@ -314,7 +320,7 @@ function bewaar({ dienst, sleutel: key, regio, man, grens } = {}) {
     if (!(g >= 1000 && g <= 100000000)) throw new Error('Kies een grens tussen 1000 en 100 000 000 tekens.');
     ch.stemGrens = g;
   }
-  const d = ch.stemDienst !== undefined ? ch.stemDienst : settings.read().stemDienst;
+  const d = ch.stemDienst !== undefined ? ch.stemDienst : dienstVan(settings.read());
   if (typeof key === 'string' && key.trim() && DIENSTEN[d]) ch[DIENSTEN[d].key] = key.trim();
   settings.write(ch);
   laatsteFout = '';
@@ -323,7 +329,7 @@ function bewaar({ dienst, sleutel: key, regio, man, grens } = {}) {
 
 function wisSleutel(dienst) {
   if (!SLEUTELS.includes((DIENSTEN[dienst] || {}).key)) return view();
-  settings.write({ [DIENSTEN[dienst].key]: '' });
+  settings.write({ [DIENSTEN[dienst].key]: '', ...(DIENSTEN[dienst].oud ? { [DIENSTEN[dienst].oud]: '' } : {}) });
   return view();
 }
 

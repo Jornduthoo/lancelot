@@ -145,7 +145,7 @@ test('stem van LANcelot: vooraf maken, nooit twee keer, een leerling laat niets 
 test('stem van LANcelot: Gemini met de AI-sleutel geeft een wav, de stemsleutels gaan niet mee in de back-up', async () => {
   const nep = await nepDienst();
   const data = fs.mkdtempSync(path.join(os.tmpdir(), 'stem-gemini-'));
-  fs.writeFileSync(path.join(data, 'settings.json'), JSON.stringify({ geminiKey: 'g-sleutel', stemAzureKey: 'az', stemGoogleKey: 'gg' }));
+  fs.writeFileSync(path.join(data, 'settings.json'), JSON.stringify({ geminiKey: 'g-sleutel', azureSpeechKey: 'az', stemGoogleKey: 'gg' }));
   const run = runner(data, { GEMINI_BASE_URL: nep.url });
   try {
     const uit = await run(`
@@ -160,9 +160,28 @@ test('stem van LANcelot: Gemini met de AI-sleutel geeft een wav, de stemsleutels
     assert.strictEqual(vraag.generationConfig.speechConfig.voiceConfig.prebuiltVoiceConfig.voiceName, 'Charon');
     assert.match(vraag.contents[0].parts[0].text, /Vlaams[\s\S]*Hallo\./);
     assert.strictEqual(nep.vragen[0].key, 'g-sleutel');
-    for (const k of ['geminiKey', 'stemAzureKey', 'stemGoogleKey']) assert.strictEqual(uit.s[k], undefined, k);
+    for (const k of ['geminiKey', 'azureSpeechKey', 'stemGoogleKey']) assert.strictEqual(uit.s[k], undefined, k);
     assert.strictEqual(uit.s.stemDienst, 'gemini');
   } finally {
     nep.server.close();
   }
+});
+
+test('stem van LANcelot: Azure zoals Jorn het vroeg (azureSpeechKey, azureSpeechRegion, of AZURE_SPEECH_KEY / AZURE_SPEECH_REGION)', async () => {
+  const data = fs.mkdtempSync(path.join(os.tmpdir(), 'stem-azure-'));
+  const viaEnv = await runner(data, { AZURE_SPEECH_KEY: 'env-sleutel-1234', AZURE_SPEECH_REGION: 'swedencentral' })(`return stem.view();`);
+  assert.strictEqual(viaEnv.dienst, 'azure', 'een sleutel in de omgeving zet Azure aan');
+  assert.strictEqual(viaEnv.regio, 'swedencentral');
+  assert.strictEqual(viaEnv.diensten.azure.hint, '…1234');
+  assert.strictEqual(viaEnv.diensten.azure.omgeving, true);
+  const uit = await runner(data, {})(`
+    stem.bewaar({ dienst: 'azure', sleutel: 'mijn-azure-sleutel-abcd', regio: 'SwedenCentral' });
+    return { v: stem.view(), s: settings.read() };`);
+  assert.strictEqual(uit.s.azureSpeechKey, 'mijn-azure-sleutel-abcd');
+  assert.strictEqual(uit.s.azureSpeechRegion, 'swedencentral');
+  assert.strictEqual(uit.v.diensten.azure.hint, '…abcd');
+  assert.strictEqual(JSON.stringify(uit.v).includes('mijn-azure-sleutel'), false);
+  // Uitgezet blijft uit, ook met een sleutel in de omgeving.
+  const af = await runner(data, { AZURE_SPEECH_KEY: 'x' })(`stem.bewaar({ dienst: '' }); return stem.view();`);
+  assert.strictEqual(af.aan, false);
 });

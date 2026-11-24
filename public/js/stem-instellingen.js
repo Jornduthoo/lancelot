@@ -22,7 +22,7 @@
   if (typeof socket === 'undefined' || !$('stem-dienst')) return;
   const UITLEG = {
     '': 'Zonder spraakdienst leest het toestel van de leerling voor.',
-    azure: 'Maak in de Azure-portal een Speech-bron aan en kopieer "Sleutel 1" en de regio (bv. westeurope). Vlaamse stemmen: Dena (vrouw) en Arnaud (man).',
+    azure: 'Maak in de Azure-portal een Speech-bron aan en kopieer "Sleutel 1" en de regio (bv. swedencentral). Vlaamse stemmen: Dena (vrouw) en Arnaud (man).',
     google: 'Zet in Google Cloud de Text-to-Speech API aan en maak een API-sleutel. Vlaamse stemmen: nl-BE Wavenet.',
     gemini: 'Gebruikt de Gemini-sleutel van Instellingen > AI. Dezelfde stem als LANcelot Junior.',
   };
@@ -53,8 +53,8 @@
     $('stem-key-rij').classList.toggle('hidden', !d || d === 'gemini');
     $('stem-regio-rij').classList.toggle('hidden', d !== 'azure');
     $('stem-key').placeholder = dienst && dienst.heeftSleutel ? `Sleutel ingesteld (${dienst.hint}). Plak een nieuwe om te vervangen.` : 'Plak hier je sleutel';
-    $('stem-wis').classList.toggle('hidden', !dienst || !dienst.heeftSleutel || d === 'gemini');
-    $('stem-test-server').classList.toggle('hidden', !d);
+    $('stem-wis').classList.toggle('hidden', !dienst || !dienst.heeftSleutel || dienst.omgeving || d === 'gemini');
+    $('stem-test-server').parentElement.classList.toggle('hidden', !d);
     if (d === 'gemini' && dienst && !dienst.heeftSleutel) $('stem-dienst-uitleg').textContent += ' Vul daar eerst een Gemini-sleutel in.';
   }
 
@@ -63,7 +63,8 @@
   if (socket.connected) vraag();
   $('stem-dienst').addEventListener('change', velden);
 
-  $('stem-bewaar').addEventListener('click', () => {
+  // Bewaren wat ingevuld staat (ook vlak voor een test, zodat een net geplakte sleutel meteen getest wordt).
+  const bewaar = klaar => {
     $('stem-fout').textContent = '';
     socket.emit('stem-bewaar', {
       dienst: $('stem-dienst').value, sleutel: $('stem-key').value, regio: $('stem-regio').value,
@@ -72,9 +73,10 @@
       if (!res || res.error) { $('stem-fout').textContent = (res && res.error) || 'Opslaan lukte niet.'; return; }
       $('stem-key').value = '';
       teken(res);
-      Ui.melding('Opgeslagen.');
+      klaar();
     });
-  });
+  };
+  $('stem-bewaar').addEventListener('click', () => bewaar(() => Ui.melding('Opgeslagen.')));
 
   $('stem-wis').addEventListener('click', async () => {
     if (!await Ui.vraag('De sleutel van deze spraakdienst verwijderen?', { ja: 'Verwijderen', nee: 'Nee' })) return;
@@ -82,7 +84,7 @@
   });
 
   let speler = null;
-  $('stem-test-server').addEventListener('click', () => {
+  $('stem-test-server').addEventListener('click', () => bewaar(() => {
     const knop = $('stem-test-server');
     knop.disabled = true;
     $('stem-fout').textContent = '';
@@ -94,5 +96,5 @@
       speler = new Audio(res.url);
       speler.play().catch(() => { $('stem-fout').textContent = 'Het geluid kon niet afspelen op deze pc.'; });
     });
-  });
+  }));
 })();
