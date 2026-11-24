@@ -28,8 +28,10 @@ $server = [System.Diagnostics.Process]::Start($psi)
 # Lukt het bouwen van de knop toch niet (bv. een school-pc die iets blokkeert), dan draait LANcelot zichtbaar verder
 # in een gewoon venster: nooit een verborgen server die je niet kunt afsluiten.
 $script:knopKlaar = $false
+# (Een trap geldt voor het hele script: een fout nog voor de server startte, laat gewoon Start LANcelot.bat terugvallen.)
 trap {
   if ($script:knopKlaar) { continue }
+  if (-not $server) { exit 1 }
   if (-not $server.HasExited) { & taskkill.exe /T /F /PID $server.Id | Out-Null }
   $env:LANCELOT_VENSTER = '1'
   $env:LANCELOT_KNOPFOUT = "$_"
