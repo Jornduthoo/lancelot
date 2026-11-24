@@ -350,6 +350,7 @@ class OefenbladLive {
         niveaus: p.choosing ? Object.keys(this.levels) : null, answers: p.answers, submitted: p.submitted,
         results: this.feedback === 'direct' || p.submitted ? p.results : {},
         voorlees: this.voorlees === 'iedereen' || (this.voorlees === 'page' && this.isPage(p)),
+        taal: require('./stem').taalVanVak(this.vak),
       });
       if (p.submitted) state.report = this.report(p);
     }

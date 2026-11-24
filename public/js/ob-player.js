@@ -29,6 +29,7 @@ $('ob-join').addEventListener('submit', e => {
 
 socket.on('ob-state', s => {
   ob.state = s;
+  if (s.name) Voorlees.taal(s.taal);
   document.body.dataset.ob = s.active ? '1' : '';
   if (!s.active) {
     Voorlees.stop();

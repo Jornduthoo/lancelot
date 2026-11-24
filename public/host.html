@@ -663,6 +663,28 @@
       <p id="stem-info"></p>
       <div class="actions"><button type="button" class="secondary test-geluid" id="stem-test">🔊 Test geluid op deze pc</button></div>
     </div>
+    <div class="panel form" id="stem-lancelot" data-tab="voorlezen">
+      <h3>Stem van LANcelot (optioneel)<details class="hulp"><summary aria-label="Uitleg">?</summary><p>Met een sleutel van een spraakdienst maakt LANcelot het geluid zelf. Elke leerling hoort dan dezelfde Vlaamse stem, ook op een Chromebook zonder stemmen. Zonder sleutel, zonder internet of boven de grens leest het toestel van de leerling voor, zoals hierboven.</p></details></h3>
+      <p class="muted small">Om het geluid te maken gaat de voorleestekst via internet naar de spraakdienst, nooit namen van leerlingen. LANcelot maakt alles al bij het geven van een taak en bewaart het op deze pc, zodat de les zelf over het lokale netwerk werkt.</p>
+      <label>Spraakdienst<select id="stem-dienst">
+        <option value="">Uit: de stem van het toestel</option>
+        <option value="azure">Azure Speech (Microsoft)</option>
+        <option value="google">Google Cloud Text-to-Speech</option>
+        <option value="gemini">Gemini (je AI-sleutel)</option>
+      </select></label>
+      <p class="muted small" id="stem-dienst-uitleg"></p>
+      <label id="stem-key-rij">Sleutel<input id="stem-key" type="password" autocomplete="off" placeholder="Plak hier je sleutel"></label>
+      <label id="stem-regio-rij">Regio<input id="stem-regio" autocomplete="off" placeholder="westeurope"></label>
+      <label>Stem<select id="stem-geslacht"><option value="vrouw">Vrouw</option><option value="man">Man</option></select></label>
+      <label>Grens per maand (tekens)<input id="stem-grens" type="number" min="1000" step="1000"></label>
+      <p id="stem-teller"></p>
+      <p class="error" id="stem-fout"></p>
+      <div class="actions">
+        <button type="button" id="stem-bewaar">Opslaan</button>
+        <button type="button" class="secondary" id="stem-test-server">🔊 Test de stem van LANcelot</button>
+        <button type="button" class="secondary" id="stem-wis">Sleutel verwijderen</button>
+      </div>
+    </div>
     <div class="panel form" data-tab="ai">
       <h3>Eigen AI-sleutel (optioneel)<details class="hulp"><summary aria-label="Uitleg">?</summary><p>Zonder sleutel gaat het zo: LANcelot kopieert een opdracht, jij plakt die in een chatbot en kopieert het antwoord. Klik je terug naar LANcelot, dan leest het dat antwoord meestal zelf in, zonder plakken. Met een sleutel doet LANcelot alles zelf. Een sleutel is een lange code die je één keer aanmaakt op de website van de AI-dienst. Deel hem met niemand.</p></details></h3>
       <p class="muted small">Met een eigen sleutel maakt de AI de quiz, het oefenblad of de woordenlijst direct, zonder kopiëren en plakken. De sleutel wordt alleen op deze pc bewaard.</p>
@@ -998,6 +1020,7 @@
 <script src="/js/lesmap.js"></script>
 <script src="/js/archief.js"></script>
 <script src="/js/taken-standaard.js"></script>
+<script src="/js/stem-kern.js"></script>
 <script src="/js/voorlees.js"></script>
 <script src="/js/stem-instellingen.js"></script>
 <script src="/js/beheer.js"></script>

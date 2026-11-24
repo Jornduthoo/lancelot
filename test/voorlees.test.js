@@ -16,12 +16,16 @@ function laad({ stemmen = [{ name: 'Google Nederlands (België)', lang: 'nl-BE' 
   const meldingen = [];
   const posts = [];
   const sandbox = {
-    fetch: (url, o) => { posts.push([url, JSON.parse(o.body)]); return Promise.resolve(); },
+    fetch: (url, o) => {
+      if (o && o.method === 'POST') posts.push([url, JSON.parse(o.body)]);
+      return Promise.resolve({ json: () => Promise.resolve({ aan: false }) });
+    },
     window: { LANCELOT_TAAL: taal, Ui: { melding: t => { meldingen.push(t); log.push(`melding:${t}`); return Promise.resolve(true); } }, speechSynthesis: synth, SpeechSynthesisUtterance: function (t) { this.text = t; }, AudioContext: function () { return ctx; } },
     setTimeout: (f, ms) => { timers.push([f, ms]); return timers.length; }, clearTimeout() {}, setInterval: () => 1, clearInterval() {},
   };
   sandbox.SpeechSynthesisUtterance = sandbox.window.SpeechSynthesisUtterance;
   vm.createContext(sandbox);
+  vm.runInContext(fs.readFileSync(path.join(__dirname, '../public/js/stem-kern.js'), 'utf8'), sandbox);
   vm.runInContext(`${fs.readFileSync(path.join(__dirname, '../public/js/voorlees.js'), 'utf8')}; this.Voorlees = Voorlees;`, sandbox);
   return { V: sandbox.Voorlees, log, timers, meldingen, posts };
 }

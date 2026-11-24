@@ -53,6 +53,7 @@ function tkLijst(naam = tk.naam) {
     }
     tk.naam = res.naam;
     tk.taak = null;
+    Voorlees.taal('');
     Voorlees.wie(res.naam);
     store('lancelot-name', res.naam);
     tkToon('lijst');
@@ -121,6 +122,8 @@ function tkOpen(id) {
     // Een quiz in een spel: naar het startscherm, dat dan alleen dit eigen spel toont (tk-solo.js). Klaar: hier terugblikken.
     if (res.spel && !res.klaar) return location.assign(`/?taak=${encodeURIComponent(id)}`);
     tk.taak = res;
+    // Voorlezen in de taal van de taak (bv. Frans), anders in de taal van LANcelot.
+    Voorlees.taal(res.taal);
     $('tk-logo').src = `/img/icons/${tkIcoon(res)}.webp`;
     $('tk-kop-titel').textContent = res.titel;
     $('tk-kop-sub').textContent = res.niveau ? Niveau.label(res.niveau) : tk.naam;

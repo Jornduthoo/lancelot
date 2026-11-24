@@ -790,6 +790,7 @@ function runSync() {
     }
     if (taken.uitLesmap()) {
       takenNaarBord();
+      stemSoon();
       io.emit('tk-nieuw');
     }
     io.to('host').emit('lesmap', lesmap.view());
@@ -818,6 +819,38 @@ function eilandSoon() {
 // De lijst van taken alleen naar de schermen die ze tonen (Taken, De Zonnewijzer): die vragen haar eerst op (tk-lijst).
 // Zo krijgen het startscherm en de spellen niet twee keer per seconde alle taken door wifi, en rekenen we niets voor niemand.
 const TAKEN_KIJKERS = 'taken-kijkers';
+// Voorlezen met de stem van LANcelot (src/stem.js): wat open taken en een live toets of oefenblad voorlezen,
+// meteen maken en bewaren. Even wachten, zodat vijf snelle wijzigingen één ronde geven. Ook elk kwartier (internet terug?).
+let stemTimer = null;
+function stemBronnen() {
+  const K = require('./public/js/pf-kern');
+  const b = taken.voorleesBronnen();
+  try {
+    if (proef.active && proef.toets) {
+      const taal = stem.taalVanVak(proeven.vakVan(proef.toets));
+      for (const n of K.niveausVan(proef.toets)) b.push({ view: K.studentView(proef.toets, K.lijstVoor(proef.toets, n)), taal, voorlees: proef.inst.voorlees !== 'uit' });
+    }
+  } catch {}
+  try {
+    if (oefenblad.active && oefenblad.sheet) {
+      const taal = stem.taalVanVak(oefenblad.vak);
+      for (const n of oefenbladen.niveausOf(oefenblad.sheet)) {
+        const blad = oefenbladen.forNiveau(oefenblad.sheet, n);
+        b.push({ view: oefenbladen.studentView(blad, oefenbladen.shufflesFor(blad, 'stem')), taal, voorlees: oefenblad.voorlees !== 'uit' });
+      }
+    }
+  } catch {}
+  return b;
+}
+function stemSoon(ms = 3000) {
+  clearTimeout(stemTimer);
+  stemTimer = setTimeout(() => {
+    try { stem.zorgVoor(stemBronnen()); } catch (err) { console.error('Voorlezen klaarzetten mislukt:', err.message); }
+  }, ms);
+}
+setTimeout(() => stemSoon(0), 20000).unref();
+setInterval(() => stemSoon(0), 15 * 60 * 1000).unref();
+
 function takenNaarBord() {
   const r = io.sockets.adapter.rooms.get(TAKEN_KIJKERS);
   if (r && r.size) io.to(TAKEN_KIJKERS).emit('tk-lijst', taken.lijst());
@@ -1208,6 +1241,22 @@ kronieken.routes(app, isLeerkracht, express, () => { io.to('host').emit('kr-lijs
 app.post('/api/stem/stand', express.json({ limit: '1kb' }), (req, res) => {
   if (stem.zetStand(req.body || {})) io.to('host').emit('stem-standen', stem.standenView());
   res.json({ ok: true });
+});
+// Staat de stem van LANcelot aan? (Dan vraagt voorlees.js eerst hier het geluid.)
+app.get('/api/stem/info', (req, res) => {
+  res.setHeader('Cache-Control', 'no-cache');
+  res.json({ aan: stem.aan() });
+});
+// Het geluid van één stuk tekst. Alleen wat in een taak of les staat (de leerkracht: alles). Anders 404: dan het toestel.
+app.get('/api/stem', async (req, res) => {
+  try {
+    const f = await stem.geluid({ tekst: req.query.t, taal: req.query.taal, traag: req.query.traag === '1', leerkracht: isLeerkracht(req) });
+    if (!f) return res.status(404).end();
+    res.setHeader('Cache-Control', 'private, max-age=604800');
+    res.sendFile(f);
+  } catch {
+    res.status(404).end();
+  }
 });
 // Een tweede leerkrachtscherm koppelen: de bureau-pc tikt hier de code van het digibord in.
 app.get('/koppel', (req, res) => {
@@ -1796,6 +1845,20 @@ io.on('connection', socket => {
         cb && cb({ error: err.message, busy: !!err.busy });
       }
     };
+    // Instellingen > Voorlezen: de stem van LANcelot (dienst, sleutel, vrouw/man, grens per maand) en testen.
+    socket.on('stem-get', handle(() => stem.view()));
+    socket.on('stem-bewaar', handle(arg => {
+      const v = stem.bewaar(arg || {});
+      stemSoon(200);
+      io.to('host').emit('stem-standen', stem.standenView());
+      return v;
+    }));
+    socket.on('stem-wis-sleutel', handle(arg => stem.wisSleutel(arg && arg.dienst)));
+    socket.on('stem-test', ({ taal } = {}, cb) => {
+      if (typeof cb !== 'function') return;
+      const tekst = require('./public/js/stem-kern').TESTZIN[taal] || require('./public/js/stem-kern').TESTZIN.nl;
+      stem.maak(tekst, taal || 'nl', false).then(() => cb({ ok: true, url: `/api/stem?t=${encodeURIComponent(tekst)}&taal=${encodeURIComponent(taal || 'nl')}`, ...stem.view() }), err => cb({ error: err.message, ...stem.view() }));
+    });
     const refreshList = () => sendLibrary('quiz');
     // Mijn klas: de klaslijst, de leerplandoelen en wat het logboek al weet.
     socket.on('klas-get', handle(() => ({ klas: klas.read(), vakgroepen: niveaus.VAKGROEPEN })));
@@ -2092,6 +2155,7 @@ io.on('connection', socket => {
     const taak = fn => handle(arg => {
       const out = fn(arg || {});
       takenNaarBord();
+      stemSoon();
       io.emit('tk-nieuw');
       // Een nieuwe of gewiste taak gaat ook naar Mijn lesmap.
       syncSoon();
@@ -2751,6 +2815,7 @@ io.on('connection', socket => {
       const busy = busyWith('oefenblad');
       if (busy) throw busyError(busy);
       oefenblad.load(oefenbladen.load(file), file, feedback, niveau, voorlees);
+      stemSoon(500);
       return {};
     }));
     socket.on('ob-reveal', () => oefenblad.reveal());
@@ -2794,6 +2859,7 @@ io.on('connection', socket => {
       const busy = busyWith('proef');
       if (busy) throw busyError(busy);
       proef.load(proeven.load(file), file, inst);
+      stemSoon(500);
       return {};
     }));
     socket.emit('pf-toets', proef.hostToets());

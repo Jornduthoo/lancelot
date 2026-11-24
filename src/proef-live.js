@@ -449,6 +449,8 @@ class ProefLive {
       intro: this.toets.intro || '', vragen: K.vragenVan(this.lijst(p)).length, totaal: K.totaal(this.lijst(p)),
       rest: e && !p.ingeleverd ? Math.max(0, e - Date.now()) : null,
       voorlees: this.inst.voorlees === 'iedereen' || (this.inst.voorlees === 'page' && (this.multi ? p.niveau === 'page' : p.klasPage)),
+      // In welke taal voorlezen (Frans bij een toets Frans), zie src/stem.js.
+      taal: require('./stem').taalVanVak(require('./proeven').vakVan(this.toets)),
     });
     if (p.begon && !p.ingeleverd) {
       if (!p.view) p.view = K.studentView(this.toets, this.lijst(p), { order: p.order, perms: p.perms, img: d => this.img(d) });

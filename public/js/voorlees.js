@@ -102,24 +102,54 @@ const Voorlees = (() => {
     clearInterval(wachter);
     wachter = null;
     if (kanToestel) synth.cancel();
+    if (speler) { speler.onended = speler.onerror = speler.onplaying = null; try { speler.pause(); } catch {} }
     if (wakkerHouden !== true) slaap();
     if (busy) busy.classList.remove('praat');
     busy = null;
   }
 
   // Lange teksten in stukken: Chrome breekt een lange tekst met een online stem soms af. Zinnen samen tot stukken van
-  // ongeveer 180 tekens (trager: 150), zodat er zo weinig mogelijk overgangen zijn. Een lange zin blijft heel.
-  function chunks(text, max = 180) {
-    // Zonder de tekens voor vet (**) en onderstreept (__) van De Proef.
-    const zinnen = String(text).replace(/\*\*([^*\s](?:[^*]*?[^*\s])?)\*\*/g, '$1').replace(/__([^_\s](?:[^_]*?[^_\s])?)__/g, '$1').split(/\n+/).flatMap(line => line.replace(/\s+/g, ' ').match(/[^.!?…]+[.!?…]*/g) || [])
-      .map(s => s.trim()).filter(s => /[\p{L}\p{N}]/u.test(s));
-    const uitStukken = [];
-    for (const z of zinnen) {
-      const laatste = uitStukken.length - 1;
-      if (laatste >= 0 && uitStukken[laatste].length + 1 + z.length <= max) uitStukken[laatste] += ` ${z}`;
-      else uitStukken.push(z);
-    }
-    return uitStukken;
+  // ongeveer 180 tekens (trager: 150), zodat er zo weinig mogelijk overgangen zijn. Een lange zin blijft heel (stem-kern.js).
+  const chunks = (text, max = 180) => StemKern.stukken(text, max);
+
+  // (0) De stem van LANcelot: geluid dat de pc van de leerkracht vooraf maakte (src/stem.js). Werkt op elk toestel.
+  let serverAan = false;
+  let serverGevraagd = 0;
+  function vraagServer() {
+    if (typeof fetch !== 'function' || Date.now() - serverGevraagd < 60000) return null;
+    serverGevraagd = Date.now();
+    return fetch('/api/stem/info', { cache: 'no-store' }).then(r => r.json()).then(i => { serverAan = !!(i && i.aan); }).catch(() => { serverAan = false; });
+  }
+  vraagServer();
+  let speler = null;
+  const url = (stuk, traag) => `/api/stem?t=${encodeURIComponent(stuk)}&taal=${taal}&traag=${traag ? 1 : 0}`;
+  // Speelt de stukken na elkaar. Lukt een stuk niet, dan krijgt nietGelukt(vanaf) de stukken die nog moeten.
+  function speelServer(stukken, traag, mijn, klaar, nietGelukt) {
+    if (typeof Audio === 'undefined') return nietGelukt(0);
+    if (!speler) speler = new Audio();
+    let i = 0;
+    let gemeldServer = false;
+    let wachtOp = null;
+    const volgende = () => {
+      clearTimeout(wachtOp);
+      if (busy !== mijn) return;
+      if (i >= stukken.length) return klaar();
+      const nu = i;
+      speler.onended = () => { i++; volgende(); };
+      speler.onerror = () => { if (busy === mijn && i === nu) { speler.onended = speler.onerror = null; nietGelukt(nu); } };
+      speler.onplaying = () => {
+        clearTimeout(wachtOp);
+        if (!gemeldServer) { gemeldServer = true; meldStand('server'); }
+      };
+      speler.playbackRate = 1;
+      speler.src = url(stukken[nu], traag);
+      // Het volgende stuk alvast ophalen, zodat er geen gat valt.
+      if (stukken[nu + 1]) try { fetch(url(stukken[nu + 1], traag)).catch(() => {}); } catch {}
+      wachtOp = setTimeout(() => { if (busy === mijn && i === nu) { speler.onended = speler.onerror = null; speler.pause(); nietGelukt(nu); } }, 8000);
+      const p = speler.play();
+      if (p && p.catch) p.catch(() => { if (busy === mijn && i === nu) { clearTimeout(wachtOp); speler.onended = speler.onerror = null; nietGelukt(nu); } });
+    };
+    volgende();
   }
 
   // Nog eens klikken op dezelfde knop stopt het voorlezen. traag: trager voorlezen (🐢, bv. bij een dictee; Jorn vroeg nog trager: .5).
@@ -127,8 +157,7 @@ const Voorlees = (() => {
     const again = btn && busy === btn;
     stop(true);
     if (again) return slaap();
-    const parts = chunks(text, traag ? 150 : 180);
-    if (!parts.length) return slaap();
+    if (!chunks(text).length) return slaap();
     busy = btn || null;
     if (btn) btn.classList.add('praat');
     const mijn = busy;
@@ -140,23 +169,24 @@ const Voorlees = (() => {
       wachter = null;
       uit = setTimeout(slaap, UITLOOP);
     };
-    const verder = () => {
+    // Met de stem van het toestel: (1) Vlaams, (2) een andere Nederlandse stem na een melding, (3) geen stem: zeggen.
+    const toestel = tekst => {
       if (busy !== mijn) return;
       pick();
       meldStand(stand);
-      // (3) Geen stem in deze taal op dit toestel: zeggen, niet zwijgen.
       if (stand === 'geen') {
         klaar();
         return melding('Voorlezen lukt niet op dit toestel. Steek je hand op.');
       }
-      // (2) Een andere Nederlandse stem (bv. een Hollandse): eerst één keer zeggen, dan voorlezen.
       if (stand === 'toestel-nl' && !gewaarschuwd) {
         gewaarschuwd = true;
-        return melding('Op dit toestel staat geen Vlaamse stem. Je hoort een andere Nederlandse stem.').then(() => { if (busy === mijn) zeg(); });
+        return melding('Op dit toestel staat geen Vlaamse stem. Je hoort een andere Nederlandse stem.').then(() => { if (busy === mijn) zeg(tekst); });
       }
-      zeg();
+      zeg(tekst);
     };
-    const zeg = () => {
+    const zeg = tekst => {
+      const parts = chunks(tekst, traag ? 150 : 180);
+      if (!parts.length) return klaar();
       const warm = wakker();
       const start = () => {
         wacht = null;
@@ -173,20 +203,35 @@ const Voorlees = (() => {
       // Al wakker (bv. vlak na een vorige zin): meteen. Anders eerst even opwarmen.
       if (warm) start(); else wacht = setTimeout(start, OPWARMEN);
     };
-    const wachten = stemmenKlaar();
-    if (wachten) wachten.then(verder); else verder();
+    const server = () => {
+      const stukken = StemKern.serverStukken(text, traag);
+      const warm = wakker();
+      const start = () => {
+        wacht = null;
+        if (busy !== mijn) return;
+        speelServer(stukken, traag, mijn, klaar, vanaf => {
+          // Geen geluid van de server (geen internet bij het maken, iets nieuws ...): de rest met de stem van het toestel.
+          const rest = stukken.slice(vanaf).join('\n');
+          const wachten = stemmenKlaar();
+          if (wachten) wachten.then(() => toestel(rest)); else toestel(rest);
+        });
+      };
+      if (warm) start(); else wacht = setTimeout(start, OPWARMEN);
+    };
+    const verder = () => {
+      if (busy !== mijn) return;
+      if (serverAan) return server();
+      const wachten = stemmenKlaar();
+      if (wachten) wachten.then(() => toestel(text)); else toestel(text);
+    };
+    const nieuw = vraagServer();
+    if (nieuw && !serverAan) nieuw.then(verder); else verder();
     // Is de knop weg of verborgen (de leerling ging naar een andere vraag), dan stoppen we, ook het stille signaal.
     if (btn) wachter = setInterval(() => { if (busy === btn && (!btn.isConnected || !btn.getClientRects().length)) stop(); }, 500);
   }
 
   // Een korte zin om te horen of het geluid werkt (de knop "Test geluid"), in de taal van het voorlezen.
-  const TESTZIN = {
-    nl: 'Hallo! Zo klinkt het voorlezen. Hoor je mij goed?',
-    fr: 'Bonjour ! Voici la voix qui lit. Tu m\'entends bien ?',
-    en: 'Hello! This is the reading voice. Can you hear me well?',
-    de: 'Hallo! So klingt das Vorlesen. Hörst du mich gut?',
-    es: '¡Hola! Así suena la lectura. ¿Me oyes bien?',
-  };
+  const TESTZIN = StemKern.TESTZIN;
   const test = btn => speak(TESTZIN[taal] || TESTZIN.nl, btn);
   // Elke knop met class "test-geluid" speelt de testzin.
   if (typeof document !== 'undefined' && document.addEventListener) {
@@ -199,7 +244,7 @@ const Voorlees = (() => {
   // Welke stem dit toestel gebruikt, in gewone woorden (voor de leerkracht in de instellingen).
   function info() {
     pick();
-    return { stand, stem: voice ? `${voice.name} (${voice.lang})` : '' };
+    return { stand, stem: voice ? `${voice.name} (${voice.lang})` : '', server: serverAan };
   }
 
   return {
