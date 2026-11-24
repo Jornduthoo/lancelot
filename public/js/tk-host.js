@@ -79,7 +79,6 @@ function wanneer() {
 $('tk-wanneer').addEventListener('change', () => { wanneer(); stdInfo(); });
 // Standaardkeuzes (Instellingen › Taken): voorlezen, volgorde, punten tonen, verbeteren en startuur, per vak.
 // Wat je hier zelf verandert, blijft staan tot je een taak gaf (ook als je een andere toets kiest).
-const TK_TOETS = 'lancelot-tk-toets';
 const STD_VELDEN = { voorlees: 'tk-voorlees', volgorde: 'tk-volgorde', uitslag: 'tk-uitslag', beveiligd: 'tk-beveiligd', feedback: 'tk-feedback' };
 tk.std = null;
 tk.zelf = new Set();
@@ -112,9 +111,9 @@ function stdInfo() {
   if (!s || !$('tk-bron').value) { box.innerHTML = ''; return; }
   const delen = tk.soort === 'proef'
     ? [STD_TEKST.voorlees[s.voorlees], STD_TEKST.volgorde[s.volgorde], s.uitslag ? 'punten meteen tonen' : 'punten na het verbeteren', s.beveiligd === false ? 'niet op volledig scherm' : 'volledig scherm']
-    : tk.soort === 'oefenblad' ? [STD_TEKST.feedback[s.feedback]] : [];
+    : tk.soort === 'oefenblad' ? [STD_TEKST.feedback[s.feedback], STD_TEKST.voorlees[s.voorlees], s.uitslag ? 'punten tonen na het inleveren' : 'geen punten tonen'] : [];
   if ($('tk-wanneer').value === 'later') delen.push(`start om ${s.startuur}`);
-  const anders = [...tk.zelf].filter(k => k === 'feedback' ? tk.soort === 'oefenblad' : tk.soort === 'proef').length;
+  const anders = [...tk.zelf].filter(k => (k === 'feedback' ? tk.soort === 'oefenblad' : k === 'volgorde' || k === 'beveiligd' ? tk.soort === 'proef' : tk.soort !== 'quiz')).length;
   box.innerHTML = '';
   if (!delen.length) return;
   box.append(`⚙️ ${s.vak ? `Volgens je standaard voor ${s.vak}` : 'Volgens je standaard'}: ${delen.join(', ')}${anders ? ' (je veranderde hier iets)' : ''}. `);
@@ -125,13 +124,6 @@ function stdInfo() {
 socket.emit('tk-standaard', null, r => {
   if (!r || r.error) return;
   tk.std = r;
-  // Nog geen standaard bewaard, wel een laatste keuze op deze pc (van vroeger): die wordt je standaard.
-  if (!r.bewaard) {
-    try {
-      const k = JSON.parse(localStorage.getItem(TK_TOETS) || 'null');
-      if (k) socket.emit('tk-standaard-zet', { algemeen: { ...r.algemeen, ...(k.voorlees ? { voorlees: k.voorlees } : {}), ...(k.volgorde ? { volgorde: k.volgorde } : {}), uitslag: k.uitslag === true } }, n => { if (n && !n.error) { tk.std = n; pasStandaardToe(); } });
-    } catch {}
-  }
   pasStandaardToe();
 });
 socket.on('tk-standaard', r => { if (r && !r.error) { tk.std = r; pasStandaardToe(); } });
@@ -181,7 +173,10 @@ function vulBron() {
   for (const b of document.querySelectorAll('.tk-soort button')) b.classList.toggle('on', b.dataset.soort === tk.soort);
   $('tk-fb-label').classList.toggle('hidden', tk.soort !== 'oefenblad');
   $('tk-toets-uitleg').classList.toggle('hidden', tk.soort !== 'proef');
-  for (const id of ['tk-vl-label', 'tk-vv-label', 'tk-us-label', 'tk-bv-label']) $(id).classList.toggle('hidden', tk.soort !== 'proef');
+  // Voorlezen en punten tonen bij een toets én een oefenblad; een oefenblad blijft altijd in zijn volgorde.
+  for (const id of ['tk-vl-label', 'tk-us-label']) $(id).classList.toggle('hidden', tk.soort === 'quiz');
+  for (const id of ['tk-vv-label', 'tk-bv-label']) $(id).classList.toggle('hidden', tk.soort !== 'proef');
+  $('tk-vv-blad').classList.toggle('hidden', tk.soort !== 'oefenblad');
   spelKeuze();
   const lijst = tk.soort === 'quiz' ? tk.bronnen.quizzen : tk.soort === 'proef' ? tk.bronnen.toetsen || [] : tk.bronnen.bladen;
   const file = vraag.get('file');
