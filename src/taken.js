@@ -453,6 +453,23 @@ function uitLesmap() {
       // Hier later afgesloten of heropend dan wat de lesmap zegt (twee pc's tegelijk): onze stand terug in het plan.
       planBewaar(t);
     }
+    // De niveaus: wat het plan zegt (iedereen één niveau, of een eigen niveau per leerling) geldt ook hier, en wie nog niet
+    // begon, krijgt het niveau dat nu bij hem hoort (ook als de niveaus van de klaslijst pas later binnenkwamen).
+    if (t.plan && niveausVan(t.soort, t.inhoud).length > 1) {
+      const nv = niveausVan(t.soort, t.inhoud).includes(p.niveau) ? p.niveau : null;
+      const eigen = schoonPer(t, p.per);
+      if ((t.niveau || null) !== nv) { if (nv) t.niveau = nv; else delete t.niveau; veranderd = true; }
+      if (JSON.stringify(t.per || null) !== JSON.stringify(eigen)) { if (eigen) t.per = eigen; else delete t.per; veranderd = true; }
+      for (const [k, w] of Object.entries(t.werk)) {
+        if (w.status !== 'nieuw' || w.poging || w.begin) continue;
+        const moet = startNiveau(t, w.naam);
+        if (moet === w.niveau) continue;
+        if (!per) per = standen();
+        if ((per.get(t.id) || []).some(s => s.werk[k] && RANG[s.werk[k].status])) continue;
+        t.werk[k] = nieuwWerk(t, w.naam, moet);
+        veranderd = true;
+      }
+    }
     // Wie er aan de andere kant bij kwam, komt er hier ook bij (alleen wie op deze klaslijst staat).
     for (const n of p.namen.map(clean).filter(Boolean)) {
       if (t.werk[key(n)] || !klas.match(n)) continue;
@@ -513,6 +530,9 @@ function zetNiveau({ id, naam, niveau } = {}) {
   if (!w) throw new Error('Die leerling heeft deze taak niet.');
   if (!niveausVan(t.soort, t.inhoud).includes(niveau)) throw new Error('Dat niveau bestaat niet voor deze taak.');
   t.werk[key(naam)] = nieuwWerk(t, w.naam, niveau);
+  // Onthouden als keuze voor deze leerling, en mee in Mijn lesmap: zo krijgt hij dit niveau ook op je andere pc's.
+  t.per = { ...(t.per || {}), [key(naam)]: niveau };
+  if (t.plan) planBewaar(t);
   save();
 }
 
