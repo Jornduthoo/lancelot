@@ -353,5 +353,211 @@ window.WEKEN = [
     }
   }
   ]
+},
+
+{
+  week: "2026-11-30",
+  label: "Week van 30 november",
+  toetsen: [
+  {
+    id: "spelling-t3-themadictee",
+    vak: "Spelling",
+    titel: "Thema 3: themadictee (Franse woorden, hoofdletters, 's en 'k)",
+    datum: "maandag 30 november",
+    niveaus: {
+      gewoon: {
+        vragen: [
+          { t: "mc", v: "Welk woord is juist geschreven?", k: ["het nivo", "het niveau", "het niveaux"], a: 1, u: "Niveau komt uit het Frans: eau klinkt als oo." },
+          { t: "mc", v: "Welk woord is juist geschreven?", k: ["de militèr", "de militair", "de militaire"], a: 1, u: "Militair: ai klinkt als è." },
+          { t: "mc", v: "Welk woord is juist geschreven?", k: ["de journalist", "de joernalist", "de jornalist"], a: 0, u: "Journalist: ou klinkt als oe." },
+          { t: "mc", v: "Welk woord is juist geschreven?", k: ["de limoesine", "de limousine", "de limousien"], a: 1, u: "Limousine: ou klinkt als oe, ine klinkt als ien." },
+          { t: "mc", v: "Welk woord is juist geschreven?", k: ["de explosie", "de explozie", "de eksplosie"], a: 0, u: "Explosie: met x en s." },
+          { t: "mc", v: "Welk woord is juist geschreven?", k: ["de roete", "de route", "de rouwte"], a: 1, u: "Route: ou klinkt als oe." },
+          { t: "invul", exact: true, v: "Vul het hele woord in: Ik zet de lamp op mijn bur… (meubel om aan te werken)", a: ["bureau"], u: "Bureau: eau klinkt als oo." },
+          { t: "invul", exact: true, v: "Vul het hele woord in: Aan de grens controleert de d… onze paspoorten.", a: ["douane"], u: "Douane: ou klinkt als oe." },
+          { t: "invul", exact: true, v: "Vul het hele woord in: Alle stoelen, tafels en kasten samen noem je het meubil…", a: ["meubilair"], u: "Meubilair: ai klinkt als è." },
+          { t: "mc", v: "Welke zin is juist geschreven?", k: ["In de Herfst reizen we naar Zuid-Amerika.", "In de herfst reizen we naar Zuid-Amerika.", "In de herfst reizen we naar zuid-amerika."], a: 1, u: "Seizoenen: kleine letter. Aardrijkskundige namen zoals Zuid-Amerika: hoofdletters." },
+          { t: "mc", v: "Welke zin is juist geschreven?", k: ["Met allerheiligen gaan we naar oma.", "Met Allerheiligen gaan we naar oma.", "Met Allerheiligen gaan we naar Oma."], a: 1, u: "Feestdagen zoals Allerheiligen krijgen een hoofdletter. Oma is hier geen naam." },
+          { t: "mc", v: "Welke zin is juist geschreven?", k: ["Op zondag eten we een Afrikaans gerecht.", "Op Zondag eten we een afrikaans gerecht.", "Op zondag eten we een afrikaans gerecht."], a: 0, u: "Dagen: kleine letter. Afrikaans komt van Afrika: hoofdletter." },
+          { t: "mc", v: "Welke zin is juist geschreven?", k: ["Het waait hard in het Noorden.", "Het waait hard in het noorden."], a: 1, u: "Windrichtingen schrijf je met een kleine letter." },
+          { t: "mc", v: "Hoe begin je deze zin juist?", k: ["'S morgens eet ik muesli.", "'s morgens eet ik muesli.", "'s Morgens eet ik muesli."], a: 2, u: "Begint de zin met 's, dan krijgt het volgende woord de hoofdletter." },
+          { t: "mc", v: "Hoe begin je deze zin juist?", k: ["'k Ben te laat.", "'K ben te laat.", "'k ben te laat."], a: 0, u: "Na 'k vooraan in de zin krijgt het volgende woord de hoofdletter." },
+          { t: "jf", v: "Carnaval schrijf je met een hoofdletter, net als Pasen.", a: false, u: "Pasen wel, carnaval niet." }
+        ]
+      },
+      "1b": {
+        vragen: [
+          { t: "mc", v: "Welk woord is juist?", k: ["het niveau", "het nivo"], a: 0, u: "Niveau: eau klinkt als oo." },
+          { t: "mc", v: "Welk woord is juist?", k: ["de roete", "de route"], a: 1, u: "Route: ou klinkt als oe." },
+          { t: "mc", v: "Welk woord is juist?", k: ["de miljardair", "de miljardèr"], a: 0, u: "Miljardair: ai klinkt als è." },
+          { t: "mc", v: "Welk woord is juist?", k: ["de decoratie", "de decoratsie"], a: 0, u: "Decoratie: tie klinkt als sie." },
+          { t: "mc", v: "Welk woord is juist?", k: ["nieuw", "niew"], a: 0, u: "Nieuw schrijf je met ieu." },
+          { t: "mc", v: "Welk woord is juist?", k: ["de kampjoen", "de kampioen"], a: 1, u: "Kampioen schrijf je met ioen." },
+          { t: "mc", v: "Welke zin is juist?", k: ["We gaan naar Frankrijk.", "We gaan naar frankrijk."], a: 0, u: "Landen krijgen een hoofdletter." },
+          { t: "mc", v: "Welke zin is juist?", k: ["In de Winter is het koud.", "In de winter is het koud."], a: 1, u: "Seizoenen schrijf je met een kleine letter." },
+          { t: "mc", v: "Welke zin is juist?", k: ["Met kerstmis eten we samen.", "Met Kerstmis eten we samen."], a: 1, u: "Feesten zoals Kerstmis krijgen een hoofdletter." }
+        ]
+      }
+    }
+  },
+  {
+    id: "frans-mission16",
+    vak: "Frans",
+    titel: "Mission 16: les saisons et le temps",
+    datum: "dinsdag 1 december",
+    niveaus: {
+      gewoon: {
+        vragen: [
+          { t: "koppel", v: "Verbind het seizoen met de vertaling.", paren: [["le printemps","de lente"],["l'été","de zomer"],["l'automne","de herfst"],["l'hiver","de winter"]], u: "Les saisons: le printemps, l'été, l'automne, l'hiver." },
+          { t: "mc", v: "We maken een sneeuwman. Welk seizoen is het?", k: ["l'été", "l'hiver", "le printemps"], a: 1, u: "Een sneeuwman maak je in de winter: l'hiver." },
+          { t: "mc", v: "Er groeien nieuwe bloemen. Welk seizoen is het?", k: ["le printemps", "l'automne", "l'hiver"], a: 0, u: "In de lente groeien nieuwe bloemen: le printemps." },
+          { t: "mc", v: "Hoe zeg je 'in de lente'?", k: ["en printemps", "au printemps", "le printemps"], a: 1, u: "Au printemps, maar: en été, en automne, en hiver." },
+          { t: "mc", v: "Hoe zeg je 'in de zomer'?", k: ["au été", "en été", "à l'été"], a: 1, u: "En été." },
+          { t: "koppel", v: "Quel temps fait-il ? Verbind.", paren: [["Il pleut.","Het regent."],["Il neige.","Het sneeuwt."],["Il fait froid.","Het is koud."],["Il y a du soleil.","De zon schijnt."],["Il y a du vent.","Het waait."]], u: "Het weer in het Frans." },
+          { t: "mc", v: "Hoe vraag je 'Welk weer is het?'", k: ["Quel temps fait-il ?", "Quelle heure est-il ?", "Comment ça va ?"], a: 0, u: "Quel temps fait-il ? = Welk weer is het?" },
+          { t: "mc", v: "Il fait chaud. Wat betekent dat?", k: ["Het is koud.", "Het is warm.", "Het is mooi weer."], a: 1, u: "Chaud = warm, froid = koud." },
+          { t: "mc", v: "Il fait beau. Wat betekent dat?", k: ["Het is mooi weer.", "Het regent.", "Het waait."], a: 0, u: "Il fait beau = het is mooi weer." },
+          { t: "invul", v: "Il pleut. Je prends mon … (paraplu)", a: ["parapluie"], u: "De paraplu = le parapluie." },
+          { t: "mc", v: "Je mets mon bonnet … il fait froid.", k: ["parce qu'", "mais", "et"], a: 0, u: "Parce que (parce qu' voor een klinker) = omdat." },
+          { t: "mc", v: "Welke zin past bij de herfst?", k: ["En automne, il y a du vent.", "En été, il neige.", "Au printemps, il fait très froid."], a: 0, u: "In de herfst waait het vaak: en automne, il y a du vent." }
+        ]
+      }
+    }
+  },
+  {
+    id: "spelling-t4-les5",
+    vak: "Spelling",
+    titel: "Thema 4 les 5: eventueel, toernooi, apen",
+    datum: "woensdag 2 december",
+    niveaus: {
+      gewoon: {
+        vragen: [
+          { t: "mc", v: "Welk woord is juist geschreven?", k: ["eventuul", "eventueel", "eventuel"], a: 1, u: "Eventueel eindigt op -ueel." },
+          { t: "mc", v: "Welke woordgroep is juist?", k: ["een virtueele wereld", "een virtuele wereld", "een virtuelle wereld"], a: 1, u: "Komt er een e achter, dan schrijf je -uele: virtuele." },
+          { t: "mc", v: "Welke woordgroep is juist?", k: ["het actuele nieuws", "het actueele nieuws"], a: 0, u: "Actueel + e = actuele." },
+          { t: "invul", exact: true, v: "Deze opdracht maak je alleen. Je werkt individu…", a: ["individueel"], u: "Individueel: -ueel." },
+          { t: "mc", v: "Welk woord is juist geschreven?", k: ["het toernoi", "het toernooi", "het toernoj"], a: 1, u: "Toernooi schrijf je met ooi." },
+          { t: "mc", v: "Welk woord is juist geschreven?", k: ["de schaapskooi", "de schaapskoi"], a: 0, u: "Kooi: ooi." },
+          { t: "mc", v: "Hoe klap je 'apen' in klankgroepen?", k: ["ap-en", "a-pen", "aa-pen"], a: 1, u: "a-pen: de a staat aan het einde van de klankgroep, dus één letter." },
+          { t: "mc", v: "Welk woord is juist geschreven?", k: ["de vertaaling", "de vertaling"], a: 1, u: "ver-ta-ling: lange a aan het einde van een klankgroep: één letter." },
+          { t: "mc", v: "Welk woord is juist geschreven?", k: ["de orgaanen", "de organen"], a: 1, u: "or-ga-nen: één a." },
+          { t: "mc", v: "Welk woord is juist geschreven?", k: ["de dialoog", "de dialog", "de dialooog"], a: 0, u: "di-a-loog: in de gesloten klankgroep 'loog' schrijf je oo." },
+          { t: "mc", v: "Welk woord is juist geschreven?", k: ["voorhen", "voorheen"], a: 1, u: "voor-heen: lange klank in een gesloten klankgroep: twee letters." },
+          { t: "mc", v: "Welk woord is juist geschreven?", k: ["het knopsgat", "het knoopsgat"], a: 1, u: "knoops-gat: twee o's in de gesloten klankgroep." },
+          { t: "invul", exact: true, v: "Het voetbal… gaat eventueel door. (wedstrijdreeks)", a: ["toernooi", "voetbaltoernooi"], u: "Toernooi: ooi." },
+          { t: "mc", v: "Welk woord is juist geschreven?", k: ["het rituel", "het ritueel", "het ritueël"], a: 1, u: "Ritueel: -ueel." }
+        ]
+      },
+      "1b": {
+        vragen: [
+          { t: "mc", v: "Welk woord is juist?", k: ["eventueel", "eventuul"], a: 0, u: "Eventueel eindigt op -ueel." },
+          { t: "mc", v: "Welk woord is juist?", k: ["het toernoi", "het toernooi"], a: 1, u: "Toernooi schrijf je met ooi." },
+          { t: "mc", v: "Welk woord is juist?", k: ["de kooi", "de koi"], a: 0, u: "Kooi schrijf je met ooi." },
+          { t: "mc", v: "Welk woord is juist?", k: ["de appen", "de apen"], a: 1, u: "Klap: a-pen. Eén a." },
+          { t: "mc", v: "Welk woord is juist?", k: ["de organen", "de orgaanen"], a: 0, u: "Klap: or-ga-nen. Eén a." },
+          { t: "mc", v: "Welke zin is juist?", k: ["Het nieuws is actueel.", "Het nieuws is actuel."], a: 0, u: "Actueel: -ueel." },
+          { t: "mc", v: "Welke woordgroep is juist?", k: ["het actuele nieuws", "het actueele nieuws"], a: 0, u: "Komt er een e achter? Dan schrijf je -uele." },
+          { t: "mc", v: "Welk woord is juist?", k: ["individueel", "individuel"], a: 0, u: "Individueel: -ueel." }
+        ]
+      }
+    }
+  },
+  {
+    id: "wisk-getallenkennis-b4",
+    vak: "Wiskunde",
+    titel: "Getallenkennis blok 4: breuken, kommagetallen en kans",
+    datum: "donderdag 3 december",
+    niveaus: {
+      gewoon: {
+        vragen: [
+          { t: "invul", v: "Schrijf als kommagetal: 37/100 =", a: ["0,37", "0.37"], u: "Honderdsten: 2 cijfers na de komma." },
+          { t: "invul", v: "Schrijf als kommagetal: 3/4 =", a: ["0,75", "0.75"], u: "3/4 = 75/100 = 0,75." },
+          { t: "invul", v: "Schrijf als kommagetal: 2/5 =", a: ["0,4", "0.4", "0,40"], u: "2/5 = 4/10 = 0,4." },
+          { t: "invul", v: "Schrijf als kommagetal: 625/1000 =", a: ["0,625", "0.625"], u: "Duizendsten: 3 cijfers na de komma." },
+          { t: "mc", v: "Welke breuk hoort bij 0,45? (zo eenvoudig mogelijk)", k: ["45/10", "9/20", "4/5"], a: 1, u: "0,45 = 45/100. Deel door 5: 9/20." },
+          { t: "mc", v: "Welke breuk hoort bij 0,125?", k: ["1/8", "1/25", "12/5"], a: 0, u: "0,125 = 125/1000 = 1/8." },
+          { t: "mc", v: "1,4 = …", k: ["1 gehele en 4/100", "1 gehele en 2/5", "14/100"], a: 1, u: "1,4 = 14/10 = 7/5 = 1 gehele en 2/5." },
+          { t: "mc", v: "Vereenvoudig: 55/100 = …", k: ["11/20", "5/10", "11/50"], a: 0, u: "Deel teller en noemer door 5: 11/20." },
+          { t: "mc", v: "Vul in: 0,3 … 1/4", k: ["<", ">", "="], a: 1, u: "1/4 = 0,25. 0,3 is groter." },
+          { t: "mc", v: "Vul in: 7/20 … 0,4", k: ["<", ">", "="], a: 0, u: "7/20 = 0,35. Dat is kleiner dan 0,4." },
+          { t: "mc", v: "Vul in: 6/5 … 1,2", k: ["<", ">", "="], a: 2, u: "6/5 = 12/10 = 1,2." },
+          { t: "mc", v: "Ploeg A scoort 9 van de 12 strafschoppen, ploeg B 14 van de 20. Wie scoort het best?", k: ["Ploeg A", "Ploeg B", "Even goed"], a: 0, u: "9/12 = 0,75 en 14/20 = 0,7. Ploeg A scoort het best." },
+          { t: "mc", v: "In een klas van 24 kinderen dragen 8 kinderen een bril. Welk deel draagt een bril?", k: ["1/3", "1/4", "8/16"], a: 0, u: "8/24 = 1/3." },
+          { t: "mc", v: "In een zak zitten 4 rode, 6 blauwe en 10 gele knikkers. Wat is de kans op een blauwe?", k: ["6/10", "3/10", "1/6"], a: 1, u: "6 van de 20 = 6/20 = 3/10." },
+          { t: "mc", v: "Zelfde zak. Wat is de kans op een groene knikker?", k: ["0", "1/20", "1"], a: 0, u: "Er zitten geen groene in: de kans is 0 (onmogelijk)." },
+          { t: "mc", v: "Je gooit met een dobbelsteen. Wat is de kans op een getal groter dan 4?", k: ["1/6", "1/3", "1/2"], a: 1, u: "5 en 6: 2 van de 6 = 1/3." },
+          { t: "invul", v: "3 op de 5 kinderen eten warm. Er zijn 25 kinderen. Hoeveel kinderen eten warm?", a: ["15"], u: "25 : 5 = 5, 5 x 3 = 15." }
+        ]
+      },
+      "1b": {
+        vragen: [
+          { t: "mc", v: "1/2 = …", k: ["0,5", "0,2", "1,2"], a: 0, u: "De helft = 0,5." },
+          { t: "mc", v: "1/4 = …", k: ["0,4", "0,25", "1,4"], a: 1, u: "Denk aan geld: 1/4 euro = 25 cent = € 0,25." },
+          { t: "mc", v: "3/4 = …", k: ["0,75", "0,34", "3,4"], a: 0, u: "3/4 euro = 75 cent = € 0,75." },
+          { t: "mc", v: "7/10 = …", k: ["0,07", "0,7", "7,10"], a: 1, u: "Tienden: 1 cijfer na de komma." },
+          { t: "mc", v: "23/100 = …", k: ["0,23", "2,3", "0,023"], a: 0, u: "Honderdsten: 2 cijfers na de komma." },
+          { t: "mc", v: "Welke breuk hoort bij 0,4?", k: ["1/4", "2/5", "4/5"], a: 1, u: "2/5 = 4/10 = 0,4." },
+          { t: "mc", v: "Is 0,8 groter of kleiner dan 0,5?", k: ["groter", "kleiner"], a: 0, u: "0,5 is de helft. 0,8 is meer dan de helft." },
+          { t: "mc", v: "3 rode en 1 blauwe knikker. Kans op rood?", k: ["1 op 4", "3 op 4"], a: 1, u: "3 rode van de 4 knikkers: 3 op 4." },
+          { t: "mc", v: "Lies drinkt 0,5 liter. Jan drinkt 1/4 liter. Wie drinkt het meest?", k: ["Lies", "Jan"], a: 0, u: "1/4 = 0,25. 0,5 is meer." }
+        ]
+      }
+    }
+  },
+  {
+    id: "bl-thema4",
+    vak: "Begrijpend lezen",
+    titel: "Thema 4: een informatieve tekst",
+    datum: "vrijdag 4 december",
+    niveaus: {
+      gewoon: {
+        teksten: [
+          { titel: "Gamen: leuk of niet?", soort: "informatieve tekst (non-fictie)", alineas: [
+            "Bijna elk kind speelt weleens een spelletje op een spelconsole, een tablet of een smartphone. Sommige kinderen gamen een kwartiertje per dag, andere zitten er urenlang achter. Is gamen goed of slecht voor je? Het antwoord is niet zo eenvoudig.",
+            "Wat is er goed aan? Gamen is ontspannend en vaak heel spannend. Bij veel spelletjes moet je snel nadenken, plannen en problemen oplossen. Wie samen met vrienden speelt, leert ook overleggen en samenwerken. Sommige spelletjes leren je zelfs nieuwe woorden in het Engels.",
+            "Wat is er minder goed aan? Wie urenlang gamet, zit stil. Door weinig te bewegen word je minder fit. Ook je ogen worden moe als je lang naar een scherm kijkt. Wie 's avonds laat nog speelt, slaapt slechter in. Daardoor ben je de volgende dag op school sneller moe en kun je je minder goed concentreren.",
+            "Hoe doe je het slim? Spreek thuis af hoe lang je mag spelen. Las elk halfuur een pauze in en kijk even in de verte. Stop minstens een uur voor je gaat slapen. En vergeet niet: buiten spelen met vrienden is ook nog altijd leuk!",
+            "Bronnen: gesprekken met kinderen uit het zesde leerjaar en informatie van een kinderarts (2026)."
+          ]}
+        ],
+        vragen: [
+          { t: "mc", tekst: 0, v: "Wat voor soort tekst is dit?", k: ["Een verhaal (fictie)", "Een informatieve tekst (non-fictie)", "Een gedicht"], a: 1, u: "De tekst geeft informatie, heeft tussentitels en bronnen: non-fictie." },
+          { t: "mc", tekst: 0, v: "Waarvoor dienen de vetgedrukte vragen zoals ‘Wat is er goed aan?’ aan het begin van de alinea's?", k: ["Het zijn tussentitels: ze vertellen waarover de alinea gaat.", "Het zijn vragen die jij moet beantwoorden.", "Ze maken de tekst langer."], a: 0, u: "Tussentitels tonen waarover een stukje gaat." },
+          { t: "mc", tekst: 0, v: "Welke zin is een voordeel (positief effect) van gamen?", k: ["Je ogen worden moe.", "Je leert snel nadenken en problemen oplossen.", "Je slaapt slechter in."], a: 1, u: "Snel nadenken en problemen oplossen staat bij ‘Wat is er goed aan?’." },
+          { t: "mc", tekst: 0, v: "Welke zin is een nadeel (negatief effect)?", k: ["Je leert samenwerken.", "Je leert Engelse woorden.", "Door stil te zitten word je minder fit."], a: 2, u: "Minder fit worden is een negatief effect." },
+          { t: "mc", tekst: 0, v: "Oorzaak en gevolg: je speelt 's avonds laat nog. Wat is het gevolg?", k: ["Je slaapt slechter in.", "Je wordt fitter.", "Je leert meer Engels."], a: 0, u: "Laat gamen (oorzaak) → slechter inslapen (gevolg)." },
+          { t: "mc", tekst: 0, v: "En wat is daarvan dan weer het gevolg?", k: ["Je bent op school sneller moe.", "Je speelt beter.", "Je hebt meer vrienden."], a: 0, u: "Slecht slapen → moe op school, minder goed concentreren." },
+          { t: "jf", tekst: 0, v: "Volgens de tekst is gamen altijd slecht voor je.", a: false, u: "De tekst noemt voordelen én nadelen: ‘Het antwoord is niet zo eenvoudig’." },
+          { t: "mc", tekst: 0, v: "Welke tip staat NIET in de tekst?", k: ["Las elk halfuur een pauze in.", "Stop een uur voor je gaat slapen.", "Game alleen in het weekend."], a: 2, u: "Alleen in het weekend gamen staat er niet in." },
+          { t: "mc", tekst: 0, v: "Waar komt de informatie vandaan?", k: ["Uit een stripverhaal", "Van kinderen uit het zesde leerjaar en een kinderarts", "Van een spelletjesfabrikant"], a: 1, u: "Dat staat onderaan bij de bronnen." },
+          { t: "mc", tekst: 0, v: "Wat is de bedoeling van de schrijver?", k: ["Je informeren over voor- en nadelen van gamen", "Je een spelletje verkopen", "Je aan het lachen brengen"], a: 0, u: "De schrijver geeft informatie en tips." },
+          { t: "invul", tekst: 0, v: "Alinea 4: “… en kijk even in de verte.” Waarom geeft de schrijver die tip? Omdat je … anders moe worden. (één woord)", a: ["ogen", "je ogen"], u: "In alinea 3: ‘Ook je ogen worden moe als je lang naar een scherm kijkt.’" }
+        ]
+      },
+      "1b": {
+        teksten: [
+          { titel: "Recensie: Robo en de regenboog", soort: "recensie", alineas: [
+            "Robo is een kleine robot. Hij woont in een grijze stad. Op een dag ziet hij een regenboog. Robo wil weten waar die regenboog begint. Hij gaat op reis.",
+            "Ik vond deze film heel grappig. Robo maakt veel gekke fouten. De kleuren in de film zijn prachtig.",
+            "Een minpunt: de film is wat lang. In het midden gebeurt er niet veel.",
+            "Toch raad ik de film aan, want het einde is mooi. Ik geef de film vier sterren.",
+            "Sara, 11 jaar"
+          ]}
+        ],
+        vragen: [
+          { t: "mc", tekst: 0, v: "Waarover gaat de film?", k: ["Over een robot die een regenboog zoekt", "Over een hond", "Over een school"], a: 0, u: "Robo wil weten waar de regenboog begint." },
+          { t: "mc", tekst: 0, v: "Wie schreef de recensie?", k: ["Robo", "Sara"], a: 1, u: "Onderaan staat: Sara, 11 jaar." },
+          { t: "mc", tekst: 0, v: "Wat is een pluspunt van de film?", k: ["De film is wat lang.", "De film is grappig."], a: 1, u: "Een pluspunt is iets goeds: de film is grappig." },
+          { t: "mc", tekst: 0, v: "Wat is een minpunt van de film?", k: ["De film is wat lang.", "De kleuren zijn mooi."], a: 0, u: "Een minpunt is iets wat minder goed is." },
+          { t: "mc", tekst: 0, v: "Hoeveel sterren geeft Sara?", k: ["drie", "vier", "vijf"], a: 1, u: "“Ik geef de film vier sterren.”" },
+          { t: "jf", tekst: 0, v: "Sara raadt de film aan.", a: true, u: "“Toch raad ik de film aan.”" },
+          { t: "mc", tekst: 0, v: "Waarom raadt Sara de film aan?", k: ["Omdat het einde mooi is", "Omdat de film kort is"], a: 0, u: "“… want het einde is mooi.”" },
+          { t: "mc", tekst: 0, v: "Wat is een recensie?", k: ["Een tekst met je mening over een film of boek", "Een gedicht"], a: 0, u: "In een recensie vertel je wat je van een film of boek vindt." }
+        ]
+      }
+    }
+  }
+  ]
 }
+
 ];
