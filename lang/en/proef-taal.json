@@ -552,6 +552,8 @@
  ", {0} bezig": ", {0} working",
  "Synchroniseren lukt hier niet: {0}": "Syncing fails here: {0}",
  "{0} stuurden al even niets, terwijl er leerlingen bezig zijn. Staat LANcelot daar nog aan, met OneDrive of Google Drive?": "{0} have sent nothing for a while while pupils are working. Is LANcelot still running there, with OneDrive or Google Drive?",
+ "{0} staat uit sinds {1}. Het werk van de leerlingen daar is bewaard en komt binnen zodra die pc weer aanstaat.": "{0} has been off since {1}. The pupils' work there is saved and will come in as soon as that PC is on again.",
+ "{0} staan uit. Het werk van de leerlingen daar is bewaard en komt binnen zodra die pc's weer aanstaan.": "{0} are off. The pupils' work there is saved and will come in as soon as those PCs are on again.",
  "Bijgewerkt van:": "Updated from:",
  "Geef elke pc een eigen naam": "Give each PC its own name",
  "dit toestel:": "this device:",

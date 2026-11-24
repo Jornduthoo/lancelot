@@ -20,6 +20,12 @@
     const m = Math.max(1, Math.floor((Date.now() - Date.parse(iso)) / 60000));
     return m < 60 ? `${m} min` : `${Math.floor(m / 60)} uur`;
   };
+  // Sinds wanneer: "15.32" vandaag, anders "23/11 15.32".
+  const sinds = iso => {
+    const d = new Date(iso);
+    const uur = `${d.getHours()}.${String(d.getMinutes()).padStart(2, '0')}`;
+    return d.toDateString() === new Date().toDateString() ? uur : `${d.getDate()}/${d.getMonth() + 1} ${uur}`;
+  };
   const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   function teken() {
     const r = laatst;
@@ -27,13 +33,16 @@
       v.classList.toggle('hidden', !r || !r.toon);
       if (!r || !r.toon) { v.innerHTML = ''; continue; }
       const stil = r.anderen.filter(a => a.stil);
+      const uit = r.anderen.filter(a => a.uit);
       const fout = r.dit.fout || '';
       v.classList.toggle('rood', !!(stil.length || fout));
       // Per toestel: hoeveel taken daar open staan (wens 24 nov, punt 4), zodat een verschil opvalt.
       const open = n => (n === undefined ? '' : n === 1 ? ', 1 taak open' : `, ${n} taken open`);
       const anderen = r.anderen.map(a => `<b>${esc(a.naam)}</b> (${esc(geleden(a.tijd))}${a.bezig ? `, ${a.bezig} bezig` : ''}${esc(open(a.open))})`).join(', ');
       const extra = fout ? `<br>⚠ ${esc(`Synchroniseren lukt hier niet: ${fout}`)}`
-        : stil.length ? `<br>⚠ ${esc(stil.length === 1 ? `${stil[0].naam} stuurt al ${duur(stil[0].tijd)} niets, terwijl er leerlingen bezig zijn. Staat LANcelot daar nog aan, met OneDrive of Google Drive?` : `${stil.map(a => a.naam).join(', ')} stuurden al even niets, terwijl er leerlingen bezig zijn. Staat LANcelot daar nog aan, met OneDrive of Google Drive?`)}` : '';
+        : stil.length ? `<br>⚠ ${esc(stil.length === 1 ? `${stil[0].naam} stuurt al ${duur(stil[0].tijd)} niets, terwijl er leerlingen bezig zijn. Staat LANcelot daar nog aan, met OneDrive of Google Drive?` : `${stil.map(a => a.naam).join(', ')} stuurden al even niets, terwijl er leerlingen bezig zijn. Staat LANcelot daar nog aan, met OneDrive of Google Drive?`)}`
+        // Uitgezet na school (taak over meer dagen): geen alarm, het werk staat daar veilig en komt later binnen.
+        : uit.length ? `<br><span class="toestel-uit">${esc(uit.length === 1 ? `${uit[0].naam} staat uit sinds ${sinds(uit[0].tijd)}. Het werk van de leerlingen daar is bewaard en komt binnen zodra die pc weer aanstaat.` : `${uit.map(a => a.naam).join(', ')} staan uit. Het werk van de leerlingen daar is bewaard en komt binnen zodra die pc's weer aanstaan.`)}</span>` : '';
       v.innerHTML = `🔄 ${esc('Bijgewerkt van:')} ${anderen} · ${esc('dit toestel:')} <b>${esc(r.dit.naam)}</b> (${esc(geleden(r.dit.tijd))}${esc(open(r.dit.open))}) <a href="/host?instellingen=lesmap&terug=${encodeURIComponent(location.pathname + location.search)}" title="${esc('Geef elke pc een eigen naam')}">✎</a>${extra}`;
     }
   }

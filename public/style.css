@@ -2594,6 +2594,7 @@ body:has(.kies-eerst) .panel.form > p.muted.small:last-child { display: none; }
 .toestel-stand a { text-decoration: none; margin-left: 4px; }
 .toestel-stand.rood { color: var(--bad, #e66); }
 .toestel-stand.rood b { color: var(--bad, #e66); }
+.toestel-stand .toestel-uit { color: var(--muted); }
 /* Instellingen › Taken: standaard per vak */
 .ts-raster { border-collapse: collapse; }
 .ts-raster th, .ts-raster td { padding: 4px 6px; text-align: left; white-space: nowrap; }
